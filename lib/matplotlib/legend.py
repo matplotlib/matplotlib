@@ -229,7 +229,7 @@ The following dimensions are in axes coords
                               )
                 p.update_from(handle)
                 self._set_artist_props(p)
-                legline.set_clip_box(None)
+                p.set_clip_box(None)
                 ret.append(p)
             elif isinstance(handle, LineCollection):
                 ydata = (y-HEIGHT/2)*ones(self._xdata.shape, Float)
