@@ -26,6 +26,7 @@
 #### CONFIGURATION BEGINS HERE
 backend      : GTKAgg    # the default backend
 numerix      : Numeric   # Numeric or numarray
+#numerix      : numarray   # Numeric or numarray
 interactive  : False     # see http://matplotlib.sourceforge.net/interactive.html
 
 ### LINES
@@ -112,8 +113,8 @@ axes.labelcolor     : k       # black
 ### TICKS
 tick.major.size     : 4      # major tick size in points
 tick.minor.size     : 2      # minor tick size in points
-tick.major.pad      : 3       # distance to major tick label in points
-tick.minor.pad      : 3       # distance to the minor tick label in points
+tick.major.pad      : 4       # distance to major tick label in points
+tick.minor.pad      : 4       # distance to the minor tick label in points
 tick.color          : k      # color of the tick labels 
 tick.labelsize      : 10     # fontsize of the tick labels
 
