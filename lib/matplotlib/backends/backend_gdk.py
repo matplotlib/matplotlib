@@ -17,12 +17,7 @@ from matplotlib.backend_bases import RendererBase, GraphicsContextBase, \
      FigureManagerBase, FigureCanvasBase, error_msg
 from matplotlib._matlab_helpers import Gcf
 from matplotlib.figure import Figure
-
-try: from matplotlib.mathtext import math_parse_s_ft2font
-except ImportError:
-    verbose.report_error('backend_gtk could not import mathtext (build with ft2font)')
-    useMathText = False
-else: useMathText = True
+from matplotlib.mathtext import math_parse_s_ft2font
 
 pygtk_version_required = (1,99,16)
 try:
@@ -205,17 +200,15 @@ class RendererGDK(RendererBase):
 
         
     def _draw_mathtext(self, gc, x, y, s, prop, angle):
-
         size = prop.get_size_in_points()
         width, height, fonts = math_parse_s_ft2font(
             s, self.dpi.get(), size)
 
         if angle==90:
             width, height = height, width
+            x -= width
+        y -= height
         
-        rgb = gc.get_rgb()
-        #rgba = (rgb[0], rgb[1], rgb[2], gc.get_alpha())
-
         imw, imh, s = fonts[0].image_as_str()
         N = imw*imh
 
@@ -245,14 +238,12 @@ class RendererGDK(RendererBase):
             verbose.report_error('mathtext not supported: %s' % exc)
             return        
 
+        rgb = gc.get_rgb()
         pa[:,:,0]=int(rgb[0]*255)
         pa[:,:,1]=int(rgb[1]*255)
         pa[:,:,2]=int(rgb[2]*255)
         pa[:,:,3]=Xs
 
-        if angle==90:
-            x -= width
-        y -= height
         pb.render_to_drawable(self.gdkDrawable, gc.gdkGC, 0, 0,
                               int(x), int(y), imw, imh,
                               gdk.RGB_DITHER_NONE, 0, 0)
