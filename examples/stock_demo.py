@@ -1,7 +1,7 @@
 import sys
 from matplotlib.matlab import *
 from data_helper import get_two_stock_data
-import Numeric as numpy
+import matplotlib.numerix as numpy
 (d1, p1, d2, p2 ) = get_two_stock_data()
 
 plot(d1, p1, 'bs', d2, p2, 'go')

@@ -2,15 +2,15 @@
 
 import matplotlib.matlab
 import gtk
-import Numeric
+import matplotlib.numerix as numerix
 
 fig = matplotlib.matlab.figure(1)
-ind = Numeric.arange(60)
+ind = numerix.arange(60)
 x_tmp=[]
 for i in range(100):
-    x_tmp.append(Numeric.sin((ind+i)*Numeric.pi/15.0))
+    x_tmp.append(numerix.sin((ind+i)*numerix.pi/15.0))
 
-X=Numeric.array(x_tmp)
+X=numerix.array(x_tmp)
 lines = matplotlib.matlab.plot(X[:,0],'o')
 
 manager = matplotlib.matlab.get_current_fig_manager()

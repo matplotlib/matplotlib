@@ -5,7 +5,7 @@ from matplotlib.figure import Figure
 from matplotlib.axes import Subplot
 from matplotlib.backends.backend_gtk import FigureCanvasGTK, NavigationToolbar
 
-from Numeric import arange, sin, pi
+from matplotlib.numerix import arange, sin, pi
 import gtk
 import gtk.glade
 
