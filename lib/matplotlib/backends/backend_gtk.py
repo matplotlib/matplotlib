@@ -560,6 +560,9 @@ def error_msg_gtk(msg, parent=None):
         if not parent.flags() & gtk.TOPLEVEL:
             parent = None
 
+    if not is_string_like(msg):
+        msg = ','.join(map(str,msg))
+                          
     dialog = gtk.MessageDialog(
         parent         = parent,
         type           = gtk.MESSAGE_ERROR,
@@ -865,15 +868,15 @@ class FigureCanvasGTK(gtk.DrawingArea, FigureCanvasBase):
             else:
                 from backend_ps  import FigureCanvasPS  as FigureCanvas
 
-            try:
-                fc = self.switch_backends(FigureCanvas)
-                fc.print_figure(filename, dpi, facecolor, edgecolor, orientation)
-            except IOError, exc:
-                error_msg("Save figure failure:\n%s: %s" %
-                          (exc.filename, exc.strerror), parent=self)
-            except Exception, exc:
-                error_msg("Save figure failure:\n%s" %
-                          (','.join(map(str,exc)),), parent=self)
+            #try:
+            # Testing - use uncaught exception handler
+            fc = self.switch_backends(FigureCanvas)
+            fc.print_figure(filename, dpi, facecolor, edgecolor, orientation)
+            #except IOError, exc:
+            #    error_msg("Save figure failure:\n%s: %s" %
+            #              (exc.filename, exc.strerror), parent=self)
+            #except Exception, exc:
+            #    error_msg("Save figure failure:\n%s" % exc, parent=self)
 
         elif ext in ('bmp', 'raw', 'rgb',):
             try: 
@@ -1140,10 +1143,7 @@ class NavigationToolbar2GTK(NavigationToolbar2, gtk.Toolbar):
     def save_figure(self, button):
         fname = self.fileselect.get_filename_from_user()
         if fname:
-            try: self.canvas.print_figure(fname)
-            except IOError, msg:
-                error_msg('Failed to save %s: Error msg was\n\n%s' % (
-                    fname, '\n'.join(map(str, msg))), parent=self.win)
+            self.canvas.print_figure(fname)
                 
             
 class NavigationToolbar(gtk.Toolbar):
@@ -1414,11 +1414,7 @@ class NavigationToolbar(gtk.Toolbar):
     def save_figure(self, button):
         fname = self.fileselect.get_filename_from_user()
         if fname:
-            try: self.canvas.print_figure(fname)
-            except IOError, msg:
-                error_msg('Failed to save %s: Error msg was\n\n%s' % (
-                    fname, '\n'.join(map(str, msg))),
-                              self.win)
+            self.canvas.print_figure(fname)
             
 
 class FileSelection(gtk.FileSelection):
@@ -1544,3 +1540,23 @@ try:
         os.path.join (matplotlib.rcParams['datapath'], 'matplotlib.svg'))
 except:
     verbose.report('Could not load matplotlib icon: %s' % sys.exc_info()[1])
+
+
+# TESTING
+import sys
+
+def exception_handler(type, value, tb):
+    """Handle uncaught exceptions"""
+    # get the filename attribute if available (for IOError)
+    if hasattr(value, 'filename') and value.filename != None:
+        msg = value.filename + ': '
+    else:
+        msg = ''
+    if hasattr(value, 'strerror') and value.strerror != None:
+        msg += value.strerror
+    else:
+        msg = value
+        
+    error_msg_gtk(msg)
+
+sys.excepthook = exception_handler
