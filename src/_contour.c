@@ -168,9 +168,16 @@ static PyMethodDef contour_methods[] =
     {NULL, NULL, 0, NULL}
   };
 
-PyMODINIT_FUNC
-#if defined(NUMARRAY)
 
+#if defined(_MSC_VER)
+DL_EXPORT(void)
+#elif defined(__cplusplus)
+  extern "C" void
+#else
+void
+#endif
+
+#if defined(NUMARRAY)
 init_na_contour(void)
 {
   (void) Py_InitModule("_na_contour", contour_methods);
