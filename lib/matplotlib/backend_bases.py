@@ -665,7 +665,7 @@ class FigureCanvasBase:
 
         self._button     = None  # the button pressed
         self._key        = None  # the key pressed
-        self._lastx, self.last_y = None, None
+        self._lastx, self.lasty = None, None
 
     def key_press_event(self, key):
         self._key = key
