@@ -1,5 +1,8 @@
 New entries should be added at the top
 
+2004-08-25 Exposed Darren's and Greg's log ticking and formatting
+           options to semilogx and friends
+
 2004-08-23 Fixed grid w/o args to toggle grid state - JDH
 
 2004-08-11 Added Gregory's log patches for major and minor ticking
