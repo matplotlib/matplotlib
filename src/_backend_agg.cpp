@@ -862,8 +862,8 @@ RendererAgg::draw_image(const Py::Tuple& args) {
   theRasterizer->reset_clipping();
   args.verify_length(5);
   
-  int x = Py::Int(args[0]);
-  int y = Py::Int(args[1]);
+  float x = Py::Float(args[0]);
+  float y = Py::Float(args[1]);
   Image *image = static_cast<Image*>(args[2].ptr());
   std::string origin = Py::String(args[3]);
   
@@ -874,28 +874,28 @@ RendererAgg::draw_image(const Py::Tuple& args) {
   
   size_t ind = 0;
   size_t thisx, thisy;
-  size_t oy = isUpper ? y : height-y;
+  float oy = isUpper ? y : height-y;
 
-  size_t minx(0), maxx(width), miny(0), maxy(height);
+  float minx(0), maxx(width), miny(0), maxy(height);
 
   if (args[4].ptr() != Py_None) {
     Bbox* bbox = static_cast<Bbox*>(args[4].ptr());
-    minx = (size_t) (bbox->ll_api()->x_api()->val());
-    maxy = height-(size_t) (bbox->ll_api()->y_api()->val());
-    maxx = (size_t) (bbox->ur_api()->x_api()->val());
-    miny = height-(size_t) (bbox->ur_api()->y_api()->val());
+    minx = bbox->ll_api()->x_api()->val();
+    maxy = height-bbox->ll_api()->y_api()->val();
+    maxx = bbox->ur_api()->x_api()->val();
+    miny = height-bbox->ur_api()->y_api()->val();
   }
 
   //if (isUpper) oy -= image->rowsOut;  //start at top
   //std::cout << minx << " " << maxx << " " << miny << " " << maxy << std::endl;
   for (size_t j=0; j<image->rowsOut; j++) {
-    thisy =  isUpper ?  oy+j : oy-j; 
+    thisy =  (size_t)(isUpper ?  oy+j : oy-j-0.5);
     if (thisy<miny || thisy>=maxy) {
      ind += 4*image->colsOut;
       continue;
     }
     for (size_t i=0; i<image->colsOut; i++) {
-      thisx = i+x; 
+      thisx = (size_t)(i+x); 
       if (thisx<minx || thisx>=maxx) {
       ind += 4;
       	continue;
