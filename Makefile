@@ -2,6 +2,9 @@
 # Copyright (C) 2003  <jdhunter@ace.bsd.uchicago.edu>
 # $Header$
 # $Log$
+# Revision 1.10  2003/11/14 00:07:29  jdh2358
+# added log transforms to new API
+#
 # Revision 1.9  2003/11/06 23:09:53  jdh2358
 # fixed some problems with the file release system
 #
@@ -39,7 +42,9 @@ MODULES = matplotlib.afm matplotlib.axes matplotlib.artist		\
 	matplotlib.backend_bases matplotlib.cbook matplotlib.lines	\
 	matplotlib.patches matplotlib.matlab matplotlib.mlab		\
 	matplotlib.backends.backend_gtk matplotlib.backends.backend_gd	\
-	matplotlib.backends.backend_ps 	matplotlib.backends.backend_template
+	matplotlib.backends.backend_ps 	matplotlib.backends.backend_template \
+        matplotlib.backends.backend_wx
+
 RELEASE = matplotlib-${VERSION}
 
 
@@ -66,3 +71,6 @@ release: ${DISTFILES}
 	${PYTHON} setup.py sdist --formats=gztar,zip;\
 	${PYTHON} setup.py bdist_wininst;
 
+
+pyback: 
+	tar cvfz pyback.tar.gz *.py matplotlib/*.py examples/*.py matplotlib/backends/*.py unit/*.py
