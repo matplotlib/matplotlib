@@ -23,9 +23,6 @@ BUILD_AGG = 1
 # build GTK GUI with Agg renderer ; requires pygtk src distros installed
 BUILD_GTKAGG       = 1
 
-# build GTK GUI with GD renderer ; requires pygtk and GD src distros installed
-BUILD_GTKGD        = 0
-
 # build TK GUI with Agg renderer ; requires Tkinter Python extension
 # and Tk includes
 BUILD_TKAGG        = 1
@@ -35,7 +32,7 @@ BUILD_TKAGG        = 1
 from distutils.core import setup
 import sys,os
 import glob
-from setupext import build_gtkgd, build_agg, build_gtkagg, build_tkagg, \
+from setupext import build_agg, build_gtkagg, build_tkagg, \
      build_ft2font, build_image
 import distutils.sysconfig
 
@@ -56,9 +53,6 @@ packages = [
     ]
 
     
-if BUILD_GTKGD:
-    build_gtkgd(ext_modules, packages)
-
 if BUILD_GTKAGG:
     BUILD_AGG = 1
     build_gtkagg(ext_modules, packages)
