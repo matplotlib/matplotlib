@@ -105,7 +105,7 @@ class RendererGDK(RendererBase):
 
 
     def draw_image(self, x, y, im, origin, bbox):
-        if bbox is not None:
+        if bbox != None:
             l,b,w,h = bbox.get_bounds()
             #rectangle = (int(l), self.height-int(b+h),
             #             int(w), int(h))
@@ -270,7 +270,7 @@ class RendererGDK(RendererBase):
         # fixed
         key = (x,y,s,angle,hash(prop))
         imageOut = self.rotated.get(key)
-        if imageOut is not None:
+        if imageOut != None:
             gdrawable.draw_image(ggc, imageOut, 0, 0, x, y, h, w)
             return
 
@@ -283,7 +283,7 @@ class RendererGDK(RendererBase):
         imageFlip = gtk.gdk.Image(type=gdk.IMAGE_NORMAL,
                                   visual=gdrawable.get_visual(),
                                   width=w, height=h)
-        if imageFlip is None or imageBack is None or imageVert is None:
+        if imageFlip == None or imageBack == None or imageVert == None:
             verbose.report_error("Could not renderer vertical text", s)
             return
         imageFlip.set_colormap(gdrawable.get_colormap())
@@ -318,7 +318,7 @@ class RendererGDK(RendererBase):
         """
         key = self.dpi.get(), s, hash(prop)
         layout = self.layoutd.get(key)
-        if layout is not None:
+        if layout != None:
             return layout
 
         #fontname = prop.get_name()
@@ -520,17 +520,6 @@ class FigureCanvasGDK(FigureCanvasBase):
             ext      = IMAGE_FORMAT_DEFAULT
             filename = filename + '.' + ext        
 
-        # save figure settings
-        origDPI       = self.figure.dpi.get()
-        origfacecolor = self.figure.get_facecolor()
-        origedgecolor = self.figure.get_edgecolor()
-        origWIn, origHIn = self.figure.get_size_inches()
-
-        #if self.flags() & gtk.REALIZED == 0:
-            # for self.window(for pixmap) and has a side effect of altering figure width,height (via configure-event?)
-            #gtk.DrawingArea.realize(self)
-        #self.figure.set_figsize_inches (w/dpi, h/dpi)            
-
         self.figure.dpi.set(dpi)        
         self.figure.set_facecolor(facecolor)
         self.figure.set_edgecolor(edgecolor)
@@ -549,8 +538,8 @@ class FigureCanvasGDK(FigureCanvasBase):
         
             # pixbuf.save() recognises 'jpeg' not 'jpg'
             if ext == 'jpg': ext = 'jpeg' 
-            pixbuf.save(filename, ext)
-            try: pixbuf.save(filename, ext)
+            try:
+                pixbuf.save(filename, ext)
             except gobject.GError, exc:
                 error_msg('Save figure failure:\n%s' % (exc,), parent=self)
 
@@ -560,8 +549,6 @@ class FigureCanvasGDK(FigureCanvasBase):
             else:
                 from backend_ps  import FigureCanvasPS  as FigureCanvas
 
-            fc = self.switch_backends(FigureCanvas)
-            fc.print_figure(filename, dpi, facecolor, edgecolor, orientation)
             try:
                 fc = self.switch_backends(FigureCanvas)
                 fc.print_figure(filename, dpi, facecolor, edgecolor, orientation)
@@ -586,9 +573,3 @@ class FigureCanvasGDK(FigureCanvasBase):
             error_msg('Format "%s" is not supported.\nSupported formats are %s.' %
                       (ext, ', '.join(IMAGE_FORMAT)),
                       parent=self)
-
-        # restore figure settings
-        self.figure.dpi.set(origDPI)
-        self.figure.set_facecolor(origfacecolor)
-        self.figure.set_edgecolor(origedgecolor)
-        self.figure.set_figsize_inches(origWIn, origHIn)

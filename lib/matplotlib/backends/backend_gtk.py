@@ -75,7 +75,7 @@ def draw_if_interactive():
     """
     if matplotlib.is_interactive():
         figManager =  Gcf.get_active()
-        if figManager is not None:
+        if figManager != None:
             figManager.canvas.draw()
 
 
@@ -220,7 +220,7 @@ class FigureCanvasGTK(gtk.DrawingArea, FigureCanvasBase):
 
 
     def configure_event(self, widget, event):
-        if widget.window is None:
+        if widget.window == None:
             return
 
         w,h = widget.window.get_size()
@@ -328,8 +328,8 @@ class FigureCanvasGTK(gtk.DrawingArea, FigureCanvasBase):
         
             # pixbuf.save() recognises 'jpeg' not 'jpg'
             if ext == 'jpg': ext = 'jpeg' 
-            pixbuf.save(filename, ext)
-            try: pixbuf.save(filename, ext)
+            try:
+                pixbuf.save(filename, ext)
             except gobject.GError, exc:
                 error_msg('Save figure failure:\n%s' % (exc,), parent=self)
 
@@ -339,8 +339,6 @@ class FigureCanvasGTK(gtk.DrawingArea, FigureCanvasBase):
             else:
                 from backend_ps  import FigureCanvasPS  as FigureCanvas
 
-            fc = self.switch_backends(FigureCanvas)
-            fc.print_figure(filename, dpi, facecolor, edgecolor, orientation)
             try:
                 fc = self.switch_backends(FigureCanvas)
                 fc.print_figure(filename, dpi, facecolor, edgecolor, orientation)
@@ -405,7 +403,7 @@ class FigureManagerGTK(FigureManagerBase):
         else:
             self.toolbar = None
 
-        if self.toolbar is not None:
+        if self.toolbar != None:
             self.toolbar.show()
             vbox.pack_end(self.toolbar, False, False)
 
@@ -419,13 +417,13 @@ class FigureManagerGTK(FigureManagerBase):
     def add_subplot(self, *args, **kwargs):
         if DEBUG: print 'FigureManagerGTK.%s' % fn_name()
         a = FigureManagerBase.add_subplot(self, *args, **kwargs)
-        if self.toolbar is not None: self.toolbar.update()
+        if self.toolbar != None: self.toolbar.update()
         return a
     
     def add_axes(self, rect, **kwargs):
         if DEBUG: print 'FigureManagerGTK.%s' % fn_name()
         a = FigureManagerBase.add_axes(self, rect, **kwargs)
-        if self.toolbar is not None: self.toolbar.update()
+        if self.toolbar != None: self.toolbar.update()
         return a
     
     def destroy(self, *args):
@@ -462,9 +460,8 @@ class NavigationToolbar2GTK(NavigationToolbar2, gtk.Toolbar):
         self.canvas.window.set_cursor(cursord[cursor])
 
     def release(self, event):
-        try: self._imageBack
+        try: del self._imageBack
         except AttributeError: pass
-        else: del self._imageBack
 
     def dynamic_update(self):
         def idle_draw(*args):
@@ -477,7 +474,7 @@ class NavigationToolbar2GTK(NavigationToolbar2, gtk.Toolbar):
     def draw_rubberband(self, event, x0, y0, x1, y1):
         'adapted from http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/189744'
         drawable = self.canvas.window
-        if drawable is None: return
+        if drawable == None: return
 
         gc = drawable.new_gc()
 
@@ -492,7 +489,7 @@ class NavigationToolbar2GTK(NavigationToolbar2, gtk.Toolbar):
         try: lastrect, imageBack = self._imageBack
         except AttributeError:
             #snap image back        
-            if event.inaxes is None: return
+            if event.inaxes == None: return
 
             ax = event.inaxes
             l,b,w,h = [int(val) for val in ax.bbox.get_bounds()]
@@ -525,7 +522,7 @@ class NavigationToolbar2GTK(NavigationToolbar2, gtk.Toolbar):
         basedir = matplotlib.rcParams['datapath']
 
         for text, tooltip_text, image_file, callback in self.toolitems:
-            if text is None:
+            if text == None:
                  self.append_space()
                  continue
             
@@ -555,7 +552,7 @@ class NavigationToolbar2GTK(NavigationToolbar2, gtk.Toolbar):
         self.tooltips = gtk.Tooltips()
 
         for text, tooltip_text, image_file, callback in self.toolitems:
-            if text is None:
+            if text == None:
                 self.insert( gtk.SeparatorToolItem(), -1 )
                 continue
             fname = os.path.join(basedir, image_file)
@@ -659,7 +656,7 @@ class NavigationToolbar(gtk.Toolbar):
 
         for text, tooltip_text, image, callback, callback_arg, scroll \
                 in self.toolitems:
-            if text is None:
+            if text == None:
                 self.insert( gtk.SeparatorToolItem(), -1 )
                 continue
             tbutton = gtk.ToolButton(gtk.image_new_from_stock(image, iconSize),
