@@ -4,7 +4,8 @@ New entries should be added at the top
 	   __init__.  Removed font families and added rcParams to
 	   FontProperties __init__ arguments in font_manager.  Added
 	   default font property parameters to .matplotlibrc file with
-	   descriptions. - PEB
+	   descriptions.  Added deprecation warnings to the get_- and
+	   set_fontXXX methods of the Text object. - PEB
 
 2004-04-06 Added load and save commands for ASCII data - JDH
 
