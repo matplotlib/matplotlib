@@ -187,9 +187,9 @@ if __name__=="__main__":
     prompt = '>> '
     interpreter = GtkInterpreter ()
     interpreter.start ()
-    interpreter.feed ("from matplotlib import matlab")
-    interpreter.feed ("from matplotlib.matlab import *")
-    interpreter.feed ("sys.path.append('.')")
+    interpreter.feed("import matplotlib")
+    interpreter.feed("matplotlib.interactive(1)")
+    interpreter.feed("from matplotlib.matlab import *")
 
     # turn off rendering until end of script
     matplotlib.matlab.interactive = 0
@@ -203,8 +203,6 @@ if __name__=="__main__":
                 print '>>', line.rstrip()
                 interpreter.feed(line)
         #gcf().draw()
-    interpreter.feed("from matplotlib.backends.backend_gtk import ShowOn")
-    interpreter.feed ("ShowOn().set(1)")
     print """Welcome to matplotlib.
 
     help(matlab)   -- shows a list of all matlab compatible commands provided
