@@ -657,7 +657,8 @@ class LogLocator(Locator):
             vmin, vmax = vmax, vmin
 
         minpos = self.dataInterval.minpos()
-        if minpos<0:
+        
+        if minpos<=0: 
             raise RuntimeError('No positive data to plot')
         if vmin<=0:
             vmin = minpos
@@ -666,7 +667,6 @@ class LogLocator(Locator):
         if vmin==vmax:
             vmin = decade_down(vmin,self._base)
             vmax = decade_up(vmax,self._base)
-            
         return self.nonsingular(vmin, vmax)
 
 class AutoLocator(Locator):

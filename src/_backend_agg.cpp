@@ -5,7 +5,9 @@
 #include <fstream>
 #include <cmath>
 #include <cstdio>
+#include <stdexcept>
 #include <png.h>
+
 #include "agg_conv_transform.h"
 #include "agg_scanline_storage_aa.h"
 #include "agg_scanline_storage_bin.h"
@@ -372,6 +374,7 @@ RendererAgg::draw_polygon(const Py::Tuple& args) {
   path.close_polygon();
   
   _fill_and_stroke(path, gc, face);
+  _VERBOSE("RendererAgg::draw_polygon DONE");
   return Py::Object();
   
 }
@@ -591,7 +594,14 @@ RendererAgg::draw_poly_collection(const Py::Tuple& args) {
   
   //todo: fix transformation check
   Transformation* transform = static_cast<Transformation*>(args[1].ptr());
-  transform->eval_scalars();
+  
+  try {
+    transform->eval_scalars();
+  }
+  catch (std::domain_error &err) {
+    throw Py::ValueError("Domain error on eval_scalars in RendererAgg::draw_poly_collection");  
+  }
+
   
   set_clip_from_bbox(args[2]);
   
@@ -608,7 +618,13 @@ RendererAgg::draw_poly_collection(const Py::Tuple& args) {
     offsets = args[7];  
     //todo: fix transformation check
     transOffset = static_cast<Transformation*>(args[8].ptr());
-    transOffset->eval_scalars();
+    try {
+      transOffset->eval_scalars();
+    }
+    catch (std::domain_error &err) {
+      throw Py::ValueError("Domain error on transoffset eval_scalars in RendererAgg::draw_poly_collection");  
+    }
+
   }
   
   size_t Noffsets = offsets.length();
@@ -760,7 +776,13 @@ RendererAgg::draw_regpoly_collection(const Py::Tuple& args) {
   Transformation* transOffset = static_cast<Transformation*>(args[2].ptr());
   
   
-  transOffset->eval_scalars();
+  try {
+    transOffset->eval_scalars();
+  }
+  catch (std::domain_error &err) {
+    throw Py::ValueError("Domain error on eval_scalars in RendererAgg::draw_regpoly_collection");  
+  }
+
   
   Py::SeqBase<Py::Object> verts = args[3];  
   Py::SeqBase<Py::Object> sizes = args[4];  
@@ -900,7 +922,13 @@ RendererAgg::draw_lines(const Py::Tuple& args) {
   Transformation* mpltransform = static_cast<Transformation*>(args[3].ptr());
   
   double a, b, c, d, tx, ty;
-  mpltransform->affine_params_api(&a, &b, &c, &d, &tx, &ty);
+  try {
+    mpltransform->affine_params_api(&a, &b, &c, &d, &tx, &ty);
+  }
+  catch (std::domain_error &err) {
+    throw Py::ValueError("Domain error on affine_params_api in RendererAgg::draw_lines");  
+  }
+
   agg::trans_affine xytrans = agg::trans_affine(a,b,c,d,tx,ty);  
 
   
@@ -933,7 +961,7 @@ RendererAgg::draw_lines(const Py::Tuple& args) {
     thisy = heightd - thisy; //flipy
     
     //don't render line segments less that on pixel long!
-    if ((i>0) && fabs(thisx-lastx)<1.0 && fabs(thisy-lasty)<1.0) {
+    if (!moveto && (i>0) && fabs(thisx-lastx)<1.0 && fabs(thisy-lasty)<1.0) {
       //std::cout << "skipping " << thisx << " " << thisy << " " << lastx << " " << lasty << " " << fabs(thisx-lastx) << " " << fabs(thisy-lasty) << std::endl;
       continue;
     }
@@ -1039,7 +1067,13 @@ RendererAgg::draw_markers(const Py::Tuple& args) {
   Transformation* mpltransform = static_cast<Transformation*>(args[4].ptr());
   
   double a, b, c, d, tx, ty;
-  mpltransform->affine_params_api(&a, &b, &c, &d, &tx, &ty);
+  try {
+    mpltransform->affine_params_api(&a, &b, &c, &d, &tx, &ty);
+  }
+  catch (std::domain_error &err) {
+    throw Py::ValueError("Domain error on affine_params_api in RendererAgg::draw_markers");  
+  }
+  
   agg::trans_affine xytrans = agg::trans_affine(a,b,c,d,tx,ty);  
 
   size_t Npath = pathseq.length();
@@ -1129,13 +1163,13 @@ RendererAgg::draw_markers(const Py::Tuple& args) {
     thisx = *(double *)(xa->data + i*xa->strides[0]);
     thisy = *(double *)(ya->data + i*ya->strides[0]);
 
-    try {
-      if (mpltransform->need_nonlinear_api())
+    if (mpltransform->need_nonlinear_api())
+      try {       
 	mpltransform->nonlinear_only_api(&thisx, &thisy);
-    }
-    catch (std::domain_error& err) {
-      continue;
-    }
+      }
+      catch (std::domain_error& err) {
+	continue;
+      }
 
     xytrans.transform(&thisx, &thisy);
 
