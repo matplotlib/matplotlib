@@ -1,6 +1,9 @@
 New entries should be added at the top
 
 ==============================================================
+2004-10-30 backend_gtk.py: tidied up print_figure() and removed some of the 
+           dependency on widget events - SC
+
 2004-10-28 backend_cairo.py: The renderer is complete except for mathtext,
            draw_image() and clipping. gtkcairo works reasonably well. cairo
            does not yet create any files since I can't figure how to set the
