@@ -3,6 +3,7 @@
 An example of how to interact with the plotting canvas by connecting
 to move and click events
 """
+import sys
 from matplotlib.matlab import *
 
 t = arange(0.0, 1.0, 0.01)
@@ -27,9 +28,11 @@ def on_click(event):
         if event.inaxes is not None:
             print 'data coords', event.xdata, event.ydata
 
-canvas.mpl_connect('motion_notify_event', on_move)
+binding_id = canvas.mpl_connect('motion_notify_event', on_move)
 #canvas.mpl_connect('button_press_event', on_click)
 
-
+if "test_disconnect" in sys.argv:
+    print "disconnecting console coordinate printout..."
+    canvas.mpl_disconnect(binding_id)
 
 show()
