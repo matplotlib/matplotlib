@@ -47,7 +47,7 @@ else:  # non-interactive backends
     def draw_if_interactive():  pass
     def show(): pass
     def error_msg(m):
-        verbse.report_error(m)
+        matplotlib.verbose.report_error(m)
         sys.exit()
 
 # Additional imports which only happen for certain backends.  This section

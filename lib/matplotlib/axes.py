@@ -30,6 +30,7 @@ from text import Text, _process_text_args
 from transforms import Bbox, Point, Value, Affine
 from transforms import  Func, LOG10, IDENTITY
 from transforms import get_bbox_transform, unit_bbox
+from transforms import blend_xy_sep_transform
 from font_manager import FontProperties
 
 import matplotlib
@@ -339,6 +340,146 @@ class Axes(Artist):
         # funcs used to format x and y - fall back on major formatters
         self.fmt_xdata = None  
         self.fmt_ydata = None
+
+
+    def axhline(self, y=0, xmin=0, xmax=1, **kwargs):
+        """\
+    AXHLINE(y=0, xmin=0, xmax=1, **kwargs)
+
+    axhline : Axis Horizontal Line
+
+    Draw a horizontal line at y from xmin to xmax.  With the default
+    values of xmin=0 and xmax=1, this line will always span the horizontal
+    extent of the axes, regardless of the xlim settings, even if you
+    change them, eg with the xlim command.  That is, the horizontal extent
+    is in axes coords: 0=left, 0.5=middle, 1.0=right but the y location is
+    in data coordinates.
+
+    return value is the Line2D instance.  kwargs are the same as kwargs to
+    plot, and can be used to control the line properties.  Eg
+
+      # draw a thick red hline at y=0 that spans the xrange
+      l = ax.axhline(linewidth=4, color='r')
+
+      # draw a default hline at y=1 that spans the xrange
+      l = ax.axhline(y=1)
+
+      # draw a default hline at y=.5 that spans the the middle half of
+      # the xrange
+      l = ax.axhline(y=.5, xmin=0.25, xmax=0.75)
+
+        """
+        trans = blend_xy_sep_transform( self.transAxes, self.transData)
+        l, = self.plot([xmin,xmax], [y,y], transform=trans, **kwargs)
+        return l
+
+
+    def axvline(self, x=0, ymin=0, ymax=1, **kwargs):
+        """\
+    AXVLINE(x=0, ymin=0, ymax=1, **kwargs)
+    axvline : Axis Vertical Line
+
+    Draw a vertical line at x from ymin to ymax.  With the default values
+    of ymin=0 and ymax=1, this line will always span the vertical extent
+    of the axes, regardless of the xlim settings, even if you change them,
+    eg with the xlim command.  That is, the vertical extent is in axes
+    coords: 0=bottom, 0.5=middle, 1.0=top but the x location is in data
+    coordinates.
+
+    return value is the Line2D instance.  kwargs are the same as
+    kwargs to plot, and can be used to control the line properties.  Eg
+
+    # draw a thick red vline at x=0 that spans the yrange
+    l = axvline(linewidth=4, color='r')
+
+    # draw a default vline at x=1 that spans the yrange
+    l = axvline(x=1)
+
+    # draw a default vline at x=.5 that spans the the middle half of
+    # the yrange
+    l = axvline(x=.5, ymin=0.25, ymax=0.75)
+
+        """
+
+        trans = blend_xy_sep_transform( self.transData, self.transAxes )
+        l, = self.plot([x,x], [ymin,ymax] , transform=trans, **kwargs)
+        return l
+
+
+    def axhspan(self, ymin, ymax, xmin=0, xmax=1, **kwargs):
+        """\
+    AXHSPAN(ymin, ymax, xmin=0, xmax=1, **kwargs)
+
+    axhspan : Axis Horizontal Span.  ycoords are in data units and x
+    coords are in axes (relative 0-1) units
+
+    Draw a horizontal span (regtangle) from ymin to ymax.  With the
+    default values of xmin=0 and xmax=1, this always span the xrange,
+    regardless of the xlim settings, even if you change them, eg with the
+    xlim command.  That is, the horizontal extent is in axes coords:
+    0=left, 0.5=middle, 1.0=right but the y location is in data
+    coordinates.
+
+    kwargs are the kwargs to Patch, eg
+
+      antialiased, aa
+      linewidth,   lw
+      edgecolor,   ec
+      facecolor,   fc
+
+    the terms on the right are aliases
+
+    return value is the patches.Polygon instance.
+
+    #draws a gray rectangle from y=0.25-0.75 that spans the horizontal
+    #extent of the axes
+    p = ax.axhspan(0.25, 0.75, facecolor=0.5, alpha=0.5)
+    """
+        trans = blend_xy_sep_transform( self.transAxes, self.transData  )
+        verts = (xmin, ymin), (xmin, ymax), (xmax, ymax), (xmax, ymin)
+        p = Polygon(verts, **kwargs)
+        p.set_transform(trans)
+        self.add_patch(p)
+        return p
+
+
+    def axvspan(self, xmin, xmax, ymin=0, ymax=1, **kwargs):
+        """\
+    AXVSPAN(self, xmin, xmax, ymin=0, ymax=1, **kwargs)        
+
+    axvspan : Axis Vertical Span.  xcoords are in data units and y coords
+    are in axes (relative 0-1) units
+
+    Draw a vertical span (regtangle) from xmin to xmax.  With the default
+    values of ymin=0 and ymax=1, this always span the yrange, regardless
+    of the ylim settings, even if you change them, eg with the ylim
+    command.  That is, the vertical extent is in axes coords: 0=bottom,
+    0.5=middle, 1.0=top but the y location is in data coordinates.
+
+    kwargs are the kwargs to Patch, eg
+
+      antialiased, aa
+      linewidth,   lw
+      edgecolor,   ec
+      facecolor,   fc
+
+    the terms on the right are aliases
+
+    return value is the patches.Polygon instance.
+
+    # draw a vertical green translucent rectangle from x=1.25 to 1.55 that
+    # spans the yrange of the axes
+    p = ax.axvspan(1.25, 1.55, facecolor='g', alpha=0.5)
+
+    """
+
+        trans = blend_xy_sep_transform( self.transData, self.transAxes   )
+        verts = (xmin, ymin), (xmin, ymax), (xmax, ymax), (xmax, ymin)
+        p = Polygon(verts, **kwargs)
+        p.set_transform(trans)
+        self.add_patch(p)
+
+        return p
         
     def format_xdata(self, x):
         """
@@ -703,6 +844,9 @@ class Axes(Artist):
     def cohere(self, x, y, NFFT=256, Fs=2, detrend=mlab.detrend_none,
                window=mlab.window_hanning, noverlap=0):
         """
+        COHERE(x, y, NFFT=256, Fs=2, detrend=mlab.detrend_none,
+              window=mlab.window_hanning, noverlap=0):
+
         cohere the coherence between x and y.  Coherence is the normalized
         cross spectral density
 
@@ -733,6 +877,10 @@ class Axes(Artist):
     def csd(self, x, y, NFFT=256, Fs=2, detrend=mlab.detrend_none,
             window=mlab.window_hanning, noverlap=0):
         """
+
+        CSD(x, y, NFFT=256, Fs=2, detrend=mlab.detrend_none,
+            window=mlab.window_hanning, noverlap=0):
+
         The cross spectral density Pxy by Welches average periodogram
         method.  The vectors x and y are divided into NFFT length
         segments.  Each segment is detrended by function detrend and
@@ -935,18 +1083,35 @@ class Axes(Artist):
 
     def fill(self, *args, **kwargs):
         """
-        Emulate matlab's fill command.  *args is a variable length
-        argument, allowing for multiple x,y pairs with an optional
-        color format string.  For example, all of the following are
-        legal, assuming a is the Axis instance:
+    FILL(*args, **kwargs)
         
-          a.fill(x,y)            # plot polygon with vertices at x,y
-          a.fill(x,y, 'b' )      # plot polygon with vertices at x,y in blue
+    plot filled polygons.  *args is a variable length argument,
+    allowing for multiple x,y pairs with an optional color format
+    string.  For example, all of the following are legal, assuming a
+    is the Axis instance:
 
-        An arbitrary number of x, y, color groups can be specified, as in 
-          a.fill(x1, y1, 'g', x2, y2, 'r')  
+      ax.fill(x,y)            # plot polygon with vertices at x,y
+      ax.fill(x,y, 'b' )      # plot polygon with vertices at x,y in blue
 
-        Returns a list of patches that were added.
+    An arbitrary number of x, y, color groups can be specified, as in 
+      ax.fill(x1, y1, 'g', x2, y2, 'r')  
+
+    Return value is a list of patches that were added
+
+    The following color strings are supported
+
+      b  : blue
+      g  : green
+      r  : red
+      c  : cyan
+      m  : magenta
+      y  : yellow
+      k  : black 
+      w  : white
+
+    The kwargs that are can be used to set line properties (any
+    property that has a set_* method).  You can use this to set edge
+    color, face color, etc.
         """
         if not self._hold: self.cla()
         patches = []
@@ -1050,7 +1215,6 @@ class Axes(Artist):
         If normed is true, the first element of the return tuple will be the
         counts normalized to form a probability distribtion, ie,
         n/(len(x)*dbin)
-
         """
         if not self._hold: self.cla()
         n,bins = mlab.hist(x, bins, normed)
@@ -1173,6 +1337,8 @@ The following kwargs are allowed:
 
     def hlines(self, y, xmin, xmax, fmt='k-'):
         """
+        HLINES(y, xmin, xmax, fmt='k-')
+
         plot horizontal lines at each y from xmin to xmax.  xmin or
         xmax can be scalars or len(x) numpy arrays.  If they are
         scalars, then the respective values are constant, else the
@@ -1210,6 +1376,8 @@ The following kwargs are allowed:
 
     def legend(self, *args, **kwargs):
         """
+        LEGEND(*args, **kwargs)
+
         Place a legend on the current axes at location loc.  Labels are a
         sequence of strings and loc can be a string or an integer
         specifying the legend location
@@ -1737,6 +1905,9 @@ Neither line will be antialiased.
     def psd(self, x, NFFT=256, Fs=2, detrend=mlab.detrend_none,
             window=mlab.window_hanning, noverlap=0):
         """
+        PSD(x, NFFT=256, Fs=2, detrend=mlab.detrend_none,
+            window=mlab.window_hanning, noverlap=0)        
+
         The power spectral density by Welches average periodogram method.
         The vector x is divided into NFFT length segments.  Each segment
         is detrended by function detrend and windowed by function window.
@@ -1800,6 +1971,7 @@ Neither line will be antialiased.
 
     def stem(self, x, y, linefmt='b-', markerfmt='bo', basefmt='r-'):
         """
+        STEM(x, y, linefmt='b-', markerfmt='bo', basefmt='r-')
 
         A stem plot plots vertical lines (using linefmt) at each x
         location from the baseline to y, and places a marker there using
@@ -1837,7 +2009,9 @@ Neither line will be antialiased.
                 vmax = None,
                 alpha=1.0):
         """\
-
+SCATTER(x, y, s=20, c='b', marker='o', cmap=None, norm=None,
+        vmin=None, vmax=None, alpha=1.0)
+                
 SCATTER(x, y) - make a scatter plot of x vs y
 
 SCATTER(x, y, s) - make a scatter plot of x vs y with size in area
@@ -1961,6 +2135,8 @@ on be used if c is an array of floats
 
     def scatter_classic(self, x, y, s=None, c='b'):
         """
+        SCATTER_CLASSIC(x, y, s=None, c='b')        
+
         Make a scatter plot of x versus y.  s is a size (in data
         coords) and can be either a scalar or an array of the same
         length as x or y.  c is a color and can be a single color
@@ -2255,13 +2431,18 @@ on be used if c is an array of floats
         colLabels=None, colColours=None, colLoc='center',
         loc='bottom', bbox=None):
         """
-        Create a table and add it to the axes.  Returns a table
-        instance.  For finer grained control over tables, use the
-        Table class and add it to the axes with add_table.
+TABLE(cellText=None, cellColours=None,
+      cellLoc='right', colWidths=None,
+      rowLabels=None, rowColours=None, rowLoc='left',
+      colLabels=None, colColours=None, colLoc='center',
+      loc='bottom', bbox=None):
 
-        Thanks to John Gill for providing the class and table.
-        """
+Add a table to the current axes.  Returns a table instance.  For
+finer grained control over tables, use the Table class and add it
+to the axes with add_table.
 
+Thanks to John Gill for providing the class and table.
+    """
         # Check we have some cellText
         if cellText is None:
             # assume just colours are needed
@@ -2413,6 +2594,7 @@ on be used if c is an array of floats
 
     def vlines(self, x, ymin, ymax, color='k'):
         """
+        VLINES(x, ymin, ymax, color='k')
         Plot vertical lines at each x from ymin to ymax.  ymin or ymax
         can be scalars or len(x) numpy arrays.  If they are scalars,
         then the respective values are constant, else the heights of
