@@ -1202,10 +1202,10 @@ class FigureFrameWx(wxFrame):
             self.toolbar = NavigationToolbarWx(self.canvas, True)
         elif matplotlib.rcParams['toolbar']=='toolbar2':
             self.toolbar = NavigationToolbar2Wx(self.canvas)            
+            self.toolbar.set_status_bar(statbar)
         else:
             self.toolbar = None
         
-        self.toolbar.set_status_bar(statbar)
         if self.toolbar is not None:
             self.toolbar.Realize()
             if wxPlatform == '__WXMAC__':
