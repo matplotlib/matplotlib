@@ -28,6 +28,7 @@ or you can pass an R,G,B tuple, where each of R,G,B are in the range
 Finally, legal html names for colors, like 'red', 'burlywood' and
 'chartreuse' are supported.
 """
+import re
 
 from numerix import array, arange, take, put, Float, Int, where, \
      zeros, asarray, sort, searchsorted, sometrue, ravel, divide
@@ -336,10 +337,14 @@ def rgb2hex(rgb):
     'Given a len 3 rgb tuple of 0-1 floats, return the hex string'
     return '#%02x%02x%02x' % tuple([round(val*255) for val in rgb])
     
+hexColorPattern = re.compile("\A#[a-fA-F0-9]{6}\Z")
+
 def hex2color(s):
-    "Convert hex string (like html uses, eg, #efefef) to a r,g,b tuple"
-    if s[0]!='#' or len(s)!=7:
-        raise ValueError('s must be a hex string like "#efefef"')
+    "Convert hex string 's' (like html uses, eg, #efefef) to a r,g,b tuple"
+    if not isinstance(s, str):
+        raise TypeError('hex2color requires a string argument')
+    if not hexColorPattern.match(s):
+        raise ValueError('invalid hex color string "%s"' % s)
     return tuple([int(n, 16)/255.0 for n in (s[1:3], s[3:5], s[5:7])])
 
 class ColorConverter:
@@ -368,28 +373,29 @@ class ColorConverter:
             try: self.cache[arg]
             except KeyError: pass
 
-        color = None
-        try: float(arg)
-        except: 
+        try:
             if is_string_like(arg):
-                hex = cnames.get(arg)
-                if hex is not None: arg = hex
-                if len(arg)==7 and arg[0]=='#':
-                    color =   hex2color(arg)
-            if color is None:
-                # see if it looks like rgb.  If so, just return arg
-                try: float(arg[2])
-                except: color = self.colors.get(arg, (0.0, 0.0, 0.0))
-                else: color =  tuple(arg)
-        else:
-            if arg>=0 and arg<=1:
-                color =  (arg,arg,arg)
-            else:
-                msg = 'Floating point color arg must be between 0 and 1\n' +\
-                      'Found %1.2f' % arg
-                raise RuntimeError(msg)
+                str1 = cnames.get(arg, arg)
+                if str1.startswith('#'):
+                    color = hex2color(str1)
+                else:
+                    color = self.colors[arg]
+            elif isinstance(arg, float):
+                if 0<=arg<=1:
+                    color = (arg,arg,arg)
+                else:
+                    raise ValueError('Floating point color arg must be between 0 and 1')
+            else: # assume tuple (or list)
+                assert isinstance(arg[2], (float,int))
+                color = tuple(arg[:3])           
 
-        self.cache[arg] = color
+            self.cache[arg] = color # raise exception if color not set
+
+        except KeyError:            
+            raise ValueError('to_rgb: Invalid rgb arg "%s"' % (str(arg)))
+        except Exception, exc:
+            raise ValueError('to_rgb: Invalid rgb arg "%s"\n%s' % (str(arg), exc))
+                
         return color
 
     def to_rgba(self, arg, alpha=1.0):
