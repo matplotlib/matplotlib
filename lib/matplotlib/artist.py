@@ -5,7 +5,7 @@ from transforms import identity_transform
 
 class Artist:
     """
-    Abstract base class for someone who renders into a Figure
+    Abstract base class for someone who renders into a FigureCanvas
     """
 
     aname = 'Artist'
