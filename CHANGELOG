@@ -1,5 +1,7 @@
 New entries should be added at the top
 
+2005-03-30 Fixed and added checks for floating point inaccuracy in ticker.Base - DSD
+
 2005-03-30 updated /ellipse definition in backend_ps.py to address 
             bug #1122041 - DSD
 
