@@ -50,7 +50,6 @@ else:
 BUILT_AGG       = False
 BUILT_FT2FONT   = False
 BUILT_GTKAGG    = False
-BUILT_GTKGD     = False
 BUILT_IMAGE   = False
 BUILT_TKAGG     = False
 
@@ -156,18 +155,7 @@ def build_ft2font(ext_modules, packages):
                        )
     add_ft2font_flags(module)
     ext_modules.append(module)    
-    BUILT_GTKGD = True
-
-def build_gtkgd(ext_modules, packages):
-    global BUILT_GTKGD
-    if BUILT_GTKGD: return # only build it if you you haven't already
-    module = Extension('matplotlib.backends._gtkgd',
-                       ['src/_gtkgd.c'],
-                       )
-    add_pygtk_flags(module)
-    add_gd_flags(module)
-    ext_modules.append(module)    
-    BUILT_GTKGD = True
+    BUILT_FT2FONT = True
 
 def build_gtkagg(ext_modules, packages):
     global BUILT_GTKAGG
