@@ -881,7 +881,7 @@ RendererAgg::draw_image(const Py::Tuple& args) {
     throw Py::ValueError("origin must be upper|lower");
   
   bool isUpper = origin=="upper";
-  std::cout << "agg says isupper " << origin << " " << isUpper << std::endl;
+  //std::cout << "agg says isupper " << origin << " " << isUpper << std::endl;
 
   
   //todo: handle x and y
@@ -891,7 +891,7 @@ RendererAgg::draw_image(const Py::Tuple& args) {
   size_t thisx, thisy;
   size_t oy = isUpper ? y : height-y;
   //if (isUpper) oy -= image->rowsOut;  //start at top
-  std::cout << "params " << height << " " << y << " " << oy << " " << image->rowsOut << std::endl;
+  //std::cout << "params " << height << " " << y << " " << oy << " " << image->rowsOut << std::endl;
   for (size_t j=0; j<image->rowsOut; j++) {
     for (size_t i=0; i<image->colsOut; i++) {
       thisx = i+x; 
