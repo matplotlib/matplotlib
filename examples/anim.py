@@ -1,5 +1,6 @@
 #!/usr/bin/env python2.3
-
+import matplotlib
+matplotlib.use('GTKAgg')
 import matplotlib.matlab
 import gtk
 import matplotlib.numerix as numerix

@@ -1,7 +1,17 @@
 New entries should be added at the top
 
+2004-05-28 added colorbar - JDH
+
+2004-05-28 Made some changes to the matplotlib.colors.Colormap to
+           propertly support clim - JDH
+
+-----------------------------------------------------------------
+2004-05-27 0.54.1 released
+
 2004-05-27 Lots of small bug fixes: rotated text at negative angles,
-           errorbar autoscaling, right tick label position - JDH
+           errorbar capsize and autoscaling, right tick label
+           position, gtkagg on win98, alpha of figure background,
+           singleton plots - JDH
 
 2004-05-26 Added Gary's errorbar stuff and made some fixes for length
            one plots and constant data plots - JDH
@@ -11,7 +21,7 @@ New entries should be added at the top
 	   in 2 draws per figure mangager show().      - JTM
 
 ------------------------------------------------------------
-2004-05-19 0.54 released - JDH
+2004-05-19 0.54 released 
 
 2004-05-18 Added newline seperated text with rotations to text.Text
            layout - JDH
