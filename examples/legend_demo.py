@@ -13,7 +13,7 @@ ylabel('Message length --->')
 title('Minimum Message Length')
 
 ax = subplot(111)
-plot(a,c,'k--',a,d,'k:',a,c+d,'k')
+plot(a,c,'k--',a,d,'k:',a,c+d,'bo')
 legend(('Model length', 'Data length', 'Total message length'), 1)
 ax.set_ylim([-1,20])
 ax.grid(0)
