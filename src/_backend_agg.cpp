@@ -577,7 +577,7 @@ RendererAgg_draw_image(RendererAggObject *renderer, PyObject* args) {
     return NULL;
 
   //todo: handle x and y
-  agg::rect r(0, 0, image->widthOut, image->heightOut);
+  agg::rect r(0, 0, image->rowsOut, image->colsOut);
 
   renderer->rbase->copy_from(*image->rbufOut, &r, x, y);
   Py_INCREF(Py_None);

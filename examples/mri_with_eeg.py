@@ -1,10 +1,7 @@
-# note, this is currentl *very slow*.  I'm working on improving the
-# efficiency of pcolor.  If you want to run this example and your
-# computer is not very fast, I suggest you grab a cup of coffee while
-# it runs.  Look for major improvments in pcolor in future releases of
-# matplotlib when we add image handling capability in extension module
-# code
-
+"""
+This now uses the imshow command instead of pcolor which *is much
+faster*
+"""
 from __future__ import division
 from matplotlib.matlab import *
 from matplotlib.lines import Line2D
@@ -16,12 +13,10 @@ if 1:   # load the data
     dfile = 'data/s1045.ima'
     im = fromstring(file(dfile, 'rb').read(), Int16).astype(Float)
     im.shape = 256, 256
-    # flip upside down
-    im = array([im[i] for i in arange(255,-1,-1)])
 
 if 1: # plot the MRI in pcolor
     subplot(221)
-    pcolor(im, shading='flat')
+    imshow(im, ColormapJet(256))
     axis('off')
 
 if 1:  # plot the histogram of MRI intensity
