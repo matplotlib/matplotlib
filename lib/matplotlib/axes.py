@@ -5,7 +5,7 @@ import math, sys
 from numerix import absolute, arange, array, asarray, ones, divide,\
      transpose, log, log10, Float, Float32, ravel, zeros,\
      Int16, Int32, Int, Float64, ceil, indices, \
-     shape, which, where, sqrt, asum, compress
+     shape, which, where, sqrt, asum, compress, maximum, minimum
 
 import matplotlib.mlab
 from artist import Artist
@@ -13,7 +13,7 @@ from axis import XAxis, YAxis
 from cbook import iterable, is_string_like, flatten, enumerate, \
      allequal, dict_delall, strip_math, popd, popall, silent_list
 from collections import RegularPolyCollection, PolyCollection, LineCollection
-from colors import colorConverter, normalize, Colormap, LinearSegmentedColormap
+from colors import colorConverter, normalize, Colormap, LinearSegmentedColormap, looks_like_color
 import cm
 #from cm import ColormapJet, Grayscale, ScalarMappable
 from cm import ScalarMappable
@@ -31,7 +31,7 @@ from matplotlib.mlab import meshgrid, detrend_none, detrend_linear, \
 from matplotlib.numerix.mlab import flipud, amin, amax
 
 from matplotlib import rcParams
-from patches import Patch, Rectangle, Circle, Polygon, Wedge, Shadow, bbox_artist
+from patches import Patch, Rectangle, Circle, Polygon, Arrow, Wedge, Shadow, bbox_artist
 from table import Table
 from text import Text, _process_text_args
 from transforms import Bbox, Point, Value, Affine, NonseparableTransformation
@@ -315,13 +315,14 @@ class Axes(Artist):
                  frameon = True,
                  sharex=None, # use Axes instance's xaxis info
                  sharey=None, # use Axes instance's yaxis info
+                 label='',
                  ):
         Artist.__init__(self)
         self._position = map(makeValue, rect)
         # must be set before set_figure
         self._sharex = sharex
         self._sharey = sharey
-
+        self.set_label(label)
         self.set_figure(fig)
 
         # this call may differ for non-sep axes, eg polar
@@ -758,6 +759,131 @@ class Axes(Artist):
         locator = self.yaxis.get_major_locator()
         self.set_ylim(locator.autoscale())
 
+
+    def quiver(self, U, V, *args, **kwargs ):
+        """
+        QUIVER( X, Y, U, V )
+        QUIVER( U, V )
+        QUIVER( X, Y, U, V, S)
+        QUIVER( U, V, S )
+        QUIVER( ..., color=None, width=1.0, cmap=None,norm=None )
+
+        Make a vector plot (U, V) with arrows on a grid (X, Y)
+
+        The optional arguments color and width are used to specify the color and width
+        of the arrow. color can be an array of colors in which case the arrows can be
+        colored according to another dataset.
+        
+        If cm is specied and color is None, the colormap is used to give a color
+        according to the vector's length.
+        
+        If color is a scalar field, the colormap is used to map the scalar to a color
+        If a colormap is specified and color is an array of color triplets, then the
+        colormap is ignored
+
+        width is a scalar that controls the width of the arrows
+
+        if S is specified it is used to scale the vectors. Use S=0 to disable automatic
+        scaling.
+        If S!=0, vectors are scaled to fit within the grid and then are multiplied by S.
+        
+
+        """
+        if not self._hold: self.cla()
+        do_scale = True
+        S = 1.0
+        if len(args)==0:
+            # ( U, V )
+            U = asarray(U)
+            V = asarray(V)
+            X,Y = meshgrid( arange(U.shape[0]), arange(U.shape[1]) )
+        elif len(args)==1:
+            # ( U, V, S )
+            U = asarray(U)
+            V = asarray(V)
+            X,Y = meshgrid( arange(U.shape[0]), arange(U.shape[1]) )
+            S = float(args[0])
+            do_scale = ( S != 0.0 )
+        elif len(args)==2:
+            # ( X, Y, U, V )
+            X = asarray(U)
+            Y = asarray(V)
+            U = asarray(args[0])
+            V = asarray(args[1])
+        elif len(args)==3:
+            # ( X, Y, U, V )
+            X = asarray(U)
+            Y = asarray(V)
+            U = asarray(args[0])
+            V = asarray(args[1])
+            S = float(args[2])
+            do_scale = ( S != 0.0 )
+
+        assert U.shape == V.shape
+        assert X.shape == Y.shape
+        assert U.shape == X.shape
+        
+        arrows = []
+        N = sqrt( U**2+V**2 )
+        if do_scale:
+            Nmax = maximum.reduce(maximum.reduce(N))
+            U *= (S/Nmax)
+            V *= (S/Nmax)
+            N /= Nmax
+            
+        alpha = kwargs.get('alpha', 1.0)
+        width = kwargs.get('width', 0.25)
+        norm = kwargs.get('norm', None)
+        cmap = kwargs.get('cmap', None)
+        vmin = kwargs.get('vmin', None)
+        vmax = kwargs.get('vmax', None)
+        color = kwargs.get('color', None)
+        shading = kwargs.get('shading', 'faceted')
+
+        C = None
+        I,J = U.shape
+        if color is not None and not looks_like_color(color):
+            clr = asarray(color)
+            if clr.shape==U.shape:
+                C = array([ clr[i,j] for i in xrange(I)  for j in xrange(J)])
+            elif clr.shape == () and color:
+                # a scalar (1, True,...)
+                C = array([ N[i,j] for i in xrange(I)  for j in xrange(J)])
+            else:
+                color = (0.,0.,0.,1.)
+        elif color is None:
+            color = (0.,0.,0.,1.)
+        else:
+            color = colorConverter.to_rgba( color, alpha )
+
+
+        arrows = [ Arrow(X[i,j],Y[i,j],U[i,j],V[i,j],0.1*S ).get_verts()
+                   for i in xrange(I) for j in xrange(J) ]
+        collection = PolyCollection(
+            arrows,
+            edgecolors = 'None',
+            facecolors = (color,),
+            antialiaseds = (0,),
+            linewidths = (width,),
+            )
+        if C:
+            collection.set_array( C )
+        else:
+            collection.set_facecolor( (color,) )
+        collection.set_cmap(cmap)
+        collection.set_norm(norm)
+        if norm is not None:
+            collection.set_clim( vmin, vmax )
+        self.add_collection( collection )
+        lims = asarray(arrows)
+        _max = maximum.reduce( maximum.reduce( lims ))
+        _min = minimum.reduce( minimum.reduce( lims ))
+        self.update_datalim( [ tuple(_min), tuple(_max) ] )
+        self.autoscale_view()
+        return arrows
+                
+
+
     def bar(self, left, height, width=0.8, bottom=0,
             color='b', yerr=None, xerr=None, ecolor='k', capsize=3
             ):
@@ -882,7 +1008,7 @@ class Axes(Artist):
         # if we've got a vector, reshape it
         rank = len(x.shape)
         if 1 == rank:
-            x.shape(-1, 1)
+            x.shape = -1, 1
         
         row, col = x.shape
         

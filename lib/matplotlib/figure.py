@@ -206,8 +206,16 @@ legal Axes kwargs plus"polar" which sets whether to create a polar axes
     add_axes(ax)   # add an Axes instance
 
 
-If the figure already has an axed with key *args, *kwargs then it
-will simply make that axes current and return it
+If the figure already has an axed with key *args, *kwargs then it will
+simply make that axes current and return it.  If you do not want this
+behavior, eg you want to force the creation of a new axes, you must
+use a unique set of args and kwargs.  The artist "label" attribute has
+been exposed for this purpose.  Eg, if you want two axes that are
+otherwise identical to be added to the axes, make sure you give them
+unique labels:
+
+    add_axes((l,b,w,h), label='1')
+    add_axes((l,b,w,h), label='2')
 
 The Axes instance will be returned
         """

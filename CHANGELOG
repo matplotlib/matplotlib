@@ -1,11 +1,18 @@
 New entries should be added at the top
 
+2005-03-28 Added Jarrod's svg patch for text - JDH
+
+2005-03-28 Added ludal arrow and quiver patch - JDH
+
+2005-03-28 Added label kwarg to Axes to facilitate forcing the
+           creation of new Axes with otherwise identical attributes
+
 2005-03-28 Applied boxplot and OSX font search patches
 
 2005-03-27 Added ft2font NULL check to fix Japanase font bug - JDH
 
-2005-03-27 Added sprint legend patch plus John Gill's tests and fix
-           - JDH
+2005-03-27 Added sprint legend patch plus John Gill's tests and fix --
+           see examples/legend_auto.py  - JDH
 
 ==========================================================================
 
