@@ -202,12 +202,7 @@ class RendererCairo(RendererBase):
 
 
     def draw_markers(self, gc, path, x, y, transform):
-    #def _draw_markers(self, gc, path, x, y, transform): # disable, not finished yet
-        """
-        Draw the markers defined by path at each of the positions in x
-        and y.  path coordinates are points, x and y coords will be
-        transformed by the transform
-        """
+    #def _draw_markers(self, gc, path, x, y, transform):
         if DEBUG: print 'backend_cairo.RendererCairo.%s()' % _fn_name()
 
         if transform.need_nonlinear():
@@ -221,6 +216,8 @@ class RendererCairo(RendererBase):
 
         def draw_path():
             # could trace path just once, then save/restore() ?
+            # need to remember/store fill and fill_rgb
+            fill = False
             for p in path:
                code = p[0]
                if code == MOVETO:
@@ -229,33 +226,30 @@ class RendererCairo(RendererBase):
                   ctx.line_to (p[1], -p[2])
                elif code == ENDPOLY:
                   ctx.close_path()
-                  # draw_marker
                   fill = p[1]
                   if fill:
                      #rgba = p[2:]
-                     rgb = p[2:5]
-                     ctx.save()
-                     ctx.set_rgb_color (*rgb)
-                     # later - set alpha also?                     
-                     ctx.fill()
-                     ctx.restore()
+                     fill_rgb = p[2:5]
+
+            # draw marker
+            if fill:
+               ctx.save()
+               ctx.set_rgb_color (*fill_rgb)
+               # later - set alpha also?                     
+               ctx.fill()
+               ctx.restore()
             
-                  ctx.stroke()
-                  break # end of path
+            ctx.stroke()
                     
         for x,y in izip(x,y):
-            # FIXME
-            # -> mail dev list noting new function
-            # graph with crosses is not working
-            #   -> cmp to plot w/o draw_markers()
+            # TODO
             # use Cairo transform
-            # look to writing in a more efficient way
-            
+            # look to writing in a more efficient way - trace path once only - see above
             ctx.save()
             ctx.new_path()
             ctx.translate(x, self.height - y)
             draw_path()
-            ctx.restore() # wrap translate()
+            ctx.restore() # undo translate()
 
         
     def draw_point(self, gc, x, y):

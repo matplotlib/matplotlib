@@ -53,138 +53,65 @@ REQUIREMENTS
 
 from __future__ import division
 
-import sys
-from matplotlib import verbose
 from matplotlib._pylab_helpers import Gcf
 from matplotlib.backend_bases import RendererBase, GraphicsContextBase,\
      FigureManagerBase, FigureCanvasBase
-
 from matplotlib.cbook import enumerate
 from matplotlib.figure import Figure
 from matplotlib.transforms import Bbox
 
 
-
-    
-
 class RendererTemplate(RendererBase):
     """
-    The renderer handles all the drawing primitives using a graphics
-    context instance that controls the colors/styles
-    """
+    The renderer handles drawing/rendering operations.
 
+    This is a minimal do-nothing class that can be used to get started when
+    writing a new backend. Refer to backend_bases.RendererBase for
+    documentation of the classes methods.
+    """
+    def draw_arc(self, gcEdge, rgbFace, x, y, width, height, angle1, angle2):
+        pass
+    
+    def draw_image(self, x, y, im, origin, bbox):
+        pass
+    
+    def draw_line(self, gc, x1, y1, x2, y2):
+        pass
+    
+    def draw_lines(self, gc, x, y):
+        pass
+
+    def draw_point(self, gc, x, y):
+        pass
+
+    def draw_polygon(self, gcEdge, rgbFace, points):
+        pass
+
+    def draw_rectangle(self, gcEdge, rgbFace, x, y, width, height):
+        pass
+
+    def draw_text(self, gc, x, y, s, prop, angle, ismath=False):    
+        pass
+         
+    def flipy(self):
+        return True
+    
     def get_canvas_width_height(self):
-        'return the canvas width and height in display coords'
         return 100, 100
 
     def get_text_width_height(self, s, prop, ismath):
-        """
-        get the width and height in display coords of the string s
-        with FontPropertry prop
-        """
-        return 1,1
+        return 1, 1
                               
-    def flipy(self):
-        'return true if y small numbers are top for renderer'
-        return True
-    
+    def new_gc(self):
+        return GraphicsContextTemplate()
+
     def points_to_pixels(self, points):
-        """
-        Convert points to pixels (display units) as a float.
-        """
         # if backend doesn't have dpi, eg, postscript or svg
         return points
         # elif backend assumes a value for pixels_per_inch
         #return points/72.0 * self.dpi.get() * pixels_per_inch/72.0
         # else
         #return points/72.0 * self.dpi.get()
-
-    def draw_text(self, gc, x, y, s, prop, angle, ismath=False):    
-        """
-        Render the matplotlib.text.Text instance at x, y in window
-        coords using GraphicsContext gc
-
-        **backend implementers note** When you are trying to determine
-          if you have gotten your bounding box right (which is what
-          enables the text layout/alignment to work properly), it helps to change the line in text.py
-
-                  if 0: bbox_artist(self, renderer)
-
-          to if 1, and then the actual bounding box will be blotted
-          along with your text.
-        
-        """
-        pass
-         
-    
-    def draw_arc(self, gcEdge, rgbFace, x, y, width, height, angle1, angle2):
-        """
-        Draw an arc using GraphicsContext instance gcEdge, centered at x,y,
-        with width and height and angles from 0.0 to 360.0
-        
-        If the color rgbFace is not None, fill the arc with it.
-        """
-        pass
-    
-    def draw_line(self, gc, x1, y1, x2, y2):
-        """
-        Draw a single line from x1,y1 to x2,y2
-        """
-        pass
-    
-    def draw_lines(self, gc, x, y):
-        """
-        x and y are equal length arrays, draw lines connecting each
-        point in x, y
-        """
-        pass
-
-    def draw_image(self, x, y, im, origin, bbox):
-        """
-        Draw the Image instance into the current axes; x is the
-        distance in pixels from the left hand side of the canvas. y is
-        the distance from the origin.  That is, if origin is upper, y
-        is the distance from top.  If origin is lower, y is the
-        distance from bottom
-
-        origin is 'upper' or 'lower'
-
-        bbox is a matplotlib.transforms.BBox instance for clipping, or
-        None
-        """
-        pass
-    
-    def draw_polygon(self, gcEdge, rgbFace, points):
-        """
-        Draw a polygon.  points is a len vertices tuple, each element
-        giving the x,y coords a vertex.
-
-        If rgbFace is not None, fill the rectangle with it.  gcEdge
-        is a GraphicsContext instance
-        """  
-        pass
-
-    def draw_rectangle(self, gcEdge, rgbFace, x, y, width, height):
-        """
-        Draw a non-filled rectangle at x,y (lower left) with width and height,
-        using the GraphicsContext gcEdge.
-        Draw a filled rectangle within it of color rgbFace, if rgbFace is not
-        None.
-        """
-        pass
-
-    def draw_point(self, gc, x, y):
-        """
-        Draw a single point at x,y
-        """
-        pass
-
-
-    def new_gc(self):
-        """
-        Return an instance of a GraphicsContextTemplate
-        """
-        return GraphicsContextTemplate()
 
 
 class GraphicsContextTemplate(GraphicsContextBase):
