@@ -34,6 +34,7 @@ ax.set_xticklabels(['Memory', 'CPU', 'Bandwidth'])
 ax.set_ylabel('Percent usage')
 ax.set_title('System Monitor')
 
+manager = get_current_fig_manager()
 def updatefig(*args):
     m,c,n = get_stats()
     pm.set_height(m)
@@ -41,8 +42,8 @@ def updatefig(*args):
     pn.set_height(n)
     ax.set_ylim([0,100])
 
-    fig.draw()
-    
+    manager.canvas.draw()
+
     return gtk.TRUE
 
 

@@ -16,26 +16,47 @@ API changes at 0.50
 
 Migrating code:
 
-  There are no API changes for the matlab interface.  
+  Matlab interface: 
 
-  There is one important API change for application developers.
-  Figure instances used subclass GUI widgets that enabled them to be
-  placed directly into figures.  Eg, FigureGTK subclassed
-  gtk.DrawingArea.  Now the Figure class is independent of the
-  backend, and FigureCanvas takes over the functionality formerly
-  handled by Figure.  In order to include figures into your apps, you
-  now need to do, for example
+    The only API change for those using the matlab interface is in how
+    you call figure redraws for dynamically updating figures.  In the
+    old API, you did
+   
+      fig.draw()
 
-    # gtk example
-    fig = Figure(figsize=(5,4), dpi=100)
-    canvas = FigureCanvasGTK(fig)  # a gtk.DrawingArea
-    canvas.show()
-    vbox.pack_start(canvas)
+    In the new API, you do
 
-  Apologies for the inconvenience.  This refactorization brings
-  significant more freedom in developing matplotlib and should bring
-  better plotting capabilities, so I hope the inconvenience is worth
-  it.
+      manager = get_current_fig_manager()
+      manager.canvas.draw()
+
+    See the examples system_monitor.py, dynamic_demo.py, and anim.py
+
+  API
+
+    There is one important API change for application developers.
+    Figure instances used subclass GUI widgets that enabled them to be
+    placed directly into figures.  Eg, FigureGTK subclassed
+    gtk.DrawingArea.  Now the Figure class is independent of the
+    backend, and FigureCanvas takes over the functionality formerly
+    handled by Figure.  In order to include figures into your apps,
+    you now need to do, for example
+
+      # gtk example
+      fig = Figure(figsize=(5,4), dpi=100)
+      canvas = FigureCanvasGTK(fig)  # a gtk.DrawingArea
+      canvas.show()
+      vbox.pack_start(canvas)
+
+    If you use the NavigationToolbar, this in now intialized with a
+    FigureCanvas, not a Figure.  The examples embedding_in_gtk.py,
+    embedding_in_gtk2.py, and mpl_with_glade.py all reflect the new
+    API so use these as a guide.
+
+    Apologies for the inconvenience.  This refactorization brings
+    significant more freedom in developing matplotlib and should bring
+    better plotting capabilities, so I hope the inconvenience is worth
+    it.
+
   
 
 API changes at 0.42
