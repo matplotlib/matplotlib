@@ -145,6 +145,11 @@ def build_agg(ext_modules, packages):
     
 def build_fonttools(ext_modules, packages):
 
+    # don't build it if we have it
+    try: import ttfquery
+    except ImportError: pass
+    else: return
+        
     global BUILT_FONTTOOLS
 
     if BUILT_FONTTOOLS: return # only build it if you you haven't already
