@@ -1,11 +1,11 @@
 #!/usr/bin/env python
 """
 Some people prefer to write more pythonic, object oriented, code
-rather than use the matlab interface to matplotlib.  This example show
+rather than use the pylab interface to matplotlib.  This example show
 you how.
 
 Unless you are an application developer, I recommend using part of the
-matlab interface, particularly the figure, close, subplot, axes, and
+pylab interface, particularly the figure, close, subplot, axes, and
 show commands.  These hide a lot of complexity from you that you don't
 need to see in normal figure creation, like instantiating DPI
 instances, managing the bounding boxes of the figure elements,
@@ -21,11 +21,11 @@ embedding them in application windows, etc.
 If you are a web application developer, you may want to use the
 example in webapp_demo.py, which shows how to use the backend agg
 figure canvase directly, with none of the globals (current figure,
-current axes) that are present in the matlab interface.  Note that
-there is no reason why the matlab interface won't work for web
+current axes) that are present in the pylab interface.  Note that
+there is no reason why the pylab interface won't work for web
 application developers, however.
 
-If you see an example in the examples dir written in matlab interface,
+If you see an example in the examples dir written in pylab interface,
 and you want to emulate that using the true python method calls, there
 is an easy mapping.  Many of those examples use 'set' to control
 figure properties.  Here's how to map those commands onto instance
@@ -53,7 +53,7 @@ So for your example, if a is your axes object, you can do
 """
 
 
-from matplotlib.matlab import figure, close, axes, subplot, show
+from pylab import figure, close, axes, subplot, show
 from matplotlib.numerix import arange, sin, pi
 
 t = arange(0.0, 1.0, 0.01)

@@ -715,8 +715,127 @@ class FigureCanvasWx(FigureCanvasBase, wxPanel):
         EVT_LEFT_UP(self, self._onLeftButtonUp)
 
         self.macros = {} # dict from wx id to seq of macros
-
         
+        self.Printer_Init()
+
+    def Copy_to_Clipboard(self, event=None):
+        "copy bitmap of canvas to system clipboard"
+        bmp_obj = wx.BitmapDataObject()
+        bmp_obj.SetBitmap(self.bitmap)
+        wx.TheClipboard.Open()
+        wx.TheClipboard.SetData(bmp_obj)
+        wx.TheClipboard.Close()
+
+    def Printer_Init(self):
+        """initialize printer settings using wx methods"""
+        self.printerData = wx.PrintData()
+        self.printerData.SetPaperId(wx.PAPER_LETTER)
+        self.printerData.SetPrintMode(wx.PRINT_MODE_PRINTER)
+        self.printerPageData= wx.PageSetupDialogData()
+        self.printerPageData.SetMarginBottomRight((25,25))
+        self.printerPageData.SetMarginTopLeft((25,25))
+        self.printerPageData.SetPrintData(self.printerData)
+
+        self.printer_width = 5.5
+        self.printer_margin= 0.5
+        
+    def Printer_Setup(self, event=None):
+        """set up figure for printing.  The standard wx Printer
+        Setup Dialog seems to die easily. Therefore, this setup
+        simply asks for image width and margin for printing. """
+        
+        dmsg = """Width of output figure in inches.
+The current aspect ration will be kept."""
+
+        dlg = wx.Dialog(self, -1, 'Page Setup for Printing' , (-1,-1))
+        df = dlg.GetFont()
+        df.SetWeight(wx.NORMAL)
+        df.SetPointSize(11)
+        dlg.SetFont(df)
+
+        x_wid = wx.TextCtrl(dlg,-1,value="%.2f" % self.printer_width, size=(70,-1))
+        x_mrg = wx.TextCtrl(dlg,-1,value="%.2f" % self.printer_margin,size=(70,-1))
+        
+        sizer = wx.GridBagSizer(3,3)
+        sizer.Add(wx.StaticText(dlg,-1,dmsg),
+                  (0,0),(1,3), wx.ALIGN_LEFT|wx.ALL|wx.EXPAND, 5)
+
+        sizer.Add(wx.StaticText(dlg,-1,'Figure Width'), 
+                  (1,0),(1,1), wx.ALIGN_LEFT|wx.ALL, 2)
+        sizer.Add(x_wid,
+                  (1,1),(1,1), wx.ALIGN_LEFT|wx.ALL, 2)
+        sizer.Add(wx.StaticText(dlg,-1,'in'), 
+                  (1,2),(1,1), wx.ALIGN_LEFT|wx.ALL, 2)
+
+        sizer.Add(wx.StaticText(dlg,-1,'Margin'), 
+                  (2,0),(1,1), wx.ALIGN_LEFT|wx.ALL, 2)
+        sizer.Add(x_mrg,
+                  (2,1),(1,1), wx.ALIGN_LEFT|wx.ALL, 2)
+        sizer.Add(wx.StaticText(dlg,-1,'in'), 
+                  (2,2),(1,1), wx.ALIGN_LEFT|wx.ALL, 2)
+
+
+        btn = wx.Button(dlg,wx.ID_OK, " OK ")
+        btn.SetDefault()
+        sizer.Add(btn, (3,0),(1,1), wx.ALIGN_LEFT, 5)
+        btn = wx.Button(dlg,wx.ID_CANCEL, " CANCEL ")
+        sizer.Add(btn, (3,1),(1,1), wx.ALIGN_LEFT, 5)
+        
+        dlg.SetSizer(sizer)
+        dlg.SetAutoLayout(True)
+        sizer.Fit(dlg)
+        
+        if dlg.ShowModal() == wx.ID_OK:
+            try:
+                self.printer_width  = float(x_wid.GetValue())
+                self.printer_margin = float(x_mrg.GetValue())
+            except:
+                pass
+
+        if ((self.printer_width + self.printer_margin) > 7.5):
+            self.printerData.SetOrientation(wx.LANDSCAPE)
+        else:
+            self.printerData.SetOrientation(wx.PORTRAIT)
+        dlg.Destroy()
+        return
+
+    def Printer_Preview(self, event=None):
+        """ generate Print Preview with wx Print mechanism"""
+        po1  = PrintoutWx(self, width=self.printer_width,
+                          margin=self.printer_margin)
+        po2  = PrintoutWx(self, width=self.printer_width,
+                          margin=self.printer_margin)
+        self.preview = wx.PrintPreview(po1,po2,self.printerData)
+        if not self.preview.Ok():  print "error with preview"
+
+        self.preview.SetZoom(50)
+        frameInst= self
+        while not isinstance(frameInst, wx.Frame):
+            frameInst= frameInst.GetParent()
+        frame = wx.PreviewFrame(self.preview, frameInst, "Preview")
+        frame.Initialize()
+        frame.SetPosition(self.GetPosition())
+        frame.SetSize((850,650))  
+        frame.Centre(wx.BOTH)        
+        frame.Show(True)
+        self.gui_repaint()
+
+    def Printer_Print(self, event=None):
+        """ Print figure using wx Print mechanism"""
+        pdd = wx.PrintDialogData(self.printerData)
+        pdd.SetToPage(1)
+        printer  = wx.Printer(pdd)
+        printout  = PrintoutWx(self, width=self.printer_width,
+                               margin=self.printer_margin)
+        print_ok = printer.Print(self, printout, True)
+        if not print_ok:
+            wx.MessageBox("""There was a problem printing.
+            Perhaps your current printer is not set correctly?""",
+                          "Printing", wx.OK)
+        printout.Destroy()
+        self.gui_repaint()
+
+
     def mpl_disconnect(self, cid):
         for macro in self.macros.get(cid, []):
             macro(self, None)
@@ -1687,6 +1806,87 @@ class StatusBarWx(wxStatusBar):
         
     def set_measurement(self, string):
         self.SetStatusText("Measurement: %s" % string, 2)
+
+#< Additions for printing support: Matt Newville 
+
+class PrintoutWx(wx.Printout):
+    """Simple wrapper around wx Printout class -- all the real work
+    here is scaling the matplotlib canvas bitmap to the current
+    printer's definition.
+    """
+    def __init__(self, canvas, width=5.5,margin=0.5, title='matplotlib'):
+        wx.Printout.__init__(self,title=title)
+        self.canvas = canvas
+        # width, in inches of output figure (approximate)
+        self.width  = width
+        self.margin = margin
+        
+    def HasPage(self, page):
+        #current only supports 1 page print
+        return page == 1
+    
+    def GetPageInfo(self):
+        return (1, 1, 1, 1)
+
+    def OnPrintPage(self, page):
+        self.canvas.draw()
+        
+        dc        = self.GetDC()
+        (ppw,pph) = self.GetPPIPrinter()      # printer's pixels per in
+        (pgw,pgh) = self.GetPageSizePixels()  # page size in pixels
+        (dcw,dch) = dc.GetSize()
+        (grw,grh) = self.canvas.GetSizeTuple()
+        
+        # save current figure dpi resolution and bg color,
+        # so that we can temporarily set them to the dpi of
+        # the printer, and the bg color to white
+        bgcolor   = self.canvas.figure.get_facecolor()        
+        fig_dpi   = self.canvas.figure.dpi.get()
+
+        # draw the bitmap, scaled appropriately
+        vscale    = ppw / fig_dpi
+
+        # set figure resolution,bg color for printer
+        self.canvas.figure.dpi.set(ppw)
+        self.canvas.figure.set_facecolor('#FFFFFF')
+
+
+        renderer  = RendererWx(self.canvas.bitmap, self.canvas.figure.dpi)
+        self.canvas.figure.draw(renderer)
+        self.canvas.bitmap.SetWidth( self.canvas.bitmap.GetWidth() * vscale)
+        self.canvas.bitmap.SetHeight(self.canvas.bitmap.GetHeight()* vscale)
+        self.canvas.draw()
+
+        # page may need additional scaling on preview
+        page_scale = 1.0
+        if self.IsPreview():   page_scale = float(dcw)/pgw
+
+        # get margin in pixels = (margin in in) * (pixels/in)
+        top_margin  = int(self.margin * pph * page_scale)
+        left_margin = int(self.margin * ppw * page_scale)
+        
+        # set scale so that width of output is self.width inches
+        # (assuming grw is size of graph in inches....)
+        user_scale = (self.width * fig_dpi * page_scale)/float(grw)
+
+        dc.SetDeviceOrigin(left_margin,top_margin)
+        dc.SetUserScale(user_scale,user_scale)
+
+        # this cute little number avoid API inconsistencies in wx
+        try:
+            dc.DrawBitmap(self.canvas.bitmap, 0, 0)
+        except:
+            try:
+                dc.DrawBitmap(self.canvas.bitmap, (0, 0))
+            except:
+                pass
+            
+        # restore original figure  resolution
+        self.canvas.figure.set_facecolor(bgcolor)
+        self.canvas.figure.dpi.set(fig_dpi)
+        self.canvas.draw()
+        return True
+#>
 
 ########################################################################
 #    

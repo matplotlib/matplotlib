@@ -4,7 +4,7 @@
 import sys
 import matplotlib
 matplotlib.use('Agg')
-from matplotlib.matlab import *
+from pylab import *
 
 plot([1,2,3])
 

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 import sys
 from matplotlib.ticker import MultipleLocator
-from matplotlib.matlab import *
+from pylab import *
 from data_helper import get_two_stock_data
 import matplotlib.numerix as numpy
 (d1, p1, d2, p2 ) = get_two_stock_data()

@@ -14,7 +14,7 @@ This example requires an active internet connection since it uses
 yahoo finance to get the data for plotting
 """
 
-from matplotlib.matlab import *
+from pylab import *
 from matplotlib.finance import quotes_historical_yahoo
 from matplotlib.dates import YearLocator, MonthLocator, DateFormatter
 import datetime

@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 import sys
-from matplotlib.matlab import *
+from pylab import *
 from data_helper import get_daily_data
 
 intc, msft = get_daily_data()

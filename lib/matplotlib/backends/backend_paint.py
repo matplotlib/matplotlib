@@ -19,7 +19,7 @@ import paint
 from matplotlib import verbose
 from matplotlib.numerix import asarray
 
-from matplotlib._matlab_helpers import Gcf
+from matplotlib._pylab_helpers import Gcf
 from matplotlib.backend_bases import RendererBase,\
      GraphicsContextBase, FigureCanvasBase, FigureManagerBase
 from matplotlib.cbook import enumerate, True, False
@@ -275,7 +275,7 @@ class FigureCanvasPaint(FigureCanvasBase):
 ########################################################################
 #    
 # The following functions and classes are for matlab compatibility
-# mode (matplotlib.matlab) and implement window/figure managers,
+# mode (pylab) and implement window/figure managers,
 # etc...
 #
 ########################################################################

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 import os, sys
-from matplotlib.matlab import *
+from pylab import *
 
 files = []
 figure(figsize=(5,5))

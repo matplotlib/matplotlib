@@ -7,7 +7,7 @@ import matplotlib
 matplotlib.use('GTKAgg')
 from matplotlib import rcParams
 
-from matplotlib.matlab import *
+from pylab import *
 import gtk
 
 fig = figure(1)

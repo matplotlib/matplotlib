@@ -31,7 +31,7 @@ def _fn_name(): return sys._getframe(1).f_code.co_name
 from matplotlib import verbose
 from matplotlib.numerix import asarray, pi, fromstring, UInt8 #, zeros, where,
      #transpose, nonzero, indices, ones, nx
-#from matplotlib._matlab_helpers import Gcf
+#from matplotlib._pylab_helpers import Gcf
 from matplotlib.backend_bases import RendererBase, GraphicsContextBase,\
      FigureManagerBase, FigureCanvasBase, error_msg
 from matplotlib.cbook import enumerate, True, False

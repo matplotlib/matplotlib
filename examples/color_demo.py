@@ -10,7 +10,7 @@ matplotlib gives you 3 ways to specify colors,
 
 See help(colors) for more info.
 """
-from matplotlib.matlab import *
+from pylab import *
 
 subplot(111, axisbg='darkslategray')
 #subplot(111, axisbg='#ababab')

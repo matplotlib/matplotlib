@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 import matplotlib
 matplotlib.use('PS')
-from matplotlib.matlab import *
+from pylab import *
 
 def f(t):
     s1 = cos(2*pi*t)

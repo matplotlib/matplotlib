@@ -7,7 +7,7 @@ N       Classic     Base renderer    Ext renderer
 10000    3.30           1.31            0.53
 50000    19.30          6.53            1.98
 """
-from matplotlib.matlab import *
+from pylab import *
 
 import time
 

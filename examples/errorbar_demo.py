@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-from matplotlib.matlab import *
+from pylab import *
 
 t = arange(0.1, 4, 0.1)
 s = exp(-t)

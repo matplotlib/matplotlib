@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 #
 # Make a legend for specific lines.  
-from matplotlib.matlab import *
+from pylab import *
 
 t1 = arange(0.0, 2.0, 0.1)
 t2 = arange(0.0, 2.0, 0.01)

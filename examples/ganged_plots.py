@@ -8,7 +8,7 @@ but one of the axes.
 In this example the plots share a common xaxis but you can follow the
 same logic to supply a common y axis.
 """
-from matplotlib.matlab import *
+from pylab import *
 
 t = arange(0.0, 2.0, 0.01)
 

@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 from matplotlib.font_manager import FontProperties
-from matplotlib.matlab import *
+from pylab import *
 
 def f(t):
     s1 = cos(2*pi*t)

@@ -3,7 +3,7 @@
 # color increases with angle (just to verify the symbols are being
 # scattered correctlu).  In a real example, this would be wasting
 # dimensionlaity of the plot
-from matplotlib.matlab import *
+from pylab import *
 
 N = 150
 r = 2*rand(N)

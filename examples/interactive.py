@@ -31,8 +31,8 @@ pygtk.require("2.0")
 import gtk
 
 from matplotlib.cbook import wrap
-from matplotlib.matlab import *
-import matplotlib.matlab
+from pylab import *
+import pylab
 
 def walk_class (klass):
     list = []
@@ -189,10 +189,10 @@ if __name__=="__main__":
     interpreter.start ()
     interpreter.feed("import matplotlib")
     interpreter.feed("matplotlib.interactive(1)")
-    interpreter.feed("from matplotlib.matlab import *")
+    interpreter.feed("from pylab import *")
 
     # turn off rendering until end of script
-    matplotlib.matlab.interactive = 0
+    pylab.interactive = 0
     print sys.argv
     if len (sys.argv) > 1:
         try: inFile = file(sys.argv[1], 'r')
@@ -205,7 +205,7 @@ if __name__=="__main__":
         #gcf().draw()
     print """Welcome to matplotlib.
 
-    help(matlab)   -- shows a list of all matlab compatible commands provided
+    help(pylab)   -- shows a list of all matlab compatible commands provided
     help(plotting) -- shows a list of plot specific commands
     """ 
 

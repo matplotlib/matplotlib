@@ -4,7 +4,7 @@ make the matplotlib svg minimization icon
 """
 import matplotlib
 matplotlib.use('SVG')
-from matplotlib.matlab import *
+from pylab import *
 
 rc('grid', ls='-', lw=2, color='k')
 fig = figure(figsize=(1, 1), dpi=72)

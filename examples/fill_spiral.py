@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-from matplotlib.matlab import *
+from pylab import *
 
 theta = arange(0,8*pi,0.1)
 a=1

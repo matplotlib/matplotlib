@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-from matplotlib.matlab import *
+from pylab import *
 
 # data are 256x256 16 bit integers
 dfile = 'data/s1045.ima'

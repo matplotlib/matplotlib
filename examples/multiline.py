@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-from matplotlib.matlab import *
+from pylab import *
 
 plot(arange(10))
 xlabel('this is a xlabel\n(with newlines!)')

@@ -4,14 +4,14 @@ An example of how to interact with the plotting canvas by connecting
 to move and click events
 """
 import sys
-from matplotlib.matlab import *
+from pylab import *
 
 t = arange(0.0, 1.0, 0.01)
 s = sin(2*pi*t)
 ax = subplot(111)
 ax.plot(t,s)
 
-canvas = get_current_fig_manager().canvas
+
 
 def on_move(event):
     # get the x and y pixel coords
@@ -28,11 +28,11 @@ def on_click(event):
         if event.inaxes is not None:
             print 'data coords', event.xdata, event.ydata
 
-binding_id = canvas.mpl_connect('motion_notify_event', on_move)
-#canvas.mpl_connect('button_press_event', on_click)
+binding_id = connect('motion_notify_event', on_move)
+connect('button_press_event', on_click)
 
 if "test_disconnect" in sys.argv:
     print "disconnecting console coordinate printout..."
-    canvas.mpl_disconnect(binding_id)
+    disconnect(binding_id)
 
 show()

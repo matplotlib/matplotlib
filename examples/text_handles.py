@@ -2,10 +2,10 @@
 #Controlling the properties of axis text using handles
 
 # See examples/text_themes.py for a more elegant, pythonic way to control
-# fonts.  After all, if we were slaves to matlab , we wouldn't be
+# fonts.  After all, if we were slaves to matlab(TM) , we wouldn't be
 # using python!
 
-from matplotlib.matlab import *
+from pylab import *
 
 
 def f(t):

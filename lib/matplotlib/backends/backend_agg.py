@@ -74,7 +74,7 @@ import os, sys
 from matplotlib import verbose
 from matplotlib.numerix import array, Float
 
-from matplotlib._matlab_helpers import Gcf
+from matplotlib._pylab_helpers import Gcf
 from matplotlib.backend_bases import RendererBase,\
      GraphicsContextBase, FigureManagerBase, FigureCanvasBase, error_msg
 

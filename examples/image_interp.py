@@ -46,7 +46,7 @@ performance or have very large images, interpolation='nearest' is
 suggested.
 
 """
-from matplotlib.matlab import *
+from pylab import *
 A = rand(5,5)
 figure(1)
 imshow(A, interpolation='nearest')

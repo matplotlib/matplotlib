@@ -15,7 +15,7 @@ from matplotlib.font_manager import fontManager
 
 from matplotlib.backend_bases import RendererBase, GraphicsContextBase, \
      FigureManagerBase, FigureCanvasBase, NavigationToolbar2, cursors, MplEvent
-from matplotlib._matlab_helpers import Gcf
+from matplotlib._pylab_helpers import Gcf
 from matplotlib.figure import Figure
 
 from backend_gdk import RendererGDK
@@ -71,7 +71,7 @@ def GTK_WIDGET_DRAWABLE(w): flags = w.flags(); return flags & gtk.VISIBLE !=0 an
 
 def draw_if_interactive():
     """
-    Is called after every matplotlib.matlab drawing command
+    Is called after every pylab drawing command
     """
     if matplotlib.is_interactive():
         figManager =  Gcf.get_active()
@@ -253,8 +253,8 @@ class FigureCanvasGTK(gtk.DrawingArea, FigureCanvasBase):
 
     def _render_to_pixmap(self, width, height):
         """Render the figure to a gdk.Pixmap, is used for
-           - rendering the pixmap to display        (matlab.draw)
-           - rendering the pixmap to save to a file (matlab.savefig)
+           - rendering the pixmap to display        (pylab.draw)
+           - rendering the pixmap to save to a file (pylab.savefig)
         Should not be overridden
         """
         if DEBUG: print 'FigureCanvasGTK.%s' % fn_name()

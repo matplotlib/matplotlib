@@ -43,7 +43,7 @@ if matplotlib._havedate:
                      
 def _process_plot_format(fmt):
     """
-    Process a matlab style color/line style format string.  Return a
+    Process a matlab(TM) style color/line style format string.  Return a
     linestyle, color tuple as a result of the processing.  Default
     values are ('-', 'b').  Example format strings include
 
@@ -283,7 +283,7 @@ class _process_plot_var_args:
 
 class Axes(Artist):
     """
-    Emulate matlab's axes command, creating axes with
+    Emulate matlab's (TM) axes command, creating axes with
 
        Axes(position=[left, bottom, width, height])
 
@@ -1593,7 +1593,7 @@ object
 
 Grid Orientation
 
-    The behavior of meshgrid in matlab is a bit counterintuitive for
+    The behavior of meshgrid in matlab(TM) is a bit counterintuitive for
     x and y arrays.  For example,
 
         x = arange(7)
@@ -1603,7 +1603,7 @@ Grid Orientation
         Z = rand( len(x), len(y))
         pcolor(X, Y, Z)
 
-    will fail in matlab and matplotlib.  You will probably be
+    will fail in matlab and pylab.  You will probably be
     happy with
 
         pcolor(X, Y, transpose(Z))
@@ -1711,7 +1711,7 @@ Return value is a list of patch objects.
 
 Grid orientation
 
-    The behavior of meshgrid in matlab is a bit counterintuitive for x
+    The behavior of meshgrid in matlab(TM) is a bit counterintuitive for x
     and y arrays.  For example,
 
           x = arange(7)
@@ -1971,7 +1971,7 @@ sampling frequency.
       detrend_linear, but you can use a custom function as well.
 
     window - the function used to window the segments.  window is a
-      function, unlike in matlab where it is a vector.  mlab defines
+      function, unlike in matlab(TM) where it is a vector.  mlab defines
       window_none, window_hanning, but you can use a custom function
       as well.
 
@@ -2775,7 +2775,7 @@ disconnect to disconnect from the axes event
 
 class SubplotBase:
     """
-    Emulate matlab's subplot command, creating axes with
+    Emulate matlab's(TM) subplot command, creating axes with
 
       Subplot(numRows, numCols, plotNum)
 
@@ -2845,7 +2845,7 @@ class SubplotBase:
 
 class Subplot(SubplotBase, Axes):
     """
-    Emulate matlab's subplot command, creating axes with
+    Emulate matlab's(TM) subplot command, creating axes with
 
       Subplot(numRows, numCols, plotNum)
 
@@ -3163,9 +3163,9 @@ class PolarAxes(Axes):
         
 class PolarSubplot(SubplotBase, PolarAxes):
     """
-    Emulate matlab's subplot command, creating axes with
+    Create a polar subplot with
 
-      Subplot(numRows, numCols, plotNum)
+      PolarSubplot(numRows, numCols, plotNum)
 
     where plotNum=1 is the first plot number and increasing plotNums
     fill rows first.  max(plotNum)==numRows*numCols

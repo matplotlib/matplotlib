@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-from matplotlib.matlab import *
+from pylab import *
 
 delta = 0.025
 x = y = arange(-3.0, 3.0, delta)

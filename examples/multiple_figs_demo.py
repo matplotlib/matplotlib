@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # Working with multiple figure windows and subplots
-from matplotlib.matlab import *
+from pylab import *
 
 t = arange(0.0, 2.0, 0.01)
 s1 = sin(2*pi*t)

@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-from matplotlib.matlab import *
+from pylab import *
 
 figure(1)
 t = arange(0.0, 1.0, 0.01)

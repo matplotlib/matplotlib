@@ -3,7 +3,7 @@
 You can control the axis tick and grid properties
 """
 
-from matplotlib.matlab import *
+from pylab import *
 
 t = arange(0.0, 2.0, 0.01)
 s = sin(2*pi*t)
@@ -34,7 +34,7 @@ show()
 
 """
 # the same script, python style
-from matplotlib.matlab import *
+from pylab import *
 
 t = arange(0.0, 2.0, 0.01)
 s = sin(2*pi*t)

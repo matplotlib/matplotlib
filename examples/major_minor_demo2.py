@@ -3,7 +3,7 @@
 Set the major ticks on the ints and minor ticks on multiples of 0.2
 """
 
-from matplotlib.matlab import *
+from pylab import *
 from matplotlib.ticker import MultipleLocator, FormatStrFormatter
 
 majorLocator   = MultipleLocator(1)
