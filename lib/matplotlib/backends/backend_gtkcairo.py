@@ -12,21 +12,24 @@ from matplotlib import verbose
 from matplotlib.cbook import True, False
 from matplotlib.figure import Figure
 from backend_cairo import FigureCanvasCairo, RendererCairo, IMAGE_FORMAT, \
-     IMAGE_FORMAT_DEFAULT     
-from backend_gtk import gtk, FigureManagerGTK, FigureCanvasGTK, show, draw_if_interactive, \
-     error_msg, NavigationToolbar, backend_version, raise_msg_to_str
+     IMAGE_FORMAT_DEFAULT, print_figure_fn
+from backend_gtk import gtk, FigureManagerGTK, FigureCanvasGTK, show,    \
+     draw_if_interactive, error_msg, NavigationToolbar, backend_version, \
+     raise_msg_to_str
 
 import gobject
-try:
-    import cairo
-    import cairo.gtk
-    # version > x, check - later
-except:
-    print >> sys.stderr, 'PyCairo is required to run the Matplotlib Cairo backend'
-    raise SystemExit()
 
+import cairo
+import cairo.gtk
 
-backend_version = 'GTK(%s) Cairo (0.1.23)' % backend_version
+# add version checking, if cairo adds version number support
+#version_required = (1,99,16)
+#if gtk.pygtk_version < version_required:
+#    raise SystemExit ("PyGTK %d.%d.%d is installed\n"
+#                      "PyGTK %d.%d.%d or later is required"
+#                      % (gtk.pygtk_version + version_required))
+#backend_version = "%d.%d.%d" % gtk.pygtk_version
+backend_version = 'GTK(%s) Cairo (unknown)' % backend_version
 
 DEBUG = False
 
@@ -143,8 +146,10 @@ class FigureCanvasGTKCairo(FigureCanvasGTK, FigureCanvasCairo):
             self.figure.set_figsize_inches(origW/origDPI, origH/origDPI)
             
         elif ext in IMAGE_FORMAT:
-            FigureCanvasCairo.print_figure (self, filename, dpi, facecolor, edgecolor,
-                                            orientation)
+            #FigureCanvasCairo.print_figure (self, filename, dpi, facecolor, edgecolor,
+            #                                orientation)
+            print_figure_fn (self.figure, filename, dpi, facecolor, edgecolor,
+                             orientation)
 
         else:
             error_msg('Format "%s" is not supported.\nSupported formats are %s.' %

@@ -101,13 +101,16 @@ from matplotlib.cbook import enumerate, True, False
 from matplotlib.figure import Figure
 from matplotlib.transforms import Bbox
 
-try:
-    import cairo
-    # version > x, check - later
-except:
-    verbose.report_error('PyCairo is required to run the Matplotlib Cairo backend')
-    raise SystemExit()
-backend_version = '0.1.23' # cairo does not report version, yet
+import cairo
+
+# add version checking, if cairo adds version number support
+#version_required = (1,99,16)
+#if gtk.pygtk_version < version_required:
+#    raise SystemExit ("PyGTK %d.%d.%d is installed\n"
+#                      "PyGTK %d.%d.%d or later is required"
+#                      % (gtk.pygtk_version + version_required))
+#backend_version = "%d.%d.%d" % gtk.pygtk_version
+backend_version = 'unknown' # cairo does not report version, yet
 
 
 DEBUG = False
@@ -117,7 +120,7 @@ DEBUG = False
 PIXELS_PER_INCH = 96
 
 # Image formats that this backend supports - for print_figure()
-IMAGE_FORMAT          = ['png', 'ps', 'svg']
+IMAGE_FORMAT          = ['eps', 'png', 'ps', 'svg']
 IMAGE_FORMAT_DEFAULT  = 'png'
 
 
@@ -524,7 +527,7 @@ def show():
         manager.canvas.realize()
 
 
-def new_figure_manager(num, *args, **kwargs):
+def new_figure_manager(num, *args, **kwargs): # called by backends/__init__.py
     """
     Create a new figure manager instance
     """
@@ -535,36 +538,160 @@ def new_figure_manager(num, *args, **kwargs):
     return manager
 
 
+def print_figure_fn(figure, filename, dpi=150, facecolor='w', edgecolor='w',
+                    orientation='portrait'):
+    """
+    Render the figure to hardcopy.  Set the figure patch face and
+    edge colors.  This is useful because some of the GUIs have a
+    gray figure face color background and you'll probably want to
+    override this on hardcopy
+
+    orientation - only currently applies to PostScript printing.
+    """
+    if DEBUG: print 'backend_cairo.FigureCanvasCairo.%s()' % _fn_name()
+
+    root, ext = os.path.splitext(filename)       
+    ext = ext[1:]
+    if ext == '':
+        ext      = IMAGE_FORMAT_DEFAULT
+        filename = filename + '.' + ext
+
+    # save figure state
+    origDPI       = figure.dpi.get()
+    origfacecolor = figure.get_facecolor()
+    origedgecolor = figure.get_edgecolor()
+        
+    # settings for printing
+    figure.dpi.set(dpi)
+    figure.set_facecolor(facecolor)
+    figure.set_edgecolor(edgecolor)        
+
+    ext = ext.lower()
+    print 'filename:', filename
+    if ext in ('png', 'ps'):
+        try:
+            fileObject = file(filename,'wb')
+        except IOError, exc:
+            verbose.report_error("%s: %s" % (exc.filename, exc.strerror))
+        else:
+            if ext == 'png': _save_png (figure, fileObject)
+            else:            _save_ps  (figure, fileObject)
+            
+    elif ext in ('eps', 'svg'): # backend_svg, later - use Cairo to write svg?
+        if ext == 'eps':
+            from backend_ps import FigureCanvasPS  as FigureCanvas
+        else:
+            from backend_svg import FigureCanvasSVG as FigureCanvas
+        fc = FigureCanvas(figure)
+        fc.print_figure(filename, dpi, facecolor, edgecolor, orientation)
+
+    else:
+        verbose.report_error('Format "%s" is not supported.\nSupported formats: %s.' %
+                             (ext, ', '.join(IMAGE_FORMAT)))
+
+    # restore the new params
+    figure.dpi.set(origDPI)
+    figure.set_facecolor(origfacecolor)
+    figure.set_edgecolor(origedgecolor)
+    print 'filename:', filename, 'finished'
+    
+        
+        
+def _save_png (figure, fileObject):
+    width, height = figure.get_width_height()
+    width, height = int(width), int(height)
+
+    ctx = cairo.Context()
+    # 4 png formats supported
+    ctx.set_target_png (fileObject, cairo.FORMAT_ARGB32, width, height)
+    renderer = RendererCairo (ctx.target_surface, ctx.matrix,
+                              width, height, figure.dpi)
+    figure.draw(renderer)
+    ctx.show_page()
+    fileObject.close()
+        
+
+def _save_ps (figure, fileObject):
+    # Cairo produces PostScript Level 3
+    # 'ggv' can't read cairo ps files, but 'gv' can
+    dpi = 72.0   # ignore the passed dpi setting for PS
+    page_w_in, page_h_in = defaultPaperSize = 8.5, 11
+    page_w,    page_h    = page_w_in * dpi, page_h_in * dpi
+
+    figure.dpi.set (dpi)    
+    l,b, width, height = figure.bbox.get_bounds()
+    tx = (page_w - width)  / 2.0
+    ty = (page_h - height) / 2.0
+        
+    ctx = cairo.Context()
+    ctx.set_target_ps (fileObject, page_w_in, page_h_in, dpi, dpi)
+
+    orientation = 'portrait' # landscape not supported yet
+    if orientation == 'portrait': # default orientation
+        # lines look a little jagged - just 'gv', cairo problem, or problem
+        # with the way cairo is used?
+
+        # center the figure on the page
+        matrix = cairo.Matrix (tx=tx, ty=ty)
+        ctx.set_matrix (matrix)
+        # TODO? scale figure to maximize yet leave space for margin/border round page?
+        # the figure already has a 'margin', so could use full page width?
+
+    else: # landscape
+        # cairo/src/cairo_ps_surface.c
+        # '%%Orientation: Portrait' is always written to the file header
+        # '%%Orientation: Landscape' would possibly cause problems
+        # since some printers would rotate again ?
+        # TODO:
+        # 1) needs -pi/2 rotation, centered (and maximised?)
+        #    don't know how to rotate without text being distorted
+        # 2) add portrait/landscape checkbox to FileChooser
+        pass
+        
+    renderer = RendererCairo (ctx.target_surface, ctx.matrix, width, height, figure.dpi)
+    figure.draw(renderer)
+            
+    show_fig_border = False  # for testing figure orientation and scaling
+    if show_fig_border:
+        print 'Page w,h:', page_w, page_h
+        print 'Fig  w,h:', width, height
+        print 'dx,dy   :', dx, dy
+        ctx.rectangle(0, 0, width, height)
+        ctx.set_line_width(1)
+        ctx.set_rgb_color(1,0,0)
+        ctx.stroke()
+        ctx.move_to(30,30)
+        ctx.select_font('sans-serif')
+        ctx.scale_font(20)
+        ctx.show_text('Origin corner')
+
+    ctx.show_page()
+    fileObject.close()
+
+
 class FigureCanvasCairo(FigureCanvasBase):
     """
     The canvas the figure renders into.  Calls the draw and print fig
     methods, creates the renderers, etc...
-
-    Public attribute
-
+    Public attributes
       figure - A Figure instance
     """
-
-    def draw(self): # not required?
-        """
-        Draw the figure using the renderer
-        """
-        if DEBUG: print 'backend_cairo.FigureCanvasCairo.%s()' % _fn_name()
-        pass
-        #renderer = RendererCairo()  # height, width, figure.dpi
-        #self.figure.draw(renderer)
-        
-        
     def print_figure(self, filename, dpi=150, facecolor='w', edgecolor='w',
                      orientation='portrait'):
-        """
-        Render the figure to hardcopy.  Set the figure patch face and
-        edge colors.  This is useful because some of the GUIs have a
-        gray figure face color background and you'll probably want to
-        override this on hardcopy
+        print_figure_fn(self.figure, filename, dpi, facecolor, edgecolor,
+                      orientation)
+# old FigureCanvas methods
+"""
+    def print_figure(self, filename, dpi=150, facecolor='w', edgecolor='w',
+                     orientation='portrait'):
 
-        orientation - only currently applies to PostScript printing.
-        """
+#        Render the figure to hardcopy.  Set the figure patch face and
+#        edge colors.  This is useful because some of the GUIs have a
+#        gray figure face color background and you'll probably want to
+#        override this on hardcopy
+#
+#        orientation - only currently applies to PostScript printing.
+
         if DEBUG: print 'backend_cairo.FigureCanvasCairo.%s()' % _fn_name()
 
         root, ext = os.path.splitext(filename)       
@@ -593,8 +720,11 @@ class FigureCanvasCairo(FigureCanvasBase):
                 if ext == 'png': self._save_png (fileObject)
                 else:            self._save_ps  (fileObject)
             
-        elif ext == 'svg':  # backend_svg, later - use Cairo to write svg?
-            from backend_svg import FigureCanvasSVG as FigureCanvas
+        elif ext in ('eps', 'svg'):  # backend_svg, later - use Cairo to write svg?
+            if ext == 'eps':
+                from backend_ps import FigureCanvasPS  as FigureCanvas
+            else:
+                from backend_svg import FigureCanvasSVG as FigureCanvas
             fc = self.switch_backends(FigureCanvas)
             fc.print_figure(filename, dpi, facecolor, edgecolor, orientation)
 
@@ -602,7 +732,7 @@ class FigureCanvasCairo(FigureCanvasBase):
             verbose.report_error('Format "%s" is not supported.\nSupported formats: %s.' %
                       (ext, ', '.join(IMAGE_FORMAT)))
 
-        # restore the new params and redraw the screen if necessary
+        # restore the new params
         self.figure.dpi.set(origDPI)
         self.figure.set_facecolor(origfacecolor)
         self.figure.set_edgecolor(origedgecolor)
@@ -631,8 +761,8 @@ class FigureCanvasCairo(FigureCanvasBase):
 
         self.figure.dpi.set (dpi)    
         l,b, width, height = self.figure.bbox.get_bounds()
-        dx = (page_w - width)  / 2.0
-        dy = (page_h - height) / 2.0
+        tx = (page_w - width)  / 2.0
+        ty = (page_h - height) / 2.0
         
         ctx = cairo.Context()
         ctx.set_target_ps (fileObject, page_w_in, page_h_in, dpi, dpi)
@@ -643,7 +773,7 @@ class FigureCanvasCairo(FigureCanvasBase):
             # with the way cairo is used?
 
             # center the figure on the page
-            matrix = cairo.Matrix (tx=dx, ty=dy)
+            matrix = cairo.Matrix (tx=tx, ty=ty)
             ctx.set_matrix (matrix)
             # TODO? scale figure to maximize yet leave space for margin/border round page?
             # the figure already has a 'margin', so could use full page width?
@@ -678,13 +808,4 @@ class FigureCanvasCairo(FigureCanvasBase):
 
         ctx.show_page()
         fileObject.close()
-
-            
-    #def realize(self, *args): # is not required in cairo?
-    #    """
-    #    This method will be called when the system is ready to draw,
-    #    eg when a GUI window is realized
-    #    """
-    #    if DEBUG: print 'backend_cairo.FigureCanvasCairo.%s()' % _fn_name()
-    #    self._isRealized = True  
-    #    self.draw()
+"""
