@@ -2,6 +2,10 @@ New entries should be added at the top
 
 2004-12-13 dates.py: removed all timezone() calls, except for UTC - SC
 
+======================================================================
+
+2004-12-13 0.65 released - JDH
+
 2004-12-13 colors.py: rgb2hex(), hex2color() made simpler (and faster), also
            rgb2hex() - added round() instead of integer truncation
            hex2color() - changed 256.0 divisor to 255.0, so now

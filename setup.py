@@ -23,18 +23,18 @@ BUILD_IMAGE = 1
 BUILD_AGG = 1
 
 # Render Agg to the GTK canvas
-BUILD_GTKAGG       = 1
-#BUILD_GTKAGG       = 'auto'
+#BUILD_GTKAGG       = 0
+BUILD_GTKAGG       = 'auto'
 
 # build TK GUI with Agg renderer ; requires Tkinter Python extension
 # and Tk includes
 # Use False or 0 if you don't want to build
-BUILD_TKAGG        = 1
-#BUILD_TKAGG        = 'auto'
+#BUILD_TKAGG        = 0
+BUILD_TKAGG        = 'auto'
 
 # build a small extension to manage the focus on win32 platforms.
-BUILD_WINDOWING        = 1
-#BUILD_WINDOWING        = 'auto'
+#BUILD_WINDOWING        = 0
+BUILD_WINDOWING        = 'auto'
 
 
 VERBOSE = False  # insert lots of diagnostic prints in extension code
