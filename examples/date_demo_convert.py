@@ -1,5 +1,7 @@
+#!/usr/bin/env python
+
 import matplotlib
-matplotlib.use('TkAgg')
+#matplotlib.use('TkAgg')
 from matplotlib import matlab
 ML = matlab
 from matplotlib.dates import DayLocator, HourLocator, \
