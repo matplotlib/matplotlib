@@ -462,7 +462,7 @@ class ScalarMappable:
         cmap of another image
         """
         self.observers.append(mappable)
-
+        
     def notify(self, mappable):
         """
         If this is called then we are pegged to another mappable.

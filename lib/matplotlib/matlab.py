@@ -368,7 +368,6 @@ def changed_name_function(f, newname):
         newf =  new.function(f.func_code, f.func_globals, newname,
                              argdefs)
 
-    print f.func_defaults
     newf.__doc__ = f.__doc__
     return newf
 
@@ -816,13 +815,6 @@ def get(o, *args):
     func = getattr(o, 'get_' + name)
     return func()
 
-def gray():
-    'set the default colormap to gray and apply to current image if any'
-    rc('image', cmap='gray')
-    im = gci()
-    if im is not None:
-        im.set_cmap(cm.gray)
-        draw_if_interactive()
 
 # define the colormap functions
 fmt = """\
@@ -835,6 +827,7 @@ def %s():
     draw_if_interactive()
 """
 
+# add all the colormaps (autumn, hsv, ....)
 for name in cm.datad.keys():
     s = fmt%(name, name, name, name)
     exec(s)

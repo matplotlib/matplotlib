@@ -9,7 +9,7 @@ import mlab
 from artist import Artist
 from axis import XAxis, YAxis
 from cbook import iterable, is_string_like, flatten, enumerate, True, False,\
-     allequal, dict_delall, strip_math
+     allequal, dict_delall, strip_math, popd
 from collections import RegularPolyCollection, PolyCollection
 from colors import colorConverter, normalize, Colormap, LinearSegmentedColormap
 import cm
@@ -1474,13 +1474,13 @@ and so on.  The following kwargs are supported
         if len(args)==0:
             labels = [line.get_label() for line in self.lines]
             lines = self.lines
-            loc = kwargs.gry('loc', 1)
+            loc = popd(kwargs, 'loc', 1)
 
         elif len(args)==1:
             # LABELS
             labels = args[0]
             lines = [line for line, label in zip(self.lines, labels)]
-            loc = kwargs.get('loc', 1)
+            loc = popd(kwargs, 'loc', 1)
 
         elif len(args)==2:
             if is_string_like(args[1]) or isinstance(args[1], int):
@@ -1490,13 +1490,14 @@ and so on.  The following kwargs are supported
             else:
                 # LINES, LABELS
                 lines, labels = args
-                loc = kwargs.get('loc', 1)
+                loc = popd(kwargs, 'loc', 1)
 
         elif len(args)==3:
             # LINES, LABELS, LOC
             lines, labels, loc = args
         else:
             raise RuntimeError('Invalid arguments to legend')
+
 
         lines = flatten(lines)
         self.legend_ = Legend(self, lines, labels, loc, **kwargs)
