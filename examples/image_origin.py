@@ -17,5 +17,5 @@ subplot(212)
 title('blue should be down')
 imshow(x, origin='lower', interpolation='nearest')
 
-savefig('image_origin')
+#savefig('image_origin')
 show()
