@@ -90,7 +90,7 @@ times = {}
 backends = ['PS', 'GD', 'Paint', 'Agg', 'Template']
 #backends.extend([ 'GTK', 'WX', 'TkAgg'])
 backends = [ 'Agg']
-backends = [ 'Agg', 'PS', 'SVG', 'Template']
+backends = [ 'SVG', 'PS', 'Agg', 'Template']
 
 for backend in backends:
     print 'testing %s' % backend
