@@ -3,7 +3,10 @@
 # This is a sample matplotlib configuration file.   It should be placed
 # in your home dir (Linux and friends) or in the matplotlib data path,
 # ie, where matplotlib installs its data files (fonts, etc).  On
-# windows, this would be, for example, C:\Python23\share\matplotlib
+# windows, this would be, for example, C:\Python23\share\matplotlib.
+# On OSX, using the python framework, it will be (depending on your
+# version number) in /System/Library/Frameworks/Python.framework/Versions/2.3/share/matplotlib/.matplotlibrc
+
 #
 # By default, the installer will overwrite the existing file in the
 # install path, so if you want to preserve your's, please move it to

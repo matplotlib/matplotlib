@@ -14,13 +14,14 @@ def func3(x,y):
 # make these smaller to increase the resolution
 dx, dy = 0.05, 0.05
 
-x = arange(-3.0, 3.0, dx)
-y = arange(-3.0, 3.0, dy)
+x = arange(-3.0, 3.0001, dx)
+y = arange(-3.0, 3.0001, dy)
 X,Y = meshgrid(x, y)
 
 Z = func3(X, Y)
 pcolor(X, Y, Z, shading='flat')
 colorbar()
+axis([-3,3,-3,3])
 #savefig('pcolor_demo')
 show()
 

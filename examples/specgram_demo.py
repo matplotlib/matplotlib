@@ -14,6 +14,5 @@ NFFT = 1024
 Fs = int(1.0/dt)
 Noverlap = 0
 Pxx, freqs, bins, im = specgram(x, NFFT=NFFT, Fs=Fs, noverlap=900)
-xticks(arange(0,21,5))
 colorbar()
 show()

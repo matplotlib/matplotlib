@@ -46,6 +46,7 @@ New entries should be added at the top
 2004-09-15 Moved definitions of infinity from mlab to numerix to avoid
 	   divide by zero warnings for numarray - JTM
 
+2004-09-09 Added axhline, axvline, axhspan and axvspan
 
 ==============================================================
 2004-08-30 matplotlib 0.62.4 released

@@ -18,24 +18,25 @@
 #include "agg_conv_stroke.h"
 #include "agg_ellipse.h"
 #include "agg_embedded_raster_fonts.h"
-#include "agg_gen_markers_term.h"
 #include "agg_path_storage.h"
 #include "agg_pixfmt_rgb24.h"
 #include "agg_pixfmt_rgba32.h"
+#include "agg_pixfmt_rgba32.h"
 #include "agg_rasterizer_outline.h"
 #include "agg_rasterizer_scanline_aa.h"
-#include "agg_scanline_bin.h"
+
 #include "agg_renderer_outline_aa.h"
 #include "agg_renderer_raster_text.h"
 #include "agg_renderer_scanline.h"
 #include "agg_rendering_buffer.h"
-#include "agg_scanline_p32.h"
-
+#include "agg_scanline_bin.h"
+#include "agg_scanline_p.h"
+#include "agg_vcgen_markers_term.h"
 
 typedef agg::pixel_formats_rgba32<agg::order_rgba32> pixfmt;
 //typedef agg::pixel_formats_rgb24<agg::order_bgr24> pixfmt;
 typedef agg::renderer_base<pixfmt> renderer_base;
-typedef agg::renderer_scanline_p_solid<renderer_base> renderer;
+typedef agg::renderer_scanline_aa_solid<renderer_base> renderer_aa;
 typedef agg::renderer_scanline_bin_solid<renderer_base> renderer_bin;
 typedef agg::rasterizer_scanline_aa<> rasterizer;
 typedef agg::scanline_p8 scanline_p8;
@@ -81,7 +82,7 @@ public:
   scanline_bin* slineBin;
   pixfmt *pixFmt;
   renderer_base *rendererBase;
-  renderer *theRenderer;
+  renderer_aa *rendererAA;
   renderer_bin *rendererBin;
   rasterizer *theRasterizer;
 
@@ -96,8 +97,8 @@ protected:
   Py::Tuple get_dashes( const Py::Object& gc);
   int antialiased( const Py::Object& gc);
   agg::rgba get_color(const Py::Object& gc);
-  agg::gen_stroke::line_cap_e get_linecap(const Py::Object& gc);
-  agg::gen_stroke::line_join_e get_joinstyle(const Py::Object& gc);
+  agg::vcgen_stroke::line_cap_e get_linecap(const Py::Object& gc);
+  agg::vcgen_stroke::line_join_e get_joinstyle(const Py::Object& gc);
 
   double points_to_pixels( const Py::Object& points);
   double points_to_pixels_snapto( const Py::Object& points);

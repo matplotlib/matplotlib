@@ -12,7 +12,7 @@
 #include "ft2font.h"
 #include "_image.h"
 #include "_backend_agg.h"
-
+ 
 #include "_transforms.h"
 #include "mplutils.h"
 
@@ -45,7 +45,7 @@ RendererAgg::RendererAgg(unsigned int width, unsigned int height, double dpi,
   rendererBase = new renderer_base(*pixFmt);
   rendererBase->clear(agg::rgba(1, 1, 1, 0));
   
-  theRenderer = new renderer(*rendererBase);
+  rendererAA = new renderer_aa(*rendererBase);
   rendererBin = new renderer_bin(*rendererBase);
   theRasterizer = new rasterizer(); 
   
@@ -85,20 +85,20 @@ RendererAgg::draw_rectangle(const Py::Tuple & args) {
     Py::SeqBase<Py::Object> rgbFace = rgbFaceMaybeNone;
     agg::rgba facecolor = rgb_to_color(rgbFace, edgecolor.a);
     
-    theRenderer->color(facecolor);
+    rendererAA->color(facecolor);
     theRasterizer->add_path(path);    
-    theRasterizer->render(*slineP8, *theRenderer);  
+    agg::render_scanlines(*theRasterizer, *slineP8, *rendererAA);
+    
     
   }
   
   //now fill the edge
   agg::conv_stroke<agg::path_storage> stroke(path);
   stroke.width(lw);
-  theRenderer->color(edgecolor);
+  rendererAA->color(edgecolor);
   //self->theRasterizer->gamma(agg::gamma_power(gamma));
   theRasterizer->add_path(stroke);
-  theRasterizer->render(*slineP8, *theRenderer);  
-  
+  agg::render_scanlines(*theRasterizer, *slineP8, *rendererAA);
   
   return Py::Object();
   
@@ -127,9 +127,9 @@ RendererAgg::draw_ellipse(const Py::Tuple& args) {
   if (rgbFaceMaybeNone.ptr() != Py_None) {
     Py::SeqBase<Py::Object> rgbFace = rgbFaceMaybeNone;
     agg::rgba facecolor = rgb_to_color(rgbFace, edgecolor.a);
-    theRenderer->color(facecolor);
+    rendererAA->color(facecolor);
     theRasterizer->add_path(path);    
-    theRasterizer->render(*slineP8, *theRenderer);  
+    agg::render_scanlines(*theRasterizer, *slineP8, *rendererAA);
     
   }
   
@@ -140,11 +140,10 @@ RendererAgg::draw_ellipse(const Py::Tuple& args) {
   
   agg::conv_stroke<agg::ellipse> stroke(path);
   stroke.width(lw);
-  theRenderer->color(edgecolor);
+  rendererAA->color(edgecolor);
   //self->theRasterizer->gamma(agg::gamma_power(gamma));
   theRasterizer->add_path(stroke);
-  theRasterizer->render(*slineP8, *theRenderer);  
-  
+  agg::render_scanlines(*theRasterizer, *slineP8, *rendererAA);
   return Py::Object();
   
 }
@@ -161,8 +160,8 @@ RendererAgg::draw_polygon(const Py::Tuple& args) {
 
   
   set_clip_rectangle(gcEdge);
-  agg::gen_stroke::line_cap_e cap = get_linecap(gcEdge);
-  agg::gen_stroke::line_join_e join = get_joinstyle(gcEdge);
+  agg::vcgen_stroke::line_cap_e cap = get_linecap(gcEdge);
+  agg::vcgen_stroke::line_join_e join = get_joinstyle(gcEdge);
   
   double lw = points_to_pixels ( gcEdge.getAttr("_linewidth") ) ;
 
@@ -203,9 +202,9 @@ RendererAgg::draw_polygon(const Py::Tuple& args) {
     //fill the face
     Py::SeqBase<Py::Object> rgbFace = rgbFaceMaybeNone;
     agg::rgba facecolor = rgb_to_color(rgbFace, edgecolor.a);
-    theRenderer->color(facecolor);
+    rendererAA->color(facecolor);
     theRasterizer->add_path(path);    
-    theRasterizer->render(*slineP8, *theRenderer);  
+    agg::render_scanlines(*theRasterizer, *slineP8, *rendererAA);
   }
 
   //now fill the edge
@@ -214,10 +213,10 @@ RendererAgg::draw_polygon(const Py::Tuple& args) {
   stroke.line_cap(cap);
   stroke.line_join(join);
   
-  theRenderer->color(edgecolor);
+  rendererAA->color(edgecolor);
   //self->theRasterizer->gamma(agg::gamma_power(gamma));
   theRasterizer->add_path(stroke);
-  theRasterizer->render(*slineP8, *theRenderer);  
+  agg::render_scanlines(*theRasterizer, *slineP8, *rendererAA);
   return Py::Object();
   
 }
@@ -324,12 +323,12 @@ RendererAgg::draw_line_collection(const Py::Tuple& args) {
     // render antialiased or not
     int isaa = Py::Int(antialiaseds[i%Naa]);
     if ( isaa ) {
-      theRenderer->color(color);    
-      theRasterizer->render(*slineP8, *theRenderer); 
+      rendererAA->color(color);    
+      agg::render_scanlines(*theRasterizer, *slineP8, *rendererAA);
     }
     else {
       rendererBin->color(color);    
-      theRasterizer->render(*slineBin, *rendererBin); 
+      agg::render_scanlines(*theRasterizer, *slineBin, *rendererBin);
     }
   } //for every segment
   return Py::Object();
@@ -476,12 +475,12 @@ RendererAgg::draw_poly_collection(const Py::Tuple& args) {
       theRasterizer->add_path(path);          
 
       if (isaa) {
-	theRenderer->color(facecolor);    
-	theRasterizer->render(*slineP8, *theRenderer); 
+	rendererAA->color(facecolor);    
+	agg::render_scanlines(*theRasterizer, *slineP8, *rendererAA);
       }
       else {
 	rendererBin->color(facecolor);    
-	theRasterizer->render(*slineBin, *rendererBin); 
+	agg::render_scanlines(*theRasterizer, *slineBin, *rendererBin);
       }
     } //renderer face
     
@@ -503,12 +502,12 @@ RendererAgg::draw_poly_collection(const Py::Tuple& args) {
 
       // render antialiased or not
       if ( isaa ) {
-	theRenderer->color(edgecolor);    
-	theRasterizer->render(*slineP8, *theRenderer); 
+	rendererAA->color(edgecolor);    
+	agg::render_scanlines(*theRasterizer, *slineP8, *rendererAA); 
       }
       else {
 	rendererBin->color(edgecolor);    
-	theRasterizer->render(*slineBin, *rendererBin); 
+	agg::render_scanlines(*theRasterizer, *slineBin, *rendererBin); 
       }
     } //rendered edge
     
@@ -600,12 +599,12 @@ RendererAgg::draw_regpoly_collection(const Py::Tuple& args) {
       theRasterizer->add_path(path);          
 
       if (isaa) {
-	theRenderer->color(facecolor);    
-	theRasterizer->render(*slineP8, *theRenderer); 
+	rendererAA->color(facecolor);    
+	agg::render_scanlines(*theRasterizer, *slineP8, *rendererAA); 
       }
       else {
 	rendererBin->color(facecolor);    
-	theRasterizer->render(*slineBin, *rendererBin); 
+	agg::render_scanlines(*theRasterizer, *slineBin, *rendererBin); 
       }
     } //renderer face
     
@@ -627,12 +626,12 @@ RendererAgg::draw_regpoly_collection(const Py::Tuple& args) {
 
       // render antialiased or not
       if ( isaa ) {
-	theRenderer->color(edgecolor);    
-	theRasterizer->render(*slineP8, *theRenderer); 
+	rendererAA->color(edgecolor);    
+	agg::render_scanlines(*theRasterizer, *slineP8, *rendererAA); 
       }
       else {      
 	rendererBin->color(edgecolor);    
-	theRasterizer->render(*slineBin, *rendererBin); 
+	agg::render_scanlines(*theRasterizer, *slineBin, *rendererBin); 
       }
     } //rendered edge
     
@@ -662,8 +661,8 @@ RendererAgg::draw_lines(const Py::Tuple& args) {
     throw Py::ValueError("x and y must have length >= 2");
   
   
-  agg::gen_stroke::line_cap_e cap = get_linecap(gc);
-  agg::gen_stroke::line_join_e join = get_joinstyle(gc);
+  agg::vcgen_stroke::line_cap_e cap = get_linecap(gc);
+  agg::vcgen_stroke::line_join_e join = get_joinstyle(gc);
   
   
   double lw = points_to_pixels ( gc.getAttr("_linewidth") ) ;
@@ -767,12 +766,12 @@ RendererAgg::draw_lines(const Py::Tuple& args) {
   }
   
   if ( isaa ) {
-    theRenderer->color(color);    
-    theRasterizer->render(*slineP8, *theRenderer); 
+    rendererAA->color(color);    
+    agg::render_scanlines(*theRasterizer, *slineP8, *rendererAA); 
   }
   else {
-    rendererBin->color(color);    
-    theRasterizer->render(*slineBin, *rendererBin); 
+    rendererBin->color(color);     
+    agg::render_scanlines(*theRasterizer, *slineBin, *rendererBin); 
   }
   
   return Py::Object();
@@ -845,10 +844,10 @@ RendererAgg::draw_text(const Py::Tuple& args) {
   //now fill the edge
   agg::conv_stroke<agg::path_storage> stroke(path);
   stroke.width(1.0);
-  theRenderer->color(edgecolor);
+  rendererAA->color(edgecolor);
   //self->theRasterizer->gamma(agg::gamma_power(gamma));
   theRasterizer->add_path(stroke);
-  theRasterizer->render(*slineP8, *theRenderer);  
+  agg::render_scanlines(*theRasterizer, *slineP8, *rendererAA);  
   
   */
 
@@ -1083,35 +1082,35 @@ RendererAgg::clear(const Py::Tuple& args) {
   return Py::Object();
 }
 
-agg::gen_stroke::line_cap_e
+agg::vcgen_stroke::line_cap_e
 RendererAgg::get_linecap(const Py::Object& gc) {
   _VERBOSE("RendererAgg::get_linecap");
   
   std::string capstyle = Py::String( gc.getAttr( "_capstyle" ) );
   
   if (capstyle=="butt") 
-    return agg::gen_stroke::butt_cap;
+    return agg::vcgen_stroke::butt_cap;
   else if (capstyle=="round") 
-    return agg::gen_stroke::round_cap;
+    return agg::vcgen_stroke::round_cap;
   else if(capstyle=="projecting") 
-    return agg::gen_stroke::square_cap;
+    return agg::vcgen_stroke::square_cap;
   else 
     throw Py::ValueError("GC _capstyle attribute must be one of butt, round, projecting");
   
 }
 
-agg::gen_stroke::line_join_e
+agg::vcgen_stroke::line_join_e
 RendererAgg::get_joinstyle(const Py::Object& gc) {
   _VERBOSE("RendererAgg::get_joinstyle");
   
   std::string joinstyle = Py::String( gc.getAttr("_joinstyle") );
   
   if (joinstyle=="miter") 
-    return agg::gen_stroke::miter_join;
+    return agg::vcgen_stroke::miter_join;
   else if (joinstyle=="round") 
-    return agg::gen_stroke::round_join;
+    return agg::vcgen_stroke::round_join;
   else if(joinstyle=="bevel") 
-    return agg::gen_stroke::bevel_join;
+    return agg::vcgen_stroke::bevel_join;
   else 
     throw Py::ValueError("GC _joinstyle attribute must be one of butt, round, projecting");
   
@@ -1209,7 +1208,7 @@ RendererAgg::~RendererAgg() {
   delete slineP8;
   delete slineBin;
   delete theRasterizer;
-  delete theRenderer;
+  delete rendererAA;
   delete rendererBin;
   delete rendererBase;
   delete pixFmt;

@@ -13,15 +13,18 @@
 
 #include "agg_pixfmt_rgb24.h"
 #include "agg_pixfmt_rgba32.h"
+#include "agg_pixfmt_rgba32.h"
+#include "agg_color_rgba8.h"
 #include "agg_rendering_buffer.h"
 #include "agg_rasterizer_scanline_aa.h"
+#include "agg_scanline_bin.h"
 #include "agg_path_storage.h"
 #include "agg_conv_transform.h"
 #include "agg_span_image_filter_rgb24.h"
 #include "agg_span_image_filter_rgba32.h"
 #include "agg_span_interpolator_linear.h"
-#include "agg_scanline_u8.h"
-#include "agg_scanline_p32.h"
+#include "agg_scanline_bin.h"
+#include "agg_scanline_u.h"
 #include "agg_renderer_scanline.h"
 
 #include "_image.h"
@@ -33,7 +36,7 @@ typedef agg::pixel_formats_rgba32<agg::order_rgba32> pixfmt;
 typedef agg::renderer_base<pixfmt> renderer_base;
 typedef agg::span_interpolator_linear<> interpolator_type;
 typedef agg::span_image_filter_rgba32_bilinear<agg::order_rgba32, interpolator_type> span_gen_type;
-typedef agg::renderer_scanline_u<renderer_base, span_gen_type> renderer_type;
+typedef agg::renderer_scanline_aa<renderer_base, span_gen_type> renderer_type;
 typedef agg::rasterizer_scanline_aa<> rasterizer;
 
 
@@ -82,7 +85,7 @@ Image::apply_rotation(const Py::Tuple& args) {
   double r = Py::Float(args[0]);
   
   
-  agg::affine_matrix M = agg::rotation_matrix( r * agg::pi / 180.0);	      
+  agg::trans_affine M = agg::trans_affine_rotation( r * agg::pi / 180.0);	      
   srcMatrix *= M;
   imageMatrix *= M;
   return Py::Object();  
@@ -122,7 +125,7 @@ Image::apply_scaling(const Py::Tuple& args) {
   double sy = Py::Float(args[1]);
   
   //printf("applying scaling %1.2f, %1.2f\n", sx, sy);
-  agg::affine_matrix M = agg::scaling_matrix(sx, sy);	      
+  agg::trans_affine M = agg::trans_affine_scaling(sx, sy);	      
   srcMatrix *= M;
   imageMatrix *= M;
   
@@ -146,7 +149,7 @@ Image::apply_translation(const Py::Tuple& args) {
   double ty = Py::Float(args[1]);
   
   //printf("applying translation %1.2f, %1.2f\n", tx, ty);
-  agg::affine_matrix M = agg::translation_matrix(tx, ty);	      
+  agg::trans_affine M = agg::trans_affine_translation(tx, ty);	      
   srcMatrix *= M;
   imageMatrix *= M;
   
@@ -252,52 +255,114 @@ Image::resize(const Py::Tuple& args) {
   rb.clear(bg);
   agg::rasterizer_scanline_aa<> ras;
   agg::scanline_u8 sl;
-  
+
   
   //srcMatrix *= resizingMatrix;
   //imageMatrix *= resizingMatrix;
   imageMatrix.invert();
   interpolator_type interpolator(imageMatrix); 
   
-  // the image path
-  agg::path_storage path;
-  path.move_to(0, 0);
-  path.line_to(colsIn, 0);
-  path.line_to(colsIn, rowsIn);
-  path.line_to(0, rowsIn);
-  path.close_polygon();
-  agg::conv_transform<agg::path_storage> imageBox(path, srcMatrix);
-  ras.add_path(imageBox);
   
   
   
   agg::image_filter_base* filter = 0;  
   agg::span_allocator<agg::rgba8> sa;	
+  agg::rgba8 background(agg::rgba8(int(255*bg.r),
+				   int(255*bg.g),
+				   int(255*bg.b),
+				   int(255*bg.a)));
+
+
+
+
+  // the image path
+  agg::path_storage path;
+  agg::int8u *bufferPad = NULL;
+  agg::rendering_buffer rbufPad;
+
+  double x0, y0, x1, y1;
+  
+  if (interpolation==NEAREST) {
+    x0 = 0.0;
+    x1 = colsIn;
+    y0 = 0.0;
+    y1 = rowsIn;
+  }
+  else {
+    // if interpolation != nearest, create a new input buffer with the
+    // edges mirrored on all size.  Then new buffer size is colsIn+2 by
+    // rowsIn+2
+
+    x0 = 1.0;
+    x1 = colsIn+1;
+    y0 = 1.0;
+    y1 = rowsIn+1;
+
+    bufferPad = new agg::int8u[(rowsIn+2) * (colsIn+2) * BPP];
+    if (bufferPad ==NULL) 
+      throw Py::MemoryError("Image::resize could not allocate memory");
+    //pad the input buffer
+    for (size_t rowNum=0; rowNum<rowsIn+2; rowNum++)
+      for (size_t colNum=0; colNum<colsIn+2; colNum++) {
+	if ( (colNum==0) && (rowNum==1||(rowNum==rowsIn+1))) {
+	  //rewind to begining of column
+	  bufferIn -= colsIn * BPP; 
+	}
+	*bufferPad++ = *bufferIn++;       //red
+	*bufferPad++ = *bufferIn++;       //green
+	*bufferPad++ = *bufferIn++;       //blue
+	*bufferPad++ = *bufferIn++;       //alpha
+
+	//rewind one byte on the first and next to last columns
+	if ( colNum==0 || colNum==colsIn) bufferIn-=4;
+      }
+    //rewind the input buffers
+    bufferIn  -= rowsIn * colsIn * BPP;
+    bufferPad -= (rowsIn+2) * (colsIn+2) * BPP;
+    rbufPad.attach(bufferPad, colsIn+2, rowsIn+2, (colsIn+2) * BPP);
+  }
+
+
+
+    
+  if (buffer ==NULL) //todo: also handle allocation throw
+    throw Py::MemoryError("Image::resize could not allocate memory");
+  
+  path.move_to(x0, y0);
+  path.line_to(x1, y0);
+  path.line_to(x1, y1);
+  path.line_to(x0, y1);
+  path.close_polygon();
+  agg::conv_transform<agg::path_storage> imageBox(path, srcMatrix);
+  ras.add_path(imageBox);
+
   switch(interpolation)
     {
     case NEAREST:
       {
+	
 	typedef agg::span_image_filter_rgba32_nn<agg::order_rgba32,
 	  interpolator_type> span_gen_type;
-	typedef agg::renderer_scanline_u<renderer_base, span_gen_type> renderer_type;
-	
-	span_gen_type sg(sa, *rbufIn, agg::rgba(1,1,1,0), interpolator);
+	typedef agg::renderer_scanline_aa<renderer_base, span_gen_type> renderer_type;
+	       
+	span_gen_type sg(sa, *rbufIn, background, interpolator);
 	renderer_type ri(rb, sg);
-	ras.add_path(imageBox);
-	ras.render(sl, ri);
+	agg::render_scanlines(ras, sl, ri);
+	
       }
       break;
       
     case BILINEAR:
       {
+
+       
 	typedef agg::span_image_filter_rgba32_bilinear<agg::order_rgba32,
 	  interpolator_type> span_gen_type;
-	typedef agg::renderer_scanline_u<renderer_base, span_gen_type> renderer_type;
-	
-	span_gen_type sg(sa, *rbufIn, agg::rgba(1,1,1,0), interpolator);
+	typedef agg::renderer_scanline_aa<renderer_base, span_gen_type> renderer_type;
+		
+	span_gen_type sg(sa, rbufPad, background, interpolator);
 	renderer_type ri(rb, sg);
-	ras.add_path(imageBox);
-	ras.render(sl, ri);
+	agg::render_scanlines(ras, sl, ri);
       }
       break;
       
@@ -313,11 +378,10 @@ Image::resize(const Py::Tuple& args) {
       
       typedef agg::span_image_filter_rgba32<agg::order_rgba32,
 	interpolator_type> span_gen_type;
-      typedef agg::renderer_scanline_u<renderer_base, span_gen_type> renderer_type;
-      
-      span_gen_type sg(sa, *rbufIn, agg::rgba(1,1,1,0), interpolator, *filter);
+      typedef agg::renderer_scanline_aa<renderer_base, span_gen_type> renderer_type;
+      span_gen_type sg(sa, rbufPad, background, interpolator, *filter);
       renderer_type ri(rb, sg);
-      ras.render(sl, ri);
+      agg::render_scanlines(ras, sl, ri);
       
     }
   
@@ -329,8 +393,8 @@ Image::resize(const Py::Tuple& args) {
   
   
   bufferOut = buffer;
-  
-  
+  delete [] bufferPad;
+
   return Py::Object();
   
 }
@@ -572,7 +636,7 @@ _image_module::from_images(const Py::Tuple& args) {
   
   imo->rbufOut = new agg::rendering_buffer;
   imo->rbufOut->attach(imo->bufferOut, imo->colsOut, imo->rowsOut, imo->colsOut * imo->BPP);
-  
+   
   pixfmt pixf(*imo->rbufOut);
   renderer_base rb(pixf);
   
