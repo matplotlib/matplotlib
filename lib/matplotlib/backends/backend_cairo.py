@@ -95,17 +95,17 @@ class RendererCairo(RendererBase):
         }
     
 
-    def __init__(self, surface, matrix, width, height, dpi):
+    def __init__(self, matrix, dpi):
         """width, height - the canvas width, height. Is not necessarily
         the same as the surface (pixmap) width, height
         """
         if DEBUG: print 'backend_cairo.RendererCairo.%s()' % _fn_name()
-        self.surface  = surface
         self.matrix   = matrix
-        self.width    = width
-        self.height   = height
         self.dpi      = dpi
         self.text_ctx = cairo.Context()
+
+    def _set_pixmap(self, pixmap):
+        self.surface = cairo.gtk.surface_create_for_drawable (pixmap)
 
     def _set_width_height(self, width, height):
         self.width    = width
@@ -147,7 +147,7 @@ class RendererCairo(RendererBase):
             # save/restore prevents the problem
             ctx.scale_font (scale*size)
         
-            w, h = ctx.text_extents ('0')[2:4]
+            w, h = ctx.text_extents (s)[2:4]
             ctx.restore()
             
             return w, h

@@ -637,7 +637,6 @@ class FigureCanvasGTK(gtk.DrawingArea, FigureCanvasBase):
         self._draw_pixmap   = True
         self._pixmap_width  = -1
         self._pixmap_height = -1
-        self._renderer      = RendererGTK (self, self.figure.dpi)
 
         self._lastCursor = None
         self._button     = None  # the button pressed
@@ -666,6 +665,8 @@ class FigureCanvasGTK(gtk.DrawingArea, FigureCanvasBase):
             gdk.BUTTON_PRESS_MASK   |
             gdk.BUTTON_RELEASE_MASK |
             gdk.POINTER_MOTION_MASK  )
+
+        self._renderer_init()
 
     def button_press_event(self, widget, event):
         self._button = event.button
@@ -751,14 +752,24 @@ class FigureCanvasGTK(gtk.DrawingArea, FigureCanvasBase):
         self.expose_event(self, None)
 
 
-    def _render_to_pixmap(self, width, height):
-        """Backend specific method of rendering to the gdk.Pixmap.
-        Is used both for rendering the pixmap to display and
-        for rendering the pixmap to save to a file.
-        
-        GTK backends should override this with their own method.
+    def _renderer_init(self):
+        """Override by GTK backends to select a different renderer
+        Renderer should provide the methods:
+            _set_pixmap ()
+            _set_width_height ()
+        that are used by
+            _render_to_pixmap()        
         """
-        # Start: Do not change these lines ----------
+        self._renderer = RendererGTK (self, self.figure.dpi)
+
+
+    def _render_to_pixmap(self, width, height):
+        """Render the figure to a gdk.Pixmap, is used for
+           - rendering the pixmap to display        (matlab.draw)
+           - rendering the pixmap to save to a file (matlab.savefig)
+        Should not be overridden
+        """
+        if DEBUG: print 'backend_gtk.%s' % _fn_name()
         create_pixmap = False
         if width > self._pixmap_width:
             # increase the pixmap in 10%+ (rather than 1 pixel) steps
@@ -773,7 +784,6 @@ class FigureCanvasGTK(gtk.DrawingArea, FigureCanvasBase):
             if DEBUG: print 'backend_gtk.%s: new pixmap' % _fn_name()
             self._pixmap = gtk.gdk.Pixmap (self.window, self._pixmap_width,
                                            self._pixmap_height)
-            # End: Do not change these lines ----------
             self._renderer._set_pixmap (self._pixmap)
 
         self._renderer._set_width_height (width, height)
@@ -781,7 +791,8 @@ class FigureCanvasGTK(gtk.DrawingArea, FigureCanvasBase):
 
 
     def expose_event(self, widget, event):
-        """Expose_event for all GTK backends, should not be overridden.
+        """Expose_event for all GTK backends
+        Should not be overridden.
         """
         if DEBUG: print 'backend_gtk.%s' % _fn_name()
         if self._draw_pixmap and GTK_WIDGET_DRAWABLE(self):
