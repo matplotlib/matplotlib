@@ -45,6 +45,7 @@ else: useMathText = True
 PIXELS_PER_INCH = 96
 
 backend_version = 'unknown'
+
 cursord = {
     cursors.MOVE          : gtk.gdk.Cursor(gtk.gdk.FLEUR),
     cursors.HAND          : gtk.gdk.Cursor(gtk.gdk.HAND2),
