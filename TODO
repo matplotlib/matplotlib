@@ -340,3 +340,5 @@
 -- fix color on errorbar lines
 
 -- savefig to file handle.
+
+-- add agg and and image generic tostring methods

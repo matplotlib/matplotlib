@@ -1,5 +1,10 @@
 New entries should be added at the top
 ------------------------------------------------------------
+2004-04-29 Added CXX and rewrote backend_agg using it; tracked down
+           and fixed agg memory leak - JDH
+
+2004-04-29 Added stem plot command - JDH
+
 2004-04-28 Fixed PS scaling and centering bug - JDH
 
 2004-04-26 Fixed errorbar autoscale problem - JDH
