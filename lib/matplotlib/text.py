@@ -60,13 +60,13 @@ class Text(Artist):
         if self._multialignment is not None: return self._multialignment
         else: return self._horizontalalignment
     
-    def get_angle(self):
+    def get_rotation(self):
         'return the text angle as float'
         #return 0
         if self._rotation in ('horizontal', None):
-            angle = 0
+            angle = 0.
         elif self._rotation == 'vertical':            
-            angle = 90
+            angle = 90.
         else:
             angle = float(self._rotation)
         return angle%360
@@ -206,7 +206,7 @@ class Text(Artist):
 
 
         if 0: bbox_artist(self, renderer)
-        angle = self.get_angle()
+        angle = self.get_rotation()
         bbox, info = self._get_layout(renderer)
 
         for line, wh, x, y in info:
@@ -230,25 +230,42 @@ class Text(Artist):
         "Return the font object"
         return self._fontproperties
 
-    def get_fontname(self):
+    def get_name(self):
         "Return the font name as string"
         return self._fontproperties.get_family()[-1]  #  temporary hack.
 
-    def get_fontstyle(self):
+    def get_style(self):
         "Return the font style as string"
         return self._fontproperties.get_style()
 
-    def get_fontsize(self):
+    def get_size(self):
         "Return the font size as integer"
         return self._fontproperties.get_size_in_points()
 
-    def get_fontweight(self):
+    def get_weight(self):
         "Get the font weight as string"
         return self._fontproperties.get_weight()
 
-    def get_fontangle(self):
-        "Get the font angle as string"
+    def get_fontname(self):
+        'alias for get_name'
+        return self._fontproperties.get_family()[-1]  #  temporary hack.
+
+    def get_fontstyle(self):
+        'alias for get_style'
         return self._fontproperties.get_style()
+
+    def get_fontsize(self):
+        'alias for get_size'
+        return self._fontproperties.get_size_in_points()
+
+    def get_fontweight(self):
+        'alias for get_weight'
+        return self._fontproperties.get_weight()
+
+
+    def get_ha(self):
+        'alias for get_horizontalalignment'
+        return self.get_horizontalalignment()
 
     def get_horizontalalignment(self):
         "Return the horizontal alignment as string"
@@ -257,7 +274,6 @@ class Text(Artist):
     def get_position(self):
         "Return x, y as tuple"
         return self._x, self._y
-
 
     def get_prop_tup(self):
         """
@@ -273,13 +289,13 @@ class Text(Artist):
                 self._verticalalignment, self._horizontalalignment,
                 hash(self._fontproperties), self._rotation)
 
-    def get_rotation(self):
-        "Return the text rotation arg"
-        return self._rotation
-    
     def get_text(self):
         "Get the text as string"
         return self._text
+
+    def get_va(self):
+        'alias for getverticalalignment'
+        return self.get_verticalalignment()
 
     def get_verticalalignment(self):
         "Return the vertical alignment as string"
@@ -293,7 +309,7 @@ class Text(Artist):
 
     def get_rotation_matrix(self, x0, y0):
 
-        theta = -pi/180.0*self.get_angle()
+        theta = -pi/180.0*self.get_rotation()
         # translate x0,y0 to origin
         Torigin = Matrix([ [1, 0, -x0],
                            [0, 1, -y0],
@@ -329,6 +345,10 @@ ACCEPTS: any matplotlib color - see help(colors)
 """
         self._color = color
 
+    def set_ha(self, align):
+        'alias for set_horizontalalignment'
+        self.set_horizontalalignment(align)
+
     def set_horizontalalignment(self, align):        
         """
 Set the horizontal alignment to one of
@@ -339,6 +359,11 @@ ACCEPTS: [ 'center' | 'right' | 'left' ]
         if align not in legal:
             raise ValueError('Horizontal alignment must be one of %s' % str(legal))
         self._horizontalalignment = align     
+
+    def set_ma(self, align):
+        'alias for set_verticalalignment'
+        self.multialignment(align)
+        
 
     def set_multialignment(self, align):
         """
@@ -418,10 +443,6 @@ ACCEPTS: [ 'normal' | 'bold' | 'heavy' | 'light' | 'ultrabold' | 'ultralight']
         """
         self._fontproperties.set_weight(weight)
         
-    def set_fontangle(self, style):
-        'alias for set_style'
-        self._fontproperties.set_style(style)
-        
     def set_position(self, xy):
         """
 Set the xy position of the text
@@ -460,6 +481,11 @@ ACCEPTS: [ angle in degrees 'vertical' | 'horizontal'
         self._rotation = s
         
         
+
+    def set_va(self, align):
+        'alias for set_verticalalignment'
+        self.verticalalignment(align)
+
     def set_verticalalignment(self, align):
         """
 Set the vertical alignment
@@ -505,4 +531,5 @@ ACCEPTS: a matplotlib.font_manager.FontProperties instance
 """
         self._fontproperties = fp
 
+        
         
