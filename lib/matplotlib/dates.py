@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 """
 
 Matplotlib provides sophisticated date plotting capabilites, standing
@@ -90,15 +91,7 @@ from dateutil.rrule import rrule, MO, TU, WE, TH, FR, SA, SU, YEARLY,\
      MONTHLY, WEEKLY, DAILY, HOURLY, MINUTELY, SECONDLY
 from dateutil.relativedelta import relativedelta
 
-UTC      = timezone('UTC')
-Eastern  = timezone('US/Eastern')
-Central  = timezone('US/Central')
-Mountain = timezone('US/Mountain')
-Pacific  = timezone('US/Pacific')
-London   = timezone('Europe/London')
-Paris    = timezone('Europe/Paris')
-Berlin   = timezone('Europe/Berlin')
-Moscow   = timezone('Europe/Moscow')
+UTC = timezone('UTC')
 
 def _get_rc_timezone():
     s = matplotlib.rcParams['timezone']
@@ -599,7 +592,7 @@ def mx2num(m):
 if __name__=='__main__':
     
     #tz = None
-    tz = Pacific
+    tz = timezone('US/Pacific')    
     #tz = UTC
 
     dt = datetime.datetime(1011, 10, 9, 13, 44, 22, 101010, tzinfo=tz)
@@ -647,6 +640,3 @@ if __name__=='__main__':
     #for t in  ticks: print formatter(t)
 
     for t in dates: print formatter(t)
-    
-
-
