@@ -11,8 +11,8 @@ dates module provides several converter classes that you can pass to
 the date plotting functions which will convert your dates as
 necessary.  Currently epoch dates (already converted) are supported
 with EpochCOnverter, python2.3 datetime instances are supported with
-PyDatetimeConverter, and it won't be much work to add an mx.Datetime
-converter.
+PyDatetimeConverter, and mx.Datetime is supported with
+MxDatetimeConverter.
 
 If you want to define your own converter, the minimum you need to do
 is derive a class from dates.DateConverter and implement the epoch and
