@@ -142,10 +142,10 @@ class FltkCanvas(Fltk.Fl_Widget):
                     self._key=special_key[ikey]   
                 except:
                     self._key=None   
-            FigureCanvasBase.key_press_event(self._source, self._key)
+            FigureCanvasBase.key_press_event(self._source, self._key,x, yf)
             return 1
         elif event == Fltk.FL_KEYUP:  
-            FigureCanvasBase.key_release_event(self._source, self._key)
+            FigureCanvasBase.key_release_event(self._source, self._key,x, yf)
             self._key=None           
         elif event == Fltk.FL_PUSH:
             if Fltk.Fl.event_button1():
