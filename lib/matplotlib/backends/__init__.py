@@ -13,7 +13,7 @@ backend = matplotlib.get_backend()
 if backend not in all_backends:
     raise ValueError, 'Unrecognized backend %s' % backend
 
-matplotlib.verbose.report('loading backend %s' % backend)
+matplotlib.verbose.report('backend %s' % backend)
 # Import the requested backend into a generic module object
 backend_name = 'backend_'+backend.lower()
 backend_mod = __import__('matplotlib.backends.'+backend_name,

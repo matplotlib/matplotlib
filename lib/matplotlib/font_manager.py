@@ -749,6 +749,7 @@ font dictionary can act like a font cache.
                 else:
                     paths.append(ttfpath)
 
+        verbose.report('font search path %s'%(str(paths)))
         #  Load TrueType fonts and create font dictionary.
         
         self.ttffiles = findSystemFonts(paths) + findSystemFonts()
@@ -776,10 +777,10 @@ Delete this file to have matplotlib rebuild the cache."""
         def rebuild():
             self.ttfdict = createFontDict(self.ttffiles)
             pickle.dump(self.ttfdict, file(ttfcache, 'w'))
-            print cache_message % ttfcache
+            verbose.report(cache_message % ttfcache)
             
         try:
-            self.ttfdict = pickle.load(file(ttfcache))            
+            self.ttfdict = pickle.load(file(ttfcache))
         except:
             rebuild()
         else:
@@ -788,7 +789,7 @@ Delete this file to have matplotlib rebuild the cache."""
                 if not os.path.exists(fname):
                     rebuild()
                     break
-
+            verbose.report('loaded ttfcache file %s'%ttfcache)
             
 
 
@@ -801,6 +802,11 @@ Delete this file to have matplotlib rebuild the cache."""
         self.afmfiles = findSystemFonts(paths, fontext='afm') + \
                         findSystemFonts(fontext='afm')
         self.afmdict = {}
+
+
+        # the verbose wrapped functions
+        self.findfont = verbose.wrap('findfont returning %s', self._findfont, level='annoying')
+
 
     def get_default_weight(self):
         "Return the default font weight."
@@ -824,7 +830,8 @@ Currently not implemented."""
         #  !!!!  Needs implementing
         raise NotImplementedError
 
-    def findfont(self, prop, fontext='ttf'):
+    
+    def _findfont(self, prop, fontext='ttf'):
 
         """Search the font dictionary for a font that exactly or closely
 matches the specified font properties.  See the FontProperties class
@@ -869,6 +876,7 @@ Delete this file to have matplotlib rebuild the cache."""
         stretch = prop.get_stretch()
         size    = str(prop.get_size_in_points())
 
+        verbose.report('findfont looking for %(name)s, %(style)s, %(variant)s, %(weight)s, %(stretch)s, %(size)s'%locals(), 'annoying')
         try:
             fname = fontdict[name][style][variant][weight][stretch][size]
             if debug:
