@@ -92,3 +92,5 @@ print 'Text setters'
 set(t)
 print 'Text getters'
 get(t)
+
+show()

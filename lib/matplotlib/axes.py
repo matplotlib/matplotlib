@@ -9,7 +9,7 @@ import mlab
 from artist import Artist
 from axis import XAxis, YAxis
 from cbook import iterable, is_string_like, flatten, enumerate, True, False,\
-     allequal
+     allequal, dict_delall
 from collections import RegularPolyCollection, PolyCollection
 from colors import colorConverter, normalize, Colormap, LinearSegmentedColormap
 import cm
@@ -281,8 +281,6 @@ class _process_plot_var_args:
         
 
 
-
-        
 class Axes(Artist):
     """
     Emulate matlab's axes command, creating axes with
@@ -1457,13 +1455,13 @@ and so on.  The following kwargs are supported
         if len(args)==0:
             labels = [line.get_label() for line in self.lines]
             lines = self.lines
-            loc = kwargs.pop('loc', 1)
+            loc = kwargs.gry('loc', 1)
 
         elif len(args)==1:
             # LABELS
             labels = args[0]
             lines = [line for line, label in zip(self.lines, labels)]
-            loc = kwargs.pop('loc', 1)
+            loc = kwargs.get('loc', 1)
 
         elif len(args)==2:
             if is_string_like(args[1]) or isinstance(args[1], int):
@@ -1473,7 +1471,7 @@ and so on.  The following kwargs are supported
             else:
                 # LINES, LABELS
                 lines, labels = args
-                loc = kwargs.pop('loc', 1)
+                loc = kwargs.get('loc', 1)
 
         elif len(args)==3:
             # LINES, LABELS, LOC
@@ -1506,15 +1504,18 @@ log scaling:
   * subsy: the location of the minor yticks; None defaults to range(2,basey)    
         """
         if not self._hold: self.cla()
-        dx = {'basex': kwargs.pop('basex', 10),
-              'subsx': kwargs.pop('subsx', None),
+
+        dx = {'basex': kwargs.get('basex', 10),
+              'subsx': kwargs.get('subsx', None),
               }
-        dy = {'basey': kwargs.pop('basey', 10),
-              'subsy': kwargs.pop('subsy', None),
+        dy = {'basey': kwargs.get('basey', 10),
+              'subsy': kwargs.get('subsy', None),
               }
 
         self.set_xscale('log', **dx)
         self.set_yscale('log', **dy)
+        dict_delall( kwargs, ('basex', 'basey', 'subsx', 'subsy')) 
+
         l = self.plot(*args, **kwargs)
         return l
 
@@ -1596,14 +1597,12 @@ Grid Orientation
         """
         if not self._hold: self.cla()
 
-        alpha = kwargs.pop('alpha', 1.0)
-        norm = kwargs.pop('norm', None)
-        cmap = kwargs.pop('cmap', None)        
-        vmin = kwargs.pop('vmin', None)
-        vmax = kwargs.pop('vmax', None)        
-        shading = kwargs.pop('shading', 'faceted')
-        if len(kwargs):
-            raise TypeError, 'Unknown argument "%s"'%kwargs.keys()[0]
+        alpha = kwargs.get('alpha', 1.0)
+        norm = kwargs.get('norm', None)
+        cmap = kwargs.get('cmap', None)        
+        vmin = kwargs.get('vmin', None)
+        vmax = kwargs.get('vmax', None)        
+        shading = kwargs.get('shading', 'faceted')
 
         if len(args)==1:
             C = args[0]
@@ -1716,12 +1715,10 @@ Grid orientation
         """
 
         if not self._hold: self.cla()
-        shading = kwargs.pop('shading', 'faceted')
-        cmap = kwargs.pop('cmap', cm.get_cmap())
-        norm = kwargs.pop('norm', normalize())
-        alpha = kwargs.pop('alpha', 1.0)
-        if len(kwargs):
-            raise TypeError, 'Unknown argument "%s"'%kwargs.keys()[0]
+        shading = kwargs.get('shading', 'faceted')
+        cmap = kwargs.get('cmap', cm.get_cmap())
+        norm = kwargs.get('norm', normalize())
+        alpha = kwargs.get('alpha', 1.0)
 
         if len(args)==1:
             C = args[0]
@@ -2225,11 +2222,12 @@ plot or set_xscale.  Notable, for log scaling:
 
         """
 
-        d = {'basex': kwargs.pop('basex', 10),
-             'subsx': kwargs.pop('subsx', None),
+        d = {'basex': kwargs.get('basex', 10),
+             'subsx': kwargs.get('subsx', None),
              }
              
         self.set_xscale('log', **d)
+        dict_delall( kwargs, ('basex', 'subsx')) 
         l = self.plot(*args, **kwargs)
         return l
 
@@ -2251,11 +2249,11 @@ plot or set_yscale.  Notable, for log scaling:
       range(2,basey)
 
         """
-        d = {'basey': kwargs.pop('basey', 10),
-             'subsy': kwargs.pop('subsy', None),
+        d = {'basey': kwargs.get('basey', 10),
+             'subsy': kwargs.get('subsy', None),
              }
-
         self.set_yscale('log', **d)
+        dict_delall( kwargs, ('basey', 'subsy')) 
         l = self.plot(*args, **kwargs)
         return l
 
