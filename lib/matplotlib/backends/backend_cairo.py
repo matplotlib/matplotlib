@@ -210,17 +210,17 @@ class RendererCairo(RendererBase):
 
         if transform.need_nonlinear():
             x,y = transform.nonlinear_only_numerix(x, y)
-        x, y = transform.numerix_x_y(x, y)
         
-        # the a,b,c,d,tx,ty affine which transforms x and y
-        #vec6 = transform.as_vec6_val() # not used (yet)
+        x, y = transform.numerix_x_y(x, y) # do nonlinear and affine transform
 
-        # todo - use cairo transform
+        # TODO - use cairo transform
         # matrix worked for dotted lines, but not markers in line_styles.py
         # it upsets/transforms generate_path() ?
+        # need to flip y too, and update generate_path() ?
+        # the a,b,c,d,tx,ty affine which transforms x and y
+        #vec6 = transform.as_vec6_val() # not used (yet)
         #matrix_old = ctx.matrix
-        #matrix = cairo.Matrix (*vec6)
-        #ctx.set_matrix (matrix)
+        #ctx.set_matrix (cairo.Matrix (*vec6))
 
         path_list = [path.vertex() for i in range(path.total_vertices())]
 
