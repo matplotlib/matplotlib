@@ -89,12 +89,11 @@ class RendererCairo(RendererBase):
         }
     
 
-    def __init__(self, matrix, dpi):
+    def __init__(self, dpi):
         """width, height - the canvas width, height. Is not necessarily
         the same as the surface (pixmap) width, height
         """
         if DEBUG: print 'backend_cairo.RendererCairo.%s()' % _fn_name()
-        self.matrix   = matrix
         self.dpi      = dpi
         self.text_ctx = cairo.Context()
 
@@ -105,6 +104,9 @@ class RendererCairo(RendererBase):
     def _set_width_height(self, width, height):
         self.width  = width
         self.height = height
+        self.matrix_flipy = cairo.Matrix (d=-1, ty=self.height)
+        # use matrix_flipy for ALL rendering?
+        # - problem with text? - will need to switch matrix_flipy off, or do a font transform?
 
     def draw_arc(self, gc, rgbFace, x, y, width, height, angle1, angle2):
         if DEBUG: print 'backend_cairo.RendererCairo.%s()' % _fn_name()
@@ -141,7 +143,6 @@ class RendererCairo(RendererBase):
 
         ctx = cairo.Context()
         ctx.set_target_surface (self.surface)
-        ctx.set_matrix (self.matrix)
 
         rows, cols, buf = im.buffer_argb32()  # ARGB32, but colors still wrong
         X = fromstring(buf, UInt8)
@@ -178,26 +179,28 @@ class RendererCairo(RendererBase):
         ctx.stroke()
 
 
-    #def draw_lines(self, gc, x, y):
     def draw_lines(self, gc, x, y, transform=None):
         if DEBUG: print 'backend_cairo.RendererCairo.%s()' % _fn_name()
 
-        # guessing what needs to be done
         if transform:
             if transform.need_nonlinear():
                 x, y = transform.nonlinear_only_numerix(x, y)
             x, y = transform.numerix_x_y(x, y)
         
-        y = [self.height - y for y in y]
-        points = zip(x,y)
-        x, y = points.pop(0)
         ctx = gc.ctx
+        matrix_old = ctx.matrix
+        ctx.set_matrix (self.matrix_flipy)
+
+        points = izip(x,y)
+        x, y = points.next()
         ctx.new_path()
         ctx.move_to (x, y)
 
         for x,y in points:
             ctx.line_to (x, y)
         ctx.stroke()
+
+        ctx.set_matrix (matrix_old)
 
 
     def draw_markers(self, gc, path, x, y, transform):
@@ -221,6 +224,7 @@ class RendererCairo(RendererBase):
 
         def generate_path (path):
             """trace path and return fill_rgb
+            coords are mpl points
             """
             for p in path:
                code = p[0]
@@ -266,11 +270,14 @@ class RendererCairo(RendererBase):
         if DEBUG: print 'backend_cairo.RendererCairo.%s()' % _fn_name()
 
         ctx = gc.ctx
+        matrix_old = ctx.matrix
+        ctx.set_matrix (self.matrix_flipy)
+        
         ctx.new_path()
         x, y = points[0]
-        ctx.move_to (x, self.height - y)
+        ctx.move_to (x, y)
         for x,y in points[1:]:
-            ctx.line_to (x, self.height - y)
+            ctx.line_to (x, y)
         ctx.close_path()
 
         if rgbFace:
@@ -279,7 +286,8 @@ class RendererCairo(RendererBase):
             ctx.fill()
             ctx.restore()
         ctx.stroke()
-
+        
+        ctx.set_matrix (matrix_old)
 
     def draw_rectangle(self, gc, rgbFace, x, y, width, height):
         if DEBUG: print 'backend_cairo.RendererCairo.%s()' % _fn_name()
@@ -294,7 +302,8 @@ class RendererCairo(RendererBase):
         ctx.stroke()
 
 
-    def draw_text(self, gc, x, y, s, prop, angle, ismath=False):    
+    def draw_text(self, gc, x, y, s, prop, angle, ismath=False):
+        # Note: x,y are device/display coords, not user-coords, unlike other draw_* methods
         if DEBUG: print 'backend_cairo.RendererCairo.%s()' % _fn_name()
 
         if ismath:
@@ -375,6 +384,7 @@ class RendererCairo(RendererBase):
     def flipy(self):
         if DEBUG: print 'backend_cairo.RendererCairo.%s()' % _fn_name()
         return True
+        #return False # tried - all draw objects ok except text (and images?) which comes out mirrored!
 
     
     def get_canvas_width_height(self):
@@ -416,7 +426,6 @@ class RendererCairo(RendererBase):
         if DEBUG: print 'backend_cairo.RendererCairo.%s()' % _fn_name()
         gc = GraphicsContextCairo (renderer=self)
         gc.ctx.set_target_surface (self.surface)
-        gc.ctx.set_matrix (self.matrix)
         return gc
 
 
@@ -443,11 +452,16 @@ class GraphicsContextCairo(GraphicsContextBase):
         GraphicsContextBase.__init__(self)
         self.renderer = renderer
         self.ctx = cairo.Context()
-
+        # default is 0.1, raise value to increase performance
+        # (and lower quality)
+        self.ctx.set_tolerance(0.5)
         
     def set_alpha(self, alpha):
         self._alpha = alpha
         self.ctx.set_alpha(alpha)
+
+    #def set_antialiased(self, b):
+        # enable/disable anti-aliasing is not (yet) supported by Cairo
 
 
     def set_capstyle(self, cs):
@@ -487,8 +501,8 @@ class GraphicsContextCairo(GraphicsContextBase):
         if dashes == None:
             self.ctx.set_dash([], 0)  # switch dashes off
         else:
-            dashes_pixels = self.renderer.points_to_pixels(asarray(dashes))
-            self.ctx.set_dash(dashes_pixels, offset)
+            self.ctx.set_dash(self.renderer.points_to_pixels(asarray(dashes)),
+                              offset)
         
 
     def set_foreground(self, fg, isRGB=None):
@@ -574,7 +588,7 @@ def _save_png (figure, fileObject):
     ctx = cairo.Context()
     ctx.set_target_png (fileObject, cairo.FORMAT_ARGB32, width, height)
 
-    renderer = RendererCairo (ctx.matrix, figure.dpi)
+    renderer = RendererCairo (figure.dpi)
     renderer._set_width_height(width, height)
     renderer.surface = ctx.target_surface
     figure.draw(renderer)
@@ -612,7 +626,7 @@ def _save_ps_pdf (figure, fileObject, ext, orientation):
         # TODO:
         # add portrait/landscape checkbox to FileChooser
 
-    renderer = RendererCairo (ctx.matrix, figure.dpi)
+    renderer = RendererCairo (figure.dpi)
     renderer._set_width_height(width, height)
     renderer.surface = ctx.target_surface
     figure.draw(renderer)
