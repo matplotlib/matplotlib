@@ -908,7 +908,8 @@ Refs: Bendat & Piersol -- Random Data: Analysis and Measurement
                 colors = None,                
                 linewidths = None,
                 alpha = 1.0,
-                fmt='%1.3f'):
+                fmt='%1.3f',
+                origin=None):
         """\
 CONTOUR(z, x = None, y = None, levels = None, colors = None)
 
@@ -947,6 +948,8 @@ linewidths is one of:
    - if linewidths == None, the default width in lines.linewidth in
      .matplotlibrc is used
 
+
+  
 reg is a 2D region number array with the same dimensions as x and
   y. The values of reg should be positive region numbers, and zero fro
   zones wich do not exist.
@@ -959,12 +962,22 @@ fmt is a format string for adding a label to each collection.
   Currently this is useful for auto-legending and may be useful down
   the road for legend labeling
 
+origin = 'upper'|'lower'|None.  If None, the rc value for image.origin
+will be used
+
 More information on reg and triangle arrays is in _contour.c
 
 Return value is levels, collections where levels is a list of contour
 levels used and collections is a list of
 matplotlib.collections.LineCollection instances
 """
+
+        if origin is None: origin = rcParams['image.origin']
+        
+        if origin == 'upper':
+            if x is not None: x = x[::-1]
+            if y is not None: y = y[::-1]
+            z = z[::-1]            
 
         if not self._hold: self.cla()
         if which[0] == "numeric":
@@ -994,6 +1007,9 @@ matplotlib.collections.LineCollection instances
             else: lev = autolev(Nlev)
 
         Nlev = len(lev)
+        if colors == None:
+            colors = rcParams['lines.color']
+
         if is_string_like(colors):
             colors = [colors] * Nlev
         elif iterable(colors) and len(colors) < Nlev:
@@ -1016,11 +1032,15 @@ matplotlib.collections.LineCollection instances
             elif not iterable(linewidths) and type(linewidths) in [int, float]:
                 linewidths = [linewidths] * Nlev
             tlinewidths = [(w,) for w in linewidths]
+
                                       
         args = zip(lev, tcolors, tlinewidths)
 
         levels = []
         collections = []
+
+
+        
         for level, color, width  in args:
             ntotal, nparts  = _contour.GcInit1(x, y, reg, triangle, region, z, level)
             np = zeros((nparts,), Int32)
@@ -1031,6 +1051,10 @@ matplotlib.collections.LineCollection instances
             col.set_label(fmt%level)
             self.add_collection(col)
             levels.append(level)
+            #col.set_linestyle('dashed') # dashed|dotted|solid|dashdot
+            #dashes = 0, (4,2,8,1)
+            #col.set_linestyle( (dashes,) ) # offset, onoffseq
+
             collections.append(col)
 
 

@@ -1,5 +1,7 @@
 New entries should be added at the top
 
+2004-12-14 Added linestyle to collections -  JDH
+
 2004-12-14 Applied Nadia's setupext patch to fix libstdc++ link
            problem with contour and solaris  -JDH
 
