@@ -1,5 +1,9 @@
 New entries should be added at the top
 
+2004-11-13 backend_cairo.py: Discovered the magic number (96) required for
+	   Cairo PS plots to come out the right size. Restored Cairo PS output
+	   and added support for landscape mode	- SC
+
 2004-11-13 Added ishold - JDH
 
 2004-11-12 Added many new matlab colormaps - autumn bone cool copper
