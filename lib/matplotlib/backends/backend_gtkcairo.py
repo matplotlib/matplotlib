@@ -12,8 +12,6 @@ try: cairo.version_info
 except AttributeError:
     backend_version = 'PyGTK(%d.%d.%d),PyCairo ??' % gtk.pygtk_version
 else:
-    
-
     backend_version = 'PyGTK(%d.%d.%d),PyCairo(%d.%d.%d)' % (gtk.pygtk_version + cairo.version_info)
 
 
@@ -34,5 +32,4 @@ class FigureCanvasGTKCairo(FigureCanvasGTK):
     def _renderer_init(self):
         """Override to use Cairo rather than GDK renderer"""
         if DEBUG: print 'backend_gtkcairo.%s()' % fn_name()
-        matrix = cairo.Matrix ()
-        self._renderer = RendererCairo (matrix, self.figure.dpi)
+        self._renderer = RendererCairo (self.figure.dpi)
