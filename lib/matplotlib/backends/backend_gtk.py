@@ -51,6 +51,9 @@ IMAGE_FORMAT          = ['bmp', 'eps', 'jpg', 'png', 'ps', 'svg']
 IMAGE_FORMAT.sort()
 IMAGE_FORMAT_DEFAULT  = 'png'
 
+DBL_BUFFER = True 
+#DBL_BUFFER = False # test to see if switching double buffering off is useful
+
 
 cursord = {
     cursors.MOVE          : gtk.gdk.Cursor(gtk.gdk.FLEUR),
@@ -119,10 +122,6 @@ class FigureCanvasGTK(gtk.DrawingArea, FigureCanvasBase):
 
         self.set_flags(gtk.CAN_FOCUS)
         self.grab_focus()
-        # widget can take any size, gtk.Window sets default size
-        #self.set_size_request (int (figure.bbox.width()),
-        #                       int (figure.bbox.height()))
-        
         self.set_double_buffered(False)
 
         self.connect('key_press_event',      self.key_press_event)
@@ -212,33 +211,36 @@ class FigureCanvasGTK(gtk.DrawingArea, FigureCanvasBase):
             _set_pixmap ()
             _set_width_height ()
         that are used by
-            _render_to_pixmap()        
+            _render_figure()        
         """
         self._renderer = RendererGDK (self, self.figure.dpi)
 
 
-    def _render_to_pixmap(self, width, height):
+    def _render_figure(self, width, height):
         """Render the figure to a gdk.Pixmap, is used for
            - rendering the pixmap to display        (pylab.draw)
            - rendering the pixmap to save to a file (pylab.savefig)
-        Should not be overridden
+        Should not be overridden by GTK backends
         """
         if DEBUG: print 'FigureCanvasGTK.%s' % fn_name()
-        create_pixmap = False
-        if width > self._pixmap_width:
-            # increase the pixmap in 10%+ (rather than 1 pixel) steps
-            self._pixmap_width  = max (int (self._pixmap_width  * 1.1), width)
-            create_pixmap = True
+        if DBL_BUFFER:
+            create_pixmap = False
+            if width > self._pixmap_width:
+                # increase the pixmap in 10%+ (rather than 1 pixel) steps
+                self._pixmap_width  = max (int (self._pixmap_width  * 1.1), width)
+                create_pixmap = True
 
-        if height > self._pixmap_height:
-            self._pixmap_height = max (int (self._pixmap_height * 1.1), height)
-            create_pixmap = True
+            if height > self._pixmap_height:
+                self._pixmap_height = max (int (self._pixmap_height * 1.1), height)
+                create_pixmap = True
 
-        if create_pixmap:
-            if DEBUG: print 'FigureCanvasGTK.%s new pixmap' % fn_name()
-            self._pixmap = gtk.gdk.Pixmap (self.window, self._pixmap_width,
-                                           self._pixmap_height)
-            self._renderer._set_pixmap (self._pixmap)
+            if create_pixmap:
+                if DEBUG: print 'FigureCanvasGTK.%s new pixmap' % fn_name()
+                self._pixmap = gtk.gdk.Pixmap (self.window, self._pixmap_width,
+                                               self._pixmap_height)
+                self._renderer._set_pixmap (self._pixmap)
+        else:
+            self._renderer._set_pixmap (self.window)
 
         self._renderer._set_width_height (width, height)
         self.figure.draw (self._renderer)
@@ -249,12 +251,18 @@ class FigureCanvasGTK(gtk.DrawingArea, FigureCanvasBase):
         Should not be overridden.
         """
         if DEBUG: print 'FigureCanvasGTK.%s' % fn_name()
-        if self._draw_pixmap and GTK_WIDGET_DRAWABLE(self):
-            width, height = self.allocation.width, self.allocation.height
-            self._render_to_pixmap(width, height)
-            self.window.set_back_pixmap (self._pixmap, False)
-            self.window.clear()  # draw pixmap as the gdk.Window's bg
-            self._draw_pixmap = False
+        if DBL_BUFFER:
+            if self._draw_pixmap and GTK_WIDGET_DRAWABLE(self):
+                width, height = self.allocation.width, self.allocation.height
+                self._render_figure(width, height)
+                self.window.set_back_pixmap (self._pixmap, False)
+                self.window.clear()  # draw pixmap as the gdk.Window's bg
+                self._draw_pixmap = False
+        else:
+            if GTK_WIDGET_DRAWABLE(self):
+                width, height = self.allocation.width, self.allocation.height
+                self._render_figure(width, height)
+            
         return True
 
 
@@ -283,9 +291,15 @@ class FigureCanvasGTK(gtk.DrawingArea, FigureCanvasBase):
 
         ext = ext.lower()
         if ext in ('jpg', 'png'):          # native printing
+            global DBL_BUFFER
+            dbl_buffer_save = DBL_BUFFER
+            DBL_BUFFER = True  # need to use pixmap not gdk.window
+            
             width, height = self.figure.get_width_height()
             width, height = int(width), int(height)
-            self._render_to_pixmap(width, height)
+            self._render_figure(width, height)
+
+            DBL_BUFFER = dbl_buffer_save
 
             # jpg colors don't match the display very well, png colors match better
             pixbuf = gtk.gdk.Pixbuf(gtk.gdk.COLORSPACE_RGB, 0, 8,
