@@ -216,6 +216,16 @@ from ticker import *
 
 import matplotlib
 
+# Restore builtins which may have been overridden (typically by mlab).
+# This was discussed here
+# http://sourceforge.net/mailarchive/forum.php?thread_id=6307396&forum_id=33405
+import __builtin__
+min = __builtin__.min
+max = __builtin__.max
+sum = __builtin__.sum
+round = __builtin__.round
+abs = __builtin__.abs
+
 def colors():
     """
     This is a do nothing function to provide you with help on how

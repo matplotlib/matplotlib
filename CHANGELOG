@@ -1,5 +1,10 @@
 New entries should be added at the top
 
+2005-01-19 Restored builtin names which were overridden (min, max,
+  abs, round, and sum) in pylab.  This is a potentially significant
+  change for those who were relying on an array version of those
+  functions that previously overrode builtin function names. - ADS
+
 2005-01-18 Added accents to mathtext: \hat, \breve, \grave, \bar,
   \acute, \tilde, \vec, \dot, \ddot.  All of them have the same
   syntax, eg to make an overbar you do \bar{o} or to make an o umlaut
