@@ -81,13 +81,12 @@ class RendererTemplate(RendererBase):
         'return the canvas width and height in display coords'
         return 100, 100
 
-    def get_text_width_height(self, s, fontsize, ismath=False):
+    def get_text_width_height(self, s, prop, ismath):
         """
         get the width and height in display coords of the string s
-        with fontsize in points
+        with FontPropertry prop
         """
         return 1,1
-
                               
     def flipy(self):
         'return true if y small numbers are top for renderer'

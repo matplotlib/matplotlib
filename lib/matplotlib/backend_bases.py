@@ -29,13 +29,12 @@ class RendererBase:
         'return the canvas width and height in display coords'
         return 1, 1
 
-    def get_text_width_height(self, s, fontsize, ismath=False):
+    def get_text_width_height(self, s, prop, ismath):
         """
         get the width and height in display coords of the string s
-        with fontsize in points
+        with FontPropertry prop
         """
         return 1,1
-
                               
     def flipy(self):
         'return true if y small numbers are top for renderer'
@@ -500,12 +499,12 @@ class GraphicsContextBase:
         Set the linestyle to be one of ('solid', 'dashed', 'dashdot',
         'dotted').  
         """
-        if style not in ('solid', 'dashed', 'dashdot', 'dotted'):
+        if style in ('solid', 'dashed', 'dashdot', 'dotted'):
+            self._linestyle = style
+            offset, dashes = self._dashd[style]
+            self.set_dashes(offset, dashes)
+        else:
             error_msg('Unrecognized linestyle: %s' % style)
-            return
-        self._linestyle = style
-        offset, dashes = self._dashd[style]
-        self.set_dashes(offset, dashes)
 
 
 class MplEvent:
