@@ -35,6 +35,11 @@ class Collection(Artist):
     def __init__(self):
         Artist.__init__(self)
 
+
+    def get_verts(self):
+        'return seq of (x,y) in collection'
+        raise NotImplementedError('Derived must override')
+    
     def _get_color(self, c, N=1):
         if looks_like_color(c):
 	    return  [colorConverter.to_rgba(c)]*N
@@ -97,6 +102,7 @@ class PatchCollection(Collection, ScalarMappable):
         self._antialiaseds = antialiaseds
         self._offsets = offsets
 	self._transOffset = transOffset
+
 
     def set_linewidth(self, lw):
         """
@@ -186,6 +192,23 @@ class PolyCollection(PatchCollection):
         self._transform.thaw()
 	self._transOffset.thaw()
 	renderer.close_group('polycollection')
+
+
+
+    def get_verts(self):
+        'return seq of (x,y) in collection'
+        if self._offsets is None:
+            offsets = [(0,0)]
+        else:
+            offsets = self._offsets
+        N = max(len(offsets), len(self._verts))
+        vertsall = []
+        for i in range(N):
+            ox, oy = offsets[i%N]
+            verts = self._verts[i%N]
+            vertsall.extend([(x+ox, y+oy) for x,y in verts])
+        return vertsall
+
 	
 class RegularPolyCollection(PatchCollection):
     def __init__(self,
@@ -213,7 +236,7 @@ scaling."""
 
         theta = (2*math.pi/numsides)*arange(numsides) + rotation
 
-        self._verts = zip( r*sin(theta), r*cos(theta) )
+        self._verts = zip( r*cos(theta), r*sin(theta) )
         
         
             
@@ -238,6 +261,17 @@ scaling."""
         self._transform.thaw()
 	self._transOffset.thaw()
 	renderer.close_group('regpolycollection')
+
+
+
+    def get_verts(self):
+        'return seq of (x,y) in collection'
+        if self._offsets is None:
+            offsets = [(0,0)]
+        else:
+            offsets = self._offsets
+        return [ (x+ox, y+oy) for x,y in self._verts for ox,oy in offsets]
+            
 
 class LineCollection(Collection):
     """
@@ -364,3 +398,18 @@ ACCEPTS: float or sequence of floats"""
 
     def get_colors(self):
         return self._colors
+
+
+    def get_verts(self):
+        'return seq of (x,y) in collection'
+        if self._offsets is None:
+            offsets = [(0,0)]
+        else:
+            offsets = self._offsets
+        N = max(len(offsets), len(self._verts))
+        vertsall = []
+        for i in range(N):
+            ox, oy = offsets[i%N]
+            verts = self._segments[i%N]
+            vertsall.extend([(x+ox, y+oy) for x,y in verts])
+        return vertsall

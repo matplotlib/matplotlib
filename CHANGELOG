@@ -1,6 +1,8 @@
 New entries should be added at the top
 
- 
+2005-02-05 Added some support for handling log switching for lines
+           that have nonpos data - JDH
+
 2005-02-04 Added Nadia's contour patch - contour now has matlab
            compatible syntax; this also fixed an unequal sized contour
            array bug- JDH

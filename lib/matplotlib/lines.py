@@ -9,14 +9,15 @@ from __future__ import division
 import sys
 
 from numerix import Float, alltrue, arange, array, logical_and,\
-     nonzero, searchsorted, take, asarray, ones, where, less, ravel
+     nonzero, searchsorted, take, asarray, ones, where, less, ravel, \
+     greater, logical_and
 from matplotlib import verbose
 from artist import Artist
 from cbook import iterable, is_string_like
 from collections import RegularPolyCollection, PolyCollection
 from colors import colorConverter
 from patches import bbox_artist
-from transforms import lbwh_to_bbox
+from transforms import lbwh_to_bbox, LOG10
 from matplotlib import rcParams
 
 TICKLEFT, TICKRIGHT, TICKUP, TICKDOWN = range(4)
@@ -140,6 +141,7 @@ class Line2D(Artist):
         self._lineFunc = self._lineStyles.get(linestyle, self._draw_nothing)
         self._markerFunc = self._markers.get(marker, self._draw_nothing)
 
+        self._logcache = None
             
     def get_window_extent(self, renderer):
         x, y = self._get_numeric_clipped_data_in_range()
@@ -193,6 +195,8 @@ ACCEPTS: (array xdata, array ydata)
             raise RuntimeError('xdata and ydata must be the same length')
 
         if self._useDataClipping: self._xsorted = self._is_sorted(self._x)
+
+        self._logcache = None
         
     def set_data_clipping(self, b):
         """
@@ -210,12 +214,37 @@ ACCEPTS: [True | False]
     
     def _get_numeric_clipped_data_in_range(self):
         # if the x or y clip is set, only plot the points in the
-        # clipping region
+        # clipping region.  If log scale is set, only pos data will be
+        # returned
         try: self._xc, self._yc
         except AttributeError: x, y = self._x, self._y
         else: x, y = self._xc, self._yc
 
-            
+        try: logx = self._transform.get_funcx().get_type()==LOG10
+        except RuntimeError: logx = False  # non-separable
+        
+        try: logy = self._transform.get_funcy().get_type()==LOG10
+        except RuntimeError: logy = False  # non-separable
+        
+        if not logx and not logy: return x, y
+
+        if self._logcache is not None:
+            return self._logcache
+
+        Nx = len(x)
+        Ny = len(y)
+
+        if logx: indx = greater(x, 0)
+        else:    indx = ones(len(x))
+
+        if logy: indy = greater(y, 0)
+        else:    indy = ones(len(y))
+
+        ind = nonzero(logical_and(indx, indy))
+        x = take(x, ind)
+        y = take(y, ind)
+
+        self._logcache = x, y
         return x, y
 
     def draw(self, renderer):
@@ -267,8 +296,11 @@ ACCEPTS: [True | False]
 
         
     def _set_clip(self):
+
         
         if not self._useDataClipping: return
+        #self._logcache = None
+        
         try: self._xmin, self._xmax
         except AttributeError: indx = arange(len(self._x))
         else:
@@ -402,7 +434,7 @@ ACCEPTS: array
         except AttributeError: pass
             
         self.set_data(x, self._y)
-
+        
     def set_ydata(self, y):
         """
 Set the data array for y
@@ -427,6 +459,8 @@ ACCEPTS: (xmin, xmax)
         self._xmin, self._xmax = xmin, xmax
         self._set_clip()
 
+
+        
     def set_yclip(self, *args):
         """
 Set the y clipping range for data clipping to ymin, ymax

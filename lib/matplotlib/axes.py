@@ -3045,6 +3045,24 @@ ACCEPTS: str
         if subsx is None: subsx = range(2, basex)
         assert(value.lower() in ('log', 'linear', ))
         if value == 'log':
+            minx, maxx = self.get_xlim()
+            if minx<=0 or maxx<=0:
+                # find the min pos value in the data
+                xs = []
+                for line in self.lines:
+                    xs.extend(line.get_xdata())
+                for patch in self.patches:
+                    xs.extend([x for x,y in patch.get_verts()])
+                for collection in self.collections:
+                    xs.extend([x for x,y in collection.get_verts()])                    
+                posx = [x for x in xs if x>0]
+                minx = min(posx)
+                maxx = max(posx)
+                # warning, probably breaks inverted axis
+                self.set_xlim((0.1*minx, maxx))
+                
+                            
+                
             self.xaxis.set_major_locator(LogLocator(basex))
             self.xaxis.set_major_formatter(LogFormatterMathtext(basex))
             self.xaxis.set_minor_locator(LogLocator(basex,subsx))
@@ -3125,6 +3143,22 @@ ACCEPTS: str
         assert(value.lower() in ('log', 'linear', ))
 
         if value == 'log':
+            miny, maxy = self.get_ylim()
+            if miny<=0 or maxy<=0:
+                # find the min pos value in the data
+                ys = []
+                for line in self.lines:
+                    ys.extend(line.get_ydata())
+                for patch in self.patches:
+                    ys.extend([y for x,y in patch.get_verts()])
+                for collection in self.collections:
+                    ys.extend([y for x,y in collection.get_verts()])                    
+                posy = [y for y in ys if y>0]
+                miny = min(posy)
+                maxy = max(posy)
+                # warning, probably breaks inverted axis
+                self.set_ylim((0.1*miny, maxy))
+
             self.yaxis.set_major_locator(LogLocator(basey))
             self.yaxis.set_major_formatter(LogFormatterMathtext(basey))
             self.yaxis.set_minor_locator(LogLocator(basey,subsy))
