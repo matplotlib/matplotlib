@@ -35,6 +35,21 @@
 # left alone on polar axes.  Perhaps I will disable them for polar
 # axes unless we come up with a meaningful, useful and functional
 # implementation for them.
+#
+# Note that polar axes are sufficiently different that regular axes
+# that I haven't stived for a consistent interface to the gridlines,
+# labels, etc.  To set the properties of the gridlines and labels,
+# access the attributes directly from the polar axes, as in
+#
+#   ax = gca()
+#   set(ax.rgridlines, color='r')
+#
+# The following attributes are defined
+#
+#      thetagridlines  : a list of Line2D for the theta grids
+#      rgridlines      : a list of Line2D for the radial grids
+#      thetagridlabels : a list of Text for the theta grid labels
+#      rgridlabels     : a list of Text for the theta grid labels                  
 
 from matplotlib.matlab import *
 
@@ -43,4 +58,6 @@ theta = 6*pi*r
 polar(theta, r)
 title("It's about time!")
 savefig('polar_demo')
+ax = gca()
+
 show()
