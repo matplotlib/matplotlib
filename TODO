@@ -443,14 +443,14 @@
 
 -- DONE fix vlines raise in matlab.py
 
--- fix imshow/figlegend try/except raise in matlab.py
+-- DONE fix imshow/figlegend try/except raise in matlab.py
 
--- fix colorbar
+-- DONE fix colorbar
 
--- add rc, figlegend to headers and docs
+-- DONE add rc, figlegend to headers and docs
 
 -- DONE clear agg bg to 0 alpha
 
 -- DONE reset build flags in setup.py
 
--- ad wxagg extension code to goals
+-- add wxagg extension code to goals
