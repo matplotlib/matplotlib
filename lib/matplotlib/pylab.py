@@ -615,10 +615,6 @@ figtext.__doc__ = Figure.text.__doc__
 
 def figimage(*args, **kwargs):    
     # allow callers to override the hold state by passing hold=True|False
-    b = ishold()
-    h = popd(kwargs, 'hold', None)
-    if h is not None:
-        hold(h)
 
     try: ret =  gcf().figimage(*args, **kwargs)
     except ValueError, msg:
@@ -633,7 +629,6 @@ def figimage(*args, **kwargs):
         raise RuntimeError(msg)
     draw_if_interactive()
     gci._current = ret
-    hold(b)
     return ret
 figimage.__doc__ = Figure.figimage.__doc__ + """
 Addition kwargs: hold = [True|False] overrides default hold state"""
@@ -642,7 +637,7 @@ def figlegend(handles, labels, loc, **kwargs):
     """
     Place a legend in the figure.  Labels are a sequence of
     strings, handles is a sequence of line or patch instances, and
-    loc can be a string or an integer specifying the legend
+    loc can be a string r an integer specifying the legend
     location
 
     USAGE: 

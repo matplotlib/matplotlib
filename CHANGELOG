@@ -1,5 +1,8 @@
 New entries should be added at the top
 
+2004-12-20 Fixed a figimage bug where the axes is shown and modified
+           tkagg to move the destroy binding into the show method.
+
 2004-12-18 Minor refactoring of tkagg toolbar to support embedding in
            an application - JDH
 

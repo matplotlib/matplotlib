@@ -268,20 +268,22 @@ class FigureManagerTkAgg(FigureManagerBase):
         if self.toolbar is not None:
             self.toolbar.update()
         self.canvas._tkcanvas.pack(side=Tk.TOP, fill=Tk.BOTH, expand=1)
-
-        def destroy(*args):
-            self.window = None
-            Gcf.destroy(num)
-        self.window.bind("<Destroy>", destroy)
-
+        self._shown = False
+        
     def resize(self, event):
         width, height = event.width, event.height
         self.toolbar.configure(width=width) # , height=height)
 
     def show(self):
+        def destroy(*args):
+            self.window = None
+            Gcf.destroy(self._num)
+        if not self._shown: self.window.bind("<Destroy>", destroy)
+
         _focus = windowing.FocusManager()
         self.window.deiconify()
         self.canvas.draw()
+        self._shown = True
         
     def add_subplot(self, *args, **kwargs):
         a = FigureManagerBase.add_subplot(self, *args, **kwargs)
