@@ -1799,7 +1799,7 @@ RendererAgg::~RendererAgg() {
   delete pixFmt;
   delete renderingBuffer;
   delete [] pixBuffer;
-  
+    
 }
 
 /* ------------ module methods ------------- */

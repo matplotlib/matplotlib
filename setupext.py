@@ -381,10 +381,20 @@ def build_tkagg(ext_modules, packages, numerix):
 def build_agg(ext_modules, packages, numerix):
     global BUILT_AGG
     if BUILT_AGG: return # only build it if you you haven't already
-    
+
+
+    agg = ('agg_trans_affine.cpp',
+           'agg_path_storage.cpp',
+           'agg_vcgen_stroke.cpp',
+           'agg_bezier_arc.cpp',
+           'agg_curves.cpp',
+           'agg_vcgen_dash.cpp',
+           'agg_rasterizer_scanline_aa.cpp',
+           )
+
     if numerix in ["numarray","both"]: # Build for numarray
-        deps = ['src/ft2font.cpp', 'src/mplutils.cpp']
-        deps.extend(glob.glob('agg22/src/*.cpp'))
+        deps = ['agg22/src/%s'%name for name in agg]
+        deps.extend(('src/ft2font.cpp', 'src/mplutils.cpp'))
         deps.extend(glob.glob('CXX/*.cxx'))
         deps.extend(glob.glob('CXX/*.c'))
         temp_copy('src/_backend_agg.cpp', 'src/_na_backend_agg.cpp')
@@ -399,8 +409,8 @@ def build_agg(ext_modules, packages, numerix):
         add_ft2font_flags(module)
         ext_modules.append(module)    
     if numerix in ["Numeric","both"]: # Build for Numeric
-        deps = ['src/ft2font.cpp', 'src/mplutils.cpp']
-        deps.extend(glob.glob('agg22/src/*.cpp'))
+        deps = ['agg22/src/%s'%name for name in agg]
+        deps.extend(('src/ft2font.cpp', 'src/mplutils.cpp'))
         deps.extend(glob.glob('CXX/*.cxx'))
         deps.extend(glob.glob('CXX/*.c'))
 
@@ -423,10 +433,17 @@ def build_image(ext_modules, packages, numerix):
     global BUILT_IMAGE
     if BUILT_IMAGE: return # only build it if you you haven't already
 
+    agg = ('agg_trans_affine.cpp',
+           'agg_path_storage.cpp',
+           'agg_rasterizer_scanline_aa.cpp',
+           'agg_image_filters.cpp',
+           'agg_bezier_arc.cpp',
+           )
+
     if numerix in ["numarray","both"]: # Build for numarray
         temp_copy('src/_image.cpp', 'src/_na_image.cpp')
         deps = ['src/_na_image.cpp', 'src/mplutils.cpp'] 
-        deps.extend(glob.glob('agg22/src/*.cpp'))
+        deps.extend(['agg22/src/%s'%name for name in agg])
         deps.extend(glob.glob('CXX/*.cxx'))
         deps.extend(glob.glob('CXX/*.c'))
         module = Extension(
@@ -441,9 +458,10 @@ def build_image(ext_modules, packages, numerix):
     if numerix in ["Numeric","both"]: # Build for Numeric
         temp_copy('src/_image.cpp', 'src/_nc_image.cpp')
         deps = ['src/_nc_image.cpp', 'src/mplutils.cpp'] 
-        deps.extend(glob.glob('agg22/src/*.cpp'))
+        deps.extend(['agg22/src/%s'%name for name in agg])
         deps.extend(glob.glob('CXX/*.cxx'))
         deps.extend(glob.glob('CXX/*.c'))
+
         module = Extension(
             'matplotlib._nc_image',
             deps
