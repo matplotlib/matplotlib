@@ -69,7 +69,7 @@ class Line2D(Artist):
         'None' : '_draw_nothing'
         }
 
-    zlevel = 2
+    zorder = 2
         
     def __init__(self, xdata, ydata,
                  linewidth       = None, # default to rc

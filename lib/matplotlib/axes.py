@@ -1130,10 +1130,10 @@ Refs:
         artists.extend(self.lines)
         artists.extend(self.texts)
 
-        dsu = [ (a.zlevel, a) for a in artists]
+        dsu = [ (a.zorder, a) for a in artists]
         dsu.sort()
         
-        for zlevel, a in dsu:
+        for zorder, a in dsu:
             a.draw(renderer)
 
         self.title.draw(renderer)
@@ -3290,10 +3290,10 @@ class PolarAxes(Axes):
         artists.extend(self.texts)
         artists.extend(self.collections)        
 
-        dsu = [ (a.zlevel, a) for a in artists]
+        dsu = [ (a.zorder, a) for a in artists]
         dsu.sort()
         
-        for zlevel, a in dsu:
+        for zorder, a in dsu:
             a.draw(renderer)
 
         self.title.draw(renderer)

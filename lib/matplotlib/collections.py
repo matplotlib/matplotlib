@@ -69,7 +69,7 @@ class PatchCollection(Collection, ScalarMappable):
     draw time a call to scalar mappable will be made to set the face
     colors.
     """
-    zlevel = 1
+    zorder = 1
     def __init__(self,
                  edgecolors=None,   
                  facecolors=None,
@@ -237,7 +237,7 @@ class LineCollection(Collection):
     the len of props is less than the number of sements
 
     """
-    zlevel = 2
+    zorder = 2
     def __init__(self, segments,
                  linewidths    = None,
                  colors        = None,

@@ -31,7 +31,7 @@ class Text(Artist):
 
     """
 
-    zlevel = 3
+    zorder = 3
     def __init__(self, 
                  x=0, y=0, text='',
                  color=None,          # defaults to rc params
