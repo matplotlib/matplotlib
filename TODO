@@ -537,3 +537,6 @@ ZeroDivisionError: SeparableTransformation::eval_scalars yin interval is zero; c
    r'$\cal{R}\prod_{i=\alpha\cal{B}}^\infty a_i\rm{sin}(2 \pi f x_i)$'
 
 -- user events and nav event clashing on tkagg coords_demo/win32
+
+-- check signal connect and disconnect in interactive use with
+   multiple figure creation / deletion etc.
