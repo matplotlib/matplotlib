@@ -1,6 +1,8 @@
 New entries should be added at the top
 
 ==============================================================
+2004-09-28 Added save to file object for agg - see
+           examples/print_stdout.py
 
 2004-09-24 Reorganized all py code to lib subdir
 

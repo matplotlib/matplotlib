@@ -943,9 +943,19 @@ RendererAgg::write_png(const Py::Tuple& args)
   
   args.verify_length(1);
   
-  std::string fileName = Py::String(args[0]);
-  const char *file_name = fileName.c_str();
   FILE *fp;
+  Py::Object o = Py::Object(args[0]);
+
+  if (o.isString()) {
+    std::string fileName = Py::String(o);
+    const char *file_name = fileName.c_str();
+    fp = fopen(file_name, "wb");
+  }
+  else {
+    if ((fp = PyFile_AsFile(o.ptr())) == NULL) 
+      throw Py::TypeError("Could not convert object to file pointer");
+  }
+
   png_structp png_ptr;
   png_infop info_ptr;
   struct        png_color_8_struct sig_bit;
@@ -956,7 +966,7 @@ RendererAgg::write_png(const Py::Tuple& args)
     row_pointers[row] = pixBuffer + row * width * 4;
   }
   
-  fp = fopen(file_name, "wb");
+
   if (fp == NULL) 
     throw Py::RuntimeError("could not open file");
   
