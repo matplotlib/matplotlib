@@ -209,9 +209,20 @@ def find_tcltk():
 def add_tk_flags(module):
     'Add the module flags to build extensions which use tk'
     if sys.platform=='win32':
-        module.include_dirs.extend(['win32_static/include/tcl'])
-        module.library_dirs.extend(['C:/Python23/dlls'])
-        module.libraries.extend(['tk84', 'tcl84'])
+        major, minor1, minor2, s, tmp = sys.version_info
+        print 'building tkagg', major, minor1
+        if major==2 and minor1==3:
+            print '\tBuilding for python23'
+            module.include_dirs.extend(['win32_static/include/tcl84'])
+            module.library_dirs.extend(['C:/Python23/dlls'])        
+            module.libraries.extend(['tk84', 'tcl84'])
+        elif major==2 and minor1==2:
+            print '\tBuilding for python22'
+            module.include_dirs.extend(['win32_static/include/tcl83'])
+            module.library_dirs.extend(['C:/Python22/dlls'])        
+            module.libraries.extend(['tk83', 'tcl83'])
+        else:
+            raise RuntimeError('No tk/win32 support for this python version yet')
         return
 
     elif sys.platform == 'darwin' :
