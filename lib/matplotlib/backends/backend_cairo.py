@@ -18,73 +18,12 @@ http://cairographics.org
 Requires (in order, all available from Cairo website):
     libpixman, cairo, libsvg, libsvg-cairo, pycairo
 
+pycairo from Nov 02 2004 onwards is required
+
 Naming Conventions
   * classes MixedUpperCase
   * varables lowerUpper
   * functions underscore_separated
-
-
-backend_cairo requires Cairo functions that are not (yet?) wrapped by pycairo
-
-/* Add the following to pycairo/cairo/pycairo-context.c */
-static PyObject *
-pycairo_set_target_png(PyCairoContext *self, PyObject *args)
-{
-    PyObject *file_object;
-    cairo_format_t format;
-    int width, height;
-
-    if (!PyArg_ParseTuple(args, "O!iii:Context.set_target_png", 
-			  &PyFile_Type, &file_object, &format, &width, 
-			  &height))
-	return NULL;
-
-    cairo_set_target_png(self->ctx, PyFile_AsFile(file_object), format, 
-			 width, height);
-    if (pycairo_check_status(cairo_status(self->ctx)))
-	return NULL;
-
-    Py_INCREF(Py_None);
-    return Py_None;
-}
-
-static PyObject *
-pycairo_set_target_ps(PyCairoContext *self, PyObject *args)
-{
-    PyObject *file_object;
-    double width_inches, height_inches;
-    double x_pixels_per_inch, y_pixels_per_inch;
-
-    if (!PyArg_ParseTuple(args, "O!dddd:Context.set_target_ps",
-			  &PyFile_Type, &file_object,
-			  &width_inches, &height_inches, 
-			  &x_pixels_per_inch, &y_pixels_per_inch))
-	return NULL;
-
-    cairo_set_target_ps(self->ctx, PyFile_AsFile(file_object),
-			width_inches, height_inches, 
-			x_pixels_per_inch, y_pixels_per_inch);
-    if (pycairo_check_status(cairo_status(self->ctx)))
-	return NULL;
-
-    Py_INCREF(Py_None);
-    return Py_None;
-}
-
-static PyObject *
-pycairo_show_page(PyCairoContext *self)
-{
-    cairo_show_page(self->ctx);
-    if (pycairo_check_status(cairo_status(self->ctx)))
-	return NULL;
-    Py_INCREF(Py_None);
-    return Py_None;
-}
-
-/* Add to static PyMethodDef pycairo_methods[] = { */
-    { "set_target_png", (PyCFunction)pycairo_set_target_png, METH_VARARGS },
-    { "set_target_ps", (PyCFunction)pycairo_set_target_ps, METH_VARARGS },
-    { "show_page", (PyCFunction)pycairo_show_page, METH_NOARGS },
 """
 
 from __future__ import division
@@ -550,6 +489,8 @@ def print_figure_fn(figure, filename, dpi=150, facecolor='w', edgecolor='w',
     """
     if DEBUG: print 'backend_cairo.FigureCanvasCairo.%s()' % _fn_name()
 
+    # TODO: add support for filename being a fileObject - like agg
+
     root, ext = os.path.splitext(filename)       
     ext = ext[1:]
     if ext == '':
@@ -575,7 +516,7 @@ def print_figure_fn(figure, filename, dpi=150, facecolor='w', edgecolor='w',
             verbose.report_error("%s: %s" % (exc.filename, exc.strerror))
         else:
             if ext == 'png': _save_png (figure, fileObject)
-            else:            _save_ps  (figure, fileObject)
+            else:            _save_ps  (figure, fileObject, orientation)
             
     elif ext in ('eps', 'svg'): # backend_svg, later - use Cairo to write svg?
         if ext == 'eps':
@@ -593,8 +534,6 @@ def print_figure_fn(figure, filename, dpi=150, facecolor='w', edgecolor='w',
     figure.dpi.set(origDPI)
     figure.set_facecolor(origfacecolor)
     figure.set_edgecolor(origedgecolor)
-    print 'filename:', filename, 'finished'
-    
         
         
 def _save_png (figure, fileObject):
@@ -608,36 +547,23 @@ def _save_png (figure, fileObject):
                               width, height, figure.dpi)
     figure.draw(renderer)
     ctx.show_page()
-    fileObject.close()
         
 
-def _save_ps (figure, fileObject):
+def _save_ps (figure, fileObject, orientation):
     # Cairo produces PostScript Level 3
     # 'ggv' can't read cairo ps files, but 'gv' can
-    dpi = 72.0   # ignore the passed dpi setting for PS
-    page_w_in, page_h_in = defaultPaperSize = 8.5, 11
-    page_w,    page_h    = page_w_in * dpi, page_h_in * dpi
 
-    figure.dpi.set (dpi)    
-    l,b, width, height = figure.bbox.get_bounds()
-    tx = (page_w - width)  / 2.0
-    ty = (page_h - height) / 2.0
-        
+    ppi = 300.0
+    #figure.dpi.set(72) # this upsets the figure sizing
+    
+    w_in, h_in = figure.get_size_inches()
+    width, height = figure.get_width_height()
+    
     ctx = cairo.Context()
-    ctx.set_target_ps (fileObject, page_w_in, page_h_in, dpi, dpi)
+    ctx.set_target_ps (fileObject, w_in, h_in, ppi, ppi)
 
     orientation = 'portrait' # landscape not supported yet
-    if orientation == 'portrait': # default orientation
-        # lines look a little jagged - just 'gv', cairo problem, or problem
-        # with the way cairo is used?
-
-        # center the figure on the page
-        matrix = cairo.Matrix (tx=tx, ty=ty)
-        ctx.set_matrix (matrix)
-        # TODO? scale figure to maximize yet leave space for margin/border round page?
-        # the figure already has a 'margin', so could use full page width?
-
-    else: # landscape
+    if orientation == 'landscape':
         # cairo/src/cairo_ps_surface.c
         # '%%Orientation: Portrait' is always written to the file header
         # '%%Orientation: Landscape' would possibly cause problems
@@ -651,22 +577,18 @@ def _save_ps (figure, fileObject):
     renderer = RendererCairo (ctx.target_surface, ctx.matrix, width, height, figure.dpi)
     figure.draw(renderer)
             
-    show_fig_border = False  # for testing figure orientation and scaling
+    show_fig_border = True  # for testing figure orientation and scaling
     if show_fig_border:
-        print 'Page w,h:', page_w, page_h
-        print 'Fig  w,h:', width, height
-        print 'dx,dy   :', dx, dy
+        ctx.new_path()
         ctx.rectangle(0, 0, width, height)
-        ctx.set_line_width(1)
+        ctx.set_line_width(4.0)
         ctx.set_rgb_color(1,0,0)
         ctx.stroke()
         ctx.move_to(30,30)
         ctx.select_font('sans-serif')
         ctx.scale_font(20)
         ctx.show_text('Origin corner')
-
     ctx.show_page()
-    fileObject.close()
 
 
 class FigureCanvasCairo(FigureCanvasBase):
