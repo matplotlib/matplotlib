@@ -559,6 +559,12 @@ def error_msg_gtk(msg, parent=None):
         parent = parent.get_toplevel()
         if not parent.flags() & gtk.TOPLEVEL:
             parent = None
+
+#    print dir(msg)
+#    print 'msg1', msg
+#    if not is_string_like(msg):
+#        msg = '\n'.join(map(str, msg))
+#    print 'msg2', msg
     
     dialog = gtk.MessageDialog(
         parent         = parent,
@@ -844,15 +850,30 @@ class FigureCanvasGTK(gtk.DrawingArea, FigureCanvasBase):
             width, height = self.figure.get_width_height()
             width, height = int(width), int(height)
             self._render_to_pixmap(width, height)
-            gdk_pixmap_save (self._pixmap, filename, ext, width, height)
+
+            # jpg colors don't match the display very well, png colors match better
+            pixbuf = gtk.gdk.Pixbuf(gtk.gdk.COLORSPACE_RGB, 0, 8,
+                                    width, height)
+            pixbuf.get_from_drawable(self._pixmap, self._pixmap.get_colormap(),
+                                     0, 0, 0, 0, width, height)
+        
+            # pixbuf.save() recognises 'jpeg' not 'jpg'
+            if ext == 'jpg': ext = 'jpeg' 
+            try: pixbuf.save(filename, ext)
+            except gobject.GError, exc:
+                error_msg('Could not save figure to %s\n\n%s' % (
+                    filename, exc), parent=self)
 
         elif ext in ('eps', 'ps', 'svg',):
             if ext in ('svg',):
                 from backend_svg import FigureCanvasSVG as FigureCanvas
             else:
                 from backend_ps  import FigureCanvasPS  as FigureCanvas
-            fc = self.switch_backends(FigureCanvas)
-            fc.print_figure(filename, dpi, facecolor, edgecolor, orientation)
+            try:
+                fc = self.switch_backends(FigureCanvas)
+                fc.print_figure(filename, dpi, facecolor, edgecolor, orientation)
+            except IOError, exc:
+                error_msg("%s: %s" % (exc.filename, exc.strerror), parent=self)
 
         elif ext in ('bmp', 'raw', 'rgb',):
             try: 
@@ -875,31 +896,6 @@ class FigureCanvasGTK(gtk.DrawingArea, FigureCanvasBase):
         self.figure.set_edgecolor(origedgecolor)
         self.figure.set_figsize_inches(origWIn, origHIn)
 
-
-# XXX: move back into print_figurem and add 'parent' to error_msg
-def gdk_pixmap_save (pixmap, filename, ext, width, height):
-    """Save a gdk.Pixmap as a png or jpg file.
-    Can be called by other gtk backends after they have rendered to a pixmap.
-    """
-    # jpg colors don't match the display very well, png colors match better
-    pixbuf = gtk.gdk.Pixbuf(gtk.gdk.COLORSPACE_RGB, 0, 8,
-                            width, height)
-    pixbuf.get_from_drawable(pixmap, pixmap.get_colormap(),
-                             0, 0, 0, 0, width, height)
-        
-    # pixbuf.save() recognises 'jpeg' not 'jpg'
-    if ext == 'jpg': ext = 'jpeg' 
-    try: pixbuf.save(filename, ext)
-    except gobject.GError, exc:
-        error_msg('Could not save figure to %s\n\n%s' % (
-            filename, exc))
-
-#def raise_msg_to_str(msg):
-#    """msg is a return arg from a raise.  Join with new lines"""
-#    if not is_string_like(msg):
-#        msg = '\n'.join(map(str, msg))
-#        return msg
-    
 
 class FigureManagerGTK(FigureManagerBase):
     """
