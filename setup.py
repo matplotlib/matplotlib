@@ -3,8 +3,8 @@ matplotlib has added some extension module code which can optionally
 be built by setting the appropriate flag below.
 """
 
-# build the freetype2 interface - this is required for mathtext and
-# the agg backends. Requires freetype2, and libz
+# build the freetype2 interface - this is required for mathtext
+# Requires freetype2, and libz
 BUILD_FT2FONT = 1
 
 # Build the fonttools and TTFQuery packages, required by the Paint,

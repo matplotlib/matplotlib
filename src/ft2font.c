@@ -434,6 +434,41 @@ FT2Font_set_text(FT2FontObject *self, PyObject *args)
 
 }
 
+char FT2Font_get_glyph__doc__[] = 
+"get_glyph(num)\n"
+"\n"
+"Return the glyph object with num num\n"
+;
+GlyphObject * FT2Font_get_glyph(FT2FontObject *self, PyObject *args){
+  int num;
+  if (!PyArg_ParseTuple(args, "i:get_glyph", &num))
+    return NULL;
+
+  if ( num >= self->num_glyphs) {
+    PyErr_SetString(PyExc_ValueError, 
+		    "Glyph index out of range");
+    return NULL;
+
+  }
+  GlyphObject *gm = self->gms[num];
+  Py_INCREF(gm);   
+  return gm;
+}
+
+char FT2Font_get_num_glyphs__doc__[] = 
+"get_num_glyphs()\n"
+"\n"
+"Return the number of loaded glyphs\n"
+;
+PyObject * FT2Font_get_num_glyphs(FT2FontObject *self, PyObject *args){
+
+  if (!PyArg_ParseTuple(args, ":get_num_glyph"))
+    return NULL;
+  
+  return Py_BuildValue("l", self->num_glyphs);
+
+}
+
 char FT2Font_load_char__doc__[] = 
 "load_char(charcode)\n"
 "\n"
@@ -453,6 +488,7 @@ static  GlyphObject *
 FT2Font_load_char(FT2FontObject *self, PyObject *args)
 {
   //load a char using the unsigned long charcode
+  GlyphObject *gm;
   long charcode;
   int error;
   if (!PyArg_ParseTuple(args, "l:load_char", &charcode))
@@ -473,10 +509,7 @@ FT2Font_load_char(FT2FontObject *self, PyObject *args)
     return NULL;
   }
   
-  
-  
 
-  GlyphObject *gm;
   gm = PyObject_New(GlyphObject, &Glyph_Type);
   
 
@@ -489,8 +522,6 @@ FT2Font_load_char(FT2FontObject *self, PyObject *args)
 
   FT_BBox bbox;
   FT_Glyph_Get_CBox( self->glyphs[self->num_glyphs], ft_glyph_bbox_subpixels, &bbox );
-
-  gm->glyph_num = self->num_glyphs++;
 
   gm->x_attr = NULL;
 
@@ -508,11 +539,17 @@ FT2Font_load_char(FT2FontObject *self, PyObject *args)
     ("(llll)", 
      bbox.xMin, bbox.yMin, bbox.xMax, bbox.yMax );
   SETATTR_PYOBJ(gm, Glyph_setattr, "bbox",  pbbox);
+  gm->glyph_num = self->num_glyphs;
 
-
-    
+  Py_INCREF(gm);  //incref to store in list
+  self->gms[self->num_glyphs] = gm;
+  self->num_glyphs++;
   return gm;
+
 }
+
+
+
 
 char FT2Font_get_width_height__doc__[] = 
 "w, h = get_width_height()\n"
@@ -801,6 +838,8 @@ static PyMethodDef FT2Font_methods[] = {
   {"draw_rect",  (PyCFunction)FT2Font_draw_rect,	METH_VARARGS, FT2Font_draw_rect__doc__},
   {"draw_glyph_to_bitmap",  (PyCFunction)FT2Font_draw_glyph_to_bitmap,	METH_VARARGS, FT2Font_draw_glyph_to_bitmap__doc__},
   {"draw_glyphs_to_bitmap",  (PyCFunction)FT2Font_draw_glyphs_to_bitmap,	METH_VARARGS, FT2Font_draw_glyphs_to_bitmap__doc__},
+  {"get_glyph",	   (PyCFunction)FT2Font_get_glyph,	METH_VARARGS, FT2Font_get_glyph__doc__},
+  {"get_num_glyphs",	   (PyCFunction)FT2Font_get_num_glyphs,	METH_VARARGS, FT2Font_get_num_glyphs__doc__},
   {"image_as_str",	   (PyCFunction)FT2Font_image_as_str,	METH_VARARGS, FT2Font_image_as_str__doc__},
   {"load_char",	   (PyCFunction)FT2Font_load_char,	METH_VARARGS, FT2Font_load_char__doc__},
   {"set_text",	   (PyCFunction)FT2Font_set_text,	METH_VARARGS, FT2Font_set_text__doc__},
