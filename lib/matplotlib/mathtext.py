@@ -21,7 +21,8 @@ OVERVIEW
   The following accents are provided: \hat, \breve, \grave, \bar,
   \acute, \tilde, \vec, \dot, \ddot.  All of them have the same
   syntax, eg to make an overbar you do \bar{o} or to make an o umlaut
-  you do \ddot{o}.
+  you do \ddot{o}.  The shortcuts are also provided, eg: \"o \'e \`e
+  \~n \.x \^y
 
   The spacing elements \ , \/ and \hspace{num} are provided.  \/
   inserts a small space, and \hspace{num} inserts a fraction of the
@@ -795,15 +796,21 @@ class Handler:
         accent, sym = toks[0]
 
         d = {
-            r'\hat'    : r'\circumflexaccent',
-            r'\breve'  : r'\combiningbreve',
-            r'\bar'    : r'\combiningoverline',
-            r'\grave'  : r'\combininggraveaccent',
-            r'\acute'  : r'\combiningacuteaccent',
-            r'\ddot'   : r'\combiningdiaeresis',
-            r'\tilde'  : r'\combiningtilde',
-            r'\dot'    : r'\combiningdotabove',            
-            r'\vec'    : r'\combiningrightarrowabove',                        
+            r'\hat'   : r'\circumflexaccent',
+            r'\breve' : r'\combiningbreve',
+            r'\bar'   : r'\combiningoverline',
+            r'\grave' : r'\combininggraveaccent',
+            r'\acute' : r'\combiningacuteaccent',
+            r'\ddot'  : r'\combiningdiaeresis',
+            r'\tilde' : r'\combiningtilde',
+            r'\dot'   : r'\combiningdotabove',            
+            r'\vec'   : r'\combiningrightarrowabove',                        
+            r'\"'     : r'\combiningdiaeresis',
+            r"\`"     : r'\combininggraveaccent',
+            r"\'"     : r'\combiningacuteaccent',
+            r'\~'     : r'\combiningtilde',
+            r'\.'     : r'\combiningdotabove',
+            r'\^'   : r'\circumflexaccent',            
              }
         above = SymbolElement(d[accent])
         sym.neighbors['above'] = above
@@ -913,7 +920,10 @@ overUnder = over | under
 
 accent = Literal('hat') | Literal('check') | Literal('dot') | \
          Literal('breve') | Literal('acute') | Literal('ddot') | \
-         Literal('grave') | Literal('tilde') | Literal('bar') | Literal('vec')
+         Literal('grave') | Literal('tilde') | Literal('bar') | \
+         Literal('vec') | Literal('"') | Literal("`") | Literal("'") |\
+         Literal('~') | Literal('.') | Literal('^')
+         
 
 
 
@@ -953,7 +963,7 @@ group = Group( lbrace + OneOrMore(symbol^subscript^superscript^subsuperscript^sp
 #~ composite = Group( Combine(bslash + composite) + group + group).setParseAction(handler.composite).setName("composite")
 composite = Group( Combine(bslash + overUnder) + group + group).setParseAction(handler.composite).setName("composite")
 
-accent = Group( Combine(bslash + accent) + group).setParseAction(handler.accent).setName("accent")
+accent = Group( Combine(bslash + accent) + Optional(lbrace) + symbol + Optional(rbrace)).setParseAction(handler.accent).setName("accent")
 
 #~ symgroup = symbol ^ group
 symgroup = symbol | group
