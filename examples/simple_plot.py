@@ -1,3 +1,4 @@
+from matplotlib.backends.backend_gtk import show_xvfb
 from matplotlib.matlab import *
 
 t = arange(0.0, 1.0, 0.002)
@@ -11,5 +12,5 @@ t = title('About as simple as it gets, folks')
 
 #grid(True)
 #set(gca(), 'xticks', (0,.2,.7))
-#savefig('test2')
-show()
+#savefig('test2', dpi=600)
+show_xvfb()

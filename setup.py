@@ -2,14 +2,22 @@ from distutils.core import setup
 import sys,os
 
 import glob
+from setupext import build_gtkgd
+
 
 data = []
 data.extend(glob.glob('fonts/afm/*.afm'))
 data.extend(glob.glob('fonts/ttf/*.ttf'))
 data.extend(glob.glob('images/*.xpm'))
 
+ext_modules = []
+
+if 0: # how do I add '--with-gtkgd' flag checking?
+    build_gtkgd(ext_modules)
+
+
 setup(name="matplotlib",
-      version= '0.50e',
+      version= '0.50f',
       description = "Matlab style python plotting package",
       author = "John D. Hunter",
       author_email="jdhunter@ace.bsd.uchicago.edu",
@@ -22,5 +30,6 @@ setup(name="matplotlib",
       """,
       packages=['matplotlib', 'matplotlib/backends'],
       platforms='any',
+      ext_modules = ext_modules, 
       data_files=[('share/matplotlib', data)],
       )

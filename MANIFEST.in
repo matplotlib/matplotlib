@@ -1,4 +1,7 @@
-include API_CHANGES CHANGELOG KNOWN_BUGS GOALS INSTALL INTERACTIVE LICENSE Makefile TODO MANIFEST.in
+include LICENSE API_CHANGES CHANGELOG KNOWN_BUGS GOALS INSTALL
+include INTERACTIVE TODO
+include Makefile  MANIFEST.in MANIFEST
+include __init__.py setupext.py setup.py
 include examples/README
 include examples/*.py
 include examples/*.glade
@@ -6,3 +9,6 @@ include examples/data/*
 include fonts/afm/*
 include fonts/ttf/*
 include images/*
+include test/*.py
+include test/README
+
