@@ -21,5 +21,5 @@ for row in range(5):
         if not gca().is_last_row():
             set(gca(), 'xticklabels', [])
         
-savefig('line_styles', dpi=300)
+#savefig('line_styles', dpi=300)
 show()

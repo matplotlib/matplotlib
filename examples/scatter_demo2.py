@@ -16,7 +16,7 @@ xlabel('Delta day i')
 ylabel('Delta day i+1')
 title('Delta price as a function of volume and percent change')
 grid(True)
-savefig('scatter_demo2')
+#savefig('scatter_demo2')
 show()
 
 

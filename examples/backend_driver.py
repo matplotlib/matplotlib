@@ -49,7 +49,7 @@ def drive(backend):
         for line in file(fname):
             if line.strip().startswith('from __future__ import division'): continue
             if line.strip().startswith('matplotlib.use'): continue
-            if line.strip().startswith('savefig'): continue
+            if line.strip().startswith('#savefig'): continue
             if line.strip().startswith('show'): continue
             lines.append(line)
         basename, ext = os.path.splitext(fname)
@@ -57,7 +57,7 @@ def drive(backend):
         if backend in ('GTK', 'WX'):
             lines.append('show()')
         else:
-            lines.append('savefig("%s", dpi=150)' % outfile)
+            lines.append('#savefig("%s", dpi=150)' % outfile)
         tmpfile = '_tmp_%s.py' % basename
         file(tmpfile, 'w').write(''.join(lines))
         os.system('python %s' % tmpfile)
@@ -65,6 +65,7 @@ def drive(backend):
 times = {}
 backends = ['PS', 'GD', 'Paint', 'Agg', 'Template']
 backends.extend([ 'GTK', 'WX'])
+#backends = [ 'Agg']
 
 for backend in backends:
     print 'testing %s' % backend
