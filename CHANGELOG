@@ -1,6 +1,10 @@
 New entries should be added at the top
 
 ==============================================================
+2004-10-27 Added two more backends: backend_cairo.py, backend_gtkcairo.py
+           They are not complete yet, currently backend_gtkcairo just renders 
+           polygons, rectangles and lines - SC
+
 2004-10-21 Added polar axes and plots - JDH
 
 2004-10-20 Fixed corrcoef bug exposed by corrcoef(X) where X is matrix

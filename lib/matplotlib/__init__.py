@@ -764,7 +764,7 @@ if hasattr(sys,'argv'):         # mod_python doesn't have argv attr
 
 _knownBackends = {'PS':1, 'GTK':1, 'Template':1, 'GD':1,
                   'WX':1, 'Paint':1, 'Agg':1, 'GTKAgg':1, 'SVG':1,
-                  'TkAgg':1, 'WXAgg':1, 'FltkAgg':1,}
+                  'TkAgg':1, 'WXAgg':1, 'FltkAgg':1, 'Cairo':1, 'GTKCairo':1,}
 
 def use(arg):
     """

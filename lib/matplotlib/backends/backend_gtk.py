@@ -142,8 +142,8 @@ class RendererGTK(RendererBase):
     def flipy(self):
         return True
 
-    def offset_text_height(self):
-        return True
+    #def offset_text_height(self): # no longer used?
+    #    return True
 
     def get_text_width_height(self, s, prop, ismath):
         """
@@ -289,11 +289,10 @@ class RendererGTK(RendererBase):
 
 
     def draw_text(self, gc, x, y, s, prop, angle, ismath):
-        
         x, y = int(x), int(y)
 
         if angle not in (0,90):
-             verbose.report_error('The GTK backend cannot draw text at a %i degree angle, try GtkAgg instead' % angle)
+            verbose.report_error('The GTK backend cannot draw text at a %i degree angle, try GtkAgg instead' % angle)
 
         elif ismath:
             self._draw_mathtext(gc, x, y, s, prop, angle)
@@ -428,8 +427,8 @@ class RendererGTK(RendererBase):
 
     def get_pango_layout(self, s, prop):
         """
-        Return a pango layout instance for Text instance t.  cache to
-        layoutd
+        Return a pango layout instance for Text 's' with properties 'prop'.
+        cache to layoutd
         """
 
         key = self.dpi.get(), s, hash(prop)
@@ -464,7 +463,8 @@ class RendererGTK(RendererBase):
         #return self.dpi.get()/72.0
 
     def new_gc(self):
-        return GraphicsContextGTK(self.gdkDrawable.new_gc(), self)
+        #return GraphicsContextGTK(self.gdkDrawable.new_gc(), self)
+        return GraphicsContextGTK(renderer=self)
 
     def points_to_pixels(self, points):
         """
@@ -485,16 +485,18 @@ class GraphicsContextGTK(GraphicsContextBase):
         }
 
     _capd = {
-        'butt' : gdk.CAP_BUTT,
+        'butt'       : gdk.CAP_BUTT,
         'projecting' : gdk.CAP_PROJECTING,
-        'round' : gdk.CAP_ROUND,
+        'round'      : gdk.CAP_ROUND,
         }
 
               
-    def __init__(self, gdkGC, renderer):
+    #def __init__(self, gdkGC, renderer):
+    def __init__(self, renderer):
             GraphicsContextBase.__init__(self)
-            self.gdkGC = gdkGC
+            #self.gdkGC = gdkGC
             self.renderer = renderer
+            self.gdkGC    = gtk.gdk.GC(renderer.gdkDrawable)
 
 
     def set_clip_rectangle(self, rectangle):
@@ -652,7 +654,7 @@ class FigureCanvasGTK(gtk.DrawingArea, FigureCanvasBase):
         self._printQued  = []
         self._idleID     = 0        # used in gtkAgg
         
-        self._pixmap        = None  # *_pixmap* used by gtkCairo
+        self._pixmap        = None
         self._new_pixmap    = True
         self._pixmap_width  = -1
         self._pixmap_height = -1
@@ -781,6 +783,7 @@ class FigureCanvasGTK(gtk.DrawingArea, FigureCanvasBase):
 
 
     def expose_event(self, widget, event):
+        if Debug: print 'backend_gtk.%s' % function_name()
         if self._new_pixmap and GTK_WIDGET_DRAWABLE(self):
             width, height = self.allocation.width, self.allocation.height
             #width  = int(self.figure.bbox.width())
@@ -812,23 +815,28 @@ class FigureCanvasGTK(gtk.DrawingArea, FigureCanvasBase):
     def print_figure(self, filename, dpi=150, facecolor='w', edgecolor='w'):
         # orientation='portrait'):
 
-        if is_string_like(filename): isFileName = True
-        else: isFileName = False
+        if is_string_like(filename):
+            isFileName = True
+        else:
+            isFileName = False
 
         if isFileName:
             root, ext = os.path.splitext(filename)        
             ext = ext.lower()[1:]
             if not len(ext):
-                filename = filename + '.png'
-                ext = 'png'
+                filename, ext = filename + '.png', 'png'
 
-            if ext=='png': ftype = 'png'
-            elif ext in ('jpg', 'jpeg'): ftype = 'jpeg'
-            elif ext.find('ps')>=0: pass
+            if ext=='png':
+                ftype = 'png'
+            elif ext in ('jpg', 'jpeg'):
+                ftype = 'jpeg'
+            elif ext.find('ps')>=0:
+                pass
             else:
                 error_msg_gtk('Can only save to formats PNG, JPEG, PS or EPS')            
                 return
-        else: ftype='png'
+        else:
+            ftype='png'
         
         if not self._isRealized:
             self._printQued.append((filename, dpi, facecolor, edgecolor))
