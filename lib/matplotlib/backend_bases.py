@@ -6,6 +6,7 @@ graphics contexts must implement to serve as a matplotlib backend
 from __future__ import division
 import sys
 
+from matplotlib import verbose
 from cbook import is_string_like, enumerate, True, False
 from colors import colorConverter
 from numerix import array, sqrt, pi, log, asarray, ones, Float
@@ -39,8 +40,9 @@ class RendererBase:
     
     def points_to_pixels(self, points):
         """
-        convert points to display units; unless your backend doesn't
-        have dpi, eg, postscript, you need to overrride this function.
+        Convert points to display units (as a float).
+        You need to override this function (unless your backend doesn't have
+        dpi, eg, postscript or svg).
         Many imaging systems assume some value for pixels per inch.
         points to pixels = points * pixels_per_inch/72.0 * dpi/72.0
         """
@@ -555,14 +557,16 @@ class FigureCanvasBase:
         """
         pass
 
-    def print_figure(self, filename, dpi=300, facecolor='w', edgecolor='w'):
+    def print_figure(self, filename, dpi=300, facecolor='w', edgecolor='w',
+                     orientation='portrait'):
         """
-        Render the figure to hardcopy.  Set the figure patch face and
-        edge colors.  This is useful because some of the GUIs have a
-        gray figure face color background and you'll probably want to
-        override this on hardcopy
+        Render the figure to hardcopy. Set the figure patch face and edge
+        colors.  This is useful because some of the GUIs have a gray figure
+        face color background and you'll probably want to override this on
+        hardcopy.
+
+        orientation - only currently applies to PostScript printing.
         """
-        pass
 
     def switch_backends(self, FigureCanvasClass):
         """
@@ -1188,8 +1192,5 @@ def error_msg(msg, *args, **kwargs):
     """
     Alert an error condition with message
     """
-    print >>sys.stderr, msg
+    verbose.report_error('Error: %s'% msg)
     sys.exit()
-
-
-

@@ -98,8 +98,9 @@ class RendererTemplate(RendererBase):
     
     def points_to_pixels(self, points):
         """
-        convert points to display units; unless your backend doesn't
-        have dpi, eg, postscript, you need to overrride this function.
+        Convert points to display units (as a float).
+        You need to override this function (unless your backend doesn't have
+        dpi, eg, postscript or svg).
         Many imaging systems assume some value for pixels per inch.
         points to pixels = points * pixels_per_inch/72.0 * dpi/72.0
         """
@@ -271,15 +272,15 @@ class FigureCanvasTemplate(FigureCanvasBase):
         renderer = RendererTemplate()
         self.figure.draw(renderer)
         
-    def print_figure(self, filename, dpi=150,
-                     facecolor='w', edgecolor='w',
+    def print_figure(self, filename, dpi=150, facecolor='w', edgecolor='w',
                      orientation='portrait'):
-
         """
-        Render the figure to hardcopy.  Set the figure patch face and
-        edge colors.  This is useful because some of the GUIs have a
-        gray figure face color background and you'll probably want to
-        override this on hardcopy
+        Render the figure to hardcopy. Set the figure patch face and edge
+        colors.  This is useful because some of the GUIs have a gray figure
+        face color background and you'll probably want to override this on
+        hardcopy.
+
+        orientation - only currently applies to PostScript printing.
         """
         # set the new parameters
         origDPI = self.figure.dpi.get()
