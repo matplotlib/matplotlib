@@ -1,25 +1,36 @@
 """
-matplotlib has added some extension module code and now includes the
-TTF modules fonttools and ttfquery (for GD, Paint, and Agg).  To build
-the ttf modules, set the BUILD_FONTTOOLS flag
-
-AGG is a new backend that wraps the antigrain geometry toolkit; set
-BUILD_AGG to 1 to build it.  Agg makes heavy use of templates, so it
-probably requires a fairly recent compiler to build it.
-
-
+matplotlib has added some extension module code which can optionally
+be built by setting the appropriate flag below.
 """
+
+# Build the fonttools and TTFQuery packages, required by the Paint,
+# Agg and GD backends.
+BUILD_FONTTOOLS    = 1
+
+# AGG is a new backend that wraps the antigrain geometry toolkit; set
+# BUILD_AGG to 1 to build it.  Agg makes heavy use of templates, so it
+# probably requires a fairly recent compiler to build it.  It makes
+# very nice antialiased output and also supports alpha blending
+BUILD_AGG          = 1   
+
+# The two builds below are experimental.  They use an image backend
+# (eg GD or Agg) to render to the GTK canvas.  The idea is that we
+# could use a single high quality image renderer to render to all the
+# GUI windows
+
+# build GTK GUI with Agg renderer ; requires pygtk src distros installed
+BUILD_GTKAGG       = 0
+
+# build GTK GUI with GD renderer ; requires pygtk and GD src distros installed
+BUILD_GTKGD        = 0   
+
+
+## You shouldn't need to customize below this point
 
 from distutils.core import setup
 import sys,os
 import glob
 from setupext import build_gtkgd, build_agg, build_fonttools, build_gtkagg
-
-# set these flags to build the optional extension modules
-BUILD_FONTTOOLS    = 0   # includes TTFQuey
-BUILD_GTKGD        = 0   # requires pygtk and GD src distros installed
-BUILD_AGG          = 0
-BUILD_GTKAGG       = 0
 
 data = []
 data.extend(glob.glob('fonts/afm/*.afm'))
@@ -51,7 +62,7 @@ if BUILD_GTKAGG:
 
 
 setup(name="matplotlib",
-      version= '0.50q',
+      version= '0.50',
       description = "Matlab style python plotting package",
       author = "John D. Hunter",
       author_email="jdhunter@ace.bsd.uchicago.edu",

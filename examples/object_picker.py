@@ -18,7 +18,7 @@ from matplotlib.figure import Figure
 from matplotlib.lines import Line2D, lineStyles, lineMarkers
 from matplotlib.transforms import Bound2D
 from matplotlib.patches import draw_bbox
-from matplotlib.backend_bases import arg_to_rgb
+from matplotlib.colors import colorConverter
 import gtk
 
 
@@ -107,7 +107,7 @@ class LineDialog(gtk.Dialog):
         row += 1
 
 
-        self.rgbLine = arg_to_rgb(self.line.get_color())
+        self.rgbLine = colorConverter.to_rgb(self.line.get_color())
         
         def set_color(button):
             rgb = get_color(self.rgbLine)

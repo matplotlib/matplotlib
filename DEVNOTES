@@ -24,8 +24,10 @@ http://matplotlib.sourceforge.net
  sf> tar xvfz site.tar.gz
 
 
-### Doing a release
-0) Run examples/batch_figs.py w/o errors
+### Doing a release 
+
+0) Run examples/batch_figs.py w/o errors; run the backend specific
+   demos (object_picker, anim , embedding*)
 
 0) Remove MANIFEST so it will be rebuilt by MANIFEST.in
 

@@ -65,6 +65,16 @@ Migrating code:
     FigureCanvas, not a Figure.  The examples embedding_in_gtk.py,
     embedding_in_gtk2.py, and mpl_with_glade.py all reflect the new
     API so use these as a guide.
+ 
+    All prior calls to 
+
+     figure.draw()  and
+     figure.print_figure(args) 
+
+    should now be
+ 
+     canvas.draw()  and
+     canvas.print_figure(args) 
 
     Apologies for the inconvenience.  This refactorization brings
     significant more freedom in developing matplotlib and should bring

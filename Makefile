@@ -2,6 +2,9 @@
 # Copyright (C) 2003  <jdhunter@ace.bsd.uchicago.edu>
 # $Header$
 # $Log$
+# Revision 1.20  2004/02/16 18:04:55  jdh2358
+# fexed wx to work on windows and linux
+#
 # Revision 1.19  2004/02/11 19:16:01  jdh2358
 # reorganized table
 #
@@ -83,6 +86,7 @@ MODULES =					\
 	matplotlib.backends.backend_template	\
         matplotlib.backends.backend_wx          \
 	matplotlib.cbook			\
+	matplotlib.colors			\
 	matplotlib.figure			\
 	matplotlib.legend			\
 	matplotlib.lines			\

@@ -15,3 +15,4 @@ recursive-include agg2 *.cpp *.c *.h
 recursive-include FontTools *
 recursive-include FontToolsSrc *
 recursive-include ttfquery *
+recursive-include win32src *
