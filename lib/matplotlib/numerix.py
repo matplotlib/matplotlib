@@ -69,4 +69,12 @@ def _import_fail_message(module, version):
               "module" : module,
               "specific" : version + module
               }
-    print """\nThe import of the %(which)s version of the %(module)s module, %(specific)s, failed.\nThis is either because %(which)s was unavailable when matplotlib was compiled,\nor because a dependency of %(specific)s could not be satisfied.\nIf it appears that %(specific)s was not built,  make sure you have a working copy of\n%(which)s and then re-install matplotlib. Otherwise, the following traceback gives more details:\n""" % _dict
+    print """ 
+The import of the %(which)s version of the %(module)s module,
+%(specific)s, failed.  This is is either because %(which)s was
+unavailable when matplotlib was compiled, because a dependency of
+%(specific)s could not be satisfied, or because the build flag for
+this module was turned off in setup.py.  If it appears that
+%(specific)s was not built, make sure you have a working copy of
+%(which)s and then re-install matplotlib. Otherwise, the following
+traceback gives more details:\n""" % _dict

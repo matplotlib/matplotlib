@@ -20,6 +20,7 @@ _Plotting commands
   close    - close a figure window
   colorbar - add a colorbar to the current figure
   cohere   - make a plot of coherence
+  contour  - make a contour plot
   csd      - make a plot of cross spectral density  
   draw     - Force a redraw of the current figure
   errorbar - make an errorbar graph
@@ -255,6 +256,7 @@ def plotting():
     close    - close a figure window
     colorbar - add a colorbar to the current figure
     cohere   - make a plot of coherence
+    contour  - make a contour plot
     csd      - make a plot of cross spectral density
     draw     - force a redraw of the current figure
     errorbar - make an errorbar graph
@@ -426,6 +428,7 @@ _methods = (
     'barh',
     'cla',
     'cohere',
+    'contour',
     'csd',
     'errorbar',
     'fill',
