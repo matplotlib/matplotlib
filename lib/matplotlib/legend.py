@@ -32,6 +32,7 @@ from font_manager import FontProperties
 from lines import Line2D
 from mlab import linspace
 from patches import Patch, Rectangle, bbox_artist, draw_bbox
+from collections import LineCollection
 from text import Text
 from transforms import Bbox, Point, Value, get_bbox_transform, bbox_all,\
      unit_bbox, inverse_transform_bbox
@@ -195,6 +196,7 @@ The following dimensions are in axes coords
         HEIGHT = self._approx_text_height()
 
         ret = []   # the returned legend lines
+
         for handle, label in zip(handles, texts):
             x, y = label.get_position()
             x -= self.handlelen + self.handletextsep
@@ -214,6 +216,16 @@ The following dimensions are in axes coords
                 self._set_artist_props(p)
                 p.copy_properties(handle)
                 ret.append(p)
+            elif isinstance(handle, LineCollection):
+                ydata = (y-HEIGHT/2)*ones(self._xdata.shape, Float)
+                legline = Line2D(self._xdata, ydata)
+                self._set_artist_props(legline)
+                lw = handle.get_linewidths()[0]
+                color = handle.get_colors()[0]                
+                legline.set_color(color)
+                legline.set_linewidth(lw)
+                ret.append(legline)
+                
 	    else:
 		ret.append(None)
                                                

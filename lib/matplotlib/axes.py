@@ -909,7 +909,8 @@ Refs: Bendat & Piersol -- Random Data: Analysis and Measurement
                 y = None,
                 levels = None,
                 colors = None,
-                linewidths = None):
+                linewidths = None,
+                fmt='%1.3f'):
         """\
 CONTOUR(z, x = None, y = None, levels = None, colors = None)
 
@@ -924,25 +925,44 @@ levels can be a list of level values or the number of levels to be plotted.
 If levels == None, a default number of 7 evenly spaced levels is plotted.
 
 colors is one of these:
-  - a tuple of color strings, e.g. colors = ('r,'g', 'k')
-    different levels will be plotted in different colors in the order specified
-  - one string color, e.g. colors = 'r'
-    all levels will be plotted in this color
-  - a tuple of rgb or rgba values, e.g. colors = ((1.0, 0.5, 0.6), (0.4, 0.5, 0.9))
-                                                                                colors =  ((1.0, 0.5, 0.6, 0.6), (0.4, 0.5, 0.9, 1.0))
-  - if colors == None, the default color for lines.color in .matplotlibrc is used.
+
+  - a tuple of matplotlib color args (string, float, rgb, etc),
+    different levels will be plotted in different colors in the order
+    specified
+
+  - one string color, e.g. colors = 'r' or colors = 'red', all levels
+    will be plotted in this color
+
+  - if colors == None, the default color for lines.color in
+    .matplotlibrc is used.
 
 linewidths is one of:
-   - a number - all levels will be plotted with this linewidth, e.g. linewidths = 0.6
-   - a tuple of numbers, e.g. linewidths = (0.4, 0.8, 1.2)
-     different levels will be plotted with different linewidths in the order specified
-   - if linewidths == None, the default width in lines.linewidth in .matplotlibrc is used
 
-reg is a 2D region number array with the same dimensions as x and y. The values of reg should be positive region numbers, and zero fro zones wich do  not exist.
+   - a number - all levels will be plotted with this linewidth,
+     e.g. linewidths = 0.6
+
+   - a tuple of numbers, e.g. linewidths = (0.4, 0.8, 1.2) different
+     levels will be plotted with different linewidths in the order
+     specified
+
+   - if linewidths == None, the default width in lines.linewidth in
+     .matplotlibrc is used
+
+reg is a 2D region number array with the same dimensions as x and
+  y. The values of reg should be positive region numbers, and zero fro
+  zones wich do not exist.
 
 triangle - triangulation array - must be the same shape as reg
 
+fmt is a format string for adding a label to each collection.
+  Currently this is useful for auto-legending and may be useful down
+  the road for legend labeling
+
 More information on reg and triangle arrays is in _contour.c
+
+Return value is levels, collections where levels is a list of contour
+levels used and collections is a list of
+matplotlib.collections.LineCollection instances
 """
 
         if not self._hold: self.cla()
@@ -970,18 +990,18 @@ More information on reg and triangle arrays is in _contour.c
         else:
             lev = list(levels)
 
-        tcolors = []
+        
 
-        if colors == None:
-            tcolors = [colors] * len(lev)
+        if is_string_like(colors):
+            colors = [colors] * len(lev)
+        elif iterable(colors[0]) and len(colors) < len(lev):
+            colors = list(colors) * int(ceil(len(lev)/len(colors)))
         else:
-            if iterable(colors[0]) and len(colors) < len(lev):
-                colors = list(colors) * int(ceil(len(lev)/len(colors)))
-            for c in colors:
-                if len(c) == 4:
-                    tcolors.append((c,))
-                else:
-                    tcolors.append((colorConverter.to_rgba(c, 0.75),))
+            colors = [colors] * len(lev)
+
+        tcolors = []
+        for c in colors:
+            tcolors.append((colorConverter.to_rgba(c, 0.75),))
 
         if linewidths == None:
             tlinewidths = [linewidths] *len(lev)
@@ -994,7 +1014,8 @@ More information on reg and triangle arrays is in _contour.c
                                       
         args = zip(lev, tcolors, tlinewidths)
 
-        all_contours = {}
+        levels = []
+        collections = []
         for level, color, width  in args:
             ntotal, nparts  = _contour.GcInit1(x, y, reg, triangle, region, z, level)
             np = zeros((nparts,), Int32)
@@ -1002,13 +1023,16 @@ More information on reg and triangle arrays is in _contour.c
             yp = zeros((ntotal,), Float64)
             nlist = _contour.GcTrace(np, xp, yp)
             col = LineCollection(nlist, colors=color, linewidths = width)
+            col.set_label(fmt%level)
             self.add_collection(col)
-            all_contours[level] = col
+            levels.append(level)
+            collections.append(col)
+
 
         self.set_xlim([0,imax])
         self.set_ylim([0,jmax])
 
-        return all_contours
+        return levels, collections
 
 
 
@@ -1582,36 +1606,42 @@ and so on.  The following kwargs are supported
   axespad = 0.02       # the border between the axes and legend edge
         """
 
+        def get_handles():
+            handles = self.lines
+            handles.extend(self.patches)
+            handles.extend([c for c in self.collections if isinstance(c, LineCollection)])
+            return handles
+
         if len(args)==0:
-            labels = [line.get_label() for line in self.lines]
-            lines = self.lines
+            labels = [line.get_label() for line in get_handles()]
+            handles = get_handles()            
             loc = popd(kwargs, 'loc', 1)
 
         elif len(args)==1:
             # LABELS
             labels = args[0]
-            lines = [line for line, label in zip(self.lines, labels)]
+            handles = [h for h, label in zip(get_handles(), labels)]
             loc = popd(kwargs, 'loc', 1)
 
         elif len(args)==2:
             if is_string_like(args[1]) or isinstance(args[1], int):
                 # LABELS, LOC
                 labels, loc = args
-                lines = [line for line, label in zip(self.lines, labels)]
+                handles = [h for h, label in zip(get_handles(), labels)]
             else:
                 # LINES, LABELS
-                lines, labels = args
+                handles, labels = args
                 loc = popd(kwargs, 'loc', 1)
 
         elif len(args)==3:
             # LINES, LABELS, LOC
-            lines, labels, loc = args
+            handles, labels, loc = args
         else:
             raise RuntimeError('Invalid arguments to legend')
 
 
-        lines = flatten(lines)
-        self.legend_ = Legend(self, lines, labels, loc, **kwargs)
+        handles = flatten(handles)
+        self.legend_ = Legend(self, handles, labels, loc, **kwargs)
         return self.legend_
 
     def loglog(self, *args, **kwargs):
