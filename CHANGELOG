@@ -1,7 +1,7 @@
 New entries should be added at the top
 
-2004-12-10 Added zlevel to artists to control drawing order of lines,
-           patches and text in axes.  See examples/zlevel_demo.py - JDH
+2004-12-10 Added zorder to artists to control drawing order of lines,
+           patches and text in axes.  See examples/zoder_demo.py - JDH
 
 2004-12-10 Fixed colorbar bug with scatter - JDH
 
