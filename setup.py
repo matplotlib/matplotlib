@@ -12,10 +12,10 @@ data.extend(glob.glob('images/*.xpm'))
 
 ext_modules = []
 
-if 0: # how do I add '--with-gtkgd' flag checking?
+if 1: # how do I add '--with-gtkgd' flag checking?
     build_gtkgd(ext_modules)
 
-if 0: 
+if 1: 
     build_agg(ext_modules)
 
 setup(name="matplotlib",

@@ -170,7 +170,7 @@
 
 -- DONE 2004-02-06 allow pass of file handle to backend_gd
 
--- check clipping for GD
+-- DONE check clipping for GD
 
 -- Fix GD color allocation bug
 
@@ -181,12 +181,8 @@
 -- Separate out the backend web pages and get developers to maintain
    them.
 
--- FAQ 
+-- DONE FAQ 
 
-    * numarray
-    * pygtk path
-    * what's up with show
-
--- explaing the new interactive syntax on
+-- DONE 2004-02-11 explaing the new interactive syntax on
    http://matplotlib.sourceforge.net/interactive.html
 

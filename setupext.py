@@ -54,7 +54,7 @@ def add_agg_flags(module):
     include_dirs = ['/usr/X11R6/include', '/home/jdhunter/c/src/agg2/include',
                     '/usr/include/freetype1', 'src']
     library_dirs = ['/usr/X11R6/lib', '/home/jdhunter/c/src/agg2/src']
-    libraries = ['agg', 'X11', 'm', 'freetype']
+    libraries = ['agg', 'X11', 'm', 'freetype', 'png']
     extra_link_args = []
     module.include_dirs.extend(include_dirs)
     module.libraries.extend(libraries)
