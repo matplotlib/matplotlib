@@ -756,7 +756,7 @@ SeparableTransformation::eval_scalars(void) {
 
   if (heightIn==0)
     throw Py::ZeroDivisionError("SeparableTransformation::eval_scalars yin interval is zero; cannot transform");
-
+ 
 
 
   _sx = widthOut/widthIn;
