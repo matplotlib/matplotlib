@@ -308,7 +308,7 @@ class BakomaTrueTypeFonts(Fonts):
         else:
             offset = 0.
         metrics = Bunch(
-            advance  = glyph.horiAdvance/64.0,
+            advance  = glyph.linearHoriAdvance/65536.0,
             height   = glyph.height/64.0,
             width    = glyph.width/64.0,
             xmin = xmin,
@@ -364,7 +364,7 @@ class BakomaTrueTypeFonts(Fonts):
         kernd = cmkern[basename]
         key = symleft, symright
         kern = kernd.get(key,0)
-        print basename, symleft, symright, key, kern
+        #print basename, symleft, symright, key, kern
         return kern
 
     def _get_num(self, font, sym):
@@ -441,7 +441,7 @@ class BakomaPSFonts(Fonts):
         else:
             offset = 0.
         metrics = Bunch(
-            advance  = glyph.horiAdvance/64.0,
+            advance  = glyph.linearHoriAdvance/65536.0,
             height   = glyph.height/64.0,
             width    = glyph.width/64.0,
             xmin = xmin,
@@ -666,11 +666,11 @@ class SymbolElement(Element):
         mmetrics = Element.fonts.get_metrics(
             self.font, 'm', self.fontsize, dpi)
         self.widthm = mmetrics.width
-        print self.widthm
+        #print self.widthm
 
     def advance(self):
         'get the horiz advance'
-        return self.metrics.advance + self.kern*self.widthm
+        return self.metrics.advance # how to handle cm units?+ self.kern*self.widthm
 
 
     def height(self):
@@ -724,7 +724,7 @@ class GroupElement(Element):
             element.set_font(font)
             
 
-        print 'set fonts'
+        #print 'set fonts'
         for i in range(len(self.elements)-1):
             if not isinstance(self.elements[i], SymbolElement): continue
             if not isinstance(self.elements[i+1], SymbolElement): continue
@@ -736,7 +736,7 @@ class GroupElement(Element):
     def set_size_info(self, fontsize, dpi):        
         self.elements[0].set_size_info(self._scale*fontsize, dpi)
         Element.set_size_info(self, fontsize, dpi)
-        print 'set size'
+        #print 'set size'
 
 
     def set_origin(self, ox, oy):

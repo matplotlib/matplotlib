@@ -65,6 +65,7 @@ public:
   Py::Object write_bitmap(const Py::Tuple & args);
   Py::Object draw_rect(const Py::Tuple & args);
   Py::Object image_as_str(const Py::Tuple & args);
+  Py::Object get_xys(const Py::Tuple & args);
   Py::Object draw_glyphs_to_bitmap(const Py::Tuple & args);
   Py::Object draw_glyph_to_bitmap(const Py::Tuple & args);
   Py::Object get_glyph_name(const Py::Tuple & args);
@@ -110,6 +111,7 @@ private:
   static char draw_rect__doc__ [];
   static char image_as_str__doc__ [];
   static char draw_glyphs_to_bitmap__doc__ [];
+  static char get_xys__doc__ [];
   static char draw_glyph_to_bitmap__doc__ [];
   static char get_glyph_name__doc__[];
   static char get_charmap__doc__[];

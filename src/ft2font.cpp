@@ -22,10 +22,13 @@ Glyph::Glyph( const FT_Face& face, const FT_Glyph& glyph, size_t ind) :
   setattr("horiBearingX", Py::Int( face->glyph->metrics.horiBearingX) );
   setattr("horiBearingY", Py::Int( face->glyph->metrics.horiBearingY) );
   setattr("horiAdvance",  Py::Int( face->glyph->metrics.horiAdvance) );
+  setattr("linearHoriAdvance",  Py::Int( face->glyph->linearHoriAdvance) );
   setattr("vertBearingX", Py::Int( face->glyph->metrics.vertBearingX) );
   
   setattr("vertBearingY", Py::Int( face->glyph->metrics.vertBearingY) );
   setattr("vertAdvance",  Py::Int( face->glyph->metrics.vertAdvance) );
+  //setattr("bitmap_left",  Py::Int( face->glyph->bitmap_left) );
+  //setattr("bitmap_top",  Py::Int( face->glyph->bitmap_top) );
   
   Py::Tuple abbox(4);
   
@@ -616,25 +619,33 @@ FT2Font::compute_string_bbox( ) {
 
 
 char FT2Font::get_kerning__doc__[] = 
-"dx = get_kerning(left, right)\n"
+"dx = get_kerning(left, right, mode)\n"
 "\n"
 "Get the kerning between left char and right glyph indices\n"
+"mode is a kerning mode constant\n"
+"  KERNING_DEFAULT  - Return scaled and grid-fitted kerning distances\n"
+"  KERNING_UNFITTED - Return scaled but un-grid-fitted kerning distances\n"
+"  KERNING_UNSCALED - Return the kerning vector in original font units\n"
 ;
 Py::Object
 FT2Font::get_kerning(const Py::Tuple & args) {
   _VERBOSE("FT2Font::get_kerning");
-  args.verify_length(2);
+  args.verify_length(3);
   int left = Py::Int(args[0]);
   int right = Py::Int(args[1]);
-
+  int mode = Py::Int(args[2]);
+  
 
   if (!FT_HAS_KERNING( face )) return Py::Int(0);
   FT_Vector delta;
   
-  FT_Get_Kerning( face, left, right,
-		  FT_KERNING_DEFAULT, &delta );
+  if (FT_Get_Kerning( face, left, right, mode, &delta )) {    
+    return Py::Int(0);
+  }
+  else {
+    return Py::Int(delta.x);
 
-  return Py::Int(delta.x);
+  }
 }
 
 
@@ -686,10 +697,6 @@ FT2Font::set_text(const Py::Tuple & args) {
     std::string thischar("?");
     FT_UInt glyph_index;
 
-    Py::Tuple xy(2);
-    xy[0] = Py::Float(pen.x);
-    xy[1] = Py::Float(pen.y);
-    xys[n] = xy;
     
     if (pcode==NULL) {
       // plain ol string
@@ -727,6 +734,10 @@ FT2Font::set_text(const Py::Tuple & args) {
     // ignore errors, jump to next glyph 
     
     FT_Glyph_Transform( thisGlyph, 0, &pen);
+    Py::Tuple xy(2);
+    xy[0] = Py::Float(pen.x);
+    xy[1] = Py::Float(pen.y);
+    xys[n] = xy;
     pen.x += face->glyph->advance.x;
     
     previous = glyph_index; 
@@ -797,6 +808,8 @@ FT2Font::load_char(const Py::Tuple & args) {
   long charcode = Py::Int(args[0]);
   
   int error = FT_Load_Char( face, (unsigned long)charcode, FT_LOAD_DEFAULT);
+  //int error = FT_Load_Char( face, (unsigned long)charcode, FT_LOAD_LINEAR_DESIGN);
+  //int error = FT_Load_Char( face, (unsigned long)charcode, FT_LOAD_RENDER); 
   
   if (error)
     throw Py::RuntimeError(Printf("Could not load charcode %d", charcode).str());
@@ -868,7 +881,7 @@ FT2Font::draw_bitmap( FT_Bitmap*  bitmap,
 	{
 	  if ( i >= width || j >= height )
 	    continue;
-	  image.buffer[i + j*width] |= bitmap->buffer[q*bitmap->width + p];
+	  image.buffer[i + j*width] |= bitmap->buffer[p + q*bitmap->width];
 	  
 	}
     }
@@ -1020,6 +1033,54 @@ FT2Font::draw_glyphs_to_bitmap(const Py::Tuple & args) {
     }
   
   return Py::Object();
+}
+
+
+char FT2Font::get_xys__doc__[] = 
+"get_xys()\n"
+"\n"
+"Get the xy locations of the current glyphs\n"
+;
+Py::Object
+FT2Font::get_xys(const Py::Tuple & args) {
+  
+  _VERBOSE("FT2Font::get_xys");
+  args.verify_length(0);
+  
+  FT_BBox string_bbox = compute_string_bbox();
+  Py::Tuple xys(glyphs.size());
+
+  for ( size_t n = 0; n < glyphs.size(); n++ )
+    {
+
+      FT_BBox bbox;
+      FT_Glyph_Get_CBox(glyphs[n], ft_glyph_bbox_pixels, &bbox);
+      
+      error = FT_Glyph_To_Bitmap(&glyphs[n],
+				 ft_render_mode_normal,
+				 0,
+				 //&pos[n],
+				 1  //destroy image; 
+				 );
+      if (error)
+	throw Py::RuntimeError("Could not convert glyph to bitmap");
+      
+      FT_BitmapGlyph bitmap = (FT_BitmapGlyph)glyphs[n];
+
+      
+      //bitmap left and top in pixel, string bbox in subpixel
+      FT_Int x = (FT_Int)(bitmap->left-string_bbox.xMin/64.);
+      FT_Int y = (FT_Int)(string_bbox.yMax/64.-bitmap->top+1);
+      //make sure the index is non-neg
+      x = x<0?0:x;
+      y = y<0?0:y;
+      Py::Tuple xy(2);
+      xy[0] = Py::Float(x);
+      xy[1] = Py::Float(y);
+      xys[n] = xy;
+    }
+  
+  return xys;
 }
 
 char FT2Font::draw_glyph_to_bitmap__doc__[] = 
@@ -1494,6 +1555,9 @@ FT2Font::init_type() {
 		     FT2Font::draw_glyph_to_bitmap__doc__);
   add_varargs_method("draw_glyphs_to_bitmap", &FT2Font::draw_glyphs_to_bitmap,
 		     FT2Font::draw_glyphs_to_bitmap__doc__);
+  add_varargs_method("get_xys", &FT2Font::get_xys,
+		     FT2Font::get_xys__doc__);
+
   add_varargs_method("get_glyph", &FT2Font::get_glyph,
 		     FT2Font::get_glyph__doc__);
   add_varargs_method("get_num_glyphs", &FT2Font::get_num_glyphs,
@@ -1612,6 +1676,9 @@ initft2font(void)
   d["EXTERNAL_STREAM"] 	= Py::Int(FT_FACE_FLAG_EXTERNAL_STREAM);
   d["ITALIC"] 		= Py::Int(FT_STYLE_FLAG_ITALIC);
   d["BOLD"] 		= Py::Int(FT_STYLE_FLAG_BOLD);
+  d["KERNING_DEFAULT"]  = Py::Int(FT_KERNING_DEFAULT);
+  d["KERNING_UNFITTED"]  = Py::Int(FT_KERNING_UNFITTED);
+  d["KERNING_UNSCALED"]  = Py::Int(FT_KERNING_UNSCALED);
   
   //initialize library    
   int error = FT_Init_FreeType( &_ft2Library ); 

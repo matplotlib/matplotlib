@@ -16,7 +16,7 @@ from matplotlib.cbook import is_string_like, reverse_dict
 from matplotlib.figure import Figure
 
 from matplotlib.font_manager import fontManager
-from matplotlib.ft2font import FT2Font
+from matplotlib.ft2font import FT2Font, KERNING_UNFITTED, KERNING_DEFAULT, KERNING_UNSCALED
 from matplotlib.mathtext import math_parse_s_ps, bakoma_fonts
 from matplotlib.text import Text
 
@@ -142,6 +142,7 @@ class RendererPS(RendererBase):
             out = ("/%s findfont\n"
                    "%1.3f scalefont\n"
                    "setfont\n" % (fontname,fontsize))
+
             self._pswriter.write(out)
             self.fontname = fontname
             self.fontsize = fontsize
@@ -478,41 +479,44 @@ grestore
         """draw a unicode string.  ps doesn't have unicode support, so
         we have to do this the hard way
         """
-        thisx, thisy = x, y
+
+
         font = self._get_font_ttf(prop)        
-        self.set_font(font.get_sfnt()[(1,0,0,6)], prop.get_size_in_points())        
-        xys = font.set_text(s, 0);
+
+        self.set_color(*gc.get_rgb())
+        self.set_font(font.get_sfnt()[(1,0,0,6)], prop.get_size_in_points())
 
         cmap = font.get_charmap()
         glyphd = reverse_dict(cmap)
-        lastcode = None
-
-        #print len(s), len(xys)
-        manual = True
-        for c, xy in zip(s, xys):
-            # use the freetype positions
-            penx, peny = xy                
-            #print '\t', c, penx, peny
-            if not manual: # use freetype positions
-                thisx = x + penx/64.
-            
+        lastgind = None
+        #print 'text', s
+        lines = []
+        thisx, thisy = 0,0
+        for c in s:
             ccode = ord(c)
             gind = glyphd[ccode]
+            glyph = font.load_char(ccode)
+
             name = font.get_glyph_name(gind)
-            self._pswriter.write('%f %f moveto /%s glyphshow\n'%(thisx, thisy, name))
+            if lastgind is not None:
+                kern = font.get_kerning(lastgind, gind, KERNING_UNFITTED)
+            else:
+                kern = 0
+            lastgind = gind
+            thisx += kern/64.0
 
-            if manual:  #manually lay them out using glyph metrics and kern
-                glyph = font.load_char(ccode)
-                #print c, ccode, gind, name, xy[0]/64.
-                if lastcode is not None:
-                    kern = font.get_kerning(lastcode, ccode)
-                    #print lastcode, ccode, kern
-                else:
-                    kern = 0
-                lastcode = ccode
-                thisx += (glyph.horiAdvance+kern)/64.0
-            
+            lines.append('%f %f m /%s glyphshow'%(thisx, thisy, name))
+            thisx += glyph.linearHoriAdvance/65536.0             
 
+
+        thetext = '\n'.join(lines)
+        ps = """gsave
+%(x)f %(y)f translate
+%(angle)f rotate
+%(thetext)s
+grestore
+""" % locals()
+        self._pswriter.write(ps)
                 
 
     def draw_mathtext(self, gc,
