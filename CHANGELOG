@@ -1,6 +1,12 @@
 New entries should be added at the top
 
 ==============================================================
+2004-10-28 backend_cairo.py: The renderer is complete except for mathtext,
+           draw_image() and clipping. gtkcairo works reasonably well. cairo
+           does not yet create any files since I can't figure how to set the
+           'target surface', I don't think pycairo wraps the required functions
+	   - SC
+
 2004-10-28 backend_gtk.py: Improved the save dialog (GTK 2.4 only) so it 
            presents the user with a menu of supported image formats - SC
 
