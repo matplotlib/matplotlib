@@ -1,5 +1,10 @@
 New entries should be added at the top
 
+
+2004-08-12 Added Darren Dale's exponential ticking patch
+
+2004-08-11 Added Gregory's fltkagg backend
+
 ==========================================================================
 2004-08-09 matplotlib-0.61.0 released
 
