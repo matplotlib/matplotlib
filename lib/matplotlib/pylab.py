@@ -3,7 +3,7 @@ This is a matlab(TM) style interface to matplotlib.
 
 The following plotting commands are provided; some of these do not
 exist in matlab(TM) but have proven themselves to be useful nonetheless.
-The majority of them, however, are matlab(TM) commands
+The majority of them, however, have matlab analogs
 
 _Plotting commands
 
@@ -49,6 +49,7 @@ _Plotting commands
   pcolor   - make a pseudocolor plot
   pie      - make a pie chart
   plot     - make a line plot
+  pie      - pie charts
   polar    - make a polar plot on a PolarAxes
   psd      - make a plot of power spectral density
   rc       - control the default params
@@ -370,7 +371,7 @@ def get_plot_commands(): return ( 'axes', 'axis', 'bar', 'cla', 'clf',
     'imshow', 'legend', 'loglog', 'rc', 'pcolor', 'plot', 'psd',
     'savefig', 'scatter', 'set', 'semilogx', 'semilogy', 'show',
     'specgram', 'stem', 'subplot', 'table', 'text', 'title', 'xlabel',
-    'ylabel', 'polar')
+    'ylabel', 'pie', 'polar')
 
 def raise_msg_to_str(msg):
     """msg is a return arg from a raise.  Join with new lines"""
