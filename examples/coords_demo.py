@@ -12,7 +12,6 @@ ax = subplot(111)
 ax.plot(t,s)
 
 
-
 def on_move(event):
     # get the x and y pixel coords
     x, y = event.x, event.y

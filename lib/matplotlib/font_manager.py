@@ -801,6 +801,7 @@ font dictionary can act like a font cache.
         #  Load TrueType fonts and create font dictionary.
         
         self.ttffiles = findSystemFonts(paths) + findSystemFonts()
+
         for fname in self.ttffiles:
             verbose.report('trying fontname %s' % fname, 'debug')
             if fname.lower().find('vera.ttf')>=0:

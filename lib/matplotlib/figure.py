@@ -65,7 +65,10 @@ class Figure(Artist):
         self.clf()
 
     def set_canvas(self, canvas):
-        'set the canvas the contains the figure'
+        """\
+Set the canvas the contains the figure
+
+ACCEPTS: a FigureCanvas instance"""
         self.canvas = canvas
         
     def hold(self, b=None):
@@ -125,9 +128,9 @@ The following kwargs are allowed:
     index of the array is in the upper left or lower left corner of
     the axes.  Defaults to the rc image.origin value
 
-This complements the axes image which will be resampled to fit the
-current axes.  If you want a resampled image to fill the entire
-figure, you can define an Axes with size [0,1,0,1].
+This complements the axes image (Axes.imshow) which will be resampled
+to fit the current axes.  If you want a resampled image to fill the
+entire figure, you can define an Axes with size [0,1,0,1].
 
 A image.FigureImage instance is returned.
 """        
@@ -170,6 +173,22 @@ ACCEPTS: a w,h tuple with w,h in inches
         'Get the face color of the Figure rectangle'
         return self.figurePatch.get_facecolor()
 
+    def get_figwidth(self):
+        'Return the figwidth as a float'
+        return self.figwidth.get()
+
+    def get_figheight(self):
+        'Return the figheight as a float'
+        return self.figheight.get()
+
+    def get_dpi(self):
+        'Return the dpi as a float'
+        return self.dpi.get()
+
+    def get_frameon(self):
+        'get the boolean indicating frameon'
+        return self.frameon
+
     def set_edgecolor(self, color):
         """
 Set the edge color of the Figure rectangle
@@ -183,6 +202,34 @@ Set the face color of the Figure rectangle
 
 ACCEPTS: any matplotlib color - see help(colors)"""
         self.figurePatch.set_facecolor(color)
+
+    def set_dpi(self, val):
+        """
+Set the dots-per-inch of the figure
+
+ACCEPTS: float"""
+        self.dpi.set(val)
+
+    def set_figwidth(self, val):
+        """
+Set the width of the figure in inches
+
+ACCEPTS: float"""
+        self.figwidth.set(val)
+
+    def set_figheight(self, val):
+        """
+Set the height of the figure in inches
+
+ACCEPTS: float"""
+        self.figheight.set(val)
+
+    def set_frameon(self, b):
+        """
+Set whether the figure frame (background) is displayed or invisible
+
+ACCEPTS: boolean"""
+        self.frameon = b
 
     def delaxes(self, a):
         'remove a from the figure and update the current axes'
@@ -206,7 +253,7 @@ legal Axes kwargs plus"polar" which sets whether to create a polar axes
     add_axes(ax)   # add an Axes instance
 
 
-If the figure already has an axed with key *args, *kwargs then it will
+If the figure already has an axes with key *args, *kwargs then it will
 simply make that axes current and return it.  If you do not want this
 behavior, eg you want to force the creation of a new axes, you must
 use a unique set of args and kwargs.  The artist "label" attribute has
