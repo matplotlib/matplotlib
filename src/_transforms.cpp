@@ -901,7 +901,13 @@ Transformation::nonlinear_only_numerix(const Py::Tuple & args) {
     double thisx = *(double *)(x->data + i*x->strides[0]);
     double thisy = *(double *)(y->data + i*y->strides[0]);
     //std::cout << "calling operator " << thisx << " " << thisy << " " << std::endl;
-    this->nonlinear_only_api(&thisx, &thisy);
+    try {
+      this->nonlinear_only_api(&thisx, &thisy);
+    }
+    catch (std::domain_error &err) {
+      throw Py::ValueError("Domain error on this->nonlinear_only_api(&thisx, &thisy) in Transformation::nonlinear_only_numerix");  
+    }
+
     *(double *)(retx->data + i*retx->strides[0]) = thisx;
     *(double *)(rety->data + i*rety->strides[0]) = thisy;
   }
