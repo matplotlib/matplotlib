@@ -1551,6 +1551,6 @@ def exception_handler(type, value, tb):
     else:
         msg = value
 
-    error_msg_gtk(msg)
+    if len(msg): error_msg_gtk(msg)
 
 sys.excepthook = exception_handler
