@@ -1,5 +1,5 @@
 """
-A Cairo backend for matplotlib implemented using pycairo
+A Cairo backend for matplotlib
 Author: Steve Chaplin
  
 Cairo is a vector graphics library with cross-device output support.
@@ -59,10 +59,6 @@ IMAGE_FORMAT_DEFAULT  = 'png'
 
 
 class RendererCairo(RendererBase):
-    """
-    The renderer handles all the drawing primitives using a graphics
-    context instance that controls the colors/styles
-    """
     fontweights = {
         100          : cairo.FONT_WEIGHT_NORMAL,
         200          : cairo.FONT_WEIGHT_NORMAL,
@@ -108,16 +104,11 @@ class RendererCairo(RendererBase):
         self.height   = height
 
     def get_canvas_width_height(self):
-        'return the canvas width and height in display coords'
         if DEBUG: print 'backend_cairo.RendererCairo.%s()' % _fn_name()
         return self.width, self.height
     
 
     def get_text_width_height(self, s, prop, ismath):
-        """
-        get the width and height in display coords of the string s
-        with FontPropertry prop
-        """
         if DEBUG: print 'backend_cairo.RendererCairo.%s()' % _fn_name()
         if ismath:
             print 'ismath get_text_width_height() not implemented yet'
@@ -143,11 +134,6 @@ class RendererCairo(RendererBase):
 
                               
     def draw_arc(self, gc, rgbFace, x, y, width, height, angle1, angle2):
-        """
-        Draw an arc centered at x,y with width and height and angles
-        from 0.0 to 360.0.
-        If rgbFace is not None, fill the arc with it.
-        """
         if DEBUG: print 'backend_cairo.RendererCairo.%s()' % _fn_name()
         # cairo draws circular arcs (width=height)
         # could curve_to() and draw a spline instead?
@@ -165,18 +151,6 @@ class RendererCairo(RendererBase):
     
     
     def draw_image(self, x, y, im, origin, bbox):
-        """
-        Draw the Image instance into the current axes; x is the
-        distance in pixels from the left hand side of the canvas. y is
-        the distance from the origin.  That is, if origin is upper, y
-        is the distance from top.  If origin is lower, y is the
-        distance from bottom
-
-        origin is 'upper' or 'lower'
-
-        bbox is a matplotlib.transforms.BBox instance for clipping, or
-        None
-        """
         if DEBUG: print 'backend_cairo.RendererCairo.%s()' % _fn_name()
 
         try: import cairo.numpy
@@ -216,9 +190,6 @@ class RendererCairo(RendererBase):
 
 
     def draw_line(self, gc, x1, y1, x2, y2):
-        """
-        Draw a single line from x1,y1 to x2,y2
-        """
         if DEBUG: print 'backend_cairo.RendererCairo.%s()' % _fn_name()
         ctx = gc.ctx
         ctx.new_path()
@@ -228,10 +199,6 @@ class RendererCairo(RendererBase):
 
 
     def draw_lines(self, gc, x, y):
-        """
-        x and y are equal length arrays, draw lines connecting each
-        point in x, y
-        """
         if DEBUG: print 'backend_cairo.RendererCairo.%s()' % _fn_name()
         y = [self.height - y for y in y]
         points = zip(x,y)
@@ -246,9 +213,6 @@ class RendererCairo(RendererBase):
 
 
     def draw_point(self, gc, x, y):
-        """
-        Draw a single point at x,y
-        """
         if DEBUG: print 'backend_cairo.RendererCairo.%s()' % _fn_name()
         # render by drawing a 0.5 radius circle
         gc.ctx.new_path()
@@ -257,11 +221,6 @@ class RendererCairo(RendererBase):
 
 
     def draw_polygon(self, gc, rgbFace, points):
-        """
-        Draw a polygon.  points is a len vertices tuple, each element
-        giving the x,y coords a vertex.
-        If rgbFace is not None, fill the rectangle with it.
-        """
         if DEBUG: print 'backend_cairo.RendererCairo.%s()' % _fn_name()
 
         ctx = gc.ctx
@@ -281,12 +240,6 @@ class RendererCairo(RendererBase):
 
 
     def draw_rectangle(self, gc, rgbFace, x, y, width, height):
-        """
-        Draw a non-filled rectangle at x,y (lower left) with width and height,
-        using the GraphicsContext gcEdge.
-        Draw a filled rectangle within it of color rgbFace, if rgbFace is not
-        None.
-        """
         if DEBUG: print 'backend_cairo.RendererCairo.%s()' % _fn_name()
         ctx = gc.ctx
         ctx.new_path()
@@ -300,10 +253,6 @@ class RendererCairo(RendererBase):
 
 
     def draw_text(self, gc, x, y, s, prop, angle, ismath=False):    
-        """
-        Render the matplotlib.text.Text instance at x, y in window
-        coords using GraphicsContext gc
-        """
         if DEBUG: print 'backend_cairo.RendererCairo.%s()' % _fn_name()
         ctx = gc.ctx
 
@@ -327,15 +276,11 @@ class RendererCairo(RendererBase):
 
          
     def flipy(self):
-        """return true if y small numbers are top for renderer"""
         if DEBUG: print 'backend_cairo.RendererCairo.%s()' % _fn_name()
         return True
 
     
     def new_gc(self):
-        """
-        Return an instance of a GraphicsContextCairo
-        """
         if DEBUG: print 'backend_cairo.RendererCairo.%s()' % _fn_name()
         gc = GraphicsContextCairo (renderer=self)
         gc.ctx.set_target_surface (self.surface)
@@ -344,17 +289,12 @@ class RendererCairo(RendererBase):
 
 
     def points_to_pixels(self, points):
-        """
-        Convert points to display units (as a float).
-        """
         if DEBUG: print 'backend_cairo.RendererCairo.%s()' % _fn_name()
+        # is this correct for cairo? (copied from gtk)
         return points * PIXELS_PER_INCH/72.0 * self.dpi.get()/72.0
 
 
 class GraphicsContextCairo(GraphicsContextBase):
-    """
-    The graphics context provides the color, line styles, etc...
-    """
     _joind = {
         'bevel' : cairo.LINE_JOIN_BEVEL,
         'miter' : cairo.LINE_JOIN_MITER,
@@ -375,17 +315,11 @@ class GraphicsContextCairo(GraphicsContextBase):
 
         
     def set_alpha(self, alpha):
-        """
-        Set the alpha value used for blending
-        """
         self._alpha = alpha
         self.ctx.set_alpha(alpha)
 
 
     def set_capstyle(self, cs):
-        """
-        Set the capstyle as a string in ('butt', 'round', 'projecting')
-        """
         if cs in ('butt', 'round', 'projecting'):
             self._capstyle = cs
             self.ctx.set_line_cap (self._capd[cs])
@@ -394,9 +328,6 @@ class GraphicsContextCairo(GraphicsContextBase):
 
 
     def set_clip_rectangle(self, rectangle):
-        """
-        Set the clip rectangle with sequence (left, bottom, width, height)
-        """
         # Cairo clipping is currently extremely slow
         # cairo/BUGS lists it as a known bug
         self._cliprect = rectangle
@@ -425,19 +356,16 @@ class GraphicsContextCairo(GraphicsContextBase):
         
 
     def set_foreground(self, fg, isRGB=None):
-        """
-        Set the foreground color.  fg can be a matlab format string, a
-        html hex color string, an rgb unit tuple, or a float between 0
-        and 1.  In the latter case, grayscale is used.
-        """
         GraphicsContextBase.set_foreground(self, fg, isRGB)
         self.ctx.set_rgb_color(*self._rgb)
 
 
+    def set_graylevel(self, frac):
+        GraphicsContextBase.set_graylevel(self, frac)
+        self.ctx.set_rgb_color(*self._rgb)
+        
+
     def set_joinstyle(self, js):
-        """
-        Set the join style to be one of ('miter', 'round', 'bevel')
-        """
         if js in ('miter', 'round', 'bevel'):
             self._joinstyle = js
             self.ctx.set_line_join(self._joind[js])
@@ -446,42 +374,10 @@ class GraphicsContextCairo(GraphicsContextBase):
 
 
     def set_linewidth(self, w):
-        """
-        Set the linewidth in points
-        """
         self._linewidth = w
         self.ctx.set_line_width (self.renderer.points_to_pixels(w))
 
         
-########################################################################
-#    
-# The following functions and classes are for matlab compatibility
-# mode (matplotlib.matlab) and implement window/figure managers,
-# etc...
-#
-########################################################################
-
-def draw_if_interactive():
-    """
-    This should be overriden in a windowing environment if drawing
-    should be done in interactive python mode
-    """
-    if DEBUG: print 'backend_cairo.%s()' % _fn_name()
-    pass
-
-
-def show():
-    """
-    This is usually the last line of a matlab script and tells the
-    backend that it is time to draw.  In interactive mode, this may be
-    a do nothing func.  See the GTK backend for an example of how to
-    handle interactive versus batch mode
-    """
-    if DEBUG: print 'backend_cairo.%s()' % _fn_name()
-    for manager in Gcf.get_all_fig_managers():
-        manager.canvas.realize()
-
-
 def new_figure_manager(num, *args, **kwargs): # called by backends/__init__.py
     """
     Create a new figure manager instance
@@ -615,12 +511,6 @@ def _save_ps (figure, fileObject, orientation):
 
 
 class FigureCanvasCairo(FigureCanvasBase):
-    """
-    The canvas the figure renders into.  Calls the draw and print fig
-    methods, creates the renderers, etc...
-    Public attributes
-      figure - A Figure instance
-    """
     def print_figure(self, filename, dpi=150, facecolor='w', edgecolor='w',
                      orientation='portrait'):
         print_figure_fn(self.figure, filename, dpi, facecolor, edgecolor,
