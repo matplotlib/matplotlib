@@ -1,6 +1,6 @@
 from __future__ import division
 
-from matplotlib import verbose, rcParams
+from matplotlib import verbose, rcParams, __version__
 from matplotlib.backend_bases import RendererBase, GraphicsContextBase,\
      FigureManagerBase, FigureCanvasBase, error_msg
 
@@ -14,7 +14,7 @@ from matplotlib.mathtext import math_parse_s_ft2font_svg
 
 import sys,os,math
 
-backend_version = matplotlib.__version__
+backend_version = __version__
 
 def _nums_to_str(seq, fmt='%1.3f'):
     return ' '.join([_int_or_float(val, fmt) for val in seq])
