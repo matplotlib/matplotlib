@@ -1109,7 +1109,6 @@ Refs:
 
     def draw(self, renderer):
         "Draw everything (plot lines, axes, labels)"
-        
         renderer.open_group('axes')
         self.transData.freeze()  # eval the lazy objects
         self.transAxes.freeze()  # eval the lazy objects

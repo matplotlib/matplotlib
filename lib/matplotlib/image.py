@@ -78,6 +78,8 @@ class AxesImage(Artist, cm.ScalarMappable):
         self.set_aspect( aspect)
         self.axes = ax
 
+
+        self._imcache = None
         
     def get_size(self):
         'Get the numrows, numcols of the input image'
@@ -86,11 +88,24 @@ class AxesImage(Artist, cm.ScalarMappable):
 
         return self._A.shape[:2]
 
-    def make_image(self, flipy):        
+    def set_alpha(self, alpha):
+        """
+Set the alpha value used for blending - not supported on
+all backends
 
+ACCEPTS: float
+        """
+        Artist.set_alpha(self, alpha)
+        self._imcache = None
+        
+    def make_image(self, flipy):        
         if self._A is not None:
-            x = self.to_rgba(self._A, self._alpha)
-            im = _image.fromarray(x, 0)
+            if self._imcache is None:
+                x = self.to_rgba(self._A, self._alpha)
+                im = _image.fromarray(x, 0)
+                self._imcache = im
+            else:
+                im = self._imcache
         else:
             raise RuntimeError('You must first set the image array or the image attribute')
 
@@ -176,6 +191,8 @@ ACCEPTS: numeric/numarray/PIL Image A"""
         if hasattr(A,'getpixel'): X = pil_to_array(A)
         else: X = A # assume array
         cm.ScalarMappable.set_array(self, X)
+        self._imcache =None
+
 
     def set_array(self, A):
         """

@@ -482,9 +482,13 @@ class LinearSegmentedColormap(Colormap):
         """
         self.N = N
         self.name=name
-        self._red_lut   = makeMappingArray(N, segmentdata['red'])
-        self._green_lut = makeMappingArray(N, segmentdata['green'])
-        self._blue_lut  = makeMappingArray(N, segmentdata['blue'])
+        self._isinit = False
+        self._segmentdata = segmentdata
+    def _init(self):   
+        self._red_lut   = makeMappingArray(self.N, self._segmentdata['red'])
+        self._green_lut = makeMappingArray(self.N, self._segmentdata['green'])
+        self._blue_lut  = makeMappingArray(self.N, self._segmentdata['blue'])
+        self._isinit = True
         
     def __call__(self, X, alpha=1.0):
         """
@@ -495,6 +499,7 @@ class LinearSegmentedColormap(Colormap):
         interval before generating rgb values.  
         Alpha must be a scalar
         """
+        if not self._isinit: self._init()
         alpha = min(alpha, 1.0) # alpha must be between 0 and 1
         alpha = max(alpha, 0.0)
         if type(X) in [IntType, FloatType]:
@@ -504,8 +509,11 @@ class LinearSegmentedColormap(Colormap):
             vtype = 'array'
             xa = asarray(X)
 
-        xa = where(xa>1.,1.,xa)
-        xa = where(xa<0.,0.,xa)
+        # assume the data is properly normalized
+        #xa = where(xa>1.,1.,xa)
+        #xa = where(xa<0.,0.,xa)
+
+
         xa = (xa *(self.N-1)).astype(Int)
         rgba = zeros(xa.shape+(4,), Float)
         rgba[...,0] = take(self._red_lut, xa)
@@ -553,9 +561,10 @@ class normalize:
         elif vmin==vmax:
             return 0.*value
         else:
+            # assume the normalization is proper
             val = where(val<vmin, vmin, val)
             val = where(val>vmax, vmax, val)
-            result = divide(val-vmin, vmax-vmin)
+            result = (1.0/(vmax-vmin))*(val-vmin)
         if vtype == 'scalar':
             result = result[0]
         return result
