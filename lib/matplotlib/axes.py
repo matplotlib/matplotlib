@@ -2562,7 +2562,6 @@ class Axes(Artist):
         self.title.update(kwargs)
         return self.title
 
-
     def set_xlabel(self, xlabel, fontdict=None, **kwargs):
         """
         SET_XLABEL(xlabel, fontdict=None, **kwargs)
@@ -2672,7 +2671,7 @@ class Axes(Artist):
         label = self.yaxis.get_label()
         label.set_text(ylabel)
 
-        if fontdict is not None: self.title.update(fontdict)
+        if fontdict is not None: label.update(fontdict)
         label.update(kwargs)
         return label
 
@@ -3513,6 +3512,28 @@ class PolarAxes(Axes):
         'ylabel not implemented'
         raise NotImplementedError('ylabel not defined for polar axes (yet)')
 
+
+    def set_xlim(self, v, emit=True):
+        """
+        SET_XLIM(v, emit=True)
+
+        A do nothing impl until we can figure out how to handle interaction
+        ACCEPTS: len(2) sequence of floats
+        """
+        #warnings.warn('Navigation set_ylim not implemented for polar')
+        self.viewLim.intervalx().set_bounds(*v)
+        if emit: self._send_xlim_event()
+
+
+    def set_ylim(self, v, emit=True):
+        """
+        SET_YLIM(v, emit=True)
+
+        ACCEPTS: len(2) sequence of floats
+        """
+        #warnings.warn('Navigation set_xlim not implemented for polar')
+        self.viewLim.intervaly().set_bounds(*v)
+        if emit: self._send_ylim_event()
 
     def get_xscale(self):
         'return the xaxis scale string'

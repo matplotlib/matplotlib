@@ -6,17 +6,13 @@
 //
 #if defined( _MSC_VER )
 
-#  if _MSC_VER <= 1200
-#    define STANDARD_LIBRARY_HAS_ITERATOR_TRAITS 0
-#  else
-#    define STANDARD_LIBRARY_HAS_ITERATOR_TRAITS 1
-#  endif
+#  define STANDARD_LIBRARY_HAS_ITERATOR_TRAITS 1
 
 #elif defined( __GNUC__ )
 #  if __GNUC__ >= 3
-#    define STANDARD_LIBRARY_HAS_ITERATOR_TRAITS 0
-#  else
 #    define STANDARD_LIBRARY_HAS_ITERATOR_TRAITS 1
+#  else
+#    define STANDARD_LIBRARY_HAS_ITERATOR_TRAITS 0
 #endif
 
 //
@@ -29,9 +25,9 @@
 #endif
 
 #if STANDARD_LIBRARY_HAS_ITERATOR_TRAITS
-#  define random_access_iterator_parent(itemtype) std::random_access_iterator<itemtype, int>
-#else
 #  define random_access_iterator_parent(itemtype) std::iterator<std::random_access_iterator_tag,itemtype,int>
+#else
+#  define random_access_iterator_parent(itemtype) std::random_access_iterator<itemtype, int>
 #endif
 
 //

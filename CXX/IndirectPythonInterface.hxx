@@ -59,9 +59,6 @@ PyObject * _None();
 //
 //	Wrap Type variables as function calls
 //
-PyTypeObject * _String_Type();
-bool _String_Check( PyObject *o );
-
 PyTypeObject * _List_Type();
 bool _List_Check( PyObject *o );
 
@@ -124,6 +121,9 @@ bool _Slice_Check( PyObject *op );
 
 PyTypeObject * _String_Type();
 bool _String_Check( PyObject *op );
+
+PyTypeObject * _Unicode_Type();
+bool _Unicode_Check( PyObject *op );
 
 PyTypeObject * _TraceBack_Type();
 bool _TraceBack_Check( PyObject *v );
