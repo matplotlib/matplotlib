@@ -5,7 +5,7 @@ static PyObject *ErrorObject;
 extern PyTypeObject FT2Font_Type;
 extern PyTypeObject Glyph_Type;
 static int FT2Font_setattr(FT2FontObject *self, char *name, PyObject *v);
-
+static PyObject * FT2Font_clear(FT2FontObject *self);
 // set_error from paint; see LICENSE_PAINT that ships with matplotlib
 void set_error(PyObject* err, char *fmt, ...)
 {
@@ -171,16 +171,9 @@ newFT2FontObject(PyObject *args)
   FT2FontObject *self;
   self = PyObject_New(FT2FontObject, &FT2Font_Type);
   self->image.buffer = NULL;
-  self->image.width = 0;
-  self->image.height = 0;
   self->text = NULL;
-  self->angle = 0.0;
-  self->num_chars = 0;
   self->num_glyphs = 0;
-  self->pen.x = 0;
-  self->pen.y = 0;
-
-
+  FT2Font_clear(self);
   error = FT_New_Face( _ft2Library, facefile, 0, &self->face );
   if (error == FT_Err_Unknown_File_Format ) {
     
@@ -215,6 +208,7 @@ newFT2FontObject(PyObject *args)
     return NULL;
   }
   
+
 
   if (self == NULL)
     return NULL;
@@ -295,6 +289,7 @@ FT2Font_set_bitmap_size(FT2FontObject *self, PyObject *args)
 
 /* FT2Font methods */
 
+
 static void
 FT2Font_dealloc(FT2FontObject *self)
 {
@@ -304,7 +299,6 @@ FT2Font_dealloc(FT2FontObject *self)
   //todo: how to free the library, ie, when all fonts are done
   //FT_Done_FreeType( _ft2Library );
 
-  //todo: how to free buffer - this seqfaults
   free(self->image.buffer );
   self->image.buffer = NULL;
 
@@ -312,6 +306,36 @@ FT2Font_dealloc(FT2FontObject *self)
   
   PyObject_Del(self);
 
+}
+
+char FT2Font_clear__doc__[] = 
+"clear()\n"
+"\n"
+"Clear all the glyphs, reset for a new set_text"
+;
+static PyObject *
+FT2Font_clear(FT2FontObject *self)
+{
+  size_t i;
+  //printf("start\n");
+  for (i=0; i< self->num_glyphs; i++) {
+    Py_XDECREF(self->gms[i]);
+    self->gms[i] = NULL;
+  }
+  //printf("1\n");
+  free(self->image.buffer );
+  self->image.buffer = NULL;
+  self->image.width = 0;
+  self->image.height = 0;
+  self->text = NULL;
+  self->angle = 0.0;
+  self->num_chars = 0;
+  self->num_glyphs = 0;
+  self->pen.x = 0;
+  self->pen.y = 0;
+  Py_INCREF(Py_None);
+  return Py_None;
+  //printf("end\n");
 }
 
 char FT2Font_set_size__doc__[] = 
@@ -934,6 +958,8 @@ FT2Font_get_sfnt_name(FT2FontObject *self, PyObject *args)
 }
   
 static PyMethodDef FT2Font_methods[] = {
+  {"clear",             (PyCFunction)FT2Font_clear,
+   METH_VARARGS, FT2Font_clear__doc__},
   {"write_bitmap",             (PyCFunction)FT2Font_write_bitmap,
    METH_VARARGS, FT2Font_write_bitmap__doc__},
   {"set_bitmap_size",          (PyCFunction)FT2Font_set_bitmap_size,
