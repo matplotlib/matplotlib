@@ -1135,11 +1135,11 @@ void Transformation::init_type()
   add_varargs_method("freeze",   &Transformation::freeze,  "freeze(); eval and freeze the lazy objects\n");
   add_varargs_method("thaw",   &Transformation::thaw,  "thaw(); release the laszy objects\n"); 
 
-  add_varargs_method("get_bbox1",   &Transformation::get_bbox1,  "get_bbox1(); return the Func instance on x\n");
-  add_varargs_method("get_bbox2",   &Transformation::get_bbox2,  "get_bbox2(); return the Func instance on y\n");
+  add_varargs_method("get_bbox1",   &Transformation::get_bbox1,  "get_bbox1(); return the input bbox\n");
+  add_varargs_method("get_bbox2",   &Transformation::get_bbox2,  "get_bbox2(); return the output bbox\n");
 
-  add_varargs_method("set_bbox1",   &Transformation::set_bbox1,  "set_bbox1(); set the Func instance on x\n");
-  add_varargs_method("set_bbox2",   &Transformation::set_bbox2,  "set_bbox2(); set the Func instance on y\n");
+  add_varargs_method("set_bbox1",   &Transformation::set_bbox1,  "set_bbox1(); set the input bbox\n");
+  add_varargs_method("set_bbox2",   &Transformation::set_bbox2,  "set_bbox2(); set the output bbox\n");
 
   add_varargs_method("get_funcx",   &Transformation::get_funcx,  "get_funcx(); return the Func instance on x\n");
   add_varargs_method("get_funcy",   &Transformation::get_funcy,  "get_funcy(); return the Func instance on y\n");
