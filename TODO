@@ -533,4 +533,7 @@ ZeroDivisionError: SeparableTransformation::eval_scalars yin interval is zero; c
 
 -- fail intelligently when matplotlib data is not found
 
--- \cal{B} doesn't parse in s = r'$\cal{R}\prod_{i=\alpha\cal{B}}^\infty a_i\rm{sin}(2 \pi f x_i)$'
+-- \cal{B} doesn't parse in s =
+   r'$\cal{R}\prod_{i=\alpha\cal{B}}^\infty a_i\rm{sin}(2 \pi f x_i)$'
+
+-- user events and nav event clashing on tkagg coords_demo/win32

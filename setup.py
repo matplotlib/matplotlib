@@ -31,8 +31,6 @@ BUILD_AGG = 1
 #BUILD_GTKAGG       = 0
 BUILD_GTKAGG       = 'auto'
 
-BUILD_MATFILE = 1 # build Nigel Wade's matfile, for matlab mat file support
-
 # build TK GUI with Agg renderer ; requires Tkinter Python extension
 # and Tk includes
 # Use False or 0 if you don't want to build
@@ -46,6 +44,7 @@ BUILD_WINDOWING        = 'auto'
 VERBOSE = False  # insert lots of diagnostic prints in extension code
 ## You shouldn't need to customize below this point
 
+__BUILD_MATFILE = 0 # build Nigel Wade's matfile, for matlab mat file support
 
 from distutils.core import setup
 import sys,os
