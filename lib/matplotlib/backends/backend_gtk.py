@@ -83,8 +83,7 @@ def show(mainloop=True):
         manager.window.show()
         
     if mainloop and gtk.main_level() == 0:
-        if gtk.pygtk_version >= (2,4,0): gtk.main()
-        else:                            gtk.mainloop()
+        gtk.main()
 
 
 def new_figure_manager(num, *args, **kwargs):
