@@ -221,7 +221,7 @@ class ContourLabeler:
         if self.cl_xy != []:
             dist = [sqrt((x-loc[0]) ** 2 + (y-loc[1]) ** 2) for loc in self.cl_xy]
             for d in dist:
-                if d < 150:
+                if d < 1.2*lw:
                     return 1
                 else: return 0
         else: return 0
@@ -292,16 +292,29 @@ class ContourLabeler:
         xx= array(slc)[:,0].copy()
         yy=array(slc)[:,1].copy()
 
+        #indices which are under the label
         inds=nonzero(((xx < x+xlabel) & (xx > x-xlabel)) & ((yy < y+ylabel) & (yy > y-ylabel)))
 
         if len(inds) >0:
-            lc1=linecontour[:inds[0]]
-            lc2 = linecontour[inds[-1]+1:]
+            #if the label happens to be over the beginning of the
+            #contour, the entire contour is removed, i.e.
+            #indices to be removed are
+            #inds= [0,1,2,3,305,306,307]
+            #should rewrite this in a better way
+            linds = nonzero(inds[1:]- inds[:-1] != 1)
+            if inds[0] == 0 and len(linds) != 0:
+                ii = inds[linds[0]] 
+                lc1 =linecontour[ii+1:inds[ii+1]]
+                lc2 = []
+
+            else:
+                lc1=linecontour[:inds[0]]
+                lc2= linecontour[inds[-1]+1:]
+            
         else:
             lc1=linecontour[:ind]
             lc2 = linecontour[ind+1:]
 
-        epsilon=.000005
 
         if rot <0:
             new_x1, new_y1 = x-xlabel, y+ylabel
@@ -371,7 +384,6 @@ class ContourLabeler:
         trans = self.ax.transData
         contourNum = 0
         for lev, con, color, fsize in zip(levels, contours, colors, fslist):
-            col = []
             toremove = []
             toadd = []
             lw = self.get_label_width(lev, fmt, fsize)
@@ -394,7 +406,6 @@ class ContourLabeler:
                     self.set_label_props(t, text, color)
                     self.cl.append(t)
                     new  =  self.break_linecontour(linecontour, rotation, lw, ind)
-                    for c in new: col.append(c)
 
                     for c in new: toadd.append(c)
                     toremove.append(linecontour)
@@ -539,8 +550,10 @@ class ContourSupport:
                 lev = array([float(fl) for fl in level_arg])
             else:
                 raise TypeError("Last %s arg must give levels; see help(%s)" % (fn,fn))
-        self.ax.set_xlim((min(ravel(x)), max(ravel(x))))
-        self.ax.set_ylim((min(ravel(y)), max(ravel(y))))
+        rx = ravel(x)
+        ry = ravel(y)
+        self.ax.set_xlim((min(rx), max(rx)))
+        self.ax.set_ylim((min(ry), max(ry)))
         return (x, y, z, lev)
 
 
@@ -707,6 +720,7 @@ class ContourSupport:
         if extent is not None: assert(len(extent) == 4)
         if colors is not None and cmap is not None:
             raise RuntimeError('Either colors or cmap must be None')
+        # todo: shouldn't this use the current image rather than the rc param?
         if origin == 'image': origin = rcParams['image.origin']
 
 
@@ -727,9 +741,8 @@ class ContourSupport:
 
         reg, triangle = self._initialize_reg_tri(z, badmask)
 
-        tcolors, mappable, collections = self._process_colors(z, colors,
-                                                              alpha,
-                                        lev, cmap)
+        tcolors, mappable, collections = self._process_colors(
+            z, colors, alpha, lev, cmap)
 
         if linewidths == None:
             tlinewidths = [rcParams['lines.linewidth']] *Nlev
@@ -760,6 +773,8 @@ class ContourSupport:
             collections.append(col)
 
         collections = silent_list('LineCollection', collections)
+        # the mappable attr is for the pylab interface functions,
+        # which maintain the current image
         collections.mappable = mappable
         return lev, collections
 

@@ -327,11 +327,15 @@ The following dimensions are in axes coords
         for t, tabove in zip(self.texts[1:], self.texts[:-1]):
             x,y = t.get_position()
             l,b,w,h = get_tbounds(tabove)
+            b -= self.labelsep
+            h += 2*self.labelsep
             hpos.append( (b,h) )
             t.set_position( (x, b-0.1*h) )
 
         # now do the same for last line
         l,b,w,h = get_tbounds(self.texts[-1])
+        b -= self.labelsep
+        h += 2*self.labelsep
         hpos.append( (b,h) )
         
         for handle, tup in zip(self.handles, hpos):
