@@ -119,6 +119,7 @@ class FigureCanvasTkAgg(FigureCanvasAgg):
         self._tkcanvas.focus_set()
         self._key = None  # the key that is pressed
         self._button = None  # the key that is pressed        
+        self._lastx, self._lasty = None, None
         
     def resize(self, event):
         width, height = event.width, event.height
@@ -166,6 +167,7 @@ class FigureCanvasTkAgg(FigureCanvasAgg):
         # flipy so y=0 is bottom of canvas
         y = self.figure.bbox.height() - event.y
         FigureCanvasBase.motion_notify_event(self, x, y, self._button, self._key)
+        self._lastx, self._lasty = x, y
 
     def button_press_event(self, event):
         x = event.x
@@ -197,10 +199,10 @@ class FigureCanvasTkAgg(FigureCanvasAgg):
             key = None
 
         self._key = key
-        FigureCanvasBase.key_press_event(self, self._key)        
+        FigureCanvasBase.key_press_event(self, self._key, self._lastx, self._lasty)        
 
     def key_release(self, event):
-        FigureCanvasBase.key_release_event(self, self._key)                
+        FigureCanvasBase.key_release_event(self, self._key, self._lastx, self._lasty)                
         self._key = None
 
     

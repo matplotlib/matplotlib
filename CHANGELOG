@@ -1,5 +1,8 @@
 New entries should be added at the top
 
+2004-12-28 Added coord location to key press and added a
+           examples/picker_demo.py
+
 2004-12-28 Fixed coords notification in wx toolbar - JDH
 
 2004-12-28 Moved connection and disconnection event handling to the
