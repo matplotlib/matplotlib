@@ -1,9 +1,17 @@
 New entries should be added at the top
 ------------------------------------------------------------
+
+2004-05-04 Updated whats_new.html.template to use dictionary and
+           template loop, added anchors for all versions and items;
+           updated goals.txt to use those for links. PG
+
 2004-05-05 Refactored text instances out of backend - JDH
 
 2004-05-04 Added fonts_demo.py to backend_driver, and AFM and TTF font
            caches to font_manager.py - PEB
+
+2004-05-03 Redid goals.html.template to use a goals.txt file that
+           has a pseudo restructured text organization. PG
 
 2004-05-03 Removed the close buttons on all GUIs and added the python
            #! bang line to the examples following Steve Chaplin's
