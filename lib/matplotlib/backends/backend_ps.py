@@ -6,8 +6,9 @@ Encapsulated PostScript .eps files.
 from __future__ import division
 import sys, os, time
 from cStringIO import StringIO
-from matplotlib import verbose, __version__
+from matplotlib import verbose, __version__, rcParams
 from matplotlib._pylab_helpers import Gcf
+from matplotlib.afm import AFM
 from matplotlib.backend_bases import RendererBase, GraphicsContextBase,\
      FigureManagerBase, FigureCanvasBase
 
@@ -34,8 +35,10 @@ debugPS = 0
 
 def _num_to_str(val):
     if is_string_like(val): return val
+
     ival = int(val)
     if val==ival: return str(ival)
+
     s = "%1.3f"%val
     s = s.rstrip("0")
     s = s.rstrip(".")
@@ -54,6 +57,7 @@ def quote_ps_string(s):
 
 
 _fontd = {}
+_afmfontd = {}
 _type42 = []
 
 
@@ -130,6 +134,7 @@ class RendererPS(RendererBase):
         self.linedash = (offset,seq)
 
     def set_font(self, fontname, fontsize):
+        if rcParams['ps.useafm']: return
         if (fontname,fontsize) != (self.fontname,self.fontsize):
             out = ("/%s findfont\n"
                    "%1.3f scalefont\n"
@@ -147,12 +152,23 @@ class RendererPS(RendererBase):
         get the width and height in display coords of the string s
         with FontPropertry prop
         """
+
+        if rcParams['ps.useafm']:
+            if ismath: s = s[1:-1]
+            font = self._get_font_afm(prop)
+            l,b,w,h = font.get_str_bbox(s)
+
+            fontsize = prop.get_size_in_points()
+            w *= 0.001*fontsize
+            h *= 0.001*fontsize
+            return w, h
+
         if ismath:
             width, height, pswriter = math_parse_s_ps(
                 s, 72, prop.get_size_in_points())
             return width, height
 
-        font = self._get_font(prop)
+        font = self._get_font_ttf(prop)
         font.set_text(s, 0.0)
         w, h = font.get_width_height()
         w /= 64.0  # convert from subpixels
@@ -163,7 +179,15 @@ class RendererPS(RendererBase):
         'return true if small y numbers are top for renderer'
         return False
 
-    def _get_font(self, prop):
+    def _get_font_afm(self, prop):
+        key = hash(prop)
+        font = _afmfontd.get(key)
+        if font is None:
+            font = AFM(file(fontManager.findfont(prop, fontext='afm')))
+            _afmfontd[key] = font
+        return font
+
+    def _get_font_ttf(self, prop):
         key = hash(prop)
         font = _fontd.get(key)
         if font is None:
@@ -381,26 +405,63 @@ grestore
         """
         # local to avoid repeated attribute lookups
         write = self._pswriter.write
-        if ismath:
-            return self.draw_mathtext(gc, x, y, s, prop, angle)
         if debugPS:
             write("% text\n")
-        
-        font = self._get_font(prop)
-        font.set_text(s,0)
 
-        self.set_color(*gc.get_rgb())
-        self.set_font(font.get_sfnt()[(1,0,0,6)], prop.get_size_in_points())
-        write("%s m\n"%_nums_to_str(x,y))
-        if angle:
-            write("gsave\n")
-            write("%s rotate\n"%_num_to_str(angle))
-        descent = font.get_descent() / 64.0
-        if descent:
-            write("0 %s rmoveto\n"%_num_to_str(descent))
-        write("(%s) show\n"%quote_ps_string(s))
-        if angle:
-            write("grestore\n")
+        if rcParams['ps.useafm']:
+            if ismath: s = s[1:-1]
+            font = self._get_font_afm(prop)
+
+            l,b,w,h = font.get_str_bbox(s)
+
+            fontsize = prop.get_size_in_points()
+            l *= 0.001*fontsize
+            b *= 0.001*fontsize
+            w *= 0.001*fontsize
+            h *= 0.001*fontsize
+
+            if angle==90: l,b = -b, l # todo generalize for arb rotations
+
+            pos = _nums_to_str(x-l, y-b)
+            thetext = '(%s)' % s
+            fontname = font.get_fontname()
+            fontsize = prop.get_size_in_points()
+            rotate = '%1.1f rotate' % angle
+            setcolor = '%1.3f %1.3f %1.3f setrgbcolor' % gc.get_rgb()
+            #h = 0
+            ps = """\
+gsave
+/%(fontname)s findfont
+%(fontsize)s scalefont
+setfont
+%(pos)s moveto
+%(rotate)s
+%(thetext)s
+%(setcolor)s
+show
+grestore
+    """ % locals()
+            self._draw_ps(ps, gc, None)
+
+        else:
+            if ismath:
+                return self.draw_mathtext(gc, x, y, s, prop, angle)
+
+            font = self._get_font_ttf(prop)
+            font.set_text(s,0)
+
+            self.set_color(*gc.get_rgb())
+            self.set_font(font.get_sfnt()[(1,0,0,6)], prop.get_size_in_points())
+            write("%s m\n"%_nums_to_str(x,y))
+            if angle:
+                write("gsave\n")
+                write("%s rotate\n"%_num_to_str(angle))
+            descent = font.get_descent() / 64.0
+            if descent:
+                write("0 %s rmoveto\n"%_num_to_str(descent))
+            write("(%s) show\n"%quote_ps_string(s))
+            if angle:
+                write("grestore\n")
 
     def new_gc(self):
         return GraphicsContextPS()
@@ -657,18 +718,23 @@ class FigureCanvasPS(FigureCanvasBase):
         type42 = _type42 + [os.path.join(self.basepath, name) + '.ttf' \
                             for name in bakoma_fonts]
         print >>fh, "%%BeginProlog"
-        print >>fh, "/mpldict %d dict def"%(len(_psDefs)+len(type42))
+        Ndict = len(_psDefs)
+        if not rcParams['ps.useafm']:
+            Ndict += len(type42)
+        print >>fh, "/mpldict %d dict def"%Ndict
         print >>fh, "mpldict begin"
+
         for d in _psDefs:
             d=d.strip()
             for l in d.split('\n'):
                 print >>fh, l.strip()
-        for font in type42:
-            font = str(font)  # TODO: handle unicode filenames
-            print >>fh, "%%BeginFont: "+FT2Font(font).postscript_name
-            print >>fh, encodeTTFasPS(font)
-            print >>fh, "%%EndFont"
-        print >>fh, "%%EndProlog"
+        if not rcParams['ps.useafm']:
+            for font in type42:
+                font = str(font)  # TODO: handle unicode filenames
+                print >>fh, "%%BeginFont: "+FT2Font(font).postscript_name
+                print >>fh, encodeTTFasPS(font)
+                print >>fh, "%%EndFont"
+            print >>fh, "%%EndProlog"
         
         if not isEPSF: print >>fh, "%%Page: 1 1"
         print >>fh, "mpldict begin"

@@ -649,8 +649,10 @@ ZeroDivisionError: SeparableTransformation::eval_scalars yin interval is zero; c
 
 -- keypress mods on pan/zoom broken in QT in linux
 
--- linestyles in contour
+-- DONE linestyles in contour
 
 -- check stabar in wx with toolbar = None or classic
 
 -- nan handling?
+
+-- kwarg processing - eg raise on unrecognized kwargs

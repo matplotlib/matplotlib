@@ -188,8 +188,10 @@ ACCEPTS: (array xdata, array ydata)
         self._x = asarray(x, Float)
         self._y = asarray(y, Float)
 
-        if len(self._x.shape)>1: self._x = ravel(self._x)
-        if len(self._y.shape)>1: self._y = ravel(self._y)
+        if len(self._x.shape)>1:
+            self._x = ravel(self._x)
+        if len(self._y.shape)>1:
+            self._y = ravel(self._y)
 
 
         if len(self._y)==1 and len(self._x)>1:
