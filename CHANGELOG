@@ -1,5 +1,8 @@
 New entries should be added at the top
 
+2004-04-16 Added new ticker locator a formatter, fixed default font
+           return
+
 2004-04-16 Added get_name method to FontProperties class. Fixed font lookup
 	   in GTK and WX backends. - PEB
 
