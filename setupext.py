@@ -55,7 +55,7 @@ else:
 BUILT_AGG       = False
 BUILT_FT2FONT   = False
 BUILT_GTKAGG    = False
-BUILT_IMAGE   = False
+BUILT_IMAGE     = False
 BUILT_TKAGG     = False
 
 def getoutput(s):
@@ -246,18 +246,20 @@ def build_agg(ext_modules, packages):
     ext_modules.append(module)    
     BUILT_AGG = True
 
-def build_image(ext_modules, packages):
+def build_image(ext_modules, packages, numerix):
     global BUILT_IMAGE
     if BUILT_IMAGE: return # only build it if you you haven't already
     
     deps = ['src/_image.cpp'] 
     deps.extend(glob.glob('agg2/src/*.cpp'))
-                       
+
     module = Extension(
         'matplotlib._image',
         deps
         ,
         )
+    if numerix.lower().find('numarray')>=0:
+        module.extra_compile_args.append('-DNUMARRAY')
     add_agg_flags(module)
     ext_modules.append(module)    
     BUILT_IMAGE = True

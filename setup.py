@@ -7,8 +7,13 @@ be built by setting the appropriate flag below.
 # Requires freetype2, and libz
 BUILD_FT2FONT = 1
 
-# build the image support module - requires agg
-BUILD_IMAGE = 1
+# build the image support module - requires agg and Numeric or
+# numarray.  You can build the image module with either Numeric or
+# numarray.  Whichever way you build it, the code will work with both
+# Numeric or numarray arrays.  
+#BUILD_IMAGE    = 0           # no image support
+#BUILD_IMAGE    = 'Numeric'    # use Numeric 
+BUILD_IMAGE    = 'numarray'  # use numarray 
 
 # Build the antigrain geometry toolkit.  Agg makes heavy use of
 # templates, so it probably requires a fairly recent compiler to build
@@ -28,6 +33,7 @@ BUILD_GTKAGG       = 1
 BUILD_TKAGG        = 1
 
 ## You shouldn't need to customize below this point
+
 
 from distutils.core import setup
 import sys,os
@@ -69,8 +75,7 @@ if BUILD_FT2FONT:
     build_ft2font(ext_modules, packages)
 
 if BUILD_IMAGE:
-    BUILD_IMAGE = 1
-    build_image(ext_modules, packages)
+    build_image(ext_modules, packages, BUILD_IMAGE)
 
 
 setup(name="matplotlib",

@@ -3,7 +3,12 @@
 #include <cmath>
 #include <cstdio>
 #include "Python.h"
+
+#ifdef NUMARRAY
+#include "numarray/arrayobject.h" 
+#else
 #include "Numeric/arrayobject.h" 
+#endif   
 
 #include "agg_pixfmt_rgb24.h"
 #include "agg_pixfmt_rgba32.h"
