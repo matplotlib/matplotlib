@@ -115,12 +115,12 @@ class RendererPS(RendererBase):
 
     def set_linejoin(self, linejoin):
         if linejoin != self.linejoin:
-            self._pswriter.write("%1.3f setlinejoin\n"%linejoin)
+            self._pswriter.write("%d setlinejoin\n"%linejoin)
             self.linejoin = linejoin
 
     def set_linecap(self, linecap):
         if linecap != self.linecap:
-            self._pswriter.write("%1.3f setlinecap\n"%linecap)
+            self._pswriter.write("%d setlinecap\n"%linecap)
             self.linecap = linecap
 
     def set_linedash(self, offset, seq):        
