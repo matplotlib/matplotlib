@@ -1,5 +1,18 @@
 New entries should be added at the top
 
+2004-07-13 Modified line collections to handle arbitrary length
+           segments for each line segment. - JDH
+
+2004-07-13 Fixed problems with image extent and origin -
+           set_image_extent deprecated.  Use imshow(blah, blah,
+           extent=(xmin, xmax, ymin, ymax) instead  - JDH
+
+2004-07-12 Added prototype for new nav bar with codifed event
+           handling.  Use mpl_connect rather than connect for
+           matplotlib event handling.  toolbar style determined by rc
+           toolbar param.  backend status: gtk: prototype, wx: in
+           progress, tk: not started - JDH
+
 2004-07-11 backend_gtk.py: use builtin round() instead of redefining it.
            - SC
 

@@ -33,7 +33,7 @@ from wxPython.xrc import *
 ERR_TOL = 1e-5 # floating point slop for peak-detection
 
 
-matplotlib.rc('image', origin='upper')
+matplotlib.rc('image', origin='lower')
 
 class PlotPanel(wxPanel):
 

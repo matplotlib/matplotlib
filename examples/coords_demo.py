@@ -12,20 +12,18 @@ ax.plot(t,s)
 
 canvas = get_current_fig_manager().canvas
 
-def on_move(widget, event):
+def on_move(event):
     # get the x and y coords, flip y from top to bottom
-    height = canvas.figure.bbox.height()
-    x, y = event.x, height-event.y
+    x, y = event.x, event.y
 
     if ax.in_axes(x, y):
         # transData transforms data coords to display coords.  Use the
         # inverse method to transform back
         print ax.transData.inverse_xy_tup( (x,y) )
 
-def on_click(widget, event):
+def on_click(event):
     # get the x and y coords, flip y from top to bottom
-    height = canvas.figure.bbox.height()
-    x, y = event.x, height-event.y
+    x, y = event.x, event.y
     if event.button==1:
         if ax.in_axes(x, y):
             # transData transforms data coords to display coords.  Use the
@@ -34,8 +32,8 @@ def on_click(widget, event):
 
 
 
-canvas.connect('motion_notify_event', on_move)
-#canvas.connect('button_press_event', on_click)
+canvas.mpl_connect('motion_notify_event', on_move)
+#canvas.mpl_connect('button_press_event', on_click)
 
 
 
