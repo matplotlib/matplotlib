@@ -4,15 +4,11 @@ if numerix.which[0] == "numarray":
     try:
         from matplotlib._na_image import *
     except ImportError:
-        print "numarray wasn't available at compile time so the numarray"
-        print "extensions were not built.  Please make sure you have a working"
-        print "numarray installation and then rebuild matplotlib."
-        sys.exit(1)
+        numerix._import_fail_message("_image", "_na")
+        raise
 else:
     try:
         from matplotlib._nc_image import *
     except ImportError:
-        print "Numeric wasn't available at compile time so the Numeric"
-        print "extensions were not built.  Please make sure you have a working"
-        print "Numeric installation and then rebuild matplotlib."
-        sys.exit(1)
+        numerix._import_fail_message("_image", "_nc")
+        raise
