@@ -1,4 +1,8 @@
 """
+You will need to have freetype, libpng and zlib installed to compile
+matplotlib, inlcuding the *-devel versions of these libraries if you
+are using a package manager like RPM or debian.
+
 matplotlib has added some extension module code which can optionally
 be built by setting the appropriate flag below.
 
@@ -8,10 +12,7 @@ respectively; set them to 0 if you do not want to build them
 
 # The NUMERIX
 NUMERIX = 'Numeric'  # or numarray
-# build the freetype2 interface - this is required for mathtext
-# Requires freetype2, and libz
-BUILD_FT2FONT = 1
-
+#NUMERIX = 'numarray'  # or numarray
 
 # build the image support module - requires agg and Numeric or
 # numarray.  You can build the image module with either Numeric or
@@ -75,13 +76,11 @@ modtrans = Extension('matplotlib._transforms',
                      libraries = ['stdc++', 'm'],
                      include_dirs = ['src', '.'],
                      )
-if NUMERIX.lower().find('numarray')>=0:
-    modtrans.extra_compile_args.append('-DNUMARRAY')
 
 ext_modules = [modtrans]
 
 
-
+BUILD_FT2FONT = 1
 packages = [
     'matplotlib',
     'matplotlib/backends',
@@ -104,8 +103,9 @@ if BUILD_TKAGG:
         build_tkagg(ext_modules, packages)
 
 
+
 if BUILD_AGG:
-    BUILD_FT2FONT = 1
+
     build_agg(ext_modules, packages)
 
 if BUILD_FT2FONT:
@@ -118,7 +118,10 @@ if BUILD_IMAGE:
     build_image(ext_modules, packages, NUMERIX)
 
 for mod in ext_modules:
-    if VERBOSE: mod.extra_compile_args.append('-DVERBOSE')
+    if VERBOSE:
+        mod.extra_compile_args.append('-DVERBOSE')
+    if NUMERIX.lower().find('numarray')>=0:
+        mod.extra_compile_args.append('-DNUMARRAY')
 
 
     
