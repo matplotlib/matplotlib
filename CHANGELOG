@@ -2,6 +2,9 @@ New entries should be added at the top
 
 ==============================================================
 
+2004-09-20 Added toolbar2 message display for backend_tkagg.  JTM
+
+
 2004-09-17 Added coords formatter attributes.  These must be callable,
            and return a string for the x or y data. These will be used
            to format the x and y data for the coords box.  Default is
