@@ -1,6 +1,9 @@
 New entries should be added at the top
 
 
+2004-11-09 backend_gtk.py: Made fix suggested by maffew@cat.org.au
+	   to prevent problems when py2exe calls pygtk.require(). - SC
+
 2004-11-09 backend_cairo.py: Added support for printing to a fileobject.
            Disabled cairo PS output which is not working correctly. - SC
 
