@@ -2,6 +2,9 @@
 # Copyright (C) 2003  <jdhunter@ace.bsd.uchicago.edu>
 # $Header$
 # $Log$
+# Revision 1.5  2003/09/22 14:04:46  jdh2358
+# small bugfixes
+#
 # Revision 1.4  2003/09/15 17:54:16  jdh2358
 # multiple backed support take II
 #
@@ -18,7 +21,8 @@
 VERSION = `python setup.py --version`
 DISTFILES = INSTALL README TODO LICENSE CHANGELOG Makefile GOALS INTERACTIVE \
 	MANIFEST.in matplotlib examples setup.py
-MODULES = artist cbook gtkutils lines patches colors text matlab figure
+MODULES = afm axes rrtist backend_bases cbook lines patches matlab mlab \
+	backends.backend_gtk backends.backend_gd backends.backend_ps
 RELEASE = matplotlib-${VERSION}
 
 
@@ -31,7 +35,7 @@ clean:
 htmldocs: 
 	rm -f docs/*.html;\
 	cd matplotlib;\
-	/usr/bin/pydoc -w ${MODULES};\
+	pydoc -w ${MODULES};\
 	mv *.html ../docs/
 
 release: ${DISTFILES}
