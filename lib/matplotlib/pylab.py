@@ -373,6 +373,32 @@ def plotting():
     """
     pass
 
+
+def colorbar(tickfmt='%1.1f', cax=None, orientation='vertical'):
+    """
+    colorbar(tickfmt='%1.1f', cax=None, orientation='vertical'):
+    
+    Create a colorbar for mappable image
+
+    tickfmt is a format string to format the colorbar ticks
+
+    cax is a colorbar axes instance in which the colorbar will be
+    placed.  If None, as default axesd will be created resizing the
+    current aqxes to make room for it.  If not None, the supplied axes
+    will be used and the other axes positions will be unchanged.
+
+    orientation is the colorbar orientation: one of 'vertical' | 'horizontal'
+    return value is the colorbar axes instance
+    """
+    mappable = gci()
+    if mappable is None:
+        raise RuntimeError('No image is defined')
+    fig = gcf()
+
+    ret =  fig.colorbar(mappable, tickfmt='%1.1f', cax=None, orientation='vertical')
+    draw_if_interactive()
+    return ret
+     
 def colormaps():
     """
     matplotlib provides the following colormaps.  
@@ -622,84 +648,6 @@ def clf():
     gcf().clf()
     draw_if_interactive()
 
-def colorbar(tickfmt='%1.1f', cax=None, orientation='vertical'):
-    """
-    Create a colorbar for current mappable image (see gci)
-
-    tickfmt is a format string to format the colorbar ticks
-
-    cax is a colorbar axes instance in which the colorbar will be
-    placed.  If None, as default axesd will be created resizing the
-    current aqxes to make room for it.  If not None, the supplied axes
-    will be used and the other axes positions will be unchanged.
-
-    orientation is the colorbar orientation: one of 'vertical' | 'horizontal'
-    return value is the colorbar axes instance
-    """
-
-    if orientation not in ('horizontal', 'vertical'):
-        raise ValueError('Orientation must be horizontal or vertical')
-    
-    mappable = gci()
-    if mappable is None:
-        raise RuntimeError('First define a mappable image (eg imshow, figimage, pcolor, scatter')
-
-        
-    if isinstance(mappable, image.FigureImage):
-        raise TypeError('Colorbars for figure images currently not supported')
-
-        
-    ax = gca()
-
-    cmap = mappable.cmap
-    norm = mappable.norm
-    
-    if norm.vmin is None or norm.vmax is None:
-        mappable.autoscale()
-    cmin = norm.vmin
-    cmax = norm.vmax
-
-    if cax is None:
-        l,b,w,h = ax.get_position()
-        if orientation=='vertical':
-            neww = 0.8*w
-            ax.set_position((l,b,neww,h))
-            cax = axes([l + 0.9*w, b, 0.1*w, h])
-        else:
-            newh = 0.8*h
-            ax.set_position((l,b+0.2*h,w,newh))
-            cax = axes([l, b, w, 0.1*h])
-
-    else:
-        if not isinstance(cax, Axes):
-            raise TypeError('Expected an Axes instance for cax')
-        
-    N = cmap.N
-
-    c = linspace(cmin, cmax, N)
-    C = array([c,c])
-
-    if orientation=='vertical':
-        C = transpose(C)
-
-    coll = cax.imshow(C,
-                      interpolation='nearest', 
-                      origin='lower',
-                      cmap=cmap, norm=norm,
-                      extent=(0, 1, cmin, cmax))
-    mappable.add_observer(coll)
-    mappable.set_colorbar(coll, cax)
-    if orientation=='vertical':
-        cax.set_xticks([])
-        cax.yaxis.tick_right()
-        cax.yaxis.set_major_formatter(FormatStrFormatter(tickfmt))
-    else:
-        cax.set_yticks([])
-        cax.xaxis.set_major_formatter(FormatStrFormatter(tickfmt))
-    
-    # restore the current axes
-    axes(ax)
-    return cax
 
 
 
