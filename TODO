@@ -280,7 +280,7 @@
 
 -- rotated mathtext
 
--- fix mathtext sub and super layout
+-- DONE fix mathtext sub and super layout
 
 -- DONE get a sf request to remove fonttools and ttfquery
 
@@ -298,9 +298,9 @@
 
 -- fix the parser for sqrt,
 
--- fix the parser for over/under subscripts
+-- DONE fix the parser for over/under subscripts
 
--- add \/ for TeX
+-- DONE add \/ for TeX
 
 -- fix kerning for TeX
 
@@ -310,7 +310,7 @@
 
 -- DONE ps backend fails alignment test
 
--- ps backend is slow!  Almost all of this is eaten by parsing afm
+-- DONE ps backend is slow!  Almost all of this is eaten by parsing afm
    files
 
 -- decreasing log axes needs fix
@@ -319,7 +319,7 @@
 
 -- Check for empty quote data returns
 
--- toolbar not showing up in wx os x
+-- DONE toolbar not showing up in wx os x
 
 -- fromstring examples need byte order in darwin
 
@@ -329,9 +329,9 @@
 
 -- get a standard way to show windows w/o entering mainloop
 
--- wx tooltips
+-- DONE wx tooltips
 
--- close wx return to interpreter
+-- DONE close wx return to interpreter
 
 -- allow sharing of locators
 
@@ -343,7 +343,7 @@
 
 -- add agg and and image generic tostring methods
 
--- expose line set dashes
+-- DONE expose line set dashes
 
 -- fix vertical layout in PS
 
@@ -353,7 +353,7 @@
 
 -- handle space in roman/font text
 
--- scatter demos whacked
+-- DONE scatter demos whacked
 
 -- fix small artist bboxing problems
 
@@ -369,3 +369,11 @@
 -- Todd's nx stuff
 
 -- fix object picker and eeg demo
+
+-- DONE axes bg color
+
+-- check paint vs gd/agg tick locations
+
+-- DONE PS text vert centering off
+
+-- DONE - pcolor edge color

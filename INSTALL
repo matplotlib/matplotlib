@@ -1,10 +1,3 @@
-matplotlib requires python 2.2+, and Numeric-22+ or numarray.  The other
-requirements are backend dependent
-
-If these requirements are satisfied, just do the usual thing:
-
-  > python setup.py install
-
 The latest install instructions can be found at
 http://matplotlib.sourceforge.net/installing.html.
 
