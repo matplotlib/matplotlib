@@ -17,10 +17,10 @@ y = arange(-3.0, 3.0, dy)
 X,Y = meshgrid(x, y)
 
 Z = func3(X, Y)
-cmap = ColormapJet(500)
+
 
 ax = subplot(111)
-im = imshow(Z, cmap)
+im = imshow(Z, cmap=cm.jet)
 #im.set_interpolation('nearest')
 im.set_interpolation('bicubic')
 #im.set_interpolation('bilinear')

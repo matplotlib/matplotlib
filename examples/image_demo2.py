@@ -7,7 +7,7 @@ A = fromstring(s, UInt16).astype(Float)
 A *= 1.0/max(A)
 A.shape = w, h
 
-im = imshow(A)
+im = imshow(A, cmap=cm.jet, origin='upper')
 #im.set_aspect('preserve')
 
 # plot some data with the image; currently broken with aspect preserve

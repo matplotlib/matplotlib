@@ -145,10 +145,11 @@ figure.edgecolor : w       # figure edgecolor; w is white
 
 
 ### images
-image.aspect : free        # free | preserve
+image.aspect : free          # free | preserve
 image.interpolation  : bilinear  # see help(imshow) for options
-image.cmap   : gray        # gray | jet
-image.lut    : 256         # the size of the colormap lookup table
+image.cmap   : jet           # gray | jet
+image.lut    : 256           # the size of the colormap lookup table
+image.origin : lower         # lower | upper
  
 ### SAVING FIGURES
 # the default savefig params can be different for the GUI backends.

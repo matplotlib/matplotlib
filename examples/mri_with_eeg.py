@@ -20,12 +20,12 @@ if 1:   # load the data
 
 if 1: # plot the MRI in pcolor
     subplot(221)
-    imshow(im, ColormapJet(256))
+    imshow(im, cmap=cm.jet)
     axis('off')
 
 if 1:  # plot the histogram of MRI intensity
     subplot(222)
-    im.shape = 256*256,
+    im = ravel(im)
     im = take(im, nonzero(im)) # ignore the background
     im = im/(2.0**15) # normalize
     hist(im, 100)
@@ -95,5 +95,5 @@ if 1:   # plot the EEG
     xlabel('time (s)')
 
 
-#savefig('mri_with_eeg')
+savefig('mri_with_eeg')
 show()

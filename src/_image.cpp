@@ -24,8 +24,9 @@
 #include "agg_renderer_scanline.h"
 
 #include "_image.h"
+#include "mplutils.h"
 
-#define _DEBUG 0
+
 
 typedef agg::pixel_formats_rgba32<agg::order_rgba32> pixfmt;
 typedef agg::renderer_base<pixfmt> renderer_base;
@@ -39,11 +40,11 @@ Image::Image() :
   bufferIn(NULL), rbufIn(NULL), colsIn(0), rowsIn(0),
   bufferOut(NULL), rbufOut(NULL), colsOut(0), rowsOut(0),  BPP(4),
   interpolation(BILINEAR), aspect(ASPECT_FREE) {
-  if (_DEBUG) std::cout << "Image::Image" << std::endl;
+  _VERBOSE("Image::Image");
 }
 
 Image::~Image() {  
-  if (_DEBUG) std::cout << "Image::~Image" << std::endl;
+  _VERBOSE("Image::~Image");
 
   delete [] bufferIn; bufferIn = NULL;
   delete rbufIn; rbufIn=NULL;
@@ -54,14 +55,14 @@ Image::~Image() {
 
 int
 Image::setattr( const char * name, const Py::Object & value ) {
-  if (_DEBUG) std::cout << "Image::setattr" << std::endl;
+  _VERBOSE("Image::setattr");
   __dict__[name] = value;
   return 0;
 }
 
 Py::Object 
 Image::getattr( const char * name ) {
-  if (_DEBUG) std::cout << "Image::getattro" << std::endl;
+  _VERBOSE("Image::getattro");
   if ( __dict__.hasKey(name) ) return __dict__[name];
   else return getattr_default( name );
 
@@ -74,7 +75,7 @@ char Image::apply_rotation__doc__[] =
 ;
 Py::Object
 Image::apply_rotation(const Py::Tuple& args) {
-  if (_DEBUG) std::cout << "Image::apply_rotation" << std::endl;
+  _VERBOSE("Image::apply_rotation");
 
   args.verify_length(1);  
   double r = Py::Float(args[0]);
@@ -95,7 +96,7 @@ char Image::apply_scaling__doc__[] =
 
 Py::Object
 Image::apply_scaling(const Py::Tuple& args) {
-  if (_DEBUG) std::cout << "Image::apply_scaling" << std::endl;
+  _VERBOSE("Image::apply_scaling");
 
   args.verify_length(2);
   double sx = Py::Float(args[0]);
@@ -119,7 +120,7 @@ char Image::apply_translation__doc__[] =
 
 Py::Object
 Image::apply_translation(const Py::Tuple& args) {
-  if (_DEBUG) std::cout << "Image::apply_translation" << std::endl;
+  _VERBOSE("Image::apply_translation");
 
   args.verify_length(2);
   double tx = Py::Float(args[0]);
@@ -137,21 +138,37 @@ Image::apply_translation(const Py::Tuple& args) {
 
 
 char Image::as_str__doc__[] = 
-"numrows, numcols, s = as_str()"
+"numrows, numcols, s = as_str(flipud)"
 "\n"
-"Call this function after resize to get the data as string"
-"The string is a numrows by numcols x 4 (RGBA) unsigned char buffer"
+"Call this function after resize to get the data as string\n"
+"The string is a numrows by numcols x 4 (RGBA) unsigned char buffer\n"
+"if flipud==1, flip the rows upside down\n"
 ;
 
 Py::Object
 Image::as_str(const Py::Tuple& args) {
-  if (_DEBUG) std::cout << "Image::as_str" << std::endl;
+  _VERBOSE("Image::as_str");
 
-  args.verify_length(0);
-  
+  args.verify_length(1);
+  int flipud = Py::Int(args[0]);
+  if (!flipud) {
+    return Py::Object(Py_BuildValue("lls#", rowsOut, colsOut, 
+				    bufferOut, colsOut*rowsOut*4));
+  }
+
+  const size_t NUMBYTES(rowsOut * colsOut * BPP);
+  const size_t BPR = colsOut * BPP; // bytes per row
+
+  agg::int8u buffer[NUMBYTES];    
+  size_t ind=0;
+  for (long rowNum=rowsOut-1; rowNum>=0; rowNum--) { //not unsigned!
+    size_t start = rowNum*BPR;
+    for (size_t j=0; j<BPR; j++) {
+      buffer[ind++] = *(bufferOut + start + j);
+    }
+  }
   return Py::Object(Py_BuildValue("lls#", rowsOut, colsOut, 
-				  bufferOut, colsOut*rowsOut*4));
-  
+				  buffer, NUMBYTES));
   
 }
 
@@ -164,7 +181,7 @@ char Image::reset_matrix__doc__[] =
 
 Py::Object
 Image::reset_matrix(const Py::Tuple& args) {
-  if (_DEBUG) std::cout << "Image::reset_matrix" << std::endl;
+  _VERBOSE("Image::reset_matrix");
 
   args.verify_length(0);
   srcMatrix.reset();
@@ -183,7 +200,7 @@ char Image::resize__doc__[] =
 
 Py::Object
 Image::resize(const Py::Tuple& args) {
-  if (_DEBUG) std::cout << "Image::resize" << std::endl;
+  _VERBOSE("Image::resize");
 
   args.verify_length(2);
   
@@ -303,7 +320,7 @@ char Image::get_aspect__doc__[] =
 
 Py::Object
 Image::get_aspect(const Py::Tuple& args) {
-  if (_DEBUG) std::cout << "Image::get_aspect" << std::endl;
+  _VERBOSE("Image::get_aspect");
 
   args.verify_length(0);
   return Py::Int((int)aspect);   
@@ -317,7 +334,7 @@ char Image::get_size__doc__[] =
 
 Py::Object
 Image::get_size(const Py::Tuple& args) {
-  if (_DEBUG) std::cout << "Image::get_size" << std::endl;
+  _VERBOSE("Image::get_size");
 
   args.verify_length(0);
   
@@ -338,7 +355,7 @@ char Image::get_interpolation__doc__[] =
 
 Py::Object
 Image::get_interpolation(const Py::Tuple& args) {
-  if (_DEBUG) std::cout << "Image::get_interpolation" << std::endl;
+  _VERBOSE("Image::get_interpolation");
 
   args.verify_length(0);
   return Py::Int((int)interpolation);
@@ -354,7 +371,7 @@ char Image::set_interpolation__doc__[] =
 
 Py::Object
 Image::set_interpolation(const Py::Tuple& args) {
-  if (_DEBUG) std::cout << "Image::set_interpolation" << std::endl;
+  _VERBOSE("Image::set_interpolation");
 
   args.verify_length(1);
   
@@ -374,7 +391,7 @@ char Image::set_aspect__doc__[] =
 ;
 Py::Object
 Image::set_aspect(const Py::Tuple& args) {
-  if (_DEBUG) std::cout << "Image::set_aspect" << std::endl;
+  _VERBOSE("Image::set_aspect");
 
   args.verify_length(1);
   size_t method = Py::Int(args[0]);
@@ -385,7 +402,7 @@ Image::set_aspect(const Py::Tuple& args) {
 
 void 
 Image::init_type() {
-  if (_DEBUG) std::cout << "Image::init_type" << std::endl;
+  _VERBOSE("Image::init_type");
 
   behaviors().name("Image");
   behaviors().doc("Image");
@@ -410,7 +427,74 @@ Image::init_type() {
 
 
 
+char _image_module_from_images__doc__[] = 
+"from_images(numrows, numcols, seq)\n"
+"\n"
+"return an image instance with numrows, numcols from a seq of image\n"
+"instances using alpha blending.  seq is a list of (Image, ox, oy)"
+;
+Py::Object
+_image_module::from_images(const Py::Tuple& args) {
+  _VERBOSE("_image_module::from_images");
 
+  args.verify_length(3);
+
+  size_t numrows = Py::Int(args[0]);
+  size_t numcols = Py::Int(args[1]);
+
+  Py::SeqBase<Py::Object> tups = args[2];
+  size_t N = tups.length();
+  
+  if (N==0)
+    throw Py::RuntimeError("Empty list of images");
+
+  Py::Tuple tup;
+
+  size_t ox(0), oy(0), thisx(0), thisy(0);
+
+  //copy image 0 output buffer into return images output buffer
+  Image* imo = new Image;
+  imo->rowsOut  = numrows;
+  imo->colsOut  = numcols;
+
+  size_t NUMBYTES(numrows * numcols * imo->BPP);    
+  imo->bufferOut = new agg::int8u[NUMBYTES];  
+  imo->rbufOut = new agg::rendering_buffer;
+  imo->rbufOut->attach(imo->bufferOut, imo->colsOut, imo->rowsOut, imo->colsOut * imo->BPP);
+  
+  pixfmt pixf(*imo->rbufOut);
+  renderer_base rb(pixf);
+  rb.clear(agg::rgba(1, 1, 1, 0));
+
+  for (size_t imnum=0; imnum< N; imnum++) {
+    tup = Py::Tuple(tups[imnum]);
+    Image* thisim = static_cast<Image*>(tup[0].ptr());    
+    ox = Py::Int(tup[1]);
+    oy = Py::Int(tup[2]);
+
+    size_t ind=0;
+    for (size_t j=0; j<thisim->rowsOut; j++) {
+      for (size_t i=0; i<thisim->colsOut; i++) {
+	thisx = i+ox;  
+	thisy = j+oy; 
+	if (thisx<0 || thisx>=numcols)  continue;
+	if (thisy<0 || thisy>=numrows) continue;
+
+	pixfmt::color_type p;
+	p.r = *(thisim->bufferOut+ind++);
+	p.g = *(thisim->bufferOut+ind++);
+	p.b = *(thisim->bufferOut+ind++);
+	p.a = *(thisim->bufferOut+ind++);
+	pixf.blend_pixel(thisx, thisy, p, 255);
+      }
+    }
+  }
+
+  return Py::asObject(imo);
+  
+  
+  
+}
 char _image_module_fromarray__doc__[] = 
 "fromarray(A, isoutput)\n"
 "\n"
@@ -421,7 +505,7 @@ char _image_module_fromarray__doc__[] =
 ;
 Py::Object
 _image_module::fromarray(const Py::Tuple& args) {
-  if (_DEBUG) std::cout << "_image_module::fromarray" << std::endl;
+  _VERBOSE("_image_module::fromarray");
 
   args.verify_length(2);
   
@@ -529,7 +613,7 @@ DL_EXPORT(void)
 void
 #endif
 init_image(void) {
-  if (_DEBUG) std::cout << "init_image" << std::endl;
+  _VERBOSE("init_image");
 
   static _image_module* _image = new _image_module;
   
@@ -549,6 +633,7 @@ init_image(void) {
   
   d["ASPECT_FREE"] = Py::Int(Image::ASPECT_FREE);
   d["ASPECT_PRESERVE"] = Py::Int(Image::ASPECT_PRESERVE);
+
     
 }
 

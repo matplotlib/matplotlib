@@ -1,6 +1,6 @@
 #include <functional>
 #include "_transforms.h"
-
+#include "mplutils.h"
 
 #ifdef NUMARRAY
 #include "numarray/arrayobject.h" 
@@ -8,18 +8,14 @@
 #include "Numeric/arrayobject.h" 
 #endif   
 
-
-
-
-#define DEBUG_MEM 0
-
-
 Value::~Value() {
-  //std::cout << "bye bye Value" << std::endl;
+  _VERBOSE("Value::~Value");
+
 }
 
 Py::Object
 Value::set(const Py::Tuple & args) {
+  _VERBOSE("Value::set");
   args.verify_length(1);
 
   _val = Py::Float( args[0] ); 
@@ -28,6 +24,7 @@ Value::set(const Py::Tuple & args) {
 
 Py::Object
 Value::get(const Py::Tuple & args) {
+  _VERBOSE("Value::get");
   args.verify_length(0);
   
   return Py::Float( _val ); 
@@ -50,6 +47,7 @@ LazyValue::compare(const Py::Object &other) {
 
 Py::Object 
 LazyValue::number_add( const Py::Object &o ) {
+  _VERBOSE("LazyValue::number");
   
   
   if (!LazyValue::check(o)) 
@@ -62,6 +60,7 @@ LazyValue::number_add( const Py::Object &o ) {
 
 Py::Object 
 LazyValue::number_divide( const Py::Object &o ) {
+  _VERBOSE("LazyValue::number");
   
   //std::cout << "initing divide" << std::endl;
   if (!LazyValue::check(o)) 
@@ -75,6 +74,7 @@ LazyValue::number_divide( const Py::Object &o ) {
 
 Py::Object 
 LazyValue::number_multiply( const Py::Object &o ) {
+  _VERBOSE("LazyValue::number");
   
   
   if (!LazyValue::check(o)) 
@@ -86,6 +86,7 @@ LazyValue::number_multiply( const Py::Object &o ) {
 
 Py::Object 
 LazyValue::number_subtract( const Py::Object &o ) {
+  _VERBOSE("LazyValue::number");
   
   
   if (!LazyValue::check(o)) 
@@ -97,51 +98,56 @@ LazyValue::number_subtract( const Py::Object &o ) {
 
 BinOp::BinOp(LazyValue* lhs, LazyValue* rhs, int opcode) : 
   _lhs(lhs), _rhs(rhs), _opcode(opcode) {
+  _VERBOSE("BinOp::BinOp");
   Py_INCREF(lhs);
   Py_INCREF(rhs);
 }
 
 BinOp::~BinOp() {
+  _VERBOSE("BinOp::~BinOp");
   Py_INCREF(_lhs);
   Py_INCREF(_rhs);
-  if (DEBUG_MEM) std::cout << "bye bye BinOp" << std::endl;
 }
 
 Py::Object
 BinOp::get(const Py::Tuple & args) {
+  _VERBOSE("BinOp::get");
   args.verify_length(0);
   double x = val();
   return Py::Float( x ); 
 }
 
-Point::Point(LazyValue* x, LazyValue*  y) : _x(x), _y(y) { 
+Point::Point(LazyValue* x, LazyValue*  y) : _x(x), _y(y) {
+  _VERBOSE("Point::Point"); 
   Py_INCREF(x);
   Py_INCREF(y);
 }
 
 Point::~Point()
 {
+  _VERBOSE("Point::~Point");
   Py_DECREF(_x);
   Py_DECREF(_y);
 
-  if (DEBUG_MEM) std::cout << "bye bye Point" << std::endl;
 }
 
 Interval::Interval(LazyValue* val1, LazyValue* val2) : 
   _val1(val1), _val2(val2) {
+  _VERBOSE("Interval::Interval");
   Py_INCREF(val1);
   Py_INCREF(val2);
 };
 
 Interval::~Interval() {
+  _VERBOSE("Interval::~Interval");
   Py_DECREF(_val1);
   Py_DECREF(_val2);
 
-  if (DEBUG_MEM) std::cout << "bye bye Interval" << std::endl;
 }
 
 Py::Object 
 Interval::update(const Py::Tuple &args) {
+  _VERBOSE("Interval::update");
   args.verify_length(2);
 
   Py::SeqBase<Py::Object> vals = args[0];
@@ -176,19 +182,21 @@ Interval::update(const Py::Tuple &args) {
 }
 
 Bbox::Bbox(Point* ll, Point* ur) : _ll(ll), _ur(ur) {
+  _VERBOSE("Bbox::Bbox");
   Py_INCREF(ll);
   Py_INCREF(ur);
 };
   
 
 Bbox::~Bbox() {
+  _VERBOSE("Bbox::~Bbox");
   Py_DECREF(_ll);
   Py_DECREF(_ur);
-  if (DEBUG_MEM) std::cout << "bye bye Bbox" << std::endl;
 }
 
 Py::Object 
 Bbox::deepcopy(const Py::Tuple &args) {
+  _VERBOSE("Bbox::deepcopy");
   args.verify_length(0);
   
   double minx = _ll->xval();
@@ -203,6 +211,7 @@ Bbox::deepcopy(const Py::Tuple &args) {
 
 Py::Object 
 Bbox::scale(const Py::Tuple &args) {
+  _VERBOSE("Bbox::scale");
   args.verify_length(2);
   double sx = Py::Float(args[0]);
   double sy = Py::Float(args[1]);
@@ -230,6 +239,7 @@ Bbox::scale(const Py::Tuple &args) {
 
 Py::Object
 Bbox::get_bounds(const Py::Tuple & args) {
+  _VERBOSE("Bbox::get_bounds");
   args.verify_length(0);
   
   
@@ -252,6 +262,7 @@ Bbox::get_bounds(const Py::Tuple & args) {
 
 Py::Object 
 Bbox::contains(const Py::Tuple &args) {
+  _VERBOSE("Bbox::contains");
   args.verify_length(2);
 
   double x = Py::Float(args[0]);
@@ -270,6 +281,7 @@ Bbox::contains(const Py::Tuple &args) {
 
 Py::Object 
 Bbox::overlaps(const Py::Tuple &args) {
+  _VERBOSE("Bbox::overlaps");
   args.verify_length(1);
 
   if (! check(args[0]))
@@ -282,6 +294,7 @@ Bbox::overlaps(const Py::Tuple &args) {
 
 Py::Object 
 Bbox::overlapsx(const Py::Tuple &args) {
+  _VERBOSE("Bbox::overlapsx");
   args.verify_length(1);
 
   if (! check(args[0]))
@@ -303,6 +316,7 @@ Bbox::overlapsx(const Py::Tuple &args) {
 
 Py::Object 
 Bbox::overlapsy(const Py::Tuple &args) {
+  _VERBOSE("Bbox::overlapsy");
   args.verify_length(1);
 
   if (! check(args[0]))
@@ -327,6 +341,7 @@ Bbox::overlapsy(const Py::Tuple &args) {
 
 Py::Object 
 Bbox::update(const Py::Tuple &args) {
+  _VERBOSE("Bbox::update");
   args.verify_length(2);
 
   Py::SeqBase<Py::Object> xys = args[0];
@@ -375,12 +390,13 @@ Bbox::update(const Py::Tuple &args) {
 }
 
 Func::~Func() {
-  if (DEBUG_MEM) std::cout << "bye bye Func" << std::endl;
+  _VERBOSE("Func::~Func");
 }
 
 
 Py::Object 
 Func::map(const Py::Tuple &args) {
+  _VERBOSE("Func::map");
   
   args.verify_length(1);
   double xin = Py::Float(args[0]);
@@ -392,6 +408,7 @@ Func::map(const Py::Tuple &args) {
 
 Py::Object 
 Func::inverse(const Py::Tuple &args) {
+  _VERBOSE("Func::inverse");
   
   args.verify_length(1);
   double xin = Py::Float(args[0]);
@@ -402,19 +419,21 @@ Func::inverse(const Py::Tuple &args) {
 
 FuncXY::FuncXY(Func* funcx, Func* funcy) : 
   _funcx(funcx), _funcy(funcy) {
+  _VERBOSE("FuncXY::FuncXY");
     Py_INCREF(funcx);
     Py_INCREF(funcy);
 }
 
 FuncXY::~FuncXY() {
+  _VERBOSE("FuncXY::~FuncXY");
   Py_DECREF(_funcx);
   Py_DECREF(_funcy);
 
-  if (DEBUG_MEM) std::cout << "bye bye FuncXY" << std::endl;
 }
 
 Py::Object 
 FuncXY::map(const Py::Tuple &args) {
+  _VERBOSE("FuncXY::map");
   
   args.verify_length(2);
   double xin = Py::Float(args[0]);
@@ -434,6 +453,7 @@ FuncXY::map(const Py::Tuple &args) {
 
 Py::Object 
 FuncXY::inverse(const Py::Tuple &args) {
+  _VERBOSE("FuncXY::inverse");
   
   args.verify_length(2);
   double xin = Py::Float(args[0]);
@@ -454,6 +474,7 @@ FuncXY::inverse(const Py::Tuple &args) {
 
 Py::Object
 FuncXY::set_funcx(const Py::Tuple & args) {
+  _VERBOSE("FuncXY::set_funcx");
   args.verify_length(1);
   
   if (!Func::check(args[0])) 
@@ -466,6 +487,7 @@ FuncXY::set_funcx(const Py::Tuple & args) {
 
 Py::Object
 FuncXY::set_funcy(const Py::Tuple & args) {
+  _VERBOSE("FuncXY::set_funcy");
   args.verify_length(1);
   
   if (!Func::check(args[0])) 
@@ -478,22 +500,24 @@ FuncXY::set_funcy(const Py::Tuple & args) {
 
 Py::Object
 FuncXY::get_funcx(const Py::Tuple & args) {
+  _VERBOSE("FuncXY::get_funcx");
   args.verify_length(0);
   return Py::Object(_funcx);
 }
 
 Py::Object
 FuncXY::get_funcy(const Py::Tuple & args) {
+  _VERBOSE("FuncXY::get_funcy");
   args.verify_length(0);
   return Py::Object(_funcy);
 }
 
 PolarXY::~PolarXY() {
-  if (DEBUG_MEM) std::cout << "bye bye PolarXY" << std::endl;
+  _VERBOSE("PolarXY::~PolarXY");
 }
 
 Transformation::~Transformation() {
-  if (DEBUG_MEM) std::cout << "bye bye Transformation" << std::endl;
+  _VERBOSE("Transformation::~Transformation");
   if (_transOffset!=NULL) {
     Py_DECREF(_transOffset);
   }
@@ -502,6 +526,7 @@ Transformation::~Transformation() {
 
 Py::Object
 Transformation::as_vec6(const Py::Tuple & args) {
+  _VERBOSE("Transformation::as_vec6");
   throw Py::RuntimeError("This transformation does not support as_vec6");
   return Py::Object();
 }
@@ -509,12 +534,14 @@ Transformation::as_vec6(const Py::Tuple & args) {
 
 Py::Object
 Transformation::get_funcx(const Py::Tuple & args) {
+  _VERBOSE("Transformation::get_funcx");
   throw Py::RuntimeError("This transformation does not support get_funcx");
   return Py::Object();
 }
 
 Py::Object
 Transformation::get_funcy(const Py::Tuple & args) {
+  _VERBOSE("Transformation::get_funcy");
   throw Py::RuntimeError("This transformation does not support get_funcy");
   return Py::Object();
 }
@@ -522,12 +549,14 @@ Transformation::get_funcy(const Py::Tuple & args) {
 
 Py::Object
 Transformation::set_funcx(const Py::Tuple & args) {
+  _VERBOSE("Transformation::set_funcx");
   throw Py::RuntimeError("This transformation does not support set_funcx");
   return Py::Object();
 }
 
 Py::Object
 Transformation::set_funcy(const Py::Tuple & args) {
+  _VERBOSE("Transformation::set_funcy");
   throw Py::RuntimeError("This transformation does not support set_funcy");
   return Py::Object();
 }
@@ -536,12 +565,14 @@ Transformation::set_funcy(const Py::Tuple & args) {
 
 Py::Object
 Transformation::get_bbox1(const Py::Tuple & args) {
+  _VERBOSE("Transformation::get_bbox1");
   throw Py::RuntimeError("This transformation does not support get_bbox1"); 
   return Py::Object();
 }
 
 Py::Object
 Transformation::get_bbox2(const Py::Tuple & args) {
+  _VERBOSE("Transformation::get_bbox2");
   throw Py::RuntimeError("This transformation does not support get_bbox2"); 
   return Py::Object();
 }
@@ -549,18 +580,21 @@ Transformation::get_bbox2(const Py::Tuple & args) {
 
 Py::Object
 Transformation::set_bbox1(const Py::Tuple & args) {
+  _VERBOSE("Transformation::set_bbox1");
   throw Py::RuntimeError("This transformation does not support set_bbox1"); 
   return Py::Object();
 }
 
 Py::Object
 Transformation::set_bbox2(const Py::Tuple & args) {
+  _VERBOSE("Transformation::set_bbox2");
   throw Py::RuntimeError("This transformation does not support set_bbox1"); 
   return Py::Object();
 }
 
 Py::Object
 Transformation::set_offset(const Py::Tuple & args) {
+  _VERBOSE("Transformation::set_offset");
   args.verify_length(2);
 
   Py::SeqBase<Py::Object> xy = args[0];
@@ -585,6 +619,7 @@ Transformation::set_offset(const Py::Tuple & args) {
 
 Py::Object
 Transformation::inverse_xy_tup(const Py::Tuple & args) {
+  _VERBOSE("Transformation::inverse_xy_tup");
   args.verify_length(1);
 
   Py::Tuple tup = args[0];
@@ -603,6 +638,7 @@ Transformation::inverse_xy_tup(const Py::Tuple & args) {
 
 Py::Object
 Transformation::xy_tup(const Py::Tuple & args) {
+  _VERBOSE("Transformation::xy_tup");
   args.verify_length(1);
 
   if (!_frozen) eval_scalars();
@@ -621,6 +657,7 @@ Transformation::xy_tup(const Py::Tuple & args) {
 
 Py::Object
 Transformation::seq_x_y(const Py::Tuple & args) {
+  _VERBOSE("Transformation::seq_x_y");
   args.verify_length(2);
   
   Py::SeqBase<Py::Object> x = args[0];
@@ -655,6 +692,7 @@ Transformation::seq_x_y(const Py::Tuple & args) {
 
 Py::Object
 Transformation::numerix_x_y(const Py::Tuple & args) {
+  _VERBOSE("Transformation::numerix_x_y");
   args.verify_length(2);
 
 
@@ -723,6 +761,7 @@ Transformation::numerix_x_y(const Py::Tuple & args) {
 
 Py::Object
 Transformation::seq_xy_tups(const Py::Tuple & args) {
+  _VERBOSE("Transformation::seq_xy_tups");
   args.verify_length(1);
   
   Py::SeqBase<Py::Object> xytups = args[0];
@@ -757,6 +796,7 @@ Transformation::seq_xy_tups(const Py::Tuple & args) {
 SeparableTransformation::SeparableTransformation(Bbox *b1, Bbox *b2, Func *funcx, Func *funcy) : 
     Transformation(), 
     _b1(b1), _b2(b2), _funcx(funcx), _funcy(funcy)  {
+  _VERBOSE("SeparableTransformation::SeparableTransformation");
   Py_INCREF(b1);
   Py_INCREF(b2);
   Py_INCREF(funcx);
@@ -766,21 +806,23 @@ SeparableTransformation::SeparableTransformation(Bbox *b1, Bbox *b2, Func *funcx
 
 
 SeparableTransformation::~SeparableTransformation() {
+  _VERBOSE("SeparableTransformation::~SeparableTransformation");
   Py_DECREF(_b1);
   Py_DECREF(_b2);
   Py_DECREF(_funcx);
   Py_DECREF(_funcy);
-  if (DEBUG_MEM) std::cout << "bye bye SeparableTransformation" << std::endl;
 }
 
 Py::Object
 SeparableTransformation::get_funcx(const Py::Tuple & args) {
+  _VERBOSE("SeparableTransformation::get_funcx");
   args.verify_length(0);
   return Py::Object(_funcx);
 }
 
 Py::Object
 SeparableTransformation::get_funcy(const Py::Tuple & args) {
+  _VERBOSE("SeparableTransformation::get_funcy");
   args.verify_length(0);
   return Py::Object(_funcy);
 }
@@ -788,6 +830,7 @@ SeparableTransformation::get_funcy(const Py::Tuple & args) {
 
 Py::Object
 SeparableTransformation::set_funcx(const Py::Tuple & args) {
+  _VERBOSE("SeparableTransformation::set_funcx");
   args.verify_length(1);
   if (!Func::check(args[0])) 
     throw Py::TypeError("set_funcx(func) expected a func instance");
@@ -798,6 +841,7 @@ SeparableTransformation::set_funcx(const Py::Tuple & args) {
 
 Py::Object
 SeparableTransformation::set_funcy(const Py::Tuple & args) {
+  _VERBOSE("SeparableTransformation::set_funcy");
   args.verify_length(1);
   if (!Func::check(args[0])) 
     throw Py::TypeError("set_funcy(func) expected a func instance");
@@ -810,12 +854,14 @@ SeparableTransformation::set_funcy(const Py::Tuple & args) {
 
 Py::Object
 SeparableTransformation::get_bbox1(const Py::Tuple & args) {
+  _VERBOSE("SeparableTransformation::get_bbox1");
   args.verify_length(0);
   return Py::Object(_b1);
 }
 
 Py::Object
 SeparableTransformation::get_bbox2(const Py::Tuple & args) {
+  _VERBOSE("SeparableTransformation::get_bbox2");
   args.verify_length(0);
   return Py::Object(_b2);
 }
@@ -823,6 +869,7 @@ SeparableTransformation::get_bbox2(const Py::Tuple & args) {
 
 Py::Object
 SeparableTransformation::set_bbox1(const Py::Tuple & args) {
+  _VERBOSE("SeparableTransformation::set_bbox1");
   args.verify_length(1);
   if (!Bbox::check(args[0])) 
     throw Py::TypeError("set_bbox1(func) expected a func instance");
@@ -833,6 +880,7 @@ SeparableTransformation::set_bbox1(const Py::Tuple & args) {
 
 Py::Object
 SeparableTransformation::set_bbox2(const Py::Tuple & args) {
+  _VERBOSE("SeparableTransformation::set_bbox2");
   args.verify_length(1);
   if (!Bbox::check(args[0])) 
     throw Py::TypeError("set_bbox2(func) expected a func instance");
@@ -844,6 +892,7 @@ SeparableTransformation::set_bbox2(const Py::Tuple & args) {
 
 std::pair<double, double>&
 SeparableTransformation::operator()(const double& x, const double& y) {
+  _VERBOSE("SeparableTransformation::operator");
 
   // calling function must first call eval_scalars
   double fx = _funcx->operator()(x);
@@ -865,6 +914,7 @@ SeparableTransformation::operator()(const double& x, const double& y) {
 
 std::pair<double, double> &
 SeparableTransformation::inverse_api(const double &x, const double &y) {
+  _VERBOSE("SeparableTransformation::inverse_api");
 
   // calling function must first call eval_scalars_inverse and
   // _transOffset->eval_scalars_inverse()
@@ -890,6 +940,7 @@ SeparableTransformation::inverse_api(const double &x, const double &y) {
 
 void 
 SeparableTransformation::eval_scalars(void) {
+  _VERBOSE("SeparableTransformation::eval_scalars");
   double xminIn  = _funcx->operator()( _b1->ll_api()->xval() );
   double xmaxIn  = _funcx->operator()( _b1->ur_api()->xval() );
   double yminIn  = _funcy->operator()( _b1->ll_api()->yval() );
@@ -944,6 +995,7 @@ SeparableTransformation::eval_scalars(void) {
 Affine::Affine(LazyValue *a, LazyValue *b,  LazyValue *c, 
 	       LazyValue *d, LazyValue *tx, LazyValue *ty) : 
   _a(a), _b(b), _c(c), _d(d), _tx(tx), _ty(ty) {
+  _VERBOSE("Affine::Affine");
   Py_INCREF(a);
   Py_INCREF(b);
   Py_INCREF(c);
@@ -954,18 +1006,19 @@ Affine::Affine(LazyValue *a, LazyValue *b,  LazyValue *c,
 }
 
 Affine::~Affine() {
+  _VERBOSE("Affine::~Affine");
   Py_DECREF(_a);
   Py_DECREF(_b);
   Py_DECREF(_c);
   Py_DECREF(_d);
   Py_DECREF(_tx);
   Py_DECREF(_ty);
-  if (DEBUG_MEM) std::cout << "bye bye Affine" << std::endl;
 }
 
 
 Py::Object 
 Affine::as_vec6(const Py::Tuple &args) {
+  _VERBOSE("Affine::as_vec6");
   //return the affine as length 6 list
   args.verify_length(0);
   Py::List ret(6);
@@ -983,6 +1036,7 @@ Affine::as_vec6(const Py::Tuple &args) {
 
 std::pair<double, double> & 
 Affine::operator()(const double &x, const double &y) {
+  _VERBOSE("Affine::operator");
   xy.first  = _aval*x + _cval*y + _txval;
   xy.second = _bval*x + _dval*y + _tyval;
 
@@ -997,6 +1051,7 @@ Affine::operator()(const double &x, const double &y) {
 
 std::pair<double, double> & 
 Affine::inverse_api(const double &x, const double &y) {
+  _VERBOSE("Affine::inverse_api");
 
   if (!_invertible)
     throw Py::RuntimeError("Transformation is not invertible");
@@ -1020,6 +1075,7 @@ Affine::inverse_api(const double &x, const double &y) {
 
 void 
 Affine::eval_scalars(void) {
+  _VERBOSE("Affine::eval_scalars");
   _aval  = _a->val();
   _bval  = _b->val();
   _cval  = _c->val();
@@ -1051,16 +1107,20 @@ Affine::eval_scalars(void) {
  
 
 /* ------------ module methods ------------- */
-Py::Object _transforms_module::new_value (const Py::Tuple &args)
+Py::Object 
+_transforms_module::new_value (const Py::Tuple &args)
 {
+  _VERBOSE("_transforms_module::new_value ");
   args.verify_length(1);
   double val = Py::Float(args[0]);
   return Py::asObject( new Value(val) );
 }   
 
 
-Py::Object _transforms_module::new_point (const Py::Tuple &args)
+Py::Object 
+_transforms_module::new_point (const Py::Tuple &args)
 {
+  _VERBOSE("_transforms_module::new_point ");
   args.verify_length(2);
   
   LazyValue *x, *y;
@@ -1084,8 +1144,10 @@ Py::Object _transforms_module::new_point (const Py::Tuple &args)
 }    
 
 
-Py::Object _transforms_module::new_interval (const Py::Tuple &args)
+Py::Object 
+_transforms_module::new_interval (const Py::Tuple &args)
 {
+  _VERBOSE("_transforms_module::new_interval ");
   
   args.verify_length(2);
   
@@ -1100,8 +1162,10 @@ Py::Object _transforms_module::new_interval (const Py::Tuple &args)
   return Py::asObject(new Interval(v1, v2) );  
 }
 
-Py::Object _transforms_module::new_bbox (const Py::Tuple &args)
+Py::Object 
+_transforms_module::new_bbox (const Py::Tuple &args)
 {
+  _VERBOSE("_transforms_module::new_bbox ");
   
   args.verify_length(2);
   
@@ -1115,7 +1179,9 @@ Py::Object _transforms_module::new_bbox (const Py::Tuple &args)
   return Py::asObject(new Bbox(ll, ur) );  
 }
 
-Py::Object _transforms_module::new_affine (const Py::Tuple &args) {
+Py::Object 
+_transforms_module::new_affine (const Py::Tuple &args) {
+  _VERBOSE("_transforms_module::new_affine ");
 
   args.verify_length(6);
   
@@ -1138,15 +1204,19 @@ Py::Object _transforms_module::new_affine (const Py::Tuple &args) {
 
  
 
-Py::Object _transforms_module::new_func (const Py::Tuple &args)
+Py::Object 
+_transforms_module::new_func (const Py::Tuple &args)
 {
+  _VERBOSE("_transforms_module::new_func ");
   args.verify_length(1);
   int typecode = Py::Int(args[0]);
   return Py::asObject(new Func(typecode));
 }   
 
-Py::Object _transforms_module::new_funcxy (const Py::Tuple &args)
+Py::Object 
+_transforms_module::new_funcxy (const Py::Tuple &args)
 {
+  _VERBOSE("_transforms_module::new_funcxy ");
   args.verify_length(2);
   if (!Func::check(args[0]))
     throw Py::TypeError("FuncXY(funcx, funcy) expected a Func instance for funcx)");
@@ -1159,14 +1229,18 @@ Py::Object _transforms_module::new_funcxy (const Py::Tuple &args)
 }   
 
 
-Py::Object _transforms_module::new_polarxy (const Py::Tuple &args)
+Py::Object 
+_transforms_module::new_polarxy (const Py::Tuple &args)
 {
+  _VERBOSE("_transforms_module::new_polarxy ");
   args.verify_length(0);
   return Py::asObject( new PolarXY() );
 }   
 
-Py::Object _transforms_module::new_separable_transformation (const Py::Tuple &args)
+Py::Object 
+_transforms_module::new_separable_transformation (const Py::Tuple &args)
 {
+  _VERBOSE("_transforms_module::new_separable_transformation ");
   args.verify_length(4);
   if (!Bbox::check(args[0]))
     throw Py::TypeError("SeparableTransform(box1, box2, funcx, funcy) expected a Bbox for box1");
@@ -1186,8 +1260,10 @@ Py::Object _transforms_module::new_separable_transformation (const Py::Tuple &ar
   return Py::asObject( new SeparableTransformation(box1, box2, funcx, funcy) );
 }     
 
-void LazyValue::init_type()
+void 
+LazyValue::init_type()
 {
+  _VERBOSE("LazyValue::init_type");
   behaviors().name("LazyValue");
   behaviors().doc("A lazy evaluation float, with arithmetic");
   behaviors().supportNumberType();
@@ -1196,22 +1272,28 @@ void LazyValue::init_type()
   add_varargs_method("set",    &LazyValue::set,     "set(val)\n");
 }
 
-void Value::init_type()
+void 
+Value::init_type()
 {
+  _VERBOSE("Value::init_type");
   behaviors().name("Value");
   behaviors().doc("A mutable float");
   behaviors().supportNumberType();}
 
 
-void BinOp::init_type()
+void 
+BinOp::init_type()
 {
+  _VERBOSE("BinOp::init_type");
   behaviors().name("BinOp");
   behaviors().doc("A binary operation on lazy values");
   behaviors().supportNumberType();
 } 
 
-void Point::init_type()
+void 
+Point::init_type()
 {
+  _VERBOSE("Point::init_type");
   behaviors().name("Point");
   behaviors().doc("A point x, y");
     
@@ -1220,8 +1302,10 @@ void Point::init_type()
   add_varargs_method("reference_count", &Point::reference_count);
 }
 
-void Interval::init_type()
+void 
+Interval::init_type()
 {
+  _VERBOSE("Interval::init_type");
   behaviors().name("Interval");
   behaviors().doc("A 1D interval");
   
@@ -1236,8 +1320,10 @@ void Interval::init_type()
   add_varargs_method("val2", &Interval::val2, "val2()\n");
 }
 
-void Bbox::init_type()
+void 
+Bbox::init_type()
 {
+  _VERBOSE("Bbox::init_type");
   behaviors().name("Bbox");
   behaviors().doc("A 2D bounding box");
   
@@ -1265,8 +1351,10 @@ void Bbox::init_type()
 
 
 
-void Func::init_type()
+void 
+Func::init_type()
 {
+  _VERBOSE("Func::init_type");
   behaviors().name("Func");
   behaviors().doc("Map double -> double");
   behaviors().supportRepr();  
@@ -1276,8 +1364,10 @@ void Func::init_type()
   add_varargs_method("get_type", &Func::get_type, "get_type()\n");
 } 
 
-void FuncXY::init_type()
+void 
+FuncXY::init_type()
 {
+  _VERBOSE("FuncXY::init_type");
   behaviors().name("FuncXY");
   behaviors().doc("Map double,double -> funcx(double), funcy(double)");
   add_varargs_method("map", &FuncXY::map, "map(x,y)\n");
@@ -1288,15 +1378,19 @@ void FuncXY::init_type()
   add_varargs_method("get_funcy", &FuncXY::get_funcy, "get_funcy(func)\n");
 } 
  
-void PolarXY::init_type()
+void 
+PolarXY::init_type()
 {
+  _VERBOSE("PolarXY::init_type");
   behaviors().name("PolarXY");
   behaviors().doc("map r, theta -> r*cos(theta), r*sin(theta)");
 } 
 
 
-void Transformation::init_type()
+void 
+Transformation::init_type()
 {
+  _VERBOSE("Transformation::init_type");
   behaviors().name("Transformation");
   behaviors().doc("Transformation base class");
 
@@ -1329,15 +1423,19 @@ void Transformation::init_type()
 
 }
 
-void Affine::init_type()
+void 
+Affine::init_type()
 {
+  _VERBOSE("Affine::init_type");
   behaviors().name("Affine");
   behaviors().doc("A mutable float");
 }
 
 
-void SeparableTransformation::init_type()
+void 
+SeparableTransformation::init_type()
 {
+  _VERBOSE("SeparableTransformation::init_type");
   behaviors().name("SeparableTransformation");
   behaviors().doc("SeparableTransformation(box1, box2, funcx, funcy); x and y transformations are independet");
 
