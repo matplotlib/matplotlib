@@ -342,3 +342,5 @@
 -- savefig to file handle.
 
 -- add agg and and image generic tostring methods
+
+-- expose line set dashes
