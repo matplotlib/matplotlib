@@ -1,6 +1,9 @@
 New entries should be added at the top
 
 ==============================================================
+2004-11-04 Changed -dbackend processing to only use known backends, so
+           we don't clobber other non-matplotlib uses of -d, like -debug.
+
 2004-11-04 backend_agg.py: added IMAGE_FORMAT to list the formats that the 
            backend can save to.
            backend_gtkagg.py: added support for saving JPG files by using the
