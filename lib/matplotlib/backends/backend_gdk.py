@@ -187,8 +187,8 @@ class RendererGDK(RendererBase):
             return
 
         if angle not in (0,90):
-            warnings.warn('The GDK/GTK backend cannot draw text at a %i degree angle' % angle)
-
+            warnings.warn('backend_gdk: unable to draw text at angles ' +
+                          'other than 0 or 90')
         elif ismath:
             self._draw_mathtext(gc, x, y, s, prop, angle)
 
