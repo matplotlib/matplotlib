@@ -335,13 +335,15 @@ class FigureCanvasSVG(FigureCanvasBase):
     def print_figure(self, filename, dpi=80,
                      facecolor='w', edgecolor='w',
                      orientation='portrait'):
-        self.figure.dpi.set(72)
-        width, height = self.figure.get_size_inches()
-
+        # save figure settings
+        origDPI       = self.figure.dpi.get()
         origfacecolor = self.figure.get_facecolor()
         origedgecolor = self.figure.get_edgecolor()
+
+        self.figure.dpi.set(72)
         self.figure.set_facecolor(facecolor)
         self.figure.set_edgecolor(edgecolor)
+        width, height = self.figure.get_size_inches()
 
         basename, ext = os.path.splitext(filename)
         if not len(ext): filename += '.svg'
@@ -356,9 +358,11 @@ class FigureCanvasSVG(FigureCanvasBase):
         self.figure.draw(renderer)
         renderer.finish()
 
+        # restore figure settings
+        self.figure.dpi.set(origDPI)
         self.figure.set_facecolor(origfacecolor)
         self.figure.set_edgecolor(origedgecolor)
-
+        
         try: fh = file(filename, 'w')
         except IOError:
             error_msg_svg('Could not open %s for writing' % filename)
