@@ -149,3 +149,6 @@
    rounding error?
 
 -- port Gary's errorbar code to new API before 0.40
+
+-- legend axes box doesn't resize on save in GTK backend -- see htdocs
+   legend_demo.py
