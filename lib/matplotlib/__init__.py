@@ -512,7 +512,7 @@ defaultParams = {
 
     'image.aspect' : ['free', str],  # free| preserve
     'image.interpolation'  : ['bilinear', str], 
-    'image.cmap'   : ['gray', str],        # one of gray, jet
+    'image.cmap'   : ['gray', str],        # one of gray, jet, etc
     'image.lut'    : [256, validate_int],  # lookup table
     'image.origin'    : ['upper', str],  # lookup table    
 
