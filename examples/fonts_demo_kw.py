@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 """
-Same as fonts_demo using kwargs
+Same as fonts_demo using kwargs.  If you prefer a more pythonic, OO
+style of coding, see examples/fonts_demo.py.
+
 """
 from matplotlib.font_manager import fontManager, FontProperties
 from matplotlib.matlab import *
@@ -36,10 +38,10 @@ for k in range(3):
 
 variant= ['normal', 'small-caps']
 
-t = text(0.2, 0.9, 'variant', **alignment)
+t = text(0.0, 0.9, 'variant', **alignment)
 
 for k in range(1):
-    t = text( 0.2, yp[k], variant[k], family='serif', variant=variant[k],
+    t = text( 0.0, yp[k], variant[k], family='serif', variant=variant[k],
               **alignment)
 
 ###  Show weight options
@@ -63,19 +65,19 @@ for k in range(7):
     t = text( 0.8, yp[k], size[k], size=size[k],
              **alignment)
 
-left = 0.1
+x = 0
 ###  Show bold italic
-t = text(left, 0.1, 'bold italic', style='italic',
+t = text(x, 0.1, 'bold italic', style='italic',
          weight='bold', size='x-small',    
          **alignment)
 
-t = text(left, 0.2, 'bold italic',
+t = text(x, 0.2, 'bold italic',
          style = 'italic', weight='bold', size='medium',
          **alignment)
 
-t = text(left, 0.3, 'bold italic',
+t = text(x, 0.3, 'bold italic',
          style='italic', weight='bold', size='x-large',
          **alignment)
 
-
+axis([-1, 1, 0, 1])
 show()
