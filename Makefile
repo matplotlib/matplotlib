@@ -2,6 +2,9 @@
 # Copyright (C) 2003  <jdhunter@ace.bsd.uchicago.edu>
 # $Header$
 # $Log$
+# Revision 1.29  2004/04/21 15:28:55  jdh2358
+# sync to 0.53
+#
 # Revision 1.28  2004/04/20 22:53:37  jdh2358
 # removed tz info from dates; updated htdocs
 #
@@ -102,7 +105,7 @@ clean:
 	find . -name "_tmp*.py" | xargs rm -f;\
 	find . \( -name "*~" -o -name "*.pyc" \) | xargs rm -f;\
 	find examples \( -name "*.png" -o -name "*.ps"  -o -name "*.jpg" -o -name "*.eps" \) | xargs rm -f
-	find . \( -name "#*" -o -name ".#*" -o -name ".*~" -o -name "*~"\) | xargs rm -f
+	find . \( -name "#*" -o -name ".#*" -o -name ".*~" -o -name "*~" \) | xargs rm -f
 
 
 release: ${DISTFILES}

@@ -1,9 +1,13 @@
 #### MATPLOTLIBRC FORMAT 
-# This is a sample matplotlib configuration file
-# It should be placed in your home dir (Linux and friends) or
-# in the matplotlib data path, is, where matplotlib installs it's
-# data files (fonts, etc).  On windows, this would be, for example,
-# C:\Python23\share\matplotlib
+#
+# This is a sample matplotlib configuration file It should be placed
+# in your home dir (Linux and friends) or in the matplotlib data path,
+# is, where matplotlib installs it's data files (fonts, etc).  On
+# windows, this would be, for example, C:\Python23\share\matplotlib
+#
+# By default, the installer will overwrite the existing file in the
+# install path, so if you want to preserve your's, please move it to
+# your HOME dir and set the environment variable if necessary.
 #
 # This file is best viewed in a editor which supports python mode
 # syntax highlighting

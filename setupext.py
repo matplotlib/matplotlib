@@ -25,7 +25,7 @@ WIN32
   http://matplotlib.sourceforge.net/win32_static.tar.gz and
   see the README file in that dir
 
-  > python setup.py build --compiler=mingw32 bdist_wininst --install-script postinstall.py > build23.out
+  > python setup.py build --compiler=mingw32 bdist_wininst  > build23.out
 
 """
 
@@ -61,8 +61,10 @@ BUILT_WINDOWING = False
 
 
 def add_base_flags(module):
-    incdirs = [os.path.join(p, 'include') for p in basedir[sys.platform]]
-    libdirs = [os.path.join(p, 'lib')     for p in basedir[sys.platform]]
+    incdirs = [os.path.join(p, 'include') for p in basedir[sys.platform]
+               if os.path.exists(p)]
+    libdirs = [os.path.join(p, 'lib')     for p in basedir[sys.platform]
+               if os.path.exists(p)]
     module.include_dirs.extend(incdirs)
     module.library_dirs.extend(libdirs)
     
@@ -99,10 +101,11 @@ def add_ft2font_flags(module):
     for d in basedirs:
         module.include_dirs.append(os.path.join(d, 'freetype2'))
         if sys.platform == 'darwin':
-            module.include_dirs.append(
-                os.path.join(d, 'lib/freetype2/include'))
-            module.include_dirs.append(
-                os.path.join(d, 'lib/freetype2/include/freetype2'))
+            p = os.path.join(d, 'lib/freetype2/include')
+            if os.path.exists(p): module.include_dirs.append(p)
+            p = os.path.join(d, 'lib/freetype2/include/freetype2')
+            if os.path.exists(p): module.include_dirs.append(p)
+                
 
 
     if sys.platform == 'win32':
