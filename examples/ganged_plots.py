@@ -19,9 +19,9 @@ s3 = s1*s2
 # axes rect in relative 0,1 coords left, bottom, width, height.  Turn
 # off xtick labels on all but the lower plot
 ax1 = axes([0.1, 0.1,  0.8, 0.25])  # lower 
-ax2 = axes([0.1, 0.35, 0.8, 0.25])  # middle
+ax2 = axes([0.1, 0.35, 0.8, 0.25], sharex=ax1)  # middle
 ax2.set_xticklabels([])              
-ax3 = axes([0.1, 0.6,  0.8, 0.25])  # upper
+ax3 = axes([0.1, 0.6,  0.8, 0.25], sharex=ax1)  # upper
 ax3.set_xticklabels([])
 
 ax1.plot(t,s1)

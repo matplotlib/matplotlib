@@ -187,7 +187,7 @@ import cm
 import _pylab_helpers
 import mlab  #so I can override hist, psd, etc...
 
-from axes import Axes, PolarAxes, TwinAxes
+from axes import Axes, PolarAxes
 from backends import new_figure_manager, error_msg, \
      draw_if_interactive, show
 
@@ -922,7 +922,7 @@ def load(fname,comments='%'):
         fh = fname
     else:
         raise ValueError('fname must be a string or file handle')
-     X = []
+    X = []
     numCols = None
     for line in fh:
         line = line[:line.find(comments)].strip()
@@ -930,8 +930,7 @@ def load(fname,comments='%'):
         row = [float(val) for val in line.split()]
         thisLen = len(row)
         if numCols is not None and thisLen != numCols:
-            raise ValueError('All rows must have the same number of
-columns')
+            raise ValueError('All rows must have the same number of columns')
         X.append(row)
 
     X = array(X)
@@ -1239,14 +1238,22 @@ def subplot(*args, **kwargs):
     return a
 
 
-def twin(axes=None):
-    if axes is None:
-        axes=gca()
+def twinx(ax=None):
+    """
+    Make a second axes overlay ax (or the current axes if ax is None)
+    sharing the xaxis.  The ticks for ax2 will be placed on the right,
+    and the ax2 instance is returned.  See examples/two_scales.py
+    """
+    if ax is None:
+        ax=gca()
 
-    tw=TwinAxes(axes)
-    gcf().add_axes(tw)
+
+    ax2 = gcf().add_axes(ax.get_position(), sharex=ax, frameon=False)
+    ax2.yaxis.tick_right()
+    ax2.yaxis.set_label_position('right')
+
     draw_if_interactive()
-    return tw
+    return ax2
 
 
 def title(s, *args, **kwargs):
@@ -2479,7 +2486,7 @@ __plotting_all__ = [
     'axes', 'delaxes', 'clim', 'close', 'clf', 'colorbar', 'draw',
     'figtext', 'figimage', 'figlegend', 'figure', 'gca', 'gcf', 'gci',
     'get', 'hold', 'ishold', 'isinteractive', 'imread', 'load', 'rc',
-    'rcdefaults', 'save', 'savefig', 'set', 'subplot', 'twin', 'title',
+    'rcdefaults', 'save', 'savefig', 'set', 'subplot', 'twinx', 'title',
     'xlabel', 'ylabel', 'xlim', 'ylim', 'xticks', 'rgrids',
     'thetagrids', 'yticks', 'polar', 'over', 'ioff', 'ion', 'axhline',
     'axhspan', 'axvline', 'axvspan', 'bar', 'barh', 'cohere',
