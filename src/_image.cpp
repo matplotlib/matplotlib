@@ -837,7 +837,7 @@ _image_module::fromarray(const Py::Tuple& args) {
   Py::Object x = args[0];
   int isoutput = Py::Int(args[1]);
   //PyArrayObject *A = (PyArrayObject *) PyArray_ContiguousFromObject(x.ptr(), PyArray_DOUBLE, 2, 3); 
-  PyArrayObject *A = (PyArrayObject *) PyArray_CopyFromObject(x.ptr(), PyArray_DOUBLE, 2, 3); 
+  PyArrayObject *A = (PyArrayObject *) PyArray_FromObject(x.ptr(), PyArray_DOUBLE, 2, 3); 
   
   if (A==NULL) 
     throw Py::ValueError("Array must be rank 2 or 3 of doubles"); 

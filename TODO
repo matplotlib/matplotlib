@@ -604,11 +604,11 @@ ZeroDivisionError: SeparableTransformation::eval_scalars yin interval is zero; c
 -- cmap observer bug - see
    ~/python/matplotlib_support/test/cmap_observer_bug.py
 
--- add connect function.
+-- DONE add connect function.
 
--- add silent list
+-- DONE add silent list
 
 -- xmajor and xminor kwargs
 
--- add hold option to plot
+-- DONE add hold option to plot
 

@@ -1,3 +1,7 @@
+# deprecated - this example is no longer needed.  Follow the model of
+# anim.py to use interaction = True to avoid all the cruft of timers,
+# callbacks and the likes used here
+
 #!/usr/bin/env python2.3
 
 import matplotlib
@@ -37,7 +41,7 @@ def run(*args):
     while 1:
         cnt = updatefig()
         if cnt==100: break
-        print 'elapsed', 100.0/(time.time() - tstart)
+    print 'elapsed', 100.0/(time.time() - tstart)
     
 import Tkinter as Tk
 manager.window.after(10, run)
