@@ -82,6 +82,13 @@ ax.text(right, 0.5*(bottom+top), 'centered',
         transx=ax.xaxis.transAxis,
         transy=ax.yaxis.transAxis)
 
+ax.text(left, top, 'rotated',
+        horizontalalignment='center',
+        verticalalignment='center',
+        rotation=45,
+        transx=ax.xaxis.transAxis,
+        transy=ax.yaxis.transAxis)
+
 axis('off')
-#savefig('alignment_test', dpi=300)
+savefig('alignment_test', dpi=300)
 show()

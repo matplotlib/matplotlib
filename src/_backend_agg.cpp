@@ -316,9 +316,11 @@ RendererAgg::draw_lines(const Py::Tuple& args) {
     dash_t dash(path);
     agg::conv_stroke<dash_t> stroke(dash);
     double on, off;
-    for (size_t i=0; i<N/2; i+=2) {
+    for (size_t i=0; i<N/2; i+=1) {
+      
       on = points_to_pixels_snapto(dashSeq[2*i]);
       off = points_to_pixels_snapto(dashSeq[2*i+1]);
+      //std::cout << "agg setting" << on << " " << off << std::endl;
       dash.add_dash(on, off);
     }
     stroke.line_cap(cap);
@@ -371,7 +373,7 @@ RendererAgg::draw_text(const Py::Tuple& args) {
       if (j+y>=height) continue;
       
       pixFmt->blend_pixel
-	(i+x, j+y, p, font->image.buffer[i + j*font->image.width]);
+	(i+x, y+j, p, font->image.buffer[i + j*font->image.width]);
     }
   }
   return Py::Object();
