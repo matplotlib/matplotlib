@@ -59,7 +59,7 @@ class Text(Artist):
         self._rotation = rotation
         self._fontproperties = fontproperties
         self._bbox = None
-        
+        self._renderer = None        
     def _get_multialignment(self):
         if self._multialignment is not None: return self._multialignment
         else: return self._horizontalalignment
@@ -209,6 +209,8 @@ ACCEPTS: rectangle prop dict plus key 'pad' which is a pad in points
     def draw(self, renderer):
         if not self.get_visible(): return 
         if self._text=='': return
+        if renderer is not None:
+            self._renderer = renderer
 
         gc = renderer.new_gc()
         gc.set_foreground(self._color)
@@ -315,8 +317,12 @@ ACCEPTS: rectangle prop dict plus key 'pad' which is a pad in points
         "Return the vertical alignment as string"
         return self._verticalalignment
 
-    def get_window_extent(self, renderer):
-        bbox, info = self._get_layout(renderer)
+    def get_window_extent(self, renderer=None):
+        if renderer is not None:
+            self._renderer = renderer
+        if self._renderer is None:
+            raise RuntimeError('Cannot get window extent w/o renderer')
+        bbox, info = self._get_layout(self._renderer)
         return bbox
 
             

@@ -1,5 +1,8 @@
 #!/usr/bin/env python
 """
+As of matplotlib-0.70, there is GUI neutral object picking.  See for
+example the picker_demo.py.
+
 Show how to use the mouse to select objects and a build dialog to set
 line properties.  The approach here can be readily extended to include
 all artists and properties.  Volunteers welcome!
