@@ -16,6 +16,8 @@ from backend_gtk import gtk, FigureManagerGTK, FigureCanvasGTK,\
      show, draw_if_interactive,\
      error_msg, NavigationToolbar, PIXELS_PER_INCH, backend_version
 
+import gobject
+
 try:
     import cairo
     import cairo.gtk
@@ -173,3 +175,10 @@ class FigureCanvasGTKCairo(FigureCanvasGTK, FigureCanvasCairo):
                     filename, msg))
             else:
                 error_msg('Could not save figure\n%s' % msg)
+
+
+def raise_msg_to_str(msg): # used by print_figure
+    """msg is a return arg from a raise.  Join with new lines"""
+    if not is_string_like(msg):
+        msg = '\n'.join(map(str, msg))
+    return msg
