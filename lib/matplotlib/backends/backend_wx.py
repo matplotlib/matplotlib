@@ -691,8 +691,6 @@ class FigureCanvasWx(FigureCanvasBase, wxPanel):
         l,b,w,h = figure.bbox.get_bounds()
         w = int(math.ceil(w))
         h = int(math.ceil(h))
-
-        self._lastkey = None
         
         wxPanel.__init__(self, parent, id, size=wxSize(w, h))
         # Create the drawing bitmap
@@ -1064,7 +1062,6 @@ The current aspect ration will be kept."""
         #print 'release key', key
         evt.Skip()
         FigureCanvasBase.key_release_event(self, key)
-
  
     def _onRightButtonDown(self, evt):
         """Start measuring on an axis."""
