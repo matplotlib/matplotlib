@@ -202,22 +202,27 @@ class RendererCairo(RendererBase):
 
 
     def draw_markers(self, gc, path, x, y, transform):
-    #def _draw_markers(self, gc, path, x, y, transform):
         if DEBUG: print 'backend_cairo.RendererCairo.%s()' % _fn_name()
-
-        if transform.need_nonlinear():
-            x,y = transform.nonlinear_only_numerix(x, y)
-        x, y = transform.numerix_x_y(x, y)  # todo - use cairo transform
-
-        # the a,b,c,d,tx,ty affine which transforms x and y
-        #vec6 = transform.as_vec6_val() # not used (yet)
 
         ctx = gc.ctx
 
-        def draw_path():
-            # could trace path just once, then save/restore() ?
-            # need to remember/store fill and fill_rgb
-            fill = False
+        if transform.need_nonlinear():
+            x,y = transform.nonlinear_only_numerix(x, y)
+        x, y = transform.numerix_x_y(x, y)
+        
+        # the a,b,c,d,tx,ty affine which transforms x and y
+        #vec6 = transform.as_vec6_val() # not used (yet)
+
+        # todo - use cairo transform
+        # matrix worked for dotted lines, but not markers in line_styles.py
+        # it upsets/transforms generate_path() ?
+        #matrix_old = ctx.matrix
+        #matrix = cairo.Matrix (*vec6)
+        #ctx.set_matrix (matrix)
+
+        def generate_path (path):
+            """trace path and return fill_rgb
+            """
             for p in path:
                code = p[0]
                if code == MOVETO:
@@ -226,30 +231,28 @@ class RendererCairo(RendererBase):
                   ctx.line_to (p[1], -p[2])
                elif code == ENDPOLY:
                   ctx.close_path()
-                  fill = p[1]
-                  if fill:
+                  if p[1]: # fill
                      #rgba = p[2:]
-                     fill_rgb = p[2:5]
+                     return p[2:5]  # don't really want to read the same fill_rgb every time we generate_path()
+            return None
 
-            # draw marker
-            if fill:
+        for x,y in izip(x,y):
+            ctx.save()
+            ctx.new_path()
+            ctx.translate(x, self.height - y)
+            
+            fill_rgb = generate_path (path)
+            if fill_rgb:
                ctx.save()
                ctx.set_rgb_color (*fill_rgb)
                # later - set alpha also?                     
                ctx.fill()
-               ctx.restore()
+               ctx.restore() # undo colour change and restore path
             
             ctx.stroke()
-                    
-        for x,y in izip(x,y):
-            # TODO
-            # use Cairo transform
-            # look to writing in a more efficient way - trace path once only - see above
-            ctx.save()
-            ctx.new_path()
-            ctx.translate(x, self.height - y)
-            draw_path()
             ctx.restore() # undo translate()
+
+        #ctx.set_matrix(matrix_old)
 
         
     def draw_point(self, gc, x, y):
@@ -457,11 +460,13 @@ class GraphicsContextCairo(GraphicsContextBase):
 
 
     def set_clip_rectangle(self, rectangle):
-        # Cairo clipping is currently extremely slow
-        # cairo/BUGS lists it as a known bug
+        # Cairo < 0.4.0: clipping is currently extremely slow
+        # Cairo 0.4.0  : pixel-aligned rectangular clip-regions are now faster
         self._cliprect = rectangle
 
         x,y,w,h = rectangle
+        # pixel-aligned clip-regions are faster        
+        x,y,w,h = round(x), round(y), round(w), round(h)
         ctx = self.ctx
         ctx.new_path()
         ctx.rectangle (x, self.renderer.height - h - y, w, h)
@@ -472,6 +477,9 @@ class GraphicsContextCairo(GraphicsContextBase):
         #ctx.stroke()
         #ctx.restore()        
 
+        #ctx.init_clip() # not needed? used unsuccessfully to fix clip problem
+        # when uncomment ctx.clip() it causes problems in line_styles.py
+        # - multiple axes, only the first one has its background drawn
         #ctx.clip ()
         
 
