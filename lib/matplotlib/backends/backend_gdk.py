@@ -117,9 +117,10 @@ class RendererGDK(RendererBase):
         X = fromstring(s, UInt8)
         X.shape = rows, cols, 4
 
-        pb=gtk.gdk.Pixbuf(gtk.gdk.COLORSPACE_RGB,
-                          has_alpha=1, bits_per_sample=8,
-                          width=cols, height=rows)
+        pb = gtk.gdk.Pixbuf(gtk.gdk.COLORSPACE_RGB,
+                            #has_alpha=1, bits_per_sample=8,
+                            has_alpha=True, bits_per_sample=8,
+                            width=cols, height=rows)
         try:
             pa = pb.get_pixels_array()
         except AttributeError:
@@ -134,9 +135,16 @@ class RendererGDK(RendererBase):
 
         if flipud:  y = self.height-y-rows
 
-        pb.render_to_drawable(self.gdkDrawable, gc.gdkGC, 0, 0,
-                              int(x), int(y), cols, rows,
-                              gdk.RGB_DITHER_NONE, 0, 0)
+        try: # requires GTK+ 2.2
+            # can use None instead of gc.gdkGC, if don't need clipping
+            self.gdkDrawable.draw_pixbuf (gc.gdkGC, pb, 0, 0,
+                                          int(x), int(y), cols, rows,
+                                          gdk.RGB_DITHER_NONE, 0, 0)
+        except AttributeError:
+            # is deprecated
+            pb.render_to_drawable(self.gdkDrawable, gc.gdkGC, 0, 0,
+                                  int(x), int(y), cols, rows,
+                                  gdk.RGB_DITHER_NONE, 0, 0)
 
             
     def draw_line(self, gc, x1, y1, x2, y2):
@@ -146,7 +154,6 @@ class RendererGDK(RendererBase):
 
     def draw_lines(self, gc, x, y):
         x = x.astype(nx.Int16)
-        #y = self.height*ones(y.shape, nx.Int16) - y.astype(nx.Int16)  
         y = self.height - y.astype(nx.Int16)  
         self.gdkDrawable.draw_lines(gc.gdkGC, zip(x,y))
         
@@ -225,7 +232,8 @@ class RendererGDK(RendererBase):
         Xs.shape = imh, imw
 
         pb=gtk.gdk.Pixbuf(gtk.gdk.COLORSPACE_RGB,
-                          has_alpha=1, bits_per_sample=8, width=imw, height=imh)
+                          #has_alpha=1, bits_per_sample=8, width=imw, height=imh)
+                          has_alpha=True, bits_per_sample=8, width=imw, height=imh)
 
         try:
             pa = pb.get_pixels_array()
@@ -241,9 +249,15 @@ class RendererGDK(RendererBase):
         pa[:,:,2]=int(rgb[2]*255)
         pa[:,:,3]=Xs
 
-        pb.render_to_drawable(self.gdkDrawable, gc.gdkGC, 0, 0,
-                              int(x), int(y), imw, imh,
-                              gdk.RGB_DITHER_NONE, 0, 0)
+        try: # requires GTK+ 2.2
+            # can use None instead of gc.gdkGC, if don't need clipping
+            self.gdkDrawable.draw_pixbuf (gc.gdkGC, pb, 0, 0,
+                                          int(x), int(y), cols, rows,
+                                          gdk.RGB_DITHER_NONE, 0, 0)
+        except AttributeError:
+            pb.render_to_drawable(self.gdkDrawable, gc.gdkGC, 0, 0,
+                                  int(x), int(y), imw, imh,
+                                  gdk.RGB_DITHER_NONE, 0, 0)
             
         
     def _draw_rotated_text(self, gc, x, y, s, prop, angle):
@@ -306,9 +320,7 @@ class RendererGDK(RendererBase):
         key = self.dpi.get(), s, hash(prop)
         value = self.layoutd.get(key)
         if value != None:
-            #print 'layoutd cached value'
             return value
-        #print 'len(self.layoutd), s', len(self.layoutd), s
 
         size = prop.get_size_in_points() * self.dpi.get() / PIXELS_PER_INCH
         size = round(size)
