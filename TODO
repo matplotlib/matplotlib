@@ -574,3 +574,5 @@ ZeroDivisionError: SeparableTransformation::eval_scalars yin interval is zero; c
     files.  
 
 -- file save dialog for Tk?  See Mayavi for the right call to make.
+
+-- colorbar for dynamic images.

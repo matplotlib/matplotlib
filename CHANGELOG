@@ -1,16 +1,19 @@
 New entries should be added at the top
 
 ==============================================================
+2004-09-15 Applied Fernando's backend __init__ patch to support easier
+           backend maintenance.  Added his numutils to mlab.  JDH
 
-2004-09-15 Modified setup to build array-package-specific extensions for those
-	   extensions which are array-aware.  Setup builds extensions
-	   automatically for either Numeric, numarray, or both,
-           depending on what you have installed.  Python proxy modules
-	   for the array-aware extensions import the version optimized
-	   for numarray or Numeric determined by numerix.  - JTM
+2004-09-15 Modified setup to build array-package-specific extensions
+	   for those extensions which are array-aware.  Setup builds
+	   extensions automatically for either Numeric, numarray, or
+	   both, depending on what you have installed.  Python proxy
+	   modules for the array-aware extensions import the version
+	   optimized for numarray or Numeric determined by numerix.  -
+	   JTM
 
-2004-09-15 Moved definitions of infinity from mlab to numerix 
-	   to avoid divide by zero warnings for numarray  - JTM
+2004-09-15 Moved definitions of infinity from mlab to numerix to avoid
+	   divide by zero warnings for numarray - JTM
 
 
 ==============================================================
