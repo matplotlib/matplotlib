@@ -1,5 +1,10 @@
 New entries should be added at the top
 
+2005-03-07 backend_gdk.py: remove PIXELS_PER_INCH from points_to_pixels(), but
+	   still use it to adjust font sizes. This allows the GTK version of
+           line_styles.py to more closely match GTKAgg, previously the markers
+           were being drawn too large. - SC
+
 2005-03-01 Added Eric's contourf routines
 
 2005-03-01 Added start of proper agg SWIG wrapper.  I would like to
