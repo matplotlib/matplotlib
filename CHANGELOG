@@ -1,5 +1,9 @@
 New entries should be added at the top
 ------------------------------------------------------------
+
+2004-05-18 Added newline seperated text with rotations to text.Text
+           layout - JDH
+
 2004-05-16 Added fast pcolor using PolyCollections.  - JDH
 
 2004-05-14 Added fast polygon collections - changed scatter to use

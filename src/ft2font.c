@@ -622,7 +622,7 @@ FT2Font_get_width_height(FT2FontObject *self, PyObject *args)
   return Py_BuildValue("(ll)", 
 		       (bbox.xMax - bbox.xMin), 
 		       (bbox.yMax - bbox.yMin));
-}
+ }
 
 
 void
