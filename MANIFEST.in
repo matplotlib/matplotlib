@@ -7,7 +7,7 @@ include examples/data/*
 include images/*
 include test/*.py
 include test/README
-recursive-include fonts *.ttf *.afm *.TXT
+recursive-include fonts *
 recursive-include license LICENSE*
 recursive-include examples README *.py *.glade
 prune examples/_tmp_*

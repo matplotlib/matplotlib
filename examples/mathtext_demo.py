@@ -15,14 +15,14 @@ plot([1,2,3])
 x = arange(0.0, 3.0, 0.1)
 #plot(x, sin(2*pi*x))
 grid(True)
-xlabel(r'$\Delta_i$', fontsize=50)
-ylabel(r'$\Delta_{i+1}$')
+xlabel(r'$\Delta_i^j$', fontsize=20)
+ylabel(r'$\Delta_{i+1}^j$', fontsize=20)
 tex = r'$\cal{R}\prod_{i=\alpha_{i+1}}^\infty a_i\rm{sin}(2 \pi f x_i)$'
 #tex = r'$\cal{R}\prod^\infty a_i\rm{sin}(2 \pi f x_i)$'
 
 #tex = r'$\alpha\beta\gamma$'
 text(1, 2.6, tex, fontsize='xx-large')
-title(r'$\Delta^i_{i=\alpha_{i+1}}\rm{ versus }\Delta_{i+1}$', fontsize='large')
+title(r'$\Delta_i^j \hspace{0.4} \rm{versus} \hspace{0.4} \Delta_{i+1}^j$', fontsize=25)
 #savefig('mathtext_demo_small', dpi=100)
 #savefig('mathtext_demo_large', dpi=300)
 
