@@ -9,7 +9,7 @@ data.extend(glob.glob('fonts/ttf/*.ttf'))
 data.extend(glob.glob('images/*.xpm'))
 
 setup(name="matplotlib",
-      version= '0.42b',
+      version= '0.42c',
       description = "Matlab style python plotting package",
       author = "John D. Hunter",
       author_email="jdhunter@ace.bsd.uchicago.edu",
