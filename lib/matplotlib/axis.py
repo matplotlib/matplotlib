@@ -700,13 +700,10 @@ ACCEPTS: sequence of strings"""
         self.set_major_formatter( FixedFormatter(ticklabels) )
 
     
-        override = {}
-        override = _process_text_args(override, *args, **kwargs)
-
         ret = []
         for i, tick in enumerate(self.get_major_ticks()):
             if i<len(ticklabels): ret.append(tick.label1)
-            tick.label1.update(override)
+            tick.label1.update(kwargs)
         return ret
     
     def set_ticks(self, ticks):
