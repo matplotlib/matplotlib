@@ -6,9 +6,7 @@ Cairo is a vector graphics library with cross-device output support.
 Features of Cairo:
  * anti-aliasing
  * alpha channel 
- * in-memory image buffers
- * save image files:
-   - PNG, PostScript, PDF
+ * saves image files as PNG, PostScript, PDF
 
 http://cairographics.org
 Requires (in order, all available from Cairo website):
@@ -21,8 +19,7 @@ Naming Conventions
 """
 
 from __future__ import division
-import os
-import sys, warnings
+import os, sys, warnings
 def _fn_name(): return sys._getframe(1).f_code.co_name
 
 from matplotlib.numerix import asarray, pi, fromstring, UInt8, zeros
@@ -106,13 +103,15 @@ class RendererCairo(RendererBase):
         self.surface = cairo.gtk.surface_create_for_drawable (pixmap)
 
     def _set_width_height(self, width, height):
-        self.width    = width
-        self.height   = height
+        self.width  = width
+        self.height = height
 
     def draw_arc(self, gc, rgbFace, x, y, width, height, angle1, angle2):
         if DEBUG: print 'backend_cairo.RendererCairo.%s()' % _fn_name()
-        # cairo draws circular arcs (width=height)
-        # could curve_to() and draw a spline instead?
+        # draws circular arcs where width=height
+        # FIXME
+        # to get a proper arc of width/height you can use translate() and scale()
+        # see draw_arc() manual page
         radius = (height + width) / 4
         ctx    = gc.ctx
         ctx.new_path()

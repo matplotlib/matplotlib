@@ -32,6 +32,8 @@ class RendererBase:
         """
         Draw an arc using GraphicsContext instance gcEdge, centered at x,y,
         with width and height and angles from 0.0 to 360.0
+        0 degrees is at 3-o'clock
+        positive angles are anti-clockwise
         
         If the color rgbFace is not None, fill the arc with it.
         """
