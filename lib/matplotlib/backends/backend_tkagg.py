@@ -170,7 +170,7 @@ class FigureCanvasTkAgg(FigureCanvasAgg):
             e.button = e.num
             return handler(e.widget, e)
         for name in tkname[eventname]:
-            self._tkcanvas.bind(name, the_binding)
+            self._tkcanvas.bind(name, the_binding, add=True)
         return (eventname, the_binding)
 
     def key_press(self, event):
