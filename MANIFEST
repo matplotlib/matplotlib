@@ -402,8 +402,10 @@ license/LICENSE_PAINT
 license/LICENSE_PIL
 license/LICENSE_TTFQUERY
 matplotlib/__init__.py
+matplotlib/_image.py
 matplotlib/_mathtext_data.py
 matplotlib/_matlab_helpers.py
+matplotlib/_transforms.py
 matplotlib/afm.py
 matplotlib/artist.py
 matplotlib/axes.py

@@ -10,16 +10,11 @@ The GTKAgg and TkAgg will try to build if they detect pygtk or Tkinter
 respectively; set them to 0 if you do not want to build them
 """
 
-# The NUMERIX
-#NUMERIX = 'Numeric'  # or numarray
-NUMERIX = 'numarray'  # or numarray
-
 # build the image support module - requires agg and Numeric or
 # numarray.  You can build the image module with either Numeric or
-# numarray.  Whichever way you build it, the code will work with both
-# Numeric or numarray arrays, but you will get the best performance if
-# you build with the type of array you use most
-BUILD_IMAGE    = 1
+# numarray or both.  By default, matplotlib will build support for
+# whatever array packages you have installed.
+BUILD_IMAGE = 1
 
 # Build the antigrain geometry toolkit.  Agg makes heavy use of
 # templates, so it probably requires a fairly recent compiler to build
@@ -45,13 +40,32 @@ VERBOSE = False  # insert lots of diagnostic prints in extension code
 ## You shouldn't need to customize below this point
 
 
+# Figure out which array packages to provide binary support for
+# and define the NUMERIX value: Numeric, numarray, or both.
+try:
+    import Numeric
+    HAVE_NUMERIC=1
+except ImportError:
+    HAVE_NUMERIC=0
+try:
+    import numarray
+    HAVE_NUMARRAY=1
+except ImportError:
+    HAVE_NUMARRAY=0
+    
+NUMERIX=["neither", "Numeric","numarray","both"][HAVE_NUMARRAY*2+HAVE_NUMERIC]
+
+if NUMERIX == "neither":
+    raise RuntimeError("You must install Numeric, numarray, or both to build matplotlib")
+
+print "Compiling matplotlib for:", NUMERIX
 
 from distutils.core import setup
 import sys,os
 import glob
 from distutils.core import Extension
 from setupext import build_agg, build_gtkagg, build_tkagg, \
-     build_ft2font, build_image, build_windowing
+     build_ft2font, build_image, build_windowing, build_transforms
 import distutils.sysconfig
 
 for line in file('matplotlib/__init__.py').readlines():
@@ -71,17 +85,7 @@ data.append('.matplotlibrc')
 
 data_files=[('share/matplotlib', data),]
 
-cxx = glob.glob('CXX/*.cxx')
-cxx.extend(glob.glob('CXX/*.c'))
-
-modtrans = Extension('matplotlib._transforms',
-                     ['src/_transforms.cpp', 'src/mplutils.cpp'] + cxx,
-                     libraries = ['stdc++', 'm'],
-                     include_dirs = ['src', '.'],
-                     )
-
-ext_modules = [modtrans]
-
+ext_modules = []
 
 BUILD_FT2FONT = 1
 packages = [
@@ -89,9 +93,9 @@ packages = [
     'matplotlib/backends',
     ]
 
+build_transforms(ext_modules, packages, NUMERIX)
     
 if BUILD_GTKAGG:
-    
     try: import gtk
     except ImportError: print 'GTKAgg requires pygtk'
     else:
@@ -105,10 +109,7 @@ if BUILD_TKAGG:
         BUILD_AGG = 1
         build_tkagg(ext_modules, packages)
 
-
-
 if BUILD_AGG:
-
     build_agg(ext_modules, packages)
 
 if BUILD_FT2FONT:
@@ -123,10 +124,6 @@ if BUILD_IMAGE:
 for mod in ext_modules:
     if VERBOSE:
         mod.extra_compile_args.append('-DVERBOSE')
-    if NUMERIX.lower().find('numarray')>=0:
-        mod.extra_compile_args.append('-DNUMARRAY')
-
-
     
 setup(name="matplotlib",
       version= __version__,
