@@ -672,3 +672,12 @@ square).  All displayed area is white.
 
 - button to add text labels easily anywhere on the plot.  A few drawing
 buttons as well for simple things? Circle/ellipse, box, arrows, etc.
+
+- toggle log/linear shows strange accumulation of ticks on y axis
+
+    from pylab import *
+    x = arange(-2.00, 10, 0.01)
+    y = exp(-x)
+    plot(x,y)
+    #set(gca(), xscale='log')
+    show()

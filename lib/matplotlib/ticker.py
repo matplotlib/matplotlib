@@ -638,12 +638,11 @@ class LogLocator(Locator):
     def autoscale(self):
         'Try to choose the view limits intelligently'
         self.verify_intervals()
+        
         vmin, vmax = self.dataInterval.get_bounds()
         if vmax<vmin:
             vmin, vmax = vmax, vmin
 
-        
-        
         if not is_decade(vmin,self.base): vmin = decade_down(vmin,self.base)
         if not is_decade(vmax,self.base): vmax = decade_up(vmax,self.base)
         if vmin==vmax:
