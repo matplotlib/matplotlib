@@ -41,8 +41,47 @@ typedef agg::rasterizer_scanline_aa<> rasterizer;
 typedef agg::scanline_p8 scanline_p8;
 typedef agg::scanline_bin scanline_bin;
 
+
+class GCAgg {
+public:
+  GCAgg(const Py::Object& gc, double dpi);
+
+  ~GCAgg() {
+    delete [] dasha;
+    delete [] cliprect;
+  }
+
+  double dpi;
+  bool isaa;
+  
+  agg::vcgen_stroke::line_cap_e cap; 
+  agg::vcgen_stroke::line_join_e join;
+
+  
+  double linewidth;
+  double alpha;
+  agg::rgba color;
+
+  double *cliprect;
+  
+  //dashes
+  size_t Ndash;
+  double dashOffset;
+  double *dasha;
+
+protected:
+  agg::rgba get_color(const Py::Object& gc);
+  double points_to_pixels( const Py::Object& points);
+  void _set_linecap(const Py::Object& gc) ;
+  void _set_joinstyle(const Py::Object& gc) ;
+  void _set_dashes(const Py::Object& gc) ;
+  void _set_clip_rectangle( const Py::Object& gc);
+  void _set_antialiased( const Py::Object& gc);
+};
+
 // the renderer
 class RendererAgg: public Py::PythonExtension<RendererAgg> {
+  typedef std::pair<bool, agg::rgba> facepair_t;
 public:
   RendererAgg(unsigned int width, unsigned int height, double dpi, int debug);
   static void init_type(void);
@@ -92,21 +131,14 @@ public:
   const int debug;
 
 protected:
-
-  // helper methods to process gc
-  void set_clip_rectangle( const Py::Object& gc);
-  void set_clip_from_bbox(const Py::Object& o);
-  Py::Tuple get_dashes( const Py::Object& gc);
-  int antialiased( const Py::Object& gc);
-  agg::rgba get_color(const Py::Object& gc);
-  agg::vcgen_stroke::line_cap_e get_linecap(const Py::Object& gc);
-  agg::vcgen_stroke::line_join_e get_joinstyle(const Py::Object& gc);
-
   double points_to_pixels( const Py::Object& points);
   double points_to_pixels_snapto( const Py::Object& points);
+
+  void set_clip_from_bbox(const Py::Object& o);
   agg::rgba rgb_to_color(const Py::SeqBase<Py::Object>& rgb, double alpha);
-  
-  
+  facepair_t _get_rgba_face(const Py::Object& rgbFace, double alpha);
+  void set_clipbox_rasterizer( double *cliprect);
+  template <class VS> void _fill_and_stroke(VS&, const GCAgg&, const facepair_t&);  
 } ;
 
 

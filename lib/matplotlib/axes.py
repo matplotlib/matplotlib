@@ -686,6 +686,14 @@ major formatter
         # and the data in xydata        
         self.dataLim.update(xys, not self.has_data())
 
+    def update_datalim_numerix(self, x, y):
+        'Update the data lim bbox with seq of xy tups'
+        # if no data is set currently, the bbox will ignore it's
+        # limits and set the bound to be the bounds of the xydata.
+        # Otherwise, it will compute the bounds of it's current data
+        # and the data in xydata        
+        self.dataLim.update_numerix(x, y, not self.has_data())
+
     def add_line(self, l):
         'Add a line to the list of plot lines'
         self._set_artist_props(l)        
@@ -697,8 +705,7 @@ major formatter
             xys = self._get_verts_in_data_coords(
                 l.get_transform(), zip(xdata, ydata))
             xdata, ydata = zip(*xys)
-
-        self.update_datalim( zip(xdata, ydata) )
+        self.update_datalim_numerix( xdata, ydata )        
         
         self.lines.append(l)
 

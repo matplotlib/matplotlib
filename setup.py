@@ -41,7 +41,7 @@ BUILD_TKAGG        = 'auto'
 BUILD_WINDOWING        = 'auto'
 
 
-VERBOSE = False  # insert lots of diagnostic prints in extension code
+VERBOSE =  False # insert lots of diagnostic prints in extension code
 
 
 
@@ -158,18 +158,18 @@ if BUILD_GTKAGG:
         print 'pygtk present but import failed'
 if BUILD_GTKAGG:
     BUILD_AGG = 1
-    build_gtkagg(ext_modules, packages)
+    build_gtkagg(ext_modules, packages, NUMERIX)
 
 if BUILD_TKAGG:
     try: import Tkinter
     except ImportError: print 'TKAgg requires TkInter'
     else:
         BUILD_AGG = 1
-        build_tkagg(ext_modules, packages)
+        build_tkagg(ext_modules, packages, NUMERIX)
 
 
 if BUILD_AGG:
-    build_agg(ext_modules, packages)
+    build_agg(ext_modules, packages, NUMERIX)
 
 if BUILD_FT2FONT:
     build_ft2font(ext_modules, packages)

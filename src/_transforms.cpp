@@ -395,6 +395,80 @@ Bbox::update(const Py::Tuple &args) {
   return Py::Object();
 }
 
+Py::Object 
+Bbox::update_numerix(const Py::Tuple &args) {
+  //update the boox from the numerix arrays x and y
+  _VERBOSE("Bbox::update_numerix");
+
+  args.verify_length(3);
+
+  Py::Object xo = args[0];
+  Py::Object yo = args[1];
+
+  PyArrayObject *x = (PyArrayObject *) PyArray_ContiguousFromObject(xo.ptr(), PyArray_DOUBLE, 1, 1); 
+  
+  if (x==NULL) 
+    throw Py::TypeError("Bbox::update_numerix expected numerix array");
+
+  
+  PyArrayObject *y = (PyArrayObject *) PyArray_ContiguousFromObject(yo.ptr(), PyArray_DOUBLE, 1, 1); 
+
+  if (y==NULL) 
+    throw Py::TypeError("Bbox::update_numerix expected numerix array");
+
+  
+  size_t Nx = x->dimensions[0];
+  size_t Ny = y->dimensions[0];
+  
+  if (Nx!=Ny) 
+    throw Py::ValueError("x and y must be equal length sequences");
+
+  //don't use current bounds when updating box if ignore==1
+
+
+  if (Nx==0) return Py::Object();
+
+  double minx = _ll->xval();
+  double maxx = _ur->xval();
+  double miny = _ll->yval();
+  double maxy = _ur->yval();
+
+  double thisx, thisy;
+  int ignore = Py::Int(args[2]);  
+  if (ignore) {
+    thisx = *(double *)(x->data);
+    thisy = *(double *)(x->data);
+    minx=thisx;
+    maxx=thisx;
+    miny=thisy;
+    maxy=thisy;
+  }
+
+  for (size_t i=0; i< Nx; ++i) {
+
+    thisx = *(double *)(x->data + i*x->strides[0]);
+    thisy = *(double *)(y->data + i*y->strides[0]);
+    _posx.update(thisx);
+    _posy.update(thisy);
+    if (thisx<minx) minx=thisx;
+    if (thisx>maxx) maxx=thisx;
+    if (thisy<miny) miny=thisy;
+    if (thisy>maxy) maxy=thisy;
+
+
+  }
+
+  Py_XDECREF(x);
+  Py_XDECREF(y);
+
+
+  _ll->x_api()->set_api(minx);
+  _ll->y_api()->set_api(miny);
+  _ur->x_api()->set_api(maxx);
+  _ur->y_api()->set_api(maxy);
+  return Py::Object();
+}
+
 Func::~Func() {
   _VERBOSE("Func::~Func");
 }
@@ -1605,6 +1679,7 @@ Bbox::init_type()
 
   add_varargs_method("get_bounds", &Bbox::get_bounds, "get_bounds()\n");
   add_varargs_method("update" , &Bbox::update, "update(xys, ignore)\n");
+  add_varargs_method("update_numerix" , &Bbox::update_numerix, "update_numerix(x, u, ignore)\n");
   add_varargs_method("width", 	&Bbox::width, "width()\n");
   add_varargs_method("height", 	&Bbox::height, "height()\n");
   add_varargs_method("xmax", 	&Bbox::xmax, "xmax()\n");
