@@ -5,7 +5,6 @@ INSTALL
 INTERACTIVE
 KNOWN_BUGS
 LICENSE
-MANIFEST
 MANIFEST.in
 Makefile
 README
@@ -58,6 +57,7 @@ examples/psd_demo.py
 examples/pstest.py
 examples/scatter_demo.py
 examples/scatter_demo2.py
+examples/scatter_marker.py
 examples/simple_plot.py
 examples/stock_demo.py
 examples/subplot_demo.py
@@ -158,6 +158,7 @@ matplotlib/table.py
 matplotlib/text.py
 matplotlib/transforms.py
 matplotlib/backends/__init__.py
+matplotlib/backends/backend_agg.py
 matplotlib/backends/backend_gd.py
 matplotlib/backends/backend_gtk.py
 matplotlib/backends/backend_gtkgd.py
@@ -166,9 +167,9 @@ matplotlib/backends/backend_ps.py
 matplotlib/backends/backend_template.py
 matplotlib/backends/backend_wx.py
 matplotlib/backends/ttf_font_manager.py
-src/_backend_agg.cpp
 test/README
 test/alignment_test.py
+test/backend_agg_test.py
 test/bar_test.py
 test/batchtest.py
 test/batchtest2.py
@@ -180,6 +181,7 @@ test/gd2gtk_test.py
 test/gtk2_test.py
 test/highres_test.py
 test/hist_test.py
+test/histogram_demo.py
 test/line_thickness.py
 test/lots_o_points.py
 test/manset.py
@@ -194,6 +196,7 @@ test/print_only.py
 test/rounding.py
 test/semilog_test.py
 test/specgram_demo.py
+test/subplot_demo.py
 test/table_demo.py
 test/table_demo3.py
 test/table_test.py
