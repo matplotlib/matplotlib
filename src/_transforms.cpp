@@ -743,7 +743,7 @@ SeparableTransformation::inverse_api(const double &x, const double &y) {
 
   xy.first  = _funcx->inverse_api( _isx * xin  +  _itx );
   xy.second = _funcy->inverse_api( _isy * yin  +  _ity );
-    
+     
   return xy;
 }
 
@@ -780,6 +780,8 @@ SeparableTransformation::eval_scalars(void) {
   _tx = -xminIn*_sx + xminOut;
   _ty = -yminIn*_sy + yminOut;
 
+
+  //now do the inverse mapping
   if ( (widthOut==0) || (widthOut==0) ) {
     _invertible = false;
   }

@@ -349,9 +349,9 @@
 
 -- DONE y clipping broken
 
--- fix data lim problem with image; see image_demo2
+-- DONE fix data lim problem with image; see image_demo2
 
--- handle space in roman/font text
+-- DONE handle space in roman/font text
 
 -- DONE scatter demos whacked
 
@@ -386,4 +386,10 @@
 
 -- fix + 2 hack in width, height of ft2font and backend_agg and GTK
 
--- check mathtext in GTK
+-- DONE check mathtext in GTK
+
+-- DONE axes frame dim
+
+-- DONE image data scaling
+
+-- y tick outside frame?

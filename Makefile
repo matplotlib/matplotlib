@@ -2,6 +2,9 @@
 # Copyright (C) 2003  <jdhunter@ace.bsd.uchicago.edu>
 # $Header$
 # $Log$
+# Revision 1.33  2004/05/19 19:55:18  jdh2358
+# sync to 0.54
+#
 # Revision 1.32  2004/05/17 15:08:44  jdh2358
 # updated goals and what's new
 #
@@ -131,7 +134,7 @@ htmldocs:
 	cd htdocs;\
 	${PYTHON} process_docs.py;\
 	${PYTHON} convert.py;\
-	tar cfz site.tar.gz *.html screenshots tut examples gd .matplotlibrc NUMARRAY_ISSUES  API_CHANGES;\
+	tar cfz site.tar.gz *.html screenshots tut examples gd .matplotlibrc CHANGELOG NUMARRAY_ISSUES  API_CHANGES;\
 	cd ..;\
 	cp -a matplotlib htdocs
 

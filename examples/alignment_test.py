@@ -71,7 +71,7 @@ ax.text(right, 0.5*(bottom+top), 'centered',
         rotation='vertical',
         transform=ax.transAxes)
 
-ax.text(left, top, 'rotated',
+ax.text(left, top, 'rotated\nwith newlines',
         horizontalalignment='center',
         verticalalignment='center',
         rotation=45,

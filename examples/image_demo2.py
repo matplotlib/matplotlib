@@ -30,6 +30,6 @@ if 0:
     ylabel('density')
     set(gca(), 'xticklabels', [])
 
-savefig('image_demo2')
+#savefig('image_demo2')
 show()
 
