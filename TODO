@@ -414,13 +414,13 @@
 
 -- check Fernando's bounds problem with pcolor.
 
--- Write John's Letter
+-- DONE Write John's Letter
 
--- add default args to imshow per Fernando's suggestion
+-- DONE add default args to imshow per Fernando's suggestion
 
 -- DONE - check out Fernando's wx prob
 
--- add interp and aspect info to imshow doc
+-- DONE add interp and aspect info to imshow doc
 
 -- add write png method to image module
 
@@ -438,8 +438,8 @@
 
 -- DONE flush all traces of gtkgd
 
--- run backend_driver with numeric and numarray (the latter only with
-   agg)
+-- DONE run backend_driver with numeric and numarray (the latter only
+   with agg)
 
 -- DONE fix vlines raise in matlab.py
 
@@ -454,3 +454,11 @@
 -- DONE reset build flags in setup.py
 
 -- add wxagg extension code to goals
+
+-- major and minor ticks for log and major and minor grid on/off
+
+-- make the subplot slider function
+
+-- add colorbar  to screenshots
+
+-- add jim's legend patch
