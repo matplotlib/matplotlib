@@ -16,7 +16,7 @@ ylabel(r'$\Delta_{i+1}$', size='x-large')
 title(r'Volume and percent change')
 grid(True)
 #savefig('scatter_demo2')
-
+colorbar()
 show()
 
 

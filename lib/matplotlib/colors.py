@@ -566,9 +566,9 @@ class normalize:
         return result
 
     def autoscale(self, A):
-
         if not self.scaled():
             rval = ravel(A)
+
             if self.vmin is None:
                 self.vmin = min(rval)
             if self.vmax is None:
@@ -576,7 +576,7 @@ class normalize:
 
     def scaled(self):
         'return true if vmin and vmax set'
-        return not (self.vmin is None or self.vmax is None)
+        return (self.vmin is not None and self.vmax is not None)
 
     def is_mappable(self):
         return self._A is not None and self._A.shape<=2

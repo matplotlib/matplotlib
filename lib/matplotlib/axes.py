@@ -2,10 +2,12 @@ from __future__ import division, generators
 
 import math, sys, random
 
+# do not import numerix max!  we are using python max.  
 from numerix import MLab, absolute, arange, array, asarray, ones, transpose, \
-     log, log10, Float, ravel, zeros, Int32, Float64, ceil, max, min, indices, \
+     log, log10, Float, ravel, zeros, Int32, Float64, ceil, min, indices, \
      shape, which
-
+from numerix import max as nxmax
+from numerix import min as nxmin
 import _contour
 import mlab
 from artist import Artist
@@ -637,7 +639,7 @@ major formatter
                 l.get_transform(), zip(xdata, ydata))
             xdata, ydata = zip(*xys)
 
-        corners = ( (min(xdata), min(ydata)), (max(xdata), max(ydata)) )
+        corners = ( (nxmin(xdata), nxmin(ydata)), (nxmax(xdata), nxmax(ydata)) )
 
         self.update_datalim(corners)
 
@@ -982,8 +984,9 @@ matplotlib.collections.LineCollection instances
         reg[:,0]=0
         triangle = zeros((jmax,imax), Int32)
         y, x = indices((jmax,imax), 'd')
-        zmax = max(ravel(z))
-        zmin = min(ravel(z))
+        rz = ravel(z)
+        zmax = nxmax(rz)
+        zmin = nxmin(rz)
 
         def autolev(N):
             return mlab.linspace(zmin, zmax, N+2)[1:-1]
@@ -1121,17 +1124,17 @@ Refs:
             self.yaxis.draw(renderer)
 
 
-        for c in self.collections:
-            c.draw(renderer)
+        artists = []
+        artists.extend(self.collections)
+        artists.extend(self.patches)
+        artists.extend(self.lines)
+        artists.extend(self.texts)
 
-        for p in self.patches:
-            p.draw(renderer)
-
-        for line in self.lines:
-            line.draw(renderer)
-
-        for t in self.texts:
-            t.draw(renderer)
+        dsu = [ (a.zlevel, a) for a in artists]
+        dsu.sort()
+        
+        for zlevel, a in dsu:
+            a.draw(renderer)
 
         self.title.draw(renderer)
         if 0: bbox_artist(self.title, renderer)
@@ -1565,8 +1568,9 @@ USAGE:
   >>> legend()
 
   legend by itself will try and build a legend using the label
-  property of the lines.  You can set the label of a line by doing
-  plot(x, y, label='my data') or line.set_label('my data')
+  property of the lines/patches/collections.  You can set the label of
+  a line by doing plot(x, y, label='my data') or line.set_label('my
+  data')
 
     # automatically generate the legend from labels
     legend( ('label1', 'label2', 'label3') ) 
@@ -1815,10 +1819,10 @@ Grid Orientation
 
         x = ravel(X)
         y = ravel(Y)
-        minx = min(x)
-        maxx = max(x)
-        miny = min(y)
-        maxy = max(y)
+        minx = nxmin(x)
+        maxx = nxmax(x)
+        miny = nxmin(y)
+        maxy = nxmax(y)
 
         corners = (minx, miny), (maxx, maxy) 
         self.update_datalim( corners)
@@ -1930,10 +1934,12 @@ Grid orientation
                 patches.append(rect)
         self.grid(0)
 
-        minx = MLab.min(MLab.min(X))
-        maxx = MLab.max(MLab.max(X))
-        miny = MLab.min(MLab.min(Y))
-        maxy = MLab.max(MLab.max(Y))
+        x = ravel(X)
+        y = ravel(Y)
+        minx = nxmin(x)
+        maxx = nxmax(x)
+        miny = nxmin(y)
+        maxy = nxmax(y)
 
         corners = (minx, miny), (maxx, maxy) 
 
@@ -2186,7 +2192,7 @@ for details and examples/stem_plot.py for a demo.
             l, = self.plot([thisx,thisx], [0, thisy], linefmt)
             stemlines.append(l)
 
-        baseline, = self.plot([min(x), max(x)], [0,0], basefmt)
+        baseline, = self.plot([nxmin(x), nxmax(x)], [0,0], basefmt)
         return markerline, stemlines, baseline
         
         
@@ -2198,13 +2204,8 @@ for details and examples/stem_plot.py for a demo.
         'turn on the axis'
         self.axison = True
 
-    def scatter(self, x, y, s=20, c='b',
-                marker = 'o',
-                cmap = None,
-                norm = None,
-                vmin = None,
-                vmax = None,
-                alpha=1.0):
+    def scatter(self, x, y, s=20, c='b', marker='o', cmap=None, norm=None,
+        vmin=None, vmax=None, alpha=1.0, **kwargs):
         """\
 SCATTER(x, y, s=20, c='b', marker='o', cmap=None, norm=None,
         vmin=None, vmax=None, alpha=1.0)
@@ -2273,15 +2274,20 @@ on be used if c is an array of floats
             '8' : (8,0),             # octagon
             }
 
+
+
         if not syms.has_key(marker):
             raise ValueError('Unknown marker symbol to scatter')
 
 
         numsides, rotation = syms[marker]
+
+                
         if not is_string_like(c) and iterable(c) and len(c)==len(x):
             colors = None
         else:
             colors = ( colorConverter.to_rgba(c, alpha), )
+
 
         if not iterable(s):
             scales = (s,)
@@ -2296,10 +2302,11 @@ on be used if c is an array of floats
             transOffset = self.transData,             
             )
         collection.set_alpha(alpha)
+        collection.update(kwargs)
+        
         if colors is None:
             if norm is not None: assert(isinstance(norm, normalize))
             if cmap is not None: assert(isinstance(cmap, Colormap))        
-
             collection.set_array(c)
             collection.set_cmap(cmap)
             collection.set_norm(norm)            
@@ -2307,10 +2314,10 @@ on be used if c is an array of floats
             if norm is None:
                 collection.set_clim(vmin, vmax)
 
-        minx = min(x)
-        maxx = max(x)
-        miny = min(y)
-        maxy = max(y)
+        minx = nxmin(x)
+        maxx = nxmax(x)
+        miny = nxmin(y)
+        maxy = nxmax(y)
 
         w = maxx-minx
         h = maxy-miny
@@ -2351,7 +2358,7 @@ If size is None a default size will be used
             c = cm.jet(c)
 
         if s is None:
-            s = [abs(0.015*(max(y)-min(y)))]*len(x)
+            s = [abs(0.015*(nxmax(y)-nxmin(y)))]*len(x)
         elif not iterable(s):
             s = [s]*len(x)
         
@@ -2641,9 +2648,9 @@ Return value is (Pxx, freqs, bins, im), where
         Z = 10*log10(Pxx)
         Z =  mlab.flipud(Z)
 
-        if xextent is None: xextent = 0, max(bins)
+        if xextent is None: xextent = 0, nxmax(bins)
         xmin, xmax = xextent
-        extent = xmin, xmax, 0, max(freqs)
+        extent = xmin, xmax, 0, nxmax(freqs)
         im = self.imshow(Z, cmap, extent=extent)
 
         return Pxx, freqs, bins, im
@@ -3269,6 +3276,7 @@ class PolarAxes(Axes):
         if self.axison:
             if self._frameon: self.axesPatch.draw(renderer)
 
+
         if self._gridOn:
             for l in self.rgridlines+self.thetagridlines:
                 l.draw(renderer)
@@ -3276,15 +3284,18 @@ class PolarAxes(Axes):
         for t in self.thetagridlabels+self.rgridlabels:
             t.draw(renderer)
 
+
+        artists = []
+        artists.extend(self.lines)
+        artists.extend(self.texts)
+        artists.extend(self.collections)        
+
+        dsu = [ (a.zlevel, a) for a in artists]
+        dsu.sort()
         
-        for line in self.lines:
-            line.draw(renderer)
+        for zlevel, a in dsu:
+            a.draw(renderer)
 
-        for t in self.texts:
-            t.draw(renderer)
-
-        for c in self.collections:
-            c.draw(renderer)
         self.title.draw(renderer)
         self.transData.thaw()  # release the lazy objects
         self.transAxes.thaw()  # release the lazy objects

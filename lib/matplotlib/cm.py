@@ -449,7 +449,8 @@ class ScalarMappable:
         Autoscale the scalar limits on the norm instance using the
         current array
         """
-        assert(self._A is not None)
+        if self._A is None:
+            raise TypeError('You must first set_array for mappable')
         self.norm.autoscale(self._A)
         self.changed()
         

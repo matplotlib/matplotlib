@@ -63,6 +63,7 @@ files = (
     'text_themes.py',
     'two_scales.py',
     'vline_demo.py',
+    'zlevel_demo.py',
     )
 
 
@@ -100,7 +101,7 @@ def drive(backend, python='python2.3'):
         os.system('%s %s' % (python, tmpfile))
 
 times = {}
-backends = ['PS', 'SVG', 'Agg', 'Cairo', 'Template']
+backends = ['PS', 'SVG', 'Agg', 'Template']
 #backends.extend([ 'GTK', 'WX', 'TkAgg'])
 #backends = [ 'Agg']
 #backends = ['PS', 'Agg']

@@ -371,49 +371,19 @@ def raise_msg_to_str(msg):
 
 # wrap the plot commands defined in axes
 __fmt = """\
-def %s(*args, **kwargs):
+def %(func)s(*args, **kwargs):
     try:
-        ret =  gca().%s(*args, **kwargs)
+        ret =  gca().%(func)s(*args, **kwargs)
     except ValueError, msg:
         msg = raise_msg_to_str(msg)
         error_msg(msg)
     else:
         draw_if_interactive()
+        %(mappable)s
         return ret
-%s.__doc__ = Axes.%s.__doc__
+
+%(func)s.__doc__ = Axes.%(func)s.__doc__
 """
-
-def changed_name_function(f, newname):
-    import new
-    if matplotlib._python23:
-        newf =  new.function(f.func_code, f.func_globals, newname,
-                             f.func_defaults, f.func_closure)
-    else:
-        #if f.func_defaults is None:
-        #    argdefs = ()
-        #else:
-        argdefs = f.func_defaults
-        newf =  new.function(f.func_code, f.func_globals, newname,
-                             argdefs)
-
-    newf.__doc__ = f.__doc__
-    return newf
-
-def _wrap_axfunc(name):
-    def wrapper(*args, **kwargs):
-        try:
-            func = getattr(gca(), name)
-            ret =  func(*args, **kwargs)
-        except ValueError, msg:
-            msg = raise_msg_to_str(msg)
-            error_msg(msg)
-        else:
-            draw_if_interactive()
-            return ret
-    wrapper.__doc__ = getattr(Axes, name).__doc__
-    #wrapper.__name__ = name
-    return changed_name_function(wrapper, name)
-
 
 
 # these methods are all simple wrappers of Axes methods by the same
@@ -435,6 +405,7 @@ _methods = (
     'grid',
     'hist',
     'hlines',
+    'imshow',
     'legend',
     'loglog',
     'pcolor',
@@ -452,11 +423,15 @@ _methods = (
     'vlines',
     )
 
-for name in _methods:
-    #locals[name] = _wrap_axfunc(name)
-    exec(__fmt%(name, name, name, name))
+cmappable = ( 'scatter', 'pcolor', 'imshow')
 
-#plot = _wrap_axfunc('plot')
+for func in _methods:
+    if func in cmappable:
+        mappable = 'gci._current = ret'
+    else:
+        mappable = ''
+    exec(__fmt%locals())
+
 
 def axis(*v):
     """\
@@ -660,6 +635,7 @@ def colorbar(tickfmt='%1.1f'):
     ax.set_position((l,b,neww,h))
     cax = axes([l + 0.9*w, b, 0.1*w, h])
     N = 200
+
     c = linspace(cmin, cmax, N)
     C = array([c,c])
 
@@ -886,22 +862,6 @@ def imread(*args, **kwargs):
     return _imread(*args, **kwargs)
 imread.__doc__ = _imread.__doc__
 
-def imshow(*args, **kwargs):
-    try: im =  gca().imshow(*args, **kwargs)
-    except ValueError, msg:
-        msg = raise_msg_to_str(msg)
-        error_msg(msg)
-        raise RuntimeError(msg)
-    except RuntimeError, msg:
-        msg = raise_msg_to_str(msg)
-        error_msg(msg)
-        raise RuntimeError(msg)
-    else:
-        draw_if_interactive()
-    gci._current = im
-
-    return im
-imshow.__doc__ = Axes.imshow.__doc__
 
 def load(fname):
     """
@@ -947,18 +907,6 @@ def load(fname):
     if r==1 or c==1:
         X.shape = max([r,c]),
     return X
-
-def pcolor(*args, **kwargs):
-    try:
-        ret =  gca().pcolor(*args, **kwargs)
-    except ValueError, msg:
-        msg = raise_msg_to_str(msg)
-        error_msg(msg)
-    else:
-        gci._current = ret    
-        draw_if_interactive()
-        return ret
-pcolor.__doc__ = Axes.pcolor.__doc__
 
 
 def rc(*args, **kwargs):
