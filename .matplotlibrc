@@ -34,21 +34,25 @@ toolbar      : toolbar2   # None | classic | toolbar2
 timezone     : UTC        # a pytz timezone string, eg US/Central or Europe/Paris
 
 # Set the verbose flags.  This controls how much information
-# matplotlib gives you at runtime and where it goes.  Any level is
+# matplotlib gives you at runtime and where it goes.  Ther verbosity
+# levels are: silent, error, helpful, debug, debug-annoying.  At the
+# error level, you will only get error messages.  Any level is
 # inclusive of all the levels below it.  Ie, if your setting is
 # helpful, you'll also get all the error messages.  If you setting is
 # debug, you'll get all the error and helpful messages.  It is not
-# recommended to make your setting silent.  The debug level may be
-# useful when debugging.  When submitting problems to the
-# mailing-list, please set verbose to helpful or debug and paste
-# the output into your report.  At the error level, you will only get
-# error messages
+# recommended to make your setting silent because you will not even
+# get error messages.  When submitting problems to the mailing-list,
+# please set verbose to helpful or debug and paste the output into
+# your report.
+#
 #
 # The fileo gives the destination for any calls to verbose.report.
 # The erro gives the destination for any calls to
-# verbose.report_error.  These objects can be any writable file
-# object, sys.stderr, or sys.stdout.  You can access the verbose
-# instance by doing from matplotlib import verbose.
+# verbose.report_error.  These objects can a filename, sys.stderr, or
+# sys.stdout.  
+#
+# You can access the verbose instance in your code
+#   from matplotlib import verbose.
 verbose.level  : helpful     # one of silent, error, helpful, debug, debug-annoying
 verbose.fileo  : sys.stdout  # a log filename, sys.stdout or sys.stderr
 verbose.erro   : sys.stderr  # a log filename, sys.stdout or sys.stderr
