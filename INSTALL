@@ -1,4 +1,4 @@
-matplotlib requires python 2.2+, and Numeric-22+.  The other
+matplotlib requires python 2.2+, and Numeric-22+ or numarray.  The other
 requirements are backend dependent
 
 If these requirements are satisfied, just do the usual thing:

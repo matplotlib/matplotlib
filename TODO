@@ -272,6 +272,14 @@
 
 -- DONE - support partial window expose redraws in agg
 
--- Fix datalim problem with aspect preserved for image backend
+-- fix datalim problem with aspect preserved for image backend
 
-- add get_xlim and get_ylim for patches
+-- add get_xlim and get_ylim for patches
+
+-- mathtext size not scaling with DPI
+
+-- implement Paul's mathtext parser fixes
+
+-- rotated mathtext
+
+
