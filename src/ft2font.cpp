@@ -348,6 +348,7 @@ FT2Font::set_text(const Py::Tuple & args) {
   return Py::Object();
 }
 
+
 char FT2Font::get_glyph__doc__[] = 
 "get_glyph(num)\n"
 "\n"
