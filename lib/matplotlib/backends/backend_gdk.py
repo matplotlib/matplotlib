@@ -40,10 +40,6 @@ del pygtk_version_required
 
 DEBUG = False
 
-# the true dots per inch on the screen; should be display dependent
-# see http://groups.google.com/groups?q=screen+dpi+x11&hl=en&lr=&ie=UTF-8&oe=UTF-8&safe=off&selm=7077.26e81ad5%40swift.cs.tcd.ie&rnum=5 for some info about screen dpi
-#PIXELS_PER_INCH = 96
-
 # Image formats that this backend supports - for FileChooser and print_figure()
 IMAGE_FORMAT          = ['eps', 'jpg', 'png', 'ps', 'svg'] + ['bmp'] # , 'raw', 'rgb']
 IMAGE_FORMAT.sort()
@@ -319,7 +315,7 @@ class RendererGDK(RendererBase):
         Return - pango layout (from cache if already exists)
 
         Note that pango assumes a logical DPI of 96
-        Ref: pango_font_description_set_size() manual page
+        Ref: pango/fonts.c/pango_font_description_set_size() manual page
         """
         # problem? - cache gets bigger and bigger, is never cleared out
         # two (not one) layouts are created for every text item s (then they are cached) - why?
@@ -329,7 +325,6 @@ class RendererGDK(RendererBase):
         if value != None:
             return value
 
-        #size = prop.get_size_in_points() * self.dpi.get() / PIXELS_PER_INCH
         size = prop.get_size_in_points() * self.dpi.get() / 96.0
         size = round(size)
 
@@ -368,7 +363,6 @@ class RendererGDK(RendererBase):
 
 
     def points_to_pixels(self, points):
-        #return points * PIXELS_PER_INCH/72.0 * self.dpi.get()/72.0
         return points/72.0 * self.dpi.get()
 
 

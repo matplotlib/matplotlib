@@ -57,9 +57,6 @@ except:
 
 DEBUG = False
 
-# the true dots per inch on the screen; should be display dependent
-PIXELS_PER_INCH = 96
-
 # Image formats that this backend supports - for print_figure()
 IMAGE_FORMAT          = ['eps', 'png', 'ps', 'svg']
 #IMAGE_FORMAT          = ['eps', 'pdf', 'png', 'ps', 'svg'] # pdf not ready yet
@@ -321,9 +318,10 @@ class RendererCairo(RendererBase):
            ctx.select_font (prop.get_name(),
                             self.fontangles [prop.get_style()],
                             self.fontweights[prop.get_weight()])
-           # 1.4 scales font to a similar size to GTK / GTKAgg backends
-           size = prop.get_size_in_points() * self.dpi.get() / PIXELS_PER_INCH * 1.4
 
+           # size = prop.get_size_in_points() * self.dpi.get() / 96.0
+           size = prop.get_size_in_points() * self.dpi.get() / 72.0
+        
            ctx.save()
            if angle:
               ctx.rotate (-angle * pi / 180)
@@ -408,8 +406,12 @@ class RendererCairo(RendererBase):
                          self.fontangles [prop.get_style()],
                          self.fontweights[prop.get_weight()])
 
-        # 1.4 scales font to a similar size to GTK / GTKAgg backends
-        size = prop.get_size_in_points() * self.dpi.get() / PIXELS_PER_INCH * 1.4
+        # Cairo (says it) uses 1/96 inch user space units, ref: cairo_gstate.c
+        # but if /96.0 is used the font is too small
+
+        #size = prop.get_size_in_points() * self.dpi.get() / 96.0
+        size = prop.get_size_in_points() * self.dpi.get() / 72.0
+        
         # problem - scale remembers last setting and font can become
         # enormous causing program to crash
         # save/restore prevents the problem
@@ -431,9 +433,8 @@ class RendererCairo(RendererBase):
 
     def points_to_pixels(self, points):
         if DEBUG: print 'backend_cairo.RendererCairo.%s()' % _fn_name()
-        # is this correct for cairo? (copied from gtk)
-        return points * PIXELS_PER_INCH/72.0 * self.dpi.get()/72.0
-
+        return points/72.0 * self.dpi.get()
+     
 
 class GraphicsContextCairo(GraphicsContextBase):
     _joind = {
