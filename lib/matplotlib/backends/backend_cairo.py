@@ -124,7 +124,7 @@ DEBUG = False
 PIXELS_PER_INCH = 96
 
 # Image formats that this backend supports - for print_figure()
-IMAGE_FORMAT          = ['eps', 'png', 'ps', 'svg']
+IMAGE_FORMAT          = ['png', 'ps', 'svg']
 IMAGE_FORMAT_DEFAULT  = 'png'
 
 
@@ -364,11 +364,13 @@ class RendererCairo(RendererBase):
 
             # rotated text
             # drawable (gtk) target surface - it looks awful
-            # yet on the png target surface its fine
+            # yet on the png and ps targets surfaces its fine
+            ctx.save()
             if angle:
                 ctx.rotate (-angle * pi / 180)
             ctx.scale_font (scale*size)
             ctx.show_text (s)
+            ctx.restore()
 
          
     def flipy(self):
@@ -384,22 +386,16 @@ class RendererCairo(RendererBase):
         """
         if DEBUG: print 'backend_cairo.RendererCairo.%s()' % _fn_name()
         gc = GraphicsContextCairo (renderer=self)
-        if self.surface:
-            gc.ctx.set_target_surface (self.surface)
-
-        #if self.matrix:
-        #    gc.ctx.set_matrix (self.matrix) # for affine transform
-        #print 'matrix1', self.matrix
-        #print 'matrix2', gc.ctx.matrix
+        gc.ctx.set_target_surface (self.surface)
+        gc.ctx.set_matrix (self.matrix)
         return gc
 
 
     def points_to_pixels(self, points):
         """
-        Convert points to display units.
+        Convert points to display units (as a float).
         """
         if DEBUG: print 'backend_cairo.RendererCairo.%s()' % _fn_name()
-        # should not need points_to_pixels() ? Cairo is device independent
         return points * PIXELS_PER_INCH/72.0 * self.dpi.get()/72.0
 
 
@@ -566,13 +562,15 @@ class FigureCanvasCairo(FigureCanvasBase):
         #self.figure.draw(renderer)
         
         
-    def print_figure(self, filename, dpi=150,
-                     facecolor='w', edgecolor='w', orientation='portrait'):
+    def print_figure(self, filename, dpi=150, facecolor='w', edgecolor='w',
+                     orientation='portrait'):
         """
         Render the figure to hardcopy.  Set the figure patch face and
         edge colors.  This is useful because some of the GUIs have a
         gray figure face color background and you'll probably want to
         override this on hardcopy
+
+        orientation - only currently applies to PostScript printing.
         """
         if DEBUG: print 'backend_cairo.FigureCanvasCairo.%s()' % _fn_name()
 
@@ -592,38 +590,74 @@ class FigureCanvasCairo(FigureCanvasBase):
         self.figure.set_facecolor(facecolor)
         self.figure.set_edgecolor(edgecolor)        
 
-        l,b, width, height = self.figure.bbox.get_bounds()
-        width, height = int(width), int(height)
-
         ext = ext.lower()
         if ext == 'png':
-            # sizing is correct for cairo, but wrong for gtkcairo?
+            width, height = self.figure.get_width_height()
+            width, height = int(width), int(height)
             ctx = cairo.Context()
             ctx.set_target_png (filename, cairo.FORMAT_ARGB32, width, height) # 4 png formats supported
-            renderer = RendererCairo (ctx.target_surface, None, width, height, self.figure.dpi)
+            renderer = RendererCairo (ctx.target_surface, ctx.matrix, width, height, self.figure.dpi)
             self.figure.draw(renderer)
             ctx.show_page()
             
-        elif ext in ('eps', 'ps'):
-            # sizing is wrong on cairo and gtkcairo?
-            ctx = cairo.Context()
+        elif ext == 'ps': # Cairo produces PostScript Level 3
+            # 'ggv' can't read cairo ps files, but 'gv' can
+            dpi = 72.0   # ignore the passsed dpi setting for PS
+            page_w_in, page_h_in = defaultPaperSize = 8.5, 11
+            page_w,    page_h    = page_w_in * dpi, page_h_in * dpi
 
-            #self.figure.dpi.set(72)
-            width_in, height_in = self.figure.get_size_inches()
-            #l,b, width, height = self.figure.bbox.get_bounds()
+            self.figure.dpi.set (dpi)    
+            l,b, width, height = self.figure.bbox.get_bounds()
+            dx = (page_w - width)  / 2.0
+            dy = (page_h - height) / 2.0
         
-            xppi = yppi = self.figure.dpi.get()
-            #xppi = yppi = 72, 72  # size used in backend_agg
-            ctx.set_target_ps (filename, width_in, height_in, xppi, yppi)
-            renderer = RendererCairo (ctx.target_surface, None, width, height, self.figure.dpi)
+            ctx = cairo.Context()
+            ctx.set_target_ps (filename, page_w_in, page_h_in, dpi, dpi)
+
+            orientation = 'portrait' # landscape not supported yet
+            if orientation == 'portrait': # default orientation
+                # lines look a little jagged - just 'gv', cairo problem, or problem
+                # with the way cairo is used?
+
+                # center the figure on the page
+                matrix = cairo.Matrix (tx=dx, ty=dy)
+                ctx.set_matrix (matrix)
+                # TODO? scale figure to maximize yet leave space for margin/border round page?
+                # the figure already has a 'margin', so could use full page width?
+
+            else: # landscape
+                # cairo/src/cairo_ps_surface.c
+                # '%%Orientation: Portrait' is always written to the file header
+                # '%%Orientation: Landscape' would possibly cause problems
+                # since some printers would rotate again ?
+                # TODO:
+                # 1) needs -pi/2 rotation, centered (and maximised?)
+                #    don't know how to rotate without text being distorted
+                # 2) add portrait/landscape checkbox to FileChooser
+                pass
+        
+            renderer = RendererCairo (ctx.target_surface, ctx.matrix, width, height, self.figure.dpi)
             self.figure.draw(renderer)
+            
+            show_fig_border = False  # for testing figure orientation and scaling
+            if show_fig_border:
+                print 'Page w,h:', page_w, page_h
+                print 'Fig  w,h:', width, height
+                print 'dx,dy   :', dx, dy
+                ctx.rectangle(0, 0, width, height)
+                ctx.set_line_width(1)
+                ctx.set_rgb_color(1,0,0)
+                ctx.stroke()
+                ctx.move_to(30,30)
+                ctx.select_font('sans-serif')
+                ctx.scale_font(20)
+                ctx.show_text('Origin corner')
             ctx.show_page()
 
-        elif ext == 'svg':  # backend_svg
+        elif ext == 'svg':  # backend_svg, later - use Cairo to write svg?
             from backend_svg import FigureCanvasSVG as FigureCanvas
             fc = self.switch_backends(FigureCanvas)
-            fc.figure.dpi.set(72)
-            fc.print_figure(filename, 72, facecolor, edgecolor, orientation)
+            fc.print_figure(filename, dpi, facecolor, edgecolor, orientation)
 
         else:
             error_msg('Format "%s" is not supported.\nSupported formats: %s.' %
@@ -633,14 +667,13 @@ class FigureCanvasCairo(FigureCanvasBase):
         self.figure.dpi.set(origDPI)
         self.figure.set_facecolor(origfacecolor)
         self.figure.set_edgecolor(origedgecolor)
-        self.draw()
         
         
-    def realize(self, *args): # is not required in cairo?
-        """
-        This method will be called when the system is ready to draw,
-        eg when a GUI window is realized
-        """
-        if DEBUG: print 'backend_cairo.FigureCanvasCairo.%s()' % _fn_name()
-        self._isRealized = True  
-        self.draw()
+    #def realize(self, *args): # is not required in cairo?
+    #    """
+    #    This method will be called when the system is ready to draw,
+    #    eg when a GUI window is realized
+    #    """
+    #    if DEBUG: print 'backend_cairo.FigureCanvasCairo.%s()' % _fn_name()
+    #    self._isRealized = True  
+    #    self.draw()

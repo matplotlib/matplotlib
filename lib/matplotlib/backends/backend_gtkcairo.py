@@ -70,19 +70,15 @@ class FigureCanvasGTKCairo(FigureCanvasGTK, FigureCanvasCairo):
             # create in __init__() once and save?
             # - but when pixmap changes (resized larger) render must update width, height and redirect all gc to new pixmap!
 
-
-            # Problem - my preferred way of creating a surface does not (yet) work with the matrix ops
             surface  = cairo.gtk.surface_create_for_drawable (self._pixmap)
-            matrix   = None
-            #matrix   = cairo.Matrix (ty=height)  # later - use just one matrix?
+            matrix   = cairo.Matrix ()
             renderer = RendererCairo (surface, matrix, width, height, self.figure.dpi)
             
             #gc = renderer.new_gc()
             #gc.ctx.set_rgb_color(1,0,0)
             #renderer.draw_polygon(gc,(1,0,0),((0,0), (width,0), (width, height), (0,height)))
 
-
-            self.figure.draw (renderer) # matplotlib draw command
+            self.figure.draw (renderer)
             
             self.window.set_back_pixmap (self._pixmap, False)
             self.window.clear()  # draws the pixmap onto the window bg
