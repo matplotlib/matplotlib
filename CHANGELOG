@@ -1,5 +1,8 @@
 New entries should be added at the top
 
+2004-11-18 Fixed some report_error bugs in string interpolation as
+           reported on SF bug tracker- JDH
+ 
 2004-11-17 backend_gtkcairo.py: change so all print_figure() calls render using
            Cairo and get saved using backend_gtk.print_figure() - SC
 
