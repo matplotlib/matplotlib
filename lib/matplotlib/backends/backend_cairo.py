@@ -17,8 +17,6 @@ http://www.freedesktop.org/Cairo/Home
 Requires (in order, all available from Cairo website):
     libpixman, cairo, pycairo
 
-cairo, pycairo from cvs fom Nov 06 2004 onwards are required
-
 Naming Conventions
   * classes MixedUpperCase
   * varables lowerUpper
@@ -43,14 +41,12 @@ from matplotlib.transforms import Bbox
 
 import cairo
 
-# version checking - enable when snapsnot released
-# version_required = (0,1,2)
-# if cairo.version_info < version_required:
-#    raise SystemExit ("PyCairo %d.%d.%d is installed\n"
-#                      "PyCairo %d.%d.%d or later is required"
-#                      % (cairo.version_info + version_required))
-# backend_version = cairo.version
-backend_version = 'unknown'
+version_required = (0,1,3)
+if cairo.version_info < version_required:
+   raise SystemExit ("PyCairo %d.%d.%d is installed\n"
+                     "PyCairo %d.%d.%d or later is required"
+                     % (cairo.version_info + version_required))
+backend_version = cairo.version
 
 
 DEBUG = False

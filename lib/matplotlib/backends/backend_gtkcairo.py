@@ -8,8 +8,7 @@ from backend_cairo import RendererCairo
 import cairo
 import cairo.gtk
 
-backend_version = 'PyGTK(%s),PyCairo(%s)' % ("%d.%d.%d" % gtk.pygtk_version, 'unknown')
-#backend_version = 'PyGTK(%d.%d.%d),PyCairo(%s)' % (gtk.pygtk_version, cairo.version)
+backend_version = 'PyGTK(%d.%d.%d),PyCairo(%d.%d.%d)' % (gtk.pygtk_version + cairo.version_info)
 
 DEBUG = False
 
