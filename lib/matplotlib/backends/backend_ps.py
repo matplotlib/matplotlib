@@ -5,6 +5,7 @@ Encapsulated PostScript .eps files.
 
 from __future__ import division
 import sys, os
+from cStringIO import StringIO
 from datetime import datetime
 from matplotlib import verbose, __version__
 from matplotlib._matlab_helpers import Gcf
@@ -290,6 +291,9 @@ grestore
 """ % locals()
         self.draw_postscript(ps)
 
+    def get_ps(self):
+        return self._pswriter.getvalue()
+
     def new_gc(self):
         return GraphicsContextPS()
 
@@ -523,6 +527,19 @@ class FigureCanvasPS(FigureCanvasBase):
         else:
             rotation = 0
 
+        # generate PostScript code for the figure and store it in a string
+        origfacecolor = self.figure.get_facecolor()
+        origedgecolor = self.figure.get_edgecolor()
+        self.figure.set_facecolor(facecolor)
+        self.figure.set_edgecolor(edgecolor)
+
+        self._pswriter = StringIO()
+        renderer = RendererPS(width, height, self._pswriter)
+        self.figure.draw(renderer)
+
+        self.figure.set_facecolor(origfacecolor)
+        self.figure.set_edgecolor(origedgecolor)
+
         # write the PostScript headers
         if isEPSF:
             print >>fh, "%!PS-Adobe-3.0 EPSF-3.0"
@@ -567,6 +584,7 @@ class FigureCanvasPS(FigureCanvasBase):
         print >>fh, "%s clipbox"%_nums_to_str( (width*72, height*72, 0, 0) )
 
         # write the figure
+        print >>fh, renderer.get_ps()
         origfacecolor = self.figure.get_facecolor()
         origedgecolor = self.figure.get_edgecolor()
         self.figure.set_facecolor(facecolor)
