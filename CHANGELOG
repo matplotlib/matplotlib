@@ -122,5 +122,8 @@
 2003-11-02 
    - Added pcolor plot
    - Added MRI example
-   - Fixed bug that screwed up label position if xticks or yticks were empty
+   - Fixed bug that screwed up label position if xticks or yticks were
+     empty
+   - added nearest neighbor color picker when GD max colors exceeded
+   - fixed figure background color bug in GD backend
 
