@@ -33,7 +33,8 @@ http://matplotlib.sourceforge.net
   > rfr -f savefig -r '#savefig' *.py
   > rfr -f '##savefig' -r '#savefig' *.py
 
-2) edit license for website to the correct version number
+2) edit license for website to the correct version number and
+   matplotlib/__init__.py to update __version
    local> clearbak
    local> make htmldocs
    local> scp htdocs/site.tar.gz jdh2358@matplotlib.sf.net:/home/groups/m/ma/matplotlib/htdocs/
