@@ -68,8 +68,6 @@ def GTK_WIDGET_DRAWABLE(w): flags = w.flags(); return flags & gtk.VISIBLE !=0 an
 
 
 class RendererGTK(RendererBase):
-    """See the RendererBase documentation
-    """
     fontweights = {
         100          : pango.WEIGHT_ULTRALIGHT,
         200          : pango.WEIGHT_LIGHT,
@@ -344,7 +342,6 @@ class RendererGTK(RendererBase):
         Return a pango layout instance for Text 's' with properties 'prop'.
         cache to layoutd
         """
-
         key = self.dpi.get(), s, hash(prop)
         layout = self.layoutd.get(key)
         if layout is not None:
@@ -358,10 +355,9 @@ class RendererGTK(RendererBase):
         font.set_weight(self.fontweights[prop.get_weight()])
         font.set_style(self.fontangles[prop.get_style()])
 
-        scale = self.get_text_scale()
-        size  = prop.get_size_in_points()
-        font.set_size(int(scale*size*1024))
-        layout  = self.gtkDA.create_pango_layout(s)
+        size = prop.get_size_in_points() * self.dpi.get() / PIXELS_PER_INCH
+        font.set_size (int(size * 1024))  # pango.SCALE = 1024, not defined in pygtk 1.99.16
+        layout = self.gtkDA.create_pango_layout(s)
         layout.set_font_description(font)    
 
         self.layoutd[key] = layout
@@ -374,14 +370,6 @@ class RendererGTK(RendererBase):
     def get_canvas_width_height(self):
         #return self.gtkDA.allocation.width, self.gtkDA.allocation.height        
         return self.width, self.height
-
-    def get_text_scale(self):
-        """
-        Return the scale factor for fontsize taking screendpi and pixels per
-        inch into account
-        """
-        return self.dpi.get()/PIXELS_PER_INCH
-
 
     def get_text_width_height(self, s, prop, ismath):
         if ismath:
@@ -399,9 +387,6 @@ class RendererGTK(RendererBase):
 
 
     def points_to_pixels(self, points):
-        """
-        Convert point measures to display units (pixels, as a float)
-        """
         return points * PIXELS_PER_INCH/72.0 * self.dpi.get()/72.0
 
 
@@ -444,9 +429,6 @@ class GraphicsContextGTK(GraphicsContextBase):
 
 
     def set_capstyle(self, cs):
-        """
-        Set the capstyle as a string in ('butt', 'round', 'projecting')
-        """
         GraphicsContextBase.set_capstyle(self, cs)
         self.gdkGC.cap_style = self._capd[self._capstyle]
 
@@ -474,27 +456,16 @@ class GraphicsContextGTK(GraphicsContextBase):
 
 
     def set_foreground(self, fg, isRGB=False):
-        """
-        Set the foreground color.  fg can be a matlab format string, a
-        html hex color string, an rgb unit tuple, or a float between 0
-        and 1.  In the latter case, grayscale is used.
-        """
         GraphicsContextBase.set_foreground(self, fg, isRGB)
         self.gdkGC.foreground = self.rgb_to_gdk_color(self.get_rgb())
 
 
     def set_graylevel(self, frac):
-        """
-        Set the foreground color to be a gray level with frac frac
-        """
         GraphicsContextBase.set_graylevel(self, frac)
         self.gdkGC.foreground = self.rgb_to_gdk_color(self.get_rgb())
         
 
     def set_joinstyle(self, js):
-        """
-        Set the join style to be one of ('miter', 'round', 'bevel')
-        """
         GraphicsContextBase.set_joinstyle(self, js)
         self.gdkGC.join_style = self._joind[self._joinstyle]
 
@@ -750,14 +721,6 @@ class FigureCanvasGTK(gtk.DrawingArea, FigureCanvasBase):
 
     def print_figure(self, filename, dpi=150, facecolor='w', edgecolor='w',
                      orientation='portrait'):
-        """
-        Render the figure to hardcopy.  Set the figure patch face and
-        edge colors.  This is useful because some of the GUIs have a
-        gray figure face color background and you'll probably want to
-        override this on hardcopy
-
-        orientation - only currently applies to PostScript printing.
-        """
         root, ext = os.path.splitext(filename)       
         ext = ext[1:]
         if ext == '':
@@ -847,9 +810,8 @@ class FigureManagerGTK(FigureManagerBase):
 
     canvas      : The FigureCanvas instance
     num         : The Figure number
-    toolbar     : The gtk.Toolbar
-    window      : The gtk.Window
-    
+    toolbar     : The gtk.Toolbar  (gtk only)
+    window      : The gtk.Window   (gtk only)
     """
     def __init__(self, canvas, num):
         if DEBUG: print 'FigureManagerGTK.%s' % fn_name()
