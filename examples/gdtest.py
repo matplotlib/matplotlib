@@ -12,7 +12,7 @@ t2 = arange(0.0, 5.0, 0.02)
 t3 = arange(0.0, 2.0, 0.01)
 
 
-if 0:
+if 1:
     subplot(211)
     l = plot(t1, f(t1), 'k-^')
     set(l, 'markerfacecolor', 'r')
@@ -28,7 +28,7 @@ if 0:
     xlabel('time (s)', fontsize=10,  fontname='Courier')
 
 ax = gca()
-patch = Rectangle(
-#savefig('gdtest', dpi=150)
-show()
 
+
+savefig('gdtest', dpi=150)
+show()
