@@ -3,6 +3,11 @@ New entries should be added at the top
 2004-03-29 Fixed fontdicts and kwargs to work with new font manager -
            JDH
 
+2004-04-04 Improved font caching in backend_agg with changes to
+           font_manager - JDH
+
+2004-04-05 Added WXAgg backend - JDH
+
 
 
 
