@@ -44,7 +44,8 @@ class Patch(Artist):
                 func = getattr(self, func)
                 func(v)
         
-    def copy_properties(self, other):
+    def update_from(self, other):
+        Artist.update_from(self, other)        
         self.set_edgecolor(other.get_edgecolor())
         self.set_facecolor(other.get_facecolor())
         self.set_fill(other.get_fill())
@@ -194,7 +195,7 @@ have the same color as the face, but darkened
         self._update()
 
     def _update(self):        
-        self.copy_properties(self.patch)
+        self.update_from(self.patch)
         if self.props is not None:
             self.update(self.props)
         else:

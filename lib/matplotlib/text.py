@@ -75,15 +75,15 @@ class Text(Artist):
             angle = float(self._rotation)
         return angle%360
     
-    def copy_properties(self, t):
+    def update_from(self, other):
         'Copy properties from t to self'
-
-        self._color = t._color
-        self._multialignment = t._multialignment        
-        self._verticalalignment = t._verticalalignment
-        self._horizontalalignment = t._horizontalalignment
-        self._fontproperties = t._fontproperties.copy()
-        self._rotation = t._rotation
+        Artist.update_from(self, other)
+        self._color = other._color
+        self._multialignment = other._multialignment        
+        self._verticalalignment = other._verticalalignment
+        self._horizontalalignment = other._horizontalalignment
+        self._fontproperties = other._fontproperties.copy()
+        self._rotation = other._rotation
 
 
     def _get_layout(self, renderer):

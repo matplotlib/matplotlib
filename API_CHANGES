@@ -1,3 +1,8 @@
+API CHANGES in matplotlib-0.72
+
+  Line2D, Text, and Patch copy_properties renamed update_from and
+  moved into artist base class
+
 API CHANGES in matplotlib-0.71   
 
    Significant numerix namespace changes, introduced to resolve

@@ -8,6 +8,26 @@ the axes will follow each other on their shared axes.  Ditto for
 changes in the axis scaling (eg log vs linear).  However, it is
 possible to have differences in tick labeling, eg you can selectively
 turn off the tick labels on one axes.
+
+The example below shows how to customize the tick labels on the
+various axes.  Shared axes share the tick locator, tick formatter,
+view limits, and transformation (eg log, linear).  But the ticklabels
+themselves do not share properties.  This is a feature and not a bug,
+because you may want to make the tick labels smaller on the upper
+axes, eg in the example below.
+
+If you want to turn off the ticklabels for a given axes (eg on
+subplot(211) or subplot(212), you cannot do the standard trick
+
+   set(ax2, =[])
+
+because this changes the tick Formatter, which is shared among all
+axes.  But you can alter the visibility of the labels, which is a
+property
+
+  set( ax2.get_xticklabels(), visible=False)
+
+
 """
 from pylab import *
 
@@ -17,10 +37,14 @@ s2 = exp(-t)
 s3 = sin(4*pi*t)
 ax1 = subplot(311)
 plot(t,s1)
+plot(t, s2)
+set( ax1.get_xticklabels(), fontsize=6)
 
 ## share x only
 ax2 = subplot(312, sharex=ax1)
-plot(t, s2)
+
+# make these tick labels invisible
+set( ax2.get_xticklabels(), visible=False)
 
 # share x and y
 ax3 = subplot(313,  sharex=ax1, sharey=ax1)
