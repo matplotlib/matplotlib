@@ -8,6 +8,7 @@ from __future__ import division
 
 import sys, math, warnings
 
+import agg
 from numerix import Float, alltrue, arange, array, logical_and,\
      nonzero, searchsorted, take, asarray, ones, where, less, ravel, \
      greater, logical_and, cos, sin, pi
@@ -573,15 +574,12 @@ ACCEPTS: sequence of on/off ink in points
     def _draw_point(self, renderer, gc, xt, yt):
         if self._newstyle:
             rgbFace = self._get_rgb_face()
-            CLOSE = self._get_close(rgbFace)
-            path = (
-                (MOVETO, -0.5, -0.5),
-                (LINETO, -0.5, 0.5),
-                (LINETO, 0.5, 0.5),
-                (LINETO, 0.5, -0.5),
-                CLOSE
-                )
-            renderer.draw_markers(gc, path, xt, yt, self._transform)
+            path = agg.path_storage()
+            path.move_to(-0.5, -0.5)
+            path.line_to(-0.5, 0.5)
+            path.line_to(0.5, 0.5)
+            path.line_to(0.5, -0.5)
+            renderer.draw_markers(gc, path, rgbFace, xt, yt, self._transform)
         else:
             for (x,y) in zip(xt, yt):
                 renderer.draw_arc(gc, None, x, y, 1, 1, 0.0, 360.0)
@@ -589,15 +587,12 @@ ACCEPTS: sequence of on/off ink in points
     def _draw_pixel(self, renderer, gc, xt, yt):
         if self._newstyle:
             rgbFace = self._get_rgb_face()            
-            CLOSE = self._get_close(rgbFace)
-            path = (
-                (MOVETO, -0.5, -0.5),
-                (LINETO, -0.5, 0.5),
-                (LINETO, 0.5, 0.5),
-                (LINETO, 0.5, -0.5),
-                CLOSE
-                )
-            renderer.draw_markers(gc, path, xt, yt, self._transform)
+            path = agg.path_storage()
+            path.move_to(-0.5, -0.5)
+            path.line_to(-0.5, 0.5)
+            path.line_to(0.5, 0.5)
+            path.line_to(0.5, -0.5)
+            renderer.draw_markers(gc, path, rgbFace, xt, yt, self._transform)
         else:
             for (x,y) in zip(xt, yt):
                 renderer.draw_point(gc, x, y)
@@ -615,11 +610,14 @@ ACCEPTS: sequence of on/off ink in points
             rads = (2*math.pi/N)*arange(N)
             xs = r*cos(rads)
             ys = r*sin(rads)
-            verts = [(MOVETO, xs[0], ys[0])]
-            verts.extend([(LINETO, x, y) for x, y in zip(xs[1:], ys[1:])])
-            CLOSE = self._get_close(rgbFace)
-            verts.append(CLOSE)
-            renderer.draw_markers(gc, verts, xt, yt, self._transform)
+            # todo: use curve3!
+            path = agg.path_storage()
+            path.move_to(xs[0], ys[0])
+            for x, y in zip(xs[1:], ys[1:]):                
+                path.line_to(x, y) 
+            
+            path.end_poly()
+            renderer.draw_markers(gc, path, rgbFace, xt, yt, self._transform)
         else:
             for (x,y) in zip(xt, yt):
                 renderer.draw_arc(gc, rgbFace,
@@ -634,14 +632,12 @@ ACCEPTS: sequence of on/off ink in points
         rgbFace = self._get_rgb_face()
 
         if self._newstyle:
-            CLOSE = self._get_close(rgbFace)
-            path = (
-                (MOVETO, 0, offset),
-                (LINETO, -offset, -offset),
-                (LINETO, offset, -offset),
-                CLOSE
-                )
-            renderer.draw_markers(gc, path, xt, yt, self._transform)
+            path = agg.path_storage()
+            path.move_to(0, offset)
+            path.line_to(-offset, -offset)
+            path.line_to(offset, -offset)
+            path.end_poly()
+            renderer.draw_markers(gc, path, rgbFace, xt, yt, self._transform)
         else:
             for (x,y) in zip(xt, yt):
                 verts = ( (x, y+offset),
@@ -655,14 +651,14 @@ ACCEPTS: sequence of on/off ink in points
         rgbFace = self._get_rgb_face()
 
         if self._newstyle:
-            CLOSE = self._get_close(rgbFace)
-            path = (
-                (MOVETO, -offset, offset),
-                (LINETO, offset, offset),
-                (LINETO, 0, -offset),
-                CLOSE
-                )
-            renderer.draw_markers(gc, path, xt, yt, self._transform)
+            
+            path = agg.path_storage()
+            path.move_to(-offset, offset)
+            path.line_to(offset, offset)
+            path.line_to(0, -offset)
+            path.end_poly()
+                
+            renderer.draw_markers(gc, path, rgbFace, xt, yt, self._transform)
         else:
             for (x,y) in zip(xt, yt):            
                 verts = ( (x-offset, y+offset),
@@ -675,14 +671,14 @@ ACCEPTS: sequence of on/off ink in points
         rgbFace = self._get_rgb_face()
 
         if self._newstyle:
-            CLOSE = self._get_close(rgbFace)
-            path = (
-                (MOVETO, -offset, 0),
-                (LINETO, offset, -offset),
-                (LINETO, offset, offset),
-                CLOSE
-                )
-            renderer.draw_markers(gc, path, xt, yt, self._transform)
+            
+            path = agg.path_storage()
+            path.move_to(-offset, 0)
+            path.line_to(offset, -offset)
+            path.line_to(offset, offset)
+            path.end_poly()
+                
+            renderer.draw_markers(gc, path, rgbFace, xt, yt, self._transform)
         else:
             for (x,y) in zip(xt, yt):            
                 verts = ( (x-offset, y),
@@ -695,14 +691,12 @@ ACCEPTS: sequence of on/off ink in points
         offset = 0.5*renderer.points_to_pixels(self._markersize)
         rgbFace = self._get_rgb_face()
         if self._newstyle:
-            CLOSE = self._get_close(rgbFace)
-            path = (
-                (MOVETO, offset, 0),
-                (LINETO, -offset, -offset),
-                (LINETO, -offset, offset),
-                CLOSE
-                )
-            renderer.draw_markers(gc, path, xt, yt, self._transform)
+            path = agg.path_storage()
+            path.move_to(offset, 0)
+            path.line_to(-offset, -offset)
+            path.line_to(-offset, offset)
+            path.end_poly()
+            renderer.draw_markers(gc, path, rgbFace, xt, yt, self._transform)
         else:
             for (x,y) in zip(xt, yt):            
                 verts = ( (x+offset, y),
@@ -711,13 +705,6 @@ ACCEPTS: sequence of on/off ink in points
                 renderer.draw_polygon(gc, rgbFace, verts)
 
 
-    def _get_close(self, rgbFace):
-        if rgbFace is None:
-            CLOSE = ENDPOLY, 0
-        else:
-            r,g,b = rgbFace
-            CLOSE = ENDPOLY, 1, r, g, b, self._alpha
-        return CLOSE
 
     def _draw_square(self, renderer, gc, xt, yt):
         side = renderer.points_to_pixels(self._markersize)
@@ -725,15 +712,15 @@ ACCEPTS: sequence of on/off ink in points
         rgbFace = self._get_rgb_face()
         
         if self._newstyle:
-            CLOSE = self._get_close(rgbFace)
-            path = (
-                (MOVETO, -offset, -offset),
-                (LINETO, -offset, offset),
-                (LINETO, offset, offset),
-                (LINETO, offset, -offset),
-                CLOSE
-                )
-            renderer.draw_markers(gc, path, xt, yt, self._transform)
+            
+            path = agg.path_storage()
+            path.move_to(-offset, -offset)
+            path.line_to(-offset, offset)
+            path.line_to(offset, offset)
+            path.line_to(offset, -offset)
+            path.end_poly()
+                
+            renderer.draw_markers(gc, path, rgbFace, xt, yt, self._transform)
         else:
 
             for (x,y) in zip(xt, yt):            
@@ -744,16 +731,15 @@ ACCEPTS: sequence of on/off ink in points
     def _draw_diamond(self, renderer, gc, xt, yt):
         offset = 0.6*renderer.points_to_pixels(self._markersize)
         rgbFace = self._get_rgb_face()
-        if self._newstyle:
-            CLOSE = self._get_close(rgbFace)
-            path = (
-                (MOVETO, offset, 0),
-                (LINETO, 0, -offset),
-                (LINETO, -offset, 0),
-                (LINETO, 0, offset),
-                CLOSE
-                )
-            renderer.draw_markers(gc, path, xt, yt, self._transform)
+        if self._newstyle:            
+            path = agg.path_storage()
+            path.move_to(offset, 0)
+            path.line_to(0, -offset)
+            path.line_to(-offset, 0)
+            path.line_to(0, offset)
+            path.end_poly()
+                
+            renderer.draw_markers(gc, path, rgbFace, xt, yt, self._transform)
         else:
 
 
@@ -769,16 +755,14 @@ ACCEPTS: sequence of on/off ink in points
         xoffset = 0.6*offset
         rgbFace = self._get_rgb_face()
 
-        if self._newstyle:
-            CLOSE = self._get_close(rgbFace)
-            path = (
-                (MOVETO, xoffset, 0),
-                (LINETO, 0, -offset),
-                (LINETO, -xoffset, 0),
-                (LINETO, 0, offset),
-                CLOSE
-                )
-            renderer.draw_markers(gc, path, xt, yt, self._transform)
+        if self._newstyle:            
+            path = agg.path_storage()
+            path.move_to(xoffset, 0)
+            path.line_to(0, -offset)
+            path.line_to(-xoffset, 0)
+            path.line_to(0, offset)
+            path.end_poly()                
+            renderer.draw_markers(gc, path, rgbFace, xt, yt, self._transform)
         else:
             for (x,y) in zip(xt, yt):            
                 verts = ( (x+xoffset, y),
@@ -795,17 +779,16 @@ ACCEPTS: sequence of on/off ink in points
         offsetY2 = offset*0.81
         rgbFace = self._get_rgb_face()
 
-        if self._newstyle:
-            CLOSE = self._get_close(rgbFace)
-            path = (
-                (MOVETO, 0, offset),
-                (LINETO, -offsetX1, offsetY1),
-                (LINETO, -offsetX2, -offsetY2),
-                (LINETO, +offsetX2, -offsetY2),
-                (LINETO, +offsetX1, offsetY1),
-                CLOSE
-                )
-            renderer.draw_markers(gc, path, xt, yt, self._transform)
+        if self._newstyle:            
+            path = agg.path_storage()
+            path.move_to(0, offset)
+            path.line_to(-offsetX1, offsetY1)
+            path.line_to(-offsetX2, -offsetY2)
+            path.line_to(+offsetX2, -offsetY2)
+            path.line_to(+offsetX1, offsetY1)
+            path.end_poly()
+                
+            renderer.draw_markers(gc, path, rgbFace, xt, yt, self._transform)
         else:
             for (x,y) in zip(xt, yt):            
                 verts = ( (x, y+offset),
@@ -822,17 +805,15 @@ ACCEPTS: sequence of on/off ink in points
         rgbFace = self._get_rgb_face()
 
         if self._newstyle:
-            CLOSE = self._get_close(rgbFace)
-            path = (
-                (MOVETO, 0, offset),
-                (LINETO, -offsetX1, offsetY1),
-                (LINETO, -offsetX1, -offsetY1),
-                (LINETO, 0, -offset),
-                (LINETO, offsetX1, -offsetY1),
-                (LINETO, offsetX1, offsetY1),
-                CLOSE
-                )
-            renderer.draw_markers(gc, path, xt, yt, self._transform)
+            path = agg.path_storage()
+            path.move_to(0, offset)
+            path.line_to(-offsetX1, offsetY1)
+            path.line_to(-offsetX1, -offsetY1)
+            path.line_to(0, -offset)
+            path.line_to(offsetX1, -offsetY1)
+            path.line_to(offsetX1, offsetY1)
+            path.end_poly()                
+            renderer.draw_markers(gc, path, rgbFace, xt, yt, self._transform)
         else:
             for (x,y) in zip(xt, yt):            
                 verts = ( (x, y+offset),
@@ -848,21 +829,18 @@ ACCEPTS: sequence of on/off ink in points
         offsetX1 = offset*0.5
         offsetY1 = offset*0.87
         rgbFace = self._get_rgb_face()
-        if self._newstyle:
-            CLOSE = self._get_close(rgbFace)
-            path = (
-                (MOVETO, offset, 0),
-                (LINETO, offsetX1, offsetY1),
-                (LINETO, -offsetX1, offsetY1),
-                (LINETO, -offset, 0),
-                (LINETO, -offsetX1, -offsetY1),
-                (LINETO, offsetX1, -offsetY1),
-                CLOSE
-                )
-            renderer.draw_markers(gc, path, xt, yt, self._transform)
+        if self._newstyle:            
+            path = agg.path_storage()
+            path.move_to(offset, 0)
+            path.line_to(offsetX1, offsetY1)
+            path.line_to(-offsetX1, offsetY1)
+            path.line_to(-offset, 0)
+            path.line_to(-offsetX1, -offsetY1)
+            path.line_to(offsetX1, -offsetY1)
+            path.end_poly()
+                
+            renderer.draw_markers(gc, path, rgbFace, xt, yt, self._transform)
         else:
-
-
             for (x,y) in zip(xt, yt):            
                 verts = ( (x+offset, y),
                           (x+offsetX1, y+offsetY1),
@@ -875,11 +853,10 @@ ACCEPTS: sequence of on/off ink in points
     def _draw_vline(self, renderer, gc, xt, yt):
         offset = 0.5*renderer.points_to_pixels(self._markersize)
         if self._newstyle:
-            path = (
-                (MOVETO, 0, -offset),
-                (LINETO, 0, offset),
-                )
-            renderer.draw_markers(gc, path, xt, yt, self._transform)
+            path = agg.path_storage()
+            path.move_to(0, -offset)
+            path.line_to(0, offset)                
+            renderer.draw_markers(gc, path, None, xt, yt, self._transform)
         else:
             for (x,y) in zip(xt, yt):            
                 renderer.draw_line(gc, x, y-offset, x, y+offset)
@@ -887,11 +864,10 @@ ACCEPTS: sequence of on/off ink in points
     def _draw_hline(self, renderer, gc, xt, yt):
         offset = 0.5*renderer.points_to_pixels(self._markersize)
         if self._newstyle:
-            path = (
-                (MOVETO, -offset, 0),
-                (LINETO, offset, 0),
-                )
-            renderer.draw_markers(gc, path, xt, yt, self._transform)
+            path = agg.path_storage()
+            path.move_to(-offset, 0)
+            path.line_to(offset, 0)                
+            renderer.draw_markers(gc, path, None, xt, yt, self._transform)
         else:
             for (x,y) in zip(xt, yt):
                 renderer.draw_line(gc, x-offset, y, x+offset, y)
@@ -899,11 +875,10 @@ ACCEPTS: sequence of on/off ink in points
     def _draw_tickleft(self, renderer, gc, xt, yt):
         offset = renderer.points_to_pixels(self._markersize)
         if self._newstyle:
-            path = (
-                (MOVETO, -offset, 0),
-                (LINETO, 0, 0),
-                )
-            renderer.draw_markers(gc, path, xt, yt, self._transform)
+            path = agg.path_storage()
+            path.move_to(-offset, 0)
+            path.line_to(0, 0)                            
+            renderer.draw_markers(gc, path, None, xt, yt, self._transform)
         else:
             for (x,y) in zip(xt, yt):
                 renderer.draw_line(gc, x-offset, y, x, y)
@@ -912,11 +887,10 @@ ACCEPTS: sequence of on/off ink in points
 
         offset = renderer.points_to_pixels(self._markersize)
         if self._newstyle:
-            path = (
-                (MOVETO, 0, 0),
-                (LINETO, offset, 0),
-                )
-            renderer.draw_markers(gc, path, xt, yt, self._transform)
+            path = agg.path_storage()
+            path.move_to(0, 0)
+            path.line_to(offset, 0)                
+            renderer.draw_markers(gc, path, None, xt, yt, self._transform)
         else:
             for (x,y) in zip(xt, yt):
                 renderer.draw_line(gc, x, y, x+offset, y)
@@ -924,11 +898,10 @@ ACCEPTS: sequence of on/off ink in points
     def _draw_tickup(self, renderer, gc, xt, yt):
         offset = renderer.points_to_pixels(self._markersize)
         if self._newstyle:
-            path = (
-                (MOVETO, 0, 0),
-                (LINETO, 0, offset),
-                )
-            renderer.draw_markers(gc, path, xt, yt, self._transform)
+            path = agg.path_storage()
+            path.move_to(0, 0)
+            path.line_to(0, offset)                
+            renderer.draw_markers(gc, path, None, xt, yt, self._transform)
         else:
             for (x,y) in zip(xt, yt):
                 renderer.draw_line(gc, x, y, x, y+offset)
@@ -936,11 +909,10 @@ ACCEPTS: sequence of on/off ink in points
     def _draw_tickdown(self, renderer, gc, xt, yt):
         offset = renderer.points_to_pixels(self._markersize)
         if self._newstyle:
-            path = (
-                (MOVETO, 0, -offset),
-                (LINETO, 0, 0),
-                )
-            renderer.draw_markers(gc, path, xt, yt, self._transform)
+            path = agg.path_storage()
+            path.move_to(0, -offset)
+            path.line_to(0, 0)                
+            renderer.draw_markers(gc, path, None, xt, yt, self._transform)
         else:
             for (x,y) in zip(xt, yt):
                 renderer.draw_line(gc, x, y-offset, x, y)
@@ -948,13 +920,13 @@ ACCEPTS: sequence of on/off ink in points
     def _draw_plus(self, renderer, gc, xt, yt):
         offset = 0.5*renderer.points_to_pixels(self._markersize)
         if self._newstyle:
-            path = (
-                (MOVETO, -offset, 0),
-                (LINETO, offset, 0),
-                (MOVETO, 0, -offset),
-                (LINETO, 0, offset),
-                )
-            renderer.draw_markers(gc, path, xt, yt, self._transform)
+            
+            path = agg.path_storage()
+            path.move_to(-offset, 0)
+            path.line_to( offset, 0)
+            path.move_to( 0, -offset)
+            path.line_to( 0, offset)
+            renderer.draw_markers(gc, path, None, xt, yt, self._transform)
         else:
             for (x,y) in zip(xt, yt):
                 renderer.draw_line(gc, x-offset, y, x+offset, y)
@@ -965,15 +937,14 @@ ACCEPTS: sequence of on/off ink in points
         offset1 = offset*0.8
         offset2 = offset*0.5
         if self._newstyle:
-            path = (
-                (MOVETO, 0, 0),
-                (LINETO, 0, -offset),
-                (MOVETO, 0, 0),
-                (LINETO, offset1, offset2),
-                (MOVETO, 0, 0),
-                (LINETO, -offset1, offset2),
-                )
-            renderer.draw_markers(gc, path, xt, yt, self._transform)
+            path = agg.path_storage()
+            path.move_to(0, 0)
+            path.line_to(0, -offset)
+            path.move_to(0, 0)
+            path.line_to(offset1, offset2)
+            path.move_to(0, 0)
+            path.line_to(-offset1, offset2)                
+            renderer.draw_markers(gc, path, None, xt, yt, self._transform)
         else:
             for (x,y) in zip(xt, yt):
                 renderer.draw_line(gc, x, y, x, y-offset)
@@ -985,15 +956,14 @@ ACCEPTS: sequence of on/off ink in points
         offset1 = offset*0.8
         offset2 = offset*0.5
         if self._newstyle:
-            path = (
-                (MOVETO, 0, 0),
-                (LINETO, 0, offset),
-                (MOVETO, 0, 0),
-                (LINETO, offset1, -offset2),
-                (MOVETO, 0, 0),
-                (LINETO, -offset1, -offset2),
-                )
-            renderer.draw_markers(gc, path, xt, yt, self._transform)
+            path = agg.path_storage()
+            path.move_to(0, 0)
+            path.line_to(0, offset)
+            path.move_to(0, 0)
+            path.line_to(offset1, -offset2)
+            path.move_to(0, 0)
+            path.line_to(-offset1, -offset2)                
+            renderer.draw_markers(gc, path, None, xt, yt, self._transform)
         else:
             for (x,y) in zip(xt, yt):
                 renderer.draw_line(gc, x, y, x, y+offset)
@@ -1005,15 +975,14 @@ ACCEPTS: sequence of on/off ink in points
         offset1 = offset*0.8
         offset2 = offset*0.5
         if self._newstyle:
-            path = (
-                (MOVETO, 0, 0),
-                (LINETO, -offset, 0),
-                (MOVETO, 0, 0),
-                (LINETO, offset2, offset1),
-                (MOVETO, 0, 0),
-                (LINETO, offset2, -offset1),
-                )
-            renderer.draw_markers(gc, path, xt, yt, self._transform)
+            path = agg.path_storage()
+            path.move_to(0, 0)
+            path.line_to(-offset, 0)
+            path.move_to(0, 0)
+            path.line_to(offset2, offset1)
+            path.move_to(0, 0)
+            path.line_to(offset2, -offset1)                
+            renderer.draw_markers(gc, path, None, xt, yt, self._transform)
         else:
             for (x,y) in zip(xt, yt):
                 renderer.draw_line(gc, x, y, x-offset, y)
@@ -1025,15 +994,14 @@ ACCEPTS: sequence of on/off ink in points
         offset1 = offset*0.8
         offset2 = offset*0.5
         if self._newstyle:
-            path = (
-                (MOVETO, 0, 0),
-                (LINETO, offset, 0),
-                (MOVETO, 0, 0),
-                (LINETO, -offset2, offset1),
-                (MOVETO, 0, 0),
-                (LINETO, -offset2, -offset1),
-                )
-            renderer.draw_markers(gc, path, xt, yt, self._transform)
+            path = agg.path_storage()
+            path.move_to(0, 0)
+            path.line_to(offset, 0)
+            path.move_to(0, 0)
+            path.line_to(-offset2, offset1)
+            path.move_to(0, 0)
+            path.line_to(-offset2, -offset1)                
+            renderer.draw_markers(gc, path, None, xt, yt, self._transform)
         else:
             for (x,y) in zip(xt, yt):
                 renderer.draw_line(gc, x, y, x+offset, y)
@@ -1044,13 +1012,12 @@ ACCEPTS: sequence of on/off ink in points
         offset = 0.5*renderer.points_to_pixels(self._markersize)
 
         if self._newstyle:
-            path = (
-                (MOVETO, -offset, -offset),
-                (LINETO, offset, offset),
-                (MOVETO, -offset, offset),
-                (LINETO, offset, -offset),
-                )
-            renderer.draw_markers(gc, path, xt, yt, self._transform)
+            path = agg.path_storage()
+            path.move_to(-offset, -offset)
+            path.line_to(offset, offset)
+            path.move_to(-offset, offset)
+            path.line_to(offset, -offset)                
+            renderer.draw_markers(gc, path, None, xt, yt, self._transform)
         else:
             for (x,y) in zip(xt, yt):
                 renderer.draw_line(gc, x-offset, y-offset, x+offset, y+offset)

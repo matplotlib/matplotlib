@@ -16,7 +16,9 @@ levels, colls = contour(X, Y, Z2-Z1, levels=6,
                         linewidths=arange(.5, 4, .5),
                         colors=('r', 'green', 'blue', (1,1,0), '#afeeee', 0.5),
                         origin='lower')
-legend(loc='lower left')
+clabel(colls,levels,fontsize=7, inline=1)
+#clabel(colls)
+
 savefig('test')
 show()
 

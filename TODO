@@ -661,3 +661,6 @@ ZeroDivisionError: SeparableTransformation::eval_scalars yin interval is zero; c
    the backend, eg ps symbol formatting
 
 -- add gc warning to oo agg and FAQ
+
+-- check why lowest contour is not labeled in contour_demo2 and why
+   the colormap is still not applying to the contour.

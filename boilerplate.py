@@ -24,7 +24,7 @@ def %(func)s(*args, **kwargs):
     %(mappable)s
     hold(b)
     return ret
-%(func)s.__doc__ = Axes.%(func)s.__doc__ + \"\"\"
+%(func)s.__doc__ = _shift_string(Axes.%(func)s.__doc__) + \"\"\"
 Addition kwargs: hold = [True|False] overrides default hold state\"\"\"
 """
 
@@ -36,7 +36,7 @@ def %(func)s(*args, **kwargs):
     ret =  gca().%(func)s(*args, **kwargs)
     draw_if_interactive()
     return ret
-%(func)s.__doc__ = Axes.%(func)s.__doc__
+%(func)s.__doc__ = _shift_string(Axes.%(func)s.__doc__)
 """
 
 # these methods are all simple wrappers of Axes methods by the same
@@ -49,6 +49,7 @@ _plotcommands = (
     'bar',
     'barh',
     'cohere',
+    'clabel',
     'contour',
     'contourf',
     'csd',
