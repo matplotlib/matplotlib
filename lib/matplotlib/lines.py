@@ -95,6 +95,7 @@ class Line2D(Artist):
 
         """
         Artist.__init__(self)
+
         #convert sequences to numeric arrays
         if not iterable(xdata):
             raise RuntimeError('xdata must be a sequence')
@@ -260,7 +261,6 @@ ACCEPTS: [True | False]
         #renderer.open_group('line2d')
 
         self._newstyle = hasattr(renderer, 'draw_markers')
-
         gc = renderer.new_gc()
         gc.set_foreground(self._color)
         gc.set_antialiased(self._antialiased)

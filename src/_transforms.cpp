@@ -460,7 +460,7 @@ Bbox::update_numerix(const Py::Tuple &args) {
 
   Py_XDECREF(x);
   Py_XDECREF(y);
-
+ 
 
   _ll->x_api()->set_api(minx);
   _ll->y_api()->set_api(miny);
