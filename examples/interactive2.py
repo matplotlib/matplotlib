@@ -361,6 +361,7 @@ def main():
   w.show_all()
 
   console.execute_line('import matplotlib')
+  console.execute_line("matplotlib.use('GTKAgg')")  
   console.execute_line('matplotlib.interactive(1)')
   console.execute_line('from matplotlib.matlab import *')
 

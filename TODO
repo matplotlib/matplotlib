@@ -338,3 +338,5 @@
 -- check out epydoc
 
 -- fix color on errorbar lines
+
+-- savefig to file handle.
