@@ -1055,16 +1055,15 @@ The current aspect ration will be kept."""
     def _onKeyDown(self, evt):
         """Capture key press."""
         key = self._get_key(evt)
-        self._lastkey = key
         evt.Skip()
         FigureCanvasBase.key_press_event(self, key)
-
-        
+    
     def _onKeyUp(self, evt):
         """Release key."""
-        print 'release key', self._lastkey
+        key = self._get_key(evt)
+        #print 'release key', key
         evt.Skip()
-        FigureCanvasBase.key_release_event(self, self._lastkey)
+        FigureCanvasBase.key_release_event(self, key)
 
  
     def _onRightButtonDown(self, evt):
@@ -1082,9 +1081,6 @@ The current aspect ration will be kept."""
         evt.Skip()
         FigureCanvasBase.button_release_event(self, x, y, 3)        
 
-
-
-
     def _onLeftButtonDown(self, evt):
         """Start measuring on an axis."""
         x = evt.GetX()
@@ -1092,17 +1088,14 @@ The current aspect ration will be kept."""
         evt.Skip()
         FigureCanvasBase.button_press_event(self, x, y, 1)        
 
-
     def _onLeftButtonUp(self, evt):
         """End measuring on an axis."""
         x = evt.GetX()
         y = self.figure.bbox.height() - evt.GetY()
-        print 'release button', 1
+        #print 'release button', 1
         evt.Skip()
         FigureCanvasBase.button_release_event(self, x, y, 1)
 
-
-        
     def _onMouseWheel(self, evt):
         # TODO: implement mouse wheel handler
         pass

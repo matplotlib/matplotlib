@@ -623,3 +623,5 @@ ZeroDivisionError: SeparableTransformation::eval_scalars yin interval is zero; c
 -- scatter_demo2 svg colorbar placement bug
 
 -- tex_rotation svg line bug (clipping??)
+
+-- lag in release events makes key press nav difficult
