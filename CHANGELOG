@@ -1,6 +1,9 @@
 New entries should be added at the top
 ------------------------------------------------------------
 
+2004-05-06 Gary Ruben sent me a bevy of new plot symbols and markers.
+           See matplotlib.matlab.plot - JDH
+
 2004-05-06 Total rewrite of mathtext - factored ft2font stuff out of
            layout engine and defined abstract class for font handling
            to lay groundwork for ps mathtext.  Rewrote parser and made
@@ -9,7 +12,7 @@ New entries should be added at the top
            composite chars and defined angstrom. - JDH
 
 2004-05-05 Refactored text instances out of backend; aligned
-           text with arbitrary rotations is not supported - JDH
+           text with arbitrary rotations is now supported - JDH
 
 2004-05-05 Added a Matrix capability for numarray to numerix.  JTM
 
