@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 """
-See pcolor_demo2 for a much faster way of generating pcolor plots
+See pcolor_demo2 for an alternative way of generating pcolor plots
+using imshow that is likely faster for large grids
 """
 from __future__ import division
 from matplotlib.patches import Patch
@@ -19,11 +20,7 @@ X,Y = meshgrid(x, y)
 
 Z = func3(X, Y)
 pcolor(X, Y, Z, shading='flat')
-#pcolor_classic(X, Y, Z, shading='flat')
-
-#axis([-3, 3, -3, 3])
-#axis('off')
-#savefig('pcolor_demo')
+colorbar()
 show()
 
     
