@@ -22,5 +22,5 @@ ylabel('Height (m)')
 title('Mean and standard error as a function of distance')
 
 
-savefig('errorbar_demo')
+#savefig('errorbar_demo')
 show()

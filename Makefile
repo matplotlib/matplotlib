@@ -2,6 +2,9 @@
 # Copyright (C) 2003  <jdhunter@ace.bsd.uchicago.edu>
 # $Header$
 # $Log$
+# Revision 1.17  2004/01/30 21:33:19  jdh2358
+# last changes for 0.50e
+#
 # Revision 1.16  2004/01/30 19:58:53  jdh2358
 # update...
 #
@@ -100,7 +103,7 @@ htmldocs:
 	cd htdocs;\
 	${PYTHON} process_docs.py;\
 	${PYTHON} convert.py;\
-	tar cfz site.tar.gz *.html screenshots tut examples
+	tar cfz site.tar.gz *.html screenshots tut examples gd API_CHANGES 
 
 release: ${DISTFILES}
 	${PYTHON} license.py ${VERSION};\
