@@ -69,16 +69,6 @@ class Line2D(Artist):
         'None' : '_draw_nothing'
         }
 
-    _aliases  = (
-        ('antialiased', 'aa'),          
-        ('color', 'c'),  
-        ('linestyle', 'ls'),                                
-        ('linewidth', 'lw'),
-        ('markeredgecolor', 'mec'),
-        ('markeredgewidth', 'mew'),
-        ('markerfacecolor', 'mfc'),
-        ('markersize', 'ms'),
-        )
         
         
     def __init__(self, xdata, ydata,
@@ -151,10 +141,7 @@ class Line2D(Artist):
         self._lineFunc = self._lineStyles.get(linestyle, self._draw_nothing)
         self._markerFunc = self._markers.get(marker, self._draw_nothing)
 
-        # set up some abbreviations for easier interactive use
-        for func, abbrev in self._aliases:
-            self.__dict__['set_%s'%abbrev] = getattr(self, 'set_%s'%func)
-            self.__dict__['get_%s'%abbrev] = getattr(self, 'get_%s'%func)        
+            
     def get_window_extent(self, renderer):
         x, y = self._get_numeric_clipped_data_in_range()
 
@@ -177,7 +164,19 @@ class Line2D(Artist):
         return lbwh_to_bbox( left, bottom, width, height)
 
 
-    def set_data(self, x, y):
+    def set_data(self, *args):
+        """
+Set the x and y data
+
+ACCEPTS: (array xdata, array ydata)
+"""
+
+        if len(args)==1:
+            x, y = args[0]
+        else:
+            x, y = args
+
+
         try: del self._xc, self._yc
         except AttributeError: pass
 
@@ -197,14 +196,27 @@ class Line2D(Artist):
         if self._useDataClipping: self._xsorted = self._is_sorted(self._x)
         
     def set_data_clipping(self, b):
-        'b is a boolean that sets whether data clipping is on'
+        """
+b is a boolean that sets whether data clipping is on
+
+ACCEPTS: [True | False]
+        """
         self._useDataClipping = b
 
     def set_label(self, s):
-        'Set the line label to s for auto legend'
+        """
+Set the line label to s for auto legend
+
+ACCEPTS: any string
+"""
         self._label = s
         
     def set_vertical_offset(self, voff, transOffset=None):
+        """
+Set the vertical offset of the line
+
+ACCEPTS: DEPRECATED
+        """
         # JDH: todo; handle the offset
         raise NotImplementedError('jdh fix me!')
         
@@ -323,59 +335,135 @@ class Line2D(Artist):
 
     def set_antialiased(self, b):
         """
-        True if line should be drawin with antialiased rendering
+True if line should be drawin with antialiased rendering
+
+ACCEPTS: [True | False]
         """            
         self._antialiased = b
 
     def set_color(self, color):
+        """
+Set the color of the line
+
+ACCEPTS: any matplotlib color - see help(colors)
+        """
         self._color = color
 
     def set_linewidth(self, w):
+        """
+Set the line width in points
+
+ACCEPTS: float
+        """
         self._linewidth = w
 
     def set_linestyle(self, s):
+        """
+Set the linestyle of the line
+
+ACCEPTS: [ '-' | '--' | '-.' | ':' | 'steps' | 'None' ]
+        """
         self._linestyle = s
         self._lineFunc = self._lineStyles.get(self._linestyle, '-')
 
     def set_marker(self, marker):
+        """
+Set the line marker
+
+ACCEPTS: [ '+' | ',' | '.' | '1' | '2' | '3' | '4' | '<' | '>' | 'D' | 'H' | '^' | '_' | 'd' | 'h' | 'o' | 'p' | 's' | 'v' | 'x' | '|' ]
+
+"""
         self._marker = marker
         self._markerFunc = self._markers.get(marker, self._draw_nothing)
 
     def set_markeredgecolor(self, ec):
+        """
+Set the marker edge color
+
+ACCEPTS: any matplotlib color - see help(colors)
+"""
         self._markeredgecolor = ec
 
     def set_markeredgewidth(self, ew):
+        """
+Set the marker edge width in points
+
+ACCEPTS: float
+"""
         self._markeredgewidth = ew
 
     def set_markerfacecolor(self, fc):
+        """
+Set the marker face color
+
+ACCEPTS: any matplotlib color - see help(colors)
+"""
         self._markerfacecolor = fc
 
     def set_markersize(self, sz):
+        """
+Set the marker size in points
+
+ACCEPTS: float
+"""
         self._markersize = sz
 
     def set_xdata(self, x):
+        """
+Set the data array for x
+
+ACCEPTS: array
+"""
         try: del self._xsorted
         except AttributeError: pass
             
         self.set_data(x, self._y)
 
     def set_ydata(self, y):
+        """
+Set the data array for y
+
+ACCEPTS: array
+"""
 
         self.set_data(self._x, y)
         
-    def set_xclip(self, xmin, xmax):
+    def set_xclip(self, *args):
+        """
+Set the x clipping range for data clipping to xmin, xmax
+
+ACCEPTS: (xmin, xmax)
+"""
+        if len(args)==1:
+            xmin, xmax = args[0]
+        else:
+            xmin, xmax = args
         
         if xmax<xmin: xmax, xmin = xmin, xmax
         self._xmin, self._xmax = xmin, xmax
         self._set_clip()
 
-    def set_yclip(self, ymin, ymax):
+    def set_yclip(self, *args):
+        """
+Set the y clipping range for data clipping to ymin, ymax
+
+ACCEPTS: (ymin, ymax)
+"""
+        if len(args)==1:
+            ymin, ymax = args[0]
+        else:
+            ymin, ymax = args
+            
         if ymax<ymin: ymax, ymin = ymin, ymax
         self._ymin, self._ymax = ymin, ymax
         self._set_clip()
 
     def set_dashes(self, seq):
-        'seq is a sequence of dashes with on off ink in points'
+        """
+Set the dash sequence, sequence of dashes with on off ink in points
+
+ACCEPTS: sequence of on/off ink in points
+"""
         self._dashSeq = seq
         
     def _draw_nothing(self, renderer, gc, xt, yt):
@@ -675,3 +763,44 @@ class Line2D(Artist):
              self._markerfacecolor.lower()=='none') ): rgbFace = None
         else: rgbFace = colorConverter.to_rgb(self._markerfacecolor)
         return rgbFace
+
+    # some aliases....
+    def set_aa(self, val):
+        'alias for set_antialiased'
+        self.set_antialiased(val)
+    
+
+    def set_c(self, val):
+        'alias for set_color'
+        self.set_color(val)
+    
+
+    def set_ls(self, val):
+        'alias for set_linestyle'
+        self.set_linestyle(val)
+    
+
+    def set_lw(self, val):
+        'alias for set_linewidth'
+        self.set_linewidth(val)
+    
+
+    def set_mec(self, val):
+        'alias for set_markeredgecolor'
+        self.set_markeredgecolor(val)
+    
+
+    def set_mew(self, val):
+        'alias for set_markeredgewidth'
+        self.set_markeredgewidth(val)
+    
+
+    def set_mfc(self, val):
+        'alias for set_markerfacecolor'
+        self.set_markerfacecolor(val)
+    
+
+    def set_ms(self, val):
+        'alias for set_markersize'
+        self.set_markersize(val)
+    

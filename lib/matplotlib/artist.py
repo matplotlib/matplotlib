@@ -25,7 +25,11 @@ class Artist:
         return self._transformSet
 
     def set_transform(self, t):
-        'set the Transformation instance used by this artist'        
+        """
+set the Transformation instance used by this artist
+
+ACCEPTS: a matplotlib.transform transformation instance
+"""
         self._transform = t
         self._transformSet = True
 
@@ -38,13 +42,17 @@ class Artist:
 
     def set_figure(self, fig):
         """
-        Set the figure instance the artist belong to
+Set the figure instance the artist belong to
+
+ACCEPTS: a matplotlib.figure.Figure instance
         """
         self.figure = fig
                 
-    def set_clip_box(self, clipbox):
+    def set_clip_box(self, clipbox):        
         """
-        Set the artist's clip Bbox
+Set the artist's clip Bbox
+
+ACCEPTS: a matplotlib.transform.Bbox instance
         """
         self.clipbox = clipbox
         self._clipon = clipbox is not None
@@ -65,7 +73,11 @@ class Artist:
         return self._clipon and self.clipbox is not None
 
     def set_clip_on(self, b):
-        'Set  whether artist uses clipping'
+        """
+Set  whether artist uses clipping
+
+ACCEPTS: [True | False]
+"""
         self._clipon = b
 
     def draw(self, renderer, *args, **kwargs):
@@ -74,20 +86,28 @@ class Artist:
 
     def set_alpha(self, alpha):
         """
-        Set the alpha value used for blending - not supported on
-        all backends
+Set the alpha value used for blending - not supported on
+all backends
+
+ACCEPTS: float
         """
         self._alpha = alpha
 
 
     def set_lod(self, on):
         """
-        Set Level of Detail on or off.  If on, the artists may examine
-        things like the pixel width of the axes and draw a subset of
-        their contents accordingly
+Set Level of Detail on or off.  If on, the artists may examine
+things like the pixel width of the axes and draw a subset of
+their contents accordingly
+
+ACCEPTS: [True | False]
         """
         self._lod = on
 
     def set_visible(self, b):
-        "set the artist's visiblity"
+        """
+set the artist's visiblity
+
+ACCEPTS: [True | False]
+"""
         self._visible = b

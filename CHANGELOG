@@ -1,5 +1,8 @@
 New entries should be added at the top
 
+2004-11-23 Added matplotlib compatible set and get introspection.  See
+           set_and_get.py
+
 2004-11-23 applied Norbert's patched and exposed legend configuration
            to kwargs - JDH
 
