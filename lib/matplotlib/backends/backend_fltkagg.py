@@ -23,7 +23,7 @@ from matplotlib import rcParams, verbose
 from matplotlib.cbook import is_string_like,  enumerate
 from matplotlib.backend_bases import \
      RendererBase, GraphicsContextBase, FigureManagerBase, FigureCanvasBase,\
-     NavigationToolbar2, cursors, MplEvent
+     NavigationToolbar2, cursors
 from matplotlib.figure import Figure
 from matplotlib._pylab_helpers import Gcf
 from matplotlib.numerix import asarray
@@ -92,58 +92,7 @@ def new_figure_manager(num, *args, **kwargs):
     window.end()    
     figManager = FigureManagerFltkAgg(canvas, num, window)
     return figManager
-    
-def fltk_event2mpl_event(s,source, need_pos=False, need_button=False, need_key=False):
-    special={Fltk.FL_Shift_R:'shift',
-             Fltk.FL_Shift_L:'shift',
-             Fltk.FL_Control_R:'control',
-             Fltk.FL_Control_L:'control',
-             Fltk.FL_Control_R:'control',
-             Fltk.FL_Control_L:'control',
-             65515:'win',    
-             65516:'win',    
-             }
-                 
-    thisEvent = MplEvent(s,source) 
-    thisEvent.x = Fltk.Fl.event_x()
-    # flipy so y=0 is bottom of canvas
-    thisEvent.y = source.figure.bbox.height() - Fltk.Fl.event_y()
-    if need_pos:  
-        thisEvent.inaxes = None
-        for a in source.figure.get_axes():
-            if a.in_axes(thisEvent.x, thisEvent.y):
-                thisEvent.inaxes = a
-                xdata, ydata = a.transData.inverse_xy_tup((thisEvent.x, thisEvent.y))
-                thisEvent.xdata  = xdata
-                thisEvent.ydata  = ydata
-                break
-                
-    if need_button:
-        b1=Fltk.Fl.event_button1()
-        b2=Fltk.Fl.event_button2()
-        b3=Fltk.Fl.event_button3()
-        thisEvent.button = None
-        if b1:
-         thisEvent.button = 1
-        if b2:
-         thisEvent.button = 2
-        if b3:
-         thisEvent.button = 3
-    else:
-        thisEvent.button = None
-    
-    ikey= Fltk.Fl.event_key()   
-    if need_key and Fltk.Fl.event_key(ikey):  
-        if(ikey<=255):
-          thisEvent.key=chr(ikey)
-        else:
-          try:  
-            thisEvent.key=special[ikey]   
-          except:
-            thisEvent.key=None  
-    else:
-        thisEvent.key=None
-    return thisEvent  
+     
 
 class FltkCanvas(Fltk.Fl_Widget):
      
@@ -151,14 +100,9 @@ class FltkCanvas(Fltk.Fl_Widget):
         Fltk.Fl_Widget.__init__(self, 0, 0, w, h, "canvas")
         self._source=source
         self._oldsize=(None,None) 
-        self.button_press_event=None
-        self.button_double_press_event=None
-        self.button_release_event=None
-        self.button_drag_event=None
-        self.motion_notify_event=None
-        self.key_press_event=None
-        self.key_release_event=None
         self._draw_overlay = False
+        self._button = None
+        self._key = None
         
         
     def draw(self): 
@@ -172,38 +116,59 @@ class FltkCanvas(Fltk.Fl_Widget):
                     
     def handle(self, event):
         self.window().make_current()
+        x=Fltk.Fl.event_x()
+        y=Fltk.Fl.event_y()
+        yf=self._source.figure.bbox.height() - y
+        ikey= Fltk.Fl.event_key()   
+        #~ if  Fltk.Fl.event_key(ikey):  
+            #~ if(ikey<=255):
+                #~ self._key=chr(ikey)
+            #~ else:
+                #~ try:  
+                    #~ self._key=special[ikey]   
+                #~ except:
+                    #~ self._key=None  
+        #~ else:
+            #~ self._key=None  
         if event == Fltk.FL_PUSH:
+            if Fltk.Fl.event_button1():
+                self._button = 1
+            elif  Fltk.Fl.event_button2():
+                self._button = 2
+            elif  Fltk.Fl.event_button3():
+                self._button = 3
+            else:
+                self._button = None
+                
             if self._draw_overlay:
-                self._oldx=Fltk.Fl.event_x()
-                self._oldy=Fltk.Fl.event_y()
-            if Fltk.Fl.event_clicks() and self.button_double_press_event:
-                self.double_press_event(fltk_event2mpl_event('button_double_press_event',self._source,True,True,True))
+                self._oldx=x
+                self._oldy=y
+            if Fltk.Fl.event_clicks():
+                FigureCanvasBase.button_press_event(self._source, x, yf, self._button, self._key)
                 return 1    
-            elif self.button_press_event:
-                self.button_press_event(fltk_event2mpl_event('button_press_event',self._source,True,True,True))  
+            else:
+                FigureCanvasBase.button_press_event(self._source, x, yf, self._button, self._key)
                 return 1  
         elif event == Fltk.FL_ENTER:
             return 1     
         elif event == Fltk.FL_LEAVE:
             return 1     
         elif event == Fltk.FL_MOVE:
-            if self.motion_notify_event:
-                self.motion_notify_event(fltk_event2mpl_event('motion_notify_event',self._source,True,False,True))  
-                return 1     
+            FigureCanvasBase.motion_notify_event(self._source, x, yf, self._button, self._key) 
+            return 1     
         elif event == Fltk.FL_DRAG:
             if self._draw_overlay:
                 self._dx=Fltk.Fl.event_x()-self._oldx
                 self._dy=Fltk.Fl.event_y()-self._oldy
                 Fltk.fl_overlay_rect(self._oldx,self._oldy,self._dx,self._dy)
-            if self.motion_notify_event:
-                self.motion_notify_event(fltk_event2mpl_event('motion_notify_event',self._source,True,True,True))  
-                return 1    
+            FigureCanvasBase.motion_notify_event(self._source, x, yf, self._button, self._key) 
+            return 1   
         elif event == Fltk.FL_RELEASE:
             if self._draw_overlay:
                 Fltk.fl_overlay_clear()
-            if self.button_release_event:
-                self.button_release_event(fltk_event2mpl_event('button_release_event',self._source,True,True,True))   
-                return 1  
+            FigureCanvasBase.button_release_event(self._source, x, yf, self._button, self._key)
+            self._button = None
+            return 1  
         else:
             return 0
 
@@ -237,38 +202,6 @@ class FigureCanvasFltkAgg(FigureCanvasAgg):
 
         agg = self.switch_backends(FigureCanvasAgg)
         agg.print_figure(filename, dpi, facecolor, edgecolor, orientation)
-        
-    def mpl_connect(self,s,func):
-        if(s=='button_press_event'):
-            self.canvas.button_press_event=func
-        elif(s=='button_double_press_event'):
-            self.canvas.button_double_press_event=func    
-        elif(s=='button_release_event'):
-            self.canvas.button_release_event=func   
-        elif(s=='motion_notify_event'):
-            self.canvas.motion_notify_event=func    
-            self.canvas.button_drag_event=func   
-        elif(s=='key_press_event'):
-            self.canvas.key_press_event=func  
-        elif(s=='key_release_event'):
-            self.canvas.key_release_event=func
-        return s    
-            
-    def mpl_disconnect(self,s):
-        if(s=='button_press_event'):
-            self.canvas.button_press_event=None
-        elif(s=='button_double_press_event'):
-            self.canvas.button_double_press_event=None    
-        elif(s=='button_release_event'):
-            self.canvas.button_release_event=None    
-        elif(s=='motion_notify_event'):
-            self.canvas.motion_notify_event=None   
-            self.canvas.button_drag_event=None     
-        elif(s=='key_press_event'):
-            self.canvas.key_press_event=None  
-        elif(s=='key_release_event'):
-            self.canvas.key_release_event=None
-        return None
     
     def widget(self):
         return self.canvas
