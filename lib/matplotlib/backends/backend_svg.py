@@ -1,18 +1,15 @@
 from __future__ import division
-from cStringIO import StringIO
 
-from matplotlib import verbose
+from matplotlib import verbose, rcParams
 from matplotlib.backend_bases import RendererBase, GraphicsContextBase,\
      FigureManagerBase, FigureCanvasBase, error_msg
 
+from matplotlib._pylab_helpers import Gcf
 from matplotlib.cbook import True, False
 from matplotlib.colors import rgb2hex
 from matplotlib.figure import Figure
 from matplotlib.font_manager import fontManager
 from matplotlib.ft2font import FT2Font
-from matplotlib._pylab_helpers import Gcf
-from matplotlib import rcParams
-
 from matplotlib.mathtext import math_parse_s_ft2font_svg
 
 import sys,os,math
@@ -20,27 +17,14 @@ import sys,os,math
 def _nums_to_str(seq, fmt='%1.3f'):
     return ' '.join([_int_or_float(val, fmt) for val in seq])
 
-def draw_if_interactive():
-    pass
-
-def show():
-    """
-    Show all the figures and enter the gtk mainloop
-
-    This should be the last line of your script
-    """
-    pass
-
 def new_figure_manager(num, *args):
     thisFig = Figure(*args)
-    canvas = FigureCanvasSVG(thisFig)
+    canvas  = FigureCanvasSVG(thisFig)
     manager = FigureManagerSVG(canvas, num)
     return manager
 
 
-
 _fontd = {}
-# _clipd = {}
 class RendererSVG(RendererBase):
     def __init__(self, width, height, svgwriter, basename='_svg'):
         # use basename to generate image files
@@ -53,11 +37,9 @@ class RendererSVG(RendererBase):
         self._clipd = {}
 
     def flipy(self):
-        'return true if y small numbers are top for renderer'
         return True
 
     def get_canvas_width_height(self):
-        'return the canvas width and height in display coords'
         return self.width, self.height
 
     def draw_image(self, x, y, im, origin, bbox):
@@ -228,10 +210,6 @@ class RendererSVG(RendererBase):
 """ % locals()
         self._draw_rawsvg(svg)
 
-
-    def get_svg(self):
-        return self._svgwriter.getvalue()
-
     def finish(self):
         self._svgwriter.write('</svg>')
 
@@ -342,7 +320,7 @@ class FigureCanvasSVG(FigureCanvasBase):
         basename, ext = os.path.splitext(filename)
         if not len(ext): filename += '.svg'
 
-        svgwriter = StringIO()
+        svgwriter = file(filename, 'w')
         renderer = RendererSVG(w, h, svgwriter, basename)
 
         svgwriter.write(svgProlog%(w,h) )
@@ -353,9 +331,7 @@ class FigureCanvasSVG(FigureCanvasBase):
         self.figure.dpi.set(origDPI)
         self.figure.set_facecolor(origfacecolor)
         self.figure.set_edgecolor(origedgecolor)
-        
-        fh = file(filename, 'w')
-        print >>fh, renderer.get_svg()
+
 
 class FigureManagerSVG(FigureManagerBase):
     pass

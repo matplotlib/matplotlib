@@ -82,10 +82,8 @@ def draw_if_interactive():
 def show(mainloop=True):
     """
     Show all the figures and enter the gtk main loop
-
     This should be the last line of your script
     """
-
     for manager in Gcf.get_all_fig_managers():
         manager.window.show()
         
