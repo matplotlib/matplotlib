@@ -2,8 +2,9 @@
 
 import os, sys, time
 import matplotlib
+matplotlib.interactive(True)
 #matplotlib.use('Cairo')
-matplotlib.use('Agg')
+matplotlib.use('TkAgg')
 from pylab import *
 
 
@@ -20,8 +21,8 @@ indStart, indEnd = 30, 150
 for i in range(indEnd):
     ind = arange(100)
     xx = rand(len(ind))
-
-    figure(1)
+    figure(1); clf()
+    ioff()
     subplot(221)
     plot(ind, xx)
 
@@ -33,8 +34,10 @@ for i in range(indEnd):
     scatter(rand(50), rand(50))
     subplot(224)
     pcolor(10*rand(50,50))
-
-    savefig('tmp%d' % i, dpi = 75)
+    ion()
+    draw()
+    #ioff()
+    #savefig('tmp%d' % i, dpi = 75)
     #fd = file('tmp%d' % i, 'wb')
     #savefig(fd, dpi = 75)
     #fd.close()
