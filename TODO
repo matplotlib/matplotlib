@@ -488,3 +488,19 @@
 -- check for zero zoom to rect
 
 -- make sure toolbar events and user events can coexist happily
+
+-- DONE copy in axis and text return undo
+
+-- repeated zoom in to rect causes tick labels to stop updating and
+   eventual crash with 
+
+ZeroDivisionError: SeparableTransformation::eval_scalars yin interval is zero; cannot transform
+Traceback (most recent call last):
+  File "/usr/local/lib/python2.3/site-packages/matplotlib/backends/backend_gtk.py", line 713, in wrapper
+    xdata, ydata = a.transData.inverse_xy_tup((thisEvent.x, thisEvent.y))
+ZeroDivisionError: SeparableTransformation::eval_scalars yin interval is zero; cannot transform
+Traceback (most recent call last):
+  File "/usr/local/lib/python2.3/site-packages/matplotlib/backends/backend_gtk.py", line 713, in wrapper
+    xdata, ydata = a.transData.inverse_xy_tup((thisEvent.x, thisEvent.y))
+ZeroDivisionError: SeparableTransformation::eval_scalars yin interval is zero; cannot transform
+
