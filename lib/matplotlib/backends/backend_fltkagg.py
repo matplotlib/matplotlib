@@ -52,6 +52,18 @@ cursord= {
     cursors.SELECT_REGION:   Fltk.FL_CURSOR_CROSS,
     cursors.MOVE:   Fltk.FL_CURSOR_MOVE
     }
+    
+special_key={
+    Fltk.FL_Shift_R:'shift',
+    Fltk.FL_Shift_L:'shift',
+    Fltk.FL_Control_R:'control',
+    Fltk.FL_Control_L:'control',
+    Fltk.FL_Control_R:'control',
+    Fltk.FL_Control_L:'control',
+    65515:'win',
+    65516:'win',
+    }
+
 
 def error_msg_fltk(msg, parent=None):
     Fltk.fl_message(msg)
@@ -119,18 +131,23 @@ class FltkCanvas(Fltk.Fl_Widget):
         x=Fltk.Fl.event_x()
         y=Fltk.Fl.event_y()
         yf=self._source.figure.bbox.height() - y
-        ikey= Fltk.Fl.event_key()   
-        #~ if  Fltk.Fl.event_key(ikey):  
-            #~ if(ikey<=255):
-                #~ self._key=chr(ikey)
-            #~ else:
-                #~ try:  
-                    #~ self._key=special[ikey]   
-                #~ except:
-                    #~ self._key=None  
-        #~ else:
-            #~ self._key=None  
-        if event == Fltk.FL_PUSH:
+        if event == Fltk.FL_FOCUS or event == Fltk.FL_UNFOCUS:
+            return 1
+        elif event == Fltk.FL_KEYDOWN:
+            ikey= Fltk.Fl.event_key()   
+            if(ikey<=255):
+                self._key=chr(ikey)
+            else:
+                try:  
+                    self._key=special_key[ikey]   
+                except:
+                    self._key=None   
+            FigureCanvasBase.key_press_event(self._source, self._key)
+            return 1
+        elif event == Fltk.FL_KEYUP:  
+            FigureCanvasBase.key_release_event(self._source, self._key)
+            self._key=None           
+        elif event == Fltk.FL_PUSH:
             if Fltk.Fl.event_button1():
                 self._button = 1
             elif  Fltk.Fl.event_button2():
@@ -150,6 +167,7 @@ class FltkCanvas(Fltk.Fl_Widget):
                 FigureCanvasBase.button_press_event(self._source, x, yf, self._button, self._key)
                 return 1  
         elif event == Fltk.FL_ENTER:
+            self.take_focus()
             return 1     
         elif event == Fltk.FL_LEAVE:
             return 1     
