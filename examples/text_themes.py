@@ -15,7 +15,7 @@ t2 = arange(0.0, 5.0, 0.02)
 
 plot(t1, f(t1), 'bo', t2, f(t2), 'k')
 title('Damped exponential decay', font, fontsize=12)
+text(3, 0.65, 'cos(2 pi t) exp(-t)', font, color='k')
 xlabel('time (s)', font)
 ylabel('voltage (mV)', font)
-text(3, 0.65, 'cos(2 pi t) exp(-t)', font, color='k')
 show()

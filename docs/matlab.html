@@ -143,9 +143,14 @@ the&nbsp;exception&nbsp;of&nbsp;those&nbsp;in&nbsp;mlab.py&nbsp;provided&nbsp;by
 <tr><td bgcolor="#ee77aa"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;&nbsp;</td>
 <td width="100%"><dl>
 <dt><font face="helvetica, arial"><a href="matlab.html#FigureWin">FigureWin</a>
-</font></dt><dt><font face="helvetica, arial"><a href="matlab.html#Gcf">Gcf</a>
 </font></dt><dt><font face="helvetica, arial"><a href="matlab.html#ShowOn">ShowOn</a>
+</font></dt><dt><font face="helvetica, arial"><a href="__builtin__.html#object">__builtin__.object</a>
+</font></dt><dd>
+<dl>
+<dt><font face="helvetica, arial"><a href="matlab.html#Gcf">Gcf</a>
 </font></dt></dl>
+</dd>
+</dl>
  
 <table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
 <tr bgcolor="#ffc8d8">
@@ -156,7 +161,7 @@ the&nbsp;exception&nbsp;of&nbsp;those&nbsp;in&nbsp;mlab.py&nbsp;provided&nbsp;by
 <td colspan=2>&nbsp;</td></tr>
 <tr><td>&nbsp;&nbsp;</td>
 <td width="100%">Methods defined here:<br>
-<dl><dt><a name="FigureWin-__init__"><strong>__init__</strong></a>(self, figure, window, vbox, toolbar)</dt></dl>
+<dl><dt><a name="FigureWin-__init__"><strong>__init__</strong></a>(self, figure, num, window, vbox, toolbar)</dt></dl>
 
 <dl><dt><a name="FigureWin-add_axes"><strong>add_axes</strong></a>(self, rect, axisbg)</dt></dl>
 
@@ -176,7 +181,7 @@ Data and non-method functions defined here:<br>
 <table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
 <tr bgcolor="#ffc8d8">
 <td colspan=3 valign=bottom>&nbsp;<br>
-<font color="#000000" face="helvetica, arial"><a name="Gcf">class <strong>Gcf</strong></a></font></td></tr>
+<font color="#000000" face="helvetica, arial"><a name="Gcf">class <strong>Gcf</strong></a>(<a href="__builtin__.html#object">__builtin__.object</a>)</font></td></tr>
     
 <tr bgcolor="#ffc8d8"><td rowspan=2><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td>
 <td colspan=2>&nbsp;</td></tr>
@@ -188,29 +193,59 @@ Data and non-method functions defined here:<br>
 
 <dl><dt><a name="Gcf-_set_active"><strong>_set_active</strong></a>(self, fig)</dt></dl>
 
-<dl><dt><a name="Gcf-destroy"><strong>destroy</strong></a>(self, num)</dt></dl>
-
-<dl><dt><a name="Gcf-get_all_figwins"><strong>get_all_figwins</strong></a>(self)</dt></dl>
-
 <dl><dt><a name="Gcf-get_current_figwin"><strong>get_current_figwin</strong></a>(self)</dt></dl>
 
-<dl><dt><a name="Gcf-has_fignum"><strong>has_fignum</strong></a>(self, num)</dt></dl>
-
 <dl><dt><a name="Gcf-newfig"><strong>newfig</strong></a>(self, num<font color="#909090">=None</font>, size<font color="#909090">=None</font>)</dt></dl>
+
+<hr>
+Static methods defined here:<br>
+<dl><dt><a name="Gcf-destroy"><strong>destroy</strong></a>(num)</dt></dl>
+
+<dl><dt><a name="Gcf-get_all_figwins"><strong>get_all_figwins</strong></a>()</dt></dl>
+
+<dl><dt><a name="Gcf-get_num_figwins"><strong>get_num_figwins</strong></a>()</dt></dl>
+
+<dl><dt><a name="Gcf-has_fignum"><strong>has_fignum</strong></a>(num)</dt></dl>
 
 <hr>
 Data and non-method functions defined here:<br>
 <dl><dt><strong>_Gcf__shared_state</strong> = {}</dl>
 
+<dl><dt><strong>__dict__</strong> = &lt;dict-proxy object&gt;</dl>
+
 <dl><dt><strong>__doc__</strong> = None</dl>
 
 <dl><dt><strong>__module__</strong> = 'matlab'</dl>
+
+<dl><dt><strong>__weakref__</strong> = &lt;member '__weakref__' of 'Gcf' objects&gt;</dl>
 
 <dl><dt><strong>_activeQue</strong> = []</dl>
 
 <dl><dt><strong>defaultSize</strong> = (600, 400)</dl>
 
 <dl><dt><strong>figs</strong> = {}</dl>
+
+<hr>
+Methods inherited from <a href="__builtin__.html#object">__builtin__.object</a>:<br>
+<dl><dt><a name="Gcf-__delattr__"><strong>__delattr__</strong></a>(...)</dt><dd><tt>x.<a href="#Gcf-__delattr__">__delattr__</a>('name')&nbsp;&lt;==&gt;&nbsp;del&nbsp;x.name</tt></dd></dl>
+
+<dl><dt><a name="Gcf-__getattribute__"><strong>__getattribute__</strong></a>(...)</dt><dd><tt>x.<a href="#Gcf-__getattribute__">__getattribute__</a>('name')&nbsp;&lt;==&gt;&nbsp;x.name</tt></dd></dl>
+
+<dl><dt><a name="Gcf-__hash__"><strong>__hash__</strong></a>(...)</dt><dd><tt>x.<a href="#Gcf-__hash__">__hash__</a>()&nbsp;&lt;==&gt;&nbsp;hash(x)</tt></dd></dl>
+
+<dl><dt><a name="Gcf-__reduce__"><strong>__reduce__</strong></a>(...)</dt><dd><tt>helper&nbsp;for&nbsp;pickle</tt></dd></dl>
+
+<dl><dt><a name="Gcf-__repr__"><strong>__repr__</strong></a>(...)</dt><dd><tt>x.<a href="#Gcf-__repr__">__repr__</a>()&nbsp;&lt;==&gt;&nbsp;repr(x)</tt></dd></dl>
+
+<dl><dt><a name="Gcf-__setattr__"><strong>__setattr__</strong></a>(...)</dt><dd><tt>x.<a href="#Gcf-__setattr__">__setattr__</a>('name',&nbsp;value)&nbsp;&lt;==&gt;&nbsp;x.name&nbsp;=&nbsp;value</tt></dd></dl>
+
+<dl><dt><a name="Gcf-__str__"><strong>__str__</strong></a>(...)</dt><dd><tt>x.<a href="#Gcf-__str__">__str__</a>()&nbsp;&lt;==&gt;&nbsp;str(x)</tt></dd></dl>
+
+<hr>
+Data and non-method functions inherited from <a href="__builtin__.html#object">__builtin__.object</a>:<br>
+<dl><dt><strong>__class__</strong> = &lt;type 'type'&gt;</dl>
+
+<dl><dt><strong>__new__</strong> = &lt;built-in method __new__ of type object&gt;<dd><tt>T.<a href="#Gcf-__new__">__new__</a>(S,&nbsp;...)&nbsp;-&gt;&nbsp;a&nbsp;new&nbsp;<a href="__builtin__.html#object">object</a>&nbsp;with&nbsp;type&nbsp;S,&nbsp;a&nbsp;subtype&nbsp;of&nbsp;T</tt></dl>
 
 </td></tr></table> 
 <table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
@@ -224,7 +259,11 @@ Data and non-method functions defined here:<br>
 <td width="100%">Methods defined here:<br>
 <dl><dt><a name="ShowOn-__init__"><strong>__init__</strong></a>(self)</dt></dl>
 
+<dl><dt><a name="ShowOn-enter_mainloop"><strong>enter_mainloop</strong></a>(self)</dt></dl>
+
 <dl><dt><a name="ShowOn-get"><strong>get</strong></a>(self)</dt></dl>
+
+<dl><dt><a name="ShowOn-is_mainloop_on"><strong>is_mainloop_on</strong></a>(self)</dt></dl>
 
 <dl><dt><a name="ShowOn-set"><strong>set</strong></a>(self, on)</dt></dl>
 
@@ -235,6 +274,8 @@ Data and non-method functions defined here:<br>
 <dl><dt><strong>__doc__</strong> = None</dl>
 
 <dl><dt><strong>__module__</strong> = 'matlab'</dl>
+
+<dl><dt><strong>_mainloopOn</strong> = 0</dl>
 
 <dl><dt><strong>show</strong> = 0</dl>
 
@@ -278,7 +319,15 @@ x&nbsp;and&nbsp;y&nbsp;are&nbsp;Numeric&nbsp;arrays<br>
 &nbsp;<br>
 Return&nbsp;value&nbsp;is&nbsp;a&nbsp;list&nbsp;of&nbsp;Rectangle&nbsp;patch&nbsp;instances</tt></dd></dl>
  <dl><dt><a name="-choose"><strong>choose</strong></a>(...)</dt><dd><tt><a href="#-choose">choose</a>(a,&nbsp;(b1,b2,...))</tt></dd></dl>
- <dl><dt><a name="-close"><strong>close</strong></a>(num<font color="#909090">=1</font>)</dt><dd><tt>Close&nbsp;the&nbsp;figure&nbsp;window&nbsp;num</tt></dd></dl>
+ <dl><dt><a name="-close"><strong>close</strong></a>(*args)</dt><dd><tt>Close&nbsp;a&nbsp;figure&nbsp;window<br>
+&nbsp;<br>
+<a href="#-close">close</a>()&nbsp;by&nbsp;itself&nbsp;closes&nbsp;the&nbsp;current&nbsp;figure<br>
+&nbsp;<br>
+<a href="#-close">close</a>(num)&nbsp;closes&nbsp;figure&nbsp;number&nbsp;num<br>
+&nbsp;<br>
+<a href="#-close">close</a>(h)&nbsp;where&nbsp;h&nbsp;is&nbsp;a&nbsp;figure&nbsp;handle(instance)&nbsp;closes&nbsp;that&nbsp;figure<br>
+&nbsp;<br>
+<a href="#-close">close</a>('all')&nbsp;closes&nbsp;all&nbsp;the&nbsp;figure&nbsp;windows</tt></dd></dl>
  <dl><dt><a name="-cross_correlate"><strong>cross_correlate</strong></a>(...)</dt><dd><tt><a href="#-cross_correlate">cross_correlate</a>(a,v,&nbsp;mode=0)</tt></dd></dl>
  <dl><dt><a name="-draw_if_interactive"><strong>draw_if_interactive</strong></a>()</dt></dl>
  <dl><dt><a name="-errorbar"><strong>errorbar</strong></a>(x, y, e, u<font color="#909090">=None</font>, fmt<font color="#909090">='b-'</font>)</dt><dd><tt><br>

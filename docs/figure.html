@@ -158,6 +158,10 @@ Returns&nbsp;a&nbsp;list&nbsp;of&nbsp;line&nbsp;instances&nbsp;that&nbsp;were&nb
 
 <dl><dt><a name="Axes-in_axes"><strong>in_axes</strong></a>(self, xwin, ywin)</dt></dl>
 
+<dl><dt><a name="Axes-panx"><strong>panx</strong></a>(self, numsteps)</dt><dd><tt>Pan&nbsp;the&nbsp;x&nbsp;axis&nbsp;numsteps&nbsp;(plus&nbsp;pan&nbsp;right,&nbsp;minus&nbsp;pan&nbsp;left)</tt></dd></dl>
+
+<dl><dt><a name="Axes-pany"><strong>pany</strong></a>(self, numsteps)</dt><dd><tt>Pan&nbsp;the&nbsp;x&nbsp;axis&nbsp;numsteps&nbsp;(plus&nbsp;pan&nbsp;up,&nbsp;minus&nbsp;pan&nbsp;down)</tt></dd></dl>
+
 <dl><dt><a name="Axes-plot"><strong>plot</strong></a>(self, *args)</dt><dd><tt>Emulate&nbsp;matlab's&nbsp;plot&nbsp;command.&nbsp;&nbsp;*args&nbsp;is&nbsp;a&nbsp;variable&nbsp;length<br>
 argument,&nbsp;allowing&nbsp;for&nbsp;multiple&nbsp;x,y&nbsp;pairs&nbsp;with&nbsp;an&nbsp;optional<br>
 format&nbsp;string.&nbsp;&nbsp;For&nbsp;example,&nbsp;all&nbsp;of&nbsp;the&nbsp;following&nbsp;are&nbsp;legal,<br>
@@ -262,6 +266,10 @@ then&nbsp;the&nbsp;respective&nbsp;values&nbsp;are&nbsp;constant,&nbsp;else&nbsp
 the&nbsp;lines&nbsp;are&nbsp;determined&nbsp;by&nbsp;ymin&nbsp;and&nbsp;ymax<br>
 &nbsp;<br>
 Returns&nbsp;a&nbsp;list&nbsp;of&nbsp;lines&nbsp;that&nbsp;were&nbsp;added</tt></dd></dl>
+
+<dl><dt><a name="Axes-zoomx"><strong>zoomx</strong></a>(self, numsteps)</dt><dd><tt>Zoom&nbsp;in&nbsp;on&nbsp;the&nbsp;x&nbsp;xaxis&nbsp;numsteps&nbsp;(plus&nbsp;for&nbsp;zoom&nbsp;in,&nbsp;minus&nbsp;for&nbsp;zoom&nbsp;out)</tt></dd></dl>
+
+<dl><dt><a name="Axes-zoomy"><strong>zoomy</strong></a>(self, numsteps)</dt><dd><tt>Zoom&nbsp;in&nbsp;on&nbsp;the&nbsp;x&nbsp;xaxis&nbsp;numsteps&nbsp;(plus&nbsp;for&nbsp;zoom&nbsp;in,&nbsp;minus&nbsp;for&nbsp;zoom&nbsp;out)</tt></dd></dl>
 
 <hr>
 Data and non-method functions defined here:<br>
@@ -445,7 +453,7 @@ Methods inherited from <a href="gtk.html#Dialog">gtk.Dialog</a>:<br>
 
 <hr>
 Data and non-method functions inherited from <a href="gtk.html#Dialog">gtk.Dialog</a>:<br>
-<dl><dt><strong>__gtype__</strong> = &lt;GType GtkDialog (136730288)&gt;</dl>
+<dl><dt><strong>__gtype__</strong> = &lt;GType GtkDialog (136730304)&gt;</dl>
 
 <dl><dt><strong>action_area</strong> = &lt;attribute 'action_area' of 'gtk.Dialog' objects&gt;</dl>
 
@@ -1104,7 +1112,7 @@ Methods inherited from <a href="gtk.html#DrawingArea">gtk.DrawingArea</a>:<br>
 
 <hr>
 Data and non-method functions inherited from <a href="gtk.html#DrawingArea">gtk.DrawingArea</a>:<br>
-<dl><dt><strong>__gtype__</strong> = &lt;GType GtkDrawingArea (136226160)&gt;</dl>
+<dl><dt><strong>__gtype__</strong> = &lt;GType GtkDrawingArea (136226176)&gt;</dl>
 
 <hr>
 Methods inherited from <a href="gtk.html#Widget">gtk.Widget</a>:<br>
@@ -1458,7 +1466,9 @@ Data and non-method functions inherited from <a href="__builtin__.html#object">_
 </dl>
 <hr>
 Methods defined here:<br>
-<dl><dt><a name="NavigationToolbar-__init__"><strong>__init__</strong></a>(self, figure, win<font color="#909090">=None</font>)</dt></dl>
+<dl><dt><a name="NavigationToolbar-__init__"><strong>__init__</strong></a>(self, figure, win<font color="#909090">=None</font>)</dt><dd><tt>figure&nbsp;is&nbsp;the&nbsp;<a href="#Figure">Figure</a>&nbsp;instance&nbsp;that&nbsp;the&nbsp;toolboar&nbsp;controls<br>
+&nbsp;<br>
+win,&nbsp;if&nbsp;not&nbsp;None,&nbsp;is&nbsp;the&nbsp;gtk.Window&nbsp;the&nbsp;<a href="#Figure">Figure</a>&nbsp;is&nbsp;embedded&nbsp;in</tt></dd></dl>
 
 <dl><dt><a name="NavigationToolbar-make_axis_menu"><strong>make_axis_menu</strong></a>(self)</dt></dl>
 
@@ -1536,7 +1546,7 @@ Methods inherited from <a href="gtk.html#Toolbar">gtk.Toolbar</a>:<br>
 
 <hr>
 Data and non-method functions inherited from <a href="gtk.html#Toolbar">gtk.Toolbar</a>:<br>
-<dl><dt><strong>__gtype__</strong> = &lt;GType GtkToolbar (136239464)&gt;</dl>
+<dl><dt><strong>__gtype__</strong> = &lt;GType GtkToolbar (136239480)&gt;</dl>
 
 <hr>
 Methods inherited from <a href="gtk.html#Container">gtk.Container</a>:<br>
@@ -2047,6 +2057,10 @@ Returns&nbsp;a&nbsp;list&nbsp;of&nbsp;line&nbsp;instances&nbsp;that&nbsp;were&nb
 
 <dl><dt><a name="Subplot-in_axes"><strong>in_axes</strong></a>(self, xwin, ywin)</dt></dl>
 
+<dl><dt><a name="Subplot-panx"><strong>panx</strong></a>(self, numsteps)</dt><dd><tt>Pan&nbsp;the&nbsp;x&nbsp;axis&nbsp;numsteps&nbsp;(plus&nbsp;pan&nbsp;right,&nbsp;minus&nbsp;pan&nbsp;left)</tt></dd></dl>
+
+<dl><dt><a name="Subplot-pany"><strong>pany</strong></a>(self, numsteps)</dt><dd><tt>Pan&nbsp;the&nbsp;x&nbsp;axis&nbsp;numsteps&nbsp;(plus&nbsp;pan&nbsp;up,&nbsp;minus&nbsp;pan&nbsp;down)</tt></dd></dl>
+
 <dl><dt><a name="Subplot-plot"><strong>plot</strong></a>(self, *args)</dt><dd><tt>Emulate&nbsp;matlab's&nbsp;plot&nbsp;command.&nbsp;&nbsp;*args&nbsp;is&nbsp;a&nbsp;variable&nbsp;length<br>
 argument,&nbsp;allowing&nbsp;for&nbsp;multiple&nbsp;x,y&nbsp;pairs&nbsp;with&nbsp;an&nbsp;optional<br>
 format&nbsp;string.&nbsp;&nbsp;For&nbsp;example,&nbsp;all&nbsp;of&nbsp;the&nbsp;following&nbsp;are&nbsp;legal,<br>
@@ -2151,6 +2165,10 @@ then&nbsp;the&nbsp;respective&nbsp;values&nbsp;are&nbsp;constant,&nbsp;else&nbsp
 the&nbsp;lines&nbsp;are&nbsp;determined&nbsp;by&nbsp;ymin&nbsp;and&nbsp;ymax<br>
 &nbsp;<br>
 Returns&nbsp;a&nbsp;list&nbsp;of&nbsp;lines&nbsp;that&nbsp;were&nbsp;added</tt></dd></dl>
+
+<dl><dt><a name="Subplot-zoomx"><strong>zoomx</strong></a>(self, numsteps)</dt><dd><tt>Zoom&nbsp;in&nbsp;on&nbsp;the&nbsp;x&nbsp;xaxis&nbsp;numsteps&nbsp;(plus&nbsp;for&nbsp;zoom&nbsp;in,&nbsp;minus&nbsp;for&nbsp;zoom&nbsp;out)</tt></dd></dl>
+
+<dl><dt><a name="Subplot-zoomy"><strong>zoomy</strong></a>(self, numsteps)</dt><dd><tt>Zoom&nbsp;in&nbsp;on&nbsp;the&nbsp;x&nbsp;xaxis&nbsp;numsteps&nbsp;(plus&nbsp;for&nbsp;zoom&nbsp;in,&nbsp;minus&nbsp;for&nbsp;zoom&nbsp;out)</tt></dd></dl>
 
 <hr>
 Data and non-method functions inherited from <a href="figure.html#Axes">Axes</a>:<br>
