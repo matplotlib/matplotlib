@@ -51,6 +51,11 @@ http://matplotlib.sourceforge.net
 
   > make release
 
+  > build on win32 (set the backend to tkagg, set the 'auto' flags in
+    setup.py to 1, set tk windowing)
+
+  > cvs tag the sucker
+
 4) anon ftp the tar.gz and exe file to SF
   local> cd dist
   local> ncftp upload.sourceforge.net
