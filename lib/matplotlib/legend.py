@@ -237,10 +237,11 @@ The following dimensions are in axes coords
                 self._set_artist_props(legline)
                 legline.set_clip_box(None)
                 lw = handle.get_linewidths()[0]
-                style = handle.get_linewidths()[0]
+                dashes = handle.get_dashes()
                 color = handle.get_colors()[0]                
                 legline.set_color(color)
                 legline.set_linewidth(lw)
+                legline.set_dashes(dashes)
                 ret.append(legline)
                 
 	    else:

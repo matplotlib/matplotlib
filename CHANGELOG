@@ -1,6 +1,16 @@
 New entries should be added at the top
 
-2005-02-121 fixed ps color bug - JDH
+2005-02-23 Used sequence protocol rather than tuple in agg collection
+           drawing routines for greater flexibility - JDH
+
+
+===========================================================
+2005-02-22 0.72.1 released
+
+2005-02-21 fixed linestyles for collections -- contour now dashes for
+           levels <0
+
+2005-02-21 fixed ps color bug - JDH
 
 2005-02-15 fixed missing qt file
 

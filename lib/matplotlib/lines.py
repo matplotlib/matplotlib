@@ -139,8 +139,6 @@ class Line2D(Artist):
             raise ValueError('Unrecognized marker style %s, %s'%( marker, type(marker)))
 
         self.set_marker(marker)
-        self._lineFunc = self._lineStyles.get(linestyle, self._draw_nothing)
-        self._markerFunc = self._markers.get(marker, self._draw_nothing)
 
         self._logcache = None
             
@@ -280,7 +278,8 @@ ACCEPTS: [True | False]
             xt, yt = self._transform.numerix_x_y(x, y)
 
 
-        lineFunc = getattr(self, self._lineFunc)
+        funcname = self._lineStyles.get(self._linestyle, '_draw_nothing')
+        lineFunc = getattr(self, funcname)
         lineFunc(renderer, gc, xt, yt)
 
 
@@ -290,7 +289,8 @@ ACCEPTS: [True | False]
             gc.set_linewidth(self._markeredgewidth)
             if self.get_clip_on():
                 gc.set_clip_rectangle(self.clipbox.get_bounds())
-            markerFunc = getattr(self, self._markerFunc)
+            funcname = self._markers.get(self._marker, '_draw_nothing')
+            markerFunc = getattr(self, funcname)
             markerFunc(renderer, gc, xt, yt)
 
         #if 1: bbox_artist(self, renderer)
@@ -395,7 +395,7 @@ Set the linestyle of the line
 ACCEPTS: [ '-' | '--' | '-.' | ':' | 'steps' | 'None' ]
         """
         self._linestyle = s
-        self._lineFunc = self._lineStyles.get(self._linestyle, '-')
+
 
     def set_marker(self, marker):
         """
@@ -405,7 +405,6 @@ ACCEPTS: [ '+' | ',' | '.' | '1' | '2' | '3' | '4' | '<' | '>' | 'D' | 'H' | '^'
 
 """
         self._marker = marker
-        self._markerFunc = self._markers.get(marker, self._draw_nothing)
 
     def set_markeredgecolor(self, ec):
         """
@@ -497,7 +496,11 @@ Set the dash sequence, sequence of dashes with on off ink in points
 
 ACCEPTS: sequence of on/off ink in points
 """
-        self._dashSeq = seq
+        if seq == (None, None):
+            self.set_linestyle('-')
+        else:
+            self.set_linestyle('--')
+        self._dashSeq = seq[1]  # TODO: offset ignroed for now
         
     def _draw_nothing(self, renderer, gc, xt, yt):
         pass
@@ -1055,8 +1058,6 @@ ACCEPTS: sequence of on/off ink in points
 
         self._linestyle = other._linestyle
         self._marker = other._marker
-        self._lineFunc = other._lineStyles[other._linestyle]
-        self._markerFunc = other._markers[other._marker]
         self._useDataClipping = other._useDataClipping
 
     def _get_rgb_face(self):

@@ -395,6 +395,12 @@ ACCEPTS: float or sequence of floats"""
     def get_linewidths(self):
         return self._lw
 
+    def get_linestyle(self):
+        return self._ls
+
+    def get_dashes(self):
+        return self._ls
+
     def get_colors(self):
         return self._colors
 

@@ -391,12 +391,6 @@ RendererAgg::draw_line_collection(const Py::Tuple& args) {
   //segments, trans, clipbox, colors, linewidths, antialiaseds
   Py::SeqBase<Py::Object> segments = args[0];  
   
-  /* this line is broken, mysteriously
-     if (!Transformation::check(args[1])) 
-     throw Py::TypeError("RendererAgg::draw_line_collection(segments, transform, ...) expected a Transformation instance for transform");
-     
-  */
-  
   Transformation* transform = static_cast<Transformation*>(args[1].ptr());
   
   set_clip_from_bbox(args[2]);
@@ -420,8 +414,9 @@ RendererAgg::draw_line_collection(const Py::Tuple& args) {
   size_t Naa = antialiaseds.length();
   size_t Noffsets = 0;
   size_t N = Nsegments;
+  size_t Ndash = 0;
   
-  Py::Tuple dashtup(linestyle);
+  Py::SeqBase<Py::Object> dashtup(linestyle);
   bool useDashes = dashtup[0].ptr() != Py_None;
   
   double offset = 0;
@@ -435,14 +430,14 @@ RendererAgg::draw_line_collection(const Py::Tuple& args) {
     offset = points_to_pixels_snapto(dashtup[0]);
     dashSeq = dashtup[1]; 
     
-    size_t N = dashSeq.length();
-    if (N%2 != 0  ) 
+    Ndash = dashSeq.length();
+    if (Ndash%2 != 0  ) 
       throw Py::ValueError(Printf("dashes must be an even length sequence; found %d", N).str());     
     
-    dasha = new double[N];    
+    dasha = new double[Ndash];    
     
-    for (size_t i=0; i<N; i++) 
-      dasha[i] = points_to_pixels_snapto(dashSeq[i]);
+    for (size_t i=0; i<Ndash; i++) 
+      dasha[i] = points_to_pixels(dashSeq[i]);
   }  
   
   
@@ -453,11 +448,11 @@ RendererAgg::draw_line_collection(const Py::Tuple& args) {
   
   double xo(0.0), yo(0.0), thisx(0.0), thisy(0.0);
   std::pair<double, double> xy;  
-  Py::Tuple xyo;
+  Py::SeqBase<Py::Object> xyo;
   Py::SeqBase<Py::Object> xys;
   for (size_t i=0; i<N; ++i) {
     if (usingOffsets) {
-      xyo = Py::Tuple(offsets[i%Noffsets]);
+      xyo = Py::SeqBase<Py::Object>(offsets[i%Noffsets]);
       xo = Py::Float(xyo[0]);
       yo = Py::Float(xyo[1]);
       try {
@@ -516,32 +511,9 @@ RendererAgg::draw_line_collection(const Py::Tuple& args) {
     }
     else {
       
-      /*
-	size_t N = dashSeq.length();
-	if (N%2 != 0  ) 
-	throw Py::ValueError(Printf("dashes must be an even length sequence; found %d", N).str());     
-	
-	typedef agg::conv_dash<agg::path_storage> dash_t;
-	dash_t dash(path);
-	
-	double on, off;
-	
-	//dash.dash_start(offset);
-	for (size_t i=0; i<N/2; i+=1) {
-	on = points_to_pixels_snapto(dashSeq[2*i]);
-	off = points_to_pixels_snapto(dashSeq[2*i+1]);
-	dash.add_dash(on, off);
-	}
-	agg::conv_stroke<dash_t> stroke(dash);
-	stroke.line_cap(cap);
-	stroke.line_join(join);
-	stroke.width(lw);
-	theRasterizer->add_path(stroke);
-	
-      */
       dash_t dash(path);
       //dash.dash_start(offset);
-      for (size_t idash=0; idash<N/2; idash++) 
+      for (size_t idash=0; idash<Ndash/2; idash++) 
 	dash.add_dash(dasha[2*idash], dasha[2*idash+1]);
       
       agg::conv_stroke<dash_t> stroke(dash);
@@ -552,7 +524,7 @@ RendererAgg::draw_line_collection(const Py::Tuple& args) {
     }
     
     // get the color and render
-    Py::Tuple rgba = Py::Tuple(colors[ i%Nc]);
+    Py::SeqBase<Py::Object> rgba(colors[ i%Nc]);
     double r = Py::Float(rgba[0]);
     double g = Py::Float(rgba[1]);
     double b = Py::Float(rgba[2]); 
@@ -650,13 +622,13 @@ RendererAgg::draw_poly_collection(const Py::Tuple& args) {
   size_t N = (Noffsets>Nverts) ? Noffsets : Nverts;
   
   std::pair<double, double> xyo, xy;
-  Py::Tuple thisverts;
+  Py::SeqBase<Py::Object> thisverts;
   for (size_t i=0; i<N; ++i) {
     
     thisverts = verts[i % Nverts];
     
     if (usingOffsets) {
-      Py::Tuple pos = Py::Tuple(offsets[i]);
+      Py::SeqBase<Py::Object> pos = Py::SeqBase<Py::Object>(offsets[i]);
       double xo = Py::Float(pos[0]);
       double yo = Py::Float(pos[1]);
       try {
@@ -671,14 +643,14 @@ RendererAgg::draw_poly_collection(const Py::Tuple& args) {
     size_t Nverts = thisverts.length();
     agg::path_storage path;
     
-    Py::Tuple thisvert;
+    Py::SeqBase<Py::Object>  thisvert;
     
     
     // dump the verts to double arrays so we can do more efficient
     // look aheads and behinds when doing snapto pixels
     double xs[Nverts], ys[Nverts];    
     for (size_t j=0; j<Nverts; ++j) {
-      thisvert = Py::Tuple(thisverts[j]);
+      thisvert = thisverts[j];
       double x = Py::Float(thisvert[0]);
       double y = Py::Float(thisvert[1]);
       try {
@@ -730,7 +702,7 @@ RendererAgg::draw_poly_collection(const Py::Tuple& args) {
     path.close_polygon();
     int isaa = Py::Int(antialiaseds[i%Naa]);     
     // get the facecolor and render
-    Py::Tuple rgba = Py::Tuple(facecolors[ i%Nface]);
+    Py::SeqBase<Py::Object>  rgba = Py::SeqBase<Py::Object>(facecolors[ i%Nface]);
     double r = Py::Float(rgba[0]);
     double g = Py::Float(rgba[1]);
     double b = Py::Float(rgba[2]);
@@ -751,7 +723,7 @@ RendererAgg::draw_poly_collection(const Py::Tuple& args) {
     } //renderer face
     
     // get the edgecolor and render
-    rgba = Py::Tuple(edgecolors[ i%Nedge]);
+    rgba = Py::SeqBase<Py::Object>(edgecolors[ i%Nedge]);
     r = Py::Float(rgba[0]);
     g = Py::Float(rgba[1]);
     b = Py::Float(rgba[2]);
@@ -829,16 +801,16 @@ RendererAgg::draw_regpoly_collection(const Py::Tuple& args) {
   // dump the x.y vertices into a double array for faster access
   double xverts[Nverts];
   double yverts[Nverts];
-  Py::Tuple xy;
+  Py::SeqBase<Py::Object> xy;
   for (size_t i=0; i<Nverts; ++i) {
-    xy = Py::Tuple(verts[i]);
+    xy = Py::SeqBase<Py::Object>(verts[i]);
     xverts[i] = Py::Float(xy[0]);
     yverts[i] = Py::Float(xy[1]);
   }
   
   std::pair<double, double> offsetPair;
   for (size_t i=0; i<Noffsets; ++i) {
-    Py::Tuple pos = Py::Tuple(offsets[i]);
+    Py::SeqBase<Py::Object> pos = Py::SeqBase<Py::Object>(offsets[i]);
     double xo = Py::Float(pos[0]);
     double yo = Py::Float(pos[1]);
     try {
@@ -867,7 +839,7 @@ RendererAgg::draw_regpoly_collection(const Py::Tuple& args) {
     path.close_polygon();
     int isaa = Py::Int(antialiaseds[i%Naa]);     
     // get the facecolor and render
-    Py::Tuple rgba = Py::Tuple(facecolors[ i%Nface]);
+    Py::SeqBase<Py::Object> rgba = Py::SeqBase<Py::Object>(facecolors[ i%Nface]);
     double r = Py::Float(rgba[0]);
     double g = Py::Float(rgba[1]);
     double b = Py::Float(rgba[2]);
@@ -888,7 +860,7 @@ RendererAgg::draw_regpoly_collection(const Py::Tuple& args) {
     } //renderer face
     
     // get the edgecolor and render
-    rgba = Py::Tuple(edgecolors[ i%Nedge]);
+    rgba = Py::SeqBase<Py::Object>(edgecolors[ i%Nedge]);
     r = Py::Float(rgba[0]);
     g = Py::Float(rgba[1]);
     b = Py::Float(rgba[2]);
