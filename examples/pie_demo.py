@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 """
 Make a pie chart - see
 http://matplotlib.sf.net/matplotlib.pylab.html#-pie for the docstring.

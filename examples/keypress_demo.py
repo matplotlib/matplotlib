@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 """
 Show how to connect to keypress events
 
