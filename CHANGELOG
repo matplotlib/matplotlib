@@ -1,5 +1,8 @@
 New entries should be added at the top
 
+2004-12-27 Fixed PS mathtext bug where color was not set - Jochen
+           please verify correct - JDH
+
 2004-12-27 Added Shadow class and added shadow kwarg to legend and pie
            for shadow effect - JDH
 

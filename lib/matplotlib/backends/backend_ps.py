@@ -366,6 +366,7 @@ grestore
 
         fontsize = prop.get_size_in_points()
         width, height, pswriter = math_parse_s_ps(s, 72, fontsize)
+        self.set_color(*gc.get_rgb())
         thetext = pswriter.getvalue()
         ps = """gsave
 %(x)f %(y)f translate
