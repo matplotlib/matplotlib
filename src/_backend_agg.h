@@ -2,6 +2,9 @@
  *
  * $Header$
  * $Log$
+ * Revision 1.4  2004/03/03 19:27:43  jdh2358
+ * fixed gtk vert text bug
+ *
  * Revision 1.3  2004/03/02 20:47:52  jdh2358
  * update htdocs - lots of small fixes
  *
@@ -19,7 +22,6 @@
 #include <fstream>
 #include <cmath>
 #include <cstdio>
-#include <freetype/freetype.h>
 
 #include "agg_arrowhead.h"
 #include "agg_conv_concat.h"
