@@ -45,6 +45,8 @@ yearsFmt = DateFormatter('%Y')
 
 quotes = quotes_historical_yahoo(
     'INTC', date1, date2, converter=pydates)
+if not quotes:
+    raise SystemExit
 
 dates = [q[0] for q in quotes]
 opens = [q[1] for q in quotes]

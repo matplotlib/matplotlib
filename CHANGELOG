@@ -1,7 +1,7 @@
 New entries should be added at the top
 =======
 
-2004-06-25 finance.py: handle case when urlopen() fails
+2004-06-25 finance.py: handle case when urlopen() fails - SC
 
 2004-06-24 Support for multiple images on axes and figure, with
            blending.  Support for upper and lower image origins.
