@@ -40,4 +40,5 @@ labels = ax.get_xticklabels()
 set(labels, rotation=45)
 
 grid(True)
+savefig('date_demo2')
 show()
