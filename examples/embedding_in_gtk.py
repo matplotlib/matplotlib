@@ -2,10 +2,13 @@
 from matplotlib.numerix import arange, sin, pi
 
 import matplotlib
-matplotlib.use('GTK')
+matplotlib.use('GTKAgg')  # or 'GTK'
 
 from matplotlib.axes import Subplot
-from matplotlib.backends.backend_gtk import FigureCanvasGTK
+
+# swith comments for gtk over gtkagg
+#from matplotlib.backends.backend_gtk import FigureCanvasGTK as FigureCanvas
+from matplotlib.backends.backend_gtkagg import FigureCanvasGTKAgg as FigureCanvas
 from matplotlib.figure import Figure
 
 import gtk
@@ -26,7 +29,7 @@ s = sin(2*pi*t)
 a.plot(t,s)
 
 
-canvas = FigureCanvasGTK(f)  # a gtk.DrawingArea
+canvas = FigureCanvas(f)  # a gtk.DrawingArea
 vbox.pack_start(canvas)
 
 #button = gtk.Button('Quit')

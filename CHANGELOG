@@ -1,5 +1,13 @@
 New entries should be added at the top
 
+2004-07-21 Applied backend_agg memory leak patch from hayden
+           - jocallo@online.no.  Found and fixed a leak in binary
+	   operations on transforms.  Moral of the story:  never incref
+	   where you meant to decref!- JDH
+
+2004-07-21 Fixed a to string memory allocation bug in agg and image
+           modules - JDH
+
 2004-07-21 Added mpl_connect and mpl_disconnect to matlab interface -
            JDH
 

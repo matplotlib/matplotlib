@@ -15,7 +15,7 @@ import matplotlib
 # comment out the following to use wx rather than wxagg
 matplotlib.use('WXAgg')
 from matplotlib.backends.backend_wxagg import FigureCanvasWxAgg as FigureCanvas
-from matplotlib.backends.backend_wx import NavigationToolbarWx as NavigationToolbar
+from matplotlib.backends.backend_wx import NavigationToolbar2Wx
 
 from matplotlib.backends.backend_wx import _load_bitmap
 from matplotlib.figure import Figure
@@ -23,13 +23,13 @@ from matplotlib.numerix import rand
 
 from wxPython.wx import *
 
-class MyNavigationToolbar(NavigationToolbar):
+class MyNavigationToolbar(NavigationToolbar2Wx):
     """
     Extend the default wx toolbar with your own event handlers
     """
     ON_CUSTOM = wxNewId()
     def __init__(self, canvas, cankill):
-        NavigationToolbar.__init__(self, canvas, cankill)
+        NavigationToolbar2Wx.__init__(self, canvas)
 
         # for simplicity I'm going to reuse a bitmap from wx, you'll
         # probably want to add your own.

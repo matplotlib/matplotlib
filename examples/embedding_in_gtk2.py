@@ -2,8 +2,14 @@
 from matplotlib.numerix import arange, sin, pi
 
 import matplotlib
-matplotlib.use('GTK')
-from matplotlib.backends.backend_gtk import FigureCanvasGTK, NavigationToolbar
+matplotlib.use('GTKAgg')  # or 'GTK'
+
+# swith comments for gtk over gtkagg
+from matplotlib.backends.backend_gtk import FigureCanvasGTK as FigureCanvas
+#from matplotlib.backends.backend_gtkagg import FigureCanvasGTKAgg as FigureCanvas
+
+# or NavigationToolbar for classic
+from matplotlib.backends.backend_gtk import NavigationToolbar2GTK as NavigationToolbar
 
 from matplotlib.axes import Subplot
 from matplotlib.figure import Figure
@@ -26,11 +32,11 @@ s = sin(2*pi*t)
 ax.plot(t,s)
 
 
-canvas = FigureCanvasGTK(fig)  # a gtk.DrawingArea
+canvas = FigureCanvas(fig)  # a gtk.DrawingArea
 canvas.show()
 vbox.pack_start(canvas)
 
-toolbar = NavigationToolbar(canvas, win)
+toolbar = NavigationToolbar(canvas)
 toolbar.show()
 vbox.pack_start(toolbar, gtk.FALSE, gtk.FALSE)
 

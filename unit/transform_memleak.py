@@ -1,5 +1,5 @@
 import sys, time, os
-from helpers import rand_transform
+from helpers import rand_val, rand_point, rand_bbox, rand_transform
 
 def report_memory(i):
     pid = os.getpid()
@@ -9,6 +9,14 @@ def report_memory(i):
 
 N = 200
 for i in range(N):
+    v1, v2, v3, v4, v5 = rand_val(5)
+    b1 = v1 + v2
+    b2 = v3 -v4
+    b3 = v1*v2*b2 - b1
+    
+
+    p1 = rand_point()
+    box1 = rand_bbox()
     t = rand_transform()
     val = report_memory(i)
     if i==1: start = val

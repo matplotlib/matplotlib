@@ -469,10 +469,16 @@
 
 -- font dict in wx is broken w/ respect to new font names
 
--- update nav section of tutorial
+-- DONE update nav section of tutorial
 
 -- track down transforms memleak
 
 -- DONE make sure you handle cacheing of rotated mathtext properly
 
-- handle deprecated connect across backends graciously
+-- handle deprecated connect across backends graciously
+
+-- embedding_in_wx3 seems broken with numeric
+
+-- add new connect to API_CHANGES
+
+--port new toolbar to embedding examples
