@@ -154,5 +154,8 @@
 -- DONE 2003-11-20 - problem with stale _set_font.  legend axes box
    doesn't resize on save in GTK backend -- see htdocs legend_demo.py
 
+-- DONE 2003-11-21 - make a dash-dot dict for the GC
 
--- make a dash-dot dict for the GC
+-- dashes broken in GTK backend on win32?
+
+-- finish XVFB architecture
