@@ -215,13 +215,16 @@ class PolyCollection(PatchCollection):
             offsets = [(0,0)]
         else:
             offsets = self._offsets
-        N = max(len(offsets), len(self._verts))
+        Noffsets = len(offsets)
+        Nverts = len(self._verts)
+        N = max(Noffsets, Nverts)
         vertsall = []
         for i in range(N):
-            ox, oy = offsets[i%N]
-            verts = self._verts[i%N]
+            ox, oy = offsets[i%Noffsets]
+            verts = self._verts[i%Nverts]
             vertsall.extend([(x+ox, y+oy) for x,y in verts])
         return vertsall
+
 
 
 class RegularPolyCollection(PatchCollection):
