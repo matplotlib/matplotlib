@@ -8,6 +8,7 @@ from matplotlib.matlab import *
 #print Z
 Z = rand(10,6)
 
+#c = pcolor(Z, shading='flat') # default 'faceted'
 c = pcolor(Z)
 c.set_linewidth(4)
 

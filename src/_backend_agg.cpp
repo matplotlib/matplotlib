@@ -567,7 +567,7 @@ RendererAgg::draw_regpoly_collection(const Py::Tuple& args) {
   
   double thisx, thisy;
   
-  // dump the x.y vertices into a double array for paster access
+  // dump the x.y vertices into a double array for faster access
   double xverts[Nverts];
   double yverts[Nverts];
   Py::Tuple xy;
@@ -643,7 +643,7 @@ RendererAgg::draw_regpoly_collection(const Py::Tuple& args) {
 	theRenderer->color(edgecolor);    
 	theRasterizer->render(*slineP8, *theRenderer); 
       }
-      else {
+      else {      
 	rendererBin->color(edgecolor);    
 	theRasterizer->render(*slineBin, *rendererBin); 
       }

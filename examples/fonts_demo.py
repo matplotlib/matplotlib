@@ -111,4 +111,5 @@ t = text(0, 0.3, 'bold italic', fontproperties=font,
          **alignment)
 
 axis([-1,1,0,1])
+savefig('fonts_demo')
 show()
