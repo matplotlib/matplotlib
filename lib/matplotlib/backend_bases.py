@@ -636,7 +636,7 @@ class KeyEvent(LocationEvent):
     This interface may change slightly when better support for
     modifier keys is included
     """
-    def __init__(self, name, canvas, key, x, y):
+    def __init__(self, name, canvas, key, x=0, y=0):
         LocationEvent.__init__(self, name, canvas, x, y)
         self.key = key
 
