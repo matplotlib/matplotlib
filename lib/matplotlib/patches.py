@@ -45,11 +45,14 @@ class Patch(Artist):
                 func(v)
         
     def copy_properties(self, other):
-        self._edgecolor = other._edgecolor
-        self._facecolor = other._facecolor
-        self.fill = other.fill
-        self._linewidth= other._linewidth
-
+        self.set_edgecolor(other.get_edgecolor())
+        self.set_facecolor(other.get_facecolor())
+        self.set_fill(other.get_fill())
+        self.set_linewidth(other.get_linewidth())
+        self.set_transform(other.get_transform())
+        self.set_figure(other.get_figure())
+        self.set_alpha(other.get_alpha())                
+        
     def get_antialiased(self):
         return self._antialiased
 
@@ -102,7 +105,12 @@ ACCEPTS: [True | False]
 """
         self.fill = b
 
-    
+    def get_fill(self):
+        'return whether fill is set'
+        return self.fill
+
+     
+        
     def draw(self, renderer):
 
         #renderer.open_group('patch')
@@ -120,9 +128,9 @@ ACCEPTS: [True | False]
 
         verts = self.get_verts()        
         tverts = self._transform.seq_xy_tups(verts)
-
         renderer.draw_polygon(gc, rgbFace, tverts)
 
+ 
         #renderer.close_group('patch')
         
     def get_verts(self):
@@ -171,7 +179,45 @@ ACCEPTS: [True | False]
     def get_fc(self):
         'alias for get_facecolor'
         return self.get_facecolor()
-        
+
+class Shadow(Patch):
+    def __init__(self, patch, ox, oy, props=None):
+        """
+Create a shadow of the patch offset by ox, oy.  props, if not None is
+a patch property update dictionary.  If None, the shadow will have
+have the same color as the face, but darkened
+"""
+        Patch.__init__(self)
+        self.ox, self.oy = ox, oy
+        self.patch = patch
+        self.props = props
+        self._update()
+
+    def _update(self):        
+        self.copy_properties(self.patch)
+        if self.props is not None:
+            self.update(self.props)
+        else:
+            r,g,b,a = colorConverter.to_rgba(self.patch.get_facecolor())
+            rho = 0.3
+            r = rho*r
+            g = rho*g
+            b = rho*b
+
+            self.set_facecolor((r,g,b))
+            self.set_edgecolor((r,g,b))
+                   
+    def get_verts(self):
+        verts = self.patch.get_verts()
+        xs = [x+self.ox for x,y in verts]
+        ys = [y+self.oy for x,y in verts]
+        return zip(xs, ys)
+
+    def _draw(self, renderer):
+        'draw the shadow'
+        self._update()
+        Patch.draw(self, renderer)
+
 class Rectangle(Patch):
     """
     Draw a rectangle with lower left at xy=(x,y) with specified

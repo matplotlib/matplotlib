@@ -583,4 +583,5 @@ class normalize:
         return hasattr(self, '_A') and self._A is not None and self._A.shape<=2
 
 
-
+    
+    
