@@ -293,3 +293,5 @@
 -- support fontdicts, with deprecation as necessary
 
 -- move text layout to front end and support newlines with rotation.
+
+-- aligment test of backend_ps and table_demo on all backends
