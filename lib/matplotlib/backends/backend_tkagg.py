@@ -566,7 +566,7 @@ class NavigationToolbar2TkAgg(NavigationToolbar2, Tk.Frame):
     def _init_toolbar(self):
         xmin, xmax = self.canvas.figure.bbox.intervalx().get_bounds()
         height, width = 50, xmax-xmin
-        Tk.Frame.__init5B__(self, master=self.figman.window,
+        Tk.Frame.__init__(self, master=self.figman.window,
                           width=width, height=height,
                           borderwidth=2)
         
