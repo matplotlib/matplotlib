@@ -13,11 +13,7 @@ from matplotlib.ft2font import FT2Font
 from matplotlib._pylab_helpers import Gcf
 from matplotlib import rcParams
 
-try: from matplotlib.mathtext import math_parse_s_ft2font_svg
-except ImportError:
-    print >>sys.stderr, 'backend_svg could not import mathtext (build with ft2font)'
-    useMathText = False
-else: useMathText = True
+from matplotlib.mathtext import math_parse_s_ft2font_svg
 
 import sys,os,math
 
@@ -106,7 +102,7 @@ class RendererSVG(RendererBase):
         get the width and height in display coords of the string s
         with FontPropertry prop
         """
-        if ismath and useMathText:
+        if ismath:
             width, height, glyphs = math_parse_s_ft2font_svg(
                 s, 72, prop.get_size_in_points())
             return width, height
@@ -207,7 +203,7 @@ class RendererSVG(RendererBase):
         """
         draw text
         """
-        if ismath and useMathText:
+        if ismath:
              return self.draw_mathtext(gc, x, y, s, prop, angle)
         
         font = self._get_font(prop)
