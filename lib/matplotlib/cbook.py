@@ -399,14 +399,14 @@ def alltrue(seq):
     #return true if all elements of seq are true.  If seq is empty return false
     if not len(seq): return False
     for val in seq:
-        if not seq: return False
+        if not val: return False
     return True
 
 def onetrue(seq):
-    #return true if one elements of seq are true.  If seq is empty return false
+    #return true if one element of seq is true.  If seq is empty return false
     if not len(seq): return False
     for val in seq:
-        if seq: return True
+        if val: return True
     return False
 
 def allpairs(x):

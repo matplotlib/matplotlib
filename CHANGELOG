@@ -1,6 +1,8 @@
 New entries should be added at the top
 
 
+2005-02-14 fix bug in cbook alltrue() and onetrue() - SC
+
 2005-02-11 updated qtagg backend from Ted - JDH
 
 2005-02-11 matshow fixes for figure numbering, return value and docs - FP
