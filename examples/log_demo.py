@@ -7,18 +7,21 @@ t = arange(dt, 20.0, dt)
 subplot(311)
 semilogy(t, exp(-t/5.0))
 ylabel('semilogy')
+grid(True)
 
 subplot(312)
 semilogx(t, sin(2*pi*t))
 ylabel('semilogx')
 
+
+
+grid(True)
+gca().xaxis.grid(True, which='minor')  # minor grid on too
+
 subplot(313)
 loglog(t, 20*exp(-t/10.0))
 gca().set_xscale('log',base=4)
-gca().set_yscale('log',base=8,subs=[2,4,6])
-#gca().set_yscale('log',base=8,subs=None)
 grid(True)
-ylabel('loglog')
-text(1, 15, 'custom base and scale')
+ylabel('loglog base 4 on x')
 #savefig('log_demo')
 show()

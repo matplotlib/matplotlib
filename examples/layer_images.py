@@ -19,7 +19,9 @@ X,Y = meshgrid(x, y)
 # when layering multiple images, the images need to have the same
 # extent.  This does not mean they need to have the same shape, but
 # they both need to render to the same coordinate system determined by
-# xmin, xmax, ymin, ymax
+# xmin, xmax, ymin, ymax.  Note if you use different interpolations
+# for the images their apparent extent could be different due to
+# interpolation edge effects
 
 xmin, xmax, ymin, ymax = min(x), max(x), min(y), max(y)
 extent = xmin, xmax, ymin, ymax
