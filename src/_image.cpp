@@ -1,4 +1,4 @@
-
+#include <iostream>
 #include <fstream>
 #include <cmath>
 #include <cstdio>
@@ -184,6 +184,7 @@ Image_resize(ImageObject *image, PyObject* args) {
   image->colsOut = numcols;
   image->rowsOut = numrows;
   
+
   size_t NUMBYTES(numrows * numcols * image->BPP);
   agg::int8u *buffer = new agg::int8u[NUMBYTES];  
   image->rbufOut = new agg::rendering_buffer;
@@ -378,10 +379,12 @@ Image_dealloc(ImageObject *self)
 {
   PyObject_Del(self);
   
-  delete [] self->bufferIn;
-  delete self->rbufOut;
-  delete [] self->bufferOut;
-  delete self->rbufIn;
+  delete [] self->bufferIn; self->bufferIn = NULL;
+  delete self->rbufIn; self->rbufIn=NULL;
+
+  delete self->rbufOut; self->rbufOut = NULL;
+  delete [] self->bufferOut; self->bufferOut=NULL;
+
   
 }
 
@@ -544,18 +547,33 @@ _image_fromfile(PyObject *self, PyObject *args) {
 }
 
 char _image_fromarray__doc__[] = 
-"fromarray(A)\n"
+"fromarray(A, isoutput)\n"
 "\n"
 "Load the image from a Numeric or numarray array\n"
+"By default this function fills the input buffer, which can subsequently\n"
+"be resampled using resize.  If isoutput=1, fill the output buffer.\n"
+"This is used to support raw pixel images w/o resampling"
 ;
 static PyObject *
-_image_fromarray(PyObject *self, PyObject *args) {
+_image_fromarray(PyObject *self, PyObject *args, PyObject *kwargs) {
   
   PyObject *x; 
   PyArrayObject *A;
+
+  int isoutput=0;
+
+  /* // my kwargs is segfaulting
+  static char *kwlist[] = {"A", "isoutput", NULL};
+
   
-  if (!PyArg_ParseTuple(args, "O", &x))
+  if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O|i", kwlist,
+				   &x, &isoutput))
+    return NULL;
+  
+  */
+  if (!PyArg_ParseTuple(args, "Oi", &x, &isoutput))
     return NULL; 
+
   
   //rank 2 or 3
   A = (PyArrayObject *) PyArray_ContiguousFromObject(x, PyArray_DOUBLE, 2, 3); 
@@ -642,6 +660,20 @@ _image_fromarray(PyObject *self, PyObject *args) {
     return NULL;
   }
   Py_XDECREF(A);  
+
+  if (isoutput) {
+    // make the output buffer point to the input buffer
+
+    imo->rowsOut  = imo->rowsIn;
+    imo->colsOut  = imo->colsIn;
+
+    imo->bufferOut = new agg::int8u[NUMBYTES];  
+    imo->rbufOut = new agg::rendering_buffer;
+    imo->rbufOut->attach(imo->bufferOut, imo->colsOut, imo->rowsOut, imo->colsOut * imo->BPP);
+
+    for (size_t i=0; i<NUMBYTES; i++)
+      *(imo->bufferOut +i) = *(imo->bufferIn +i);
+  }
   return (PyObject *)imo;
 }
 
