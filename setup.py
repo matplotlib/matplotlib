@@ -64,6 +64,8 @@ data = []
 data.extend(glob.glob('fonts/afm/*.afm'))
 data.extend(glob.glob('fonts/ttf/*.ttf'))
 data.extend(glob.glob('images/*.xpm'))
+data.extend(glob.glob('images/*.svg'))
+data.extend(glob.glob('images/*.png'))
 data.extend(glob.glob('images/*.ppm'))
 data.append('.matplotlibrc')
 

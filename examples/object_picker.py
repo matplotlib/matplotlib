@@ -15,8 +15,6 @@ from matplotlib.backends.backend_gtk import NavigationToolbar, \
      error_msg, colorManager
 from matplotlib.backends.backend_gtkagg import FigureCanvasGTKAgg as FigureCanvas
 
-from matplotlib.axes import Subplot
-
 from matplotlib.figure import Figure
 from matplotlib.lines import Line2D, lineStyles, lineMarkers
 from matplotlib.transforms import Bbox, lbwh_to_bbox
