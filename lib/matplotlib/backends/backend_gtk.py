@@ -1535,18 +1535,6 @@ def error_msg_gtk(msg, parent=None):
     dialog.destroy()
 
 
-class MPLError (Exception):
-    """Exception for Matplotlib errors
-    Attributes:
-        message -- explanation of the error
-    """
-    def __init__ (self, message):
-        self.message = message
-
-    def __str__ (self):
-        return self.message
-
-
 def exception_handler(type, value, tb):
     """Handle uncaught exceptions
     It does not catch SystemExit
