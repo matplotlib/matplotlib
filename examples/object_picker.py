@@ -12,7 +12,7 @@ import matplotlib
 matplotlib.use('GTKAgg')
 
 from matplotlib.backends.backend_gtk import NavigationToolbar, \
-     error_msg, GraphicsContextGTK
+     error_msg
 from matplotlib.backends.backend_gtkagg import FigureCanvasGTKAgg as FigureCanvas
 
 from matplotlib.figure import Figure

@@ -13,7 +13,7 @@ import mlab
 from artist import Artist
 from axis import XAxis, YAxis
 from cbook import iterable, is_string_like, flatten, enumerate, True, False,\
-     allequal, dict_delall, strip_math, popd
+     allequal, dict_delall, strip_math, popd, silent_list
 from collections import RegularPolyCollection, PolyCollection, LineCollection
 from colors import colorConverter, normalize, Colormap, LinearSegmentedColormap
 import cm
@@ -1259,7 +1259,8 @@ y symbol lines.  The second element is a list of error bar lines.
 
         self.autoscale_view()
 
-        return (l0, caplines+barlines)
+        ret = silent_list('Line2D errorbar', caplines+barlines)
+        return (l0, ret)
 
     def fill(self, *args, **kwargs):
         """\
