@@ -1,5 +1,9 @@
 New entries should be added at the top
 
+==========================================================================
+
+2005-03-31 0.74 released
+
 2005-03-30 Fixed and added checks for floating point inaccuracy in
            ticker.Base - DSD
 
