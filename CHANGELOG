@@ -2,7 +2,9 @@ New entries should be added at the top
 
 ==============================================================
 
-2004-09-03 Removed fallback to alternate array package from numerix
+2004-09-31 Added hbar - JDH
+
+2004-09-30 Removed fallback to alternate array package from numerix
            so that ImportErrors are easier to debug.           JTM
 
 2004-09-30 Add GTK+ 2.4 support for the message in the toolbar. SC
