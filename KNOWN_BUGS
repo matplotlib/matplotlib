@@ -23,11 +23,13 @@ KNOWN BUGS
 
   - parse error on lines like plot(bins, mu, bins, mu+sigma, '--')
 
+  - mri with eeg offsets whacked
+
 GD 
 
   - right tickline is off
  
   - dashes not scaling with dpi properly - rounding error or other?
 
-
+ 
  
