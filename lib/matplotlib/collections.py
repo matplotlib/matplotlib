@@ -11,6 +11,7 @@ import math
 from matplotlib import rcParams
 
 from artist import Artist
+from backend_bases import GraphicsContextBase
 from cbook import is_string_like, iterable
 from colors import colorConverter, looks_like_color
 from cm import ScalarMappable
@@ -248,6 +249,7 @@ class LineCollection(Collection):
                  linewidths    = None,
                  colors        = None,
                  antialiaseds  = None,
+                 linestyles = 'solid',
 		 offsets = None,
 		 transOffset = None,
                  ):
@@ -261,13 +263,17 @@ strings, etc, not allowed).
 
 antialiaseds must be a sequence of ones or zeros
 
-if linewidths, colors or antialiaseds is None, they default to
+linestyles is a single linestyle or a a seq of linestyles.  See help
+  for set_linestyle for information about legal values
+
+if linewidths, colors, or antialiaseds is None, they default to
 their rc params setting, in sequence form"""
         
         Collection.__init__(self)
 
         if linewidths is None   :
             linewidths   = (rcParams['lines.linewidth'], )
+
         if colors is None       :
             colors       = self._get_color(rcParams['lines.color'])
         if antialiaseds is None :
@@ -277,6 +283,7 @@ their rc params setting, in sequence form"""
         self._colors = colors
         self._aa = antialiaseds
         self._lw = linewidths
+        self.set_linestyle(linestyles)
 	self._offsets = offsets
 	self._transOffset = transOffset
 
@@ -287,7 +294,7 @@ their rc params setting, in sequence form"""
 
         renderer.draw_line_collection(
             self._segments, self._transform, self.clipbox, 
-            self._colors, self._lw, self._aa, self._offsets,
+            self._colors, self._lw, self._ls, self._aa, self._offsets,
 	    self._transOffset)
         self._transform.thaw()
 	if self._transOffset is not None: self._transOffset.thaw()
@@ -302,6 +309,28 @@ sequence
 ACCEPTS: float or sequence of floats"""
         
         self._lw = self._get_value(lw)
+
+    def set_linestyle(self, ls):
+        """
+Set the linestyles(s) for the collection.  ls can be a string
+linestyle ('solid', 'dashed', 'dashdot', 'dotted) or a sequence of
+such strings.  Alteratively it can be a sequence of on-off dash
+tuples.
+
+ACCEPTS: string or sequence of strings or (offset, on-off dash seq) tuples"""
+
+        gc = GraphicsContextBase()
+        def get_onoff(val):
+            if is_string_like(val):
+                return GraphicsContextBase.dashd[val]
+            elif iterable(val) and len(val)==2:
+                return val
+            else: raise ValueError('Do not know how to convert %s to dashes'%val)
+
+        if is_string_like(ls): ls = [ls]
+                                  
+        
+        self._ls = [get_onoff(val) for val in ls]
 
     def color(self, c):
         """

@@ -226,7 +226,7 @@ RendererAgg::draw_line_collection(const Py::Tuple& args) {
   
   _VERBOSE("RendererAgg::draw_line_collection");
   
-  args.verify_length(8);  
+  args.verify_length(9);  
   
   
   //segments, trans, clipbox, colors, linewidths, antialiaseds
@@ -245,19 +245,21 @@ RendererAgg::draw_line_collection(const Py::Tuple& args) {
   
   Py::SeqBase<Py::Object> colors = args[3];  
   Py::SeqBase<Py::Object> linewidths = args[4];  
-  Py::SeqBase<Py::Object> antialiaseds = args[5];  
+  Py::SeqBase<Py::Object> linestyles = args[5];  
+  Py::SeqBase<Py::Object> antialiaseds = args[6];  
   
-  bool usingOffsets = args[6].ptr()!=Py_None;
+  bool usingOffsets = args[7].ptr()!=Py_None;
   Py::SeqBase<Py::Object> offsets;
   Transformation* transOffset=NULL;
   if  (usingOffsets) {
-    offsets = Py::SeqBase<Py::Object>(args[6]);        
-    transOffset = static_cast<Transformation*>(args[7].ptr());
+    offsets = Py::SeqBase<Py::Object>(args[7]);        
+    transOffset = static_cast<Transformation*>(args[8].ptr());
   }
   
   size_t Nsegments = segments.length();
   size_t Nc = colors.length();
   size_t Nlw = linewidths.length();
+  size_t Nls = linestyles.length();
   size_t Naa = antialiaseds.length();
   size_t Noffsets = 0;
   size_t N = Nsegments;
@@ -303,13 +305,58 @@ RendererAgg::draw_line_collection(const Py::Tuple& args) {
       else       path.line_to(thisx, height-thisy);
     }
     
-    agg::conv_stroke<agg::path_storage> stroke(path);
-    //stroke.line_cap(cap);
-    //stroke.line_join(join);
+
+
     double lw = points_to_pixels ( Py::Float( linewidths[i%Nlw] ) );
+    Py::Tuple dashes(linestyles[i%Nls]);
+
+    //new
+    bool useDashes = dashes[0].ptr() != Py_None;
+    double offset = 0;
+    Py::SeqBase<Py::Object> dashSeq;
     
-    stroke.width(lw);
-    theRasterizer->add_path(stroke);
+    if ( dashes[0].ptr() != Py_None ) { // use dashes
+      //TODO: use offset
+      offset = points_to_pixels_snapto(dashes[0]);
+      dashSeq = dashes[1]; 
+    };
+
+
+    if (! useDashes ) {
+    
+      agg::conv_stroke<agg::path_storage> stroke(path);
+      //stroke.line_cap(cap);
+      //stroke.line_join(join);
+      stroke.width(lw);
+      //freeze was here std::cout << "\t adding path!" << std::endl;         
+      theRasterizer->add_path(stroke);
+  }
+    else {
+      // set the dashes //TODO: scale for DPI
+      
+      size_t N = dashSeq.length();
+      if (N%2 != 0  ) 
+	throw Py::ValueError(Printf("dashes must be an even length sequence; found %d", N).str());     
+      
+      typedef agg::conv_dash<agg::path_storage> dash_t;
+      dash_t dash(path);
+      
+      double on, off;
+    
+      for (size_t i=0; i<N/2; i+=1) {
+	on = points_to_pixels_snapto(dashSeq[2*i]);
+	off = points_to_pixels_snapto(dashSeq[2*i+1]);
+	dash.add_dash(on, off);
+      }
+      agg::conv_stroke<dash_t> stroke(dash);
+      //stroke.line_cap(cap);
+      //stroke.line_join(join);
+      stroke.width(lw);
+      theRasterizer->add_path(stroke);
+    }
+
+    //done new
+    
     
     // get the color and render
     Py::Tuple rgba = Py::Tuple(colors[ i%Nc]);

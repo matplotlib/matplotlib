@@ -203,7 +203,7 @@ class RendererBase:
         
 
     def draw_line_collection(self, segments, transform, clipbox,
-                             colors, linewidths, antialiaseds,
+                             colors, linewidths, linestyles, antialiaseds,
                              offsets, transOffset):
         """
         This is a function for optimized line drawing.  If you need to
@@ -226,6 +226,8 @@ class RendererBase:
 
         linewidths is a tuple of linewidths
 
+        linestyles is a tuple of (offset, onoffseq) tuples
+
         antialiseds is a tuple of ones or zeros indicating whether the
         segment should be aa or not
 
@@ -244,6 +246,7 @@ class RendererBase:
         i = 0
         Nc = len(colors)
         Nlw = len(linewidths)
+        Nls = len(linestyles)        
         Naa = len(antialiaseds)
 
         usingOffsets = offsets is not None
@@ -268,6 +271,9 @@ class RendererBase:
             gc.set_foreground( rgb, isRGB=True)
             gc.set_alpha( alpha )
             gc.set_linewidth( linewidths[i % Nlw] )
+
+            offset, seq = linestyles[i % Nls]
+            gc.set_dashes( offset, seq )            
             gc.set_antialiased( antialiaseds[i % Naa] )
             if usingOffsets:
                 xo, yo = transOffset.xy_tup(offsets[i % Noffsets])
@@ -331,11 +337,11 @@ class GraphicsContextBase:
     """
 
     # a mapping from dash styles to suggested offset, dash pairs
-    _dashd = {
+    dashd = {
         'solid'   : (None, None),
-        'dashed'  : (0, array([6.0, 6.0])),
-        'dashdot' : (0, array([3.0, 5.0, 1.0, 5.0])),
-        'dotted'  : (0, array([1.0, 3.0]))
+        'dashed'  : (0, (6.0, 6.0)),
+        'dashdot' : (0, (3.0, 5.0, 1.0, 5.0)),
+        'dotted'  : (0, (1.0, 3.0)),
               }
 
     def __init__(self):
@@ -502,7 +508,7 @@ class GraphicsContextBase:
         """
         if style in ('solid', 'dashed', 'dashdot', 'dotted'):
             self._linestyle = style
-            offset, dashes = self._dashd[style]
+            offset, dashes = self.dashd[style]
             self.set_dashes(offset, dashes)
         else:
             error_msg('Unrecognized linestyle:  Found %s' % style)

@@ -312,7 +312,7 @@ class GraphicsContextGD(GraphicsContextBase):
 
     def set_linestyle(self, style):
         GraphicsContextBase.set_linestyle(self, style)
-        offset, dashes = self._dashd[style]
+        offset, dashes = self.dashd[style]
         self.set_dashes(offset, dashes)
 
     def set_linewidth(self, lw):

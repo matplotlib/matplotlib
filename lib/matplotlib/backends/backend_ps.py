@@ -417,7 +417,7 @@ class GraphicsContextPS(GraphicsContextBase):
         'dotted').
         """
         GraphicsContextBase.set_linestyle(self, style)
-        offset, dashes = self._dashd[style]
+        offset, dashes = self.dashd[style]
         self.set_dashes(offset, dashes)
 
 def new_figure_manager(num, *args, **kwargs):
