@@ -64,7 +64,7 @@ X11FontDirectories  = [
     # common application, not really useful
     "/usr/lib/openoffice/share/fonts/truetype/",
     # documented as a good place to install new fonts...
-    "/usr/share/fonts",
+    "/usr/share/fonts/",
     # okay, now the OS X variants...
     "~/Library/Fonts/",
     "/Library/Fonts/",
@@ -132,12 +132,12 @@ def x11FontDirectory():
     else:
         fontpaths = []
         #def add(arg, directory, files):
-        def add(directory):
+        def add(arg,directory,files):
             fontpaths.append(directory)
         for fontdir in X11FontDirectories:
             try:
                 if os.path.isdir(fontdir):
-                    os.path.walk(fontdir, add, ())
+                    os.path.walk(fontdir, add, None)
             except (IOError, OSError, TypeError, ValueError):
                 pass
         return fontpaths

@@ -22,7 +22,7 @@ INTRODUCTION:
   properties, axes properties, etc, via an object oriented interface
   or via a handle graphics interface familiar to matlab users. A
   summary of the goals of matplotlib and the progress so far can be
-  found here.
+  found at http://matplotlib.sf.net/goals.html.
 
 REQUIREMENTS:
 

@@ -57,6 +57,11 @@ COMPILING
   location, you will need to set the MATPLOTLIBDATA environment
   variable to point to the install base dir.
  
+  Once you have everything above set to your liking, just do the usual
+  thing
+
+      python setup.py build
+      python setup.py install
     
 WINDOWS
 
