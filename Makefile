@@ -2,6 +2,9 @@
 # Copyright (C) 2003  <jdhunter@ace.bsd.uchicago.edu>
 # $Header$
 # $Log$
+# Revision 1.30  2004/04/26 19:41:47  barrett
+# Added a line to the htmldocs section to create the license.html.template file with the appropriate version number.
+#
 # Revision 1.29  2004/04/21 15:28:55  jdh2358
 # sync to 0.53
 #
@@ -109,7 +112,7 @@ clean:
 
 
 release: ${DISTFILES}
-	${PYTHON} license.py ${VERSION};\
+	${PYTHON} license.py ${VERSION} license/LICENSE;\
 	${PYTHON} setup.py sdist --formats=gztar,zip;
 
 pyback: 
@@ -119,6 +122,7 @@ htmldocs:
 
 	cp examples/*.py htdocs/examples;\
 	cp .matplotlibrc NUMARRAY_ISSUES API_CHANGES htdocs/;\
+	${PYTHON} license.py ${VERSION} htdocs/license.html.template;\
 	cd htdocs;\
 	${PYTHON} process_docs.py;\
 	${PYTHON} convert.py;\
