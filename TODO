@@ -114,13 +114,13 @@
 -- when you toggle an axes for interactive navigation, make sure a
    checked on appears as the default is one is checked
 
--- compile pygtk for threads on win32.
+-- DONE compile pygtk for threads on win32.
   
 -- There is a bug in vertical rendering of text that is exposed in the
    text, but not the ylabel, command.  It looks like a pixmap or
    images is not being properly initialized, resulting in pixel noise.
 
--- Fix the way the color map allocs colors.  Use only one DrawingArea
+-- DONE Fix the way the color map allocs colors.  Use only one DrawingArea
    instead of creating a new one with each call to ColorDispatcher().
    With this fix the bug in the logo code where the foreground text
    doesn't render to the desired color
@@ -128,3 +128,14 @@
 -- include manifest file for rpms
 
 -- fix CTRL-z bug in interactive2.py
+
+-- Allow gca not gca(); ditto for gcf()
+
+-- Fix legend to take a vector of line handles
+
+-- Fix legend bug on win32 and stock_demo.  This appears to be GTK
+   specific
+
+-- ticks too short with log scaling
+
+-- arbitrary patches for scatter

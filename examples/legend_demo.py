@@ -19,7 +19,7 @@ title('Minimum Message Length')
 set(gca(), 'yticklabels', [])
 set(gca(), 'xticklabels', [])
 
-#savefig('mml')
+savefig('mml')
 show()
 
 
