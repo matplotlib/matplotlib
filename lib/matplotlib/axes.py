@@ -1069,8 +1069,17 @@ matplotlib.collections.LineCollection instances
             collections.append(col)
 
 
-        self.set_xlim([0,imax])
-        self.set_ylim([0,jmax])
+        if x is not None:
+            rx = ravel(x)
+            self.set_xlim((min(rx), max(rx)))
+        else:
+            self.set_xlim([0,imax])
+
+        if y is not None:
+            ry = ravel(y)
+            self.set_ylim((min(ry), max(ry)))
+        else:
+            self.set_ylim([0,jmax])
 
         return levels, collections
 
