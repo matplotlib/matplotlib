@@ -9,6 +9,8 @@ from matplotlib.transforms import identity_transform, unit_bbox, identity_funcxy
 from matplotlib.transforms import get_bbox_transform
 from matplotlib.transforms import transform_bbox, inverse_transform_bbox
 from matplotlib.transforms import bbox_all
+from matplotlib.transforms import copy_bbox_transform
+
 
 def closeto(x,y):
     return abs(asarray(x)-asarray(y))<1e-10
@@ -249,4 +251,17 @@ ymax = max([box.ymax() for box in boxes])
 box = bbox_all(boxes)
 assert( closeto_seq( box.get_bounds(), (xmin, ymin, xmax-xmin, ymax-ymin)))
 print 'all tests passed'
+
+
+
+t1 = rand_transform()
+oboundsx = t1.get_bbox1().intervalx().get_bounds()
+oboundsy = t1.get_bbox1().intervaly().get_bounds()
+t2 = copy_bbox_transform(t1)
+t1.get_bbox1().intervalx().set_bounds(1,2)
+t2.get_bbox2().intervaly().set_bounds(-1,12)
+newboundsx = t2.get_bbox1().intervalx().get_bounds()
+newboundsy = t2.get_bbox1().intervaly().get_bounds()
+assert(oboundsx==newboundsx)
+assert(oboundsy==newboundsy)
 
