@@ -232,7 +232,7 @@ class BakomaTrueTypeFonts(Fonts):
                 None  : 'cmmi10',
                 }
 
-    def __init__(self):
+    def __init__(self, useSVG=False):
         self.glyphd = {}
         self.fonts = dict(
             [ (name, FT2Font(os.path.join(self.basepath, name) + '.ttf'))
@@ -240,6 +240,10 @@ class BakomaTrueTypeFonts(Fonts):
 
         for font in self.fonts.values():
             font.clear()
+        if useSVG:
+            self.svg_glyphs=[]  # a list of "glyphs" we need to render this thing in SVG
+        else: pass
+        self.usingSVG = useSVG
             
     def get_metrics(self, font, sym, fontsize, dpi):
         cmfont, metrics, glyph, offset  = \
@@ -299,9 +303,22 @@ class BakomaTrueTypeFonts(Fonts):
         cmfont, metrics, glyph, offset = \
                 self._get_info(font, sym, fontsize, dpi)
 
-        cmfont.draw_glyph_to_bitmap(
-            int(ox),  int(self.height - oy - metrics.ymax), glyph)
-
+        if not self.usingSVG:
+            cmfont.draw_glyph_to_bitmap(
+                int(ox),  int(self.height - oy - metrics.ymax), glyph)
+        else:
+            oy += offset - 512/2048.*10.
+            basename = self.fontmap[font]
+            if latex_to_bakoma.has_key(sym):
+                basename, num = latex_to_bakoma[sym]
+                num = self.fonts[basename].get_charmap()[num]
+            elif len(sym) == 1:
+                num = ord(sym)
+            else:
+                num = 0
+                print >>sys.stderr, 'unrecognized symbol "%s"' % sym
+            self.svg_glyphs.append((basename, fontsize, num, ox, oy, metrics))
+        
 
 class BakomaPSFonts(Fonts):
     """
@@ -959,6 +976,57 @@ def math_parse_s_ft2font(s, dpi, fontsize, angle=0):
     return w, h, bakomaFonts.fonts.values()
 
 math_parse_s_ft2font.cache = {}
+
+def math_parse_s_ft2font_svg(s, dpi, fontsize, angle=0):
+    """
+    Parse the math expression s, return the (bbox, fonts) tuple needed
+    to render it.
+
+    fontsize must be in points
+
+    return is width, height, fonts
+    """
+
+    major, minor1, minor2, tmp, tmp = sys.version_info
+    if major==2 and minor1==2:
+        print >> sys.stderr, 'mathtext broken on python2.2.  We hope to get this fixed soon'
+        sys.exit()
+    cacheKey = (s, dpi, fontsize, angle)
+    s = s[1:-1]  # strip the $ from front and back
+    if math_parse_s_ft2font_svg.cache.has_key(cacheKey):
+        w, h, svg_glyphs = math_parse_s_ft2font_svg.cache[cacheKey]
+        return w, h, svg_glyphs
+
+    bakomaFonts = BakomaTrueTypeFonts(useSVG=True)
+    Element.fonts = bakomaFonts
+    handler.clear()
+    expression.parseString( s )
+
+    handler.expr.set_size_info(fontsize, dpi)
+
+    # set the origin once to allow w, h compution
+    handler.expr.set_origin(0, 0)
+    xmin = min([e.xmin() for e in handler.symbols])
+    xmax = max([e.xmax() for e in handler.symbols])
+    ymin = min([e.ymin() for e in handler.symbols])
+    ymax = max([e.ymax() for e in handler.symbols])
+
+    # now set the true origin - doesn't affect with and height
+    w, h =  xmax-xmin, ymax-ymin
+    # a small pad for the canvas size
+    w += 2
+    h += 2
+
+    handler.expr.set_origin(0, h-ymax)
+
+    Element.fonts.set_canvas_size(w,h)
+    handler.expr.render()
+    handler.clear()
+
+    math_parse_s_ft2font_svg.cache[cacheKey] = w, h, bakomaFonts.svg_glyphs
+    return w, h, bakomaFonts.svg_glyphs
+
+math_parse_s_ft2font_svg.cache = {}
 
 
 def math_parse_s_ps(s, dpi, fontsize):

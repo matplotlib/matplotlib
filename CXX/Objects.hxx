@@ -2268,7 +2268,7 @@ namespace Py
 				}
 
 			const_iterator (const MapBase<T>* m, List k, List::iterator p )
-				: map(s), keys(k), pos(p)
+				: map(m), keys(k), pos(p)
 				{}
 
 			const_iterator(const const_iterator& other)

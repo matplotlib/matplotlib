@@ -179,7 +179,7 @@ class Legend(Artist):
                 legline.set_markersize(0.6*legline.get_markersize())
                 legline.set_data_clipping(False)
                 ret.append(legline)
-            elif isinstance(handle, Rectangle):
+            elif isinstance(handle, Patch):
 
                 p = Rectangle(xy=(min(self._xdata), y-3/4*HEIGHT),
                               width = self.HANDLELEN, height=HEIGHT/2,

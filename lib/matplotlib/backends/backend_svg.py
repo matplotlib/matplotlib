@@ -13,6 +13,12 @@ from matplotlib.ft2font import FT2Font
 from matplotlib._matlab_helpers import Gcf
 from matplotlib import rcParams
 
+try: from matplotlib.mathtext import math_parse_s_ft2font_svg
+except ImportError:
+    print >>sys.stderr, 'backend_svg could not import mathtext (build with ft2font)'
+    useMathText = False
+else: useMathText = True
+
 import sys,os,math
 
 def error_msg_svg(msg, *args):
@@ -103,7 +109,10 @@ class RendererSVG(RendererBase):
         get the width and height in display coords of the string s
         with FontPropertry prop
         """
-        if ismath: s = self.strip_math(s)
+        if ismath and useMathText:
+            width, height, glyphs = math_parse_s_ft2font_svg(
+                s, 72, prop.get_size_in_points())
+            return width, height
         font = self._get_font(prop)
         font.set_text(s, 0.0)
         w, h = font.get_width_height()
@@ -172,11 +181,38 @@ class RendererSVG(RendererBase):
         """
         self.draw_arc(gc, gc.get_rgb(), x, y, 1, 0, 0, 0)  # result seems to have a hole in it...
 
+    def draw_mathtext(self, gc, x, y, s, prop, angle):
+        """
+        Draw math text using matplotlib.mathtext
+        """
+        fontsize = prop.get_size_in_points()
+        width, height, svg_glyphs = math_parse_s_ft2font_svg(s, 72, fontsize)
+        color = rgb2hex(gc.get_rgb())
+
+        svg = ""
+        self.open_group("mathtext")
+        for fontname, fontsize, num, ox, oy, metrics in svg_glyphs:
+            thetext=unichr(num)
+            thetext.encode('utf-8')
+            style = 'font-size: %f; font-family: %s; stroke-width: 0.5; stroke: %s; fill: %s;'%(fontsize, fontname, color, color)
+            if angle!=0:
+                transform = 'transform="translate(%f,%f) rotate(%1.1f) translate(%f,%f)"' % (x,y,-angle,-x,-y) # Inkscape doesn't support rotate(angle x y)
+            else: transform = ''
+            newx, newy = x+ox, y-oy
+            svg += """\
+<text style="%(style)s" x="%(newx)f" y="%(newy)f" %(transform)s>%(thetext)s</text>
+""" % locals()
+
+        self._draw_rawsvg(svg.encode('utf-8'))
+        self.close_group("mathtext")
+
     def draw_text(self, gc, x, y, s, prop, angle, ismath):
         """
         draw text
         """
-        if ismath: s = self.strip_math(s)
+        if ismath and useMathText:
+             return self.draw_mathtext(gc, x, y, s, prop, angle)
+        
         font = self._get_font(prop)
 
         fontsize = prop.get_size_in_points()

@@ -6,8 +6,7 @@ This module contains classes to support completely configurable tick
 locating and formatting.  Although the locators know nothing about
 major or minor ticks, they are used by the Axis class to support major
 and minor tick locating and formatting.  Generic tick locators and
-formatters are provided, as well as domain specific custom locators an
-formatters.
+formatters are provided, as well as domain specific custom ones..
 
 
 Tick locating
@@ -15,7 +14,7 @@ Tick locating
 
 The Locator class is the base class for all tick locators.  The
 locators handle autoscaling of the view limits based on the data
-limits, and choosing the tick locations.  The most generally useful
+limits, and the choosing of tick locations.  The most generally useful
 tick locator is MultipleLocator.  You initialize this with a base, eg
 10, and it picks axis limits and ticks that are multiples of your
 base.  The class AutoLocator contains a MultipleLocator instance, and
