@@ -474,8 +474,7 @@ class RendererGTK(RendererBase):
 
     def points_to_pixels(self, points):
         """
-        convert point measures to pixels using dpi and the pixels per
-        inch of the display
+        Convert point measures to display units (pixels, as a float)
         """
         return points * PIXELS_PER_INCH/72.0 * self.dpi.get()/72.0
 
@@ -818,7 +817,14 @@ class FigureCanvasGTK(gtk.DrawingArea, FigureCanvasBase):
 
     def print_figure(self, filename, dpi=150, facecolor='w', edgecolor='w',
                      orientation='portrait'):
+        """
+        Render the figure to hardcopy.  Set the figure patch face and
+        edge colors.  This is useful because some of the GUIs have a
+        gray figure face color background and you'll probably want to
+        override this on hardcopy
 
+        orientation - only currently applies to PostScript printing.
+        """
         root, ext = os.path.splitext(filename)       
         ext = ext[1:]
         if ext == '':
@@ -845,8 +851,7 @@ class FigureCanvasGTK(gtk.DrawingArea, FigureCanvasBase):
             else:
                 from backend_ps  import FigureCanvasPS  as FigureCanvas
             fc = self.switch_backends(FigureCanvas)
-            fc.figure.dpi.set(72)
-            fc.print_figure(filename, 72, facecolor, edgecolor, orientation)
+            fc.print_figure(filename, dpi, facecolor, edgecolor, orientation)
 
         elif ext in ('jpg', 'png'):
             l,b,width, height = self.figure.bbox.get_bounds()

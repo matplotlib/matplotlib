@@ -377,13 +377,11 @@ class FigureCanvasAgg(FigureCanvasBase):
             elif ext.find('svg')>=0:
                 from backend_svg import FigureCanvasSVG
                 svg = self.switch_backends(FigureCanvasSVG)
-                svg.figure.dpi.set(72)
-                svg.print_figure(filename, 72, facecolor, edgecolor, orientation)
+                svg.print_figure(filename, dpi, facecolor, edgecolor, orientation)
             elif ext.find('ps')>=0 or ext.find('ep')>=0:
                 from backend_ps import FigureCanvasPS # lazy import
                 ps = self.switch_backends(FigureCanvasPS)
-                ps.figure.dpi.set(72)
-                ps.print_figure(filename, 72, facecolor, edgecolor, orientation)
+                ps.print_figure(filename, dpi, facecolor, edgecolor, orientation)
             else:
                 error_msg('Do not know know to handle extension *%s' % ext)
 
