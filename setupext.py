@@ -458,6 +458,21 @@ def build_image(ext_modules, packages, numerix):
 
     BUILT_IMAGE = True
 
+def build_swigagg(ext_modules, packages):
+    # setup the swig agg wrapper
+    deps = ['src/agg.cxx',
+            'agg22/src/agg_path_storage.cpp',
+            'agg22/src/agg_bezier_arc.cpp',
+            'agg22/src/agg_trans_affine.cpp',            
+            ]
+    agg = Extension('matplotlib._agg',
+                    deps,
+                    )
+
+    agg.include_dirs.extend(['agg22/include', 'src', 'swig'])
+    agg.libraries.extend(['stdc++', 'm'])
+    ext_modules.append(agg)
+
 def build_transforms(ext_modules, packages, numerix):
     if numerix in ["numarray","both"]: # Build for numarray
         cxx = glob.glob('CXX/*.cxx')

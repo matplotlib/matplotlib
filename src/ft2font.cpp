@@ -4,7 +4,7 @@
 
 #define FIXED_MAJOR(val) (*((short *) &val+1))
 #define FIXED_MINOR(val) (*((short *) &val+0))
- 
+
 FT_Library _ft2Library;
 
 FT2Image::FT2Image() : bRotated(false), buffer(NULL)  {}
@@ -28,12 +28,13 @@ Glyph::Glyph( const FT_Face& face, const FT_Glyph& glyph, size_t ind) :
   setattr("vertAdvance",  Py::Int( face->glyph->metrics.vertAdvance) );
   
   Py::Tuple abbox(4);
-
+  
   abbox[0] = Py::Int(bbox.xMin);
   abbox[1] = Py::Int(bbox.yMin);
   abbox[2] = Py::Int(bbox.xMax);
   abbox[3] = Py::Int(bbox.yMax);
   setattr("bbox", abbox);
+  setattr("path", get_path(face));
 }
 
 Glyph::~Glyph() {
@@ -53,6 +54,256 @@ Glyph::getattr( const char *name ) {
   if ( __dict__.hasKey(name) ) return __dict__[name];
   else return getattr_default( name );
 }
+
+inline double conv(int v)
+{
+  return double(v) / 64.0;
+}
+
+
+Py::Object
+Glyph::get_path( const FT_Face& face) {
+  //get the glyph as a path, a list of (COMMAND, *args) as desribed in matplotlib.path
+  // this code is from agg's decompose_ft_outline with minor modifications
+
+  enum {MOVETO, LINETO, CURVE3, CURVE4, ENDPOLY};
+  FT_Outline& outline = face->glyph->outline;
+  Py::List path;
+  bool flip_y= false; //todo, pass me as kwarg
+
+ 
+  FT_Vector   v_last;
+  FT_Vector   v_control;
+  FT_Vector   v_start;
+  
+  FT_Vector*  point;
+  FT_Vector*  limit;
+  char*       tags;
+  
+  int   n;         // index of contour in outline
+  int   first;     // index of first point in contour
+  char  tag;       // current point's state
+  
+  first = 0;
+  
+  for(n = 0; n < outline.n_contours; n++)
+    {
+      int  last;  // index of last point in contour
+      
+      last  = outline.contours[n];
+      limit = outline.points + last;
+      
+      v_start = outline.points[first];
+      v_last  = outline.points[last];
+      
+      v_control = v_start;
+      
+      point = outline.points + first;
+      tags  = outline.tags  + first;
+      tag   = FT_CURVE_TAG(tags[0]);
+
+      // A contour cannot start with a cubic control point!
+      if(tag == FT_CURVE_TAG_CUBIC) return Py::Object();
+      
+      // check first point to determine origin
+      if( tag == FT_CURVE_TAG_CONIC)
+	{
+	  // first point is conic control.  Yes, this happens.
+	  if(FT_CURVE_TAG(outline.tags[last]) == FT_CURVE_TAG_ON)
+	    {
+	      // start at last point if it is on the curve
+	      v_start = v_last;
+	      limit--;
+	    }
+	  else
+	    {
+	      // if both first and last points are conic,
+	      // start at their middle and record its position
+	      // for closure
+	      v_start.x = (v_start.x + v_last.x) / 2;
+	      v_start.y = (v_start.y + v_last.y) / 2;
+	      
+	      v_last = v_start;
+	    }
+	  point--;
+	  tags--;
+	}
+      
+      double x = conv(v_start.x);
+      double y = flip_y ? -conv(v_start.y) : conv(v_start.y);
+      Py::Tuple tup(3);
+      tup[0] = Py::Int(MOVETO);
+      tup[1] = Py::Float(x);
+      tup[2] = Py::Float(y);
+      path.append(tup);
+
+      Py::Tuple closepoly(2);
+      closepoly[0] = Py::Int(ENDPOLY);
+      closepoly[1] = Py::Int(0);
+      
+      while(point < limit)
+	{
+	  point++;
+	  tags++;
+	  
+	  tag = FT_CURVE_TAG(tags[0]);
+	  switch(tag)
+	    {
+	    case FT_CURVE_TAG_ON:  // emit a single line_to
+	      {
+		double x = conv(point->x);
+		double y = flip_y ? -conv(point->y) : conv(point->y);
+		Py::Tuple tup(3);
+		tup[0] = Py::Int(LINETO);
+		tup[1] = Py::Float(x);
+		tup[2] = Py::Float(y);
+		path.append(tup);
+
+		continue;
+	      }
+	      
+	    case FT_CURVE_TAG_CONIC:  // consume conic arcs
+	      {
+		v_control.x = point->x;
+		v_control.y = point->y;
+		
+	      Do_Conic:
+		if(point < limit)
+		  {
+		    FT_Vector vec;
+		    FT_Vector v_middle;
+		    
+		    point++;
+		    tags++;
+		    tag = FT_CURVE_TAG(tags[0]);
+		    
+		    vec.x = point->x;
+		    vec.y = point->y;
+		    
+		    if(tag == FT_CURVE_TAG_ON)
+		      {
+			double xctl = conv(v_control.x);
+			double yctl = flip_y ? -conv(v_control.y) : conv(v_control.y);
+			double xto = conv(vec.x);
+			double yto = flip_y ? -conv(vec.y) : conv(vec.y);
+			Py::Tuple tup(5);
+			tup[0] = Py::Int(CURVE3);
+			tup[1] = Py::Float(xctl);
+			tup[2] = Py::Float(yctl);
+			tup[3] = Py::Float(xto);
+			tup[4] = Py::Float(yto);
+			path.append(tup);
+			continue;
+		      }
+		    
+		    if(tag != FT_CURVE_TAG_CONIC) return Py::Object();
+		    
+		    v_middle.x = (v_control.x + vec.x) / 2;
+		    v_middle.y = (v_control.y + vec.y) / 2;
+		    
+		    double xctl = conv(v_control.x);
+		    double yctl = flip_y ? -conv(v_control.y) : conv(v_control.y);
+		    double xto = conv(v_middle.x);
+		    double yto = flip_y ? -conv(v_middle.y) : conv(v_middle.y);
+		    Py::Tuple tup(5);
+		    tup[0] = Py::Int(CURVE3);
+		    tup[1] = Py::Float(xctl);
+		    tup[2] = Py::Float(yctl);
+		    tup[3] = Py::Float(xto);
+		    tup[4] = Py::Float(yto);
+		    path.append(tup);
+
+		    v_control = vec;
+		    goto Do_Conic;
+		  }
+		double xctl = conv(v_control.x);
+		double yctl = flip_y ? -conv(v_control.y) : conv(v_control.y);
+		double xto = conv(v_start.x);
+		double yto = flip_y ? -conv(v_start.y) : conv(v_start.y);
+		Py::Tuple tup(5);
+		tup[0] = Py::Int(CURVE3);
+		tup[1] = Py::Float(xctl);
+		tup[2] = Py::Float(yctl);
+		tup[3] = Py::Float(xto);
+		tup[4] = Py::Float(yto);
+		path.append(tup);
+		goto Close;
+	      }
+	      
+	    default:  // FT_CURVE_TAG_CUBIC
+	      {
+		FT_Vector vec1, vec2;
+		
+		if(point + 1 > limit || FT_CURVE_TAG(tags[1]) != FT_CURVE_TAG_CUBIC)
+		  {
+		    return Py::Object();
+		  }
+		
+		vec1.x = point[0].x; 
+		vec1.y = point[0].y;
+		vec2.x = point[1].x; 
+		vec2.y = point[1].y;
+		
+		point += 2;
+		tags  += 2;
+		
+		if(point <= limit)
+		  {
+		    FT_Vector vec;
+		    
+		    vec.x = point->x;
+		    vec.y = point->y;
+
+		    double xctl1 = conv(vec1.x);
+		    double yctl1 = flip_y ? -conv(vec1.y) : conv(vec1.y);
+		    double xctl2 = conv(vec2.x);
+		    double yctl2 = flip_y ? -conv(vec2.y) : conv(vec2.y);
+		    double xto = conv(vec.x);
+		    double yto = flip_y ? -conv(vec.y) : conv(vec.y);
+		    Py::Tuple tup(7);
+		    tup[0] = Py::Int(CURVE4);
+		    tup[1] = Py::Float(xctl1);
+		    tup[2] = Py::Float(yctl1);
+		    tup[3] = Py::Float(xctl2);
+		    tup[4] = Py::Float(yctl2);
+		    tup[5] = Py::Float(xto);
+		    tup[6] = Py::Float(yto);
+		    path.append(tup);
+		    
+		    continue;
+		  }
+
+		double xctl1 = conv(vec1.x);
+		double yctl1 = flip_y ? -conv(vec1.y) : conv(vec1.y);
+		double xctl2 = conv(vec2.x);
+		double yctl2 = flip_y ? -conv(vec2.y) : conv(vec2.y);
+		double xto = conv(v_start.x);
+		double yto = flip_y ? -conv(v_start.y) : conv(v_start.y);
+		Py::Tuple tup(7);
+		tup[0] = Py::Int(CURVE4);
+		tup[1] = Py::Float(xctl1);
+		tup[2] = Py::Float(yctl1);
+		tup[3] = Py::Float(xctl2);
+		tup[4] = Py::Float(yctl2);
+		tup[5] = Py::Float(xto);
+		tup[6] = Py::Float(yto);
+		path.append(tup);
+		
+		goto Close;
+	      }
+	    }
+	}
+
+      path.append(closepoly);
+		
+      
+    Close:
+      first = last + 1; 
+    }
+  
+  return path;
+}
+
 
 FT2Font::FT2Font(std::string facefile) 
 {
@@ -107,9 +358,9 @@ FT2Font::FT2Font(std::string facefile)
   setattr("num_glyphs",      Py::Int(face->num_glyphs));
   setattr("num_fixed_sizes", Py::Int(face->num_fixed_sizes));
   setattr("num_charmaps",    Py::Int(face->num_charmaps));
-   
+  
   int scalable = FT_IS_SCALABLE( face );
-
+  
   setattr("scalable", Py::Int(scalable));
   
   if (scalable) {
@@ -138,7 +389,7 @@ FT2Font::~FT2Font()
   
   delete [] image.buffer ;
   image.buffer = NULL;
-
+  
   for (size_t i=0; i<glyphs.size(); i++) {
     FT_Done_Glyph( glyphs[i] );    
   }
@@ -159,48 +410,48 @@ char  FT2Font::horiz_image_to_vert_image__doc__[] =
 
 Py::Object
 FT2Font::horiz_image_to_vert_image(const Py::Tuple & args) {
-
-   // If we have already rotated, just return.
-   
+  
+  // If we have already rotated, just return.
+  
   if (image.bRotated) 
     return Py::Object(); 
-
-
-   long width = image.width, height = image.height;
-   
-   long newWidth  = image.height;
-   long newHeight = image.width;
-
-   long numBytes = image.width * image.height;
-   
-   unsigned char * buffer = new unsigned char [numBytes];
-
-   long  i, j, k, offset, nhMinusOne;   
-
-   nhMinusOne = newHeight-1;
-
-   for (i=0; i<height; i++) {
-
-      offset = i*width;
-
-      for (j=0; j<width; j++) {
-
-         k = nhMinusOne - j; 
-         
-         buffer[i + k*newWidth] = image.buffer[j + offset];
-         
-      }
-
-   }
-
-   delete [] image.buffer;
-   image.buffer = buffer;
-   image.width = newWidth;
-   image.height = newHeight;
-   image.bRotated = true;
-       
-   return Py::Object();
-
+  
+  
+  long width = image.width, height = image.height;
+  
+  long newWidth  = image.height;
+  long newHeight = image.width;
+  
+  long numBytes = image.width * image.height;
+  
+  unsigned char * buffer = new unsigned char [numBytes];
+  
+  long  i, j, k, offset, nhMinusOne;   
+  
+  nhMinusOne = newHeight-1;
+  
+  for (i=0; i<height; i++) {
+    
+    offset = i*width;
+    
+    for (j=0; j<width; j++) {
+      
+      k = nhMinusOne - j; 
+      
+      buffer[i + k*newWidth] = image.buffer[j + offset];
+      
+    }
+    
+  }
+  
+  delete [] image.buffer;
+  image.buffer = buffer;
+  image.width = newWidth;
+  image.height = newHeight;
+  image.bRotated = true;
+  
+  return Py::Object();
+  
 }
 
 int 
@@ -255,7 +506,7 @@ Py::Object
 FT2Font::clear(const Py::Tuple & args) {
   _VERBOSE("FT2Font::clear");
   args.verify_length(0);
-
+  
   //todo: move to image method?
   delete [] image.buffer ;
   image.buffer  = NULL;
@@ -263,24 +514,24 @@ FT2Font::clear(const Py::Tuple & args) {
   image.height  = 0;
   image.offsetx = 0;
   image.offsety = 0;
-
+  
   text  = "";
   angle = 0.0;
   
   pen.x = 0;
   pen.y = 0;
-
+  
   for (size_t i=0; i<glyphs.size(); i++) {
     FT_Done_Glyph( glyphs[i] );    
   }
-
+  
   for (size_t i=0; i<gms.size(); i++) {
     Py_DECREF(gms[i]);
   }
-
+  
   glyphs.resize(0);
   gms.resize(0);
-
+  
   return Py::Object();
 }
 
@@ -300,7 +551,7 @@ FT2Font::set_size(const Py::Tuple & args) {
   
   double ptsize = Py::Float(args[0]);
   double dpi = Py::Float(args[1]);
-
+  
   int error = FT_Set_Char_Size( face, (long)(ptsize * 64), 0, 
 				(unsigned int)dpi, 
 				(unsigned int)dpi );
@@ -384,16 +635,16 @@ FT2Font::load_glyphs() {
     /* ignore errors, jump to next glyph */ 
     
     /* extract glyph image and store it in our table */
-
+    
     FT_Glyph thisGlyph; 
     error = FT_Get_Glyph( face->glyph, &thisGlyph ); 
-
+    
     if ( error ) {
       std::cerr << "\tcould not get glyph for " << text[n] << std::endl;
       continue; 
     }
     /* ignore errors, jump to next glyph */ 
-
+    
     FT_Glyph_Transform( thisGlyph, 0, &pen);
     pen.x += face->glyph->advance.x;
     
@@ -558,7 +809,7 @@ FT2Font::draw_bitmap( FT_Bitmap*  bitmap,
 	  if ( i >= width || j >= height )
 	    continue;
 	  image.buffer[i + j*width] |= bitmap->buffer[q*bitmap->width + p];
-
+	  
 	}
     }
 }
@@ -583,9 +834,9 @@ FT2Font::write_bitmap(const Py::Tuple & args) {
   FT_Int height = (FT_Int)image.height;
   
   for ( i = 0; i< height; i++)   
-      for ( j = 0; j < width; ++j) 
-	  fputc(image.buffer[j + i*width], fh);
-    
+    for ( j = 0; j < width; ++j) 
+      fputc(image.buffer[j + i*width], fh);
+  
   fclose(fh);
   
   return Py::Object();
@@ -641,12 +892,12 @@ FT2Font::image_as_str(const Py::Tuple & args) {
   args.verify_length(0);
   
   return Py::asObject(
-		    Py_BuildValue("lls#", 
-				  image.width, 
-				  image.height, 
-				  image.buffer, 
-				  image.width*image.height)
-		    );
+		      Py_BuildValue("lls#", 
+				    image.width, 
+				    image.height, 
+				    image.buffer, 
+				    image.width*image.height)
+		      );
 }
 
 char FT2Font::draw_glyphs_to_bitmap__doc__[] = 
@@ -657,10 +908,10 @@ char FT2Font::draw_glyphs_to_bitmap__doc__[] =
 ;
 Py::Object
 FT2Font::draw_glyphs_to_bitmap(const Py::Tuple & args) {
-
+  
   _VERBOSE("FT2Font::draw_glyphs_to_bitmap");
   args.verify_length(0);
-
+  
   FT_BBox string_bbox = compute_string_bbox();
   
   image.width   = (string_bbox.xMax-string_bbox.xMin) / 64+2;
@@ -672,14 +923,14 @@ FT2Font::draw_glyphs_to_bitmap(const Py::Tuple & args) {
   else {
     image.offsety = (int)(-string_bbox.yMax/64.0);
   }
-
+  
   size_t numBytes = image.width*image.height;
   delete [] image.buffer;
   image.buffer = new unsigned char [numBytes];
   for (size_t n=0; n<numBytes; n++) 
     image.buffer[n] = 0;
-
-
+  
+  
   
   for ( size_t n = 0; n < glyphs.size(); n++ )
     {
@@ -694,7 +945,7 @@ FT2Font::draw_glyphs_to_bitmap(const Py::Tuple & args) {
 				 );
       if (error)
 	throw Py::RuntimeError("Could not convert glyph to bitmap");
-
+      
       FT_BitmapGlyph bitmap = (FT_BitmapGlyph)glyphs[n];
       // now, draw to our target surface (convert position)
       
@@ -704,10 +955,10 @@ FT2Font::draw_glyphs_to_bitmap(const Py::Tuple & args) {
       //make sure the index is non-neg
       x = x<0?0:x;
       y = y<0?0:y;
-
+      
       draw_bitmap( &bitmap->bitmap, x, y);
     }
-
+  
   return Py::Object();
 }
 
@@ -739,7 +990,7 @@ FT2Font::draw_glyph_to_bitmap(const Py::Tuple & args) {
   
   if ((size_t)glyph->glyphInd >= glyphs.size())
     throw Py::ValueError("glyph num is out of range");
-
+  
   error = FT_Glyph_To_Bitmap(&glyphs[glyph->glyphInd],
 			     ft_render_mode_normal,
 			     0,  //no additional translation
@@ -749,7 +1000,7 @@ FT2Font::draw_glyph_to_bitmap(const Py::Tuple & args) {
     throw Py::RuntimeError("Could not convert glyph to bitmap");
   
   FT_BitmapGlyph bitmap = (FT_BitmapGlyph)glyphs[glyph->glyphInd];
-
+  
   draw_bitmap( &bitmap->bitmap, 
 	       //x + bitmap->left,
 	       x,
@@ -768,10 +1019,10 @@ Py::Object
 FT2Font::get_glyph_name(const Py::Tuple & args) {
   _VERBOSE("FT2Font::get_glyph_name");
   args.verify_length(1);
-
+  
   if (!FT_HAS_GLYPH_NAMES(face))
     throw Py::RuntimeError("Face has no glyph names");
-
+  
   char buffer[128];
   if (FT_Get_Glyph_Name(face, (FT_UInt) Py::Int(args[0]), buffer, 128))
     throw Py::RuntimeError("Could not get glyph names.");
@@ -843,19 +1094,19 @@ char FT2Font::get_sfnt__doc__[] =
 "key is the platform-ID, ISO-encoding-scheme, language-code, and"
 "description.\n"
 /*
-"The font name identifier codes are:\n"
-"\n"
-"  0    Copyright notice     e.g. Copyright Apple Computer, Inc. 1992\n"
-"  1    Font family name     e.g. New York\n"
-"  2    Font style           e.g. Bold\n"
-"  3    Font identification  e.g. Apple Computer New York Bold Ver 1\n"
-"  4    Full font name       e.g. New York Bold\n"
-"  5    Version string       e.g. August 10, 1991, 1.08d21\n"
-"  6    Postscript name      e.g. Times-Bold\n"
-"  7    Trademark            \n"
-"  8    Designer             e.g. Apple Computer\n"
-"  11   URL                  e.g. http://www.apple.com\n"
-"  13   Copyright license    \n"
+  "The font name identifier codes are:\n"
+  "\n"
+  "  0    Copyright notice     e.g. Copyright Apple Computer, Inc. 1992\n"
+  "  1    Font family name     e.g. New York\n"
+  "  2    Font style           e.g. Bold\n"
+  "  3    Font identification  e.g. Apple Computer New York Bold Ver 1\n"
+  "  4    Full font name       e.g. New York Bold\n"
+  "  5    Version string       e.g. August 10, 1991, 1.08d21\n"
+  "  6    Postscript name      e.g. Times-Bold\n"
+  "  7    Trademark            \n"
+  "  8    Designer             e.g. Apple Computer\n"
+  "  11   URL                  e.g. http://www.apple.com\n"
+  "  13   Copyright license    \n"
 */
 ;
 Py::Object
@@ -897,7 +1148,7 @@ FT2Font::get_name_index(const Py::Tuple & args) {
   _VERBOSE("FT2Font::get_name_index");
   args.verify_length(1);
   std::string glyphname = Py::String(args[0]);
-
+  
   return Py::Long((long)
 		  FT_Get_Name_Index(face, (FT_String *) glyphname.c_str()));
 }
@@ -913,13 +1164,13 @@ FT2Font::get_ps_font_info(const Py::Tuple & args)
   _VERBOSE("FT2Font::get_ps_font_info");
   args.verify_length(0);
   PS_FontInfoRec fontinfo;
-
+  
   FT_Error error = FT_Get_PS_Font_Info(face, &fontinfo);
   if (error) {
     Py::RuntimeError("Could not get PS font info");
     return Py::Object();
   }
-
+  
   Py::Tuple info(9);
   info[0] = Py::String(fontinfo.version);
   info[1] = Py::String(fontinfo.notice);
@@ -944,20 +1195,20 @@ FT2Font::get_sfnt_table(const Py::Tuple & args) {
   _VERBOSE("FT2Font::get_sfnt_table");
   args.verify_length(1);
   std::string tagname = Py::String(args[0]);
-
+  
   int tag;
   char *tags[] = {"head", "maxp", "OS/2", "hhea",
 		  "vhea", "post", "pclt",  NULL};
-
+  
   for (tag=0; tags[tag] != NULL; tag++)
     if (strcmp(tagname.c_str(), tags[tag]) == 0)
       break;
-
+  
   void *table = FT_Get_Sfnt_Table(face, (FT_Sfnt_Tag) tag);
   if (!table)
     return Py::Object();
-    //throw Py::RuntimeError("Could not get SFNT table");
-
+  //throw Py::RuntimeError("Could not get SFNT table");
+  
   switch (tag) {
   case 0:
     {
@@ -965,27 +1216,27 @@ FT2Font::get_sfnt_table(const Py::Tuple & args) {
 	"s:(l,l), s:(l,l), s:h, s:h, s:h, s:h, s:i, s:i, s:h, s:h, s:h}";
       TT_Header *t = (TT_Header *)table;
       return Py::asObject(Py_BuildValue(head_dict,
-			 "version",
-			 FIXED_MAJOR(t->Table_Version),
-			 FIXED_MINOR(t->Table_Version),
-			 "fontRevision",
-			 FIXED_MAJOR(t->Font_Revision),
-			 FIXED_MINOR(t->Font_Revision),
-			 "checkSumAdjustment", t->CheckSum_Adjust,
-			 "magicNumber" ,       t->Magic_Number,
-			 "flags",         (unsigned)t->Flags,
-			 "unitsPerEm",    (unsigned)t->Units_Per_EM,
-			 "created",            t->Created[0], t->Created[1],
-			 "modified",           t->Modified[0],t->Modified[1],
-			 "xMin",               t->xMin,
-			 "yMin",               t->yMin,
-			 "xMax",               t->xMax,
-			 "yMax",               t->yMax,
-			 "macStyle",      (unsigned)t->Mac_Style,
-			 "lowestRecPPEM", (unsigned)t->Lowest_Rec_PPEM,
-			 "fontDirectionHint",  t->Font_Direction,
-			 "indexToLocFormat",   t->Index_To_Loc_Format,
-			 "glyphDataFormat",    t->Glyph_Data_Format));
+					"version",
+					FIXED_MAJOR(t->Table_Version),
+					FIXED_MINOR(t->Table_Version),
+					"fontRevision",
+					FIXED_MAJOR(t->Font_Revision),
+					FIXED_MINOR(t->Font_Revision),
+					"checkSumAdjustment", t->CheckSum_Adjust,
+					"magicNumber" ,       t->Magic_Number,
+					"flags",         (unsigned)t->Flags,
+					"unitsPerEm",    (unsigned)t->Units_Per_EM,
+					"created",            t->Created[0], t->Created[1],
+					"modified",           t->Modified[0],t->Modified[1],
+					"xMin",               t->xMin,
+					"yMin",               t->yMin,
+					"xMax",               t->xMax,
+					"yMax",               t->yMax,
+					"macStyle",      (unsigned)t->Mac_Style,
+					"lowestRecPPEM", (unsigned)t->Lowest_Rec_PPEM,
+					"fontDirectionHint",  t->Font_Direction,
+					"indexToLocFormat",   t->Index_To_Loc_Format,
+					"glyphDataFormat",    t->Glyph_Data_Format));
     }
   case 1:
     {
@@ -993,29 +1244,29 @@ FT2Font::get_sfnt_table(const Py::Tuple & args) {
 	"s:i, s:i, s:i, s:i, s:i, s:i, s:i, s:i}";
       TT_MaxProfile *t = (TT_MaxProfile *)table;
       return Py::asObject(Py_BuildValue(maxp_dict,
-			   "version",
-			   FIXED_MAJOR(t->version),
-			   FIXED_MINOR(t->version),
-			   "numGlyphs",     (unsigned)t->numGlyphs,
-			   "maxPoints",     (unsigned)t->maxPoints,
-			   "maxContours",   (unsigned)t->maxContours,
-			   "maxComponentPoints",
-			   (unsigned)t->maxCompositePoints,
-			   "maxComponentContours",
-			   (unsigned)t->maxCompositeContours,
-			   "maxZones",      (unsigned)t->maxZones,
-			   "maxTwilightPoints",(unsigned)t->maxTwilightPoints,
-			   "maxStorage",    (unsigned)t->maxStorage,
-			   "maxFunctionDefs",(unsigned)t->maxFunctionDefs,
-			   "maxInstructionDefs",
-			   (unsigned)t->maxInstructionDefs,
-			   "maxStackElements",(unsigned)t->maxStackElements,
-			   "maxSizeOfInstructions",
-			   (unsigned)t->maxSizeOfInstructions,
-			   "maxComponentElements",
-			   (unsigned)t->maxComponentElements,
-			   "maxComponentDepth",
-			   (unsigned)t->maxComponentDepth));
+					"version",
+					FIXED_MAJOR(t->version),
+					FIXED_MINOR(t->version),
+					"numGlyphs",     (unsigned)t->numGlyphs,
+					"maxPoints",     (unsigned)t->maxPoints,
+					"maxContours",   (unsigned)t->maxContours,
+					"maxComponentPoints",
+					(unsigned)t->maxCompositePoints,
+					"maxComponentContours",
+					(unsigned)t->maxCompositeContours,
+					"maxZones",      (unsigned)t->maxZones,
+					"maxTwilightPoints",(unsigned)t->maxTwilightPoints,
+					"maxStorage",    (unsigned)t->maxStorage,
+					"maxFunctionDefs",(unsigned)t->maxFunctionDefs,
+					"maxInstructionDefs",
+					(unsigned)t->maxInstructionDefs,
+					"maxStackElements",(unsigned)t->maxStackElements,
+					"maxSizeOfInstructions",
+					(unsigned)t->maxSizeOfInstructions,
+					"maxComponentElements",
+					(unsigned)t->maxComponentElements,
+					"maxComponentDepth",
+					(unsigned)t->maxComponentDepth));
     }
   case 2:
     {
@@ -1024,32 +1275,32 @@ FT2Font::get_sfnt_table(const Py::Tuple & args) {
 	"s:s#, s:h, s:h, s:h}";
       TT_OS2 *t = (TT_OS2 *)table;
       return Py::asObject(Py_BuildValue(os_2_dict,
-		           "version",       (unsigned)t->version,
-			   "xAvgCharWidth",      t->xAvgCharWidth,
-			   "usWeightClass", (unsigned)t->usWeightClass,
-			   "usWidthClass",  (unsigned)t->usWidthClass,
-			   "fsType",             t->fsType,
-			   "ySubscriptXSize",    t->ySubscriptXSize,
-			   "ySubscriptYSize",    t->ySubscriptYSize,
-			   "ySubscriptXOffset",  t->ySubscriptXOffset,
-			   "ySubscriptYOffset",  t->ySubscriptYOffset,
-			   "ySuperscriptXSize",  t->ySuperscriptXSize,
-			   "ySuperscriptYSize",  t->ySuperscriptYSize,
-			   "ySuperscriptXOffset", t->ySuperscriptXOffset,
-			   "ySuperscriptYOffset", t->ySuperscriptYOffset,
-			   "yStrikeoutSize",     t->yStrikeoutSize,
-			   "yStrikeoutPosition", t->yStrikeoutPosition,
-			   "sFamilyClass",       t->sFamilyClass,
-			   "panose",             t->panose, 10,
-			   "ulCharRange",
-			   (unsigned long) t->ulUnicodeRange1,
-			   (unsigned long) t->ulUnicodeRange2,
-			   (unsigned long) t->ulUnicodeRange3,
-			   (unsigned long) t->ulUnicodeRange4,
-			   "achVendID",          t->achVendID, 4,
-			   "fsSelection",   (unsigned)t->fsSelection,
-			   "fsFirstCharIndex",(unsigned)t->usFirstCharIndex,
-			   "fsLastCharIndex",(unsigned)t->usLastCharIndex));
+					"version",       (unsigned)t->version,
+					"xAvgCharWidth",      t->xAvgCharWidth,
+					"usWeightClass", (unsigned)t->usWeightClass,
+					"usWidthClass",  (unsigned)t->usWidthClass,
+					"fsType",             t->fsType,
+					"ySubscriptXSize",    t->ySubscriptXSize,
+					"ySubscriptYSize",    t->ySubscriptYSize,
+					"ySubscriptXOffset",  t->ySubscriptXOffset,
+					"ySubscriptYOffset",  t->ySubscriptYOffset,
+					"ySuperscriptXSize",  t->ySuperscriptXSize,
+					"ySuperscriptYSize",  t->ySuperscriptYSize,
+					"ySuperscriptXOffset", t->ySuperscriptXOffset,
+					"ySuperscriptYOffset", t->ySuperscriptYOffset,
+					"yStrikeoutSize",     t->yStrikeoutSize,
+					"yStrikeoutPosition", t->yStrikeoutPosition,
+					"sFamilyClass",       t->sFamilyClass,
+					"panose",             t->panose, 10,
+					"ulCharRange",
+					(unsigned long) t->ulUnicodeRange1,
+					(unsigned long) t->ulUnicodeRange2,
+					(unsigned long) t->ulUnicodeRange3,
+					(unsigned long) t->ulUnicodeRange4,
+					"achVendID",          t->achVendID, 4,
+					"fsSelection",   (unsigned)t->fsSelection,
+					"fsFirstCharIndex",(unsigned)t->usFirstCharIndex,
+					"fsLastCharIndex",(unsigned)t->usLastCharIndex));
     }
   case 3:
     {
@@ -1057,22 +1308,22 @@ FT2Font::get_sfnt_table(const Py::Tuple & args) {
 	"s:h, s:h, s:h, s:h, s:i}";
       TT_HoriHeader *t = (TT_HoriHeader *)table;
       return Py::asObject(Py_BuildValue(hhea_dict,
-			   "version",
-			   FIXED_MAJOR(t->Version),
-			   FIXED_MINOR(t->Version),
-			   "ascent",             t->Ascender,
-			   "descent",            t->Descender,
-			   "lineGap",            t->Line_Gap,
-			   "advanceWidthMax",(unsigned)t->advance_Width_Max,
-			   "minLeftBearing",     t->min_Left_Side_Bearing,
-			   "minRightBearing",    t->min_Right_Side_Bearing,
-			   "xMaxExtent",         t->xMax_Extent,
-			   "caretSlopeRise",     t->caret_Slope_Rise,
-			   "caretSlopeRun",      t->caret_Slope_Run,
-			   "caretOffset",        t->caret_Offset,
-			   "metricDataFormat",   t->metric_Data_Format,
-			   "numOfLongHorMetrics",
-			   (unsigned)t->number_Of_HMetrics));
+					"version",
+					FIXED_MAJOR(t->Version),
+					FIXED_MINOR(t->Version),
+					"ascent",             t->Ascender,
+					"descent",            t->Descender,
+					"lineGap",            t->Line_Gap,
+					"advanceWidthMax",(unsigned)t->advance_Width_Max,
+					"minLeftBearing",     t->min_Left_Side_Bearing,
+					"minRightBearing",    t->min_Right_Side_Bearing,
+					"xMaxExtent",         t->xMax_Extent,
+					"caretSlopeRise",     t->caret_Slope_Rise,
+					"caretSlopeRun",      t->caret_Slope_Run,
+					"caretOffset",        t->caret_Offset,
+					"metricDataFormat",   t->metric_Data_Format,
+					"numOfLongHorMetrics",
+					(unsigned)t->number_Of_HMetrics));
     }
   case 4:
     {
@@ -1080,22 +1331,22 @@ FT2Font::get_sfnt_table(const Py::Tuple & args) {
 	"s:h, s:h, s:h, s:h, s:i}";
       TT_VertHeader *t = (TT_VertHeader *)table;
       return Py::asObject(Py_BuildValue(vhea_dict,
-			   "version",
-			   FIXED_MAJOR(t->Version),
-			   FIXED_MINOR(t->Version),
-			   "vertTypoAscender",   t->Ascender,
-			   "vertTypoDescender",  t->Descender,
-			   "vertTypoLineGap",    t->Line_Gap,
-			   "advanceHeightMax",(unsigned)t->advance_Height_Max,
-			   "minTopSideBearing",  t->min_Top_Side_Bearing,
-			   "minBottomSizeBearing", t->min_Bottom_Side_Bearing,
-			   "yMaxExtent",         t->yMax_Extent,
-			   "caretSlopeRise",     t->caret_Slope_Rise,
-			   "caretSlopeRun",      t->caret_Slope_Run,
-			   "caretOffset",        t->caret_Offset,
-			   "metricDataFormat",   t->metric_Data_Format,
-			   "numOfLongVerMetrics",
-			   (unsigned)t->number_Of_VMetrics));
+					"version",
+					FIXED_MAJOR(t->Version),
+					FIXED_MINOR(t->Version),
+					"vertTypoAscender",   t->Ascender,
+					"vertTypoDescender",  t->Descender,
+					"vertTypoLineGap",    t->Line_Gap,
+					"advanceHeightMax",(unsigned)t->advance_Height_Max,
+					"minTopSideBearing",  t->min_Top_Side_Bearing,
+					"minBottomSizeBearing", t->min_Bottom_Side_Bearing,
+					"yMaxExtent",         t->yMax_Extent,
+					"caretSlopeRise",     t->caret_Slope_Rise,
+					"caretSlopeRun",      t->caret_Slope_Run,
+					"caretOffset",        t->caret_Offset,
+					"metricDataFormat",   t->metric_Data_Format,
+					"numOfLongVerMetrics",
+					(unsigned)t->number_Of_VMetrics));
     }
   case 5:
     {
@@ -1162,8 +1413,9 @@ Glyph::init_type() {
   behaviors().doc("Glyph");
   behaviors().supportGetattr();
   behaviors().supportSetattr();
-}
 
+
+}
 void
 FT2Font::init_type() {
   _VERBOSE("FT2Font::init_type");
@@ -1196,7 +1448,7 @@ FT2Font::init_type() {
 		     FT2Font::set_size__doc__);
   add_varargs_method("set_charmap", &FT2Font::set_charmap,
 		     FT2Font::set_charmap__doc__);
-
+  
   add_varargs_method("get_width_height", &FT2Font::get_width_height,
 		     FT2Font::get_width_height__doc__);
   add_varargs_method("get_descent", &FT2Font::get_descent,
@@ -1308,5 +1560,5 @@ initft2font(void)
 
 ft2font_module::~ft2font_module() {
   
-    FT_Done_FreeType( _ft2Library );
+  FT_Done_FreeType( _ft2Library );
 }

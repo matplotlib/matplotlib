@@ -96,6 +96,7 @@ public:
   Py::Object draw_poly_collection(const Py::Tuple& args);
   Py::Object draw_regpoly_collection(const Py::Tuple& args);
   Py::Object draw_lines(const Py::Tuple & args);
+  Py::Object draw_path(const Py::Tuple & args);
   Py::Object draw_markers(const Py::Tuple & args);
   Py::Object draw_text(const Py::Tuple & args);
   Py::Object draw_image(const Py::Tuple & args);
@@ -138,7 +139,7 @@ protected:
   agg::rgba rgb_to_color(const Py::SeqBase<Py::Object>& rgb, double alpha);
   facepair_t _get_rgba_face(const Py::Object& rgbFace, double alpha);
   void set_clipbox_rasterizer( double *cliprect);
-  template <class VS> void _fill_and_stroke(VS&, const GCAgg&, const facepair_t&);  
+  template <class VS> void _fill_and_stroke(VS&, const GCAgg&, const facepair_t&, bool curvy=true);  
 
   void _render_lines_path(agg::path_storage &ps, const GCAgg& gc);
 };

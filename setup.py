@@ -46,7 +46,6 @@ VERBOSE =  False # insert lots of diagnostic prints in extension code
 
 
 
-
 ## You shouldn't need to customize below this point
 
 from distutils.core import setup
@@ -55,7 +54,7 @@ import glob
 from distutils.core import Extension
 from setupext import build_agg, build_gtkagg, build_tkagg, \
      build_ft2font, build_image, build_windowing, build_transforms, \
-     build_contour, build_enthought
+     build_contour, build_enthought, build_swigagg
 import distutils.sysconfig
 
 major, minor1, minor2, s, tmp = sys.version_info
@@ -118,6 +117,8 @@ packages = [
     ]
 
 
+
+
 try: import datetime
 except ImportError: havedate = False
 else: havedate = True
@@ -147,6 +148,7 @@ if havedate: # dates require python23 datetime
         except ImportError:
             add_pytz()
 
+build_swigagg(ext_modules, packages)
 build_transforms(ext_modules, packages, NUMERIX)
 build_enthought(ext_modules, packages)
 

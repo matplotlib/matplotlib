@@ -367,8 +367,8 @@ def polyfit(x,y,N):
 
     """
 
-    x = asarray(x)
-    y = asarray(y)
+    x = asarray(x)+0.
+    y = asarray(y)+0.
     y = reshape(y, (len(y),1))
     X = Matrix(vander(x, N+1))
     Xt = Matrix(transpose(X))
@@ -395,7 +395,7 @@ def polyval(p,x):
     See also polyfit
     
     """
-
+    x = asarray(x)+0.
     p = reshape(p, (len(p),1))
     X = vander(x,len(p))
     y =  matrixmultiply(X,p)

@@ -9,6 +9,7 @@
 #include <png.h>
 
 #include "agg_conv_transform.h"
+#include "agg_conv_curve.h"
 #include "agg_scanline_storage_aa.h"
 #include "agg_scanline_storage_bin.h"
 #include "util/agg_color_conv_rgb8.h"
@@ -18,6 +19,9 @@
 #include "_backend_agg.h"
 #include "_transforms.h"
 #include "mplutils.h"
+
+#include "swig_runtime.h"
+ 
 
 #ifdef NUMARRAY
 #include "numarray/arrayobject.h" 
@@ -51,7 +55,7 @@ GCAgg::_set_antialiased(const Py::Object& gc) {
 
 agg::rgba
 GCAgg::get_color(const Py::Object& gc) {
-  
+  _VERBOSE("GCAgg::get_color");  
   Py::Tuple rgb = Py::Tuple( gc.getAttr("_rgb") );
   
   double alpha = Py::Float( gc.getAttr("_alpha") );
@@ -237,7 +241,7 @@ RendererAgg::set_clipbox_rasterizer( double *cliprect) {
 
 std::pair<bool, agg::rgba> 
 RendererAgg::_get_rgba_face(const Py::Object& rgbFace, double alpha) {
-  
+  _VERBOSE("RendererAgg::_get_rgba_face");  
   std::pair<bool, agg::rgba> face;
   
   if (rgbFace.ptr() == Py_None) {
@@ -256,20 +260,39 @@ template <class VS>
 void
 RendererAgg::_fill_and_stroke(VS& path, 
 			      const GCAgg& gc, 
-			      const facepair_t& face) {
+			      const facepair_t& face,
+			      bool curvy) {
+  typedef agg::conv_curve<VS> curve_t;
+  
   if (face.first) {
     rendererAA->color(face.second);
-    theRasterizer->add_path(path);    
+    if (curvy) {
+      curve_t curve(path);
+      theRasterizer->add_path(curve);    
+    }
+    else
+      theRasterizer->add_path(path);    
     agg::render_scanlines(*theRasterizer, *slineP8, *rendererAA);        
   }
   
-  //now fill the edge
-  agg::conv_stroke<VS> stroke(path);
-  stroke.width(gc.linewidth);
-  stroke.line_cap(gc.cap);
-  stroke.line_join(gc.join);
-  rendererAA->color(gc.color);
-  theRasterizer->add_path(stroke);
+  //now stroke the edge
+  if (curvy) {
+    curve_t curve(path);
+    agg::conv_stroke<curve_t> stroke(curve);
+    stroke.width(gc.linewidth);
+    stroke.line_cap(gc.cap);
+    stroke.line_join(gc.join);
+    rendererAA->color(gc.color);
+    theRasterizer->add_path(stroke);
+  }
+  else {
+    agg::conv_stroke<VS> stroke(path);
+    stroke.width(gc.linewidth);
+    stroke.line_cap(gc.cap);
+    stroke.line_join(gc.join);
+    rendererAA->color(gc.color);
+    theRasterizer->add_path(stroke);
+  }
   agg::render_scanlines(*theRasterizer, *slineP8, *rendererAA);
   
 }
@@ -300,7 +323,7 @@ RendererAgg::draw_rectangle(const Py::Tuple & args) {
   path.line_to(l, b);
   path.close_polygon();
   
-  _fill_and_stroke(path, gc, face);
+  _fill_and_stroke(path, gc, face, false);
   
   return Py::Object();
   
@@ -373,7 +396,7 @@ RendererAgg::draw_polygon(const Py::Tuple& args) {
   }
   path.close_polygon();
   
-  _fill_and_stroke(path, gc, face);
+  _fill_and_stroke(path, gc, face, false);
   _VERBOSE("RendererAgg::draw_polygon DONE");
   return Py::Object();
   
@@ -506,7 +529,6 @@ RendererAgg::draw_line_collection(const Py::Tuple& args) {
       //stroke.line_cap(cap);
       //stroke.line_join(join);
       stroke.width(lw);
-      //freeze was here std::cout << "\t adding path!" << std::endl;         
       theRasterizer->add_path(stroke);
     }
     else {
@@ -1170,9 +1192,6 @@ RendererAgg::draw_markers(const Py::Tuple& args) {
     
     
     thisy = heightd - thisy;  //flipy
-    //thisx = (int)(thisx)+0.5; //snapto
-    //thisy = (int)(thisy)+0.5;
-    //std::cout << "adding " << thisx << " " << thisy << std::endl;
     
     agg::serialized_scanlines_adaptor_aa8 sa;
     agg::serialized_scanlines_adaptor_aa8::embedded_scanline sl;
@@ -1198,183 +1217,67 @@ RendererAgg::draw_markers(const Py::Tuple& args) {
   
 }
 
-
-/*
-  Py::Object
-  RendererAgg::draw_markers(const Py::Tuple& args) {
-  //draw_markers(gc, path, xo, yo, transform)
+Py::Object
+RendererAgg::draw_path(const Py::Tuple& args) {
+  //draw_path(gc, rgbFace, path, transform)
   theRasterizer->reset_clipping();
-  _VERBOSE("RendererAgg::draw_markers");
-  args.verify_length(5);  
-  Py::Object gc = args[0];
-  Py::SeqBase<Py::Object> pathseq = args[1];
-  Py::SeqBase<Py::Object> xo = args[2];
-  Py::SeqBase<Py::Object> yo = args[3];
   
-  Transformation* mpltransform = static_cast<Transformation*>(args[4].ptr());
+  _VERBOSE("RendererAgg::draw_path");
+  args.verify_length(4);  
   
+  GCAgg gc = GCAgg(args[0], dpi);
+  facepair_t face = _get_rgba_face(args[1], gc.alpha);
+
+  agg::path_storage *path;
+  swig_type_info * descr = SWIG_TypeQuery("agg::path_storage *");  
+  assert(descr);
+  if (SWIG_ConvertPtr(args[2].ptr(),(void **)(&path), descr, 0) == -1) 
+    throw Py::TypeError("Could not convert path_storage");
   
+
+  Transformation* mpltransform = static_cast<Transformation*>(args[3].ptr());
   
   double a, b, c, d, tx, ty;
-  mpltransform->affine_params_api(&a, &b, &c, &d, &tx, &ty);
+  try {
+    mpltransform->affine_params_api(&a, &b, &c, &d, &tx, &ty);
+  }
+  catch(...) {
+    throw Py::ValueError("Domain error on affine_params_api in RendererAgg::draw_path");  
+  }
+  
   agg::trans_affine xytrans = agg::trans_affine(a,b,c,d,tx,ty);  
   
-  
-  set_clip_rectangle(gc);
-  size_t Npath = pathseq.length();
-  size_t Nx = xo.length();
-  size_t Ny = yo.length();
-  
-  if (Nx!=Ny) 
-  throw Py::ValueError(Printf("x and y must be equal length sequences; found %d and %d", Nx, Ny).str());
-  
-  
-  
-  agg::vcgen_stroke::line_cap_e cap = get_linecap(gc);
-  agg::vcgen_stroke::line_join_e join = get_joinstyle(gc);
-  
-  
-  double lw = points_to_pixels ( gc.getAttr("_linewidth") ) ;
-  //std::cout << "agg lw " << lw << std::endl;
-  agg::rgba color = get_color(gc);
   double heightd = double(height);  
-  
-  // process the dashes
-  Py::Tuple dashtup = get_dashes(gc);
-  
-  Py::SeqBase<Py::Object> dashSeq;
-  bool useDashes = dashtup[0].ptr() != Py_None;
-  double offset = 0;
-  
-  double *dasha = NULL; 
-  
-  size_t Ndashes = 0;
-  if ( useDashes ) { 
-  //TODO: use offset
-  offset = points_to_pixels_snapto(dashtup[0]);
-  dashSeq = dashtup[1]; 
-  
-  Ndashes = dashSeq.length();
-  if (Ndashes%2 != 0  ) 
-  throw Py::ValueError(Printf("dashes must be an even length sequence; found %d", Ndashes).str());     
-  
-  dasha = new double[Ndashes];    
-  
-  for (size_t i=0; i<Ndashes; i++) 
-  dasha[i] = points_to_pixels_snapto(dashSeq[i]);
-  }  
-  
-  
-  // initialize the marker path
-  agg::path_storage marker;
-  
-  bool fill = false;
-  agg::rgba fillColor;
-  for (size_t i=0; i<Npath; i++) {
-  Py::Tuple tup = Py::Tuple(pathseq[i]);
-  unsigned code = Py::Int(tup[0]);
-  if (code==1) { //moveto
-  double x = Py::Float(tup[1]);
-  double y = Py::Float(tup[2]);
-  marker.move_to(x, -y);
-  }
-  else if (code==2) { //lineto
-  double x = Py::Float(tup[1]);
-  double y = Py::Float(tup[2]);
-  marker.line_to(x, -y);
-  }
-  else if (code==6) { //endpoly
-  marker.close_polygon();
-  fill = Py::Int(tup[1]);
-  if (fill) {
-  fillColor.r = Py::Float(tup[2]);
-  fillColor.g = Py::Float(tup[3]);
-  fillColor.b = Py::Float(tup[4]);
-  fillColor.a = Py::Float(tup[5]);
-  }
-  }
-  
-  }
-  
-  int isaa = antialiased(gc);
-  
-  
-  agg::path_storage path;
-  typedef agg::conv_transform<agg::path_storage, agg::trans_affine> transpath_t;
-  typedef agg::conv_dash<transpath_t> dash_t;
-  
+  agg::path_storage tpath;  // the mpl transformed path
+  bool needNonlinear = mpltransform->need_nonlinear_api();
+  size_t Nx = path->total_vertices();
+  double x, y;
+  unsigned cmd;
+  bool curvy = false;
   for (size_t i=0; i<Nx; ++i) {
-  double thisx = Py::Float( xo[i] );
-  double thisy = Py::Float( yo[i] );
-  //std::cout << "Input " << thisx << " " << thisy << std::endl;
-  
-  try {
-  //std::cout << thisy << std::endl;
-  if (mpltransform->need_nonlinear_api())
-  mpltransform->nonlinear_only_api(&thisx, &thisy);
-  }
-  catch (..) {
-  //std::cout << "caught a live one, ignoring" << std::endl;
-  continue;
-  }
-  
-  xytrans.transform(&thisx, &thisy);
-  
-  
-  thisy = heightd - thisy;  //flipy
-  thisx = (int)(thisx)+0.5; //snapto
-  thisy = (int)(thisy)+0.5;
-  //std::cout << "Output " << thisx << " " << thisy << std::endl;
-  agg::trans_affine mtx;
-  mtx *= agg::trans_affine_translation(thisx,thisy);
-  transpath_t trans(marker, mtx);
-  
-  if (fill) {
-  rendererAA->color(fillColor);
-  theRasterizer->add_path(trans);    
-  agg::render_scanlines(*theRasterizer, *slineP8, *rendererAA);     
+    cmd = path->vertex(i, &x, &y);
+    if (cmd==agg::path_cmd_curve3 || cmd==agg::path_cmd_curve4) curvy=true;
+    if (needNonlinear)
+      try {
+	mpltransform->nonlinear_only_api(&x, &y);
+      }
+      catch (...) {
+	throw Py::ValueError("Domain error on nonlinear_only_api in RendererAgg::draw_path");
+    
+      }
+    
+    //use agg's transformer?
+    xytrans.transform(&x, &y);
+    y = heightd - y; //flipy
+    tpath.add_vertex(x,y,cmd);
   }
   
-  //std::cout << width << " " << height << std::endl;
-  if (! useDashes ) {
-  agg::conv_stroke<transpath_t> stroke(trans);
-  stroke.line_cap(cap);
-  stroke.line_join(join);
-  stroke.width(lw);
-  theRasterizer->add_path(stroke);
-  
-  }
-  else {
-  dash_t dash(trans);
-  //dash.dash_start(offset);
-  for (size_t idash=0; idash<Ndashes/2; idash++) 
-  dash.add_dash(dasha[2*idash], dasha[2*idash+1]);
-  
-  agg::conv_stroke<dash_t> stroke(dash);
-  //stroke.line_cap(cap);
-  //stroke.line_join(join);
-  stroke.width(lw);
-  theRasterizer->add_path(stroke);
-  
-  }
-  
-  if ( isaa ) {
-  rendererAA->color(color);    
-  agg::render_scanlines(*theRasterizer, *slineP8, *rendererAA); 
-  }
-  else {
-  rendererBin->color(color);     
-  agg::render_scanlines(*theRasterizer, *slineBin, *rendererBin); 
-  }
-  
-  } //for each marker
-  
-  if (useDashes) delete [] dasha;  
+  _fill_and_stroke(tpath, gc, face, curvy);
   return Py::Object();
   
-  }
-  
-*/
+}
+
+
 
 Py::Object
 RendererAgg::draw_text(const Py::Tuple& args) {
@@ -1484,7 +1387,6 @@ RendererAgg::draw_image(const Py::Tuple& args) {
   }
   
   //if (isUpper) oy -= image->rowsOut;  //start at top
-  //std::cout << minx << " " << maxx << " " << miny << " " << maxy << std::endl;
   for (size_t j=0; j<image->rowsOut; j++) {
     thisy =  (size_t)(isUpper ?  oy+j : oy-j-0.5);
     if (thisy<miny || thisy>=maxy) {
@@ -1834,6 +1736,8 @@ void RendererAgg::init_type()
 		     "draw_lines(gc, x, y,)\n");
   add_varargs_method("draw_markers", &RendererAgg::draw_markers, 
 		     "draw_markers(gc, path, x, y)\n");
+  add_varargs_method("draw_path", &RendererAgg::draw_path, 
+		     "draw_path(gc, rgbFace, path, transform)\n");
   add_varargs_method("draw_text", &RendererAgg::draw_text, 
 		     "draw_text(font, x, y, r, g, b, a)\n");
   add_varargs_method("draw_image", &RendererAgg::draw_image, 

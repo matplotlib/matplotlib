@@ -39,6 +39,7 @@ public:
   Py::Object getattr( const char *_name );
   static void init_type(void);
   size_t glyphInd;
+  Py::Object get_path( const FT_Face& face );
 private:
   Py::Dict __dict__;
 };
