@@ -73,7 +73,6 @@ def draw_if_interactive():
         if figManager != None:
             figManager.canvas.draw()
 
-
 def show(mainloop=True):
     """
     Show all the figures and enter the gtk main loop

@@ -464,10 +464,17 @@ def axes(*args, **kwargs):
     draw_if_interactive()
     return a
 
-def delaxes(ax):
+def delaxes(*args):
     """
-    remove ax from the current figure.  If ax doesn't exist an error
-    will be raised"""
+    delaxes(ax) - remove ax from the current figure.  If ax doesn't
+    exist an error will be raised.
+
+    delaxes(): delete the current axes
+    """
+    if not len(args):
+        ax = gca()
+    else:
+        ax = args[0]
     ret = gcf().delaxes(ax)
     draw_if_interactive()
     return ret
@@ -505,7 +512,7 @@ def clim(vmin=None, vmax=None):
     0.05)
     
     """  
-    im = gci._current
+    im = gci()
     if im is None:
         error_msg('You must first define an image, eg with imshow')
         return

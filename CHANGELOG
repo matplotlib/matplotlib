@@ -1,5 +1,8 @@
 New entries should be added at the top
 
+2004-12-22 Fixed colorbar bug which caused colorbar not to respond to
+           changes in colormap in some instances - JDH
+
 2004-12-22 Refactored NavigationToolbar in tkagg to support app
            embedding , init now takes (canvas, window) rather than
            (canvas, figman) - JDH
@@ -20,7 +23,7 @@ New entries should be added at the top
 2004-12-18 Minor refactoring of tkagg toolbar to support embedding in
            an application - JDH
 
-2004-12-14 Added linestyle to collections -  JDH
+2004-12-14 Added linestyle to collections (currently broken) -  JDH
 
 2004-12-14 Applied Nadia's setupext patch to fix libstdc++ link
            problem with contour and solaris  -JDH

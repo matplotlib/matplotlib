@@ -1298,8 +1298,6 @@ class FigureManagerWx(FigureManagerBase):
             'this will be called whenever the current axes is changed'        
             if self.tb != None: self.tb.update()
         self.canvas.figure.add_axobserver(notify_axes_change)
-
-
         
     def destroy(self, *args):
         DEBUG_MSG("destroy()", 1, self)

@@ -249,7 +249,7 @@ class LineCollection(Collection):
                  linewidths    = None,
                  colors        = None,
                  antialiaseds  = None,
-                 linestyles = 'solid',
+                 linestyle = 'solid',
 		 offsets = None,
 		 transOffset = None,
                  ):
@@ -270,7 +270,7 @@ linestyles is a string or dash tuple. Legal string values are
 if linewidths, colors, or antialiaseds is None, they default to
 their rc params setting, in sequence form"""
         
-        slCollection.__init__(self)
+        Collection.__init__(self)
 
         if linewidths is None   :
             linewidths   = (rcParams['lines.linewidth'], )
@@ -284,11 +284,12 @@ their rc params setting, in sequence form"""
         self._colors = colors
         self._aa = antialiaseds
         self._lw = linewidths
-        self.set_linestyle(linestyles)
+        self.set_linestyle(linestyle)
 	self._offsets = offsets
 	self._transOffset = transOffset
 
     def draw(self, renderer):
+        
         renderer.open_group('linecollection')
         self._transform.freeze()
         if self._transOffset is not None: self._transOffset.freeze()
@@ -313,25 +314,16 @@ ACCEPTS: float or sequence of floats"""
 
     def set_linestyle(self, ls):
         """
-Set the linestyles(s) for the collection.  ls can be a string
-linestyle ('solid', 'dashed', 'dashdot', 'dotted) or a sequence of
-such strings.  Alteratively it can be a sequence of on-off dash
-tuples.
+Set the linestyles(s) for the collection.  
+ACCEPTS: ['solid' | 'dashed', 'dashdot', 'dotted' |  (offset, on-off-dash-seq) ]"""
+        if is_string_like(ls):
+            dashes = GraphicsContextBase.dashd[ls]            
+        elif iterable(ls) and len(ls)==2:
+            dashes = ls
+        else: raise ValueError('Do not know how to convert %s to dashes'%ls)
 
-ACCEPTS: string or sequence of strings or (offset, on-off dash seq) tuples"""
-
-        gc = GraphicsContextBase()
-        def get_onoff(val):
-            if is_string_like(val):
-                return GraphicsContextBase.dashd[val]
-            elif iterable(val) and len(val)==2:
-                return val
-            else: raise ValueError('Do not know how to convert %s to dashes'%val)
-
-        if is_string_like(ls): ls = [ls]
-                                  
         
-        self._ls = [get_onoff(val) for val in ls]
+        self._ls = dashes
 
     def color(self, c):
         """

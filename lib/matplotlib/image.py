@@ -97,7 +97,23 @@ ACCEPTS: float
         """
         Artist.set_alpha(self, alpha)
         self._imcache = None
-        
+
+    def set_cmap(self, cmap):
+        'set the colormap for luminance data'
+        self._imcache = None
+        cm.ScalarMappable.set_cmap(self, cmap)
+
+                
+    def set_norm(self, norm):
+        'set the colormap for luminance data'
+        self._imcache = None
+        cm.ScalarMappable.set_norm(self, norm)
+
+    def set_clim(self, vmin=None, vmax=None):
+        'set the norm limits for image scaling'
+        self._imcache = None
+        cm.ScalarMappable.set_clim(self, vmin, vmax)
+
     def make_image(self, flipy):        
         if self._A is not None:
             if self._imcache is None:
