@@ -808,16 +808,31 @@ RendererAgg::draw_text(const Py::Tuple& args) {
   
   int x = Py::Int( args[1] );
   int y = Py::Int( args[2] );
-  Py::SeqBase<Py::Object> rgba = Py::SeqBase<Py::Object>( args[3] );
+  Py::Object gc = args[3];
+
+  Py::Object o ( gc.getAttr( "_cliprect" ) );
+
+  bool useClip = o.ptr()!=Py_None;
+  double l = 0;
+  double b = 0;
+  double r = width;
+  double t = height;
+  if (useClip) {
+    Py::SeqBase<Py::Object> rect( o );
   
-  double r = Py::Float( rgba[0] );
-  double g = Py::Float( rgba[1] );
-  double b = Py::Float( rgba[2] );
-  double a = Py::Float( rgba[3] );
-  
-  
+    l = Py::Float(rect[0]) ; 
+    b = Py::Float(rect[1]) ; 
+    double w = Py::Float(rect[2]) ; 
+    double h = Py::Float(rect[3]) ; 
+    r = l+w;
+    t = b+h;
+    //std::cout << b << " " << h << " " << " " << t << std::endl;
+  }
+
+  agg::rgba color = get_color(gc);  
   pixfmt::color_type p;
-  p.r = int(255*r); p.b = int(255*b); p.g = int(255*g); p.a = int(255*a);
+  p.r = int(255*color.r); p.b = int(255*color.b); 
+  p.g = int(255*color.g); p.a = int(255*color.a);
    
   //y = y-font->image.height;
   unsigned thisx, thisy;
@@ -826,8 +841,8 @@ RendererAgg::draw_text(const Py::Tuple& args) {
     for (size_t j=0; j<font->image.height; ++j) {
       thisx = i+x+font->image.offsetx; 
       thisy = j+y+font->image.offsety; 
-      if (thisx<0 || thisx>=width)  continue;
-      if (thisy<0 || thisy>=height) continue;
+      if (thisx<l || thisx>=r)  continue;
+      if (thisy<height-t || thisy>=height-b) continue;
       pixFmt->blend_pixel
 	(thisx, thisy, p, font->image.buffer[i + j*font->image.width]);
     }

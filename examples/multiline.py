@@ -1,4 +1,5 @@
 from matplotlib.matlab import *
+
 plot(arange(10))
 xlabel('this is a xlabel\n(with newlines!)')
 ylabel('this is vertical\ntest', multialignment='center')
