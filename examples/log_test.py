@@ -6,5 +6,5 @@ t = arange(dt, 20.0, dt)
 
 semilogx(t, exp(-t/5.0))
 grid(True)
-#savefig('log_demo')
+
 show()
