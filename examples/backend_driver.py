@@ -76,9 +76,9 @@ def drive(backend):
         os.system('python %s' % tmpfile)
 
 times = {}
-backends = ['PS', 'GD', 'Paint', 'Agg', 'Template']
+#backends = ['PS', 'GD', 'Paint', 'Agg', 'Template']
 #backends.extend([ 'GTK', 'WX', 'TkAgg'])
-backends = [ 'Agg']
+backends = [ 'Template']
 
 for backend in backends:
     print 'testing %s' % backend
