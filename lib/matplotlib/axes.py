@@ -1425,7 +1425,7 @@ n/(len(x)*dbin)
         n,bins = mlab.hist(x, bins, normed)
         width = 0.9*(bins[1]-bins[0])
         patches = self.bar(bins, n, width=width, bottom=bottom)
-        return n, bins, patches
+        return n, bins, silent_list('Patch', patches)
 
     def hold(self, b=None):
         """\
