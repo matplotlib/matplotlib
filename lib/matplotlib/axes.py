@@ -981,46 +981,44 @@ CONTOUR(Z, **kwargs) - Use keyword args to control colors, linewidth,
 Optional keywork args are shown with their defaults below (you must
 use kwargs for these):
 
-* colors = None: one of these:
-  - a tuple of matplotlib color args (string, float, rgb, etc),
-  different levels will be plotted in different colors in the order
-  specified
+    * colors = None: one of these:
+      - a tuple of matplotlib color args (string, float, rgb, etc),
+      different levels will be plotted in different colors in the order
+      specified
 
-  -  one string color, e.g. colors = 'r' or colors = 'red', all levels
-  will be plotted in this color
+      -  one string color, e.g. colors = 'r' or colors = 'red', all levels
+      will be plotted in this color
 
-  - if colors == None, the default colormap will be used
+      - if colors == None, the default colormap will be used
 
-* alpha=1.0 : the alpha blending value
+    * alpha=1.0 : the alpha blending value
 
-* cmap = None: a cm Colormap instance from matplotlib.cm.
+    * cmap = None: a cm Colormap instance from matplotlib.cm.
 
-* fmt = '1.3f': a format string for adding a label to each collection.
-  Useful for auto-legending .
+    * fmt = '1.3f': a format string for adding a label to each collection.
+      Useful for auto-legending .
 
-* origin = None: 'upper'|'lower'|None.  If None, the rc value for image.origin
-  will be used
+    * origin = None: 'upper'|'lower'|None.  If None, the rc value for image.origin
+      will be used
 
-* linewidths = None: or one of these:
-  - a number - all levels will be plotted with this linewidth,
-    e.g. linewidths = 0.6
+    * linewidths = None: or one of these:
+      - a number - all levels will be plotted with this linewidth,
+        e.g. linewidths = 0.6
 
-  - a tuple of numbers, e.g. linewidths = (0.4, 0.8, 1.2) different
-    levels will be plotted with different linewidths in the order
-    specified
+      - a tuple of numbers, e.g. linewidths = (0.4, 0.8, 1.2) different
+        levels will be plotted with different linewidths in the order
+        specified
 
-  - if linewidths == None, the default width in lines.linewidth in
-    .matplotlibrc is used
+      - if linewidths == None, the default width in lines.linewidth in
+        .matplotlibrc is used
 
-reg is a 1D region number array with of imax*(jmax+1)+1 size
-The values of reg should be positive region numbers, and zero fro
-zones wich do not exist.
+    reg is a 1D region number array with of imax*(jmax+1)+1 size
+    The values of reg should be positive region numbers, and zero fro
+    zones wich do not exist.
 
-triangle - triangulation array - must be the same shape as reg
+    triangle - triangulation array - must be the same shape as reg
 
-[L,C] = CONTOUR(...) returns a list of levels and a silent_list of LineCollections
-                 
-                 """
+    [L,C] = CONTOUR(...) returns a list of levels and a silent_list of LineCollections"""
 
         class ContourMappable(ScalarMappable):
             """
@@ -1058,7 +1056,7 @@ triangle - triangulation array - must be the same shape as reg
             zmax = amax(rz)
             zmin = amin(rz)
             lev = linspace(zmin, zmax, N+2)[1:-1]
-            return [float(val) for val in lev]
+            return lev
 
         def initialize_z(z):
             if which[0] == "numeric":
@@ -1080,15 +1078,15 @@ triangle - triangulation array - must be the same shape as reg
         if len(args) == 1:
             z = initialize_z(args[0])
             x, y = initialize_x_y(z)
-            lev = array(autolev(z,7))
+            lev = autolev(z,7)
         elif len(args) == 2:
             z = initialize_z(args[0])
             x, y = initialize_x_y(z)
             if type(args[1]) == int:
                 N = args[1]
-                lev = array(autolev(z,N))
+                lev = autolev(z,N)
             elif iterable(args[1]) and len(shape(args[1])) == 1:
-                lev = array([float(val) for val in args[1]])
+                lev = array([float(fl) for fl in args[1]])
             else:
                 raise TypeError("Illegal arguments to contour, see help(contour) ")
         elif len(args) == 3:
@@ -1098,7 +1096,7 @@ triangle - triangulation array - must be the same shape as reg
             z = initialize_z(z)
             self.set_xlim((min(ravel(x)), max(ravel(x))))
             self.set_ylim((min(ravel(y)), max(ravel(y))))
-            lev = array(autolev(z,7))
+            lev = autolev(z,7)
 
         elif len(args) == 4:
             x,y = args[0], args[1]
@@ -1109,9 +1107,9 @@ triangle - triangulation array - must be the same shape as reg
                 raise TypeError("X, Y and Z must be  2D arrays.")
             if type(args[3]) == int:
                 N = args[3]
-                lev = array(autolev(z, N))
+                lev = autolev(z, N)
             elif iterable(args[3]) and len(shape(args[3])) == 1:
-                lev = array([float(val) for val in args[3]])
+                lev = array([float(fl) for fl in args[3]])
             else:
                 raise TypeError("Illegal arguments to contour, see help(contour) ")
 
@@ -1182,7 +1180,6 @@ triangle - triangulation array - must be the same shape as reg
             if level < 0:
                 col.set_linestyle((0, (6.,6.)),)
             """
-            #print 'fmt,lev',fmt, level
             col.set_label(fmt%level)
             self.add_collection(col)
             levels.append(level)
@@ -1192,242 +1189,6 @@ triangle - triangulation array - must be the same shape as reg
         collections.mappable = mappable
         return levels, collections
 
-
-    def __contour(self, z,
-                x = None,
-                y = None,
-                levels = None,
-                colors = None,                
-                linewidths = None,
-                alpha = 1.0,
-                fmt='%1.3f',
-                origin=None,
-                cmap = None):
-        """\
-CONTOUR(z, x = None, y = None, levels = None, colors = None)
-
-plots contour lines of an image z
-
-z is a 2D array of image values
-x and y are 2D arrays with coordinates of z values in the
-two directions. x and y do not need to be evenly spaced but must
-be of the same shape as z
-
-levels can be a list of level values or the number of levels to be
-  plotted.  If levels == None, a default number of 7 evenly spaced
-  levels is plotted.
-
-colors is one of these:
-
-  - a tuple of matplotlib color args (string, float, rgb, etc),
-    different levels will be plotted in different colors in the order
-    specified
-
-  - one string color, e.g. colors = 'r' or colors = 'red', all levels
-    will be plotted in this color
-
-  - if colors == None, the default colormap will be used
-
-linewidths is one of:
-
-   - a number - all levels will be plotted with this linewidth,
-     e.g. linewidths = 0.6
-
-   - a tuple of numbers, e.g. linewidths = (0.4, 0.8, 1.2) different
-     levels will be plotted with different linewidths in the order
-     specified
-
-   - if linewidths == None, the default width in lines.linewidth in
-     .matplotlibrc is used
-
-
-  
-reg is a 2D region number array with the same dimensions as x and
-  y. The values of reg should be positive region numbers, and zero fro
-  zones wich do not exist.
-
-triangle - triangulation array - must be the same shape as reg
-
-alpha : the default transparency of contour lines
-
-fmt is a format string for adding a label to each collection.
-  Currently this is useful for auto-legending and may be useful down
-  the road for legend labeling
-
-origin = 'upper'|'lower'|None.  If None, the rc value for image.origin
-will be used
-
-More information on reg and triangle arrays is in _contour.c
-
-Return value is levels, collections where levels is a list of contour
-levels used and collections is a list of
-matplotlib.collections.LineCollection instances
-
-If cmap is not None, the collections list instance will have the
-mappable attribute attached, where mappable is a cm.ScalarMappable
-which contains the normalize instance and cmap instance and can be
-used for colorbar functionality
-"""
-
-        class ContourMappable(ScalarMappable):
-            """
-            a class to allow contours to respond properly to change in cmaps, etc
-            """
-            def __init__(self, levels, collections, norm=None, cmap=None):
-                ScalarMappable.__init__(self, norm, cmap)
-                self.levels = levels
-                self.collections = collections    
-
-            def changed(self):
-                colors = [ (tuple(rgba),) for rgba in self.to_rgba(self.levels)]
-                for color, collection in zip(colors, self.collections):
-                    collection.set_color(color)
-                ScalarMappable.changed(self)
-
-            
-        if colors is not None and cmap is not None:
-            raise RuntimeError('Either colors or cmap must be None')
-        if origin is None: origin = rcParams['image.origin']
-        
-        if origin == 'upper':
-            if x is not None: x = x[::-1]
-            if y is not None: y = y[::-1]
-            z = z[::-1]            
-
-        if not self._hold: self.cla()
-        if which[0] == "numeric":
-            z = array(z.tolist(),typecode = z.typecode())
-        if len(shape(z)) != 2:
-            raise TypeError("Input must be a 2D array.")
-        else:
-            jmax, imax = shape(z)
-
-        reg = ones((1,jmax*(imax+1)+1), typecode = 'i')
-        reg[0,:jmax+1]=0
-        reg[0,-jmax:]=0
-
-        for j in range(0,jmax*(imax+1)+1, imax):
-            reg[0,j]=0
-
-        triangle = zeros((jmax,imax), typecode='s')
-        if x == None or y == None:
-            ind = indices((jmax,imax), 'd')
-            if x == None and y == None:
-                y, x = ind
-            elif x == None:
-                tmp, x = ind
-            elif y == None:
-                y, tmp = ind
-        if len(shape(x)) != 2 or len(shape(y)) != 2:
-            raise TypeError("x and y must be  2D arrays.")
-
-        #triangle = zeros((jmax,imax), typecode='s')        
-        #if len(shape(x)) != 2 or len(shape(y)) != 2:
-        #    raise TypeError("x and y must be  2D arrays.")
-        #if x == None and y == None:
-        #    y, x = indices((jmax,imax), 'd')
-
-
-        if x == None and y == None:
-            y, x = indices((jmax,imax), 'd')
-
-
-        rx = ravel(x)
-        ry = ravel(y)
-
-        minx = amin(rx)
-        maxx = amax(rx)
-        miny = amin(ry)
-        maxy = amax(ry)
-
-        corners = (minx, miny), (maxx, maxy)         
-        self.update_datalim( corners)
-
-        rz = ravel(z)
-        zmax = amax(rz)
-        zmin = amin(rz)
-
-        def autolev(N):
-            return linspace(zmin, zmax, N+2)[1:-1]
-        
-        if levels is None: lev = autolev(7)
-        else:            
-            try: Nlev = int(levels)
-            except TypeError:
-                lev = list(levels)            
-            else: lev = autolev(Nlev)
-
-        
-        
-        Nlev = len(lev)
-        collections = []
-        
-        if colors is not None:
-
-            if is_string_like(colors):
-                colors = [colors] * Nlev
-            elif iterable(colors) and len(colors) < Nlev:
-                colors = list(colors) * Nlev
-            else:
-                try: gray = float(colors)
-                except TypeError: pass
-                else:  colors = [gray] * Nlev
-
-            tcolors = [(colorConverter.to_rgba(c, alpha),) for c in colors]
-            mappable = None
-        else:
-            mappable = ContourMappable(lev, collections, cmap=cmap)
-            mappable.set_array(z)
-            mappable.autoscale()
-            tcolors = [ (tuple(rgba),) for rgba in mappable.to_rgba(lev)]
-
-            
-        if linewidths == None:
-            tlinewidths = [linewidths] *Nlev
-        else:
-            if iterable(linewidths) and len(linewidths) < Nlev:
-                linewidths = list(linewidths) * int(ceil(Nlev/len(linewidths)))
-            elif not iterable(linewidths) and type(linewidths) in [int, float]:
-                linewidths = [linewidths] * Nlev
-            tlinewidths = [(w,) for w in linewidths]
-
-                                      
-        args = zip(lev, tcolors, tlinewidths)
-
-
-        region = 0  
-        levels = []
-        for level, color, width  in args:
-            ntotal, nparts  = _contour.GcInit1(x, y, reg, triangle, region, z, level)
-            np = zeros((nparts,), 'l')
-            xp = zeros((ntotal, ), 'd')
-            yp = zeros((ntotal,), 'd')
-            nlist = _contour.GcTrace(np, xp, yp)
-            #print min(ravel(triangle)), max(ravel(triangle))
-            col = LineCollection(nlist, colors=color, linewidths = width)
-            col.set_label(fmt%level)
-            self.add_collection(col)
-            levels.append(level)
-            #col.set_linestyle('dashed') # dashed|dotted|solid|dashdot
-            #dashes = 0, (4,2,8,1)
-            #col.set_linestyle( (dashes,) ) # offset, onoffseq
-            collections.append(col)
-
-        if x is not None:
-            rx = ravel(x)
-            self.set_xlim((min(rx), max(rx)))
-        else:
-            self.set_xlim([0,imax])
-
-        if y is not None:
-            ry = ravel(y)
-            self.set_ylim((min(ry), max(ry)))
-        else:
-            self.set_ylim([0,jmax])
-
-        collections = silent_list('LineCollection', collections)
-        collections.mappable = mappable
-        return levels, collections
 
 
 
@@ -3043,27 +2804,13 @@ ACCEPTS: str
         if subsx is None: subsx = range(2, basex)
         assert(value.lower() in ('log', 'linear', ))
         if value == 'log':
-            minx, maxx = self.get_xlim()
-            if minx<=0 or maxx<=0:
-                # find the min pos value in the data
-                xs = []
-                for line in self.lines:
-                    xs.extend(line.get_xdata())
-                for patch in self.patches:
-                    xs.extend([x for x,y in patch.get_verts()])
-                for collection in self.collections:
-                    xs.extend([x for x,y in collection.get_verts()])
-                posx = [x for x in xs if x>0]
-                if len(posx):
-                    minx = min(posx)
-                    maxx = max(posx)
-                    # warning, probably breaks inverted axis
-                    self.set_xlim((0.1*minx, maxx))
-
             self.xaxis.set_major_locator(LogLocator(basex))
             self.xaxis.set_major_formatter(LogFormatterMathtext(basex))
             self.xaxis.set_minor_locator(LogLocator(basex,subsx))            
             self.transData.get_funcx().set_type(LOG10)
+            minx, maxx = self.get_xlim()
+            if min(minx, maxx)<0:
+                self.autoscale_view()
         elif value == 'linear':
             self.xaxis.set_major_locator(AutoLocator())
             self.xaxis.set_major_formatter(ScalarFormatter())
@@ -3139,28 +2886,14 @@ ACCEPTS: str
         assert(value.lower() in ('log', 'linear', ))
 
         if value == 'log':
-            miny, maxy = self.get_ylim()
-            if miny<=0 or maxy<=0:
-                # find the min pos value in the data
-                ys = []
-                for line in self.lines:
-                    ys.extend(line.get_ydata())
-                for patch in self.patches:
-                    ys.extend([y for x,y in patch.get_verts()])
-                for collection in self.collections:
-                    ys.extend([y for x,y in collection.get_verts()])                    
-                posy = [y for y in ys if y>0]
-                if len(posy):
-                    miny = min(posy)
-                    maxy = max(posy)
-                    # warning, probably breaks inverted axis
-                    self.set_ylim((0.1*miny, maxy))
-
-
             self.yaxis.set_major_locator(LogLocator(basey))
             self.yaxis.set_major_formatter(LogFormatterMathtext(basey))
             self.yaxis.set_minor_locator(LogLocator(basey,subsy))
             self.transData.get_funcy().set_type(LOG10)
+            miny, maxy = self.get_ylim()
+            if min(miny, maxy)<0:
+                self.autoscale_view()
+
         elif value == 'linear':
             self.yaxis.set_major_locator(AutoLocator())
             self.yaxis.set_major_formatter(ScalarFormatter())
