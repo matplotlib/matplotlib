@@ -1,6 +1,9 @@
 New entries should be added at the top
 
 
+2004-11-10 matplotlib/__init__.py: Added FROZEN to signal we are running under
+           py2exe (or similar) - is used by backend_gtk.py - SC
+
 2004-11-09 backend_gtk.py: Made fix suggested by maffew@cat.org.au
 	   to prevent problems when py2exe calls pygtk.require(). - SC
 
