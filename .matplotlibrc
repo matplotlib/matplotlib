@@ -27,7 +27,7 @@
 backend      : GTKAgg    # the default backend
 numerix      : Numeric   # Numeric or numarray
 interactive  : False     # see http://matplotlib.sourceforge.net/interactive.html
-toolbar      : toolbar2   # None | classic | toolbar2   (experimental)
+toolbar      : toolbar2   # None | classic | toolbar2
 
 # Where your matplotlib data lives if you installed to a non-default
 # location.  This is where the matplotlib fonts, bitmaps, etc reside
