@@ -2,7 +2,8 @@ New entries should be added at the top
  
 2005-02-01 Added Fernando's figure num patch, including experemental
            support for pylab backend switching, LineCOllection.color
-           warns - JDH
+           warns, savefig now a figure method, fixed a close(fig) bug
+           - JDH
 
 2005-01-31 updated datalim in contour - JDH
 
@@ -28,7 +29,7 @@ New entries should be added at the top
 2005-01-24 Fixed a mathtext parser bug that prevented font changes in
            sub/superscripts - JDH
 
-2005-01-24 Fixed contour wto work w/ interactive changes in colormaps,
+2005-01-24 Fixed contour to work w/ interactive changes in colormaps,
            clim, etc - JDH
 
 ===============================================================

@@ -662,6 +662,7 @@ class FigureCanvasBase:
               )
 
     def __init__(self, figure):
+        figure.set_canvas(self)
         self.figure = figure
         self.cid = 0
         # a dictionary from event name to a dictionary that maps cid->func
