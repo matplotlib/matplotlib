@@ -37,5 +37,5 @@ if 1:
     set(a, 'xticks', [])
     set(a, 'yticks', [])
 
-#savefig('axes_demo', dpi=150)
+savefig('axes_demo', dpi=150)
 show()

@@ -27,7 +27,7 @@ set(xticklabels, 'color', 'r', 'fontsize', 12)
 # keyword args are legal too
 #set(xticklabels, color='r', fontsize=12)
 
-#savefig('axprops_demo')
+savefig('axprops_demo')
 show()
 
 
@@ -58,7 +58,7 @@ for label in ticklabels:
     label.set_color('r')
     label.set_fontsize(12)
 
-#savefig('axprops_demo')
+savefig('axprops_demo')
 show()
 
 """

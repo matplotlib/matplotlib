@@ -30,5 +30,5 @@ if 1:
 ax = gca()
 
 
-#savefig('gdtest', dpi=150)
+savefig('gdtest', dpi=150)
 show()

@@ -16,7 +16,7 @@ if 1:   # load the data
     # flip upside down
     im = array([im[i] for i in arange(255,-1,-1)])
 
-if 0: # plot the MRI in pcolor
+if 1: # plot the MRI in pcolor
     subplot(221)
     pcolor(im, shading='flat')
     axis('off')
@@ -54,5 +54,5 @@ if 1:   # plot the EEG
     xlabel('time (s)')
 
 
-#savefig('mri_with_eeg')
+savefig('mri_with_eeg')
 show()

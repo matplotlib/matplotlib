@@ -16,7 +16,9 @@ examples/anim.py
 examples/arctest.py
 examples/axes_demo.py
 examples/axes_props.py
+examples/bar_stacked.py
 examples/barchart_demo.py
+examples/batch_figs.py
 examples/batch_test_gd.py
 examples/color_demo.py
 examples/csd_demo.py
@@ -29,7 +31,6 @@ examples/embedding_in_wx.py
 examples/errorbar_demo.py
 examples/figtext.py
 examples/gdtest.py
-examples/gdtest2.py
 examples/histogram_demo.py
 examples/interactive.py
 examples/interactive2.py
@@ -39,6 +40,7 @@ examples/line_styles.py
 examples/log_demo.py
 examples/log_test.py
 examples/logo.py
+examples/mpl_with_glade.glade
 examples/mpl_with_glade.py
 examples/mri_demo.py
 examples/mri_with_eeg.py
@@ -149,9 +151,8 @@ matplotlib/transforms.py
 matplotlib/backends/__init__.py
 matplotlib/backends/backend_gd.py
 matplotlib/backends/backend_gtk.py
-matplotlib/backends/backend_gtk2.py
+matplotlib/backends/backend_gtkgd.py
 matplotlib/backends/backend_ps.py
 matplotlib/backends/backend_template.py
-matplotlib/backends/backend_wx.orig.py
 matplotlib/backends/backend_wx.py
 test/test.py
