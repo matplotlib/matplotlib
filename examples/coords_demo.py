@@ -2,8 +2,6 @@
 An example of how to interact with the plotting canvas by connecting
 to move and click events
 """
-import matplotlib
-matplotlib.use('GTK')
 from matplotlib.matlab import *
 
 t = arange(0.0, 1.0, 0.01)
@@ -39,7 +37,7 @@ def on_click(widget, event):
             print t, val
 
 
-canvas.connect('motion_notify_event', on_move)
+#canvas.connect('motion_notify_event', on_move)
 canvas.connect('button_press_event', on_click)
 
 
