@@ -18,7 +18,7 @@ if 1:
     axis([0, 1, 1.1*min(s), 2*max(s) ])
     xlabel('time (s)')
     ylabel('current (nA)')
-    title('Gaussian white noise convolved with an exponential function')
+    title('Gaussian colored noise')
 
 # Make a histogram probability density inset
 if 1:
@@ -37,4 +37,5 @@ if 1:
     set(a, 'xticks', [])
     set(a, 'yticks', [])
 
+savefig('axes_demo', dpi=150)
 show()

@@ -18,5 +18,5 @@ ylabel('Probability')
 title('Histogram of IQ: mu=100, sigma=15')
 
 
-savefig('histogram', dpi=150)
+savefig('histogram', dpi=300)
 show()
