@@ -1,5 +1,8 @@
 New entries should be added at the top
 
+2004-07-11 backend_gtk.py: use builtin round() instead of redefining it.
+           - SC
+
 2004-07-10 Added embedding_in_wx3 example - ADS
 
 2004-07-09 Added dynamic_image_wxagg to examples - ADS
