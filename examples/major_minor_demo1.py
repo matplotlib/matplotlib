@@ -11,9 +11,9 @@ can turn minor ticks on w/o labels by setting the minor locator.  You
 can also turn labeling on for the minor ticker by setting the minor
 formatter
 
-Make a plot with major ticks on the 10s and minor ticks on the even
-numbersints.  Label major ticks with %d formatting but don't label
-minor ticks
+Make a plot with major ticks that are multiples of 20 and minor ticks
+that are multiples of 5.  Label major ticks with %d formatting but
+don't label minor ticks
 
 The MultipleLocator ticker class is used to place ticks on multiples of
 some base.  The FormatStrFormatter uses a string format string (eg
