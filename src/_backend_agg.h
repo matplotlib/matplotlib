@@ -2,6 +2,9 @@
  *
  * $Header$
  * $Log$
+ * Revision 1.5  2004/03/12 23:25:09  jdh2358
+ * fixed images to fit in subplots
+ *
  * Revision 1.4  2004/03/03 19:27:43  jdh2358
  * fixed gtk vert text bug
  *
@@ -24,6 +27,7 @@
 #include <cstdio>
 
 #include "agg_arrowhead.h"
+#include "agg_basics.h"
 #include "agg_conv_concat.h"
 #include "agg_conv_contour.h"
 #include "agg_conv_curve.h"

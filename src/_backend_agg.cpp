@@ -2,7 +2,7 @@
 #include <png.h>
 #include "ft2font.h"
 #include "_backend_agg.h"
-#include "_image.h"
+#include "image.h"
 
 static PyObject *ErrorObject;
 
@@ -572,12 +572,14 @@ PyObject *
 RendererAgg_draw_image(RendererAggObject *renderer, PyObject* args) {
 
   ImageObject *image;
-  long x, y;
+  int x, y;
   if (!PyArg_ParseTuple(args, "iiO", &x, &y, &image))
     return NULL;
 
   //todo: handle x and y
-  renderer->rbuf->copy_from(*image->rbufOut);
+  agg::rect r(0, 0, image->widthOut, image->heightOut);
+
+  renderer->rbase->copy_from(*image->rbufOut, &r, x, y);
   Py_INCREF(Py_None);
   return Py_None;
 
