@@ -12,6 +12,8 @@ extern "C" {
 #include FT_FREETYPE_H
 #include FT_GLYPH_H
 #include FT_SFNT_NAMES_H
+#include FT_TYPE1_TABLES_H
+#include FT_TRUETYPE_TABLES_H
 }
 #include "CXX/Extensions.hxx"
 
@@ -59,7 +61,12 @@ public:
   Py::Object image_as_str(const Py::Tuple & args);
   Py::Object draw_glyphs_to_bitmap(const Py::Tuple & args);
   Py::Object draw_glyph_to_bitmap(const Py::Tuple & args);
-  Py::Object get_sfnt_name(const Py::Tuple & args);
+  Py::Object get_glyph_name(const Py::Tuple & args);
+  Py::Object get_charmap(const Py::Tuple & args);
+  Py::Object get_sfnt(const Py::Tuple & args);
+  Py::Object get_name_index(const Py::Tuple & args);
+  Py::Object get_ps_font_info(const Py::Tuple & args);
+  Py::Object get_sfnt_table(const Py::Tuple & args);
   int setattr( const char *_name, const Py::Object &value );
   Py::Object getattr( const char *_name );
   FT2Image image;
@@ -95,7 +102,12 @@ private:
   static char image_as_str__doc__ [];
   static char draw_glyphs_to_bitmap__doc__ [];
   static char draw_glyph_to_bitmap__doc__ [];
-  static char get_sfnt_name__doc__ [];
+  static char get_glyph_name__doc__[];
+  static char get_charmap__doc__[];
+  static char get_sfnt__doc__ [];
+  static char get_name_index__doc__[];
+  static char get_ps_font_info__doc__[];
+  static char get_sfnt_table__doc__[];
 
 };
 
