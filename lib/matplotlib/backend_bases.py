@@ -1069,7 +1069,7 @@ class NavigationToolbar2:
         
         lastx, lasty, a, ind, lim, trans = self._xypress
         # ignore singular clicks - 5 pixels is a threshold
-        if abs(x-lastx)<5 or abs(y-lasty)<5 or not a.in_axes(x,y):
+        if abs(x-lastx)<5 or abs(y-lasty)<5:
             self._xypress = None
             self.release(event)
             self.draw()
@@ -1083,11 +1083,27 @@ class NavigationToolbar2:
         Xmin,Xmax=a.get_xlim()
         Ymin,Ymax=a.get_ylim()          
 
-        if (x<lastx and Xmin<Xmax) or (x>lastx and Xmin>Xmax):  xmin, xmax = x, lastx
-        else: xmin, xmax = lastx, x
-
-        if (y<lasty and Ymin<Ymax) or (y>lasty and Ymin>Ymax):  ymin, ymax = y, lasty
-        else: ymin, ymax = lasty, y
+        if Xmin < Xmax:
+            if x<lastx:  xmin, xmax = x, lastx
+            else: xmin, xmax = lastx, x  
+            if xmin < Xmin: xmin=Xmin
+            if xmax > Xmax: xmax=Xmax
+        else: 
+            if x>lastx:  xmin, xmax = x, lastx
+            else: xmin, xmax = lastx, x  
+            if xmin > Xmin: xmin=Xmin
+            if xmax < Xmax: xmax=Xmax
+                
+        if Ymin < Ymax:
+            if y<lasty:  ymin, ymax = y, lasty
+            else: ymin, ymax = lasty, y  
+            if ymin < Ymin: ymin=Ymin
+            if ymax > Ymax: ymax=Ymax
+        else: 
+            if y>lasty:  ymin, ymax = y, lasty
+            else: ymin, ymax = lasty, y  
+            if ymin > Ymin: ymin=Ymin
+            if ymax < Ymax: ymax=Ymax
 
         if self._button_pressed == 1:  
             a.set_xlim((xmin, xmax))
