@@ -40,7 +40,7 @@ plot_date(dates, opens, pydates)
 ax.xaxis.set_major_locator(months)
 ax.xaxis.set_major_formatter(monthsFmt)
 ax.xaxis.set_minor_locator(mondays)
-ax.xaxis.autoscale_view()
+ax.autoscale_view()
 #ax.xaxis.grid(False, 'major')
 #ax.xaxis.grid(True, 'minor')
 
