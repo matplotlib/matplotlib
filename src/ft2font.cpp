@@ -811,8 +811,10 @@ FT2Font::get_ps_font_info(const Py::Tuple & args)
   PS_FontInfoRec fontinfo;
 
   FT_Error error = FT_Get_PS_Font_Info(face, &fontinfo);
-  if (error)
+  if (error) {
     Py::RuntimeError("Could not get PS font info");
+    return Py::Object();
+  }
 
   Py::Tuple info(9);
   info[0] = Py::String(fontinfo.version);
@@ -849,7 +851,8 @@ FT2Font::get_sfnt_table(const Py::Tuple & args) {
 
   void *table = FT_Get_Sfnt_Table(face, (FT_Sfnt_Tag) tag);
   if (!table)
-    throw Py::RuntimeError("Could not get SFNT table");
+    return Py::Object();
+    //throw Py::RuntimeError("Could not get SFNT table");
 
   switch (tag) {
   case 0:
