@@ -1,6 +1,8 @@
 New entries should be added at the top
 
 
+2004-11-09 backend_cairo.py: Added support for printing to a fileobject.
+           Disabled cairo PS output which is not working correctly. - SC
 
 ==============================================================
 2004-11-08 matplotlib-0.64 released

@@ -513,12 +513,6 @@ def print_figure_fn(figure, filename, dpi=150, facecolor='w', edgecolor='w',
     """
     if DEBUG: print 'backend_cairo.FigureCanvasCairo.%s()' % _fn_name()
 
-    root, ext = os.path.splitext(filename)       
-    ext = ext[1:]
-    if ext == '':
-        ext      = IMAGE_FORMAT_DEFAULT
-        filename = filename + '.' + ext
-
     # save figure state
     origDPI       = figure.dpi.get()
     origfacecolor = figure.get_facecolor()
@@ -529,30 +523,39 @@ def print_figure_fn(figure, filename, dpi=150, facecolor='w', edgecolor='w',
     figure.set_facecolor(facecolor)
     figure.set_edgecolor(edgecolor)        
 
-    ext = ext.lower()
-    if isinstance(filename, file): # eg when do savefig(sys.stdout)
-                                   # assume PNG format
-        _save_png (figure, filename)
-    elif ext in ('png', 'ps'):  # native formats
-        try:
-            fileObject = file(filename,'wb')
-        except IOError, exc:
-            verbose.report_error("%s: %s" % (exc.filename, exc.strerror))
-        else:
-            if ext == 'png': _save_png (figure, fileObject)
-            else:            _save_ps  (figure, fileObject, orientation)
-            
-    elif ext in ('eps', 'svg'): # backend_svg/ps
-        if ext == 'eps':
-            from backend_ps import FigureCanvasPS  as FigureCanvas
-        else:
-            from backend_svg import FigureCanvasSVG as FigureCanvas
-        fc = FigureCanvas(figure)
-        fc.print_figure(filename, dpi, facecolor, edgecolor, orientation)
-
+    if isinstance(filename, file):   # eg when do savefig(sys.stdout)
+        _save_png (figure, filename) # assume PNG format
     else:
-        verbose.report_error('Format "%s" is not supported.\nSupported formats: %s.' %
-                             (ext, ', '.join(IMAGE_FORMAT)))
+        root, ext = os.path.splitext(filename)       
+        ext = ext[1:]
+        if ext == '':
+            ext      = IMAGE_FORMAT_DEFAULT
+            filename = filename + '.' + ext
+
+        ext = ext.lower()
+        #if ext in ('png', 'ps'):  # native formats
+        if ext in ('png'):  # native formats
+            try:
+                fileObject = file(filename,'wb')
+            except IOError, exc:
+                verbose.report_error("%s: %s" % (exc.filename, exc.strerror))
+            else:
+                if ext == 'png': _save_png (figure, fileObject)
+                else:            _save_ps  (figure, fileObject, orientation)
+            
+        #elif ext in ('eps', 'svg'): # backend_svg/ps
+        elif ext in ('eps', 'ps', 'svg'): # backend_svg/ps
+            #if ext == 'eps':
+            if ext in ('eps', 'ps'):
+                from backend_ps import FigureCanvasPS  as FigureCanvas
+            else:
+                from backend_svg import FigureCanvasSVG as FigureCanvas
+            fc = FigureCanvas(figure)
+            fc.print_figure(filename, dpi, facecolor, edgecolor, orientation)
+
+        else:
+            verbose.report_error('Format "%s" is not supported.\nSupported formats: %s.' %
+                                 (ext, ', '.join(IMAGE_FORMAT)))
 
     # restore the new params
     figure.dpi.set(origDPI)
@@ -577,9 +580,10 @@ def _save_ps (figure, fileObject, orientation):
     # Cairo produces PostScript Level 3
     # 'ggv' can't read cairo ps files, but 'gv' can
 
+    # not currently working properly - the figure comes out the wrong size
     ppi = 300.0
-    #figure.dpi.set(72) # this upsets the figure sizing
-    
+    figure.dpi.set(72)
+
     w_in, h_in = figure.get_size_inches()
     width, height = figure.get_width_height()
     
@@ -599,12 +603,16 @@ def _save_ps (figure, fileObject, orientation):
         pass
         
     renderer = RendererCairo (ctx.target_surface, ctx.matrix, width, height, figure.dpi)
-    figure.draw(renderer)
             
-    show_fig_border = False  # for testing figure orientation and scaling
+    show_fig_border = True  # for testing figure orientation and scaling
     if show_fig_border:
         ctx.new_path()
         ctx.rectangle(0, 0, width, height)
+        ctx.set_line_width(4.0)
+        ctx.set_rgb_color(1,0,0)
+        ctx.stroke()
+        ctx.new_path()
+        ctx.rectangle(0+20, 0+20, width-20, height-20)
         ctx.set_line_width(4.0)
         ctx.set_rgb_color(1,0,0)
         ctx.stroke()

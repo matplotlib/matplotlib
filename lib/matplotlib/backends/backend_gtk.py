@@ -559,6 +559,9 @@ def error_msg_gtk(msg, parent=None):
 
 
 def draw_if_interactive():
+    """
+    Is called after every matplotlib.matlab drawing command
+    """
     if matplotlib.is_interactive():
         figManager =  Gcf.get_active()
         if figManager is not None:
@@ -575,7 +578,7 @@ def show(mainloop=True):
     for manager in Gcf.get_all_fig_managers():
         manager.window.show()
         
-    if gtk.main_level() == 0 and mainloop:
+    if mainloop and gtk.main_level() == 0:
         if gtk.pygtk_version >= (2,4,0): gtk.main()
         else:                            gtk.mainloop()
 
