@@ -2,7 +2,10 @@ New entries should be added at the top
 
 ==============================================================
 
-2004-09-31 Added hbar - JDH
+2004-09-30 Added Andrew Dalke's strftime code to extend the range of
+           dates supported by the DateFormatter
+
+2004-09-30 Added hbar - JDH
 
 2004-09-30 Removed fallback to alternate array package from numerix
            so that ImportErrors are easier to debug.           JTM
