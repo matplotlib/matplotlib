@@ -1,5 +1,8 @@
 New entries should be added at the top
 
+2004-05-26 Added Gary's errorbar stuff and made some fixes for length
+           one plots and constant data plots - JDH
+
 2004-05-25 Tweaked TkAgg backend so that canvas.draw() works
 	   more like the other backends.  Fixed a bug resulting
 	   in 2 draws per figure mangager show().      - JTM

@@ -50,6 +50,7 @@ files = (
     'table_demo.py',
     'text_handles.py',
     'text_themes.py',
+    'two_scales.py',
     )
 
 def drive(backend):
