@@ -268,6 +268,6 @@ assert(oboundsy==newboundsy)
 
 import math
 polar = FuncXY(POLAR)
-assert( closeto_seq( polar.map(-1,math.pi), (1,0)) )
-assert( closeto_seq( polar.inverse(1,1), (math.sqrt(2), math.pi/4)))
+assert( closeto_seq( polar.map(math.pi,1), (-1,0)) )
+assert( closeto_seq( polar.inverse(1,1), ( (math.pi/4), math.sqrt(2))) )
 print 'all tests passed'
