@@ -4,25 +4,6 @@ import os, math
 import sys
 def _fn_name(): return sys._getframe(1).f_code.co_name
 
-try:
-    import pygtk
-    if not hasattr(sys, 'frozen'): # py2exe and pygtk.require() do not work together
-        pygtk.require('2.0')
-except:
-    print >> sys.stderr, sys.exc_info()[1] # can't use verbose(), until its imported!
-    raise SystemExit('PyGTK version 1.99.16 or greater is required to run the GTK Matplotlib backends')
-
-import gobject
-import gtk
-version_required = (1,99,16)
-if gtk.pygtk_version < version_required:
-    raise SystemExit ("PyGTK %d.%d.%d is installed\n"
-                      "PyGTK %d.%d.%d or later is required"
-                      % (gtk.pygtk_version + version_required))
-backend_version = "%d.%d.%d" % gtk.pygtk_version
-
-from gtk import gdk
-import pango
 
 import matplotlib
 from matplotlib import verbose
@@ -44,6 +25,28 @@ except ImportError:
     verbose.report_error('backend_gtk could not import mathtext (build with ft2font)')
     useMathText = False
 else: useMathText = True
+
+
+try:
+    import pygtk
+    if not matplotlib.FROZEN:
+        pygtk.require('2.0')
+except:
+    print >> sys.stderr, sys.exc_info()[1] # can't use verbose(), until its imported!
+    raise SystemExit('PyGTK version 1.99.16 or greater is required to run the GTK Matplotlib backends')
+
+import gobject
+import gtk
+version_required = (1,99,16)
+if gtk.pygtk_version < version_required:
+    raise SystemExit ("PyGTK %d.%d.%d is installed\n"
+                      "PyGTK %d.%d.%d or later is required"
+                      % (gtk.pygtk_version + version_required))
+backend_version = "%d.%d.%d" % gtk.pygtk_version
+
+from gtk import gdk
+import pango
+
 
 DEBUG = False
 
