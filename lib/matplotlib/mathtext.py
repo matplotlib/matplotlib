@@ -490,7 +490,7 @@ class Element:
             
             if loc=='above':
                 nx = self.centerx() - element.width()/2.0
-                ny = self.ymax() + self.pady() - element.ymax() + element.oy + element.height()
+                ny = self.ymax() + self.pady() + (element.oy - element.ymax() + element.height())
                 #print element, self.ymax(), element.height(), element.ymax(), element.ymin(), ny
             elif loc=='below':
                 nx = self.centerx() - element.width()/2.0
@@ -802,7 +802,7 @@ class Handler:
             r'\acute'  : r'\combiningacuteaccent',
             r'\ddot'   : r'\combiningdiaeresis',
             r'\tilde'  : r'\combiningtilde',
-            r'\dot'  : r'\combiningdotabove',            
+            r'\dot'    : r'\combiningdotabove',            
             r'\vec'    : r'\combiningrightarrowabove',                        
              }
         above = SymbolElement(d[accent])
