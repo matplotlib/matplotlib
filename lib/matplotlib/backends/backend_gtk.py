@@ -120,7 +120,8 @@ class FigureCanvasGTK(gtk.DrawingArea, FigureCanvasBase):
         self._lastCursor = None
         self._button     = None  # the button pressed
         self._key        = None  # the key pressed
-
+        self._lastx, self.last_y = None, None
+        
         self.set_flags(gtk.CAN_FOCUS)
         self.grab_focus()
         self.set_size_request (int (figure.bbox.width()),
@@ -167,7 +168,7 @@ class FigureCanvasGTK(gtk.DrawingArea, FigureCanvasBase):
         # flipy so y=0 is bottom of canvas
         y = self.figure.bbox.height() - event.y
         FigureCanvasBase.motion_notify_event(self, x, y, self._button, self._key)
-    
+        self._lastx, self.last_y = x, y    
     def key_press_event(self, widget, event):
 
         if self.keyvald.has_key(event.keyval):
@@ -181,10 +182,10 @@ class FigureCanvasGTK(gtk.DrawingArea, FigureCanvasBase):
         shift = event.state & gtk.gdk.SHIFT_MASK
         
         self._key = key
-        FigureCanvasBase.key_press_event(self, self._key)
+        FigureCanvasBase.key_press_event(self, self._key, self._lastx, self.last_y)
 
     def key_release_event(self, widget, event):        
-        FigureCanvasBase.key_release_event(self, self._key)
+        FigureCanvasBase.key_release_event(self, self._key, self._lastx, self.last_y)
         self._key = None
         
 
