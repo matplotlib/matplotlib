@@ -290,9 +290,9 @@
 
 -- DONE support fontdicts, with deprecation as necessary
 
--- move text layout to front end and support newlines with rotation.
+-- DONE move text layout to front end and support newlines with rotation.
 
--- aligment test of backend_ps and table_demo on all backends
+-- DONE aligment test of backend_ps and table_demo on all backends
 
 -- fix the sqrt mathtext bug revealed by Flavio's example
 
@@ -345,7 +345,7 @@
 
 -- DONE expose line set dashes
 
--- fix vertical layout in PS
+-- DONE fix vertical layout in PS
 
 -- DONE y clipping broken
 
@@ -355,10 +355,10 @@
 
 -- DONE scatter demos whacked
 
--- fix small artist bboxing problems
+-- DONE fix small artist bboxing problems
 
--- fix backend image area problem for vert text in GTK - related to
-   rect I think
+-- DONE fix backend image area problem for vert text in GTK - related to
+   ascender I think - same problem as above
 
 -- Tim's log y on hist.
 
@@ -378,9 +378,12 @@
 
 -- DONE - pcolor edge color
 
--- fix log bar - worked on OSX?
+-- DONE fix log bar - worked on OSX?
 
 -- convert rank 1 arrays as per Flaviu's post
 
 -- email tim log bar code after release
 
+-- fix + 2 hack in width, height of ft2font and backend_agg and GTK
+
+-- check mathtext in GTK

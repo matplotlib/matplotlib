@@ -815,6 +815,29 @@ RendererAgg::draw_text(const Py::Tuple& args) {
 	(i+x, y+j, p, font->image.buffer[i + j*font->image.width]);
     }
   }
+
+  /*  bbox the text for debug purposes
+
+  agg::path_storage path;
+  
+  path.move_to(x, y);
+  path.line_to(x, y+font->image.height);
+  path.line_to(x+font->image.width, y+font->image.height);
+  path.line_to(x+font->image.width, y);
+  path.close_polygon();
+  
+  agg::rgba edgecolor(1,0,0,1);
+  
+  //now fill the edge
+  agg::conv_stroke<agg::path_storage> stroke(path);
+  stroke.width(1.0);
+  theRenderer->color(edgecolor);
+  //self->theRasterizer->gamma(agg::gamma_power(gamma));
+  theRasterizer->add_path(stroke);
+  theRasterizer->render(*slineP8, *theRenderer);  
+  
+  */
+
   return Py::Object();
   
 }
