@@ -2,6 +2,7 @@
 #include <png.h>
 #include "ft2font.h"
 #include "_backend_agg.h"
+#include "_image.h"
 
 static PyObject *ErrorObject;
 
@@ -371,7 +372,7 @@ RendererAgg_dealloc(RendererAggObject *self)
   delete self->ren;
 
   delete self->ras;
-  delete self->buffer;
+  delete [] self->buffer;
 }
 
 
@@ -561,6 +562,27 @@ RendererAgg_draw_rectangle(RendererAggObject *renderer, PyObject* args) {
 
 }
 
+char RendererAgg_draw_image__doc__[] = 
+"draw_image(x, y, image)\n"
+"\n"
+"Render the Image instance into the buffer, "
+"starting at pixel locations x,y"
+;
+PyObject *
+RendererAgg_draw_image(RendererAggObject *renderer, PyObject* args) {
+
+  ImageObject *image;
+  long x, y;
+  if (!PyArg_ParseTuple(args, "iiO", &x, &y, &image))
+    return NULL;
+
+  //todo: handle x and y
+  renderer->rbuf->copy_from(*image->rbufOut);
+  Py_INCREF(Py_None);
+  return Py_None;
+
+}
+
 
 static PyObject *
 RendererAgg_draw_lines(RendererAggObject *renderer, PyObject* args) {
@@ -639,10 +661,12 @@ RendererAgg_draw_lines(RendererAggObject *renderer, PyObject* args) {
 
   double thisX, thisY;	
   unsigned winHeight = renderer->rbase->height();
+  int antialiased = _gc_antialiased(gc);
 
   if (Nx==2) { 
     // this is a little hack - len(2) lines are probably grid and
     // ticks so I'm going to snap to pixel
+    //printf("snapto %d\n", Nx);
     thisX = (int)(_seqitem_as_double(x, 0))+0.5;
     thisY = (int)(winHeight - _seqitem_as_double(y, 0))+0.5;
     path.move_to(thisX, thisY);
@@ -709,8 +733,8 @@ RendererAgg_draw_lines(RendererAggObject *renderer, PyObject* args) {
     Py_XDECREF(dashSeq);
   }
 
-  
-  if ( _gc_antialiased(gc) ) {
+
+  if ( antialiased ) {
   //if ( 0 ) {
     renderer->ren->color(*color);    
     renderer->ras->render(*renderer->sline_p8, *renderer->ren);  
@@ -733,36 +757,6 @@ RendererAgg_draw_lines(RendererAggObject *renderer, PyObject* args) {
 }
 
 
-
-static char RendererAgg_rgb__doc__[] =
-"rgb(r, g, b)\n"
-"\n"
-"Create an rgba color value with a = 0xff.";
-
-static PyObject *RendererAgg_rgb(PyObject *self, PyObject *args)
-{
-    int r, g, b;
-
-    if (!PyArg_ParseTuple(args, "iii", &r, &g, &b))
-	return NULL;
-
-    return (PyObject*)PyInt_FromLong((r << 24) + (g << 16) + (b << 8) + 0xff);
-}
-
-static char RendererAgg_rgba__doc__[] =
-"rgba(r, g, b, a)\n"
-"\n"
-"Create an rgba color value.";
-
-static PyObject *RendererAgg_rgba(PyObject *self, PyObject *args)
-{
-    int r, g, b, a;
-
-    if (!PyArg_ParseTuple(args, "iiii", &r, &g, &b, &a))
-	return NULL;
-
-    return (PyObject*)PyInt_FromLong((r << 24) + (g << 16) + (b << 8) + a);
-}
 
 char RendererAgg_draw_text__doc__[] = 
 "draw_text(font, x, y, rgba)\n"
@@ -812,6 +806,7 @@ RendererAgg_draw_text(RendererAggObject *renderer, PyObject* args) {
   return Py_None;
 
 }
+
 
 static PyObject *
 RendererAgg_write_rgba(RendererAggObject *renderer, PyObject* args) {
@@ -920,12 +915,12 @@ static PyMethodDef RendererAgg_methods[] = {
   { "draw_ellipse",	(PyCFunction)RendererAgg_draw_ellipse,	 METH_VARARGS},
   { "draw_rectangle",	(PyCFunction)RendererAgg_draw_rectangle, METH_VARARGS},
   { "draw_polygon",	(PyCFunction)RendererAgg_draw_polygon, METH_VARARGS},
+  { "draw_image",	(PyCFunction)RendererAgg_draw_image,	 METH_VARARGS, RendererAgg_draw_image__doc__},
   { "draw_lines",	(PyCFunction)RendererAgg_draw_lines,	 METH_VARARGS},
+
   { "draw_text",	(PyCFunction)RendererAgg_draw_text,	 METH_VARARGS, RendererAgg_draw_text__doc__},
   { "write_rgba",	(PyCFunction)RendererAgg_write_rgba,	 METH_VARARGS},
   { "write_png",	(PyCFunction)RendererAgg_write_png,	 METH_VARARGS},
-  { "rgb",              (PyCFunction)RendererAgg_rgb, METH_VARARGS, RendererAgg_rgb__doc__ },
-  { "rgba",             (PyCFunction)RendererAgg_rgba, METH_VARARGS, RendererAgg_rgba__doc__ },
 
   {NULL,		NULL}		/* sentinel */
 };

@@ -151,7 +151,7 @@ class LineDialog(gtk.Dialog):
         marker = line.get_marker()
         if marker is None: marker = 'None'        
         styles = [marker]
-        for key in lineMarkers.keys():
+        for key in keys:
             if key == marker: continue
             styles.append(key)
 

@@ -6,8 +6,6 @@ GOALS
 INSTALL
 INTERACTIVE
 KNOWN_BUGS
-LICENSE
-LICENSE_PAINT
 MANIFEST
 MANIFEST.in
 Makefile
@@ -384,6 +382,9 @@ images/stock_zoom-in.ppm
 images/stock_zoom-in.xpm
 images/stock_zoom-out.ppm
 images/stock_zoom-out.xpm
+license/LICENSE
+license/LICENSE_PAINT
+license/LICENSE_PIL
 matplotlib/__init__.py
 matplotlib/_matlab_helpers.py
 matplotlib/afm.py

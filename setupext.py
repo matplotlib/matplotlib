@@ -23,7 +23,7 @@ WIN32
   If you are sufficiently masochistic that you want to build this
   yourself, contact me and I'll send you win32_static as a zip file.
 
-  python setup.py build --compiler=mingw32 bdist_wininst --install-script postinstall.py > build23.out
+  > python setup.py build --compiler=mingw32 bdist_wininst --install-script postinstall.py > build23.out
 
 """
 
@@ -49,10 +49,11 @@ else:
 
 BUILT_AGG       = False
 BUILT_FONTTOOLS = False
-BUILT_GTKGD     = False
-BUILT_GTKAGG    = False
-BUILT_TKAGG     = False
 BUILT_FT2FONT   = False
+BUILT_GTKAGG    = False
+BUILT_GTKGD     = False
+BUILT_IMAGE   = False
+BUILT_TKAGG     = False
 
 def getoutput(s):
     'get the output of a system command'
@@ -66,8 +67,6 @@ def add_agg_flags(module):
 
     # before adding the freetype flags since -z comes later
     module.libraries.append('png')  
-
-    add_ft2font_flags(module)
 
     module.include_dirs.extend(['src','agg2/include'])
 
@@ -181,7 +180,8 @@ def build_gtkagg(ext_modules, packages):
 
     # add agg flags before pygtk because agg only supports freetype1
     # and pygtk includes freetype2.  This is a bit fragile.
-    
+
+    add_ft2font_flags(module)
     add_agg_flags(module)  
     add_pygtk_flags(module)
 
@@ -201,7 +201,9 @@ def build_tkagg(ext_modules, packages):
     # add agg flags before pygtk because agg only supports freetype1
     # and pygtk includes freetype2.  This is a bit fragile.
 
+
     add_tk_flags(module) # do this first
+    add_ft2font_flags(module)
     add_agg_flags(module)  
 
 
@@ -221,9 +223,26 @@ def build_agg(ext_modules, packages):
         deps
         ,
         )
+    add_ft2font_flags(module)
     add_agg_flags(module)
     ext_modules.append(module)    
     BUILT_AGG = True
+
+def build_image(ext_modules, packages):
+    global BUILT_IMAGE
+    if BUILT_IMAGE: return # only build it if you you haven't already
+    
+    deps = ['src/image.cpp'] 
+    deps.extend(glob.glob('agg2/src/*.cpp'))
+                       
+    module = Extension(
+        'matplotlib.image',
+        deps
+        ,
+        )
+    add_agg_flags(module)
+    ext_modules.append(module)    
+    BUILT_IMAGE = True
     
 def build_fonttools(ext_modules, packages):
 
