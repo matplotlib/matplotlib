@@ -796,7 +796,7 @@ class FigureManagerBase:
         self.canvas = canvas
         self.num = num
 
-        self.canvas.mpl_connect('key_press_event', self.toggle_grid)
+        self.canvas.mpl_connect('key_press_event', self.key_press)
         
     def clf(self):
         'clear the figure'
@@ -807,11 +807,12 @@ class FigureManagerBase:
     def destroy(self):
         pass
 
-    def toggle_grid(self, event):
+    def key_press(self, event):
         if event.inaxes is None: return
-        if event.key != 'g': return 
-        event.inaxes.grid()
-        self.canvas.draw()
+        if event.key == 'g':  
+            event.inaxes.grid()
+            self.canvas.draw()
+            
         
 # cursors
 class Cursors:  #namespace
