@@ -1,6 +1,11 @@
 New entries should be added at the top
 
 ==============================================================
+2004-11-04 backend_agg.py: added IMAGE_FORMAT to list the formats that the 
+           backend can save to.
+           backend_gtkagg.py: added support for saving JPG files by using the
+           GTK backend - SC
+
 2004-10-31 backend_cairo.py: now produces png and ps files (although the figure
            sizing needs some work). pycairo did not wrap all the necessary 
            functions, so I wrapped them myself, they are included in the 

@@ -380,10 +380,9 @@ class GraphicsContextCairo(GraphicsContextBase):
         """
         Set the clip rectangle with sequence (left, bottom, width, height)
         """
-        # Cairo clipping is currently extremely slow, so I disabled it
+        # Cairo clipping is currently extremely slow
         # cairo/BUGS lists it as a known bug
         self._cliprect = rectangle
-        return
 
         x,y,w,h = rectangle
         ctx = self.ctx
@@ -508,7 +507,6 @@ def print_figure_fn(figure, filename, dpi=150, facecolor='w', edgecolor='w',
     figure.set_edgecolor(edgecolor)        
 
     ext = ext.lower()
-    print 'filename:', filename
     if ext in ('png', 'ps'):
         try:
             fileObject = file(filename,'wb')
@@ -577,7 +575,7 @@ def _save_ps (figure, fileObject, orientation):
     renderer = RendererCairo (ctx.target_surface, ctx.matrix, width, height, figure.dpi)
     figure.draw(renderer)
             
-    show_fig_border = True  # for testing figure orientation and scaling
+    show_fig_border = False  # for testing figure orientation and scaling
     if show_fig_border:
         ctx.new_path()
         ctx.rectangle(0, 0, width, height)

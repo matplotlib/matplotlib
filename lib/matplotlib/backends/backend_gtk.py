@@ -548,13 +548,6 @@ class GraphicsContextGTK(GraphicsContextBase):
         self.gdkGC.join_style = self._joind[self._joinstyle]
 
 
-def raise_msg_to_str(msg):
-    """msg is a return arg from a raise.  Join with new lines"""
-    if not is_string_like(msg):
-        msg = '\n'.join(map(str, msg))
-    return msg
-    
-
 def error_msg_gtk(msg, parent=None):
     dialog = gtk.MessageDialog(
         parent         = parent,
@@ -847,11 +840,16 @@ def gdk_pixmap_save (pixmap, filename, ext, width, height):
     # pixbuf.save() recognises 'jpeg' not 'jpg'
     if ext == 'jpg': ext = 'jpeg' 
     try: pixbuf.save(filename, ext)
-    except gobject.GError, msg:
-        msg = raise_msg_to_str(msg)
+    except gobject.GError, exc:
         error_msg('Could not save figure to %s\n\n%s' % (
-            filename, msg))
+            filename, exc))
 
+#def raise_msg_to_str(msg):
+#    """msg is a return arg from a raise.  Join with new lines"""
+#    if not is_string_like(msg):
+#        msg = '\n'.join(map(str, msg))
+#        return msg
+    
 
 class FigureManagerGTK(FigureManagerBase):
     """
@@ -879,9 +877,8 @@ class FigureManagerGTK(FigureManagerBase):
         # must be inited after the window, drawingArea and figure
         # attrs are set
         if matplotlib.rcParams['toolbar']=='classic':
-            self.toolbar = NavigationToolbar( canvas, self.window )
+            self.toolbar = NavigationToolbar (canvas, self.window)
         elif matplotlib.rcParams['toolbar']=='toolbar2':
-            #self.toolbar = NavigationToolbar2GTK( canvas )
             self.toolbar = NavigationToolbar2GTK (canvas, self.window)
         else:
             self.toolbar = None
@@ -1139,7 +1136,7 @@ class NavigationToolbar(gtk.Toolbar):
          gtk.STOCK_SAVE, 'save_figure', None, False),
         )
     
-    def __init__(self, canvas, window=None):
+    def __init__(self, canvas, window):
         """
         figManager is the FigureManagerGTK instance that contains the
         toolbar, with attributes figure, window and drawingArea
@@ -1148,7 +1145,7 @@ class NavigationToolbar(gtk.Toolbar):
         gtk.Toolbar.__init__(self)
 
         self.canvas = canvas
-        self.win    = window
+        self.win    = window # Note: gtk.Toolbar already has a 'window' attribute
         
         self.set_style(gtk.TOOLBAR_ICONS)
 
@@ -1424,6 +1421,7 @@ if gtk.pygtk_version >= (2,4,0):
 
             self.IMAGE_FORMAT         = matplotlib.backends.backend_mod.IMAGE_FORMAT
             self.IMAGE_FORMAT_DEFAULT = matplotlib.backends.backend_mod.IMAGE_FORMAT_DEFAULT
+            self.IMAGE_FORMAT.sort()
 
             # create an extra widget to list supported image formats
             self.set_current_folder (self.path)
