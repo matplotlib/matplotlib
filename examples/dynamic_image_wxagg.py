@@ -37,14 +37,6 @@ from wxPython.wx import *
 
 TIMER_ID = wxNewId()
 
-# jdh: use this function, or something similar, when reporting a
-# memory leak
-def report_memory(i):
-    pid = os.getpid()
-    a2 = os.popen('ps -p %d -o rss,sz' % pid).readlines()
-    print i, '  ', a2[1],
-    return int(a2[1].split()[0])
-
 class PlotFigure(wxFrame):
 
     def __init__(self):
@@ -72,7 +64,6 @@ class PlotFigure(wxFrame):
         self.SetSizer(sizer)
         self.Fit()
         EVT_TIMER(self, TIMER_ID, self.onTimer)
-        self.cnt = 0
 
     def init_plot_data(self):
         # jdh you can add a subplot directly from the fig rather than
@@ -100,19 +91,6 @@ class PlotFigure(wxFrame):
         self.im.set_array(z)
         self.canvas.draw()
         #self.canvas.gui_repaint()  # jdh wxagg_draw calls this already
-
-        val = report_memory(self.cnt)
-        if self.cnt==1:
-            self.start = val # skip cnt=0
-            self.tstart = time.time()
-        elif self.cnt==50:
-            end = val
-            print 'Average memory consumed per loop: %1.4f\n' % ((end-self.start)/float(self.cnt))
-            print 'FPS', self.cnt/(time.time() - self.tstart)
-            sys.exit()
-            
-        self.cnt += 1
-        gc.collect()
         
     def onEraseBackground(self, evt):
         # this is supposed to prevent redraw flicker on some X servers...
