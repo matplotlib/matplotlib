@@ -99,4 +99,13 @@
 
 -- on exit from interactive.py call gtk. mainquit
 
--- pan zoom on axes_demo flushes insets
+   DONE 2003-05-11
+
+-- pan/zoom on axes_demo flushes insets
+
+   DONE 2003-05-11
+
+-- raise the figure returned by figure but don't give it the focus
+
+-- when you toggle an axes for interactive navigation, make sure a
+   checked on appears as the default is one is checked
