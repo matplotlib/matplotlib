@@ -6,6 +6,7 @@
 #define _TRANSFORMS_H
 #include <iostream>
 #include <cmath>
+#include <limits>
 #include <utility>
 #include "CXX/Extensions.hxx"
 
@@ -136,6 +137,20 @@ private:
 };
 
 
+class MinPositive {
+public:
+  MinPositive() : val(std::numeric_limits<double>::max()) {};
+  ~MinPositive() {};
+  
+
+  //update the minimum positive value with float
+  void update( double x) {
+    if (x>0 && x<val) val = x; 
+  }
+
+  double val;
+};
+
 
 class Interval: public Py::PythonExtension<Interval> {
 public:
@@ -219,14 +234,37 @@ public:
 
   Py::Object val1( const Py::Tuple &args) {return Py::Object(_val1);}
   Py::Object val2( const Py::Tuple &args) {return Py::Object(_val2);}
+  Py::Object minpos( const Py::Tuple &args) {
+    
+    double valpos = std::numeric_limits<double>::max();
+    if (_minpos!=NULL) 
+      valpos = _minpos->val;
+    
 
+    double val1 = _val1->val();
+    double val2 = _val2->val();
+
+    if (val1<0 && val2<0) {
+      valpos = -1.0;
+    }
+    else {
+      if (val1>0 && val1<valpos) valpos = val1;
+      if (val2>0 && val2<valpos) valpos = val2;
+    }
+    return Py::Float(valpos);
+
+  }
   
+  void set_minpos(MinPositive* p) {_minpos = p;}
   
 private:
   LazyValue* _val1;
   LazyValue* _val2;
-
+  MinPositive* _minpos;
 };
+
+
+
 
 class Bbox: public Py::PythonExtension<Bbox> {
 public:
@@ -248,11 +286,15 @@ public:
   Py::Object get_bounds(const Py::Tuple &args);
 
   Py::Object intervalx(const Py::Tuple &args) {
-    return Py::asObject( new Interval( _ll->x_api(), _ur->x_api()));
+    Interval* intv = new Interval( _ll->x_api(), _ur->x_api());
+    intv->set_minpos(&_posx);
+    return Py::asObject( intv);
   }
 
   Py::Object intervaly(const Py::Tuple &args) {
-    return Py::asObject( new Interval( _ll->y_api(), _ur->y_api()));
+    Interval* intv = new Interval( _ll->y_api(), _ur->y_api());
+    intv->set_minpos(&_posy);
+    return Py::asObject( intv);
   }
 
 
@@ -305,6 +347,8 @@ private:
 
   Point *_ll;
   Point *_ur;
+  MinPositive _posx, _posy;
+
 };
 
 
