@@ -68,7 +68,7 @@ def GTK_WIDGET_DRAWABLE(w): flags = w.flags(); return flags & gtk.VISIBLE !=0 an
 
 
 class ColorManagerGTK:
-    _cached = {}  # a map from get_color args to colors
+    _cached = {}  # a map from rgb colors to gdk.Colors
     _cmap = None
     
 
@@ -76,7 +76,8 @@ class ColorManagerGTK:
         self._cmap = da.get_colormap()
 
 
-    def get_color(self, rgb):
+    def get_gdk_color(self, rgb):
+    #def get_color(self, rgb):
         """
         Take an RGB tuple (with three 0.0-1.0 values) and return an allocated
         gtk.gdk.Color
@@ -90,7 +91,6 @@ class ColorManagerGTK:
             r,g,b = rgb
             color = self._cmap.alloc_color(
                 int(r*65535),int(g*65535),int(b*65535))
-                #int(r*65025),int(g*65025),int(b*65025))
             self._cached[tuple(rgb)] = color
             return color
 
@@ -178,12 +178,11 @@ class RendererGTK(RendererBase):
         w, h = int(width)+1, int(height)+1
         a1, a2 = int(angle1*64), int(angle2*64)
         
-        if rgbFace is not None:
-            edgecolor = gc.gdkGC.foreground
-            facecolor = colorManager.get_color(rgbFace)
-            gc.gdkGC.foreground = facecolor
+        if rgbFace:
+            saveColor = gc.gdkGC.foreground
+            gc.gdkGC.foreground = colorManager.get_gdk_color(rgbFace)
             self.gdkDrawable.draw_arc(gc.gdkGC, True, x, y, w, h, a1, a2)
-            gc.gdkGC.foreground = edgecolor
+            gc.gdkGC.foreground = saveColor
         self.gdkDrawable.draw_arc(gc.gdkGC, False, x, y, w, h, a1, a2)
 
 
@@ -267,17 +266,15 @@ class RendererGTK(RendererBase):
 
         """
         points = [(int(x), self.height-int(y)) for x,y in points]
-        if rgbFace is not None:
-            edgecolor = gc.gdkGC.foreground
-            facecolor = colorManager.get_color(rgbFace)
-            gc.gdkGC.foreground = facecolor
+        if rgbFace:
+            saveColor = gc.gdkGC.foreground
+            gc.gdkGC.foreground = colorManager.get_gdk_color(rgbFace)
             self.gdkDrawable.draw_polygon(gc.gdkGC, True, points)
-            gc.gdkGC.foreground = edgecolor
-
+            gc.gdkGC.foreground = saveColor
         self.gdkDrawable.draw_polygon(gc.gdkGC, False, points)
 
 
-    def draw_rectangle(self, gcEdge, rgbFace, x, y, width, height):
+    def draw_rectangle(self, gc, rgbFace, x, y, width, height):
         """
         Draw a rectangle at lower left x,y with width and height
         If filled=True, fill the rectangle with the gc foreground
@@ -287,15 +284,12 @@ class RendererGTK(RendererBase):
         #x, y = int(x), self.height-int(math.ceil(y+height))
         w, h = int(math.ceil(width)), int(math.ceil(height))
 
-
-        if rgbFace is not None:
-            edgecolor = gcEdge.gdkGC.foreground
-            facecolor = colorManager.get_color(rgbFace)
-            gcEdge.gdkGC.foreground = facecolor
-            self.gdkDrawable.draw_rectangle(gcEdge.gdkGC, True, x, y, w, h)
-            gcEdge.gdkGC.foreground = edgecolor
-            
-        self.gdkDrawable.draw_rectangle(gcEdge.gdkGC, False, x, y, w, h)
+        if rgbFace:
+            saveColor = gc.gdkGC.foreground
+            gc.gdkGC.foreground = colorManager.get_gdk_color(rgbFace)
+            self.gdkDrawable.draw_rectangle(gc.gdkGC, True, x, y, w, h)
+            gc.gdkGC.foreground = saveColor
+        self.gdkDrawable.draw_rectangle(gc.gdkGC, False, x, y, w, h)
 
 
     def draw_text(self, gc, x, y, s, prop, angle, ismath):
@@ -518,13 +512,14 @@ class GraphicsContextGTK(GraphicsContextBase):
     def set_dashes(self, dash_offset, dash_list):
         GraphicsContextBase.set_dashes(self, dash_offset, dash_list)
 
-        if dash_list is not None:
+        if dash_list == None:
+            self.gdkGC.line_style = gdk.LINE_SOLID
+        else:
             pixels = self.renderer.points_to_pixels(asarray(dash_list))
             dl = [max(1, int(round(val))) for val in pixels]
             self.gdkGC.set_dashes(dash_offset, dl)
             self.gdkGC.line_style = gdk.LINE_ON_OFF_DASH
-        else:
-            self.gdkGC.line_style = gdk.LINE_SOLID
+
 
     def set_foreground(self, fg, isRGB=None):
         """
@@ -533,14 +528,15 @@ class GraphicsContextGTK(GraphicsContextBase):
         and 1.  In the latter case, grayscale is used.
         """
         GraphicsContextBase.set_foreground(self, fg, isRGB)
-        self.gdkGC.foreground = self._get_gdk_color()
+        self.gdkGC.foreground = colorManager.get_gdk_color(self.get_rgb())
+
 
     def set_graylevel(self, frac):
         """
         Set the foreground color to be a gray level with frac frac
         """
         GraphicsContextBase.set_graylevel(self, frac)
-        self.gdkGC.foreground = self._get_gdk_color()
+        self.gdkGC.foreground = colorManager.get_gdk_color(self.get_rgb())
         
 
     def set_linewidth(self, w):
@@ -563,9 +559,6 @@ class GraphicsContextGTK(GraphicsContextBase):
         """
         GraphicsContextBase.set_joinstyle(self, js)
         self.gdkGC.join_style = self._joind[self._joinstyle]
-
-    def _get_gdk_color(self):
-        return colorManager.get_color(self.get_rgb())
 
 
 def raise_msg_to_str(msg):
@@ -1047,7 +1040,7 @@ class NavigationToolbar2GTK(NavigationToolbar2, gtk.Toolbar):
 
             ax = event.inaxes
             l,b,w,h = [int(val) for val in ax.bbox.get_bounds()]
-            b = y = int(height)-(b+h)
+            b = int(height)-(b+h)            # b = y = int(height)-(b+h)  # y not used
             axrect = l,b,w,h
             self._imageBack = axrect, drawable.get_image(*axrect)            
             drawable.draw_rectangle(gc, False, *rect)
