@@ -148,7 +148,7 @@
 -- DONE 2003-11-18 ticks don't reach edge of axes in gtk mode --
    rounding error?
 
--- port Gary's errorbar code to new API before 0.40
+-- DONE 2003-11-20 - port Gary's errorbar code to new API before 0.40
 
 -- legend axes box doesn't resize on save in GTK backend -- see htdocs
    legend_demo.py
