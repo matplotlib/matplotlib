@@ -8,11 +8,12 @@ from matplotlib.matlab import *
 rc('grid', ls='-', lw=2, color='k')
 fig = figure(figsize=(1, 1), dpi=72)
 axes([0.025, 0.025, 0.95, 0.95], axisbg='y')
+
 t = arange(0, 2, 0.05)
 s = sin(2*pi*t)
 plot(t,s, linewidth=4)
 axis([-.2, 2.2, -1.2, 1.2])
-#axis('off')
+
 grid(True)
 set(gca(), xticklabels=[], yticklabels=[])
 savefig('../images/matplotlib.svg', facecolor=0.75)
