@@ -252,6 +252,7 @@ class RendererGDK(RendererBase):
         """
         # this function (and its called functions) is a bottleneck
         # Pango 1.6 supports rotated text, but pygtk 2.4.0 does not yet have wrapper functions
+        # GTK+ 2.6 pixbufs support rotation
 
         gdrawable = self.gdkDrawable
         ggc = gc.gdkGC
