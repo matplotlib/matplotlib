@@ -73,7 +73,7 @@ def error_msg_template(msg, *args):
     'from matplotlib.backend_bases import error_msg'
     """
     verbose.report_error(msg)
-    raise SystemExist
+    raise SystemExit
     
 
 class RendererTemplate(RendererBase):
@@ -326,4 +326,3 @@ class FigureManagerTemplate(FigureManagerBase):
 
 FigureManager = FigureManagerTemplate
 error_msg = error_msg_template
-         
