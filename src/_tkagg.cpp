@@ -16,8 +16,12 @@
 
 extern "C" {
 #ifdef __APPLE__
-#  include <Tcl/tcl.h>
-#  include <Tk/tk.h>
+#  ifdef TK_FRAMEWORK
+#     include <Tcl/tcl.h>
+#     include <Tk/tk.h>
+#  else
+#     include <tk.h> 
+#  endif
 #else
 #  include <tk.h> 
 #endif

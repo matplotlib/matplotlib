@@ -32,11 +32,10 @@ WIN32
 import os
 
 basedir = {
-
     'win32'  : ['win32_static',],
     'linux2' : ['/usr/local', '/usr',],
     'linux'  : ['/usr/local', '/usr',],
-    'darwin' : ['/usr/local', '/usr', '/sw'],
+    'darwin' : [os.getenv('MBLIB_BASE') or '/usr/local', '/usr', '/sw'],
     'sunos5' : [os.getenv('MPLIB_BASE') or '/usr/local',],
 }
 
@@ -58,7 +57,6 @@ BUILT_GTKAGG    = False
 BUILT_IMAGE     = False
 BUILT_TKAGG     = False
 BUILT_WINDOWING = False
-
 
 def add_base_flags(module):
     incdirs = [os.path.join(p, 'include') for p in basedir[sys.platform]
@@ -184,6 +182,7 @@ def find_tcltk():
 	o.tcl_lib = "/usr/local/lib"
 	o.tcl_inc = "/usr/local/include"
 	o.tk_lib = "/usr/local/lib"
+        o.tk_inc = "/usr/local/include"
 	o.tkv = ""
     else:
 	tk.withdraw()
@@ -212,14 +211,16 @@ def add_tk_flags(module):
         module.include_dirs.extend(['win32_static/include/tcl'])
         module.library_dirs.extend(['C:/Python23/dlls'])
         module.libraries.extend(['tk84', 'tcl84'])
-    elif sys.platform == 'darwin':
-        module.extra_link_args.extend(['-framework','Tcl'])
-        module.extra_link_args.extend(['-framework','Tk'])
     else:
-	o = find_tcltk()
-	module.include_dirs.extend([o.tcl_inc, o.tk_inc])
-	module.library_dirs.extend([o.tcl_lib, o.tk_lib])
-        module.libraries.extend(['tk'+o.tkv, 'tcl'+o.tkv])
+        o = find_tcltk()
+        if sys.platform == 'darwin' and '/Library/Framework' in o.tk_lib:
+            module.extra_link_args.extend(['-framework','Tcl'])
+            module.extra_link_args.extend(['-framework','Tk'])
+        else:
+            module.include_dirs.extend([o.tcl_inc, o.tk_inc])
+            module.library_dirs.extend([o.tcl_lib, o.tk_lib])
+            module.libraries.extend(['tk'+o.tkv, 'tcl'+o.tkv])
+
 
 def add_windowing_flags(module):
     'Add the module flags to build extensions using windowing api'
