@@ -28,9 +28,6 @@ http://matplotlib.sourceforge.net
 
 0) Turn off all the build flags
 
-0) when building the win installer, make sure you specify
-   --install-script postinstall.py
-
 0) Run examples/batch_figs.py w/o errors; run the backend specific
    demos (object_picker, anim , embedding*)
 
@@ -40,7 +37,7 @@ http://matplotlib.sourceforge.net
   > rfr -f savefig -r '#savefig' *.py
   > rfr -f '##savefig' -r '#savefig' *.py
 
-2) edit license.html.template and matplotlib.__init__ to the correct version number 
+2) edit __init__.py, setup.py license.html.template to the correct version number 
    local> clearbak
    local> make htmldocs
    local> scp htdocs/site.tar.gz jdh2358@matplotlib.sf.net:/home/groups/m/ma/matplotlib/htdocs/
@@ -48,7 +45,6 @@ http://matplotlib.sourceforge.net
    sf> cd /home/groups/m/ma/matplotlib/htdocs
    sf> tar xvfz site.tar.gz
 
-3) edit setup.py to the correct version number 
   > make release
 
 4) anon ftp the tar.gz and exe file to SF

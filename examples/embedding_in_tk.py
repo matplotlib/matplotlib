@@ -1,8 +1,7 @@
-from matplotlib.numerix import arange, sin, pi
-
 import matplotlib
 matplotlib.use('TkAgg')
 
+from matplotlib.numerix import arange, sin, pi
 from matplotlib.axes import Subplot
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.figure import Figure
