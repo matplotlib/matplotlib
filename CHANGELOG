@@ -13,6 +13,9 @@ New entries should be added at the top
  
 2004-11-30 Added bbox property to text - JDH
 
+2004-11-29 Zoom to rect now respect reversed axes limits (for both 
+           linear and log axes). - GL
+           
 2004-11-29 Added the over command to the matlab interface.  over
            allows you to add an overlay plot regardless of hold
 	   state. - JDH
