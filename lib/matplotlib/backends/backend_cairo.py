@@ -36,7 +36,7 @@ from matplotlib.numerix import asarray, pi, fromstring, UInt8 #, zeros, where,
      #transpose, nonzero, indices, ones, nx
 #from matplotlib._matlab_helpers import Gcf
 from matplotlib.backend_bases import RendererBase, GraphicsContextBase,\
-     FigureManagerBase, FigureCanvasBase
+     FigureManagerBase, FigureCanvasBase, error_msg
 from matplotlib.cbook import enumerate, True, False
 from matplotlib.figure import Figure
 from matplotlib.transforms import Bbox
