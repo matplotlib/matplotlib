@@ -103,7 +103,7 @@ times = {}
 backends = ['PS', 'GD', 'Paint', 'Agg', 'Template']
 #backends.extend([ 'GTK', 'WX', 'TkAgg'])
 #backends = [ 'Agg']
-backends = [ 'SVG', 'PS', 'Agg', 'Template']
+backends = ['PS', 'Agg']
 
 python = 'python2.3'
 for backend in backends:

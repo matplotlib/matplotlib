@@ -220,7 +220,12 @@ def colors():
       color = '#eeefff'
 
     or you can pass an R,G,B tuple, where each of R,G,B are in the
-    range [0,1].  The example below creates a subplot with a dark
+    range [0,1].
+
+    You can also use any legal html name for a color, like 'red',
+    'burlywood' and 'chartreuse'
+
+    The example below creates a subplot with a dark
     slate gray background
 
        subplot(111, axisbg=(0.1843, 0.3098, 0.3098))
