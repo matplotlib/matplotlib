@@ -124,18 +124,20 @@ class RendererCairo(RendererBase):
         with FontPropertry prop
         """
         if Debug: print 'backend_cairo.RendererCairo.%s()' % _fn_name()
-        # if ismath:  # do later
-
-        ctx = cairo.Context() # later - save a ctx specifically for this op?
-        ctx.select_font (prop.get_name(),
-                         self.fontangles [prop.get_style()],
-                         self.fontweights[prop.get_weight()])
-        scale = self.get_text_scale()
-        size  = prop.get_size_in_points()
-        ctx.scale_font (scale*size)
+        if ismath:
+            print 'ismath get_text_width_height() not implemented yet'
+            return 1, 1
+        else:
+            ctx = cairo.Context() # later - save a ctx specifically for this op?
+            ctx.select_font (prop.get_name(),
+                             self.fontangles [prop.get_style()],
+                             self.fontweights[prop.get_weight()])
+            scale = self.get_text_scale()
+            size  = prop.get_size_in_points()
+            ctx.scale_font (scale*size)
         
-        w, h = ctx.text_extents (s)[2:4]
-        return w, h
+            w, h = ctx.text_extents (s)[2:4]
+            return w, h
 
                               
     def draw_arc(self, gcEdge, rgbFace, x, y, width, height, angle1, angle2):
@@ -148,6 +150,7 @@ class RendererCairo(RendererBase):
         """
         if Debug: print 'backend_cairo.RendererCairo.%s()' % _fn_name()
         # cairo draws circular arcs (width=height) only?
+        # could curve_to() and draw a spline instead?
         ctx    = gcEdge.ctx
         y      = self.height - y
         radius = width / 2
@@ -189,6 +192,8 @@ class RendererCairo(RendererBase):
         y2 = self.height - y2
         ctx.move_to (x1, y1); ctx.line_to (x2, y2)
         ctx.stroke()
+        # should call new_path() so this line is not part of future paths?
+        # or save()/restore() wrapper ?
 
 
     def draw_lines(self, gc, x, y):
@@ -207,6 +212,9 @@ class RendererCairo(RendererBase):
             ctx.line_to (x, y)
         ctx.stroke()
 
+        #ctx.new_path() # testing
+        # should call new_path() so these lines are not part of future paths?
+
 
     def draw_point(self, gc, x, y):
         """
@@ -215,8 +223,8 @@ class RendererCairo(RendererBase):
         if Debug: print 'backend_cairo.RendererCairo.%s()' % _fn_name()
         # render by drawing a 0.5 radius circle
         y = self.height - y
-        ctx.arc (x, y, 0.5, 0, 2*pi)
-        ctx.fill()
+        gc.ctx.arc (x, y, 0.5, 0, 2*pi)
+        gc.ctx.fill()
 
 
     def draw_polygon(self, gcEdge, rgbFace, points):
@@ -231,7 +239,7 @@ class RendererCairo(RendererBase):
         ctx = gcEdge.ctx
         points = [(x, (self.height-y)) for x,y in points]
 
-        ctx.new_path()
+        ctx.new_path() # not required?
         x, y = points.pop(0)
         ctx.move_to (x, y)
         for x,y in points:
@@ -290,6 +298,7 @@ class RendererCairo(RendererBase):
                 ctx.rotate (-angle * pi / 180)
             ctx.scale_font (scale*size)
             ctx.show_text (s)
+            # new_path() ?
 
          
     def flipy(self):
@@ -367,32 +376,27 @@ class GraphicsContextCairo(GraphicsContextBase):
         """
         Set the clip rectangle with sequence (left, bottom, width, height)
         """
+        # Cairo clipping is currently extremely slow, so I disabled it
+        # cairo/BUGS lists it as a known bug
         self._cliprect = rectangle
-        ctx = self.ctx
+        return
 
         x,y,w,h = rectangle
-        widget_h = self.renderer.height
-        # 1 clipping is extremely slow so I disabled it (its due to be optimised?)
-        # 2 how to specify a clip rect w/o actually drawing it!
-
-        #ctx.new_path()
-        #ctx.move_to (x-1,   widget_h-y)
-        #ctx.line_to (x-10,   widget_h-y-h)
-        #ctx.line_to (x-10+w, widget_h-y-h)
-        #ctx.line_to (x-10+w, widget_h-y)
-        #ctx.line_to (x-10,   widget_h-y)
-        #ctx.close_path()
-        
-        #ctx.clip ()
+        ctx = self.ctx
+        ctx.new_path()
+        ctx.rectangle (x, self.renderer.height - h - y, w, h)
+        ctx.clip ()
+        ctx.new_path() # prevents the rectangle from being drawn by next ctx.stroke()/fill()
+        # is better to do new_path() (or save(),restore()) at start of EVERY draw_*() op ?
         
 
     def set_dashes(self, offset, dashes):
         self._dashes = offset, dashes
-        if offset != None:
+        if dashes == None:
+            self.ctx.set_dash([], 0)  # switch dashes off
+        else:
             dashes_pixels = self.renderer.points_to_pixels(asarray(dashes))
             self.ctx.set_dash(dashes_pixels, offset)
-        else: # hack to switch dashes off
-            self.ctx.set_dash([1,0], 0)
         
 
     def set_foreground(self, fg, isRGB=None):
