@@ -1,5 +1,11 @@
 New entries should be added at the top
 
+2004-05-28 Added renderer grouping commands to support groups in
+           SVG/PS. - JDH
+
+2004-05-28 Fixed, this time I really mean it, the singleton plot
+           plot([0]) scaling bug; Fixed Flavio's shape = N,1 bug - JDH
+
 2004-05-28 added colorbar - JDH
 
 2004-05-28 Made some changes to the matplotlib.colors.Colormap to
