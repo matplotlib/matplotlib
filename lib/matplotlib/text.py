@@ -52,10 +52,7 @@ class Text(Artist):
         self._text = text
         self._verticalalignment = verticalalignment
         self._horizontalalignment = horizontalalignment
-        self._multialignment = multialignment
-
-        
-        
+        self._multialignment = multialignment        
         self._rotation = rotation
         self._fontproperties = fontproperties
 
@@ -469,6 +466,7 @@ class Text(Artist):
 
     def is_math_text(self):
         if not matplotlib._havemath: return False
+        if len(self._text)<2: return False
         return ( self._text.startswith('$') and
                  self._text.endswith('$') )
 

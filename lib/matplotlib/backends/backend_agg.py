@@ -192,9 +192,13 @@ class RendererAgg(RendererBase):
 
         font = self._get_agg_font(prop)
         if font is None: return None
-        font.set_text(s, angle)
+        if len(s)==1 and ord(s)>127:
+
+            font.load_char(ord(s))
+        else:
+            font.set_text(s, angle)
         font.draw_glyphs_to_bitmap()
-                
+
         self._renderer.draw_text(font, int(x), int(y), gc)
 
         

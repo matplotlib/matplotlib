@@ -548,6 +548,7 @@ Examples:
                  weight = None,
                  stretch= None,
                  size   = None,
+                 fname = None, # if this is set, it's a hardcoded filename to use
                  ):
 
 
@@ -567,12 +568,13 @@ Examples:
         self.__stretch = stretch
         self.__size    = size
         self.__parent_size = fontManager.get_default_size()
-
+        self.fname = fname
+        
     def __hash__(self):
         return hash( (
             tuple(self.__family), self.__style, self.__variant,
             self.__weight, self.__stretch, self.__size,
-            self.__parent_size))
+            self.__parent_size, self.fname))
 
     def __str__(self):
         return str((self.__family, self.__style, self.__variant,
@@ -844,7 +846,11 @@ documentation for a description of the font finding algorithm.
 Delete this file to have matplotlib rebuild the cache."""
 
         debug = False
-
+        if prop.fname is not None:
+            fname = prop.fname
+            verbose.report('findfont returning %s'%fname, 'debug')
+            return fname
+        
         if   fontext == 'ttf':
             fontdict = self.ttfdict
         elif fontext == 'afm':
