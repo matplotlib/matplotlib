@@ -51,6 +51,7 @@ files = (
     'text_handles.py',
     'text_themes.py',
     'two_scales.py',
+    'vline_demo.py',
     )
 
 def drive(backend):

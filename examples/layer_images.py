@@ -17,13 +17,14 @@ y = arange(-3.0, 3.0, dy)
 X,Y = meshgrid(x, y)
 
 Z1 = rand(10,6)
-im1 = imshow(Z1, cmap = Grayscale(256))
+im1 = imshow(Z1, cmap=cm.gray)
 im1.set_interpolation('nearest')
 hold(True)
 
 Z2 = func3(X, Y)
-im2 = imshow(Z2, cmap=ColormapJet(256), alpha=0.75)
+im2 = imshow(Z2, cmap=cm.jet, alpha=0.75)
 im2.set_interpolation('nearest')
+
 
 show()
 

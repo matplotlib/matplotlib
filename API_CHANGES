@@ -1,3 +1,17 @@
+API CHANGES in matplotlib-0.xx
+
+ColormapJet and Grayscale are deprecated.  For backwards
+compatibility, they can be obtained either by doing
+
+  from matplotlib.cm import ColormapJet 
+
+or
+
+  from matplotlib.matlab import *
+
+They are replaced by cm.jet and cm.grey
+
+
 API CHANGES in matplotlib-0.54.3
 
 removed the set_default_font / get_default_font scheme from the

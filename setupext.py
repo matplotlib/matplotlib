@@ -324,6 +324,8 @@ def build_image(ext_modules, packages, numerix):
     
     deps = ['src/_image.cpp'] 
     deps.extend(glob.glob('agg2/src/*.cpp'))
+    deps.extend(glob.glob('CXX/*.cxx'))
+    deps.extend(glob.glob('CXX/*.c'))
 
     module = Extension(
         'matplotlib._image',
