@@ -1,6 +1,13 @@
 New entries should be added at the top
 ------------------------------------------------------------
 
+2004-05-06 Total rewrite of mathtext - factored ft2font stuff out of
+           layout engine and defined abstract class for font handling
+           to lay groundwork for ps mathtext.  Rewrote parser and made
+           layout engine much more precise.  Fixed all the layout
+           hacks.  Added spacing commands \/ and \hspace.  Added
+           composite chars and defined angstrom. - JDH
+
 2004-05-05 Refactored text instances out of backend; aligned
            text with arbitrary rotations is not supported - JDH
 
