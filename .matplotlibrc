@@ -132,7 +132,9 @@ axes.linewidth      : 1.0     # edge linewidth
 axes.grid           : False   # display grid or not
 axes.titlesize      : 14      # fontsize of the axes title
 axes.labelsize      : 12      # fontsize of the x any y labels
-axes.labelcolor     : k       # black 
+axes.labelcolor     : k       # black
+
+polaraxes.grid      : True    # display grid on polar axes
 
 ### TICKS
 tick.major.size     : 4      # major tick size in points

@@ -232,7 +232,6 @@ class Line2D(Artist):
         #xy, yt = zip(*xys)
 
         xt, yt = self._transform.numerix_x_y(x, y)
-
         gc = renderer.new_gc()
         gc.set_foreground(self._color)
         gc.set_antialiased(self._antialiased)

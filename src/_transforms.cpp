@@ -421,19 +421,6 @@ Func::inverse(const Py::Tuple &args) {
   return Py::Float(xout);
 };
 
-FuncXY::FuncXY(Func* funcx, Func* funcy) : 
-  _funcx(funcx), _funcy(funcy) {
-  _VERBOSE("FuncXY::FuncXY");
-    Py_INCREF(funcx);
-    Py_INCREF(funcy);
-}
-
-FuncXY::~FuncXY() {
-  _VERBOSE("FuncXY::~FuncXY");
-  Py_DECREF(_funcx);
-  Py_DECREF(_funcy);
-
-}
 
 Py::Object 
 FuncXY::map(const Py::Tuple &args) {
@@ -474,51 +461,6 @@ FuncXY::inverse(const Py::Tuple &args) {
 
 };
 
-
-
-Py::Object
-FuncXY::set_funcx(const Py::Tuple & args) {
-  _VERBOSE("FuncXY::set_funcx");
-  args.verify_length(1);
-  
-  if (!Func::check(args[0])) 
-    throw Py::TypeError("set_funcx(func) expected a Func instance");
-  
-  _funcx = static_cast<Func*>(args[0].ptr());
-  Py_INCREF(_funcx);
-  return Py::Object();
-}
-
-Py::Object
-FuncXY::set_funcy(const Py::Tuple & args) {
-  _VERBOSE("FuncXY::set_funcy");
-  args.verify_length(1);
-  
-  if (!Func::check(args[0])) 
-    throw Py::TypeError("set_funcy(func) expected a Func instance");
-  
-  _funcy = static_cast<Func*>(args[0].ptr());
-  Py_INCREF(_funcy);
-  return Py::Object();
-}
-
-Py::Object
-FuncXY::get_funcx(const Py::Tuple & args) {
-  _VERBOSE("FuncXY::get_funcx");
-  args.verify_length(0);
-  return Py::Object(_funcx);
-}
-
-Py::Object
-FuncXY::get_funcy(const Py::Tuple & args) {
-  _VERBOSE("FuncXY::get_funcy");
-  args.verify_length(0);
-  return Py::Object(_funcy);
-}
-
-PolarXY::~PolarXY() {
-  _VERBOSE("PolarXY::~PolarXY");
-}
 
 Transformation::~Transformation() {
   _VERBOSE("Transformation::~Transformation");
@@ -566,6 +508,20 @@ Transformation::set_funcy(const Py::Tuple & args) {
 }
 
 
+Py::Object
+Transformation::get_funcxy(const Py::Tuple & args) {
+  _VERBOSE("Transformation::get_funcxy");
+  throw Py::RuntimeError("This transformation does not support get_funcxy");
+  return Py::Object();
+}
+
+
+Py::Object
+Transformation::set_funcxy(const Py::Tuple & args) {
+  _VERBOSE("Transformation::set_funcxy");
+  throw Py::RuntimeError("This transformation does not support set_funcxy");
+  return Py::Object();
+}
 
 Py::Object
 Transformation::get_bbox1(const Py::Tuple & args) {
@@ -797,12 +753,62 @@ Transformation::seq_xy_tups(const Py::Tuple & args) {
 }
 
 
-SeparableTransformation::SeparableTransformation(Bbox *b1, Bbox *b2, Func *funcx, Func *funcy) : 
+BBoxTransformation::BBoxTransformation(Bbox *b1, Bbox *b2) : 
     Transformation(), 
-    _b1(b1), _b2(b2), _funcx(funcx), _funcy(funcy)  {
-  _VERBOSE("SeparableTransformation::SeparableTransformation");
+    _b1(b1), _b2(b2)  {
+  _VERBOSE("BBoxTransformation::BBoxTransformation");
   Py_INCREF(b1);
   Py_INCREF(b2);
+  
+}
+
+BBoxTransformation::~BBoxTransformation() {
+  _VERBOSE("BBoxTransformation::~BBoxTransformation");
+  Py_DECREF(_b1);
+  Py_DECREF(_b2);
+}
+
+Py::Object
+BBoxTransformation::get_bbox1(const Py::Tuple & args) {
+  _VERBOSE("BBoxTransformation::get_bbox1");
+  args.verify_length(0);
+  return Py::Object(_b1);
+}
+
+Py::Object
+BBoxTransformation::get_bbox2(const Py::Tuple & args) {
+  _VERBOSE("BBoxTransformation::get_bbox2");
+  args.verify_length(0);
+  return Py::Object(_b2);
+}
+
+
+Py::Object
+BBoxTransformation::set_bbox1(const Py::Tuple & args) {
+  _VERBOSE("BBoxTransformation::set_bbox1");
+  args.verify_length(1);
+  if (!Bbox::check(args[0])) 
+    throw Py::TypeError("set_bbox1(func) expected a func instance");
+  _b1 = static_cast<Bbox*>(args[0].ptr());
+  Py_INCREF(_b1);
+  return Py::Object();
+}
+
+Py::Object
+BBoxTransformation::set_bbox2(const Py::Tuple & args) {
+  _VERBOSE("BBoxTransformation::set_bbox2");
+  args.verify_length(1);
+  if (!Bbox::check(args[0])) 
+    throw Py::TypeError("set_bbox2(func) expected a func instance");
+  _b2 = static_cast<Bbox*>(args[0].ptr());
+  Py_INCREF(_b2);
+  return Py::Object();
+}
+
+SeparableTransformation::SeparableTransformation(Bbox *b1, Bbox *b2, Func *funcx, Func *funcy) : 
+    BBoxTransformation(b1, b2), 
+    _funcx(funcx), _funcy(funcy)  {
+  _VERBOSE("SeparableTransformation::SeparableTransformation");
   Py_INCREF(funcx);
   Py_INCREF(funcy);
   
@@ -811,8 +817,6 @@ SeparableTransformation::SeparableTransformation(Bbox *b1, Bbox *b2, Func *funcx
 
 SeparableTransformation::~SeparableTransformation() {
   _VERBOSE("SeparableTransformation::~SeparableTransformation");
-  Py_DECREF(_b1);
-  Py_DECREF(_b2);
   Py_DECREF(_funcx);
   Py_DECREF(_funcy);
 }
@@ -856,42 +860,6 @@ SeparableTransformation::set_funcy(const Py::Tuple & args) {
 
 
 
-Py::Object
-SeparableTransformation::get_bbox1(const Py::Tuple & args) {
-  _VERBOSE("SeparableTransformation::get_bbox1");
-  args.verify_length(0);
-  return Py::Object(_b1);
-}
-
-Py::Object
-SeparableTransformation::get_bbox2(const Py::Tuple & args) {
-  _VERBOSE("SeparableTransformation::get_bbox2");
-  args.verify_length(0);
-  return Py::Object(_b2);
-}
-
-
-Py::Object
-SeparableTransformation::set_bbox1(const Py::Tuple & args) {
-  _VERBOSE("SeparableTransformation::set_bbox1");
-  args.verify_length(1);
-  if (!Bbox::check(args[0])) 
-    throw Py::TypeError("set_bbox1(func) expected a func instance");
-  _b1 = static_cast<Bbox*>(args[0].ptr());
-  Py_INCREF(_b1);
-  return Py::Object();
-}
-
-Py::Object
-SeparableTransformation::set_bbox2(const Py::Tuple & args) {
-  _VERBOSE("SeparableTransformation::set_bbox2");
-  args.verify_length(1);
-  if (!Bbox::check(args[0])) 
-    throw Py::TypeError("set_bbox2(func) expected a func instance");
-  _b2 = static_cast<Bbox*>(args[0].ptr());
-  Py_INCREF(_b2);
-  return Py::Object();
-}
 
 
 std::pair<double, double>&
@@ -960,7 +928,7 @@ SeparableTransformation::eval_scalars(void) {
 
   double heightIn  = ymaxIn  - yminIn;
   double heightOut = ymaxOut - yminOut;
-
+  //std::cout <<"heightout, heightin = "  << heightOut << " " << heightIn << std::endl;
   if (widthIn==0) 
     throw Py::ZeroDivisionError("SeparableTransformation::eval_scalars xin interval is zero; cannot transform");
 
@@ -1002,6 +970,157 @@ SeparableTransformation::deepcopy(const Py::Tuple &args) {
   _VERBOSE("SeparableTransformation::deepcopy");
   args.verify_length(0);
   return Py::asObject( new SeparableTransformation( static_cast<Bbox*>((_b1->_deepcopy()).ptr()),static_cast<Bbox*>((_b2->_deepcopy()).ptr()), _funcx,_funcy ));
+}
+
+NonseparableTransformation::NonseparableTransformation(Bbox *b1, Bbox *b2, FuncXY *funcxy) : 
+    BBoxTransformation(b1, b2), 
+    _funcxy(funcxy)  {
+  _VERBOSE("NonseparableTransformation::NonseparableTransformation");
+  Py_INCREF(funcxy);
+}
+
+
+NonseparableTransformation::~NonseparableTransformation() {
+  _VERBOSE("NonseparableTransformation::~NonseparableTransformation");
+  Py_DECREF(_funcxy);
+}
+
+Py::Object
+NonseparableTransformation::get_funcxy(const Py::Tuple & args) {
+  _VERBOSE("NonseparableTransformation::get_funcxy");
+  args.verify_length(0);
+  return Py::Object(_funcxy);
+}
+ 
+
+Py::Object
+NonseparableTransformation::set_funcxy(const Py::Tuple & args) {
+  _VERBOSE("NonseparableTransformation::set_funcx");
+  args.verify_length(1);
+  if (!FuncXY::check(args[0])) 
+    throw Py::TypeError("set_funcxy(func) expected a func instance");
+  _funcxy = static_cast<FuncXY*>(args[0].ptr());
+  Py_INCREF(_funcxy);
+  return Py::Object();
+}
+
+
+std::pair<double, double>&
+NonseparableTransformation::operator()(const double& x, const double& y) {
+  _VERBOSE("NonseparableTransformation::operator");
+ 
+  // calling function must first call eval_scalars
+  xy = _funcxy->operator()(x,y);
+  
+  //std::cout << "operator(x,y) In: " << x << " " << y << " " << xy.first << " " << xy.second << std::endl;
+  xy.first  = _sx * xy.first  +  _tx ;
+  xy.second = _sy * xy.second +  _ty;
+  //std::cout << "operator(x,y) out: " << xy.first << " " << xy.second << std::endl;
+  if (_usingOffset) {
+    xy.first  += _xot;
+    xy.second += _yot;
+  }
+  
+
+  return xy;
+}
+
+
+std::pair<double, double> &
+NonseparableTransformation::inverse_api(const double &x, const double &y) {
+  _VERBOSE("NonseparableTransformation::inverse_api");
+
+  // calling function must first call eval_scalars_inverse and
+  // _transOffset->eval_scalars_inverse()
+
+
+  if (!_invertible)
+    throw Py::RuntimeError("Transformation is not invertible");
+
+  double xin = x;
+  double yin = y;
+
+  if (_usingOffset) {
+    xin  -= _xot;
+    yin  -= _yot;
+  }
+
+  xy  = _funcxy->inverse_api( _isx * xin  +  _itx, 
+			      _isy * yin  +  _ity );
+     
+  return xy;
+}
+
+
+void 
+NonseparableTransformation::eval_scalars(void) {
+  _VERBOSE("NonseparableTransformation::eval_scalars");
+  std::pair<double, double> xyminIn = _funcxy->
+    operator()( _b1->ll_api()->xval(), _b1->ll_api()->yval());
+
+  std::pair<double, double> xymaxIn = _funcxy->
+    operator()( _b1->ur_api()->xval(), _b1->ur_api()->yval());
+
+  std::pair<double, double> xyminOut( _b2->ll_api()->xval(), _b2->ll_api()->yval() );
+
+  std::pair<double, double> xymaxOut( _b2->ur_api()->xval(), _b2->ur_api()->yval() );
+
+	       
+
+  double widthIn  = xymaxIn.first  - xyminIn.first;
+  double widthOut = xymaxOut.first - xyminOut.first;
+
+  double heightIn  = xymaxIn.second  - xyminIn.second;
+  double heightOut = xymaxOut.second - xyminOut.second;
+
+  if (widthIn==0) 
+    throw Py::ZeroDivisionError("NonseparableTransformation::eval_scalars xin interval is zero; cannot transform");
+
+  if (heightIn==0)
+    throw Py::ZeroDivisionError("NonseparableTransformation::eval_scalars yin interval is zero; cannot transform");
+ 
+
+
+  _sx = widthOut/widthIn;
+  _sy = heightOut/heightIn;
+
+  _tx = -xyminIn.first*_sx + xyminOut.first;
+  _ty = -xyminIn.second*_sy + xyminOut.second;
+
+  /*
+ std::cout <<"corners in "  
+	   << xyminIn.first << " " << xyminIn.second <<  " " 
+	   << xymaxIn.first << " " << xymaxIn.second <<  std::endl;
+ std::cout <<"w,h in "  << widthIn << " " << heightIn <<  std::endl;
+ std::cout <<"heightout, heightin = "  << heightOut << " " << heightIn << std::endl;
+ std::cout <<"sx,sy,tx,ty = "  << _sx << " " << _sy <<  " " << _tx << " " << _ty << std::endl;
+  */ 
+  //now do the inverse mapping
+  if ( (widthOut==0) || (widthOut==0) ) {
+    _invertible = false;
+  }
+  else {
+    _isx = widthIn/widthOut;
+    _isy = heightIn/heightOut;
+  
+    _itx = -xyminOut.first*_isx + xyminIn.first;
+    _ity = -xyminOut.second*_isy + xyminIn.second;
+  }
+
+  if (_usingOffset) {
+    _transOffset->eval_scalars();
+    _transOffset->operator()(_xo, _yo);
+    _xot = _transOffset->xy.first;
+    _yot = _transOffset->xy.second;
+  }
+}
+
+
+Py::Object 
+NonseparableTransformation::deepcopy(const Py::Tuple &args) {
+  _VERBOSE("NonseparableTransformation::deepcopy");
+  args.verify_length(0);
+  return Py::asObject( new NonseparableTransformation( static_cast<Bbox*>((_b1->_deepcopy()).ptr()),static_cast<Bbox*>((_b2->_deepcopy()).ptr()), _funcxy ));
 }
 
 Affine::Affine(LazyValue *a, LazyValue *b,  LazyValue *c, 
@@ -1238,25 +1357,12 @@ Py::Object
 _transforms_module::new_funcxy (const Py::Tuple &args)
 {
   _VERBOSE("_transforms_module::new_funcxy ");
-  args.verify_length(2);
-  if (!Func::check(args[0]))
-    throw Py::TypeError("FuncXY(funcx, funcy) expected a Func instance for funcx)");
-  if (!Func::check(args[1]))
-    throw Py::TypeError("FuncXY(funcx, funcy) expected a Func instance for funcy)");
-  Func* funcx  = static_cast<Func*>(args[0].ptr());
-  Func* funcy  = static_cast<Func*>(args[1].ptr());
-
-  return Py::asObject(new FuncXY(funcx, funcy));
+  args.verify_length(1);
+  int typecode = Py::Int(args[0]);
+  return Py::asObject(new FuncXY(typecode));
 }   
 
 
-Py::Object 
-_transforms_module::new_polarxy (const Py::Tuple &args)
-{
-  _VERBOSE("_transforms_module::new_polarxy ");
-  args.verify_length(0);
-  return Py::asObject( new PolarXY() );
-}   
 
 Py::Object 
 _transforms_module::new_separable_transformation (const Py::Tuple &args)
@@ -1279,6 +1385,26 @@ _transforms_module::new_separable_transformation (const Py::Tuple &args)
   Func* funcy  = static_cast<Func*>(args[3].ptr()); 
   
   return Py::asObject( new SeparableTransformation(box1, box2, funcx, funcy) );
+}     
+
+Py::Object 
+_transforms_module::new_nonseparable_transformation (const Py::Tuple &args)
+{
+  _VERBOSE("_transforms_module::new_nonseparable_transformation ");
+  args.verify_length(3);
+  if (!Bbox::check(args[0]))
+    throw Py::TypeError("NonseparableTransform(box1, box2, funcxy) expected a Bbox for box1");
+  if (!Bbox::check(args[1]))
+    throw Py::TypeError("NonseparableTransform(box1, box2, funcxy) expected a Bbox for box2");
+  if (!FuncXY::check(args[2]))
+    throw Py::TypeError("NonseparableTransform(box1, box2, funcxy, funcy) expected a FuncXY for funcxy");
+
+
+  Bbox* box1  = static_cast<Bbox*>(args[0].ptr());
+  Bbox* box2  = static_cast<Bbox*>(args[1].ptr());
+  FuncXY* funcxy  = static_cast<FuncXY*>(args[2].ptr()); 
+  
+  return Py::asObject( new NonseparableTransformation(box1, box2, funcxy) );
 }     
 
 void 
@@ -1393,21 +1519,10 @@ FuncXY::init_type()
   behaviors().doc("Map double,double -> funcx(double), funcy(double)");
   add_varargs_method("map", &FuncXY::map, "map(x,y)\n");
   add_varargs_method("inverse", &FuncXY::inverse, "inverse(x,y)\n");
-  add_varargs_method("set_funcx", &FuncXY::set_funcx, "set_funcx(func)\n");
-  add_varargs_method("set_funcy", &FuncXY::set_funcy, "set_funcy(func)\n");
-  add_varargs_method("get_funcx", &FuncXY::get_funcx, "get_funcx(func)\n");
-  add_varargs_method("get_funcy", &FuncXY::get_funcy, "get_funcy(func)\n");
+  add_varargs_method("set_type", &FuncXY::set_type, "set_type(TYPE)\n");
+  add_varargs_method("get_type", &FuncXY::get_type, "get_type()\n");
 } 
  
-void 
-PolarXY::init_type()
-{
-  _VERBOSE("PolarXY::init_type");
-  behaviors().name("PolarXY");
-  behaviors().doc("map r, theta -> r*cos(theta), r*sin(theta)");
-} 
-
-
 void 
 Transformation::init_type()
 {
@@ -1431,6 +1546,9 @@ Transformation::init_type()
   add_varargs_method("set_funcx",   &Transformation::set_funcx,  "set_funcx(); set the Func instance on x\n");
   add_varargs_method("set_funcy",   &Transformation::set_funcy,  "set_funcy(); set the Func instance on y\n");
  
+
+  add_varargs_method("get_funcxy",   &Transformation::get_funcxy,  "get_funcxy(); return the FuncXY instance\n");
+  add_varargs_method("set_funcxy",   &Transformation::set_funcxy,  "set_funcxy(); set the FuncXY instance\n");
 
   add_varargs_method("xy_tup",   &Transformation::xy_tup,  "xy_tup(xy)\n");
   add_varargs_method("seq_x_y",  &Transformation::seq_x_y, "seq_x_y(x, y)\n");
@@ -1463,6 +1581,15 @@ SeparableTransformation::init_type()
 
 }
 
+void 
+NonseparableTransformation::init_type()
+{
+  _VERBOSE("NonseparableTransformation::init_type");
+  behaviors().name("NonseparableTransformation");
+  behaviors().doc("NonseparableTransformation(box1, box2, funcxy); x and y transformations are not independent");
+
+}
+
  
 
 
@@ -1488,6 +1615,7 @@ DL_EXPORT(void)
   Py::Dict d = _transforms->moduleDictionary();
   d["LOG10"] = Py::Int((int)Func::LOG10);
   d["IDENTITY"] = Py::Int((int)Func::IDENTITY);
+  d["POLAR"] = Py::Int((int)FuncXY::POLAR);;
 };
 
 

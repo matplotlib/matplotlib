@@ -302,6 +302,7 @@ public:
   Point* ll_api() {return _ll;}
   Point* ur_api() {return _ur;}
 private:
+
   Point *_ll;
   Point *_ur;
 };
@@ -367,69 +368,44 @@ private:
 
 class FuncXY : public Py::PythonExtension<FuncXY> { 
 public:
-  FuncXY(Func* funcx=NULL, Func* funcy=NULL);
-  ~FuncXY();
+  FuncXY( unsigned int type=POLAR ) : _type(type) {};
+  ~FuncXY() {};
 
   static void init_type(void);
+  Py::Object set_type(const Py::Tuple &args) {
+    args.verify_length(1);
+    _type  = Py::Int(args[0]);
+    return Py::Object();
+  }
+
+  Py::Object get_type(const Py::Tuple &args) {
+    return Py::Int((int)_type);
+  }
 
   Py::Object map(const Py::Tuple &args);
   Py::Object inverse(const Py::Tuple &args);
 
-  virtual Py::Object set_funcx(const Py::Tuple &args);
-  virtual Py::Object set_funcy(const Py::Tuple &args);
-  virtual Py::Object get_funcx(const Py::Tuple &args);
-  virtual Py::Object get_funcy(const Py::Tuple &args);
-
-
-  // the api forward and inverse functions
-  virtual std::pair<double, double>  operator()(const double& x, const double& y ) {
-    return std::pair<double, double>( _funcx->operator()(x),
-				      _funcy->operator()(y) );
-  }
-  virtual std::pair<double, double>  inverse_api(const double& x, const double& y ) {
-    return std::pair<double, double>( _funcx->inverse_api(x),
-				      _funcy->inverse_api(y) );
-  }
-private:
-  Func* _funcx;
-  Func* _funcy;
-
-};
-
-// the x and y mappings are independent of one another, eg linear,
-// log, semilogx or semilogy
-class PolarXY : public FuncXY { 
-public:
-
-  ~PolarXY();
-
-  static void init_type(void);
-
-  // the api forward and inverse functions; theta in radians
-  std::pair<double, double>  operator()(const double& r, const double& theta ) {
-    return std::pair<double, double>( r*cos(theta), r*sin(theta) );
+  std::pair<double, double>  operator()(const double& x, const double& y ) {
+    if   (_type==POLAR) {
+      //x,y are thetaa, r
+      return std::pair<double, double>( y*cos(x), y*sin(x) );
+    }
+    else throw Py::ValueError("Unrecognized function type");
   }
   std::pair<double, double>  inverse_api(const double& x, const double& y ) {
-    double r = sqrt( x*x + y*y);
-    if (r==0)
-      throw Py::ValueError("Cannot invert zero radius polar");
-    double theta = acos(x/r);
-    return std::pair<double, double>(r, theta);
+    if   (_type==POLAR) {
+      double r = sqrt( x*x + y*y);
+      if (r==0)
+	throw Py::ValueError("Cannot invert zero radius polar");
+      double theta = acos(x/r);
+      if (y<0) theta = 2*3.1415926535897931-theta;
+      return std::pair<double, double>(theta, r);
+    }
+    else throw Py::ValueError("Unrecognized function type");
   }
-
-  Py::Object set_funcx(const Py::Tuple &args) {
-    throw Py::RuntimeError("set_funcx meaningless for polar transforms");
-  }
-  Py::Object set_funcy(const Py::Tuple &args) {
-    throw Py::RuntimeError("set_funcy meaningless for polar transforms");
-  }
-  Py::Object get_funcx(const Py::Tuple &args) {
-    throw Py::RuntimeError("get_funcx meaningless for polar transforms");
-  }
-  Py::Object get_funcy(const Py::Tuple &args) {
-    throw Py::RuntimeError("get_funcy meaningless for polar transforms");
-  }
-
+enum {POLAR};
+private:
+  unsigned int _type;
 };
 
 class Transformation: public Py::PythonExtension<Transformation> {
@@ -441,16 +417,24 @@ public:
 
   static void init_type(void);
 
-  // for separable transforms 
+  // for custom methods of derived classes to work in pycxx, the base
+  // class must define them all.  I define them, and raise by default.
+  // Ugly, yes.  for bbox transforms
   virtual Py::Object get_bbox1(const Py::Tuple &args);
   virtual Py::Object get_bbox2(const Py::Tuple &args);
   virtual Py::Object set_bbox1(const Py::Tuple &args);
   virtual Py::Object set_bbox2(const Py::Tuple &args);
 
+  // for separable transforms 
   virtual Py::Object get_funcx(const Py::Tuple &args);
   virtual Py::Object get_funcy(const Py::Tuple &args);
   virtual Py::Object set_funcx(const Py::Tuple &args);
   virtual Py::Object set_funcy(const Py::Tuple &args);
+
+  // for nonseparable transforms 
+  virtual Py::Object get_funcxy(const Py::Tuple &args);
+  virtual Py::Object set_funcxy(const Py::Tuple &args);
+
 
   // for affine transforms 
   virtual Py::Object as_vec6(const Py::Tuple &args);
@@ -493,23 +477,41 @@ public:
 
 protected:
   // the post transformation offsets, if any
+
   bool _usingOffset;
   Transformation *_transOffset;
   double _xo, _yo, _xot, _yot;
   bool _invertible, _frozen;
+
 };
 
-class SeparableTransformation: public Transformation {
+
+class BBoxTransformation: public Transformation {
+public:
+  BBoxTransformation(Bbox *b1, Bbox *b2);
+  ~BBoxTransformation();
+  Py::Object get_bbox1(const Py::Tuple &args);
+  Py::Object get_bbox2(const Py::Tuple &args);
+  Py::Object set_bbox1(const Py::Tuple &args);
+  Py::Object set_bbox2(const Py::Tuple &args);
+
+protected:
+  Bbox *_b1, *_b2;
+  double _sx, _sy, _tx, _ty;      // the bbox transform params
+  double _isx, _isy, _itx, _ity;  // the bbox inverse params
+
+  virtual void eval_scalars(void)=0;
+
+};
+
+
+class SeparableTransformation: public BBoxTransformation {
 public:
   SeparableTransformation(Bbox *b1, Bbox *b2, Func *funcx, Func *funcy);
   ~SeparableTransformation();
 
   static void init_type(void);
 
-  Py::Object get_bbox1(const Py::Tuple &args);
-  Py::Object get_bbox2(const Py::Tuple &args);
-  Py::Object set_bbox1(const Py::Tuple &args);
-  Py::Object set_bbox2(const Py::Tuple &args);
 
   Py::Object get_funcx(const Py::Tuple &args);
   Py::Object get_funcy(const Py::Tuple &args);
@@ -523,16 +525,30 @@ public:
 
 
 protected:
-  Bbox *_b1, *_b2;
   Func *_funcx, *_funcy;
-
-  double _sx, _sy, _tx, _ty;
-  double _isx, _isy, _itx, _ity;  // the inverse params
-
   void eval_scalars(void);
-
 };
 
+class NonseparableTransformation: public BBoxTransformation {
+public:
+  NonseparableTransformation(Bbox *b1, Bbox *b2, FuncXY *funcxy);
+  ~NonseparableTransformation();
+
+  static void init_type(void);
+
+  Py::Object get_funcxy(const Py::Tuple &args);
+  Py::Object set_funcxy(const Py::Tuple &args);
+  Py::Object set_offset(const Py::Tuple &args);  
+  std::pair<double, double> & operator()(const double &x, const double &y);
+  std::pair<double, double> & inverse_api(const double &x, const double &y);
+  
+  Py::Object deepcopy(const Py::Tuple &args) ;
+
+
+protected:
+  FuncXY *_funcxy;
+  void eval_scalars(void);
+};
 
 
 class Affine: public Transformation {
@@ -586,20 +602,14 @@ public:
     LazyValue::init_type();
     Value::init_type();
     BinOp::init_type();
-
     Point::init_type();
     Interval::init_type();
     Bbox::init_type();
-
-
-    
     Func::init_type();
-    
     FuncXY::init_type();
-    PolarXY::init_type();
-
     Transformation::init_type();     
     SeparableTransformation::init_type();     
+    NonseparableTransformation::init_type();     
     Affine::init_type();
 
     add_varargs_method("Value", &_transforms_module::new_value, 
@@ -611,17 +621,18 @@ public:
 		       "Bbox(ll, ur)");
     add_varargs_method("Interval", &_transforms_module::new_interval, 
 		       "Interval(val1, val2)");
+
     add_varargs_method("Func", &_transforms_module::new_func, 
 		       "Func(typecode)");
-
     add_varargs_method("FuncXY", &_transforms_module::new_funcxy, 
 		       "FuncXY(funcx, funcy)");
-    add_varargs_method("PolarXY", &_transforms_module::new_polarxy, 
-		       "PolarXY");
 
     add_varargs_method("SeparableTransformation", 
 		       &_transforms_module::new_separable_transformation, 
 		       "SeparableTransformation(box1, box2, funcx, funcy))");
+    add_varargs_method("NonseparableTransformation", 
+		       &_transforms_module::new_nonseparable_transformation, 
+		       "NonseparableTransformation(box1, box2, funcxy))");
     add_varargs_method("Affine", &_transforms_module::new_affine, 
 		       "Affine(a,b,c,d,tx,ty)");
     initialize( "The _transforms module" );
@@ -633,18 +644,13 @@ private:
   
   Py::Object new_value (const Py::Tuple &args);
   Py::Object new_point (const Py::Tuple &args);
-
   Py::Object new_bbox (const Py::Tuple &args);
   Py::Object new_interval (const Py::Tuple &args);
   Py::Object new_affine (const Py::Tuple &args);
-
   Py::Object new_func (const Py::Tuple &args);
-
-
   Py::Object new_funcxy (const Py::Tuple &args);
-  Py::Object new_polarxy (const Py::Tuple &args);
-
   Py::Object new_separable_transformation (const Py::Tuple &args);
+  Py::Object new_nonseparable_transformation (const Py::Tuple &args);
 };
 
 

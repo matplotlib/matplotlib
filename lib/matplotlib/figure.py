@@ -1,6 +1,6 @@
 import sys
 from artist import Artist
-from axes import Axes, Subplot
+from axes import Axes, Subplot, PolarSubplot, PolarAxes
 from cbook import flatten, True, False, allequal
 import _image
 from colors import normalize
@@ -166,7 +166,7 @@ instructions on how to port your code.
 """)
 
         
-    def add_axes(self, rect, axisbg=None, frameon=True):
+    def add_axes(self, rect, axisbg=None, frameon=True, **kwargs):
         """
         Add an a axes with axes rect [left, bottom, width, height]
         where all quantities are in fractions of figure width and
@@ -175,7 +175,11 @@ instructions on how to port your code.
         The Axes instance will be returned
         """
         if axisbg is None: axisbg=rcParams['axes.facecolor']
-        a = Axes(self, rect, axisbg, frameon)
+        ispolar = kwargs.get('polar', False)
+        if ispolar:
+            a = PolarAxes(self, rect, axisbg, frameon)
+        else:
+            a = Axes(self, rect, axisbg, frameon)            
         self.axes.append(a)
         return a
 
@@ -186,8 +190,15 @@ instructions on how to port your code.
 
         The Axes instance will be returned
         """
-        a = Subplot(self, *args, **kwargs)
+        ispolar = kwargs.get('polar', False)
+
+        if ispolar:
+            a = PolarSubplot(self, *args, **kwargs)
+        else:
+            a = Subplot(self, *args, **kwargs)
+        
         self.axes.append(a)
+
         return a
     
     def clf(self):
