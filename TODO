@@ -140,5 +140,16 @@
 
 -- arbitrary patches for scatter
 
--- zoom x and y controls in wrong direction.  tick labels not updating
+-- DONE zoom x and y controls in wrong direction.  tick labels not updating
    with interactive zoom
+
+-- add TM for matlab on website and in docs
+
+-- Fix pcolor bug on GD backend where red doesn't render properly --
+   does this happen on scatter too?  Why are the pcolor PS files so
+   large (45MB!).  How to do interp shapding with GTK.  Look at the
+   effect of linewidth on GTK plots -- what happens when linewidth < 1
+
+-- DONE 2003-11-02 - Do a nearest neighbor color pick on GD when
+   allocate fails
+   
