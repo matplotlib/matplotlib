@@ -689,7 +689,7 @@ RendererAgg::draw_lines(const Py::Tuple& args) {
   
   int isaa = antialiased(gc);
 
-
+  double heightd = double(height);
   if (Nx==2) { 
     // this is a little hack - len(2) lines are probably grid and
     // ticks so I'm going to snap to pixel
@@ -698,7 +698,7 @@ RendererAgg::draw_lines(const Py::Tuple& args) {
     double y0 = Py::Float(y[0]);
     double x1 = Py::Float(x[1]);
     double y1 = Py::Float(y[1]);
-
+    
     if (x0==x1) {
       x0 = (int)x0 + 0.5;
       x1 = (int)x1 + 0.5;
@@ -709,8 +709,8 @@ RendererAgg::draw_lines(const Py::Tuple& args) {
       y1 = (int)y1 + 0.5;
     }
 
-    y0 = height-y0;
-    y1 = height-y1;
+    y0 = heightd-y0;
+    y1 = heightd-y1;
 
     path.move_to(x0, y0);
     path.line_to(x1, y1);
@@ -719,17 +719,19 @@ RendererAgg::draw_lines(const Py::Tuple& args) {
   else {
     double thisX = Py::Float( x[0] );
     double thisY = Py::Float( y[0] );
-    thisY = height - thisY; //flipy
+    thisY = heightd - thisY; //flipy
     path.move_to(thisX, thisY);
     for (size_t i=1; i<Nx; ++i) {
       thisX = Py::Float( x[i] );
       thisY = Py::Float( y[i] );
-      thisY = height - thisY;  //flipy
+      thisY = heightd - thisY;  //flipy
+      //if ((i<10) || i>=19990)
+      //std::cout << i << " " << Nx << " " << thisX << " " << thisY << std::endl;
       path.line_to(thisX, thisY);
     }
   }  
   
-  
+  //std::cout << width << " " << height << std::endl;
   if (! useDashes ) {
     
     agg::conv_stroke<agg::path_storage> stroke(path);

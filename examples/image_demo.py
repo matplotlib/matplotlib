@@ -10,6 +10,6 @@ Z2 = bivariate_normal(X, Y, 1.5, 0.5, 1, 1)
 # difference of Gaussians
 im = imshow(Z2-Z1, interpolation='bilinear')
 axis('off')
-#savefig('image_demo')
+savefig('image_demo')
 show()
 

@@ -5,7 +5,7 @@ import matplotlib
 matplotlib.use('SVG')
 from matplotlib.matlab import *
 
-fig = figure(figsize=(.5, .5), dpi=72)
+fig = figure(figsize=(0.5, 0.5), dpi=72)
 subplot(111)
 t = arange(0.0, 2.0, 0.05)
 s = sin(2*pi*t)
