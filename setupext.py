@@ -184,16 +184,21 @@ def find_tcltk():
     else:
 	tk.withdraw()
 	o.tcl_lib = os.path.join((tk.getvar('tcl_library')), '../')
-
 	o.tk_lib = os.path.join((tk.getvar('tk_library')), '../')
-	o.tcl_inc = os.path.join((tk.getvar('tcl_library')), '../../include')
 	o.tkv = str(Tkinter.TkVersion)[:3]
+	o.tcl_inc = os.path.join((tk.getvar('tcl_library')), 
+				 '../../include/tcl'+o.tkv)        
         if not os.path.exists(o.tcl_inc):
-            o.tcl_inc = os.path.join((tk.getvar('tcl_library')), '../../include/tcl'+o.tkv)        
+	    o.tcl_inc = os.path.join((tk.getvar('tcl_library')), 
+				     '../../include')
+	o.tk_inc = os.path.join((tk.getvar('tk_library')), 
+				 '../../include/tk'+o.tkv)        
+        if not os.path.exists(o.tk_inc):
+	    o.tk_inc = os.path.join((tk.getvar('tk_library')), 
+				     '../../include')
         if not os.path.exists(o.tcl_inc):
             print 'cannot find tcl/tk headers. giving up.'
             sys.exit()
-
     return o
 	
 
@@ -208,7 +213,7 @@ def add_tk_flags(module):
         module.extra_link_args.extend(['-framework','Tk'])
     else:
 	o = find_tcltk()
-	module.include_dirs.append(o.tcl_inc)
+	module.include_dirs.extend([o.tcl_inc, o.tk_inc])
 	module.library_dirs.extend([o.tcl_lib, o.tk_lib])
         module.libraries.extend(['tk'+o.tkv, 'tcl'+o.tkv])
 
