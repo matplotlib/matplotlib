@@ -189,6 +189,7 @@ examples/coords_demo.py
 examples/csd_demo.py
 examples/cursor_demo.py
 examples/custom_ticker1.py
+examples/customize_rc.py
 examples/dash_control.py
 examples/data_helper.py
 examples/date_demo1.py
@@ -200,7 +201,9 @@ examples/embedding_in_gtk.py
 examples/embedding_in_gtk2.py
 examples/embedding_in_tk.py
 examples/embedding_in_wx.py
+examples/embedding_in_wx2.py
 examples/errorbar_demo.py
+examples/figimage_demo.py
 examples/figtext.py
 examples/fill_demo.py
 examples/finance_demo.py
@@ -214,9 +217,11 @@ examples/histogram_demo_canvasagg.py
 examples/image_demo.py
 examples/image_demo2.py
 examples/image_demo_na.py
+examples/image_origin.py
 examples/interactive.py
 examples/interactive2.py
 examples/invert_axes.py
+examples/layer_images.py
 examples/legend_demo.py
 examples/legend_demo2.py
 examples/line_styles.py
@@ -365,6 +370,7 @@ matplotlib/axes.py
 matplotlib/axis.py
 matplotlib/backend_bases.py
 matplotlib/cbook.py
+matplotlib/cm.py
 matplotlib/collections.py
 matplotlib/colors.py
 matplotlib/dates.py
@@ -392,7 +398,6 @@ matplotlib/backends/backend_agg.py
 matplotlib/backends/backend_gd.py
 matplotlib/backends/backend_gtk.py
 matplotlib/backends/backend_gtkagg.py
-matplotlib/backends/backend_gtkgd.py
 matplotlib/backends/backend_paint.py
 matplotlib/backends/backend_ps.py
 matplotlib/backends/backend_svg.py
@@ -404,7 +409,6 @@ matplotlib/backends/tkagg.py
 src/_backend_agg.cpp
 src/_backend_agg.h
 src/_gtkagg.cpp
-src/_gtkgd.c
 src/_image.cpp
 src/_image.h
 src/_tkagg.cpp
@@ -413,3 +417,5 @@ src/_transforms.h
 src/_windowing.cpp
 src/ft2font.cpp
 src/ft2font.h
+src/mplutils.cpp
+src/mplutils.h
