@@ -241,4 +241,26 @@
 
 -- fix data clipping to per matthew' suggestion 
 
--- fix setup.py to build ft2
+-- DONE 2004-02-25 fix setup.py to build ft2
+
+-- TkAgg resize
+
+-- TkAgg interactive on win32
+
+-- test mathdemo on win32
+
+-- figure out what you want to do about mathtext on GTK for next relase
+
+-- mathtext screenshot demo
+
+-- integrate numerix chooser with matplotlib.__init__
+
+-- figure out how to make draw if interactive play nicely
+
+-- python2.2 no default tkinter
+
+    from backend_tkagg import error_msg, draw_if_interactive, show, new_figure_manager
+  File "/usr/lib/python2.2/site-packages/matplotlib/backends/backend_tkagg.py",
+line 7, in ?
+    import Tkinter as Tk, FileDialog
+ImportError: No module named Tkinter

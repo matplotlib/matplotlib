@@ -1,6 +1,7 @@
 include LICENSE LICENSE_PAINT API_CHANGES CHANGELOG KNOWN_BUGS GOALS INSTALL
 include INTERACTIVE TODO
 include Makefile  MANIFEST.in MANIFEST
+include .matplotlibrc
 include __init__.py setupext.py setup.py
 include examples/data/*
 include images/*
@@ -15,4 +16,3 @@ recursive-include FontTools *
 recursive-include FontToolsSrc *
 include FontTools.pth
 recursive-include ttfquery *
-recursive-include win32src *
