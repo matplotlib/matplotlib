@@ -38,15 +38,12 @@ class CanvasFrame(wxFrame):
         self.canvas = FigureCanvas(self, -1, self.figure)
 
         self.sizer = wxBoxSizer(wxVERTICAL)
-        self.sizer.Add(self.canvas, 1, wxTOP | wxLEFT | wxEXPAND)
+        self.sizer.Add(self.canvas, 1, wxLEFT | wxTOP | wxGROW)
         self.SetSizer(self.sizer)
         self.Fit()
 
         self.add_toolbar()  # comment this out for no toolbar
 
-
-        # Capture the paint message        
-        #EVT_PAINT(self, self.OnPaint)        
 
     def add_toolbar(self):
         self.toolbar = NavigationToolbar(self.canvas, True)

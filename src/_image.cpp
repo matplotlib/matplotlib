@@ -178,7 +178,10 @@ Image::as_str(const Py::Tuple& args) {
   const size_t NUMBYTES(rowsOut * colsOut * BPP);
   const size_t BPR = colsOut * BPP; // bytes per row
 
-  agg::int8u buffer[NUMBYTES];    
+  agg::int8u* buffer = new agg::int8u[NUMBYTES];    
+  if (buffer ==NULL) //todo: also handle allocation throw
+    throw Py::MemoryError("Image::as_str could not allocate memory");
+
   size_t ind=0;
   for (long rowNum=rowsOut-1; rowNum>=0; rowNum--) { //not unsigned!
     size_t start = rowNum*BPR;
@@ -186,8 +189,10 @@ Image::as_str(const Py::Tuple& args) {
       buffer[ind++] = *(bufferOut + start + j);
     }
   }
-  return Py::asObject(Py_BuildValue("lls#", rowsOut, colsOut, 
-				    buffer, NUMBYTES));
+  PyObject* o = Py_BuildValue("lls#", rowsOut, colsOut, 
+			      buffer, NUMBYTES);
+  delete [] buffer;
+  return Py::asObject(o);
   
 }
 
@@ -235,6 +240,9 @@ Image::resize(const Py::Tuple& args) {
   
   size_t NUMBYTES(numrows * numcols * BPP);
   agg::int8u *buffer = new agg::int8u[NUMBYTES];  
+  if (buffer ==NULL) //todo: also handle allocation throw
+    throw Py::MemoryError("Image::resize could not allocate memory");
+
   rbufOut = new agg::rendering_buffer;
   rbufOut->attach(buffer, numcols, numrows, numcols * BPP);
   
@@ -557,6 +565,9 @@ _image_module::from_images(const Py::Tuple& args) {
 
   size_t NUMBYTES(numrows * numcols * imo->BPP);    
   imo->bufferOut = new agg::int8u[NUMBYTES];  
+  if (imo->bufferOut==NULL) //todo: also handle allocation throw
+    throw Py::MemoryError("_image_module::from_images could not allocate memory");
+
   imo->rbufOut = new agg::rendering_buffer;
   imo->rbufOut->attach(imo->bufferOut, imo->colsOut, imo->rowsOut, imo->colsOut * imo->BPP);
   
@@ -627,6 +638,9 @@ _image_module::fromarray(const Py::Tuple& args) {
 
   size_t NUMBYTES(imo->colsIn * imo->rowsIn * imo->BPP);
   agg::int8u *buffer = new agg::int8u[NUMBYTES];  
+  if (buffer==NULL) //todo: also handle allocation throw
+    throw Py::MemoryError("_image_module::fromarray could not allocate memory");
+
   imo->bufferIn = buffer;
   imo->rbufIn = new agg::rendering_buffer;
   imo->rbufIn->attach(buffer, imo->colsIn, imo->rowsIn, imo->colsIn*imo->BPP);
@@ -695,6 +709,9 @@ _image_module::fromarray(const Py::Tuple& args) {
     imo->colsOut  = imo->colsIn;
     
     imo->bufferOut = new agg::int8u[NUMBYTES];  
+    if (buffer == imo->bufferOut) //todo: also handle allocation throw
+      throw Py::MemoryError("_image_module::fromarray could not allocate memory");
+
     imo->rbufOut = new agg::rendering_buffer;
     imo->rbufOut->attach(imo->bufferOut, imo->colsOut, imo->rowsOut, imo->colsOut * imo->BPP);
     
