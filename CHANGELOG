@@ -1,5 +1,9 @@
 New entries should be added at the top
 
+2004-08-18 fixed a bug exposed by trying to find the HOME dir on win32
+           thanks to Alan Issac for pointing to the light - JDH
+
+2004-08-18 fixed errorbar bug in setting ecolor - JDH
 
 2004-08-12 Added Darren Dale's exponential ticking patch
 
