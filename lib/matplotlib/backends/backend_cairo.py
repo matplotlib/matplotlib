@@ -203,7 +203,9 @@ class RendererCairo(RendererBase):
         ctx.set_matrix (matrix_old)
 
 
-    def draw_markers(self, gc, path, x, y, transform):
+    #def draw_markers(self, gc, path, x, y, transform):
+    def _draw_markers(self, gc, path, rgbFace, x, y, transform):
+       # TODO 'path' has changed - needs updating
         if DEBUG: print 'backend_cairo.RendererCairo.%s()' % _fn_name()
 
         ctx = gc.ctx
@@ -234,20 +236,23 @@ class RendererCairo(RendererBase):
                   ctx.line_to (p[1], -p[2])
                elif code == ENDPOLY:
                   ctx.close_path()
-                  if p[1]: # fill
-                     #rgba = p[2:]
-                     return p[2:5]  # don't really want to read the same fill_rgb every time we generate_path()
-            return None
+                  #if p[1]: # fill
+                  #   #rgba = p[2:]
+                  #   return p[2:5]  # don't really want to read the same fill_rgb every time we generate_path()
+            #return None
 
         for x,y in izip(x,y):
             ctx.save()
             ctx.new_path()
             ctx.translate(x, self.height - y)
             
-            fill_rgb = generate_path (path)
-            if fill_rgb:
+            #fill_rgb = generate_path (path)
+            generate_path (path)
+            #if fill_rgb:
+            if rgbFace:
                ctx.save()
-               ctx.set_rgb_color (*fill_rgb)
+               #ctx.set_rgb_color (*fill_rgb)
+               ctx.set_rgb_color (rgbFace)
                # later - set alpha also?                     
                ctx.fill()
                ctx.restore() # undo colour change and restore path
