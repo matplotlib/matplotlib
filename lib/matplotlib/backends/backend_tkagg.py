@@ -165,7 +165,7 @@ class FigureCanvasTkAgg(FigureCanvasAgg):
         x = event.x
         # flipy so y=0 is bottom of canvas
         y = self.figure.bbox.height() - event.y
-        FigureCanvasBase.motion_notify_event(self, x, y)
+        FigureCanvasBase.motion_notify_event(self, x, y, guiEvent=event)
 
     def button_press_event(self, event):
         x = event.x
@@ -179,7 +179,7 @@ class FigureCanvasTkAgg(FigureCanvasAgg):
             if   num==2: num=3
             elif num==3: num=2
 
-        FigureCanvasBase.button_press_event(self, x, y, num)
+        FigureCanvasBase.button_press_event(self, x, y, num, guiEvent=event)
 
     def button_release_event(self, event):
         x = event.x
@@ -194,7 +194,7 @@ class FigureCanvasTkAgg(FigureCanvasAgg):
             if   num==2: num=3
             elif num==3: num=2
 
-        FigureCanvasBase.button_release_event(self, x, y, num)
+        FigureCanvasBase.button_release_event(self, x, y, num, guiEvent=event)
 
     def _get_key(self, event):
         val = event.keysym_num
@@ -209,11 +209,11 @@ class FigureCanvasTkAgg(FigureCanvasAgg):
         
     def key_press(self, event):
         key = self._get_key(event)
-        FigureCanvasBase.key_press_event(self, key)        
+        FigureCanvasBase.key_press_event(self, key, guiEvent=event)        
 
     def key_release(self, event):
         key = self._get_key(event)
-        FigureCanvasBase.key_release_event(self, key)        
+        FigureCanvasBase.key_release_event(self, key, guiEvent=event)        
 
 
     
