@@ -21,8 +21,8 @@ tex = r'$\cal{R}\prod_{i=\alpha_{i+1}}^\infty a_i\rm{sin}(2 \pi f x_i)$'
 #tex = r'$\cal{R}\prod^\infty a_i\rm{sin}(2 \pi f x_i)$'
 
 #tex = r'$\alpha\beta\gamma$'
-text(1, 2.6, tex, fontsize=20)
-title(r'$\Delta^i_{i=\alpha_{i+1}}\rm{ versus }\Delta_{i+1}$', fontsize=15)
+text(1, 2.6, tex, fontsize='xx-large')
+title(r'$\Delta^i_{i=\alpha_{i+1}}\rm{ versus }\Delta_{i+1}$', fontsize='large')
 #savefig('mathtext_demo_small', dpi=100)
 #savefig('mathtext_demo_large', dpi=300)
 
