@@ -119,4 +119,8 @@
   Fixed a bug in that prevented the manual setting of ticklabel
   strings from working properly
 
-2003-11-02 Added pcolor plot
+2003-11-02 
+   - Added pcolor plot
+   - Added MRI example
+   - Fixed bug that screwed up label position if xticks or yticks were empty
+
