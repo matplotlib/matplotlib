@@ -1,16 +1,22 @@
 New entries should be added at the top
 
-2004-03-29 Fixed fontdicts and kwargs to work with new font manager -
-           JDH
-
-2004-04-04 Improved font caching in backend_agg with changes to
-           font_manager - JDH
-
-2004-04-05 Added WXAgg backend - JDH
+2004-04-06 Added load and save commands for ASCII data - JDH
 
 2004-04-05 Improved font caching by not reading AFM fonts until needed.
 	   Added better documentation.  Changed the behaviour of the
            get_family, set_family, and set_name methods of FontProperties.
+
+
+2004-04-05 Added WXAgg backend - JDH
+
+2004-04-04 Improved font caching in backend_agg with changes to
+           font_manager - JDH
+
+2004-03-29 Fixed fontdicts and kwargs to work with new font manager -
+           JDH
+
+
+
 
 
 

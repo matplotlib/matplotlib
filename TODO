@@ -295,3 +295,5 @@
 -- move text layout to front end and support newlines with rotation.
 
 -- aligment test of backend_ps and table_demo on all backends
+
+-- fix the sqrt mathtext bug revealed by Flavio's eample
