@@ -10,9 +10,9 @@ Z2 = bivariate_normal(X, Y, 1.5, 0.5, 1, 1)
 # difference of Gaussians
 im = imshow(Z2-Z1, interpolation='bilinear', origin='lower')
 axis('off')
-contour(Z2-Z1, levels=6, linewidths=arange(.5, 4, .5),
-        colors=('r', 'green', 'blue', (1,1,0), '#afeeee', 0.5))
-
+levels, colls = contour(Z2-Z1, levels=6, linewidths=arange(.5, 4, .5),
+                        colors=('r', 'green', 'blue', (1,1,0), '#afeeee', 0.5))
 legend(loc='lower left')
+colorbar()
 show()
 
