@@ -21,6 +21,8 @@ API changes at 0.50
   * GD users must upgrade to gd-2.0.22 and gdmodule-0.52 since new gd
     features (clipping, antialiased lines) are now used.
 
+  * Renderer must implement points_to_pixels
+
 Migrating code:
 
   Matlab interface: 

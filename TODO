@@ -194,6 +194,18 @@
 
 -- figure clear
 
--- gd filling is not working like I think - see arctest
+-- DONE 2004-02-12 (used filledEllipse) gd filling is not working like
+   I think - see arctest
 
 -- gd edge clipping is whacked - see arc test
+
+-- font manager for paint and agg
+
+-- website docs for agg - eg, backends.html#Agg
+
+-- build win installer for paint, agg, matplotlib-0.50 with agg
+
+-- incorporate John Gill's PS patch
+
+-- DONE 2--4 -02-13 agg bug; when repeated calls to savefig are made,
+   the dpi setting in the second one is ignored.

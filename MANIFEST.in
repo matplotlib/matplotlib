@@ -2,15 +2,16 @@ include LICENSE LICENSE_PAINT  API_CHANGES CHANGELOG KNOWN_BUGS GOALS INSTALL
 include INTERACTIVE TODO
 include Makefile  MANIFEST.in MANIFEST
 include __init__.py setupext.py setup.py
-include examples/README
-include examples/*.py
-include examples/*.glade
+recursive-include examples README *.py *.glade
+prune examples/_tmp_*
 include examples/data/*
-include fonts/afm/*
-include fonts/ttf/*
+
+recursive-include include fonts
 include images/*
 include test/*.py
 include test/README
-include src/*.cpp
-include src/*.c
-include src/*.h
+recursive-include src  *.cpp *.c *.h
+recursive-include agg2 *.cpp *.c *.h
+recursive-include FontTools *
+recursive-include FontToolsSrc *
+recursive-include ttfquery *

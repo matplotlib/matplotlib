@@ -26,6 +26,7 @@ KNOWN BUGS
 
   - DONE 2004-02-11 mri with eeg offsets whacked
 
+  - add backend method draw ellipse
 GD 
 
   - FIXED right tickline is off
@@ -33,4 +34,8 @@ GD
   - dashes not scaling with dpi properly - rounding error or other?
 
   - GD not allocating colors on high res figs 
- 
+  
+  - I don't know how to fill arcs in a way that will guarantee the
+    ellipse will be filled.  gd fills till it meets a different border
+    color, which makes it difficult to fill arcs.  expose gdEllipse
+    and gdFilledEllipse

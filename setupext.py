@@ -3,6 +3,19 @@ Some helper functions for building the C extensions
 """
 import sys, os
 from distutils.core import Extension
+import glob
+
+major, minor1, minor2, s, tmp = sys.version_info
+if major<2 or (major==2 and minor1<3):
+    True = 1
+    False = 0
+else:
+    True = True
+    False = False
+
+builtAgg       = False
+builtFonttools = False
+builtGTKGD     = False
 
 def getoutput(s):
     'get the output of a system command'
@@ -39,33 +52,94 @@ def add_gd_flags(module):
     module.libraries.append('gd')
 
 
-def build_gtkgd(ext_modules):
+def build_gtkgd(ext_modules, packages):
+    global builtGTKGD
+    if builtGTKGD: return 
     module = Extension('matplotlib.backends._gtkgd',
                        ['src/_gtkgd.c'],
                        )
     add_pygtk_flags(module)
     add_gd_flags(module)
     ext_modules.append(module)    
+    builtGTKGD = True
 
 
-def add_agg_flags(module, aggpath):
+def add_agg_flags(module):
     'Add the module flags to build extensions which use gtk'
-    include_dirs = [
-        'src', '/usr/X11R6/include', os.path.join(aggpath, 'include'),
-        '/usr/include/freetype1']
-    library_dirs = ['/usr/X11R6/lib', os.path.join(aggpath, 'src')]
-    libraries = ['agg', 'X11', 'm', 'ttf', 'png', 'z']
+    include_dirs = ['src','agg2/include']
+    if sys.platform=='win32': include_dirs.extend(
+        [  # build these libs on win32
+        'win32src/freetype1',
+        'win32src/libpng',
+        'win32src/zlib',
+        ]
+        )
+    else:
+        include_dirs.extend(
+            ['/usr/include/freetype1',]
+            )
+
+    library_dirs = []
+    libraries = ['stdc++']
+    if sys.platform != 'win32':
+        libraries.extend(['z', 'ttf', 'png'])
+
     extra_link_args = []
     module.include_dirs.extend(include_dirs)
     module.libraries.extend(libraries)
     module.library_dirs.extend(library_dirs)
     module.extra_link_args.extend(extra_link_args)
 
-def build_agg(ext_modules, aggsrc):
+def build_agg(ext_modules, packages):
+    global builtAgg
+    if builtAgg: return
+    
+    deps = ['src/_backend_agg.cpp', 'src/font.cpp'] 
+    deps.extend(glob.glob('agg2/src/*.cpp'))
+    if sys.platform=='win32':
+        deps.extend(glob.glob('win32src/freetype1/freetype/*.c'))
+        deps.extend(glob.glob('win32src/libpng/*.c'))
+        deps.extend(glob.glob('win32src/zlib/*.c'))
+                       
     module = Extension(
         'matplotlib.backends._backend_agg',
-        ['src/_backend_agg.cpp', 'src/font.cpp'],
+        deps
+        ,
         )
-    add_agg_flags(module, aggsrc)
+    add_agg_flags(module)
     ext_modules.append(module)    
+    builtAgg = False
+    
+def build_fonttools(ext_modules, packages):
+
+    global builtFonttools
+
+    # only build them if not already installed
+    try: import ttfquery
+    except ImportError: pass
+    else:
+        builtFonttools = True
+        return 
+
+    if builtFonttools: return 
+    packages.extend(
+        ['ttfquery',
+         'FontTools.fontTools',
+         'FontTools.fontTools.encodings',
+         'FontTools.fontTools.misc',
+         'FontTools.fontTools.ttLib',
+         'FontTools.fontTools.ttLib.tables',
+         'FontTools.fontTools.ttLib.test',
+         ])
+
+    ext_modules.append(
+        Extension(
+        'FontTools.fontTools.misc.eexecOp',
+        ['FontToolsSrc/eexecOp/eexecOpmodule.c'],
+        ))
+    builtFonttools = True
+
+
+
+
 
