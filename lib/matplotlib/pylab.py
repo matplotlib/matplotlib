@@ -920,7 +920,14 @@ def load(fname,comments='%'):
 
     Example usage:
 
-    x,y = load('test.dat')  # data in two columns
+    X = load('test.dat')  # data in two columns
+    t = X[:,0]
+    y = X[:,1]
+
+    Alternatively, you can do
+
+    t,y = transpose(load('test.dat')) # for  two column data
+    
 
     X = load('test.dat')    # a matrix of data
 
