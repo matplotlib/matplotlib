@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 """
 This is an example that shows you how to work directly with the agg
 figure canvas to create a figure using the pythonic API.
@@ -8,7 +9,6 @@ array
 
 
 """
-#!/usr/bin/env python
 from matplotlib.backends.backend_agg import FigureCanvasAgg
 from matplotlib.figure import Figure
 from matplotlib.axes import Subplot
