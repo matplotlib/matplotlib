@@ -479,7 +479,7 @@
 
 -- embedding_in_wx3 seems broken with numeric
 
--- add new connect to API_CHANGES
+-- DONE add new connect to API_CHANGES
 
 -- port new toolbar to embedding examples
 
@@ -532,3 +532,5 @@ ZeroDivisionError: SeparableTransformation::eval_scalars yin interval is zero; c
 -- DONE scatter demo2 whacked
 
 -- fail intelligently when matplotlib data is not found
+
+-- \cal{B} doesn't parse in s = r'$\cal{R}\prod_{i=\alpha\cal{B}}^\infty a_i\rm{sin}(2 \pi f x_i)$'
