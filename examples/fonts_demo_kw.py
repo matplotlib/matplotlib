@@ -80,5 +80,5 @@ t = text(x, 0.3, 'bold italic',
          **alignment)
 
 axis([-1, 1, 0, 1])
-savefig('fonts_demo_kw')
+#savefig('fonts_demo_kw')
 show()

@@ -26,7 +26,7 @@ Z2 = func3(X, Y)
 im2 = imshow(Z2, cmap=cm.jet, alpha=.9)
 #im2.set_interpolation('nearest')
 
-savefig('layer_images')
+#savefig('layer_images')
 
 show()
 
