@@ -813,3 +813,6 @@ def tk_window_focus():
 verbose.report('matplotlib version %s'%__version__)
 verbose.report('verbose.level %s'%verbose.level)
 verbose.report('interactive is %s'%rcParams['interactive'])
+
+# True if we are running under Py2EXE (or similar)
+FROZEN = hasattr(sys, 'frozen')
