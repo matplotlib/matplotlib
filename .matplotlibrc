@@ -42,9 +42,9 @@ lines.data_clipping : False # Use data clipping in addition to viewport
 # text properties used by text.Text.  See
 # http://matplotlib.sourceforge.net/matplotlib.Text.html for more
 # information on text properties
-text.fontname : Times   # default font name
-text.fontsize : 10      # default size used by axes.text
-text.color    : k       # black
+font.family        : serif  # default font name
+font.size          : 10     # default size used by axes.text
+text.color         : k      # black
 
 ### AXES
 # default face and edge color, default tick sizes,
