@@ -1,0 +1,52 @@
+2002-12-10 - Added a TODO file and CHANGELOG.  Lots to do -- get
+             crackin'!
+
+           - Fixed y zoom tool bug
+
+           - Adopted a compromise fix for the y data clipping problem.
+             The problem was that for solid lines, the y data clipping
+             (as opposed to the gc clipping) caused artifactual
+             horizontal solid lines near the ylim boundaries.  I did a
+             5% offset hack in Axes set_ylim functions which helped,
+             but didn't cure the problem for very high gain y zooms.
+             So I disabled y data clipping for connected lines .  If
+             you need extensive y clipping, either plot(y,x) because x
+             data clipping is always enabled, or change the _set_clip
+             code to 'if 1' as indicated in the lines.py src.  See
+             _set_clip in lines.py and set_ylim in figure.py for more
+             information.
+
+
+2002-12-11 - Added a measurement dialog to the figure window to
+             measure axes position and the delta x delta y with a left
+             mouse drag.  These defaults can be overridden by deriving
+             from Figure and overrriding button_press_event,
+             button_release_event, and motion_notify_event,
+             and _dialog_measure_tool.
+
+           - fixed the navigation dialog so you can check the axes the
+             navigation buttons apply to.
+
+
+
+2003-04-23 Released matplotlib v0.1
+
+2003-04-24 Added a new line style PixelLine2D which is the plots the
+           markers as pixels (as small as possible) with format
+           symbol ','
+ 
+           Added a new class Patch with derived classes Rectangle,
+           RegularPolygon and Circle
+
+2003-04-25 Implemented new functions errorbar, scatter and hist
+ 
+           Added a new line type '|' which is a vline.  syntax is 
+	   plot(x, Y, '|') where y.shape = len(x),2 and each row gives
+	   the ymin,ymax for the respective values of x.  Previously I
+	   had implemented vlines as a list of lines, but I needed the
+	   efficientcy of the numeric clipping for large numbers of
+	   vlines outside the viewport, so I wrote a dedicated class
+	   Vline2D which derives from Line2D
+
+
+            

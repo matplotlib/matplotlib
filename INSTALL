@@ -1,0 +1,16 @@
+This package requires python 2.2+, Numeric and pygtk 1.99.x (which
+requires gnome2).
+
+If these dependencies are satisfied, just do the usual thing:
+
+  > python setup.py install
+
+I have installed and tested this on linux and win32, but in theory it
+should run anywhere that Numeric and pygtk run.
+
+Take a look at the scripts in the demo dir for examples of how to use
+matplotlib.
+
+If you have any questions, email me at 
+John Hunter <jdhunter@ace.bsd.uchicago.edu> or post to
+comp.lang.python, which I read frequently.

@@ -1,0 +1,31 @@
+INTRODUCTION:
+
+  This is a gtk based python plotting library which makes a faint
+  attempt at emulating matlab style plot commands.  The src is divided
+  into 2 parts, located in the src dir.  matplotlib.py is the plotting
+  lib which does the heavy lifting, and matplot.py defines some
+  functions to give a matlab style functional interface to the plot
+  lib, which is suitable for use from the interactive prompt.
+
+REQUIREMENTS:
+
+   python 2.2+, pygtk-1.99.x and Numeric
+
+INSTALL
+
+  If you have the requirements, just do 'python setup.py install'
+
+EXAMPLES
+
+  See the demos in the demo dir.
+
+AUTHOR
+
+  John D. Hunter <jdhunter@ace.bsd.uchicago.edu>
+  Copyright (c) 2002 John D. Hunter; All Rights Reserved
+
+LICENSE
+
+  Based on that of python 2.2.  See the LICENSE file that ships with
+  the matplotlib source code
+  
