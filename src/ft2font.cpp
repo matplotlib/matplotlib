@@ -344,15 +344,25 @@ FT2Font::FT2Font(std::string facefile)
   
   // set some face props as attributes
   //small memory leak fixed after 2.1.8 
+  //fields can be null so we have to check this first
+
   const char* ps_name = FT_Get_Postscript_Name( face );
-  //const char* ps_name = "jdh";
   if ( ps_name == NULL )
     ps_name = "UNAVAILABLE";
   
+   const char* family_name = face->family_name;
+   if ( family_name == NULL )
+     family_name = "UNAVAILABLE";
+
+   const char* style_name = face->style_name;
+   if ( style_name == NULL )
+     style_name = "UNAVAILABLE";
+
+
   setattr("postscript_name", Py::String(ps_name));
   setattr("num_faces",       Py::Int(face->num_faces));
-  setattr("family_name",     Py::String(face->family_name));
-  setattr("style_name",      Py::String(face->style_name));
+  setattr("family_name",     Py::String(family_name));
+  setattr("style_name",      Py::String(style_name));
   setattr("face_flags",      Py::Int(face->face_flags));
   setattr("style_flags",     Py::Int(face->style_flags));
   setattr("num_glyphs",      Py::Int(face->num_glyphs));

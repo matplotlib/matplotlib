@@ -1,5 +1,13 @@
 New entries should be added at the top
 
+
+2005-03-27 Added ft2font NULL check to fix Japanase font bug - JDH
+
+2005-03-27 Added sprint legend patch plus John Gill's tests and fix
+           - JDH
+
+==========================================================================
+
 2005-03-19 0.73.1 released
 
 2005-03-19 Reverted wxapp handling because it crashed win32 - JDH

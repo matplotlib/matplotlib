@@ -673,4 +673,24 @@ ZeroDivisionError: SeparableTransformation::eval_scalars yin interval is zero; c
 
 -- Bryan Cole's CXX type segfault
 
--- japanese ft2font bug
+-- DONE japanese ft2font bug
+
+-- Add backend draw cursor method
+
+-- coords kwargs, 'axes', 'figure'
+
+-- axes packing sizes
+
+-- direction fields
+
+-- add a force option to the add_axes code.
+
+-- DONE move object inspector into Artist method
+
+-- make toolbar visible or not
+
+-- DONE hide lazy values make dpi and friends setters
+
+-- add a get description to axes which returns the args and kwargs to construct it 
+
+-- restore __all__ to pylab and add ArtistInspector\

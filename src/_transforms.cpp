@@ -265,6 +265,34 @@ Bbox::get_bounds(const Py::Tuple & args) {
   return ret;
 }
 
+Py::Object
+Bbox::count_contains(const Py::Tuple &args) {
+  _VERBOSE("Bbox::count_contains");
+  args.verify_length(1);
+
+  Py::SeqBase<Py::Object> xys = args[0];
+  size_t Nxys = xys.length();
+  long count = 0;
+
+  double minx = _ll->xval();
+  double miny = _ll->yval();  
+  double maxx = _ur->xval();
+  double maxy = _ur->yval();
+
+  for(size_t i=0; i < Nxys; i++) {
+    Py::SeqBase<Py::Object> xy(xys[i]);
+    xy.verify_length(2);
+    double x = Py::Float(xy[0]);
+    double y = Py::Float(xy[1]);
+    int inx = ( (x>=minx) && (x<=maxx) || (x>=maxx) && (x<=minx) );
+    if (!inx) continue;
+    int iny = ( (y>=miny) && (y<=maxy) || (y>=maxy) && (y<=miny) );
+    if (!iny) continue;
+    count += 1;
+  }
+  return Py::Int(count);
+}
+
 Py::Object 
 Bbox::contains(const Py::Tuple &args) {
   _VERBOSE("Bbox::contains");
@@ -1758,6 +1786,7 @@ Bbox::init_type()
   add_varargs_method("ll", 	&Bbox::ll, "ll()\n");
   add_varargs_method("ur", 	&Bbox::ur, "ur()\n");
   add_varargs_method("contains" , &Bbox::contains, "contains(x,y)\n");
+  add_varargs_method("count_contains", &Bbox::count_contains, "count_contains(xys)\n");
   add_varargs_method("overlaps" , &Bbox::overlaps, "overlaps(bbox)\n");
   add_varargs_method("overlapsx" , &Bbox::overlapsx, "overlapsx(bbox)\n");
   add_varargs_method("overlapsy" , &Bbox::overlapsy, "overlapsy(bbox)\n");
