@@ -5,14 +5,17 @@ Encapsulated PostScript .eps files.
 
 from __future__ import division
 import sys, os, time
+def _fn_name(): return sys._getframe(1).f_code.co_name
+    
 from cStringIO import StringIO
 from matplotlib import verbose, __version__, rcParams
 from matplotlib._pylab_helpers import Gcf
+import matplotlib.agg as agg
 from matplotlib.afm import AFM
 from matplotlib.backend_bases import RendererBase, GraphicsContextBase,\
      FigureManagerBase, FigureCanvasBase
 
-from matplotlib.cbook import is_string_like, reverse_dict
+from matplotlib.cbook import is_string_like, izip, reverse_dict
 from matplotlib.figure import Figure
 
 from matplotlib.font_manager import fontManager
@@ -28,7 +31,7 @@ import re
 
 backend_version = 'Level II'
 defaultPaperSize = 8.5,11               # TODO: make this configurable
-debugPS = 0
+debugPS = 1
 
 
 
@@ -296,18 +299,24 @@ grestore
         """
         ps = '%1.3f %1.3f m %1.3f %1.3f l'%(x0, y0, x1, y1)
         self._draw_ps(ps, gc, None, "line")
-
-    def _draw_markers(self, gc, path, x, y, transform):
+        
+    def _draw_markers(self, gc, path, rgbFace, x, y, transform):
         """
         Draw the markers defined by path at each of the positions in x
         and y.  path coordinates are points, x and y coords will be
         transformed by the transform
         """
-        if debugPS:
-            self._pswriter.write("% markers\n")
+        if debugPS: self._pswriter.write('% draw_markers \n')
+            
+        if rgbFace:
+            if rgbFace[0]==rgbFace[0] and rgbFace[0]==rgbFace[2]:
+                ps_color = '%1.3f setgray\n' % rgbFace[0]
+            else:
+                ps_color = '%1.3f %1.3f %1.3f setrgbcolor\n' % rgbFace
 
         if transform.need_nonlinear():
             x,y = transform.nonlinear_only_numerix(x, y)
+        x, y = transform.numerix_x_y(x, y)
 
         # the a,b,c,d,tx,ty affine which transforms x and y
         vec6 = transform.as_vec6_val()
@@ -316,29 +325,41 @@ grestore
         # and then simply iterate over the x and y and call this
         # function at each position.  Eg, this is the path that is
         # relative to each x and y offset.
-        ps = []
-        for p in path:
-            code = p[0]
-            if code==MOVETO:
-                mx, my = p[1:]
-                ps.append('%1.3f %1.3f m')
-            elif code==LINETO:
-                mx, my = p[1:]
-                ps.append('%1.3f %1.3f l')
-            elif code==ENDPOLY:
-                fill = p[1]
-                if fill:  # we can get the fill color here
-                    rgba = p[2:]
-                    
-        vertfunc = 'some magic ps function that draws the marker relative to an x,y point'
-        # the gc contains the stroke width and color as always
-        for i in xrange(len(x)):
-            # for large numbers of markers you may need to chunk the
-            # output, eg dump the ps in 1000 marker batches
-            thisx = x[i]
-            thisy = y[i]
-            # apply affine transform x and y to define marker center
-            #draw_marker_here
+        
+        # construct the generic marker command:
+        ps_cmd = ['gsave']
+        ps_cmd.append('newpath')
+        ps_cmd.append('%1.3f %1.3f translate')
+        while 1:
+            code, xp, yp = path.vertex()
+            if code == agg.path_cmd_stop:
+                break
+            elif code == agg.path_cmd_move_to:
+                ps_cmd.append('%1.3f %1.3f m' % (xp,yp))
+            elif code == agg.path_cmd_line_to:
+                ps_cmd.append('%1.3f %1.3f l' % (xp,yp))
+            elif code == agg.path_cmd_curve3:
+                pass
+            elif code == agg.path_cmd_curve4:
+                pass
+            elif code == agg.path_cmd_end_poly:
+                ps_cmd.append('closepath' % (xp,yp))
+            elif code == agg.path_cmd_mask:
+                pass
+            else: print code
+        if rgbFace:
+                ps_cmd.append('gsave')
+                ps_cmd.append(ps_color)
+                ps_cmd.append('fill')
+                ps_cmd.append('grestore')
+        ps_cmd.append('stroke')
+        ps_cmd.append('grestore') # undo translate()
+        ps = '\n'.join(ps_cmd)
+        
+        # Now evaluate the marker command at each marker location:
+        draw_ps = self._draw_ps
+        for xp,yp in izip(x,y):
+            draw_ps(ps % (xp,yp), gc, None)
 
     def _draw_lines(self, gc, points):
         """
@@ -348,8 +369,33 @@ grestore
         ps = ["%1.3f %1.3f m" % points[0]] 
         ps.extend(["%1.3f %1.3f l" % point for point in points[1:] ])
         self._draw_ps("\n".join(ps), gc, None)
+        
+    def draw_lines(self, gc, x, y, transform=None):
+        """
+        x and y are equal length arrays, draw lines connecting each
+        point in x, y
+        """
+        if debugPS: self._pswriter.write('% draw_lines \n')
 
-    def draw_lines(self, gc, x, y):
+        if transform:
+            if transform.need_nonlinear():
+                x, y = transform.nonlinear_only_numerix(x, y)
+            x, y = transform.numerix_x_y(x, y)
+        
+        start  = 0
+        end    = 1000
+        points = zip(x,y)
+        while 1:
+            to_draw = points[start:end]
+            if not to_draw: 
+                break
+            ps = ["%1.3f %1.3f m" % to_draw[0]] 
+            ps.extend(["%1.3f %1.3f l" % point for point in to_draw[1:]])
+            self._draw_ps("\n".join(ps), gc, None)
+            start = end
+            end   += 1000
+
+    def draw_lines_old(self, gc, x, y):
         """
         x and y are equal length arrays, draw lines connecting each
         point in x, y
