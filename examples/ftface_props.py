@@ -68,5 +68,4 @@ print 'Fast glyphs   :', font.style_flags & FT_FACE_FLAG_FAST_GLYPHS      != 0
 print 'Mult. masters :', font.style_flags & FT_FACE_FLAG_MULTIPLE_MASTERS != 0
 print 'Glyph names   :', font.style_flags & FT_FACE_FLAG_GLYPH_NAMES      != 0
 
-font.jdh = 'hi'
 print dir(font)

@@ -3,6 +3,8 @@
 An animated image
 """
 import sys, time, os, gc
+import matplotlib
+matplotlib.use('GTKAgg')
 from matplotlib import rcParams
 
 from matplotlib.matlab import *
