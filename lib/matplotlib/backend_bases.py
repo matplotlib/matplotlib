@@ -561,6 +561,10 @@ class LocationEvent(Event):
         self.x = x
         self.y = y
 
+        if self.x is None or self.y is None:
+            # cannot check if event was in axes if no x,y info
+            return
+        
         self.inaxes = None
         for a in self.canvas.figure.get_axes():
             if a.in_axes(self.x, self.y):
