@@ -42,6 +42,7 @@ _Plotting commands
   imshow   - plot image data
   pcolor   - make a pseudocolor plot
   plot     - make a line plot
+  polar    - make a polar plot on a PolarAxes
   psd      - make a plot of power spectral density
   rc       - control the default params
   savefig  - save the current figure
@@ -294,7 +295,7 @@ def get_plot_commands(): return ( 'axes', 'axis', 'bar', 'cla', 'clf',
     'imshow', 'legend', 'loglog', 'rc', 'pcolor', 'plot', 'psd',
     'savefig', 'scatter', 'set', 'semilogx', 'semilogy', 'show',
     'specgram', 'stem', 'subplot', 'table', 'text', 'title', 'xlabel',
-    'ylabel')
+    'ylabel', 'polar')
 
 def raise_msg_to_str(msg):
     """msg is a return arg from a raise.  Join with new lines"""
@@ -1215,5 +1216,4 @@ def polar(*args, **kwargs):
 
 
     ax = gca(polar=True)
-    print 'polar got', ax
     return ax.plot(*args, **kwargs)
