@@ -8,7 +8,7 @@ from matplotlib import verbose
 from matplotlib.cbook import enumerate, True, False
 from matplotlib.figure import Figure
 
-from backend_agg import FigureCanvasAgg, IMAGE_FORMAT, IMAGE_FORMAT_DEFAULT
+from backend_agg import FigureCanvasAgg
 from backend_gtk import gtk, FigureManagerGTK, FigureCanvasGTK,\
      show, draw_if_interactive,\
      error_msg, NavigationToolbar, PIXELS_PER_INCH, backend_version
@@ -17,9 +17,6 @@ from _gtkagg import agg_to_gtk_drawable
 
 
 DEBUG = 0
-
-# Image formats that this backend supports - for FileChooser and print_figure()
-IMAGE_FORMAT += ['jpg']
 
 
 def new_figure_manager(num, *args, **kwargs):

@@ -1,12 +1,15 @@
 New entries should be added at the top
 
+2004-11-24 IMAGE_FORMAT: remove from agg and gtkagg backends as its no longer
+           used - SC
+
 2004-11-23 Added matplotlib compatible set and get introspection.  See
            set_and_get.py
 
 2004-11-23 applied Norbert's patched and exposed legend configuration
            to kwargs - JDH
 
-2004-11-23 backend_gtk.py: added a default exception handler
+2004-11-23 backend_gtk.py: added a default exception handler - SC
 
 2004-11-18 backend_gtk.py: change so that the backend knows about all image
            formats and does not need to use IMAGE_FORMAT in other backends - SC
