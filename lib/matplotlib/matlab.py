@@ -14,6 +14,7 @@ _Plotting commands
   axvspan  - draw a vertical bar across axes 
   axis     - Set or return the current axis limits
   bar      - make a bar chart
+  barh     - a horizontal bar chart  
   cla      - clear current axes
   clf      - clear a figure window
   close    - close a figure window
@@ -33,7 +34,6 @@ _Plotting commands
   get      - get a handle graphics property
   gray     - set the current colormap to gray
   jet      - set the current colormap to jet
-  hbar     - a horizontal bar chart
   hist     - make a histogram
   hold     - set the axes hold state
   legend   - make an axes legend
@@ -290,7 +290,7 @@ mpl_disconnect.__doc__ = FigureCanvasBase.mpl_disconnect.__doc__
 def get_plot_commands(): return ( 'axes', 'axis', 'bar', 'cla', 'clf',
     'close', 'colorbar', 'cohere', 'csd', 'draw', 'errorbar',
     'figlegend', 'figtext', 'figimage', 'figure', 'fill', 'gca',
-    'gcf', 'gci', 'get', 'gray', 'hbar', 'jet', 'hist', 'hold', 'imread',
+    'gcf', 'gci', 'get', 'gray', 'barh', 'jet', 'hist', 'hold', 'imread',
     'imshow', 'legend', 'loglog', 'rc', 'pcolor', 'plot', 'psd',
     'savefig', 'scatter', 'set', 'semilogx', 'semilogy', 'show',
     'specgram', 'stem', 'subplot', 'table', 'text', 'title', 'xlabel',
@@ -404,15 +404,15 @@ def bar(*args, **kwargs):
     return patches
 bar.__doc__ = Axes.bar.__doc__
 
-def hbar(*args, **kwargs):
-    try: patches =  gca().hbar(*args, **kwargs)
+def barh(*args, **kwargs):
+    try: patches =  gca().barh(*args, **kwargs)
     except Exception, msg:
         s = exception_to_str(msg)
         error_msg(s)
         raise RuntimeError(msg)
     draw_if_interactive()
     return patches
-hbar.__doc__ = Axes.hbar.__doc__
+barh.__doc__ = Axes.barh.__doc__
 
 def _get_target_images(target=None):
     if target is None:

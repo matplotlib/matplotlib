@@ -44,7 +44,7 @@ else: useMathText = True
 # see http://groups.google.com/groups?q=screen+dpi+x11&hl=en&lr=&ie=UTF-8&oe=UTF-8&safe=off&selm=7077.26e81ad5%40swift.cs.tcd.ie&rnum=5 for some info about screen dpi
 PIXELS_PER_INCH = 96
 
-
+backend_version = 'unknown'
 cursord = {
     cursors.MOVE          : gtk.gdk.Cursor(gtk.gdk.FLEUR),
     cursors.HAND          : gtk.gdk.Cursor(gtk.gdk.HAND2),
