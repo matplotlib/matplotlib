@@ -485,16 +485,31 @@ Set/Get the axis properties::
     
 def axes(*args, **kwargs):
     """
-    Add an axes at positon rect specified by::
+Add an axes at positon rect specified by::
 
-    axes() by itself creates a default full subplot(111) window axis
+axes() by itself creates a default full subplot(111) window axis
 
-    axes(rect, axisbg='w') where rect=[left, bottom, width, height] in
-    normalized (0,1) units.  axisbg is the background color for the
-    axis, default white
+axes(rect, axisbg='w') where rect=[left, bottom, width, height] in
+normalized (0,1) units.  axisbg is the background color for the
+axis, default white
 
-    axes(h) where h is an axes instance makes h the
-    current axis An Axes instance is returned
+axes(h) where h is an axes instance makes h the
+current axis An Axes instance is returned
+
+kwargs:
+
+  axisbg=color   : the axes background color
+  frameon=False  : don't display the frame
+  sharex=otherax : the current axes shares xaxis attribute with otherax
+  sharey=otherax : the current axes shares yaxis attribute with otherax
+
+Examples
+
+  examples/axes_demo.py places custom axes.
+  examples/shared_axis_demo.py uses sharex and sharey
+
+
+    
     """
 
     nargs = len(args)
@@ -1226,6 +1241,9 @@ def subplot(*args, **kwargs):
     argument 'axisbg', which takes a color string or gdk.Color as value, as in
 
     subplot(211, axisbg='y')
+
+    See help(axes) for additional information on axes and subplot
+    keyword arguments.
     """
     
     try:
