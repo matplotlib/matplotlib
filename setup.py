@@ -19,13 +19,13 @@ BUILD_AGG          = 1
 # windows
 
 # build GTK GUI with Agg renderer ; requires pygtk src distros installed
-BUILD_GTKAGG       = 1
+BUILD_GTKAGG       = 0
 
 # build GTK GUI with GD renderer ; requires pygtk and GD src distros installed
 BUILD_GTKGD        = 0
 
 # build TK GUI with Agg renderer ;  requires Tkinter Python extension and Tk includes
-BUILD_TKAGG        = 1
+BUILD_TKAGG        = 0
 
 # build the freetype2 interface - highly experimental and broken!
 # Unless your name is John Hunter, you probably don't want this
@@ -87,7 +87,7 @@ if BUILD_FT2FONT:
     build_ft2font(ext_modules, packages)
 
 setup(name="matplotlib",
-      version= '0.51b',
+      version= '0.51c',
       description = "Matlab style python plotting package",
       author = "John D. Hunter",
       author_email="jdhunter@ace.bsd.uchicago.edu",
