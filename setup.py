@@ -25,7 +25,7 @@ BUILD_GTKAGG       = 1
 BUILD_GTKGD        = 0
 
 # build TK GUI with Agg renderer ;  requires Tkinter Python extension and Tk includes
-BUILD_TKAGG        = 0
+BUILD_TKAGG        = 1
 
 # build the freetype2 interface - highly experimental and broken!
 # Unless your name is John Hunter, you probably don't want this
