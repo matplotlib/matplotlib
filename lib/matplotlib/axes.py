@@ -1085,7 +1085,6 @@ used for colorbar functionality
                 tmp, x = ind
             elif y == None:
                 y, tmp = ind
-            
         if len(shape(x)) != 2 or len(shape(y)) != 2:
             raise TypeError("x and y must be  2D arrays.")
 
@@ -1098,6 +1097,18 @@ used for colorbar functionality
 
         if x == None and y == None:
             y, x = indices((jmax,imax), 'd')
+
+
+        rx = ravel(x)
+        ry = ravel(y)
+
+        minx = amin(rx)
+        maxx = amax(rx)
+        miny = amin(ry)
+        maxy = amax(ry)
+
+        corners = (minx, miny), (maxx, maxy)         
+        self.update_datalim( corners)
 
         rz = ravel(z)
         zmax = amax(rz)

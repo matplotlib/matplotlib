@@ -135,7 +135,8 @@ class FigureCanvasQtAgg(qt.QWidget, FigureCanvasAgg):
 
         #Coordinates of the select rectangle if it is needed.
         self.rect = None
-
+        self.setMouseTracking(True)
+        
     def draw(self):
         """
         Draw the figure using the renderer
@@ -223,7 +224,7 @@ class NavigationToolbar2QtAgg(NavigationToolbar2, qt.QToolBar):
       window   - the qt.QMainWindow
     """
     def __init__(self, canvas, window):
-        qt.QToolBar.__init__(self, qt.QString(""), window, qt.Qt.DockTop)
+        qt.QToolBar.__init__(self, qt.QString(""), window, qt.Qt.DockBottom)
         self.canvas = canvas
         self.window = window
         NavigationToolbar2.__init__(self, canvas)
