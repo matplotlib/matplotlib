@@ -1,5 +1,10 @@
 New entries should be added at the top
 
+2005-01-18 Added accents to mathtext: \hat, \breve, \grave, \bar,
+  \acute, \tilde, \vec, \dot, \ddot.  All of them have the same
+  syntax, eg to make an overbar you do \bar{o} or to make an o umlaut
+  you do \ddot{o} - JDH
+
 2005-01-18 Plugged an image resize memory leaks - JDH
 
 2005-01-18 Fixed some mathtext parser problems relating to superscripts
