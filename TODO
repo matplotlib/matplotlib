@@ -303,3 +303,5 @@
 -- add \/ for TeX
 
 -- fix kerning for TeX
+
+-- text_themes is segfaulting on gtkagg
