@@ -1,5 +1,8 @@
 New entries should be added at the top
 
+2005-01-27 Added support for shared x or y axes.  See
+           examples/shared_axis_demo.py and examples/ganged_plots.py
+
 2005-01-27 Added Lee's patch for missing symbols \leq and \LEFTbracket
            to _mathtext_data - JDH
 

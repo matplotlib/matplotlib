@@ -417,7 +417,12 @@ class YTick(Tick):
         'return the Interval instance for this axis data limits'
         return self.axes.dataLim.intervaly()
 
-    
+
+class Ticker:
+    locator = None
+    formatter = None
+
+
 class Axis(Artist):
 
     """
@@ -437,11 +442,12 @@ class Axis(Artist):
         
         self.axes = axes
 
-        self.set_major_locator( AutoLocator() )
-        self.set_minor_locator( NullLocator() )
-
-        self.set_major_formatter( ScalarFormatter() )
-        self.set_minor_formatter( NullFormatter() )
+        self._major = Ticker()
+        self._minor = Ticker()
+        self.set_major_locator(AutoLocator())
+        self.set_major_formatter(ScalarFormatter())
+        self.set_minor_locator(NullLocator())
+        self.set_minor_formatter(NullFormatter())
         
         # whether the grids are on
         self._gridOnMajor = rcParams['axes.grid']  
@@ -476,9 +482,9 @@ class Axis(Artist):
         ticklabelBoxes2 = []
         
         majorTicks = self.get_major_ticks()
-        majorLocs = self._majorLocator()
-        self._majorFormatter.set_locs(majorLocs)
-        majorLabels = [self._majorFormatter(val, i) for i, val in enumerate(majorLocs)]
+        majorLocs = self._major.locator()
+        self._major.formatter.set_locs(majorLocs)
+        majorLabels = [self._major.formatter(val, i) for i, val in enumerate(majorLocs)]
 
 
         seen = {}
@@ -500,9 +506,9 @@ class Axis(Artist):
                 ticklabelBoxes2.append(extent)
 
         minorTicks = self.get_minor_ticks()
-        minorLocs = self._minorLocator()
-        self._minorFormatter.set_locs(minorLocs)
-        minorLabels = [self._minorFormatter(val, i) for i, val in enumerate(minorLocs)]
+        minorLocs = self._minor.locator()
+        self._minor.formatter.set_locs(minorLocs)
+        minorLabels = [self._minor.formatter(val, i) for i, val in enumerate(minorLocs)]
 
 
         for tick, loc, label in zip(minorTicks, minorLocs, minorLabels):
@@ -569,7 +575,7 @@ class Axis(Artist):
 
     def get_ticklocs(self):
         "Get the tick locations in data coordinates as a Numeric array"
-        return self._majorLocator()
+        return self._major.locator()
 
     def _get_tick(self, major):
         'return the default tick intsance'
@@ -592,24 +598,24 @@ class Axis(Artist):
 
     def get_major_locator(self):
         'Get the locator of the major ticker'
-        return self._majorLocator 
+        return self._major.locator 
 
     def get_minor_locator(self):
         'Get the locator of the minor ticker'
-        return self._minorLocator 
+        return self._minor.locator 
 
     def get_major_formatter(self):
         'Get the formatter of the major ticker'
-        return self._majorFormatter 
+        return self._major.formatter 
 
     def get_minor_formatter(self):
         'Get the formatter of the minor ticker'
-        return self._minorFormatter 
+        return self._minor.formatter 
         
     def get_major_ticks(self):
         'get the tick instances; grow as necessary'
 
-        numticks = len(self._majorLocator())
+        numticks = len(self._major.locator())
 
         if len(self.majorTicks)<numticks:
             # update the new tick label properties from the old
@@ -627,7 +633,7 @@ class Axis(Artist):
 
     def get_minor_ticks(self):
         'get the minor tick instances; grow as necessary'
-        numticks = len(self._minorLocator())
+        numticks = len(self._minor.locator())
         if len(self.minorTicks)<numticks:
             protoTick = self.minorTicks[0]
             for i in range(numticks-len(self.minorTicks)):
@@ -665,18 +671,18 @@ class Axis(Artist):
 Set the formatter of the major ticker
 
 ACCEPTS: A Formatter instance"""
-        self._majorFormatter = formatter
-        self._majorFormatter.set_view_interval( self.get_view_interval() )
-        self._majorFormatter.set_data_interval( self.get_data_interval() )
+        self._major.formatter = formatter
+        self._major.formatter.set_view_interval( self.get_view_interval() )
+        self._major.formatter.set_data_interval( self.get_data_interval() )
 
     def set_minor_formatter(self, formatter):
         """
 Set the formatter of the minor ticker
 
 ACCEPTS: A Formatter instance"""
-        self._minorFormatter = formatter
-        self._minorFormatter.set_view_interval( self.get_view_interval() )
-        self._minorFormatter.set_data_interval( self.get_data_interval() )
+        self._minor.formatter = formatter
+        self._minor.formatter.set_view_interval( self.get_view_interval() )
+        self._minor.formatter.set_data_interval( self.get_data_interval() )
 
 
     def set_major_locator(self, locator):
@@ -684,9 +690,9 @@ ACCEPTS: A Formatter instance"""
 Set the locator of the major ticker
 
 ACCEPTS: a Locator instance"""
-        self._majorLocator = locator
-        self._majorLocator.set_view_interval( self.get_view_interval() )
-        self._majorLocator.set_data_interval( self.get_data_interval() )
+        self._major.locator = locator
+        self._major.locator.set_view_interval( self.get_view_interval() )
+        self._major.locator.set_data_interval( self.get_data_interval() )
 
 
     def set_minor_locator(self, locator):
@@ -694,9 +700,9 @@ ACCEPTS: a Locator instance"""
 Set the locator of the minor ticker
 
 ACCEPTS: a Locator instance"""
-        self._minorLocator = locator
-        self._minorLocator.set_view_interval( self.get_view_interval() )
-        self._minorLocator.set_data_interval( self.get_data_interval() )
+        self._minor.locator = locator
+        self._minor.locator.set_view_interval( self.get_view_interval() )
+        self._minor.locator.set_data_interval( self.get_data_interval() )
                
     def set_ticklabels(self, ticklabels, *args, **kwargs):
         """
@@ -734,11 +740,11 @@ ACCEPTS: sequence of floats"""
 
     def pan(self, numsteps):
         'Pan numticks (can be positive or negative)'
-        self._majorLocator.pan(numsteps)
+        self._major.locator.pan(numsteps)
 
     def zoom(self, direction):
         "Zoom in/out on axis; if direction is >0 zoom in, else zoom out"
-        self._majorLocator.zoom(direction)
+        self._major.locator.zoom(direction)
         
 class XAxis(Axis):
     __name__ = 'xaxis'

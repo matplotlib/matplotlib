@@ -307,19 +307,28 @@ class Axes(Artist):
 
     """
 
+    scaled = {IDENTITY : 'linear',
+              LOG10 : 'log',
+              }
     def __init__(self, fig, rect,
                  axisbg = None, # defaults to rc axes.facecolor
-                 frameon = True):
+                 frameon = True,
+                 sharex=None, # use Axes instance's xaxis info
+                 sharey=None, # use Axes instance's yaxis info
+                 ):
         Artist.__init__(self)
         self._position = map(makeValue, rect)
+        # must be set before set_figure
+        self._sharex = sharex # I use sharex's
+        self._sharey = sharey
+
+        
         self.set_figure(fig)
 
         if axisbg is None: axisbg = rcParams['axes.facecolor']
         self._axisbg = axisbg
         self._frameon = frameon
-        self._xscale = 'linear'
-        self._yscale = 'linear'        
-
+        
 
         self._hold = rcParams['axes.hold']
         self._connected = {} # a dict from events to (id, func)    
@@ -360,11 +369,33 @@ ACCEPTS: a Figure instance"""
         set the dataLim and viewLim BBox attributes and the
         transData and transAxes Transformation attributes
         """
+        
+
+        if self._sharex is not None:
+            left=self._sharex.viewLim.ll().x()
+            right=self._sharex.viewLim.ur().x()
+        else:
+            left=zero()
+            right=one()
+        if self._sharey is not None:
+            bottom=self._sharey.viewLim.ll().y()
+            top=self._sharey.viewLim.ur().y()
+        else:
+            bottom=zero()
+            top=one()
+
+        self.viewLim = Bbox(Point(left, bottom), Point(right, top))
         self.dataLim = unit_bbox()
-        self.viewLim = unit_bbox()
+        
+        
         self.transData = get_bbox_transform(self.viewLim, self.bbox)
         self.transAxes = get_bbox_transform(unit_bbox(), self.bbox)
 
+        if self._sharex:
+            self.transData.set_funcx(self._sharex.transData.get_funcx())
+
+        if self._sharey:
+            self.transData.set_funcy(self._sharey.transData.get_funcy())
 
     def axhline(self, y=0, xmin=0, xmax=1, **kwargs):
         """\
@@ -569,11 +600,18 @@ major formatter
     def cla(self):
         'Clear the current axes'
 
-        # init these w/ some arbitrary numbers - they'll be updated as
-        # data is added to the axes
 
+        # TODO: don't recreate x and y axis instances on cla, simply
+        # clear them
         self.xaxis = XAxis(self)
         self.yaxis = YAxis(self)
+
+        if self._sharex is not None:
+            self.xaxis._major = self._sharex.xaxis._major
+            self.xaxis._minor = self._sharex.xaxis._minor            
+        if self._sharey is not None:
+            self.yaxis._major = self._sharey.yaxis._major
+            self.yaxis._minor = self._sharey.yaxis._minor            
 
         self._get_lines = _process_plot_var_args()
         self._get_patches_for_fill = _process_plot_var_args('fill')
@@ -628,11 +666,11 @@ major formatter
 
     def get_xscale(self):
         'return the xaxis scale string: log or linear'
-        return self._xscale
+        return self.scaled[self.transData.get_funcx().get_type()]
 
     def get_yscale(self):
         'return the yaxis scale string: log or linear'
-        return self._yscale
+        return self.scaled[self.transData.get_funcy().get_type()]        
 
     def update_datalim(self, xys):
         'Update the data lim bbox with seq of xy tups'
@@ -2754,17 +2792,17 @@ ACCEPTS: str
 
         if subsx is None: subsx = range(2, basex)
         assert(value.lower() in ('log', 'linear', ))
-        self._xscale = value
         if value == 'log':
             self.xaxis.set_major_locator(LogLocator(basex))
             self.xaxis.set_major_formatter(LogFormatterMathtext(basex))
             self.xaxis.set_minor_locator(LogLocator(basex,subsx))
+            
             self.transData.get_funcx().set_type(LOG10)
         elif value == 'linear':
             self.xaxis.set_major_locator(AutoLocator())
             self.xaxis.set_major_formatter(ScalarFormatter())
             self.transData.get_funcx().set_type( IDENTITY )
-        
+
 
     def set_xticklabels(self, labels, fontdict=None, **kwargs):
         """\
@@ -2833,7 +2871,7 @@ ACCEPTS: str
 
         if subsy is None: subsy = range(2, basey)
         assert(value.lower() in ('log', 'linear', ))
-        self._yscale = value
+
         if value == 'log':
             self.yaxis.set_major_locator(LogLocator(basey))
             self.yaxis.set_major_formatter(LogFormatterMathtext(basey))
@@ -2843,8 +2881,6 @@ ACCEPTS: str
             self.yaxis.set_major_locator(AutoLocator())
             self.yaxis.set_major_formatter(ScalarFormatter())
             self.transData.get_funcy().set_type( IDENTITY )
-
-            
 
     def set_yticklabels(self, labels, fontdict=None, **kwargs):
         """\
@@ -3627,6 +3663,15 @@ ACCEPTS: sequence of floats
     def set_ylabel(self, ylabel, fontdict=None, **kwargs):
         'ylabel not implemented'
         raise NotImplementedError('ylabel not defined for polar axes (yet)')
+
+
+    def get_xscale(self):
+        'return the xaxis scale string'
+        return 'polar'
+
+    def get_yscale(self):
+        'return the yaxis scale string'
+        return 'polar'
         
 class PolarSubplot(SubplotBase, PolarAxes):
     """
@@ -3645,46 +3690,4 @@ class PolarSubplot(SubplotBase, PolarAxes):
     def __init__(self, fig, *args, **kwargs):
         SubplotBase.__init__(self, *args)        
         PolarAxes.__init__(self, fig, [self.figLeft, self.figBottom, self.figW, self.figH], **kwargs)
-
-class TwinAxes(Axes):
-    """
-    Create an Axes instance that shares the X axis with another:
-
-      TwinAxes(existing_axes)
-    """
-    def __init__(self, axes):
-        Axes.__init__(self, axes.figure, axes._position, frameon=False)
-        
-        self._xscale=axes._xscale
-        self.fmt_xdata=axes.fmt_xdata
-
-        vl_left=axes.viewLim.ll().x()
-        vl_right=axes.viewLim.ur().x()
-        vl_bottom=self.viewLim.ll().y()
-        vl_top=self.viewLim.ur().y()
-        self.viewLim=Bbox(Point(vl_left,vl_bottom),Point(vl_right, vl_top))
-
-        dl_left=axes.dataLim.ll().x()
-        dl_right=axes.dataLim.ur().x()
-        dl_bottom=self.dataLim.ll().y()
-        dl_top=self.dataLim.ur().y()
-        self.dataLim=Bbox(Point(dl_left,dl_bottom),Point(dl_right, dl_top))
-
-        try:
-            self.transData = blend_xy_sep_transform(axes.transData, self.transData)
-        except RuntimeError:
-            raise RuntimeError, "TwinAxes only works with cartesian axes"
-
-        self.xaxis=axes.xaxis
-        
-        self.yaxis.tick_right()
-        self.yaxis.set_label_position('right')
-        axes.yaxis.tick_left()
-
-    def set_figure(self, fig):
-        if self.figure is None:
-            Axes.set_figure(self, fig)
-            return None
-        if fig is not self.figure:
-            raise RuntimeError, "TwinAxes can only be added to the same figure"
 
