@@ -10,7 +10,8 @@ d = array(d)
 
 ax = subplot(111)
 plot(a,c,'k--',a,d,'k:',a,c+d,'k')
-legend(('Model length', 'Data length', 'Total message length'), 'upper right')
+legend(('Model length', 'Data length', 'Total message length'),
+       'upper center')
 ax.set_ylim([-1,20])
 ax.grid(0)
 xlabel('Model complexity --->')
