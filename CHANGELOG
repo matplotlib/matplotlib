@@ -1,5 +1,8 @@
 New entries should be added at the top
 
+2005-04-02 updated backend_ps.draw_lines, draw_markers for use with the
+           new API - DSD
+
 2005-04-01 Added editable polygon example
 
 ==========================================================================
