@@ -57,7 +57,7 @@ The bbox methods are
   intervalx()         - return the x Interval instance
   intervaly()         - return the y interval instance
   get_bounds()        - get the left, bottom, width, height bounding tuple
-  update(xys, ignore) - update the boox to bound all the xy tuples in
+  update(xys, ignore) - update the bbox to bound all the xy tuples in
       xys; if ignore is true ignore the current contents of bbox and
       just bound the tuples.  If ignore is false, bound self + tuples
   width()             - return the width of the bbox
@@ -85,7 +85,7 @@ The signature of a separable transformation instance is
 
   trans = SeparableTransformation(bbox1, bbox2, funcx, funcy)
 
-where funcx and funcy operatate on x and y.  The typical linear
+where funcx and funcy operate on x and y.  The typical linear
 coordinate transformation maps one bounding box to another, with funcx
 and funcy both identity.  Eg,
 
@@ -104,18 +104,18 @@ a, b, c, d, tx, ty.  These give the values of the matrix transformation
    yo]    |b  d|  yi]    ty]
 
 
-From a user persepective, the most important Tranformation methods are
+From a user perspective, the most important Tranformation methods are
 
 All transformations
 -------------------
   freeze()              - eval and freeze the lazy objects
-  thaw()                - release the laszy objects
+  thaw()                - release the lazy objects
 
   xy_tup(xy)            - transform the tuple (x,y)
   seq_x_y(x, y)         - transform the python sequences x and y
   numerix_x_y(x, y)     - x and y are numerix 1D arrays
   seq_xy_tups(seq)      - seq is a sequence of xy tuples
-  inverse_xy_tup(xy)    - apply the incerse transformation to tuple xy 
+  inverse_xy_tup(xy)    - apply the inverse transformation to tuple xy 
 
   set_offset(xy, trans) - xy is an x,y tuple and trans is a
     Transformation instance.  This will apply a post transformational
@@ -148,8 +148,8 @@ but should use the helper functions defined in this module.
   one                         - return Value(1)
   origin                      - return Point(zero(), zero())
   unit_bbox                   - return the 0,0 to 1,1 bounding box
-  identity_affine             - An affine idenitity transformation
-  identity_transform          - An indentity separable transformation
+  identity_affine             - An affine identity transformation
+  identity_transform          - An identity separable transformation
   translation_transform       - a pure translational affine
   scale_transform             - a pure scale affine
   scale_sep_transform         - a pure scale separable transformation
