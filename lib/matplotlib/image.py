@@ -9,6 +9,7 @@ from matplotlib import rcParams
 from artist import Artist
 from colors import normalize, colorConverter
 import cm
+import numerix
 from numerix import arange
 import _image
 
@@ -166,10 +167,16 @@ class AxesImage(Artist, cm.ScalarMappable):
         im.write_png(fname)
         
 
-    def set_array(self, A):
-        'Set the image array from numeric/numarray A'
-        cm.ScalarMappable.set_array(self, A)
+    def set_data(self, A):
+        'Set the image array from numeric/numarray/PIL Image A'
+        # check if data is PIL Image without importing Image
+        if hasattr(A,'getpixel'): X = pil_to_array(A)
+        else: X = A # assume array
+        cm.ScalarMappable.set_array(self, X)
 
+    def set_array(self, A):
+        'retained for backwards compatibility - use set_data instead'
+        self.set_data(A)
 
     def get_aspect(self):
         """
@@ -316,3 +323,26 @@ def imread(fname):
     return handler(fname)
 
     
+
+def pil_to_array( pilImage ):
+    if pilImage.mode == 'P': # convert from paletted
+        im = pilImage.convert('RGBX')
+    else:
+        im = pilImage
+
+    # There's a whole lotta conversion and copying going on
+    # here -- could it be optimized?
+
+    if im.mode in ('RGBA','RGBX'): n_channels = 4
+    elif im.mode == 'RGB': n_channels = 3
+    elif im.mode == 'L': n_channels = 1
+    else: raise RuntimeError('Unknown image mode')
+
+    x_str = im.tostring('raw',im.mode,0,-1)
+    x = numerix.fromstring(x_str,numerix.UInt8)
+    if n_channels == 1:
+        x.shape = im.size[1], im.size[0]
+    else:
+        x.shape = im.size[1], im.size[0], n_channels
+    x=x.astype(numerix.Float32)/255.0
+    return x

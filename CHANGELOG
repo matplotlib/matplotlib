@@ -1,6 +1,8 @@
 New entries should be added at the top
 
 ==============================================================
+2004-10-19 Added support for PIL images in imshow(), image.py - ADS
+
 2004-10-19 Re-worked exception handling in _image.py and _transforms.py
            to avoid masking problems with shared libraries.  - JTM
 
