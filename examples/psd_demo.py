@@ -18,7 +18,7 @@ figure(2)
 psd(s, 512, 1/dt)
 
 savefig('psd_demo.png')
-
+show()
 
 
 """
