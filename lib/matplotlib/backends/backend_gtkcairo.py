@@ -12,7 +12,7 @@ from matplotlib import verbose
 from matplotlib.cbook import True, False
 from matplotlib.figure import Figure
 from backend_cairo import RendererCairo
-from backend_gtk import gtk, FigureManagerGTK, FigureCanvasGTK, show,    \
+from backend_gtk import gtk, FigureManagerGTK, FigureCanvasGTK, show, \
      draw_if_interactive, error_msg, NavigationToolbar, IMAGE_FORMAT, \
      IMAGE_FORMAT_DEFAULT
 
@@ -36,26 +36,8 @@ def new_figure_manager(num, *args, **kwargs):
 
 
 class FigureCanvasGTKCairo(FigureCanvasGTK):
-    """Override GTK._render_to_pixmap() to use Cairo rather than GDK renderer
-    """
-    def _render_to_pixmap(self, width, height):
-        create_pixmap = False
-        if width > self._pixmap_width:
-            # increase the pixmap in 10%+ (rather than 1 pixel) steps
-            self._pixmap_width  = max (int (self._pixmap_width  * 1.1), width)
-            create_pixmap = True
-
-        if height > self._pixmap_height:
-            self._pixmap_height = max (int (self._pixmap_height * 1.1), height)
-            create_pixmap = True
-
-        if create_pixmap:
-            if DEBUG: print 'backend_gtk.%s: new pixmap' % _fn_name()
-            self._pixmap = gtk.gdk.Pixmap (self.window, self._pixmap_width,
-                                           self._pixmap_height)
-            self._surface = cairo.gtk.surface_create_for_drawable (self._pixmap)
-                    
+    def _renderer_init(self):
+        """Override to use Cairo rather than GDK renderer"""
+        if DEBUG: print 'backend_gtkcairo.%s()' % _fn_name()
         matrix = cairo.Matrix ()
-        self._renderer = RendererCairo (self._surface, matrix, width, height, self.figure.dpi)
-        self._renderer._set_width_height (width, height)
-        self.figure.draw (self._renderer)
+        self._renderer = RendererCairo (matrix, self.figure.dpi)
