@@ -13,8 +13,8 @@ BUILD_FT2FONT = 1
 # Numeric or numarray arrays, but you will get the best performance if
 # you build with the type of array you use most
 #BUILD_IMAGE    = 0           # no image support
-#BUILD_IMAGE    = 'Numeric'    # use Numeric 
-BUILD_IMAGE    = 'numarray'  # use numarray 
+BUILD_IMAGE    = 'Numeric'    # use Numeric 
+#BUILD_IMAGE    = 'numarray'  # use numarray 
 
 # Build the antigrain geometry toolkit.  Agg makes heavy use of
 # templates, so it probably requires a fairly recent compiler to build
