@@ -15,7 +15,7 @@ plot([1,2,3])
 x = arange(0.0, 3.0, 0.1)
 
 grid(True)
-xlabel(r'$\Delta_i^j$', fontsize=20)
+ylabel(r'$\Delta_i^j$', fontsize=20)
 ylabel(r'$\Delta_{i+1}^j$', fontsize=20)
 tex = r'$\cal{R}\prod_{i=\alpha_{i+1}}^\infty a_i\rm{sin}(2 \pi f x_i)$'
 text(1, 1.6, tex, fontsize=20)

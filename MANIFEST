@@ -23,7 +23,6 @@ CXX/cxxextensions.c
 CXX/cxxsupport.cxx
 agg2/.cvsignore
 agg2/gpc/copying.txt
-agg2/gpc/copying.txt.~1.1.~
 agg2/gpc/gpc.c
 agg2/gpc/gpc.h
 agg2/include/agg_affine_matrix.h
@@ -228,6 +227,7 @@ examples/image_demo.py
 examples/image_demo2.py
 examples/image_demo_na.py
 examples/image_origin.py
+examples/integral_demo.py
 examples/interactive.py
 examples/interactive2.py
 examples/invert_axes.py
@@ -249,7 +249,6 @@ examples/mri_demo.py
 examples/mri_with_eeg.py
 examples/multiline.py
 examples/multiple_figs_demo.py
-examples/newtest.py
 examples/object_picker.py
 examples/pcolor_demo.py
 examples/pcolor_demo2.py
