@@ -26,6 +26,8 @@ matplotlib.
 The basic generic  locators are
 
   * NullLocator     - No ticks
+  
+  * FixedLocator    - Tick locations are fixed
 
   * IndexLocator    - locator for index plots (eg where x = range(len(y))
   
@@ -73,8 +75,6 @@ axis.
   * FuncFormatter      - user defined function sets the labels
 
   * FormatStrFormatter - use a sprintf format string
-
-  * IndexFormatter     - cycle through fixed strings by tick position
   
   * ScalarFormatter    - default formatter for scalars; autopick the fmt string
 
