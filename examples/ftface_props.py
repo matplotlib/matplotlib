@@ -6,7 +6,8 @@ load_char
 """
 from matplotlib.ft2font import FT2Font
 
-fname = '/usr/local/share/matplotlib/VeraIt.ttf'
+#fname = '/usr/local/share/matplotlib/VeraIt.ttf'
+fname = '/usr/local/share/matplotlib/cmr10.ttf'
 
 font = FT2Font(fname)
 

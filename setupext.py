@@ -46,12 +46,10 @@ BUILDING ON WIN32
     See for details http://groups.google.com/groups?hl=en&lr=&ie=UTF-8&oe=UTF-8&threadm=mailman.1060311735.32666.python-list%40python.org&rnum=1&prev=/groups%3Fhl%3Den%26lr%3D%26ie%3DUTF-8%26oe%3DUTF-8%26q%3Dpython%2B%2522extensions%2Bneed%2Bto%2Bbe%2Bbuilt%2Bwith%2Bthe%2Bsame%2Bversion%2Bof%2Bthe%2Bcompiler%2522 
 
 
-    Current problems:
-
-    c:\mingw\bin\dllwrap.exe -mno-cygwin -mdll -static --entry _DllMain@12 --output-lib build\temp.win32-2.2\Release\lib_tkagg.a --def build\temp.win32-2.2\Release\_tkagg.def -s build\temp.win32-2.2\Release\_tkagg.o -LC:/Python23/dlls -Lwin32_static -LC:\PYTHON22\libs -ltk84 -ltcl84 -lfreetype -lpng -lz -lgw32c -lstdc++ -lm -lpython22 -o build\lib.win32-2.2\matplotlib\backends\_tkagg.pyd
-    error: command 'dllwrap' failed with exit status 1
-
-    ideas: libstdc++ or libpython22 need to be moved up in link order?
+    Note building for python22.  Delete c:\python22\lib\distutils and copy
+    the (patched) python23 version into this folder.  Delete all the
+    *.pyc in c:\python22\lib\distutils and the command subdir.  Should work
+    
     
 """
 import sys, os
