@@ -168,3 +168,4 @@
 
 -- Scale line width with DPI
 
+-- allow pass of file handle to backend_gd
