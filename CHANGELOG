@@ -1,5 +1,9 @@
 New entries should be added at the top
 
+2005-01-07 Added markerscale attribute to Legend class.  This allows
+           the marker size in the legend to be adjusted relative to
+           that in the plot. - ADS
+
 2005-01-06 Add patch from Ben Vanhaeren to make the FigureManagerGTK vbox a
            public attribute - SC
 
