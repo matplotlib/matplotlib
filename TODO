@@ -588,3 +588,5 @@ ZeroDivisionError: SeparableTransformation::eval_scalars yin interval is zero; c
 --  Humufr errobar
 
 -- why is tkagg loading init 2x
+
+-- add ishold and spy

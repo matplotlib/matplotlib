@@ -110,18 +110,18 @@ class Legend(Artist):
         else:
             self._xdata = linspace(left, left + self.HANDLELEN, self.NUMPOINTS)
         textleft = left+ self.HANDLELEN+self.HANDLETEXTSEP
-        self._texts = self._get_texts(labels, textleft, upper)
-        self._handles = self._get_handles(handles, self._texts)
+        self.texts = self._get_texts(labels, textleft, upper)
+        self.handles = self._get_handles(handles, self.texts)
         
-        left, top = self._texts[-1].get_position()
+        left, top = self.texts[-1].get_position()
         HEIGHT = self._approx_text_height()
         bottom = top-HEIGHT
         left -= self.HANDLELEN + self.HANDLETEXTSEP + self.PAD
-        self._patch = Rectangle(
-            xy=(left, bottom), width=0.5, height=HEIGHT*len(self._texts),
+        self.legendPatch = Rectangle(
+            xy=(left, bottom), width=0.5, height=HEIGHT*len(self.texts),
             facecolor='w', edgecolor='k',
             )
-        self._set_artist_props(self._patch)
+        self._set_artist_props(self.legendPatch)
         self._drawFrame = True
 
     def _set_artist_props(self, a):
@@ -135,12 +135,12 @@ class Legend(Artist):
     def draw(self, renderer):
         renderer.open_group('legend')
         self._update_positions(renderer)
-        if self._drawFrame:  self._patch.draw(renderer)
-        for h in self._handles:            
+        if self._drawFrame:  self.legendPatch.draw(renderer)
+        for h in self.handles:            
             h.draw(renderer)
             if 0: bbox_artist(h, renderer)
 
-        for t in self._texts:
+        for t in self.texts:
             if 0: bbox_artist(t, renderer)
             t.draw(renderer)
         renderer.close_group('legend')
@@ -150,8 +150,8 @@ class Legend(Artist):
     def _get_handle_text_bbox(self, renderer):
         'Get a bbox for the text and lines in axes coords'
         boxes = []
-        bboxesText = [t.get_window_extent(renderer) for t in self._texts]
-        bboxesHandles = [h.get_window_extent(renderer) for h in self._handles]
+        bboxesText = [t.get_window_extent(renderer) for t in self.texts]
+        bboxesHandles = [h.get_window_extent(renderer) for h in self.handles]
 
 
         bboxesAll = bboxesText
@@ -196,19 +196,19 @@ class Legend(Artist):
 
     def get_frame(self):
         'return the Rectangle instance used to frame the legend'
-        return self._patch
+        return self.legendPatch
 
     def get_lines(self):
         'return a list of lines.Line2D instances in the legend'
-        return [h for h in self._handles if isinstance(h, Line2D)]  
+        return [h for h in self.handles if isinstance(h, Line2D)]  
 
     def get_patches(self):
         'return a list of patch instances in the legend'
-        return [h for h in self._handles if isinstance(h, Patch)]  
+        return [h for h in self.handles if isinstance(h, Patch)]  
 
     def get_texts(self):
         'return a list of text.Text instance in the legend'
-        return self._texts
+        return self.texts
     
     def _get_texts(self, labels, left, upper):
 
@@ -234,16 +234,16 @@ class Legend(Artist):
 
             
     def get_window_extent(self):
-        return self._patch.get_window_extent()
+        return self.legendPatch.get_window_extent()
 
 
     def _offset(self, ox, oy):
         'Move all the artists by ox,oy (axes coords)'
-        for t in self._texts:
+        for t in self.texts:
             x,y = t.get_position()
             t.set_position( (x+ox, y+oy) )
 
-        for h in self._handles:
+        for h in self.handles:
             if isinstance(h, Line2D):
                 x,y = h.get_xdata(), h.get_ydata()
                 h.set_data( x+ox, y+oy)
@@ -251,9 +251,9 @@ class Legend(Artist):
                 h.xy[0] = h.xy[0] + ox
                 h.xy[1] = h.xy[1] + oy
 
-        x, y = self._patch.get_x(), self._patch.get_y()
-        self._patch.set_x(x+ox)
-        self._patch.set_y(y+oy)
+        x, y = self.legendPatch.get_x(), self.legendPatch.get_y()
+        self.legendPatch.set_x(x+ox)
+        self.legendPatch.set_y(y+oy)
 
     def _update_positions(self, renderer):
         # called from renderer to allow more precise estimates of
@@ -265,17 +265,17 @@ class Legend(Artist):
             return bboxa.get_bounds()
             
         hpos = []
-        for t, tabove in zip(self._texts[1:], self._texts[:-1]):
+        for t, tabove in zip(self.texts[1:], self.texts[:-1]):
             x,y = t.get_position()
             l,b,w,h = get_tbounds(tabove)
             hpos.append( (b,h) )
             t.set_position( (x, b-0.1*h) )
 
         # now do the same for last line
-        l,b,w,h = get_tbounds(self._texts[-1])
+        l,b,w,h = get_tbounds(self.texts[-1])
         hpos.append( (b,h) )
         
-        for handle, tup in zip(self._handles, hpos):
+        for handle, tup in zip(self.handles, hpos):
             y,h = tup
             if isinstance(handle, Line2D):
                 ydata = y*ones(self._xdata.shape, Float)            
@@ -288,15 +288,15 @@ class Legend(Artist):
         bbox = self._get_handle_text_bbox(renderer).deepcopy()
         bbox.scale(1 + self.PAD, 1 + self.PAD)
         l,b,w,h = bbox.get_bounds()
-        self._patch.set_bounds(l,b,w,h)
+        self.legendPatch.set_bounds(l,b,w,h)
 
         BEST, UR, UL, LL, LR, R, CL, CR, LC, UC, C = range(11)
         ox, oy = 0, 0                           # center
 
 
         if iterable(self._loc) and len(self._loc)==2:
-            xo = self._patch.get_x()
-            yo = self._patch.get_y()
+            xo = self.legendPatch.get_x()
+            yo = self.legendPatch.get_y()
             x, y = self._loc
             ox = x-xo
             oy = y-yo

@@ -365,10 +365,10 @@ class Axes(Artist):
         
     def has_data(self):
         return (
-            len(self._collections) +            
-            len(self._images) +
-            len(self._lines) +
-            len(self._patches))>0
+            len(self.collections) +            
+            len(self.images) +
+            len(self.lines) +
+            len(self.patches))>0
                 
 
     def _set_artist_props(self, a):
@@ -392,50 +392,50 @@ class Axes(Artist):
         self._get_patches_for_fill = _process_plot_var_args('fill')
 
         self._gridOn = rcParams['axes.grid']
-        self._lines = []
-        self._patches = []
-        self._text = []     # text in axis coords
-        self._tables = []
-        self._artists = []
-        self._images = []
-        self._legend = None
-        self._collections = []  # collection.Collection instances
+        self.lines = []
+        self.patches = []
+        self.texts = []     # text in axis coords
+        self.tables = []
+        self.artists = []
+        self.images = []
+        self.legend = None
+        self.collections = []  # collection.Collection instances
 
-        self._images = []
+        self.images = []
 
         self.grid(self._gridOn)
-        self._title =  Text(
+        self.title =  Text(
             x=0.5, y=1.02, text='',
             fontproperties=FontProperties(size=rcParams['axes.titlesize']),
             verticalalignment='bottom',
             horizontalalignment='center',
             )
-        self._title.set_transform(self.transAxes)
+        self.title.set_transform(self.transAxes)
 
-        self._set_artist_props(self._title)
+        self._set_artist_props(self.title)
         
-        self._axesPatch = Rectangle(
+        self.axesPatch = Rectangle(
             xy=(0,0), width=1, height=1,
             facecolor=self._axisbg,
             edgecolor=rcParams['axes.edgecolor'],
             )
-        self._axesPatch.set_figure(self.figure)
-        self._axesPatch.set_transform(self.transAxes)
-        self._axesPatch.set_linewidth(rcParams['axes.linewidth'])
+        self.axesPatch.set_figure(self.figure)
+        self.axesPatch.set_transform(self.transAxes)
+        self.axesPatch.set_linewidth(rcParams['axes.linewidth'])
         self.axison = True
         
     def add_artist(self, a):
         "Add any artist to the axes"
-        self._artists.append(a)
+        self.artists.append(a)
         self._set_artist_props(a)
 
     def add_collection(self, collection):
-        self._collections.append(collection)
+        self.collections.append(collection)
         self._set_artist_props(collection)
         collection.set_clip_box(self.bbox)
 
     def get_images(self):
-        return self._images
+        return self.images
 
     def get_xscale(self):
         'return the xaxis scale string: log or linear'
@@ -470,7 +470,7 @@ class Axes(Artist):
 
         self.update_datalim(corners)
 
-        self._lines.append(l)
+        self.lines.append(l)
 
     def _get_verts_in_data_coords(self, trans, xys):
         if trans == self.transData:
@@ -488,20 +488,20 @@ class Axes(Artist):
             p.get_transform(), p.get_verts())
         self.update_datalim(xys)
 
-        self._patches.append(p)
+        self.patches.append(p)
 
     def add_table(self, tab):
         "Add a table instance to the list of axes tables"
         self._set_artist_props(tab)
-        self._tables.append(tab)
+        self.tables.append(tab)
 
 
     def autoscale_view(self):
         # if image data only just use the datalim
 
-        if (len(self._images)>0 and
-            len(self._lines)==0 and
-            len(self._patches)==0):
+        if (len(self.images)>0 and
+            len(self.lines)==0 and
+            len(self.patches)==0):
 
             self.set_xlim(self.dataLim.intervalx().get_bounds())            
 
@@ -783,20 +783,20 @@ class Axes(Artist):
         self.transData.freeze()  # eval the lazy objects
         self.transAxes.freeze()  # eval the lazy objects
         if self.axison:
-            if self._frameon: self._axesPatch.draw(renderer)
+            if self._frameon: self.axesPatch.draw(renderer)
 
-        if len(self._images)==1:
-            im = self._images[0]
+        if len(self.images)==1:
+            im = self.images[0]
             im.draw(renderer)
-        elif len(self._images)>1:
+        elif len(self.images)>1:
             # make a composite image blending alpha
             # list of (_image.Image, ox, oy)
 
-            if not allequal([im.origin for im in self._images]):
+            if not allequal([im.origin for im in self.images]):
                 raise ValueError('Composite images with different origins not supported')
             else:
-                origin = self._images[0].origin
-            ims = [(im.make_image(renderer),0,0) for im in self._images]
+                origin = self.images[0].origin
+            ims = [(im.make_image(renderer),0,0) for im in self.images]
 
                 
             im = _image.from_images(self.bbox.height(), self.bbox.width(), ims)
@@ -812,30 +812,30 @@ class Axes(Artist):
             self.yaxis.draw(renderer)
 
 
-        for c in self._collections:
+        for c in self.collections:
             c.draw(renderer)
 
-        for p in self._patches:
+        for p in self.patches:
             p.draw(renderer)
 
-        for line in self._lines:
+        for line in self.lines:
             line.draw(renderer)
 
 
-        for t in self._text:
+        for t in self.texts:
             t.draw(renderer)
 
-        self._title.draw(renderer)
-        if 0: bbox_artist(self._title, renderer)
+        self.title.draw(renderer)
+        if 0: bbox_artist(self.title, renderer)
         # optional artists
-        for a in self._artists:
+        for a in self.artists:
             a.draw(renderer)
 
 
-        if self._legend is not None:
-            self._legend.draw(renderer)
+        if self.legend is not None:
+            self.legend.draw(renderer)
 
-        for table in self._tables:
+        for table in self.tables:
             table.draw(renderer)
 
         self.transData.thaw()  # release the lazy objects
@@ -961,25 +961,25 @@ class Axes(Artist):
         return self._axisbg
 
     def get_child_artists(self):
-        artists = [self._title, self._axesPatch, self.xaxis, self.yaxis]
-        artists.extend(self._lines)
-        artists.extend(self._patches)
-        artists.extend(self._text)
-        if self._legend is not None:
-            artists.append(self._legend)
+        artists = [self.title, self.axesPatch, self.xaxis, self.yaxis]
+        artists.extend(self.lines)
+        artists.extend(self.patches)
+        artists.extend(self.texts)
+        if self.legend is not None:
+            artists.append(self.legend)
         return artists
     
     def get_frame(self):
         "Return the axes Rectangle frame"
-        return self._axesPatch
+        return self.axesPatch
 
     def get_legend(self):
         'Return the Legend instance, or None if no legend is defined'
-        return self._legend
+        return self.legend
 
 
     def get_lines(self):
-        return self._lines
+        return self.lines
     
     def get_xaxis(self):
         "Return the XAxis instance"
@@ -1164,7 +1164,7 @@ The following kwargs are allowed:
         self.update_datalim(corners)
         self.set_xlim((xmin, xmax))
         self.set_ylim((ymin, ymax))                
-        self._images.append(im)
+        self.images.append(im)
         
         return im
         
@@ -1268,19 +1268,19 @@ The following kwargs are allowed:
 
         loc = kwargs.get('loc', 1)
         if len(args)==0:
-            labels = [line.get_label() for line in self._lines]
-            lines = self._lines
+            labels = [line.get_label() for line in self.lines]
+            lines = self.lines
 
         elif len(args)==1:
             # LABELS
             labels = args[0]
-            lines = [line for line, label in zip(self._lines, labels)]
+            lines = [line for line, label in zip(self.lines, labels)]
 
         elif len(args)==2:
             if is_string_like(args[1]) or isinstance(args[1], int):
                 # LABELS, LOC
                 labels, loc = args
-                lines = [line for line, label in zip(self._lines, labels)]
+                lines = [line for line, label in zip(self.lines, labels)]
             else:
                 # LINES, LABELS
                 lines, labels = args
@@ -1292,8 +1292,8 @@ The following kwargs are allowed:
             raise RuntimeError('Invalid arguments to legend')
 
         lines = flatten(lines)
-        self._legend = Legend(self, lines, labels, loc)
-        return self._legend
+        self.legend = Legend(self, lines, labels, loc)
+        return self.legend
 
     def loglog(self, *args, **kwargs):
         """
@@ -1330,7 +1330,7 @@ The following kwargs are allowed:
         "Pan the x axis numsteps (plus pan right, minus pan left)"
         self.xaxis.pan(numsteps)
         xmin, xmax = self.viewLim.intervalx().get_bounds()
-        for line in self._lines:
+        for line in self.lines:
             line.set_xclip(xmin, xmax)
         self._send_xlim_event()
         
@@ -1565,7 +1565,7 @@ numcols of Z
                     rect.set_edgecolor('k')
                 else:
                     rect.set_edgecolor(color)
-                self._patches.append(rect)
+                self.patches.append(rect)
                 rect.set_figure(self.figure)
                 rect.set_transform(self.transData)
                 patches.append(rect)
@@ -1755,6 +1755,8 @@ Neither line will be antialiased.
 
         -- if length x < NFFT, it will be zero padded to NFFT
 
+        -- noverlap is the length of overlap between adjacent NFFT
+           length segments, and is an integer
 
         Returns the tuple Pxx, freqs
 
@@ -2046,7 +2048,7 @@ on be used if c is an array of floats
 
     def set_axis_bgcolor(self, color):
         self._axisbg = color
-        self._axesPatch.set_facecolor(color)
+        self.axesPatch.set_facecolor(color)
                                 
     def set_title(self, label, fontdict=None, **kwargs):
         """
@@ -2062,10 +2064,10 @@ on be used if c is an array of floats
             'horizontalalignment' : 'left'
             }
 
-        self._title.set_text(label)
+        self.title.set_text(label)
         override = _process_text_args({}, fontdict, **kwargs)
-        self._title.update_properties(override)
-        return self._title
+        self.title.update_properties(override)
+        return self.title
 
 
     def set_xlabel(self, xlabel, fontdict=None, **kwargs):
@@ -2402,7 +2404,7 @@ on be used if c is an array of floats
         self._set_artist_props(t)
 
         t.update_properties(override)
-        self._text.append(t)
+        self.texts.append(t)
 
         if t.get_clip_on():  t.set_clip_box(self.bbox)
         return t
@@ -2452,7 +2454,7 @@ on be used if c is an array of floats
         """
         self.xaxis.zoom(numsteps)
         xmin, xmax = self.viewLim.intervalx().get_bounds()
-        for line in self._lines:
+        for line in self.lines:
             line.set_xclip(xmin, xmax)
         self._send_xlim_event()
 

@@ -432,14 +432,14 @@ class Axis(Artist):
         self._gridOnMajor = rcParams['axes.grid']  
         self._gridOnMinor = False
 
-        self._label = self._get_label()
-        self._set_artist_props(self._label)
+        self.label = self._get_label()
+        self._set_artist_props(self.label)
 
         # build a few default ticks; grow as necessary later; only
         # define 1 so properties set on ticks will be copied as they
         # grow
-        self._majorTicks = [self._get_tick(major=True)  for i in range(1)]
-        self._minorTicks = [self._get_tick(major=False) for i in range(1)]       
+        self.majorTicks = [self._get_tick(major=True)  for i in range(1)]
+        self.minorTicks = [self._get_tick(major=False) for i in range(1)]       
         
     def get_view_interval(self):
         'return the Interval instance for this axis view limits'
@@ -500,16 +500,16 @@ class Axis(Artist):
         # *copy* of the axis label box because we don't wan't to scale
         # the actual bbox
 
-        labelBox = self._label.get_window_extent(renderer)
+        labelBox = self.label.get_window_extent(renderer)
         self._update_label_postion(ticklabelBoxes)
 
-        self._label.draw(renderer)  # memory leak here, vertical text
+        self.label.draw(renderer)  # memory leak here, vertical text
 
         if 0: # draw the bounding boxes around the text for debug
             for tick in majorTicks:
                 label = tick.label1
                 bbox_artist(label, renderer)
-            bbox_artist(self._label, renderer)
+            bbox_artist(self.label, renderer)
 
         renderer.close_group(__name__)
 
@@ -519,11 +519,11 @@ class Axis(Artist):
 
     def get_gridlines(self):
         'Return the grid lines as a list of Line2D instance'
-        return [tick.gridline for tick in self._majorTicks]
+        return [tick.gridline for tick in self.majorTicks]
 
     def get_label(self):
         'Return the axis label as an Text instance'
-        return self._label
+        return self.label
 
     def get_ticklabels(self):
         'Return a list of Text instances for ticklabels'
@@ -535,7 +535,7 @@ class Axis(Artist):
     def get_ticklines(self):
         'Return the ticklines lines as a list of Line2D instance'
         lines = []
-        for tick in self._majorTicks:
+        for tick in self.majorTicks:
             lines.append(tick.tick1line)
             lines.append(tick.tick2line)
         return lines
@@ -584,16 +584,16 @@ class Axis(Artist):
 
         numticks = len(self._majorLocator())
 
-        if len(self._majorTicks)<numticks:
+        if len(self.majorTicks)<numticks:
             # update the new tick label properties from the old
-            protoTick = self._majorTicks[0]
-            for i in range(numticks-len(self._majorTicks)):
+            protoTick = self.majorTicks[0]
+            for i in range(numticks-len(self.majorTicks)):
                 tick = self._get_tick(major=True)
                 #tick = protoTick
                 if self._gridOnMajor: tick.gridOn = True
                 self._copy_tick_props(protoTick, tick)
-                self._majorTicks.append(tick)
-        ticks = self._majorTicks[:numticks]
+                self.majorTicks.append(tick)
+        ticks = self.majorTicks[:numticks]
 
         return ticks
 
@@ -601,14 +601,14 @@ class Axis(Artist):
     def get_minor_ticks(self):
         'get the minor tick instances; grow as necessary'
         numticks = len(self._minorLocator())
-        if len(self._minorTicks)<numticks:
-            protoTick = self._minorTicks[0]
-            for i in range(numticks-len(self._minorTicks)):
+        if len(self.minorTicks)<numticks:
+            protoTick = self.minorTicks[0]
+            for i in range(numticks-len(self.minorTicks)):
                 tick = self._get_tick(major=False)
                 if self._gridOnMinor: tick.gridOn = True
                 self._copy_tick_props(protoTick, tick)
-                self._minorTicks.append(tick)
-        ticks = self._minorTicks[:numticks]
+                self.minorTicks.append(tick)
+        ticks = self.minorTicks[:numticks]
 
         return ticks
 
@@ -620,12 +620,12 @@ class Axis(Artist):
         if which.lower().find('minor')>=0:
             if b is None: self._gridOnMinor = not self._gridOnMinor
             else: self._gridOnMinor = b
-            for tick in self._minorTicks:  # don't use get_ticks here!
+            for tick in self.minorTicks:  # don't use get_ticks here!
                 tick.gridOn = self._gridOnMinor
         else:
             if b is None: self._gridOnMajor = not self._gridOnMajor
             else: self._gridOnMajor = b
-            for tick in self._majorTicks:  # don't use get_ticks here!
+            for tick in self.majorTicks:  # don't use get_ticks here!
                 tick.gridOn = self._gridOnMajor
                 
     
@@ -724,7 +724,7 @@ class XAxis(Axis):
         boxes of all the ticklabels 
         """
 
-        x,y = self._label.get_position()
+        x,y = self.label.get_position()
         if not len(bboxes):
             bottom = self.axes.bbox.ymin()
         else:
@@ -732,7 +732,7 @@ class XAxis(Axis):
             bbox = bbox_all(bboxes)
             bottom = bbox.ymin()
             
-        self._label.set_position( (x, bottom-self.LABELPAD*self.figure.dpi.get()/72.0))
+        self.label.set_position( (x, bottom-self.LABELPAD*self.figure.dpi.get()/72.0))
         
 
     def tick_top(self):
@@ -796,13 +796,13 @@ class YAxis(Axis):
         ticklabel.  overlaps are the bounding boxes of the ticklabels
         """
 
-        x,y = self._label.get_position()
+        x,y = self.label.get_position()
         if not len(bboxes):
             left = self.axes.bbox.xmin()
         else:
             bbox = bbox_all(bboxes)
             left = bbox.xmin()
-        self._label.set_position((left - self.figure.dpi.get()*self.LABELPAD/72.0,y))
+        self.label.set_position((left - self.figure.dpi.get()*self.LABELPAD/72.0,y))
 
 
 
