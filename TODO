@@ -221,3 +221,7 @@
 -- DONE update fonts page with TTFPATH and info on how to use win32 fonts.
 
 -- DONE 2004-02-17 make legend attributes accessible
+
+-- decreasing axes - James Boyle <boyle5@llnl.gov>
+
+-- make rgb rgba

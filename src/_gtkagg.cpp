@@ -10,6 +10,7 @@
 
 #include "_backend_agg.h"
 
+static PyObject *ErrorObject;
 static PyTypeObject *PyGObject_Type=NULL;    
 
 

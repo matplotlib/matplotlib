@@ -39,3 +39,12 @@ GD
     ellipse will be filled.  gd fills till it meets a different border
     color, which makes it difficult to fill arcs.  expose gdEllipse
     and gdFilledEllipse
+
+FT2
+
+ - chars are truncated on the right, eg, -0.8 in simple_plot
+   yticklabels
+
+ - no rotated text
+
+ - error handling 

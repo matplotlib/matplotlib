@@ -13,16 +13,22 @@ BUILD_FONTTOOLS = 1
 # very nice antialiased output and also supports alpha blending
 BUILD_AGG          = 1
 
-# The two builds below are experimental.  They use an image backend
-# (eg GD or Agg) to render to the GTK canvas.  The idea is that we
-# could use a single high quality image renderer to render to all the
-# GUI windows
+# The builds below are experimental.  They use an image backend (eg GD
+# or Agg) to render to the GTK canvas.  The idea is that we could use
+# a single high quality image renderer to render to all the GUI
+# windows
 
 # build GTK GUI with Agg renderer ; requires pygtk src distros installed
 BUILD_GTKAGG       = 1
 
 # build GTK GUI with GD renderer ; requires pygtk and GD src distros installed
-BUILD_GTKGD        = 1
+BUILD_GTKGD        = 0
+
+# build the freetype2 interface - highly experimental and broken!
+# Unless your name is John Hunter, you probably don't want this
+BUILD_FT2FONT      = 1  
+
+
 
 
 ## You shouldn't need to customize below this point
@@ -30,7 +36,8 @@ BUILD_GTKGD        = 1
 from distutils.core import setup
 import sys,os
 import glob
-from setupext import build_gtkgd, build_agg, build_fonttools, build_gtkagg
+from setupext import build_gtkgd, build_agg, build_fonttools, build_gtkagg, \
+     build_ft2font
 import distutils.sysconfig
 
 data = []
@@ -47,7 +54,8 @@ packages = [
     ]
 
 
-if BUILD_FONTTOOLS or BUILD_AGG or BUILD_GTKAGG or BUILD_GTKGD:
+if (BUILD_FONTTOOLS or BUILD_AGG or BUILD_GTKAGG or
+    BUILD_GTKGD or BUILD_FT2FONT):
     build_fonttools(ext_modules, packages)
     # we need to manually install FontTools.pth since we can't use
     # extra_path which puts all packages -- matplotlib, ttfquery and
@@ -68,11 +76,15 @@ if BUILD_GTKAGG:
     build_agg(ext_modules, packages)
     build_gtkagg(ext_modules, packages)
 
+if BUILD_FT2FONT:
+    build_fonttools(ext_modules, packages)
+    build_ft2font(ext_modules, packages)
+
 
         
 
 setup(name="matplotlib",
-      version= '0.50',
+      version= '0.51a',
       description = "Matlab style python plotting package",
       author = "John D. Hunter",
       author_email="jdhunter@ace.bsd.uchicago.edu",
