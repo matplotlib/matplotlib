@@ -25,7 +25,7 @@ http://newcenturycomputers.net/projects/gdmodule.html
 from matplotlib.backend_bases import RendererBase, \
      GraphicsContextBase, FigureManagerBase, FigureCanvasBase,\
      error_msg
-
+from matplotlib import verbose
 from matplotlib._matlab_helpers import Gcf
 from matplotlib.cbook import enumerate, True, False, pieces, is_string_like
 from matplotlib.colors import colorConverter
@@ -47,7 +47,7 @@ def error_msg_gd(msg, *args):
     """
     Signal an error condition -- in a GUI, popup a error dialog
     """
-    print >>sys.stderr, 'Error:', msg
+    verbose.report_error('Error: %s'%msg)
 
 def round(x):
     return int(math.floor(x+0.5))
@@ -231,7 +231,7 @@ class RendererGD(RendererBase):
         color = self.im.colorAllocate(  arg )
 
         if color==-1:
-            print >>sys.stderr, ('Unable to allocate color %1.3f, %1.3f, %1.3f; using nearest neighbor' % rgb)
+            verbose.report_error('Unable to allocate color %1.3f, %1.3f, %1.3f; using nearest neighbor' % rgb)
             color = self.im.colorClosest(arg)
 
         self._cached[rgb] = color
@@ -259,20 +259,15 @@ class RendererGD(RendererBase):
 
         if dashes is not None:
             pixels = self.points_to_pixels(dashes)
-            #print dashes, pixels
             style = []
             for on, off in pieces(pixels):
-                #print 'before:', on, off
                 if on<1: on = 1
                 else: on = round(on)
                 if off<1: off = 1
                 else: off = round(off)
-                #print 'after:', on, off
 
                 style.extend([color]*on)
                 style.extend([gd.gdTransparent]*off)
-            #print style
-            #print
             self.im.setStyle(style)
             return gd.gdStyled
         else:

@@ -1,6 +1,7 @@
 from __future__ import division
 from cStringIO import StringIO
 
+from matplotlib import verbose
 from matplotlib.backend_bases import RendererBase, GraphicsContextBase,\
      FigureManagerBase, FigureCanvasBase
 
@@ -15,7 +16,7 @@ from matplotlib import rcParams
 import sys,os,math
 
 def error_msg_svg(msg, *args):
-    print >>sys.stderr, 'Error:', msg
+    verbose.report_error('Error: %s'% msg)
     sys.exit()
 
 def _nums_to_str(seq, fmt='%1.3f'):
@@ -63,7 +64,7 @@ class RendererSVG(RendererBase):
     def draw_image(self, x, y, im, origin, bbox):
         self._imaged[self.basename] = self._imaged.get(self.basename,0) + 1
         imName = '%s.image%d.png'%(self.basename, self._imaged[self.basename])
-        print 'Writing image file for include: %s' % imName
+        verbose.report( 'Writing image file for include: %s' % imName)
         im.write_png(imName)
         width = bbox.width()
         height = bbox.height()
@@ -87,7 +88,7 @@ class RendererSVG(RendererBase):
             try:
                 font = FT2Font(str(fname))
             except RuntimeError, msg:
-                print >> sys.stderr, 'Could not load filename for text',fname
+                verbose.report_error('Could not load filename for text "%s"'%fname)
                 return None
             else:
                 _fontd[key] = font

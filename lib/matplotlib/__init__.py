@@ -121,10 +121,6 @@ __date__     = '$Date$'
 import sys, os
 import distutils.sysconfig
 
-def warn(s):
-    'issue a warning'
-    print >> sys.stderr, s
-
 
 """
 Manage user customizations through a rc file.
@@ -165,26 +161,18 @@ class Verbose:
     A class to handle reporting.  Set the fileo attribute to any file
     instance to handle the output.  Default is sys.stdout
     """
-    levels = ('silent', 'helpful', 'annoying')
+    levels = ('silent', 'error', 'helpful', 'debug', 'debug-annoying')
     vald = dict( [(level, i) for i,level in enumerate(levels)])
     
     def __init__(self, level):
         self.set_level(level)
         self.fileo = sys.stdout
+        self.erro = sys.stderr
         
     def set_level(self, level):
         'set the verbosity to one of the Verbose.levels strings'
         assert level in self.levels
         self.level = level
-
-    def silent(self):
-        return self.level=='silent'
-
-    def helpful(self):
-        return self.vald[self.level]>=self.vald['helpful']
-
-    def annoying(self):
-        return self.vald[self.level]>=self.vald['annoying']
 
     def report(self, s, level='helpful'):
         """
@@ -194,6 +182,17 @@ class Verbose:
         """
         if self.ge(level):
             print >>self.fileo, s
+            return True
+        return False
+
+    def report_error(self, s):
+        """
+        print message s to self.fileo if self.level>=level.  Return
+        value indicates whether a message was issued
+        
+        """
+        if self.ge('error'):
+            print >>self.erro, s
             return True
         return False
 
@@ -400,6 +399,21 @@ def validate_verbose_fileo(s):
             verbose.fileo = fileo
     return verbose.fileo
 
+def validate_verbose_erro(s):
+    d = {'sys.stdout':sys.stdout,
+         'sys.stderr':sys.stderr,
+         }
+    if d.has_key(s): verbose.erro = d[s]
+    else:
+        try: erro = file(s, 'w')
+        except IOError:
+            raise ValueError('Verbose object could not open log file "%s" for writing.\nCheck your matplotlibrc verbose.erro setting'%s)
+        
+
+        else:
+            verbose.erro = erro
+    return verbose.erro
+
 # a map from key -> value, converter
 defaultParams = {
     'backend'           : ['GTK', str],
@@ -411,7 +425,8 @@ defaultParams = {
 
     # the verbosity setting
     'verbose.level'           : ['silent', validate_verbose],
-    'verbose.fileo'           : ['sys.stdout', validate_verbose_fileo],        
+    'verbose.fileo'           : ['sys.stdout', validate_verbose_fileo],
+    'verbose.erro'            : ['sys.stderr', validate_verbose_erro],            
 
     # line props    
     'lines.linewidth'   : [0.5, validate_float],     # line width in points
@@ -533,7 +548,7 @@ def matplotlib_fname():
     path =  get_data_path() # guaranteed to exist or raise
     fname = os.path.join(path, '.matplotlibrc')
     if not os.path.exists(fname):
-        print >> sys.stderr, 'Could not find .matplotlibrc; using defaults'
+        verbose.report_error('Could not find .matplotlibrc; using defaults')
     return fname
 
 
@@ -565,18 +580,18 @@ def rc_params():
         if line.startswith('#'): continue
         tup = line.split(':',1)
         if len(tup) !=2:
-            print >>sys.stderr, 'Illegal line #%d\n\t%s\n\tin file "%s"' % (cnt, line, fname)
+            verbose.report_error('Illegal line #%d\n\t%s\n\tin file "%s"' % (cnt, line, fname))
             continue
 
         key, val = tup
         key = key.strip()
         if key in deprecated_map.keys():
             alt = deprecated_map[key]
-            warn('%s is deprecated in .matplotlibrc - use %s instead.' % (key, alt))
+            verbose.report('%s is deprecated in .matplotlibrc - use %s instead.' % (key, alt))
             key = alt
             
         if not defaultParams.has_key(key):
-            print >>sys.stderr, 'Bad key "%s" on line %d in %s' % (key, cnt, fname)
+            verbose.report_error('Bad key "%s" on line %d in %s' % (key, cnt, fname))
             continue
 
         
@@ -588,7 +603,7 @@ def rc_params():
         val = val.strip()
         try: cval = converter(val)   # try to convert to proper type or raise
         except Exception, msg:
-            print >>sys.stderr, 'Bad val "%s" on line #%d\n\t"%s"\n\tin file "%s"\n\t%s' % (val, cnt, line, fname, msg)
+            verbose.report_error('Bad val "%s" on line #%d\n\t"%s"\n\tin file "%s"\n\t%s' % (val, cnt, line, fname, msg))
             continue
         else:
             # Alles Klar, update dict
@@ -716,8 +731,8 @@ def use(arg):
     """
     
     if not _knownBackends.has_key(arg):
-        print >>sys.stderr, 'unrecognized backend %s.\n' % arg +\
-              'Use one of %s' % ', '.join( _knownBackends.keys() )
+        verbose.report_error('unrecognized backend %s.\n' % arg +\
+              'Use one of %s' % ', '.join( _knownBackends.keys() ))
         sys.exit()
     rcParams['backend'] = arg
 

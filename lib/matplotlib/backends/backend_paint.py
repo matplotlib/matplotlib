@@ -16,6 +16,7 @@ from __future__ import division
 import sys
 import os
 import paint
+from matplotlib import verbose
 from matplotlib.numerix import asarray
 
 from matplotlib._matlab_helpers import Gcf
@@ -45,7 +46,7 @@ def error_msg_paint(msg, *args):
     """
     Signal an error condition -- in a GUI, popup a error dialog
     """
-    print >>sys.stderr,  'Error:', msg
+    verbose.report_error('Error: %s'% msg)
     sys.exit()
 
 

@@ -149,6 +149,7 @@ class fake_stderr:
 
 
 import matplotlib
+from matplotlib import verbose
 from matplotlib.backend_bases import RendererBase, GraphicsContextBase,\
      FigureCanvasBase, FigureManagerBase, error_msg, NavigationToolbar2, \
      MplEvent, cursors
@@ -159,6 +160,9 @@ from matplotlib.figure import Figure
 from matplotlib.text import _process_text_args, Text
 
 from matplotlib import rcParams
+
+import wx
+backend_version = wx.VERSION_STRING
 
 
 # the true dots per inch on the screen; should be display dependent
@@ -382,7 +386,7 @@ class RendererWx(RendererBase):
         if angle!=0:
             try: gc.DrawRotatedText(s, x, y, angle)
             except:
-                print exception_to_str('WX rotated text failed')
+                verbose.print_error(exception_to_str('WX rotated text failed'))
         else:
             gc.DrawText(s, x, y)
         gc.unselect()
@@ -496,9 +500,9 @@ class GraphicsContextWx(GraphicsContextBase, wxMemoryDC):
         # Make sure (belt and braces!) that existing wxDC is not selected to
         # to a bitmap.
         if GraphicsContextWx._lastWxDC != None:
-            #print >>sys.stderr, "UnSelectObject(%s)" % str(bitmap) 
+
             GraphicsContextWx._lastWxDC.SelectObject(wxNullBitmap)
-        #print >>sys.stderr, "SelectObject(%s)" % str(bitmap)
+
         self.SelectObject(bitmap)
         self.bitmap = bitmap
         self.SetPen(wxPen('BLACK', 1, wxSOLID))
@@ -528,7 +532,6 @@ class GraphicsContextWx(GraphicsContextBase, wxMemoryDC):
         Destroys previous clipping region and defines a new one.
         """
         DEBUG_MSG("set_clip_rectangle()", 1, self)
-        #print 'set clip', rect
         self.select()
         l,b,w,h = rect
         # this appears to be version dependent'
@@ -1226,7 +1229,7 @@ def _load_bitmap(filename):
 
     bmpFilename = os.path.normpath(os.path.join(basedir, filename))
     if not os.path.exists(bmpFilename):
-        print >>sys.stderr, 'Could not find bitmap file; dying', bmpFilename
+        verbose.report_error('Could not find bitmap file "%s"; dying'%bmpFilename)
         sys.exit()
     bmp = wxBitmap(bmpFilename, wxBITMAP_TYPE_XPM)
     return bmp

@@ -12,11 +12,12 @@ import os.path
 
 import matplotlib
 
-from matplotlib import rcParams
+from matplotlib import rcParams, verbose
 
 from matplotlib.cbook import is_string_like,  enumerate, True, False
 from matplotlib.backend_bases import RendererBase, GraphicsContextBase, \
-     FigureManagerBase, FigureCanvasBase, NavigationToolbar2, cursors, MplEvent
+     FigureManagerBase, FigureCanvasBase, NavigationToolbar2, cursors, \
+     MplEvent
 
 from matplotlib.figure import Figure
 from matplotlib._matlab_helpers import Gcf
