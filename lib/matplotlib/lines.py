@@ -503,7 +503,7 @@ ACCEPTS: sequence of on/off ink in points
             self.set_linestyle('-')
         else:
             self.set_linestyle('--')
-        self._dashSeq = seq[1]  # TODO: offset ignroed for now
+        self._dashSeq = seq  # TODO: offset ignored for now
         
     def _draw_nothing(self, renderer, gc, xt, yt):
         pass
