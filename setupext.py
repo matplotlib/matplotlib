@@ -57,6 +57,7 @@ BUILT_FT2FONT   = False
 BUILT_GTKAGG    = False
 BUILT_IMAGE     = False
 BUILT_TKAGG     = False
+BUILT_WINDOWING = False
 
 def getoutput(s):
     'get the output of a system command'
@@ -189,6 +190,26 @@ def add_tk_flags(module):
 	module.library_dirs.extend([o.tcl_lib, o.tk_lib])
         module.libraries.extend(['tk'+o.tkv, 'tcl'+o.tkv])
 
+def add_windowing_flags(module):
+    'Add the module flags to build extensions using windowing api'
+    module.include_dirs.extend(['C:/include'])
+    module.libraries.extend(['user32'])
+    module.library_dirs.extend(['C:/lib'])
+    module.extra_link_args.append("-mwindows")
+
+def build_windowing(ext_modules, packages):
+    """windowing is optional and provides functions for managing 
+       windows better, .e.g.  maintaining focus on win32"""
+    global BUILT_WINDOWING
+    if BUILT_WINDOWING: return # only build it if you you haven't already
+    module = Extension('matplotlib._windowing',
+                       ['src/_windowing.cpp',
+                        ],
+                       )
+    add_windowing_flags(module)
+    ext_modules.append(module)    
+    BUILT_WINDOWING = True
+
 def build_ft2font(ext_modules, packages):
     global BUILT_FT2FONT
     if BUILT_FT2FONT: return # only build it if you you haven't already
@@ -274,4 +295,4 @@ def build_image(ext_modules, packages, numerix):
     add_agg_flags(module)
     ext_modules.append(module)    
     BUILT_IMAGE = True
-    
+

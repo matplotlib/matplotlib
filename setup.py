@@ -33,6 +33,9 @@ BUILD_GTKAGG       = 1
 # and Tk includes
 BUILD_TKAGG        = 1
 
+# build a small extension to manage the focus on win32 platforms.
+BUILD_WINDOWING        = 1
+
 ## You shouldn't need to customize below this point
 
 
@@ -40,7 +43,7 @@ from distutils.core import setup
 import sys,os
 import glob
 from setupext import build_agg, build_gtkagg, build_tkagg, \
-     build_ft2font, build_image
+     build_ft2font, build_image, build_windowing
 import distutils.sysconfig
 
 data = []
@@ -75,9 +78,11 @@ if BUILD_AGG:
 if BUILD_FT2FONT:
     build_ft2font(ext_modules, packages)
 
+if BUILD_WINDOWING:
+   build_windowing(ext_modules, packages)
+
 if BUILD_IMAGE:
     build_image(ext_modules, packages, BUILD_IMAGE)
-
 
 setup(name="matplotlib",
       version= '0.52.1a',
