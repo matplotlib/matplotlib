@@ -1,223 +1,232 @@
 #!/usr/bin/env python
-"""
-Use matplotlib interactively from the prompt
+"""Multithreaded interactive interpreter with GTK and Matplotlib support.
 
-This script is from
-http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/65109 by Brian
-McErlean and John Finlay, with minor modifications for matplotlib and
-win32 usage.
+Usage:
 
-"""
-import __builtin__
-import __main__
-import codeop
-import keyword
-import os
-import re
-try:
-    import readline
-except ImportError:
-    haveReadline = 0
-else:
-    haveReadline = 1
+  pyint-gtk.py -> starts shell with gtk thread running separately
 
-import threading
-import traceback
-import signal
+  pyint-gtk.py -pylab [filename] -> initializes matplotlib, optionally running
+  the named file.  The shell starts after the file is executed.
+
+Threading code taken from:
+http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/65109, by Brian
+McErlean and John Finlay.
+
+Matplotlib support taken from interactive.py in the matplotlib distribution.
+
+Also borrows liberally from code.py in the Python standard library."""
+
+__author__ = "Fernando Perez <Fernando.Perez@colorado.edu>"
+
 import sys
+import code
+import threading
 
 import pygtk
 pygtk.require("2.0")
+import gobject
 import gtk
 
-from matplotlib.cbook import wrap
-from pylab import *
-import pylab
+try:
+    import readline
+except ImportError:
+    has_readline = False
+else:
+    has_readline = True
 
-def walk_class (klass):
-    list = []
-    for item in dir (klass.__class__):
-        if item[0] != "_":
-            list.append (item)
+class MTConsole(code.InteractiveConsole):
+    """Simple multi-threaded shell"""
 
-    for base in klass.__class__.__bases__:
-        list = list + walk_class (base())
+    def __init__(self,on_kill=None,*args,**kw):
+        code.InteractiveConsole.__init__(self,*args,**kw)
+        self.code_to_run = None
+        self.ready = threading.Condition()
+        self._kill = False
+        if on_kill is None:
+            on_kill = []
+        # Check that all things to kill are callable:
+        for _ in on_kill:
+            if not callable(_):
+                raise TypeError,'on_kill must be a list of callables'
+        self.on_kill = on_kill
+        # Set up tab-completer
+        if has_readline:
+            import rlcompleter
+            try:  # this form only works with python 2.3
+                self.completer = rlcompleter.Completer(self.locals)
+            except: # simpler for py2.2
+                self.completer = rlcompleter.Completer()
+                
+            readline.set_completer(self.completer.complete)
+            # Use tab for completions
+            readline.parse_and_bind('tab: complete')
+            # This forces readline to automatically print the above list when tab
+            # completion is set to 'complete'.
+            readline.parse_and_bind('set show-all-if-ambiguous on')
+            # Bindings for incremental searches in the history. These searches
+            # use the string typed so far on the command line and search
+            # anything in the previous input history containing them.
+            readline.parse_and_bind('"\C-r": reverse-search-history')
+            readline.parse_and_bind('"\C-s": forward-search-history')
 
-    return list
+    def runsource(self, source, filename="<input>", symbol="single"):
+        """Compile and run some source in the interpreter.
 
-class Completer:
-    def __init__ (self, lokals):
-        self.locals = lokals
+        Arguments are as for compile_command().
 
-        self.completions = keyword.kwlist + \
-                           __builtin__.__dict__.keys() + \
-                           __main__.__dict__.keys()
-    def complete (self, text, state):
-        if state == 0:
-            if "." in text:
-                self.matches = self.attr_matches (text)
-            else:
-                self.matches = self.global_matches (text)
+        One several things can happen:
+
+        1) The input is incorrect; compile_command() raised an
+        exception (SyntaxError or OverflowError).  A syntax traceback
+        will be printed by calling the showsyntaxerror() method.
+
+        2) The input is incomplete, and more input is required;
+        compile_command() returned None.  Nothing happens.
+
+        3) The input is complete; compile_command() returned a code
+        object.  The code is executed by calling self.runcode() (which
+        also handles run-time exceptions, except for SystemExit).
+
+        The return value is True in case 2, False in the other cases (unless
+        an exception is raised).  The return value can be used to
+        decide whether to use sys.ps1 or sys.ps2 to prompt the next
+        line.
+        """
         try:
-            return self.matches[state]
-        except IndexError:
-            return None
+            code = self.compile(source, filename, symbol)
+        except (OverflowError, SyntaxError, ValueError):
+            # Case 1
+            self.showsyntaxerror(filename)
+            return False
 
-    def update (self, locs):
-        self.locals = locs
+        if code is None:
+            # Case 2
+            return True
 
-        for key in self.locals.keys ():
-            if not key in self.completions:
-                self.completions.append (key)
+        # Case 3
+        # Store code in self, so the execution thread can handle it
+        self.ready.acquire()
+        self.code_to_run = code
+        self.ready.wait()  # Wait until processed in timeout interval
+        self.ready.release()
 
-    def global_matches (self, text):
-        matches = []
-        n = len (text)
-        for word in self.completions:
-            if word[:n] == text:
-                matches.append (word)
-        return matches
+        return False
 
-    def attr_matches (self, text):
-        m = re.match(r"(\w+(\.\w+)*)\.(\w*)", text)
-        if not m:
-            return
-        expr, attr = m.group(1, 3)
+    def runcode(self):
+        """Execute a code object.
 
-        obj = eval (expr, self.locals)
-        if str (obj)[1:4] == "gtk":
-            words = walk_class (obj)
-        else:
-            words = dir(eval(expr, self.locals))
-            
-        matches = []
-        n = len(attr)
-        for word in words:
-            if word[:n] == attr:
-                matches.append ("%s.%s" % (expr, word))
-        return matches
+        When an exception occurs, self.showtraceback() is called to display a
+        traceback."""
 
-class GtkInterpreter (threading.Thread):
-    """Run a gtk mainloop() in a separate thread.
+        self.ready.acquire()
+        if self._kill:
+            print 'Closing threads...',
+            sys.stdout.flush()
+            for tokill in self.on_kill:
+                tokill()
+            print 'Done.'
+
+        if self.code_to_run is not None:
+            self.ready.notify()
+            code.InteractiveConsole.runcode(self,self.code_to_run)
+
+        self.code_to_run = None
+        self.ready.release()
+        return True
+
+    def kill (self):
+        """Kill the thread, returning when it has been shut down."""
+        self.ready.acquire()
+        self._kill = True
+        self.ready.release()
+
+class GTKInterpreter(threading.Thread):
+    """Run gtk.main in the main thread and a python interpreter in a
+    separate thread.
     Python commands can be passed to the thread where they will be executed.
     This is implemented by periodically checking for passed code using a
     GTK timeout callback.
     """
     TIMEOUT = 100 # Millisecond interval between timeouts.
     
-    def __init__ (self):
-        threading.Thread.__init__ (self)
-        self.ready = threading.Condition ()
-        self.globs = globals ()
-        self.locs = locals ()
-        self._kill = 0
-        self.cmd = ''       # Current code block
-        self.new_cmd = None # Waiting line of code, or None if none waiting
+    def __init__(self,banner=None):
+        threading.Thread.__init__(self)
+        self.banner = banner
+        self.shell = MTConsole(on_kill=[gtk.main_quit])
 
-        self.completer = Completer (self.locs)
-        if haveReadline:
-            readline.set_completer (self.completer.complete)
-            readline.parse_and_bind ('tab: complete')
+    def run(self):
+        self.pre_interact()
+        self.shell.interact(self.banner)
+        self.shell.kill()
 
-    def run (self):
-        gtk.timeout_add (self.TIMEOUT, self.code_exec)
+    def mainloop(self):
+        self.start()
+        gobject.timeout_add(self.TIMEOUT, self.shell.runcode)
         try:
-            if gtk.gtk_version[0] == 2:
+            if gtk.gtk_version[0] >= 2:
                 gtk.threads_init()
-        except:
+        except AttributeError:
             pass
-
-        gtk.main ()
-
-    def code_exec (self):
-        """Execute waiting code.  Called every timeout period."""
-        self.ready.acquire ()
-        if self._kill: gtk.main_quit ()
-        if self.new_cmd != None:  
-            self.ready.notify ()  
-            self.cmd = self.cmd + self.new_cmd
-            self.new_cmd = None
-            try:
-                tmp = self.cmd[:-1]
-                code = codeop.compile_command (self.cmd[:-1]) 
-                if code: 
-                    self.cmd = ''
-                    #print 'Execing', tmp
-                    exec (code, self.globs, self.locs)
-                    self.completer.update (self.locs)
-            except Exception:
-                traceback.print_exc ()
-                self.cmd = ''  
-                                    
-        self.ready.release()
-        return 1 
-            
-    def feed (self, code):
-        """Feed a line of code to the thread.
-        This function will block until the code checked by the GTK thread.
-        Return true if executed the code.
-        Returns false if deferring execution until complete block available.
-        """
-        if (not code) or (code[-1]<>'\n'): code = code +'\n' # raw_input strips newline
-        self.completer.update (self.locs) 
-        self.ready.acquire()
-        self.new_cmd = code
-        self.ready.wait ()  # Wait until processed in timeout interval
-        self.ready.release ()
-        
-        return not self.cmd
-
-    def kill (self):
-        """Kill the thread, returning when it has been shut down."""
-        self.ready.acquire()
-        self._kill=1
-        self.ready.release()
+        gtk.main()
         self.join()
+
+    def pre_interact(self):
+        """This method should be overridden by subclasses.
+
+        It gets called right before interact(), but after the thread starts.
+        Typically used to push initialization code into the interpreter"""
         
-# Read user input in a loop, and send each line to the interpreter thread.
+        pass
 
-def signal_handler (*args):
-    print "SIGNAL:", args
-    sys.exit()
+class MatplotLibInterpreter(GTKInterpreter):
+    """Threaded interpreter with matplotlib support.
 
-if __name__=="__main__":
-    signal.signal (signal.SIGINT, signal_handler)
-    signal.signal (signal.SIGSEGV, signal_handler)
-    
-    prompt = '>> '
-    interpreter = GtkInterpreter ()
-    interpreter.start ()
-    interpreter.feed("import matplotlib")
-    interpreter.feed("matplotlib.interactive(1)")
-    interpreter.feed("from pylab import *")
+    Note that this explicitly sets GTKAgg as the backend, since it has
+    specific GTK hooks in it."""
 
-    # turn off rendering until end of script
-    pylab.interactive = 0
-    print sys.argv
-    if len (sys.argv) > 1:
-        try: inFile = file(sys.argv[1], 'r')
-        except IOError: pass
-        else:
-            for line in file(sys.argv[1], 'r'):
-                if line.lstrip().find('show()')==0: continue
-                print '>>', line.rstrip()
-                interpreter.feed(line)
-        #gcf().draw()
-    print """Welcome to matplotlib.
+    def __init__(self,banner=None):
+        banner = """\nWelcome to matplotlib, a matlab-like python environment.
+    help(matlab)   -> help on matlab compatible commands from matplotlib.
+    help(plotting) -> help on plotting commands.
+    """
+        GTKInterpreter.__init__(self,banner)
+        
+    def pre_interact(self):
+        """Initialize matplotlib before user interaction begins"""
 
-    help(pylab)   -- shows a list of all matlab compatible commands provided
-    help(plotting) -- shows a list of plot specific commands
-    """ 
+        push = self.shell.push
+        # Code to execute in user's namespace
+        lines = ["import matplotlib",
+                 "matplotlib.use('GTKAgg')",
+                 "matplotlib.interactive(1)",
+                 "import matplotlib.pylab as pylab",
+                 "from matplotlib.pylab import *\n"]
 
+        map(push,lines)
+        
+        # Execute file if given.
+        if len(sys.argv)>1:
+            import matplotlib
+            matplotlib.interactive(0) # turn off interaction
+            fname = sys.argv[1]
+            try:
+                inFile = file(fname, 'r')
+            except IOError:
+                print '*** ERROR *** Could not read file <%s>' % fname
+            else:
+                print '*** Executing file <%s>:' % fname
+                for line in inFile:
+                    if line.lstrip().find('show()')==0: continue
+                    print '>>', line,
+                    push(line)
+                inFile.close()
+            matplotlib.interactive(1)   # turn on interaction
 
-    try:
-        while 1:
-	    command = raw_input (prompt) + '\n' # raw_input strips newlines
-            prompt = interpreter.feed (command) and '>> ' or '... '
-    except (EOFError, KeyboardInterrupt): pass
-
-    interpreter.kill()
-    print
-
-
-
+if __name__ == '__main__':
+    # Quick sys.argv hack to extract the option and leave filenames in sys.argv.
+    # For real option handling, use optparse or getopt.
+    if len(sys.argv) > 1 and sys.argv[1]=='-pylab':
+        sys.argv = [sys.argv[0]]+sys.argv[2:]
+        MatplotLibInterpreter().mainloop()
+    else:
+        GTKInterpreter().mainloop()

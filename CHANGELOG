@@ -1,5 +1,8 @@
 New entries should be added at the top
 
+2005-01-28 Replaced examples/interactive.py with an updated script from
+           Fernando Perez - SC
+
 2005-01-27 Added support for shared x or y axes.  See
            examples/shared_axis_demo.py and examples/ganged_plots.py
 
