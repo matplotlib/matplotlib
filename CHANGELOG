@@ -2,6 +2,12 @@ New entries should be added at the top
 
 ==============================================================
 
+2004-09-24 Reorganized all py code to lib subdir
+
+2004-09-24 Fixed axes resize image edge effects on interpolation -
+           required upgrade to agg22 which fixed an agg bug related to
+           this problem
+
 2004-09-20 Added toolbar2 message display for backend_tkagg.  JTM
 
 
