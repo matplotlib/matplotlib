@@ -1,5 +1,139 @@
-The latest install instructions can be found at
-http://matplotlib.sourceforge.net/installing.html.
+INTRODUCTION
 
-The backend specific requirements (eg, for GTK, GD, PS or WX) can be
-found at http://matplotlib.sourceforge.net/backends.html
+  matplotlib requires at a minimum python 2.2+, Numeric or numarray
+  and freetype.  To get the most out of matplotlib, you will want to
+  build some of the optional GUI and image extensions, discussed
+  below.  Matplotlib is known to work on linux, unix, win32 and OS X
+  platforms.
+
+COMPILING
+
+  You will need to have recent versions of freetype (>= 2.1.7), libpng
+  and zlib installed on your system.  If you are using a package
+  manager, also make sure the devel versions of these packages are
+  also installed (eg freetype-devel).
+
+  The top of setup.py contains some flags controlling which backends
+  will be built.  If you want to use a GUI backend, you will need
+  either Tkinter, pygtk or wxpython installed on your system, from src
+  or from a package manager including the devel packages.  You can
+  choose which backends to enable by setting the flags in setup.py,
+  but the 'auto' flags will work in most cases, as matplotlib tries to
+  find a GUI and build the backend acccordingly.  If you know you
+  don't want a particular backend or extension, you can set that flag
+  to False.
+
+  If you have installed prerequisites to nonstandard places and need
+  to inform matplotlib where they are, edit setupext.py an add the
+  base dirs to the 'basedir' dictionary entry for your sys.platform.
+  Eg, if the header to some required library is in
+  /some/path/include/somheader.h, put /some/path in the basedir list
+  for your platform.
+
+  Note, matplotlib works with with Numeric or numarray, but it is
+  important that you set NUMERIX in setup.py to the array package you
+  typically use, for efficiency reasons.  For performace, it is
+  critical that the numerix settings in setup.py and in your
+  .matplotlibrc file are the same, and are the same as the array
+  package you typicaly use.
+
+  Note that if you install matplotlib anywhere other than the default
+  location, you will need to set the MATPLOTLIBDATA environment
+  variable to point to the install base dir.
+ 
+    
+WINDOWS
+
+  If you don't already have python installed, you may want to consider
+  using the enthought edition of python, which has scipy, Numeric, and
+  wxpython, plus a lot of other goodies, preinstalled -
+  http://www.enthought.com/python .  With the enthought edition of
+  python + matplotlib installer, the following backends should work
+  out of the box: agg, wx, wxagg, tkagg, ps and svg.
+
+  For standard python installations, you will also need to install
+  either Numeric or numarray in addition to the matplotlib installer.
+  matplotlib provides installers for Numeric and numarray users.  It
+  is important that you pick the matplotlib installer that corresponds
+  to your array package.  Ie, if you mostly work with numarray arrays,
+  use the matplotlib numarray installer.  matplotlib has a 'numerix'
+  setting in the matplotlib rc file (which by default resides in
+  c:\python23\share\matplotlitb\.matplotlibrc) and you should make
+  sure this setting corresponds to your preferred array package.  
+
+  With a standard python + Numeric/numarray + matplotlib, the
+  following backends should work on windows: agg, tkagg, ps, svg.  If
+  you want others, eg a wx, wxarr, gtk or gtkagg, you'll need to
+  install the requisite GUI toolkits.  This is fairly easy, as both
+  wxpython and pygtk come with windows friendly installers.  The
+  latter includes an additional requirement of the GTK runtime.
+
+  All of the GUI backends run on windows, but TkAgg is probably the
+  best for interactive use from the standard python shell or ipython.
+  The windows installer (*.exe) on the download page contains all the
+  code you need to get up and running.  However, there are many
+  examples that are not included in the windows installer.  If you
+  want to try the many demos that come in the matplotlib src
+  distribution, download the zip file and look in the examples subdir.
+
+  Important: There are known conflicts with some of the backends with
+             some python IDEs such as pycrust, idle.  If you want to
+             use matplotlib from an IDE, please consult
+             http://matplotlib.sf.net/backends.html for compatibility
+             information.  You will have the greatest likelihood of
+             success if you run the examples from the command shell or
+             by double clicking on them, rather than from an IDE.  If
+             you are interactively generating plots, your best bet is
+             TkAgg from the standard python shell or ipython.
+
+PACKAGE MANAGERS: (rpms, apt, fink)
+
+  RPMS
+
+    To build all the backends on a binary linux distro such as redhat,
+    you need to install a number of the devel libs (and whatever
+    dependencies they require), I suggest
+ 
+      matplotlib core: zlib, zlib-devel, libpng, libpng-devel,
+                       freetype, freetype-devel, freetype-utils
+
+      gtk backend: gtk2-devel, gtk+-devel, pygtk2, glib-devel,
+                   pygtk2-devel, gnome-libs-devel, pygtk2-libglade
+
+      tk backend: tcl, tk, tkinter
+
+  DEBIAN
+
+    Vittorio Palmisano <redclay@email.it> maintails the debian
+    packages at http://mentors.debian.net
+
+
+      * add this lines to your /etc/apt/sources.list: deb
+        http://mentors.debian.net/debian unstable main contrib
+        non-free deb-src http://mentors.debian.net/debian unstable
+        main contrib non-free
+
+      * then run:
+        # apt-get update
+        # apt-get install python-matplotlib python-matplotlib-doc
+
+  OS X
+
+    All of the backends run on OS X.  You will need to install
+    freetype2, libpng and zlib via fink or from src.  You will also
+    need the base libraries for a given backend.  Eg, if you want to
+    run TkAgg, you will need a python with Tkinter; if you want to use
+    WxAgg, install wxpython.  See
+    http://matplotlib.sf.net/backends.html for a more comprehensive
+    discussion of the various backend requirements.  Edit setup.py to
+    configure the backends you want to build as described above.
+
+
+  FINK
+
+    fink users should use Jeffrey Whitaker's fink distribution, which
+    supports the GTK, TkAgg, GTKAgg, PS, WX, WXAgg and Agg backends.
+    http://fink.sourceforge.net/pdb/package.php/matplotlib-py23
+
+
+
