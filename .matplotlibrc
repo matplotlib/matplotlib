@@ -38,29 +38,74 @@ lines.data_clipping : False # Use data clipping in addition to viewport
                             # clipping.  Useful if you plot long data
                             # sets with only a fraction in the viewport
 
+### FONT
+# font properties used by text.Text.  see
+# http://matplotlib.sourceforge.net/matplotlib.Font.html for more information
+# on font properties.  The 6 font properties used for font matching are given
+# below with their default values.
+#
+# The font.family property has five values: 'serif' (e.g. Times),
+# 'sans-serif'  (e.g. Helvetica), 'cursive' (e.g. Zapf-Chancery), 'fantasy'
+# (e.g. Western), and 'monospace' (e.g. Courier).  Each of these font families
+# has a default list of font names in decreasing order of priority associated
+# with them.
+# 
+# The font.style property has three values: normal (or roman), italic or
+# oblique.  The oblique style will be used for italic, if it is not present.
+#
+# The font.variant property has two values: normal or small-caps.  For TrueType
+# fonts, which are scalable fonts, small-caps is equivalent to using a font
+# size of 'smaller', or about 83% of the current font size.
+#
+# The font.weight property has effectively 13 values: normal, bold, bolder,
+# lighter, 100, 200, 300, ..., 900.  Normal is the same as 400, and bold is
+# 700.  bolder and lighter are relative values with respect to the current
+# weight.
+#
+# The font.stretch property has 11 values: ultra-condensed, extra-condensed,
+# condensed, semi-condensed, normal, semi-expanded, expanded, extra-expanded,
+# ultra-expanded, wider, and narrower.  This property is not currently
+# implemented.
+#
+# The font.size property has 11 values: xx-small, x-small, small, medium,
+# large, x-large, xx-large, larger, smaller, length (such as 12pt), and 
+# percentage.  larger and smaller are relative values.  percentage is not yet
+# implemented.
+#
+font.family         : sans-serif
+font.style          : normal
+font.variant        : normal
+font.weight         : medium
+font.stretch        : normal
+font.size           : medium
+font.serif          : New Century Schoolbook, Century Schoolbook L, Utopia, ITC Bookman, Bookman, Bitstream Vera Serif, Nimbus Roman No9 L, Times New Roman, Times, Palatino, Charter, serif
+font.sans-serif     : Lucida Grande, Verdana, Geneva, Lucida, Bitstream Vera Sans, Arial, Helvetica, sans-serif
+font.cursive        : Apple Chancery, Textile, Zapf Chancery, Sand, cursive
+font.fantasy        : Comic Sans MS, Chicago, Charcoal, Impact, Western, fantasy
+font.monospace      : Andale Mono, Bitstream Vera Sans Mono, Nimbus Mono L, Courier New, Courier, Fixed, Terminal, monospace
+
+
 ### TEXT
 # text properties used by text.Text.  See
 # http://matplotlib.sourceforge.net/matplotlib.Text.html for more
 # information on text properties
-font.family        : serif  # default font name
-font.size          : 10     # default size used by axes.text
-text.color         : k      # black
+text.color          : k       # black
 
 ### AXES
 # default face and edge color, default tick sizes,
 # default fontsizes for ticklabels, and so on
-axes.facecolor     : w      # background color; white
-axes.edgecolor     : k      # edge color; black
-axes.linewidth     : 1.0    # edge linewidth
-axes.grid          : False  # display grid or not
-axes.titlesize     : 14     # fontsize of the axes title
-axes.labelsize     : 12     # fontsize of the x any y labels
-axes.labelcolor    : k      # black 
+axes.facecolor      : w       # background color; white
+axes.edgecolor      : k       # edge color; black
+axes.linewidth      : 1.0     # edge linewidth
+axes.grid           : False   # display grid or not
+axes.titlesize      : 14      # fontsize of the axes title
+axes.labelsize      : 12      # fontsize of the x any y labels
+axes.labelcolor     : k       # black 
 
 ### TICKS
-tick.size      : 4      # tick size in points
-tick.color     : k      # color of the tick labels 
-tick.labelsize : 10     # fontsize of the tick labels
+tick.size           : 4      # tick size in points
+tick.color          : k      # color of the tick labels 
+tick.labelsize      : 10     # fontsize of the tick labels
 
 ### FIGURE
 figure.figsize   : 8, 6    # figure size in inches
