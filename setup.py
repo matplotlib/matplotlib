@@ -12,7 +12,7 @@ setup(name="matplotlib",
       description = "Matlab style python plotting package",
       author = "John D. Hunter",
       author_email="jdhunter@ace.bsd.uchicago.edu",
-      url = "http://nitace.bsd.uchicago.edu:8080/matplotlib",
+      url = "http://matplotlib.sourceforge.net",
       long_description = """
       matplotlib strives to produce publication quality 2D graphics
       using matlab plotting for inspiration.  Although the main lib is
