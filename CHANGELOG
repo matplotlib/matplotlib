@@ -1,5 +1,7 @@
 New entries should be added at the top
 
+2004-08-23 Fixed grid w/o args to toggle grid state - JDH
+
 2004-08-11 Added Gregory's log patches for major and minor ticking
 
 2004-08-18 Some pixel edge effects fixes for images
