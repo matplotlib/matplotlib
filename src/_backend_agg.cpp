@@ -1,20 +1,9 @@
-// font and text handling was lifted almost verbatim from module
-// paint.  The paint license is in LICENSE_PAINT that accompanies the
-// matplotlib src distribution
-
 #include <cstring>
+#include <png.h>
+#include "ft2font.h"
 #include "_backend_agg.h"
 
-static char agg_font__doc__[] =
-"Font(filename, size = 12, rotate = 0)\n"
-"\n"
-"Load the named font and return the font object";
-
-static PyObject *agg_font(PyObject *module, PyObject *args)
-{
-    return font_new(args);
-}
-
+static PyObject *ErrorObject;
 
 
 // image renderers that also have to deal with points (72/inch) make
@@ -160,24 +149,12 @@ _gc_get_color(PyObject *gc) {
 
   double r, g, b, *palpha;
 
-  int N;
-  N = PySequence_Length(rgb);
-
-  if (N==-1) {
-    PyErr_SetString(PyExc_ValueError, 
-		    "GC _rgb must be a sequence type");    
-    return NULL;
-  }
-  
-  if (N!=3) {
+  if (!PyArg_ParseTuple(rgb, "ddd", &r, &g, &b)) {
     PyErr_SetString(PyExc_ValueError, 
 		    "GC _rgb must be a length 3 tuple");    
     return NULL;
   }
 
-  r = _seqitem_as_double(rgb, 0);
-  g = _seqitem_as_double(rgb, 1);
-  b = _seqitem_as_double(rgb, 2);
   palpha = _pyobject_as_double(alphao);
   if (palpha==NULL) {
     PyErr_SetString(PyExc_TypeError, 
@@ -186,9 +163,25 @@ _gc_get_color(PyObject *gc) {
     return NULL;
   }
     
-  //printf("setting alpha %1.2f\n", *alpha);
   agg::rgba* color = new agg::rgba(r, g, b, *palpha); 
   delete palpha;
+  return color;
+
+}
+
+agg::rgba* 
+_rgb_to_color(PyObject *rgb, double& alpha) {
+  //get a pointer to an agg color arg, return NULL and set error
+  //string on error.  rgb is a python 0-1 RGB tuple
+
+  double r, g, b;
+
+  if (!PyArg_ParseTuple(rgb, "ddd", &r, &g, &b)) {
+    PyErr_SetString(PyExc_ValueError, 
+		    "rgb must be a length 3 tuple");    
+    return NULL;
+  }
+  agg::rgba* color = new agg::rgba(r, g, b, alpha); 
   return color;
 
 }
@@ -244,28 +237,12 @@ _gc_set_clip_rect(PyObject *gc, RendererAggObject* renderer) {
     return 1;
   }
 
-  int N = PySequence_Length(rect);
-
-  if (N==-1) {
+  double l,b,w,h;
+  if (!PyArg_ParseTuple(rect, "dddd", &l, &b, &w, &h)) {
     PyErr_SetString(PyExc_ValueError, 
-		    "GC _rect must be a sequence type");    
+		    "GC _rect must be a length 4 sequence of floats");    
     return 0;
   }
-
-
-  
-  if (N!=4) {
-    PyErr_SetString(PyExc_ValueError, 
-		    "GC _cliprect must be a length 4 sequence");    
-    return 0;
-  }
-
-
-  float l, b, w, h;
-  l = _seqitem_as_double(rect, 0);
-  b = _seqitem_as_double(rect, 1);
-  w = _seqitem_as_double(rect, 2);
-  h = _seqitem_as_double(rect, 3);
   renderer->ras->clip_box(l, renderer->rbase->height()-(b+h),
 			  l+w, renderer->rbase->height()-b);
   return 1;
@@ -292,14 +269,13 @@ _gc_get_linewidth(PyObject *gc) {
 
 
 
-extern "C" staticforward PyTypeObject RendererAgg_Type;
 
+extern "C" static PyTypeObject RendererAgg_Type;
 #define RendererAggObject_Check(v)	((v)->ob_type == &RendererAgg_Type)
 
 static RendererAggObject *
 newRendererAggObject(PyObject *args)
 {
-  //printf("newRendererAggObject start\n");
   RendererAggObject *self;
   int width, height;
   double dpi;
@@ -357,33 +333,33 @@ RendererAgg_dealloc(RendererAggObject *self)
 
   delete self->ras;
   delete self->buffer;
-
 }
 
 
 static PyObject *
 RendererAgg_draw_ellipse(RendererAggObject *renderer, PyObject* args) {
 
-  PyObject *gcEdge, *gcFace;
+  PyObject *gcEdge, *rgbFace;
   float x,y,w,h;
-  if (!PyArg_ParseTuple(args, "OOffff", &gcEdge, &gcFace, &x, &y, &w, &h))
+  if (!PyArg_ParseTuple(args, "OOffff", &gcEdge, &rgbFace, &x, &y, &w, &h))
     return NULL;
 
   if (! _gc_set_clip_rect(gcEdge, renderer)) return NULL;
 
   //last arg is num steps
   agg::ellipse path(x, renderer->rbase->height()-y, w, h, 100); 
-  
-
-  if (gcFace != Py_None) {
-    //printf("Filling the face\n");
-    //fill the face
-    agg::rgba* color = _gc_get_color(gcFace);
-    if (color==NULL) return NULL;
-    renderer->ren->color(*color);
+  agg::rgba* edgecolor = _gc_get_color(gcEdge);  
+  if (edgecolor==NULL) return NULL;
+  if (rgbFace != Py_None) {
+    agg::rgba* facecolor = _rgb_to_color(rgbFace, edgecolor->a);
+    if (facecolor==NULL) {
+      delete edgecolor;
+      return NULL;
+    }
+    renderer->ren->color(*facecolor);
     renderer->ras->add_path(path);    
     renderer->ras->render(*renderer->sline, *renderer->ren);  
-    delete color;
+    delete facecolor;
   }
   
   //now fill the edge
@@ -391,16 +367,15 @@ RendererAgg_draw_ellipse(RendererAggObject *renderer, PyObject* args) {
   double* plw = _gc_get_linewidth(gcEdge);
   if (plw==NULL) return NULL;
   double lw = _points_to_pixels(renderer, *plw);
+  delete plw;
 
   agg::conv_stroke<agg::ellipse> stroke(path);
   stroke.width(lw);
-  agg::rgba* color = _gc_get_color(gcEdge);
-  if (color==NULL) return NULL;
-  renderer->ren->color(*color);
+  renderer->ren->color(*edgecolor);
   //self->ras->gamma(agg::gamma_power(gamma));
   renderer->ras->add_path(stroke);
   renderer->ras->render(*renderer->sline, *renderer->ren);  
-  delete color;
+  delete edgecolor;
   Py_INCREF(Py_None);
   return Py_None;
 
@@ -414,21 +389,18 @@ char RendererAgg_draw_polygon__doc__[] =
 static PyObject *
 RendererAgg_draw_polygon(RendererAggObject *renderer, PyObject* args) {
 
-  PyObject *gcEdge, *gcFace, *points;
+  PyObject *gcEdge, *rgbFace, *points;
 
-  if (!PyArg_ParseTuple(args, "OOO", &gcEdge, &gcFace, &points))
+  if (!PyArg_ParseTuple(args, "OOO", &gcEdge, &rgbFace, &points))
     return NULL;
   if (! _gc_set_clip_rect(gcEdge, renderer)) return NULL;
   double* plw = _gc_get_linewidth(gcEdge);
   if (plw==NULL) return NULL;
   double lw = _points_to_pixels(renderer, *plw);
   delete plw;
-  //printf("draw_rectangle inited\n");
   agg::path_storage path;
 
   PyObject *tup;      // the x,y tup
-  PyObject *xo, *yo;  // xi, yi in tup
-  PyObject *xf, *yf;  // xi, yi in tup as Py_Float
   double x, y;        // finally, the damned numbers
 
   int Npoints = PySequence_Length(points);
@@ -440,54 +412,28 @@ RendererAgg_draw_polygon(RendererAggObject *renderer, PyObject* args) {
   }
   
   tup = PySequence_GetItem( points, 0);
-  int N = PySequence_Length(tup);
-
-  if (N!=2) {
+  if (!PyArg_ParseTuple(tup, "dd", &x, &y)) {
     PyErr_SetString(PyExc_ValueError, 
-		    "seq must be a sequence of length 2 tuples");    
+		    "seq item 0 must be a sequence of length 2 tuples of floats");    
     Py_XDECREF(tup);
     return NULL;
   }
-
-  xo = PySequence_GetItem( tup, 0);
-  yo = PySequence_GetItem( tup, 1);
-  Py_XDECREF(tup);
-
-  xf = PyNumber_Float( xo );
-  yf = PyNumber_Float( yo );
-  Py_XDECREF(xo); Py_XDECREF(yo);
-
-  
-  x = PyFloat_AsDouble(xf);
-  y = PyFloat_AsDouble(yf);
-  Py_XDECREF(xf);   Py_XDECREF(yf);
+  else Py_XDECREF(tup);
   
   y = renderer->rbase->height() - y;
   path.move_to(x, y);
 
   for (int i=1; i<Npoints; ++i) {
 
-    tup = PySequence_GetItem(points, i);
-    int N = PySequence_Length(tup);
-
-    if (N!=2) {
+    tup = PySequence_GetItem( points, i);
+    if (!PyArg_ParseTuple(tup, "dd", &x, &y)) {
       PyErr_SetString(PyExc_ValueError, 
-		      "points must be a sequence of length 2 tuples");    
+		      "seq item i must be a sequence of length 2 tuples of floats");    
       Py_XDECREF(tup);
       return NULL;
     }
-
-    xo = PySequence_GetItem( tup, 0);
-    yo = PySequence_GetItem( tup, 1);
-    Py_XDECREF(tup);
-
-    xf = PyNumber_Float( xo );
-    yf = PyNumber_Float( yo );
-    Py_XDECREF(xo); Py_XDECREF(yo);
-
-    x = PyFloat_AsDouble(xf);
-    y = PyFloat_AsDouble(yf);
-    Py_XDECREF(xf);   Py_XDECREF(yf);
+    else Py_XDECREF(tup);
+  
   
     y = renderer->rbase->height() - y;
     path.line_to(x, y);
@@ -495,28 +441,31 @@ RendererAgg_draw_polygon(RendererAggObject *renderer, PyObject* args) {
   }
   path.close_polygon();
 
+  agg::rgba* edgecolor = _gc_get_color(gcEdge);
+  if (edgecolor==NULL) return NULL;
   
-  if (gcFace != Py_None) {
+  if (rgbFace != Py_None) {
     //fill the face
-    agg::rgba* color = _gc_get_color(gcFace);
-    if (color==NULL) return NULL;
-    renderer->ren->color(*color);
+    agg::rgba* facecolor = _rgb_to_color(rgbFace, edgecolor->a);
+    if (facecolor==NULL) {
+      delete edgecolor;
+      return NULL;
+    }
+    renderer->ren->color(*facecolor);
     renderer->ras->add_path(path);    
     renderer->ras->render(*renderer->sline, *renderer->ren);  
-    delete color;
+    delete facecolor;
   }
   
   //now fill the edge
   agg::conv_stroke<agg::path_storage> stroke(path);
   stroke.width(lw);
-  //printf("setting edge wid %1.2f\n", lw);
-  agg::rgba* color = _gc_get_color(gcEdge);
-  if (color==NULL) return NULL;
-  renderer->ren->color(*color);
+
+  renderer->ren->color(*edgecolor);
   //self->ras->gamma(agg::gamma_power(gamma));
   renderer->ras->add_path(stroke);
   renderer->ras->render(*renderer->sline, *renderer->ren);  
-  delete color;
+  delete edgecolor;
   Py_INCREF(Py_None);
   return Py_None;
 
@@ -525,49 +474,49 @@ RendererAgg_draw_polygon(RendererAggObject *renderer, PyObject* args) {
 static PyObject *
 RendererAgg_draw_rectangle(RendererAggObject *renderer, PyObject* args) {
 
-  PyObject *gcEdge, *gcFace;
+  PyObject *gcEdge, *rgbFace;
   float l,b,w,h;
-  if (!PyArg_ParseTuple(args, "OOffff", &gcEdge, &gcFace, &l, &b, &w, &h))
+  if (!PyArg_ParseTuple(args, "OOffff", &gcEdge, &rgbFace, &l, &b, &w, &h))
     return NULL;
   if (! _gc_set_clip_rect(gcEdge, renderer)) return NULL;
   double* plw = _gc_get_linewidth(gcEdge);
   if (plw==NULL) return NULL;
   double lw = _points_to_pixels(renderer, *plw);
   delete plw;
-  //printf("draw_rectangle inited\n");
+
   agg::path_storage path;
 
-  //printf("draw_rectangle path created: %f, %f, %f, %f\n", l, b, w, h);
   b = renderer->rbase->height() - (b+h);
   path.move_to(l, b+h);
   path.line_to(l+w, b+h);
   path.line_to(l+w, b);
   path.line_to(l, b);
   path.close_polygon();
-  //printf("draw_rectangle path built\n");
 
+  agg::rgba* edgecolor = _gc_get_color(gcEdge);
+  if (edgecolor==NULL) return NULL;
   
-  if (gcFace != Py_None) {
+  if (rgbFace != Py_None) {
     //fill the face
-    agg::rgba* color = _gc_get_color(gcFace);
-    if (color==NULL) return NULL;
-    renderer->ren->color(*color);
+    agg::rgba* facecolor = _rgb_to_color(rgbFace, edgecolor->a);
+    if (facecolor==NULL) {
+      delete edgecolor;
+      return NULL;
+    }
+    renderer->ren->color(*facecolor);
     renderer->ras->add_path(path);    
     renderer->ras->render(*renderer->sline, *renderer->ren);  
-    delete color;
+    delete facecolor;
   }
   
   //now fill the edge
   agg::conv_stroke<agg::path_storage> stroke(path);
   stroke.width(lw);
-  //printf("setting edge wid %1.2f\n", lw);
-  agg::rgba* color = _gc_get_color(gcEdge);
-  if (color==NULL) return NULL;
-  renderer->ren->color(*color);
+  renderer->ren->color(*edgecolor);
   //self->ras->gamma(agg::gamma_power(gamma));
   renderer->ras->add_path(stroke);
   renderer->ras->render(*renderer->sline, *renderer->ren);  
-  delete color;
+  delete edgecolor;
   Py_INCREF(Py_None);
   return Py_None;
 
@@ -611,7 +560,6 @@ RendererAgg_draw_lines(RendererAggObject *renderer, PyObject* args) {
 		    "x and y must have length >= 2");
   }
 
-  //printf("RendererAgg_draw_lines looks ok\n");  
 
   agg::gen_stroke::line_cap_e cap = _gc_get_linecap(gc);
   agg::gen_stroke::line_join_e join = _gc_get_joinstyle(gc);
@@ -663,7 +611,6 @@ RendererAgg_draw_lines(RendererAggObject *renderer, PyObject* args) {
 
 
   if (! useDashes ) {
-    //printf("no dashes\n");
     agg::conv_stroke<agg::path_storage> stroke(path);
     stroke.width(1.0);
     stroke.line_cap(cap);
@@ -673,7 +620,6 @@ RendererAgg_draw_lines(RendererAggObject *renderer, PyObject* args) {
   }
   else {
     // set the dashes //TODO: scale for DPI
-    //printf("dashes\n");
     int N(PySequence_Length(dashSeq));
     if (N==-1) {
       PyErr_SetString(PyExc_TypeError, 
@@ -698,7 +644,6 @@ RendererAgg_draw_lines(RendererAggObject *renderer, PyObject* args) {
       on = _points_to_pixels(renderer,  _seqitem_as_double(dashSeq, 2*i));
       off = _points_to_pixels(renderer, _seqitem_as_double(dashSeq, 2*i+1));
       dash.add_dash(on, off);
-      //printf("adding dashes %1.2f, %1.2f\n", on, off);
     }
     stroke.width(1.0);
     stroke.line_cap(cap);
@@ -713,7 +658,6 @@ RendererAgg_draw_lines(RendererAggObject *renderer, PyObject* args) {
 
   renderer->ras->render(*renderer->sline, *renderer->ren);  
   delete color;
-  //printf("RendererAgg_draw_lines done\n");  
 
   Py_INCREF(Py_None);
   return Py_None;
@@ -753,19 +697,45 @@ static PyObject *RendererAgg_rgba(PyObject *self, PyObject *args)
 }
 
 char RendererAgg_draw_text__doc__[] = 
-"draw_text(font, x, y, textcolor, text)\n"
+"draw_text(font, x, y, rgba)\n"
 "\n"
-"Render the text in the supplied font at the specified location";
+"Render the text in the supplied font at the specified location\n"
+"font is a FT2Font instance; you must set the size and text and draw the bitmap before passing to draw text.  rgba is a 0-1 normalizd rgba tuple";
 
 PyObject *
 RendererAgg_draw_text(RendererAggObject *renderer, PyObject* args) {
 
-  return font_draw_text(renderer, args);
+  FT2FontObject *font;
+  double r, g, b, a;
+  int x, y;
+  size_t iwidth, iheight;
+  if (!PyArg_ParseTuple(args, "Oii(dddd)", &font, 
+			&x, &y, &r, &g, &b, &a))
+    return NULL;
+
+  iwidth = renderer->rbase->width();
+  iheight = renderer->rbase->height();
+
+  //printf("%u %u %u %u %d %d\n", iwidth, iheight, font->image.width, font->image.height, x, y);
+  pixfmt::color_type p;
+  p.r = int(255*r); p.b = int(255*b); p.g = int(255*g); p.a = int(255*a);
+
+  for (size_t i=0; i<font->image.width; ++i) {
+    for (size_t j=0; j<font->image.height; ++j) {
+      if (i+x>=iwidth) continue;
+      if (j+y>=iheight) continue;
+      renderer->pixf->blend_pixel(i+x, j+y, p, 
+				  font->image.buffer[i + j*font->image.width]);
+	}
+  }
+
+  Py_INCREF(Py_None);
+  return Py_None;
+
 }
 
 static PyObject *
 RendererAgg_write_rgba(RendererAggObject *renderer, PyObject* args) {
-  //printf("save buffer called\n");
 
   PyObject *fnameo = NULL;
   char *fname = NULL;
@@ -776,11 +746,10 @@ RendererAgg_write_rgba(RendererAggObject *renderer, PyObject* args) {
   fname = PyString_AsString(fnameo);
 
   std::ofstream of2( fname, std::ios::binary|std::ios::out);
-  //printf("About to write %d bytes\n", renderer->NUMBYTES);
   for (size_t i=0; i<renderer->NUMBYTES; ++i) {
     of2.write((char*)&(renderer->buffer[i]), sizeof(char));
   }
-  //printf("save buffer wrote\n");
+
   Py_INCREF(Py_None);
   return Py_None;
 
@@ -863,6 +832,7 @@ RendererAgg_write_png(RendererAggObject *renderer, PyObject *args)
     Py_INCREF(Py_None);
     return Py_None;
 }
+
 
 
 // must be defined before getattr
@@ -975,8 +945,7 @@ static PyTypeObject RendererAgg_Type = {
 
 
 static PyMethodDef _backend_agg_methods[] = {
-  {"RendererAgg",	_backend_agg_new_renderer,      METH_VARARGS},
-  { "Font",             (PyCFunction)agg_font,          METH_VARARGS, agg_font__doc__ },
+  { "RendererAgg",	_backend_agg_new_renderer,      METH_VARARGS},
   {NULL,		NULL}		/* sentinel */
 };
 
@@ -990,7 +959,6 @@ DL_EXPORT(void)
   /* Initialize the type of the new type object here; doing it here
    * is required for portability to Windows without requiring C++. */
   RendererAgg_Type.ob_type = &PyType_Type;
-  Font_Type.ob_type = &PyType_Type;
   
   /* Create the module and add the functions */
   module = Py_InitModule("_backend_agg", _backend_agg_methods);
