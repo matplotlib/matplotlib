@@ -612,4 +612,6 @@ ZeroDivisionError: SeparableTransformation::eval_scalars yin interval is zero; c
 
 -- DONE agg rotation bug for angles > 180
 
--- mathtext color is wrong in PS
+-- DONE mathtext color is wrong in PS
+
+-- reverse pie rotation
