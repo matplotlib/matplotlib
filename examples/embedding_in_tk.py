@@ -25,9 +25,10 @@ s = sin(2*pi*t)
 a.plot(t,s)
 f.add_axis(a)
 
-canvas = FigureCanvasTkAgg(f, master=root)  # a tk.DrawingArea
+# a tk.DrawingArea
+canvas = FigureCanvasTkAgg(f, master=root)
 canvas.show()
-canvas.get_tk_widget().pack(side=Tk.TOP)
+canvas.get_tk_widget().pack(side=Tk.TOP, fill=Tk.BOTH, expand=1)
 
 button = Tk.Button(master=root, text='Quit', command=sys.exit)
 button.pack(side=Tk.BOTTOM)
