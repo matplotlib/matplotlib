@@ -1597,10 +1597,10 @@ Grid Orientation
         if not self._hold: self.cla()
 
         alpha = kwargs.pop('alpha', 1.0)
-        norm = kwargs.pop('norm')
-        cmap = kwargs.pop('cmap')        
-        vmin = kwargs.pop('vmin')
-        vmax = kwargs.pop('vmax')        
+        norm = kwargs.pop('norm', None)
+        cmap = kwargs.pop('cmap', None)        
+        vmin = kwargs.pop('vmin', None)
+        vmax = kwargs.pop('vmax', None)        
         shading = kwargs.pop('shading', 'faceted')
         if len(kwargs):
             raise TypeError, 'Unknown argument "%s"'%kwargs.keys()[0]

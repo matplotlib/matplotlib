@@ -785,7 +785,7 @@ def gci():
     return gci._current
 gci._current = None
 
-def get(o, s):
+def get(o, *args):
     """
     Return the value of handle property s
 
@@ -793,10 +793,28 @@ def get(o, s):
     if s is 'somename', this function returns
 
       o.get_somename()
-    
+
+    get can be used to query all the gettable properties with get(o)
+    Many properties have aliases for shorter typing, eg 'lw' is an
+    alias for 'linewidth'.  In the output, aliases and full property
+    names will be listed as
+
+      property or  alias = value
+
+    eg
+
+      linewidth or lw = 2
     """
-    func = 'o.get_%s()' % s
-    return eval(func, {}, {'o': o})
+
+    insp = _ObjectInspector(o)
+
+    if len(args)==0:
+        print '\n'.join(insp.pprint_getters())
+        return
+    
+    name = args[0]
+    func = getattr(o, 'get_' + name)
+    return func()
 
 def gray():
     'set the default colormap to gray and apply to current image if any'
@@ -989,30 +1007,169 @@ def savefig(*args, **kwargs):
     manager = get_current_fig_manager()
     manager.canvas.print_figure(*args, **kwargs)
 
+class _ObjectInspector:
 
-    
+    def __init__(self, o):
+        if iterable(o): o = o[0]
+        self.o = o
+        self.aliasd = self.get_aliases()
+
+    def get_aliases(self):
+        'get a dict mapping fullname -> alias for each alias in o'
+        names = [name for name in dir(self.o) if
+                 (name.startswith('set_') or name.startswith('get_'))
+                 and callable(getattr(self.o,name))]
+        aliases = {}
+        for name in names:
+            func = getattr(self.o, name)
+            docstring = func.__doc__
+            if docstring is None: continue
+            if docstring.startswith('alias for '):
+                fullname = docstring[10:]
+                aliases[fullname[4:]] = name[4:]
+        return aliases
+
+    def get_valid_values(self, attr):
+        """
+        get the legal arguments for the setter associated with attr
+
+        This is done by querying the doc string of the function set_attr
+        for a line that begins with ACCEPTS:
+        """
+
+        name = 'set_%s'%attr
+        if not hasattr(self.o, name):
+            raise AttributeError('%s has no function %s'%(h,name))
+        func = getattr(self.o, name)
+
+        docstring = func.__doc__
+        if docstring is None: return 'unknown'
+
+        if docstring.startswith('alias'): return docstring
+        for line in docstring.split('\n'):
+            line = line.lstrip()
+            if not line.startswith('ACCEPTS:'): continue
+            return line[8:].strip()
+        return 'unknown'
+
+    def get_setters(self):
+        """
+        Get the attribute strings with setters for object h
+        """
+
+        return [name[4:] for name in dir(self.o)
+                if name.startswith('set_') and
+                callable(getattr(self.o,name))]
+
+    def aliased_name(self, s):
+        """
+        return 'fullname or alias' if s has an alias.  
+        """
+        if self.aliasd.has_key(s):
+            return '%s or %s' % (s, self.aliasd[s])
+        else: return s
+
+    def pprint_setters(self, property=None):
+        """
+        if property is None, return a list of strings of all settable properies
+        and their valid values
+
+        if property is not None, it is a valid property name and that
+        property will be returned as a string of property : valid
+        values
+        """
+        if property is not None:
+            accepts = self.get_valid_values(attr)
+            return '    %s: %s' %(property, accepts)
+
+        attrs = self.get_setters()
+        lines = []
+        attrs.sort()
+        for property in attrs:
+            accepts = self.get_valid_values(property)
+            name = self.aliased_name(property)
+            lines.append('    %s: %s' %(name, accepts))
+        return lines
+
+    def pprint_getters(self):
+        """
+        return the getters and actual values as list of strings'
+        """
+        getters = [name for name in dir(self.o)
+                   if name.startswith('get_')
+                   and callable(getattr(self.o, name))]
+        getters.sort()
+        lines = []
+        for name in getters:
+            func = getattr(self.o, name)
+            docstring = func.__doc__
+            if docstring is not None and docstring.startswith('alias'): continue
+            try: val = func()
+            except: pass
+            if iterable(val) and len(val)>6:
+                s = str(val[:6]) + '...'
+            else:
+                s = str(val)                
+            name = self.aliased_name(name[4:])
+            lines.append('    %s = %s' %(name, s))
+        return lines
+        
+        
 def set(h, *args, **kwargs):
     """
-    Set handle h property in string s to value val
+matlab (and matplotlib) allow you to use set and get to set and get
+object properties, as well as to do introspection on the object
+For example, to set the linestyle of a line to be dashed, you can do
 
-    h can be a handle or vector of handles.
+  >>> line, = plot([1,2,3])
+  >>> set(line, linestyle='--')
 
-    h is an instance (or vector of instances) of a class, eg a Line2D
-    or an Axes or Text.
+If you want to know the valid types of arguments, you can provide the
+name of the property you want to set without a value
 
-    args is a list of string, value pairs.  if the string
-    is 'somename', set function calls
+  >>> set(line, 'linestyle')
+      linestyle: [ '-' | '--' | '-.' | ':' | 'steps' | 'None' ]
 
-      o.set_somename(value)
+If you want to see all the properties that can be set, and their
+possible values, you can do
 
-    for every instance in h.
 
-    
+  >>> set(line)
+      ... long output listing omitted'
+
+set operates on a single instance or a list of instances.  If you are
+in quey mode introspecting the possible values, only the first
+instance in the sequnce is used.  When actually setting values, all
+the instances will be set.  Eg, suppose you have a list of two lines,
+the following will make both lines thicker and red
+
+    >>> x = arange(0,1.0,0.01)
+    >>> y1 = sin(2*pi*x)
+    >>> y2 = sin(4*pi*x)
+    >>> lines = plot(x, y1, x, y2)
+    >>> set(lines, linewidth=2, color='r')
+
+Set works with the matlab string/value pairs or with python kwargs.
+For example, the following are equivalent
+
+    >>> set(lines, 'linewidth', 2, 'color', r')  # matlab style
+    >>> set(lines, linewidth=2, color='r')       # python style
     """
 
+    insp = _ObjectInspector(h)
+
+    if len(kwargs)==0 and len(args)==0:
+        print '\n'.join(insp.pprint_setters())
+        return
+    
+    if len(kwargs)==0 and len(args)==1:
+        print insp.pprint_setters(property=args[0])
+        return
+    
     if not iterable(h): h = [h]
     else: h = flatten(h)
 
+        
     if len(args)%2:
         error_msg('The set args must be string, value pairs')
 

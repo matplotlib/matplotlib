@@ -15,13 +15,6 @@ class Patch(Artist):
     None, they default to their rc params setting
 
     """
-
-    _aliases  = (
-        ('antialiased', 'aa'),          
-        ('linewidth', 'lw'),
-        ('edgecolor', 'ec'),
-        ('facecolor', 'fc'),
-        )
     
     def __init__(self,
                  edgecolor=None,   
@@ -44,10 +37,6 @@ class Patch(Artist):
         self._antialiased = antialiased        
         self.fill = fill
 
-        # set up some abbreviations for easier interactive use
-        for func, abbrev in self._aliases:
-            self.__dict__['set_%s'%abbrev] = getattr(self, 'set_%s'%func)
-            self.__dict__['get_%s'%abbrev] = getattr(self, 'get_%s'%func)
 
         for k,v in kwargs.items():
             func = 'set_' + k            
@@ -74,18 +63,43 @@ class Patch(Artist):
         return self._linewidth
 
     def set_antialiased(self, aa):
+        """
+Set whether to use antialiased rendering
+
+ACCEPTS: [True | False]
+"""
         self._antialiased = aa
 
     def set_edgecolor(self, color):
+        """
+Set the patch edge color
+
+ACCEPTS: any matplotlib color - see help(colors)
+"""
         self._edgecolor = color
 
     def set_facecolor(self, color):
+        """
+Set the patch face color
+
+ACCEPTS: any matplotlib color - see help(colors)
+"""
         self._facecolor = color
 
     def set_linewidth(self, w):
+        """
+Set the patch linewidth in points
+
+ACCEPTS: float
+"""
         self._linewidth = w
 
     def set_fill(self, b):
+        """
+Set whether to fill the patch
+
+ACCEPTS: [True | False]
+"""
         self.fill = b
 
     
@@ -171,22 +185,47 @@ class Rectangle(Patch):
         return self.height
 
     def set_x(self, x):
-        "Set the left coord of the rectangle"
+        """
+Set the left coord of the rectangle
+
+ACCEPTS: float
+"""     
         self.xy[0] = x
 
     def set_y(self, y):
-        "Set the bottom coord of the rectangle"
+        """
+Set the bottom coord of the rectangle
+
+ACCEPTS: float
+"""
         self.xy[1] = y
 
     def set_width(self, w):
-        "Set the width rectangle"
+        """
+Set the width rectangle
+
+ACCEPTS: float
+"""
         self.width = w
 
     def set_height(self, h):
-        "Set the width rectangle"
+        """
+Set the width rectangle
+
+ACCEPTS: float
+"""
         self.height = h
 
-    def set_bounds(self, l, b, w, h):
+    def set_bounds(self, *args):
+        """
+Set the bounds of the rectangle: l,b,w,h
+
+ACCEPTS: (left, bottom, width, height)
+"""
+        if len(args)==0:
+            l,b,w,h = args[0]
+        else:
+            l,b,w,h = args
         self.xy = array([float(l),float(b)])
         self.width = w
         self.height = h
@@ -284,3 +323,22 @@ def draw_bbox(bbox, renderer, color='k', trans=None):
     r.set_clip_on( False )
     r.draw(renderer)
 
+
+    def set_aa(self, val):
+        'alias for set_antialiased'
+        self.set_antialiased(val)
+    
+
+    def set_lw(self, val):
+        'alias for set_linewidth'
+        self.set_linewidth(val)
+    
+
+    def set_ec(self, val):
+        'alias for set_edgecolor'
+        self.set_edgecolor(val)
+    
+
+    def set_fc(self, val):
+        'alias for set_facecolor'
+        self.set_facecolor(val)

@@ -1563,8 +1563,8 @@ def exception_handler(type, value, tb):
     if len(msg) :error_msg_gtk(msg)
 
 # override excepthook only if it has not already been overridden
-if sys.__excepthook__ is sys.excepthook:
-    sys.excepthook = exception_handler
+#if sys.__excepthook__ is sys.excepthook:
+#    sys.excepthook = exception_handler
 
 FigureManager = FigureManagerGTK
 error_msg = error_msg_gtk

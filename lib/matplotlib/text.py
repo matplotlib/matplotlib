@@ -313,18 +313,27 @@ class Text(Artist):
         return Tback*R*Torigin
         
     def set_backgroundcolor(self, color):
-        "Set the background color of the text"
+        """
+Set the background color of the text
+
+ACCEPTS: any matplotlib color - see help(colors)
+"""
         self._backgroundcolor = color
 
         
     def set_color(self, color):
-        "Set the foreground color of the text"
+        """
+Set the foreground color of the text
+
+ACCEPTS: any matplotlib color - see help(colors)
+"""
         self._color = color
 
-    def set_horizontalalignment(self, align):
+    def set_horizontalalignment(self, align):        
         """
-        Set the horizontal alignment to one of
-        'center', 'right', or 'left'
+Set the horizontal alignment to one of
+
+ACCEPTS: [ 'center' | 'right' | 'left' ]
         """
         legal = ('center', 'right', 'left')
         if align not in legal:
@@ -333,10 +342,12 @@ class Text(Artist):
 
     def set_multialignment(self, align):
         """
-        Set the alignment for multiple lines layout.  The layout of
-        the bounding box of all the lines is determined bu the
-        horizontalalignment and verticalalignment properties, but the
-        multiline text within that box can be left, right or center
+Set the alignment for multiple lines layout.  The layout of the
+bounding box of all the lines is determined bu the horizontalalignment
+and verticalalignment properties, but the multiline text within that
+box can be
+
+ACCEPTS: ['left' | 'right' | 'center' ]
 
         """
         legal = ('center', 'right', 'left')
@@ -346,112 +357,128 @@ class Text(Artist):
 
     def set_family(self, fontname):
         """
-        Set the font family, eg, 'sans-serif', 'cursive', 'fantasy'
+Set the font family
+
+ACCEPTS: [ 'serif' | 'sans-serif' | 'cursive' | 'fantasy' | 'monospace' ]
         """
         self._fontproperties.set_family(fontname)
 
     def set_variant(self, variant):
         """
-        Set the font variant, eg, 'normal', 'small-caps'
+Set the font variant, eg, 
+
+ACCEPTS: [ 'normal' | 'small-caps' ]
         """
         self._fontproperties.set_variant(variant)
 
     def set_name(self, fontname):
         """
-        Set the font name, eg, 'Sans', 'Courier', 'Helvetica'
+Set the font name, 
+
+ACCEPTS: string eg, ['Sans' | 'Courier' | 'Helvetica' ...]
         """
         self._fontproperties.set_name(fontname)
 
     def set_fontname(self, fontname):
-        """
-        Set the font name, eg, 'Sans', 'Courier', 'Helvetica'
-        """
-        self._fontproperties.set_name(fontname)
+        'alias for set_name'
 
     def set_style(self, fontstyle):
         """
-        Set the font style, one of 'normal', 'italic', 'oblique'
+Set the font style
+
+ACCEPTS: [ 'normal' | 'italic' | 'oblique']
         """
         self._fontproperties.set_style(fontstyle)
 
     def set_fontstyle(self, fontstyle):
-        """
-        Set the font style, one of 'normal', 'italic', 'oblique'
-        """
+        'alias for set_style'
         self._fontproperties.set_style(fontstyle)
-
-    def size(self, size):
-        """
-        Set the font size, eg, 8, 10, 12, 14...
-        """
-        self._fontproperties.set_size(size)
 
     def set_size(self, fontsize):
         """
-        Set the font size, eg, 8, 10, 12, 14...
+Set the font size, eg, 8, 10, 12, 14...
+
+ACCEPTS: [ size in points | relative size eg 'smaller', 'x-large' ]
         """
-        self._fontproperties.set_size(fontsize)
+        self._fontproperties.set_size(fontsize)        
 
     def set_fontsize(self, fontsize):
-        """
-        Set the font size, eg, 8, 10, 12, 14...
-        """
+        'alias for set_size'
         self._fontproperties.set_size(fontsize)
         
     def set_fontweight(self, weight):
-        """
-        Set the font weight, one of:
-        'normal', 'bold', 'heavy', 'light', 'ultrabold',  'ultralight'
-        """
+        'alias for set_weight'
         self._fontproperties.set_weight(weight)
 
     def set_weight(self, weight):
         """
-        Set the font weight, one of:
-        'normal', 'bold', 'heavy', 'light', 'ultrabold',  'ultralight'
+Set the font weight
+
+ACCEPTS: [ 'normal' | 'bold' | 'heavy' | 'light' | 'ultrabold' | 'ultralight']
         """
         self._fontproperties.set_weight(weight)
         
     def set_fontangle(self, style):
-        """
-        Set the font angle, one of 'normal', 'italic', 'oblique'
-        """
+        'alias for set_style'
         self._fontproperties.set_style(style)
         
     def set_position(self, xy):
+        """
+Set the xy position of the text
+
+ACCEPTS: (x,y)
+"""
         self.set_x(xy[0])
         self.set_y(xy[1])
 
     def set_x(self, x):        
+        """
+Set the x position of the text
+
+ACCEPTS: float
+"""
         try: self._x.set(x)
         except AttributeError: self._x = x
 
 
     def set_y(self, y):
+        """
+Set the y position of the text
+
+ACCEPTS: float
+"""
         try: self._y.set(y)
         except AttributeError: self._y = y
         
         
     def set_rotation(self, s):
-        "Currently only s='vertical', or s='horizontal' are supported"
+        """
+Set the rotation of the text
+
+ACCEPTS: [ angle in degrees 'vertical' | 'horizontal'
+"""
         self._rotation = s
         
         
     def set_verticalalignment(self, align):
         """
-        Set the vertical alignment to one of
-        'center', 'top', or 'bottom'
-        """
+Set the vertical alignment
 
+ACCEPTS: [ 'center' | 'top' | 'bottom' ]
+        """
         legal = ('top', 'bottom', 'center')
         if align not in legal:
             raise ValueError('Vertical alignment must be one of %s' % str(legal))
 
         self._verticalalignment = align
         
-    def set_text(self, text):
-        "Set the text"
-        self._text = text
+    def set_text(self, s):
+        """
+Set the text string s
+
+ACCEPTS: string
+"""
+        self._text = s
 
 
     def update_properties(self, d):
@@ -471,6 +498,11 @@ class Text(Artist):
                  self._text.endswith('$') )
 
     def set_fontproperties(self, fp):
+        """
+Set the font properties that control the text
+
+ACCEPTS: a matplotlib.font_manager.FontProperties instance
+"""
         self._fontproperties = fp
 
         
