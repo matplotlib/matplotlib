@@ -104,11 +104,18 @@ class RendererGTK(RendererBase):
     offsetd = {}  # a map from text prop tups to text offsets
     rotated = {}  # a map from text prop tups to rotated text pixbufs
 
-    def __init__(self, gtkDA, gdkDrawable, width, height, dpi):
+    #def __init__(self, gtkDA, gdkDrawable, width, height, dpi):
+    def __init__(self, gtkDA, dpi):
         self.gtkDA = gtkDA  # used in '<widget>.create_pango_layout(s)' only
-        self.gdkDrawable = gdkDrawable
-        self.width, self.height = width, height
         self.dpi = dpi
+
+    def _set_pixmap (self, gdkDrawable):
+        self.gdkDrawable = gdkDrawable
+
+    def _set_width_height (self, width, height):
+        """w'h are the figure w,h not thw pixmap w,h
+        """
+        self.width, self.height = width, height
 
     def flipy(self):
         return True
@@ -132,6 +139,7 @@ class RendererGTK(RendererBase):
 
     def get_canvas_width_height(self):
         'return the canvas width and height in display coords'
+        #return self.gtkDA.allocation.width, self.gtkDA.allocation.height        
         return self.width, self.height
 
     
@@ -625,13 +633,11 @@ class FigureCanvasGTK(gtk.DrawingArea, FigureCanvasBase):
         FigureCanvasBase.__init__(self, figure)
         gtk.DrawingArea.__init__(self)
         
-        #self._doplot     = True
-        self._idleID     = 0        # used in gtkAgg
-        
-        self._pixmap        = None
-        self._new_pixmap    = True
+        self._idleID        = 0      # used in gtkAgg
+        self._draw_pixmap   = True
         self._pixmap_width  = -1
         self._pixmap_height = -1
+        self._renderer      = RendererGTK (self, self.figure.dpi)
 
         self._lastCursor = None
         self._button     = None  # the button pressed
@@ -647,12 +653,9 @@ class FigureCanvasGTK(gtk.DrawingArea, FigureCanvasBase):
         self.connect('key_release_event',    self.key_release_event)
         self.connect('expose_event',         self.expose_event)
         self.connect('configure_event',      self.configure_event)
-        #self.connect('realize',              self.realize)
         self.connect('motion_notify_event',  self.motion_notify_event)
         self.connect('button_press_event',   self.button_press_event)
         self.connect('button_release_event', self.button_release_event)
-
-        #colorManager.set_drawing_area(self)
 
         self.set_events(
             #gdk.FOCUS_CHANGE_MASK  |
@@ -663,7 +666,6 @@ class FigureCanvasGTK(gtk.DrawingArea, FigureCanvasBase):
             gdk.BUTTON_PRESS_MASK   |
             gdk.BUTTON_RELEASE_MASK |
             gdk.POINTER_MOTION_MASK  )
-
 
     def button_press_event(self, widget, event):
         self._button = event.button
@@ -740,31 +742,54 @@ class FigureCanvasGTK(gtk.DrawingArea, FigureCanvasBase):
         dpi = self.figure.dpi.get()
         self.figure.set_figsize_inches (w/dpi, h/dpi)
         
-        self._new_pixmap = True
+        self._draw_pixmap = True
         return True
         
 
     def draw(self):
-        self._new_pixmap = True
+        self._draw_pixmap = True
         self.expose_event(self, None)
 
 
+    def _render_to_pixmap(self, width, height):
+        """Backend specific method of rendering to the gdk.Pixmap.
+        Is used both for rendering the pixmap to display and
+        for rendering the pixmap to save to a file.
+        
+        GTK backends should override this with their own method.
+        """
+        # Start: Do not change these lines ----------
+        create_pixmap = False
+        if width > self._pixmap_width:
+            # increase the pixmap in 10%+ (rather than 1 pixel) steps
+            self._pixmap_width  = max (int (self._pixmap_width  * 1.1), width)
+            create_pixmap = True
+
+        if height > self._pixmap_height:
+            self._pixmap_height = max (int (self._pixmap_height * 1.1), height)
+            create_pixmap = True
+
+        if create_pixmap:
+            if DEBUG: print 'backend_gtk.%s: new pixmap' % _fn_name()
+            self._pixmap = gtk.gdk.Pixmap (self.window, self._pixmap_width,
+                                           self._pixmap_height)
+            # End: Do not change these lines ----------
+            self._renderer._set_pixmap (self._pixmap)
+
+        self._renderer._set_width_height (width, height)
+        self.figure.draw (self._renderer)
+
+
     def expose_event(self, widget, event):
+        """Expose_event for all GTK backends, should not be overridden.
+        """
         if DEBUG: print 'backend_gtk.%s' % _fn_name()
-        if self._new_pixmap and GTK_WIDGET_DRAWABLE(self):
+        if self._draw_pixmap and GTK_WIDGET_DRAWABLE(self):
             width, height = self.allocation.width, self.allocation.height
-
-            if width > self._pixmap_width or height > self._pixmap_height:
-                if DEBUG: print 'backend_gtk.%s: new pixmap allocated' % _fn_name()
-                self._pixmap = gtk.gdk.Pixmap (self.window, width, height)
-                self._pixmap_width, self._pixmap_height = width, height
-
-            self.figure.draw (RendererGTK (self, self._pixmap, width, height, self.figure.dpi))
-
+            self._render_to_pixmap(width, height)
             self.window.set_back_pixmap (self._pixmap, False)
-            self.window.clear()  # draws the pixmap onto the window bg
-            self._new_pixmap = False
-
+            self.window.clear()  # draw pixmap as the gdk.Window's bg
+            self._draw_pixmap = False
         return True
 
 
@@ -791,7 +816,7 @@ class FigureCanvasGTK(gtk.DrawingArea, FigureCanvasBase):
         origWIn, origHIn = self.figure.get_size_inches()
 
         if self.flags() & gtk.REALIZED == 0:
-            # for self.window(for pixmap) and has a side effect of altering figure width,height
+            # for self.window(for pixmap) and has a side effect of altering figure width,height (via configure-event?)
             gtk.DrawingArea.realize(self) 
 
         self.figure.dpi.set(dpi)        
@@ -802,12 +827,8 @@ class FigureCanvasGTK(gtk.DrawingArea, FigureCanvasBase):
         if ext in ('jpg', 'png'):          # native printing
             width, height = self.figure.get_width_height()
             width, height = int(width), int(height)
-            pixmap   = gtk.gdk.Pixmap (self.window, width, height)
-            renderer = RendererGTK(self, pixmap, width, height,
-                                   self.figure.dpi)
-
-            self.figure.draw (renderer)
-            gdk_pixmap_save (pixmap, filename, ext, width, height)
+            self._render_to_pixmap(width, height)
+            gdk_pixmap_save (self._pixmap, filename, ext, width, height)
 
         elif ext in ('eps', 'ps', 'svg',): # print through other backends
             if ext in ('svg',):
