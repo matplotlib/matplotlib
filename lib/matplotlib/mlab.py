@@ -1141,6 +1141,40 @@ def bivariate_normal(X, Y, sigmax=1.0, sigmay=1.0,
 
 
 
+def get_xyz_where(Z, Cond):
+    """
+    Z and Cond are MxN matrices.  Z are data and Cond is a boolean
+    matrix where some condition is satisfied.  Return value is x,y,z
+    where x and y are the indices into Z and z are the values of Z at
+    those indices.  x,y,z are 1D arrays
+    """
+    
+    M,N = Z.shape
+    z = ravel(Z)
+    ind = nonzero( ravel(Cond) )
+
+    x = arange(M); x.shape = M,1
+    X = repeat(x, N, 1)
+    x = ravel(X)
+
+    y = arange(N); y.shape = 1,N
+    Y = repeat(y, M)
+    y = ravel(Y)
+
+    x = take(x, ind)
+    y = take(y, ind)
+    z = take(z, ind)
+    return x,y,z
+
+def get_sparse_matrix(M,N,frac=0.1):
+    'return a MxN sparse matrix with frac elements randomly filled'
+    data = zeros((M,N))*0.
+    for i in range(int(M*N*frac)):
+        x = random.randint(0,M-1)
+        y = random.randint(0,N-1)
+        data[x,y] = rand()
+    return data
+
 
 ### the following code was written and submitted by Fernando Perez
 ### from the ipython numutils package under a BSD license

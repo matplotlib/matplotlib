@@ -1002,6 +1002,31 @@ def specgram(*args, **kwargs):
         return ret
 specgram.__doc__ = Axes.specgram.__doc__
 
+def spy(*args, **kwargs):
+    try: ret =  gca().spy(*args, **kwargs)
+    except ValueError, msg:
+        msg = raise_msg_to_str(msg)
+        error_msg(msg)
+    else:
+        Pxx, freqs, bins, im = ret
+        gci._current = im
+        draw_if_interactive()
+        return ret
+spy.__doc__ = Axes.spy.__doc__
+
+
+def spy2(*args, **kwargs):
+    try: ret =  gca().spy2(*args, **kwargs)
+    except ValueError, msg:
+        msg = raise_msg_to_str(msg)
+        error_msg(msg)
+    else:
+        Pxx, freqs, bins, im = ret
+        gci._current = im
+        draw_if_interactive()
+        return ret
+spy2.__doc__ = Axes.spy2.__doc__
+
 def subplot(*args, **kwargs):
     """
     Create a subplot command, creating axes with

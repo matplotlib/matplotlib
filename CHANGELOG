@@ -1,5 +1,11 @@
 New entries should be added at the top
 
+2004-11-12 Added new plotting functions spy, spy2 for sparse matrix
+           visualization - JDH
+
+2004-11-11 Added rgrids, thetragrids for customizing the grid
+           locations and labels for polar plots - JDH
+
 2004-11-11 make the Gtk backends build without an X-server connection - JV
 
 2004-11-10 matplotlib/__init__.py: Added FROZEN to signal we are running under
