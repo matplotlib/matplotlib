@@ -1,6 +1,8 @@
 New entries should be added at the top
 
-2005-03-16 Fixed tick on horiz colorbar
+2005-03-16 Applied Darren's ticker fix for small ranges - JDH
+
+2005-03-16 Fixed tick on horiz colorbar - JDH
 
 2005-03-16 Added Japanses winreg patch - JDH
 
