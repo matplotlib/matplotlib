@@ -48,6 +48,7 @@ _plotcommands = (
     'axvspan',
     'bar',
     'barh',
+    'boxplot',
     'cohere',
     'clabel',
     'contour',

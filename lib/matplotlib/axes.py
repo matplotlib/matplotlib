@@ -5,7 +5,7 @@ import math, sys
 from numerix import absolute, arange, array, asarray, ones, divide,\
      transpose, log, log10, Float, Float32, ravel, zeros,\
      Int16, Int32, Int, Float64, ceil, indices, \
-     shape, which, where, sqrt, asum
+     shape, which, where, sqrt, asum, compress
 
 import matplotlib.mlab
 from artist import Artist
@@ -27,7 +27,7 @@ from legend import Legend
 from lines import Line2D, lineStyles, lineMarkers
 
 from matplotlib.mlab import meshgrid, detrend_none, detrend_linear, \
-     window_none, window_hanning, linspace
+     window_none, window_hanning, linspace, prctile
 from matplotlib.numerix.mlab import flipud, amin, amax
 
 from matplotlib import rcParams
@@ -845,7 +845,154 @@ class Axes(Artist):
         self.autoscale_view()
         return patches
 
+    def boxplot(self, x, notch=0, sym='b+', vert=1, whis=1.5):
+        """
+        boxplot(x, notch=0, sym='+', vert=1, whis=1.5)
 
+        Make a box and whisker plot for each column of x.
+        The box extends from the lower to upper quartile values
+        of the data, with a line at the median.  The whiskers
+        extend from the box to show the range of the data.  Flier
+        points are those past the end of the whiskers.
+        
+        notch = 0 (default) produces a rectangular box plot.  
+        notch = 1 will produce a notched box plot
+        
+        sym (default 'b+') is the default symbol for flier points.
+        Enter an empty string ('') if you don't want to show fliers.
+        
+        vert = 1 (default) makes the boxes vertical.
+        vert = 0 makes horizontal boxes.  This seems goofy, but
+        that's how Matlab did it.
+        
+        whis (default 1.5) defines the length of the whiskers as
+        a function of the inner quartile range.  They extend to the
+        most extreme data point within ( whis*(75%-25%) ) data range.
+
+        x is a Numeric array
+        
+        Returns a list of the lines added
+        
+        """
+        if not self._hold: self.cla()
+        holdStatus = self._hold
+        lines = []
+        x = asarray(x)
+        
+        # if we've got a vector, reshape it
+        rank = len(x.shape)
+        if 1 == rank:
+            x.shape(-1, 1)
+        
+        row, col = x.shape
+        
+        # get some plot info
+        num_plots = range(1, col + 1)
+        box_width = col * min(0.15, 0.5/col)
+
+        # loop through columns, adding each to plot
+        self.hold(True)
+        for i in num_plots:
+            d = x[:,i-1]
+            # get median and quartiles
+            q1, med, q3 = prctile(d,[25,50,75])
+            # get high extreme
+            iq = q3 - q1
+            hi_val = q3 + whis*iq
+            wisk_hi = compress( d <= hi_val , d )
+            if len(wisk_hi) == 0:
+                wisk_hi = q3
+            else:
+                wisk_hi = max(wisk_hi)
+            # get low extreme
+            lo_val = q1 - whis*iq
+            wisk_lo = compress( d >= lo_val, d )
+            if len(wisk_lo) == 0:
+                wisk_lo = q1
+            else:
+                wisk_lo = min(wisk_lo)
+            # get fliers - if we are showing them
+            flier_hi = []
+            flier_lo = []
+            flier_hi_x = []
+            flier_lo_x = []
+            if len(sym) != 0:
+                flier_hi = compress( d > wisk_hi, d )
+                flier_lo = compress( d < wisk_lo, d )            
+                flier_hi_x = ones(flier_hi.shape[0]) * i
+                flier_lo_x = ones(flier_lo.shape[0]) * i            
+
+            # get x locations for fliers, whisker, whisker cap and box sides
+            box_x_min = i - box_width * 0.5
+            box_x_max = i + box_width * 0.5
+
+            wisk_x = ones(2) * i
+            
+            cap_x_min = i - box_width * 0.25
+            cap_x_max = i + box_width * 0.25
+            cap_x = [cap_x_min, cap_x_max]
+            
+            # get y location for median
+            med_y = [med, med]
+            
+            # calculate 'regular' plot
+            if notch == 0:
+                # make our box vectors
+                box_x = [box_x_min, box_x_max, box_x_max, box_x_min, box_x_min ]
+                box_y = [q1, q1, q3, q3, q1 ]                
+                # make our median line vectors
+                med_x = [box_x_min, box_x_max]
+            # calculate 'notch' plot
+            else:
+                notch_max = med + 1.57*iq/sqrt(row)
+                notch_min = med - 1.57*iq/sqrt(row)
+                if notch_max > q3:
+                    notch_max = q3
+                if notch_min < q1:
+                    notch_min = q1
+                # make our notched box vectors
+                box_x = [box_x_min, box_x_max, box_x_max, cap_x_max, box_x_max, box_x_max, box_x_min, box_x_min, cap_x_min, box_x_min, box_x_min ]
+                box_y = [q1, q1, notch_min, med, notch_max, q3, q3, notch_max, med, notch_min, q1]
+                # make our median line vectors
+                med_x = [cap_x_min, cap_x_max]
+                med_y = [med, med]
+            
+            # make a vertical plot . . .
+            if 1 == vert:                        
+                l = self.plot(wisk_x, [q1, wisk_lo], 'b--',
+                              wisk_x, [q3, wisk_hi], 'b--',
+                              cap_x, [wisk_hi, wisk_hi], 'k-',
+                              cap_x, [wisk_lo, wisk_lo], 'k-',
+                              box_x, box_y, 'b-',
+                              med_x, med_y, 'r-',
+                              flier_hi_x, flier_hi, sym,
+                              flier_lo_x, flier_lo, sym )
+                lines.extend(l)
+            # or perhaps a horizontal plot
+            else:
+                l = self.plot([q1, wisk_lo], wisk_x, 'b--',
+                              [q3, wisk_hi], wisk_x, 'b--',
+                              [wisk_hi, wisk_hi], cap_x, 'k-',
+                              [wisk_lo, wisk_lo], cap_x, 'k-',
+                              box_y, box_x, 'b-',
+                              med_y, med_x, 'r-',
+                              flier_hi, flier_hi_x, sym,
+                              flier_lo, flier_lo_x, sym )
+                lines.extend(l)
+            
+
+        # fix our axes/ticks up a little
+        if 1 == vert:        
+            self.set_xlim([0.5, 0.5+col])
+            self.set_xticks(num_plots)
+        else:
+            self.set_ylim([0.5, 0.5+col])
+            self.set_yticks(num_plots)
+        
+        # reset hold status
+        self.hold(holdStatus)
+
+        return lines
 
     def barh(self, x, y, height=0.8, left=0,
             color='b', yerr=None, xerr=None, ecolor='k', capsize=3
