@@ -107,7 +107,7 @@ WINDOWS
              you are interactively generating plots, your best bet is
              TkAgg from the standard python shell or ipython.
 
-PACKAGE MANAGERS: (rpms, apt, fink)
+DISTROS: (rpms, apt, fink, osx, freebsd, gentoo, etc)
 
   RPMS
 
@@ -136,6 +136,14 @@ PACKAGE MANAGERS: (rpms, apt, fink)
     * then run:
       # apt-get update
       # apt-get install python-matplotlib python-matplotlib-doc
+
+  FREEBSD
+
+    http://www.freshports.org/math/py-matplotlib/
+
+  Gentoo
+ 
+    http://www.gentoo-portage.com/dev-python/matplotlib
 
   OS X
 

@@ -205,7 +205,7 @@ class RendererAgg(RendererBase):
 
             font.load_char(ord(s))
         else:
-            font.set_text(str(s), angle)
+            font.set_text(s, angle)
         font.draw_glyphs_to_bitmap()
 
         self._renderer.draw_text(font, int(x), int(y), gc)
@@ -222,7 +222,7 @@ class RendererAgg(RendererBase):
                 s, self.dpi.get(), prop.get_size_in_points())
             return width, height
         font = self._get_agg_font(prop)
-        font.set_text(str(s), 0.0)  # the width and height of unrotated string
+        font.set_text(s, 0.0)  # the width and height of unrotated string
         w, h = font.get_width_height()
         w /= 64.0  # convert from subpixels
         h /= 64.0

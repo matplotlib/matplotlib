@@ -151,7 +151,7 @@ from matplotlib.pyparsing import Literal, Word, OneOrMore, ZeroOrMore, \
 from matplotlib.afm import AFM
 from matplotlib.cbook import enumerate, iterable, Bunch
 from matplotlib.ft2font import FT2Font
-from matplotlib._mathtext_data import latex_to_bakoma
+from matplotlib._mathtext_data import latex_to_bakoma, cmkern
 from matplotlib.numerix import absolute
 from matplotlib import get_data_path
 
@@ -180,6 +180,18 @@ class Fonts:
     return the character metrics as well as do the drawing
     """
 
+    def get_kern(self, font, symleft, symright, fontsize, dpi):
+        """
+        Get the kerning distance for font between symleft and symright.
+
+        font is one of tt, it, rm, cal or None
+
+        sym is a single symbol(alphanum, punct) or a special symbol
+        like \sigma.
+
+        """
+        return 0
+    
     def get_metrics(self, font, sym, fontsize, dpi):
         """
         font is one of tt, it, rm, cal or None
@@ -247,6 +259,11 @@ class BakomaTrueTypeFonts(Fonts):
 
         self.charmaps = dict(
             [ (name, self.fonts[name].get_charmap()) for name in self.fnames])
+        # glyphmaps is a dict names to a dict of charcode -> glyphindex
+        self.glyphmaps = {}
+        for name in self.fnames:
+            cmap = self.charmaps[name]
+            self.glyphmaps[name] = dict([(ccode, glyphind) for glyphind, ccode in cmap.items()])
         
         for font in self.fonts.values():
             font.clear()
@@ -331,6 +348,38 @@ class BakomaTrueTypeFonts(Fonts):
             self.svg_glyphs.append((basename, fontsize, num, ox, oy, metrics))
         
 
+    def get_kern(self, font, symleft, symright, fontsize, dpi):
+        """
+        Get the kerning distance for font between symleft and symright.
+
+        font is one of tt, it, rm, cal or None
+
+        sym is a single symbol(alphanum, punct) or a special symbol
+        like \sigma.
+
+        """
+        basename = self.fontmap[font]
+        cmfont = self.fonts[basename]
+        cmfont.set_size(fontsize, dpi)
+        kernd = cmkern[basename]
+        key = symleft, symright
+        kern = kernd.get(key,0)
+        print basename, symleft, symright, key, kern
+        return kern
+
+    def _get_num(self, font, sym):
+        'get charcode for sym'
+        basename = self.fontmap[font]
+        if latex_to_bakoma.has_key(sym):
+            basename, num = latex_to_bakoma[sym]
+            num = self.charmaps[basename][num]
+        elif len(sym) == 1:
+            num = ord(sym)
+        else:
+            num = 0
+        return num
+
+
 class BakomaPSFonts(Fonts):
     """
     Use the Bakoma postscript fonts for rendering to backend_ps
@@ -409,11 +458,7 @@ class BakomaPSFonts(Fonts):
         self.width  = w
         self.height = h
         self.pswriter = pswriter
-        
-    def get_metrics(self, font, sym, fontsize, dpi):
-        basename, metrics, sym, offset  = \
-                self._get_info(font, sym, fontsize, dpi) 
-        return metrics
+
 
     def render(self, ox, oy, font, sym, fontsize, dpi):
         fontname, metrics, glyphname, offset = \
@@ -430,6 +475,11 @@ setfont
 """ % locals()
         self.pswriter.write(ps)
 
+
+    def get_metrics(self, font, sym, fontsize, dpi):
+        basename, metrics, sym, offset  = \
+                self._get_info(font, sym, fontsize, dpi) 
+        return metrics
 
 class Element:
     fontsize = 12
@@ -598,7 +648,9 @@ class SymbolElement(Element):
     def __init__(self, sym):
         Element.__init__(self)
         self.sym = sym
-
+        self.kern = 0
+        self.widthm = 1  # the width of an m; will be resized below
+        
     def set_font(self, font):
         'set the font (one of tt, it, rm , cal)'
         self.font = font
@@ -611,9 +663,14 @@ class SymbolElement(Element):
         self.metrics = Element.fonts.get_metrics(
             self.font, self.sym, self.fontsize, dpi)
 
+        mmetrics = Element.fonts.get_metrics(
+            self.font, 'm', self.fontsize, dpi)
+        self.widthm = mmetrics.width
+        print self.widthm
+
     def advance(self):
         'get the horiz advance'
-        return self.metrics.advance
+        return self.metrics.advance + self.kern*self.widthm
 
 
     def height(self):
@@ -665,10 +722,22 @@ class GroupElement(Element):
         'set the font (one of tt, it, rm , cal)'
         for element in self.elements:
             element.set_font(font)
+            
+
+        print 'set fonts'
+        for i in range(len(self.elements)-1):
+            if not isinstance(self.elements[i], SymbolElement): continue
+            if not isinstance(self.elements[i+1], SymbolElement): continue
+            symleft = self.elements[i].sym
+            symright = self.elements[i+1].sym            
+            self.elements[i].kern = Element.fonts.get_kern(font, symleft, symright, self.fontsize, self.dpi)
+        
         
     def set_size_info(self, fontsize, dpi):        
         self.elements[0].set_size_info(self._scale*fontsize, dpi)
         Element.set_size_info(self, fontsize, dpi)
+        print 'set size'
+
 
     def set_origin(self, ox, oy):
         self.elements[0].set_origin(ox, oy)
@@ -959,7 +1028,8 @@ subsuperscript = Forward().setParseAction(handler.subsuperscript).setName("subsu
 font = Forward().setParseAction(handler.font).setName("font")
 
 
-group = Group( lbrace + OneOrMore(symbol^subscript^superscript^subsuperscript^space^font) + rbrace).setParseAction(handler.group).setName("group")
+accent = Group( Combine(bslash + accent) + Optional(lbrace) + symbol + Optional(rbrace)).setParseAction(handler.accent).setName("accent")
+group = Group( lbrace + OneOrMore(symbol^subscript^superscript^subsuperscript^space^font^accent) + rbrace).setParseAction(handler.group).setName("group")
 #~ group = Group( lbrace + OneOrMore(subsuperscript | subscript | superscript | symbol | space ) + rbrace).setParseAction(handler.group).setName("group")
 
 #composite = Group( Combine(bslash + composite) + lbrace + symbol + rbrace + lbrace + symbol + rbrace).setParseAction(handler.composite).setName("composite")
@@ -968,7 +1038,7 @@ composite = Group( Combine(bslash + overUnder) + group + group).setParseAction(h
 
 
 
-accent = Group( Combine(bslash + accent) + Optional(lbrace) + symbol + Optional(rbrace)).setParseAction(handler.accent).setName("accent")
+
 
 
 symgroup = font ^ group ^ symbol 

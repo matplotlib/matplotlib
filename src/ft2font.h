@@ -16,6 +16,7 @@ extern "C" {
 #include FT_TRUETYPE_TABLES_H
 }
 #include "CXX/Extensions.hxx"
+#include "CXX/Objects.hxx"
 
 
 // the freetype string rendered into a width, height buffer
@@ -56,6 +57,7 @@ public:
   Py::Object set_charmap(const Py::Tuple & args);
   Py::Object set_text(const Py::Tuple & args);
   Py::Object get_glyph(const Py::Tuple & args);
+  Py::Object get_kerning(const Py::Tuple & args);
   Py::Object get_num_glyphs(const Py::Tuple & args);
   Py::Object load_char(const Py::Tuple & args);
   Py::Object get_width_height(const Py::Tuple & args);
@@ -85,13 +87,11 @@ private:
   std::vector<FT_Glyph> glyphs;
   std::vector<FT_Vector> pos;
   std::vector<Glyph*> gms;
-  std::string text;
   double angle;
 
 
 
   FT_BBox compute_string_bbox();
-  void load_glyphs();
   void draw_bitmap( FT_Bitmap*  bitmap, FT_Int x, FT_Int y);
   void set_scalable_attributes();
 
@@ -105,6 +105,7 @@ private:
   static char load_char__doc__ [];
   static char get_width_height__doc__ [];
   static char get_descent__doc__ [];
+  static char get_kerning__doc__ [];
   static char write_bitmap__doc__ [];
   static char draw_rect__doc__ [];
   static char image_as_str__doc__ [];

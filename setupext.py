@@ -37,6 +37,8 @@ basedir = {
     'linux'  : ['/usr/local', '/usr',],
     'darwin' : ['/usr/local', '/usr', '/sw', '/usr/X11R6'],
     'freebsd4' : ['/usr/local', '/usr'],
+    'freebsd5' : ['/usr/local', '/usr'],
+    'freebsd6' : ['/usr/local', '/usr'],    
     'sunos5' : [os.getenv('MPLIB_BASE') or '/usr/local',],
 }
 

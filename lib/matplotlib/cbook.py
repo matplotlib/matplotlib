@@ -562,3 +562,7 @@ def finddir(o, match, case=False):
         names = [(name.lower(), name) for name in dir(o) if is_string_like(name)]
         match = match.lower()
     return [orig for name, orig in names if name.find(match)>=0]
+
+def reverse_dict(d):
+    'reverse the dictionary -- may lose data if values are not uniq!'
+    return dict([(v,k) for k,v in d.items()])
