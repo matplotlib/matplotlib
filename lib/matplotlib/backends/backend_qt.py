@@ -72,7 +72,8 @@ class FigureCanvasQT( qt.QWidget, FigureCanvasBase ):
                 qt.Qt.Key_Shift : 'shift',
                 qt.Qt.Key_Alt : 'alt',
                }
-
+    # left 1, middle 2, right 3
+    buttond = {1:1, 2:3, 4:2}
     def __init__( self, figure ):
         if DEBUG: print 'FigureCanvasQt: ', figure
         FigureCanvasBase.__init__( self, figure )
@@ -87,7 +88,9 @@ class FigureCanvasQT( qt.QWidget, FigureCanvasBase ):
         x = event.pos().x()
         # flipy so y=0 is bottom of canvas
         y = self.figure.bbox.height() - event.pos().y()
-        FigureCanvasBase.button_press_event( self, x, y, event.button() )
+        #print 'event.button()', event.button()
+        button = self.buttond[event.button()]
+        FigureCanvasBase.button_press_event( self, x, y, button )
         if DEBUG: print 'button pressed'
         
     def mouseMoveEvent( self, event ):
@@ -101,7 +104,8 @@ class FigureCanvasQT( qt.QWidget, FigureCanvasBase ):
         x = event.x()
         # flipy so y=0 is bottom of canvas
         y = self.figure.bbox.height() - event.y()
-        FigureCanvasBase.button_release_event( self, x, y, event.button() )
+        button = button = self.buttond[event.button()]
+        FigureCanvasBase.button_release_event( self, x, y, button )
         if DEBUG: print 'button released'
         self.draw()
 
@@ -189,7 +193,9 @@ class NavigationToolbar2QT( NavigationToolbar2, qt.QToolBar ):
         self.canvas = canvas
         qt.QToolBar.__init__( self, "Navigator2", window, qt.Qt.DockBottom )
         NavigationToolbar2.__init__( self, canvas )
-        
+        # If we don't do this, the status bar is hidden until needed.
+        self.window.statusBar().message( " " )
+         
     def _init_toolbar( self ):
         self.window.setUsesTextLabel( False )
         basedir = matplotlib.rcParams[ 'datapath' ]

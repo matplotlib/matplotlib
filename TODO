@@ -535,7 +535,7 @@ ZeroDivisionError: SeparableTransformation::eval_scalars yin interval is zero; c
 
 -- user events and nav event clashing on tkagg coords_demo/win32
 
--- check signal connect and disconnect in interactive use with
+-- DONE check signal connect and disconnect in interactive use with
    multiple figure creation / deletion etc.
 
 -- DONE add xlim, ylim
@@ -583,13 +583,13 @@ ZeroDivisionError: SeparableTransformation::eval_scalars yin interval is zero; c
 
 -- Humufr errobar
 
--- why is tkagg loading init 2x
+-- DONE why is tkagg loading init 2x
 
 -- DONE add ishold and spy
 
 -- Humufr's shared ticker bug
 
--- figure should increment the figure if one already exists
+-- DONE figure should increment the figure if one already exists
 
 -- CLOSED oplot
 
@@ -644,5 +644,13 @@ ZeroDivisionError: SeparableTransformation::eval_scalars yin interval is zero; c
 
 -- DONE make subplot delaxes on other subplots under it.
 
--- fix transoffset->operator calls in _backend_agg.cpp to handle
+-- DONE fix transoffset->operator calls in _backend_agg.cpp to handle
    exceptions
+
+-- keypress mods on pan/zoom broken in QT in linux
+
+-- linestyles in contour
+
+-- check stabar in wx with toolbar = None or classic
+
+-- nan handling?

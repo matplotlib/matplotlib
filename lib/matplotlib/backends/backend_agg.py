@@ -307,6 +307,10 @@ class FigureCanvasAgg(FigureCanvasBase):
         """
         if __debug__: verbose.report('FigureCanvasAgg.draw', 'debug-annoying')
 
+        renderer = self.get_renderer()
+        self.figure.draw(renderer)
+
+    def get_renderer(self):
         l,b,w,h = self.figure.bbox.get_bounds()
         key = w, h, self.figure.dpi.get()
         try: self._lastKey, self.renderer
@@ -316,8 +320,8 @@ class FigureCanvasAgg(FigureCanvasBase):
         if need_new_renderer:
             self.renderer = RendererAgg(w, h, self.figure.dpi)
             self._lastKey = key
-        self.figure.draw(self.renderer)
-
+        return self.renderer
+    
     def tostring_rgb(self):
         if __debug__: verbose.report('FigureCanvasAgg.tostring_rgb', 'debug-annoying')
         return self.renderer.tostring_rgb()

@@ -1,5 +1,9 @@
 New entries should be added at the top
 
+2005-02-121 fixed ps color bug - JDH
+
+2005-02-15 fixed missing qt file
+
 2005-02-15 banished error_msg and report_error.  Internal backend
            methods like error_msg_gtk are preserved.  backend writers,
            check your backends, and diff against 0.72 to make sure I

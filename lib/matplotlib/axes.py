@@ -2459,6 +2459,11 @@ Set the axes position with pos = [left, bottom, width, height]
 in relative 0,1 coords
 
 ACCEPTS: len(4) sequence of floats"""
+        l,b,w,h = pos
+        r = b+w
+        t = l+h
+        if w==0 or h==0:
+            raise ValueError('zero width or height illegal')
         for num,val in zip(pos, self._position):
             val.set(num)
 
