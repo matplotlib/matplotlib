@@ -519,8 +519,14 @@ ZeroDivisionError: SeparableTransformation::eval_scalars yin interval is zero; c
 
 -- DONE (added stroke width) text looks funky in SVG - stroke width?
 
--- blit on gtkagg after print is whacked
+-- DONE blit on gtkagg after print is whacked
 
 -- investigate matfile inclusion
 
 -- offset ps and svg text by max descender
+
+-- mathtext PROD offset spi dependent!
+
+-- DONE layer image whacked
+
+-- DONE scatter demo2 whacked
