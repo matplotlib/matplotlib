@@ -706,7 +706,7 @@ major formatter
                 l.get_transform(), zip(xdata, ydata))
             xdata, ydata = zip(*xys)
         self.update_datalim_numerix( xdata, ydata )        
-        
+        #self.update_datalim(zip(xdata, ydata))
         self.lines.append(l)
 
     def _get_verts_in_data_coords(self, trans, xys):

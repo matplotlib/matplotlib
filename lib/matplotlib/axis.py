@@ -73,7 +73,8 @@ class Tick(Artist):
         self._loc = loc
         self._size = size
         self._pad = Value(pad)
-        self._padPixels = self.figure.dpi*self._pad*Value(1/72.0)
+        
+        self._padPixels = self.figure.dpi*self._pad*Value(1/72.0) 
 
 
         self.tick1line = self._get_tick1line(loc)
@@ -233,18 +234,19 @@ class XTick(Tick):
         self._set_artist_props(t)
         return t
         
-    def _get_tick1line(self, loc):
+    def _get_tick1line(self, loc): 
         'Get the default line2D instance'
         # x in data coords, y in axes coords
         l = Line2D( xdata=(loc, loc), ydata=(0, 0),
                     color='k',
+                    linestyle = 'None',
                     antialiased=False,
                     marker = TICKUP,
                     markersize=self._size,
                     )
 
         l.set_transform( blend_xy_sep_transform( self.axes.transData,
-                                                 self.axes.transAxes) )
+                                       self.axes.transAxes) )
         self._set_artist_props(l)
         return l
 
@@ -253,6 +255,7 @@ class XTick(Tick):
         # x in data coords, y in axes coords
         l = Line2D( xdata=(loc, loc), ydata=(1,1),
                        color='k',
+                       linestyle = 'None',
                        antialiased=False, 
                        marker = TICKDOWN,
                        markersize=self._size,
@@ -350,17 +353,18 @@ class YTick(Tick):
         self._set_artist_props(t)
         return t
 
-    def _get_tick1line(self, loc):
+    def _get_tick1line(self, loc): 
         'Get the default line2D instance'
         # x in axes coords, y in data coords
 
         l = Line2D( (0, 0), (loc, loc), color='k',
                     antialiased=False,
                     marker = TICKRIGHT,
+                    linestyle = 'None',
                     markersize=self._size,
                        )
         l.set_transform( blend_xy_sep_transform( self.axes.transAxes,
-                                                 self.axes.transData) )
+                                       self.axes.transData) )
         self._set_artist_props(l)
         return l
     
@@ -370,6 +374,7 @@ class YTick(Tick):
         l = Line2D( (1, 1), (0, 0), color='k',
                     antialiased=False, 
                     marker = TICKLEFT,
+                    linestyle = 'None',
                     markersize=self._size,
                     )
 
@@ -378,7 +383,7 @@ class YTick(Tick):
         self._set_artist_props(l)
         return l
     
-    def _get_gridline(self, loc):
+    def _get_gridline(self, loc): 
         'Get the default line2D instance'
         # x in axes coords, y in data coords
         l = Line2D( xdata=(0,1), ydata=(loc,loc), 
@@ -439,10 +444,16 @@ class Axis(Artist):
         """
         Artist.__init__(self)
         self.set_figure(axes.figure)
-        
+
         self.axes = axes
         self.major = Ticker()
         self.minor = Ticker()
+        #class dummy:
+        #    locator = None
+        #    formatter = None
+        #self.major = dummy()
+        #self.minor = dummy()
+
         self.label = self._get_label()
         self.majorTicks = []
         self.minorTicks = []
@@ -470,6 +481,7 @@ class Axis(Artist):
 
         popall(self.majorTicks)
         popall(self.minorTicks)        
+
         self.majorTicks.extend([self._get_tick(major=True)  for i in range(1)])
         self.minorTicks.extend([self._get_tick(major=False) for i in range(1)])
         

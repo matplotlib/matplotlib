@@ -893,7 +893,6 @@ RendererAgg::draw_lines(const Py::Tuple& args) {
 
   _VERBOSE("RendererAgg::draw_lines");
   args.verify_length(4);  
-
   GCAgg gc = GCAgg(args[0], dpi);
   set_clipbox_rasterizer(gc.cliprect);
 
@@ -963,12 +962,7 @@ RendererAgg::draw_lines(const Py::Tuple& args) {
     
     //don't render line segments less that on pixel long!
     if (!moveto && (i>0) && fabs(thisx-lastx)<1.0 && fabs(thisy-lasty)<1.0) {
-      //std::cout << "skipping " << thisx << " " << thisy << " " << lastx << " " << lasty << " " << fabs(thisx-lastx) << " " << fabs(thisy-lasty) << std::endl;
       continue;
-    }
-    else {
-      //std::cout << "drawing " << thisx << " " << thisy << " " << lastx << " " << lasty << std::endl;
-
     }
 
     lastx = thisx;
@@ -980,18 +974,13 @@ RendererAgg::draw_lines(const Py::Tuple& args) {
     
     moveto = false;
     
-    /*
-    if ((i>0) && (i%100000==0)) {
-      //render the sucker
-      _render_lines_path(path, gc);
-      path.remove_all();
-      path.move_to(thisx, thisy);
-    }
-    */
   }
   
+  Py_XDECREF(xa);
+  Py_XDECREF(ya);
 
   _render_lines_path(path, gc);
+
   _VERBOSE("RendererAgg::draw_lines DONE");
   return Py::Object();
   
@@ -1046,6 +1035,7 @@ Py::Object
 RendererAgg::draw_markers(const Py::Tuple& args) {
   //draw_markers(gc, path, xo, yo, transform)
   theRasterizer->reset_clipping();
+
   _VERBOSE("RendererAgg::draw_markers");
   args.verify_length(5);  
 
@@ -1195,7 +1185,10 @@ RendererAgg::draw_markers(const Py::Tuple& args) {
     agg::render_scanlines(sa, sl, *rendererAA);
 
   } //for each marker
-    
+
+  Py_XDECREF(xa);
+  Py_XDECREF(ya);
+     
   delete [] strokeCache;
   delete [] fillCache;
   return Py::Object();

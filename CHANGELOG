@@ -1,6 +1,5 @@
 New entries should be added at the top
 
-
 2005-02-14 fix bug in cbook alltrue() and onetrue() - SC
 
 2005-02-11 updated qtagg backend from Ted - JDH
@@ -8,8 +7,6 @@ New entries should be added at the top
 2005-02-11 matshow fixes for figure numbering, return value and docs - FP
 
 2005-02-09 new zorder example for fine control in zorder_demo.py - FP
-
-2005-02-09 backend renderer draw_lines now has transform in backend,
 
 2005-02-09 backend renderer draw_lines now has transform in backend,
            as in draw_markers; use numerix in _backend_agg, aded small

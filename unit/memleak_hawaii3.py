@@ -2,9 +2,9 @@
 
 import os, sys, time
 import matplotlib
-matplotlib.interactive(True)
+#matplotlib.interactive(True)
 #matplotlib.use('Cairo')
-matplotlib.use('TkAgg')
+matplotlib.use('Agg')
 from pylab import *
 
 
@@ -17,33 +17,38 @@ def report_memory(i):
 
 
 # take a memory snapshot on indStart and compare it with indEnd
-indStart, indEnd = 30, 150
+
+indStart, indEnd = 30, 201
 for i in range(indEnd):
-    ind = arange(100)
-    xx = rand(len(ind))
+
     figure(1); clf()
-    ioff()
+
     subplot(221)
-    plot(ind, xx)
+    t1 = arange(0.0, 2.0, 0.01)
+    y = sin(2*pi*t1)
+    plot(t1,y,'-')
+    plot(t1, rand(len(t1)), 's', hold=True)
+
 
     subplot(222)
     X = rand(50,50)
-    
+
     imshow(X)
     subplot(223)
-    scatter(rand(50), rand(50))
+    scatter(rand(50), rand(50), s=100*rand(50), c=rand(50))
     subplot(224)
     pcolor(10*rand(50,50))
-    ion()
-    draw()
+    #ion()
+    #draw()
 
     #ioff()
-    #savefig('tmp%d' % i, dpi = 75)
+
     #fd = file('tmp%d' % i, 'wb')
     #savefig(fd, dpi = 75)
     #fd.close()
-    #close(1)
-
+    savefig('tmp%d' % i, dpi = 75)
+    close(1)
+    #break
 
     val = report_memory(i)
     if i==indStart: start = val # wait a few cycles for memory usage to stabilize

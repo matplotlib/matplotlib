@@ -28,9 +28,10 @@ class Artist:
     aname = 'Artist'
     zorder = 0
     def __init__(self):
-
         self.figure = None
+
         self._transform = identity_transform()
+        self._transform = None
         self._transformSet = False
         self._visible = True
         self._alpha = 1.0
