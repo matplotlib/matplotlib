@@ -9,7 +9,7 @@ try:
     pygtk.require('2.0')
 except:
     print >> sys.stderr, sys.exc_info()[1] # can't use verbose(), until its imported!
-    raise SystemExit('PyGTK version 1.99.16 or greater is required to run the GTK/GTKAgg Matplotlib backend')
+    raise SystemExit('PyGTK version 1.99.16 or greater is required to run the GTK Matplotlib backends')
 
 import gobject
 import gtk
@@ -18,7 +18,7 @@ if gtk.pygtk_version < version_required:
     raise SystemExit ("PyGTK %d.%d.%d is installed\n"
                       "PyGTK %d.%d.%d or later is required"
                       % (gtk.pygtk_version + version_required))
-backend_version = gtk.pygtk_version
+backend_version = "%d.%d.%d" % gtk.pygtk_version
 
 from gtk import gdk
 import pango
@@ -820,7 +820,7 @@ class FigureCanvasGTK(gtk.DrawingArea, FigureCanvasBase):
                      orientation='portrait'):
 
         root, ext = os.path.splitext(filename)       
-        ext = ext.lower()[1:]
+        ext = ext[1:]
         if ext == '':
             ext      = IMAGE_FORMAT_DEFAULT
             filename = filename + '.' + ext
@@ -838,6 +838,7 @@ class FigureCanvasGTK(gtk.DrawingArea, FigureCanvasBase):
         self.figure.set_facecolor(facecolor)
         self.figure.set_edgecolor(edgecolor)
 
+        ext = ext.lower()
         if ext in ('eps', 'ps', 'svg',):
             if ext in ('svg',):
                 from backend_svg import FigureCanvasSVG as FigureCanvas

@@ -67,10 +67,12 @@ from matplotlib.transforms import Bbox
 
 def error_msg_template(msg, *args):
     """
-    Signal an error condition -- in a GUI, popup a error dialog
+    Signal an error condition.
+    - in a GUI backend, popup a error dialog.
+    - in a non-GUI backend delete this function and use
+    'from matplotlib.backend_bases import error_msg'
     """
-    verbose.report('Error: %s'%msg)
-    sys.exit()
+    pass
     
 
 class RendererTemplate(RendererBase):

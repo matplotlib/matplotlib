@@ -1,6 +1,11 @@
 New entries should be added at the top
 
 ==============================================================
+2004-10-31 backend_cairo.py: now produces png and ps files (although the figure
+           sizing needs some work). pycairo did not wrap all the necessary 
+           functions, so I wrapped them myself, they are included in the 
+           backend_cairo.py doc string.
+
 2004-10-31 backend_ps.py: clean up the generated PostScript code, use
            the PostScript stack to hold itermediate values instead of
            storing them in the dictionary. - JV
