@@ -447,7 +447,7 @@ class ScalarMappable:
         self.changed()
         
     def set_norm(self, norm):
-        'set the colormap for luminance data'
+        'set the normalization instance'
         if norm is None: norm = colors.normalize()
         self.norm = norm
         self.changed()

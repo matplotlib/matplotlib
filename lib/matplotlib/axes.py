@@ -985,6 +985,22 @@ which contains the normalize instance and cmap instance and can be
 used for colorbar functionality
 """
 
+        class ContourMappable(ScalarMappable):
+            """
+            a class to allow contours to respond properly to change in cmaps, etc
+            """
+            def __init__(self, levels, collections, norm=None, cmap=None):
+                ScalarMappable.__init__(self, norm, cmap)
+                self.levels = levels
+                self.collections = collections    
+
+            def changed(self):
+                colors = [ (tuple(rgba),) for rgba in self.to_rgba(self.levels)]
+                for color, collection in zip(colors, self.collections):
+                    collection.set_color(color)
+                ScalarMappable.changed(self)
+
+            
         if colors is not None and cmap is not None:
             raise RuntimeError('Either colors or cmap must be None')
         if origin is None: origin = rcParams['image.origin']
@@ -1049,7 +1065,8 @@ used for colorbar functionality
         
         
         Nlev = len(lev)
-
+        collections = []
+        
         if colors is not None:
 
             if is_string_like(colors):
@@ -1064,7 +1081,7 @@ used for colorbar functionality
             tcolors = [(colorConverter.to_rgba(c, alpha),) for c in colors]
             mappable = None
         else:
-            mappable = ScalarMappable(cmap=cmap)
+            mappable = ContourMappable(lev, collections, cmap=cmap)
             mappable.set_array(z)
             mappable.autoscale()
             tcolors = [ (tuple(rgba),) for rgba in mappable.to_rgba(lev)]
@@ -1082,15 +1099,14 @@ used for colorbar functionality
                                       
         args = zip(lev, tcolors, tlinewidths)
 
-        levels = []
-        collections = []
 
         region = 0  
+        levels = []
         for level, color, width  in args:
             ntotal, nparts  = _contour.GcInit1(x, y, reg, triangle, region, z, level)
-            np = zeros((nparts,), Int)
-            xp = zeros((ntotal, ), Float64)
-            yp = zeros((ntotal,), Float64)
+            np = zeros((nparts,), 'l')
+            xp = zeros((ntotal, ), 'd')
+            yp = zeros((ntotal,), 'd')
             nlist = _contour.GcTrace(np, xp, yp)
             #print min(ravel(triangle)), max(ravel(triangle))
             col = LineCollection(nlist, colors=color, linewidths = width)
