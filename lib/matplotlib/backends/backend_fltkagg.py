@@ -142,10 +142,10 @@ class FltkCanvas(Fltk.Fl_Widget):
                     self._key=special_key[ikey]   
                 except:
                     self._key=None   
-            FigureCanvasBase.key_press_event(self._source, self._key,x, yf)
+            FigureCanvasBase.key_press_event(self._source, self._key)
             return 1
         elif event == Fltk.FL_KEYUP:  
-            FigureCanvasBase.key_release_event(self._source, self._key,x, yf)
+            FigureCanvasBase.key_release_event(self._source, self._key)
             self._key=None           
         elif event == Fltk.FL_PUSH:
             if Fltk.Fl.event_button1():
@@ -161,10 +161,10 @@ class FltkCanvas(Fltk.Fl_Widget):
                 self._oldx=x
                 self._oldy=y
             if Fltk.Fl.event_clicks():
-                FigureCanvasBase.button_press_event(self._source, x, yf, self._button, self._key)
+                FigureCanvasBase.button_press_event(self._source, x, yf, self._button)
                 return 1    
             else:
-                FigureCanvasBase.button_press_event(self._source, x, yf, self._button, self._key)
+                FigureCanvasBase.button_press_event(self._source, x, yf, self._button)
                 return 1  
         elif event == Fltk.FL_ENTER:
             self.take_focus()
@@ -172,19 +172,19 @@ class FltkCanvas(Fltk.Fl_Widget):
         elif event == Fltk.FL_LEAVE:
             return 1     
         elif event == Fltk.FL_MOVE:
-            FigureCanvasBase.motion_notify_event(self._source, x, yf, self._button, self._key) 
+            FigureCanvasBase.motion_notify_event(self._source, x, yf) 
             return 1     
         elif event == Fltk.FL_DRAG:
             if self._draw_overlay:
                 self._dx=Fltk.Fl.event_x()-self._oldx
                 self._dy=Fltk.Fl.event_y()-self._oldy
                 Fltk.fl_overlay_rect(self._oldx,self._oldy,self._dx,self._dy)
-            FigureCanvasBase.motion_notify_event(self._source, x, yf, self._button, self._key) 
+            FigureCanvasBase.motion_notify_event(self._source, x, yf) 
             return 1   
         elif event == Fltk.FL_RELEASE:
             if self._draw_overlay:
                 Fltk.fl_overlay_clear()
-            FigureCanvasBase.button_release_event(self._source, x, yf, self._button, self._key)
+            FigureCanvasBase.button_release_event(self._source, x, yf, self._button)
             self._button = None
             return 1  
         else:
