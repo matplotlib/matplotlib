@@ -89,7 +89,7 @@ def drive(backend):
 times = {}
 backends = ['PS', 'GD', 'Paint', 'Agg', 'Template']
 #backends.extend([ 'GTK', 'WX', 'TkAgg'])
-backends = [ 'Agg']
+backends = [ 'SVG']
 #backends = [ 'Agg', 'PS', 'Template']
 
 for backend in backends:
