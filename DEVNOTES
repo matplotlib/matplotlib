@@ -57,4 +57,13 @@ http://matplotlib.sourceforge.net
 5) go to https://sourceforge.net/project/admin/?group_id=80706 and do a
 #  file release
 
+Standard reminders for numarray build
+
+ - change numerix in matplotlibrc *and* setup.py
+
+ - change backend to tkagg in rc
+
+ - email users monitoring the package and me when you are done and
+   I'll send the announcement
+
 Trove categorization is under Public info on the admin page
