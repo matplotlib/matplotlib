@@ -1,5 +1,7 @@
 New entries should be added at the top
 
+2004-06-07 Fixed several problems with log ticks and scaling - JDH
+
 2004-06-07 Fixed width/height issues for images - JDH
 
 2004-06-03 Fixed draw_if_interactive bug for semilogx; 

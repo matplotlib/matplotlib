@@ -326,7 +326,6 @@ Func::inverse(const Py::Tuple &args) {
   
   double xout = this->inverse_api(xin);
   return Py::Float(xout);
-
 };
 
 Py::Object 
@@ -977,18 +976,13 @@ Py::Object _transforms_module::new_affine (const Py::Tuple &args) {
   
 }    
 
+ 
 
-Py::Object _transforms_module::new_identity (const Py::Tuple &args)
+Py::Object _transforms_module::new_func (const Py::Tuple &args)
 {
-  args.verify_length(0);
-  return Py::Object( new Identity() );
-}   
-
-Py::Object _transforms_module::new_log (const Py::Tuple &args)
-{
-  args.verify_length(0);
-  return Py::Object( new Log() );  
-
+  args.verify_length(1);
+  int typecode = Py::Int(args[0]);
+  return Py::Object(new Func(typecode));
 }   
 
 Py::Object _transforms_module::new_funcxy (const Py::Tuple &args)
@@ -1003,6 +997,7 @@ Py::Object _transforms_module::new_funcxy (const Py::Tuple &args)
 
   return Py::Object(new FuncXY(funcx, funcy));
 }   
+
 
 Py::Object _transforms_module::new_polarxy (const Py::Tuple &args)
 {
@@ -1113,21 +1108,12 @@ void Func::init_type()
 {
   behaviors().name("Func");
   behaviors().doc("Map double -> double");
+  behaviors().supportRepr();  
   add_varargs_method("map",     &Func::map, "map(x)\n");
   add_varargs_method("inverse", &Func::inverse, "inverse(y)\n");
+  add_varargs_method("set_type", &Func::set_type, "set_type(TYPE)\n");
+  add_varargs_method("get_type", &Func::get_type, "get_type()\n");
 } 
-
-void Identity::init_type()
-{
-  behaviors().name("Identity");
-  behaviors().doc("Map x-> x");
-}
-
-void Log::init_type()
-{
-  behaviors().name("Log");
-  behaviors().doc("Map x-> log10(x)");
-}
 
 void FuncXY::init_type()
 {
@@ -1209,6 +1195,11 @@ DL_EXPORT(void)
   _transforms = new _transforms_module;
 
   import_array();  
+
+
+  Py::Dict d = _transforms->moduleDictionary();
+  d["LOG10"] = Py::Int((int)Func::LOG10);
+  d["IDENTITY"] = Py::Int((int)Func::IDENTITY);
 };
 
 
