@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 """
 Hold the pointer over an object and press "p" to pick it.  When
 picked it will turn red 
