@@ -437,3 +437,9 @@
 -- DONE Fix stale link on GTK FAQ entry
 
 -- DONE flush all traces of gtkgd
+
+-- run backend_driver with numeric and numarray (the latter only with
+   agg)
+
+-- DONE fix vlines raise in matlab.py
+-- fix imshow try/except raise in matlab.py

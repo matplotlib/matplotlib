@@ -44,14 +44,14 @@ Glyph::~Glyph() {
 
 int 
 Glyph::setattr( const char *name, const Py::Object &value ) {
-  //if (_DEBUG) std::cout << "Glyph::setattr" << std::endl;
+  if (_DEBUG) std::cout << "Glyph::setattr" << std::endl;
   __dict__[name] = value;
-  return 1; 
+  return 0; 
 }
 
 Py::Object 
 Glyph::getattr( const char *name ) {
-  //if (_DEBUG) std::cout << "Glyph::getattr" << std::endl;
+  if (_DEBUG) std::cout << "Glyph::getattr" << std::endl;
   if ( __dict__.hasKey(name) ) return __dict__[name];
   else return getattr_default( name );
 

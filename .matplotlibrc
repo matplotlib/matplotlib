@@ -143,6 +143,13 @@ figure.dpi       : 80      # figure dots per inch
 figure.facecolor : 0.75    # figure facecolor; 0.75 is scalar gray
 figure.edgecolor : w       # figure edgecolor; w is white
 
+
+### images
+image.aspect : free        # free | preserve
+image.interpolation  : bilinear  # see help(imshow) for options
+image.cmap   : gray        # gray | jet
+image.lut    : 256         # the size of the colormap lookup table
+ 
 ### SAVING FIGURES
 # the default savefig params can be different for the GUI backends.
 # Eg, you may want a higher resolution, or to make the figure

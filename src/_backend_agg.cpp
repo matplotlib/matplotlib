@@ -883,7 +883,9 @@ RendererAgg::draw_image(const Py::Tuple& args) {
   
   int x = Py::Int(args[0]);
   int y = Py::Int(args[1]);
-  ImageObject *image = (ImageObject *)args[2].ptr();
+
+  
+  Image *image = static_cast<Image*>(args[2].ptr());
   
   
   //todo: handle x and y

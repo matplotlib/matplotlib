@@ -8,5 +8,6 @@ Z = rand(10,6)
 
 c = pcolor(Z)
 c.set_linewidth(4)
-savefig('pcolor_small')
+
+#savefig('pcolor_small')
 show()
