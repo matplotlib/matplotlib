@@ -9,8 +9,7 @@ font0 = get_default_font()
 
 ###  Show family options
 
-#family = ['serif', 'sans-serif', 'cursive', 'serif', 'monospace']
-family = ['serif', 'sans-serif', 'monospace']
+family = ['serif', 'sans-serif', 'cursive', 'fantasy', 'monospace']
 
 font1 = font0.copy()
 font1.set_size('large')
@@ -20,9 +19,11 @@ t = text(-0.8, 0.9, 'family', fontproperties=font1,
 
 yp = [0.7, 0.5, 0.3, 0.1, -0.1, -0.3, -0.5]
 
-for k in range(3):
+for k in range(5):
     font = font0.copy()
     font.set_family(family[k])
+    if k == 2:
+        font.set_name('Script MT')
     t = text(-0.8, yp[k], family[k], fontproperties=font,
              horizontalalignment='center', verticalalignment='center')
 
@@ -33,7 +34,7 @@ style  = ['normal', 'italic', 'oblique']
 t = text(-0.4, 0.9, 'style', fontproperties=font1,
          horizontalalignment='center', verticalalignment='center')
 
-for k in range(2):
+for k in range(3):
     font = font0.copy()
     font.set_family('sans-serif')
     font.set_style(style[k])
