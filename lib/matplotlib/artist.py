@@ -102,7 +102,8 @@ Set  whether artist uses clipping
 ACCEPTS: [True | False]
 """
         self._clipon = b
-
+        if not b: self.clipbox = None
+        
     def draw(self, renderer, *args, **kwargs):
         'Derived classes drawing method'
         if not self.get_visible(): return 
