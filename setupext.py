@@ -27,12 +27,15 @@ WIN32
 
 """
 
+import os
+
 basedir = {
 
     'win32' : 'win32_static',
     'linux2' : '/usr',
     'linux'  : '/usr',
     'darwin' : '/usr/local',
+    'sunos5' : os.getenv('MPLIB_BASE') or '/usr/local'
 }
 
 import sys, os
@@ -65,12 +68,14 @@ def add_agg_flags(module):
 
     # before adding the freetype flags since -z comes later
     module.libraries.append('png')  
-
+    module.include_dirs.append(os.path.join(basedir[sys.platform], 'include'))
     module.include_dirs.extend(['src','agg2/include'])
+    module.library_dirs.append(os.path.join(basedir[sys.platform], 'lib'))
+
+
 
     # put these later for correct link order
     module.libraries.extend(['stdc++', 'm'])
-
 
 def add_gd_flags(module):
     'Add the module flags to build extensions which use gd'
@@ -84,6 +89,7 @@ def add_ft2font_flags(module):
     inc = os.path.join(basedir[sys.platform], 'include')
     module.include_dirs.append(inc)
     module.include_dirs.append(os.path.join(inc, 'freetype2'))
+
     module.library_dirs.append(os.path.join(basedir[sys.platform], 'lib'))
 
     if sys.platform == 'win32':
@@ -132,9 +138,31 @@ def add_pygtk_flags(module):
 # Make sure you use the Tk version given by Tkinter.TkVersion
 # or else you'll build for a wrong version of the Tcl
 # interpreter (leading to nasty segfaults).
+
+class found_tcltk:
+    pass
+
+def find_tcltk():
+    """Finds Tcl/Tk includes/libraries/version by interrogating Tkinter."""
+    try:
+	import Tkinter
+    except:
+	print "Tkinter not properly installed\n"
+	exit(1)
+    if Tkinter.TkVersion < 8.3:
+	print "Tcl/Tk v8.3 or later required\n"
+	exit(1)
+    tk=Tkinter.Tk()
+    tk.withdraw()
+    o = found_tcltk()
+    o.tcl_lib = os.path.join((tk.getvar('tcl_library')), '../')
+    o.tcl_inc = os.path.join((tk.getvar('tcl_library')), '../../include')
+    o.tk_lib = os.path.join((tk.getvar('tk_library')), '../')
+    o.tkv = str(Tkinter.TkVersion)[:3]
+    return o
+
 def add_tk_flags(module):
     'Add the module flags to build extensions which use tk'
-
     if sys.platform=='win32':
         module.include_dirs.extend(['win32_static/include/tcl'])
         module.library_dirs.extend(['C:/Python23/dlls'])
@@ -143,8 +171,10 @@ def add_tk_flags(module):
         module.extra_link_args.extend(['-framework','Tcl'])
         module.extra_link_args.extend(['-framework','Tk'])
     else:
-        module.libraries.extend(['tk', 'tcl'])
-
+	o = find_tcltk()
+	module.include_dirs.append(o.tcl_inc)
+	module.library_dirs.extend([o.tcl_lib, o.tk_lib])
+        module.libraries.extend(['tk'+o.tkv, 'tcl'+o.tkv])
 
 def build_ft2font(ext_modules, packages):
     global BUILT_FT2FONT
@@ -168,14 +198,13 @@ def build_gtkagg(ext_modules, packages):
     # add agg flags before pygtk because agg only supports freetype1
     # and pygtk includes freetype2.  This is a bit fragile.
 
-    add_ft2font_flags(module)
+
     add_agg_flags(module)  
+    add_ft2font_flags(module)
     add_pygtk_flags(module)
 
     ext_modules.append(module)    
     BUILT_GTKAGG = True
-
-
 
 def build_tkagg(ext_modules, packages):
     global BUILT_TKAGG
@@ -184,14 +213,13 @@ def build_tkagg(ext_modules, packages):
                        ['src/_tkagg.cpp'],
                        )
 
-
     # add agg flags before pygtk because agg only supports freetype1
     # and pygtk includes freetype2.  This is a bit fragile.
 
 
     add_tk_flags(module) # do this first
+    add_agg_flags(module)
     add_ft2font_flags(module)
-    add_agg_flags(module)  
 
 
     ext_modules.append(module)    
@@ -210,8 +238,9 @@ def build_agg(ext_modules, packages):
         deps
         ,
         )
-    add_ft2font_flags(module)
+
     add_agg_flags(module)
+    add_ft2font_flags(module)
     ext_modules.append(module)    
     BUILT_AGG = True
 

@@ -50,7 +50,7 @@ typedef agg::renderer_scanline_u<renderer_base, span_gen_type> renderer_type;
 typedef agg::rasterizer_scanline_aa<> rasterizer;
 
 
-extern "C" static PyTypeObject Image_Type;
+extern PyTypeObject Image_Type;
 #define ImageObject_Check(v)	((v)->ob_type == &Image_Type)
 
 enum { BICUBIC=0, BILINEAR, BLACKMAN100, BLACKMAN256, BLACKMAN64, 
@@ -442,7 +442,7 @@ Image_setattr(ImageObject *self, char *name, PyObject *v)
 }
 
 
-static PyTypeObject Image_Type = {
+PyTypeObject Image_Type = {
   /* The ob_type field must be initialized in the module init function
    * to be portable to Windows without using C++. */
   PyObject_HEAD_INIT(NULL)
