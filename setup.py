@@ -23,18 +23,18 @@ BUILD_IMAGE = 1
 BUILD_AGG = 1
 
 # Render Agg to the GTK canvas
-#BUILD_GTKAGG       = 0
-BUILD_GTKAGG       = 'auto'
+BUILD_GTKAGG       = 1
+#BUILD_GTKAGG       = 'auto'
 
 # build TK GUI with Agg renderer ; requires Tkinter Python extension
 # and Tk includes
 # Use False or 0 if you don't want to build
-#BUILD_TKAGG        = 0
-BUILD_TKAGG        = 'auto'
+BUILD_TKAGG        = 1
+#BUILD_TKAGG        = 'auto'
 
 # build a small extension to manage the focus on win32 platforms.
-#BUILD_WINDOWING        = 0
-BUILD_WINDOWING        = 'auto'
+BUILD_WINDOWING        = 1
+#BUILD_WINDOWING        = 'auto'
 
 
 VERBOSE = False  # insert lots of diagnostic prints in extension code
@@ -109,19 +109,28 @@ else: havedate = True
 
 if havedate: # dates require python23 datetime
     # only install pytz and dateutil if the user hasn't got them
-    try: import dateutil
-    except ImportError:
-        packages.append('dateutil')
-
-    try: import pytz
-    except ImportError:
+    def add_pytz():
         packages.append('pytz')
-
         # install pytz subdirs
         for dirpath, dirname, filenames in os.walk(os.path.join('lib', 'pytz','zoneinfo')):
             packages.append('/'.join(dirpath.split(os.sep)[1:]))
 
+    def add_dateutil():
+        packages.append('dateutil')
 
+    if sys.platform=='win32':
+        # always add these to the win32 installer
+        add_pytz()
+        add_dateutil()
+    else:
+        # only add them if we need them
+        try: import dateutil
+        except ImportError:
+            add_dateutil()
+
+        try: import pytz
+        except ImportError:
+            add_pytz()
 
 build_transforms(ext_modules, packages, NUMERIX)
 
