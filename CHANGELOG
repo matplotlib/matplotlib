@@ -1,5 +1,8 @@
 New entries should be added at the top
 
+2005-02-08 Added transparent support for gzipped files in load/save - Fernando
+           Perez (FP from now on).
+
 2005-02-07 Added newstyle path drawing for markers - only implemented
            in agg currently - JDH
 
