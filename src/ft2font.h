@@ -18,7 +18,7 @@ extern "C" {
 #include "CXX/Extensions.hxx"
 
 
-// the freetype string renderered into a width, height buffer
+// the freetype string rendered into a width, height buffer
 class FT2Image {
 public:
   FT2Image();
