@@ -4,7 +4,6 @@ import os, math
 import sys
 def fn_name(): return sys._getframe(1).f_code.co_name
 
-
 import matplotlib
 from matplotlib import verbose
 from matplotlib.numerix import asarray, fromstring, UInt8, zeros, \
@@ -24,7 +23,6 @@ except ImportError:
     verbose.report_error('backend_gtk could not import mathtext (build with ft2font)')
     useMathText = False
 else: useMathText = True
-
 
 try:
     import pygtk
@@ -547,24 +545,6 @@ class GraphicsContextGTK(GraphicsContextBase):
         self.gdkGC.line_width = max(1, int(round(pixels)))
 
                                                
-def error_msg_gtk(msg, parent=None):
-    if parent: # find the toplevel gtk.Window
-        parent = parent.get_toplevel()
-        if not parent.flags() & gtk.TOPLEVEL:
-            parent = None
-
-    if not is_string_like(msg):
-        msg = ','.join(map(str,msg))
-                          
-    dialog = gtk.MessageDialog(
-        parent         = parent,
-        type           = gtk.MESSAGE_ERROR,
-        buttons        = gtk.BUTTONS_OK,
-        message_format = msg)
-    dialog.run()
-    dialog.destroy()
-
-
 def draw_if_interactive():
     """
     Is called after every matplotlib.matlab drawing command
@@ -701,8 +681,9 @@ class FigureCanvasGTK(gtk.DrawingArea, FigureCanvasBase):
     def mpl_connect(self, s, func):
         
         if s not in self.events:
-            error_msg('Can only connect events of type "%s"\nDo not know how to handle "%s"' %(', '.join(self.events), s),
-                      parent=self)            
+            raise MPLError('Can only connect events of type "%s"\nDo not know how to handle "%s"' %(', '.join(self.events), s))
+            #error_msg('Can only connect events of type "%s"\nDo not know how to handle "%s"' %(', '.join(self.events), s),
+            #          parent=self)            
 
         def wrapper(widget, event):
             thisEvent = MplEvent(s, self) 
@@ -851,9 +832,10 @@ class FigureCanvasGTK(gtk.DrawingArea, FigureCanvasBase):
         
             # pixbuf.save() recognises 'jpeg' not 'jpg'
             if ext == 'jpg': ext = 'jpeg' 
-            try: pixbuf.save(filename, ext)
-            except gobject.GError, exc:
-                error_msg('Save figure failure:\n%s' % (exc,), parent=self)
+            pixbuf.save(filename, ext)
+            #try: pixbuf.save(filename, ext)
+            #except gobject.GError, exc:
+            #    error_msg('Save figure failure:\n%s' % (exc,), parent=self)
 
         elif ext in ('eps', 'ps', 'svg',):
             if ext == 'svg':
@@ -861,10 +843,11 @@ class FigureCanvasGTK(gtk.DrawingArea, FigureCanvasBase):
             else:
                 from backend_ps  import FigureCanvasPS  as FigureCanvas
 
-            #try:
-            # Testing - use uncaught exception handler
             fc = self.switch_backends(FigureCanvas)
             fc.print_figure(filename, dpi, facecolor, edgecolor, orientation)
+            #try:
+            #    fc = self.switch_backends(FigureCanvas)
+            #    fc.print_figure(filename, dpi, facecolor, edgecolor, orientation)
             #except IOError, exc:
             #    error_msg("Save figure failure:\n%s: %s" %
             #              (exc.filename, exc.strerror), parent=self)
@@ -875,17 +858,21 @@ class FigureCanvasGTK(gtk.DrawingArea, FigureCanvasBase):
             try: 
                 from backend_agg import FigureCanvasAgg  as FigureCanvas
             except:
-                error_msg('Save figure failure:\n'
-                          'Agg must be loaded to save as bmp, raw and rgb',
-                          parent=self)
+                raise MPLError('Save figure failure:\n'
+                               'Agg must be loaded to save as bmp, raw and rgb')
+                #error_msg('Save figure failure:\n'
+                #          'Agg must be loaded to save as bmp, raw and rgb',
+                #          parent=self)                
             else:
                 fc = self.switch_backends(FigureCanvas)
                 fc.print_figure(filename, dpi, facecolor, edgecolor, orientation)
 
         else:
-            error_msg('Format "%s" is not supported.\nSupported formats are %s.' %
-                      (ext, ', '.join(IMAGE_FORMAT)),
-                      parent=self)
+            raise MPLError('Format "%s" is not supported.\nSupported formats are %s.' %
+                           (ext, ', '.join(IMAGE_FORMAT)))
+            #error_msg('Format "%s" is not supported.\nSupported formats are %s.' %
+            #          (ext, ', '.join(IMAGE_FORMAT)),
+            #          parent=self)
 
         # restore figure settings
         self.figure.dpi.set(origDPI)
@@ -1455,18 +1442,11 @@ if gtk.pygtk_version >= (2,4,0):
             if path: self.path = path
             else:    self.path = os.getcwd() + os.sep
 
-            #self.IMAGE_FORMAT         = matplotlib.backends.backend_mod.IMAGE_FORMAT
-            #self.IMAGE_FORMAT_DEFAULT = matplotlib.backends.backend_mod.IMAGE_FORMAT_DEFAULT
-            #self.IMAGE_FORMAT.sort()
-
-            # later: change self.IMAGE_FORMAT to IMAGE_FORMAT
-            self.IMAGE_FORMAT         = IMAGE_FORMAT
-            self.IMAGE_FORMAT_DEFAULT = IMAGE_FORMAT_DEFAULT
-            self.IMAGE_FORMAT.sort()
+            IMAGE_FORMAT.sort()
 
             # create an extra widget to list supported image formats
             self.set_current_folder (self.path)
-            self.set_current_name ('image.' + self.IMAGE_FORMAT_DEFAULT)
+            self.set_current_name ('image.' + IMAGE_FORMAT_DEFAULT)
 
             hbox = gtk.HBox (spacing=10)
             hbox.pack_start (gtk.Label ("Image Format:"), expand=False)
@@ -1474,18 +1454,18 @@ if gtk.pygtk_version >= (2,4,0):
             self.cbox = gtk.combo_box_new_text()
             hbox.pack_start (self.cbox)
 
-            for item in self.IMAGE_FORMAT:
+            for item in IMAGE_FORMAT:
                 self.cbox.append_text (item)
-            self.cbox.set_active (self.IMAGE_FORMAT.index (self.IMAGE_FORMAT_DEFAULT))
+            self.cbox.set_active (IMAGE_FORMAT.index (IMAGE_FORMAT_DEFAULT))
 
             def cb_cbox_changed (cbox, data=None):
                 """File extension changed"""
                 head, filename = os.path.split(self.get_filename())
                 root, ext = os.path.splitext(filename)
                 ext = ext[1:]
-                new_ext = self.IMAGE_FORMAT[cbox.get_active()]
+                new_ext = IMAGE_FORMAT[cbox.get_active()]
 
-                if ext in self.IMAGE_FORMAT:
+                if ext in IMAGE_FORMAT:
                     filename = filename.replace(ext, new_ext)
                 elif ext == '':
                     filename = filename.rstrip('.') + '.' + new_ext
@@ -1504,17 +1484,22 @@ if gtk.pygtk_version >= (2,4,0):
                     filename = None
                     break
                 filename = self.get_filename()
-                menu_ext  = self.IMAGE_FORMAT[self.cbox.get_active()]
+                menu_ext  = IMAGE_FORMAT[self.cbox.get_active()]
                 root, ext = os.path.splitext(filename)
                 ext = ext[1:]
                 if ext == '':
                     ext = menu_ext
                     filename += '.' + ext
 
-                if ext in self.IMAGE_FORMAT:
+                if ext in IMAGE_FORMAT:
                     self.path = filename
                     break
                 else:
+                    # XXX exception causes method to terminate w/o closing window
+                    # but want to repeat loop until selection is made
+                    # so a popup IS more appropriate?
+                    #raise MPLError('Format "%s" is not supported.\nSupported formats are %s.' %
+                    #       (ext, ', '.join(IMAGE_FORMAT)))
                     error_msg('Image format "%s" is not supported' % ext,
                               parent=self)
                     self.set_current_name(os.path.split(root)[1] + '.' + menu_ext)
@@ -1522,9 +1507,6 @@ if gtk.pygtk_version >= (2,4,0):
             self.hide()
             return filename
 
-
-FigureManager = FigureManagerGTK
-error_msg = error_msg_gtk
 
 # set icon used when windows are minimized, it requires
 # gtk.pygtk_version >= (2,2,0) with a GDK pixbuf loader for SVG installed
@@ -1535,22 +1517,54 @@ except:
     verbose.report('Could not load matplotlib icon: %s' % sys.exc_info()[1])
 
 
-# TESTING
-import sys
+def error_msg_gtk(msg, parent=None):
+    if parent: # find the toplevel gtk.Window
+        parent = parent.get_toplevel()
+        if not parent.flags() & gtk.TOPLEVEL:
+            parent = None
+
+    if not is_string_like(msg):
+        msg = ','.join(map(str,msg))
+                          
+    dialog = gtk.MessageDialog(
+        parent         = parent,
+        type           = gtk.MESSAGE_ERROR,
+        buttons        = gtk.BUTTONS_OK,
+        message_format = msg)
+    dialog.run()
+    dialog.destroy()
+
+
+class MPLError (Exception):
+    """Exception for Matplotlib errors
+    Attributes:
+        message -- explanation of the error
+    """
+    def __init__ (self, message):
+        self.message = message
+
+    def __str__ (self):
+        return self.message
+
 
 def exception_handler(type, value, tb):
-    """Handle uncaught exceptions"""
-    # type is of format - exceptions.IOError
+    """Handle uncaught exceptions
+    It does not catch SystemExit
+    """
+    msg = ''
     # get the filename attribute if available (for IOError)
     if hasattr(value, 'filename') and value.filename != None:
         msg = value.filename + ': '
-    else:
-        msg = ''
     if hasattr(value, 'strerror') and value.strerror != None:
         msg += value.strerror
     else:
-        msg = value
+        msg += str(value)
 
-    if len(msg): error_msg_gtk(msg)
+    if len(msg) :error_msg_gtk(msg)
 
-sys.excepthook = exception_handler
+# override excepthook only if it has not already been overridden
+if sys.__excepthook__ is sys.excepthook:
+    sys.excepthook = exception_handler
+
+FigureManager = FigureManagerGTK
+error_msg = error_msg_gtk
