@@ -2,6 +2,9 @@
 # Copyright (C) 2003  <jdhunter@ace.bsd.uchicago.edu>
 # $Header$
 # $Log$
+# Revision 1.25  2004/03/15 14:49:46  jdh2358
+# updated image to work with data coords; moved image extendsion to _image
+#
 # Revision 1.24  2004/03/08 14:56:44  jdh2358
 # fixed subplot bug
 #
@@ -101,6 +104,7 @@ MODULES =					\
 	matplotlib.cbook			\
 	matplotlib.colors			\
 	matplotlib.figure			\
+	matplotlib.image			\
 	matplotlib.legend			\
 	matplotlib.lines			\
 	matplotlib.matlab			\

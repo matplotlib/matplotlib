@@ -232,11 +232,11 @@ def build_image(ext_modules, packages):
     global BUILT_IMAGE
     if BUILT_IMAGE: return # only build it if you you haven't already
     
-    deps = ['src/image.cpp'] 
+    deps = ['src/_image.cpp'] 
     deps.extend(glob.glob('agg2/src/*.cpp'))
                        
     module = Extension(
-        'matplotlib.image',
+        'matplotlib._image',
         deps
         ,
         )

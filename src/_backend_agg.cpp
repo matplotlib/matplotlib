@@ -2,7 +2,7 @@
 #include <png.h>
 #include "ft2font.h"
 #include "_backend_agg.h"
-#include "image.h"
+#include "_image.h"
 
 static PyObject *ErrorObject;
 
