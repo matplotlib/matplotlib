@@ -13,7 +13,7 @@ ax.plot(t,s)
 canvas = get_current_fig_manager().canvas
 
 def on_move(event):
-    # get the x and y coords, flip y from top to bottom
+    # get the x and y pixel coords
     x, y = event.x, event.y
 
     if event.inaxes is not None:
