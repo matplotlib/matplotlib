@@ -359,3 +359,5 @@
 
 -- fix backend image area problem for vert text in GTK - related to
    rect I think
+
+-- Tim's log y on hist.
