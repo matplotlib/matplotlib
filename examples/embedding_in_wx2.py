@@ -39,8 +39,10 @@ class CanvasFrame(wxFrame):
 
         self.sizer = wxBoxSizer(wxVERTICAL)
         self.sizer.Add(self.canvas, 1, wxTOP | wxLEFT | wxEXPAND)
+        self.SetSizer(self.sizer)
+        self.Fit()
 
-        #self.add_toolbar()  # comment this out for no toolbar
+        self.add_toolbar()  # comment this out for no toolbar
 
 
         # Capture the paint message        
