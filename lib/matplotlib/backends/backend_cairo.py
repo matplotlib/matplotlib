@@ -8,9 +8,7 @@ Features of Cairo:
  * alpha channel 
  * in-memory image buffers
  * save image files:
-   - PNG
-   - PostScript (50% complete)
-   - PDF        (in development)
+   - PNG, PostScript, PDF
 
 http://cairographics.org
 Requires (in order, all available from Cairo website):
@@ -23,26 +21,24 @@ Naming Conventions
 """
 
 from __future__ import division
-
 import os
 import sys, warnings
 def _fn_name(): return sys._getframe(1).f_code.co_name
 
-from matplotlib import verbose
 from matplotlib.numerix import asarray, pi, fromstring, UInt8, zeros
 import matplotlib.numerix as numerix
 from matplotlib.backend_bases import RendererBase, GraphicsContextBase,\
      FigureManagerBase, FigureCanvasBase
-from matplotlib.cbook import enumerate
-from matplotlib.figure import Figure
+from matplotlib.cbook      import enumerate
+from matplotlib.figure     import Figure
+from matplotlib.mathtext   import math_parse_s_ft2font
 from matplotlib.transforms import Bbox
-from matplotlib.mathtext import math_parse_s_ft2font
 
 import cairo
 
 version_required = (0,1,4)
 try: cairo.version_info
-except AttributeError:
+except AttributeError:  # remove at version 0.1.5 or 6
    backend_version = 'Unknown'
 else:
    if cairo.version_info < version_required:
@@ -51,6 +47,12 @@ else:
                         % (cairo.version_info + version_required))
    backend_version = cairo.version
    del version_required
+
+HAVE_CAIRO_NUMPY = True
+try:
+   import cairo.numpy
+except:
+   HAVE_CAIRO_NUMPY = False
 
 
 DEBUG = False
@@ -129,8 +131,11 @@ class RendererCairo(RendererBase):
     def draw_image(self, x, y, im, origin, bbox):
         if DEBUG: print 'backend_cairo.RendererCairo.%s()' % _fn_name()
 
-        try: import cairo.numpy
-        except:
+        if numerix.which[0] == "numarray":
+            warnings.warn("draw_image() currently works for numpy, but not numarray")
+            return
+
+        if not HAVE_CAIRO_NUMPY:
             warnings.warn("cairo.numpy module required for draw_image()")
             return
 
@@ -156,8 +161,7 @@ class RendererCairo(RendererBase):
 
         # ARGB32
 
-        
-        # works for numpy image, not a numarray image
+        # works for numpy X, not numarray X
         surface = cairo.numpy.surface_create_for_array (X)
 
         # Alternative
@@ -177,7 +181,8 @@ class RendererCairo(RendererBase):
         ctx.stroke()
 
 
-    def draw_lines(self, gc, x, y):
+    #def draw_lines(self, gc, x, y):
+    def draw_lines(self, gc, x, y, transform=None):
         if DEBUG: print 'backend_cairo.RendererCairo.%s()' % _fn_name()
         y = [self.height - y for y in y]
         points = zip(x,y)
@@ -191,6 +196,78 @@ class RendererCairo(RendererBase):
         ctx.stroke()
 
 
+    #def draw_markers(self, gc, path, x, y, transform):
+    def _draw_markers(self, gc, path, x, y, transform): # disable, not finished yet
+        """
+        Draw the markers defined by path at each of the positions in x
+        and y.  path coordinates are points, x and y coords will be
+        transformed by the transform
+        """
+        if DEBUG: print 'backend_cairo.RendererCairo.%s()' % _fn_name()
+        from matplotlib.path import STOP, MOVETO, LINETO, CURVE3, CURVE4, ENDPOLY
+
+        if transform.need_nonlinear():
+            x,y = transform.nonlinear_only_numerix(x, y)
+
+        # the a,b,c,d,tx,ty affine which transforms x and y
+        vec6 = transform.as_vec6_val()
+        # this defines a single vertex.  We need to define this as ps
+        # function, properly stroked and filled with linewidth etc,
+        # and then simply iterate over the x and y and call this
+        # function at each position.  Eg, this is the path that is
+        # relative to each x and y offset.
+
+        ctx = gc.ctx
+
+        def draw_path():
+            # could trace path just once, then save/restore() ?
+            for p in path:
+               code = p[0]
+               if code==MOVETO:
+                  mx, my = p[1:]
+                  # ctx.move_to (mx, self.height - my)
+                  ctx.move_to (mx, my)
+               elif code==LINETO:
+                  mx, my = p[1:]
+                  # ctx.line_to (mx, self.height - my)                
+                  ctx.line_to (mx, my)                
+               elif code==ENDPOLY:
+                  ctx.close_path()
+                  # draw_marker
+                  fill = p[1]
+                  if fill:  # we can get the fill color here
+                     #rgba = p[2:]
+                     rgb = p[2:5] # later - set alpha
+                     ctx.save()
+                     ctx.set_rgb_color (*rgb)
+                     ctx.fill()
+                     ctx.restore()
+            
+                  ctx.stroke() # later stroke and/or fill, sel fill color
+                  break
+                    
+        # the gc contains the stroke width and color as always
+        for i in xrange(len(x)):
+            # FIXME
+            # 1) markers are upside down
+            # 2) get line-dash working
+            # -> cmp to plot w/o draw_markers()
+            # need to translate points to pixels?
+            # look to writing in a more efficient way
+            # use Cairo transform
+            
+            ctx.save()
+            thisx, thisy = x[i], y[i]
+            
+            # apply affine transform x and y to define marker center
+            ctx.new_path()
+            tx, ty = transform.xy_tup((thisx, thisy))
+            ctx.translate(tx, self.height - ty)
+            draw_path()
+
+            ctx.restore() # wrap translate()
+
+        
     def draw_point(self, gc, x, y):
         if DEBUG: print 'backend_cairo.RendererCairo.%s()' % _fn_name()
         # render by drawing a 0.5 radius circle
@@ -259,8 +336,11 @@ class RendererCairo(RendererBase):
         if DEBUG: print 'backend_cairo.RendererCairo.%s()' % _fn_name()
        # mathtext using the gtk/gdk method
 
-        try: import cairo.numpy
-        except:
+        if numerix.which[0] == "numarray":
+            warnings.warn("_draw_mathtext() currently works for numpy, but not numarray")
+            return
+
+        if not HAVE_CAIRO_NUMPY:
             warnings.warn("cairo.numpy module required for _draw_mathtext()")
             return
 
@@ -298,6 +378,7 @@ class RendererCairo(RendererBase):
         pa[:,:,2] = int(rgb[2]*255)
         pa[:,:,3] = Xs
 
+        # works for numpy pa, not a numarray pa
         surface = cairo.numpy.surface_create_for_array(pa)
         gc.ctx.translate (x,y)
         gc.ctx.show_surface (surface, imw, imh)
