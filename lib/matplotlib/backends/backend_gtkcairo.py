@@ -15,7 +15,7 @@ from backend_cairo import FigureCanvasCairo, RendererCairo, IMAGE_FORMAT, \
      IMAGE_FORMAT_DEFAULT, print_figure_fn
 from backend_gtk import gtk, FigureManagerGTK, FigureCanvasGTK, show,    \
      draw_if_interactive, error_msg, NavigationToolbar, backend_version, \
-     raise_msg_to_str, gdk_pixmap_save
+     gdk_pixmap_save
 
 import gobject
 
