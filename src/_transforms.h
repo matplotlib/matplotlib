@@ -53,8 +53,7 @@ public:
 class Value: public LazyValue {
 public:
   Value(double val) : _val(val) {}
-
-
+  ~Value();
   static void init_type(void);
   Py::Object set(const Py::Tuple &args);
   Py::Object get(const Py::Tuple &args);
@@ -73,10 +72,8 @@ private:
 // binary operations on lazy values
 class BinOp: public LazyValue {
 public:
-  BinOp(LazyValue* lhs, LazyValue* rhs, int opcode) : 
-    _lhs(lhs), _rhs(rhs), _opcode(opcode) {
-    //std::cout << "called binop init " << lhs->val() << " " << rhs->val() << std::endl;
-  }
+  BinOp(LazyValue* lhs, LazyValue* rhs, int opcode);
+  ~BinOp();
 
   static void init_type(void);
   Py::Object get(const Py::Tuple &args);
@@ -111,8 +108,8 @@ private:
 
 class Point: public Py::PythonExtension<Point> {
 public:
-  Point(LazyValue* x, LazyValue*  y) : _x(x), _y(y) {}
-  ~Point() { }
+  Point(LazyValue* x, LazyValue*  y);
+  ~Point();
   static void init_type(void);
 
   // get the x Value instance
@@ -128,6 +125,11 @@ public:
   double  xval() {return _x->val();}
   double  yval() {return _y->val();}
 
+  Py::Object reference_count (const Py::Tuple& args) 
+  {
+    return Py::Int(this->ob_refcnt);
+  }
+
 private:
   LazyValue *_x;
   LazyValue *_y;
@@ -137,10 +139,11 @@ private:
 
 class Interval: public Py::PythonExtension<Interval> {
 public:
-  Interval(LazyValue* val1, LazyValue* val2) : _val1(val1), _val2(val2) {};
-
-  static void init_type(void);
+  Interval(LazyValue* val1, LazyValue* val2);
+  ~Interval();
   
+  static void init_type(void);
+
   Py::Object contains( const Py::Tuple &args) {
     args.verify_length(1);
     double x =  Py::Float(args[0]);
@@ -227,8 +230,10 @@ private:
 
 class Bbox: public Py::PythonExtension<Bbox> {
 public:
-  Bbox(Point* ll, Point* ur) : _ll(ll), _ur(ur) {};
+  Bbox(Point* ll, Point* ur);
+  ~Bbox();
   static void init_type(void);
+
 
   // return lower left point
   Py::Object ll(const Py::Tuple &args) { return Py::Object(_ll); }
@@ -242,11 +247,11 @@ public:
   Py::Object get_bounds(const Py::Tuple &args);
 
   Py::Object intervalx(const Py::Tuple &args) {
-    return Py::Object( new Interval( _ll->x_api(), _ur->x_api()));
+    return Py::asObject( new Interval( _ll->x_api(), _ur->x_api()));
   }
 
   Py::Object intervaly(const Py::Tuple &args) {
-    return Py::Object( new Interval( _ll->y_api(), _ur->y_api()));
+    return Py::asObject( new Interval( _ll->y_api(), _ur->y_api()));
   }
 
 
@@ -292,7 +297,6 @@ public:
   Py::Object overlapsy(const Py::Tuple &args); 
 
   
-  ~Bbox() {}  
 
   Point* ll_api() {return _ll;}
   Point* ur_api() {return _ur;}
@@ -309,6 +313,8 @@ private:
 class Func : public Py::PythonExtension<Func> { 
 public:
   Func( unsigned int type=IDENTITY ) : _type(type) {};
+  ~Func();
+  
   static void init_type(void);
   
   Py::Object str() { return Py::String(as_string());}
@@ -360,7 +366,9 @@ private:
 
 class FuncXY : public Py::PythonExtension<FuncXY> { 
 public:
-  FuncXY(Func* funcx=NULL, Func* funcy=NULL) : _funcx(funcx), _funcy(funcy){}
+  FuncXY(Func* funcx=NULL, Func* funcy=NULL);
+  ~FuncXY();
+
   static void init_type(void);
 
   Py::Object map(const Py::Tuple &args);
@@ -391,6 +399,8 @@ private:
 // log, semilogx or semilogy
 class PolarXY : public FuncXY { 
 public:
+
+  ~PolarXY();
 
   static void init_type(void);
 
@@ -426,6 +436,8 @@ public:
   Transformation() : _usingOffset(0), _transOffset(NULL), 
 		     _xo(0), _yo(0), 
 		     _invertible(true), _frozen(false) {}
+  ~Transformation();
+
   static void init_type(void);
 
   // for separable transforms 
@@ -487,9 +499,8 @@ protected:
 
 class SeparableTransformation: public Transformation {
 public:
-  SeparableTransformation(Bbox *b1, Bbox *b2, Func *funcx, Func *funcy) : 
-    Transformation(), 
-    _b1(b1), _b2(b2), _funcx(funcx), _funcy(funcy)  {}
+  SeparableTransformation(Bbox *b1, Bbox *b2, Func *funcx, Func *funcy);
+  ~SeparableTransformation();
 
   static void init_type(void);
 
@@ -523,8 +534,9 @@ protected:
 class Affine: public Transformation {
 public:
   Affine(LazyValue *a, LazyValue *b,  LazyValue *c, 
-	 LazyValue *d, LazyValue *tx, LazyValue *ty) : 
-    _a(a), _b(b), _c(c), _d(d), _tx(tx), _ty(ty) {}
+	 LazyValue *d, LazyValue *tx, LazyValue *ty);
+
+  ~Affine();
 
   static void init_type(void);
 
