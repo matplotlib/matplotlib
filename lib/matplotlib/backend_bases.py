@@ -28,37 +28,6 @@ class RendererBase:
         """
         pass
     
-    def get_canvas_width_height(self):
-        'return the canvas width and height in display coords'
-        return 1, 1
-
-    def get_text_width_height(self, s, prop, ismath):
-        """
-        get the width and height in display coords of the string s
-        with FontPropertry prop
-        """
-        return 1,1
-                              
-    def flipy(self):
-        'return true if y small numbers are top for renderer'
-        return True
-    
-    def points_to_pixels(self, points):
-        """
-        Convert points to display units (as a float).
-        You need to override this function (unless your backend doesn't have
-        dpi, eg, postscript or svg).
-        Many imaging systems assume some value for pixels per inch.
-        points to pixels = points * pixels_per_inch/72.0 * dpi/72.0
-        """
-        return points  
-        
-    def get_text_extent(self, text):
-        """
-        Get the text extent in window coords
-        """
-        return lbwh_to_bbox(0,0,1,1)  # your values here
-
     def draw_arc(self, gcEdge, rgbFace, x, y, width, height, angle1, angle2):
         """
         Draw an arc using GraphicsContext instance gcEdge, centered at x,y,
@@ -83,7 +52,7 @@ class RendererBase:
         """
         raise NotImplementedError
 
-    def _draw_marker(self, gc, path, x, y, trans):
+    def _draw_markers(self, gc, path, x, y, trans):
         """
         This method is currently underscore hidden because the
         draw_markers method is being used as a sentinel for newstyle
@@ -203,6 +172,7 @@ class RendererBase:
     def draw_point(self, gc, x, y):
         """
         Draw a single point at x,y
+        Where 'point' is a device-unit point (or pixel), not a matplotlib point
         """
         raise NotImplementedError
     
@@ -339,9 +309,41 @@ class RendererBase:
     def draw_text(self, gc, x, y, s, prop, angle, ismath=False):
         """
         Draw the text.Text instance s at x,y (display coords) with font
-        properties instance prop at angle in degrees
+        properties instance prop at angle in degrees, using GraphicsContext gc
+
+        **backend implementers note**
+        
+        When you are trying to determine if you have gotten your bounding box
+        right (which is what enables the text layout/alignment to work
+        properly), it helps to change the line in text.py
+
+                  if 0: bbox_artist(self, renderer)
+
+        to if 1, and then the actual bounding box will be blotted along with
+        your text.
         """
         raise NotImplementedError
+    
+    def flipy(self):
+        'return true if y small numbers are top for renderer'
+        return True
+
+    def get_canvas_width_height(self):
+        'return the canvas width and height in display coords'
+        return 1, 1
+
+    def get_text_extent(self, text): # is not used, can be removed?
+        """
+        Get the text extent in window coords
+        """
+        return lbwh_to_bbox(0,0,1,1)  # your values here
+
+    def get_text_width_height(self, s, prop, ismath):
+        """
+        get the width and height in display coords of the string s
+        with FontPropertry prop
+        """
+        return 1,1
     
     def new_gc(self):
         """
@@ -349,6 +351,16 @@ class RendererBase:
         """
         return GraphicsContextBase()
 
+    def points_to_pixels(self, points):
+        """
+        Convert points to display units (as a float).
+        You need to override this function (unless your backend doesn't have
+        dpi, eg, postscript or svg).
+        Many imaging systems assume some value for pixels per inch.
+        points to pixels = points * pixels_per_inch/72.0 * dpi/72.0
+        """
+        return points  
+        
     def strip_math(self, s):
         return strip_math(s)
               
