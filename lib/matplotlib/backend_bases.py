@@ -81,15 +81,14 @@ class RendererBase:
                              colors, linewidths, linestyle, antialiaseds,
                              offsets, transOffset):
         """
-        This is a function for optimized line drawing.  If you need to
-        draw many line segments with similar properties, it is faster
-        to avoid the overhead of all the object creation etc.  The
-        lack of total configurability is compensated for with
-        efficiency.  Hence we don't use a GC and many of the line
-        props it supports.  See matplotlib.collections for more
-        details
+        This is a function for optimized line drawing. If you need to draw
+        many line segments with similar properties, it is faster to avoid the
+        overhead of all the object creation etc. The lack of total
+        configurability is compensated for with efficiency. Hence we don't use
+        a GC and many of the line props it supports. See
+        matplotlib.collections for more details.
 
-        sements is a sequence of ( line0, line1, line2), where linen =
+        segments is a sequence of ( line0, line1, line2), where linen =
         (x0, y0), (x1, y1), ... (xm, ym).  Each line can be a
         different length
 
@@ -100,63 +99,52 @@ class RendererBase:
         colors is a tuple of RGBA tuples
 
         linewidths is a tuple of linewidths
+        *** really should be called 'dashes' not 'linestyle', since
+        we call gc.set_dashes() not gc.set_linestyle() ***
 
         linestyle is an (offset, onoffseq) tuple or None,None for solid
 
         antialiseds is a tuple of ones or zeros indicating whether the
         segment should be aa or not
 
-        offsets, if not None, is a list of x,y offsets to translate
-        the lines by after transoff is used to transform the offset
-        coords
+        offsets, if not None, is a list of x,y offsets to translate the lines
+        by after transform is used to transform the offset coords
 
-        This function is intended to be overridden by the backend
-        level in extension code for backends that want fast line
-        collection drawing.  Here is is implemented using native
-        backend calls and may be slow
+        This function could be overridden in the backend to possibly implement
+        faster drawing, but it is already much faster than using draw_lines()
+        by itself.
         """
-
         gc = self.new_gc()
+        gc.set_clip_rectangle(clipbox.get_bounds())
+        gc.set_dashes(*linestyle)
 
-        i = 0
-        Nc = len(colors)
-        Nlw = len(linewidths)
-
-        Naa = len(antialiaseds)
+        Nc        = len(colors)
+        Nlw       = len(linewidths)
+        Naa       = len(antialiaseds)
+        Nsegments = len(segments)
 
         usingOffsets = offsets is not None
-        Noffsets = 0
-        Nsegments = len(segments)
+        Noffsets  = 0
         if usingOffsets:
             Noffsets = len(offsets)
 
-        N = max(Noffsets, Nsegments)
-            
-        gc.set_clip_rectangle(clipbox.get_bounds())
-
-        if linestyle[0] is not None:
-            offset, seq = linestyle
-            gc.set_dashes( offset, seq )
-
-        for i in xrange(N):
-            x, y = zip(*segments[i % Nsegments])
-            x, y = transform.numerix_x_y(array(x), array(y))
-
+        for i in xrange(max(Noffsets, Nsegments)):
             color = colors[i % Nc]
-            rgb = color[0], color[1], color[2]
+            rgb   = color[0], color[1], color[2]
             alpha = color[-1]
             
-            gc.set_foreground( rgb, isRGB=True)
+            gc.set_foreground(rgb, isRGB=True)
             gc.set_alpha( alpha )
             gc.set_linewidth( linewidths[i % Nlw] )
-    
             gc.set_antialiased( antialiaseds[i % Naa] )
+            
+            x, y = zip(*segments[i % Nsegments])
+            x, y = transform.numerix_x_y(array(x), array(y))
             if usingOffsets:
                 xo, yo = transOffset.xy_tup(offsets[i % Noffsets])
                 x += xo
                 y += yo
             self.draw_lines(gc, x, y)
-            i += 1
             
     def draw_line(self, gc, x1, y1, x2, y2):
         """
@@ -191,7 +179,6 @@ class RendererBase:
         linewidths are a sequence of linewidths
         antialiaseds are a sequence of 0,1 integers whether to use aa
         """
-
         Nface = len(facecolors)
         Nedge = len(edgecolors)
         Nlw = len(linewidths)
@@ -256,10 +243,10 @@ class RendererBase:
         """
         Draw a regular poly collection
 
-        offsets is a sequence is x,y tuples and transOffset maps this
-        to display coords
+        offsets   - is a sequence is x,y tuples
+        transOffset - maps this to display coords
 
-        verts are the vertices of the regular polygon at the origin
+        verts - are the vertices of the regular polygon at the origin
 
         sizes are the area of the circle that circumscribes the
         polygon in points^2
@@ -268,19 +255,19 @@ class RendererBase:
         linewidths are a sequence of linewidths
         antialiaseds are a sequence of 0,1 integers whether to use aa
         """
+        gc = self.new_gc()
+        if clipbox is not None:
+            gc.set_clip_rectangle(clipbox.get_bounds())
+
         xverts, yverts = zip(*verts)
         xverts = asarray(xverts)
         yverts = asarray(yverts)
                    
-        Nface = len(facecolors)
-        Nedge = len(edgecolors)
-        Nlw = len(linewidths)
-        Naa = len(antialiaseds)
+        Nface  = len(facecolors)
+        Nedge  = len(edgecolors)
+        Nlw    = len(linewidths)
+        Naa    = len(antialiaseds)
         Nsizes = len(sizes)
-
-
-        gc = self.new_gc()
-        if clipbox is not None: gc.set_clip_rectangle(clipbox.get_bounds())
 
         for i, loc in enumerate(offsets):
             xo,yo = transOffset.xy_tup(loc)
@@ -304,6 +291,7 @@ class RendererBase:
             gc.set_alpha( alpha )
             gc.set_linewidth( linewidths[i % Nlw] )
             gc.set_antialiased( antialiaseds[i % Naa] )
+            
             #print 'verts', zip(thisxverts, thisyverts)
             self.draw_polygon(gc, rgbFace, zip(thisxverts, thisyverts))
         
@@ -327,7 +315,9 @@ class RendererBase:
         raise NotImplementedError
     
     def flipy(self):
-        'return true if y small numbers are top for renderer'
+        """return true if y small numbers are top for renderer
+        Is used for drawing text (text.py) and images (image.py) only
+        """
         return True
 
     def get_canvas_width_height(self):
@@ -355,10 +345,13 @@ class RendererBase:
 
     def points_to_pixels(self, points):
         """
-        Convert points to display units (as a float).
-        You need to override this function (unless your backend doesn't have
+        Convert points to display units
+        points - a float or a numerix array of float
+        return points converted to pixels
+        
+        You need to override this function (unless your backend doesn't have a
         dpi, eg, postscript or svg).
-        Many imaging systems assume some value for pixels per inch.
+        Some imaging systems assume some value for pixels per inch.
         points to pixels = points * pixels_per_inch/72.0 * dpi/72.0
         """
         return points  
@@ -494,9 +487,10 @@ class GraphicsContextBase:
 
     def set_dashes(self, dash_offset, dash_list):
         """
-        Set the dash style for the gc.  dash offset is the offset
-        (usually 0).  Dash list specifies the on-off sequence as
-        points
+        Set the dash style for the gc.
+        dash_offset is the offset (usually 0).
+        dash_list specifies the on-off sequence as points
+        (None, None) specifies a solid line
         """
         self._dashes = dash_offset, dash_list
     
@@ -541,13 +535,13 @@ class GraphicsContextBase:
         Set the linestyle to be one of ('solid', 'dashed', 'dashdot',
         'dotted').  
         """
-        if style in ('solid', 'dashed', 'dashdot', 'dotted'):
-            self._linestyle = style
+        try:
             offset, dashes = self.dashd[style]
-            self.set_dashes(offset, dashes)
-        else:
-            raise ValueError('Unrecognized linestyle:  Found %s' % style)
-
+        except:
+            raise ValueError('Unrecognized linestyle: %s' % style)
+        self._linestyle = style
+        self.set_dashes(offset, dashes)
+        
 
 class Event:
     """
