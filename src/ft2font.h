@@ -30,12 +30,12 @@ public:
 
 class Glyph : public Py::PythonExtension<Glyph> {
 public:
-  Glyph( FT_Face, FT_Glyph, unsigned int);
+  Glyph( const FT_Face&, const FT_Glyph&, size_t);
   ~Glyph();
   int setattr( const char *_name, const Py::Object &value );
   Py::Object getattr( const char *_name );
   static void init_type(void);
-  int num;
+  size_t glyphInd;
 private:
   Py::Dict __dict__;
 };
