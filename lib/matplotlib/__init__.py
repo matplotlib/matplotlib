@@ -762,8 +762,8 @@ def rcdefaults():
 
 _knownBackends = {
     'Agg':1, 'Cairo':1, 'FltkAgg':1, 'GD':1, 'GDK':1, 'GTK':1, 'GTKAgg':1,
-    'GTKCairo':1, 'Paint':1, 'PS':1, 'SVG':1, 'Template':1, 'TkAgg':1, 'WX':1,
-    'WXAgg':1, }
+    'GTKCairo':1, 'Paint':1, 'PS':1, 'QtAgg':1, 'SVG':1, 'Template':1,
+    'TkAgg':1, 'WX':1, 'WXAgg':1, }
 
 
 known = _knownBackends.keys()
