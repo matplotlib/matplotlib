@@ -1,5 +1,7 @@
 New entries should be added at the top
 
+2004-12-11 Added ion and ioff to pylab interface - JDH
+
 2004-12-11 backend_template.py: delete FigureCanvasTemplate.realize() - most
            backends don't use it and its no longer needed
 
