@@ -91,7 +91,3 @@ class Artist:
     def set_visible(self, b):
         "set the artist's visiblity"
         self._visible = b
-
-        
-
-
