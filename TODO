@@ -485,7 +485,7 @@
 
 -- \sum height problem - see mathtext_tut
 
--- check for zero zoom to rect
+-- DONE check for zero zoom to rect
 
 -- make sure toolbar events and user events can coexist happily
 
@@ -508,4 +508,6 @@ ZeroDivisionError: SeparableTransformation::eval_scalars yin interval is zero; c
 -- some backends (ps and svg) appear to layout legend_demo2 text
    improperly
 
--- text colors for svg
+-- DONE text colors for svg
+
+-- update installing.html from INSTALL

@@ -1,5 +1,8 @@
 New entries should be added at the top
 
+2004-07-28 Added key modifiers to events - implemented dynamic updates
+           and rubber banding for interactive pan/zoom - JDH
+
 2004-07-27 did a readthrough of SVG, replacing all the string
            additions with string interps for efficiency, fixed some
            layout problems, added font and image support (through
