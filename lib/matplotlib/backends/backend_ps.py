@@ -15,8 +15,7 @@ from matplotlib._matlab_helpers import Gcf
 from matplotlib.backend_bases import RendererBase, GraphicsContextBase,\
      FigureManagerBase, FigureCanvasBase, error_msg
 
-from matplotlib.cbook import iterable, is_string_like, flatten, enumerate,\
-     get_recursive_filelist, True, False
+from matplotlib.cbook import is_string_like, True, False
 from matplotlib.figure import Figure
 
 from matplotlib.font_manager import fontManager
@@ -53,14 +52,13 @@ def _int_or_float(val, fmt='%1.3f'):
     if val==ival: return str(ival)
     else: return fmt%val
 
+
 _fontd = {}
 _type42 = []
 
 
 class RendererPS(RendererBase):
-
     def __init__(self, width, height, pswriter):
-
         self.width = width
         self.height = height
         self._pswriter = pswriter
@@ -78,9 +76,9 @@ class RendererPS(RendererBase):
             width, height, pswriter = math_parse_s_ps(
                 s, 72, prop.get_size_in_points())
             return width, height
+
         font = self._get_font(prop)
         font.set_text(s, 0.0)
-
         w, h = font.get_width_height()
         w /= 64.0  # convert from subpixels
         h /= 64.0
@@ -98,7 +96,7 @@ class RendererPS(RendererBase):
             try:
                 font = FT2Font(str(fname))
             except RuntimeError, msg:
-                verbose.report_error('Could not load filename for text "%s"'%fname)
+                verbose.report_error('Could not load font file "%s"'%fname)
                 return None
             else:
                 _fontd[key] = font
@@ -107,7 +105,6 @@ class RendererPS(RendererBase):
         font.clear()
         size = prop.get_size_in_points()
         font.set_size(size, 72.0)
-
         return font
     
     def draw_postscript(self, ps):
@@ -184,7 +181,7 @@ class RendererPS(RendererBase):
         if bbox is not None:
             cliprect = bbox.get_bounds()
             box = ['%1.5f'%val for val in cliprect]
-            clip =   '%s clipbox' % ' '.join(box)
+            clip = '%s clipbox' % ' '.join(box)
         else: clip = 'figure_clip'
         if not flipud: y = figh-(y+h)
         ps = """gsave
@@ -270,26 +267,22 @@ grestore
             return self.draw_mathtext(gc, x, y, s, prop, angle)
         
         font = self._get_font(prop)
-        font.set_text(s, 0.0)
-        l, b = 0., 0.
-        w, h = font.get_width_height()
+        font.set_text(s,0)
 
-        fontsize = prop.get_size_in_points()
-
-        if angle==90: l,b = -b, l # todo generalize for arb rotations
-        pos = _nums_to_str((x-l, y-b))
+        pos = _nums_to_str((x, y))
         thetext = '(%s)' % s
-        
         fontname = font.get_sfnt()[(1,0,0,6)]
         fontsize = prop.get_size_in_points()
         rotate = '%1.1f rotate' % angle
+        descent = font.get_descent() / 64.0
         setcolor = '%1.3f %1.3f %1.3f setrgbcolor' % gc.get_rgb()
         ps = """gsave
 /%(fontname)s findfont
 %(fontsize)s scalefont
 setfont
-%(pos)s rmoveto
+%(pos)s m
 %(rotate)s
+0 %(descent).2f rmoveto
 %(thetext)s
 %(setcolor)s
 show
@@ -482,6 +475,10 @@ class FigureCanvasPS(FigureCanvasBase):
         gray figure face color background and you'll probably want to
         override this on hardcopy
         """
+        basename, ext = os.path.splitext(filename)
+        if not ext: filename += '.ps'
+        isEPSF = ext.lower().startswith('.ep')
+        
         self.figure.dpi.set(72)        # ignore the passsed dpi setting for PS
         width, height = self.figure.get_size_inches()
         
@@ -495,10 +492,6 @@ class FigureCanvasPS(FigureCanvasBase):
 
         xo = 72*0.5*(paperWidth - width)
         yo = 72*0.5*(paperHeight - height)
-
-        basename, ext = os.path.splitext(filename)
-        if not ext: filename += '.ps'
-        isEPSF = ext.lower().startswith('.ep')
 
         l, b, w, h = self.figure.bbox.get_bounds()
         llx = xo

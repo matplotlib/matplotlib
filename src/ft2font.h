@@ -58,6 +58,7 @@ public:
   Py::Object get_num_glyphs(const Py::Tuple & args);
   Py::Object load_char(const Py::Tuple & args);
   Py::Object get_width_height(const Py::Tuple & args);
+  Py::Object get_descent(const Py::Tuple & args);
   Py::Object write_bitmap(const Py::Tuple & args);
   Py::Object draw_rect(const Py::Tuple & args);
   Py::Object image_as_str(const Py::Tuple & args);
@@ -91,6 +92,7 @@ private:
   FT_BBox compute_string_bbox();
   void load_glyphs();
   void draw_bitmap( FT_Bitmap*  bitmap, FT_Int x, FT_Int y);
+  void set_scalable_attributes();
 
   static char set_bitmap_size__doc__ [];
   static char clear__doc__ [];
@@ -101,6 +103,7 @@ private:
   static char get_num_glyphs__doc__ [];
   static char load_char__doc__ [];
   static char get_width_height__doc__ [];
+  static char get_descent__doc__ [];
   static char write_bitmap__doc__ [];
   static char draw_rect__doc__ [];
   static char image_as_str__doc__ [];
