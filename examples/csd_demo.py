@@ -3,7 +3,6 @@
 Compute the cross spectral density of two signals
 """
 from __future__ import division
-import sys
 from pylab import *
 
 dt = 0.01
