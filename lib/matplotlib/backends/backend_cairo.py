@@ -12,7 +12,7 @@ Features of Cairo:
    - PostScript (50% complete)
    - PDF        (proposed, 0% complete)
 
-http://www.cairographics.org
+http://cairographics.org
 Requires (in order, all available from Cairo website):
     libpixman, cairo, pycairo
 
