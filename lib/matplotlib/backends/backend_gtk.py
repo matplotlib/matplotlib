@@ -131,11 +131,9 @@ class RendererGTK(RendererBase):
     offsetd = {}  # a map from text prop tups to text offsets
     rotated = {}  # a map from text prop tups to rotated text pixbufs
 
-    #def __init__(self, gtkDA, gdkDrawable, dpi):
     def __init__(self, gtkDA, gdkDrawable, width, height, dpi):
         self.gtkDA = gtkDA
         self.gdkDrawable = gdkDrawable
-        #self.width, self.height = self.gdkDrawable.get_size()
         self.width, self.height = width, height
         self.dpi = dpi
 
@@ -463,7 +461,6 @@ class RendererGTK(RendererBase):
         #return self.dpi.get()/72.0
 
     def new_gc(self):
-        #return GraphicsContextGTK(self.gdkDrawable.new_gc(), self)
         return GraphicsContextGTK(renderer=self)
 
     def points_to_pixels(self, points):
@@ -490,12 +487,10 @@ class GraphicsContextGTK(GraphicsContextBase):
         }
 
               
-    #def __init__(self, gdkGC, renderer):
     def __init__(self, renderer):
-            GraphicsContextBase.__init__(self)
-            #self.gdkGC = gdkGC
-            self.renderer = renderer
-            self.gdkGC    = gtk.gdk.GC(renderer.gdkDrawable)
+        GraphicsContextBase.__init__(self)
+        self.renderer = renderer
+        self.gdkGC    = gtk.gdk.GC(renderer.gdkDrawable)
 
 
     def set_clip_rectangle(self, rectangle):
@@ -785,8 +780,6 @@ class FigureCanvasGTK(gtk.DrawingArea, FigureCanvasBase):
         if Debug: print 'backend_gtk.%s' % function_name()
         if self._new_pixmap and GTK_WIDGET_DRAWABLE(self):
             width, height = self.allocation.width, self.allocation.height
-            #width  = int(self.figure.bbox.width())
-            #height = int(self.figure.bbox.height())
 
             #self._pixmap = gtk.gdk.Pixmap(self.window, width, height)
             if width > self._pixmap_width or height > self._pixmap_height:
@@ -794,20 +787,12 @@ class FigureCanvasGTK(gtk.DrawingArea, FigureCanvasBase):
                 self._pixmap = gtk.gdk.Pixmap (self.window, width, height)
                 self._pixmap_width, self._pixmap_height = width, height
 
-            #self.figure.draw (RendererGTK (self, self._pixmap, self.figure.dpi))
             self.figure.draw (RendererGTK (self, self._pixmap, width, height, self.figure.dpi))
-            #self.window.draw_drawable(self._ggc, self._pixmap,
-            #                          0, 0, 0, 0, width, height)
 
             self.window.set_back_pixmap (self._pixmap, False)
             self.window.clear()  # draws the pixmap onto the window bg
             self._new_pixmap = False
 
-        #else:                # draw from existing pixmap
-        #    r = event.area
-        #    self.window.draw_drawable(self._ggc, self._pixmap,
-        #                              r.x, r.y, r.x, r.y, r.width, r.height)
-        
         return True
 
 
@@ -816,45 +801,35 @@ class FigureCanvasGTK(gtk.DrawingArea, FigureCanvasBase):
 
         if is_string_like(filename):
             isFileName = True
-        else:
-            isFileName = False
-
-        if isFileName:
             root, ext = os.path.splitext(filename)        
             ext = ext.lower()[1:]
             if not len(ext):
-                filename, ext = filename + '.png', 'png'
+                filename, ext = filename + '.png', 'png' # default format
 
-            if ext=='png':
-                ftype = 'png'
-            elif ext in ('jpg', 'jpeg'):
-                ftype = 'jpeg'
-            elif ext.find('ps')>=0:
-                pass
-            else:
-                error_msg_gtk('Can only save to formats PNG, JPEG, PS or EPS')            
+            extensions = {'png':'png', 'jpg':'jpeg', 'jpeg':'jpeg', 'ps':'ps', 'eps':'ps',
+                          'svg':'svg'}
+            try:
+                ftype = extensions[ext]
+            except KeyError:
+                error_msg_gtk('Extension "%s" is not supported. Available formats are SVG, PNG, JPEG, PS and EPS' % ext)
                 return
         else:
+            isFileName = False  # could be a file?
             ftype='png'
         
-        if not self._isRealized:
+        if not self._isRealized:  # no longer required?
             self._printQued.append((filename, dpi, facecolor, edgecolor))
             return
 
-        if isFileName and ext.find('ps')>=0:
-            # enable ps save from gtk backend do the import here so we
-            # don't have to import afm unless necessary
+        if ftype == 'ps':
             from backend_ps import FigureCanvasPS
-
             origDPI = self.figure.dpi.get()
             ps = self.switch_backends(FigureCanvasPS)
             ps.figure.dpi.set(72)
             ps.print_figure(filename, 72, facecolor, edgecolor)
             self.figure.dpi.set(origDPI)
             return
-        elif ext.find('svg')>=0:
-            # enable svg save from WX backend only import this if we
-            # need it since it parse afm files on import
+        elif ftype == 'svg':
             from backend_svg import FigureCanvasSVG
             origDPI = self.figure.dpi.get()
             svg = self.switch_backends(FigureCanvasSVG)
@@ -873,24 +848,21 @@ class FigureCanvasGTK(gtk.DrawingArea, FigureCanvasBase):
 
         l,b,width, height = self.figure.bbox.get_bounds()
 
-        width     = int(width)
-        height    = int(height)
-        gdrawable = self.window
-        gpixmap   = gtk.gdk.Pixmap(gdrawable, width, height)
-        #pixmap    = RendererGTK(self, gpixmap, self.figure.dpi)
-        pixmap    = RendererGTK(self, gpixmap, width, height, self.figure.dpi)
+        width, height = int(width), int(height)
+        pixmap   = gtk.gdk.Pixmap (self.window, width, height)
+        renderer = RendererGTK(self, pixmap, width, height, self.figure.dpi)
 
-        self.figure.draw(pixmap)  # ? just create pixmap, don't need to draw to screen
+        self.figure.draw (renderer)
         
         pixbuf = gtk.gdk.Pixbuf(gtk.gdk.COLORSPACE_RGB, 0, 8, width, height)
-        pixbuf.get_from_drawable(gpixmap, gdrawable.get_colormap(),
+        pixbuf.get_from_drawable(pixmap, self.window.get_colormap(),
                                  0, 0, 0, 0, width, height)
         
         self.figure.set_facecolor(origfacecolor)
         self.figure.set_edgecolor(origedgecolor)
         self.figure.dpi.set(origDPI)
 
-        self.configure_event(self, 'configure') # why?
+        self.configure_event(self, 'configure') # a widget event in a print function? - sets fig size
             
         try: pixbuf.save(filename, ftype)
         except gobject.GError, msg:
