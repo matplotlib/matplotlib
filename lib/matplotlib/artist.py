@@ -31,7 +31,6 @@ class Artist:
         self.figure = None
 
         self._transform = identity_transform()
-        self._transform = None
         self._transformSet = False
         self._visible = True
         self._alpha = 1.0
