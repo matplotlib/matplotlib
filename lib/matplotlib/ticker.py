@@ -234,6 +234,8 @@ class ScalarFormatter(Formatter):
 class LogFormatter(ScalarFormatter):
     """
     Format values for log axis; 
+
+    if attribute decadeOnly is True, only the decades will be labelled.
     """
     def __init__(self, base=10.0, labelOnlyBase = True):
         """
@@ -243,7 +245,8 @@ class LogFormatter(ScalarFormatter):
         """
         self.base = base+0.0
         self.labelOnlyBase=labelOnlyBase
-    
+        self.decadeOnly = True
+
     def base(self,base):
         'change the base for labeling - warning: should always match the base used for LogLocator' 
         self.base=base
@@ -251,6 +254,7 @@ class LogFormatter(ScalarFormatter):
     def label_minor(self,labelOnlyBase):
         'switch on/off minor ticks labeling' 
         self.labelOnlyBase=labelOnlyBase
+
         
     def __call__(self, x, pos=0):
         'Return the format for tick val x at position pos'        
