@@ -495,18 +495,17 @@ class FigureCanvasPS(FigureCanvasBase):
         try: fh = file(filename, 'w')
         except IOError:
             error_msg_ps('Could not open %s for writing' % filename)
-            return
+        else:
+            print >>fh, _psProlog % (pstype, __version__, bboxstr)
+            print >>fh, _psDefs
 
-        print >>fh, _psProlog % (pstype, __version__, bboxstr)
-        print >>fh, _psDefs
-
-        type42 = _type42 + [os.path.join(self.basepath, name) + '.ttf' \
-                 for name in bakoma_fonts]
-        for font in type42:
-            font = str(font)  # todo: handle unicode filenames
-            print >>fh, _psFonts % (FT2Font(font).postscript_name,
-                                    encodeTTFasPS(font))
-        print >>fh, renderer.get_ps()
+            type42 = _type42 + [os.path.join(self.basepath, name) + '.ttf' \
+                                for name in bakoma_fonts]
+            for font in type42:
+                font = str(font)  # todo: handle unicode filenames
+                print >>fh, _psFonts % (FT2Font(font).postscript_name,
+                                        encodeTTFasPS(font))
+            print >>fh, renderer.get_ps()
 
         self.figure.set_facecolor(origfacecolor)
         self.figure.set_edgecolor(origedgecolor)
