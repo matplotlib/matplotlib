@@ -78,7 +78,7 @@ WINDOWS
 
   With a standard python + Numeric/numarray + matplotlib, the
   following backends should work on windows: agg, tkagg, ps, svg.  If
-  you want others, eg a wx, wxarr, gtk or gtkagg, you'll need to
+  you want others, eg a wx, wxagg, gtk or gtkagg, you'll need to
   install the requisite GUI toolkits.  This is fairly easy, as both
   wxpython and pygtk come with windows friendly installers.  The
   latter includes an additional requirement of the GTK runtime.
