@@ -8,6 +8,13 @@
 #include "Numeric/arrayobject.h" 
 #endif   
 
+#define DEBUG_MEM 0
+
+
+Value::~Value() {
+  //std::cout << "bye bye Value" << std::endl;
+}
+
 Py::Object
 Value::set(const Py::Tuple & args) {
   args.verify_length(1);
@@ -46,7 +53,8 @@ LazyValue::number_add( const Py::Object &o ) {
     throw Py::TypeError("Can only add LazyValues with other LazyValues");
   
   LazyValue* rhs = static_cast<LazyValue*>(o.ptr());
-  return Py::Object(new BinOp(this, rhs, BinOp::ADD));
+ 
+  return Py::asObject(new BinOp(this, rhs, BinOp::ADD));
 } 
 
 Py::Object 
@@ -59,7 +67,7 @@ LazyValue::number_divide( const Py::Object &o ) {
   LazyValue* rhs = static_cast<LazyValue*>(o.ptr());
   BinOp* op = new BinOp(this, rhs, BinOp::DIVIDE);
   //std::cout << "initing divide done" << std::endl;
-  return Py::Object(op);
+  return Py::asObject(op);
 } 
 
 Py::Object 
@@ -70,7 +78,7 @@ LazyValue::number_multiply( const Py::Object &o ) {
     throw Py::TypeError("Can only multiply LazyValues with other LazyValues");
   
   LazyValue* rhs = static_cast<LazyValue*>(o.ptr());
-  return Py::Object(new BinOp(this, rhs, BinOp::MULTIPLY));
+  return Py::asObject(new BinOp(this, rhs, BinOp::MULTIPLY));
 } 
 
 Py::Object 
@@ -81,8 +89,20 @@ LazyValue::number_subtract( const Py::Object &o ) {
     throw Py::TypeError("Can only subtract LazyValues with other LazyValues");
   
   LazyValue* rhs = static_cast<LazyValue*>(o.ptr());
-  return Py::Object(new BinOp(this, rhs, BinOp::SUBTRACT));
+  return Py::asObject(new BinOp(this, rhs, BinOp::SUBTRACT));
 } 
+
+BinOp::BinOp(LazyValue* lhs, LazyValue* rhs, int opcode) : 
+  _lhs(lhs), _rhs(rhs), _opcode(opcode) {
+  Py_INCREF(lhs);
+  Py_INCREF(rhs);
+}
+
+BinOp::~BinOp() {
+  Py_INCREF(_lhs);
+  Py_INCREF(_rhs);
+  if (DEBUG_MEM) std::cout << "bye bye BinOp" << std::endl;
+}
 
 Py::Object
 BinOp::get(const Py::Tuple & args) {
@@ -91,6 +111,31 @@ BinOp::get(const Py::Tuple & args) {
   return Py::Float( x ); 
 }
 
+Point::Point(LazyValue* x, LazyValue*  y) : _x(x), _y(y) { 
+  Py_INCREF(x);
+  Py_INCREF(y);
+}
+
+Point::~Point()
+{
+  Py_DECREF(_x);
+  Py_DECREF(_y);
+
+  if (DEBUG_MEM) std::cout << "bye bye Point" << std::endl;
+}
+
+Interval::Interval(LazyValue* val1, LazyValue* val2) : 
+  _val1(val1), _val2(val2) {
+  Py_INCREF(val1);
+  Py_INCREF(val2);
+};
+
+Interval::~Interval() {
+  Py_DECREF(_val1);
+  Py_DECREF(_val2);
+
+  if (DEBUG_MEM) std::cout << "bye bye Interval" << std::endl;
+}
 
 Py::Object 
 Interval::update(const Py::Tuple &args) {
@@ -125,6 +170,18 @@ Interval::update(const Py::Tuple &args) {
   return Py::Object();
 }
 
+Bbox::Bbox(Point* ll, Point* ur) : _ll(ll), _ur(ur) {
+  Py_INCREF(ll);
+  Py_INCREF(ur);
+};
+  
+
+Bbox::~Bbox() {
+  Py_DECREF(_ll);
+  Py_DECREF(_ur);
+  if (DEBUG_MEM) std::cout << "bye bye Bbox" << std::endl;
+}
+
 Py::Object 
 Bbox::deepcopy(const Py::Tuple &args) {
   args.verify_length(0);
@@ -135,8 +192,8 @@ Bbox::deepcopy(const Py::Tuple &args) {
   double maxx = _ur->xval();
   double maxy = _ur->yval();
   
-  return Py::Object( new Bbox( new Point(new Value(minx), new Value(miny) ),
-			       new Point(new Value(maxx), new Value(maxy) )));
+  return Py::asObject( new Bbox( new Point(new Value(minx), new Value(miny) ),
+				 new Point(new Value(maxx), new Value(maxy) )));
 }
 
 Py::Object 
@@ -306,6 +363,10 @@ Bbox::update(const Py::Tuple &args) {
   return Py::Object();
 }
 
+Func::~Func() {
+  if (DEBUG_MEM) std::cout << "bye bye Func" << std::endl;
+}
+
 
 Py::Object 
 Func::map(const Py::Tuple &args) {
@@ -327,6 +388,19 @@ Func::inverse(const Py::Tuple &args) {
   double xout = this->inverse_api(xin);
   return Py::Float(xout);
 };
+
+FuncXY::FuncXY(Func* funcx, Func* funcy) : 
+  _funcx(funcx), _funcy(funcy) {
+    Py_INCREF(funcx);
+    Py_INCREF(funcy);
+}
+
+FuncXY::~FuncXY() {
+  Py_DECREF(_funcx);
+  Py_DECREF(_funcy);
+
+  if (DEBUG_MEM) std::cout << "bye bye FuncXY" << std::endl;
+}
 
 Py::Object 
 FuncXY::map(const Py::Tuple &args) {
@@ -375,6 +449,7 @@ FuncXY::set_funcx(const Py::Tuple & args) {
     throw Py::TypeError("set_funcx(func) expected a Func instance");
   
   _funcx = static_cast<Func*>(args[0].ptr());
+  Py_INCREF(_funcx);
   return Py::Object();
 }
 
@@ -386,6 +461,7 @@ FuncXY::set_funcy(const Py::Tuple & args) {
     throw Py::TypeError("set_funcy(func) expected a Func instance");
   
   _funcy = static_cast<Func*>(args[0].ptr());
+  Py_INCREF(_funcy);
   return Py::Object();
 }
 
@@ -399,6 +475,14 @@ Py::Object
 FuncXY::get_funcy(const Py::Tuple & args) {
   args.verify_length(0);
   return Py::Object(_funcy);
+}
+
+PolarXY::~PolarXY() {
+  if (DEBUG_MEM) std::cout << "bye bye PolarXY" << std::endl;
+}
+
+Transformation::~Transformation() {
+  if (DEBUG_MEM) std::cout << "bye bye Transformation" << std::endl;
 }
 
 Py::Object
@@ -473,6 +557,7 @@ Transformation::set_offset(const Py::Tuple & args) {
   _xo = Py::Float(xy[0]);
   _yo = Py::Float(xy[1]);
   _transOffset = static_cast<Transformation*>(args[1].ptr());
+  Py_INCREF(_transOffset);
   return Py::Object();
 }
 
@@ -635,6 +720,24 @@ Transformation::seq_xy_tups(const Py::Tuple & args) {
 }
 
 
+SeparableTransformation::SeparableTransformation(Bbox *b1, Bbox *b2, Func *funcx, Func *funcy) : 
+    Transformation(), 
+    _b1(b1), _b2(b2), _funcx(funcx), _funcy(funcy)  {
+  Py_INCREF(b1);
+  Py_INCREF(b2);
+  Py_INCREF(funcx);
+  Py_INCREF(funcy);
+  
+}
+
+
+SeparableTransformation::~SeparableTransformation() {
+  Py_DECREF(_b1);
+  Py_DECREF(_b2);
+  Py_DECREF(_funcx);
+  Py_DECREF(_funcy);
+  if (DEBUG_MEM) std::cout << "bye bye SeparableTransformation" << std::endl;
+}
 
 Py::Object
 SeparableTransformation::get_funcx(const Py::Tuple & args) {
@@ -655,7 +758,7 @@ SeparableTransformation::set_funcx(const Py::Tuple & args) {
   if (!Func::check(args[0])) 
     throw Py::TypeError("set_funcx(func) expected a func instance");
   _funcx = static_cast<Func*>(args[0].ptr());
-
+  Py_INCREF(_funcx);
   return Py::Object();
 }
 
@@ -665,7 +768,7 @@ SeparableTransformation::set_funcy(const Py::Tuple & args) {
   if (!Func::check(args[0])) 
     throw Py::TypeError("set_funcy(func) expected a func instance");
   _funcy = static_cast<Func*>(args[0].ptr());
-
+  Py_INCREF(_funcy);
   return Py::Object();
 }
 
@@ -690,7 +793,7 @@ SeparableTransformation::set_bbox1(const Py::Tuple & args) {
   if (!Bbox::check(args[0])) 
     throw Py::TypeError("set_bbox1(func) expected a func instance");
   _b1 = static_cast<Bbox*>(args[0].ptr());
-
+  Py_INCREF(_b1);
   return Py::Object();
 }
 
@@ -700,7 +803,7 @@ SeparableTransformation::set_bbox2(const Py::Tuple & args) {
   if (!Bbox::check(args[0])) 
     throw Py::TypeError("set_bbox2(func) expected a func instance");
   _b2 = static_cast<Bbox*>(args[0].ptr());
-
+  Py_INCREF(_b2);
   return Py::Object();
 }
 
@@ -804,6 +907,28 @@ SeparableTransformation::eval_scalars(void) {
   }
 }
 
+Affine::Affine(LazyValue *a, LazyValue *b,  LazyValue *c, 
+	       LazyValue *d, LazyValue *tx, LazyValue *ty) : 
+  _a(a), _b(b), _c(c), _d(d), _tx(tx), _ty(ty) {
+  Py_INCREF(a);
+  Py_INCREF(b);
+  Py_INCREF(c);
+  Py_INCREF(d);
+  Py_INCREF(tx);
+  Py_INCREF(ty);
+
+}
+
+Affine::~Affine() {
+  Py_DECREF(_a);
+  Py_DECREF(_b);
+  Py_DECREF(_c);
+  Py_DECREF(_d);
+  Py_DECREF(_tx);
+  Py_DECREF(_ty);
+  if (DEBUG_MEM) std::cout << "bye bye Affine" << std::endl;
+}
+
 
 Py::Object 
 Affine::as_vec6(const Py::Tuple &args) {
@@ -889,14 +1014,14 @@ Affine::eval_scalars(void) {
   }
 }
 
-
+ 
 
 /* ------------ module methods ------------- */
 Py::Object _transforms_module::new_value (const Py::Tuple &args)
 {
   args.verify_length(1);
   double val = Py::Float(args[0]);
-  return Py::Object( new Value(val) );
+  return Py::asObject( new Value(val) );
 }   
 
 
@@ -919,7 +1044,8 @@ Py::Object _transforms_module::new_point (const Py::Tuple &args)
     y = static_cast<Value*>(args[1].ptr());
   else 
     throw Py::TypeError("Can only create points from LazyValues");
-  return Py::Object(new Point(x, y));
+
+  return Py::asObject(new Point(x, y));
   
 }    
 
@@ -937,7 +1063,7 @@ Py::Object _transforms_module::new_interval (const Py::Tuple &args)
   
   LazyValue* v1 = static_cast<LazyValue*>(args[0].ptr());
   LazyValue* v2 = static_cast<LazyValue*>(args[1].ptr());
-  return Py::Object(new Interval(v1, v2) );  
+  return Py::asObject(new Interval(v1, v2) );  
 }
 
 Py::Object _transforms_module::new_bbox (const Py::Tuple &args)
@@ -952,7 +1078,7 @@ Py::Object _transforms_module::new_bbox (const Py::Tuple &args)
   
   Point* ll = static_cast<Point*>(args[0].ptr());
   Point* ur = static_cast<Point*>(args[1].ptr());
-  return Py::Object(new Bbox(ll, ur) );  
+  return Py::asObject(new Bbox(ll, ur) );  
 }
 
 Py::Object _transforms_module::new_affine (const Py::Tuple &args) {
@@ -972,7 +1098,7 @@ Py::Object _transforms_module::new_affine (const Py::Tuple &args) {
   LazyValue* d  = static_cast<LazyValue*>(args[3].ptr()); 
   LazyValue* tx = static_cast<LazyValue*>(args[4].ptr());
   LazyValue* ty = static_cast<LazyValue*>(args[5].ptr()); 
-  return Py::Object(new Affine(a, b, c, d, tx, ty));
+  return Py::asObject(new Affine(a, b, c, d, tx, ty));
   
 }    
 
@@ -982,7 +1108,7 @@ Py::Object _transforms_module::new_func (const Py::Tuple &args)
 {
   args.verify_length(1);
   int typecode = Py::Int(args[0]);
-  return Py::Object(new Func(typecode));
+  return Py::asObject(new Func(typecode));
 }   
 
 Py::Object _transforms_module::new_funcxy (const Py::Tuple &args)
@@ -995,14 +1121,14 @@ Py::Object _transforms_module::new_funcxy (const Py::Tuple &args)
   Func* funcx  = static_cast<Func*>(args[0].ptr());
   Func* funcy  = static_cast<Func*>(args[1].ptr());
 
-  return Py::Object(new FuncXY(funcx, funcy));
+  return Py::asObject(new FuncXY(funcx, funcy));
 }   
 
 
 Py::Object _transforms_module::new_polarxy (const Py::Tuple &args)
 {
   args.verify_length(0);
-  return Py::Object( new PolarXY() );
+  return Py::asObject( new PolarXY() );
 }   
 
 Py::Object _transforms_module::new_separable_transformation (const Py::Tuple &args)
@@ -1023,8 +1149,8 @@ Py::Object _transforms_module::new_separable_transformation (const Py::Tuple &ar
   Func* funcx  = static_cast<Func*>(args[2].ptr()); 
   Func* funcy  = static_cast<Func*>(args[3].ptr()); 
   
-  return Py::Object( new SeparableTransformation(box1, box2, funcx, funcy) );
-}    
+  return Py::asObject( new SeparableTransformation(box1, box2, funcx, funcy) );
+}     
 
 void LazyValue::init_type()
 {
@@ -1054,9 +1180,10 @@ void Point::init_type()
 {
   behaviors().name("Point");
   behaviors().doc("A point x, y");
-  
+    
   add_varargs_method("x",    &Point::x,     "x()\n");
   add_varargs_method("y",    &Point::y,     "y()\n");
+  add_varargs_method("reference_count", &Point::reference_count);
 }
 
 void Interval::init_type()
@@ -1190,9 +1317,7 @@ extern "C"
 DL_EXPORT(void)
   init_transforms(void)
 {
-  //suppress unused warning by creating in two lines
-  static _transforms_module* _transforms = NULL; 
-  _transforms = new _transforms_module;
+  static _transforms_module* _transforms = new _transforms_module;
 
   import_array();  
 

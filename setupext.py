@@ -94,7 +94,7 @@ def add_gd_flags(module):
 
 def add_ft2font_flags(module):
     'Add the module flags to build extensions which use gd'
-    module.libraries.extend(['freetype', 'z'])
+    module.libraries.extend(['freetype', 'z' ])
     add_base_flags(module)
 
     basedirs = module.include_dirs[:]  # copy the list to avoid inf loop!
@@ -114,7 +114,7 @@ def add_ft2font_flags(module):
         module.libraries.append('gw32c')
 
     # put this last for library link order     
-    module.libraries.append('m')
+    module.libraries.extend(['stdc++', 'm'])
 
     
 
@@ -245,10 +245,11 @@ def build_windowing(ext_modules, packages):
 def build_ft2font(ext_modules, packages):
     global BUILT_FT2FONT
     if BUILT_FT2FONT: return # only build it if you you haven't already
-    module = Extension('matplotlib.ft2font',
-                       ['src/ft2font.c',
-                        ],
-                       )
+    deps = ['src/ft2font.cpp']
+    deps.extend(glob.glob('CXX/*.cxx'))
+    deps.extend(glob.glob('CXX/*.c'))
+
+    module = Extension('matplotlib.ft2font', deps)
     add_ft2font_flags(module)
     ext_modules.append(module)    
     BUILT_FT2FONT = True
@@ -301,7 +302,7 @@ def build_agg(ext_modules, packages):
     global BUILT_AGG
     if BUILT_AGG: return # only build it if you you haven't already
     
-    deps = ['src/_backend_agg.cpp', 'src/ft2font.c']
+    deps = ['src/_backend_agg.cpp', 'src/ft2font.cpp']
     deps.extend(glob.glob('agg2/src/*.cpp'))
     deps.extend(glob.glob('CXX/*.cxx'))
     deps.extend(glob.glob('CXX/*.c'))

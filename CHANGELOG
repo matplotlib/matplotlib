@@ -1,5 +1,8 @@
 New entries should be added at the top
 
+2004-06-08 Rewrote ft2font using CXX as part of general memory leak
+           fixes - JDH
+
 2004-06-07 Fixed several problems with log ticks and scaling - JDH
 
 2004-06-07 Fixed width/height issues for images - JDH
@@ -15,7 +18,6 @@ New entries should be added at the top
 2004-06-01 Fixed plot to work with x or y having shape N,1 or 1,N - JDH
 
 2004-05-31 Added renderer markeredgewidth attribute of Line2D. - ADS
-
 
 2004-05-29 Fixed tick label clipping to work with navigation.
 

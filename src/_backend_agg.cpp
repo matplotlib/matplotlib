@@ -804,7 +804,7 @@ RendererAgg::draw_text(const Py::Tuple& args) {
   args.verify_length(4);
   
   
-  FT2FontObject *font = (FT2FontObject *)args[0].ptr();
+  FT2Font *font = static_cast<FT2Font*>(args[0].ptr());
   
   int x = Py::Int( args[1] );
   int y = Py::Int( args[2] );
@@ -918,6 +918,7 @@ RendererAgg::write_rgba(const Py::Tuple& args) {
 Py::Object 
 RendererAgg::write_png(const Py::Tuple& args)
 {
+  //small memory leak in this function - JDH 2004-06-08
   if (debug)
     std::cout << "RendererAgg::write_png" << std::endl;
   
