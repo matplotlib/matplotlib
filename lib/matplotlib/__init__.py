@@ -817,3 +817,15 @@ verbose.report('interactive is %s'%rcParams['interactive'])
 
 # True if we are running under Py2EXE (or similar)
 FROZEN = hasattr(sys, 'frozen')
+
+
+class MPLError (Exception):
+    """Exception for Matplotlib errors
+    Attributes:
+        message -- explanation of the error
+    """
+    def __init__ (self, message):
+        self.message = message
+
+    def __str__ (self):
+        return self.message
