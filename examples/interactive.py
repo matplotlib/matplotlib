@@ -203,6 +203,7 @@ if __name__=="__main__":
                 print '>>', line.rstrip()
                 interpreter.feed(line)
         #gcf().draw()
+    interpreter.feed("from matplotlib.backends.backend_gtk import ShowOn")
     interpreter.feed ("ShowOn().set(1)")
     print """Welcome to matplotlib.
 
