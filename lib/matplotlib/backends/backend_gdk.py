@@ -37,6 +37,12 @@ if gtk.pygtk_version < pygtk_version_required:
 backend_version = "%d.%d.%d" % gtk.pygtk_version
 del pygtk_version_required
 
+# do after gtk else get "pygtk.require() must be called before importing gtk" errors
+if numerix.which[0] == "numarray":
+    from matplotlib._na_backend_gdk import pixbuf_get_pixels_array
+else:
+    from matplotlib._nc_backend_gdk import pixbuf_get_pixels_array
+
 
 DEBUG = False
 
@@ -107,23 +113,17 @@ class RendererGDK(RendererBase):
             # set clip rect?
 
         flipud = origin=='lower'
-        rows, cols, s = im.as_str(flipud)
+        rows, cols, image_str = im.as_str(flipud)
 
-        X = fromstring(s, UInt8)
-        X.shape = rows, cols, 4
+        image_array = fromstring(image_str, UInt8)
+        image_array.shape = rows, cols, 4
 
-        pb = gtk.gdk.Pixbuf(gtk.gdk.COLORSPACE_RGB,
-                            has_alpha=True, bits_per_sample=8,
-                            width=cols, height=rows)
-        try:
-            pa = pb.get_pixels_array() # new in 2.2
-        except AttributeError:
-            pa = pb.pixel_array        # deprecated in 2.2
-        except RuntimeError, exc: #  pygtk was not compiled with Numeric Python support
-            warnings.warn('draw_image not supported: %s' % exc)
-            return        
+        pixbuf = gtk.gdk.Pixbuf(gtk.gdk.COLORSPACE_RGB,
+                                has_alpha=True, bits_per_sample=8,
+                                width=cols, height=rows)
 
-        pa[:,:,:] = X
+        array = pixbuf_get_pixels_array(pixbuf)
+        array[:,:,:] = image_array
 
         gc = self.new_gc()
 
@@ -132,12 +132,12 @@ class RendererGDK(RendererBase):
 
         try: # new in 2.2
             # can use None instead of gc.gdkGC, if don't need clipping
-            self.gdkDrawable.draw_pixbuf (gc.gdkGC, pb, 0, 0,
+            self.gdkDrawable.draw_pixbuf (gc.gdkGC, pixbuf, 0, 0,
                                           int(x), int(y), cols, rows,
                                           gdk.RGB_DITHER_NONE, 0, 0)
         except AttributeError:
             # deprecated in 2.2
-            pb.render_to_drawable(self.gdkDrawable, gc.gdkGC, 0, 0,
+            pixbuf.render_to_drawable(self.gdkDrawable, gc.gdkGC, 0, 0,
                                   int(x), int(y), cols, rows,
                                   gdk.RGB_DITHER_NONE, 0, 0)
 
@@ -211,7 +211,7 @@ class RendererGDK(RendererBase):
             x -= width
         y -= height
         
-        imw, imh, s = fonts[0].image_as_str()
+        imw, imh, image_str = fonts[0].image_as_str()
         N = imw*imh
 
         # a numpixels by num fonts array
@@ -220,8 +220,8 @@ class RendererGDK(RendererBase):
         for i, font in enumerate(fonts):
             if angle == 90:
                 font.horiz_image_to_vert_image() # <-- Rotate
-            imw, imh, s = font.image_as_str()
-            Xall[:,i] = fromstring(s, UInt8)  
+            imw, imh, image_str = font.image_as_str()
+            Xall[:,i] = fromstring(image_str, UInt8)  
 
         # get the max alpha at each pixel
         Xs = numerix.mlab.max(Xall,1)
@@ -229,31 +229,25 @@ class RendererGDK(RendererBase):
         # convert it to it's proper shape
         Xs.shape = imh, imw
 
-        pb = gtk.gdk.Pixbuf(gtk.gdk.COLORSPACE_RGB, has_alpha=True,
-                            bits_per_sample=8, width=imw, height=imh)
+        pixbuf = gtk.gdk.Pixbuf(gtk.gdk.COLORSPACE_RGB, has_alpha=True,
+                                bits_per_sample=8, width=imw, height=imh)
 
-        try:
-            pa = pb.get_pixels_array() # new in 2.2
-        except AttributeError:
-            pa = pb.pixel_array        # deprecated in 2.2
-        except RuntimeError, exc: #  'pygtk was not compiled with Numeric Python support'
-            warnings.warn('mathtext not supported: %s' % exc)
-            return        
+        array = pixbuf_get_pixels_array(pixbuf)
 
         rgb = gc.get_rgb()
-        pa[:,:,0]=int(rgb[0]*255)
-        pa[:,:,1]=int(rgb[1]*255)
-        pa[:,:,2]=int(rgb[2]*255)
-        pa[:,:,3]=Xs
+        array[:,:,0]=int(rgb[0]*255)
+        array[:,:,1]=int(rgb[1]*255)
+        array[:,:,2]=int(rgb[2]*255)
+        array[:,:,3]=Xs
 
         try: # new in 2.2
             # can use None instead of gc.gdkGC, if don't need clipping
-            self.gdkDrawable.draw_pixbuf (gc.gdkGC, pb, 0, 0,
+            self.gdkDrawable.draw_pixbuf (gc.gdkGC, pixbuf, 0, 0,
                                           int(x), int(y), imw, imh,
                                           gdk.RGB_DITHER_NONE, 0, 0)
         except AttributeError:
             # deprecated in 2.2
-            pb.render_to_drawable(self.gdkDrawable, gc.gdkGC, 0, 0,
+            pixbuf.render_to_drawable(self.gdkDrawable, gc.gdkGC, 0, 0,
                                   int(x), int(y), imw, imh,
                                   gdk.RGB_DITHER_NONE, 0, 0)
             

@@ -60,6 +60,9 @@ BUILT_TKAGG     = False
 BUILT_WINDOWING = False
 BUILT_CONTOUR   = False
 BUILT_ENTHOUGHT   = False
+BUILT_CONTOUR   = False
+BUILT_GDK       = False
+
 
 class CleanUpFile:
     """CleanUpFile deletes the specified filename when self is destroyed."""
@@ -567,5 +570,34 @@ def build_contour(ext_modules, packages, numerix):
     BUILT_CONTOUR = True
 
 
+def build_gdk(ext_modules, packages, numerix):
+    global BUILT_GDK
+    if BUILT_GDK: return # only build it if you you haven't already
 
+    if numerix in ["numarray","both"]: # Build for numarray
+        temp_copy('src/_backend_gdk.c', 'src/_na_backend_gdk.c')
+        module = Extension(
+            'matplotlib._na_backend_gdk',
+		[ 'src/_na_backend_gdk.c',
+		],
+		libraries = [],
+            )
+        module.extra_compile_args.append('-DNUMARRAY=1')
+        add_base_flags(module)
+        add_pygtk_flags(module)        
+        ext_modules.append(module)
 
+    if numerix in ["Numeric","both"]: # Build for Numeric
+        temp_copy('src/_backend_gdk.c', 'src/_nc_backend_gdk.c')
+        module = Extension(
+            'matplotlib._nc_backend_gdk',
+		[ 'src/_nc_backend_gdk.c',
+		],
+		libraries = [],
+            )
+        module.extra_compile_args.append('-DNUMERIC=1')
+        add_base_flags(module)
+        add_pygtk_flags(module)        
+        ext_modules.append(module)
+
+    BUILT_GDK = True

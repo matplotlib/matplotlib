@@ -22,13 +22,14 @@ from __future__ import division
 import os, sys, warnings
 def _fn_name(): return sys._getframe(1).f_code.co_name
 
-from matplotlib.numerix import asarray, pi, fromstring, UInt8, zeros
-import matplotlib.numerix as numerix
+import matplotlib.agg as agg
 from matplotlib.backend_bases import RendererBase, GraphicsContextBase,\
      FigureManagerBase, FigureCanvasBase
 from matplotlib.cbook      import enumerate, izip
 from matplotlib.figure     import Figure
 from matplotlib.mathtext   import math_parse_s_ft2font
+from matplotlib.numerix import asarray, pi, fromstring, UInt8, zeros
+import matplotlib.numerix as numerix
 from matplotlib.transforms import Bbox
 
 import cairo
@@ -202,9 +203,7 @@ class RendererCairo(RendererBase):
         ctx.set_matrix (matrix_old)
 
 
-    #def draw_markers(self, gc, path, x, y, transform):
-    def _draw_markers(self, gc, path, rgbFace, x, y, transform):
-       # TODO 'path' has changed - needs updating
+    def draw_markers(self, gc, path, rgbFace, x, y, transform):
         if DEBUG: print 'backend_cairo.RendererCairo.%s()' % _fn_name()
 
         ctx = gc.ctx
@@ -223,35 +222,26 @@ class RendererCairo(RendererBase):
         #matrix = cairo.Matrix (*vec6)
         #ctx.set_matrix (matrix)
 
+        path_list = [path.vertex() for i in range(path.total_vertices())]
+
         def generate_path (path):
-            """trace path and return fill_rgb
-            coords are mpl points
-            """
-            for p in path:
-               code = p[0]
-               if code == MOVETO:
-                  ctx.move_to (p[1], -p[2])
-               elif code == LINETO:
-                  ctx.line_to (p[1], -p[2])
-               elif code == ENDPOLY:
+           for code, xp, yp in path_list:
+               if code == agg.path_cmd_move_to:
+                  ctx.move_to (xp, -yp)
+               elif code == agg.path_cmd_line_to:
+                  ctx.line_to (xp, -yp)
+               elif code == agg.path_cmd_end_poly:
                   ctx.close_path()
-                  #if p[1]: # fill
-                  #   #rgba = p[2:]
-                  #   return p[2:5]  # don't really want to read the same fill_rgb every time we generate_path()
-            #return None
 
         for x,y in izip(x,y):
             ctx.save()
             ctx.new_path()
             ctx.translate(x, self.height - y)
-            
-            #fill_rgb = generate_path (path)
             generate_path (path)
-            #if fill_rgb:
+            
             if rgbFace:
                ctx.save()
-               #ctx.set_rgb_color (*fill_rgb)
-               ctx.set_rgb_color (rgbFace)
+               ctx.set_rgb_color (*rgbFace)
                # later - set alpha also?                     
                ctx.fill()
                ctx.restore() # undo colour change and restore path

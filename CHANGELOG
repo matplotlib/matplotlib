@@ -1,5 +1,13 @@
 New entries should be added at the top
 
+2005-03-14 add src/_backend_gdk.c extension to provide a substitute function
+	   for pixbuf.get_pixels_array(). Currently pixbuf.get_pixels_array()
+           only works with Numeric, and then only works if pygtk has been
+	   compiled with Numeric support. The change provides a function
+	   pixbuf_get_pixels_array() which works with Numeric and numarray and
+	   is always available. It means that backend_gtk should be able to
+	   display images and mathtext in all circumstances. - SC
+
 2005-03-11 Upgraded CXX to 5.3.1
 
 2005-03-10 remove GraphicsContextPS.set_linestyle()
