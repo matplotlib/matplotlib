@@ -2,6 +2,7 @@
 from matplotlib.matlab import *
 
 def f(t):
+    'a damped exponential'
     s1 = cos(2*pi*t)
     e1 = exp(-t)
     return multiply(s1,e1)
