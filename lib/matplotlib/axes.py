@@ -284,7 +284,14 @@ class _process_plot_var_args:
                 remaining=remaining[2:]
             #yield self._plot_2_args(remaining[:2])
             #remaining=args[2:]
-        
+
+BinOpType=type(zero())
+def makeValue(v):
+    if type(v) == BinOpType:
+        return v
+    else:
+        return Value(v)
+
 
 
 class Axes(Artist):
@@ -304,7 +311,7 @@ class Axes(Artist):
                  axisbg = None, # defaults to rc axes.facecolor
                  frameon = True):
         Artist.__init__(self)
-        self._position = [Value(val) for val in rect]
+        self._position = map(makeValue, rect)
         self.set_figure(fig)
 
         if axisbg is None: axisbg = rcParams['axes.facecolor']
@@ -3638,4 +3645,46 @@ class PolarSubplot(SubplotBase, PolarAxes):
     def __init__(self, fig, *args, **kwargs):
         SubplotBase.__init__(self, *args)        
         PolarAxes.__init__(self, fig, [self.figLeft, self.figBottom, self.figW, self.figH], **kwargs)
+
+class TwinAxes(Axes):
+    """
+    Create an Axes instance that shares the X axis with another:
+
+      TwinAxes(existing_axes)
+    """
+    def __init__(self, axes):
+        Axes.__init__(self, axes.figure, axes._position, frameon=False)
+        
+        self._xscale=axes._xscale
+        self.fmt_xdata=axes.fmt_xdata
+
+        vl_left=axes.viewLim.ll().x()
+        vl_right=axes.viewLim.ur().x()
+        vl_bottom=self.viewLim.ll().y()
+        vl_top=self.viewLim.ur().y()
+        self.viewLim=Bbox(Point(vl_left,vl_bottom),Point(vl_right, vl_top))
+
+        dl_left=axes.dataLim.ll().x()
+        dl_right=axes.dataLim.ur().x()
+        dl_bottom=self.dataLim.ll().y()
+        dl_top=self.dataLim.ur().y()
+        self.dataLim=Bbox(Point(dl_left,dl_bottom),Point(dl_right, dl_top))
+
+        try:
+            self.transData = blend_xy_sep_transform(axes.transData, self.transData)
+        except RuntimeError:
+            raise RuntimeError, "TwinAxes only works with cartesian axes"
+
+        self.xaxis=axes.xaxis
+        
+        self.yaxis.tick_right()
+        self.yaxis.set_label_position('right')
+        axes.yaxis.tick_left()
+
+    def set_figure(self, fig):
+        if self.figure is None:
+            Axes.set_figure(self, fig)
+            return None
+        if fig is not self.figure:
+            raise RuntimeError, "TwinAxes can only be added to the same figure"
 

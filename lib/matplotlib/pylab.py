@@ -187,7 +187,7 @@ import cm
 import _pylab_helpers
 import mlab  #so I can override hist, psd, etc...
 
-from axes import Axes, PolarAxes
+from axes import Axes, PolarAxes, TwinAxes
 from backends import new_figure_manager, error_msg, \
      draw_if_interactive, show
 
@@ -1234,6 +1234,16 @@ def subplot(*args, **kwargs):
         raise RuntimeError, msg
     draw_if_interactive()
     return a
+
+
+def twin(axes=None):
+    if axes is None:
+        axes=gca()
+
+    tw=TwinAxes(axes)
+    gcf().add_axes(tw)
+    draw_if_interactive()
+    return tw
 
 
 def title(s, *args, **kwargs):
@@ -2466,7 +2476,7 @@ __plotting_all__ = [
     'axes', 'delaxes', 'clim', 'close', 'clf', 'colorbar', 'draw',
     'figtext', 'figimage', 'figlegend', 'figure', 'gca', 'gcf', 'gci',
     'get', 'hold', 'ishold', 'isinteractive', 'imread', 'load', 'rc',
-    'rcdefaults', 'save', 'savefig', 'set', 'subplot', 'title',
+    'rcdefaults', 'save', 'savefig', 'set', 'subplot', 'twin', 'title',
     'xlabel', 'ylabel', 'xlim', 'ylim', 'xticks', 'rgrids',
     'thetagrids', 'yticks', 'polar', 'over', 'ioff', 'ion', 'axhline',
     'axhspan', 'axvline', 'axvspan', 'bar', 'barh', 'cohere',
