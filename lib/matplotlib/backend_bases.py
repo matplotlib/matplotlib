@@ -1,12 +1,11 @@
 """
-Abstract base classes definine the primitives that renderers and
+Abstract base classes define the primitives that renderers and
 graphics contexts must implement to serve as a matplotlib backend
 """
 
 from __future__ import division
 import sys
 
-from matplotlib import verbose
 from cbook import is_string_like, enumerate, strip_math, Stack
 from colors import colorConverter
 from numerix import array, sqrt, pi, log, asarray, ones, Float
@@ -53,14 +52,12 @@ class RendererBase:
         points to pixels = points * pixels_per_inch/72.0 * dpi/72.0
         """
         return points  
-
         
     def get_text_extent(self, text):
         """
         Get the text extent in window coords
         """
         return lbwh_to_bbox(0,0,1,1)  # your values here
-
 
     def draw_arc(self, gcEdge, rgbFace, x, y, width, height, angle1, angle2):
         """
@@ -69,8 +66,8 @@ class RendererBase:
         
         If the color rgbFace is not None, fill the arc with it.
         """
-        pass  # derived must override
-
+        raise NotImplementedError
+    
     def draw_image(self, x, y, im, origin, bbox):
         """
         Draw the Image instance into the current axes; x is the
@@ -84,25 +81,21 @@ class RendererBase:
         bbox is a matplotlib.transforms.BBox instance for clipping, or
         None
         """
-        print >>sys.stderr, 'This backend does not yet support images'
-
-    def draw_line(self, gc, x1, y1, x2, y2):
-        """
-        Draw a single line from x1,y1 to x2,y2
-        """
-        pass  # derived must override
+        raise NotImplementedError
 
     def _draw_marker(self, gc, path, x, y, trans):
         """
         This method is currently underscore hidden because the
         draw_markers method is being used as a sentinel for newstyle
         backend drawing
+
+        path - a list of path elements, see matplotlib.paths
         
-        Draw the marker specified in path with graphics context gx at
+        Draw the marker specified in path with graphics context gc at
         each of the locations in arrays x and y.  trans is a
         matplotlib.transforms.Transformation instance used to
         transform x and y to display coords.  It consists of an
-        optional ) nonlinear component and an affine.  You can access
+        optional nonlinear component and an affine.  You can access
         these two components as
 
         if transform.need_nonlinear():
@@ -113,120 +106,6 @@ class RendererBase:
         """
         pass
     
-    def draw_poly_collection(
-        self, verts, transform, clipbox, facecolors, edgecolors,
-        linewidths, antialiaseds, offsets, transOffset):
-        """
-        Draw a polygon collection
-
-        verts are a sequence of polygon vectors, where each polygon
-        vector is a sequence of x,y tuples of vertices
-
-        facecolors and edgecolors are a sequence of RGBA tuples
-        linewidths are a sequence of linewidths
-        antialiaseds are a sequence of 0,1 integers whether to use aa
-        """
-
-        Nface = len(facecolors)
-        Nedge = len(edgecolors)
-        Nlw = len(linewidths)
-        Naa = len(antialiaseds)
-
-        usingOffsets = offsets is not None
-        Noffsets = 0
-        Nverts = len(verts)
-        if usingOffsets:
-            Noffsets = len(offsets)
-
-        N = max(Noffsets, Nverts)
-
-        gc = self.new_gc()
-        if clipbox is not None: gc.set_clip_rectangle(clipbox.get_bounds())
-
-        for i in xrange(N):
-
-            
-            rf,gf,bf,af = facecolors[i % Nface]
-            re,ge,be,ae = edgecolors[i % Nedge]
-            if af==0: rgbFace = None
-            else: rgbFace = rf,gf,bf
-            # the draw_poly interface can't handle separate alphas for
-            # edge and face so we'll just use the maximum
-            alpha = max(af,ae)
-            
-            gc.set_foreground( (re,ge,be), isRGB=True)
-            gc.set_alpha( alpha )
-            gc.set_linewidth( linewidths[i % Nlw] )
-            gc.set_antialiased( antialiaseds[i % Naa] )
-            #print 'verts', zip(thisxverts, thisyverts)
-
-            tverts = transform.seq_xy_tups(verts[i % Nverts])
-            if usingOffsets:
-                xo,yo = transOffset.xy_tup(offsets[i % Noffsets])
-                tverts = [(x+xo,y+yo) for x,y in tverts]
-
-            self.draw_polygon(gc, rgbFace, tverts)
-
-    def draw_regpoly_collection(
-        self, clipbox, offsets, transOffset, verts, sizes,
-        facecolors, edgecolors, linewidths, antialiaseds):
-        """
-        Draw a regular poly collection
-
-        offsets is a sequence is x,y tuples and transOffset maps this
-        to display coords
-
-        verts are the vertices of the regular polygon at the origin
-
-        sizes are the area of the circle that circumscribes the
-        polygon in points^2
-
-        facecolors and edgecolors are a sequence of RGBA tuples
-        linewidths are a sequence of linewidths
-        antialiaseds are a sequence of 0,1 integers whether to use aa
-        """
-        xverts, yverts = zip(*verts)
-        xverts = asarray(xverts)
-        yverts = asarray(yverts)
-                   
-        Nface = len(facecolors)
-        Nedge = len(edgecolors)
-        Nlw = len(linewidths)
-        Naa = len(antialiaseds)
-        Nsizes = len(sizes)
-
-
-        gc = self.new_gc()
-        if clipbox is not None: gc.set_clip_rectangle(clipbox.get_bounds())
-
-        for i, loc in enumerate(offsets):
-            xo,yo = transOffset.xy_tup(loc)
-            #print 'xo, yo', loc, (xo, yo)
-            scale = sizes[i % Nsizes]
-
-            thisxverts = scale*xverts + xo
-            thisyverts = scale*yverts + yo
-            #print 'xverts', xverts
-            rf,gf,bf,af = facecolors[i % Nface]
-            re,ge,be,ae = edgecolors[i % Nedge]
-            if af==0:
-                rgbFace = None
-            else:
-                rgbFace = rf,gf,bf
-            # the draw_poly interface can't handle separate alphas for
-            # edge and face so we'll just use 
-            alpha = max(af,ae)
-            
-            gc.set_foreground( (re,ge,be), isRGB=True)
-            gc.set_alpha( alpha )
-            gc.set_linewidth( linewidths[i % Nlw] )
-            gc.set_antialiased( antialiaseds[i % Naa] )
-            #print 'verts', zip(thisxverts, thisyverts)
-            self.draw_polygon(gc, rgbFace, zip(thisxverts, thisyverts))
-
-        
-        
-
     def draw_line_collection(self, segments, transform, clipbox,
                              colors, linewidths, linestyle, antialiaseds,
                              offsets, transOffset):
@@ -308,18 +187,77 @@ class RendererBase:
             self.draw_lines(gc, x, y)
             i += 1
             
+    def draw_line(self, gc, x1, y1, x2, y2):
+        """
+        Draw a single line from x1,y1 to x2,y2
+        """
+        raise NotImplementedError
+    
     def draw_lines(self, gc, x, y):
         """
         x and y are equal length arrays, draw lines connecting each
         point in x, y
         """
-        pass  # derived must override
-
+        raise NotImplementedError
+    
     def draw_point(self, gc, x, y):
         """
         Draw a single point at x,y
         """
-        pass  # derived must override
+        raise NotImplementedError
+    
+    def draw_poly_collection(
+        self, verts, transform, clipbox, facecolors, edgecolors,
+        linewidths, antialiaseds, offsets, transOffset):
+        """
+        Draw a polygon collection
+
+        verts are a sequence of polygon vectors, where each polygon
+        vector is a sequence of x,y tuples of vertices
+
+        facecolors and edgecolors are a sequence of RGBA tuples
+        linewidths are a sequence of linewidths
+        antialiaseds are a sequence of 0,1 integers whether to use aa
+        """
+
+        Nface = len(facecolors)
+        Nedge = len(edgecolors)
+        Nlw = len(linewidths)
+        Naa = len(antialiaseds)
+
+        usingOffsets = offsets is not None
+        Noffsets = 0
+        Nverts = len(verts)
+        if usingOffsets:
+            Noffsets = len(offsets)
+
+        N = max(Noffsets, Nverts)
+
+        gc = self.new_gc()
+        if clipbox is not None: gc.set_clip_rectangle(clipbox.get_bounds())
+
+        for i in xrange(N):
+            
+            rf,gf,bf,af = facecolors[i % Nface]
+            re,ge,be,ae = edgecolors[i % Nedge]
+            if af==0: rgbFace = None
+            else: rgbFace = rf,gf,bf
+            # the draw_poly interface can't handle separate alphas for
+            # edge and face so we'll just use the maximum
+            alpha = max(af,ae)
+            
+            gc.set_foreground( (re,ge,be), isRGB=True)
+            gc.set_alpha( alpha )
+            gc.set_linewidth( linewidths[i % Nlw] )
+            gc.set_antialiased( antialiaseds[i % Naa] )
+            #print 'verts', zip(thisxverts, thisyverts)
+
+            tverts = transform.seq_xy_tups(verts[i % Nverts])
+            if usingOffsets:
+                xo,yo = transOffset.xy_tup(offsets[i % Noffsets])
+                tverts = [(x+xo,y+yo) for x,y in tverts]
+
+            self.draw_polygon(gc, rgbFace, tverts)
 
     def draw_polygon(self, gc, rgbFace, points):
         """
@@ -329,8 +267,8 @@ class RendererBase:
 
         If the color rgbFace is not None, fill the polygon with it
         """  
-        pass # derived must override
-
+        raise NotImplementedError
+    
     def draw_rectangle(self, gcEdge, rgbFace, x, y, width, height):
         """
         Draw a non-filled rectangle using the GraphicsContext instance gcEdge,
@@ -338,18 +276,72 @@ class RendererBase:
 
         If rgbFace is not None, fill the rectangle with it.
         """
-        pass # derived must override
+        raise NotImplementedError
+    
+    def draw_regpoly_collection(
+        self, clipbox, offsets, transOffset, verts, sizes,
+        facecolors, edgecolors, linewidths, antialiaseds):
+        """
+        Draw a regular poly collection
 
-    def strip_math(self, s):
-        return strip_math(s)
-              
+        offsets is a sequence is x,y tuples and transOffset maps this
+        to display coords
+
+        verts are the vertices of the regular polygon at the origin
+
+        sizes are the area of the circle that circumscribes the
+        polygon in points^2
+
+        facecolors and edgecolors are a sequence of RGBA tuples
+        linewidths are a sequence of linewidths
+        antialiaseds are a sequence of 0,1 integers whether to use aa
+        """
+        xverts, yverts = zip(*verts)
+        xverts = asarray(xverts)
+        yverts = asarray(yverts)
+                   
+        Nface = len(facecolors)
+        Nedge = len(edgecolors)
+        Nlw = len(linewidths)
+        Naa = len(antialiaseds)
+        Nsizes = len(sizes)
+
+
+        gc = self.new_gc()
+        if clipbox is not None: gc.set_clip_rectangle(clipbox.get_bounds())
+
+        for i, loc in enumerate(offsets):
+            xo,yo = transOffset.xy_tup(loc)
+            #print 'xo, yo', loc, (xo, yo)
+            scale = sizes[i % Nsizes]
+
+            thisxverts = scale*xverts + xo
+            thisyverts = scale*yverts + yo
+            #print 'xverts', xverts
+            rf,gf,bf,af = facecolors[i % Nface]
+            re,ge,be,ae = edgecolors[i % Nedge]
+            if af==0:
+                rgbFace = None
+            else:
+                rgbFace = rf,gf,bf
+            # the draw_poly interface can't handle separate alphas for
+            # edge and face so we'll just use 
+            alpha = max(af,ae)
+            
+            gc.set_foreground( (re,ge,be), isRGB=True)
+            gc.set_alpha( alpha )
+            gc.set_linewidth( linewidths[i % Nlw] )
+            gc.set_antialiased( antialiaseds[i % Naa] )
+            #print 'verts', zip(thisxverts, thisyverts)
+            self.draw_polygon(gc, rgbFace, zip(thisxverts, thisyverts))
+        
+
     def draw_text(self, gc, x, y, s, prop, angle, ismath=False):
         """
         Draw the text.Text instance s at x,y (display coords) with font
         properties instance prop at angle in degrees
         """
-        pass
-
+        raise NotImplementedError
     
     def new_gc(self):
         """
@@ -357,6 +349,9 @@ class RendererBase:
         """
         return GraphicsContextBase()
 
+    def strip_math(self, s):
+        return strip_math(s)
+              
 
 class GraphicsContextBase:
     """An abstract base class that provides color, line styles, etc...
@@ -1317,4 +1312,3 @@ class NavigationToolbar2:
             self.mode = 'Zoom to rect mode'
 
         self.set_message(self.mode)
-        
