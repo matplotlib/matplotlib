@@ -1,5 +1,11 @@
 New entries should be added at the top
 
+2005-03-15 backend_gtkagg.py: changed to use double buffering, this fixes
+           the problem reported Joachim Berdal Haga - "Parts of plot lagging 
+	   from previous frame in animation". Tested with anim.py and it makes
+           no noticable difference to performance (23.7 before, 23.6 after) 
+	   - SC
+
 2005-03-14 add src/_backend_gdk.c extension to provide a substitute function
 	   for pixbuf.get_pixels_array(). Currently pixbuf.get_pixels_array()
            only works with Numeric, and then only works if pygtk has been

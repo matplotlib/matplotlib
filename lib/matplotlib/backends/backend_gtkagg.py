@@ -3,9 +3,7 @@ Render to gtk from agg
 """
 from __future__ import division
 
-import os, sys
-from matplotlib import verbose
-from matplotlib.cbook import enumerate
+import os
 from matplotlib.figure import Figure
 
 from backend_agg import FigureCanvasAgg
@@ -16,7 +14,7 @@ from backend_gtk import gtk, FigureManagerGTK, FigureCanvasGTK,\
 from _gtkagg import agg_to_gtk_drawable
 
 
-DEBUG = 0
+DEBUG = False
 
 
 def new_figure_manager(num, *args, **kwargs):
@@ -28,26 +26,53 @@ def new_figure_manager(num, *args, **kwargs):
     canvas = FigureCanvasGTKAgg(thisFig)
     return FigureManagerGTK(canvas, num)
 
+
 class FigureCanvasGTKAgg(FigureCanvasGTK, FigureCanvasAgg):
 
-    def draw(self):
-        """
-        Draw to the Agg backend and then copy the image to the
-        gtk.gdk.drawable.
+    def configure_event(self, widget, event=None):
+        if DEBUG: print 'FigureCanvasGTKAgg.configure_event'
+        if widget.window is None:
+            return 
+        try:
+            del self.renderer
+        except AttributeError:
+            pass
+        w,h = widget.window.get_size()
+        if w==1 or h==1: return # empty fig
 
-        """
-        if DEBUG: print 'FigureCanvasGTKAgg.draw'  
-            
-        FigureCanvasAgg.draw(self)
-        if self.window is None: 
-            return
-        else: 
-            self.blit()
+        # compute desired figure size in inches
+        dpival = self.figure.dpi.get()
+        winch = w/dpival
+        hinch = h/dpival
+        self.figure.set_figsize_inches(winch, hinch)
+        self._draw_pixmap = True
         
+        if DEBUG: print 'FigureCanvasGTKAgg.configure_event end'        
+        return True
+    
 
-    def blit(self):
-        if self.window is None: return        
-        agg_to_gtk_drawable(self.window, self.renderer._renderer)
+    def _render_figure(self, width, height):
+        """Render the figure to a gdk.Pixmap, used by expose_event().
+        """
+        if DEBUG: print 'FigureCanvasGTKAgg._render_figure'
+        create_pixmap = False
+        if width > self._pixmap_width:
+            # increase the pixmap in 10%+ (rather than 1 pixel) steps
+            self._pixmap_width  = max (int (self._pixmap_width  * 1.1), width)
+            create_pixmap = True
+
+        if height > self._pixmap_height:
+            self._pixmap_height = max (int (self._pixmap_height * 1.1), height)
+            create_pixmap = True
+
+        if create_pixmap:
+            if DEBUG: print 'FigureCanvasGTK._render_figure new pixmap'
+            self._pixmap = gtk.gdk.Pixmap (self.window, self._pixmap_width,
+                                           self._pixmap_height)
+
+        FigureCanvasAgg.draw(self)
+        agg_to_gtk_drawable(self._pixmap, self.renderer._renderer)
+
 
     def print_figure(self, filename, dpi=150,
                      facecolor='w', edgecolor='w',
@@ -68,37 +93,3 @@ class FigureCanvasGTKAgg(FigureCanvasGTK, FigureCanvasAgg):
                 error_msg_gtk('Failed to save\nError message: %s'%(msg,), self)
 
         self.figure.set_canvas(self)
-
-
-    def configure_event(self, widget, event=None):
-        if DEBUG: print 'FigureCanvasGTKAgg.configure_event'
-        if widget.window is None: return 
-        try: del self.renderer
-        except AttributeError: pass
-        w,h = widget.window.get_size()
-        if w==1 or h==1: return # empty fig
-
-        # compute desired figure size in inches
-        dpival = self.figure.dpi.get()
-        winch = w/dpival
-        hinch = h/dpival
-        
-        self.figure.set_figsize_inches(winch, hinch)
-        
-        return gtk.TRUE
-    
-    def expose_event(self, widget, event):
-        if DEBUG: print 'FigureCanvasGTKAgg.expose_event'        
-        if widget.window is None: return 
-
-        def callback(w):
-            if hasattr(self, 'renderer'):  self.blit()
-            else: self.draw()
-            self._idleID=0
-            return gtk.FALSE
-
-        if self._idleID==0:
-            self._idleID = gtk.idle_add(callback, self)
-
-
-        return gtk.TRUE
