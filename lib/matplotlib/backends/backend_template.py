@@ -243,7 +243,8 @@ def show():
     interactive versus batch mode
     """
     for manager in Gcf.get_all_fig_managers():
-        manager.canvas.realize()
+        # do something to display the GUI
+        pass
 
 
 def new_figure_manager(num, *args, **kwargs):
@@ -308,13 +309,6 @@ class FigureCanvasTemplate(FigureCanvasBase):
         # redraw the screen if necessary
         #self.draw()
         
-    def realize(self, *args):
-        """
-        This method will be called when the system is ready to draw,
-        eg when a GUI window is realized
-        """
-        self._isRealized = True  
-        self.draw()
     
 class FigureManagerTemplate(FigureManagerBase):
     """

@@ -420,18 +420,6 @@ class GraphicsContextPS(GraphicsContextBase):
         offset, dashes = self._dashd[style]
         self.set_dashes(offset, dashes)
 
-def draw_if_interactive():
-    pass
-
-def show():
-    """
-    Show all the figures and enter the gtk mainloop
-
-    This should be the last line of your script
-    """
-    for manager in Gcf.get_all_fig_managers():
-        manager.figure.realize()
-
 def new_figure_manager(num, *args, **kwargs):
     thisFig = Figure(*args, **kwargs)
     canvas = FigureCanvasPS(thisFig)

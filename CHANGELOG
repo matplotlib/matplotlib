@@ -1,5 +1,14 @@
 New entries should be added at the top
 
+2004-12-11 backend_template.py: delete FigureCanvasTemplate.realize() - most
+           backends don't use it and its no longer needed
+
+           backend_ps.py, backend_svg.py: delete show() and 
+           draw_if_interactive() - they are not needed for image backends
+
+           backend_svg.py: write direct to file instead of StringIO
+           - SC
+
 2004-12-10 Added zorder to artists to control drawing order of lines,
            patches and text in axes.  See examples/zoder_demo.py - JDH
 
