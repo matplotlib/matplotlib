@@ -3141,20 +3141,20 @@ polygon, so if you want to pick a patch, click on the edge!
         
         def dist(a):
             if isinstance(a, Text):
-                xa, ya = a.get_position()
-                p = a.get_transform().xy_tup((xa,ya))
-                return dist_points( xywin, p)
+                bbox = a.get_window_extent()
+                l,b,w,h = bbox.get_bounds()
+                verts = (l,b), (l,b+h), (l+w,b+h), (l+w, b)
+                xt, yt = zip(*verts)                
             elif isinstance(a, Patch):
                 verts = a.get_verts()
                 tverts = a.get_transform().seq_xy_tups(verts)
-                x, y = zip(*tverts)
-                return dist_x_y(xywin, array(x), array(y))
+                xt, yt = zip(*tverts)                
             elif isinstance(a, Line2D):
                 xdata = a.get_xdata()
                 ydata = a.get_ydata()
                 xt, yt = a.get_transform().numerix_x_y(xdata, ydata)
-                return dist_x_y(xywin, xt, yt)
 
+            return dist_x_y(xywin, asarray(xt), asarray(yt))
             
         artists = self.lines + self.patches + self.texts
         if not len(artists): return None
