@@ -4,7 +4,7 @@ matplotlib.use('TkAgg')
 
 from matplotlib.numerix import arange, sin, pi
 from matplotlib.axes import Subplot
-from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2TkAgg
 from matplotlib.figure import Figure
 
 import Tkinter as Tk
@@ -30,7 +30,11 @@ canvas = FigureCanvasTkAgg(f, master=root)
 canvas.show()
 canvas.get_tk_widget().pack(side=Tk.TOP, fill=Tk.BOTH, expand=1)
 
-button = Tk.Button(master=root, text='Quit', command=sys.exit)
-button.pack(side=Tk.BOTTOM)
+toolbar = NavigationToolbar2TkAgg( canvas, root )
+toolbar.update()
+canvas._tkcanvas.pack(side=Tk.TOP, fill=Tk.BOTH, expand=1)
+
+#button = Tk.Button(master=root, text='Quit', command=sys.exit)
+#button.pack(side=Tk.BOTTOM)
 
 Tk.mainloop()
