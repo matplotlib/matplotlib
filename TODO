@@ -625,3 +625,39 @@ ZeroDivisionError: SeparableTransformation::eval_scalars yin interval is zero; c
 -- tex_rotation svg line bug (clipping??)
 
 -- lag in release events makes key press nav difficult
+
+Microsoft(R) Windows DOS
+(C)Copyright Microsoft Corp 1990-2001.
+
+C:\DOCUME~1\MARYHU~1>c:\python24
+'c:\python24' is not recognized as an internal or external command,
+operable program or batch file.
+
+C:\DOCUME~1\MARYHU~1>c:\python24\python
+Python 2.4 (#60, Nov 30 2004, 11:49:19) [MSC v.1310 32 bit (Intel)] on win32
+Type "help", "copyright", "credits" or "license" for more information.
+>>> from pylab import *
+>>> plot([1,2,3])
+[<matplotlib.lines.Line2D instance at 0x01BC9490>]
+>>> show()
+Exception in Tkinter callback
+Traceback (most recent call last):
+  File "c:\python24\lib\lib-tk\Tkinter.py", line 1345, in __call__
+    return self.func(*args)
+  File "C:\Python24\Lib\site-packages\matplotlib\backends\backend_tkagg.py", lin
+e 215, in key_release
+    FigureCanvasBase.key_release_event(self, key)
+  File "C:\Python24\Lib\site-packages\matplotlib\backend_bases.py", line 677, in
+ key_release_event
+    event = KeyEvent('key_release_event', self, key, self._lastx, self._lasty)
+  File "C:\Python24\Lib\site-packages\matplotlib\backend_bases.py", line 640, in
+ __init__
+    LocationEvent.__init__(self, name, canvas, x, y)
+  File "C:\Python24\Lib\site-packages\matplotlib\backend_bases.py", line 566, in
+ __init__
+    if a.in_axes(self.x, self.y):
+  File "C:\Python24\Lib\site-packages\matplotlib\axes.py", line 1544, in in_axes
+
+    return self.bbox.contains(xwin, ywin)
+TypeError: float() argument must be a string or a number
+=========================================
