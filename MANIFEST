@@ -384,6 +384,7 @@ examples/data/ct.raw
 examples/data/eeg.dat
 examples/data/embedding_in_wx3.xrc
 examples/data/intc.csv
+examples/data/lena.jpg
 examples/data/membrane.dat
 examples/data/msft.csv
 examples/data/s1045.ima
