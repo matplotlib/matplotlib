@@ -6,7 +6,9 @@ l = plot(t, s)
 
 xlabel('time (s)')
 ylabel('voltage (mV)')
-title('About as simple as it gets, folks')
+t = title('About as simple as it gets, folks', verticalalignment='bottom')
+t.set_y(0.99)
+
 #grid(True)
 #set(gca(), 'xticks', (0,.2,.7))
 savefig('test2.eps')

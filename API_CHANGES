@@ -27,6 +27,11 @@ API changes at 0.42
   * After getting Text handled in a backend independent fashion, the
     import process is much cleaner since there are no longer cyclic
     dependencies
+
+  * matplotlib.matlab._get_current_fig_manager renamed to
+    matplotlib.matlab.get_current_fig_manager to allow user access to
+    the GUI window attribute, eg figManager.window for GTK and
+    figManager.frame for wx
   
 
 
