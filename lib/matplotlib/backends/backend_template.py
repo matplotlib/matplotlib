@@ -127,11 +127,10 @@ class RendererTemplate(RendererBase):
     
     def draw_arc(self, gcEdge, rgbFace, x, y, width, height, angle1, angle2):
         """
-        Draw an arc centered at x,y with width and height and angles
-        from 0.0 to 360.0.
-
-        If rgbFace is not None, fill the src with it.  gcEdge
-        is a GraphicsContext instance
+        Draw an arc using GraphicsContext instance gcEdge, centered at x,y,
+        with width and height and angles from 0.0 to 360.0
+        
+        If the color rgbFace is not None, fill the arc with it.
         """
         pass
     

@@ -68,6 +68,8 @@ def GTK_WIDGET_DRAWABLE(w): flags = w.flags(); return flags & gtk.VISIBLE !=0 an
 
 
 class RendererGTK(RendererBase):
+    """See the RendererBase documentation
+    """
     fontweights = {
         100          : pango.WEIGHT_ULTRALIGHT,
         200          : pango.WEIGHT_LIGHT,
@@ -109,38 +111,11 @@ class RendererGTK(RendererBase):
         self.gdkDrawable = gdkDrawable
 
     def _set_width_height (self, width, height):
-        """w'h are the figure w,h not thw pixmap w,h
+        """w,h is the figure w,h not the pixmap w,h
         """
         self.width, self.height = width, height
 
-    def flipy(self):
-        return True
-
-    def get_text_width_height(self, s, prop, ismath):
-        """
-        get the width and height in display coords of the string s
-        with FontPropertry prop
-        """
-        if ismath:
-            width, height, fonts = math_parse_s_ft2font(
-                s, self.dpi.get(), prop.get_size_in_points())
-            return width, height
-
-        layout = self._get_pango_layout(s, prop)
-        inkRect, logicalRect = layout.get_pixel_extents()
-        l, b, w, h = inkRect
-        return w, h+1
-
-    def get_canvas_width_height(self):
-        'return the canvas width and height in display coords'
-        #return self.gtkDA.allocation.width, self.gtkDA.allocation.height        
-        return self.width, self.height
-
-    
     def draw_arc(self, gc, rgbFace, x, y, width, height, angle1, angle2):
-        """
-        Draw an arc centered at x,y with width and height
-        """
         x, y = int(x-0.5*width), self.height-int(y+0.5*height)
         w, h = int(width)+1, int(height)+1
         a1, a2 = int(angle1*64), int(angle2*64)
@@ -154,18 +129,6 @@ class RendererGTK(RendererBase):
 
 
     def draw_image(self, x, y, im, origin, bbox):
-        """
-        Draw the Image instance into the current axes; x is the
-        distance in pixels from the left hand side of the canvas. y is
-        the distance from the origin.  That is, if origin is upper, y
-        is the distance from top.  If origin is lower, y is the
-        distance from bottom
-
-        origin is 'upper' or 'lower'
-
-        bbox is a matplotlib.transforms.BBox instance for clipping, or
-        None
-        """
         if bbox is not None:
             l,b,w,h = bbox.get_bounds()
             #rectangle = (int(l), self.height-int(b+h),
@@ -201,37 +164,22 @@ class RendererGTK(RendererBase):
 
             
     def draw_line(self, gc, x1, y1, x2, y2):
-        """
-        Draw a single line from x1,y1 to x2,y2
-        """
-        self.gdkDrawable.draw_line(
-            gc.gdkGC, int(x1), self.height-int(y1),
-            int(x2), self.height-int(y2))
+        self.gdkDrawable.draw_line(gc.gdkGC, int(x1), self.height-int(y1),
+                                   int(x2), self.height-int(y2))
 
 
     def draw_lines(self, gc, x, y):
         x = x.astype(nx.Int16)
-        y = self.height*ones(y.shape, nx.Int16) - y.astype(nx.Int16)  
+        #y = self.height*ones(y.shape, nx.Int16) - y.astype(nx.Int16)  
+        y = self.height - y.astype(nx.Int16)  
         self.gdkDrawable.draw_lines(gc.gdkGC, zip(x,y))
         
 
     def draw_point(self, gc, x, y):
-        """
-        Draw a single point at x,y
-        """
-        self.gdkDrawable.draw_point(
-            gc.gdkGC, int(x), self.height-int(y))
+        self.gdkDrawable.draw_point(gc.gdkGC, int(x), self.height-int(y))
 
 
     def draw_polygon(self, gc, rgbFace, points):
-        """
-        Draw a polygon.  points is a len vertices tuple, each element
-        giving the x,y coords a vertex
-
-        If gcFace is not None, fill the rectangle with it.  gcEdge
-        is a GraphicsContext instance
-
-        """
         points = [(int(x), self.height-int(y)) for x,y in points]
         if rgbFace:
             saveColor = gc.gdkGC.foreground
@@ -242,11 +190,6 @@ class RendererGTK(RendererBase):
 
 
     def draw_rectangle(self, gc, rgbFace, x, y, width, height):
-        """
-        Draw a rectangle at lower left x,y with width and height
-        If filled=True, fill the rectangle with the gc foreground
-        gc is a GraphicsContext instance
-        """
         x, y = int(x), self.height-int(y+height)
         #x, y = int(x), self.height-int(math.ceil(y+height))
         w, h = int(math.ceil(width)), int(math.ceil(height))
@@ -425,6 +368,13 @@ class RendererGTK(RendererBase):
         return layout
 
 
+    def flipy(self):
+        return True
+
+    def get_canvas_width_height(self):
+        #return self.gtkDA.allocation.width, self.gtkDA.allocation.height        
+        return self.width, self.height
+
     def get_text_scale(self):
         """
         Return the scale factor for fontsize taking screendpi and pixels per
@@ -432,6 +382,17 @@ class RendererGTK(RendererBase):
         """
         return self.dpi.get()/PIXELS_PER_INCH
 
+
+    def get_text_width_height(self, s, prop, ismath):
+        if ismath:
+            width, height, fonts = math_parse_s_ft2font(
+                s, self.dpi.get(), prop.get_size_in_points())
+            return width, height
+
+        layout = self._get_pango_layout(s, prop)
+        inkRect, logicalRect = layout.get_pixel_extents()
+        l, b, w, h = inkRect
+        return w, h+1
 
     def new_gc(self):
         return GraphicsContextGTK(renderer=self)
