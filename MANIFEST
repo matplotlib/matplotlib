@@ -174,6 +174,7 @@ examples/README
 examples/__init__.py
 examples/alignment_test.py
 examples/anim.py
+examples/anim_tk.py
 examples/arctest.py
 examples/axes_demo.py
 examples/axes_props.py
@@ -398,6 +399,7 @@ matplotlib/backends/tkagg.py
 src/_backend_agg.cpp
 src/_backend_agg.h
 src/_gtkagg.cpp
+src/_gtkaggold.cpp
 src/_gtkgd.c
 src/_image.cpp
 src/_image.h

@@ -394,6 +394,10 @@
 
 -- DONE y tick outside frame?
 
--- incorporate gary's errorbar
+-- DONE incorporate gary's errorbar
 
 --  bug in -45 newline text
+
+-- write to stream in Agg
+
+-- gtkagg bug in win98
