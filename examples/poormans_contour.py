@@ -1,7 +1,10 @@
 #!/usr/bin/env python
 """
 Use a pcolor or imshow with a custom colormap to make a contour plot.
-A proper contour, with contour lines, is on the list of things to do
+
+Since this example was initially written, a proper contour routine was
+added to matplotlib - see contour_demo.py and
+http://matplotlib.sf.net/matplotlib.pylab.html#-contour.
 """
 
 from pylab import *

@@ -562,15 +562,24 @@ def clf():
     gcf().clf()
     draw_if_interactive()
 
-def colorbar(tickfmt='%1.1f'):
+def colorbar(tickfmt='%1.1f', cax=None, orientation='vertical'):
     """
     Create a colorbar for current mappable image (see gci)
 
     tickfmt is a format string to format the colorbar ticks
 
+    cax is a colorbar axes instance in which the colorbar will be
+    placed.  If None, as default axesd will be created resizing the
+    current aqxes to make room for it.  If not None, the supplied axes
+    will be used and the other axes positions will be unchanged.
+
+    orientation is the colorbar orientation: one of 'vertical' | 'horizontal'
     return value is the colorbar axes instance
     """
 
+    if orientation not in ('horizontal', 'vertical'):
+        raise ValueError('Orientation must be horizontal or vertical')
+    
     mappable = gci()
     if mappable is None:
         error_msg('First define a mappable image (eg imshow, figimage, pcolor, scatter')
@@ -589,25 +598,38 @@ def colorbar(tickfmt='%1.1f'):
         mappable.autoscale()
     cmin = norm.vmin
     cmax = norm.vmax
-    l,b,w,h = ax.get_position()
 
-    neww = 0.8*w
-    ax.set_position((l,b,neww,h))
-    cax = axes([l + 0.9*w, b, 0.1*w, h])
-    N = 200
+    if cax is None:
+        l,b,w,h = ax.get_position()
+        neww = 0.8*w
+        ax.set_position((l,b,neww,h))
+        cax = axes([l + 0.9*w, b, 0.1*w, h])
+    else:
+        if not isinstance(cax, Axes):
+            raise TypeError('Expected an Axes instance for cax')
+        
+    N = cmap.N
 
     c = linspace(cmin, cmax, N)
     C = array([c,c])
 
-    coll = cax.imshow(transpose(C), interpolation='nearest',
+    if orientation=='vertical':
+        C = transpose(C)
+    coll = cax.imshow(C,
+                      interpolation='nearest', 
                       origin='lower',
                       cmap=cmap, norm=norm,
                       extent=(0, 1, cmin, cmax))
     mappable.add_observer(coll)
+
+    if orientation=='vertical':
+        cax.set_xticks([])
+        cax.yaxis.tick_right()
+        cax.yaxis.set_major_formatter(FormatStrFormatter(tickfmt))
+    else:
+        cax.set_yticks([])
+        cax.xaxis.set_major_formatter(FormatStrFormatter(tickfmt))
     
-    cax.set_xticks([])
-    cax.yaxis.tick_right()
-    cax.yaxis.set_major_formatter(FormatStrFormatter(tickfmt))
     # restore the current axes
     axes(ax)
     return cax
