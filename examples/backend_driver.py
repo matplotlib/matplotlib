@@ -10,38 +10,38 @@ probably want to remove them after the script runs
 from __future__ import division
 import os, time
 files = (
-#    'alignment_test.py',
-#    'arctest.py',
-#    'axes_demo.py',
-#    'bar_stacked.py',
-#    'barchart_demo.py',
-#    'color_demo.py',
-#    'csd_demo.py',
-#    'fill_demo.py',
-#    'figtext.py',
-#    'histogram_demo.py',
-#    'image_demo.py',
-#    'image_demo2.py',
-#    'legend_demo.py',
-#    'legend_demo2.py',
-#    'line_styles.py',
-#    'log_demo.py',
-#    'log_test.py',
-#    'mathtext_demo.py',
-#    'mri_with_eeg.py',
-#    'multiple_figs_demo.py',
-#    'pcolor_demo.py',
-#    'pcolor_demo2.py',
-#    'psd_demo.py',
-#    'scatter_demo.py',
-#    'scatter_demo2.py',
+    'alignment_test.py',
+    'arctest.py',
+    'axes_demo.py',
+    'bar_stacked.py',
+    'barchart_demo.py',
+    'color_demo.py',
+    'csd_demo.py',
+    'fill_demo.py',
+    'figtext.py',
+    'histogram_demo.py',
+    'image_demo.py',
+    'image_demo2.py',
+    'legend_demo.py',
+    'legend_demo2.py',
+    'line_styles.py',
+    'log_demo.py',
+    'log_test.py',
+    'mathtext_demo.py',
+    'mri_with_eeg.py',
+    'multiple_figs_demo.py',
+    'pcolor_demo.py',
+    'pcolor_demo2.py',
+    'psd_demo.py',
+    'scatter_demo.py',
+    'scatter_demo2.py',
     'simple_plot.py',
-#    'stock_demo.py',
-#    'specgram_demo.py',
-#    'subplot_demo.py',
-#    'table_demo.py',
-#    'text_handles.py',
-#    'text_themes.py',
+    'stock_demo.py',
+    'specgram_demo.py',
+    'subplot_demo.py',
+    'table_demo.py',
+    'text_handles.py',
+    'text_themes.py',
     )
 
 def drive(backend):
@@ -69,9 +69,9 @@ def drive(backend):
         os.system('python %s' % tmpfile)
 
 times = {}
-#backends = ['PS', 'GD', 'Paint', 'Agg', 'Template']
+backends = ['PS', 'GD', 'Paint', 'Agg', 'Template']
 #backends.extend([ 'GTK', 'WX', 'TkAgg'])
-backends = ['PS']
+#backends = [ 'Agg']
 
 for backend in backends:
     print 'testing %s' % backend
