@@ -1,17 +1,9 @@
-/*
-  Known issues:
-  
-  port to numarray/numeric
-  
-  
-*/
-
 
 #include <fstream>
 #include <cmath>
 #include <cstdio>
 #include "Python.h"
-#include "Numeric/arrayobject.h"  //after Python.h
+#include "Numeric/arrayobject.h" 
 
 #include "agg_pixfmt_rgb24.h"
 #include "agg_pixfmt_rgba32.h"
@@ -549,30 +541,25 @@ _image_fromfile(PyObject *self, PyObject *args) {
 char _image_fromarray__doc__[] = 
 "fromarray(A)\n"
 "\n"
-"Load the image from Numeric array\n"
+"Load the image from a Numeric or numarray array\n"
 ;
 static PyObject *
 _image_fromarray(PyObject *self, PyObject *args) {
   
-  PyArrayObject *A; 
+  PyObject *x; 
+  PyArrayObject *A;
   
-  
-  if (!PyArg_ParseTuple(args, "O!", &PyArray_Type, &A)) 
+  if (!PyArg_ParseTuple(args, "O", &x))
     return NULL; 
   
-  if (A->nd != 2 && A->nd != 3) {
+  //rank 2 or 3
+  A = (PyArrayObject *) PyArray_ContiguousFromObject(x, PyArray_DOUBLE, 2, 3); 
+
+  if (!A) {
     PyErr_SetString(PyExc_ValueError, 
-		    "array must be rank-2 or 3"); 
+		    "Array must be rank 2 or 3 of doubles"); 
     return NULL; 
-    
   }
-  //printf("num dim %u, type_num %u\n", A->nd, A->descr->type_num);
-  
-  if (A->descr->type_num != PyArray_DOUBLE) {
-    PyErr_SetString(PyExc_ValueError, 
-		    "array must be type float"); 
-    return NULL; 
-  } 
   
   ImageObject *imo;
   
@@ -580,7 +567,7 @@ _image_fromarray(PyObject *self, PyObject *args) {
   if ( imo == NULL )
     return NULL;
   
-  imo->rowsIn = A->dimensions[0];
+  imo->rowsIn  = A->dimensions[0];
   imo->colsIn  = A->dimensions[1];
   
   size_t NUMBYTES(imo->colsIn * imo->rowsIn * imo->BPP);
