@@ -581,18 +581,28 @@ draw_bitmap( FT_Bitmap*  bitmap,
   FT_Int  i, j, p, q;
   FT_Int  x_max = x + bitmap->width;
   FT_Int  y_max = y + bitmap->rows;
-
+  //printf("bitmap size %d, %d\n", bitmap->width, bitmap->rows);
   for ( i = x, p = 0; i < x_max; i++, p++ )
   {
     for ( j = y, q = 0; j < y_max; j++, q++ )
     {
-      if ( i >= image->width || j >= image->height )
-        continue;
-      image->buffer[i + j*image->width] |= bitmap->buffer[q * bitmap->width + p]; 
-
-
+      if ( i >= image->width || j >= image->height ) continue;
+      image->buffer[i + j*image->width] |= bitmap->buffer[q * bitmap->width + p];
     }
   }
+
+
+  /*
+  for ( i = 0; i < image->height; i++ )
+  {
+    for ( j = 0; j < image->width; j++ ) {
+      printf("%3u ",image->buffer[j + i*image->width]);
+
+    }
+    printf("\n");
+  }
+  */
+
 }
 
 
@@ -659,7 +669,7 @@ FT2Font_draw_rect(FT2FontObject *self, PyObject *args)
   }
 
     
-  printf("%ld, %ld, %ld, %ld\n", x0, x1, y0, y1);
+  //printf("%ld, %ld, %ld, %ld\n", x0, x1, y0, y1);
   for (i=x0; i<x1; ++i) {
     self->image.buffer[i + y0*self->image.width] = 255;
     self->image.buffer[i + y1*self->image.width] = 255;
@@ -711,12 +721,14 @@ FT2Font_draw_glyphs_to_bitmap(FT2FontObject *self, PyObject *args)
   
   compute_string_bbox(self, &string_bbox);
 
-
-  self->image.width   = (string_bbox.xMax-string_bbox.xMin) / 64;
-  self->image.height  = (string_bbox.yMax-string_bbox.yMin) / 64;
+ 
+  self->image.width   = (string_bbox.xMax-string_bbox.xMin) / 64+2;
+  self->image.height  = (string_bbox.yMax-string_bbox.yMin) / 64+2;
 
 
   numBytes = self->image.width*self->image.height;
+  //printf("width, height, bytes = %lu, %lu, %lu\n", 
+	// self->image.width, self->image.height,   numBytes);
   free(self->image.buffer);
   self->image.buffer = (unsigned char *)malloc(numBytes);
   for (n=0; n<numBytes; n++) 
@@ -750,8 +762,8 @@ FT2Font_draw_glyphs_to_bitmap(FT2FontObject *self, PyObject *args)
       //printf("%ld, %ld\n", string_bbox.yMin, string_bbox.yMax);
       draw_bitmap( &bitmap->bitmap, 
 		   &self->image, 		   	       
-		   bitmap->left-string_bbox.xMin/64.0,
-		   string_bbox.yMax/64.0-bitmap->top
+		   bitmap->left-string_bbox.xMin/64,
+		   string_bbox.yMax/64-bitmap->top+1
 		   );
       
     }

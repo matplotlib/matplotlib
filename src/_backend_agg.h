@@ -2,6 +2,9 @@
  *
  * $Header$
  * $Log$
+ * Revision 1.3  2004/03/02 20:47:52  jdh2358
+ * update htdocs - lots of small fixes
+ *
  * Revision 1.2  2004/02/23 16:20:57  jdh2358
  * resynced cvs to freetype2
  *
@@ -34,6 +37,7 @@
 #include "agg_pixfmt_rgba32.h"
 #include "agg_rasterizer_outline.h"
 #include "agg_rasterizer_scanline_aa.h"
+#include "agg_scanline_bin.h"
 #include "agg_renderer_outline_aa.h"
 #include "agg_renderer_raster_text.h"
 #include "agg_renderer_scanline.h"
@@ -65,9 +69,10 @@ typedef agg::pixel_formats_rgba32<agg::order_rgba32> pixfmt;
 //typedef agg::pixel_formats_rgb24<agg::order_bgr24> pixfmt;
 typedef agg::renderer_base<pixfmt> renderer_base;
 typedef agg::renderer_scanline_p_solid<renderer_base> renderer;
+typedef agg::renderer_scanline_bin_solid<renderer_base> renderer_bin;
 typedef agg::rasterizer_scanline_aa<> rasterizer;
-typedef agg::scanline_p8 scanline;
-
+typedef agg::scanline_p8 scanline_p8;
+typedef agg::scanline_bin scanline_bin;
 
 
 
@@ -86,9 +91,11 @@ typedef struct {
   pixfmt *pixf;
   renderer_base *rbase;
   renderer *ren;
+  renderer_bin *ren_bin;
   rasterizer *ras;
   agg::int8u *buffer;
-  scanline *sline;
+  scanline_p8 *sline_p8;
+  scanline_bin *sline_bin;
   size_t NUMBYTES;  //the number of bytes in buffer
   double dpi;
 } RendererAggObject;
