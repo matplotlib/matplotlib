@@ -1,5 +1,10 @@
 New entries should be added at the top
 
+2004-12-13 colors.py: rgb2hex(), hex2color() made simpler (and faster), also
+           rgb2hex() - added round() instead of integer truncation
+           hex2color() - changed 256.0 divisor to 255.0, so now
+           '#ffffff' becomes (1.0,1.0,1.0) not (0.996,0.996,0.996) - SC
+
 2004-12-11 Added ion and ioff to pylab interface - JDH
 
 2004-12-11 backend_template.py: delete FigureCanvasTemplate.realize() - most
