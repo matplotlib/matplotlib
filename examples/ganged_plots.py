@@ -20,9 +20,10 @@ s3 = s1*s2
 # off xtick labels on all but the lower plot
 ax1 = axes([0.1, 0.1,  0.8, 0.25])  # lower 
 ax2 = axes([0.1, 0.35, 0.8, 0.25], sharex=ax1)  # middle
-ax2.set_xticklabels([])              
+set(ax2.get_xticklabels(), visible=False)
 ax3 = axes([0.1, 0.6,  0.8, 0.25], sharex=ax1)  # upper
-ax3.set_xticklabels([])
+set(ax3.get_xticklabels(), visible=False)
+
 
 ax1.plot(t,s1)
 ax2.plot(t,s2)
