@@ -317,25 +317,30 @@ static PyObject *
 FT2Font_clear(FT2FontObject *self)
 {
   size_t i;
-  //printf("start\n");
+
+  /* //TODO: segfaulted here; bad ref management?
   for (i=0; i< self->num_glyphs; i++) {
     Py_XDECREF(self->gms[i]);
     self->gms[i] = NULL;
   }
-  //printf("1\n");
+  */
+
   free(self->image.buffer );
+
   self->image.buffer = NULL;
   self->image.width = 0;
   self->image.height = 0;
   self->text = NULL;
   self->angle = 0.0;
+
   self->num_chars = 0;
   self->num_glyphs = 0;
   self->pen.x = 0;
   self->pen.y = 0;
+
   Py_INCREF(Py_None);
   return Py_None;
-  //printf("end\n");
+
 }
 
 char FT2Font_set_size__doc__[] = 
