@@ -16,24 +16,18 @@ def on_move(event):
     # get the x and y coords, flip y from top to bottom
     x, y = event.x, event.y
 
-    if ax.in_axes(x, y):
-        # transData transforms data coords to display coords.  Use the
-        # inverse method to transform back
-        print ax.transData.inverse_xy_tup( (x,y) )
+    if event.inaxes is not None:
+        print 'data coords', event.xdata, event.ydata
 
 def on_click(event):
     # get the x and y coords, flip y from top to bottom
     x, y = event.x, event.y
     if event.button==1:
-        if ax.in_axes(x, y):
-            # transData transforms data coords to display coords.  Use the
-            # inverse method to transform back
-            print ax.transData.inverse_xy_tup( (x,y) )
+        if event.inaxes is not None:
+            print 'data coords', event.xdata, event.ydata
 
-
-
-canvas.mpl_connect('motion_notify_event', on_move)
-#canvas.mpl_connect('button_press_event', on_click)
+#canvas.mpl_connect('motion_notify_event', on_move)
+canvas.mpl_connect('button_press_event', on_click)
 
 
 
