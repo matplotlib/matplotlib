@@ -43,7 +43,9 @@ examples/mpl_with_glade.py
 examples/mri_demo.py
 examples/mri_with_eeg.py
 examples/multiple_figs_demo.py
+examples/object_picker.py
 examples/pcolor_demo.py
+examples/print_ps.py
 examples/psd_demo.py
 examples/pstest.py
 examples/scatter_demo.py
@@ -149,3 +151,4 @@ matplotlib/backends/backend_gtk.py
 matplotlib/backends/backend_ps.py
 matplotlib/backends/backend_template.py
 matplotlib/backends/backend_wx.py
+test/test.py
