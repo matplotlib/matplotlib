@@ -1,27 +1,30 @@
-# A postscript backend
+"""
+A PostScript backend, which can produce both PostScript .ps and
+Encapsulated PostScript .eps files.
+"""
 
 # postscript for mathematical drawing:
 # http://www.math.ubc.ca/people/faculty/cass/graphics/text/www/
 
 from __future__ import division
-from cStringIO import StringIO
 import sys, os
+from cStringIO import StringIO
+from datetime import datetime
 from matplotlib import verbose, __version__
-from matplotlib.afm import AFM
+from matplotlib._matlab_helpers import Gcf
 from matplotlib.backend_bases import RendererBase, GraphicsContextBase,\
-     FigureManagerBase, FigureCanvasBase
+     FigureManagerBase, FigureCanvasBase, error_msg
 
 from matplotlib.cbook import iterable, is_string_like, flatten, enumerate,\
      get_recursive_filelist, True, False
-
 from matplotlib.figure import Figure
+
 from matplotlib.font_manager import fontManager
 from matplotlib.ft2font import FT2Font
 from matplotlib.mathtext import math_parse_s_ps, bakoma_fonts
-from matplotlib._matlab_helpers import Gcf
 from matplotlib.text import Text
 
-from matplotlib import rcParams, get_data_path
+from matplotlib import get_data_path
 
 from matplotlib.numerix import fromstring, UInt8, Float32
 import binascii
@@ -30,7 +33,12 @@ backend_version = 'Level II'
 
 defaultPaperSize = 8.5,11
 
+
+
 def error_msg_ps(msg, *args):
+    """
+    Signal an error condition -- in a GUI, popup a error dialog
+    """
     verbose.report_error('Error: %s'% msg)
     sys.exit()
 
@@ -79,6 +87,7 @@ class RendererPS(RendererBase):
         return w, h
     
     def flipy(self):
+        'return true if y small numbers are top for renderer'
         return False
 
     def _get_font(self, prop):
@@ -105,51 +114,16 @@ class RendererPS(RendererBase):
         self._pswriter.write(ps)
         
     def draw_arc(self, gc, rgbFace, x, y, width, height, angle1, angle2):
+        """
+        Draw an arc centered at x,y with width and height and angles
+        from 0.0 to 360.0
 
+        If gcFace is not None, fill the rectangle with it.  gcEdge
+        is a GraphicsContext instance
+        """
         ps = 'newpath %s ellipse' % _nums_to_str(
             (x,y,0.5*width,0.5*height,angle1,angle2))
         self._draw_ps(ps, gc, rgbFace)
-    
-    def draw_line(self, gc, x1, y1, x2, y2):
-        """
-        Draw a single line from x1,y1 to x2,y2
-        """
-        ps = '%s l' % _nums_to_str( (x1,y1,x2,y2) )
-        self._draw_ps(ps, gc, None)
-
-    def draw_lines(self, gc, x, y):
-        if len(x)==0: return
-        if len(x)!=len(y): error_msg_ps('x and y must be the same length')
-        j, ps = 0, []
-        
-        while j < len(x)-1001:
-            ps.append('newpath %s moveto' % _nums_to_str((x[j], y[j])))
-            for tup in zip(x[j+1:j+1001], y[j+1:j+1001]):
-                ps.append('%s lineto' % _nums_to_str(tup))
-            ps.append(self._get_gc_props_ps(gc))
-            ps.append('stroke')
-            j += 1000
-
-        ps.append('newpath %s moveto' % _nums_to_str((x[j], y[j])))
-        for tup in zip(x[j+1:], y[j+1:]):
-            ps.append('%s lineto' % _nums_to_str(tup))
-
-        self._draw_ps('\n'.join(ps), gc, None)
-        
-    def draw_rectangle(self, gc, rgbFace, x, y, width, height):
-        ps = '%s box' % _nums_to_str( (x, y, width, height) )
-        self._draw_ps(ps, gc, rgbFace)
-
-
-    def draw_polygon(self, gc, rgbFace, points):
-        verts = [_nums_to_str(xy) for xy in points]
-        # build a 2D postscript array
-        ps = 'newpath [ [ %s ] ] make-polygon' % ' ] [  '.join(verts)
-        self._draw_ps(ps, gc, rgbFace)
-
-    def draw_point(self, gc, x, y):
-        # todo: is there a better way to draw points in postscript?
-        self.draw_line(gc, x, y, x+1, y+1)
 
     def _rgba(self, im, flipud):
         return im.as_str(fliud)
@@ -181,6 +155,18 @@ class RendererPS(RendererBase):
         return lines
 
     def draw_image(self, x, y, im, origin, bbox):
+        """
+        Draw the Image instance into the current axes; x is the
+        distance in pixels from the left hand side of the canvas. y is
+        the distance from the origin.  That is, if origin is upper, y
+        is the distance from top.  If origin is lower, y is the
+        distance from bottom
+
+        origin is 'upper' or 'lower'
+
+        bbox is a matplotlib.transforms.BBox instance for clipping, or
+        None
+        """
 
         flipud = origin=='lower'        
         if im.is_grayscale:
@@ -214,21 +200,66 @@ currentfile DataString readhexstring pop
 grestore
 """ % locals()
         self.draw_postscript(ps)
+    
+    def draw_line(self, gc, x1, y1, x2, y2):
+        """
+        Draw a single line from x1,y1 to x2,y2
+        """
+        ps = '%s line' % _nums_to_str( (x1,y1,x2,y2) )
+        self._draw_ps(ps, gc, None)
 
-    def draw_mathtext(self, gc, x, y, s, prop, angle):
+    def draw_lines(self, gc, x, y):
         """
-        Draw the math text using matplotlib.mathtext
+        x and y are equal length arrays, draw lines connecting each
+        point in x, y
         """
-        fontsize = prop.get_size_in_points()
-        width, height, pswriter = math_parse_s_ps(s, 72, fontsize)
-        thetext = pswriter.getvalue()
-        ps = """gsave
-%(x)f %(y)f translate
-%(angle)f rotate
-%(thetext)s
-grestore
-""" % locals()
-        self.draw_postscript(ps)
+        if len(x)==0: return
+        if len(x)!=len(y): error_msg_ps('x and y must be the same length')
+        j, ps = 0, []
+        
+        while j < len(x)-1001:
+            ps.append('newpath %s m' % _nums_to_str((x[j], y[j])))
+            for tup in zip(x[j+1:j+1001], y[j+1:j+1001]):
+                ps.append('%s l' % _nums_to_str(tup))
+            ps.append(self._get_gc_props_ps(gc))
+            ps.append('stroke')
+            j += 1000
+
+        ps.append('newpath %s m' % _nums_to_str((x[j], y[j])))
+        for tup in zip(x[j+1:], y[j+1:]):
+            ps.append('%s l' % _nums_to_str(tup))
+
+        self._draw_ps('\n'.join(ps), gc, None)
+
+    def draw_point(self, gc, x, y):
+        """
+        Draw a single point at x,y
+        """
+        # todo: is there a better way to draw points in postscript?
+        self.draw_line(gc, x, y, x+1, y+1)
+
+    def draw_polygon(self, gc, rgbFace, points):
+        """
+        Draw a polygon.  points is a len vertices tuple, each element
+        giving the x,y coords a vertex
+
+        If rgbFace is not None, fill the poly with it.  gc
+        is a GraphicsContext instance
+        """  
+        verts = [_nums_to_str(xy) for xy in points]
+        # build a 2D postscript array
+        ps = 'newpath [ [ %s ] ] make-polygon' % ' ] [  '.join(verts)
+        self._draw_ps(ps, gc, rgbFace)
+        
+    def draw_rectangle(self, gc, rgbFace, x, y, width, height):
+        """
+        Draw a rectangle with lower left at x,y with width and height.
+
+        If gcFace is not None, fill the rectangle with it.  gcEdge
+        is a GraphicsContext instance
+        """
+        ps = '%s box' % _nums_to_str( (x, y, width, height) )
+        self._draw_ps(ps, gc, rgbFace)
 
     def draw_text(self, gc, x, y, s, prop, angle, ismath):
         """
@@ -268,10 +299,6 @@ grestore
         
     def get_ps(self):
         return self._pswriter.getvalue()
-    
-    def finish(self):
-        self._pswriter.write('showpage\n')
-        self._pswriter.write('%%EOF')
 
     def new_gc(self):
         return GraphicsContextPS()
@@ -291,6 +318,21 @@ gsr
 grestore
 """ % locals()
         self._pswriter.write(s)
+
+    def draw_mathtext(self, gc, x, y, s, prop, angle):
+        """
+        Draw the math text using matplotlib.mathtext
+        """
+        fontsize = prop.get_size_in_points()
+        width, height, pswriter = math_parse_s_ps(s, 72, fontsize)
+        thetext = pswriter.getvalue()
+        ps = """gsave
+%(x)f %(y)f translate
+%(angle)f rotate
+%(thetext)s
+grestore
+""" % locals()
+        self.draw_postscript(ps)
 
     
     def _get_gc_clip_ps(self, gc):
@@ -322,6 +364,10 @@ grestore
 class GraphicsContextPS(GraphicsContextBase):
 
     def set_linestyle(self, style):
+        """
+        Set the linestyle to be one of ('solid', 'dashed', 'dashdot',
+        'dotted').  
+        """
         GraphicsContextBase.set_linestyle(self, style)
         offset, dashes = self._dashd[style]
         self.set_dashes(offset, dashes)
@@ -422,7 +468,6 @@ FontName currentdict end definefont pop""" % locals()
 
 
 class FigureCanvasPS(FigureCanvasBase):
-
     basepath = get_data_path()
 
     def draw(self):
@@ -431,54 +476,44 @@ class FigureCanvasPS(FigureCanvasBase):
     def print_figure(self, filename, dpi=72,
                      facecolor='w', edgecolor='w',
                      orientation='portrait'):
-        'dpi is ignored for PS output, it depends on the output device'
-        # ignore dpi for ps
-        self.figure.dpi.set(72)
+        """
+        Render the figure to hardcopy.  Set the figure patch face and
+        edge colors.  This is useful because some of the GUIs have a
+        gray figure face color background and you'll probably want to
+        override this on hardcopy
+        """
+        self.figure.dpi.set(72)        # ignore the passsed dpi setting for PS
+        width, height = self.figure.get_size_inches()
         
         # center the figure on the paper
         if orientation=='landscape':
             isLandscape = True
-            defaultHeight, defaultWidth = defaultPaperSize
+            paperHeight, paperWidth = defaultPaperSize
         else:
             isLandscape = False
-            defaultWidth, defaultHeight = defaultPaperSize
+            paperWidth, paperHeight = defaultPaperSize
 
-
-        width, height = self.figure.get_size_inches()
-        xo = 72*0.5*(defaultWidth - width)
-        yo = 72*0.5*(defaultHeight - height)
-
-        origfacecolor = self.figure.get_facecolor()
-        origedgecolor = self.figure.get_edgecolor()
-        self.figure.set_facecolor(facecolor)
-        self.figure.set_edgecolor(edgecolor)
-
+        xo = 72*0.5*(paperWidth - width)
+        yo = 72*0.5*(paperHeight - height)
 
         basename, ext = os.path.splitext(filename)
-        if not len(ext): filename += '.ps'
+        if not ext: filename += '.ps'
+        isEPSF = ext.lower().startswith('.ep')
 
-        self._pswriter = StringIO()
-
-        if ext.lower().startswith('.ep'):
-
-            # looks like encapsulated postscript
-            l, b, w, h = self.figure.bbox.get_bounds()
-            llx = xo
-            lly = yo
-            urx = llx + w 
-            ury = lly + h 
-            bboxstr = '%%BoundingBox: %d %d %d %d' % (llx, lly, urx, ury)
-
-            pstype = 'PS-Adobe-3.0 EPSF-3.0'
-        else:
-            pstype = 'PS'
-            bboxstr = ''
+        l, b, w, h = self.figure.bbox.get_bounds()
+        llx = xo
+        lly = yo
+        urx = llx + w 
+        ury = lly + h 
 
         if isLandscape:
-            xo, yo = 72*defaultHeight - yo, xo
+            xo, yo = 72*paperHeight - yo, xo
             rotation = 90
         else:
             rotation = 0
+
+        # generate PostScript code for the figure and store it in a string
+        self._pswriter = StringIO()
 
         self._pswriter.write('%1.3f %1.3f translate\n' % (xo, yo))
         self._pswriter.write('%d rotate\n' % rotation)
@@ -488,29 +523,66 @@ class FigureCanvasPS(FigureCanvasBase):
         self._pswriter.write('figure_clip\n')
 
 
+        origfacecolor = self.figure.get_facecolor()
+        origedgecolor = self.figure.get_edgecolor()
+        self.figure.set_facecolor(facecolor)
+        self.figure.set_edgecolor(edgecolor)
+
         renderer = RendererPS(width, height, self._pswriter)
         self.figure.draw(renderer)
-        renderer.finish()
-
-        try: fh = file(filename, 'w')
-        except IOError:
-            error_msg_ps('Could not open %s for writing' % filename)
-        else:
-            print >>fh, _psProlog % (pstype, __version__, bboxstr)
-            print >>fh, _psDefs
-
-            type42 = _type42 + [os.path.join(self.basepath, name) + '.ttf' \
-                                for name in bakoma_fonts]
-            for font in type42:
-                font = str(font)  # todo: handle unicode filenames
-                print >>fh, _psFonts % (FT2Font(font).postscript_name,
-                                        encodeTTFasPS(font))
-            print >>fh, renderer.get_ps()
 
         self.figure.set_facecolor(origfacecolor)
         self.figure.set_edgecolor(origedgecolor)
 
-    
+        # write the generated figure, together with all the PostScript
+        # headers and trailers into 'filename'
+        try:
+            fh = file(filename, 'w')
+        except IOError:
+            error_msg_ps('Could not open %s for writing' % filename)
+
+        if isEPSF:
+            print >>fh, "%!PS-Adobe-3.0 EPSF-3.0"
+        else:
+            print >>fh, "%!PS-Adobe-3.0"
+        print >>fh, "%%Title: "+filename
+        print >>fh, ("%%Creator: matplotlib version "
+                     +__version__+", http://matplotlib.sourceforge.net/")
+        print >>fh, "%%CreationDate: "+datetime.today().ctime()
+        if not isEPSF:
+            if paperWidth > paperHeight:
+                ostr="Landscape"
+            else:
+                ostr="Portrait"
+            print >>fh, "%%Orientation: "+ostr
+        print >>fh, "%%%%BoundingBox: %d %d %d %d" % (llx, lly, urx, ury)
+        if not isEPSF: print >>fh, "%%Pages: 1"
+        print >>fh, "%%EndComments"
+        
+        type42 = _type42 + [os.path.join(self.basepath, name) + '.ttf' \
+                            for name in bakoma_fonts]
+        print >>fh, "%%BeginProlog"
+        print >>fh, "/mpldict %d dict def"%(len(_psDefs)+len(type42))
+        print >>fh, "mpldict begin"
+        for d in _psDefs:
+            d=d.strip()
+            for l in d.split('\n'):
+                print >>fh, l.strip()
+        for font in type42:
+            font = str(font)  # todo: handle unicode filenames
+            print >>fh, "%%BeginFont: "+FT2Font(font).postscript_name
+            print >>fh, encodeTTFasPS(font)
+            print >>fh, "%%EndFont"
+        print >>fh, "%%EndProlog"
+        
+        if not isEPSF: print >>fh, "%%Page: 1 1"
+        print >>fh, "mpldict begin"
+        print >>fh, renderer.get_ps()
+        print >>fh, "end"
+        print >>fh, "showpage"
+
+        if not isEPSF: print >>fh, "%%EOF"
+
 class FigureManagerPS(FigureManagerBase):
     pass
 
@@ -519,135 +591,106 @@ FigureManager = FigureManagerPS
 error_msg = error_msg_ps
 
 
-_psProlog = """\
-%%!%s
-%%%%Creator: matplotlib version %s, http://matplotlib.sourceforge.net/
-%%%s
-%%%%EndComments
-"""
+# The following dictionary _psDefs contains the entries for the
+# PostScript dictionary mpldict.  This dictionary implements most of
+# the matplotlib primitives and some abbreviations.
+#
+# Some comments about the implementation:
+#
+# Drawing ellipses:
+#
+# ellipse adds a counter-clockwise segment of an elliptical arc to the
+# current path. The ellipse procedure takes six operands: the x and y
+# coordinates of the center of the ellipse (the center is defined as
+# the point of intersection of the major and minor axes), the
+# ``radius'' of the ellipse in the x direction, the ``radius'' of the
+# ellipse in the y direction, the starting angle of the elliptical arc
+# and the ending angle of the elliptical arc.
+#   	                       
+# The basic strategy used in drawing the ellipse is to translate to
+# the center of the ellipse, scale the user coordinate system by the x
+# and y radius values, and then add a circular arc, centered at the
+# origin with a 1 unit radius to the current path. We will be
+# transforming the user coordinate system with the translate and
+# rotate operators to add the elliptical arc segment but we don't want
+# these transformations to affect other parts of the program. In other
+# words, we would like to localize the effect of the transformations.
+# Usually the gsave and grestore operators would be ideal candidates
+# for this task.  Unfortunately gsave and grestore are inappropriate
+# for this situation because we cannot save the arc segment that we
+# have added to the path. Instead we will localize the effect of the
+# transformations by saving the current transformation matrix and
+# restoring it explicitly after we have added the elliptical arc to
+# the path.
+#
+# References:
+# http://www.mactech.com/articles/mactech/Vol.09/09.04/PostscriptTutorial/
+# http://www.adobe.com/products/postscript/pdfs/PLRM.pdf
 
-_psFonts = """\
-%%%%BeginFont: %s
-%s
-%%%%EndFont
-"""
-
-_psDefs = """
-/gsr {gsave stroke grestore} def
-
-/l { newpath moveto lineto } def
-
-% http://www.mactech.com/articles/mactech/Vol.09/09.04/PostscriptTutorial/
-
-/box %called as: leftx bottomy xdimension ydimension box
-{
-/yval exch def 
-/xval exch def
-newpath
-moveto
-0 yval rlineto
-xval 0 rlineto
-0 yval neg rlineto
-closepath
-}
-bind def
-
-/clipbox %called as: leftx bottomy xdimension ydimension box
-{
-/yval exch def
-/xval exch def
-newpath
-moveto
-0 yval rlineto
-xval 0 rlineto
-0 yval neg rlineto
-closepath
-clip
-}
-bind def
-
-/make-polygon
-{
-3 dict
-begin
-  /a exch def
-  /n a length def
-  n 1 gt
+_psDefs = [
+    "/gsr { gsave stroke grestore } bind def",
+    "/m { moveto } bind def",
+    "/l { lineto } bind def",
+    "/r { rlineto } bind def",
+    "/line { newpath m l } bind def",
+    """/box %called as: leftx bottomy xdimension ydimension box
     {
-    a 0 get 0 get a 0 get 1 get moveto
-    1 1 n 1 sub \
+      /yval exch def 
+      /xval exch def
+      newpath
+      m
+      0 yval r
+      xval 0 r
+      0 yval neg r
+      closepath
+    } bind def""",
+    """/clipbox %called as: leftx bottomy xdimension ydimension box
     {
-     /i exch def
-     a i get 0 get   a i get 1 get lineto
-    }
-    for
-    }
-  if
- closepath
-end
+      /yval exch def
+      /xval exch def
+      newpath
+      m
+      0 yval r
+      xval 0 r
+      0 yval neg r
+      closepath
+      clip
+    } bind def""",
+    """/make-polygon
+    {
+    3 dict
+    begin
+      /a exch def
+      /n a length def
+      n 1 gt
+        {
+        a 0 get 0 get a 0 get 1 get m
+        1 1 n 1 sub \
+        {
+         /i exch def
+         a i get 0 get   a i get 1 get l
+        }
+        for
+        }
+      if
+     closepath
+    end
+    } def""",
+    "/mtrx matrix def",
+    """/ellipse                                
+    { /endangle exch def                  
+      /startangle exch def                
+      /yrad exch def                      
+      /xrad exch def                      
+      /y exch def                         
+      /x exch def                         
 
-}
-def
-
-/mtrx matrix def                            % Allocate a matrix for the save
-					    % matrix operation below.
-/ellipse                                    % ellipse adds a counter-clockwise
-  { /endangle exch def                      % segment of an elliptical arc to
-    /startangle exch def                    % the current path. The ellipse
-    /yrad exch def                          % procedure takes six operands:
-    /xrad exch def                          % the x and y coordinates of the
-    /y exch def                             % center of the ellipse (the
-    /x exch def                             % center is defined as the point
-					    % of intersection of the major and
-					    % minor axes), the ``radius'' of
-					    % the ellipse in the x direction,
-					    % the ``radius'' of the ellipse in
-					    % the y direction, the starting
-					    % angle of the elliptical arc and
-					    % the ending angle of the
-					    % elliptical arc.
-							     
-					    % The basic strategy used in
-					    % drawing the ellipse is to
-					    % translate to the center of the
-					    % ellipse, scale the user
-					    % coordinate system by the x and y
-					    % radius values, and then add a
-					    % circular arc, centered at the
-					    % origin with a 1 unit radius to
-					    % the current path. We will be
-					    % transforming the user coordinate
-					    % system with the translate and
-					    % rotate operators to add the
-					    % elliptical arc segment but we
-					    % don't want these transformations
-					    % to affect other parts of the
-					    % program. In other words, we
-					    % would like to localize the
-					    % effect of the transformations.
-					    % Usually the gsave and grestore
-					    % operators would be ideal
-					    % candidates for this task.
-					    % Unfortunately gsave and grestore
-					    % are inappropriate for this
-					    % situation because we cannot save
-					    % the arc segment that we have
-					    % added to the path. Instead we
-					    % will localize the effect of the
-					    % transformations by saving the
-					    % current transformation matrix
-					    % and restoring it explicitly
-					    % after we have added the
-					    % elliptical arc to the path.
-									 
-    /savematrix mtrx currentmatrix def      % Save the current transformation.
-    x y translate                           % Translate to the center of the
-					    % ellipse.
-    xrad yrad scale                         % Scale by the x and y radius
-					    % values.
-    0 0 1 startangle endangle arc           % Add the arc segment to the path.
-    savematrix setmatrix                    % Restore the transformation.
-  } def
-
-"""
-         
+      /savematrix mtrx currentmatrix def    % Save the current transformation.
+      x y translate                         % Translate to the center of the
+                                            % ellipse.
+      xrad yrad scale                       % Scale by the x and y radius
+                                            % values.
+      0 0 1 startangle endangle arc         % Add the arc segment to the path.
+      savematrix setmatrix                  % Restore the transformation.
+    } def"""
+]

@@ -1,6 +1,13 @@
 New entries should be added at the top
 
 ==============================================================
+2004-10-30 backend_ps.py: clean up the code a lot.  Change the
+           PostScript output to be more DSC compliant.  All
+           definitions for the generated PostScript are now in a
+           PostScript dictionary 'mpldict'.  Moved the long comment
+           about drawing ellipses from the PostScript output into a
+           Python comment.
+
 2004-10-30 backend_gtk.py: removed FigureCanvasGTK.realize() as its no longer 
            needed. Merged ColorManager into GraphicsContext
            backend_bases.py: For set_capstyle/joinstyle() only set cap or 
