@@ -25,6 +25,7 @@ http://matplotlib.sourceforge.net
 
 
 ### Doing a release
+0) Run examples/batch_figs.py w/o errors
 
 0) Remove MANIFEST so it will be rebuilt by MANIFEST.in
 
