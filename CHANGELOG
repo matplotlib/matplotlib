@@ -1,5 +1,9 @@
 New entries should be added at the top
 ------------------------------------------------------------
+2004-04-26 Fixed errorbar autoscale problem.
+
+2004-04-22 Fixed copy tick attribute bug, fixed singular datalim
+           ticker bug; fixed mathtext fontsize interactive bug. - JDH
 
 2004-04-21 Added calls to draw_if_interactive to axes(), legend(),
            and pcolor().  Deleted duplicate pcolor(). - JTM

@@ -23,7 +23,7 @@ pydates = PyDatetimeConverter()
 
 mondays   = WeekdayLocator(MONDAY)  # every monday
 months    = MonthLocator(1)           # every month
-monthsFmt  = DateFormatter('%b\n%d')
+monthsFmt  = DateFormatter('%b %d')
 
 
 
@@ -46,7 +46,5 @@ ax.xaxis.autoscale_view()
 labels = ax.get_xticklabels()
 set(labels, 'rotation', 'vertical')
 
-ticklines = ax.get_xticklines()
-set(ticklines, 'color', 'r')
 grid(True)
 show()

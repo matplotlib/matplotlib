@@ -268,8 +268,6 @@
 
 -- DONE add figure legend
 
--- fix newlines across backends
-
 -- DONE - support partial window expose redraws in agg
 
 -- fix datalim problem with aspect preserved for image backend
@@ -298,7 +296,9 @@
 
 -- fix the sqrt mathtext bug revealed by Flavio's example
 
--- fix the parser for sqrt, etc..
+-- fix the parser for sqrt,
+
+-- fix the parser for over/under subscripts
 
 -- add \/ for TeX
 
@@ -323,7 +323,7 @@
 
 -- fromstring examples need byte order in darwin
 
--- PS offset
+-- PS not centering properly
 
 -- DONE gary's win crash
 
@@ -331,3 +331,10 @@
 
 -- wx tooltips
 
+-- close wx return to interpreter
+
+-- allow sharing of locators
+
+-- check out epydoc
+
+-- fix color on errorbar lines
