@@ -35,7 +35,7 @@ ax.plot(t,s)
 canvas = FigureCanvas(fig)  # a gtk.DrawingArea
 vbox.pack_start(canvas)
 
-toolbar = NavigationToolbar(canvas)
+toolbar = NavigationToolbar(canvas, win)
 vbox.pack_start(toolbar, gtk.FALSE, gtk.FALSE)
 
 win.show_all()
