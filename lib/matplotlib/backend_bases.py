@@ -94,7 +94,7 @@ class RendererBase:
 
     def _draw_marker(self, gc, path, x, y, trans):
         """
-        This method is currently uncderscore hidden because the
+        This method is currently underscore hidden because the
         draw_markers method is being used as a sentinel for newstyle
         backend drawing
         
