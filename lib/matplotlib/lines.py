@@ -120,7 +120,6 @@ class Line2D(Artist):
         self._color = color
         self._antialiased = antialiased
         self._markersize = markersize
-        self._label = ''
         self._dashSeq = None
 
 
@@ -203,13 +202,6 @@ ACCEPTS: [True | False]
         """
         self._useDataClipping = b
 
-    def set_label(self, s):
-        """
-Set the line label to s for auto legend
-
-ACCEPTS: any string
-"""
-        self._label = s
         
     def set_vertical_offset(self, voff, transOffset=None):
         """
@@ -272,7 +264,7 @@ ACCEPTS: DEPRECATED
     def get_antialiased(self): return self._antialiased
     def get_color(self): return self._color
     def get_linestyle(self): return self._linestyle
-    def get_label(self): return self._label
+
     def get_linewidth(self): return self._linewidth
     def get_marker(self): return self._marker
     def get_markeredgecolor(self): return self._markeredgecolor

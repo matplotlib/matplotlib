@@ -311,3 +311,8 @@ class LineCollection(Collection):
             Artist.set_alpha(self, alpha)
             self._colors = [(r,g,b,alpha) for r,g,b,a in self._colors]
 
+    def get_linewidths(self):
+        return self._lw
+
+    def get_colors(self):
+        return self._colors

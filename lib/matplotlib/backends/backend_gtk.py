@@ -411,7 +411,7 @@ class FigureManagerGTK(FigureManagerBase):
 
         def destroy(*args): Gcf.destroy(num)
         self.window.connect("destroy", destroy)
-
+        self.window.connect("delete_event", destroy)        
         if matplotlib.is_interactive():
             self.window.show()
 

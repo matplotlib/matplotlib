@@ -37,7 +37,8 @@ class Artist:
         self.clipbox = None
         self._clipon = False
         self._lod = False
-
+        self._label = ''
+        
     def is_transform_set(self):
         'Artist has transform explicity let'                
         return self._transformSet
@@ -137,3 +138,13 @@ ACCEPTS: [True | False]
                 raise AttributeError('Unknown property %s'%k)
             func(v)
 
+    def get_label(self): return self._label
+
+    def set_label(self, s):
+        """
+Set the line label to s for auto legend
+
+ACCEPTS: any string
+"""
+        self._label = s
+    
