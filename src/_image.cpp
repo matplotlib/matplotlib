@@ -671,8 +671,8 @@ _image_module::readpng(const Py::Tuple& args) {
   png_read_update_info(png_ptr, info_ptr);
   
   bool rgba = info_ptr->color_type == PNG_COLOR_TYPE_RGBA;
-  if ( (info_ptr->color_type != PNG_COLOR_TYPE_RGB) || rgba) {
-    std::cerr << "Found color type " << (int)info_ptr->color_type << std::endl;
+  if ( (info_ptr->color_type != PNG_COLOR_TYPE_RGB) && !rgba) {
+    std::cerr << "Found color type " << (int)info_ptr->color_type  << std::endl;
     throw Py::RuntimeError("_image_module::readpng: cannot handle color_type");
   }
   
