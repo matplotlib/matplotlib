@@ -586,12 +586,9 @@ def show(mainloop=True):
     for manager in Gcf.get_all_fig_managers():
         manager.window.show()
         
-    #if show._needmain and mainloop:
     if gtk.main_level() == 0 and mainloop:
         if gtk.pygtk_version >= (2,4,0):  gtk.main()
         else:                              gtk.mainloop()
-        #show._needmain = False
-#show._needmain = True
 
 def _quit_after_print_xvfb(*args):
 

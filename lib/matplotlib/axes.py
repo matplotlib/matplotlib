@@ -398,7 +398,7 @@ class Axes(Artist):
         self.tables = []
         self.artists = []
         self.images = []
-        self.legend = None
+        self.legend_ = None
         self.collections = []  # collection.Collection instances
 
         self.images = []
@@ -832,8 +832,8 @@ class Axes(Artist):
             a.draw(renderer)
 
 
-        if self.legend is not None:
-            self.legend.draw(renderer)
+        if self.legend_ is not None:
+            self.legend_.draw(renderer)
 
         for table in self.tables:
             table.draw(renderer)
@@ -965,8 +965,8 @@ class Axes(Artist):
         artists.extend(self.lines)
         artists.extend(self.patches)
         artists.extend(self.texts)
-        if self.legend is not None:
-            artists.append(self.legend)
+        if self.legend_ is not None:
+            artists.append(self.legend_)
         return artists
     
     def get_frame(self):
@@ -975,7 +975,7 @@ class Axes(Artist):
 
     def get_legend(self):
         'Return the Legend instance, or None if no legend is defined'
-        return self.legend
+        return self.legend_
 
 
     def get_lines(self):
@@ -1292,8 +1292,8 @@ The following kwargs are allowed:
             raise RuntimeError('Invalid arguments to legend')
 
         lines = flatten(lines)
-        self.legend = Legend(self, lines, labels, loc)
-        return self.legend
+        self.legend_ = Legend(self, lines, labels, loc)
+        return self.legend_
 
     def loglog(self, *args, **kwargs):
         """
