@@ -32,7 +32,6 @@
 
 import sys
 import trait_handlers
-from trait_base import enumerate
 
 #-------------------------------------------------------------------------------
 #  Deprecation warning level:
@@ -73,7 +72,8 @@ def summarize_warnings ( ):
 from inspect        import stack
 from ctraits        import cTrait, CTraitMethod
 from trait_base     import SequenceTypes, Self, Undefined, Missing, \
-                           TypeTypes, class_of, add_article
+                           TypeTypes, class_of, add_article, enumerate, \
+                           BooleanType
 from trait_errors   import TraitError                            
 from trait_handlers import TraitHandler, TraitInstance, TraitList, TraitDict, \
                            TraitFunction, TraitType, TraitCastType, TraitEnum,\
@@ -85,8 +85,6 @@ from types import NoneType, IntType, LongType, FloatType, ComplexType,    \
                   StringType, UnicodeType, ListType, TupleType, DictType, \
                   FunctionType, ClassType, ModuleType, MethodType, \
                   InstanceType, TypeType
-try: from types import BooleanType
-except ImportError: BooleanType = IntType
 
 #-------------------------------------------------------------------------------
 #  Editor factory functions: 
@@ -100,7 +98,7 @@ def password_editor ( ):
     global PasswordEditor
     
     if PasswordEditor is None:
-        from enthought.traits.ui import TextEditor
+        from matplotlib.enthought.traits.ui import TextEditor
         PasswordEditor = TextEditor( password = True )
         
     return PasswordEditor
@@ -109,7 +107,7 @@ def multi_line_text_editor ( ):
     global MultilineTextEditor
     
     if MultilineTextEditor is None:
-        from enthought.traits.ui import TextEditor
+        from matplotlib.enthought.traits.ui import TextEditor
         MultilineTextEditor = TextEditor( multi_line = True )
         
     return MultilineTextEditor
@@ -118,7 +116,7 @@ def code_editor ( ):
     global SourceCodeEditor
     
     if SourceCodeEditor is None:
-        from enthought.traits.ui import CodeEditor
+        from matplotlib.enthought.traits.ui import CodeEditor
         SourceCodeEditor = CodeEditor()
         
     return SourceCodeEditor
@@ -143,7 +141,7 @@ class CTrait ( cTrait ):
     #---------------------------------------------------------------------------
 
     def get_editor ( self ):
-        from enthought.traits.ui import EditorFactory
+        from matplotlib.enthought.traits.ui import EditorFactory
         
         # See if we have an editor:
         editor = self.editor
@@ -592,7 +590,7 @@ Password = TraitFactory( Password )
 #--- 'file' traits -----------------------------------------------------------
 
 def File ( value = '', filter = None, auto_set = False, **metadata ):
-    from enthought.traits.ui.editors import FileEditor
+    from matplotlib.enthought.traits.ui.editors import FileEditor
     
     return Trait( value, editor = FileEditor( filter   = filter or [],
                                               auto_set = auto_set ),
@@ -601,7 +599,7 @@ def File ( value = '', filter = None, auto_set = False, **metadata ):
 File = TraitFactory( File )    
 
 def Directory ( value = '', auto_set = False, **metadata ):
-    from enthought.traits.ui.editors import DirectoryEditor
+    from matplotlib.enthought.traits.ui.editors import DirectoryEditor
     
     return Trait( value, editor = DirectoryEditor( auto_set = auto_set ),
                   **metadata )
@@ -1076,31 +1074,31 @@ DictStrList    = Dict( str, list )     # Dict of string: list values
 #-------------------------------------------------------------------------------
 
 def Color ( *args, **metadata ):
-    from enthought.traits.ui import ColorTrait
+    from matplotlib.enthought.traits.ui import ColorTrait
     return ColorTrait( *args, **metadata )
     
 Color = TraitFactory( Color )
 
 def RGBColor ( *args, **metadata ):
-    from enthought.traits.ui import RGBColorTrait
+    from matplotlib.enthought.traits.ui import RGBColorTrait
     return RGBColorTrait( *args, **metadata )
     
 RGBColor = TraitFactory( RGBColor )
 
 def RGBAColor ( *args, **metadata ):
-    from enthought.traits.ui import RGBAColorTrait
+    from matplotlib.enthought.traits.ui import RGBAColorTrait
     return RGBAColorTrait( *args, **metadata )
     
 RGBAColor = TraitFactory( RGBAColor )
     
 def Font ( *args, **metadata ):
-    from enthought.traits.ui import FontTrait
+    from matplotlib.enthought.traits.ui import FontTrait
     return FontTrait( *args, **metadata )
     
 Font = TraitFactory( Font )
 
 def KivaFont ( *args, **metadata ):
-    from enthought.traits.ui import KivaFontTrait
+    from matplotlib.enthought.traits.ui import KivaFontTrait
     return KivaFontTrait( *args, **metadata )
     
 KivaFont = TraitFactory( KivaFont )

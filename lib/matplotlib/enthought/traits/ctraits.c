@@ -61,6 +61,18 @@ static PyObject     * is_callable;     /* Marker for 'callable' value */
 #define trait_method_GET_CLASS(meth) \
 	(((trait_method_object *) meth)->tm_class)
 
+/* Python version dependent macros: */
+#if ( (PY_MAJOR_VERSION == 2) && (PY_MINOR_VERSION < 3) )
+#define PyMODINIT_FUNC void
+#define PyDoc_VAR(name) static char name[]
+#define PyDoc_STRVAR(name,str) PyDoc_VAR(name) = PyDoc_STR(str)
+#ifdef WITH_DOC_STRINGS
+#define PyDoc_STR(str) str
+#else
+#define PyDoc_STR(str) ""
+#endif
+#endif
+    
 /*-----------------------------------------------------------------------------
 |  Forward declarations:
 +----------------------------------------------------------------------------*/
@@ -72,15 +84,6 @@ static PyTypeObject trait_method_type;
 |  'ctraits' module doc string:
 +----------------------------------------------------------------------------*/
 
-#if (PY_MAJOR_VERSION==2 && PY_MINOR_VERSION<3)
-#define PyDoc_VAR(name) static char name[]
-#define PyDoc_STRVAR(name,str) PyDoc_VAR(name) = PyDoc_STR(str)
-#ifdef WITH_DOC_STRINGS
-#define PyDoc_STR(str) str
-#else
-#define PyDoc_STR(str) ""
-#endif
-#endif
 PyDoc_STRVAR( ctraits__doc__,
 "The ctraits module defines the CHasTraits and CTrait C extension types that\n"
 "define the core performance oriented portions of the Traits package." );
@@ -4084,11 +4087,7 @@ static PyTypeObject trait_method_type = {
 |  Performs module and type initialization:
 +----------------------------------------------------------------------------*/
 
-#if (PY_MAJOR_VERSION==2 && PY_MINOR_VERSION<3)
-void
-#else
 PyMODINIT_FUNC
-#endif
 initctraits ( void ) {
     
     /* Create the 'ctraits' module: */

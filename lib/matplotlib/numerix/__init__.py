@@ -41,7 +41,6 @@ if which[0] is None:
 
 which = which[0].strip().lower(), which[1]
 if which[0] not in ["numeric", "numarray"]:
-    verbose.report_error(__doc__)
     raise ValueError("numerix selector must be either 'Numeric' or 'numarray' but the value obtained from the %s was '%s'." % (which[1], which[0]))
 
 if which[0] == "numarray":

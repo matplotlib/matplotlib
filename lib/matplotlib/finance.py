@@ -4,7 +4,7 @@ financial data.   User contributions welcome!
 
 """
 #from __future__ import division  
-import time
+import time, warnings
 from urllib import urlopen
 
 
@@ -53,7 +53,7 @@ def quotes_historical_yahoo(ticker, date1, date2):
     try:
         lines = urlopen(url).readlines()
     except IOError, exc:
-        verbose.report_error('urlopen() failure\n' + url + '\n' + exc.strerror[1])
+        warnings.warn('urlopen() failure\n' + url + '\n' + exc.strerror[1])
         return None
     for line in lines[1:]:
 

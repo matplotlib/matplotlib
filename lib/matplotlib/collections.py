@@ -7,7 +7,7 @@ counterparts (eg you may not be able to select all line styles) but
 they are meant to be fast for common use cases (eg a bunch of solid
 line segemnts)
 """
-import math
+import math, warnings
 from matplotlib import rcParams, verbose
 
 from artist import Artist
@@ -235,8 +235,7 @@ scaling."""
         r = 1.0/math.sqrt(math.pi)  # unit area
 
         theta = (2*math.pi/numsides)*arange(numsides) + rotation
-
-        self._verts = zip( r*cos(theta), r*sin(theta) )
+        self._verts = zip( r*sin(theta), r*cos(theta) )
         
         
             
@@ -377,7 +376,7 @@ Set the color(s) of the line collection.  c can be a matplotlib color arg
 is a sequence the patches will cycle through the sequence
 
 ACCEPTS: matplotlib color arg or sequence of rgba tuples"""
-        verbose.report_error('LineCollection.color deprecated; use set_color instead')
+        warnings.warn('LineCollection.color deprecated; use set_color instead')
         return self.set_color(c)
 
     def set_alpha(self, alpha):

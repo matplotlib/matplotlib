@@ -21,7 +21,7 @@ Return value is a sequence of text, line instances that make
 up the legend
 """
 from __future__ import division
-import sys
+import sys, warnings
 from numerix import array, ones, Float
 
 
@@ -112,7 +112,7 @@ The following dimensions are in axes coords
         """
         Artist.__init__(self)
         if is_string_like(loc) and not self.codes.has_key(loc):
-            verbose.report_error('Unrecognized location %s. Falling back on upper right; valid locations are\n%s\t' %(loc, '\n\t'.join(self.codes.keys())))
+            warnings.warn('Unrecognized location %s. Falling back on upper right; valid locations are\n%s\t' %(loc, '\n\t'.join(self.codes.keys())))
         if is_string_like(loc): loc = self.codes.get(loc, 1)
         
         self.numpoints = numpoints

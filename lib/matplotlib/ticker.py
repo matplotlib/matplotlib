@@ -108,7 +108,7 @@ multiple axes can share the same locator w/o side effects!
 
 
 from __future__ import division
-import sys, os, re, time, math
+import sys, os, re, time, math, warnings
 from mlab import linspace
 from matplotlib import verbose
 from numerix import arange, array, asarray, ones, zeros, \
@@ -705,7 +705,7 @@ class AutoLocator(Locator):
 
             try: ld = math.log10(d)
             except OverflowError:
-                verbose.report_error('AutoLocator illegal dataInterval range %s; returning NullLocator'%d)
+                warnings.warn('AutoLocator illegal dataInterval range %s; returning NullLocator'%d)
                 return NullLocator()
 
             fld = math.floor(ld)

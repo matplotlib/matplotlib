@@ -2,7 +2,7 @@ from __future__ import division
 
 from matplotlib import verbose, rcParams, __version__
 from matplotlib.backend_bases import RendererBase, GraphicsContextBase,\
-     FigureManagerBase, FigureCanvasBase, error_msg
+     FigureManagerBase, FigureCanvasBase
 
 from matplotlib._pylab_helpers import Gcf
 from matplotlib.colors import rgb2hex
@@ -67,13 +67,8 @@ class RendererSVG(RendererBase):
         font = _fontd.get(key)
         if font is None:
             fname = fontManager.findfont(prop)
-            try:
-                font = FT2Font(str(fname))
-            except RuntimeError, msg:
-                verbose.report_error('Could not load filename for text "%s"'%fname)
-                return None
-            else:
-                _fontd[key] = font
+            font = FT2Font(str(fname))
+            _fontd[key] = font
         font.clear()
         size = prop.get_size_in_points()
         font.set_size(size, 72.0)
@@ -130,7 +125,8 @@ class RendererSVG(RendererBase):
         """
 
         if len(x)==0: return
-        if len(x)!=len(y): error_msg('x and y must be the same length')
+        if len(x)!=len(y):
+            raise ValueError('x and y must be the same length')
         type = '<path '
 
         y = self.height - y

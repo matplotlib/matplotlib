@@ -176,27 +176,21 @@ tk.pythoninspect  : False    # tk sets PYTHONINSEPCT
 
 # Set the verbose flags.  This controls how much information
 # matplotlib gives you at runtime and where it goes.  Ther verbosity
-# levels are: silent, error, helpful, debug, debug-annoying.  At the
-# error level, you will only get error messages.  Any level is
-# inclusive of all the levels below it.  Ie, if your setting is
-# helpful, you'll also get all the error messages.  If you setting is
-# debug, you'll get all the error and helpful messages.  It is not
-# recommended to make your setting silent because you will not even
-# get error messages.  When submitting problems to the mailing-list,
-# please set verbose to helpful or debug and paste the output into
-# your report.
+# levels are: silent, helpful, debug, debug-annoying.  Any level is
+# inclusive of all the levels below it.  If you setting is debug,
+# you'll get all the debug and helpful messages.  When submitting
+# problems to the mailing-list, please set verbose to helpful or debug
+# and paste the output into your report.  
 #
 # The fileo gives the destination for any calls to verbose.report.
-# The erro gives the destination for any calls to
-# verbose.report_error.  These objects can a filename, sys.stderr, or
-# sys.stdout.  
+# These objects can a filename, or a filehandle like sys.stdout.  
 #
 # You can override the rc default verbosity from the command line by
 # giving the flags --verbose-LEVEL where LEVEL is one of the legal
-# levels, eg --verbose-error --verbose-helpful.
+# levels, eg --verbose-helpful.
 #
 # You can access the verbose instance in your code
 #   from matplotlib import verbose.
-verbose.level  : error     # one of silent, error, helpful, debug, debug-annoying
+verbose.level  : silent     # one of silent, helpful, debug, debug-annoying
 verbose.fileo  : sys.stdout  # a log filename, sys.stdout or sys.stderr
-verbose.erro   : sys.stderr  # a log filename, sys.stdout or sys.stderr
+

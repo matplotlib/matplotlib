@@ -6,7 +6,7 @@ variety of line styles, markers and colors
 # TODO: expose cap and join style attrs
 from __future__ import division
 
-import sys, math
+import sys, math, warnings
 
 from numerix import Float, alltrue, arange, array, logical_and,\
      nonzero, searchsorted, take, asarray, ones, where, less, ravel, \
@@ -134,9 +134,9 @@ class Line2D(Artist):
         self.set_data(xdata, ydata)
 
         if not self._lineStyles.has_key(linestyle):
-            verbose.report_error('Unrecognized line style %s, %s' %( linestyle, type(linestyle)))
+            raise ValueError('Unrecognized line style %s, %s' %( linestyle, type(linestyle)))
         if not self._markers.has_key(marker):
-            verbose.report_error('Unrecognized marker style %s, %s'%( marker, type(marker)))
+            raise ValueError('Unrecognized marker style %s, %s'%( marker, type(marker)))
 
         self.set_marker(marker)
         self._lineFunc = self._lineStyles.get(linestyle, self._draw_nothing)

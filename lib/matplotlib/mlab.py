@@ -277,7 +277,7 @@ def cohere(x, y, NFFT=256, Fs=2, detrend=detrend_none,
     """
     
     if len(x)<2*NFFT:
-       verbose.report_error('Coherence is calculated by averaging over NFFT length segments.  Your signal is too short for your choice of NFFT')
+       raise RuntimeError('Coherence is calculated by averaging over NFFT length segments.  Your signal is too short for your choice of NFFT')
     Pxx, f = psd(x, NFFT, Fs, detrend, window, noverlap)
     Pyy, f = psd(y, NFFT, Fs, detrend, window, noverlap)
     Pxy, f = csd(x, y, NFFT, Fs, detrend, window, noverlap)
@@ -814,8 +814,8 @@ def rem(x,y):
             return x - y * fix(x/y)
         except OverflowError:
             return None
-    verbose.report_error('Dimension error')
-    return None
+    raise RuntimeError('Dimension error')
+
 
 def norm(x,y=2):
     """
@@ -850,8 +850,7 @@ def norm(x,y=2):
         elif y=='fro':
             return numerix.mlab.sqrt(asum(numerix.mlab.diag(matrixmultiply(transpose(x),x))))
         else:
-            verbose.report_error('Second argument not permitted for matrices')
-            return None
+            raise RuntimeError('Second argument not permitted for matrices')
         
     else:
         if y == 'inf':

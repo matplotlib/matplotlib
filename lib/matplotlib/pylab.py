@@ -190,12 +190,11 @@ import mlab  #so I can override hist, psd, etc...
 
 from axes import Axes, PolarAxes
 import backends
-from backends import new_figure_manager, error_msg, \
-     draw_if_interactive, show
+from backends import new_figure_manager, draw_if_interactive, show
 
 from cbook import flatten, is_string_like, exception_to_str, popd, silent_list, iterable
 from colors import normalize
-from cm import ColormapJet, Grayscale, get_cmap
+from cm import get_cmap
 from figure import Figure, figaspect
 import image
 from matplotlib import rcParams, rcParamsDefault, get_backend
@@ -467,7 +466,7 @@ Set/Get the axis properties::
             draw_if_interactive()
             
         else:
-            error_msg('Unrecognized string %s to axis; try on or off' % s)
+            raise ValueError('Unrecognized string %s to axis; try on or off' % s)
         return
     
     try: v[0]
@@ -478,8 +477,8 @@ Set/Get the axis properties::
     
     v = v[0]
     if len(v) != 4:
-        error_msg('v must contain [xmin xmax ymin ymax]')
-        return 
+        raise ValueError('v must contain [xmin xmax ymin ymax]')
+
     gca().set_xlim([v[0], v[1]])
     gca().set_ylim([v[2], v[3]])
     draw_if_interactive()
@@ -516,9 +515,7 @@ Examples
     nargs = len(args)
     if len(args)==0: return subplot(111, **kwargs)
     if nargs>1:
-        error_msg('Only one non keyword arg to axes allowed')
-        return
-    
+        raise TypeError('Only one non keyword arg to axes allowed')
     arg = args[0]
 
     if isinstance(arg, Axes):
@@ -551,8 +548,7 @@ def _get_target_images(target=None):
         all = ax.get_images()
 
         if not len(all):
-            error_msg('You must first define an image, eg with imshow')
-            return
+            raise RuntimeError('You must first define an image, eg with imshow')
 
         images = [all[-1]]
     else:
@@ -579,8 +575,8 @@ def clim(vmin=None, vmax=None):
     """  
     im = gci()
     if im is None:
-        error_msg('You must first define an image, eg with imshow')
-        return
+        raise RuntimeError('You must first define an image, eg with imshow')
+
     im.set_clim(vmin, vmax)
     draw_if_interactive()
     
@@ -613,9 +609,9 @@ def close(*args):
                 if manager.canvas.figure==arg:
                     _pylab_helpers.Gcf.destroy(manager.num)
         else:
-            error_msg('Unrecognized argument type %s to close'%type(arg))
+            raise TypeError('Unrecognized argument type %s to close'%type(arg))
     else:
-        error_msg('close takes 0 or 1 arguments')
+        raise TypeError('close takes 0 or 1 arguments')
 
 
 def clf():
@@ -645,12 +641,12 @@ def colorbar(tickfmt='%1.1f', cax=None, orientation='vertical'):
     
     mappable = gci()
     if mappable is None:
-        error_msg('First define a mappable image (eg imshow, figimage, pcolor, scatter')
-        return
+        raise RuntimeError('First define a mappable image (eg imshow, figimage, pcolor, scatter')
 
+        
     if isinstance(mappable, image.FigureImage):
-        error_msg('Colorbars for figure images currently not supported')
-        return
+        raise TypeError('Colorbars for figure images currently not supported')
+
         
     ax = gca()
 
@@ -711,27 +707,15 @@ def draw():
     get_current_fig_manager().canvas.draw()
     
 def figtext(*args, **kwargs):    
-    try: ret =  gcf().text(*args, **kwargs)
-    except RuntimeError, msg:
-        msg = raise_msg_to_str(msg)
-        error_msg(msg)
-        raise RuntimeError(msg)
-    else:
-        draw_if_interactive()
-        return ret
+    
+    ret =  gcf().text(*args, **kwargs)
+    draw_if_interactive()
+    return ret
 figtext.__doc__ = Figure.text.__doc__
 
 def figimage(*args, **kwargs):    
     # allow callers to override the hold state by passing hold=True|False
-    try: ret =  gcf().figimage(*args, **kwargs)
-    except ValueError, msg:
-        msg = raise_msg_to_str(msg)
-        error_msg(msg)
-        raise RuntimeError(msg)
-    except RuntimeError, msg:
-        msg = raise_msg_to_str(msg)
-        error_msg(msg)
-        raise RuntimeError(msg)
+    ret =  gcf().figimage(*args, **kwargs)
     draw_if_interactive()
     gci._current = ret
     return ret
@@ -760,12 +744,7 @@ def figlegend(handles, labels, loc, **kwargs):
 
 def savefig(*args, **kwargs):    
     fig = gcf()
-    try: ret =  fig.savefig(*args, **kwargs)
-    except RuntimeError, msg:
-        msg = raise_msg_to_str(msg)
-        error_msg(msg)
-        raise RuntimeError(msg)
-    else: return ret
+    return fig.savefig(*args, **kwargs)
 savefig.__doc__ = Figure.savefig.__doc__
     
 
@@ -810,10 +789,8 @@ def figure(num=None, # autoincrement if None, else integer from 1-N
 
 
     if num==0:
-        error_msg('Figure number can not be 0.\n' + \
-                  'Hey, give me a break, this is matlab(TM) compatability')
-        return 
-
+        raise ValueError('Figure number can not be 0.\n' + \
+                         'Hey, give me a break, this is matlab(TM) compatability')
 
     if num is None:
         allnums = [f.num for f in _pylab_helpers.Gcf.get_all_fig_managers()]
@@ -1218,7 +1195,7 @@ kwargs.  For example, the following are equivalent
 
         
     if len(args)%2:
-        error_msg('The set args must be string, value pairs')
+        raise ValueError('The set args must be string, value pairs')
 
     funcvals = []
     for i in range(0, len(args)-1, 2):
@@ -1231,12 +1208,7 @@ kwargs.  For example, the following are equivalent
             s = s.lower()
             funcName = "set_%s"%s
             func = getattr(o,funcName)        
-            try: ret.extend( [func(val)] )
-            except ValueError, msg:
-                msg = exception_to_str(msg)
-                error_msg(msg)
-                raise RuntimeError(msg)
-        
+            ret.extend( [func(val)] )        
     draw_if_interactive()
     return [x for x in flatten(ret)]
 
@@ -1276,21 +1248,17 @@ def subplot(*args, **kwargs):
 
     """
     
-    try:
-        fig = gcf()
-        a = fig.add_subplot(*args, **kwargs)        
-        bbox = a.bbox
-        byebye = []
-        for other in fig.axes:
-            if other==a: continue
-            if bbox.overlaps(other.bbox):
-                byebye.append(other)
-        for ax in byebye: delaxes(ax)
+
+    fig = gcf()
+    a = fig.add_subplot(*args, **kwargs)        
+    bbox = a.bbox
+    byebye = []
+    for other in fig.axes:
+        if other==a: continue
+        if bbox.overlaps(other.bbox):
+            byebye.append(other)
+    for ax in byebye: delaxes(ax)
         
-    except ValueError, msg:
-        msg = raise_msg_to_str(msg)
-        error_msg(msg)
-        raise RuntimeError, msg
     draw_if_interactive()
     return a
 
@@ -1390,7 +1358,7 @@ def xlim(*args, **kwargs):
     if len(args)==0: return ax.get_xlim()
     elif len(args)==1: lim = ax.set_xlim(args)
     elif len(args)==2: lim = ax.set_xlim((args[0], args[1]))
-    else: raise RuntimeError('Illegal number of arguments to xlim')
+    else: raise TypeError('Illegal number of arguments to xlim')
     draw_if_interactive()
     return lim
 
@@ -1406,7 +1374,7 @@ def ylim(*args, **kwargs):
     if len(args)==0: return ax.get_ylim()
     elif len(args)==1: lim = ax.set_ylim(args)
     elif len(args)==2: lim = ax.set_ylim((args[0], args[1]))
-    else: raise RuntimeError('Illegal number of arguments to ylim')
+    else: raise TypeError('Illegal number of arguments to ylim')
     draw_if_interactive()
     return lim
 
@@ -1438,7 +1406,7 @@ def xticks(*args, **kwargs):
     elif len(args)==2:
         locs = ax.set_xticks(args[0])
         labels = ax.set_xticklabels(args[1], **kwargs)
-    else: raise RuntimeError('Illegal number of arguments to xticks')
+    else: raise TypeError('Illegal number of arguments to xticks')
     if len(kwargs):
         for l in labels:
             l.update(kwargs)
@@ -1576,7 +1544,7 @@ def yticks(*args, **kwargs):
     elif len(args)==2:
         locs = ax.set_yticks(args[0])
         labels = ax.set_yticklabels(args[1], **kwargs)
-    else: raise RuntimeError('Illegal number of arguments to yticks')
+    else: raise TypeError('Illegal number of arguments to yticks')
     if len(kwargs):
         for l in labels:
             l.update(kwargs)
@@ -1616,11 +1584,10 @@ def ion():
 
 def switch_backend(newbackend):
     close('all')
-    global new_figure_manager, error_msg,  draw_if_interactive, show
+    global new_figure_manager, draw_if_interactive, show
     matplotlib.use(newbackend)
     reload(backends)
-    from backends import new_figure_manager, error_msg, \
-         draw_if_interactive, show
+    from backends import new_figure_manager, draw_if_interactive, show
 
 def matshow(*args,**kw):
     """Display an array as a matrix in a new figure window.
@@ -1716,15 +1683,13 @@ def axhline(*args, **kwargs):
         hold(h)
     try:
         ret =  gca().axhline(*args, **kwargs)
-    except ValueError, msg:
-        msg = raise_msg_to_str(msg)
-        error_msg(msg)
-        hold(b)
-    else:
         draw_if_interactive()
-        
+    except:
         hold(b)
-        return ret
+        raise
+    
+    hold(b)
+    return ret
 axhline.__doc__ = Axes.axhline.__doc__ + """
 Addition kwargs: hold = [True|False] overrides default hold state"""
 
@@ -1738,15 +1703,13 @@ def axhspan(*args, **kwargs):
         hold(h)
     try:
         ret =  gca().axhspan(*args, **kwargs)
-    except ValueError, msg:
-        msg = raise_msg_to_str(msg)
-        error_msg(msg)
-        hold(b)
-    else:
         draw_if_interactive()
-        
+    except:
         hold(b)
-        return ret
+        raise
+    
+    hold(b)
+    return ret
 axhspan.__doc__ = Axes.axhspan.__doc__ + """
 Addition kwargs: hold = [True|False] overrides default hold state"""
 
@@ -1760,15 +1723,13 @@ def axvline(*args, **kwargs):
         hold(h)
     try:
         ret =  gca().axvline(*args, **kwargs)
-    except ValueError, msg:
-        msg = raise_msg_to_str(msg)
-        error_msg(msg)
-        hold(b)
-    else:
         draw_if_interactive()
-        
+    except:
         hold(b)
-        return ret
+        raise
+    
+    hold(b)
+    return ret
 axvline.__doc__ = Axes.axvline.__doc__ + """
 Addition kwargs: hold = [True|False] overrides default hold state"""
 
@@ -1782,15 +1743,13 @@ def axvspan(*args, **kwargs):
         hold(h)
     try:
         ret =  gca().axvspan(*args, **kwargs)
-    except ValueError, msg:
-        msg = raise_msg_to_str(msg)
-        error_msg(msg)
-        hold(b)
-    else:
         draw_if_interactive()
-        
+    except:
         hold(b)
-        return ret
+        raise
+    
+    hold(b)
+    return ret
 axvspan.__doc__ = Axes.axvspan.__doc__ + """
 Addition kwargs: hold = [True|False] overrides default hold state"""
 
@@ -1804,15 +1763,13 @@ def bar(*args, **kwargs):
         hold(h)
     try:
         ret =  gca().bar(*args, **kwargs)
-    except ValueError, msg:
-        msg = raise_msg_to_str(msg)
-        error_msg(msg)
-        hold(b)
-    else:
         draw_if_interactive()
-        
+    except:
         hold(b)
-        return ret
+        raise
+    
+    hold(b)
+    return ret
 bar.__doc__ = Axes.bar.__doc__ + """
 Addition kwargs: hold = [True|False] overrides default hold state"""
 
@@ -1826,15 +1783,13 @@ def barh(*args, **kwargs):
         hold(h)
     try:
         ret =  gca().barh(*args, **kwargs)
-    except ValueError, msg:
-        msg = raise_msg_to_str(msg)
-        error_msg(msg)
-        hold(b)
-    else:
         draw_if_interactive()
-        
+    except:
         hold(b)
-        return ret
+        raise
+    
+    hold(b)
+    return ret
 barh.__doc__ = Axes.barh.__doc__ + """
 Addition kwargs: hold = [True|False] overrides default hold state"""
 
@@ -1848,15 +1803,13 @@ def cohere(*args, **kwargs):
         hold(h)
     try:
         ret =  gca().cohere(*args, **kwargs)
-    except ValueError, msg:
-        msg = raise_msg_to_str(msg)
-        error_msg(msg)
-        hold(b)
-    else:
         draw_if_interactive()
-        
+    except:
         hold(b)
-        return ret
+        raise
+    
+    hold(b)
+    return ret
 cohere.__doc__ = Axes.cohere.__doc__ + """
 Addition kwargs: hold = [True|False] overrides default hold state"""
 
@@ -1870,15 +1823,13 @@ def contour(*args, **kwargs):
         hold(h)
     try:
         ret =  gca().contour(*args, **kwargs)
-    except ValueError, msg:
-        msg = raise_msg_to_str(msg)
-        error_msg(msg)
-        hold(b)
-    else:
         draw_if_interactive()
-        if ret[1].mappable is not None: gci._current = ret[1].mappable
+    except:
         hold(b)
-        return ret
+        raise
+    if ret[1].mappable is not None: gci._current = ret[1].mappable
+    hold(b)
+    return ret
 contour.__doc__ = Axes.contour.__doc__ + """
 Addition kwargs: hold = [True|False] overrides default hold state"""
 
@@ -1892,15 +1843,13 @@ def csd(*args, **kwargs):
         hold(h)
     try:
         ret =  gca().csd(*args, **kwargs)
-    except ValueError, msg:
-        msg = raise_msg_to_str(msg)
-        error_msg(msg)
-        hold(b)
-    else:
         draw_if_interactive()
-        
+    except:
         hold(b)
-        return ret
+        raise
+    
+    hold(b)
+    return ret
 csd.__doc__ = Axes.csd.__doc__ + """
 Addition kwargs: hold = [True|False] overrides default hold state"""
 
@@ -1914,15 +1863,13 @@ def errorbar(*args, **kwargs):
         hold(h)
     try:
         ret =  gca().errorbar(*args, **kwargs)
-    except ValueError, msg:
-        msg = raise_msg_to_str(msg)
-        error_msg(msg)
-        hold(b)
-    else:
         draw_if_interactive()
-        
+    except:
         hold(b)
-        return ret
+        raise
+    
+    hold(b)
+    return ret
 errorbar.__doc__ = Axes.errorbar.__doc__ + """
 Addition kwargs: hold = [True|False] overrides default hold state"""
 
@@ -1936,15 +1883,13 @@ def fill(*args, **kwargs):
         hold(h)
     try:
         ret =  gca().fill(*args, **kwargs)
-    except ValueError, msg:
-        msg = raise_msg_to_str(msg)
-        error_msg(msg)
-        hold(b)
-    else:
         draw_if_interactive()
-        
+    except:
         hold(b)
-        return ret
+        raise
+    
+    hold(b)
+    return ret
 fill.__doc__ = Axes.fill.__doc__ + """
 Addition kwargs: hold = [True|False] overrides default hold state"""
 
@@ -1958,15 +1903,13 @@ def hist(*args, **kwargs):
         hold(h)
     try:
         ret =  gca().hist(*args, **kwargs)
-    except ValueError, msg:
-        msg = raise_msg_to_str(msg)
-        error_msg(msg)
-        hold(b)
-    else:
         draw_if_interactive()
-        
+    except:
         hold(b)
-        return ret
+        raise
+    
+    hold(b)
+    return ret
 hist.__doc__ = Axes.hist.__doc__ + """
 Addition kwargs: hold = [True|False] overrides default hold state"""
 
@@ -1980,15 +1923,13 @@ def hlines(*args, **kwargs):
         hold(h)
     try:
         ret =  gca().hlines(*args, **kwargs)
-    except ValueError, msg:
-        msg = raise_msg_to_str(msg)
-        error_msg(msg)
-        hold(b)
-    else:
         draw_if_interactive()
-        
+    except:
         hold(b)
-        return ret
+        raise
+    
+    hold(b)
+    return ret
 hlines.__doc__ = Axes.hlines.__doc__ + """
 Addition kwargs: hold = [True|False] overrides default hold state"""
 
@@ -2002,15 +1943,13 @@ def imshow(*args, **kwargs):
         hold(h)
     try:
         ret =  gca().imshow(*args, **kwargs)
-    except ValueError, msg:
-        msg = raise_msg_to_str(msg)
-        error_msg(msg)
-        hold(b)
-    else:
         draw_if_interactive()
-        gci._current = ret
+    except:
         hold(b)
-        return ret
+        raise
+    gci._current = ret
+    hold(b)
+    return ret
 imshow.__doc__ = Axes.imshow.__doc__ + """
 Addition kwargs: hold = [True|False] overrides default hold state"""
 
@@ -2024,13 +1963,12 @@ def loglog(*args, **kwargs):
         hold(h)
     try:
         ret =  gca().loglog(*args, **kwargs)
-    except ValueError, msg:
-        msg = raise_msg_to_str(msg)
-        error_msg(msg)
+        draw_if_interactive()
+    except:
         hold(b)
-    else:
-        draw_if_interactive()        
-        hold(b)
+        raise
+    
+    hold(b)
     return ret
 loglog.__doc__ = Axes.loglog.__doc__ + """
 Addition kwargs: hold = [True|False] overrides default hold state"""
@@ -2045,15 +1983,13 @@ def pcolor(*args, **kwargs):
         hold(h)
     try:
         ret =  gca().pcolor(*args, **kwargs)
-    except ValueError, msg:
-        msg = raise_msg_to_str(msg)
-        error_msg(msg)
-        hold(b)
-    else:
         draw_if_interactive()
-        gci._current = ret
+    except:
         hold(b)
-        return ret
+        raise
+    gci._current = ret
+    hold(b)
+    return ret
 pcolor.__doc__ = Axes.pcolor.__doc__ + """
 Addition kwargs: hold = [True|False] overrides default hold state"""
 
@@ -2067,15 +2003,13 @@ def pcolor_classic(*args, **kwargs):
         hold(h)
     try:
         ret =  gca().pcolor_classic(*args, **kwargs)
-    except ValueError, msg:
-        msg = raise_msg_to_str(msg)
-        error_msg(msg)
-        hold(b)
-    else:
         draw_if_interactive()
-        
+    except:
         hold(b)
-        return ret
+        raise
+    
+    hold(b)
+    return ret
 pcolor_classic.__doc__ = Axes.pcolor_classic.__doc__ + """
 Addition kwargs: hold = [True|False] overrides default hold state"""
 
@@ -2089,15 +2023,13 @@ def pie(*args, **kwargs):
         hold(h)
     try:
         ret =  gca().pie(*args, **kwargs)
-    except ValueError, msg:
-        msg = raise_msg_to_str(msg)
-        error_msg(msg)
-        hold(b)
-    else:
         draw_if_interactive()
-        
+    except:
         hold(b)
-        return ret
+        raise
+    
+    hold(b)
+    return ret
 pie.__doc__ = Axes.pie.__doc__ + """
 Addition kwargs: hold = [True|False] overrides default hold state"""
 
@@ -2111,15 +2043,13 @@ def plot(*args, **kwargs):
         hold(h)
     try:
         ret =  gca().plot(*args, **kwargs)
-    except ValueError, msg:
-        msg = raise_msg_to_str(msg)
-        error_msg(msg)
-        hold(b)
-    else:
         draw_if_interactive()
-        
+    except:
         hold(b)
-        return ret
+        raise
+    
+    hold(b)
+    return ret
 plot.__doc__ = Axes.plot.__doc__ + """
 Addition kwargs: hold = [True|False] overrides default hold state"""
 
@@ -2133,15 +2063,13 @@ def plot_date(*args, **kwargs):
         hold(h)
     try:
         ret =  gca().plot_date(*args, **kwargs)
-    except ValueError, msg:
-        msg = raise_msg_to_str(msg)
-        error_msg(msg)
-        hold(b)
-    else:
         draw_if_interactive()
-        
+    except:
         hold(b)
-        return ret
+        raise
+    
+    hold(b)
+    return ret
 plot_date.__doc__ = Axes.plot_date.__doc__ + """
 Addition kwargs: hold = [True|False] overrides default hold state"""
 
@@ -2155,15 +2083,13 @@ def psd(*args, **kwargs):
         hold(h)
     try:
         ret =  gca().psd(*args, **kwargs)
-    except ValueError, msg:
-        msg = raise_msg_to_str(msg)
-        error_msg(msg)
-        hold(b)
-    else:
         draw_if_interactive()
-        
+    except:
         hold(b)
-        return ret
+        raise
+    
+    hold(b)
+    return ret
 psd.__doc__ = Axes.psd.__doc__ + """
 Addition kwargs: hold = [True|False] overrides default hold state"""
 
@@ -2177,15 +2103,13 @@ def scatter(*args, **kwargs):
         hold(h)
     try:
         ret =  gca().scatter(*args, **kwargs)
-    except ValueError, msg:
-        msg = raise_msg_to_str(msg)
-        error_msg(msg)
-        hold(b)
-    else:
         draw_if_interactive()
-        gci._current = ret
+    except:
         hold(b)
-        return ret
+        raise
+    gci._current = ret
+    hold(b)
+    return ret
 scatter.__doc__ = Axes.scatter.__doc__ + """
 Addition kwargs: hold = [True|False] overrides default hold state"""
 
@@ -2199,15 +2123,13 @@ def scatter_classic(*args, **kwargs):
         hold(h)
     try:
         ret =  gca().scatter_classic(*args, **kwargs)
-    except ValueError, msg:
-        msg = raise_msg_to_str(msg)
-        error_msg(msg)
-        hold(b)
-    else:
         draw_if_interactive()
-        
+    except:
         hold(b)
-        return ret
+        raise
+    
+    hold(b)
+    return ret
 scatter_classic.__doc__ = Axes.scatter_classic.__doc__ + """
 Addition kwargs: hold = [True|False] overrides default hold state"""
 
@@ -2221,15 +2143,13 @@ def semilogx(*args, **kwargs):
         hold(h)
     try:
         ret =  gca().semilogx(*args, **kwargs)
-    except ValueError, msg:
-        msg = raise_msg_to_str(msg)
-        error_msg(msg)
-        hold(b)
-    else:
         draw_if_interactive()
-        
+    except:
         hold(b)
-        return ret
+        raise
+    
+    hold(b)
+    return ret
 semilogx.__doc__ = Axes.semilogx.__doc__ + """
 Addition kwargs: hold = [True|False] overrides default hold state"""
 
@@ -2243,15 +2163,13 @@ def semilogy(*args, **kwargs):
         hold(h)
     try:
         ret =  gca().semilogy(*args, **kwargs)
-    except ValueError, msg:
-        msg = raise_msg_to_str(msg)
-        error_msg(msg)
-        hold(b)
-    else:
         draw_if_interactive()
-        
+    except:
         hold(b)
-        return ret
+        raise
+    
+    hold(b)
+    return ret
 semilogy.__doc__ = Axes.semilogy.__doc__ + """
 Addition kwargs: hold = [True|False] overrides default hold state"""
 
@@ -2265,15 +2183,13 @@ def specgram(*args, **kwargs):
         hold(h)
     try:
         ret =  gca().specgram(*args, **kwargs)
-    except ValueError, msg:
-        msg = raise_msg_to_str(msg)
-        error_msg(msg)
-        hold(b)
-    else:
         draw_if_interactive()
-        gci._current = ret[-1]
+    except:
         hold(b)
-        return ret
+        raise
+    gci._current = ret[-1]
+    hold(b)
+    return ret
 specgram.__doc__ = Axes.specgram.__doc__ + """
 Addition kwargs: hold = [True|False] overrides default hold state"""
 
@@ -2287,15 +2203,13 @@ def spy(*args, **kwargs):
         hold(h)
     try:
         ret =  gca().spy(*args, **kwargs)
-    except ValueError, msg:
-        msg = raise_msg_to_str(msg)
-        error_msg(msg)
-        hold(b)
-    else:
         draw_if_interactive()
-        
+    except:
         hold(b)
-        return ret
+        raise
+    
+    hold(b)
+    return ret
 spy.__doc__ = Axes.spy.__doc__ + """
 Addition kwargs: hold = [True|False] overrides default hold state"""
 
@@ -2309,15 +2223,13 @@ def spy2(*args, **kwargs):
         hold(h)
     try:
         ret =  gca().spy2(*args, **kwargs)
-    except ValueError, msg:
-        msg = raise_msg_to_str(msg)
-        error_msg(msg)
-        hold(b)
-    else:
         draw_if_interactive()
-        gci._current = ret
+    except:
         hold(b)
-        return ret
+        raise
+    gci._current = ret
+    hold(b)
+    return ret
 spy2.__doc__ = Axes.spy2.__doc__ + """
 Addition kwargs: hold = [True|False] overrides default hold state"""
 
@@ -2331,15 +2243,13 @@ def stem(*args, **kwargs):
         hold(h)
     try:
         ret =  gca().stem(*args, **kwargs)
-    except ValueError, msg:
-        msg = raise_msg_to_str(msg)
-        error_msg(msg)
-        hold(b)
-    else:
         draw_if_interactive()
-        
+    except:
         hold(b)
-        return ret
+        raise
+    
+    hold(b)
+    return ret
 stem.__doc__ = Axes.stem.__doc__ + """
 Addition kwargs: hold = [True|False] overrides default hold state"""
 
@@ -2353,81 +2263,59 @@ def vlines(*args, **kwargs):
         hold(h)
     try:
         ret =  gca().vlines(*args, **kwargs)
-    except ValueError, msg:
-        msg = raise_msg_to_str(msg)
-        error_msg(msg)
-        hold(b)
-    else:
         draw_if_interactive()
-        
+    except:
         hold(b)
-        return ret
+        raise
+    
+    hold(b)
+    return ret
 vlines.__doc__ = Axes.vlines.__doc__ + """
 Addition kwargs: hold = [True|False] overrides default hold state"""
 
 # This function was autogenerated by boilerplate.py.  Do not edit as
 # changes will be lost
 def cla(*args, **kwargs):
-    try:
-        ret =  gca().cla(*args, **kwargs)
-    except ValueError, msg:
-        msg = raise_msg_to_str(msg)
-        error_msg(msg)
-    else:
-        draw_if_interactive()
-        return ret
+
+    ret =  gca().cla(*args, **kwargs)
+    draw_if_interactive()
+    return ret
 cla.__doc__ = Axes.cla.__doc__
 
 # This function was autogenerated by boilerplate.py.  Do not edit as
 # changes will be lost
 def grid(*args, **kwargs):
-    try:
-        ret =  gca().grid(*args, **kwargs)
-    except ValueError, msg:
-        msg = raise_msg_to_str(msg)
-        error_msg(msg)
-    else:
-        draw_if_interactive()
-        return ret
+
+    ret =  gca().grid(*args, **kwargs)
+    draw_if_interactive()
+    return ret
 grid.__doc__ = Axes.grid.__doc__
 
 # This function was autogenerated by boilerplate.py.  Do not edit as
 # changes will be lost
 def legend(*args, **kwargs):
-    try:
-        ret =  gca().legend(*args, **kwargs)
-    except ValueError, msg:
-        msg = raise_msg_to_str(msg)
-        error_msg(msg)
-    else:
-        draw_if_interactive()
-        return ret
+
+    ret =  gca().legend(*args, **kwargs)
+    draw_if_interactive()
+    return ret
 legend.__doc__ = Axes.legend.__doc__
 
 # This function was autogenerated by boilerplate.py.  Do not edit as
 # changes will be lost
 def table(*args, **kwargs):
-    try:
-        ret =  gca().table(*args, **kwargs)
-    except ValueError, msg:
-        msg = raise_msg_to_str(msg)
-        error_msg(msg)
-    else:
-        draw_if_interactive()
-        return ret
+
+    ret =  gca().table(*args, **kwargs)
+    draw_if_interactive()
+    return ret
 table.__doc__ = Axes.table.__doc__
 
 # This function was autogenerated by boilerplate.py.  Do not edit as
 # changes will be lost
 def text(*args, **kwargs):
-    try:
-        ret =  gca().text(*args, **kwargs)
-    except ValueError, msg:
-        msg = raise_msg_to_str(msg)
-        error_msg(msg)
-    else:
-        draw_if_interactive()
-        return ret
+
+    ret =  gca().text(*args, **kwargs)
+    draw_if_interactive()
+    return ret
 text.__doc__ = Axes.text.__doc__
 
 # This function was autogenerated by boilerplate.py.  Do not edit as
@@ -2436,9 +2324,12 @@ def autumn():
     'set the default colormap to autumn and apply to current image if any.  See help(colormaps) for more information'
     rc('image', cmap='autumn')
     im = gci()
+
+
     if im is not None:
         im.set_cmap(cm.autumn)
     draw_if_interactive()
+
 
 # This function was autogenerated by boilerplate.py.  Do not edit as
 # changes will be lost
@@ -2446,9 +2337,12 @@ def bone():
     'set the default colormap to bone and apply to current image if any.  See help(colormaps) for more information'
     rc('image', cmap='bone')
     im = gci()
+
+
     if im is not None:
         im.set_cmap(cm.bone)
     draw_if_interactive()
+
 
 # This function was autogenerated by boilerplate.py.  Do not edit as
 # changes will be lost
@@ -2456,9 +2350,12 @@ def cool():
     'set the default colormap to cool and apply to current image if any.  See help(colormaps) for more information'
     rc('image', cmap='cool')
     im = gci()
+
+
     if im is not None:
         im.set_cmap(cm.cool)
     draw_if_interactive()
+
 
 # This function was autogenerated by boilerplate.py.  Do not edit as
 # changes will be lost
@@ -2466,9 +2363,12 @@ def copper():
     'set the default colormap to copper and apply to current image if any.  See help(colormaps) for more information'
     rc('image', cmap='copper')
     im = gci()
+
+
     if im is not None:
         im.set_cmap(cm.copper)
     draw_if_interactive()
+
 
 # This function was autogenerated by boilerplate.py.  Do not edit as
 # changes will be lost
@@ -2476,9 +2376,12 @@ def flag():
     'set the default colormap to flag and apply to current image if any.  See help(colormaps) for more information'
     rc('image', cmap='flag')
     im = gci()
+
+
     if im is not None:
         im.set_cmap(cm.flag)
     draw_if_interactive()
+
 
 # This function was autogenerated by boilerplate.py.  Do not edit as
 # changes will be lost
@@ -2486,9 +2389,12 @@ def gray():
     'set the default colormap to gray and apply to current image if any.  See help(colormaps) for more information'
     rc('image', cmap='gray')
     im = gci()
+
+
     if im is not None:
         im.set_cmap(cm.gray)
     draw_if_interactive()
+
 
 # This function was autogenerated by boilerplate.py.  Do not edit as
 # changes will be lost
@@ -2496,9 +2402,12 @@ def hot():
     'set the default colormap to hot and apply to current image if any.  See help(colormaps) for more information'
     rc('image', cmap='hot')
     im = gci()
+
+
     if im is not None:
         im.set_cmap(cm.hot)
     draw_if_interactive()
+
 
 # This function was autogenerated by boilerplate.py.  Do not edit as
 # changes will be lost
@@ -2506,9 +2415,12 @@ def hsv():
     'set the default colormap to hsv and apply to current image if any.  See help(colormaps) for more information'
     rc('image', cmap='hsv')
     im = gci()
+
+
     if im is not None:
         im.set_cmap(cm.hsv)
     draw_if_interactive()
+
 
 # This function was autogenerated by boilerplate.py.  Do not edit as
 # changes will be lost
@@ -2516,9 +2428,12 @@ def jet():
     'set the default colormap to jet and apply to current image if any.  See help(colormaps) for more information'
     rc('image', cmap='jet')
     im = gci()
+
+
     if im is not None:
         im.set_cmap(cm.jet)
     draw_if_interactive()
+
 
 # This function was autogenerated by boilerplate.py.  Do not edit as
 # changes will be lost
@@ -2526,9 +2441,12 @@ def pink():
     'set the default colormap to pink and apply to current image if any.  See help(colormaps) for more information'
     rc('image', cmap='pink')
     im = gci()
+
+
     if im is not None:
         im.set_cmap(cm.pink)
     draw_if_interactive()
+
 
 # This function was autogenerated by boilerplate.py.  Do not edit as
 # changes will be lost
@@ -2536,9 +2454,12 @@ def prism():
     'set the default colormap to prism and apply to current image if any.  See help(colormaps) for more information'
     rc('image', cmap='prism')
     im = gci()
+
+
     if im is not None:
         im.set_cmap(cm.prism)
     draw_if_interactive()
+
 
 # This function was autogenerated by boilerplate.py.  Do not edit as
 # changes will be lost
@@ -2546,9 +2467,12 @@ def spring():
     'set the default colormap to spring and apply to current image if any.  See help(colormaps) for more information'
     rc('image', cmap='spring')
     im = gci()
+
+
     if im is not None:
         im.set_cmap(cm.spring)
     draw_if_interactive()
+
 
 # This function was autogenerated by boilerplate.py.  Do not edit as
 # changes will be lost
@@ -2556,9 +2480,12 @@ def summer():
     'set the default colormap to summer and apply to current image if any.  See help(colormaps) for more information'
     rc('image', cmap='summer')
     im = gci()
+
+
     if im is not None:
         im.set_cmap(cm.summer)
     draw_if_interactive()
+
 
 # This function was autogenerated by boilerplate.py.  Do not edit as
 # changes will be lost
@@ -2566,86 +2493,10 @@ def winter():
     'set the default colormap to winter and apply to current image if any.  See help(colormaps) for more information'
     rc('image', cmap='winter')
     im = gci()
+
+
     if im is not None:
         im.set_cmap(cm.winter)
     draw_if_interactive()
 
 
-
-__nxall__ = [
-
-    # numerix
-    'array', 'zeros', 'shape', 'rank', 'size', 'fromstring', 'take',
-    'put', 'putmask', 'reshape', 'repeat', 'choose', 'searchsorted',
-    'asum', 'cumsum', 'product', 'cumproduct', 'alltrue', 'sometrue',
-    'allclose', 'arrayrange', 'arange', 'asarray', 'convolve',
-    'swapaxes', 'concatenate', 'transpose', 'sort', 'argsort',
-    'argmax', 'argmin', 'innerproduct', 'dot', 'outerproduct',
-    'resize', 'indices', 'fromfunction', 'diagonal', 'trace', 'ravel',
-    'nonzero', 'shape', 'where', 'compress', 'clip', 'zeros', 'ones',
-    'identity', 'add', 'logical_or', 'exp', 'subtract', 'logical_xor',
-    'log', 'multiply', 'logical_not', 'log10', 'divide', 'maximum',
-    'sin', 'minimum', 'sinh', 'conjugate', 'bitwise_and', 'sqrt',
-    'power', 'bitwise_or', 'tan', 'absolute', 'bitwise_xor', 'tanh',
-    'negative', 'ceil', 'greater', 'fabs', 'greater_equal', 'floor',
-    'less', 'arccos', 'arctan2', 'less_equal', 'arcsin', 'fmod',
-    'equal', 'arctan', 'hypot', 'not_equal', 'cos', 'around',
-    'logical_and', 'cosh', 'arccosh', 'arcsinh', 'arctanh',
-    'cross_correlate', 'pi', 'ArrayType', 'matrixmultiply',
-
-    #numerix.mlab
-    'rand', 'randn', 'eye', 'tri', 'diag', 'fliplr', 'flipud',
-    'rot90', 'tril', 'triu', 'ptp', 'mean', 'msort', 'median', 'std',
-    'cumsum', 'prod', 'cumprod', 'trapz', 'diff', 'cov', 'corrcoef',
-    'squeeze', 'kaiser', 'blackman', 'bartlett', 'hanning', 'hamming',
-    'sinc', 'eig', 'svd', 'angle', 'roots', 'amin', 'amax',
-
-    #matplotlib.mlab
-    'linspace', 'window_hanning', 'window_none', 'conv', 'detrend',
-    'detrend_mean', 'detrend_none', 'detrend_linear', 'corrcoef',
-    'polyfit', 'polyval', 'vander', 'entropy', 'normpdf', 'levypdf',
-    'find', 'trapz', 'prepca', 'fix', 'rem', 'norm', 'orth', 'rank',
-    'sqrtm', 'prctile', 'center_matrix', 'meshgrid', 'rk4',
-    'exp_safe', 'amap', 'sum_flat', 'mean_flat', 'rms_flat', 'l1norm',
-    'l2norm', 'norm', 'frange', 'diagonal_matrix', 'base_repr',
-    'binary_repr', 'log2', 'ispower2', 'bivariate_normal',
-    
-    # some misc
-    'inverse', 'eigenvectors', 'fft',
-    
-    # nx types
-    'Int8', 'UInt8', 'Int16', 'UInt16', 'Int32', 'UInt32', 'Float32',
-    'Float64', 'Complex32', 'Complex64', 'Float', 'Int', 'Complex',
-    ]
-
-
-__plotting_all__ = [
-    # plotting
-
-    'plotting', 'colormaps', 'get_current_fig_manager', 'connect',
-    'disconnect', 'get_plot_commands', 'raise_msg_to_str', 'axis',
-    'axes', 'delaxes', 'clim', 'close', 'clf', 'colorbar', 'draw',
-    'figtext', 'figimage', 'figlegend', 'figure', 'gca', 'gcf', 'gci',
-    'get', 'hold', 'ishold', 'isinteractive', 'imread', 'load', 'rc',
-    'rcdefaults', 'save', 'savefig', 'set', 'subplot', 'twinx',
-    'title', 'xlabel', 'ylabel', 'xlim', 'ylim', 'xticks', 'rgrids',
-    'thetagrids', 'yticks', 'polar', 'over', 'ioff', 'ion', 'axhline',
-    'axhspan', 'axvline', 'axvspan', 'bar', 'barh', 'cohere',
-    'contour', 'csd', 'errorbar', 'fill', 'hist', 'hlines', 'imshow',
-    'loglog', 'matshow', 'pcolor', 'pcolor_classic', 'pie', 'plot',
-    'plot_date', 'psd', 'scatter', 'scatter_classic', 'semilogx',
-    'semilogy', 'specgram', 'spy', 'spy2', 'stem', 'vlines', 'cla',
-    'grid', 'legend', 'table', 'text', 'autumn', 'bone', 'cool',
-    'copper', 'flag', 'gray', 'hot', 'hsv', 'jet', 'pink', 'prism',
-    'spring', 'summer', 'winter',
-
-    # classes and modules
-
-    'Line2D', 'Polygon', 'Rectangle', 'Circle', 'Text', 'cm',
-    'get_cmap', 'normalize',
-
-    'show', 'rcParams', 'switch_backend'
-    ]
-
-
-__all__ = tuple(list(__dates_all__) + __nxall__ + list(ticker.__all__) + __plotting_all__)

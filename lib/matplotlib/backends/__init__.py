@@ -1,7 +1,7 @@
 import sys
 import matplotlib
 
-__all__ = ['backend','show','draw_if_interactive','error_msg',
+__all__ = ['backend','show','draw_if_interactive',
            'new_figure_manager', 'backend_version']
 
 interactive_bk     = ['GTK','GTKAgg','GTKCairo','FltkAgg','QtAgg', 'TkAgg',
@@ -25,23 +25,19 @@ if hasattr(backend_mod,'backend_version'):
     backend_version = getattr(backend_mod,'backend_version')
 else: backend_version = 'unknown'
 
+
+
 # Now define the public API according to the kind of backend in use
 if backend in interactive_bk:
-    error_msg  = backend_mod.error_msg
     show       = backend_mod.show
     draw_if_interactive = backend_mod.draw_if_interactive
 else:  # non-interactive backends
     def draw_if_interactive():  pass
     def show(): pass
-    def error_msg(m):
-        matplotlib.verbose.report_error(m)
-        sys.exit()
 
 # Additional imports which only happen for certain backends.  This section
 # should probably disappear once all backends are uniform.
-if backend=='Paint':
-    from backend_paint import error_msg
-elif backend in ['WX','WXAgg']:
+if backend in ['WX','WXAgg']:
     Toolbar = backend_mod.Toolbar
     __all__.append('Toolbar')
 

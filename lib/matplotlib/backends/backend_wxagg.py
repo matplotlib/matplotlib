@@ -20,7 +20,7 @@ from backend_agg import FigureCanvasAgg
 from backend_wx import FigureManager
 from backend_wx import FigureManagerWx, FigureCanvasWx, FigureFrameWx, \
      DEBUG_MSG
-from backend_wx import error_msg, draw_if_interactive, show, Toolbar, \
+from backend_wx import error_msg_wx, draw_if_interactive, show, Toolbar, \
      backend_version
 from matplotlib.figure import Figure
 from matplotlib import rcParams

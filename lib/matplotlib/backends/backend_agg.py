@@ -76,7 +76,7 @@ from matplotlib.numerix import array, Float
 
 from matplotlib._pylab_helpers import Gcf
 from matplotlib.backend_bases import RendererBase,\
-     GraphicsContextBase, FigureManagerBase, FigureCanvasBase, error_msg
+     GraphicsContextBase, FigureManagerBase, FigureCanvasBase
 
 from matplotlib.cbook import enumerate, is_string_like, exception_to_str
 from matplotlib.figure import Figure
@@ -399,7 +399,7 @@ class FigureCanvasAgg(FigureCanvasBase):
                 ps = self.switch_backends(FigureCanvasPS)
                 ps.print_figure(filename, dpi, facecolor, edgecolor, orientation)
             else:
-                error_msg('Do not know know to handle extension *%s' % ext)
+                raise IOError('Do not know know to handle extension *%s' % ext)
 
         # restore the original figure properties
         self.figure.dpi.set(origDPI)

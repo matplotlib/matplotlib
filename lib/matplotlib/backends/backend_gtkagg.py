@@ -11,7 +11,7 @@ from matplotlib.figure import Figure
 from backend_agg import FigureCanvasAgg
 from backend_gtk import gtk, FigureManagerGTK, FigureCanvasGTK,\
      show, draw_if_interactive,\
-     error_msg, NavigationToolbar, PIXELS_PER_INCH, backend_version
+     error_msg_gtk, NavigationToolbar, PIXELS_PER_INCH, backend_version
 
 from _gtkagg import agg_to_gtk_drawable
 
@@ -63,7 +63,9 @@ class FigureCanvasGTKAgg(FigureCanvasGTK, FigureCanvasAgg):
             
         else:
             agg = self.switch_backends(FigureCanvasAgg)
-            agg.print_figure(filename, dpi, facecolor, edgecolor, orientation)
+            try: agg.print_figure(filename, dpi, facecolor, edgecolor, orientation)
+            except IOError, msg:
+                error_msg_gtk('Failed to save\nError message: %s'%(msg,), self)
 
         self.figure.set_canvas(self)
 

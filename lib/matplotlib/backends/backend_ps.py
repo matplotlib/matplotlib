@@ -9,7 +9,7 @@ from cStringIO import StringIO
 from matplotlib import verbose, __version__
 from matplotlib._pylab_helpers import Gcf
 from matplotlib.backend_bases import RendererBase, GraphicsContextBase,\
-     FigureManagerBase, FigureCanvasBase, error_msg
+     FigureManagerBase, FigureCanvasBase
 
 from matplotlib.cbook import is_string_like
 from matplotlib.figure import Figure
@@ -30,12 +30,6 @@ defaultPaperSize = 8.5,11               # TODO: make this configurable
 debugPS = 0
 
 
-def error_msg_ps(msg, *args):
-    """
-    Signal an error condition.
-    """
-    verbose.report_error('Error: %s' % msg)
-    sys.exit()
 
 
 def _num_to_str(val):
@@ -174,15 +168,11 @@ class RendererPS(RendererBase):
         font = _fontd.get(key)
         if font is None:
             fname = fontManager.findfont(prop)
-            try:
-                font = FT2Font(str(fname))
-            except RuntimeError, msg:
-                verbose.report_error('Could not load font file "%s"'%fname)
-                return None
-            else:
-                _fontd[key] = font
-                if fname not in _type42:
-                    _type42.append(fname)
+
+            font = FT2Font(str(fname))
+            _fontd[key] = font
+            if fname not in _type42:
+                _type42.append(fname)
         font.clear()
         size = prop.get_size_in_points()
         font.set_size(size, 72.0)
@@ -706,7 +696,6 @@ class FigureManagerPS(FigureManagerBase):
 
 
 FigureManager = FigureManagerPS
-error_msg = error_msg_ps
 
 
 # The following Python dictionary _psDefs contains the entries for the

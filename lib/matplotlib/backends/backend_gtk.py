@@ -298,7 +298,7 @@ class FigureCanvasGTK(gtk.DrawingArea, FigureCanvasBase):
             try:
                 pixbuf.save(filename, ext)
             except gobject.GError, exc:
-                error_msg('Save figure failure:\n%s' % (exc,), parent=self)
+                error_msg_gtk('Save figure failure:\n%s' % (exc,), parent=self)
 
         elif ext in ('eps', 'ps', 'svg',):
             if ext == 'svg':
@@ -310,16 +310,16 @@ class FigureCanvasGTK(gtk.DrawingArea, FigureCanvasBase):
                 fc = self.switch_backends(FigureCanvas)
                 fc.print_figure(filename, dpi, facecolor, edgecolor, orientation)
             except IOError, exc:
-                error_msg("Save figure failure:\n%s: %s" %
+                error_msg_gtk("Save figure failure:\n%s: %s" %
                           (exc.filename, exc.strerror), parent=self)
             except Exception, exc:
-                error_msg("Save figure failure:\n%s" % exc, parent=self)
+                error_msg_gtk("Save figure failure:\n%s" % exc, parent=self)
 
         elif ext in ('bmp', 'raw', 'rgb',):
             try: 
                 from backend_agg import FigureCanvasAgg  as FigureCanvas
             except:
-                error_msg('Save figure failure:\n'
+                error_msg_gtk('Save figure failure:\n'
                           'Agg must be installed to save as bmp, raw and rgb',
                           parent=self)                
             else:
@@ -330,7 +330,7 @@ class FigureCanvasGTK(gtk.DrawingArea, FigureCanvasBase):
             try: 
                 from backend_cairo import FigureCanvasCairo  as FigureCanvas
             except:
-                error_msg('Save figure failure:\n'
+                error_msg_gtk('Save figure failure:\n'
                           'Cairo must be installed to save as pdf',
                           parent=self)                
             else:
@@ -338,7 +338,7 @@ class FigureCanvasGTK(gtk.DrawingArea, FigureCanvasBase):
                 fc.print_figure(filename, dpi, facecolor, edgecolor, orientation)
 
         else:
-            error_msg('Format "%s" is not supported.\nSupported formats are %s.' %
+            error_msg_gtk('Format "%s" is not supported.\nSupported formats are %s.' %
                       (ext, ', '.join(IMAGE_FORMAT)),
                       parent=self)
 
@@ -412,6 +412,7 @@ class FigureManagerGTK(FigureManagerBase):
         self.window.destroy()
         if Gcf.get_num_fig_managers()==0 and not matplotlib.is_interactive():
             gtk.main_quit()
+
 
         
 class NavigationToolbar2GTK(NavigationToolbar2, gtk.Toolbar):
@@ -933,7 +934,7 @@ if gtk.pygtk_version >= (2,4,0):
                     self.path = filename
                     break
                 else:
-                    error_msg('Image format "%s" is not supported' % ext,
+                    error_msg_gtk('Image format "%s" is not supported' % ext,
                               parent=self)
                     self.set_current_name(os.path.split(root)[1] + '.' + menu_ext)
                     
@@ -948,6 +949,7 @@ try:
         os.path.join (matplotlib.rcParams['datapath'], 'matplotlib.svg'))
 except:
     verbose.report('Could not load matplotlib icon: %s' % sys.exc_info()[1])
+
 
 
 def error_msg_gtk(msg, parent=None):
@@ -989,4 +991,6 @@ def exception_handler(type, value, tb):
 #    sys.excepthook = exception_handler
 
 FigureManager = FigureManagerGTK
-error_msg = error_msg_gtk
+
+
+

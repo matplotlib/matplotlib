@@ -16,7 +16,7 @@ import matplotlib
 matplotlib.use('GTKAgg')
 
 from matplotlib.backends.backend_gtk import NavigationToolbar, \
-     error_msg
+     error_msg_gtk
 from matplotlib.backends.backend_gtkagg import FigureCanvasGTKAgg as FigureCanvas
 
 from matplotlib.figure import Figure
@@ -183,7 +183,7 @@ class LineDialog(gtk.Dialog):
         s = self.entryLineWidth.get_text()
         try: lw = float(s)
         except ValueError:
-            error_msg('Line width must be a float.  You entered %s' % s)
+            error_msg_gtk('Line width must be a float.  You entered %s' % s)
         else:
             self.line.set_linewidth(lw)
 
