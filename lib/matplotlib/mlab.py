@@ -55,7 +55,7 @@ Credits:
 """
 
 from __future__ import division
-import sys
+import sys, random
 from matplotlib import verbose
 import numerix
 from numerix import *
@@ -634,7 +634,7 @@ def levypdf(x, gamma, alpha):
 
    dx = x[1]-x[0]
 
-   Nyq = 1/(2*dx)
+
    f = 1/(N*dx)*arange(-N/2, N/2, Float)
 
    ind = concatenate([arange(N/2, N, Int),
@@ -679,8 +679,8 @@ def longest_contiguous_ones(x):
     y = zeros( (len(x)+2,),  x.typecode())
     y[1:-1] = x
     dif = diff(y)
-    up = find(d ==  1);
-    dn = find(d == -1);
+    up = find(dif ==  1);
+    dn = find(dif == -1);
     ind = find( dn-up == max(dn - up))
     ind = arange(take(up, ind), take(dn, ind))
 

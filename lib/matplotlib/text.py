@@ -122,8 +122,7 @@ class Text(Artist):
         ymin = horizLayout[-1][2]
         ymax = horizLayout[0][2] + horizLayout[0][-1]
         height = ymax-ymin
-        horizHeight = height
-        firstHeight = horizLayout[0][-1]
+
         xmax = xmin + width
         # get the rotation matrix
         M = self.get_rotation_matrix(xmin, ymin) 
@@ -374,7 +373,7 @@ ACCEPTS: [ 'center' | 'right' | 'left' ]
 
     def set_ma(self, align):
         'alias for set_verticalalignment'
-        self.multialignment(align)
+        self.set_multialignment(align)
         
 
     def set_multialignment(self, align):
@@ -496,7 +495,7 @@ ACCEPTS: [ angle in degrees 'vertical' | 'horizontal'
 
     def set_va(self, align):
         'alias for set_verticalalignment'
-        self.verticalalignment(align)
+        self.set_verticalalignment(align)
 
     def set_verticalalignment(self, align):
         """

@@ -518,7 +518,7 @@ class Axis(Artist):
         # *copy* of the axis label box because we don't wan't to scale
         # the actual bbox
 
-        labelBox = self.label.get_window_extent(renderer)
+
         self._update_label_postion(ticklabelBoxes)
 
         self.label.draw(renderer)  # memory leak here, vertical text

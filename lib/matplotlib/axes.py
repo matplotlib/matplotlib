@@ -1,18 +1,18 @@
 from __future__ import division, generators
 
-import math, sys, random
+import math, sys
 
 # do not import numerix max!  we are using python max.  
-from numerix import MLab, absolute, arange, array, asarray, ones, transpose, \
-     log, log10, Float, ravel, zeros, Int32, Float64, ceil, min, indices, \
-     shape, which
+from numerix import absolute, arange, array, asarray, ones, transpose, \
+     log, log10, Float, ravel, zeros, Int32, Float64, ceil, indices, \
+     shape, which, where
 from numerix import max as nxmax
 from numerix import min as nxmin
 import _contour
 import mlab
 from artist import Artist
 from axis import XAxis, YAxis
-from cbook import iterable, is_string_like, flatten, enumerate, True, False,\
+from cbook import iterable, is_string_like, flatten, enumerate, \
      allequal, dict_delall, strip_math, popd, silent_list
 from collections import RegularPolyCollection, PolyCollection, LineCollection
 from colors import colorConverter, normalize, Colormap, LinearSegmentedColormap
@@ -754,10 +754,6 @@ charts, or candlestick plots
         assert len(height)==N, 'bar arg height must be len(left) or scalar'
         assert len(color)==N, 'bar arg color must be len(left) or scalar'
 
-        right = left + width
-        top = bottom + height
-        
-
         args = zip(left, bottom, width, height, color)
         for l, b, w, h, c in args:            
             if h<0:
@@ -848,7 +844,6 @@ scalars or len(x) sequences
         width = x
         right = left+x
         bottom = y - height/2.
-        top = y + height/2.
 
         args = zip(left, bottom, width, height, color)
         for l, b, w, h, c in args:            
@@ -1788,7 +1783,7 @@ Grid Orientation
             raise TypeError, 'Illegal arguments to pcolor; see help(pcolor)'
         
         Nx, Ny = X.shape
-        patches = []
+
         verts =  [ ( (X[i,j], Y[i,j]),     (X[i+1,j], Y[i+1,j]),
                      (X[i+1,j+1], Y[i+1,j+1]), (X[i,j+1], Y[i,j+1]))
                    for i in range(Nx-1)   for j in range(Ny-1)]
@@ -2955,7 +2950,7 @@ disconnect to disconnect from the axes event
             raise ValueError('You can only connect to the following axes events: %s' % ', '.join(Axes._events))
 
         cid = Axes._cid
-        seq = self._connected.setdefault(s, []).append((cid, func))
+        self._connected.setdefault(s, []).append((cid, func))
         Axes._cid += 1
         return cid
 
@@ -3225,10 +3220,10 @@ ACCEPTS: sequence of floats
 
         self._popall(self.rgridlabels)
 
-        size = rcParams['tick.labelsize']
+        
         color = rcParams['tick.color']
 
-        func = FuncXY(POLAR)
+        
         props=FontProperties(size=rcParams['tick.labelsize'])
         if labels is None:
             labels = [self.rformatter(r,0) for r in radii]
@@ -3274,7 +3269,6 @@ ACCEPTS: sequence of floats
         ls = rcParams['grid.linestyle']
         color = rcParams['grid.color']
         lw = rcParams['grid.linewidth']
-        func = FuncXY(POLAR)
         
         r = mlab.linspace(0, self.get_rmax(), self.RESOLUTION)
         for a in angles:
@@ -3284,10 +3278,9 @@ ACCEPTS: sequence of floats
             self.thetagridlines.append(line)
 
         self._popall(self.thetagridlabels)
-        size = rcParams['tick.labelsize']
+
         color = rcParams['tick.color']
 
-        func = FuncXY(POLAR)
         props=FontProperties(size=rcParams['tick.labelsize'])
         r = frac*self.get_rmax()
         if labels is None:

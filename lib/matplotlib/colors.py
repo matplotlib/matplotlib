@@ -574,7 +574,7 @@ class normalize:
         return (self.vmin is not None and self.vmax is not None)
 
     def is_mappable(self):
-        return self._A is not None and self._A.shape<=2
+        return hasattr(self, '_A') and self._A is not None and self._A.shape<=2
 
 
 
