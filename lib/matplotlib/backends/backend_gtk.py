@@ -2,7 +2,7 @@ from __future__ import division
 
 import os, math
 import sys
-def function_name(): return sys._getframe(1).f_code.co_name
+def _fn_name(): return sys._getframe(1).f_code.co_name
 
 try:
     import pygtk
@@ -186,6 +186,7 @@ class RendererGTK(RendererBase):
             gc.gdkGC.foreground = edgecolor
         self.gdkDrawable.draw_arc(gc.gdkGC, False, x, y, w, h, a1, a2)
 
+
     def draw_image(self, x, y, im, origin, bbox):
         """
         Draw the Image instance into the current axes; x is the
@@ -193,6 +194,11 @@ class RendererGTK(RendererBase):
         the distance from the origin.  That is, if origin is upper, y
         is the distance from top.  If origin is lower, y is the
         distance from bottom
+
+        origin is 'upper' or 'lower'
+
+        bbox is a matplotlib.transforms.BBox instance for clipping, or
+        None
         """
         if bbox is not None:
             l,b,w,h = bbox.get_bounds()
@@ -249,6 +255,7 @@ class RendererGTK(RendererBase):
         """
         self.gdkDrawable.draw_point(
             gc.gdkGC, int(x), self.height-int(y))
+
 
     def draw_polygon(self, gc, rgbFace, points):
         """
@@ -782,13 +789,13 @@ class FigureCanvasGTK(gtk.DrawingArea, FigureCanvasBase):
 
 
     def expose_event(self, widget, event):
-        if Debug: print 'backend_gtk.%s' % function_name()
+        if Debug: print 'backend_gtk.%s' % _fn_name()
         if self._new_pixmap and GTK_WIDGET_DRAWABLE(self):
             width, height = self.allocation.width, self.allocation.height
 
             #self._pixmap = gtk.gdk.Pixmap(self.window, width, height)
             if width > self._pixmap_width or height > self._pixmap_height:
-                if Debug: print 'backend_gtk.%s: new pixmap allocated' % function_name()
+                if Debug: print 'backend_gtk.%s: new pixmap allocated' % _fn_name()
                 self._pixmap = gtk.gdk.Pixmap (self.window, width, height)
                 self._pixmap_width, self._pixmap_height = width, height
 

@@ -6,7 +6,7 @@ from __future__ import division
 
 import os
 import sys
-def function_name(): return sys._getframe(1).f_code.co_name
+def _fn_name(): return sys._getframe(1).f_code.co_name
 
 from matplotlib import verbose
 from matplotlib.cbook import is_string_like, enumerate, True, False
@@ -42,7 +42,7 @@ def new_figure_manager(num, *args, **kwargs):
     """
     Create a new figure manager instance
     """
-    if Debug: print 'backend_gtkcairo.%s()' % function_name()
+    if Debug: print 'backend_gtkcairo.%s()' % _fn_name()
     thisFig = Figure(*args, **kwargs)
     canvas = FigureCanvasGTKCairo(thisFig)
     return FigureManagerGTK(canvas, num)
@@ -54,7 +54,7 @@ class FigureCanvasGTKCairo(FigureCanvasGTK, FigureCanvasCairo):
 
     """
     def expose_event(self, widget, event):
-        if Debug: print 'backend_gtkcairo.%s()' % function_name()
+        if Debug: print 'backend_gtkcairo.%s()' % _fn_name()
 
         if GTK_WIDGET_DRAWABLE(self) and self._new_pixmap:
             width, height = self.allocation.width, self.allocation.height
@@ -63,7 +63,7 @@ class FigureCanvasGTKCairo(FigureCanvasGTK, FigureCanvasCairo):
             # cant (yet) use lines below - when width,height shrinks renderer still draws to the old width, height
             
             #if width > self._pixmap_width or height > self._pixmap_height:
-            #    if Debug: print 'backend_gtkcairo.%s: new pixmap allocated' % function_name()
+            #    if Debug: print 'backend_gtkcairo.%s: new pixmap allocated' % _fn_name()
             #    self._pixmap = gtk.gdk.Pixmap (self.window, width, height)
             #    self._pixmap_width, self._pixmap_height = width, height
 

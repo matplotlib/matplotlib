@@ -114,7 +114,7 @@ class RendererTemplate(RendererBase):
         Draw an arc centered at x,y with width and height and angles
         from 0.0 to 360.0.
 
-        If rgbFace is not None, fill the rectangle with it.  gcEdge
+        If rgbFace is not None, fill the src with it.  gcEdge
         is a GraphicsContext instance
         """
         pass
