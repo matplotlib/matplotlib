@@ -329,11 +329,21 @@ class GraphicsContextCairo(GraphicsContextBase):
         """
         self._cliprect = rectangle
         ctx = self.ctx
-        # how to clip? - this clips inside the rect?
-        #x,y,w,h = rectangle
-        #ctx.rectangle (x, self.renderer.height - y + h, w, h)
-        #ctx.clip();
-        #ctx.new_path() # current path is not consumed by cairo_clip()
+
+        x,y,w,h = rectangle
+        widget_h = self.renderer.height
+        # 1 clipping is extremely slow so I disabled it (its due to be optimised?)
+        # 2 how to specify a clip rect w/o actually drawing it!
+
+        #ctx.new_path()
+        #ctx.move_to (x-1,   widget_h-y)
+        #ctx.line_to (x-10,   widget_h-y-h)
+        #ctx.line_to (x-10+w, widget_h-y-h)
+        #ctx.line_to (x-10+w, widget_h-y)
+        #ctx.line_to (x-10,   widget_h-y)
+        #ctx.close_path()
+        
+        #ctx.clip ()
         
 
     def set_dashes(self, offset, dashes):

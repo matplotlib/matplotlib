@@ -17,6 +17,12 @@ from _gtkagg import agg_to_gtk_drawable
 
 
 DEBUG = 0
+
+# Image formats that this backend supports - for FileChooser and print_figure()
+image_format_list         = ['eps', 'bmp', 'png', 'ps', 'raw', 'rgb', 'svg']
+image_format_default      = 'png'
+
+
 def new_figure_manager(num, *args, **kwargs):
     """
     Create a new figure manager instance
@@ -27,7 +33,6 @@ def new_figure_manager(num, *args, **kwargs):
     return FigureManagerGTK(canvas, num)
 
 class FigureCanvasGTKAgg(FigureCanvasGTK, FigureCanvasAgg):
-
 
     def draw(self):
         """
