@@ -483,7 +483,14 @@ public:
 
   Py::Object as_vec6_val(const Py::Tuple &args) {
     double a,b,c,d,tx,ty;
-    affine_params_api(&a, &b, &c, &d, &tx, &ty);
+    
+    try { 
+      affine_params_api(&a, &b, &c, &d, &tx, &ty);
+    }
+  catch (std::domain_error &err) {
+    throw Py::ValueError("Domain error on as_vec6_val in Transformation::as_vec6_val");  
+  }
+
     Py::Tuple ret(6);
     ret[0] = Py::Float(a);
     ret[1] = Py::Float(b);
