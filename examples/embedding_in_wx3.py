@@ -27,6 +27,7 @@ import matplotlib.cm as cm
 from matplotlib.backends.backend_wxagg import Toolbar, FigureCanvasWxAgg
 from matplotlib.figure import Figure
 import matplotlib.numerix as numerix
+import matplotlib.numerix.mlab as mlab
 from matplotlib.mlab import meshgrid
 
 from wxPython.wx import *
@@ -66,7 +67,7 @@ class PlotPanel(wxPanel):
         z = numerix.sin(self.x) + numerix.cos(self.y)
         self.im = a.imshow( z, cmap=cm.jet)#, interpolation='nearest')
         
-        zmax = numerix.max(numerix.max(z))-ERR_TOL
+        zmax = mlab.max(mlab.max(z))-ERR_TOL
         
         ymax_i, xmax_i = numerix.nonzero(
             numerix.greater_equal(z, zmax))
@@ -87,7 +88,7 @@ class PlotPanel(wxPanel):
         z = numerix.sin(self.x) + numerix.cos(self.y)
         self.im.set_array(z)
 
-        zmax = numerix.max(numerix.max(z))-ERR_TOL
+        zmax = mlab.max(mlab.max(z))-ERR_TOL
         ymax_i, xmax_i = numerix.nonzero(
             numerix.greater_equal(z, zmax))
         if self.im.origin == 'upper':

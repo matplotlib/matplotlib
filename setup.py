@@ -109,6 +109,11 @@ BUILD_CONTOUR = 1
 packages = [
     'matplotlib',
     'matplotlib/backends',
+    'matplotlib/numerix',
+    'matplotlib/numerix/mlab',
+    'matplotlib/numerix/linear_algebra',
+    'matplotlib/numerix/random_array',
+    'matplotlib/numerix/fft',                    
     ]
 
 

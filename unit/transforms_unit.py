@@ -1,6 +1,7 @@
 #from __future__ import division
 
-from matplotlib.numerix import array, rand, asarray, alltrue, rand
+from matplotlib.numerix import array, asarray, alltrue
+from matplotlib.numerix.mlab import rand
 from matplotlib.transforms import Point, Bbox, Value, Affine
 from matplotlib.transforms import multiply_affines
 from matplotlib.transforms import Func, IDENTITY, LOG10, POLAR, FuncXY

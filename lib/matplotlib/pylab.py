@@ -182,10 +182,6 @@ Most of the other commands are from Numeric, MLab and FFT, with the
 exception of those in mlab.py provided by matplotlib.
 """
 
-# bring all the MLab and mlab symbols in so folks can import them from
-# pylab in one fell swoop
-from numerix import *
-from mlab import *
 
 import cm
 import _pylab_helpers
@@ -195,7 +191,7 @@ from axes import Axes, PolarAxes
 from backends import new_figure_manager, error_msg, \
      draw_if_interactive, show
 
-from cbook import flatten, is_string_like, exception_to_str, popd, silent_list
+from cbook import flatten, is_string_like, exception_to_str, popd, silent_list, iterable
 from colors import normalize
 from cm import ColormapJet, Grayscale, get_cmap
 from figure import Figure
@@ -203,28 +199,69 @@ import image
 from matplotlib import rcParams, rcParamsDefault, get_backend
 from backend_bases import FigureCanvasBase
 from image import imread as _imread
+from lines import Line2D
+from text import Text
 from patches import Polygon, Rectangle, Circle
 from transforms import blend_xy_sep_transform
 
 # catch more than an import error here, since the src could fail too,
 # eg a bad pytz install.  I don't want to break all of matplotlib for
 # date support
-try: from dates import *
-except: pass 
+try:
+    from dates import date2num, num2date, drange, epoch2num, num2epoch, mx2num,\
+            DateFormatter, IndexDateFormatter, DateLocator,\
+            RRuleLocator, YearLocator, MonthLocator, WeekdayLocator,\
+            DayLocator, HourLocator, MinuteLocator, SecondLocator,\
+            rrule, MO, TU, WE, TH, FR, SA, SU, YEARLY, MONTHLY,\
+            WEEKLY, DAILY, HOURLY, MINUTELY, SECONDLY, relativedelta
+except:
+    __dates_all__ = []
+    pass
+else:
+    import dates
+    __dates_all__ = dates.__all__
 
-from ticker import *
-
+from ticker import TickHelper, Formatter, FixedFormatter, NullFormatter,\
+           FuncFormatter, FormatStrFormatter, ScalarFormatter,\
+           LogFormatter, LogFormatterExponent, LogFormatterMathtext,\
+           Locator, IndexLocator, FixedLocator, NullLocator,\
+           LinearLocator, LogLocator, AutoLocator, MultipleLocator
+import ticker
 import matplotlib
 
-# Restore builtins which may have been overridden (typically by mlab).
-# This was discussed here
-# http://sourceforge.net/mailarchive/forum.php?thread_id=6307396&forum_id=33405
-import __builtin__
-min = __builtin__.min
-max = __builtin__.max
-sum = __builtin__.sum
-round = __builtin__.round
-abs = __builtin__.abs
+# bring all the  symbols in so folks can import them from
+# pylab in one fell swoop
+
+from numerix import array, zeros, shape, rank, size, fromstring, take, put, putmask, reshape, repeat, choose, searchsorted, asum, cumsum, product, cumproduct, alltrue, sometrue, allclose, arrayrange, arange, asarray, convolve, swapaxes, concatenate, transpose, sort, argsort, argmax, argmin, innerproduct, dot, outerproduct, resize, indices, fromfunction, diagonal, trace, ravel, nonzero, shape, where, compress, clip, zeros, ones, identity, add, logical_or, exp, subtract, logical_xor, log, multiply, logical_not, log10, divide, maximum, sin, minimum, sinh, conjugate, bitwise_and, sqrt, power, bitwise_or, tan, absolute, bitwise_xor, tanh, negative, ceil, greater, fabs, greater_equal, floor, less, arccos, arctan2, less_equal, arcsin, fmod, equal, arctan, hypot, not_equal, cos, around, logical_and, cosh, arccosh, arcsinh, arctanh, cross_correlate, \
+     pi, ArrayType, matrixmultiply
+
+from numerix import Int8, UInt8, Int16, UInt16, Int32, UInt32, Float32, Float64, Complex32, Complex64, Float, Int, Complex
+
+from matplotlib.numerix.fft import fft
+from matplotlib.numerix.linear_algebra import inverse, eigenvectors
+
+from matplotlib.numerix.mlab import rand,randn,eye,tri,diag,fliplr,flipud,rot90,tril,triu,ptp,mean,msort,median,std,cumsum,prod,cumprod,trapz,diff,cov,corrcoef,squeeze,kaiser,blackman,bartlett,hanning,hamming,sinc,eig,svd,angle,roots,amin,  amax
+
+from matplotlib.mlab import linspace, window_hanning, window_none, conv, detrend, detrend_mean, detrend_none, detrend_linear, corrcoef, polyfit, polyval, vander, entropy, normpdf, levypdf, find, trapz, prepca, fix, rem, norm, orth, rank, sqrtm, prctile, center_matrix, meshgrid, rk4, exp_safe, amap, sum_flat, mean_flat, rms_flat, l1norm, l2norm, norm, frange, diagonal_matrix, base_repr, binary_repr, log2, ispower2, bivariate_normal
+
+    
+    
+
+"""
+problem syms
+ - cross_correlate  - getting from convolve
+average
+sarray
+dump
+dumps
+load
+loads
+divide_safe
+invert
+left_shift
+right_shift
+sign
+"""
 
 def colors():
     """
@@ -2373,3 +2410,81 @@ def winter():
         im.set_cmap(cm.winter)
     draw_if_interactive()
 
+
+
+__nxall__ = [
+
+    # numerix
+    'array', 'zeros', 'shape', 'rank', 'size', 'fromstring', 'take',
+    'put', 'putmask', 'reshape', 'repeat', 'choose', 'searchsorted',
+    'asum', 'cumsum', 'product', 'cumproduct', 'alltrue', 'sometrue',
+    'allclose', 'arrayrange', 'arange', 'asarray', 'convolve',
+    'swapaxes', 'concatenate', 'transpose', 'sort', 'argsort',
+    'argmax', 'argmin', 'innerproduct', 'dot', 'outerproduct',
+    'resize', 'indices', 'fromfunction', 'diagonal', 'trace', 'ravel',
+    'nonzero', 'shape', 'where', 'compress', 'clip', 'zeros', 'ones',
+    'identity', 'add', 'logical_or', 'exp', 'subtract', 'logical_xor',
+    'log', 'multiply', 'logical_not', 'log10', 'divide', 'maximum',
+    'sin', 'minimum', 'sinh', 'conjugate', 'bitwise_and', 'sqrt',
+    'power', 'bitwise_or', 'tan', 'absolute', 'bitwise_xor', 'tanh',
+    'negative', 'ceil', 'greater', 'fabs', 'greater_equal', 'floor',
+    'less', 'arccos', 'arctan2', 'less_equal', 'arcsin', 'fmod',
+    'equal', 'arctan', 'hypot', 'not_equal', 'cos', 'around',
+    'logical_and', 'cosh', 'arccosh', 'arcsinh', 'arctanh',
+    'cross_correlate', 'pi', 'ArrayType', 'matrixmultiply',
+
+    #numerix.mlab
+    'rand', 'randn', 'eye', 'tri', 'diag', 'fliplr', 'flipud',
+    'rot90', 'tril', 'triu', 'ptp', 'mean', 'msort', 'median', 'std',
+    'cumsum', 'prod', 'cumprod', 'trapz', 'diff', 'cov', 'corrcoef',
+    'squeeze', 'kaiser', 'blackman', 'bartlett', 'hanning', 'hamming',
+    'sinc', 'eig', 'svd', 'angle', 'roots', 'amin', 'amax',
+
+    #matplotlib.mlab
+    'linspace', 'window_hanning', 'window_none', 'conv', 'detrend',
+    'detrend_mean', 'detrend_none', 'detrend_linear', 'corrcoef',
+    'polyfit', 'polyval', 'vander', 'entropy', 'normpdf', 'levypdf',
+    'find', 'trapz', 'prepca', 'fix', 'rem', 'norm', 'orth', 'rank',
+    'sqrtm', 'prctile', 'center_matrix', 'meshgrid', 'rk4',
+    'exp_safe', 'amap', 'sum_flat', 'mean_flat', 'rms_flat', 'l1norm',
+    'l2norm', 'norm', 'frange', 'diagonal_matrix', 'base_repr',
+    'binary_repr', 'log2', 'ispower2', 'bivariate_normal',
+    
+    # some misc
+    'inverse', 'eigenvectors', 'fft',
+    
+    # nx types
+    'Int8', 'UInt8', 'Int16', 'UInt16', 'Int32', 'UInt32', 'Float32',
+    'Float64', 'Complex32', 'Complex64', 'Float', 'Int', 'Complex',
+    ]
+
+
+__plotting_all__ = [
+    # plotting
+    'plotting', 'colormaps', 'get_current_fig_manager', 'connect',
+    'disconnect', 'get_plot_commands', 'raise_msg_to_str', 'axis',
+    'axes', 'delaxes', 'clim', 'close', 'clf', 'colorbar', 'draw',
+    'figtext', 'figimage', 'figlegend', 'figure', 'gca', 'gcf', 'gci',
+    'get', 'hold', 'ishold', 'isinteractive', 'imread', 'load', 'rc',
+    'rcdefaults', 'save', 'savefig', 'set', 'subplot', 'title',
+    'xlabel', 'ylabel', 'xlim', 'ylim', 'xticks', 'rgrids',
+    'thetagrids', 'yticks', 'polar', 'over', 'ioff', 'ion', 'axhline',
+    'axhspan', 'axvline', 'axvspan', 'bar', 'barh', 'cohere',
+    'contour', 'csd', 'errorbar', 'fill', 'hist', 'hlines', 'imshow',
+    'loglog', 'pcolor', 'pcolor_classic', 'pie', 'plot', 'plot_date',
+    'psd', 'scatter', 'scatter_classic', 'semilogx', 'semilogy',
+    'specgram', 'spy', 'spy2', 'stem', 'vlines', 'cla', 'grid',
+    'legend', 'table', 'text', 'autumn', 'bone', 'cool', 'copper',
+    'flag', 'gray', 'hot', 'hsv', 'jet', 'pink', 'prism', 'spring',
+    'summer', 'winter',
+
+    # classes and modules
+
+    'Line2D', 'Polygon', 'Rectangle', 'Circle', 'Text', 'cm',
+    'get_cmap', 'normalize',
+
+    'show'
+    ]
+
+
+__all__ = tuple(list(__dates_all__) + __nxall__ + list(ticker.__all__) + __plotting_all__)

@@ -711,3 +711,9 @@ class AutoLocator(Locator):
 
 
 
+__all__ = ('TickHelper', 'Formatter', 'FixedFormatter',
+           'NullFormatter', 'FuncFormatter', 'FormatStrFormatter',
+           'ScalarFormatter', 'LogFormatter', 'LogFormatterExponent',
+           'LogFormatterMathtext', 'Locator', 'IndexLocator',
+           'FixedLocator', 'NullLocator', 'LinearLocator',
+           'LogLocator', 'AutoLocator', 'MultipleLocator', )

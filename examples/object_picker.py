@@ -10,6 +10,7 @@ all artists and properties.  Volunteers welcome!
 
 from __future__ import division
 from matplotlib.numerix import sin, pi, arange, absolute, sqrt
+from matplotlib.numerix.mlab import amin, amax
 
 import matplotlib
 matplotlib.use('GTKAgg')
@@ -248,7 +249,7 @@ class PickerCanvas(FigureCanvas):
             xdata, ydata = trans.numerix_x_y(line.get_xdata(),
                                              line.get_ydata())
             distances = sqrt((x-xdata)**2 + (y-ydata)**2)
-            return min(distances)<epsilon
+            return amin(distances)<epsilon
 
         for ax in self.figure.axes:
 

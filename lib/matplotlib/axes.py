@@ -2,17 +2,13 @@ from __future__ import division, generators
 
 import math, sys
 
-# do not import numerix max!  we are using python max.  
-
 from numerix import absolute, arange, array, asarray, ones, divide,\
      transpose, log, log10, Float, Float32, ravel, zeros,\
      Int16, Int32, Int, Float64, ceil, indices, \
-     shape, which, where, sqrt
+     shape, which, where, sqrt, asum
 
-from numerix import max as nxmax
-from numerix import min as nxmin
 import _contour
-import mlab
+import matplotlib.mlab
 from artist import Artist
 from axis import XAxis, YAxis
 from cbook import iterable, is_string_like, flatten, enumerate, \
@@ -29,7 +25,10 @@ from image import AxesImage
 from legend import Legend
 from lines import Line2D, lineStyles, lineMarkers
 
-from mlab import meshgrid
+from matplotlib.mlab import meshgrid, detrend_none, detrend_linear, \
+     window_none, window_hanning, linspace
+
+from matplotlib.numerix.mlab import flipud, amin, amax
 from matplotlib import rcParams
 from patches import Patch, Rectangle, Circle, Polygon, Wedge, Shadow, bbox_artist
 from table import Table
@@ -648,7 +647,7 @@ major formatter
                 l.get_transform(), zip(xdata, ydata))
             xdata, ydata = zip(*xys)
 
-        corners = ( (nxmin(xdata), nxmin(ydata)), (nxmax(xdata), nxmax(ydata)) )
+        corners = ( (amin(xdata), amin(ydata)), (amax(xdata), amax(ydata)) )
 
         self.update_datalim(corners)
 
@@ -878,11 +877,11 @@ scalars or len(x) sequences
         'clear the axes'
         self.cla()
         
-    def cohere(self, x, y, NFFT=256, Fs=2, detrend=mlab.detrend_none,
-               window=mlab.window_hanning, noverlap=0):
+    def cohere(self, x, y, NFFT=256, Fs=2, detrend=detrend_none,
+               window=window_hanning, noverlap=0):
         """\
-COHERE(x, y, NFFT=256, Fs=2, detrend=mlab.detrend_none,
-      window=mlab.window_hanning, noverlap=0)
+COHERE(x, y, NFFT=256, Fs=2, detrend=detrend_none,
+      window=window_hanning, noverlap=0)
 
 cohere the coherence between x and y.  Coherence is the normalized
 cross spectral density
@@ -900,7 +899,7 @@ Refs: Bendat & Piersol -- Random Data: Analysis and Measurement
   Procedures, John Wiley & Sons (1986)
         """
         if not self._hold: self.cla()
-        cxy, freqs = mlab.cohere(x, y, NFFT, Fs, detrend, window, noverlap)
+        cxy, freqs = matplotlib.mlab.cohere(x, y, NFFT, Fs, detrend, window, noverlap)
 
         self.plot(freqs, cxy)
         self.set_xlabel('Frequency')
@@ -1003,24 +1002,41 @@ used for colorbar functionality
         else:
             jmax, imax = shape(z)
 
-        reg = ones((jmax+1,imax), Int32)
-        reg[:,0]=0
-        reg[0,:]=0
-        reg[:,-1]=0
-        reg[-1,:]=0
-        #print reg
-        
-        triangle = zeros((jmax,imax), Int16)
+        reg = ones((1,jmax*(imax+1)+1), typecode = 'i')
+        reg[0,:jmax+1]=0
+        reg[0,-jmax:]=0
+        for j in range(0,jmax*(imax+1)+1, imax):
+            reg[0,j]=0
+
+        triangle = zeros((jmax,imax), typecode='s')
+        if x == None or y == None:
+            ind = indices((jmax,imax), 'd')
+            if x == None and y == None:
+                y, x = ind
+            elif x == None:
+                tmp, x = ind
+            elif y == None:
+                y, tmp = ind
+            
+        if len(shape(x)) != 2 or len(shape(y)) != 2:
+            raise TypeError("x and y must be  2D arrays.")
+
+        #triangle = zeros((jmax,imax), typecode='s')        
+        #if len(shape(x)) != 2 or len(shape(y)) != 2:
+        #    raise TypeError("x and y must be  2D arrays.")
+        #if x == None and y == None:
+        #    y, x = indices((jmax,imax), 'd')
+
 
         if x == None and y == None:
             y, x = indices((jmax,imax), 'd')
 
         rz = ravel(z)
-        zmax = nxmax(rz)
-        zmin = nxmin(rz)
+        zmax = amax(rz)
+        zmin = amin(rz)
 
         def autolev(N):
-            return mlab.linspace(zmin, zmax, N+2)[1:-1]
+            return linspace(zmin, zmax, N+2)[1:-1]
         
         if levels is None: lev = autolev(7)
         else:            
@@ -1103,11 +1119,11 @@ used for colorbar functionality
 
 
 
-    def csd(self, x, y, NFFT=256, Fs=2, detrend=mlab.detrend_none,
-            window=mlab.window_hanning, noverlap=0):
+    def csd(self, x, y, NFFT=256, Fs=2, detrend=detrend_none,
+            window=window_hanning, noverlap=0):
         """
-CSD(x, y, NFFT=256, Fs=2, detrend=mlab.detrend_none,
-    window=mlab.window_hanning, noverlap=0)
+CSD(x, y, NFFT=256, Fs=2, detrend=detrend_none,
+    window=window_hanning, noverlap=0)
 
 The cross spectral density Pxy by Welches average periodogram method.
 The vectors x and y are divided into NFFT length segments.  Each
@@ -1127,7 +1143,7 @@ Refs:
 
         """
         if not self._hold: self.cla()
-        pxy, freqs = mlab.csd(x, y, NFFT, Fs, detrend, window, noverlap)
+        pxy, freqs = matplotlib.mlab.csd(x, y, NFFT, Fs, detrend, window, noverlap)
         pxy.shape = len(freqs),
         # pxy is complex
 
@@ -1455,7 +1471,7 @@ counts normalized to form a probability distribtion, ie,
 n/(len(x)*dbin)
         """
         if not self._hold: self.cla()
-        n,bins = mlab.hist(x, bins, normed)
+        n,bins = matplotlib.mlab.hist(x, bins, normed)
         width = 0.9*(bins[1]-bins[0])
         patches = self.bar(bins, n, width=width, bottom=bottom)
         return n, bins, silent_list('Patch', patches)
@@ -1881,10 +1897,10 @@ Grid Orientation
 
         x = ravel(X)
         y = ravel(Y)
-        minx = nxmin(x)
-        maxx = nxmax(x)
-        miny = nxmin(y)
-        maxy = nxmax(y)
+        minx = amin(x)
+        maxx = amax(x)
+        miny = amin(y)
+        maxy = amax(y)
 
         corners = (minx, miny), (maxx, maxy) 
         self.update_datalim( corners)
@@ -1998,10 +2014,10 @@ Grid orientation
 
         x = ravel(X)
         y = ravel(Y)
-        minx = nxmin(x)
-        maxx = nxmax(x)
-        miny = nxmin(y)
-        maxy = nxmax(y)
+        minx = amin(x)
+        maxx = amax(x)
+        miny = amin(y)
+        maxy = amax(y)
 
         corners = (minx, miny), (maxx, maxy) 
 
@@ -2056,7 +2072,7 @@ Return value:
 
         x = asarray(x).astype(Float32)
 
-        sx = float(sum(x))
+        sx = float(asum(x))
         if sx>1: x = divide(x,sx)
 
         if labels is None: labels = ['']*len(x)
@@ -2284,11 +2300,11 @@ tz is the timezone - defaults to rc value
 
         return ret
         
-    def psd(self, x, NFFT=256, Fs=2, detrend=mlab.detrend_none,
-            window=mlab.window_hanning, noverlap=0):
+    def psd(self, x, NFFT=256, Fs=2, detrend=detrend_none,
+            window=window_hanning, noverlap=0):
         """\
-PSD(x, NFFT=256, Fs=2, detrend=mlab.detrend_none,
-    window=mlab.window_hanning, noverlap=0)        
+PSD(x, NFFT=256, Fs=2, detrend=detrend_none,
+    window=window_hanning, noverlap=0)        
 
 The power spectral density by Welches average periodogram method.  The
 vector x is divided into NFFT length segments.  Each segment is
@@ -2327,7 +2343,7 @@ Refs:
 
         """
         if not self._hold: self.cla()
-        pxx, freqs = mlab.psd(x, NFFT, Fs, detrend, window, noverlap)
+        pxx, freqs = matplotlib.mlab.psd(x, NFFT, Fs, detrend, window, noverlap)
         pxx.shape = len(freqs),
 
         self.plot(freqs, 10*log10(pxx))
@@ -2377,7 +2393,7 @@ for details and examples/stem_plot.py for a demo.
             l, = self.plot([thisx,thisx], [0, thisy], linefmt)
             stemlines.append(l)
 
-        baseline, = self.plot([nxmin(x), nxmax(x)], [0,0], basefmt)
+        baseline, = self.plot([amin(x), amax(x)], [0,0], basefmt)
         return markerline, stemlines, baseline
         
         
@@ -2507,10 +2523,10 @@ on be used if c is an array of floats
             if norm is None:
                 collection.set_clim(vmin, vmax)
 
-        minx = nxmin(x)
-        maxx = nxmax(x)
-        miny = nxmin(y)
-        maxy = nxmax(y)
+        minx = amin(x)
+        maxx = amax(x)
+        miny = amin(y)
+        maxy = amax(y)
 
         w = maxx-minx
         h = maxy-miny
@@ -2551,7 +2567,7 @@ If size is None a default size will be used
             c = cm.jet(c)
 
         if s is None:
-            s = [abs(0.015*(nxmax(y)-nxmin(y)))]*len(x)
+            s = [abs(0.015*(amax(y)-amin(y)))]*len(x)
         elif not iterable(s):
             s = [s]*len(x)
         
@@ -2825,12 +2841,12 @@ ACCEPTS: sequence of floats"""
         return self.yaxis.set_ticks(ticks)
 
 
-    def specgram(self, x, NFFT=256, Fs=2, detrend=mlab.detrend_none,
-                 window=mlab.window_hanning, noverlap=128,
+    def specgram(self, x, NFFT=256, Fs=2, detrend=detrend_none,
+                 window=window_hanning, noverlap=128,
                  cmap = None, xextent=None):
         """\
-SPECGRAM(x, NFFT=256, Fs=2, detrend=mlab.detrend_none,
-         window=mlab.window_hanning, noverlap=128,
+SPECGRAM(x, NFFT=256, Fs=2, detrend=detrend_none,
+         window=window_hanning, noverlap=128,
          cmap=None, xextent=None)
                  
 Compute a spectrogram of data in x.  Data are split into NFFT length
@@ -2842,7 +2858,7 @@ of each segment is specified with noverlap.
 
     * xextent is the image extent in the xaxes xextent=xmin, xmax -
       default 0, max(bins), 0, max(freqs) where bins is the return
-      value from matplotlib.mlab.specgram
+      value from matplotlib.matplotlib.mlab.specgram
 
     * See help(psd) for information on the other keyword arguments.
 
@@ -2858,16 +2874,16 @@ Return value is (Pxx, freqs, bins, im), where
     """
         if not self._hold: self.cla()
         
-        Pxx, freqs, bins = mlab.specgram(x, NFFT, Fs, detrend,
+        Pxx, freqs, bins = matplotlib.mlab.specgram(x, NFFT, Fs, detrend,
              window, noverlap)
 
 
         Z = 10*log10(Pxx)
-        Z =  mlab.flipud(Z)
+        Z =  flipud(Z)
 
-        if xextent is None: xextent = 0, nxmax(bins)
+        if xextent is None: xextent = 0, amax(bins)
         xmin, xmax = xextent
-        extent = xmin, xmax, 0, nxmax(freqs)
+        extent = xmin, xmax, 0, amax(freqs)
         im = self.imshow(Z, cmap, extent=extent)
 
         return Pxx, freqs, bins, im
@@ -2886,7 +2902,7 @@ Return value is (Pxx, freqs, bins, im), where
 
         The line handles are returned
         """
-        x,y,z = mlab.get_xyz_where(Z, Z>0)
+        x,y,z = matplotlib.mlab.get_xyz_where(Z, Z>0)
         return self.plot(x+0.5,y+0.5, linestyle='None',
                          marker=marker,markersize=markersize, **kwargs)
 
@@ -3362,7 +3378,7 @@ class PolarAxes(Axes):
         self._set_artist_props(self.title)
 
 
-        self.thetas = mlab.linspace(0,2*math.pi, self.RESOLUTION)
+        self.thetas = linspace(0,2*math.pi, self.RESOLUTION)
         verts = zip(self.thetas, ones(self.RESOLUTION))
         self.axesPatch = Polygon(
             verts,
@@ -3415,7 +3431,7 @@ class PolarAxes(Axes):
         for t in self.thetagridlabels:
             t.set_y(1.05*rmax)
 
-        r = mlab.linspace(0, rmax, self.RESOLUTION)
+        r = linspace(0, rmax, self.RESOLUTION)
         for l in self.thetagridlines:
             l.set_ydata(r)
             
@@ -3438,7 +3454,7 @@ ACCEPTS: sequence of floats
         """
 
         self._popall(self.rgridlines)
-        theta = mlab.linspace(0,2*math.pi, self.RESOLUTION)
+        theta = linspace(0,2*math.pi, self.RESOLUTION)
         ls = rcParams['grid.linestyle']
         color = rcParams['grid.color']
         lw = rcParams['grid.linewidth']
@@ -3502,7 +3518,7 @@ ACCEPTS: sequence of floats
         color = rcParams['grid.color']
         lw = rcParams['grid.linewidth']
         
-        r = mlab.linspace(0, self.get_rmax(), self.RESOLUTION)
+        r = linspace(0, self.get_rmax(), self.RESOLUTION)
         for a in angles:
             theta = ones(self.RESOLUTION)*a/180.*math.pi
             line = Line2D(theta, r, linestyle=ls, color=color, linewidth=lw)

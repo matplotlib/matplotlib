@@ -226,7 +226,7 @@ class RendererGDK(RendererBase):
             Xall[:,i] = fromstring(s, UInt8)  
 
         # get the max alpha at each pixel
-        Xs = numerix.max(Xall,1)
+        Xs = numerix.mlab.max(Xall,1)
 
         # convert it to it's proper shape
         Xs.shape = imh, imw

@@ -640,3 +640,13 @@ if __name__=='__main__':
     #for t in  ticks: print formatter(t)
 
     for t in dates: print formatter(t)
+
+
+__all__ = ( 'date2num', 'num2date', 'drange', 'epoch2num',
+            'num2epoch', 'mx2num', 'DateFormatter',
+            'IndexDateFormatter', 'DateLocator', 'RRuleLocator',
+            'YearLocator', 'MonthLocator', 'WeekdayLocator',
+            'DayLocator', 'HourLocator', 'MinuteLocator',
+            'SecondLocator', 'rrule', 'MO', 'TU', 'WE', 'TH', 'FR',
+            'SA', 'SU', 'YEARLY', 'MONTHLY', 'WEEKLY', 'DAILY',
+            'HOURLY', 'MINUTELY', 'SECONDLY', 'relativedelta')

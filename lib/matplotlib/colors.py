@@ -29,10 +29,10 @@ Finally, legal html names for colors, like 'red', 'burlywood' and
 'chartreuse' are supported.
 """
 
-from numerix import MLab, array, arange, take, put, Float, Int, where, \
+from numerix import array, arange, take, put, Float, Int, where, \
      zeros, asarray, sort, searchsorted, sometrue, ravel, divide
-from numerix import min as nxmin
-from numerix import max as nxmax
+
+from numerix.mlab import amin, amax
 from types import IntType, FloatType
 from cbook import enumerate, is_string_like, iterable
 
@@ -554,8 +554,8 @@ class normalize:
             val = asarray(value)
         if vmin is None or vmax is None:
             rval = ravel(val)
-            if vmin is None: vmin = nxmin(rval)
-            if vmax is None: vmax = nxmax(rval)
+            if vmin is None: vmin = amin(rval)
+            if vmax is None: vmax = amax(rval)
         if vmin > vmax:
             raise ValueError("minvalue must be less than or equal to maxvalue")
         elif vmin==vmax:
@@ -572,8 +572,8 @@ class normalize:
     def autoscale(self, A):
         if not self.scaled():
             rval = ravel(A)
-            if self.vmin is None: self.vmin = nxmin(rval)
-            if self.vmax is None: self.vmax = nxmax(rval)
+            if self.vmin is None: self.vmin = amin(rval)
+            if self.vmax is None: self.vmax = amax(rval)
 
     def scaled(self):
         'return true if vmin and vmax set'

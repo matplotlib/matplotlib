@@ -1,19 +1,12 @@
 """Imports from numarray for numerix, the numarray/Numeric interchangeability
 module.  These array functions are used when numarray is chosen.
 """
-
-from numarray.linear_algebra.mlab import *
-from numarray import *
-import numarray.linear_algebra as LinearAlgebra
-import numarray.linear_algebra.mlab as MLab
-from numarray.linear_algebra import inverse, eigenvectors
-from numarray.convolve import convolve
-from numarray.fft import fft
-import numarray.random_array as RandomArray
-from numarray.numeric import nonzero
-
+from numarray import Int8, UInt8, Int16, UInt16, Int32, UInt32, \
+     Float32, Float64, Complex32, Complex64, Float, Int, Complex,\
+     typecode
 import numarray.ieeespecial as _ieee
-inf = infty = Infinity = _ieee.inf
+inf = infinity = infty = Infinity = _ieee.inf
+
 
 class _TypeNamespace:
     """Numeric compatible type aliases for use with extension functions."""
@@ -30,6 +23,7 @@ class _TypeNamespace:
 
 nx = _TypeNamespace()
 
+from numarray import asarray, dot, fromlist, NumArray, shape
 class _Matrix(NumArray):
     """_Matrix is a ported, stripped down version of the Numeric Matrix
     class which supplies only matrix multiplication.
@@ -76,9 +70,3 @@ def Matrix(data, typecode=None, copy=1, savespace=0):
 
 
 
-def _main():
-        m = Matrix( [[1,2,3],[11,12,13],[21,22,23]])
-        print m*m
-
-if __name__ == '__main__':
-    _main()

@@ -58,7 +58,19 @@ from __future__ import division
 import sys, random
 from matplotlib import verbose
 import numerix
-from numerix import *
+import numerix.mlab 
+from numerix import linear_algebra
+
+from numerix import array, asarray, arange, divide, exp, arctan2, \
+     multiply, transpose, ravel, repeat, resize, reshape, floor, ceil,\
+     absolute, matrixmultiply, power, take, where, Float, Int, asum,\
+     dot, convolve, pi, Complex, ones, zeros, diagonal, Matrix, nonzero, \
+     log, searchsorted, concatenate, sort, ArrayType, clip, size, indices,\
+     conjugate
+
+
+from numerix.mlab import hanning, cov, diff, svd, rand, std
+from numerix.fft import fft
 
 from cbook import iterable
 
@@ -66,8 +78,8 @@ from cbook import iterable
 def mean(x, dim=None):
    if len(x)==0: return None
    elif dim is None:
-      return MLab.mean(x)
-   else: return MLab.mean(x, dim)
+      return numerix.mlab.mean(x)
+   else: return numerix.mlab.mean(x, dim)
    
 
 def linspace(xmin, xmax, N):
@@ -77,7 +89,7 @@ def linspace(xmin, xmax, N):
 
 def _norm(x):
     "return sqrt(x dot x)"
-    return sqrt(dot(x,x))
+    return numerix.mlab.sqrt(dot(x,x))
 
 def window_hanning(x):
     "return x times the hanning window of len(x)"
@@ -302,13 +314,13 @@ def corrcoef(*args):
 
     if len(args)==2:
        d = resize(diagonal(C), (2,1))
-       denom = sqrt(matrixmultiply(d,transpose(d)))
+       denom = numerix.mlab.sqrt(matrixmultiply(d,transpose(d)))
     else:
        dc = diagonal(C)
        N = len(dc)       
        shape = N,N
        vi = resize(dc, shape)
-       denom = sqrt(vi*transpose(vi)) # element wise multiplication
+       denom = numerix.mlab.sqrt(vi*transpose(vi)) # element wise multiplication
        
 
     r = divide(C,denom)
@@ -360,7 +372,7 @@ def polyfit(x,y,N):
     y = reshape(y, (len(y),1))
     X = Matrix(vander(x, N+1))
     Xt = Matrix(transpose(X))
-    c = array(inverse(Xt*X)*Xt*y)  # convert back to array
+    c = array(linear_algebra.inverse(Xt*X)*Xt*y)  # convert back to array
     c.shape = (N+1,)
     return c
     
@@ -577,8 +589,8 @@ def entropy(y, bins):
    p = divide(n, len(y))
 
    delta = bins[1]-bins[0]
-   S = -1.0*sum(p*log(p)) + log(delta)
-   #S = -1.0*sum(p*log(p))
+   S = -1.0*asum(p*log(p)) + log(delta)
+   #S = -1.0*asum(p*log(p))
    return S
 
 def hist(y, bins=10, normed=0):
@@ -619,7 +631,7 @@ def hist(y, bins=10, normed=0):
 def normpdf(x, *args):
    "Return the normal pdf evaluated at x; args provides mu, sigma"
    mu, sigma = args
-   return 1/(sqrt(2*pi)*sigma)*exp(-0.5 * (1/sigma*(x - mu))**2)
+   return 1/(numerix.mlab.sqrt(2*pi)*sigma)*exp(-0.5 * (1/sigma*(x - mu))**2)
                  
 
 def levypdf(x, gamma, alpha):
@@ -661,7 +673,7 @@ def trapz(x, y):
       raise ValueError, 'x and y must have the same length'
    if len(x)<2:
       raise ValueError, 'x and y must have > 1 element'
-   return sum(0.5*diff(x)*(y[1:]+y[:-1]))
+   return asum(0.5*diff(x)*(y[1:]+y[:-1]))
    
    
 
@@ -731,9 +743,9 @@ def prepca(P, frac=0):
     """
     U,s,v = svd(P)
     varEach = s**2/P.shape[1]
-    totVar = sum(varEach)
+    totVar = asum(varEach)
     fracVar = divide(varEach,totVar)
-    ind = int(sum(fracVar>=frac))
+    ind = int(asum(fracVar>=frac))
 
     # select the components that are greater
     Trans = transpose(U[:,:ind])
@@ -749,7 +761,7 @@ MLab2.py, release 1
 
 Created on February 2003 by Thomas Wendler as part of the Emotionis Project.
 This script is supposed to implement Matlab functions that were left out in
-MLab.py (part of Numeric Python).
+numerix.mlab.py (part of Numeric Python).
 For further information on the Emotionis Project or on this script, please
 contact their authors:
 Rodrigo Benenson, rodrigob at elo dot utfsm dot cl
@@ -769,21 +781,21 @@ def fix(x):
     """
     
     dim = numerix.shape(x)
-    if MLab.rank(x)==2:
-        y = numerix.reshape(x,(1,dim[0]*dim[1]))[0]
+    if numerix.mlab.rank(x)==2:
+        y = reshape(x,(1,dim[0]*dim[1]))[0]
         y = y.tolist()
-    elif MLab.rank(x)==1:
+    elif numerix.mlab.rank(x)==1:
         y = x
     else:
         y = [x]
     for i in range(len(y)):
 	if y[i]>0:
-		y[i] = numerix.floor(y[i])
+		y[i] = floor(y[i])
 	else:
-		y[i] = numerix.ceil(y[i])
-    if MLab.rank(x)==2:
-        x = numerix.reshape(y,dim)
-    elif MLab.rank(x)==0:
+		y[i] = ceil(y[i])
+    if numerix.mlab.rank(x)==2:
+        x = reshape(y,dim)
+    elif numerix.mlab.rank(x)==0:
         x = y[0]
     return x
 
@@ -796,7 +808,7 @@ def rem(x,y):
     "The input x and y must be real arrays of the same size, or real scalars."
     """
     
-    x,y = numerix.asarray(x),numerix.asarray(y)
+    x,y = asarray(x),asarray(y)
     if numerix.shape(x) == numerix.shape(y) or numerix.shape(y) == ():
         try:
             return x - y * fix(x/y)
@@ -827,27 +839,27 @@ def norm(x,y=2):
           NORM(V,-inf) = min(abs(V)).
     """
 
-    x = numerix.asarray(x)
-    if MLab.rank(x)==2:
+    x = asarray(x)
+    if numerix.mlab.rank(x)==2:
         if y==2:
-            return MLab.max(MLab.svd(x)[1])
+            return numerix.mlab.max(numerix.mlab.svd(x)[1])
         elif y==1:
-            return MLab.max(MLab.sum(numerix.absolute((x))))
+            return numerix.mlab.max(asum(absolute((x))))
         elif y=='inf':
-            return MLab.max(MLab.sum(numerix.absolute((MLab.transpose(x)))))
+            return numerix.mlab.max(asum(absolute((transpose(x)))))
         elif y=='fro':
-            return MLab.sqrt(MLab.sum(MLab.diag(numerix.matrixmultiply(MLab.transpose(x),x))))
+            return numerix.mlab.sqrt(asum(numerix.mlab.diag(matrixmultiply(transpose(x),x))))
         else:
             verbose.report_error('Second argument not permitted for matrices')
             return None
         
     else:
         if y == 'inf':
-            return MLab.max(numerix.absolute(x))
+            return numerix.mlab.max(absolute(x))
         elif y == '-inf':
-            return MLab.min(numerix.absolute(x))
+            return numerix.mlab.min(absolute(x))
         else:
-            return numerix.power(MLab.sum(numerix.power(numerix.absolute(x),y)),1/float(y))
+            return power(asum(power(absolute(x),y)),1/float(y))
 
 
 def orth(A):
@@ -861,8 +873,8 @@ def orth(A):
         rank of A.
     """
 
-    A     = numerix.array(A)
-    U,S,V = MLab.svd(A)
+    A     = array(A)
+    U,S,V = numerix.mlab.svd(A)
 
     m,n = numerix.shape(A)
     if m > 1:
@@ -872,9 +884,9 @@ def orth(A):
     else:
         s = 0
 
-    tol = MLab.max((m,n)) * MLab.max(s) * _eps_approx
-    r = MLab.sum(s > tol)
-    Q = numerix.take(U,range(r),1)
+    tol = numerix.mlab.max((m,n)) * numerix.mlab.max(s) * _eps_approx
+    r = asum(s > tol)
+    Q = take(U,range(r),1)
 
     return Q
 
@@ -884,18 +896,18 @@ def rank(x):
         The rank is understood here as the an estimation of the number of
         linearly independent rows or columns (depending on the size of the
         matrix).
-        Note that MLab.rank() is not equivalent to Matlab's rank.
+        Note that numerix.mlab.rank() is not equivalent to Matlab's rank.
         This function is!
         """
         
-	x      = numerix.asarray(x)
-	u,s,v  = MLab.svd(x)
-	# maxabs = MLab.max(numerix.absolute(s)) is also possible.
+	x      = asarray(x)
+	u,s,v  = numerix.mlab.svd(x)
+	# maxabs = numerix.mlab.max(numerix.absolute(s)) is also possible.
 	maxabs = norm(x)	
-	maxdim = MLab.max(numerix.shape(x))
+	maxdim = numerix.mlab.max(numerix.shape(x))
 	tol    = maxabs*maxdim*_eps_approx
 	r      = s>tol
-	return MLab.sum(r)
+	return asum(r)
 
 def sqrtm(x):
     	"""
@@ -903,7 +915,7 @@ def sqrtm(x):
 	This means that s=sqrtm(x) implies s*s = x.
 	Note that s and x are matrices.
 	"""
-	return mfuncC(MLab.sqrt, x)
+	return mfuncC(numerix.mlab.sqrt, x)
 
 def mfuncC(f, x):
 	"""
@@ -912,13 +924,13 @@ def mfuncC(f, x):
 	This function is needed by sqrtm and allows further functions.
 	"""
 	
-	x      = numerix.array(x) 
-	(v, u) = MLab.eig(x)
-	uT     = MLab.transpose(u)
-	V      = MLab.diag(f(v+0j))
-	y      = numerix.matrixmultiply(
-           uT, numerix.matrixmultiply(
-           V, LinearAlgebra.inverse(uT)))
+	x      = array(x) 
+	(v, u) = numerix.mlab.eig(x)
+	uT     = transpose(u)
+	V      = numerix.mlab.diag(f(v+0j))
+	y      = matrixmultiply(
+           uT, matrixmultiply(
+           V, linear_algebra.inverse(uT)))
 	return approx_real(y)
 
 def approx_real(x):
@@ -928,7 +940,7 @@ def approx_real(x):
 	This function is needed by sqrtm and allows further functions.
 	"""
 
-	if MLab.max(MLab.max(numerix.absolute(x.imag))) <= MLab.max(MLab.max(numerix.absolute(x.real))) * _eps_approx:
+	if numerix.mlab.max(numerix.mlab.max(absolute(x.imag))) <= numerix.mlab.max(numerix.mlab.max(absolute(x.real))) * _eps_approx:
 		return x.real
 	else:
 		return x
@@ -1216,7 +1228,7 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 """
 
-import sys,operator
+import operator
 import math
 
 
@@ -1259,9 +1271,9 @@ def sum_flat(a):
     It uses a.flat, and if a is not contiguous, a call to ravel(a) is made."""
 
     if a.iscontiguous():
-        return sum(a.flat)
+        return asum(a.flat)
     else:
-        return sum(ravel(a))
+        return asum(ravel(a))
 
 def mean_flat(a):
     """Return the mean of all the elements of a, flattened out."""
@@ -1271,7 +1283,7 @@ def mean_flat(a):
 def rms_flat(a):
     """Return the root mean square of all the elements of a, flattened out."""
 
-    return sqrt(sum_flat(absolute(a)**2)/float(size(a)))
+    return numerix.mlab.sqrt(sum_flat(absolute(a)**2)/float(size(a)))
 
 def l1norm(a):
     """Return the l1 norm of a, flattened out.
@@ -1285,7 +1297,7 @@ def l2norm(a):
 
     Implemented as a separate function (not a call to norm() for speed)."""
 
-    return sqrt(sum_flat(absolute(a)**2))
+    return numerix.mlab.sqrt(sum_flat(absolute(a)**2))
 
 def norm(a,p=2):
     """norm(a,p=2) -> l-p norm of a.flat
