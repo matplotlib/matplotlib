@@ -54,13 +54,13 @@ class RendererBase:
         """
         raise NotImplementedError
 
-    def _draw_markers(self, gc, path, x, y, trans):
+    def _draw_markers(self, gc, path, rgbFace, x, y, trans):
         """
         This method is currently underscore hidden because the
         draw_markers method is being used as a sentinel for newstyle
         backend drawing
 
-        path - a list of path elements, see matplotlib.paths
+        path - a matplotlib.agg.path_storage instance
         
         Draw the marker specified in path with graphics context gc at
         each of the locations in arrays x and y.  trans is a
