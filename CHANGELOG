@@ -1,5 +1,9 @@
 New entries should be added at the top
 ------------------------------------------------------------
+2004-05-03 Removed the close buttons on all GUIs and added the python
+           #! bang line to the examples following Steve Chaplin's
+	   advice on matplotlib dev
+
 2004-04-29 Added CXX and rewrote backend_agg using it; tracked down
            and fixed agg memory leak - JDH
 
