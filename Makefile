@@ -2,6 +2,9 @@
 # Copyright (C) 2003  <jdhunter@ace.bsd.uchicago.edu>
 # $Header$
 # $Log$
+# Revision 1.8  2003/10/23 15:42:43  jdh2358
+# fixed figure text clip bug
+#
 # Revision 1.7  2003/10/18 17:54:26  jdh2358
 # fixed interactive2 and several small bugs
 #
@@ -53,7 +56,7 @@ htmldocs:
 	cd htdocs;\
 	${PYTHON} process_docs.py;\
 	${PYTHON} convert.py;\
-	tar cvfz site.tar.gz *.html screenshots tut examples
+	tar cfz site.tar.gz *.html screenshots tut examples
 
 release: ${DISTFILES}
 	rm -rf ${RELEASE};\

@@ -1,6 +1,6 @@
 from matplotlib.matlab import *
 
-font = {'fontname'   : 'Courier',
+font = {'fontname'   : 'courier',
         'color'      : 'r',
         'fontweight' : 'normal',
         'fontsize'   : 12}
@@ -19,5 +19,5 @@ text(3, 0.65, 'cos(2 pi t) exp(-t)', font, color='k')
 xlabel('time (s)', font)
 ylabel('voltage (mV)', font)
 
-#savefig('text_themes', dpi=150)
+savefig('text_themes', dpi=150)
 show()
