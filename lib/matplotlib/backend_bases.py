@@ -12,6 +12,7 @@ from colors import colorConverter
 from numerix import array, sqrt, pi, log, asarray, ones, Float
 from patches import Rectangle
 from transforms import lbwh_to_bbox
+from matplotlib import verbose
 
 class RendererBase:
 
