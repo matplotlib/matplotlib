@@ -1005,6 +1005,7 @@ RendererAgg::write_png(const Py::Tuple& args)
   return Py::Object();
 }
 
+
 Py::Object 
 RendererAgg::tostring_rgb(const Py::Tuple& args) {
   //"Return the rendered buffer as an RGB string";
@@ -1013,8 +1014,7 @@ RendererAgg::tostring_rgb(const Py::Tuple& args) {
   
   args.verify_length(0);    
   int row_len = width*3;
-  unsigned char* buf_tmp = 
-    new unsigned char[row_len * height];
+  unsigned char buf_tmp[row_len * height];
   agg::rendering_buffer renderingBufferTmp;
   renderingBufferTmp.attach(buf_tmp, 
 			    width, 
@@ -1025,14 +1025,13 @@ RendererAgg::tostring_rgb(const Py::Tuple& args) {
   
   
   //todo: how to do this with native CXX
-  return Py::Object(Py_BuildValue("s#", 
+  return Py::asObject(Py_BuildValue("s#", 
 				  buf_tmp, 
 				  row_len * height));
   //len = row_len * height
   //std::string s(buf_tmp);
   //return Py::String(buf_tmp, row_len * height);
 }
-
 agg::rgba
 RendererAgg::get_color(const Py::Object& gc) {
   

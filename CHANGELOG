@@ -1,6 +1,8 @@
 New entries should be added at the top
 =======
 
+2004-07-01 Fixed a memory leak in image and agg to string methods
+
 2004-06-25 Fixed fonts_demo spacing problems and added a kwargs
            version of the fonts_demo fonts_demo_kw.py - JDH
 

@@ -452,3 +452,5 @@
 -- DONE clear agg bg to 0 alpha
 
 -- DONE reset build flags in setup.py
+
+-- ad wxagg extension code to goals
