@@ -216,7 +216,8 @@ class FigureCanvasGTK(gtk.DrawingArea, FigureCanvasBase):
 
 
     def _render_figure(self, width, height):
-        """Render the figure to a gdk.Pixmap, is used for
+        """Render the figure to a gdk.Pixmap, used by expose_event().
+        Is used for
            - rendering the pixmap to display        (pylab.draw)
            - rendering the pixmap to save to a file (pylab.savefig)
         Should not be overridden by GTK backends
@@ -262,7 +263,6 @@ class FigureCanvasGTK(gtk.DrawingArea, FigureCanvasBase):
                 width, height = self.allocation.width, self.allocation.height
                 self._render_figure(width, height)
             
-        #return True
         return False # allow signal to propagate further
 
 

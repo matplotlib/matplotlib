@@ -224,7 +224,7 @@ class RendererCairo(RendererBase):
 
         path_list = [path.vertex() for i in range(path.total_vertices())]
 
-        def generate_path (path):
+        def generate_path (path_list):
            for code, xp, yp in path_list:
                if code == agg.path_cmd_move_to:
                   ctx.move_to (xp, -yp)
@@ -237,8 +237,8 @@ class RendererCairo(RendererBase):
             ctx.save()
             ctx.new_path()
             ctx.translate(x, self.height - y)
-            generate_path (path)
-            
+            generate_path (path_list)
+
             if rgbFace:
                ctx.save()
                ctx.set_rgb_color (*rgbFace)
