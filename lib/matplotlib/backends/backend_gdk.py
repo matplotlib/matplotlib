@@ -572,3 +572,5 @@ class FigureCanvasGDK(FigureCanvasBase):
             error_msg('Format "%s" is not supported.\nSupported formats are %s.' %
                       (ext, ', '.join(IMAGE_FORMAT)),
                       parent=self)
+
+        self.figure.set_canvas(self)

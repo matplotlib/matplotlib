@@ -761,7 +761,8 @@ def figlegend(handles, labels, loc, **kwargs):
     return l
 
 def savefig(*args, **kwargs):    
-    try: ret =  gcf().savefig(*args, **kwargs)
+    fig = gcf()
+    try: ret =  fig.savefig(*args, **kwargs)
     except RuntimeError, msg:
         msg = raise_msg_to_str(msg)
         error_msg(msg)
@@ -1266,10 +1267,28 @@ def subplot(*args, **kwargs):
 
     See help(axes) for additional information on axes and subplot
     keyword arguments.
+
+    New subplots that overlap old will delete the old axes.  If you do
+    not want this behavior, use fig.add_subplot or the axes command.  Eg
+
+      from pylab import *
+      plot([1,2,3])  # implicitly creates subplot(111)
+      subplot(211)   # overlaps, subplot(111) is killed
+      plot(rand(12), rand(12))
+
     """
     
     try:
-        a = gcf().add_subplot(*args, **kwargs)        
+        fig = gcf()
+        a = fig.add_subplot(*args, **kwargs)        
+        bbox = a.bbox
+        byebye = []
+        for other in fig.axes:
+            if other==a: continue
+            if bbox.overlaps(other.bbox):
+                byebye.append(other)
+        for ax in byebye: delaxes(ax)
+        
     except ValueError, msg:
         msg = raise_msg_to_str(msg)
         error_msg(msg)

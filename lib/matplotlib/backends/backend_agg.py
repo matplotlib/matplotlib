@@ -399,3 +399,4 @@ class FigureCanvasAgg(FigureCanvasBase):
         self.figure.dpi.set(origDPI)
         self.figure.set_facecolor(origfacecolor)
         self.figure.set_edgecolor(origedgecolor)
+        self.figure.set_canvas(self)

@@ -349,7 +349,7 @@ class FigureCanvasGTK(gtk.DrawingArea, FigureCanvasBase):
         self.figure.set_facecolor(origfacecolor)
         self.figure.set_edgecolor(origedgecolor)
         self.figure.set_figsize_inches(origWIn, origHIn)
-
+        self.figure.set_canvas(self)
 
 class FigureManagerGTK(FigureManagerBase):
     """

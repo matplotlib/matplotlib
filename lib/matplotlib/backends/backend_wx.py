@@ -896,6 +896,7 @@ The current aspect ration will be kept."""
 
             ps.print_figure(filename, 72, facecolor, edgecolor)
             self.figure.dpi.set(origDPI)
+            self.figure.set_canvas(self)
             return
         elif ext.find('svg')>=0:
             # enable svg save from WX backend only import this if we
@@ -907,7 +908,8 @@ The current aspect ration will be kept."""
             svg = self.switch_backends(FigureCanvasSVG)
             svg.figure.dpi.set(72)
             svg.print_figure(filename, 72, facecolor, edgecolor)
-            self.figure.dpi.set(origDPI)                                       
+            self.figure.dpi.set(origDPI)
+            self.figure.set_canvas(self)
             return
 
         if not self._isRealized:

@@ -7,6 +7,8 @@
 #include <cstdio>
 #include <png.h>
 #include "agg_conv_transform.h"
+#include "agg_scanline_storage_aa.h"
+#include "agg_scanline_storage_bin.h"
 #include "util/agg_color_conv_rgb8.h"
 
 #include "ft2font.h"
@@ -850,6 +852,143 @@ RendererAgg::draw_lines(const Py::Tuple& args) {
   
 }
 
+/*
+Py::Object
+RendererAgg::draw_markers(const Py::Tuple& args) {
+  //draw_markers(gc, path, xo, yo, transform)
+  theRasterizer->reset_clipping();
+  _VERBOSE("RendererAgg::draw_markers");
+  args.verify_length(5);  
+  Py::Object gc = args[0];
+  Py::SeqBase<Py::Object> pathseq = args[1];
+  Py::SeqBase<Py::Object> xo = args[2];
+  Py::SeqBase<Py::Object> yo = args[3];
+
+  Transformation* mpltransform = static_cast<Transformation*>(args[4].ptr());
+  
+  double a, b, c, d, tx, ty;
+  mpltransform->affine_params_api(&a, &b, &c, &d, &tx, &ty);
+  agg::trans_affine xytrans = agg::trans_affine(a,b,c,d,tx,ty);  
+
+  size_t Npath = pathseq.length();
+  size_t Nx = xo.length();
+  size_t Ny = yo.length();
+  
+  if (Nx!=Ny) 
+    throw Py::ValueError(Printf("x and y must be equal length sequences; found %d and %d", Nx, Ny).str());
+  
+  
+  
+  agg::vcgen_stroke::line_cap_e cap = get_linecap(gc);
+  agg::vcgen_stroke::line_join_e join = get_joinstyle(gc);  
+  double lw = points_to_pixels ( gc.getAttr("_linewidth") ) ;
+
+  agg::rgba strokeColor = get_color(gc);
+  double heightd = double(height);  
+  
+  // initialize the marker path
+  agg::path_storage marker;
+  
+  bool fill = false;
+  agg::rgba fillColor;
+  for (size_t i=0; i<Npath; i++) {
+    Py::Tuple tup = Py::Tuple(pathseq[i]);
+    unsigned code = Py::Int(tup[0]);
+    if (code==1) { //moveto
+      double x = Py::Float(tup[1]);
+      double y = Py::Float(tup[2]);
+      marker.move_to(x, -y);
+    }
+    else if (code==2) { //lineto
+      double x = Py::Float(tup[1]);
+      double y = Py::Float(tup[2]);
+      marker.line_to(x, -y);
+    }
+    else if (code==6) { //endpoly
+      marker.close_polygon();
+      fill = Py::Int(tup[1]);
+      if (fill) {
+	fillColor.r = Py::Float(tup[2]);
+	fillColor.g = Py::Float(tup[3]);
+	fillColor.b = Py::Float(tup[4]);
+	fillColor.a = Py::Float(tup[5]);
+      }
+    }
+    
+  }
+
+
+  //maxim's suggestions for cached scanlines
+  agg::scanline_storage_aa8 scanlines;
+
+  theRasterizer->reset();
+  theRasterizer->add_path(marker);
+  //agg::render(*theRasterizer, *slineP8, scanlines);
+  agg::render_scanlines(*theRasterizer, *slineP8, scanlines);      
+  unsigned fillSize = scanlines.byte_size();
+  agg::int8u* fillCache = new agg::int8u[fillSize]; // or any container
+  scanlines.serialize(fillCache);
+
+
+
+  agg::conv_stroke<agg::path_storage > stroke_path(marker);
+  stroke_path.line_cap(cap);
+  stroke_path.line_join(join);
+  stroke_path.width(lw);
+  theRasterizer->reset();
+  theRasterizer->add_path(stroke_path);
+  //agg::render(*theRasterizer, *slineP8, scanlines);
+  agg::render_scanlines(*theRasterizer, *slineP8, scanlines);      
+  unsigned strokeSize = scanlines.byte_size();
+  agg::int8u* strokeCache = new agg::int8u[strokeSize]; // or any container
+  scanlines.serialize(strokeCache);
+
+  //int isaa = antialiased(gc);
+  
+  set_clip_rectangle(gc);  
+  for (size_t i=0; i<Nx; ++i) {
+    double thisx = Py::Float( xo[i] );
+    double thisy = Py::Float( yo[i] );
+
+    try {
+      if (mpltransform->need_nonlinear_api())
+	mpltransform->nonlinear_only_api(&thisx, &thisy);
+    }
+    catch (std::domain_error& err) {
+      continue;
+    }
+
+    xytrans.transform(&thisx, &thisy);
+
+
+    thisy = heightd - thisy;  //flipy
+    //thisx = (int)(thisx)+0.5; //snapto
+    //thisy = (int)(thisy)+0.5;
+    //std::cout << "adding " << thisx << " " << thisy << std::endl;
+
+    agg::serialized_scanlines_adaptor_aa8 sa;
+    agg::serialized_scanlines_adaptor_aa8::embedded_scanline sl;
+
+    //render the stroke
+    sa.init(fillCache, fillSize, thisx, thisy);
+    rendererAA->color(fillColor);          
+    agg::render_scanlines(sa, sl, *rendererAA);
+
+    //render the fill
+    sa.init(strokeCache, strokeSize, thisx, thisy);
+    rendererAA->color(strokeColor);          
+    agg::render_scanlines(sa, sl, *rendererAA);
+
+  } //for each marker
+    
+  delete [] strokeCache;
+  delete [] fillCache;
+  return Py::Object();
+  
+}
+
+*/
+
 Py::Object
 RendererAgg::draw_markers(const Py::Tuple& args) {
   //draw_markers(gc, path, xo, yo, transform)
@@ -890,17 +1029,30 @@ RendererAgg::draw_markers(const Py::Tuple& args) {
   double heightd = double(height);  
   
   // process the dashes
-  Py::Tuple dashes = get_dashes(gc);
+  Py::Tuple dashtup = get_dashes(gc);
   
-  bool useDashes = dashes[0].ptr() != Py_None;
-  double offset = 0;
   Py::SeqBase<Py::Object> dashSeq;
-  
-  if ( dashes[0].ptr() != Py_None ) { // use dashes
-    offset = points_to_pixels_snapto(dashes[0]);
-    dashSeq = dashes[1]; 
-  };
-  
+  bool useDashes = dashtup[0].ptr() != Py_None;
+  double offset = 0;
+
+  double *dasha = NULL; 
+
+  size_t Ndashes = 0;
+  if ( useDashes ) { 
+    //TODO: use offset
+    offset = points_to_pixels_snapto(dashtup[0]);
+    dashSeq = dashtup[1]; 
+    
+    Ndashes = dashSeq.length();
+    if (Ndashes%2 != 0  ) 
+      throw Py::ValueError(Printf("dashes must be an even length sequence; found %d", Ndashes).str());     
+    
+    dasha = new double[Ndashes];    
+    
+    for (size_t i=0; i<Ndashes; i++) 
+      dasha[i] = points_to_pixels_snapto(dashSeq[i]);
+  }  
+
   
   // initialize the marker path
   agg::path_storage marker;
@@ -945,7 +1097,9 @@ RendererAgg::draw_markers(const Py::Tuple& args) {
   
 
   agg::path_storage path;
-  typedef agg::conv_transform<agg::path_storage, agg::trans_affine> transpath;
+  typedef agg::conv_transform<agg::path_storage, agg::trans_affine> transpath_t;
+  typedef agg::conv_dash<transpath_t> dash_t;
+  
   for (size_t i=0; i<Nx; ++i) {
     double thisx = Py::Float( xo[i] );
     double thisy = Py::Float( yo[i] );
@@ -970,7 +1124,7 @@ RendererAgg::draw_markers(const Py::Tuple& args) {
     //std::cout << "Output " << thisx << " " << thisy << std::endl;
     agg::trans_affine mtx;
     mtx *= agg::trans_affine_translation(thisx,thisy);
-    transpath trans(marker, mtx);
+    transpath_t trans(marker, mtx);
     
     if (fill) {
       rendererAA->color(fillColor);
@@ -980,7 +1134,7 @@ RendererAgg::draw_markers(const Py::Tuple& args) {
 
     //std::cout << width << " " << height << std::endl;
     if (! useDashes ) {
-      agg::conv_stroke<transpath> stroke(trans);
+      agg::conv_stroke<transpath_t> stroke(trans);
       stroke.line_cap(cap);
       stroke.line_join(join);
       stroke.width(lw);
@@ -988,27 +1142,16 @@ RendererAgg::draw_markers(const Py::Tuple& args) {
       
     }
     else {
+      dash_t dash(trans);
+      //dash.dash_start(offset);
+      for (size_t idash=0; idash<Ndashes/2; idash++) 
+	dash.add_dash(dasha[2*idash], dasha[2*idash+1]);
       
-	size_t N = dashSeq.length();
-	if (N%2 != 0  ) 
-	throw Py::ValueError(Printf("dashes must be an even length sequence; found %d", N).str());     
-	
-	typedef agg::conv_dash<agg::path_storage> dash_t;
-	dash_t dash(path);
-	
-	double on, off;
-	
-	//dash.dash_start(offset);
-	for (size_t i=0; i<N/2; i+=1) {
-	on = points_to_pixels_snapto(dashSeq[2*i]);
-	off = points_to_pixels_snapto(dashSeq[2*i+1]);
-	dash.add_dash(on, off);
-	}
-	agg::conv_stroke<dash_t> stroke(dash);
-	stroke.line_cap(cap);
-	stroke.line_join(join);
-	stroke.width(lw);
-	theRasterizer->add_path(stroke);
+      agg::conv_stroke<dash_t> stroke(dash);
+      //stroke.line_cap(cap);
+      //stroke.line_join(join);
+      stroke.width(lw);
+      theRasterizer->add_path(stroke);
       
     }
 
@@ -1023,10 +1166,11 @@ RendererAgg::draw_markers(const Py::Tuple& args) {
 
   } //for each marker
     
-  
+  if (useDashes) delete [] dasha;  
   return Py::Object();
   
 }
+
 
 Py::Object
 RendererAgg::draw_text(const Py::Tuple& args) {

@@ -283,6 +283,9 @@ grestore
 
     def _draw_markers(self, gc, path, x, y, transform):
         """
+        I'm underscore hiding this method from lines.py right now
+        since it is incomplete
+        
         Draw the markers defined by path at each of the positions in x
         and y.  path coordinates are points, x and y coords will be
         transformed by the transform
