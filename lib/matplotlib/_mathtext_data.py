@@ -138,11 +138,17 @@ latex_to_bakoma = {
     r'\rightbracket'        : ('cmr10',   72),
     r']'                    : ('cmr10',   72),
 
-
+    # these are mathml names, I think.  I'm just using them for the
+    # tex methods noted
     r'\circumflexaccent'    : ('cmr10',   124), # for \hat
     r'\combiningbreve'      : ('cmr10',   81),  # for \breve
-    r'\combiningoverline'      : ('cmr10',   131),  # for \bar    
-
+    r'\combiningoverline'   : ('cmr10',   131),  # for \bar
+    r'\combininggraveaccent' : ('cmr10', 114), # for \grave
+    r'\combiningacuteaccent' : ('cmr10', 63), # for \accute
+    r'\combiningdiaeresis' : ('cmr10', 91), # for \ddot
+    r'\combiningtilde' : ('cmr10', 75), # for \tilde
+    r'\combiningrightarrowabove' : ('cmmi10', 110), # for \vec
+    r'\combiningdotabove' : ('cmr10', 26), # for \dot
 
     r'\leftarrow'           : ('cmsy10',  12),
     r'\uparrow'             : ('cmsy10',  25),

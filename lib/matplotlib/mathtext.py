@@ -18,10 +18,16 @@ OVERVIEW
 
   The fonts \cal, \rm, \it, and \tt are allowed.
 
+  The following accents are provided: \hat, \breve, \grave, \bar,
+  \acute, \tilde, \vec, \dot, \ddot.  All of them have the same
+  syntax, eg to make an overbar you do \bar{o} or to make an o umlaut
+  you do \ddot{o}.
+
   The spacing elements \ , \/ and \hspace{num} are provided.  \/
   inserts a small space, and \hspace{num} inserts a fraction of the
   current fontsize.  Eg, if num=0.5 and the fontsize is 12.0,
   hspace{0.5} inserts 6 points of space
+
 
   
   If you find TeX expressions that don't parse or render properly,
@@ -484,7 +490,7 @@ class Element:
             
             if loc=='above':
                 nx = self.centerx() - element.width()/2.0
-                ny = self.ymax() + self.pady()
+                ny = self.ymax() + self.pady() - element.ymax() + element.oy + element.height()
                 #print element, self.ymax(), element.height(), element.ymax(), element.ymin(), ny
             elif loc=='below':
                 nx = self.centerx() - element.width()/2.0
@@ -789,9 +795,15 @@ class Handler:
         accent, sym = toks[0]
 
         d = {
-            r'\hat'   : r'\circumflexaccent',
-            r'\breve' : r'\combiningbreve',
-            r'\bar'   : r'\combiningoverline',                        
+            r'\hat'    : r'\circumflexaccent',
+            r'\breve'  : r'\combiningbreve',
+            r'\bar'    : r'\combiningoverline',
+            r'\grave'  : r'\combininggraveaccent',
+            r'\acute'  : r'\combiningacuteaccent',
+            r'\ddot'   : r'\combiningdiaeresis',
+            r'\tilde'  : r'\combiningtilde',
+            r'\dot'  : r'\combiningdotabove',            
+            r'\vec'    : r'\combiningrightarrowabove',                        
              }
         above = SymbolElement(d[accent])
         sym.neighbors['above'] = above
