@@ -533,8 +533,23 @@ public:
   Py::Object freeze(const Py::Tuple &args) {
       // evaluate the lazy objects  
     if (!_frozen) {
-      eval_scalars();
-      if (_usingOffset) _transOffset->eval_scalars();
+      try {
+	eval_scalars();
+      }
+      catch (std::domain_error &err) {
+	throw Py::ValueError("Domain error on eval_scalars in Transformation::freeze");  
+      }
+
+      if (_usingOffset) {
+	try {
+	  _transOffset->eval_scalars();
+	}
+	catch (std::domain_error &err) {
+	  throw Py::ValueError("Domain error on eval_scalars in transoffset Transformation::eval_scalars");  
+	}
+
+      }
+      
       _frozen = true;
     }
     return Py::Object();

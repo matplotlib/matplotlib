@@ -1,4 +1,4 @@
->### MATPLOTLIBRC FORMAT 
+### MATPLOTLIBRC FORMAT 
 #
 # This is a sample matplotlib configuration file.   It should be placed
 # in your home dir (Linux and friends) or in the matplotlib data path,

@@ -953,6 +953,7 @@ except:
 
 
 def error_msg_gtk(msg, parent=None):
+
     if parent: # find the toplevel gtk.Window
         parent = parent.get_toplevel()
         if not parent.flags() & gtk.TOPLEVEL:

@@ -332,7 +332,7 @@ class FigureCanvasSVG(FigureCanvasBase):
         self.figure.dpi.set(origDPI)
         self.figure.set_facecolor(origfacecolor)
         self.figure.set_edgecolor(origedgecolor)
-
+        svgwriter.close()
 
 class FigureManagerSVG(FigureManagerBase):
     pass

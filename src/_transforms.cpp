@@ -481,7 +481,14 @@ Func::map(const Py::Tuple &args) {
   args.verify_length(1);
   double xin = Py::Float(args[0]);
   
-  double xout = this->operator()(xin);
+  double xout;
+  try {
+    xout = this->operator()(xin);
+  }
+  catch (std::domain_error &err) {
+    throw Py::ValueError("Domain error on Func::map");  
+  }
+
   return Py::Float(xout);
 
 };
@@ -506,7 +513,13 @@ FuncXY::map(const Py::Tuple &args) {
   double xin = Py::Float(args[0]);
   double yin = Py::Float(args[1]);
   
-  std::pair<double, double> xy = this->operator()(xin, yin);
+  std::pair<double, double> xy;
+  try {
+    xy = this->operator()(xin, yin);
+  }
+  catch (std::domain_error &err) {
+    throw Py::ValueError("Domain error on FuncXY nonlinear transform");  
+  }
 
   Py::Tuple ret(2);
   double xout = xy.first;
@@ -663,7 +676,13 @@ Transformation::inverse_xy_tup(const Py::Tuple & args) {
   double xin = Py::Float(tup[0]);
   double yin = Py::Float(tup[1]);
 
-  if (!_frozen) eval_scalars();
+  try {
+    if (!_frozen) eval_scalars();
+  }
+  catch (std::domain_error &err) {
+    throw Py::ValueError("Domain error on invser_xy_tup");  
+  }
+
   
   inverse_api(xin, yin);
   Py::Tuple ret(2);
@@ -678,7 +697,13 @@ Transformation::xy_tup(const Py::Tuple & args) {
   _VERBOSE("Transformation::xy_tup");
   args.verify_length(1);
 
-  if (!_frozen) eval_scalars();
+  try {
+    if (!_frozen) eval_scalars();
+  }
+  catch (std::domain_error &err) {
+    throw Py::ValueError("Domain error on nonlinear transform");  
+  }
+
 
   Py::SeqBase<Py::Object> xytup = args[0];
   double x = Py::Float(xytup[0]);
@@ -686,7 +711,13 @@ Transformation::xy_tup(const Py::Tuple & args) {
   
 
   Py::Tuple out(2);
-  this->operator()(x, y);
+  try {
+    this->operator()(x, y);
+  }
+  catch (std::domain_error &err) {
+    throw Py::ValueError("Domain error on nTransformation::xy_tup operator()(x,y)");  
+  }
+
   out[0] = Py::Float( xy.first ); 
   out[1] = Py::Float( xy.second ); 
   return out;
@@ -707,7 +738,13 @@ Transformation::seq_x_y(const Py::Tuple & args) {
     throw Py::ValueError("x and y must be equal length sequences");
 
   // evaluate the lazy objects  
-  if (!_frozen) eval_scalars();
+  try {
+    if (!_frozen) eval_scalars();
+  }
+  catch (std::domain_error &err) {
+    throw Py::ValueError("Domain error on Transformation::seq_x_y");  
+  }
+
 
   Py::Tuple xo(Nx);
   Py::Tuple yo(Nx);
@@ -716,7 +753,13 @@ Transformation::seq_x_y(const Py::Tuple & args) {
   for (size_t i=0; i< Nx; ++i) {
     double thisx = Py::Float(x[i]);
     double thisy = Py::Float(y[i]);
-    this->operator()(thisx, thisy);
+    try {
+      this->operator()(thisx, thisy);
+    }
+    catch (std::domain_error &err) {
+      throw Py::ValueError("Domain error on Transformation::seq_x_y operator()(thisx, thisy)");  
+    }
+
     xo[i] = Py::Float( xy.first );
     yo[i] = Py::Float( xy.second );
   }
@@ -755,7 +798,13 @@ Transformation::numerix_x_y(const Py::Tuple & args) {
     throw Py::ValueError("x and y must be equal length sequences");
 
   // evaluate the lazy objects  
-  if (!_frozen) eval_scalars();
+  try {
+    if (!_frozen) eval_scalars();
+  }
+  catch (std::domain_error &err) {
+    throw Py::ValueError("Domain error on Transformation::numerix_x_y");  
+  }
+
 
   int dimensions[1];
   dimensions[0] = Nx;
@@ -780,7 +829,13 @@ Transformation::numerix_x_y(const Py::Tuple & args) {
     double thisx = *(double *)(x->data + i*x->strides[0]);
     double thisy = *(double *)(y->data + i*y->strides[0]);
     //std::cout << "calling operator " << thisx << " " << thisy << " " << std::endl;
-    this->operator()(thisx, thisy);
+    try {
+      this->operator()(thisx, thisy);
+    }
+    catch (std::domain_error &err) {
+      throw Py::ValueError("Domain error on Transformation::numerix_x_y");  
+    }
+
     *(double *)(retx->data + i*retx->strides[0]) = xy.first;
     *(double *)(rety->data + i*rety->strides[0]) = xy.second;
   }
@@ -869,10 +924,16 @@ Transformation::seq_xy_tups(const Py::Tuple & args) {
   
   Py::SeqBase<Py::Object> xytups = args[0];
   
+
   size_t Nx = xytups.length();
 
-  if (!_frozen) eval_scalars();
-
+  try {
+    if (!_frozen) eval_scalars();
+  }
+  catch (std::domain_error &err) {
+    throw Py::ValueError("Domain error on Transformation::seq_xy_tups");  
+  }
+  
   Py::Tuple ret(Nx);
   Py::SeqBase<Py::Object> xytup;
   
@@ -884,7 +945,13 @@ Transformation::seq_xy_tups(const Py::Tuple & args) {
     double thisx = Py::Float(xytup[0]);
     double thisy = Py::Float(xytup[1]);
 
-    this->operator()(thisx, thisy);
+    try {
+      this->operator()(thisx, thisy);
+    }
+    catch (std::domain_error &err) {
+      throw Py::ValueError("Domain error on nonlinear Transformation::seq_xy_tups operator()(thisx, thisy)");  
+    }
+
 
     Py::Tuple out(2);
     out[0] = Py::Float( xy.first );
@@ -1086,10 +1153,19 @@ SeparableTransformation::inverse_api(const double &x, const double &y) {
 void 
 SeparableTransformation::eval_scalars(void) {
   _VERBOSE("SeparableTransformation::eval_scalars");
-  double xminIn  = _funcx->operator()( _b1->ll_api()->xval() );
-  double xmaxIn  = _funcx->operator()( _b1->ur_api()->xval() );
-  double yminIn  = _funcy->operator()( _b1->ll_api()->yval() );
-  double ymaxIn  = _funcy->operator()( _b1->ur_api()->yval() );
+  double xminIn;
+  double xmaxIn;
+  double yminIn;
+  double ymaxIn;
+  try {
+    xminIn  = _funcx->operator()( _b1->ll_api()->xval() );
+    xmaxIn  = _funcx->operator()( _b1->ur_api()->xval() );
+    yminIn  = _funcy->operator()( _b1->ll_api()->yval() );
+    ymaxIn  = _funcy->operator()( _b1->ur_api()->yval() );
+  }
+  catch (std::domain_error &err) {
+    throw Py::ValueError("es 1");  
+  }
 
   double xminOut  = _b2->ll_api()->xval();
   double xmaxOut  = _b2->ur_api()->xval();
@@ -1130,8 +1206,15 @@ SeparableTransformation::eval_scalars(void) {
   }
 
   if (_usingOffset) {
-    _transOffset->eval_scalars();
-    _transOffset->operator()(_xo, _yo);
+    
+      _transOffset->eval_scalars();
+      try {
+	_transOffset->operator()(_xo, _yo);
+      }
+        catch (std::domain_error &err) {
+    throw Py::ValueError("es 2");  
+  }
+
     _xot = _transOffset->xy.first;
     _yot = _transOffset->xy.second;
   }
@@ -1425,13 +1508,21 @@ Affine::eval_scalars(void) {
     _xot = _transOffset->xy.first;
     _yot = _transOffset->xy.second;
   }
+
+  _VERBOSE("Affine::eval_scalars DONE");
 }
 
 Py::Object 
 Affine::deepcopy(const Py::Tuple &args) {
   _VERBOSE("Affine::deepcopy");
   args.verify_length(0);
-  eval_scalars();
+  try {
+    eval_scalars();
+  }
+  catch (std::domain_error &err) {
+    throw Py::ValueError("Domain error on Affine deepcopy");  
+  }
+
   return Py::asObject( new Affine( new Value(_aval),new Value(_bval), new Value(_cval),
                                    new Value(_dval),new Value(_txval),new Value(_tyval) ));
 }

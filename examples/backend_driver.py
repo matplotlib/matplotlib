@@ -107,7 +107,7 @@ times = {}
 backends = ['Agg', 'PS', 'SVG', 'Template']
 #backends = [ 'GTK', 'WX', 'TkAgg']
 #backends = ['Agg']
-python = 'python2.2'
+python = 'python2.3'
 for backend in backends:
     print 'testing %s' % backend
     t0 = time.time()

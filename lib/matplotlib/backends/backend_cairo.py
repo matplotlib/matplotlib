@@ -474,6 +474,7 @@ def print_figure_fn(figure, filename, dpi=150, facecolor='w', edgecolor='w',
             else:
                 if ext == 'png': _save_png (figure, fileObject)
                 else:            _save_ps_pdf (figure, fileObject, ext, orientation)
+                fileObject.close()
             
         elif ext in ('eps', 'svg'): # backend_svg/ps
             if ext == 'svg':

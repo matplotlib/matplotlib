@@ -607,7 +607,7 @@ major formatter
 
     def cla(self):
         'Clear the current axes'
-
+        
         self.xaxis.cla()
         self.yaxis.cla()
         
@@ -1245,6 +1245,7 @@ Refs:
         "Draw everything (plot lines, axes, labels)"
         if not self.get_visible(): return 
         renderer.open_group('axes')
+        
         self.transData.freeze()  # eval the lazy objects
         self.transAxes.freeze()  # eval the lazy objects
         if self.axison:
@@ -1849,7 +1850,11 @@ log scaling:
         self.set_yscale('log', **dy)
         dict_delall( kwargs, ('basex', 'basey', 'subsx', 'subsy')) 
 
+        b =  self._hold
+        self._hold = True # we've already processed the hold
         l = self.plot(*args, **kwargs)
+        self._hold = b    # restore the hold
+
         return l
 
 
@@ -2311,6 +2316,7 @@ to all those lines, eg
 
 Neither line will be antialiased.
         """
+        
         if not self._hold: self.cla()
         lines = []
         for line in self._get_lines(*args, **kwargs): 
@@ -2695,7 +2701,10 @@ plot or set_xscale.  Notable, for log scaling:
              
         self.set_xscale('log', **d)
         dict_delall( kwargs, ('basex', 'subsx')) 
+        b =  self._hold
+        self._hold = True # we've already processed the hold
         l = self.plot(*args, **kwargs)
+        self._hold = b    # restore the hold
         return l
 
 
@@ -2721,7 +2730,11 @@ plot or set_yscale.  Notable, for log scaling:
              }
         self.set_yscale('log', **d)
         dict_delall( kwargs, ('basey', 'subsy')) 
+        b =  self._hold
+        self._hold = True # we've already processed the hold
         l = self.plot(*args, **kwargs)
+        self._hold = b    # restore the hold
+
         return l
 
 
@@ -2792,6 +2805,9 @@ If emit is false, do not trigger an event
 
 ACCEPTS: len(2) sequence of floats
         """
+        vmin, vmax = v
+        if self.transData.get_funcx().get_type()==LOG10 and min(vmin, vmax)<=0:
+            raise ValueError('Cannot set nonpositive limits with log transform')
         self.viewLim.intervalx().set_bounds(*v)
         if emit: self._send_xlim_event()
 
@@ -2828,7 +2844,6 @@ ACCEPTS: str
             self.xaxis.set_minor_locator(NullLocator())
             self.xaxis.set_minor_formatter(NullFormatter())        
             self.transData.get_funcx().set_type( IDENTITY )
-
 
     def set_xticklabels(self, labels, fontdict=None, **kwargs):
         """\
@@ -2876,6 +2891,9 @@ not trigger an event.
 
 ACCEPTS: len(2) sequence of floats
         """
+        vmin, vmax = v
+        if self.transData.get_funcy().get_type()==LOG10 and min(vmin, vmax)<=0:
+            raise ValueError('Cannot set nonpositive limits with log transform')
         self.viewLim.intervaly().set_bounds(*v)
         if emit: self._send_ylim_event()
         

@@ -2022,10 +2022,9 @@ def loglog(*args, **kwargs):
         error_msg(msg)
         hold(b)
     else:
-        draw_if_interactive()
-        
+        draw_if_interactive()        
         hold(b)
-        return ret
+    return ret
 loglog.__doc__ = Axes.loglog.__doc__ + """
 Addition kwargs: hold = [True|False] overrides default hold state"""
 
