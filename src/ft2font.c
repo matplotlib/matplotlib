@@ -686,7 +686,7 @@ FT2Font_write_bitmap(FT2FontObject *self, PyObject *args)
 char FT2Font_draw_rect__doc__[] = 
 "draw_bbox(x0, y0, x1, y1)\n"
 "\n"
-"Draw a rect to the image.  It is you responsibility to set the dimensions\n"
+"Draw a rect to the image.  It is your responsibility to set the dimensions\n"
 "of the image, eg, with set_bitmap_size\n"
 "\n"
 ;

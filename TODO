@@ -276,7 +276,7 @@
 
 -- add get_xlim and get_ylim for patches
 
--- mathtext size not scaling with DPI
+-- DONE - mathtext size not scaling with DPI
 
 -- implement Paul's mathtext parser fixes
 
@@ -296,7 +296,7 @@
 
 -- aligment test of backend_ps and table_demo on all backends
 
--- fix the sqrt mathtext bug revealed by Flavio's eample
+-- fix the sqrt mathtext bug revealed by Flavio's example
 
 -- fix the parser for sqrt, etc..
 
@@ -304,4 +304,4 @@
 
 -- fix kerning for TeX
 
--- text_themes is segfaulting on gtkagg
+-- DONE - text_themes is segfaulting on gtkagg
