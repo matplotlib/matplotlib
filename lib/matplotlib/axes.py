@@ -994,7 +994,8 @@ Refs:
         renderer.close_group('axes')
 
     def errorbar(self, x, y, yerr=None, xerr=None,
-                 fmt='b-', ecolor=None, capsize=3, barsabove=False):
+                 fmt='b-', ecolor=None, capsize=3,
+                 barsabove=False, **kwargs):
         """\
 ERRORBAR(x, y, yerr=None, xerr=None,
          fmt='b-', ecolor=None, capsize=3, barsabove=False)
@@ -1025,6 +1026,8 @@ plots a single error bar at x, y.
 
     barsabove, if True, will plot the errorbars above the plot symbols
     - default is below
+
+    kwargs are passed on to the plot command for the markers
     
 Return value is a length 2 tuple.  The first element is a list of
 y symbol lines.  The second element is a list of error bar lines.
@@ -1048,7 +1051,7 @@ y symbol lines.  The second element is a list of error bar lines.
         l0 = None
 
         if barsabove and fmt is not None:
-            l0, = self.plot(x,y,fmt)
+            l0, = self.plot(x,y,fmt,**kwargs)
 
         caplines = []
         barlines = []
@@ -1080,7 +1083,7 @@ y symbol lines.  The second element is a list of error bar lines.
             caplines.extend( self.plot(x, upper, '_', ms=2*capsize) )
 
         if not barsabove and fmt is not None:
-            l0, = self.plot(x,y,fmt)
+            l0, = self.plot(x,y,fmt,**kwargs)
 
         if ecolor is None and l0 is None:
             ecolor = rcParams['lines.color']

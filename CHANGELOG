@@ -1,6 +1,10 @@
 New entries should be added at the top
 
+
+
 ==============================================================
+2004-11-08 matplotlib-0.64 released
+
 2004-11-04 Changed -dbackend processing to only use known backends, so
            we don't clobber other non-matplotlib uses of -d, like -debug.
 

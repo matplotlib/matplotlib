@@ -4,7 +4,7 @@ PYTHON = /usr/local/bin/python2.3
 VERSION = `${PYTHON} setup.py --version`
 
 DISTFILES = API_CHANGES KNOWN_BUGS INSTALL README TODO license	\
-	CHANGELOG Makefile GOALS INTERACTIVE			\
+	CHANGELOG Makefile INTERACTIVE			\
 	MANIFEST.in lib lib/matplotlib lib/dateutil lib/pytz examples setup.py
 
 RELEASE = matplotlib-${VERSION}
