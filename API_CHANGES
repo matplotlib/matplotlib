@@ -1,11 +1,61 @@
 API CHANGES in matplotlib-0.54
 
-Autoscaling:
+matlab interface
+================
+
+pcolor and scatter
+------------------
+
+There are two changes to the matlab interface API, both involving the
+patch drawing commands.  For efficiency, pcolor and scatter have been
+rewritten to use polygon collections, which are a new set of objects
+from matplotlib.collections designed to enable efficient handling of
+large collections of objects.  These new collections make it possible
+to build large scatter plots or pcolor plots with no loops at the
+python level, and are significantly faster than their predecessors.
+The original pcolor and scatter functions are retained as
+pcolor_classic and scatter_classic.
+
+The return value from pcolor is a PolyCollection.  Most of the
+propertes that are available on rectangles or other patches are also
+available on PolyCollections, eg you can say
+
+  c = scatter(blah, blah)
+  c.set_linewidth(1.0)
+  c.set_facecolor('r')
+  c.set_alpha(0.5)
+
+or 
+
+  c = scatter(blah, blah)
+  set(c, 'linewidth', 1.0, 'facecolor', 'r', 'alpha', 0.5)
+
+
+Because the collection is a single object, you no longer need to loop
+over the return value of scatter or pcolor to set properties for the
+entire list. 
+
+If you want the different elements of a collection to vary on a
+property, eg to have different line widths, see matplotlib.collections
+for a discussion on how to set the properties as a sequence.
+
+For scatter, the size argument is now in points^2 (the area of the
+symbol in points) as in matlab and is not in data coords as before.
+Using sizes in data coords caused several problems.  So you will need
+to adjust your size arguments accordingly or use scatter_classic.
+
+
+Object interface - Application programmers
+==========================================
+
+Autoscaling
+------------
 
   The x and y axis instances no longer have autoscale view.  These are
   handled by axes.autoscale_view
 
-Axes creation:
+Axes creation
+--------------
 
     You should not instantiate your own Axes any more using the OO API.
     Rather, create a Figure as before and in place of
@@ -24,12 +74,14 @@ Axes creation:
       add_axes(rect, axisbg=defaultcolor, frameon=True)
       add_subplot(num, axisbg=defaultcolor, frameon=True)
 
-Artist methods:
+Artist methods
+---------------
 
   If you define your own Artists, you need to rename the _draw method
   to draw
 
-Bounding boxes.  
+Bounding boxes
+--------------  
 
    matplotlib.transforms.Bound2D is replaced by
    matplotlib.transforms.Bbox.  If you want to construct a bbox from
@@ -52,7 +104,8 @@ Bounding boxes.
 
 
 
-Object constructors:
+Object constructors
+-------------------
 
   You no longer pass the bbox, dpi, or transforms to the various
   Artist constructors.  The old way or creating lines and rectangles
@@ -81,7 +134,8 @@ Object constructors:
   and the axes will set the transformation for you (unless you have
   set your own already, in which case it will eave it unchanged)
 
-Transformations:
+Transformations
+---------------
 
   The entire transformation architecture has been rewritten.
   Previously the x and y transformations where stored in the xaxis and
@@ -117,11 +171,6 @@ Transformations:
  
   See unit/transforms_unit.py for many examples using the new
   transformations.
-
-
-
-  
-       
 
 API changes at 0.50
 
