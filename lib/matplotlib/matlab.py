@@ -32,8 +32,6 @@ _Plotting commands
   gcf      - return the current figure
   gci      - get the current image, or None
   get      - get a handle graphics property
-  gray     - set the current colormap to gray
-  jet      - set the current colormap to jet
   hist     - make a histogram
   hold     - set the axes hold state
   legend   - make an axes legend
@@ -63,6 +61,21 @@ _Plotting commands
   yticks   - set/get the yticks
   xlabel   - add an xlabel to the current axes
   ylabel   - add a ylabel to the current axes
+
+  autumn - set the default colormap to autumn
+  bone   - set the default colormap to bone  
+  cool   - set the default colormap to cool  
+  copper - set the default colormap to copper
+  flag   - set the default colormap to flag  
+  gray   - set the default colormap to gray  
+  hot    - set the default colormap to hot   
+  hsv    - set the default colormap to hsv   
+  jet    - set the default colormap to jet   
+  pink   - set the default colormap to pink  
+  prism  - set the default colormap to prism 
+  spring - set the default colormap to spring
+  summer - set the default colormap to summer
+  winter - set the default colormap to winter
   
 _Matrix commands
 
@@ -270,7 +283,28 @@ def plotting():
     """
     pass
 
+def colormaps():
+    """
+    matplotlib provides the following colormaps.  
 
+      autumn bone cool copper flag gray hot hsv jet pink prism
+      spring summer winter
+
+    You can set the colormap for an image, pcolor, scatter, etc,
+    either as a keyword argument
+
+    >>> imshow(X, cmap=cm.hot)
+
+    or post-hoc using the corresponding matlab interface function
+
+    >>> imshow(X)
+    >>> hot()
+    >>> jet()
+
+    In interactive mode, this will update the colormap allowing you to
+    see which one works best for your data.
+    """
+    pass
 
 
 def get_current_fig_manager():
@@ -770,14 +804,21 @@ def gray():
     if im is not None:
         im.set_cmap(cm.gray)
         draw_if_interactive()
-        
-def jet():
-    'set the default colormap to jet and apply to current image if any'
-    rc('image', cmap='jet')
+
+# define the colormap functions
+fmt = """\
+def %s():
+    'set the default colormap to %s and apply to current image if any.  See help(colormaps) for more information'
+    rc('image', cmap='%s')
     im = gci()
     if im is not None:
-        im.set_cmap(cm.jet)
+        im.set_cmap(cm.%s)
     draw_if_interactive()
+"""
+
+for name in cm.datad.keys():
+    s = fmt%(name, name, name, name)
+    exec(s)
     
     
 def hold(b=None):
