@@ -143,6 +143,7 @@ class Text(Artist):
 
         # now rotate the bbox
         cornersRotated = [M*Matrix([[thisx],[thisy],[1]]) for thisx, thisy in cornersHoriz]
+
         txs = [float(v[0][0]) for v in cornersRotated]
         tys = [float(v[1][0]) for v in cornersRotated]
 
@@ -178,6 +179,7 @@ class Text(Artist):
         
         # now rotate the positions around the first x,y position
         xys = [M*Matrix([[thisx],[thisy],[1]]) for thisx, thisy in offsetLayout]
+
 
         tx = [float(v[0][0])+offsetx for v in xys]
         ty = [float(v[1][0])+offsety for v in xys]
