@@ -114,6 +114,7 @@ class RendererBase:
         faster drawing, but it is already much faster than using draw_lines()
         by itself.
         """
+
         gc = self.new_gc()
         gc.set_clip_rectangle(clipbox.get_bounds())
         gc.set_dashes(*linestyle)
@@ -137,8 +138,9 @@ class RendererBase:
             gc.set_alpha( alpha )
             gc.set_linewidth( linewidths[i % Nlw] )
             gc.set_antialiased( antialiaseds[i % Naa] )
-            
-            x, y = zip(*segments[i % Nsegments])
+            seg = segments[i % Nsegments]
+            if not len(seg): continue
+            x, y = zip(*seg)
             x, y = transform.numerix_x_y(array(x), array(y))
             if usingOffsets:
                 xo, yo = transOffset.xy_tup(offsets[i % Noffsets])

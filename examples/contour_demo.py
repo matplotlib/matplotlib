@@ -7,11 +7,6 @@ See also contour_image.py.
 '''
 from pylab import *
 
-import sys
-fignum = 0
-if len(sys.argv) == 2:
-    fignum = int(sys.argv[1])
-
 delta = 0.025
 x = arange(-3.0, 3.0, delta)
 y = arange(-2.0, 2.0, delta)
@@ -72,5 +67,5 @@ title('Lines with colorbar')
 hot()  # Now change the colormap for the contour lines and colorbar
 
 
-#savefig('contour_demo')
+savefig('contour_demo')
 show()

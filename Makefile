@@ -15,7 +15,7 @@ clean:
 	rm -f *.png *.ps *.eps *.svg *.jpg
 	find . -name "_tmp*.py" | xargs rm -f;\
 	find . \( -name "*~" -o -name "*.pyc" \) | xargs rm -f;\
-	find examples \( -name "*.svg" -o -name "*.png" -o -name "*.ps"  -o -name "*.jpg" -o -name "*.eps" -o -name "*.tar" -name "*.gz" \) | xargs rm -f
+	find examples \( -name "*.svg" -o -name "*.png" -o -name "*.ps"  -o -name "*.eps" -o -name "*.tar" -name "*.gz" \) | xargs rm -f
 	find unit \( -name "*.png" -o -name "*.ps"  -o -name "*.eps" \) | xargs rm -f
 	find . \( -name "#*" -o -name ".#*" -o -name ".*~" -o -name "*~" \) | xargs rm -f
 

@@ -22,7 +22,7 @@ Z = func3(X, Y)
 pcolor(X, Y, Z, shading='flat')
 colorbar()
 axis([-3,3,-3,3])
-#savefig('pcolor_demo')
+savefig('pcolor_demo')
 show()
 
     

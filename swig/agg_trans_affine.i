@@ -48,4 +48,30 @@ namespace agg{
     %name(get_scaling) void   scaling(double* OUTPUT, double* OUTPUT) const;
   }; 
   
+
+  class trans_affine_rotation : public trans_affine
+  {
+  public:
+    trans_affine_rotation(double a);
+  };
+
+  class trans_affine_scaling : public trans_affine
+  {
+  public:
+    trans_affine_scaling(double sx, double sy);
+    trans_affine_scaling(double s);
+  };
+
+  class trans_affine_translation : public trans_affine
+  {
+  public:
+    trans_affine_translation(double tx, double ty);
+  };
+
+  class trans_affine_skewing : public trans_affine
+  {
+  public:
+    trans_affine_skewing(double sx, double sy);
+  };
+
 }
