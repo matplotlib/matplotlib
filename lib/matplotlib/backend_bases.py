@@ -56,13 +56,12 @@ class RendererBase:
         return lbwh_to_bbox(0,0,1,1)  # your values here
 
 
-    def draw_arc(self, gcEdge, gcFace, x, y, width, height, angle1, angle2):
+    def draw_arc(self, gcEdge, rgbFace, x, y, width, height, angle1, angle2):
         """
-        Draw an arc centered at x,y with width and height and angles
-        from 0.0 to 360.0
-
-        If gcFace is not None, fill the rectangle with it.  gcEdge
-        is a GraphicsContext instance
+        Draw an arc using GraphicsContext instance gcEdge, centered at x,y,
+        with width and height and angles from 0.0 to 360.0
+        
+        If the color rgbFace is not None, fill the arc with it.
         """
         pass  # derived must override
 
@@ -290,20 +289,20 @@ class RendererBase:
 
     def draw_polygon(self, gc, rgbFace, points):
         """
-        Draw a polygon.  points is a len vertices tuple, each element
+        Draw a polygon using the GraphicsContext instance gc
+        points is a len vertices tuple, each element
         giving the x,y coords a vertex
 
-        If rgbFace is not None, fill the poly with it.  gc
-        is a GraphicsContext instance
+        If the color rgbFace is not None, fill the polygon with it
         """  
         pass # derived must override
 
-    def draw_rectangle(self, gcEdge, gcFace, x, y, width, height):
+    def draw_rectangle(self, gcEdge, rgbFace, x, y, width, height):
         """
-        Draw a rectangle with lower left at x,y with width and height.
+        Draw a rectangle using the GraphicsContext instance gcEdge,
+        with lower left at x,y with width and height.
 
-        If gcFace is not None, fill the rectangle with it.  gcEdge
-        is a GraphicsContext instance
+        If rgbFace is not None, fill the rectangle with it.
         """
         pass # derived must override
 
