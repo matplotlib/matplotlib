@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 from matplotlib.matlab import *
 figure(1)
 plot(10*rand(12), 'o')
@@ -35,8 +37,4 @@ p = axvspan(1.25, 1.55, facecolor='g', alpha=0.5)
 axis([-1,2,-1,2])
 
 
-
-
-
 show()
-     

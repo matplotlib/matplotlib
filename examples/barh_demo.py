@@ -1,4 +1,6 @@
+#!/usr/bin/env python
 # make a horizontal bar chart
+
 from matplotlib.matlab import *
 x = 3+10*rand(5)    # the bar lengths
 y = arange(5)+.5    # the bar centers on the y axis
