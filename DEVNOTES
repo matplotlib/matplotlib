@@ -1,0 +1,43 @@
+
+# html pages
+scp index.html jdh2358@matplotlib.sf.net:/home/groups/m/ma/matplotlib/htdocs
+
+# project page
+http://sourceforge.net/projects/matplotlib
+
+# home page
+http://matplotlib.sourceforge.net
+
+### updating the website  
+  
+  # build the docs
+  mother> cd ~/python/projects/matplotlib
+  mother> make htmldocs
+  mother> cd htdocs
+  mother> python process_docs.py
+  mother> python convert.py
+  mother> tar cvfz site.tar.gz *.html screenshots tut examples
+  mother> scp site.tar.gz jdh2358@matplotlib.sf.net:/home/groups/m/ma/matplotlib/htdocs/
+
+ mother> ssh -l jdh2358 shell.sf.net
+ sf> cd /home/groups/m/ma/matplotlib/htdocs
+ sf> tar xvfz site.tar.gz
+
+
+### Doing a release
+
+> clearbak
+> make htmldocs
+
+# edit setup.py to the correct version number
+> make release
+
+# anon ftp the tar.gz and exe file to SF
+> ncftp upload.sourceforge.net
+ftp> cd incoming
+ftp> put tar.gz and exe
+
+# go to https://sourceforge.net/project/admin/?group_id=80706 and do a
+#  file release
+
+Trove categorization is under Public info on the admin page
