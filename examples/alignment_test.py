@@ -90,5 +90,5 @@ ax.text(left, top, 'rotated',
         transy=ax.yaxis.transAxis)
 
 axis('off')
-savefig('alignment_test', dpi=300)
+savefig('alignment_test', dpi=100)
 show()

@@ -344,3 +344,5 @@
 -- add agg and and image generic tostring methods
 
 -- expose line set dashes
+
+-- fix vertical layout in PS
