@@ -6,6 +6,7 @@
 #include <cmath>
 #include <cstdio>
 #include <png.h>
+#include "agg_conv_transform.h"
 #include "util/agg_color_conv_rgb8.h"
 
 #include "ft2font.h"
@@ -344,29 +345,29 @@ RendererAgg::draw_line_collection(const Py::Tuple& args) {
       theRasterizer->add_path(stroke);
     }
     else {
-
+      
       /*
-    size_t N = dashSeq.length();
-    if (N%2 != 0  ) 
-      throw Py::ValueError(Printf("dashes must be an even length sequence; found %d", N).str());     
-    
-    typedef agg::conv_dash<agg::path_storage> dash_t;
-    dash_t dash(path);
-    
-    double on, off;
-    
-    //dash.dash_start(offset);
-    for (size_t i=0; i<N/2; i+=1) {
-      on = points_to_pixels_snapto(dashSeq[2*i]);
-      off = points_to_pixels_snapto(dashSeq[2*i+1]);
-      dash.add_dash(on, off);
-    }
-    agg::conv_stroke<dash_t> stroke(dash);
-    stroke.line_cap(cap);
-    stroke.line_join(join);
-    stroke.width(lw);
-    theRasterizer->add_path(stroke);
-
+	size_t N = dashSeq.length();
+	if (N%2 != 0  ) 
+	throw Py::ValueError(Printf("dashes must be an even length sequence; found %d", N).str());     
+	
+	typedef agg::conv_dash<agg::path_storage> dash_t;
+	dash_t dash(path);
+	
+	double on, off;
+	
+	//dash.dash_start(offset);
+	for (size_t i=0; i<N/2; i+=1) {
+	on = points_to_pixels_snapto(dashSeq[2*i]);
+	off = points_to_pixels_snapto(dashSeq[2*i+1]);
+	dash.add_dash(on, off);
+	}
+	agg::conv_stroke<dash_t> stroke(dash);
+	stroke.line_cap(cap);
+	stroke.line_join(join);
+	stroke.width(lw);
+	theRasterizer->add_path(stroke);
+	
       */
       dash_t dash(path);
       //dash.dash_start(offset);
@@ -850,6 +851,150 @@ RendererAgg::draw_lines(const Py::Tuple& args) {
 }
 
 Py::Object
+RendererAgg::draw_markers(const Py::Tuple& args) {
+  //draw_markers(gc, path, xo, yo)
+  theRasterizer->reset_clipping();
+  _VERBOSE("RendererAgg::draw_markers");
+  args.verify_length(4);  
+  Py::Object gc = args[0];
+  Py::SeqBase<Py::Object> pathseq = args[1];
+  Py::SeqBase<Py::Object> xo = args[2];
+  Py::SeqBase<Py::Object> yo = args[3];
+  
+  set_clip_rectangle(gc);
+  size_t Npath = pathseq.length();
+  size_t Nx = xo.length();
+  size_t Ny = yo.length();
+  
+  if (Nx!=Ny) 
+    throw Py::ValueError(Printf("x and y must be equal length sequences; found %d and %d", Nx, Ny).str());
+  
+  
+  
+  agg::vcgen_stroke::line_cap_e cap = get_linecap(gc);
+  agg::vcgen_stroke::line_join_e join = get_joinstyle(gc);
+  
+  
+  double lw = points_to_pixels ( gc.getAttr("_linewidth") ) ;
+  //std::cout << "agg lw " << lw << std::endl;
+  agg::rgba color = get_color(gc);
+  double heightd = double(height);  
+  
+  // process the dashes
+  Py::Tuple dashes = get_dashes(gc);
+  
+  bool useDashes = dashes[0].ptr() != Py_None;
+  double offset = 0;
+  Py::SeqBase<Py::Object> dashSeq;
+  
+  if ( dashes[0].ptr() != Py_None ) { // use dashes
+    offset = points_to_pixels_snapto(dashes[0]);
+    dashSeq = dashes[1]; 
+  };
+  
+  
+  // initialize the marker path
+  agg::path_storage marker;
+  
+  bool fill = false;
+  agg::rgba fillColor;
+  for (size_t i=0; i<Npath; i++) {
+    Py::Tuple tup = Py::Tuple(pathseq[i]);
+    unsigned code = Py::Int(tup[0]);
+    if (code==1) { //moveto
+      double x = Py::Float(tup[1]);
+      double y = Py::Float(tup[2]);
+      marker.move_to(x, heightd-y);
+    }
+    else if (code==2) { //lineto
+      double x = Py::Float(tup[1]);
+      double y = Py::Float(tup[2]);
+      marker.line_to(x, heightd-y);
+    }
+    else if (code==6) { //endpoly
+      marker.close_polygon();
+      fill = Py::Int(tup[1]);
+      if (fill) {
+	fillColor.r = Py::Float(tup[2]);
+	fillColor.g = Py::Float(tup[3]);
+	fillColor.b = Py::Float(tup[4]);
+	fillColor.a = Py::Float(tup[5]);
+      }
+    }
+    
+  }
+  
+  /*
+    double myx, myy;
+    unsigned int cmd;
+    while(!agg::is_stop(cmd = marker.vertex(&myx, &myy)))
+    {
+    std::cout << cmd << " " << myx << " " << myy << std::endl;
+    }
+  */
+  int isaa = antialiased(gc);
+  
+  
+  agg::path_storage path;
+  typedef agg::conv_transform<agg::path_storage, agg::trans_affine> transpath;
+  for (size_t i=0; i<Nx; ++i) {
+    double thisx = Py::Float( xo[i] );
+    double thisy = Py::Float( yo[i] );
+    thisy = heightd - thisy;  //flipy
+    agg::trans_affine mtx;
+    mtx *= agg::trans_affine_translation(thisx,thisy);
+    transpath trans(marker, mtx);
+    
+    //std::cout << width << " " << height << std::endl;
+    if (! useDashes ) {
+      std::cout << "stroking" << std::endl;
+      agg::conv_stroke<transpath> stroke(trans);
+      stroke.line_cap(cap);
+      stroke.line_join(join);
+      stroke.width(lw);
+      //freeze was here std::cout << "\t adding path!" << std::endl;         
+      theRasterizer->add_path(stroke);
+    }
+    else {
+      /*
+	size_t N = dashSeq.length();
+	if (N%2 != 0  ) 
+	throw Py::ValueError(Printf("dashes must be an even length sequence; found %d", N).str());     
+	
+	typedef agg::conv_dash<agg::path_storage> dash_t;
+	dash_t dash(path);
+	
+	double on, off;
+	
+	//dash.dash_start(offset);
+	for (size_t i=0; i<N/2; i+=1) {
+	on = points_to_pixels_snapto(dashSeq[2*i]);
+	off = points_to_pixels_snapto(dashSeq[2*i+1]);
+	dash.add_dash(on, off);
+	}
+	agg::conv_stroke<dash_t> stroke(dash);
+	stroke.line_cap(cap);
+	stroke.line_join(join);
+	stroke.width(lw);
+	theRasterizer->add_path(stroke);
+      */
+    }
+  }
+  if ( isaa ) {
+    std::cout << "drawing " << color.r << std::endl;;
+    rendererAA->color(color);    
+    agg::render_scanlines(*theRasterizer, *slineP8, *rendererAA); 
+  }
+  else {
+    rendererBin->color(color);     
+    agg::render_scanlines(*theRasterizer, *slineBin, *rendererBin); 
+  }
+  
+  return Py::Object();
+  
+}
+
+Py::Object
 RendererAgg::draw_text(const Py::Tuple& args) {
   _VERBOSE("RendererAgg::draw_text");
   theRasterizer->reset_clipping();
@@ -1009,7 +1154,6 @@ RendererAgg::write_rgba(const Py::Tuple& args) {
 Py::Object 
 RendererAgg::write_png(const Py::Tuple& args)
 {
-  //small memory leak in this function - JDH 2004-06-08
   _VERBOSE("RendererAgg::write_png");
   
   args.verify_length(1);
@@ -1404,6 +1548,8 @@ void RendererAgg::init_type()
 		     "draw_regpoly_collection()\n");
   add_varargs_method("draw_lines", &RendererAgg::draw_lines, 
 		     "draw_lines(gc, x, y,)\n");
+  add_varargs_method("draw_markers", &RendererAgg::draw_markers, 
+		     "draw_markers(gc, path, x, y)\n");
   add_varargs_method("draw_text", &RendererAgg::draw_text, 
 		     "draw_text(font, x, y, r, g, b, a)\n");
   add_varargs_method("draw_image", &RendererAgg::draw_image, 

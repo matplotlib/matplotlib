@@ -57,6 +57,7 @@ public:
   Py::Object draw_poly_collection(const Py::Tuple& args);
   Py::Object draw_regpoly_collection(const Py::Tuple& args);
   Py::Object draw_lines(const Py::Tuple & args);
+  Py::Object draw_markers(const Py::Tuple & args);
   Py::Object draw_text(const Py::Tuple & args);
   Py::Object draw_image(const Py::Tuple & args);
 

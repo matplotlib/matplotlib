@@ -569,9 +569,16 @@ class LocationEvent(Event):
         for a in self.canvas.figure.get_axes():
             if self.x is not None and self.y is not None and a.in_axes(self.x, self.y):
                 self.inaxes = a
-                xdata, ydata = a.transData.inverse_xy_tup((self.x, self.y))
-                self.xdata  = xdata
-                self.ydata  = ydata
+                #self.x, self.y, a.transData.get_funcx().get_type(), a.transData.get_funcy().get_type()
+                
+                try: xdata, ydata = a.transData.inverse_xy_tup((self.x, self.y))
+                except ValueError:
+                    self.xdata  = None
+                    self.ydata  = None
+                else:
+                    self.xdata  = xdata
+                    self.ydata  = ydata
+
                 break
 
 class MouseEvent(LocationEvent):
@@ -604,21 +611,8 @@ class MouseEvent(LocationEvent):
         button pressed None, 1, 2, 3
         """
         LocationEvent.__init__(self, name, canvas, x, y)
-        self.x = x
-        self.y = y
         self.button = button
         self.key = key
-
-        self.inaxes = None
-        for a in self.canvas.figure.get_axes():
-            if a.in_axes(self.x, self.y):
-                self.inaxes = a
-                xdata, ydata = a.transData.inverse_xy_tup((self.x, self.y))
-                self.xdata  = xdata
-                self.ydata  = ydata
-                break
-
-
 
 class KeyEvent(LocationEvent):
     """
