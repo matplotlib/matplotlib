@@ -270,4 +270,6 @@
 
 -- fix newlines across backends
 
--- support partial window expose redraws in agg
+-- DONE - support partial window expose redraws in agg
+
+-- Fix datalim problem with aspect preserved for image backend
