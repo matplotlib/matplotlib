@@ -5,7 +5,6 @@ GOALS
 INSTALL
 INTERACTIVE
 KNOWN_BUGS
-MANIFEST
 MANIFEST.in
 Makefile
 README
@@ -349,6 +348,7 @@ matplotlib/backends/backend_ps.py
 matplotlib/backends/backend_template.py
 matplotlib/backends/backend_tkagg.py
 matplotlib/backends/backend_wx.py
+matplotlib/backends/backend_wxagg.py
 matplotlib/backends/tkagg.py
 matplotlib/backends/ttf_font_manager.py
 src/_backend_agg.cpp

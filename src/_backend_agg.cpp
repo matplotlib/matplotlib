@@ -2,6 +2,8 @@
 #include <png.h>
 #include "ft2font.h"
 #include "_backend_agg.h"
+
+#include "util/agg_color_conv_rgb8.h"
 #include "_image.h"
 
 static PyObject *ErrorObject;
@@ -909,6 +911,34 @@ RendererAgg_write_png(RendererAggObject *renderer, PyObject *args)
     return Py_None;
 }
 
+char RendererAgg_tostring_rgb__doc__[] = 
+"numrows, numcols, s = tostring_rgb()"
+"\n"
+"Return the rendered buffer as an RGB string";
+
+static PyObject *
+RendererAgg_tostring_rgb(RendererAggObject *renderer, PyObject* args) {
+  
+  if (!PyArg_ParseTuple(args, ":tostring_rgb"))
+    return NULL;
+  int row_len = renderer->rbase->width()*3;
+  unsigned char* buf_tmp = 
+                new unsigned char[row_len * renderer->rbase->height()];
+  agg::rendering_buffer rbuf_tmp;
+  rbuf_tmp.attach(buf_tmp, 
+		  renderer->rbase->width(), 
+		  renderer->rbase->height(), 
+		  row_len);
+
+  color_conv(&rbuf_tmp, renderer->rbuf, agg::color_conv_rgba32_to_rgb24());
+
+
+  return Py_BuildValue("s#", 
+		       buf_tmp, 
+		       row_len * renderer->rbase->height());
+  
+  
+}
 
 
 // must be defined before getattr
@@ -918,9 +948,8 @@ static PyMethodDef RendererAgg_methods[] = {
   { "draw_rectangle",	(PyCFunction)RendererAgg_draw_rectangle, METH_VARARGS},
   { "draw_polygon",	(PyCFunction)RendererAgg_draw_polygon, METH_VARARGS},
   { "draw_image",	(PyCFunction)RendererAgg_draw_image,	 METH_VARARGS, RendererAgg_draw_image__doc__},
-  { "draw_lines",	(PyCFunction)RendererAgg_draw_lines,	 METH_VARARGS},
-
-  { "draw_text",	(PyCFunction)RendererAgg_draw_text,	 METH_VARARGS, RendererAgg_draw_text__doc__},
+  { "draw_lines",	(PyCFunction)RendererAgg_draw_lines,	 METH_VARARGS},  { "draw_text",	(PyCFunction)RendererAgg_draw_text,	 METH_VARARGS, RendererAgg_draw_text__doc__},
+  { "tostring_rgb",	(PyCFunction)RendererAgg_tostring_rgb,	 METH_VARARGS, RendererAgg_tostring_rgb__doc__},
   { "write_rgba",	(PyCFunction)RendererAgg_write_rgba,	 METH_VARARGS},
   { "write_png",	(PyCFunction)RendererAgg_write_png,	 METH_VARARGS},
 
