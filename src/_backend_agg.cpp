@@ -113,10 +113,8 @@ GCAgg::_set_dashes(const Py::Object& gc) {
   //return the dashOffset, dashes sequence tuple.  
   _VERBOSE("GCAgg::_set_dashes");
   
-  if (dasha != NULL) {
-    delete [] dasha;
-    dasha = NULL;
-  }
+  delete [] dasha;
+  dasha = NULL;
   
   Py::Tuple dashtup = gc.getAttr("_dashes");
   
@@ -126,21 +124,20 @@ GCAgg::_set_dashes(const Py::Object& gc) {
   
   bool useDashes = dashtup[0].ptr() != Py_None;
   
-  if ( useDashes ) { 
+  if ( !useDashes ) return;  
     
-    dashOffset = points_to_pixels(dashtup[0]);
-    Py::SeqBase<Py::Object> dashSeq;
-    dashSeq = dashtup[1]; 
+  dashOffset = points_to_pixels(dashtup[0]);
+  Py::SeqBase<Py::Object> dashSeq;
+  dashSeq = dashtup[1]; 
     
-    Ndash = dashSeq.length();
-    if (Ndash%2 != 0  ) 
-      throw Py::ValueError(Printf("dash sequence must be an even length sequence; found %d", Ndash).str());     
+  Ndash = dashSeq.length();
+  if (Ndash%2 != 0  ) 
+    throw Py::ValueError(Printf("dash sequence must be an even length sequence; found %d", Ndash).str());     
+  
+  dasha = new double[Ndash];    
     
-    dasha = new double[Ndash];    
-    
-    for (size_t i=0; i<Ndash; i++) 
-      dasha[i] = points_to_pixels(dashSeq[i]);
-  }
+  for (size_t i=0; i<Ndash; i++) 
+    dasha[i] = points_to_pixels(dashSeq[i]);
   
 }
 
@@ -150,17 +147,14 @@ GCAgg::_set_clip_rectangle( const Py::Object& gc) {
   //set the clip rectangle from the gc
   
   _VERBOSE("GCAgg::set_clip_rectangle");
-  
-  
+
   delete [] cliprect;
-  Py::Object o ( gc.getAttr( "_cliprect" ) );
+  cliprect = NULL;
   
-  if (o.ptr()==Py_None) {
-    // set clipping to false and return success
-    delete [] cliprect;
-    cliprect=NULL;
+  Py::Object o ( gc.getAttr( "_cliprect" ) );
+  if (o.ptr()==Py_None) 
     return;
-  }
+  
   
   Py::SeqBase<Py::Object> rect( o );
   
@@ -169,7 +163,6 @@ GCAgg::_set_clip_rectangle( const Py::Object& gc) {
   double w = Py::Float(rect[2]) ; 
   double h = Py::Float(rect[3]) ; 
   
-  delete [] cliprect;
   cliprect = new double[4];
   cliprect[0] = l;
   cliprect[1] = b;
@@ -1056,9 +1049,9 @@ RendererAgg::_render_lines_path(agg::path_storage &path, const GCAgg& gc) {
   
 }
 
-/*
+
 Py::Object
-RendererAgg::draw_markers(const Py::Tuple& args) {
+RendererAgg::_draw_markers(const Py::Tuple& args) {
   //draw_markers(gc, path, rgbFace, xo, yo, transform)
   theRasterizer->reset_clipping();
   
@@ -1178,7 +1171,6 @@ RendererAgg::draw_markers(const Py::Tuple& args) {
   
 }
 
-*/
 
 Py::Object
 RendererAgg::draw_markers(const Py::Tuple& args) {

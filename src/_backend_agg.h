@@ -79,7 +79,7 @@ protected:
   void _set_antialiased( const Py::Object& gc);
 };
 
-// the renderer
+// th renderer
 class RendererAgg: public Py::PythonExtension<RendererAgg> {
   typedef std::pair<bool, agg::rgba> facepair_t;
 public:
@@ -97,6 +97,7 @@ public:
   Py::Object draw_regpoly_collection(const Py::Tuple& args);
   Py::Object draw_lines(const Py::Tuple & args);
   Py::Object draw_path(const Py::Tuple & args);
+  Py::Object _draw_markers(const Py::Tuple & args);
   Py::Object draw_markers(const Py::Tuple & args);
   Py::Object draw_text(const Py::Tuple & args);
   Py::Object draw_image(const Py::Tuple & args);
