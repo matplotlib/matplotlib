@@ -1286,8 +1286,3 @@ DL_EXPORT(void)
   _backend_agg = new _backend_agg_module;
   
 };
-
-
-
-
-
