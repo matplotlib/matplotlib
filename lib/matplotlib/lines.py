@@ -132,9 +132,9 @@ class Line2D(Artist):
         self.set_data(xdata, ydata)
 
         if not self._lineStyles.has_key(linestyle):
-            verbose.report_error('Unrecognized line style %s' %( linestyle, type(linestyle)))
+            verbose.report_error('Unrecognized line style %s, %s' %( linestyle, type(linestyle)))
         if not self._markers.has_key(marker):
-            verbose.report_error('Unrecognized marker style %s'%( marker, type(marker)))
+            verbose.report_error('Unrecognized marker style %s, %s'%( marker, type(marker)))
 
         self.set_marker(marker)
         self._lineFunc = self._lineStyles.get(linestyle, self._draw_nothing)
@@ -202,16 +202,7 @@ ACCEPTS: [True | False]
         """
         self._useDataClipping = b
 
-        
-    def set_vertical_offset(self, voff, transOffset=None):
-        """
-Set the vertical offset of the line
-
-ACCEPTS: DEPRECATED
-        """
-        # JDH: todo; handle the offset
-        raise NotImplementedError('jdh fix me!')
-        
+                
     def _is_sorted(self, x):
         "return true if x is sorted"
         if len(x)<2: return 1
@@ -297,6 +288,7 @@ ACCEPTS: DEPRECATED
                 if self._lod:
                     # if level of detail is on, decimate the data
                     # based on pixel width
+                    raise NotImplementedError('LOD deprecated')
                     l, b, w, h = self.get_window_extent().get_bounds()
                     skip = int((indMax-indMin)/w)                    
                 if skip>0:  indx = arange(indMin, indMax, skip)
@@ -679,8 +671,6 @@ ACCEPTS: sequence of on/off ink in points
 
     def _draw_tickdown(self, renderer, gc, xt, yt):
         offset = renderer.points_to_pixels(self._markersize)
-
-        rgbFace = self._get_rgb_face()
         for (x,y) in zip(xt, yt):
             renderer.draw_line(gc, x, y-offset, x, y)
 

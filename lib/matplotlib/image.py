@@ -226,9 +226,7 @@ ACCEPTS ['free' | 'preserve']"""
         """
 Set the interpolation method the image uses when resizing.
 
-ACCEPTS: ['bicubic' | 'bilinear' | 'blackman100' | 'blackman256' | 'blackman64',
-        'nearest' | 'sinc144' | 'sinc256' | 'sinc64' | 'spline16' | 'spline36']
-        """
+ACCEPTS: ['bicubic' | 'bilinear' | 'blackman100' | 'blackman256' | 'blackman64', 'nearest' | 'sinc144' | 'sinc256' | 'sinc64' | 'spline16' | 'spline36']"""
         
         s = s.lower()
         if not self._interpd.has_key(s):

@@ -310,7 +310,7 @@ class LogFormatterMathtext(LogFormatter):
     def __call__(self, x, pos=0):
         'Return the format for tick val x at position pos'        
         self.verify_intervals()
-        d = abs(self.viewInterval.span())
+
         b = self.base
         # only label the decades
         fx = math.log(x)/math.log(b)
@@ -470,10 +470,8 @@ class LinearLocator(Locator):
         if vmin==vmax:
             vmin-=1
             vmax+=1
-        try:
-            (exponent, remainder) = divmod(math.log10(vmax - vmin), 1)
-        except OverflowError:
-            raise SystemExit('Overflow error in autoscale %s' %(vmin, vmax))
+
+        exponent, remainder = divmod(math.log10(vmax - vmin), 1)
 
         if remainder < 0.5:
             exponent -= 1

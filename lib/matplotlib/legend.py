@@ -177,7 +177,7 @@ The following dimensions are in axes coords
 
     def _get_handle_text_bbox(self, renderer):
         'Get a bbox for the text and lines in axes coords'
-        boxes = []
+
         bboxesText = [t.get_window_extent(renderer) for t in self.texts]
         bboxesHandles = [h.get_window_extent(renderer) for h in self.handles if h is not None]
 
