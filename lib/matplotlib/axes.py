@@ -1531,8 +1531,8 @@ class Axes(Artist):
 
         The location codes are
 
-          'best' : 0,          (currently not supported, defaults to upper right)
-          'upper right'  : 1,  (default)
+          'best' : 0,          (default)
+          'upper right'  : 1,
           'upper left'   : 2,
           'lower left'   : 3,
           'lower right'  : 4,
@@ -1572,13 +1572,13 @@ class Axes(Artist):
         if len(args)==0:
             labels = [line.get_label() for line in get_handles()]
             handles = get_handles()
-            loc = popd(kwargs, 'loc', 1)
+            loc = popd(kwargs, 'loc', 0)
 
         elif len(args)==1:
             # LABELS
             labels = args[0]
             handles = [h for h, label in zip(get_handles(), labels)]
-            loc = popd(kwargs, 'loc', 1)
+            loc = popd(kwargs, 'loc', 0)
 
         elif len(args)==2:
             if is_string_like(args[1]) or isinstance(args[1], int):
@@ -1588,7 +1588,7 @@ class Axes(Artist):
             else:
                 # LINES, LABELS
                 handles, labels = args
-                loc = popd(kwargs, 'loc', 1)
+                loc = popd(kwargs, 'loc', 0)
 
         elif len(args)==3:
             # LINES, LABELS, LOC

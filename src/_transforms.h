@@ -304,6 +304,7 @@ public:
   Py::Object update(const Py::Tuple &args);
   Py::Object update_numerix( const Py::Tuple &args);
   Py::Object contains(const Py::Tuple &args);
+  Py::Object count_contains(const Py::Tuple &args);
 
   Py::Object width(const Py::Tuple &args) {
     double w = _ur->xval() - _ll->xval();

@@ -35,7 +35,7 @@ from patches import Patch, Rectangle, Shadow, bbox_artist, draw_bbox
 from collections import LineCollection
 from text import Text
 from transforms import Bbox, Point, Value, get_bbox_transform, bbox_all,\
-     unit_bbox, inverse_transform_bbox
+     unit_bbox, inverse_transform_bbox, lbwh_to_bbox
 
 class Legend(Artist):
     """
@@ -113,7 +113,7 @@ The following dimensions are in axes coords
         Artist.__init__(self)
         if is_string_like(loc) and not self.codes.has_key(loc):
             warnings.warn('Unrecognized location %s. Falling back on upper right; valid locations are\n%s\t' %(loc, '\n\t'.join(self.codes.keys())))
-        if is_string_like(loc): loc = self.codes.get(loc, 1)
+        if is_string_like(loc): loc = self.codes.get(loc, 0)
         
         self.numpoints = numpoints
         self.prop = prop
@@ -125,7 +125,8 @@ The following dimensions are in axes coords
         self.handletextsep = handletextsep
         self.axespad = axespad
         self.shadow = shadow
-        
+
+        self.isaxes = isaxes
         if isaxes:  # parent is an Axes
             self.set_figure(parent.figure)
         else:        # parent is a Figure
@@ -144,7 +145,7 @@ The following dimensions are in axes coords
             self._xdata = linspace(left, left + self.handlelen, self.numpoints)
         textleft = left+ self.handlelen+self.handletextsep
         self.texts = self._get_texts(labels, textleft, upper)
-        self.handles = self._get_handles(handles, self.texts)
+        self.legendHandles = self._get_handles(handles, self.texts)
         
         left, top = self.texts[-1].get_position()
         HEIGHT = self._approx_text_height()
@@ -176,7 +177,7 @@ The following dimensions are in axes coords
             self.legendPatch.draw(renderer)
         
 
-        for h in self.handles:            
+        for h in self.legendHandles:            
             if h is not None:
 		h.draw(renderer)
         	if 0: bbox_artist(h, renderer)
@@ -192,7 +193,7 @@ The following dimensions are in axes coords
         'Get a bbox for the text and lines in axes coords'
 
         bboxesText = [t.get_window_extent(renderer) for t in self.texts]
-        bboxesHandles = [h.get_window_extent(renderer) for h in self.handles if h is not None]
+        bboxesHandles = [h.get_window_extent(renderer) for h in self.legendHandles if h is not None]
 
 
         bboxesAll = bboxesText
@@ -249,6 +250,68 @@ The following dimensions are in axes coords
                                                
         return ret
 
+    def _auto_legend_data(self):
+        """ Returns list of vertices and extents covered by the plot.
+
+        Returns a two long list.
+
+        First element is a list of (x, y) vertices (in
+        axes-coordinates) covered by all the lines and line
+        collections, in the legend's handles.
+
+        Second element is a list of bounding boxes for all the patches in
+        the legend's handles. 
+        """
+        
+        if not self.isaxes:
+            raise Exception, 'Auto legends not available for figure legends.'
+
+        def get_handles(ax):
+            handles = ax.lines
+            handles.extend(ax.patches)
+            handles.extend([c for c in ax.collections if isinstance(c, LineCollection)])
+            return handles
+        
+        ax = self.parent
+        handles = get_handles(ax)
+        vertices = []
+        bboxes = []
+
+        inv = ax.transAxes.inverse_xy_tup
+        for handle in handles:
+
+            if isinstance(handle, Line2D):
+                
+                xdata = handle.get_xdata()
+                ydata = handle.get_ydata()
+                trans = handle.get_transform()
+                xt, yt = trans.numerix_x_y(xdata, ydata)
+
+                # XXX need a special method in transform to do a list of verts
+                averts = [inv(v) for v in zip(xt, yt)]
+                vertices.extend(averts)
+
+            elif isinstance(handle, Patch):
+
+                verts = handle.get_verts()
+                trans = handle.get_transform()
+                tverts = trans.seq_xy_tups(verts)
+
+                averts = [inv(v) for v in tverts]
+
+                bbox = unit_bbox()
+                bbox.update(averts, True)
+                bboxes.append(bbox)
+                
+            elif isinstance(handle, LineCollection):
+                verts = handle.get_verts()
+                trans = handle.get_transform()
+                tverts = trans.seq_xy_tups(verts)
+                averts = [inv(v) for v in tverts]
+                vertices.extend(averts)
+                
+        return [vertices, bboxes]
+
     def draw_frame(self, b):
         'b is a boolean.  Set draw frame to b'
         self._drawFrame = b
@@ -259,11 +322,11 @@ The following dimensions are in axes coords
 
     def get_lines(self):
         'return a list of lines.Line2D instances in the legend'
-        return [h for h in self.handles if isinstance(h, Line2D)]  
+        return [h for h in self.legendHandles if isinstance(h, Line2D)]  
 
     def get_patches(self):
         'return a list of patch instances in the legend'
-        return silent_list('Patch', [h for h in self.handles if isinstance(h, Patch)])
+        return silent_list('Patch', [h for h in self.legendHandles if isinstance(h, Patch)])
 
     def get_texts(self):
         'return a list of text.Text instance in the legend'
@@ -302,7 +365,7 @@ The following dimensions are in axes coords
             x,y = t.get_position()
             t.set_position( (x+ox, y+oy) )
 
-        for h in self.handles:
+        for h in self.legendHandles:
             if isinstance(h, Line2D):
                 x,y = h.get_xdata(), h.get_ydata()
                 h.set_data( x+ox, y+oy)
@@ -313,6 +376,85 @@ The following dimensions are in axes coords
         x, y = self.legendPatch.get_x(), self.legendPatch.get_y()
         self.legendPatch.set_x(x+ox)
         self.legendPatch.set_y(y+oy)
+
+    def _find_best_position(self, width, height, consider=None):
+        """Determine the best location to place the legend.
+
+        `consider` is a list of (x, y) pairs to consider as a potential
+        lower-left corner of the legend. All are axes coords.
+        """
+
+        verts, bboxes = self._auto_legend_data()
+
+        consider = [self._loc_to_axes_coords(x, width, height) for x in range(1, len(self.codes))]
+
+        tx, ty = self.legendPatch.xy
+
+        candidates = []
+        for l, b in consider:
+            legendBox = lbwh_to_bbox(l, b, width, height)
+            badness = 0
+            badness = legendBox.count_contains(verts)
+            ox, oy = l-tx, b-ty
+            for bbox in bboxes:
+                if legendBox.overlaps(bbox):
+                    badness += 1
+
+            if badness == 0:
+                return ox, oy
+
+            candidates.append((badness, (ox, oy)))
+
+        # rather than use min() or list.sort(), do this so that we are assured
+        # that in the case of two equal badnesses, the one first considered is
+        # returned.
+        minCandidate = candidates[0]
+        for candidate in candidates:
+            if candidate[0] < minCandidate[0]:
+                minCandidate = candidate
+
+        ox, oy = minCandidate[1]
+
+        return ox, oy
+        
+
+    def _loc_to_axes_coords(self, loc, width, height):
+        """Convert a location code to axes coordinates.
+
+        - loc: a location code, which may be a pair of literal axes coords, or
+          in range(1, 11). This coresponds to the possible values for
+          self._loc, excluding "best".
+
+        - width, height: the final size of the legend, axes units.
+        """
+        BEST, UR, UL, LL, LR, R, CL, CR, LC, UC, C = range(11)
+
+        left = self.axespad
+        right = 1.0 - (self.axespad + width)
+        upper = 1.0 - (self.axespad + height)
+        lower = self.axespad
+        centerx = 0.5 - (width/2.0)
+        centery = 0.5 - (height/2.0)
+
+        if loc == UR:
+            return right, upper
+        if loc == UL:
+            return left, upper
+        if loc == LL:
+            return left, lower
+        if loc == LR:
+            return right, lower
+        if loc == CL:
+            return left, centery
+        if loc in (CR, R):
+            return right, centery
+        if loc == LC:
+            return centerx, lower
+        if loc == UC:
+            return centerx, upper
+        if loc == C:
+            return centerx, centery
+        raise TypeError, "%r isn't an understood type code." % (loc,)
 
     def _update_positions(self, renderer):
         # called from renderer to allow more precise estimates of
@@ -338,7 +480,7 @@ The following dimensions are in axes coords
         h += 2*self.labelsep
         hpos.append( (b,h) )
         
-        for handle, tup in zip(self.handles, hpos):
+        for handle, tup in zip(self.legendHandles, hpos):
             y,h = tup
             if isinstance(handle, Line2D):
                 ydata = y*ones(self._xdata.shape, Float)            
@@ -366,11 +508,13 @@ The following dimensions are in axes coords
             oy = y-yo
             self._offset(ox, oy)
         else:
+            if self._loc in (BEST,):
+                ox, oy = self._find_best_position(w, h)
             if self._loc in (UL, LL, CL):           # left
                 ox = self.axespad - l
-            if self._loc in (BEST, UR, LR, R, CR):  # right
+            if self._loc in (UR, LR, R, CR):  # right
                 ox = 1 - (l + w + self.axespad)
-            if self._loc in (BEST, UR, UL, UC):     # upper
+            if self._loc in (UR, UL, UC):     # upper
                 oy = 1 - (b + h + self.axespad)
             if self._loc in (LL, LR, LC):           # lower
                 oy = self.axespad - b
