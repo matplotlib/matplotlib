@@ -741,9 +741,9 @@ class FigureCanvasGTK(gtk.DrawingArea, FigureCanvasBase):
         if w==1 or h==1: return # empty fig
 
         # compute desired figure size in inches
-        dpival = self.figure.dpi.get()
-        winch = w/dpival
-        hinch = h/dpival
+        dpi   = self.figure.dpi.get()
+        winch = w / dpi
+        hinch = h / dpi
         self.figure.set_figsize_inches(winch, hinch)
         
         self._new_pixmap = True
@@ -751,7 +751,6 @@ class FigureCanvasGTK(gtk.DrawingArea, FigureCanvasBase):
         
 
     def draw(self):
-        #if self._doplot:
         self._new_pixmap = True
         self.expose_event(self, None)
 
@@ -789,23 +788,34 @@ class FigureCanvasGTK(gtk.DrawingArea, FigureCanvasBase):
         ext = ext[1:]
         if ext == '':
             ext      = IMAGE_FORMAT_DEFAULT
-            filename = filename + '.' + ext
-        
-        if self.flags() & gtk.REALIZED == 0:
-            gtk.DrawingArea.realize(self) # for self.window(for pixmap) and figure sizing?
+            filename = filename + '.' + ext        
 
         # save figure settings
         origDPI       = self.figure.dpi.get()
         origfacecolor = self.figure.get_facecolor()
         origedgecolor = self.figure.get_edgecolor()
-        origW, origH  = int (self.figure.bbox.width()), int (self.figure.bbox.height())
+        origWIn, origHIn = self.figure.get_size_inches()
+
+        if self.flags() & gtk.REALIZED == 0:
+            # for self.window(for pixmap) and has a side effect of altering figure width,height
+            gtk.DrawingArea.realize(self) 
 
         self.figure.dpi.set(dpi)        
         self.figure.set_facecolor(facecolor)
         self.figure.set_edgecolor(edgecolor)
 
         ext = ext.lower()
-        if ext in ('eps', 'ps', 'svg',):
+        if ext in ('jpg', 'png'):          # native printing
+            width, height = self.figure.get_width_height()
+            width, height = int(width), int(height)
+            pixmap   = gtk.gdk.Pixmap (self.window, width, height)
+            renderer = RendererGTK(self, pixmap, width, height,
+                                   self.figure.dpi)
+
+            self.figure.draw (renderer)
+            gdk_pixmap_save (pixmap, filename, ext, width, height)
+
+        elif ext in ('eps', 'ps', 'svg',): # print through other backends
             if ext in ('svg',):
                 from backend_svg import FigureCanvasSVG as FigureCanvas
             else:
@@ -813,41 +823,34 @@ class FigureCanvasGTK(gtk.DrawingArea, FigureCanvasBase):
             fc = self.switch_backends(FigureCanvas)
             fc.print_figure(filename, dpi, facecolor, edgecolor, orientation)
 
-        elif ext in ('jpg', 'png'):
-            l,b,width, height = self.figure.bbox.get_bounds()
-            width, height = int(width), int(height)
-            pixmap   = gtk.gdk.Pixmap (self.window, width, height)
-            renderer = RendererGTK(self, pixmap, width, height,
-                                   self.figure.dpi)
-
-            self.figure.draw (renderer)
-        
-            pixbuf = gtk.gdk.Pixbuf(gtk.gdk.COLORSPACE_RGB, 0, 8,
-                                    width, height)
-            pixbuf.get_from_drawable(pixmap, self.window.get_colormap(),
-                                     0, 0, 0, 0, width, height)
-        
-            # pixbuf.save() only recognises this name
-            if ext == 'jpg': ext = 'jpeg' 
-            try: pixbuf.save(filename, ext)
-            except gobject.GError, msg:
-                msg = raise_msg_to_str(msg)
-                error_msg('Could not save figure to %s\n\n%s' % (
-                    filename, msg))
         else:
             error_msg('Format "%s" is not supported.\nSupported formats are %s.' %
                       (ext, ', '.join(IMAGE_FORMAT)))
 
         # restore figure settings
+        self.figure.dpi.set(origDPI)
         self.figure.set_facecolor(origfacecolor)
         self.figure.set_edgecolor(origedgecolor)
-        self.figure.dpi.set(origDPI)
-        self.figure.set_figsize_inches(origW/origDPI, origH/origDPI)
+        self.figure.set_figsize_inches(origWIn, origHIn)
 
 
-    #def set_do_plot(self, b):
-    #    'True if you want to render to screen, False is hardcopy only'
-    #    self._doplot = b
+def gdk_pixmap_save (pixmap, filename, ext, width, height):
+    """Save a gdk.Pixmap as a png or jpg file.
+    Can be called by other gtk backends after they have rendered to a pixmap.
+    """
+    # jpg colors don't match the display very well, png colors match better
+    pixbuf = gtk.gdk.Pixbuf(gtk.gdk.COLORSPACE_RGB, 0, 8,
+                            width, height)
+    pixbuf.get_from_drawable(pixmap, pixmap.get_colormap(),
+                             0, 0, 0, 0, width, height)
+        
+    # pixbuf.save() recognises 'jpeg' not 'jpg'
+    if ext == 'jpg': ext = 'jpeg' 
+    try: pixbuf.save(filename, ext)
+    except gobject.GError, msg:
+        msg = raise_msg_to_str(msg)
+        error_msg('Could not save figure to %s\n\n%s' % (
+            filename, msg))
 
 
 class FigureManagerGTK(FigureManagerBase):

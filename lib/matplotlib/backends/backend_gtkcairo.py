@@ -15,7 +15,7 @@ from backend_cairo import FigureCanvasCairo, RendererCairo, IMAGE_FORMAT, \
      IMAGE_FORMAT_DEFAULT, print_figure_fn
 from backend_gtk import gtk, FigureManagerGTK, FigureCanvasGTK, show,    \
      draw_if_interactive, error_msg, NavigationToolbar, backend_version, \
-     raise_msg_to_str
+     raise_msg_to_str, gdk_pixmap_save
 
 import gobject
 
@@ -77,10 +77,6 @@ class FigureCanvasGTKCairo(FigureCanvasGTK, FigureCanvasCairo):
             matrix   = cairo.Matrix ()
             renderer = RendererCairo (surface, matrix, width, height, self.figure.dpi)
             
-            #gc = renderer.new_gc()
-            #gc.ctx.set_rgb_color(1,0,0)
-            #renderer.draw_polygon(gc,(1,0,0),((0,0), (width,0), (width, height), (0,height)))
-
             self.figure.draw (renderer)
             
             self.window.set_back_pixmap (self._pixmap, False)
@@ -101,7 +97,6 @@ class FigureCanvasGTKCairo(FigureCanvasGTK, FigureCanvasCairo):
 
         ext = ext.lower()
         if ext in ('jpg'): # backend_gtk / gdk
-        
             if self.flags() & gtk.REALIZED == 0:
                 gtk.DrawingArea.realize(self) # for self.window and figure sizing
 
@@ -109,41 +104,28 @@ class FigureCanvasGTKCairo(FigureCanvasGTK, FigureCanvasCairo):
             origDPI       = self.figure.dpi.get()
             origfacecolor = self.figure.get_facecolor()
             origedgecolor = self.figure.get_edgecolor()
-            origW, origH  = self.window.get_size()
+            origWIn, origHIn = self.figure.get_size_inches()
 
             self.figure.dpi.set(dpi)        
             self.figure.set_facecolor(facecolor)
             self.figure.set_edgecolor(edgecolor)
 
             width, height = self.figure.get_width_height()
-            # l,b, width, height = self.figure.bbox.get_bounds()
             width, height = int(width), int(height)
 
+            # render using Cairo, save file using gtk.gdk
             pixmap = gtk.gdk.Pixmap (self.window, width, height)
-
-            # Cairo specific part (next 3 lines)
             ctx = cairo.Context()
             surface  = cairo.gtk.surface_create_for_drawable (pixmap)
             renderer = RendererCairo (surface, ctx.matrix, width, height, self.figure.dpi)
-
             self.figure.draw (renderer)
-        
-            pixbuf = gtk.gdk.Pixbuf(gtk.gdk.COLORSPACE_RGB, 0, 8,
-                                    width, height)
-            pixbuf.get_from_drawable(pixmap, self.window.get_colormap(),
-                                     0, 0, 0, 0, width, height)
-        
-            try: pixbuf.save(filename, 'jpeg') # 'jpeg' not 'jpg' is required
-            except gobject.GError, msg:
-                msg = raise_msg_to_str(msg)
-                error_msg('Could not save figure to %s\n\n%s' % (
-                    filename, msg))
+            gdk_pixmap_save (pixmap, filename, ext, width, height)        
 
             # restore figure settings
             self.figure.set_facecolor(origfacecolor)
             self.figure.set_edgecolor(origedgecolor)
             self.figure.dpi.set(origDPI)
-            self.figure.set_figsize_inches(origW/origDPI, origH/origDPI)
+            self.figure.set_figsize_inches(origWIn, origHIn)
             
         elif ext in IMAGE_FORMAT:
             #FigureCanvasCairo.print_figure (self, filename, dpi, facecolor, edgecolor,
