@@ -16,7 +16,6 @@ import gtk
 win = gtk.Window()
 win.set_title("Embedding in GTK")
 win.connect("destroy", gtk.mainquit)
-win.set_border_width(5)
 
 vbox = gtk.VBox(spacing=3)
 win.add(vbox)
