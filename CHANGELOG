@@ -1,5 +1,7 @@
 New entries should be added at the top
 
+2005-03-29 Added alpha unicode support for Agg and PS in progress - JDH
+
 2005-03-28 Added Jarrod's svg patch for text - JDH
 
 2005-03-28 Added ludal arrow and quiver patch - JDH

@@ -525,7 +525,6 @@ FT2Font::clear(const Py::Tuple & args) {
   image.offsetx = 0;
   image.offsety = 0;
   
-  text  = "";
   angle = 0.0;
   
   pen.x = 0;
@@ -615,11 +614,65 @@ FT2Font::compute_string_bbox( ) {
   return bbox;
 }
 
-void 
-FT2Font::load_glyphs() {
-  _VERBOSE("FT2Font::load_glyphs");
+
+char FT2Font::get_kerning__doc__[] = 
+"dx = get_kerning(left, right)\n"
+"\n"
+"Get the kerning between left char and right glyph indices\n"
+;
+Py::Object
+FT2Font::get_kerning(const Py::Tuple & args) {
+  _VERBOSE("FT2Font::get_kerning");
+  args.verify_length(2);
+  int left = Py::Int(args[0]);
+  int right = Py::Int(args[1]);
+
+
+  if (!FT_HAS_KERNING( face )) return Py::Int(0);
+  FT_Vector delta;
   
-  /* a small shortcut */ 
+  FT_Get_Kerning( face, left, right,
+		  FT_KERNING_DEFAULT, &delta );
+
+  return Py::Int(delta.x);
+}
+
+
+
+char FT2Font::set_text__doc__[] = 
+"set_text(s, angle)\n"
+"\n"
+"Set the text string and angle.\n"
+"You must call this before draw_glyphs_to_bitmap\n"
+"A sequence of x,y positions is returned";
+Py::Object
+FT2Font::set_text(const Py::Tuple & args) {
+  _VERBOSE("FT2Font::set_text");
+  args.verify_length(2);
+  
+
+  Py::String text( args[0] );
+  std::string stdtext;
+  Py_UNICODE* pcode=NULL;
+  size_t N = 0;
+  if (PyUnicode_Check(text.ptr())) {
+    pcode = PyUnicode_AsUnicode(text.ptr());
+    N = PyUnicode_GetSize(text.ptr());
+  }
+  else {
+    stdtext = text.as_std_string();
+    N = stdtext.size();
+  }
+  
+  
+  angle = Py::Float(args[1]);
+
+  angle = angle/360.0*2*3.14159;
+  //this computes width and height in subpixels so we have to divide by 64
+  matrix.xx = (FT_Fixed)( cos( angle ) * 0x10000L );
+  matrix.xy = (FT_Fixed)(-sin( angle ) * 0x10000L );
+  matrix.yx = (FT_Fixed)( sin( angle ) * 0x10000L );
+  matrix.yy = (FT_Fixed)( cos( angle ) * 0x10000L );
   
   FT_Bool use_kerning = FT_HAS_KERNING( face ); 
   FT_UInt previous = 0; 
@@ -627,10 +680,28 @@ FT2Font::load_glyphs() {
   glyphs.resize(0);
   pen.x = 0;
   pen.y = 0;
-  
-  for ( unsigned int n = 0; n < text.size(); n++ ) { 
-    FT_UInt glyph_index = FT_Get_Char_Index( face, text[n] );
-    /* retrieve kerning distance and move pen position */ 
+
+  Py::Tuple xys(N);
+  for ( unsigned int n = 0; n < N; n++ ) { 
+    std::string thischar("?");
+    FT_UInt glyph_index;
+
+    Py::Tuple xy(2);
+    xy[0] = Py::Float(pen.x);
+    xy[1] = Py::Float(pen.y);
+    xys[n] = xy;
+    
+    if (pcode==NULL) {
+      // plain ol string
+      thischar = stdtext[n];
+      glyph_index = FT_Get_Char_Index( face, stdtext[n] );
+     }
+    else {
+      //unicode
+      glyph_index = FT_Get_Char_Index( face, pcode[n] );
+    }
+
+    // retrieve kerning distance and move pen position 
     if ( use_kerning && previous && glyph_index ) { 
       FT_Vector delta;
       FT_Get_Kerning( face, previous, glyph_index,
@@ -639,21 +710,21 @@ FT2Font::load_glyphs() {
     }
     error = FT_Load_Glyph( face, glyph_index, FT_LOAD_DEFAULT ); 
     if ( error ) {
-      std::cerr << "\tcould not load glyph for " << text[n] << std::endl;
+      std::cerr << "\tcould not load glyph for " << thischar << std::endl;
       continue; 
     }
-    /* ignore errors, jump to next glyph */ 
+    // ignore errors, jump to next glyph 
     
-    /* extract glyph image and store it in our table */
+    // extract glyph image and store it in our table
     
     FT_Glyph thisGlyph; 
     error = FT_Get_Glyph( face->glyph, &thisGlyph ); 
     
     if ( error ) {
-      std::cerr << "\tcould not get glyph for " << text[n] << std::endl;
+      std::cerr << "\tcould not get glyph for " << thischar << std::endl;
       continue; 
     }
-    /* ignore errors, jump to next glyph */ 
+    // ignore errors, jump to next glyph 
     
     FT_Glyph_Transform( thisGlyph, 0, &pen);
     pen.x += face->glyph->advance.x;
@@ -661,34 +732,13 @@ FT2Font::load_glyphs() {
     previous = glyph_index; 
     glyphs.push_back(thisGlyph);
   }
+
   // now apply the rotation
   for (unsigned int n=0; n<glyphs.size(); n++) 
     FT_Glyph_Transform(glyphs[n], &matrix, 0);
-}
 
-char FT2Font::set_text__doc__[] = 
-"set_text(s, angle)\n"
-"\n"
-"Set the text string and angle.\n"
-"You must call this before draw_glyphs_to_bitmap\n"
-;
-Py::Object
-FT2Font::set_text(const Py::Tuple & args) {
-  _VERBOSE("FT2Font::set_text");
-  args.verify_length(2);
-  text = Py::String(args[0]);
-  angle = Py::Float(args[1]);
   
-  angle = angle/360.0*2*3.14159;
-  //this computes width and height in subpixels so we have to divide by 64
-  matrix.xx = (FT_Fixed)( cos( angle ) * 0x10000L );
-  matrix.xy = (FT_Fixed)(-sin( angle ) * 0x10000L );
-  matrix.yx = (FT_Fixed)( sin( angle ) * 0x10000L );
-  matrix.yy = (FT_Fixed)( cos( angle ) * 0x10000L );
-  
-  load_glyphs();
-  
-  return Py::Object();
+  return xys;
 }
 
 
@@ -1467,6 +1517,8 @@ FT2Font::init_type() {
 		     FT2Font::get_glyph_name__doc__);
   add_varargs_method("get_charmap", &FT2Font::get_charmap,
 		     FT2Font::get_charmap__doc__);
+  add_varargs_method("get_kerning", &FT2Font::get_kerning,
+		     FT2Font::get_kerning__doc__);
   add_varargs_method("get_sfnt", &FT2Font::get_sfnt,
 		     FT2Font::get_sfnt__doc__);
   add_varargs_method("get_name_index", &FT2Font::get_name_index,

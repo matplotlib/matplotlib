@@ -891,7 +891,7 @@ class Axes(Artist):
             antialiaseds = (0,),
             linewidths = (width,),
             )
-        if C:
+        if C is not None:
             collection.set_array( C )
         else:
             collection.set_facecolor( (color,) )
@@ -2532,7 +2532,7 @@ class Axes(Artist):
         logi = int(log10(intv))
         if logi==0: logi=.1
         step = 10*logi
-        print vmin, vmax, step, intv, math.floor(vmin), math.ceil(vmax)+1
+        #print vmin, vmax, step, intv, math.floor(vmin), math.ceil(vmax)+1
         ticks = arange(math.floor(vmin), math.ceil(vmax)+1, step)
         self.set_yticks(ticks)
 

@@ -71,3 +71,6 @@ print 'Mult. masters :', font.style_flags & FT_FACE_FLAG_MULTIPLE_MASTERS != 0
 print 'Glyph names   :', font.style_flags & FT_FACE_FLAG_GLYPH_NAMES      != 0
 
 print dir(font)
+
+cmap = font.get_charmap()
+print font.get_kerning

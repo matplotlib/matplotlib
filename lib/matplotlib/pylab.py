@@ -7,28 +7,28 @@ The majority of them, however, have matlab analogs
 
 _Plotting commands
 
-  axes     - Create a new axes
-  axhline  - draw a horizontal line across axes
-  axvline  - draw a vertical line across axes
-  axhspan  - draw a horizontal bar across axes
-  axvspan  - draw a vertical bar across axes
-  axis     - Set or return the current axis limits
-  bar      - make a bar chart
-  barh     - a horizontal bar chart
-  boxplot  - make a box and whisker plot
-  cla      - clear current axes
-  clabel   - label a contour plot
-  clf      - clear a figure window
-  clim     - adjust the color limits of the current image
-  close    - close a figure window
-  colorbar - add a colorbar to the current figure
-  cohere   - make a plot of coherence
-  contour  - make a contour plot
+  axes      - Create a new axes
+  axhline   - draw a horizontal line across axes
+  axvline   - draw a vertical line across axes
+  axhspan   - draw a horizontal bar across axes
+  axvspan   - draw a vertical bar across axes
+  axis      - Set or return the current axis limits
+  bar       - make a bar chart
+  barh      - a horizontal bar chart
+  boxplot   - make a box and whisker plot
+  cla       - clear current axes
+  clabel    - label a contour plot
+  clf       - clear a figure window
+  clim      - adjust the color limits of the current image
+  close     - close a figure window
+  colorbar  - add a colorbar to the current figure
+  cohere    - make a plot of coherence
+  contour   - make a contour plot
   contourf  - make a filled contour plot
-  csd      - make a plot of cross spectral density
-  delaxes  - delete an axes from the current figure
-  draw     - Force a redraw of the current figure
-  errorbar - make an errorbar graph
+  csd       - make a plot of cross spectral density
+  delaxes   - delete an axes from the current figure
+  draw      - Force a redraw of the current figure
+  errorbar  - make an errorbar graph
   figlegend - make legend on the figure rather than the axes
   figimage  - make a figure image
   figtext   - add text in figure coords
@@ -56,6 +56,7 @@ _Plotting commands
   pie      - pie charts
   polar    - make a polar plot on a PolarAxes
   psd      - make a plot of power spectral density
+  quiver   - make a direction field (arrows) plot
   rc       - control the default params
   rgrids   - customize the radial grids and labels for polar
   savefig  - save the current figure
@@ -388,6 +389,7 @@ def plotting():
     pcolor   - make a pseudocolor plot
     plot     - make a line plot
     psd      - make a plot of power spectral density
+    quiver   - make a direction field (arrows) plot
     rc       - control the default params
     savefig  - save the current figure
     scatter  - make a scatter plot
@@ -465,7 +467,7 @@ def get_plot_commands(): return ( 'axes', 'axis', 'bar', 'boxplot', 'cla', 'clf'
     'close', 'colorbar', 'cohere', 'csd', 'draw', 'errorbar',
     'figlegend', 'figtext', 'figimage', 'figure', 'fill', 'gca',
     'gcf', 'gci', 'get', 'gray', 'barh', 'jet', 'hist', 'hold', 'imread',
-    'imshow', 'legend', 'loglog', 'rc', 'pcolor', 'plot', 'psd',
+    'imshow', 'legend', 'loglog', 'quiver', 'rc', 'pcolor', 'plot', 'psd',
     'savefig', 'scatter', 'set', 'semilogx', 'semilogy', 'show',
     'specgram', 'stem', 'subplot', 'table', 'text', 'title', 'xlabel',
     'ylabel', 'pie', 'polar')

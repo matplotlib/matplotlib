@@ -12,7 +12,7 @@ from matplotlib.afm import AFM
 from matplotlib.backend_bases import RendererBase, GraphicsContextBase,\
      FigureManagerBase, FigureCanvasBase
 
-from matplotlib.cbook import is_string_like
+from matplotlib.cbook import is_string_like, reverse_dict
 from matplotlib.figure import Figure
 
 from matplotlib.font_manager import fontManager
@@ -49,6 +49,8 @@ def _nums_to_str(*args):
 
 def quote_ps_string(s):
     "Quote dangerous characters of S for use in a PostScript string constant."
+    if isinstance(s, unicode):
+        s = s.encode('ascii', 'replace') # unicode not supported yet
     s=s.replace("\\", "\\\\")
     s=s.replace("(", "\\(")
     s=s.replace(")", "\\)")
@@ -99,6 +101,7 @@ class RendererPS(RendererBase):
         self.fontsize = None
 
     def set_color(self, r, g, b, store=1):
+        # why is this comparison failing??
         if (r,g,b) != self.color:
             if r==g and r==b:
                 self._pswriter.write("%1.3f setgray\n"%r)
@@ -192,7 +195,6 @@ class RendererPS(RendererBase):
         font = _fontd.get(key)
         if font is None:
             fname = fontManager.findfont(prop)
-
             font = FT2Font(str(fname))
             _fontd[key] = font
             if fname not in _type42:
@@ -404,6 +406,11 @@ grestore
         draw a Text instance
         """
         # local to avoid repeated attribute lookups
+
+        if isinstance(s, unicode):
+            self.draw_unicode(gc, x, y, s, prop, angle)
+            return
+        
         write = self._pswriter.write
         if debugPS:
             write("% text\n")
@@ -450,6 +457,7 @@ grestore
             font = self._get_font_ttf(prop)
             font.set_text(s,0)
 
+
             self.set_color(*gc.get_rgb())
             self.set_font(font.get_sfnt()[(1,0,0,6)], prop.get_size_in_points())
             write("%s m\n"%_nums_to_str(x,y))
@@ -466,7 +474,49 @@ grestore
     def new_gc(self):
         return GraphicsContextPS()
 
-    def draw_mathtext(self, gc, x, y, s, prop, angle):
+    def draw_unicode(self, gc, x, y, s, prop, angle):
+        """draw a unicode string.  ps doesn't have unicode support, so
+        we have to do this the hard way
+        """
+        thisx, thisy = x, y
+        font = self._get_font_ttf(prop)        
+        self.set_font(font.get_sfnt()[(1,0,0,6)], prop.get_size_in_points())        
+        xys = font.set_text(s, 0);
+
+        cmap = font.get_charmap()
+        glyphd = reverse_dict(cmap)
+        lastcode = None
+
+        #print len(s), len(xys)
+        manual = True
+        for c, xy in zip(s, xys):
+            # use the freetype positions
+            penx, peny = xy                
+            #print '\t', c, penx, peny
+            if not manual: # use freetype positions
+                thisx = x + penx/64.
+            
+            ccode = ord(c)
+            gind = glyphd[ccode]
+            name = font.get_glyph_name(gind)
+            self._pswriter.write('%f %f moveto /%s glyphshow\n'%(thisx, thisy, name))
+
+            if manual:  #manually lay them out using glyph metrics and kern
+                glyph = font.load_char(ccode)
+                #print c, ccode, gind, name, xy[0]/64.
+                if lastcode is not None:
+                    kern = font.get_kerning(lastcode, ccode)
+                    #print lastcode, ccode, kern
+                else:
+                    kern = 0
+                lastcode = ccode
+                thisx += (glyph.horiAdvance+kern)/64.0
+            
+
+                
+
+    def draw_mathtext(self, gc,
+        x, y, s, prop, angle):
         """
         Draw the math text using matplotlib.mathtext
         """
