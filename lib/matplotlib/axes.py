@@ -2467,6 +2467,10 @@ Return value is (Pxx, freqs, bins, im), where
 
         return Pxx, freqs, bins, im
 
+    def ishold(self):
+        'return the HOLD status of the axes'
+        return self._hold
+    
     def spy(self, Z,  marker='s', markersize=10, **kwargs):
         """
         SPY(Z, **kwrags) plots the sparsity pattern of the matrix S

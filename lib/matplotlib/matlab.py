@@ -38,6 +38,7 @@ _Plotting commands
   loglog   - a log log plot
   imread   - load image file into array
   imshow   - plot image data
+  ishold   - return the hold state of the current axes
   pcolor   - make a pseudocolor plot
   plot     - make a line plot
   polar    - make a polar plot on a PolarAxes
@@ -835,7 +836,11 @@ def hold(b=None):
     gca().hold(b)    
     rc('axes', hold=b)
 
-    
+def ishold(b=None):
+    """
+    Return the hold status of the current axes
+    """
+    return gca().ishold()    
 
 def imread(*args, **kwargs):
     return _imread(*args, **kwargs)
