@@ -51,6 +51,8 @@ REQUIREMENTS
 
 """
 
+from __future__ import division
+
 import sys
 from matplotlib import verbose
 from matplotlib._matlab_helpers import Gcf
