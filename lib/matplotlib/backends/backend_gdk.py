@@ -124,7 +124,7 @@ class RendererGDK(RendererBase):
             pa = pb.get_pixels_array()
         except AttributeError:
             pa = pb.pixel_array
-        except RuntimeError: #  pygtk was not compiled with Numeric Python support
+        except RuntimeError, exc: #  pygtk was not compiled with Numeric Python support
             warnings.warn('draw_image not supported: %s' % exc)
             return        
 
@@ -192,7 +192,7 @@ class RendererGDK(RendererBase):
             return
 
         if angle not in (0,90):
-            warnings.warn('The GTK backend cannot draw text at a %i degree angle, try GtkAgg instead' % angle)
+            warnings.warn('The GDK/GTK backend cannot draw text at a %i degree angle' % angle)
 
         elif ismath:
             self._draw_mathtext(gc, x, y, s, prop, angle)
