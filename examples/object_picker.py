@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 """
 Show how to use the mouse to select objects and a build dialog to set
 line properties.  The approach here can be readily extended to include

@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 """
 Demonstrate how to use major and minor tickers.
 

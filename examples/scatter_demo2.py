@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 import sys
 from matplotlib.matlab import *
 from data_helper import get_daily_data

@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 import sys
 from matplotlib.ticker import MultipleLocator
 from matplotlib.matlab import *

@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 # Make a legend for specific lines
 from matplotlib.matlab import *
 

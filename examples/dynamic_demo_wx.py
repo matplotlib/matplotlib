@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 """
 Copyright (C) Jeremy O'Donoghue, 2003
  
@@ -19,7 +20,11 @@ embedding_in_wx.py, which provides these features.
 
 Modification History:
 $Log$
+Revision 1.4  2004/05/03 12:12:26  jdh2358
+added bang header to examples
+
 Revision 1.3  2004/03/08 22:17:20  jdh2358
+
 * Fixed embedding_in_wx and dynamic_demo_wx examples
 
 * Ported build to darwin

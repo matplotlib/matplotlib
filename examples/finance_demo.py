@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 from matplotlib.matlab import *
 from matplotlib.dates import PyDatetimeConverter, MONDAY
 from matplotlib.ticker import  DateFormatter, WeekdayLocator, HourLocator, DayLocator

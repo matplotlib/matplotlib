@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 """
 You can control the axis tick and grid properties
 """

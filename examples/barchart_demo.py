@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 # a bar plot with errorbars
 from matplotlib.matlab import *
 

@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 # a stacked bar plot with errorbars
 from matplotlib.matlab import *
 
