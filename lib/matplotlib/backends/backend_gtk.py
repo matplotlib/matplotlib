@@ -118,10 +118,7 @@ class FigureCanvasGTK(gtk.DrawingArea, FigureCanvasBase):
         self._pixmap_height = -1
 
         self._lastCursor = None
-        self._button     = None  # the button pressed
-        self._key        = None  # the key pressed
-        self._lastx, self.last_y = None, None
-        
+
         self.set_flags(gtk.CAN_FOCUS)
         self.grab_focus()
         self.set_size_request (int (figure.bbox.width()),
@@ -152,25 +149,21 @@ class FigureCanvasGTK(gtk.DrawingArea, FigureCanvasBase):
         x = event.x
         # flipy so y=0 is bottom of canvas
         y = self.figure.bbox.height() - event.y
-        self._button = event.button
-        FigureCanvasBase.button_press_event(self, x, y, event.button, self._key)
+        FigureCanvasBase.button_press_event(self, x, y, event.button)
         
     def button_release_event(self, widget, event):
         x = event.x
         # flipy so y=0 is bottom of canvas
         y = self.figure.bbox.height() - event.y
-        FigureCanvasBase.button_release_event(self, x, y, self._button, self._key)
-        self._button = None
-
+        FigureCanvasBase.button_release_event(self, x, y, event.button)
 
     def motion_notify_event(self, widget, event):
         x = event.x
         # flipy so y=0 is bottom of canvas
         y = self.figure.bbox.height() - event.y
-        FigureCanvasBase.motion_notify_event(self, x, y, self._button, self._key)
-        self._lastx, self.last_y = x, y    
-    def key_press_event(self, widget, event):
+        FigureCanvasBase.motion_notify_event(self, x, y)
 
+    def _get_key(self, event):
         if self.keyvald.has_key(event.keyval):
             key = self.keyvald[event.keyval]
         elif event.keyval <256:
@@ -180,15 +173,17 @@ class FigureCanvasGTK(gtk.DrawingArea, FigureCanvasBase):
             
         ctrl  = event.state & gtk.gdk.CONTROL_MASK
         shift = event.state & gtk.gdk.SHIFT_MASK
-        
-        self._key = key
-        FigureCanvasBase.key_press_event(self, self._key, self._lastx, self.last_y)
+        return key
+
+
+
+    def key_press_event(self, widget, event):
+        key = self._get_key(event)
+        FigureCanvasBase.key_press_event(self, key)
 
     def key_release_event(self, widget, event):        
-        FigureCanvasBase.key_release_event(self, self._key, self._lastx, self.last_y)
-        self._key = None
-        
-
+        key = self._get_key(event)
+        FigureCanvasBase.key_release_event(self, key)
 
     def configure_event(self, widget, event):
         if widget.window == None:

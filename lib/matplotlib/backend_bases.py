@@ -663,47 +663,53 @@ class FigureCanvasBase:
         # a dictionary from event name to a dictionary that maps cid->func
         self.callbacks = {}
 
-    def key_press_event(self, key, x, y):
-        event = KeyEvent('key_press_event', self, key, x, y)        
+        self._button     = None  # the button pressed
+        self._key        = None  # the key pressed
+        self._lastx, self.last_y = None, None
+
+    def key_press_event(self, key):
+        self._key = key
+        event = KeyEvent('key_press_event', self, key, self._lastx, self._lasty)        
         for cid, func in self.callbacks.get('key_press_event', {}).items():
             func(event)
-
-    def key_release_event(self, key, x, y):
-        event = KeyEvent('key_release_event', self, key, x, y)
+            
+    def key_release_event(self, key):
+        event = KeyEvent('key_release_event', self, key, self._lastx, self._lasty)
         for cid, func in self.callbacks.get('key_release_event', {}).items():
             func(event)
+        self._key = None
 
-    def button_press_event(self, x, y, button=None, key=None):
+    def button_press_event(self, x, y, button):
         """
         Backend derived classes should call this function on any mouse
         button press.  x,y are the canvas coords: 0,0 is lower, left.
         button and key are as defined in MouseEvent
         """
-        
-        event = MouseEvent('button_press_event', self, x, y, button, key)
+        self._button = button
+        event = MouseEvent('button_press_event', self, x, y, button, self._key)
         for cid, func in self.callbacks.get('button_press_event', {}).items():
             func(event)
 
-    def button_release_event(self, x, y, button=None, key=None):
+    def button_release_event(self, x, y, button):
         """
         Backend derived classes should call this function on any mouse
         button release.  x,y are the canvas coords: 0,0 is lower, left.
         button and key are as defined in MouseEvent
         """
         
-        event = MouseEvent('button_release_event', self, x, y, button, key)
+        event = MouseEvent('button_release_event', self, x, y, button, self._key)
         for cid, func in self.callbacks.get('button_release_event', {}).items():
             func(event)
-        
+        self._button = None        
 
-    def motion_notify_event(self, x, y, button=None, key=None):
+    def motion_notify_event(self, x, y):
         """
         Backend derived classes should call this function on any mouse
         button release.  x,y are the canvas coords: 0,0 is lower, left.
         button and key are as defined in MouseEvent
         """
-        
-        event = MouseEvent('motion_notify_event', self, x, y, button, key)
+        self._lastx, self._lasty = x, y
+        event = MouseEvent('motion_notify_event', self, x, y, self._button, self._key)
         for cid, func in self.callbacks.get('motion_notify_event', {}).items():
             func(event)
 
