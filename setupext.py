@@ -100,14 +100,16 @@ def add_ft2font_flags(module):
     basedirs = module.include_dirs[:]  # copy the list to avoid inf loop!
     for d in basedirs:
         module.include_dirs.append(os.path.join(d, 'freetype2'))
-        if sys.platform == 'darwin':
-            p = os.path.join(d, 'lib/freetype2/include')
-            if os.path.exists(p): module.include_dirs.append(p)
-            p = os.path.join(d, 'lib/freetype2/include/freetype2')
-            if os.path.exists(p): module.include_dirs.append(p)
-                
+        p = os.path.join(d, 'lib/freetype2/include')
+        if os.path.exists(p): module.include_dirs.append(p)
+        p = os.path.join(d, 'lib/freetype2/include/freetype2')
+        if os.path.exists(p): module.include_dirs.append(p)
 
-
+    basedirs = module.library_dirs[:]  # copy the list to avoid inf loop!
+    for d in basedirs:
+        p = os.path.join(d, 'freetype2/lib')
+        if os.path.exists(p): module.library_dirs.append(p)
+            
     if sys.platform == 'win32':
         module.libraries.append('gw32c')
 
