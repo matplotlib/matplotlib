@@ -1578,6 +1578,17 @@ def ion():
     matplotlib.interactive(True)
 
 def switch_backend(newbackend):
+    """
+    Swtich the default backend to newbackend.  This feature is
+    EXPERIMENTAL, and is only expected to work switching to an image
+    backend.  Eg, if you have a bunch of PS scripts that you want to
+    run from an interactive ipython session, yuo may want to switch to
+    the PS backend before running them to avoid having a bunch of GUI
+    windows popup.  If you try to interactively switch from one GUI
+    backend to another, you will explode.
+
+    Calling this command will close all open windows.
+    """
     close('all')
     global new_figure_manager, draw_if_interactive, show
     matplotlib.use(newbackend)

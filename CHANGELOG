@@ -1,5 +1,13 @@
 New entries should be added at the top
 
+2005-02-23 Added rc param ps.useafm so backend ps can use native afm
+           fonts or truetype.  afme breaks mathtext but causes much
+           smaller font sizes and may result in images that display
+           better in some contexts (eg pdfs incorporated into latex
+           docs viewed in acrobat reader).  I would like to extend
+           this approach to allow the user to use truetype only for
+           mathtext, which should be easy.
+
 2005-02-23 Used sequence protocol rather than tuple in agg collection
            drawing routines for greater flexibility - JDH
 

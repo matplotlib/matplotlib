@@ -600,7 +600,7 @@ ACCEPTS: a matplotlib.font_manager.FontProperties instance
         w = wb+we
 
         xb, yb = self._transform.xy_tup((self._x, self._y))
-        xe = xb+wb
+        xe = xb+1.1*wb
         ye = yb+0.5*hb
         h = ye+he-yb
 

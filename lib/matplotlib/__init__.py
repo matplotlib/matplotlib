@@ -545,6 +545,7 @@ defaultParams = {
 
     'tk.window_focus'   : [ False, validate_bool],  # Maintain shell focus for TkAgg
     'tk.pythoninspect'   : [ False, validate_bool],  # Set PYTHONINSPECT
+    'ps.useafm'   : [ False, validate_bool],  # Set PYTHONINSPECT
     'plugins.directory' : ['.matplotlib_plugins', str], # where plugin directory is locate
 
     }

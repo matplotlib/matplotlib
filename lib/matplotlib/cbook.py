@@ -530,3 +530,17 @@ class Stack:
 def popall(seq):
     'empty a list'
     for i in xrange(len(seq)): seq.pop()
+
+def finddir(o, match, case=False):
+    """
+    return all attributes of o which match string in match.  if case
+    is True require an exact case match.  
+    """
+    if case:
+        names = [(name,name) for name in dir(o) if is_string_like(name)]
+    else:
+        names = [(name.lower(), name) for name in dir(o) if is_string_like(name)]
+        match = match.lower()
+    return [orig for name, orig in names if name.find(match)>=0]
+
+    

@@ -171,8 +171,12 @@ savefig.dpi       : 100      # figure dots per inch
 savefig.facecolor : white    # figure facecolor when saving
 savefig.edgecolor : white    # figure edgecolor when saving
 
+# tk backend params
 tk.window_focus   : False    # Maintain shell focus for TkAgg
 tk.pythoninspect  : False    # tk sets PYTHONINSEPCT
+
+# ps backend params
+ps.useafm         : True    # use of afm fonts -- breaks mathtext but results in small files
 
 # Set the verbose flags.  This controls how much information
 # matplotlib gives you at runtime and where it goes.  Ther verbosity
