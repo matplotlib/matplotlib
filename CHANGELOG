@@ -1,5 +1,9 @@
 New entries should be added at the top
 
+2004-07-22 Backend_gtk.py: Added support for GtkFileChooser, changed
+           FileSelection/FileChooser so that only one instance pops up,
+           and made them both modal.
+
 2004-07-21 Applied backend_agg memory leak patch from hayden -
             jocallo@online.no.  Found and fixed a leak in binary
             operations on transforms.  Moral of the story: never
