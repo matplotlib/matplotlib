@@ -1,5 +1,11 @@
 New entries should be added at the top
 
+
+2005-01-24 Fixed contour wto work w/ interactive changes in colormaps,
+           clim, etc - JDH
+
+===============================================================
+
 2005-01-21 matplotlib-0.71 released
 
 2005-01-21 Refactored numerix to solve vexing namespace issues - JDH

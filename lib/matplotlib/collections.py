@@ -327,7 +327,7 @@ ACCEPTS: ['solid' | 'dashed', 'dashdot', 'dotted' |  (offset, on-off-dash-seq) ]
         
         self._ls = dashes
 
-    def color(self, c):
+    def set_color(self, c):
         """
 Set the color(s) of the line collection.  c can be a matplotlib color arg
 (all patches have same color), or a a sequence or rgba tuples; if it

@@ -11,6 +11,7 @@ Z2 = bivariate_normal(X, Y, 1.5, 0.5, 1, 1)
 im = imshow(Z2-Z1, interpolation='bilinear', cmap=cm.gray)
 levels, colls = contour(Z2-Z1, linewidths=2)
 colorbar()
+hot()
 savefig('test')
 show()
 
