@@ -722,22 +722,23 @@ ACCEPTS: sequence of on/off ink in points
             renderer.draw_line(gc, x-offset, y-offset, x+offset, y+offset)
             renderer.draw_line(gc, x-offset, y+offset, x+offset, y-offset)
 
-    def copy_properties(self, line):
-        'copy properties from line to self'
-        self._linestyle = line._linestyle
-        self._linewidth = line._linewidth
-        self._color = line._color
-        self._markersize = line._markersize        
-        self._markerfacecolor = line._markerfacecolor
-        self._markeredgecolor = line._markeredgecolor
-        self._markeredgewidth = line._markeredgewidth
-        self._dashSeq = line._dashSeq
+    def update_from(self, other):
+        'copy properties from other to self'
+        Artist.update_from(self, other)        
+        self._linestyle = other._linestyle
+        self._linewidth = other._linewidth
+        self._color = other._color
+        self._markersize = other._markersize        
+        self._markerfacecolor = other._markerfacecolor
+        self._markeredgecolor = other._markeredgecolor
+        self._markeredgewidth = other._markeredgewidth
+        self._dashSeq = other._dashSeq
 
-        self._linestyle = line._linestyle
-        self._marker = line._marker
-        self._lineFunc = line._lineStyles[line._linestyle]
-        self._markerFunc = line._markers[line._marker]
-        self._useDataClipping = line._useDataClipping
+        self._linestyle = other._linestyle
+        self._marker = other._marker
+        self._lineFunc = other._lineStyles[other._linestyle]
+        self._markerFunc = other._markers[other._marker]
+        self._useDataClipping = other._useDataClipping
 
     def _get_rgb_face(self):
         if (self._markerfacecolor is None or

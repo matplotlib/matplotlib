@@ -163,3 +163,14 @@ ACCEPTS: any number
 """
         self.zorder = level
     
+    def update_from(self, other):
+        'copy properties from other to self'
+        self._transform = other._transform
+        self._transformSet = other._transformSet
+        self._visible = other._visible
+        self._alpha = other._alpha
+        self.clipbox = other.clipbox
+        self._clipon = other._clipon
+        self._lod = other._lod
+        self._label = other._label
+        

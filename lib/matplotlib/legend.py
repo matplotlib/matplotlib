@@ -217,7 +217,7 @@ The following dimensions are in axes coords
                 ydata = (y-HEIGHT/2)*ones(self._xdata.shape, Float)
                 legline = Line2D(self._xdata, ydata)
                 self._set_artist_props(legline)
-                legline.copy_properties(handle)
+                legline.update_from(handle)
                 legline.set_markersize(self.markerscale*legline.get_markersize())
                 legline.set_data_clipping(False)
                 ret.append(legline)
@@ -226,7 +226,7 @@ The following dimensions are in axes coords
                 p = Rectangle(xy=(min(self._xdata), y-3/4*HEIGHT),
                               width = self.handlelen, height=HEIGHT/2,
                               )
-                p.copy_properties(handle)
+                p.update_from(handle)
                 self._set_artist_props(p)
                 ret.append(p)
             elif isinstance(handle, LineCollection):
