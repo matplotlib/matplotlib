@@ -7,7 +7,7 @@ import math, sys
 from numerix import absolute, arange, array, asarray, ones, divide,\
      transpose, log, log10, Float, Float32, ravel, zeros,\
      Int32, Float64, ceil, indices, \
-     shape, which, where
+     shape, which, where, sqrt
 
 from numerix import max as nxmax
 from numerix import min as nxmin
@@ -31,7 +31,7 @@ from lines import Line2D, lineStyles, lineMarkers
 
 from mlab import meshgrid
 from matplotlib import rcParams
-from patches import Rectangle, Circle, Polygon, Wedge, Shadow, bbox_artist
+from patches import Patch, Rectangle, Circle, Polygon, Wedge, Shadow, bbox_artist
 from table import Table
 from text import Text, _process_text_args
 from transforms import Bbox, Point, Value, Affine, NonseparableTransformation
@@ -3113,6 +3113,55 @@ disconnect to disconnect from the axes event
                     self._connected[key].remove(item)
                     return
 
+    def pick(self, x, y, trans=None):
+        """
+Return the artist under point that is closest to the x, y.  if trans
+is None, x, and y are in window coords, 0,0 = lower left.  Otherwise,
+trans is a matplotlib transform that specifies the coordinate system
+of x, y.
+
+Note this algorithm calculates distance to the vertices of the
+polygon, so if you want to pick a patch, click on the edge!
+"""
+        if trans is not None:
+            xywin = trans.xy_tup((x,y))
+        else:
+            xywin = x,y
+
+        def dist_points(p1, p2):
+            'return the distance between two points'
+            x1, y1 = p1
+            x2, y2 = p2
+            return math.sqrt((x1-x2)**2+(y1-y2)**2)
+
+        def dist_x_y(p1, x, y):
+            'x and y are arrays; return the distance to the closest point'
+            x1, y1 = p1
+            return min(sqrt((x-x1)**2+(y-y1)**2))
+        
+        def dist(a):
+            if isinstance(a, Text):
+                xa, ya = a.get_position()
+                p = a.get_transform().xy_tup((xa,ya))
+                return dist_points( xywin, p)
+            elif isinstance(a, Patch):
+                verts = a.get_verts()
+                tverts = a.get_transform().seq_xy_tups(verts)
+                x, y = zip(*tverts)
+                return dist_x_y(xywin, array(x), array(y))
+            elif isinstance(a, Line2D):
+                xdata = a.get_xdata()
+                ydata = a.get_ydata()
+                xt, yt = a.get_transform().numerix_x_y(xdata, ydata)
+                return dist_x_y(xywin, xt, yt)
+
+            
+        artists = self.lines + self.patches + self.texts
+        if not len(artists): return None
+        ds = [ (dist(a),a) for a in artists]
+        ds.sort()
+        return ds[0][1]
+
 
 class SubplotBase:
     """
@@ -3446,7 +3495,7 @@ ACCEPTS: sequence of floats
             self.thetagridlabels.append(t)
         return self.thetagridlines, self.thetagridlabels
 
-
+        
 
 
     def get_rmax(self):

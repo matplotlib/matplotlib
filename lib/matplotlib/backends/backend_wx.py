@@ -694,6 +694,7 @@ class FigureCanvasWx(FigureCanvasBase, wxPanel):
 
         self._key = None
         self._button = None
+        self._lastx, self._lasty = None, None
         
         wxPanel.__init__(self, parent, id, size=wxSize(w, h))
         # Create the drawing bitmap
@@ -1052,12 +1053,12 @@ The current aspect ration will be kept."""
             
         if key: self._key = key.lower()
         else:   self._key = key
-        FigureCanvasBase.key_press_event(self, self._key)
+        FigureCanvasBase.key_press_event(self, self._key, self._lastx, self._lasty)
         evt.Skip()
         
     def _onKeyUp(self, evt):
         """Release key."""
-        FigureCanvasBase.key_release_event(self, self._key)
+        FigureCanvasBase.key_release_event(self, self._key, self._lastx, self._lasty)
         self._key = None
         evt.Skip()
 
@@ -1105,7 +1106,7 @@ The current aspect ration will be kept."""
         #print 'motion', x, y
         evt.Skip()
         FigureCanvasBase.motion_notify_event(self, x, y, self._button, self._key)
-
+        self._lastx, self._lasty = x, y
     
 
 ########################################################################
