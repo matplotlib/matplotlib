@@ -68,7 +68,7 @@ def show():
         manager.show()
     import matplotlib
     matplotlib.interactive(True)
-    #os.environ['PYTHONINSPECT'] = '1'
+    os.environ['PYTHONINSPECT'] = '1'
     if show._needmain:
         Tk.mainloop()
         show._needmain = False

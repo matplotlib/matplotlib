@@ -1,5 +1,7 @@
 New entries should be added at the top
 
+2005-01-11 Reverted pythoninspect in tkagg - JDH
+
 2005-01-09 Fixed a backend_bases event bug caused when an event is
            triggered when location is None - JDH
 
