@@ -238,3 +238,7 @@
 -- get module docs for ft2font working right
 
 -- kwargs in plot to set lineprops?
+
+-- fix data clipping to per matthew' suggestion 
+
+-- fix setup.py to build ft2

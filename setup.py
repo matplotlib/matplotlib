@@ -87,7 +87,7 @@ if BUILD_FT2FONT:
     build_ft2font(ext_modules, packages)
 
 setup(name="matplotlib",
-      version= '0.51c',
+      version= '0.51d',
       description = "Matlab style python plotting package",
       author = "John D. Hunter",
       author_email="jdhunter@ace.bsd.uchicago.edu",
