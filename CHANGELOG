@@ -1,6 +1,11 @@
 New entries should be added at the top
 ------------------------------------------------------------
 
+2004-05-14 Modified the type definitions in the numarray side of
+	   numerix so that they are Numeric typecodes and can be
+	   used with Numeric compilex extensions.  The original
+	   numarray types were renamed to type<old_name>.    JTM
+
 2004-05-06 Gary Ruben sent me a bevy of new plot symbols and markers.
            See matplotlib.matlab.plot - JDH
 
