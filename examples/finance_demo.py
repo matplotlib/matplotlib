@@ -24,6 +24,8 @@ dayFormatter = DateFormatter('%d')      # Eg, 12
 
 quotes = quotes_historical_yahoo(
     'INTC', date1, date2, converter)
+if not quotes:
+    raise SystemExit
 
 ax = subplot(111)
 ax.xaxis.set_major_locator(mondays)
