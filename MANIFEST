@@ -337,6 +337,8 @@ examples/object_picker.py
 examples/pcolor_demo.py
 examples/pcolor_demo2.py
 examples/pcolor_small.py
+examples/picker_demo.py
+examples/pie_demo.py
 examples/polar_demo.py
 examples/polar_scatter.py
 examples/poormans_contour.py
@@ -357,8 +359,10 @@ examples/subplot_demo.py
 examples/system_monitor.py
 examples/table_demo.py
 examples/text_handles.py
+examples/text_rotation.py
 examples/text_themes.py
 examples/to_numeric.py
+examples/toggle_images.py
 examples/two_scales.py
 examples/vertical_ticklabels.py
 examples/vline_demo.py
