@@ -1,5 +1,9 @@
 New entries should be added at the top
 
+2004-12-04 Fixed multiple bindings per event for TkAgg mpl_connect and
+	mpl_disconnect.  Added a "test_disconnect" command line 
+	parameter to coords_demo.py  JTM
+
 2004-12-04 Fixed some legend bugs JDH
 
 2004-11-30 Added over command for oneoff over plots.  Eg over(plot, x,
