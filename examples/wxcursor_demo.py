@@ -44,6 +44,8 @@ class CanvasFrame(wxFrame):
 
         self.add_toolbar()  # comment this out for no toolbar
 
+        EVT_PAINT(self, self.OnPaint)
+
 
     def mouse_move(self, event):
         self.draw_cursor(event)
@@ -58,22 +60,19 @@ class CanvasFrame(wxFrame):
         # update the axes menu on the toolbar
         self.toolbar.update()  
 
-        
     def OnPaint(self, event):
+        self.erase_cursor()
         try: del self.lastInfo
         except AttributeError: pass
         self.canvas.draw()
+        event.Skip()
 
     def draw_cursor(self, event):
         'event is a MplEvent.  Draw a cursor over the axes'
-
         if event.inaxes is None:
-            try: lastline1, lastline2, lastax, lastdc = self.lastInfo
+            self.erase_cursor()
+            try: del self.lastInfo
             except AttributeError: pass
-            else:
-                lastdc.DrawLine(*lastline1) # erase old
-                lastdc.DrawLine(*lastline2) # erase old
-                del self.lastInfo
             return
         canvas = self.canvas
         figheight = canvas.figure.bbox.height()
@@ -97,12 +96,7 @@ class CanvasFrame(wxFrame):
 
         x, y, left, right, bottom, top = [int(val) for val in x, y, left, right, bottom, top]
 
-        try: lastline1, lastline2, lastax, lastdc = self.lastInfo
-        except AttributeError: pass
-        else:
-            lastdc.DrawLine(*lastline1) # erase old
-            lastdc.DrawLine(*lastline2) # erase old            
-
+        self.erase_cursor()
         line1 = (x, bottom, x, top)
         line2 = (left, y, right, y)
         self.lastInfo = line1, line2, ax, dc
@@ -113,7 +107,13 @@ class CanvasFrame(wxFrame):
         time, price = event.xdata, event.ydata
         self.statusBar.SetStatusText("Time=%f  Price=%f"% (time, price), 0)
 
-
+    def erase_cursor(self):
+        try: lastline1, lastline2, lastax, lastdc = self.lastInfo
+        except AttributeError: pass
+        else:
+            lastdc.DrawLine(*lastline1) # erase old
+            lastdc.DrawLine(*lastline2) # erase old            
+        
 class App(wxApp):
     
     def OnInit(self):

@@ -123,14 +123,13 @@ PACKAGE MANAGERS: (rpms, apt, fink)
     packages at http://mentors.debian.net
 
 
-      * add these lines to your /etc/apt/sources.list: 
+    * add this lines to your /etc/apt/sources.list:
+      deb http://anakonda.altervista.org/debian packages/
+      deb-src http://anakonda.altervista.org/debian sources/
 
-      deb http://mentors.debian.net/debian unstable main contrib non-free
-      deb-src http://mentors.debian.net/debian unstable main contrib non-free
-
-      * then run:
-        # apt-get update
-        # apt-get install python-matplotlib python-matplotlib-doc
+    * then run:
+      # apt-get update
+      # apt-get install python-matplotlib python-matplotlib-doc
 
   OS X
 
