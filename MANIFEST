@@ -47,12 +47,10 @@ examples/simple_plot.py
 examples/stock_demo.py
 examples/subplot_demo.py
 examples/system_monitor.py
-examples/test.py
 examples/text_handles.py
 examples/text_themes.py
 examples/vline_demo.py
 examples/wx_demo.py
-examples/xyerrorbar.py
 examples/data/AAPL.dat
 examples/data/INTC.dat
 examples/data/eeg.dat
