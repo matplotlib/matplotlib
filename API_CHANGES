@@ -1,11 +1,19 @@
+API CHANGES in matplotlib-0.65.1
+
+  removed add_axes and add_subplot from backend_bases.  Use
+  figure.add_axes and add_subplot instead.  The figure now manages the
+  current axes with gca and sca for get and set current axe.  If you
+  have code you are porting which called, eg, figmanager.add_axes, you
+  can now simply do figmanager.canvas.figure.add_axes.
+
 API CHANGES in matplotlib-0.65
 
-mpl_connect and mpl_disconnect in the matlab interface renamed to
-connect and disconnect
+  mpl_connect and mpl_disconnect in the matlab interface renamed to
+  connect and disconnect
 
-Did away with the text methods for angle since they were ambiguous.
-fontangle could mean fontstyle (obligue, etc) or the rotation of the
-text.  Use style and rotation instead.
+  Did away with the text methods for angle since they were ambiguous.
+  fontangle could mean fontstyle (obligue, etc) or the rotation of the
+  text.  Use style and rotation instead.
 
 
 API CHANGES in matplotlib-0.63

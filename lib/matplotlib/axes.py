@@ -2486,15 +2486,16 @@ of how override and the optional args work
 
 ACCEPTS: str
         """
-        override = {
+        default = {
             'fontsize':rcParams['axes.titlesize'],
             'verticalalignment' : 'bottom',
-            'horizontalalignment' : 'left'
+            'horizontalalignment' : 'center'
             }
 
         self.title.set_text(label)
-        override = _process_text_args({}, fontdict, **kwargs)
-        self.title.update(override)
+        self.title.update(default)
+        if fontdict is not None: self.title.update(fontdict)
+        self.title.update(kwargs)
         return self.title
 
 
@@ -2510,8 +2511,8 @@ ACCEPTS: str
 
         label = self.xaxis.get_label()
         label.set_text(xlabel)
-        override = _process_text_args({}, fontdict, **kwargs)
-        label.update(override)
+        if fontdict is not None: label.update(fontdict)
+        label.update(kwargs)
         return label
 
     def _send_xlim_event(self):
@@ -2591,13 +2592,6 @@ SET_YLABEL(ylabel, fontdict=None, **kwargs)
 
 Set the label for the yaxis
 
-Defaults override is
-
-  override = {
-     'verticalalignment'   : 'center',
-     'horizontalalignment' : 'right',
-     'rotation'='vertical' : }
-
 See the text doctstring for information of how override and
 the optional args work
 
@@ -2605,8 +2599,9 @@ ACCEPTS: str
         """
         label = self.yaxis.get_label()
         label.set_text(ylabel)
-        override = _process_text_args({}, fontdict, **kwargs)
-        label.update(override)
+    
+        if fontdict is not None: self.title.update(label)
+        label.update(kwargs)
         return label
 
     def set_ylim(self, v, emit=True):
@@ -2885,20 +2880,21 @@ axes
                 
 
         """
-        override = {
+        default = {
             'verticalalignment' : 'bottom',
             'horizontalalignment' : 'left',
             #'verticalalignment' : 'top',            
             'transform' : self.transData,
             }
 
-        override = _process_text_args(override, fontdict, **kwargs)
         t = Text(
             x=x, y=y, text=s,
             )
         self._set_artist_props(t)
 
-        t.update(override)
+        t.update(default)
+        if fontdict is not None: t.update(fontdict)
+        t.update(kwargs)
         self.texts.append(t)
 
         if t.get_clip_on():  t.set_clip_box(self.bbox)
