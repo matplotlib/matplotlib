@@ -20,5 +20,5 @@ axis([40, 160, 0, 0.03])
 grid(True)
 
 #set(gca(), 'xlim', [40, 160])
-savefig('histogram_demo',dpi=72)
+#savefig('histogram_demo',dpi=72)
 show()

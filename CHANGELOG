@@ -1,6 +1,9 @@
 New entries should be added at the top
 =======
 
+2004-07-07 Fixed a bug in dynamic_demo_wx
+
+
 2004-07-07 backend_gtk.py: raise SystemExit immediately if 
 	   'import pygtk' fails - SC
 

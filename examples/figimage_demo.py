@@ -13,7 +13,7 @@ jet() # sets the default
 im1 = figimage(Z, xo=50,  yo=0)  
 im2 = figimage(Z, xo=100, yo=100, alpha=.8)
 #gray()  # overrides current and sets default
-savefig('figimage_demo')
+#savefig('figimage_demo')
 
 show()
 
