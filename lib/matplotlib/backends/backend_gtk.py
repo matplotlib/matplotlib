@@ -754,7 +754,7 @@ class FigureCanvasGTK(gtk.DrawingArea, FigureCanvasBase):
            - rendering the pixmap to save to a file (matlab.savefig)
         Should not be overridden
         """
-        if DEBUG: print 'backend_gtk.%s' % fn_name()
+        if DEBUG: print 'FigureCanvasGTK.%s' % fn_name()
         create_pixmap = False
         if width > self._pixmap_width:
             # increase the pixmap in 10%+ (rather than 1 pixel) steps
@@ -766,7 +766,7 @@ class FigureCanvasGTK(gtk.DrawingArea, FigureCanvasBase):
             create_pixmap = True
 
         if create_pixmap:
-            if DEBUG: print 'backend_gtk.%s: new pixmap' % fn_name()
+            if DEBUG: print 'FigureCanvasGTK.%s new pixmap' % fn_name()
             self._pixmap = gtk.gdk.Pixmap (self.window, self._pixmap_width,
                                            self._pixmap_height)
             self._renderer._set_pixmap (self._pixmap)
@@ -779,7 +779,7 @@ class FigureCanvasGTK(gtk.DrawingArea, FigureCanvasBase):
         """Expose_event for all GTK backends
         Should not be overridden.
         """
-        if DEBUG: print 'backend_gtk.%s' % fn_name()
+        if DEBUG: print 'FigureCanvasGTK.%s' % fn_name()
         if self._draw_pixmap and GTK_WIDGET_DRAWABLE(self):
             width, height = self.allocation.width, self.allocation.height
             self._render_to_pixmap(width, height)
@@ -893,6 +893,7 @@ class FigureManagerGTK(FigureManagerBase):
     
     """
     def __init__(self, canvas, num):
+        if DEBUG: print 'FigureManagerGTK.%s' % fn_name()
         FigureManagerBase.__init__(self, canvas, num)
         
         self.window = gtk.Window()
@@ -926,16 +927,19 @@ class FigureManagerGTK(FigureManagerBase):
 
 
     def add_subplot(self, *args, **kwargs):
+        if DEBUG: print 'FigureManagerGTK.%s' % fn_name()
         a = FigureManagerBase.add_subplot(self, *args, **kwargs)
         if self.toolbar is not None: self.toolbar.update()
         return a
     
     def add_axes(self, rect, **kwargs):
+        if DEBUG: print 'FigureManagerGTK.%s' % fn_name()
         a = FigureManagerBase.add_axes(self, rect, **kwargs)
         if self.toolbar is not None: self.toolbar.update()
         return a
     
     def destroy(self, *args):
+        if DEBUG: print 'FigureManagerGTK.%s' % fn_name()
         self.window.destroy()
         if Gcf.get_num_fig_managers()==0 and not matplotlib.is_interactive():
             gtk.main_quit()
