@@ -368,7 +368,7 @@
 
 -- DONE Todd's nx stuff
 
--- fix object picker and eeg demo
+-- DONE fix object picker and eeg demo
 
 -- DONE axes bg color
 
@@ -377,6 +377,8 @@
 -- DONE PS text vert centering off
 
 -- DONE - pcolor edge color
+
+-- fix log bar - worked on OSX?
 
 -- convert rank 1 arrays as per Flaviu's post
 
