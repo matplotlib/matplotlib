@@ -1,5 +1,7 @@
 New entries should be added at the top
 
+2004-08-01 backend_gtk.py: move all drawing code into the expose_event()
+
 2004-07-28 Added Greg's toolbar2 and backend_*agg patches - JDH
 
 2004-07-28 Added image.imread with support for loading png into
