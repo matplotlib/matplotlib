@@ -64,20 +64,19 @@ X11FontDirectories  = [
     # common application, not really useful
     "/usr/lib/openoffice/share/fonts/truetype/",
     # documented as a good place to install new fonts...
-    "/usr/share/fonts/",
-    # okay, now the OS X variants...
-    "~/Library/Fonts/",
+    "/usr/share/fonts/"]
+    
+OSXFontDirectories = [
     "/Library/Fonts/",
     "/Network/Library/Fonts/",
-    "/System/Library/Fonts/",
-    "System Folder:Fonts:"]
-
+    "/System/Library/Fonts/"
+]
 
 home = os.environ.get('HOME')
 if home is not None:
     # user fonts on OSX
     path = os.path.join(home, 'Library', 'Fonts')
-    X11FontDirectories.append(path)
+    OSXFontDirectories.append(path)
 
 def win32FontDirectory():
     """Return the user-specified font directory for Win32."""
@@ -133,6 +132,35 @@ returned by default with AFM fonts as an option.
             _winreg.CloseKey(local)
     return None
 
+def OSXFontDirectory():
+    """Return the system font directories for OS X."""
+
+    fontpaths = []
+    def add(arg,directory,files):
+        fontpaths.append(directory)
+    for fontdir in OSXFontDirectories:
+        try:
+            if os.path.isdir(fontdir):
+                os.path.walk(fontdir, add, None)
+        except (IOError, OSError, TypeError, ValueError):
+            pass
+    return fontpaths
+
+def OSXInstalledFonts(directory=None, fontext=None):
+    """Get list of font files on OS X - ignores font suffix by default"""
+    if directory is None:
+        directory = OSXFontDirectory()
+    
+    files = []
+    for path in directory:
+        if fontext is None:
+            files.extend(glob.glob(os.path.join(path,'*')))
+        else:
+            files.extend(glob.glob(os.path.join(path, '*.'+fontext)))
+            files.extend(glob.glob(os.path.join(path, '*.'+fontext.upper())))
+    return files
+
+
 def x11FontDirectory():
     """Return the system font directories for X11."""
 
@@ -176,6 +204,11 @@ with AFM fonts as an option.
                     fontfiles[f] = 1
         else:
             fontpaths = x11FontDirectory()
+            # check for OS X & load its fonts if present
+            if sys.platform == 'darwin':
+                for f in OSXInstalledFonts():
+                    fontfiles[f] = 1
+
     elif isinstance(fontpaths, (str, unicode)):
         fontpaths = [fontpaths]
     for path in fontpaths:
@@ -418,20 +451,20 @@ dictionary can optionally be created.
         fname = fpath.split('/')[-1]
         if seen.has_key(fname):  continue
         else: seen[fname] = 1
-        if fontext == 'ttf':
-            try:
-                font = ft2font.FT2Font(str(fpath))
-            except RuntimeError:
-                warnings.warn("Could not open font file %s"%fpath)
-                continue
-            prop = ttfFontProperty(font)
-        elif fontext == 'afm':
+        if fontext == 'afm':
             try:
                 font = afm.AFM(file(fpath))
             except RuntimeError:
                 warnings.warn("Could not open font file %s"%fpath)
                 continue
             prop = afmFontProperty(font)
+        else:
+            try:
+                font = ft2font.FT2Font(str(fpath))
+            except RuntimeError:
+                warnings.warn("Could not open font file %s"%fpath)
+                continue
+            prop = ttfFontProperty(font)
         add_filename(fontdict, prop, fpath)
 
         #  !!!!  Default font algorithm needs improvement
@@ -866,9 +899,7 @@ Delete this file to have matplotlib rebuild the cache."""
             verbose.report('findfont returning %s'%fname, 'debug')
             return fname
         
-        if   fontext == 'ttf':
-            fontdict = self.ttfdict
-        elif fontext == 'afm':
+        if fontext == 'afm':
             if len(self.afmdict) == 0:
                 afmpath = os.environ.get('HOME', get_data_path())
                 afmcache = os.path.join(afmpath, '.afmfont.cache')
@@ -883,6 +914,8 @@ Delete this file to have matplotlib rebuild the cache."""
                     pickle.dump(self.afmdict, file(afmcache, 'w'))
                     verbose.report(cache_message % afmcache)
             fontdict = self.afmdict
+        else:
+            fontdict = self.ttfdict
 
         name    = prop.get_family()[0]
         style   = prop.get_style()
