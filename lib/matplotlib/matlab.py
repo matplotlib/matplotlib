@@ -680,7 +680,7 @@ def figimage(*args, **kwargs):
     return ret
 figimage.__doc__ = Figure.figimage.__doc__
     
-def figlegend(handles, labels, loc):
+def figlegend(handles, labels, loc, **kwargs):
     """
     Place a legend in the figure.  Labels are a sequence of
     strings, handles is a sequence of line or patch instances, and
@@ -696,7 +696,7 @@ def figlegend(handles, labels, loc):
 
     A matplotlib.legend.Legend instance is returned
     """
-    l=  gcf().legend(handles, labels, loc)
+    l=  gcf().legend(handles, labels, loc, **kwargs)
     draw_if_interactive()
     return l
     

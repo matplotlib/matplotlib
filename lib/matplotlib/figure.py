@@ -265,7 +265,7 @@ instructions on how to port your code.
     def get_axes(self):
         return self.axes
 
-    def legend(self, handles, labels, loc):
+    def legend(self, handles, labels, loc, **kwargs):
         """
         Place a legend in the figure.  Labels are a sequence of
         strings, handles is a sequence of line or patch instances, and
@@ -296,7 +296,7 @@ instructions on how to port your code.
 
 
         handles = flatten(handles)
-        l = Legend(self, handles, labels, loc, isaxes=False)
+        l = Legend(self, handles, labels, loc, isaxes=False, **kwargs)
         self._set_artist_props(l)
         self.legends.append(l)
         return l
