@@ -1,5 +1,7 @@
 New entries should be added at the top
 
+2004-07-09 added support for embedding TrueType fonts in PS files - PEB
+
 2004-07-09 fixed a sfnt bug exposed if font cache is not built
 
 2004-07-09 added default arg None to matplotlib.matlab grid command to
