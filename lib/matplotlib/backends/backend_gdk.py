@@ -118,7 +118,7 @@ class RendererGDK(RendererBase):
         try:
             pa = pb.get_pixels_array()
         except AttributeError:
-            pa = pb.pixel_array
+            pa = pb.pixel_array   # deprecated
         except RuntimeError, exc: #  pygtk was not compiled with Numeric Python support
             warnings.warn('draw_image not supported: %s' % exc)
             return        
