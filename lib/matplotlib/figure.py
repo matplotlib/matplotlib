@@ -48,18 +48,16 @@ class Figure(Artist):
 
 
         
-        self._figurePatch = Rectangle(
+        self.figurePatch = Rectangle(
             xy=(0,0), width=1, height=1,
             facecolor=facecolor, edgecolor=edgecolor,
             linewidth=linewidth,
             )
-        self._set_artist_props(self._figurePatch)
+        self._set_artist_props(self.figurePatch)
 
         self._hold = rcParams['axes.hold']
         self.clf()
 
-        self.patches = []
-        self.lines = []
         
     def hold(self, b=None):
         """
@@ -132,7 +130,7 @@ A image.FigureImage instance is returned.
         im.set_alpha(alpha)
         if norm is None:
             im.set_clim(vmin, vmax)
-        self._images.append(im )
+        self.images.append(im )
         return im
 
         
@@ -146,19 +144,19 @@ A image.FigureImage instance is returned.
 
     def get_edgecolor(self):
         'Get the edge color of the Figure rectangle' # 
-        return self._figurePatch.get_edgecolor()
+        return self.figurePatch.get_edgecolor()
 
     def get_facecolor(self):
         'Get the face color of the Figure rectangle'
-        return self._figurePatch.get_facecolor()
+        return self.figurePatch.get_facecolor()
 
     def set_edgecolor(self, color):
         'Set the edge color of the Figure rectangle'
-        self._figurePatch.set_edgecolor(color)
+        self.figurePatch.set_edgecolor(color)
 
     def set_facecolor(self, color):
         'Set the face color of the Figure rectangle'
-        self._figurePatch.set_facecolor(color)
+        self.figurePatch.set_facecolor(color)
 
     def add_axis(self, *args, **kwargs):
         raise SystemExit("""\
@@ -197,9 +195,11 @@ instructions on how to port your code.
         Clear the figure
         """
         self.axes = []
-        self._text=[]
-        self._legends = []
-        self._images = []
+        self.lines = []
+        self.patches = []
+        self.texts=[]
+        self.images = []
+        self.legends = []
 
     def clear(self):
         """
@@ -215,23 +215,23 @@ instructions on how to port your code.
 
         renderer.open_group('figure')
         self.transFigure.freeze()  # eval the lazy objects
-        if self.frameon: self._figurePatch.draw(renderer)
+        if self.frameon: self.figurePatch.draw(renderer)
 
         for p in self.patches: p.draw(renderer)
         for l in self.lines: l.draw(renderer)
 
-        if len(self._images)==1:
-            im = self._images[0]
+        if len(self.images)==1:
+            im = self.images[0]
             im.draw(renderer)
-        elif len(self._images)>1:
+        elif len(self.images)>1:
             # make a composite image blending alpha
             # list of (_image.Image, ox, oy)
-            if not allequal([im.origin for im in self._images]):
+            if not allequal([im.origin for im in self.images]):
                 raise ValueError('Composite images with different origins not supported')
             else:
-                origin = self._images[0].origin
+                origin = self.images[0].origin
 
-            ims = [(im.make_image(), im.ox, im.oy) for im in self._images]
+            ims = [(im.make_image(), im.ox, im.oy) for im in self.images]
             im = _image.from_images(self.bbox.height(), self.bbox.width(), ims)
             im.is_grayscale = False
             l, b, w, h = self.bbox.get_bounds()
@@ -243,9 +243,9 @@ instructions on how to port your code.
         for a in self.axes: a.draw(renderer)
 
         # render the figure text
-        for t in self._text: t.draw(renderer)
+        for t in self.texts: t.draw(renderer)
 
-        for legend in self._legends:
+        for legend in self.legends:
             legend.draw(renderer)
 
         self.transFigure.thaw()  # release the lazy objects
@@ -287,7 +287,7 @@ instructions on how to port your code.
         handles = flatten(handles)
         l = Legend(self, handles, labels, loc, isaxes=False)
         self._set_artist_props(l)
-        self._legends.append(l)
+        self.legends.append(l)
         return l
     
     def text(self, x, y, s, *args, **kwargs):
@@ -303,7 +303,7 @@ instructions on how to port your code.
 
         t.update_properties(override)
         self._set_artist_props(t)
-        self._text.append(t)
+        self.texts.append(t)
         return t
 
     def _set_artist_props(self, a):
