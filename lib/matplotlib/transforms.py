@@ -103,6 +103,13 @@ a, b, c, d, tx, ty.  These give the values of the matrix transformation
   [xo  =  |a  c| [xi  + [tx      
    yo]    |b  d|  yi]    ty]
 
+where if sx, sy are the scaling components, tx, y are the translation
+components, and alpha is the rotation
+
+   a = sx*cos(alpha);
+   b = -sx*sin(alpha);
+   c = sy*sin(alpha);
+   d = sy*cos(alpha);
 
 From a user perspective, the most important Tranformation methods are
 
