@@ -27,11 +27,11 @@ BUILD_AGG = 1
 # high quality image renderer to render to all the GUI windows
 
 # build GTK GUI with Agg renderer ; requires pygtk src distros installed
-BUILD_GTKAGG       = 1
+BUILD_GTKAGG       = 0
 
 # build TK GUI with Agg renderer ; requires Tkinter Python extension
 # and Tk includes
-BUILD_TKAGG        = 1
+BUILD_TKAGG        = 0
 
 # build a small extension to manage the focus on win32 platforms.
 BUILD_WINDOWING        = 0
@@ -85,7 +85,7 @@ if BUILD_IMAGE:
     build_image(ext_modules, packages, BUILD_IMAGE)
 
 setup(name="matplotlib",
-      version= '0.53b',
+      version= '0.53',
       description = "Matlab style python plotting package",
       author = "John D. Hunter",
       author_email="jdhunter@ace.bsd.uchicago.edu",

@@ -2,6 +2,9 @@
 # Copyright (C) 2003  <jdhunter@ace.bsd.uchicago.edu>
 # $Header$
 # $Log$
+# Revision 1.28  2004/04/20 22:53:37  jdh2358
+# removed tz info from dates; updated htdocs
+#
 # Revision 1.27  2004/04/20 11:32:35  jdh2358
 # added finance module
 #
@@ -85,42 +88,11 @@
 #
 
 PYTHON = /usr/local/bin/python2.3
-PYDOC = /usr/local/bin/pydoc
 VERSION = `${PYTHON} setup.py --version`
 
 DISTFILES = API_CHANGES KNOWN_BUGS INSTALL README TODO license	\
 	CHANGELOG Makefile GOALS INTERACTIVE			\
 	MANIFEST.in matplotlib examples setup.py
-
-MODULES =					\
-        matplotlib.afm				\
-	matplotlib.artist			\
-	matplotlib.axes				\
-	matplotlib.axis				\
-	matplotlib.backend_bases		\
-	matplotlib.backends.backend_agg		\
-	matplotlib.backends.backend_gd		\
-	matplotlib.backends.backend_gtk		\
-	matplotlib.backends.backend_gtkgd	\
-	matplotlib.backends.backend_paint       \
-	matplotlib.backends.backend_ps		\
-	matplotlib.backends.backend_template	\
-	matplotlib.backends.backend_tkagg	\
-        matplotlib.backends.backend_wx          \
-	matplotlib.cbook			\
-	matplotlib.colors			\
-	matplotlib.figure			\
-	matplotlib.image			\
-	matplotlib.legend			\
-	matplotlib.lines			\
-	matplotlib.matlab			\
-	matplotlib.mathtext			\
-	matplotlib.mlab				\
-	matplotlib.numerix      		\
-	matplotlib.patches			\
-	matplotlib.table			\
-	matplotlib.text				\
-	matplotlib.transforms			\
 
 RELEASE = matplotlib-${VERSION}
 
@@ -132,23 +104,6 @@ clean:
 	find examples \( -name "*.png" -o -name "*.ps"  -o -name "*.jpg" -o -name "*.eps" \) | xargs rm -f
 	find . \( -name "#*" -o -name ".#*" -o -name ".*~" -o -name "*~"\) | xargs rm -f
 
-htmldocs: 
-	cp build/lib.linux-i686-2.3/matplotlib/*.so matplotlib/;\
-	cp build/lib.linux-i686-2.3/matplotlib/backends/*.so matplotlib/backends/;\
-	rm -rf htdocs/matplotlib;\
-	cp -a matplotlib htdocs/;\
-	rm htdocs/matplotlib/backends/*.so;\
-	cp examples/*.py htdocs/examples;\
-	cp .matplotlibrc NUMARRAY_ISSUES API_CHANGES htdocs/;\
-	rm -f docs/*.html;\
-	${PYDOC} -w ${MODULES};\
-	mv *.html docs/
-	cd htdocs;\
-	${PYTHON} process_docs.py;\
-	${PYTHON} convert.py;\
-	tar cfz site.tar.gz *.html screenshots tut examples gd .matplotlibrc NUMARRAY_ISSUES  API_CHANGES;\
-	cd ..;\
-	rm matplotlib/backends/*.so;\
 
 release: ${DISTFILES}
 	${PYTHON} license.py ${VERSION};\
@@ -156,3 +111,14 @@ release: ${DISTFILES}
 
 pyback: 
 	tar cvfz pyback.tar.gz *.py matplotlib/*.py examples/*.py matplotlib/backends/*.py unit/*.py
+
+htmldocs: 
+
+	cp examples/*.py htdocs/examples;\
+	cp .matplotlibrc NUMARRAY_ISSUES API_CHANGES htdocs/;\
+	cd htdocs;\
+	${PYTHON} process_docs.py;\
+	${PYTHON} convert.py;\
+	tar cfz site.tar.gz *.html screenshots tut examples gd .matplotlibrc NUMARRAY_ISSUES  API_CHANGES;\
+	cd ..;\
+	cp -a matplotlib htdocs/;

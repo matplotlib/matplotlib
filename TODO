@@ -316,3 +316,7 @@
 -- decreasing log axes needs fix
 
 -- overflow error in math.floor(ld) on stock_demo in OSX
+
+-- DONE modify pcolor to allow custom cmap
+
+-- Check for empty quote data returns

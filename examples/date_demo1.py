@@ -4,10 +4,10 @@ formatters.  See major_minor_demo1.py for more information on
 controlling major and minor ticks
 
 All matplotlib date plotting is done by converting date instances into
-seconds since the epoch, gmtime.  The conversion, tick locating and
-formatting is done behind the scenes so this is most transparent to
-you.  The dates module provides several converter classes that you can
-pass to the date plotting functions which will convert your dates as
+seconds since the epoch.  The conversion, tick locating and formatting
+is done behind the scenes so this is most transparent to you.  The
+dates module provides several converter classes that you can pass to
+the date plotting functions which will convert your dates as
 necessary.  Currently epoch dates (already converted) are supported
 with EpochCOnverter, python2.3 datetime instances are supported with
 PyDatetimeConverter, and it won't be much work to add an mx.Datetime
