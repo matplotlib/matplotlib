@@ -11,7 +11,7 @@ t2 = arange(0.0, 5.0, 0.02)
 t3 = arange(0.0, 2.0, 0.01)
 
 subplot(211)
-l = plot(t1, f(t1), 'bo', t2, f(t2), 'k')
+l = plot(t1, f(t1), 'bo', t2, f(t2), 'k--')
 set(l, 'markerfacecolor', 'g')
 grid(True)
 title('A tale of 2 subplots')
