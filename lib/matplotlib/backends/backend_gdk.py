@@ -188,6 +188,9 @@ class RendererGDK(RendererBase):
     def draw_text(self, gc, x, y, s, prop, angle, ismath):
         x, y = int(x), int(y)
 
+        if x <0 or y <0: # window has shrunk and text is off the edge
+            return
+
         if angle not in (0,90):
             verbose.report_error('The GTK backend cannot draw text at a %i degree angle, try GtkAgg instead' % angle)
 
@@ -276,6 +279,9 @@ class RendererGDK(RendererBase):
         x = int(x-h)
         y = int(y-w)
 
+        if x < 0 or y < 0: # window has shrunk and text is off the edge
+            return
+
         key = (x,y,s,angle,hash(prop))
         imageVert = self.rotated.get(key)
         if imageVert != None:
@@ -289,7 +295,7 @@ class RendererGDK(RendererBase):
                                   visual=gdrawable.get_visual(),
                                   width=w, height=h)
         if imageFlip == None or imageBack == None or imageVert == None:
-            verbose.report_error("Could not renderer vertical text", s)
+            verbose.report_error("Could not renderer vertical text")
             return
         imageFlip.set_colormap(self._cmap)
         for i in range(w):

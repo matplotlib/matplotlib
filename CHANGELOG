@@ -1,5 +1,8 @@
 New entries should be added at the top
  
+2005-02-04 Modified GTK backends to allow the FigureCanvas to be resized
+	   smaller than its original size - SC
+
 2005-02-02 Fixed a bug in dates mx2num - JDH
 
 2005-02-02 Incorporated Fernando's matshow - JDH
