@@ -570,7 +570,7 @@ ZeroDivisionError: SeparableTransformation::eval_scalars yin interval is zero; c
 
 -- post hacking points memo on site, ann and send copy to Fernando
 
---  loadrc() function, possibly replacing  per-directory .matplotlibrc
+-- loadrc() function, possibly replacing  per-directory .matplotlibrc
     files.  
 
 -- file save dialog for Tk?  See Mayavi for the right call to make.
@@ -582,4 +582,8 @@ ZeroDivisionError: SeparableTransformation::eval_scalars yin interval is zero; c
 
 -- DONE an rrulewrapper demo
 
--- implement a new data clipping method with more exensive cache interval
+-- implement a new data clipping method with more exensive cache
+   interval
+
+-- DONE Humufr errorbar and font bug
+

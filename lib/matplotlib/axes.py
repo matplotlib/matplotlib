@@ -14,7 +14,6 @@ from collections import RegularPolyCollection, PolyCollection
 from colors import colorConverter, normalize, Colormap
 import cm
 from cm import ColormapJet, Grayscale
-from dates import SEC_PER_MIN, SEC_PER_HOUR, SEC_PER_DAY, SEC_PER_WEEK
 import _image
 from ticker import AutoLocator, LogLocator
 from ticker import ScalarFormatter, LogFormatter, LogFormatterExponent, LogFormatterMathtext
@@ -33,16 +32,12 @@ from transforms import  Func, LOG10, IDENTITY
 from transforms import get_bbox_transform, unit_bbox
 from font_manager import FontProperties
 
-try:
-    import dates
-except ImportError:
-    _haveDates=False
-else:
-    from dates import YearLocator, MonthLocator, WeekdayLocator, \
-         DayLocator,  HourLocator, MinuteLocator, DateFormatter
-    _haveDates=True
-# build a string to constants dict for images
+import matplotlib
 
+if matplotlib._havedate:
+    from dates import YearLocator, MonthLocator, WeekdayLocator, \
+             DayLocator, HourLocator, MinuteLocator, DateFormatter,\
+             SEC_PER_MIN, SEC_PER_HOUR, SEC_PER_DAY, SEC_PER_WEEK
 
                      
 def _process_plot_format(fmt):
@@ -689,7 +684,7 @@ class Axes(Artist):
 
     def draw(self, renderer, *args, **kwargs):
         "Draw everything (plot lines, axes, labels)"
-
+        
         renderer.open_group('axes')
         self.transData.freeze()  # eval the lazy objects
         self.transAxes.freeze()  # eval the lazy objects
@@ -1056,8 +1051,8 @@ The following kwargs are allowed:
     in pixels
 
     """
+
         if not self._hold: self.cla()
-        #if alpha==1: self._images = []
 
         if norm is not None: assert(isinstance(norm, normalize))
         if cmap is not None: assert(isinstance(cmap, Colormap))        
@@ -1065,12 +1060,12 @@ The following kwargs are allowed:
         im = AxesImage(self, cmap, norm, aspect, interpolation, origin, extent)
         if norm is None:            
             im.set_clim(vmin, vmax)
-        
+
+
         im.set_array(X)
         im.set_alpha(alpha)
 
         xmin, xmax, ymin, ymax = im.get_extent()
-
 
         corners = (xmin, ymin), (xmax, ymax)
         self.update_datalim(corners)
@@ -1516,31 +1511,32 @@ Return value is a list of lines that were added
 
 The following line styles are supported:
 
-    -  : solid line
-    -- : dashed line
-    -. : dash-dot line
-    :  : dotted line
-    .  : points
-    ,  : pixels
-    o  : circle symbols
-    ^  : triangle up symbols
-    v  : triangle down symbols
-    <  : triangle left symbols
-    >  : triangle right symbols
-    s  : square symbols
-    +  : plus symbols
-    x  : cross symbols
-    D  : diamond symbols
-    d  : thin diamond symbols
-    1  : tripod down symbols
-    2  : tripod up symbols
-    3  : tripod left symbols
-    4  : tripod right symbols
-    h  : hexagon symbols
-    H  : rotated hexagon symbols
-    p  : pentagon symbols
-    |  : vertical line symbols
-    _  : horizontal line symbols
+    -     : solid line
+    --    : dashed line
+    -.    : dash-dot line
+    :     : dotted line
+    .     : points
+    ,     : pixels
+    o     : circle symbols
+    ^     : triangle up symbols
+    v     : triangle down symbols
+    <     : triangle left symbols
+    >     : triangle right symbols
+    s     : square symbols
+    +     : plus symbols
+    x     : cross symbols
+    D     : diamond symbols
+    d     : thin diamond symbols
+    1     : tripod down symbols
+    2     : tripod up symbols
+    3     : tripod left symbols
+    4     : tripod right symbols
+    h     : hexagon symbols
+    H     : rotated hexagon symbols
+    p     : pentagon symbols
+    |     : vertical line symbols
+    _     : horizontal line symbols
+    steps : use gnuplot style 'steps' # kwarg only
 
 The following color strings are supported
 
@@ -1575,7 +1571,7 @@ Neither line will be antialiased.
 
         if not self._hold: self.cla()
         lines = []
-        for line in self._get_lines(*args, **kwargs):
+        for line in self._get_lines(*args, **kwargs): 
             self.add_line(line)
             lines.append(line)
 
@@ -1597,7 +1593,7 @@ Neither line will be antialiased.
         tz is the timezone - defaults to rc value
         """
 
-        if not _haveDates:
+        if not matplotlib._havedate:
             print 'plot_date: no dates support - dates require python2.3'
             sys.exit()
         

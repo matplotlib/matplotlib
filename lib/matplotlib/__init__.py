@@ -1,3 +1,4 @@
+from __future__ import generators
 """
 This is a matlab style functional interface the matplotlib.
 
@@ -113,7 +114,7 @@ Most of the other commands are from the Numeric, MLab and FFT, with
 the exception of those in mlab.py provided by matplotlib.
 """
 
-__version__  = '0.63.0'
+__version__  = '0.63.4'
 __revision__ = '$Revision$'
 __date__     = '$Date$'
 
@@ -140,15 +141,89 @@ The default file location is given in the following order
 
 import sys, os
 
+    
 major, minor1, minor2, s, tmp = sys.version_info
-if major<2 or (major==2 and minor1<3):
-    True = 1
-    False = 0
-else:
-    True = True
-    False = False
+_python23 = major>=2 and minor1>=3
+
+_havemath = _python23
+
+try:
+    import datetime
+    import dateutil
+    import pytz
+except ImportError: _havedate = False
+else: _havedate = True
+
+if not _python23:
+    def enumerate(seq):
+         for i in range(len(seq)):
+             yield i, seq[i]
 
 
+class Verbose:
+    """
+    A class to handle reporting.  Set the fileo attribute to any file
+    instance to handle the output.  Default is sys.stdout
+    """
+    levels = ('silent', 'helpful', 'annoying')
+    vald = dict( [(level, i) for i,level in enumerate(levels)])
+    
+    def __init__(self, level):
+        self.set_level(level)
+        self.fileo = sys.stdout
+        
+    def set_level(self, level):
+        'set the verbosity to one of the Verbose.levels strings'
+        assert level in self.levels
+        self.level = level
+
+    def silent(self):
+        return self.level=='silent'
+
+    def helpful(self):
+        return self.vald[self.level]>=self.vald['helpful']
+
+    def annoying(self):
+        return self.vald[self.level]>=self.vald['annoying']
+
+    def report(self, s, level='helpful'):
+        """
+        print message s to self.fileo if self.level>=level.  Return
+        value indicates whether a message was issued
+        
+        """
+        if self.ge(level):
+            print >>self.fileo, s
+            return True
+        return False
+
+
+    def wrap(self, fmt, func, level='helpful', always=True):
+        """
+        return a callable function that wraps func and reports it
+        output through the verbose handler if current verbosity level
+        is higher than level
+
+        if always is True, the report will occur on every function
+        call; otherwise only on the first time the function is called
+        """
+        assert(callable, func)
+        def wrapper(*args, **kwargs):
+            ret = func(*args, **kwargs)
+
+            if (always or not wrapper._spoke):
+                spoke = self.report(fmt%ret, level)
+                if not wrapper._spoke: wrapper._spoke = spoke
+            return ret
+        wrapper._spoke = False
+        wrapper.__doc__ = func.__doc__
+        return wrapper
+
+    def ge(self, level):
+        'return true if self.level is >= level'
+        return self.vald[self.level]>=self.vald[level]
+        
+verbose=Verbose('silent')  # silent until rc is parsed
 
 def get_home():
     """
@@ -168,8 +243,9 @@ def get_home():
 
     return None
 
-def get_data_path():
 
+def _get_data_path():
+    'get the path to matplotlib data'
     path = os.path.join(distutils.sysconfig.PREFIX, 'share', 'matplotlib')
     if os.path.isdir(path): return path
 
@@ -195,6 +271,8 @@ def get_data_path():
         return path
     raise RuntimeError('Could not find the matplotlib data files')
 
+get_data_path = verbose.wrap('matplotlib data path %s', _get_data_path, always=False)
+    
 
 def validate_path_exists(s):
     'If s is a path, return s, else False'
@@ -302,6 +380,26 @@ def validate_fontsize(s):
         raise ValueError('not a valid font size')
 
 
+def validate_verbose(s):
+    verbose.set_level(s)
+    return verbose
+    
+
+def validate_verbose_fileo(s):
+    d = {'sys.stdout':sys.stdout,
+         'sys.stderr':sys.stderr,
+         }
+    if d.has_key(s): verbose.fileo = d[s]
+    else:
+        try: fileo = file(s, 'w')
+        except IOError:
+            raise ValueError('Verbose object could not open log file "%s" for writing.\nCheck your matplotlibrc verbose.fileo setting'%s)
+        
+
+        else:
+            verbose.fileo = fileo
+    return verbose.fileo
+
 # a map from key -> value, converter
 defaultParams = {
     'backend'           : ['GTK', str],
@@ -310,6 +408,10 @@ defaultParams = {
     'datapath'          : [get_data_path(), validate_path_exists],
     'interactive'       : [False, validate_bool],
     'timezone'          : ['UTC', str],    
+
+    # the verbosity setting
+    'verbose.level'           : ['silent', validate_verbose],
+    'verbose.fileo'           : ['sys.stdout', validate_verbose_fileo],        
 
     # line props    
     'lines.linewidth'   : [0.5, validate_float],     # line width in points
@@ -434,6 +536,8 @@ def matplotlib_fname():
         print >> sys.stderr, 'Could not find .matplotlibrc; using defaults'
     return fname
 
+
+
 def rc_params():
     'Return the default params updated from the values in the rc file'
 
@@ -448,8 +552,11 @@ def rc_params():
     
     fname = matplotlib_fname()
     if not os.path.exists(fname):
-        return dict([ (key, tup[0]) for key, tup in defaultParams.items()])
-
+        message = 'could not find rc file; returning defaults'
+        ret =  dict([ (key, tup[0]) for key, tup in defaultParams.items()])
+        verbose.report(message)
+        return ret
+        
     cnt = 0
     for line in file(fname):
         cnt +=1
@@ -488,7 +595,10 @@ def rc_params():
             defaultParams[key][0] = cval
 
     # strip the conveter funcs and return
-    return dict([ (key, tup[0]) for key, tup in defaultParams.items()])
+    ret =  dict([ (key, tup[0]) for key, tup in defaultParams.items()])
+    verbose.report('loaded rc file %s'%fname)
+    return ret
+
 
 # this is the instance used by the matplotlib classes
 rcParams = rc_params() 

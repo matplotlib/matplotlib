@@ -60,6 +60,7 @@ class ScalarMappable:
 
         if cmap is None: cmap = get_cmap()        
         if norm is None: norm = colors.normalize()
+
         self._A = None
         self.norm = norm
         self.cmap = cmap

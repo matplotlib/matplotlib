@@ -390,10 +390,21 @@ def onetrue(seq):
         if seq: return True
     return False
 
+def allpairs(x):
+    """
+    return all possible pairs in sequence x
+
+    Condensed by Alex Martelli from this thread on c.l.python
+    http://groups.google.com/groups?q=all+pairs+group:*python*&hl=en&lr=&ie=UTF-8&selm=mailman.4028.1096403649.5135.python-list%40python.org&rnum=1    
+    """
+    return [ (s, f) for i, f in enumerate(x) for s in x[i+1:] ]
+
+        
 if __name__=='__main__':
     assert( allequal([1,1,1]) )
     assert(not  allequal([1,1,0]) )
     assert( allequal([]) )
     assert( allequal(('a', 'a')))
     assert( not allequal(('a', 'b')))    
+
 
