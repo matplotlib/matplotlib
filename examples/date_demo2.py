@@ -16,7 +16,7 @@ date2 = datetime.date( 2003, 12, 1 )
 
 mondays   = WeekdayLocator(MONDAY)    # every monday
 months    = MonthLocator(range(1,13), bymonthday=1)           # every month
-monthsFmt = DateFormatter('%b %d')
+monthsFmt = DateFormatter("%b '%y")
 
 
 quotes = quotes_historical_yahoo('INTC', date1, date2)
@@ -26,7 +26,7 @@ if not quotes:
 
 dates = [q[0] for q in quotes]
 opens = [q[1] for q in quotes]
-
+    
 ax = subplot(111)
 plot_date(dates, opens, '-')
 ax.xaxis.set_major_locator(months)
