@@ -26,7 +26,7 @@
 #include "agg_scanline_bin.h"
 #include "agg_scanline_u.h"
 #include "agg_renderer_scanline.h"
-
+#include "util/agg_color_conv_rgb8.h"
 #include "_image.h"
 #include "mplutils.h"
 
@@ -199,6 +199,38 @@ Image::as_str(const Py::Tuple& args) {
   
 }
 
+
+char Image::buffer_argb32__doc__[] = 
+"buffer = buffer_argb32)"
+"\n"
+"Return the image buffer as agbr32\n"
+;
+Py::Object 
+Image::buffer_argb32(const Py::Tuple& args) {
+  //"Return the image object as argb32";
+
+  _VERBOSE("RendererAgg::buffer_argb32");
+  
+  args.verify_length(0);    
+  int row_len = colsOut * 4;
+
+  unsigned char* buf_tmp = new unsigned char[row_len * rowsOut];
+  if (buf_tmp ==NULL) 
+    throw Py::MemoryError("RendererAgg::buffer_argb32 could not allocate memory");
+  
+  agg::rendering_buffer rtmp;
+  rtmp.attach(buf_tmp, colsOut, rowsOut, row_len);
+  
+  color_conv(&rtmp, rbufOut, agg::color_conv_rgba32_to_argb32());
+  
+  
+  //todo: how to do this with native CXX
+  PyObject* o = Py_BuildValue("s#", buf_tmp, row_len * rowsOut);
+  delete [] buf_tmp;
+  return Py::asObject(o);
+
+
+}
 
 char Image::reset_matrix__doc__[] = 
 "reset_matrix()"
@@ -583,6 +615,7 @@ Image::init_type() {
   add_varargs_method( "apply_scaling",	&Image::apply_scaling, Image::apply_scaling__doc__);
   add_varargs_method( "apply_translation", &Image::apply_translation, Image::apply_translation__doc__);
   add_varargs_method( "as_str", &Image::as_str, Image::as_str__doc__);
+  add_varargs_method( "buffer_argb32", &Image::buffer_argb32, Image::buffer_argb32__doc__);
   add_varargs_method( "get_aspect", &Image::get_aspect, Image::get_aspect__doc__);
   add_varargs_method( "get_interpolation", &Image::get_interpolation, Image::get_interpolation__doc__);
   add_varargs_method( "get_size", &Image::get_size, Image::get_size__doc__);

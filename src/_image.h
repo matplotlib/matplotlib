@@ -27,6 +27,7 @@ public:
   Py::Object apply_scaling(const Py::Tuple& args);
   Py::Object apply_translation(const Py::Tuple& args);
   Py::Object as_str(const Py::Tuple& args);
+  Py::Object buffer_argb32(const Py::Tuple& args);
   Py::Object reset_matrix(const Py::Tuple& args);
   Py::Object resize(const Py::Tuple& args);
   Py::Object get_aspect(const Py::Tuple& args);
@@ -61,6 +62,7 @@ private:
   static char apply_scaling__doc__[];
   static char apply_translation__doc__[];
   static char as_str__doc__[];
+  static char buffer_argb32__doc__[];
   static char reset_matrix__doc__[];
   static char resize__doc__[];
   static char get_aspect__doc__[];
