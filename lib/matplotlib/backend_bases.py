@@ -565,6 +565,7 @@ class FigureCanvasBase:
         face color background and you'll probably want to override this on
         hardcopy.
 
+        filename    - can also be a file object on image backends
         orientation - only currently applies to PostScript printing.
         """
 

@@ -337,17 +337,15 @@ class FigureCanvasSVG(FigureCanvasBase):
         self.figure.set_facecolor(facecolor)
         self.figure.set_edgecolor(edgecolor)
         width, height = self.figure.get_size_inches()
+        w, h = width*72, height*72
 
         basename, ext = os.path.splitext(filename)
         if not len(ext): filename += '.svg'
 
-        self._svgwriter = StringIO()
-        w = width*72
-        h = height*72
-        renderer = RendererSVG(w, h, self._svgwriter, basename)
+        svgwriter = StringIO()
+        renderer = RendererSVG(w, h, svgwriter, basename)
 
-        self._svgwriter.write(_svgProlog%(w,h) )
-
+        svgwriter.write(svgProlog%(w,h) )
         self.figure.draw(renderer)
         renderer.finish()
 
@@ -357,7 +355,6 @@ class FigureCanvasSVG(FigureCanvasBase):
         self.figure.set_edgecolor(origedgecolor)
         
         fh = file(filename, 'w')
-
         print >>fh, renderer.get_svg()
 
 class FigureManagerSVG(FigureManagerBase):
@@ -365,7 +362,7 @@ class FigureManagerSVG(FigureManagerBase):
 
 FigureManager = FigureManagerSVG
 
-_svgProlog = """<?xml version="1.0" standalone="no"?>
+svgProlog = """<?xml version="1.0" standalone="no"?>
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.0//EN"
 "http://www.w3.org/TR/2001/REC-SVG-20010904/DTD/svg10.dtd">
 <!-- Created with matplotlib (http://matplotlib.sourceforge.net/) -->

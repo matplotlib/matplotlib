@@ -63,7 +63,7 @@ files = (
     'text_themes.py',
     'two_scales.py',
     'vline_demo.py',
-    'zlevel_demo.py',
+    'zorder_demo.py',
     )
 
 
