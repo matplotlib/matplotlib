@@ -1,8 +1,19 @@
 New entries should be added at the top
 =======
+
+2004-06-16 Added new py2exe FAQ entry and added frozen support in
+           get_data_path for py2exe - JDH
+
+2004-06-16 Removed GTKGD, which was always just a proof-of-concept
+           backend - JDH
+
 2004-06-16 backend_gtk.py updates to replace deprecated functions
 	   gtk.mainquit(), gtk.mainloop().
            Update NavigationToolbar to use the new GtkToolbar API - SC
+
+2004-06-15 removed set_default_font from font_manager to unify font
+           customization using the new function rc.  See API_CHANGES
+           fpr more info -  JDH
 
 2004-06-15 Improved (yet again!) axis scaling to properly handle
            singleton plots - JDH
@@ -19,7 +30,8 @@ New entries should be added at the top
            setting until object creation time; added new rc attrs:
            lines.markerfacecolor, lines.markeredgecolor,
            lines.markeredgewidth, patch.linewidth, patch.facecolor,
-           patch.edgecolor, patch.antialiased - JDH
+           patch.edgecolor, patch.antialiased; see
+           examples/customize_rc.py for usage - JDH
 
 
 ---------------------------------------------------------------
