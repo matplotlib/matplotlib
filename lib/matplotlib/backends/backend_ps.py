@@ -23,7 +23,7 @@ from matplotlib import get_data_path
 
 from matplotlib.numerix import fromstring, UInt8, Float32, equal, alltrue
 import binascii
-
+import re
 
 backend_version = 'Level II'
 defaultPaperSize = 8.5,11               # TODO: make this configurable
@@ -49,6 +49,14 @@ def _num_to_str(val):
 
 def _nums_to_str(*args):
     return ' '.join(map(_num_to_str,args))
+
+def quote_ps_string(s):
+    "Quote dangerous characters of S for use in a PostScript string constant."
+    s=s.replace("\\", "\\\\")
+    s=s.replace("(", "\\(")
+    s=s.replace(")", "\\)")
+    s=re.sub(r"[^ -~\n]", lambda x: r"\%03o"%ord(x.group()), s)
+    return s
 
 
 _fontd = {}
@@ -350,7 +358,7 @@ grestore
         descent = font.get_descent() / 64.0
         if descent:
             self._pswriter.write("0 %s rmoveto\n"%_num_to_str(descent))
-        self._pswriter.write("(%s) show\n"%s)
+        self._pswriter.write("(%s) show\n"%quote_ps_string(s))
         if angle:
             self._pswriter.write("grestore\n")
 
