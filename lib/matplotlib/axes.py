@@ -994,10 +994,10 @@ Refs:
         renderer.close_group('axes')
 
     def errorbar(self, x, y, yerr=None, xerr=None,
-                 fmt='b-', ecolor=None, capsize=3):
+                 fmt='b-', ecolor=None, capsize=3, barsabove=False):
         """\
 ERRORBAR(x, y, yerr=None, xerr=None,
-         fmt='b-', ecolor=None, capsize=3)
+         fmt='b-', ecolor=None, capsize=3, barsabove=False)
         
 Plot x versus y with error deltas in yerr and xerr.
 Vertical errorbars are plotted if yerr is not None
@@ -1023,6 +1023,9 @@ plots a single error bar at x, y.
 
     capsize is the size of the error bar caps in points
 
+    barsabove, if True, will plot the errorbars above the plot symbols
+    - default is below
+    
 Return value is a length 2 tuple.  The first element is a list of
 y symbol lines.  The second element is a list of error bar lines.
         """
@@ -1042,19 +1045,13 @@ y symbol lines.  The second element is a list of error bar lines.
             if not iterable(yerr): yerr = asarray([yerr])
             else: yerr = asarray(yerr)
 
+        l0 = None
 
-        if fmt is not None:
+        if barsabove and fmt is not None:
             l0, = self.plot(x,y,fmt)
-        else: l0 = None
+
         caplines = []
         barlines = []
-
-        if ecolor is None and l0 is None:
-            ecolor = rcParams['lines.color']
-        elif ecolor is None:
-            ecolor = l0.get_color()
-            
-        capargs = {'c':ecolor, 'mfc':ecolor, 'mec':ecolor, 'ms':2*capsize}
 
         if xerr is not None:
             if len(xerr.shape) == 1:
@@ -1065,9 +1062,9 @@ y symbol lines.  The second element is a list of error bar lines.
                 right = x+xerr[1]
 
             barlines.extend( self.hlines(y, x, left) )
-            barlines.extend( self.hlines(y, x, right) )            
-            caplines.extend(self.plot(left, y, '|', **capargs))
-            caplines.extend(self.plot(right, y, '|', **capargs))            
+            barlines.extend( self.hlines(y, x, right) )
+            caplines.extend( self.plot(left, y, '|', ms=2*capsize) )
+            caplines.extend( self.plot(right, y, '|', ms=2*capsize) )
 
         if yerr is not None:
             if len(yerr.shape) == 1:
@@ -1078,13 +1075,24 @@ y symbol lines.  The second element is a list of error bar lines.
                 upper = y+yerr[1]
 
             barlines.extend( self.vlines(x, y, upper ) )
-            barlines.extend( self.vlines(x, y, lower ) )            
+            barlines.extend( self.vlines(x, y, lower ) )
+            caplines.extend( self.plot(x, lower, '_', ms=2*capsize) )
+            caplines.extend( self.plot(x, upper, '_', ms=2*capsize) )
 
-            caplines.extend(self.plot(x, lower, '_', **capargs))
-            caplines.extend(self.plot(x, upper, '_', **capargs))            
+        if not barsabove and fmt is not None:
+            l0, = self.plot(x,y,fmt)
+
+        if ecolor is None and l0 is None:
+            ecolor = rcParams['lines.color']
+        elif ecolor is None:
+            ecolor = l0.get_color()
 
         for l in barlines:
             l.set_color(ecolor)
+        for l in caplines:
+            l.set_color(ecolor)
+            l.set_markerfacecolor(ecolor)
+            l.set_markeredgecolor(ecolor)
 
         self.autoscale_view()
 

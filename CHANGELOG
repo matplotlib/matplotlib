@@ -1,6 +1,10 @@
 New entries should be added at the top
 
 ==============================================================
+2004-10-27 Applied Norbert's errorbar patch to support barsabove kwarg
+
+2004-10-27 Applied Norbert's legend patch to support None handles
+
 2004-10-27 Added two more backends: backend_cairo.py, backend_gtkcairo.py
            They are not complete yet, currently backend_gtkcairo just renders 
            polygons, rectangles and lines - SC
