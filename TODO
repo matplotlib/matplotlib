@@ -323,7 +323,7 @@
 
 -- fromstring examples need byte order in darwin
 
--- PS not centering properly
+-- DONE PS not centering properly
 
 -- DONE gary's win crash
 
