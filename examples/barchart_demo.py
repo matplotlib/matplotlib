@@ -18,8 +18,6 @@ ylabel('Scores')
 title('Scores by group and gender')
 set(gca(), 'xticks', ind+width)
 set(gca(), 'xticklabels', ('G1', 'G2', 'G3', 'G4', 'G5') )
-set(gca(), 'xlim', [-width,len(ind)])
-set(gca(), 'yticks', arange(0,41,10))
 
 legend( (p1[0], p2[0]), ('Men', 'Women') )
 #axis([-10, 10, -10, 100])
