@@ -28,7 +28,10 @@ http://matplotlib.sourceforge.net
 
 0) Turn off all the build flags
 
-0) Run examples/backend_driver.py w/o errors; run the backend specific
+0) Testing: remove font cache and test w/ and w/o font cache on some
+   example script
+
+0) Testing: Run examples/backend_driver.py w/o errors; run the backend specific
    demos (object_picker, anim , embedding*).  Do an explicity numarray
    and python2.2 test.
 
