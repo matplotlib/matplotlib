@@ -1,5 +1,10 @@
 New entries should be added at the top
 
+2005-03-09 cbook.py: only use enumerate() (the python version) if the builtin
+	   version is not available.
+           Add new function 'izip' which is set to itertools.izip if available
+           and the python equivalent if not available. - SC
+
 2005-03-07 backend_gdk.py: remove PIXELS_PER_INCH from points_to_pixels(), but
 	   still use it to adjust font sizes. This allows the GTK version of
            line_styles.py to more closely match GTKAgg, previously the markers
