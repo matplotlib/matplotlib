@@ -1,0 +1,334 @@
+
+<!doctype html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html><head><title>Python: module cbook</title>
+<style type="text/css"><!--
+TT { font-family: lucidatypewriter, lucida console, courier }
+--></style></head><body bgcolor="#f0f0f8">
+
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="heading">
+<tr bgcolor="#7799ee">
+<td valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial">&nbsp;<br><big><big><strong>cbook</strong></big></big></font></td
+><td align=right valign=bottom
+><font color="#ffffff" face="helvetica, arial"><a href=".">index</a><br><a href="file:/home/jdhunter/python/projects/matplotlib/matplotlib/cbook.py">/home/jdhunter/python/projects/matplotlib/matplotlib/cbook.py</a></font></td></tr></table>
+    <p></p>
+
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#aa55cc">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#fffff" face="helvetica, arial"><big><strong>Modules</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#aa55cc"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;&nbsp;</td>
+<td width="100%"><table width="100%" summary="list"><tr><td width="25%" valign=top><a href="errno.html">errno</a><br>
+</td><td width="25%" valign=top><a href="os.html">os</a><br>
+</td><td width="25%" valign=top><a href="re.html">re</a><br>
+</td><td width="25%" valign=top><a href="sys.html">sys</a><br>
+</td></tr></table></td></tr></table>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ee77aa">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Classes</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#ee77aa"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;&nbsp;</td>
+<td width="100%"><dl>
+<dt><font face="helvetica, arial"><a href="cbook.html#Bunch">Bunch</a>
+</font></dt><dt><font face="helvetica, arial"><a href="cbook.html#Null">Null</a>
+</font></dt><dt><font face="helvetica, arial"><a href="cbook.html#RingBuffer">RingBuffer</a>
+</font></dt><dt><font face="helvetica, arial"><a href="cbook.html#Sorter">Sorter</a>
+</font></dt><dt><font face="helvetica, arial"><a href="__builtin__.html#dict">__builtin__.dict</a>(<a href="__builtin__.html#object">__builtin__.object</a>)
+</font></dt><dd>
+<dl>
+<dt><font face="helvetica, arial"><a href="cbook.html#Xlator">Xlator</a>
+</font></dt></dl>
+</dd>
+</dl>
+ 
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ffc8d8">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#000000" face="helvetica, arial"><a name="Bunch">class <strong>Bunch</strong></a></font></td></tr>
+    
+<tr bgcolor="#ffc8d8"><td rowspan=2><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td>
+<td colspan=2><tt>Often&nbsp;we&nbsp;want&nbsp;to&nbsp;just&nbsp;collect&nbsp;a&nbsp;bunch&nbsp;of&nbsp;stuff&nbsp;together,&nbsp;naming&nbsp;each<br>
+item&nbsp;of&nbsp;the&nbsp;bunch;&nbsp;a&nbsp;dictionary's&nbsp;OK&nbsp;for&nbsp;that,&nbsp;but&nbsp;a&nbsp;small&nbsp;do-&nbsp;nothing<br>
+class&nbsp;is&nbsp;even&nbsp;handier,&nbsp;and&nbsp;prettier&nbsp;to&nbsp;use.&nbsp;&nbsp;Whenever&nbsp;you&nbsp;want&nbsp;to<br>
+group&nbsp;a&nbsp;few&nbsp;variables:<br>
+&nbsp;<br>
+&nbsp;&nbsp;&gt;&gt;&gt;&nbsp;point&nbsp;=&nbsp;<a href="#Bunch">Bunch</a>(datum=2,&nbsp;squared=4,&nbsp;coord=12)<br>
+&nbsp;&nbsp;&gt;&gt;&gt;&nbsp;point.datum<br>
+&nbsp;<br>
+&nbsp;&nbsp;By:&nbsp;Alex&nbsp;Martelli<br>
+&nbsp;&nbsp;From:&nbsp;<a href="http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/52308">http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/52308</a><br>&nbsp;</tt></td></tr>
+<tr><td>&nbsp;&nbsp;</td>
+<td width="100%">Methods defined here:<br>
+<dl><dt><a name="Bunch-__init__"><strong>__init__</strong></a>(self, **kwds)</dt></dl>
+
+<hr>
+Data and non-method functions defined here:<br>
+<dl><dt><strong>__doc__</strong> = '<font color="#c040c0">\n</font>   Often we want to just collect a bunch of stu...vestate.com/ASPN/Cookbook/Python/Recipe/52308<font color="#c040c0">\n</font>   '</dl>
+
+<dl><dt><strong>__module__</strong> = 'cbook'</dl>
+
+</td></tr></table> 
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ffc8d8">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#000000" face="helvetica, arial"><a name="Null">class <strong>Null</strong></a></font></td></tr>
+    
+<tr bgcolor="#ffc8d8"><td rowspan=2><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td>
+<td colspan=2><tt>&nbsp;<a href="#Null">Null</a>&nbsp;objects&nbsp;always&nbsp;and&nbsp;reliably&nbsp;"do&nbsp;nothing."<br>&nbsp;</tt></td></tr>
+<tr><td>&nbsp;&nbsp;</td>
+<td width="100%">Methods defined here:<br>
+<dl><dt><a name="Null-__call__"><strong>__call__</strong></a>(self, *args, **kwargs)</dt></dl>
+
+<dl><dt><a name="Null-__delattr__"><strong>__delattr__</strong></a>(self, name)</dt></dl>
+
+<dl><dt><a name="Null-__getattr__"><strong>__getattr__</strong></a>(self, name)</dt></dl>
+
+<dl><dt><a name="Null-__init__"><strong>__init__</strong></a>(self, *args, **kwargs)</dt></dl>
+
+<dl><dt><a name="Null-__nonzero__"><strong>__nonzero__</strong></a>(self)</dt></dl>
+
+<dl><dt><a name="Null-__repr__"><strong>__repr__</strong></a>(self)</dt></dl>
+
+<dl><dt><a name="Null-__setattr__"><strong>__setattr__</strong></a>(self, name, value)</dt></dl>
+
+<dl><dt><a name="Null-__str__"><strong>__str__</strong></a>(self)</dt></dl>
+
+<hr>
+Data and non-method functions defined here:<br>
+<dl><dt><strong>__doc__</strong> = ' Null objects always and reliably "do nothing." '</dl>
+
+<dl><dt><strong>__module__</strong> = 'cbook'</dl>
+
+</td></tr></table> 
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ffc8d8">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#000000" face="helvetica, arial"><a name="RingBuffer">class <strong>RingBuffer</strong></a></font></td></tr>
+    
+<tr bgcolor="#ffc8d8"><td rowspan=2><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td>
+<td colspan=2><tt>&nbsp;class&nbsp;that&nbsp;implements&nbsp;a&nbsp;not-yet-full&nbsp;buffer<br>&nbsp;</tt></td></tr>
+<tr><td>&nbsp;&nbsp;</td>
+<td width="100%">Methods defined here:<br>
+<dl><dt><a name="RingBuffer-__get_item__"><strong>__get_item__</strong></a>(self, i)</dt></dl>
+
+<dl><dt><a name="RingBuffer-__init__"><strong>__init__</strong></a>(self, size_max)</dt></dl>
+
+<dl><dt><a name="RingBuffer-append"><strong>append</strong></a>(self, x)</dt><dd><tt>append&nbsp;an&nbsp;element&nbsp;at&nbsp;the&nbsp;end&nbsp;of&nbsp;the&nbsp;buffer</tt></dd></dl>
+
+<dl><dt><a name="RingBuffer-get"><strong>get</strong></a>(self)</dt><dd><tt>&nbsp;Return&nbsp;a&nbsp;list&nbsp;of&nbsp;elements&nbsp;from&nbsp;the&nbsp;oldest&nbsp;to&nbsp;the&nbsp;newest.</tt></dd></dl>
+
+<hr>
+Data and non-method functions defined here:<br>
+<dl><dt><strong>_RingBuffer__Full</strong> = &lt;class cbook.__Full&gt;<dd><tt>&nbsp;class&nbsp;that&nbsp;implements&nbsp;a&nbsp;full&nbsp;buffer</tt></dl>
+
+<dl><dt><strong>__doc__</strong> = ' class that implements a not-yet-full buffer '</dl>
+
+<dl><dt><strong>__module__</strong> = 'cbook'</dl>
+
+</td></tr></table> 
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ffc8d8">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#000000" face="helvetica, arial"><a name="Sorter">class <strong>Sorter</strong></a></font></td></tr>
+    
+<tr bgcolor="#ffc8d8"><td rowspan=2><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td>
+<td colspan=2><tt><br>
+Sort&nbsp;by&nbsp;attribute&nbsp;or&nbsp;item<br>
+&nbsp;<br>
+Example&nbsp;usage:<br>
+sort&nbsp;=&nbsp;<a href="#Sorter">Sorter</a>()<br>
+&nbsp;<br>
+list&nbsp;=&nbsp;[(1,&nbsp;2),&nbsp;(4,&nbsp;8),&nbsp;(0,&nbsp;3)]<br>
+<a href="__builtin__.html#dict">dict</a>&nbsp;=&nbsp;[{'a':&nbsp;3,&nbsp;'b':&nbsp;4},&nbsp;{'a':&nbsp;5,&nbsp;'b':&nbsp;2},&nbsp;{'a':&nbsp;0,&nbsp;'b':&nbsp;0},<br>
+{'a':&nbsp;9,&nbsp;'b':&nbsp;9}]<br>
+&nbsp;<br>
+&nbsp;<br>
+<a href="#Sorter-sort">sort</a>(list)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;default&nbsp;sort<br>
+<a href="#Sorter-sort">sort</a>(list,&nbsp;1)&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;sort&nbsp;by&nbsp;index&nbsp;1<br>
+<a href="#Sorter-sort">sort</a>(<a href="__builtin__.html#dict">dict</a>,&nbsp;'a')&nbsp;&nbsp;#&nbsp;sort&nbsp;a&nbsp;list&nbsp;of&nbsp;dicts&nbsp;by&nbsp;key&nbsp;'a'<br>&nbsp;</tt></td></tr>
+<tr><td>&nbsp;&nbsp;</td>
+<td width="100%">Methods defined here:<br>
+<dl><dt><a name="Sorter-__call__"><strong>__call__</strong></a> = <a href="#Sorter-byItem">byItem</a>(self, data, itemindex<font color="#909090">=None</font>, inplace<font color="#909090">=1</font>)</dt></dl>
+
+<dl><dt><a name="Sorter-_helper"><strong>_helper</strong></a>(self, data, aux, inplace)</dt></dl>
+
+<dl><dt><a name="Sorter-byAttribute"><strong>byAttribute</strong></a>(self, data, attributename, inplace<font color="#909090">=1</font>)</dt></dl>
+
+<dl><dt><a name="Sorter-byItem"><strong>byItem</strong></a>(self, data, itemindex<font color="#909090">=None</font>, inplace<font color="#909090">=1</font>)</dt></dl>
+
+<dl><dt><a name="Sorter-sort"><strong>sort</strong></a> = <a href="#Sorter-byItem">byItem</a>(self, data, itemindex<font color="#909090">=None</font>, inplace<font color="#909090">=1</font>)</dt></dl>
+
+<hr>
+Data and non-method functions defined here:<br>
+<dl><dt><strong>__doc__</strong> = "<font color="#c040c0">\n\n</font>   Sort by attribute or item<font color="#c040c0">\n\n</font>   Example usage..., 'a')  # sort a list of dicts by key 'a'<font color="#c040c0">\n</font>   <font color="#c040c0">\n</font>   "</dl>
+
+<dl><dt><strong>__module__</strong> = 'cbook'</dl>
+
+</td></tr></table> 
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ffc8d8">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#000000" face="helvetica, arial"><a name="Xlator">class <strong>Xlator</strong></a>(<a href="__builtin__.html#dict">__builtin__.dict</a>)</font></td></tr>
+    
+<tr bgcolor="#ffc8d8"><td rowspan=2><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td>
+<td colspan=2><tt>All-in-one&nbsp;multiple-string-substitution&nbsp;class<br>
+&nbsp;<br>
+Example&nbsp;usage:<br>
+&nbsp;<br>
+text&nbsp;=&nbsp;"Larry&nbsp;Wall&nbsp;is&nbsp;the&nbsp;creator&nbsp;of&nbsp;Perl"<br>
+adict&nbsp;=&nbsp;{<br>
+"Larry&nbsp;Wall"&nbsp;:&nbsp;"Guido&nbsp;van&nbsp;Rossum",<br>
+"creator"&nbsp;:&nbsp;"Benevolent&nbsp;Dictator&nbsp;for&nbsp;Life",<br>
+"Perl"&nbsp;:&nbsp;"Python",<br>
+}<br>
+&nbsp;<br>
+print&nbsp;multiple_replace(adict,&nbsp;text)<br>
+&nbsp;<br>
+xlat&nbsp;=&nbsp;<a href="#Xlator">Xlator</a>(adict)<br>
+print&nbsp;xlat.<a href="#Xlator-xlat">xlat</a>(text)<br>&nbsp;</tt></td></tr>
+<tr><td>&nbsp;&nbsp;</td>
+<td width="100%"><dl><dt>Method resolution order:</dt>
+<dd><a href="cbook.html#Xlator">Xlator</a></dd>
+<dd><a href="__builtin__.html#dict">__builtin__.dict</a></dd>
+<dd><a href="__builtin__.html#object">__builtin__.object</a></dd>
+</dl>
+<hr>
+Methods defined here:<br>
+<dl><dt><a name="Xlator-__call__"><strong>__call__</strong></a>(self, match)</dt><dd><tt>&nbsp;Handler&nbsp;invoked&nbsp;for&nbsp;each&nbsp;regex&nbsp;match</tt></dd></dl>
+
+<dl><dt><a name="Xlator-_make_regex"><strong>_make_regex</strong></a>(self)</dt><dd><tt>&nbsp;Build&nbsp;re&nbsp;object&nbsp;based&nbsp;on&nbsp;the&nbsp;keys&nbsp;of&nbsp;the&nbsp;current&nbsp;dictionary</tt></dd></dl>
+
+<dl><dt><a name="Xlator-xlat"><strong>xlat</strong></a>(self, text)</dt><dd><tt>&nbsp;Translate&nbsp;text,&nbsp;returns&nbsp;the&nbsp;modified&nbsp;text.</tt></dd></dl>
+
+<hr>
+Data and non-method functions defined here:<br>
+<dl><dt><strong>__dict__</strong> = &lt;dict-proxy object&gt;</dl>
+
+<dl><dt><strong>__doc__</strong> = '<font color="#c040c0">\n</font>    All-in-one multiple-string-substitution cla...at = Xlator(adict)<font color="#c040c0">\n</font>    print xlat.xlat(text)<font color="#c040c0">\n</font>    '</dl>
+
+<dl><dt><strong>__module__</strong> = 'cbook'</dl>
+
+<dl><dt><strong>__weakref__</strong> = &lt;member '__weakref__' of 'Xlator' objects&gt;</dl>
+
+<hr>
+Methods inherited from <a href="__builtin__.html#dict">__builtin__.dict</a>:<br>
+<dl><dt><a name="Xlator-__cmp__"><strong>__cmp__</strong></a>(...)</dt><dd><tt>x.<a href="#Xlator-__cmp__">__cmp__</a>(y)&nbsp;&lt;==&gt;&nbsp;cmp(x,y)</tt></dd></dl>
+
+<dl><dt><a name="Xlator-__contains__"><strong>__contains__</strong></a>(...)</dt><dd><tt>x.<a href="#Xlator-__contains__">__contains__</a>(y)&nbsp;&lt;==&gt;&nbsp;y&nbsp;in&nbsp;x</tt></dd></dl>
+
+<dl><dt><a name="Xlator-__delitem__"><strong>__delitem__</strong></a>(...)</dt><dd><tt>x.<a href="#Xlator-__delitem__">__delitem__</a>(y)&nbsp;&lt;==&gt;&nbsp;del&nbsp;x[y]</tt></dd></dl>
+
+<dl><dt><a name="Xlator-__eq__"><strong>__eq__</strong></a>(...)</dt><dd><tt>x.<a href="#Xlator-__eq__">__eq__</a>(y)&nbsp;&lt;==&gt;&nbsp;x==y</tt></dd></dl>
+
+<dl><dt><a name="Xlator-__ge__"><strong>__ge__</strong></a>(...)</dt><dd><tt>x.<a href="#Xlator-__ge__">__ge__</a>(y)&nbsp;&lt;==&gt;&nbsp;x&gt;=y</tt></dd></dl>
+
+<dl><dt><a name="Xlator-__getattribute__"><strong>__getattribute__</strong></a>(...)</dt><dd><tt>x.<a href="#Xlator-__getattribute__">__getattribute__</a>('name')&nbsp;&lt;==&gt;&nbsp;x.name</tt></dd></dl>
+
+<dl><dt><a name="Xlator-__getitem__"><strong>__getitem__</strong></a>(...)</dt><dd><tt>x.<a href="#Xlator-__getitem__">__getitem__</a>(y)&nbsp;&lt;==&gt;&nbsp;x[y]</tt></dd></dl>
+
+<dl><dt><a name="Xlator-__gt__"><strong>__gt__</strong></a>(...)</dt><dd><tt>x.<a href="#Xlator-__gt__">__gt__</a>(y)&nbsp;&lt;==&gt;&nbsp;x&gt;y</tt></dd></dl>
+
+<dl><dt><a name="Xlator-__hash__"><strong>__hash__</strong></a>(...)</dt><dd><tt>x.<a href="#Xlator-__hash__">__hash__</a>()&nbsp;&lt;==&gt;&nbsp;hash(x)</tt></dd></dl>
+
+<dl><dt><a name="Xlator-__init__"><strong>__init__</strong></a>(...)</dt><dd><tt>x.<a href="#Xlator-__init__">__init__</a>(...)&nbsp;initializes&nbsp;x;&nbsp;see&nbsp;x.__class__.__doc__&nbsp;for&nbsp;signature</tt></dd></dl>
+
+<dl><dt><a name="Xlator-__iter__"><strong>__iter__</strong></a>(...)</dt><dd><tt>x.<a href="#Xlator-__iter__">__iter__</a>()&nbsp;&lt;==&gt;&nbsp;iter(x)</tt></dd></dl>
+
+<dl><dt><a name="Xlator-__le__"><strong>__le__</strong></a>(...)</dt><dd><tt>x.<a href="#Xlator-__le__">__le__</a>(y)&nbsp;&lt;==&gt;&nbsp;x&lt;=y</tt></dd></dl>
+
+<dl><dt><a name="Xlator-__len__"><strong>__len__</strong></a>(...)</dt><dd><tt>x.<a href="#Xlator-__len__">__len__</a>()&nbsp;&lt;==&gt;&nbsp;len(x)</tt></dd></dl>
+
+<dl><dt><a name="Xlator-__lt__"><strong>__lt__</strong></a>(...)</dt><dd><tt>x.<a href="#Xlator-__lt__">__lt__</a>(y)&nbsp;&lt;==&gt;&nbsp;x&lt;y</tt></dd></dl>
+
+<dl><dt><a name="Xlator-__ne__"><strong>__ne__</strong></a>(...)</dt><dd><tt>x.<a href="#Xlator-__ne__">__ne__</a>(y)&nbsp;&lt;==&gt;&nbsp;x!=y</tt></dd></dl>
+
+<dl><dt><a name="Xlator-__repr__"><strong>__repr__</strong></a>(...)</dt><dd><tt>x.<a href="#Xlator-__repr__">__repr__</a>()&nbsp;&lt;==&gt;&nbsp;repr(x)</tt></dd></dl>
+
+<dl><dt><a name="Xlator-__setitem__"><strong>__setitem__</strong></a>(...)</dt><dd><tt>x.<a href="#Xlator-__setitem__">__setitem__</a>(i,&nbsp;y)&nbsp;&lt;==&gt;&nbsp;x[i]=y</tt></dd></dl>
+
+<dl><dt><a name="Xlator-clear"><strong>clear</strong></a>(...)</dt><dd><tt>D.<a href="#Xlator-clear">clear</a>()&nbsp;-&gt;&nbsp;None.&nbsp;&nbsp;Remove&nbsp;all&nbsp;items&nbsp;from&nbsp;D.</tt></dd></dl>
+
+<dl><dt><a name="Xlator-copy"><strong>copy</strong></a>(...)</dt><dd><tt>D.<a href="#Xlator-copy">copy</a>()&nbsp;-&gt;&nbsp;a&nbsp;shallow&nbsp;copy&nbsp;of&nbsp;D</tt></dd></dl>
+
+<dl><dt><a name="Xlator-get"><strong>get</strong></a>(...)</dt><dd><tt>D.<a href="#Xlator-get">get</a>(k[,d])&nbsp;-&gt;&nbsp;D[k]&nbsp;if&nbsp;D.<a href="#Xlator-has_key">has_key</a>(k),&nbsp;else&nbsp;d.&nbsp;&nbsp;d&nbsp;defaults&nbsp;to&nbsp;None.</tt></dd></dl>
+
+<dl><dt><a name="Xlator-has_key"><strong>has_key</strong></a>(...)</dt><dd><tt>D.<a href="#Xlator-has_key">has_key</a>(k)&nbsp;-&gt;&nbsp;1&nbsp;if&nbsp;D&nbsp;has&nbsp;a&nbsp;key&nbsp;k,&nbsp;else&nbsp;0</tt></dd></dl>
+
+<dl><dt><a name="Xlator-items"><strong>items</strong></a>(...)</dt><dd><tt>D.<a href="#Xlator-items">items</a>()&nbsp;-&gt;&nbsp;list&nbsp;of&nbsp;D's&nbsp;(key,&nbsp;value)&nbsp;pairs,&nbsp;as&nbsp;2-tuples</tt></dd></dl>
+
+<dl><dt><a name="Xlator-iteritems"><strong>iteritems</strong></a>(...)</dt><dd><tt>D.<a href="#Xlator-iteritems">iteritems</a>()&nbsp;-&gt;&nbsp;an&nbsp;iterator&nbsp;over&nbsp;the&nbsp;(key,&nbsp;value)&nbsp;items&nbsp;of&nbsp;D</tt></dd></dl>
+
+<dl><dt><a name="Xlator-iterkeys"><strong>iterkeys</strong></a>(...)</dt><dd><tt>D.<a href="#Xlator-iterkeys">iterkeys</a>()&nbsp;-&gt;&nbsp;an&nbsp;iterator&nbsp;over&nbsp;the&nbsp;keys&nbsp;of&nbsp;D</tt></dd></dl>
+
+<dl><dt><a name="Xlator-itervalues"><strong>itervalues</strong></a>(...)</dt><dd><tt>D.<a href="#Xlator-itervalues">itervalues</a>()&nbsp;-&gt;&nbsp;an&nbsp;iterator&nbsp;over&nbsp;the&nbsp;values&nbsp;of&nbsp;D</tt></dd></dl>
+
+<dl><dt><a name="Xlator-keys"><strong>keys</strong></a>(...)</dt><dd><tt>D.<a href="#Xlator-keys">keys</a>()&nbsp;-&gt;&nbsp;list&nbsp;of&nbsp;D's&nbsp;keys</tt></dd></dl>
+
+<dl><dt><a name="Xlator-popitem"><strong>popitem</strong></a>(...)</dt><dd><tt>D.<a href="#Xlator-popitem">popitem</a>()&nbsp;-&gt;&nbsp;(k,&nbsp;v),&nbsp;remove&nbsp;and&nbsp;return&nbsp;some&nbsp;(key,&nbsp;value)&nbsp;pair&nbsp;as&nbsp;a<br>
+2-tuple;&nbsp;but&nbsp;raise&nbsp;KeyError&nbsp;if&nbsp;D&nbsp;is&nbsp;empty</tt></dd></dl>
+
+<dl><dt><a name="Xlator-setdefault"><strong>setdefault</strong></a>(...)</dt><dd><tt>D.<a href="#Xlator-setdefault">setdefault</a>(k[,d])&nbsp;-&gt;&nbsp;D.<a href="#Xlator-get">get</a>(k,d),&nbsp;also&nbsp;set&nbsp;D[k]=d&nbsp;if&nbsp;not&nbsp;D.<a href="#Xlator-has_key">has_key</a>(k)</tt></dd></dl>
+
+<dl><dt><a name="Xlator-update"><strong>update</strong></a>(...)</dt><dd><tt>D.<a href="#Xlator-update">update</a>(E)&nbsp;-&gt;&nbsp;None.&nbsp;&nbsp;Update&nbsp;D&nbsp;from&nbsp;E:&nbsp;for&nbsp;k&nbsp;in&nbsp;E.<a href="#Xlator-keys">keys</a>():&nbsp;D[k]&nbsp;=&nbsp;E[k]</tt></dd></dl>
+
+<dl><dt><a name="Xlator-values"><strong>values</strong></a>(...)</dt><dd><tt>D.<a href="#Xlator-values">values</a>()&nbsp;-&gt;&nbsp;list&nbsp;of&nbsp;D's&nbsp;values</tt></dd></dl>
+
+<hr>
+Data and non-method functions inherited from <a href="__builtin__.html#dict">__builtin__.dict</a>:<br>
+<dl><dt><strong>__new__</strong> = &lt;built-in method __new__ of type object&gt;<dd><tt>T.<a href="#Xlator-__new__">__new__</a>(S,&nbsp;...)&nbsp;-&gt;&nbsp;a&nbsp;new&nbsp;object&nbsp;with&nbsp;type&nbsp;S,&nbsp;a&nbsp;subtype&nbsp;of&nbsp;T</tt></dl>
+
+<hr>
+Methods inherited from <a href="__builtin__.html#object">__builtin__.object</a>:<br>
+<dl><dt><a name="Xlator-__delattr__"><strong>__delattr__</strong></a>(...)</dt><dd><tt>x.<a href="#Xlator-__delattr__">__delattr__</a>('name')&nbsp;&lt;==&gt;&nbsp;del&nbsp;x.name</tt></dd></dl>
+
+<dl><dt><a name="Xlator-__reduce__"><strong>__reduce__</strong></a>(...)</dt><dd><tt>helper&nbsp;for&nbsp;pickle</tt></dd></dl>
+
+<dl><dt><a name="Xlator-__setattr__"><strong>__setattr__</strong></a>(...)</dt><dd><tt>x.<a href="#Xlator-__setattr__">__setattr__</a>('name',&nbsp;value)&nbsp;&lt;==&gt;&nbsp;x.name&nbsp;=&nbsp;value</tt></dd></dl>
+
+<dl><dt><a name="Xlator-__str__"><strong>__str__</strong></a>(...)</dt><dd><tt>x.<a href="#Xlator-__str__">__str__</a>()&nbsp;&lt;==&gt;&nbsp;str(x)</tt></dd></dl>
+
+<hr>
+Data and non-method functions inherited from <a href="__builtin__.html#object">__builtin__.object</a>:<br>
+<dl><dt><strong>__class__</strong> = &lt;type 'type'&gt;</dl>
+
+</td></tr></table></td></tr></table>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#eeaa77">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Functions</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#eeaa77"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;&nbsp;</td>
+<td width="100%"><dl><dt><a name="-enumerate"><strong>enumerate</strong></a>(seq)</dt><dd><tt>#&nbsp;until&nbsp;2.3</tt></dd></dl>
+ <dl><dt><a name="-flatten"><strong>flatten</strong></a>(seq, scalarp<font color="#909090">=&lt;function is_scalar&gt;</font>)</dt><dd><tt>this&nbsp;generator&nbsp;flattens&nbsp;nested&nbsp;containers&nbsp;such&nbsp;as<br>
+&nbsp;<br>
+&gt;&gt;&gt;&nbsp;l=(&nbsp;('John',&nbsp;'Hunter'),&nbsp;(1,23),&nbsp;[[[[42,(5,23)]]]])<br>
+&nbsp;<br>
+so&nbsp;that<br>
+&nbsp;<br>
+&gt;&gt;&gt;&nbsp;for&nbsp;i&nbsp;in&nbsp;<a href="#-flatten">flatten</a>(l):&nbsp;print&nbsp;i,<br>
+John&nbsp;Hunter&nbsp;1&nbsp;23&nbsp;42&nbsp;5&nbsp;23<br>
+&nbsp;<br>
+By:&nbsp;Composite&nbsp;of&nbsp;Holger&nbsp;Krekel&nbsp;and&nbsp;Luther&nbsp;Blissett<br>
+From:&nbsp;<a href="http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/121294">http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/121294</a><br>
+and&nbsp;Recipe&nbsp;1.12&nbsp;in&nbsp;cookbook</tt></dd></dl>
+ <dl><dt><a name="-get_split_ind"><strong>get_split_ind</strong></a>(seq, N)</dt><dd><tt>seq&nbsp;is&nbsp;a&nbsp;list&nbsp;of&nbsp;words.&nbsp;&nbsp;Return&nbsp;the&nbsp;index&nbsp;into&nbsp;seq&nbsp;such&nbsp;that<br>
+len('&nbsp;'.join(seq[:ind])&lt;=N</tt></dd></dl>
+ <dl><dt><a name="-is_scalar"><strong>is_scalar</strong></a>(obj)</dt></dl>
+ <dl><dt><a name="-is_string_like"><strong>is_string_like</strong></a>(obj)</dt></dl>
+ <dl><dt><a name="-iterable"><strong>iterable</strong></a>(obj)</dt></dl>
+ <dl><dt><a name="-mkdirs"><strong>mkdirs</strong></a>(newdir, mode<font color="#909090">=511</font>)</dt></dl>
+ <dl><dt><a name="-soundex"><strong>soundex</strong></a>(name, len<font color="#909090">=4</font>)</dt><dd><tt>&nbsp;soundex&nbsp;module&nbsp;conforming&nbsp;to&nbsp;Odell-Russell&nbsp;algorithm</tt></dd></dl>
+ <dl><dt><a name="-wrap"><strong>wrap</strong></a>(prefix, text, cols)</dt></dl>
+</td></tr></table>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#55aa55">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Data</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#55aa55"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;&nbsp;</td>
+<td width="100%"><strong>__file__</strong> = './cbook.py'<br>
+<strong>__name__</strong> = 'cbook'<br>
+<strong>generators</strong> = _Feature((2, 2, 0, 'alpha', 1), (2, 3, 0, 'final', 0), 4096)</td></tr></table>
+</body></html>

@@ -1,0 +1,718 @@
+
+<!doctype html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html><head><title>Python: module gtkutils</title>
+<style type="text/css"><!--
+TT { font-family: lucidatypewriter, lucida console, courier }
+--></style></head><body bgcolor="#f0f0f8">
+
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="heading">
+<tr bgcolor="#7799ee">
+<td valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial">&nbsp;<br><big><big><strong>gtkutils</strong></big></big></font></td
+><td align=right valign=bottom
+><font color="#ffffff" face="helvetica, arial"><a href=".">index</a><br><a href="file:/home/jdhunter/python/projects/matplotlib/matplotlib/gtkutils.py">/home/jdhunter/python/projects/matplotlib/matplotlib/gtkutils.py</a></font></td></tr></table>
+    <p></p>
+
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#aa55cc">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#fffff" face="helvetica, arial"><big><strong>Modules</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#aa55cc"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;&nbsp;</td>
+<td width="100%"><table width="100%" summary="list"><tr><td width="25%" valign=top><a href="gtk.gdk.html">gtk.gdk</a><br>
+</td><td width="25%" valign=top><a href="gtk.html">gtk</a><br>
+</td><td width="25%" valign=top><a href="pygtk.html">pygtk</a><br>
+</td><td width="25%" valign=top></td></tr></table></td></tr></table>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ee77aa">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Classes</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#ee77aa"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;&nbsp;</td>
+<td width="100%"><dl>
+<dt><font face="helvetica, arial"><a href="gtk.html#Dialog">gtk.Dialog</a>(<a href="gtk.html#Window">gtk.Window</a>)
+</font></dt><dd>
+<dl>
+<dt><font face="helvetica, arial"><a href="gtkutils.html#ProgressBarDialog">ProgressBarDialog</a>
+</font></dt></dl>
+</dd>
+</dl>
+ 
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ffc8d8">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#000000" face="helvetica, arial"><a name="ProgressBarDialog">class <strong>ProgressBarDialog</strong></a>(<a href="gtk.html#Dialog">gtk.Dialog</a>)</font></td></tr>
+    
+<tr bgcolor="#ffc8d8"><td rowspan=2><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td>
+<td colspan=2><tt>Use&nbsp;attribute&nbsp;bar&nbsp;to&nbsp;control&nbsp;the&nbsp;progress&nbsp;bar<br>&nbsp;</tt></td></tr>
+<tr><td>&nbsp;&nbsp;</td>
+<td width="100%"><dl><dt>Method resolution order:</dt>
+<dd><a href="gtkutils.html#ProgressBarDialog">ProgressBarDialog</a></dd>
+<dd><a href="gtk.html#Dialog">gtk.Dialog</a></dd>
+<dd><a href="gtk.html#Window">gtk.Window</a></dd>
+<dd><a href="gtk.html#Bin">gtk.Bin</a></dd>
+<dd><a href="gtk.html#Container">gtk.Container</a></dd>
+<dd><a href="gtk.html#Widget">gtk.Widget</a></dd>
+<dd><a href="gtk.html#Object">gtk.Object</a></dd>
+<dd><a href="gobject.html#GObject">gobject.GObject</a></dd>
+<dd><a href="__builtin__.html#object">__builtin__.object</a></dd>
+</dl>
+<hr>
+Methods defined here:<br>
+<dl><dt><a name="ProgressBarDialog-__init__"><strong>__init__</strong></a>(self, title, parent, msg<font color="#909090">='Almost there....'</font>, size<font color="#909090">=(300, 40)</font>)</dt></dl>
+
+<hr>
+Data and non-method functions defined here:<br>
+<dl><dt><strong>__doc__</strong> = 'Use attribute bar to control the progress bar'</dl>
+
+<dl><dt><strong>__module__</strong> = 'gtkutils'</dl>
+
+<hr>
+Methods inherited from <a href="gtk.html#Dialog">gtk.Dialog</a>:<br>
+<dl><dt><a name="ProgressBarDialog-add_action_widget"><strong>add_action_widget</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-add_button"><strong>add_button</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-get_has_separator"><strong>get_has_separator</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-response"><strong>response</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-run"><strong>run</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-set_default_response"><strong>set_default_response</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-set_has_separator"><strong>set_has_separator</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-set_response_sensitive"><strong>set_response_sensitive</strong></a>(...)</dt></dl>
+
+<hr>
+Data and non-method functions inherited from <a href="gtk.html#Dialog">gtk.Dialog</a>:<br>
+<dl><dt><strong>__gtype__</strong> = &lt;GType GtkDialog (136724048)&gt;</dl>
+
+<dl><dt><strong>action_area</strong> = &lt;attribute 'action_area' of 'gtk.Dialog' objects&gt;</dl>
+
+<dl><dt><strong>vbox</strong> = &lt;attribute 'vbox' of 'gtk.Dialog' objects&gt;</dl>
+
+<hr>
+Methods inherited from <a href="gtk.html#Window">gtk.Window</a>:<br>
+<dl><dt><a name="ProgressBarDialog-activate_default"><strong>activate_default</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-activate_focus"><strong>activate_focus</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-add_accel_group"><strong>add_accel_group</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-add_mnemonic"><strong>add_mnemonic</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-begin_move_drag"><strong>begin_move_drag</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-begin_resize_drag"><strong>begin_resize_drag</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-deiconify"><strong>deiconify</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-get_decorated"><strong>get_decorated</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-get_default_size"><strong>get_default_size</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-get_destroy_with_parent"><strong>get_destroy_with_parent</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-get_focus"><strong>get_focus</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-get_gravity"><strong>get_gravity</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-get_has_frame"><strong>get_has_frame</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-get_icon"><strong>get_icon</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-get_mnemonic_modifier"><strong>get_mnemonic_modifier</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-get_modal"><strong>get_modal</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-get_position"><strong>get_position</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-get_resizable"><strong>get_resizable</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-get_role"><strong>get_role</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-get_size"><strong>get_size</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-get_title"><strong>get_title</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-get_transient_for"><strong>get_transient_for</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-get_type_hint"><strong>get_type_hint</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-iconify"><strong>iconify</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-maximize"><strong>maximize</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-mnemonic_activate"><strong>mnemonic_activate</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-move"><strong>move</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-parse_geometry"><strong>parse_geometry</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-present"><strong>present</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-remove_accel_group"><strong>remove_accel_group</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-remove_mnemonic"><strong>remove_mnemonic</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-reshow_with_initial_size"><strong>reshow_with_initial_size</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-resize"><strong>resize</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-set_decorated"><strong>set_decorated</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-set_default"><strong>set_default</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-set_default_size"><strong>set_default_size</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-set_destroy_with_parent"><strong>set_destroy_with_parent</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-set_focus"><strong>set_focus</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-set_frame_dimensions"><strong>set_frame_dimensions</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-set_geometry_hints"><strong>set_geometry_hints</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-set_gravity"><strong>set_gravity</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-set_has_frame"><strong>set_has_frame</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-set_icon"><strong>set_icon</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-set_mnemonic_modifier"><strong>set_mnemonic_modifier</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-set_modal"><strong>set_modal</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-set_policy"><strong>set_policy</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-set_position"><strong>set_position</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-set_resizable"><strong>set_resizable</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-set_role"><strong>set_role</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-set_title"><strong>set_title</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-set_transient_for"><strong>set_transient_for</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-set_type_hint"><strong>set_type_hint</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-set_wmclass"><strong>set_wmclass</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-stick"><strong>stick</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-unmaximize"><strong>unmaximize</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-unstick"><strong>unstick</strong></a>(...)</dt></dl>
+
+<hr>
+Data and non-method functions inherited from <a href="gtk.html#Window">gtk.Window</a>:<br>
+<dl><dt><strong>allow_grow</strong> = &lt;attribute 'allow_grow' of 'gtk.Window' objects&gt;</dl>
+
+<dl><dt><strong>allow_shrink</strong> = &lt;attribute 'allow_shrink' of 'gtk.Window' objects&gt;</dl>
+
+<dl><dt><strong>configure_notify_received</strong> = &lt;attribute 'configure_notify_received' of 'gtk.Window' objects&gt;</dl>
+
+<dl><dt><strong>configure_request_count</strong> = &lt;attribute 'configure_request_count' of 'gtk.Window' objects&gt;</dl>
+
+<dl><dt><strong>decorated</strong> = &lt;attribute 'decorated' of 'gtk.Window' objects&gt;</dl>
+
+<dl><dt><strong>default_widget</strong> = &lt;attribute 'default_widget' of 'gtk.Window' objects&gt;</dl>
+
+<dl><dt><strong>destroy_with_parent</strong> = &lt;attribute 'destroy_with_parent' of 'gtk.Window' objects&gt;</dl>
+
+<dl><dt><strong>focus_widget</strong> = &lt;attribute 'focus_widget' of 'gtk.Window' objects&gt;</dl>
+
+<dl><dt><strong>frame</strong> = &lt;attribute 'frame' of 'gtk.Window' objects&gt;</dl>
+
+<dl><dt><strong>frame_bottom</strong> = &lt;attribute 'frame_bottom' of 'gtk.Window' objects&gt;</dl>
+
+<dl><dt><strong>frame_left</strong> = &lt;attribute 'frame_left' of 'gtk.Window' objects&gt;</dl>
+
+<dl><dt><strong>frame_right</strong> = &lt;attribute 'frame_right' of 'gtk.Window' objects&gt;</dl>
+
+<dl><dt><strong>frame_top</strong> = &lt;attribute 'frame_top' of 'gtk.Window' objects&gt;</dl>
+
+<dl><dt><strong>gravity</strong> = &lt;attribute 'gravity' of 'gtk.Window' objects&gt;</dl>
+
+<dl><dt><strong>group</strong> = &lt;attribute 'group' of 'gtk.Window' objects&gt;</dl>
+
+<dl><dt><strong>has_focus</strong> = &lt;attribute 'has_focus' of 'gtk.Window' objects&gt;</dl>
+
+<dl><dt><strong>has_frame</strong> = &lt;attribute 'has_frame' of 'gtk.Window' objects&gt;</dl>
+
+<dl><dt><strong>has_user_ref_count</strong> = &lt;attribute 'has_user_ref_count' of 'gtk.Window' objects&gt;</dl>
+
+<dl><dt><strong>iconify_initially</strong> = &lt;attribute 'iconify_initially' of 'gtk.Window' objects&gt;</dl>
+
+<dl><dt><strong>keys_changed_handler</strong> = &lt;attribute 'keys_changed_handler' of 'gtk.Window' objects&gt;</dl>
+
+<dl><dt><strong>maximize_initially</strong> = &lt;attribute 'maximize_initially' of 'gtk.Window' objects&gt;</dl>
+
+<dl><dt><strong>mnemonic_modifier</strong> = &lt;attribute 'mnemonic_modifier' of 'gtk.Window' objects&gt;</dl>
+
+<dl><dt><strong>modal</strong> = &lt;attribute 'modal' of 'gtk.Window' objects&gt;</dl>
+
+<dl><dt><strong>need_default_position</strong> = &lt;attribute 'need_default_position' of 'gtk.Window' objects&gt;</dl>
+
+<dl><dt><strong>need_default_size</strong> = &lt;attribute 'need_default_size' of 'gtk.Window' objects&gt;</dl>
+
+<dl><dt><strong>position</strong> = &lt;attribute 'position' of 'gtk.Window' objects&gt;</dl>
+
+<dl><dt><strong>stick_initially</strong> = &lt;attribute 'stick_initially' of 'gtk.Window' objects&gt;</dl>
+
+<dl><dt><strong>title</strong> = &lt;attribute 'title' of 'gtk.Window' objects&gt;</dl>
+
+<dl><dt><strong>transient_parent</strong> = &lt;attribute 'transient_parent' of 'gtk.Window' objects&gt;</dl>
+
+<dl><dt><strong>type</strong> = &lt;attribute 'type' of 'gtk.Window' objects&gt;</dl>
+
+<dl><dt><strong>type_hint</strong> = &lt;attribute 'type_hint' of 'gtk.Window' objects&gt;</dl>
+
+<dl><dt><strong>wm_role</strong> = &lt;attribute 'wm_role' of 'gtk.Window' objects&gt;</dl>
+
+<dl><dt><strong>wmclass_class</strong> = &lt;attribute 'wmclass_class' of 'gtk.Window' objects&gt;</dl>
+
+<dl><dt><strong>wmclass_name</strong> = &lt;attribute 'wmclass_name' of 'gtk.Window' objects&gt;</dl>
+
+<hr>
+Methods inherited from <a href="gtk.html#Bin">gtk.Bin</a>:<br>
+<dl><dt><a name="ProgressBarDialog-get_child"><strong>get_child</strong></a>(...)</dt></dl>
+
+<hr>
+Data and non-method functions inherited from <a href="gtk.html#Bin">gtk.Bin</a>:<br>
+<dl><dt><strong>child</strong> = &lt;attribute 'child' of 'gtk.Bin' objects&gt;</dl>
+
+<hr>
+Methods inherited from <a href="gtk.html#Container">gtk.Container</a>:<br>
+<dl><dt><a name="ProgressBarDialog-add"><strong>add</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-add_with_properties"><strong>add_with_properties</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-check_resize"><strong>check_resize</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-child_get"><strong>child_get</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-child_get_property"><strong>child_get_property</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-child_set"><strong>child_set</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-child_set_property"><strong>child_set_property</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-child_type"><strong>child_type</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-children"><strong>children</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-foreach"><strong>foreach</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-get_border_width"><strong>get_border_width</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-get_children"><strong>get_children</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-get_focus_chain"><strong>get_focus_chain</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-get_focus_hadjustment"><strong>get_focus_hadjustment</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-get_focus_vadjustment"><strong>get_focus_vadjustment</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-get_resize_mode"><strong>get_resize_mode</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-propagate_expose"><strong>propagate_expose</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-remove"><strong>remove</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-resize_children"><strong>resize_children</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-set_border_width"><strong>set_border_width</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-set_focus_chain"><strong>set_focus_chain</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-set_focus_child"><strong>set_focus_child</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-set_focus_hadjustment"><strong>set_focus_hadjustment</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-set_focus_vadjustment"><strong>set_focus_vadjustment</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-set_reallocate_redraws"><strong>set_reallocate_redraws</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-set_resize_mode"><strong>set_resize_mode</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-unset_focus_chain"><strong>unset_focus_chain</strong></a>(...)</dt></dl>
+
+<hr>
+Data and non-method functions inherited from <a href="gtk.html#Container">gtk.Container</a>:<br>
+<dl><dt><strong>border_width</strong> = &lt;attribute 'border_width' of 'gtk.Container' objects&gt;</dl>
+
+<dl><dt><strong>focus_child</strong> = &lt;attribute 'focus_child' of 'gtk.Container' objects&gt;</dl>
+
+<dl><dt><strong>has_focus_chain</strong> = &lt;attribute 'has_focus_chain' of 'gtk.Container' objects&gt;</dl>
+
+<dl><dt><strong>need_resize</strong> = &lt;attribute 'need_resize' of 'gtk.Container' objects&gt;</dl>
+
+<dl><dt><strong>reallocate_redraws</strong> = &lt;attribute 'reallocate_redraws' of 'gtk.Container' objects&gt;</dl>
+
+<dl><dt><strong>resize_mode</strong> = &lt;attribute 'resize_mode' of 'gtk.Container' objects&gt;</dl>
+
+<hr>
+Methods inherited from <a href="gtk.html#Widget">gtk.Widget</a>:<br>
+<dl><dt><a name="ProgressBarDialog-activate"><strong>activate</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-add_accelerator"><strong>add_accelerator</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-add_events"><strong>add_events</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-child_focus"><strong>child_focus</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-child_notify"><strong>child_notify</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-class_path"><strong>class_path</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-create_pango_context"><strong>create_pango_context</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-create_pango_layout"><strong>create_pango_layout</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-destroy"><strong>destroy</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-drag_begin"><strong>drag_begin</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-drag_check_threshold"><strong>drag_check_threshold</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-drag_dest_find_target"><strong>drag_dest_find_target</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-drag_dest_get_target_list"><strong>drag_dest_get_target_list</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-drag_dest_set"><strong>drag_dest_set</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-drag_dest_set_proxy"><strong>drag_dest_set_proxy</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-drag_dest_set_target_list"><strong>drag_dest_set_target_list</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-drag_dest_unset"><strong>drag_dest_unset</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-drag_get_data"><strong>drag_get_data</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-drag_highlight"><strong>drag_highlight</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-drag_source_set"><strong>drag_source_set</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-drag_source_set_icon"><strong>drag_source_set_icon</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-drag_source_set_icon_pixbuf"><strong>drag_source_set_icon_pixbuf</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-drag_source_set_icon_stock"><strong>drag_source_set_icon_stock</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-drag_source_unset"><strong>drag_source_unset</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-drag_unhighlight"><strong>drag_unhighlight</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-draw"><strong>draw</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-ensure_style"><strong>ensure_style</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-event"><strong>event</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-freeze_child_notify"><strong>freeze_child_notify</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-get_accessible"><strong>get_accessible</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-get_allocation"><strong>get_allocation</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-get_ancestor"><strong>get_ancestor</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-get_child_requisition"><strong>get_child_requisition</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-get_child_visible"><strong>get_child_visible</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-get_colormap"><strong>get_colormap</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-get_composite_name"><strong>get_composite_name</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-get_direction"><strong>get_direction</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-get_events"><strong>get_events</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-get_extension_events"><strong>get_extension_events</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-get_modifier_style"><strong>get_modifier_style</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-get_name"><strong>get_name</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-get_pango_context"><strong>get_pango_context</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-get_parent"><strong>get_parent</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-get_parent_window"><strong>get_parent_window</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-get_pointer"><strong>get_pointer</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-get_settings"><strong>get_settings</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-get_style"><strong>get_style</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-get_toplevel"><strong>get_toplevel</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-get_visual"><strong>get_visual</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-grab_add"><strong>grab_add</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-grab_default"><strong>grab_default</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-grab_focus"><strong>grab_focus</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-grab_remove"><strong>grab_remove</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-hide"><strong>hide</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-hide_all"><strong>hide_all</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-hide_on_delete"><strong>hide_on_delete</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-intersect"><strong>intersect</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-is_ancestor"><strong>is_ancestor</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-is_focus"><strong>is_focus</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-map"><strong>map</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-modify_base"><strong>modify_base</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-modify_bg"><strong>modify_bg</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-modify_fg"><strong>modify_fg</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-modify_font"><strong>modify_font</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-modify_style"><strong>modify_style</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-modify_text"><strong>modify_text</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-path"><strong>path</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-queue_clear"><strong>queue_clear</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-queue_clear_area"><strong>queue_clear_area</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-queue_draw"><strong>queue_draw</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-queue_draw_area"><strong>queue_draw_area</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-queue_resize"><strong>queue_resize</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-rc_get_style"><strong>rc_get_style</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-realize"><strong>realize</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-remove_accelerator"><strong>remove_accelerator</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-render_icon"><strong>render_icon</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-reparent"><strong>reparent</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-reset_rc_styles"><strong>reset_rc_styles</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-reset_shapes"><strong>reset_shapes</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-selection_add_target"><strong>selection_add_target</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-selection_add_targets"><strong>selection_add_targets</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-selection_clear_targets"><strong>selection_clear_targets</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-selection_convert"><strong>selection_convert</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-selection_owner_set"><strong>selection_owner_set</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-selection_remove_all"><strong>selection_remove_all</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-send_expose"><strong>send_expose</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-set_accel_path"><strong>set_accel_path</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-set_app_paintable"><strong>set_app_paintable</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-set_child_visible"><strong>set_child_visible</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-set_colormap"><strong>set_colormap</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-set_composite_name"><strong>set_composite_name</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-set_direction"><strong>set_direction</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-set_double_buffered"><strong>set_double_buffered</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-set_events"><strong>set_events</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-set_extension_events"><strong>set_extension_events</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-set_name"><strong>set_name</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-set_parent"><strong>set_parent</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-set_parent_window"><strong>set_parent_window</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-set_redraw_on_allocate"><strong>set_redraw_on_allocate</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-set_scroll_adjustments"><strong>set_scroll_adjustments</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-set_sensitive"><strong>set_sensitive</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-set_size_request"><strong>set_size_request</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-set_state"><strong>set_state</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-set_style"><strong>set_style</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-set_uposition"><strong>set_uposition</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-set_usize"><strong>set_usize</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-shape_combine_mask"><strong>shape_combine_mask</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-show"><strong>show</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-show_all"><strong>show_all</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-show_now"><strong>show_now</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-size_allocate"><strong>size_allocate</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-size_request"><strong>size_request</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-thaw_child_notify"><strong>thaw_child_notify</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-translate_coordinates"><strong>translate_coordinates</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-unmap"><strong>unmap</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-unparent"><strong>unparent</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-unrealize"><strong>unrealize</strong></a>(...)</dt></dl>
+
+<hr>
+Data and non-method functions inherited from <a href="gtk.html#Widget">gtk.Widget</a>:<br>
+<dl><dt><strong>allocation</strong> = &lt;attribute 'allocation' of 'gtk.Widget' objects&gt;</dl>
+
+<dl><dt><strong>name</strong> = &lt;attribute 'name' of 'gtk.Widget' objects&gt;</dl>
+
+<dl><dt><strong>parent</strong> = &lt;attribute 'parent' of 'gtk.Widget' objects&gt;</dl>
+
+<dl><dt><strong>saved_state</strong> = &lt;attribute 'saved_state' of 'gtk.Widget' objects&gt;</dl>
+
+<dl><dt><strong>state</strong> = &lt;attribute 'state' of 'gtk.Widget' objects&gt;</dl>
+
+<dl><dt><strong>style</strong> = &lt;attribute 'style' of 'gtk.Widget' objects&gt;</dl>
+
+<dl><dt><strong>window</strong> = &lt;attribute 'window' of 'gtk.Widget' objects&gt;</dl>
+
+<hr>
+Methods inherited from <a href="gtk.html#Object">gtk.Object</a>:<br>
+<dl><dt><a name="ProgressBarDialog-flags"><strong>flags</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-set_flags"><strong>set_flags</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-unset_flags"><strong>unset_flags</strong></a>(...)</dt></dl>
+
+<hr>
+Methods inherited from <a href="gobject.html#GObject">gobject.GObject</a>:<br>
+<dl><dt><a name="ProgressBarDialog-__cmp__"><strong>__cmp__</strong></a>(...)</dt><dd><tt>x.<a href="#ProgressBarDialog-__cmp__">__cmp__</a>(y)&nbsp;&lt;==&gt;&nbsp;cmp(x,y)</tt></dd></dl>
+
+<dl><dt><a name="ProgressBarDialog-__gobject_init__"><strong>__gobject_init__</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-__hash__"><strong>__hash__</strong></a>(...)</dt><dd><tt>x.<a href="#ProgressBarDialog-__hash__">__hash__</a>()&nbsp;&lt;==&gt;&nbsp;hash(x)</tt></dd></dl>
+
+<dl><dt><a name="ProgressBarDialog-__repr__"><strong>__repr__</strong></a>(...)</dt><dd><tt>x.<a href="#ProgressBarDialog-__repr__">__repr__</a>()&nbsp;&lt;==&gt;&nbsp;repr(x)</tt></dd></dl>
+
+<dl><dt><a name="ProgressBarDialog-chain"><strong>chain</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-connect"><strong>connect</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-connect_after"><strong>connect_after</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-connect_object"><strong>connect_object</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-connect_object_after"><strong>connect_object_after</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-disconnect"><strong>disconnect</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-emit"><strong>emit</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-emit_stop_by_name"><strong>emit_stop_by_name</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-freeze_notify"><strong>freeze_notify</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-get_data"><strong>get_data</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-get_property"><strong>get_property</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-handler_block"><strong>handler_block</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-handler_disconnect"><strong>handler_disconnect</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-handler_unblock"><strong>handler_unblock</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-notify"><strong>notify</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-set_data"><strong>set_data</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-set_property"><strong>set_property</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-stop_emission"><strong>stop_emission</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="ProgressBarDialog-thaw_notify"><strong>thaw_notify</strong></a>(...)</dt></dl>
+
+<hr>
+Data and non-method functions inherited from <a href="gobject.html#GObject">gobject.GObject</a>:<br>
+<dl><dt><strong>__dict__</strong> = &lt;dict-proxy object&gt;</dl>
+
+<dl><dt><strong>__gdoc__</strong> = 'Object GtkDialog<font color="#c040c0">\n\n</font>Signals from GObject:<font color="#c040c0">\n</font>  notify...he dialog has a separator bar above its buttons<font color="#c040c0">\n\n</font>'</dl>
+
+<dl><dt><strong>__grefcount__</strong> = &lt;attribute '__grefcount__' of 'gobject.GObject' objects&gt;</dl>
+
+<dl><dt><strong>__new__</strong> = &lt;built-in method __new__ of type object&gt;<dd><tt>T.<a href="#ProgressBarDialog-__new__">__new__</a>(S,&nbsp;...)&nbsp;-&gt;&nbsp;a&nbsp;new&nbsp;object&nbsp;with&nbsp;type&nbsp;S,&nbsp;a&nbsp;subtype&nbsp;of&nbsp;T</tt></dl>
+
+<hr>
+Methods inherited from <a href="__builtin__.html#object">__builtin__.object</a>:<br>
+<dl><dt><a name="ProgressBarDialog-__delattr__"><strong>__delattr__</strong></a>(...)</dt><dd><tt>x.<a href="#ProgressBarDialog-__delattr__">__delattr__</a>('name')&nbsp;&lt;==&gt;&nbsp;del&nbsp;x.name</tt></dd></dl>
+
+<dl><dt><a name="ProgressBarDialog-__getattribute__"><strong>__getattribute__</strong></a>(...)</dt><dd><tt>x.<a href="#ProgressBarDialog-__getattribute__">__getattribute__</a>('name')&nbsp;&lt;==&gt;&nbsp;x.name</tt></dd></dl>
+
+<dl><dt><a name="ProgressBarDialog-__reduce__"><strong>__reduce__</strong></a>(...)</dt><dd><tt>helper&nbsp;for&nbsp;pickle</tt></dd></dl>
+
+<dl><dt><a name="ProgressBarDialog-__setattr__"><strong>__setattr__</strong></a>(...)</dt><dd><tt>x.<a href="#ProgressBarDialog-__setattr__">__setattr__</a>('name',&nbsp;value)&nbsp;&lt;==&gt;&nbsp;x.name&nbsp;=&nbsp;value</tt></dd></dl>
+
+<dl><dt><a name="ProgressBarDialog-__str__"><strong>__str__</strong></a>(...)</dt><dd><tt>x.<a href="#ProgressBarDialog-__str__">__str__</a>()&nbsp;&lt;==&gt;&nbsp;str(x)</tt></dd></dl>
+
+<hr>
+Data and non-method functions inherited from <a href="__builtin__.html#object">__builtin__.object</a>:<br>
+<dl><dt><strong>__class__</strong> = &lt;type 'type'&gt;</dl>
+
+</td></tr></table></td></tr></table>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#eeaa77">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Functions</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#eeaa77"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;&nbsp;</td>
+<td width="100%"><dl><dt><a name="-_get_label"><strong>_get_label</strong></a>(l)</dt></dl>
+ <dl><dt><a name="-error_msg"><strong>error_msg</strong></a>(msg, parent<font color="#909090">=None</font>)</dt></dl>
+ <dl><dt><a name="-raise_msg_to_str"><strong>raise_msg_to_str</strong></a>(msg)</dt><dd><tt>msg&nbsp;is&nbsp;a&nbsp;return&nbsp;arg&nbsp;from&nbsp;a&nbsp;raise.&nbsp;&nbsp;Join&nbsp;with&nbsp;new&nbsp;lines</tt></dd></dl>
+ <dl><dt><a name="-simple_msg"><strong>simple_msg</strong></a>(msg, parent<font color="#909090">=None</font>)</dt></dl>
+ <dl><dt><a name="-str2int_or_err"><strong>str2int_or_err</strong></a>(s, labelWidget, parent<font color="#909090">=None</font>)</dt></dl>
+ <dl><dt><a name="-str2negint_or_err"><strong>str2negint_or_err</strong></a>(s, labelWidget, parent<font color="#909090">=None</font>)</dt></dl>
+ <dl><dt><a name="-str2negnum_or_err"><strong>str2negnum_or_err</strong></a>(s, labelWidget, parent<font color="#909090">=None</font>)</dt></dl>
+ <dl><dt><a name="-str2num_or_err"><strong>str2num_or_err</strong></a>(s, labelWidget, parent<font color="#909090">=None</font>)</dt></dl>
+ <dl><dt><a name="-str2posint_or_err"><strong>str2posint_or_err</strong></a>(s, labelWidget, parent<font color="#909090">=None</font>)</dt></dl>
+ <dl><dt><a name="-str2posnum_or_err"><strong>str2posnum_or_err</strong></a>(s, labelWidget, parent<font color="#909090">=None</font>)</dt></dl>
+</td></tr></table>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#55aa55">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Data</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#55aa55"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;&nbsp;</td>
+<td width="100%"><strong>__file__</strong> = './gtkutils.py'<br>
+<strong>__name__</strong> = 'gtkutils'</td></tr></table>
+</body></html>

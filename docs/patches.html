@@ -1,0 +1,309 @@
+
+<!doctype html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html><head><title>Python: module patches</title>
+<style type="text/css"><!--
+TT { font-family: lucidatypewriter, lucida console, courier }
+--></style></head><body bgcolor="#f0f0f8">
+
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="heading">
+<tr bgcolor="#7799ee">
+<td valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial">&nbsp;<br><big><big><strong>patches</strong></big></big></font></td
+><td align=right valign=bottom
+><font color="#ffffff" face="helvetica, arial"><a href=".">index</a><br><a href="file:/home/jdhunter/python/projects/matplotlib/matplotlib/patches.py">/home/jdhunter/python/projects/matplotlib/matplotlib/patches.py</a></font></td></tr></table>
+    <p></p>
+
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#aa55cc">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#fffff" face="helvetica, arial"><big><strong>Modules</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#aa55cc"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;&nbsp;</td>
+<td width="100%"><table width="100%" summary="list"><tr><td width="25%" valign=top><a href="gtk.html">gtk</a><br>
+</td><td width="25%" valign=top><a href="pygtk.html">pygtk</a><br>
+</td><td width="25%" valign=top></td><td width="25%" valign=top></td></tr></table></td></tr></table>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ee77aa">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Classes</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#ee77aa"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;&nbsp;</td>
+<td width="100%"><dl>
+<dt><font face="helvetica, arial"><a href="artist.html#Artist">artist.Artist</a>
+</font></dt><dd>
+<dl>
+<dt><font face="helvetica, arial"><a href="patches.html#Patch">Patch</a>
+</font></dt><dd>
+<dl>
+<dt><font face="helvetica, arial"><a href="patches.html#Circle">Circle</a>
+</font></dt><dt><font face="helvetica, arial"><a href="patches.html#Rectangle">Rectangle</a>
+</font></dt><dt><font face="helvetica, arial"><a href="patches.html#RegularPolygon">RegularPolygon</a>
+</font></dt></dl>
+</dd>
+</dl>
+</dd>
+</dl>
+ 
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ffc8d8">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#000000" face="helvetica, arial"><a name="Circle">class <strong>Circle</strong></a>(<a href="patches.html#Patch">Patch</a>)</font></td></tr>
+    
+<tr bgcolor="#ffc8d8"><td rowspan=2><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td>
+<td colspan=2>&nbsp;</td></tr>
+<tr><td>&nbsp;&nbsp;</td>
+<td width="100%"><dl><dt>Method resolution order:</dt>
+<dd><a href="patches.html#Circle">Circle</a></dd>
+<dd><a href="patches.html#Patch">Patch</a></dd>
+<dd><a href="artist.html#Artist">artist.Artist</a></dd>
+</dl>
+<hr>
+Methods defined here:<br>
+<dl><dt><a name="Circle-__init__"><strong>__init__</strong></a>(self, xy, radius<font color="#909090">=5</font>, *args, **kargs)</dt></dl>
+
+<dl><dt><a name="Circle-_derived_draw"><strong>_derived_draw</strong></a>(self, drawable, gcFace, gcEdge)</dt></dl>
+
+<dl><dt><a name="Circle-get_data_extent"><strong>get_data_extent</strong></a>(self)</dt><dd><tt>Return&nbsp;the&nbsp;bounding&nbsp;box&nbsp;as&nbsp;left,&nbsp;bottom,&nbsp;width,&nbsp;height&nbsp;in<br>
+data&nbsp;coords</tt></dd></dl>
+
+<hr>
+Data and non-method functions defined here:<br>
+<dl><dt><strong>__doc__</strong> = None</dl>
+
+<dl><dt><strong>__module__</strong> = 'patches'</dl>
+
+<hr>
+Methods inherited from <a href="patches.html#Patch">Patch</a>:<br>
+<dl><dt><a name="Circle-_draw"><strong>_draw</strong></a>(self, drawable, *args, **kwargs)</dt></dl>
+
+<dl><dt><a name="Circle-set_edgecolor"><strong>set_edgecolor</strong></a>(self, color)</dt></dl>
+
+<dl><dt><a name="Circle-set_facecolor"><strong>set_facecolor</strong></a>(self, color)</dt></dl>
+
+<dl><dt><a name="Circle-set_fill"><strong>set_fill</strong></a>(self, b)</dt></dl>
+
+<dl><dt><a name="Circle-set_linewidth"><strong>set_linewidth</strong></a>(self, w)</dt></dl>
+
+<hr>
+Methods inherited from <a href="artist.html#Artist">artist.Artist</a>:<br>
+<dl><dt><a name="Circle-clip_gc"><strong>clip_gc</strong></a>(self, gc)</dt><dd><tt>The&nbsp;gc&nbsp;clipping&nbsp;function;&nbsp;no&nbsp;clip&nbsp;by&nbsp;default</tt></dd></dl>
+
+<dl><dt><a name="Circle-draw"><strong>draw</strong></a>(self, drawable<font color="#909090">=None</font>, *args, **kwargs)</dt><dd><tt>Derived&nbsp;classes&nbsp;drawing&nbsp;method</tt></dd></dl>
+
+<dl><dt><a name="Circle-get_child_artists"><strong>get_child_artists</strong></a>(self)</dt><dd><tt>Return&nbsp;all&nbsp;artists&nbsp;contained&nbsp;in&nbsp;self</tt></dd></dl>
+
+<dl><dt><a name="Circle-get_window_extent"><strong>get_window_extent</strong></a>(self)</dt><dd><tt>Return&nbsp;the&nbsp;bounding&nbsp;box&nbsp;as&nbsp;left,&nbsp;bottom,&nbsp;width,&nbsp;height&nbsp;in<br>
+window&nbsp;coords</tt></dd></dl>
+
+<dl><dt><a name="Circle-set_drawing_area"><strong>set_drawing_area</strong></a>(self, da)</dt><dd><tt>Set&nbsp;the&nbsp;drawing&nbsp;area&nbsp;that&nbsp;you&nbsp;render&nbsp;into</tt></dd></dl>
+
+<dl><dt><a name="Circle-transform_points_to_win"><strong>transform_points_to_win</strong></a>(self, x, y)</dt><dd><tt>Transform&nbsp;the&nbsp;points&nbsp;x,&nbsp;y&nbsp;to&nbsp;window&nbsp;coords.&nbsp;Default&nbsp;is&nbsp;do&nbsp;nothing</tt></dd></dl>
+
+<dl><dt><a name="Circle-transform_scale_to_win"><strong>transform_scale_to_win</strong></a>(self, xscale, yscale)</dt><dd><tt>Transform&nbsp;the&nbsp;xscale,&nbsp;yscale&nbsp;to&nbsp;window&nbsp;coords.&nbsp;Default&nbsp;is&nbsp;do&nbsp;nothing</tt></dd></dl>
+
+<dl><dt><a name="Circle-wash_brushes"><strong>wash_brushes</strong></a>(self)</dt><dd><tt>Erase&nbsp;any&nbsp;state&nbsp;vars&nbsp;that&nbsp;would&nbsp;impair&nbsp;a&nbsp;draw&nbsp;to&nbsp;a&nbsp;clean&nbsp;palette</tt></dd></dl>
+
+</td></tr></table> 
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ffc8d8">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#000000" face="helvetica, arial"><a name="Patch">class <strong>Patch</strong></a>(<a href="artist.html#Artist">artist.Artist</a>)</font></td></tr>
+    
+<tr bgcolor="#ffc8d8"><td rowspan=2><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td>
+<td colspan=2><tt>A&nbsp;patch&nbsp;is&nbsp;a&nbsp;2D&nbsp;thingy&nbsp;with&nbsp;a&nbsp;face&nbsp;color&nbsp;and&nbsp;an&nbsp;edge&nbsp;color<br>&nbsp;</tt></td></tr>
+<tr><td>&nbsp;&nbsp;</td>
+<td width="100%">Methods defined here:<br>
+<dl><dt><a name="Patch-__init__"><strong>__init__</strong></a>(self, edgeColor<font color="#909090">=&lt;GdkColor&gt;</font>, faceColor<font color="#909090">=&lt;GdkColor&gt;</font>, fill<font color="#909090">=1</font>)</dt></dl>
+
+<dl><dt><a name="Patch-_derived_draw"><strong>_derived_draw</strong></a>(self, drawable, gcFace, gcEdge)</dt></dl>
+
+<dl><dt><a name="Patch-_draw"><strong>_draw</strong></a>(self, drawable, *args, **kwargs)</dt></dl>
+
+<dl><dt><a name="Patch-get_data_extent"><strong>get_data_extent</strong></a>(self)</dt><dd><tt>Return&nbsp;the&nbsp;bounding&nbsp;box&nbsp;as&nbsp;left,&nbsp;bottom,&nbsp;width,&nbsp;height&nbsp;in<br>
+data&nbsp;coords</tt></dd></dl>
+
+<dl><dt><a name="Patch-set_edgecolor"><strong>set_edgecolor</strong></a>(self, color)</dt></dl>
+
+<dl><dt><a name="Patch-set_facecolor"><strong>set_facecolor</strong></a>(self, color)</dt></dl>
+
+<dl><dt><a name="Patch-set_fill"><strong>set_fill</strong></a>(self, b)</dt></dl>
+
+<dl><dt><a name="Patch-set_linewidth"><strong>set_linewidth</strong></a>(self, w)</dt></dl>
+
+<hr>
+Data and non-method functions defined here:<br>
+<dl><dt><strong>__doc__</strong> = '<font color="#c040c0">\n</font>    A patch is a 2D thingy with a face color and an edge color<font color="#c040c0">\n</font>    '</dl>
+
+<dl><dt><strong>__module__</strong> = 'patches'</dl>
+
+<hr>
+Methods inherited from <a href="artist.html#Artist">artist.Artist</a>:<br>
+<dl><dt><a name="Patch-clip_gc"><strong>clip_gc</strong></a>(self, gc)</dt><dd><tt>The&nbsp;gc&nbsp;clipping&nbsp;function;&nbsp;no&nbsp;clip&nbsp;by&nbsp;default</tt></dd></dl>
+
+<dl><dt><a name="Patch-draw"><strong>draw</strong></a>(self, drawable<font color="#909090">=None</font>, *args, **kwargs)</dt><dd><tt>Derived&nbsp;classes&nbsp;drawing&nbsp;method</tt></dd></dl>
+
+<dl><dt><a name="Patch-get_child_artists"><strong>get_child_artists</strong></a>(self)</dt><dd><tt>Return&nbsp;all&nbsp;artists&nbsp;contained&nbsp;in&nbsp;self</tt></dd></dl>
+
+<dl><dt><a name="Patch-get_window_extent"><strong>get_window_extent</strong></a>(self)</dt><dd><tt>Return&nbsp;the&nbsp;bounding&nbsp;box&nbsp;as&nbsp;left,&nbsp;bottom,&nbsp;width,&nbsp;height&nbsp;in<br>
+window&nbsp;coords</tt></dd></dl>
+
+<dl><dt><a name="Patch-set_drawing_area"><strong>set_drawing_area</strong></a>(self, da)</dt><dd><tt>Set&nbsp;the&nbsp;drawing&nbsp;area&nbsp;that&nbsp;you&nbsp;render&nbsp;into</tt></dd></dl>
+
+<dl><dt><a name="Patch-transform_points_to_win"><strong>transform_points_to_win</strong></a>(self, x, y)</dt><dd><tt>Transform&nbsp;the&nbsp;points&nbsp;x,&nbsp;y&nbsp;to&nbsp;window&nbsp;coords.&nbsp;Default&nbsp;is&nbsp;do&nbsp;nothing</tt></dd></dl>
+
+<dl><dt><a name="Patch-transform_scale_to_win"><strong>transform_scale_to_win</strong></a>(self, xscale, yscale)</dt><dd><tt>Transform&nbsp;the&nbsp;xscale,&nbsp;yscale&nbsp;to&nbsp;window&nbsp;coords.&nbsp;Default&nbsp;is&nbsp;do&nbsp;nothing</tt></dd></dl>
+
+<dl><dt><a name="Patch-wash_brushes"><strong>wash_brushes</strong></a>(self)</dt><dd><tt>Erase&nbsp;any&nbsp;state&nbsp;vars&nbsp;that&nbsp;would&nbsp;impair&nbsp;a&nbsp;draw&nbsp;to&nbsp;a&nbsp;clean&nbsp;palette</tt></dd></dl>
+
+</td></tr></table> 
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ffc8d8">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#000000" face="helvetica, arial"><a name="Rectangle">class <strong>Rectangle</strong></a>(<a href="patches.html#Patch">Patch</a>)</font></td></tr>
+    
+<tr bgcolor="#ffc8d8"><td rowspan=2><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td>
+<td colspan=2><tt>Draw&nbsp;a&nbsp;rectangle&nbsp;with&nbsp;lower&nbsp;left&nbsp;at&nbsp;xy=(x,y)&nbsp;with&nbsp;specified<br>
+width&nbsp;and&nbsp;height<br>&nbsp;</tt></td></tr>
+<tr><td>&nbsp;&nbsp;</td>
+<td width="100%"><dl><dt>Method resolution order:</dt>
+<dd><a href="patches.html#Rectangle">Rectangle</a></dd>
+<dd><a href="patches.html#Patch">Patch</a></dd>
+<dd><a href="artist.html#Artist">artist.Artist</a></dd>
+</dl>
+<hr>
+Methods defined here:<br>
+<dl><dt><a name="Rectangle-__init__"><strong>__init__</strong></a>(self, xy, width, height, *args, **kargs)</dt></dl>
+
+<dl><dt><a name="Rectangle-_derived_draw"><strong>_derived_draw</strong></a>(self, drawable, gcFace, gcEdge)</dt></dl>
+
+<dl><dt><a name="Rectangle-get_data_extent"><strong>get_data_extent</strong></a>(self)</dt><dd><tt>Return&nbsp;the&nbsp;bounding&nbsp;box&nbsp;as&nbsp;left,&nbsp;bottom,&nbsp;width,&nbsp;height&nbsp;in<br>
+window&nbsp;coords</tt></dd></dl>
+
+<hr>
+Data and non-method functions defined here:<br>
+<dl><dt><strong>__doc__</strong> = '<font color="#c040c0">\n</font>    Draw a rectangle with lower left at xy=(x,y) with specified<font color="#c040c0">\n</font>    width and height<font color="#c040c0">\n</font>    '</dl>
+
+<dl><dt><strong>__module__</strong> = 'patches'</dl>
+
+<hr>
+Methods inherited from <a href="patches.html#Patch">Patch</a>:<br>
+<dl><dt><a name="Rectangle-_draw"><strong>_draw</strong></a>(self, drawable, *args, **kwargs)</dt></dl>
+
+<dl><dt><a name="Rectangle-set_edgecolor"><strong>set_edgecolor</strong></a>(self, color)</dt></dl>
+
+<dl><dt><a name="Rectangle-set_facecolor"><strong>set_facecolor</strong></a>(self, color)</dt></dl>
+
+<dl><dt><a name="Rectangle-set_fill"><strong>set_fill</strong></a>(self, b)</dt></dl>
+
+<dl><dt><a name="Rectangle-set_linewidth"><strong>set_linewidth</strong></a>(self, w)</dt></dl>
+
+<hr>
+Methods inherited from <a href="artist.html#Artist">artist.Artist</a>:<br>
+<dl><dt><a name="Rectangle-clip_gc"><strong>clip_gc</strong></a>(self, gc)</dt><dd><tt>The&nbsp;gc&nbsp;clipping&nbsp;function;&nbsp;no&nbsp;clip&nbsp;by&nbsp;default</tt></dd></dl>
+
+<dl><dt><a name="Rectangle-draw"><strong>draw</strong></a>(self, drawable<font color="#909090">=None</font>, *args, **kwargs)</dt><dd><tt>Derived&nbsp;classes&nbsp;drawing&nbsp;method</tt></dd></dl>
+
+<dl><dt><a name="Rectangle-get_child_artists"><strong>get_child_artists</strong></a>(self)</dt><dd><tt>Return&nbsp;all&nbsp;artists&nbsp;contained&nbsp;in&nbsp;self</tt></dd></dl>
+
+<dl><dt><a name="Rectangle-get_window_extent"><strong>get_window_extent</strong></a>(self)</dt><dd><tt>Return&nbsp;the&nbsp;bounding&nbsp;box&nbsp;as&nbsp;left,&nbsp;bottom,&nbsp;width,&nbsp;height&nbsp;in<br>
+window&nbsp;coords</tt></dd></dl>
+
+<dl><dt><a name="Rectangle-set_drawing_area"><strong>set_drawing_area</strong></a>(self, da)</dt><dd><tt>Set&nbsp;the&nbsp;drawing&nbsp;area&nbsp;that&nbsp;you&nbsp;render&nbsp;into</tt></dd></dl>
+
+<dl><dt><a name="Rectangle-transform_points_to_win"><strong>transform_points_to_win</strong></a>(self, x, y)</dt><dd><tt>Transform&nbsp;the&nbsp;points&nbsp;x,&nbsp;y&nbsp;to&nbsp;window&nbsp;coords.&nbsp;Default&nbsp;is&nbsp;do&nbsp;nothing</tt></dd></dl>
+
+<dl><dt><a name="Rectangle-transform_scale_to_win"><strong>transform_scale_to_win</strong></a>(self, xscale, yscale)</dt><dd><tt>Transform&nbsp;the&nbsp;xscale,&nbsp;yscale&nbsp;to&nbsp;window&nbsp;coords.&nbsp;Default&nbsp;is&nbsp;do&nbsp;nothing</tt></dd></dl>
+
+<dl><dt><a name="Rectangle-wash_brushes"><strong>wash_brushes</strong></a>(self)</dt><dd><tt>Erase&nbsp;any&nbsp;state&nbsp;vars&nbsp;that&nbsp;would&nbsp;impair&nbsp;a&nbsp;draw&nbsp;to&nbsp;a&nbsp;clean&nbsp;palette</tt></dd></dl>
+
+</td></tr></table> 
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ffc8d8">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#000000" face="helvetica, arial"><a name="RegularPolygon">class <strong>RegularPolygon</strong></a>(<a href="patches.html#Patch">Patch</a>)</font></td></tr>
+    
+<tr bgcolor="#ffc8d8"><td rowspan=2><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td>
+<td colspan=2><tt>A&nbsp;regular&nbsp;polygon&nbsp;patch.&nbsp;&nbsp;xy&nbsp;is&nbsp;a&nbsp;length&nbsp;2&nbsp;tuple&nbsp;(the&nbsp;center)<br>
+numVertices&nbsp;is&nbsp;the&nbsp;number&nbsp;of&nbsp;vertices.&nbsp;&nbsp;Radius&nbsp;is&nbsp;the&nbsp;distance<br>
+from&nbsp;the&nbsp;center&nbsp;to&nbsp;each&nbsp;of&nbsp;the&nbsp;vertices.&nbsp;&nbsp;Orientation&nbsp;is&nbsp;in<br>
+radians&nbsp;and&nbsp;rotates&nbsp;the&nbsp;polygon.<br>&nbsp;</tt></td></tr>
+<tr><td>&nbsp;&nbsp;</td>
+<td width="100%"><dl><dt>Method resolution order:</dt>
+<dd><a href="patches.html#RegularPolygon">RegularPolygon</a></dd>
+<dd><a href="patches.html#Patch">Patch</a></dd>
+<dd><a href="artist.html#Artist">artist.Artist</a></dd>
+</dl>
+<hr>
+Methods defined here:<br>
+<dl><dt><a name="RegularPolygon-__init__"><strong>__init__</strong></a>(self, xy, numVertices, radius<font color="#909090">=5</font>, orientation<font color="#909090">=0</font>, *args, **kargs)</dt></dl>
+
+<dl><dt><a name="RegularPolygon-_compute_vertices"><strong>_compute_vertices</strong></a>(self)</dt></dl>
+
+<dl><dt><a name="RegularPolygon-_derived_draw"><strong>_derived_draw</strong></a>(self, drawable, gcFace, gcEdge)</dt></dl>
+
+<dl><dt><a name="RegularPolygon-get_data_extent"><strong>get_data_extent</strong></a>(self)</dt><dd><tt>Return&nbsp;the&nbsp;bounding&nbsp;box&nbsp;as&nbsp;left,&nbsp;bottom,&nbsp;width,&nbsp;height&nbsp;in<br>
+data&nbsp;coords</tt></dd></dl>
+
+<hr>
+Data and non-method functions defined here:<br>
+<dl><dt><strong>__doc__</strong> = '<font color="#c040c0">\n</font>    A regular polygon patch.  xy is a length 2 ...n is in<font color="#c040c0">\n</font>    radians and rotates the polygon.<font color="#c040c0">\n</font>    '</dl>
+
+<dl><dt><strong>__module__</strong> = 'patches'</dl>
+
+<hr>
+Methods inherited from <a href="patches.html#Patch">Patch</a>:<br>
+<dl><dt><a name="RegularPolygon-_draw"><strong>_draw</strong></a>(self, drawable, *args, **kwargs)</dt></dl>
+
+<dl><dt><a name="RegularPolygon-set_edgecolor"><strong>set_edgecolor</strong></a>(self, color)</dt></dl>
+
+<dl><dt><a name="RegularPolygon-set_facecolor"><strong>set_facecolor</strong></a>(self, color)</dt></dl>
+
+<dl><dt><a name="RegularPolygon-set_fill"><strong>set_fill</strong></a>(self, b)</dt></dl>
+
+<dl><dt><a name="RegularPolygon-set_linewidth"><strong>set_linewidth</strong></a>(self, w)</dt></dl>
+
+<hr>
+Methods inherited from <a href="artist.html#Artist">artist.Artist</a>:<br>
+<dl><dt><a name="RegularPolygon-clip_gc"><strong>clip_gc</strong></a>(self, gc)</dt><dd><tt>The&nbsp;gc&nbsp;clipping&nbsp;function;&nbsp;no&nbsp;clip&nbsp;by&nbsp;default</tt></dd></dl>
+
+<dl><dt><a name="RegularPolygon-draw"><strong>draw</strong></a>(self, drawable<font color="#909090">=None</font>, *args, **kwargs)</dt><dd><tt>Derived&nbsp;classes&nbsp;drawing&nbsp;method</tt></dd></dl>
+
+<dl><dt><a name="RegularPolygon-get_child_artists"><strong>get_child_artists</strong></a>(self)</dt><dd><tt>Return&nbsp;all&nbsp;artists&nbsp;contained&nbsp;in&nbsp;self</tt></dd></dl>
+
+<dl><dt><a name="RegularPolygon-get_window_extent"><strong>get_window_extent</strong></a>(self)</dt><dd><tt>Return&nbsp;the&nbsp;bounding&nbsp;box&nbsp;as&nbsp;left,&nbsp;bottom,&nbsp;width,&nbsp;height&nbsp;in<br>
+window&nbsp;coords</tt></dd></dl>
+
+<dl><dt><a name="RegularPolygon-set_drawing_area"><strong>set_drawing_area</strong></a>(self, da)</dt><dd><tt>Set&nbsp;the&nbsp;drawing&nbsp;area&nbsp;that&nbsp;you&nbsp;render&nbsp;into</tt></dd></dl>
+
+<dl><dt><a name="RegularPolygon-transform_points_to_win"><strong>transform_points_to_win</strong></a>(self, x, y)</dt><dd><tt>Transform&nbsp;the&nbsp;points&nbsp;x,&nbsp;y&nbsp;to&nbsp;window&nbsp;coords.&nbsp;Default&nbsp;is&nbsp;do&nbsp;nothing</tt></dd></dl>
+
+<dl><dt><a name="RegularPolygon-transform_scale_to_win"><strong>transform_scale_to_win</strong></a>(self, xscale, yscale)</dt><dd><tt>Transform&nbsp;the&nbsp;xscale,&nbsp;yscale&nbsp;to&nbsp;window&nbsp;coords.&nbsp;Default&nbsp;is&nbsp;do&nbsp;nothing</tt></dd></dl>
+
+<dl><dt><a name="RegularPolygon-wash_brushes"><strong>wash_brushes</strong></a>(self)</dt><dd><tt>Erase&nbsp;any&nbsp;state&nbsp;vars&nbsp;that&nbsp;would&nbsp;impair&nbsp;a&nbsp;draw&nbsp;to&nbsp;a&nbsp;clean&nbsp;palette</tt></dd></dl>
+
+</td></tr></table></td></tr></table>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#eeaa77">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Functions</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#eeaa77"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;&nbsp;</td>
+<td width="100%"><dl><dt><a name="-arange"><strong>arange</strong></a>(...)</dt><dd><tt><a href="#-arange">arange</a>(start,&nbsp;stop=None,&nbsp;step=1,&nbsp;typecode=None)<br>
+&nbsp;<br>
+&nbsp;Just&nbsp;like&nbsp;range()&nbsp;except&nbsp;it&nbsp;returns&nbsp;an&nbsp;array&nbsp;whose&nbsp;type&nbsp;can&nbsp;be<br>
+specified&nbsp;by&nbsp;the&nbsp;keyword&nbsp;argument&nbsp;typecode.</tt></dd></dl>
+ <dl><dt><a name="-array"><strong>array</strong></a>(...)</dt><dd><tt><a href="#-array">array</a>(sequence,&nbsp;typecode=None,&nbsp;copy=1,&nbsp;savespace=0)&nbsp;will&nbsp;return&nbsp;a&nbsp;new&nbsp;array&nbsp;formed&nbsp;from&nbsp;the&nbsp;given&nbsp;(potentially&nbsp;nested)&nbsp;sequence&nbsp;with&nbsp;type&nbsp;given&nbsp;by&nbsp;typecode.&nbsp;&nbsp;If&nbsp;no&nbsp;typecode&nbsp;is&nbsp;given,&nbsp;then&nbsp;the&nbsp;type&nbsp;will&nbsp;be&nbsp;determined&nbsp;as&nbsp;the&nbsp;minimum&nbsp;type&nbsp;required&nbsp;to&nbsp;hold&nbsp;the&nbsp;objects&nbsp;in&nbsp;sequence.&nbsp;&nbsp;If&nbsp;copy&nbsp;is&nbsp;zero&nbsp;and&nbsp;sequence&nbsp;is&nbsp;already&nbsp;an&nbsp;array,&nbsp;a&nbsp;reference&nbsp;will&nbsp;be&nbsp;returned.&nbsp;&nbsp;If&nbsp;savespace&nbsp;is&nbsp;nonzero,&nbsp;the&nbsp;new&nbsp;array&nbsp;will&nbsp;maintain&nbsp;its&nbsp;precision&nbsp;in&nbsp;operations.</tt></dd></dl>
+</td></tr></table>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#55aa55">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Data</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#55aa55"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;&nbsp;</td>
+<td width="100%"><strong>__file__</strong> = './patches.py'<br>
+<strong>__name__</strong> = 'patches'<br>
+<strong>cos</strong> = &lt;ufunc 'cos'&gt;<br>
+<strong>division</strong> = _Feature((2, 2, 0, 'alpha', 2), (3, 0, 0, 'alpha', 0), 8192)<br>
+<strong>pi</strong> = 3.1415926535897931<br>
+<strong>sin</strong> = &lt;ufunc 'sin'&gt;</td></tr></table>
+</body></html>
