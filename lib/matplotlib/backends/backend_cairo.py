@@ -2,26 +2,29 @@
 A Cairo backend for matplotlib implemented using pycairo
 Author: Steve Chaplin
  
-http://www.freedesktop.org/Cairo/Home
-http://cairographics.org
-Requires (in order, all available from Cairo website):
-    libpixman, cairo, libsvg, libsvg-cairo, pycairo
-
 Cairo is a vector graphics library with cross-device output support.
 Features of Cairo:
  * anti-aliasing
  * alpha channel 
  * in-memory image buffers
- * PNG
- * PostScript
- * PDF (in development)
- * SVG (in development)
+ * image files:
+   - PNG
+   - PostScript (50% complete)
+   - SVG        (in development)
+   - PDF        (proposed, 0% complete)
+
+http://www.freedesktop.org/Cairo/Home
+http://cairographics.org
+Requires (in order, all available from Cairo website):
+    libpixman, cairo, libsvg, libsvg-cairo, pycairo
 
 Naming Conventions
   * classes MixedUpperCase
   * varables lowerUpper
   * functions underscore_separated
 """
+
+from __future__ import division
 
 import sys
 def _fn_name(): return sys._getframe(1).f_code.co_name
@@ -145,18 +148,16 @@ class RendererCairo(RendererBase):
         """
         if Debug: print 'backend_cairo.RendererCairo.%s()' % _fn_name()
         # cairo draws circular arcs (width=height) only?
-        ctx = gcEdge.ctx
-        y = self.height - y
+        ctx    = gcEdge.ctx
+        y      = self.height - y
         radius = width / 2
+        ctx.arc (x, y, radius, angle1 * pi/180.0, angle2 * pi/180.0)
 
         if rgbFace:
-            color_save = ctx.rgb_color
+            ctx.save()
             ctx.set_rgb_color (*rgbFace)
-            ctx.arc (x, y, radius, angle1 * pi/180.0, angle2 * pi/180.0)
             ctx.fill()
-            ctx.set_rgb_color (*color_save)
-            
-        ctx.arc (x, y, radius, angle1 * pi/180.0, angle2 * pi/180.0)
+            ctx.restore()
         ctx.stroke()
     
     
@@ -230,24 +231,18 @@ class RendererCairo(RendererBase):
         ctx = gcEdge.ctx
         points = [(x, (self.height-y)) for x,y in points]
 
-        if rgbFace:
-            color_save = ctx.rgb_color
-            ctx.set_rgb_color (*rgbFace)
-            ctx.new_path()
-            x, y = points[0]
-            ctx.move_to (x, y)
-            for x,y in points[1:]:
-                ctx.line_to (x, y)
-            ctx.close_path ()
-            ctx.fill()
-            ctx.set_rgb_color (*color_save)
-
         ctx.new_path()
-        x, y = points[0]
+        x, y = points.pop(0)
         ctx.move_to (x, y)
-        for x,y in points[1:]:
+        for x,y in points:
             ctx.line_to (x, y)
-        ctx.close_path ()
+        ctx.close_path()
+
+        if rgbFace:
+            ctx.save()
+            ctx.set_rgb_color (*rgbFace)
+            ctx.fill()
+            ctx.restore()
         ctx.stroke()
 
 
@@ -260,16 +255,14 @@ class RendererCairo(RendererBase):
         """
         if Debug: print 'backend_cairo.RendererCairo.%s()' % _fn_name()
         ctx = gcEdge.ctx
-        y = self.height - y - height
-
-        if rgbFace:
-            color_save = ctx.rgb_color
-            ctx.set_rgb_color (*rgbFace)
-            ctx.rectangle (x, y, width, height)
-            ctx.fill()
-            ctx.set_rgb_color (*color_save)
+        y   = self.height - y - height
 
         ctx.rectangle (x, y, width, height)
+        if rgbFace:
+            ctx.save()
+            ctx.set_rgb_color (*rgbFace)
+            ctx.fill()
+            ctx.restore()
         ctx.stroke()
 
 
@@ -292,10 +285,10 @@ class RendererCairo(RendererBase):
                              self.fontweights[prop.get_weight()])
             scale = self.get_text_scale()
             size  = prop.get_size_in_points()
-            ctx.scale_font (scale*size)
             ctx.move_to (x, y)
             if angle: # rotated text looks awful!
                 ctx.rotate (-angle * pi / 180)
+            ctx.scale_font (scale*size)
             ctx.show_text (s)
 
          
