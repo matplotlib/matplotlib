@@ -515,12 +515,28 @@ FT2Font::get_width_height(const Py::Tuple & args) {
   _VERBOSE("FT2Font::get_width_height");
   args.verify_length(0);
   
-  FT_BBox bbox =  compute_string_bbox();
+  FT_BBox bbox = compute_string_bbox();
   
   Py::Tuple ret(2);
   ret[0] = Py::Int(bbox.xMax - bbox.xMin);
   ret[1] = Py::Int(bbox.yMax - bbox.yMin);
   return ret;
+}
+
+char FT2Font::get_descent__doc__[] = 
+"d = get_descent()\n"
+"\n"
+"Get the descent of the current string set by set_text in 26.6 subpixels.\n"
+"The rotation of the string is accounted for.  To get the descent\n"
+"in pixels, divide this value by 64.\n"
+;
+Py::Object
+FT2Font::get_descent(const Py::Tuple & args) {
+  _VERBOSE("FT2Font::get_descent");
+  args.verify_length(0);
+  
+  FT_BBox bbox = compute_string_bbox();
+  return Py::Int(- bbox.yMin);;
 }
 
 void
@@ -1182,6 +1198,8 @@ FT2Font::init_type() {
 
   add_varargs_method("get_width_height", &FT2Font::get_width_height,
 		     FT2Font::get_width_height__doc__);
+  add_varargs_method("get_descent", &FT2Font::get_descent,
+		     FT2Font::get_descent__doc__);
   add_varargs_method("get_glyph_name", &FT2Font::get_glyph_name,
 		     FT2Font::get_glyph_name__doc__);
   add_varargs_method("get_charmap", &FT2Font::get_charmap,

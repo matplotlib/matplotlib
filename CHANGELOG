@@ -1,12 +1,18 @@
 New entries should be added at the top
 
 ==============================================================
+2004-10-30 backend_ps.py, ft2font.cpp, ft2font.h: fix the position of
+           text in the PostScript output.  The new FT2Font method
+           get_descent gives the distance between the lower edge of
+           the bounding box and the baseline of a string.  In
+           backend_ps the text is shifted upwards by this amount. - JV
+
 2004-10-30 backend_ps.py: clean up the code a lot.  Change the
            PostScript output to be more DSC compliant.  All
            definitions for the generated PostScript are now in a
            PostScript dictionary 'mpldict'.  Moved the long comment
            about drawing ellipses from the PostScript output into a
-           Python comment.
+           Python comment. - JV
 
 2004-10-30 backend_gtk.py: removed FigureCanvasGTK.realize() as its no longer 
            needed. Merged ColorManager into GraphicsContext
@@ -709,5 +715,3 @@ This is the Old, stale, never used changelog
 2003-11-21 - make a dash-dot dict for the GC
 
 2003-12-15 - fix install path bug
-
- 
