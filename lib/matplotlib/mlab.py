@@ -1186,6 +1186,38 @@ def get_sparse_matrix(M,N,frac=0.1):
         data[x,y] = rand()
     return data
 
+def dist(x,y):
+    'return the distance between two points'
+    d = x-y
+    return numerix.mlab.sqrt(dot(d,d))
+
+def dist_point_to_segment(p, s0, s1):
+    """
+    get the distance of a point to a segment.
+
+    p, s0, s1 are xy sequences
+
+    This algorithm from
+    http://softsurfer.com/Archive/algorithm_0102/algorithm_0102.htm#Distance%20to%20Ray%20or%20Segment
+    """
+    p = asarray(p, Float)
+    s0 = asarray(s0, Float)
+    s1 = asarray(s1, Float)    
+    v = s1 - s0
+    w = p - s0
+
+    c1 = dot(w,v);
+    if ( c1 <= 0 ):
+        return dist(p, s0);
+
+    c2 = dot(v,v)
+    if ( c2 <= c1 ):
+        return dist(p, s1);
+
+    b = c1 / c2
+    pb = s0 + b * v;
+    return dist(p, pb)
+
 
 ### the following code was written and submitted by Fernando Perez
 ### from the ipython numutils package under a BSD license

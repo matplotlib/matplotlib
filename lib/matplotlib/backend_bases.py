@@ -748,6 +748,12 @@ class FigureCanvasBase:
         """
         pass
 
+    def draw_idle(self, *args, **kwargs):
+        """
+        draw only if idle; defaults to draw but backends can overrride
+        """
+        self.draw(self, *args, **kwargs)
+
     def draw_cursor(self, event):
         """
         Draw a cursor in the event.axes if inaxes is not None.  Use
