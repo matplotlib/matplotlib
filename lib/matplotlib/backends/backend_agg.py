@@ -351,6 +351,7 @@ class FigureCanvasAgg(FigureCanvasBase):
         if  isinstance(filename, file):
             # assume png and write to fileobject
             self.renderer._renderer.write_png(filename)
+            #pass
         else:
             # take a look at the extension and choose the print handler
             basename, ext = os.path.splitext(filename)

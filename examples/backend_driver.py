@@ -89,8 +89,8 @@ def drive(backend):
 times = {}
 backends = ['PS', 'GD', 'Paint', 'Agg', 'Template']
 #backends.extend([ 'GTK', 'WX', 'TkAgg'])
-backends = [ 'AGG']
-#backends = [ 'SVG', 'PS', 'Agg', 'Template']
+#backends = [ 'Agg']
+backends = [ 'SVG', 'PS', 'Agg', 'Template']
 
 for backend in backends:
     print 'testing %s' % backend

@@ -11,7 +11,7 @@ lines = plot(d1, p1, 'bs', d2, p2, 'go')
 set(lines, 'data_clipping', True)
 xlabel('Days')
 ylabel('Normalized price')
-ax.set_xlim( (0, 3) )
+xlim( 0, 3) 
 ax.xaxis.set_major_locator(MultipleLocator(1))
 
 title('INTC vs AAPL')

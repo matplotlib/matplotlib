@@ -37,11 +37,4 @@ set(ytext, 'fontsize', 'medium')
 set(ytext, 'fontname', 'helvetica')
 set(ytext, 'fontweight', 'light')
 set(ytext, 'color', 'b')
-
-# TODO: fix me
-#xticklabels = get(gca(), 'xticklabels')
-#yticklabels = get(gca(), 'yticklabels')
-#set(xticklabels, 'fontweight', 'bold')
-#set(yticklabels, 'fontangle', 'italic')
-#savefig('text_handles')
 show()

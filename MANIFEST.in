@@ -12,3 +12,4 @@ prune examples/_tmp_*
 recursive-include src  *.cpp *.c *.h
 recursive-include CXX  *.cxx *.hxx *.c
 recursive-include agg22 *
+recursive-include lib *

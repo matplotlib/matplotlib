@@ -945,7 +945,7 @@ RendererAgg::write_png(const Py::Tuple& args)
   
   FILE *fp;
   Py::Object o = Py::Object(args[0]);
-
+  bool fpclose = true;
   if (o.isString()) {
     std::string fileName = Py::String(o);
     const char *file_name = fileName.c_str();
@@ -954,6 +954,7 @@ RendererAgg::write_png(const Py::Tuple& args)
   else {
     if ((fp = PyFile_AsFile(o.ptr())) == NULL) 
       throw Py::TypeError("Could not convert object to file pointer");
+    fpclose = false;
   }
 
   png_structp png_ptr;
@@ -973,19 +974,19 @@ RendererAgg::write_png(const Py::Tuple& args)
   
   png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
   if (png_ptr == NULL) {
-    fclose(fp);
+    if (fpclose) fclose(fp);
     throw Py::RuntimeError("could not create write struct");
   }
   
   info_ptr = png_create_info_struct(png_ptr);
   if (info_ptr == NULL) {
-    fclose(fp);
+    if (fpclose) fclose(fp);
     png_destroy_write_struct(&png_ptr, &info_ptr);
     throw Py::RuntimeError("could not create info struct");
   }
   
   if (setjmp(png_ptr->jmpbuf)) {
-    fclose(fp);
+    if (fpclose) fclose(fp);
     png_destroy_write_struct(&png_ptr, &info_ptr);
     throw Py::RuntimeError("error building image");
   }
@@ -1017,7 +1018,7 @@ RendererAgg::write_png(const Py::Tuple& args)
   png_destroy_write_struct(&png_ptr, &info_ptr);
 
  
-  fclose(fp);
+  if (fpclose) fclose(fp);
   
   return Py::Object();
 }
