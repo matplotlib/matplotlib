@@ -70,12 +70,12 @@ def error_msg_template(msg, *args):
     verbose.report('Error: %s'%msg)
     sys.exit()
     
+
 class RendererTemplate(RendererBase):
     """
     The renderer handles all the drawing primitives using a graphics
     context instance that controls the colors/styles
     """
-
 
     def get_canvas_width_height(self):
         'return the canvas width and height in display coords'
@@ -158,10 +158,10 @@ class RendererTemplate(RendererBase):
 
     def draw_rectangle(self, gcEdge, rgbFace, x, y, width, height):
         """
-        Draw a rectangle at lower left x,y with width and height.
-
-        If rgbFace is not None, fill the rectangle with it.  gcEdge
-        is a GraphicsContext instance
+        Draw a non-filled rectangle at x,y (lower left) with width and height,
+        using the GraphicsContext gcEdge.
+        Draw a filled rectangle within it of color rgbFace, if rgbFace is not
+        None.
         """
         pass
 
@@ -204,7 +204,7 @@ class GraphicsContextTemplate(GraphicsContextBase):
     class for the GTK backend.  If it's more appropriate to do the
     mapping at the renderer level (as in the postscript backend), you
     don't need to override any of the GC methods.  If it's more
-    approritate to wrap an instance (as in the GTK backend) and do the
+    appropriate to wrap an instance (as in the GTK backend) and do the
     mapping here, you'll need to override several of the setter
     methods.
     """
