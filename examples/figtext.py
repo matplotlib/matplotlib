@@ -14,8 +14,8 @@ subplot(121)
 plot(t1, f(t1), 'bo', t2, f(t2), 'k')
 title('subplot 1')
 ylabel('Damped oscillation')
-figtitle = 'Figure Title: this is really, really, silly, and really, really long'
-t = gcf().text(0.9, 0.95, figtitle,
+figtitle = 'This is a somehwhat long figure title'
+t = gcf().text(0.5, 0.95, figtitle,
                horizontalalignment='center', fontsize=20,)
 
 
@@ -25,6 +25,6 @@ xlabel('time (s)')
 title('subplot 2')
 ylabel('Undamped')
 
-#savefig('figtext', dpi=150)
+savefig('figtext')
 show()
 
