@@ -201,7 +201,7 @@
 
 -- DONE 2004-02-15 font manager for paint and agg
 
--- website docs for agg - eg, backends.html#Agg
+-- DONE - website docs for agg - eg, backends.html#Agg
 
 -- build win installer for paint, agg, gd, matplotlib-0.50
 
@@ -218,4 +218,5 @@
 
 -- table doesn't update on interactive
 
--- update fonts page with TTFPATH and info on how to use win32 fonts.
+-- DONE update fonts page with TTFPATH and info on how to use win32 fonts.
+
