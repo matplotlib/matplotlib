@@ -282,7 +282,7 @@ class FigureManagerTkAgg(FigureManagerBase):
 
         _focus = windowing.FocusManager()
         self.window.deiconify()
-        self.canvas.draw()
+        #self.canvas.draw()
         self._shown = True
         
     def add_subplot(self, *args, **kwargs):
