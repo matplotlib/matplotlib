@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 # print png to standard out
 # usage: python print_stdout.py > somefile.png
 import sys

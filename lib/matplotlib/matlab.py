@@ -304,6 +304,60 @@ def raise_msg_to_str(msg):
 
 #----- Now we get started with the matlab commands  ----#
 
+
+# wrap the plot commands defined in axes
+__fmt = """\
+def %s(*args, **kwargs):
+    try:
+        ret =  gca().%s(*args, **kwargs)
+    except ValueError, msg:
+        msg = raise_msg_to_str(msg)
+        error_msg(msg)
+    else:
+        draw_if_interactive()
+        return ret
+%s.__doc__ = Axes.%s.__doc__
+"""
+
+# these methods are all simple wrappers of Axes methods by the same
+# name.  We'll autogenerate these to avoid some of the boilerplate
+# using the fmt string above.
+_methods = (
+    'axhline',
+    'axhspan',
+    'axvline',
+    'axvspan',
+    'bar',
+    'barh',
+    'cla',
+    'cohere',
+    'csd',
+    'errorbar',
+    'fill',
+    'grid',
+    'hist',
+    'hlines',
+    'legend',
+    'loglog',
+    'pcolor',
+    'pcolor_classic',
+    'plot',
+    'plot_date',
+    'psd',
+    'scatter',
+    'scatter_classic',
+    'semilogx',
+    'semilogy',
+    'stem',
+    'table',
+    'text',
+    'vlines',
+    )
+
+for name in _methods:
+    exec(__fmt%(name, name, name, name))
+
+
 def axis(*v):
     """\
 Set/Get the axis properties::
@@ -358,7 +412,7 @@ Set/Get the axis properties::
     
 def axes(*args, **kwargs):
     """
-Add an axes at positon rect specified by::
+    Add an axes at positon rect specified by::
 
     axes() by itself creates a default full subplot(111) window axis
 
@@ -368,8 +422,6 @@ Add an axes at positon rect specified by::
 
     axes(h) where h is an axes instance makes h the
     current axis An Axes instance is returned
-
-
     """
 
     nargs = len(args)
@@ -389,25 +441,6 @@ Add an axes at positon rect specified by::
     draw_if_interactive()
     return ret
 
-def bar(*args, **kwargs):
-    try: patches =  gca().bar(*args, **kwargs)
-    except Exception, msg:
-        s = exception_to_str(msg)
-        error_msg(s)
-        raise RuntimeError(msg)
-    draw_if_interactive()
-    return patches
-bar.__doc__ = Axes.bar.__doc__
-
-def barh(*args, **kwargs):
-    try: patches =  gca().barh(*args, **kwargs)
-    except Exception, msg:
-        s = exception_to_str(msg)
-        error_msg(s)
-        raise RuntimeError(msg)
-    draw_if_interactive()
-    return patches
-barh.__doc__ = Axes.barh.__doc__
 
 def _get_target_images(target=None):
     if target is None:
@@ -485,23 +518,7 @@ def close(*args):
 
 
 
-def errorbar(*args, **kwargs):
-    try: ret =  gca().errorbar(*args, **kwargs)
-    except ValueError, msg:
-        msg = raise_msg_to_str(msg)
-        error_msg(msg)
-    else:
-        draw_if_interactive()
-        return ret
-errorbar.__doc__ = Axes.errorbar.__doc__
-    
-def cla():
-    """
-    Clear the current axes
-    """
-    gca().cla()
-    draw_if_interactive()
-    
+
 def clf():
     """
     Clear the current figure
@@ -559,70 +576,6 @@ def colorbar(tickfmt='%1.1f'):
     axes(ax)
     return cax
 
-def cohere(x, y, NFFT=256, Fs=2, detrend=mlab.detrend_none,
-           window=mlab.window_hanning, noverlap=0):
-    """
-    Compute the coherence between x and y.  Coherence is the
-    normalized cross spectral density
-
-    Cxy = |Pxy|^2/(Pxx*Pyy)
-
-    The return value is (Cxy, f), where f are the frequencies of the
-    coherence vector.  See the docs for psd and csd for information
-    about the function arguments NFFT, detrend, windowm noverlap, as
-    well as the methods used to compute Pxy, Pxx and Pyy.
-
-    Returns the tuple Cxy, freqs
-
-    Refs:
-      Bendat & Piersol -- Random Data: Analysis and Measurement
-        Procedures, John Wiley & Sons (1986)
-
-    """
-
-    try: ret =  gca().cohere(x, y, NFFT, Fs, detrend, window, noverlap)
-    except ValueError, msg:
-        msg = raise_msg_to_str(msg)
-        error_msg(msg)
-    else:
-        draw_if_interactive()
-        return ret
-
-
-def csd(x, y, NFFT=256, Fs=2, detrend=mlab.detrend_none,
-        window=mlab.window_hanning, noverlap=0):
-    """
-    The cross spectral density Pxy by Welches average periodogram
-    method.  The vectors x and y are divided into NFFT length
-    segments.  Each segment is detrended by function detrend and
-    windowed by function window.  noverlap gives the length of the
-    overlap between segments.  The product of the direct FFTs of x and
-    y are averaged over each segment to compute Pxy, with a scaling to
-    correct for power loss due to windowing.  Fs is the sampling
-    frequency.
-
-    NFFT must be a power of 2
-
-    detrend and window are functions, unlike in matlab where they are
-    vectors.  For detrending you can use detrend_none, detrend_mean,
-    detrend_linear or a custom function.  For windowing, you can use
-    window_none, window_hanning, or a custom function
-
-    Returns the tuple Pxy, freqs.  Pxy is the cross spectrum (complex
-    valued), and 10*log10(|Pxy|) is plotted
-
-    Refs:
-      Bendat & Piersol -- Random Data: Analysis and Measurement
-        Procedures, John Wiley & Sons (1986)
-
-    """
-    try: ret =  gca().csd(x, y, NFFT, Fs, detrend, window, noverlap)
-    except ValueError, msg:
-        msg = raise_msg_to_str(msg)
-        error_msg(msg)
-    else:
-        draw_if_interactive()
-        return ret
 
 
 def draw():
@@ -630,18 +583,18 @@ def draw():
     get_current_fig_manager().canvas.draw()
     
 def figtext(*args, **kwargs):    
-    try: t =  gcf().text(*args, **kwargs)
+    try: ret =  gcf().text(*args, **kwargs)
     except RuntimeError, msg:
         msg = raise_msg_to_str(msg)
         error_msg(msg)
         raise RuntimeError(msg)
     else:
         draw_if_interactive()
-        return t
+        return ret
 figtext.__doc__ = Figure.text.__doc__
 
 def figimage(*args, **kwargs):    
-    try: im =  gcf().figimage(*args, **kwargs)
+    try: ret =  gcf().figimage(*args, **kwargs)
     except ValueError, msg:
         msg = raise_msg_to_str(msg)
         error_msg(msg)
@@ -651,8 +604,8 @@ def figimage(*args, **kwargs):
         error_msg(msg)
         raise RuntimeError(msg)
     draw_if_interactive()
-    gci._current = im
-    return im
+    gci._current = ret
+    return ret
 figimage.__doc__ = Figure.figimage.__doc__
     
 def figlegend(handles, labels, loc):
@@ -721,56 +674,6 @@ def figure(num=1,
     
     return figManager.canvas.figure
 
-def fill(*args, **kwargs):
-    """
-    plot filled polygons.  *args is a variable length argument,
-    allowing for multiple x,y pairs with an optional color format
-    string.  For example, all of the following are legal, assuming a
-    is the Axis instance:
-
-      fill(x,y)            # plot polygon with vertices at x,y
-      fill(x,y, 'b' )      # plot polygon with vertices at x,y in blue
-
-    An arbitrary number of x, y, color groups can be specified, as in 
-      fill(x1, y1, 'g', x2, y2, 'r')  
-
-    Return value is a list of patches that were added
-
-    The following color strings are supported
-
-      b  : blue
-      g  : green
-      r  : red
-      c  : cyan
-      m  : magenta
-      y  : yellow
-      k  : black 
-      w  : white
-
-    The kwargs that are can be used to set line properties (any
-    property that has a set_* method).  You can use this to set edge
-    color, face color, etc.
-
-    Example code:
-
-    from matplotlib.matlab import *
-    t = arange(0.0, 1.01, 0.01)
-    s = sin(2*2*pi*t)
-
-    fill(t, s, 'r')
-    grid(True)
-    show()
-
-    """
-    try: patch =  gca().fill(*args, **kwargs)
-    except Exception, msg:
-        s = exception_to_str(msg)
-        error_msg(s)
-        raise RuntimeError('Could not exectute fill')
-    draw_if_interactive()
-    return patch
-
-
 def gca():
     """
     Return the current axis instance.  This can be used to control
@@ -822,17 +725,6 @@ def get(o, s):
     """
     func = 'o.get_%s()' % s
     return eval(func, {}, {'o': o})
-    
-
-def grid(b=None):
-    """
-    Set the figure grid to be on or off (b is a boolean)
-
-    if b is None, toggle the grid state
-    """
-    
-    gca().grid(b)
-    draw_if_interactive()
 
 def gray():
     'set the default colormap to gray and apply to current image if any'
@@ -850,42 +742,6 @@ def jet():
         im.set_cmap(cm.jet)
     draw_if_interactive()
     
-def hist(x, bins=10, noplot=0, normed=0, bottom=0):
-    """
-    Compute the histogram of x.  bins is either an integer number of
-    bins or a sequence giving the bins.  x are the data to be binned.
-
-    if noplot is True, just compute the histogram and return the
-    number of observations and the bins as an (n, bins) tuple.
-
-    If noplot is False, compute the histogram and plot it, returning
-    n, bins, patches
-
-    If normed is true, the first element of the return tuple will be the
-    counts normalized to form a probability distribtion, ie,
-    n/(len(x)*dbin)
-    
-
-    To control the properties of the returned patches, you can can
-    call any of the patch methods on those patches; see
-    matplotlib.patches and matplotlib.artist (the base class for
-    patches).  Eg
-
-    n, bins, patches = hist(x, 50, normed=1)
-    set(patches, 'facecolor', 'g', 'alpha', 0.75)
-
-    """
-    if noplot: return mlab.hist(x, bins, normed)
-    else:
-        try:
-            ret = gca().hist(x, bins, normed, bottom)
-        except ValueError, msg:
-            msg = raise_msg_to_str(msg)
-            error_msg(msg)
-            raise RuntimeError, msg
-    draw_if_interactive()
-    return ret
-
     
 def hold(b=None):
     """
@@ -902,25 +758,6 @@ def hold(b=None):
     rc('axes', hold=b)
 
     
-def hlines(*args, **kwargs):    
-    """
-    lines = hlines(self, y, xmin, xmax, fmt='k-')
-
-    plot horizontal lines at each y from xmin to xmax.  xmin or
-    xmax can be scalars or len(x) numpy arrays.  If they are
-    scalars, then the respective values are constant, else the
-    widths of the lines are determined by xmin and xmax
-
-    Returns a list of line instances that were added
-
-    """
-    try: lines =  gca().hlines(*args, **kwargs)
-    except ValueError, msg:
-        msg = raise_msg_to_str(msg)
-        error_msg(msg)
-        raise RuntimeError, msg
-    draw_if_interactive()
-    return lines
 
 def imread(*args, **kwargs):
     return _imread(*args, **kwargs)
@@ -942,62 +779,6 @@ def imshow(*args, **kwargs):
 
     return im
 imshow.__doc__ = Axes.imshow.__doc__
-
-def legend(*args, **kwargs):
-    """
-    Place a legend on the current axes at location loc.  Labels are a
-    sequence of strings and loc can be a string or an integer
-    specifying the legend location
-
-    USAGE: 
-
-      Make a legend with existing lines
-      legend( LABELS )
-      >>> legend( ('label1', 'label2', 'label3') ) 
-
-      Make a legend for Line2D instances lines1, line2, line3
-      legend( LINES, LABELS )
-      >>> legend( (line1, line2, line3), ('label1', 'label2', 'label3') )
-
-      Make a legend at LOC
-      legend( LABELS, LOC )  or
-      legend( LINES, LABELS, LOC )
-      >>> legend( ('label1', 'label2', 'label3'), loc='upper left')
-      >>> legend( (line1, line2, line3),
-                  ('label1', 'label2', 'label3'),
-                  loc=2)
-
-    The LOC location codes are
-
-    The LOC location codes are
-
-      'best' : 0,          (currently not supported, defaults to upper right)
-      'upper right'  : 1,  (default)
-      'upper left'   : 2,
-      'lower left'   : 3,
-      'lower right'  : 4,
-      'right'        : 5,
-      'center left'  : 6,
-      'center right' : 7,
-      'lower center' : 8,
-      'upper center' : 9,
-      'center'       : 10,
-
-    If none of these are suitable, loc can be a 2-tuple giving x,y
-    in axes coords, ie,
-
-      loc = 0, 1 is left top
-      loc = 0.5, 0.5 is center, center
-
-      and so on
-
-
-    The legend instance is returned
-    """
-
-    ret = gca().legend(*args, **kwargs)
-    draw_if_interactive()
-    return ret
 
 def load(fname):
     """
@@ -1044,145 +825,18 @@ def load(fname):
         X.shape = max([r,c]),
     return X
 
-
-    
-            
-
-def loglog(*args, **kwargs):
-    try: ret =  gca().loglog(*args, **kwargs)
+def pcolor(*args, **kwargs):
+    try:
+        ret =  gca().pcolor(*args, **kwargs)
     except ValueError, msg:
         msg = raise_msg_to_str(msg)
         error_msg(msg)
     else:
+        gci._current = ret    
         draw_if_interactive()
         return ret
-loglog.__doc__ = Axes.loglog.__doc__
-
-def pcolor(*args, **kwargs):
-    ret = gca().pcolor(*args, **kwargs)
-    gci._current = ret    
-    draw_if_interactive()
-    return ret
 pcolor.__doc__ = Axes.pcolor.__doc__
 
-def pcolor_classic(*args, **kwargs):
-    """
-    pcolor_classic(C) - make a pseudocolor plot of matrix C
-
-    pcolor_classic(X, Y, C) - a pseudo color plot of C on the matrices X and Y  
-
-    Shading:
-
-      The optional keyword arg shading ('flat' or 'faceted') will
-      determine whether the black grid is drawn around each pcolor
-      square.  Defaul 'faceteted'
-         e.g.,   
-         pcolor_classic(C, shading='flat')  
-         pcolor_classic(X, Y, C, shading='faceted')
-
-    returns a list of patch objects.
-
-
-    pcolor(C, cmap=cm.jet) - make a pseudocolor plot of matrix C using
-    rectangle patches using a colormap jet.  Colormaps are avalible in
-    matplotlib.cm.  You must pass this as a kwarg.
-        
-    pcolor(C, norm=normalize()) - the normalization function used to
-    scale your color data to 0-1.  must be passed as a kwarg.
-    normalization functions are derived from matplotlib.colors.Norm
-
-    pcolor(C, alpha=0.5) - set the alpha of the pseudocolor plot.
-    Must be used as a kwarg
-
-    Note, the behavior of meshgrid in matlab is a bit
-    counterintuitive for x and y arrays.  For example,
-
-      x = arange(7)
-      y = arange(5)
-      X, Y = meshgrid(x,y)
-
-      Z = rand( len(x), len(y))
-      pcolor(X, Y, Z)
-
-    will fail in matlab and matplotlib.  You will probably be
-    happy with
-
-      pcolor_classic(X, Y, transpose(Z))
-
-    Likewise, for nonsquare Z,
-
-      pcolor_classic(transpose(Z))
-
-    will make the x and y axes in the plot agree with the numrows
-    and numcols of Z
-
-    """
-    ret = gca().pcolor_classic(*args, **kwargs)
-    draw_if_interactive()
-    return ret
-
-def plot(*args, **kwargs):
-    try:
-        lines =  gca().plot(*args, **kwargs)
-    except ValueError, msg:
-        msg = raise_msg_to_str(msg)
-        error_msg(msg)
-    else:
-        draw_if_interactive()
-        return lines
-plot.__doc__ = Axes.plot.__doc__
-
-
-def plot_date(*args, **kwargs):
-    try: lines =  gca().plot_date(*args, **kwargs)
-    except ValueError, msg:
-        msg = raise_msg_to_str(msg)
-        error_msg(msg)
-    else:
-        draw_if_interactive()
-        return lines
-plot_date.__doc__ = Axes.plot_date.__doc__
-
-def psd(x, NFFT=256, Fs=2, detrend=mlab.detrend_none,
-        window=mlab.window_hanning, noverlap=0):
-    """
-    The power spectral density by Welches average periodogram method.
-    The vector x is divided into NFFT length segments.  Each segment
-    is detrended by function detrend and windowed by function window.
-    noperlap gives the length of the overlap between segments.  The
-    absolute(fft(segment))**2 of each segment are averaged to compute Pxx,
-    with a scaling to correct for power loss due to windowing.  Fs is
-    the sampling frequency.
-
-    -- NFFT must be a power of 2
-
-    -- detrend and window are functions, unlike in matlab where they
-       are vectors.  For detrending you can use detrend_none,
-       detrend_mean, detrend_linear or a custom function.  For
-       windowing, you can use window_none, window_hanning, or a custom
-       function
-
-    -- if length x < NFFT, it will be zero padded to NFFT
-    
-
-    Returns the tuple Pxx, freqs
-
-    For plotting, the power is plotted as 10*log10(pxx)) for decibels,
-    though pxx itself is returned
-    
-    Refs:
-      Bendat & Piersol -- Random Data: Analysis and Measurement
-        Procedures, John Wiley & Sons (1986)
-
-    """
-    try: ret =  gca().psd(x, NFFT, Fs, detrend, window, noverlap)
-    except ValueError, msg:
-        msg = raise_msg_to_str(msg)
-        error_msg(msg)
-    else:
-        draw_if_interactive()
-        return ret
-    
 
 def rc(*args, **kwargs):
     matplotlib.rc(*args, **kwargs)
@@ -1231,8 +885,9 @@ def save(fname, X, fmt='%1.4f'):
 
 def savefig(*args, **kwargs):
     """
-    def savefig(fname, dpi=150, facecolor='w', edgecolor='w',
-                orientation='portrait'):
+    SAVEFIG(fname, dpi=150, facecolor='w', edgecolor='w',
+            orientation='portrait'):
+
     Save the current figure to filename fname.  dpi is the resolution
     in dots per inch.
 
@@ -1251,62 +906,7 @@ def savefig(*args, **kwargs):
     manager = get_current_fig_manager()
     manager.canvas.print_figure(*args, **kwargs)
 
-def scatter(*args, **kwargs):
-    try: coll =  gca().scatter(*args, **kwargs)
-    except ValueError, msg:
-        msg = raise_msg_to_str(msg)
-        error_msg(msg)
-        raise RuntimeError, msg
-    
-    draw_if_interactive()
-    gci._current = coll
-    return coll
-scatter.__doc__ = Axes.scatter.__doc__
 
-def scatter_classic(*args, **kwargs):
-    """
-
-    scatter_classic(self, x, y, s=None, c='b'):
-
-    Make a scatter plot of x versus y.  s is a size (in data
-    coords) and can be either a scalar or an array of the same
-    length as x or y.  c is a color and can be a single color
-    format string or an length(x) array of intensities which will
-    be mapped by the colormap jet.        
-
-    If size is None a default size will be used
-    """
-
-    try: patches =  gca().scatter_classic(*args, **kwargs)
-    except ValueError, msg:
-        msg = raise_msg_to_str(msg)
-        error_msg(msg)
-        raise RuntimeError, msg
-    draw_if_interactive()
-    return patches
-
-
-
-def semilogx(*args, **kwargs):
-
-    try: ret =  gca().semilogx(*args, **kwargs)
-    except ValueError, msg:
-        msg = raise_msg_to_str(msg)
-        error_msg(msg)
-    else:
-        draw_if_interactive()
-        return ret
-semilogx.__doc__ = Axes.semilogx.__doc__
-
-def semilogy(*args, **kwargs):
-    try: ret =  gca().semilogy(*args, **kwargs)
-    except ValueError, msg:
-        msg = raise_msg_to_str(msg)
-        error_msg(msg)
-    else:
-        draw_if_interactive()
-        return ret
-semilogy.__doc__ = Axes.semilogy.__doc__        
     
 def set(h, *args, **kwargs):
     """
@@ -1353,9 +953,7 @@ def set(h, *args, **kwargs):
     draw_if_interactive()
     return [x for x in flatten(ret)]
 
-
 def specgram(*args, **kwargs):
-
     try: ret =  gca().specgram(*args, **kwargs)
     except ValueError, msg:
         msg = raise_msg_to_str(msg)
@@ -1366,29 +964,6 @@ def specgram(*args, **kwargs):
         draw_if_interactive()
         return ret
 specgram.__doc__ = Axes.specgram.__doc__
-
-def stem(*args, **kwargs):
-    """
-    stem(x, y, linefmt='b-', markerfmt='bo', basefmt='r-')
-
-    A stem plot plots vertical lines (using linefmt) at each x
-    location from the baseline to y, and places a marker there using
-    markerfmt.  A horizontal line at 0 is is plotted using basefmt
-    
-    return value is markerline, stemlines, baseline
-
-    See
-    http://www.mathworks.com/access/helpdesk/help/techdoc/ref/stem.html
-    for details and examples/stem_plot.py for a demo.
-    """
-    try: ret =  gca().stem(*args, **kwargs)
-    except ValueError, msg:
-        msg = raise_msg_to_str(msg)
-        error_msg(msg)
-    else:
-        draw_if_interactive()
-        return ret
-    
 
 def subplot(*args, **kwargs):
     """
@@ -1421,71 +996,6 @@ def subplot(*args, **kwargs):
     draw_if_interactive()
     return a
 
-def text(x, y, label, fontdict=None, **kwargs):
-    """
-    Add text to axis at location x,y
-
-    fontdict is a dictionary to override the default text properties.
-    If fontdict is None, the default is
-
-      'fontsize'            : 'x-small',
-      'verticalalignment'   : 'bottom',
-      'horizontalalignment' : 'left'
-
-    **kwargs can in turn be used to override the fontdict, as in
-
-      a.text(x,y,label, fontsize='medium')
-
-    This command supplies no override dict, and so will have
-    'verticalalignment'='bottom' and 'horizontalalignment'='left' but
-    the keyword arg 'fontsize' will create a fontsize of medium or 12
-
-    The purpose these options is to make it easy for you to create a
-    default font theme for your plots by creating a single dictionary,
-    and then being able to selective change individual attributes for
-    the varous text creation commands, as in
-
-        fonts = {
-          'color'               : 'k',
-          'fontname'            : 'Courier',
-          'fontweight'          : 'bold'
-          }
-
-        title('My title', fonts, fontsize='medium')
-        xlabel('My xlabel', fonts, fontsize='small')
-        ylabel('My ylabel', fonts, fontsize='small')
-        text(12, 20, 'some text', fonts, fontsize='x-small')
-
-    The Text defaults are
-
-        'color'               : 'k',
-        'fontname'            : 'Sans',
-        'fontsize'            : 'small',
-        'fontweight'          : 'bold',
-        'fontangle'           : 'normal',
-        'horizontalalignment' : 'left'
-        'rotation'            : 'horizontal',
-        'verticalalignment'   : 'bottom',
-        'transx'              : gca().xaxis.transData,
-        'transy'              : gca().yaxis.transData,            
-
-        transx and transy specify that text is in data coords,
-        alternatively, you can specify text in axis coords (0,0 lower
-        left and 1,1 upper right).  The example below places text in
-        the center of the axes
-
-        ax = subplot(111)
-        text(0.5, 0.5,'matplotlib', 
-             horizontalalignment='center',
-             verticalalignment='center',
-             transx = ax.xaxis.transAxis,
-             transy = ax.yaxis.transAxis,
-        )
-
-    """
-    t =  gca().text(x, y, label, fontdict, **kwargs)
-    draw_if_interactive()
-    return t
 
 def title(s, *args, **kwargs):
     """
@@ -1507,25 +1017,6 @@ def title(s, *args, **kwargs):
     return l
 
 
-
-def vlines(*args, **kwargs):    
-    """
-    lines =  vlines(x, ymin, ymax, color='k'):
-
-    Plot vertical lines at each x from ymin to ymax.  ymin or ymax
-    can be scalars or len(x) numpy arrays.  If they are scalars,
-    then the respective values are constant, else the heights of
-    the lines are determined by ymin and ymax
-
-    Returns a list of lines that were added
-    """
-    try: lines =  gca().vlines(*args, **kwargs)
-    except ValueError, msg:
-        msg = raise_msg_to_str(msg)
-        error_msg(msg)
-        raise RuntimeError, msg
-    else:  draw_if_interactive()
-    return lines
 
 def xlabel(s, *args, **kwargs):
     """
@@ -1568,25 +1059,7 @@ def ylabel(s, *args, **kwargs):
     return l
 
 
-def table(*args, **kwargs):
-    """
-    table(cellText=None, cellColours=None,
-          cellLoc='right', colWidths=None,
-          rowLabels=None, rowColours=None, rowLoc='left',
-          colLabels=None, colColours=None, colLoc='center',
-          loc='bottom', bbox=None):
 
-    Add a table to the current axes.  Returns a table instance.  For
-    finer grained control over tables, use the Table class and add it
-    to the axes with add_table.
-
-    Thanks to John Gill for providing the class and table.
-
-    """
-    t = gca().table(*args, **kwargs)
-    draw_if_interactive()
-    return t
-    
 
 
 def xlim(*args, **kwargs):
@@ -1682,145 +1155,4 @@ def yticks(*args, **kwargs):
     draw_if_interactive()
     return locs, labels
 
-def axhline(y=0, xmin=0, xmax=1, **kwargs):
-    """\
-axhline : Axis Horizontal Line
 
-Draw a horizontal line at y from xmin to xmax.  With the default
-values of xmin=0 and xmax=1, this line will always span the horizontal
-extent of the axes, regardless of the xlim settings, even if you
-change them, eg with the xlim command.  That is, the horizontal extent
-is in axes coords: 0=left, 0.5=middle, 1.0=right but the y location is
-in data coordinates.
-
-return value is the Line2D instance.  kwargs are the same as kwargs to
-plot, and can be used to control the line properties.  Eg
-
-  # draw a thick red hline at y=0 that spans the xrange
-  l = axhline(linewidth=4, color='r')
-
-  # draw a default hline at y=1 that spans the xrange
-  l = axhline(y=1)
-
-  # draw a default hline at y=.5 that spans the the middle half of
-  # the xrange
-  l = axhline(y=.5, xmin=0.25, xmax=0.75)
-  ylim(-1,2)
-    """
-    ax = gca()
-    trans = blend_xy_sep_transform( ax.transAxes, ax.transData)
-    
-    l, = ax.plot([xmin,xmax], [y,y], transform=trans, **kwargs)
-    draw_if_interactive()
-    return l
-
-
-def axvline(x=0, ymin=0, ymax=1, **kwargs):
-    """\
-axvline : Axis Vertical Line
-
-Draw a vertical line at x from ymin to ymax.  With the default values
-of ymin=0 and ymax=1, this line will always span the vertical extent
-of the axes, regardless of the xlim settings, even if you change them,
-eg with the xlim command.  That is, the vertical extent is in axes
-coords: 0=bottom, 0.5=middle, 1.0=top but the x location is in data
-coordinates.
-
-return value is the Line2D instance.  kwargs are the same as
-kwargs to plot, and can be used to control the line properties.  Eg
-
-# draw a thick red vline at x=0 that spans the yrange
-l = axvline(linewidth=4, color='r')
-
-# draw a default vline at x=1 that spans the yrange
-l = axvline(x=1)
-
-# draw a default vline at x=.5 that spans the the middle half of
-# the yrange
-l = axvline(x=.5, ymin=0.25, ymax=0.75)
-xlim(-1,2)
-    """
-    ax = gca()
-    trans = blend_xy_sep_transform( ax.transData, ax.transAxes )
-    
-    l, = ax.plot([x,x], [ymin,ymax] , transform=trans, **kwargs)
-    draw_if_interactive()
-    return l
-
-
-def axhspan(ymin, ymax, xmin=0, xmax=1, **kwargs):
-    """\
-axhspan : Axis Horizontal Span.  ycoords are in data units and x
-coords are in axes (relative 0-1) units
-
-Draw a horizontal span (regtangle) from ymin to ymax.  With the
-default values of xmin=0 and xmax=1, this always span the xrange,
-regardless of the xlim settings, even if you change them, eg with the
-xlim command.  That is, the horizontal extent is in axes coords:
-0=left, 0.5=middle, 1.0=right but the y location is in data
-coordinates.
-
-kwargs are the kwargs to Patch, eg
-
-  antialiased, aa
-  linewidth,   lw
-  edgecolor,   ec
-  facecolor,   fc
-
-the terms on the right are aliases
-
-return value is the patches.Polygon instance.
-
-#draws a gray rectangle from y=0.25-0.75 that spans the horizontal
-#extent of the axes
-p = axhspan(0.25, 0.75, facecolor=0.5, alpha=0.5)
-
-
-"""
-    ax = gca()
-    trans = blend_xy_sep_transform( ax.transAxes, ax.transData  )
-    verts = (xmin, ymin), (xmin, ymax), (xmax, ymax), (xmax, ymin)
-
-    p = Polygon(verts, **kwargs)
-    p.set_transform(trans)
-    ax.add_patch(p)
-    draw_if_interactive()
-    return p
-
-
-def axvspan(xmin, xmax, ymin=0, ymax=1, **kwargs):
-    """\
-axvspan : Axis Vertical Span.  xcoords are in data units and y coords
-are in axes (relative 0-1) units
-
-Draw a vertical span (regtangle) from xmin to xmax.  With the default
-values of ymin=0 and ymax=1, this always span the yrange, regardless
-of the ylim settings, even if you change them, eg with the ylim
-command.  That is, the vertical extent is in axes coords: 0=bottom,
-0.5=middle, 1.0=top but the y location is in data coordinates.
-
-kwargs are the kwargs to Patch, eg
-
-  antialiased, aa
-  linewidth,   lw
-  edgecolor,   ec
-  facecolor,   fc
-
-the terms on the right are aliases
-
-return value is the patches.Polygon instance.
-
-# draw a vertical green translucent rectangle from x=1.25 to 1.55 that
-# spans the yrange of the axes
-p = axvspan(1.25, 1.55, facecolor='g', alpha=0.5)
-
-"""
-    ax = gca()
-    trans = blend_xy_sep_transform( ax.transData, ax.transAxes   )
-    verts = (xmin, ymin), (xmin, ymax), (xmax, ymax), (xmax, ymin)
-
-    p = Polygon(verts, **kwargs)
-    p.set_transform(trans)
-    ax.add_patch(p)
-    draw_if_interactive()
-    return p
