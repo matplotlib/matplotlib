@@ -892,7 +892,7 @@ def imread(*args, **kwargs):
 imread.__doc__ = _imread.__doc__
 
 
-def load(fname):
+def load(fname,comments='%'):
     """
     Load ASCII data from fname into an array and return the array.
 
@@ -911,6 +911,9 @@ def load(fname):
 
     x = load('test.dat')    # a single column of data
 
+    comments is the character used to indicate the start of a comment
+    in the file
+
     """
 
     if is_string_like(fname):
@@ -919,16 +922,16 @@ def load(fname):
         fh = fname
     else:
         raise ValueError('fname must be a string or file handle')
-    
-    X = []
+     X = []
     numCols = None
     for line in fh:
-        line = line[:line.find('%')].strip()
+        line = line[:line.find(comments)].strip()
         if not len(line): continue
         row = [float(val) for val in line.split()]
         thisLen = len(row)
         if numCols is not None and thisLen != numCols:
-            raise ValueError('All rows must have the same number of columns')
+            raise ValueError('All rows must have the same number of
+columns')
         X.append(row)
 
     X = array(X)

@@ -1,5 +1,14 @@
 New entries should be added at the top
 
+2005-01-27 Added Lee's patch for missing symbols \leq and \LEFTbracket
+           to _mathtext_data - JDH
+
+2005-01-26 Added Baptiste's two scales patch -- see help(twin) in the
+           pylab interface for more info.  See also
+           examples/two_scales.py
+
+2005-01-24 Fixed a mathtext parser bug that prevented font changes in
+           sub/superscripts - JDH
 
 2005-01-24 Fixed contour wto work w/ interactive changes in colormaps,
            clim, etc - JDH

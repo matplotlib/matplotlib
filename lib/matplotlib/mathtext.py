@@ -956,25 +956,30 @@ subscript = Forward().setParseAction(handler.subscript).setName("subscript")
 superscript = Forward().setParseAction(handler.superscript).setName("superscript")
 subsuperscript = Forward().setParseAction(handler.subsuperscript).setName("subsuperscript")
 
+font = Forward().setParseAction(handler.font).setName("font")
 
-group = Group( lbrace + OneOrMore(symbol^subscript^superscript^subsuperscript^space) + rbrace).setParseAction(handler.group).setName("group")
+
+group = Group( lbrace + OneOrMore(symbol^subscript^superscript^subsuperscript^space^font) + rbrace).setParseAction(handler.group).setName("group")
 #~ group = Group( lbrace + OneOrMore(subsuperscript | subscript | superscript | symbol | space ) + rbrace).setParseAction(handler.group).setName("group")
 
 #composite = Group( Combine(bslash + composite) + lbrace + symbol + rbrace + lbrace + symbol + rbrace).setParseAction(handler.composite).setName("composite")
 #~ composite = Group( Combine(bslash + composite) + group + group).setParseAction(handler.composite).setName("composite")
 composite = Group( Combine(bslash + overUnder) + group + group).setParseAction(handler.composite).setName("composite")
 
+
+
 accent = Group( Combine(bslash + accent) + Optional(lbrace) + symbol + Optional(rbrace)).setParseAction(handler.accent).setName("accent")
 
-#~ symgroup = symbol ^ group
-symgroup = symbol | group
+
+symgroup = font ^ group ^ symbol 
 
 subscript << Group( Optional(symgroup) + Literal('_') + symgroup  )
 superscript << Group( Optional(symgroup) + Literal('^') + symgroup  )
 subsuperscript << Group( symgroup + Literal('_') + symgroup + Literal('^') + symgroup  )
 
+font << Group( Combine(bslash + fontname) + group)
 
-font = Group( Combine(bslash + fontname) + group).setParseAction(handler.font).setName("font")
+
 
 expression = OneOrMore(
     space ^ font ^ accent ^ symbol ^ subscript ^ superscript ^ subsuperscript ^ group ^ composite  ).setParseAction(handler.expression).setName("expression")
