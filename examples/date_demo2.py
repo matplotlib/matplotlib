@@ -28,7 +28,7 @@ dates = [q[0] for q in quotes]
 opens = [q[1] for q in quotes]
 
 ax = subplot(111)
-plot_date(dates, opens)
+plot_date(dates, opens, '-')
 ax.xaxis.set_major_locator(months)
 ax.xaxis.set_major_formatter(monthsFmt)
 ax.xaxis.set_minor_locator(mondays)
