@@ -107,7 +107,6 @@ ACCEPTS: float
         cm.ScalarMappable.changed(self)
 
     def make_image(self, flipy):
-
         if self._A is not None:
             if self._imcache is None:
                 x = self.to_rgba(self._A, self._alpha)
@@ -139,7 +138,7 @@ ACCEPTS: float
         # the viewport scale factor
         sx = dxintv/self.axes.viewLim.width()
         sy = dyintv/self.axes.viewLim.height()
-
+            
         if im.get_interpolation()!=_image.NEAREST:
             im.apply_translation(-1, -1)
 
