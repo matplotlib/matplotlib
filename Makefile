@@ -2,6 +2,9 @@
 # Copyright (C) 2003  <jdhunter@ace.bsd.uchicago.edu>
 # $Header$
 # $Log$
+# Revision 1.31  2004/05/04 20:39:16  jdh2358
+# fixed makefile and some text bugs
+#
 # Revision 1.30  2004/04/26 19:41:47  barrett
 # Added a line to the htmldocs section to create the license.html.template file with the appropriate version number.
 #
@@ -119,7 +122,6 @@ pyback:
 	tar cvfz pyback.tar.gz *.py matplotlib/*.py examples/*.py matplotlib/backends/*.py unit/*.py
 
 htmldocs: 
-
 	cp examples/*.py htdocs/examples;\
 	cp .matplotlibrc NUMARRAY_ISSUES API_CHANGES htdocs/;\
 	${PYTHON} license.py ${VERSION} htdocs/license.html.template;\
@@ -128,4 +130,5 @@ htmldocs:
 	${PYTHON} convert.py;\
 	tar cfz site.tar.gz *.html screenshots tut examples gd .matplotlibrc NUMARRAY_ISSUES  API_CHANGES;\
 	cd ..;\
-	cp -a matplotlib htdocs/;
+	cp -a matplotlib htdocs
+

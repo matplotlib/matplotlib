@@ -367,6 +367,7 @@ RendererAgg::draw_text(const Py::Tuple& args) {
   pixfmt::color_type p;
   p.r = int(255*r); p.b = int(255*b); p.g = int(255*g); p.a = int(255*a);
   
+  y = y-font->image.height;
   for (size_t i=0; i<font->image.width; ++i) {
     for (size_t j=0; j<font->image.height; ++j) {
       if (i+x>=width)  continue;
