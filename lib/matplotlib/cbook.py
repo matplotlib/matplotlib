@@ -411,3 +411,14 @@ if __name__=='__main__':
     assert( not allequal(('a', 'b')))    
 
 
+def popd(d, *args):
+    if len(args)==1:
+        key = args[0]
+        val = d[key]
+        del d[key]
+    elif len(args)==2:
+        key, default = args
+        val = d.get(key, default)
+        try: del d[key]
+        except KeyError: pass
+    return val

@@ -1,5 +1,8 @@
 New entries should be added at the top
 
+2004-11-25 Added Printf to mplutils for printf style format string
+           formatting in C++ (should help write better exceptions)
+
 2004-11-24 IMAGE_FORMAT: remove from agg and gtkagg backends as its no longer
            used - SC
 
