@@ -305,17 +305,20 @@ def raise_msg_to_str(msg):
 #----- Now we get started with the matlab commands  ----#
 
 def axis(*v):
-    """
-    axis() returns the current axis as a length a length 4 vector
+    """\
+Set/Get the axis properties::
 
-    axis(v) where v= [xmin xmax ymin ymax] sets the min and max of the
-    x and y axis limits
+    axis()  returns the current axis as a length a length 4 vector
+
+    axis(v) where v = [xmin, xmax, ymin, ymax] sets the min and max of the x
+        and y axis limits
 
     axis('off') turns off the axis lines and labels
 
     axis('equal') sets the xlim width and ylim height to be to be
-    identical.  The longer of the two intervals is chosen
-    """
+        identical.  The longer of the two intervals is chosen
+ 
+"""
     
     if len(v)==1 and is_string_like(v[0]):
         s = v[0]
@@ -355,26 +358,18 @@ def axis(*v):
     
 def axes(*args, **kwargs):
     """
-    Add an axis at positon rect specified by
+Add an axes at positon rect specified by::
 
-      axes() by itself creates a default full subplot(111) window axis
+    axes() by itself creates a default full subplot(111) window axis
 
-      axes(rect, axisbg='w') where rect=[left, bottom, width, height]
-        in normalized (0,1) units.  axisbg is the background color for
-        the axis, default white
+    axes(rect, axisbg='w') where rect=[left, bottom, width, height] in
+    normalized (0,1) units.  axisbg is the background color for the
+    axis, default white
 
-      axes(h) where h is an axes instance makes h the
-        current axis An Axes instance is returned
+    axes(h) where h is an axes instance makes h the
+    current axis An Axes instance is returned
 
-    axisbg is a color format string which sets the background color of
-    the axes
 
-    If axisbg is a length 1 string, assume it's a color format string
-    (see plot for legal color strings).  If it is a length 7 string,
-    assume it's a hex color string, as used in html, eg, '#eeefff'.
-    If it is a len(3) tuple, assume it's an rgb value where r,g,b in
-    [0,1].
-    
     """
 
     nargs = len(args)
@@ -1701,16 +1696,16 @@ in data coordinates.
 return value is the Line2D instance.  kwargs are the same as kwargs to
 plot, and can be used to control the line properties.  Eg
 
-# draw a thick red hline at y=0 that spans the xrange
-l = axhline(linewidth=4, color='r')
+  # draw a thick red hline at y=0 that spans the xrange
+  l = axhline(linewidth=4, color='r')
 
-# draw a default hline at y=1 that spans the xrange
-l = axhline(y=1)
+  # draw a default hline at y=1 that spans the xrange
+  l = axhline(y=1)
 
-# draw a default hline at y=.5 that spans the the middle half of
-# the xrange
-l = axhline(y=.5, xmin=0.25, xmax=0.75)
-ylim(-1,2)
+  # draw a default hline at y=.5 that spans the the middle half of
+  # the xrange
+  l = axhline(y=.5, xmin=0.25, xmax=0.75)
+  ylim(-1,2)
     """
     ax = gca()
     trans = blend_xy_sep_transform( ax.transAxes, ax.transData)

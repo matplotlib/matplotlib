@@ -11,11 +11,19 @@ need to see in normal figure creation, like instantiating DPI
 instances, managing the bounding boxes of the figure elements,
 creating and reaslizing GUI windows and embedding figures in them.
 
+
 If you are an application developer and want to embed matplotlib in
 your application, follow the lead of examples/embedding_in_wx.py,
 examples/embedding_in_gtk.py or examples/embedding_in_tk.py.  In this
 case you will want to control the creation of all your figures,
 embedding them in application windows, etc.
+
+If you are a web application developer, you may want to use the
+example in webapp_demo.py, which shows how to use the backend agg
+figure canvase directly, with none of the globals (current figure,
+current axes) that are present in the matlab interface.  Note that
+there is no reason why the matlab interface won't work for web
+application developers, however.
 
 If you see an example in the examples dir written in matlab interface,
 and you want to emulate that using the true python method calls, there
