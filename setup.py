@@ -120,7 +120,7 @@ if havedate: # dates require python23 datetime
 
 
 build_transforms(ext_modules, packages, NUMERIX)
-    
+
 if BUILD_GTKAGG:
     try:
         import gtk
