@@ -1,5 +1,7 @@
 New entries should be added at the top
 
+2004-11-23 backend_gtk.py: added a default exception handler
+
 2004-11-18 backend_gtk.py: change so that the backend knows about all image
            formats and does not need to use IMAGE_FORMAT in other backends - SC
 
