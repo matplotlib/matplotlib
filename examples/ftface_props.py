@@ -5,9 +5,11 @@ FT2Font object.  These describe global font properties.  For
 individual character metrices, use the Glyp object, as returned by
 load_char
 """
+import matplotlib
 from matplotlib.ft2font import FT2Font
 
-fname = '/usr/local/share/matplotlib/VeraIt.ttf'
+#fname = '/usr/local/share/matplotlib/VeraIt.ttf'
+fname = matplotlib.get_data_path() + '/VeraIt.ttf'
 #fname = '/usr/local/share/matplotlib/cmr10.ttf'
 
 font = FT2Font(fname)
