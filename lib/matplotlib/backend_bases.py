@@ -350,9 +350,34 @@ class GraphicsContextBase:
         self._antialiased = 1  # use 0,1 not True, False for extension code
         self._alpha = 1.0
     
+    def copy_properties(self, gc):
+        'Copy properties from gc to self'
+        self._rgb = gc._rgb
+        self._linewidth = gc._linewidth
+        self._capstyle = gc._capstyle
+        self._joinstyle = gc._joinstyle
+        self._linestyle = gc._linestyle
+        self._dashes = gc._dashes
+        self._cliprect = gc._cliprect
+        self._antialiased = gc._antialiased
+        self._alpha = gc._alpha
+        
+    def get_alpha(self):
+        """
+        Return the alpha value used for blending - not supported on
+        all backends
+        """
+        return self._alpha
+
     def get_antialiased(self):
-        "Return true if the object shuold try to do antialiased rendering"
+        "Return true if the object should try to do antialiased rendering"
         return self._antialiased
+
+    def get_capstyle(self):
+        """
+        Return the capstyle as a string in ('butt', 'round', 'projecting')
+        """
+        return self._capstyle
 
     def get_clip_rectangle(self):
         """
@@ -370,19 +395,6 @@ class GraphicsContextBase:
         """
         return self._dashes
 
-    def get_alpha(self):
-        """
-        Return the alpha value used for blending - not supported on
-        all backends
-        """
-        return self._alpha
-
-    def get_capstyle(self):
-        """
-        Return the capstyle as a string in ('butt', 'round', 'projecting')
-        """
-        return self._capstyle
-
     def get_joinstyle(self):
         """
         Return the line join style as one of ('miter', 'round', 'bevel')
@@ -396,12 +408,25 @@ class GraphicsContextBase:
         """
         return self._linestyle
 
+    def get_linewidth(self):
+        """
+        Return the line width in points as a scalar
+        """
+        return self._linewidth
+
     def get_rgb(self):
         """
         returns a tuple of three floats from 0-1.  color can be a
         matlab format string, a html hex color string, or a rgb tuple
         """
         return self._rgb
+
+    def set_alpha(self, alpha):
+        """
+        Set the alpha value used for blending - not supported on
+        all backends
+        """
+        self._alpha = alpha
 
     def set_antialiased(self, b):
         """
@@ -412,32 +437,19 @@ class GraphicsContextBase:
         if b: self._antialiased = 1
         else: self._antialiased = 0
 
+    def set_capstyle(self, cs):
+        """
+        Set the capstyle as a string in ('butt', 'round', 'projecting')
+        """
+        if cs not in ('butt', 'round', 'projecting'):
+            error_msg('Unrecognized cap style.  Found %s' % cs)
+        self._capstyle = cs
+
     def set_clip_rectangle(self, rectangle):
         """
         Set the clip rectangle with sequence (left, bottom, width, height)
         """
         self._cliprect = rectangle
-
-
-
-    def set_alpha(self, alpha):
-        """
-        Set the alpha value used for blending - not supported on
-        all backends
-        """
-        self._alpha = alpha
-
-    def set_linestyle(self, style):
-        """
-        Set the linestyle to be one of ('solid', 'dashed', 'dashdot',
-        'dotted').  
-        """
-        if style not in ('solid', 'dashed', 'dashdot', 'dotted'):
-            error_msg('Unrecognized linestyle.  Found %s' % js)
-            return
-        self._linestyle = style
-        offset, dashes = self._dashd[style]
-        self.set_dashes(offset, dashes)
 
     def set_dashes(self, dash_offset, dash_list):
         """
@@ -468,21 +480,6 @@ class GraphicsContextBase:
         """
         self._rgb = (frac, frac, frac)
         
-
-    def set_linewidth(self, w):
-        """
-        Set the linewidth in points
-        """
-        self._linewidth = w
-
-    def set_capstyle(self, cs):
-        """
-        Set the capstyle as a string in ('butt', 'round', 'projecting')
-        """
-        if cs not in ('butt', 'round', 'projecting'):
-            error_msg('Unrecognized cap style.  Found %s' % cs)
-        self._capstyle = cs
-
     def set_joinstyle(self, js):
         """
         Set the join style to be one of ('miter', 'round', 'bevel')
@@ -492,25 +489,24 @@ class GraphicsContextBase:
             error_msg('Unrecognized join style.  Found %s' % js)
         self._joinstyle = js
 
-
-    def get_linewidth(self):
+    def set_linewidth(self, w):
         """
-        Return the line width in points as a scalar
+        Set the linewidth in points
         """
-        return self._linewidth
+        self._linewidth = w
 
-    def copy_properties(self, gc):
-        'Copy properties from gc to self'
-        self._rgb = gc._rgb
-        self._linewidth = gc._linewidth
-        self._capstyle = gc._capstyle
-        self._joinstyle = gc._joinstyle
-        self._linestyle = gc._linestyle
-        self._dashes = gc._dashes
-        self._cliprect = gc._cliprect
-        self._antialiased = gc._antialiased
-        self._alpha = gc._alpha
-        
+    def set_linestyle(self, style):
+        """
+        Set the linestyle to be one of ('solid', 'dashed', 'dashdot',
+        'dotted').  
+        """
+        if style not in ('solid', 'dashed', 'dashdot', 'dotted'):
+            error_msg('Unrecognized linestyle: %s' % style)
+            return
+        self._linestyle = style
+        offset, dashes = self._dashd[style]
+        self.set_dashes(offset, dashes)
+
 
 class MplEvent:
     """
