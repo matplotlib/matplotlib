@@ -6,7 +6,8 @@ def _fn_name(): return sys._getframe(1).f_code.co_name
 
 try:
     import pygtk
-    pygtk.require('2.0')
+    if not hasattr(sys, 'frozen'): # py2exe and pygtk.require() do not work together
+        pygtk.require('2.0')
 except:
     print >> sys.stderr, sys.exc_info()[1] # can't use verbose(), until its imported!
     raise SystemExit('PyGTK version 1.99.16 or greater is required to run the GTK Matplotlib backends')
