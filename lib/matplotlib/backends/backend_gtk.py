@@ -6,7 +6,7 @@ try:
     import pygtk
     pygtk.require('2.0')
 except:
-    print sys.exc_info()[1]
+    print >> sys.stderr, sys.exc_info()[1] # can't use verbose(), until its loaded!
     raise SystemExit('PyGTK version 1.99.16 or greater is required to run the GTK/GTKAgg Matplotlib backend')
 
 import gobject
@@ -38,7 +38,7 @@ from matplotlib.figure import Figure
 
 try: from matplotlib.mathtext import math_parse_s_ft2font
 except ImportError:
-    print >>sys.stderr, 'backend_gtk could not import mathtext (build with ft2font)'
+    verbose.report_error('backend_gtk could not import mathtext (build with ft2font)')
     useMathText = False
 else: useMathText = True
 
@@ -177,8 +177,6 @@ class RendererGTK(RendererBase):
         is the distance from top.  If origin is lower, y is the
         distance from bottom
         """
-        #print 'draw_image'
-
         if bbox is not None:
             l,b,w,h = bbox.get_bounds()
             #rectangle = (int(l), self.height-int(b+h),
@@ -199,7 +197,7 @@ class RendererGTK(RendererBase):
         except AttributeError:
             pa = pb.pixel_array
         except RuntimeError, exc: #  pygtk was not compiled with Numeric Python support
-            print >>sys.stderr, 'Error:', exc
+            verbose.report_error('Error: %s' % exc)
             return
 
         pa[:,:,:] = X
@@ -255,7 +253,7 @@ class RendererGTK(RendererBase):
         self.gdkDrawable.draw_polygon(gc.gdkGC, False, points)
 
 
-    def draw_rectangle(self, gc, rgbFace, x, y, width, height):
+    def draw_rectangle(self, gcEdge, rgbFace, x, y, width, height):
         """
         Draw a rectangle at lower left x,y with width and height
         If filled=True, fill the rectangle with the gc foreground
@@ -267,13 +265,13 @@ class RendererGTK(RendererBase):
 
 
         if rgbFace is not None:
-            edgecolor = gc.gdkGC.foreground
+            edgecolor = gcEdge.gdkGC.foreground
             facecolor = colorManager.get_color(rgbFace)
-            gc.gdkGC.foreground = facecolor
-            self.gdkDrawable.draw_rectangle(gc.gdkGC, True, x, y, w, h)
-            gc.gdkGC.foreground = edgecolor
+            gcEdge.gdkGC.foreground = facecolor
+            self.gdkDrawable.draw_rectangle(gcEdge.gdkGC, True, x, y, w, h)
+            gcEdge.gdkGC.foreground = edgecolor
             
-        self.gdkDrawable.draw_rectangle(gc.gdkGC, False, x, y, w, h)
+        self.gdkDrawable.draw_rectangle(gcEdge.gdkGC, False, x, y, w, h)
 
 
     def draw_text(self, gc, x, y, s, prop, angle, ismath):
@@ -387,7 +385,7 @@ class RendererGTK(RendererBase):
                                   visual=gdrawable.get_visual(),
                                   width=w, height=h)
         if imageFlip is None or imageBack is None or imageVert is None:
-            print >> sys.stderr, "Could not renderer vertical text", s
+            verbose.report_error("Could not renderer vertical text", s)
             return
         imageFlip.set_colormap(gdrawable.get_colormap())
         for i in range(w):
@@ -637,13 +635,16 @@ class FigureCanvasGTK(gtk.DrawingArea, FigureCanvasBase):
         
         self.set_flags(gtk.CAN_FOCUS)
         self.grab_focus()
-        # self.pixmap_width, self.pixmap_height = -1, -1 
         self._isRealized = False
         self._gpixmap    = None
         self._doplot     = True
         self._printQued  = []
-        self._idleID     = 0    # used in gtkagg
-        self._new_pixmap = True
+        self._idleID     = 0        # used in gtkAgg
+        
+        self._pixmap        = None  # *_pixmap* used by gtkCairo
+        self._new_pixmap    = True
+        self._pixmap_width  = -1
+        self._pixmap_height = -1
 
         self._button = None  # the button pressed
         self._key = None     # the key pressed
