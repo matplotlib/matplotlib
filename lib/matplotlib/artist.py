@@ -27,6 +27,7 @@ class Artist:
     """
 
     aname = 'Artist'
+    zlevel = 0
     def __init__(self):
 
         self.figure = None
@@ -147,4 +148,14 @@ Set the line label to s for auto legend
 ACCEPTS: any string
 """
         self._label = s
+
+    def get_zlevel(self): return self.zlevel
+
+    def set_zlevel(self, level):
+        """
+Set the zlevel for the artist
+
+ACCEPTS: any number
+"""
+        self.zlevel = level
     

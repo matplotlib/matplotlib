@@ -15,7 +15,7 @@ class Patch(Artist):
     None, they default to their rc params setting
 
     """
-    
+    zlevel = 1
     def __init__(self,
                  edgecolor=None,   
                  facecolor=None,

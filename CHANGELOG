@@ -1,5 +1,10 @@
 New entries should be added at the top
 
+2004-12-10 Added zlevel to artists to control drawing order of lines,
+           patches and text in axes.  See examples/zlevel_demo.py - JDH
+
+2004-12-10 Fixed colorbar bug with scatter - JDH
+
 2004-12-10 Added Nadia Dencheva <dencheva@stsci.edu> contour code - JDH
 
 2004-12-10 backend_cairo.py: got mathtext working - SC
