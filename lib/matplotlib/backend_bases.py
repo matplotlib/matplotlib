@@ -1080,20 +1080,20 @@ class NavigationToolbar2:
 
         # zoom to rect
         lastx, lasty = a.transData.inverse_xy_tup( (lastx, lasty) )
-        x, y = a.transData.inverse_xy_tup( (x, y) )            
+        x, y = a.transData.inverse_xy_tup( (x, y) )  
+        Xmin,Xmax=a.get_xlim()
+        Ymin,Ymax=a.get_ylim()          
 
-        if x<lastx:  xmin, xmax = x, lastx
+        if (x<lastx and Xmin<Xmax) or (x>lastx and Xmin>Xmax):  xmin, xmax = x, lastx
         else: xmin, xmax = lastx, x
 
-        if y<lasty:  ymin, ymax = y, lasty
+        if (y<lasty and Ymin<Ymax) or (y>lasty and Ymin>Ymax):  ymin, ymax = y, lasty
         else: ymin, ymax = lasty, y
 
         if self._button_pressed == 1:  
             a.set_xlim((xmin, xmax))
             a.set_ylim((ymin, ymax))
         elif self._button_pressed == 3: 
-            Xmin,Xmax=a.get_xlim()
-            Ymin,Ymax=a.get_ylim()
             if a.get_xscale()=='log':
                 alpha=log(Xmax/Xmin)/log(xmax/xmin)
                 x1=pow(Xmin/xmin,alpha)*Xmin

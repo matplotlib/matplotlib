@@ -353,7 +353,7 @@ ACCEPTS: any matplotlib color - see help(colors)
         """
 Set the line width in points
 
-ACCEPTS: float
+ACCEPTS: float value in points
         """
         self._linewidth = w
 
@@ -388,7 +388,7 @@ ACCEPTS: any matplotlib color - see help(colors)
         """
 Set the marker edge width in points
 
-ACCEPTS: float
+ACCEPTS: float value in points
 """
         self._markeredgewidth = ew
 
