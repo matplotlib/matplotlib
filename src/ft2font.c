@@ -534,7 +534,7 @@ char FT2Font_load_char__doc__[] =
 "  horiBearingY   # top side bearing in horizontal layouts\n"
 "  horiAdvance    # advance width for horizontal layout\n"
 "  vertBearingX   # left side bearing in vertical layouts\n"
-"  vertBearingY   #top side bearing in vertical layouts\n"
+"  vertBearingY   # top side bearing in vertical layouts\n"
 "  vertAdvance    # advance height for vertical layout\n"
 ;
 static  GlyphObject *
