@@ -31,6 +31,6 @@ im.set_interpolation('bilinear')
 
 
 axis('off')
-savefig('test')
+#savefig('test')
 show()
 

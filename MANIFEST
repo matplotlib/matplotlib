@@ -5,6 +5,7 @@ GOALS
 INSTALL
 INTERACTIVE
 KNOWN_BUGS
+MANIFEST
 MANIFEST.in
 Makefile
 README
@@ -189,6 +190,7 @@ examples/embedding_in_wx.py
 examples/errorbar_demo.py
 examples/figtext.py
 examples/fill_demo.py
+examples/finance_demo.py
 examples/font_properties_demo.py
 examples/fonts_demo.py
 examples/ftface_props.py

@@ -21,6 +21,7 @@ files = (
     'date_demo2.py',    
     'fill_demo.py',
     'figtext.py',
+    'finance_demo.py',
     'histogram_demo.py',
     'image_demo.py',
     'image_demo2.py',

@@ -21,7 +21,7 @@ date2 = datetime.date( 2004, 4, 12 )
 
 pydates = PyDatetimeConverter()
 
-mondays   = WeekdayLocator(SATURDAY)  # every monday
+mondays   = WeekdayLocator(MONDAY)  # every monday
 months    = MonthLocator(1)           # every month
 monthsFmt  = DateFormatter('%b %d')
 
