@@ -1,6 +1,9 @@
 New entries should be added at the top
 =======
 
+2004-06-20 backend_gtk.py: replace gtk.TRUE/FALSE with True/False.
+	   simplified _make_axis_menu(). - SC
+
 2004-06-19 anim_tk.py: Updated to use TkAgg by default (not GTK)
            backend_gtk_py: Added '_' in front of private widget
            creation functions - SC
