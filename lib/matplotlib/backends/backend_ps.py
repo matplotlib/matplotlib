@@ -524,15 +524,8 @@ grestore
 
 
 class GraphicsContextPS(GraphicsContextBase):
+    pass
 
-    def set_linestyle(self, style):
-        """
-        Set the linestyle to be one of ('solid', 'dashed', 'dashdot',
-        'dotted').
-        """
-        GraphicsContextBase.set_linestyle(self, style)
-        offset, dashes = self.dashd[style]
-        self.set_dashes(offset, dashes)
 
 def new_figure_manager(num, *args, **kwargs):
     thisFig = Figure(*args, **kwargs)
