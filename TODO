@@ -469,3 +469,8 @@
 
 -- font dict in wx is broken w/ respect to new font names
 
+-- update nav section of tutorial
+
+-- track down transforms memleak
+
+-- make sure you handle cacheing of rotated mathtext properly

@@ -7,7 +7,7 @@
  
 FT_Library _ft2Library;
 
-FT2Image::FT2Image() : buffer(NULL) {}
+FT2Image::FT2Image() : bRotated(false), buffer(NULL)  {}
 FT2Image::~FT2Image() {delete [] buffer; buffer=NULL;}
 
 Glyph::Glyph( const FT_Face& face, const FT_Glyph& glyph, size_t ind) :
@@ -145,6 +145,62 @@ FT2Font::~FT2Font()
   for (size_t i=0; i<gms.size(); i++) {
     Py_DECREF(gms[i]);
   }
+}
+
+
+char  FT2Font::horiz_image_to_vert_image__doc__[] =
+"horiz_image_to_vert_image()\n"
+"\n"
+"Copies the horizontal image (w, h) into a\n"
+"new image of size (h,w)\n"
+"This is equivalent to rotating the original image\n"
+"by 90 degrees ccw\n" 
+;
+
+Py::Object
+FT2Font::horiz_image_to_vert_image(const Py::Tuple & args) {
+
+   // If we have already rotated, just return.
+   
+  if (image.bRotated) 
+    return Py::Object(); 
+
+
+   long width = image.width, height = image.height;
+   
+   long newWidth  = image.height;
+   long newHeight = image.width;
+
+   long numBytes = image.width * image.height;
+   
+   unsigned char * buffer = new unsigned char [numBytes];
+
+   long  i, j, k, offset, nhMinusOne;   
+
+   nhMinusOne = newHeight-1;
+
+   for (i=0; i<height; i++) {
+
+      offset = i*width;
+
+      for (j=0; j<width; j++) {
+
+         k = nhMinusOne - j; 
+         
+         buffer[i + k*newWidth] = image.buffer[j + offset];
+         
+      }
+
+   }
+
+   delete [] image.buffer;
+   image.buffer = buffer;
+   image.width = newWidth;
+   image.height = newHeight;
+   image.bRotated = true;
+       
+   return Py::Object();
+
 }
 
 int 
@@ -1104,6 +1160,9 @@ FT2Font::init_type() {
 		     FT2Font::get_ps_font_info__doc__);
   add_varargs_method("get_sfnt_table", &FT2Font::get_sfnt_table,
 		     FT2Font::get_sfnt_table__doc__);
+  add_varargs_method("horiz_image_to_vert_image", 
+		     &FT2Font::horiz_image_to_vert_image,
+		     FT2Font::horiz_image_to_vert_image__doc__);
   
   behaviors().supportGetattr();
   behaviors().supportSetattr();

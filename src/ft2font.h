@@ -23,6 +23,7 @@ class FT2Image {
 public:
   FT2Image();
   ~FT2Image();
+  bool bRotated;
   unsigned char *buffer;
   unsigned long width;
   unsigned long height;
@@ -67,6 +68,7 @@ public:
   Py::Object get_name_index(const Py::Tuple & args);
   Py::Object get_ps_font_info(const Py::Tuple & args);
   Py::Object get_sfnt_table(const Py::Tuple & args);
+  Py::Object horiz_image_to_vert_image(const Py::Tuple & args);
   int setattr( const char *_name, const Py::Object &value );
   Py::Object getattr( const char *_name );
   FT2Image image;
@@ -108,7 +110,7 @@ private:
   static char get_name_index__doc__[];
   static char get_ps_font_info__doc__[];
   static char get_sfnt_table__doc__[];
-
+  static char horiz_image_to_vert_image__doc__[];
 };
 
 // the extension module

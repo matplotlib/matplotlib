@@ -36,7 +36,7 @@ basedir = {
     'linux2' : ['/usr/local', '/usr',],
     'linux'  : ['/usr/local', '/usr',],
     'darwin' : [os.getenv('MPLIB_BASE') or '/usr/local', '/usr', '/sw'],
-    'freebsd4' : [os.getenv('MPLIB_BASE') or '/usr/local', '/usr'],
+    'freebsd4' : [os.getenv('MBLIB_BASE') or '/usr/local', '/usr'],
     'sunos5' : [os.getenv('MPLIB_BASE') or '/usr/local',],
 }
 
@@ -212,59 +212,15 @@ def add_tk_flags(module):
         module.include_dirs.extend(['win32_static/include/tcl'])
         module.library_dirs.extend(['C:/Python23/dlls'])
         module.libraries.extend(['tk84', 'tcl84'])
-        return
-
-    elif sys.platform == 'darwin' :
-        # this config section lifted directly from Imaging - thanks to
-        # the effbot!
-
-        # First test for a MacOSX/darwin framework install
-        from os.path import join, exists
-        framework_dirs = [
-            '/System/Library/Frameworks/',
-            '/Library/Frameworks',
-            join(os.getenv('HOME'), '/Library/Frameworks')
-        ]
-
-        # Find the directory that contains the Tcl.framwork and Tk.framework
-        # bundles.
-        # XXX distutils should support -F!
-        for F in framework_dirs:
-            # both Tcl.framework and Tk.framework should be present
-            for fw in 'Tcl', 'Tk':
-                if not exists(join(F, fw + '.framework')):
-                    break
-            else:
-                # ok, F is now directory with both frameworks. Continure
-                # building
-                tk_framework_found = 1
-                break
-        if tk_framework_found:
-            # For 8.4a2, we must add -I options that point inside the Tcl and Tk
-            # frameworks. In later release we should hopefully be able to pass
-            # the -F option to gcc, which specifies a framework lookup path.
-            #
-            tk_include_dirs = [
-                join(F, fw + '.framework', H)
-                for fw in 'Tcl', 'Tk'
-                for H in 'Headers', 'Versions/Current/PrivateHeaders'
-            ]
-
-            # For 8.4a2, the X11 headers are not included. Rather than include a
-            # complicated search, this is a hard-coded path. It could bail out
-            # if X11 libs are not found...
-            # tk_include_dirs.append('/usr/X11R6/include')
-            frameworks = ['-framework', 'Tcl', '-framework', 'Tk']
-            module.include_dirs.extend(tk_include_dirs)
-            module.extra_link_args.extend(frameworks)
-            module.extra_compile_args.extend(frameworks)
-            return
-
-    # you're still here? ok we'll try it this way
-    o = find_tcltk()
-    module.include_dirs.extend([o.tcl_inc, o.tk_inc])
-    module.library_dirs.extend([o.tcl_lib, o.tk_lib])
-    module.libraries.extend(['tk'+o.tkv, 'tcl'+o.tkv])
+    else:
+        o = find_tcltk()
+        if sys.platform == 'darwin' and '/Library/Framework' in o.tk_lib:
+            module.extra_link_args.extend(['-framework','Tcl'])
+            module.extra_link_args.extend(['-framework','Tk'])
+        else:
+            module.include_dirs.extend([o.tcl_inc, o.tk_inc])
+            module.library_dirs.extend([o.tcl_lib, o.tk_lib])
+            module.libraries.extend(['tk'+o.tkv, 'tcl'+o.tkv])
 
 
 def add_windowing_flags(module):

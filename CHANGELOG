@@ -1,5 +1,7 @@
 New entries should be added at the top
 
+2004-07-19 Added vertical mathtext - thanks Jim Benson! - JDH
+
 2004-07-16 Added ps/eps/svg savefig options to wx and gtk JDH
 
 2004-07-15 Fixed python framework tk finder in setupext.py - JDH
