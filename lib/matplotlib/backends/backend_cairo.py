@@ -113,14 +113,6 @@ class RendererCairo(RendererBase):
         return self.width, self.height
     
 
-    def get_text_scale(self):
-        """
-        Return the scale factor for fontsize taking screendpi and pixels per
-        inch into account
-        """
-        return self.dpi.get()/PIXELS_PER_INCH
-
-
     def get_text_width_height(self, s, prop, ismath):
         """
         get the width and height in display coords of the string s
@@ -136,12 +128,13 @@ class RendererCairo(RendererBase):
             ctx.select_font (prop.get_name(),
                              self.fontangles [prop.get_style()],
                              self.fontweights[prop.get_weight()])
-            scale = self.get_text_scale()
-            size  = prop.get_size_in_points()
+
+            # 1.4 scales font to a similar size to GTK / GTKAgg backends
+            size = prop.get_size_in_points() * self.dpi.get() / PIXELS_PER_INCH * 1.4
             # problem - scale remembers last setting and font can become
             # enormous causing program to crash
             # save/restore prevents the problem
-            ctx.scale_font (scale*size)
+            ctx.scale_font (size)
         
             w, h = ctx.text_extents (s)[2:4]
             ctx.restore()
@@ -317,19 +310,18 @@ class RendererCairo(RendererBase):
         if ismath:
             verbose.report_error('Mathtext not implemented yet')
         else:
-            # text is looking too small - size, scale problem?
             ctx.new_path()
             ctx.move_to (x, y)
             ctx.select_font (prop.get_name(),
                              self.fontangles [prop.get_style()],
                              self.fontweights[prop.get_weight()])
-            scale = self.get_text_scale()
-            size  = prop.get_size_in_points()
+            # 1.4 scales font to a similar size to GTK / GTKAgg backends
+            size = prop.get_size_in_points() * self.dpi.get() / PIXELS_PER_INCH * 1.4
 
             ctx.save()
             if angle:
                 ctx.rotate (-angle * pi / 180)
-            ctx.scale_font (scale*size)
+            ctx.scale_font (size)
             ctx.show_text (s)
             ctx.restore()
 
