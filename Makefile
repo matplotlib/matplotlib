@@ -2,6 +2,9 @@
 # Copyright (C) 2003  <jdhunter@ace.bsd.uchicago.edu>
 # $Header$
 # $Log$
+# Revision 1.34  2004/06/09 13:47:55  jdh2358
+# added CXX ft2font
+#
 # Revision 1.33  2004/05/19 19:55:18  jdh2358
 # sync to 0.54
 #
@@ -117,6 +120,7 @@ clean:
 	find . -name "_tmp*.py" | xargs rm -f;\
 	find . \( -name "*~" -o -name "*.pyc" \) | xargs rm -f;\
 	find examples \( -name "*.png" -o -name "*.ps"  -o -name "*.jpg" -o -name "*.eps" \) | xargs rm -f
+	find unit \( -name "*.png" -o -name "*.ps"  -o -name "*.jpg" -o -name "*.eps" \) | xargs rm -f
 	find . \( -name "#*" -o -name ".#*" -o -name ".*~" -o -name "*~" \) | xargs rm -f
 
 

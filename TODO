@@ -411,3 +411,5 @@
 -- use RGBA throughout lib
 
 -- fix wrt log and recommit cvs
+
+-- check Fernando's bounds problem with pcolor.
