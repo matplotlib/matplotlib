@@ -24,6 +24,7 @@ CXX/cxxextensions.c
 CXX/cxxsupport.cxx
 agg2/.cvsignore
 agg2/gpc/copying.txt
+agg2/gpc/copying.txt.~1.1.~
 agg2/gpc/gpc.c
 agg2/gpc/gpc.h
 agg2/include/agg_affine_matrix.h
@@ -216,12 +217,12 @@ examples/figlegend_demo.py
 examples/figtext.py
 examples/fill_demo.py
 examples/finance_demo.py
-examples/font_properties_demo.py
 examples/fonts_demo.py
 examples/fonts_demo_kw.py
 examples/ftface_props.py
 examples/ganged_plots.py
 examples/gdtest.py
+examples/gtk_spreadsheet.py
 examples/histogram_demo.py
 examples/histogram_demo_canvasagg.py
 examples/image_demo.py
@@ -249,6 +250,7 @@ examples/mri_demo.py
 examples/mri_with_eeg.py
 examples/multiline.py
 examples/multiple_figs_demo.py
+examples/newtest.py
 examples/object_picker.py
 examples/pcolor_demo.py
 examples/pcolor_demo2.py
@@ -271,7 +273,6 @@ examples/test.py
 examples/text_handles.py
 examples/text_themes.py
 examples/to_numeric.py
-examples/two_dymamic_images.py
 examples/two_scales.py
 examples/vertical_ticklabels.py
 examples/vline_demo.py
@@ -436,6 +437,7 @@ matplotlib/transforms.py
 matplotlib/windowing.py
 matplotlib/backends/__init__.py
 matplotlib/backends/backend_agg.py
+matplotlib/backends/backend_fltkagg.py
 matplotlib/backends/backend_gd.py
 matplotlib/backends/backend_gtk.py
 matplotlib/backends/backend_gtkagg.py
@@ -460,4 +462,3 @@ src/ft2font.cpp
 src/ft2font.h
 src/mplutils.cpp
 src/mplutils.h
-test/test.py
