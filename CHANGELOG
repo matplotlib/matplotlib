@@ -1,5 +1,8 @@
 New entries should be added at the top
 
+2005-03-30 updated /ellipse definition in backend_ps.py to address 
+            bug #1122041 - DSD
+
 2005-03-29 Added unicode support for Agg and PS - JDH
 
 2005-03-28 Added Jarrod's svg patch for text - JDH
@@ -37,22 +40,22 @@ New entries should be added at the top
 
 2005-03-15 backend_gtkagg.py: changed to use double buffering, this fixes
            the problem reported Joachim Berdal Haga - "Parts of plot lagging 
-	   from previous frame in animation". Tested with anim.py and it makes
+       from previous frame in animation". Tested with anim.py and it makes
            no noticable difference to performance (23.7 before, 23.6 after) 
-	   - SC
+       - SC
 
 2005-03-14 add src/_backend_gdk.c extension to provide a substitute function
-	   for pixbuf.get_pixels_array(). Currently pixbuf.get_pixels_array()
+       for pixbuf.get_pixels_array(). Currently pixbuf.get_pixels_array()
            only works with Numeric, and then only works if pygtk has been
-	   compiled with Numeric support. The change provides a function
-	   pixbuf_get_pixels_array() which works with Numeric and numarray and
-	   is always available. It means that backend_gtk should be able to
-	   display images and mathtext in all circumstances. - SC
+       compiled with Numeric support. The change provides a function
+       pixbuf_get_pixels_array() which works with Numeric and numarray and
+       is always available. It means that backend_gtk should be able to
+       display images and mathtext in all circumstances. - SC
 
 2005-03-11 Upgraded CXX to 5.3.1
 
 2005-03-10 remove GraphicsContextPS.set_linestyle()
-	   and GraphicsContextSVG.set_linestyle() since they do no more than 
+       and GraphicsContextSVG.set_linestyle() since they do no more than 
            the base class GraphicsContext.set_linestyle() - SC
 
 2005-03-09 Refactored contour functionality into dedicated module
@@ -65,12 +68,12 @@ New entries should be added at the top
 2005-03-09 backend_cairo.py: implemented draw_markers() - SC
 
 2005-03-09 cbook.py: only use enumerate() (the python version) if the builtin
-	   version is not available.
+       version is not available.
            Add new function 'izip' which is set to itertools.izip if available
            and the python equivalent if not available. - SC
 
 2005-03-07 backend_gdk.py: remove PIXELS_PER_INCH from points_to_pixels(), but
-	   still use it to adjust font sizes. This allows the GTK version of
+       still use it to adjust font sizes. This allows the GTK version of
            line_styles.py to more closely match GTKAgg, previously the markers
            were being drawn too large. - SC
 
@@ -92,7 +95,7 @@ New entries should be added at the top
 2005-02-24 colors.py change ColorConverter.to_rgb() so it always returns rgb 
            (and not rgba), allow cnames keys to be cached, change the exception
            raised from RuntimeError to ValueError (like hex2color())
-	   hex2color() use a regular expression to check the color string is
+       hex2color() use a regular expression to check the color string is
            valid  - SC
 
 
@@ -169,7 +172,7 @@ New entries should be added at the top
            array bug- JDH
 
 2005-02-04 Modified GTK backends to allow the FigureCanvas to be resized
-	   smaller than its original size - SC
+       smaller than its original size - SC
 
 2005-02-02 Fixed a bug in dates mx2num - JDH
 
@@ -252,7 +255,7 @@ New entries should be added at the top
 
 2005-01-15 backend_cairo: added PDF support which requires pycairo 0.1.4.
            Its not usable yet, but is ready for when the Cairo PDF backend 
-	   matures - SC
+       matures - SC
 
 2005-01-15 Added Nadia's x,y contour fix
 
@@ -384,15 +387,15 @@ New entries should be added at the top
            - backend_gtk.py - A GUI backend that uses GDK - SC
 
 2004-12-08 backend_gtk.py: remove quit_after_print_xvfb(*args), show_xvfb(), 
-	   Dialog_MeasureTool(gtk.Dialog) one month after sending mail to
+       Dialog_MeasureTool(gtk.Dialog) one month after sending mail to
            matplotlib-users asking if anyone still uses these functions - SC
 
 2004-12-02 backend_bases.py, backend_template.py: updated some of the method
            documentation to make them consistent with each other - SC
 
 2004-12-04 Fixed multiple bindings per event for TkAgg mpl_connect and
-	mpl_disconnect.  Added a "test_disconnect" command line 
-	parameter to coords_demo.py  JTM
+    mpl_disconnect.  Added a "test_disconnect" command line 
+    parameter to coords_demo.py  JTM
 
 2004-12-04 Fixed some legend bugs JDH
 
@@ -406,7 +409,7 @@ New entries should be added at the top
            
 2004-11-29 Added the over command to the matlab interface.  over
            allows you to add an overlay plot regardless of hold
-	   state. - JDH
+       state. - JDH
 
 2004-11-25 Added Printf to mplutils for printf style format string
            formatting in C++ (should help write better exceptions)
@@ -432,8 +435,8 @@ New entries should be added at the top
            Cairo and get saved using backend_gtk.print_figure() - SC
 
 2004-11-13 backend_cairo.py: Discovered the magic number (96) required for
-	   Cairo PS plots to come out the right size. Restored Cairo PS output
-	   and added support for landscape mode	- SC
+       Cairo PS plots to come out the right size. Restored Cairo PS output
+       and added support for landscape mode - SC
 
 2004-11-13 Added ishold - JDH
 
@@ -454,7 +457,7 @@ New entries should be added at the top
            py2exe (or similar) - is used by backend_gtk.py - SC
 
 2004-11-09 backend_gtk.py: Made fix suggested by maffew@cat.org.au
-	   to prevent problems when py2exe calls pygtk.require(). - SC
+       to prevent problems when py2exe calls pygtk.require(). - SC
 
 2004-11-09 backend_cairo.py: Added support for printing to a fileobject.
            Disabled cairo PS output which is not working correctly. - SC
@@ -504,7 +507,7 @@ New entries should be added at the top
            draw_image() and clipping. gtkcairo works reasonably well. cairo
            does not yet create any files since I can't figure how to set the
            'target surface', I don't think pycairo wraps the required functions
-	   - SC
+       - SC
 
 2004-10-28 backend_gtk.py: Improved the save dialog (GTK 2.4 only) so it 
            presents the user with a menu of supported image formats - SC
@@ -574,10 +577,10 @@ New entries should be added at the top
            to format the x and y data for the coords box.  Default is
            the axis major formatter.  Eg
 
-	     # format the coords message box
-	     def price(x): return '$%1.2f'%x
-	     ax.format_xdata = DateFormatter('%Y-%m-%d')
-	     ax.format_ydata = price
+         # format the coords message box
+         def price(x): return '$%1.2f'%x
+         ax.format_xdata = DateFormatter('%Y-%m-%d')
+         ax.format_ydata = price
 
 
 2004-09-17 Total rewrite of dates handling to use python datetime with
@@ -594,21 +597,21 @@ New entries should be added at the top
            backend maintenance.  Added his numutils to mlab.  JDH
 
 2004-09-16 Re-designated all files in matplotlib/images as binary and
-	   w/o keyword substitution using "cvs admin -kb *.svg ...".
-	   See binary files in "info cvs" under Linux.  This was messing
-	   up builds from CVS on windows since CVS was doing lf -> cr/lf 
-	   and keyword substitution on the bitmaps.  - JTM
+       w/o keyword substitution using "cvs admin -kb *.svg ...".
+       See binary files in "info cvs" under Linux.  This was messing
+       up builds from CVS on windows since CVS was doing lf -> cr/lf 
+       and keyword substitution on the bitmaps.  - JTM
 
 2004-09-15 Modified setup to build array-package-specific extensions
-	   for those extensions which are array-aware.  Setup builds
-	   extensions automatically for either Numeric, numarray, or
-	   both, depending on what you have installed.  Python proxy
-	   modules for the array-aware extensions import the version
-	   optimized for numarray or Numeric determined by numerix.
+       for those extensions which are array-aware.  Setup builds
+       extensions automatically for either Numeric, numarray, or
+       both, depending on what you have installed.  Python proxy
+       modules for the array-aware extensions import the version
+       optimized for numarray or Numeric determined by numerix.
            - JTM
 
 2004-09-15 Moved definitions of infinity from mlab to numerix to avoid
-	   divide by zero warnings for numarray - JTM
+       divide by zero warnings for numarray - JTM
 
 2004-09-09 Added axhline, axvline, axhspan and axvspan
 
@@ -682,10 +685,10 @@ New entries should be added at the top
            minimised - SC
 
 2004-07-22 Added right mouse click zoom for NavigationToolbar2 panning
-	   mode. - JTM
-		
+       mode. - JTM
+        
 2004-07-22 Added NavigationToolbar2 support to backend_tkagg.
-	   Minor tweak to backend_bases.  - JTM
+       Minor tweak to backend_bases.  - JTM
 
 2004-07-22 Incorporated Gergory's renderer cache and buffer object
            cache - JDH
@@ -768,7 +771,7 @@ New entries should be added at the top
 
 
 2004-07-07 backend_gtk.py: raise SystemExit immediately if 
-	   'import pygtk' fails - SC
+       'import pygtk' fails - SC
 
 2004-07-05 Added new mathtext commands \over{sym1}{sym2} and
            \under{sym1}{sym2}
@@ -796,7 +799,7 @@ New entries should be added at the top
            image.cmap, image.lut, image.origin
 
 2004-06-20 backend_gtk.py: replace gtk.TRUE/FALSE with True/False.
-	   simplified _make_axis_menu(). - SC
+       simplified _make_axis_menu(). - SC
 
 2004-06-19 anim_tk.py: Updated to use TkAgg by default (not GTK)
            backend_gtk_py: Added '_' in front of private widget
@@ -812,7 +815,7 @@ New entries should be added at the top
            backend - JDH
 
 2004-06-16 backend_gtk.py updates to replace deprecated functions
-	   gtk.mainquit(), gtk.mainloop().
+       gtk.mainquit(), gtk.mainloop().
            Update NavigationToolbar to use the new GtkToolbar API - SC
 
 2004-06-15 removed set_default_font from font_manager to unify font
@@ -828,8 +831,8 @@ New entries should be added at the top
 2004-06-11 More memory leak fixes in transforms and ft2font - JDH
 
 2004-06-11 Eliminated numerix .numerix file and environment variable
-	   NUMERIX.  Fixed bug which prevented command line overrides:
-	   --numarray or --numeric. - JTM
+       NUMERIX.  Fixed bug which prevented command line overrides:
+       --numarray or --numeric. - JTM
 
 2004-06-10 Added rc configuration function rc; deferred all rc param
            setting until object creation time; added new rc attrs:
@@ -886,8 +889,8 @@ New entries should be added at the top
            one plots and constant data plots - JDH
 
 2004-05-25 Tweaked TkAgg backend so that canvas.draw() works
-	   more like the other backends.  Fixed a bug resulting
-	   in 2 draws per figure mangager show().      - JTM
+       more like the other backends.  Fixed a bug resulting
+       in 2 draws per figure mangager show().      - JTM
 
 ------------------------------------------------------------
 2004-05-19 0.54 released 
@@ -899,22 +902,22 @@ New entries should be added at the top
 
 2004-05-14 Added fast polygon collections - changed scatter to use
            them.  Added multiple symbols to scatter.  10x speedup on
-	   large scatters using *Agg and 5X speedup for ps. - JDH
+       large scatters using *Agg and 5X speedup for ps. - JDH
 
 2004-05-14 On second thought... created an "nx" namespace in 
-	   in numerix which maps type names onto typecodes
-	   the same way for both numarray and Numeric.  This
-	   undoes my previous change immediately below. To get a
-	   typename for Int16 useable in a Numeric extension: 
-	   say nx.Int16. - JTM             
+       in numerix which maps type names onto typecodes
+       the same way for both numarray and Numeric.  This
+       undoes my previous change immediately below. To get a
+       typename for Int16 useable in a Numeric extension: 
+       say nx.Int16. - JTM             
 
 2004-05-15 Rewrote transformation class in extension code, simplified
            all the artist constructors - JDH
 
 2004-05-14 Modified the type definitions in the numarray side of
-	   numerix so that they are Numeric typecodes and can be
-	   used with Numeric compilex extensions.  The original
-	   numarray types were renamed to type<old_name>.    - JTM
+       numerix so that they are Numeric typecodes and can be
+       used with Numeric compilex extensions.  The original
+       numarray types were renamed to type<old_name>.    - JTM
 
 2004-05-06 Gary Ruben sent me a bevy of new plot symbols and markers.
            See matplotlib.matlab.plot - JDH
@@ -943,7 +946,7 @@ New entries should be added at the top
 
 2004-05-03 Removed the close buttons on all GUIs and added the python
            #! bang line to the examples following Steve Chaplin's
-	   advice on matplotlib dev
+       advice on matplotlib dev
 
 2004-04-29 Added CXX and rewrote backend_agg using it; tracked down
            and fixed agg memory leak - JDH
@@ -970,7 +973,7 @@ New entries should be added at the top
            See examples/two_scales.py - JDH
 
 2004-04-17 Added default dirs as list rather than single dir in
-	   setupext.py - JDH
+       setupext.py - JDH
 
 2004-04-16 Fixed wx exception swallowing bug (and there was much
            rejoicing!) - JDH
@@ -979,7 +982,7 @@ New entries should be added at the top
            return - JDH
 
 2004-04-16 Added get_name method to FontProperties class. Fixed font lookup
-	   in GTK and WX backends. - PEB
+       in GTK and WX backends. - PEB
 
 2004-04-16 Added get- and set_fontstyle msethods. - PEB
 
@@ -994,18 +997,18 @@ New entries should be added at the top
 2004-04-08 Fixed viewlim set problem on axes and axis. - JDH
 
 2004-04-07 Added validate_comma_sep_str and font properties paramaters to
-	   __init__.  Removed font families and added rcParams to
-	   FontProperties __init__ arguments in font_manager.  Added
-	   default font property parameters to .matplotlibrc file with
-	   descriptions.  Added deprecation warnings to the get_- and
-	   set_fontXXX methods of the Text object. - PEB
+       __init__.  Removed font families and added rcParams to
+       FontProperties __init__ arguments in font_manager.  Added
+       default font property parameters to .matplotlibrc file with
+       descriptions.  Added deprecation warnings to the get_- and
+       set_fontXXX methods of the Text object. - PEB
 
 2004-04-06 Added load and save commands for ASCII data - JDH
 
 2004-04-05 Improved font caching by not reading AFM fonts until needed.
-	   Added better documentation.  Changed the behaviour of the
+       Added better documentation.  Changed the behaviour of the
            get_family, set_family, and set_name methods of FontProperties.
-	   - PEB
+       - PEB
 
 2004-04-05 Added WXAgg backend - JDH
 
@@ -1068,12 +1071,12 @@ This is the Old, stale, never used changelog
 2003-04-25 Implemented new functions errorbar, scatter and hist
  
            Added a new line type '|' which is a vline.  syntax is 
-	   plot(x, Y, '|') where y.shape = len(x),2 and each row gives
-	   the ymin,ymax for the respective values of x.  Previously I
-	   had implemented vlines as a list of lines, but I needed the
-	   efficientcy of the numeric clipping for large numbers of
-	   vlines outside the viewport, so I wrote a dedicated class
-	   Vline2D which derives from Line2D
+       plot(x, Y, '|') where y.shape = len(x),2 and each row gives
+       the ymin,ymax for the respective values of x.  Previously I
+       had implemented vlines as a list of lines, but I needed the
+       efficientcy of the numeric clipping for large numbers of
+       vlines outside the viewport, so I wrote a dedicated class
+       Vline2D which derives from Line2D
 
             
 2003-05-01
@@ -1091,7 +1094,7 @@ This is the Old, stale, never used changelog
     See examples/system_monitor.py for an example where the plot is
     continusouly updated w/o flicker.  This example is meant to
     simulate a system monitor that shows free CPU, RAM, etc...
-	
+    
 2003-08-04
 
     Added Jon Anderson's GTK shell, which doesn't require pygtk to
