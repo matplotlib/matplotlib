@@ -2,7 +2,7 @@ from __future__ import division
 
 import os, math
 import sys
-def _fn_name(): return sys._getframe(1).f_code.co_name
+def fn_name(): return sys._getframe(1).f_code.co_name
 
 
 import matplotlib
@@ -56,7 +56,7 @@ PIXELS_PER_INCH = 96
 
 
 # Image formats that this backend supports - for FileChooser and print_figure()
-IMAGE_FORMAT          = ['eps', 'jpg', 'png', 'ps', 'svg']
+IMAGE_FORMAT          = ['eps', 'jpg', 'png', 'ps', 'svg'] + ['bmp', 'raw', 'rgb']
 IMAGE_FORMAT_DEFAULT  = 'png'
 
 
@@ -555,6 +555,11 @@ class GraphicsContextGTK(GraphicsContextBase):
 
 
 def error_msg_gtk(msg, parent=None):
+    if parent: # find the toplevel gtk.Window
+        parent = parent.get_toplevel()
+        if not parent.flags() & gtk.TOPLEVEL:
+            parent = None
+    
     dialog = gtk.MessageDialog(
         parent         = parent,
         type           = gtk.MESSAGE_ERROR,
@@ -698,8 +703,8 @@ class FigureCanvasGTK(gtk.DrawingArea, FigureCanvasBase):
     def mpl_connect(self, s, func):
         
         if s not in self.events:
-            error_msg('Can only connect events of type "%s"\nDo not know how to handle "%s"' %(', '.join(self.events), s))    
-            
+            error_msg('Can only connect events of type "%s"\nDo not know how to handle "%s"' %(', '.join(self.events), s),
+                      parent=self)            
 
         def wrapper(widget, event):
             thisEvent = MplEvent(s, self) 
@@ -769,7 +774,7 @@ class FigureCanvasGTK(gtk.DrawingArea, FigureCanvasBase):
            - rendering the pixmap to save to a file (matlab.savefig)
         Should not be overridden
         """
-        if DEBUG: print 'backend_gtk.%s' % _fn_name()
+        if DEBUG: print 'backend_gtk.%s' % fn_name()
         create_pixmap = False
         if width > self._pixmap_width:
             # increase the pixmap in 10%+ (rather than 1 pixel) steps
@@ -781,7 +786,7 @@ class FigureCanvasGTK(gtk.DrawingArea, FigureCanvasBase):
             create_pixmap = True
 
         if create_pixmap:
-            if DEBUG: print 'backend_gtk.%s: new pixmap' % _fn_name()
+            if DEBUG: print 'backend_gtk.%s: new pixmap' % fn_name()
             self._pixmap = gtk.gdk.Pixmap (self.window, self._pixmap_width,
                                            self._pixmap_height)
             self._renderer._set_pixmap (self._pixmap)
@@ -794,7 +799,7 @@ class FigureCanvasGTK(gtk.DrawingArea, FigureCanvasBase):
         """Expose_event for all GTK backends
         Should not be overridden.
         """
-        if DEBUG: print 'backend_gtk.%s' % _fn_name()
+        if DEBUG: print 'backend_gtk.%s' % fn_name()
         if self._draw_pixmap and GTK_WIDGET_DRAWABLE(self):
             width, height = self.allocation.width, self.allocation.height
             self._render_to_pixmap(width, height)
@@ -841,7 +846,7 @@ class FigureCanvasGTK(gtk.DrawingArea, FigureCanvasBase):
             self._render_to_pixmap(width, height)
             gdk_pixmap_save (self._pixmap, filename, ext, width, height)
 
-        elif ext in ('eps', 'ps', 'svg',): # print through other backends
+        elif ext in ('eps', 'ps', 'svg',):
             if ext in ('svg',):
                 from backend_svg import FigureCanvasSVG as FigureCanvas
             else:
@@ -849,9 +854,20 @@ class FigureCanvasGTK(gtk.DrawingArea, FigureCanvasBase):
             fc = self.switch_backends(FigureCanvas)
             fc.print_figure(filename, dpi, facecolor, edgecolor, orientation)
 
+        elif ext in ('bmp', 'raw', 'rgb',):
+            try: 
+                from backend_agg import FigureCanvasAgg  as FigureCanvas
+            except:
+                error_msg('Agg must be loaded to save as bmp, raw and rgb',
+                          parent=self)
+            else:
+                fc = self.switch_backends(FigureCanvas)
+                fc.print_figure(filename, dpi, facecolor, edgecolor, orientation)
+
         else:
             error_msg('Format "%s" is not supported.\nSupported formats are %s.' %
-                      (ext, ', '.join(IMAGE_FORMAT)))
+                      (ext, ', '.join(IMAGE_FORMAT)),
+                      parent=self)
 
         # restore figure settings
         self.figure.dpi.set(origDPI)
@@ -860,6 +876,7 @@ class FigureCanvasGTK(gtk.DrawingArea, FigureCanvasBase):
         self.figure.set_figsize_inches(origWIn, origHIn)
 
 
+# XXX: move back into print_figurem and add 'parent' to error_msg
 def gdk_pixmap_save (pixmap, filename, ext, width, height):
     """Save a gdk.Pixmap as a png or jpg file.
     Can be called by other gtk backends after they have rendered to a pixmap.
@@ -1129,7 +1146,7 @@ class NavigationToolbar2GTK(NavigationToolbar2, gtk.Toolbar):
             try: self.canvas.print_figure(fname)
             except IOError, msg:
                 error_msg('Failed to save %s: Error msg was\n\n%s' % (
-                    fname, '\n'.join(map(str, msg))))
+                    fname, '\n'.join(map(str, msg))), parent=self.win)
                 
             
 class NavigationToolbar(gtk.Toolbar):
@@ -1452,8 +1469,13 @@ if gtk.pygtk_version >= (2,4,0):
             if path: self.path = path
             else:    self.path = os.getcwd() + os.sep
 
-            self.IMAGE_FORMAT         = matplotlib.backends.backend_mod.IMAGE_FORMAT
-            self.IMAGE_FORMAT_DEFAULT = matplotlib.backends.backend_mod.IMAGE_FORMAT_DEFAULT
+            #self.IMAGE_FORMAT         = matplotlib.backends.backend_mod.IMAGE_FORMAT
+            #self.IMAGE_FORMAT_DEFAULT = matplotlib.backends.backend_mod.IMAGE_FORMAT_DEFAULT
+            #self.IMAGE_FORMAT.sort()
+
+            # later: change self.IMAGE_FORMAT to IMAGE_FORMAT
+            self.IMAGE_FORMAT         = IMAGE_FORMAT
+            self.IMAGE_FORMAT_DEFAULT = IMAGE_FORMAT_DEFAULT
             self.IMAGE_FORMAT.sort()
 
             # create an extra widget to list supported image formats
@@ -1507,7 +1529,8 @@ if gtk.pygtk_version >= (2,4,0):
                     self.path = filename
                     break
                 else:
-                    error_msg('Image format "%s" is not supported' % ext)
+                    error_msg('Image format "%s" is not supported' % ext,
+                              parent=self)
                     self.set_current_name(os.path.split(root)[1] + '.' + menu_ext)
                     
             self.hide()
