@@ -1,6 +1,3 @@
-import matplotlib
-matplotlib.use('WX')
-
 from matplotlib.matlab import *
 
 dt = 0.01
