@@ -98,14 +98,17 @@ class RendererPS(RendererBase):
             self._pswriter.write("%s setlinecap\n"%_num_to_str(linecap))
             self.linecap = linecap
 
-    def set_linedash(self, offset, seq):
-        if (offset,seq) != self.linedash:
-            if seq is not None and len(seq):
-                s="[%s] %d setdash\n"%(_nums_to_str(*seq), offset)
-                self._pswriter.write(s)
-            else:
-                self._pswriter.write("[] 0 setdash\n")
-            self.linedash = (offset,seq)
+    def set_linedash(self, offset, seq):        
+        if self.linedash is not None:
+            oldo, oldseq = self.linedash
+            if offset==oldo and seq==oldseq: return        
+            
+        if seq is not None and len(seq):
+            s="[%s] %d setdash\n"%(_nums_to_str(*seq), offset)
+            self._pswriter.write(s)
+        else:
+            self._pswriter.write("[] 0 setdash\n")
+        self.linedash = (offset,seq)
 
     def set_font(self, fontname, fontsize):
         if (fontname,fontsize) != (self.fontname,self.fontsize):
