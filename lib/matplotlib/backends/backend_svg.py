@@ -5,7 +5,6 @@ from matplotlib.backend_bases import RendererBase, GraphicsContextBase,\
      FigureManagerBase, FigureCanvasBase, error_msg
 
 from matplotlib._pylab_helpers import Gcf
-from matplotlib.cbook import True, False
 from matplotlib.colors import rgb2hex
 from matplotlib.figure import Figure
 from matplotlib.font_manager import fontManager

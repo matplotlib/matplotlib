@@ -10,7 +10,7 @@ from matplotlib.numerix import asarray, fromstring, UInt8, zeros, \
      where, transpose, nonzero, indices, ones, nx
 
 import matplotlib.numerix as numerix
-from matplotlib.cbook import is_string_like, enumerate, True, False, onetrue
+from matplotlib.cbook import is_string_like, enumerate, onetrue
 from matplotlib.font_manager import fontManager
 
 from matplotlib.backend_bases import RendererBase, GraphicsContextBase, \

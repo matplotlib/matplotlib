@@ -142,7 +142,7 @@ from matplotlib.pyparsing import Literal, Word, OneOrMore, ZeroOrMore, \
      StringStart, StringEnd, ParseException
 
 from matplotlib.afm import AFM
-from matplotlib.cbook import True, False, enumerate, iterable, Bunch
+from matplotlib.cbook import enumerate, iterable, Bunch
 from matplotlib.ft2font import FT2Font
 from matplotlib._mathtext_data import latex_to_bakoma
 from matplotlib.numerix import absolute

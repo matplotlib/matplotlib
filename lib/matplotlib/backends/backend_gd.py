@@ -27,7 +27,7 @@ from matplotlib.backend_bases import RendererBase, \
      error_msg
 from matplotlib import verbose
 from matplotlib._pylab_helpers import Gcf
-from matplotlib.cbook import enumerate, True, False, pieces, is_string_like
+from matplotlib.cbook import enumerate, pieces, is_string_like
 from matplotlib.colors import colorConverter
 from matplotlib.figure import Figure
 from matplotlib.transforms import Bbox

@@ -12,7 +12,7 @@ from numerix import Float, alltrue, arange, array, logical_and,\
      nonzero, searchsorted, take, asarray, ones, where, less, ravel
 from matplotlib import verbose
 from artist import Artist
-from cbook import True, False, iterable, is_string_like
+from cbook import iterable, is_string_like
 from collections import RegularPolyCollection, PolyCollection
 from colors import colorConverter
 from patches import bbox_artist

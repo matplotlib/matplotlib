@@ -78,7 +78,7 @@ from matplotlib._pylab_helpers import Gcf
 from matplotlib.backend_bases import RendererBase,\
      GraphicsContextBase, FigureManagerBase, FigureCanvasBase, error_msg
 
-from matplotlib.cbook import enumerate, True, False, is_string_like, exception_to_str
+from matplotlib.cbook import enumerate, is_string_like, exception_to_str
 from matplotlib.figure import Figure
 from matplotlib.font_manager import fontManager
 from matplotlib.ft2font import FT2Font

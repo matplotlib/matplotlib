@@ -22,7 +22,7 @@ from matplotlib.numerix import asarray
 from matplotlib._pylab_helpers import Gcf
 from matplotlib.backend_bases import RendererBase,\
      GraphicsContextBase, FigureCanvasBase, FigureManagerBase
-from matplotlib.cbook import enumerate, True, False
+from matplotlib.cbook import enumerate
 from matplotlib.figure import Figure
 from matplotlib.text import Text, _process_text_args
 

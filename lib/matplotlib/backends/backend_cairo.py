@@ -33,7 +33,7 @@ from matplotlib.numerix import asarray, pi, fromstring, UInt8, zeros
 import matplotlib.numerix as numerix
 from matplotlib.backend_bases import RendererBase, GraphicsContextBase,\
      FigureManagerBase, FigureCanvasBase, error_msg
-from matplotlib.cbook import enumerate, True, False
+from matplotlib.cbook import enumerate
 from matplotlib.figure import Figure
 from matplotlib.transforms import Bbox
 from matplotlib.mathtext import math_parse_s_ft2font

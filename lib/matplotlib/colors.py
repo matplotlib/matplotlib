@@ -32,7 +32,7 @@ Finally, legal html names for colors, like 'red', 'burlywood' and
 from numerix import MLab, array, arange, take, put, Float, Int, where, \
      zeros, asarray, sort, searchsorted, sometrue, ravel, divide
 from types import IntType, FloatType
-from cbook import True, False, enumerate, is_string_like, iterable
+from cbook import enumerate, is_string_like, iterable
 
 cnames = {
     'aliceblue'            : '#F0F8FF',  	 

@@ -11,7 +11,7 @@ import math
 from matplotlib import rcParams
 
 from artist import Artist
-from cbook import True, False, is_string_like, iterable
+from cbook import is_string_like, iterable
 from colors import colorConverter, looks_like_color
 from cm import ScalarMappable
 from numerix import arange, sin, cos, pi, asarray, sqrt

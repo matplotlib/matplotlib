@@ -7,13 +7,6 @@ import re, os, errno, sys, StringIO, traceback
 
 
 major, minor1, minor2, s, tmp = sys.version_info
-if major<2 or (major==2 and minor1<3):
-    True = 1
-    False = 0
-else:
-    True = True
-    False = False
-
 
 class silent_list(list):
     """
