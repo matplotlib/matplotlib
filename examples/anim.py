@@ -1,28 +1,32 @@
-#!/usr/bin/env python
-import matplotlib
-matplotlib.use('GTKAgg')
-import pylab
-import gtk
-import matplotlib.numerix as numerix
+#!/usr/bin/env python2.3
+"""
+A simple example of an animated plot in matplotlib.  You can test the
+speed of animation of various backends by running the script with the
+'-dSomeBackend' flag
 
-fig = pylab.figure(1)
-ind = numerix.arange(60)
-x_tmp=[]
-for i in range(100):
-    x_tmp.append(numerix.sin((ind+i)*numerix.pi/15.0))
+Here are some numbers from my system, where FPS is the frames rendered
+per second
 
-X=numerix.array(x_tmp)
-lines = pylab.plot(X[:,0],'o')
+  TkAgg     20 FPS
+  GTK       50 FPS
+  GTKAgg    36 FPS
+  GTKCairo  15 FPS
+  WX        11 FPS
+  WXAgg     27 FPS
 
-manager = pylab.get_current_fig_manager()
-def updatefig(*args):
-    updatefig.count += 1
-    if updatefig.count>59: updatefig.count=0
-    lines[0].set_ydata(X[:,updatefig.count])
-    manager.canvas.draw()
-    return True
+"""
+from pylab import *
+import time
 
-updatefig.count=-1
+# turn interactive mode on for dynamic updates.  If you aren't in
+# interactive mode, you'll need to use a GUI event handler/timer.
+ion()  
 
-gtk.timeout_add(25,updatefig)
-pylab.show()
+tstart = time.time()              # for profiling
+x = arange(0,2*pi,0.01)           # x-array
+line, = plot(x,sin(x))
+for i in arange(1,200):
+    line.set_ydata(sin(x+i/10.0))  # update the data
+    draw()                         # redraw the canvas
+                   
+print 'FPS:' , 200/(time.time()-tstart)
