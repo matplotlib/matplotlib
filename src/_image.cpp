@@ -46,7 +46,7 @@ Image::Image() :
 
 Image::~Image() {  
   _VERBOSE("Image::~Image");
-
+  
   delete [] bufferIn; bufferIn = NULL;
   delete rbufIn; rbufIn=NULL;
   
@@ -66,7 +66,7 @@ Image::getattr( const char * name ) {
   _VERBOSE("Image::getattro");
   if ( __dict__.hasKey(name) ) return __dict__[name];
   else return getattr_default( name );
-
+  
 }
 
 char Image::apply_rotation__doc__[] = 
@@ -77,7 +77,7 @@ char Image::apply_rotation__doc__[] =
 Py::Object
 Image::apply_rotation(const Py::Tuple& args) {
   _VERBOSE("Image::apply_rotation");
-
+  
   args.verify_length(1);  
   double r = Py::Float(args[0]);
   
@@ -98,7 +98,7 @@ char Image::set_bg__doc__[] =
 Py::Object
 Image::set_bg(const Py::Tuple& args) {
   _VERBOSE("Image::set_bg");
-
+  
   args.verify_length(4);
   bg.r = Py::Float(args[0]);
   bg.g = Py::Float(args[1]);
@@ -116,7 +116,7 @@ char Image::apply_scaling__doc__[] =
 Py::Object
 Image::apply_scaling(const Py::Tuple& args) {
   _VERBOSE("Image::apply_scaling");
-
+  
   args.verify_length(2);
   double sx = Py::Float(args[0]);
   double sy = Py::Float(args[1]);
@@ -140,7 +140,7 @@ char Image::apply_translation__doc__[] =
 Py::Object
 Image::apply_translation(const Py::Tuple& args) {
   _VERBOSE("Image::apply_translation");
-
+  
   args.verify_length(2);
   double tx = Py::Float(args[0]);
   double ty = Py::Float(args[1]);
@@ -167,21 +167,21 @@ char Image::as_str__doc__[] =
 Py::Object
 Image::as_str(const Py::Tuple& args) {
   _VERBOSE("Image::as_str");
-
+  
   args.verify_length(1);
   int flipud = Py::Int(args[0]);
   if (!flipud) {
     return Py::asObject(Py_BuildValue("lls#", rowsOut, colsOut, 
 				      bufferOut, colsOut*rowsOut*4));
   }
-
+  
   const size_t NUMBYTES(rowsOut * colsOut * BPP);
   const size_t BPR = colsOut * BPP; // bytes per row
-
+  
   agg::int8u* buffer = new agg::int8u[NUMBYTES];    
   if (buffer ==NULL) //todo: also handle allocation throw
     throw Py::MemoryError("Image::as_str could not allocate memory");
-
+  
   size_t ind=0;
   for (long rowNum=rowsOut-1; rowNum>=0; rowNum--) { //not unsigned!
     size_t start = rowNum*BPR;
@@ -206,7 +206,7 @@ char Image::reset_matrix__doc__[] =
 Py::Object
 Image::reset_matrix(const Py::Tuple& args) {
   _VERBOSE("Image::reset_matrix");
-
+  
   args.verify_length(0);
   srcMatrix.reset();
   imageMatrix.reset();
@@ -225,7 +225,7 @@ char Image::resize__doc__[] =
 Py::Object
 Image::resize(const Py::Tuple& args) {
   _VERBOSE("Image::resize");
-
+  
   args.verify_length(2);
   
   if (bufferIn ==NULL) 
@@ -242,7 +242,7 @@ Image::resize(const Py::Tuple& args) {
   agg::int8u *buffer = new agg::int8u[NUMBYTES];  
   if (buffer ==NULL) //todo: also handle allocation throw
     throw Py::MemoryError("Image::resize could not allocate memory");
-
+  
   rbufOut = new agg::rendering_buffer;
   rbufOut->attach(buffer, numcols, numrows, numcols * BPP);
   
@@ -329,15 +329,15 @@ Image::resize(const Py::Tuple& args) {
   
   
   bufferOut = buffer;
-
-
+  
+  
   return Py::Object();
   
 }
 
 
-  
-  
+
+
 
 char Image::get_aspect__doc__[] = 
 "get_aspect()\n"
@@ -348,7 +348,7 @@ char Image::get_aspect__doc__[] =
 Py::Object
 Image::get_aspect(const Py::Tuple& args) {
   _VERBOSE("Image::get_aspect");
-
+  
   args.verify_length(0);
   return Py::Int((int)aspect);   
 }
@@ -362,7 +362,7 @@ char Image::get_size__doc__[] =
 Py::Object
 Image::get_size(const Py::Tuple& args) {
   _VERBOSE("Image::get_size");
-
+  
   args.verify_length(0);
   
   Py::Tuple ret(2);
@@ -383,7 +383,7 @@ char Image::get_interpolation__doc__[] =
 Py::Object
 Image::get_interpolation(const Py::Tuple& args) {
   _VERBOSE("Image::get_interpolation");
-
+  
   args.verify_length(0);
   return Py::Int((int)interpolation);
 }
@@ -399,7 +399,7 @@ char Image::set_interpolation__doc__[] =
 Py::Object
 Image::set_interpolation(const Py::Tuple& args) {
   _VERBOSE("Image::set_interpolation");
-
+  
   args.verify_length(1);
   
   size_t method = Py::Int(args[0]);
@@ -407,6 +407,7 @@ Image::set_interpolation(const Py::Tuple& args) {
   return Py::Object();
   
 }
+
 
 
 // this code is heavily adapted from the paint license, which is in
@@ -432,6 +433,7 @@ Image::write_png(const Py::Tuple& args)
   struct        png_color_8_struct sig_bit;
   png_uint_32 row;
   
+  //todo: allocate on heap
   png_bytep row_pointers[rowsOut];
   for (row = 0; row < rowsOut; ++row) {
     row_pointers[row] = bufferOut + row * colsOut * 4;
@@ -496,7 +498,7 @@ char Image::set_aspect__doc__[] =
 Py::Object
 Image::set_aspect(const Py::Tuple& args) {
   _VERBOSE("Image::set_aspect");
-
+  
   args.verify_length(1);
   size_t method = Py::Int(args[0]);
   aspect = (unsigned)method;  
@@ -507,12 +509,12 @@ Image::set_aspect(const Py::Tuple& args) {
 void 
 Image::init_type() {
   _VERBOSE("Image::init_type");
-
+  
   behaviors().name("Image");
   behaviors().doc("Image");
   behaviors().supportGetattr();
   behaviors().supportSetattr();
-
+  
   add_varargs_method( "apply_rotation", &Image::apply_rotation, Image::apply_rotation__doc__);
   add_varargs_method( "apply_scaling",	&Image::apply_scaling, Image::apply_scaling__doc__);
   add_varargs_method( "apply_translation", &Image::apply_translation, Image::apply_translation__doc__);
@@ -542,39 +544,39 @@ char _image_module_from_images__doc__[] =
 Py::Object
 _image_module::from_images(const Py::Tuple& args) {
   _VERBOSE("_image_module::from_images");
-
+  
   args.verify_length(3);
-
+  
   size_t numrows = Py::Int(args[0]);
   size_t numcols = Py::Int(args[1]);
-
+  
   Py::SeqBase<Py::Object> tups = args[2];
   size_t N = tups.length();
   
   if (N==0)
     throw Py::RuntimeError("Empty list of images");
-
+  
   Py::Tuple tup;
-
+  
   size_t ox(0), oy(0), thisx(0), thisy(0);
-
+  
   //copy image 0 output buffer into return images output buffer
   Image* imo = new Image;
   imo->rowsOut  = numrows;
   imo->colsOut  = numcols;
-
+  
   size_t NUMBYTES(numrows * numcols * imo->BPP);    
   imo->bufferOut = new agg::int8u[NUMBYTES];  
   if (imo->bufferOut==NULL) //todo: also handle allocation throw
     throw Py::MemoryError("_image_module::from_images could not allocate memory");
-
+  
   imo->rbufOut = new agg::rendering_buffer;
   imo->rbufOut->attach(imo->bufferOut, imo->colsOut, imo->rowsOut, imo->colsOut * imo->BPP);
   
   pixfmt pixf(*imo->rbufOut);
   renderer_base rb(pixf);
-
-
+  
+  
   for (size_t imnum=0; imnum< N; imnum++) {
     tup = Py::Tuple(tups[imnum]);
     Image* thisim = static_cast<Image*>(tup[0].ptr());    
@@ -582,7 +584,7 @@ _image_module::from_images(const Py::Tuple& args) {
       rb.clear(thisim->bg);
     ox = Py::Int(tup[1]);
     oy = Py::Int(tup[2]);
-
+    
     size_t ind=0;
     for (size_t j=0; j<thisim->rowsOut; j++) {
       for (size_t i=0; i<thisim->colsOut; i++) {
@@ -592,7 +594,7 @@ _image_module::from_images(const Py::Tuple& args) {
 	  ind +=4;
 	  continue;
 	}
-
+	
 	pixfmt::color_type p;
 	p.r = *(thisim->bufferOut+ind++);
 	p.g = *(thisim->bufferOut+ind++);
@@ -602,12 +604,94 @@ _image_module::from_images(const Py::Tuple& args) {
       }
     }
   }
-
+  
   return Py::asObject(imo);
   
   
   
 }
+
+
+
+char _image_module_frompng__doc__[] = 
+"frompng(fname)\n"
+"\n"
+"Load the image from png file fname";
+Py::Object
+_image_module::frompng(const Py::Tuple& args) {
+  
+  args.verify_length(1);
+  std::string fname = Py::String(args[0]);
+  
+  png_byte header[8];	// 8 is the maximum size that can be checked
+
+  FILE *fp = fopen(fname.c_str(), "rb");
+  if (!fp)
+    throw Py::RuntimeError("_image_module::frompng could not open PNG file for reading");
+
+  fread(header, 1, 8, fp);
+  if (png_sig_cmp(header, 0, 8))
+    throw Py::RuntimeError("_image_module::frompng: file not recognized as a PNG file");
+  
+  
+  /* initialize stuff */
+  png_structp png_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
+  
+  if (!png_ptr)
+    throw Py::RuntimeError("_image_module::frompng:  png_create_read_struct failed");
+  
+  png_infop info_ptr = png_create_info_struct(png_ptr);
+  if (!info_ptr)
+    throw Py::RuntimeError("_image_module::frompng:  png_create_info_struct failed");
+  
+  if (setjmp(png_jmpbuf(png_ptr)))
+    throw Py::RuntimeError("_image_module::frompng:  error during init_io");
+  
+  png_init_io(png_ptr, fp);
+  png_set_sig_bytes(png_ptr, 8);
+  
+  png_read_info(png_ptr, info_ptr);
+  
+  png_uint_32 width = info_ptr->width;
+  png_uint_32 height = info_ptr->height;
+  //int color_type = info_ptr->color_type;
+  //int bit_depth = info_ptr->bit_depth;
+  //int number_of_passes = png_set_interlace_handling(png_ptr);
+  png_read_update_info(png_ptr, info_ptr);
+  
+  
+  /* read file */
+  if (setjmp(png_jmpbuf(png_ptr)))
+    throw Py::RuntimeError("_image_module::frompng: error during read_image");
+  
+  png_bytep* row_pointers = new png_bytep[height];
+  if (row_pointers ==NULL) //todo: also handle allocation throw
+    throw Py::MemoryError("_image_module::frompng: could not allocate memory");
+
+  for (png_uint_32 y=0; y<height; y++)
+    row_pointers[y] = new png_byte[info_ptr->rowbytes];  // todo: delete?
+  
+  png_read_image(png_ptr, row_pointers);
+  
+
+  Image* imo = new Image;
+  imo->rowsIn  = height;
+  imo->colsIn  = width;
+
+  size_t NUMBYTES(imo->colsIn * imo->rowsIn * imo->BPP);
+
+  imo->bufferIn = new agg::int8u[NUMBYTES];  //todo: copy row_pointers in
+
+  for (png_uint_32 row = 0; row < imo->rowsIn; ++row) {
+    imo->bufferIn = row_pointers[row];
+  }
+
+  imo->rbufIn = new agg::rendering_buffer;
+  imo->rbufIn->attach(imo->bufferIn, imo->colsIn, imo->rowsIn, imo->colsIn*imo->BPP);
+  return Py::asObject( imo );
+}
+
+
 char _image_module_fromarray__doc__[] = 
 "fromarray(A, isoutput)\n"
 "\n"
@@ -619,40 +703,40 @@ char _image_module_fromarray__doc__[] =
 Py::Object
 _image_module::fromarray(const Py::Tuple& args) {
   _VERBOSE("_image_module::fromarray");
-
+  
   args.verify_length(2);
   
   Py::Object x = args[0];
   int isoutput = Py::Int(args[1]);
   PyArrayObject *A = (PyArrayObject *) PyArray_ContiguousFromObject(x.ptr(), PyArray_DOUBLE, 2, 3); 
-
+  
   if (A==NULL) 
     throw Py::ValueError("Array must be rank 2 or 3 of doubles"); 
   
-
+  
   Image* imo = new Image;
   
   imo->rowsIn  = A->dimensions[0];
   imo->colsIn  = A->dimensions[1];
   
-
+  
   size_t NUMBYTES(imo->colsIn * imo->rowsIn * imo->BPP);
   agg::int8u *buffer = new agg::int8u[NUMBYTES];  
   if (buffer==NULL) //todo: also handle allocation throw
     throw Py::MemoryError("_image_module::fromarray could not allocate memory");
-
+  
   imo->bufferIn = buffer;
   imo->rbufIn = new agg::rendering_buffer;
   imo->rbufIn->attach(buffer, imo->colsIn, imo->rowsIn, imo->colsIn*imo->BPP);
-
-
+  
+  
   if   (A->nd == 2) { //assume luminance for now; 
-
+    
     agg::int8u gray;
     int start = 0;    
     for (size_t rownum=0; rownum<imo->rowsIn; rownum++) 
       for (size_t colnum=0; colnum<imo->colsIn; colnum++) {
-	 
+	
 	double val = *(double *)(A->data + rownum*A->strides[0] + colnum*A->strides[1]);
 	
 	gray = int(255 * val);
@@ -676,7 +760,7 @@ _image_module::fromarray(const Py::Tuple& args) {
     int start = 0;    
     double r,g,b,alpha;
     int offset =0;
-
+    
     for (size_t rownum=0; rownum<imo->rowsIn; rownum++) 
       for (size_t colnum=0; colnum<imo->colsIn; colnum++) {
 	offset = rownum*A->strides[0] + colnum*A->strides[1];
@@ -701,7 +785,7 @@ _image_module::fromarray(const Py::Tuple& args) {
     throw Py::ValueError("Illegal array rank; must be rank; must 2 or 3"); 
   }
   Py_XDECREF(A);  
-
+  
   if (isoutput) {
     // make the output buffer point to the input buffer
     
@@ -711,7 +795,7 @@ _image_module::fromarray(const Py::Tuple& args) {
     imo->bufferOut = new agg::int8u[NUMBYTES];  
     if (buffer == imo->bufferOut) //todo: also handle allocation throw
       throw Py::MemoryError("_image_module::fromarray could not allocate memory");
-
+    
     imo->rbufOut = new agg::rendering_buffer;
     imo->rbufOut->attach(imo->bufferOut, imo->colsOut, imo->rowsOut, imo->colsOut * imo->BPP);
     
@@ -733,7 +817,7 @@ void
 #endif
 init_image(void) {
   _VERBOSE("init_image");
-
+  
   static _image_module* _image = new _image_module;
   
   import_array();  
@@ -752,7 +836,7 @@ init_image(void) {
   
   d["ASPECT_FREE"] = Py::Int(Image::ASPECT_FREE);
   d["ASPECT_PRESERVE"] = Py::Int(Image::ASPECT_PRESERVE);
-
-    
+  
+  
 }
 

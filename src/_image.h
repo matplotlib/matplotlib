@@ -91,6 +91,8 @@ public:
 
     add_varargs_method("fromarray", &_image_module::fromarray, 
 		       "fromarray");
+    add_varargs_method("frompng", &_image_module::frompng, 
+		       "frompng");
     add_varargs_method("from_images", &_image_module::from_images, 
 		       "from_images");
     initialize( "The _image module" );
@@ -101,6 +103,7 @@ public:
 private:
 
   Py::Object fromarray (const Py::Tuple &args);
+  Py::Object frompng (const Py::Tuple &args);
   Py::Object from_images (const Py::Tuple &args);
   static char _image_module_fromarray__doc__[];
 
