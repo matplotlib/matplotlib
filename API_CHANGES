@@ -16,6 +16,8 @@ API changes at 0.50
 
   * GDFONTPATH renamed to TTFPATH
 
+  * backend faceColor argument changed to gcFace
+
 Migrating code:
 
   Matlab interface: 
