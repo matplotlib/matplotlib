@@ -1889,7 +1889,7 @@ tz is the timezone - defaults to rc value
             locator = MonthLocator(tz=tz)            
             fmt = '%b %Y'
         elif weeks>numticks:
-            locator = WeekLocator(interval=math.ceil(weeks/numticks), tz=tz)
+            locator = WeekdayLocator(tz=tz)
             fmt = '%a, %b %d'
         elif days>numticks:
             locator = DayLocator(interval=math.ceil(days/numticks), tz=tz)
