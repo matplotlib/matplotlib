@@ -576,15 +576,15 @@ def num2epoch(d):
     spd = 24.*3600.
     return (asarray(d)-719163)*spd
 
-def mx2num(m):
+def mx2num(mxdates):
     """
     Convert mx datetime instance (or sequence of mx instances) to the
     new date format,
     """
     scalar = False
-    if not iterable(m):
+    if not iterable(mxdates):
         scalar = True
-        m = [m]
+        mxdates = [mxdates]
     ret = epoch2num([m.ticks() for m in mxdates])
     if scalar: return ret[0]
     else: return ret
