@@ -1,23 +1,25 @@
 INTRODUCTION:
-
-  This is a gtk based python plotting library which makes a faint
-  attempt at emulating matlab style plot commands.  The src is divided
-  into 2 parts, located in the src dir.  matplotlib.py is the plotting
-  lib which does the heavy lifting, and matplot.py defines some
-  functions to give a matlab style functional interface to the plot
-  lib, which is suitable for use from the interactive prompt.
+	
+   matplotlib is a pure python plotting library designed to bring
+   publication quality plotting to python with a syntax familiar to
+   matlab users.  Although the goal of publication quality is not yet
+   attained (see GOALS), the library does produce high quality 2D
+   plots.  All of the plotting commands can be accessed either via a
+   functional interface familiar to matlab users or an object oriented
+   interface familiar to python users.
+   
 
 REQUIREMENTS:
 
-   python 2.2+, pygtk-1.99.x and Numeric
+   python 2.2+, pygtk-1.99.16 (requires GTK2) and Numeric-22+
 
 INSTALL
 
-  If you have the requirements, just do 'python setup.py install'
+  If you have the requirements, just do 'python setup.py install'.  
 
 EXAMPLES
 
-  See the demos in the demo dir.
+  See the examples in the examples dir.
 
 AUTHOR
 

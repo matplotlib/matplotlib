@@ -1,0 +1,38 @@
+Here's a list of things the remaining things I think need to be done
+before publication quality (2D) is achieved (if you have suggested
+additions to this list, email me)
+
+   * Display fonts vertically (ylabel).  Arbitrary orientations would
+      be nicer and would be matlab mimic the matlab handle rotation
+      for text.
+
+       UPDATE: vertical text support and ylabel added 2003-05-01
+
+   * Arbitrary locs for axis text
+
+      UPDATE: added the text command, which provides arbitrary axis
+      text
+
+   * Legend
+
+   * Allow text to scale for high res prints 
+
+   * Support multiple output resolutions and formats: 
+
+      UPDATE: Added support for png and jpeg. 2003-05-01  Gdk-Pixbufs
+      can support more types, but apparently pygtk only supports these
+      2.  This may be GTK or pygtk build dependent.  
+
+   * Fix the script time render time inconsitencies (like axis lim
+      autoscalig which occurs at rendering and is not available during
+      script
+
+   * Allow interactive control of plot thru threading
+
+      UPDATE: added examples/interactive.py which is an interactive
+      prompt for making figures
+
+   * Support a richer char set for labeling, eg greek letters, as
+      well as sub and superscripts
+
+   * Support log scaling

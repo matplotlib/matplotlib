@@ -3,7 +3,9 @@
    the window.  I suppose I need to first draw to a pixbuf.  I would
    also like to control the resolution.  
 
-   DONE: just need to make a GUI to set size and fname
+     UPDATE: high resolution printing.  Resolution can be set from the
+     command line, but the GUI needs to be updated to allow resolution
+     to be set along with filename
 
 -- fix text size calculations using pango layouts: DONE
  
@@ -19,7 +21,7 @@
 -- add a color selection dialog for the background, lines, and text
 
 -- allow interactive control of the plot from the python shell after
-   it has been launched using the cookbook thread recipe.
+   it has been launched using the cookbook thread recipe.  DONE
 
 -- write a user guide
 
@@ -34,7 +36,6 @@
    working cross platform.  According to the docs this is better
    handled using size hints -- but I don't know how to use them, yet.
 
-
 -- vlines and hlines disappear on in some instance due to improper
    clipping
 
@@ -44,50 +45,17 @@
 
 -- Clip patches outside view port
 
--- Here's a list of things the remaining things I think need to be
-   done before publication quality (2D) is achieved
-
-   1) Display fonts vertically (ylabel).  Arbitrary orientations would
-      be nicer and would be matlab mimic the matlab handle rotation
-      for text.
-
-       Update: vertical text support and ylabel added 2003-05-01
-
-   2) Arbitrary locs for axis text
-
-   3) Legend
-
-   4) Fix ytick bug where grid and tick show outside axis viewport
-
-      DONE 2003-05-01 with gc clip
-
-   5) Allow text to scale for high res prints 
-
-   6) Support multiple output resolutions and formats: 
-
-      Updates: Added support for png and jpeg. 2003-05-01  Gdk-Pixbufs
-      can support more types, but apparently pygtk only supports these
-      2.  This may be GTK or pygtk build dependent.  
-
-   7) Fix the script time render time inconsitencies (like axis lim
-      autoscalig which occurs at rendering and is not available during
-      script
-
-   8) Allow interactive control of plot thru threading
-
-   9) Support a richer char set for labeling, eg greek letters, as
-      well as sub and superscripts
-
-   10) Support log scaling
-
-
 -- Allow background color to be set for subplots  
 
 -- Expose bug on win32 for axis text
 
 -- Fix floating point bug on panx/pany where 0 is computed as 5e-17
+   
+   UPDATE: hack workaround.  If the distance of the tickloc from the
+   nearest integer is a small fraction of the view lim, just use the
+   integer
 
--- fmt process  bug on this kind of plot command (2nd of 3 has no
+-- fmt process bug on this kind of plot command (2nd of 3 has no
    format string)
 
    plot(t1, p1, 'o', t2, p2, ogtt.times, ogtt.cpeptide, 's')

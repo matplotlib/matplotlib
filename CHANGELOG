@@ -50,3 +50,6 @@
 
 
             
+2003-05-01
+   
+   Fixed ytick bug where grid and tick show outside axis viewport with gc clip
