@@ -796,6 +796,8 @@ class FigureManagerBase:
         self.canvas = canvas
         self.num = num
 
+        self.canvas.mpl_connect('key_press_event', self.toggle_grid)
+        
     def clf(self):
         'clear the figure'
         verbose.report_error('Deprectated; use fig.clf() instead')
@@ -805,6 +807,12 @@ class FigureManagerBase:
     def destroy(self):
         pass
 
+    def toggle_grid(self, event):
+        if event.inaxes is None: return
+        if event.key != 'g': return 
+        event.inaxes.grid()
+        self.canvas.draw()
+        
 # cursors
 class Cursors:  #namespace
     HAND, POINTER, SELECT_REGION, MOVE = range(4)
