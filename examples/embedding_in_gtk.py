@@ -1,4 +1,8 @@
-import matplotlib.figure as mpl
+import matplotlib
+matplotlib.use('GTK')
+
+from matplotlib.backends import Figure
+from matplotlib.axes import Subplot
 import Numeric as numpy
 import gtk
 
@@ -11,8 +15,8 @@ vbox = gtk.VBox(spacing=3)
 win.add(vbox)
 vbox.show()
 
-f = mpl.Figure()
-a = mpl.Subplot(111)
+f = Figure(figsize=(5,4), dpi=100)
+a = Subplot(111)
 t = numpy.arange(0.0,3.0,0.01)
 s = numpy.sin(2*numpy.pi*t)
 
