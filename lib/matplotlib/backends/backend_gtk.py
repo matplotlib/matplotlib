@@ -560,12 +560,6 @@ def error_msg_gtk(msg, parent=None):
         if not parent.flags() & gtk.TOPLEVEL:
             parent = None
 
-#    print dir(msg)
-#    print 'msg1', msg
-#    if not is_string_like(msg):
-#        msg = '\n'.join(map(str, msg))
-#    print 'msg2', msg
-    
     dialog = gtk.MessageDialog(
         parent         = parent,
         type           = gtk.MESSAGE_ERROR,
@@ -627,6 +621,8 @@ def new_figure_manager(num, *args, **kwargs):
     thisFig = Figure(*args, **kwargs)
     canvas = FigureCanvasGTK(thisFig)
     manager = FigureManagerGTK(canvas, num)
+    # equals:
+    #manager = FigureManagerGTK(FigureCanvasGTK(Figure(*args, **kwargs), num)
     return manager
 
 
@@ -861,25 +857,30 @@ class FigureCanvasGTK(gtk.DrawingArea, FigureCanvasBase):
             if ext == 'jpg': ext = 'jpeg' 
             try: pixbuf.save(filename, ext)
             except gobject.GError, exc:
-                error_msg('Could not save figure to %s\n\n%s' % (
-                    filename, exc), parent=self)
+                error_msg('Save figure failure:\n%s' % (exc,), parent=self)
 
         elif ext in ('eps', 'ps', 'svg',):
-            if ext in ('svg',):
+            if ext == 'svg':
                 from backend_svg import FigureCanvasSVG as FigureCanvas
             else:
                 from backend_ps  import FigureCanvasPS  as FigureCanvas
+
             try:
                 fc = self.switch_backends(FigureCanvas)
                 fc.print_figure(filename, dpi, facecolor, edgecolor, orientation)
             except IOError, exc:
-                error_msg("%s: %s" % (exc.filename, exc.strerror), parent=self)
+                error_msg("Save figure failure:\n%s: %s" %
+                          (exc.filename, exc.strerror), parent=self)
+            except Exception, exc:
+                error_msg("Save figure failure:\n%s" %
+                          (','.join(map(str,exc)),), parent=self)
 
         elif ext in ('bmp', 'raw', 'rgb',):
             try: 
                 from backend_agg import FigureCanvasAgg  as FigureCanvas
             except:
-                error_msg('Agg must be loaded to save as bmp, raw and rgb',
+                error_msg('Save figure failure:\n'
+                          'Agg must be loaded to save as bmp, raw and rgb',
                           parent=self)
             else:
                 fc = self.switch_backends(FigureCanvas)
