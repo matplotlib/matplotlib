@@ -1,4 +1,10 @@
-API CHANGES in matplotlib-0.xx
+API CHANGES in matplotlib-0.61
+
+  canvas.connect is now deprecated for event handling.  use
+  mpl_connect and mpl_disconnect instead.  The callback signature is
+  func(event) rather than func(widget, evet)
+
+API CHANGES in matplotlib-0.60
 
 ColormapJet and Grayscale are deprecated.  For backwards
 compatibility, they can be obtained either by doing
