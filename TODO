@@ -308,9 +308,11 @@
 
 -- mathtext s l o w
 
--- ps backend fails alignment test
+-- DONE ps backend fails alignment test
 
 -- ps backend is slow!  Almost all of this is eaten by parsing afm
    files
 
 -- decreasing log axes needs fix
+
+-- overflow error in math.floor(ld) on stock_demo in OSX
