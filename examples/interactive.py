@@ -1,7 +1,12 @@
 #!/usr/bin/env python
 """
-Use GTK interactively from the prompt, by Brian McErlean and John Finlay
-From http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/65109
+Use matplotlib interactively from the prompt
+
+This script is from
+http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/65109 by Brian
+McErlean and John Finlay, with minor modifications for matplotlib and
+win32 usage.
+
 """
 import __builtin__
 import __main__
@@ -9,7 +14,13 @@ import codeop
 import keyword
 import os
 import re
-import readline
+try:
+    import readline
+except ImportError:
+    haveReadline = 0
+else:
+    haveReadline = 1
+
 import threading
 import traceback
 import signal
@@ -104,8 +115,9 @@ class GtkInterpreter (threading.Thread):
         self.new_cmd = None # Waiting line of code, or None if none waiting
 
         self.completer = Completer (self.locs)
-        readline.set_completer (self.completer.complete)
-        readline.parse_and_bind ('tab: complete')
+        if haveReadline:
+            readline.set_completer (self.completer.complete)
+            readline.parse_and_bind ('tab: complete')
 
     def run (self):
         gtk.timeout_add (self.TIMEOUT, self.code_exec)
@@ -181,11 +193,15 @@ if __name__=="__main__":
 
     # turn off rendering until end of script
     matplotlib.matlab.interactive = 0
+    print sys.argv
     if len (sys.argv) > 1:
-        for line in file(sys.argv[1], 'r'):
-            if line.lstrip().find('show()')==0: continue
-            print '>>', line.rstrip()
-            interpreter.feed(line)
+        try: inFile = file(sys.argv[1], 'r')
+        except IOError: pass
+        else:
+            for line in file(sys.argv[1], 'r'):
+                if line.lstrip().find('show()')==0: continue
+                print '>>', line.rstrip()
+                interpreter.feed(line)
         #gcf().draw()
     interpreter.feed ("ShowOn().set(1)")
     print """Welcome to matplotlib.
