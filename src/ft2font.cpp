@@ -351,20 +351,7 @@ FT2Font::FT2Font(std::string facefile)
   
   setattr("postscript_name", Py::String(ps_name));
   setattr("num_faces",       Py::Int(face->num_faces));
-
-  std::cout << "trying to set string " << facefile << std::endl;
-  try {
-    Py::String s(face->family_name, "utf-16", NULL);
-  }
-  catch (...) { //todo; catch specific exception and figure out unicode
-    std::cout << "oops, exception" << std::endl;
-    std::ostringstream s;
-    s << "Could not access facename for facefile " << facefile << " may be unicode limitation" << std::endl;
-    throw Py::RuntimeError(s.str());
-  }
-  std::cout << "done trying to set string" << std::endl;  
-
-  setattr("family_name",     Py::String(face->family_name);
+  setattr("family_name",     Py::String(face->family_name));
   setattr("style_name",      Py::String(face->style_name));
   setattr("face_flags",      Py::Int(face->face_flags));
   setattr("style_flags",     Py::Int(face->style_flags));
