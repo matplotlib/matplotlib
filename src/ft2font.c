@@ -2,8 +2,8 @@
 
 static PyObject *ErrorObject;
 
-static PyTypeObject FT2Font_Type;
-static PyTypeObject Glyph_Type;
+extern PyTypeObject FT2Font_Type;
+extern PyTypeObject Glyph_Type;
 static int FT2Font_setattr(FT2FontObject *self, char *name, PyObject *v);
 
 int           _initLib = 0;
@@ -81,7 +81,7 @@ Glyph_setattr(GlyphObject *self, char *name, PyObject *v)
   }
 }
 
-static PyTypeObject Glyph_Type = {
+PyTypeObject Glyph_Type = {
   /* The ob_type field must be initialized in the module init function
    * to be portable to Windows without using C++. */
   PyObject_HEAD_INIT(NULL)
@@ -963,7 +963,7 @@ FT2Font_setattr(FT2FontObject *self, char *name, PyObject *v)
     return PyDict_SetItemString(self->x_attr, name, v);
 }
 
-static PyTypeObject FT2Font_Type = {
+PyTypeObject FT2Font_Type = {
   /* The ob_type field must be initialized in the module init function
    * to be portable to Windows without using C++. */
   PyObject_HEAD_INIT(NULL)
@@ -1088,7 +1088,11 @@ char ft2font__doc__[] =
 
 /* Initialization function for the module (*must* be called initft2font) */
 
+#if defined(_MSC_VER)
 DL_EXPORT(void)
+#elif defined(__cplusplus)
+extern "C" void
+#endif
      initft2font(void)
 {
   PyObject *m, *d;

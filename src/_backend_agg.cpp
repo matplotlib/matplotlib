@@ -307,7 +307,7 @@ _gc_get_linewidth(PyObject *gc) {
 
 
 
-extern "C" static PyTypeObject RendererAgg_Type;
+extern PyTypeObject RendererAgg_Type;
 #define RendererAggObject_Check(v)	((v)->ob_type == &RendererAgg_Type)
 
 static RendererAggObject *
@@ -964,7 +964,7 @@ RendererAgg_setattr(RendererAggObject *self, char *name, PyObject *v)
 }
 
 
-static PyTypeObject RendererAgg_Type = {
+PyTypeObject RendererAgg_Type = {
   /* The ob_type field must be initialized in the module init function
    * to be portable to Windows without using C++. */
   PyObject_HEAD_INIT(NULL)
