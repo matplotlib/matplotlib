@@ -14,7 +14,6 @@ from numerix import Float, alltrue, arange, array, logical_and,\
 from matplotlib import verbose
 from artist import Artist
 from cbook import iterable, is_string_like
-from collections import RegularPolyCollection, PolyCollection
 from colors import colorConverter
 from patches import bbox_artist
 from path import MOVETO, LINETO, ENDPOLY
@@ -32,8 +31,6 @@ lineMarkers =    {'.':1, ',':1, 'o':1, '^':1, 'v':1, '<':1, '>':1, 's':1,
                   TICKDOWN:1,
                   'None':1
                   }
-
-
     
 class Line2D(Artist):
     _lineStyles =  {
@@ -147,7 +144,12 @@ class Line2D(Artist):
         self._logcache = None
             
     def get_window_extent(self, renderer):
-        x, y = self._get_numeric_clipped_data_in_range()
+        self._newstyle = hasattr(renderer, 'draw_markers')
+        if self._newstyle:
+            x = self._x
+            y = self._y
+        else:
+            x, y = self._get_numeric_clipped_data_in_range()
 
 
         x, y = self._transform.numerix_x_y(x, y)
@@ -268,8 +270,8 @@ ACCEPTS: [True | False]
             gc.set_clip_rectangle(self.clipbox.get_bounds())
 
         
-        if self._newstyle and self._linestyle == 'None':
-            # we don't need xt
+        if self._newstyle:
+            # transform in backend
             xt = self._x
             yt = self._y
         else:    
@@ -289,9 +291,6 @@ ACCEPTS: [True | False]
             if self.get_clip_on():
                 gc.set_clip_rectangle(self.clipbox.get_bounds())
             markerFunc = getattr(self, self._markerFunc)
-            if self._newstyle:
-                xt = self._x
-                yt = self._y
             markerFunc(renderer, gc, xt, yt)
 
         #if 1: bbox_artist(self, renderer)
@@ -512,14 +511,22 @@ ACCEPTS: sequence of on/off ink in points
         yt2[0:-1:2], yt2[1::2]=yt, yt
         gc.set_linestyle('solid')
         gc.set_capstyle('projecting')
-        renderer.draw_lines(gc, xt2, yt2)    
+
+        if self._newstyle:
+            renderer.draw_lines(gc, xt2, yt2, self._transform)
+        else:
+            renderer.draw_lines(gc, xt2, yt2)
 
     def _draw_solid(self, renderer, gc, xt, yt):
         if len(xt)<2: return
         gc.set_linestyle('solid')
         gc.set_capstyle('projecting')   
 
-        renderer.draw_lines(gc, xt,yt)
+        if self._newstyle:
+            renderer.draw_lines(gc, xt, yt, self._transform)
+        else:
+            renderer.draw_lines(gc, xt, yt)
+
 
     def _draw_dashed(self, renderer, gc, xt, yt):
         if len(xt)<2: return
@@ -528,14 +535,23 @@ ACCEPTS: sequence of on/off ink in points
             gc.set_dashes(0, self._dashSeq)
         gc.set_capstyle('butt')   
         gc.set_joinstyle('miter') 
-        renderer.draw_lines(gc, xt, yt)
+
+        if self._newstyle:
+            renderer.draw_lines(gc, xt, yt, self._transform)
+        else:
+            renderer.draw_lines(gc, xt, yt)
+
 
     def _draw_dash_dot(self, renderer, gc, xt, yt):
         if len(xt)<2: return
         gc.set_linestyle('dashdot')
         gc.set_capstyle('butt')   
         gc.set_joinstyle('miter') 
-        renderer.draw_lines(gc, xt, yt)
+        if self._newstyle:
+            renderer.draw_lines(gc, xt, yt, self._transform)
+        else:
+            renderer.draw_lines(gc, xt, yt)
+
 
 
     def _draw_dotted(self, renderer, gc, xt, yt):
@@ -544,8 +560,10 @@ ACCEPTS: sequence of on/off ink in points
         gc.set_linestyle('dotted')
         gc.set_capstyle('butt')   
         gc.set_joinstyle('miter')
-        renderer.draw_lines(gc, xt, yt)
-
+        if self._newstyle:
+            renderer.draw_lines(gc, xt, yt, self._transform)
+        else:
+            renderer.draw_lines(gc, xt, yt)
         
     def _draw_point(self, renderer, gc, xt, yt):
         if self._newstyle:
@@ -603,17 +621,6 @@ ACCEPTS: sequence of on/off ink in points
                                   x, y, w, h, 0.0, 360.0)
         
 
-    def _draw_circle_collection(self, renderer):        
-        colors = ( colorConverter.to_rgba(self._color, self.get_alpha()), )
-        collection = RegularPolyCollection(
-            self.figure.dpi,
-            numsides=20, rotation=0, sizes=(self._markersize,),
-            facecolors = colors,
-            offsets = zip(self._x, self._y),
-            transOffset = self._transform,             
-            )
-        collection.draw(renderer)
-        
 
     def _draw_triangle_up(self, renderer, gc, xt, yt):
 
@@ -631,8 +638,6 @@ ACCEPTS: sequence of on/off ink in points
                 )
             renderer.draw_markers(gc, path, xt, yt, self._transform)
         else:
-
-
             for (x,y) in zip(xt, yt):
                 verts = ( (x, y+offset),
                           (x-offset, y-offset),

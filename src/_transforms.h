@@ -179,6 +179,7 @@ public:
   //update the interval to contain all points in seq of floats
   Py::Object update( const Py::Tuple &args);
 
+
   // x is in the open interval
   Py::Object contains_open( const Py::Tuple &args) {
     args.verify_length(1);
@@ -301,6 +302,7 @@ public:
 
   // update the current bbox with data from xy tuples
   Py::Object update(const Py::Tuple &args);
+  Py::Object update_numerix( const Py::Tuple &args);
   Py::Object contains(const Py::Tuple &args);
 
   Py::Object width(const Py::Tuple &args) {

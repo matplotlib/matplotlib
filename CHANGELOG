@@ -1,5 +1,13 @@
 New entries should be added at the top
 
+2005-02-10 backend renderer draw_lines now has transform in backend,
+           as in draw_markers; use numerix in _backend_agg
+
+2005-02-09 subplot now deletes axes that it overlaps 
+
+2005-02-08 Added transparent support for gzipped files in load/save - Fernando
+           Perez (FP from now on).
+
 2005-02-08 Small optimizations in PS backend.  They may have a big impact for
            large plots, otherwise they don't hurt  - FP
 

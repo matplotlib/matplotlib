@@ -337,7 +337,7 @@ def build_ft2font(ext_modules, packages):
     ext_modules.append(module)    
     BUILT_FT2FONT = True
 
-def build_gtkagg(ext_modules, packages):
+def build_gtkagg(ext_modules, packages, numerix):
     global BUILT_GTKAGG
     if BUILT_GTKAGG: return # only build it if you you haven't already
     deps = ['src/_gtkagg.cpp', 'src/mplutils.cpp']
@@ -360,7 +360,7 @@ def build_gtkagg(ext_modules, packages):
     ext_modules.append(module)    
     BUILT_GTKAGG = True
 
-def build_tkagg(ext_modules, packages):
+def build_tkagg(ext_modules, packages, numerix):
     global BUILT_TKAGG
     if BUILT_TKAGG: return # only build it if you you haven't already
     module = Extension('matplotlib.backends._tkagg',
@@ -377,24 +377,48 @@ def build_tkagg(ext_modules, packages):
     BUILT_TKAGG = True
 
 
-def build_agg(ext_modules, packages):
+def build_agg(ext_modules, packages, numerix):
     global BUILT_AGG
     if BUILT_AGG: return # only build it if you you haven't already
     
-    deps = ['src/_backend_agg.cpp', 'src/ft2font.cpp', 'src/mplutils.cpp']
-    deps.extend(glob.glob('agg22/src/*.cpp'))
-    deps.extend(glob.glob('CXX/*.cxx'))
-    deps.extend(glob.glob('CXX/*.c'))
 
-    module = Extension(
-        'matplotlib.backends._backend_agg',
-        deps
-        ,
-        )
 
-    add_agg_flags(module)
-    add_ft2font_flags(module)
-    ext_modules.append(module)    
+
+    if numerix in ["numarray","both"]: # Build for numarray
+        deps = ['src/ft2font.cpp', 'src/mplutils.cpp']
+        deps.extend(glob.glob('agg22/src/*.cpp'))
+        deps.extend(glob.glob('CXX/*.cxx'))
+        deps.extend(glob.glob('CXX/*.c'))
+        temp_copy('src/_backend_agg.cpp', 'src/_na_backend_agg.cpp')
+        deps.append('src/_na_backend_agg.cpp')
+        module = Extension(
+            'matplotlib.backends._na_backend_agg',
+            deps
+            ,
+            )    
+        module.extra_compile_args.append('-DNUMARRAY=1')
+        add_agg_flags(module)
+        add_ft2font_flags(module)
+        ext_modules.append(module)    
+    if numerix in ["Numeric","both"]: # Build for Numeric
+        deps = ['src/ft2font.cpp', 'src/mplutils.cpp']
+        deps.extend(glob.glob('agg22/src/*.cpp'))
+        deps.extend(glob.glob('CXX/*.cxx'))
+        deps.extend(glob.glob('CXX/*.c'))
+
+        temp_copy('src/_backend_agg.cpp', 'src/_nc_backend_agg.cpp')
+        deps.append('src/_nc_backend_agg.cpp')
+        module = Extension(
+            'matplotlib.backends._nc_backend_agg',
+            deps
+            ,
+            )
+        module.extra_compile_args.append('-DNUMERIC=1')
+
+        add_agg_flags(module)
+        add_ft2font_flags(module)
+        ext_modules.append(module)    
+
     BUILT_AGG = True
 
 def build_image(ext_modules, packages, numerix):
