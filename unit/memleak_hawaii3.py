@@ -4,7 +4,7 @@ import os, sys, time
 import matplotlib
 matplotlib.interactive(True)
 #matplotlib.use('Cairo')
-matplotlib.use('TkAgg')
+matplotlib.use('WXAgg')
 from pylab import *
 
 
@@ -36,6 +36,7 @@ for i in range(indEnd):
     pcolor(10*rand(50,50))
     ion()
     draw()
+
     #ioff()
     #savefig('tmp%d' % i, dpi = 75)
     #fd = file('tmp%d' % i, 'wb')
