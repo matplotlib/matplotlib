@@ -1,6 +1,11 @@
 New entries should be added at the top
 
-2004-04-19 - Fixed vertical alignment bug in PS backend - JDH
+
+
+------------------------------------------------------------
+2004-04-21 matplotlib 0.53 release
+
+2004-04-19 Fixed vertical alignment bug in PS backend - JDH
 
 2004-04-17 Added support for two scales on the "same axes" with tick
            different ticking and labeling left right or top bottom.

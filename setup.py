@@ -1,6 +1,9 @@
 """
 matplotlib has added some extension module code which can optionally
 be built by setting the appropriate flag below.
+
+The GTKAgg and TkAgg will try to build if they detect pygtk or Tkinter
+respectively; set them to 0 if you do not want to build them
 """
 
 # build the freetype2 interface - this is required for mathtext
@@ -27,14 +30,16 @@ BUILD_AGG = 1
 # high quality image renderer to render to all the GUI windows
 
 # build GTK GUI with Agg renderer ; requires pygtk src distros installed
-BUILD_GTKAGG       = 0
+# Use False or 0 if you don't want to build
+BUILD_GTKAGG       = 'auto'
 
 # build TK GUI with Agg renderer ; requires Tkinter Python extension
 # and Tk includes
-BUILD_TKAGG        = 0
+# Use False or 0 if you don't want to build
+BUILD_TKAGG        = 'auto'
 
 # build a small extension to manage the focus on win32 platforms.
-BUILD_WINDOWING        = 0
+BUILD_WINDOWING        = 'auto'
 
 ## You shouldn't need to customize below this point
 
@@ -51,8 +56,7 @@ data.extend(glob.glob('fonts/afm/*.afm'))
 data.extend(glob.glob('fonts/ttf/*.ttf'))
 data.extend(glob.glob('images/*.xpm'))
 data.extend(glob.glob('images/*.ppm'))
-if sys.platform != 'win32': # win32 uses postinstaller for conditional install
-    data.append('.matplotlibrc')
+data.append('.matplotlibrc')
 
 data_files=[('share/matplotlib', data),]
 
@@ -64,12 +68,20 @@ packages = [
 
     
 if BUILD_GTKAGG:
-    BUILD_AGG = 1
-    build_gtkagg(ext_modules, packages)
+    
+    try: import gtk
+    except ImportError: print 'GTKAgg requires pygtk'
+    else:
+        BUILD_AGG = 1
+        build_gtkagg(ext_modules, packages)
 
 if BUILD_TKAGG:
-    BUILD_AGG = 1
-    build_tkagg(ext_modules, packages)
+    try: import Tkinter
+    except ImportError: print 'GTKAgg requires pygtk'
+    else:
+        BUILD_AGG = 1
+        build_tkagg(ext_modules, packages)
+
 
 if BUILD_AGG:
     BUILD_FT2FONT = 1
@@ -78,7 +90,7 @@ if BUILD_AGG:
 if BUILD_FT2FONT:
     build_ft2font(ext_modules, packages)
 
-if BUILD_WINDOWING:
+if BUILD_WINDOWING and sys.platform=='win32':
    build_windowing(ext_modules, packages)
 
 if BUILD_IMAGE:
@@ -100,5 +112,4 @@ setup(name="matplotlib",
       platforms='any',
       ext_modules = ext_modules, 
       data_files = data_files,
-      scripts=['postinstall.py'],
       )

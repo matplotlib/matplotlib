@@ -5,13 +5,11 @@ GOALS
 INSTALL
 INTERACTIVE
 KNOWN_BUGS
-MANIFEST
 MANIFEST.in
 Makefile
 README
 TODO
 __init__.py
-postinstall.py
 setup.py
 setupext.py
 agg2/gpc/gpc.h

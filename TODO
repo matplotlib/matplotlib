@@ -320,3 +320,7 @@
 -- DONE modify pcolor to allow custom cmap
 
 -- Check for empty quote data returns
+
+-- toolbar not showing up in wx os x
+
+-- fromstring examples need byte order in darwin
