@@ -194,13 +194,16 @@ Bbox::contains(const Py::Tuple &args) {
 
   double x = Py::Float(args[0]);
   double y = Py::Float(args[1]); 
-  
-  Interval *ix = intervalx_api();
-  Interval *iy = intervaly_api();
-  int b = ix->contains_api(x) && iy->contains_api(y);
-  delete ix;
-  delete iy;
-  return Py::Int(b);
+
+  double minx = _ll->xval();
+  double miny = _ll->yval();  
+  double maxx = _ur->xval();
+  double maxy = _ur->yval();
+
+  int inx = ( (x>=minx) && (x<=maxx) || (x>=maxx) && (x<=minx) );
+  if (!inx) return Py::Int(0);
+  int iny = ( (y>=miny) && (y<=maxy) || (y>=maxy) && (y<=miny) );
+  return Py::Int(iny);
 }
 
 Py::Object 

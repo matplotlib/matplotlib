@@ -235,6 +235,7 @@ examples/multiple_figs_demo.py
 examples/object_picker.py
 examples/pcolor_demo.py
 examples/pcolor_demo2.py
+examples/pcolor_demo_with_scale.py
 examples/pcolor_small.py
 examples/psd_demo.py
 examples/pstest.py
@@ -391,6 +392,7 @@ matplotlib/backends/backend_gtkagg.py
 matplotlib/backends/backend_gtkgd.py
 matplotlib/backends/backend_paint.py
 matplotlib/backends/backend_ps.py
+matplotlib/backends/backend_svg.py
 matplotlib/backends/backend_template.py
 matplotlib/backends/backend_tkagg.py
 matplotlib/backends/backend_wx.py
@@ -399,7 +401,6 @@ matplotlib/backends/tkagg.py
 src/_backend_agg.cpp
 src/_backend_agg.h
 src/_gtkagg.cpp
-src/_gtkaggold.cpp
 src/_gtkgd.c
 src/_image.cpp
 src/_image.h
