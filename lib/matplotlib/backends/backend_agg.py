@@ -322,8 +322,12 @@ class FigureCanvasAgg(FigureCanvasBase):
 
         If the extension matches BMP or RAW, write an RGBA bitmap file
 
+        If filename is a fileobject, write png to file object (thus
+        you can, for example, write the png to stdout
         """
         if DEBUG: print 'FigureCanvasAgg.print_figure'
+
+            
 
         # store the orig figure dpi, color and size information so we
         # can restore them later.  For image creation alone, this is
@@ -344,34 +348,38 @@ class FigureCanvasAgg(FigureCanvasBase):
         # render the printed figure
         self.draw()
 
-        # take a look at the extension and choose the print handler
-        basename, ext = os.path.splitext(filename)
-        if not len(ext):
-            ext = '.png'
-            filename += ext
-
-        ext = ext.lower()
-        if (ext.find('rgb')>=0 or
-            ext.find('raw')>=0 or
-            ext.find('bmp')>=0 ):
-            # agg doesn't handle unicode yet
-            self.renderer._renderer.write_rgba(str(filename))
-        elif ext.find('png')>=0:
-            # agg doesn't handle unicode yet
-            self.renderer._renderer.write_png(str(filename))
-            #pass
-        elif ext.find('svg')>=0:
-	    from backend_svg import FigureCanvasSVG
-	    svg = self.switch_backends(FigureCanvasSVG)
-            svg.figure.dpi.set(72)
-	    svg.print_figure(filename, 72, facecolor, edgecolor, orientation)
-        elif ext.find('ps')>=0 or ext.find('ep')>=0:
-            from backend_ps import FigureCanvasPS # lazy import
-            ps = self.switch_backends(FigureCanvasPS)
-            ps.figure.dpi.set(72)
-            ps.print_figure(filename, 72, facecolor, edgecolor, orientation)
+        if  isinstance(filename, file):
+            # assume png and write to fileobject
+            self.renderer._renderer.write_png(filename)
         else:
-            error_msg('Do not know know to handle extension *%s' % ext)
+            # take a look at the extension and choose the print handler
+            basename, ext = os.path.splitext(filename)
+            if not len(ext):
+                ext = '.png'
+                filename += ext
+
+            ext = ext.lower()
+            if (ext.find('rgb')>=0 or
+                ext.find('raw')>=0 or
+                ext.find('bmp')>=0 ):
+                # agg doesn't handle unicode yet
+                self.renderer._renderer.write_rgba(str(filename))
+            elif ext.find('png')>=0:
+                # agg doesn't handle unicode yet
+                self.renderer._renderer.write_png(str(filename))
+                #pass
+            elif ext.find('svg')>=0:
+                from backend_svg import FigureCanvasSVG
+                svg = self.switch_backends(FigureCanvasSVG)
+                svg.figure.dpi.set(72)
+                svg.print_figure(filename, 72, facecolor, edgecolor, orientation)
+            elif ext.find('ps')>=0 or ext.find('ep')>=0:
+                from backend_ps import FigureCanvasPS # lazy import
+                ps = self.switch_backends(FigureCanvasPS)
+                ps.figure.dpi.set(72)
+                ps.print_figure(filename, 72, facecolor, edgecolor, orientation)
+            else:
+                error_msg('Do not know know to handle extension *%s' % ext)
 
         # restore the original figure properties
         self.figure.dpi.set(origDPI)

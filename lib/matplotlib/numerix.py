@@ -66,3 +66,6 @@ elif which[0] == "numeric":
         from na_imports import *
 else:
     raise RuntimeError("invalid numerix selector")
+
+# a bug fix for blas numeric suggested by Fernando Perez
+matrixmultiply=dot
