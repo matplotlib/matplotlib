@@ -7,7 +7,7 @@ from __future__ import division
 import sys
 
 from matplotlib import verbose
-from cbook import is_string_like, enumerate, True, False
+from cbook import is_string_like, enumerate, True, False, strip_math
 from colors import colorConverter
 from numerix import array, sqrt, pi, log, asarray, ones, Float
 from patches import Rectangle
@@ -308,11 +308,8 @@ class RendererBase:
         pass # derived must override
 
     def strip_math(self, s):
-        remove = (r'\rm', '\cal', '\tt', '\it', '\\', '{', '}')
-        s = s[1:-1]
-        for r in remove:  s = s.replace(r,'')
-        return s
-    
+        return strip_math(s)
+              
     def draw_text(self, gc, x, y, s, prop, angle, ismath=False):
         """
         Draw string s at x,y (display coords) with font properties

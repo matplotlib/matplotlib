@@ -15,6 +15,13 @@ else:
     False = False
 
 
+def strip_math(s):
+    'remove latex formatting from mathtext'
+    remove = (r'\rm', '\cal', '\tt', '\it', '\\', '{', '}')
+    s = s[1:-1]
+    for r in remove:  s = s.replace(r,'')
+    return s
+
 class Bunch:
    """
    Often we want to just collect a bunch of stuff together, naming each
