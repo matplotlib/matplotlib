@@ -49,6 +49,7 @@ if cairo.version_info < version_required:
                      "PyCairo %d.%d.%d or later is required"
                      % (cairo.version_info + version_required))
 backend_version = cairo.version
+del version_required
 
 
 DEBUG = False
@@ -446,22 +447,8 @@ def new_figure_manager(num, *args, **kwargs): # called by backends/__init__.py
 
 def print_figure_fn(figure, filename, dpi=150, facecolor='w', edgecolor='w',
                     orientation='portrait'):
-    """
-    Render the figure to hardcopy.  Set the figure patch face and
-    edge colors.  This is useful because some of the GUIs have a
-    gray figure face color background and you'll probably want to
-    override this on hardcopy
-
-    orientation - only currently applies to PostScript printing.
-    filename - can also be a file object, png format is assumed
-    """
     if DEBUG: print 'backend_cairo.FigureCanvasCairo.%s()' % _fn_name()
 
-    # save figure state
-    origDPI       = figure.dpi.get()
-    origfacecolor = figure.get_facecolor()
-    origedgecolor = figure.get_edgecolor()
-        
     # settings for printing
     figure.dpi.set(dpi)
     figure.set_facecolor(facecolor)
@@ -498,11 +485,6 @@ def print_figure_fn(figure, filename, dpi=150, facecolor='w', edgecolor='w',
             verbose.report_error('Format "%s" is not supported.\nSupported formats: %s.' %
                                  (ext, ', '.join(IMAGE_FORMAT)))
 
-    # restore the new params
-    figure.dpi.set(origDPI)
-    figure.set_facecolor(origfacecolor)
-    figure.set_edgecolor(origedgecolor)
-        
         
 def _save_png (figure, fileObject):
     width, height = figure.get_width_height()
