@@ -1,9 +1,18 @@
 API changes at 0.50
 
   * refactored Figure class so it is no longer backend dependent.
-    FigureManager takes over the backend specific duties of the
+    FigureCanvasBackend takes over the backend specific duties of the
     Figure.  matplotlib.backend_bases.FigureBase moved to
-    matplotlib.figure.Figure
+    matplotlib.figure.Figure.
+
+  * backends must implement FigureCanvasBackend (the thing that
+    controls the figure and handles the events if any) and
+    FigureManagerBackend (wraps the canvas and the window for matlab
+    interface).  FigureCanvasBase implements a backend switching
+    mechanism
+
+  * Figure is now an Artist (like everything else in the figure) and
+    is totally backend independent
 
 API changes at 0.42
 

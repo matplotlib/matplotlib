@@ -138,6 +138,7 @@ matplotlib/axis.py
 matplotlib/backend_bases.py
 matplotlib/cbook.py
 matplotlib/colormap.py
+matplotlib/figure.py
 matplotlib/legend.py
 matplotlib/lines.py
 matplotlib/matlab.py
@@ -148,7 +149,9 @@ matplotlib/transforms.py
 matplotlib/backends/__init__.py
 matplotlib/backends/backend_gd.py
 matplotlib/backends/backend_gtk.py
+matplotlib/backends/backend_gtk2.py
 matplotlib/backends/backend_ps.py
 matplotlib/backends/backend_template.py
+matplotlib/backends/backend_wx.orig.py
 matplotlib/backends/backend_wx.py
 test/test.py
