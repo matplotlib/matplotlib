@@ -28,7 +28,7 @@ if 1:
     set(a, 'xticks', [])
     set(a, 'yticks', [])
 
-# Make a histogram probability density inset
+# Plot the impulse response function
 if 1:
     a = axes([0.2, 0.6, .2, .2], axisbg='y')
     plot(t[:len(r)], r)
