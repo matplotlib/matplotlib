@@ -2,6 +2,9 @@
 # Copyright (C) 2003  <jdhunter@ace.bsd.uchicago.edu>
 # $Header$
 # $Log$
+# Revision 1.7  2003/10/18 17:54:26  jdh2358
+# fixed interactive2 and several small bugs
+#
 # Revision 1.6  2003/09/30 16:15:33  jdh2358
 # added legend
 #
@@ -21,8 +24,8 @@
 # adding Makefile, releases, docs
 #
 
-PYTHON = /usr/bin/python2.2
-PYDOC = /usr/bin/pydoc
+PYTHON = /usr/local/bin/python2.3
+PYDOC = /usr/local/bin/pydoc
 VERSION = `${PYTHON} setup.py --version`
 DISTFILES = INSTALL README TODO LICENSE CHANGELOG Makefile GOALS INTERACTIVE \
 	MANIFEST.in matplotlib examples setup.py
@@ -41,9 +44,16 @@ clean:
 	find matplotlib -name "*.png"  | xargs rm -f;
 
 htmldocs: 
+	rm -rf htdocs/matplotlib;\
+	cp -a matplotlib htdocs/;\
+	cp examples/*.py htdocs/examples;\
 	rm -f docs/*.html;\
 	${PYDOC} -w ${MODULES};\
 	mv *.html docs/
+	cd htdocs;\
+	${PYTHON} process_docs.py;\
+	${PYTHON} convert.py;\
+	tar cvfz site.tar.gz *.html screenshots tut examples
 
 release: ${DISTFILES}
 	rm -rf ${RELEASE};\

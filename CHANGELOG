@@ -104,3 +104,7 @@
 
 2003-09-30  Added legend
 
+2003-10-01 Fixed bug when colors are specified with rgb tuple or hex
+   string.
+
+

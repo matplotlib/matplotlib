@@ -1,4 +1,4 @@
-# Thanks to Charles Twardy
+# Thanks to Charles Twardy for this example
 from matplotlib.matlab import *
 
 a = arange(0,3,.02)
