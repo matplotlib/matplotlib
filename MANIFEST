@@ -17,6 +17,7 @@ examples/color_demo.py
 examples/data_helper.py
 examples/dynamic_demo.py
 examples/embedding_in_gtk.py
+examples/embedding_in_gtk2.py
 examples/errorbar_demo.py
 examples/figtext.py
 examples/gdtest.py
@@ -27,8 +28,10 @@ examples/legend_demo.py
 examples/legend_demo2.py
 examples/line_styles.py
 examples/log_demo.py
+examples/log_test.py
 examples/logo.py
 examples/mpl_with_glade.py
+examples/mri_demo.py
 examples/mri_with_eeg.py
 examples/multiple_figs_demo.py
 examples/pcolor_demo.py
@@ -45,8 +48,8 @@ examples/wx_demo.py
 examples/xyerrorbar.py
 examples/data/AAPL.dat
 examples/data/INTC.dat
-examples/data/README
 examples/data/eeg.dat
+examples/data/membrane.dat
 examples/data/s1045.ima
 fonts/afm/pagd8a.afm
 fonts/afm/pagdo8a.afm
@@ -131,4 +134,3 @@ matplotlib/backends/backend_gtk.py
 matplotlib/backends/backend_ps.py
 matplotlib/backends/backend_template.py
 matplotlib/backends/backend_wx.py
-test/test.py
