@@ -43,20 +43,19 @@ from matplotlib.transforms import Bbox
 
 import cairo
 
-# add version checking, if cairo adds version number support
-#version_required = (1,99,16)
-#if gtk.pygtk_version < version_required:
-#    raise SystemExit ("PyGTK %d.%d.%d is installed\n"
-#                      "PyGTK %d.%d.%d or later is required"
-#                      % (gtk.pygtk_version + version_required))
-#backend_version = "%d.%d.%d" % gtk.pygtk_version
-backend_version = 'unknown' # cairo does not report version, yet
+# version checking - enable when snapsnot released
+# version_required = (0,1,2)
+# if cairo.version_info < version_required:
+#    raise SystemExit ("PyCairo %d.%d.%d is installed\n"
+#                      "PyCairo %d.%d.%d or later is required"
+#                      % (cairo.version_info + version_required))
+# backend_version = cairo.version
+backend_version = 'unknown'
 
 
 DEBUG = False
 
 # the true dots per inch on the screen; should be display dependent
-# see http://groups.google.com/groups?q=screen+dpi+x11&hl=en&lr=&ie=UTF-8&oe=UTF-8&safe=off&selm=7077.26e81ad5%40swift.cs.tcd.ie&rnum=5 for some info about screen dpi
 PIXELS_PER_INCH = 96
 
 # Image formats that this backend supports - for print_figure()
