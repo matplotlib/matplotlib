@@ -960,7 +960,242 @@ Refs: Bendat & Piersol -- Random Data: Analysis and Measurement
         return cxy, freqs
 
 
-    def contour(self, z,
+    def contour(self, *args, **kwargs):
+        """\
+CONTOUR(self, *args, **kwargs)
+
+Function signatures
+
+CONTOUR(Z) - make a contour plot of an array Z. The level
+         values are chosen automatically.
+
+CONTOUR(X,Y,Z) - X,Y specify the (x,y) coordinates of the surface
+
+CONTOUR(Z,N) and CONTOUR(X,Y,Z,N) - draw N contour lines overriding
+                 the automatic value
+
+CONTOUR(Z,V) and CONTOUR(X,Y,Z,V) - draw len(V) contour lines,
+               at the values specified in V (array, list, tuple)
+
+CONTOUR(Z, **kwargs) - Use keyword args to control colors, linewidth,
+            origin, cmap ... see below
+
+Optional keywork args are shown with their defaults below (you must
+use kwargs for these):
+
+* colors = None: one of these:
+  - a tuple of matplotlib color args (string, float, rgb, etc),
+  different levels will be plotted in different colors in the order
+  specified
+
+  -  one string color, e.g. colors = 'r' or colors = 'red', all levels
+  will be plotted in this color
+
+  - if colors == None, the default colormap will be used
+
+* alpha=1.0 : the alpha blending value
+
+* cmap = None: a cm Colormap instance from matplotlib.cm.
+
+* fmt = '1.3f': a format string for adding a label to each collection.
+  Useful for auto-legending .
+
+* origin = None: 'upper'|'lower'|None.  If None, the rc value for image.origin
+  will be used
+
+* linewidths = None: or one of these:
+  - a number - all levels will be plotted with this linewidth,
+    e.g. linewidths = 0.6
+
+  - a tuple of numbers, e.g. linewidths = (0.4, 0.8, 1.2) different
+    levels will be plotted with different linewidths in the order
+    specified
+
+  - if linewidths == None, the default width in lines.linewidth in
+    .matplotlibrc is used
+
+reg is a 1D region number array with of imax*(jmax+1)+1 size
+The values of reg should be positive region numbers, and zero fro
+zones wich do not exist.
+
+triangle - triangulation array - must be the same shape as reg
+
+[L,C] = CONTOUR(...) returns a list of levels and a silent_list of LineCollections
+                 
+                 """
+
+        class ContourMappable(ScalarMappable):
+            """
+            a class to allow contours to respond properly to change in cmaps, etc
+            """
+            def __init__(self, levels, collections, norm=None, cmap=None):
+                ScalarMappable.__init__(self, norm, cmap)
+                self.levels = levels
+                self.collections = collections    
+            def changed(self):
+                colors = [ (tuple(rgba),) for rgba in self.to_rgba(self.levels)]
+                for color, collection in zip(colors, self.collections):
+                    collection.set_color(color)
+                ScalarMappable.changed(self)
+            
+
+        if not self._hold: self.cla()
+
+        alpha = kwargs.get('alpha', 1.0)
+        linewidths = kwargs.get('linewidths', None)
+        fmt = kwargs.get('fmt', '%1.3f')
+        origin = kwargs.get('origin', None)
+        cmap = kwargs.get('cmap', None)
+        colors = kwargs.get('colors', None)
+
+        if cmap is not None: assert(isinstance(cmap, Colormap))   
+        if origin is not None: assert(origin in ['lower', 'upper'])
+        
+        if colors is not None and cmap is not None:
+            raise RuntimeError('Either colors or cmap must be None')
+        if origin is None: origin = rcParams['image.origin']
+
+        def autolev(z, N):
+            rz = ravel(z)
+            zmax = amax(rz)
+            zmin = amin(rz)
+            lev = linspace(zmin, zmax, N+2)[1:-1]
+            return [float(val) for val in lev]
+
+        def initialize_z(z):
+            if which[0] == "numeric":
+                if origin == 'upper': return array(z.tolist(),typecode = z.typecode())[::-1]
+                else: return array(z.tolist(),typecode = z.typecode())
+            else:
+                if origin == 'upper': return z[::-1]
+                else: return z
+
+        def initialize_x_y(z):
+            if len(shape(z)) != 2:
+                raise TypeError("Input must be a 2D array.")
+            else: imax, jmax = shape(z)
+            self.set_xlim((0,jmax-1))
+            self.set_ylim((0,imax-1))
+            return meshgrid(arange(jmax), arange(imax))
+
+
+        if len(args) == 1:
+            z = initialize_z(args[0])
+            x, y = initialize_x_y(z)
+            lev = array(autolev(z,7))
+        elif len(args) == 2:
+            z = initialize_z(args[0])
+            x, y = initialize_x_y(z)
+            if type(args[1]) == int:
+                N = args[1]
+                lev = array(autolev(z,N))
+            elif iterable(args[1]) and len(shape(args[1])) == 1:
+                lev = array([float(val) for val in args[1]])
+            else:
+                raise TypeError("Illegal arguments to contour, see help(contour) ")
+        elif len(args) == 3:
+            x,y,z = args
+            if len(shape(x)) != 2 or len(shape(y)) != 2 or len(shape(z)) !=2:
+                raise TypeError("X, Y and Z must be  2D arrays.")
+            z = initialize_z(z)
+            self.set_xlim((min(ravel(x)), max(ravel(x))))
+            self.set_ylim((min(ravel(y)), max(ravel(y))))
+            lev = array(autolev(z,7))
+
+        elif len(args) == 4:
+            x,y = args[0], args[1]
+            z = initialize_z(args[2])
+            self.set_xlim((min(ravel(x)), max(ravel(x))))
+            self.set_ylim((min(ravel(y)), max(ravel(y))))
+            if len(shape(x)) != 2 or len(shape(y)) != 2 or len(shape(z)) !=2:
+                raise TypeError("X, Y and Z must be  2D arrays.")
+            if type(args[3]) == int:
+                N = args[3]
+                lev = array(autolev(z, N))
+            elif iterable(args[3]) and len(shape(args[3])) == 1:
+                lev = array([float(val) for val in args[3]])
+            else:
+                raise TypeError("Illegal arguments to contour, see help(contour) ")
+
+        Nlev = len(lev)
+
+        def initialize_reg_tri(z):
+            imax, jmax = shape(z)
+            
+            reg = ones((1,jmax*(imax+1)+1), typecode = 'i')
+            reg[0,:jmax+1]=0
+            reg[0,-jmax:]=0
+            for j in range(0,jmax*(imax+1)+1, jmax):
+                reg[0,j]=0
+
+            triangle = zeros((imax,jmax), typecode='s')
+
+            return reg, triangle
+
+        reg,triangle = initialize_reg_tri(z)
+
+        collections = []
+
+        if colors is not None:
+
+            if is_string_like(colors):
+                colors = [colors] * Nlev
+            elif iterable(colors) and len(colors) < Nlev:
+                colors = list(colors) * Nlev
+            else:
+                try: gray = float(colors)
+                except TypeError: pass
+                else:  colors = [gray] * Nlev
+
+            tcolors = [(colorConverter.to_rgba(c, alpha),) for c in colors]
+            mappable = None
+        else:
+            mappable = ContourMappable(lev, collections, cmap=cmap)
+            mappable.set_array(z)
+            mappable.autoscale()
+            tcolors = [ (tuple(rgba),) for rgba in mappable.to_rgba(lev)]
+
+        if linewidths == None:
+            tlinewidths = [rcParams['lines.linewidth']] *Nlev
+        else:
+            if iterable(linewidths) and len(linewidths) < Nlev:
+                linewidths = list(linewidths) * int(ceil(Nlev/len(linewidths)))
+            elif not iterable(linewidths) and type(linewidths) in [int, float]:
+                linewidths = [linewidths] * Nlev
+            tlinewidths = [(w,) for w in linewidths]
+
+
+        args = zip(lev, tcolors, tlinewidths)
+
+        levels = []
+
+        region = 0
+        for level, color, width  in args:
+            ntotal, nparts  = _contour.GcInit1(x, y, reg, triangle, 
+                                               region, z, level)
+            np = zeros((nparts,), typecode='l')
+            xp = zeros((ntotal, ), Float64)
+            yp = zeros((ntotal,), Float64)
+            nlist = _contour.GcTrace(np, xp, yp)
+            col = LineCollection(nlist)
+            col.set_color(color)
+            col.set_linewidth(width)
+            """
+            if level < 0:
+                col.set_linestyle((0, (6.,6.)),)
+            """
+            #print 'fmt,lev',fmt, level
+            col.set_label(fmt%level)
+            self.add_collection(col)
+            levels.append(level)
+            collections.append(col)
+        
+        collections = silent_list('LineCollection', collections)
+        collections.mappable = mappable
+        return levels, collections
+
+
+    def __contour(self, z,
                 x = None,
                 y = None,
                 levels = None,

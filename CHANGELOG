@@ -1,5 +1,10 @@
 New entries should be added at the top
+
  
+2005-02-04 Added Nadia's contour patch - contour now has matlab
+           compatible syntax; this also fixed an unequal sized contour
+           array bug- JDH
+
 2005-02-04 Modified GTK backends to allow the FigureCanvas to be resized
 	   smaller than its original size - SC
 
