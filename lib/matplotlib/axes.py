@@ -603,6 +603,100 @@ class Axes(Artist):
 
 
 
+    def hbar(self, x, y, height=0.8, left=0,
+            color='b', yerr=None, xerr=None, ecolor='k', capsize=3
+            ):
+        """
+        HBAR(x, y)
+        
+        The y values give the heights of the center of the bars.  The
+        x values give the length of the bars.
+
+        Return value is a list of Rectangle patch instances
+
+    Optional arguments
+
+          height - the height (thickness)  of the bar
+
+          left  - the x coordinate of the left side of the bar
+
+          color specifies the color of the bar
+          
+          xerr and yerr, if not None, will be used to generate errorbars
+           on the bar chart
+
+          ecolor specifies the color of any errorbar
+
+          capsize determines the length in points of the error bar caps
+
+        
+        
+        The optional arguments color, height and left can be either
+        scalars or len(x) sequences
+        """
+        if not self._hold: self.cla()
+
+        # left = asarray(left) - width/2
+        x = asarray(x)
+        y = asarray(y)
+
+        patches = []
+
+
+        # if color looks like a color string, and RGB tuple or a
+        # scalar, then repeat it by len(x)
+        if (is_string_like(color) or
+            (iterable(color) and len(color)==3 and len(left)!=3) or
+            not iterable(color)):
+            color = [color]*len(x)
+
+
+        if not iterable(left):
+            left = array([left]*len(x), Float)
+        else:
+            left = asarray(left)
+        if not iterable(height):
+            height = array([height]*len(x), Float)
+        else:
+            height = asarray(height)
+
+        N = len(x)
+        assert len(left)==N, 'bar arg left must be len(x)'
+        assert len(height)==N, 'bar arg height must be len(x) or scalar'
+        assert len(y)==N, 'bar arg y must be len(x) or scalar'
+        assert len(color)==N, 'bar arg color must be len(x) or scalar'
+
+        
+
+        width = x
+        right = left+x
+        bottom = y - height/2.
+        top = y + height/2.
+        
+
+        args = zip(left, bottom, width, height, color)
+        for l, b, w, h, c in args:            
+            if h<0:
+                b += h
+                h = abs(h)
+            r = Rectangle(
+                xy=(l, b), width=w, height=h,
+                facecolor=c,
+                )
+            self.add_patch(r)
+            patches.append(r)
+ 
+
+        if xerr is not None or yerr is not None:
+            self.errorbar(
+                right, y,
+                yerr=yerr, xerr=xerr,
+                fmt=None, ecolor=ecolor, capsize=capsize)
+        self.autoscale_view()
+        return patches
+
+
+
     def clear(self):
         self.cla()
         
