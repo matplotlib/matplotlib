@@ -554,12 +554,12 @@ Transformation::numerix_x_y(const Py::Tuple & args) {
   Py::Object xo = args[0];
   Py::Object yo = args[1];
 
-  PyArrayObject *x = (PyArrayObject *) PyArray_FromObject(xo.ptr(), PyArray_DOUBLE, 1, 1); 
+  PyArrayObject *x = (PyArrayObject *) PyArray_ContiguousFromObject(xo.ptr(), PyArray_DOUBLE, 1, 1); 
   
   if (x==NULL) 
     throw Py::TypeError("Transformation::numerix_x_y expected numerix array");
 
-  PyArrayObject *y = (PyArrayObject *) PyArray_FromObject(yo.ptr(), PyArray_DOUBLE, 1, 1); 
+  PyArrayObject *y = (PyArrayObject *) PyArray_ContiguousFromObject(yo.ptr(), PyArray_DOUBLE, 1, 1); 
   
   if (y==NULL) 
     throw Py::TypeError("Transformation::numerix_x_y expected numerix array");

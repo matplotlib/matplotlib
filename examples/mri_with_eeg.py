@@ -6,7 +6,8 @@ faster*
 from __future__ import division
 from matplotlib.matlab import *
 from matplotlib.lines import Line2D
-from matplotlib.transforms import Transform, Bound1D
+from matplotlib.transforms import get_bbox_transform, Point, Value, Bbox,\
+     translation_transform, zero
 # I use if 1 to break up the different regions of code visually
 
 if 1:   # load the data
@@ -42,25 +43,31 @@ if 1:   # plot the EEG
 
     height = 72  # height of one EEG in pixels
     # transform data to axes coord (0,1)
-    transy = Transform(Bound1D(-.05,.05), Bound1D(-.2,.2))
-    for i in range(numRows):
-        thisLine = Line2D(
-            ax.dpi, ax.bbox, t, data[:,i]-data[0,i],
-            transx=ax.xaxis.transData,
-            transy=transy)
-        offset = (i+1)/(numRows+1)
-        thisLine.set_vertical_offset(offset, ax.yaxis.transAxis)
+    
 
+    for i in range(numRows):
+        trans = get_bbox_transform(ax.viewLim, ax.bbox)
+        offset = (i+1)/(numRows+1)
+        height = Value(offset) * (ax.bbox.ur().y() - ax.bbox.ll().y())
+        trans.set_offset( (0,0), translation_transform(zero(), height) )
+        
+        thisLine = Line2D(
+            t, data[:,i]-data[0,i],
+            )
+        
+        thisLine.set_transform(trans)
+        
         ax.add_line(thisLine)
         ticklocs.append(offset)
 
     set(gca(), 'xlim', [0,10])
+    set(gca(), 'ylim', [0,200])    
     set(gca(), 'xticks', arange(10))
     yticks = set(gca(), 'yticks', ticklocs)
     set(gca(), 'yticklabels', ['PG3', 'PG5', 'PG7', 'PG9']) 
 
     # set the yticks to use axes coords on the y axis
-    set(yticks, 'transform', ax.yaxis.transAxis)
+    set(yticks, 'transform', ax.transAxes)
     xlabel('time (s)')
 
 
