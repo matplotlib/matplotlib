@@ -542,3 +542,32 @@ ZeroDivisionError: SeparableTransformation::eval_scalars yin interval is zero; c
    multiple figure creation / deletion etc.
 
 -- add xlim, ylim
+
+-- tick bug on preserve, possibly center preserved image, flagt to
+   reshape axes on preserve
+
+
+-- test rellinks in pydoc
+
+-- port transforms to backend and break up long arrays in agg and svg
+
+-- clickable plot elements with labels, attributes in collections
+
+-- 'g' grid, 'l' log, SHIFT l, log closest to axis, coords always
+   available, middle click annotates, p, n, h for view stack,
+
+-- relative distance mode
+
+--backend dependent cursoring
+
+-- relative distance measures
+
+-- on/off for button in status bar
+
+-- interactive drawing and palletes
+
+-- bk://sidl.bkbits.net/BuildSystem for py configure
+
+-- post hacking polints memo on site, ann and send copy to Fernando
+
+
