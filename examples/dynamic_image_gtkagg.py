@@ -1,12 +1,9 @@
 #!/usr/bin/env python
 """
-An animated image - Thanks to Andrew Straw who originally provided
-this examples as dynamic_image_wx.py
+An animated image
 """
 import sys, time, os, gc
 from matplotlib import rcParams
-# there is a bug in Numeric 23.1 that crashes with this examples
-rcParams['numerix'] = 'numarray'
 
 from matplotlib.matlab import *
 import gtk
@@ -14,9 +11,9 @@ import gtk
 fig = figure(1)
 a = subplot(111)
 x = arange(120.0)*2*pi/120.0
-x.resize((100,120))
+x = resize(x, (100,120))
 y = arange(100.0)*2*pi/100.0
-y.resize((120,100))
+y = resize(y, (120,100))
 y = transpose(y)
 z = sin(x) + cos(y)
 im = a.imshow( z, cmap=cm.jet)#, interpolation='nearest')
