@@ -23,6 +23,8 @@ API CHANGES in matplotlib-0.72
    Renamed the base attribute of the ticker classes to _base to avoid conflict
    with the base method.  Sitt for subs
 
+   subs=none now does autosubbing in the tick locator.
+
 API CHANGES in matplotlib-0.71   
 
    Significant numerix namespace changes, introduced to resolve
