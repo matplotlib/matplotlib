@@ -179,7 +179,9 @@ with AFM fonts as an option.
     elif isinstance(fontpaths, (str, unicode)):
         fontpaths = [fontpaths]
     for path in fontpaths:
-        for fname in glob.glob(os.path.join(path, '*.'+fontext)):
+        files = glob.glob(os.path.join(path, '*.'+fontext))
+        files.extend(glob.glob(os.path.join(path, '*.'+fontext.upper())))
+        for fname in files:
 
             fontfiles[os.path.abspath(fname)] = 1
     return [fname for fname in fontfiles.keys() if os.path.exists(fname)]
@@ -767,6 +769,7 @@ font dictionary can act like a font cache.
         
         self.ttffiles = findSystemFonts(paths) + findSystemFonts()
         for fname in self.ttffiles:
+            verbose.report('trying fontname %s' % fname, 'debug')
             if fname.lower().find('vera.ttf')>=0:
                 self.defaultFont = fname
                 break

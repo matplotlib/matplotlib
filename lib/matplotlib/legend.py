@@ -349,6 +349,7 @@ The following dimensions are in axes coords
 
         # Set the data for the legend patch
         bbox = self._get_handle_text_bbox(renderer).deepcopy()
+
         bbox.scale(1 + self.pad, 1 + self.pad)
         l,b,w,h = bbox.get_bounds()
         self.legendPatch.set_bounds(l,b,w,h)

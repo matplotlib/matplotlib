@@ -672,3 +672,5 @@ ZeroDivisionError: SeparableTransformation::eval_scalars yin interval is zero; c
 -- colorbar image origin with contour is broken in SVG; test PS
 
 -- Bryan Cole's CXX type segfault
+
+-- japanese ft2font bug

@@ -1161,10 +1161,10 @@ RendererAgg::_draw_markers(const Py::Tuple& args) {
     while(!agg::is_stop(cmd = ppath->vertex(&x, &y)))
       markers.add_vertex(x+thisx, thisy-y, cmd);
        
-    
+    _fill_and_stroke(markers, gc, face, curvy);    
   } //for each marker
   
-  _fill_and_stroke(markers, gc, face, curvy);
+
   Py_XDECREF(xa);
   Py_XDECREF(ya);
   
