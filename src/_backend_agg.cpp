@@ -895,8 +895,11 @@ RendererAgg::draw_image(const Py::Tuple& args) {
       thisx = i+x; 
       thisy =  isUpper ?  oy+j : oy-j; 
 
-      if (thisx<0 || thisx>=width)  continue;
-      if (thisy<0 || thisy>=height) continue;
+      if (thisx<0 || thisx>=width || thisy<0 || thisy>=height) {
+	ind += 4;
+	continue;
+      }
+	
       pixfmt::color_type p;
       p.r = *(image->bufferOut+ind++);
       p.g = *(image->bufferOut+ind++);

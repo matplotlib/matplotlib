@@ -477,8 +477,10 @@ _image_module::from_images(const Py::Tuple& args) {
       for (size_t i=0; i<thisim->colsOut; i++) {
 	thisx = i+ox;  
 	thisy = j+oy; 
-	if (thisx<0 || thisx>=numcols)  continue;
-	if (thisy<0 || thisy>=numrows) continue;
+	if (thisx<0 || thisx>=numcols || thisy<0 || thisy>=numrows) {
+	  ind +=4;
+	  continue;
+	}
 
 	pixfmt::color_type p;
 	p.r = *(thisim->bufferOut+ind++);
