@@ -83,3 +83,21 @@
   
    Fixed bugs i figure text with font override dictionairies and fig
    text that was placed outside the window bounding box
+
+2003-09-1 thru 2003-09-15  
+
+   Added a postscript and a GD module backend
+
+2003-09-16
+
+   Fixed font scaling and point scaling so circles, squares, etc on
+   lines will scale with DPI as will fonts.  Font scaling is not fully
+   implemented on the gtk backend because I have not figured out how
+   to scale fonts to arbitrary sizes with GTK
+
+2003-09-17 
+ 
+   Fixed figure text bug which crashed X windows on long figure text
+   extending beyond display area.  This was, I believe, due to the
+   vestigial erase functionality that was no longer needed since I
+   began rendering to a pixmap
