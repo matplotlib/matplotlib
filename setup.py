@@ -6,9 +6,10 @@ import glob
 data = []
 data.extend(glob.glob('fonts/afm/*.afm'))
 data.extend(glob.glob('fonts/ttf/*.ttf'))
+data.extend(glob.glob('images/*.xpm'))
 
 setup(name="matplotlib",
-      version= '0.32',
+      version= '0.32a',
       description = "Matlab style python plotting package",
       author = "John D. Hunter",
       author_email="jdhunter@ace.bsd.uchicago.edu",
