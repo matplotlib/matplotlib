@@ -1,5 +1,7 @@
 New entries should be added at the top
 
+2004-04-16 Added get- and set_fontstyle msethods. - PEB
+
 2004-04-10 Mathtext fixes: scaling with dpi,  - JDH
 
 2004-04-09 Improved font detection algorithm. - PEB
