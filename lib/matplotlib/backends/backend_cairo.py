@@ -43,7 +43,7 @@ import sys
 def function_name(): return sys._getframe(1).f_code.co_name
 
 from matplotlib import verbose
-from matplotlib._matlab_helpers import Gcf
+from matplotlib.numerix import asarray #, fromstring, UInt8, zeros, where, transpose, nonzero, indices, ones, nxfrom matplotlib._matlab_helpers import Gcf
 from matplotlib.backend_bases import RendererBase, GraphicsContextBase,\
      FigureManagerBase, FigureCanvasBase, error_msg
 from matplotlib.cbook import enumerate, True, False
@@ -112,14 +112,11 @@ class RendererCairo(RendererBase):
     
     def points_to_pixels(self, points):
         """
-        convert points to display units; unless your backend doesn't
-        have dpi, eg, postscript, you need to overrride this function
+        Convert points to display units.
         """
         if Debug: print 'backend_cairo.RendererCairo.%s()' % function_name()
-
         # should not need points_to_pixels() ? Cairo is device independent
-        return points*(PIXELS_PER_INCH/72.0*self.dpi.get()/72.0)
-        #return points*(self.dpi.get()/72.0)
+        return points * PIXELS_PER_INCH/72.0 * self.dpi.get()/72.0
 
 
     def draw_text(self, gc, x, y, s, prop, angle, ismath=False):    
@@ -149,12 +146,12 @@ class RendererCairo(RendererBase):
             #self.gdkDrawable.draw_layout(gc.gdkGC, x=x, y=y-h-b,
             #                             layout=layout)
 
-            print 's:', s
-            print 'prop:', prop
-            print 'dir(prop):', dir(prop)
-            print 'angle', angle
-
-            print 'prop.name', prop.get_name()
+            
+            #print 's:', s
+            #print 'prop:', prop
+            #print 'dir(prop):', dir(prop)
+            #print 'angle', angle
+            #print 'prop.name', prop.get_name()
 
             ctx.select_font ('sans-serif')
             ctx.scale_font (14)  # manually sized to match MyGraph
@@ -295,16 +292,6 @@ class RendererCairo(RendererBase):
         return GraphicsContextCairo (renderer=self)
 
 
-    def points_to_pixels(self, points):
-        """
-        convert points to display units.  Many imaging systems assume
-        some value for pixels per inch.  Eg, suppose yours is 96 and
-        dpi = 300.  Then points to pixels is
-        """
-        if Debug: print 'backend_cairo.RendererCairo.%s()' % function_name()
-        return 96/72.0 * 300/72.0 * points
-
-
 class GraphicsContextCairo(GraphicsContextBase):
     """
     The graphics context provides the color, line styles, etc...
@@ -352,7 +339,8 @@ class GraphicsContextCairo(GraphicsContextBase):
     def set_dashes(self, offset, dashes):
         self._dashes = offset, dashes
         if offset != None:
-            self.ctx.set_dash(dashes, offset)
+            dashes_pixels = self.renderer.points_to_pixels(asarray(dashes))
+            self.ctx.set_dash(dashes_pixels, offset)
         else: # hack to switch dashes off
             self.ctx.set_dash([1,0], 0)
         

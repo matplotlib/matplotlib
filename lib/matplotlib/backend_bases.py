@@ -43,7 +43,9 @@ class RendererBase:
     def points_to_pixels(self, points):
         """
         convert points to display units; unless your backend doesn't
-        have dpi, eg, postscript, you need to overrride this function
+        have dpi, eg, postscript, you need to overrride this function.
+        Many imaging systems assume some value for pixels per inch.
+        points to pixels = points * pixels_per_inch/72.0 * dpi/72.0
         """
         return points  
 
