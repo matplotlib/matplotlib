@@ -1,5 +1,7 @@
 New entries should be added at the top
 ------------------------------------------------------------
+2004-05-16 Added fast pcolor using PolyCollections.  - JDH
+
 2004-05-14 Added fast polygon collections - changed scatter to use
            them.  Added multiple symbols to scatter.  10x speedup on
 	   large scatters using *Agg and 5X speedup for ps. - JDH
