@@ -166,6 +166,27 @@
 
 -- DONE 2003-12-15 - fix install path bug
 
--- Scale line width with DPI
+-- DONE Scale line width with DPI
 
--- allow pass of file handle to backend_gd
+-- DONE 2004-02-06 allow pass of file handle to backend_gd
+
+-- check clipping for GD
+
+-- Fix GD color allocation bug
+
+-- Write install instructions for Paint on win32 and linux
+
+-- Write install instructions for gd on win32
+
+-- Separate out the backend web pages and get developers to maintain
+   them.
+
+-- FAQ 
+
+    * numarray
+    * pygtk path
+    * what's up with show
+
+-- explaing the new interactive syntax on
+   http://matplotlib.sourceforge.net/interactive.html
+
