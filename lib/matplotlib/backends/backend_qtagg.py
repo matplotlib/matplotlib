@@ -177,9 +177,9 @@ class FigureCanvasQtAgg(qt.QWidget, FigureCanvasAgg):
         
     #Events to pass on to matplotlib
     def keyPressEvent(self, ev):
-        self.keyPressEvent(ev.text())
+        self.key_press_event(ev.text())
     def keyReleaseEvent(self, ev): 
-        self.keyReleaseEvent(ev.text())
+        self.key_release_event(ev.text())
     def mouseMoveEvent(self, ev):
         x, y = self.getMatplotlibCoord(ev)
         self.motion_notify_event(x, y)        
