@@ -1,5 +1,8 @@
 New entries should be added at the top
 
+2005-01-07 Add patch from Stephen Walton to fix bug in pylab.load()
+           when the % character is included in a comment. - ADS
+
 2005-01-07 Added markerscale attribute to Legend class.  This allows
            the marker size in the legend to be adjusted relative to
            that in the plot. - ADS

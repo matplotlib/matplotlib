@@ -847,7 +847,7 @@ def load(fname):
     X = []
     numCols = None
     for line in fh:
-        line = line[:line.rfind('%')].strip()
+        line = line[:line.find('%')].strip()
         if not len(line): continue
         row = [float(val) for val in line.split()]
         thisLen = len(row)
