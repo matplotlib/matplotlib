@@ -278,8 +278,83 @@ class RendererGTK(RendererBase):
         self.gdkDrawable.draw_rectangle(gc.gdkGC, False, x, y, w, h)
 
 
-    #def _draw_rotated_text(self, gc, x, y, s, prop, angle, ismath): # ismath is not used
-    def _draw_rotated_text(self, gc, x, y, s, prop, angle): # ismath is not used
+    def draw_text(self, gc, x, y, s, prop, angle, ismath):
+        
+        x, y = int(x), int(y)
+
+        if angle not in (0,90):
+             verbose.report_error('The GTK backend cannot draw text at a %i degree angle, try GtkAgg instead' % angle)
+
+        elif ismath:
+            self._draw_mathtext(gc, x, y, s, prop, angle)
+
+        elif angle==90:
+            self._draw_rotated_text(gc, x, y, s, prop, angle)
+
+        else:
+            layout = self.get_pango_layout(s, prop)
+            inkRect, logicalRect = layout.get_pixel_extents()
+            l, b, w, h = inkRect
+
+            self.gdkDrawable.draw_layout(gc.gdkGC, x=x, y=y-h-b,
+                                         layout=layout)
+
+        
+    def _draw_mathtext(self, gc, x, y, s, prop, angle):
+
+        size = prop.get_size_in_points()
+        width, height, fonts = math_parse_s_ft2font(
+            s, self.dpi.get(), size)
+
+        if angle==90:
+            width, height = height, width
+        
+        rgb = gc.get_rgb()
+        #rgba = (rgb[0], rgb[1], rgb[2], gc.get_alpha())
+
+        imw, imh, s = fonts[0].image_as_str()
+        N = imw*imh
+
+        # a numpixels by num fonts array
+        Xall = zeros((N,len(fonts)), typecode=UInt8)
+
+        for i, font in enumerate(fonts):
+            if angle == 90:
+                font.horiz_image_to_vert_image() # <-- Rotate
+            imw, imh, s = font.image_as_str()
+            Xall[:,i] = fromstring(s, UInt8)  
+
+        # get the max alpha at each pixel
+        Xs = numerix.max(Xall,1)
+
+        # convert it to it's proper shape
+        Xs.shape = imh, imw
+
+        pb=gtk.gdk.Pixbuf(gtk.gdk.COLORSPACE_RGB,
+                          has_alpha=1, bits_per_sample=8, width=imw, height=imh)
+
+        try:
+            pa = pb.get_pixels_array()
+        except AttributeError:
+            pa = pb.pixel_array
+        except RuntimeError, exc: #  'pygtk was not compiled with Numeric Python support'
+            verbose.report_error('mathtext not supported: %s' % exc)
+            return        
+
+        pa[:,:,0]=int(rgb[0]*255)
+        pa[:,:,1]=int(rgb[1]*255)
+        pa[:,:,2]=int(rgb[2]*255)
+        pa[:,:,3]=Xs
+
+        if angle==90:
+            x -= width
+        y -= height
+        pb.render_to_drawable(self.gdkDrawable, gc.gdkGC, 0, 0,
+                              int(x), int(y), imw, imh,
+                              gdk.RGB_DITHER_NONE, 0, 0)
+            
+        
+    def _draw_rotated_text(self, gc, x, y, s, prop, angle):
         """
         Draw the text rotated 90 degrees
         """
@@ -341,89 +416,6 @@ class RendererGTK(RendererBase):
         return True
 
 
-    def draw_mathtext(self, gc, x, y, s, prop, angle):
-
-        size = prop.get_size_in_points()
-        width, height, fonts = math_parse_s_ft2font(
-            s, self.dpi.get(), size)
-
-        if angle==90:
-            width, height = height, width
-        x = int(x)
-        y = int(y)
-        
-        rgb = gc.get_rgb()
-        #rgba = (rgb[0], rgb[1], rgb[2], gc.get_alpha())
-
-        imw, imh, s = fonts[0].image_as_str()
-        N = imw*imh
-
-        # a numpixels by num fonts array
-        Xall = zeros((N,len(fonts)), typecode=UInt8)
-
-        for i, font in enumerate(fonts):
-            if angle == 90:
-                font.horiz_image_to_vert_image() # <-- Rotate
-            imw, imh, s = font.image_as_str()
-            Xall[:,i] = fromstring(s, UInt8)  
-
-        # get the max alpha at each pixel
-        Xs = numerix.max(Xall,1)
-
-        # convert it to it's proper shape
-
-        Xs.shape = imh, imw
-                
-
-        pb=gtk.gdk.Pixbuf(gtk.gdk.COLORSPACE_RGB,
-                          has_alpha=1, bits_per_sample=8, width=imw, height=imh)
-
-        try:
-            pa = pb.get_pixels_array()
-        except AttributeError:
-            pa = pb.pixel_array
-        except RuntimeError, exc: #  pygtk was not compiled with Numeric Python support
-            print >>sys.stderr, 'Error:', exc
-            return        
-
-        pa[:,:,0]=int(rgb[0]*255)
-        pa[:,:,1]=int(rgb[1]*255)
-        pa[:,:,2]=int(rgb[2]*255)
-        pa[:,:,3]=Xs
-
-
-        if angle==90:
-            x -= width
-        y -= height
-        pb.render_to_drawable(self.gdkDrawable, gc.gdkGC, 0, 0,
-                              int(x), int(y), imw, imh,
-                              gdk.RGB_DITHER_NONE, 0, 0)
-            
-        
-    def draw_text(self, gc, x, y, s, prop, angle, ismath):
-        
-        if ismath:
-            self.draw_mathtext(gc, x, y, s, prop, angle)
-            return
-
-        w, h = self.get_text_width_height(s, prop, ismath)
-        x = int(x)
-        y = int(y)
-
-        if angle==90:
-            #self._draw_rotated_text(gc, x, y, s, prop, angle, ismath)
-            self._draw_rotated_text(gc, x, y, s, prop, angle)
-            return
-
-        layout = self.get_pango_layout(s, prop)
-        inkRect, logicalRect = layout.get_pixel_extents()
-        rect = inkRect
-        l, b, w, h = rect
-
-        self.gdkDrawable.draw_layout(gc.gdkGC, x=x, y=y-h-b,
-                                     layout=layout)
-
-        
     def get_pango_layout(self, s, prop):
         """
         Return a pango layout instance for Text instance t.  cache to
@@ -446,7 +438,6 @@ class RendererGTK(RendererBase):
         scale = self.get_text_scale()
         size  = prop.get_size_in_points()
         font.set_size(int(scale*size*1024))
-        #context = self.gtkDA.create_pango_context() # not used
         layout  = self.gtkDA.create_pango_layout(s)
         layout.set_font_description(font)    
 
