@@ -1,0 +1,7 @@
+*.png
+*.ps
+*.eps
+*.jpeg
+*.jpg
+*.pyc
+.cvsignore
