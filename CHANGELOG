@@ -1,5 +1,8 @@
 New entries should be added at the top
 
+2004-07-22 Added NavigationToolbar2 support to backend_tkagg.
+	   Minor tweak to backend_bases.  - JTM
+
 2004-07-22 Incorporated Gergory's renderer cache and buffer object
            cache - JDH
 
