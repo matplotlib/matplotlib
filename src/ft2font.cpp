@@ -416,7 +416,7 @@ FT2Font::set_text(const Py::Tuple & args) {
   _VERBOSE("FT2Font::set_text");
   args.verify_length(2);
   text = Py::String(args[0]);
-  double angle = Py::Float(args[1]);
+  angle = Py::Float(args[1]);
   
   angle = angle/360.0*2*3.14159;
   //this computes width and height in subpixels so we have to divide by 64
@@ -669,9 +669,9 @@ FT2Font::draw_glyphs_to_bitmap(const Py::Tuple & args) {
   image.offsetx = (int)(string_bbox.xMin/64.0);
   if (angle==0)  
     image.offsety = -image.height;
-  else
+  else {
     image.offsety = (int)(-string_bbox.yMax/64.0);
-
+  }
 
   size_t numBytes = image.width*image.height;
   delete [] image.buffer;

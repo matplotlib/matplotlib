@@ -286,7 +286,8 @@ class FigureManagerTkAgg(FigureManagerBase):
         if not self._shown:
             self.window.deiconify()
             # anim.py requires this
-            if sys.platform=='win32' : self.window.update()            
+            if not sys.platform.startswith('linux') :
+                self.window.update()            
         else: self.canvas.draw()
         self._shown = True
         def destroy(*args):
