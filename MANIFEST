@@ -4,8 +4,10 @@ CHANGELOG
 INSTALL
 INTERACTIVE
 KNOWN_BUGS
+MANIFEST
 MANIFEST.in
 Makefile
+NUMARRAY_ISSUES
 README
 TODO
 __init__.py
@@ -247,6 +249,7 @@ agg22/svg/win32_api/svg_test.dsw
 examples/README
 examples/__init__.py
 examples/accented_text.py
+examples/agg_oo.py
 examples/alignment_test.py
 examples/anim.py
 examples/anim_tk.py
@@ -353,6 +356,7 @@ examples/scatter_demo.py
 examples/scatter_demo2.py
 examples/scatter_profile.py
 examples/set_and_get.py
+examples/shared_axis_demo.py
 examples/simple_plot.py
 examples/specgram_demo.py
 examples/stem_plot.py
@@ -527,6 +531,7 @@ lib/matplotlib/mathtext.py
 lib/matplotlib/matlab.py
 lib/matplotlib/mlab.py
 lib/matplotlib/patches.py
+lib/matplotlib/path.py
 lib/matplotlib/pylab.py
 lib/matplotlib/pyparsing.py
 lib/matplotlib/table.py
@@ -546,6 +551,7 @@ lib/matplotlib/backends/backend_gtkagg.py
 lib/matplotlib/backends/backend_gtkcairo.py
 lib/matplotlib/backends/backend_paint.py
 lib/matplotlib/backends/backend_ps.py
+lib/matplotlib/backends/backend_qtagg.py
 lib/matplotlib/backends/backend_svg.py
 lib/matplotlib/backends/backend_template.py
 lib/matplotlib/backends/backend_tkagg.py
@@ -1142,9 +1148,11 @@ src/_contour.c
 src/_gtkagg.cpp
 src/_image.cpp
 src/_image.h
+src/_na_backend_agg.cpp
 src/_na_contour.c
 src/_na_image.cpp
 src/_na_transforms.cpp
+src/_nc_backend_agg.cpp
 src/_nc_contour.c
 src/_nc_image.cpp
 src/_nc_transforms.cpp

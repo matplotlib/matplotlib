@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-
+ 
 In order to use mathtext, you must build matplotlib.ft2font.  This is
 built by default in the windows installer.
 
