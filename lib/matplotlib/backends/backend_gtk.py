@@ -105,16 +105,13 @@ class RendererGTK(RendererBase):
     rotated = {}  # a map from text prop tups to rotated text pixbufs
 
     def __init__(self, gtkDA, gdkDrawable, width, height, dpi):
-        self.gtkDA = gtkDA
+        self.gtkDA = gtkDA  # used in '<widget>.create_pango_layout(s)' only
         self.gdkDrawable = gdkDrawable
         self.width, self.height = width, height
         self.dpi = dpi
 
     def flipy(self):
         return True
-
-    #def offset_text_height(self): # no longer used?
-    #    return True
 
     def get_text_width_height(self, s, prop, ismath):
         """
@@ -126,7 +123,7 @@ class RendererGTK(RendererBase):
                 s, self.dpi.get(), prop.get_size_in_points())
             return width, height
 
-        layout = self.get_pango_layout(s, prop)
+        layout = self._get_pango_layout(s, prop)
         inkRect, logicalRect = layout.get_pixel_extents()
         rect = inkRect
         #rect = logicalRect
@@ -149,7 +146,6 @@ class RendererGTK(RendererBase):
         if rgbFace:
             saveColor = gc.gdkGC.foreground
             gc.gdkGC.foreground = gc.rgb_to_gdk_color(rgbFace)
-            #gc.gdkGC.foreground = colorManager.get_gdk_color(rgbFace)
             self.gdkDrawable.draw_arc(gc.gdkGC, True, x, y, w, h, a1, a2)
             gc.gdkGC.foreground = saveColor
         self.gdkDrawable.draw_arc(gc.gdkGC, False, x, y, w, h, a1, a2)
@@ -238,7 +234,6 @@ class RendererGTK(RendererBase):
         if rgbFace:
             saveColor = gc.gdkGC.foreground
             gc.gdkGC.foreground = gc.rgb_to_gdk_color(rgbFace)
-            #gc.gdkGC.foreground = colorManager.get_gdk_color(rgbFace)
             self.gdkDrawable.draw_polygon(gc.gdkGC, True, points)
             gc.gdkGC.foreground = saveColor
         self.gdkDrawable.draw_polygon(gc.gdkGC, False, points)
@@ -257,7 +252,6 @@ class RendererGTK(RendererBase):
         if rgbFace:
             saveColor = gc.gdkGC.foreground
             gc.gdkGC.foreground = gc.rgb_to_gdk_color(rgbFace)
-            #gc.gdkGC.foreground = colorManager.get_gdk_color(rgbFace)
             self.gdkDrawable.draw_rectangle(gc.gdkGC, True, x, y, w, h)
             gc.gdkGC.foreground = saveColor
         self.gdkDrawable.draw_rectangle(gc.gdkGC, False, x, y, w, h)
@@ -276,7 +270,7 @@ class RendererGTK(RendererBase):
             self._draw_rotated_text(gc, x, y, s, prop, angle)
 
         else:
-            layout = self.get_pango_layout(s, prop)
+            layout = self._get_pango_layout(s, prop)
             inkRect, logicalRect = layout.get_pixel_extents()
             l, b, w, h = inkRect
 
@@ -346,7 +340,7 @@ class RendererGTK(RendererBase):
         gdrawable = self.gdkDrawable
         ggc = gc.gdkGC
 
-        layout = self.get_pango_layout(s, prop)
+        layout = self._get_pango_layout(s, prop)
         inkRect, logicalRect = layout.get_pixel_extents()
         rect = inkRect
         l, b, w, h = rect
@@ -400,7 +394,7 @@ class RendererGTK(RendererBase):
         return True
 
 
-    def get_pango_layout(self, s, prop):
+    def _get_pango_layout(self, s, prop):
         """
         Return a pango layout instance for Text 's' with properties 'prop'.
         cache to layoutd
@@ -735,16 +729,16 @@ class FigureCanvasGTK(gtk.DrawingArea, FigureCanvasBase):
 
 
     def configure_event(self, widget, event):
-        if widget.window is None: return 
+        if widget.window is None:
+            return
 
         w,h = widget.window.get_size()
-        if w==1 or h==1: return # empty fig
+        if w==1 or h==1:
+            return # empty fig
 
-        # compute desired figure size in inches
-        dpi   = self.figure.dpi.get()
-        winch = w / dpi
-        hinch = h / dpi
-        self.figure.set_figsize_inches(winch, hinch)
+        # resize the figure (in inches)
+        dpi = self.figure.dpi.get()
+        self.figure.set_figsize_inches (w/dpi, h/dpi)
         
         self._new_pixmap = True
         return True
