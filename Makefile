@@ -2,6 +2,9 @@
 # Copyright (C) 2003  <jdhunter@ace.bsd.uchicago.edu>
 # $Header$
 # $Log$
+# Revision 1.39  2004/09/24 15:24:31  jdh2358
+# reorganizes py code
+#
 # Revision 1.38  2004/08/05 15:20:53  jdh2358
 # some htdocs fixes
 #
@@ -141,16 +144,18 @@ release: ${DISTFILES}
 	${PYTHON} setup.py sdist --formats=gztar,zip;
 
 pyback: 
-	tar cvfz pyback.tar.gz *.py matplotlib/*.py examples/*.py matplotlib/backends/*.py unit/*.py
+	tar cvfz pyback.tar.gz *.py lib src examples/*.py  unit/*.py 
 
 htmldocs: 
 	cp examples/*.py htdocs/examples;\
-	cp .matplotlibrc INSTALL CHANGELOG NUMARRAY_ISSUES API_CHANGES htdocs/;\
+	cp -a .matplotlibrc INSTALL CHANGELOG NUMARRAY_ISSUES API_CHANGES lib/matplotlib htdocs/;\
 	${PYTHON} license.py ${VERSION} htdocs/license.html.template;\
 	cd htdocs;\
 	${PYTHON} process_docs.py;\
 	${PYTHON} convert.py;\
-	tar cfz site.tar.gz *.html screenshots tut examples gd .matplotlibrc CHANGELOG NUMARRAY_ISSUES  API_CHANGES;\
-	cd ..;\
-	cp -a matplotlib htdocs
+	tar cfz site.tar.gz *.html screenshots tut examples gd .matplotlibrc CHANGELOG NUMARRAY_ISSUES  API_CHANGES;
+
+
+
+
 

@@ -2,11 +2,9 @@ include API_CHANGES CHANGELOG KNOWN_BUGS GOALS INSTALL
 include INTERACTIVE TODO
 include Makefile  MANIFEST.in MANIFEST
 include .matplotlibrc
-include __init__.py setupext.py setup.py postinstall.py
+include __init__.py setupext.py setup.py
 include examples/data/*
 include images/*
-include test/*.py
-include test/README
 recursive-include fonts *
 recursive-include license LICENSE*
 recursive-include examples README *.py *.glade
@@ -14,5 +12,3 @@ prune examples/_tmp_*
 recursive-include src  *.cpp *.c *.h
 recursive-include CXX  *.cxx *.hxx *.c
 recursive-include agg2 *
-recursive-include pytz *
-recursive-include dateutil *

@@ -7,7 +7,7 @@
 
 #include "Python.h"
 
-#include "agg_affine_matrix.h"
+#include "agg_trans_affine.h"
 #include "agg_rendering_buffer.h"
 #include "agg_color_rgba8.h"
 #include "CXX/Extensions.hxx"
@@ -54,7 +54,7 @@ public:
   agg::rgba bg;  
 private:
   Py::Dict __dict__;
-  agg::affine_matrix srcMatrix, imageMatrix;
+  agg::trans_affine srcMatrix, imageMatrix;
 
 
   static char apply_rotation__doc__[];

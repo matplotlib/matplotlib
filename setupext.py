@@ -103,7 +103,7 @@ def add_agg_flags(module):
     module.libraries.append('png')
     module.libraries.append('z')
     add_base_flags(module)
-    module.include_dirs.extend(['src','agg2/include', '.'])
+    module.include_dirs.extend(['src','agg22/include', '.'])
 
     # put these later for correct link order
     module.libraries.extend(['stdc++', 'm'])
@@ -375,7 +375,7 @@ def build_agg(ext_modules, packages):
     if BUILT_AGG: return # only build it if you you haven't already
     
     deps = ['src/_backend_agg.cpp', 'src/ft2font.cpp', 'src/mplutils.cpp']
-    deps.extend(glob.glob('agg2/src/*.cpp'))
+    deps.extend(glob.glob('agg22/src/*.cpp'))
     deps.extend(glob.glob('CXX/*.cxx'))
     deps.extend(glob.glob('CXX/*.c'))
 
@@ -397,7 +397,7 @@ def build_image(ext_modules, packages, numerix):
     if numerix in ["numarray","both"]: # Build for numarray
         temp_copy('src/_image.cpp', 'src/_na_image.cpp')
         deps = ['src/_na_image.cpp', 'src/mplutils.cpp'] 
-        deps.extend(glob.glob('agg2/src/*.cpp'))
+        deps.extend(glob.glob('agg22/src/*.cpp'))
         deps.extend(glob.glob('CXX/*.cxx'))
         deps.extend(glob.glob('CXX/*.c'))
         module = Extension(
@@ -412,7 +412,7 @@ def build_image(ext_modules, packages, numerix):
     if numerix in ["Numeric","both"]: # Build for Numeric
         temp_copy('src/_image.cpp', 'src/_nc_image.cpp')
         deps = ['src/_nc_image.cpp', 'src/mplutils.cpp'] 
-        deps.extend(glob.glob('agg2/src/*.cpp'))
+        deps.extend(glob.glob('agg22/src/*.cpp'))
         deps.extend(glob.glob('CXX/*.cxx'))
         deps.extend(glob.glob('CXX/*.c'))
         module = Extension(

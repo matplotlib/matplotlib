@@ -142,6 +142,9 @@ PACKAGE MANAGERS: (rpms, apt, fink)
     discussion of the various backend requirements.  Edit setup.py to
     configure the backends you want to build as described above.
 
+    Note when running a GUI backend in OSX, you should launch your
+    programs with pythonw rather than python, or you may get
+    nonresponsive GUIs.
 
   FINK
 

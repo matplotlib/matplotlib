@@ -37,8 +37,38 @@ BUILD_TKAGG        = 'auto'
 BUILD_WINDOWING        = 'auto'
 
 VERBOSE = False  # insert lots of diagnostic prints in extension code
+
+
+
+
+
 ## You shouldn't need to customize below this point
 
+
+from distutils.core import setup
+import sys,os
+import glob
+from distutils.core import Extension
+from setupext import build_agg, build_gtkagg, build_tkagg, \
+     build_ft2font, build_image, build_windowing, build_transforms
+import distutils.sysconfig
+
+for line in file('lib/matplotlib/__init__.py').readlines():
+    if line[:11] == '__version__':
+        exec(line)
+        break
+
+data = []
+
+data.extend(glob.glob('fonts/afm/*.afm'))
+data.extend(glob.glob('fonts/ttf/*.ttf'))
+data.extend(glob.glob('images/*.xpm'))
+data.extend(glob.glob('images/*.svg'))
+data.extend(glob.glob('images/*.png'))
+data.extend(glob.glob('images/*.ppm'))
+data.append('.matplotlibrc')
+
+data_files=[('share/matplotlib', data),]
 
 # Figure out which array packages to provide binary support for
 # and define the NUMERIX value: Numeric, numarray, or both.
@@ -58,32 +88,8 @@ NUMERIX=["neither", "Numeric","numarray","both"][HAVE_NUMARRAY*2+HAVE_NUMERIC]
 if NUMERIX == "neither":
     raise RuntimeError("You must install Numeric, numarray, or both to build matplotlib")
 
-print "Compiling matplotlib for:", NUMERIX
-
-from distutils.core import setup
-import sys,os
-import glob
-from distutils.core import Extension
-from setupext import build_agg, build_gtkagg, build_tkagg, \
-     build_ft2font, build_image, build_windowing, build_transforms
-import distutils.sysconfig
-
-for line in file('matplotlib/__init__.py').readlines():
-    if line[:11] == '__version__':
-        exec(line)
-        break
-
-data = []
-
-data.extend(glob.glob('fonts/afm/*.afm'))
-data.extend(glob.glob('fonts/ttf/*.ttf'))
-data.extend(glob.glob('images/*.xpm'))
-data.extend(glob.glob('images/*.svg'))
-data.extend(glob.glob('images/*.png'))
-data.extend(glob.glob('images/*.ppm'))
-data.append('.matplotlibrc')
-
-data_files=[('share/matplotlib', data),]
+# This print interers with --version, which license depends on
+#print "Compiling matplotlib for:", NUMERIX
 
 ext_modules = []
 
@@ -103,8 +109,8 @@ except ImportError:
     packages.append('pytz')
     
     # install pytz subdirs
-    for dirpath, dirname, filenames in os.walk(os.path.join('pytz','zoneinfo')):
-        packages.append('/'.join(dirpath.split(os.sep)))
+    for dirpath, dirname, filenames in os.walk(os.path.join('lib', 'pytz','zoneinfo')):
+        packages.append('/'.join(dirpath.split(os.sep)[1:]))
 
 
 
@@ -156,4 +162,5 @@ setup(name="matplotlib",
       platforms='any',
       ext_modules = ext_modules, 
       data_files = data_files,
+      package_dir = {'': 'lib'},
       )
