@@ -439,7 +439,7 @@ class NavigationToolbar:
         self._fc.hide()
         t1,t2,w,h = canvas.figure.bbox.get_bounds()
         w, h = int(w), int(h)
-        self._group = Fltk.Fl_Pack(0,h+2,400,26)
+        self._group = Fltk.Fl_Pack(0,h+2,1000,26)
         self._group.type(Fltk.FL_HORIZONTAL)
         self._axes=self.canvas.figure.axes
         self.naxes = len(self._axes)
@@ -598,7 +598,7 @@ class NavigationToolbar2FltkAgg(NavigationToolbar2):
         self._fc.hide()
         t1,t2,w,h = self.canvas.figure.bbox.get_bounds()
         w, h = int(w), int(h)
-        self._group = Fltk.Fl_Pack(0,h+2,400,26)
+        self._group = Fltk.Fl_Pack(0,h+2,1000,26)
         self._group.type(Fltk.FL_HORIZONTAL)
         self._axes=self.canvas.figure.axes
         self.naxes = len(self._axes)
@@ -629,6 +629,8 @@ class NavigationToolbar2FltkAgg(NavigationToolbar2):
             command=save_figure, argument=self)
 
         self._group.end()
+        self.message = Fltk.Fl_Output(0,0,w,8)
+        self._group.add_resizable(self.message)
         self.update()
 
     def widget(self):
@@ -646,6 +648,9 @@ class NavigationToolbar2FltkAgg(NavigationToolbar2):
         naxes = len(self._axes)
         self.omenu.adjust(naxes)
         NavigationToolbar2.update(self)
+        
+    def set_message(self, s):
+        self.message.value(s)
 
 
 
