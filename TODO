@@ -126,3 +126,5 @@
    doesn't render to the desired color
 
 -- include manifest file for rpms
+
+-- fix CTRL-z bug in interactive2.py
