@@ -10,10 +10,6 @@ BUILD_FT2FONT = 1
 # build the image support module - requires agg
 BUILD_IMAGE = 1
 
-# Build the fonttools and TTFQuery packages, required by the Paint,
-# Agg and GD backends.
-BUILD_FONTTOOLS = 1
-
 # Build the antigrain geometry toolkit.  Agg makes heavy use of
 # templates, so it probably requires a fairly recent compiler to build
 # it.  It makes very nice antialiased output and also supports alpha
@@ -39,8 +35,8 @@ BUILD_TKAGG        = 1
 from distutils.core import setup
 import sys,os
 import glob
-from setupext import build_gtkgd, build_agg, build_fonttools, build_gtkagg, \
-     build_tkagg, build_ft2font, build_image
+from setupext import build_gtkgd, build_agg, build_gtkagg, build_tkagg, \
+     build_ft2font, build_image
 import distutils.sysconfig
 
 data = []
@@ -61,7 +57,6 @@ packages = [
 
     
 if BUILD_GTKGD:
-    BUILD_FONTTOOLS = 1
     build_gtkgd(ext_modules, packages)
 
 if BUILD_GTKAGG:
@@ -77,25 +72,11 @@ if BUILD_AGG:
     build_agg(ext_modules, packages)
 
 if BUILD_FT2FONT:
-    BUILD_FONTTOOLS = 1
     build_ft2font(ext_modules, packages)
 
 if BUILD_IMAGE:
     BUILD_IMAGE = 1
     build_image(ext_modules, packages)
-
-if BUILD_FONTTOOLS:
-    build_fonttools(ext_modules, packages)
-    # we need to manually install FontTools.pth since we can't use
-    # extra_path which puts all packages -- matplotlib, ttfquery and
-    # FontTools -- in the FontTools subdir
-    sitep = distutils.sysconfig.get_python_lib()
-    ind = sitep.rfind(distutils.sysconfig.PREFIX)
-
-    if ind>=0:
-        sitep = sitep[len(distutils.sysconfig.PREFIX) + len(os.sep):]
-    data_files.append( (sitep, ['FontTools.pth']) )
-    #print distutils.sysconfig.PREFIX, sitep, ind
 
 
 setup(name="matplotlib",

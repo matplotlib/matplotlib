@@ -48,7 +48,6 @@ else:
     False = False
 
 BUILT_AGG       = False
-BUILT_FONTTOOLS = False
 BUILT_FT2FONT   = False
 BUILT_GTKAGG    = False
 BUILT_GTKGD     = False
@@ -244,37 +243,3 @@ def build_image(ext_modules, packages):
     ext_modules.append(module)    
     BUILT_IMAGE = True
     
-def build_fonttools(ext_modules, packages):
-
-    # don't build it if we have it
-    #if sys.platform != 'win32': # always build for win32
-    if 0:
-        try: import ttfquery
-        except ImportError: pass
-        else: return
-        
-    global BUILT_FONTTOOLS
-
-    if BUILT_FONTTOOLS: return # only build it if you you haven't already
-    packages.extend(
-        ['ttfquery',
-         'FontTools',
-         'FontTools.fontTools',
-         'FontTools.fontTools.encodings',
-         'FontTools.fontTools.misc',
-         'FontTools.fontTools.ttLib',
-         'FontTools.fontTools.ttLib.tables',
-         'FontTools.fontTools.ttLib.test',
-         ])
-
-    ext_modules.append(
-        Extension(
-        'FontTools.fontTools.misc.eexecOp',
-        ['FontToolsSrc/eexecOp/eexecOpmodule.c'],
-        ))
-    BUILT_FONTTOOLS = True
-
-
-
-
-

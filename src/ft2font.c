@@ -226,8 +226,6 @@ newFT2FontObject(PyObject *args)
     SETATTR(self, FT2Font_setattr, "underline_thickness", PyInt_FromLong, self->face->underline_thickness);
     
   }
-
-  //printf("set font props\n");
   return self;
 }
 
@@ -258,7 +256,6 @@ FT2Font_set_bitmap_size(FT2FontObject *self, PyObject *args)
   for (n=0; n<numBytes; n++) 
     self->image.buffer[n] = 0;
 
-  //printf("set bitmap size to %lu %lu\n", self->image.width, self->image.height);
   Py_INCREF(Py_None);
   return Py_None;
 
@@ -279,7 +276,6 @@ FT2Font_dealloc(FT2FontObject *self)
   free(self->image.buffer );
   self->image.buffer = NULL;
 
-  //printf("deallocating font %d\n", self->num_glyphs);
   Py_XDECREF(self->x_attr);
   
   PyObject_Del(self);
@@ -334,7 +330,6 @@ void compute_string_bbox( FT2FontObject *self, FT_BBox *abbox ) {
   if ( bbox.xMin > bbox.xMax ) { 
     bbox.xMin = 0; bbox.yMin = 0; bbox.xMax = 0; bbox.yMax = 0; 
   } /* return string bbox */ 
-  //printf("computed string bbox from %d glyphs\n", self->num_glyphs);
   *abbox = bbox; 
 
 } 
@@ -389,7 +384,6 @@ void load_glyphs(FT2FontObject *self) {
     self->pen.x += self->face->glyph->advance.x;
 
     previous = glyph_index; 
-    //printf("loaded glyph %d\n", self->num_glyphs);
     self->num_glyphs++; 
 
 
@@ -581,28 +575,16 @@ draw_bitmap( FT_Bitmap*  bitmap,
   FT_Int  i, j, p, q;
   FT_Int  x_max = x + bitmap->width;
   FT_Int  y_max = y + bitmap->rows;
-  //printf("bitmap size %d, %d\n", bitmap->width, bitmap->rows);
+
   for ( i = x, p = 0; i < x_max; i++, p++ )
   {
     for ( j = y, q = 0; j < y_max; j++, q++ )
     {
-      if ( i >= image->width || j >= image->height ) continue;
-      image->buffer[i + j*image->width] |= bitmap->buffer[q * bitmap->width + p];
+      if ( i >= image->width || j >= image->height )
+	continue;
+      image->buffer[i + j*image->width] |= bitmap->buffer[q*bitmap->width + p];
     }
   }
-
-
-  /*
-  for ( i = 0; i < image->height; i++ )
-  {
-    for ( j = 0; j < image->width; j++ ) {
-      printf("%3u ",image->buffer[j + i*image->width]);
-
-    }
-    printf("\n");
-  }
-  */
-
 }
 
 
@@ -668,8 +650,6 @@ FT2Font_draw_rect(FT2FontObject *self, PyObject *args)
 	return NULL;
   }
 
-    
-  //printf("%ld, %ld, %ld, %ld\n", x0, x1, y0, y1);
   for (i=x0; i<x1; ++i) {
     self->image.buffer[i + y0*self->image.width] = 255;
     self->image.buffer[i + y1*self->image.width] = 255;
@@ -721,19 +701,14 @@ FT2Font_draw_glyphs_to_bitmap(FT2FontObject *self, PyObject *args)
   
   compute_string_bbox(self, &string_bbox);
 
- 
   self->image.width   = (string_bbox.xMax-string_bbox.xMin) / 64+2;
   self->image.height  = (string_bbox.yMax-string_bbox.yMin) / 64+2;
 
-
   numBytes = self->image.width*self->image.height;
-  //printf("width, height, bytes = %lu, %lu, %lu\n", 
-	// self->image.width, self->image.height,   numBytes);
   free(self->image.buffer);
   self->image.buffer = (unsigned char *)malloc(numBytes);
   for (n=0; n<numBytes; n++) 
     self->image.buffer[n] = 0;
-
   
   for ( n = 0; n < self->num_glyphs; n++ )
     {
@@ -759,7 +734,6 @@ FT2Font_draw_glyphs_to_bitmap(FT2FontObject *self, PyObject *args)
       
       
       //bitmap left and top in pixel, string bbok in subpixel
-      //printf("%ld, %ld\n", string_bbox.yMin, string_bbox.yMax);
       draw_bitmap( &bitmap->bitmap, 
 		   &self->image, 		   	       
 		   bitmap->left-string_bbox.xMin/64,
@@ -807,8 +781,6 @@ FT2Font_draw_glyph_to_bitmap(FT2FontObject *self, PyObject *args)
 			&Glyph_Type, (PyObject*)&glyph))
     return NULL;
 
-  
-  //printf("draw_glyph_to_bitmap parsed args: %ld %ld\n", x, y);
   error = FT_Glyph_To_Bitmap(&self->glyphs[glyph->glyph_num],
 			     ft_render_mode_normal,
 			     0,  //no additional translation
@@ -821,13 +793,7 @@ FT2Font_draw_glyph_to_bitmap(FT2FontObject *self, PyObject *args)
     return NULL;
   }
 
-  //printf("draw_glyph_to_bitmap cast\n");      
   FT_BitmapGlyph bitmap = (FT_BitmapGlyph)self->glyphs[glyph->glyph_num];
-
-  //printf("draw_glyph_to_bitmap to image at %ld, %lu, %lu, %lu\n", 
-  //x, y, self->image.width, self->image.height);            
-  //printf("\tbitmap props %d, %d\n",  bitmap->left, bitmap->top);            
-
 
   draw_bitmap( &bitmap->bitmap, 
 	       &self->image,
@@ -838,25 +804,130 @@ FT2Font_draw_glyph_to_bitmap(FT2FontObject *self, PyObject *args)
 	       );
   //	       start.y-bitmap->top);
   
-  //printf("draw_glyph_to_bitmap all dont\n");      
   Py_INCREF(Py_None);
   return Py_None;
 
 }
   
+// ID        Platform       Encoding
+// 0         Unicode        Reserved (set to 0)
+// 1         Macintoch      The Script Manager code
+// 2         ISO            ISO encoding
+// 3         Microsoft      Microsoft encoding
+// 240-255   User-defined   Reserved for all nonregistered platforms
+
+// Code      ISO encoding scheme
+// 0         7-bit ASCII
+// 1         ISO 10646
+// 2         ISO 8859-1
+
+// Code      Language       Code      Language       Code
+// 0         English        10        Hebrew         20        Urdu
+// 1         French         11        Japanese       21        Hindi
+// 2         German         12        Arabic         22        Thai
+// 3         Italian        13        Finnish
+// 4         Dutch          14        Greek
+// 5         Swedish        15        Icelandic
+// 6         Spanish        16        Maltese
+// 7         Danish         17        Turkish
+// 8         Portuguese     18        Yugoslavian
+// 9         Norwegian      19        Chinese
+
+// Code      Meaning        Description
+// 0         Copyright notice     e.g. "Copyright Apple Computer, Inc. 1992
+// 1         Font family name     e.g. "New York"
+// 2         Font style           e.g. "Bold"
+// 3         Font identification  e.g. "Apple Computer New York Bold Ver 1"
+// 4         Full font name       e.g. "New York Bold"
+// 5         Version string       e.g. "August 10, 1991, 1.08d21"
+// 6         Postscript name      e.g. "Times-Bold"
+// 7         Trademark            
+// 8         Designer             e.g. "Apple Computer"
+
+char FT2Font_get_sfnt_name__doc__[] =
+"get_sfnt_name(name)\n"
+"\n"
+"Get a value from the SFNT names table, if present\n"
+"The font name identifier codes are:\n"
+"\n"
+"  0    Copyright notice     e.g. Copyright Apple Computer, Inc. 1992\n"
+"  1    Font family name     e.g. New York\n"
+"  2    Font style           e.g. Bold\n"
+"  3    Font identification  e.g. Apple Computer New York Bold Ver 1\n"
+"  4    Full font name       e.g. New York Bold\n"
+"  5    Version string       e.g. August 10, 1991, 1.08d21\n"
+"  6    Postscript name      e.g. Times-Bold\n"
+"  7    Trademark            \n"
+"  8    Designer             e.g. Apple Computer\n"
+"  11   URL                  e.g. http://www.apple.com\n"
+"  13   Copyright license    \n"
+;
+
+static PyObject *
+FT2Font_get_sfnt_name(FT2FontObject *self, PyObject *args)
+{
+  int   j, name_id;
+
+  if (!(self->face->face_flags & FT_FACE_FLAG_SFNT)) {
+    PyErr_SetString(PyExc_RuntimeError, "No SFNT name table");
+    return NULL;
+  }
+  
+  if (!PyArg_ParseTuple(args, "i:get_sfnt_name", &name_id))
+    return NULL;
+  
+  for (j = 0; j < FT_Get_Sfnt_Name_Count(self->face); j++) {
+    FT_Error error;
+    FT_SfntName sfnt;
+    
+    error = FT_Get_Sfnt_Name(self->face, j, &sfnt);
+    
+    if (error) {
+      PyErr_SetString(PyExc_RuntimeError, "Could not get SFNT name");
+      return NULL;
+    }
+
+    //printf("%d %d %d %d\n", sfnt.platform_id, sfnt.encoding_id,
+    //       sfnt.language_id, sfnt.name_id, name_id);
+    // Test for Microsoft, 7-bit ASCII, English first
+    if (sfnt.platform_id == 1 && sfnt.encoding_id == 0 &&
+	sfnt.language_id == 0 && sfnt.name_id == name_id) {
+      //printf("%d\n", sfnt.string_len);
+      return Py_BuildValue("s#", sfnt.string, sfnt.string_len);
+    }
+  }
+
+  Py_INCREF(Py_None);
+  return Py_None;
+}
+  
 static PyMethodDef FT2Font_methods[] = {
-  {"write_bitmap",  (PyCFunction)FT2Font_write_bitmap,	METH_VARARGS, FT2Font_write_bitmap__doc__},
-  {"set_bitmap_size",  (PyCFunction)FT2Font_set_bitmap_size,	METH_VARARGS, FT2Font_load_char__doc__},
-  {"draw_rect",  (PyCFunction)FT2Font_draw_rect,	METH_VARARGS, FT2Font_draw_rect__doc__},
-  {"draw_glyph_to_bitmap",  (PyCFunction)FT2Font_draw_glyph_to_bitmap,	METH_VARARGS, FT2Font_draw_glyph_to_bitmap__doc__},
-  {"draw_glyphs_to_bitmap",  (PyCFunction)FT2Font_draw_glyphs_to_bitmap,	METH_VARARGS, FT2Font_draw_glyphs_to_bitmap__doc__},
-  {"get_glyph",	   (PyCFunction)FT2Font_get_glyph,	METH_VARARGS, FT2Font_get_glyph__doc__},
-  {"get_num_glyphs",	   (PyCFunction)FT2Font_get_num_glyphs,	METH_VARARGS, FT2Font_get_num_glyphs__doc__},
-  {"image_as_str",	   (PyCFunction)FT2Font_image_as_str,	METH_VARARGS, FT2Font_image_as_str__doc__},
-  {"load_char",	   (PyCFunction)FT2Font_load_char,	METH_VARARGS, FT2Font_load_char__doc__},
-  {"set_text",	   (PyCFunction)FT2Font_set_text,	METH_VARARGS, FT2Font_set_text__doc__},
-  {"set_size",	   (PyCFunction)FT2Font_set_size,	METH_VARARGS, FT2Font_set_size__doc__},
-  {"get_width_height",	   (PyCFunction)FT2Font_get_width_height,	METH_VARARGS, FT2Font_get_width_height__doc__},
+  {"write_bitmap",             (PyCFunction)FT2Font_write_bitmap,
+   METH_VARARGS, FT2Font_write_bitmap__doc__},
+  {"set_bitmap_size",          (PyCFunction)FT2Font_set_bitmap_size,
+   METH_VARARGS, FT2Font_load_char__doc__},
+  {"draw_rect",                (PyCFunction)FT2Font_draw_rect,
+   METH_VARARGS, FT2Font_draw_rect__doc__},
+  {"draw_glyph_to_bitmap",     (PyCFunction)FT2Font_draw_glyph_to_bitmap,
+   METH_VARARGS, FT2Font_draw_glyph_to_bitmap__doc__},
+  {"draw_glyphs_to_bitmap",    (PyCFunction)FT2Font_draw_glyphs_to_bitmap,
+   METH_VARARGS, FT2Font_draw_glyphs_to_bitmap__doc__},
+  {"get_glyph",	               (PyCFunction)FT2Font_get_glyph,
+   METH_VARARGS, FT2Font_get_glyph__doc__},
+  {"get_num_glyphs",	       (PyCFunction)FT2Font_get_num_glyphs,
+   METH_VARARGS, FT2Font_get_num_glyphs__doc__},
+  {"image_as_str",	       (PyCFunction)FT2Font_image_as_str,
+   METH_VARARGS, FT2Font_image_as_str__doc__},
+  {"load_char",	               (PyCFunction)FT2Font_load_char,
+   METH_VARARGS, FT2Font_load_char__doc__},
+  {"set_text",	               (PyCFunction)FT2Font_set_text,
+   METH_VARARGS, FT2Font_set_text__doc__},
+  {"set_size",	               (PyCFunction)FT2Font_set_size,
+   METH_VARARGS, FT2Font_set_size__doc__},
+  {"get_width_height",	       (PyCFunction)FT2Font_get_width_height,
+   METH_VARARGS, FT2Font_get_width_height__doc__},
+  {"get_sfnt_name",            (PyCFunction)FT2Font_get_sfnt_name,
+   METH_VARARGS, FT2Font_get_sfnt_name__doc__},
   {NULL,		NULL}		/* sentinel */
 };
 
@@ -946,28 +1017,30 @@ static PyTypeObject FT2Font_Type = {
 char ft2font_new__doc__[] = 
 "FT2Font(ttffile)\n"
 "\n"
-"Create a new FT2Font object; the following global font attributes\n"
-"are defined\n"
-"num_faces        # number of faces in file\n"
-"face_flags       # the face flags as python int\n"
-"style_flags      # the style flags as python int\n"
-"num_glyphs       # the number of glyphs in the face\n"
-"family_name      # the face family name\n"
-"style_name       # the face syle name\n"
-"num_fixed_sizes  # the number of embedded bitmap strikes in the current face\n"
+"Create a new FT2Font object\n"
+"The following global font attributes are defined:\n"
+"  num_faces              number of faces in file\n"
+"  face_flags             face flags  (int type); see the ft2font constants\n"
+"  style_flags            style flags  (int type); see the ft2font constants\n"
+"  num_glyphs             number of glyphs in the face\n"
+"  family_name            face family name\n"
+"  style_name             face syle name\n"
+"  num_fixed_sizes        number of bitmap in the face\n"
+"  scalable               face is scalable\n"
 "\n"
-"# the following are only available if face.scalable\n"
-"bbox                 # the face global bounding box (xmin, ymin, xmax, ymax)\n"
-"units_per_EM         # number of font units covered by the EM\n"
-"ascender             # the ascender in 26.6 units\n"
-"descender            # the descender in 26.6 units\n"
-"height               # the height in 26.6 units; used to compute a default\n"
-"                       line spacing (i.e., the baseline-to-baseline distance)  \n"
-"max_advance_width    # maximum horizontal cursor advance for all glyphs\n"
-"max_advance_height   # same for vertical layout\n"
-"underline_position   # vertical position of the underline bar\n"
-"underline_thickness  # vertical thickness of the underline\n"
+"The following are available, if scalable is true:\n"
+"  bbox                   face global bounding box (xmin, ymin, xmax, ymax)\n"
+"  units_per_EM           number of font units covered by the EM\n"
+"  ascender               ascender in 26.6 units\n"
+"  descender              descender in 26.6 units\n"
+"  height                 height in 26.6 units; used to compute a default\n"
+"                         line spacing (baseline-to-baseline distance)\n"
+"  max_advance_width      maximum horizontal cursor advance for all glyphs\n"
+"  max_advance_height     same for vertical layout\n"
+"  underline_position     vertical position of the underline bar\n"
+"  underline_thickness    vertical thickness of the underline\n"
 ;
+
 static PyObject *
 ft2font_new(PyObject *self, PyObject *args)
 {
@@ -991,6 +1064,27 @@ static PyMethodDef ft2font_methods[] = {
   {NULL,		NULL}		/* sentinel */
 };
 
+char ft2font__doc__[] =
+"ft2font\n"
+"\n"
+"Methods:\n"
+"  FT2Font(ttffile)\n"
+"Face Constants\n"
+"  SCALABLE               scalable\n"
+"  FIXED_SIZES            \n"
+"  FIXED_WIDTH            \n"
+"  SFNT                   \n"
+"  HORIZONTAL             \n"
+"  VERTICAL               \n"
+"  KERNING                \n"
+"  FAST_GLYPHS            \n"
+"  MULTIPLE_MASTERS       \n"
+"  GLYPH_NAMES            \n"
+"  EXTERNAL_STREAM        \n"
+"Style Constants\n"
+"  ITALIC                 \n"
+"  BOLD                   \n"
+;
 
 /* Initialization function for the module (*must* be called initft2font) */
 
@@ -1010,5 +1104,35 @@ DL_EXPORT(void)
   /* Add some symbolic constants to the module */
   d = PyModule_GetDict(m);
   ErrorObject = PyErr_NewException("ft2font.error", NULL, NULL);
+
+  PyDict_SetItemString(d, "__doc__", PyString_FromString(ft2font__doc__));
   PyDict_SetItemString(d, "error", ErrorObject);
+
+  /* Add values for face and style flags */
+  PyDict_SetItemString(d, "SCALABLE",
+		       PyInt_FromLong(FT_FACE_FLAG_SCALABLE));
+  PyDict_SetItemString(d, "FIXED_SIZES",
+		       PyInt_FromLong(FT_FACE_FLAG_FIXED_SIZES));
+  PyDict_SetItemString(d, "FIXED_WIDTH",
+		       PyInt_FromLong(FT_FACE_FLAG_FIXED_WIDTH));
+  PyDict_SetItemString(d, "SFNT",
+		       PyInt_FromLong(FT_FACE_FLAG_SFNT));
+  PyDict_SetItemString(d, "HORIZONTAL",
+		       PyInt_FromLong(FT_FACE_FLAG_HORIZONTAL));
+  PyDict_SetItemString(d, "VERTICAL",
+		       PyInt_FromLong(FT_FACE_FLAG_SCALABLE));
+  PyDict_SetItemString(d, "KERNING",
+		       PyInt_FromLong(FT_FACE_FLAG_KERNING));
+  PyDict_SetItemString(d, "FAST_GLYPHS",
+		       PyInt_FromLong(FT_FACE_FLAG_FAST_GLYPHS));
+  PyDict_SetItemString(d, "MULTIPLE_MASTERS",
+		       PyInt_FromLong(FT_FACE_FLAG_MULTIPLE_MASTERS));
+  PyDict_SetItemString(d, "GLYPH_NAMES",
+		       PyInt_FromLong(FT_FACE_FLAG_GLYPH_NAMES));
+  PyDict_SetItemString(d, "EXTERNAL_STREAM",
+		       PyInt_FromLong(FT_FACE_FLAG_EXTERNAL_STREAM));
+  PyDict_SetItemString(d, "ITALIC",
+		       PyInt_FromLong(FT_STYLE_FLAG_ITALIC));
+  PyDict_SetItemString(d, "BOLD",
+		       PyInt_FromLong(FT_STYLE_FLAG_BOLD));
 }
