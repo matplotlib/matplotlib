@@ -26,6 +26,8 @@ http://matplotlib.sourceforge.net
 
 ### Doing a release
 
+0) Remove MANIFEST so it will be rebuilt by MANIFEST.in
+
 1) Comment out all the savefig commands in the examples dir
   > rfr -f savefig -r '#savefig' *.py
   > rfr -f '##savefig' -r '#savefig' *.py
