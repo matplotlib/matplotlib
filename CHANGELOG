@@ -1,5 +1,6 @@
 New entries should be added at the top
 
+2005-02-11 matshow fixes for figure numbering, return value and docs - FP
 
 2005-02-09 new zorder example for fine control in zorder_demo.py - FP
 
