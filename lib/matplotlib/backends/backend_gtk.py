@@ -16,6 +16,8 @@ if gtk.pygtk_version < version_required:
     raise SystemExit ("PyGTK %d.%d.%d is installed\n"
                       "PyGTK %d.%d.%d or later is required"
                       % (gtk.pygtk_version + version_required))
+backend_version = gtk.pygtk_version
+
 from gtk import gdk
 import pango
 
