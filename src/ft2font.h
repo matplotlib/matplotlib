@@ -11,8 +11,8 @@
 // the freetype string renderered into a width, height buffer
 typedef struct {
   unsigned char *buffer;
-  unsigned int width;
-  unsigned int height;
+  unsigned long width;
+  unsigned long height;
 } FT2_Image;
 
 
@@ -22,7 +22,6 @@ typedef struct {
   FT_Face       face;
 
   FT_Matrix     matrix;                 /* transformation matrix */
-  FT_UInt       glyph_index;
   FT_Vector     pen;                    /* untransformed origin  */
   FT_Error      error;
   FT_Glyph      glyphs[MAXGLYPHS];
@@ -34,6 +33,11 @@ typedef struct {
   FT2_Image image;
 } FT2FontObject;
 
-static PyTypeObject FT2Font_Type;
+typedef struct {
+  PyObject_HEAD
+  PyObject	*x_attr;	        /* Attributes dictionary */
+  int glyph_num;
+} GlyphObject;
+
 
 #endif

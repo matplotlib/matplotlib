@@ -2,6 +2,9 @@
  *
  * $Header$
  * $Log$
+ * Revision 1.2  2004/02/23 16:20:57  jdh2358
+ * resynced cvs to freetype2
+ *
  * Revision 1.1  2004/02/12 18:30:52  jdh2358
  * finished agg backend
  *
@@ -14,7 +17,6 @@
 #include <cmath>
 #include <cstdio>
 #include <freetype/freetype.h>
-#include <png.h>
 
 #include "agg_arrowhead.h"
 #include "agg_conv_concat.h"
@@ -37,7 +39,6 @@
 #include "agg_renderer_scanline.h"
 #include "agg_rendering_buffer.h"
 #include "agg_scanline_p32.h"
-
 
 #include "Python.h"
 
@@ -68,14 +69,16 @@ typedef agg::rasterizer_scanline_aa<> rasterizer;
 typedef agg::scanline_p8 scanline;
 
 
-static PyObject *ErrorObject;
+
+
+
 
 /*----------------------------------
  *
  *   The Renderer
  *
  *----------------------------------- */
-
+ 
 typedef struct {
   PyObject_HEAD
   PyObject	*x_attr;	/* Attributes dictionary */
@@ -90,40 +93,7 @@ typedef struct {
   double dpi;
 } RendererAggObject;
 
-typedef struct {
-    TT_Raster_Map bit;
-    TT_Raster_Map small_bit;	/* used when font-smoothing is enabled */
-    int width, height;
-    int x_shift, y_shift;
-} Raster;
-
-typedef struct {
-    PyObject_HEAD
-    TT_F26Dot6 point_size;
-    int hinted;
-    int dpi;
-    TT_F26Dot6 ascent, descent, line_gap;
-    TT_F26Dot6 offset_x, offset_y;
-    TT_Face face;
-    TT_Face_Properties properties;
-    TT_Instance instance;
-    TT_Glyph *glyphs;
-    double rotate;
-    int quadrant;
-    TT_Matrix matrix;
-} FontObj;
-
-typedef struct {
-    PyObject_HEAD
-    int width;
-    int height;
-    agg::int8u *buf;
-} ImageObj;
-
-
-extern "C" PyTypeObject Font_Type;
-PyObject *font_draw_text(RendererAggObject *renderer, PyObject *args);
-PyObject *font_new(PyObject *args);
 
 
 #endif
+

@@ -225,3 +225,10 @@
 -- decreasing axes - James Boyle <boyle5@llnl.gov>
 
 -- make rgb rgba
+
+-- check out Helge's contour
+
+-- DONE 2004-02-23 with points_to_pixels.  fonts too big on wx
+
+-- test agg/freetype2 with ms freetype fonts in path.  Be sure to
+   remove ~/.fonts.cache after changing yout ttfpath
