@@ -203,9 +203,9 @@
 
 -- DONE - website docs for agg - eg, backends.html#Agg
 
--- build win installer for paint, agg, gd, matplotlib-0.50
+-- DONE 2004-02-17 build win installer for agg matplotlib-0.50
 
--- incorporate John Gill's PS patch
+-- DONE 2004-02-16 incorporate John Gill's PS patch
 
 -- DONE 2004-02-13 agg bug; when repeated calls to savefig are made,
    the dpi setting in the second one is ignored.
@@ -220,4 +220,4 @@
 
 -- DONE update fonts page with TTFPATH and info on how to use win32 fonts.
 
--- make legend attributes accessible
+-- DONE 2004-02-17 make legend attributes accessible

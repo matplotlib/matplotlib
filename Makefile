@@ -2,6 +2,9 @@
 # Copyright (C) 2003  <jdhunter@ace.bsd.uchicago.edu>
 # $Header$
 # $Log$
+# Revision 1.22  2004/02/18 18:11:24  jdh2358
+# updated setepext to work with darwin
+#
 # Revision 1.21  2004/02/17 15:10:43  jdh2358
 # updating to 0.50
 #
@@ -105,6 +108,7 @@ RELEASE = matplotlib-${VERSION}
 
 clean: 
 	${PYTHON} setup.py clean;\
+	find . -name "_tmp*.py" | xargs rm -f;\
 	find . \( -name "*~" -o -name "*.pyc" \) | xargs rm -f;\
 	find examples \( -name "*.png" -o -name "*.ps"  -o -name "*.jpg" -o -name "*.eps" \) | xargs rm -f
 

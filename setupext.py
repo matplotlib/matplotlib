@@ -27,7 +27,7 @@ def add_agg_flags(module):
     'Add the module flags to build extensions which use agg'
 
     module.include_dirs.extend(['src','agg2/include'])
-    if sys.platform=='win32':
+    if sys.platform in ('win32', 'darwin'):
         module.include_dirs.extend(
             [  # build these libs on win32
             'win32src/freetype1',
@@ -41,7 +41,7 @@ def add_agg_flags(module):
             )
 
 
-    if sys.platform != 'win32':
+    if sys.platform not in ('win32', 'darwin'):
         module.libraries.extend(['z', 'ttf', 'png'])
 
 
@@ -111,7 +111,7 @@ def build_agg(ext_modules, packages):
     
     deps = ['src/_backend_agg.cpp', 'src/font.cpp'] 
     deps.extend(glob.glob('agg2/src/*.cpp'))
-    if sys.platform=='win32':
+    if sys.platform in ('win32', 'darwin'):
         deps.extend(glob.glob('win32src/freetype1/freetype/*.c'))
         deps.extend(glob.glob('win32src/libpng/*.c'))
         deps.extend(glob.glob('win32src/zlib/*.c'))
@@ -128,15 +128,6 @@ def build_agg(ext_modules, packages):
 def build_fonttools(ext_modules, packages):
 
     global builtFonttools
-
-    # only build them if not already installed
-    #if sys.platform != 'win32':
-    if 0:
-        try: import ttfquery
-        except ImportError: pass
-        else:
-            builtFonttools = True
-            return 
 
     if builtFonttools: return # only build it if you you haven't already
     packages.extend(
