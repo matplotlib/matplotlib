@@ -5,12 +5,15 @@ import matplotlib
 matplotlib.use('SVG')
 from matplotlib.matlab import *
 
-fig = figure(figsize=(0.5, 0.5), dpi=72)
-subplot(111)
-t = arange(0.0, 2.0, 0.05)
+rc('grid', ls='-', lw=2, color='k')
+fig = figure(figsize=(1, 1), dpi=72)
+axes([0.025, 0.025, 0.95, 0.95], axisbg='y')
+t = arange(0, 2, 0.05)
 s = sin(2*pi*t)
-plot(t,s)
+plot(t,s, linewidth=4)
+axis([-.2, 2.2, -1.2, 1.2])
 #axis('off')
+grid(True)
 set(gca(), xticklabels=[], yticklabels=[])
 savefig('../images/matplotlib.svg', facecolor=0.75)
 
