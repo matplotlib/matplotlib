@@ -105,6 +105,7 @@ class RendererCairo(RendererBase):
         self.text_ctx = cairo.Context()
 
     def _set_pixmap(self, pixmap):
+        # note: this is a cairo.gtk function, its called by backend_gtkcairo.py
         self.surface = cairo.gtk.surface_create_for_drawable (pixmap)
 
     def _set_width_height(self, width, height):
@@ -424,7 +425,7 @@ class GraphicsContextCairo(GraphicsContextBase):
         #ctx.stroke()
         #ctx.restore()        
 
-        ctx.clip ()
+        #ctx.clip ()
         
 
     def set_dashes(self, offset, dashes):
@@ -570,10 +571,11 @@ def _save_png (figure, fileObject):
     width, height = int(width), int(height)
 
     ctx = cairo.Context()
-    # 4 png formats supported
     ctx.set_target_png (fileObject, cairo.FORMAT_ARGB32, width, height)
-    renderer = RendererCairo (ctx.target_surface, ctx.matrix,
-                              width, height, figure.dpi)
+
+    renderer = RendererCairo (ctx.matrix, figure.dpi)
+    renderer._set_width_height(width, height)
+    renderer.surface = ctx.target_surface
     figure.draw(renderer)
     ctx.show_page()
         
@@ -605,7 +607,9 @@ def _save_ps (figure, fileObject, orientation):
         # TODO:
         # add portrait/landscape checkbox to FileChooser
         
-    renderer = RendererCairo (ctx.target_surface, ctx.matrix, width, height, figure.dpi)
+    renderer = RendererCairo (ctx.matrix, figure.dpi)
+    renderer._set_width_height(width, height)
+    renderer.surface = ctx.target_surface
     figure.draw(renderer)
 
     show_fig_border = False  # for testing figure orientation and scaling

@@ -3,7 +3,7 @@ from cStringIO import StringIO
 
 from matplotlib import verbose
 from matplotlib.backend_bases import RendererBase, GraphicsContextBase,\
-     FigureManagerBase, FigureCanvasBase
+     FigureManagerBase, FigureCanvasBase, error_msg
 
 from matplotlib.cbook import True, False
 from matplotlib.colors import rgb2hex
@@ -20,10 +20,6 @@ except ImportError:
 else: useMathText = True
 
 import sys,os,math
-
-def error_msg_svg(msg, *args):
-    verbose.report_error('Error: %s'% msg)
-    sys.exit()
 
 def _nums_to_str(seq, fmt='%1.3f'):
     return ' '.join([_int_or_float(val, fmt) for val in seq])
@@ -44,7 +40,6 @@ def new_figure_manager(num, *args):
     canvas = FigureCanvasSVG(thisFig)
     manager = FigureManagerSVG(canvas, num)
     return manager
-
 
 
 _fontd = {}
@@ -154,7 +149,7 @@ class RendererSVG(RendererBase):
         """
 
         if len(x)==0: return
-        if len(x)!=len(y): error_msg_svg('x and y must be the same length')
+        if len(x)!=len(y): error_msg('x and y must be the same length')
         type = '<path '
 
         y = self.height - y
@@ -363,15 +358,18 @@ class FigureCanvasSVG(FigureCanvasBase):
         self.figure.set_facecolor(origfacecolor)
         self.figure.set_edgecolor(origedgecolor)
         
-        # don't catch exception, allow GUI backend to catch the exception
-        fh = file(filename, 'w')
+        try:
+            fh = file(filename, 'w')
+        except IOError:
+            verbose.report_error('Backend SVG failed to save %s' % filename)
+            raise
+
         print >>fh, renderer.get_svg()
 
 class FigureManagerSVG(FigureManagerBase):
     pass
 
 FigureManager = FigureManagerSVG
-error_msg = error_msg_svg
 
 _svgProlog = """<?xml version="1.0" standalone="no"?>
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.0//EN"
