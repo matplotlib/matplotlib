@@ -576,3 +576,7 @@ ZeroDivisionError: SeparableTransformation::eval_scalars yin interval is zero; c
 -- file save dialog for Tk?  See Mayavi for the right call to make.
 
 -- colorbar for dynamic images.
+
+-- Finish the coords notification for all backends
+
+-- ro an rrulewrapper demo

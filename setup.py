@@ -93,6 +93,21 @@ packages = [
     'matplotlib/backends',
     ]
 
+# only install pytz and dateutil if the user hasn't got them
+try: import dateutil
+except ImportError:
+    packages.append('dateutil')
+
+try: import pytz
+except ImportError:
+    packages.append('pytz')
+    
+    # install pytz subdirs
+    for dirpath, dirname, filenames in os.walk(os.path.join('pytz','zoneinfo')):
+        packages.append('/'.join(dirpath.split(os.sep)))
+
+
+
 build_transforms(ext_modules, packages, NUMERIX)
     
 if BUILD_GTKAGG:

@@ -1,6 +1,17 @@
 New entries should be added at the top
 
 ==============================================================
+
+2004-09-17 Total rewrite of dates handling to use python datetime with
+           num2date, date2num and drange.  pytz for timezone handling,
+           dateutils for spohisticated ticking.  date ranges from
+           0001-9999 are supported.  rrules allow arbitrary date
+           ticking.  examples/date_demo*.py converted to show new
+           usage.  new example examples/date_demo_rrule.py shows how
+           to use rrules in date plots.  The date locators are much
+           more general and almost all of them have different
+           constructors.  See matplotlib.dates for more info.
+
 2004-09-15 Applied Fernando's backend __init__ patch to support easier
            backend maintenance.  Added his numutils to mlab.  JDH
 
