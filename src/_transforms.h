@@ -138,16 +138,23 @@ private:
 class Interval: public Py::PythonExtension<Interval> {
 public:
   Interval(LazyValue* val1, LazyValue* val2) : _val1(val1), _val2(val2) {};
+
   static void init_type(void);
   
   Py::Object contains( const Py::Tuple &args) {
     args.verify_length(1);
     double x =  Py::Float(args[0]);
+    int b = contains_api( x);
+    return Py::Int(b);
+  }
+
+  int contains_api( const double& val) {
+
     double val1 = _val1->val();
     double val2 = _val2->val();
 
-    int b = ( (x>=val1) && (x<=val2) || (x>=val2) && (x<=val1) );
-    return Py::Int(b);
+    return  ( (val>=val1) && (val<=val2) || (val>=val2) && (val<=val1) );
+
   }
 
   //update the interval to contain all points in seq of floats
@@ -241,8 +248,18 @@ public:
   Py::Object intervaly(const Py::Tuple &args) {
     return Py::Object( new Interval( _ll->y_api(), _ur->y_api()));
   }
+
+  Interval* intervalx_api() {
+    return new Interval( _ll->x_api(), _ur->x_api());
+  }
+
+  Interval* intervaly_api() {
+    return new Interval( _ll->y_api(), _ur->y_api());
+  }
+
   // update the current bbox with data from xy tuples
   Py::Object update(const Py::Tuple &args);
+  Py::Object contains(const Py::Tuple &args);
 
   Py::Object width(const Py::Tuple &args) {
     double w = _ur->xval() - _ll->xval();
@@ -335,7 +352,7 @@ public:
 
   //the inverse mapping
   double inverse_api(const double& x) { 
-    return pow10(x);
+    return pow(x,10.0);
   };
 };
 

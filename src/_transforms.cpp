@@ -189,6 +189,21 @@ Bbox::get_bounds(const Py::Tuple & args) {
 }
 
 Py::Object 
+Bbox::contains(const Py::Tuple &args) {
+  args.verify_length(2);
+
+  double x = Py::Float(args[0]);
+  double y = Py::Float(args[1]); 
+  
+  Interval *ix = intervalx_api();
+  Interval *iy = intervaly_api();
+  int b = ix->contains_api(x) && iy->contains_api(y);
+  delete ix;
+  delete iy;
+  return Py::Int(b);
+}
+
+Py::Object 
 Bbox::overlaps(const Py::Tuple &args) {
   args.verify_length(1);
 
@@ -1066,6 +1081,7 @@ void Bbox::init_type()
   
   add_varargs_method("ll", 	&Bbox::ll, "ll()\n");
   add_varargs_method("ur", 	&Bbox::ur, "ur()\n");
+  add_varargs_method("contains" , &Bbox::contains, "contains(x,y)\n");
   add_varargs_method("overlaps" , &Bbox::overlaps, "overlaps(bbox)\n");
   add_varargs_method("overlapsx" , &Bbox::overlapsx, "overlapsx(bbox)\n");
   add_varargs_method("overlapsy" , &Bbox::overlapsy, "overlapsy(bbox)\n");

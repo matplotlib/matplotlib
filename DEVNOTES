@@ -28,8 +28,9 @@ http://matplotlib.sourceforge.net
 
 0) Turn off all the build flags
 
-0) Run examples/batch_figs.py w/o errors; run the backend specific
-   demos (object_picker, anim , embedding*)
+0) Run examples/backend_driver.py w/o errors; run the backend specific
+   demos (object_picker, anim , embedding*).  Do an explicity numarray
+   and python2.2 test.
 
 0) Remove MANIFEST so it will be rebuilt by MANIFEST.in
 

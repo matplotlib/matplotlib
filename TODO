@@ -366,7 +366,7 @@
 
 -- DONE clipping for collections
 
--- Todd's nx stuff
+-- DONE Todd's nx stuff
 
 -- fix object picker and eeg demo
 
@@ -379,3 +379,6 @@
 -- DONE - pcolor edge color
 
 -- convert rank 1 arrays as per Flaviu's post
+
+-- email tim log bar code after release
+
