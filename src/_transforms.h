@@ -242,6 +242,7 @@ public:
   Py::Object ur(const Py::Tuple &args) { return Py::Object(_ur); }
 
   Py::Object deepcopy(const Py::Tuple &args);
+  Py::Object _deepcopy(void);
   Py::Object scale(const Py::Tuple &args);
   // get the l,b,w,h bounds
   Py::Object get_bounds(const Py::Tuple &args);
@@ -460,6 +461,7 @@ public:
   Py::Object seq_x_y(const Py::Tuple &args);
   Py::Object numerix_x_y(const Py::Tuple &args);
   Py::Object inverse_xy_tup(const Py::Tuple &args);
+  virtual Py::Object deepcopy(const Py::Tuple &args) =0;
 
   //freeze the lazy values and don't relax until thawed
   Py::Object freeze(const Py::Tuple &args) {
@@ -516,6 +518,8 @@ public:
   Py::Object set_offset(const Py::Tuple &args);  
   std::pair<double, double> & operator()(const double &x, const double &y);
   std::pair<double, double> & inverse_api(const double &x, const double &y);
+  
+  Py::Object deepcopy(const Py::Tuple &args) ;
 
 
 protected:
@@ -545,6 +549,7 @@ public:
   std::pair<double, double> & operator()(const double &x, const double &y);
   std::pair<double, double> & inverse_api(const double &x, const double &y);
   void eval_scalars(void);
+  Py::Object deepcopy(const Py::Tuple &args);
   
 private:
   LazyValue *_a;
