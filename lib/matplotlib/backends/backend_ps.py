@@ -529,10 +529,7 @@ class FigureCanvasPS(FigureCanvasBase):
             basename, ext = os.path.splitext(outfile)
             if not ext: outfile += '.ps'
             isEPSF = ext.lower().startswith('.ep')
-            try:
-                fh = file(outfile, 'w')
-            except IOError:
-                error_msg_ps('Could not open %s for writing' % outfile)
+            fh = file(outfile, 'w')
             needsClose = True
             title = outfile
         
