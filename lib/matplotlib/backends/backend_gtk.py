@@ -1,25 +1,23 @@
 from __future__ import division
 
-import os, math
+import os
 import sys
 def fn_name(): return sys._getframe(1).f_code.co_name
 
 import matplotlib
 from matplotlib import verbose, MPLError
-from matplotlib.numerix import asarray, fromstring, UInt8, zeros, \
-     where, transpose, nonzero, indices, ones, nx
 
-import matplotlib.numerix as numerix
-from matplotlib.cbook import is_string_like, enumerate, onetrue
-from matplotlib.font_manager import fontManager
-
+from matplotlib._pylab_helpers import Gcf
 from matplotlib.backend_bases import RendererBase, GraphicsContextBase, \
      FigureManagerBase, FigureCanvasBase, NavigationToolbar2, cursors
-from matplotlib._pylab_helpers import Gcf
+from matplotlib.cbook import is_string_like, enumerate
 from matplotlib.figure import Figure
+from matplotlib.font_manager import fontManager
+from matplotlib.numerix import asarray, fromstring, UInt8, zeros, \
+     where, transpose, nonzero, indices, ones, nx
+import matplotlib.numerix as numerix
 
 from backend_gdk import RendererGDK
-from matplotlib.mathtext import math_parse_s_ft2font
 
 pygtk_version_required = (1,99,16)
 try:
