@@ -222,8 +222,8 @@ The following dimensions are in axes coords
                 p = Rectangle(xy=(min(self._xdata), y-3/4*HEIGHT),
                               width = self.handlelen, height=HEIGHT/2,
                               )
-                self._set_artist_props(p)
                 p.copy_properties(handle)
+                self._set_artist_props(p)
                 ret.append(p)
             elif isinstance(handle, LineCollection):
                 ydata = (y-HEIGHT/2)*ones(self._xdata.shape, Float)

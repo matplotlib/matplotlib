@@ -2,11 +2,10 @@
 Make a pie chart - see
 http://matplotlib.sf.net/matplotlib.pylab.html#-pie for the docstring.
 
-This example shows a basic pie chart with labels in figure 1, and in
+This example shows a basic pie chart with labels in figure 1, and
 figure 2 uses a couple of optional features, like autolabeling the
-percentage a wedge represents and offsetting a slice
-
-
+area percentage, offsetting a slice using "explode" and addind a shadow
+for a 3D effect
 """
 from pylab import *
     
