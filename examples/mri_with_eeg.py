@@ -16,7 +16,7 @@ if 1:   # load the data
     # flip upside down
     im = array([im[i] for i in arange(255,-1,-1)])
 
-if 1: # plot the MRI in pcolor
+if 0: # plot the MRI in pcolor
     subplot(221)
     pcolor(im, shading='flat')
     axis('off')
@@ -41,7 +41,7 @@ if 1:   # plot the EEG
     ticklocs = []
     ax = subplot(212)
     for i in range(numRows):
-        thisLine = Line2D(ax.dpi, ax.bbox, t, data[:,i],
+        thisLine = Line2D(ax.dpi, ax.bbox, t, data[:,i]-data[0,i],
                           transx=ax.xaxis.transData, transy=ax.yaxis.transData)
         thisLine.set_vertical_offset(3*i)
         ax.add_line(thisLine)
@@ -50,7 +50,7 @@ if 1:   # plot the EEG
     set(gca(), 'xticks', arange(10))
     set(gca(), 'yticks', ticklocs)
     set(gca(), 'yticklabels', ['PG3', 'PG5', 'PG7', 'PG9'])
-    set(gca(), 'ylim', [-3, 12])
+    #set(gca(), 'ylim', [0, 20])
     xlabel('time (s)')
 
 

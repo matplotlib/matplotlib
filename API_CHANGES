@@ -1,3 +1,10 @@
+API changes at 0.50
+
+  * refactored Figure class so it is no longer backend dependent.
+    FigureManager takes over the backend specific duties of the
+    Figure.  matplotlib.backend_bases.FigureBase moved to
+    matplotlib.figure.Figure
+
 API changes at 0.42
 
   * Refactoring AxisText to be backend independent.  Text drawing and

@@ -1,9 +1,8 @@
 import matplotlib
 matplotlib.use('GTK')
 
-from matplotlib.backends import Figure
 from matplotlib.axes import Subplot
-from matplotlib.backends.backend_gtk import NavigationToolbar
+from matplotlib.backends.backend_gtk import FigureGTK, NavigationToolbar
 
 from Numeric import arange, sin, pi
 import gtk
@@ -38,7 +37,7 @@ class WidgetsWrapper:
         self.widgets = gtk.glade.XML('mpl_with_glade.glade')
         self.widgets.signal_autoconnect(GladeHandlers.__dict__)
 
-        self.figure = Figure(figsize=(8,6), dpi=72)
+        self.figure = FigureGTK(figsize=(8,6), dpi=72)
         self.figure.show()
         self.axis = Subplot(self.figure, 111)
         self.figure.add_axis(self.axis)
@@ -49,7 +48,8 @@ class WidgetsWrapper:
         self.axis.set_ylabel('voltage')
         
         self['vboxMain'].pack_start(self.figure, gtk.TRUE, gtk.TRUE)
-
+        self['vboxMain'].show()
+        
         # below is optional if you want the navigation toolbar
         self.navToolbar = NavigationToolbar(self.figure, self['windowMain'])
         self.navToolbar.lastDir = '/var/tmp/'

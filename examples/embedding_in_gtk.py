@@ -1,9 +1,12 @@
+from Numeric import arange, sin, pi
+
 import matplotlib
 matplotlib.use('GTK')
 
-from matplotlib.backends import Figure
 from matplotlib.axes import Subplot
-import Numeric as numpy
+from matplotlib.backends.backend_gtk import FigureCanvasGTK
+from matplotlib.figure import Figure
+
 import gtk
 
 win = gtk.Window()
@@ -17,13 +20,15 @@ vbox.show()
 
 f = Figure(figsize=(5,4), dpi=100)
 a = Subplot(f, 111)
-t = numpy.arange(0.0,3.0,0.01)
-s = numpy.sin(2*numpy.pi*t)
+t = arange(0.0,3.0,0.01)
+s = sin(2*pi*t)
 
 a.plot(t,s)
 f.add_axis(a)
-f.show()
-vbox.pack_start(f)
+
+canvas = FigureCanvasGTK(f)  # a gtk.DrawingArea
+canvas.show()
+vbox.pack_start(canvas)
 
 button = gtk.Button('Quit')
 button.connect('clicked', lambda b: gtk.mainquit())

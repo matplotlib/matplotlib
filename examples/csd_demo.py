@@ -27,7 +27,7 @@ xlabel('time')
 ylabel('s1 and s2')
 
 subplot(212)
-cxy, f = cohere(s1, s2, 256, 1/dt)
+cxy, f = csd(s1, s2, 256, 1/dt)
 show()
 
 
