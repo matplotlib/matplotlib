@@ -46,7 +46,7 @@ class CanvasFrame(wxFrame):
 
 
         # Capture the paint message        
-        EVT_PAINT(self, self.OnPaint)        
+        #EVT_PAINT(self, self.OnPaint)        
 
     def add_toolbar(self):
         self.toolbar = NavigationToolbar(self.canvas, True)
