@@ -1,6 +1,11 @@
 New entries should be added at the top
 =======
 
+2004-06-24 Support for multiple images on axes and figure, with
+           blending.  Support for upper and lower image origins.
+           clim, jet and gray functions in matlab interface operate on
+           current image - JDH
+
 2004-06-23 ported code to Perry's new colormap and norm scheme.  Added
            new rc attributes image.aspect, image.interpolation,
            image.cmap, image.lut

@@ -14,6 +14,7 @@
 #include "_backend_agg.h"
 
 #include "_transforms.h"
+#include "mplutils.h"
 
 /* ------------ RendererAgg methods ------------- */
 
@@ -28,8 +29,7 @@ RendererAgg::RendererAgg(unsigned int width, unsigned int height, double dpi,
   NUMBYTES(width*height*4),
   debug(debug)
 {
-  if (debug)
-    std::cout << "RendererAgg::RendererAgg" << std::endl;
+  _VERBOSE("RendererAgg::RendererAgg");
   unsigned stride(width*4);    
   
   
@@ -53,8 +53,7 @@ RendererAgg::RendererAgg(unsigned int width, unsigned int height, double dpi,
 
 Py::Object
 RendererAgg::draw_rectangle(const Py::Tuple & args) {
-  if (debug)
-    std::cout << "RendererAgg::draw_rectangle" << std::endl;
+  _VERBOSE("RendererAgg::draw_rectangle");
   args.verify_length(6);
   
   Py::Object gcEdge( args[0] );
@@ -107,8 +106,7 @@ RendererAgg::draw_rectangle(const Py::Tuple & args) {
 
 Py::Object
 RendererAgg::draw_ellipse(const Py::Tuple& args) {
-  if (debug)
-    std::cout << "RendererAgg::draw_ellipse" << std::endl;
+  _VERBOSE("RendererAgg::draw_ellipse");
   
   args.verify_length(6);  
   Py::Object gcEdge = args[0];
@@ -153,8 +151,7 @@ RendererAgg::draw_ellipse(const Py::Tuple& args) {
 
 Py::Object
 RendererAgg::draw_polygon(const Py::Tuple& args) {
-  if (debug)
-    std::cout << "RendererAgg::draw_polygon" << std::endl;
+  _VERBOSE("RendererAgg::draw_polygon");
   
   args.verify_length(3);  
 
@@ -229,8 +226,7 @@ Py::Object
 RendererAgg::draw_line_collection(const Py::Tuple& args) {
   
   
-  if (debug)
-    std::cout << "RendererAgg::draw_line_collection" << std::endl;
+  _VERBOSE("RendererAgg::draw_line_collection");
   args.verify_length(8);  
   
   
@@ -376,8 +372,7 @@ Py::Object
 RendererAgg::draw_poly_collection(const Py::Tuple& args) {
   
   
-  if (debug)
-    std::cout << "RendererAgg::draw_poly_collection" << std::endl;
+  _VERBOSE("RendererAgg::draw_poly_collection");
   args.verify_length(9);  
   
 
@@ -538,8 +533,7 @@ Py::Object
 RendererAgg::draw_regpoly_collection(const Py::Tuple& args) {
   
   
-  if (debug)
-    std::cout << "RendererAgg::draw_regpoly_collection" << std::endl;
+  _VERBOSE("RendererAgg::draw_regpoly_collection");
   args.verify_length(9);  
   
   
@@ -663,8 +657,7 @@ Py::Object
 RendererAgg::draw_lines(const Py::Tuple& args) {
   
   
-  if (debug)
-    std::cout << "RendererAgg::draw_lines" << std::endl;
+  _VERBOSE("RendererAgg::draw_lines");
   args.verify_length(3);  
   Py::Object gc = args[0];
   Py::SeqBase<Py::Object> x = args[1];  //todo: use numerix for efficiency
@@ -799,8 +792,7 @@ RendererAgg::draw_lines(const Py::Tuple& args) {
 
 Py::Object
 RendererAgg::draw_text(const Py::Tuple& args) {
-  if (debug)
-    std::cout << "RendererAgg::draw_text" << std::endl;
+  _VERBOSE("RendererAgg::draw_text");
   
   args.verify_length(4);
   
@@ -877,15 +869,18 @@ RendererAgg::draw_text(const Py::Tuple& args) {
 
 Py::Object 
 RendererAgg::draw_image(const Py::Tuple& args) {
-  if (debug)
-    std::cout << "RendererAgg::draw_image" << std::endl;
-  args.verify_length(3);
+  _VERBOSE("RendererAgg::draw_image");
+  args.verify_length(4);
   
   int x = Py::Int(args[0]);
   int y = Py::Int(args[1]);
-
-  
   Image *image = static_cast<Image*>(args[2].ptr());
+  std::string origin = Py::String(args[3]);
+  
+  if (origin!="lower" and origin!="upper")
+    throw Py::ValueError("origin must be upper|lower");
+  
+  bool isUpper = origin=="upper";
   
   
   //todo: handle x and y
@@ -893,10 +888,13 @@ RendererAgg::draw_image(const Py::Tuple& args) {
   //rendererBase->copy_from(*image->rbufOut, &r, x, y);
   size_t ind=0;
   size_t thisx, thisy;
+  size_t oy = height-y;  //flipy
+  if (isUpper) oy -= image->rowsOut;  //start at top
   for (size_t j=0; j<image->rowsOut; j++) {
     for (size_t i=0; i<image->colsOut; i++) {
       thisx = i+x; 
-      thisy = j+y; 
+      thisy =  isUpper ?  oy+j : oy-j; 
+
       if (thisx<0 || thisx>=width)  continue;
       if (thisy<0 || thisy>=height) continue;
       pixfmt::color_type p;
@@ -916,8 +914,7 @@ RendererAgg::draw_image(const Py::Tuple& args) {
 
 Py::Object 
 RendererAgg::write_rgba(const Py::Tuple& args) {
-  if (debug)
-    std::cout << "RendererAgg::write_rgba" << std::endl;
+  _VERBOSE("RendererAgg::write_rgba");
   
   args.verify_length(1);  
   std::string fname = Py::String( args[0]);
@@ -938,8 +935,7 @@ Py::Object
 RendererAgg::write_png(const Py::Tuple& args)
 {
   //small memory leak in this function - JDH 2004-06-08
-  if (debug)
-    std::cout << "RendererAgg::write_png" << std::endl;
+  _VERBOSE("RendererAgg::write_png");
   
   args.verify_length(1);
   
@@ -1008,8 +1004,7 @@ Py::Object
 RendererAgg::tostring_rgb(const Py::Tuple& args) {
   //"Return the rendered buffer as an RGB string";
   
-  if (debug)
-    std::cout << "RendererAgg::tostring_rgb" << std::endl;
+  _VERBOSE("RendererAgg::tostring_rgb");
   
   args.verify_length(0);    
   int row_len = width*3;
@@ -1036,8 +1031,7 @@ RendererAgg::tostring_rgb(const Py::Tuple& args) {
 agg::rgba
 RendererAgg::get_color(const Py::Object& gc) {
   
-  if (debug)
-    std::cout << "RendererAgg::get_color" << std::endl;
+  _VERBOSE("RendererAgg::get_color");
   
   Py::Tuple rgb = Py::Tuple( gc.getAttr("_rgb") );
   
@@ -1052,8 +1046,7 @@ RendererAgg::get_color(const Py::Object& gc) {
 
 agg::gen_stroke::line_cap_e
 RendererAgg::get_linecap(const Py::Object& gc) {
-  if (debug)
-    std::cout << "RendererAgg::get_linecap" << std::endl;
+  _VERBOSE("RendererAgg::get_linecap");
   
   std::string capstyle = Py::String( gc.getAttr( "_capstyle" ) );
   
@@ -1070,8 +1063,7 @@ RendererAgg::get_linecap(const Py::Object& gc) {
 
 agg::gen_stroke::line_join_e
 RendererAgg::get_joinstyle(const Py::Object& gc) {
-  if (debug)
-    std::cout << "RendererAgg::get_joinstyle" << std::endl;
+  _VERBOSE("RendererAgg::get_joinstyle");
   
   std::string joinstyle = Py::String( gc.getAttr("_joinstyle") );
   
@@ -1089,8 +1081,7 @@ RendererAgg::get_joinstyle(const Py::Object& gc) {
 Py::Tuple
 RendererAgg::get_dashes(const Py::Object& gc) {
   //return the dashOffset, dashes sequence tuple.  
-  if (debug)
-    std::cout << "RendererAgg::get_dashes" << std::endl;
+  _VERBOSE("RendererAgg::get_dashes");
   
   Py::Tuple _dashes = gc.getAttr("_dashes");
   
@@ -1105,8 +1096,7 @@ RendererAgg::get_dashes(const Py::Object& gc) {
 
 agg::rgba
 RendererAgg::rgb_to_color(const Py::SeqBase<Py::Object>& rgb, double alpha) {
-  if (debug)
-    std::cout << "RendererAgg::rgb_to_color" << std::endl;
+  _VERBOSE("RendererAgg::rgb_to_color");
   
   double r = Py::Float(rgb[0]);
   double g = Py::Float(rgb[1]);
@@ -1119,8 +1109,7 @@ void
 RendererAgg::set_clip_rectangle( const Py::Object& gc) {
   //set the clip rectangle from the gc
   
-  if (debug)
-    std::cout << "RendererAgg::set_clip_rectangle" << std::endl;
+  _VERBOSE("RendererAgg::set_clip_rectangle");
   
   Py::Object o ( gc.getAttr( "_cliprect" ) );
   
@@ -1147,8 +1136,7 @@ RendererAgg::set_clip_rectangle( const Py::Object& gc) {
 int
 RendererAgg::antialiased(const Py::Object& gc) {
   //return 1 if gc is antialiased
-  if (debug)
-    std::cout << "RendererAgg::antialiased" << std::endl;
+  _VERBOSE("RendererAgg::antialiased");
   int isaa = Py::Int( gc.getAttr( "_antialiased") );
   return isaa;
 }
@@ -1158,8 +1146,7 @@ RendererAgg::points_to_pixels_snapto(const Py::Object& points) {
   // convert a value in points to pixels depending on renderer dpi and
   // screen pixels per inch
   // snap return pixels to grid
-  if (debug)
-    std::cout << "RendererAgg::points_to_pixels_snapto" << std::endl;
+  _VERBOSE("RendererAgg::points_to_pixels_snapto");
   double p = Py::Float( points ) ;
   //return (int)(p*PIXELS_PER_INCH/72.0*dpi/72.0)+0.5;
   return (int)(p*dpi/72.0)+0.5;
@@ -1169,8 +1156,7 @@ RendererAgg::points_to_pixels_snapto(const Py::Object& points) {
 
 double
 RendererAgg::points_to_pixels( const Py::Object& points) {
-  if (debug)
-    std::cout << "RendererAgg::points_to_pixels" << std::endl;
+  _VERBOSE("RendererAgg::points_to_pixels");
   double p = Py::Float( points ) ;
   //return p * PIXELS_PER_INCH/72.0*dpi/72.0;
   return p * dpi/72.0;
@@ -1178,8 +1164,7 @@ RendererAgg::points_to_pixels( const Py::Object& points) {
 
 RendererAgg::~RendererAgg() {
   
-  if (debug)
-    std::cout << "RendererAgg::~RendererAgg" << std::endl;
+  _VERBOSE("RendererAgg::~RendererAgg");
   
   
   delete slineP8;

@@ -34,12 +34,13 @@ files = (
     'log_demo.py',
     'log_test.py',
     'mathtext_demo.py',
-#    'mri_with_eeg.py',
+    'mri_with_eeg.py',
     'major_minor_demo1.py',
     'major_minor_demo2.py',     
     'multiple_figs_demo.py',
     'pcolor_demo.py',
     'pcolor_demo2.py',
+    'pcolor_small.py',    
     'psd_demo.py',
     'scatter_demo.py',
     'scatter_demo2.py',
@@ -52,6 +53,9 @@ files = (
     'text_themes.py',
     'two_scales.py',
     'vline_demo.py',
+    'image_origin.py',
+    'figimage_demo.py',
+    'layer_images.py',
     )
 
 def drive(backend):

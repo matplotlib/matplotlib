@@ -245,7 +245,7 @@ def build_windowing(ext_modules, packages):
 def build_ft2font(ext_modules, packages):
     global BUILT_FT2FONT
     if BUILT_FT2FONT: return # only build it if you you haven't already
-    deps = ['src/ft2font.cpp']
+    deps = ['src/ft2font.cpp', 'src/mplutils.cpp']
     deps.extend(glob.glob('CXX/*.cxx'))
     deps.extend(glob.glob('CXX/*.c'))
 
@@ -257,7 +257,7 @@ def build_ft2font(ext_modules, packages):
 def build_gtkagg(ext_modules, packages):
     global BUILT_GTKAGG
     if BUILT_GTKAGG: return # only build it if you you haven't already
-    deps = ['src/_gtkagg.cpp']
+    deps = ['src/_gtkagg.cpp', 'src/mplutils.cpp']
     deps.extend(glob.glob('CXX/*.cxx'))
     deps.extend(glob.glob('CXX/*.c'))
 
@@ -302,7 +302,7 @@ def build_agg(ext_modules, packages):
     global BUILT_AGG
     if BUILT_AGG: return # only build it if you you haven't already
     
-    deps = ['src/_backend_agg.cpp', 'src/ft2font.cpp']
+    deps = ['src/_backend_agg.cpp', 'src/ft2font.cpp', 'src/mplutils.cpp']
     deps.extend(glob.glob('agg2/src/*.cpp'))
     deps.extend(glob.glob('CXX/*.cxx'))
     deps.extend(glob.glob('CXX/*.c'))
@@ -322,7 +322,7 @@ def build_image(ext_modules, packages, numerix):
     global BUILT_IMAGE
     if BUILT_IMAGE: return # only build it if you you haven't already
     
-    deps = ['src/_image.cpp'] 
+    deps = ['src/_image.cpp', 'src/mplutils.cpp'] 
     deps.extend(glob.glob('agg2/src/*.cpp'))
     deps.extend(glob.glob('CXX/*.cxx'))
     deps.extend(glob.glob('CXX/*.c'))

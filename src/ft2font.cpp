@@ -1,8 +1,7 @@
 #include <sstream>
 #include "ft2font.h"
+#include "mplutils.h"
 
-#define _DEBUG 0
- 
 FT_Library _ft2Library;
 
 FT2Image::FT2Image() : buffer(NULL) {}
@@ -10,7 +9,7 @@ FT2Image::~FT2Image() {delete [] buffer; buffer=NULL;}
 
 Glyph::Glyph( const FT_Face& face, const FT_Glyph& glyph, size_t ind) :
   glyphInd(ind) {
-  if (_DEBUG) std::cout << "Glyph::Glyph" <<std::endl;
+  _VERBOSE("Glyph::Glyph");
   
   FT_BBox bbox;
   FT_Glyph_Get_CBox( glyph, ft_glyph_bbox_subpixels, &bbox );
@@ -39,19 +38,19 @@ Glyph::Glyph( const FT_Face& face, const FT_Glyph& glyph, size_t ind) :
 
 
 Glyph::~Glyph() {
-  if (_DEBUG) std::cout << "Glyph::~Glyph" <<std::endl;  
+  _VERBOSE("Glyph::~Glyph");
 }
 
 int 
 Glyph::setattr( const char *name, const Py::Object &value ) {
-  if (_DEBUG) std::cout << "Glyph::setattr" << std::endl;
+  _VERBOSE("Glyph::setattr");
   __dict__[name] = value;
   return 0; 
 }
 
 Py::Object 
 Glyph::getattr( const char *name ) {
-  if (_DEBUG) std::cout << "Glyph::getattr" << std::endl;
+  _VERBOSE("Glyph::getattr");
   if ( __dict__.hasKey(name) ) return __dict__[name];
   else return getattr_default( name );
 
@@ -59,7 +58,7 @@ Glyph::getattr( const char *name ) {
 
 FT2Font::FT2Font(std::string facefile) 
 {
-  if (_DEBUG) std::cout << "FT2Font::FT2Font" << std::endl;
+  _VERBOSE("FT2Font::FT2Font");
   clear(Py::Tuple(0));
   
   int error = FT_New_Face( _ft2Library, facefile.c_str(), 0, &face );
@@ -142,7 +141,7 @@ FT2Font::FT2Font(std::string facefile)
 
 FT2Font::~FT2Font()
 {
-  if (_DEBUG) std::cout << "FT2Font::~FT2Font" << std::endl;
+  _VERBOSE("FT2Font::~FT2Font");
   FT_Done_Face    ( face );
   
   delete [] image.buffer ;
@@ -159,14 +158,14 @@ FT2Font::~FT2Font()
 
 int 
 FT2Font::setattr( const char *name, const Py::Object &value ) {
-  if (_DEBUG) std::cout << "FT2Font::setattr" << std::endl;
+  _VERBOSE("FT2Font::setattr");
   __dict__[name] = value;
   return 1; 
 }
 
 Py::Object 
 FT2Font::getattr( const char *name ) {
-  if (_DEBUG) std::cout << "FT2Font::getattr" << std::endl;
+  _VERBOSE("FT2Font::getattr");
   if ( __dict__.hasKey(name) ) return __dict__[name];
   else return getattr_default( name );
 
@@ -183,7 +182,7 @@ char FT2Font::set_bitmap_size__doc__[] =
 
 Py::Object
 FT2Font::set_bitmap_size(const Py::Tuple & args) {
-  if (_DEBUG) std::cout << "FT2Font::set_bitmap_size" << std::endl;
+  _VERBOSE("FT2Font::set_bitmap_size");
   args.verify_length(2);
   
   long width = Py::Int(args[0]);
@@ -216,7 +215,7 @@ char FT2Font::clear__doc__[] =
 
 Py::Object
 FT2Font::clear(const Py::Tuple & args) {
-  if (_DEBUG) std::cout << "FT2Font::clear" << std::endl;
+  _VERBOSE("FT2Font::clear");
   args.verify_length(0);
 
   //todo: move to image method?
@@ -256,7 +255,7 @@ char FT2Font::set_size__doc__[] =
 
 Py::Object
 FT2Font::set_size(const Py::Tuple & args) {
-  if (_DEBUG) std::cout << "FT2Font::set_size" << std::endl;
+  _VERBOSE("FT2Font::set_size");
   args.verify_length(2);
   
   
@@ -277,7 +276,7 @@ FT2Font::set_size(const Py::Tuple & args) {
 
 FT_BBox
 FT2Font::compute_string_bbox( ) { 
-  if (_DEBUG) std::cout << "FT2Font::compute_string_bbox" << std::endl;
+  _VERBOSE("FT2Font::compute_string_bbox");
   
   FT_BBox bbox; 
   /* initialize string bbox to "empty" values */ 
@@ -301,7 +300,7 @@ FT2Font::compute_string_bbox( ) {
 
 void 
 FT2Font::load_glyphs() {
-  if (_DEBUG) std::cout << "FT2Font::load_glyphs" << std::endl;
+  _VERBOSE("FT2Font::load_glyphs");
   
   /* a small shortcut */ 
   
@@ -370,7 +369,7 @@ char FT2Font::set_text__doc__[] =
 
 Py::Object
 FT2Font::set_text(const Py::Tuple & args) {
-  if (_DEBUG) std::cout << "FT2Font::set_text" << std::endl;
+  _VERBOSE("FT2Font::set_text");
   args.verify_length(2);
   text = Py::String(args[0]);
   double angle = Py::Float(args[1]);
@@ -396,7 +395,7 @@ char FT2Font::get_glyph__doc__[] =
 ;
 Py::Object
 FT2Font::get_glyph(const Py::Tuple & args){
-  if (_DEBUG) std::cout << "FT2Font::get_glyph" << std::endl;
+  _VERBOSE("FT2Font::get_glyph");
   
   args.verify_length(1);
   int num = Py::Int(args[0]);
@@ -415,7 +414,7 @@ char FT2Font::get_num_glyphs__doc__[] =
 ;
 Py::Object
 FT2Font::get_num_glyphs(const Py::Tuple & args){
-  if (_DEBUG) std::cout << "FT2Font::get_num_glyphs" << std::endl;
+  _VERBOSE("FT2Font::get_num_glyphs");
   
   args.verify_length(0);
   return Py::Int( (long)glyphs.size());
@@ -439,7 +438,7 @@ char FT2Font::load_char__doc__[] =
 ;
 Py::Object
 FT2Font::load_char(const Py::Tuple & args) {
-  if (_DEBUG) std::cout << "FT2Font::load_char" << std::endl;
+  _VERBOSE("FT2Font::load_char");
   //load a char using the unsigned long charcode
   args.verify_length(1);
   long charcode = Py::Int(args[0]);
@@ -476,7 +475,7 @@ char FT2Font::get_width_height__doc__[] =
 ;
 Py::Object
 FT2Font::get_width_height(const Py::Tuple & args) {
-  if (_DEBUG) std::cout << "FT2Font::get_width_height" << std::endl;
+  _VERBOSE("FT2Font::get_width_height");
   
   args.verify_length(0);
   FT_BBox bbox =  compute_string_bbox();
@@ -492,7 +491,7 @@ void
 FT2Font::draw_bitmap( FT_Bitmap*  bitmap,
 		      FT_Int      x,
 		      FT_Int      y) {
-  if (_DEBUG) std::cout << "FT2Font::draw_bitmap" << std::endl;
+  _VERBOSE("FT2Font::draw_bitmap");
   FT_Int  i, j, p, q;
   FT_Int  x_max = x + bitmap->width;
   FT_Int  y_max = y + bitmap->rows;
@@ -519,7 +518,7 @@ char FT2Font::write_bitmap__doc__[] =
 
 Py::Object
 FT2Font::write_bitmap(const Py::Tuple & args) {
-  if (_DEBUG) std::cout << "FT2Font::write_bitmap" << std::endl;
+  _VERBOSE("FT2Font::write_bitmap");
   
   args.verify_length(1);
   
@@ -551,7 +550,7 @@ char FT2Font::draw_rect__doc__[] =
 ;
 Py::Object
 FT2Font::draw_rect(const Py::Tuple & args) {
-  if (_DEBUG) std::cout << "FT2Font::draw_rect" << std::endl;
+  _VERBOSE("FT2Font::draw_rect");
   
   args.verify_length(4);
   
@@ -593,7 +592,7 @@ char FT2Font::image_as_str__doc__[] =
 ;
 Py::Object
 FT2Font::image_as_str(const Py::Tuple & args) {
-  if (_DEBUG) std::cout << "FT2Font::image_as_str" << std::endl;
+  _VERBOSE("FT2Font::image_as_str");
   args.verify_length(0);
   
   return Py::Object(
@@ -614,7 +613,7 @@ char FT2Font::draw_glyphs_to_bitmap__doc__[] =
 ;
 Py::Object
 FT2Font::draw_glyphs_to_bitmap(const Py::Tuple & args) {
-  if (_DEBUG) std::cout << "FT2Font::draw_glyphs_to_bitmap" << std::endl;
+  _VERBOSE("FT2Font::draw_glyphs_to_bitmap");
   args.verify_length(0);
   
   FT_BBox string_bbox = compute_string_bbox();
@@ -686,7 +685,7 @@ char FT2Font::draw_glyph_to_bitmap__doc__[] =
 
 Py::Object
 FT2Font::draw_glyph_to_bitmap(const Py::Tuple & args) {
-  if (_DEBUG) std::cout << "FT2Font::draw_glyph_to_bitmap" << std::endl;
+  _VERBOSE("FT2Font::draw_glyph_to_bitmap");
   args.verify_length(3);
   
   if (image.width==0 || image.height==0)
@@ -782,7 +781,7 @@ char FT2Font::get_sfnt_name__doc__[] =
 
 Py::Object
 FT2Font::get_sfnt_name(const Py::Tuple & args) {
-  if (_DEBUG) std::cout << "FT2Font::get_sfnt_name" << std::endl;
+  _VERBOSE("FT2Font::get_sfnt_name");
   args.verify_length(1);
   
   if (!(face->face_flags & FT_FACE_FLAG_SFNT)) 
@@ -816,7 +815,7 @@ FT2Font::get_sfnt_name(const Py::Tuple & args) {
 
 Py::Object 
 ft2font_module::new_ft2font (const Py::Tuple &args) {
-  if (_DEBUG) std::cout << "ft2font_module::new_ft2font " << std::endl;
+  _VERBOSE("ft2font_module::new_ft2font ");
   args.verify_length(1);
   
   std::string facefile = Py::String(args[0]);
@@ -826,7 +825,7 @@ ft2font_module::new_ft2font (const Py::Tuple &args) {
 
 void 
 Glyph::init_type() {
-  if (_DEBUG) std::cout << "Glyph::init_type" << std::endl;
+  _VERBOSE("Glyph::init_type");
   behaviors().name("Glyph");
   behaviors().doc("Glyph");
   behaviors().supportGetattr();
@@ -836,7 +835,7 @@ Glyph::init_type() {
 
 void 
 FT2Font::init_type() {
-  if (_DEBUG) std::cout << "FT2Font::init_type" << std::endl;
+  _VERBOSE("FT2Font::init_type");
   behaviors().name("FT2Font");
   behaviors().doc("FT2Font");
   

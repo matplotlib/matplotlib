@@ -26,9 +26,7 @@ BUILD_IMAGE    = 1
 # blending
 BUILD_AGG = 1
 
-# The builds below are alpha.  They use an image backend (eg GD or
-# Agg) to render to the GTK canvas.  The idea is to could use a single
-# high quality image renderer to render to all the GUI windows
+# Render Agg to the GTK canvas
 #BUILD_GTKAGG       = 0
 BUILD_GTKAGG       = 'auto'
 
@@ -43,6 +41,7 @@ BUILD_TKAGG        = 'auto'
 #BUILD_WINDOWING        = 0
 BUILD_WINDOWING        = 'auto'
 
+VERBOSE = False  # insert lots of diagnostic prints in extension code
 ## You shouldn't need to customize below this point
 
 
@@ -72,7 +71,7 @@ cxx = glob.glob('CXX/*.cxx')
 cxx.extend(glob.glob('CXX/*.c'))
 
 modtrans = Extension('matplotlib._transforms',
-                     ['src/_transforms.cpp'] + cxx,
+                     ['src/_transforms.cpp', 'src/mplutils.cpp'] + cxx,
                      libraries = ['stdc++', 'm'],
                      include_dirs = ['src', '.'],
                      )
@@ -118,6 +117,11 @@ if BUILD_WINDOWING and sys.platform=='win32':
 if BUILD_IMAGE:
     build_image(ext_modules, packages, NUMERIX)
 
+for mod in ext_modules:
+    if VERBOSE: mod.extra_compile_args.append('-DVERBOSE')
+
+
+    
 setup(name="matplotlib",
       version= __version__,
       description = "Matlab style python plotting package",

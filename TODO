@@ -442,4 +442,13 @@
    agg)
 
 -- DONE fix vlines raise in matlab.py
--- fix imshow try/except raise in matlab.py
+
+-- fix imshow/figlegend try/except raise in matlab.py
+
+-- fix colorbar
+
+-- add rc, figlegend to headers and docs
+
+-- DONE clear agg bg to 0 alpha
+
+-- DONE reset build flags in setup.py
