@@ -1050,13 +1050,27 @@ RendererAgg::_render_lines_path(agg::path_storage &path, const GCAgg& gc) {
   
 }
 
+Py::Object
+RendererAgg::draw_markers(const Py::Tuple& args) {
+  // there is a win32 specific segfault that happens when using the
+  // cacheing code.  The segfault always happens on an agg call but I
+  // can't reproduce a standalone case.  Until this gets sorted out,
+  // I'm using two different versions of draw_markers, one which uses
+  // raster caches of the markers (much faster) for non win32
+  // platforms, and the older, slower, no cache version for win32.
+#if defined(MS_WIN32)
+  return _draw_markers_nocache(args);
+#else
+  return _draw_markers_cache(args);
+#endif
+}
 
 Py::Object
-RendererAgg::_draw_markers(const Py::Tuple& args) {
+RendererAgg::_draw_markers_nocache(const Py::Tuple& args) {
   //draw_markers(gc, path, rgbFace, xo, yo, transform)
   theRasterizer->reset_clipping();
   
-  _VERBOSE("RendererAgg::draw_markers");
+  _VERBOSE("RendererAgg::_draw_markers_nocache");
   args.verify_length(6);  
   
   GCAgg gc = GCAgg(args[0], dpi);
@@ -1075,13 +1089,13 @@ RendererAgg::_draw_markers(const Py::Tuple& args) {
   PyArrayObject *xa = (PyArrayObject *) PyArray_ContiguousFromObject(xo.ptr(), PyArray_DOUBLE, 1, 1); 
   
   if (xa==NULL) 
-    throw Py::TypeError("RendererAgg::draw_markers expected numerix array");
+    throw Py::TypeError("RendererAgg::_draw_markers_nocache expected numerix array");
   
   
   PyArrayObject *ya = (PyArrayObject *) PyArray_ContiguousFromObject(yo.ptr(), PyArray_DOUBLE, 1, 1); 
   
   if (ya==NULL) 
-    throw Py::TypeError("RendererAgg::draw_markers expected numerix array");
+    throw Py::TypeError("RendererAgg::_draw_markers_nocache expected numerix array");
   
   Transformation* mpltransform = static_cast<Transformation*>(args[5].ptr());
   
@@ -1090,7 +1104,7 @@ RendererAgg::_draw_markers(const Py::Tuple& args) {
     mpltransform->affine_params_api(&a, &b, &c, &d, &tx, &ty);
   }
   catch(...) {
-    throw Py::ValueError("Domain error on affine_params_api in RendererAgg::draw_markers");  
+    throw Py::ValueError("Domain error on affine_params_api in RendererAgg::_draw_markers_nocache");  
   }
   
   agg::trans_affine xytrans = agg::trans_affine(a,b,c,d,tx,ty);  
@@ -1174,11 +1188,11 @@ RendererAgg::_draw_markers(const Py::Tuple& args) {
 
 
 Py::Object
-RendererAgg::draw_markers(const Py::Tuple& args) {
-  //draw_markers(gc, path, rgbFace, xo, yo, transform)
+RendererAgg::_draw_markers_cache(const Py::Tuple& args) {
+  //_draw_markers_cache(gc, path, rgbFace, xo, yo, transform)
   theRasterizer->reset_clipping();
   
-  _VERBOSE("RendererAgg::draw_markers");
+  _VERBOSE("RendererAgg::_draw_markers_cache");
   args.verify_length(6);  
   
   GCAgg gc = GCAgg(args[0], dpi);
@@ -1196,13 +1210,13 @@ RendererAgg::draw_markers(const Py::Tuple& args) {
   PyArrayObject *xa = (PyArrayObject *) PyArray_ContiguousFromObject(xo.ptr(), PyArray_DOUBLE, 1, 1); 
   
   if (xa==NULL) 
-    throw Py::TypeError("RendererAgg::draw_markers expected numerix array");
+    throw Py::TypeError("RendererAgg::_draw_markers_cache expected numerix array");
   
   
   PyArrayObject *ya = (PyArrayObject *) PyArray_ContiguousFromObject(yo.ptr(), PyArray_DOUBLE, 1, 1); 
   
   if (ya==NULL) 
-    throw Py::TypeError("RendererAgg::draw_markers expected numerix array");
+    throw Py::TypeError("RendererAgg::_draw_markers_cache expected numerix array");
   
   Transformation* mpltransform = static_cast<Transformation*>(args[5].ptr());
   
@@ -1211,7 +1225,7 @@ RendererAgg::draw_markers(const Py::Tuple& args) {
     mpltransform->affine_params_api(&a, &b, &c, &d, &tx, &ty);
   }
   catch(...) {
-    throw Py::ValueError("Domain error on affine_params_api in RendererAgg::draw_markers");  
+    throw Py::ValueError("Domain error on affine_params_api in RendererAgg::_draw_markers_cache");  
   }
   
   agg::trans_affine xytrans = agg::trans_affine(a,b,c,d,tx,ty);  

@@ -21,7 +21,7 @@ clean:
 
 
 release: ${DISTFILES}
-	rm -r MANIFEST;\
+	rm -f MANIFEST;\
 	${PYTHON} license.py ${VERSION} license/LICENSE;\
 	${PYTHON} setup.py sdist --formats=gztar,zip;
 

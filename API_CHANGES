@@ -1,6 +1,3 @@
-
-Added auto legen capability from sprint -- 'best' is new default
-
 API CHANGES in matplotlib-0.73
 
   Removed deprecated ColormapJet and friends

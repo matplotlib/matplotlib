@@ -435,10 +435,12 @@ class LineCollection(Collection):
             offsets = [(0,0)]
         else:
             offsets = self._offsets
-        N = max(len(offsets), len(self._verts))
+        Noffsets = len(offsets)
+        Nsegments = len(self._segments)
         vertsall = []
-        for i in range(N):
-            ox, oy = offsets[i%N]
-            verts = self._segments[i%N]
+        for i in range(max(Noffsets, Nsegments)):
+            #print i, N, i%N, len(offsets)
+            ox, oy = offsets[i%Noffsets]
+            verts = self._segments[i%Nsegments]
             vertsall.extend([(x+ox, y+oy) for x,y in verts])
         return vertsall

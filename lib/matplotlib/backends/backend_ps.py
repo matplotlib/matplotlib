@@ -194,7 +194,7 @@ class RendererPS(RendererBase):
         font = _fontd.get(key)
         if font is None:
             fname = fontManager.findfont(prop)
-            font = FT2Font(fname)
+            font = FT2Font(str(fname))
             _fontd[key] = font
             if fname not in _type42:
                 _type42.append(fname)
@@ -491,10 +491,15 @@ grestore
         thisx, thisy = 0,0
         for c in s:
             ccode = ord(c)
-            gind = glyphd[ccode]
+            gind = glyphd.get(ccode)
+            if gind is None:
+                ccode = ord('?')
+                name = '.notdef'
+                gind = 0
+            else:
+                name = font.get_glyph_name(gind)
             glyph = font.load_char(ccode)
 
-            name = font.get_glyph_name(gind)
             if lastgind is not None:
                 kern = font.get_kerning(lastgind, gind, KERNING_UNFITTED)
             else:
@@ -598,7 +603,7 @@ def encodeTTFasPS(fontfile):
         data  = font.read(65520)
         
     hexdata = ''.join(hexdata)[:-2] + '00>'
-    font    = FT2Font(fontfile)
+    font    = FT2Font(str(fontfile))
     
     headtab  = font.get_sfnt_table('head')
     version  = '%d.%d' % headtab['version']
@@ -773,7 +778,7 @@ class FigureCanvasPS(FigureCanvasBase):
                 print >>fh, l.strip()
         if not rcParams['ps.useafm']:
             for font in type42:
-                print >>fh, "%%BeginFont: "+FT2Font(font).postscript_name
+                print >>fh, "%%BeginFont: "+FT2Font(str(font)).postscript_name
                 print >>fh, encodeTTFasPS(font)
                 print >>fh, "%%EndFont"
             print >>fh, "%%EndProlog"

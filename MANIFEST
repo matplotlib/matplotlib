@@ -262,6 +262,7 @@ examples/backend_driver.py
 examples/bar_stacked.py
 examples/barchart_demo.py
 examples/barh_demo.py
+examples/boxplot_demo.py
 examples/break.py
 examples/color_demo.py
 examples/colours.py
@@ -301,6 +302,7 @@ examples/fill_between_posneg.py
 examples/fill_demo.py
 examples/fill_spiral.py
 examples/finance_demo.py
+examples/font_indexing.py
 examples/font_table_ttf.py
 examples/fonts_demo.py
 examples/fonts_demo_kw.py
@@ -322,6 +324,7 @@ examples/interactive2.py
 examples/invert_axes.py
 examples/keypress_demo.py
 examples/layer_images.py
+examples/legend_auto.py
 examples/legend_demo.py
 examples/legend_demo2.py
 examples/line_styles.py
@@ -355,6 +358,7 @@ examples/printing_in_wx.py
 examples/psd_demo.py
 examples/pstest.py
 examples/pythonic_matplotlib.py
+examples/quiver_demo.py
 examples/scatter_demo.py
 examples/scatter_demo2.py
 examples/scatter_profile.py
@@ -373,6 +377,7 @@ examples/text_themes.py
 examples/to_numeric.py
 examples/toggle_images.py
 examples/two_scales.py
+examples/unicode_demo.py
 examples/vertical_ticklabels.py
 examples/vline_demo.py
 examples/webapp_demo.py
@@ -510,7 +515,6 @@ lib/dateutil/rrule.py
 lib/dateutil/tz.py
 lib/matplotlib/.cvsignore
 lib/matplotlib/__init__.py
-lib/matplotlib/__init__.py.~1.45.~
 lib/matplotlib/_contour.py
 lib/matplotlib/_image.py
 lib/matplotlib/_mathtext_data.py
@@ -538,6 +542,7 @@ lib/matplotlib/mathtext.py
 lib/matplotlib/mlab.py
 lib/matplotlib/patches.py
 lib/matplotlib/pylab.py
+lib/matplotlib/pylab.py.orig
 lib/matplotlib/pyparsing.py
 lib/matplotlib/table.py
 lib/matplotlib/text.py

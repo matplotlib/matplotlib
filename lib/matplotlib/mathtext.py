@@ -151,6 +151,7 @@ from matplotlib.pyparsing import Literal, Word, OneOrMore, ZeroOrMore, \
 from matplotlib.afm import AFM
 from matplotlib.cbook import enumerate, iterable, Bunch
 from matplotlib.ft2font import FT2Font
+from matplotlib.font_manager import fontManager
 from matplotlib._mathtext_data import latex_to_bakoma, cmkern
 from matplotlib.numerix import absolute
 from matplotlib import get_data_path
@@ -235,6 +236,141 @@ class DummyFonts:
             )
         return metrics
 
+class TrueTypeFonts(Fonts):
+    def __init__(self):
+
+        # inspect all the fonts in the current path and make a dict
+        # from font type (tt, rm, it, cal) -> unicode chars that it
+        # provides
+        
+        self.glyphd = {}
+        self.fonts = dict(
+            [ (name, FT2Font(os.path.join(self.basepath, name) + '.ttf'))
+              for name in self.fnames])
+
+        self.charmaps = dict(
+            [ (name, self.fonts[name].get_charmap()) for name in self.fnames])
+        # glyphmaps is a dict names to a dict of charcode -> glyphindex
+        self.glyphmaps = {}
+        for name in self.fnames:
+            cmap = self.charmaps[name]
+            self.glyphmaps[name] = dict([(ccode, glyphind) for glyphind, ccode in cmap.items()])
+        
+        for font in self.fonts.values():
+            font.clear()
+        if useSVG:
+            self.svg_glyphs=[]  # a list of "glyphs" we need to render this thing in SVG
+        else: pass
+        self.usingSVG = useSVG
+            
+    def get_metrics(self, font, sym, fontsize, dpi):
+        cmfont, metrics, glyph, offset  = \
+                self._get_info(font, sym, fontsize, dpi) 
+        return metrics
+
+    def _get_info (self, font, sym, fontsize, dpi):
+        'load the cmfont, metrics and glyph with caching'
+        key = font, sym, fontsize, dpi
+        tup = self.glyphd.get(key)
+
+        if tup is not None: return tup
+
+        basename = self.fontmap[font]
+
+        if latex_to_bakoma.has_key(sym):
+            basename, num = latex_to_bakoma[sym]
+            num = self.charmaps[basename][num]
+        elif len(sym) == 1:
+            num = ord(sym)
+        else:
+            num = 0
+            raise ValueError('unrecognized symbol "%s"' % sym)
+
+        #print sym, basename, num
+        cmfont = self.fonts[basename]
+        cmfont.set_size(fontsize, dpi)
+        head  = cmfont.get_sfnt_table('head')
+        glyph = cmfont.load_char(num)
+
+        xmin, ymin, xmax, ymax = [val/64.0 for val in glyph.bbox]
+        if basename == 'cmex10':
+            offset =  glyph.height/64.0/2 + 256.0/64.0*dpi/72.0
+            #offset = -(head['yMin']+512)/head['unitsPerEm']*10.
+        else:
+            offset = 0.
+        metrics = Bunch(
+            advance  = glyph.linearHoriAdvance/65536.0,
+            height   = glyph.height/64.0,
+            width    = glyph.width/64.0,
+            xmin = xmin,
+            xmax = xmax,
+            ymin = ymin+offset,
+            ymax = ymax+offset,
+            )
+        
+        self.glyphd[key] = cmfont, metrics, glyph, offset
+        return self.glyphd[key]
+
+    def set_canvas_size(self, w, h):
+        'Dimension the drawing canvas; may be a noop'
+        self.width = int(w)
+        self.height = int(h)
+        for font in self.fonts.values():
+            font.set_bitmap_size(int(w), int(h)) 
+
+    def render(self, ox, oy, font, sym, fontsize, dpi):
+        cmfont, metrics, glyph, offset = \
+                self._get_info(font, sym, fontsize, dpi)
+
+        if not self.usingSVG:
+            cmfont.draw_glyph_to_bitmap(
+                int(ox),  int(self.height - oy - metrics.ymax), glyph)
+        else:
+            oy += offset - 512/2048.*10.
+            basename = self.fontmap[font]
+            if latex_to_bakoma.has_key(sym):
+                basename, num = latex_to_bakoma[sym]
+                num = self.charmaps[basename][num]
+            elif len(sym) == 1:
+                num = ord(sym)
+            else:
+                num = 0
+                print >>sys.stderr, 'unrecognized symbol "%s"' % sym
+            self.svg_glyphs.append((basename, fontsize, num, ox, oy, metrics))
+        
+
+    def get_kern(self, font, symleft, symright, fontsize, dpi):
+        """
+        Get the kerning distance for font between symleft and symright.
+
+        font is one of tt, it, rm, cal or None
+
+        sym is a single symbol(alphanum, punct) or a special symbol
+        like \sigma.
+
+        """
+        basename = self.fontmap[font]
+        cmfont = self.fonts[basename]
+        cmfont.set_size(fontsize, dpi)
+        kernd = cmkern[basename]
+        key = symleft, symright
+        kern = kernd.get(key,0)
+        #print basename, symleft, symright, key, kern
+        return kern
+
+    def _get_num(self, font, sym):
+        'get charcode for sym'
+        basename = self.fontmap[font]
+        if latex_to_bakoma.has_key(sym):
+            basename, num = latex_to_bakoma[sym]
+            num = self.charmaps[basename][num]
+        elif len(sym) == 1:
+            num = ord(sym)
+        else:
+            num = 0
+        return num
+
+    
 class BakomaTrueTypeFonts(Fonts):
     """
     Use the Bakoma true type fonts for rendering
