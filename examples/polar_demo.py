@@ -36,20 +36,8 @@
 # axes unless we come up with a meaningful, useful and functional
 # implementation for them.
 #
-# Note that polar axes are sufficiently different that regular axes
-# that I haven't stived for a consistent interface to the gridlines,
-# labels, etc.  To set the properties of the gridlines and labels,
-# access the attributes directly from the polar axes, as in
-#
-#   ax = gca()
-#   set(ax.rgridlines, color='r')
-#
-# The following attributes are defined
-#
-#      thetagridlines  : a list of Line2D for the theta grids
-#      rgridlines      : a list of Line2D for the radial grids
-#      thetagridlabels : a list of Text for the theta grid labels
-#      rgridlabels     : a list of Text for the theta grid labels                  
+# See the matplotlib.matlab rgrids and thetagrids functions for
+# information on how to customize the grid locations and labels
 
 from matplotlib.matlab import *
 
@@ -63,7 +51,6 @@ ax = axes([0.1, 0.1, 0.8, 0.8], polar=True, axisbg='#d5de9c')
 r = arange(0,1,0.001)
 theta = 2*2*pi*r
 polar(theta, r, color='#ee8d18', lw=3)
-set(ax.thetagridlabels, y=1.075) # the radius of the grid labels
 
 title("And there was much rejoicing!", fontsize=20)
 savefig('polar_demo')

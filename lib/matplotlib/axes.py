@@ -2818,9 +2818,16 @@ class PolarAxes(Axes):
     RESOLUTION = 200
 
     def __init__(self, *args, **kwarg):
+        self.thetagridlabels = []
+        self.thetagridlines = []        
+        self.rgridlabels = []
+        self.rgridlines = []        
         Axes.__init__(self, *args, **kwarg)
 
-
+    def _popall(self, seq):
+        'empty a list'
+        for i in range(len(seq)): seq.pop()
+        
     def _set_lim_and_transforms(self):
         """
         set the dataLim and viewLim BBox attributes and the
@@ -2837,6 +2844,7 @@ class PolarAxes(Axes):
         self.transData = NonseparableTransformation(self.viewLim, self.bbox, FuncXY(POLAR))
         self.transAxes = get_bbox_transform(unit_bbox(), self.bbox)
 
+        
     def cla(self):
         'Clear the current axes'
 
@@ -2891,11 +2899,9 @@ class PolarAxes(Axes):
 
         angles = arange(0, 360, 45)
         radii = arange(0.2, 1.1, 0.2)
+        self.set_thetagrids(angles)
         self.set_rgrids(radii)
-        self.set_rgridlabels(radii)
-        self.set_thetagrids( angles )
-        self.set_thetagridlabels( angles )
-        
+
     def grid(self, b):
         'Set the axes grids on or off; b is a boolean'
         self._gridOn = b
@@ -2914,7 +2920,6 @@ class PolarAxes(Axes):
 
         ticks = self.rlocator()
         self.set_rgrids(ticks)
-        self.set_rgridlabels(ticks)        
         
         for t in self.thetagridlabels:
             t.set_y(1.05*rmax)
@@ -2923,9 +2928,24 @@ class PolarAxes(Axes):
         for l in self.thetagridlines:
             l.set_ydata(r)
             
-    def set_rgrids(self, radii):
-        'set the radial locations of the r grids'
-        self.rgridlines = []
+    def set_rgrids(self, radii, labels=None, angle=22.5, **kwargs):
+        """
+        set the radial locations and labels of the r grids
+
+        The labels will appear at radial distances radii at angle
+
+        labels, if not None, is a len(radii) list of strings of the
+        labels to use at each angle.
+
+        if labels is None, the self.rformatter will be used        
+
+        Return value is a list of lines, labels where the lines are
+        matplotlib.Line2D instances and the labels are matplotlib.Text
+        instances
+
+        """
+
+        self._popall(self.rgridlines)
         theta = mlab.linspace(0,2*math.pi, self.RESOLUTION)
         ls = rcParams['grid.linestyle']
         color = rcParams['grid.color']
@@ -2936,14 +2956,54 @@ class PolarAxes(Axes):
             line = Line2D(theta, r, linestyle=ls, color=color, linewidth=lw)
             line.set_transform(self.transData)
             self.rgridlines.append(line)
-        return self.rgridlines
 
-    def set_thetagrids(self, angles):
+
+        self._popall(self.rgridlabels)
+
+        size = rcParams['tick.labelsize']
+        color = rcParams['tick.color']
+
+        func = FuncXY(POLAR)
+        props=FontProperties(size=rcParams['tick.labelsize'])
+        if labels is None:
+            labels = [self.rformatter(r,0) for r in radii]
+        for r,l in zip(radii, labels):
+            t = Text(angle/180.*math.pi, r, l,
+                     fontproperties=props, color=color,
+                     horizontalalignment='center', verticalalignment='center')
+            t.set_transform(self.transData)
+            t.update_properties(kwargs)
+            self._set_artist_props(t)
+            t.set_clip_on(False)
+            self.rgridlabels.append(t)
+
+        return self.rgridlines, self.rgridlabels
+
+
+    def set_thetagrids(self, angles, labels=None, fmt='%d', frac = 1.1,
+                       **kwargs):
         """
         set the angles at which to place the theta grids (these
-        gridlines are equal along the theta dimension).  angles is in degrees
+        gridlines are equal along the theta dimension).  angles is in
+        degrees
+
+        labels, if not None, is a len(angles) list of strings of the
+        labels to use at each angle.
+
+        if labels is None, the labels with be fmt%angle
+
+        frac is the fraction of the polar axes radius at which to
+        place the label (1 is the edge).Eg 1.05 isd outside the axes
+        and 0.95 is inside the axes
+
+        kwargs are optional text properties for the labels
+
+        Return value is a list of lines, labels where the lines are
+        matplotlib.Line2D instances and the labels are matplotlib.Text
+        instances
+
         """
-        self.thetagridlines = []
+        self._popall(self.thetagridlines)
         ox, oy = 0,0
         ls = rcParams['grid.linestyle']
         color = rcParams['grid.color']
@@ -2956,7 +3016,28 @@ class PolarAxes(Axes):
             line = Line2D(theta, r, linestyle=ls, color=color, linewidth=lw)
             line.set_transform(self.transData)
             self.thetagridlines.append(line)
-        return self.thetagridlines
+
+        self._popall(self.thetagridlabels)
+        size = rcParams['tick.labelsize']
+        color = rcParams['tick.color']
+
+        func = FuncXY(POLAR)
+        props=FontProperties(size=rcParams['tick.labelsize'])
+        r = frac*self.get_rmax()
+        if labels is None:
+            labels = [fmt%a for a in angles]
+        for a,l in zip(angles, labels):            
+            t = Text(a/180.*math.pi, r, l, fontproperties=props, color=color,
+                     horizontalalignment='center', verticalalignment='center')
+            t.set_transform(self.transData)
+            t.update_properties(kwargs)
+            self._set_artist_props(t)
+            t.set_clip_on(False)
+            self.thetagridlabels.append(t)
+        return self.thetagridlines, self.thetagridlabels
+
+
+
 
     def get_rmax(self):
         'get the maximum radius in the view limits dimension'
@@ -2998,60 +3079,6 @@ class PolarAxes(Axes):
         theta /= math.pi
         return 'theta=%1.2fpi, r=%1.3f'%(theta, r)
 
-    def set_thetagridlabels(self, angles, fmt='%d', frac = 1.1, **kwargs):
-        """
-        set the radial locations of the r grids
-
-        angles are in degrees
-
-        frac is the fraction of the polar axes radius at which to
-        place the label (1 is the edge).Eg 1.05 isd outside the axes
-        and 0.95 is inside the axes
-        """
-
-        self.thetagridlabels = []
-
-        size = rcParams['tick.labelsize']
-        color = rcParams['tick.color']
-
-        func = FuncXY(POLAR)
-        props=FontProperties(size=rcParams['tick.labelsize'])
-        r = frac*self.get_rmax()
-        for a in angles:
-            t = Text(a/180.*math.pi, r, fmt%a, fontproperties=props, color=color,
-                     horizontalalignment='center', verticalalignment='center')
-            t.set_transform(self.transData)
-            t.update_properties(kwargs)
-            self._set_artist_props(t)
-            t.set_clip_on(False)
-            self.thetagridlabels.append(t)
-        return self.thetagridlabels
-
-    def set_rgridlabels(self, radii, angle=22.5, **kwargs):
-        """
-        Set the radial grid labels at radial distances in radii along
-        the radius at angle
-        """
-
-        self.rgridlabels = []
-
-        size = rcParams['tick.labelsize']
-        color = rcParams['tick.color']
-
-        func = FuncXY(POLAR)
-        props=FontProperties(size=rcParams['tick.labelsize'])
-        
-        for r in radii:
-            s = self.rformatter(r,0)
-            t = Text(angle/180.*math.pi, r, s, fontproperties=props, color=color,
-                     horizontalalignment='center', verticalalignment='center')
-            t.set_transform(self.transData)
-            t.update_properties(kwargs)
-            self._set_artist_props(t)
-            t.set_clip_on(False)
-            self.rgridlabels.append(t)
-        return self.rgridlabels
-        
 
     def has_data(self):
         'return true if any artists have been added to axes'

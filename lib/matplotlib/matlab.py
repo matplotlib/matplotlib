@@ -1167,6 +1167,105 @@ def xticks(*args, **kwargs):
     draw_if_interactive()
     return locs, labels
 
+
+
+def rgrids(*args, **kwargs):
+    """
+    Set/Get the radial locations of the gridlines and ticklabels
+
+    With no args, simply return lines, labels where lines is an
+    array of radial gridlines (Line2D instances) and labels is an
+    array of tick labels (Text instances).
+
+      lines, labels = rgrids()              
+
+    With arguments, the syntax is
+
+      lines, labels = RGRIDS(radii, labels=None, angle=22.5, **kwargs)
+
+    The labels will appear at radial distances radii at angle
+
+      labels, if not None, is a len(radii) list of strings of the
+      labels to use at each angle.
+
+      if labels is None, the self.rformatter will be used        
+
+    Return value is a list of lines, labels where the lines are
+    matplotlib.Line2D instances and the labels are matplotlib.Text
+    instances.  Note that on input the labels argument is a list of
+    strings, and on output it is a list of Text instances
+
+    Examples
+      # set the locations of the radial gridlines and labels
+      lines, labels = rgrids( (0.25, 0.5, 1.0) )
+
+      # set the locations and labels of the radial gridlines and labels
+      lines, labels = rgrids( (0.25, 0.5, 1.0), ('Tom', 'Dick', 'Harry' )
+
+    """
+    ax = gca()
+    if not isinstance(ax, PolarAxes):
+        raise RuntimeError('rgrids only defined for polar axes')
+    if len(args)==0:
+        lines = ax.rgridlines()
+        labels = ax.rgridlabels()
+    else:
+        lines, labels = ax.set_rgrids(*args, **kwargs)
+            
+    draw_if_interactive()
+    return lines, labels
+
+def thetagrids(*args, **kwargs):
+    """
+    Set/Get the theta locations of the gridlines and ticklabels
+
+    If no arguments are passed, return lines, labels where lines is an
+    array of radial gridlines (Line2D instances) and labels is an
+    array of tick labels (Text instances).
+
+      lines, labels = thetagrids()              
+
+    Otherwise the syntax is
+
+      lines, labels = THETAGRIDS(angles, labels=None, fmt='%d', frac = 1.1)
+
+    set the angles at which to place the theta grids (these gridlines
+    are equal along the theta dimension).  angles is in degrees
+
+      labels, if not None, is a len(angles) list of strings of the
+      labels to use at each angle.
+
+      if labels is None, the labels with be fmt%angle
+
+      frac is the fraction of the polar axes radius at which to place
+      the label (1 is the edge).Eg 1.05 isd outside the axes and 0.95
+      is inside the axes
+
+    Return value is a list of lines, labels where the lines are
+    matplotlib.Line2D instances and the labels are matplotlib.Text
+    instances.  Note that on input the labels argument is a list of
+    strings, and on output it is a list of Text instances
+
+    Examples:
+
+      # set the locations of the radial gridlines and labels
+      lines, labels = thetagrids( range(45,360,90) )
+
+      # set the locations and labels of the radial gridlines and labels
+      lines, labels = thetagrids( range(45,360,90), ('NE', 'NW', 'SW','SE') )
+    """
+    ax = gca()
+    if not isinstance(ax, PolarAxes):
+        raise RuntimeError('rgrids only defined for polar axes')
+    if len(args)==0:
+        lines = ax.thetagridlines()
+        labels = ax.thetagridlabels()
+    else:
+        lines, labels = ax.set_thetagrids(*args, **kwargs)
+            
+    draw_if_interactive()
+    return lines, labels
+
 def yticks(*args, **kwargs):
     """
     Set/Get the ylimits of the current ticklocs, labels
