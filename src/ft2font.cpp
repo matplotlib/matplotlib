@@ -488,13 +488,13 @@ FT2Font::load_char(const Py::Tuple & args) {
   int error = FT_Load_Char( face, (unsigned long)charcode, FT_LOAD_DEFAULT);
   
   if (error)
-    throw Py::RuntimeError("Could not load charcode");
+    throw Py::RuntimeError(Printf("Could not load charcode %d", charcode).str());
   
   FT_Glyph thisGlyph;
   error = FT_Get_Glyph( face->glyph, &thisGlyph );
   
   if (error)
-    throw Py::RuntimeError("Could not get glyph for char");
+    throw Py::RuntimeError(Printf("Could not get glyph for char %d", charcode).str());
   
   size_t num = glyphs.size();  //the index into the glyphs list
   glyphs.push_back(thisGlyph);
@@ -615,7 +615,7 @@ FT2Font::draw_rect(const Py::Tuple & args) {
   if ( x0<0 || y0<0 || x1<0 || y1<0 || 
        x0>iwidth || x1>iwidth ||
        y0>iheight || y1>iheight ) 
-    throw Py::ValueError("rect coords outside image bounds");
+    throw Py::ValueError("Rect coords outside image bounds");
   
   for (long i=x0; i<x1; ++i) {
     image.buffer[i + y0*iwidth] = 255;
@@ -774,7 +774,7 @@ FT2Font::get_glyph_name(const Py::Tuple & args) {
 
   char buffer[128];
   if (FT_Get_Glyph_Name(face, (FT_UInt) Py::Int(args[0]), buffer, 128))
-    Py::RuntimeError("Could not get glyph names.");
+    throw Py::RuntimeError("Could not get glyph names.");
   return Py::String(buffer);
 }
 

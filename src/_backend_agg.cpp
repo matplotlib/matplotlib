@@ -950,12 +950,8 @@ RendererAgg::write_png(const Py::Tuple& args)
   if (o.isString()) {
     std::string fileName = Py::String(o);
     const char *file_name = fileName.c_str();
-    if ((fp = fopen(file_name, "wb")) == NULL) {   
-      std::ostringstream os;
-      os << "Could not open file " << file_name;
+    if ((fp = fopen(file_name, "wb")) == NULL) 
       throw Py::RuntimeError( Printf("Could not open file %s", file_name).str() );
-    }
-    //fp = fopen(file_name, "wb");
   }
   else {
     if ((fp = PyFile_AsFile(o.ptr())) == NULL) 

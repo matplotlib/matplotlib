@@ -539,26 +539,26 @@ Image::write_png(const Py::Tuple& args)
   
   fp = fopen(file_name, "wb");
   if (fp == NULL) 
-    throw Py::RuntimeError("could not open file");
+    throw Py::RuntimeError(Printf("Could not open file %s", file_name).str());
   
   
   png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
   if (png_ptr == NULL) {
     fclose(fp);
-    throw Py::RuntimeError("could not create write struct");
+    throw Py::RuntimeError("Could not create write struct");
   }
   
   info_ptr = png_create_info_struct(png_ptr);
   if (info_ptr == NULL) {
     fclose(fp);
     png_destroy_write_struct(&png_ptr, &info_ptr);
-    throw Py::RuntimeError("could not create info struct");
+    throw Py::RuntimeError("Could not create info struct");
   }
   
   if (setjmp(png_ptr->jmpbuf)) {
     fclose(fp);
     png_destroy_write_struct(&png_ptr, &info_ptr);
-    throw Py::RuntimeError("error building image");
+    throw Py::RuntimeError("Error building image");
   }
   
   png_init_io(png_ptr, fp);
@@ -726,7 +726,7 @@ _image_module::readpng(const Py::Tuple& args) {
 
   FILE *fp = fopen(fname.c_str(), "rb");
   if (!fp)
-    throw Py::RuntimeError("_image_module::readpng could not open PNG file for reading");
+    throw Py::RuntimeError(Printf("_image_module::readpng could not open PNG file %s for reading", fname.c_str()).str());
 
   fread(header, 1, 8, fp);
   if (png_sig_cmp(header, 0, 8))
@@ -879,7 +879,7 @@ _image_module::fromarray(const Py::Tuple& args) {
     
     if (A->dimensions[2] != 3 && A->dimensions[2] != 4 ) {
       Py_XDECREF(A);  
-      throw Py::ValueError("3rd dimension must be length 3 (RGB) or 4 (RGBA)"); 
+      throw Py::ValueError(Printf("3rd dimension must be length 3 (RGB) or 4 (RGBA); found %d", A->dimensions[2]).str()); 
       
     }
     
