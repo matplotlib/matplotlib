@@ -302,18 +302,32 @@ class Axes(Artist):
                  axisbg = None, # defaults to rc axes.facecolor
                  frameon = True):
         Artist.__init__(self)
-
+        self._position = [Value(val) for val in rect]
+        self.set_figure(fig)
 
         if axisbg is None: axisbg = rcParams['axes.facecolor']
-        self.set_figure(fig)
-        self._position = [Value(val) for val in rect]
         self._axisbg = axisbg
         self._frameon = frameon
         self._xscale = 'linear'
         self._yscale = 'linear'        
 
-        l, b, w, h = self._position
 
+        self._hold = rcParams['axes.hold']
+        self._connected = {} # a dict from events to (id, func)    
+        self.cla()
+
+        # funcs used to format x and y - fall back on major formatters
+        self.fmt_xdata = None  
+        self.fmt_ydata = None
+
+    def set_figure(self, fig):
+        """
+Set the Axes figure
+
+ACCEPTS: a Figure instance"""
+        Artist.set_figure(self, fig)
+        
+        l, b, w, h = self._position
         xmin = fig.bbox.ll().x()
         xmax = fig.bbox.ur().x()
         ymin = fig.bbox.ll().y()
@@ -331,15 +345,7 @@ class Axes(Artist):
                           )
         #these will be updated later as data is added
         self._set_lim_and_transforms()
-
-        self._hold = rcParams['axes.hold']
-        self._connected = {} # a dict from events to (id, func)    
-        self.cla()
-
-        # funcs used to format x and y - fall back on major formatters
-        self.fmt_xdata = None  
-        self.fmt_ydata = None
-
+        
     def _set_lim_and_transforms(self):
         """
         set the dataLim and viewLim BBox attributes and the

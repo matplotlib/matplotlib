@@ -7,7 +7,7 @@ from __future__ import division
 import sys
 
 from matplotlib import verbose
-from cbook import is_string_like, enumerate, strip_math
+from cbook import is_string_like, enumerate, strip_math, Stack
 from colors import colorConverter
 from numerix import array, sqrt, pi, log, asarray, ones, Float
 from patches import Rectangle
@@ -630,67 +630,15 @@ class FigureManagerBase:
     def __init__(self, canvas, num):
         self.canvas = canvas
         self.num = num
-        self.clf()
-        
+
     def clf(self):
         'clear the figure'
-        self.axes = {}
-        self.currentAxis = None
+        verbose.report_error('Deprectated; use fig.clf() instead')
         self.canvas.figure.clf()
         
-    def add_subplot(self, *args, **kwargs):
-        """
-        Add a subplot to the current figure
-        """
-        key = (args, tuple(kwargs.items()))
-        if self.axes.has_key(key):
-            self.currentAxis = self.axes[key]
-        else:
-            a = self.canvas.figure.add_subplot(*args, **kwargs)
-            self.axes[key] = a
-            self.currentAxis = a
-            return a
-        
-    def add_axes(self, rect, **kwargs):
-        """
-        Add an axes to the current figure
-        """
-        rect = tuple(rect)
-        key = (rect, tuple(kwargs.items()))
-        if self.axes.has_key(key):
-            self.currentAxis = self.axes[key]
-            return self.currentAxis
-        else:
-            a = self.canvas.figure.add_axes(rect, **kwargs)
-            self.axes[key] = a
-            self.currentAxis = a
-            return a
-
-    def get_current_axis(self, **kwargs):
-        """
-        Return the current axes
-        """
-        if self.currentAxis is not None:
-            return self.currentAxis
-        else:
-            self.add_subplot(111, **kwargs)
-            return self.currentAxis
-
-
-    def set_current_axes(self, a):
-        """
-        Set the current axes to be a
-        """
-        if a is None:
-            self.currentAxis = None
-            return
-        if a not in self.axes.values():
-            error_msg('Axes is not in current figure')
-        self.currentAxis = a
 
     def destroy(self):
         pass
-
 
 # cursors
 class Cursors:  #namespace
@@ -698,55 +646,6 @@ class Cursors:  #namespace
 cursors = Cursors()
 
 
-class Stack:
-    """
-    Implement a stack where elements can be pushed on and you can move
-    back and forth.  But no pop.  Should mimib home / back / forward
-    in a browser
-    """
-
-    def __init__(self):
-        self.clear()
-        
-    def __call__(self):
-        'return the current element, or None'
-        if not len(self._elements): return None
-        else: return self._elements[self._pos]
-
-    def forward(self):
-        'move the position forward and return the current element'
-        N = len(self._elements)
-        if self._pos<N-1: self._pos += 1
-        return self()
-
-    def back(self):
-        'move the position back and return the current element'
-        if self._pos>0: self._pos -= 1
-        return self()
-
-    def push(self, o):
-        """
-        push object onto stack at current position - all elements
-        occurring later than the current position are discarded
-        """
-        self._elements = self._elements[:self._pos+1]
-        self._elements.append(o)
-        self._pos = len(self._elements)-1
-        return self()
-    
-    def home(self):
-        'push the first element onto the top of the stack'
-        if not len(self._elements): return
-        self.push(self._elements[0])
-        return self()
-
-    def empty(self):
-        return len(self._elements)==0
-
-    def clear(self):
-        'empty the stack'
-        self._pos = -1
-        self._elements = []
 
 class NavigationToolbar2:
     """

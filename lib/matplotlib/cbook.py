@@ -450,3 +450,81 @@ def popd(d, *args):
         try: del d[key]
         except KeyError: pass
     return val
+
+
+
+
+class Stack:
+    """
+    Implement a stack where elements can be pushed on and you can move
+    back and forth.  But no pop.  Should mimib home / back / forward
+    in a browser
+    """
+
+    def __init__(self, default=None):
+        self.clear()
+        self._default = default
+    
+    def __call__(self):
+        'return the current element, or None'
+        if not len(self._elements): return self._default
+        else: return self._elements[self._pos]
+
+    def forward(self):
+        'move the position forward and return the current element'
+        N = len(self._elements)
+        if self._pos<N-1: self._pos += 1
+        return self()
+
+    def back(self):
+        'move the position back and return the current element'
+        if self._pos>0: self._pos -= 1
+        return self()
+
+    def push(self, o):
+        """
+        push object onto stack at current position - all elements
+        occurring later than the current position are discarded
+        """
+        self._elements = self._elements[:self._pos+1]
+        self._elements.append(o)
+        self._pos = len(self._elements)-1
+        return self()
+    
+    def home(self):
+        'push the first element onto the top of the stack'
+        if not len(self._elements): return
+        self.push(self._elements[0])
+        return self()
+
+    def empty(self):
+        return len(self._elements)==0
+
+    def clear(self):
+        'empty the stack'
+        self._pos = -1
+        self._elements = []
+
+    def bubble(self, o):
+        'raise o to the top of the stack and return o.  o must b in the stack'
+
+        if o not in self._elements: raise ValueError('Unknown element o')
+        old = self._elements[:]
+        self.clear()
+        bubbles = []
+        for thiso in old:
+            if thiso==o: bubbles.append(thiso)
+            else: self.push(thiso)
+        for thiso in bubbles:
+            self.push(o)
+        return o
+
+    def remove(self, o):
+        'remove element o from the stack'
+        if o not in self._elements: raise ValueError('Unknown element o')
+        old = self._elements[:]
+        self.clear()
+        for thiso in old:
+            if thiso==o: continue
+            else: self.push(thiso)
+        

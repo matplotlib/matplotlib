@@ -23,6 +23,7 @@ _Plotting commands
   cohere   - make a plot of coherence
   contour  - make a contour plot
   csd      - make a plot of cross spectral density  
+  delaxes  - delete an axes from the current figure
   draw     - Force a redraw of the current figure
   errorbar - make an errorbar graph
   figlegend - make legend on the figure rather than the axes
@@ -456,14 +457,21 @@ def axes(*args, **kwargs):
     arg = args[0]
 
     if isinstance(arg, Axes):
-        get_current_fig_manager().set_current_axes(arg)
-        ret = arg
+        a = gcf().sca(arg)
     else:
         rect = arg
-        ret = get_current_fig_manager().add_axes(rect, **kwargs)
+        a = gcf().add_axes(rect, **kwargs)
+    draw_if_interactive()
+    return a
+
+def delaxes(ax):
+    """
+    remove ax from the current figure.  If ax doesn't exist an error
+    will be raised"""
+    ret = gcf().delaxes(ax)
     draw_if_interactive()
     return ret
-
+    
 
 def _get_target_images(target=None):
     if target is None:
@@ -542,8 +550,7 @@ def clf():
     """
     Clear the current figure
     """
-    manager = get_current_fig_manager()
-    manager.clf()
+    gcf().clf()
     draw_if_interactive()
 
 def colorbar(tickfmt='%1.1f'):
@@ -713,7 +720,7 @@ def gca(**kwargs):
       a.set_xlim([0,10])          # does the same
     """
 
-    return get_current_fig_manager().get_current_axis(**kwargs)
+    return gcf().gca(**kwargs)
         
 def gcf():
     "Return a handle to the current figure"
@@ -1133,9 +1140,9 @@ def subplot(*args, **kwargs):
 
     subplot(211, axisbg='y')
     """
+    
     try:
-        get_current_fig_manager().add_subplot(*args, **kwargs)
-        a =  gca()
+        a = gcf().add_subplot(*args, **kwargs)        
     except ValueError, msg:
         msg = raise_msg_to_str(msg)
         error_msg(msg)
