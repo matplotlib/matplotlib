@@ -325,5 +325,9 @@
 
 -- PS offset
 
--- gary's win crash
+-- DONE gary's win crash
+
+-- get a standard way to show windows w/o entering mainloop
+
+-- wx tooltips
 
