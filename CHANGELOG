@@ -1,5 +1,8 @@
 New entries should be added at the top
 
+2004-11-23 applied Norbert's patched and exposed legend configuration
+           to kwargs - JDH
+
 2004-11-23 backend_gtk.py: added a default exception handler
 
 2004-11-18 backend_gtk.py: change so that the backend knows about all image

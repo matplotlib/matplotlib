@@ -286,6 +286,11 @@ def get_home():
 
 def _get_data_path():
     'get the path to matplotlib data'
+
+    if os.environ.has_key('MATPLOTLIBDATA'):
+        path = os.environ['MATPLOTLIBDATA']
+        if os.path.isdir(path): return path
+
     path = os.path.join(distutils.sysconfig.PREFIX, 'share', 'matplotlib')
     if os.path.isdir(path): return path
 
@@ -296,10 +301,6 @@ def _get_data_path():
     path = os.path.join(os.sep.join(__file__.split(os.sep)[:-5]), 
                         'share','matplotlib')
     if os.path.isdir(path): return path
-
-    if os.environ.has_key('MATPLOTLIBDATA'):
-        path = os.environ['MATPLOTLIBDATA']
-        if os.path.isdir(path): return path
 
 	
     # CODE ADDED TO SUPPORT PY2EXE - you will need to copy
@@ -459,7 +460,7 @@ def validate_verbose_erro(s):
 defaultParams = {
     'backend'           : ['GTK', str],
     'numerix'           : ['Numeric', validate_numerix],
-    'toolbar'           : ['classic', validate_toolbar],
+    'toolbar'           : ['toolbar2', validate_toolbar],
     'datapath'          : [get_data_path(), validate_path_exists],
     'interactive'       : [False, validate_bool],
     'timezone'          : ['UTC', str],    

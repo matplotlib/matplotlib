@@ -75,23 +75,49 @@ class Legend(Artist):
              }
 
 
-    NUMPOINTS = 4      # the number of points in the legend line
-    FONTSIZE = 10
-    PAD = 0.2          # the fractional whitespace inside the legend border
-    # the following dimensions are in axes coords
-    LABELSEP = 0.005   # the vertical space between the legend entries
-    HANDLELEN = 0.05     # the length of the legend lines
-    HANDLETEXTSEP = 0.02 # the space between the legend line and legend text
-    AXESPAD = 0.02     # the border between the axes and legend edge
 
 
-    def __init__(self, parent, handles, labels, loc, isaxes=True):
+    def __init__(self, parent, handles, labels, loc,
+                 isaxes=True,
+                 numpoints = 4,      # the number of points in the legend line
+                 prop = FontProperties(size='smaller'),
+                 pad = 0.2,          # the fractional whitespace inside the legend border
+                 # the following dimensions are in axes coords
+                 labelsep = 0.005,     # the vertical space between the legend entries
+                 handlelen = 0.05,     # the length of the legend lines
+                 handletextsep = 0.02, # the space between the legend line and legend text
+                 axespad = 0.02,       # the border between the axes and legend edge
+
+                 ):
+        """
+  parent                # the artist that contains the legend
+  handles               # a list of artists (lines, patches) to add to the legend
+  labels                # a list of strings to label the legend 
+  loc                   # a location code
+  isaxes=True           # whether this is an axes legend
+  numpoints = 4         # the number of points in the legend line
+  fontprop = FontProperties('smaller')  # the font property
+  pad = 0.2             # the fractional whitespace inside the legend border
+
+The following dimensions are in axes coords
+  labelsep = 0.005     # the vertical space between the legend entries
+  handlelen = 0.05     # the length of the legend lines
+  handletextsep = 0.02 # the space between the legend line and legend text
+  axespad = 0.02       # the border between the axes and legend edge
+        """
         Artist.__init__(self)
         if is_string_like(loc) and not self.codes.has_key(loc):
             verbose.report_error('Unrecognized location %s. Falling back on upper right; valid locations are\n%s\t' %(loc, '\n\t'.join(self.codes.keys())))
         if is_string_like(loc): loc = self.codes.get(loc, 1)
         
-
+        self.numpoints = numpoints
+        self.prop = prop
+        self.fontsize = prop.get_size_in_points()
+        self.pad = pad
+        self.labelsep = labelsep
+        self.handlelen = handlelen
+        self.handletextsep = handletextsep
+        self.axespad = axespad
         
         if isaxes:  # parent is an Axes
             self.set_figure(parent.figure)
@@ -105,18 +131,18 @@ class Legend(Artist):
         # make a trial box in the middle of the axes.  relocate it
         # based on it's bbox
         left, upper = 0.5, 0.5
-        if self.NUMPOINTS == 1:
-            self._xdata = array([left + self.HANDLELEN*0.5])
+        if self.numpoints == 1:
+            self._xdata = array([left + self.handlelen*0.5])
         else:
-            self._xdata = linspace(left, left + self.HANDLELEN, self.NUMPOINTS)
-        textleft = left+ self.HANDLELEN+self.HANDLETEXTSEP
+            self._xdata = linspace(left, left + self.handlelen, self.numpoints)
+        textleft = left+ self.handlelen+self.handletextsep
         self.texts = self._get_texts(labels, textleft, upper)
         self.handles = self._get_handles(handles, self.texts)
         
         left, top = self.texts[-1].get_position()
         HEIGHT = self._approx_text_height()
         bottom = top-HEIGHT
-        left -= self.HANDLELEN + self.HANDLETEXTSEP + self.PAD
+        left -= self.handlelen + self.handletextsep + self.pad
         self.legendPatch = Rectangle(
             xy=(left, bottom), width=0.5, height=HEIGHT*len(self.texts),
             facecolor='w', edgecolor='k',
@@ -129,7 +155,7 @@ class Legend(Artist):
         a.set_transform(self._transform)
         
     def _approx_text_height(self):
-        return self.FONTSIZE/72.0*self.figure.dpi.get()/self.parent.bbox.height()
+        return self.fontsize/72.0*self.figure.dpi.get()/self.parent.bbox.height()
 
             
     def draw(self, renderer):
@@ -171,7 +197,7 @@ class Legend(Artist):
         ret = []   # the returned legend lines
         for handle, label in zip(handles, texts):
             x, y = label.get_position()
-            x -= self.HANDLELEN + self.HANDLETEXTSEP
+            x -= self.handlelen + self.handletextsep
             if isinstance(handle, Line2D):
                 ydata = (y-HEIGHT/2)*ones(self._xdata.shape, Float)
                 legline = Line2D(self._xdata, ydata)
@@ -183,7 +209,7 @@ class Legend(Artist):
             elif isinstance(handle, Patch):
 
                 p = Rectangle(xy=(min(self._xdata), y-3/4*HEIGHT),
-                              width = self.HANDLELEN, height=HEIGHT/2,
+                              width = self.handlelen, height=HEIGHT/2,
                               )
                 self._set_artist_props(p)
                 p.copy_properties(handle)
@@ -225,7 +251,7 @@ class Legend(Artist):
             text = Text(
                 x=x, y=pos,
                 text=l,
-                fontproperties=FontProperties(size='smaller'),
+                fontproperties=self.prop,
                 verticalalignment='top',
                 horizontalalignment='left',
                 )
@@ -289,7 +315,7 @@ class Legend(Artist):
 
         # Set the data for the legend patch
         bbox = self._get_handle_text_bbox(renderer).deepcopy()
-        bbox.scale(1 + self.PAD, 1 + self.PAD)
+        bbox.scale(1 + self.pad, 1 + self.pad)
         l,b,w,h = bbox.get_bounds()
         self.legendPatch.set_bounds(l,b,w,h)
 
@@ -306,13 +332,13 @@ class Legend(Artist):
             self._offset(ox, oy)
         else:
             if self._loc in (UL, LL, CL):           # left
-                ox = self.AXESPAD - l
+                ox = self.axespad - l
             if self._loc in (BEST, UR, LR, R, CR):  # right
-                ox = 1 - (l + w + self.AXESPAD)
+                ox = 1 - (l + w + self.axespad)
             if self._loc in (BEST, UR, UL, UC):     # upper
-                oy = 1 - (b + h + self.AXESPAD)
+                oy = 1 - (b + h + self.axespad)
             if self._loc in (LL, LR, LC):           # lower
-                oy = self.AXESPAD - b
+                oy = self.axespad - b
             if self._loc in (LC, UC, C):            # center x
                 ox = (0.5-w/2)-l
             if self._loc in (CL, CR, C):            # center y

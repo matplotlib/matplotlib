@@ -138,7 +138,7 @@ class _process_plot_var_args:
         self.count = 0
         
     def __call__(self, *args, **kwargs):
-        
+
         ret =  self._grab_next_args(*args, **kwargs)
         return ret
 
@@ -146,17 +146,19 @@ class _process_plot_var_args:
         assert self.command == 'plot', 'set_lineprops only works with "plot"'
         for key, val in kwargs.items():
             funcName = "set_%s"%key
-            if hasattr(line,funcName):
-                func = getattr(line,funcName)
-                func(val)
+            if not hasattr(line,funcName):
+                raise TypeError, 'There is no line property "%s"'%key
+            func = getattr(line,funcName)
+            func(val)
         
     def set_patchprops(self, fill_poly, **kwargs):
         assert self.command == 'fill', 'set_patchprops only works with "fill"'
         for key, val in kwargs.items():
             funcName = "set_%s"%key
-            if hasattr(fill_poly,funcName):
-                func = getattr(fill_poly,funcName)
-                func(val)
+            if not hasattr(fill_poly,funcName):
+                raise TypeError, 'There is no patch property "%s"'%key
+            func = getattr(fill_poly,funcName)
+            func(val)
 
 
     def is_filled(self, marker):
@@ -296,8 +298,7 @@ class Axes(Artist):
 
     def __init__(self, fig, rect,
                  axisbg = None, # defaults to rc axes.facecolor
-                 frameon = True,
-                 **kwargs):
+                 frameon = True):
         Artist.__init__(self)
 
 
@@ -928,7 +929,7 @@ Refs:
 
         return pxy, freqs
 
-    def draw(self, renderer, *args, **kwargs):
+    def draw(self, renderer):
         "Draw everything (plot lines, axes, labels)"
         
         renderer.open_group('axes')
@@ -1440,18 +1441,29 @@ in axes coords, ie,
   loc = 0, 1 is left top
   loc = 0.5, 0.5 is center, center
 
-and so on
+and so on.  The following kwargs are supported
+
+  numpoints = 4         # the number of points in the legend line
+  prop = FontProperties('smaller')  # the font properties
+  pad = 0.2             # the fractional whitespace inside the legend border
+
+  # The kwarg dimensions are in axes coords
+  labelsep = 0.005     # the vertical space between the legend entries
+  handlelen = 0.05     # the length of the legend lines
+  handletextsep = 0.02 # the space between the legend line and legend text
+  axespad = 0.02       # the border between the axes and legend edge
         """
 
-        loc = kwargs.get('loc', 1)
         if len(args)==0:
             labels = [line.get_label() for line in self.lines]
             lines = self.lines
+            loc = kwargs.pop('loc', 1)
 
         elif len(args)==1:
             # LABELS
             labels = args[0]
             lines = [line for line, label in zip(self.lines, labels)]
+            loc = kwargs.pop('loc', 1)
 
         elif len(args)==2:
             if is_string_like(args[1]) or isinstance(args[1], int):
@@ -1461,6 +1473,7 @@ and so on
             else:
                 # LINES, LABELS
                 lines, labels = args
+                loc = kwargs.pop('loc', 1)
 
         elif len(args)==3:
             # LINES, LABELS, LOC
@@ -1469,7 +1482,7 @@ and so on
             raise RuntimeError('Invalid arguments to legend')
 
         lines = flatten(lines)
-        self.legend_ = Legend(self, lines, labels, loc)
+        self.legend_ = Legend(self, lines, labels, loc, **kwargs)
         return self.legend_
 
     def loglog(self, *args, **kwargs):
@@ -1493,11 +1506,11 @@ log scaling:
   * subsy: the location of the minor yticks; None defaults to range(2,basey)    
         """
         if not self._hold: self.cla()
-        dx = {'basex': kwargs.get('basex', 10),
-              'subsx': kwargs.get('subsx', None),
+        dx = {'basex': kwargs.pop('basex', 10),
+              'subsx': kwargs.pop('subsx', None),
               }
-        dy = {'basey': kwargs.get('basey', 10),
-              'subsy': kwargs.get('subsy', None),
+        dy = {'basey': kwargs.pop('basey', 10),
+              'subsy': kwargs.pop('subsy', None),
               }
 
         self.set_xscale('log', **dx)
@@ -1583,12 +1596,14 @@ Grid Orientation
         """
         if not self._hold: self.cla()
 
-        alpha = kwargs.get('alpha', 1.0)
-        norm = kwargs.get('norm')
-        cmap = kwargs.get('cmap')        
-        vmin = kwargs.get('vmin')
-        vmax = kwargs.get('vmax')        
-        shading = kwargs.get('shading', 'faceted')
+        alpha = kwargs.pop('alpha', 1.0)
+        norm = kwargs.pop('norm')
+        cmap = kwargs.pop('cmap')        
+        vmin = kwargs.pop('vmin')
+        vmax = kwargs.pop('vmax')        
+        shading = kwargs.pop('shading', 'faceted')
+        if len(kwargs):
+            raise TypeError, 'Unknown argument "%s"'%kwargs.keys()[0]
 
         if len(args)==1:
             C = args[0]
@@ -1597,7 +1612,7 @@ Grid Orientation
         elif len(args)==3:
             X, Y, C = args
         else:
-            raise RuntimeError('Illegal arguments to pcolor; see help(pcolor)')
+            raise TypeError, 'Illegal arguments to pcolor; see help(pcolor)'
         
         Nx, Ny = X.shape
         patches = []
@@ -1701,7 +1716,12 @@ Grid orientation
         """
 
         if not self._hold: self.cla()
-        shading = kwargs.get('shading', 'faceted')
+        shading = kwargs.pop('shading', 'faceted')
+        cmap = kwargs.pop('cmap', cm.get_cmap())
+        norm = kwargs.pop('norm', normalize())
+        alpha = kwargs.pop('alpha', 1.0)
+        if len(kwargs):
+            raise TypeError, 'Unknown argument "%s"'%kwargs.keys()[0]
 
         if len(args)==1:
             C = args[0]
@@ -1710,18 +1730,13 @@ Grid orientation
         elif len(args)==3:
             X, Y, C = args
         else:
-            raise RuntimeError('Illegal arguments to pcolor; see help(pcolor)')
+            raise TypeError, 'Illegal arguments to pcolor; see help(pcolor)'
         
-
         Nx, Ny = X.shape
 
-        cmap = kwargs.get('cmap', cm.get_cmap())
-        norm = kwargs.get('norm', normalize())
         if isinstance(norm, normalize) and not norm.scaled():
             norm.autoscale(C)
  
-
-        alpha = kwargs.get('alpha', 1.0)
         nc = norm(C)
         RGBA = cmap(nc, alpha)
 
@@ -2210,8 +2225,8 @@ plot or set_xscale.  Notable, for log scaling:
 
         """
 
-        d = {'basex': kwargs.get('basex', 10),
-             'subsx': kwargs.get('subsx', None),
+        d = {'basex': kwargs.pop('basex', 10),
+             'subsx': kwargs.pop('subsx', None),
              }
              
         self.set_xscale('log', **d)
@@ -2236,8 +2251,8 @@ plot or set_yscale.  Notable, for log scaling:
       range(2,basey)
 
         """
-        d = {'basey': kwargs.get('basey', 10),
-             'subsy': kwargs.get('subsy', None),
+        d = {'basey': kwargs.pop('basey', 10),
+             'subsy': kwargs.pop('subsy', None),
              }
 
         self.set_yscale('log', **d)
@@ -2755,7 +2770,7 @@ class SubplotBase:
       Subplot(211)    # 2 rows, 1 column, first (upper) plot
     """
     
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args):
         # Axes __init__ below
 
         if len(args)==1:
@@ -2825,7 +2840,7 @@ class Subplot(SubplotBase, Axes):
       Subplot(211)    # 2 rows, 1 column, first (upper) plot
     """
     def __init__(self, fig, *args, **kwargs):
-        SubplotBase.__init__(self, *args, **kwargs)        
+        SubplotBase.__init__(self, *args)        
         Axes.__init__(self, fig, [self.figLeft, self.figBottom, self.figW, self.figH], **kwargs)
 
 
@@ -3143,6 +3158,6 @@ class PolarSubplot(SubplotBase, PolarAxes):
       Subplot(211)    # 2 rows, 1 column, first (upper) plot
     """
     def __init__(self, fig, *args, **kwargs):
-        SubplotBase.__init__(self, *args, **kwargs)        
+        SubplotBase.__init__(self, *args)        
         PolarAxes.__init__(self, fig, [self.figLeft, self.figBottom, self.figW, self.figH], **kwargs)
 
