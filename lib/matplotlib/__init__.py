@@ -297,6 +297,12 @@ def _get_data_path():
     path = os.path.join(distutils.sysconfig.PREFIX, 'share', 'matplotlib')
     if os.path.isdir(path): return path
 
+    path = '/usr/local/share/matplotlib'
+    if os.path.isdir(path): return path
+
+    path = '/usr/share/matplotlib'
+    if os.path.isdir(path): return path
+
     path = os.path.join(os.sep.join(__file__.split(os.sep)[:-1]), 
                         'share','matplotlib')
     if os.path.isdir(path): return path
