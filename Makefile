@@ -2,6 +2,9 @@
 # Copyright (C) 2003  <jdhunter@ace.bsd.uchicago.edu>
 # $Header$
 # $Log$
+# Revision 1.16  2004/01/30 19:58:53  jdh2358
+# update...
+#
 # Revision 1.15  2004/01/30 18:20:55  jdh2358
 # renamed backend_gtk2 to backend_gtkgd
 #
@@ -57,23 +60,25 @@ DISTFILES = API_CHANGES KNOWN_BUGS INSTALL README TODO LICENSE	\
 	MANIFEST.in matplotlib examples setup.py
 
 MODULES =                                       \
-        matplotlib.afm				\
-	matplotlib.axis				\
-	matplotlib.axes				\
 	matplotlib.artist			\
+	matplotlib.axes				\
+	matplotlib.axis				\
 	matplotlib.backend_bases		\
-	matplotlib.cbook			\
-	matplotlib.legend			\
-	matplotlib.lines			\
-	matplotlib.patches			\
-	matplotlib.matlab			\
-	matplotlib.mlab				\
-	matplotlib.text				\
-	matplotlib.transforms			\
-	matplotlib.backends.backend_gtk		\
 	matplotlib.backends.backend_gd		\
+	matplotlib.backends.backend_gtk		\
+	matplotlib.backends.backend_gtkgd		\
 	matplotlib.backends.backend_ps		\
 	matplotlib.backends.backend_template	\
+	matplotlib.cbook			\
+	matplotlib.figure			\
+	matplotlib.legend			\
+	matplotlib.lines			\
+	matplotlib.matlab			\
+	matplotlib.mlab				\
+	matplotlib.patches			\
+	matplotlib.text				\
+	matplotlib.transforms			\
+        matplotlib.afm				\
         matplotlib.backends.backend_wx
 
 RELEASE = matplotlib-${VERSION}
