@@ -20,23 +20,29 @@ _agg_to_gtk_drawable(PyObject *self, PyObject *args) {
   PyGObject *py_drawable = NULL;                         
   GdkDrawable *drawable = NULL;   
   GdkGC* gc = NULL;
+  
+  PyObject* aggo;
 
-
-  RendererAggObject* aggRenderer;
 
   if (!PyArg_ParseTuple(args, "O!O", PyGObject_Type, 
-			&py_drawable, &aggRenderer))
+			&py_drawable, &aggo))
       return NULL;
+
+
+  RendererAgg* aggRenderer = (RendererAgg*)aggo;
 
   drawable = GDK_DRAWABLE(py_drawable->obj);
   gc = gdk_gc_new(drawable);
 
+  unsigned int width = aggRenderer->get_width();
+  unsigned int height = aggRenderer->get_height();
+
   gdk_draw_rgb_32_image(drawable, gc, 0, 0, 
-			aggRenderer->rbase->width(), 
-			aggRenderer->rbase->height(), 
+			width, 
+			height, 
 			GDK_RGB_DITHER_NORMAL,
-			aggRenderer->buffer,
-			aggRenderer->rbase->width()*4);
+			aggRenderer->pixBuffer,
+			width*4);
 
   Py_INCREF(Py_None);
   return Py_None;

@@ -12,6 +12,8 @@
 #include <Python.h>
 #include <stdlib.h>
 
+#include "_backend_agg.h"
+
 extern "C" {
 #ifdef __APPLE__
 #  include <Tcl/tcl.h>
@@ -21,7 +23,7 @@ extern "C" {
 #endif
 };
 
-#include "_backend_agg.h"
+
 
 typedef struct {
     PyObject_HEAD
@@ -34,7 +36,8 @@ PyAggImagePhoto(ClientData clientdata, Tcl_Interp* interp,
 {
     Tk_PhotoHandle photo;
     Tk_PhotoImageBlock block;
-    RendererAggObject* aggRenderer;
+    PyObject* aggo;
+
     long mode;
     long nval;
     if (argc != 4) {
@@ -50,7 +53,8 @@ PyAggImagePhoto(ClientData clientdata, Tcl_Interp* interp,
         return TCL_ERROR;
     }
     /* get array (or object that can be converted to array) pointer */
-    aggRenderer = (RendererAggObject *) atol(argv[2]);
+    aggo = (PyObject*)atol(argv[2]);
+    RendererAgg *aggRenderer = (RendererAgg *)aggo;
 
     /* XXX insert aggRenderer type check */
 
@@ -80,10 +84,11 @@ PyAggImagePhoto(ClientData clientdata, Tcl_Interp* interp,
             nval = 4;
         }
     }    
-    block.width  = aggRenderer->rbase->width();
-    block.height = aggRenderer->rbase->height();
+    block.width  = aggRenderer->get_width();
+    block.height = aggRenderer->get_height();
+    //std::cout << "w,h: " << block.width << " " << block.height << std::endl;
     block.pitch = block.width * nval;
-    block.pixelPtr =  aggRenderer->buffer;
+    block.pixelPtr =  aggRenderer->pixBuffer;
     /* Clear current contents */
     Tk_PhotoBlank(photo);
     /* Copy opaque block to photo image, and leave the rest to TK */

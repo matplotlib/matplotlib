@@ -75,15 +75,14 @@ def getoutput(s):
     return ret
 
 
+
 def add_agg_flags(module):
     'Add the module flags to build extensions which use agg'
 
     # before adding the freetype flags since -z comes later
     module.libraries.append('png')
-    module.libraries.append('z')
     add_base_flags(module)
-    module.include_dirs.extend(['src','agg2/include'])
-
+    module.include_dirs.extend(['src','agg2/include', '.'])
 
     # put these later for correct link order
     module.libraries.extend(['stdc++', 'm'])
@@ -283,13 +282,16 @@ def build_tkagg(ext_modules, packages):
     BUILT_TKAGG = True
 
 
+
 def build_agg(ext_modules, packages):
     global BUILT_AGG
     if BUILT_AGG: return # only build it if you you haven't already
     
-    deps = ['src/_backend_agg.cpp', 'src/ft2font.c'] 
+    deps = ['src/_backend_agg.cpp', 'src/ft2font.c']
     deps.extend(glob.glob('agg2/src/*.cpp'))
-                       
+    deps.extend(glob.glob('CXX/*.cxx'))
+    deps.extend(glob.glob('CXX/*.c'))
+
     module = Extension(
         'matplotlib.backends._backend_agg',
         deps

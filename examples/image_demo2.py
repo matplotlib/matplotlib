@@ -28,5 +28,7 @@ if 0:
     set(gca(), 'xlim', [0,h-1])
     ylabel('density')
     set(gca(), 'xticklabels', [])
+
+savefig('image_demo2')
 show()
 

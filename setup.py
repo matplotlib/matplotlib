@@ -15,7 +15,6 @@ BUILD_FT2FONT = 1
 # numarray.  Whichever way you build it, the code will work with both
 # Numeric or numarray arrays, but you will get the best performance if
 # you build with the type of array you use most
-#BUILD_IMAGE    = 0           # no image support
 BUILD_IMAGE    = 'Numeric'    # use Numeric 
 #BUILD_IMAGE    = 'numarray'  # use numarray 
 
@@ -28,14 +27,13 @@ BUILD_AGG = 1
 # The builds below are alpha.  They use an image backend (eg GD or
 # Agg) to render to the GTK canvas.  The idea is to could use a single
 # high quality image renderer to render to all the GUI windows
-
-# build GTK GUI with Agg renderer ; requires pygtk src distros installed
-# Use False or 0 if you don't want to build
 BUILD_GTKAGG       = 'auto'
+
 
 # build TK GUI with Agg renderer ; requires Tkinter Python extension
 # and Tk includes
 # Use False or 0 if you don't want to build
+#BUILD_TKAGG        = 0
 BUILD_TKAGG        = 'auto'
 
 # build a small extension to manage the focus on win32 platforms.

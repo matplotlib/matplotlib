@@ -1,30 +1,11 @@
-/* _backend_agg.h	-- 
- *
- * $Header$
- * $Log$
- * Revision 1.5  2004/03/12 23:25:09  jdh2358
- * fixed images to fit in subplots
- *
- * Revision 1.4  2004/03/03 19:27:43  jdh2358
- * fixed gtk vert text bug
- *
- * Revision 1.3  2004/03/02 20:47:52  jdh2358
- * update htdocs - lots of small fixes
- *
- * Revision 1.2  2004/02/23 16:20:57  jdh2358
- * resynced cvs to freetype2
- *
- * Revision 1.1  2004/02/12 18:30:52  jdh2358
- * finished agg backend
- *
- */
+/* _backend_agg.h - A rewrite of _backend_agg using PyCXX to handle
+   ref counting, etc..
+*/
 
 #ifndef __BACKEND_AGG_H
 #define __BACKEND_AGG_H
 
-#include <fstream>
-#include <cmath>
-#include <cstdio>
+#include "CXX/Extensions.hxx"
 
 #include "agg_arrowhead.h"
 #include "agg_basics.h"
@@ -50,26 +31,6 @@
 #include "agg_rendering_buffer.h"
 #include "agg_scanline_p32.h"
 
-#include "Python.h"
-
-/* PIXEL FORMAT, if you change the pixel format, you will need to make
-     a few changes to _backend_agg.cpp
-
-  renderer->buffer allocation - the size of the buffer for rgb is 2
-      and rgba is 4; see newRendererAggObject
-
-  stride : ditto; see newRendererAggObject
-
-  write_png : the write png code needs to know the pixel size both for
-     determing the row pointers and for setting the image type flag
-
-  Also, if you switch from RGB to BGR you will probably want to take a
-    look at how color are created in gc_get_color
-
-  Q: are there any methods to help write pixel neutral code, something
-     like sizeof(pixfmt)
-
-*/
 
 typedef agg::pixel_formats_rgba32<agg::order_rgba32> pixfmt;
 //typedef agg::pixel_formats_rgb24<agg::order_bgr24> pixfmt;
@@ -80,31 +41,89 @@ typedef agg::rasterizer_scanline_aa<> rasterizer;
 typedef agg::scanline_p8 scanline_p8;
 typedef agg::scanline_bin scanline_bin;
 
+// the renderer
+class RendererAgg: public Py::PythonExtension<RendererAgg> {
+public:
+  RendererAgg(unsigned int width, unsigned int height, double dpi, int debug);
+  static void init_type(void);
+
+  unsigned int get_width() { return width;}
+  unsigned int get_height() { return height;}
+  // the drawing methods
+  Py::Object draw_rectangle(const Py::Tuple & args);
+  Py::Object draw_ellipse(const Py::Tuple & args);
+  Py::Object draw_polygon(const Py::Tuple & args);
+  Py::Object draw_lines(const Py::Tuple & args);
+  Py::Object draw_text(const Py::Tuple & args);
+  Py::Object draw_image(const Py::Tuple & args);
+
+  Py::Object write_rgba(const Py::Tuple & args);
+  Py::Object write_png(const Py::Tuple & args);
+  Py::Object tostring_rgb(const Py::Tuple & args);
 
 
+  virtual ~RendererAgg(); 
 
-
-/*----------------------------------
- *
- *   The Renderer
- *
- *----------------------------------- */
- 
-typedef struct {
-  PyObject_HEAD
-  PyObject	*x_attr;	/* Attributes dictionary */
-  agg::rendering_buffer *rbuf;
-  pixfmt *pixf;
-  renderer_base *rbase;
-  renderer *ren;
-  renderer_bin *ren_bin;
-  rasterizer *ras;
-  agg::int8u *buffer;
-  scanline_p8 *sline_p8;
-  scanline_bin *sline_bin;
-  size_t NUMBYTES;  //the number of bytes in buffer
+  static const size_t PIXELS_PER_INCH;
+  unsigned int width, height;
   double dpi;
-} RendererAggObject;
+  size_t NUMBYTES;  //the number of bytes in buffer
+
+  agg::int8u *pixBuffer;
+  agg::rendering_buffer *renderingBuffer;
+
+  scanline_p8* slineP8;
+  scanline_bin* slineBin;
+  pixfmt *pixFmt;
+  renderer_base *rendererBase;
+  renderer *theRenderer;
+  renderer_bin *rendererBin;
+  rasterizer *theRasterizer;
+
+
+  const int debug;
+
+protected:
+
+  // helper methods to process gc
+  void set_clip_rectangle( const Py::Object& gc);
+  Py::Tuple get_dashes( const Py::Object& gc);
+  int antialiased( const Py::Object& gc);
+  agg::rgba get_color(const Py::Object& gc);
+  agg::gen_stroke::line_cap_e get_linecap(const Py::Object& gc);
+  agg::gen_stroke::line_join_e get_joinstyle(const Py::Object& gc);
+
+  double points_to_pixels( const Py::Object& points);
+  double points_to_pixels_snapto( const Py::Object& points);
+  agg::rgba rgb_to_color(const Py::SeqBase<Py::Object>& rgb, double alpha);
+  
+  
+} ;
+
+
+// the extension module
+class _backend_agg_module : public Py::ExtensionModule<_backend_agg_module>
+{
+public:
+  _backend_agg_module()
+    : Py::ExtensionModule<_backend_agg_module>( "_backend_agg" )
+  {
+
+    RendererAgg::init_type();
+    add_keyword_method("RendererAgg", &_backend_agg_module::new_renderer, 
+		       "RendererAgg(width, height, dpi)");
+    initialize( "The agg rendering backend" );
+  }
+  
+  virtual ~_backend_agg_module() {}
+  
+private:
+  
+  Py::Object new_renderer (const Py::Tuple &args, const Py::Dict &kws);
+
+
+  
+};
 
 
 

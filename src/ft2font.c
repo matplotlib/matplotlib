@@ -316,10 +316,8 @@ char FT2Font_clear__doc__[] =
 static PyObject *
 FT2Font_clear(FT2FontObject *self)
 {
-  size_t i;
-
   /* //TODO: segfaulted here; bad ref management?
-  for (i=0; i< self->num_glyphs; i++) {
+  for (size_t i=0; i< self->num_glyphs; i++) {
     Py_XDECREF(self->gms[i]);
     self->gms[i] = NULL;
   }
@@ -1155,6 +1153,8 @@ char ft2font__doc__[] =
 DL_EXPORT(void)
 #elif defined(__cplusplus)
 extern "C" void
+#else
+void
 #endif
      initft2font(void)
 {
