@@ -528,3 +528,6 @@ class Stack:
             if thiso==o: continue
             else: self.push(thiso)
         
+def popall(seq):
+    'empty a list'
+    for i in xrange(len(seq)): seq.pop()

@@ -12,7 +12,7 @@ import matplotlib.mlab
 from artist import Artist
 from axis import XAxis, YAxis
 from cbook import iterable, is_string_like, flatten, enumerate, \
-     allequal, dict_delall, strip_math, popd, silent_list
+     allequal, dict_delall, strip_math, popd, popall, silent_list
 from collections import RegularPolyCollection, PolyCollection, LineCollection
 from colors import colorConverter, normalize, Colormap, LinearSegmentedColormap
 import cm
@@ -319,11 +319,15 @@ class Axes(Artist):
         Artist.__init__(self)
         self._position = map(makeValue, rect)
         # must be set before set_figure
-        self._sharex = sharex # I use sharex's
+        self._sharex = sharex 
         self._sharey = sharey
 
-        
         self.set_figure(fig)
+        
+        self.xaxis = XAxis(self)
+        self.yaxis = YAxis(self)
+        
+
 
         if axisbg is None: axisbg = rcParams['axes.facecolor']
         self._axisbg = axisbg
@@ -600,18 +604,16 @@ major formatter
     def cla(self):
         'Clear the current axes'
 
-
-        # TODO: don't recreate x and y axis instances on cla, simply
-        # clear them
-        self.xaxis = XAxis(self)
-        self.yaxis = YAxis(self)
+        self.xaxis.cla()
+        self.yaxis.cla()
+        
 
         if self._sharex is not None:
-            self.xaxis._major = self._sharex.xaxis._major
-            self.xaxis._minor = self._sharex.xaxis._minor            
+            self.xaxis.major = self._sharex.xaxis.major
+            self.xaxis.minor = self._sharex.xaxis.minor            
         if self._sharey is not None:
-            self.yaxis._major = self._sharey.yaxis._major
-            self.yaxis._minor = self._sharey.yaxis._minor            
+            self.yaxis.major = self._sharey.yaxis.major
+            self.yaxis.minor = self._sharey.yaxis.minor            
 
         self._get_lines = _process_plot_var_args()
         self._get_patches_for_fill = _process_plot_var_args('fill')
@@ -3391,10 +3393,6 @@ class PolarAxes(Axes):
         self.rgridlines = []        
         Axes.__init__(self, *args, **kwarg)
 
-    def _popall(self, seq):
-        'empty a list'
-        for i in range(len(seq)): seq.pop()
-        
     def _set_lim_and_transforms(self):
         """
         set the dataLim and viewLim BBox attributes and the
@@ -3513,7 +3511,7 @@ instances
 ACCEPTS: sequence of floats
         """
 
-        self._popall(self.rgridlines)
+        popall(self.rgridlines)
         theta = linspace(0,2*math.pi, self.RESOLUTION)
         ls = rcParams['grid.linestyle']
         color = rcParams['grid.color']
@@ -3526,7 +3524,7 @@ ACCEPTS: sequence of floats
             self.rgridlines.append(line)
 
 
-        self._popall(self.rgridlabels)
+        popall(self.rgridlabels)
 
         
         color = rcParams['tick.color']
@@ -3572,7 +3570,7 @@ instances
 
 ACCEPTS: sequence of floats
         """
-        self._popall(self.thetagridlines)
+        popall(self.thetagridlines)
         ox, oy = 0,0
         ls = rcParams['grid.linestyle']
         color = rcParams['grid.color']
@@ -3585,7 +3583,7 @@ ACCEPTS: sequence of floats
             line.set_transform(self.transData)
             self.thetagridlines.append(line)
 
-        self._popall(self.thetagridlabels)
+        popall(self.thetagridlabels)
 
         color = rcParams['tick.color']
 
