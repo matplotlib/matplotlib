@@ -44,7 +44,7 @@ except ImportError:
     useMathText = False
 else: useMathText = True
 
-Debug = False
+DEBUG = False
 
 # the true dots per inch on the screen; should be display dependent
 # see http://groups.google.com/groups?q=screen+dpi+x11&hl=en&lr=&ie=UTF-8&oe=UTF-8&safe=off&selm=7077.26e81ad5%40swift.cs.tcd.ie&rnum=5 for some info about screen dpi
@@ -52,8 +52,8 @@ PIXELS_PER_INCH = 96
 
 
 # Image formats that this backend supports - for FileChooser and print_figure()
-image_format_list         = ['eps', 'jpg', 'png', 'ps', 'svg']
-image_format_default      = 'png'
+IMAGE_FORMAT          = ['eps', 'jpg', 'png', 'ps', 'svg']
+IMAGE_FORMAT_DEFAULT  = 'png'
 
 
 cursord = {
@@ -648,7 +648,6 @@ class FigureCanvasGTK(gtk.DrawingArea, FigureCanvasBase):
         
         self.set_flags(gtk.CAN_FOCUS)
         self.grab_focus()
-        self._isRealized = False
         self._doplot     = True
         self._printQued  = []
         self._idleID     = 0        # used in gtkAgg
@@ -751,11 +750,9 @@ class FigureCanvasGTK(gtk.DrawingArea, FigureCanvasBase):
         return None
 
     def realize(self, widget):
-        self._ggc = self.window.new_gc()
-        self._isRealized = True
-        for fname, dpi, facecolor, edgecolor in self._printQued:
-            self.print_figure(fname, dpi, facecolor, edgecolor)
-        self._printQued = []
+        # move to init and delete this method and remove connect()
+        # problem? backend_template has   manager.canvas.realize() in show()
+        self._ggc = self.window.new_gc() 
         return True
 
 
@@ -782,13 +779,13 @@ class FigureCanvasGTK(gtk.DrawingArea, FigureCanvasBase):
 
 
     def expose_event(self, widget, event):
-        if Debug: print 'backend_gtk.%s' % _fn_name()
+        if DEBUG: print 'backend_gtk.%s' % _fn_name()
         if self._new_pixmap and GTK_WIDGET_DRAWABLE(self):
             width, height = self.allocation.width, self.allocation.height
 
             #self._pixmap = gtk.gdk.Pixmap(self.window, width, height)
             if width > self._pixmap_width or height > self._pixmap_height:
-                if Debug: print 'backend_gtk.%s: new pixmap allocated' % _fn_name()
+                if DEBUG: print 'backend_gtk.%s: new pixmap allocated' % _fn_name()
                 self._pixmap = gtk.gdk.Pixmap (self.window, width, height)
                 self._pixmap_width, self._pixmap_height = width, height
 
@@ -804,82 +801,66 @@ class FigureCanvasGTK(gtk.DrawingArea, FigureCanvasBase):
     def print_figure(self, filename, dpi=150, facecolor='w', edgecolor='w',
                      orientation='portrait'):
 
-        if is_string_like(filename):
-            isFileName = True
-            root, ext = os.path.splitext(filename)        
-            ext = ext.lower()[1:]
-            if ext == '':
-                ext      = image_format_default
-                filename = filename + '.' + ext
-
-            if ext not in image_format_list:
-                error_msg_gtk('Format "%s" is not supported.\nSupported formats are %s.' %
-                              (ext, ', '.join(image_format_list)))
-                return
-        else:
-            isFileName = False  # could be a file (or stdout)?
-            ext='png'
+        root, ext = os.path.splitext(filename)       
+        ext = ext.lower()[1:]
+        if ext == '':
+            ext      = IMAGE_FORMAT_DEFAULT
+            filename = filename + '.' + ext
         
-        if not self._isRealized:  # no longer required? for savefig() before window realized?
-            self._printQued.append((filename, dpi, facecolor, edgecolor))
-            return
+        if self.flags() & gtk.REALIZED == 0:
+            gtk.DrawingArea.realize(self) # for self.window and figure sizing
 
-        if ext in ('ps', 'eps'):
-            from backend_ps import FigureCanvasPS
-            origDPI = self.figure.dpi.get()
-            ps = self.switch_backends(FigureCanvasPS)
-            ps.figure.dpi.set(72)
-            ps.print_figure(filename, 72, facecolor, edgecolor, orientation)
-            self.figure.dpi.set(origDPI)
-            return
-        elif ext == 'svg':
-            from backend_svg import FigureCanvasSVG
-            origDPI = self.figure.dpi.get()
-            svg = self.switch_backends(FigureCanvasSVG)
-            svg.figure.dpi.set(72)
-            svg.print_figure(filename, 72, facecolor, edgecolor, orientation)
-            self.figure.dpi.set(origDPI)
-            return
-
-        origDPI = self.figure.dpi.get()
+        # save figure settings
+        origDPI       = self.figure.dpi.get()
         origfacecolor = self.figure.get_facecolor()
         origedgecolor = self.figure.get_edgecolor()
+        origW, origH  = self.window.get_size()
 
         self.figure.dpi.set(dpi)        
         self.figure.set_facecolor(facecolor)
         self.figure.set_edgecolor(edgecolor)
 
-        l,b,width, height = self.figure.bbox.get_bounds()
+        if ext in ('eps', 'ps', 'svg',):
+            if ext in ('svg',):
+                from backend_svg import FigureCanvasSVG as FigureCanvas
+            else:
+                from backend_ps  import FigureCanvasPS  as FigureCanvas
+            fc = self.switch_backends(FigureCanvas)
+            fc.figure.dpi.set(72)
+            fc.print_figure(filename, 72, facecolor, edgecolor, orientation)
+        elif ext in ('jpg', 'png'):
+            l,b,width, height = self.figure.bbox.get_bounds()
 
-        width, height = int(width), int(height)
-        pixmap   = gtk.gdk.Pixmap (self.window, width, height)
-        renderer = RendererGTK(self, pixmap, width, height, self.figure.dpi)
+            width, height = int(width), int(height)
+            pixmap   = gtk.gdk.Pixmap (self.window, width, height)
+            renderer = RendererGTK(self, pixmap, width, height,
+                                   self.figure.dpi)
 
-        self.figure.draw (renderer)
+            self.figure.draw (renderer)
         
-        pixbuf = gtk.gdk.Pixbuf(gtk.gdk.COLORSPACE_RGB, 0, 8, width, height)
-        pixbuf.get_from_drawable(pixmap, self.window.get_colormap(),
-                                 0, 0, 0, 0, width, height)
+            pixbuf = gtk.gdk.Pixbuf(gtk.gdk.COLORSPACE_RGB, 0, 8,
+                                    width, height)
+            pixbuf.get_from_drawable(pixmap, self.window.get_colormap(),
+                                     0, 0, 0, 0, width, height)
         
+            # pixbuf.save() only recognises this name
+            if ext == 'jpg': ext = 'jpeg' 
+            try: pixbuf.save(filename, ext)
+            except gobject.GError, msg:
+                msg = raise_msg_to_str(msg)
+                error_msg('Could not save figure to %s\n\n%s' % (
+                    filename, msg))
+        else:
+            error_msg('Format "%s" is not supported.\nSupported formats are %s.' %
+                      (ext, ', '.join(IMAGE_FORMAT)))
+
+        # restore figure settings
         self.figure.set_facecolor(origfacecolor)
         self.figure.set_edgecolor(origedgecolor)
         self.figure.dpi.set(origDPI)
+        self.figure.set_figsize_inches(origW/origDPI, origH/origDPI)
 
-        self.configure_event(self, 'configure') # a widget event in a print function? - sets fig size
 
-        if ext == 'jpg': ext = 'jpeg' # pixbuf.save() only recognises this name
-        try: pixbuf.save(filename, ext)
-        except gobject.GError, msg:
-            msg = raise_msg_to_str(msg)
-            # note the error must be displayed here because trapping
-            # the error on a call or print_figure may not work because
-            # printing can be queued and called from realize
-            if isFileName:
-                error_msg_gtk('Could not save figure to %s\n\n%s' % (
-                    filename, msg))
-            else:
-                error_msg_gtk('Could not save figure\n%s' % msg)
-                
     def set_do_plot(self, b):
         'True if you want to render to screen, False is hardcopy only'
         self._doplot = b
@@ -1132,7 +1113,7 @@ class NavigationToolbar2GTK(NavigationToolbar2, gtk.Toolbar):
         if fname:
             try: self.canvas.print_figure(fname)
             except IOError, msg:
-                error_msg_gtk('Failed to save %s: Error msg was\n\n%s' % (
+                error_msg('Failed to save %s: Error msg was\n\n%s' % (
                     fname, '\n'.join(map(str, msg))))
                 
             
@@ -1407,7 +1388,7 @@ class NavigationToolbar(gtk.Toolbar):
         if fname:
             try: self.canvas.print_figure(fname)
             except IOError, msg:
-                error_msg_gtk('Failed to save %s: Error msg was\n\n%s' % (
+                error_msg('Failed to save %s: Error msg was\n\n%s' % (
                     fname, '\n'.join(map(str, msg))),
                               self.win)
             
@@ -1457,12 +1438,12 @@ if gtk.pygtk_version >= (2,4,0):
             if path: self.path = path
             else:    self.path = os.getcwd() + os.sep
 
-            self.image_format_list    = matplotlib.backends.backend_mod.image_format_list
-            self.image_format_default = matplotlib.backends.backend_mod.image_format_default
+            self.IMAGE_FORMAT         = matplotlib.backends.backend_mod.IMAGE_FORMAT
+            self.IMAGE_FORMAT_DEFAULT = matplotlib.backends.backend_mod.IMAGE_FORMAT_DEFAULT
 
             # create an extra widget to list supported image formats
             self.set_current_folder (self.path)
-            self.set_current_name ('image.' + self.image_format_default)
+            self.set_current_name ('image.' + self.IMAGE_FORMAT_DEFAULT)
 
             hbox = gtk.HBox (spacing=10)
             hbox.pack_start (gtk.Label ("Image Format:"), expand=False)
@@ -1470,18 +1451,18 @@ if gtk.pygtk_version >= (2,4,0):
             self.cbox = gtk.combo_box_new_text()
             hbox.pack_start (self.cbox)
 
-            for item in self.image_format_list:
+            for item in self.IMAGE_FORMAT:
                 self.cbox.append_text (item)
-            self.cbox.set_active (self.image_format_list.index (self.image_format_default))
+            self.cbox.set_active (self.IMAGE_FORMAT.index (self.IMAGE_FORMAT_DEFAULT))
 
             def cb_cbox_changed (cbox, data=None):
                 """File extension changed"""
                 head, filename = os.path.split(self.get_filename())
                 root, ext = os.path.splitext(filename)
                 ext = ext[1:]
-                new_ext = self.image_format_list[cbox.get_active()]
+                new_ext = self.IMAGE_FORMAT[cbox.get_active()]
 
-                if ext in self.image_format_list:
+                if ext in self.IMAGE_FORMAT:
                     filename = filename.replace(ext, new_ext)
                 elif ext == '':
                     filename = filename.rstrip('.') + '.' + new_ext
@@ -1500,18 +1481,18 @@ if gtk.pygtk_version >= (2,4,0):
                     filename = None
                     break
                 filename = self.get_filename()
-                menu_ext  = self.image_format_list[self.cbox.get_active()]
+                menu_ext  = self.IMAGE_FORMAT[self.cbox.get_active()]
                 root, ext = os.path.splitext(filename)
                 ext = ext[1:]
                 if ext == '':
                     ext = menu_ext
                     filename += '.' + ext
 
-                if ext in self.image_format_list:
+                if ext in self.IMAGE_FORMAT:
                     self.path = filename
                     break
                 else:
-                    error_msg_gtk('Image format "%s" is not supported' % ext)
+                    error_msg('Image format "%s" is not supported' % ext)
                     self.set_current_name(os.path.split(root)[1] + '.' + menu_ext)
                     
             self.hide()

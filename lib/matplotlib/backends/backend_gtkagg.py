@@ -19,8 +19,8 @@ from _gtkagg import agg_to_gtk_drawable
 DEBUG = 0
 
 # Image formats that this backend supports - for FileChooser and print_figure()
-image_format_list         = ['eps', 'bmp', 'png', 'ps', 'raw', 'rgb', 'svg']
-image_format_default      = 'png'
+IMAGE_FORMAT         = ['eps', 'bmp', 'png', 'ps', 'raw', 'rgb', 'svg']
+IMAGE_FORMAT_DEFAULT = 'png'
 
 
 def new_figure_manager(num, *args, **kwargs):
