@@ -26,7 +26,7 @@ if 0:
     x = sum(A,0)
     subplot(212)
     bar(arange(w), x)
-    set(gca(), 'xlim', [0,h-1])
+    xlim(0,h-1)
     ylabel('density')
     set(gca(), 'xticklabels', [])
 

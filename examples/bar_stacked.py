@@ -16,10 +16,8 @@ p2 = bar(ind, womenMeans, width, color='y',
 
 ylabel('Scores')
 title('Scores by group and gender')
-set(gca(), 'xticks', ind+(width/2))
-set(gca(), 'xticklabels', ('G1', 'G2', 'G3', 'G4', 'G5') )
-set(gca(), 'xlim', [-width,len(ind)])
-set(gca(), 'yticks', arange(0,81,10))
+xticks(ind+width/2., ('G1', 'G2', 'G3', 'G4', 'G5') )
+yticks(arange(0,81,10))
 legend( (p1[0], p2[0]), ('Men', 'Women') )
 
 show()

@@ -16,10 +16,9 @@ p2 = bar(ind+width, womenMeans, width, color='y', yerr=womenStd)
 
 ylabel('Scores')
 title('Scores by group and gender')
-set(gca(), 'xticks', ind+width)
-set(gca(), 'xticklabels', ('G1', 'G2', 'G3', 'G4', 'G5') )
+xticks(ind+width, ('G1', 'G2', 'G3', 'G4', 'G5') )
 
 legend( (p1[0], p2[0]), ('Men', 'Women') )
-#axis([-10, 10, -10, 100])
+
 #savefig('barchart_demo')
 show()

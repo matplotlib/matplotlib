@@ -23,7 +23,7 @@ s2 = 0.01*sin(2*pi*10*t) + cnse2
 
 subplot(211)
 plot(t, s1, 'b-', t, s2, 'g-')
-set(gca(), 'xlim', [0,5])
+xlim(0,5)
 xlabel('time')
 ylabel('s1 and s2')
 

@@ -11,7 +11,7 @@ t = arange(0.01, 5.0, 0.01)
 s = exp(-t)
 plot(t, s)
 
-set(gca(), 'xlim', [5,0])  # decreasing time
+xlim(5,0)  # decreasing time
 
 xlabel('decreasing time (s)')
 ylabel('voltage (mV)')

@@ -29,8 +29,8 @@ if 1:  # plot the histogram of MRI intensity
     im = take(im, nonzero(im)) # ignore the background
     im = im/(2.0**15) # normalize
     hist(im, 100)
-    set(gca(), 'xticks', [-1, -.5, 0, .5, 1])
-    set(gca(), 'yticks', [])
+    xticks([-1, -.5, 0, .5, 1])
+    yticks([])
     xlabel('intensity')
     ylabel('MRI density')
 
@@ -77,8 +77,8 @@ if 1:   # plot the EEG
         ax.add_line(thisLine)
         ticklocs.append(offset)
 
-    set(gca(), 'xlim', [0,10])
-    set(gca(), 'xticks', arange(10))
+    xlim(0,10)
+    xticks(arange(10))
 
     set(gca(), 'yticklabels', ['PG3', 'PG5', 'PG7', 'PG9']) 
 

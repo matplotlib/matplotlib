@@ -37,10 +37,9 @@ the_table = table(cellText=cellText,
                   colLabels=colLabels,
                   loc='bottom')
 ylabel("Loss $1000's")
-yticks = arange(0, 2500, 500)
-set(gca(), 'yticks', yticks*1000)
-set(gca(), 'yticklabels', ['%d' % val for val in yticks])
-set(gca(), 'xticks', [])
+vals = arange(0, 2500, 500)
+yticks(vals*1000, ['%d' % val for val in vals])
+xticks([])
 title('Loss by Disaster')
 #savefig('table_demo_small', dpi=75)
 #savefig('table_demo_large', dpi=300)
