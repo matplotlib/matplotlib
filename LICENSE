@@ -9,11 +9,12 @@ documentation.
 2. Subject to the terms and conditions of this License Agreement, JDH
 hereby grants Licensee a nonexclusive, royalty-free, world-wide
 license to reproduce, analyze, test, perform and/or display publicly,
-prepare derivative works, distribute, and otherwise use matplotlib
-0.2 alone or in any derivative version, provided, however, that JDH's
+prepare derivative works, distribute, and otherwise use matplotlib 0.2
+alone or in any derivative version, provided, however, that JDH's
 License Agreement and JDH's notice of copyright, i.e., "Copyright (c)
-2002 John D. Hunter; All Rights Reserved" are retained in matplotlib
-0.2 alone or in any derivative version prepared by Licensee.
+2002, 2003 John D. Hunter; All Rights Reserved" are retained in
+matplotlib 0.2 alone or in any derivative version prepared by
+Licensee.
 
 3. In the event Licensee prepares a derivative work that is based on
 or incorporates matplotlib 0.2 or any part thereof, and wants to make

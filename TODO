@@ -17,7 +17,9 @@
      
      DONE
 
--- enable anti aliasing for fonts: DONE with pango
+-- enable anti aliasing for fonts: 
+
+     DONE with pango
 
 -- enable fancy text labels (eg, greek letters, math symbols,
    superscripts) ala TeX or unicode
@@ -107,5 +109,20 @@
 
 -- raise the figure returned by figure but don't give it the focus
 
+   DONE 2003-05-12 with window.window.raise_()
+
 -- when you toggle an axes for interactive navigation, make sure a
    checked on appears as the default is one is checked
+
+-- compile pygtk for threads on win32.
+  
+-- There is a bug in vertical rendering of text that is exposed in the
+   text, but not the ylabel, command.  It looks like a pixmap or
+   images is not being properly initialized, resulting in pixel noise.
+
+-- Fix the way the color map allocs colors.  Use only one DrawingArea
+   instead of creating a new one with each call to ColorDispatcher().
+   With this fix the bug in the logo code where the foreground text
+   doesn't render to the desired color
+
+-- include manifest file for rpms
