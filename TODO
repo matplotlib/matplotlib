@@ -558,7 +558,7 @@ ZeroDivisionError: SeparableTransformation::eval_scalars yin interval is zero; c
 
 -- relative distance mode
 
---backend dependent cursoring
+-- backend dependent cursoring
 
 -- relative distance measures
 
@@ -577,7 +577,7 @@ ZeroDivisionError: SeparableTransformation::eval_scalars yin interval is zero; c
 
 -- colorbar for dynamic images.
 
--- Finish the coords notification for all backends - allow custom
+-- DONE Finish the coords notification for all backends - allow custom
    formatters for toolbar
 
 -- DONE an rrulewrapper demo
@@ -585,11 +585,11 @@ ZeroDivisionError: SeparableTransformation::eval_scalars yin interval is zero; c
 -- implement a new data clipping method with more exensive cache
    interval
 
---  Humufr errobar
+-- Humufr errobar
 
 -- why is tkagg loading init 2x
 
--- add ishold and spy
+-- DONE add ishold and spy
 
 -- Humufr's shared ticker bug
 
@@ -597,7 +597,7 @@ ZeroDivisionError: SeparableTransformation::eval_scalars yin interval is zero; c
 
 -- majbase and minbase to plot
 
--- oplot
+-- DONE oplot
 
 -- override setattr in matlab interface for artists.
 

@@ -407,18 +407,11 @@ class FigureManagerGTK(FigureManagerBase):
         if matplotlib.is_interactive():
             self.window.show()
 
+        def notify_axes_change(fig):
+            'this will be called whenever the current axes is changed'        
+            if self.toolbar != None: self.toolbar.update()
+        self.canvas.figure.add_axobserver(notify_axes_change)
 
-    def add_subplot(self, *args, **kwargs):
-        if DEBUG: print 'FigureManagerGTK.%s' % fn_name()
-        a = FigureManagerBase.add_subplot(self, *args, **kwargs)
-        if self.toolbar != None: self.toolbar.update()
-        return a
-    
-    def add_axes(self, rect, **kwargs):
-        if DEBUG: print 'FigureManagerGTK.%s' % fn_name()
-        a = FigureManagerBase.add_axes(self, rect, **kwargs)
-        if self.toolbar != None: self.toolbar.update()
-        return a
     
     def destroy(self, *args):
         if DEBUG: print 'FigureManagerGTK.%s' % fn_name()

@@ -311,6 +311,11 @@ class FigureManagerFltkAgg(FigureManagerBase):
             self.toolbar.update()
         self.window.show()
 
+        def notify_axes_change(fig):
+            'this will be called whenever the current axes is changed'        
+            if self.toolbar != None: self.toolbar.update()
+        self.canvas.figure.add_axobserver(notify_axes_change)
+
     def resize(self, event):
         width, height = event.width, event.height
         self.toolbar.configure(width=width) # , height=height)
@@ -320,20 +325,6 @@ class FigureManagerFltkAgg(FigureManagerBase):
         self.canvas.draw()
         self.window.redraw()
         
-    def add_subplot(self, *args, **kwargs):
-        a = FigureManagerBase.add_subplot(self, *args, **kwargs)
-        self.toolbar.update()
-        return a
-    
-    def add_axes(self, rect, **kwargs):
-        a = FigureManagerBase.add_axes(self, rect, **kwargs)
-        self.toolbar.update()
-        return a
-    
-    def set_current_axes(self, a):
-        if a not in self.axes.values():
-            error_msg_Fltk('Axes is not in current figure')
-        FigureManagerBase.set_current_axes(self, a)
 
 class AxisMenu:
     def __init__(self, toolbar):

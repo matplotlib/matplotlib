@@ -1294,23 +1294,12 @@ class FigureManagerWx(FigureManagerBase):
         self.window = frame
         self.tb = frame.GetToolBar()
 
-    def add_subplot(self, *args, **kwargs):
-        DEBUG_MSG("add_subplot()", 1, self)
-        a = FigureManagerBase.add_subplot(self, *args, **kwargs)
-        if self.tb is not None: self.tb.update()
-        return a
-        
-    def add_axes(self, rect, **kwargs):
-        DEBUG_MSG("add_axes()", 1, self)
-        a = FigureManagerBase.add_axes(self, rect, **kwargs)
-        if self.tb is not None: self.tb.update()
-        return a
-    
-    def set_current_axes(self, a):
-        DEBUG_MSG("set_current_axes()", 1, self)
-        if a not in self.axes.values():
-            error_msg_wx('Axes is not in current figure')
-        FigureManagerBase.set_current_axes(self, a)
+        def notify_axes_change(fig):
+            'this will be called whenever the current axes is changed'        
+            if self.tb != None: self.tb.update()
+        self.canvas.figure.add_axobserver(notify_axes_change)
+
+
         
     def destroy(self, *args):
         DEBUG_MSG("destroy()", 1, self)

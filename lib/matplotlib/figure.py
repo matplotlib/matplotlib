@@ -1,7 +1,7 @@
 import sys
 from artist import Artist
 from axes import Axes, Subplot, PolarSubplot, PolarAxes
-from cbook import flatten, allequal, dict_delall
+from cbook import flatten, allequal, popd, Stack, iterable
 import _image
 from colors import normalize
 from image import FigureImage
@@ -29,6 +29,9 @@ class Figure(Artist):
         """
         Artist.__init__(self)
         #self.set_figure(self)
+        self._axstack = Stack()  # maintain the current axes
+        self._axobservers = []
+        self._seen = {}          # axes args we've seen        
 
         if figsize is None  : figsize   = rcParams['figure.figsize']
         if dpi is None      : dpi       = rcParams['figure.dpi']
@@ -175,47 +178,104 @@ Set the face color of the Figure rectangle
 ACCEPTS: any matplotlib color - see help(colors)"""
         self.figurePatch.set_facecolor(color)
 
-    def add_axis(self, *args, **kwargs):
-        raise SystemExit("""\
-matplotlib changed its axes creation API in 0.54.
-Please see http://matplotlib.sourceforge.net/API_CHANGES for
-instructions on how to port your code.
-""")
+    def delaxes(self, a):
+        'remove a from the figure and update the current axes'
+        self.axes.remove(a)
+        self._axstack.remove(a)
+        keys = []
+        for key, thisax in self._seen.items():
+            if a==thisax: del self._seen[key]
+        for func in self._axobservers: func(self)        
+            
 
-        
-    def add_axes(self, rect, axisbg=None, frameon=True, **kwargs):
+    def add_axes(self, *args, **kwargs):
         """
-        Add an a axes with axes rect [left, bottom, width, height]
-        where all quantities are in fractions of figure width and
-        height.
+Add an a axes with axes rect [left, bottom, width, height] where all
+quantities are in fractions of figure width and height.  kwargs are
+legal Axes kwargs plus"polar" which sets whether to create a polar axes
 
-        The Axes instance will be returned
+    add_axes((l,b,w,h))
+    add_axes((l,b,w,h), frameon=False, axisbg='g')
+    add_axes((l,b,w,h), polar=True)
+    add_axes(ax)   # add an Axes instance
+
+
+If the figure already has an axed with key *args, *kwargs then it
+will simply make that axes current and return it
+
+The Axes instance will be returned
         """
-        if axisbg is None: axisbg=rcParams['axes.facecolor']
-        ispolar = kwargs.get('polar', False)
-        if ispolar:
-            a = PolarAxes(self, rect, axisbg, frameon)
+
+        if iterable(args[0]):
+            key = tuple(args[0]), tuple(kwargs.items())
         else:
-            a = Axes(self, rect, axisbg, frameon)            
+            key = args[0], tuple(kwargs.items())            
+
+        if self._seen.has_key(key):
+            ax = self._seen[key]
+            self.sca(ax)
+            return ax
+
+        if not len(args): return        
+        if isinstance(args[0], Axes):
+            a = args[0]
+            a.set_figure(self)
+        else:
+            rect = args[0]
+            ispolar = popd(kwargs, 'polar', False)
+
+            if ispolar:
+                a = PolarAxes(self, rect, **kwargs)
+            else:
+                a = Axes(self, rect, **kwargs)            
+                
+
         self.axes.append(a)
+        self._axstack.push(a)
+        self.sca(a)
+        self._seen[key] = a
         return a
 
     def add_subplot(self, *args, **kwargs):
         """
-        Add an a subplot, eg
-        add_subplot(111) or add_subplot(212, axisbg='r')
+Add an a subplot.  Examples
 
-        The Axes instance will be returned
+    add_subplot(111)
+    add_subplot(212, axisbg='r')  # add subplot with red background
+    add_subplot(111, polar=True)  # add a polar subplot
+    add_subplot(sub)              # add Subplot instance sub
+        
+kwargs are legal Axes kwargs plus"polar" which sets whether to create a
+polar axes.  The Axes instance will be returned.
+
+If the figure already has a subplot with key *args, *kwargs then it will
+simply make that subplot current and return it
         """
-        ispolar = kwargs.get('polar', False)
-        dict_delall(kwargs, ('polar', ) )
-        if ispolar:
-            a = PolarSubplot(self, *args, **kwargs)
+        
+        key = args, tuple(kwargs.items())
+        if self._seen.has_key(key):
+            ax = self._seen[key]
+            self.sca(ax)
+            return ax
+        
+                
+        if not len(args): return        
+        
+        if isinstance(args[0], Subplot) or isinstance(args, PolarSubplot):
+            a = args[0]
+            a.set_figure(self)
         else:
-            a = Subplot(self, *args, **kwargs)
+            ispolar = popd(kwargs, 'polar', False)
+            if ispolar:
+                a = PolarSubplot(self, *args, **kwargs)
+            else:
+                a = Subplot(self, *args, **kwargs)
+
         
         self.axes.append(a)
-
+        self._axstack.push(a)
+        self.sca(a)
+        self._seen[key] = a
         return a
     
     def clf(self):
@@ -223,6 +283,8 @@ instructions on how to port your code.
         Clear the figure
         """
         self.axes = []
+        self._axstack.clear()
+        self._seen = {}
         self.lines = []
         self.patches = []
         self.texts=[]
@@ -344,3 +406,23 @@ instructions on how to port your code.
         w = self.bbox.width()
         h = self.bbox.height()
         return w, h
+
+
+    def gca(self, **kwargs):
+        """
+Return the current axes, creating one if necessary
+        """
+        ax = self._axstack()
+        if ax is not None: return ax
+        return self.add_subplot(111, **kwargs)
+        
+    def sca(self, a):
+        'Set the current axes to be a and return a'
+        self._axstack.bubble(a)
+        for func in self._axobservers: func(self)
+        return a
+
+    def add_axobserver(self, func):
+        'whenever the axes state change, func(self) will be called'
+        self._axobservers.append(func)
+        

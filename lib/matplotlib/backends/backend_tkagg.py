@@ -270,6 +270,12 @@ class FigureManagerTkAgg(FigureManagerBase):
             self.toolbar.update()
         self.canvas._tkcanvas.pack(side=Tk.TOP, fill=Tk.BOTH, expand=1)
         self._shown = False
+
+        def notify_axes_change(fig):
+            'this will be called whenever the current axes is changed'        
+            if self.toolbar != None: self.toolbar.update()
+        self.canvas.figure.add_axobserver(notify_axes_change)
+
         
     def resize(self, event):
         width, height = event.width, event.height
@@ -285,23 +291,7 @@ class FigureManagerTkAgg(FigureManagerBase):
         if not self._shown: self.window.deiconify()
         else: self.canvas.draw()
         self._shown = True
-        
-    def add_subplot(self, *args, **kwargs):
-        a = FigureManagerBase.add_subplot(self, *args, **kwargs)
-        if self.toolbar is not None:
-            self.toolbar.update()
-        return a
-    
-    def add_axes(self, rect, **kwargs):
-        a = FigureManagerBase.add_axes(self, rect, **kwargs)
-        if self.toolbar is not None:
-            self.toolbar.update()
-        return a
-    
-    def set_current_axes(self, a):
-        if a not in self.axes.values():
-            error_msg_tkpaint('Axes is not in current figure')
-        FigureManagerBase.set_current_axes(self, a)
+
 
     def destroy(self, *args):
         if Gcf.get_num_fig_managers()==0 and not matplotlib.is_interactive():
