@@ -67,7 +67,8 @@ def add_base_flags(module):
                if os.path.exists(p)]
     module.include_dirs.extend(incdirs)
     module.library_dirs.extend(libdirs)
-    
+
+
 def getoutput(s):
     'get the output of a system command'
 
