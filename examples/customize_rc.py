@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 """
 I'm not trying to make a good liking figure here, but just to show
 some examples of customizing rc params on the fly
