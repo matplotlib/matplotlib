@@ -504,3 +504,8 @@ Traceback (most recent call last):
     xdata, ydata = a.transData.inverse_xy_tup((thisEvent.x, thisEvent.y))
 ZeroDivisionError: SeparableTransformation::eval_scalars yin interval is zero; cannot transform
 
+
+-- some backends (ps and svg) appear to layout legend_demo2 text
+   improperly
+
+-- text colors for svg
