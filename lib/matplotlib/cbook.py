@@ -15,6 +15,19 @@ else:
     False = False
 
 
+class silent_list(list):
+    """
+    override repr when returning a list of matplotlib artists to
+    prevent long, meaningless output.  This is meant to be used for a
+    homogeneous list of a give type
+    """
+    def __init__(self, type, seq=None):
+        self.type = type
+        if seq is not None: self.extend(seq)
+        
+    def __repr__(self):
+        return '< a list of %d %s objects>' % (len(self), self.type)
+
 def strip_math(s):
     'remove latex formatting from mathtext'
     remove = (r'\rm', '\cal', '\tt', '\it', '\\', '{', '}')
