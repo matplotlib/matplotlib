@@ -122,11 +122,16 @@ if havedate: # dates require python23 datetime
 build_transforms(ext_modules, packages, NUMERIX)
     
 if BUILD_GTKAGG:
-    try: import gtk
-    except ImportError: print 'GTKAgg requires pygtk'
-    else:
-        BUILD_AGG = 1
-        build_gtkagg(ext_modules, packages)
+    try:
+        import gtk
+    except ImportError:
+        print 'GTKAgg requires pygtk'
+        BUILD_GTKAGG=0
+    except RuntimeError:
+        print 'pygtk present but import failed'
+if BUILD_GTKAGG:
+    BUILD_AGG = 1
+    build_gtkagg(ext_modules, packages)
 
 if BUILD_TKAGG:
     try: import Tkinter

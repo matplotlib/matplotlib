@@ -1,5 +1,6 @@
 New entries should be added at the top
 
+2004-11-11 make the Gtk backends build without an X-server connection - JV
 
 2004-11-10 matplotlib/__init__.py: Added FROZEN to signal we are running under
            py2exe (or similar) - is used by backend_gtk.py - SC
