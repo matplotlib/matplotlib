@@ -1487,10 +1487,10 @@ if gtk.pygtk_version >= (2,4,0):
 FigureManager = FigureManagerGTK
 error_msg = error_msg_gtk
 
-# set icon used when windows are minimized
-if gtk.pygtk_version >= (2,2,0):
-    basedir = matplotlib.rcParams['datapath']
-    fname = os.path.join(basedir, 'matplotlib.svg')
-    try:   gtk.window_set_default_icon_from_file (fname)
-    except:
-        verbose.report_error('Could not load matplotlib icon: %s' % sys.exc_info()[1])
+# set icon used when windows are minimized, it requires
+# gtk.pygtk_version >= (2,2,0) with a GDK pixbuf loader for SVG installed
+try:
+    gtk.window_set_default_icon_from_file (
+        os.path.join (matplotlib.rcParams['datapath'], 'matplotlib.svg'))
+except:
+    verbose.report('Could not load matplotlib icon: %s' % sys.exc_info()[1])
