@@ -102,7 +102,7 @@ USAGE:
   \subseteq \succ \succeq \sum \supset \supseteq \swarrow \tau \theta
   \times \top \triangleleft \triangleright \uparrow \updownarrow
   \uplus \upsilon \varepsilon \varphi \varphi \varrho \varsigma
-  \vartheta \vdash \vee \wedge \wp \wr \xi \zeta
+  \vartheta \vdash \vee \vert \wedge \wp \wr \xi \zeta
 
   
 BACKENDS
