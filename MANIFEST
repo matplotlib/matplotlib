@@ -8,6 +8,7 @@ INTERACTIVE
 KNOWN_BUGS
 LICENSE
 LICENSE_PAINT
+MANIFEST
 MANIFEST.in
 Makefile
 README
@@ -424,14 +425,10 @@ src/_tkagg.cpp
 src/ft2font.c
 src/ft2font.h
 ttfquery/__init__.py
-ttfquery/__init__.pyc
 ttfquery/_scriptregistry.py
-ttfquery/_scriptregistry.pyc
 ttfquery/describe.py
-ttfquery/describe.pyc
 ttfquery/family_query.py
 ttfquery/findsystem.py
-ttfquery/findsystem.pyc
 ttfquery/font_family_groups.py
 ttfquery/glyph.py
 ttfquery/glyphquery.py
@@ -439,4 +436,3 @@ ttfquery/guessdescription.py
 ttfquery/license.txt
 ttfquery/metadata_query.py
 ttfquery/ttffiles.py
-ttfquery/ttffiles.pyc

@@ -5,31 +5,31 @@ be built by setting the appropriate flag below.
 
 # build the freetype2 interface - this is required for mathtext
 # Requires freetype2, and libz
-BUILD_FT2FONT = 0
+BUILD_FT2FONT = 1
 
 # Build the fonttools and TTFQuery packages, required by the Paint,
 # Agg and GD backends.
-BUILD_FONTTOOLS = 0
+BUILD_FONTTOOLS = 1
 
 # Build the antigrain geometry toolkit.  Agg makes heavy use of
 # templates, so it probably requires a fairly recent compiler to build
 # it.  It makes very nice antialiased output and also supports alpha
 # blending
-BUILD_AGG = 0
+BUILD_AGG = 1
 
 # The builds below are alpha.  They use an image backend (eg GD or
 # Agg) to render to the GTK canvas.  The idea is to could use a single
 # high quality image renderer to render to all the GUI windows
 
 # build GTK GUI with Agg renderer ; requires pygtk src distros installed
-BUILD_GTKAGG       = 0
+BUILD_GTKAGG       = 1
 
 # build GTK GUI with GD renderer ; requires pygtk and GD src distros installed
 BUILD_GTKGD        = 0
 
 # build TK GUI with Agg renderer ; requires Tkinter Python extension
 # and Tk includes
-BUILD_TKAGG        = 0
+BUILD_TKAGG        = 1
 
 ## You shouldn't need to customize below this point
 
@@ -91,7 +91,7 @@ if BUILD_FONTTOOLS:
 
 
 setup(name="matplotlib",
-      version= '0.51',
+      version= '0.52a',
       description = "Matlab style python plotting package",
       author = "John D. Hunter",
       author_email="jdhunter@ace.bsd.uchicago.edu",

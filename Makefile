@@ -2,6 +2,9 @@
 # Copyright (C) 2003  <jdhunter@ace.bsd.uchicago.edu>
 # $Header$
 # $Log$
+# Revision 1.24  2004/03/08 14:56:44  jdh2358
+# fixed subplot bug
+#
 # Revision 1.23  2004/02/27 14:47:46  jdh2358
 # added matplotlibrc and tk win32 compile fixes
 #
@@ -132,7 +135,7 @@ htmldocs:
 	cd htdocs;\
 	${PYTHON} process_docs.py;\
 	${PYTHON} convert.py;\
-	tar cfz site.tar.gz *.html screenshots tut examples gd API_CHANGES;\
+	tar cfz site.tar.gz *.html screenshots tut examples gd .matplotlibrc NUMARRAY_ISSUES  API_CHANGES;\
 	cd ..;\
 	rm matplotlib/backends/*.so;\
 

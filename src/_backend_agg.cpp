@@ -47,7 +47,17 @@ double
 _points_to_pixels(RendererAggObject* renderer, double pt) {
   // convert a value in points to pixels depending on renderer dpi and
   // scrren pixels per inch
+  return (pt*PIXELS_PER_INCH/72.0*renderer->dpi/72.0);
+
+}
+
+double 
+_points_to_pixels_snapto(RendererAggObject* renderer, double pt) {
+  // convert a value in points to pixels depending on renderer dpi and
+  // scrren pixels per inch
+  // snap return pixels to grid
   return (int)(pt*PIXELS_PER_INCH/72.0*renderer->dpi/72.0)+0.5;
+
 
 }
 
@@ -618,7 +628,7 @@ RendererAgg_draw_lines(RendererAggObject *renderer, PyObject* args) {
   PyObject *dashSeq = NULL;
   if (useDashes) {
     //TODO: use offset
-    offset = _points_to_pixels(renderer, _seqitem_as_double(dashes, 0));
+    offset = _points_to_pixels_snapto(renderer, _seqitem_as_double(dashes, 0));
     //note, you must decref this later if useDashes
     dashSeq = PySequence_GetItem(dashes, 1); 
   };
@@ -629,14 +639,31 @@ RendererAgg_draw_lines(RendererAggObject *renderer, PyObject* args) {
 
   double thisX, thisY;	
   unsigned winHeight = renderer->rbase->height();
-  thisX = (int)(_seqitem_as_double(x, 0))+0.5;
-  thisY = (int)(winHeight - _seqitem_as_double(y, 0))+0.5;
-  path.move_to(thisX, thisY);
-  for (int i=1; i<Nx; ++i) {
-    thisX = (int)(_seqitem_as_double(x, i))+0.5;
-    thisY = (int)(winHeight - _seqitem_as_double(y, i)) + 0.5;
-    path.line_to(thisX, thisY);
+
+  if (Nx==2) { 
+    // this is a little hack - len(2) lines are probably grid and
+    // ticks so I'm going to snap to pixel
+    thisX = (int)(_seqitem_as_double(x, 0))+0.5;
+    thisY = (int)(winHeight - _seqitem_as_double(y, 0))+0.5;
+    path.move_to(thisX, thisY);
+    for (int i=1; i<Nx; ++i) {
+      thisX = (int)(_seqitem_as_double(x, i))+0.5;
+      thisY = (int)(winHeight - _seqitem_as_double(y, i)) + 0.5;
+      path.line_to(thisX, thisY);
+    }
   }
+  else {
+    thisX = _seqitem_as_double(x, 0);
+    thisY = (winHeight - _seqitem_as_double(y, 0));
+    path.move_to(thisX, thisY);
+    for (int i=1; i<Nx; ++i) {
+      thisX = (_seqitem_as_double(x, i));
+      thisY = (winHeight - _seqitem_as_double(y, i)) ;
+      path.line_to(thisX, thisY);
+    }
+  }  
+
+  
 
 
 
@@ -671,8 +698,8 @@ RendererAgg_draw_lines(RendererAggObject *renderer, PyObject* args) {
     agg::conv_stroke<dash_t> stroke(dash);
     double on, off;
     for (int i=0; i<N/2; i+=2) {
-      on = _points_to_pixels(renderer,  _seqitem_as_double(dashSeq, 2*i));
-      off = _points_to_pixels(renderer, _seqitem_as_double(dashSeq, 2*i+1));
+      on = _points_to_pixels_snapto(renderer,  _seqitem_as_double(dashSeq, 2*i));
+      off = _points_to_pixels_snapto(renderer, _seqitem_as_double(dashSeq, 2*i+1));
       dash.add_dash(on, off);
     }
     stroke.line_cap(cap);
