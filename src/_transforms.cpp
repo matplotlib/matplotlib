@@ -483,6 +483,10 @@ PolarXY::~PolarXY() {
 
 Transformation::~Transformation() {
   if (DEBUG_MEM) std::cout << "bye bye Transformation" << std::endl;
+  if (_transOffset!=NULL) {
+    Py_DECREF(_transOffset);
+  }
+
 }
 
 Py::Object
