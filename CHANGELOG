@@ -1,5 +1,8 @@
 New entries should be added at the top
 
+2004-04-16 Added get_name method to FontProperties class. Fixed font lookup
+	   in GTK and WX backends. - PEB
+
 2004-04-16 Added get- and set_fontstyle msethods. - PEB
 
 2004-04-10 Mathtext fixes: scaling with dpi,  - JDH
