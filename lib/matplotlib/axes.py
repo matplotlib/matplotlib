@@ -1285,10 +1285,11 @@ Refs:
         artists.extend(self.lines)
         artists.extend(self.texts)
 
-        dsu = [ (a.zorder, a) for a in artists]
+        # keep track of i to guarantee stable sort for python 2.2
+        dsu = [ (a.zorder, i, a) for i, a in enumerate(artists)]
         dsu.sort()
         
-        for zorder, a in dsu:
+        for zorder, i, a in dsu:
             a.draw(renderer)
 
         self.title.draw(renderer)
