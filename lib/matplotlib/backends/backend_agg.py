@@ -89,6 +89,9 @@ from _backend_agg import RendererAgg as _RendererAgg
 backend_version = 'v2.2'
 _fontd = {}     # a map from fname to font instances
 
+IMAGE_FORMAT         = ['eps', 'bmp', 'png', 'ps', 'raw', 'rgb', 'svg']
+IMAGE_FORMAT_DEFAULT = 'png'
+
 class RendererAgg(RendererBase):
     """
     The renderer handles all the drawing primitives using a graphics
