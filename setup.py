@@ -62,7 +62,6 @@ for line in file('matplotlib/__init__.py').readlines():
 data = []
 
 data.extend(glob.glob('fonts/afm/*.afm'))
-data.extend(glob.glob('fonts/ttf/*.pfa'))
 data.extend(glob.glob('fonts/ttf/*.ttf'))
 data.extend(glob.glob('images/*.xpm'))
 data.extend(glob.glob('images/*.ppm'))
