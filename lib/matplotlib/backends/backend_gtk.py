@@ -63,32 +63,30 @@ class ColorManagerGTK:
 
     def get_color(self, rgb):
         """
-        RGB is a unit RGB tuple, return a gtk.gdk.Color
+        Take an RGB (a unit RGB tuple) and return a allocated gtk.gdk.Color
         """
+        try:
+            return self._cached[tuple(rgb)]
+        except KeyError:
+            if self._cmap is None:
+                raise RuntimeError('First set the drawing area!')
 
-        try: return self._cached[tuple(rgb)]
-        except KeyError: pass
-        
-        if self._cmap is None:
-            raise RuntimeError('First set the drawing area!')
-
-        #print 'rgb is', rgb
-        r,g,b = rgb
-        color = self._cmap.alloc_color(int(r*65025),int(g*65025),int(b*65025))
-        self._cached[tuple(rgb)] = color
-        return color
+            r,g,b = rgb
+            color = self._cmap.alloc_color(
+                int(r*65025),int(g*65025),int(b*65025))
+            self._cached[tuple(rgb)] = color
+            return color
 
     def get_rgb(self, color):
         """
-        RGB is a unit RGB tuple, return a gtk.gdk.Color
+        Take a gtk.gdk.Color and return an RGB (a unit RGB tuple)
         """
-
         return [val/65535 for val in (color.red, color.green, color.blue)]
 
 colorManager = ColorManagerGTK()
 
-class RendererGTK(RendererBase):
 
+class RendererGTK(RendererBase):
     fontweights = {
         100          : pango.WEIGHT_ULTRALIGHT,
         200          : pango.WEIGHT_LIGHT,
