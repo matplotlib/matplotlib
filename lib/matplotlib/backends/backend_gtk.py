@@ -593,8 +593,8 @@ def show(mainloop=True):
         manager.window.show()
         
     if show._needmain and mainloop:
-        if gtk.pygtk_version > (2,3,90):  gtk.main()
-        else:                             gtk.mainloop()
+        if gtk.pygtk_version >= (2,3,97):  gtk.main()
+        else:                              gtk.mainloop()
         show._needmain = False
 show._needmain = True
 
@@ -615,7 +615,7 @@ def show_xvfb():
         manager.window.show()
         
     gtk.idle_add(_quit_after_print_xvfb)
-    if gtk.pygtk_version > (2,3,90):
+    if gtk.pygtk_version >= (2,3,97):
         gtk.main()
     else:
         gtk.mainloop()
@@ -1067,18 +1067,12 @@ class NavigationToolbar2GTK(NavigationToolbar2, gtk.Toolbar):
         
 
     def _init_toolbar(self):
-        #self.set_border_width(5)
         self.set_style(gtk.TOOLBAR_ICONS)
 
-        if gtk.pygtk_version > (2,3,90):
+        if gtk.pygtk_version >= (2,3,97):
             self._init_toolbar2_4()
         else:
             self._init_toolbar2_2()
-        self.append_space()
-        self.message = gtk.Label()
-        self.message.show()
-        self.append_widget(self.message, '', '')
-
 
 
     def _init_toolbar2_2(self):
@@ -1088,7 +1082,6 @@ class NavigationToolbar2GTK(NavigationToolbar2, gtk.Toolbar):
             if text is None:
                  self.append_space()
                  continue
-
             
             fname = os.path.join(basedir, image_file)
             image = gtk.Image()
@@ -1099,6 +1092,12 @@ class NavigationToolbar2GTK(NavigationToolbar2, gtk.Toolbar):
                                  image,
                                  getattr(self, callback)
                                  )
+
+        self.append_space()
+
+        self.message = gtk.Label()
+        self.append_widget(self.message, None, None)
+        self.message.show()
 
         self.fileselect = FileSelection(path=None,
                                         title='Save the figure')
@@ -1120,6 +1119,16 @@ class NavigationToolbar2GTK(NavigationToolbar2, gtk.Toolbar):
             self.insert(tbutton, -1)
             tbutton.connect('clicked', getattr(self, callback))
             tbutton.set_tooltip(self.tooltips, tooltip_text, 'Private')
+
+        toolitem = gtk.SeparatorToolItem()
+        self.insert(toolitem, -1)
+        toolitem.set_draw(False)  # set_draw() not making separator invisible, bug #143692 fixed Jun 06 2004, will be in GTK+ 2.6
+        toolitem.set_expand(True)
+
+        toolitem = gtk.ToolItem()
+        self.insert(toolitem, -1)
+        self.message = gtk.Label()
+        toolitem.add(self.message)
 
         self.show_all()
 
@@ -1184,10 +1193,9 @@ class NavigationToolbar(gtk.Toolbar):
         self.canvas = canvas
         self.win    = window
         
-        #self.set_border_width(5)
         self.set_style(gtk.TOOLBAR_ICONS)
 
-        if gtk.pygtk_version > (2,3,90):
+        if gtk.pygtk_version >= (2,3,97):
             self._create_toolitems_2_4()
             self.update = self._update_2_4
             self.fileselect = FileChooserDialog(title='Save the figure',
@@ -1438,7 +1446,7 @@ class FileSelection(gtk.FileSelection):
         return filename
     
 
-if gtk.pygtk_version > (2,3,90):
+if gtk.pygtk_version >= (2,3,97):
     class FileChooserDialog(gtk.FileChooserDialog):
         """GTK+ 2.4 file selector which remembers the last
         file/directory selected
