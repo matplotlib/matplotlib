@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-from matplotlib.matlab import *
+from pylab import *
 try:
     import Image
 except ImportError, exc:

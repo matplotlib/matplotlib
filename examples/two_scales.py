@@ -16,7 +16,7 @@ call tick_bottom and tick_top in place of tick_left and tick_right
 
 """
 
-from matplotlib.matlab import *
+from pylab import *
 
 ax1 = subplot(111)
 t = arange(0.0, 10.0, 0.01)

@@ -25,7 +25,7 @@ from matplotlib.backend_bases import \
      RendererBase, GraphicsContextBase, FigureManagerBase, FigureCanvasBase,\
      NavigationToolbar2, cursors, MplEvent
 from matplotlib.figure import Figure
-from matplotlib._matlab_helpers import Gcf
+from matplotlib._pylab_helpers import Gcf
 from matplotlib.numerix import asarray
 import matplotlib.windowing as windowing
 

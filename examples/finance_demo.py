@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-from matplotlib.matlab import *
+from pylab import *
 from matplotlib.dates import  DateFormatter, WeekdayLocator, HourLocator, \
      DayLocator, MONDAY, timezone
 from matplotlib.finance import quotes_historical_yahoo, candlestick,\

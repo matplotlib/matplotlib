@@ -5,7 +5,7 @@ You can use decreasing axes by flipping the normal order of the axis
 limits
 
 """
-from matplotlib.matlab import *
+from pylab import *
 
 t = arange(0.01, 5.0, 0.01)
 s = exp(-t)

@@ -26,7 +26,7 @@ Then as you are working interactively, you just need to do
 >>> rcdefaults()  # restore the defaults
 
 """
-from matplotlib.matlab import *
+from pylab import *
 
 subplot(311)
 plot([1,2,3])

@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-from matplotlib.matlab import *
+from pylab import *
 
 t = arange(0.0, 3.0, 0.05)
 s = sin(2*pi*t)

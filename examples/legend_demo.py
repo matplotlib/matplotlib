@@ -5,7 +5,7 @@
 #controlling which lines the legend uses and the order
 
 
-from matplotlib.matlab import *
+from pylab import *
 
 a = arange(0,3,.02)
 b = arange(0,3,.02)

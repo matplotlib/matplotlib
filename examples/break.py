@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-from matplotlib.matlab import *
+from pylab import *
 
 
 gcf().text(0.5, 0.95,

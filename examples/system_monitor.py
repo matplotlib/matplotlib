@@ -3,7 +3,7 @@ import pygtk
 pygtk.require('2.0')
 import gtk
 import time
-from matplotlib.matlab import *
+from pylab import *
 
 def get_memory():
     "Simulate a function that returns system memory"

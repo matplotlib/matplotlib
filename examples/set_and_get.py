@@ -1,6 +1,6 @@
 """
 
-matlab (and matplotlib) allow you to use set and get to set and get
+matlab(TM) and pylab allow you to use set and get to set and get
 object properties, as well as to do introspection on the object
 
 set
@@ -64,7 +64,7 @@ Alisases:
   
 """
 
-from matplotlib.matlab import *
+from pylab import *
 
 
 x = arange(0,1.0,0.01)

@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-from matplotlib.matlab import *
+from pylab import *
 
 mu, sigma = 100, 15
 x = mu + sigma*randn(10000)

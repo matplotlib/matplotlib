@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # This file generates the matplotlib web page logo
-from matplotlib.matlab import *
+from pylab import *
 
 
 # convert data to mV

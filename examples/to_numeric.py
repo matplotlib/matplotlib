@@ -5,7 +5,7 @@ convert it to a Numeric array and pass the string it to PIL for
 rendering
 """
 
-from matplotlib.matlab import *
+from pylab import *
 from matplotlib.backends.backend_agg import FigureCanvasAgg
 
 plot([1,2,3])

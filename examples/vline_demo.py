@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-from matplotlib.matlab import *
+from pylab import *
 from matplotlib.numerix import sin, exp, multiply, absolute, pi
 import matplotlib.numerix as numerix
 normal = numerix.RandomArray.normal

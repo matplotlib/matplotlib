@@ -5,7 +5,7 @@ x[0,0] in the upper left or upper right by using the origin parameter.
 You can also control the default be setting image.origin in your
 matplotlibrc file; see http://matplotlib.sourceforge.net/.matplotlibrc
 """
-from matplotlib.matlab import *
+from pylab import *
 
 x = arange(100.0); x.shape = 10,10
 

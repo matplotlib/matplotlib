@@ -21,7 +21,7 @@ off.  You can use your backend with
 
   import matplotlib
   matplotlib.use('xxx')
-  from matplotlib.matlab import *
+  from pylab import *
   plot([1,2,3])
   show()
 
@@ -31,7 +31,7 @@ The files that are most relevant to backend_writers are
   matplotlib/backend_bases.py
   matplotlib/backends/__init__.py
   matplotlib/__init__.py
-  matplotlib/_matlab_helpers.py
+  matplotlib/_pylab_helpers.py
   
 Naming Conventions
 
@@ -55,7 +55,7 @@ from __future__ import division
 
 import sys
 from matplotlib import verbose
-from matplotlib._matlab_helpers import Gcf
+from matplotlib._pylab_helpers import Gcf
 from matplotlib.backend_bases import RendererBase, GraphicsContextBase,\
      FigureManagerBase, FigureCanvasBase, error_msg
 
@@ -221,9 +221,8 @@ class GraphicsContextTemplate(GraphicsContextBase):
         
 ########################################################################
 #    
-# The following functions and classes are for matlab compatibility
-# mode (matplotlib.matlab) and implement window/figure managers,
-# etc...
+# The following functions and classes are for pylab and implement
+# window/figure managers, etc...
 #
 ########################################################################
 
@@ -238,7 +237,7 @@ def draw_if_interactive():
 def show():
     """
     For image backends - is not required
-    For GUI backends - show() is usually the last line of a matlab script and
+    For GUI backends - show() is usually the last line of a pylab script and
     tells the backend that it is time to draw.  In interactive mode, this may
     be a do nothing func.  See the GTK backend for an example of how to handle
     interactive versus batch mode
@@ -312,7 +311,7 @@ class FigureCanvasTemplate(FigureCanvasBase):
     
 class FigureManagerTemplate(FigureManagerBase):
     """
-    Wrap everything up into a window for the matlab interface
+    Wrap everything up into a window for the pylab interface
 
     For non interactive backends, the base class does all the work
     """

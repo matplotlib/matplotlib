@@ -22,7 +22,7 @@ from patches import Rectangle
 from matplotlib.transforms import scale_transform, Value, zero, one, \
      scale_sep_transform, blend_xy_sep_transform
 
-from matplotlib.matlab import gca
+from pylab import gca
 
 
 def quotes_historical_yahoo(ticker, date1, date2):

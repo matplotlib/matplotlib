@@ -8,12 +8,11 @@ requires redrawing the figure with every mouse move.
 Faster cursoring is possible using native GUI drawing, as in
 wxcursor_demo.py
 """
-from matplotlib.matlab import *
+from pylab import *
 
 
 class Cursor:
-    def __init__(self, canvas, ax):
-        self.canvas = canvas
+    def __init__(self, ax):
         self.ax = ax
         self.lx, = ax.plot( (0,0), (0,0), 'k-' )  # the horiz line
         self.ly, = ax.plot( (0,0), (0,0), 'k-' )  # the vert line
@@ -33,7 +32,7 @@ class Cursor:
         self.ly.set_data( (x, x), (miny, maxy) )
 
         self.txt.set_text( 'x=%1.2f, y=%1.2f'%(x,y) )
-        self.canvas.draw()
+        draw()
 
 
 class SnaptoCursor:
@@ -41,8 +40,7 @@ class SnaptoCursor:
     Like Cursor but the crosshair snaps to the nearest x,y point
     For simplicity, I'm assuming x is sorted
     """
-    def __init__(self, canvas, ax, x, y):
-        self.canvas = canvas
+    def __init__(self, ax, x, y):
         self.ax = ax
         self.lx, = ax.plot( (0,0), (0,0), 'k-' )  # the horiz line
         self.ly, = ax.plot( (0,0), (0,0), 'k-' )  # the vert line
@@ -69,16 +67,15 @@ class SnaptoCursor:
 
         self.txt.set_text( 'x=%1.2f, y=%1.2f'%(x,y) )
         print 'x=%1.2f, y=%1.2f'%(x,y)
-        self.canvas.draw()
+        draw()
 
 t = arange(0.0, 1.0, 0.01)
 s = sin(2*2*pi*t)
 ax = subplot(111)
 
-canvas = get_current_fig_manager().canvas
-cursor = Cursor(canvas, ax)
-#cursor = SnaptoCursor(canvas, ax, t, s) 
-canvas.mpl_connect('motion_notify_event', cursor.mouse_move)
+cursor = Cursor(ax)
+#cursor = SnaptoCursor(ax, t, s) 
+connect('motion_notify_event', cursor.mouse_move)
 
 ax.plot(t, s, 'o')
 axis([0,1,-1,1])

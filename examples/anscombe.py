@@ -7,7 +7,7 @@ line, but which are qualitatively different.
 matplotlib fun for a rainy day
 """
 
-from matplotlib.matlab import *
+from pylab import *
 
 x =  array([10, 8, 13, 9, 11, 14, 6, 4, 12, 7, 5])
 y1 = array([8.04, 6.95, 7.58, 8.81, 8.33, 9.96, 7.24, 4.26, 10.84, 4.82, 5.68])

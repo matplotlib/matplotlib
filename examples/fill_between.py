@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-from matplotlib.matlab import *
+from pylab import *
 
 x1 = arange(0, 2, 0.01)
 y1 = sin(2*pi*x1)

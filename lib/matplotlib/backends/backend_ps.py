@@ -7,7 +7,7 @@ from __future__ import division
 import sys, os, time
 from cStringIO import StringIO
 from matplotlib import verbose, __version__
-from matplotlib._matlab_helpers import Gcf
+from matplotlib._pylab_helpers import Gcf
 from matplotlib.backend_bases import RendererBase, GraphicsContextBase,\
      FigureManagerBase, FigureCanvasBase, error_msg
 

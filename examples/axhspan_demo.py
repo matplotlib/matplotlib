@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-from matplotlib.matlab import *
+from pylab import *
 figure(1)
 plot(10*rand(12), 'o')
 xlim(0,15)

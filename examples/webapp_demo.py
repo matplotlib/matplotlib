@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # This example shows how to use the agg backend directly to create
 # images, which may be of use to web application developers who want
-# full control over their code without using the matlab interface to
+# full control over their code without using the pylab interface to
 # manage figures, figure closing etc.
 #
 # The rc command is used to create per-script default figure
@@ -35,7 +35,7 @@ def setapi(o, **kwargs):
     for all key, value pairs in kwargs, and all objects in (possibly)
     iterable o, look for a method o.set_key and try to call
     o.set_key(value) if it exists.  This is basically a refinition of
-    the matlab interface set command
+    the pylab interface set command
     """
     if not iterable(o): o = [o]
     for thiso in o: # iterate over the objects

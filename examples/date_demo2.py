@@ -5,7 +5,7 @@ formatters.  See major_minor_demo1.py for more information on
 controlling major and minor ticks
 """
 import datetime
-from matplotlib.matlab import *
+from pylab import *
 from matplotlib.dates import MONDAY, SATURDAY
 from matplotlib.finance import quotes_historical_yahoo
 from matplotlib.dates import MonthLocator, WeekdayLocator, DateFormatter

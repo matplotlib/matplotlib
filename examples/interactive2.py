@@ -27,7 +27,7 @@ banner += """
 
 Welcome to matplotlib.
 
-    help(matplotlib) -- shows a list of all matlab compatible commands provided
+    help(matplotlib) -- shows a list of all matlab(TM) compatible commands provided
     help(plotting) -- shows a list of plot specific commands
 
 """
@@ -363,7 +363,7 @@ def main():
   console.execute_line('import matplotlib')
   console.execute_line("matplotlib.use('GTKAgg')")  
   console.execute_line('matplotlib.interactive(1)')
-  console.execute_line('from matplotlib.matlab import *')
+  console.execute_line('from pylab import *')
 
 
   if len(sys.argv)>1:

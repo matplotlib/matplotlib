@@ -5,7 +5,7 @@
 # may change as we work out how polar axes should best be integrated
 #
 # The only function that has been tested on polar axes is "plot" (the
-# matlab interface function "polar" calls ax.plot where ax is a
+# pylab interface function "polar" calls ax.plot where ax is a
 # PolarAxes) -- other axes plotting functions may work on PolarAxes
 # but haven't been tested and may need tweaking.
 #
@@ -28,7 +28,7 @@
 #
 # you could change the radial bounding box (zoom out) by setting the
 # ylim (radial coordinate is the second argument to the plot command,
-# as in matlab, though this is not advised currently because it is not
+# as in matlab(TM), though this is not advised currently because it is not
 # clear to me how the axes should behave in the change of view limits.
 # Please advise me if you have opinions.  Likewise, the pan/zoom
 # controls probably do not do what you think they do and are better
@@ -36,10 +36,10 @@
 # axes unless we come up with a meaningful, useful and functional
 # implementation for them.
 #
-# See the matplotlib.matlab rgrids and thetagrids functions for
+# See the pylab rgrids and thetagrids functions for
 # information on how to customize the grid locations and labels
 
-from matplotlib.matlab import *
+from pylab import *
 
 # radar green, solid grid lines
 rc('grid', color='#316931', linewidth=1, linestyle='-')

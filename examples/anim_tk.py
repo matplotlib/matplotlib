@@ -2,11 +2,11 @@
 
 import matplotlib
 matplotlib.use('TkAgg')
-import matplotlib.matlab
+import pylab
 
 #import Tkinter as Tk
 import matplotlib.numerix as numerix
-fig = matplotlib.matlab.figure(1)
+fig = pylab.figure(1)
 ind = numerix.arange(60)
 
 
@@ -18,9 +18,9 @@ for i in range(100):
 X=numerix.array(x_tmp)
 
 
-lines = matplotlib.matlab.plot(X[:,0],'o')
+lines = pylab.plot(X[:,0],'o')
 
-manager = matplotlib.matlab.get_current_fig_manager()
+manager = pylab.get_current_fig_manager()
 
 def updatefig(*args):
     updatefig.count += 1

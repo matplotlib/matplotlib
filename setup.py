@@ -159,18 +159,19 @@ for mod in ext_modules:
     
 setup(name="matplotlib",
       version= __version__,
-      description = "Matlab style python plotting package",
+      description = "Matlab(TM) style python plotting package",
       author = "John D. Hunter",
       author_email="jdhunter@ace.bsd.uchicago.edu",
       url = "http://matplotlib.sourceforge.net",
       long_description = """
       matplotlib strives to produce publication quality 2D graphics
       using matlab plotting for inspiration.  Although the main lib is
-      object oriented, there is a functional matlab style interface
-      for people coming from matlab.
+      object oriented, there is a functional interface "pylab"
+      for people coming from Matlab.
       """,
       packages = packages,
       platforms='any',
+      py_modules = ['pylab'],
       ext_modules = ext_modules, 
       data_files = data_files,
       package_dir = {'': 'lib'},

@@ -22,13 +22,13 @@ rcParams['numerix'] = 'numarray'
 
 
 # jdh: you can import cm directly, you don't need to go via
-# matplotlib.matlab
+# pylab
 import matplotlib.cm as cm
 
 from matplotlib.backends.backend_wxagg import Toolbar, FigureCanvasWxAgg
 
 # jdh: you don't need a figure manager in the GUI - this class was
-# designed for the matlab interface
+# designed for the pylab interface
 
 from matplotlib.figure import Figure
 import matplotlib.numerix as numerix

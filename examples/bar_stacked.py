@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # a stacked bar plot with errorbars
-from matplotlib.matlab import *
+from pylab import *
 
 N = 5
 menMeans   = (20, 35, 30, 35, 27)

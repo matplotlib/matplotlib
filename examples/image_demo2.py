@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-from matplotlib.matlab import *
+from pylab import *
 
 w, h = 512, 512
 s = file('data/ct.raw', 'rb').read()

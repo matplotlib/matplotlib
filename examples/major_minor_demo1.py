@@ -19,14 +19,14 @@ The MultipleLocator ticker class is used to place ticks on multiples of
 some base.  The FormatStrFormatter uses a string format string (eg
 '%d' or '%1.2f' or '%1.1f cm' ) to format the tick
 
-The matlab interface grid command chnages the grid settings of the
+The pylab interface grid command chnages the grid settings of the
 major ticks of the y and y axis together.  If you want to control the
 grid of the minor ticks for a given axis, use for example
 
   ax.xaxis.grid(True, which='minor')
 """
 
-from matplotlib.matlab import *
+from pylab import *
 from matplotlib.ticker import MultipleLocator, FormatStrFormatter
 
 majorLocator   = MultipleLocator(20)

@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-from matplotlib.matlab import *
+from pylab import *
 
 dt = 0.0005
 t = arange(0.0, 20.0, dt)

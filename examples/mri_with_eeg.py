@@ -4,7 +4,7 @@ This now uses the imshow command instead of pcolor which *is much
 faster*
 """
 from __future__ import division
-from matplotlib.matlab import *
+from pylab import *
 from matplotlib.lines import Line2D
 from matplotlib.transforms import get_bbox_transform, Point, Value, Bbox,\
      unit_bbox

@@ -5,7 +5,7 @@ example shows you some of the alignment and rotation specifications to
 layout text
 """
 
-from matplotlib.matlab import *
+from pylab import *
 from matplotlib.lines import Line2D
 from matplotlib.patches import Rectangle
 

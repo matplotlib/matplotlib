@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-from matplotlib.matlab import *
+from pylab import *
 
 #Z = arange(60)
 #Z.shape = 6,10

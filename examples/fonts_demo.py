@@ -6,7 +6,7 @@ For interactive users, you can also use kwargs to the text command,
 which requires less typing.  See exampes/fonts_demo_kw.py
 """
 from matplotlib.font_manager import fontManager, FontProperties
-from matplotlib.matlab import *
+from pylab import *
 
 subplot(111, axisbg='w')
 

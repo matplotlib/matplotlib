@@ -9,7 +9,7 @@ For other platforms, edit setup.py and set
 BUILD_FT2FONT = True
 
 """
-from matplotlib.matlab import *
+from pylab import *
 subplot(111, axisbg='y')
 plot([1,2,3])
 x = arange(0.0, 3.0, 0.1)

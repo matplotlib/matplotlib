@@ -1,4 +1,11 @@
 New entries should be added at the top
+
+2004-12-09 Added Norm Peterson's svg clipping patch
+
+2004-12-09 Added Matthew Newville's wx printing patch
+
+2004-12-09 Migrated matlab to pylab - JDH
+
 2004-12-09 backend_gtk.py: split into two parts 
            - backend_gdk.py - an image backend
            - backend_gtk.py - A GUI backend that uses GDK - SC

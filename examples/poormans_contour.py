@@ -4,7 +4,7 @@ Use a pcolor or imshow with a custom colormap to make a contour plot.
 A proper contour, with contour lines, is on the list of things to do
 """
 
-from matplotlib.matlab import *
+from pylab import *
 
 
 def bivariate_normal(X, Y, sigmax=1.0, sigmay=1.0,

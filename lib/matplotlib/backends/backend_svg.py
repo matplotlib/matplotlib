@@ -42,8 +42,9 @@ def new_figure_manager(num, *args):
     return manager
 
 
+
 _fontd = {}
-_clipd = {}
+# _clipd = {}
 class RendererSVG(RendererBase):
     def __init__(self, width, height, svgwriter, basename='_svg'):
         # use basename to generate image files
@@ -52,7 +53,8 @@ class RendererSVG(RendererBase):
         self.height=height
         self.basename = basename
         self._groupd = {}
-        self._imaged = {} 
+        self._imaged = {}
+        self._clipd = {}
 
     def flipy(self):
         'return true if y small numbers are top for renderer'
@@ -279,10 +281,10 @@ style="%(style)s %(rgbhex)s %(clippath)s "
         cliprect = gc.get_clip_rectangle()
         if cliprect is not None:
             key = hash(cliprect)  # See if we've already seen this clip rectangle
-            cr = _clipd.get(key)
+            cr = self._clipd.get(key)
 
             if cr is None:        # If not, store a new clipPath
-                _clipd[key] = cliprect
+                self._clipd[key] = cliprect
                 x, y, w, h = cliprect
 
                 y = self.height-(y+h)

@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-from matplotlib.matlab import *
+from pylab import *
 
 x = linspace(0.1, 2*pi, 10)
 markerline, stemlines, baseline = stem(x, cos(x), '-.')

@@ -2,7 +2,7 @@
 from matplotlib import rcParams
 rcParams['numerix'] = 'numarray'
 
-from matplotlib.matlab import *
+from pylab import *
 
 
 def bivariate_normal(X, Y, sigmax=1.0, sigmay=1.0,

@@ -1,9 +1,9 @@
 """
 
-Numerical python functions written for compatability with matlab
+Numerical python functions written for compatability with matlab(TM)
 commands with the same names.  
 
-  Matlab compatible functions:
+  Matlab(TM) compatible functions:
 
     * cohere - Coherence (normalized cross spectral density)
 
@@ -37,7 +37,7 @@ commands with the same names.
 
     * trapz - trapeziodal integration
     
-  Functions that don't exist in matlab, but are useful anyway:
+  Functions that don't exist in matlab(TM), but are useful anyway:
 
     * cohere_pairs - Coherence over all pairs.  This is not a matlab
       function, but we compute coherence a lot in my lab, and we

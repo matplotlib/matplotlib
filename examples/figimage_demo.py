@@ -3,7 +3,7 @@
 See pcolor_demo2 for a much faster way of generating pcolor plots
 """
 from __future__ import division
-from matplotlib.matlab import *
+from pylab import *
 rc('axes', hold=True)
 rc('image', origin='upper')
 figure(1, frameon=False)

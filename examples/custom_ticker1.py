@@ -11,7 +11,7 @@ In this example a user defined function is used to format the ticks in
 millions of dollars on the y axis
 """
 from matplotlib.ticker import FuncFormatter
-from matplotlib.matlab import *
+from pylab import *
 
 x =     arange(4)
 money = [1.5e5, 2.5e6, 5.5e6, 2.0e7]

@@ -26,7 +26,7 @@ from matplotlib.backend_bases import RendererBase, \
      GraphicsContextBase, FigureManagerBase, FigureCanvasBase,\
      error_msg
 from matplotlib import verbose
-from matplotlib._matlab_helpers import Gcf
+from matplotlib._pylab_helpers import Gcf
 from matplotlib.cbook import enumerate, True, False, pieces, is_string_like
 from matplotlib.colors import colorConverter
 from matplotlib.figure import Figure
@@ -325,7 +325,7 @@ class GraphicsContextGD(GraphicsContextBase):
 ########################################################################
 #    
 # The following functions and classes are for matlab compatibility
-# mode (matplotlib.matlab) and implement figure managers, etc...
+# mode (pylab) and implement figure managers, etc...
 #
 ########################################################################
 

@@ -5,7 +5,7 @@ style of coding, see examples/fonts_demo.py.
 
 """
 from matplotlib.font_manager import fontManager, FontProperties
-from matplotlib.matlab import *
+from pylab import *
 
 subplot(111, axisbg='w')
 alignment = {'horizontalalignment':'center', 'verticalalignment':'center'}

@@ -83,7 +83,7 @@ def new_figure_manager(num, *args, **kwargs):
     """
     Create a new figure manager instance
     """
-    # in order to expose the Figure constructor to the matlab
+    # in order to expose the Figure constructor to the pylab
     # interface we need to create the figure here
     DEBUG_MSG("new_figure_manager()", 3, None)
 

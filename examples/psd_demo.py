@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # python
 
-from matplotlib.matlab import *
+from pylab import *
 
 dt = 0.01
 t = arange(0,10,dt)
@@ -19,7 +19,7 @@ psd(s, 512, 1/dt)
 
 show()
 """
-% compare with matlab
+% compare with matlab(TM)
 dt = 0.01;
 t = [0:dt:10];
 nse = randn(size(t));

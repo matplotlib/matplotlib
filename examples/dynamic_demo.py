@@ -3,7 +3,7 @@ import pygtk
 pygtk.require('2.0')
 import gtk
 
-from matplotlib.matlab import *
+from pylab import *
 
 
 fig = figure(1)
