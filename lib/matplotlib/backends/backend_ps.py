@@ -100,7 +100,7 @@ class RendererPS(RendererBase):
 
     def set_linedash(self, offset, seq):
         if (offset,seq) != self.linedash:
-            if seq:
+            if seq is not None and len(seq):
                 s="[%s] %d setdash\n"%(_nums_to_str(*seq), offset)
                 self._pswriter.write(s)
             else:
