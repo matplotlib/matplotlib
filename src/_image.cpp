@@ -1,4 +1,4 @@
- #include <iostream>
+#include <iostream>
 #include <fstream>
 #include <cmath>
 #include <cstdio>
@@ -613,12 +613,12 @@ _image_module::from_images(const Py::Tuple& args) {
 
 
 
-char _image_module_frompng__doc__[] = 
-"frompng(fname)\n"
+char _image_module_readpng__doc__[] = 
+"readpng(fname)\n"
 "\n"
-"Load the image from png file fname";
+"Load an image from png file into a numerix array of MxNx4 uint8";
 Py::Object
-_image_module::frompng(const Py::Tuple& args) {
+_image_module::readpng(const Py::Tuple& args) {
   
   args.verify_length(1);
   std::string fname = Py::String(args[0]);
@@ -627,25 +627,25 @@ _image_module::frompng(const Py::Tuple& args) {
 
   FILE *fp = fopen(fname.c_str(), "rb");
   if (!fp)
-    throw Py::RuntimeError("_image_module::frompng could not open PNG file for reading");
+    throw Py::RuntimeError("_image_module::readpng could not open PNG file for reading");
 
   fread(header, 1, 8, fp);
   if (png_sig_cmp(header, 0, 8))
-    throw Py::RuntimeError("_image_module::frompng: file not recognized as a PNG file");
+    throw Py::RuntimeError("_image_module::readpng: file not recognized as a PNG file");
   
   
   /* initialize stuff */
   png_structp png_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
   
   if (!png_ptr)
-    throw Py::RuntimeError("_image_module::frompng:  png_create_read_struct failed");
+    throw Py::RuntimeError("_image_module::readpng:  png_create_read_struct failed");
   
   png_infop info_ptr = png_create_info_struct(png_ptr);
   if (!info_ptr)
-    throw Py::RuntimeError("_image_module::frompng:  png_create_info_struct failed");
+    throw Py::RuntimeError("_image_module::readpng:  png_create_info_struct failed");
   
   if (setjmp(png_jmpbuf(png_ptr)))
-    throw Py::RuntimeError("_image_module::frompng:  error during init_io");
+    throw Py::RuntimeError("_image_module::readpng:  error during init_io");
   
   png_init_io(png_ptr, fp);
   png_set_sig_bytes(png_ptr, 8);
@@ -654,41 +654,70 @@ _image_module::frompng(const Py::Tuple& args) {
   
   png_uint_32 width = info_ptr->width;
   png_uint_32 height = info_ptr->height;
-  //int color_type = info_ptr->color_type;
-  //int bit_depth = info_ptr->bit_depth;
-  //int number_of_passes = png_set_interlace_handling(png_ptr);
+
+  // convert misc color types to rgb for simplicity
+  if (info_ptr->color_type == PNG_COLOR_TYPE_GRAY ||
+      info_ptr->color_type == PNG_COLOR_TYPE_GRAY_ALPHA)
+    png_set_gray_to_rgb(png_ptr);  
+  else if (info_ptr->color_type == PNG_COLOR_TYPE_PALETTE)
+    png_set_palette_to_rgb(png_ptr);
+
+
+  int bit_depth = info_ptr->bit_depth;
+  if (bit_depth == 16)  png_set_strip_16(png_ptr);
+
+
+  png_set_interlace_handling(png_ptr);
   png_read_update_info(png_ptr, info_ptr);
   
+  bool rgba = info_ptr->color_type == PNG_COLOR_TYPE_RGBA;
+  if ( (info_ptr->color_type != PNG_COLOR_TYPE_RGB) || rgba) {
+    std::cerr << "Found color type " << (int)info_ptr->color_type << std::endl;
+    throw Py::RuntimeError("_image_module::readpng: cannot handle color_type");
+  }
   
   /* read file */
   if (setjmp(png_jmpbuf(png_ptr)))
-    throw Py::RuntimeError("_image_module::frompng: error during read_image");
+    throw Py::RuntimeError("_image_module::readpng: error during read_image");
   
-  png_bytep* row_pointers = new png_bytep[height];
-  if (row_pointers ==NULL) //todo: also handle allocation throw
-    throw Py::MemoryError("_image_module::frompng: could not allocate memory");
+   png_bytep row_pointers[height];
 
-  for (png_uint_32 y=0; y<height; y++)
-    row_pointers[y] = new png_byte[info_ptr->rowbytes];  // todo: delete?
+   for (png_uint_32 row = 0; row < height; row++)
+     row_pointers[row] = new png_byte[png_get_rowbytes(png_ptr,info_ptr)];
   
   png_read_image(png_ptr, row_pointers);
   
 
-  Image* imo = new Image;
-  imo->rowsIn  = height;
-  imo->colsIn  = width;
+  
+  int dimensions[3];
+  dimensions[0] = height;  //numrows
+  dimensions[1] = width;   //numcols
+  dimensions[2] = 4;
 
-  size_t NUMBYTES(imo->colsIn * imo->rowsIn * imo->BPP);
+  PyArrayObject *A = (PyArrayObject *) PyArray_FromDims(3, dimensions, PyArray_FLOAT);
 
-  imo->bufferIn = new agg::int8u[NUMBYTES];  //todo: copy row_pointers in
-
-  for (png_uint_32 row = 0; row < imo->rowsIn; ++row) {
-    imo->bufferIn = row_pointers[row];
+  
+  for (png_uint_32 y = 0; y < height; y++) {
+    png_byte* row = row_pointers[y];
+    for (png_uint_32 x = 0; x < width; x++) {
+      
+      png_byte* ptr = (rgba) ? &(row[x*4]) : &(row[x*3]);
+      size_t offset = y*A->strides[0] + x*A->strides[1];
+      //if ((y<10)&&(x==10)) std::cout << "r = " << ptr[0] << " " << ptr[0]/255.0 << std::endl;
+      *(float*)(A->data + offset + 0*A->strides[2]) = ptr[0]/255.0;
+      *(float*)(A->data + offset + 1*A->strides[2]) = ptr[1]/255.0;
+      *(float*)(A->data + offset + 2*A->strides[2]) = ptr[2]/255.0;
+      *(float*)(A->data + offset + 3*A->strides[2]) = rgba ? ptr[3]/255.0 : 1.0;
+    }
   }
-
-  imo->rbufIn = new agg::rendering_buffer;
-  imo->rbufIn->attach(imo->bufferIn, imo->colsIn, imo->rowsIn, imo->colsIn*imo->BPP);
-  return Py::asObject( imo );
+  
+  //free the png memory
+  png_read_end(png_ptr, info_ptr);
+  png_destroy_read_struct(&png_ptr, &info_ptr, png_infopp_NULL);
+  fclose(fp);
+  for (png_uint_32 row = 0; row < height; row++)
+    delete [] row_pointers[row];
+  return Py::asObject((PyObject*)A);
 }
 
 
