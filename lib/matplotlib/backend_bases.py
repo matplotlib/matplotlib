@@ -54,6 +54,7 @@ class RendererBase:
         """
         return points  
 
+        
     def get_text_extent(self, text):
         """
         Get the text extent in window coords
@@ -91,6 +92,27 @@ class RendererBase:
         """
         pass  # derived must override
 
+    def _draw_marker(self, gc, path, x, y, trans):
+        """
+        This method is currently uncderscore hidden because the
+        draw_markers method is being used as a sentinel for newstyle
+        backend drawing
+        
+        Draw the marker specified in path with graphics context gx at
+        each of the locations in arrays x and y.  trans is a
+        matplotlib.transforms.Transformation instance used to
+        transform x and y to display coords.  It consists of an
+        optional ) nonlinear component and an affine.  You can access
+        these two components as
+
+        if transform.need_nonlinear():
+          x,y = transform.nonlinear_only_numerix(x, y)
+        # the a,b,c,d,tx,ty affine which transforms x and y
+        vec6 = transform.as_vec6_val()
+        ...backend dependent affine...
+        """
+        pass
+    
     def draw_poly_collection(
         self, verts, transform, clipbox, facecolors, edgecolors,
         linewidths, antialiaseds, offsets, transOffset):
