@@ -11,8 +11,8 @@ respectively; set them to 0 if you do not want to build them
 """
 
 # The NUMERIX
-NUMERIX = 'Numeric'  # or numarray
-#NUMERIX = 'numarray'  # or numarray
+#NUMERIX = 'Numeric'  # or numarray
+NUMERIX = 'numarray'  # or numarray
 
 # build the image support module - requires agg and Numeric or
 # numarray.  You can build the image module with either Numeric or
