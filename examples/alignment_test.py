@@ -30,6 +30,12 @@ ax.text(left, bottom, 'left top',
         transx=ax.xaxis.transAxis,
         transy=ax.yaxis.transAxis)
 
+ax.text(left, bottom, 'left bottom',
+        horizontalalignment='left',
+        verticalalignment='bottom',
+        transx=ax.xaxis.transAxis,
+        transy=ax.yaxis.transAxis)
+
 ax.text(right, top, 'right bottom',
         horizontalalignment='right',
         verticalalignment='bottom',
@@ -50,6 +56,13 @@ ax.text(right, bottom, 'center top',
 
 ax.text(left, 0.5*(bottom+top), 'right center',
         horizontalalignment='right',
+        verticalalignment='center',
+        rotation='vertical',
+        transx=ax.xaxis.transAxis,
+        transy=ax.yaxis.transAxis)
+
+ax.text(left, 0.5*(bottom+top), 'leftcenter',
+        horizontalalignment='left',
         verticalalignment='center',
         rotation='vertical',
         transx=ax.xaxis.transAxis,
