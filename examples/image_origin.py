@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 """
 You can specify whether images should be plotted with the array origin
 x[0,0] in the upper left or upper right by using the origin parameter.
