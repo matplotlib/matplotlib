@@ -170,8 +170,8 @@ class FigureCanvasTkAgg(FigureCanvasAgg):
             e.button = e.num
             return handler(e.widget, e)
         for name in tkname[eventname]:
-            self._tkcanvas.bind(name, the_binding, add=True)
-        return (eventname, the_binding)
+            tk_binding_id = self._tkcanvas.bind(name, the_binding, add=True)
+        return (eventname, tk_binding_id)
 
     def key_press(self, event):
         val = event.keysym_num
@@ -236,8 +236,8 @@ class FigureCanvasTkAgg(FigureCanvasAgg):
         return self.connect(s, wrapper)
 
     def mpl_disconnect(self, cid):
-        eventname, the_binding = cid
-        self._tkcanvas.unbind(eventname) #, the_binding)
+        eventname, tk_binding_id = cid
+        self._tkcanvas.unbind(None,funcid=tk_binding_id) #, the_binding)
         return None
     
 class FigureManagerTkAgg(FigureManagerBase):
