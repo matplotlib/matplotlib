@@ -70,7 +70,7 @@ class Cell(Rectangle):
         self._text.set_figure(fig)
         
     def get_text(self):
-
+        'Return the cell Text intance' 
         return self._text
 
     def set_fontsize(self, size):
@@ -78,7 +78,7 @@ class Cell(Rectangle):
         self._text.set_fontsize(size)
 
     def get_fontsize(self):
-
+        'Return the cell fontsize'
         return self._text.get_fontsize()
 
     def auto_set_font_size(self, renderer):
@@ -239,11 +239,11 @@ class Table(Artist):
         return inverse_transform_bbox(self._transform, bbox)
 
     def get_child_artists(self):
-
+        'Return the Artists cintained by the table'
         return self._cells.values()
             
     def get_window_extent(self, renderer):
-
+        'Return the bounding box of the table in window coords'
         boxes = [c.get_window_extent(renderer) for c in self._cells]
         return bbox_all(boxes)
 
@@ -331,6 +331,10 @@ class Table(Artist):
             c.set_height(c.get_height() * yscale)
             
     def set_fontsize(self, size):
+        """
+Set the fontsize of the cell text
+
+ACCEPTS: a float in points"""
 
         for cell in self._cells.itervalues():
             cell.set_fontsize(size)

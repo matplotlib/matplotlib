@@ -134,8 +134,19 @@ A image.FigureImage instance is returned.
         return im
 
         
-    def set_figsize_inches(self, w, h):
-        'set the figure size in inches'
+    def set_figsize_inches(self, *args):
+        """
+Set the figure size in inches
+
+Usage: set_figsize_inches(self, w,h)  OR
+       set_figsize_inches(self, (w,h) )
+
+ACCEPTS: a w,h tuple with w,h in inches
+"""
+        if len(args)==1:
+            w,h = args[0]
+        else:
+            w,h = args
         self.figwidth.set(w)
         self.figheight.set(h)
 
@@ -143,7 +154,7 @@ A image.FigureImage instance is returned.
         return self.figwidth.get(), self.figheight.get()
 
     def get_edgecolor(self):
-        'Get the edge color of the Figure rectangle' # 
+        'Get the edge color of the Figure rectangle' 
         return self.figurePatch.get_edgecolor()
 
     def get_facecolor(self):
@@ -151,11 +162,17 @@ A image.FigureImage instance is returned.
         return self.figurePatch.get_facecolor()
 
     def set_edgecolor(self, color):
-        'Set the edge color of the Figure rectangle'
+        """
+Set the edge color of the Figure rectangle
+
+ACCEPTS: any matplotlib color - see help(colors)"""
         self.figurePatch.set_edgecolor(color)
 
     def set_facecolor(self, color):
-        'Set the face color of the Figure rectangle'
+        """
+Set the face color of the Figure rectangle
+
+ACCEPTS: any matplotlib color - see help(colors)"""
         self.figurePatch.set_facecolor(color)
 
     def add_axis(self, *args, **kwargs):
