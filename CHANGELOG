@@ -1,5 +1,7 @@
 New entries should be added at the top
 
+2005-03-19 0.73.1 released
+
 2005-03-19 Reverted wxapp handling because it crashed win32 - JDH
 
 2005-03-18 Add .number attribute to figure objects returned by figure() - FP
