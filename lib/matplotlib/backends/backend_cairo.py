@@ -29,9 +29,10 @@ from matplotlib.numerix import asarray, pi, fromstring, UInt8, zeros
 import matplotlib.numerix as numerix
 from matplotlib.backend_bases import RendererBase, GraphicsContextBase,\
      FigureManagerBase, FigureCanvasBase
-from matplotlib.cbook      import enumerate
+from matplotlib.cbook      import enumerate, izip
 from matplotlib.figure     import Figure
 from matplotlib.mathtext   import math_parse_s_ft2font
+from matplotlib.path import STOP, MOVETO, LINETO, CURVE3, CURVE4, ENDPOLY
 from matplotlib.transforms import Bbox
 
 import cairo
@@ -181,6 +182,13 @@ class RendererCairo(RendererBase):
     #def draw_lines(self, gc, x, y):
     def draw_lines(self, gc, x, y, transform=None):
         if DEBUG: print 'backend_cairo.RendererCairo.%s()' % _fn_name()
+
+        # guessing what needs to be done
+        if transform:
+            if transform.need_nonlinear():
+                x, y = transform.nonlinear_only_numerix(x, y)
+            x, y = transform.numerix_x_y(x, y)
+        
         y = [self.height - y for y in y]
         points = zip(x,y)
         x, y = points.pop(0)
@@ -193,26 +201,21 @@ class RendererCairo(RendererBase):
         ctx.stroke()
 
 
-    #def draw_markers(self, gc, path, x, y, transform):
-    def _draw_markers(self, gc, path, x, y, transform): # disable, not finished yet
+    def draw_markers(self, gc, path, x, y, transform):
+    #def _draw_markers(self, gc, path, x, y, transform): # disable, not finished yet
         """
         Draw the markers defined by path at each of the positions in x
         and y.  path coordinates are points, x and y coords will be
         transformed by the transform
         """
         if DEBUG: print 'backend_cairo.RendererCairo.%s()' % _fn_name()
-        from matplotlib.path import STOP, MOVETO, LINETO, CURVE3, CURVE4, ENDPOLY
 
         if transform.need_nonlinear():
             x,y = transform.nonlinear_only_numerix(x, y)
+        x, y = transform.numerix_x_y(x, y)  # todo - use cairo transform
 
         # the a,b,c,d,tx,ty affine which transforms x and y
-        vec6 = transform.as_vec6_val()
-        # this defines a single vertex.  We need to define this as ps
-        # function, properly stroked and filled with linewidth etc,
-        # and then simply iterate over the x and y and call this
-        # function at each position.  Eg, this is the path that is
-        # relative to each x and y offset.
+        #vec6 = transform.as_vec6_val() # not used (yet)
 
         ctx = gc.ctx
 
@@ -220,48 +223,38 @@ class RendererCairo(RendererBase):
             # could trace path just once, then save/restore() ?
             for p in path:
                code = p[0]
-               if code==MOVETO:
-                  mx, my = p[1:]
-                  # ctx.move_to (mx, self.height - my)
-                  ctx.move_to (mx, my)
-               elif code==LINETO:
-                  mx, my = p[1:]
-                  # ctx.line_to (mx, self.height - my)                
-                  ctx.line_to (mx, my)                
-               elif code==ENDPOLY:
+               if code == MOVETO:
+                  ctx.move_to (p[1], -p[2])
+               elif code == LINETO:
+                  ctx.line_to (p[1], -p[2])
+               elif code == ENDPOLY:
                   ctx.close_path()
                   # draw_marker
                   fill = p[1]
-                  if fill:  # we can get the fill color here
+                  if fill:
                      #rgba = p[2:]
-                     rgb = p[2:5] # later - set alpha
+                     rgb = p[2:5]
                      ctx.save()
                      ctx.set_rgb_color (*rgb)
+                     # later - set alpha also?                     
                      ctx.fill()
                      ctx.restore()
             
-                  ctx.stroke() # later stroke and/or fill, sel fill color
-                  break
+                  ctx.stroke()
+                  break # end of path
                     
-        # the gc contains the stroke width and color as always
-        for i in xrange(len(x)):
+        for x,y in izip(x,y):
             # FIXME
-            # 1) markers are upside down
-            # 2) get line-dash working
-            # -> cmp to plot w/o draw_markers()
-            # need to translate points to pixels?
-            # look to writing in a more efficient way
+            # -> mail dev list noting new function
+            # graph with crosses is not working
+            #   -> cmp to plot w/o draw_markers()
             # use Cairo transform
+            # look to writing in a more efficient way
             
             ctx.save()
-            thisx, thisy = x[i], y[i]
-            
-            # apply affine transform x and y to define marker center
             ctx.new_path()
-            tx, ty = transform.xy_tup((thisx, thisy))
-            ctx.translate(tx, self.height - ty)
+            ctx.translate(x, self.height - y)
             draw_path()
-
             ctx.restore() # wrap translate()
 
         

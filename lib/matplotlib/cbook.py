@@ -272,13 +272,33 @@ class RingBuffer:
        return self.data[i % len(self.data)]
 
 
+# use enumerate builtin if available, else use python version 
+try:
+    import __builtin__
+    enumerate = __builtin__.enumerate
+except:
+    def enumerate(seq):
+        """Python equivalent to the enumerate builtin function
+        enumerate() is new in Python 2.3
+        """
+        for i in range(len(seq)):
+            yield i, seq[i]
 
-major, minor1, minor2, s, tmp = sys.version_info
-def enumerate(seq):
-    for i in range(len(seq)):
-        yield i, seq[i]
 
-
+# use itertools.izip if available, else use python version 
+try:
+    import itertools
+    izip = itertools.izip
+except:
+    def izip(*iterables):
+        """Python equivalent to itertools.izip
+        itertools module - new in Python 2.3
+        """
+        iterables = map(iter, iterables)
+        while iterables:
+            result = [i.next() for i in iterables]
+            yield tuple(result)
+             
 
 def get_split_ind(seq, N):
    """seq is a list of words.  Return the index into seq such that
@@ -542,5 +562,3 @@ def finddir(o, match, case=False):
         names = [(name.lower(), name) for name in dir(o) if is_string_like(name)]
         match = match.lower()
     return [orig for name, orig in names if name.find(match)>=0]
-
-    
