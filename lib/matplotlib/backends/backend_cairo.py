@@ -10,7 +10,7 @@ Features of Cairo:
  * save image files:
    - PNG
    - PostScript (50% complete)
-   - PDF        (proposed, 0% complete)
+   - PDF        (in development)
 
 http://cairographics.org
 Requires (in order, all available from Cairo website):
@@ -40,14 +40,13 @@ from matplotlib.mathtext import math_parse_s_ft2font
 
 import cairo
 
-# uncomment when 0.1.4 is available
-#version_required = (0,1,3)
-#if cairo.version_info < version_required:
-#   raise SystemExit ("PyCairo %d.%d.%d is installed\n"
-#                     "PyCairo %d.%d.%d or later is required"
-#                     % (cairo.version_info + version_required))
-#backend_version = cairo.version
-#del version_required
+version_required = (0,1,4)
+if cairo.version_info < version_required:
+   raise SystemExit ("PyCairo %d.%d.%d is installed\n"
+                     "PyCairo %d.%d.%d or later is required"
+                     % (cairo.version_info + version_required))
+backend_version = cairo.version
+del version_required
 
 
 DEBUG = False
@@ -57,6 +56,7 @@ PIXELS_PER_INCH = 96
 
 # Image formats that this backend supports - for print_figure()
 IMAGE_FORMAT          = ['eps', 'png', 'ps', 'svg']
+#IMAGE_FORMAT          = ['eps', 'pdf', 'png', 'ps', 'svg'] # pdf not ready yet
 IMAGE_FORMAT_DEFAULT  = 'png'
 
 
@@ -462,14 +462,14 @@ def print_figure_fn(figure, filename, dpi=150, facecolor='w', edgecolor='w',
             filename = filename + '.' + ext
 
         ext = ext.lower()
-        if ext in ('png', 'ps'):  # native formats
+        if ext in ('pdf', 'png', 'ps'):  # native formats
             try:
                 fileObject = file(filename,'wb')
             except IOError, exc:
                 verbose.report_error("%s: %s" % (exc.filename, exc.strerror))
             else:
                 if ext == 'png': _save_png (figure, fileObject)
-                else:            _save_ps  (figure, fileObject, orientation)
+                else:            _save_ps_pdf (figure, fileObject, ext, orientation)
             
         elif ext in ('eps', 'svg'): # backend_svg/ps
             if ext == 'svg':
@@ -498,7 +498,7 @@ def _save_png (figure, fileObject):
     ctx.show_page()
         
 
-def _save_ps (figure, fileObject, orientation):
+def _save_ps_pdf (figure, fileObject, ext, orientation):
     # Cairo produces PostScript Level 3
     # 'ggv' can't read cairo ps files, but 'gv' can
 
@@ -511,11 +511,15 @@ def _save_ps (figure, fileObject, orientation):
     
     ctx = cairo.Context()
 
-    if orientation == 'portrait':
+    if orientation == 'landscape':
+        w_in, h_in = h_in, w_in
+        
+    if ext == 'ps':
         ctx.set_target_ps (fileObject, w_in, h_in, ppi, ppi)
+    else: # pdf
+        ctx.set_target_pdf (fileObject, w_in, h_in, ppi, ppi)
 
-    elif orientation == 'landscape':
-        ctx.set_target_ps (fileObject, h_in, w_in, ppi, ppi)
+    if orientation == 'landscape':
         ctx.rotate(pi/2)
         ctx.translate(0, -height)
         # cairo/src/cairo_ps_surface.c
@@ -524,7 +528,7 @@ def _save_ps (figure, fileObject, orientation):
         # since some printers would rotate again ?
         # TODO:
         # add portrait/landscape checkbox to FileChooser
-        
+
     renderer = RendererCairo (ctx.matrix, figure.dpi)
     renderer._set_width_height(width, height)
     renderer.surface = ctx.target_surface

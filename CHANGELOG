@@ -1,5 +1,9 @@
 New entries should be added at the top
 
+2005-01-15 backend_cairo: added PDF support which requires pycairo 0.1.4.
+           Its not usable yet, but is ready for when the Cairo PDF backend 
+	   matures - SC
+
 2005-01-15 Added Nadia's x,y contour fix
 
 2005-01-12 Fixed set clip_on bug in artist - JDH
