@@ -908,8 +908,9 @@ Refs: Bendat & Piersol -- Random Data: Analysis and Measurement
                 x = None,
                 y = None,
                 levels = None,
-                colors = None,
+                colors = None,                
                 linewidths = None,
+                alpha = 1.0,
                 fmt='%1.3f'):
         """\
 CONTOUR(z, x = None, y = None, levels = None, colors = None)
@@ -953,6 +954,8 @@ reg is a 2D region number array with the same dimensions as x and
   zones wich do not exist.
 
 triangle - triangulation array - must be the same shape as reg
+
+alpha : the default transparency of contour lines
 
 fmt is a format string for adding a label to each collection.
   Currently this is useful for auto-legending and may be useful down
@@ -1001,7 +1004,7 @@ matplotlib.collections.LineCollection instances
 
         tcolors = []
         for c in colors:
-            tcolors.append((colorConverter.to_rgba(c, 0.75),))
+            tcolors.append((colorConverter.to_rgba(c, alpha),))
 
         if linewidths == None:
             tlinewidths = [linewidths] *len(lev)
