@@ -140,7 +140,7 @@ Most of the other commands are from the Numeric, MLab and FFT, with
 the exception of those in mlab.py provided by matplotlib.
 """
 
-__version__  = '0.63.4'
+__version__  = '0.64.0a'
 __revision__ = '$Revision$'
 __date__     = '$Date$'
 

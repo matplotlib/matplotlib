@@ -1,7 +1,6 @@
 .matplotlibrc
 API_CHANGES
 CHANGELOG
-GOALS
 INSTALL
 INTERACTIVE
 KNOWN_BUGS
@@ -251,6 +250,7 @@ examples/__init__.py
 examples/alignment_test.py
 examples/anim.py
 examples/anim_tk.py
+examples/anscombe.py
 examples/arctest.py
 examples/axes_demo.py
 examples/axes_props.py
@@ -258,6 +258,7 @@ examples/axhspan_demo.py
 examples/backend_driver.py
 examples/bar_stacked.py
 examples/barchart_demo.py
+examples/barh_demo.py
 examples/break.py
 examples/color_demo.py
 examples/colours.py
@@ -302,6 +303,7 @@ examples/histogram_demo.py
 examples/histogram_demo_canvasagg.py
 examples/image_demo.py
 examples/image_demo2.py
+examples/image_demo3.py
 examples/image_demo_na.py
 examples/image_interp.py
 examples/image_origin.py
@@ -332,6 +334,7 @@ examples/object_picker.py
 examples/pcolor_demo.py
 examples/pcolor_demo2.py
 examples/pcolor_small.py
+examples/polar_demo.py
 examples/poormans_contour.py
 examples/print_stdout.py
 examples/psd_demo.py
@@ -347,13 +350,13 @@ examples/stock_demo.py
 examples/subplot_demo.py
 examples/system_monitor.py
 examples/table_demo.py
-examples/test.py
 examples/text_handles.py
 examples/text_themes.py
 examples/to_numeric.py
 examples/two_scales.py
 examples/vertical_ticklabels.py
 examples/vline_demo.py
+examples/webapp_demo.py
 examples/wxcursor_demo.py
 examples/data/AAPL.dat
 examples/data/INTC.dat
@@ -1109,7 +1112,6 @@ license/DATEUTIL_LICENSE.txt
 license/LICENSE
 license/LICENSE_PAINT
 license/LICENSE_PIL
-license/LICENSE_TTFQUERY
 license/PYTZ_LICENSE.txt
 src/_backend_agg.cpp
 src/_backend_agg.h
