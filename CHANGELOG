@@ -1,6 +1,7 @@
 New entries should be added at the top
 
-2004-07-19 Added vertical mathtext - thanks Jim Benson! - JDH
+2004-07-19 Added vertical mathtext for *Agg and GTK - thanks Jim
+           Benson! - JDH
 
 2004-07-16 Added ps/eps/svg savefig options to wx and gtk JDH
 
@@ -35,6 +36,10 @@ New entries should be added at the top
 
 2004-07-09 added default arg None to matplotlib.matlab grid command to
            toggle current grid state
+
+============================
+
+2004-07-08 0.60.2 released
 
 2004-07-08 fixed a mathtext bug for '6'
 
