@@ -1143,21 +1143,26 @@ def xticks(*args, **kwargs):
 
     # set the locations and labels of the xticks
     xticks( arange(5), ('Tom', 'Dick', 'Harry', 'Sally', 'Sue') )
-    
+
+    The keyword args, if any, are text properties; see text for more
+    information on text properties.  
     """
     ax = gca()
     
     if len(args)==0:
         locs = ax.get_xticks()
         labels = ax.get_xticklabels()
-
     elif len(args)==1:
         locs = ax.set_xticks(args[0])
         labels = ax.get_xticklabels()        
     elif len(args)==2:
         locs = ax.set_xticks(args[0])
-        labels = ax.set_xticklabels(args[1])
+        labels = ax.set_xticklabels(args[1], **kwargs)
     else: raise RuntimeError('Illegal number of arguments to xticks')
+    if len(kwargs):
+        for l in labels:
+            l.update_properties(kwargs)
+            
     draw_if_interactive()
     return locs, labels
 
@@ -1174,7 +1179,9 @@ def yticks(*args, **kwargs):
 
     # set the locations and labels of the yticks
     yticks( arange(5), ('Tom', 'Dick', 'Harry', 'Sally', 'Sue') )
-    
+
+    The keyword args, if any, are text properties; see text for more
+    information on text properties.  
     """
     ax = gca()
     
@@ -1186,9 +1193,14 @@ def yticks(*args, **kwargs):
         labels = ax.get_yticklabels()        
     elif len(args)==2:
         locs = ax.set_yticks(args[0])
-        labels = ax.set_yticklabels(args[1])
+        labels = ax.set_yticklabels(args[1], **kwargs)
     else: raise RuntimeError('Illegal number of arguments to yticks')
+    if len(kwargs):
+        for l in labels:
+            l.update_properties(kwargs)
+    
     draw_if_interactive()
+
     return locs, labels
 
 
