@@ -31,9 +31,9 @@ for i in range(indEnd):
     pcolor(10*rand(50,50))
 
     #savefig('tmp%d' % i, dpi = 75)
-    fd = file('tmp%d' % i, 'wb')
-    savefig(fd, dpi = 75)
-    fd.close()
+    #fd = file('tmp%d' % i, 'wb')
+    #savefig(fd, dpi = 75)
+    #fd.close()
     close(1)
 
 
