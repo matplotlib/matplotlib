@@ -1,4 +1,3 @@
-
 """
 Some helper functions for building the C extensions
 """
@@ -49,12 +48,12 @@ def build_gtkgd(ext_modules):
     ext_modules.append(module)    
 
 
-def add_agg_flags(module):
+def add_agg_flags(module, aggpath):
     'Add the module flags to build extensions which use gtk'
     include_dirs = [
-        'src', '/usr/X11R6/include', '/home/jdhunter/c/src/agg2/include',
+        'src', '/usr/X11R6/include', os.path.join(aggpath, 'include'),
         '/usr/include/freetype1']
-    library_dirs = ['/usr/X11R6/lib', '/home/jdhunter/c/src/agg2/src']
+    library_dirs = ['/usr/X11R6/lib', os.path.join(aggpath, 'src')]
     libraries = ['agg', 'X11', 'm', 'ttf', 'png', 'z']
     extra_link_args = []
     module.include_dirs.extend(include_dirs)
@@ -62,11 +61,11 @@ def add_agg_flags(module):
     module.library_dirs.extend(library_dirs)
     module.extra_link_args.extend(extra_link_args)
 
-def build_agg(ext_modules):
+def build_agg(ext_modules, aggsrc):
     module = Extension(
         'matplotlib.backends._backend_agg',
         ['src/_backend_agg.cpp', 'src/font.cpp'],
         )
-    add_agg_flags(module)
+    add_agg_flags(module, aggsrc)
     ext_modules.append(module)    
 

@@ -188,7 +188,12 @@
 
 -- DONE 2004-02-11 lost backend_gtk rotate_text fix - find it!
 
--- GTK clipping broken?
+-- DONE GTK clipping broken?
 
--- GTK facecolor reversed for line markers
+-- DONE GTK facecolor reversed for line markers
 
+-- figure clear
+
+-- gd filling is not working like I think - see arctest
+
+-- gd edge clipping is whacked - see arc test
