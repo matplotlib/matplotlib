@@ -484,3 +484,5 @@
 -- port new toolbar to embedding examples
 
 -- \sum height problem - see mathtext_tut
+
+-- check for zero zoom to rect
