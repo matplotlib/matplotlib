@@ -145,10 +145,10 @@
 
 -- add TM for matlab on website and in docs
 
--- Fix pcolor bug on GD backend where red doesn't render properly --
-   does this happen on scatter too?  Why are the pcolor PS files so
-   large (45MB!).  How to do interp shapding with GTK.  Look at the
-   effect of linewidth on GTK plots -- what happens when linewidth < 1
+-- Why are the pcolor PS files so large (45MB!).  How to do interp
+   shapding with GTK.  Look at the effect of linewidth on GTK plots --
+   what happens when linewidth < 1.  Fix pcolor problem arising from
+   integer location error on the pcolor borders
 
 -- DONE 2003-11-02 - Do a nearest neighbor color pick on GD when
    allocate fails
