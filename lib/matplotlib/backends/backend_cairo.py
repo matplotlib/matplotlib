@@ -140,21 +140,19 @@ class RendererCairo(RendererBase):
             return w, h
 
                               
-    def draw_arc(self, gcEdge, rgbFace, x, y, width, height, angle1, angle2):
+    def draw_arc(self, gc, rgbFace, x, y, width, height, angle1, angle2):
         """
         Draw an arc centered at x,y with width and height and angles
         from 0.0 to 360.0.
-
-        If rgbFace is not None, fill the arc with it.  gcEdge
-        is a GraphicsContext instance
+        If rgbFace is not None, fill the arc with it.
         """
         if Debug: print 'backend_cairo.RendererCairo.%s()' % _fn_name()
         # cairo draws circular arcs (width=height) only?
         # could curve_to() and draw a spline instead?
-        ctx    = gcEdge.ctx
-        y      = self.height - y
-        radius = width / 2
-        ctx.arc (x, y, radius, angle1 * pi/180.0, angle2 * pi/180.0)
+        radius = (height + width) / 4
+        ctx    = gc.ctx
+        ctx.new_path()
+        ctx.arc (x, self.height - y, radius, angle1 * pi/180.0, angle2 * pi/180.0)
 
         if rgbFace:
             ctx.save()
@@ -188,12 +186,10 @@ class RendererCairo(RendererBase):
         """
         if Debug: print 'backend_cairo.RendererCairo.%s()' % _fn_name()
         ctx = gc.ctx
-        y1 = self.height - y1
-        y2 = self.height - y2
-        ctx.move_to (x1, y1); ctx.line_to (x2, y2)
+        ctx.new_path()
+        ctx.move_to (x1, self.height - y1)
+        ctx.line_to (x2, self.height - y2)
         ctx.stroke()
-        # should call new_path() so this line is not part of future paths?
-        # or save()/restore() wrapper ?
 
 
     def draw_lines(self, gc, x, y):
@@ -202,18 +198,16 @@ class RendererCairo(RendererBase):
         point in x, y
         """
         if Debug: print 'backend_cairo.RendererCairo.%s()' % _fn_name()
-        ctx = gc.ctx
         y = [self.height - y for y in y]
         points = zip(x,y)
         x, y = points.pop(0)
+        ctx = gc.ctx
+        ctx.new_path()
         ctx.move_to (x, y)
 
         for x,y in points:
             ctx.line_to (x, y)
         ctx.stroke()
-
-        #ctx.new_path() # testing
-        # should call new_path() so these lines are not part of future paths?
 
 
     def draw_point(self, gc, x, y):
@@ -222,24 +216,22 @@ class RendererCairo(RendererBase):
         """
         if Debug: print 'backend_cairo.RendererCairo.%s()' % _fn_name()
         # render by drawing a 0.5 radius circle
-        y = self.height - y
-        gc.ctx.arc (x, y, 0.5, 0, 2*pi)
+        gc.ctx.new_path()
+        gc.ctx.arc (x, self.height - y, 0.5, 0, 2*pi)
         gc.ctx.fill()
 
 
-    def draw_polygon(self, gcEdge, rgbFace, points):
+    def draw_polygon(self, gc, rgbFace, points):
         """
         Draw a polygon.  points is a len vertices tuple, each element
         giving the x,y coords a vertex.
-
-        If rgbFace is not None, fill the rectangle with it.  gcEdge
-        is a GraphicsContext instance
+        If rgbFace is not None, fill the rectangle with it.
         """  
         if Debug: print 'backend_cairo.RendererCairo.%s()' % _fn_name()
-        ctx = gcEdge.ctx
         points = [(x, (self.height-y)) for x,y in points]
 
-        ctx.new_path() # not required?
+        ctx = gc.ctx
+        ctx.new_path()
         x, y = points.pop(0)
         ctx.move_to (x, y)
         for x,y in points:
@@ -254,7 +246,7 @@ class RendererCairo(RendererBase):
         ctx.stroke()
 
 
-    def draw_rectangle(self, gcEdge, rgbFace, x, y, width, height):
+    def draw_rectangle(self, gc, rgbFace, x, y, width, height):
         """
         Draw a non-filled rectangle at x,y (lower left) with width and height,
         using the GraphicsContext gcEdge.
@@ -262,10 +254,9 @@ class RendererCairo(RendererBase):
         None.
         """
         if Debug: print 'backend_cairo.RendererCairo.%s()' % _fn_name()
-        ctx = gcEdge.ctx
-        y   = self.height - y - height
-
-        ctx.rectangle (x, y, width, height)
+        ctx = gc.ctx
+        ctx.new_path()
+        ctx.rectangle (x, self.height - y - height, width, height)
         if rgbFace:
             ctx.save()
             ctx.set_rgb_color (*rgbFace)
@@ -288,17 +279,17 @@ class RendererCairo(RendererBase):
         else:
             # see also get_text_width_height()
             # text is looking too small - size, scale problem?
+            ctx.new_path()
+            ctx.move_to (x, y)
             ctx.select_font (prop.get_name(),
                              self.fontangles [prop.get_style()],
                              self.fontweights[prop.get_weight()])
             scale = self.get_text_scale()
             size  = prop.get_size_in_points()
-            ctx.move_to (x, y)
             if angle: # rotated text looks awful!
                 ctx.rotate (-angle * pi / 180)
             ctx.scale_font (scale*size)
             ctx.show_text (s)
-            # new_path() ?
 
          
     def flipy(self):
@@ -385,9 +376,14 @@ class GraphicsContextCairo(GraphicsContextBase):
         ctx = self.ctx
         ctx.new_path()
         ctx.rectangle (x, self.renderer.height - h - y, w, h)
+
+        #ctx.save()     # uncomment to view the clip rectangle
+        #ctx.set_rgb_color(1,0,0)
+        #ctx.set_line_width(6)
+        #ctx.stroke()
+        #ctx.restore()        
+
         ctx.clip ()
-        ctx.new_path() # prevents the rectangle from being drawn by next ctx.stroke()/fill()
-        # is better to do new_path() (or save(),restore()) at start of EVERY draw_*() op ?
         
 
     def set_dashes(self, offset, dashes):
