@@ -332,18 +332,13 @@ def looks_like_color(c):
 
 def rgb2hex(rgb):
     'Given a len 3 rgb tuple of 0-1 floats, return the hex string'
-    def fmt(val):
-        h=hex(int(val*255))[2:]
-        if len(h) < 2: return '0%s'%h
-        else: return h
-    return '#%s' % ''.join([fmt(val) for val in rgb])
+    return '#%02x%02x%02x' % tuple([round(val*255) for val in rgb])
     
 def hex2color(s):
     "Convert hex string (like html uses, eg, #efefef) to a r,g,b tuple"
-    if s.find('#')!=0 or len(s)!=7:
-        raise ValueError('s must be a hex string like "#efefef#')
-    r,g,b = map(lambda x: int('0x' + x, 16)/256.0, (s[1:3], s[3:5], s[5:7]))
-    return r,g,b
+    if s[0]!='#' or len(s)!=7:
+        raise ValueError('s must be a hex string like "#efefef"')
+    return tuple([int(n, 16)/255.0 for n in (s[1:3], s[3:5], s[5:7])])
 
 class ColorConverter:
     colors = {
