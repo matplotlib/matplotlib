@@ -8,7 +8,7 @@ New entries should be added at the top
 
 2004-06-23 ported code to Perry's new colormap and norm scheme.  Added
            new rc attributes image.aspect, image.interpolation,
-           image.cmap, image.lut
+           image.cmap, image.lut, image.origin
 
 2004-06-20 backend_gtk.py: replace gtk.TRUE/FALSE with True/False.
 	   simplified _make_axis_menu(). - SC
