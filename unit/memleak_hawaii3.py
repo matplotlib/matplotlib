@@ -2,7 +2,8 @@
 
 import os, sys, time
 import matplotlib
-matplotlib.use('Cairo')
+#matplotlib.use('Cairo')
+matplotlib.use('Agg')
 from matplotlib.matlab import *
 
 

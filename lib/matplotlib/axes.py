@@ -1,6 +1,6 @@
 from __future__ import division, generators
 
-import math, sys
+import math, sys, random
 
 from numerix import MLab, absolute, arange, array, asarray, ones, transpose, \
      log, log10, Float, ravel
@@ -11,7 +11,7 @@ from axis import XAxis, YAxis
 from cbook import iterable, is_string_like, flatten, enumerate, True, False,\
      allequal
 from collections import RegularPolyCollection, PolyCollection
-from colors import colorConverter, normalize, Colormap
+from colors import colorConverter, normalize, Colormap, LinearSegmentedColormap
 import cm
 from cm import ColormapJet, Grayscale
 import _image
@@ -2419,6 +2419,7 @@ Text instances
         'Set the y ticks with list of ticks'
         return self.yaxis.set_ticks(ticks)
 
+
     def specgram(self, x, NFFT=256, Fs=2, detrend=mlab.detrend_none,
                  window=mlab.window_hanning, noverlap=128,
                  cmap = None, xextent=None):
@@ -2465,6 +2466,37 @@ Return value is (Pxx, freqs, bins, im), where
         im = self.imshow(Z, cmap, extent=extent)
 
         return Pxx, freqs, bins, im
+
+    def spy(self, Z,  marker='s', markersize=10, **kwargs):
+        """
+        SPY(Z, **kwrags) plots the sparsity pattern of the matrix S
+        using plot markers.
+
+        kwargs give the marker properties - see help(plot) for more
+        information on marker properties
+
+        The line handles are returned
+        """
+        x,y,z = mlab.get_xyz_where(Z, Z>0)
+        return self.plot(x+0.5,y+0.5, linestyle='None',
+                         marker=marker,markersize=markersize, **kwargs)
+
+    def spy2(self, Z):
+        """
+SPY2(Z) plots the sparsity pattern of the matrix S as an image
+
+The image instance is returned
+        """
+
+        #binary colormap min white, max black
+        cmapdata = {
+             'red'  :  ((0., 1., 1.), (1., 0., 0.)),
+             'green':  ((0., 1., 1.), (1., 0., 0.)),
+             'blue' :  ((0., 1., 1.), (1., 0., 0.))
+             }
+        binary =  LinearSegmentedColormap('binary',  cmapdata, 2)
+        Z = where(Z>0,1.,0.)
+        return self.imshow(transpose(Z), interpolation='nearest', cmap=binary)
 
     def table(self,              
         cellText=None, cellColours=None,
