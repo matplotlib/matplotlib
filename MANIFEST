@@ -17,9 +17,7 @@ examples/arctest.py
 examples/axes_demo.py
 examples/axes_props.py
 examples/barchart_demo.py
-examples/batch_test.py
 examples/batch_test_gd.py
-examples/batch_test_wx.py
 examples/break.py
 examples/color_demo.py
 examples/csd_demo.py

@@ -9,9 +9,11 @@ from Numeric import sin, pi, arange, absolute, sqrt
 
 import matplotlib
 matplotlib.use('GTK')
+
 from matplotlib.backends.backend_gtk import FigureGTK, NavigationToolbar, \
-     AxisTextGTK, error_msg, colorManager
+     error_msg, colorManager
 from matplotlib.axes import Subplot
+
 from matplotlib.lines import Line2D, lineStyles, lineMarkers
 from matplotlib.transforms import Bound2D
 from matplotlib.patches import draw_bbox
@@ -202,7 +204,7 @@ class LineDialog(gtk.Dialog):
 class ArtistPickerFigure(FigureGTK):
 
     def button_press_event(self, widget, event):
-        width, height = self.drawable.gdkDrawable.get_size()
+        width, height = self.renderer.gdkDrawable.get_size()
         
         self.pick(event.x, height-event.y)
 
@@ -223,10 +225,10 @@ class ArtistPickerFigure(FigureGTK):
         """
 
         clickBBox = Bound2D(x-epsilon/2, y-epsilon/2, epsilon, epsilon)
-        #draw_bbox(self.dpi, clickBBox, self.drawable)
+        draw_bbox(self.dpi, clickBBox, self.renderer)
 
         def over_text(t):
-            bbox = t.get_window_extent()
+            bbox = t.get_window_extent(self.renderer)
             return clickBBox.overlap(bbox)
 
         def over_line(line):
