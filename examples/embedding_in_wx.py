@@ -36,44 +36,42 @@ There are a few small complexities worth noting in the example:
    figure resizable or not.
 """
 
-import matplotlib
-matplotlib.use('WX')
-	
-from matplotlib.backends import Figure, Toolbar, FigureManager
+
+from matplotlib.backends.backend_wx import Toolbar, FigureCanvasWx,\
+     FigureManager
+
+from matplotlib.figure import Figure
 from matplotlib.axes import Subplot
 import Numeric as numpy
-	
 from wxPython.wx import *
+
+
 	
 class PlotFigure(wxFrame):
     def __init__(self):
         wxFrame.__init__(self, None, -1, "Test embedded wxFigure")
-        self.fig = Figure(self, -1, (5,4), 75)
-        self.toolbar = Toolbar(self.fig)
+
+        self.fig = Figure((5,4), 75)
+        self.canvas = FigureCanvasWx(self, -1, self.fig)
+        self.toolbar = Toolbar(self.canvas)
         self.toolbar.Realize()
 
-		# On Windows, default frame size behaviour is incorrect
+        # On Windows, default frame size behaviour is incorrect
         # you don't need this under Linux
         tw, th = self.toolbar.GetSizeTuple()
-        fw, fh = self.fig.GetSizeTuple()
+        fw, fh = self.canvas.GetSizeTuple()
         self.toolbar.SetSize(wxSize(fw, th))
-        
+
         # Create a figure manager to manage things
-        self.figmgr = FigureManager(self.fig, 1, self)
-        
+        self.figmgr = FigureManager(self.canvas, 1, self)
         # Now put all into a sizer
         sizer = wxBoxSizer(wxVERTICAL)
-		# This way of adding to sizer prevents resizing
-        #sizer.Add(self.fig, 0, wxLEFT|wxTOP)
-		
-		# This way of adding to sizer allows resizing
-        sizer.Add(self.fig, 1, wxLEFT|wxTOP|wxGROW)
-		
-		# Best to allow the toolbar to resize!
+        # This way of adding to sizer allows resizing
+        sizer.Add(self.canvas, 1, wxLEFT|wxTOP|wxGROW)
+        # Best to allow the toolbar to resize!
         sizer.Add(self.toolbar, 0, wxGROW)
         self.SetSizer(sizer)
         self.Fit()
-        
     def plot_data(self):
         # Use ths line if using a toolbar
         a = self.figmgr.add_subplot(111)
@@ -94,7 +92,7 @@ class PlotFigure(wxFrame):
         return self.toolbar
         
 if __name__ == '__main__':
-    app = wxPySimpleApp()
+    app = wxPySimpleApp(0)
     frame = PlotFigure()
     frame.plot_data()
     frame.Show()
