@@ -511,3 +511,5 @@ ZeroDivisionError: SeparableTransformation::eval_scalars yin interval is zero; c
 -- DONE text colors for svg
 
 -- update installing.html from INSTALL
+
+-- rubberbanding broken on subplot_demo/gtk
