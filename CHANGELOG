@@ -1,5 +1,7 @@
 New entries should be added at the top
 =======
+2004-06-15 Improved (yet again!) axis scaling to properly handle
+           singleton plots - JDH
 
 2004-06-15 Restored the old FigureCanvasGTK.draw() - SC
 

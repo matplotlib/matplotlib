@@ -36,6 +36,7 @@ interactive  : False     # see http://matplotlib.sourceforge.net/interactive.htm
 lines.linewidth   : 0.5     # line width in points
 lines.linestyle   : -       # solid line
 lines.color       : b       # blue; color format or hex string
+lines.marker      : None    # the default marker
 lines.markerfacecolor  : b       
 lines.markeredgecolor  : k
 lines.markeredgewidth  : 0.5
