@@ -264,10 +264,9 @@ class PickerCanvas(FigureCanvas):
                             
 win = gtk.Window()
 win.set_name("Embedding in GTK")
-win.connect("destroy", gtk.mainquit)
-win.set_border_width(5)
+win.connect("destroy", lambda x: gtk.main_quit())
 
-vbox = gtk.VBox(spacing=3)
+vbox = gtk.VBox()
 win.add(vbox)
 vbox.show()
 
@@ -291,4 +290,4 @@ vbox.pack_start(toolbar, gtk.FALSE, gtk.FALSE)
 
 
 win.show()
-gtk.mainloop()
+gtk.main()
