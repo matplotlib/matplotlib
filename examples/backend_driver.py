@@ -62,6 +62,7 @@ files = (
     'text_rotation.py',
     'text_themes.py',
     'two_scales.py',
+    'unicode_demo.py',
     'vline_demo.py',
     'zorder_demo.py',
     )

@@ -49,8 +49,6 @@ def _nums_to_str(*args):
 
 def quote_ps_string(s):
     "Quote dangerous characters of S for use in a PostScript string constant."
-    if isinstance(s, unicode):
-        s = s.encode('ascii', 'replace') # unicode not supported yet
     s=s.replace("\\", "\\\\")
     s=s.replace("(", "\\(")
     s=s.replace(")", "\\)")
@@ -408,9 +406,6 @@ grestore
         """
         # local to avoid repeated attribute lookups
 
-        if isinstance(s, unicode):
-            self.draw_unicode(gc, x, y, s, prop, angle)
-            return
         
         write = self._pswriter.write
         if debugPS:
@@ -451,10 +446,12 @@ grestore
     """ % locals()
             self._draw_ps(ps, gc, None)
 
-        else:
-            if ismath:
-                return self.draw_mathtext(gc, x, y, s, prop, angle)
+        elif ismath:
+            return self.draw_mathtext(gc, x, y, s, prop, angle)
 
+        elif isinstance(s, unicode):
+            return self.draw_unicode(gc, x, y, s, prop, angle)
+        else:
             font = self._get_font_ttf(prop)
             font.set_text(s,0)
 
