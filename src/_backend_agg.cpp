@@ -598,7 +598,7 @@ RendererAgg::draw_poly_collection(const Py::Tuple& args) {
   try {
     transform->eval_scalars();
   }
-  catch (std::domain_error &err) {
+  catch(...) {
     throw Py::ValueError("Domain error on eval_scalars in RendererAgg::draw_poly_collection");  
   }
 
@@ -621,7 +621,7 @@ RendererAgg::draw_poly_collection(const Py::Tuple& args) {
     try {
       transOffset->eval_scalars();
     }
-    catch (std::domain_error &err) {
+    catch(...) {
       throw Py::ValueError("Domain error on transoffset eval_scalars in RendererAgg::draw_poly_collection");  
     }
 
@@ -779,7 +779,7 @@ RendererAgg::draw_regpoly_collection(const Py::Tuple& args) {
   try {
     transOffset->eval_scalars();
   }
-  catch (std::domain_error &err) {
+  catch(...) {
     throw Py::ValueError("Domain error on eval_scalars in RendererAgg::draw_regpoly_collection");  
   }
 
@@ -925,7 +925,7 @@ RendererAgg::draw_lines(const Py::Tuple& args) {
   try {
     mpltransform->affine_params_api(&a, &b, &c, &d, &tx, &ty);
   }
-  catch (std::domain_error &err) {
+  catch(...) {
     throw Py::ValueError("Domain error on affine_params_api in RendererAgg::draw_lines");  
   }
 
@@ -942,6 +942,7 @@ RendererAgg::draw_lines(const Py::Tuple& args) {
   double heightd = height;
 
   double lastx(-2.0), lasty(-2.0);
+
   for (size_t i=0; i<Nx; ++i) {
     thisx = *(double *)(xa->data + i*xa->strides[0]);
     thisy = *(double *)(ya->data + i*ya->strides[0]);
@@ -951,7 +952,7 @@ RendererAgg::draw_lines(const Py::Tuple& args) {
       try {
 	mpltransform->nonlinear_only_api(&thisx, &thisy);
       }
-      catch (std::domain_error& err) {
+      catch (...) {
 	moveto = true;
 	continue;
       }
@@ -991,6 +992,7 @@ RendererAgg::draw_lines(const Py::Tuple& args) {
   
 
   _render_lines_path(path, gc);
+  _VERBOSE("RendererAgg::draw_lines DONE");
   return Py::Object();
   
 }
@@ -1070,7 +1072,7 @@ RendererAgg::draw_markers(const Py::Tuple& args) {
   try {
     mpltransform->affine_params_api(&a, &b, &c, &d, &tx, &ty);
   }
-  catch (std::domain_error &err) {
+  catch(...) {
     throw Py::ValueError("Domain error on affine_params_api in RendererAgg::draw_markers");  
   }
   
@@ -1167,7 +1169,7 @@ RendererAgg::draw_markers(const Py::Tuple& args) {
       try {       
 	mpltransform->nonlinear_only_api(&thisx, &thisy);
       }
-      catch (std::domain_error& err) {
+      catch(...) {
 	continue;
       }
 
@@ -1315,7 +1317,7 @@ RendererAgg::draw_markers(const Py::Tuple& args) {
       if (mpltransform->need_nonlinear_api())
 	mpltransform->nonlinear_only_api(&thisx, &thisy);
     }
-    catch (std::domain_error& err) {
+    catch (..) {
       //std::cout << "caught a live one, ignoring" << std::endl;
       continue;
     }
