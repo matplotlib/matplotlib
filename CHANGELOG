@@ -1,5 +1,8 @@
 New entries should be added at the top
 
+2004-08-06 Added Tk zoom to rect rectangle, proper idle drawing, and
+           keybinding - JDH
+
 2004-08-05 Updated installing.html and INSTALL - JDH
 
 2004-08-01 backend_gtk.py: move all drawing code into the expose_event()
