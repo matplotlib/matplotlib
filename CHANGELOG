@@ -1,5 +1,7 @@
 New entries should be added at the top
 
+2004-04-09 Move deprecation warnings from text.py to __init__.py - PEB
+
 2004-04-09 Added default font customization - JDH
 
 2004-04-08 Fixed viewlim set problem on axes and axis.
