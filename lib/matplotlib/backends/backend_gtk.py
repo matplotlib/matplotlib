@@ -67,41 +67,6 @@ cursord = {
 def GTK_WIDGET_DRAWABLE(w): flags = w.flags(); return flags & gtk.VISIBLE !=0 and flags & gtk.MAPPED != 0
 
 
-#class ColorManagerGTK:
-#    _cached = {}  # a map from rgb colors to gdk.Colors
-#    _cmap = None
-    
-
-#    def set_drawing_area(self, da):
-#        self._cmap = da.get_colormap()
-
-
-#    def get_gdk_color(self, rgb):
-#        """
-#        Take an RGB tuple (with three 0.0-1.0 values) and return an allocated
-#        gtk.gdk.Color
-#        """
-#        try:
-#            return self._cached[tuple(rgb)]
-#        except KeyError:
-#            if self._cmap is None:
-#                raise RuntimeError('First set the drawing area!')
-
-#            r,g,b = rgb
-#            color = self._cmap.alloc_color(
-#                int(r*65535),int(g*65535),int(b*65535))
-#            self._cached[tuple(rgb)] = color
-#            return color
-
-    #def get_rgb(self, color): # never used
-    #    """
-    #    Take a gtk.gdk.Color and return an RGB tuple
-    #    """
-    #    return [val/65535 for val in (color.red, color.green, color.blue)]
-
-#colorManager = ColorManagerGTK()
-
-
 class RendererGTK(RendererBase):
     fontweights = {
         100          : pango.WEIGHT_ULTRALIGHT,
@@ -480,7 +445,7 @@ class RendererGTK(RendererBase):
 
 
 class GraphicsContextGTK(GraphicsContextBase):
-    # a cache shared use by all class instances
+    # a cache shared by all class instances
     _cached = {}  # map: rgb color -> gdk.Color
 
     _joind = {
@@ -618,8 +583,8 @@ def show(mainloop=True):
         manager.window.show()
         
     if gtk.main_level() == 0 and mainloop:
-        if gtk.pygtk_version >= (2,4,0):  gtk.main()
-        else:                              gtk.mainloop()
+        if gtk.pygtk_version >= (2,4,0): gtk.main()
+        else:                            gtk.mainloop()
 
 
 def _quit_after_print_xvfb(*args):
@@ -767,11 +732,6 @@ class FigureCanvasGTK(gtk.DrawingArea, FigureCanvasBase):
     def mpl_disconnect(self, cid):
         self.disconnect(cid)
         return None
-
-
-    #def realize(self, widget):
-    #    #self._ggc = self.window.new_gc() 
-    #    return True
 
 
     def configure_event(self, widget, event):
@@ -996,7 +956,6 @@ class NavigationToolbar2GTK(NavigationToolbar2, gtk.Toolbar):
         ('Save', 'Save the figure','filesave.png', 'save_figure'),
         )
         
-    #def __init__(self, canvas, *args):
     def __init__(self, canvas, window):
         self.win = window
         gtk.Toolbar.__init__(self)
