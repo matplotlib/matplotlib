@@ -922,8 +922,9 @@ x and y are 2D arrays with coordinates of z values in the
 two directions. x and y do not need to be evenly spaced but must
 be of the same shape as z
 
-levels can be a list of level values or the number of levels to be plotted.
-If levels == None, a default number of 7 evenly spaced levels is plotted.
+levels can be a list of level values or the number of levels to be
+  plotted.  If levels == None, a default number of 7 evenly spaced
+  levels is plotted.
 
 colors is one of these:
 
@@ -984,35 +985,38 @@ matplotlib.collections.LineCollection instances
         zmax = max(ravel(z))
         zmin = min(ravel(z))
 
-        if type(levels) not in [int, list] and levels != None:
-            raise TypeError("levels must be an integer number of levels or a list of level values")
+        def autolev(N):
+            return mlab.linspace(zmin, zmax, N+2)[1:-1]
         
-        if (not iterable(levels) or levels == None) or (iterable(levels) and len(levels) == 0):
-            levels = 7
-            lev = [(zmax-zmin)/levels * level + zmin for level in range(levels + 1)[1:]]
-        else:
-            lev = list(levels)
+        if levels is None: lev = autolev(7)
+        else:            
+            try: Nlev = int(levels)
+            except TypeError:
+                lev = list(levels)            
+            else: lev = autolev(Nlev)
 
-        
-
+        Nlev = len(lev)
         if is_string_like(colors):
-            colors = [colors] * len(lev)
-        elif iterable(colors[0]) and len(colors) < len(lev):
-            colors = list(colors) * int(ceil(len(lev)/len(colors)))
+            colors = [colors] * Nlev
+        elif iterable(colors) and len(colors) < Nlev:
+            colors = list(colors) * Nlev
         else:
-            colors = [colors] * len(lev)
+            try: gray = float(colors)
+            except TypeError: pass
+            else:  colors = [gray] * Nlev
+
 
         tcolors = []
         for c in colors:
             tcolors.append((colorConverter.to_rgba(c, alpha),))
 
         if linewidths == None:
-            tlinewidths = [linewidths] *len(lev)
+            tlinewidths = [linewidths] *Nlev
         else:
-            if iterable(linewidths) and len(linewidths) < len(lev):
-                linewidths = list(linewidths) * int(ceil(len(lev)/len(linewidths)))
+            if iterable(linewidths) and len(linewidths) < Nlev:
+                linewidths = list(linewidths) * int(ceil(Nlev/len(linewidths)))
             elif not iterable(linewidths) and type(linewidths) in [int, float]:
-                linewidths = [linewidths] * len(lev)
+                linewidths = [linewidths] * Nlev
             tlinewidths = [(w,) for w in linewidths]
                                       
         args = zip(lev, tcolors, tlinewidths)
