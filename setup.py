@@ -17,7 +17,7 @@ if 0: # how do I add '--with-gtkgd' flag checking?
 
 
 setup(name="matplotlib",
-      version= '0.50g',
+      version= '0.50h',
       description = "Matlab style python plotting package",
       author = "John D. Hunter",
       author_email="jdhunter@ace.bsd.uchicago.edu",
