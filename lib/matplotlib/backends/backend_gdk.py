@@ -116,9 +116,9 @@ class RendererGDK(RendererBase):
                             has_alpha=True, bits_per_sample=8,
                             width=cols, height=rows)
         try:
-            pa = pb.get_pixels_array()
+            pa = pb.get_pixels_array() # new in 2.2
         except AttributeError:
-            pa = pb.pixel_array   # deprecated
+            pa = pb.pixel_array        # deprecated in 2.2
         except RuntimeError, exc: #  pygtk was not compiled with Numeric Python support
             warnings.warn('draw_image not supported: %s' % exc)
             return        
@@ -130,13 +130,13 @@ class RendererGDK(RendererBase):
         if flipud:
             y = self.height-y-rows
 
-        try: # requires GTK+ 2.2
+        try: # new in 2.2
             # can use None instead of gc.gdkGC, if don't need clipping
             self.gdkDrawable.draw_pixbuf (gc.gdkGC, pb, 0, 0,
                                           int(x), int(y), cols, rows,
                                           gdk.RGB_DITHER_NONE, 0, 0)
         except AttributeError:
-            # is deprecated
+            # deprecated in 2.2
             pb.render_to_drawable(self.gdkDrawable, gc.gdkGC, 0, 0,
                                   int(x), int(y), cols, rows,
                                   gdk.RGB_DITHER_NONE, 0, 0)
@@ -233,9 +233,9 @@ class RendererGDK(RendererBase):
                             bits_per_sample=8, width=imw, height=imh)
 
         try:
-            pa = pb.get_pixels_array()
+            pa = pb.get_pixels_array() # new in 2.2
         except AttributeError:
-            pa = pb.pixel_array
+            pa = pb.pixel_array        # deprecated in 2.2
         except RuntimeError, exc: #  'pygtk was not compiled with Numeric Python support'
             warnings.warn('mathtext not supported: %s' % exc)
             return        
@@ -246,12 +246,13 @@ class RendererGDK(RendererBase):
         pa[:,:,2]=int(rgb[2]*255)
         pa[:,:,3]=Xs
 
-        try: # requires GTK+ 2.2
+        try: # new in 2.2
             # can use None instead of gc.gdkGC, if don't need clipping
             self.gdkDrawable.draw_pixbuf (gc.gdkGC, pb, 0, 0,
                                           int(x), int(y), imw, imh,
                                           gdk.RGB_DITHER_NONE, 0, 0)
         except AttributeError:
+            # deprecated in 2.2
             pb.render_to_drawable(self.gdkDrawable, gc.gdkGC, 0, 0,
                                   int(x), int(y), imw, imh,
                                   gdk.RGB_DITHER_NONE, 0, 0)
