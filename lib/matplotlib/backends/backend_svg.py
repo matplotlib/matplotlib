@@ -363,10 +363,8 @@ class FigureCanvasSVG(FigureCanvasBase):
         self.figure.set_facecolor(origfacecolor)
         self.figure.set_edgecolor(origedgecolor)
         
-        try: fh = file(filename, 'w')
-        except IOError:
-            error_msg_svg('Could not open %s for writing' % filename)
-            return
+        # don't catch exception, allow GUI backend to catch the exception
+        fh = file(filename, 'w')
         print >>fh, renderer.get_svg()
 
 class FigureManagerSVG(FigureManagerBase):
