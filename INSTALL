@@ -6,6 +6,16 @@ INTRODUCTION
   below.  Matplotlib is known to work on linux, unix, win32 and OS X
   platforms.
 
+  There are two kinds of matplotlib backends: vector based and raster
+  based.  The vector based backends, SVG and PS, produce ASCII text
+  output files *.svg and *.ps.  The core raster based renderer is the
+  http://antigrain.com (agg) backend.  This is a high quality 2D
+  library that supports fast antialiasing, alpha blending and much
+  more.  If you want to produce PNGs or GUI images that support all of
+  matplotlib's features, you should compile matplotlib with agg
+  support and use one of the GUI agg backends: GTKAgg, WXAgg, TkAgg or
+  FLTKAgg.   
+
 COMPILING
 
   You will need to have recent versions of freetype (>= 2.1.7), libpng
@@ -22,6 +32,11 @@ COMPILING
   find a GUI and build the backend acccordingly.  If you know you
   don't want a particular backend or extension, you can set that flag
   to False.
+
+  As discussed above, most users will want to set 'BUILD_AGG = 1' and
+  one or more of the GUI backends to True.  Exceptions to this are if
+  you know you don't need a GUI (eg a web server) or you only want to
+  produce vector graphics. 
 
   If you have installed prerequisites to nonstandard places and need
   to inform matplotlib where they are, edit setupext.py an add the
@@ -108,10 +123,10 @@ PACKAGE MANAGERS: (rpms, apt, fink)
     packages at http://mentors.debian.net
 
 
-      * add this lines to your /etc/apt/sources.list: deb
-        http://mentors.debian.net/debian unstable main contrib
-        non-free deb-src http://mentors.debian.net/debian unstable
-        main contrib non-free
+      * add these lines to your /etc/apt/sources.list: 
+
+      deb http://mentors.debian.net/debian unstable main contrib non-free
+      deb-src http://mentors.debian.net/debian unstable main contrib non-free
 
       * then run:
         # apt-get update
