@@ -51,9 +51,10 @@ def build_gtkgd(ext_modules):
 
 def add_agg_flags(module):
     'Add the module flags to build extensions which use gtk'
-    include_dirs = ['/usr/X11R6/include', '/home/jdhunter/c/src/agg2/include']
+    include_dirs = ['/usr/X11R6/include', '/home/jdhunter/c/src/agg2/include',
+                    '/usr/include/freetype1', 'src']
     library_dirs = ['/usr/X11R6/lib', '/home/jdhunter/c/src/agg2/src']
-    libraries = ['agg', 'X11', 'm']
+    libraries = ['agg', 'X11', 'm', 'freetype']
     extra_link_args = []
     module.include_dirs.extend(include_dirs)
     module.libraries.extend(libraries)

@@ -18,6 +18,9 @@ API changes at 0.50
 
   * backend faceColor argument changed to gcFace
 
+  * GD users must upgrade to gd-2.0.22 and gdmodule-0.52 since new gd
+    features (clipping, antialiased lines) are now used.
+
 Migrating code:
 
   Matlab interface: 

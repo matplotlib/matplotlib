@@ -1,58 +1,6 @@
-#include <fstream>
-#include <cmath>
-#include <cstdio>
+#include "_backend_agg.h"
 
-#include "agg_arrowhead.h"
-#include "agg_conv_concat.h"
-#include "agg_conv_contour.h"
-#include "agg_conv_curve.h"
-#include "agg_conv_dash.h"
-#include "agg_conv_marker.h"
-#include "agg_conv_marker_adaptor.h"
-#include "agg_conv_stroke.h"
-#include "agg_ellipse.h"
-#include "agg_embedded_raster_fonts.h"
-#include "agg_gen_markers_term.h"
-#include "agg_path_storage.h"
-#include "agg_pixfmt_rgb24.h"
-#include "agg_rasterizer_outline.h"
-#include "agg_rasterizer_scanline_aa.h"
-#include "agg_renderer_outline_aa.h"
-#include "agg_renderer_raster_text.h"
-#include "agg_renderer_scanline.h"
-#include "agg_rendering_buffer.h"
-#include "agg_scanline_p32.h"
-
-#include "Python.h"
-
-typedef agg::pixel_formats_rgb24<agg::order_bgr24> pixfmt;
-typedef agg::renderer_base<pixfmt> renderer_base;
-typedef agg::renderer_scanline_p_solid<renderer_base> renderer;
-typedef agg::rasterizer_scanline_aa<> rasterizer;
-typedef agg::scanline_p8 scanline;
-
-
-static PyObject *ErrorObject;
-
-/*----------------------------------
- *
- *   The Renderer
- *
- *----------------------------------- */
-
-typedef struct {
-  PyObject_HEAD
-  PyObject	*x_attr;	/* Attributes dictionary */
-  agg::rendering_buffer *rbuf;
-  pixfmt *pixf;
-  renderer_base *rbase;
-  renderer *ren;
-  rasterizer *ras;
-  agg::int8u *buffer;
-  scanline *sline;
-  size_t NUMBYTES;  //the number of bytes in buffer
-
-} RendererAggObject;
+#include <cstring>
 
 double _seqitem_as_double(PyObject *seq, size_t i) {
   //give a py sequence, return the ith element as a double
@@ -85,6 +33,47 @@ double* _pyobject_as_double(PyObject *o) {
 }
 
 
+
+agg::gen_stroke::line_cap_e
+_gc_get_linecap(PyObject *gc) {
+
+  PyObject *capstyle;
+  capstyle = PyObject_GetAttrString( gc, "_capstyle");
+
+  
+  if (capstyle==NULL) {
+    PyErr_SetString(PyExc_TypeError, 
+		    "Could not find the GC _capstyle attribute");
+    //return -1;    
+  }
+
+  if (! PyString_Check(capstyle)) {
+    PyErr_SetString(PyExc_TypeError, 
+		    " GC _capstyle attribute must be string");
+    //return -1;    
+  }
+
+  char *s = PyString_AsString(capstyle);
+  if (strcmp(s, "butt")==0) {
+    printf("cap butt\n");
+    return agg::gen_stroke::butt_cap;
+  }
+  else if (strcmp(s, "round")==0) {
+    printf("cap round\n");
+    return agg::gen_stroke::round_cap;
+  }
+  else if(strcmp(s, "projecting")==0) {
+    printf("cap projecting\n");
+    return agg::gen_stroke::square_cap;
+  }
+  else {
+    PyErr_SetString(PyExc_ValueError, 
+		    " GC _capstyle attribute must be one of butt, round, projecting");
+    //return -1;    
+  }
+
+  return agg::gen_stroke::butt_cap;  //default
+}
 
 agg::rgba* 
 _gc_get_color(PyObject *gc) {
@@ -386,7 +375,12 @@ RendererAgg_draw_lines(RendererAggObject *renderer, PyObject* args) {
 
   //printf("RendererAgg_draw_lines looks ok\n");  
 
+  agg::gen_stroke::line_cap_e cap = _gc_get_linecap(gc);
+  //if (cap==-1) return NULL;
 
+  agg::rgba* color = _gc_get_color(gc);
+  if (color==NULL) return NULL;
+  
 
   agg::path_storage path;
 
@@ -401,8 +395,6 @@ RendererAgg_draw_lines(RendererAggObject *renderer, PyObject* args) {
     path.line_to(thisX, thisY);
   }
 
-  agg::rgba* color = _gc_get_color(gc);
-  if (color==NULL) return NULL;
   renderer->ren->color(*color);
 
 
@@ -410,6 +402,7 @@ RendererAgg_draw_lines(RendererAggObject *renderer, PyObject* args) {
     //printf("no dashes\n");
     agg::conv_stroke<agg::path_storage> stroke(path);
     stroke.width(1.0);
+    stroke.line_cap(cap);
     renderer->ras->add_path(stroke);
   }
   else {
@@ -440,6 +433,7 @@ RendererAgg_draw_lines(RendererAggObject *renderer, PyObject* args) {
       //printf("adding dashes %1.2f, %1.2f\n", on, off);
     }
     stroke.width(1.0);
+    stroke.line_cap(cap);
     renderer->ras->add_path(stroke);
   }
     
@@ -448,7 +442,6 @@ RendererAgg_draw_lines(RendererAggObject *renderer, PyObject* args) {
 
   renderer->ras->render(*renderer->sline, *renderer->ren);  
   delete color;
-
   //printf("RendererAgg_draw_lines done\n");  
 
   Py_INCREF(Py_None);
