@@ -1,5 +1,7 @@
 New entries should be added at the top
 
+2004-12-10 backend_cairo.py: got mathtext working - SC
+
 2004-12-09 Added Norm Peterson's svg clipping patch
 
 2004-12-09 Added Matthew Newville's wx printing patch
