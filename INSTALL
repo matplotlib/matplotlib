@@ -8,6 +8,8 @@ If these dependencies are satisfied, just do the usual thing:
 I have installed and tested this on linux and several win32 platforms,
 but it should run anywhere that Numeric and pygtk run.
 
+If you want to use matplotlib interactively from the prompt, see the
+file INTERACTIVE.
 
 Redhat Users:
 
@@ -24,7 +26,6 @@ Windows Users:
    runtime and pygtk-1.99.16, both of which have friendly windows
    installers.  After you install the runtime, you may need to add the
    bin and lib subdirs of your install dir to your PATH.
-
 
 
 If you have any questions, email me at 
