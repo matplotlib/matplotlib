@@ -1,0 +1,22 @@
+"""
+N       Classic     Base renderer    Ext renderer
+20       0.22           0.14            0.14
+100      0.16           0.14            0.13
+1000     0.45           0.26            0.17
+10000    3.30           1.31            0.53
+50000    19.30          6.53            1.98
+"""
+#!/usr/bin/env python
+from matplotlib.matlab import *
+
+import time
+
+
+for N in (20,100,1000,10000,50000):
+    tstart = time.time()
+    x = 0.9*rand(N)
+    y = 0.9*rand(N)
+    s = 20*rand(N)    
+    scatter(x,y,s)
+    #savefig('scatter_demo')
+    print '%d symbols in %1.2f s' % (N, time.time()-tstart)
