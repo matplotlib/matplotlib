@@ -12,8 +12,7 @@ x1 = rand(100,100)
 x2 = rand(150, 175)
 
 im1 = imshow(x1, interpolation='nearest')
-im2 = imshow(x2, interpolation='nearest', hold=True)
-
+im2 = imshow(x2, interpolation='nearest', hold=True, visibility=False)
 def toggle_images(event):
     'toggle the visibility state of the two images'
     if event.key != 'b': return
