@@ -19,7 +19,7 @@ axes, eg in the example below.
 If you want to turn off the ticklabels for a given axes (eg on
 subplot(211) or subplot(212), you cannot do the standard trick
 
-   set(ax2, =[])
+   set(ax2, xticklabels=[])
 
 because this changes the tick Formatter, which is shared among all
 axes.  But you can alter the visibility of the labels, which is a
@@ -37,12 +37,11 @@ s2 = exp(-t)
 s3 = sin(4*pi*t)
 ax1 = subplot(311)
 plot(t,s1)
-plot(t, s2)
 set( ax1.get_xticklabels(), fontsize=6)
 
 ## share x only
 ax2 = subplot(312, sharex=ax1)
-
+plot(t, s2)
 # make these tick labels invisible
 set( ax2.get_xticklabels(), visible=False)
 
