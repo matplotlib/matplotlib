@@ -14,7 +14,7 @@ respectively; set them to 0 if you do not want to build them
 # numarray.  You can build the image module with either Numeric or
 # numarray or both.  By default, matplotlib will build support for
 # whatever array packages you have installed.
-BUILD_IMAGE = 0
+BUILD_IMAGE = 1
 
 # Build the antigrain geometry toolkit.  Agg makes heavy use of
 # templates, so it probably requires a fairly recent compiler to build
@@ -23,14 +23,14 @@ BUILD_IMAGE = 0
 BUILD_AGG = 1
 
 # Render Agg to the GTK canvas
-BUILD_GTKAGG       = 0
-#BUILD_GTKAGG       = 'auto'
+#BUILD_GTKAGG       = 0
+BUILD_GTKAGG       = 'auto'
 
 # build TK GUI with Agg renderer ; requires Tkinter Python extension
 # and Tk includes
 # Use False or 0 if you don't want to build
-BUILD_TKAGG        = 0
-#BUILD_TKAGG        = 'auto'
+#BUILD_TKAGG        = 0
+BUILD_TKAGG        = 'auto'
 
 # build a small extension to manage the focus on win32 platforms.
 #BUILD_WINDOWING        = 0
