@@ -8,10 +8,12 @@ from image import FigureImage
 from matplotlib import rcParams
 from patches import Rectangle
 from text import Text, _process_text_args
+
 from legend import Legend
 from transforms import Bbox, Value, Point, get_bbox_transform, unit_bbox
-from numerix import array, clip
-
+from numerix import array, clip, transpose
+from mlab import linspace
+from ticker import FormatStrFormatter
 
 class Figure(Artist):
     
@@ -454,6 +456,79 @@ all backends; currently only on postscript output."""
 
         self.canvas.print_figure(*args, **kwargs)
     
+
+    def colorbar(self, mappable, tickfmt='%1.1f', cax=None, orientation='vertical'):
+        """
+        Create a colorbar for mappable image
+
+        tickfmt is a format string to format the colorbar ticks
+
+        cax is a colorbar axes instance in which the colorbar will be
+        placed.  If None, as default axesd will be created resizing the
+        current aqxes to make room for it.  If not None, the supplied axes
+        will be used and the other axes positions will be unchanged.
+
+        orientation is the colorbar orientation: one of 'vertical' | 'horizontal'
+        return value is the colorbar axes instance
+        """
+
+        if orientation not in ('horizontal', 'vertical'):
+            raise ValueError('Orientation must be horizontal or vertical')
+
+        if isinstance(mappable, FigureImage) and cax is None:
+            raise TypeError('Colorbars for figure images currently not supported unless you provide a colorbar axes in cax')
+
+
+        ax = self.gca()
+
+        cmap = mappable.cmap
+        norm = mappable.norm
+
+        if norm.vmin is None or norm.vmax is None:
+            mappable.autoscale()
+        cmin = norm.vmin
+        cmax = norm.vmax
+
+        if cax is None:
+            l,b,w,h = ax.get_position()
+            if orientation=='vertical':
+                neww = 0.8*w
+                ax.set_position((l,b,neww,h))
+                cax = self.add_axes([l + 0.9*w, b, 0.1*w, h])
+            else:
+                newh = 0.8*h
+                ax.set_position((l,b+0.2*h,w,newh))
+                cax = self.add_axes([l, b, w, 0.1*h])
+
+        else:
+            if not isinstance(cax, Axes):
+                raise TypeError('Expected an Axes instance for cax')
+
+        N = cmap.N
+
+        c = linspace(cmin, cmax, N)
+        C = array([c,c])
+
+        if orientation=='vertical':
+            C = transpose(C)
+
+        coll = cax.imshow(C,
+                          interpolation='nearest', 
+                          origin='lower',
+                          cmap=cmap, norm=norm,
+                          extent=(0, 1, cmin, cmax))
+        mappable.add_observer(coll)
+        mappable.set_colorbar(coll, cax)
+        if orientation=='vertical':
+            cax.set_xticks([])
+            cax.yaxis.tick_right()
+            cax.yaxis.set_major_formatter(FormatStrFormatter(tickfmt))
+        else:
+            cax.set_yticks([])
+            cax.xaxis.set_major_formatter(FormatStrFormatter(tickfmt))
+
+        return cax
+
 
 def figaspect(arr):
     """
