@@ -1,5 +1,7 @@
 New entries should be added at the top
 
+2004-04-08 Fixed viewlim set problem on axes and axis.
+
 2004-04-07 Added validate_comma_sep_str and font properties paramaters to
 	   __init__.  Removed font families and added rcParams to
 	   FontProperties __init__ arguments in font_manager.  Added
