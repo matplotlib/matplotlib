@@ -609,7 +609,7 @@ major formatter
 
     def get_images(self):
         'return a list of Axes images contained by the Axes'
-        return self.images
+        return silent_list('AxesImage', self.images)
 
     def get_xscale(self):
         'return the xaxis scale string: log or linear'
@@ -1299,13 +1299,17 @@ color, face color, etc.
         return self._axisbg
 
     def get_child_artists(self):
+        """
+        Return a list of artists the axes contains.  Deprecated
+        """
         artists = [self.title, self.axesPatch, self.xaxis, self.yaxis]
         artists.extend(self.lines)
         artists.extend(self.patches)
         artists.extend(self.texts)
+        artists.extend(self.collections)        
         if self.legend_ is not None:
             artists.append(self.legend_)
-        return artists
+        return silent_list('Artist', artists)
     
     def get_frame(self):
         'Return the axes Rectangle frame'
@@ -1318,7 +1322,7 @@ color, face color, etc.
 
     def get_lines(self):
         'Return a list of lines contained by the Axes'
-        return self.lines
+        return silent_list('Line2D', self.lines)
     
     def get_xaxis(self):
         'Return the XAxis instance'
@@ -1326,7 +1330,7 @@ color, face color, etc.
 
     def get_xgridlines(self):
         'Get the x grid lines as a list of Line2D instances'
-        return self.xaxis.get_gridlines()
+        return silent_list('Line2D xgridline', self.xaxis.get_gridlines())
 
     def get_xlim(self):
         'Get the x axis range [xmin, xmax]'
@@ -1335,11 +1339,11 @@ color, face color, etc.
 
     def get_xticklabels(self):
         'Get the xtick labels as a list of Text instances'
-        return self.xaxis.get_ticklabels()
+        return silent_list('Text xticklabel', self.xaxis.get_ticklabels())
 
     def get_xticklines(self):
         'Get the xtick lines as a list of Line2D instances'
-        return self.xaxis.get_ticklines()
+        return silent_list('Text xtickline', self.xaxis.get_ticklines())
     
 
     def get_xticks(self):
@@ -1356,15 +1360,15 @@ color, face color, etc.
 
     def get_ygridlines(self):
         'Get the y grid lines as a list of Line2D instances'
-        return self.yaxis.get_gridlines()
+        return silent_list('Line2D ygridline', self.yaxis.get_gridlines())
 
     def get_yticklabels(self):
         'Get the ytick labels as a list of Text instances'
-        return self.yaxis.get_ticklabels() 
+        return silent_list('Text yticklabel', self.yaxis.get_ticklabels())
 
     def get_yticklines(self):
         'Get the ytick lines as a list of Line2D instances'
-        return self.yaxis.get_ticklines()
+        return silent_list('Line2D ytickline', self.yaxis.get_ticklines())
 
     def get_yticks(self):
         'Return the y ticks as a list of locations'
@@ -1413,15 +1417,12 @@ Eg
         else: self._hold = b
 
     def set_frame_on(self, b):
-        'Set whether the axes rectangle patch is drawn with boolean b'
+        """
+Set whether the axes rectangle patch is drawn
+
+ACCEPTS: True|False"""
         self._frameon = b
 
-    def set_image_extent(self, xmin, xmax, ymin, ymax):
-        """
-        Set the data units of the image.  This is useful if you want to
-        plot other things over the image, eg, lines or scatter
-        """
-        raise SystemExit('set_image_extent deprecated; please pass extent in imshow constructor; see help(imshow)')
         
     def imshow(self, X,
                cmap = None, 
@@ -2165,9 +2166,10 @@ Refs:
 
     def set_position(self, pos):
         """
-        Set the axes position with pos = [left, bottom, width, height]
-        in relative 0,1 coords
-        """
+Set the axes position with pos = [left, bottom, width, height]
+in relative 0,1 coords
+
+ACCEPTS: len(4) sequence of floats"""
         for num,val in zip(pos, self._position):
             val.set(num)
 
@@ -2198,11 +2200,19 @@ for details and examples/stem_plot.py for a demo.
         
         
     def set_axis_off(self):
-        'turn off the axis'
+        """
+turn off the axis
+
+ACCEPTS: void"""
+        
         self.axison = False
 
     def set_axis_on(self):
-        'turn on the axis'
+        """
+turn on the axis
+
+ACCEPTS: void"""
+
         self.axison = True
 
     def scatter(self, x, y, s=20, c='b', marker='o', cmap=None, norm=None,
@@ -2435,7 +2445,12 @@ plot or set_yscale.  Notable, for log scaling:
 
 
     def set_axis_bgcolor(self, color):
-        'set the axes bacground color'
+        """
+set the axes background color
+
+ACCEPTS: any matplotlib color - see help(colors)
+"""
+        
         self._axisbg = color
         self.axesPatch.set_facecolor(color)
                                 
@@ -2445,6 +2460,8 @@ SET_TITLE(label, fontdict=None, **kwargs):
 
 Set the title for the xaxis.  See the text docstring for information
 of how override and the optional args work
+
+ACCEPTS: str
         """
         override = {
             'fontsize':rcParams['axes.titlesize'],
@@ -2464,6 +2481,8 @@ SET_XLABEL(xlabel, fontdict=None, **kwargs)
 
 Set the label for the xaxis.  See the text docstring for information
 of how override and the optional args work.
+
+ACCEPTS: str
         """
 
         label = self.xaxis.get_label()
@@ -2488,6 +2507,8 @@ SET_XLIM(v, emit=True)
 Set the limits for the xaxis; v = [xmin, xmax]
 
 If emit is false, do not trigger an event
+
+ACCEPTS: len(2) sequence of floats
         """
         self.viewLim.intervalx().set_bounds(*v)
         if emit: self._send_xlim_event()
@@ -2504,6 +2525,8 @@ If value is 'log', the additional kwargs have the following meaning
     * basex: base of the logarithm
 
     * subsx: the location of the minor ticks; None defaults to range(2,basex)
+
+ACCEPTS: str
         """
 
         if subsx is None: subsx = range(2, basex)
@@ -2526,11 +2549,16 @@ SET_XTICKLABELS(labels, fontdict=None, **kwargs)
 
 Set the xtick labels with list of strings labels Return a list of axis
 text instances
+
+ACCEPTS: sequence of strings
         """
         return self.xaxis.set_ticklabels(labels, fontdict, **kwargs)
 
     def set_xticks(self, ticks):
-        'Set the x ticks with list of ticks'
+        """
+Set the x ticks with list of ticks
+
+ACCEPTS: sequence of floats"""
         return self.xaxis.set_ticks(ticks)
         
 
@@ -2549,6 +2577,8 @@ Defaults override is
 
 See the text doctstring for information of how override and
 the optional args work
+
+ACCEPTS: str
         """
         label = self.yaxis.get_label()
         label.set_text(ylabel)
@@ -2562,6 +2592,8 @@ SET_YLIM(v, emit=True)
 
 Set the limits for the xaxis; v = [ymin, ymax].  If emit is false, do
 not trigger an event.
+
+ACCEPTS: len(2) sequence of floats
         """
         self.viewLim.intervaly().set_bounds(*v)
         if emit: self._send_ylim_event()
@@ -2578,6 +2610,8 @@ If value is 'log', the additional kwargs have the following meaning
 
     * subsy: the location of the minor ticks; None are the default
       range(2,basex)
+
+ACCEPTS: str      
         """
 
         if subsy is None: subsy = range(2, basey)
@@ -2601,11 +2635,16 @@ SET_YTICKLABELS(labels, fontdict=None, **kwargs)
 
 Set the ytick labels with list of strings labels.  Return a list of
 Text instances
+
+ACCEPTS: sequence of strings
         """
         return self.yaxis.set_ticklabels(labels, fontdict, **kwargs)
         
     def set_yticks(self, ticks):
-        'Set the y ticks with list of ticks'
+        """
+Set the y ticks with list of ticks
+
+ACCEPTS: sequence of floats"""
         return self.yaxis.set_ticks(ticks)
 
 
@@ -3155,19 +3194,20 @@ class PolarAxes(Axes):
             
     def set_rgrids(self, radii, labels=None, angle=22.5, **kwargs):
         """
-        set the radial locations and labels of the r grids
+set the radial locations and labels of the r grids
 
-        The labels will appear at radial distances radii at angle
+The labels will appear at radial distances radii at angle
 
-        labels, if not None, is a len(radii) list of strings of the
-        labels to use at each angle.
+labels, if not None, is a len(radii) list of strings of the
+labels to use at each angle.
 
-        if labels is None, the self.rformatter will be used        
+if labels is None, the self.rformatter will be used        
 
-        Return value is a list of lines, labels where the lines are
-        matplotlib.Line2D instances and the labels are matplotlib.Text
-        instances
+Return value is a list of lines, labels where the lines are
+matplotlib.Line2D instances and the labels are matplotlib.Text
+instances
 
+ACCEPTS: sequence of floats
         """
 
         self._popall(self.rgridlines)
@@ -3208,25 +3248,26 @@ class PolarAxes(Axes):
     def set_thetagrids(self, angles, labels=None, fmt='%d', frac = 1.1,
                        **kwargs):
         """
-        set the angles at which to place the theta grids (these
-        gridlines are equal along the theta dimension).  angles is in
-        degrees
+set the angles at which to place the theta grids (these
+gridlines are equal along the theta dimension).  angles is in
+degrees
 
-        labels, if not None, is a len(angles) list of strings of the
-        labels to use at each angle.
+labels, if not None, is a len(angles) list of strings of the
+labels to use at each angle.
 
-        if labels is None, the labels with be fmt%angle
+if labels is None, the labels with be fmt%angle
 
-        frac is the fraction of the polar axes radius at which to
-        place the label (1 is the edge).Eg 1.05 isd outside the axes
-        and 0.95 is inside the axes
+frac is the fraction of the polar axes radius at which to
+place the label (1 is the edge).Eg 1.05 isd outside the axes
+and 0.95 is inside the axes
 
-        kwargs are optional text properties for the labels
+kwargs are optional text properties for the labels
 
-        Return value is a list of lines, labels where the lines are
-        matplotlib.Line2D instances and the labels are matplotlib.Text
-        instances
+Return value is a list of lines, labels where the lines are
+matplotlib.Line2D instances and the labels are matplotlib.Text
+instances
 
+ACCEPTS: sequence of floats
         """
         self._popall(self.thetagridlines)
         ox, oy = 0,0

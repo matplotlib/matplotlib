@@ -27,7 +27,7 @@ from numerix import array, ones, Float
 
 from matplotlib import verbose
 from artist import Artist
-from cbook import enumerate, True, False, is_string_like, iterable
+from cbook import enumerate, True, False, is_string_like, iterable, silent_list
 from font_manager import FontProperties
 from lines import Line2D
 from mlab import linspace
@@ -245,11 +245,11 @@ The following dimensions are in axes coords
 
     def get_patches(self):
         'return a list of patch instances in the legend'
-        return [h for h in self.handles if isinstance(h, Patch)]  
+        return silent_list('Patch', [h for h in self.handles if isinstance(h, Patch)])
 
     def get_texts(self):
         'return a list of text.Text instance in the legend'
-        return self.texts
+        return silent_list('Text', self.texts)
     
     def _get_texts(self, labels, left, upper):
 

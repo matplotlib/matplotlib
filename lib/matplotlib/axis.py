@@ -7,7 +7,7 @@ from numerix import arange, array, asarray, ones, zeros, \
      nonzero, take, Float, log10, logical_and
 
 from artist import Artist
-from cbook import enumerate, True, False
+from cbook import enumerate, True, False, silent_list
 from lines import Line2D, TICKLEFT, TICKRIGHT, TICKUP, TICKDOWN
 from mlab import linspace
 from matplotlib import rcParams
@@ -91,7 +91,10 @@ class Tick(Artist):
         self.label2On = label2On        
 
     def set_pad(self, val):
-        'Set the tick label pad in points'
+        """
+Set the tick label pad in points
+
+ACCEPTS: float"""
         self._pad.set(val)
 
     def get_pad(self, val):
@@ -139,19 +142,31 @@ class Tick(Artist):
         renderer.close_group(self.__name__)
 
     def set_xy(self, loc):
-        'Set the location of tick in data coords with scalar loc'
+        """
+Set the location of tick in data coords with scalar loc
+
+ACCEPTS: float"""
         raise NotImplementedError('Derived must override')
 
     def set_label(self, s):  # legacy name
-        'Set the text of ticklabel in with string s'
+        """
+Set the text of ticklabel
+
+ACCEPTS: str"""
         self.label1.set_text(s)
 
     def set_label1(self, s):
-        'Set the text of ticklabel in with string s'
+        """
+Set the text of ticklabel
+
+ACCEPTS: str"""
         self.label1.set_text(s)
 
     def set_label2(self, s):
-        'Set the text of ticklabel2 in with string s'
+        """
+Set the text of ticklabel2
+
+ACCEPTS: str"""
         self.label2.set_text(s)
 
 
@@ -522,7 +537,7 @@ class Axis(Artist):
 
     def get_gridlines(self):
         'Return the grid lines as a list of Line2D instance'
-        return [tick.gridline for tick in self.majorTicks]
+        return silent_list('Line2D gridline', [tick.gridline for tick in self.majorTicks])
 
     def get_label(self):
         'Return the axis label as an Text instance'
@@ -532,7 +547,7 @@ class Axis(Artist):
         'Return a list of Text instances for ticklabels'
         labels1 = [tick.label1 for tick in self.get_major_ticks() if tick.label1On]
         labels2 = [tick.label2 for tick in self.get_major_ticks() if tick.label2On]
-        return labels1+labels2
+        return silent_list('Text ticklabel', labels1+labels2)
         
 
     def get_ticklines(self):
@@ -541,7 +556,7 @@ class Axis(Artist):
         for tick in self.majorTicks:
             lines.append(tick.tick1line)
             lines.append(tick.tick2line)
-        return lines
+        return silent_list('Line2D ticklines', lines)
 
     def get_ticklocs(self):
         "Get the tick locations in data coordinates as a Numeric array"
@@ -637,36 +652,49 @@ class Axis(Artist):
                 
     
     def set_major_formatter(self, formatter):
-        'Set the formatter of the major ticker'
+        """
+Set the formatter of the major ticker
+
+ACCEPTS: A Formatter instance"""
         self._majorFormatter = formatter
         self._majorFormatter.set_view_interval( self.get_view_interval() )
         self._majorFormatter.set_data_interval( self.get_data_interval() )
 
     def set_minor_formatter(self, formatter):
-        'Set the formatter of the minor ticker'        
+        """
+Set the formatter of the minor ticker
+
+ACCEPTS: A Formatter instance"""
         self._minorFormatter = formatter
         self._minorFormatter.set_view_interval( self.get_view_interval() )
         self._minorFormatter.set_data_interval( self.get_data_interval() )
 
 
     def set_major_locator(self, locator):
-        'Set the locator of the major ticker'
+        """
+Set the locator of the major ticker
+
+ACCEPTS: a Locator instance"""
         self._majorLocator = locator
         self._majorLocator.set_view_interval( self.get_view_interval() )
         self._majorLocator.set_data_interval( self.get_data_interval() )
 
 
     def set_minor_locator(self, locator):
-        'Set the locator of the minor ticker'
+        """
+Set the locator of the minor ticker
+
+ACCEPTS: a Locator instance"""
         self._minorLocator = locator
         self._minorLocator.set_view_interval( self.get_view_interval() )
         self._minorLocator.set_data_interval( self.get_data_interval() )
                
     def set_ticklabels(self, ticklabels, *args, **kwargs):
         """
-        Set the text values of the tick labels.  ticklabels is a
-        sequence of strings.  Return a list of Text instances
-        """
+Set the text values of the tick labels. Return a list of Text
+instances.
+
+ACCEPTS: sequence of strings"""
         ticklabels = [str(l) for l in ticklabels]
 
         self.set_major_formatter( FixedFormatter(ticklabels) )
@@ -682,7 +710,10 @@ class Axis(Artist):
         return ret
     
     def set_ticks(self, ticks):
-        'Set the locations of the tick marks from sequence ticks'
+        """
+Set the locations of the tick marks from sequence ticks
+
+ACCEPTS: sequence of floats"""
         self.set_major_locator( FixedLocator(ticks) )
 
         self.get_view_interval().update(ticks,0)

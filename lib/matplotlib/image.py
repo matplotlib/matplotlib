@@ -168,14 +168,22 @@ class AxesImage(Artist, cm.ScalarMappable):
         
 
     def set_data(self, A):
-        'Set the image array from numeric/numarray/PIL Image A'
+        """
+Set the image array
+
+ACCEPTS: numeric/numarray/PIL Image A"""
         # check if data is PIL Image without importing Image
         if hasattr(A,'getpixel'): X = pil_to_array(A)
         else: X = A # assume array
         cm.ScalarMappable.set_array(self, X)
 
     def set_array(self, A):
-        'retained for backwards compatibility - use set_data instead'
+        """
+retained for backwards compatibility - use set_data instead
+
+ACCEPTS: numeric/numarray/PIL Image A"""
+
+
         self.set_data(A)
 
     def get_aspect(self):
@@ -203,14 +211,10 @@ class AxesImage(Artist, cm.ScalarMappable):
 
     def set_aspect(self, s):
         """
-        Set the method used to constrain the aspoect ratio of the
-        image ehen resizing,
+Set the method used to constrain the aspoect ratio of the
+image ehen resizing,
 
-        One of
-        
-        'free'     : aspect ratio not constrained
-        'preserve' : preserve aspect ratio when resizing
-        """
+ACCEPTS ['free' | 'preserve']"""
 
         s = s.lower()
         if not self._aspectd.has_key(s):
@@ -220,12 +224,10 @@ class AxesImage(Artist, cm.ScalarMappable):
 
     def set_interpolation(self, s):
         """
-        Set the interpolation method the image uses when resizing.
+Set the interpolation method the image uses when resizing.
 
-        One of
-        
-        'bicubic', 'bilinear', 'blackman100', 'blackman256', 'blackman64',
-        'nearest', 'sinc144', 'sinc256', 'sinc64', 'spline16', 'spline36'
+ACCEPTS: ['bicubic' | 'bilinear' | 'blackman100' | 'blackman256' | 'blackman64',
+        'nearest' | 'sinc144' | 'sinc256' | 'sinc64' | 'spline16' | 'spline36']
         """
         
         s = s.lower()
@@ -235,13 +237,6 @@ class AxesImage(Artist, cm.ScalarMappable):
 
 
 
-    def set_data_extent(self, xmin, xmax, ymin, ymax):
-        """
-        Set the data extent that the image pixels represent.  If you
-        are using the matlab interface, use Axes.set_image_extent
-        instead
-        """
-        raise SystemExit('set_data_extent deprecated; please pass extent in imshow constructor')
 
         
     def get_extent(self):

@@ -99,28 +99,37 @@ class PatchCollection(Collection, ScalarMappable):
 
     def set_linewidth(self, lw):
         """
-        lw can be a scalar or a sequence; if it is a sequence the
-        patches will cycle through the sequence        
-        """
+Set the linewidth(s) for the collection.  lw can be a scalar or a
+sequence; if it is a sequence the patches will cycle through the
+sequence
+
+ACCEPTS: float or sequence of floats"""
         self._linewidths = self._get_value(lw)
 
     def set_facecolor(self, c):
         """
-        c can be a matplotlib color arg (all patches have same color),
-        or a a sequence or rgba tuples; if it is a sequence the
-        patches will cycle through the sequence
-        """
+Set the facecolor(s) of the collection.  c can be a matplotlib color arg
+(all patches have same color), or a a sequence or rgba tuples; if it
+is a sequence the patches will cycle through the sequence
+
+ACCEPTS: matplotlib color arg or sequence of rgba tuples"""
         self._facecolors = self._get_color(c, len(self._facecolors))
 
     def set_edgecolor(self, c):
         """
-        c can be a matplotlib color arg (all patches have same color),
-        or a a sequence or rgba tuples; if it is a sequence the
-        patches will cycle through the sequence
-        """
+Set the facecolor(s) of the collection. c can be a matplotlib color
+arg (all patches have same color), or a a sequence or rgba tuples; if
+it is a sequence the patches will cycle through the sequence
+
+ACCEPTS: matplotlib color arg or sequence of rgba tuples"""
         self._edgecolors = self._get_color(c, len(self._edgecolors))
         
     def set_alpha(self, alpha):
+        """
+Set the alpha tranpancies of the collection.  Alpha can be a float, in
+which case it is applied to the entire collection, or a sequence of floats
+
+ACCEPTS: float or sequence of floats"""
         try: float(alpha)
         except TypeError: raise TypeError('alpha must be a float')
         else:
@@ -131,8 +140,8 @@ class PatchCollection(Collection, ScalarMappable):
 
     def update_scalarmappable(self):
         """
-        if the scalar mappable array is not none, update facecolors
-        from scalar data
+If the scalar mappable array is not none, update facecolors
+from scalar data
         """
         if self._A is None: return
         if len(self._A.shape)>1:
@@ -184,19 +193,16 @@ class RegularPolyCollection(PatchCollection):
                  sizes = (1,),
                  **kwargs):
         """
-        Draw a regular polygon with numsides.  sizes gives the area of
-        the circle circumscribing the regular polygon and rotation is
-        the rotation of the polygon in radians.  
+Draw a regular polygon with numsides.  sizes gives the area of the
+circle circumscribing the regular polygon and rotation is the rotation
+of the polygon in radians.
 
-        offsets are a sequence of x,y tuples that give the centers of
-        the polygon in data coordinates, and transOffset is the
-        Transformation instance used to transform the centers onto the
-        canvas.
-        
-        dpi is the figure dpi instance, and is required to do the area
-        scaling.
+offsets are a sequence of x,y tuples that give the centers of the
+polygon in data coordinates, and transOffset is the Transformation
+instance used to transform the centers onto the canvas.
 
-        """
+dpi is the figure dpi instance, and is required to do the area
+scaling."""
         PatchCollection.__init__(self,**kwargs)
         self._sizes = asarray(sizes)
         self._dpi = dpi
@@ -245,21 +251,18 @@ class LineCollection(Collection):
 		 offsets = None,
 		 transOffset = None,
                  ):
-        """
-        segments is a sequence of ( line0, line1, line2), where linen =
-        (x0, y0), (x1, y1), ... (xm, ym).  Each line can be a
-        different length
+        """     
+segments is a sequence of ( line0, line1, line2), where
+linen = (x0, y0), (x1, y1), ... (xm, ym).
+Each line can be a different length.
 
-        
+colors must be a tuple of RGBA tuples (eg arbitrary color
+strings, etc, not allowed).
 
-        colors must be a tuple of RGBA tuples (eg arbitrary color
-        strings, etc, not allowed).
-        
-        antialiaseds must be a sequence of ones or zeros
+antialiaseds must be a sequence of ones or zeros
 
-        if linewidths, colors or antialiaseds is None, they default to
-        their rc params setting, in sequence form
-        """
+if linewidths, colors or antialiaseds is None, they default to
+their rc params setting, in sequence form"""
         
         Collection.__init__(self)
 
@@ -292,20 +295,30 @@ class LineCollection(Collection):
 
     def set_linewidth(self, lw):
         """
-        lw can be a scalar or a sequence; if it is a sequence the
-        patches will cycle through the sequence        
-        """
+Set the linewidth(s) for the collection.  lw can be a scalar or a
+sequence; if it is a sequence the patches will cycle through the
+sequence
+
+ACCEPTS: float or sequence of floats"""
+        
         self._lw = self._get_value(lw)
 
     def color(self, c):
         """
-        c can be a matplotlib color arg (all patches have same color),
-        or a a sequence or rgba tuples; if it is a sequence the
-        patches will cycle through the sequence
-        """
+Set the color(s) of the line collection.  c can be a matplotlib color arg
+(all patches have same color), or a a sequence or rgba tuples; if it
+is a sequence the patches will cycle through the sequence
+
+ACCEPTS: matplotlib color arg or sequence of rgba tuples"""
         self._colors = self._get_color(c, len(self._colors))
 
+
     def set_alpha(self, alpha):
+        """
+Set the alpha tranpancies of the collection.  Alpha can be a float, in
+which case it is applied to the entire collection, or a sequence of floats
+
+ACCEPTS: float or sequence of floats"""
 
         try: float(alpha)
         except TypeError: raise TypeError('alpha must be a float')

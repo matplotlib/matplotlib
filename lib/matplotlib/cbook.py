@@ -26,7 +26,10 @@ class silent_list(list):
         if seq is not None: self.extend(seq)
         
     def __repr__(self):
-        return '< a list of %d %s objects>' % (len(self), self.type)
+        return '<a list of %d %s objects>' % (len(self), self.type)
+
+    def __str__(self):
+        return '<a list of %d %s objects>' % (len(self), self.type)
 
 def strip_math(s):
     'remove latex formatting from mathtext'

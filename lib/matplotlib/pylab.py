@@ -1008,7 +1008,7 @@ class _ObjectInspector:
         values
         """
         if property is not None:
-            accepts = self.get_valid_values(attr)
+            accepts = self.get_valid_values(property)
             return '    %s: %s' %(property, accepts)
 
         attrs = self.get_setters()
@@ -1035,7 +1035,7 @@ class _ObjectInspector:
             if self.is_alias(func): continue
             try: val = func()
             except: continue
-            if iterable(val) and len(val)>6:
+            if hasattr(val, 'shape') and len(val)>6:
                 s = str(val[:6]) + '...'
             else:
                 s = str(val)                

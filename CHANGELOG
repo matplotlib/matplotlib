@@ -1,5 +1,9 @@
 New entries should be added at the top
 
+2004-12-14 Finished porting doc strings for set introspection.
+           Used silent_list for many get funcs that return
+           lists. JDH
+
 2004-12-13 dates.py: removed all timezone() calls, except for UTC - SC
 
 ======================================================================
