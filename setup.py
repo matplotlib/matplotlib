@@ -45,7 +45,8 @@ data.extend(glob.glob('fonts/afm/*.afm'))
 data.extend(glob.glob('fonts/ttf/*.ttf'))
 data.extend(glob.glob('images/*.xpm'))
 data.extend(glob.glob('images/*.ppm'))
-data.append('.matplotlibrc')
+if sys.platform != 'win32': # win32 uses postinstaller for conditional install
+    data.append('.matplotlibrc')
 
 data_files=[('share/matplotlib', data),]
 
@@ -91,7 +92,7 @@ if BUILD_FONTTOOLS:
 
 
 setup(name="matplotlib",
-      version= '0.52a',
+      version= '0.52c',
       description = "Matlab style python plotting package",
       author = "John D. Hunter",
       author_email="jdhunter@ace.bsd.uchicago.edu",
@@ -106,4 +107,5 @@ setup(name="matplotlib",
       platforms='any',
       ext_modules = ext_modules, 
       data_files = data_files,
+      scripts=['postinstall.py'],
       )

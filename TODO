@@ -263,3 +263,5 @@
 -- DONE 2004-03-02 - fix ft2font clipping on agg
 
 -- DONE 2004-03-02 - why are aliased lines of varying widths on agg?
+
+-- update dynamic_demo_wx

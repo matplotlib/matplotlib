@@ -14,6 +14,7 @@ Makefile
 README
 TODO
 __init__.py
+postinstall.py
 setup.py
 setupext.py
 FontTools/__init__.py

@@ -28,8 +28,8 @@ http://matplotlib.sourceforge.net
 
 0) Turn off all the build flags
 
-0) when building the win installer, comment out the import ttfquery in
-   build_fonttools
+0) when building the win installer, make sure you specify
+   --install-script postinstall.py
 
 0) Run examples/batch_figs.py w/o errors; run the backend specific
    demos (object_picker, anim , embedding*)

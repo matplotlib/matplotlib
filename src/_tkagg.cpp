@@ -13,7 +13,12 @@
 #include <stdlib.h>
 
 extern "C" {
-#include <tk.h> 
+#ifdef __APPLE__
+#  include <Tcl/tcl.h>
+#  include <Tk/tk.h>
+#else
+#  include <tk.h> 
+#endif
 };
 
 #include "_backend_agg.h"
