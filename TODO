@@ -222,7 +222,7 @@
 
 -- DONE 2004-02-17 make legend attributes accessible
 
--- decreasing axes - James Boyle <boyle5@llnl.gov>
+-- DONE decreasing axes - James Boyle <boyle5@llnl.gov>
 
 
 -- check out Helge's contour
@@ -242,7 +242,7 @@
 
 -- DONE 2004-02-25 fix setup.py to build ft2
 
--- TkAgg resize (test on win32)
+-- DONE TkAgg resize (test on win32)
 
 -- DONE TkAgg interactive on win32
 
@@ -258,7 +258,7 @@
 
 -- DONE - (Todd updated docs) - python2.2 no default tkinter
 
--- check out wx
+-- DONE check out wx
 
 -- DONE 2004-03-02 - fix ft2font clipping on agg
 
@@ -290,7 +290,7 @@
 
 -- add pie charts
 
--- support fontdicts, with deprecation as necessary
+-- DONE support fontdicts, with deprecation as necessary
 
 -- move text layout to front end and support newlines with rotation.
 
@@ -310,4 +310,7 @@
 
 -- ps backend fails alignment test
 
--- ps backend is slow!  parsing afm files!
+-- ps backend is slow!  Almost all of this is eaten by parsing afm
+   files
+
+-- decreasing log axes needs fix
