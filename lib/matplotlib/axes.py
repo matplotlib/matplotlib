@@ -2694,7 +2694,8 @@ plot or set_xscale.  Notable, for log scaling:
     which depend on the number of decades in the plot
 
         """
-
+        # hi fernando
+        if not self._hold: self.cla()
         d = {'basex': kwargs.get('basex', 10),
              'subsx': kwargs.get('subsx', None),
              }
@@ -2725,6 +2726,9 @@ plot or set_yscale.  Notable, for log scaling:
     which depend on the number of decades in the plot
 
         """
+        # hi fernando
+        if not self._hold: self.cla()
+
         d = {'basey': kwargs.get('basey', 10),
              'subsy': kwargs.get('subsy', None),
              }
