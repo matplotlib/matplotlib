@@ -1,4 +1,4 @@
-<"""
+"""
 The image module supports basic image loading, rescaling and display
 operations.
 
