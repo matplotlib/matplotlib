@@ -21,7 +21,7 @@
 
 #### CONFIGURATION BEGINS HERE
 backend      : GTK       # the default backend
-numerix      : numeric   # Numeric or numarray
+numerix      : Numeric   # Numeric or numarray
 interactive  : False     # see http://matplotlib.sourceforge.net/interactive.html
 
 ### LINES
