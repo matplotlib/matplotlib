@@ -21,6 +21,7 @@ examples/data_helper.py
 examples/dynamic_demo.py
 examples/embedding_in_gtk.py
 examples/embedding_in_gtk2.py
+examples/embedding_in_wx.py
 examples/errorbar_demo.py
 examples/figtext.py
 examples/gdtest.py

@@ -20,7 +20,7 @@ title('Minimum Message Length')
 set(gca(), 'yticklabels', [])
 set(gca(), 'xticklabels', [])
 
-savefig('legend_demo')
+#savefig('legend_demo')
 show()
 
 
