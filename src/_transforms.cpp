@@ -1617,9 +1617,3 @@ DL_EXPORT(void)
   d["IDENTITY"] = Py::Int((int)Func::IDENTITY);
   d["POLAR"] = Py::Int((int)FuncXY::POLAR);;
 };
-
-
-
-
-
-
