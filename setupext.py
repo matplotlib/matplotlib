@@ -13,10 +13,11 @@ else:
     True = True
     False = False
 
-builtAgg       = False
-builtFonttools = False
-builtGTKGD     = False
-builtGTKAgg    = False
+BUILT_AGG       = False
+BUILT_FONTTOOLS = False
+BUILT_GTKGD     = False
+BUILT_GTKAGG    = False
+BUILT_FT2FONT       = False
 
 def getoutput(s):
     'get the output of a system command'
@@ -37,12 +38,12 @@ def add_agg_flags(module):
             )
     else:
         module.include_dirs.extend(
-            ['/usr/include/freetype1',]
+            ['/usr/include/freetype2',]
             )
 
 
     if sys.platform not in ('win32', 'darwin'):
-        module.libraries.extend(['z', 'ttf', 'png'])
+        module.libraries.extend(['z', 'freetype', 'png'])
 
 
     module.libraries.extend(['stdc++'])
@@ -51,6 +52,14 @@ def add_gd_flags(module):
     'Add the module flags to build extensions which use gd'
     module.libraries.append('gd')
 
+
+def add_ft2font_flags(module):
+    'Add the module flags to build extensions which use gd'
+    module.include_dirs.extend(
+        ['/usr/include', '/usr/include/freetype2',]
+        )
+    module.libraries.extend(['freetype', 'm'])
+    
 
 def add_pygtk_flags(module):
     'Add the module flags to build extensions which use gtk'
@@ -74,21 +83,30 @@ def add_pygtk_flags(module):
          (flag.startswith('-l') or flag.startswith('-L'))])
 
 
+def build_ft2font(ext_modules, packages):
+    global BUILT_FT2FONT
+    if BUILT_FT2FONT: return # only build it if you you haven't already
+    module = Extension('matplotlib.ft2font',
+                       ['src/ft2font.c'],
+                       )
+    add_ft2font_flags(module)
+    ext_modules.append(module)    
+    BUILT_GTKGD = True
 
 def build_gtkgd(ext_modules, packages):
-    global builtGTKGD
-    if builtGTKGD: return # only build it if you you haven't already
+    global BUILT_GTKGD
+    if BUILT_GTKGD: return # only build it if you you haven't already
     module = Extension('matplotlib.backends._gtkgd',
                        ['src/_gtkgd.c'],
                        )
     add_pygtk_flags(module)
     add_gd_flags(module)
     ext_modules.append(module)    
-    builtGTKGD = True
+    BUILT_GTKGD = True
 
 def build_gtkagg(ext_modules, packages):
-    global builtGTKAgg
-    if builtGTKAgg: return # only build it if you you haven't already
+    global BUILT_GTKAGG
+    if BUILT_GTKAGG: return # only build it if you you haven't already
     module = Extension('matplotlib.backends._gtkagg',
                        ['src/_gtkagg.cpp'],
                        )
@@ -101,18 +119,18 @@ def build_gtkagg(ext_modules, packages):
     add_pygtk_flags(module)
 
     ext_modules.append(module)    
-    builtGTKAgg = True
+    BUILT_GTKAGG = True
 
 
 
 def build_agg(ext_modules, packages):
-    global builtAgg
-    if builtAgg: return # only build it if you you haven't already
+    global BUILT_AGG
+    if BUILT_AGG: return # only build it if you you haven't already
     
-    deps = ['src/_backend_agg.cpp', 'src/font.cpp'] 
+    deps = ['src/_backend_agg.cpp', 'src/ft2font.c'] 
     deps.extend(glob.glob('agg2/src/*.cpp'))
     if sys.platform in ('win32', 'darwin'):
-        deps.extend(glob.glob('win32src/freetype1/freetype/*.c'))
+        deps.extend(glob.glob('win32src/freetype2/freetype/*.c'))
         deps.extend(glob.glob('win32src/libpng/*.c'))
         deps.extend(glob.glob('win32src/zlib/*.c'))
                        
@@ -123,13 +141,13 @@ def build_agg(ext_modules, packages):
         )
     add_agg_flags(module)
     ext_modules.append(module)    
-    builtAgg = True
+    BUILT_AGG = True
     
 def build_fonttools(ext_modules, packages):
 
-    global builtFonttools
+    global BUILT_FONTTOOLS
 
-    if builtFonttools: return # only build it if you you haven't already
+    if BUILT_FONTTOOLS: return # only build it if you you haven't already
     packages.extend(
         ['ttfquery',
          'FontTools',
@@ -146,7 +164,7 @@ def build_fonttools(ext_modules, packages):
         'FontTools.fontTools.misc.eexecOp',
         ['FontToolsSrc/eexecOp/eexecOpmodule.c'],
         ))
-    builtFonttools = True
+    BUILT_FONTTOOLS = True
 
 
 

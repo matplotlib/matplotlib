@@ -57,7 +57,7 @@ def drive(backend):
         if backend in ('GTK', 'WX'):
             lines.append('show()')
         else:
-            lines.append('#savefig("%s", dpi=150)' % outfile)
+            lines.append('savefig("%s", dpi=150)' % outfile)
         tmpfile = '_tmp_%s.py' % basename
         file(tmpfile, 'w').write(''.join(lines))
         os.system('python %s' % tmpfile)
