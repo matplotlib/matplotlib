@@ -117,9 +117,7 @@ class FigureCanvasTkAgg(FigureCanvasAgg):
             
         self._master = master
         self._tkcanvas.focus_set()
-        self._key = None  # the key that is pressed
-        self._button = None  # the key that is pressed        
-        self._lastx, self._lasty = None, None
+
         
     def resize(self, event):
         width, height = event.width, event.height
@@ -166,8 +164,7 @@ class FigureCanvasTkAgg(FigureCanvasAgg):
         x = event.x
         # flipy so y=0 is bottom of canvas
         y = self.figure.bbox.height() - event.y
-        FigureCanvasBase.motion_notify_event(self, x, y, self._button, self._key)
-        self._lastx, self._lasty = x, y
+        FigureCanvasBase.motion_notify_event(self, x, y)
 
     def button_press_event(self, event):
         x = event.x
@@ -180,16 +177,25 @@ class FigureCanvasTkAgg(FigureCanvasAgg):
             # tested under tkagg
             if   num==2: num=3
             elif num==3: num=2
-        self._button = num
-        FigureCanvasBase.button_press_event(self, x, y, num, self._key)
+
+        FigureCanvasBase.button_press_event(self, x, y, num)
 
     def button_release_event(self, event):
         x = event.x
         # flipy so y=0 is bottom of canvas
         y = self.figure.bbox.height() - event.y
-        FigureCanvasBase.button_release_event(self, x, y, self._button, self._key)
-        
-    def key_press(self, event):
+
+        num = getattr(event, 'num', None)
+
+        if sys.platform=='darwin':
+            # 2 and 3 were reversed on the OSX platform I
+            # tested under tkagg
+            if   num==2: num=3
+            elif num==3: num=2
+
+        FigureCanvasBase.button_release_event(self, x, y, num)
+
+    def _get_key(self, event):
         val = event.keysym_num
         if self.keyvald.has_key(val):
             key = self.keyvald[val]
@@ -197,13 +203,17 @@ class FigureCanvasTkAgg(FigureCanvasAgg):
             key = chr(val)
         else:
             key = None
+        return key
 
-        self._key = key
-        FigureCanvasBase.key_press_event(self, self._key, self._lastx, self._lasty)        
+        
+    def key_press(self, event):
+        key = self._get_key(event)
+        FigureCanvasBase.key_press_event(self, key)        
 
     def key_release(self, event):
-        FigureCanvasBase.key_release_event(self, self._key, self._lastx, self._lasty)                
-        self._key = None
+        key = self._get_key(event)
+        FigureCanvasBase.key_release_event(self, key)        
+
 
     
 class FigureManagerTkAgg(FigureManagerBase):
