@@ -4,7 +4,7 @@ Show how to make date plots in matplotlib using date tick locators and
 formatters.  See major_minor_demo1.py for more information on
 controlling major and minor ticks
 """
-
+import datetime
 from matplotlib.matlab import *
 from matplotlib.dates import MONDAY, SATURDAY
 from matplotlib.finance import quotes_historical_yahoo
@@ -16,7 +16,7 @@ date2 = datetime.date( 2003, 12, 1 )
 
 mondays   = WeekdayLocator(MONDAY)    # every monday
 months    = MonthLocator(range(1,13), bymonthday=1)           # every month
-monthsFmt  = DateFormatter('%b %d')
+monthsFmt = DateFormatter('%b %d')
 
 
 quotes = quotes_historical_yahoo('INTC', date1, date2)

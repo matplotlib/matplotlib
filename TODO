@@ -577,6 +577,7 @@ ZeroDivisionError: SeparableTransformation::eval_scalars yin interval is zero; c
 
 -- colorbar for dynamic images.
 
--- Finish the coords notification for all backends
+-- Finish the coords notification for all backends - allow custom
+   formatters for toolbar
 
--- ro an rrulewrapper demo
+-- DONE an rrulewrapper demo

@@ -2,6 +2,17 @@ New entries should be added at the top
 
 ==============================================================
 
+2004-09-17 Added coords formatter attributes.  These must be callable,
+           and return a string for the x or y data. These will be used
+           to format the x and y data for the coords box.  Default is
+           the axis major formatter.  Eg
+
+	     # format the coords message box
+	     def price(x): return '$%1.2f'%x
+	     ax.format_xdata = DateFormatter('%Y-%m-%d')
+	     ax.format_ydata = price
+
+
 2004-09-17 Total rewrite of dates handling to use python datetime with
            num2date, date2num and drange.  pytz for timezone handling,
            dateutils for spohisticated ticking.  date ranges from

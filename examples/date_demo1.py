@@ -25,7 +25,6 @@ years    = YearLocator()   # every year
 months   = MonthLocator()  # every month
 yearsFmt = DateFormatter('%Y')
 
-
 quotes = quotes_historical_yahoo(
     'INTC', date1, date2)
 if not quotes:
@@ -37,9 +36,16 @@ opens = [q[1] for q in quotes]
 ax = subplot(111)
 plot_date(dates, opens)
 
+# format the ticks
 ax.xaxis.set_major_locator(years)
 ax.xaxis.set_major_formatter(yearsFmt)
 ax.xaxis.set_minor_locator(months)
 ax.autoscale_view()
+
+# format the coords message box
+def price(x): return '$%1.2f'%x
+ax.format_xdata = DateFormatter('%Y-%m-%d')
+ax.format_ydata = price
+
 grid(True)
 show()
