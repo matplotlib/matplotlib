@@ -364,7 +364,7 @@ class BakomaPSFonts(Fonts):
         else:
             num = 0
             sym = '.notdef'
-            verbose.report_error('unrecognized symbol "%s"' % (sym, num))
+            verbose.report_error('unrecognized symbol "%s, %d"' % (sym, num))
 
         if basename not in bakoma_fonts:
             bakoma_fonts.append(basename)

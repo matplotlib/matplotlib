@@ -408,14 +408,14 @@ dictionary can optionally be created.
             try:
                 font = ft2font.FT2Font(str(fpath))
             except RuntimeError:
-                verbose.report_error("Could not open font file", fpath)
+                verbose.report_error("Could not open font file %s"%fpath)
                 continue
             prop = ttfFontProperty(font)
         elif fontext == 'afm':
             try:
                 font = afm.AFM(file(fpath))
             except RuntimeError:
-                verbose.report_error("Could not open font file", fpath)
+                verbose.report_error("Could not open font file %s"%fpath)
                 continue
             prop = afmFontProperty(font)
         add_filename(fontdict, prop, fpath)
