@@ -21,7 +21,7 @@ KNOWN BUGS
 
   - x and y ticklabels overlap at origin
 
-  - parse error on lines like plot(bins, mu, bins, mu+sigma, '--')
+  - DONE parse error on lines like plot(bins, mu, bins, mu+sigma, '--')
 
   - mri with eeg offsets whacked
 

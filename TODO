@@ -96,7 +96,7 @@
 
 -- DONE compile pygtk for threads on win32.
   
--- There is a bug in vertical rendering of text that is exposed in the
+-- DONE 2004-02-04 There is a bug in vertical rendering of text that is exposed in the
    text, but not the ylabel, command.  It looks like a pixmap or
    images is not being properly initialized, resulting in pixel noise.
 
@@ -167,3 +167,4 @@
 -- DONE 2003-12-15 - fix install path bug
 
 -- Scale line width with DPI
+
