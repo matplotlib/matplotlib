@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 # Demonstrate arbitrary placement of axes
 from matplotlib.matlab import *
 

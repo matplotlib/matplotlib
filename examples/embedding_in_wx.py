@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 # embedding_in_wx.py
 # 
 

@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 from matplotlib.matlab import *
 from matplotlib.numerix import sin, exp, multiply, absolute, pi
 import matplotlib.numerix as numerix

@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 """
 This is use to drive many of the examples across the image backends
 and is used for regression testing and comparing backend efficiency

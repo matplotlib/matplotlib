@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 # Working with multiple figure windows and subplots
 from matplotlib.matlab import *
 

@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 """
 This is a demo script to show you how to use all the properties of an
 FT2Font object.  These describe global font properties.  For

@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 from matplotlib.matlab import *
 
 w, h = 512, 512

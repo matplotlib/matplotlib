@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 """
 matplotlib gives you 3 ways to spcify colors,
 

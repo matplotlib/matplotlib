@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 from matplotlib.font_manager import set_default_font, get_default_font
 from matplotlib.matlab import *
 

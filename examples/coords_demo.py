@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 """
 An example of how to interact with the plotting canvas by connecting
 to move and click events

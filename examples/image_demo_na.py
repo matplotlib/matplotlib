@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 from matplotlib import rcParams
 rcParams['numerix'] = 'numarray'
 

@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 #Controlling the properties of axis text using handles
 
 # See axis_text_themes.py for a more elegant, pythonic way to control

@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 from matplotlib.numerix import arange, sin, pi
 
 import matplotlib

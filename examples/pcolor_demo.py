@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 """
 See pcolor_demo2 for a much faster way of generating pcolor plots
 """

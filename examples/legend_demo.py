@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 # Thanks to Charles Twardy for this example
 from matplotlib.matlab import *
 

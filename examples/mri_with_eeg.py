@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 """
 This now uses the imshow command instead of pcolor which *is much
 faster*

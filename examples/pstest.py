@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 import matplotlib
 matplotlib.use('PS')
 from matplotlib.matlab import *

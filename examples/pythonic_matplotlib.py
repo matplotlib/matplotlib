@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 """
 Some people prefer to write more pythonic, object oriented, code
 rather than use the matlab interface to matplotlib.  This example show
