@@ -4,11 +4,17 @@ formatters.  See major_minor_demo1.py for more information on
 controlling major and minor ticks
 """
 
+import sys
+try: import datetime
+except ImportError:
+    print >> sys.stderr, 'This example requires the python2.3 datetime module though you can use the matpltolib date support w/o it'
+    sys.exit()
+    
 from matplotlib.matlab import *
 from matplotlib.dates import PyDatetimeConverter, MONDAY, SATURDAY
 from matplotlib.finance import quotes_historical_yahoo
 from matplotlib.ticker import MonthLocator, WeekdayLocator, DateFormatter
-import datetime
+
 
 date1 = datetime.date( 2003, 1, 1 )
 date2 = datetime.date( 2004, 4, 12 )

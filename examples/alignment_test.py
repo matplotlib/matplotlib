@@ -82,5 +82,5 @@ ax.text(right, 0.5*(bottom+top), 'centered',
         transy=ax.yaxis.transAxis)
 
 axis('off')
-#savefig('alignment_test', dpi=300)
+savefig('alignment_test', dpi=300)
 show()

@@ -21,11 +21,19 @@ This example requires an active internet connection since it uses
 yahoo finance to get the data for plotting
 """
 
+import sys
+try: import datetime
+except ImportError:
+    print >> sys.stderr, 'This example requires the python2.3 datetime module though you can use the matpltolib date support w/o it'
+    sys.exit()
+
 from matplotlib.matlab import *
 from matplotlib.dates import PyDatetimeConverter
 from matplotlib.finance import quotes_historical_yahoo
 from matplotlib.ticker import YearLocator, MonthLocator, DateFormatter
-import datetime
+
+
+
 
 date1 = datetime.date( 1995, 1, 1 )
 date2 = datetime.date( 2004, 4, 12 )
