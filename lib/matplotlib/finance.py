@@ -193,11 +193,11 @@ def candlestick(ax, quotes, width=0.2, colorup='k', colordown='r',
             )
         rect.set_alpha(alpha)
 
+
         lines.append(vline)
         patches.append(rect)
         ax.add_line(vline)
         ax.add_patch(rect)        
-
     ax.autoscale_view()
 
     return lines, patches

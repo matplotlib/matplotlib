@@ -437,7 +437,7 @@ Bbox::update_numerix(const Py::Tuple &args) {
   int ignore = Py::Int(args[2]);  
   if (ignore) {
     thisx = *(double *)(x->data);
-    thisy = *(double *)(x->data);
+    thisy = *(double *)(y->data);
     minx=thisx;
     maxx=thisx;
     miny=thisy;

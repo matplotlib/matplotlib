@@ -1,5 +1,7 @@
 New entries should be added at the top
 
+2005-02-14 0.72 released
+
 2005-02-14 fix bug in cbook alltrue() and onetrue() - SC
 
 2005-02-11 updated qtagg backend from Ted - JDH
@@ -31,7 +33,7 @@ New entries should be added at the top
 2005-02-05 Added some default key press events to pylab figures: 'g'
            toggles grid - JDH
 
- 2005-02-05 Added some support for handling log switching for lines
+2005-02-05 Added some support for handling log switching for lines
            that have nonpos data - JDH
 
 2005-02-04 Added Nadia's contour patch - contour now has matlab
