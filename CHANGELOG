@@ -1,11 +1,17 @@
 New entries should be added at the top
 
+2004-04-07 Added validate_comma_sep_str and font properties paramaters to
+	   __init__.  Removed font families and added rcParams to
+	   FontProperties __init__ arguments in font_manager.  Added
+	   default font property parameters to .matplotlibrc file with
+	   descriptions. - PEB
+
 2004-04-06 Added load and save commands for ASCII data - JDH
 
 2004-04-05 Improved font caching by not reading AFM fonts until needed.
 	   Added better documentation.  Changed the behaviour of the
            get_family, set_family, and set_name methods of FontProperties.
-
+	   - PEB
 
 2004-04-05 Added WXAgg backend - JDH
 
