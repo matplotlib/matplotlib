@@ -42,10 +42,12 @@ class _Matrix(NumArray):
             
     def __mul__(self, other):
         aother = asarray(other)
-        if len(aother.shape) == 0:
-            return self._rc(self*aother)
-        else:
-            return self._rc(dot(self, aother))
+        #if len(aother.shape) == 0:
+        #    return self._rc(self*aother)
+        #else:
+        #    return self._rc(dot(self, aother))
+        #return self._rc(dot(self, aother))
+        return dot(self, aother)
 
     def __rmul__(self, other):
         aother = asarray(other)

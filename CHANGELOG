@@ -1,6 +1,12 @@
 New entries should be added at the top
 
 ==============================================================
+
+
+
+==============================================================
+2004-09-28 Released 0.63.0
+
 2004-09-28 Added save to file object for agg - see
            examples/print_stdout.py
 

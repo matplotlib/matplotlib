@@ -1,5 +1,6 @@
 import sys, time, os
 from helpers import rand_val, rand_point, rand_bbox, rand_transform
+from matplotlib.numerix import rand
 
 def report_memory(i):
     pid = os.getpid()
@@ -18,6 +19,10 @@ for i in range(N):
     p1 = rand_point()
     box1 = rand_bbox()
     t = rand_transform()
+    N = 10000
+    x, y = rand(N), rand(N)
+    xt, yt = t.numerix_x_y(x, y)
+    xys = t.seq_xy_tups( zip(x,y) ) 
     val = report_memory(i)
     if i==1: start = val
 

@@ -463,12 +463,12 @@ class Axis(Artist):
         self._majorFormatter.set_locs(majorLocs)
         majorLabels = [self._majorFormatter(val, i) for i, val in enumerate(majorLocs)]
 
+
         seen = {}
 
         interval = self.get_view_interval()
         for tick, loc, label in zip(majorTicks, majorLocs, majorLabels):
             if not interval.contains(loc): continue
-            #print loc, label, interval.get_bounds()
             seen[loc] = 1
             tick.update_position(loc)
             tick.set_label1(label)
@@ -477,11 +477,11 @@ class Axis(Artist):
             extent = tick.label1.get_window_extent(renderer) 
             ticklabelBoxes.append(extent)
 
-
         minorTicks = self.get_minor_ticks()
         minorLocs = self._minorLocator()
         self._minorFormatter.set_locs(minorLocs)
         minorLabels = [self._minorFormatter(val, i) for i, val in enumerate(minorLocs)]
+
 
         for tick, loc, label in zip(minorTicks, minorLocs, minorLabels):
             if not interval.contains(loc): continue

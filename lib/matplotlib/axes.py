@@ -695,7 +695,7 @@ class Axes(Artist):
         self.transAxes.freeze()  # eval the lazy objects
         if self.axison:
             if self._frameon: self._axesPatch.draw(renderer)
-            
+
         if len(self._images)==1:
             im = self._images[0]
             im.draw(renderer)
@@ -721,6 +721,7 @@ class Axes(Artist):
         if self.axison:
             self.xaxis.draw(renderer)
             self.yaxis.draw(renderer)
+
 
         for c in self._collections:
             c.draw(renderer)
