@@ -433,9 +433,11 @@ public:
   //freeze the lazy values and don't relax until thawed
   Py::Object freeze(const Py::Tuple &args) {
       // evaluate the lazy objects  
-    eval_scalars();
-    if (_usingOffset) _transOffset->eval_scalars();
-    _frozen = true;
+    if (!_frozen) {
+      eval_scalars();
+      if (_usingOffset) _transOffset->eval_scalars();
+      _frozen = true;
+    }
     return Py::Object();
   }
 
@@ -553,7 +555,7 @@ public:
     Interval::init_type();
     Bbox::init_type();
 
-    Affine::init_type();
+
     
     Func::init_type();
     Identity::init_type();
@@ -564,6 +566,8 @@ public:
 
     Transformation::init_type();     
     SeparableTransformation::init_type();     
+    Affine::init_type();
+
     add_varargs_method("Value", &_transforms_module::new_value, 
 		       "Value(x)");
     add_varargs_method("Point", &_transforms_module::new_point, 
@@ -573,8 +577,6 @@ public:
 		       "Bbox(ll, ur)");
     add_varargs_method("Interval", &_transforms_module::new_interval, 
 		       "Interval(val1, val2)");
-    add_varargs_method("Affine", &_transforms_module::new_affine, 
-		       "Affine(a,b,c,d,tx,ty)");
 
     add_varargs_method("Identity", &_transforms_module::new_identity, 
 		       "Identity())");
@@ -589,6 +591,8 @@ public:
     add_varargs_method("SeparableTransformation", 
 		       &_transforms_module::new_separable_transformation, 
 		       "SeparableTransformation(box1, box2, funcx, funcy))");
+    add_varargs_method("Affine", &_transforms_module::new_affine, 
+		       "Affine(a,b,c,d,tx,ty)");
     initialize( "The _transforms module" );
   }
   
