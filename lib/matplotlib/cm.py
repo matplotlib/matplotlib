@@ -413,7 +413,11 @@ class ScalarMappable:
         self.norm = norm
         self.cmap = cmap
         self.observers = []
-        
+        self.colorbar = None
+
+    def set_colorbar(self, im, ax):
+        'set the colorbar image and axes associated with mappable'
+        self.colorbar = im, ax
     def to_rgba(self, x, alpha=1.0):
         # assume normalized rgb, rgba
         if len(x.shape)>2: return x
@@ -428,6 +432,9 @@ class ScalarMappable:
         'set the norm limits for image scaling'
         self.norm.vmin = vmin
         self.norm.vmax = vmax
+        if self.colorbar is not None:
+            im, ax = self.colorbar
+            ax.set_ylim((vmin, vmax))
         self.changed()
         
     def set_cmap(self, cmap):

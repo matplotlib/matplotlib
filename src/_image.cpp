@@ -208,12 +208,12 @@ char Image::buffer_argb32__doc__[] =
 Py::Object 
 Image::buffer_argb32(const Py::Tuple& args) {
   //"Return the image object as argb32";
-
+  
   _VERBOSE("RendererAgg::buffer_argb32");
   
   args.verify_length(0);    
   int row_len = colsOut * 4;
-
+  
   unsigned char* buf_tmp = new unsigned char[row_len * rowsOut];
   if (buf_tmp ==NULL) 
     throw Py::MemoryError("RendererAgg::buffer_argb32 could not allocate memory");
@@ -230,8 +230,8 @@ Image::buffer_argb32(const Py::Tuple& args) {
 			      buf_tmp, row_len * rowsOut);
   delete [] buf_tmp;
   return Py::asObject(o);
-
-
+  
+  
 }
 
 char Image::reset_matrix__doc__[] = 
@@ -276,12 +276,15 @@ Image::resize(const Py::Tuple& args) {
   
   
   size_t NUMBYTES(numrows * numcols * BPP);
-  agg::int8u *buffer = new agg::int8u[NUMBYTES];  
-  if (buffer ==NULL) //todo: also handle allocation throw
+  
+  delete [] bufferOut;
+  bufferOut = new agg::int8u[NUMBYTES];  
+  if (bufferOut ==NULL) //todo: also handle allocation throw
     throw Py::MemoryError("Image::resize could not allocate memory");
   
+  delete rbufOut;
   rbufOut = new agg::rendering_buffer;
-  rbufOut->attach(buffer, numcols, numrows, numcols * BPP);
+  rbufOut->attach(bufferOut, numcols, numrows, numcols * BPP);
   
   // init the output rendering/rasterizing stuff
   pixfmt pixf(*rbufOut);
@@ -289,31 +292,27 @@ Image::resize(const Py::Tuple& args) {
   rb.clear(bg);
   agg::rasterizer_scanline_aa<> ras;
   agg::scanline_u8 sl;
-
+  
   
   //srcMatrix *= resizingMatrix;
   //imageMatrix *= resizingMatrix;
   imageMatrix.invert();
   interpolator_type interpolator(imageMatrix); 
-  
-  
-  
-  
-  agg::image_filter_base* filter = 0;  
+    
   agg::span_allocator<agg::rgba8> sa;	
   agg::rgba8 background(agg::rgba8(int(255*bg.r),
 				   int(255*bg.g),
 				   int(255*bg.b),
 				   int(255*bg.a)));
-
-
-
-
+  
+  
+  
+  
   // the image path
   agg::path_storage path;
   agg::int8u *bufferPad = NULL;
   agg::rendering_buffer rbufPad;
-
+  
   double x0, y0, x1, y1;
   
   if (interpolation==NEAREST) {
@@ -326,12 +325,12 @@ Image::resize(const Py::Tuple& args) {
     // if interpolation != nearest, create a new input buffer with the
     // edges mirrored on all size.  Then new buffer size is colsIn+2 by
     // rowsIn+2
-
+    
     x0 = 1.0;
     x1 = colsIn+1;
     y0 = 1.0;
     y1 = rowsIn+1;
-
+    
     bufferPad = new agg::int8u[(rowsIn+2) * (colsIn+2) * BPP];
     if (bufferPad ==NULL) 
       throw Py::MemoryError("Image::resize could not allocate memory");
@@ -346,7 +345,7 @@ Image::resize(const Py::Tuple& args) {
 	*bufferPad++ = *bufferIn++;       //green
 	*bufferPad++ = *bufferIn++;       //blue
 	*bufferPad++ = *bufferIn++;       //alpha
-
+	
 	//rewind one byte on the first and next to last columns
 	if ( colNum==0 || colNum==colsIn) bufferIn-=4;
       }
@@ -355,12 +354,10 @@ Image::resize(const Py::Tuple& args) {
     bufferPad -= (rowsIn+2) * (colsIn+2) * BPP;
     rbufPad.attach(bufferPad, colsIn+2, rowsIn+2, (colsIn+2) * BPP);
   }
-
-
-
-    
-  if (buffer ==NULL) //todo: also handle allocation throw
-    throw Py::MemoryError("Image::resize could not allocate memory");
+  
+  
+  
+  
   
   path.move_to(x0, y0);
   path.line_to(x1, y0);
@@ -369,7 +366,7 @@ Image::resize(const Py::Tuple& args) {
   path.close_polygon();
   agg::conv_transform<agg::path_storage> imageBox(path, srcMatrix);
   ras.add_path(imageBox);
-
+  
   switch(interpolation)
     {
     case NEAREST:
@@ -378,7 +375,7 @@ Image::resize(const Py::Tuple& args) {
 	typedef agg::span_image_filter_rgba32_nn<agg::order_rgba32,
 	  interpolator_type> span_gen_type;
 	typedef agg::renderer_scanline_aa<renderer_base, span_gen_type> renderer_type;
-	       
+	
 	span_gen_type sg(sa, *rbufIn, background, interpolator);
 	renderer_type ri(rb, sg);
 	agg::render_scanlines(ras, sl, ri);
@@ -388,47 +385,56 @@ Image::resize(const Py::Tuple& args) {
       
     case BILINEAR:
       {
-
-       
+	
+	
 	typedef agg::span_image_filter_rgba32_bilinear<agg::order_rgba32,
 	  interpolator_type> span_gen_type;
 	typedef agg::renderer_scanline_aa<renderer_base, span_gen_type> renderer_type;
-		
+	
 	span_gen_type sg(sa, rbufPad, background, interpolator);
 	renderer_type ri(rb, sg);
 	agg::render_scanlines(ras, sl, ri);
       }
       break;
-      
-    case BICUBIC:     filter = new agg::image_filter<agg::image_filter_bicubic>;
-    case SPLINE16:    filter = new agg::image_filter<agg::image_filter_spline16>;
-    case SPLINE36:    filter = new agg::image_filter<agg::image_filter_spline36>;   
-    case SINC64:      filter = new agg::image_filter<agg::image_filter_sinc64>;     
-    case SINC144:     filter = new agg::image_filter<agg::image_filter_sinc144>;    
-    case SINC256:     filter = new agg::image_filter<agg::image_filter_sinc256>;    
-    case BLACKMAN64:  filter = new agg::image_filter<agg::image_filter_blackman64>; 
-    case BLACKMAN100: filter = new agg::image_filter<agg::image_filter_blackman100>;
-    case BLACKMAN256: filter = new agg::image_filter<agg::image_filter_blackman256>;
-      
-      typedef agg::span_image_filter_rgba32<agg::order_rgba32,
-	interpolator_type> span_gen_type;
-      typedef agg::renderer_scanline_aa<renderer_base, span_gen_type> renderer_type;
-      span_gen_type sg(sa, rbufPad, background, interpolator, *filter);
-      renderer_type ri(rb, sg);
-      agg::render_scanlines(ras, sl, ri);
+    case BICUBIC:
+    case SPLINE16:
+    case SPLINE36:
+    case SINC64:
+    case SINC144:
+    case SINC256:
+    case BLACKMAN64:
+    case BLACKMAN100:
+    case BLACKMAN256:
+      {
+	agg::image_filter_base* filter = 0;
+	switch(interpolation) {
+	  
+	case BICUBIC:     filter = new agg::image_filter<agg::image_filter_bicubic>; break;
+	case SPLINE16:    filter = new agg::image_filter<agg::image_filter_spline16>; break;
+	case SPLINE36:    filter = new agg::image_filter<agg::image_filter_spline36>; break;  
+	case SINC64:      filter = new agg::image_filter<agg::image_filter_sinc64>; break;    
+	case SINC144:     filter = new agg::image_filter<agg::image_filter_sinc144>; break;   
+	case SINC256:     filter = new agg::image_filter<agg::image_filter_sinc256>; break;   
+	case BLACKMAN64:  filter = new agg::image_filter<agg::image_filter_blackman64>; break; 
+	case BLACKMAN100: filter = new agg::image_filter<agg::image_filter_blackman100>; break;
+	case BLACKMAN256: filter = new agg::image_filter<agg::image_filter_blackman256>; break;
+	}
+	
+	
+	typedef agg::span_image_filter_rgba32<agg::order_rgba32,
+	  interpolator_type> span_gen_type;
+	typedef agg::renderer_scanline_aa<renderer_base, span_gen_type> renderer_type;
+	span_gen_type sg(sa, rbufPad, background, interpolator, *filter);
+	renderer_type ri(rb, sg);
+	agg::render_scanlines(ras, sl, ri);
+	
+	delete filter;    
+      }
+      break;
       
     }
   
-  /*
-    std::ofstream of2( "image_out.raw", std::ios::binary|std::ios::out);
-    for (size_t i=0; i<NUMBYTES; ++i)
-    of2.write((char*)&buffer[i], sizeof(char));
-  */
-  
-  
-  bufferOut = buffer;
   delete [] bufferPad;
-
   return Py::Object();
   
 }
@@ -669,9 +675,10 @@ _image_module::from_images(const Py::Tuple& args) {
   if (imo->bufferOut==NULL) //todo: also handle allocation throw
     throw Py::MemoryError("_image_module::from_images could not allocate memory");
   
+  delete imo->rbufOut;
   imo->rbufOut = new agg::rendering_buffer;
   imo->rbufOut->attach(imo->bufferOut, imo->colsOut, imo->rowsOut, imo->colsOut * imo->BPP);
-   
+  
   pixfmt pixf(*imo->rbufOut);
   renderer_base rb(pixf);
   
@@ -723,11 +730,11 @@ _image_module::readpng(const Py::Tuple& args) {
   std::string fname = Py::String(args[0]);
   
   png_byte header[8];	// 8 is the maximum size that can be checked
-
+  
   FILE *fp = fopen(fname.c_str(), "rb");
   if (!fp)
     throw Py::RuntimeError(Printf("_image_module::readpng could not open PNG file %s for reading", fname.c_str()).str());
-
+  
   fread(header, 1, 8, fp);
   if (png_sig_cmp(header, 0, 8))
     throw Py::RuntimeError("_image_module::readpng: file not recognized as a PNG file");
@@ -753,19 +760,19 @@ _image_module::readpng(const Py::Tuple& args) {
   
   png_uint_32 width = info_ptr->width;
   png_uint_32 height = info_ptr->height;
-
+  
   // convert misc color types to rgb for simplicity
   if (info_ptr->color_type == PNG_COLOR_TYPE_GRAY ||
       info_ptr->color_type == PNG_COLOR_TYPE_GRAY_ALPHA)
     png_set_gray_to_rgb(png_ptr);  
   else if (info_ptr->color_type == PNG_COLOR_TYPE_PALETTE)
     png_set_palette_to_rgb(png_ptr);
-
-
+  
+  
   int bit_depth = info_ptr->bit_depth;
   if (bit_depth == 16)  png_set_strip_16(png_ptr);
-
-
+  
+  
   png_set_interlace_handling(png_ptr);
   png_read_update_info(png_ptr, info_ptr);
   
@@ -779,22 +786,22 @@ _image_module::readpng(const Py::Tuple& args) {
   if (setjmp(png_jmpbuf(png_ptr)))
     throw Py::RuntimeError("_image_module::readpng: error during read_image");
   
-   png_bytep row_pointers[height];
-
-   for (png_uint_32 row = 0; row < height; row++)
-     row_pointers[row] = new png_byte[png_get_rowbytes(png_ptr,info_ptr)];
+  png_bytep row_pointers[height];
+  
+  for (png_uint_32 row = 0; row < height; row++)
+    row_pointers[row] = new png_byte[png_get_rowbytes(png_ptr,info_ptr)];
   
   png_read_image(png_ptr, row_pointers);
   
-
+  
   
   int dimensions[3];
   dimensions[0] = height;  //numrows
   dimensions[1] = width;   //numcols
   dimensions[2] = 4;
-
+  
   PyArrayObject *A = (PyArrayObject *) PyArray_FromDims(3, dimensions, PyArray_FLOAT);
-
+  
   
   for (png_uint_32 y = 0; y < height; y++) {
     png_byte* row = row_pointers[y];
@@ -848,12 +855,12 @@ _image_module::fromarray(const Py::Tuple& args) {
   imo->rowsIn  = A->dimensions[0];
   imo->colsIn  = A->dimensions[1];
   
-
+  
   size_t NUMBYTES(imo->colsIn * imo->rowsIn * imo->BPP);
   agg::int8u *buffer = new agg::int8u[NUMBYTES];  
   if (buffer==NULL) //todo: also handle allocation throw
     throw Py::MemoryError("_image_module::fromarray could not allocate memory");
-
+  
   if (isoutput) {
     // make the output buffer point to the input buffer
     
@@ -898,7 +905,7 @@ _image_module::fromarray(const Py::Tuple& args) {
     int rgba = A->dimensions[2]==4;    
     double r,g,b,alpha;
     int offset =0;
-
+    
     for (size_t rownum=0; rownum<imo->rowsIn; rownum++) 
       for (size_t colnum=0; colnum<imo->colsIn; colnum++) {
 	offset = rownum*A->strides[0] + colnum*A->strides[1];
@@ -944,29 +951,32 @@ void
 init_na_image(void) {
   _VERBOSE("init_na_image");
 #else
-init_nc_image(void) {
-  _VERBOSE("init_nc_image");
+  init_nc_image(void) {
+    _VERBOSE("init_nc_image");
 #endif
+    
+    static _image_module* _image = new _image_module;
+    
+    import_array();  
+    Py::Dict d = _image->moduleDictionary();
+    d["BICUBIC"] = Py::Int(Image::BICUBIC);
+    d["BILINEAR"] = Py::Int(Image::BILINEAR);
+    d["BLACKMAN100"] = Py::Int(Image::BLACKMAN100);
+    d["BLACKMAN256"] = Py::Int(Image::BLACKMAN256);
+    d["BLACKMAN64"] = Py::Int(Image::BLACKMAN64);
+    d["NEAREST"] = Py::Int(Image::NEAREST);
+    d["SINC144"] = Py::Int(Image::SINC144);
+    d["SINC256"] = Py::Int(Image::SINC256);
+    d["SINC64"] = Py::Int(Image::SINC64);
+    d["SPLINE16"] = Py::Int(Image::SPLINE16);
+    d["SPLINE36"] = Py::Int(Image::SPLINE36);
+    
+    d["ASPECT_FREE"] = Py::Int(Image::ASPECT_FREE);
+    d["ASPECT_PRESERVE"] = Py::Int(Image::ASPECT_PRESERVE);
+    
+    
+  }
   
-  static _image_module* _image = new _image_module;
-  
-  import_array();  
-  Py::Dict d = _image->moduleDictionary();
-  d["BICUBIC"] = Py::Int(Image::BICUBIC);
-  d["BILINEAR"] = Py::Int(Image::BILINEAR);
-  d["BLACKMAN100"] = Py::Int(Image::BLACKMAN100);
-  d["BLACKMAN256"] = Py::Int(Image::BLACKMAN256);
-  d["BLACKMAN64"] = Py::Int(Image::BLACKMAN64);
-  d["NEAREST"] = Py::Int(Image::NEAREST);
-  d["SINC144"] = Py::Int(Image::SINC144);
-  d["SINC256"] = Py::Int(Image::SINC256);
-  d["SINC64"] = Py::Int(Image::SINC64);
-  d["SPLINE16"] = Py::Int(Image::SPLINE16);
-  d["SPLINE36"] = Py::Int(Image::SPLINE36);
-  
-  d["ASPECT_FREE"] = Py::Int(Image::ASPECT_FREE);
-  d["ASPECT_PRESERVE"] = Py::Int(Image::ASPECT_PRESERVE);
   
   
-}
-
+  

@@ -1,5 +1,12 @@
 New entries should be added at the top
 
+2005-01-18 Plugged an image resize memory leaks - JDH
+
+2005-01-18 Fixed some mathtext parser problems relating to superscripts
+
+2005-01-17 Fixed a yticklabel problem for colorbars under change of  
+           clim - JDH
+ 
 2005-01-17 Cleaned up Destroy handling in wx reducing memleak/fig from
            approx 800k to approx 6k- JDH
 
