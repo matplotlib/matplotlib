@@ -1,7 +1,7 @@
 New entries should be added at the top
 
 2005-02-05 Added some default key press events to pylab figures: 'g'
-           toggles grid
+           toggles grid - JDH
 
  2005-02-05 Added some support for handling log switching
 for lines that have nonpos data - JDH
