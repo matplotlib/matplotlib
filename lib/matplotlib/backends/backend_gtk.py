@@ -175,7 +175,6 @@ class FigureCanvasGTK(gtk.DrawingArea, FigureCanvasBase):
         return key
 
 
-
     def key_press_event(self, widget, event):
         key = self._get_key(event)
         FigureCanvasBase.key_press_event(self, key)
@@ -263,7 +262,8 @@ class FigureCanvasGTK(gtk.DrawingArea, FigureCanvasBase):
                 width, height = self.allocation.width, self.allocation.height
                 self._render_figure(width, height)
             
-        return True
+        #return True
+        return False # allow signal to propagate further
 
 
     def print_figure(self, filename, dpi=150, facecolor='w', edgecolor='w',
