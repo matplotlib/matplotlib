@@ -31,7 +31,7 @@ WIN32
 
 import os
 
-basedir = {
+basedirr = {
     'win32'  : ['win32_static',],
     'linux2' : ['/usr/local', '/usr',],
     'linux'  : ['/usr/local', '/usr',],
