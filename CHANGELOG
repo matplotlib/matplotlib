@@ -1,7 +1,13 @@
 New entries should be added at the top
+==============================================================
+2004-08-30 matplotlib 0.62.4 released
+
+2004-08-30 Fixed a multiple images with different extent bug,
+           Fixed markerfacecolor as RGB tuple
 
 2004-08-27 Mathtext now more than 5x faster.  Thanks to Paul Mcguire
            for fixes both to pyparsing and to the matplotlib grammar!
+           mathtext broken on python2.2
 
 2004-08-25 Exposed Darren's and Greg's log ticking and formatting
            options to semilogx and friends
