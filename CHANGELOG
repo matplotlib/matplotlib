@@ -1,5 +1,9 @@
 New entries should be added at the top
 
+2004-08-08 backend_gtk.py: get rid of the final PyGTK deprecation warning by 
+           replacing gtkOptionMenu with gtkMenu in the 2.4 version of the 
+           classic toolbar.
+
 2004-08-06 Added Tk zoom to rect rectangle, proper idle drawing, and
            keybinding - JDH
 
