@@ -1,8 +1,9 @@
+#!/usr/bin/env python
 """
 The way matplotlib does text layout is counter-intuituve to some, so
 this example is designed to make it a little clearer.  The text is
 aligned by it's bounding box (the rectangular box that surrounds the
-ink rectangle).  The order of opertations is basically rotation then
+ink rectangle).  The order of operations is basically rotation then
 alignment, rather than alignment then rotation.  Basically, the text
 is centered at your x,y location, rotated around this point, and then
 aligned according to the bounding box of the rotated text.
