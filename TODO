@@ -116,14 +116,14 @@
 -- DONE Fix legend bug on win32 and stock_demo.  This appears to be GTK
    specific
 
--- ticks too short with log scaling
+-- DONE with log scaling ticks too short with log scaling
 
 -- arbitrary patches for scatter
 
 -- DONE zoom x and y controls in wrong direction.  tick labels not updating
    with interactive zoom
 
--- add TM for matlab on website and in docs
+-- DONE 2003-11-20 - add TM for matlab on website and in docs
 
 -- Why are the pcolor PS files so large (45MB!).  How to do interp
    shapding with GTK.  Look at the effect of linewidth on GTK plots --
@@ -133,7 +133,7 @@
 -- DONE 2003-11-02 - Do a nearest neighbor color pick on GD when
    allocate fails
 
--- make a nice errorbar and scatter screenshot   
+-- DONE 2003-11-20 - make a nice errorbar and scatter screenshot   
 
 -- finish contour
 
@@ -141,7 +141,8 @@
 
 -- update Debian section on web page
 
--- auto line style cycling for multiple line types broken
+-- DONE 2003-11-20 - auto line style cycling for multiple line types
+   broken
 
 -- DONE 2003-11-18 (using inkrect) :logical rect too big on gtk backend
 
@@ -150,5 +151,5 @@
 
 -- DONE 2003-11-20 - port Gary's errorbar code to new API before 0.40
 
--- legend axes box doesn't resize on save in GTK backend -- see htdocs
-   legend_demo.py
+-- DONE 2003-11-20 - problem with stale _set_font.  legend axes box
+   doesn't resize on save in GTK backend -- see htdocs legend_demo.py
