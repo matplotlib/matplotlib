@@ -27,6 +27,7 @@ if hasattr(sys, 'argv'):        #Once again, Apache mod_python has no argv
                  "--Numarray", "--numarray", "--NUMARRAY"]:
             which = a[2:], "command line"
             break
+        del a
 
 if which[0] is None:     
     try:  # In theory, rcParams always has *some* value for numerix.

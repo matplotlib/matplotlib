@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 """
 make the matplotlib svg minimization icon
 """
