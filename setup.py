@@ -31,6 +31,7 @@ BUILD_AGG = 1
 #BUILD_GTKAGG       = 0
 BUILD_GTKAGG       = 'auto'
 
+BUILD_MATFILE = 1 # build Nigel Wade's matfile, for matlab mat file support
 
 # build TK GUI with Agg renderer ; requires Tkinter Python extension
 # and Tk includes
