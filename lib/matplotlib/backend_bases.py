@@ -531,7 +531,46 @@ class Event:
         self.name = name
         self.canvas = canvas
 
-class MouseEvent(Event):
+class LocationEvent(Event):
+    """
+    A event that has a screen location 
+
+    The following additional attributes are defined and shown with
+    their default values
+
+    x      = None       # x position - pixels from left of canvas
+    y      = None       # y position - pixels from bottom of canvas
+    inaxes = None       # the Axes instance if mouse us over axes
+    xdata  = None       # x coord of mouse in data coords
+    ydata  = None       # y coord of mouse in data coords
+    
+    """
+    x      = None       # x position - pixels from left of canvas
+    y      = None       # y position - pixels from right of canvas
+    button = None       # button pressed None, 1, 2, 3
+    inaxes = None       # the Axes instance if mouse us over axes
+    xdata  = None       # x coord of mouse in data coords
+    ydata  = None       # y coord of mouse in data coords
+    
+    def __init__(self, name, canvas, x, y):
+        """
+        x, y in figure coords, 0,0 = bottom, left
+        button pressed None, 1, 2, 3
+        """
+        Event.__init__(self, name, canvas)
+        self.x = x
+        self.y = y
+
+        self.inaxes = None
+        for a in self.canvas.figure.get_axes():
+            if a.in_axes(self.x, self.y):
+                self.inaxes = a
+                xdata, ydata = a.transData.inverse_xy_tup((self.x, self.y))
+                self.xdata  = xdata
+                self.ydata  = ydata
+                break
+
+class MouseEvent(LocationEvent):
     """
     A mouse event (button_press_event, button_release_event,
     motion_notify_event).
@@ -560,7 +599,7 @@ class MouseEvent(Event):
         x, y in figure coords, 0,0 = bottom, left
         button pressed None, 1, 2, 3
         """
-        Event.__init__(self, name, canvas)
+        LocationEvent.__init__(self, name, canvas, x, y)
         self.x = x
         self.y = y
         self.button = button
@@ -577,7 +616,7 @@ class MouseEvent(Event):
 
 
 
-class KeyEvent(Event):
+class KeyEvent(LocationEvent):
     """
     A key event (key press, key release).
 
@@ -587,13 +626,18 @@ class KeyEvent(Event):
     The following attributes are defined and shown with their default
     values
 
-    key                 # the key pressed: chr(range(255), shift, win, or control
+    x      = None       # x position - pixels from left of canvas
+    y      = None       # y position - pixels from bottom of canvas
+    key    = None       # the key pressed: None, chr(range(255), shift, win, or control
+    inaxes = None       # the Axes instance if mouse us over axes
+    xdata  = None       # x coord of mouse in data coords
+    ydata  = None       # y coord of mouse in data coords
 
     This interface may change slightly when better support for
     modifier keys is included
     """
-    def __init__(self, name, canvas, key):
-        Event.__init__(self, name, canvas)
+    def __init__(self, name, canvas, key, x, y):
+        LocationEvent.__init__(self, name, canvas, x, y)
         self.key = key
 
 class FigureCanvasBase:
@@ -619,13 +663,13 @@ class FigureCanvasBase:
         # a dictionary from event name to a dictionary that maps cid->func
         self.callbacks = {}
 
-    def key_press_event(self, key):
-        event = KeyEvent('key_press_event', self, key)        
+    def key_press_event(self, key, x, y):
+        event = KeyEvent('key_press_event', self, key, x, y)        
         for cid, func in self.callbacks.get('key_press_event', {}).items():
             func(event)
 
-    def key_release_event(self, key):
-        event = KeyEvent('key_release_event', self, key)
+    def key_release_event(self, key, x, y):
+        event = KeyEvent('key_release_event', self, key, x, y)
         for cid, func in self.callbacks.get('key_release_event', {}).items():
             func(event)
 
