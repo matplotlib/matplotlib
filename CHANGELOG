@@ -1,5 +1,7 @@
 New entries should be added at the top
 
+2005-03-09 backend_cairo.py: implemented draw_markers() - SC
+
 2005-03-09 cbook.py: only use enumerate() (the python version) if the builtin
 	   version is not available.
            Add new function 'izip' which is set to itertools.izip if available
