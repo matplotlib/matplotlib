@@ -16,7 +16,12 @@ API changes at 0.50
 
   * GDFONTPATH renamed to TTFPATH
 
-  * backend faceColor argument changed to gcFace
+  * backend faceColor argument changed to rgbFace
+
+  * colormap stuff moved to colors.py
+
+  * arg_to_rgb in backend_bases moved to class ColorConverter in
+    colors.py
 
   * GD users must upgrade to gd-2.0.22 and gdmodule-0.52 since new gd
     features (clipping, antialiased lines) are now used.

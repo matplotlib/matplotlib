@@ -13,12 +13,13 @@ probably requires a fairly recent compiler to build it.
 from distutils.core import setup
 import sys,os
 import glob
-from setupext import build_gtkgd, build_agg, build_fonttools
+from setupext import build_gtkgd, build_agg, build_fonttools, build_gtkagg
 
 # set these flags to build the optional extension modules
-BUILD_FONTTOOLS = 0   # includes TTFQuey
-BUILD_GTKGD     = 0   # requires pygtk and GD src distros installed
-BUILD_AGG       = 1
+BUILD_FONTTOOLS    = 0   # includes TTFQuey
+BUILD_GTKGD        = 0   # requires pygtk and GD src distros installed
+BUILD_AGG          = 0
+BUILD_GTKAGG       = 0
 
 data = []
 data.extend(glob.glob('fonts/afm/*.afm'))
@@ -43,9 +44,14 @@ if BUILD_AGG:
     build_fonttools(ext_modules, packages)
     build_agg(ext_modules, packages)
 
+if BUILD_GTKAGG:
+    build_fonttools(ext_modules, packages)
+    build_agg(ext_modules, packages)
+    build_gtkagg(ext_modules, packages)
+
 
 setup(name="matplotlib",
-      version= '0.50p',
+      version= '0.50q',
       description = "Matlab style python plotting package",
       author = "John D. Hunter",
       author_email="jdhunter@ace.bsd.uchicago.edu",

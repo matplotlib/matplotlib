@@ -199,7 +199,7 @@
 
 -- gd edge clipping is whacked - see arc test
 
--- font manager for paint and agg
+-- DONE 2004-02-15 font manager for paint and agg
 
 -- website docs for agg - eg, backends.html#Agg
 
@@ -207,5 +207,11 @@
 
 -- incorporate John Gill's PS patch
 
--- DONE 2004 -02-13 agg bug; when repeated calls to savefig are made,
+-- DONE 2004-02-13 agg bug; when repeated calls to savefig are made,
    the dpi setting in the second one is ignored.
+
+-- DONE alignment test: facecolor blue
+
+-- axes_demo - strange line artiface in paint
+
+-- figtext missing on ps backend
