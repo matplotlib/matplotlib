@@ -269,6 +269,7 @@ class PickerCanvas(FigureCanvas):
 
                             
 win = gtk.Window()
+win.set_default_size(400,300)
 win.set_name("Object Picker")
 win.connect("destroy", lambda x: gtk.main_quit())
 

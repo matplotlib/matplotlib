@@ -7,36 +7,38 @@ data
 """
 import pygtk
 pygtk.require('2.0')
-#import gobject
 import gtk
 from gtk import gdk
-from gtk import TRUE, FALSE
 
 import matplotlib
 matplotlib.use('GTKAgg')  # or 'GTK'
 from matplotlib.backends.backend_gtk import FigureCanvasGTK as FigureCanvas
 
-from matplotlib.numerix import rand
+#from matplotlib.numerix import rand
+from matplotlib.numerix.random_array import random
 from matplotlib.figure import Figure
     
+
 class DataManager(gtk.Window):
     numRows, numCols = 20,10
 
-    data = rand(numRows, numCols)
+    #data = rand(numRows, numCols)
+    data = random((numRows, numCols))
 
     def __init__(self):
         gtk.Window.__init__(self)
+        self.set_default_size(600, 600)
         self.connect('destroy', lambda win: gtk.main_quit())
 
         self.set_title('GtkListStore demo')
         self.set_border_width(8)
 
-        vbox = gtk.VBox(FALSE, 8)
+        vbox = gtk.VBox(False, 8)
         self.add(vbox)
 
         label = gtk.Label('Double click a row to plot the data')
 
-        vbox.pack_start(label, FALSE, FALSE)
+        vbox.pack_start(label, False, False)
 
         sw = gtk.ScrolledWindow()
         sw.set_shadow_type(gtk.SHADOW_ETCHED_IN)
@@ -47,14 +49,14 @@ class DataManager(gtk.Window):
         model = self.create_model()
 
         self.treeview = gtk.TreeView(model)
-        self.treeview.set_rules_hint(TRUE)
+        self.treeview.set_rules_hint(True)
 
 
         # matplotlib stuff
         fig = Figure(figsize=(6,4))
 
         self.canvas = FigureCanvas(fig)  # a gtk.DrawingArea
-        vbox.pack_start(self.canvas, False, False)
+        vbox.pack_start(self.canvas, True, True)
         ax = fig.add_subplot(111)
         self.line, = ax.plot(self.data[0,:], 'go')  # plot the first row
 
@@ -63,11 +65,9 @@ class DataManager(gtk.Window):
 
         self.add_columns()
 
-        self.set_default_size(600, 600)
-
         self.add_events(gdk.BUTTON_PRESS_MASK |
-                       gdk.KEY_PRESS_MASK|
-                       gdk.KEY_RELEASE_MASK)
+                        gdk.KEY_PRESS_MASK|
+                        gdk.KEY_RELEASE_MASK)
 
 
     def plot_row(self, treeview, path, view_column):
@@ -84,15 +84,10 @@ class DataManager(gtk.Window):
 
 
     def create_model(self):
-        #types = [gobject.TYPE_DOUBLE]*self.numCols
         types = [float]*self.numCols
         store = gtk.ListStore(*types)
 
         for row in self.data:
-            #iter = store.append()
-            #pairs = []
-            #for i, num in enumerate(row): pairs.extend((i, num))
-            #store.set(iter, *pairs)
             store.append(row)
         return store
                                      
