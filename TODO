@@ -1,4 +1,4 @@
--- add print/save functionality.  Currently you can save by right
+-- ALMOST DONE : add print/save functionality.  Currently you can save by right
    clicking on the fig window, but you must have nothing in front of
    the window.  I suppose I need to first draw to a pixbuf.  I would
    also like to control the resolution.  
@@ -7,29 +7,21 @@
      command line, but the GUI needs to be updated to allow resolution
      to be set along with filename
 
--- fix text size calculations using pango layouts: 
-
-     DONE
+-- DONE : fix text size calculations using pango layouts: 
  
--- add a font selection dialog for the axis text
+-- DROPPED : add a font selection dialog for the axis text
 
--- enable vertical rendering for ylabels: 
+-- DONE enable vertical rendering for ylabels: 
      
-     DONE
-
--- enable anti aliasing for fonts: 
-
-     DONE with pango
+-- DONE with pango : enable anti aliasing for fonts
 
 -- enable fancy text labels (eg, greek letters, math symbols,
    superscripts) ala TeX or unicode
 
--- add a color selection dialog for the background, lines, and text
+-- DROPPED add a color selection dialog for the background, lines, and text
 
--- allow interactive control of the plot from the python shell after
+-- DONE allow interactive control of the plot from the python shell after
    it has been launched using the cookbook thread recipe.  
-
-      DONE
 
 -- write a user guide
 
@@ -51,16 +43,12 @@
    about the x values.  Is there an tranformation or rounding problem
    occurring somewhere?
 
--- Clip patches outside view port
+-- DONE Clip patches outside view port
 
-   DONE
+-- DONE: subplot now takes a kwarg axisbg with color format string
+   just as axes does : Allow background color to be set for subplots
 
--- Allow background color to be set for subplots  
-
-   DONE: subplot now takes a kwarg axisbg with color format string
-   just as axes does
-
--- Expose bug on win32 for axis text
+-- DONE Expose bug on win32 for axis text
 
 -- Fix floating point bug on panx/pany where 0 is computed as 5e-17
    
@@ -68,22 +56,18 @@
    nearest integer is a small fraction of the view lim, just use the
    integer
 
--- fmt process bug on this kind of plot command (2nd of 3 has no
-   format string)
+-- DONE: 2003-05-12 fixed _grab_next_args in figure.py : fmt process
+   bug on this kind of plot command (2nd of 3 has no format string)
 
    plot(t1, p1, 'o', t2, p2, ogtt.times, ogtt.cpeptide, 's')
 
-   DONE: 2003-05-12 fixed _grab_next_args in figure.py 
+   
 
--- xlabel is lower than it needs to be
+-- DONE xlabel is lower than it needs to be
 
-    UPDATE: made a change -- make sure this works
-
--- interactive setting of x/ylabels doesn't redraw all labels unless
-   you click a forced redraw
-
-   DONE 2003-05-12  Removed some of the state handling of text labels
-   so they always redraw
+-- DONE 2003-05-12 Removed some of the state handling of text labels
+   so they always redraw: interactive setting of x/ylabels doesn't
+   redraw all labels unless you click a forced redraw
 
 -- When you change a property using the OO interface in interactive,
    the figure doesn't know to redraw.  
@@ -99,17 +83,13 @@
       kind of code intrusive.
 
 
--- on exit from interactive.py call gtk. mainquit
+-- DONE 2003-05-11 on exit from interactive.py call gtk. mainquit
 
-   DONE 2003-05-11
+-- DONE 2003-05-11 pan/zoom on axes_demo flushes insets
 
--- pan/zoom on axes_demo flushes insets
-
-   DONE 2003-05-11
-
--- raise the figure returned by figure but don't give it the focus
-
-   DONE 2003-05-12 with window.window.raise_()
+-- DONE 2003-05-12 with window.window.raise_() : raise the figure
+   returned by figure but don't give it the focus
+   
 
 -- when you toggle an axes for interactive navigation, make sure a
    checked on appears as the default is one is checked
@@ -131,9 +111,9 @@
 
 -- Allow gca not gca(); ditto for gcf()
 
--- Fix legend to take a vector of line handles
+-- DONE Fix legend to take a vector of line handles
 
--- Fix legend bug on win32 and stock_demo.  This appears to be GTK
+-- DONE Fix legend bug on win32 and stock_demo.  This appears to be GTK
    specific
 
 -- ticks too short with log scaling
@@ -159,4 +139,13 @@
 
 -- allow rectangle select region for zoom tool
 
-- update Debian section on web page
+-- update Debian section on web page
+
+-- auto line style cycling for multiple line types broken
+
+-- DONE 2003-11-18 (using inkrect) :logical rect too big on gtk backend
+
+-- DONE 2003-11-18 ticks don't reach edge of axes in gtk mode --
+   rounding error?
+
+-- port Gary's errorbar code to new API before 0.40
