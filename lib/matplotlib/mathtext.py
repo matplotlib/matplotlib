@@ -278,6 +278,7 @@ class BakomaTrueTypeFonts(Fonts):
             num = 0
             verbose.report_error('unrecognized symbol "%s"' % sym)
 
+        #print sym, basename, num
         cmfont = self.fonts[basename]
         cmfont.set_size(fontsize, dpi)
         head  = cmfont.get_sfnt_table('head')

@@ -268,8 +268,6 @@ class Verbose:
         
 verbose=Verbose('error')  
 
-
-
 def get_home():
     """
     return the users HOME dir across platforms or None.

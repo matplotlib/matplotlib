@@ -51,7 +51,7 @@ _plotcommands = (
     'bar',
     'barh',
     'cohere',
-    'contour',
+    'contour', 
     'csd',
     'errorbar',
     'fill',
@@ -85,11 +85,13 @@ _misccommands = (
     )
 
 cmappable = {
+    'contour' : 'if ret[1].mappable is not None: gci._current = ret[1].mappable',
     'scatter' : 'gci._current = ret',
     'pcolor'  : 'gci._current = ret',
     'imshow'  : 'gci._current = ret',
     'spy2'  : 'gci._current = ret',    
     'specgram'  : 'gci._current = ret[-1]',
+
 }
 
 
