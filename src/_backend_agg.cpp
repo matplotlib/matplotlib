@@ -887,10 +887,26 @@ RendererAgg::draw_image(const Py::Tuple& args) {
   
   
   //todo: handle x and y
-  agg::rect r(0, 0, image->colsOut, image->rowsOut);
-  
-  rendererBase->copy_from(*image->rbufOut, &r, x, y);
-  
+  //agg::rect r(0, 0, image->colsOut, image->rowsOut);
+  //rendererBase->copy_from(*image->rbufOut, &r, x, y);
+  size_t ind=0;
+  size_t thisx, thisy;
+  for (size_t j=0; j<image->rowsOut; j++) {
+    for (size_t i=0; i<image->colsOut; i++) {
+      thisx = i+x; 
+      thisy = j+y; 
+      if (thisx<0 || thisx>=width)  continue;
+      if (thisy<0 || thisy>=height) continue;
+      pixfmt::color_type p;
+      p.r = *(image->bufferOut+ind++);
+      p.g = *(image->bufferOut+ind++);
+      p.b = *(image->bufferOut+ind++);
+      p.a = *(image->bufferOut+ind++);
+
+      pixFmt->blend_pixel(thisx, thisy, p, p.a);
+    }
+  }
+
   return Py::Object();
   
 }
