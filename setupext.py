@@ -41,7 +41,7 @@ def add_gd_flags(module):
 
 
 def build_gtkgd(ext_modules):
-    module = Extension('matplotlib._gtkgd',
+    module = Extension('matplotlib.backends._gtkgd',
                        ['src/_gtkgd.c'],
                        )
     add_pygtk_flags(module)

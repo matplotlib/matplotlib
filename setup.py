@@ -19,7 +19,7 @@ if 0:
     build_agg(ext_modules)
 
 setup(name="matplotlib",
-      version= '0.50i',
+      version= '0.50j',
       description = "Matlab style python plotting package",
       author = "John D. Hunter",
       author_email="jdhunter@ace.bsd.uchicago.edu",
