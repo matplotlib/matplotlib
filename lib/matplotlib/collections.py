@@ -171,6 +171,7 @@ class PolyCollection(PatchCollection):
 	self._verts = verts
 
     def draw(self, renderer):
+        if not self.get_visible(): return 
         renderer.open_group('polycollection')
         self._transform.freeze()
 	self._transOffset.freeze()
@@ -217,6 +218,7 @@ scaling."""
         
             
     def draw(self, renderer):
+        if not self.get_visible(): return 
         renderer.open_group('regpolycollection')
         self._transform.freeze()
 	self._transOffset.freeze()
@@ -289,7 +291,7 @@ their rc params setting, in sequence form"""
 	self._transOffset = transOffset
 
     def draw(self, renderer):
-        
+        if not self.get_visible(): return         
         renderer.open_group('linecollection')
         self._transform.freeze()
         if self._transOffset is not None: self._transOffset.freeze()

@@ -170,6 +170,7 @@ ACCEPTS: float
         return im
     
     def draw(self, renderer, *args, **kwargs):
+        if not self.get_visible(): return 
         isUpper = self.origin=='upper'
         flipy = renderer.flipy()
 
@@ -315,6 +316,7 @@ class FigureImage(Artist, cm.ScalarMappable):
         return im
     
     def draw(self, renderer, *args, **kwargs):
+        if not self.get_visible(): return 
         im = self.make_image()
         renderer.draw_image(self.ox, self.oy, im, self.origin, self.figure.bbox)
 

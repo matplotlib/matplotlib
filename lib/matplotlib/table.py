@@ -93,7 +93,7 @@ class Cell(Rectangle):
         return fontsize
 
     def draw(self, renderer):
-
+        if not self.get_visible(): return 
         # draw the rectangle
         Rectangle.draw(self, renderer)
 
@@ -216,6 +216,7 @@ class Table(Artist):
         return self.FONTSIZE/72.0*self.figure.dpi.get()/self._axes.bbox.height() * 1.2
             
     def draw(self, renderer):
+        if not self.get_visible(): return 
         renderer.open_group('table')
         self._update_positions(renderer)
 

@@ -112,7 +112,7 @@ ACCEPTS: [True | False]
      
         
     def draw(self, renderer):
-
+        if not self.get_visible(): return 
         #renderer.open_group('patch')
         gc = renderer.new_gc()
         gc.set_foreground(self._edgecolor)

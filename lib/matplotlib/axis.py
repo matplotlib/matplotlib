@@ -127,7 +127,7 @@ ACCEPTS: float"""
         return self._loc
     
     def draw(self, renderer):
-
+        if not self.get_visible(): return 
         renderer.open_group(self.__name__)
         midPoint = self.get_view_interval().contains_open( self.get_loc() )
 
@@ -470,7 +470,7 @@ class Axis(Artist):
 
     def draw(self, renderer, *args, **kwargs):
         'Draw the axis lines, grid lines, tick lines and labels'
-
+        if not self.get_visible(): return 
         renderer.open_group(__name__)
         ticklabelBoxes = []
         
