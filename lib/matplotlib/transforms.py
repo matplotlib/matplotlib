@@ -1,5 +1,4 @@
 """
-
 The transforms module is broken into two parts, a collection of
 classes written in the extension module _transforms to handle
 efficient transformation of data, and some helper functions in
@@ -50,7 +49,7 @@ The bbox methods are
 
   ll()                - return the lower left Point
   ur()                - return the upper right Point
-  contains(x,y )      - return True if self contains point
+  contains(x,y)       - return True if self contains point
   overlaps(bbox)      - return True if self overlaps bbox
   overlapsx(bbox)     - return True if self overlaps bbox in the x interval
   overlapsy(bbox)     - return True if self overlaps bbox in the y interval
@@ -89,7 +88,8 @@ where funcx and funcy operate on x and y.  The typical linear
 coordinate transformation maps one bounding box to another, with funcx
 and funcy both identity.  Eg,
 
-  transData = Transformation(viewLim, displayLim, Func(IDENTITY), Func(IDENTITY))
+  transData = Transformation(viewLim, displayLim,
+                             Func(IDENTITY), Func(IDENTITY))
 
 maps the axes view limits to display limits.  If the xaxis scaling is
 changed to log, one simply calls
