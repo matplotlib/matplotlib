@@ -1,6 +1,17 @@
 New entries should be added at the top
 
-2004-05-31 Added renderer markteredgewidth attribute of Line2D. - ADS
+2004-06-02 Fixed text clipping to clip to axes - JDH
+
+2004-06-02 Fixed leading newline text and multiple newline text - JDH
+
+2004-06-02 Fixed plot_date to return lines - JDH
+
+2004-06-01 Fixed plot to work with x or y having shape N,1 or 1,N - JDH
+
+2004-05-31 Added renderer markeredgewidth attribute of Line2D. - ADS
+
+
+2004-05-29 Fixed tick label clipping to work with navigation.
 
 2004-05-28 Added renderer grouping commands to support groups in
            SVG/PS. - JDH
