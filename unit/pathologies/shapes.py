@@ -1,4 +1,4 @@
-from matplotlib.matlab import *
+from pylab import *
 
 
 y1 = arange(10)

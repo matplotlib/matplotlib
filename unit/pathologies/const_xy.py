@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-from matplotlib.matlab import *
+from pylab import *
 
 subplot(311)
 plot(arange(10), ones( (10,)))

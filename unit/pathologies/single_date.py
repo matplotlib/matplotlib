@@ -1,6 +1,6 @@
 import time
 from matplotlib.dates import EpochConverter
-from matplotlib.matlab import *
+from pylab import *
 from matplotlib.ticker import FuncFormatter, NullLocator,\
      MinuteLocator, DayLocator, HourLocator, MultipleLocator, DateFormatter
 
