@@ -637,6 +637,23 @@ FT2Font_draw_rect(FT2FontObject *self, PyObject *args)
   return Py_None;
 }
 
+
+char FT2Font_image_as_str__doc__[] = 
+"width, height, s = image_as_str()\n"
+"\n"
+"Return the image buffer as a string\n"
+"\n"
+;
+static PyObject *
+FT2Font_image_as_str(FT2FontObject *self, PyObject *args)
+{
+
+  if (!PyArg_ParseTuple(args, ":image_as_str"))
+    return NULL;
+
+  return Py_BuildValue("lls#", self->image.width, self->image.height, self->image.buffer, self->image.width*self->image.height);
+}
+
 char FT2Font_draw_glyphs_to_bitmap__doc__[] = 
 "draw_glyphs_to_bitmap()\n"
 "\n"
@@ -784,6 +801,7 @@ static PyMethodDef FT2Font_methods[] = {
   {"draw_rect",  (PyCFunction)FT2Font_draw_rect,	METH_VARARGS, FT2Font_draw_rect__doc__},
   {"draw_glyph_to_bitmap",  (PyCFunction)FT2Font_draw_glyph_to_bitmap,	METH_VARARGS, FT2Font_draw_glyph_to_bitmap__doc__},
   {"draw_glyphs_to_bitmap",  (PyCFunction)FT2Font_draw_glyphs_to_bitmap,	METH_VARARGS, FT2Font_draw_glyphs_to_bitmap__doc__},
+  {"image_as_str",	   (PyCFunction)FT2Font_image_as_str,	METH_VARARGS, FT2Font_image_as_str__doc__},
   {"load_char",	   (PyCFunction)FT2Font_load_char,	METH_VARARGS, FT2Font_load_char__doc__},
   {"set_text",	   (PyCFunction)FT2Font_set_text,	METH_VARARGS, FT2Font_set_text__doc__},
   {"set_size",	   (PyCFunction)FT2Font_set_size,	METH_VARARGS, FT2Font_set_size__doc__},
