@@ -98,6 +98,8 @@ try: import dateutil
 except ImportError:
     packages.append('dateutil')
 
+packages.append('dateutil')    
+
 try: import pytz
 except ImportError:
     packages.append('pytz')
