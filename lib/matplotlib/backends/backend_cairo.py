@@ -125,6 +125,7 @@ class RendererCairo(RendererBase):
     
     def draw_image(self, x, y, im, origin, bbox):
         if DEBUG: print 'backend_cairo.RendererCairo.%s()' % _fn_name()
+        # works for numpy image, not a numarray image
 
         try: import cairo.numpy
         except:
