@@ -16,7 +16,8 @@ def on_move(event):
     # get the x and y pixel coords
     x, y = event.x, event.y
 
-    if event.inaxes is not None:
+    if event.inaxes:
+        ax = event.inaxes  # the axes instance
         print 'data coords', event.xdata, event.ydata
 
 def on_click(event):

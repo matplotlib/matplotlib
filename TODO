@@ -474,3 +474,5 @@
 -- track down transforms memleak
 
 -- DONE make sure you handle cacheing of rotated mathtext properly
+
+- handle deprecated connect across backends graciously

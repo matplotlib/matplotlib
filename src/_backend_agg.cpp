@@ -1012,7 +1012,11 @@ RendererAgg::tostring_rgb(const Py::Tuple& args) {
   
   args.verify_length(0);    
   int row_len = width*3;
-  unsigned char buf_tmp[row_len * height];
+  unsigned char* buf_tmp = new unsigned char[row_len * height];
+  if (buf_tmp ==NULL) {
+    //todo: also handle allocation throw
+    throw Py::MemoryError("RendererAgg::tostring_rgb could not allocate memory");
+  }
   agg::rendering_buffer renderingBufferTmp;
   renderingBufferTmp.attach(buf_tmp, 
 			    width, 
@@ -1023,13 +1027,13 @@ RendererAgg::tostring_rgb(const Py::Tuple& args) {
   
   
   //todo: how to do this with native CXX
-  return Py::asObject(Py_BuildValue("s#", 
-				  buf_tmp, 
-				  row_len * height));
-  //len = row_len * height
-  //std::string s(buf_tmp);
-  //return Py::String(buf_tmp, row_len * height);
+  PyObject* o = Py_BuildValue("s#", 
+			      buf_tmp, 
+			      row_len * height);
+  delete [] buf_tmp;
+  return Py::asObject(o);
 }
+
 agg::rgba
 RendererAgg::get_color(const Py::Object& gc) {
   
