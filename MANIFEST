@@ -537,6 +537,7 @@ lib/matplotlib/mathtext.py
 lib/matplotlib/mlab.py
 lib/matplotlib/patches.py
 lib/matplotlib/pylab.py
+lib/matplotlib/pylab.py.~1.48.~
 lib/matplotlib/pyparsing.py
 lib/matplotlib/table.py
 lib/matplotlib/text.py

@@ -113,8 +113,8 @@ except:
     print >>sys.stderr, "Matplotlib backend_wx requires wxPython be installed"
     sys.exit()    
 
-# wxapp = wxPySimpleApp()
-# wxapp.SetExitOnFrameDelete(True)
+wxapp = wxPySimpleApp()
+wxapp.SetExitOnFrameDelete(True)
 
 
 #!!! this is the call that is causing the exception swallowing !!!
@@ -1156,8 +1156,8 @@ def show():
         figwin.canvas.draw()
  
     if show._needmain and not matplotlib.is_interactive():
-        wxapp = wx.PySimpleApp()
-        wxapp.SetExitOnFrameDelete(True)
+        #wxapp = wx.PySimpleApp()
+        #wxapp.SetExitOnFrameDelete(True)
         wxapp.MainLoop()
         show._needmain = False        
 show._needmain = True

@@ -163,8 +163,11 @@ if BUILD_GTK:
         BUILD_GTK=0
     except RuntimeError:
         print 'pygtk present but import failed'
-    build_gdk(ext_modules, packages, NUMERIX)
+    
 
+if BUILD_GTK:
+    build_gdk(ext_modules, packages, NUMERIX)
+    
 if BUILD_GTKAGG:
     try:
         import gtk
