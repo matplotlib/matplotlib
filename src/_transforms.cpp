@@ -1,5 +1,4 @@
 #include <functional>
-#include <numeric>
 #include "_transforms.h"
 
 
@@ -155,17 +154,19 @@ Interval::update(const Py::Tuple &args) {
   double minx = _val1->val();
   double maxx = _val2->val();
 
+  double thisval;
   if (ignore) {
-    minx = std::numeric_limits<double>::max();
-    maxx = std::numeric_limits<double>::min();
+    thisval = Py::Float(vals[0]);
+    minx = thisval;
+    maxx = thisval;
   }
 
-  double thisval;
+
   for (size_t i=0; i<Nval; ++i) {
     thisval = Py::Float(vals[i]);
 
-    if (thisval<minx) minx=thisval;
-    if (thisval>maxx) maxx=thisval;
+    if (thisval<minx) minx = thisval;
+    if (thisval>maxx) maxx = thisval;
   } 
 
 
@@ -340,14 +341,19 @@ Bbox::update(const Py::Tuple &args) {
   double miny = _ll->yval();
   double maxy = _ur->yval();
 
+  Py::Tuple tup;
   if (ignore) {
-    minx = std::numeric_limits<double>::max();
-    maxx = std::numeric_limits<double>::min();
-    miny = std::numeric_limits<double>::max();
-    maxy = std::numeric_limits<double>::min();
+    tup = xys[0];
+    double x = Py::Float(tup[0]);
+    double y = Py::Float(tup[1]);
+
+    minx=x;
+    maxx=x;
+    miny=y;
+    maxy=y;
   }
 
-  Py::Tuple tup;
+
   for (size_t i=0; i<Nx; ++i) {
     tup = xys[i];
     double x = Py::Float(tup[0]);
@@ -357,6 +363,7 @@ Bbox::update(const Py::Tuple &args) {
     if (x>maxx) maxx=x;
     if (y<miny) miny=y;
     if (y>maxy) maxy=y;
+
   } 
 
 

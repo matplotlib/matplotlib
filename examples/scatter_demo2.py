@@ -7,7 +7,7 @@ intc, msft = get_daily_data()
 
 delta1 = diff(intc.open)/intc.open[0]
 
-volume = (10*intc.volume[:-2]/intc.volume[0])**2
+volume = (15*intc.volume[:-2]/intc.volume[0])**2
 close = 0.003*intc.close[:-2]/0.003*intc.open[:-2]
 p = scatter(delta1[:-1], delta1[1:], c=close, s=volume)
 set(p, 'alpha', 0.75)

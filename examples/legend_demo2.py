@@ -17,6 +17,7 @@ xlabel('time')
 ylabel('volts')
 title('Damped oscillation')
 #savefig('legend_demo2')
+#axis([0,2,-1,1])
 show()
 
 
