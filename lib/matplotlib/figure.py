@@ -161,13 +161,12 @@ A image.FigureImage instance is returned.
         self._figurePatch.set_facecolor(color)
 
     def add_axis(self, *args, **kwargs):
-        print >> sys.stderr, """\
+        raise SystemExit("""\
 matplotlib changed its axes creation API in 0.54.
 Please see http://matplotlib.sourceforge.net/API_CHANGES for
 instructions on how to port your code.
-"""
+""")
 
-        sys.exit()
         
     def add_axes(self, rect, axisbg=None, frameon=True):
         """

@@ -424,8 +424,7 @@ class YearLocator(DateLocator):
 
         dmin, dmax = self.viewlim_to_dt()
         ymin = self.base.le(dmin.year)
-        ymax = self.base.ge(dmax.year)    #print 'DMIN', num2date(dmin, tz).strftime(fmt)
-    #print 'DMAX', num2date(dmax, tz).strftime(fmt)
+        ymax = self.base.ge(dmax.year)
 
 
         ticks = [dmin.replace(year=ymin, **self.replaced)]

@@ -10,7 +10,7 @@ import sys
 
 from numerix import Float, alltrue, arange, array, logical_and,\
      nonzero, searchsorted, take, asarray, ones, where, less, ravel
-
+from matplotlib import verbose
 from artist import Artist
 from cbook import True, False, iterable, is_string_like
 from collections import RegularPolyCollection, PolyCollection
@@ -143,9 +143,9 @@ class Line2D(Artist):
         self.set_data(xdata, ydata)
 
         if not self._lineStyles.has_key(linestyle):
-            print >>sys.stderr, 'Unrecognized line style', linestyle, type(linestyle)
+            verbose.report_error('Unrecognized line style %s' %( linestyle, type(linestyle)))
         if not self._markers.has_key(marker):
-            print >>sys.stderr, 'Unrecognized marker style', marker, type(marker)
+            verbose.report_error('Unrecognized marker style %s'%( marker, type(marker)))
 
         self.set_marker(marker)
         self._lineFunc = self._lineStyles.get(linestyle, self._draw_nothing)
@@ -232,7 +232,7 @@ class Line2D(Artist):
         #xy, yt = zip(*xys)
 
         xt, yt = self._transform.numerix_x_y(x, y)
-        #if len(xt)>1000: print xt[-5:], yt[-5:]
+
         gc = renderer.new_gc()
         gc.set_foreground(self._color)
         gc.set_antialiased(self._antialiased)
@@ -397,7 +397,7 @@ class Line2D(Artist):
         if len(xt)<2: return
         gc.set_linestyle('solid')
         gc.set_capstyle('projecting')   
-        #print gc._rgb, type(gc._rgb), len(gc._rgb)
+
         renderer.draw_lines(gc, xt,yt)
 
     def _draw_dashed(self, renderer, gc, xt, yt):

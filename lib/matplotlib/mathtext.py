@@ -136,6 +136,7 @@ from __future__ import division
 import os, sys
 from cStringIO import StringIO
 
+from matplotlib import verbose
 from matplotlib.pyparsing import Literal, Word, OneOrMore, ZeroOrMore, \
      Combine, Group, Optional, Forward, NotAny, alphas, nums, alphanums, \
      StringStart, StringEnd, ParseException
@@ -261,7 +262,7 @@ class BakomaTrueTypeFonts(Fonts):
             num = ord(sym)
         else:
             num = 0
-            print >>sys.stderr, 'unrecognized symbol "%s"' % sym
+            verbose.report_error('unrecognized symbol "%s"' % sym)
 
         cmfont = self.fonts[basename]
         cmfont.set_size(fontsize, dpi)
@@ -346,7 +347,7 @@ class BakomaPSFonts(Fonts):
         else:
             num = 0
             sym = '.notdef'
-            print >>sys.stderr, 'unrecognized symbol "%s"' % sym, num
+            verbose.report_error('unrecognized symbol "%s"' % (sym, num))
 
         if basename not in bakoma_fonts:
             bakoma_fonts.append(basename)
@@ -712,7 +713,7 @@ class Handler:
         return loc, [element]
 
     def symbol(self, s, loc, toks):
-        #print 'symbol', s, toks
+
         assert(len(toks)==1)
 
         s  = toks[0]
@@ -920,8 +921,8 @@ def math_parse_s_ft2font(s, dpi, fontsize, angle=0):
 
     major, minor1, minor2, tmp, tmp = sys.version_info
     if major==2 and minor1==2:
-        print >> sys.stderr, 'mathtext broken on python2.2.  We hope to get this fixed soon'
-        sys.exit()
+        raise SystemExit('mathtext broken on python2.2.  We hope to get this fixed soon')
+
     cacheKey = (s, dpi, fontsize, angle)
     s = s[1:-1]  # strip the $ from front and back
     if math_parse_s_ft2font.cache.has_key(cacheKey):

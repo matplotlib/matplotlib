@@ -234,8 +234,7 @@ class AxesImage(Artist, cm.ScalarMappable):
         are using the matlab interface, use Axes.set_image_extent
         instead
         """
-        print >>sys.stderr, 'set_data_extent deprecated; please pass extent in imshow constructor'
-        sys.exit()
+        raise SystemExit('set_data_extent deprecated; please pass extent in imshow constructor')
 
         
     def get_extent(self):

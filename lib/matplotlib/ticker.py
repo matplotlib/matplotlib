@@ -111,6 +111,7 @@ multiple axes can share the same locator w/o side effects!
 from __future__ import division
 import sys, os, re, time, math
 from mlab import linspace
+from matplotlib import verbose
 from numerix import arange, array, asarray, ones, zeros, \
      nonzero, take, Float, log, logical_and
 
@@ -316,7 +317,7 @@ class LogFormatterMathtext(LogFormatter):
         if not isDecade and self.labelOnlyBase: s = ''
         elif not isDecade: s = '$%d^{%.2f}$'% (b, fx)
         else: s = '$%d^{%d}$'% (b, self.nearest_long(fx))
-        #print x, b, fx, isDecade, s
+
         return s
 
 
@@ -448,7 +449,7 @@ class LinearLocator(Locator):
 
         if self.numticks==0: return []
         ticklocs = linspace(vmin, vmax, self.numticks)
-        #print 'linear', ticklocs
+
         return ticklocs
 
 
@@ -469,8 +470,8 @@ class LinearLocator(Locator):
         try:
             (exponent, remainder) = divmod(math.log10(vmax - vmin), 1)
         except OverflowError:
-            print >>sys.stderr, 'Overflow error in autoscale', vmin, vmax
-            return
+            raise SystemExit('Overflow error in autoscale %s' %(vmin, vmax))
+
         if remainder < 0.5:
             exponent -= 1
         scale = 10**(-exponent)
@@ -555,17 +556,14 @@ class MultipleLocator(Locator):
 
         self.verify_intervals()
         dmin, dmax = self.dataInterval.get_bounds()
-        #print 'data limits', dmin, dmax, (dmax-dmin)/60.0
 
         vmin = self.base.le(dmin)
         vmax = self.base.ge(dmax)
-        #print 'base rounded', vmin, vmax, (vmax-vmin)/60.0
         if vmin==vmax:
             vmin -=1
             vmax +=1
 
         
-        #print 'mult locator returning', vmin, vmax, (vmax-vmin)/60.0
         return self.nonsingular(vmin, vmax)
 
 def decade_down(x, base=10):
@@ -689,7 +687,7 @@ class AutoLocator(Locator):
 
             try: ld = math.log10(d)
             except OverflowError:
-                print >> sys.stderr, 'AutoLocator illegal dataInterval range %s; returning NullLocator'%d
+                verbose.report_error('AutoLocator illegal dataInterval range %s; returning NullLocator'%d)
                 return NullLocator()
 
             fld = math.floor(ld)

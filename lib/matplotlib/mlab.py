@@ -56,6 +56,7 @@ Credits:
 
 from __future__ import division
 import sys
+from matplotlib import verbose
 import numerix
 from numerix import *
 
@@ -264,7 +265,7 @@ def cohere(x, y, NFFT=256, Fs=2, detrend=detrend_none,
     """
     
     if len(x)<2*NFFT:
-       print >>sys.stderr, 'Coherence is calculated by averaging over NFFT length segments.  Your signal is too short for your choice of NFFT'
+       verbose.report_error('Coherence is calculated by averaging over NFFT length segments.  Your signal is too short for your choice of NFFT')
     Pxx, f = psd(x, NFFT, Fs, detrend, window, noverlap)
     Pyy, f = psd(y, NFFT, Fs, detrend, window, noverlap)
     Pxy, f = csd(x, y, NFFT, Fs, detrend, window, noverlap)
@@ -791,7 +792,7 @@ def rem(x,y):
             return x - y * fix(x/y)
         except OverflowError:
             return None
-    print >>sys.stderr, 'Dimension error'
+    verbose.report_error('Dimension error')
     return None
 
 def norm(x,y=2):
@@ -827,7 +828,7 @@ def norm(x,y=2):
         elif y=='fro':
             return MLab.sqrt(MLab.sum(MLab.diag(numerix.matrixmultiply(MLab.transpose(x),x))))
         else:
-            print >>sys.stderr, 'Second argument not permitted for matrices'
+            verbose.report_error('Second argument not permitted for matrices')
             return None
         
     else:

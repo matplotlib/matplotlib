@@ -3,6 +3,7 @@ This module contains the instantiations of color mapping classes
 """
 
 import colors
+from matplotlib import verbose
 from matplotlib import rcParams
 from numerix import nx
 LUTSIZE = rcParams['image.lut']
@@ -38,11 +39,11 @@ def get_cmap(name=None, lut=None):
 # These are provided for backwards compat
 import sys
 def ColormapJet(N=LUTSIZE):
-    print >> sys.stderr, "ColormapJet deprecated, please use cm.jet instead"
+    verbose.report_error("ColormapJet deprecated, please use cm.jet instead")
     return colors.LinearSegmentedColormap('jet',  _jet_data, N)
 
 def Grayscale(N=LUTSIZE):
-    print >> sys.stderr, "Grayscale deprecated, please use cm.jet instead"
+    verbose.report_error("Grayscale deprecated, please use cm.jet instead")
     return colors.LinearSegmentedColormap('gray',  _gray_data, N)
 
 
