@@ -1,6 +1,8 @@
 New entries should be added at the top
 
-2004-12-14 A number of pychecker inspired fixes - JDH
+2004-12-14 A number of pychecker inspired fixes, including removal of
+           True and False from cbook which I erroneously thought was
+           needed for python2.2 - JDH
 
 2004-12-14 Finished porting doc strings for set introspection.
            Used silent_list for many get funcs that return

@@ -27,7 +27,7 @@ from numerix import array, ones, Float
 
 from matplotlib import verbose
 from artist import Artist
-from cbook import enumerate, True, False, is_string_like, iterable, silent_list
+from cbook import enumerate, is_string_like, iterable, silent_list
 from font_manager import FontProperties
 from lines import Line2D
 from mlab import linspace

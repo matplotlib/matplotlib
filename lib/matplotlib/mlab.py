@@ -60,7 +60,7 @@ from matplotlib import verbose
 import numerix
 from numerix import *
 
-from cbook import iterable, True, False
+from cbook import iterable
 
 
 def mean(x, dim=None):

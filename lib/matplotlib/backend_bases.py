@@ -7,7 +7,7 @@ from __future__ import division
 import sys
 
 from matplotlib import verbose
-from cbook import is_string_like, enumerate, True, False, strip_math
+from cbook import is_string_like, enumerate, strip_math
 from colors import colorConverter
 from numerix import array, sqrt, pi, log, asarray, ones, Float
 from patches import Rectangle

@@ -3,7 +3,7 @@ from __future__ import division
 from matplotlib import rcParams
 from numerix import array, arange, sin, cos, pi, Float
 from artist import Artist
-from cbook import True, False, enumerate, popd
+from cbook import enumerate, popd
 from colors import colorConverter
 from transforms import bound_vertices
 

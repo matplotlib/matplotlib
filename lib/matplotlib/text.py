@@ -6,7 +6,7 @@ from matplotlib import verbose
 import matplotlib
 import math
 from artist import Artist
-from cbook import True, False, enumerate, popd
+from cbook import enumerate, popd
 from font_manager import FontProperties
 from matplotlib import rcParams
 from patches import bbox_artist

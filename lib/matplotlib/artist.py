@@ -1,6 +1,5 @@
 from __future__ import division
 import sys
-from cbook import True, False
 from transforms import identity_transform
 
 ## Note, matplotlib artists use the doc strings for set and get

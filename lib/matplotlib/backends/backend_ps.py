@@ -11,7 +11,7 @@ from matplotlib._pylab_helpers import Gcf
 from matplotlib.backend_bases import RendererBase, GraphicsContextBase,\
      FigureManagerBase, FigureCanvasBase, error_msg
 
-from matplotlib.cbook import is_string_like, True, False
+from matplotlib.cbook import is_string_like
 from matplotlib.figure import Figure
 
 from matplotlib.font_manager import fontManager

@@ -7,7 +7,7 @@ from numerix import arange, array, asarray, ones, zeros, \
      nonzero, take, Float, log10, logical_and
 
 from artist import Artist
-from cbook import enumerate, True, False, silent_list
+from cbook import enumerate, silent_list
 from lines import Line2D, TICKLEFT, TICKRIGHT, TICKUP, TICKDOWN
 from mlab import linspace
 from matplotlib import rcParams

@@ -37,8 +37,6 @@ AUTHOR:
 
 import sys, os
 
-True = 1
-False = 0
 #Convert string the a python type
 _to_int = int
 _to_float = float

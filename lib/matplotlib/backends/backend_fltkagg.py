@@ -20,7 +20,7 @@ import os.path
 import matplotlib
 
 from matplotlib import rcParams, verbose
-from matplotlib.cbook import is_string_like,  enumerate, True, False
+from matplotlib.cbook import is_string_like,  enumerate
 from matplotlib.backend_bases import \
      RendererBase, GraphicsContextBase, FigureManagerBase, FigureCanvasBase,\
      NavigationToolbar2, cursors, MplEvent

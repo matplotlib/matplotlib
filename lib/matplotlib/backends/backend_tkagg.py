@@ -11,7 +11,7 @@ from backend_agg import FigureCanvasAgg
 import os.path
 
 import matplotlib
-from matplotlib.cbook import is_string_like,  enumerate, True, False
+from matplotlib.cbook import is_string_like,  enumerate
 from matplotlib.backend_bases import RendererBase, GraphicsContextBase, \
      FigureManagerBase, FigureCanvasBase, NavigationToolbar2, cursors, \
      MplEvent

@@ -1,7 +1,7 @@
 import sys
 from artist import Artist
 from axes import Axes, Subplot, PolarSubplot, PolarAxes
-from cbook import flatten, True, False, allequal, dict_delall
+from cbook import flatten, allequal, dict_delall
 import _image
 from colors import normalize
 from image import FigureImage

@@ -26,7 +26,7 @@ from numerix import ones, Float, add, asarray
 
 from artist import Artist
 from patches import Rectangle
-from cbook import enumerate, True, False, is_string_like, flatten
+from cbook import enumerate, is_string_like, flatten
 from text import Text
 from transforms import Bbox, inverse_transform_bbox, bbox_all, unit_bbox, \
      get_bbox_transform
