@@ -409,3 +409,5 @@
 -- some strangeness in table when multiple saves are called
 
 -- use RGBA throughout lib
+
+-- fix wrt log and recommit cvs

@@ -686,7 +686,7 @@ RendererAgg::draw_lines(const Py::Tuple& args) {
   
   
   double lw = points_to_pixels ( gc.getAttr("_linewidth") ) ;
-  std::cout << "agg lw " << lw << std::endl;
+  //std::cout << "agg lw " << lw << std::endl;
   agg::rgba color = get_color(gc);
   
   
