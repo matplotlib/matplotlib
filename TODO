@@ -620,3 +620,6 @@ ZeroDivisionError: SeparableTransformation::eval_scalars yin interval is zero; c
 
 -- imshow tick labeling buck with aspect preserve
 
+-- scatter_demo2 svg colorbar placement bug
+
+-- tex_rotation svg line bug (clipping??)
