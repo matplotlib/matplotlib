@@ -132,7 +132,7 @@ Point::~Point()
 }
 
 Interval::Interval(LazyValue* val1, LazyValue* val2) : 
-  _val1(val1), _val2(val2) {
+  _val1(val1), _val2(val2){
   _VERBOSE("Interval::Interval");
   Py_INCREF(val1);
   Py_INCREF(val2);
@@ -170,7 +170,6 @@ Interval::update(const Py::Tuple &args) {
 
   for (size_t i=0; i<Nval; ++i) {
     thisval = Py::Float(vals[i]);
-
     if (thisval<minx) minx = thisval;
     if (thisval>maxx) maxx = thisval;
   } 
@@ -183,6 +182,7 @@ Interval::update(const Py::Tuple &args) {
 
 Bbox::Bbox(Point* ll, Point* ur) : _ll(ll), _ur(ur) {
   _VERBOSE("Bbox::Bbox");
+  
   Py_INCREF(ll);
   Py_INCREF(ur);
 };
@@ -382,7 +382,7 @@ Bbox::update(const Py::Tuple &args) {
     if (x>maxx) maxx=x;
     if (y<miny) miny=y;
     if (y>maxy) maxy=y;
-
+    
   } 
 
 
@@ -1465,6 +1465,7 @@ Interval::init_type()
   add_varargs_method("span", &Interval::span, "span()\n");
   add_varargs_method("val1", &Interval::val1, "val1()\n");
   add_varargs_method("val2", &Interval::val2, "val2()\n");
+
 }
 
 void 

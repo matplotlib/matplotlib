@@ -812,6 +812,9 @@ class FigureManagerBase:
         if event.key == 'g':  
             event.inaxes.grid()
             self.canvas.draw()
+        if event.key == 'l':  
+            event.inaxes.toggle_log_lineary()
+            self.canvas.draw()
             
         
 # cursors

@@ -698,10 +698,8 @@ major formatter
                 l.get_transform(), zip(xdata, ydata))
             xdata, ydata = zip(*xys)
 
-        corners = ( (amin(xdata), amin(ydata)), (amax(xdata), amax(ydata)) )
-
-        self.update_datalim(corners)
-
+        self.update_datalim( zip(xdata, ydata) )
+        
         self.lines.append(l)
 
     def _get_verts_in_data_coords(self, trans, xys):
@@ -3054,19 +3052,17 @@ ACCEPTS: str
                 for patch in self.patches:
                     xs.extend([x for x,y in patch.get_verts()])
                 for collection in self.collections:
-                    xs.extend([x for x,y in collection.get_verts()])                    
+                    xs.extend([x for x,y in collection.get_verts()])
                 posx = [x for x in xs if x>0]
-                minx = min(posx)
-                maxx = max(posx)
-                # warning, probably breaks inverted axis
-                self.set_xlim((0.1*minx, maxx))
-                
-                            
-                
+                if len(posx):
+                    minx = min(posx)
+                    maxx = max(posx)
+                    # warning, probably breaks inverted axis
+                    self.set_xlim((0.1*minx, maxx))
+
             self.xaxis.set_major_locator(LogLocator(basex))
             self.xaxis.set_major_formatter(LogFormatterMathtext(basex))
-            self.xaxis.set_minor_locator(LogLocator(basex,subsx))
-            
+            self.xaxis.set_minor_locator(LogLocator(basex,subsx))            
             self.transData.get_funcx().set_type(LOG10)
         elif value == 'linear':
             self.xaxis.set_major_locator(AutoLocator())
@@ -3154,10 +3150,12 @@ ACCEPTS: str
                 for collection in self.collections:
                     ys.extend([y for x,y in collection.get_verts()])                    
                 posy = [y for y in ys if y>0]
-                miny = min(posy)
-                maxy = max(posy)
-                # warning, probably breaks inverted axis
-                self.set_ylim((0.1*miny, maxy))
+                if len(posy):
+                    miny = min(posy)
+                    maxy = max(posy)
+                    # warning, probably breaks inverted axis
+                    self.set_ylim((0.1*miny, maxy))
+
 
             self.yaxis.set_major_locator(LogLocator(basey))
             self.yaxis.set_major_formatter(LogFormatterMathtext(basey))
@@ -3422,7 +3420,12 @@ axes
         return t
     
 
-
+    def toggle_log_lineary(self):
+        'toggle between log and linear on the y axis'
+        funcy = self.transData.get_funcy().get_type()
+        if funcy==LOG10: self.set_yscale('linear')
+        elif funcy==IDENTITY: self.set_yscale('log')
+        
     def vlines(self, x, ymin, ymax, color='k'):
         """\
 VLINES(x, ymin, ymax, color='k')
@@ -3957,7 +3960,11 @@ ACCEPTS: sequence of floats
     def get_yscale(self):
         'return the yaxis scale string'
         return 'polar'
-        
+
+    def toggle_log_lineary(self):
+        'toggle between log and linear axes ignored for polar'
+        pass
+    
 class PolarSubplot(SubplotBase, PolarAxes):
     """
     Create a polar subplot with
@@ -3976,3 +3983,30 @@ class PolarSubplot(SubplotBase, PolarAxes):
         SubplotBase.__init__(self, *args)        
         PolarAxes.__init__(self, fig, [self.figLeft, self.figBottom, self.figW, self.figH], **kwargs)
 
+
+"""
+# this is some discarded code I was using to find the minimum positive
+# data point for some log scaling fixes.  I realized there was a
+# cleaner way to do it, but am keeping this around as an example for
+# how to get the data out of the axes.  Might want to make something
+# like this a method one day, or better yet make get_verts and Artist
+# method
+
+            minx, maxx = self.get_xlim()
+            if minx<=0 or maxx<=0:
+                # find the min pos value in the data
+                xs = []
+                for line in self.lines:
+                    xs.extend(line.get_xdata())
+                for patch in self.patches:
+                    xs.extend([x for x,y in patch.get_verts()])
+                for collection in self.collections:
+                    xs.extend([x for x,y in collection.get_verts()])
+                posx = [x for x in xs if x>0]
+                if len(posx):
+
+                    minx = min(posx)
+                    maxx = max(posx)
+                    # warning, probably breaks inverted axis
+                    self.set_xlim((0.1*minx, maxx))
+"""
