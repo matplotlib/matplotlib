@@ -1,5 +1,9 @@
 New entries should be added at the top
 
+2004-07-16 Added ps/eps/svg savefig options to wx and gtk JDH
+
+2004-07-15 Fixed python framework tk finder in setupext.py - JDH
+
 2004-07-14 Fixed layer images demo which was broken by the 07/12 image
            extent fixes - JDH
 

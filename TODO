@@ -467,3 +467,5 @@
 
 -- layer images broken
 
+-- font dict in wx is broken w/ respect to new font names
+
