@@ -26,7 +26,7 @@ New entries should be added at the top
 2005-01-27 Added Lee's patch for missing symbols \leq and \LEFTbracket
            to _mathtext_data - JDH
 
-2005-01-26 Added Baptiste's two scales patch -- see help(twin) in the
+2005-01-26 Added Baptiste's two scales patch -- see help(twinx) in the
            pylab interface for more info.  See also
            examples/two_scales.py
 

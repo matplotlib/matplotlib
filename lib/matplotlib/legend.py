@@ -216,8 +216,8 @@ The following dimensions are in axes coords
             if isinstance(handle, Line2D):
                 ydata = (y-HEIGHT/2)*ones(self._xdata.shape, Float)
                 legline = Line2D(self._xdata, ydata)
-                self._set_artist_props(legline)
                 legline.update_from(handle)
+                self._set_artist_props(legline) # after update                
                 legline.set_markersize(self.markerscale*legline.get_markersize())
                 legline.set_data_clipping(False)
                 ret.append(legline)
