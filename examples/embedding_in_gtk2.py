@@ -19,12 +19,12 @@ win.add(vbox)
 vbox.show()
 
 fig = Figure(figsize=(5,4), dpi=100)
-ax = Subplot(fig, 111)
+ax = fig.add_subplot(111)
 t = arange(0.0,3.0,0.01)
 s = sin(2*pi*t)
 
 ax.plot(t,s)
-fig.add_axis(ax)
+
 
 canvas = FigureCanvasGTK(fig)  # a gtk.DrawingArea
 canvas.show()

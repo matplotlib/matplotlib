@@ -18,12 +18,12 @@ root.bind("<Destroy>", destroy)
 
 
 f = Figure(figsize=(5,4), dpi=100)
-a = Subplot(f, 111)
+a = f.add_subplot(111)
 t = arange(0.0,3.0,0.01)
 s = sin(2*pi*t)
 
 a.plot(t,s)
-f.add_axis(a)
+
 
 # a tk.DrawingArea
 canvas = FigureCanvasTkAgg(f, master=root)

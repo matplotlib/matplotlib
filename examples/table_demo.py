@@ -34,11 +34,13 @@ colours.reverse()
 cellText.reverse()
 the_table = table(cellText=cellText,
                   rowLabels=rowLabels, rowColours=colours,
-                  colLabels=colLabels)
+                  colLabels=colLabels,
+                  loc='bottom')
 ylabel("Loss $1000's")
 yticks = arange(0, 2500, 500)
 set(gca(), 'yticks', yticks*1000)
 set(gca(), 'yticklabels', ['%d' % val for val in yticks])
 set(gca(), 'xticks', [])
 title('Loss by Disaster')
+#savefig('table_demo')
 show()

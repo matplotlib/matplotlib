@@ -17,7 +17,7 @@ manager = matplotlib.matlab.get_current_fig_manager()
 def updatefig(*args):
     updatefig.count += 1
     if updatefig.count>59: updatefig.count=0
-    lines[0].set_data(ind,X[:,updatefig.count])
+    lines[0].set_ydata(X[:,updatefig.count])
     manager.canvas.draw()
     return gtk.TRUE
 

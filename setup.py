@@ -6,17 +6,18 @@ The GTKAgg and TkAgg will try to build if they detect pygtk or Tkinter
 respectively; set them to 0 if you do not want to build them
 """
 
+NUMERIX = 'Numeric'  # or numarray
 # build the freetype2 interface - this is required for mathtext
 # Requires freetype2, and libz
 BUILD_FT2FONT = 1
+
 
 # build the image support module - requires agg and Numeric or
 # numarray.  You can build the image module with either Numeric or
 # numarray.  Whichever way you build it, the code will work with both
 # Numeric or numarray arrays, but you will get the best performance if
 # you build with the type of array you use most
-BUILD_IMAGE    = 'Numeric'    # use Numeric 
-#BUILD_IMAGE    = 'numarray'  # use numarray 
+BUILD_IMAGE    = 1
 
 # Build the antigrain geometry toolkit.  Agg makes heavy use of
 # templates, so it probably requires a fairly recent compiler to build
@@ -27,6 +28,7 @@ BUILD_AGG = 1
 # The builds below are alpha.  They use an image backend (eg GD or
 # Agg) to render to the GTK canvas.  The idea is to could use a single
 # high quality image renderer to render to all the GUI windows
+#BUILD_GTKAGG       = 0
 BUILD_GTKAGG       = 'auto'
 
 
@@ -37,6 +39,7 @@ BUILD_GTKAGG       = 'auto'
 BUILD_TKAGG        = 'auto'
 
 # build a small extension to manage the focus on win32 platforms.
+#BUILD_WINDOWING        = 0
 BUILD_WINDOWING        = 'auto'
 
 ## You shouldn't need to customize below this point
@@ -45,6 +48,7 @@ BUILD_WINDOWING        = 'auto'
 from distutils.core import setup
 import sys,os
 import glob
+from distutils.core import Extension
 from setupext import build_agg, build_gtkagg, build_tkagg, \
      build_ft2font, build_image, build_windowing
 import distutils.sysconfig
@@ -63,7 +67,21 @@ data.append('.matplotlibrc')
 
 data_files=[('share/matplotlib', data),]
 
-ext_modules = []
+cxx = glob.glob('CXX/*.cxx')
+cxx.extend(glob.glob('CXX/*.c'))
+
+modtrans = Extension('matplotlib._transforms',
+                     ['src/_transforms.cpp'] + cxx,
+                     libraries = ['stdc++', 'm'],
+                     include_dirs = ['src', '.'],
+                     )
+if NUMERIX.lower().find('numarray')>=0:
+    modtrans.extra_compile_args.append('-DNUMARRAY')
+
+ext_modules = [modtrans]
+
+
+
 packages = [
     'matplotlib',
     'matplotlib/backends',
@@ -97,7 +115,7 @@ if BUILD_WINDOWING and sys.platform=='win32':
    build_windowing(ext_modules, packages)
 
 if BUILD_IMAGE:
-    build_image(ext_modules, packages, BUILD_IMAGE)
+    build_image(ext_modules, packages, NUMERIX)
 
 setup(name="matplotlib",
       version= __version__,

@@ -1,137 +1,252 @@
-from __future__ import division
-import sys
-from Numeric import arange, asarray
-from matplotlib.transforms import Bound1D, Bound2D, Transform
-from matplotlib.transforms import identity, log10, pow10
-from matplotlib.transforms import bound2d_all
-from matplotlib.transforms import transform_bound1d
-from matplotlib.transforms import TransformSize, Points, Dots, \
-     Centimeter, Inches, RWRef
-from matplotlib.artist import DPI
+#from __future__ import division
+
+from matplotlib.numerix import array, rand, asarray, alltrue, rand
+from matplotlib.transforms import Point, Bbox, Value, Affine
+from matplotlib.transforms import multiply_affines
+from matplotlib.transforms import Identity, Log, FuncXY, PolarXY
+from matplotlib.transforms import SeparableTransformation
+from matplotlib.transforms import identity_transform, unit_bbox, identity_funcxy
+from matplotlib.transforms import get_bbox_transform
+from matplotlib.transforms import transform_bbox, inverse_transform_bbox
+from matplotlib.transforms import bbox_all
 
 def closeto(x,y):
-    try: assert(abs(asarray(x)-asarray(y))<1e-10)
-    except AssertionError:
-        raise AssertionError('Failed: %s and %s not close' %(x,y))
+    return abs(asarray(x)-asarray(y))<1e-10
 
-# testing bounding boxes
-bbox = Bound2D( 1,1,5,5)
-bbox.x.update([1,2,3,4,5,6])
-bbox.y.update([-1,2,3,4,5,6,12])
+def closeto_seq(xs,ys):
+    return alltrue([closeto(x,y) for x,y in zip(xs, ys)])
 
-left, bottom, width, height = bbox.get_bounds()
-top = bottom + height
-right = left + width
-assert(left==1)
-assert(right==6)
-assert(width==5)
-assert(bottom==-1)
-assert(top==12)
-assert(height==13)
+def closeto_bbox(b1, b2):
+    xmin1, xmax1 = b1.intervalx().get_bounds()
+    ymin1, ymax1 = b1.intervaly().get_bounds()
+    xmin2, xmax2 = b2.intervalx().get_bounds()
+    ymin2, ymax2 = b2.intervaly().get_bounds()
 
-b = Bound1D(-1, 1)
-closeto(b.scale(1.9).bounds(), (-1.9, 1.9) )
-b = Bound1D(-1, 1)
-closeto(b.scale(0.9).bounds(), (-0.9, 0.9) )
-print 'passed bounding box tests ...'
+    pairs = ( (xmin1, xmin2), (xmax1, xmax2), (ymin1, ymin2), (ymax1, ymax2))
+    return alltrue([closeto(x,y) for x,y in pairs])
+    
+ll = Point( Value(10),  Value(10) )
+ur = Point( Value(200), Value(40) )
 
-# test positive bounding box
-x = arange(-1.0001, 1.0, 0.01)
-bpos = Bound1D(.1, 1, isPos=True)
-bpos.update(x)
-assert(bpos.min()>0)
-bpos.is_positive(False)
-bpos.update(x)
-assert(bpos.min()==-1.0001)
+bbox = Bbox(ll, ur)
 
-print 'passed positive bounding box tests ...'
+assert(bbox.xmin()==10)
+assert(bbox.width()==190)
+assert(bbox.height()==30)
 
-# testing transforms
-i1 = Bound1D(0,1)
-i2 = Bound1D(-6,6)
-identityTrans = Transform()
-linearTrans = Transform(i1,i2)
-logTrans = Transform(Bound1D(0.1,1), i2, funcs=(log10, pow10))
-
-scalar = 1
-tup = 1,2,3
-a = arange(0.0, 2.0, 0.1)
-
-assert( identityTrans.positions( scalar ) == scalar )
-assert( identityTrans.positions( tup )== tup )
-assert( identityTrans.positions( a ) == a )
-assert( identityTrans.scale( scalar ) == scalar )
-assert( identityTrans.scale( tup ) == tup )
-assert( identityTrans.scale( a ) == a )
-
-assert( linearTrans.positions(1) == 6 )
-assert( linearTrans.scale(1) == 12 ) 
-print 'passed transform tests ... '
-
-bound = Bound1D(0.25, 0.75)
-trans = Transform( Bound1D(0,1), Bound1D(-6,6))
-bout = transform_bound1d(bound, trans)
-assert( bout.bounds() == (-3.0, 3.0) )
-print 'passed bbox transform tests ... '
-
-# testing bound2d_all
-b1 = Bound2D(1, 1, 1, 1)
-b2 = Bound2D(1.1, 1.1, 1, 1)
-b3 = Bound2D(1.2, 1.2, 1, 1)
-b4 = Bound2D(1.3, 1.3, 4, 1)
-
-bbox = bound2d_all((b1,b2,b3,b4))
-
-closeto( bbox.x.min(), 1)
-closeto( bbox.x.max(), 5.3)
-closeto( bbox.y.min(), 1)
-closeto( bbox.y.max(), 2.3)
-print 'passed bound2d_all tests ... '
-
-# testing inverses
-bpos = Bound1D(.1, 1, isPos=True)
-trans = Transform( bpos, Bound1D(-6,6), funcs=(log10, pow10))
-x = 0.2
-closeto( trans.inverse_positions(trans.positions(x)), x ) 
-closeto( trans.inverse_scale(trans.scale(x)), x ) 
-
-trans.set_funcs( (identity, identity) ) 
-closeto( trans.inverse_positions(trans.positions(x)), x ) 
-closeto( trans.inverse_scale(trans.scale(x)), x ) 
-print 'passed inverse transform tests ... '
+ll.x().set(12.0)
+assert(bbox.xmin()==12)
+assert(bbox.width()==188)
+assert(bbox.height()==30)
 
 
-dpi = DPI(100)
-dots = Dots(dpi)
-pts = Points(dpi)
+a  = Value(10)
+b  = Value(0)
+c  = Value(0)
+d  = Value(20)
+tx = Value(-10)
+ty = Value(-20)
 
-trans = TransformSize(pts, dots, RWRef(10))
-closeto(trans.positions(0), 10)
-closeto(trans.positions(72), 110)
+affine = Affine(a,b,c,d,tx,ty)
+# test transformation of xy tuple
+x, y = affine.xy_tup( (10,20) )
+assert(x==90)
+assert(y==380)
 
-dpi.set(200)
-closeto(trans.positions(0), 10)
-closeto(trans.positions(72), 210)
-closeto(trans.positions(36), 110)
+# test transformation of sequence of xy tuples
+xy = affine.seq_xy_tups( ( (10,20), (20,30), ) )
+assert(xy[0] == (90, 380))
+assert(xy[1] == (190, 580))
 
-cm = Centimeter(dpi)
-inch = Inches(dpi)
+# test transformation of x and y sequences
+xy = affine.seq_x_y(  (10,20), (20,30))
+assert(xy[0] == (90, 190))
+assert(xy[1] == (380, 580))
 
-trans = TransformSize(cm, inch, RWRef(0))
-closeto(trans.positions(2), 2/2.54)
-closeto(trans.inverse_positions(trans.positions(2)), 2)
-#closeto(trans.positions(36), 110)
+# test with numeric arrays
+xy = affine.seq_x_y(  array((10,20)), array((20,30)))
+assert(xy[0] == (90, 190))
+assert(xy[1] == (380, 580))
 
-dpi.set(100)
-pts = Points(dpi)
-dots = Dots(dpi)
+# now change the x scale factor and make sure the affine updated
+# properly
+a.set(20)
+xy = affine.seq_xy_tups( ( (10,20), (20,30), ) )
+assert(xy[0] == (190, 380))
+assert(xy[1] == (390, 580))
 
-trans = TransformSize(pts, dots, RWRef(62.5))
-closeto( trans.positions(12), 12/72*100 + 62.5)
+# Test the aritmetic operations on lazy values
+v1 = Value(10)
+v2 = Value(20)
+o1 =  v1 + v2
+assert( o1.get() == 30)
 
-trans = TransformSize(pts, dots, RWRef(10))
-#print trans.positions(-12)
+o2 =  v1 * v2
+assert( o2.get() == 200)
 
-print 'passed size transform tests ... '
+v3 = Value(2)
+o3 = (v1+v2)*v3
+assert( o3.get() == 60)
 
+# test a composition of affines
+zero = Value(0)
+one = Value(1)
+two = Value(2)
+num = Value(2)
+a1 = Affine(num, zero, zero, num, zero, zero)
+a2 = Affine(one, zero, zero, num, num, one )
+
+pnt = 3,4
+a = multiply_affines(a1, a2)
+assert( a2.xy_tup(pnt) == (5,9) )
+assert( a.xy_tup(pnt) == (10,18) )
+
+a = multiply_affines(a2, a1)
+assert( a1.xy_tup(pnt) == (6,8) )
+assert( a.xy_tup(pnt) == (8,17) )
+
+
+# change num to 4 and make sure the affine product is still right
+num.set(4)
+assert( a1.xy_tup(pnt) == (12,16) )
+assert( a.xy_tup(pnt) == (16,65) )
+
+# test affines with arithemtic sums of lazy values
+val = num*(one + two)
+a1 = Affine(one, zero, zero, val, num, val)
+assert(a1.xy_tup(pnt) == (7, 60))
+
+x = rand(20)
+y = rand(20)
+transform = identity_transform()
+xout, yout = transform.seq_x_y(x,y)
+assert((x,y) == transform.seq_x_y(x,y))
+
+
+# test bbox transforms; transform the unit coordinate system to
+# "display coords"
+bboxin = unit_bbox()
+ll = Point( Value(10),  Value(10) )
+ur = Point( Value(200), Value(40) )
+bboxout = Bbox(ll, ur)
+
+transform = get_bbox_transform(bboxin, bboxout)
+
+assert( transform.xy_tup( (0,0) )==(10, 10))
+assert( transform.xy_tup( (1,1) )==(200, 40))
+assert( transform.xy_tup( (0.5, 0.5) )==(105, 25))
+
+# simulate a resize
+ur.x().set(400)
+ur.y().set(400)
+assert( transform.xy_tup( (0,0) )==(10, 10))
+assert( transform.xy_tup( (1,1) )==(400, 400))
+assert( transform.xy_tup( (0.5, 0.5) )==(205, 205))
+
+pairs = ( ( (0,   0  ), (10,  10 )  ),
+          ( (1,   1  ), (400, 400) ),
+          ( (0.5, 0.5), (205, 205) ) )
+
+for p1, p2 in pairs:
+    assert( closeto_seq( transform.xy_tup(p1), p2 ) )
+    assert( closeto_seq( transform.inverse_xy_tup(p2), p1) )
+
+# make some random bbox transforms and test inversion
+def rand_point():
+    xy = rand(2)
+    return Point( Value(xy[0]),  Value(xy[1]) )
+
+def rand_bbox():
+    ll = rand_point()
+    ur = rand_point()
+    return Bbox(ll, ur)
+
+def rand_transform():
+    b1 = rand_bbox()
+    b2 = rand_bbox()
+    return get_bbox_transform(b1, b2)
+
+
+transform = rand_transform()
+transform.set_funcx(Log())
+
+x = rand(100)
+y = rand(100)
+xys = zip(x,y)
+for xy in xys:
+    xyt = transform.xy_tup(xy)
+    xyi = transform.inverse_xy_tup(xyt)
+    assert( closeto_seq(xy,xyi) )
+
+
+ll = Point( Value(-10),  Value(-10) )
+ur = Point( Value(200), Value(40) )
+bbox = Bbox(ll, ur)
+assert(bbox.xmin()==-10)
+assert(bbox.xmax()==200)
+assert(bbox.ymin()==-10)
+assert(bbox.ymax()==40)
+
+bbox.update(xys, False)  # don't ignore current lim
+
+bbox.update(xys, True)  #ignore current lim
+assert(bbox.xmin()==min(x))
+assert(bbox.xmax()==max(x))
+assert(bbox.ymin()==min(y))
+assert(bbox.ymax()==max(y))
+
+
+ll = Point( Value(-10),  Value(-10) )
+ur = Point( Value(200), Value(40) )
+bbox = Bbox(ll, ur)
+
+ix = bbox.intervalx()
+iy = bbox.intervaly()
+
+assert(bbox.xmin()==-10)
+assert(bbox.xmax()==200)
+assert(bbox.ymin()==-10)
+assert(bbox.ymax()==40)
+
+ix.set_bounds(-30, 400)
+assert(bbox.xmin()==-30)
+assert(bbox.xmax()==400)
+assert(bbox.ymin()==-10)
+assert(bbox.ymax()==40)
+
+
+num = Value(200.0)
+den = Value(100.0)
+div = num/den
+assert(div.get()==2.0)
+
+
+# test the inverse bbox functions
+trans = rand_transform()
+bbox1 = rand_bbox() 
+ibbox = inverse_transform_bbox(trans, bbox1)
+bbox2 = transform_bbox(trans, ibbox)
+assert(closeto_bbox(bbox1, bbox2))
+
+
+ll = Point( Value(-10),  Value(-10) )
+ur = Point( Value(200), Value(40) )
+bbox = Bbox(ll, ur)
+transform = get_bbox_transform(unit_bbox(), bbox)
+assert( closeto_seq( inverse_transform_bbox(transform, bbox).get_bounds(),
+                     (0,0,1,1)))
+assert( closeto_seq( transform_bbox(transform, unit_bbox()).get_bounds(),
+                     (-10,-10,210,50)))
+
+
+# test the bbox all bounding functions
+boxes = [rand_bbox() for i in range(20)]
+xmin = min([box.xmin() for box in boxes])
+xmax = max([box.xmax() for box in boxes])
+ymin = min([box.ymin() for box in boxes])
+ymax = max([box.ymax() for box in boxes])
+
+box = bbox_all(boxes)
+assert( closeto_seq( box.get_bounds(), (xmin, ymin, xmax-xmin, ymax-ymin)))
+print 'all tests passed'
 

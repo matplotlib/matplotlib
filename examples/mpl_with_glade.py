@@ -40,8 +40,8 @@ class WidgetsWrapper:
         self.widgets.signal_autoconnect(GladeHandlers.__dict__)
 
         self.figure = Figure(figsize=(8,6), dpi=72)
-        self.axis = Subplot(self.figure, 111)
-        self.figure.add_axis(self.axis)
+        self.axis = self.figure.add_subplot(111)
+        
         t = arange(0.0,3.0,0.01)
         s = sin(2*pi*t)
         self.axis.plot(t,s)
