@@ -52,6 +52,7 @@ public:
   Py::Object set_bitmap_size(const Py::Tuple & args);
   Py::Object clear(const Py::Tuple & args);
   Py::Object set_size(const Py::Tuple & args);
+  Py::Object set_charmap(const Py::Tuple & args);
   Py::Object set_text(const Py::Tuple & args);
   Py::Object get_glyph(const Py::Tuple & args);
   Py::Object get_num_glyphs(const Py::Tuple & args);
@@ -94,6 +95,7 @@ private:
   static char set_bitmap_size__doc__ [];
   static char clear__doc__ [];
   static char set_size__doc__ [];
+  static char set_charmap__doc__ [];
   static char set_text__doc__ [];
   static char get_glyph__doc__ [];
   static char get_num_glyphs__doc__ [];

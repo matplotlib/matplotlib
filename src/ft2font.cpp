@@ -309,6 +309,27 @@ FT2Font::set_size(const Py::Tuple & args) {
   return Py::Object();
 }
 
+
+char FT2Font::set_charmap__doc__[] = 
+"set_charmap(i)\n"
+"\n"
+"Make the i-th charmap current\n"
+;
+
+Py::Object
+FT2Font::set_charmap(const Py::Tuple & args) {
+  _VERBOSE("FT2Font::set_charmap");
+  args.verify_length(1);
+  
+  int i = Py::Int(args[0]);
+  if (i>=face->num_charmaps) 
+    throw Py::ValueError("i exceeds the available number of char maps");
+  FT_CharMap charmap = face->charmaps[i];
+  if (FT_Set_Charmap( face, charmap ))
+    throw Py::ValueError("Could not set the charmap");
+  return Py::Object();
+}
+
 FT_BBox
 FT2Font::compute_string_bbox( ) {
   _VERBOSE("FT2Font::compute_string_bbox");
@@ -1156,6 +1177,9 @@ FT2Font::init_type() {
 		     FT2Font::set_text__doc__);
   add_varargs_method("set_size", &FT2Font::set_size,
 		     FT2Font::set_size__doc__);
+  add_varargs_method("set_charmap", &FT2Font::set_charmap,
+		     FT2Font::set_charmap__doc__);
+
   add_varargs_method("get_width_height", &FT2Font::get_width_height,
 		     FT2Font::get_width_height__doc__);
   add_varargs_method("get_glyph_name", &FT2Font::get_glyph_name,
