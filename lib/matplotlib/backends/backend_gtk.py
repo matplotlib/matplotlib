@@ -53,7 +53,8 @@ PIXELS_PER_INCH = 96
 
 
 # Image formats that this backend supports - for FileChooser and print_figure()
-IMAGE_FORMAT          = ['eps', 'jpg', 'png', 'ps', 'svg'] + ['bmp', 'raw', 'rgb']
+IMAGE_FORMAT          = ['eps', 'jpg', 'png', 'ps', 'svg'] + ['bmp'] # , 'raw', 'rgb']
+IMAGE_FORMAT.sort()
 IMAGE_FORMAT_DEFAULT  = 'png'
 
 
@@ -1441,8 +1442,6 @@ if gtk.pygtk_version >= (2,4,0):
 
             if path: self.path = path
             else:    self.path = os.getcwd() + os.sep
-
-            IMAGE_FORMAT.sort()
 
             # create an extra widget to list supported image formats
             self.set_current_folder (self.path)
