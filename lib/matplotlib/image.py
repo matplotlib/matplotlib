@@ -107,7 +107,7 @@ ACCEPTS: float
         cm.ScalarMappable.changed(self)
 
     def make_image(self, flipy):
-        self._imcache = None
+
         if self._A is not None:
             if self._imcache is None:
                 x = self.to_rgba(self._A, self._alpha)
