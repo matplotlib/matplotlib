@@ -174,9 +174,9 @@
 
 -- Fix GD color allocation bug
 
--- Write install instructions for Paint on win32 and linux
+-- DONE Write install instructions for Paint on win32 and linux
 
--- Write install instructions for gd on win32
+-- DONE Write install instructions for gd on win32
 
 -- Separate out the backend web pages and get developers to maintain
    them.
@@ -192,7 +192,7 @@
 
 -- DONE GTK facecolor reversed for line markers
 
--- figure clear
+-- DONE figure clear
 
 -- DONE 2004-02-12 (used filledEllipse) gd filling is not working like
    I think - see arctest
@@ -237,30 +237,25 @@
 
 -- get module docs for ft2font working right
 
--- kwargs in plot to set lineprops?
+-- DONE kwargs in plot to set lineprops?
 
--- fix data clipping to per matthew' suggestion 
+-- DONE fix data clipping to per matthew' suggestion 
 
 -- DONE 2004-02-25 fix setup.py to build ft2
 
 -- TkAgg resize
 
--- TkAgg interactive on win32
+-- DONE TkAgg interactive on win32
 
--- test mathdemo on win32
+-- DONE test mathdemo on win32
 
 -- figure out what you want to do about mathtext on GTK for next relase
 
--- mathtext screenshot demo
+-- DONE mathtext screenshot demo
 
--- integrate numerix chooser with matplotlib.__init__
+-- DONE integrate numerix chooser with matplotlib.__init__
 
 -- figure out how to make draw if interactive play nicely
 
--- python2.2 no default tkinter
+-- DONE - (Todd updated docs) - python2.2 no default tkinter
 
-    from backend_tkagg import error_msg, draw_if_interactive, show, new_figure_manager
-  File "/usr/lib/python2.2/site-packages/matplotlib/backends/backend_tkagg.py",
-line 7, in ?
-    import Tkinter as Tk, FileDialog
-ImportError: No module named Tkinter

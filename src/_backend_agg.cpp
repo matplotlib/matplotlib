@@ -150,8 +150,8 @@ _gc_get_color(PyObject *gc) {
   double r, g, b, *palpha;
 
   if (!PyArg_ParseTuple(rgb, "ddd", &r, &g, &b)) {
-    PyErr_SetString(PyExc_ValueError, 
-		    "GC _rgb must be a length 3 tuple");    
+    //PyErr_SetString(PyExc_ValueError, 
+    //		    "GC _rgb must be a length 3 tuple");    
     return NULL;
   }
 
@@ -553,11 +553,14 @@ RendererAgg_draw_lines(RendererAggObject *renderer, PyObject* args) {
   if (Nx!=Ny) {
     PyErr_SetString(PyExc_ValueError, 
 		    "x and y must be equal length sequences");
+    return NULL;
   }
 
   if (Nx<2) {
     PyErr_SetString(PyExc_ValueError, 
 		    "x and y must have length >= 2");
+    printf("%d, %d\n", Nx, Ny);
+    return NULL;
   }
 
 

@@ -60,7 +60,7 @@ def drive(backend):
             lines.append('savefig("%s", dpi=150)' % outfile)
         tmpfile = '_tmp_%s.py' % basename
         file(tmpfile, 'w').write(''.join(lines))
-        os.system('python2.2 %s' % tmpfile)
+        os.system('python %s' % tmpfile)
 
 times = {}
 backends = ['PS', 'GD', 'Paint', 'Agg', 'Template']

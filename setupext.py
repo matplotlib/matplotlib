@@ -95,9 +95,6 @@ def add_pygtk_flags(module):
 
 
 
-    print module.include_dirs
-    print module.libraries
-    print module.library_dirs
     
 
 def add_tk_flags(module):
