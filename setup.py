@@ -54,7 +54,8 @@ import sys,os
 import glob
 from distutils.core import Extension
 from setupext import build_agg, build_gtkagg, build_tkagg, \
-     build_ft2font, build_image, build_windowing, build_transforms, build_contour
+     build_ft2font, build_image, build_windowing, build_transforms, \
+     build_contour, build_enthought
 import distutils.sysconfig
 
 major, minor1, minor2, s, tmp = sys.version_info
@@ -147,6 +148,7 @@ if havedate: # dates require python23 datetime
             add_pytz()
 
 build_transforms(ext_modules, packages, NUMERIX)
+build_enthought(ext_modules, packages)
 
 if BUILD_GTKAGG:
     try:
