@@ -1,5 +1,7 @@
 New entries should be added at the top
 
+2004-11-11 greatly simplify the emitted postscript code - JV
+
 2004-11-12 Added new plotting functions spy, spy2 for sparse matrix
            visualization - JDH
 
