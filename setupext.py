@@ -492,7 +492,13 @@ def build_enthought(ext_modules, packages):
 
     ctraits = Extension('matplotlib.enthought.traits.ctraits',  ['lib/matplotlib/enthought/traits/ctraits.c'])
     ext_modules.append(ctraits)
-    packages.extend(['matplotlib/enthought', 'matplotlib/enthought/traits'])
+    packages.extend(['matplotlib/enthought',
+                     'matplotlib/enthought/traits',
+                     'matplotlib/enthought/traits/ui',
+                     'matplotlib/enthought/traits/ui/null',                     
+                     'matplotlib/enthought/resource',
+                     'matplotlib/enthought/util',
+                     ])
     BUILT_ENTHOUGHT = True    
 
 def build_contour(ext_modules, packages, numerix):

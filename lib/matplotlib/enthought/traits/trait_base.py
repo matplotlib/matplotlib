@@ -20,23 +20,36 @@
 #-------------------------------------------------------------------------------
 #  Imports:
 #-------------------------------------------------------------------------------
+
 from __future__ import generators
-import os, sys
+
+import os
+import sys
 
 from os.path import exists, join 
-from types   import ListType, TupleType, DictType, StringType, UnicodeType, \
-                    IntType, LongType, FloatType, ComplexType, \
-                    ClassType, TypeType
-try: from types   import BooleanType
-except ImportError: BooleanType = IntType
-   
 from string  import lowercase, uppercase
+from types   import ListType, TupleType, DictType, StringType, UnicodeType, \
+                    IntType, LongType, FloatType, ComplexType, ClassType, \
+                    TypeType
+                    
+#-------------------------------------------------------------------------------
+#  Provide Python 2.3+ compatible definitions (if necessary):  
+#-------------------------------------------------------------------------------
+                                        
+try: 
+    from types import BooleanType
+except ImportError: 
+    BooleanType = IntType
 
-#2.2 compat version
-def enumerate(seq):
-    for i in xrange(len(seq)):
+def _enumerate ( seq ):
+    for i in xrange( len( seq) ):
         yield i, seq[i]
-
+try:
+    enumerate = enumerate
+except:
+    enumerate = _enumerate
+del _enumerate    
+    
 #-------------------------------------------------------------------------------
 #  Constants:
 #-------------------------------------------------------------------------------

@@ -16,20 +16,17 @@
 #  Imports:
 #-------------------------------------------------------------------------------
 
-from enthought.traits.trait_handlers import TraitString, TraitPrefixList, \
+from matplotlib.enthought.traits.trait_handlers import TraitString, TraitPrefixList, \
                                             TraitEnum, TraitList
-from enthought.traits    import Trait, Event
+from matplotlib.enthought.traits    import Trait, Event
+from matplotlib.enthought.traits.ui import editors
 
 #-------------------------------------------------------------------------------
 #  Trait Editor definitions:
 #-------------------------------------------------------------------------------
-try: from enthought.traits.ui import editors
-except ImportError:
-    boolean_editor = None
-    button_editor  = None
-else:
-    boolean_editor = editors.BooleanEditor()
-    button_editor  = editors.ButtonEditor()
+
+boolean_editor = editors.BooleanEditor
+button_editor  = editors.ButtonEditor
 
 #-------------------------------------------------------------------------------
 #  Event traits:
@@ -228,7 +225,7 @@ ssn_trait = Trait( '000-00-0000',
                                       
 if __name__ == '__main__':
     
-    from enthought.traits import tdb
+    from matplotlib.enthought.traits import tdb
     define = tdb.define
     
     define( 'zipcode_5',           zipcode_5_trait )

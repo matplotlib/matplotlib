@@ -598,6 +598,5 @@ class NavigationToolbar2FltkAgg(NavigationToolbar2):
 
 
 FigureManager = FigureManagerFltkAgg
-error_msg = error_msg_fltk
 if matplotlib.is_interactive():
     show()

@@ -386,13 +386,6 @@ def get_cmap(name=None, lut=None):
 
 # These are provided for backwards compat
 import sys
-def ColormapJet(N=LUTSIZE):
-    verbose.report_error("ColormapJet deprecated, please use cm.jet instead")
-    return colors.LinearSegmentedColormap('jet',  _jet_data, N)
-
-def Grayscale(N=LUTSIZE):
-    verbose.report_error("Grayscale deprecated, please use cm.gray instead")
-    return colors.LinearSegmentedColormap('gray',  _gray_data, N)
 
 
 class ScalarMappable:    

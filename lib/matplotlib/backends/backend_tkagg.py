@@ -623,4 +623,4 @@ class NavigationToolbar2TkAgg(NavigationToolbar2, Tk.Frame):
             
 
 FigureManager = FigureManagerTkAgg
-error_msg = error_msg_tkpaint
+

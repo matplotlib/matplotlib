@@ -57,7 +57,7 @@ import sys
 from matplotlib import verbose
 from matplotlib._pylab_helpers import Gcf
 from matplotlib.backend_bases import RendererBase, GraphicsContextBase,\
-     FigureManagerBase, FigureCanvasBase, error_msg
+     FigureManagerBase, FigureCanvasBase
 
 from matplotlib.cbook import enumerate
 from matplotlib.figure import Figure
@@ -65,15 +65,6 @@ from matplotlib.transforms import Bbox
 
 
 
-def error_msg_template(msg, *args):
-    """
-    Signal an error condition.
-    - in a GUI backend, popup a error dialog.
-    - in a non-GUI backend delete this function and use
-    'from matplotlib.backend_bases import error_msg'
-    """
-    verbose.report_error(msg)
-    raise SystemExit
     
 
 class RendererTemplate(RendererBase):
@@ -332,4 +323,4 @@ class FigureManagerTemplate(FigureManagerBase):
 
 
 FigureManager = FigureManagerTemplate
-error_msg = error_msg_template
+

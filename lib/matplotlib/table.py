@@ -20,7 +20,7 @@ License   : matplotlib license
 
 """
 from __future__ import division
-import sys
+import sys, warnings
 from matplotlib import verbose
 from numerix import ones, Float, add, asarray
 
@@ -184,7 +184,7 @@ class Table(Artist):
         Artist.__init__(self)
 
         if is_string_like(loc) and not self.codes.has_key(loc):
-            verbose.report_error('Unrecognized location %s. Falling back on bottom; valid locations are\n%s\t' %(loc, '\n\t'.join(self.codes.keys())))
+            warnings.warn('Unrecognized location %s. Falling back on bottom; valid locations are\n%s\t' %(loc, '\n\t'.join(self.codes.keys())))
             loc = 'bottom'
         if is_string_like(loc): loc = self.codes.get(loc, 1)
         self.set_figure(ax.figure)

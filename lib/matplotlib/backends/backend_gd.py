@@ -4,27 +4,17 @@ A gd backend http://newcenturycomputers.net/projects/gdmodule.html
 
 
 from __future__ import division
-import sys, os, math
+import sys, os, math, warnings
 
 try: import gd
 except ImportError:
     print >>sys.stderr, 'You must first install the gd module http://newcenturycomputers.net/projects/gdmodule.html'
     sys.exit()
 
-def gd_requirements_failed():
-    'Print a message about the required gd version and quit'
-
-    error_msg_gd( """\
-You must use gd 2.0.21 (or later) from http://www.boutell.com/gd and
-gdmodule-0.52 (or later) from
-http://newcenturycomputers.net/projects/gdmodule.html
-""")
-    sys.exit()
         
     
 from matplotlib.backend_bases import RendererBase, \
-     GraphicsContextBase, FigureManagerBase, FigureCanvasBase,\
-     error_msg
+     GraphicsContextBase, FigureManagerBase, FigureCanvasBase
 from matplotlib import verbose
 from matplotlib._pylab_helpers import Gcf
 from matplotlib.cbook import enumerate, pieces, is_string_like
@@ -43,11 +33,6 @@ if (os.environ.has_key('GDFONTPATH') and not
 
 PIXELS_PER_INCH = 96  # constant GD uses for screen DPI
 
-def error_msg_gd(msg, *args):
-    """
-    Signal an error condition -- in a GUI, popup a error dialog
-    """
-    verbose.report_error('Error: %s'%msg)
 
 def round(x):
     return int(math.floor(x+0.5))
@@ -89,7 +74,7 @@ class RendererGD(RendererBase):
                  self.im.get_bounding_rect(
                 font, scale*size, 0.0, (0,0), s)
         except ValueError:
-            error_msg_gd('Could not load font %s.  Try setting TTFFONTPATH to include this font' % fontname)
+            raise RuntimeError('Could not load font %s.  Try setting TTFFONTPATH to include this font' % fontname)
             
         w = abs(lrx - llx)
         h = abs(lly - uly)
@@ -231,7 +216,7 @@ class RendererGD(RendererBase):
         color = self.im.colorAllocate(  rgbi )
 
         if color==-1:
-            verbose.report_error('Unable to allocate color %1.3f, %1.3f, %1.3f; using nearest neighbor' % rgb)
+            warnings.warn('Unable to allocate color %1.3f, %1.3f, %1.3f; using nearest neighbor' % rgb)
             color = self.im.colorClosest(rgbi)
 
         self._cached[rgbi] = color
@@ -386,7 +371,7 @@ class FigureCanvasGD(FigureCanvasBase):
         im = gd.image((int(width), int(height)))
 
         if not hasattr(im, 'setAntiAliased'):
-            gd_requirements_failed()
+            raise RuntimeError('gd_requirements_failed')
         renderer = RendererGD(im, self.figure.dpi)
         self.figure.draw(renderer)
         renderer.finish()
@@ -408,5 +393,5 @@ class FigureManagerGD(FigureManagerBase):
 ########################################################################
 
 FigureManager = FigureManagerGD
-error_msg = error_msg_gd
+
          

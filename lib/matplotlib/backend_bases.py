@@ -475,7 +475,7 @@ class GraphicsContextBase:
         if cs in ('butt', 'round', 'projecting'):
             self._capstyle = cs
         else:
-            error_msg('Unrecognized cap style.  Found %s' % cs)
+            raise ValueError('Unrecognized cap style.  Found %s' % cs)
 
     def set_clip_rectangle(self, rectangle):
         """
@@ -519,7 +519,7 @@ class GraphicsContextBase:
         if js in ('miter', 'round', 'bevel'):
             self._joinstyle = js
         else:
-            error_msg('Unrecognized join style.  Found %s' % js)
+            raise ValueError('Unrecognized join style.  Found %s' % js)
 
     def set_linewidth(self, w):
         """
@@ -537,7 +537,7 @@ class GraphicsContextBase:
             offset, dashes = self.dashd[style]
             self.set_dashes(offset, dashes)
         else:
-            error_msg('Unrecognized linestyle:  Found %s' % style)
+            raise ValueError('Unrecognized linestyle:  Found %s' % style)
 
 
 class Event:
@@ -800,6 +800,8 @@ class FigureCanvasBase:
                 return
 
 
+
+
 class FigureManagerBase:
     """
     Helper class for matlab mode, wraps everything up into a neat bundle
@@ -814,12 +816,6 @@ class FigureManagerBase:
 
         self.canvas.mpl_connect('key_press_event', self.key_press)
         
-    def clf(self):
-        'clear the figure'
-        verbose.report_error('Deprectated; use fig.clf() instead')
-        self.canvas.figure.clf()
-        
-
     def destroy(self):
         pass
 
@@ -839,8 +835,14 @@ class FigureManagerBase:
         elif event.key == 'l':  
             event.inaxes.toggle_log_lineary()
             self.canvas.draw()
-            
-        
+
+
+    def show_popup(self, msg):
+        """
+        Display message in a popup -- GUI only
+        """
+        pass
+
 # cursors
 class Cursors:  #namespace
     HAND, POINTER, SELECT_REGION, MOVE = range(4)
@@ -1314,9 +1316,3 @@ class NavigationToolbar2:
 
         self.set_message(self.mode)
         
-def error_msg(msg, *args, **kwargs):
-    """
-    Alert an error condition with message
-    """
-    verbose.report_error('Error: %s'% msg)
-    sys.exit()

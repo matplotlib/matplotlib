@@ -14,7 +14,7 @@ from matplotlib.cbook import is_string_like, enumerate
 from matplotlib.font_manager import fontManager
 
 from matplotlib.backend_bases import RendererBase, GraphicsContextBase, \
-     FigureManagerBase, FigureCanvasBase, error_msg
+     FigureManagerBase, FigureCanvasBase
 from matplotlib._pylab_helpers import Gcf
 from matplotlib.figure import Figure
 from matplotlib.mathtext import math_parse_s_ft2font
@@ -126,9 +126,7 @@ class RendererGDK(RendererBase):
         except AttributeError:
             pa = pb.pixel_array
         except RuntimeError, exc: #  pygtk was not compiled with Numeric Python support
-            verbose.report_error('Error: %s' % exc)
-            return
-
+            raise
         pa[:,:,:] = X
 
         gc = self.new_gc()
@@ -192,7 +190,7 @@ class RendererGDK(RendererBase):
             return
 
         if angle not in (0,90):
-            verbose.report_error('The GTK backend cannot draw text at a %i degree angle, try GtkAgg instead' % angle)
+            warnings.warn('The GTK backend cannot draw text at a %i degree angle, try GtkAgg instead' % angle)
 
         elif ismath:
             self._draw_mathtext(gc, x, y, s, prop, angle)
@@ -242,7 +240,7 @@ class RendererGDK(RendererBase):
         except AttributeError:
             pa = pb.pixel_array
         except RuntimeError, exc: #  'pygtk was not compiled with Numeric Python support'
-            verbose.report_error('mathtext not supported: %s' % exc)
+            warnings.warn('mathtext not supported: %s' % exc)
             return        
 
         rgb = gc.get_rgb()
@@ -294,7 +292,7 @@ class RendererGDK(RendererBase):
                                   visual=gdrawable.get_visual(),
                                   width=w, height=h)
         if imageFlip == None or imageBack == None or imageVert == None:
-            verbose.report_error("Could not renderer vertical text")
+            warnings.warn("Could not renderer vertical text")
             return
         imageFlip.set_colormap(self._cmap)
         for i in range(w):
@@ -536,10 +534,8 @@ class FigureCanvasGDK(FigureCanvasBase):
         
             # pixbuf.save() recognises 'jpeg' not 'jpg'
             if ext == 'jpg': ext = 'jpeg' 
-            try:
-                pixbuf.save(filename, ext)
-            except gobject.GError, exc:
-                error_msg('Save figure failure:\n%s' % (exc,), parent=self)
+
+            pixbuf.save(filename, ext)
 
         elif ext in ('eps', 'ps', 'svg',):
             if ext == 'svg':
@@ -547,29 +543,17 @@ class FigureCanvasGDK(FigureCanvasBase):
             else:
                 from backend_ps  import FigureCanvasPS  as FigureCanvas
 
-            try:
-                fc = self.switch_backends(FigureCanvas)
-                fc.print_figure(filename, dpi, facecolor, edgecolor, orientation)
-            except IOError, exc:
-                error_msg("Save figure failure:\n%s: %s" %
-                          (exc.filename, exc.strerror), parent=self)
-            except Exception, exc:
-                error_msg("Save figure failure:\n%s" % exc, parent=self)
-
+            
+            fc = self.switch_backends(FigureCanvas)
+            fc.print_figure(filename, dpi, facecolor, edgecolor, orientation)
         elif ext in ('bmp', 'raw', 'rgb',):
-            try: 
-                from backend_agg import FigureCanvasAgg  as FigureCanvas
-            except:
-                error_msg('Save figure failure:\n'
-                          'Agg must be loaded to save as bmp, raw and rgb',
-                          parent=self)                
-            else:
-                fc = self.switch_backends(FigureCanvas)
-                fc.print_figure(filename, dpi, facecolor, edgecolor, orientation)
+            
+            from backend_agg import FigureCanvasAgg  as FigureCanvas
+            fc = self.switch_backends(FigureCanvas)
+            fc.print_figure(filename, dpi, facecolor, edgecolor, orientation)
 
         else:
-            error_msg('Format "%s" is not supported.\nSupported formats are %s.' %
-                      (ext, ', '.join(IMAGE_FORMAT)),
-                      parent=self)
+            raise ValueError('Format "%s" is not supported.\nSupported formats are %s.' %
+                             (ext, ', '.join(IMAGE_FORMAT)))
 
         self.figure.set_canvas(self)

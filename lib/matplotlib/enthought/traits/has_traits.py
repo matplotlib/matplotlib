@@ -31,7 +31,7 @@ from traits          import Trait, CTrait, Python, warning, deprecate, Any, \
 from trait_notifiers import StaticAnyTraitChangeNotifyWrapper, \
                             StaticTraitChangeNotifyWrapper, \
                             TraitChangeNotifyWrapper
-from trait_base      import Missing
+from trait_base      import Missing, enumerate
 from trait_errors    import TraitError                            
                            
 #-------------------------------------------------------------------------------
@@ -999,7 +999,7 @@ class HasTraits ( CHasTraits ):
             
         # Otherwise, create and return a View based on the set of editable 
         # traits defined for the object:
-        from enthought.traits.ui import View
+        from matplotlib.enthought.traits.ui import View
         return View( self.editable_traits() )
         
     #---------------------------------------------------------------------------
@@ -1046,7 +1046,7 @@ class HasTraits ( CHasTraits ):
                     fd.close()
            
         if edit:
-            from enthought.traits.ui import toolkit
+            from matplotlib.enthought.traits.ui import toolkit
             if context is None:
                 context = self
             rc = toolkit().view_application( context, self.trait_view( view ), 

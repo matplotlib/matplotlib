@@ -44,7 +44,7 @@ from types        import StringType, InstanceType, TypeType, FunctionType, \
                          MethodType
 from ctraits      import CTraitMethod                            
 from trait_base   import strx, SequenceTypes, Undefined, TypeTypes, ClassTypes,\
-                         CoercableTypes, class_of, enumerate
+                         CoercableTypes, class_of, enumerate           
 from trait_errors import TraitError
                  
 # Patched by 'traits.py' once class is defined!     
@@ -130,7 +130,7 @@ class TraitHandler ( object ):
                
     def get_editor ( self, trait ):
         if self.editor is None:
-            from enthought.traits.ui import TextEditor
+            from matplotlib.enthought.traits.ui import TextEditor
             self.editor = TextEditor()
         return self.editor
         
@@ -205,7 +205,7 @@ class TraitRange ( TraitHandler ):
         auto_set = trait.auto_set
         if auto_set is None:
             auto_set = True
-        from enthought.traits.ui import RangeEditor
+        from matplotlib.enthought.traits.ui import RangeEditor
         return RangeEditor( self, 
                             cols       = trait.cols or 3, 
                             auto_set   = auto_set,
@@ -340,7 +340,7 @@ class TraitType ( TraitHandler ):
         # Make the special case of a 'bool' type use the boolean editor:
         if self.aType is bool:
             if self.editor is None:
-                from enthought.traits.ui import BooleanEditor
+                from matplotlib.enthought.traits.ui import BooleanEditor
                 self.editor = BooleanEditor()
             return self.editor
             
@@ -348,7 +348,7 @@ class TraitType ( TraitHandler ):
         auto_set = trait.auto_set
         if auto_set is None:
             auto_set = True
-        from enthought.traits.ui import TextEditor
+        from matplotlib.enthought.traits.ui import TextEditor
         return TextEditor( auto_set  = auto_set,
                            enter_set = trait.enter_set or False,
                            evaluate  = self.fast_validate[1] )
@@ -423,7 +423,7 @@ class ThisClass ( TraitHandler ):
                
     def get_editor ( self, trait ):
         if self.editor is None:
-            from enthought.traits.ui import InstanceEditor
+            from matplotlib.enthought.traits.ui import InstanceEditor
             self.editor = InstanceEditor( label = trait.label or '',
                                           view  = trait.view  or '',
                                           kind  = trait.kind  or 'live' )
@@ -601,7 +601,7 @@ class TraitEnum ( TraitHandler ):
         return ' or '.join( [ repr( x ) for x in self.values ] )
                
     def get_editor ( self, trait ):
-        from enthought.traits.ui import EnumEditor
+        from matplotlib.enthought.traits.ui import EnumEditor
         return EnumEditor( values = self, 
                            cols   = trait.cols or 3  )
 
@@ -643,7 +643,7 @@ class TraitPrefixList ( TraitHandler ):
                 ' (or any unique prefix)')
                
     def get_editor ( self, trait ):
-        from enthought.traits.ui import EnumEditor
+        from matplotlib.enthought.traits.ui import EnumEditor
         return EnumEditor( values = self, 
                            cols   = trait.cols or 3  )
     
@@ -690,7 +690,7 @@ class TraitMap ( TraitHandler ):
         return ' or '.join( keys )
                
     def get_editor ( self, trait ):
-        from enthought.traits.ui import EnumEditor
+        from matplotlib.enthought.traits.ui import EnumEditor
         return EnumEditor( values = self, 
                            cols   = trait.cols or 3  )
 
@@ -819,7 +819,7 @@ class TraitCompound ( TraitHandler ):
         setattr( object, name + '_', value )
                
     def get_editor ( self, trait ):
-        from enthought.traits.ui import TextEditor, CompoundEditor
+        from matplotlib.enthought.traits.ui import TextEditor, CompoundEditor
         
         the_editors = [ x.get_editor( trait ) for x in self.handlers ] 
         text_editor = TextEditor()
@@ -880,7 +880,7 @@ class TraitTuple ( TraitHandler ):
             return handler.info()
             
     def get_editor ( self, trait ):
-        from enthought.traits.ui import TupleEditor
+        from matplotlib.enthought.traits.ui import TupleEditor
         return TupleEditor( traits = self.traits,
                             labels = trait.labels or [],
                             cols   = trait.cols   or 1  )
@@ -975,7 +975,7 @@ class TraitList ( TraitHandler ):
         return 'a list of %s%s' % ( size, info ) 
                
     def get_editor ( self, trait ):
-        from enthought.traits.ui import ListEditor
+        from matplotlib.enthought.traits.ui import ListEditor
         return ListEditor( trait_handler = self, 
                            rows          = trait.rows or 5,
                            use_notebook  = trait.use_notebook is True,
@@ -1256,7 +1256,7 @@ class TraitDict ( TraitHandler ):
                
     def get_editor ( self, trait ):
         if self.editor is None:
-            from enthought.traits.ui import TextEditor
+            from matplotlib.enthought.traits.ui import TextEditor
             self.editor = TextEditor( evaluate = eval )
         return self.editor
         

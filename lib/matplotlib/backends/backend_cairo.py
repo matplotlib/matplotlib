@@ -25,14 +25,14 @@ Naming Conventions
 from __future__ import division
 
 import os
-import sys
+import sys, warnings
 def _fn_name(): return sys._getframe(1).f_code.co_name
 
 from matplotlib import verbose
 from matplotlib.numerix import asarray, pi, fromstring, UInt8, zeros
 import matplotlib.numerix as numerix
 from matplotlib.backend_bases import RendererBase, GraphicsContextBase,\
-     FigureManagerBase, FigureCanvasBase, error_msg
+     FigureManagerBase, FigureCanvasBase
 from matplotlib.cbook import enumerate
 from matplotlib.figure import Figure
 from matplotlib.transforms import Bbox
@@ -131,7 +131,7 @@ class RendererCairo(RendererBase):
 
         try: import cairo.numpy
         except:
-            verbose.report_error("cairo.numpy module required for draw_image()")
+            warnings.warn("cairo.numpy module required for draw_image()")
             return
 
         # bbox - not currently used
@@ -155,12 +155,10 @@ class RendererCairo(RendererBase):
         #X.shape = rows, cols, 4
 
         # ARGB32
-        try:
-           # works for numpy image, not a numarray image
-           surface = cairo.numpy.surface_create_for_array (X)
-        except TypeError, exc:
-            verbose.report_error("%s: %s" % (_fn_name(), exc))
-            return
+
+        
+        # works for numpy image, not a numarray image
+        surface = cairo.numpy.surface_create_for_array (X)
 
         # Alternative
         #surface = cairo.surface_create_for_image(buf, cairo.FORMAT_ARGB32, cols, rows) #, stride)
@@ -263,7 +261,7 @@ class RendererCairo(RendererBase):
 
         try: import cairo.numpy
         except:
-            verbose.report_error("cairo.numpy module required for _draw_mathtext()")
+            warnings.warn("cairo.numpy module required for _draw_mathtext()")
             return
 
         size = prop.get_size_in_points()
@@ -386,7 +384,7 @@ class GraphicsContextCairo(GraphicsContextBase):
             self._capstyle = cs
             self.ctx.set_line_cap (self._capd[cs])
         else:
-            verbose.report_error('Unrecognized cap style.  Found %s' % cs)
+            raise ValueError('Unrecognized cap style.  Found %s' % cs)
 
 
     def set_clip_rectangle(self, rectangle):
@@ -432,7 +430,7 @@ class GraphicsContextCairo(GraphicsContextBase):
             self._joinstyle = js
             self.ctx.set_line_join(self._joind[js])
         else:
-            verbose.report_error('Unrecognized join style.  Found %s' % js)
+            raise ValueError('Unrecognized join style.  Found %s' % js)
 
 
     def set_linewidth(self, w):
@@ -474,7 +472,7 @@ def print_figure_fn(figure, filename, dpi=150, facecolor='w', edgecolor='w',
             try:
                 fileObject = file(filename,'wb')
             except IOError, exc:
-                verbose.report_error("%s: %s" % (exc.filename, exc.strerror))
+                warnings.warn("%s: %s" % (exc.filename, exc.strerror))
             else:
                 if ext == 'png': _save_png (figure, fileObject)
                 else:            _save_ps_pdf (figure, fileObject, ext, orientation)
@@ -489,8 +487,8 @@ def print_figure_fn(figure, filename, dpi=150, facecolor='w', edgecolor='w',
             fc.print_figure(filename, dpi, facecolor, edgecolor, orientation)
 
         else:
-            verbose.report_error('Format "%s" is not supported.\nSupported formats: %s.' %
-                                 (ext, ', '.join(IMAGE_FORMAT)))
+            warnings.warn('Format "%s" is not supported.\nSupported formats: %s.' %
+                          (ext, ', '.join(IMAGE_FORMAT)))
 
         
 def _save_png (figure, fileObject):

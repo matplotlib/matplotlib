@@ -42,12 +42,6 @@ from matplotlib.font_manager import fontManager
 """
 
 
-def error_msg_paint(msg, *args):
-    """
-    Signal an error condition -- in a GUI, popup a error dialog
-    """
-    verbose.report_error('Error: %s'% msg)
-    sys.exit()
 
 
 
@@ -299,5 +293,5 @@ def new_figure_manager_paint(num, *args, **kwargs):
 # 
 ########################################################################
 new_figure_manager = new_figure_manager_paint
-error_msg = error_msg_paint
+
          

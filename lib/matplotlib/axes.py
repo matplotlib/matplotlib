@@ -16,7 +16,7 @@ from cbook import iterable, is_string_like, flatten, enumerate, \
 from collections import RegularPolyCollection, PolyCollection, LineCollection
 from colors import colorConverter, normalize, Colormap, LinearSegmentedColormap
 import cm
-from cm import ColormapJet, Grayscale, ScalarMappable
+from cm import ScalarMappable
 import _image
 from ticker import AutoLocator, LogLocator, NullLocator
 from ticker import ScalarFormatter, LogFormatter, LogFormatterExponent, LogFormatterMathtext, NullFormatter

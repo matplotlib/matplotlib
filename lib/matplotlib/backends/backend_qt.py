@@ -202,8 +202,12 @@ class NavigationToolbar2QT( NavigationToolbar2, qt.QToolBar ):
             fname = os.path.join( basedir, image_file )
             image = qt.QPixmap()
             image.load( fname )
-            a = qt.QAction( qt.QIconSet( image ), text, qt.QKeySequence('M'),
-                            self.window )
+            a = qt.QAction( text, qt.QIconSet( image ), text,
+                            qt.QKeySequence('M'), self.window )
+
+
+            #a = qt.QAction( qt.QIconSet( image ), text, qt.QKeySequence('M'),
+            #                self.window )
             a.setToolTip( tooltip_text )
             qt.QObject.connect( a, qt.SIGNAL( 'activated()' ),
                                 getattr( self, callback ) )
@@ -270,7 +274,6 @@ def exception_handler( type, value, tb ):
 
 
 FigureManager = FigureManagerQT
-error_msg = error_msg_qt
 
 # We need one and only one QApplication before we can build any Qt widgets
 # Detect if a QApplication exists.

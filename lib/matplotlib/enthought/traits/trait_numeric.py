@@ -197,7 +197,7 @@ class TraitArray ( TraitHandler ):
     def get_editor ( self, trait ):
         """ Gets the trait editor associated with the trait.
         """
-        from enthought.traits.ui import TupleEditor
+        from matplotlib.enthought.traits.ui import TupleEditor
         
         if self.typecode is None:
             traits = TFloat

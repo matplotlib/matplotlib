@@ -10,7 +10,7 @@ from matplotlib.figure import Figure
 
 from backend_agg import FigureCanvasAgg
 from backend_qt import qt, FigureManagerQT, FigureCanvasQT,\
-     show, draw_if_interactive, error_msg, backend_version
+     show, draw_if_interactive, backend_version
 
 DEBUG = False
 

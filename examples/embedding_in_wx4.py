@@ -19,7 +19,7 @@ from matplotlib.backends.backend_wx import NavigationToolbar2Wx
 
 from matplotlib.backends.backend_wx import _load_bitmap
 from matplotlib.figure import Figure
-from matplotlib.numerix import rand
+from matplotlib.mlab import rand
 
 from wxPython.wx import *
 
