@@ -647,9 +647,8 @@ class LogLocator(Locator):
         if minpos<0:
             raise RuntimeError('No positive data to plot')
         if vmin<0:
-            print 'minpos', vmin, minpos
             vmin = minpos
-        
+         
         if not is_decade(vmin,self.base): vmin = decade_down(vmin,self.base)
         if not is_decade(vmax,self.base): vmax = decade_up(vmax,self.base)
         if vmin==vmax:
