@@ -16,24 +16,27 @@ vbox = gtk.VBox(spacing=3)
 win.add(vbox)
 vbox.show()
 
-f = Figure(figsize=(5,4), dpi=100)
-a = Subplot(f, 111)
+fig = Figure(figsize=(5,4), dpi=100)
+ax = Subplot(fig, 111)
 t = numpy.arange(0.0,3.0,0.01)
 s = numpy.sin(2*numpy.pi*t)
 
-a.plot(t,s)
-f.add_axis(a)
-f.show()
-vbox.pack_start(f)
+ax.plot(t,s)
+fig.add_axis(ax)
+fig.show()
+vbox.pack_start(fig)
 
-toolbar = NavigationToolbar(f, win)
+toolbar = NavigationToolbar(fig, win)
 toolbar.show()
 vbox.pack_start(toolbar, gtk.FALSE, gtk.FALSE)
 
-button = gtk.Button('Quit')
-button.connect('clicked', lambda b: gtk.mainquit())
-button.show()
-vbox.pack_start(button)
+buttonQuit = gtk.Button('Quit')
+buttonQuit.connect('clicked', gtk.mainquit)
+buttonQuit.show()
+vbox.pack_start(buttonQuit)
 
-win.show()
-gtk.mainloop()
+
+
+if __name__=='__main__':
+    win.show()
+    gtk.mainloop()
