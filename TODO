@@ -541,7 +541,7 @@ ZeroDivisionError: SeparableTransformation::eval_scalars yin interval is zero; c
 -- check signal connect and disconnect in interactive use with
    multiple figure creation / deletion etc.
 
--- add xlim, ylim
+-- DONE add xlim, ylim
 
 -- tick bug on preserve, possibly center preserved image, flagt to
    reshape axes on preserve
@@ -568,6 +568,9 @@ ZeroDivisionError: SeparableTransformation::eval_scalars yin interval is zero; c
 
 -- bk://sidl.bkbits.net/BuildSystem for py configure
 
--- post hacking polints memo on site, ann and send copy to Fernando
+-- post hacking points memo on site, ann and send copy to Fernando
 
+--  loadrc() function, possibly replacing  per-directory .matplotlibrc
+    files.  
 
+-- file save dialog for Tk?  See Mayavi for the right call to make.
