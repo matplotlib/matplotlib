@@ -255,8 +255,12 @@ def build_ft2font(ext_modules, packages):
 def build_gtkagg(ext_modules, packages):
     global BUILT_GTKAGG
     if BUILT_GTKAGG: return # only build it if you you haven't already
+    deps = ['src/_gtkagg.cpp']
+    deps.extend(glob.glob('CXX/*.cxx'))
+    deps.extend(glob.glob('CXX/*.c'))
+
     module = Extension('matplotlib.backends._gtkagg',
-                       ['src/_gtkagg.cpp'],
+                       deps,
                        )
 
 
