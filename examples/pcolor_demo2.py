@@ -22,10 +22,10 @@ Z = func3(X, Y)
 ax = subplot(111)
 im = imshow(Z, cmap=cm.jet)
 #im.set_interpolation('nearest')
-im.set_interpolation('bicubic')
-#im.set_interpolation('bilinear')
+#im.set_interpolation('bicubic')
+im.set_interpolation('bilinear')
 #ax.set_image_extent(-3, 3, -3, 3)
-savefig('pcolor_demo2')
+#savefig('pcolor_demo2')
 show()
 
     

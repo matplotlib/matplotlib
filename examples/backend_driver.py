@@ -18,25 +18,31 @@ files = (
     'barchart_demo.py',
     'color_demo.py',
     'csd_demo.py',
+    'customize_rc.py',
     'date_demo1.py',
     'date_demo2.py',    
-    'fill_demo.py',
+    'figimage_demo.py',
+    'figlegend_demo.py',
     'figtext.py',
+    'fill_demo.py',
     'finance_demo.py',
+    'fonts_demo_kw.py',
     'histogram_demo.py',
     'image_demo.py',
     'image_demo2.py',
     'image_demo_na.py',
+    'image_origin.py',
     'invert_axes.py',
+    'layer_images.py',
     'legend_demo.py',
     'legend_demo2.py',
     'line_styles.py',
     'log_demo.py',
     'log_test.py',
-    'mathtext_demo.py',
-    'mri_with_eeg.py',
     'major_minor_demo1.py',
     'major_minor_demo2.py',     
+    'mathtext_demo.py',
+    'mri_with_eeg.py',
     'multiple_figs_demo.py',
     'pcolor_demo.py',
     'pcolor_demo2.py',
@@ -45,17 +51,14 @@ files = (
     'scatter_demo.py',
     'scatter_demo2.py',
     'simple_plot.py',
-    'stock_demo.py',
     'specgram_demo.py',
+    'stock_demo.py',
     'subplot_demo.py',
     'table_demo.py',
     'text_handles.py',
     'text_themes.py',
     'two_scales.py',
     'vline_demo.py',
-    'image_origin.py',
-    'figimage_demo.py',
-    'layer_images.py',
     )
 
 def drive(backend):
@@ -85,8 +88,8 @@ def drive(backend):
 times = {}
 backends = ['PS', 'GD', 'Paint', 'Agg', 'Template']
 #backends.extend([ 'GTK', 'WX', 'TkAgg'])
-backends = [ 'PS']
-#backends = [ 'Agg', 'PS', 'Template']
+#backends = [ 'PS']
+backends = [ 'Agg', 'PS', 'Template']
 
 for backend in backends:
     print 'testing %s' % backend

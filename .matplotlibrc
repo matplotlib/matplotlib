@@ -51,7 +51,7 @@ lines.data_clipping : False  # Use data clipping in addition to viewport
 # circles.  See
 # http://matplotlib.sourceforge.net/matplotlib.patches.html for more
 # information on patch properties
-patch.linewidth   	: 0.5     # edge width in points
+patch.linewidth   	: 1.0     # edge width in points
 patch.facecolor  	: b       
 patch.edgecolor  	: k
 patch.antialiased 	: True    # render patches in antialised (no jaggies)

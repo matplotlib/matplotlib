@@ -1,6 +1,7 @@
 New entries should be added at the top
 =======
-
+2004-07-05 Unified image and patch collections colormapping and
+           scaling args.  Updated docstrings for all - JDH
 
 2004-07-05 Fixed a figure legend bug and added
            examples/figlegend_demo.py - JDH
