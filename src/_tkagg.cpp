@@ -28,15 +28,9 @@ typedef struct {
     Tcl_Interp* interp;
 } TkappObject;
 
-// const on win32
-#ifdef WIN32
-#define argv_t const char
-#else
-#define argv_t char
-#endif
 static int
 PyAggImagePhoto(ClientData clientdata, Tcl_Interp* interp,
-               int argc, argv_t **argv)
+               int argc, char **argv)
 {
     Tk_PhotoHandle photo;
     Tk_PhotoImageBlock block;
@@ -130,7 +124,8 @@ _tkinit(PyObject* self, PyObject* args)
 
     /* This will bomb if interp is invalid... */
 
-    Tcl_CreateCommand(interp, "PyAggImagePhoto", PyAggImagePhoto,
+    Tcl_CreateCommand(interp, "PyAggImagePhoto", 
+		      (Tcl_CmdProc *) PyAggImagePhoto,
                       (ClientData) 0, (Tcl_CmdDeleteProc*) NULL);
 
     Py_INCREF(Py_None);
