@@ -30,10 +30,7 @@ def _fn_name(): return sys._getframe(1).f_code.co_name
 
 from matplotlib import verbose
 from matplotlib.numerix import asarray, pi, fromstring, UInt8, zeros
-     # where, transpose, nonzero, indices, ones, nx
-#from matplotlib._pylab_helpers import Gcf
 import matplotlib.numerix as numerix
-
 from matplotlib.backend_bases import RendererBase, GraphicsContextBase,\
      FigureManagerBase, FigureCanvasBase, error_msg
 from matplotlib.cbook import enumerate, True, False
@@ -43,13 +40,14 @@ from matplotlib.mathtext import math_parse_s_ft2font
 
 import cairo
 
-version_required = (0,1,3)
-if cairo.version_info < version_required:
-   raise SystemExit ("PyCairo %d.%d.%d is installed\n"
-                     "PyCairo %d.%d.%d or later is required"
-                     % (cairo.version_info + version_required))
-backend_version = cairo.version
-del version_required
+# uncomment when 0.1.4 is available
+#version_required = (0,1,3)
+#if cairo.version_info < version_required:
+#   raise SystemExit ("PyCairo %d.%d.%d is installed\n"
+#                     "PyCairo %d.%d.%d or later is required"
+#                     % (cairo.version_info + version_required))
+#backend_version = cairo.version
+#del version_required
 
 
 DEBUG = False
@@ -133,15 +131,15 @@ class RendererCairo(RendererBase):
             verbose.report_error("cairo.numpy module required for draw_image()")
             return
 
-        # bbox - not used
-        flipud = origin=='lower'
+        # bbox - not currently used
+        flipud = origin=='lower'  # not currently used
 
         ctx = cairo.Context()
         ctx.set_target_surface (self.surface)
         ctx.set_matrix (self.matrix)
 
-        rows, cols, buffer = im.buffer_argb32()  # ARGB32, but colors still wrong
-        X = fromstring(buffer, UInt8)
+        rows, cols, buf = im.buffer_argb32()  # ARGB32, but colors still wrong
+        X = fromstring(buf, UInt8)
         X.shape = rows, cols, 4
         #print dir(im)
         #print 'im.get_size()', im.get_size()
@@ -157,7 +155,7 @@ class RendererCairo(RendererBase):
         surface = cairo.numpy.surface_create_for_array (X)
 
         # Alternative
-        #surface = cairo.surface_create_for_image(buffer, cairo.FORMAT_ARGB32, cols, rows) #, stride)
+        #surface = cairo.surface_create_for_image(buf, cairo.FORMAT_ARGB32, cols, rows) #, stride)
         # error: TypeError: Cannot use string as modifiable buffer
 
         ctx.translate (x,y)

@@ -282,11 +282,17 @@ class FigureCanvasTemplate(FigureCanvasBase):
         hardcopy.
 
         orientation - only currently applies to PostScript printing.
+
+        A GUI backend should save and restore the original figure settings.
+        An image backend does not need to do this since after the print the
+        figure is done
         """
+        # save the figure settings, GUI backends only
+        #origDPI = self.figure.dpi.get()
+        #origfacecolor = self.figure.get_facecolor()
+        #origedgecolor = self.figure.get_edgecolor()
+
         # set the new parameters
-        origDPI = self.figure.dpi.get()
-        origfacecolor = self.figure.get_facecolor()
-        origedgecolor = self.figure.get_edgecolor()
         self.figure.dpi.set(dpi)
         self.figure.set_facecolor(facecolor)
         self.figure.set_edgecolor(edgecolor)        
@@ -295,11 +301,12 @@ class FigureCanvasTemplate(FigureCanvasBase):
         self.figure.draw(renderer)
         # do something to save to hardcopy
 
-        # restore the new params and redraw the screen if necessary
-        self.figure.dpi.set(origDPI)
-        self.figure.set_facecolor(origfacecolor)
-        self.figure.set_edgecolor(origedgecolor)
-        self.draw()
+        # restore original figure settings, GUI backends only
+        #self.figure.dpi.set(origDPI)
+        #self.figure.set_facecolor(origfacecolor)
+        #self.figure.set_edgecolor(origedgecolor)
+        # redraw the screen if necessary
+        #self.draw()
         
     def realize(self, *args):
         """
