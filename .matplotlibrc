@@ -29,6 +29,11 @@ numerix      : Numeric   # Numeric or numarray
 interactive  : False     # see http://matplotlib.sourceforge.net/interactive.html
 toolbar      : classic   # None | classic | toolbar2   (experimental)
 
+# Where your matplotlib data lives if you installed to a non-default
+# location.  This is where the matplotlib fonts, bitmaps, etc reside
+#datapath : /home/jdhunter/mpldata
+
+
 ### LINES
 # See http://matplotlib.sourceforge.net/matplotlib.lines.html for more
 # information on line properties.  Note antialiased rendering looks
