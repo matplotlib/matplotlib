@@ -5,6 +5,7 @@ INSTALL
 INTERACTIVE
 KNOWN_BUGS
 LICENSE
+MANIFEST
 MANIFEST.in
 Makefile
 README
@@ -39,6 +40,7 @@ examples/gdtest.py
 examples/histogram_demo.py
 examples/interactive.py
 examples/interactive2.py
+examples/jdh.py
 examples/legend_demo.py
 examples/legend_demo2.py
 examples/line_styles.py
@@ -65,6 +67,7 @@ examples/system_monitor.py
 examples/table_demo.py
 examples/text_handles.py
 examples/text_themes.py
+examples/vertical_ticklabels.py
 examples/vline_demo.py
 examples/wx_demo.py
 examples/xvfb_demo.py
@@ -167,6 +170,10 @@ matplotlib/backends/backend_ps.py
 matplotlib/backends/backend_template.py
 matplotlib/backends/backend_wx.py
 matplotlib/backends/ttf_font_manager.py
+src/_backend_agg.cpp
+src/_backend_agg.h
+src/_gtkgd.c
+src/font.c
 test/README
 test/alignment_test.py
 test/backend_agg_test.py

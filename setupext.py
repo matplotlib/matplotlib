@@ -51,10 +51,11 @@ def build_gtkgd(ext_modules):
 
 def add_agg_flags(module):
     'Add the module flags to build extensions which use gtk'
-    include_dirs = ['/usr/X11R6/include', '/home/jdhunter/c/src/agg2/include',
-                    '/usr/include/freetype1', 'src']
+    include_dirs = [
+        'src', '/usr/X11R6/include', '/home/jdhunter/c/src/agg2/include',
+        '/usr/include/freetype1']
     library_dirs = ['/usr/X11R6/lib', '/home/jdhunter/c/src/agg2/src']
-    libraries = ['agg', 'X11', 'm', 'freetype', 'png']
+    libraries = ['agg', 'X11', 'm', 'ttf', 'png', 'z']
     extra_link_args = []
     module.include_dirs.extend(include_dirs)
     module.libraries.extend(libraries)
@@ -62,9 +63,10 @@ def add_agg_flags(module):
     module.extra_link_args.extend(extra_link_args)
 
 def build_agg(ext_modules):
-    module = Extension('matplotlib.backends._backend_agg',
-                       ['src/_backend_agg.cpp'],
-                       )
+    module = Extension(
+        'matplotlib.backends._backend_agg',
+        ['src/_backend_agg.cpp', 'src/font.cpp'],
+        )
     add_agg_flags(module)
     ext_modules.append(module)    
 

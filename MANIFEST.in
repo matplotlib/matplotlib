@@ -11,4 +11,6 @@ include fonts/ttf/*
 include images/*
 include test/*.py
 include test/README
-
+include src/*.cpp
+include src/*.c
+include src/*.h

@@ -186,3 +186,9 @@
 -- DONE 2004-02-11 explaing the new interactive syntax on
    http://matplotlib.sourceforge.net/interactive.html
 
+-- DONE 2004-02-11 lost backend_gtk rotate_text fix - find it!
+
+-- GTK clipping broken?
+
+-- GTK facecolor reversed for line markers
+
