@@ -103,7 +103,8 @@ axes.labelsize      : 12      # fontsize of the x any y labels
 axes.labelcolor     : k       # black 
 
 ### TICKS
-tick.size           : 4      # tick size in points
+tick.major.size     : 5      # major tick size in points
+tick.minor.size     : 3      # minor tick size in points
 tick.color          : k      # color of the tick labels 
 tick.labelsize      : 10     # fontsize of the tick labels
 

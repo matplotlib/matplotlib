@@ -11,7 +11,7 @@ import gtk
 import gtk.gdk
 
 import code
-import sys
+import os, sys
 import pango
 
 import __builtin__
@@ -364,6 +364,15 @@ def main():
   console.execute_line('matplotlib.interactive(1)')
   console.execute_line('from matplotlib.matlab import *')
 
+
+  if len(sys.argv)>1:
+    fname = sys.argv[1]
+    if not os.path.exists(fname):
+      print >> sys.stderr, '%s does not exist' % fname
+    for line in file(fname):
+      line = line.strip()
+      
+      console.execute_line(line)
   gtk.main()
 
 if __name__ == '__main__':
