@@ -132,6 +132,9 @@ def add_pygtk_flags(module):
          (flag.startswith('-l') or flag.startswith('-L'))])
 
 
+# Make sure you use the Tk version given by Tkinter.TkVersion
+# or else you'll build for a wrong version of the Tcl
+# interpreter (leading to nasty segfaults).
 def add_tk_flags(module):
     'Add the module flags to build extensions which use tk'
 
