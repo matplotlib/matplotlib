@@ -77,11 +77,12 @@ static PyObject * GcInit1_wrap(PyObject *self, PyObject *args)
      PyErr_SetString(PyExc_ValueError, "Arrays y and z must have equal shapes");   
      return NULL;
   }
-  if ((zzsize[0] != regdata->dimensions[0]) || (zzsize[1] != regdata->dimensions[1]))
-  {
-     PyErr_SetString(PyExc_ValueError, "Arrays reg and z must have equal shapes");   
-     return NULL;
-    }
+
+  //if ((zzsize[0] != regdata->dimensions[0]) || (zzsize[1] != regdata->dimensions[1]))
+  //{
+   //  PyErr_SetString(PyExc_ValueError, "Arrays reg and z must have equal shapes");   
+   //  return NULL;
+   // }
   if ((zzsize[0] != tridata->dimensions[0]) || (zzsize[1] != tridata->dimensions[1]))
   {
      PyErr_SetString(PyExc_ValueError, "Arrays triangle and z must have equal shapes");   

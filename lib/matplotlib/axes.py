@@ -1003,8 +1003,13 @@ used for colorbar functionality
         else:
             jmax, imax = shape(z)
 
-        reg = ones((jmax,imax), Int32)
+        reg = ones((jmax+1,imax), Int32)
         reg[:,0]=0
+        reg[0,:]=0
+        reg[:,-1]=0
+        reg[-1,:]=0
+        #print reg
+        
         triangle = zeros((jmax,imax), Int16)
 
         if x == None and y == None:
@@ -1063,14 +1068,14 @@ used for colorbar functionality
         levels = []
         collections = []
 
-        region = 1  # FIXME: what should this be?
+        region = 0  
         for level, color, width  in args:
             ntotal, nparts  = _contour.GcInit1(x, y, reg, triangle, region, z, level)
             np = zeros((nparts,), Int)
             xp = zeros((ntotal, ), Float64)
             yp = zeros((ntotal,), Float64)
             nlist = _contour.GcTrace(np, xp, yp)
-
+            #print min(ravel(triangle)), max(ravel(triangle))
             col = LineCollection(nlist, colors=color, linewidths = width)
             col.set_label(fmt%level)
             self.add_collection(col)
