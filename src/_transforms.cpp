@@ -1132,6 +1132,9 @@ void Transformation::init_type()
   behaviors().doc("Transformation base class");
 
 
+  add_varargs_method("freeze",   &Transformation::freeze,  "freeze(); eval and freeze the lazy objects\n");
+  add_varargs_method("thaw",   &Transformation::thaw,  "thaw(); release the laszy objects\n"); 
+
   add_varargs_method("get_bbox1",   &Transformation::get_bbox1,  "get_bbox1(); return the Func instance on x\n");
   add_varargs_method("get_bbox2",   &Transformation::get_bbox2,  "get_bbox2(); return the Func instance on y\n");
 
