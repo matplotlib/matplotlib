@@ -343,7 +343,7 @@ def imread(fname):
     basename, ext = os.path.splitext(fname)
     ext = ext.lower()[1:]
     if ext not in handlers.keys():
-        raise ValueError('Only know how to handled extensions: %s' % ', '.handlers.keys())
+        raise ValueError('Only know how to handled extensions: %s' % handlers.keys())
 
     handler = handlers[ext]
     return handler(fname)

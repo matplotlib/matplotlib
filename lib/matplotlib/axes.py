@@ -1,3 +1,4 @@
+
 from __future__ import division, generators
 
 import math, sys
@@ -345,12 +346,36 @@ class Axes(Artist):
 
         self._contourHelper = ContourSupport(self)
         self._contourLabeler = ContourLabeler(self)
+
+        self.set_cursor_props((1,'k')) # set the cursor properties for axes
         
     def _init_axis(self):
         "move this out of __init__ because non-separable axes don't use it"
         self.xaxis = XAxis(self)
         self.yaxis = YAxis(self)
 
+    def set_cursor_props(self, *args):
+        """
+        Set the cursor property as
+        ax.set_cursor_props(linewidth, color)  OR
+        ax.set_cursor_props((linewidth, color))
+
+        ACCEPTS: a (float, color) tuple
+        """
+        if len(args)==1:
+            lw, c = args[0]
+        elif len(args)==2:
+            lw, c = args
+        else:
+            raise ValueError('args must be a (linewidth, color) tuple')
+        c =colorConverter.to_rgba(c)
+        self._cursorProps = lw, c
+
+    def get_cursor_props(self):
+        """return the cursor props as a linewidth, color tuple where
+        linewidth is a float and color is an RGBA tuple"""
+        return self._cursorProps
+        
     def set_figure(self, fig):
         """
         Set the Axes figure
@@ -1597,7 +1622,7 @@ class Axes(Artist):
         self.xaxis.grid(b)
         self.yaxis.grid(b)
 
-    def hist(self, x, bins=10, normed=0, bottom=0):
+    def hist(self, x, bins=10, normed=0, bottom=0, **kwargs):
         """
         HIST(x, bins=10, normed=0, bottom=0)
 
@@ -1609,11 +1634,15 @@ class Axes(Artist):
         If normed is true, the first element of the return tuple will be the
         counts normalized to form a probability distribtion, ie,
         n/(len(x)*dbin)
+
+        kwargs are used to update the properties of the hist bars
         """
         if not self._hold: self.cla()
         n,bins = matplotlib.mlab.hist(x, bins, normed)
         width = 0.9*(bins[1]-bins[0])
         patches = self.bar(bins, n, width=width, bottom=bottom)
+        for p in patches:
+            p.update(kwargs)
         return n, bins, silent_list('Patch', patches)
 
     def hold(self, b=None):
@@ -2381,7 +2410,7 @@ class Axes(Artist):
         for line in self._get_lines(*args, **kwargs):
             self.add_line(line)
             lines.append(line)
-
+        lines = [line for line in lines] # consume the generator
         self.autoscale_view()
         return lines
 
@@ -2500,7 +2529,10 @@ class Axes(Artist):
         self.grid(True)
         vmin, vmax = self.viewLim.intervaly().get_bounds()
         intv = vmax-vmin
-        step = 10*int(log10(intv))
+        logi = int(log10(intv))
+        if logi==0: logi=.1
+        step = 10*logi
+        print vmin, vmax, step, intv, math.floor(vmin), math.ceil(vmax)+1
         ticks = arange(math.floor(vmin), math.ceil(vmax)+1, step)
         self.set_yticks(ticks)
 

@@ -300,10 +300,10 @@ def add_tk_flags(module):
             module.include_dirs.extend(tk_include_dirs)
             module.extra_link_args.extend(frameworks)
             module.extra_compile_args.extend(frameworks)
-            return
+            return 
 
     # you're still here? ok we'll try it this way
-    o = find_tcltk()
+    o = find_tcltk() # todo: try/except
     module.include_dirs.extend([o.tcl_inc, o.tk_inc])
     module.library_dirs.extend([o.tcl_lib, o.tk_lib])
     module.libraries.extend(['tk'+o.tkv, 'tcl'+o.tkv])

@@ -695,6 +695,7 @@ class FigureCanvasBase:
         self._key        = None  # the key pressed
         self._lastx, self._lasty = None, None
 
+
     def key_press_event(self, key, guiEvent=None):
         self._key = key
         event = KeyEvent('key_press_event', self, key, self._lastx, self._lasty, guiEvent=guiEvent)        
@@ -741,9 +742,16 @@ class FigureCanvasBase:
         for cid, func in self.callbacks.get('motion_notify_event', {}).items():
             func(event)
 
-    def draw(self):
+    def draw(self, *args, **kwargs):
         """
         Render the figure
+        """
+        pass
+
+    def draw_cursor(self, event):
+        """
+        Draw a cursor in the event.axes if inaxes is not None.  Use
+        native GUI drawing for efficiency if possible
         """
         pass
 
