@@ -186,6 +186,7 @@ examples/color_demo.py
 examples/colours.py
 examples/coords_demo.py
 examples/csd_demo.py
+examples/cursor_demo.py
 examples/custom_ticker1.py
 examples/dash_control.py
 examples/data_helper.py
@@ -237,6 +238,7 @@ examples/pcolor_demo.py
 examples/pcolor_demo2.py
 examples/pcolor_demo_with_scale.py
 examples/pcolor_small.py
+examples/poormans_contour.py
 examples/psd_demo.py
 examples/pstest.py
 examples/pythonic_matplotlib.py
@@ -408,5 +410,5 @@ src/_tkagg.cpp
 src/_transforms.cpp
 src/_transforms.h
 src/_windowing.cpp
-src/ft2font.c
+src/ft2font.cpp
 src/ft2font.h
