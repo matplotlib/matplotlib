@@ -1,4 +1,8 @@
 New entries should be added at the top
+2004-12-08 backend_gtk.py: remove quit_after_print_xvfb(*args), show_xvfb(), 
+	   Dialog_MeasureTool(gtk.Dialog) one month after sending mail to
+           matplotlib-users asking if anyone still uses these functions - SC
+
 2004-12-02 backend_bases.py, backend_template.py: updated some of the method
            documentation to make them consistent with each other - SC
 
