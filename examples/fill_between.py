@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 from matplotlib.matlab import *
 
 x1 = arange(0, 2, 0.01)

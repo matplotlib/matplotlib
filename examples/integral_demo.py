@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 # implement the example graphs/integral from pyx
 from matplotlib.matlab import *
 from matplotlib.patches import Polygon
