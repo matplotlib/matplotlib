@@ -2,6 +2,9 @@
 # Copyright (C) 2003  <jdhunter@ace.bsd.uchicago.edu>
 # $Header$
 # $Log$
+# Revision 1.6  2003/09/30 16:15:33  jdh2358
+# added legend
+#
 # Revision 1.5  2003/09/22 14:04:46  jdh2358
 # small bugfixes
 #
@@ -18,25 +21,29 @@
 # adding Makefile, releases, docs
 #
 
-VERSION = `python setup.py --version`
+PYTHON = /usr/bin/python2.2
+PYDOC = /usr/bin/pydoc
+VERSION = `${PYTHON} setup.py --version`
 DISTFILES = INSTALL README TODO LICENSE CHANGELOG Makefile GOALS INTERACTIVE \
 	MANIFEST.in matplotlib examples setup.py
-MODULES = afm axes rrtist backend_bases cbook lines patches matlab mlab \
-	backends.backend_gtk backends.backend_gd backends.backend_ps
+MODULES = matplotlib.afm matplotlib.axes matplotlib.artist		\
+	matplotlib.backend_bases matplotlib.cbook matplotlib.lines	\
+	matplotlib.patches matplotlib.matlab matplotlib.mlab		\
+	matplotlib.backends.backend_gtk matplotlib.backends.backend_gd	\
+	matplotlib.backends.backend_ps 	matplotlib.backends.backend_template
 RELEASE = matplotlib-${VERSION}
 
 
 clean: 
-	python setup.py clean;\
+	${PYTHON} setup.py clean;\
 	find . \( -name "*~" -o -name "*.pyc" \) | xargs rm -f;\
 	find examples -name "*.png"  | xargs rm -f;\
 	find matplotlib -name "*.png"  | xargs rm -f;
 
 htmldocs: 
 	rm -f docs/*.html;\
-	cd matplotlib;\
-	pydoc -w ${MODULES};\
-	mv *.html ../docs/
+	${PYDOC} -w ${MODULES};\
+	mv *.html docs/
 
 release: ${DISTFILES}
 	rm -rf ${RELEASE};\
