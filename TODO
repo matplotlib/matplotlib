@@ -203,7 +203,7 @@
 
 -- website docs for agg - eg, backends.html#Agg
 
--- build win installer for paint, agg, matplotlib-0.50 with agg
+-- build win installer for paint, agg, gd, matplotlib-0.50
 
 -- incorporate John Gill's PS patch
 
@@ -212,6 +212,10 @@
 
 -- DONE alignment test: facecolor blue
 
--- axes_demo - strange line artiface in paint
+-- axes_demo - strange line artifact in paint
 
--- figtext missing on ps backend
+-- DONE 2004-02-15 - figtext missing
+
+-- table doesn't update on interactive
+
+-- update fonts page with TTFPATH and info on how to use win32 fonts.
