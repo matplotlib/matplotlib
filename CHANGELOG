@@ -1,4 +1,6 @@
 New entries should be added at the top
+2005-03-18 Add .number attribute to figure objects returned by figure() - FP
+
 2005-03-16 Fixed labelsep bug
 
 2005-03-16 Applied Darren's ticker fix for small ranges - JDH

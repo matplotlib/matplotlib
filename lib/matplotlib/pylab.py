@@ -724,10 +724,9 @@ def figure(num=None, # autoincrement if None, else integer from 1-N
     figure(num = None, figsize=(8, 6), dpi=80, facecolor='w', edgecolor='k')
 
 
-    Create a new figure and return a handle to it.  If num=None, the
-    figure number will be incremented and a new figure will be
-    created.
-
+    Create a new figure and return a handle to it.  If num=None, the figure
+    number will be incremented and a new figure will be created.  The returned
+    figure objects have a .number attribute holding this number.
 
     If num is an integer, and figure(num) already exists, make it
     active and return the handle to it.  If figure(num) does not exist
@@ -744,7 +743,6 @@ def figure(num=None, # autoincrement if None, else integer from 1-N
       edgecolor - the border color; defaults to rc figure.edgecolor
 
     rcParams gives the default values from the .matplotlibrc file
-
     """
 
     if figsize is None   : figsize   = rcParams['figure.figsize']
@@ -764,7 +762,8 @@ def figure(num=None, # autoincrement if None, else integer from 1-N
         if get_backend()=='PS':  dpi = 72
         figManager = new_figure_manager(num, figsize, dpi, facecolor, edgecolor, frameon)
         _pylab_helpers.Gcf.set_active(figManager)
-
+        figManager.canvas.figure.number = num
+        
     return figManager.canvas.figure
 
 def gca(**kwargs):
