@@ -12,12 +12,16 @@ exciting!
 """
 
 from pylab import *
-# two images x1 is visible, x2 is not
-x1 = rand(100,100)
+
+# two images x1 is initially visible, x2 is not
+x1 = rand(100, 100)
 x2 = rand(150, 175)
-extent = (0,1,0,1)
+
+# artifical extent - both images must have same extent if you want
+# them to be resampled into the same axes space
+extent = (0,1,0,1) 
 im1 = imshow(x1, interpolation='nearest', cmap=cm.hot, extent=extent)
-im2 = imshow(x2, interpolation='nearest', hold=True, extent=extent)
+im2 = imshow(x2, interpolation='nearest', hold=True,   extent=extent)
 im2.set_visible(False)
 
 def toggle_images(event):
