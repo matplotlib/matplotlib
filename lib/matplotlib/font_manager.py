@@ -460,7 +460,7 @@ dictionary can optionally be created.
             prop = afmFontProperty(font)
         else:
             try:
-                font = ft2font.FT2Font(str(fpath))
+                font = ft2font.FT2Font(fpath)
             except RuntimeError:
                 warnings.warn("Could not open font file %s"%fpath)
                 continue
@@ -636,7 +636,7 @@ Examples:
         """Return the name of the font that best matches the font
 properties.
 """
-        return ft2font.FT2Font(str(fontManager.findfont(self))).family_name
+        return ft2font.FT2Font(fontManager.findfont(self)).family_name
 
     def get_style(self):
         """Return the font style.  Values are: normal, italic or oblique.

@@ -196,7 +196,7 @@ class RendererPS(RendererBase):
         font = _fontd.get(key)
         if font is None:
             fname = fontManager.findfont(prop)
-            font = FT2Font(str(fname))
+            font = FT2Font(fname)
             _fontd[key] = font
             if fname not in _type42:
                 _type42.append(fname)
@@ -591,7 +591,6 @@ def encodeTTFasPS(fontfile):
     """
     Encode a TrueType font file for embedding in a PS file.
     """
-    fontfile = str(fontfile) # TODO: handle unicode filenames
     font = file(fontfile, 'rb')
     hexdata, data = [], font.read(65520)
     b2a_hex = binascii.b2a_hex
@@ -777,7 +776,6 @@ class FigureCanvasPS(FigureCanvasBase):
                 print >>fh, l.strip()
         if not rcParams['ps.useafm']:
             for font in type42:
-                font = str(font)  # TODO: handle unicode filenames
                 print >>fh, "%%BeginFont: "+FT2Font(font).postscript_name
                 print >>fh, encodeTTFasPS(font)
                 print >>fh, "%%EndFont"
