@@ -194,24 +194,23 @@ class RendererTemplate(RendererBase):
 
 class GraphicsContextTemplate(GraphicsContextBase):
     """
-    The graphics context provides the color, line styles, etc...  See
-    the gtk and postscript backends for examples of mapping the
-    graphics context attributes (cap styles, join styles, line widths,
-    colors) to a particular backend.  In GTK this is done by wrapping
-    a gtk.gdk.GC object and forwarding the appropriate calls to it
-    using a dictionary mapping styles to gdk constants.  In
-    Postscript, all the work is done by the renderer, mapping line
-    styles to postscript calls.
+    The graphics context provides the color, line styles, etc...  See the gtk
+    and postscript backends for examples of mapping the graphics context
+    attributes (cap styles, join styles, line widths, colors) to a particular
+    backend.  In GTK this is done by wrapping a gtk.gdk.GC object and
+    forwarding the appropriate calls to it using a dictionary mapping styles
+    to gdk constants.  In Postscript, all the work is done by the renderer,
+    mapping line styles to postscript calls.
+
+    If it's more appropriate to do the mapping at the renderer level (as in
+    the postscript backend), you don't need to override any of the GC methods.
+    If it's more appropriate to wrap an instance (as in the GTK backend) and
+    do the mapping here, you'll need to override several of the setter
+    methods.
 
     The base GraphicsContext stores colors as a RGB tuple on the unit
-    interval, eg, (0.5, 0.0, 1.0).  You will probably need to map this
-    to colors appropriate for your backend.  Eg, see the ColorManager
-    class for the GTK backend.  If it's more appropriate to do the
-    mapping at the renderer level (as in the postscript backend), you
-    don't need to override any of the GC methods.  If it's more
-    appropriate to wrap an instance (as in the GTK backend) and do the
-    mapping here, you'll need to override several of the setter
-    methods.
+    interval, eg, (0.5, 0.0, 1.0). You may need to map this to colors
+    appropriate for your backend.
     """
     pass
 
