@@ -257,6 +257,10 @@ class RendererAgg(RendererBase):
     def tostring_rgb(self):
         if __debug__: verbose.report('RendererAgg.tostring_rgb', 'debug-annoying')
         return self._renderer.tostring_rgb()
+
+    def tostring_argb(self):
+        if __debug__: verbose.report('RendererAgg.tostring_argb', 'debug-annoying')
+        return self._renderer.tostring_argb()
         
     def buffer_rgba(self):
         if __debug__: verbose.report('RendererAgg.buffer_rgba', 'debug-annoying')
@@ -310,6 +314,10 @@ class FigureCanvasAgg(FigureCanvasBase):
     def tostring_rgb(self):
         if __debug__: verbose.report('FigureCanvasAgg.tostring_rgb', 'debug-annoying')
         return self.renderer.tostring_rgb()
+
+    def tostring_argb(self):
+        if __debug__: verbose.report('FigureCanvasAgg.tostring_argb', 'debug-annoying')
+        return self.renderer.tostring_argb()
         
     def buffer_rgba(self):
         if __debug__: verbose.report('FigureCanvasAgg.buffer_rgba', 'debug-annoying')
