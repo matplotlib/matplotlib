@@ -10,7 +10,6 @@
 #endif
 
 #include <pygtk/pygtk.h>
-#include <gdk/gdkx.h>
 
 
 static PyTypeObject *_PyGdkPixbuf_Type;
