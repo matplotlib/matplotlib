@@ -361,9 +361,8 @@ def main():
   w.show_all()
 
   console.execute_line('import matplotlib')
+  console.execute_line('matplotlib.interactive(1)')
   console.execute_line('from matplotlib.matlab import *')
-  console.execute_line('from matplotlib.backends.backend_gtk import ShowOn')
-  console.execute_line('ShowOn().set(1)  # turning on interactive mode')
 
   gtk.main()
 
