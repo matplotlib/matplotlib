@@ -1,7 +1,7 @@
 New entries should be added at the top
 
 2004-06-08 Rewrote ft2font using CXX as part of general memory leak
-           fixes - JDH
+           fixes; also fixed transform memory leaks  - JDH
 
 2004-06-07 Fixed several problems with log ticks and scaling - JDH
 
