@@ -11,13 +11,12 @@ from matplotlib.figure import Figure
 import gtk
 
 win = gtk.Window()
-win.set_name("Embedding in GTK")
+win.set_title("Embedding in GTK")
 win.connect("destroy", gtk.mainquit)
 win.set_border_width(5)
 
 vbox = gtk.VBox(spacing=3)
 win.add(vbox)
-vbox.show()
 
 f = Figure(figsize=(5,4), dpi=100)
 a = f.add_subplot(111)
@@ -28,13 +27,13 @@ a.plot(t,s)
 
 
 canvas = FigureCanvasGTK(f)  # a gtk.DrawingArea
-canvas.show()
 vbox.pack_start(canvas)
 
-button = gtk.Button('Quit')
-button.connect('clicked', lambda b: gtk.mainquit())
-button.show()
-vbox.pack_start(button)
+#button = gtk.Button('Quit')
+#button.connect('clicked', lambda b: gtk.mainquit())
+#button.show()
+#vbox.pack_start(button)
 
-win.show()
-gtk.mainloop()
+win.show_all()
+#gtk.mainloop()
+gtk.main()
