@@ -90,13 +90,14 @@ class RendererTemplate(RendererBase):
     
     def points_to_pixels(self, points):
         """
-        Convert points to display units (as a float).
-        You need to override this function (unless your backend doesn't have
-        dpi, eg, postscript or svg).
-        Many imaging systems assume some value for pixels per inch.
-        points to pixels = points * pixels_per_inch/72.0 * dpi/72.0
+        Convert points to pixels (display units) as a float.
         """
-        return points  
+        # if backend doesn't have dpi, eg, postscript or svg
+        return points
+        # elif backend assumes a value for pixels_per_inch
+        #return points/72.0 * self.dpi.get() * pixels_per_inch/72.0
+        # else
+        #return points/72.0 * self.dpi.get()
 
     def draw_text(self, gc, x, y, s, prop, angle, ismath=False):    
         """
