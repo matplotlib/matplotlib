@@ -9,7 +9,7 @@ ind = arange(N)  # the x locations for the groups
 width = 0.35       # the width of the bars
 p1 = bar(ind, menMeans, width, color='r', yerr=menStd)
 
-womenMeans = (-25, 32, 34, 20, 25)
+womenMeans = (25, 32, 34, 20, 25)
 womenStd =   (3, 5, 2, 3, 3)
 p2 = bar(ind+width, womenMeans, width, color='y', yerr=womenStd)
 
