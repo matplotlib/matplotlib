@@ -533,8 +533,7 @@ def print_figure_fn(figure, filename, dpi=150, facecolor='w', edgecolor='w',
             filename = filename + '.' + ext
 
         ext = ext.lower()
-        #if ext in ('png', 'ps'):  # native formats
-        if ext in ('png'):  # native formats
+        if ext in ('png', 'ps'):  # native formats
             try:
                 fileObject = file(filename,'wb')
             except IOError, exc:
@@ -543,13 +542,11 @@ def print_figure_fn(figure, filename, dpi=150, facecolor='w', edgecolor='w',
                 if ext == 'png': _save_png (figure, fileObject)
                 else:            _save_ps  (figure, fileObject, orientation)
             
-        #elif ext in ('eps', 'svg'): # backend_svg/ps
-        elif ext in ('eps', 'ps', 'svg'): # backend_svg/ps
-            #if ext == 'eps':
-            if ext in ('eps', 'ps'):
-                from backend_ps import FigureCanvasPS  as FigureCanvas
-            else:
+        elif ext in ('eps', 'svg'): # backend_svg/ps
+            if ext == 'svg':
                 from backend_svg import FigureCanvasSVG as FigureCanvas
+            else:
+                from backend_ps import FigureCanvasPS  as FigureCanvas
             fc = FigureCanvas(figure)
             fc.print_figure(filename, dpi, facecolor, edgecolor, orientation)
 
@@ -580,39 +577,36 @@ def _save_ps (figure, fileObject, orientation):
     # Cairo produces PostScript Level 3
     # 'ggv' can't read cairo ps files, but 'gv' can
 
-    # not currently working properly - the figure comes out the wrong size
-    ppi = 300.0
-    figure.dpi.set(72)
+    ppi = 200.0
+    #figure.dpi.set(72)
+    figure.dpi.set(96) # Cairo uses 96 dpi
 
     w_in, h_in = figure.get_size_inches()
     width, height = figure.get_width_height()
     
     ctx = cairo.Context()
-    ctx.set_target_ps (fileObject, w_in, h_in, ppi, ppi)
 
-    orientation = 'portrait' # landscape not supported yet
-    if orientation == 'landscape':
+    if orientation == 'portrait':
+        ctx.set_target_ps (fileObject, w_in, h_in, ppi, ppi)
+
+    elif orientation == 'landscape':
+        ctx.set_target_ps (fileObject, h_in, w_in, ppi, ppi)
+        ctx.rotate(pi/2)
+        ctx.translate(0, -height)
         # cairo/src/cairo_ps_surface.c
         # '%%Orientation: Portrait' is always written to the file header
         # '%%Orientation: Landscape' would possibly cause problems
         # since some printers would rotate again ?
         # TODO:
-        # 1) needs -pi/2 rotation, centered (and maximised?)
-        #    don't know how to rotate without text being distorted
-        # 2) add portrait/landscape checkbox to FileChooser
-        pass
+        # add portrait/landscape checkbox to FileChooser
         
     renderer = RendererCairo (ctx.target_surface, ctx.matrix, width, height, figure.dpi)
-            
-    show_fig_border = True  # for testing figure orientation and scaling
+    figure.draw(renderer)
+
+    show_fig_border = False  # for testing figure orientation and scaling
     if show_fig_border:
         ctx.new_path()
         ctx.rectangle(0, 0, width, height)
-        ctx.set_line_width(4.0)
-        ctx.set_rgb_color(1,0,0)
-        ctx.stroke()
-        ctx.new_path()
-        ctx.rectangle(0+20, 0+20, width-20, height-20)
         ctx.set_line_width(4.0)
         ctx.set_rgb_color(1,0,0)
         ctx.stroke()
@@ -620,6 +614,7 @@ def _save_ps (figure, fileObject, orientation):
         ctx.select_font('sans-serif')
         ctx.scale_font(20)
         ctx.show_text('Origin corner')
+    
     ctx.show_page()
 
 
