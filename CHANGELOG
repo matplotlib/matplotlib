@@ -1,12 +1,16 @@
 New entries should be added at the top
 
+2004-04-17 Added support for two scales on the "same axes" with tick
+           different ticking and labeling left right or top bottom.
+           See examples/two_scales.py - JDH
+
 2004-04-17 Added default dirs as list rather than single dir in
 	   setupext.py - JDH
 
 2004-04-16 Fixed wx exception swallowing bug (and there was much
            rejoicing!) - JDH
 
-2004-04-16 Added new ti huncker locator a formatter, fixed default font
+2004-04-16 Added new ticker locator a formatter, fixed default font
            return - JDH
 
 2004-04-16 Added get_name method to FontProperties class. Fixed font lookup
