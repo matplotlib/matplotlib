@@ -594,3 +594,9 @@ ZeroDivisionError: SeparableTransformation::eval_scalars yin interval is zero; c
 -- Humufr's shared ticker bug
 
 -- figure should increment the figure if one already exists
+
+-- majbase and minbase to plot
+
+-- oplot
+
+-- override setattr in matlab interface for artists.

@@ -312,7 +312,7 @@ instructions on how to port your code.
             x=x, y=y, text=s,
             )
 
-        t.update_properties(override)
+        t.update(override)
         self._set_artist_props(t)
         self.texts.append(t)
         return t

@@ -6,7 +6,7 @@ from matplotlib import verbose
 import matplotlib
 import math
 from artist import Artist
-from cbook import True, False, enumerate
+from cbook import True, False, enumerate, popd
 from font_manager import FontProperties
 from matplotlib import rcParams
 from patches import bbox_artist
@@ -55,7 +55,8 @@ class Text(Artist):
         self._multialignment = multialignment        
         self._rotation = rotation
         self._fontproperties = fontproperties
-
+        self._bbox = None
+        
     def _get_multialignment(self):
         if self._multialignment is not None: return self._multialignment
         else: return self._horizontalalignment
@@ -194,6 +195,14 @@ class Text(Artist):
         return ret
          
 
+    def set_bbox(self, rectprops):
+        """
+Draw a bounding box around self.  rect props are any settable
+properties for a rectangle, eg color='r', alpha=0.5
+
+ACCEPTS: rectangle prop dict plus key 'pad' which is a pad in points
+        """
+        self._bbox = rectprops
 
     def draw(self, renderer):
         if self._text=='': return
@@ -205,7 +214,9 @@ class Text(Artist):
             gc.set_clip_rectangle(self.clipbox.get_bounds())
 
 
-        if 0: bbox_artist(self, renderer)
+            
+        if self._bbox:
+            bbox_artist(self, renderer, self._bbox)
         angle = self.get_rotation()
         bbox, info = self._get_layout(renderer)
 
@@ -507,14 +518,6 @@ ACCEPTS: string
         self._text = s
 
 
-    def update_properties(self, d):
-        "Update the font attributes with the dictionary in d"
-        for k,v in d.items():
-            val = d[k]
-            funcname = 'set_' + k
-            assert(hasattr(self, funcname))
-            func = getattr(self, funcname)
-            func(val)
 
 
     def is_math_text(self):

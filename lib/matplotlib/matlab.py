@@ -1401,7 +1401,7 @@ def xticks(*args, **kwargs):
     else: raise RuntimeError('Illegal number of arguments to xticks')
     if len(kwargs):
         for l in labels:
-            l.update_properties(kwargs)
+            l.update(kwargs)
             
     draw_if_interactive()
     return locs, labels
@@ -1536,7 +1536,7 @@ def yticks(*args, **kwargs):
     else: raise RuntimeError('Illegal number of arguments to yticks')
     if len(kwargs):
         for l in labels:
-            l.update_properties(kwargs)
+            l.update(kwargs)
     
     draw_if_interactive()
 
@@ -1555,3 +1555,14 @@ def polar(*args, **kwargs):
 
     ax = gca(polar=True)
     return ax.plot(*args, **kwargs)
+
+
+def over(func, *args, **kwargs):
+    """
+Call func(*args, **kwargs) with hold(True) and then restore the hold state
+    """
+    h = ishold()
+    hold(True)
+    func(*args, **kwargs)
+    hold(h)
+

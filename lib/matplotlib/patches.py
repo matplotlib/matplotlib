@@ -3,7 +3,7 @@ from __future__ import division
 from matplotlib import rcParams
 from numerix import array, arange, sin, cos, pi, Float
 from artist import Artist
-from cbook import True, False, enumerate
+from cbook import True, False, enumerate, popd
 from colors import colorConverter
 from transforms import bound_vertices
 
@@ -122,7 +122,7 @@ ACCEPTS: [True | False]
         tverts = self._transform.seq_xy_tups(verts)
 
         renderer.draw_polygon(gc, rgbFace, tverts)
-        if 0: bbox_artist(self, renderer)
+
         #renderer.close_group('patch')
         
     def get_verts(self):
@@ -323,23 +323,32 @@ class Circle(RegularPolygon):
                                 orientation=0,
                                 **kwargs)
         
-def bbox_artist(artist, renderer):
+def bbox_artist(artist, renderer, props=None):
     """
     This is a debug function to draw a rectangle around the bounding
     box returned by get_window_extent of an artist, to test whether
     the artist is returning the correct bbox
-    """
 
+    props is a dict of rectangle props with the additional property
+    'pad' that sets the padding around the bbox in points
+    """
+    if props is None: props = {}
+    pad = popd(props, 'pad', 4)
+    pad = renderer.points_to_pixels(pad)
     bbox = artist.get_window_extent(renderer)
     l,b,w,h = bbox.get_bounds()
+    l-=pad/2.
+    b-=pad/2.
+    w+=pad
+    h+=pad
     r = Rectangle(xy=(l,b), 
                   width=w, 
                   height=h, 
-                  fill=False,
                   )
     r.set_clip_on( False )
+    r.update(props)
     r.draw(renderer)
-
+    
 
 def draw_bbox(bbox, renderer, color='k', trans=None):
     """
