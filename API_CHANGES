@@ -45,6 +45,8 @@ Using sizes in data coords caused several problems.  So you will need
 to adjust your size arguments accordingly or use scatter_classic.
 
 
+
+
 Object interface - Application programmers
 ==========================================
 

@@ -26,7 +26,7 @@ files = (
     'histogram_demo.py',
     'image_demo.py',
     'image_demo2.py',
-#    'image_demo_na.py',
+    'image_demo_na.py',
     'invert_axes.py',
     'legend_demo.py',
     'legend_demo2.py',
@@ -77,10 +77,10 @@ def drive(backend):
         os.system('python %s' % tmpfile)
 
 times = {}
-#backends = ['PS', 'GD', 'Paint', 'Agg', 'Template']
+backends = ['PS', 'GD', 'Paint', 'Agg', 'Template']
 #backends.extend([ 'GTK', 'WX', 'TkAgg'])
-#backends = [ 'PS']
-backends = [ 'Agg', 'PS', 'Template']
+#backends = [ 'Agg']
+#backends = [ 'Agg', 'PS', 'Template']
 
 for backend in backends:
     print 'testing %s' % backend
