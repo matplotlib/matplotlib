@@ -877,7 +877,7 @@ RendererAgg::draw_image(const Py::Tuple& args) {
   Image *image = static_cast<Image*>(args[2].ptr());
   std::string origin = Py::String(args[3]);
   
-  if (origin!="lower" and origin!="upper")
+  if (origin!="lower" && origin!="upper")
     throw Py::ValueError("origin must be upper|lower");
   
   bool isUpper = origin=="upper";
