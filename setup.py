@@ -7,6 +7,9 @@ be built by setting the appropriate flag below.
 # Requires freetype2, and libz
 BUILD_FT2FONT = 1
 
+# build the image support module - requires agg
+BUILD_IMAGE = 1
+
 # Build the fonttools and TTFQuery packages, required by the Paint,
 # Agg and GD backends.
 BUILD_FONTTOOLS = 1
@@ -37,7 +40,7 @@ from distutils.core import setup
 import sys,os
 import glob
 from setupext import build_gtkgd, build_agg, build_fonttools, build_gtkagg, \
-     build_tkagg, build_ft2font
+     build_tkagg, build_ft2font, build_image
 import distutils.sysconfig
 
 data = []
@@ -77,6 +80,10 @@ if BUILD_FT2FONT:
     BUILD_FONTTOOLS = 1
     build_ft2font(ext_modules, packages)
 
+if BUILD_IMAGE:
+    BUILD_IMAGE = 1
+    build_image(ext_modules, packages)
+
 if BUILD_FONTTOOLS:
     build_fonttools(ext_modules, packages)
     # we need to manually install FontTools.pth since we can't use
@@ -92,7 +99,7 @@ if BUILD_FONTTOOLS:
 
 
 setup(name="matplotlib",
-      version= '0.51.1',
+      version= '0.52b',
       description = "Matlab style python plotting package",
       author = "John D. Hunter",
       author_email="jdhunter@ace.bsd.uchicago.edu",

@@ -3,7 +3,7 @@ from matplotlib.matlab import *
 figure(1)
 t = arange(0.0, 1.0, 0.01)
 s = sin(2*2*pi*t)
-plot(t, s, linewidth=1.0)
+plot(t, s, antialiased=False)
 
 xlabel('time (s)')
 ylabel('voltage (mV)')
