@@ -3,3 +3,4 @@ include examples/README
 recursive-include examples *.py *.dat
 include fonts/afm/*
 include fonts/ttf/*
+include images/*

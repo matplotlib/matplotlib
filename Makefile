@@ -2,6 +2,9 @@
 # Copyright (C) 2003  <jdhunter@ace.bsd.uchicago.edu>
 # $Header$
 # $Log$
+# Revision 1.9  2003/11/06 23:09:53  jdh2358
+# fixed some problems with the file release system
+#
 # Revision 1.8  2003/10/23 15:42:43  jdh2358
 # fixed figure text clip bug
 #
@@ -59,14 +62,7 @@ htmldocs:
 	tar cfz site.tar.gz *.html screenshots tut examples
 
 release: ${DISTFILES}
-	rm -rf ${RELEASE};\
-	mkdir ${RELEASE};\
-	cp -a ${DISTFILES}  ${RELEASE}/;\
-	rm -rf ${RELEASE}/CVS ${RELEASE}/matplotlib/CVS ${RELEASE}/examples/CVS ${RELEASE}/examples/figures/* ${RELEASE}/examples/*.png ${RELEASE}/examples/*.pyc ${RELEASE}/matplotlib/*.png ${RELEASE}/matplotlib/*.pyc ;\
-	tar cvfz releases/${RELEASE}.tar.gz  ${RELEASE}/ --dereference;\
-	python setup.py bdist_wininst;\
-	cp dist/${RELEASE}.win32.exe releases/;\
-	zip -r ${RELEASE}.zip ${RELEASE};\
-	mv ${RELEASE}.zip releases/;\
-	rm -rf ${RELEASE};
+	${PYTHON} license.py ${VERSION};\
+	${PYTHON} setup.py sdist --formats=gztar,zip;\
+	${PYTHON} setup.py bdist_wininst;
 

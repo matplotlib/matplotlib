@@ -29,7 +29,7 @@ http://matplotlib.sourceforge.net
 > clearbak
 > make htmldocs
 
-# edit setup.py to the correct version number
+# edit setup.py and LICENSE to the correct version number 
 > make release
 
 # anon ftp the tar.gz and exe file to SF
