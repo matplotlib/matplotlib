@@ -261,7 +261,7 @@ class FigureManagerTkAgg(FigureManagerBase):
         w, h = int(w), int(h)
         self.window.minsize(int(w*3/4),int(h*3/4))
         if matplotlib.rcParams['toolbar']=='classic':
-            self.toolbar = NavigationToolbar( canvas, self )
+            self.toolbar = NavigationToolbar( canvas, self.window )
         elif matplotlib.rcParams['toolbar']=='toolbar2':
             self.toolbar = NavigationToolbar2TkAgg( canvas, self.window )
         else:
@@ -380,14 +380,15 @@ class NavigationToolbar(Tk.Frame):
         b.pack(side=Tk.LEFT)
         return b
             
-    def __init__(self, canvas, figman):
+    def __init__(self, canvas, window):
+        self.canvas = canvas
+        self.window = window
+        
         xmin, xmax = canvas.figure.bbox.intervalx().get_bounds()
         height, width = 50, xmax-xmin
-        Tk.Frame.__init__(self, master=figman.window,
+        Tk.Frame.__init__(self, master=self.window,
                           width=width, height=height,
                           borderwidth=2)
-        self.canvas = canvas
-        self.figman = figman
 
         self.update()  # Make axes menu
 
@@ -429,8 +430,6 @@ class NavigationToolbar(Tk.Frame):
 
         self.pack(side=Tk.BOTTOM, fill=Tk.X)
         
-    def close(self):
-        Gcf.destroy(self.figman._num)
         
     def set_active(self, ind):
         self._ind = ind
@@ -444,7 +443,7 @@ class NavigationToolbar(Tk.Frame):
             else: direction=-1
         for a in self._active:
             a.panx(direction)
-        self.figman.show()
+        self.canvas.draw()
 
     def pany(self, arg):
         try: arg.direction
@@ -454,7 +453,7 @@ class NavigationToolbar(Tk.Frame):
             else: direction=-1
         for a in self._active:
             a.pany(direction)
-        self.figman.show()
+        self.canvas.draw()
 
     def zoomx(self, arg):
         try: arg.direction
@@ -465,7 +464,7 @@ class NavigationToolbar(Tk.Frame):
 
         for a in self._active:
             a.zoomx(direction)
-        self.figman.show()
+        self.canvas.draw()
 
     def zoomy(self, arg):
         try: arg.direction
@@ -476,10 +475,10 @@ class NavigationToolbar(Tk.Frame):
 
         for a in self._active:
             a.zoomy(direction)
-        self.figman.show()
+        self.canvas.draw()
 
     def save_figure(self):
-        fs = FileDialog.SaveFileDialog(master=self.figman.window,
+        fs = FileDialog.SaveFileDialog(master=self.window,
                                        title='Save the figure')
         try:
             self.lastDir
