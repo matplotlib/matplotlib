@@ -36,6 +36,7 @@ BUILD_TKAGG        = 'auto'
 #BUILD_WINDOWING        = 0
 BUILD_WINDOWING        = 'auto'
 
+
 VERBOSE = False  # insert lots of diagnostic prints in extension code
 
 
@@ -49,7 +50,7 @@ import sys,os
 import glob
 from distutils.core import Extension
 from setupext import build_agg, build_gtkagg, build_tkagg, \
-     build_ft2font, build_image, build_windowing, build_transforms
+     build_ft2font, build_image, build_windowing, build_transforms, build_contour
 import distutils.sysconfig
 
 for line in file('lib/matplotlib/__init__.py').readlines():
@@ -92,7 +93,10 @@ if NUMERIX == "neither":
 
 ext_modules = []
 
+# these are not optional
 BUILD_FT2FONT = 1
+BUILD_CONTOUR = 1
+
 packages = [
     'matplotlib',
     'matplotlib/backends',
@@ -152,7 +156,10 @@ if BUILD_WINDOWING and sys.platform=='win32':
 
 if BUILD_IMAGE:
     build_image(ext_modules, packages, NUMERIX)
-
+    
+if 1:  # I don't think we need to make these optional
+    build_contour(ext_modules, packages, NUMERIX)
+    
 for mod in ext_modules:
     if VERBOSE:
         mod.extra_compile_args.append('-DVERBOSE')

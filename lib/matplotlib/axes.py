@@ -3,14 +3,16 @@ from __future__ import division, generators
 import math, sys, random
 
 from numerix import MLab, absolute, arange, array, asarray, ones, transpose, \
-     log, log10, Float, ravel
+     log, log10, Float, ravel, zeros, Int32, Float64, ceil, max, min, indices, \
+     shape, which
 
+import _contour
 import mlab
 from artist import Artist
 from axis import XAxis, YAxis
 from cbook import iterable, is_string_like, flatten, enumerate, True, False,\
      allequal, dict_delall, strip_math, popd
-from collections import RegularPolyCollection, PolyCollection
+from collections import RegularPolyCollection, PolyCollection, LineCollection
 from colors import colorConverter, normalize, Colormap, LinearSegmentedColormap
 import cm
 from cm import ColormapJet, Grayscale
@@ -900,6 +902,115 @@ Refs: Bendat & Piersol -- Random Data: Analysis and Measurement
         self.grid(True)
 
         return cxy, freqs
+
+
+    def contour(self, z,
+                x = None,
+                y = None,
+                levels = None,
+                colors = None,
+                linewidths = None):
+        """\
+CONTOUR(z, x = None, y = None, levels = None, colors = None)
+
+plots contour lines of an image z
+
+z is a 2D array of image values
+x and y are 2D arrays with coordinates of z values in the
+two directions. x and y do not need to be evenly spaced but must
+be of the same shape as z
+
+levels can be a list of level values or the number of levels to be plotted.
+If levels == None, a default number of 7 evenly spaced levels is plotted.
+
+colors is one of these:
+  - a tuple of color strings, e.g. colors = ('r,'g', 'k')
+    different levels will be plotted in different colors in the order specified
+  - one string color, e.g. colors = 'r'
+    all levels will be plotted in this color
+  - a tuple of rgb or rgba values, e.g. colors = ((1.0, 0.5, 0.6), (0.4, 0.5, 0.9))
+                                                                                colors =  ((1.0, 0.5, 0.6, 0.6), (0.4, 0.5, 0.9, 1.0))
+  - if colors == None, the default color for lines.color in .matplotlibrc is used.
+
+linewidths is one of:
+   - a number - all levels will be plotted with this linewidth, e.g. linewidths = 0.6
+   - a tuple of numbers, e.g. linewidths = (0.4, 0.8, 1.2)
+     different levels will be plotted with different linewidths in the order specified
+   - if linewidths == None, the default width in lines.linewidth in .matplotlibrc is used
+
+reg is a 2D region number array with the same dimensions as x and y. The values of reg should be positive region numbers, and zero fro zones wich do  not exist.
+
+triangle - triangulation array - must be the same shape as reg
+
+More information on reg and triangle arrays is in _contour.c
+"""
+
+        if not self._hold: self.cla()
+        if which[0] == "numeric":
+            z = array(z.tolist(),typecode = z.typecode())
+        if len(shape(z)) != 2:
+            raise TypeError("Input must be a 2D array.")
+        else:
+            jmax, imax = shape(z)
+
+        region = 0
+        reg = ones((jmax,imax), Int32)
+        reg[:,0]=0
+        triangle = zeros((jmax,imax), Int32)
+        y, x = indices((jmax,imax), 'd')
+        zmax = max(ravel(z))
+        zmin = min(ravel(z))
+
+        if type(levels) not in [int, list] and levels != None:
+            raise TypeError("levels must be an integer number of levels or a list of level values")
+        
+        if (not iterable(levels) or levels == None) or (iterable(levels) and len(levels) == 0):
+            levels = 7
+            lev = [(zmax-zmin)/levels * level + zmin for level in range(levels + 1)[1:]]
+        else:
+            lev = list(levels)
+
+        tcolors = []
+
+        if colors == None:
+            tcolors = [colors] * len(lev)
+        else:
+            if iterable(colors[0]) and len(colors) < len(lev):
+                colors = list(colors) * int(ceil(len(lev)/len(colors)))
+            for c in colors:
+                if len(c) == 4:
+                    tcolors.append((c,))
+                else:
+                    tcolors.append((colorConverter.to_rgba(c, 0.75),))
+
+        if linewidths == None:
+            tlinewidths = [linewidths] *len(lev)
+        else:
+            if iterable(linewidths) and len(linewidths) < len(lev):
+                linewidths = list(linewidths) * int(ceil(len(lev)/len(linewidths)))
+            elif not iterable(linewidths) and type(linewidths) in [int, float]:
+                linewidths = [linewidths] * len(lev)
+            tlinewidths = [(w,) for w in linewidths]
+                                      
+        args = zip(lev, tcolors, tlinewidths)
+
+        all_contours = {}
+        for level, color, width  in args:
+            ntotal, nparts  = _contour.GcInit1(x, y, reg, triangle, region, z, level)
+            np = zeros((nparts,), Int32)
+            xp = zeros((ntotal, ), Float64)
+            yp = zeros((ntotal,), Float64)
+            nlist = _contour.GcTrace(np, xp, yp)
+            col = LineCollection(nlist, colors=color, linewidths = width)
+            self.add_collection(col)
+            all_contours[level] = col
+
+        self.set_xlim([0,imax])
+        self.set_ylim([0,jmax])
+
+        return all_contours
+
+
 
     def csd(self, x, y, NFFT=256, Fs=2, detrend=mlab.detrend_none,
             window=mlab.window_hanning, noverlap=0):

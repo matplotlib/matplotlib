@@ -58,6 +58,7 @@ BUILT_GTKAGG    = False
 BUILT_IMAGE     = False
 BUILT_TKAGG     = False
 BUILT_WINDOWING = False
+BUILT_CONTOUR   = False
 
 class CleanUpFile:
     """CleanUpFile deletes the specified filename when self is destroyed."""
@@ -455,3 +456,30 @@ def build_transforms(ext_modules, packages, numerix):
         ext_modules.append(module)
     
 
+def build_contour(ext_modules, packages, numerix):
+    global BUILT_CONTOUR
+    if BUILT_CONTOUR: return # only build it if you you haven't already
+
+    if numerix in ["numarray","both"]: # Build for numarray
+        temp_copy('src/_contour.c', 'src/_na_contour.c')
+        deps = ['src/_na_contour.c', 'src/gcntr.c'] 
+        module = Extension(
+            'matplotlib._na_contour',
+            deps
+            ,
+            )    
+        module.extra_compile_args.append('-DNUMARRAY=1')
+        ext_modules.append(module)    
+
+    if numerix in ["Numeric","both"]: # Build for Numeric
+        temp_copy('src/_contour.c', 'src/_nc_contour.c')
+        deps = ['src/_nc_contour.c', 'src/gcntr.c'] 
+        module = Extension(
+            'matplotlib._nc_contour',
+            deps
+            ,
+            )
+        module.extra_compile_args.append('-DNUMERIC=1')
+        ext_modules.append(module)
+
+    BUILT_CONTOUR = True
