@@ -10,7 +10,8 @@ BUILD_FT2FONT = 1
 # build the image support module - requires agg and Numeric or
 # numarray.  You can build the image module with either Numeric or
 # numarray.  Whichever way you build it, the code will work with both
-# Numeric or numarray arrays.  
+# Numeric or numarray arrays, but you will get the best performance if
+# you build with the type of array you use most
 #BUILD_IMAGE    = 0           # no image support
 #BUILD_IMAGE    = 'Numeric'    # use Numeric 
 BUILD_IMAGE    = 'numarray'  # use numarray 

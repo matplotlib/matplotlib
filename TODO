@@ -284,10 +284,12 @@
 
 -- fix mathtext sub and super layout
 
--- get a sf request to remove fonttools and ttfquery
+-- DONE get a sf request to remove fonttools and ttfquery
 
 -- add polar plots
 
 -- add pie charts
 
 -- support fontdicts, with deprecation as necessary
+
+-- move text layout to front end and support newlines with rotation.
