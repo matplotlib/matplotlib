@@ -8,7 +8,7 @@ try:
     import pygtk
     pygtk.require('2.0')
 except:
-    print >> sys.stderr, sys.exc_info()[1] # can't use verbose(), until its loaded!
+    print >> sys.stderr, sys.exc_info()[1] # can't use verbose(), until its imported!
     raise SystemExit('PyGTK version 1.99.16 or greater is required to run the GTK/GTKAgg Matplotlib backend')
 
 import gobject
@@ -920,7 +920,8 @@ class FigureManagerGTK(FigureManagerBase):
         if matplotlib.rcParams['toolbar']=='classic':
             self.toolbar = NavigationToolbar( canvas, self.window )
         elif matplotlib.rcParams['toolbar']=='toolbar2':
-            self.toolbar = NavigationToolbar2GTK( canvas )
+            #self.toolbar = NavigationToolbar2GTK( canvas )
+            self.toolbar = NavigationToolbar2GTK (canvas, self.window)
         else:
             self.toolbar = None
 
@@ -997,7 +998,9 @@ class NavigationToolbar2GTK(NavigationToolbar2, gtk.Toolbar):
         ('Save', 'Save the figure','filesave.png', 'save_figure'),
         )
         
-    def __init__(self, canvas, *args):
+    #def __init__(self, canvas, *args):
+    def __init__(self, canvas, window):
+        self.win = window
         gtk.Toolbar.__init__(self)
         NavigationToolbar2.__init__(self, canvas)
         self._idleId = 0
@@ -1127,7 +1130,8 @@ class NavigationToolbar2GTK(NavigationToolbar2, gtk.Toolbar):
         self.show_all()
 
         self.fileselect = FileChooserDialog(title='Save the figure',
-                                            parent=None,)  # later - add parent
+                                            #parent=None,)  # later - add parent
+                                            parent=self.win,)  # later - add parent
                                             
     
     def save_figure(self, button):
