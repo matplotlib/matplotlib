@@ -6,7 +6,7 @@ from matplotlib.transforms import identity, log10, pow10
 from matplotlib.transforms import bound2d_all
 from matplotlib.transforms import transform_bound1d
 from matplotlib.transforms import TransformSize, Points, Dots, \
-     Centimeter, Inches, RefVal
+     Centimeter, Inches, RWRef
 from matplotlib.artist import DPI
 
 def closeto(x,y):
@@ -105,7 +105,7 @@ dpi = DPI(100)
 dots = Dots(dpi)
 pts = Points(dpi)
 
-trans = TransformSize(pts, dots, RefVal(10))
+trans = TransformSize(pts, dots, RWRef(10))
 closeto(trans.positions(0), 10)
 closeto(trans.positions(72), 110)
 
@@ -117,7 +117,7 @@ closeto(trans.positions(36), 110)
 cm = Centimeter(dpi)
 inch = Inches(dpi)
 
-trans = TransformSize(cm, inch, RefVal(0))
+trans = TransformSize(cm, inch, RWRef(0))
 closeto(trans.positions(2), 2/2.54)
 closeto(trans.inverse_positions(trans.positions(2)), 2)
 #closeto(trans.positions(36), 110)
@@ -126,10 +126,10 @@ dpi.set(100)
 pts = Points(dpi)
 dots = Dots(dpi)
 
-trans = TransformSize(pts, dots, RefVal(62.5))
+trans = TransformSize(pts, dots, RWRef(62.5))
 closeto( trans.positions(12), 12/72*100 + 62.5)
 
-trans = TransformSize(pts, dots, RefVal(10))
+trans = TransformSize(pts, dots, RWRef(10))
 #print trans.positions(-12)
 
 print 'passed size transform tests ... '
