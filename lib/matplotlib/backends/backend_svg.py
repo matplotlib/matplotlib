@@ -358,11 +358,7 @@ class FigureCanvasSVG(FigureCanvasBase):
         self.figure.set_facecolor(origfacecolor)
         self.figure.set_edgecolor(origedgecolor)
         
-        try:
-            fh = file(filename, 'w')
-        except IOError:
-            verbose.report_error('Backend SVG failed to save %s' % filename)
-            raise
+        fh = file(filename, 'w')
 
         print >>fh, renderer.get_svg()
 
