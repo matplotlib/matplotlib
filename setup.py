@@ -51,6 +51,11 @@ from setupext import build_agg, build_gtkagg, build_tkagg, \
      build_ft2font, build_image, build_windowing
 import distutils.sysconfig
 
+for line in file('matplotlib/__init__.py').readlines():
+    if line[:11] == '__version__':
+        exec(line)
+        break
+
 data = []
 data.extend(glob.glob('fonts/afm/*.afm'))
 data.extend(glob.glob('fonts/ttf/*.ttf'))
@@ -97,7 +102,7 @@ if BUILD_IMAGE:
     build_image(ext_modules, packages, BUILD_IMAGE)
 
 setup(name="matplotlib",
-      version= '0.53.1',
+      version= __version__,
       description = "Matlab style python plotting package",
       author = "John D. Hunter",
       author_email="jdhunter@ace.bsd.uchicago.edu",
