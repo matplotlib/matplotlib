@@ -10,10 +10,14 @@ TODO
 setup.py
 examples/README
 examples/__init__.py
+examples/anim.py
 examples/arctest.py
 examples/axes_demo.py
 examples/axes_props.py
 examples/barchart_demo.py
+examples/batch_test.py
+examples/batch_test_gd.py
+examples/batch_test_wx.py
 examples/break.py
 examples/color_demo.py
 examples/csd_demo.py
@@ -45,9 +49,11 @@ examples/pstest.py
 examples/scatter_demo.py
 examples/scatter_demo2.py
 examples/simple_plot.py
+examples/specgram_demo.py
 examples/stock_demo.py
 examples/subplot_demo.py
 examples/system_monitor.py
+examples/test.py
 examples/text_handles.py
 examples/text_themes.py
 examples/vline_demo.py
