@@ -1,5 +1,8 @@
 New entries should be added at the top
 
+2004-08-18 Added base and subs properties for logscale plots, 
+           user modifiable using set_[x,y]scale('log',base=b,subs=[mt1,mt2,...]) - GL 
+
 2004-08-18 fixed a bug exposed by trying to find the HOME dir on win32
            thanks to Alan Issac for pointing to the light - JDH
 
