@@ -585,5 +585,6 @@ ZeroDivisionError: SeparableTransformation::eval_scalars yin interval is zero; c
 -- implement a new data clipping method with more exensive cache
    interval
 
--- DONE Humufr errorbar and font bug
+--  Humufr errobar
 
+-- why is tkagg loading init 2x

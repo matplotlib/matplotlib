@@ -191,7 +191,7 @@ class Verbose:
     vald = dict( [(level, i) for i,level in enumerate(levels)])
 
     # parse the verbosity from the command line; flags look like
-    # --verbose-error or --verbose-error
+    # --verbose-error or --verbose-helpful
     _commandLineVerbose = None
     for arg in sys.argv[1:]:
         if not arg.startswith('--verbose-'): continue
@@ -260,10 +260,8 @@ class Verbose:
         'return true if self.level is >= level'
         return self.vald[self.level]>=self.vald[level]
 
-
-
         
-verbose=Verbose('error')  # default unitl rc / flags are parsed
+verbose=Verbose('error')  
 
 
         
@@ -630,7 +628,7 @@ def rc_params():
         key = key.strip()
         if key in deprecated_map.keys():
             alt = deprecated_map[key]
-            verbose.report('%s is deprecated in .matplotlibrc - use %s instead.' % (key, alt))
+            verbose.report_error('%s is deprecated in .matplotlibrc - use %s instead.' % (key, alt))
             key = alt
             
         if not defaultParams.has_key(key):
@@ -655,9 +653,7 @@ def rc_params():
     # strip the conveter funcs and return
     ret =  dict([ (key, tup[0]) for key, tup in defaultParams.items()])
     verbose.report('loaded rc file %s'%fname)
-    verbose.report('verbose.level %s'%verbose.level)
-    verbose.report('interactive %s'%ret['interactive'])
-    verbose.report('matplotlib version %s'%__version__)            
+
     return ret
 
 
@@ -805,3 +801,6 @@ def tk_window_focus():
 
 
 
+verbose.report('matplotlib version %s'%__version__)
+verbose.report('verbose.level %s'%verbose.level)
+verbose.report('interactive is %s'%rcParams['interactive'])

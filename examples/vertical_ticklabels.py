@@ -2,6 +2,6 @@
 from matplotlib.matlab import *
 
 plot([1,2,3,4], [1,4,9,16])
-xticks([1,2,3,4], ['Frogs', 'Hogs', 'Bogs', 'Slogs'])
-set(t, 'rotation', 'vertical')
+locs, labels = xticks([1,2,3,4], ['Frogs', 'Hogs', 'Bogs', 'Slogs'])
+set(labels, 'rotation', 'vertical')
 show()

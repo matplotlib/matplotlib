@@ -1604,10 +1604,11 @@ def xlim(*args, **kwargs):
     """
     ax = gca()
     if len(args)==0: return ax.get_xlim()
-    elif len(args)==1: ax.set_xlim(args)
-    elif len(args)==2: ax.set_xlim((args[0], args[1]))
+    elif len(args)==1: lim = ax.set_xlim(args)
+    elif len(args)==2: lim = ax.set_xlim((args[0], args[1]))
     else: raise RuntimeError('Illegal number of arguments to xlim')
     draw_if_interactive()
+    return lim
 
 def ylim(*args, **kwargs):
     """
@@ -1619,10 +1620,11 @@ def ylim(*args, **kwargs):
     """
     ax = gca()
     if len(args)==0: return ax.get_ylim()
-    elif len(args)==1: ax.set_ylim(args)
-    elif len(args)==2: ax.set_ylim((args[0], args[1]))
+    elif len(args)==1: lim = ax.set_ylim(args)
+    elif len(args)==2: lim = ax.set_ylim((args[0], args[1]))
     else: raise RuntimeError('Illegal number of arguments to ylim')
     draw_if_interactive()
+    return lim
 
 def xticks(*args, **kwargs):
     """
@@ -1644,15 +1646,16 @@ def xticks(*args, **kwargs):
     if len(args)==0:
         locs = ax.get_xticks()
         labels = ax.get_xticklabels()
-        return locs, labels
+
     elif len(args)==1:
-        ax.set_xticks(args[0])
+        locs = ax.set_xticks(args[0])
+        labels = ax.get_xticklabels()        
     elif len(args)==2:
-        ax.set_xticks(args[0])
-        ax.set_xticklabels(args[1])
+        locs = ax.set_xticks(args[0])
+        labels = ax.set_xticklabels(args[1])
     else: raise RuntimeError('Illegal number of arguments to xticks')
     draw_if_interactive()
-
+    return locs, labels
 
 def yticks(*args, **kwargs):
     """
@@ -1674,14 +1677,15 @@ def yticks(*args, **kwargs):
     if len(args)==0:
         locs = ax.get_yticks()
         labels = ax.get_yticklabels()
-        return locs, labels
     elif len(args)==1:
-        ax.set_yticks(args[0])
+        locs = ax.set_yticks(args[0])
+        labels = ax.get_yticklabels()        
     elif len(args)==2:
-        ax.set_yticks(args[0])
-        ax.set_yticklabels(args[1])
+        locs = ax.set_yticks(args[0])
+        labels = ax.set_yticklabels(args[1])
     else: raise RuntimeError('Illegal number of arguments to yticks')
     draw_if_interactive()
+    return locs, labels
 
 def axhline(y=0, xmin=0, xmax=1, **kwargs):
     """\
