@@ -483,7 +483,7 @@
 
 -- port new toolbar to embedding examples
 
--- \sum height problem - see mathtext_tut
+-- DONE \sum height problem - see mathtext_tut
 
 -- DONE check for zero zoom to rect
 
@@ -525,7 +525,7 @@ ZeroDivisionError: SeparableTransformation::eval_scalars yin interval is zero; c
 
 -- offset ps and svg text by max descender
 
--- mathtext PROD offset spi dependent!
+-- DONE mathtext PROD offset spi dependent!
 
 -- DONE layer image whacked
 
