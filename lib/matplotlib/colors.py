@@ -502,7 +502,7 @@ class LinearSegmentedColormap(Colormap):
             xa = array([X])
         else:
             vtype = 'array'
-            xa = array(X)
+            xa = asarray(X)
 
         xa = where(xa>1.,1.,xa)
         xa = where(xa<0.,0.,xa)
@@ -541,7 +541,7 @@ class normalize:
             val = array([value])
         else:
             vtype = 'array'
-            val = array(value)
+            val = asarray(value)
         if vmin is None or vmax is None:
             rval = ravel(val)
             if vmin is None:

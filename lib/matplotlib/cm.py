@@ -418,8 +418,6 @@ class ScalarMappable:
         # assume normalized rgb, rgba
         if len(x.shape)>2: return x
         x = self.norm(x)
-        
-
         return self.cmap(x, alpha)
     
     def set_array(self, A):
