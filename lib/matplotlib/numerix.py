@@ -48,22 +48,9 @@ if which[0] not in ["numeric", "numarray"]:
     raise ValueError("numerix selector must be either 'Numeric' or 'numarray' but the value obtained from the %s was '%s'." % (which[1], which[0]))
 
 if which[0] == "numarray":
-    try:
-        from na_imports import *
-    except ImportError:
-        print >>sys.stderr, "numarray import failed... trying Numeric."
-        which = "numeric", "numarray import error"
-        from nc_imports import *
+    from na_imports import *
 elif which[0] == "numeric":
-    try:
-        from nc_imports import *
-    except ImportError:  
-        if which[1] != "defaulted":
-            print >>sys.stderr, "Numeric import failed... trying numarray."
-            which = "numarray", "Numeric import error"
-        else:
-            which = "numarray", "defaulted"
-        from na_imports import *
+    from nc_imports import *
 else:
     raise RuntimeError("invalid numerix selector")
 
