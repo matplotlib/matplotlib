@@ -152,8 +152,8 @@ Image::as_str(const Py::Tuple& args) {
   args.verify_length(1);
   int flipud = Py::Int(args[0]);
   if (!flipud) {
-    return Py::Object(Py_BuildValue("lls#", rowsOut, colsOut, 
-				    bufferOut, colsOut*rowsOut*4));
+    return Py::asObject(Py_BuildValue("lls#", rowsOut, colsOut, 
+				      bufferOut, colsOut*rowsOut*4));
   }
 
   const size_t NUMBYTES(rowsOut * colsOut * BPP);
@@ -167,8 +167,8 @@ Image::as_str(const Py::Tuple& args) {
       buffer[ind++] = *(bufferOut + start + j);
     }
   }
-  return Py::Object(Py_BuildValue("lls#", rowsOut, colsOut, 
-				  buffer, NUMBYTES));
+  return Py::asObject(Py_BuildValue("lls#", rowsOut, colsOut, 
+				    buffer, NUMBYTES));
   
 }
 
