@@ -1627,6 +1627,7 @@ def matshow(*args,**kw):
     kw.setdefault('interpolation','nearest')
     # All other keywords go through to imshow.
     im = ax.imshow(*args,**kw)
+    gci._current = im
 
     # set the x and y lim to equal the matrix dims
     nr,nc = arr.shape[:2]

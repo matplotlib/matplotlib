@@ -14,7 +14,6 @@ files = (
     'barchart_demo.py',
     'color_demo.py',
     'contour_demo.py',
-    'contour_demo2.py',
     'contourf_demo.py',
     'csd_demo.py',
     'custom_ticker1.py',

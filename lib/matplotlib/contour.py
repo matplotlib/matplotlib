@@ -32,7 +32,39 @@ class ContourMappable(ScalarMappable):
     def __init__(self, levels, collections, norm=None, cmap=None, labeld=None):
         """
         See comment on labeld in the ContourLabeler class
-        
+
+        """
+        ScalarMappable.__init__(self, norm, cmap)
+        self.levels = levels
+        self.collections = collections
+        if labeld is None: labeld = {}
+        self.labeld = labeld
+
+    def changed(self):
+        colors = [ (tuple(rgba),) for rgba in self.to_rgba(self.levels)]
+        contourNum = 0
+        for color, collection in zip(colors, self.collections):
+            collection.set_color(color)
+            Ncolor = len(color) # collections could have more than 1 in principle
+
+            segments = getattr(collection, '_segments', [])
+            for segNum, segment in enumerate(segments):
+                key = contourNum, segNum
+                t = self.labeld.get(key)
+                if t is not None: t.set_color(color[segNum%Ncolor])
+            contourNum += 1
+
+        ScalarMappable.changed(self)
+
+
+class ContourfMappable(ScalarMappable):
+    """
+    a class to allow contours to respond properly to change in cmaps, etc
+    """
+    def __init__(self, levels, collections, norm=None, cmap=None, labeld=None):
+        """
+        See comment on labeld in the ContourLabeler class
+
         """
         ScalarMappable.__init__(self, norm, cmap)
         self.levels = levels
@@ -51,13 +83,13 @@ class ContourMappable(ScalarMappable):
                 t = self.labeld.get(key)
                 if t is not None: t.set_color(color[segNum%Ncolor])
             contourNum += 1
-            
+
         ScalarMappable.changed(self)
 
 class ContourLabeler:
     def __init__(self, ax):
         self.ax = ax
-        
+
     def clabel(self, *args, **kwargs):
         """
         CLABEL(*args, **kwargs)
@@ -151,28 +183,18 @@ class ContourLabeler:
         # i is the contour level index, j is the sement index
         self.labeld = {}
         if inline == 1:
-            toremove, toadd = self.inline_labels(levels, contours, colors, fslist, fmt)
-            for r in toremove:
-                self.ax.collections.remove(r)
-            for a in toadd:
-                self.ax.add_collection(a)
+            self.inline_labels(levels, contours, colors, fslist, fmt)
         else:
             self.labels(levels, contours, colors, fslist, fmt)
 
         for label in self.cl:
             self.ax.add_artist(label)
 
-
-        old = getattr(contours, 'mappable')
-        if old is not None:
-            mappable = ContourMappable(old.get_array(), toadd, cmap=old.cmap, labeld=self.labeld)            
-            mappable.set_array(old.get_array())
-            mappable.autoscale()
-        else:
-            mappable = None
-
         ret =  silent_list('Text', self.cl)
-        ret.mappable = mappable
+        ret.mappable = getattr(contours, 'mappable', None)
+        # support colormapping for label
+        if ret.mappable is not None:
+            ret.mappable.labeld = self.labeld
         return ret
 
 
@@ -182,19 +204,19 @@ class ContourLabeler:
         lcsize = len(linecontour)
         if lcsize > 10 * labelwidth:
             return 1
-
+        
         xmax = amax(array(linecontour)[:,0])
         xmin = amin(array(linecontour)[:,0])
         ymax = amax(array(linecontour)[:,1])
         ymin = amin(array(linecontour)[:,1])
 
         lw = labelwidth
-        if (xmax - xmin) > 3* lw or (ymax - ymin) > 3 * lw:
+        if (xmax - xmin) > 1.2* lw or (ymax - ymin) > 1.2 * lw:
             return 1
         else:
             return 0
 
-    def too_close(self, x,y):
+    def too_close(self, x,y, lw):
         "if there's a label already nearby, find a better place"
         if self.cl_xy != []:
             dist = [sqrt((x-loc[0]) ** 2 + (y-loc[1]) ** 2) for loc in self.cl_xy]
@@ -204,7 +226,7 @@ class ContourLabeler:
                 else: return 0
         else: return 0
 
-    def get_label_coords(self, distances, XX, YY, ysize):
+    def get_label_coords(self, distances, XX, YY, ysize, lw):
         """ labels are ploted at a location with the smallest
         dispersion of the contour from a straight line
         unless there's another label nearby, in which case
@@ -218,7 +240,7 @@ class ContourLabeler:
 
         for ind in adist:
             x, y = XX[ind][hysize], YY[ind][hysize]
-            if self.too_close(x,y):
+            if self.too_close(x,y, lw):
                 continue
             else:
                 self.cl_xy.append((x,y))
@@ -272,12 +294,13 @@ class ContourLabeler:
 
         inds=nonzero(((xx < x+xlabel) & (xx > x-xlabel)) & ((yy < y+ylabel) & (yy > y-ylabel)))
 
-        if len(inds) != 0:
+        if len(inds) >0:
             lc1=linecontour[:inds[0]]
             lc2 = linecontour[inds[-1]+1:]
         else:
             lc1=linecontour[:ind]
             lc2 = linecontour[ind+1:]
+
         epsilon=.000005
 
         if rot <0:
@@ -332,9 +355,7 @@ class ContourLabeler:
         s = (reshape(yfirst, (xsize,1))-YY)*(reshape(xlast,(xsize,1))-reshape(xfirst,(xsize,1)))-(reshape(xfirst,(xsize,1))-XX)*(reshape(ylast,(xsize,1))-reshape(yfirst,(xsize,1)))
         L=sqrt((xlast-xfirst)**2+(ylast-yfirst)**2)
         dist = add.reduce(([(abs(s)[i]/L[i]) for i in range(xsize)]),-1)
-        ind = argmin(dist)
-        x, y = XX[ind][int(ysize/2)], YY[ind][int(ysize/2)]
-        x,y,ind = self.get_label_coords(dist, XX, YY, ysize)
+        x,y,ind = self.get_label_coords(dist, XX, YY, ysize, labelwidth)
         angle = arctan2(ylast - yfirst, xlast - xfirst)
         rotation = angle[ind]*180/pi
         if rotation > 90:
@@ -347,12 +368,12 @@ class ContourLabeler:
         return x,y, rotation, dind
 
     def inline_labels(self, levels, contours, colors, fslist, fmt):
-        toremove = []
-        toadd = []
         trans = self.ax.transData
         contourNum = 0
         for lev, con, color, fsize in zip(levels, contours, colors, fslist):
             col = []
+            toremove = []
+            toadd = []
             lw = self.get_label_width(lev, fmt, fsize)
             for segNum, linecontour in enumerate(con._segments):
                 key = contourNum, segNum
@@ -372,16 +393,17 @@ class ContourLabeler:
                     text = self.get_text(lev,fmt)
                     self.set_label_props(t, text, color)
                     self.cl.append(t)
-
                     new  =  self.break_linecontour(linecontour, rotation, lw, ind)
                     for c in new: col.append(c)
-                else:
-                    col.append(linecontour)
-            toremove.append(con)
-            toadd.append(LineCollection(col, colors=con._colors, linewidths = con._lw))
+
+                    for c in new: toadd.append(c)
+                    toremove.append(linecontour)
+            for c in toremove:
+                con._segments.remove(c)
+            for c in toadd: con._segments.append(c)
+
             contourNum += 1
 
-        return toremove, toadd
 
     def labels(self, levels, contours, colors, fslist, fmt):
         trans = self.ax.transData
@@ -406,7 +428,7 @@ class ContourLabeler:
                     pass
 
 
-    
+
 
 class ContourSupport:
 
@@ -416,7 +438,7 @@ class ContourSupport:
         """
         self.ax = ax
         self.labeler = ContourLabeler(ax)
-        
+
     def _autolev(self, z, N, filled, badmask):
         '''
         Select contour levels to span the data.
@@ -438,7 +460,7 @@ class ContourSupport:
             lev = linspace(zmin, zmax, N+2)[1:-1]
         return lev
 
-    def _initialize_x_y(self, z, origin):
+    def _initialize_x_y(self, z, origin, extent):
         '''
         Return X, Y arrays such that contour(Z) will match imshow(Z)
         if origin is not None.
@@ -446,16 +468,27 @@ class ContourSupport:
         if origin is None, x = j, y = i;
         if origin is 'lower', x = j + 0.5, y = i + 0.5;
         if origin is 'upper', x = j + 0.5, y = Nrows - i - 0.5
+        If extent is not None, x and y will be scaled to match,
+        as in imshow.
         '''
         if len(shape(z)) != 2:
             raise TypeError("Input must be a 2D array.")
-        else: imax, jmax = shape(z)
-        y = arange(imax)
-        if origin is None:  shift = 0.0
-        else:               shift = 0.5
+        else:
+            Ny, Nx = shape(z)
+        if origin is None:
+            return meshgrid(arange(Nx), arange(Ny))
+
+        if extent is None:
+            x0,x1,y0,y1 = (0, Nx, 0, Ny)
+        else:
+            x0,x1,y0,y1 = extent
+        dx = float(x1 - x0)/Nx
+        dy = float(y1 - y0)/Ny
+        x = x0 + (arange(Nx) + 0.5) * dx
+        y = y0 + (arange(Ny) + 0.5) * dy
         if origin == 'upper':
             y = y[::-1]
-        return meshgrid(arange(jmax)+ shift, y + shift)
+        return meshgrid(x,y)
 
     def _check_xyz(self, args):
         '''
@@ -469,14 +502,14 @@ class ContourSupport:
         x,y,z = args
         if len(shape(z)) != 2:
             raise TypeError("Input z must be a 2D array.")
-        else: imax, jmax = shape(z)
+        else: Ny, Nx = shape(z)
         if shape(x) == shape(z) and shape(y) == shape(z):
             return x,y,z
         if len(shape(x)) != 1 or len(shape(y)) != 1:
             raise TypeError("Inputs x and y must be 1D or 2D.")
         nx, = shape(x)
         ny, = shape(y)
-        if nx != jmax or ny != imax:
+        if nx != Nx or ny != Ny:
             raise TypeError("Length of x must be number of columns in z,\n" +
                             "and length of y must be number of rows.")
         x,y = meshgrid(x,y)
@@ -484,13 +517,13 @@ class ContourSupport:
 
 
 
-    def _contour_args(self, filled, badmask, origin, *args):
+    def _contour_args(self, filled, badmask, origin, extent, *args):
         if filled: fn = 'contourf'
         else:      fn = 'contour'
         Nargs = len(args)
         if Nargs <= 2:
             z = args[0]
-            x, y = self._initialize_x_y(z, origin)
+            x, y = self._initialize_x_y(z, origin, extent)
         elif Nargs <=4:
             x,y,z = self._check_xyz(args[:3])
         else:
@@ -498,7 +531,7 @@ class ContourSupport:
         z = asarray(z)  # Convert to native array format if necessary.
         if Nargs == 1 or Nargs == 3:
             lev = self._autolev(z, 7, filled, badmask)
-        else:
+        else:   # 2 or 4 args
             level_arg = args[-1]
             if type(level_arg) == int:
                 lev = self._autolev(z, level_arg, filled, badmask)
@@ -631,6 +664,9 @@ class ContourSupport:
               one or two arguments, that is, without explicitly
               specifying X and Y.
 
+            * extent = None: (x0,x1,y0,y1); also active only if X and Y
+              are not specified.
+
             * badmask = None: array with dimensions of Z, and with values
               of zero at locations corresponding to valid data, and one
               at locations where the value of Z should be ignored.
@@ -660,31 +696,40 @@ class ContourSupport:
         linewidths = kwargs.get('linewidths', None)
         fmt = kwargs.get('fmt', '%1.3f')
         origin = kwargs.get('origin', None)
+        extent = kwargs.get('extent', None)
         cmap = kwargs.get('cmap', None)
         colors = kwargs.get('colors', None)
         badmask = kwargs.get('badmask', None)
 
+
         if cmap is not None: assert(isinstance(cmap, Colormap))
         if origin is not None: assert(origin in ['lower', 'upper', 'image'])
-
+        if extent is not None: assert(len(extent) == 4)
         if colors is not None and cmap is not None:
             raise RuntimeError('Either colors or cmap must be None')
         if origin == 'image': origin = rcParams['image.origin']
 
 
-        x, y, z, lev = self._contour_args(False, badmask, origin, *args)
+        x, y, z, lev = self._contour_args(False, badmask, origin, extent, *args)
 
         # Manipulate the plot *after* checking the input arguments.
         if not self.ax.ishold(): self.ax.cla()
 
         Nlev = len(lev)
+        if cmap is None:
+            if colors is None:
+                Ncolors = Nlev
+            else:
+                Ncolors = len(colors)
+        else:
+            Ncolors = Nlev
 
 
         reg, triangle = self._initialize_reg_tri(z, badmask)
 
         tcolors, mappable, collections = self._process_colors(z, colors,
                                                               alpha,
-                                                              lev, cmap)
+                                        lev, cmap)
 
         if linewidths == None:
             tlinewidths = [rcParams['lines.linewidth']] *Nlev
@@ -707,9 +752,9 @@ class ContourSupport:
             col.set_color(color)
             col.set_linewidth(width)
 
-            if level < 0:
+            if level < 0.0 and Ncolors == 1:
                 col.set_linestyle((0, (6.,6.)),)
-
+                #print "setting dashed"
             col.set_label(fmt%level)
             self.ax.add_collection(col)
             collections.append(col)
@@ -793,6 +838,7 @@ class ContourSupport:
 
         alpha = kwargs.get('alpha', 1.0)
         origin = kwargs.get('origin', None)
+        extent = kwargs.get('extent', None)
         cmap = kwargs.get('cmap', None)
         colors = kwargs.get('colors', None)
         badmask = kwargs.get('badmask', None)
@@ -804,7 +850,7 @@ class ContourSupport:
             raise RuntimeError('Either colors or cmap must be None')
         if origin == 'image': origin = rcParams['image.origin']
 
-        x, y, z, lev = self._contour_args(True, badmask, origin, *args)
+        x, y, z, lev = self._contour_args(True, badmask, origin, extent, *args)
         # Manipulate the plot *after* checking the input arguments.
         if not self.ax.ishold(): self.ax.cla()
 
@@ -833,8 +879,6 @@ class ContourSupport:
                   # linewidths = 1 is necessary to avoid artifacts
                   # in rendering the region boundaries.
             col.set_color(color) # sets both facecolor and edgecolor
-            #col.set_edgecolor(color)
-
             self.ax.add_collection(col)
             collections.append(col)
 

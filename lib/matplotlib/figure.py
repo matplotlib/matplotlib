@@ -512,11 +512,15 @@ all backends; currently only on postscript output."""
         if orientation=='vertical':
             C = transpose(C)
 
+        if orientation=='vertical':
+            extent=(0, 1, cmin, cmax)
+        else:
+            extent=(cmin, cmax, 0, 1)
         coll = cax.imshow(C,
                           interpolation='nearest', 
                           origin='lower',
                           cmap=cmap, norm=norm,
-                          extent=(0, 1, cmin, cmax))
+                          extent=extent)
         mappable.add_observer(coll)
         mappable.set_colorbar(coll, cax)
         if orientation=='vertical':
@@ -527,6 +531,7 @@ all backends; currently only on postscript output."""
             cax.set_yticks([])
             cax.xaxis.set_major_formatter(FormatStrFormatter(tickfmt))
 
+        self.sca(ax)
         return cax
 
 

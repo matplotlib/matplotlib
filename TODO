@@ -664,3 +664,9 @@ ZeroDivisionError: SeparableTransformation::eval_scalars yin interval is zero; c
 
 -- DONE check why lowest contour is not labeled in contour_demo2 and why
    the colormap is still not applying to the contour.
+
+-- the problem with attaching a mappable to the silent_list for
+   contours is that it doesn't carry over when the list is sliced, eg
+   when passing every 2nd contour and level to the labeler.
+
+-- colorbar image origin with contour is broken in SVG; test PS

@@ -251,6 +251,7 @@ class FigureCanvasGTK(gtk.DrawingArea, FigureCanvasBase):
         Should not be overridden.
         """
         if DEBUG: print 'FigureCanvasGTK.%s' % fn_name()
+
         if DBL_BUFFER:
             if self._draw_pixmap and GTK_WIDGET_DRAWABLE(self):
                 width, height = self.allocation.width, self.allocation.height

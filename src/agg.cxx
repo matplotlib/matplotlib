@@ -1334,22 +1334,26 @@ SWIG_Python_SetModule(swig_module_info *swig_module) {
 #define SWIGTYPE_p_agg__rect_baseTdouble_t swig_types[2]
 #define SWIGTYPE_p_agg__rect_baseTint_t swig_types[3]
 #define SWIGTYPE_p_agg__trans_affine swig_types[4]
-#define SWIGTYPE_p_agg__vertex_type swig_types[5]
-#define SWIGTYPE_p_char swig_types[6]
-#define SWIGTYPE_p_double swig_types[7]
-#define SWIGTYPE_p_int swig_types[8]
-#define SWIGTYPE_p_self_type swig_types[9]
-#define SWIGTYPE_p_short swig_types[10]
-#define SWIGTYPE_p_signed_char swig_types[11]
-#define SWIGTYPE_p_unsigned_char swig_types[12]
-#define SWIGTYPE_p_unsigned_int swig_types[13]
-#define SWIGTYPE_p_unsigned_short swig_types[14]
-#define SWIGTYPE_ptrdiff_t swig_types[15]
-#define SWIGTYPE_size_t swig_types[16]
-#define SWIGTYPE_std__ptrdiff_t swig_types[17]
-#define SWIGTYPE_std__size_t swig_types[18]
-static swig_type_info *swig_types[19];
-static swig_module_info swig_module = {swig_types, 19, 0, 0, 0, 0};
+#define SWIGTYPE_p_agg__trans_affine_rotation swig_types[5]
+#define SWIGTYPE_p_agg__trans_affine_scaling swig_types[6]
+#define SWIGTYPE_p_agg__trans_affine_skewing swig_types[7]
+#define SWIGTYPE_p_agg__trans_affine_translation swig_types[8]
+#define SWIGTYPE_p_agg__vertex_type swig_types[9]
+#define SWIGTYPE_p_char swig_types[10]
+#define SWIGTYPE_p_double swig_types[11]
+#define SWIGTYPE_p_int swig_types[12]
+#define SWIGTYPE_p_self_type swig_types[13]
+#define SWIGTYPE_p_short swig_types[14]
+#define SWIGTYPE_p_signed_char swig_types[15]
+#define SWIGTYPE_p_unsigned_char swig_types[16]
+#define SWIGTYPE_p_unsigned_int swig_types[17]
+#define SWIGTYPE_p_unsigned_short swig_types[18]
+#define SWIGTYPE_ptrdiff_t swig_types[19]
+#define SWIGTYPE_size_t swig_types[20]
+#define SWIGTYPE_std__ptrdiff_t swig_types[21]
+#define SWIGTYPE_std__size_t swig_types[22]
+static swig_type_info *swig_types[23];
+static swig_module_info swig_module = {swig_types, 23, 0, 0, 0, 0};
 #define SWIG_TypeQuery(name) SWIG_TypeQueryModule(&swig_module, &swig_module, name)
 #define SWIG_MangledTypeQuery(name) SWIG_MangledTypeQueryModule(&swig_module, &swig_module, name)
 
@@ -4888,6 +4892,252 @@ static PyObject * trans_affine_swigregister(PyObject *, PyObject *args) {
     Py_INCREF(obj);
     return Py_BuildValue((char *)"");
 }
+static PyObject *_wrap_new_trans_affine_rotation(PyObject *, PyObject *args) {
+    PyObject *resultobj;
+    double arg1 ;
+    agg::trans_affine_rotation *result;
+    PyObject * obj0 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"O:new_trans_affine_rotation",&obj0)) goto fail;
+    {
+        arg1 = (double)(SWIG_As_double(obj0)); 
+        if (SWIG_arg_fail(1)) SWIG_fail;
+    }
+    result = (agg::trans_affine_rotation *)new agg::trans_affine_rotation(arg1);
+    
+    resultobj = SWIG_NewPointerObj((void*)(result), SWIGTYPE_p_agg__trans_affine_rotation, 1);
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_delete_trans_affine_rotation(PyObject *, PyObject *args) {
+    PyObject *resultobj;
+    agg::trans_affine_rotation *arg1 = (agg::trans_affine_rotation *) 0 ;
+    PyObject * obj0 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"O:delete_trans_affine_rotation",&obj0)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__trans_affine_rotation, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    delete arg1;
+    
+    Py_INCREF(Py_None); resultobj = Py_None;
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject * trans_affine_rotation_swigregister(PyObject *, PyObject *args) {
+    PyObject *obj;
+    if (!PyArg_ParseTuple(args,(char*)"O", &obj)) return NULL;
+    SWIG_TypeClientData(SWIGTYPE_p_agg__trans_affine_rotation, obj);
+    Py_INCREF(obj);
+    return Py_BuildValue((char *)"");
+}
+static PyObject *_wrap_new_trans_affine_scaling__SWIG_0(PyObject *, PyObject *args) {
+    PyObject *resultobj;
+    double arg1 ;
+    double arg2 ;
+    agg::trans_affine_scaling *result;
+    PyObject * obj0 = 0 ;
+    PyObject * obj1 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"OO:new_trans_affine_scaling",&obj0,&obj1)) goto fail;
+    {
+        arg1 = (double)(SWIG_As_double(obj0)); 
+        if (SWIG_arg_fail(1)) SWIG_fail;
+    }
+    {
+        arg2 = (double)(SWIG_As_double(obj1)); 
+        if (SWIG_arg_fail(2)) SWIG_fail;
+    }
+    result = (agg::trans_affine_scaling *)new agg::trans_affine_scaling(arg1,arg2);
+    
+    resultobj = SWIG_NewPointerObj((void*)(result), SWIGTYPE_p_agg__trans_affine_scaling, 1);
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_new_trans_affine_scaling__SWIG_1(PyObject *, PyObject *args) {
+    PyObject *resultobj;
+    double arg1 ;
+    agg::trans_affine_scaling *result;
+    PyObject * obj0 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"O:new_trans_affine_scaling",&obj0)) goto fail;
+    {
+        arg1 = (double)(SWIG_As_double(obj0)); 
+        if (SWIG_arg_fail(1)) SWIG_fail;
+    }
+    result = (agg::trans_affine_scaling *)new agg::trans_affine_scaling(arg1);
+    
+    resultobj = SWIG_NewPointerObj((void*)(result), SWIGTYPE_p_agg__trans_affine_scaling, 1);
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_new_trans_affine_scaling(PyObject *self, PyObject *args) {
+    int argc;
+    PyObject *argv[3];
+    int ii;
+    
+    argc = PyObject_Length(args);
+    for (ii = 0; (ii < argc) && (ii < 2); ii++) {
+        argv[ii] = PyTuple_GetItem(args,ii);
+    }
+    if (argc == 1) {
+        int _v;
+        _v = SWIG_Check_double(argv[0]);
+        if (_v) {
+            return _wrap_new_trans_affine_scaling__SWIG_1(self,args);
+        }
+    }
+    if (argc == 2) {
+        int _v;
+        _v = SWIG_Check_double(argv[0]);
+        if (_v) {
+            _v = SWIG_Check_double(argv[1]);
+            if (_v) {
+                return _wrap_new_trans_affine_scaling__SWIG_0(self,args);
+            }
+        }
+    }
+    
+    PyErr_SetString(PyExc_NotImplementedError,"No matching function for overloaded 'new_trans_affine_scaling'");
+    return NULL;
+}
+
+
+static PyObject *_wrap_delete_trans_affine_scaling(PyObject *, PyObject *args) {
+    PyObject *resultobj;
+    agg::trans_affine_scaling *arg1 = (agg::trans_affine_scaling *) 0 ;
+    PyObject * obj0 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"O:delete_trans_affine_scaling",&obj0)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__trans_affine_scaling, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    delete arg1;
+    
+    Py_INCREF(Py_None); resultobj = Py_None;
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject * trans_affine_scaling_swigregister(PyObject *, PyObject *args) {
+    PyObject *obj;
+    if (!PyArg_ParseTuple(args,(char*)"O", &obj)) return NULL;
+    SWIG_TypeClientData(SWIGTYPE_p_agg__trans_affine_scaling, obj);
+    Py_INCREF(obj);
+    return Py_BuildValue((char *)"");
+}
+static PyObject *_wrap_new_trans_affine_translation(PyObject *, PyObject *args) {
+    PyObject *resultobj;
+    double arg1 ;
+    double arg2 ;
+    agg::trans_affine_translation *result;
+    PyObject * obj0 = 0 ;
+    PyObject * obj1 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"OO:new_trans_affine_translation",&obj0,&obj1)) goto fail;
+    {
+        arg1 = (double)(SWIG_As_double(obj0)); 
+        if (SWIG_arg_fail(1)) SWIG_fail;
+    }
+    {
+        arg2 = (double)(SWIG_As_double(obj1)); 
+        if (SWIG_arg_fail(2)) SWIG_fail;
+    }
+    result = (agg::trans_affine_translation *)new agg::trans_affine_translation(arg1,arg2);
+    
+    resultobj = SWIG_NewPointerObj((void*)(result), SWIGTYPE_p_agg__trans_affine_translation, 1);
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_delete_trans_affine_translation(PyObject *, PyObject *args) {
+    PyObject *resultobj;
+    agg::trans_affine_translation *arg1 = (agg::trans_affine_translation *) 0 ;
+    PyObject * obj0 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"O:delete_trans_affine_translation",&obj0)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__trans_affine_translation, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    delete arg1;
+    
+    Py_INCREF(Py_None); resultobj = Py_None;
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject * trans_affine_translation_swigregister(PyObject *, PyObject *args) {
+    PyObject *obj;
+    if (!PyArg_ParseTuple(args,(char*)"O", &obj)) return NULL;
+    SWIG_TypeClientData(SWIGTYPE_p_agg__trans_affine_translation, obj);
+    Py_INCREF(obj);
+    return Py_BuildValue((char *)"");
+}
+static PyObject *_wrap_new_trans_affine_skewing(PyObject *, PyObject *args) {
+    PyObject *resultobj;
+    double arg1 ;
+    double arg2 ;
+    agg::trans_affine_skewing *result;
+    PyObject * obj0 = 0 ;
+    PyObject * obj1 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"OO:new_trans_affine_skewing",&obj0,&obj1)) goto fail;
+    {
+        arg1 = (double)(SWIG_As_double(obj0)); 
+        if (SWIG_arg_fail(1)) SWIG_fail;
+    }
+    {
+        arg2 = (double)(SWIG_As_double(obj1)); 
+        if (SWIG_arg_fail(2)) SWIG_fail;
+    }
+    result = (agg::trans_affine_skewing *)new agg::trans_affine_skewing(arg1,arg2);
+    
+    resultobj = SWIG_NewPointerObj((void*)(result), SWIGTYPE_p_agg__trans_affine_skewing, 1);
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_delete_trans_affine_skewing(PyObject *, PyObject *args) {
+    PyObject *resultobj;
+    agg::trans_affine_skewing *arg1 = (agg::trans_affine_skewing *) 0 ;
+    PyObject * obj0 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"O:delete_trans_affine_skewing",&obj0)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__trans_affine_skewing, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    delete arg1;
+    
+    Py_INCREF(Py_None); resultobj = Py_None;
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject * trans_affine_skewing_swigregister(PyObject *, PyObject *args) {
+    PyObject *obj;
+    if (!PyArg_ParseTuple(args,(char*)"O", &obj)) return NULL;
+    SWIG_TypeClientData(SWIGTYPE_p_agg__trans_affine_skewing, obj);
+    Py_INCREF(obj);
+    return Py_BuildValue((char *)"");
+}
 static PyObject *_wrap_delete_path_storage(PyObject *, PyObject *args) {
     PyObject *resultobj;
     agg::path_storage *arg1 = (agg::path_storage *) 0 ;
@@ -6922,6 +7172,18 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"trans_affine_get_scaling", _wrap_trans_affine_get_scaling, METH_VARARGS, NULL},
 	 { (char *)"delete_trans_affine", _wrap_delete_trans_affine, METH_VARARGS, NULL},
 	 { (char *)"trans_affine_swigregister", trans_affine_swigregister, METH_VARARGS, NULL},
+	 { (char *)"new_trans_affine_rotation", _wrap_new_trans_affine_rotation, METH_VARARGS, NULL},
+	 { (char *)"delete_trans_affine_rotation", _wrap_delete_trans_affine_rotation, METH_VARARGS, NULL},
+	 { (char *)"trans_affine_rotation_swigregister", trans_affine_rotation_swigregister, METH_VARARGS, NULL},
+	 { (char *)"new_trans_affine_scaling", _wrap_new_trans_affine_scaling, METH_VARARGS, NULL},
+	 { (char *)"delete_trans_affine_scaling", _wrap_delete_trans_affine_scaling, METH_VARARGS, NULL},
+	 { (char *)"trans_affine_scaling_swigregister", trans_affine_scaling_swigregister, METH_VARARGS, NULL},
+	 { (char *)"new_trans_affine_translation", _wrap_new_trans_affine_translation, METH_VARARGS, NULL},
+	 { (char *)"delete_trans_affine_translation", _wrap_delete_trans_affine_translation, METH_VARARGS, NULL},
+	 { (char *)"trans_affine_translation_swigregister", trans_affine_translation_swigregister, METH_VARARGS, NULL},
+	 { (char *)"new_trans_affine_skewing", _wrap_new_trans_affine_skewing, METH_VARARGS, NULL},
+	 { (char *)"delete_trans_affine_skewing", _wrap_delete_trans_affine_skewing, METH_VARARGS, NULL},
+	 { (char *)"trans_affine_skewing_swigregister", trans_affine_skewing_swigregister, METH_VARARGS, NULL},
 	 { (char *)"delete_path_storage", _wrap_delete_path_storage, METH_VARARGS, NULL},
 	 { (char *)"new_path_storage", _wrap_new_path_storage, METH_VARARGS, NULL},
 	 { (char *)"path_storage_remove_all", _wrap_path_storage_remove_all, METH_VARARGS, NULL},
@@ -6962,11 +7224,27 @@ static PyMethodDef SwigMethods[] = {
 
 /* -------- TYPE CONVERSION AND EQUIVALENCE RULES (BEGIN) -------- */
 
+static void *_p_agg__trans_affine_scalingTo_p_agg__trans_affine(void *x) {
+    return (void *)((agg::trans_affine *)  ((agg::trans_affine_scaling *) x));
+}
+static void *_p_agg__trans_affine_skewingTo_p_agg__trans_affine(void *x) {
+    return (void *)((agg::trans_affine *)  ((agg::trans_affine_skewing *) x));
+}
+static void *_p_agg__trans_affine_translationTo_p_agg__trans_affine(void *x) {
+    return (void *)((agg::trans_affine *)  ((agg::trans_affine_translation *) x));
+}
+static void *_p_agg__trans_affine_rotationTo_p_agg__trans_affine(void *x) {
+    return (void *)((agg::trans_affine *)  ((agg::trans_affine_rotation *) x));
+}
 static swig_type_info _swigt__p_agg__path_storage = {"_p_agg__path_storage", "agg::path_storage *", 0, 0, 0};
 static swig_type_info _swigt__p_agg__point_type = {"_p_agg__point_type", "agg::point_type *", 0, 0, 0};
 static swig_type_info _swigt__p_agg__rect_baseTdouble_t = {"_p_agg__rect_baseTdouble_t", "agg::rect_base<double > *|agg::rect_d *", 0, 0, 0};
 static swig_type_info _swigt__p_agg__rect_baseTint_t = {"_p_agg__rect_baseTint_t", "agg::rect_base<int > *|agg::rect *", 0, 0, 0};
 static swig_type_info _swigt__p_agg__trans_affine = {"_p_agg__trans_affine", "agg::trans_affine *", 0, 0, 0};
+static swig_type_info _swigt__p_agg__trans_affine_rotation = {"_p_agg__trans_affine_rotation", "agg::trans_affine_rotation *", 0, 0, 0};
+static swig_type_info _swigt__p_agg__trans_affine_scaling = {"_p_agg__trans_affine_scaling", "agg::trans_affine_scaling *", 0, 0, 0};
+static swig_type_info _swigt__p_agg__trans_affine_skewing = {"_p_agg__trans_affine_skewing", "agg::trans_affine_skewing *", 0, 0, 0};
+static swig_type_info _swigt__p_agg__trans_affine_translation = {"_p_agg__trans_affine_translation", "agg::trans_affine_translation *", 0, 0, 0};
 static swig_type_info _swigt__p_agg__vertex_type = {"_p_agg__vertex_type", "agg::vertex_type *", 0, 0, 0};
 static swig_type_info _swigt__p_char = {"_p_char", "char *", 0, 0, 0};
 static swig_type_info _swigt__p_double = {"_p_double", "double *", 0, 0, 0};
@@ -6988,6 +7266,10 @@ static swig_type_info *swig_type_initial[] = {
   &_swigt__p_agg__rect_baseTdouble_t,
   &_swigt__p_agg__rect_baseTint_t,
   &_swigt__p_agg__trans_affine,
+  &_swigt__p_agg__trans_affine_rotation,
+  &_swigt__p_agg__trans_affine_scaling,
+  &_swigt__p_agg__trans_affine_skewing,
+  &_swigt__p_agg__trans_affine_translation,
   &_swigt__p_agg__vertex_type,
   &_swigt__p_char,
   &_swigt__p_double,
@@ -7008,7 +7290,11 @@ static swig_cast_info _swigc__p_agg__path_storage[] = {  {&_swigt__p_agg__path_s
 static swig_cast_info _swigc__p_agg__point_type[] = {  {&_swigt__p_agg__point_type, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_agg__rect_baseTdouble_t[] = {  {&_swigt__p_agg__rect_baseTdouble_t, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_agg__rect_baseTint_t[] = {  {&_swigt__p_agg__rect_baseTint_t, 0, 0, 0},{0, 0, 0, 0}};
-static swig_cast_info _swigc__p_agg__trans_affine[] = {  {&_swigt__p_agg__trans_affine, 0, 0, 0},{0, 0, 0, 0}};
+static swig_cast_info _swigc__p_agg__trans_affine[] = {  {&_swigt__p_agg__trans_affine_scaling, _p_agg__trans_affine_scalingTo_p_agg__trans_affine, 0, 0},  {&_swigt__p_agg__trans_affine, 0, 0, 0},  {&_swigt__p_agg__trans_affine_skewing, _p_agg__trans_affine_skewingTo_p_agg__trans_affine, 0, 0},  {&_swigt__p_agg__trans_affine_translation, _p_agg__trans_affine_translationTo_p_agg__trans_affine, 0, 0},  {&_swigt__p_agg__trans_affine_rotation, _p_agg__trans_affine_rotationTo_p_agg__trans_affine, 0, 0},{0, 0, 0, 0}};
+static swig_cast_info _swigc__p_agg__trans_affine_rotation[] = {  {&_swigt__p_agg__trans_affine_rotation, 0, 0, 0},{0, 0, 0, 0}};
+static swig_cast_info _swigc__p_agg__trans_affine_scaling[] = {  {&_swigt__p_agg__trans_affine_scaling, 0, 0, 0},{0, 0, 0, 0}};
+static swig_cast_info _swigc__p_agg__trans_affine_skewing[] = {  {&_swigt__p_agg__trans_affine_skewing, 0, 0, 0},{0, 0, 0, 0}};
+static swig_cast_info _swigc__p_agg__trans_affine_translation[] = {  {&_swigt__p_agg__trans_affine_translation, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_agg__vertex_type[] = {  {&_swigt__p_agg__vertex_type, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_char[] = {  {&_swigt__p_char, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_double[] = {  {&_swigt__p_double, 0, 0, 0},{0, 0, 0, 0}};
@@ -7030,6 +7316,10 @@ static swig_cast_info *swig_cast_initial[] = {
   _swigc__p_agg__rect_baseTdouble_t,
   _swigc__p_agg__rect_baseTint_t,
   _swigc__p_agg__trans_affine,
+  _swigc__p_agg__trans_affine_rotation,
+  _swigc__p_agg__trans_affine_scaling,
+  _swigc__p_agg__trans_affine_skewing,
+  _swigc__p_agg__trans_affine_translation,
   _swigc__p_agg__vertex_type,
   _swigc__p_char,
   _swigc__p_double,
