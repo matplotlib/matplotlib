@@ -1469,12 +1469,21 @@ SeparableTransformation::init_type()
 
 extern "C"
 DL_EXPORT(void)
-  init_transforms(void)
+#if defined(NUMARRAY)
+  init_na_transforms(void)
+#else
+  init_nc_transforms(void)
+#endif
 {
   static _transforms_module* _transforms = new _transforms_module;
 
-  import_array();  
+#if defined(NUMARRAY)
+  _VERBOSE("init_na_transforms");
+#else
+  _VERBOSE("init_nc_transforms");
+#endif
 
+  import_array();  
 
   Py::Dict d = _transforms->moduleDictionary();
   d["LOG10"] = Py::Int((int)Func::LOG10);

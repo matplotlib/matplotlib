@@ -844,8 +844,14 @@ DL_EXPORT(void)
 #else
 void
 #endif
-init_image(void) {
-  _VERBOSE("init_image");
+
+#if defined(NUMARRAY)
+init_na_image(void) {
+  _VERBOSE("init_na_image");
+#else
+init_nc_image(void) {
+  _VERBOSE("init_nc_image");
+#endif
   
   static _image_module* _image = new _image_module;
   

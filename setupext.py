@@ -40,7 +40,7 @@ basedir = {
     'sunos5' : [os.getenv('MPLIB_BASE') or '/usr/local',],
 }
 
-import sys, os
+import sys, os, stat
 from distutils.core import Extension
 import glob
 
@@ -58,6 +58,26 @@ BUILT_GTKAGG    = False
 BUILT_IMAGE     = False
 BUILT_TKAGG     = False
 BUILT_WINDOWING = False
+
+class CleanUpFile:
+    """CleanUpFile deletes the specified filename when self is destroyed."""
+    def __init__(self, name):
+        self.name = name
+    def __del__(self):
+        os.remove(self.name)
+
+def temp_copy(_from, _to):
+    """temp_copy copies a named file into a named temporary file.
+    The temporary will be deleted when the setupext module is destructed.
+    """
+    # Copy the file data from _from to _to
+    s = open(_from).read()
+    open(_to,"w+").write(s)
+    # Suppress object rebuild by preserving time stamps.
+    stats = os.stat(_from)
+    os.utime(_to, (stats.st_atime, stats.st_mtime))
+    # Make an object to eliminate the temporary file at exit time.
+    globals()["_cleanup_"+_to] = CleanUpFile(_to)
 
 def add_base_flags(module):
     incdirs = [os.path.join(p, 'include') for p in basedir[sys.platform]
@@ -343,15 +363,11 @@ def build_tkagg(ext_modules, packages):
     # add agg flags before pygtk because agg only supports freetype1
     # and pygtk includes freetype2.  This is a bit fragile.
 
-
     add_tk_flags(module) # do this first
     add_agg_flags(module)
-    add_ft2font_flags(module)
-
-
+    add_ft2font_flags(module)    
     ext_modules.append(module)    
     BUILT_TKAGG = True
-
 
 
 def build_agg(ext_modules, packages):
@@ -377,20 +393,64 @@ def build_agg(ext_modules, packages):
 def build_image(ext_modules, packages, numerix):
     global BUILT_IMAGE
     if BUILT_IMAGE: return # only build it if you you haven't already
-    
-    deps = ['src/_image.cpp', 'src/mplutils.cpp'] 
-    deps.extend(glob.glob('agg2/src/*.cpp'))
-    deps.extend(glob.glob('CXX/*.cxx'))
-    deps.extend(glob.glob('CXX/*.c'))
 
-    module = Extension(
-        'matplotlib._image',
-        deps
-        ,
-        )
-    if numerix.lower().find('numarray')>=0:
-        module.extra_compile_args.append('-DNUMARRAY')
-    add_agg_flags(module)
-    ext_modules.append(module)    
+    if numerix in ["numarray","both"]: # Build for numarray
+        temp_copy('src/_image.cpp', 'src/_na_image.cpp')
+        deps = ['src/_na_image.cpp', 'src/mplutils.cpp'] 
+        deps.extend(glob.glob('agg2/src/*.cpp'))
+        deps.extend(glob.glob('CXX/*.cxx'))
+        deps.extend(glob.glob('CXX/*.c'))
+        module = Extension(
+            'matplotlib._na_image',
+            deps
+            ,
+            )    
+        module.extra_compile_args.append('-DNUMARRAY=1')
+        add_agg_flags(module)
+        ext_modules.append(module)    
+
+    if numerix in ["Numeric","both"]: # Build for Numeric
+        temp_copy('src/_image.cpp', 'src/_nc_image.cpp')
+        deps = ['src/_nc_image.cpp', 'src/mplutils.cpp'] 
+        deps.extend(glob.glob('agg2/src/*.cpp'))
+        deps.extend(glob.glob('CXX/*.cxx'))
+        deps.extend(glob.glob('CXX/*.c'))
+        module = Extension(
+            'matplotlib._nc_image',
+            deps
+            ,
+            )
+        module.extra_compile_args.append('-DNUMERIC=1')
+        add_agg_flags(module)
+        ext_modules.append(module)
+
     BUILT_IMAGE = True
+
+def build_transforms(ext_modules, packages, numerix):
+    if numerix in ["numarray","both"]: # Build for numarray
+        cxx = glob.glob('CXX/*.cxx')
+        cxx.extend(glob.glob('CXX/*.c'))
+        temp_copy("src/_transforms.cpp","src/_na_transforms.cpp")
+        module = Extension('matplotlib._na_transforms',
+                             ['src/_na_transforms.cpp',
+                              'src/mplutils.cpp'] + cxx,
+                             libraries = ['stdc++', 'm'],
+                             include_dirs = ['src', '.'],
+                             )
+        module.extra_compile_args.append("-DNUMARRAY=1")
+        ext_modules.append(module)
+        
+    if numerix in ["Numeric","both"]:  # Build for Numeric
+        cxx = glob.glob('CXX/*.cxx')
+        cxx.extend(glob.glob('CXX/*.c'))
+        temp_copy("src/_transforms.cpp","src/_nc_transforms.cpp")
+        module = Extension('matplotlib._nc_transforms',
+                             ['src/_nc_transforms.cpp',
+                              'src/mplutils.cpp'] + cxx,
+                             libraries = ['stdc++', 'm'],
+                             include_dirs = ['src', '.'],
+                             )
+        module.extra_compile_args.append("-DNUMERIC=1")
+        ext_modules.append(module)
+    
 
