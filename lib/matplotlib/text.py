@@ -320,15 +320,15 @@ ACCEPTS: rectangle prop dict plus key 'pad' which is a pad in points
 
     def get_rotation_matrix(self, x0, y0):
 
-        theta = -pi/180.0*self.get_rotation()
+        theta = pi/180.0*self.get_rotation()
         # translate x0,y0 to origin
         Torigin = Matrix([ [1, 0, -x0],
                            [0, 1, -y0],
                            [0, 0, 1  ]]) 
         
         # rotate by theta
-        R = Matrix([ [cos(theta),  sin(theta), 0],
-                     [-sin(theta), cos(theta), 0],
+        R = Matrix([ [cos(theta),  -sin(theta), 0],
+                     [sin(theta), cos(theta), 0],
                      [0,           0,          1]]) 
 
         # translate origin back to x0,y0

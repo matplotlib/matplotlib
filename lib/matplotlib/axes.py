@@ -2600,7 +2600,7 @@ ACCEPTS: str
         label = self.yaxis.get_label()
         label.set_text(ylabel)
     
-        if fontdict is not None: self.title.update(label)
+        if fontdict is not None: self.title.update(fontdict)
         label.update(kwargs)
         return label
 

@@ -1,5 +1,10 @@
 New entries should be added at the top
 
+2004-12-23 Fixed an agg text rotation alignment bug, fixed some text
+           kwarg processing bugs, and added examples/text_rotation.py
+           to explain and demonstrate how text rotations and alignment
+           work in matplotlib. - JDH
+
 ======================================================================
 
 2004-12-22 0.65.1 released - JDH
