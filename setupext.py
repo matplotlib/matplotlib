@@ -21,7 +21,9 @@ DARWIN
 WIN32
 
   If you are sufficiently masochistic that you want to build this
-  yourself, contact me and I'll send you win32_static as a zip file.
+  yourself, download the win32_static dir from
+  http://matplotlib.sourceforge.net/win32_static.tar.gz and
+  see the README file in that dir
 
   > python setup.py build --compiler=mingw32 bdist_wininst --install-script postinstall.py > build23.out
 
