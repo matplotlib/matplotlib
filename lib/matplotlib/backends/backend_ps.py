@@ -3,9 +3,6 @@ A PostScript backend, which can produce both PostScript .ps and
 Encapsulated PostScript .eps files.
 """
 
-# postscript for mathematical drawing:
-# http://www.math.ubc.ca/people/faculty/cass/graphics/text/www/
-
 from __future__ import division
 import sys, os
 from cStringIO import StringIO
@@ -83,7 +80,7 @@ class RendererPS(RendererBase):
         w /= 64.0  # convert from subpixels
         h /= 64.0
         return w, h
-    
+
     def flipy(self):
         'return true if y small numbers are top for renderer'
         return False
@@ -118,8 +115,8 @@ class RendererPS(RendererBase):
         If gcFace is not None, fill the rectangle with it.  gcEdge
         is a GraphicsContext instance
         """
-        ps = 'newpath %s ellipse' % _nums_to_str(
-            (x,y,0.5*width,0.5*height,angle1,angle2))
+        ps = '%s ellipse' % _nums_to_str( (angle1, angle2,
+                                           0.5*width, 0.5*height, x, y) )
         self._draw_ps(ps, gc, rgbFace)
 
     def _rgba(self, im, flipud):
@@ -165,7 +162,7 @@ class RendererPS(RendererBase):
         None
         """
 
-        flipud = origin=='lower'        
+        flipud = origin=='lower'
         if im.is_grayscale:
             h, w, bits = self._gray(im, flipud)
             imagecmd = "image"
@@ -179,10 +176,8 @@ class RendererPS(RendererBase):
         figh = self.height*72
         #print 'values', origin, flipud, figh, h, y
         if bbox is not None:
-            cliprect = bbox.get_bounds()
-            box = ['%1.5f'%val for val in cliprect]
-            clip = '%s clipbox' % ' '.join(box)
-        else: clip = 'figure_clip'
+            clipx,clipy,clipw,cliph = bbox.get_bounds()
+            clip = '%s clipbox' % _nums_to_str( (clipw, cliph, clipx, clipy) )
         if not flipud: y = figh-(y+h)
         ps = """gsave
 %(clip)s
@@ -242,10 +237,12 @@ grestore
 
         If rgbFace is not None, fill the poly with it.  gc
         is a GraphicsContext instance
-        """  
-        verts = [_nums_to_str(xy) for xy in points]
-        # build a 2D postscript array
-        ps = 'newpath [ [ %s ] ] make-polygon' % ' ] [  '.join(verts)
+        """
+        ps = "newpath\n"
+        ps += "%s m\n" % _nums_to_str(points[0])
+        for x,y in points[1:]:
+            ps += "%s l\n" % _nums_to_str( (x,y) )
+        ps += "closepath\n"
         self._draw_ps(ps, gc, rgbFace)
         
     def draw_rectangle(self, gc, rgbFace, x, y, width, height):
@@ -255,7 +252,7 @@ grestore
         If gcFace is not None, fill the rectangle with it.  gcEdge
         is a GraphicsContext instance
         """
-        ps = '%s box' % _nums_to_str( (x, y, width, height) )
+        ps = '%s box' % _nums_to_str( (width, height, x, y) )
         self._draw_ps(ps, gc, rgbFace)
 
     def draw_text(self, gc, x, y, s, prop, angle, ismath):
@@ -299,7 +296,8 @@ grestore
     def _draw_ps(self, ps, gc, rgbFace):
         if rgbFace is not None:
             fill = '%1.3f %1.3f %1.3f setrgbcolor fill' % rgbFace
-        else: fill = ''
+        else:
+            fill = ''
         gcprops = self._get_gc_props_ps(gc)
         clip = self._get_gc_clip_ps(gc)
         s = """gsave
@@ -327,12 +325,11 @@ grestore
 """ % locals()
         self.draw_postscript(ps)
 
-    
     def _get_gc_clip_ps(self, gc):
         cliprect = gc.get_clip_rectangle()
         if cliprect is not None:
-            box = ['%1.5f'%val for val in cliprect]
-            return  '%s clipbox' % ' '.join(box)
+            clipx,clipy,clipw,cliph=cliprect
+            return '%s clipbox' % _nums_to_str( (clipw, cliph, clipx, clipy) )
         return ''
         
     def _get_gc_props_ps(self, gc):
@@ -346,7 +343,7 @@ grestore
         offset, seq = gc.get_dashes()
         if seq is not None:
             seq = ' '.join(['%d'%val for val in  seq])
-            dashes = '[%s] %d setdash' % (seq, offset)            
+            dashes = '[%s] %d setdash' % (seq, offset)
         else:
             dashes = None
 
@@ -359,7 +356,7 @@ class GraphicsContextPS(GraphicsContextBase):
     def set_linestyle(self, style):
         """
         Set the linestyle to be one of ('solid', 'dashed', 'dashdot',
-        'dotted').  
+        'dotted').
         """
         GraphicsContextBase.set_linestyle(self, style)
         offset, dashes = self._dashd[style]
@@ -496,8 +493,8 @@ class FigureCanvasPS(FigureCanvasBase):
         l, b, w, h = self.figure.bbox.get_bounds()
         llx = xo
         lly = yo
-        urx = llx + w 
-        ury = lly + h 
+        urx = llx + w
+        ury = lly + h
 
         if isLandscape:
             xo, yo = 72*paperHeight - yo, xo
@@ -507,14 +504,6 @@ class FigureCanvasPS(FigureCanvasBase):
 
         # generate PostScript code for the figure and store it in a string
         self._pswriter = StringIO()
-
-        self._pswriter.write('%1.3f %1.3f translate\n' % (xo, yo))
-        self._pswriter.write('%d rotate\n' % rotation)
-        self._pswriter.write('/figure_clip {0 0 %1.3f %1.3f clipbox} def\n' %
-                             (width*72,
-                              height*72))
-        self._pswriter.write('figure_clip\n')
-
 
         origfacecolor = self.figure.get_facecolor()
         origedgecolor = self.figure.get_edgecolor()
@@ -570,7 +559,13 @@ class FigureCanvasPS(FigureCanvasBase):
         
         if not isEPSF: print >>fh, "%%Page: 1 1"
         print >>fh, "mpldict begin"
+        print >>fh, "gsave"
+        print >>fh, "%s translate"%_nums_to_str( (xo, yo) )
+        if rotation:
+            print >>fh, "%d rotate"%rotation
+        print >>fh, "%s clipbox"%_nums_to_str( (width*72, height*72, 0, 0) )
         print >>fh, renderer.get_ps()
+        print >>fh, "grestore"
         print >>fh, "end"
         print >>fh, "showpage"
 
@@ -579,14 +574,19 @@ class FigureCanvasPS(FigureCanvasBase):
 class FigureManagerPS(FigureManagerBase):
     pass
 
-    
+
 FigureManager = FigureManagerPS
 error_msg = error_msg_ps
 
 
-# The following dictionary _psDefs contains the entries for the
+# The following Python dictionary _psDefs contains the entries for the
 # PostScript dictionary mpldict.  This dictionary implements most of
 # the matplotlib primitives and some abbreviations.
+#
+# References:
+# http://www.adobe.com/products/postscript/pdfs/PLRM.pdf
+# http://www.mactech.com/articles/mactech/Vol.09/09.04/PostscriptTutorial/
+# http://www.math.ubc.ca/people/faculty/cass/graphics/text/www/
 #
 # Some comments about the implementation:
 #
@@ -599,7 +599,7 @@ error_msg = error_msg_ps
 # ``radius'' of the ellipse in the x direction, the ``radius'' of the
 # ellipse in the y direction, the starting angle of the elliptical arc
 # and the ending angle of the elliptical arc.
-#   	                       
+#
 # The basic strategy used in drawing the ellipse is to translate to
 # the center of the ellipse, scale the user coordinate system by the x
 # and y radius values, and then add a circular arc, centered at the
@@ -615,75 +615,41 @@ error_msg = error_msg_ps
 # transformations by saving the current transformation matrix and
 # restoring it explicitly after we have added the elliptical arc to
 # the path.
-#
-# References:
-# http://www.mactech.com/articles/mactech/Vol.09/09.04/PostscriptTutorial/
-# http://www.adobe.com/products/postscript/pdfs/PLRM.pdf
 
+# The usage comments use the notation of the operator summary
+# in the PostScript Language reference manual.
 _psDefs = [
+    # -  *gsr*  -
     "/gsr { gsave stroke grestore } bind def",
+    # x y  *m*  -
     "/m { moveto } bind def",
+    # x y  *l*  -
     "/l { lineto } bind def",
+    # x y  *r*  -
     "/r { rlineto } bind def",
+    # x0 y0 x1 y1  *line*  -
     "/line { newpath m l } bind def",
-    """/box %called as: leftx bottomy xdimension ydimension box
-    {
-      /yval exch def 
-      /xval exch def
+    # w h x y  *box*  -
+    """/box {
       newpath
       m
-      0 yval r
-      xval 0 r
-      0 yval neg r
+      1 index 0 r
+      0 exch r
+      neg 0 r
       closepath
     } bind def""",
-    """/clipbox %called as: leftx bottomy xdimension ydimension box
-    {
-      /yval exch def
-      /xval exch def
-      newpath
-      m
-      0 yval r
-      xval 0 r
-      0 yval neg r
-      closepath
+    # w h x y  *clipbox*  -
+    """/clipbox {
+      box
       clip
     } bind def""",
-    """/make-polygon
-    {
-    3 dict
-    begin
-      /a exch def
-      /n a length def
-      n 1 gt
-        {
-        a 0 get 0 get a 0 get 1 get m
-        1 1 n 1 sub \
-        {
-         /i exch def
-         a i get 0 get   a i get 1 get l
-        }
-        for
-        }
-      if
-     closepath
-    end
-    } def""",
-    "/mtrx matrix def",
-    """/ellipse                                
-    { /endangle exch def                  
-      /startangle exch def                
-      /yrad exch def                      
-      /xrad exch def                      
-      /y exch def                         
-      /x exch def                         
-
-      /savematrix mtrx currentmatrix def    % Save the current transformation.
-      x y translate                         % Translate to the center of the
-                                            % ellipse.
-      xrad yrad scale                       % Scale by the x and y radius
-                                            % values.
-      0 0 1 startangle endangle arc         % Add the arc segment to the path.
-      savematrix setmatrix                  % Restore the transformation.
-    } def"""
+    # angle1 angle2 rx ry x y  *ellipse*  -
+    """/ellipse {
+      newpath
+      matrix currentmatrix 7 1 roll
+      translate
+      scale
+      0 0 1 5 3 roll arc
+      setmatrix
+    } bind def"""
 ]
