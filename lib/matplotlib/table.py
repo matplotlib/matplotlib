@@ -140,7 +140,7 @@ class Cell(Rectangle):
 
     def set_text_props(self, **kwargs):
         'update the text properties with kwargs'
-        self._text.update_properties(kwargs)
+        self._text.update(kwargs)
 
 class Table(Artist):
     """

@@ -678,7 +678,7 @@ class Axis(Artist):
         ret = []
         for i, tick in enumerate(self.get_major_ticks()):
             if i<len(ticklabels): ret.append(tick.label1)
-            tick.label1.update_properties(override)
+            tick.label1.update(override)
         return ret
     
     def set_ticks(self, ticks):

@@ -129,3 +129,11 @@ set the artist's visiblity
 ACCEPTS: [True | False]
 """
         self._visible = b
+
+    def update(self, props):
+        for k,v in props.items():
+            func = getattr(self, 'set_'+k, None)
+            if func is None or not callable(func):
+                raise AttributeError('Unknown property %s'%k)
+            func(v)
+            print 'set', k, v

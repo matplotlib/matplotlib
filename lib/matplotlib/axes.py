@@ -2297,7 +2297,7 @@ of how override and the optional args work
 
         self.title.set_text(label)
         override = _process_text_args({}, fontdict, **kwargs)
-        self.title.update_properties(override)
+        self.title.update(override)
         return self.title
 
 
@@ -2312,7 +2312,7 @@ of how override and the optional args work.
         label = self.xaxis.get_label()
         label.set_text(xlabel)
         override = _process_text_args({}, fontdict, **kwargs)
-        label.update_properties(override)
+        label.update(override)
         return label
 
     def _send_xlim_event(self):
@@ -2396,7 +2396,7 @@ the optional args work
         label = self.yaxis.get_label()
         label.set_text(ylabel)
         override = _process_text_args({}, fontdict, **kwargs)
-        label.update_properties(override)
+        label.update(override)
         return label
 
     def set_ylim(self, v, emit=True):
@@ -2679,7 +2679,7 @@ axes
             )
         self._set_artist_props(t)
 
-        t.update_properties(override)
+        t.update(override)
         self.texts.append(t)
 
         if t.get_clip_on():  t.set_clip_box(self.bbox)
@@ -3040,7 +3040,7 @@ class PolarAxes(Axes):
                      fontproperties=props, color=color,
                      horizontalalignment='center', verticalalignment='center')
             t.set_transform(self.transData)
-            t.update_properties(kwargs)
+            t.update(kwargs)
             self._set_artist_props(t)
             t.set_clip_on(False)
             self.rgridlabels.append(t)
@@ -3098,7 +3098,7 @@ class PolarAxes(Axes):
             t = Text(a/180.*math.pi, r, l, fontproperties=props, color=color,
                      horizontalalignment='center', verticalalignment='center')
             t.set_transform(self.transData)
-            t.update_properties(kwargs)
+            t.update(kwargs)
             self._set_artist_props(t)
             t.set_clip_on(False)
             self.thetagridlabels.append(t)

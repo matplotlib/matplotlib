@@ -1,4 +1,9 @@
 New entries should be added at the top
+2004-11-30 Added bbox property to text - JDH
+
+2004-11-29 Added the over command to the matlab interface.  over
+           allows you to add an overlay plot regardless of hold
+	   state. - JDH
 
 2004-11-25 Added Printf to mplutils for printf style format string
            formatting in C++ (should help write better exceptions)
