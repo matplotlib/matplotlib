@@ -15,7 +15,7 @@
      
 -- DONE with pango : enable anti aliasing for fonts
 
--- enable fancy text labels (eg, greek letters, math symbols,
+-- DONE enable fancy text labels (eg, greek letters, math symbols,
    superscripts) ala TeX or unicode
 
 -- DROPPED add a color selection dialog for the background, lines, and text
@@ -25,7 +25,7 @@
 
 -- write a user guide
 
--- allow more intelligent choice of tick labels and locs when panning and
+-- DONE allow more intelligent choice of tick labels and locs when panning and
    zooming.
 
 -- figure out why the positioning of dialog boxes based on position
@@ -62,14 +62,13 @@
    plot(t1, p1, 'o', t2, p2, ogtt.times, ogtt.cpeptide, 's')
 
    
-
 -- DONE xlabel is lower than it needs to be
 
 -- DONE 2003-05-12 Removed some of the state handling of text labels
    so they always redraw: interactive setting of x/ylabels doesn't
    redraw all labels unless you click a forced redraw
 
--- When you change a property using the OO interface in interactive,
+-- CLOSED When you change a property using the OO interface in interactive,
    the figure doesn't know to redraw.  
 
    Some possibilities:
@@ -90,8 +89,7 @@
 -- DONE 2003-05-12 with window.window.raise_() : raise the figure
    returned by figure but don't give it the focus
    
-
--- when you toggle an axes for interactive navigation, make sure a
+-- CLOSED when you toggle an axes for interactive navigation, make sure a
    checked on appears as the default is one is checked
 
 -- DONE compile pygtk for threads on win32.
@@ -109,7 +107,7 @@
 
 -- fix CTRL-z bug in interactive2.py
 
--- Allow gca not gca(); ditto for gcf()
+-- CLOSED Allow gca not gca(); ditto for gcf()
 
 -- DONE Fix legend to take a vector of line handles
 
@@ -135,7 +133,7 @@
 
 -- DONE 2003-11-20 - make a nice errorbar and scatter screenshot   
 
--- finish contour
+-- DONE finish contour
 
 -- allow rectangle select region for zoom tool
 
@@ -224,8 +222,7 @@
 
 -- DONE decreasing axes - James Boyle <boyle5@llnl.gov>
 
-
--- check out Helge's contour
+-- CLOSED check out Helge's contour
 
 -- DONE 2004-02-23 with points_to_pixels.  fonts too big on wx
 
@@ -254,7 +251,7 @@
 
 -- DONE integrate numerix chooser with matplotlib.__init__
 
--- figure out how to make draw if interactive play nicely
+-- CLOSED figure out how to make draw if interactive play nicely
 
 -- DONE - (Todd updated docs) - python2.2 no default tkinter
 
@@ -276,15 +273,15 @@
 
 -- DONE - mathtext size not scaling with DPI
 
--- implement Paul's mathtext parser fixes
+-- CLOSED implement Paul's mathtext parser fixes
 
--- rotated mathtext
+-- DONE rotated mathtext
 
 -- DONE fix mathtext sub and super layout
 
 -- DONE get a sf request to remove fonttools and ttfquery
 
--- add polar plots
+-- DONE add polar plots
 
 -- add pie charts
 
@@ -306,7 +303,7 @@
 
 -- DONE - text_themes is segfaulting on gtkagg
 
--- mathtext s l o w
+-- DONE mathtext s l o w
 
 -- DONE ps backend fails alignment test
 
@@ -339,7 +336,7 @@
 
 -- DONE fix color on errorbar lines
 
--- savefig to file handle.
+-- DONE savefig to file handle.
 
 -- add agg and and image generic tostring methods
 
@@ -455,7 +452,7 @@
 
 -- add wxagg extension code to goals
 
--- major and minor ticks for log and major and minor grid on/off
+-- DONE major and minor ticks for log and major and minor grid on/off
 
 -- make the subplot slider function
 
@@ -481,7 +478,7 @@
 
 -- DONE add new connect to API_CHANGES
 
--- port new toolbar to embedding examples
+-- DONE port new toolbar to embedding examples
 
 -- DONE \sum height problem - see mathtext_tut
 
@@ -546,7 +543,6 @@ ZeroDivisionError: SeparableTransformation::eval_scalars yin interval is zero; c
 -- tick bug on preserve, possibly center preserved image, flagt to
    reshape axes on preserve
 
-
 -- test rellinks in pydoc
 
 -- port transforms to backend and break up long arrays in agg and svg
@@ -595,13 +591,11 @@ ZeroDivisionError: SeparableTransformation::eval_scalars yin interval is zero; c
 
 -- figure should increment the figure if one already exists
 
--- majbase and minbase to plot
+-- CLOSED oplot
 
--- DONE oplot
+-- CLOSED override setattr in matlab interface for artists.
 
--- override setattr in matlab interface for artists.
-
--- cmap observer bug - see
+-- DONE cmap observer bug - see
    ~/python/matplotlib_support/test/cmap_observer_bug.py
 
 -- DONE add connect function.
@@ -616,4 +610,4 @@ ZeroDivisionError: SeparableTransformation::eval_scalars yin interval is zero; c
 
 -- update ticklabels and range for colorbar when clim changes
 
--- agg rotation bug for angles > 180
+-- DONE agg rotation bug for angles > 180

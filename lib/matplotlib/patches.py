@@ -1,5 +1,5 @@
 from __future__ import division
-
+import math
 from matplotlib import rcParams
 from numerix import array, arange, sin, cos, pi, Float
 from artist import Artist
@@ -308,7 +308,29 @@ class Polygon(Patch):
     def get_verts(self):
         return self.xy
     
-    
+
+class Wedge(Polygon):
+    def __init__(self, center, r, theta1, theta2,
+                 dtheta=0.1, **kwargs):
+        """
+        Draw a wedge centered at x,y tuple center with radius r that
+        sweeps theta1 to theta2 (angles)
+
+        
+        kwargs are Polygon keyword args
+
+        dtheta is the resolution in degrees
+
+        """
+        xc, yc = center
+        rads = (math.pi/180.)*arange(theta1, theta2+0.1*dtheta, dtheta)
+        xs = r*cos(rads)+xc
+        ys = r*sin(rads)+yc
+        verts = [center]
+        verts.extend([(x,y) for x,y in zip(xs,ys)])
+
+        Polygon.__init__(self, verts, **kwargs)
+
 class Circle(RegularPolygon):
     """
     A circle patch
