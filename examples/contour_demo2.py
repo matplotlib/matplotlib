@@ -12,6 +12,7 @@ Z2 = bivariate_normal(X, Y, 1.5, 0.5, 1, 1)
 # difference of Gaussians
 im = imshow(Z2-Z1, interpolation='bilinear', cmap=cm.gray, extent=(-3,3,-2,2))
 levels, colls = contour(X, Y, Z2-Z1, linewidths=2)
+clabel(colls, inline=1,fontsize=8)
 colorbar()
 hot()
 savefig('test')

@@ -113,6 +113,10 @@ sequence
 ACCEPTS: float or sequence of floats"""
         self._linewidths = self._get_value(lw)
 
+    def set_color(self, c):
+        'alias for set_facecolor'
+        self.set_facecolor(c)
+
     def set_facecolor(self, c):
         """
 Set the facecolor(s) of the collection.  c can be a matplotlib color arg

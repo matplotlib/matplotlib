@@ -16,6 +16,7 @@ from cbook import iterable, is_string_like, flatten, enumerate, \
 from collections import RegularPolyCollection, PolyCollection, LineCollection
 from colors import colorConverter, normalize, Colormap, LinearSegmentedColormap
 import cm
+#from cm import ColormapJet, Grayscale, ScalarMappable
 from cm import ScalarMappable
 import _image
 from ticker import AutoLocator, LogLocator, NullLocator
@@ -28,7 +29,7 @@ from lines import Line2D, lineStyles, lineMarkers
 from matplotlib.mlab import meshgrid, detrend_none, detrend_linear, \
      window_none, window_hanning, linspace
 from matplotlib.numerix.mlab import flipud, amin, amax
-import matplotlib.numerix.ma as ma
+from matplotlib.numerix import ma
 from matplotlib import rcParams
 from patches import Patch, Rectangle, Circle, Polygon, Wedge, Shadow, bbox_artist
 from table import Table
@@ -300,6 +301,7 @@ class ContourMappable(ScalarMappable):
         ScalarMappable.__init__(self, norm, cmap)
         self.levels = levels
         self.collections = collections
+
     def changed(self):
         colors = [ (tuple(rgba),) for rgba in self.to_rgba(self.levels)]
         for color, collection in zip(colors, self.collections):
@@ -983,7 +985,18 @@ class Axes(Artist):
     #### Contour support functions ####
 
     def _autolev(self, z, N, filled, badmask):
-        rz = ma.ravel(ma.masked_array(z, badmask))
+        '''
+        Select contour levels to span the data.
+
+        We need one more level for filled contours than for
+        line contours, because for the latter we need to specify
+        the lower and upper boundary of each range. For example,
+        a single contour boundary, say at z = 0, requires only
+        one contour line, but two filled regions, and therefore
+        two levels.  These are taken as the lower boundaries of
+        the regions.
+        '''
+        rz = ma.masked_array(z, badmask)
         zmax = ma.maximum(rz)     # was: zmax = amax(rz)
         zmin = ma.minimum(rz)
         if filled:
@@ -992,67 +1005,87 @@ class Axes(Artist):
             lev = linspace(zmin, zmax, N+2)[1:-1]
         return lev
 
-    def _initialize_z(self, z, origin):
-        if which[0] == "numeric":
-            if origin == 'upper':
-                return array(z.tolist(), typecode = z.typecode())[::-1]
-            else:
-                return array(z.tolist(), typecode = z.typecode())
-        else:
-            if origin == 'upper': return z[::-1]
-            else: return z
-
-    def _initialize_x_y(self, z):
+    def _initialize_x_y(self, z, origin):
+        '''
+        Return X, Y arrays such that contour(Z) will match imshow(Z)
+        if origin is not None.
+        The center of pixel Z[i,j] depends on origin:
+        if origin is None, x = j, y = i;
+        if origin is 'lower', x = j + 0.5, y = i + 0.5;
+        if origin is 'upper', x = j + 0.5, y = Nrows - i - 0.5
+        '''
         if len(shape(z)) != 2:
             raise TypeError("Input must be a 2D array.")
         else: imax, jmax = shape(z)
-        self.set_xlim((0,jmax-1))
-        self.set_ylim((0,imax-1))
-        return meshgrid(arange(jmax), arange(imax))
+        y = arange(imax)
+        if origin is None:  shift = 0.0
+        else:               shift = 0.5
+        if origin == 'upper':
+            y = y[::-1]
+        return meshgrid(arange(jmax)+ shift, y + shift)
+
+    def _check_xyz(self, args):
+        '''
+        For functions like contour, check that the dimensions
+        of the input arrays match; if x and y are 1D, convert
+        them to 2D using meshgrid.
+
+        Possible change: I think we should make and use an ArgumentError
+        Exception class (here and elsewhere).
+        '''
+        x,y,z = args
+        if len(shape(z)) != 2:
+            raise TypeError("Input z must be a 2D array.")
+        else: imax, jmax = shape(z)
+        if shape(x) == shape(z) and shape(y) == shape(z):
+            return x,y,z
+        if len(shape(x)) != 1 or len(shape(y)) != 1:
+            raise TypeError("Inputs x and y must be 1D or 2D.")
+        nx, = shape(x)
+        ny, = shape(y)
+        if nx != jmax or ny != imax:
+            raise TypeError("Length of x must be number of columns in z,\n" +
+                            "and length of y must be number of rows.")
+        x,y = meshgrid(x,y)
+        return x,y,z
 
 
 
     def _contour_args(self, filled, badmask, origin, *args):
-        if len(args) == 1:
-            z = self._initialize_z(args[0], origin)
-            x, y = self._initialize_x_y(z)
+        if filled: fn = 'contourf'
+        else:      fn = 'contour'
+        Nargs = len(args)
+        if Nargs <= 2:
+            z = args[0]
+            x, y = self._initialize_x_y(z, origin)
+        elif Nargs <=4:
+            x,y,z = self._check_xyz(args[:3])
+        else:
+            raise TypeError("Too many arguments to %s; see help(%s)" % (fn,fn))
+        if Nargs == 1 or Nargs == 3:
             lev = self._autolev(z, 7, filled, badmask)
-        elif len(args) == 2:
-            z = self._initialize_z(args[0], origin)
-            x, y = self._initialize_x_y(z)
-            if type(args[1]) == int:
-                N = args[1]
-                lev = self._autolev(z, N, filled, badmask)
-            elif iterable(args[1]) and len(shape(args[1])) == 1:
-                lev = array([float(fl) for fl in args[1]])
+        else:
+            level_arg = args[-1]
+            if type(level_arg) == int:
+                lev = self._autolev(z, level_arg, filled, badmask)
+            elif iterable(level_arg) and len(shape(level_arg)) == 1:
+                lev = array([float(fl) for fl in level_arg])
             else:
-                raise TypeError("Illegal arguments to contour, see help(contour) ")
-        elif len(args) == 3:
-            x,y,z = args
-            if len(shape(x)) != 2 or len(shape(y)) != 2 or len(shape(z)) !=2:
-                raise TypeError("X, Y and Z must be  2D arrays.")
-            z = self._initialize_z(z, origin)
-            self.set_xlim((min(ravel(x)), max(ravel(x))))
-            self.set_ylim((min(ravel(y)), max(ravel(y))))
-            lev = self._autolev(z, 7, filled, badmask)
-
-        elif len(args) == 4:
-            x,y = args[0], args[1]
-            z = self._initialize_z(args[2], origin)
-            self.set_xlim((min(ravel(x)), max(ravel(x))))
-            self.set_ylim((min(ravel(y)), max(ravel(y))))
-            if len(shape(x)) != 2 or len(shape(y)) != 2 or len(shape(z)) !=2:
-                raise TypeError("X, Y and Z must be  2D arrays.")
-            if type(args[3]) == int:
-                N = args[3]
-                lev = self._autolev(z, N, filled, badmask)
-            elif iterable(args[3]) and len(shape(args[3])) == 1:
-                lev = array([float(fl) for fl in args[3]])
-            else:
-                raise TypeError("Illegal arguments to contour, see help(contour) ")
+                raise TypeError("Last %s arg must give levels; see help(%s)" % (fn,fn))
+        self.set_xlim((min(ravel(x)), max(ravel(x))))
+        self.set_ylim((min(ravel(y)), max(ravel(y))))
         return (x, y, z, lev)
 
+
     def _initialize_reg_tri(self, z, badmask):
+        '''
+        Initialize two arrays used by the low-level contour
+        algorithm.  This is temporary code; most of the reg
+        initialization should be done in c.
+
+        For each masked point, we need to mark as missing
+        the four regions with that point as a corner.
+        '''
         imax, jmax = shape(z)
         nreg = jmax*(imax+1)+1
         reg = ones((1, nreg), typecode = 'i')
@@ -1060,7 +1093,7 @@ class Axes(Artist):
         reg[0,-jmax:]=0
         for j in range(0, nreg, jmax):
             reg[0,j]=0
-        if badmask:
+        if badmask is not None:
             for i in range(imax):
                 for j in range(jmax):
                     if badmask[i,j]:
@@ -1082,6 +1115,18 @@ class Axes(Artist):
         return reg, triangle
 
     def _process_colors(self, z, colors, alpha, lev, cmap):
+        """
+        Color argument processing for contouring.
+
+        Note that we base the color mapping on the contour levels,
+        not on the actual range of the Z values.  This means we
+        don't have to worry about bad values in Z, and we always have
+        the full dynamic range available for the selected levels.
+
+        The input argument Z is not actually being used now; if
+        using the levels for autoscaling instead of Z works well,
+        then it will be removed.
+        """
         Nlev = len(lev)
         collections = []
         if colors is not None:
@@ -1099,7 +1144,8 @@ class Axes(Artist):
             mappable = None
         else:
             mappable = ContourMappable(lev, collections, cmap=cmap)
-            mappable.set_array(z)
+            #mappable.set_array(z)
+            mappable.set_array(lev)
             mappable.autoscale()
             tcolors = [ (tuple(rgba),) for rgba in mappable.to_rgba(lev)]
         return tcolors, mappable, collections
@@ -1147,11 +1193,22 @@ class Axes(Artist):
 
             * cmap = None: a cm Colormap instance from matplotlib.cm.
 
-            * fmt = '1.3f': a format string for adding a label to each collection.
-              Useful for auto-legending .
+            * origin = None: 'upper'|'lower'|'image'|None.
+              If 'image', the rc value for image.origin will be used.
+              If None (default), the first value of Z will correspond
+              to the lower left corner, location (0,0).
+              This keyword is active only if contourf is called with
+              one or two arguments, that is, without explicitly
+              specifying X and Y.
 
-            * origin = None: 'upper'|'lower'|None.  If None, the rc value for
-              image.origin will be used
+            * badmask = None: array with dimensions of Z, and with values
+              of zero at locations corresponding to valid data, and one
+              at locations where the value of Z should be ignored.
+              This is experimental.  It presently works for edge regions
+              for line and filled contours, but for interior regions it
+              works correctly only for line contours.  The badmask kwarg
+              may go away in the future, to be replaced by the use of
+              NaN value in Z and/or the use of a masked array in Z.
 
             * linewidths = None: or one of these:
               - a number - all levels will be plotted with this linewidth,
@@ -1164,6 +1221,9 @@ class Axes(Artist):
               - if linewidths == None, the default width in lines.linewidth in
                 .matplotlibrc is used
 
+            * fmt = '1.3f': a format string for adding a label to each collection.
+              Useful for auto-legending.
+
             reg is a 1D region number array with of imax*(jmax+1)+1 size
             The values of reg should be positive region numbers, and zero for
             zones which do not exist.
@@ -1171,7 +1231,6 @@ class Axes(Artist):
             triangle - triangulation array - must be the same shape as reg
 
         """
-        if not self._hold: self.cla()
 
         alpha = kwargs.get('alpha', 1.0)
         linewidths = kwargs.get('linewidths', None)
@@ -1182,14 +1241,17 @@ class Axes(Artist):
         badmask = kwargs.get('badmask', None)
 
         if cmap is not None: assert(isinstance(cmap, Colormap))
-        if origin is not None: assert(origin in ['lower', 'upper'])
+        if origin is not None: assert(origin in ['lower', 'upper', 'image'])
 
         if colors is not None and cmap is not None:
             raise RuntimeError('Either colors or cmap must be None')
-        if origin is None: origin = rcParams['image.origin']
+        if origin == 'image': origin = rcParams['image.origin']
 
 
         x, y, z, lev = self._contour_args(False, badmask, origin, *args)
+
+        # Manipulate the plot *after* checking the input arguments.
+        if not self._hold: self.cla()
 
         Nlev = len(lev)
 
@@ -1230,6 +1292,7 @@ class Axes(Artist):
 
         collections = silent_list('LineCollection', collections)
         collections.mappable = mappable
+        #print 'collections.mappable=', mappable
         return lev, collections
 
 
@@ -1275,8 +1338,22 @@ class Axes(Artist):
 
             * cmap = None: a cm Colormap instance from matplotlib.cm.
 
-            * origin = None: 'upper'|'lower'|None.  If None, the rc value
-              for image.origin will be used
+            * origin = None: 'upper'|'lower'|'image'|None.
+              If 'image', the rc value for image.origin will be used.
+              If None (default), the first value of Z will correspond
+              to the lower left corner, location (0,0).
+              This keyword is active only if contourf is called with
+              one or two arguments, that is, without explicitly
+              specifying X and Y.
+
+            * badmask = None: array with dimensions of Z, and with values
+              of zero at locations corresponding to valid data, and one
+              at locations where the value of Z should be ignored.
+              This is experimental.  It presently works for edge regions
+              for line and filled contours, but for interior regions it
+              works correctly only for line contours.  The badmask kwarg
+              may go away in the future, to be replaced by the use of
+              NaN value in Z and/or the use of a masked array in Z.
 
             reg is a 1D region number array with of imax*(jmax+1)+1 size
             The values of reg should be positive region numbers, and zero fro
@@ -1291,8 +1368,6 @@ class Axes(Artist):
 
         """
 
-        if not self._hold: self.cla()
-
         alpha = kwargs.get('alpha', 1.0)
         origin = kwargs.get('origin', None)
         cmap = kwargs.get('cmap', None)
@@ -1300,13 +1375,15 @@ class Axes(Artist):
         badmask = kwargs.get('badmask', None)
 
         if cmap is not None: assert(isinstance(cmap, Colormap))
-        if origin is not None: assert(origin in ['lower', 'upper'])
+        if origin is not None: assert(origin in ['lower', 'upper', 'image'])
 
         if colors is not None and cmap is not None:
             raise RuntimeError('Either colors or cmap must be None')
-        if origin is None: origin = rcParams['image.origin']
+        if origin == 'image': origin = rcParams['image.origin']
 
         x, y, z, lev = self._contour_args(True, badmask, origin, *args)
+        # Manipulate the plot *after* checking the input arguments.
+        if not self._hold: self.cla()
 
         Nlev = len(lev)
 
@@ -1343,6 +1420,331 @@ class Axes(Artist):
         collections.mappable = mappable
         return lev, collections
 
+
+    def clabel(self, *args, **kwargs):
+        """
+        CLABEL(*args, **kwargs)
+
+        Function signatures
+
+        CLABEL(C) - plots contour labels,
+                    C is the output of contour or a list of contours
+
+        CLABEL(C,V) - creates labels only for those contours, given in
+                      a list V
+
+        CLABEL(C, **kwargs) - keyword args are explained below:
+                     
+    
+        
+        * fontsize = None: as described in http://matplotlib.sf.net/fonts.html
+
+        * colors = None:
+
+           - a tuple of matplotlib color args (string, float, rgb, etc),
+             different labels will be plotted in different colors in the order
+             specified
+
+           - one string color, e.g. colors = 'r' or colors = 'red', all labels
+             will be plotted in this color
+
+           - if colors == None, the color of each label matches the color 
+             of the corresponding contour
+
+        * inline = 0: controls whether the underlying contour is removed
+                     (inline = 1) or not
+
+        * fmt = '%1.3f': a format string for the label
+
+        """
+        # todo, factor this out to a separate class and don't use hidden coll attrs
+        from numerix import resize, reshape, add, argmin, arctan2, pi, argsort, sin, cos, nonzero
+
+        if not self._hold: self.cla()
+
+        fontsize = kwargs.get('fontsize', None)
+        inline = kwargs.get('inline', 0)
+        fmt = kwargs.get('fmt', '%1.3f')
+        colors = kwargs.get('colors', None)
+
+        
+
+        if len(args) == 1:
+            contours = args[0]
+            levels = [con._label for con in contours]
+        elif len(args) == 2:
+            contours = args[0]
+            levels = args[1]
+        else:
+            raise TypeError("Illegal arguments to clabel, see help(clabel)")
+        
+        
+
+        fp = FontProperties()
+        if fontsize == None:
+            font_size = int(fp.get_size_in_points())
+        else:
+            if type(fontsize) not in [int, float, str]:
+                raise TypeError("Font size must be an integer number.")
+            else:
+                if type(fontsize) == str:
+                    font_size = int(fp.get_size_in_points())
+                    
+                else:
+                    fp.set_size(fontsize)
+                    font_size = fontsize
+        fslist = [font_size] * len(levels)
+
+        if colors == None:
+            colors = [c._colors[0] for c in contours]
+        else:
+            colors = colors * len(contours)
+
+        if inline not in [0,1]:
+            raise TypeError("inline must be 0 or 1")
+
+
+        def print_label(linecontour,labelwidth):
+            "if contours are too short, don't plot a label"
+            lcsize = len(linecontour)
+            if lcsize > 10 * labelwidth:
+                return 1
+            
+            xmax = amax(array(linecontour)[:,0])
+            xmin = amin(array(linecontour)[:,0])
+            ymax = amax(array(linecontour)[:,1])
+            ymin = amin(array(linecontour)[:,1])
+
+            lw = labelwidth
+            if (xmax - xmin) > 3* lw or (ymax - ymin) > 3 * lw:
+                return 1
+            else:
+                return 0
+
+        def too_close(x,y):
+            "if there's a label already nearby, find a better place"
+            if cl_xy != []:
+                dist = [(x-loc[0]) ** 2 + (y-loc[1]) ** 2 for loc in cl_xy]
+                for d in dist:
+                    if d < 400:
+                        return 1
+                    else: return 0
+            else: return 0
+
+        def get_label_coords(distances, XX, YY, ysize):
+            """ labels are ploted at a location with the smallest
+            dispersion of the contour from a straight line
+            unless there's another label nearby, in which case
+            the second best place on the contour is picked up
+            if there's no good place a label isplotted at the
+            beginning of the contour
+            """
+            
+            hysize = int(ysize/2)
+            adist = argsort(distances) 
+        
+            for ind in adist:
+                x, y = XX[ind][hysize], YY[ind][hysize]
+                if too_close(x,y):
+                    continue
+                else:
+                    cl_xy.append((x,y))
+                    return x,y, ind
+                
+            ind = adist[0]
+            x, y = XX[ind][hysize], YY[ind][hysize]
+            cl_xy.append((x,y))
+            return x,y, ind
+
+        def get_label_width(lev, fmt, fsize):
+            "get the width of the label in points"
+            if is_string_like(lev):
+                lw = (len(lev)) * fsize
+            else:
+                lw = (len(fmt%lev)) * fsize
+
+            return lw
+
+
+        def set_label_props(label,text, color, fp):
+            "set the label properties - color, fontsize, text"
+            label.set_text(text)
+            label.set_color(color)
+            label.set_fontproperties(fp)
+
+
+        def get_text(lev, fmt):
+            "get the text of the label"
+            if is_string_like(lev):
+                return lev
+            else:
+                return fmt%lev
+        
+
+        def break_linecontour(linecontour, rot, labelwidth, ind):
+            "break a contour in two contours at the location of the label"
+            lcsize = len(linecontour)
+            hlw = int(labelwidth/2)
+
+            #length of label in screen coords
+            ylabel = abs(hlw * sin(rot*pi/180))
+            xlabel = abs(hlw * cos(rot*pi/180))
+
+            trans = self.transData
+
+            slc = trans.seq_xy_tups(linecontour)
+            x,y = slc[ind]
+            xx= array(slc)[:,0].copy()
+            yy=array(slc)[:,1].copy()
+
+            inds=nonzero(((xx < x+xlabel) & (xx > x-xlabel)) & ((yy < y+ylabel) & (yy > y-ylabel)))
+
+            if len(inds) != 0:
+                lc1=linecontour[:inds[0]]
+                lc2 = linecontour[inds[-1]+1:]
+            else:
+                lc1=linecontour[:ind]
+                lc2 = linecontour[ind+1:]
+            epsilon=.000005
+            
+            if rot <0:
+                new_x1, new_y1 = x-xlabel, y+ylabel
+                new_x2, new_y2 = x+xlabel, y-ylabel
+            else:
+                new_x1, new_y1 = x-xlabel, y-ylabel
+                new_x2, new_y2 = x+xlabel, y+ylabel
+                
+            new_x1d, new_y1d = trans.inverse_xy_tup((new_x1, new_y1))
+            new_x2d, new_y2d = trans.inverse_xy_tup((new_x2, new_y2))
+            
+            if rot > 0:
+                if len(lc1) > 0 and (lc1[-1][0] <= new_x1d) and (lc1[-1][1] <= new_y1d):
+                    lc1.append((new_x1d, new_y1d))
+
+                if len(lc2) > 0 and (lc2[0][0] >= new_x2d) and (lc2[0][1] >= new_y2d):
+                    lc2.insert(0, (new_x2d, new_y2d))
+            else:
+                if len(lc1) > 0 and ((lc1[-1][0] <= new_x1d) and (lc1[-1][1] >= new_y1d)):
+                    lc1.append((new_x1d, new_y1d))
+
+                if len(lc2) > 0 and ((lc2[0][0] >= new_x2d) and (lc2[0][1] <= new_y2d)):
+                    lc2.insert(0, (new_x2d, new_y2d))
+            
+            return [lc1,lc2]
+
+
+        def locate_label(linecontour, labelwidth):
+            """find a good place to plot a label (relatively flat
+            part of the contour) and the angle of rotation for the
+            text object
+            """
+            
+            nsize= len(linecontour)
+            if labelwidth > 1:
+                xsize = int(ceil(nsize/labelwidth))
+            else:
+                xsize = 1
+            if xsize == 1:
+                ysize = nsize
+            else:
+                ysize = labelwidth
+
+            XX = resize(array(linecontour)[:,0],(xsize, ysize))
+            YY = resize(array(linecontour)[:,1],(xsize,ysize))
+
+            yfirst = YY[:,0]
+            ylast = YY[:,-1]
+            xfirst = XX[:,0]
+            xlast = XX[:,-1]
+            s = (reshape(yfirst, (xsize,1))-YY)*(reshape(xlast,(xsize,1))-reshape(xfirst,(xsize,1)))-(reshape(xfirst,(xsize,1))-XX)*(reshape(ylast,(xsize,1))-reshape(yfirst,(xsize,1)))
+            L=sqrt((xlast-xfirst)**2+(ylast-yfirst)**2)
+            dist = add.reduce(([(abs(s)[i]/L[i]) for i in range(xsize)]),-1)
+            ind = argmin(dist)
+            x, y = XX[ind][int(ysize/2)], YY[ind][int(ysize/2)]
+            angle = arctan2(ylast - yfirst, xlast - xfirst)
+            rotation = angle[ind]*180/pi
+            
+            if rotation > 90:
+                rotation = rotation - 180
+            elif rotation < -90:
+                rotation = rotation -180
+            
+            dind = list(linecontour).index((x,y))
+
+            return x,y, rotation, dind
+        
+        def inline_labels(levels, contours, colors, fslist):
+            toremove = []
+            toadd = []
+            trans = self.transData
+            mappable = getattr(contours, 'mappable', None)
+            for lev, con, color, fsize in zip(levels, contours, colors, fslist):
+                col = []
+                lw = get_label_width(lev, fmt, fsize)
+                for linecontour in con._segments:
+                    # for closed contours add one more point to
+                    # avoid division by zero
+                    if linecontour[0] == linecontour[-1]:
+                        linecontour.append(linecontour[1])
+                    # transfer all data points to screen coordinates
+                    slc = trans.seq_xy_tups(linecontour)
+                    if print_label(slc,lw):
+                        x,y, rotation, ind  = locate_label(slc, lw)
+                        # transfer the location of the label back to
+                        # data coordinates
+                        dx,dy = trans.inverse_xy_tup((x,y))
+                        t = Text(dx, dy, rotation = rotation, horizontalalignment='center', verticalalignment='center')
+                        text = get_text(lev,fmt)
+                        set_label_props(t, text, color, fp)
+                        cl.append(t)
+
+                        new  =  break_linecontour(linecontour, rotation, lw, ind)
+                        for c in new: col.append(c)
+                    else: col.append(linecontour)
+                toremove.append(con)
+                thiscol = LineCollection(col,
+                                         colors=con.get_colors(),
+                                         linewidths = con.get_linewidths())
+                toadd.append(thiscol)
+            if mappable is not None: mappable.collections = toadd
+            return toremove, toadd
+                        
+        def labels(levels, contours, colors, fslist):
+            trans = self.transData
+            for lev, con, color, fsize in zip(levels, contours, colors, fslist):
+                lw = get_label_width(lev, fmt, fsize)
+                for linecontour in con._segments:
+                    # for closed contours add one more point 
+                    if linecontour[0] == linecontour[-1]:
+                        linecontour.append(linecontour[1])
+                    # transfer all data points to screen coordinates
+                    slc = trans.seq_xy_tups(linecontour)
+                    if print_label(slc,lw):
+                        x,y, rotation, ind  = locate_label(slc, lw)
+                        # transfer the location o the label back into
+                        # data coordinates
+                        dx,dy = trans.inverse_xy_tup((x,y))
+                        t = Text(dx, dy, rotation = rotation, horizontalalignment='center', verticalalignment='center')
+                        text = get_text(lev, fmt)
+                        set_label_props(t, text, color, fp)
+                        cl.append(t)
+                    else:
+                        pass
+        cl = []
+        cl_xy = []
+        
+        if inline == 1:
+            toremove, toadd = inline_labels(levels, contours, colors, fslist)
+            for r in toremove:
+                self.collections.remove(r)
+            for a in toadd:
+                self.add_collection(a)    
+        else:
+            labels(levels, contours, colors, fslist)
+               
+        for label in cl:
+            self.add_artist(label)
+        return silent_list('Text', cl), silent_list('LineCollection', self.collections)
 
 
 

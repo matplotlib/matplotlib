@@ -1,7 +1,10 @@
 New entries should be added at the top
 
+2005-03-09 Added Eric's contourf updates and Nadia's clabel functionality
+           - TODO, factor clabel into a dedicated class
+
 2005-03-09 Moved colorbar to figure.Figure to expose it for API developers
-           - JDH
+          - JDH
 
 2005-03-09 backend_cairo.py: implemented draw_markers() - SC
 
