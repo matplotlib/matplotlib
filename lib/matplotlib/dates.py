@@ -84,7 +84,7 @@ except ImportError:
 
 from cbook import iterable
 from pytz import timezone
-from numerix import arange
+from numerix import arange, asarray
 from ticker import Formatter, Locator, Base
 from dateutil.rrule import rrule, MO, TU, WE, TH, FR, SA, SU, YEARLY,\
      MONTHLY, WEEKLY, DAILY, HOURLY, MINUTELY, SECONDLY
@@ -568,6 +568,34 @@ def _close_to_num(o1, o2, epsilon=5):
    delta = abs((o2-o1)*MUSECONDS_PER_DAY)
    assert(delta<epsilon)
 
+def epoch2num(e):
+    """
+    convert an epoch or sequence of epochs to the new date format,
+    days since 0001
+    """
+    spd = 24.*3600.
+    return 719163 + asarray(e)/spd     
+
+def num2epoch(d):
+    """
+    convert days since 0001 to epoch.  d can be a number or sequence
+    """
+    spd = 24.*3600.
+    return (asarray(d)-719163)*spd
+
+def mx2num(m):
+    """
+    Convert mx datetime instance (or sequence of mx instances) to the
+    new date format,
+    """
+    scalar = False
+    if not iterable(m):
+        scalar = True
+        m = [m]
+    ret = epoch2num([m.ticks() for m in mxdates])
+    if scalar: return ret[0]
+    else: return ret
+    
 if __name__=='__main__':
     
     #tz = None
@@ -620,4 +648,5 @@ if __name__=='__main__':
 
     for t in dates: print formatter(t)
     
+
 

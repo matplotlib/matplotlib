@@ -6,7 +6,7 @@
 from __future__ import division
 from cStringIO import StringIO
 import sys, os
-from matplotlib import verbose
+from matplotlib import verbose, __version__
 from matplotlib.afm import AFM
 from matplotlib.backend_bases import RendererBase, GraphicsContextBase,\
      FigureManagerBase, FigureCanvasBase
@@ -271,6 +271,7 @@ grestore
     
     def finish(self):
         self._pswriter.write('showpage\n')
+        self._pswriter.write('%%EOF')
 
     def new_gc(self):
         return GraphicsContextPS()
@@ -466,9 +467,9 @@ class FigureCanvasPS(FigureCanvasBase):
             lly = yo
             urx = llx + w 
             ury = lly + h 
-            bboxstr = '%%BoundingBox:    %d %d %d %d' % (llx, lly, urx, ury)
+            bboxstr = '%%BoundingBox: %d %d %d %d' % (llx, lly, urx, ury)
 
-            pstype = 'PS-Adobe-2.0 EPSF-2.0'
+            pstype = 'PS-Adobe-3.0 EPSF-3.0'
         else:
             pstype = 'PS'
             bboxstr = ''
@@ -496,14 +497,14 @@ class FigureCanvasPS(FigureCanvasBase):
             error_msg_ps('Could not open %s for writing' % filename)
             return
 
-        print >>fh, _psProlog % (pstype, bboxstr)
+        print >>fh, _psProlog % (pstype, __version__, bboxstr)
         print >>fh, _psDefs
 
         type42 = _type42 + [os.path.join(self.basepath, name) + '.ttf' \
                  for name in bakoma_fonts]
         for font in type42:
             font = str(font)  # todo: handle unicode filenames
-            print >>fh, _psFonts % (os.path.basename(font),
+            print >>fh, _psFonts % (FT2Font(font).postscript_name,
                                     encodeTTFasPS(font))
         print >>fh, renderer.get_ps()
 
@@ -521,19 +522,15 @@ error_msg = error_msg_ps
 
 _psProlog = """\
 %%!%s
-%%%% Created by matplotlib http://matplotlib.sourceforge.net
+%%%%Creator: matplotlib version %s, http://matplotlib.sourceforge.net/
 %%%s
 %%%%EndComments
-
-%%BeginProlog
-/inch {72 mul} def
-%%%%EndProlog
 """
 
 _psFonts = """\
-%%BeginFont: %s
+%%%%BeginFont: %s
 %s
-%%EndFont
+%%%%EndFont
 """
 
 _psDefs = """

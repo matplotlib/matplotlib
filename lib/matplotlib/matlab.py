@@ -319,6 +319,40 @@ def %s(*args, **kwargs):
 %s.__doc__ = Axes.%s.__doc__
 """
 
+def changed_name_function(f, newname):
+    import new
+    if matplotlib._python23:
+        newf =  new.function(f.func_code, f.func_globals, newname,
+                             f.func_defaults, f.func_closure)
+    else:
+        #if f.func_defaults is None:
+        #    argdefs = ()
+        #else:
+        argdefs = f.func_defaults
+        newf =  new.function(f.func_code, f.func_globals, newname,
+                             argdefs)
+
+    print f.func_defaults
+    newf.__doc__ = f.__doc__
+    return newf
+
+def _wrap_axfunc(name):
+    def wrapper(*args, **kwargs):
+        try:
+            func = getattr(gca(), name)
+            ret =  func(*args, **kwargs)
+        except ValueError, msg:
+            msg = raise_msg_to_str(msg)
+            error_msg(msg)
+        else:
+            draw_if_interactive()
+            return ret
+    wrapper.__doc__ = getattr(Axes, name).__doc__
+    #wrapper.__name__ = name
+    return changed_name_function(wrapper, name)
+
+
+
 # these methods are all simple wrappers of Axes methods by the same
 # name.  We'll autogenerate these to avoid some of the boilerplate
 # using the fmt string above.
@@ -355,8 +389,10 @@ _methods = (
     )
 
 for name in _methods:
+    #locals[name] = _wrap_axfunc(name)
     exec(__fmt%(name, name, name, name))
 
+#plot = _wrap_axfunc('plot')
 
 def axis(*v):
     """\

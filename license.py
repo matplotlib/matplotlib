@@ -5,22 +5,7 @@ if len(sys.argv) != 3:
     
 version = sys.argv[1]
 
-if sys.argv[2] == 'htdocs/license.html.template':
-   s = """\
-@header@
-
-<h2>License</h2>
-
-The matplotlib license is a shameless ripoff of the python license.<p>
-
-<pre>
-
-"""
-else:
-    s = ""
-
-
-s += """\
+s = """\
 LICENSE AGREEMENT FOR MATPLOTLIB %(version)s
 --------------------------------------
 
@@ -72,15 +57,6 @@ Licensee agrees to be bound by the terms and conditions of this License
 Agreement.
 """ % locals()
 
-if sys.argv[2] == 'htdocs/license.html.template':
-   s += """\
-
-</pre>
-
-@footer@
-"""
-else:
-    pass
 
 file(sys.argv[2], 'w').write(s)
 
