@@ -558,6 +558,7 @@ class FigureCanvasPS(FigureCanvasBase):
 
         if isLandscape:
             xo, yo = 72*paperHeight - yo, xo
+            llx, lly, urx, ury = lly, llx, ury, urx
             rotation = 90
         else:
             rotation = 0
