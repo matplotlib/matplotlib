@@ -1,7 +1,4 @@
 #!/usr/bin/env python
-import pygtk
-pygtk.require('2.0')
-import gtk
 import time
 from pylab import *
 
@@ -20,6 +17,10 @@ def get_net():
 def get_stats():
     return get_memory(), get_cpu(), get_net()
 
+# turn interactive mode on for dynamic updates.  If you aren't in
+# interactive mode, you'll need to use a GUI event handler/timer.
+ion()  
+
 fig = figure(1)
 ax = subplot(111)
 ind = arange(1,4)
@@ -35,8 +36,7 @@ ax.set_xticklabels(['Memory', 'CPU', 'Bandwidth'])
 ax.set_ylabel('Percent usage')
 ax.set_title('System Monitor')
 
-manager = get_current_fig_manager()
-def updatefig(*args):
+for i in range(200):  # run for a little while
     m,c,n = get_stats()
 
     pm.set_height(m)
@@ -44,13 +44,9 @@ def updatefig(*args):
     pn.set_height(n)
     ax.set_ylim([0,100])
 
-    manager.canvas.draw()
-
-    return gtk.TRUE
+    draw()
 
 
-gtk.timeout_add(250, updatefig)
-show()
     
 
 

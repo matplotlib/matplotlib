@@ -1281,6 +1281,11 @@ class FigureManagerWx(FigureManagerBase):
     responsible for managing multiple instances of FigureManagerWx.
     
     NB: FigureManagerBase is found in _pylab_helpers
+
+    public attrs
+
+    canvas - a FigureCanvasWx(wxPanel) instance
+    window - a wxFrame instance - http://www.lpthe.jussieu.fr/~zeitlin/wxWindows/docs/wxwin_wxframe.html#wxframe
     """
     def __init__(self, canvas, num, frame):
         DEBUG_MSG("__init__()", 1, self)

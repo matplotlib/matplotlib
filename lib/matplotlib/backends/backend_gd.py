@@ -32,7 +32,7 @@ from matplotlib.colors import colorConverter
 from matplotlib.figure import Figure
 from matplotlib.transforms import Bbox
 from matplotlib.font_manager import fontManager
-from matplotlib.numerix import ones, array, nx
+from matplotlib.numerix import ones, array, nx, asarray
 # support old font names
 if (os.environ.has_key('GDFONTPATH') and not
     os.environ.has_key('TTFPATH')):
@@ -222,19 +222,19 @@ class RendererGD(RendererBase):
         RGB is a unit RGB tuple, return a gd color
         """
 
+        r,g,b = rgb
+        rgbi = (int(r*255),int(g*255),int(b*255))
         
-        try: return self._cached[rgb]
+        try: return self._cached[rgbi]
         except KeyError: pass
 
-        r,g,b = rgb
-        arg = (int(r*255),int(g*255),int(b*255))
-        color = self.im.colorAllocate(  arg )
+        color = self.im.colorAllocate(  rgbi )
 
         if color==-1:
             verbose.report_error('Unable to allocate color %1.3f, %1.3f, %1.3f; using nearest neighbor' % rgb)
-            color = self.im.colorClosest(arg)
+            color = self.im.colorClosest(rgbi)
 
-        self._cached[rgb] = color
+        self._cached[rgbi] = color
         return color
 
 
@@ -284,7 +284,7 @@ class RendererGD(RendererBase):
         convert point measures to pixes using dpi and the pixels per
         inch of the display
         """
-        return points*(PIXELS_PER_INCH/72.0*self.dpi.get()/72.0)
+        return asarray(points)*(PIXELS_PER_INCH/72.0*self.dpi.get()/72.0)
 
         
 class GraphicsContextGD(GraphicsContextBase):

@@ -263,13 +263,14 @@ strings, etc, not allowed).
 
 antialiaseds must be a sequence of ones or zeros
 
-linestyles is a single linestyle or a a seq of linestyles.  See help
-  for set_linestyle for information about legal values
+linestyles is a string or dash tuple. Legal string values are
+  solid|dashed|dashdot|dotted.  The dash tuple is (offset, onoffseq)
+  where onoffseq is an even length tuple of on and off ink in points.
 
 if linewidths, colors, or antialiaseds is None, they default to
 their rc params setting, in sequence form"""
         
-        Collection.__init__(self)
+        slCollection.__init__(self)
 
         if linewidths is None   :
             linewidths   = (rcParams['lines.linewidth'], )
