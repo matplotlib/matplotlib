@@ -501,26 +501,6 @@ def show(mainloop=True):
         else:                            gtk.mainloop()
 
 
-def _quit_after_print_xvfb(*args):
-    for manager in Gcf.get_all_fig_managers():
-        gtk.main_quit()
-    
-
-def show_xvfb():
-    """
-    Print the pending figures only then quit, no screen draw
-    """
-    for manager in Gcf.get_all_fig_managers():
-        #manager.canvas.set_do_plot(False)
-        manager.window.show()
-        
-    gtk.idle_add(_quit_after_print_xvfb)
-    if gtk.pygtk_version >= (2,4,0):
-        gtk.main()
-    else:
-        gtk.mainloop()
-
-
 def new_figure_manager(num, *args, **kwargs):
     """
     Create a new figure manager instance
@@ -756,9 +736,9 @@ class FigureCanvasGTK(gtk.DrawingArea, FigureCanvasBase):
             # pixbuf.save() recognises 'jpeg' not 'jpg'
             if ext == 'jpg': ext = 'jpeg' 
             pixbuf.save(filename, ext)
-            #try: pixbuf.save(filename, ext)
-            #except gobject.GError, exc:
-            #    error_msg('Save figure failure:\n%s' % (exc,), parent=self)
+            try: pixbuf.save(filename, ext)
+            except gobject.GError, exc:
+                error_msg('Save figure failure:\n%s' % (exc,), parent=self)
 
         elif ext in ('eps', 'ps', 'svg',):
             if ext == 'svg':
@@ -768,34 +748,30 @@ class FigureCanvasGTK(gtk.DrawingArea, FigureCanvasBase):
 
             fc = self.switch_backends(FigureCanvas)
             fc.print_figure(filename, dpi, facecolor, edgecolor, orientation)
-            #try:
-            #    fc = self.switch_backends(FigureCanvas)
-            #    fc.print_figure(filename, dpi, facecolor, edgecolor, orientation)
-            #except IOError, exc:
-            #    error_msg("Save figure failure:\n%s: %s" %
-            #              (exc.filename, exc.strerror), parent=self)
-            #except Exception, exc:
-            #    error_msg("Save figure failure:\n%s" % exc, parent=self)
+            try:
+                fc = self.switch_backends(FigureCanvas)
+                fc.print_figure(filename, dpi, facecolor, edgecolor, orientation)
+            except IOError, exc:
+                error_msg("Save figure failure:\n%s: %s" %
+                          (exc.filename, exc.strerror), parent=self)
+            except Exception, exc:
+                error_msg("Save figure failure:\n%s" % exc, parent=self)
 
         elif ext in ('bmp', 'raw', 'rgb',):
             try: 
                 from backend_agg import FigureCanvasAgg  as FigureCanvas
             except:
-                raise MPLError('Save figure failure:\n'
-                               'Agg must be loaded to save as bmp, raw and rgb')
-                #error_msg('Save figure failure:\n'
-                #          'Agg must be loaded to save as bmp, raw and rgb',
-                #          parent=self)                
+                error_msg('Save figure failure:\n'
+                          'Agg must be loaded to save as bmp, raw and rgb',
+                          parent=self)                
             else:
                 fc = self.switch_backends(FigureCanvas)
                 fc.print_figure(filename, dpi, facecolor, edgecolor, orientation)
 
         else:
-            raise MPLError('Format "%s" is not supported.\nSupported formats are %s.' %
-                           (ext, ', '.join(IMAGE_FORMAT)))
-            #error_msg('Format "%s" is not supported.\nSupported formats are %s.' %
-            #          (ext, ', '.join(IMAGE_FORMAT)),
-            #          parent=self)
+            error_msg('Format "%s" is not supported.\nSupported formats are %s.' %
+                      (ext, ', '.join(IMAGE_FORMAT)),
+                      parent=self)
 
         # restore figure settings
         self.figure.dpi.set(origDPI)
@@ -866,39 +842,6 @@ class FigureManagerGTK(FigureManagerBase):
             gtk.main_quit()
 
         
-class Dialog_MeasureTool(gtk.Dialog):
-    def __init__(self):
-        gtk.Dialog.__init__(self)
-        self.set_title("Axis measurement tool")
-        self.vbox.set_spacing(1)
-        tooltips = gtk.Tooltips()
-
-        self.posFmt =   'Position: x=%1.4f y=%1.4f'
-        self.deltaFmt = 'Delta   : x=%1.4f y=%1.4f'
-
-        self.positionLabel = gtk.Label(self.posFmt % (0,0))
-        self.vbox.pack_start(self.positionLabel)
-        self.positionLabel.show()
-        tooltips.set_tip(self.positionLabel,
-                         "Move the mouse to data point over axis")
-
-        self.deltaLabel = gtk.Label(self.deltaFmt % (0,0))
-        self.vbox.pack_start(self.deltaLabel)
-        self.deltaLabel.show()
-
-        tip = "Left click and hold while dragging mouse to measure " + \
-              "delta x and delta y"
-        tooltips.set_tip(self.deltaLabel, tip)
-                         
-        self.show()
-
-    def update_position(self, x, y):
-        self.positionLabel.set_text(self.posFmt % (x,y))
-
-    def update_delta(self, dx, dy):
-        self.deltaLabel.set_text(self.deltaFmt % (dx,dy))
-
-
 class NavigationToolbar2GTK(NavigationToolbar2, gtk.Toolbar):
     # list of toolitems to add to the toolbar, format is:
     # text, tooltip_text, image_file, callback(str)
@@ -1419,11 +1362,6 @@ if gtk.pygtk_version >= (2,4,0):
                     self.path = filename
                     break
                 else:
-                    # XXX exception causes method to terminate w/o closing window
-                    # but want to repeat loop until selection is made
-                    # so a popup IS more appropriate?
-                    #raise MPLError('Format "%s" is not supported.\nSupported formats are %s.' %
-                    #       (ext, ', '.join(IMAGE_FORMAT)))
                     error_msg('Image format "%s" is not supported' % ext,
                               parent=self)
                     self.set_current_name(os.path.split(root)[1] + '.' + menu_ext)
