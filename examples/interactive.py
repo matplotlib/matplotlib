@@ -178,18 +178,22 @@ if __name__=="__main__":
     interpreter.feed ("from matplotlib import matlab")
     interpreter.feed ("from matplotlib.matlab import *")
     interpreter.feed ("sys.path.append('.')")
+
+    # turn off rendering until end of script
+    matplotlib.matlab.interactive = 0
     if len (sys.argv) > 1:
         for line in file(sys.argv[1], 'r'):
-            print '>>', line.rstrip(),
+            if line.lstrip().find('show()')==0: continue
+            print '>>', line.rstrip()
             interpreter.feed(line)
-        gcf().draw()
+        #gcf().draw()
+    interpreter.feed ("ShowOn().set(1)")
     print """Welcome to matplotlib.
 
     help(matlab)   -- shows a list of all matlab compatible commands provided
     help(plotting) -- shows a list of plot specific commands
     """ 
 
-    matplotlib.matlab.interactive = 1
 
     try:
         while 1:

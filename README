@@ -17,6 +17,10 @@ INSTALL
 
   If you have the requirements, just do 'python setup.py install'.  
 
+  If you want to use matplotlib interactively from the prompt, see
+  INTERACTIVE
+
+
 EXAMPLES
 
   See the examples in the examples dir.

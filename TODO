@@ -7,11 +7,15 @@
      command line, but the GUI needs to be updated to allow resolution
      to be set along with filename
 
--- fix text size calculations using pango layouts: DONE
+-- fix text size calculations using pango layouts: 
+
+     DONE
  
 -- add a font selection dialog for the axis text
 
--- enable vertical rendering for ylabels: DONE
+-- enable vertical rendering for ylabels: 
+     
+     DONE
 
 -- enable anti aliasing for fonts: DONE with pango
 
@@ -21,7 +25,9 @@
 -- add a color selection dialog for the background, lines, and text
 
 -- allow interactive control of the plot from the python shell after
-   it has been launched using the cookbook thread recipe.  DONE
+   it has been launched using the cookbook thread recipe.  
+
+      DONE
 
 -- write a user guide
 
@@ -36,7 +42,7 @@
    working cross platform.  According to the docs this is better
    handled using size hints -- but I don't know how to use them, yet.
 
--- vlines and hlines disappear on in some instance due to improper
+-- vlines and hlines disappear in some instance due to improper
    clipping
 
 -- One the errorbar demo the hlines do not always appear symmetric
@@ -45,7 +51,12 @@
 
 -- Clip patches outside view port
 
+   DONE
+
 -- Allow background color to be set for subplots  
+
+   DONE: subplot now takes a kwarg axisbg with color format string
+   just as axes does
 
 -- Expose bug on win32 for axis text
 
@@ -60,5 +71,32 @@
 
    plot(t1, p1, 'o', t2, p2, ogtt.times, ogtt.cpeptide, 's')
 
+   DONE: 2003-05-12 fixed _grab_next_args in figure.py 
+
 -- xlabel is lower than it needs to be
 
+    UPDATE: made a change -- make sure this works
+
+-- interactive setting of x/ylabels doesn't redraw all labels unless
+   you click a forced redraw
+
+   DONE 2003-05-12  Removed some of the state handling of text labels
+   so they always redraw
+
+-- When you change a property using the OO interface in interactive,
+   the figure doesn't know to redraw.  
+
+   Some possibilities:
+
+   1) redraw on all interactive commands.  kind of heavy handled
+
+   2) override setattr on artist to signal a redraw event. kind of
+      heavy handled
+
+   3) allow derived classes to signal redraw events when nexessary.
+      kind of code intrusive.
+
+
+-- on exit from interactive.py call gtk. mainquit
+
+-- pan zoom on axes_demo flushes insets
