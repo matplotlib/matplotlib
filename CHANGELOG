@@ -48,8 +48,38 @@
 	   vlines outside the viewport, so I wrote a dedicated class
 	   Vline2D which derives from Line2D
 
-
             
 2003-05-01
    
    Fixed ytick bug where grid and tick show outside axis viewport with gc clip
+
+2003-05-14
+ 
+   Added new ways to specify colors 1) matlab format string 2)
+   html-style hex string, 3) rgb tuple.  See examples/color_demo.py
+
+2003-05-28
+
+    Changed figure rendering to draw form a pixmap to reduce flicker.
+    See examples/system_monitor.py for an example where the plot is
+    continusouly updated w/o flicker.  This example is meant to
+    simulate a system monitor that shows free CPU, RAM, etc...
+	
+2003-08-04
+
+    Added Jon Anderson's GTK shell, which doesn't require pygtk to
+    have threading built-in and looks nice!
+
+2003-08-25
+   
+   Fixed deprecation warnings for python2.3 and pygtk-1.99.18
+
+2003-08-26
+
+   Added figure text with new example examples/figtext.py
+
+
+2003-08-27
+  
+   Fixed bugs i figure text with font override dictionairies and fig
+   text that was placed outside the window bounding box

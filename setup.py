@@ -1,10 +1,15 @@
 from distutils.core import setup
 import sys,os
 
+import glob
+
+data = []
+data.extend(glob.glob('fonts/afm/*.afm'))
+data.extend(glob.glob('fonts/ttf/*.ttf'))
 
 setup(name="matplotlib",
-      version= '0.2b',
-      description = "Matlab style plotting lib using pygtk",
+      version= '0.29alpha',
+      description = "Matlab style python plotting package",
       author = "John D. Hunter",
       author_email="jdhunter@ace.bsd.uchicago.edu",
       url = "http://nitace.bsd.uchicago.edu:8080/matplotlib",
@@ -14,6 +19,7 @@ setup(name="matplotlib",
       object oriented, there is a functional matlab style interface
       for people coming from matlab.
       """,
-      packages=['matplotlib'],
+      packages=['matplotlib', 'matplotlib/backends'],
       platforms='any',
+      data_files=[('share/matplotlib', data)],
       )
