@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 """
 N       Classic     Base renderer    Ext renderer
 20       0.22           0.14            0.14
@@ -6,7 +7,6 @@ N       Classic     Base renderer    Ext renderer
 10000    3.30           1.31            0.53
 50000    19.30          6.53            1.98
 """
-#!/usr/bin/env python
 from matplotlib.matlab import *
 
 import time
