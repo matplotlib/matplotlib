@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-Top create plots that share a common axes (visually) you need to set
+To create plots that share a common axes (visually) you need to set
 the axes locations manually by supplying the appropriate axes
 rectangles.  Normally you'll want to turn off the tick labels on all
 but one of the axes.
