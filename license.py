@@ -1,47 +1,62 @@
 import sys
 
-if len(sys.argv)!=2:
-    print >>sys.stderr, 'Usage: license.py version_num'
+if len(sys.argv) != 3:
+    print >>sys.stderr, 'Usage: license.py version_num filename'
     
 version = sys.argv[1]
 
-s = """\
+if sys.argv[2] == 'htdocs/license.html.template':
+   s = """\
+@header@
+
+<h2>License</h2>
+
+The matplotlib license is a shameless ripoff of the python license.<p>
+
+<pre>
+
+"""
+else:
+    s = ""
+
+
+s += """\
 LICENSE AGREEMENT FOR MATPLOTLIB %(version)s
 --------------------------------------
 
-1. This LICENSE AGREEMENT is between the John D. Hunter ("JDH"), and
-the Individual or Organization ("Licensee") accessing and otherwise
-using matplotlib software in source or binary form and its associated
+1. This LICENSE AGREEMENT is between the John D. Hunter ("JDH"), and the
+Individual or Organization ("Licensee") accessing and otherwise using
+matplotlib software in source or binary form and its associated
 documentation.
 
 2. Subject to the terms and conditions of this License Agreement, JDH
-hereby grants Licensee a nonexclusive, royalty-free, world-wide
-license to reproduce, analyze, test, perform and/or display publicly,
-prepare derivative works, distribute, and otherwise use matplotlib %(version)s
+hereby grants Licensee a nonexclusive, royalty-free, world-wide license
+to reproduce, analyze, test, perform and/or display publicly, prepare
+derivative works, distribute, and otherwise use matplotlib %(version)s
 alone or in any derivative version, provided, however, that JDH's
 License Agreement and JDH's notice of copyright, i.e., "Copyright (c)
-2002, 2003 John D. Hunter; All Rights Reserved" are retained in
+2002-2004 John D. Hunter; All Rights Reserved" are retained in
 matplotlib %(version)s alone or in any derivative version prepared by
 Licensee.
 
-3. In the event Licensee prepares a derivative work that is based on
-or incorporates matplotlib %(version)s or any part thereof, and wants to make
-the derivative work available to others as provided herein, then
+3. In the event Licensee prepares a derivative work that is based on or
+incorporates matplotlib %(version)s or any part thereof, and wants to
+make the derivative work available to others as provided herein, then
 Licensee hereby agrees to include in any such work a brief summary of
 the changes made to matplotlib %(version)s.
 
-4. JDH is making matplotlib %(version)s available to Licensee on an "AS IS"
-basis.  JDH MAKES NO REPRESENTATIONS OR WARRANTIES, EXPRESS OR
+4. JDH is making matplotlib %(version)s available to Licensee on an "AS
+IS" basis.  JDH MAKES NO REPRESENTATIONS OR WARRANTIES, EXPRESS OR
 IMPLIED.  BY WAY OF EXAMPLE, BUT NOT LIMITATION, JDH MAKES NO AND
 DISCLAIMS ANY REPRESENTATION OR WARRANTY OF MERCHANTABILITY OR FITNESS
-FOR ANY PARTICULAR PURPOSE OR THAT THE USE OF MATPLOTLIB %(version)s WILL NOT
-INFRINGE ANY THIRD PARTY RIGHTS.
+FOR ANY PARTICULAR PURPOSE OR THAT THE USE OF MATPLOTLIB %(version)s
+WILL NOT INFRINGE ANY THIRD PARTY RIGHTS.
 
-5. JDH SHALL NOT BE LIABLE TO LICENSEE OR ANY OTHER USERS OF
-MATPLOTLIB %(version)s FOR ANY INCIDENTAL, SPECIAL, OR CONSEQUENTIAL DAMAGES
-OR LOSS AS A RESULT OF MODIFYING, DISTRIBUTING, OR OTHERWISE USING
-MATPLOTLIB %(version)s, OR ANY DERIVATIVE THEREOF, EVEN IF ADVISED OF THE
-POSSIBILITY THEREOF.
+5. JDH SHALL NOT BE LIABLE TO LICENSEE OR ANY OTHER USERS OF MATPLOTLIB
+%(version)s FOR ANY INCIDENTAL, SPECIAL, OR CONSEQUENTIAL DAMAGES OR
+LOSS AS A RESULT OF MODIFYING, DISTRIBUTING, OR OTHERWISE USING
+MATPLOTLIB %(version)s, OR ANY DERIVATIVE THEREOF, EVEN IF ADVISED OF
+THE POSSIBILITY THEREOF.
 
 6. This License Agreement will automatically terminate upon a material
 breach of its terms and conditions.
@@ -52,9 +67,20 @@ Licensee.  This License Agreement does not grant permission to use JDH
 trademarks or trade name in a trademark sense to endorse or promote
 products or services of Licensee, or any third party.
 
-8. By copying, installing or otherwise using matplotlib %(version)s, Licensee
-agrees to be bound by the terms and conditions of this License
+8. By copying, installing or otherwise using matplotlib %(version)s,
+Licensee agrees to be bound by the terms and conditions of this License
 Agreement.
 """ % locals()
 
-file('license/LICENSE', 'w').write(s)
+if sys.argv[2] == 'htdocs/license.html.template':
+   s += """\
+
+</pre>
+
+@footer@
+"""
+else:
+    pass
+
+file(sys.argv[2], 'w').write(s)
+
