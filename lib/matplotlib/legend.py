@@ -234,6 +234,7 @@ The following dimensions are in axes coords
                 legline = Line2D(self._xdata, ydata)
                 self._set_artist_props(legline)
                 lw = handle.get_linewidths()[0]
+                style = handle.get_linewidths()[0]
                 color = handle.get_colors()[0]                
                 legline.set_color(color)
                 legline.set_linewidth(lw)

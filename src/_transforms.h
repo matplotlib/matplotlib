@@ -397,6 +397,7 @@ public:
     if (_type==IDENTITY) return x;
     else if (_type==LOG10) {
       if (x<=0) {
+	//throw Py::ValueError("test throw");  
 	throw std::domain_error("Cannot take log of nonpositive value");
 	
       }
@@ -487,7 +488,7 @@ public:
     try { 
       affine_params_api(&a, &b, &c, &d, &tx, &ty);
     }
-  catch (std::domain_error &err) {
+  catch(...) {
     throw Py::ValueError("Domain error on as_vec6_val in Transformation::as_vec6_val");  
   }
 
@@ -543,7 +544,7 @@ public:
       try {
 	eval_scalars();
       }
-      catch (std::domain_error &err) {
+      catch(...) {
 	throw Py::ValueError("Domain error on eval_scalars in Transformation::freeze");  
       }
 
@@ -551,7 +552,7 @@ public:
 	try {
 	  _transOffset->eval_scalars();
 	}
-	catch (std::domain_error &err) {
+	catch(...) {
 	  throw Py::ValueError("Domain error on eval_scalars in transoffset Transformation::eval_scalars");  
 	}
 

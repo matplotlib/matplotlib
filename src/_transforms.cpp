@@ -485,7 +485,7 @@ Func::map(const Py::Tuple &args) {
   try {
     xout = this->operator()(xin);
   }
-  catch (std::domain_error &err) {
+  catch(...) {
     throw Py::ValueError("Domain error on Func::map");  
   }
 
@@ -517,7 +517,7 @@ FuncXY::map(const Py::Tuple &args) {
   try {
     xy = this->operator()(xin, yin);
   }
-  catch (std::domain_error &err) {
+  catch(...) {
     throw Py::ValueError("Domain error on FuncXY nonlinear transform");  
   }
 
@@ -679,7 +679,7 @@ Transformation::inverse_xy_tup(const Py::Tuple & args) {
   try {
     if (!_frozen) eval_scalars();
   }
-  catch (std::domain_error &err) {
+  catch(...) {
     throw Py::ValueError("Domain error on invser_xy_tup");  
   }
 
@@ -700,7 +700,7 @@ Transformation::xy_tup(const Py::Tuple & args) {
   try {
     if (!_frozen) eval_scalars();
   }
-  catch (std::domain_error &err) {
+  catch(...) {
     throw Py::ValueError("Domain error on nonlinear transform");  
   }
 
@@ -714,7 +714,7 @@ Transformation::xy_tup(const Py::Tuple & args) {
   try {
     this->operator()(x, y);
   }
-  catch (std::domain_error &err) {
+  catch(...) {
     throw Py::ValueError("Domain error on nTransformation::xy_tup operator()(x,y)");  
   }
 
@@ -741,7 +741,7 @@ Transformation::seq_x_y(const Py::Tuple & args) {
   try {
     if (!_frozen) eval_scalars();
   }
-  catch (std::domain_error &err) {
+  catch(...) {
     throw Py::ValueError("Domain error on Transformation::seq_x_y");  
   }
 
@@ -756,7 +756,7 @@ Transformation::seq_x_y(const Py::Tuple & args) {
     try {
       this->operator()(thisx, thisy);
     }
-    catch (std::domain_error &err) {
+    catch(...) {
       throw Py::ValueError("Domain error on Transformation::seq_x_y operator()(thisx, thisy)");  
     }
 
@@ -801,7 +801,7 @@ Transformation::numerix_x_y(const Py::Tuple & args) {
   try {
     if (!_frozen) eval_scalars();
   }
-  catch (std::domain_error &err) {
+  catch(...) {
     throw Py::ValueError("Domain error on Transformation::numerix_x_y");  
   }
 
@@ -832,7 +832,7 @@ Transformation::numerix_x_y(const Py::Tuple & args) {
     try {
       this->operator()(thisx, thisy);
     }
-    catch (std::domain_error &err) {
+    catch(...) {
       throw Py::ValueError("Domain error on Transformation::numerix_x_y");  
     }
 
@@ -904,7 +904,7 @@ Transformation::nonlinear_only_numerix(const Py::Tuple & args) {
     try {
       this->nonlinear_only_api(&thisx, &thisy);
     }
-    catch (std::domain_error &err) {
+    catch(...) {
       throw Py::ValueError("Domain error on this->nonlinear_only_api(&thisx, &thisy) in Transformation::nonlinear_only_numerix");  
     }
 
@@ -936,7 +936,7 @@ Transformation::seq_xy_tups(const Py::Tuple & args) {
   try {
     if (!_frozen) eval_scalars();
   }
-  catch (std::domain_error &err) {
+  catch(...) {
     throw Py::ValueError("Domain error on Transformation::seq_xy_tups");  
   }
   
@@ -954,7 +954,7 @@ Transformation::seq_xy_tups(const Py::Tuple & args) {
     try {
       this->operator()(thisx, thisy);
     }
-    catch (std::domain_error &err) {
+    catch(...) {
       throw Py::ValueError("Domain error on nonlinear Transformation::seq_xy_tups operator()(thisx, thisy)");  
     }
 
@@ -1515,7 +1515,7 @@ Affine::deepcopy(const Py::Tuple &args) {
   try {
     eval_scalars();
   }
-  catch (std::domain_error &err) {
+  catch(...) {
     throw Py::ValueError("Domain error on Affine deepcopy");  
   }
 
@@ -1824,7 +1824,7 @@ Transformation::init_type()
 
   add_varargs_method("get_funcx",   &Transformation::get_funcx,  "get_funcx(); return the Func instance on x\n");
   add_varargs_method("get_funcy",   &Transformation::get_funcy,  "get_funcy(); return the Func instance on y\n");
-
+ 
   add_varargs_method("set_funcx",   &Transformation::set_funcx,  "set_funcx(); set the Func instance on x\n");
   add_varargs_method("set_funcy",   &Transformation::set_funcy,  "set_funcy(); set the Func instance on y\n");
  
@@ -1902,3 +1902,4 @@ DL_EXPORT(void)
   d["IDENTITY"] = Py::Int((int)Func::IDENTITY);
   d["POLAR"] = Py::Int((int)FuncXY::POLAR);;
 };
+ 

@@ -643,3 +643,6 @@ ZeroDivisionError: SeparableTransformation::eval_scalars yin interval is zero; c
 -- fix contour mappable to work under changes in clim, cmap
 
 -- DONE make subplot delaxes on other subplots under it.
+
+-- fix transoffset->operator calls in _backend_agg.cpp to handle
+   exceptions
