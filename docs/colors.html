@@ -21,9 +21,8 @@ TT { font-family: lucidatypewriter, lucida console, courier }
 <tr><td bgcolor="#aa55cc"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;&nbsp;</td>
 <td width="100%"><table width="100%" summary="list"><tr><td width="25%" valign=top><a href="gtk.gdk.html">gtk.gdk</a><br>
 </td><td width="25%" valign=top><a href="gtk.html">gtk</a><br>
-</td><td width="25%" valign=top><a href="Numeric.html">Numeric</a><br>
 </td><td width="25%" valign=top><a href="pygtk.html">pygtk</a><br>
-</td></tr></table></td></tr></table>
+</td><td width="25%" valign=top></td></tr></table></td></tr></table>
 <table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
 <tr bgcolor="#ee77aa">
 <td colspan=3 valign=bottom>&nbsp;<br>
@@ -51,13 +50,19 @@ TT { font-family: lucidatypewriter, lucida console, courier }
 <dl><dt><a name="ColorDispatcher-_init"><strong>_init</strong></a>(self)</dt></dl>
 
 <dl><dt><a name="ColorDispatcher-get"><strong>get</strong></a>(self, arg)</dt><dd><tt>Get&nbsp;a&nbsp;color&nbsp;by&nbsp;arg&nbsp;if&nbsp;arg&nbsp;is&nbsp;a&nbsp;char&nbsp;in&nbsp;the&nbsp;colors&nbsp;dict,&nbsp;or&nbsp;by<br>
-integer&nbsp;index&nbsp;using&nbsp;a&nbsp;ring&nbsp;buffer&nbsp;if&nbsp;arg&nbsp;is&nbsp;an&nbsp;int</tt></dd></dl>
+integer&nbsp;index&nbsp;using&nbsp;a&nbsp;ring&nbsp;buffer&nbsp;if&nbsp;arg&nbsp;is&nbsp;an&nbsp;int.<br>
+&nbsp;<br>
+If&nbsp;arg&nbsp;is&nbsp;3&nbsp;tuple,&nbsp;assume&nbsp;it's&nbsp;an&nbsp;r,g,b&nbsp;tuple&nbsp;with&nbsp;range&nbsp;0-255<br>
+for&nbsp;each&nbsp;of&nbsp;r,g,b<br>
+&nbsp;<br>
+If&nbsp;arg&nbsp;is&nbsp;a&nbsp;length&nbsp;7&nbsp;string&nbsp;starting&nbsp;with&nbsp;'#',&nbsp;it&nbsp;will&nbsp;be<br>
+interpreted&nbsp;as&nbsp;an&nbsp;html&nbsp;style&nbsp;hex&nbsp;color&nbsp;string.</tt></dd></dl>
 
 <dl><dt><a name="ColorDispatcher-has_key"><strong>has_key</strong></a>(self, key)</dt></dl>
 
 <hr>
 Data and non-method functions defined here:<br>
-<dl><dt><strong>_ColorDispatcher__shared_state</strong> = {'_N': 7, '_colorOrder': ['b', 'g', 'r', 'c', 'm', 'y', 'k'], '_colors': {'b': &lt;GdkColor&gt;, 'c': &lt;GdkColor&gt;, 'g': &lt;GdkColor&gt;, 'k': &lt;GdkColor&gt;, 'm': &lt;GdkColor&gt;, 'r': &lt;GdkColor&gt;, 'w': &lt;GdkColor&gt;, 'y': &lt;GdkColor&gt;}}</dl>
+<dl><dt><strong>_ColorDispatcher__shared_state</strong> = {'_N': 7, '_colorOrder': ['b', 'g', 'r', 'c', 'm', 'y', 'k'], '_colors': {'b': &lt;GdkColor&gt;, 'c': &lt;GdkColor&gt;, 'g': &lt;GdkColor&gt;, 'k': &lt;GdkColor&gt;, 'm': &lt;GdkColor&gt;, 'r': &lt;GdkColor&gt;, 'w': &lt;GdkColor&gt;, 'y': &lt;GdkColor&gt;}, 'cmap': &lt;gtk.gdk.Colormap object (GdkColormap)&gt;}</dl>
 
 <dl><dt><strong>__doc__</strong> = None</dl>
 
@@ -96,6 +101,14 @@ Data and non-method functions defined here:<br>
 <dl><dt><strong>__module__</strong> = 'colors'</dl>
 
 </td></tr></table></td></tr></table>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#eeaa77">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Functions</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#eeaa77"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;&nbsp;</td>
+<td width="100%"><dl><dt><a name="-hex2color"><strong>hex2color</strong></a>(s)</dt><dd><tt>Convert&nbsp;hex&nbsp;string&nbsp;(like&nbsp;html&nbsp;uses,&nbsp;eg,&nbsp;#efefef)&nbsp;to&nbsp;a&nbsp;r,g,b&nbsp;tuple</tt></dd></dl>
+</td></tr></table>
 <table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
 <tr bgcolor="#55aa55">
 <td colspan=3 valign=bottom>&nbsp;<br>

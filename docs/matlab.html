@@ -121,17 +121,18 @@ the&nbsp;exception&nbsp;of&nbsp;those&nbsp;in&nbsp;mlab.py&nbsp;provided&nbsp;by
 <tr><td bgcolor="#aa55cc"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;&nbsp;</td>
 <td width="100%"><table width="100%" summary="list"><tr><td width="25%" valign=top><a href="LinearAlgebra.html">LinearAlgebra</a><br>
 <a href="MLab.html">MLab</a><br>
+<a href="Numeric.html">Numeric</a><br>
 <a href="RandomArray.html">RandomArray</a><br>
-<a href="copy.html">copy</a><br>
-</td><td width="25%" valign=top><a href="copy_reg.html">copy_reg</a><br>
+</td><td width="25%" valign=top><a href="copy.html">copy</a><br>
+<a href="copy_reg.html">copy_reg</a><br>
 <a href="gtk.gdk.html">gtk.gdk</a><br>
 <a href="gtk.html">gtk</a><br>
-<a href="math.html">math</a><br>
-</td><td width="25%" valign=top><a href="mlab.html">mlab</a><br>
+</td><td width="25%" valign=top><a href="math.html">math</a><br>
+<a href="mlab.html">mlab</a><br>
 <a href="multiarray.html">multiarray</a><br>
 <a href="pickle.html">pickle</a><br>
-<a href="pygtk.html">pygtk</a><br>
-</td><td width="25%" valign=top><a href="string.html">string</a><br>
+</td><td width="25%" valign=top><a href="pygtk.html">pygtk</a><br>
+<a href="string.html">string</a><br>
 <a href="types.html">types</a><br>
 </td></tr></table></td></tr></table>
 <table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
@@ -306,7 +307,13 @@ specified&nbsp;by&nbsp;the&nbsp;keyword&nbsp;argument&nbsp;typecode.</tt></dd></
 &nbsp;&nbsp;&nbsp;&nbsp;current&nbsp;axis&nbsp;An&nbsp;Axes&nbsp;instance&nbsp;is&nbsp;returned<br>
 &nbsp;<br>
 axisbg&nbsp;is&nbsp;a&nbsp;color&nbsp;format&nbsp;string&nbsp;which&nbsp;sets&nbsp;the&nbsp;background&nbsp;color&nbsp;of<br>
-the&nbsp;axes&nbsp;(default&nbsp;white)</tt></dd></dl>
+the&nbsp;axes&nbsp;(default&nbsp;white).<br>
+&nbsp;<br>
+If&nbsp;axisbg&nbsp;is&nbsp;a&nbsp;length&nbsp;1&nbsp;string,&nbsp;assume&nbsp;it's&nbsp;a&nbsp;color&nbsp;format&nbsp;string<br>
+(see&nbsp;plot&nbsp;for&nbsp;legal&nbsp;color&nbsp;strings).&nbsp;&nbsp;If&nbsp;it&nbsp;is&nbsp;a&nbsp;length&nbsp;7&nbsp;string,<br>
+assume&nbsp;it's&nbsp;a&nbsp;hex&nbsp;color&nbsp;string,&nbsp;as&nbsp;used&nbsp;in&nbsp;html,&nbsp;eg,&nbsp;'#eeefff'.<br>
+If&nbsp;it&nbsp;is&nbsp;a&nbsp;len(3)&nbsp;tuple,&nbsp;assume&nbsp;it's&nbsp;an&nbsp;rgb&nbsp;value&nbsp;where&nbsp;r,g,b&nbsp;in<br>
+(0,255).</tt></dd></dl>
  <dl><dt><a name="-axis"><strong>axis</strong></a>(*v)</dt><dd><tt><a href="#-axis">axis</a>()&nbsp;returns&nbsp;the&nbsp;current&nbsp;axis&nbsp;as&nbsp;a&nbsp;length&nbsp;a&nbsp;length&nbsp;4&nbsp;vector<br>
 &nbsp;<br>
 <a href="#-axis">axis</a>(v)&nbsp;where&nbsp;v=&nbsp;[xmin&nbsp;xmax&nbsp;ymin&nbsp;ymax]&nbsp;sets&nbsp;the&nbsp;min&nbsp;and&nbsp;max&nbsp;of&nbsp;the<br>
@@ -327,6 +334,37 @@ Return&nbsp;value&nbsp;is&nbsp;a&nbsp;list&nbsp;of&nbsp;Rectangle&nbsp;patch&nbs
 <a href="#-close">close</a>(h)&nbsp;where&nbsp;h&nbsp;is&nbsp;a&nbsp;figure&nbsp;handle(instance)&nbsp;closes&nbsp;that&nbsp;figure<br>
 &nbsp;<br>
 <a href="#-close">close</a>('all')&nbsp;closes&nbsp;all&nbsp;the&nbsp;figure&nbsp;windows</tt></dd></dl>
+ <dl><dt><a name="-colors"><strong>colors</strong></a>()</dt><dd><tt>This&nbsp;is&nbsp;a&nbsp;do&nbsp;nothing&nbsp;function&nbsp;to&nbsp;provide&nbsp;you&nbsp;with&nbsp;help&nbsp;on&nbsp;how<br>
+matplotlib&nbsp;handles&nbsp;colors.<br>
+&nbsp;<br>
+Commands&nbsp;which&nbsp;take&nbsp;color&nbsp;arguments&nbsp;can&nbsp;use&nbsp;several&nbsp;formats&nbsp;to<br>
+specify&nbsp;the&nbsp;colors.&nbsp;&nbsp;For&nbsp;the&nbsp;basic&nbsp;builtin&nbsp;colors,&nbsp;you&nbsp;can&nbsp;use&nbsp;a<br>
+single&nbsp;letter<br>
+&nbsp;<br>
+&nbsp;&nbsp;b&nbsp;&nbsp;:&nbsp;blue<br>
+&nbsp;&nbsp;g&nbsp;&nbsp;:&nbsp;green<br>
+&nbsp;&nbsp;r&nbsp;&nbsp;:&nbsp;red<br>
+&nbsp;&nbsp;c&nbsp;&nbsp;:&nbsp;cyan<br>
+&nbsp;&nbsp;m&nbsp;&nbsp;:&nbsp;magenta<br>
+&nbsp;&nbsp;y&nbsp;&nbsp;:&nbsp;yellow<br>
+&nbsp;&nbsp;k&nbsp;&nbsp;:&nbsp;black&nbsp;<br>
+&nbsp;&nbsp;w&nbsp;&nbsp;:&nbsp;white<br>
+&nbsp;<br>
+&nbsp;<br>
+For&nbsp;a&nbsp;greater&nbsp;range&nbsp;of&nbsp;colors,&nbsp;you&nbsp;have&nbsp;two&nbsp;options.&nbsp;&nbsp;You&nbsp;can<br>
+specify&nbsp;the&nbsp;color&nbsp;using&nbsp;an&nbsp;html&nbsp;hex&nbsp;string,&nbsp;as&nbsp;in<br>
+&nbsp;<br>
+&nbsp;&nbsp;color&nbsp;=&nbsp;'#eeefff'<br>
+&nbsp;<br>
+or&nbsp;you&nbsp;can&nbsp;pass&nbsp;an&nbsp;R,G,B&nbsp;tuple,&nbsp;where&nbsp;each&nbsp;of&nbsp;R,G,B&nbsp;are&nbsp;in&nbsp;the<br>
+range&nbsp;[0,255].&nbsp;&nbsp;The&nbsp;example&nbsp;below&nbsp;creates&nbsp;a&nbsp;subplot&nbsp;with&nbsp;a&nbsp;dark<br>
+slate&nbsp;gray&nbsp;background<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;<a href="#-subplot">subplot</a>(111,&nbsp;axisbg=(47,79,79))<br>
+&nbsp;<br>
+Here&nbsp;is&nbsp;an&nbsp;example&nbsp;that&nbsp;creates&nbsp;a&nbsp;pale&nbsp;turqoise&nbsp;title<br>
+&nbsp;<br>
+&nbsp;&nbsp;<a href="#-title">title</a>('Is&nbsp;this&nbsp;the&nbsp;best&nbsp;color?',&nbsp;color='#afeeee')</tt></dd></dl>
  <dl><dt><a name="-cross_correlate"><strong>cross_correlate</strong></a>(...)</dt><dd><tt><a href="#-cross_correlate">cross_correlate</a>(a,v,&nbsp;mode=0)</tt></dd></dl>
  <dl><dt><a name="-draw_if_interactive"><strong>draw_if_interactive</strong></a>()</dt></dl>
  <dl><dt><a name="-errorbar"><strong>errorbar</strong></a>(x, y, e, u<font color="#909090">=None</font>, fmt<font color="#909090">='b-'</font>)</dt><dd><tt><br>
@@ -370,6 +408,7 @@ if&nbsp;s&nbsp;is&nbsp;'somename',&nbsp;this&nbsp;function&nbsp;returns<br>
 &nbsp;<br>
 &nbsp;&nbsp;o.get_somename()</tt></dd></dl>
  <dl><dt><a name="-get_plot_commands"><strong>get_plot_commands</strong></a>()</dt></dl>
+ <dl><dt><a name="-grid"><strong>grid</strong></a>(b)</dt><dd><tt>Set&nbsp;the&nbsp;figure&nbsp;grid&nbsp;to&nbsp;be&nbsp;on&nbsp;or&nbsp;off&nbsp;(b&nbsp;is&nbsp;a&nbsp;boolean)</tt></dd></dl>
  <dl><dt><a name="-hist"><strong>hist</strong></a>(x, bins<font color="#909090">=10</font>, noplot<font color="#909090">=0</font>, normed<font color="#909090">=0</font>)</dt><dd><tt>Compute&nbsp;the&nbsp;histogram&nbsp;of&nbsp;x.&nbsp;&nbsp;bins&nbsp;is&nbsp;either&nbsp;an&nbsp;integer&nbsp;number&nbsp;of<br>
 bins&nbsp;or&nbsp;a&nbsp;sequence&nbsp;giving&nbsp;the&nbsp;bins.&nbsp;&nbsp;x&nbsp;are&nbsp;the&nbsp;data&nbsp;to&nbsp;be&nbsp;binned.<br>
 &nbsp;<br>
@@ -678,6 +717,7 @@ optional&nbsp;args&nbsp;work</tt></dd></dl>
 <strong>not_equal</strong> = &lt;ufunc 'not_equal'&gt;<br>
 <strong>pi</strong> = 3.1415926535897931<br>
 <strong>power</strong> = &lt;ufunc 'power'&gt;<br>
+<strong>readme</strong> = '<font color="#c040c0">\n</font>MLab2.py, release 1<font color="#c040c0">\n\n</font>Created on February 2003 b...<font color="#c040c0">\n</font>Look at: http://pdilib.sf.net for new releases.<font color="#c040c0">\n</font>'<br>
 <strong>remainder</strong> = &lt;ufunc 'remainder'&gt;<br>
 <strong>right_shift</strong> = &lt;ufunc 'right_shift'&gt;<br>
 <strong>sin</strong> = &lt;ufunc 'sin'&gt;<br>
