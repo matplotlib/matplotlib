@@ -25,7 +25,8 @@ API CHANGES in matplotlib-0.72
 
    subs=none now does autosubbing in the tick locator.
 
-   removed BBoxTransformation
+   New subplots that overlap old will delete the old axes.  If you do
+   not want this behavior, use fig.add_subplot or the axes command
 
 API CHANGES in matplotlib-0.71   
 

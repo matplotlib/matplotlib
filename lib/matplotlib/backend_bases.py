@@ -802,11 +802,19 @@ class FigureManagerBase:
         pass
 
     def key_press(self, event):
+
+        # these bindings happen whether you are over an axes or not
+        #if event.key == 'q':  
+        #    self.destroy() # how cruel to have to destroy oneself!
+        #    return
+        
         if event.inaxes is None: return
+        
+        # the mouse has to be over an axes to trigger these
         if event.key == 'g':  
             event.inaxes.grid()
             self.canvas.draw()
-        if event.key == 'l':  
+        elif event.key == 'l':  
             event.inaxes.toggle_log_lineary()
             self.canvas.draw()
             

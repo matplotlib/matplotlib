@@ -159,7 +159,7 @@ class FigureCanvasTkAgg(FigureCanvasAgg):
 
         agg = self.switch_backends(FigureCanvasAgg)
         agg.print_figure(filename, dpi, facecolor, edgecolor, orientation)
-
+        self.figure.set_canvas(self)
 
     def motion_notify_event(self, event):
         x = event.x

@@ -215,6 +215,7 @@ class FigureCanvasQtAgg(qt.QWidget, FigureCanvasAgg):
 
         agg = self.switch_backends(FigureCanvasAgg)
         agg.print_figure(filename, dpi, facecolor, edgecolor, orientation)
+        self.figure.set_canvas(self)
                     
 class NavigationToolbar2QtAgg(NavigationToolbar2, qt.QToolBar):
     """

@@ -220,7 +220,8 @@ class FigureCanvasFltkAgg(FigureCanvasAgg):
 
         agg = self.switch_backends(FigureCanvasAgg)
         agg.print_figure(filename, dpi, facecolor, edgecolor, orientation)
-    
+        self.figure.set_canvas(self)
+        
     def widget(self):
         return self.canvas
 

@@ -67,6 +67,7 @@ class FigureCanvasWxAgg(FigureCanvasWx,FigureCanvasAgg):
         """
         agg = self.switch_backends(FigureCanvasAgg)
         agg.print_figure(filename, dpi, facecolor, edgecolor, orientation)
+        self.figure.set_canvas(self)
 
     def _get_imagesave_wildcards(self):
         'return the wildcard string for the filesave dialog'
