@@ -162,8 +162,8 @@ class ContourLabeler:
             self.ax.add_artist(label)
 
 
-        if hasattr(contours, 'mappable'):
-            old = getattr(contours, 'mappable')
+        old = getattr(contours, 'mappable')
+        if old is not None:
             mappable = ContourMappable(old.get_array(), toadd, cmap=old.cmap, labeld=self.labeld)            
             mappable.set_array(old.get_array())
             mappable.autoscale()

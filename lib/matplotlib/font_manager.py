@@ -77,7 +77,7 @@ home = os.environ.get('HOME')
 if home is not None:
     # user fonts on OSX
     path = os.path.join(home, 'Library', 'Fonts')
-    X11FontDirectories.append(home)
+    X11FontDirectories.append(path)
 
 def win32FontDirectory():
     """Return the user-specified font directory for Win32."""

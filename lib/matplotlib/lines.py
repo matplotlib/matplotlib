@@ -17,7 +17,7 @@ from artist import Artist
 from cbook import iterable, is_string_like
 from colors import colorConverter
 from patches import bbox_artist
-from path import MOVETO, LINETO, ENDPOLY
+
 from transforms import lbwh_to_bbox, LOG10
 from matplotlib import rcParams
 
