@@ -1,5 +1,15 @@
 New entries should be added at the top
 
+2004-12-28 Fixed coords notification in wx toolbar - JDH
+
+2004-12-28 Moved connection and disconnection event handling to the
+           FigureCanvasBase.  Backends now only need to connect one
+           time for each of the button press, button release and key
+           press/release functions.  The base class deals with
+           callbacks and multiple connections.  This fixes flakiness
+           on some backends (tk, wx) in the presence of multiple
+           connections and/or disconnect - JDH
+
 2004-12-27 Fixed PS mathtext bug where color was not set - Jochen
            please verify correct - JDH
 

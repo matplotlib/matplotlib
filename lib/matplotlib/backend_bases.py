@@ -518,13 +518,27 @@ class GraphicsContextBase:
             error_msg('Unrecognized linestyle:  Found %s' % style)
 
 
-class MplEvent:
+class Event:
     """
     A matplotlib event.  Attach additional attributes as defined in
     FigureCanvas.connect.  The following attributes are defined and
     shown with their default values
     name                # the event name
     canvas              # the FigureCanvas instance generating the event
+    
+    """
+    def __init__(self, name, canvas):
+        self.name = name
+        self.canvas = canvas
+
+class MouseEvent(Event):
+    """
+    A mouse event (button_press_event, button_release_event,
+    motion_notify_event).
+
+    The following attributes are defined and shown with their default
+    values
+
     x      = None       # x position - pixels from left of canvas
     y      = None       # y position - pixels from bottom of canvas
     button = None       # button pressed None, 1, 2, 3
@@ -541,9 +555,46 @@ class MplEvent:
     xdata  = None       # x coord of mouse in data coords
     ydata  = None       # y coord of mouse in data coords
     
-    def __init__(self, name, canvas):
-        self.name = name
-        self.canvas = canvas
+    def __init__(self, name, canvas, x, y, button=None, key=None):
+        """
+        x, y in figure coords, 0,0 = bottom, left
+        button pressed None, 1, 2, 3
+        """
+        Event.__init__(self, name, canvas)
+        self.x = x
+        self.y = y
+        self.button = button
+        self.key = key
+
+        self.inaxes = None
+        for a in self.canvas.figure.get_axes():
+            if a.in_axes(self.x, self.y):
+                self.inaxes = a
+                xdata, ydata = a.transData.inverse_xy_tup((self.x, self.y))
+                self.xdata  = xdata
+                self.ydata  = ydata
+                break
+
+
+
+class KeyEvent(Event):
+    """
+    A key event (key press, key release).
+
+    Attach additional attributes as defined in
+    FigureCanvas.connect.
+
+    The following attributes are defined and shown with their default
+    values
+
+    key                 # the key pressed: chr(range(255), shift, win, or control
+
+    This interface may change slightly when better support for
+    modifier keys is included
+    """
+    def __init__(self, name, canvas, key):
+        Event.__init__(self, name, canvas)
+        self.key = key
 
 class FigureCanvasBase:
     """
@@ -552,15 +603,66 @@ class FigureCanvasBase:
     Public attribute
 
       figure - A Figure instance
+
     """
-    events = ('button_press_event',
-              'button_release_event',
-              'motion_notify_event',
+    events = (
+        'key_press_event',
+        'key_release_event',        
+        'button_press_event',
+        'button_release_event',
+        'motion_notify_event',
               )
 
     def __init__(self, figure):
         self.figure = figure
+        self.cid = 0
+        # a dictionary from event name to a dictionary that maps cid->func
+        self.callbacks = {}
+
+    def key_press_event(self, key):
+        event = KeyEvent('key_press_event', self, key)        
+        for cid, func in self.callbacks.get('key_press_event', {}).items():
+            func(event)
+
+    def key_release_event(self, key):
+        event = KeyEvent('key_release_event', self, key)
+        for cid, func in self.callbacks.get('key_release_event', {}).items():
+            func(event)
+
+    def button_press_event(self, x, y, button=None, key=None):
+        """
+        Backend derived classes should call this function on any mouse
+        button press.  x,y are the canvas coords: 0,0 is lower, left.
+        button and key are as defined in MouseEvent
+        """
         
+        event = MouseEvent('button_press_event', self, x, y, button, key)
+        for cid, func in self.callbacks.get('button_press_event', {}).items():
+            func(event)
+
+    def button_release_event(self, x, y, button=None, key=None):
+        """
+        Backend derived classes should call this function on any mouse
+        button release.  x,y are the canvas coords: 0,0 is lower, left.
+        button and key are as defined in MouseEvent
+        """
+        
+        event = MouseEvent('button_release_event', self, x, y, button, key)
+        for cid, func in self.callbacks.get('button_release_event', {}).items():
+            func(event)
+        
+
+    def motion_notify_event(self, x, y, button=None, key=None):
+        """
+        Backend derived classes should call this function on any mouse
+        button release.  x,y are the canvas coords: 0,0 is lower, left.
+        button and key are as defined in MouseEvent
+        """
+        
+        event = MouseEvent('motion_notify_event', self, x, y, button, key)
+        for cid, func in self.callbacks.get('motion_notify_event', {}).items():
+            func(event)
+
     def draw(self):
         """
         Render the figure
@@ -599,6 +701,7 @@ class FigureCanvasBase:
 
         where event is a MplEvent.  The following events are recognized
 
+         'key_press_event' 
          'button_press_event' 
          'button_release_event' 
          'motion_notify_event' 
@@ -611,14 +714,20 @@ class FigureCanvasBase:
 
         return value is a connection id that can be used with
         mpl_disconnect """
-        pass
+        self.cid += 1
+        self.callbacks.setdefault(s, {})[self.cid] = func
+        return self.cid
         
     def mpl_disconnect(self, cid):
         """
         Connect s to func. return an id that can be used with disconnect
         Method should return None
         """
-        return None
+        for eventname, callbackd in self.callbacks.items():
+            if callbackd.has_key(cid):
+                del callbackd[cid]
+                return
+
 
 class FigureManagerBase:
     """

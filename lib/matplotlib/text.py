@@ -6,7 +6,7 @@ from matplotlib import verbose
 import matplotlib
 import math
 from artist import Artist
-from cbook import enumerate, popd
+from cbook import enumerate, popd, is_string_like
 from font_manager import FontProperties
 from matplotlib import rcParams
 from patches import bbox_artist
@@ -43,6 +43,8 @@ class Text(Artist):
                  ):
 
         Artist.__init__(self)
+        if not is_string_like(text):
+            raise TypeError('text must be a string type')
         self.cached = {}
         self._x, self._y = x, y
 

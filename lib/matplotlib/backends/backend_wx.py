@@ -152,7 +152,7 @@ import matplotlib
 from matplotlib import verbose
 from matplotlib.backend_bases import RendererBase, GraphicsContextBase,\
      FigureCanvasBase, FigureManagerBase, error_msg, NavigationToolbar2, \
-     MplEvent, cursors
+     cursors
 from matplotlib._pylab_helpers import Gcf
 from matplotlib.artist import Artist
 from matplotlib.cbook import exception_to_str
@@ -693,7 +693,7 @@ class FigureCanvasWx(FigureCanvasBase, wxPanel):
         h = int(math.ceil(h))
 
         self._key = None
-
+        self._button = None
         
         wxPanel.__init__(self, parent, id, size=wxSize(w, h))
         # Create the drawing bitmap
@@ -713,7 +713,7 @@ class FigureCanvasWx(FigureCanvasBase, wxPanel):
         EVT_MOUSEWHEEL(self, self._onMouseWheel)
         EVT_LEFT_DOWN(self, self._onLeftButtonDown)
         EVT_LEFT_UP(self, self._onLeftButtonUp)
-
+        EVT_MOTION(self, self._onMotion)
         self.macros = {} # dict from wx id to seq of macros
         
         self.Printer_Init()
@@ -835,61 +835,6 @@ The current aspect ration will be kept."""
         printout.Destroy()
         self.gui_repaint()
 
-
-    def mpl_disconnect(self, cid):
-        for macro in self.macros.get(cid, []):
-            macro(self, None)
-        return None
-
-        
-    def mpl_connect(self, s, func):
-
-        if s not in self.events:
-            error_msg('Can only connect events of type "%s"\nDo not know how to handle "%s"' %(', '.join(self.events), s))    
-            
-        cid = wxNewId()
-
-        def wrapper(event):
-            thisEvent = MplEvent(s, self) 
-
-            thisEvent.x = event.GetX()
-            # flipy so y=0 is bottom of canvas
-            thisEvent.y = self.figure.bbox.height() - event.GetY()
-
-            if event.LeftDown(): button = 1
-            elif event.MiddleDown(): button = 2
-            elif event.RightDown(): button = 3
-            else: button = None
-            thisEvent.button = button
-            thisEvent.key = self._key
-
-            thisEvent.inaxes = None
-            for a in self.figure.get_axes():
-                if a.in_axes(thisEvent.x, thisEvent.y):
-                    thisEvent.inaxes = a
-                    xdata, ydata = a.transData.inverse_xy_tup((thisEvent.x, thisEvent.y))
-                    thisEvent.xdata  = xdata
-                    thisEvent.ydata  = ydata
-                    break
-                
-            
-            func(thisEvent)
-            event.Skip()
-            return False  # return True blocks other connects
-
-
-        if s=='button_press_event':
-            EVT_LEFT_DOWN(self,  wrapper)
-            EVT_RIGHT_DOWN(self, wrapper)
-            self.macros[cid] = (EVT_LEFT_DOWN, EVT_RIGHT_DOWN)
-        if s=='button_release_event':
-            EVT_LEFT_UP(self,  wrapper)            
-            EVT_RIGHT_UP(self, wrapper)
-            self.macros[cid] = (EVT_LEFT_UP, EVT_RIGHT_UP)
-        elif s=='motion_notify_event':
-            EVT_MOTION(self, wrapper)
-            self.macros[cid] = (EVT_MOTION,)
-        return cid
                
     def draw(self):
         """
@@ -1096,6 +1041,7 @@ The current aspect ration will be kept."""
 
     def _onKeyDown(self, evt):
         """Capture key press."""
+
         evt.Skip()
         keyval = evt.m_keyCode
         if self.keyvald.has_key(keyval):
@@ -1107,35 +1053,59 @@ The current aspect ration will be kept."""
             
         if key: self._key = key.lower()
         else:   self._key = key
+
+        FigureCanvasBase.key_press_event(self, self._key)
         
     def _onKeyUp(self, evt):
         """Release key."""
         evt.Skip()
+        FigureCanvasBase.key_release_event(self, self._key)
         self._key = None
 
     def _onRightButtonDown(self, evt):
         """Start measuring on an axis."""
-        #print 'left down', evt, dir(evt)
+        x = evt.GetX()
+        y = self.figure.bbox.height() - evt.GetY()
+        FigureCanvasBase.button_press_event(self, x, y, 3, self._key)        
         evt.Skip()
-        
+        self._button = 3
     def _onRightButtonUp(self, evt):
         """End measuring on an axis."""
+        x = evt.GetX()
+        y = self.figure.bbox.height() - evt.GetY()
+        FigureCanvasBase.button_release_event(self, x, y, 3, self._key)        
         evt.Skip()
+        self._button = None
 
 
     def _onLeftButtonDown(self, evt):
         """Start measuring on an axis."""
-
+        x = evt.GetX()
+        y = self.figure.bbox.height() - evt.GetY()
+        FigureCanvasBase.button_press_event(self, x, y, 1, self._key)        
         evt.Skip()
-        
+        self._button = 1
+
     def _onLeftButtonUp(self, evt):
         """End measuring on an axis."""
+        x = evt.GetX()
+        y = self.figure.bbox.height() - evt.GetY()
+        FigureCanvasBase.button_release_event(self, x, y, 1, self._key)
         evt.Skip()
+        self._button = None
         
     def _onMouseWheel(self, evt):
         # TODO: implement mouse wheel handler
         pass
 
+    def _onMotion(self, evt):
+        """Start measuring on an axis."""
+        
+        x = evt.GetX()
+        y = self.figure.bbox.height() - evt.GetY()
+        #print 'motion', x, y
+        evt.Skip()
+        FigureCanvasBase.motion_notify_event(self, x, y, self._button, self._key)
 
     
 
@@ -1217,7 +1187,8 @@ class FigureFrameWx(wxFrame):
         self.num = num
 
         self.canvas = self.get_canvas(fig)
-        self.SetStatusBar(StatusBarWx(self))
+        statbar = StatusBarWx(self)
+        self.SetStatusBar(statbar)
         self.sizer = wxBoxSizer(wxVERTICAL)
         self.sizer.Add(self.canvas, 1, wxTOP | wxLEFT | wxEXPAND)
         # By adding toolbar in sizer, we are able to put it at the bottom
@@ -1231,7 +1202,7 @@ class FigureFrameWx(wxFrame):
         else:
             self.toolbar = None
         
-
+        self.toolbar.set_status_bar(statbar)
         if self.toolbar is not None:
             self.toolbar.Realize()
             if wxPlatform == '__WXMAC__':
@@ -1455,7 +1426,7 @@ class NavigationToolbar2Wx(NavigationToolbar2, wxToolBar):
         NavigationToolbar2.__init__(self, canvas)
         self.canvas = canvas
         self._idle = True
-        
+        self.statbar = None        
     def _init_toolbar(self):
         DEBUG_MSG("_init_toolbar", 1, self)
 
@@ -1564,7 +1535,12 @@ class NavigationToolbar2Wx(NavigationToolbar2, wxToolBar):
         self.lastrect = rect
         dc.DrawRectangle(*rect)
         dc.EndDrawing()
-               
+
+    def set_status_bar(self, statbar):
+        self.statbar = statbar
+
+    def set_message(self, s):
+        if self.statbar is not None: self.statbar.set_function(s)
 
 class NavigationToolbarWx(wxToolBar):
     def __init__(self, canvas, can_kill=False):
@@ -1788,16 +1764,17 @@ class StatusBarWx(wxStatusBar):
     """
     def __init__(self, parent):
         wxStatusBar.__init__(self, parent, -1)
-        self.SetFieldsCount(3)
-        self.SetStatusText("Function: None", 1)
-        self.SetStatusText("Measurement: None", 2)
+        self.SetFieldsCount(2)
+        self.SetStatusText("None", 1)
+        #self.SetStatusText("Measurement: None", 2)
         #self.Reposition()
         
     def set_function(self, string):
-        self.SetStatusText("Function: %s" % string, 1)
+        self.SetStatusText("%s" % string, 1)
         
-    def set_measurement(self, string):
-        self.SetStatusText("Measurement: %s" % string, 2)
+    #def set_measurement(self, string):
+    #    self.SetStatusText("Measurement: %s" % string, 2)
+
 
 #< Additions for printing support: Matt Newville 
 
