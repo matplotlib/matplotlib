@@ -34,7 +34,7 @@ dates = [q[0] for q in quotes]
 opens = [q[1] for q in quotes]
 
 ax = subplot(111)
-plot_date(dates, opens)
+plot_date(dates, opens, '-')
 
 # format the ticks
 ax.xaxis.set_major_locator(years)
