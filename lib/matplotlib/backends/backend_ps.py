@@ -866,10 +866,12 @@ _psDefs = [
     } bind def""",
     # angle1 angle2 rx ry x y  *ellipse*  -
     """/ellipse {
+      newpath
       matrix currentmatrix 7 1 roll
       translate
       scale
       0 0 1 5 3 roll arc
       setmatrix
+      closepath
     } bind def"""
 ]
