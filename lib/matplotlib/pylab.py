@@ -611,9 +611,15 @@ def colorbar(tickfmt='%1.1f', cax=None, orientation='vertical'):
 
     if cax is None:
         l,b,w,h = ax.get_position()
-        neww = 0.8*w
-        ax.set_position((l,b,neww,h))
-        cax = axes([l + 0.9*w, b, 0.1*w, h])
+        if orientation=='vertical':
+            neww = 0.8*w
+            ax.set_position((l,b,neww,h))
+            cax = axes([l + 0.9*w, b, 0.1*w, h])
+        else:
+            newh = 0.8*h
+            ax.set_position((l,b+0.2*h,w,newh))
+            cax = axes([l, b, w, 0.1*h])
+
     else:
         if not isinstance(cax, Axes):
             raise TypeError('Expected an Axes instance for cax')
@@ -1672,7 +1678,7 @@ def contour(*args, **kwargs):
         hold(b)
     else:
         draw_if_interactive()
-        
+        if ret[1].mappable is not None: gci._current = ret[1].mappable
         hold(b)
         return ret
 contour.__doc__ = Axes.contour.__doc__ + """

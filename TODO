@@ -630,7 +630,7 @@ ZeroDivisionError: SeparableTransformation::eval_scalars yin interval is zero; c
 
 -- more flexible tick placement.
 
--- fix horizontal colorbar axes resize if cax is None
+-- DONE fix horizontal colorbar axes resize if cax is None
 
 -- mathtext layout bug
 
@@ -638,3 +638,6 @@ ZeroDivisionError: SeparableTransformation::eval_scalars yin interval is zero; c
     plot(range(10))
     title(r'$This\ is\ a\ test$')
     show()
+
+
+-- fix contour mappable to work under changes in clim, cmap

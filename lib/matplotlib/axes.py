@@ -6,7 +6,7 @@ import math, sys
 
 from numerix import absolute, arange, array, asarray, ones, divide,\
      transpose, log, log10, Float, Float32, ravel, zeros,\
-     Int32, Float64, ceil, indices, \
+     Int16, Int32, Int, Float64, ceil, indices, \
      shape, which, where, sqrt
 
 from numerix import max as nxmax
@@ -20,7 +20,7 @@ from cbook import iterable, is_string_like, flatten, enumerate, \
 from collections import RegularPolyCollection, PolyCollection, LineCollection
 from colors import colorConverter, normalize, Colormap, LinearSegmentedColormap
 import cm
-from cm import ColormapJet, Grayscale
+from cm import ColormapJet, Grayscale, ScalarMappable
 import _image
 from ticker import AutoLocator, LogLocator
 from ticker import ScalarFormatter, LogFormatter, LogFormatterExponent, LogFormatterMathtext
@@ -918,7 +918,8 @@ Refs: Bendat & Piersol -- Random Data: Analysis and Measurement
                 linewidths = None,
                 alpha = 1.0,
                 fmt='%1.3f',
-                origin=None):
+                origin=None,
+                cmap = None):
         """\
 CONTOUR(z, x = None, y = None, levels = None, colors = None)
 
@@ -942,8 +943,7 @@ colors is one of these:
   - one string color, e.g. colors = 'r' or colors = 'red', all levels
     will be plotted in this color
 
-  - if colors == None, the default color for lines.color in
-    .matplotlibrc is used.
+  - if colors == None, the default colormap will be used
 
 linewidths is one of:
 
@@ -979,8 +979,15 @@ More information on reg and triangle arrays is in _contour.c
 Return value is levels, collections where levels is a list of contour
 levels used and collections is a list of
 matplotlib.collections.LineCollection instances
+
+If cmap is not None, the collections list instance will have the
+mappable attribute attached, where mappable is a cm.ScalarMappable
+which contains the normalize instance and cmap instance and can be
+used for colorbar functionality
 """
 
+        if colors is not None and cmap is not None:
+            raise RuntimeError('Either colors or cmap must be None')
         if origin is None: origin = rcParams['image.origin']
         
         if origin == 'upper':
@@ -996,10 +1003,9 @@ matplotlib.collections.LineCollection instances
         else:
             jmax, imax = shape(z)
 
-        region = 0
         reg = ones((jmax,imax), Int32)
         reg[:,0]=0
-        triangle = zeros((jmax,imax), Int32)
+        triangle = zeros((jmax,imax), Int16)
 
         if x == None and y == None:
             y, x = indices((jmax,imax), 'd')
@@ -1018,24 +1024,30 @@ matplotlib.collections.LineCollection instances
                 lev = list(levels)            
             else: lev = autolev(Nlev)
 
+        
+        
         Nlev = len(lev)
-        if colors == None:
-            colors = rcParams['lines.color']
 
-        if is_string_like(colors):
-            colors = [colors] * Nlev
-        elif iterable(colors) and len(colors) < Nlev:
-            colors = list(colors) * Nlev
+        if colors is not None:
+
+            if is_string_like(colors):
+                colors = [colors] * Nlev
+            elif iterable(colors) and len(colors) < Nlev:
+                colors = list(colors) * Nlev
+            else:
+                try: gray = float(colors)
+                except TypeError: pass
+                else:  colors = [gray] * Nlev
+
+            tcolors = [(colorConverter.to_rgba(c, alpha),) for c in colors]
+            mappable = None
         else:
-            try: gray = float(colors)
-            except TypeError: pass
-            else:  colors = [gray] * Nlev
+            mappable = ScalarMappable(cmap=cmap)
+            mappable.set_array(z)
+            mappable.autoscale()
+            tcolors = [ (tuple(rgba),) for rgba in mappable.to_rgba(lev)]
 
-
-        tcolors = []
-        for c in colors:
-            tcolors.append((colorConverter.to_rgba(c, alpha),))
-
+            
         if linewidths == None:
             tlinewidths = [linewidths] *Nlev
         else:
@@ -1051,23 +1063,22 @@ matplotlib.collections.LineCollection instances
         levels = []
         collections = []
 
-
-        
+        region = 1  # FIXME: what should this be?
         for level, color, width  in args:
             ntotal, nparts  = _contour.GcInit1(x, y, reg, triangle, region, z, level)
-            np = zeros((nparts,), Int32)
+            np = zeros((nparts,), Int)
             xp = zeros((ntotal, ), Float64)
             yp = zeros((ntotal,), Float64)
             nlist = _contour.GcTrace(np, xp, yp)
+
             col = LineCollection(nlist, colors=color, linewidths = width)
             col.set_label(fmt%level)
             self.add_collection(col)
             levels.append(level)
-            #col.set_linestyle('dashdot') # dashed|dotted|solid|dashdot
+            #col.set_linestyle('dashed') # dashed|dotted|solid|dashdot
             #dashes = 0, (4,2,8,1)
             #col.set_linestyle( (dashes,) ) # offset, onoffseq
             collections.append(col)
-
 
         if x is not None:
             rx = ravel(x)
@@ -1081,6 +1092,8 @@ matplotlib.collections.LineCollection instances
         else:
             self.set_ylim([0,jmax])
 
+        collections = silent_list('LineCollection', collections)
+        collections.mappable = mappable
         return levels, collections
 
 

@@ -5,6 +5,7 @@ This module contains the instantiations of color mapping classes
 import colors
 from matplotlib import verbose
 from matplotlib import rcParams
+from matplotlib.numerix import asarray
 from numerix import nx
 LUTSIZE = rcParams['image.lut']
 
@@ -418,8 +419,10 @@ class ScalarMappable:
     def set_colorbar(self, im, ax):
         'set the colorbar image and axes associated with mappable'
         self.colorbar = im, ax
+
     def to_rgba(self, x, alpha=1.0):
         # assume normalized rgb, rgba
+        x = asarray(x)
         if len(x.shape)>2: return x
         x = self.norm(x)
         return self.cmap(x, alpha)

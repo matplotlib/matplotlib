@@ -15,8 +15,8 @@ static PyObject * GcInit1_wrap(PyObject *self, PyObject *args)
 {
   PyObject *ox, *oy, *oreg, *otriangle, *ozz;
   long imax, jmax, nparts=0, ntotal=0;
-  int region;
-  double lev;
+  int region=0;
+  double lev=0.0;
   PyArrayObject *xdata, *ydata, *regdata, *tridata, *zzdata;
   int *zzsize;
 
@@ -54,8 +54,8 @@ static PyObject * GcInit1_wrap(PyObject *self, PyObject *args)
   
   xdata = (PyArrayObject *) PyArray_ContiguousFromObject(ox, 'd', 2, 2);
   ydata = (PyArrayObject *) PyArray_ContiguousFromObject(oy, 'd', 2, 2);
-  regdata = (PyArrayObject *) PyArray_ContiguousFromObject(oreg, 'l', 2, 2);
-  tridata = (PyArrayObject *) PyArray_ContiguousFromObject(otriangle, 'l' , 2, 2);
+  regdata = (PyArrayObject *) PyArray_ContiguousFromObject(oreg, 'i', 2, 2);
+  tridata = (PyArrayObject *) PyArray_ContiguousFromObject(otriangle, 's' , 2, 2);
   zzdata = (PyArrayObject *) PyArray_ContiguousFromObject(ozz, 'd', 2, 2);
 
   if (xdata->nd != 2 || ydata->nd != 2 || regdata->nd != 2 || tridata->nd != 2 || zzdata->nd !=2)
@@ -131,6 +131,13 @@ static PyObject * GcTrace_wrap(PyObject *self, PyObject *args)
 
 
   ntotal = GcTrace( (long *) npdata->data, (double *) xcpdata->data, (double *) ycpdata->data);
+
+  if (ntotal<0)
+    {
+     PyErr_SetString(PyExc_ValueError, "Illegal return value ntotal in GcTrace");
+     return NULL;
+  }
+
   npsize = PyArray_Size((PyObject *) npdata);
 
   all_contours = PyList_New(0);
@@ -140,8 +147,10 @@ static PyObject * GcTrace_wrap(PyObject *self, PyObject *args)
 	start = end;
 	end = start + ((long *) npdata->data)[n];
 	contourList = PyList_New(0);	
+	//printf("_c %d, %d\n", start, end);
 	for (p = start; p<end; p++)
 	{
+	  //printf("\t%d, %f, %f\n", p, ((double *) xcpdata->data)[p], ((double *) ycpdata->data)[p]);
 	   point = Py_BuildValue("(d,d)", ((double *) xcpdata->data)[p],((double *) ycpdata->data)[p]);
 	   if (PyList_Append(contourList, point))     	
 	   {

@@ -1,15 +1,20 @@
 New entries should be added at the top
 
+2005-01-20 Made some changes to the contour routine - particularly
+           region=1 seems t fix a lot of the zigzag strangeness.
+           Added colormaps as default for contour - JDH
+
 2005-01-19 Restored builtin names which were overridden (min, max,
-  abs, round, and sum) in pylab.  This is a potentially significant
-  change for those who were relying on an array version of those
-  functions that previously overrode builtin function names. - ADS
+           abs, round, and sum) in pylab.  This is a potentially
+           significant change for those who were relying on an array
+           version of those functions that previously overrode builtin
+           function names. - ADS
 
 2005-01-18 Added accents to mathtext: \hat, \breve, \grave, \bar,
-  \acute, \tilde, \vec, \dot, \ddot.  All of them have the same
-  syntax, eg to make an overbar you do \bar{o} or to make an o umlaut
-  you do \ddot{o}. The shortcuts are also provided, eg: \"o \'e \`e
-  \~n \.x \^y - JDH
+           \acute, \tilde, \vec, \dot, \ddot.  All of them have the
+           same syntax, eg to make an overbar you do \bar{o} or to
+           make an o umlaut you do \ddot{o}. The shortcuts are also
+           provided, eg: \"o \'e \`e \~n \.x \^y - JDH
 
 2005-01-18 Plugged image resize memory leaks - JDH
 
@@ -25,7 +30,7 @@ New entries should be added at the top
 
 2005-01-15 Support arbitrary colorbar axes and horizontal colorbars - JDH
 
-2005-01-15 Fixed colormar number of colors bug so that the colorbar
+2005-01-15 Fixed colormap number of colors bug so that the colorbar
            has the same discretization as the image - JDH
 
 2005-01-15 Added Nadia's x,y contour fix - JDH

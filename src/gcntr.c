@@ -795,7 +795,7 @@ static void data_init(Csite *site, Cdata *data, int region, long nchunk)
     /* convert ijrem into value of i or j at which to begin adding an
      * extra zone */
     irem= (inum-irem)*icsize;
-    jrem= (inum-jrem)*jcsize;
+    jrem= (jnum-jrem)*jcsize;
   } else {
     irem= imax;
     jrem= jmax;
@@ -1007,6 +1007,7 @@ static long gc_common(long iMax, long jMax, double *x, double *y, int *reg, shor
     if (!n) break;
     if (n>0) {
       (*nparts)++;
+      //printf("nparts: %ld, %ld\n", *nparts, n);
       ntotal+= n;
     } else {
       ntotal-= n;
@@ -1030,7 +1031,8 @@ long GcTrace(long *n, GpReal *px, GpReal *py)
     if (!np) break;
     if (np>0) {
 
-      *(n++)= np;
+      *(n++)=np;
+      //printf("n: %ld, %ld\n", *n, np);
       px+= np;
       py+= np;
       ntotal+= np;
@@ -1052,9 +1054,9 @@ long GcTrace(long *n, GpReal *px, GpReal *py)
 
 int GaFreeScratch(void)
 {
-  if (nScratchP>0) { free(gaxScratch);  free(gayScratch); }
-  if (nScratchS>0) free(gasScratch);
-  if (nScratch>0) { free(xScratch);   free(yScratch); }
+  if (nScratchP>0) { free(gaxScratch);  free(gayScratch); gaxScratch=NULL; gayScratch=NULL;}
+  if (nScratchS>0) {free(gasScratch); gasScratch=NULL;}
+  if (nScratch>0) { free(xScratch);   free(yScratch); xScratch=NULL; yScratch=NULL;}
   nScratchP= nScratchS= nScratch= 0;
   return 0;
 }
@@ -1063,13 +1065,14 @@ int GaFreeScratch(void)
 int GaGetScratchS(long n)
 {
   if (n<=nScratchS) return 0;
-  if (nScratchS>0) free(gasScratch);
+  if (nScratchS>0) {free(gasScratch); gasScratch=NULL;}
   gasScratch= (short *)malloc(sizeof(short)*n);
   if (!gasScratch) {
     nScratchS= 0;
     MMError();
     return 1;
   }
+
   nScratchS= n;
   return 0;
 }
