@@ -530,8 +530,8 @@ def print_figure_fn(figure, filename, dpi=150, facecolor='w', edgecolor='w',
     figure.set_edgecolor(edgecolor)        
 
     ext = ext.lower()
-    if isinstance(filename, file):
-        # for fileobjects assume PNG format
+    if isinstance(filename, file): # eg when do savefig(sys.stdout)
+                                   # assume PNG format
         _save_png (figure, filename)
     elif ext in ('png', 'ps'):  # native formats
         try:
