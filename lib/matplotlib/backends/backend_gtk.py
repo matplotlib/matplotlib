@@ -345,6 +345,7 @@ class FigureManagerGTK(FigureManagerBase):
     canvas      : The FigureCanvas instance
     num         : The Figure number
     toolbar     : The gtk.Toolbar  (gtk only)
+    vbox        : The gtk.VBox containing the canvas and toolbar (gtk only)
     window      : The gtk.Window   (gtk only)
     """
     def __init__(self, canvas, num):
@@ -354,12 +355,12 @@ class FigureManagerGTK(FigureManagerBase):
         self.window = gtk.Window()
         self.window.set_title("Figure %d" % num)
 
-        vbox = gtk.VBox()
-        self.window.add(vbox)
-        vbox.show()
+        self.vbox = gtk.VBox()
+        self.window.add(self.vbox)
+        self.vbox.show()
 
         self.canvas.show()
-        vbox.pack_start(self.canvas, True, True)
+        self.vbox.pack_start(self.canvas, True, True)
 
         # must be inited after the window, drawingArea and figure
         # attrs are set
@@ -372,7 +373,7 @@ class FigureManagerGTK(FigureManagerBase):
 
         if self.toolbar != None:
             self.toolbar.show()
-            vbox.pack_end(self.toolbar, False, False)
+            self.vbox.pack_end(self.toolbar, False, False)
 
         def destroy(*args): Gcf.destroy(num)
         self.window.connect("destroy", destroy)

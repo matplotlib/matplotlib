@@ -1,5 +1,8 @@
 New entries should be added at the top
 
+2005-01-06 Add patch from Ben Vanhaeren to make the FigureManagerGTK vbox a
+           public attribute - SC
+
 ====================================================================
 2004-12-30 Release 0.70
 
