@@ -12,18 +12,21 @@ from colors import colorConverter
 from numerix import array, sqrt, pi, log, asarray, ones, Float
 from patches import Rectangle
 from transforms import lbwh_to_bbox
-from matplotlib import verbose
 
 class RendererBase:
     """An abstract base class to handle drawing/rendering operations
     """
 
     def open_group(self, s):
-        'open a grouping element with label s'
+        """open a grouping element with label s
+        Is only currently used by backend_svg
+        """
         pass
 
     def close_group(self, s):
-        'close a grouping element with label s'
+        """close a grouping element with label s
+        Is only currently used by backend_svg
+        """
         pass
     
     def get_canvas_width_height(self):
