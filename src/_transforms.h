@@ -249,13 +249,6 @@ public:
     return Py::Object( new Interval( _ll->y_api(), _ur->y_api()));
   }
 
-  Interval* intervalx_api() {
-    return new Interval( _ll->x_api(), _ur->x_api());
-  }
-
-  Interval* intervaly_api() {
-    return new Interval( _ll->y_api(), _ur->y_api());
-  }
 
   // update the current bbox with data from xy tuples
   Py::Object update(const Py::Tuple &args);
