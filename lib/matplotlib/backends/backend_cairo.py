@@ -17,22 +17,6 @@ Features of Cairo:
  * PDF (in development)
  * SVG (in development)
 
---------------
-
-  import matplotlib
-  matplotlib.use('xxx')
-  from matplotlib.matlab import *
-  plot([1,2,3])
-  show()
-
-The files that are most relevant to backend_writers are
-
-  matplotlib/backends/backend_your_backend.py
-  matplotlib/backend_bases.py
-  matplotlib/backends/__init__.py
-  matplotlib/__init__.py
-  matplotlib/_matlab_helpers.py
-  
 Naming Conventions
   * classes MixedUpperCase
   * varables lowerUpper
@@ -82,11 +66,12 @@ class RendererCairo(RendererBase):
     context instance that controls the colors/styles
     """
 
-    def __init__(self, width, height, dpi):
+    def __init__(self, surface, width, height, dpi):
         if Debug: print 'backend_cairo.RendererCairo.%s()' % function_name()
-        self.width  = width
-        self.height = height
-        self.dpi    = dpi    # should not need dpi? Cairo is device independent
+        self.surface = surface
+        self.width   = width
+        self.height  = height
+        self.dpi     = dpi    # should not need dpi? Cairo is device independent
 
 
     def get_canvas_width_height(self):
@@ -104,65 +89,6 @@ class RendererCairo(RendererBase):
         return 1,1
 
                               
-    def flipy(self):
-        'return true if y small numbers are top for renderer'
-        if Debug: print 'backend_cairo.RendererCairo.%s()' % function_name()
-        return True
-
-    
-    def points_to_pixels(self, points):
-        """
-        Convert points to display units.
-        """
-        if Debug: print 'backend_cairo.RendererCairo.%s()' % function_name()
-        # should not need points_to_pixels() ? Cairo is device independent
-        return points * PIXELS_PER_INCH/72.0 * self.dpi.get()/72.0
-
-
-    def draw_text(self, gc, x, y, s, prop, angle, ismath=False):    
-        """
-        Render the matplotlib.text.Text instance at x, y in window
-        coords using GraphicsContext gc
-        """
-        if Debug: print 'backend_cairo.RendererCairo.%s()' % function_name()
-        ctx = gc.ctx
-
-
-        if angle not in (0,90):
-            verbose.report_error('Text at angles not implemented yet')
-
-        elif ismath:
-            verbose.report_error('Mathtext not implemented yet')
-            #self._draw_mathtext(gc, x, y, s, prop, angle)
-
-        elif angle==90:
-            verbose.report_error('Text at angles not implemented yet')
-            #self._draw_rotated_text(gc, x, y, s, prop, angle)
-
-        else:
-            #layout = self.get_pango_layout(s, prop)
-            #inkRect, logicalRect = layout.get_pixel_extents()
-            #l, b, w, h = inkRect
-            #self.gdkDrawable.draw_layout(gc.gdkGC, x=x, y=y-h-b,
-            #                             layout=layout)
-
-            
-            #print 's:', s
-            #print 'prop:', prop
-            #print 'dir(prop):', dir(prop)
-            #print 'angle', angle
-            #print 'prop.name', prop.get_name()
-
-            ctx.select_font ('sans-serif')
-            ctx.scale_font (14)  # manually sized to match MyGraph
-            # implement get_pango_layout(s, prop)
-            (x2, y2, text_width, text_height, dx, dy) = ctx.text_extents(s)
-            #ctx.move_to (x, y-text_height)
-            ctx.move_to (x, y)
-            ctx.show_text (s)
-
-         
-    
     def draw_arc(self, gcEdge, rgbFace, x, y, width, height, angle1, angle2):
         """
         Draw an arc centered at x,y with width and height and angles
@@ -175,6 +101,23 @@ class RendererCairo(RendererBase):
         pass
 
     
+    def draw_image(self, x, y, im, origin, bbox):
+        """
+        Draw the Image instance into the current axes; x is the
+        distance in pixels from the left hand side of the canvas. y is
+        the distance from the origin.  That is, if origin is upper, y
+        is the distance from top.  If origin is lower, y is the
+        distance from bottom
+
+        origin is 'upper' or 'lower'
+
+        bbox is a matplotlib.transforms.BBox instance for clipping, or
+        None
+        """
+        if Debug: print 'backend_cairo.RendererCairo.%s()' % function_name()
+        pass
+    
+
     def draw_line(self, gc, x1, y1, x2, y2):
         """
         Draw a single line from x1,y1 to x2,y2
@@ -204,22 +147,13 @@ class RendererCairo(RendererBase):
         ctx.stroke()
 
 
-    def draw_image(self, x, y, im, origin, bbox):
+    def draw_point(self, gc, x, y):
         """
-        Draw the Image instance into the current axes; x is the
-        distance in pixels from the left hand side of the canvas. y is
-        the distance from the origin.  That is, if origin is upper, y
-        is the distance from top.  If origin is lower, y is the
-        distance from bottom
-
-        origin is 'upper' or 'lower'
-
-        bbox is a matplotlib.transforms.BBox instance for clipping, or
-        None
+        Draw a single point at x,y
         """
         if Debug: print 'backend_cairo.RendererCairo.%s()' % function_name()
         pass
-    
+
 
     def draw_polygon(self, gcEdge, rgbFace, points):
         """
@@ -276,20 +210,75 @@ class RendererCairo(RendererBase):
         ctx.stroke()
 
 
-    def draw_point(self, gc, x, y):
+    def draw_text(self, gc, x, y, s, prop, angle, ismath=False):    
         """
-        Draw a single point at x,y
+        Render the matplotlib.text.Text instance at x, y in window
+        coords using GraphicsContext gc
         """
         if Debug: print 'backend_cairo.RendererCairo.%s()' % function_name()
-        pass
+        ctx = gc.ctx
 
+        if angle not in (0,90):
+            verbose.report_error('Text at angles not implemented yet')
 
+        elif ismath:
+            verbose.report_error('Mathtext not implemented yet')
+            #self._draw_mathtext(gc, x, y, s, prop, angle)
+
+        elif angle==90:
+            verbose.report_error('Text at angles not implemented yet')
+            #self._draw_rotated_text(gc, x, y, s, prop, angle)
+
+        else:
+            #layout = self.get_pango_layout(s, prop)
+            #inkRect, logicalRect = layout.get_pixel_extents()
+            #l, b, w, h = inkRect
+            #self.gdkDrawable.draw_layout(gc.gdkGC, x=x, y=y-h-b,
+            #                             layout=layout)
+
+            
+            #print 's:', s
+            #print 'prop:', prop
+            #print 'dir(prop):', dir(prop)
+            #print 'angle', angle
+            #print 'prop.name', prop.get_name()
+
+            ctx.select_font ('sans-serif')
+            ctx.scale_font (14)  # manually sized to match MyGraph
+            # implement get_pango_layout(s, prop)
+            (x2, y2, text_width, text_height, dx, dy) = ctx.text_extents(s)
+            #ctx.move_to (x, y-text_height)
+            ctx.move_to (x, y)
+            ctx.show_text (s)
+
+         
+    def flipy(self):
+        """return true if y small numbers are top for renderer"""
+        if Debug: print 'backend_cairo.RendererCairo.%s()' % function_name()
+        return True
+
+    
     def new_gc(self):
         """
         Return an instance of a GraphicsContextCairo
         """
         if Debug: print 'backend_cairo.RendererCairo.%s()' % function_name()
-        return GraphicsContextCairo (renderer=self)
+        gc = GraphicsContextCairo (renderer=self)
+        if self.surface:
+            gc.ctx.set_target_surface (self.surface)
+        #else: # testing
+        #    gc.ctx.set_target_png (file, cairo.FORMAT_ARGB32, self.width, self.height)
+        #    set_target_png(), set_target_ps() are not wrapped
+        return gc
+
+
+    def points_to_pixels(self, points):
+        """
+        Convert points to display units.
+        """
+        if Debug: print 'backend_cairo.RendererCairo.%s()' % function_name()
+        # should not need points_to_pixels() ? Cairo is device independent
+        return points * PIXELS_PER_INCH/72.0 * self.dpi.get()/72.0
 
 
 class GraphicsContextCairo(GraphicsContextBase):
@@ -323,6 +312,17 @@ class GraphicsContextCairo(GraphicsContextBase):
         self.ctx.set_alpha(alpha)
 
 
+    def set_capstyle(self, cs):
+        """
+        Set the capstyle as a string in ('butt', 'round', 'projecting')
+        """
+        if cs in ('butt', 'round', 'projecting'):
+            self._capstyle = cs
+            self.ctx.set_line_cap (self._capd[cs])
+        else:
+            error_msg('Unrecognized cap style.  Found %s' % cs)
+
+
     def set_clip_rectangle(self, rectangle):
         """
         Set the clip rectangle with sequence (left, bottom, width, height)
@@ -353,17 +353,6 @@ class GraphicsContextCairo(GraphicsContextBase):
         """
         GraphicsContextBase.set_foreground(self, fg, isRGB)
         self.ctx.set_rgb_color(*self._rgb)
-
-
-    def set_capstyle(self, cs):
-        """
-        Set the capstyle as a string in ('butt', 'round', 'projecting')
-        """
-        if cs in ('butt', 'round', 'projecting'):
-            self._capstyle = cs
-            self.ctx.set_line_cap (self._capd[cs])
-        else:
-            error_msg('Unrecognized cap style.  Found %s' % cs)
 
 
     def set_joinstyle(self, js):
@@ -440,14 +429,13 @@ class FigureCanvasCairo(FigureCanvasBase):
         Draw the figure using the renderer
         """
         if Debug: print 'backend_cairo.FigureCanvasCairo%s()' % function_name()
-        renderer = RendererCairo()  # create once in __init__() ?
-        self.figure.draw(renderer)
+        pass
+        #renderer = RendererCairo()  # height, width, figure.dpi
+        #self.figure.draw(renderer)
         
         
     def print_figure(self, filename, dpi=150,
-                     facecolor='w', edgecolor='w',
-                     orientation='portrait'):
-
+                     facecolor='w', edgecolor='w', orientation='portrait'):
         """
         Render the figure to hardcopy.  Set the figure patch face and
         edge colors.  This is useful because some of the GUIs have a
@@ -456,16 +444,26 @@ class FigureCanvasCairo(FigureCanvasBase):
         """
         if Debug: print 'backend_cairo.FigureCanvasCairo%s()' % function_name()
         # set the new parameters
-        origDPI = self.figure.dpi.get()
+        origDPI       = self.figure.dpi.get()
         origfacecolor = self.figure.get_facecolor()
         origedgecolor = self.figure.get_edgecolor()
+        
         self.figure.dpi.set(dpi)
         self.figure.set_facecolor(facecolor)
         self.figure.set_edgecolor(edgecolor)        
 
-        renderer = RendererCairo()
+
+        l,b,width, height = self.figure.bbox.get_bounds()
+        renderer = RendererCairo (None, height, width, self.figure.dpi)
+        #ctx.set_target_png ( FILE *file, cairo_format_t format, width, height)
+
+        # 1 draw to an image, -> save image as a file
+        # 2 or draw direct to a (png) file
+        
         self.figure.draw(renderer)
         # do something to save to hardcopy
+
+        print 'saving hardcopy'
 
         # restore the new params and redraw the screen if necessary
         self.figure.dpi.set(origDPI)
@@ -474,7 +472,7 @@ class FigureCanvasCairo(FigureCanvasBase):
         self.draw()
         
         
-    def realize(self, *args):
+    def realize(self, *args): # is not required in cairo?
         """
         This method will be called when the system is ready to draw,
         eg when a GUI window is realized

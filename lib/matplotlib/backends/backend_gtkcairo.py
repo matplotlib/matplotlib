@@ -9,7 +9,7 @@ import sys
 def function_name(): return sys._getframe(1).f_code.co_name
 
 from matplotlib import verbose
-from matplotlib.cbook import enumerate, True, False
+from matplotlib.cbook import is_string_like, enumerate, True, False
 from matplotlib.figure import Figure
 from backend_cairo import FigureCanvasCairo, RendererCairo
 from backend_gtk import gtk, FigureManagerGTK, FigureCanvasGTK,\
@@ -64,7 +64,9 @@ class FigureCanvasGTKCairo(FigureCanvasGTK, FigureCanvasCairo):
 
             # create in __init__() once and save?
             # - but when pixmap changes (resized larger) render must update width, height and redirect all gc to new pixmap!
-            renderer = RendererCairoGTK(self._pixmap, width, height, self.figure.dpi)
+            surface  = cairo.gtk.surface_create_for_drawable (self._pixmap)
+            renderer = RendererCairo (surface, width, height, self.figure.dpi)
+
             self.figure.draw(renderer) # matplotlib draw command
             
             # Test drawing primitives here:
@@ -81,25 +83,85 @@ class FigureCanvasGTKCairo(FigureCanvasGTK, FigureCanvasCairo):
         return True
 
 
-    def print_figure(self, filename, dpi=150, facecolor='w', edgecolor='w',
-                     orientation='portrait'):
-        if Debug: print 'backend_gtkcairo.%s()' % function_name()
-        print "print_figure() Not implemented yet"
+    # print_figure() copied from backend_gtk.py with RendererGTK() -> RendererCairo()
+    # possibly later - use native cairo to generate png, ps, (svg. pdf)
+    def print_figure(self, filename, dpi=150, facecolor='w', edgecolor='w'):
+        # orientation='portrait'):
+
+        if is_string_like(filename):
+            isFileName = True
+            root, ext = os.path.splitext(filename)        
+            ext = ext.lower()[1:]
+            if not len(ext):
+                filename, ext = filename + '.png', 'png' # default format
+
+            extensions = {'png':'png', 'jpg':'jpeg', 'jpeg':'jpeg', 'ps':'ps', 'eps':'ps',
+                          'svg':'svg'}
+            try:
+                ftype = extensions[ext]
+            except KeyError:
+                error_msg_gtk('Extension "%s" is not supported. Available formats are SVG, PNG, JPEG, PS and EPS' % ext)
+                return
+        else:
+            isFileName = False  # could be a file?
+            ftype='png'
         
-        # delete the renderer to prevent improper blitting after print
-        #cairo = self.switch_backends(FigureCanvasCairo)
-        #cairo.print_figure(filename, dpi, facecolor, edgecolor, orientation)
+        if not self._isRealized:  # no longer required?
+            self._printQued.append((filename, dpi, facecolor, edgecolor))
+            return
 
+        if ftype == 'ps':
+            from backend_ps import FigureCanvasPS
+            origDPI = self.figure.dpi.get()
+            ps = self.switch_backends(FigureCanvasPS)
+            ps.figure.dpi.set(72)
+            ps.print_figure(filename, 72, facecolor, edgecolor)
+            self.figure.dpi.set(origDPI)
+            return
+        elif ftype == 'svg':
+            from backend_svg import FigureCanvasSVG
+            origDPI = self.figure.dpi.get()
+            svg = self.switch_backends(FigureCanvasSVG)
+            svg.figure.dpi.set(72)
+            svg.print_figure(filename, 72, facecolor, edgecolor)
+            self.figure.dpi.set(origDPI)                        
+            return
 
-class RendererCairoGTK(RendererCairo):
-    """Override RendererCairo to direct drawing to the gtk.Pixmap
-    """
-    def __init__(self, pixmap, width, height, dpi):
-        RendererCairo.__init__(self, width, height, dpi)
-        self._pixmap = pixmap
+        origDPI = self.figure.dpi.get()
+        origfacecolor = self.figure.get_facecolor()
+        origedgecolor = self.figure.get_edgecolor()
 
-    def new_gc(self):
-        gc = RendererCairo.new_gc(self)
-        # tell cairo to draw to off-screen pixmap
-        cairo.gtk.set_target_drawable (gc.ctx, self._pixmap)
-        return gc
+        self.figure.dpi.set(dpi)        
+        self.figure.set_facecolor(facecolor)
+        self.figure.set_edgecolor(edgecolor)
+
+        l,b,width, height = self.figure.bbox.get_bounds()
+
+        width, height = int(width), int(height)
+        pixmap   = gtk.gdk.Pixmap (self.window, width, height)
+        surface  = cairo.gtk.surface_create_for_drawable (pixmap)
+        renderer = RendererCairo (surface, width, height, self.figure.dpi)
+
+        self.figure.draw (renderer)
+        
+        pixbuf = gtk.gdk.Pixbuf(gtk.gdk.COLORSPACE_RGB, 0, 8, width, height)
+        pixbuf.get_from_drawable(pixmap, self.window.get_colormap(),
+                                 0, 0, 0, 0, width, height)
+        
+        self.figure.set_facecolor(origfacecolor)
+        self.figure.set_edgecolor(origedgecolor)
+        self.figure.dpi.set(origDPI)
+
+        self.configure_event(self, 'configure') # a widget event in a print function? - sets fig size
+            
+        try: pixbuf.save(filename, ftype)
+        except gobject.GError, msg:
+            msg = raise_msg_to_str(msg)
+            # note the error must be displayed here because trapping
+            # the error on a call or print_figure may not work because
+            # printing can be qued and called from realize
+            if isFileName:
+                error_msg_gtk('Could not save figure to %s\n\n%s' % (
+                    filename, msg))
+            else:
+                error_msg_gtk('Could not save figure\n%s' % msg)
