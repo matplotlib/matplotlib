@@ -25,7 +25,7 @@ typedef struct i_o {
 
 static PyObject *
 _gd_to_gtk_drawable(PyObject *self, PyObject *args) {
-  int x1, y1, x2, y2, w, h, i, j, c, r, g, b;
+  int x1, y1, x2, y2, w, h, i, j, c;
   PyObject *im = NULL;
   imageobject *imo = NULL;
   gdImagePtr imData;
