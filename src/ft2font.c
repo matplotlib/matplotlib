@@ -6,6 +6,19 @@ extern PyTypeObject FT2Font_Type;
 extern PyTypeObject Glyph_Type;
 static int FT2Font_setattr(FT2FontObject *self, char *name, PyObject *v);
 
+// set_error from paint; see LICENSE_PAINT that ships with matplotlib
+void set_error(PyObject* err, char *fmt, ...)
+{
+    char msg[1024];
+    va_list ap;
+
+    va_start(ap, fmt);
+    vsprintf(msg, fmt, ap);
+    va_end(ap);
+    PyErr_SetString(err, msg);
+}
+
+
 int           _initLib = 0;
 FT_Library    _ft2Library;
 #define FT2FontObject_Check(v)	((v)->ob_type == &FT2Font_Type)
@@ -169,10 +182,29 @@ newFT2FontObject(PyObject *args)
 
 
   error = FT_New_Face( _ft2Library, facefile, 0, &self->face );
-  if (error) {
-    PyErr_SetString(PyExc_RuntimeError, 
-		    "Could not load the facefile");
+  if (error == FT_Err_Unknown_File_Format ) {
+    
+    set_error(PyExc_RuntimeError,
+	      "Could not load facefile %s; Unknown_File_Format", facefile);
     return NULL;
+  }
+  else if (error == FT_Err_Cannot_Open_Resource) {
+    
+    set_error(PyExc_RuntimeError,
+	      "Could not open facefile %s; Cannot_Open_Resource", facefile);
+    return NULL;
+  }
+  else if (error == FT_Err_Invalid_File_Format) {
+    
+    set_error(PyExc_RuntimeError,
+	      "Could not open facefile %s; Invalid_File_Format", facefile);
+    return NULL;
+  }
+  else if (error) {
+    set_error(PyExc_RuntimeError,
+	      "Could not load face file %s; freetype error code %d", facefile, error);
+    return NULL;
+
   }
   
   // set a default fontsize 12 pt at 72dpi
