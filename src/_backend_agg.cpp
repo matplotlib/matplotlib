@@ -13,6 +13,7 @@
 #include "_image.h"
 #include "_backend_agg.h"
 
+#include "_transforms.h"
 
 /* ------------ RendererAgg methods ------------- */
 
@@ -217,13 +218,13 @@ RendererAgg::draw_polygon(const Py::Tuple& args) {
 
 Py::Object
 RendererAgg::draw_line_collection(const Py::Tuple& args) {
-
+  
   
   if (debug)
     std::cout << "RendererAgg::draw_line_collection" << std::endl;
   args.verify_length(8);  
-
-
+  
+  
   //segments, trans, clipbox, colors, linewidths, antialiaseds
   Py::SeqBase<Py::Object> segments = args[0];  
   Py::SeqBase<Py::Object> trans = args[1];  
@@ -233,32 +234,32 @@ RendererAgg::draw_line_collection(const Py::Tuple& args) {
   Py::SeqBase<Py::Object> antialiaseds = args[5];  
   Py::Object offsetxObj = args[6];  
   Py::Object offsetyObj = args[7];  
-
+  
   Py::SeqBase<Py::Object> offsetx;
   Py::SeqBase<Py::Object> offsety;
-
-
+  
+  
   bool useOffsetx = offsetxObj.ptr() != Py_None;
   if  (useOffsetx)
     offsetx = Py::SeqBase<Py::Object>(offsetxObj);
-
+  
   bool useOffsety = offsetyObj.ptr() != Py_None;
   if  (useOffsety)
     offsety = Py::SeqBase<Py::Object>(offsetyObj);
-
-
-
+  
+  
+  
   // the x and y translation and scale factors
   double tx = Py::Float(trans[0]);
   double ty = Py::Float(trans[1]);
   double sx = Py::Float(trans[2]);
   double sy = Py::Float(trans[3]);
-
+  
   size_t Nsegments = segments.length();
   size_t Nc = colors.length();
   size_t Nlw = linewidths.length();
   size_t Naa = antialiaseds.length();
-
+  
   
   // set the clip rectangle
   double l = Py::Float(clipbox[0]) ; 
@@ -266,62 +267,62 @@ RendererAgg::draw_line_collection(const Py::Tuple& args) {
   double w = Py::Float(clipbox[2]) ; 
   double h = Py::Float(clipbox[3]) ;   
   theRasterizer->clip_box(l, height-(b+h), l+w, height-b);
-
-
-
+  
+  
+  
   for (size_t i=0; i<Nsegments; ++i) {
-
+    
     Py::Tuple pos = Py::Tuple(segments[i]);
     double x0 = Py::Float(pos[0]);
     double y0 = Py::Float(pos[1]);
     double x1 = Py::Float(pos[2]);
     double y1 = Py::Float(pos[3]);
-
+    
     x0 = sx*x0 + tx;
     x1 = sx*x1 + tx;
     y0 = sy*y0 + ty;
     y1 = sy*y1 + ty;
-
+    
     if (useOffsetx) {
       double ox = Py::Float( offsetx[i] );
       x0 += ox;
       x1 += ox;
     }
-
+    
     if (useOffsety) {
       double oy = Py::Float( offsety[i] );
       y0 += oy;
       y1 += oy;
     }
-
-    /*
     
+    /*
+      
     //snap x to pixel for verical lines
     if (x0==x1) {
-      x0 = (int)x0 + 0.5;
-      x1 = (int)x1 + 0.5;
+    x0 = (int)x0 + 0.5;
+    x1 = (int)x1 + 0.5;
     }
-
+    
     //snap y to pixel for horizontal lines
     if (y0==y1) {
-      y0 = (int)y0 + 0.5;
-      y1 = (int)y1 + 0.5;
+    y0 = (int)y0 + 0.5;
+    y1 = (int)y1 + 0.5;
     }
-
+    
     */
-
+    
     agg::path_storage path;
     path.move_to(x0, y0);
     path.line_to(x1, y1);
-
+    
     agg::conv_stroke<agg::path_storage> stroke(path);
     //stroke.line_cap(cap);
     //stroke.line_join(join);
     double lw = points_to_pixels ( Py::Float( linewidths[i%Nlw] ) );
-
+    
     stroke.width(lw);
     theRasterizer->add_path(stroke);
-
+    
     // get the color and render
     Py::Tuple rgba = Py::Tuple(colors[ i%Nc]);
     double r = Py::Float(rgba[0]);
@@ -329,7 +330,7 @@ RendererAgg::draw_line_collection(const Py::Tuple& args) {
     double b = Py::Float(rgba[2]);
     double a = Py::Float(rgba[3]);
     agg::rgba color(r, g, b, a); 
-
+    
     // render antialiased or not
     int isaa = Py::Int(antialiaseds[i%Naa]);
     if ( isaa ) {
@@ -341,6 +342,137 @@ RendererAgg::draw_line_collection(const Py::Tuple& args) {
       theRasterizer->render(*slineBin, *rendererBin); 
     }
   } //for every segment
+  return Py::Object();
+}
+
+Py::Object
+RendererAgg::draw_regpoly_collection(const Py::Tuple& args) {
+  
+  
+  if (debug)
+    std::cout << "RendererAgg::draw_regpoly_collection" << std::endl;
+  args.verify_length(9);  
+  
+  if (Bbox::check(args[0])) {
+    // set the clip rectangle
+    Bbox* clipbox = static_cast<Bbox*>(args[0].ptr());
+    double l = clipbox->ll_api()->x_api()->val() ; 
+    double b = clipbox->ll_api()->y_api()->val() ; 
+    double r = clipbox->ur_api()->x_api()->val() ; 
+    double t = clipbox->ur_api()->y_api()->val() ; 
+    theRasterizer->clip_box(l, height-t, r, height-b);
+  }
+  
+  Py::SeqBase<Py::Object> offsets = args[1];  
+
+  // this is throwing even though the instance is a Transformation!
+  //if (!Transformation::check(args[2])) 
+  // throw Py::TypeError("RendererAgg::draw_regpoly_collection(clipbox, offsets, transOffset, verts, ...) expected a Transformation instance for transOffset");
+  
+  Transformation* transOffset = static_cast<Transformation*>(args[2].ptr());
+
+
+  transOffset->eval_scalars();
+
+  Py::SeqBase<Py::Object> verts = args[3];  
+  Py::SeqBase<Py::Object> sizes = args[4];  
+  Py::SeqBase<Py::Object> facecolors = args[5];  
+  Py::SeqBase<Py::Object> edgecolors = args[6];  
+  Py::SeqBase<Py::Object> linewidths = args[7];  
+  Py::SeqBase<Py::Object> antialiaseds = args[8];  
+
+  size_t Noffsets = offsets.length();
+  size_t Nverts = verts.length();
+  size_t Nsizes = sizes.length();
+  size_t Nface = facecolors.length();
+  size_t Nedge = edgecolors.length();
+  size_t Nlw = linewidths.length();
+  size_t Naa = antialiaseds.length();
+  
+  double thisx, thisy;
+  
+  // dump the x.y vertices into a double array for paster access
+  double xverts[Nverts];
+  double yverts[Nverts];
+  Py::Tuple xy;
+  for (size_t i=0; i<Nverts; ++i) {
+    xy = Py::Tuple(verts[i]);
+    xverts[i] = Py::Float(xy[0]);
+    yverts[i] = Py::Float(xy[1]);
+  }
+  
+  std::pair<double, double> offsetPair;
+  for (size_t i=0; i<Noffsets; ++i) {
+    Py::Tuple pos = Py::Tuple(offsets[i]);
+    double xo = Py::Float(pos[0]);
+    double yo = Py::Float(pos[1]);
+    offsetPair = transOffset->operator()(xo, yo);
+    
+    
+    double scale = Py::Float(sizes[i%Nsizes]);
+    
+    
+    agg::path_storage path;
+    
+    for (size_t j=0; j<Nverts; ++j) {
+      thisx = scale*xverts[j] + offsetPair.first;
+      thisy = scale*yverts[j] + offsetPair.second;
+      thisy = height - thisy;
+      if (j==0) path.move_to(thisx, thisy);
+      else path.line_to(thisx, thisy);
+
+      
+    }
+    path.close_polygon();
+    int isaa = Py::Int(antialiaseds[i%Naa]);     
+    // get the facecolor and render
+    Py::Tuple rgba = Py::Tuple(facecolors[ i%Nface]);
+    double r = Py::Float(rgba[0]);
+    double g = Py::Float(rgba[1]);
+    double b = Py::Float(rgba[2]);
+    double a = Py::Float(rgba[3]);
+    if (a>0) { //only render if alpha>0
+      agg::rgba facecolor(r, g, b, a); 
+
+      theRasterizer->add_path(path);          
+      if (isaa) {
+	theRenderer->color(facecolor);    
+	theRasterizer->render(*slineP8, *theRenderer); 
+      }
+      else {
+	rendererBin->color(facecolor);    
+	theRasterizer->render(*slineBin, *rendererBin); 
+      }
+    } //renderer face
+    
+    // get the edgecolor and render
+    rgba = Py::Tuple(edgecolors[ i%Nedge]);
+    r = Py::Float(rgba[0]);
+    g = Py::Float(rgba[1]);
+    b = Py::Float(rgba[2]);
+    a = Py::Float(rgba[3]);
+    if (a>0) { //only render if alpha>0
+      agg::rgba edgecolor(r, g, b, a); 
+
+      agg::conv_stroke<agg::path_storage> stroke(path);
+      //stroke.line_cap(cap);
+      //stroke.line_join(join);
+      double lw = points_to_pixels ( Py::Float( linewidths[i%Nlw] ) );
+      stroke.width(lw);
+      theRasterizer->add_path(stroke);
+      
+      // render antialiased or not
+      if ( isaa ) {
+	theRenderer->color(edgecolor);    
+	theRasterizer->render(*slineP8, *theRenderer); 
+      }
+      else {
+	rendererBin->color(edgecolor);    
+	theRasterizer->render(*slineBin, *rendererBin); 
+      }
+    } //rendered edge
+    
+  } // for every poly
   return Py::Object();
 }
 
@@ -365,7 +497,7 @@ RendererAgg::draw_lines(const Py::Tuple& args) {
   
   if (Nx<2) 
     throw Py::ValueError("x and y must have length >= 2");
-
+  
   
   agg::gen_stroke::line_cap_e cap = get_linecap(gc);
   agg::gen_stroke::line_join_e join = get_joinstyle(gc);
@@ -382,7 +514,7 @@ RendererAgg::draw_lines(const Py::Tuple& args) {
   bool useDashes = dashes[0].ptr() != Py_None;
   double offset = 0;
   Py::SeqBase<Py::Object> dashSeq;
-
+  
   if ( dashes[0].ptr() != Py_None ) { // use dashes
     //TODO: use offset
     offset = points_to_pixels_snapto(dashes[0]);
@@ -391,7 +523,7 @@ RendererAgg::draw_lines(const Py::Tuple& args) {
   
   
   agg::path_storage path;
-
+  
   int isaa = antialiased(gc);
   double thisX(0), thisY(0);
   int ix(0), iy(0);
@@ -425,10 +557,10 @@ RendererAgg::draw_lines(const Py::Tuple& args) {
       path.line_to(thisX, thisY);
     }
   }  
-
-
+  
+  
   if (! useDashes ) {
-
+    
     agg::conv_stroke<agg::path_storage> stroke(path);
     stroke.line_cap(cap);
     stroke.line_join(join);
@@ -438,16 +570,16 @@ RendererAgg::draw_lines(const Py::Tuple& args) {
   }
   else {
     // set the dashes //TODO: scale for DPI
-
+    
     size_t N = dashSeq.length();
     if (N%2 != 0  ) 
       throw Py::ValueError("dashes must be an even length sequence");     
     
     typedef agg::conv_dash<agg::path_storage> dash_t;
     dash_t dash(path);
-
+    
     double on, off;
-
+    
     for (size_t i=0; i<N/2; i+=1) {
       on = points_to_pixels_snapto(dashSeq[2*i]);
       off = points_to_pixels_snapto(dashSeq[2*i+1]);
@@ -844,6 +976,9 @@ void RendererAgg::init_type()
   add_varargs_method("draw_line_collection", 
 		     &RendererAgg::draw_line_collection, 
 		     "draw_line_collection(segments, trans, clipbox, colors, linewidths, antialiaseds)\n");
+  add_varargs_method("draw_regpoly_collection", 
+		     &RendererAgg::draw_regpoly_collection, 
+		     "draw_regpoly_collection()\n");
   add_varargs_method("draw_lines", &RendererAgg::draw_lines, 
 		     "draw_lines(gc, x, y,)\n");
   add_varargs_method("draw_text", &RendererAgg::draw_text, 
