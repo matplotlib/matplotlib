@@ -1,5 +1,9 @@
 New entries should be added at the top
 
+2004-06-11 Eliminated numerix .numerix file and environment variable
+	   NUMERIX.  Fixed bug which prevented command line overrides:
+	   --numarray or --numeric. - JTM
+
 2004-06-08 Rewrote ft2font using CXX as part of general memory leak
            fixes; also fixed transform memory leaks  - JDH
 
