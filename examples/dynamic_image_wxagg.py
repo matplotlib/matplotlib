@@ -1,56 +1,49 @@
 #!/usr/bin/env python
 """
-Copyright (C) 2003-2004 Jeremy O'Donoghue, Andrew Straw and others
+Copyright (C) 2003-2004 Jeremy O'Donoghue and others
  
 License: This work is licensed under the PSF. A copy should be included
 with this source code, and is also available at
 http://www.python.org/psf/license.html
 
-Modification History:
-$Log$
-Revision 1.1  2004/07/10 05:54:54  astraw
-First version of dynamic_image_wxagg, modified from dynamic_demo_wx by Jeremy
-O'Donoghue.
-
-Revision 1.4  2004/05/03 12:12:26  jdh2358
-added bang header to examples
-
-Revision 1.3  2004/03/08 22:17:20  jdh2358
-
-* Fixed embedding_in_wx and dynamic_demo_wx examples
-
-* Ported build to darwin
-
-* Tk:
-
-  removed default figman=None from nav toolbar since it needs the
-  figman
-
-  fixed close bug
-
-  small changes to aid darwin build
-
-Revision 1.2  2004/02/26 20:22:58  jaytmiller
-Added the "numerix" Numeric/numarray selector module enabling matplotlib
-to work with either numarray or Numeric.  See matplotlib.numerix.__doc__.
-
-Revision 1.1  2003/12/30 17:22:09  jodonoghue
-First version of dynamic_demo for backend_wx
 """
+import sys, time, os, gc
 
 import matplotlib
-from matplotlib.matlab import cm
 matplotlib.use('WXAgg')
-from matplotlib.backends.backend_wxagg import Toolbar, FigureCanvasWxAgg,\
-     FigureManager
+
+# jdh: you need to control Numeric vs numarray with numerix, otherwise
+# matplotlib may be using numeric under the hood and while you are
+# using numarray and this isn't efficient.  Also, if you use
+# numerix=numarray, it is important to compile matplotlib for numarray
+# by setting NUMERIX = 'numarray' in setup.py before building
+from matplotlib import rcParams
+rcParams['numerix'] = 'numarray'
+
+
+# jdh: you can import cm directly, you don't need to go via
+# matplotlib.matlab
+import matplotlib.cm as cm
+
+from matplotlib.backends.backend_wxagg import Toolbar, FigureCanvasWxAgg
+
+# jdh: you don't need a figure manager in the GUI - this class was
+# designed for the matlab interface
 
 from matplotlib.figure import Figure
-from matplotlib.axes import Subplot
-import numarray # segfaults w/ Numeric 23.1 ADS
+import matplotlib.numerix as numerix
 from wxPython.wx import *
 
 
 TIMER_ID = wxNewId()
+
+# jdh: use this function, or something similar, when reporting a
+# memory leak
+def report_memory(i):
+    pid = os.getpid()
+    a2 = os.popen('ps -p %d -o rss,sz' % pid).readlines()
+    print i, '  ', a2[1],
+    return int(a2[1].split()[0])
 
 class PlotFigure(wxFrame):
 
@@ -69,7 +62,7 @@ class PlotFigure(wxFrame):
         self.toolbar.SetSize(wxSize(fw, th))
 
         # Create a figure manager to manage things
-        self.figmgr = FigureManager(self.canvas, 1, self)
+
         # Now put all into a sizer
         sizer = wxBoxSizer(wxVERTICAL)
         # This way of adding to sizer allows resizing
@@ -79,33 +72,50 @@ class PlotFigure(wxFrame):
         self.SetSizer(sizer)
         self.Fit()
         EVT_TIMER(self, TIMER_ID, self.onTimer)
-#        EVT_ERASE_BACKGROUND( self, self.onEraseBackground)
-        
+        self.cnt = 0
+
     def init_plot_data(self):
-        a = self.figmgr.add_subplot(111)
-        self.x = numarray.arange(120.0)*2*numarray.pi/120.0
+        # jdh you can add a subplot directly from the fig rather than
+        # the fig manager
+        a = self.fig.add_subplot(111)
+        self.x = numerix.arange(120.0)*2*numerix.pi/120.0
         self.x.resize((100,120))
-        self.y = numarray.arange(100.0)*2*numarray.pi/100.0
+        self.y = numerix.arange(100.0)*2*numerix.pi/100.0
         self.y.resize((120,100))
-        self.y = numarray.transpose(self.y)
-        z = numarray.sin(self.x) + numarray.cos(self.y)
+        self.y = numerix.transpose(self.y)
+        z = numerix.sin(self.x) + numerix.cos(self.y)
         self.im = a.imshow( z, cmap=cm.jet)#, interpolation='nearest')
 
+
+
     def GetToolBar(self):
-        # You will need to override GetToolBar if you are using an
+        # You will need to override GetToolBar if you are using an 
         # unmanaged toolbar in your frame
         return self.toolbar
 		
     def onTimer(self, evt):
-        self.x += numarray.pi/15
-        self.y += numarray.pi/20
-        z = numarray.sin(self.x) + numarray.cos(self.y)
+        self.x += numerix.pi/15
+        self.y += numerix.pi/20
+        z = numerix.sin(self.x) + numerix.cos(self.y)
         self.im.set_array(z)
         self.canvas.draw()
-        self.canvas.gui_repaint()
+        #self.canvas.gui_repaint()  # jdh wxagg_draw calls this already
+
+        val = report_memory(self.cnt)
+        if self.cnt==1:
+            self.start = val # skip cnt=0
+            self.tstart = time.time()
+        elif self.cnt==50:
+            end = val
+            print 'Average memory consumed per loop: %1.4f\n' % ((end-self.start)/float(self.cnt))
+            print 'FPS', self.cnt/(time.time() - self.tstart)
+            sys.exit()
+            
+        self.cnt += 1
+        gc.collect()
         
     def onEraseBackground(self, evt):
-        # this is supposed to prevent redraw flicker on some X servers
+        # this is supposed to prevent redraw flicker on some X servers...
         pass
         
 if __name__ == '__main__':
@@ -120,3 +130,4 @@ if __name__ == '__main__':
     
     frame.Show()
     app.MainLoop()
+
