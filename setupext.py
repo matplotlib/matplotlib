@@ -35,8 +35,8 @@ basedir = {
     'win32'  : ['win32_static',],
     'linux2' : ['/usr/local', '/usr',],
     'linux'  : ['/usr/local', '/usr',],
-    'darwin' : [os.getenv('MPLIB_BASE') or '/usr/local', '/usr', '/sw'],
-    'freebsd4' : [os.getenv('MPLIB_BASE') or '/usr/local', '/usr'],
+    'darwin' : ['/usr/local', '/usr', '/sw', '/usr/X11R6'],
+    'freebsd4' : ['/usr/local', '/usr'],
     'sunos5' : [os.getenv('MPLIB_BASE') or '/usr/local',],
 }
 
