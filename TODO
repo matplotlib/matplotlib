@@ -614,4 +614,6 @@ ZeroDivisionError: SeparableTransformation::eval_scalars yin interval is zero; c
 
 -- DONE mathtext color is wrong in PS
 
--- reverse pie rotation
+-- CLOSED reverse pie rotation
+
+-- check keypress event handling on tooggle_images.
