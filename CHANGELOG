@@ -1,5 +1,9 @@
 New entries should be added at the top
 
+======================================================================
+
+2004-12-22 0.65.1 released - JDH
+
 2004-12-22 Fixed colorbar bug which caused colorbar not to respond to
            changes in colormap in some instances - JDH
 
@@ -12,7 +16,7 @@ New entries should be added at the top
            toolbar updates are done via an observer pattern on the
            figure using add_axobserver.  Figure now maintains the axes
            stack (for gca) and supports axes deletion.  Ported changes
-           to GTK, Tk, Wx, and FLTK.  Please test!  JDH
+           to GTK, Tk, Wx, and FLTK.  Please test!  Added delaxes - JDH
 
 2004-12-21 Lots of image optimizations - 4x performance boost over
            0.65 JDH
@@ -20,8 +24,8 @@ New entries should be added at the top
 2004-12-20 Fixed a figimage bug where the axes is shown and modified
            tkagg to move the destroy binding into the show method.
 
-2004-12-18 Minor refactoring of tkagg toolbar to support embedding in
-           an application - JDH
+2004-12-18 Minor refactoring of NavigationToolbar2 to support
+           embedding in an application - JDH
 
 2004-12-14 Added linestyle to collections (currently broken) -  JDH
 
