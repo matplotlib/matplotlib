@@ -1,22 +1,21 @@
 from __future__ import division
 
-import os, math
+import math, os, warnings
 import sys
 def fn_name(): return sys._getframe(1).f_code.co_name
 
 import matplotlib
-from matplotlib import verbose
+
+import matplotlib.numerix as numerix
 from matplotlib.numerix import asarray, fromstring, UInt8, zeros, \
      where, transpose, nonzero, indices, ones, nx
 
-import matplotlib.numerix as numerix
-from matplotlib.cbook import is_string_like, enumerate
-from matplotlib.font_manager import fontManager
-
+from matplotlib._pylab_helpers import Gcf
 from matplotlib.backend_bases import RendererBase, GraphicsContextBase, \
      FigureManagerBase, FigureCanvasBase
-from matplotlib._pylab_helpers import Gcf
+from matplotlib.cbook import is_string_like, enumerate
 from matplotlib.figure import Figure
+from matplotlib.font_manager import fontManager
 from matplotlib.mathtext import math_parse_s_ft2font
 
 pygtk_version_required = (1,99,16)
@@ -29,7 +28,8 @@ except:
     raise SystemExit('PyGTK version %d.%d.%d or greater is required to run the GTK Matplotlib backends'
                      % pygtk_version_required)
 
-import gtk, gobject, pango
+#import gobject
+import gtk, pango
 from gtk import gdk
 if gtk.pygtk_version < pygtk_version_required:
     raise SystemExit ("PyGTK %d.%d.%d is installed\n"
@@ -78,7 +78,7 @@ class RendererGDK(RendererBase):
     rotated = {}  # a map from text prop tups to rotated text pixbufs
 
     def __init__(self, gtkDA, dpi):
-        # gtkDA is used in '<widget>.create_pango_layout(s)' only
+        # gtkDA is used in '<widget>.create_pango_layout(s)' (and cmap line below) only
         self.gtkDA = gtkDA
         self.dpi   = dpi
         self._cmap = gtkDA.get_colormap()
@@ -118,20 +118,22 @@ class RendererGDK(RendererBase):
         X.shape = rows, cols, 4
 
         pb = gtk.gdk.Pixbuf(gtk.gdk.COLORSPACE_RGB,
-                            #has_alpha=1, bits_per_sample=8,
                             has_alpha=True, bits_per_sample=8,
                             width=cols, height=rows)
         try:
             pa = pb.get_pixels_array()
         except AttributeError:
             pa = pb.pixel_array
-        except RuntimeError, exc: #  pygtk was not compiled with Numeric Python support
-            raise
+        except RuntimeError: #  pygtk was not compiled with Numeric Python support
+            warnings.warn('draw_image not supported: %s' % exc)
+            return        
+
         pa[:,:,:] = X
 
         gc = self.new_gc()
 
-        if flipud:  y = self.height-y-rows
+        if flipud:
+            y = self.height-y-rows
 
         try: # requires GTK+ 2.2
             # can use None instead of gc.gdkGC, if don't need clipping
@@ -252,7 +254,7 @@ class RendererGDK(RendererBase):
         try: # requires GTK+ 2.2
             # can use None instead of gc.gdkGC, if don't need clipping
             self.gdkDrawable.draw_pixbuf (gc.gdkGC, pb, 0, 0,
-                                          int(x), int(y), cols, rows,
+                                          int(x), int(y), imw, imh,
                                           gdk.RGB_DITHER_NONE, 0, 0)
         except AttributeError:
             pb.render_to_drawable(self.gdkDrawable, gc.gdkGC, 0, 0,
@@ -346,7 +348,6 @@ class RendererGDK(RendererBase):
         return True
 
     def get_canvas_width_height(self):
-        #return self.gtkDA.allocation.width, self.gtkDA.allocation.height        
         return self.width, self.height
 
     def get_text_width_height(self, s, prop, ismath):
@@ -474,15 +475,13 @@ class FigureCanvasGDK(FigureCanvasBase):
         self._renderer_init()
 
     def _renderer_init(self):
-        #self._renderer = RendererGDK (self, self.figure.dpi) # self is no longer a widget subclass
         self._renderer = RendererGDK (gtk.DrawingArea(), self.figure.dpi)
 
         
-    def _render_to_pixmap(self, width, height):
+    def _render_figure(self, width, height):
         """Render the figure to a gdk.Pixmap, is used for
            - rendering the pixmap to display        (pylab.draw)
            - rendering the pixmap to save to a file (pylab.savefig)
-        Should not be overridden
         """
         if DEBUG: print 'FigureCanvasGDK.%s' % fn_name()
         create_pixmap = False
@@ -497,7 +496,6 @@ class FigureCanvasGDK(FigureCanvasBase):
 
         if create_pixmap:
             if DEBUG: print 'FigureCanvasGTK.%s new pixmap' % fn_name()
-            #self._pixmap = gtk.gdk.Pixmap (self.window, self._pixmap_width,
             self._pixmap = gtk.gdk.Pixmap (None, self._pixmap_width,
                                            self._pixmap_height, depth=24)
             # gtk backend must use self.window
@@ -523,7 +521,7 @@ class FigureCanvasGDK(FigureCanvasBase):
         if ext in ('jpg', 'png'):          # native printing
             width, height = self.figure.get_width_height()
             width, height = int(width), int(height)
-            self._render_to_pixmap(width, height)
+            self._render_figure(width, height)
 
             # jpg colors don't match the display very well, png colors match better
             pixbuf = gtk.gdk.Pixbuf(gtk.gdk.COLORSPACE_RGB, 0, 8,

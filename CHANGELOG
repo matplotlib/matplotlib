@@ -1,5 +1,8 @@
 New entries should be added at the top
 
+2005-02-25 Add experimental feature to backend_gtk.py to enable/disable
+           double buffering (DBL_BUFFER=True/False) - SC
+
 2005-02-24 colors.py change ColorConverter.to_rgb() so it always returns rgb 
            (and not rgba), allow cnames keys to be cached, change the exception
            raised from RuntimeError to ValueError (like hex2color())
