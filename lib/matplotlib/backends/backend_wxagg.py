@@ -49,7 +49,6 @@ class FigureCanvasWxAgg(FigureCanvasWx,FigureCanvasAgg):
         Render the figure using agg
         """
         DEBUG_MSG("draw()", 1, self)
-
         FigureCanvasAgg.draw(self)
         s = self.tostring_rgb()  
         w = int(self.renderer.width)

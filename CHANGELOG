@@ -1,5 +1,8 @@
 New entries should be added at the top
 
+2005-01-17 Cleaned up Destroy handling in wx reducing memleak/fig from
+           approx 800k to approx 6k- JDH
+
 2005-01-17 Added kappa to latex_to_bakoma - JDH
 
 2005-01-15 Support arbitrary colorbar axes and horizontal colorbars - JDH

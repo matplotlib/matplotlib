@@ -715,6 +715,10 @@ class FigureCanvasWx(FigureCanvasBase, wxPanel):
         
         self.Printer_Init()
 
+    def Destroy(self, *args, **kwargs):
+        wxPanel.Destroy(self, *args, **kwargs)
+        
+        
     def Copy_to_Clipboard(self, event=None):
         "copy bitmap of canvas to system clipboard"
         bmp_obj = wx.BitmapDataObject()
@@ -1240,7 +1244,12 @@ class FigureFrameWx(wxFrame):
     def GetToolBar(self):
         """Override wxFrame::GetToolBar as we don't have managed toolbar"""
         return self.toolbar
-    
+
+    def Destroy(self, *args, **kwargs):
+        wxFrame.Destroy(self, *args, **kwargs)
+        if self.toolbar is not None:
+            self.toolbar.Destroy()
+            
 class FigureManagerWx(FigureManagerBase):
     """
     This class contains the FigureCanvas and GUI frame
@@ -1270,6 +1279,8 @@ class FigureManagerWx(FigureManagerBase):
     def destroy(self, *args):
         DEBUG_MSG("destroy()", 1, self)
         self.frame.Destroy()
+        self.canvas.Destroy()        
+        #if self.tb is not None: self.tb.Destroy()
         import wx
         #wx.GetApp().ProcessIdle()
         wx.WakeUpIdle()
