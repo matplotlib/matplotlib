@@ -48,7 +48,8 @@ DEBUG = False
 PIXELS_PER_INCH = 96
 
 # Image formats that this backend supports - for FileChooser and print_figure()
-IMAGE_FORMAT          = ['eps', 'jpg', 'png', 'ps', 'svg'] + ['bmp'] # , 'raw', 'rgb']
+IMAGE_FORMAT          = ['bmp', 'eps', 'jpg', 'png', 'ps', 'svg']
+#IMAGE_FORMAT          = ['bmp', 'eps', 'jpg', 'png', 'pdf', 'ps', 'svg'] # pdf not ready yet
 IMAGE_FORMAT.sort()
 IMAGE_FORMAT_DEFAULT  = 'png'
 
@@ -320,7 +321,18 @@ class FigureCanvasGTK(gtk.DrawingArea, FigureCanvasBase):
                 from backend_agg import FigureCanvasAgg  as FigureCanvas
             except:
                 error_msg('Save figure failure:\n'
-                          'Agg must be loaded to save as bmp, raw and rgb',
+                          'Agg must be installed to save as bmp, raw and rgb',
+                          parent=self)                
+            else:
+                fc = self.switch_backends(FigureCanvas)
+                fc.print_figure(filename, dpi, facecolor, edgecolor, orientation)
+
+        elif ext in ('pdf',):
+            try: 
+                from backend_cairo import FigureCanvasCairo  as FigureCanvas
+            except:
+                error_msg('Save figure failure:\n'
+                          'Cairo must be installed to save as pdf',
                           parent=self)                
             else:
                 fc = self.switch_backends(FigureCanvas)
