@@ -19,6 +19,6 @@ plot(t3, cos(2*pi*t3), 'r--')
 xlabel('time (s)')
 ylabel('Undamped')
 
-savefig('subplot_demo', dpi=150)
+#savefig('subplot_demo', dpi=150)
 show()
 
