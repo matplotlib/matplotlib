@@ -1185,10 +1185,8 @@ use kwargs for these):
             col = LineCollection(nlist)
             col.set_color(color)
             col.set_linewidth(width)
-            """
             if level < 0:
                 col.set_linestyle((0, (6.,6.)),)
-            """
             col.set_label(fmt%level)
             self.add_collection(col)
             levels.append(level)
