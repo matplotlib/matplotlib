@@ -10,7 +10,7 @@ x and y control points and the x and y to points)
   MOVETO, x, y
   LINETO, x, y
   CURVE3, xctrl, yctrl, xto, yto
-  CURVE3, xctrl1, yctrl1, xctrl2, yctrl2, xto, yto
+  CURVE4, xctrl1, yctrl1, xctrl2, yctrl2, xto, yto
   ENDPOLY, 0  # close poly, don't fill
   ENDPOLY, 1, R, G, B, A  # close poly, fill with rgba
 

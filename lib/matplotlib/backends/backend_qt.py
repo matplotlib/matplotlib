@@ -276,7 +276,7 @@ def exception_handler( type, value, tb ):
     else:
         msg += str(value)
 
-    if len( msg ) : error_msg( msg )
+    if len( msg ) : error_msg_qt( msg )
 
 
 FigureManager = FigureManagerQT

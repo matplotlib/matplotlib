@@ -1042,9 +1042,19 @@ ACCEPTS: sequence of on/off ink in points
 
     def _draw_x(self, renderer, gc, xt, yt):
         offset = 0.5*renderer.points_to_pixels(self._markersize)
-        for (x,y) in zip(xt, yt):
-            renderer.draw_line(gc, x-offset, y-offset, x+offset, y+offset)
-            renderer.draw_line(gc, x-offset, y+offset, x+offset, y-offset)
+
+        if self._newstyle:
+            path = (
+                (MOVETO, -offset, -offset),
+                (LINETO, offset, offset),
+                (MOVETO, -offset, offset),
+                (LINETO, offset, -offset),
+                )
+            renderer.draw_markers(gc, path, xt, yt, self._transform)
+        else:
+            for (x,y) in zip(xt, yt):
+                renderer.draw_line(gc, x-offset, y-offset, x+offset, y+offset)
+                renderer.draw_line(gc, x-offset, y+offset, x+offset, y-offset)
 
     def update_from(self, other):
         'copy properties from other to self'

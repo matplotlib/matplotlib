@@ -2,7 +2,7 @@ include API_CHANGES CHANGELOG KNOWN_BUGS INSTALL NUMARRAY_ISSUES
 include INTERACTIVE TODO
 include Makefile  MANIFEST.in MANIFEST
 include .matplotlibrc
-include __init__.py setupext.py setup.py
+include __init__.py setupext.py setup.py makeswig.py
 include examples/data/*
 include images/*
 recursive-include fonts *
@@ -13,3 +13,4 @@ recursive-include src  *.cpp *.c *.h
 recursive-include CXX  *.cxx *.hxx *.c
 recursive-include agg22 *
 recursive-include lib *
+recursive-include swig *

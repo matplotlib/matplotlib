@@ -1,5 +1,17 @@
 New entries should be added at the top
 
+
+
+2005-03-01 Added start of proper agg SWIG wrapper.  I would like to
+           expose agg functionality directly a the user level and this
+           module will serve that purpose eventually, and will
+           hopefully take over most of the functionality of the
+           current _image and _backend_agg modules.  - JDH
+
+2005-02-28 Fixed polyfit / polyval to convert input args to float
+           arrays - JDH
+
+
 2005-02-25 Add experimental feature to backend_gtk.py to enable/disable
            double buffering (DBL_BUFFER=True/False) - SC
 
@@ -8,6 +20,7 @@ New entries should be added at the top
            raised from RuntimeError to ValueError (like hex2color())
 	   hex2color() use a regular expression to check the color string is
            valid  - SC
+
 
 2005-02-23 Added rc param ps.useafm so backend ps can use native afm
            fonts or truetype.  afme breaks mathtext but causes much
