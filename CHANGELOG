@@ -1,5 +1,9 @@
 New entries should be added at the top
 
+2005-02-14 Added enthought traits to matplotlib tree - JDH
+
+===========================================================
+
 2005-02-14 0.72 released
 
 2005-02-14 fix bug in cbook alltrue() and onetrue() - SC

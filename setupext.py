@@ -59,6 +59,7 @@ BUILT_IMAGE     = False
 BUILT_TKAGG     = False
 BUILT_WINDOWING = False
 BUILT_CONTOUR   = False
+BUILT_ENTHOUGHT   = False
 
 class CleanUpFile:
     """CleanUpFile deletes the specified filename when self is destroyed."""
@@ -483,7 +484,16 @@ def build_transforms(ext_modules, packages, numerix):
                              )
         module.extra_compile_args.append("-DNUMERIC=1")
         ext_modules.append(module)
-    
+
+
+def build_enthought(ext_modules, packages):
+    global BUILT_ENTHOUGHT
+    if BUILT_ENTHOUGHT: return # only build it if you you haven't already
+
+    ctraits = Extension('matplotlib.enthought.traits.ctraits',  ['lib/matplotlib/enthought/traits/ctraits.c'])
+    ext_modules.append(ctraits)
+    packages.extend(['matplotlib/enthought', 'matplotlib/enthought/traits'])
+    BUILT_ENTHOUGHT = True    
 
 def build_contour(ext_modules, packages, numerix):
     global BUILT_CONTOUR

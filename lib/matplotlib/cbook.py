@@ -273,11 +273,10 @@ class RingBuffer:
 
 
 
-
-# until 2.3
+major, minor1, minor2, s, tmp = sys.version_info
 def enumerate(seq):
-     for i in range(len(seq)):
-         yield i, seq[i]
+    for i in range(len(seq)):
+        yield i, seq[i]
 
 
 
