@@ -237,6 +237,7 @@ examples/pstest.py
 examples/pythonic_matplotlib.py
 examples/scatter_demo.py
 examples/scatter_demo2.py
+examples/scatter_profile.py
 examples/simple_plot.py
 examples/specgram_demo.py
 examples/stem_plot.py
@@ -259,6 +260,7 @@ examples/data/intc.csv
 examples/data/membrane.dat
 examples/data/msft.csv
 examples/data/s1045.ima
+fonts/BaKoMa-CM.Fonts
 fonts/afm/cmex10.afm
 fonts/afm/cmmi10.afm
 fonts/afm/cmr10.afm
@@ -323,6 +325,7 @@ fonts/ttf/cmmi10.ttf
 fonts/ttf/cmr10.ttf
 fonts/ttf/cmsy10.ttf
 fonts/ttf/cmtt10.ttf
+fonts/ttf/local.conf
 images/stock_close.ppm
 images/stock_close.xpm
 images/stock_down.ppm
@@ -346,6 +349,7 @@ license/LICENSE_PAINT
 license/LICENSE_PIL
 license/LICENSE_TTFQUERY
 matplotlib/__init__.py
+matplotlib/_mathtext_data.py
 matplotlib/_matlab_helpers.py
 matplotlib/afm.py
 matplotlib/artist.py
@@ -353,6 +357,7 @@ matplotlib/axes.py
 matplotlib/axis.py
 matplotlib/backend_bases.py
 matplotlib/cbook.py
+matplotlib/collections.py
 matplotlib/colors.py
 matplotlib/dates.py
 matplotlib/figure.py
@@ -394,6 +399,8 @@ src/_gtkgd.c
 src/_image.cpp
 src/_image.h
 src/_tkagg.cpp
+src/_transforms.cpp
+src/_transforms.h
 src/_windowing.cpp
 src/ft2font.c
 src/ft2font.h

@@ -54,6 +54,7 @@ public:
   Py::Object draw_ellipse(const Py::Tuple & args);
   Py::Object draw_polygon(const Py::Tuple & args);
   Py::Object draw_line_collection(const Py::Tuple& args);
+  Py::Object draw_poly_collection(const Py::Tuple& args);
   Py::Object draw_regpoly_collection(const Py::Tuple& args);
   Py::Object draw_lines(const Py::Tuple & args);
   Py::Object draw_text(const Py::Tuple & args);
@@ -89,6 +90,7 @@ protected:
 
   // helper methods to process gc
   void set_clip_rectangle( const Py::Object& gc);
+  void set_clip_from_bbox(const Py::Object& o);
   Py::Tuple get_dashes( const Py::Object& gc);
   int antialiased( const Py::Object& gc);
   agg::rgba get_color(const Py::Object& gc);

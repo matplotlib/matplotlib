@@ -1182,7 +1182,9 @@ extern "C"
 DL_EXPORT(void)
   init_transforms(void)
 {
-  static _transforms_module* _transforms = new _transforms_module;
+  //suppress unused warning by creating in two lines
+  static _transforms_module* _transforms = NULL; 
+  _transforms = new _transforms_module;
 
   import_array();  
 };
