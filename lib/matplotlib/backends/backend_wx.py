@@ -692,9 +692,7 @@ class FigureCanvasWx(FigureCanvasBase, wxPanel):
         w = int(math.ceil(w))
         h = int(math.ceil(h))
 
-        self._key = None
-        self._button = None
-        self._lastx, self._lasty = None, None
+        self._lastkey = None
         
         wxPanel.__init__(self, parent, id, size=wxSize(w, h))
         # Create the drawing bitmap
@@ -1039,9 +1037,7 @@ The current aspect ration will be kept."""
             self.draw()
         evt.Skip()
         
-
-    def _onKeyDown(self, evt):
-        """Capture key press."""
+    def _get_key(self, evt):
 
         keyval = evt.m_keyCode
         if self.keyvald.has_key(keyval):
@@ -1050,49 +1046,62 @@ The current aspect ration will be kept."""
             key = chr(keyval)
         else:
             key = None
+ 
+        # why is wx upcasing this?
+        if key is not None: key = key.lower()
             
-        if key: self._key = key.lower()
-        else:   self._key = key
-        FigureCanvasBase.key_press_event(self, self._key, self._lastx, self._lasty)
+        return key
+
+    def _onKeyDown(self, evt):
+        """Capture key press."""
+        key = self._get_key(evt)
+        self._lastkey = key
         evt.Skip()
+        FigureCanvasBase.key_press_event(self, key)
+
         
     def _onKeyUp(self, evt):
         """Release key."""
-        FigureCanvasBase.key_release_event(self, self._key, self._lastx, self._lasty)
-        self._key = None
+        print 'release key', self._lastkey
         evt.Skip()
+        FigureCanvasBase.key_release_event(self, self._lastkey)
 
+ 
     def _onRightButtonDown(self, evt):
         """Start measuring on an axis."""
         x = evt.GetX()
         y = self.figure.bbox.height() - evt.GetY()
-        FigureCanvasBase.button_press_event(self, x, y, 3, self._key)        
         evt.Skip()
-        self._button = 3
+        FigureCanvasBase.button_press_event(self, x, y, 3)        
+
+
     def _onRightButtonUp(self, evt):
         """End measuring on an axis."""
         x = evt.GetX()
         y = self.figure.bbox.height() - evt.GetY()
-        FigureCanvasBase.button_release_event(self, x, y, 3, self._key)        
         evt.Skip()
-        self._button = None
+        FigureCanvasBase.button_release_event(self, x, y, 3)        
+
+
 
 
     def _onLeftButtonDown(self, evt):
         """Start measuring on an axis."""
         x = evt.GetX()
         y = self.figure.bbox.height() - evt.GetY()
-        FigureCanvasBase.button_press_event(self, x, y, 1, self._key)        
         evt.Skip()
-        self._button = 1
+        FigureCanvasBase.button_press_event(self, x, y, 1)        
+
 
     def _onLeftButtonUp(self, evt):
         """End measuring on an axis."""
         x = evt.GetX()
         y = self.figure.bbox.height() - evt.GetY()
-        FigureCanvasBase.button_release_event(self, x, y, 1, self._key)
+        print 'release button', 1
         evt.Skip()
-        self._button = None
+        FigureCanvasBase.button_release_event(self, x, y, 1)
+
+
         
     def _onMouseWheel(self, evt):
         # TODO: implement mouse wheel handler
@@ -1103,11 +1112,9 @@ The current aspect ration will be kept."""
         
         x = evt.GetX()
         y = self.figure.bbox.height() - evt.GetY()
-        #print 'motion', x, y
         evt.Skip()
-        FigureCanvasBase.motion_notify_event(self, x, y, self._button, self._key)
-        self._lastx, self._lasty = x, y
-    
+        FigureCanvasBase.motion_notify_event(self, x, y)
+
 
 ########################################################################
 #    
