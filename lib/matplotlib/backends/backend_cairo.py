@@ -29,7 +29,6 @@ from matplotlib.backend_bases import RendererBase, GraphicsContextBase,\
 from matplotlib.cbook      import enumerate, izip
 from matplotlib.figure     import Figure
 from matplotlib.mathtext   import math_parse_s_ft2font
-from matplotlib.path import STOP, MOVETO, LINETO, CURVE3, CURVE4, ENDPOLY
 from matplotlib.transforms import Bbox
 
 import cairo
