@@ -151,10 +151,10 @@ def find_tcltk():
 	import Tkinter
     except:
 	print "Tkinter not properly installed\n"
-	exit(1)
+	sys.exit(1)
     if Tkinter.TkVersion < 8.3:
 	print "Tcl/Tk v8.3 or later required\n"
-	exit(1)
+	sys.exit(1)
     o = FoundTclTk()
     try:
 	tk=Tkinter.Tk()	
