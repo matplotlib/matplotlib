@@ -282,6 +282,7 @@ examples/dynamic_image_wxagg.py
 examples/embedding_in_gtk.py
 examples/embedding_in_gtk2.py
 examples/embedding_in_tk.py
+examples/embedding_in_tk2.py
 examples/embedding_in_wx.py
 examples/embedding_in_wx2.py
 examples/embedding_in_wx3.py
@@ -504,7 +505,6 @@ lib/matplotlib/_transforms.py
 lib/matplotlib/afm.py
 lib/matplotlib/artist.py
 lib/matplotlib/axes.py
-lib/matplotlib/axes.py.orig
 lib/matplotlib/axis.py
 lib/matplotlib/backend_bases.py
 lib/matplotlib/cbook.py
@@ -517,11 +517,9 @@ lib/matplotlib/finance.py
 lib/matplotlib/font_manager.py
 lib/matplotlib/image.py
 lib/matplotlib/legend.py
-lib/matplotlib/legend.py.orig
 lib/matplotlib/lines.py
 lib/matplotlib/mathtext.py
 lib/matplotlib/matlab.py
-lib/matplotlib/matlab.py.orig
 lib/matplotlib/mlab.py
 lib/matplotlib/na_imports.py
 lib/matplotlib/nc_imports.py
