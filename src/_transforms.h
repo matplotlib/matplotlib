@@ -308,47 +308,54 @@ private:
 //double.  Also can serve as a lazy value evaluator
 class Func : public Py::PythonExtension<Func> { 
 public:
-
+  Func( unsigned int type=IDENTITY ) : _type(type) {};
   static void init_type(void);
   
+  Py::Object str() { return Py::String(as_string());}
+  Py::Object repr() { return Py::String(as_string());}
+  std::string as_string() {
+    if   (_type==IDENTITY) return "Identity";
+    else if (_type==LOG10) return "Log10";
+    else throw Py::ValueError("Unrecognized function type");
+  }
+
+  Py::Object set_type(const Py::Tuple &args) {
+    args.verify_length(1);
+    _type  = Py::Int(args[0]);
+    return Py::Object();
+  }
+
+  Py::Object get_type(const Py::Tuple &args) {
+    return Py::Int((int)_type);
+  }
 
   // the python forward and inverse functions
   Py::Object map(const Py::Tuple &args);
   Py::Object inverse(const Py::Tuple &args);
 
   // the api forward and inverse functions
-  virtual double  operator()(const double& )=0;
-  virtual double  inverse_api(const double& )=0;
-
-};
-
-class Identity : public Func { 
-public:
-
-  static void init_type(void);
-
-  // the api forward and inverse functions
-  double  operator()(const double& x) {return x;}
-  double  inverse_api(const double& x) {return x;}
-};
-
-class Log : public Func { 
-public:
-
-  static void init_type(void);
-
-  double operator()(const double& x) { 
-    if (x<=0) {
-      throw Py::ValueError("Cannot take log of nonpositive value");
-      
+  double  operator()(const double& x) {
+    if (_type==IDENTITY) return x;
+    else if (_type==LOG10) {
+      if (x<=0) {
+	throw Py::ValueError("Cannot take log of nonpositive value");
+	
+      }
+      return log10(x);
     }
-    return log10(x);
-  };
+    else 
+      throw Py::ValueError("Unrecognized function type");
+  }
+  double  inverse_api(const double& x) {
+    if   (_type==IDENTITY) return x;
+    else if (_type==LOG10) return pow(10.0, x);
+    else throw Py::ValueError("Unrecognized function type");
 
-  //the inverse mapping
-  double inverse_api(const double& x) { 
-    return pow(10.0, x);
-  };
+  }
+  
+  enum {IDENTITY, LOG10};
+private: 
+  unsigned int _type;
 };
 
 class FuncXY : public Py::PythonExtension<FuncXY> { 
@@ -570,8 +577,6 @@ public:
 
     
     Func::init_type();
-    Identity::init_type();
-    Log::init_type();
     
     FuncXY::init_type();
     PolarXY::init_type();
@@ -589,11 +594,8 @@ public:
 		       "Bbox(ll, ur)");
     add_varargs_method("Interval", &_transforms_module::new_interval, 
 		       "Interval(val1, val2)");
-
-    add_varargs_method("Identity", &_transforms_module::new_identity, 
-		       "Identity())");
-    add_varargs_method("Log", &_transforms_module::new_log, 
-		       "Log())");
+    add_varargs_method("Func", &_transforms_module::new_func, 
+		       "Func(typecode)");
 
     add_varargs_method("FuncXY", &_transforms_module::new_funcxy, 
 		       "FuncXY(funcx, funcy)");
@@ -619,8 +621,8 @@ private:
   Py::Object new_interval (const Py::Tuple &args);
   Py::Object new_affine (const Py::Tuple &args);
 
-  Py::Object new_identity (const Py::Tuple &args);
-  Py::Object new_log (const Py::Tuple &args);
+  Py::Object new_func (const Py::Tuple &args);
+
 
   Py::Object new_funcxy (const Py::Tuple &args);
   Py::Object new_polarxy (const Py::Tuple &args);

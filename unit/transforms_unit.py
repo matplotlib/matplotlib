@@ -3,7 +3,7 @@
 from matplotlib.numerix import array, rand, asarray, alltrue, rand
 from matplotlib.transforms import Point, Bbox, Value, Affine
 from matplotlib.transforms import multiply_affines
-from matplotlib.transforms import Identity, Log, FuncXY, PolarXY
+from matplotlib.transforms import Func, IDENTITY, LOG10, FuncXY, PolarXY
 from matplotlib.transforms import SeparableTransformation
 from matplotlib.transforms import identity_transform, unit_bbox, identity_funcxy
 from matplotlib.transforms import get_bbox_transform
@@ -168,7 +168,7 @@ def rand_transform():
 
 
 transform = rand_transform()
-transform.set_funcx(Log())
+transform.set_funcx(Func(LOG10))
 
 x = rand(100)
 y = rand(100)
