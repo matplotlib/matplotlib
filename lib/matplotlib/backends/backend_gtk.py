@@ -24,25 +24,24 @@ except ImportError:
     useMathText = False
 else: useMathText = True
 
+pygtk_version_required = (1,99,16)
 try:
     import pygtk
     if not matplotlib.FROZEN:
         pygtk.require('2.0')
 except:
-    print >> sys.stderr, sys.exc_info()[1] # can't use verbose(), until its imported!
-    raise SystemExit('PyGTK version 1.99.16 or greater is required to run the GTK Matplotlib backends')
+    print >> sys.stderr, sys.exc_info()[1]
+    raise SystemExit('PyGTK version %d.%d.%d or greater is required to run the GTK Matplotlib backends'
+                     % pygtk_version_required)
 
-import gobject
-import gtk
-version_required = (1,99,16)
-if gtk.pygtk_version < version_required:
+import gtk, gobject, pango
+from gtk import gdk
+if gtk.pygtk_version < pygtk_version_required:
     raise SystemExit ("PyGTK %d.%d.%d is installed\n"
                       "PyGTK %d.%d.%d or later is required"
-                      % (gtk.pygtk_version + version_required))
+                      % (gtk.pygtk_version + pygtk_version_required))
 backend_version = "%d.%d.%d" % gtk.pygtk_version
-
-from gtk import gdk
-import pango
+del pygtk_version_required
 
 
 DEBUG = False
@@ -50,7 +49,6 @@ DEBUG = False
 # the true dots per inch on the screen; should be display dependent
 # see http://groups.google.com/groups?q=screen+dpi+x11&hl=en&lr=&ie=UTF-8&oe=UTF-8&safe=off&selm=7077.26e81ad5%40swift.cs.tcd.ie&rnum=5 for some info about screen dpi
 PIXELS_PER_INCH = 96
-
 
 # Image formats that this backend supports - for FileChooser and print_figure()
 IMAGE_FORMAT          = ['eps', 'jpg', 'png', 'ps', 'svg'] + ['bmp'] # , 'raw', 'rgb']
