@@ -10,7 +10,7 @@ from matplotlib.colors import rgb2hex
 from matplotlib.figure import Figure
 from matplotlib.font_manager import fontManager
 from matplotlib.ft2font import FT2Font
-from matplotlib._matlab_helpers import Gcf
+from matplotlib._pylab_helpers import Gcf
 from matplotlib import rcParams
 
 try: from matplotlib.mathtext import math_parse_s_ft2font_svg
