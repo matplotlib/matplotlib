@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 """
 Example of embedding matplotlib in an application and interacting with
 a treeview to store data.  Double click on an entry to update plot
@@ -6,7 +7,7 @@ data
 """
 import pygtk
 pygtk.require('2.0')
-import gobject
+#import gobject
 import gtk
 from gtk import gdk
 from gtk import TRUE, FALSE
@@ -53,12 +54,9 @@ class DataManager(gtk.Window):
         fig = Figure(figsize=(6,4))
 
         self.canvas = FigureCanvas(fig)  # a gtk.DrawingArea
-        self.canvas.show()
         vbox.pack_start(self.canvas, False, False)
         ax = fig.add_subplot(111)
         self.line, = ax.plot(self.data[0,:], 'go')  # plot the first row
-
-
 
         self.treeview.connect('row-activated', self.plot_row)
         sw.add(self.treeview)
@@ -80,25 +78,23 @@ class DataManager(gtk.Window):
 
 
     def add_columns(self):
-        model = self.treeview.get_model()
-        renderer = gtk.CellRendererText()
-
         for i in range(self.numCols):
             column = gtk.TreeViewColumn('%d'%i, gtk.CellRendererText(), text=i)
             self.treeview.append_column(column)
 
+
     def create_model(self):
-        types = [gobject.TYPE_DOUBLE]*self.numCols
+        #types = [gobject.TYPE_DOUBLE]*self.numCols
+        types = [float]*self.numCols
         store = gtk.ListStore(*types)
 
         for row in self.data:
-            iter = store.append()
-            pairs = []
-            for i, num in enumerate(row): pairs.extend((i, num))
-
-            store.set(iter, *pairs)
+            #iter = store.append()
+            #pairs = []
+            #for i, num in enumerate(row): pairs.extend((i, num))
+            #store.set(iter, *pairs)
+            store.append(row)
         return store
-
                                      
 
 manager = DataManager()

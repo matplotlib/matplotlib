@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 """
 The same (small) array, interpolated with three different
 interpolation methods.

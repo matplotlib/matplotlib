@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 from matplotlib.matlab import *
 
 theta = arange(0,8*pi,0.1)
