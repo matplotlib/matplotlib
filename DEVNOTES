@@ -75,3 +75,10 @@ Standard reminders for numarray build
    I'll send the announcement
 
 Trove categorization is under Public info on the admin page
+
+standard reminders for win32
+
+  - setup flags to 1
+  - backend tkagg in rc
+  - unix2dos the rc file
+  
