@@ -28,12 +28,12 @@ set(ttext, 'color', 'r')
 set(ttext, 'fontangle', 'italic')
 
 set(xtext, 'fontsize', 12)
-set(xtext, 'fontname', 'Courier')
-set(xtext, 'fontweight', 'ultrabold')
+set(xtext, 'fontname', 'courier')
+set(xtext, 'fontweight', 'bold')
 set(xtext, 'color', 'g')
 
 set(ytext, 'fontsize', 12)
-set(ytext, 'fontname', 'Helvetica')
+set(ytext, 'fontname', 'helvetica')
 set(ytext, 'fontweight', 'light')
 set(ytext, 'color', 'b')
 
@@ -42,5 +42,5 @@ set(ytext, 'color', 'b')
 #yticklabels = get(gca(), 'yticklabels')
 #set(xticklabels, 'fontweight', 'bold')
 #set(yticklabels, 'fontangle', 'italic')
-
+savefig('text_handles')
 show()

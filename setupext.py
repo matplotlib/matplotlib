@@ -16,10 +16,40 @@ else:
 builtAgg       = False
 builtFonttools = False
 builtGTKGD     = False
+builtGTKAgg    = False
 
 def getoutput(s):
     'get the output of a system command'
     return os.popen(s).read().strip()
+
+
+def add_agg_flags(module):
+    'Add the module flags to build extensions which use agg'
+
+    module.include_dirs.extend(['src','agg2/include'])
+    if sys.platform=='win32':
+        module.include_dirs.extend(
+            [  # build these libs on win32
+            'win32src/freetype1',
+            'win32src/libpng',
+            'win32src/zlib',
+            ]
+            )
+    else:
+        module.include_dirs.extend(
+            ['/usr/include/freetype1',]
+            )
+
+
+    if sys.platform != 'win32':
+        module.libraries.extend(['z', 'ttf', 'png'])
+
+
+    module.libraries.extend(['stdc++'])
+
+def add_gd_flags(module):
+    'Add the module flags to build extensions which use gd'
+    module.libraries.append('gd')
 
 
 def add_pygtk_flags(module):
@@ -27,34 +57,27 @@ def add_pygtk_flags(module):
     pygtkIncludes = getoutput('pkg-config --cflags-only-I pygtk-2.0').split()
     gtkIncludes = getoutput('pkg-config --cflags-only-I gtk+-2.0').split()
     includes = pygtkIncludes + gtkIncludes
-    include_dirs = [include[2:] for include in includes]
-
+    module.include_dirs.extend([include[2:] for include in includes])
 
     pygtkLinker = getoutput('pkg-config --libs pygtk-2.0').split()
     gtkLinker =  getoutput('pkg-config --libs gtk+-2.0').split()
     linkerFlags = pygtkLinker + gtkLinker 
 
-    libraries = [flag[2:] for flag in linkerFlags if flag.startswith('-l')]
+    module.libraries.extend(
+        [flag[2:] for flag in linkerFlags if flag.startswith('-l')])
 
-    library_dirs = [flag[2:] for dir in linkerFlags if flag.startswith('-L')]
+    module.library_dirs.extend(
+        [flag[2:] for dir in linkerFlags if flag.startswith('-L')])
 
-    extra_link_args = [flag for flag in linkerFlags if not
-                       (flag.startswith('-l') or flag.startswith('-L'))]
+    module.extra_link_args.extend(
+        [flag for flag in linkerFlags if not
+         (flag.startswith('-l') or flag.startswith('-L'))])
 
-    module.include_dirs.extend(include_dirs)
-    module.libraries.extend(libraries)
-    module.library_dirs.extend(library_dirs)
-    module.extra_link_args.extend(extra_link_args)
-
-
-def add_gd_flags(module):
-    'Add the module flags to build extensions which use gd'
-    module.libraries.append('gd')
 
 
 def build_gtkgd(ext_modules, packages):
     global builtGTKGD
-    if builtGTKGD: return 
+    if builtGTKGD: return # only build it if you you haven't already
     module = Extension('matplotlib.backends._gtkgd',
                        ['src/_gtkgd.c'],
                        )
@@ -63,36 +86,28 @@ def build_gtkgd(ext_modules, packages):
     ext_modules.append(module)    
     builtGTKGD = True
 
+def build_gtkagg(ext_modules, packages):
+    global builtGTKAgg
+    if builtGTKAgg: return # only build it if you you haven't already
+    module = Extension('matplotlib.backends._gtkagg',
+                       ['src/_gtkagg.cpp'],
+                       )
 
-def add_agg_flags(module):
-    'Add the module flags to build extensions which use gtk'
-    include_dirs = ['src','agg2/include']
-    if sys.platform=='win32': include_dirs.extend(
-        [  # build these libs on win32
-        'win32src/freetype1',
-        'win32src/libpng',
-        'win32src/zlib',
-        ]
-        )
-    else:
-        include_dirs.extend(
-            ['/usr/include/freetype1',]
-            )
 
-    library_dirs = []
-    libraries = ['stdc++']
-    if sys.platform != 'win32':
-        libraries.extend(['z', 'ttf', 'png'])
+    # add agg flags before pygtk because agg only supports freetype1
+    # and pygtk includes freetype2.  This is a bit fragile.
+    
+    add_agg_flags(module)  
+    add_pygtk_flags(module)
 
-    extra_link_args = []
-    module.include_dirs.extend(include_dirs)
-    module.libraries.extend(libraries)
-    module.library_dirs.extend(library_dirs)
-    module.extra_link_args.extend(extra_link_args)
+    ext_modules.append(module)    
+    builtGTKAgg = True
+
+
 
 def build_agg(ext_modules, packages):
     global builtAgg
-    if builtAgg: return
+    if builtAgg: return # only build it if you you haven't already
     
     deps = ['src/_backend_agg.cpp', 'src/font.cpp'] 
     deps.extend(glob.glob('agg2/src/*.cpp'))
@@ -108,7 +123,7 @@ def build_agg(ext_modules, packages):
         )
     add_agg_flags(module)
     ext_modules.append(module)    
-    builtAgg = False
+    builtAgg = True
     
 def build_fonttools(ext_modules, packages):
 
@@ -121,7 +136,7 @@ def build_fonttools(ext_modules, packages):
         builtFonttools = True
         return 
 
-    if builtFonttools: return 
+    if builtFonttools: return # only build it if you you haven't already
     packages.extend(
         ['ttfquery',
          'FontTools.fontTools',

@@ -3,11 +3,11 @@ Some simple functions to generate colours.
 """
 from Numeric import asarray
 from matplotlib.mlab import linspace
-from matplotlib.backend_bases import arg_to_rgb
+from matplotlib.colors import colorConverter
 
 def pastel(colour, weight=2.4):
     """ Convert colour into a nice pastel shade"""
-    rgb = asarray(arg_to_rgb(colour))
+    rgb = asarray(colorConverter.to_rgb(colour))
     # scale colour 
     maxc = max(rgb)
     if maxc < 1.0 and maxc > 0:
