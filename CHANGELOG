@@ -1,5 +1,7 @@
 New entries should be added at the top
 
+2005-01-21 matplotlib-0.71 released
+
 2005-01-21 Refactored numerix to solve vexing namespace issues - JDH
 
 2005-01-21 Applied Nadia's contour bug fix - JDH

@@ -1005,6 +1005,7 @@ used for colorbar functionality
         reg = ones((1,jmax*(imax+1)+1), typecode = 'i')
         reg[0,:jmax+1]=0
         reg[0,-jmax:]=0
+
         for j in range(0,jmax*(imax+1)+1, imax):
             reg[0,j]=0
 
