@@ -1208,8 +1208,11 @@ color, face color, etc.
         'Return the y ticks as a list of locations'
         return self.yaxis.get_ticklocs()  
 
-    def grid(self, b):
-        'Set the axes grids on or off; b is a boolean'
+    def grid(self, b=None):
+        """
+        Set the axes grids on or off; b is a boolean
+        if b is None, toggle the grid state
+        """
         self.xaxis.grid(b)
         self.yaxis.grid(b)
 

@@ -615,10 +615,12 @@ class Axis(Artist):
 
         return ticks
 
-    def grid(self, b, which='major'): 
+    def grid(self, b=None, which='major'): 
         """
         Set the axis grid on or off; b is a boolean use which =
         'major' | 'minor' to set the grid for major or minor ticks
+
+        if b is None, toggle the grid state
         """
         if which.lower().find('minor')>=0:
             if b is None: self._gridOnMinor = not self._gridOnMinor
