@@ -141,7 +141,7 @@ def add_pygtk_flags(module):
 # or else you'll build for a wrong version of the Tcl
 # interpreter (leading to nasty segfaults).
 
-class found_tcltk:
+class FoundTclTk:
     pass
 
 def find_tcltk():
@@ -154,14 +154,25 @@ def find_tcltk():
     if Tkinter.TkVersion < 8.3:
 	print "Tcl/Tk v8.3 or later required\n"
 	exit(1)
-    tk=Tkinter.Tk()
-    tk.withdraw()
-    o = found_tcltk()
-    o.tcl_lib = os.path.join((tk.getvar('tcl_library')), '../')
-    o.tcl_inc = os.path.join((tk.getvar('tcl_library')), '../../include')
-    o.tk_lib = os.path.join((tk.getvar('tk_library')), '../')
-    o.tkv = str(Tkinter.TkVersion)[:3]
+    o = FoundTclTk()
+    try:
+	tk=Tkinter.Tk()	
+    except Tkinter.TclError:
+	print "Using default library and include directories for Tcl and Tk because a"
+	print "Tk window failed to open.  You may need to define DISPLAY for Tk to work"
+	print "so that setup can determine where your libraries are located."
+	o.tcl_lib = "/usr/local/lib"
+	o.tcl_inc = "/usr/local/include"
+	o.tk_lib = "/usr/local/lib"
+	o.tkv = ""
+    else:
+	tk.withdraw()
+	o.tcl_lib = os.path.join((tk.getvar('tcl_library')), '../')
+	o.tcl_inc = os.path.join((tk.getvar('tcl_library')), '../../include')
+	o.tk_lib = os.path.join((tk.getvar('tk_library')), '../')
+	o.tkv = str(Tkinter.TkVersion)[:3]
     return o
+	
 
 def add_tk_flags(module):
     'Add the module flags to build extensions which use tk'
