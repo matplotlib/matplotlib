@@ -585,16 +585,6 @@ class FigureCanvasPS(FigureCanvasBase):
 
         # write the figure
         print >>fh, renderer.get_ps()
-        origfacecolor = self.figure.get_facecolor()
-        origedgecolor = self.figure.get_edgecolor()
-        self.figure.set_facecolor(facecolor)
-        self.figure.set_edgecolor(edgecolor)
-
-        renderer = RendererPS(width, height, fh)
-        self.figure.draw(renderer)
-
-        self.figure.set_facecolor(origfacecolor)
-        self.figure.set_edgecolor(origedgecolor)
 
         # write the trailer
         print >>fh, "grestore"
