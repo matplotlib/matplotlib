@@ -969,13 +969,13 @@ RendererAgg::write_png(const Py::Tuple& args)
   info_ptr = png_create_info_struct(png_ptr);
   if (info_ptr == NULL) {
     fclose(fp);
-    png_destroy_write_struct(&png_ptr, (png_infopp)NULL);
+    png_destroy_write_struct(&png_ptr, &info_ptr);
     throw Py::RuntimeError("could not create info struct");
   }
   
   if (setjmp(png_ptr->jmpbuf)) {
     fclose(fp);
-    png_destroy_write_struct(&png_ptr, (png_infopp)NULL);
+    png_destroy_write_struct(&png_ptr, &info_ptr);
     throw Py::RuntimeError("error building image");
   }
   
@@ -997,7 +997,15 @@ RendererAgg::write_png(const Py::Tuple& args)
   png_write_info(png_ptr, info_ptr);
   png_write_image(png_ptr, row_pointers);
   png_write_end(png_ptr, info_ptr);
-  png_destroy_write_struct(&png_ptr, (png_infopp)NULL);
+
+  /* Changed calls to png_destroy_write_struct to follow
+     http://www.libpng.org/pub/png/libpng-manual.txt.  
+     This ensures the info_ptr memory is released.  
+  */
+
+  png_destroy_write_struct(&png_ptr, &info_ptr);
+
+ 
   fclose(fp);
   
   return Py::Object();
@@ -1176,6 +1184,7 @@ RendererAgg::~RendererAgg() {
   delete slineP8;
   delete slineBin;
   delete theRasterizer;
+  delete theRenderer;
   delete rendererBin;
   delete rendererBase;
   delete pixFmt;

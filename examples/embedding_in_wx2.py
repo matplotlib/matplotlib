@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 """
-An example of how to use wx or wxagg in an application w. or w/o the toolbar
+An example of how to use wx or wxagg in an application with the new
+toolbar - comment out the setA_toolbar line for no toolbar
 """
 
 from matplotlib.numerix import arange, sin, pi
@@ -14,7 +15,7 @@ import matplotlib
 # comment out the following to use wx rather than wxagg
 matplotlib.use('WXAgg')
 from matplotlib.backends.backend_wxagg import FigureCanvasWxAgg as FigureCanvas
-from matplotlib.backends.backend_wx import NavigationToolbarWx as NavigationToolbar
+from matplotlib.backends.backend_wx import NavigationToolbar2Wx
 
 from matplotlib.figure import Figure
 
@@ -34,7 +35,6 @@ class CanvasFrame(wxFrame):
         s = sin(2*pi*t)
         
         self.axes.plot(t,s)
-
         self.canvas = FigureCanvas(self, -1, self.figure)
 
         self.sizer = wxBoxSizer(wxVERTICAL)
@@ -46,7 +46,7 @@ class CanvasFrame(wxFrame):
 
 
     def add_toolbar(self):
-        self.toolbar = NavigationToolbar(self.canvas, True)
+        self.toolbar = NavigationToolbar2Wx(self.canvas)
         self.toolbar.Realize()
         if wxPlatform == '__WXMAC__':
             # Mac platform (OSX 10.3, MacPython) does not seem to cope with

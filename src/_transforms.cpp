@@ -105,8 +105,8 @@ BinOp::BinOp(LazyValue* lhs, LazyValue* rhs, int opcode) :
 
 BinOp::~BinOp() {
   _VERBOSE("BinOp::~BinOp");
-  Py_INCREF(_lhs);
-  Py_INCREF(_rhs);
+  Py_DECREF(_lhs);
+  Py_DECREF(_rhs);
 }
 
 Py::Object
