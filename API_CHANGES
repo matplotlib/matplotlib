@@ -3,6 +3,10 @@ API CHANGES in matplotlib-0.72
   Line2D, Text, and Patch copy_properties renamed update_from and
   moved into artist base class
 
+ LineCollecitons.color renamed to LineCollections.set_color for
+ consistency with set/get introspection mechanism,
+
+
 API CHANGES in matplotlib-0.71   
 
    Significant numerix namespace changes, introduced to resolve
