@@ -106,7 +106,8 @@ ACCEPTS: float
         self._imcache = None
         cm.ScalarMappable.changed(self)
 
-    def make_image(self, flipy):        
+    def make_image(self, flipy):
+        self._imcache = None
         if self._A is not None:
             if self._imcache is None:
                 x = self.to_rgba(self._A, self._alpha)
@@ -158,10 +159,12 @@ ACCEPTS: float
         rx = widthDisplay / numcols
         ry = heightDisplay  / numrows
 
+        
         if im.get_aspect()==_image.ASPECT_PRESERVE:
             if ry < rx: rx = ry
             # todo: center the image in viewport
             im.apply_scaling(rx, rx)
+            
         else:
             im.apply_scaling(rx, ry)
 
@@ -258,21 +261,22 @@ ACCEPTS: ['bicubic' | 'bilinear' | 'blackman100' | 'blackman256' | 'blackman64',
         if not self._interpd.has_key(s):
             raise ValueError('Illegal interpolation string')
         self._interpolation = s
-
-
-
-
         
     def get_extent(self):
         'get the image extent: xmin, xmax, ymin, ymax'
         if self._extent is not None:
             return self._extent
-        else:
+        else:            
             numrows, numcols = self.get_size()
-            width, height = numcols, numrows
-            return 0, width, 0, height
+            iwidth, iheight = numcols, numrows
+            #return 0, width, 0, height
+            tmp, tmp, dwidth, dheight = self.axes.bbox.get_bounds()
+            sx = dwidth  / iwidth
+            sy = dheight / iheight
 
-
+            if self.get_aspect()=='preserve' and sy<sx: sx = sy 
+            return 0, 1.0/sx*dwidth, 0, 1.0/sy*dheight
+        
 class FigureImage(Artist, cm.ScalarMappable):
     def __init__(self, fig,
                  cmap = None,

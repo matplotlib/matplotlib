@@ -266,6 +266,7 @@ class FigureManagerTkAgg(FigureManagerBase):
         def destroy(*args):
             self.window = None
             Gcf.destroy(self._num)
+            
         if not self._shown: self.window.bind("<Destroy>", destroy)
 
         _focus = windowing.FocusManager()
@@ -276,47 +277,13 @@ class FigureManagerTkAgg(FigureManagerBase):
         else: self.canvas.draw()
         self._shown = True
 
-    def _show(self):
-        """
-        # this function segfaults on an interactive session in pylab
-
-1 >>> plot([1,2,3])
-Out[1]: [<matplotlib.lines.Line2D instance at 0x418ed62c>]
- CLOSE WINDOW
-2 >>> plot([1,2,3])
-Segmentation fault
-
-I now realize that any call to self.window.bind("<Destroy>", destroy)
-causes the PyEval_RestoreThread: NULL state bug if the mainloop is not started.  Due to the placement of
-
-  if not self._shown: self.window.bind("<Destroy>", destroy)
-
-after the setting of
-
-  self._shown = True
-
-it is never called
-
-        """
-        _focus = windowing.FocusManager()
-        if not self._shown:
-            self.window.deiconify()
-            # anim.py requires this
-            if not sys.platform.startswith('linux') :
-                self.window.update()            
-        else: self.canvas.draw()
-        self._shown = True
-        def destroy(*args):
-            self.window = None
-            Gcf.destroy(self._num)
-        if not self._shown: self.window.bind("<Destroy>", destroy)
-
 
     def destroy(self, *args):
         if Gcf.get_num_fig_managers()==0 and not matplotlib.is_interactive():
             if self.window is not None:
                 self.window.quit()
         if self.window is not None:
+            #print 'calling window destroy'
             self.window.destroy()
         self.window = None
 
