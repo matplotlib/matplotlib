@@ -263,7 +263,7 @@ FT2Font::clear(const Py::Tuple & args) {
   image.height  = 0;
   image.offsetx = 0;
   image.offsety = 0;
-  
+
   text  = "";
   angle = 0.0;
   
@@ -277,11 +277,15 @@ FT2Font::clear(const Py::Tuple & args) {
   for (size_t i=0; i<gms.size(); i++) {
     Py_DECREF(gms[i]);
   }
+
   glyphs.resize(0);
   gms.resize(0);
 
   return Py::Object();
 }
+
+
+
 
 char FT2Font::set_size__doc__[] = 
 "set_size(ptsize, dpi)\n"
@@ -516,6 +520,7 @@ FT2Font::draw_bitmap( FT_Bitmap*  bitmap,
 	  if ( i >= width || j >= height )
 	    continue;
 	  image.buffer[i + j*width] |= bitmap->buffer[q*bitmap->width + p];
+
 	}
     }
 }
@@ -614,9 +619,10 @@ char FT2Font::draw_glyphs_to_bitmap__doc__[] =
 ;
 Py::Object
 FT2Font::draw_glyphs_to_bitmap(const Py::Tuple & args) {
+
   _VERBOSE("FT2Font::draw_glyphs_to_bitmap");
   args.verify_length(0);
-  
+
   FT_BBox string_bbox = compute_string_bbox();
   
   image.width   = (string_bbox.xMax-string_bbox.xMin) / 64+2;
@@ -627,17 +633,19 @@ FT2Font::draw_glyphs_to_bitmap(const Py::Tuple & args) {
     image.offsety = -image.height;
   else
     image.offsety = (int)(-string_bbox.yMax/64.0);
-  
+
+
   size_t numBytes = image.width*image.height;
   delete [] image.buffer;
   image.buffer = new unsigned char [numBytes];
   for (size_t n=0; n<numBytes; n++) 
     image.buffer[n] = 0;
+
+
   
   for ( size_t n = 0; n < glyphs.size(); n++ )
     {
       FT_BBox bbox;
-      
       FT_Glyph_Get_CBox(glyphs[n], ft_glyph_bbox_pixels, &bbox);
       
       error = FT_Glyph_To_Bitmap(&glyphs[n],
@@ -648,17 +656,20 @@ FT2Font::draw_glyphs_to_bitmap(const Py::Tuple & args) {
 				 );
       if (error)
 	throw Py::RuntimeError("Could not convert glyph to bitmap");
-      
+
       FT_BitmapGlyph bitmap = (FT_BitmapGlyph)glyphs[n];
-      /* now, draw to our target surface (convert position) */
+      // now, draw to our target surface (convert position)
       
       //bitmap left and top in pixel, string bbox in subpixel
-      
-      draw_bitmap( &bitmap->bitmap, 
-		   bitmap->left-string_bbox.xMin/64,
-		   string_bbox.yMax/64-bitmap->top+1
-		   );
+      FT_Int x = (FT_Int)(bitmap->left-string_bbox.xMin/64.);
+      FT_Int y = (FT_Int)(string_bbox.yMax/64.-bitmap->top+1);
+      //make sure the index is non-neg
+      x = x<0?0:x;
+      y = y<0?0:y;
+
+      draw_bitmap( &bitmap->bitmap, x, y);
     }
+
   return Py::Object();
 }
 
@@ -744,8 +755,7 @@ FT2Font::get_charmap(const Py::Tuple & args) {
   Py::Dict charmap;
   
   FT_ULong code = FT_Get_First_Char(face, &index);
-  while (code != 0) {
-    //charmap[Py::Long((long) code)] = Py::Int((int) index);
+  while (index != 0) {
     charmap[Py::Int((int) index)] = Py::Long((long) code);
     code = FT_Get_Next_Char(face, code, &index);
   }

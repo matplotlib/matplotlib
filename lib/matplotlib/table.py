@@ -98,15 +98,15 @@ class Cell(Rectangle):
         Rectangle.draw(self, renderer)
 
         # position the text
-        self._set_text_position()
+        self._set_text_position(renderer)
         self._text.draw(renderer)
 
-    def _set_text_position(self):
+    def _set_text_position(self, renderer):
         """ Set text up so it draws in the right place.
 
         Currently support 'left', 'center' and 'right'
         """
-        bbox = self.get_window_extent()
+        bbox = self.get_window_extent(renderer)
         l, b, w, h = bbox.get_bounds()
 
         # draw in center vertically
@@ -138,6 +138,9 @@ class Cell(Rectangle):
         return w * (1.0 + (2.0 * self.PAD))
         
 
+    def set_text_props(self, **kwargs):
+        'update the text properties with kwargs'
+        self._text.update_properties(kwargs)
 
 class Table(Artist):
     """
@@ -239,7 +242,7 @@ class Table(Artist):
 
         return self._cells.values()
             
-    def get_window_extent(self, renderer=None):
+    def get_window_extent(self, renderer):
 
         boxes = [c.get_window_extent(renderer) for c in self._cells]
         return bbox_all(boxes)
@@ -395,4 +398,8 @@ class Table(Artist):
 
         self._offset(ox, oy)
 
+
+    def get_celld(self):
+        'return a dict of cells in the table'
+        return self._cells
 

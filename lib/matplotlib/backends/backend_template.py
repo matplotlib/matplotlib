@@ -107,6 +107,16 @@ class RendererTemplate(RendererBase):
         """
         Render the matplotlib.text.Text instance at x, y in window
         coords using GraphicsContext gc
+
+        **backend implementers note** When you are trying to determine
+          if you have gotten your bounding box right (which is what
+          enables the text layout/alignment to work properly), it helps to change the line in text.py
+
+                  if 0: bbox_artist(self, renderer)
+
+          to if 1, and then the actual bounding box will be blotted
+          along with your text.
+        
         """
         pass
          
