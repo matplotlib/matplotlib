@@ -2,6 +2,9 @@
 # Copyright (C) 2003  <jdhunter@ace.bsd.uchicago.edu>
 # $Header$
 # $Log$
+# Revision 1.32  2004/05/17 15:08:44  jdh2358
+# updated goals and what's new
+#
 # Revision 1.31  2004/05/04 20:39:16  jdh2358
 # fixed makefile and some text bugs
 #
@@ -123,7 +126,7 @@ pyback:
 
 htmldocs: 
 	cp examples/*.py htdocs/examples;\
-	cp .matplotlibrc NUMARRAY_ISSUES API_CHANGES htdocs/;\
+	cp .matplotlibrc CHANGELOG NUMARRAY_ISSUES API_CHANGES htdocs/;\
 	${PYTHON} license.py ${VERSION} htdocs/license.html.template;\
 	cd htdocs;\
 	${PYTHON} process_docs.py;\
