@@ -1,15 +1,18 @@
 New entries should be added at the top
 
+2004-07-22 Incorporated Gergory's renderer cache and buffer object
+           cache - JDH
+
 2004-07-22 Backend_gtk.py: Added support for GtkFileChooser, changed
            FileSelection/FileChooser so that only one instance pops up,
            and made them both modal.
 
 2004-07-21 Applied backend_agg memory leak patch from hayden -
-            jocallo@online.no.  Found and fixed a leak in binary
-            operations on transforms.  Moral of the story: never
-            incref where you meant to decref!  Fixed several leaks in
-            ft2font: moral of story: almost always return Py::asObject
-            over Py::Object - JDH
+           jocallo@online.no.  Found and fixed a leak in binary
+           operations on transforms.  Moral of the story: never incref
+           where you meant to decref!  Fixed several leaks in ft2font:
+           moral of story: almost always return Py::asObject over
+           Py::Object - JDH
 
 2004-07-21 Fixed a to string memory allocation bug in agg and image
            modules - JDH
