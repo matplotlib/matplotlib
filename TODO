@@ -207,5 +207,5 @@
 
 -- incorporate John Gill's PS patch
 
--- DONE 2--4 -02-13 agg bug; when repeated calls to savefig are made,
+-- DONE 2004 -02-13 agg bug; when repeated calls to savefig are made,
    the dpi setting in the second one is ignored.
