@@ -1,0 +1,5 @@
+include CHANGELOG GOALS INSTALL INTERACTIVE LICENSE Makefile TODO MANIFEST.in
+include examples/README
+recursive-include examples *.py *.dat
+include fonts/afm/*
+include fonts/ttf/*
