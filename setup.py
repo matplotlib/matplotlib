@@ -97,7 +97,7 @@ if BUILD_IMAGE:
     build_image(ext_modules, packages, BUILD_IMAGE)
 
 setup(name="matplotlib",
-      version= '0.53.1a',
+      version= '0.53.1',
       description = "Matlab style python plotting package",
       author = "John D. Hunter",
       author_email="jdhunter@ace.bsd.uchicago.edu",
