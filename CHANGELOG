@@ -1,5 +1,8 @@
 New entries should be added at the top
 
+2005-01-09 Fixed a backend_bases event bug caused when an event is
+           triggered when location is None - JDH
+
 2005-01-07 Add patch from Stephen Walton to fix bug in pylab.load()
            when the % character is included in a comment. - ADS
 

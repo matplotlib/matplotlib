@@ -567,7 +567,7 @@ class LocationEvent(Event):
         
         self.inaxes = None
         for a in self.canvas.figure.get_axes():
-            if a.in_axes(self.x, self.y):
+            if self.x is not None and self.y is not None and a.in_axes(self.x, self.y):
                 self.inaxes = a
                 xdata, ydata = a.transData.inverse_xy_tup((self.x, self.y))
                 self.xdata  = xdata
