@@ -1,5 +1,9 @@
 New entries should be added at the top
 
+2004-12-22 Refactored NavigationToolbar in tkagg to support app
+           embedding , init now takes (canvas, window) rather than
+           (canvas, figman) - JDH
+
 2004-12-21 Refactored axes and subplot management - removed
            add_subplot and add_axes from the FigureManager.  classic
            toolbar updates are done via an observer pattern on the
