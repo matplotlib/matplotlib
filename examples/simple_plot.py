@@ -4,7 +4,7 @@ from matplotlib.matlab import *
 
 figure(1)
 t = arange(0.0, 1.0, 0.01)
-s = sin(2*2*pi*t)
+s = cos(2*2*pi*t)
 plot(t, s)
 
 xlabel('time (s)')
