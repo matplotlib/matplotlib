@@ -472,8 +472,7 @@ class RendererGTK(RendererBase):
         inch of the display
         """
         # should return int(round(points...)) ? - saves calling fn doing the work
-        return points*(PIXELS_PER_INCH/72.0*self.dpi.get()/72.0)
-        #return points*(self.dpi.get()/72.0)
+        return points * PIXELS_PER_INCH/72.0 * self.dpi.get()/72.0
 
 
 class GraphicsContextGTK(GraphicsContextBase):
