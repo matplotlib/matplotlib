@@ -183,7 +183,7 @@ Most of the other commands are from Numeric, MLab and FFT, with the
 exception of those in mlab.py provided by matplotlib.
 """
 
-
+import gzip
 import cm
 import _pylab_helpers
 import mlab  #so I can override hist, psd, etc...
@@ -941,7 +941,8 @@ def load(fname,comments='%'):
 
     The data must be regular, same number of values in every row
 
-    fname can be a filename or a file handle
+    fname can be a filename or a file handle.  Support for gzipped files is
+    automatic, if the filename ends in .gz
 
     matfile data is not currently supported, but see
     Nigel Wade's matfile ftp://ion.le.ac.uk/matfile/matfile.tar.gz
@@ -967,7 +968,10 @@ def load(fname,comments='%'):
     """
 
     if is_string_like(fname):
-        fh = file(fname)
+        if fname.endswith('.gz'):
+            fh = gzip.open(fname)
+        else:
+            fh = file(fname)
     elif hasattr(fname, 'seek'):
         fh = fname
     else:
@@ -1004,7 +1008,9 @@ def save(fname, X, fmt='%.18e'):
     Save the data in X to file fname using fmt string to convert the
     data to strings
 
-    fname can be a filename or a file handle    
+    fname can be a filename or a file handle.  If the filename ends in .gz,
+    the file is automatically saved in compressed gzip format.  The load()
+    command understands gzipped files transparently.
 
     Example usage:
 
@@ -1016,7 +1022,10 @@ def save(fname, X, fmt='%.18e'):
     """
 
     if is_string_like(fname):
-        fh = file(fname, 'w')
+        if fname.endswith('.gz'):
+            fh = gzip.open(fname,'wb')
+        else:
+            fh = file(fname,'w')
     elif hasattr(fname, 'seek'):
         fh = fname
     else:
