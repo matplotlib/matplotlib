@@ -72,7 +72,8 @@ def error_msg_template(msg, *args):
     - in a non-GUI backend delete this function and use
     'from matplotlib.backend_bases import error_msg'
     """
-    pass
+    verbose.report_error(msg)
+    raise SystemExist
     
 
 class RendererTemplate(RendererBase):
