@@ -1,6 +1,7 @@
 New entries should be added at the top
 =======
 
+2004-06-15 Restored the old FigureCanvasGTK.draw() - SC
 
 2004-06-11 More memory leak fixes in transforms and ft2font - JDH
 
