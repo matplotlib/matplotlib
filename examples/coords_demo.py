@@ -27,8 +27,8 @@ def on_click(event):
         if event.inaxes is not None:
             print 'data coords', event.xdata, event.ydata
 
-#canvas.mpl_connect('motion_notify_event', on_move)
-canvas.mpl_connect('button_press_event', on_click)
+canvas.mpl_connect('motion_notify_event', on_move)
+#canvas.mpl_connect('button_press_event', on_click)
 
 
 

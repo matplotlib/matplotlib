@@ -21,5 +21,5 @@ text(2, 0.65, 'cos(2 pi t) exp(-t)', font, color='k', family='monospace' )
 xlabel('time (s)', font, fontangle='italic')
 ylabel('voltage (mV)', font)
 
-#savefig('text_themes')
+savefig('text_themes')
 show()
