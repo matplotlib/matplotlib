@@ -24,11 +24,11 @@ examples/histogram_demo.py
 examples/interactive.py
 examples/interactive2.py
 examples/legend_demo.py
+examples/legend_demo2.py
 examples/line_styles.py
 examples/log_demo.py
 examples/logo.py
 examples/mpl_with_glade.py
-examples/mri_demo.py
 examples/mri_with_eeg.py
 examples/multiple_figs_demo.py
 examples/pcolor_demo.py
@@ -122,10 +122,11 @@ matplotlib/lines.py
 matplotlib/matlab.py
 matplotlib/mlab.py
 matplotlib/patches.py
-matplotlib/setup.py
+matplotlib/transforms.py
 matplotlib/backends/__init__.py
 matplotlib/backends/backend_gd.py
 matplotlib/backends/backend_gtk.py
 matplotlib/backends/backend_ps.py
 matplotlib/backends/backend_template.py
 matplotlib/backends/backend_wx.py
+test/test.py
