@@ -1,5 +1,9 @@
 New entries should be added at the top
 =======
+
+2004-07-05 Added new mathtext commands \over{sym1}{sym2} and
+           \under{sym1}{sym2}
+
 2004-07-05 Unified image and patch collections colormapping and
            scaling args.  Updated docstrings for all - JDH
 
