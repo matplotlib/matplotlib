@@ -121,8 +121,10 @@ class FigureCanvasGTK(gtk.DrawingArea, FigureCanvasBase):
 
         self.set_flags(gtk.CAN_FOCUS)
         self.grab_focus()
-        self.set_size_request (int (figure.bbox.width()),
-                               int (figure.bbox.height()))
+        # widget can take any size, gtk.Window sets default size
+        #self.set_size_request (int (figure.bbox.width()),
+        #                       int (figure.bbox.height()))
+        
         self.set_double_buffered(False)
 
         self.connect('key_press_event',      self.key_press_event)
@@ -382,9 +384,18 @@ class FigureManagerGTK(FigureManagerBase):
         else:
             self.toolbar = None
 
+        # calculate size for window
+        w = int (self.canvas.figure.bbox.width())
+        h = int (self.canvas.figure.bbox.height())
+
         if self.toolbar != None:
             self.toolbar.show()
             self.vbox.pack_end(self.toolbar, False, False)
+
+            tb_w, tb_h = self.toolbar.size_request()
+            h += tb_h
+        self.window.set_default_size (w, h)
+
 
         def destroy(*args): Gcf.destroy(num)
         self.window.connect("destroy", destroy)
