@@ -132,9 +132,7 @@ class RendererGTK(RendererBase):
 
         layout = self._get_pango_layout(s, prop)
         inkRect, logicalRect = layout.get_pixel_extents()
-        rect = inkRect
-        #rect = logicalRect
-        l, b, w, h = rect
+        l, b, w, h = inkRect
         return w, h+1
 
     def get_canvas_width_height(self):
@@ -488,6 +486,14 @@ class GraphicsContextGTK(GraphicsContextBase):
             return color
 
 
+    def set_capstyle(self, cs):
+        """
+        Set the capstyle as a string in ('butt', 'round', 'projecting')
+        """
+        GraphicsContextBase.set_capstyle(self, cs)
+        self.gdkGC.cap_style = self._capd[self._capstyle]
+
+
     def set_clip_rectangle(self, rectangle):
         GraphicsContextBase.set_clip_rectangle(self, rectangle)
         l,b,w,h = rectangle
@@ -518,7 +524,6 @@ class GraphicsContextGTK(GraphicsContextBase):
         """
         GraphicsContextBase.set_foreground(self, fg, isRGB)
         self.gdkGC.foreground = self.rgb_to_gdk_color(self.get_rgb())
-        #self.gdkGC.foreground = colorManager.get_gdk_color(self.get_rgb())
 
 
     def set_graylevel(self, frac):
@@ -527,22 +532,7 @@ class GraphicsContextGTK(GraphicsContextBase):
         """
         GraphicsContextBase.set_graylevel(self, frac)
         self.gdkGC.foreground = self.rgb_to_gdk_color(self.get_rgb())
-        #self.gdkGC.foreground = colorManager.get_gdk_color(self.get_rgb())
         
-
-    def set_linewidth(self, w):
-        GraphicsContextBase.set_linewidth(self, w)
-        pixels = self.renderer.points_to_pixels(w)
-        self.gdkGC.line_width = max(1, int(round(pixels)))
-
-                                               
-    def set_capstyle(self, cs):
-        """
-        Set the capstyle as a string in ('butt', 'round', 'projecting')
-        """
-        GraphicsContextBase.set_capstyle(self, cs)
-        self.gdkGC.cap_style = self._capd[self._capstyle]
-
 
     def set_joinstyle(self, js):
         """
@@ -552,6 +542,12 @@ class GraphicsContextGTK(GraphicsContextBase):
         self.gdkGC.join_style = self._joind[self._joinstyle]
 
 
+    def set_linewidth(self, w):
+        GraphicsContextBase.set_linewidth(self, w)
+        pixels = self.renderer.points_to_pixels(w)
+        self.gdkGC.line_width = max(1, int(round(pixels)))
+
+                                               
 def error_msg_gtk(msg, parent=None):
     if parent: # find the toplevel gtk.Window
         parent = parent.get_toplevel()
