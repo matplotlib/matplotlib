@@ -10,9 +10,6 @@ from numerix import nx
 LUTSIZE = rcParams['image.lut']
 
 
-_cool_data = {'red':   ((),()),
-              'green': ((),()),
-              'blue':  ((),())}
               
 _bone_data = {'red':   ((0., 0., 0.),(1.0, 1.0, 1.0)),
               'green': ((0., 0., 0.),(1.0, 1.0, 1.0)),

@@ -100,7 +100,7 @@ class RendererPS(RendererBase):
                 self._pswriter.write("%1.3f setgray\n"%r)
             else:
                 self._pswriter.write("%1.3f %1.3f %1.3f setrgbcolor\n"%(r,g,b))
-            self.color = (r,g,b)
+            if store: self.color = (r,g,b)
 
     def set_linewidth(self, linewidth):
         if linewidth != self.linewidth:
@@ -314,8 +314,6 @@ grestore
             thisy = y[i]
             # apply affine transform x and y to define marker center
             #draw_marker_here
-
-        print 'I did nothing!'
 
     def _draw_lines(self, gc, points):
         """

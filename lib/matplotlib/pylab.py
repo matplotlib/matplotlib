@@ -787,11 +787,6 @@ def figure(num=None, # autoincrement if None, else integer from 1-N
     if facecolor is None : facecolor = rcParams['figure.facecolor']
     if edgecolor is None : edgecolor = rcParams['figure.edgecolor']
 
-
-    if num==0:
-        raise ValueError('Figure number can not be 0.\n' + \
-                         'Hey, give me a break, this is matlab(TM) compatability')
-
     if num is None:
         allnums = [f.num for f in _pylab_helpers.Gcf.get_all_fig_managers()]
         if allnums:

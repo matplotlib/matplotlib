@@ -31,8 +31,8 @@
 GCAgg::GCAgg(const Py::Object &gc, double dpi) : 
   dpi(dpi), isaa(true), linewidth(1.0), alpha(1.0), cliprect(NULL), 
   Ndash(0), dashOffset(0.0), dasha(NULL)
-  {
-
+{
+  
   linewidth = points_to_pixels ( gc.getAttr("_linewidth") ) ;
   alpha = Py::Float( gc.getAttr("_alpha") );
   color = get_color(gc);
@@ -51,7 +51,7 @@ GCAgg::_set_antialiased(const Py::Object& gc) {
 
 agg::rgba
 GCAgg::get_color(const Py::Object& gc) {
-
+  
   Py::Tuple rgb = Py::Tuple( gc.getAttr("_rgb") );
   
   double alpha = Py::Float( gc.getAttr("_alpha") );
@@ -113,13 +113,13 @@ GCAgg::_set_dashes(const Py::Object& gc) {
     delete [] dasha;
     dasha = NULL;
   }
-
+  
   Py::Tuple dashtup = gc.getAttr("_dashes");
   
   if (dashtup.length()!=2) 
     throw Py::ValueError(Printf("GC dashtup must be a length 2 tuple; found %d", dashtup.length()).str());    
   
-
+  
   bool useDashes = dashtup[0].ptr() != Py_None;
   
   if ( useDashes ) { 
@@ -147,7 +147,7 @@ GCAgg::_set_clip_rectangle( const Py::Object& gc) {
   
   _VERBOSE("GCAgg::set_clip_rectangle");
   
-
+  
   delete [] cliprect;
   Py::Object o ( gc.getAttr( "_cliprect" ) );
   
@@ -164,7 +164,7 @@ GCAgg::_set_clip_rectangle( const Py::Object& gc) {
   double b = Py::Float(rect[1]) ; 
   double w = Py::Float(rect[2]) ; 
   double h = Py::Float(rect[3]) ; 
-
+  
   delete [] cliprect;
   cliprect = new double[4];
   cliprect[0] = l;
@@ -222,12 +222,12 @@ RendererAgg::set_clipbox_rasterizer( double *cliprect) {
     rendererBase->reset_clipping(true); 
   }
   else {
-  
+    
     double l = cliprect[0] ; 
     double b = cliprect[1] ; 
     double w = cliprect[2] ; 
     double h = cliprect[3] ; 
-  
+    
     theRasterizer->clip_box(l, height-(b+h),
 			    l+w, height-b);
   }
@@ -237,7 +237,7 @@ RendererAgg::set_clipbox_rasterizer( double *cliprect) {
 
 std::pair<bool, agg::rgba> 
 RendererAgg::_get_rgba_face(const Py::Object& rgbFace, double alpha) {
-
+  
   std::pair<bool, agg::rgba> face;
   
   if (rgbFace.ptr() == Py_None) {
@@ -249,7 +249,7 @@ RendererAgg::_get_rgba_face(const Py::Object& rgbFace, double alpha) {
     face.second = rgb_to_color(rgb, alpha);
   }
   return face;
- 
+  
 }
 
 template <class VS>
@@ -271,18 +271,18 @@ RendererAgg::_fill_and_stroke(VS& path,
   rendererAA->color(gc.color);
   theRasterizer->add_path(stroke);
   agg::render_scanlines(*theRasterizer, *slineP8, *rendererAA);
-
+  
 }
 
 Py::Object
 RendererAgg::draw_rectangle(const Py::Tuple & args) {
   _VERBOSE("RendererAgg::draw_rectangle");
   args.verify_length(6);
-
-
+  
+  
   GCAgg gc = GCAgg(args[0], dpi);
   facepair_t face = _get_rgba_face(args[1], gc.alpha);
-
+  
   
   double l = Py::Float( args[2] ); 
   double b = Py::Float( args[3] ); 
@@ -310,10 +310,10 @@ Py::Object
 RendererAgg::draw_ellipse(const Py::Tuple& args) {
   _VERBOSE("RendererAgg::draw_ellipse");
   args.verify_length(6);  
-
+  
   GCAgg gc = GCAgg(args[0], dpi);
   facepair_t face = _get_rgba_face(args[1], gc.alpha);
-
+  
   
   double x = Py::Float( args[2] ); 
   double y = Py::Float( args[3] ); 
@@ -324,7 +324,7 @@ RendererAgg::draw_ellipse(const Py::Tuple& args) {
   
   //last arg is num steps
   agg::ellipse path(x, height-y, w, h, 100); 
-
+  
   _fill_and_stroke(path, gc, face);  
   return Py::Object();
   
@@ -333,12 +333,12 @@ RendererAgg::draw_ellipse(const Py::Tuple& args) {
 Py::Object
 RendererAgg::draw_polygon(const Py::Tuple& args) {
   _VERBOSE("RendererAgg::draw_polygon");
-
+  
   args.verify_length(3);  
-
+  
   GCAgg gc = GCAgg(args[0], dpi);
   facepair_t face = _get_rgba_face(args[1], gc.alpha);
-
+  
   Py::SeqBase<Py::Object> points( args[2] );
   
   set_clipbox_rasterizer(gc.cliprect);
@@ -390,7 +390,7 @@ RendererAgg::draw_line_collection(const Py::Tuple& args) {
   
   //segments, trans, clipbox, colors, linewidths, antialiaseds
   Py::SeqBase<Py::Object> segments = args[0];  
-    
+  
   /* this line is broken, mysteriously
      if (!Transformation::check(args[1])) 
      throw Py::TypeError("RendererAgg::draw_line_collection(segments, transform, ...) expected a Transformation instance for transform");
@@ -460,7 +460,13 @@ RendererAgg::draw_line_collection(const Py::Tuple& args) {
       xyo = Py::Tuple(offsets[i%Noffsets]);
       xo = Py::Float(xyo[0]);
       yo = Py::Float(xyo[1]);
-      xy = transOffset->operator()(xo,yo);
+      try {
+	xy = transOffset->operator()(xo,yo);
+      }
+      catch (...) {
+	throw Py::ValueError("Domain error on transOffset->operator in draw_line_collection");  
+      }
+      
       xo = xy.first;
       yo = xy.second;
     }
@@ -476,7 +482,14 @@ RendererAgg::draw_line_collection(const Py::Tuple& args) {
       xyo = xys[j];
       thisx = Py::Float(xyo[0]);
       thisy = Py::Float(xyo[1]);
-      xy = transform->operator()(thisx,thisy);
+      try {
+	xy = transform->operator()(thisx,thisy);
+      }
+      
+      catch (...) {
+	throw Py::ValueError("Domain error on transOffset->operator in draw_line_collection");  
+      }
+      
       thisx = xy.first;
       thisy = xy.second;
       
@@ -601,7 +614,7 @@ RendererAgg::draw_poly_collection(const Py::Tuple& args) {
   catch(...) {
     throw Py::ValueError("Domain error on eval_scalars in RendererAgg::draw_poly_collection");  
   }
-
+  
   
   set_clip_from_bbox(args[2]);
   
@@ -624,7 +637,7 @@ RendererAgg::draw_poly_collection(const Py::Tuple& args) {
     catch(...) {
       throw Py::ValueError("Domain error on transoffset eval_scalars in RendererAgg::draw_poly_collection");  
     }
-
+    
   }
   
   size_t Noffsets = offsets.length();
@@ -646,7 +659,13 @@ RendererAgg::draw_poly_collection(const Py::Tuple& args) {
       Py::Tuple pos = Py::Tuple(offsets[i]);
       double xo = Py::Float(pos[0]);
       double yo = Py::Float(pos[1]);
-      xyo = transOffset->operator()(xo, yo);
+      try {
+	xyo = transOffset->operator()(xo, yo);
+      }
+      catch (...) {
+	throw Py::ValueError("Domain error on transOffset->operator in draw_line_collection");  
+      }
+      
     }
     
     size_t Nverts = thisverts.length();
@@ -662,7 +681,13 @@ RendererAgg::draw_poly_collection(const Py::Tuple& args) {
       thisvert = Py::Tuple(thisverts[j]);
       double x = Py::Float(thisvert[0]);
       double y = Py::Float(thisvert[1]);
-      xy = transform->operator()(x, y);      
+      try {
+	xy = transform->operator()(x, y);      
+      }
+      catch(...) {
+	throw Py::ValueError("Domain error on eval_scalars in RendererAgg::draw_poly_collection");  
+      }
+
       
       if (usingOffsets) {
 	xy.first  += xyo.first;
@@ -782,7 +807,7 @@ RendererAgg::draw_regpoly_collection(const Py::Tuple& args) {
   catch(...) {
     throw Py::ValueError("Domain error on eval_scalars in RendererAgg::draw_regpoly_collection");  
   }
-
+  
   
   Py::SeqBase<Py::Object> verts = args[3];  
   Py::SeqBase<Py::Object> sizes = args[4];  
@@ -816,7 +841,13 @@ RendererAgg::draw_regpoly_collection(const Py::Tuple& args) {
     Py::Tuple pos = Py::Tuple(offsets[i]);
     double xo = Py::Float(pos[0]);
     double yo = Py::Float(pos[1]);
-    offsetPair = transOffset->operator()(xo, yo);
+    try {
+      offsetPair = transOffset->operator()(xo, yo);
+    }
+    catch(...) {
+      throw Py::ValueError("Domain error on eval_scalars in RendererAgg::draw_regpoly_collection");  
+    }
+
     
     
     double scale = Py::Float(sizes[i%Nsizes]);
@@ -890,34 +921,34 @@ RendererAgg::draw_regpoly_collection(const Py::Tuple& args) {
 Py::Object
 RendererAgg::draw_lines(const Py::Tuple& args) {
   
-
+  
   _VERBOSE("RendererAgg::draw_lines");
   args.verify_length(4);  
   GCAgg gc = GCAgg(args[0], dpi);
   set_clipbox_rasterizer(gc.cliprect);
-
+  
   Py::Object xo = args[1];
   Py::Object yo = args[2];
-
+  
   PyArrayObject *xa = (PyArrayObject *) PyArray_ContiguousFromObject(xo.ptr(), PyArray_DOUBLE, 1, 1); 
   
   if (xa==NULL) 
     throw Py::TypeError("RendererAgg::draw_lines expected numerix array");
-
+  
   
   PyArrayObject *ya = (PyArrayObject *) PyArray_ContiguousFromObject(yo.ptr(), PyArray_DOUBLE, 1, 1); 
-
+  
   if (ya==NULL) 
     throw Py::TypeError("RendererAgg::draw_lines expected numerix array");
-
-
+  
+  
   size_t Nx = xa->dimensions[0];
   size_t Ny = ya->dimensions[0];
   
   if (Nx!=Ny) 
     throw Py::ValueError(Printf("x and y must be equal length arrays; found %d and %d", Nx, Ny).str());
-
-
+  
+  
   Transformation* mpltransform = static_cast<Transformation*>(args[3].ptr());
   
   double a, b, c, d, tx, ty;
@@ -927,26 +958,26 @@ RendererAgg::draw_lines(const Py::Tuple& args) {
   catch(...) {
     throw Py::ValueError("Domain error on affine_params_api in RendererAgg::draw_lines");  
   }
-
+  
   agg::trans_affine xytrans = agg::trans_affine(a,b,c,d,tx,ty);  
-
+  
   
   agg::path_storage path;
- 
-
+  
+  
   bool needNonlinear = mpltransform->need_nonlinear_api();
   
   double thisx, thisy;
   bool moveto = true;
   double heightd = height;
-
+  
   double lastx(-2.0), lasty(-2.0);
-
+  
   for (size_t i=0; i<Nx; ++i) {
     thisx = *(double *)(xa->data + i*xa->strides[0]);
     thisy = *(double *)(ya->data + i*ya->strides[0]);
     
-	
+    
     if (needNonlinear)
       try {
 	mpltransform->nonlinear_only_api(&thisx, &thisy);
@@ -955,7 +986,7 @@ RendererAgg::draw_lines(const Py::Tuple& args) {
 	moveto = true;
 	continue;
       }
-
+    
     //use agg's transformer?
     xytrans.transform(&thisx, &thisy);
     thisy = heightd - thisy; //flipy
@@ -964,7 +995,7 @@ RendererAgg::draw_lines(const Py::Tuple& args) {
     if (!moveto && (i>0) && fabs(thisx-lastx)<1.0 && fabs(thisy-lasty)<1.0) {
       continue;
     }
-
+    
     lastx = thisx;
     lasty = thisy;
     if (moveto)
@@ -978,9 +1009,9 @@ RendererAgg::draw_lines(const Py::Tuple& args) {
   
   Py_XDECREF(xa);
   Py_XDECREF(ya);
-
+  
   _render_lines_path(path, gc);
-
+  
   _VERBOSE("RendererAgg::draw_lines DONE");
   return Py::Object();
   
@@ -988,14 +1019,14 @@ RendererAgg::draw_lines(const Py::Tuple& args) {
 
 void 
 RendererAgg::_render_lines_path(agg::path_storage &path, const GCAgg& gc) {
-
+  
   typedef agg::path_storage path_t;
   //typedef agg::conv_transform<agg::path_storage, agg::trans_affine> path_t;
   typedef agg::conv_stroke<path_t> stroke_t;
   typedef agg::conv_dash<path_t> dash_t;
-
+  
   //path_t transpath(path, xytrans);
-
+  
   if (gc.dasha==NULL ) { //no dashes
     stroke_t stroke(path);
     stroke.width(gc.linewidth);
@@ -1005,7 +1036,7 @@ RendererAgg::_render_lines_path(agg::path_storage &path, const GCAgg& gc) {
     theRasterizer->add_path(stroke);
   }
   else {
-
+    
     dash_t dash(path);
     
     //todo: dash.dash_start(gc.dashOffset);
@@ -1019,7 +1050,7 @@ RendererAgg::_render_lines_path(agg::path_storage &path, const GCAgg& gc) {
     theRasterizer->add_path(stroke);
     
   }
-    
+  
   if ( gc.isaa ) {
     rendererAA->color(gc.color);    
     agg::render_scanlines(*theRasterizer, *slineP8, *rendererAA); 
@@ -1028,34 +1059,34 @@ RendererAgg::_render_lines_path(agg::path_storage &path, const GCAgg& gc) {
     rendererBin->color(gc.color);     
     agg::render_scanlines(*theRasterizer, *slineBin, *rendererBin); 
   }
-
+  
 }
 
 Py::Object
 RendererAgg::draw_markers(const Py::Tuple& args) {
   //draw_markers(gc, path, xo, yo, transform)
   theRasterizer->reset_clipping();
-
+  
   _VERBOSE("RendererAgg::draw_markers");
   args.verify_length(5);  
-
+  
   GCAgg gc = GCAgg(args[0], dpi);
   Py::SeqBase<Py::Object> pathseq = args[1];
-
+  
   Py::Object xo = args[2];
   Py::Object yo = args[3];
-
+  
   PyArrayObject *xa = (PyArrayObject *) PyArray_ContiguousFromObject(xo.ptr(), PyArray_DOUBLE, 1, 1); 
   
   if (xa==NULL) 
     throw Py::TypeError("RendererAgg::draw_markers expected numerix array");
-
+  
   
   PyArrayObject *ya = (PyArrayObject *) PyArray_ContiguousFromObject(yo.ptr(), PyArray_DOUBLE, 1, 1); 
-
+  
   if (ya==NULL) 
     throw Py::TypeError("RendererAgg::draw_markers expected numerix array");
-
+  
   Transformation* mpltransform = static_cast<Transformation*>(args[4].ptr());
   
   double a, b, c, d, tx, ty;
@@ -1067,7 +1098,7 @@ RendererAgg::draw_markers(const Py::Tuple& args) {
   }
   
   agg::trans_affine xytrans = agg::trans_affine(a,b,c,d,tx,ty);  
-
+  
   size_t Npath = pathseq.length();
   size_t Nx = xa->dimensions[0];
   size_t Ny = ya->dimensions[0];
@@ -1108,34 +1139,34 @@ RendererAgg::draw_markers(const Py::Tuple& args) {
     }
     
   }
-
-
+  
+  
   //maxim's suggestions for cached scanlines
   agg::scanline_storage_aa8 scanlines;
-
+  
   theRasterizer->reset();
   theRasterizer->add_path(marker);
   agg::render_scanlines(*theRasterizer, *slineP8, scanlines);      
   unsigned fillSize = scanlines.byte_size();
   agg::int8u* fillCache = new agg::int8u[fillSize]; // or any container
   scanlines.serialize(fillCache);
-
-
-
+  
+  
+  
   agg::conv_stroke<agg::path_storage > stroke(marker);
   stroke.width(gc.linewidth);
   stroke.line_cap(gc.cap);
   stroke.line_join(gc.join);
-
+  
   theRasterizer->reset();
   theRasterizer->add_path(stroke);
   agg::render_scanlines(*theRasterizer, *slineP8, scanlines);      
   unsigned strokeSize = scanlines.byte_size();
   agg::int8u* strokeCache = new agg::int8u[strokeSize]; // or any container
   scanlines.serialize(strokeCache);
-
-
-
+  
+  
+  
   theRasterizer->reset_clipping();
   
   
@@ -1154,7 +1185,7 @@ RendererAgg::draw_markers(const Py::Tuple& args) {
   for (size_t i=0; i<Nx; ++i) {
     thisx = *(double *)(xa->data + i*xa->strides[0]);
     thisy = *(double *)(ya->data + i*ya->strides[0]);
-
+    
     if (mpltransform->need_nonlinear_api())
       try {       
 	mpltransform->nonlinear_only_api(&thisx, &thisy);
@@ -1162,33 +1193,33 @@ RendererAgg::draw_markers(const Py::Tuple& args) {
       catch(...) {
 	continue;
       }
-
+    
     xytrans.transform(&thisx, &thisy);
-
-
+    
+    
     thisy = heightd - thisy;  //flipy
     //thisx = (int)(thisx)+0.5; //snapto
     //thisy = (int)(thisy)+0.5;
     //std::cout << "adding " << thisx << " " << thisy << std::endl;
-
+    
     agg::serialized_scanlines_adaptor_aa8 sa;
     agg::serialized_scanlines_adaptor_aa8::embedded_scanline sl;
-
+    
     //render the fill
     sa.init(fillCache, fillSize, thisx, thisy);
     rendererAA->color(fillColor);          
     agg::render_scanlines(sa, sl, *rendererAA);
-
+    
     //render the stroke
     sa.init(strokeCache, strokeSize, thisx, thisy);
     rendererAA->color(gc.color);          
     agg::render_scanlines(sa, sl, *rendererAA);
-
+    
   } //for each marker
-
+  
   Py_XDECREF(xa);
   Py_XDECREF(ya);
-     
+  
   delete [] strokeCache;
   delete [] fillCache;
   return Py::Object();
@@ -1197,8 +1228,8 @@ RendererAgg::draw_markers(const Py::Tuple& args) {
 
 
 /*
-Py::Object
-RendererAgg::draw_markers(const Py::Tuple& args) {
+  Py::Object
+  RendererAgg::draw_markers(const Py::Tuple& args) {
   //draw_markers(gc, path, xo, yo, transform)
   theRasterizer->reset_clipping();
   _VERBOSE("RendererAgg::draw_markers");
@@ -1207,15 +1238,15 @@ RendererAgg::draw_markers(const Py::Tuple& args) {
   Py::SeqBase<Py::Object> pathseq = args[1];
   Py::SeqBase<Py::Object> xo = args[2];
   Py::SeqBase<Py::Object> yo = args[3];
-
+  
   Transformation* mpltransform = static_cast<Transformation*>(args[4].ptr());
-
+  
   
   
   double a, b, c, d, tx, ty;
   mpltransform->affine_params_api(&a, &b, &c, &d, &tx, &ty);
   agg::trans_affine xytrans = agg::trans_affine(a,b,c,d,tx,ty);  
-
+  
   
   set_clip_rectangle(gc);
   size_t Npath = pathseq.length();
@@ -1223,7 +1254,7 @@ RendererAgg::draw_markers(const Py::Tuple& args) {
   size_t Ny = yo.length();
   
   if (Nx!=Ny) 
-    throw Py::ValueError(Printf("x and y must be equal length sequences; found %d and %d", Nx, Ny).str());
+  throw Py::ValueError(Printf("x and y must be equal length sequences; found %d and %d", Nx, Ny).str());
   
   
   
@@ -1242,25 +1273,25 @@ RendererAgg::draw_markers(const Py::Tuple& args) {
   Py::SeqBase<Py::Object> dashSeq;
   bool useDashes = dashtup[0].ptr() != Py_None;
   double offset = 0;
-
+  
   double *dasha = NULL; 
-
+  
   size_t Ndashes = 0;
   if ( useDashes ) { 
-    //TODO: use offset
-    offset = points_to_pixels_snapto(dashtup[0]);
-    dashSeq = dashtup[1]; 
-    
-    Ndashes = dashSeq.length();
-    if (Ndashes%2 != 0  ) 
-      throw Py::ValueError(Printf("dashes must be an even length sequence; found %d", Ndashes).str());     
-    
-    dasha = new double[Ndashes];    
-    
-    for (size_t i=0; i<Ndashes; i++) 
-      dasha[i] = points_to_pixels_snapto(dashSeq[i]);
+  //TODO: use offset
+  offset = points_to_pixels_snapto(dashtup[0]);
+  dashSeq = dashtup[1]; 
+  
+  Ndashes = dashSeq.length();
+  if (Ndashes%2 != 0  ) 
+  throw Py::ValueError(Printf("dashes must be an even length sequence; found %d", Ndashes).str());     
+  
+  dasha = new double[Ndashes];    
+  
+  for (size_t i=0; i<Ndashes; i++) 
+  dasha[i] = points_to_pixels_snapto(dashSeq[i]);
   }  
-
+  
   
   // initialize the marker path
   agg::path_storage marker;
@@ -1268,115 +1299,115 @@ RendererAgg::draw_markers(const Py::Tuple& args) {
   bool fill = false;
   agg::rgba fillColor;
   for (size_t i=0; i<Npath; i++) {
-    Py::Tuple tup = Py::Tuple(pathseq[i]);
-    unsigned code = Py::Int(tup[0]);
-    if (code==1) { //moveto
-      double x = Py::Float(tup[1]);
-      double y = Py::Float(tup[2]);
-      marker.move_to(x, -y);
-    }
-    else if (code==2) { //lineto
-      double x = Py::Float(tup[1]);
-      double y = Py::Float(tup[2]);
-      marker.line_to(x, -y);
-    }
-    else if (code==6) { //endpoly
-      marker.close_polygon();
-      fill = Py::Int(tup[1]);
-      if (fill) {
-	fillColor.r = Py::Float(tup[2]);
-	fillColor.g = Py::Float(tup[3]);
-	fillColor.b = Py::Float(tup[4]);
-	fillColor.a = Py::Float(tup[5]);
-      }
-    }
-    
+  Py::Tuple tup = Py::Tuple(pathseq[i]);
+  unsigned code = Py::Int(tup[0]);
+  if (code==1) { //moveto
+  double x = Py::Float(tup[1]);
+  double y = Py::Float(tup[2]);
+  marker.move_to(x, -y);
+  }
+  else if (code==2) { //lineto
+  double x = Py::Float(tup[1]);
+  double y = Py::Float(tup[2]);
+  marker.line_to(x, -y);
+  }
+  else if (code==6) { //endpoly
+  marker.close_polygon();
+  fill = Py::Int(tup[1]);
+  if (fill) {
+  fillColor.r = Py::Float(tup[2]);
+  fillColor.g = Py::Float(tup[3]);
+  fillColor.b = Py::Float(tup[4]);
+  fillColor.a = Py::Float(tup[5]);
+  }
+  }
+  
   }
   
   int isaa = antialiased(gc);
   
-
+  
   agg::path_storage path;
   typedef agg::conv_transform<agg::path_storage, agg::trans_affine> transpath_t;
   typedef agg::conv_dash<transpath_t> dash_t;
   
   for (size_t i=0; i<Nx; ++i) {
-    double thisx = Py::Float( xo[i] );
-    double thisy = Py::Float( yo[i] );
-    //std::cout << "Input " << thisx << " " << thisy << std::endl;
-
-    try {
-      //std::cout << thisy << std::endl;
-      if (mpltransform->need_nonlinear_api())
-	mpltransform->nonlinear_only_api(&thisx, &thisy);
-    }
-    catch (..) {
-      //std::cout << "caught a live one, ignoring" << std::endl;
-      continue;
-    }
-
-    xytrans.transform(&thisx, &thisy);
-
-
-    thisy = heightd - thisy;  //flipy
-    thisx = (int)(thisx)+0.5; //snapto
-    thisy = (int)(thisy)+0.5;
-    //std::cout << "Output " << thisx << " " << thisy << std::endl;
-    agg::trans_affine mtx;
-    mtx *= agg::trans_affine_translation(thisx,thisy);
-    transpath_t trans(marker, mtx);
-    
-    if (fill) {
-      rendererAA->color(fillColor);
-      theRasterizer->add_path(trans);    
-      agg::render_scanlines(*theRasterizer, *slineP8, *rendererAA);     
-    }
-
-    //std::cout << width << " " << height << std::endl;
-    if (! useDashes ) {
-      agg::conv_stroke<transpath_t> stroke(trans);
-      stroke.line_cap(cap);
-      stroke.line_join(join);
-      stroke.width(lw);
-      theRasterizer->add_path(stroke);
-      
-    }
-    else {
-      dash_t dash(trans);
-      //dash.dash_start(offset);
-      for (size_t idash=0; idash<Ndashes/2; idash++) 
-	dash.add_dash(dasha[2*idash], dasha[2*idash+1]);
-      
-      agg::conv_stroke<dash_t> stroke(dash);
-      //stroke.line_cap(cap);
-      //stroke.line_join(join);
-      stroke.width(lw);
-      theRasterizer->add_path(stroke);
-      
-    }
-
-    if ( isaa ) {
-      rendererAA->color(color);    
-      agg::render_scanlines(*theRasterizer, *slineP8, *rendererAA); 
-    }
-    else {
-      rendererBin->color(color);     
-      agg::render_scanlines(*theRasterizer, *slineBin, *rendererBin); 
-    }
-
+  double thisx = Py::Float( xo[i] );
+  double thisy = Py::Float( yo[i] );
+  //std::cout << "Input " << thisx << " " << thisy << std::endl;
+  
+  try {
+  //std::cout << thisy << std::endl;
+  if (mpltransform->need_nonlinear_api())
+  mpltransform->nonlinear_only_api(&thisx, &thisy);
+  }
+  catch (..) {
+  //std::cout << "caught a live one, ignoring" << std::endl;
+  continue;
+  }
+  
+  xytrans.transform(&thisx, &thisy);
+  
+  
+  thisy = heightd - thisy;  //flipy
+  thisx = (int)(thisx)+0.5; //snapto
+  thisy = (int)(thisy)+0.5;
+  //std::cout << "Output " << thisx << " " << thisy << std::endl;
+  agg::trans_affine mtx;
+  mtx *= agg::trans_affine_translation(thisx,thisy);
+  transpath_t trans(marker, mtx);
+  
+  if (fill) {
+  rendererAA->color(fillColor);
+  theRasterizer->add_path(trans);    
+  agg::render_scanlines(*theRasterizer, *slineP8, *rendererAA);     
+  }
+  
+  //std::cout << width << " " << height << std::endl;
+  if (! useDashes ) {
+  agg::conv_stroke<transpath_t> stroke(trans);
+  stroke.line_cap(cap);
+  stroke.line_join(join);
+  stroke.width(lw);
+  theRasterizer->add_path(stroke);
+  
+  }
+  else {
+  dash_t dash(trans);
+  //dash.dash_start(offset);
+  for (size_t idash=0; idash<Ndashes/2; idash++) 
+  dash.add_dash(dasha[2*idash], dasha[2*idash+1]);
+  
+  agg::conv_stroke<dash_t> stroke(dash);
+  //stroke.line_cap(cap);
+  //stroke.line_join(join);
+  stroke.width(lw);
+  theRasterizer->add_path(stroke);
+  
+  }
+  
+  if ( isaa ) {
+  rendererAA->color(color);    
+  agg::render_scanlines(*theRasterizer, *slineP8, *rendererAA); 
+  }
+  else {
+  rendererBin->color(color);     
+  agg::render_scanlines(*theRasterizer, *slineBin, *rendererBin); 
+  }
+  
   } //for each marker
-    
+  
   if (useDashes) delete [] dasha;  
   return Py::Object();
   
-}
-
+  }
+  
 */
 
 Py::Object
 RendererAgg::draw_text(const Py::Tuple& args) {
   _VERBOSE("RendererAgg::draw_text");
-
+  
   args.verify_length(4);
   
   
@@ -1384,12 +1415,12 @@ RendererAgg::draw_text(const Py::Tuple& args) {
   
   int x = Py::Int( args[1] );
   int y = Py::Int( args[2] );
-
+  
   GCAgg gc = GCAgg(args[3], dpi);
- 
+  
   set_clipbox_rasterizer( gc.cliprect);
-
-
+  
+  
   pixfmt::color_type p;
   p.r = int(255*gc.color.r); 
   p.b = int(255*gc.color.b); 
@@ -1398,7 +1429,7 @@ RendererAgg::draw_text(const Py::Tuple& args) {
   
   //y = y-font->image.height;
   unsigned thisx, thisy;
-
+  
   double l = 0;
   double b = 0;
   double r = width;
@@ -1411,7 +1442,7 @@ RendererAgg::draw_text(const Py::Tuple& args) {
     r = l+w;
     t = b+h;
   }
-
+  
   
   for (size_t i=0; i<font->image.width; ++i) {
     for (size_t j=0; j<font->image.height; ++j) {
@@ -1862,15 +1893,15 @@ DL_EXPORT(void)
 #endif
 {
   //static _backend_agg_module* _backend_agg = new _backend_agg_module;
-
+  
 #if defined(NUMARRAY)
   _VERBOSE("init_na_backend_agg");
 #else
   _VERBOSE("init_nc_backend_agg");
 #endif
-
+  
   import_array();  
-
+  
   static _backend_agg_module* _backend_agg = NULL;
   _backend_agg = new _backend_agg_module;
   

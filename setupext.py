@@ -495,7 +495,7 @@ def build_enthought(ext_modules, packages):
     packages.extend(['matplotlib/enthought',
                      'matplotlib/enthought/traits',
                      'matplotlib/enthought/traits/ui',
-                     'matplotlib/enthought/traits/ui/null',                     
+                     'matplotlib/enthought/traits/ui/null',
                      'matplotlib/enthought/resource',
                      'matplotlib/enthought/util',
                      ])
