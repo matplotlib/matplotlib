@@ -16,6 +16,7 @@ from matplotlib.figure import Figure
 import gtk
 
 win = gtk.Window()
+win.set_default_size(400,300)
 win.set_title("Embedding in GTK")
 win.connect("destroy", lambda x: gtk.main_quit())
 
