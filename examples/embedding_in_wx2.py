@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-An example of how to use wx or wxagg in an application w/o the toolbar
+An example of how to use wx or wxagg in an application w. or w/o the toolbar
 """
 
 from matplotlib.numerix import arange, sin, pi
@@ -14,6 +14,7 @@ import matplotlib
 # comment out the following to use wx rather than wxagg
 matplotlib.use('WXAgg')
 from matplotlib.backends.backend_wxagg import FigureCanvasWxAgg as FigureCanvas
+from matplotlib.backends.backend_wx import NavigationToolbarWx as NavigationToolbar
 
 from matplotlib.figure import Figure
 
@@ -27,7 +28,7 @@ class CanvasFrame(wxFrame):
 
         self.SetBackgroundColour(wxNamedColor("WHITE"))
 
-        self.figure = Figure(figsize=(5,4), dpi=100)
+        self.figure = Figure()
         self.axes = self.figure.add_subplot(111)
         t = arange(0.0,3.0,0.01)
         s = sin(2*pi*t)
@@ -38,9 +39,35 @@ class CanvasFrame(wxFrame):
 
         self.sizer = wxBoxSizer(wxVERTICAL)
         self.sizer.Add(self.canvas, 1, wxTOP | wxLEFT | wxEXPAND)
+
+        #self.add_toolbar()  # comment this out for no toolbar
+
+
         # Capture the paint message        
         EVT_PAINT(self, self.OnPaint)        
 
+    def add_toolbar(self):
+        self.toolbar = NavigationToolbar(self.canvas, True)
+        self.toolbar.Realize()
+        if wxPlatform == '__WXMAC__':
+            # Mac platform (OSX 10.3, MacPython) does not seem to cope with
+            # having a toolbar in a sizer. This work-around gets the buttons
+            # back, but at the expense of having the toolbar at the top
+            self.SetToolBar(self.toolbar)
+        else:
+            # On Windows platform, default window size is incorrect, so set
+            # toolbar width to figure width.
+            tw, th = self.toolbar.GetSizeTuple()
+            fw, fh = self.canvas.GetSizeTuple()
+            # By adding toolbar in sizer, we are able to put it at the bottom
+            # of the frame - so appearance is closer to GTK version.
+            # As noted above, doesn't work for Mac.
+            self.toolbar.SetSize(wxSize(fw, th))
+            self.sizer.Add(self.toolbar, 0, wxLEFT | wxEXPAND)
+        # update the axes menu on the toolbar
+        self.toolbar.update()  
+
+        
     def OnPaint(self, event):
         self.canvas.draw()
         

@@ -1,5 +1,8 @@
 New entries should be added at the top
 
+2004-07-14 Fixed layer images demo which was broken by the 07/12 image
+           extent fixes - JDH
+
 2004-07-13 Modified line collections to handle arbitrary length
            segments for each line segment. - JDH
 
