@@ -248,7 +248,6 @@ agg22/svg/win32_api/svg_test.dsp
 agg22/svg/win32_api/svg_test.dsw
 examples/README
 examples/__init__.py
-examples/_tmp_simple_plot.py
 examples/accented_text.py
 examples/agg_oo.py
 examples/alignment_test.py
@@ -298,6 +297,7 @@ examples/figimage_demo.py
 examples/figlegend_demo.py
 examples/figtext.py
 examples/fill_between.py
+examples/fill_between_posneg.py
 examples/fill_demo.py
 examples/fill_spiral.py
 examples/finance_demo.py
@@ -522,15 +522,18 @@ lib/matplotlib/artist.py
 lib/matplotlib/axes.py
 lib/matplotlib/axis.py
 lib/matplotlib/backend_bases.py
+lib/matplotlib/backend_bases.py.~1.42.~
 lib/matplotlib/cbook.py
 lib/matplotlib/cm.py
 lib/matplotlib/collections.py
+lib/matplotlib/collections.py.~1.15.~
 lib/matplotlib/colors.py
 lib/matplotlib/dates.py
 lib/matplotlib/figure.py
 lib/matplotlib/figure.py.~1.16.~
 lib/matplotlib/finance.py
 lib/matplotlib/font_manager.py
+lib/matplotlib/font_manager.py.~1.8.~
 lib/matplotlib/image.py
 lib/matplotlib/legend.py
 lib/matplotlib/lines.py
@@ -538,7 +541,6 @@ lib/matplotlib/lines.py.~1.23.~
 lib/matplotlib/mathtext.py
 lib/matplotlib/mlab.py
 lib/matplotlib/patches.py
-lib/matplotlib/path.py
 lib/matplotlib/pylab.py
 lib/matplotlib/pylab.py.~1.45.~
 lib/matplotlib/pyparsing.py
