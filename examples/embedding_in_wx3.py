@@ -21,16 +21,19 @@ Thanks to matplotlib and wx teams for creating such great software!
 import sys, time, os, gc
 import matplotlib
 matplotlib.use('WXAgg')
-from matplotlib import rcParams
-rcParams['image.origin'] = 'upper' # 'lower': nav toolbar problem -ADS
 import matplotlib.cm as cm
 from matplotlib.backends.backend_wxagg import Toolbar, FigureCanvasWxAgg
 from matplotlib.figure import Figure
 import matplotlib.numerix as numerix
+from matplotlib.mlab import meshgrid
+
 from wxPython.wx import *
 from wxPython.xrc import *
 
 ERR_TOL = 1e-5 # floating point slop for peak-detection
+
+
+matplotlib.rc('image', origin='upper')
 
 class PlotPanel(wxPanel):
 
@@ -54,11 +57,10 @@ class PlotPanel(wxPanel):
 
     def init_plot_data(self):
         a = self.fig.add_subplot(111)
-        self.x = numerix.arange(120.0)*2*numerix.pi/60.0
-        self.x.resize((100,120))
-        self.y = numerix.arange(100.0)*2*numerix.pi/50.0
-        self.y.resize((120,100))
-        self.y = numerix.transpose(self.y)
+        
+        x = numerix.arange(120.0)*2*numerix.pi/60.0
+        y = numerix.arange(100.0)*2*numerix.pi/50.0
+        self.x, self.y = meshgrid(x, y)
         z = numerix.sin(self.x) + numerix.cos(self.y)
         self.im = a.imshow( z, cmap=cm.jet)#, interpolation='nearest')
         
