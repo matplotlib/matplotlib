@@ -10,7 +10,7 @@ from matplotlib.numerix import asarray, fromstring, UInt8, zeros, \
      where, transpose, nonzero, indices, ones, nx
 
 import matplotlib.numerix as numerix
-from matplotlib.cbook import is_string_like, enumerate, onetrue
+from matplotlib.cbook import is_string_like, enumerate
 from matplotlib.font_manager import fontManager
 
 from matplotlib.backend_bases import RendererBase, GraphicsContextBase, \
@@ -234,9 +234,8 @@ class RendererGDK(RendererBase):
         # convert it to it's proper shape
         Xs.shape = imh, imw
 
-        pb=gtk.gdk.Pixbuf(gtk.gdk.COLORSPACE_RGB,
-                          #has_alpha=1, bits_per_sample=8, width=imw, height=imh)
-                          has_alpha=True, bits_per_sample=8, width=imw, height=imh)
+        pb = gtk.gdk.Pixbuf(gtk.gdk.COLORSPACE_RGB, has_alpha=True,
+                            bits_per_sample=8, width=imw, height=imh)
 
         try:
             pa = pb.get_pixels_array()
