@@ -1,4 +1,4 @@
-#!/usr/bin/env python2.3
+#!/usr/bin/env python
 import matplotlib
 matplotlib.use('GTKAgg')
 import pylab
@@ -20,7 +20,7 @@ def updatefig(*args):
     if updatefig.count>59: updatefig.count=0
     lines[0].set_ydata(X[:,updatefig.count])
     manager.canvas.draw()
-    return gtk.TRUE
+    return True
 
 updatefig.count=-1
 
