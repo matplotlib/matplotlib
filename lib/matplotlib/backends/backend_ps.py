@@ -5,7 +5,6 @@ Encapsulated PostScript .eps files.
 
 from __future__ import division
 import sys, os
-from cStringIO import StringIO
 from datetime import datetime
 from matplotlib import verbose, __version__
 from matplotlib._matlab_helpers import Gcf
@@ -55,6 +54,11 @@ _type42 = []
 
 
 class RendererPS(RendererBase):
+    """
+    The renderer handles all the drawing primitives using a graphics
+    context instance that controls the colors/styles
+    """
+
     def __init__(self, width, height, pswriter):
         self.width = width
         self.height = height
@@ -206,7 +210,6 @@ grestore
         point in x, y
         """
         if len(x)==0: return
-        if len(x)!=len(y): error_msg_ps('x and y must be the same length')
         j, ps = 0, []
         
         while j < len(x)-1001:
@@ -286,9 +289,6 @@ show
 grestore
 """ % locals()
         self.draw_postscript(ps)
-        
-    def get_ps(self):
-        return self._pswriter.getvalue()
 
     def new_gc(self):
         return GraphicsContextPS()
@@ -463,7 +463,7 @@ class FigureCanvasPS(FigureCanvasBase):
     def draw(self):
         pass
     
-    def print_figure(self, filename, dpi=72,
+    def print_figure(self, outfile, dpi=72,
                      facecolor='w', edgecolor='w',
                      orientation='portrait'):
         """
@@ -471,15 +471,36 @@ class FigureCanvasPS(FigureCanvasBase):
         edge colors.  This is useful because some of the GUIs have a
         gray figure face color background and you'll probably want to
         override this on hardcopy
+
+        If outfile is a string, it is interpreted as a file name.
+        If the extension matches .ep* write encapsulated postscript,
+        otherwise write a stand-alone PostScript file.
+
+        If outfile is a file object, a stand-alone PostScript file is
+        written into this file object.
         """
-        basename, ext = os.path.splitext(filename)
-        if not ext: filename += '.ps'
-        isEPSF = ext.lower().startswith('.ep')
-        
-        self.figure.dpi.set(72)        # ignore the passsed dpi setting for PS
-        width, height = self.figure.get_size_inches()
+
+        if  isinstance(outfile, file):
+            # assume plain PostScript and write to fileobject
+            isEPSF = False
+            fh = outfile
+            needsClose = False
+            title = None
+        else:
+            basename, ext = os.path.splitext(outfile)
+            if not ext: outfile += '.ps'
+            isEPSF = ext.lower().startswith('.ep')
+            try:
+                fh = file(outfile, 'w')
+            except IOError:
+                error_msg_ps('Could not open %s for writing' % outfile)
+            needsClose = True
+            title = outfile
         
         # center the figure on the paper
+        self.figure.dpi.set(72)        # ignore the passsed dpi setting for PS
+        width, height = self.figure.get_size_inches()
+
         if orientation=='landscape':
             isLandscape = True
             paperHeight, paperWidth = defaultPaperSize
@@ -502,32 +523,12 @@ class FigureCanvasPS(FigureCanvasBase):
         else:
             rotation = 0
 
-        # generate PostScript code for the figure and store it in a string
-        self._pswriter = StringIO()
-
-        origfacecolor = self.figure.get_facecolor()
-        origedgecolor = self.figure.get_edgecolor()
-        self.figure.set_facecolor(facecolor)
-        self.figure.set_edgecolor(edgecolor)
-
-        renderer = RendererPS(width, height, self._pswriter)
-        self.figure.draw(renderer)
-
-        self.figure.set_facecolor(origfacecolor)
-        self.figure.set_edgecolor(origedgecolor)
-
-        # write the generated figure, together with all the PostScript
-        # headers and trailers into 'filename'
-        try:
-            fh = file(filename, 'w')
-        except IOError:
-            error_msg_ps('Could not open %s for writing' % filename)
-
+        # write the PostScript headers
         if isEPSF:
             print >>fh, "%!PS-Adobe-3.0 EPSF-3.0"
         else:
             print >>fh, "%!PS-Adobe-3.0"
-        print >>fh, "%%Title: "+filename
+        if title: print >>fh, "%%Title: "+title
         print >>fh, ("%%Creator: matplotlib version "
                      +__version__+", http://matplotlib.sourceforge.net/")
         print >>fh, "%%CreationDate: "+datetime.today().ctime()
@@ -564,12 +565,26 @@ class FigureCanvasPS(FigureCanvasBase):
         if rotation:
             print >>fh, "%d rotate"%rotation
         print >>fh, "%s clipbox"%_nums_to_str( (width*72, height*72, 0, 0) )
-        print >>fh, renderer.get_ps()
+
+        # write the figure
+        origfacecolor = self.figure.get_facecolor()
+        origedgecolor = self.figure.get_edgecolor()
+        self.figure.set_facecolor(facecolor)
+        self.figure.set_edgecolor(edgecolor)
+
+        renderer = RendererPS(width, height, fh)
+        self.figure.draw(renderer)
+
+        self.figure.set_facecolor(origfacecolor)
+        self.figure.set_edgecolor(origedgecolor)
+
+        # write the trailer
         print >>fh, "grestore"
         print >>fh, "end"
         print >>fh, "showpage"
 
         if not isEPSF: print >>fh, "%%EOF"
+        if needsClose: fh.close()
 
 class FigureManagerPS(FigureManagerBase):
     pass
