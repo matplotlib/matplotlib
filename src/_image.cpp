@@ -133,6 +133,7 @@ char Image_as_str__doc__[] =
 "numrows, numcols, s = as_str()"
 "\n"
 "Call this function after resize to get the data as string"
+"The string is a numrows by numcols x 4 (RGBA) unsigned char buffer"
 ;
 
 static PyObject *
