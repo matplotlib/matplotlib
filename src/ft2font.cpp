@@ -597,7 +597,7 @@ FT2Font::image_as_str(const Py::Tuple & args) {
   _VERBOSE("FT2Font::image_as_str");
   args.verify_length(0);
   
-  return Py::Object(
+  return Py::asObject(
 		    Py_BuildValue("lls#", 
 				  image.width, 
 				  image.height, 
@@ -850,8 +850,8 @@ FT2Font::get_name_index(const Py::Tuple & args) {
   args.verify_length(1);
   std::string glyphname = Py::String(args[0]);
 
-  return Py::Object(Py::Long((long)
-	     FT_Get_Name_Index(face, (FT_String *) glyphname.c_str())));
+  return Py::Long((long)
+		  FT_Get_Name_Index(face, (FT_String *) glyphname.c_str()));
 }
 
 char FT2Font::get_ps_font_info__doc__[] =
@@ -916,7 +916,7 @@ FT2Font::get_sfnt_table(const Py::Tuple & args) {
       char head_dict[] = "{s:(h,h), s:(h,h), s:l, s:l, s:i, s:i,"
 	"s:(l,l), s:(l,l), s:h, s:h, s:h, s:h, s:i, s:i, s:h, s:h, s:h}";
       TT_Header *t = (TT_Header *)table;
-      return Py::Object(Py_BuildValue(head_dict,
+      return Py::asObject(Py_BuildValue(head_dict,
 			 "version",
 			 FIXED_MAJOR(t->Table_Version),
 			 FIXED_MINOR(t->Table_Version),
@@ -944,7 +944,7 @@ FT2Font::get_sfnt_table(const Py::Tuple & args) {
       char maxp_dict[] = "{s:(h,h), s:i, s:i, s:i, s:i, s:i, s:i,"
 	"s:i, s:i, s:i, s:i, s:i, s:i, s:i, s:i}";
       TT_MaxProfile *t = (TT_MaxProfile *)table;
-      return Py::Object(Py_BuildValue(maxp_dict,
+      return Py::asObject(Py_BuildValue(maxp_dict,
 			   "version",
 			   FIXED_MAJOR(t->version),
 			   FIXED_MINOR(t->version),
@@ -975,7 +975,7 @@ FT2Font::get_sfnt_table(const Py::Tuple & args) {
 	"s:h, s:h, s:h, s:h, s:h, s:h, s:h, s:h, s:s#, s:(llll),"
 	"s:s#, s:h, s:h, s:h}";
       TT_OS2 *t = (TT_OS2 *)table;
-      return Py::Object(Py_BuildValue(os_2_dict,
+      return Py::asObject(Py_BuildValue(os_2_dict,
 		           "version",       (unsigned)t->version,
 			   "xAvgCharWidth",      t->xAvgCharWidth,
 			   "usWeightClass", (unsigned)t->usWeightClass,
@@ -1008,7 +1008,7 @@ FT2Font::get_sfnt_table(const Py::Tuple & args) {
       char hhea_dict[] = "{s:(h,h), s:h, s:h, s:h, s:i, s:h, s:h, s:h,"
 	"s:h, s:h, s:h, s:h, s:i}";
       TT_HoriHeader *t = (TT_HoriHeader *)table;
-      return Py::Object(Py_BuildValue(hhea_dict,
+      return Py::asObject(Py_BuildValue(hhea_dict,
 			   "version",
 			   FIXED_MAJOR(t->Version),
 			   FIXED_MINOR(t->Version),
@@ -1031,7 +1031,7 @@ FT2Font::get_sfnt_table(const Py::Tuple & args) {
       char vhea_dict[] = "{s:(h,h), s:h, s:h, s:h, s:i, s:h, s:h, s:h,"
 	"s:h, s:h, s:h, s:h, s:i}";
       TT_VertHeader *t = (TT_VertHeader *)table;
-      return Py::Object(Py_BuildValue(vhea_dict,
+      return Py::asObject(Py_BuildValue(vhea_dict,
 			   "version",
 			   FIXED_MAJOR(t->Version),
 			   FIXED_MINOR(t->Version),

@@ -428,7 +428,7 @@
 
 -- DONE fix set_def font example and update API_CHANGES
 
--- upload 0.54.2 zip
+-- CLOSED upload 0.54.2 zip
 
 -- DONE need a new way to indicate linestyle
 
@@ -471,7 +471,7 @@
 
 -- DONE update nav section of tutorial
 
--- track down transforms memleak
+-- DONE track down transforms memleak
 
 -- DONE make sure you handle cacheing of rotated mathtext properly
 
@@ -481,4 +481,6 @@
 
 -- add new connect to API_CHANGES
 
---port new toolbar to embedding examples
+-- port new toolbar to embedding examples
+
+-- \sum height problem - see mathtext_tut
