@@ -1,6 +1,9 @@
 #!/usr/bin/env python
 from matplotlib.matlab import *
-import Image
+try:
+    import Image
+except ImportError, exc:
+    raise SystemExit("PIL must be loaded to run this example")
 
 lena = Image.open('data/lena.jpg')
 dpi = rcParams['figure.dpi']
