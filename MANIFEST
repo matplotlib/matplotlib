@@ -232,6 +232,7 @@ examples/multiple_figs_demo.py
 examples/object_picker.py
 examples/pcolor_demo.py
 examples/pcolor_demo2.py
+examples/pcolor_small.py
 examples/psd_demo.py
 examples/pstest.py
 examples/pythonic_matplotlib.py

@@ -21,6 +21,7 @@ from matplotlib.figure import Figure
 from matplotlib.lines import Line2D, lineStyles, lineMarkers
 from matplotlib.transforms import Bbox, lbwh_to_bbox
 from matplotlib.patches import draw_bbox
+from matplotlib.cbook import is_string_like
 from matplotlib.colors import colorConverter
 import gtk
 
@@ -67,6 +68,7 @@ def make_option_menu( names, func=None ):
     menu.show()
     d = {}
     for label in names:
+        if  not is_string_like(label): continue
         item = gtk.MenuItem(label)
         menu.append(item)
         item.show()
@@ -234,7 +236,7 @@ class PickerCanvas(FigureCanvas):
 
         def over_text(t):
             bbox = t.get_window_extent(self.renderer)
-            return clickBBox.overlap(bbox)
+            return clickBBox.overlaps(bbox)
 
         def over_line(line):
             # can't use the line bbox because it covers the entire extent

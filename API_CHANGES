@@ -3,6 +3,17 @@ API CHANGES in matplotlib-0.54
 matlab interface
 ================
 
+dpi
+---
+
+Several of the backends used a PIXELS_PER_INCH hack that I added to
+try and make images render consistently across backends.  This just
+complicated matters.  So you may find that some font sizes and line
+widths appear different than before.  Apologies for the
+inconvenience. You should set the dpi to an accurate value for your
+screen to get true sizes.
+
+
 pcolor and scatter
 ------------------
 
@@ -96,12 +107,12 @@ Bounding boxes
    get the width and height of the bbox
 
      OLD
-        width = self.figure.bbox.x.interval()
-        height = self.figure.bbox.y.interval()
+        width  = fig.bbox.x.interval()
+        height = fig.bbox.y.interval()
 
      New
-        width = self.figure.bbox.width()
-        height = self.figure.bbox.height()
+        width  = fig.bbox.width()
+        height = fig.bbox.height()
 
 
 
@@ -170,9 +181,22 @@ Transformations
      Although this was done in numerix, it still involves 6 length(x)
      for-loops (the multiply, add, and function evaluation each for x
      and y).  Now all of that is done in a single pass.
+
+
+  If you are using transformations and bounding boxes to get the
+  cursor position in data coordinates, the method calls are a little
+  different now.  See the updated examples/coords_demo.py which shows
+  you how to do this.
+
+  Likewise, if you are using the artist bounding boxes to pick items
+  on the canvas with the GUI, the bbox methods are somewhat
+  different.  You will need to see the updated
+  examples/object_picker.py. 
  
   See unit/transforms_unit.py for many examples using the new
   transformations.
+
+
 
 API changes at 0.50
 
