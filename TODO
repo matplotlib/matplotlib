@@ -486,3 +486,5 @@
 -- \sum height problem - see mathtext_tut
 
 -- check for zero zoom to rect
+
+-- make sure toolbar events and user events can coexist happily
