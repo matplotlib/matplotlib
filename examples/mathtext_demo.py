@@ -11,7 +11,7 @@ BUILD_FT2FONT = True
 """
 from pylab import *
 subplot(111, axisbg='y')
-plot([1,2,3])
+plot([1,2,3], 'r')
 x = arange(0.0, 3.0, 0.1)
 
 grid(True)
