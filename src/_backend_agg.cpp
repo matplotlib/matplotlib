@@ -43,7 +43,7 @@ RendererAgg::RendererAgg(unsigned int width, unsigned int height, double dpi,
   
   pixFmt = new pixfmt(*renderingBuffer);
   rendererBase = new renderer_base(*pixFmt);
-  rendererBase->clear(agg::rgba(1, 1, 1));
+  rendererBase->clear(agg::rgba(1, 1, 1, 0));
   
   theRenderer = new renderer(*rendererBase);
   rendererBin = new renderer_bin(*rendererBase);

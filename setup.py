@@ -98,7 +98,7 @@ if BUILD_GTKAGG:
 
 if BUILD_TKAGG:
     try: import Tkinter
-    except ImportError: print 'GTKAgg requires pygtk'
+    except ImportError: print 'TKAgg requires TkInter'
     else:
         BUILD_AGG = 1
         build_tkagg(ext_modules, packages)
