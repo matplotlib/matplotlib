@@ -1,5 +1,7 @@
 New entries should be added at the top
 ------------------------------------------------------------
+2004-05-05 Refactored text instances out of backend - JDH
+
 2004-05-04 Added fonts_demo.py to backend_driver, and AFM and TTF font
            caches to font_manager.py - PEB
 
