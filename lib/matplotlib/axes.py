@@ -1251,13 +1251,15 @@ Eg
 IMSHOW(X, cmap=None, norm=None, aspect=None, interpolation=None,
        alpha=1.0, vmin=None, vmax=None, origin=None, extent=None)
                
-IMSHOW(X) - plot image in array X to current axes, resampling to scale
-            to axes size
+IMSHOW(X) - plot image X to current axes, resampling to scale to axes
+            size (X may be numarray/Numeric array or PIL image)
 
 IMSHOW(X, **kwargs) - Use keyword args to control image scaling,
 colormapping etc. See below for details
 
-Display the image in float array X; X can have the following shapes
+
+Display the image in X to current axes.  X may be a float array or a
+PIL image. If X is a float array, X can have the following shapes
 
     MxN    : luminance (grayscale)
 
@@ -1270,7 +1272,7 @@ A matplotlib.image.AxesImage instance is returned
 The following kwargs are allowed: 
 
   * cmap is a cm colormap instance, eg cm.jet.  If None, default to rc
-    image.cmap value
+    image.cmap value (Ignored when X has RGB(A) information)
 
   * aspect is one of: free or preserve.  if None, default to rc
     image.aspect value
@@ -1280,7 +1282,8 @@ The following kwargs are allowed:
     If None, default to rc image.interpolation
 
   * norm is a matplotlib.colors.normalize instance; default is
-    normalization().  This scales luminance -> 0-1. 
+    normalization().  This scales luminance -> 0-1 (Ignored when X is
+    PIL image).
 
   * vmin and vmax are used to scale a luminance image to 0-1.  If
     either is None, the min and max of the luminance values will be
@@ -1308,8 +1311,7 @@ The following kwargs are allowed:
         if norm is None:            
             im.set_clim(vmin, vmax)
 
-
-        im.set_array(X)
+        im.set_data(X)
         im.set_alpha(alpha)
 
         xmin, xmax, ymin, ymax = im.get_extent()
