@@ -1,5 +1,9 @@
 New entries should be added at the top
 =======
+2004-06-16 backend_gtk.py updates to replace deprecated functions
+	   gtk.mainquit(), gtk.mainloop().
+           Update NavigationToolbar to use the new GtkToolbar API - SC
+
 2004-06-15 Improved (yet again!) axis scaling to properly handle
            singleton plots - JDH
 
