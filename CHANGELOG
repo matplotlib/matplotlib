@@ -1,6 +1,9 @@
 New entries should be added at the top
 
 ==============================================================
+2004-10-19 Re-worked exception handling in _image.py and _transforms.py
+           to avoid masking problems with shared libraries.  - JTM
+
 2004-10-16 Streamlined the matlab interface wrapper, removed the
 noplot option to hist - just use mlab.hist instead.
 
