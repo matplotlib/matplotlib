@@ -83,6 +83,7 @@ class Legend(Artist):
                  numpoints = 4,      # the number of points in the legend line
                  prop = FontProperties(size='smaller'),
                  pad = 0.2,          # the fractional whitespace inside the legend border
+                 markerscale = 0.6,    # the relative size of legend markers vs. original
                  # the following dimensions are in axes coords
                  labelsep = 0.005,     # the vertical space between the legend entries
                  handlelen = 0.05,     # the length of the legend lines
@@ -100,6 +101,7 @@ class Legend(Artist):
   numpoints = 4         # the number of points in the legend line
   fontprop = FontProperties('smaller')  # the font property
   pad = 0.2             # the fractional whitespace inside the legend border
+  markerscale = 0.6     # the relative size of legend markers vs. original
   shadow                # if True, draw a shadow behind legend 
 
 The following dimensions are in axes coords
@@ -117,6 +119,7 @@ The following dimensions are in axes coords
         self.prop = prop
         self.fontsize = prop.get_size_in_points()
         self.pad = pad
+        self.markerscale = markerscale
         self.labelsep = labelsep
         self.handlelen = handlelen
         self.handletextsep = handletextsep
@@ -215,7 +218,7 @@ The following dimensions are in axes coords
                 legline = Line2D(self._xdata, ydata)
                 self._set_artist_props(legline)
                 legline.copy_properties(handle)
-                legline.set_markersize(0.6*legline.get_markersize())
+                legline.set_markersize(self.markerscale*legline.get_markersize())
                 legline.set_data_clipping(False)
                 ret.append(legline)
             elif isinstance(handle, Patch):
