@@ -15,7 +15,7 @@ ext_modules = []
 if 0: # how do I add '--with-gtkgd' flag checking?
     build_gtkgd(ext_modules)
 
-if 1: 
+if 0: 
     build_agg(ext_modules)
 
 setup(name="matplotlib",
