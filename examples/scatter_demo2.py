@@ -16,7 +16,7 @@ xlabel(r'$\Delta_i$', fontsize=20)
 ylabel(r'$\Delta_{i+1}$', fontsize=20)
 title(r'Volume and percent change')
 grid(True)
-savefig('scatter_demo2')
+#savefig('scatter_demo2')
 show()
 
 

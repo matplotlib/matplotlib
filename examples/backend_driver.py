@@ -24,6 +24,7 @@ files = (
     'line_styles.py',
     'log_demo.py',
     'log_test.py',
+    'mathtext_demo.py',
     'mri_with_eeg.py',
     'multiple_figs_demo.py',
     'pcolor_demo.py',
@@ -65,7 +66,7 @@ def drive(backend):
 times = {}
 backends = ['PS', 'GD', 'Paint', 'Agg', 'Template']
 #backends.extend([ 'GTK', 'WX', 'TkAgg'])
-backends = [ 'Agg']
+#backends = [ 'Agg']
 
 for backend in backends:
     print 'testing %s' % backend
