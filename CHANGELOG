@@ -1,6 +1,8 @@
 New entries should be added at the top
 
 ==============================================================
+2004-10-21 Added polar axes and plots - JDH
+
 2004-10-20 Fixed corrcoef bug exposed by corrcoef(X) where X is matrix
            - JDH
 
@@ -13,7 +15,7 @@ New entries should be added at the top
            to avoid masking problems with shared libraries.  - JTM
 
 2004-10-16 Streamlined the matlab interface wrapper, removed the
-noplot option to hist - just use mlab.hist instead.
+           noplot option to hist - just use mlab.hist instead.
 
 2004-09-30 Added Andrew Dalke's strftime code to extend the range of
            dates supported by the DateFormatter - JDH

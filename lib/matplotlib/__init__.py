@@ -526,6 +526,8 @@ defaultParams = {
     'axes.labelsize'    : ['medium', validate_fontsize], # fontsize of the x any y labels
     'axes.labelcolor'   : ['k', validate_color],    # color of axis label
 
+    'polaraxes.grid'         : [True, validate_bool],   # display grid or not    
+
     # tick properties
     'tick.major.size'   : [5, validate_float],      # major tick size in points
     'tick.minor.size'   : [2, validate_float],      # minor tick size in points    

@@ -178,9 +178,9 @@ but should use the helper functions defined in this module.
 
 The units/transform_unit.py code has many examples.
 """
-from _transforms import Value, Point, Bbox, Affine
-from _transforms import IDENTITY, LOG10, Func, FuncXY, PolarXY
-from _transforms import SeparableTransformation
+from _transforms import Value, Point, Interval, Bbox, Affine
+from _transforms import IDENTITY, LOG10, POLAR, Func, FuncXY
+from _transforms import SeparableTransformation, NonseparableTransformation
 
 def zero(): return Value(0)
 
@@ -194,12 +194,6 @@ def unit_bbox():
     Get a 0,0 -> 1,1 Bbox instance
     """
     return  Bbox( origin(), Point( one(), one() ) )
-
-def identity_funcxy():
-    """
-    Get  funcxy instance that maps x,y -> x,y
-    """
-    return FuncXY(Func(IDENTITY), Func(IDENTITY))
 
 def identity_affine():
     """
@@ -245,15 +239,6 @@ def scale_sep_transform(sx, sy):
         bboxin, bboxout,
         Func(IDENTITY), Func(IDENTITY))
                                     
-def scale_translation_transform(tx, ty, sx, sy):
-    """
-    Return a pure scale and translation transformation; tx, ty, sx and
-    sy are LazyValue instances (Values or binary opertations on
-    values)
-    """
-    affine = Affine(sx, zero(), zero(), sy, tx, ty)
-    func = identity_funcxy()
-    return Transformation( affine, func)
 
     
 def bound_vertices(verts):

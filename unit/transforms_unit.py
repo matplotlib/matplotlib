@@ -3,9 +3,9 @@
 from matplotlib.numerix import array, rand, asarray, alltrue, rand
 from matplotlib.transforms import Point, Bbox, Value, Affine
 from matplotlib.transforms import multiply_affines
-from matplotlib.transforms import Func, IDENTITY, LOG10, FuncXY, PolarXY
+from matplotlib.transforms import Func, IDENTITY, LOG10, POLAR, FuncXY
 from matplotlib.transforms import SeparableTransformation
-from matplotlib.transforms import identity_transform, unit_bbox, identity_funcxy
+from matplotlib.transforms import identity_transform, unit_bbox
 from matplotlib.transforms import get_bbox_transform
 from matplotlib.transforms import transform_bbox, inverse_transform_bbox
 from matplotlib.transforms import bbox_all
@@ -250,7 +250,7 @@ ymax = max([box.ymax() for box in boxes])
 
 box = bbox_all(boxes)
 assert( closeto_seq( box.get_bounds(), (xmin, ymin, xmax-xmin, ymax-ymin)))
-print 'all tests passed'
+
 
 
 
@@ -265,3 +265,9 @@ newboundsy = t2.get_bbox1().intervaly().get_bounds()
 assert(oboundsx==newboundsx)
 assert(oboundsy==newboundsy)
 
+
+import math
+polar = FuncXY(POLAR)
+assert( closeto_seq( polar.map(-1,math.pi), (1,0)) )
+assert( closeto_seq( polar.inverse(1,1), (math.sqrt(2), math.pi/4)))
+print 'all tests passed'

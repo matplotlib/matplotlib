@@ -158,7 +158,7 @@ import cm
 import _matlab_helpers
 import mlab  #so I can override hist, psd, etc...
 
-from axes import Axes
+from axes import Axes, PolarAxes
 from backends import new_figure_manager, error_msg, \
      draw_if_interactive, show
 from cbook import flatten, is_string_like, exception_to_str
@@ -710,7 +710,7 @@ def figure(num=1,
     
     return figManager.canvas.figure
 
-def gca():
+def gca(**kwargs):
     """
     Return the current axis instance.  This can be used to control
     axis properties either using set or the Axes methods.
@@ -727,7 +727,7 @@ def gca():
       a.set_xlim([0,10])          # does the same
     """
 
-    return get_current_fig_manager().get_current_axis()
+    return get_current_fig_manager().get_current_axis(**kwargs)
         
 def gcf():
     "Return a handle to the current figure"
@@ -1204,3 +1204,16 @@ def yticks(*args, **kwargs):
     return locs, labels
 
 
+
+def polar(*args, **kwargs):
+    """
+    POLAR(theta, r)
+
+    Make a polar plot.  Multiple theta, r arguments are supported,
+    with format strings, as in plot.
+    """
+
+
+    ax = gca(polar=True)
+    print 'polar got', ax
+    return ax.plot(*args, **kwargs)

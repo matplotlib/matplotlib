@@ -658,14 +658,14 @@ class FigureManagerBase:
             self.currentAxis = a
             return a
 
-    def get_current_axis(self):
+    def get_current_axis(self, **kwargs):
         """
         Return the current axes
         """
         if self.currentAxis is not None:
             return self.currentAxis
         else:
-            self.add_subplot(111)
+            self.add_subplot(111, **kwargs)
             return self.currentAxis
 
 
@@ -863,14 +863,11 @@ class NavigationToolbar2:
 
         if event.inaxes:
 
-            xs = event.inaxes.format_xdata(event.xdata)
-            ys = event.inaxes.format_ydata(event.ydata)            
-            
-            loc = 'x=%s, y=%s'%(xs,ys)
+            s = event.inaxes.format_coord(event.xdata, event.ydata)
             if len(self.mode):
-                self.set_message('%s : %s' % (self.mode, loc))
+                self.set_message('%s : %s' % (self.mode, s))
             else:
-                self.set_message(loc)
+                self.set_message(s)
         else: self.set_message(self.mode)            
             
     def pan(self,*args):
@@ -1127,10 +1124,17 @@ class NavigationToolbar2:
     def draw(self):
         'redraw the canvases, update the locators'
         for a in self.canvas.figure.get_axes():
-            for loc in (a.xaxis.get_major_locator(),
-                        a.xaxis.get_minor_locator(),
-                        a.yaxis.get_major_locator(),
-                        a.yaxis.get_minor_locator()):
+            xaxis = getattr(a, 'xaxis', None)
+            yaxis = getattr(a, 'yaxis', None)
+            locators = []
+            if xaxis is not None:
+                locators.append(xaxis.get_major_locator())
+                locators.append(xaxis.get_minor_locator())                
+            if yaxis is not None:
+                locators.append(yaxis.get_major_locator())
+                locators.append(yaxis.get_minor_locator())                
+
+            for loc in locators:
                 loc.refresh()
         self.canvas.draw()
                        

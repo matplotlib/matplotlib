@@ -70,7 +70,7 @@ class Artist:
 
     def draw(self, renderer, *args, **kwargs):
         'Derived classes drawing method'
-        raise NotImplementedError, 'Derived must override'
+        pass
 
     def set_alpha(self, alpha):
         """

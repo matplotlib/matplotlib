@@ -7,7 +7,7 @@ from numerix import MLab, absolute, arange, array, asarray, ones, transpose, \
 
 import mlab
 from artist import Artist
-from axis import XTick, YTick, XAxis, YAxis
+from axis import XAxis, YAxis
 from cbook import iterable, is_string_like, flatten, enumerate, True, False,\
      allequal
 from collections import RegularPolyCollection, PolyCollection
@@ -27,10 +27,10 @@ from matplotlib import rcParams
 from patches import Rectangle, Circle, Polygon, bbox_artist
 from table import Table
 from text import Text, _process_text_args
-from transforms import Bbox, Point, Value, Affine
-from transforms import  Func, LOG10, IDENTITY
-from transforms import get_bbox_transform, unit_bbox
-from transforms import blend_xy_sep_transform
+from transforms import Bbox, Point, Value, Affine, NonseparableTransformation
+from transforms import  FuncXY, Func, LOG10, IDENTITY, POLAR
+from transforms import get_bbox_transform, unit_bbox, one, origin, zero
+from transforms import blend_xy_sep_transform, Interval
 from font_manager import FontProperties
 
 import matplotlib
@@ -296,7 +296,8 @@ class Axes(Artist):
 
     def __init__(self, fig, rect,
                  axisbg = None, # defaults to rc axes.facecolor
-                 frameon = True):
+                 frameon = True,
+                 **kwargs):
         Artist.__init__(self)
 
 
@@ -326,12 +327,7 @@ class Axes(Artist):
                           Point(self.right, self.top ),
                           )
         #these will be updated later as data is added
-        self.dataLim = unit_bbox()
-        self.viewLim = unit_bbox()
-
-        
-        self.transData = get_bbox_transform(self.viewLim, self.bbox)
-        self.transAxes = get_bbox_transform(unit_bbox(), self.bbox)
+        self._set_lim_and_transforms()
 
         self._hold = rcParams['axes.hold']
         self._connected = {} # a dict from events to (id, func)    
@@ -340,6 +336,16 @@ class Axes(Artist):
         # funcs used to format x and y - fall back on major formatters
         self.fmt_xdata = None  
         self.fmt_ydata = None
+
+    def _set_lim_and_transforms(self):
+        """
+        set the dataLim and viewLim BBox attributes and the
+        transData and transAxes Transformation attributes
+        """
+        self.dataLim = unit_bbox()
+        self.viewLim = unit_bbox()
+        self.transData = get_bbox_transform(self.viewLim, self.bbox)
+        self.transAxes = get_bbox_transform(unit_bbox(), self.bbox)
 
 
     def axhline(self, y=0, xmin=0, xmax=1, **kwargs):
@@ -504,6 +510,11 @@ major formatter
             func = self.yaxis.get_major_formatter()
             return func(y)
 
+    def format_coord(self, x, y):
+        'return a format string formatting the x, y coord'
+        xs = self.format_xdata(x)
+        ys = self.format_ydata(y)        
+        return  'x=%s, y=%s'%(xs,ys)
         
     def has_data(self):
         'return true if any artists have been added to axes'
@@ -603,6 +614,7 @@ major formatter
         l.set_clip_box(self.bbox)
         xdata = l.get_xdata()
         ydata = l.get_ydata()
+        
         if l.get_transform() != self.transData:
             xys = self._get_verts_in_data_coords(
                 l.get_transform(), zip(xdata, ydata))
@@ -2680,7 +2692,8 @@ disconnect to disconnect from the axes event
                     self._connected[key].remove(item)
                     return
 
-class Subplot(Axes):
+
+class SubplotBase:
     """
     Emulate matlab's subplot command, creating axes with
 
@@ -2695,7 +2708,7 @@ class Subplot(Axes):
       Subplot(211)    # 2 rows, 1 column, first (upper) plot
     """
     
-    def __init__(self, fig, *args, **kwargs):
+    def __init__(self, *args, **kwargs):
         # Axes __init__ below
 
         if len(args)==1:
@@ -2728,8 +2741,10 @@ class Subplot(Axes):
         figBottom = top - (rowNum+1)*figH - rowNum*sepH
         figLeft = left + colNum*(figW + sepW)
 
-        Axes.__init__(self, fig, [figLeft, figBottom, figW, figH], **kwargs)
-
+        self.figBottom = figBottom
+        self.figLeft = figLeft
+        self.figW = figW
+        self.figH = figH
         self.rowNum = rowNum
         self.colNum = colNum
         self.numRows = rows
@@ -2747,3 +2762,310 @@ class Subplot(Axes):
 
     def is_last_col(self):
         return self.colNum==self.numCols-1
+
+class Subplot(SubplotBase, Axes):
+    """
+    Emulate matlab's subplot command, creating axes with
+
+      Subplot(numRows, numCols, plotNum)
+
+    where plotNum=1 is the first plot number and increasing plotNums
+    fill rows first.  max(plotNum)==numRows*numCols
+
+    You can leave out the commas if numRows<=numCols<=plotNum<10, as
+    in
+
+      Subplot(211)    # 2 rows, 1 column, first (upper) plot
+    """
+    def __init__(self, fig, *args, **kwargs):
+        SubplotBase.__init__(self, *args, **kwargs)        
+        Axes.__init__(self, fig, [self.figLeft, self.figBottom, self.figW, self.figH], **kwargs)
+
+
+
+class PolarAxes(Axes):
+    """
+
+    Make a PolarAxes.  The rectangular bounding box of the axes is given by
+    
+
+       PolarAxes(position=[left, bottom, width, height])
+
+    where all the arguments are fractions in [0,1] which specify the
+    fraction of the total figure window.  
+
+    axisbg is the color of the axis background
+
+    Attributes:
+      thetagridlines  : a list of Line2D for the theta grids
+      rgridlines      : a list of Line2D for the radial grids
+      thetagridlabels : a list of Text for the theta grid labels
+      rgridlabels : a list of Text for the theta grid labels                  
+
+    """
+
+    RESOLUTION = 200
+
+    def __init__(self, *args, **kwarg):
+        Axes.__init__(self, *args, **kwarg)
+
+
+    def _set_lim_and_transforms(self):
+        """
+        set the dataLim and viewLim BBox attributes and the
+        transData and transAxes Transformation attributes
+        """
+
+        # the lim are r, theta
+
+        self.dataLim = Bbox( Point( Value(5/4.*math.pi), Value(math.sqrt(2))),
+                             Point( Value(1/4.*math.pi), Value(math.sqrt(2))))
+        self.viewLim = Bbox( Point( Value(5/4.*math.pi), Value(math.sqrt(2))),
+                             Point( Value(1/4.*math.pi), Value(math.sqrt(2))))
+
+        self.transData = NonseparableTransformation(self.viewLim, self.bbox, FuncXY(POLAR))
+        self.transAxes = get_bbox_transform(unit_bbox(), self.bbox)
+
+    def cla(self):
+        'Clear the current axes'
+
+        # init these w/ some arbitrary numbers - they'll be updated as
+        # data is added to the axes
+
+        self._get_lines = _process_plot_var_args()
+        self._get_patches_for_fill = _process_plot_var_args('fill')
+
+        self._gridOn = rcParams['polaraxes.grid']
+        self.lines = []
+        self.texts = []     # text in axis coords
+
+        self.grid(self._gridOn)
+        self.title =  Text(
+            x=0.5, y=1.05, text='',
+            fontproperties=FontProperties(size=rcParams['axes.titlesize']),
+            verticalalignment='bottom',
+            horizontalalignment='center',
+            )
+        self.title.set_transform(self.transAxes)
+
+        self._set_artist_props(self.title)
+
+
+        self.thetas = mlab.linspace(0,2*math.pi, self.RESOLUTION)
+        verts = zip(self.thetas, ones(self.RESOLUTION))
+        self.axesPatch = Polygon(
+            verts,
+            facecolor=self._axisbg,
+            edgecolor=rcParams['axes.edgecolor'],
+            )
+
+        
+        self.axesPatch.set_figure(self.figure)
+        self.axesPatch.set_transform(self.transData)
+        self.axesPatch.set_linewidth(rcParams['axes.linewidth'])
+        self.axison = True
+
+        # we need to set a view and data interval from 0->rmax to make
+        # the formatter and locator work correctly
+        self.rintv = Interval(Value(0), Value(1))
+        self.rintd = Interval(Value(0), Value(1))        
+
+        self.rformatter  = ScalarFormatter()
+        self.rformatter.set_view_interval(self.rintv)
+        self.rformatter.set_data_interval(self.rintd)        
+        self.rlocator = AutoLocator()
+        self.rlocator.set_view_interval(self.rintv)
+        self.rlocator.set_data_interval(self.rintd)        
+
+        angles = arange(0, 360, 45)
+        radii = arange(0.2, 1.1, 0.2)
+        self.set_rgrids(radii)
+        self.set_rgridlabels(radii)
+        self.set_thetagrids( angles )
+        self.set_thetagridlabels( angles )
+        
+    def grid(self, b):
+        'Set the axes grids on or off; b is a boolean'
+        self._gridOn = b
+
+
+
+    def autoscale_view(self):
+
+        self.rintd.set_bounds(0, self.get_rmax())
+        rmin, rmax = self.rlocator.autoscale()
+        self.rintv.set_bounds(rmin, rmax)
+        
+        self.axesPatch.xy = zip(self.thetas, rmax*ones(self.RESOLUTION))
+        val = rmax*math.sqrt(2)
+        self.viewLim.intervaly().set_bounds(val, val)
+
+        ticks = self.rlocator()
+        self.set_rgrids(ticks)
+        self.set_rgridlabels(ticks)        
+        
+        for t in self.thetagridlabels:
+            t.set_y(1.05*rmax)
+
+        r = mlab.linspace(0, rmax, self.RESOLUTION)
+        for l in self.thetagridlines:
+            l.set_ydata(r)
+            
+    def set_rgrids(self, radii):
+        'set the radial locations of the r grids'
+        self.rgridlines = []
+        theta = mlab.linspace(0,2*math.pi, self.RESOLUTION)
+        ls = rcParams['grid.linestyle']
+        color = rcParams['grid.color']
+        lw = rcParams['grid.linewidth']
+
+        for r in radii:
+            r = ones(self.RESOLUTION)*r
+            line = Line2D(theta, r, linestyle=ls, color=color, linewidth=lw)
+            line.set_transform(self.transData)
+            self.rgridlines.append(line)
+        return self.rgridlines
+
+    def set_thetagrids(self, angles):
+        """
+        set the angles at which to place the theta grids (these
+        gridlines are equal along the theta dimension).  angles is in degrees
+        """
+        self.thetagridlines = []
+        ox, oy = 0,0
+        ls = rcParams['grid.linestyle']
+        color = rcParams['grid.color']
+        lw = rcParams['grid.linewidth']
+        func = FuncXY(POLAR)
+        
+        r = mlab.linspace(0, self.get_rmax(), self.RESOLUTION)
+        for a in angles:
+            theta = ones(self.RESOLUTION)*a/180.*math.pi
+            line = Line2D(theta, r, linestyle=ls, color=color, linewidth=lw)
+            line.set_transform(self.transData)
+            self.thetagridlines.append(line)
+        return self.thetagridlines
+
+    def get_rmax(self):
+        'get the maximum radius in the view limits dimension'
+        vmin, vmax = self.dataLim.intervaly().get_bounds()
+        return max(vmin, vmax)
+
+    def draw(self, renderer):
+        renderer.open_group('polar_axes')
+        self.transData.freeze()  # eval the lazy objects
+        self.transAxes.freeze()  # eval the lazy objects
+        #self._update_axes()
+        if self.axison:
+            if self._frameon: self.axesPatch.draw(renderer)
+
+        if self._gridOn:
+            for l in self.rgridlines+self.thetagridlines:
+                l.draw(renderer)
+
+        for t in self.thetagridlabels+self.rgridlabels:
+            t.draw(renderer)
+
+        
+        for line in self.lines:
+            line.draw(renderer)
+
+        for t in self.texts:
+            t.draw(renderer)
+
+        self.title.draw(renderer)
+        self.transData.thaw()  # release the lazy objects
+        self.transAxes.thaw()  # release the lazy objects
+        renderer.close_group('polar_axes')
+        
+
+    def format_coord(self, theta, r):
+        'return a format string formatting the coordinate'
+        theta /= math.pi
+        return 'theta=%1.2fpi, r=%1.3f'%(theta, r)
+
+    def set_thetagridlabels(self, angles, fmt='%d', frac = 1.1, **kwargs):
+        """
+        set the radial locations of the r grids
+
+        angles are in degrees
+
+        frac is the fraction of the polar axes radius at which to
+        place the label (1 is the edge).Eg 1.05 isd outside the axes
+        and 0.95 is inside the axes
+        """
+
+        self.thetagridlabels = []
+
+        size = rcParams['tick.labelsize']
+        color = rcParams['tick.color']
+
+        func = FuncXY(POLAR)
+        props=FontProperties(size=rcParams['tick.labelsize'])
+        r = frac*self.get_rmax()
+        for a in angles:
+            t = Text(a/180.*math.pi, r, fmt%a, fontproperties=props, color=color,
+                     horizontalalignment='center', verticalalignment='center')
+            t.set_transform(self.transData)
+            t.update_properties(kwargs)
+            self._set_artist_props(t)
+            t.set_clip_on(False)
+            self.thetagridlabels.append(t)
+        return self.thetagridlabels
+
+    def set_rgridlabels(self, radii, angle=67.5, **kwargs):
+        """
+        Set the radial grid labels at radial distances in radii along
+        the radius at angle
+        """
+
+        self.rgridlabels = []
+
+        size = rcParams['tick.labelsize']
+        color = rcParams['tick.color']
+
+        func = FuncXY(POLAR)
+        props=FontProperties(size=rcParams['tick.labelsize'])
+        
+        for r in radii:
+            s = self.rformatter(r,0)
+            t = Text(angle/180.*math.pi, r, s, fontproperties=props, color=color,
+                     horizontalalignment='center', verticalalignment='center')
+            t.set_transform(self.transData)
+            t.update_properties(kwargs)
+            self._set_artist_props(t)
+            t.set_clip_on(False)
+            self.rgridlabels.append(t)
+        return self.rgridlabels
+        
+
+    def has_data(self):
+        'return true if any artists have been added to axes'
+        return len(self.lines)
+
+    def set_xlabel(self, xlabel, fontdict=None, **kwargs):
+        'xlabel not implemented'
+        raise NotImplementedError('xlabel not defined for polar axes (yet)')
+
+    def set_ylabel(self, ylabel, fontdict=None, **kwargs):
+        'ylabel not implemented'
+        raise NotImplementedError('ylabel not defined for polar axes (yet)')
+        
+class PolarSubplot(SubplotBase, PolarAxes):
+    """
+    Emulate matlab's subplot command, creating axes with
+
+      Subplot(numRows, numCols, plotNum)
+
+    where plotNum=1 is the first plot number and increasing plotNums
+    fill rows first.  max(plotNum)==numRows*numCols
+
+    You can leave out the commas if numRows<=numCols<=plotNum<10, as
+    in
+
+      Subplot(211)    # 2 rows, 1 column, first (upper) plot
+    """
+    def __init__(self, fig, *args, **kwargs):
+        SubplotBase.__init__(self, *args, **kwargs)        
+        PolarAxes.__init__(self, fig, [self.figLeft, self.figBottom, self.figW, self.figH], **kwargs)
+

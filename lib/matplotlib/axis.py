@@ -100,23 +100,23 @@ class Tick(Artist):
         
     def _get_text1(self, loc):
         'Get the default Text 1 instance'
-        raise NotImplementedError('Derived must override')
+        pass
 
     def _get_text2(self, loc):
         'Get the default Text 2 instance'
-        raise NotImplementedError('Derived must override')
+        pass
 
     def _get_tick1line(self, loc):
         'Get the default line2D instance for tick1'
-        raise NotImplementedError('Derived must override')
+        pass
 
     def _get_tick2line(self, loc):
         'Get the default line2D instance for tick2'
-        raise NotImplementedError('Derived must override')
+        pass
 
     def _get_gridline(self, loc):
         'Get the default grid Line2d instance for this tick'
-        raise NotImplementedError('Derived must override')
+        pass
 
 
     def get_loc(self):
@@ -450,6 +450,7 @@ class Axis(Artist):
         raise NotImplementedError('Derived must override')
 
     def _set_artist_props(self, a):
+        if a is None: return 
         a.set_figure(self.figure)
 
     def draw(self, renderer, *args, **kwargs):
@@ -468,6 +469,7 @@ class Axis(Artist):
 
         interval = self.get_view_interval()
         for tick, loc, label in zip(majorTicks, majorLocs, majorLabels):
+            if tick is None: continue
             if not interval.contains(loc): continue
             seen[loc] = 1
             tick.update_position(loc)
@@ -484,6 +486,7 @@ class Axis(Artist):
 
 
         for tick, loc, label in zip(minorTicks, minorLocs, minorLabels):
+            if tick is None: continue
             if not interval.contains(loc): continue
             if seen.has_key(loc): continue
             tick.update_position(loc)
@@ -494,7 +497,7 @@ class Axis(Artist):
             ticklabelBoxes.append(extent)
 
 
-        # find the tick labels that are close to the axis labels.  I
+
         # scale up the axis label box to also find the neighbors, not
         # just the tick labels that actually overlap note we need a
         # *copy* of the axis label box because we don't wan't to scale
@@ -550,7 +553,7 @@ class Axis(Artist):
 
     def _copy_tick_props(self, src, dest):
         'Copy the props from src tick to dest tick'
-
+        if src is None or dest is None: return 
         dest.label1.copy_properties(src.label1)
         dest.label2.copy_properties(src.label2)
 
@@ -621,11 +624,13 @@ class Axis(Artist):
             if b is None: self._gridOnMinor = not self._gridOnMinor
             else: self._gridOnMinor = b
             for tick in self.minorTicks:  # don't use get_ticks here!
+                if tick is None: continue
                 tick.gridOn = self._gridOnMinor
         else:
             if b is None: self._gridOnMajor = not self._gridOnMajor
             else: self._gridOnMajor = b
             for tick in self.majorTicks:  # don't use get_ticks here!
+                if tick is None: continue
                 tick.gridOn = self._gridOnMajor
                 
     
@@ -833,3 +838,6 @@ class YAxis(Axis):
     def get_data_interval(self):
         'return the Interval instance for this axis data limits'
         return self.axes.dataLim.intervaly()
+
+
+
