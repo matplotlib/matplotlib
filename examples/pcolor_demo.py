@@ -3,6 +3,7 @@
 See pcolor_demo2 for a much faster way of generating pcolor plots
 """
 from __future__ import division
+from matplotlib.patches import Patch
 from matplotlib.matlab import *
 
 def func3(x,y):
@@ -18,6 +19,8 @@ X,Y = meshgrid(x, y)
 
 Z = func3(X, Y)
 pcolor(X, Y, Z, shading='flat')
+#pcolor_classic(X, Y, Z, shading='flat')
+
 #axis([-3, 3, -3, 3])
 #axis('off')
 #savefig('pcolor_demo')
