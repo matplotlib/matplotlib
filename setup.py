@@ -2,7 +2,7 @@ from distutils.core import setup
 import sys,os
 
 import glob
-from setupext import build_gtkgd
+from setupext import build_gtkgd, build_agg
 
 
 data = []
@@ -15,6 +15,8 @@ ext_modules = []
 if 0: # how do I add '--with-gtkgd' flag checking?
     build_gtkgd(ext_modules)
 
+if 1: 
+    build_agg(ext_modules)
 
 setup(name="matplotlib",
       version= '0.50i',

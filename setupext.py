@@ -4,6 +4,7 @@ Some helper functions for building the C extensions
 """
 import sys, os
 from distutils.core import Extension
+
 def getoutput(s):
     'get the output of a system command'
     return os.popen(s).read().strip()
@@ -42,11 +43,27 @@ def add_gd_flags(module):
 def build_gtkgd(ext_modules):
     module = Extension('matplotlib._gtkgd',
                        ['src/_gtkgd.c'],
-                       library_dirs = [],
-                       libraries = [],
-                       include_dirs = [],
-                       extra_link_args = [],
                        )
     add_pygtk_flags(module)
     add_gd_flags(module)
     ext_modules.append(module)    
+
+
+def add_agg_flags(module):
+    'Add the module flags to build extensions which use gtk'
+    include_dirs = ['/usr/X11R6/include', '/home/jdhunter/c/src/agg2/include']
+    library_dirs = ['/usr/X11R6/lib', '/home/jdhunter/c/src/agg2/src']
+    libraries = ['agg', 'X11', 'm']
+    extra_link_args = []
+    module.include_dirs.extend(include_dirs)
+    module.libraries.extend(libraries)
+    module.library_dirs.extend(library_dirs)
+    module.extra_link_args.extend(extra_link_args)
+
+def build_agg(ext_modules):
+    module = Extension('matplotlib.backends._backend_agg',
+                       ['src/_backend_agg.cpp'],
+                       )
+    add_agg_flags(module)
+    ext_modules.append(module)    
+
