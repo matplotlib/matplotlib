@@ -9,6 +9,11 @@ extent, they must have the same "extent" property
 
 As usual, we'll define some random images for demo.  Real data is much more
 exciting!
+
+Note, on the wx backend on some platforms (eg linux), you have to
+first click on the figure before the keypress events are activated.
+If you know how to fix this, please email us!
+
 """
 
 from pylab import *

@@ -265,6 +265,12 @@ class FigureCanvasTemplate(FigureCanvasBase):
     Public attribute
 
       figure - A Figure instance
+
+    Note GUI templates will want to connect events for button presses,
+    mouse movements and key presses to functions that call the base
+    class methods button_press_event, button_release_event,
+    motion_notify_event, key_press_event, and key_release_event.  See,
+    eg backend_gtk.py, backend_wx.py and backend_tkagg.py
     """
 
     def draw(self):
