@@ -112,9 +112,11 @@
       and incorporated.  Thanks Andrew!
 
 2003-10-27 Fixed a bug in axis.get_view_distance that affected zoom in
-  versus out with interactive scrolling, and a but in the axis text
+  versus out with interactive scrolling, and a bug in the axis text
   reset system that prevented the text from being redrawn on a
   interactive gtk view lim set with the widget
  
   Fixed a bug in that prevented the manual setting of ticklabel
   strings from working properly
+
+2003-11-02 Added pcolor plot
