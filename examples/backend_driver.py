@@ -100,10 +100,10 @@ def drive(backend, python='python2.3'):
         os.system('%s %s' % (python, tmpfile))
 
 times = {}
-backends = ['PS', 'GD', 'Paint', 'Agg', 'Template']
+backends = ['PS', 'SVG', 'Agg', 'Cairo', 'Template']
 #backends.extend([ 'GTK', 'WX', 'TkAgg'])
 #backends = [ 'Agg']
-backends = ['PS', 'Agg']
+#backends = ['PS', 'Agg']
 
 python = 'python2.3'
 for backend in backends:
