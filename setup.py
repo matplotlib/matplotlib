@@ -5,7 +5,7 @@ be built by setting the appropriate flag below.
 
 # Build the fonttools and TTFQuery packages, required by the Paint,
 # Agg and GD backends.
-BUILD_FONTTOOLS = 1
+BUILD_FONTTOOLS = 0
 
 # AGG is a new backend that wraps the antigrain geometry toolkit; set
 # BUILD_AGG to 1 to build it.  Agg makes heavy use of templates, so it
