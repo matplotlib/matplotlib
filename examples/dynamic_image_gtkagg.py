@@ -20,7 +20,6 @@ y = transpose(y)
 z = sin(x) + cos(y)
 im = a.imshow( z, cmap=cm.jet)#, interpolation='nearest')
 
-
 manager = get_current_fig_manager()
 cnt = 0
 tstart = time.time()

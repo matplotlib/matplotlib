@@ -3,9 +3,12 @@ from __future__ import division, generators
 import math, sys
 
 # do not import numerix max!  we are using python max.  
-from numerix import absolute, arange, array, asarray, ones, transpose, \
-     log, log10, Float, ravel, zeros, Int32, Float64, ceil, indices, \
+
+from numerix import absolute, arange, array, asarray, ones, divide,\
+     transpose, log, log10, Float, Float32, ravel, zeros,\
+     Int32, Float64, ceil, indices, \
      shape, which, where
+
 from numerix import max as nxmax
 from numerix import min as nxmin
 import _contour
@@ -28,7 +31,7 @@ from lines import Line2D, lineStyles, lineMarkers
 
 from mlab import meshgrid
 from matplotlib import rcParams
-from patches import Rectangle, Circle, Polygon, bbox_artist
+from patches import Rectangle, Circle, Polygon, Wedge, bbox_artist
 from table import Table
 from text import Text, _process_text_args
 from transforms import Bbox, Point, Value, Affine, NonseparableTransformation
@@ -1973,6 +1976,115 @@ Grid orientation
         self.autoscale_view()
         return patches
 
+
+    def pie(self, x, explode=None, labels=None,
+            colors=('b', 'g', 'r', 'c', 'm', 'y', 'k', 'w'),
+            autopct=None,
+            ):
+        """
+Make a pie chart of array x.  The fractional area of each wedge is
+given by x/sum(x).  If sum(x)<=1, then the values of x give the
+fractional area directly and the array will not be normalized.
+
+  - explode, if not None, is a len(x) array which specifies the
+    fraction of the radius to offset that wedge.
+
+  - colors is a sequence of matplotlib color args that the pie chart
+    will cycle.
+
+  - labels, if not None, is a len(x) list of labels.
+
+  - autopct, if not None, is a string or function used to label the
+    wedges with their numeric value.  The label will be placed inside
+    the wedge.  If it is a format string, the label will be fmt%pct.
+    If it is a function, it will be called
+
+The pie chart will probably look best if the figure and axes are
+square.  Eg,
+
+  figure(figsize=(8,8))
+  ax = axes([0.1, 0.1, 0.8, 0.8])
+
+Return value:
+
+  If autopct is None, return a list of (patches, texts), where patches
+  is a sequence of matplotlib.patches.Wedge instances and texts is a
+  list of the label Text instnaces
+
+  If autopct is not None, return (patches, texts, autotexts), where
+  patches and texts are as above, and autotexts is a list of text
+  instances for the numeric labels
+  """
+        self.set_frame_on(False)
+
+        x = asarray(x).astype(Float32)
+
+        sx = float(sum(x))
+        if sx>1: x = divide(x,sx)
+
+        if labels is None: labels = ['']*len(x)
+        if explode is None: explode = [0]*len(x)
+        assert(len(x)==len(labels))
+        assert(len(x)==len(explode))    
+
+
+        center = 0,0
+        radius = 1
+        theta1 = 0
+        i = 0
+        texts = []
+        slices = []
+        autotexts = []
+        for frac, label, expl in zip(x,labels, explode):
+            x, y = center
+            theta2 = theta1 + frac
+            thetam = 2*math.pi*0.5*(theta1+theta2)
+            x += expl*math.cos(thetam)
+            y += expl*math.sin(thetam)
+
+            w = Wedge((x,y), radius, 360.*theta1, 360.*theta2,
+                      facecolor=colors[i%len(colors)])
+            slices.append(w)
+            self.add_patch(w)
+            self.set_label(label)
+
+
+            xt = x + 1.1*radius*math.cos(thetam)
+            yt = y + 1.1*radius*math.sin(thetam)
+
+            t = self.text(xt, yt, label,
+                          size=rcParams['tick.labelsize'],
+                          horizontalalignment='center',
+                          verticalalignment='center')        
+
+            texts.append(t)
+
+            if autopct is not None:
+                xt = x + 0.6*radius*math.cos(thetam)
+                yt = y + 0.6*radius*math.sin(thetam)
+                if is_string_like(autopct):
+                    s = autopct%(100.*frac)
+                elif callable(autopct):
+                    s = autopct(100.*frac)
+                else:
+                    raise TypeError('autopct must be callable or a format string')
+
+                t = self.text(xt, yt, s,
+                              horizontalalignment='center',
+                              verticalalignment='center')
+                autotexts.append(t)
+
+
+            theta1 = theta2
+            i += 1
+
+        self.set_xlim((-1.25, 1.25))
+        self.set_ylim((-1.25, 1.25))
+        self.set_xticks([])
+        self.set_yticks([])    
+
+        if autopct is None: return slices, texts
+        else: return slices, texts, autotexts
 
     def plot(self, *args, **kwargs):
         """\

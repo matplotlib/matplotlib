@@ -48,6 +48,7 @@ files = (
     'pcolor_demo.py',
     'pcolor_demo2.py',
     'pcolor_small.py',
+    'pie_demo.py',
     'polar_demo.py',
     'polar_scatter.py',
     'psd_demo.py',

@@ -61,6 +61,7 @@ _plotcommands = (
     'loglog',
     'pcolor',
     'pcolor_classic',
+    'pie', 
     'plot',
     'plot_date',
     'psd',
