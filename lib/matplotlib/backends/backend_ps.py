@@ -310,9 +310,9 @@ grestore
             
         if rgbFace:
             if rgbFace[0]==rgbFace[0] and rgbFace[0]==rgbFace[2]:
-                ps_color = '%1.3f setgray\n' % rgbFace[0]
+                ps_color = '%1.3f setgray' % rgbFace[0]
             else:
-                ps_color = '%1.3f %1.3f %1.3f setrgbcolor\n' % rgbFace
+                ps_color = '%1.3f %1.3f %1.3f setrgbcolor' % rgbFace
 
         if transform.need_nonlinear():
             x,y = transform.nonlinear_only_numerix(x, y)
@@ -329,10 +329,12 @@ grestore
         # construct the generic marker command:
         ps_cmd = ['gsave']
         ps_cmd.append('newpath')
-        ps_cmd.append('%1.3f %1.3f translate')
+##        ps_cmd.append('%1.3f %1.3f translate')
+        ps_cmd.append('translate')
         while 1:
             code, xp, yp = path.vertex()
             if code == agg.path_cmd_stop:
+                ps_cmd.append('closepath') # Hack, path_cmd_end_poly not found
                 break
             elif code == agg.path_cmd_move_to:
                 ps_cmd.append('%1.3f %1.3f m' % (xp,yp))
@@ -343,7 +345,8 @@ grestore
             elif code == agg.path_cmd_curve4:
                 pass
             elif code == agg.path_cmd_end_poly:
-                ps_cmd.append('closepath' % (xp,yp))
+                pass
+                ps_cmd.append('closepath')
             elif code == agg.path_cmd_mask:
                 pass
             else: print code
@@ -354,12 +357,28 @@ grestore
                 ps_cmd.append('grestore')
         ps_cmd.append('stroke')
         ps_cmd.append('grestore') # undo translate()
-        ps = '\n'.join(ps_cmd)
+        ps_cmd = '\n'.join(ps_cmd)
+        
+        self._pswriter.write(' '.join(['/marker {', ps_cmd, '} bind def\n']))
         
         # Now evaluate the marker command at each marker location:
-        draw_ps = self._draw_ps
-        for xp,yp in izip(x,y):
-            draw_ps(ps % (xp,yp), gc, None)
+##        points = zip(x,y)
+        start  = 0
+        end    = 1000
+        while start < len(x):
+            to_draw = izip(x[start:end],y[start:end])
+##            ps = [ps_cmd % point for point in to_draw] 
+            ps = ['%1.3f %1.3f marker' % point for point in to_draw] 
+            self._draw_ps("\n".join(ps), gc, None)
+            start = end
+            end   += 1000
+        
+##        draw_ps = self._draw_ps
+##        for xp,yp in izip(x,y):
+##            draw_ps(ps_cmd % (xp,yp), gc, None)
+            
+    def draw_path(self,gc,rgbFace,path,trans):
+        pass
 
     def _draw_lines(self, gc, points):
         """
@@ -385,12 +404,10 @@ grestore
         start  = 0
         end    = 1000
         points = zip(x,y)
-        while 1:
-            to_draw = points[start:end]
-            if not to_draw: 
-                break
-            ps = ["%1.3f %1.3f m" % to_draw[0]] 
-            ps.extend(["%1.3f %1.3f l" % point for point in to_draw[1:]])
+        while start < len(x):
+            to_draw = izip(x[start:end],y[start:end])
+            ps = ["%1.3f %1.3f m" % to_draw.next()] 
+            ps.extend(["%1.3f %1.3f l" % point for point in to_draw])
             self._draw_ps("\n".join(ps), gc, None)
             start = end
             end   += 1000
