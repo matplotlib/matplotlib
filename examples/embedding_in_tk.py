@@ -14,7 +14,7 @@ def destroy(e): sys.exit()
 
 root = Tk.Tk()
 root.wm_title("Embedding in TK")
-root.bind("<Destroy>", destroy)
+#root.bind("<Destroy>", destroy)
 
 
 f = Figure(figsize=(5,4), dpi=100)
