@@ -1820,11 +1820,13 @@ log scaling:
 
   * basex: base of the x logarithm
 
-  * subsx: the location of the minor ticks; None defaults to range(2,basex)
+  * subsx: the location of the minor ticks; None defaults to autosubs,
+    which depend on the number of decades in the plot
 
   * basey: base of the y logarithm
 
-  * subsy: the location of the minor yticks; None defaults to range(2,basey)    
+  * subsy: the location of the minor yticks; None defaults to autosubs,
+    which depend on the number of decades in the plot
         """
         if not self._hold: self.cla()
 
@@ -2674,8 +2676,8 @@ plot or set_xscale.  Notable, for log scaling:
 
     * basex: base of the logarithm
 
-    * subsx: the location of the minor ticks; None defaults to
-      range(2,basex)
+    * subsx: the location of the minor ticks; None defaults to autosubs,
+    which depend on the number of decades in the plot
 
         """
 
@@ -2702,8 +2704,8 @@ plot or set_yscale.  Notable, for log scaling:
 
     * basey: base of the logarithm
 
-    * subsy: the location of the minor ticks; None defaults to
-      range(2,basey)
+    * subsy: the location of the minor ticks; None defaults to autosubs,
+    which depend on the number of decades in the plot
 
         """
         d = {'basey': kwargs.get('basey', 10),
@@ -2796,12 +2798,13 @@ If value is 'log', the additional kwargs have the following meaning
 
     * basex: base of the logarithm
 
-    * subsx: the location of the minor ticks; None defaults to range(2,basex)
+    * subsx: the location of the minor ticks; None defaults to autosubs,
+    which depend on the number of decades in the plot
 
 ACCEPTS: str
         """
 
-        if subsx is None: subsx = range(2, basex)
+        #if subsx is None: subsx = range(2, basex)
         assert(value.lower() in ('log', 'linear', ))
         if value == 'log':
             self.xaxis.set_major_locator(LogLocator(basex))
@@ -2877,12 +2880,12 @@ If value is 'log', the additional kwargs have the following meaning
     * basey: base of the logarithm
 
     * subsy: the location of the minor ticks; None are the default
-      range(2,basex)
+      is to autosub
 
 ACCEPTS: str      
         """
 
-        if subsy is None: subsy = range(2, basey)
+        #if subsy is None: subsy = range(2, basey)
         assert(value.lower() in ('log', 'linear', ))
 
         if value == 'log':

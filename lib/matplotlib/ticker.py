@@ -243,13 +243,13 @@ class LogFormatter(ScalarFormatter):
         which will be the only one to be labeled if labelOnlyBase
         is False
         """
-        self.base = base+0.0
+        self._base = base+0.0
         self.labelOnlyBase=labelOnlyBase
         self.decadeOnly = True
 
     def base(self,base):
         'change the base for labeling - warning: should always match the base used for LogLocator' 
-        self.base=base
+        self._base=base
         
     def label_minor(self,labelOnlyBase):
         'switch on/off minor ticks labeling' 
@@ -260,7 +260,7 @@ class LogFormatter(ScalarFormatter):
         'Return the format for tick val x at position pos'        
         self.verify_intervals()
         d = abs(self.viewInterval.span())
-        b=self.base
+        b=self._base
         # only label the decades
         fx = math.log(x)/math.log(b)
         isDecade = self.is_decade(fx)
@@ -288,7 +288,7 @@ class LogFormatterExponent(LogFormatter):
         'Return the format for tick val x at position pos'        
         self.verify_intervals()
         d = abs(self.viewInterval.span())
-        b=self.base
+        b=self._base
         # only label the decades
         fx = math.log(x)/math.log(b)
         isDecade = self.is_decade(fx)
@@ -311,7 +311,7 @@ class LogFormatterMathtext(LogFormatter):
         'Return the format for tick val x at position pos'        
         self.verify_intervals()
 
-        b = self.base
+        b = self._base
         # only label the decades
         fx = math.log(x)/math.log(b)
         isDecade = self.is_decade(fx)
@@ -383,13 +383,13 @@ class IndexLocator(Locator):
     """
     def __init__(self, base, offset):
         'place ticks on the i-th data points where (i-offset)%base==0'
-        self.base = base
+        self._base = base
         self.offset = offset
 
     def __call__(self):
         'Return the locations of the ticks'
         dmin, dmax = self.dataInterval.get_bounds()
-        return arange(dmin + self.offset, dmax+1, self.base)
+        return arange(dmin + self.offset, dmax+1, self._base)
 
 
 class FixedLocator(Locator):
@@ -490,42 +490,42 @@ class Base:
     'this solution has some hacks to deal with floating point inaccuracies'
     def __init__(self, base):
         assert(base>0)
-        self.base = base
+        self._base = base
 
     def lt(self, x):
         'return the largest multiple of base < x'
-        d,m = divmod(x, self.base)
-        if m==0: return (d-1)*self.base
-        else: return d*self.base
+        d,m = divmod(x, self._base)
+        if m==0: return (d-1)*self._base
+        else: return d*self._base
 
     def le(self, x):
         'return the largest multiple of base <= x'
-        d,m = divmod(x, self.base)
-        if closeto(m, self.base):
+        d,m = divmod(x, self._base)
+        if closeto(m, self._base):
             #looks like floating point error
-            return (d+1)*self.base
+            return (d+1)*self._base
         else:
-            return d*self.base
+            return d*self._base
 
     def gt(self, x):
         'return the largest multiple of base > x'
-        d,m = divmod(x, self.base)
-        if closeto(m, self.base):
+        d,m = divmod(x, self._base)
+        if closeto(m, self._base):
             #looks like floating point error
-            return (d+2)*self.base
+            return (d+2)*self._base
         else:
-            return (d+1)*self.base
+            return (d+1)*self._base
 
 
 
     def ge(self, x):
         'return the largest multiple of base >= x'
-        d,m = divmod(x, self.base)
+        d,m = divmod(x, self._base)
         if m==0: return x
-        return (d+1)*self.base
+        return (d+1)*self._base
 
     def get_base(self):
-        return self.base
+        return self._base
     
 class MultipleLocator(Locator):
     """
@@ -534,7 +534,7 @@ class MultipleLocator(Locator):
     """
 
     def __init__(self, base=1.0):
-        self.base = Base(base)
+        self._base = Base(base)
         
     def __call__(self):
         'Return the locations of the ticks'
@@ -544,8 +544,8 @@ class MultipleLocator(Locator):
         vmin, vmax = self.viewInterval.get_bounds()
         if vmax<vmin:
             vmin, vmax = vmax, vmin
-        vmin = self.base.ge(vmin)
-        locs =  arange(vmin, vmax+0.001*self.base.get_base(), self.base.get_base())
+        vmin = self._base.ge(vmin)
+        locs =  arange(vmin, vmax+0.001*self._base.get_base(), self._base.get_base())
 
         return locs
 
@@ -558,8 +558,8 @@ class MultipleLocator(Locator):
         self.verify_intervals()
         dmin, dmax = self.dataInterval.get_bounds()
 
-        vmin = self.base.le(dmin)
-        vmax = self.base.ge(dmax)
+        vmin = self._base.le(dmin)
+        vmax = self._base.ge(dmax)
         if vmin==vmax:
             vmin -=1
             vmax +=1
@@ -591,26 +591,31 @@ class LogLocator(Locator):
         """
         place ticks on the location= base**i*subs[j]
         """
-        self.base = base+0.0
-        self.subs = array(subs)+0.0
+        self.base(base)
+        self.subs(subs)
         
     def base(self,base):
         """
         set the base of the log scaling (major tick every base**i, i interger)
         """
-        self.base=base+0.0
+        self._base=base+0.0
         
     def subs(self,subs):
         """
         set the minor ticks the log scaling every base**i*subs[j] 
         """
-        self.subs = array(subs)+0.0
+        if subs is None:
+            self._subs = None  # autosub
+        else:
+            self._subs = array(subs)+0.0
+
+
     
     def __call__(self):
         'Return the locations of the ticks'
         self.verify_intervals()
-        b=self.base
-        subs=self.subs
+        b=self._base
+
         vmin, vmax = self.viewInterval.get_bounds()
         vmin = math.log(vmin)/math.log(b)
         vmax = math.log(vmax)/math.log(b)
@@ -618,6 +623,14 @@ class LogLocator(Locator):
         if vmax<vmin:
             vmin, vmax = vmax, vmin
         ticklocs = []
+
+        numdec = math.floor(vmax)-math.ceil(vmin)
+        if self._subs is None: # autosub
+            if numdec>10: subs = array([1.0])
+            elif numdec>6: subs = arange(2.0, b, 2.0)
+            else: subs = arange(2.0, b)
+        else:
+            subs = self._subs
         for decadeStart in b**arange(math.floor(vmin),math.ceil(vmax)):
             ticklocs.extend( subs*decadeStart )
 
@@ -648,11 +661,11 @@ class LogLocator(Locator):
             raise RuntimeError('No positive data to plot')
         if vmin<=0:
             vmin = minpos
-        if not is_decade(vmin,self.base): vmin = decade_down(vmin,self.base)
-        if not is_decade(vmax,self.base): vmax = decade_up(vmax,self.base)
+        if not is_decade(vmin,self._base): vmin = decade_down(vmin,self._base)
+        if not is_decade(vmax,self._base): vmax = decade_up(vmax,self._base)
         if vmin==vmax:
-            vmin = decade_down(vmin,self.base)
-            vmax = decade_up(vmax,self.base)
+            vmin = decade_down(vmin,self._base)
+            vmax = decade_up(vmax,self._base)
             
         return self.nonsingular(vmin, vmax)
 

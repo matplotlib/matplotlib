@@ -999,7 +999,7 @@ def rcdefaults():
     draw_if_interactive()
 rcdefaults.__doc__ =   matplotlib.rcdefaults.__doc__
 
-def save(fname, X, fmt='%1.4f'):
+def save(fname, X, fmt='%.18e'):
     """
     Save the data in X to file fname using fmt string to convert the
     data to strings
