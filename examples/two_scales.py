@@ -19,19 +19,19 @@ call tick_bottom and tick_top in place of tick_left and tick_right
 from pylab import *
 
 ax1 = subplot(111)
-t = arange(0.0, 10.0, 0.01)
+t = arange(0.01, 10.0, 0.01)
 s1 = exp(t)
 plot(t, s1, 'b-')
-ax1.yaxis.tick_left()
+xlabel('time (s)')
+ylabel('exp')
 
 
 # turn off the 2nd axes rectangle with frameon kwarg
-ax2 = subplot(111, frameon=False) 
+ax2 = twin() 
 s2 = sin(2*pi*t)
 plot(t, s2, 'r.')
-ax2.yaxis.tick_right()
-
-
-xlabel('time (s)')
+ylabel('sin')
+xlim(0.01, 10)
+set(gca(), xscale='log')
 
 show()

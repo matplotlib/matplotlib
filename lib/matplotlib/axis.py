@@ -473,6 +473,7 @@ class Axis(Artist):
         if not self.get_visible(): return 
         renderer.open_group(__name__)
         ticklabelBoxes = []
+        ticklabelBoxes2 = []
         
         majorTicks = self.get_major_ticks()
         majorLocs = self._majorLocator()
@@ -491,8 +492,12 @@ class Axis(Artist):
             tick.set_label1(label)
             tick.set_label2(label)            
             tick.draw(renderer)
-            extent = tick.label1.get_window_extent(renderer) 
-            ticklabelBoxes.append(extent)
+            if tick.label1On:
+                extent = tick.label1.get_window_extent(renderer) 
+                ticklabelBoxes.append(extent)
+            if tick.label2On:
+                extent = tick.label2.get_window_extent(renderer) 
+                ticklabelBoxes2.append(extent)
 
         minorTicks = self.get_minor_ticks()
         minorLocs = self._minorLocator()
@@ -508,8 +513,12 @@ class Axis(Artist):
             tick.set_label(label)
 
             tick.draw(renderer)  
-            extent = tick.label1.get_window_extent(renderer) 
-            ticklabelBoxes.append(extent)
+            if tick.label1On:
+                extent = tick.label1.get_window_extent(renderer) 
+                ticklabelBoxes.append(extent)
+            if tick.label2On:
+                extent = tick.label2.get_window_extent(renderer) 
+                ticklabelBoxes2.append(extent)
 
 
 
@@ -519,7 +528,7 @@ class Axis(Artist):
         # the actual bbox
 
 
-        self._update_label_postion(ticklabelBoxes)
+        self._update_label_postion(ticklabelBoxes, ticklabelBoxes2)
 
         self.label.draw(renderer)  # memory leak here, vertical text
 
@@ -750,25 +759,54 @@ class XAxis(Axis):
                                                      identity_transform() ))
 
         self._set_artist_props(label)
+        self.label_position='bottom'
         return label
 
+    def get_label_position(self):
+        """
+Return the label position (top or bottom)
+        """
+        return self.label_position
 
-    def _update_label_postion(self, bboxes):
+    def set_label_position(self, position):
+        """
+Set the label position (top or bottom)
+
+ACCEPTS: [ 'top' | 'bottom' ]
+        """
+        assert position == 'top' or position == 'bottom'
+        if position == 'top':
+            self.label.set_verticalalignment('bottom')
+        else:
+            self.label.set_verticalalignment('top')
+        self.label_position=position
+
+    def _update_label_postion(self, bboxes, bboxes2):
         """
         Update the label position based on the sequence of bounding
         boxes of all the ticklabels 
         """
 
         x,y = self.label.get_position()
-        if not len(bboxes):
-            bottom = self.axes.bbox.ymin()
-        else:
+        if self.label_position == 'bottom':
+            if not len(bboxes):
+                bottom = self.axes.bbox.ymin()
+            else:
 
-            bbox = bbox_all(bboxes)
-            bottom = bbox.ymin()
+                bbox = bbox_all(bboxes)
+                bottom = bbox.ymin()
             
-        self.label.set_position( (x, bottom-self.LABELPAD*self.figure.dpi.get()/72.0))
-        
+            self.label.set_position( (x, bottom-self.LABELPAD*self.figure.dpi.get()/72.0))
+
+        else:
+            if not len(bboxes2):
+                top = self.axes.bbox.ymax()
+            else:
+
+                bbox = bbox_all(bboxes2)
+                top = bbox.ymax()
+            
+            self.label.set_position( (x, top+self.LABELPAD*self.figure.dpi.get()/72.0))
 
     def tick_top(self):
         'use ticks only on top'
@@ -822,24 +860,54 @@ class YAxis(Axis):
                                                      self.axes.transAxes) )
 
         self._set_artist_props(label)
+        self.label_position='left'
         return label
 
-    def _update_label_postion(self, bboxes):
+    def get_label_position(self):
+        """
+Return the label position (left or right)
+        """
+        return self.label_position
+
+    def set_label_position(self, position):
+        """
+Set the label position (left or right)
+
+ACCEPTS: [ 'left' | 'right' ]
+        """
+        assert position == 'left' or position == 'right'
+        if position == 'right':
+            self.label.set_horizontalalignment('left')
+        else:
+            self.label.set_horizontalalignment('right')
+        self.label_position=position
+
+    def _update_label_postion(self, bboxes, bboxes2):
         """
         Update the label position based on the sequence of bounding
-        boxes overlaps of all the ticklabels that overlap the current
-        ticklabel.  overlaps are the bounding boxes of the ticklabels
+        boxes of all the ticklabels 
         """
 
         x,y = self.label.get_position()
-        if not len(bboxes):
-            left = self.axes.bbox.xmin()
+        if self.label_position == 'left':
+            if not len(bboxes):
+                left = self.axes.bbox.xmin()
+            else:
+
+                bbox = bbox_all(bboxes)
+                left = bbox.xmin()
+            
+            self.label.set_position( (left-self.LABELPAD*self.figure.dpi.get()/72.0, y))
+
         else:
-            bbox = bbox_all(bboxes)
-            left = bbox.xmin()
-        self.label.set_position((left - self.figure.dpi.get()*self.LABELPAD/72.0,y))
+            if not len(bboxes2):
+                right = self.axes.bbox.xmax()
+            else:
 
-
+                bbox = bbox_all(bboxes2)
+                right = bbox.xmax()
+            
+            self.label.set_position( (right+self.LABELPAD*self.figure.dpi.get()/72.0, y))
 
     def tick_right(self):
         'use ticks only on right'
