@@ -44,7 +44,7 @@ LazyValue::compare(const Py::Object &other) {
   else ret=1;
   return ret;
 }
-
+ 
 Py::Object 
 LazyValue::number_add( const Py::Object &o ) {
   _VERBOSE("LazyValue::number");
@@ -480,6 +480,7 @@ Transformation::as_vec6(const Py::Tuple & args) {
 }
 
 
+
 Py::Object
 Transformation::get_funcx(const Py::Tuple & args) {
   _VERBOSE("Transformation::get_funcx");
@@ -722,6 +723,72 @@ Transformation::numerix_x_y(const Py::Tuple & args) {
 }
 
 Py::Object
+Transformation::nonlinear_only_numerix(const Py::Tuple & args) {
+  _VERBOSE("Transformation::nonlinear_only_numerix");
+  args.verify_length(2);
+
+
+  Py::Object xo = args[0];
+  Py::Object yo = args[1];
+
+  PyArrayObject *x = (PyArrayObject *) PyArray_ContiguousFromObject(xo.ptr(), PyArray_DOUBLE, 1, 1); 
+  
+  if (x==NULL) 
+    throw Py::TypeError("Transformation::nonlinear_only_numerix expected numerix array");
+
+  
+  PyArrayObject *y = (PyArrayObject *) PyArray_ContiguousFromObject(yo.ptr(), PyArray_DOUBLE, 1, 1); 
+  
+  if (y==NULL) 
+    throw Py::TypeError("Transformation::nonlinear_only_numerix expected numerix array");
+
+  
+  size_t Nx = x->dimensions[0];
+  size_t Ny = y->dimensions[0];
+  
+  if (Nx!=Ny) 
+    throw Py::ValueError("x and y must be equal length sequences");
+
+  int dimensions[1];
+  dimensions[0] = Nx;
+
+  
+  PyArrayObject *retx = (PyArrayObject *)PyArray_FromDims(1,dimensions,PyArray_DOUBLE);
+  if (retx==NULL) {
+    Py_XDECREF(x);
+    Py_XDECREF(y);
+    throw Py::RuntimeError("Could not create return x array");
+  }
+
+  PyArrayObject *rety = (PyArrayObject *)PyArray_FromDims(1,dimensions,PyArray_DOUBLE);
+  if (rety==NULL) {
+    Py_XDECREF(x);
+    Py_XDECREF(y);
+    throw Py::RuntimeError("Could not create return x array");
+  }
+
+  for (size_t i=0; i< Nx; ++i) {
+
+    double thisx = *(double *)(x->data + i*x->strides[0]);
+    double thisy = *(double *)(y->data + i*y->strides[0]);
+    //std::cout << "calling operator " << thisx << " " << thisy << " " << std::endl;
+    this->nonlinear_only_api(&thisx, &thisy);
+    *(double *)(retx->data + i*retx->strides[0]) = thisx;
+    *(double *)(rety->data + i*rety->strides[0]) = thisy;
+  }
+  
+  Py_XDECREF(x);
+  Py_XDECREF(y);
+
+  Py::Tuple ret(2);
+  ret[0] = Py::Object((PyObject*)retx);
+  ret[1] = Py::Object((PyObject*)rety);
+  Py_XDECREF(retx);
+  Py_XDECREF(rety);
+  return ret;
+}
+
+Py::Object
 Transformation::seq_xy_tups(const Py::Tuple & args) {
   _VERBOSE("Transformation::seq_xy_tups");
   args.verify_length(1);
@@ -807,6 +874,26 @@ BBoxTransformation::set_bbox2(const Py::Tuple & args) {
   return Py::Object();
 }
 
+void
+BBoxTransformation::affine_params_api(double* a, double* b, double* c, double* d, double* tx, double* ty) {
+  //get the scale and translation factors of the separable transform
+  //sx, sy, tx, ty
+    if (!_frozen) eval_scalars();
+    *a = _sx;
+    *b = 0.0;
+    *c = 0.0;
+    *d = _sy;
+    
+    *tx = _tx;
+    *ty = _ty;
+
+    if (_usingOffset) {
+      *tx  += _xot;
+      *ty  += _yot;
+    }
+
+}
+
 SeparableTransformation::SeparableTransformation(Bbox *b1, Bbox *b2, Func *funcx, Func *funcy) : 
     BBoxTransformation(b1, b2), 
     _funcx(funcx), _funcy(funcy)  {
@@ -863,12 +950,21 @@ SeparableTransformation::set_funcy(const Py::Tuple & args) {
 
 
 
+void 
+SeparableTransformation::nonlinear_only_api(double *x, double *y) {
+
+  double thisx = _funcx->operator()(*x);
+  double thisy = _funcy->operator()(*y);
+  *x = thisx;
+  *y = thisy;
+}
 
 std::pair<double, double>&
 SeparableTransformation::operator()(const double& x, const double& y) {
   _VERBOSE("SeparableTransformation::operator");
 
   // calling function must first call eval_scalars
+  
   double fx = _funcx->operator()(x);
   double fy = _funcy->operator()(y);
   
@@ -910,6 +1006,7 @@ SeparableTransformation::inverse_api(const double &x, const double &y) {
      
   return xy;
 }
+
 
 
 void 
@@ -1004,6 +1101,14 @@ NonseparableTransformation::set_funcxy(const Py::Tuple & args) {
   _funcxy = static_cast<FuncXY*>(args[0].ptr());
   Py_INCREF(_funcxy);
   return Py::Object();
+}
+
+void 
+NonseparableTransformation::nonlinear_only_api(double *x, double *y) {
+
+  xy = _funcxy->operator()(*x,*y);
+  *x = xy.first;
+  *y = xy.second;
 }
 
 
@@ -1149,6 +1254,17 @@ Affine::~Affine() {
 }
 
 
+void
+Affine::affine_params_api(double* a, double* b, double* c, double*d, double* tx, double* ty) {
+
+  *a = _a->val();
+  *b = _b->val();
+  *c = _c->val();
+  *d = _d->val();
+  *tx = _tx->val();
+  *ty = _ty->val();
+
+}  
 Py::Object 
 Affine::as_vec6(const Py::Tuple &args) {
   _VERBOSE("Affine::as_vec6");
@@ -1557,12 +1673,15 @@ Transformation::init_type()
   add_varargs_method("xy_tup",   &Transformation::xy_tup,  "xy_tup(xy)\n");
   add_varargs_method("seq_x_y",  &Transformation::seq_x_y, "seq_x_y(x, y)\n");
   add_varargs_method("numerix_x_y",  &Transformation::numerix_x_y, "numerix_x_y(x, y)\n");
+  add_varargs_method("nonlinear_only_numerix",  &Transformation::nonlinear_only_numerix, "nonlinear_only_numerix\n");
+  add_varargs_method("need_nonlinear",  &Transformation::need_nonlinear, "need_nonlinear\n");
   add_varargs_method("seq_xy_tups", &Transformation::seq_xy_tups, "seq_xy_tups(seq)\n");  
   add_varargs_method("inverse_xy_tup",   &Transformation::inverse_xy_tup,  "inverse_xy_tup(xy)\n");
 
   add_varargs_method("set_offset",   &Transformation::set_offset,  "set_offset(xy, trans)\n");
 
   add_varargs_method("as_vec6", &Transformation::as_vec6, "as_vec6(): return the affine as length 6 list of Values\n");
+  add_varargs_method("as_vec6_val", &Transformation::as_vec6_val, "as_vec6_val(): return the affine as length 6 list of float\n");
   add_varargs_method("deepcopy", &Transformation::deepcopy, "deepcopy()\n");
 
 }

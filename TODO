@@ -671,7 +671,7 @@ square).  All displayed area is white.
 - measuring ruler? (see gnuplot's 'r' hotkey in X11).
 
 - button to add text labels easily anywhere on the plot.  A few drawing
-buttons as well for simple things? Circle/ellipse, box, arrows, etc.
+  buttons as well for simple things? Circle/ellipse, box, arrows, etc.
 
 - toggle log/linear shows strange accumulation of ticks on y axis
 
@@ -682,4 +682,6 @@ buttons as well for simple things? Circle/ellipse, box, arrows, etc.
     #set(gca(), xscale='log')
     show()
 
---pyparsing a performance bottleneck for log ticks
+-- DONE pyparsing a performance bottleneck for log ticks
+
+-- draw point and draw pixel currently broken for new style markers
