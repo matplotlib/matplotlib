@@ -24,7 +24,7 @@ KNOWN BUGS
 
   - DONE parse error on lines like plot(bins, mu, bins, mu+sigma, '--')
 
-  - mri with eeg offsets whacked
+  - DONE 2004-02-11 mri with eeg offsets whacked
 
 GD 
 

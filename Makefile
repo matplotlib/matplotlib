@@ -2,6 +2,9 @@
 # Copyright (C) 2003  <jdhunter@ace.bsd.uchicago.edu>
 # $Header$
 # $Log$
+# Revision 1.19  2004/02/11 19:16:01  jdh2358
+# reorganized table
+#
 # Revision 1.18  2004/02/11 00:07:44  jdh2358
 # relocated gtkgd ext mod
 #
@@ -75,6 +78,7 @@ MODULES =					\
 	matplotlib.backends.backend_gd		\
 	matplotlib.backends.backend_gtk		\
 	matplotlib.backends.backend_gtkgd	\
+	matplotlib.backends.backend_paint       \
 	matplotlib.backends.backend_ps		\
 	matplotlib.backends.backend_template	\
         matplotlib.backends.backend_wx          \
@@ -98,17 +102,21 @@ clean:
 	find examples \( -name "*.png" -o -name "*.ps"  -o -name "*.jpg" -o -name "*.eps" \) | xargs rm -f
 
 htmldocs: 
+	cp build/lib.linux-i686-2.3/matplotlib/backends/*.so matplotlib/backends/;\
 	rm -rf htdocs/matplotlib;\
 	cp -a matplotlib htdocs/;\
+	rm htdocs/matplotlib/backends/*.so;\
 	cp examples/*.py htdocs/examples;\
-	cp API_CHANGES htdocs/
+	cp API_CHANGES htdocs/;\
 	rm -f docs/*.html;\
 	${PYDOC} -w ${MODULES};\
 	mv *.html docs/
 	cd htdocs;\
 	${PYTHON} process_docs.py;\
 	${PYTHON} convert.py;\
-	tar cfz site.tar.gz *.html screenshots tut examples gd API_CHANGES 
+	tar cfz site.tar.gz *.html screenshots tut examples gd API_CHANGES;\
+	cd ..;\
+	rm matplotlib/backends/*.so;\
 
 release: ${DISTFILES}
 	${PYTHON} license.py ${VERSION};\

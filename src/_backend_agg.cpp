@@ -2,8 +2,15 @@
 
 #include <cstring>
 
+// image renderers that also have to deal with points (72/inch) make
+// an assumption about how many pixels represent 1 inch.  GD and paint
+// use 96.  What's good for the goose ...
+#define PIXELS_PER_INCH 96
+
 double _seqitem_as_double(PyObject *seq, size_t i) {
-  //give a py sequence, return the ith element as a double
+  //give a py sequence, return the ith element as a double; all memory
+  //handling is done internally so caller does not need to delete any
+  //memory
   PyObject *o1, *o2; 
   double val;
   o1 = PySequence_GetItem( seq, i);
@@ -18,7 +25,7 @@ double _seqitem_as_double(PyObject *seq, size_t i) {
 
 double* _pyobject_as_double(PyObject *o) {
   // convert a pyobect to a double.  Return NULL on error but do not
-  // set err string
+  // set err string; caller must delete the memory on non null
   PyObject *tmp; 
   double val;
 
@@ -32,7 +39,13 @@ double* _pyobject_as_double(PyObject *o) {
   return new double(val);
 }
 
+double 
+_points_to_pixels(RendererAggObject* renderer, double pt) {
+  // convert a value in points to pixels depending on renderer dpi and
+  // scrren pixels per inch
+  return pt*PIXELS_PER_INCH/72.0*renderer->dpi/72.0;
 
+}
 
 agg::gen_stroke::line_cap_e
 _gc_get_linecap(PyObject *gc) {
@@ -40,39 +53,75 @@ _gc_get_linecap(PyObject *gc) {
   PyObject *capstyle;
   capstyle = PyObject_GetAttrString( gc, "_capstyle");
 
-  
   if (capstyle==NULL) {
     PyErr_SetString(PyExc_TypeError, 
 		    "Could not find the GC _capstyle attribute");
-    //return -1;    
+    return agg::gen_stroke::butt_cap;
   }
 
   if (! PyString_Check(capstyle)) {
     PyErr_SetString(PyExc_TypeError, 
 		    " GC _capstyle attribute must be string");
-    //return -1;    
+    return agg::gen_stroke::butt_cap;
   }
 
   char *s = PyString_AsString(capstyle);
   if (strcmp(s, "butt")==0) {
-    printf("cap butt\n");
     return agg::gen_stroke::butt_cap;
   }
   else if (strcmp(s, "round")==0) {
-    printf("cap round\n");
     return agg::gen_stroke::round_cap;
   }
   else if(strcmp(s, "projecting")==0) {
-    printf("cap projecting\n");
     return agg::gen_stroke::square_cap;
   }
   else {
     PyErr_SetString(PyExc_ValueError, 
 		    " GC _capstyle attribute must be one of butt, round, projecting");
-    //return -1;    
+    return agg::gen_stroke::butt_cap;
+  }
+  return agg::gen_stroke::butt_cap;
+
+}
+
+
+
+agg::gen_stroke::line_join_e
+_gc_get_joinstyle(PyObject *gc) {
+
+  PyObject *joinstyle;
+  joinstyle = PyObject_GetAttrString( gc, "_joinstyle");
+  
+  
+  if (joinstyle==NULL) {
+    PyErr_SetString(PyExc_TypeError, 
+		    "Could not find the GC _joinstyle attribute");
+    return agg::gen_stroke::miter_join;
   }
 
-  return agg::gen_stroke::butt_cap;  //default
+  if (! PyString_Check(joinstyle)) {
+    PyErr_SetString(PyExc_TypeError, 
+		    " GC _joinstyle attribute must be string");
+    return agg::gen_stroke::miter_join;
+  }
+
+  char *s = PyString_AsString(joinstyle);
+  if (strcmp(s, "miter")==0) {
+    return agg::gen_stroke::miter_join;
+  }
+  else if (strcmp(s, "round")==0) {
+    return agg::gen_stroke::round_join;
+  }
+  else if(strcmp(s, "bevel")==0) {
+    return agg::gen_stroke::bevel_join;
+  }
+  else {
+    PyErr_SetString(PyExc_ValueError, 
+		    " GC _joinstyle attribute must be one of butt, round, projecting");
+    return agg::gen_stroke::miter_join;
+  }
+
+    return agg::gen_stroke::miter_join;
 }
 
 agg::rgba* 
@@ -94,7 +143,7 @@ _gc_get_color(PyObject *gc) {
     return NULL;    
   }
 
-  double r, g, b, *alpha;
+  double r, g, b, *palpha;
 
   int N;
   N = PySequence_Length(rgb);
@@ -114,19 +163,51 @@ _gc_get_color(PyObject *gc) {
   r = _seqitem_as_double(rgb, 0);
   g = _seqitem_as_double(rgb, 1);
   b = _seqitem_as_double(rgb, 2);
-  alpha = _pyobject_as_double(alphao);
-  if (alpha==NULL) {
+  palpha = _pyobject_as_double(alphao);
+  if (palpha==NULL) {
     PyErr_SetString(PyExc_TypeError, 
 		    "Could not convert alpha to float");
-    delete alpha;
+    delete palpha;
     return NULL;
-
   }
-  printf("setting alpha %1.2f\n", *alpha);
-  agg::rgba* color = new agg::rgba(b, g, r, *alpha); 
-  delete alpha;
+    
+  //printf("setting alpha %1.2f\n", *alpha);
+  agg::rgba* color = new agg::rgba(r, g, b, *palpha); 
+  delete palpha;
   return color;
 
+}
+
+PyObject *
+_gc_get_dashes(PyObject *gc) {
+  //return the dashOffset, dashes sequence tuple.  
+  
+  PyObject *_dashes;
+
+  _dashes = PyObject_GetAttrString( gc, "_dashes");
+  if (_dashes==NULL) {
+    PyErr_SetString(PyExc_TypeError, 
+		    "Could not find the GC _dashes attribute");
+    return NULL;    
+  }
+  
+
+  int N;
+  N = PySequence_Length(_dashes);
+
+  if (N==-1) {
+    PyErr_SetString(PyExc_ValueError, 
+		    "GC _dashes must be a sequence type");    
+    return NULL;
+  }
+  
+  if (N!=2) {
+    PyErr_SetString(PyExc_ValueError, 
+		    "GC _dashes must be a length 2 tuple");    
+    return NULL;
+  }
+
+  return _dashes;
 }
 
 int 
@@ -170,11 +251,27 @@ _gc_set_clip_rect(PyObject *gc, RendererAggObject* renderer) {
   b = _seqitem_as_double(rect, 1);
   w = _seqitem_as_double(rect, 2);
   h = _seqitem_as_double(rect, 3);
-  printf("setting clip rectangle %1.1f, %1.1f, %1.1f, %1.1f\n",
-	 l,renderer->rbase->height()-(b+h),w,h);
   renderer->ras->clip_box(l, renderer->rbase->height()-(b+h),
 			  l+w, renderer->rbase->height()-b);
   return 1;
+
+}
+
+double *
+_gc_get_linewidth(PyObject *gc) {
+  //get the linewdith.  If return is <0, this function will set the
+  //error string and the caller should return NULL to python.  Caller
+  //must delete memory on non null return
+  PyObject *lwo;
+
+  lwo = PyObject_GetAttrString( gc, "_linewidth");
+  if (lwo==NULL) {
+    PyErr_SetString(PyExc_TypeError, 
+		    "Could not find the GC _linewidth attribute");
+    return NULL;    
+  }
+
+  return _pyobject_as_double(lwo);
 
 }
 
@@ -188,18 +285,24 @@ extern "C" staticforward PyTypeObject RendererAgg_Type;
 static RendererAggObject *
 newRendererAggObject(PyObject *args)
 {
+  printf("newRendererAggObject start\n");
   RendererAggObject *self;
   int width, height;
-  if (!PyArg_ParseTuple(args, "ii:RendererAgg", &width, &height))
+  double dpi;
+  if (!PyArg_ParseTuple(args, "iid:RendererAgg", &width, &height, &dpi))
     return NULL;
+
+  printf("newRendererAggObject 1\n");
   
   self = PyObject_New(RendererAggObject, &RendererAgg_Type);
   if (self == NULL)
     return NULL;
+
+  printf("newRendererAggObject 2\n");
    
-  unsigned stride(width*3);
-  size_t NUMBYTES(width*height*3);
-  agg::int8u *buffer = new agg::int8u[NUMBYTES];  //TODO: heap vs stack?
+  unsigned stride(width*4);    //TODO, pixfmt call to make rgba type independet
+  size_t NUMBYTES(width*height*4);
+  agg::int8u *buffer = new agg::int8u[NUMBYTES];  
   
   self->rbuf = new agg::rendering_buffer;
   self->rbuf->attach(buffer, width, height, stride);
@@ -212,12 +315,13 @@ newRendererAggObject(PyObject *args)
   self->ren = new renderer(*self->rbase);
   self->ras = new rasterizer(); 
   self->buffer = buffer; 
+  self->dpi = dpi; 
   self->NUMBYTES = NUMBYTES; 
   self->x_attr = NULL;
-
+  
   //draw(self);  
   //print(self); //calling this makes agg.raw work ok.  Is is path?  Something 
-
+  printf("newRendererAggObject end\n");
   return self;
 }
 
@@ -235,7 +339,7 @@ _backend_agg_new_renderer(PyObject *self, PyObject *args)
 static void
 RendererAgg_dealloc(RendererAggObject *self)
 {
-  printf("deallocating renderer\n");
+
   PyObject_Del(self);
   delete self->rbuf;
   delete self->pixf;
@@ -244,7 +348,6 @@ RendererAgg_dealloc(RendererAggObject *self)
 
   delete self->ras;
   delete self->buffer;
-  printf("deallocating renderer done\n");
 
 }
 
@@ -259,11 +362,12 @@ RendererAgg_draw_ellipse(RendererAggObject *renderer, PyObject* args) {
 
   if (! _gc_set_clip_rect(gcEdge, renderer)) return NULL;
 
-  agg::ellipse path(x, renderer->rbase->height()-(y+h), w, h, 100); //last arg is num steps
+  //last arg is num steps
+  agg::ellipse path(x, renderer->rbase->height()-y, w, h, 100); 
   
 
   if (gcFace != Py_None) {
-    printf("Filling the face\n");
+    //printf("Filling the face\n");
     //fill the face
     agg::rgba* color = _gc_get_color(gcFace);
     if (color==NULL) return NULL;
@@ -274,8 +378,13 @@ RendererAgg_draw_ellipse(RendererAggObject *renderer, PyObject* args) {
   }
   
   //now fill the edge
+
+  double* plw = _gc_get_linewidth(gcEdge);
+  if (plw==NULL) return NULL;
+  double lw = _points_to_pixels(renderer, *plw);
+
   agg::conv_stroke<agg::ellipse> stroke(path);
-  stroke.width(1.0);
+  stroke.width(lw);
   agg::rgba* color = _gc_get_color(gcEdge);
   if (color==NULL) return NULL;
   renderer->ren->color(*color);
@@ -297,6 +406,10 @@ RendererAgg_draw_rectangle(RendererAggObject *renderer, PyObject* args) {
   if (!PyArg_ParseTuple(args, "OOffff", &gcEdge, &gcFace, &l, &b, &w, &h))
     return NULL;
   if (! _gc_set_clip_rect(gcEdge, renderer)) return NULL;
+  double* plw = _gc_get_linewidth(gcEdge);
+  if (plw==NULL) return NULL;
+  double lw = _points_to_pixels(renderer, *plw);
+  delete plw;
   //printf("draw_rectangle inited\n");
   agg::path_storage path;
 
@@ -322,7 +435,8 @@ RendererAgg_draw_rectangle(RendererAggObject *renderer, PyObject* args) {
   
   //now fill the edge
   agg::conv_stroke<agg::path_storage> stroke(path);
-  stroke.width(1.0);
+  stroke.width(lw);
+  printf("setting edge wid %1.2f\n", lw);
   agg::rgba* color = _gc_get_color(gcEdge);
   if (color==NULL) return NULL;
   renderer->ren->color(*color);
@@ -341,9 +455,9 @@ RendererAgg_draw_lines(RendererAggObject *renderer, PyObject* args) {
 
   PyObject *gc;
   PyObject *x, *y;
-  PyObject *dashes;
 
-  if (!PyArg_ParseTuple(args, "OOOO", &gc, &x, &y, &dashes))
+
+  if (!PyArg_ParseTuple(args, "OOO", &gc, &x, &y))
     return NULL;
 
   if (! _gc_set_clip_rect(gc, renderer)) return NULL;
@@ -376,11 +490,37 @@ RendererAgg_draw_lines(RendererAggObject *renderer, PyObject* args) {
   //printf("RendererAgg_draw_lines looks ok\n");  
 
   agg::gen_stroke::line_cap_e cap = _gc_get_linecap(gc);
-  //if (cap==-1) return NULL;
+  agg::gen_stroke::line_join_e join = _gc_get_joinstyle(gc);
+
+  double *plw = _gc_get_linewidth(gc);
+  if (plw==NULL) return NULL;
+  double lw = _points_to_pixels(renderer, *plw);
+  delete plw;
 
   agg::rgba* color = _gc_get_color(gc);
   if (color==NULL) return NULL;
-  
+
+
+  // process the dashes
+  PyObject *dashes = _gc_get_dashes(gc);
+  if (dashes==NULL) return NULL;
+
+  int useDashes;
+  PyObject *val0 = PySequence_GetItem(dashes, 0);
+  if (val0==Py_None) useDashes=0;
+  else useDashes=1;
+  Py_XDECREF(val0);
+
+  double offset = 0;
+  PyObject *dashSeq = NULL;
+  if (useDashes) {
+    //TODO: use offset
+    offset = _points_to_pixels(renderer, _seqitem_as_double(dashes, 0));
+    //note, you must decref this later if useDashes
+    dashSeq = PySequence_GetItem(dashes, 1); 
+  };
+    
+    
 
   agg::path_storage path;
 
@@ -398,25 +538,29 @@ RendererAgg_draw_lines(RendererAggObject *renderer, PyObject* args) {
   renderer->ren->color(*color);
 
 
-  if (dashes == Py_None) {
+  if (! useDashes ) {
     //printf("no dashes\n");
     agg::conv_stroke<agg::path_storage> stroke(path);
     stroke.width(1.0);
     stroke.line_cap(cap);
+    stroke.line_join(join);
+    stroke.width(lw);
     renderer->ras->add_path(stroke);
   }
   else {
-    // set the dashes
+    // set the dashes //TODO: scale for DPI
     //printf("dashes\n");
-    int N(PySequence_Length(dashes));
+    int N(PySequence_Length(dashSeq));
     if (N==-1) {
       PyErr_SetString(PyExc_TypeError, 
 		      "dashes must be None or a sequence");     
+      Py_XDECREF(dashSeq);
       return NULL;      
     }
     if (N%2 != 0  ) {
       PyErr_SetString(PyExc_ValueError, 
 		      "dashes must be an even length sequence");     
+      Py_XDECREF(dashSeq);
       return NULL;      
     }
 
@@ -427,14 +571,17 @@ RendererAgg_draw_lines(RendererAggObject *renderer, PyObject* args) {
     agg::conv_stroke<dash_t> stroke(dash);
     double on, off;
     for (int i=0; i<N/2; i+=2) {
-      on = _seqitem_as_double(dashes, 2*i);
-      off = _seqitem_as_double(dashes, 2*i+1);
+      on = _points_to_pixels(renderer,  _seqitem_as_double(dashSeq, 2*i));
+      off = _points_to_pixels(renderer, _seqitem_as_double(dashSeq, 2*i+1));
       dash.add_dash(on, off);
       //printf("adding dashes %1.2f, %1.2f\n", on, off);
     }
     stroke.width(1.0);
     stroke.line_cap(cap);
+    stroke.line_join(join);
+    stroke.width(lw);
     renderer->ras->add_path(stroke);
+    Py_XDECREF(dashSeq);
   }
     
 
@@ -451,7 +598,7 @@ RendererAgg_draw_lines(RendererAggObject *renderer, PyObject* args) {
 
 
 static PyObject *
-RendererAgg_save_buffer(RendererAggObject *renderer, PyObject* args) {
+RendererAgg_write_rgba(RendererAggObject *renderer, PyObject* args) {
   //printf("save buffer called\n");
 
   PyObject *fnameo = NULL;
@@ -462,13 +609,8 @@ RendererAgg_save_buffer(RendererAggObject *renderer, PyObject* args) {
 
   fname = PyString_AsString(fnameo);
 
-  //printf("save buffer ready\n");
-  //scanline sline;
-  //renderer->ras->render(renderer->sline, *renderer->ren);
-  //printf("save buffer rendered\n");
-
   std::ofstream of2( fname, std::ios::binary|std::ios::out);
-  printf("About to write %d bytes\n", renderer->NUMBYTES);
+  //printf("About to write %d bytes\n", renderer->NUMBYTES);
   for (size_t i=0; i<renderer->NUMBYTES; ++i) {
     of2.write((char*)&(renderer->buffer[i]), sizeof(char));
   }
@@ -478,12 +620,93 @@ RendererAgg_save_buffer(RendererAggObject *renderer, PyObject* args) {
 
 }
 
+
+// this code is heavily adapted from the paint license, which is in
+// the file paint.license (BSD compatible) included in this
+// distribution.  TODO, add license file to MANIFEST.in and CVS
+static PyObject *
+RendererAgg_write_png(RendererAggObject *renderer, PyObject *args)
+{
+    char *file_name;
+    FILE *fp;
+    png_structp png_ptr;
+    png_infop info_ptr;
+    struct        png_color_8_struct sig_bit;
+    png_uint_32 row, height, width;
+
+    if (!PyArg_ParseTuple(args, "s", &file_name))
+	return NULL;
+
+    height = renderer->rbase->height();
+    width = renderer->rbase->width();
+    png_bytep row_pointers[height];
+    for (row = 0; row < height; ++row) {
+      row_pointers[row] = renderer->buffer + row * width * 4;
+    }
+
+    fp = fopen(file_name, "wb");
+    if (fp == NULL) {
+	PyErr_SetString(PyExc_IOError, "could not open file");
+	return NULL;
+    }
+
+
+    png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
+    if (png_ptr == NULL) {
+	fclose(fp);
+	PyErr_SetString(PyExc_RuntimeError, "could not create write struct");
+	return NULL;
+    }
+
+    info_ptr = png_create_info_struct(png_ptr);
+    if (info_ptr == NULL) {
+	fclose(fp);
+	png_destroy_write_struct(&png_ptr, (png_infopp)NULL);
+	PyErr_SetString(PyExc_RuntimeError, "could not create info struct");
+	return NULL;
+    }
+
+    if (setjmp(png_ptr->jmpbuf)) {
+	fclose(fp);
+	png_destroy_write_struct(&png_ptr, (png_infopp)NULL);
+	PyErr_SetString(PyExc_RuntimeError, "error building image");
+	return NULL;
+    }
+
+    png_init_io(png_ptr, fp);
+    png_set_IHDR(png_ptr, info_ptr,
+		 width, height, 8,
+		 PNG_COLOR_TYPE_RGB_ALPHA, PNG_INTERLACE_NONE,
+		 PNG_COMPRESSION_TYPE_BASE, PNG_FILTER_TYPE_BASE);
+
+    // this a a color image!
+    sig_bit.gray = 0;
+    sig_bit.red = 8;
+    sig_bit.green = 8;
+    sig_bit.blue = 8;
+    /* if the image has an alpha channel then */
+    sig_bit.alpha = 8;
+    png_set_sBIT(png_ptr, info_ptr, &sig_bit);
+
+    png_write_info(png_ptr, info_ptr);
+    png_write_image(png_ptr, row_pointers);
+    png_write_end(png_ptr, info_ptr);
+    png_destroy_write_struct(&png_ptr, (png_infopp)NULL);
+    fclose(fp);
+
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+
 // must be defined before getattr
 static PyMethodDef RendererAgg_methods[] = {
+
   {"draw_ellipse",	(PyCFunction)RendererAgg_draw_ellipse,	METH_VARARGS},
   {"draw_rectangle",	(PyCFunction)RendererAgg_draw_rectangle,	METH_VARARGS},
   {"draw_lines",	(PyCFunction)RendererAgg_draw_lines,	METH_VARARGS},
-  {"_save_buffer",	(PyCFunction)RendererAgg_save_buffer,	METH_VARARGS},
+  {"write_rgba",	(PyCFunction)RendererAgg_write_rgba,	METH_VARARGS},
+  {"write_png",	        (PyCFunction)RendererAgg_write_png,	METH_VARARGS},
   {NULL,		NULL}		/* sentinel */
 };
 
