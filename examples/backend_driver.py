@@ -104,9 +104,9 @@ def drive(backend, python='python2.3'):
 
 times = {}
 #backends = ['Agg', 'Cairo', 'GDK', 'PS', 'SVG', 'Template']
-backends = ['Agg', 'PS', 'SVG', 'Template']
+#backends = ['Agg', 'PS', 'SVG', 'Template']
 #backends = [ 'GTK', 'WX', 'TkAgg']
-#backends = ['Agg']
+backends = ['Agg']
 python = 'python2.3'
 for backend in backends:
     print 'testing %s' % backend

@@ -277,18 +277,16 @@ grestore
         """
         Draw a single line from x0,y0 to x1,y1
         """
-        ps = '%s m\n' % _nums_to_str(x0,y0)
-        ps += '%s l' % _nums_to_str(x1,y1)
+        ps = '%1.3f %1.3f m %1.3f %1.3f l'%(x0, y0, x1, y1)
         self._draw_ps(ps, gc, None, "line")
 
     def _draw_lines(self, gc, points):
         """
         Draw many lines.  'points' is a list of point coordinates.
         """
-        ps=[]
-        ps.append("%s m"%_nums_to_str(*points[0]))
-        for x,y in points[1:]:
-            ps.append("%s l"%_nums_to_str(x,y))
+        # inline this for performance
+        ps = ["%1.3f %1.3f m" % points[0]] 
+        ps.extend(["%1.3f %1.3f l"%point for point in points[1:] ])
         self._draw_ps("\n".join(ps), gc, None)
 
     def draw_lines(self, gc, x, y):

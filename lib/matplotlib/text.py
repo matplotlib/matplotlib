@@ -2,6 +2,7 @@
 Figure and Axes text
 """
 from __future__ import division
+import re
 from matplotlib import verbose
 import matplotlib
 import math
@@ -10,8 +11,10 @@ from cbook import enumerate, popd, is_string_like
 from font_manager import FontProperties
 from matplotlib import rcParams
 from patches import bbox_artist
-from numerix import sin, cos, pi, Matrix, cumsum
+from numerix import sin, cos, pi, cumsum, dot, array
 from transforms import lbwh_to_bbox, bbox_all
+
+
 
 def _process_text_args(override, fontdict=None, **kwargs):
     "Return an override dict.  See 'text' docstring for info"
@@ -30,6 +33,8 @@ class Text(Artist):
     Handle storing and drawing of text in window or data coordinates
 
     """
+    # special case superscripting to speedup logplots
+    _rgxsuper = re.compile('\$([0-9]+)\^\{(-?[0-9]+)\}\$')
 
     zorder = 3
     def __init__(self, 
@@ -60,6 +65,7 @@ class Text(Artist):
         self._fontproperties = fontproperties
         self._bbox = None
         self._renderer = None        
+        
     def _get_multialignment(self):
         if self._multialignment is not None: return self._multialignment
         else: return self._horizontalalignment
@@ -145,7 +151,8 @@ class Text(Artist):
             offsetLayout = [ (thisx, thisy) for line, thisx, thisy, w, h in horizLayout]
 
         # now rotate the bbox
-        cornersRotated = [M*Matrix([[thisx],[thisy],[1]]) for thisx, thisy in cornersHoriz]
+        
+        cornersRotated = [dot(M,array([[thisx],[thisy],[1]])) for thisx, thisy in cornersHoriz]
 
         txs = [float(v[0][0]) for v in cornersRotated]
         tys = [float(v[1][0]) for v in cornersRotated]
@@ -181,7 +188,7 @@ class Text(Artist):
 
         
         # now rotate the positions around the first x,y position
-        xys = [M*Matrix([[thisx],[thisy],[1]]) for thisx, thisy in offsetLayout]
+        xys = [dot(M,array([[thisx],[thisy],[1]])) for thisx, thisy in offsetLayout]
 
 
         tx = [float(v[0][0])+offsetx for v in xys]
@@ -223,6 +230,23 @@ ACCEPTS: rectangle prop dict plus key 'pad' which is a pad in points
         if self._bbox:
             bbox_artist(self, renderer, self._bbox)
         angle = self.get_rotation()
+
+        if angle==0:
+            m = self._rgxsuper.match(self._text)
+            if m is not None:
+                bbox, info = self._get_layout_super(self._renderer, m)
+                base, xt, yt = info[0]
+                renderer.draw_text(gc, xt, yt, base,
+                                   self._fontproperties, angle,
+                                   ismath=False)
+
+                exponent, xt, yt, fp = info[1]
+                renderer.draw_text(gc, xt, yt, exponent,
+                                   fp, angle,
+                                   ismath=False)
+                return
+
+                    
         bbox, info = self._get_layout(renderer)
 
         for line, wh, x, y in info:
@@ -318,10 +342,21 @@ ACCEPTS: rectangle prop dict plus key 'pad' which is a pad in points
         return self._verticalalignment
 
     def get_window_extent(self, renderer=None):
+        if self._text == '':
+            tx, ty = self._transform.xy_tup( (self._x, self._y) )
+            return lbwh_to_bbox(tx,ty,0,0)
+        
         if renderer is not None:
             self._renderer = renderer
         if self._renderer is None:
             raise RuntimeError('Cannot get window extent w/o renderer')
+
+        angle = self.get_rotation()
+        if angle==0:
+            m = self._rgxsuper.match(self._text)
+            if m is not None:
+                bbox, tmp = self._get_layout_super(self._renderer, m)
+                return bbox
         bbox, info = self._get_layout(self._renderer)
         return bbox
 
@@ -331,22 +366,22 @@ ACCEPTS: rectangle prop dict plus key 'pad' which is a pad in points
 
         theta = pi/180.0*self.get_rotation()
         # translate x0,y0 to origin
-        Torigin = Matrix([ [1, 0, -x0],
+        Torigin = array([ [1, 0, -x0],
                            [0, 1, -y0],
                            [0, 0, 1  ]]) 
         
         # rotate by theta
-        R = Matrix([ [cos(theta),  -sin(theta), 0],
+        R = array([ [cos(theta),  -sin(theta), 0],
                      [sin(theta), cos(theta), 0],
                      [0,           0,          1]]) 
 
         # translate origin back to x0,y0
-        Tback = Matrix([ [1, 0, x0],
+        Tback = array([ [1, 0, x0],
                          [0, 1, y0],
                          [0, 0, 1  ]]) 
 
 
-        return Tback*R*Torigin
+        return dot(dot(Tback,R), Torigin)
         
     def set_backgroundcolor(self, color):
         """
@@ -545,3 +580,53 @@ ACCEPTS: a matplotlib.font_manager.FontProperties instance
 
         
         
+    
+    def _get_layout_super(self, renderer, m):
+        """
+        a special case optimization if a log super and angle = 0
+        Basically, mathtext is slow and we can do simple superscript layout "by hand"
+        """
+        
+        key = self.get_prop_tup()
+        if self.cached.has_key(key): return self.cached[key]
+
+        base, exponent = m.group(1), m.group(2)
+        size =  self._fontproperties.get_size_in_points()
+        fpexp = self._fontproperties.copy()
+        fpexp.set_size(0.7*size)
+        wb,hb = renderer.get_text_width_height(base, self._fontproperties, False)
+        we,he = renderer.get_text_width_height(exponent, fpexp, False)
+
+        w = wb+we
+
+        xb, yb = self._transform.xy_tup((self._x, self._y))
+        xe = xb+wb
+        ye = yb+0.5*hb
+        h = ye+he-yb
+
+
+
+
+        if self._horizontalalignment=='center':  xo = -w/2.
+        elif self._horizontalalignment=='right':  xo = -w
+        else: xo = 0
+        if self._verticalalignment=='center':    yo = -hb/2.
+        elif self._verticalalignment=='top':  yo = -hb
+        else: yo = 0
+
+        xb += xo
+        yb += yo
+        xe += xo
+        ye += yo
+        bbox = lbwh_to_bbox(xb, yb, w, h)
+        
+        if renderer.flipy():
+            canvasw, canvash = renderer.get_canvas_width_height()
+            yb = canvash-yb
+            ye = canvash-ye            
+        
+            
+        val = ( bbox, ((base, xb, yb), (exponent, xe, ye, fpexp)))
+        self.cached[key] = val
+
+        return val

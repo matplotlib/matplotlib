@@ -15,7 +15,13 @@ API CHANGES in matplotlib-0.72
     old: contour(Z, x=Y, y=Y)
     new: contour(X, Y, Z)
 
- see http://matplotlib.sf.net/matplotlib.pylab.html#-contour
+   see http://matplotlib.sf.net/matplotlib.pylab.html#-contour
+
+
+   Increased the default resolution for save command.
+
+   Renamed the base attribute of the ticker classes to _base to avoid conflict
+   with the base method.  Sitt for subs
 
 API CHANGES in matplotlib-0.71   
 

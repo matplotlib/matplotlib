@@ -681,3 +681,5 @@ buttons as well for simple things? Circle/ellipse, box, arrows, etc.
     plot(x,y)
     #set(gca(), xscale='log')
     show()
+
+--pyparsing a performance bottleneck for log ticks

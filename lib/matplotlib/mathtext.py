@@ -1142,7 +1142,7 @@ def math_parse_s_ps(s, dpi, fontsize):
 
 math_parse_s_ps.cache = {}
 
-if __name__=='___main__':
+if 0: #__name__=='___main__':
     
     stests = [ 
             r'$dz/dt \/ = \/ \gamma x^2 \/ + \/ \rm{sin}(2\pi y+\phi)$',
@@ -1174,15 +1174,19 @@ if __name__=='___main__':
 
 
 if __name__=='__main__':
-    s = 'i'
-
     Element.fonts = DummyFonts()
-    handler.clear()
-    expression.parseString( s )
+    for i in range(5,20):
+        s = '$10^{%02d}$'%i
+        print 'parsing', s
+        w, h, fonts = math_parse_s_ft2font(s, dpi=27, fontsize=12, angle=0)
+    if 0:
+        Element.fonts = DummyFonts()
+        handler.clear()
+        expression.parseString( s )
 
-    handler.expr.set_size_info(12, 72)
+        handler.expr.set_size_info(12, 72)
 
-    # set the origin once to allow w, h compution
-    handler.expr.set_origin(0, 0)
-    for e in handler.symbols:
-        assert(hasattr(e, 'metrics'))
+        # set the origin once to allow w, h compution
+        handler.expr.set_origin(0, 0)
+        for e in handler.symbols:
+            assert(hasattr(e, 'metrics'))
