@@ -22,11 +22,11 @@ set(xticklines, 'linewidth', 3)
 set(yticklines, 'linewidth', 3)
 set(xgridlines, 'linestyle', '-')
 set(ygridlines, 'linestyle', '-')
-set(yticklabels, 'color', 'r', 'fontsize', 12)
-set(xticklabels, 'color', 'r', 'fontsize', 12)
+set(yticklabels, 'color', 'r', fontsize='medium')
+set(xticklabels, 'color', 'r', fontsize='medium')
 
 # keyword args are legal too
-#set(xticklabels, color='r', fontsize=12)
+#set(xticklabels, color='r', fontsize='medium')
 
 #savefig('axprops_demo')
 show()
@@ -57,7 +57,7 @@ for line in gridlines:
 
 for label in ticklabels:
     label.set_color('r')
-    label.set_fontsize(12)
+    label.set_fontsize('medium')
 
 #savefig('axprops_demo')
 show()
