@@ -2,6 +2,9 @@
 # Copyright (C) 2003  <jdhunter@ace.bsd.uchicago.edu>
 # $Header$
 # $Log$
+# Revision 1.13  2004/01/27 16:18:08  jdh2358
+# updated README and INSTALL
+#
 # Revision 1.12  2004/01/26 18:27:46  jdh2358
 # more ps and text API fixes
 #
@@ -73,8 +76,7 @@ RELEASE = matplotlib-${VERSION}
 clean: 
 	${PYTHON} setup.py clean;\
 	find . \( -name "*~" -o -name "*.pyc" \) | xargs rm -f;\
-	find examples -name "*.png"  | xargs rm -f;\
-	find matplotlib -name "*.png"  | xargs rm -f;
+	find examples \(-o -name "*.png" -o -name "*.ps"  -o -name "*.jpg" -o -name "*.eps" \) | xargs rm -f
 
 htmldocs: 
 	rm -rf htdocs/matplotlib;\

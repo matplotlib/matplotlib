@@ -1,33 +1,12 @@
-matplotlib requires python 2.2+, Numeric and pygtk 1.99.16, which
-requires GTK2.
+matplotlib requires python 2.2+, and Numeric-22+.  The other
+requirements are backend dependent
 
-If these dependencies are satisfied, just do the usual thing:
+If these requirements are satisfied, just do the usual thing:
 
   > python setup.py install
 
-I have installed and tested this on linux and several win32 platforms,
-but it should run anywhere that Numeric and pygtk run.
+The latest install instructions can be found at
+http://matplotlib.sourceforge.net/installing.html.
 
-If you want to use matplotlib interactively from the prompt, see the
-file INTERACTIVE.
-
-Redhat Users:
-
-  GTK2 became the default with the Redhat Linux 8 series.  If you're
-  distro is older than that, you'll need to upgrade your desktop,
-  upgrade your gtk libs, or upgrade your distro.
-
-
-Windows Users:
-
-   Windows users should consult
-   http://www.mapr.ucl.ac.be/~gustin/win32_ports for information about
-   pygtk for win32.  Basically, you need to install the GTK+ 2.2
-   runtime and pygtk-1.99.16, both of which have friendly windows
-   installers.  After you install the runtime, you may need to add the
-   bin and lib subdirs of your install dir to your PATH.
-
-
-If you have any questions, email me at 
-John Hunter <jdhunter@ace.bsd.uchicago.edu> or post to
-comp.lang.python, which I read frequently.
+The backend specific requirements (eg, for GTK, GD, PS or WX) can be
+found at http://matplotlib.sourceforge.net/backends.html
