@@ -4,7 +4,7 @@ import os, sys, time
 import matplotlib
 matplotlib.interactive(True)
 #matplotlib.use('Cairo')
-matplotlib.use('WXAgg')
+matplotlib.use('TkAgg')
 from pylab import *
 
 
