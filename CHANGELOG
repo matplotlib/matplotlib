@@ -1,5 +1,9 @@
 New entries should be added at the top
 
+2005-03-16 Fixed tick on horiz colorbar
+
+2005-03-16 Added Japanses winreg patch - JDH
+
 2005-03-15 backend_gtkagg.py: changed to use double buffering, this fixes
            the problem reported Joachim Berdal Haga - "Parts of plot lagging 
 	   from previous frame in animation". Tested with anim.py and it makes

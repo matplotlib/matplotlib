@@ -288,6 +288,106 @@ class trans_affinePtr(trans_affine):
         _swig_setattr(self, trans_affine,self.__class__,trans_affine)
 _agg.trans_affine_swigregister(trans_affinePtr)
 
+class trans_affine_rotation(trans_affine):
+    __swig_setmethods__ = {}
+    for _s in [trans_affine]: __swig_setmethods__.update(_s.__swig_setmethods__)
+    __setattr__ = lambda self, name, value: _swig_setattr(self, trans_affine_rotation, name, value)
+    __swig_getmethods__ = {}
+    for _s in [trans_affine]: __swig_getmethods__.update(_s.__swig_getmethods__)
+    __getattr__ = lambda self, name: _swig_getattr(self, trans_affine_rotation, name)
+    def __repr__(self):
+        return "<%s.%s; proxy of C++ agg::trans_affine_rotation instance at %s>" % (self.__class__.__module__, self.__class__.__name__, self.this,)
+    def __init__(self, *args):
+        _swig_setattr(self, trans_affine_rotation, 'this', _agg.new_trans_affine_rotation(*args))
+        _swig_setattr(self, trans_affine_rotation, 'thisown', 1)
+    def __del__(self, destroy=_agg.delete_trans_affine_rotation):
+        try:
+            if self.thisown: destroy(self)
+        except: pass
+
+
+class trans_affine_rotationPtr(trans_affine_rotation):
+    def __init__(self, this):
+        _swig_setattr(self, trans_affine_rotation, 'this', this)
+        if not hasattr(self,"thisown"): _swig_setattr(self, trans_affine_rotation, 'thisown', 0)
+        _swig_setattr(self, trans_affine_rotation,self.__class__,trans_affine_rotation)
+_agg.trans_affine_rotation_swigregister(trans_affine_rotationPtr)
+
+class trans_affine_scaling(trans_affine):
+    __swig_setmethods__ = {}
+    for _s in [trans_affine]: __swig_setmethods__.update(_s.__swig_setmethods__)
+    __setattr__ = lambda self, name, value: _swig_setattr(self, trans_affine_scaling, name, value)
+    __swig_getmethods__ = {}
+    for _s in [trans_affine]: __swig_getmethods__.update(_s.__swig_getmethods__)
+    __getattr__ = lambda self, name: _swig_getattr(self, trans_affine_scaling, name)
+    def __repr__(self):
+        return "<%s.%s; proxy of C++ agg::trans_affine_scaling instance at %s>" % (self.__class__.__module__, self.__class__.__name__, self.this,)
+    def __init__(self, *args):
+        _swig_setattr(self, trans_affine_scaling, 'this', _agg.new_trans_affine_scaling(*args))
+        _swig_setattr(self, trans_affine_scaling, 'thisown', 1)
+    def __del__(self, destroy=_agg.delete_trans_affine_scaling):
+        try:
+            if self.thisown: destroy(self)
+        except: pass
+
+
+class trans_affine_scalingPtr(trans_affine_scaling):
+    def __init__(self, this):
+        _swig_setattr(self, trans_affine_scaling, 'this', this)
+        if not hasattr(self,"thisown"): _swig_setattr(self, trans_affine_scaling, 'thisown', 0)
+        _swig_setattr(self, trans_affine_scaling,self.__class__,trans_affine_scaling)
+_agg.trans_affine_scaling_swigregister(trans_affine_scalingPtr)
+
+class trans_affine_translation(trans_affine):
+    __swig_setmethods__ = {}
+    for _s in [trans_affine]: __swig_setmethods__.update(_s.__swig_setmethods__)
+    __setattr__ = lambda self, name, value: _swig_setattr(self, trans_affine_translation, name, value)
+    __swig_getmethods__ = {}
+    for _s in [trans_affine]: __swig_getmethods__.update(_s.__swig_getmethods__)
+    __getattr__ = lambda self, name: _swig_getattr(self, trans_affine_translation, name)
+    def __repr__(self):
+        return "<%s.%s; proxy of C++ agg::trans_affine_translation instance at %s>" % (self.__class__.__module__, self.__class__.__name__, self.this,)
+    def __init__(self, *args):
+        _swig_setattr(self, trans_affine_translation, 'this', _agg.new_trans_affine_translation(*args))
+        _swig_setattr(self, trans_affine_translation, 'thisown', 1)
+    def __del__(self, destroy=_agg.delete_trans_affine_translation):
+        try:
+            if self.thisown: destroy(self)
+        except: pass
+
+
+class trans_affine_translationPtr(trans_affine_translation):
+    def __init__(self, this):
+        _swig_setattr(self, trans_affine_translation, 'this', this)
+        if not hasattr(self,"thisown"): _swig_setattr(self, trans_affine_translation, 'thisown', 0)
+        _swig_setattr(self, trans_affine_translation,self.__class__,trans_affine_translation)
+_agg.trans_affine_translation_swigregister(trans_affine_translationPtr)
+
+class trans_affine_skewing(trans_affine):
+    __swig_setmethods__ = {}
+    for _s in [trans_affine]: __swig_setmethods__.update(_s.__swig_setmethods__)
+    __setattr__ = lambda self, name, value: _swig_setattr(self, trans_affine_skewing, name, value)
+    __swig_getmethods__ = {}
+    for _s in [trans_affine]: __swig_getmethods__.update(_s.__swig_getmethods__)
+    __getattr__ = lambda self, name: _swig_getattr(self, trans_affine_skewing, name)
+    def __repr__(self):
+        return "<%s.%s; proxy of C++ agg::trans_affine_skewing instance at %s>" % (self.__class__.__module__, self.__class__.__name__, self.this,)
+    def __init__(self, *args):
+        _swig_setattr(self, trans_affine_skewing, 'this', _agg.new_trans_affine_skewing(*args))
+        _swig_setattr(self, trans_affine_skewing, 'thisown', 1)
+    def __del__(self, destroy=_agg.delete_trans_affine_skewing):
+        try:
+            if self.thisown: destroy(self)
+        except: pass
+
+
+class trans_affine_skewingPtr(trans_affine_skewing):
+    def __init__(self, this):
+        _swig_setattr(self, trans_affine_skewing, 'this', this)
+        if not hasattr(self,"thisown"): _swig_setattr(self, trans_affine_skewing, 'thisown', 0)
+        _swig_setattr(self, trans_affine_skewing,self.__class__,trans_affine_skewing)
+_agg.trans_affine_skewing_swigregister(trans_affine_skewingPtr)
+
 class path_storage(_object):
     __swig_setmethods__ = {}
     __setattr__ = lambda self, name, value: _swig_setattr(self, path_storage, name, value)

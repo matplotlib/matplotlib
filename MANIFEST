@@ -1,5 +1,6 @@
 .matplotlibrc
 API_CHANGES
+CHANGELOG
 INSTALL
 INTERACTIVE
 KNOWN_BUGS
@@ -265,7 +266,6 @@ examples/break.py
 examples/color_demo.py
 examples/colours.py
 examples/contour_demo.py
-examples/contour_demo2.py
 examples/contour_image.py
 examples/contourf_demo.py
 examples/coords_demo.py
@@ -509,7 +509,6 @@ lib/dateutil/rrule.py
 lib/dateutil/tz.py
 lib/matplotlib/.cvsignore
 lib/matplotlib/__init__.py
-lib/matplotlib/__init__.py.~1.42.~
 lib/matplotlib/_contour.py
 lib/matplotlib/_image.py
 lib/matplotlib/_mathtext_data.py
@@ -519,7 +518,6 @@ lib/matplotlib/afm.py
 lib/matplotlib/agg.py
 lib/matplotlib/artist.py
 lib/matplotlib/axes.py
-lib/matplotlib/axes.py.~1.81.~
 lib/matplotlib/axis.py
 lib/matplotlib/backend_bases.py
 lib/matplotlib/cbook.py
@@ -527,7 +525,6 @@ lib/matplotlib/cm.py
 lib/matplotlib/collections.py
 lib/matplotlib/colors.py
 lib/matplotlib/contour.py
-lib/matplotlib/contour.py.~1.4.~
 lib/matplotlib/dates.py
 lib/matplotlib/figure.py
 lib/matplotlib/finance.py
@@ -620,6 +617,7 @@ lib/matplotlib/numerix/_nc_imports.py
 lib/matplotlib/numerix/fft/__init__.py
 lib/matplotlib/numerix/linear_algebra/__init__.py
 lib/matplotlib/numerix/ma/__init__.py
+lib/matplotlib/numerix/mlab/.cvsignore
 lib/matplotlib/numerix/mlab/__init__.py
 lib/matplotlib/numerix/random_array/__init__.py
 lib/pytz/__init__.py
@@ -1202,15 +1200,18 @@ license/LICENSE_enthought.txt
 license/PYTZ_LICENSE.txt
 src/_backend_agg.cpp
 src/_backend_agg.h
+src/_backend_gdk.c
 src/_contour.c
 src/_gtkagg.cpp
 src/_image.cpp
 src/_image.h
 src/_na_backend_agg.cpp
+src/_na_backend_gdk.c
 src/_na_contour.c
 src/_na_image.cpp
 src/_na_transforms.cpp
 src/_nc_backend_agg.cpp
+src/_nc_backend_gdk.c
 src/_nc_contour.c
 src/_nc_image.cpp
 src/_nc_transforms.cpp

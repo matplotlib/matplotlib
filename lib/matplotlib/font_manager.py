@@ -116,12 +116,18 @@ returned by default with AFM fonts as an option.
             return glob.glob(os.path.join(directory, '*.'+fontext))
         try:
             for j in range(_winreg.QueryInfoKey(local)[1]):
-                key, direc, any = _winreg.EnumValue( local, j)
-                if not os.path.dirname(direc):
-                    direc = os.path.join(directory, direc)
-                direc = os.path.abspath(direc).lower()
-                if direc[-4:] == '.'+fontext:
-                    items[direc] = 1
+                try:
+                    key, direc, any = _winreg.EnumValue( local, j)
+                    if not os.path.dirname(direc):
+                        direc = os.path.join(directory, direc)
+                    direc = os.path.abspath(direc).lower()
+                    if direc[-4:] == '.'+fontext:
+                        items[direc] = 1
+                except EnvironmentError:
+                    continue
+                except WindowsError:
+                    continue
+                        
             return items.keys()
         finally:
             _winreg.CloseKey(local)

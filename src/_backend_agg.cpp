@@ -368,8 +368,9 @@ RendererAgg::draw_polygon(const Py::Tuple& args) {
   // and behind access
   double xs[Npoints];
   double ys[Npoints];
-  Py::Tuple xy;
+
   for (size_t i=0; i<Npoints; i++) {
+    Py::SeqBase<Py::Object> xy(points[i]);
     xy = Py::Tuple(points[i]);
     xs[i] = Py::Float(xy[0]);
     ys[i] = Py::Float(xy[1]);
