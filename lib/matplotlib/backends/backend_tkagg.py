@@ -282,15 +282,17 @@ class FigureManagerTkAgg(FigureManagerBase):
         self.toolbar.configure(width=width) # , height=height)
 
     def show(self):
+        _focus = windowing.FocusManager()
+        if not self._shown:
+            self.window.deiconify()
+            # anim.py requires this
+            if sys.platform=='win32' : self.window.update()            
+        else: self.canvas.draw()
+        self._shown = True
         def destroy(*args):
             self.window = None
             Gcf.destroy(self._num)
         if not self._shown: self.window.bind("<Destroy>", destroy)
-
-        _focus = windowing.FocusManager()
-        if not self._shown: self.window.deiconify()
-        else: self.canvas.draw()
-        self._shown = True
 
 
     def destroy(self, *args):
