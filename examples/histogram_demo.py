@@ -17,6 +17,5 @@ xlabel('Smarts')
 ylabel('Probability')
 title('Histogram of IQ: mu=100, sigma=15')
 
-
-#savefig('histogram_demo', dpi=150)
+savefig('histogram_demo', dpi=150)
 show()
