@@ -1125,7 +1125,7 @@ Refs:
 
         if len(self.images)==1:
             im = self.images[0]
-            im.draw(renderer)
+            if im.get_visible(): im.draw(renderer)
         elif len(self.images)>1:
             # make a composite image blending alpha
             # list of (_image.Image, ox, oy)
@@ -1134,7 +1134,7 @@ Refs:
                 raise ValueError('Composite images with different origins not supported')
             else:
                 origin = self.images[0].origin
-            ims = [(im.make_image(renderer),0,0) for im in self.images]
+            ims = [(im.make_image(renderer),0,0) for im in self.images if im.get_visible()]
 
                 
             im = _image.from_images(self.bbox.height(), self.bbox.width(), ims)
@@ -1146,8 +1146,8 @@ Refs:
             
 
         if self.axison:
-            self.xaxis.draw(renderer)
-            self.yaxis.draw(renderer)
+            if self.xaxis.get_visible(): self.xaxis.draw(renderer)
+            if self.yaxis.get_visible(): self.yaxis.draw(renderer)
 
 
         artists = []
@@ -1156,13 +1156,13 @@ Refs:
         artists.extend(self.lines)
         artists.extend(self.texts)
 
-        dsu = [ (a.zorder, a) for a in artists]
+        dsu = [ (a.zorder, a) for a in artists if a.get_visible()]
         dsu.sort()
         
         for zorder, a in dsu:
             a.draw(renderer)
 
-        self.title.draw(renderer)
+        if self.title.get_visible(): self.title.draw(renderer)
         if 0: bbox_artist(self.title, renderer)
         # optional artists
         for a in self.artists:
@@ -1170,10 +1170,10 @@ Refs:
 
 
         if self.legend_ is not None:
-            self.legend_.draw(renderer)
+           if self.legend_.get_visible(): self.legend_.draw(renderer)
 
         for table in self.tables:
-            table.draw(renderer)
+            if table.get_visible(): table.draw(renderer)
 
         self.transData.thaw()  # release the lazy objects
         self.transAxes.thaw()  # release the lazy objects
