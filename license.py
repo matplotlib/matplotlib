@@ -57,4 +57,4 @@ agrees to be bound by the terms and conditions of this License
 Agreement.
 """ % locals()
 
-file('LICENSE', 'w').write(s)
+file('license/LICENSE', 'w').write(s)
