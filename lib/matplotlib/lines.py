@@ -548,12 +548,36 @@ ACCEPTS: sequence of on/off ink in points
 
         
     def _draw_point(self, renderer, gc, xt, yt):
-        for (x,y) in zip(xt, yt):
-            renderer.draw_arc(gc, None, x, y, 1, 1, 0.0, 360.0)
+        if self._newstyle:
+            rgbFace = self._get_rgb_face()
+            CLOSE = self._get_close(rgbFace)
+            path = (
+                (MOVETO, -0.5, -0.5),
+                (LINETO, -0.5, 0.5),
+                (LINETO, 0.5, 0.5),
+                (LINETO, 0.5, -0.5),
+                CLOSE
+                )
+            renderer.draw_markers(gc, path, xt, yt, self._transform)
+        else:
+            for (x,y) in zip(xt, yt):
+                renderer.draw_arc(gc, None, x, y, 1, 1, 0.0, 360.0)
 
     def _draw_pixel(self, renderer, gc, xt, yt):
-        for (x,y) in zip(xt, yt):
-            renderer.draw_point(gc, x, y)
+        if self._newstyle:
+            rgbFace = self._get_rgb_face()            
+            CLOSE = self._get_close(rgbFace)
+            path = (
+                (MOVETO, -0.5, -0.5),
+                (LINETO, -0.5, 0.5),
+                (LINETO, 0.5, 0.5),
+                (LINETO, 0.5, -0.5),
+                CLOSE
+                )
+            renderer.draw_markers(gc, path, xt, yt, self._transform)
+        else:
+            for (x,y) in zip(xt, yt):
+                renderer.draw_point(gc, x, y)
 
 
     def _draw_circle(self, renderer, gc, xt, yt):

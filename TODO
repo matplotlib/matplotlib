@@ -684,4 +684,6 @@ square).  All displayed area is white.
 
 -- DONE pyparsing a performance bottleneck for log ticks
 
--- draw point and draw pixel currently broken for new style markers
+-- DONE draw point and draw pixel currently broken for new style markers
+
+-- alpha channel in colormaps
