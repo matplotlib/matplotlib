@@ -85,6 +85,7 @@ _misccommands = (
     )
 
 cmappable = {
+    'clabel' : 'if ret.mappable is not None: gci._current = ret.mappable',
     'contour' : 'if ret[1].mappable is not None: gci._current = ret[1].mappable',
     'contourf': 'if ret[1].mappable is not None: gci._current = ret[1].mappable',
     'scatter' : 'gci._current = ret',

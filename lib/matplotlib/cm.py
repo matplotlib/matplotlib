@@ -421,6 +421,10 @@ class ScalarMappable:
         'Set the image array from numeric/numarray A'
         self._A = A.astype(nx.Float32)
 
+    def get_array(self):
+        'Return the array'
+        return self._A 
+
     def set_clim(self, vmin=None, vmax=None):
         'set the norm limits for image scaling'
         self.norm.vmin = vmin
