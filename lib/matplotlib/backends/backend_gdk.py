@@ -485,8 +485,8 @@ class FigureCanvasGDK(FigureCanvasBase):
         
     def _render_to_pixmap(self, width, height):
         """Render the figure to a gdk.Pixmap, is used for
-           - rendering the pixmap to display        (matlab.draw)
-           - rendering the pixmap to save to a file (matlab.savefig)
+           - rendering the pixmap to display        (pylab.draw)
+           - rendering the pixmap to save to a file (pylab.savefig)
         Should not be overridden
         """
         if DEBUG: print 'FigureCanvasGDK.%s' % fn_name()
