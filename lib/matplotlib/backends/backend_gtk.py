@@ -14,9 +14,8 @@ import matplotlib.numerix as numerix
 from matplotlib.cbook import is_string_like, enumerate, True, False, onetrue
 from matplotlib.font_manager import fontManager
 
-from matplotlib.backend_bases import \
-     RendererBase, GraphicsContextBase, FigureManagerBase, FigureCanvasBase,\
-     NavigationToolbar2, cursors, MplEvent
+from matplotlib.backend_bases import RendererBase, GraphicsContextBase, \
+     FigureManagerBase, FigureCanvasBase, NavigationToolbar2, cursors, MplEvent
 from matplotlib._matlab_helpers import Gcf
 from matplotlib.figure import Figure
 
@@ -1541,6 +1540,7 @@ import sys
 
 def exception_handler(type, value, tb):
     """Handle uncaught exceptions"""
+    # type is of format - exceptions.IOError
     # get the filename attribute if available (for IOError)
     if hasattr(value, 'filename') and value.filename != None:
         msg = value.filename + ': '
@@ -1550,7 +1550,7 @@ def exception_handler(type, value, tb):
         msg += value.strerror
     else:
         msg = value
-        
+
     error_msg_gtk(msg)
 
 sys.excepthook = exception_handler
