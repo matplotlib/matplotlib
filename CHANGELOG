@@ -1,5 +1,8 @@
 New entries should be added at the top
 
+2005-02-08 Small optimizations in PS backend.  They may have a big impact for
+           large plots, otherwise they don't hurt  - FP
+
 2005-02-08 Added transparent support for gzipped files in load/save - Fernando
            Perez (FP from now on).
 

@@ -137,10 +137,10 @@ class RendererPS(RendererBase):
 
     def set_font(self, fontname, fontsize):
         if (fontname,fontsize) != (self.fontname,self.fontsize):
-            writer = self._pswriter
-            writer.write("/%s findfont\n"%fontname)
-            writer.write("%1.3f scalefont\n"%fontsize)
-            writer.write("setfont\n")
+            out = ("/%s findfont\n"
+                   "%1.3f scalefont\n"
+                   "setfont\n" % (fontname,fontsize))
+            self._pswriter.write(out)
             self.fontname = fontname
             self.fontsize = fontsize
 
@@ -214,9 +214,10 @@ class RendererPS(RendererBase):
         rgbat = im.as_str(flipud)
         rgba = fromstring(rgbat[2], UInt8)
         rgba.shape = (rgbat[0], rgbat[1], 4)
-        r = rgba[:,:,0].astype(Float32)
-        g = rgba[:,:,1].astype(Float32)
-        b = rgba[:,:,2].astype(Float32)
+        rgba_f = rgba.astype(Float32)
+        r = rgba_f[:,:,0]
+        g = rgba_f[:,:,1]
+        b = rgba_f[:,:,2]
         gray = (r*rc + g*gc + b*bc).astype(UInt8)
         return rgbat[0], rgbat[1], gray.tostring()
 
@@ -283,9 +284,6 @@ grestore
 
     def _draw_markers(self, gc, path, x, y, transform):
         """
-        I'm underscore hiding this method from lines.py right now
-        since it is incomplete
-        
         Draw the markers defined by path at each of the positions in x
         and y.  path coordinates are points, x and y coords will be
         transformed by the transform
@@ -335,7 +333,7 @@ grestore
         """
         # inline this for performance
         ps = ["%1.3f %1.3f m" % points[0]] 
-        ps.extend(["%1.3f %1.3f l"%point for point in points[1:] ])
+        ps.extend(["%1.3f %1.3f l" % point for point in points[1:] ])
         self._draw_ps("\n".join(ps), gc, None)
 
     def draw_lines(self, gc, x, y):
@@ -345,10 +343,17 @@ grestore
         """
         if debugPS:
             self._pswriter.write("% lines\n")
-        points=zip(x,y)
-        while points:
-            self._draw_lines(gc,points[0:1000])
-            del(points[0:1000])
+        start  = 0
+        end    = 1000
+        points = zip(x,y)
+        
+        while 1:
+            to_draw = points[start:end]
+            if not to_draw:
+                break
+            self._draw_lines(gc,to_draw)
+            start = end
+            end   += 1000
 
     def draw_point(self, gc, x, y):
         """
@@ -366,11 +371,10 @@ grestore
         If rgbFace is not None, fill the poly with it.  gc
         is a GraphicsContext instance
         """
-        ps = "%s m\n" % _nums_to_str(*points[0])
-        for x,y in points[1:]:
-            ps += "%s l\n" % _nums_to_str(x, y)
-        ps += "closepath"
-        self._draw_ps(ps, gc, rgbFace, "polygon")
+        ps = ["%s m\n" % _nums_to_str(*points[0])]
+        ps.extend([ "%s l\n" % _nums_to_str(x, y) for x,y in points[1:] ])
+        ps.append("closepath")
+        self._draw_ps(''.join(ps), gc, rgbFace, "polygon")
         
     def draw_rectangle(self, gc, rgbFace, x, y, width, height):
         """
@@ -387,27 +391,28 @@ grestore
         """
         draw a Text instance
         """
-
+        # local to avoid repeated attribute lookups
+        write = self._pswriter.write
         if ismath:
             return self.draw_mathtext(gc, x, y, s, prop, angle)
         if debugPS:
-            self._pswriter.write("% text\n")
+            write("% text\n")
         
         font = self._get_font(prop)
         font.set_text(s,0)
 
         self.set_color(*gc.get_rgb())
         self.set_font(font.get_sfnt()[(1,0,0,6)], prop.get_size_in_points())
-        self._pswriter.write("%s m\n"%_nums_to_str(x,y))
+        write("%s m\n"%_nums_to_str(x,y))
         if angle:
-            self._pswriter.write("gsave\n")
-            self._pswriter.write("%s rotate\n"%_num_to_str(angle))
+            write("gsave\n")
+            write("%s rotate\n"%_num_to_str(angle))
         descent = font.get_descent() / 64.0
         if descent:
-            self._pswriter.write("0 %s rmoveto\n"%_num_to_str(descent))
-        self._pswriter.write("(%s) show\n"%quote_ps_string(s))
+            write("0 %s rmoveto\n"%_num_to_str(descent))
+        write("(%s) show\n"%quote_ps_string(s))
         if angle:
-            self._pswriter.write("grestore\n")
+            write("grestore\n")
 
     def new_gc(self):
         return GraphicsContextPS()
@@ -436,10 +441,11 @@ grestore
         Emit the PostScript sniplet 'ps' with all the attributes from 'gc'
         applied.  'ps' must consist of PostScript commands to construct a path.
         """
-        # local attr lookup faster and this is
-        writer = self._pswriter  
+        # local variable eliminates all repeated attribute lookups
+        write = self._pswriter.write
+        
         if debugPS and command:
-            writer.write("% "+command+"\n")
+            write("% "+command+"\n")
 
         cliprect = gc.get_clip_rectangle()
         self.set_color(*gc.get_rgb())
@@ -453,19 +459,19 @@ grestore
         self.set_linedash(*gc.get_dashes())
         if cliprect:
             x,y,w,h=cliprect
-            writer.write('gsave\n%1.3f %1.3f %1.3f %1.3f clipbox\n' % (w,h,x,y))
+            write('gsave\n%1.3f %1.3f %1.3f %1.3f clipbox\n' % (w,h,x,y))
         # Jochen, is the strip necessary? - this could be a honking big string
-        writer.write(ps.strip())  
-        writer.write("\n")        
+        write(ps.strip())  
+        write("\n")        
         if rgbFace:
             #print 'rgbface', rgbFace
-            writer.write("gsave\n")
+            write("gsave\n")
             self.set_color(store=0, *rgbFace)
-            writer.write("fill\ngrestore\n")
+            write("fill\ngrestore\n")
 
-        writer.write("stroke\n")
+        write("stroke\n")
         if cliprect:
-            writer.write("grestore\n")
+            write("grestore\n")
 
 
 class GraphicsContextPS(GraphicsContextBase):
@@ -491,13 +497,15 @@ def encodeTTFasPS(fontfile):
     """
     fontfile = str(fontfile) # TODO: handle unicode filenames
     font = file(fontfile, 'rb')
-    hexdata, data = '', font.read(65520)
-    while len(data):
-        hexdata += '<'+'\n'.join([binascii.b2a_hex(data[j:j+36]).upper() \
-                   for j in range(0, len(data), 36)])+'>\n'
+    hexdata, data = [], font.read(65520)
+    b2a_hex = binascii.b2a_hex
+    while data:
+        hexdata.append('<%s>\n' %
+                       '\n'.join([b2a_hex(data[j:j+36]).upper()
+                                  for j in range(0, len(data), 36)]) )
         data  = font.read(65520)
-    
-    hexdata = hexdata[:-2] + '00>'
+        
+    hexdata = ''.join(hexdata)[:-2] + '00>'
     font    = FT2Font(fontfile)
     
     headtab  = font.get_sfnt_table('head')
@@ -525,18 +533,18 @@ def encodeTTFasPS(fontfile):
     italicang= '(%d.%d)' % posttab['italicAngle']
 
     numglyphs = font.num_glyphs
-    glyphs = ''
+    glyphs = []
     for j in range(numglyphs):
-        glyphs += '/%s %d def' % (font.get_glyph_name(j), j)
+        glyphs.append('/%s %d def' % (font.get_glyph_name(j), j))
         if j != 0 and j%4 == 0:
-            glyphs += '\n'
+            glyphs.append('\n')
         else:
-            glyphs += ' '
-    
-    data = '%%!PS-TrueType-%(version)s-%(revision)s\n' % locals()
+            glyphs.append(' ')
+    glyphs = ''.join(glyphs)
+    data = ['%%!PS-TrueType-%(version)s-%(revision)s\n' % locals()]
     if maxmemory:
-        data += '%%%%VMusage: %(minmemory)d %(maxmemory)d' % locals()
-    data += """%(dictsize)d dict begin
+        data.append('%%%%VMusage: %(minmemory)d %(maxmemory)d' % locals())
+    data.append("""%(dictsize)d dict begin
 /FontName /%(fontname)s def
 /FontMatrix [1 0 0 1 0 0] def
 /FontType 42 def
@@ -558,8 +566,8 @@ end readonly def
 /CharStrings %(numglyphs)d dict dup begin
 %(glyphs)s
 end readonly def
-FontName currentdict end definefont pop""" % locals()
-    return data
+FontName currentdict end definefont pop""" % locals())
+    return ''.join(data)
 
 
 class FigureCanvasPS(FigureCanvasBase):
