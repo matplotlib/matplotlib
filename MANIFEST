@@ -155,4 +155,5 @@ matplotlib/backends/backend_gtkgd.py
 matplotlib/backends/backend_ps.py
 matplotlib/backends/backend_template.py
 matplotlib/backends/backend_wx.py
+src/_matplotlibc.c
 test/test.py
