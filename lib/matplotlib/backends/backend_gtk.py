@@ -84,7 +84,8 @@ class ColorManagerGTK:
 
             r,g,b = rgb
             color = self._cmap.alloc_color(
-                int(r*65025),int(g*65025),int(b*65025))
+                int(r*65535),int(g*65535),int(b*65535))
+                #int(r*65025),int(g*65025),int(b*65025))
             self._cached[tuple(rgb)] = color
             return color
 
