@@ -13,7 +13,8 @@ Below is a status report of known issues
 
     TypeError: unsupported operand type(s) for /: 'NumArray' and 'float'"
 
-  Solution: use divide(-t, 2.0)
+  Solution: use numarray 0.9 or later; for older versions, use
+  divide(-t, 2.0)
 
 * stock demo does not run with "TypeError: unsubscriptable object"
 

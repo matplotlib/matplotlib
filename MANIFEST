@@ -269,6 +269,7 @@ examples/figtext.py
 examples/ftface_props.py
 examples/gdtest.py
 examples/histogram_demo.py
+examples/image_demo.py
 examples/interactive.py
 examples/interactive2.py
 examples/legend_demo.py
@@ -300,6 +301,7 @@ examples/vertical_ticklabels.py
 examples/vline_demo.py
 examples/data/AAPL.dat
 examples/data/INTC.dat
+examples/data/ct.raw
 examples/data/eeg.dat
 examples/data/intc.csv
 examples/data/membrane.dat
@@ -395,6 +397,7 @@ matplotlib/backend_bases.py
 matplotlib/cbook.py
 matplotlib/colors.py
 matplotlib/figure.py
+matplotlib/image.py
 matplotlib/legend.py
 matplotlib/lines.py
 matplotlib/mathtext.py
@@ -423,6 +426,8 @@ src/_backend_agg.cpp
 src/_backend_agg.h
 src/_gtkagg.cpp
 src/_gtkgd.c
+src/_image.cpp
+src/_image.h
 src/_tkagg.cpp
 src/ft2font.c
 src/ft2font.h

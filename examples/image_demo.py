@@ -1,5 +1,3 @@
-from matplotlib.image import ASPECT_FREE, ASPECT_PRESERVE
-from matplotlib.image import NEAREST, BILINEAR, BICUBIC, SPLINE16
 from matplotlib.matlab import *
 
 w, h = 512, 512
@@ -8,23 +6,33 @@ A = fromstring(s, typecode=UInt16).astype(Float)
 A *= 1.0/max(A)
 A.shape = w, h
 
-
-figure(1, figsize=(2,7))
-subplot(211)
+markers = [(15.9, 14.5), (16.8, 15)]
+x,y = zip(*markers)
+#figure(1, figsize=(2,7))
+#pyt subplot(211)
 im = imshow(A)
-#im.set_interpolation(BICUBIC)
-#im.set_interpolation(NEAREST)
-im.set_interpolation(BILINEAR)
-#im.set_preserve_aspect(ASPECT_PRESERVE)
-set(gca(), 'xlim', [0,h-1])
-axis('off')
+im.set_datalimx(0,25)
+im.set_datalimy(0,25)
+#im.set_interpolation('bicubic')
+#im.set_interpolation('nearest')
+im.set_interpolation('bilinear')
+#im.set_aspect('free')
+im.set_aspect('preserve')
+print x, y
+plot(x, y, 'o')
+axis([0,25,0,25])
+
+
+
+#axis('off')
 title('CT density')
 
-x = sum(A,0)
-subplot(212)
-bar(arange(w), x)
-set(gca(), 'xlim', [0,h-1])
-ylabel('density')
-set(gca(), 'xticklabels', [])
+if 0:
+    x = sum(A,0)
+    subplot(212)
+    bar(arange(w), x)
+    set(gca(), 'xlim', [0,h-1])
+    ylabel('density')
+    set(gca(), 'xticklabels', [])
 show()
 
