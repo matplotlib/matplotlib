@@ -1,5 +1,13 @@
 #!/usr/bin/env python
+"""
 
+This example shows how to use matplotlib to provide a data cursor.  It
+uses matplotlib to draw the cursor and may be a slow since this
+requires redrawing the figure with every mouse move.
+
+Faster cursoring is possible using native GUI drawing, as in
+wxcursor_demo.py
+"""
 from matplotlib.matlab import *
 
 
@@ -13,27 +21,19 @@ class Cursor:
         # text location in axes coords
         self.txt = ax.text( 0.7, 0.9, '', transform=ax.transAxes)
         
-    def mouse_move(self, widget, event):
-        height = self.ax.figure.bbox.height()
-        x, y = event.x, height-event.y
+    def mouse_move(self, event):
+        if not event.inaxes: return 
+        ax = event.inaxes
+        minx, maxx = ax.get_xlim()
+        miny, maxy = ax.get_ylim()
 
-        if self.ax.in_axes(x, y):
-            # transData transforms data coords to display coords.  Use
-            # the inverse method to transform back to data coords then
-            # update the line
+        x, y = event.xdata, event.ydata
+        # update the line positions
+        self.lx.set_data( (minx, maxx), (y, y) )
+        self.ly.set_data( (x, x), (miny, maxy) )
 
-            # the cursor position
-            x, y =  ax.transData.inverse_xy_tup( (x,y) )            
-            # the view limits
-            minx, maxx = ax.viewLim.intervalx().get_bounds()
-            miny, maxy = ax.viewLim.intervaly().get_bounds()
-
-            # update the line positions
-            self.lx.set_data( (minx, maxx), (y, y) )
-            self.ly.set_data( (x, x), (miny, maxy) )
-
-            self.txt.set_text( 'x=%1.2f, y=%1.2f'%(x,y) )
-            self.canvas.draw()
+        self.txt.set_text( 'x=%1.2f, y=%1.2f'%(x,y) )
+        self.canvas.draw()
 
 
 class SnaptoCursor:
@@ -51,40 +51,34 @@ class SnaptoCursor:
         # text location in axes coords
         self.txt = ax.text( 0.7, 0.9, '', transform=ax.transAxes)
         
-    def mouse_move(self, widget, event):
-        height = self.ax.figure.bbox.height()
-        x, y = event.x, height-event.y
+    def mouse_move(self, event):
 
-        if self.ax.in_axes(x, y):
-            # transData transforms data coords to display coords.  Use
-            # the inverse method to transform back to data coords then
-            # update the line
+        if not event.inaxes: return 
+        ax = event.inaxes
+        minx, maxx = ax.get_xlim()
+        miny, maxy = ax.get_ylim()
 
-            # the cursor position
-            x, y =  ax.transData.inverse_xy_tup( (x,y) )            
-            # the view limits
-            minx, maxx = ax.viewLim.intervalx().get_bounds()
-            miny, maxy = ax.viewLim.intervaly().get_bounds()
+        x, y = event.xdata, event.ydata
 
-            indx = searchsorted(self.x, [x])[0]
-            x = self.x[indx]
-            y = self.y[indx]            
-            # update the line positions
-            self.lx.set_data( (minx, maxx), (y, y) )
-            self.ly.set_data( (x, x), (miny, maxy) )
+        indx = searchsorted(self.x, [x])[0]
+        x = self.x[indx]
+        y = self.y[indx]            
+        # update the line positions
+        self.lx.set_data( (minx, maxx), (y, y) )
+        self.ly.set_data( (x, x), (miny, maxy) )
 
-            self.txt.set_text( 'x=%1.2f, y=%1.2f'%(x,y) )
-            print 'x=%1.2f, y=%1.2f'%(x,y)
-            self.canvas.draw()
+        self.txt.set_text( 'x=%1.2f, y=%1.2f'%(x,y) )
+        print 'x=%1.2f, y=%1.2f'%(x,y)
+        self.canvas.draw()
 
 t = arange(0.0, 1.0, 0.01)
 s = sin(2*2*pi*t)
 ax = subplot(111)
 
 canvas = get_current_fig_manager().canvas
-#cursor = Cursor(canvas, ax)
-cursor = SnaptoCursor(canvas, ax, t, s) 
-canvas.connect('motion_notify_event', cursor.mouse_move)
+cursor = Cursor(canvas, ax)
+#cursor = SnaptoCursor(canvas, ax, t, s) 
+canvas.mpl_connect('motion_notify_event', cursor.mouse_move)
 
 ax.plot(t, s, 'o')
 axis([0,1,-1,1])
