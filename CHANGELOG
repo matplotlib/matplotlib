@@ -101,3 +101,5 @@
    extending beyond display area.  This was, I believe, due to the
    vestigial erase functionality that was no longer needed since I
    began rendering to a pixmap
+
+2003-09-30  Added legend

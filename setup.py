@@ -8,7 +8,7 @@ data.extend(glob.glob('fonts/afm/*.afm'))
 data.extend(glob.glob('fonts/ttf/*.ttf'))
 
 setup(name="matplotlib",
-      version= '0.29alpha',
+      version= '0.29',
       description = "Matlab style python plotting package",
       author = "John D. Hunter",
       author_email="jdhunter@ace.bsd.uchicago.edu",
