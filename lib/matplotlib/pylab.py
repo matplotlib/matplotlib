@@ -763,7 +763,8 @@ def get(o, *args):
 # define the colormap functions
 fmt = """\
 def %s():
-    'set the default colormap to %s and apply to current image if any.  See help(colormaps) for more information'
+    \"\"\"Set the default colormap to "%s" and apply to current image if any.
+    See help(colormaps) for more information.\"\"\"
     rc('image', cmap='%s')
     im = gci()
     if im is not None:
@@ -775,8 +776,8 @@ def %s():
 for name in cm.datad.keys():
     s = fmt%(name, name, name, name)
     exec(s)
-    
-    
+del fmt, s
+
 def hold(b=None):
     """
     Set the hold state.  If hold is None (default), toggle the
