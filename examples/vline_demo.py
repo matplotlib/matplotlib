@@ -1,8 +1,7 @@
 #!/usr/bin/env python
 from pylab import *
 from matplotlib.numerix import sin, exp, multiply, absolute, pi
-import matplotlib.numerix as numerix
-normal = numerix.RandomArray.normal
+from matplotlib.numerix.random_array import normal
 
 def f(t):
     s1 = sin(2*pi*t)

@@ -11,7 +11,7 @@ s = convolve(x,r,mode=2)[:len(x)]*dt  # colored noise
 
 # the main axes is subplot(111) by default
 plot(t, s)
-axis([0, 1, 1.1*min(s), 2*max(s) ])
+axis([0, 1, 1.1*amin(s), 2*amax(s) ])
 xlabel('time (s)')
 ylabel('current (nA)')
 title('Gaussian colored noise')

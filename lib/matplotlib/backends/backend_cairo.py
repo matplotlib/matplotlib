@@ -41,12 +41,16 @@ from matplotlib.mathtext import math_parse_s_ft2font
 import cairo
 
 version_required = (0,1,4)
-if cairo.version_info < version_required:
-   raise SystemExit ("PyCairo %d.%d.%d is installed\n"
-                     "PyCairo %d.%d.%d or later is required"
-                     % (cairo.version_info + version_required))
-backend_version = cairo.version
-del version_required
+try: cairo.version_info
+except AttributeError:
+   backend_version = 'Unknown'
+else:
+   if cairo.version_info < version_required:
+      raise SystemExit ("PyCairo %d.%d.%d is installed\n"
+                        "PyCairo %d.%d.%d or later is required"
+                        % (cairo.version_info + version_required))
+   backend_version = cairo.version
+   del version_required
 
 
 DEBUG = False
@@ -280,7 +284,7 @@ class RendererCairo(RendererBase):
             Xall[:,i] = fromstring(s, UInt8)  
 
         # get the max alpha at each pixel
-        Xs = numerix.max(Xall,1)
+        Xs = numerix.mlab.max(Xall,1)
 
         # convert it to it's proper shape
         Xs.shape = imh, imw

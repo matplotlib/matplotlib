@@ -23,7 +23,7 @@ X,Y = meshgrid(x, y)
 # for the images their apparent extent could be different due to
 # interpolation edge effects
 
-xmin, xmax, ymin, ymax = min(x), max(x), min(y), max(y)
+xmin, xmax, ymin, ymax = amin(x), amax(x), amin(y), amax(y)
 extent = xmin, xmax, ymin, ymax
 Z1 = array(([0,1]*4 + [1,0]*4)*4); Z1.shape = 8,8  # chessboard
 im1 = imshow(Z1, cmap=cm.gray, interpolation='nearest',

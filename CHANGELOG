@@ -1,5 +1,9 @@
 New entries should be added at the top
 
+2005-01-21 Refactored numerix to solve vexing namespace issues - JDH
+
+2005-01-21 Applied Nadia's contour bug fix - JDH
+
 2005-01-20 Made some changes to the contour routine - particularly
            region=1 seems t fix a lot of the zigzag strangeness.
            Added colormaps as default for contour - JDH

@@ -4,6 +4,7 @@ CHANGELOG
 INSTALL
 INTERACTIVE
 KNOWN_BUGS
+MANIFEST
 MANIFEST.in
 Makefile
 README
@@ -246,6 +247,7 @@ agg22/svg/win32_api/svg_test.dsp
 agg22/svg/win32_api/svg_test.dsw
 examples/README
 examples/__init__.py
+examples/accented_text.py
 examples/alignment_test.py
 examples/anim.py
 examples/anim_tk.py
@@ -262,6 +264,7 @@ examples/break.py
 examples/color_demo.py
 examples/colours.py
 examples/contour_demo.py
+examples/contour_demo2.py
 examples/coords_demo.py
 examples/coords_report.py
 examples/csd_demo.py
@@ -524,9 +527,6 @@ lib/matplotlib/lines.py
 lib/matplotlib/mathtext.py
 lib/matplotlib/matlab.py
 lib/matplotlib/mlab.py
-lib/matplotlib/na_imports.py
-lib/matplotlib/nc_imports.py
-lib/matplotlib/numerix.py
 lib/matplotlib/patches.py
 lib/matplotlib/pylab.py
 lib/matplotlib/pyparsing.py
@@ -553,6 +553,13 @@ lib/matplotlib/backends/backend_tkagg.py
 lib/matplotlib/backends/backend_wx.py
 lib/matplotlib/backends/backend_wxagg.py
 lib/matplotlib/backends/tkagg.py
+lib/matplotlib/numerix/__init__.py
+lib/matplotlib/numerix/_na_imports.py
+lib/matplotlib/numerix/_nc_imports.py
+lib/matplotlib/numerix/fft/__init__.py
+lib/matplotlib/numerix/linear_algebra/__init__.py
+lib/matplotlib/numerix/mlab/__init__.py
+lib/matplotlib/numerix/random_array/__init__.py
 lib/pytz/__init__.py
 lib/pytz/reference.py
 lib/pytz/test_tzinfo.py

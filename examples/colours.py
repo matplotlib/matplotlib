@@ -2,7 +2,7 @@
 """
 Some simple functions to generate colours.
 """
-from matplotlib.numerix import asarray
+from matplotlib.numerix import asarray, asum
 from matplotlib.mlab import linspace
 from matplotlib.colors import colorConverter
 from matplotlib.numerix import sum
@@ -17,7 +17,7 @@ def pastel(colour, weight=2.4):
         scale = 1.0 / maxc
         rgb = rgb * scale
     # now decrease saturation
-    total = sum(rgb)
+    total = asum(rgb)
     slack = 0
     for x in rgb:
         slack += 1.0 - x

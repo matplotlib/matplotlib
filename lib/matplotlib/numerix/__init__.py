@@ -45,12 +45,20 @@ if which[0] not in ["numeric", "numarray"]:
     raise ValueError("numerix selector must be either 'Numeric' or 'numarray' but the value obtained from the %s was '%s'." % (which[1], which[0]))
 
 if which[0] == "numarray":
-    from na_imports import *
+    #from na_imports import *
+    from numarray import *
+    from _na_imports import nx, inf, infinity, Infinity, Matrix
+    from numarray.numeric import nonzero
+    from numarray.convolve import cross_correlate, convolve
     import numarray
+    
     version = 'numarray %s'%numarray.__version__
 
 elif which[0] == "numeric":
-    from nc_imports import *
+    #from nc_imports import *
+    from Numeric import *
+    from _nc_imports import nx, inf, infinity, Infinity
+    from Matrix import Matrix
     import Numeric
     version = 'Numeric %s'%Numeric.__version__
 else:
@@ -59,6 +67,7 @@ else:
 verbose.report('numerix %s'%version)
 # a bug fix for blas numeric suggested by Fernando Perez
 matrixmultiply=dot
+asum = sum
 
 
 def _import_fail_message(module, version):
@@ -78,3 +87,4 @@ this module was turned off in setup.py.  If it appears that
 %(specific)s was not built, make sure you have a working copy of
 %(which)s and then re-install matplotlib. Otherwise, the following
 traceback gives more details:\n""" % _dict
+

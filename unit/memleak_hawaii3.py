@@ -42,7 +42,7 @@ for i in range(indEnd):
     #fd = file('tmp%d' % i, 'wb')
     #savefig(fd, dpi = 75)
     #fd.close()
-    close(1)
+    #close(1)
 
 
     val = report_memory(i)

@@ -21,7 +21,7 @@ def fit(x):
 
 
 
-xfit = array( [min(x), max(x) ] )
+xfit = array( [amin(x), amax(x) ] )
 
 subplot(221)
 plot(x,y1,'ks', xfit, fit(xfit), 'r-', lw=2)
@@ -43,7 +43,7 @@ set(gca(), yticks=(4,8,12), xticks=(0,10,20))
 
 subplot(224)
 
-xfit = array([min(x4),max(x4)])
+xfit = array([amin(x4),amax(x4)])
 plot(x4,y4,'ks', xfit, fit(xfit), 'r-', lw=2)
 axis([2,20,2,14])
 set(gca(), yticklabels=[], yticks=(4,8,12), xticks=(0,10,20))
