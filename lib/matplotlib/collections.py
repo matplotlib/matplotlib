@@ -8,7 +8,7 @@ they are meant to be fast for common use cases (eg a bunch of solid
 line segemnts)
 """
 import math
-from matplotlib import rcParams
+from matplotlib import rcParams, verbose
 
 from artist import Artist
 from backend_bases import GraphicsContextBase
@@ -336,6 +336,15 @@ is a sequence the patches will cycle through the sequence
 ACCEPTS: matplotlib color arg or sequence of rgba tuples"""
         self._colors = self._get_color(c, len(self._colors))
 
+    def color(self, c):
+        """
+Set the color(s) of the line collection.  c can be a matplotlib color arg
+(all patches have same color), or a a sequence or rgba tuples; if it
+is a sequence the patches will cycle through the sequence
+
+ACCEPTS: matplotlib color arg or sequence of rgba tuples"""
+        verbose.report_error('LineCollection.color deprecated; use set_color instead')
+        return self.set_color(c)
 
     def set_alpha(self, alpha):
         """

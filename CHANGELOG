@@ -1,5 +1,9 @@
 New entries should be added at the top
  
+2005-02-01 Added Fernando's figure num patch, including experemental
+           support for pylab backend switching, LineCOllection.color
+           warns - JDH
+
 2005-01-31 updated datalim in contour - JDH
 
 2005-01-30 Added backend_qtagg.py provided by Sigve Tjora - SC
