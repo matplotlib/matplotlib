@@ -19,7 +19,7 @@ from matplotlib.figure import Figure
 from matplotlib.lines import Line2D, lineStyles, lineMarkers
 from matplotlib.transforms import Bbox, lbwh_to_bbox
 from matplotlib.patches import draw_bbox
-from matplotlib.cbook import is_string_like, True, False
+from matplotlib.cbook import is_string_like
 from matplotlib.colors import colorConverter
 
 import gtk

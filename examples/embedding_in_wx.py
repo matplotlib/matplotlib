@@ -77,7 +77,7 @@ class PlotFigure(wxFrame):
 
     def plot_data(self):
         # Use ths line if using a toolbar
-        a = self.figmgr.add_subplot(111)
+        a = self.fig.add_subplot(111)
         
         # Or this one if there is no toolbar
         #a = Subplot(self.fig, 111)
