@@ -1,5 +1,7 @@
 New entries should be added at the top
 
+2004-07-24 backend_gtk.py: Simplified classic toolbar creation - SC
+
 2004-07-24 Added images/matplotlib.svg to be used when GTK+ windows are 
            minimised - SC
 
