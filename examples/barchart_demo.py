@@ -22,5 +22,5 @@ set(gca(), 'yticks', arange(0,41,10))
 
 legend( (p1[0], p2[0]), ('Men', 'Women') )
 #axis([-10, 10, -10, 100])
-#savefig('barchart_demo')
+savefig('barchart_demo')
 show()

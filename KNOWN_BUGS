@@ -27,9 +27,9 @@ KNOWN BUGS
 
 GD 
 
-  - right tickline is off
+  - FIXED right tickline is off
  
   - dashes not scaling with dpi properly - rounding error or other?
 
- 
+  - GD not allocating colors on high res figs 
  

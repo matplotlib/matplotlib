@@ -1,6 +1,7 @@
 include API_CHANGES CHANGELOG KNOWN_BUGS GOALS INSTALL INTERACTIVE LICENSE Makefile TODO MANIFEST.in
 include examples/README
 include examples/*.py
+include examples/*.glade
 include examples/data/*
 include fonts/afm/*
 include fonts/ttf/*

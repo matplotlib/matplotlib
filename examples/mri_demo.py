@@ -9,5 +9,5 @@ im = array([im[i] for i in arange(255,-1,-1)])
 
 pcolor(im, shading='flat')
 axis('off')
-#savefig('mri_demo')
+savefig('mri_demo')
 show()

@@ -20,5 +20,5 @@ text(0.5, 0.5,'matplotlib', color='r',
 axis([1, 1.72,-60, 10])
 set(gca(), 'xticklabels', [])
 set(gca(), 'yticklabels', [])
-#savefig('logo2.png', dpi=300)
+savefig('logo2.png', dpi=300)
 show()
