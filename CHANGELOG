@@ -1,6 +1,9 @@
 New entries should be added at the top
 =======
 
+2004-06-17 backend_gtk.py: Create a GC once in realise(), not every
+           time draw() is called.
+
 2004-06-16 Added new py2exe FAQ entry and added frozen support in
            get_data_path for py2exe - JDH
 
