@@ -29,6 +29,11 @@ backend_version = '0.1.23' # cairo does not report version, yet
 Debug = False
 
 
+# Image formats that this backend supports (currently the same as backend_gtk)
+image_format_list         = ['eps', 'jpg', 'png', 'ps', 'svg']
+image_format_default      = 'png'
+
+
 # ref gtk+/gtk/gtkwidget.h
 def GTK_WIDGET_DRAWABLE(w): flags = w.flags(); return flags & gtk.VISIBLE !=0 and flags & gtk.MAPPED != 0
 
@@ -83,7 +88,10 @@ class FigureCanvasGTKCairo(FigureCanvasGTK, FigureCanvasCairo):
         return True
 
 
-    # print_figure() copied from backend_gtk.py with RendererGTK() -> RendererCairo()
+    # print_figure() copied from backend_gtk.py with 
+    # changes:
+    #  change RendererGTK() -> RendererCairo()
+    #  change 'error_mgs_gtk' to 'error_msg'
     # possibly later - use native cairo to generate png, ps, (svg. pdf)
     def print_figure(self, filename, dpi=150, facecolor='w', edgecolor='w'):
         # orientation='portrait'):
@@ -100,7 +108,7 @@ class FigureCanvasGTKCairo(FigureCanvasGTK, FigureCanvasCairo):
             try:
                 ftype = extensions[ext]
             except KeyError:
-                error_msg_gtk('Extension "%s" is not supported. Available formats are SVG, PNG, JPEG, PS and EPS' % ext)
+                error_msg('Extension "%s" is not supported. Available formats are SVG, PNG, JPEG, PS and EPS' % ext)
                 return
         else:
             isFileName = False  # could be a file?
@@ -110,7 +118,7 @@ class FigureCanvasGTKCairo(FigureCanvasGTK, FigureCanvasCairo):
             self._printQued.append((filename, dpi, facecolor, edgecolor))
             return
 
-        if ftype == 'ps':
+        if ftype in ('ps', 'eps'):
             from backend_ps import FigureCanvasPS
             origDPI = self.figure.dpi.get()
             ps = self.switch_backends(FigureCanvasPS)
@@ -161,7 +169,7 @@ class FigureCanvasGTKCairo(FigureCanvasGTK, FigureCanvasCairo):
             # the error on a call or print_figure may not work because
             # printing can be qued and called from realize
             if isFileName:
-                error_msg_gtk('Could not save figure to %s\n\n%s' % (
+                error_msg('Could not save figure to %s\n\n%s' % (
                     filename, msg))
             else:
-                error_msg_gtk('Could not save figure\n%s' % msg)
+                error_msg('Could not save figure\n%s' % msg)

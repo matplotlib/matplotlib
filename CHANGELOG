@@ -1,6 +1,9 @@
 New entries should be added at the top
 
 ==============================================================
+2004-10-28 backend_gtk.py: Improved the save dialog (GTK 2.4 only) so it 
+           presents the user with a menu of supported image formats - SC
+
 2004-10-28 backend_svg.py: change print_figure() to restore original face/edge 
            color
            backend_ps.py : change print_figure() to ensure original face/edge 
