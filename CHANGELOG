@@ -1,6 +1,10 @@
 New entries should be added at the top
 
 ==============================================================
+2004-10-31 backend_ps.py: clean up the generated PostScript code, use
+           the PostScript stack to hold itermediate values instead of
+           storing them in the dictionary. - JV
+
 2004-10-30 backend_ps.py, ft2font.cpp, ft2font.h: fix the position of
            text in the PostScript output.  The new FT2Font method
            get_descent gives the distance between the lower edge of
