@@ -382,9 +382,6 @@ def build_agg(ext_modules, packages, numerix):
     global BUILT_AGG
     if BUILT_AGG: return # only build it if you you haven't already
     
-
-
-
     if numerix in ["numarray","both"]: # Build for numarray
         deps = ['src/ft2font.cpp', 'src/mplutils.cpp']
         deps.extend(glob.glob('agg22/src/*.cpp'))
@@ -484,7 +481,9 @@ def build_transforms(ext_modules, packages, numerix):
                              libraries = ['stdc++', 'm'],
                              include_dirs = ['src', '.'],
                              )
+        
         module.extra_compile_args.append("-DNUMARRAY=1")
+        add_base_flags(module)
         ext_modules.append(module)
         
     if numerix in ["Numeric","both"]:  # Build for Numeric
@@ -498,6 +497,7 @@ def build_transforms(ext_modules, packages, numerix):
                              include_dirs = ['src', '.'],
                              )
         module.extra_compile_args.append("-DNUMERIC=1")
+        add_base_flags(module)
         ext_modules.append(module)
 
 
@@ -530,6 +530,7 @@ def build_contour(ext_modules, packages, numerix):
 		libraries = ['stdc++'],
             )    
         module.extra_compile_args.append('-DNUMARRAY=1')
+        add_base_flags(module)
         ext_modules.append(module)    
 
     if numerix in ["Numeric","both"]: # Build for Numeric
@@ -542,6 +543,7 @@ def build_contour(ext_modules, packages, numerix):
 		libraries = ['stdc++'],
             )
         module.extra_compile_args.append('-DNUMERIC=1')
+        add_base_flags(module)
         ext_modules.append(module)
 
     BUILT_CONTOUR = True

@@ -376,7 +376,7 @@ RendererAgg::draw_polygon(const Py::Tuple& args) {
   double xs[Npoints];
   double ys[Npoints];
   Py::Tuple xy;
-  for (size_t i=0; i<Npoints; ++i) {
+  for (size_t i=0; i<Npoints; i++) {
     xy = Py::Tuple(points[i]);
     xs[i] = Py::Float(xy[0]);
     ys[i] = Py::Float(xy[1]);
@@ -386,7 +386,7 @@ RendererAgg::draw_polygon(const Py::Tuple& args) {
   
   
   agg::path_storage path;  
-  for (size_t j=0; j<Npoints; ++j) {
+  for (size_t j=0; j<Npoints; j++) {
     
     double x = xs[j];
     double y = ys[j];
@@ -473,7 +473,7 @@ RendererAgg::draw_line_collection(const Py::Tuple& args) {
   std::pair<double, double> xy;  
   Py::SeqBase<Py::Object> xyo;
   Py::SeqBase<Py::Object> xys;
-  for (size_t i=0; i<N; ++i) {
+  for (size_t i=0; i<N; i++) {
     if (usingOffsets) {
       xyo = Py::SeqBase<Py::Object>(offsets[i%Noffsets]);
       xo = Py::Float(xyo[0]);
@@ -645,7 +645,7 @@ RendererAgg::draw_poly_collection(const Py::Tuple& args) {
   
   std::pair<double, double> xyo, xy;
   Py::SeqBase<Py::Object> thisverts;
-  for (size_t i=0; i<N; ++i) {
+  for (size_t i=0; i<N; i++) {
     
     thisverts = verts[i % Nverts];
     
@@ -671,7 +671,7 @@ RendererAgg::draw_poly_collection(const Py::Tuple& args) {
     // dump the verts to double arrays so we can do more efficient
     // look aheads and behinds when doing snapto pixels
     double xs[Nverts], ys[Nverts];    
-    for (size_t j=0; j<Nverts; ++j) {
+    for (size_t j=0; j<Nverts; j++) {
       thisvert = thisverts[j];
       double x = Py::Float(thisvert[0]);
       double y = Py::Float(thisvert[1]);
@@ -694,7 +694,7 @@ RendererAgg::draw_poly_collection(const Py::Tuple& args) {
       
     }
     
-    for (size_t j=0; j<Nverts; ++j) {
+    for (size_t j=0; j<Nverts; j++) {
       
       double x = xs[j];
       double y = ys[j];
@@ -824,14 +824,14 @@ RendererAgg::draw_regpoly_collection(const Py::Tuple& args) {
   double xverts[Nverts];
   double yverts[Nverts];
   Py::SeqBase<Py::Object> xy;
-  for (size_t i=0; i<Nverts; ++i) {
+  for (size_t i=0; i<Nverts; i++) {
     xy = Py::SeqBase<Py::Object>(verts[i]);
     xverts[i] = Py::Float(xy[0]);
     yverts[i] = Py::Float(xy[1]);
   }
   
   std::pair<double, double> offsetPair;
-  for (size_t i=0; i<Noffsets; ++i) {
+  for (size_t i=0; i<Noffsets; i++) {
     Py::SeqBase<Py::Object> pos = Py::SeqBase<Py::Object>(offsets[i]);
     double xo = Py::Float(pos[0]);
     double yo = Py::Float(pos[1]);
@@ -849,7 +849,7 @@ RendererAgg::draw_regpoly_collection(const Py::Tuple& args) {
     
     agg::path_storage path;
     
-    for (size_t j=0; j<Nverts; ++j) {
+    for (size_t j=0; j<Nverts; j++) {
       thisx = scale*xverts[j] + offsetPair.first;
       thisy = scale*yverts[j] + offsetPair.second;
       thisy = height - thisy;
@@ -967,7 +967,7 @@ RendererAgg::draw_lines(const Py::Tuple& args) {
   
   double lastx(-2.0), lasty(-2.0);
   
-  for (size_t i=0; i<Nx; ++i) {
+  for (size_t i=0; i<Nx; i++) {
     thisx = *(double *)(xa->data + i*xa->strides[0]);
     thisy = *(double *)(ya->data + i*ya->strides[0]);
     
@@ -1176,7 +1176,7 @@ RendererAgg::draw_markers(const Py::Tuple& args) {
   }
   
   double thisx, thisy;
-  for (size_t i=0; i<Nx; ++i) {
+  for (size_t i=0; i<Nx; i++) {
     thisx = *(double *)(xa->data + i*xa->strides[0]);
     thisy = *(double *)(ya->data + i*ya->strides[0]);
     
@@ -1254,7 +1254,7 @@ RendererAgg::draw_path(const Py::Tuple& args) {
   double x, y;
   unsigned cmd;
   bool curvy = false;
-  for (size_t i=0; i<Nx; ++i) {
+  for (size_t i=0; i<Nx; i++) {
     cmd = path->vertex(i, &x, &y);
     if (cmd==agg::path_cmd_curve3 || cmd==agg::path_cmd_curve4) curvy=true;
     if (needNonlinear)
@@ -1319,8 +1319,8 @@ RendererAgg::draw_text(const Py::Tuple& args) {
   }
   
   
-  for (size_t i=0; i<font->image.width; ++i) {
-    for (size_t j=0; j<font->image.height; ++j) {
+  for (size_t i=0; i<font->image.width; i++) {
+    for (size_t j=0; j<font->image.height; j++) {
       thisx = i+x+font->image.offsetx; 
       thisy = j+y+font->image.offsety; 
       if (thisx<l || thisx>=r)  continue;
@@ -1424,7 +1424,7 @@ RendererAgg::write_rgba(const Py::Tuple& args) {
   std::string fname = Py::String( args[0]);
   
   std::ofstream of2( fname.c_str(), std::ios::binary|std::ios::out);
-  for (size_t i=0; i<NUMBYTES; ++i) {
+  for (size_t i=0; i<NUMBYTES; i++) {
     of2.write((char*)&(pixBuffer[i]), sizeof(char));
   }
   return Py::Object();
