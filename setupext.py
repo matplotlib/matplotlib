@@ -81,6 +81,7 @@ def add_agg_flags(module):
 
     # before adding the freetype flags since -z comes later
     module.libraries.append('png')
+    module.libraries.append('z')
     add_base_flags(module)
     module.include_dirs.extend(['src','agg2/include', '.'])
 
