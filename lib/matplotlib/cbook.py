@@ -48,6 +48,14 @@ def is_string_like(obj):
     except (TypeError, ValueError): return 0
     return 1
 
+
+def is_file_like(obj):
+    if hasattr(obj, 'shape'): return 0 # this is a workaround
+                                       # for a bug in numeric<23.1
+    try: obj + ''
+    except (TypeError, ValueError): return 0
+    return 1
+
 def is_scalar(obj):
     return is_string_like(obj) or not iterable(obj)
 

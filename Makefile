@@ -2,6 +2,9 @@
 # Copyright (C) 2003  <jdhunter@ace.bsd.uchicago.edu>
 # $Header$
 # $Log$
+# Revision 1.40  2004/09/28 18:23:36  jdh2358
+# memleak tests
+#
 # Revision 1.39  2004/09/24 15:24:31  jdh2358
 # reorganizes py code
 #
@@ -125,7 +128,7 @@ VERSION = `${PYTHON} setup.py --version`
 
 DISTFILES = API_CHANGES KNOWN_BUGS INSTALL README TODO license	\
 	CHANGELOG Makefile GOALS INTERACTIVE			\
-	MANIFEST.in matplotlib examples setup.py
+	MANIFEST.in lib lib/matplotlib lib/dateutil lib/pytz examples setup.py
 
 RELEASE = matplotlib-${VERSION}
 

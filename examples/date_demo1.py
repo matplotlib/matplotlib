@@ -44,8 +44,8 @@ ax.autoscale_view()
 
 # format the coords message box
 def price(x): return '$%1.2f'%x
-ax.format_xdata = DateFormatter('%Y-%m-%d')
-ax.format_ydata = price
+ax.fmt_xdata = DateFormatter('%Y-%m-%d')
+ax.fmt_ydata = price
 
 grid(True)
 show()

@@ -557,8 +557,8 @@ class MultipleLocator(Locator):
         dmin, dmax = self.dataInterval.get_bounds()
         #print 'data limits', dmin, dmax, (dmax-dmin)/60.0
 
-        vmin = self.base.lt(dmin)
-        vmax = self.base.gt(dmax)
+        vmin = self.base.le(dmin)
+        vmax = self.base.ge(dmax)
         #print 'base rounded', vmin, vmax, (vmax-vmin)/60.0
         if vmin==vmax:
             vmin -=1
