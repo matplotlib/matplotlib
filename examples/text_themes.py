@@ -1,6 +1,6 @@
 from matplotlib.matlab import *
 
-font = {'fontname'   : 'courier',
+font = {'fontname'   : 'Times',
         'color'      : 'r',
         'fontweight' : 'normal',
         'fontsize'   : 12}
