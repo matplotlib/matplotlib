@@ -615,17 +615,14 @@ figtext.__doc__ = Figure.text.__doc__
 
 def figimage(*args, **kwargs):    
     # allow callers to override the hold state by passing hold=True|False
-
     try: ret =  gcf().figimage(*args, **kwargs)
     except ValueError, msg:
         msg = raise_msg_to_str(msg)
         error_msg(msg)
-        hold(b)
         raise RuntimeError(msg)
     except RuntimeError, msg:
         msg = raise_msg_to_str(msg)
         error_msg(msg)
-        hold(b)
         raise RuntimeError(msg)
     draw_if_interactive()
     gci._current = ret
@@ -781,6 +778,7 @@ def hold(b=None):
     hold(True)  # hold is on
     hold(False) # hold is off
     """
+
     gcf().hold(b)    
     gca().hold(b)    
     rc('axes', hold=b)
@@ -850,7 +848,6 @@ def load(fname):
 
 def rc(*args, **kwargs):
     matplotlib.rc(*args, **kwargs)
-    draw_if_interactive()
 rc.__doc__ =   matplotlib.rc.__doc__
 
 def rcdefaults():
@@ -1844,7 +1841,6 @@ def plot(*args, **kwargs):
         hold(b)
     else:
         draw_if_interactive()
-        
         hold(b)
         return ret
 plot.__doc__ = Axes.plot.__doc__ + """

@@ -836,7 +836,8 @@ _image_module::fromarray(const Py::Tuple& args) {
   
   Py::Object x = args[0];
   int isoutput = Py::Int(args[1]);
-  PyArrayObject *A = (PyArrayObject *) PyArray_ContiguousFromObject(x.ptr(), PyArray_DOUBLE, 2, 3); 
+  //PyArrayObject *A = (PyArrayObject *) PyArray_ContiguousFromObject(x.ptr(), PyArray_DOUBLE, 2, 3); 
+  PyArrayObject *A = (PyArrayObject *) PyArray_CopyFromObject(x.ptr(), PyArray_DOUBLE, 2, 3); 
   
   if (A==NULL) 
     throw Py::ValueError("Array must be rank 2 or 3 of doubles"); 
@@ -847,31 +848,42 @@ _image_module::fromarray(const Py::Tuple& args) {
   imo->rowsIn  = A->dimensions[0];
   imo->colsIn  = A->dimensions[1];
   
-  
+
   size_t NUMBYTES(imo->colsIn * imo->rowsIn * imo->BPP);
   agg::int8u *buffer = new agg::int8u[NUMBYTES];  
   if (buffer==NULL) //todo: also handle allocation throw
     throw Py::MemoryError("_image_module::fromarray could not allocate memory");
-  
-  imo->bufferIn = buffer;
-  imo->rbufIn = new agg::rendering_buffer;
-  imo->rbufIn->attach(buffer, imo->colsIn, imo->rowsIn, imo->colsIn*imo->BPP);
-  
+
+  if (isoutput) {
+    // make the output buffer point to the input buffer
+    
+    imo->rowsOut  = imo->rowsIn;
+    imo->colsOut  = imo->colsIn;
+    
+    imo->rbufOut = new agg::rendering_buffer;
+    imo->bufferOut = buffer;
+    imo->rbufOut->attach(imo->bufferOut, imo->colsOut, imo->rowsOut, imo->colsOut * imo->BPP);
+    
+  }
+  else {
+    imo->bufferIn = buffer;
+    imo->rbufIn = new agg::rendering_buffer;
+    imo->rbufIn->attach(buffer, imo->colsIn, imo->rowsIn, imo->colsIn*imo->BPP);
+  }
   
   if   (A->nd == 2) { //assume luminance for now; 
     
     agg::int8u gray;
-    int start = 0;    
     for (size_t rownum=0; rownum<imo->rowsIn; rownum++) 
       for (size_t colnum=0; colnum<imo->colsIn; colnum++) {
 	
 	double val = *(double *)(A->data + rownum*A->strides[0] + colnum*A->strides[1]);
 	
 	gray = int(255 * val);
-	*(buffer+start++) = gray;       // red
-	*(buffer+start++) = gray;       // green
-	*(buffer+start++) = gray;       // blue
-	*(buffer+start++)   = 255;        // alpha
+	*buffer++ = gray;       // red
+	*buffer++ = gray;       // green
+	*buffer++ = gray;       // blue
+	*buffer++   = 255;        // alpha
       }
     
   }
@@ -883,12 +895,10 @@ _image_module::fromarray(const Py::Tuple& args) {
       
     }
     
-    int rgba = A->dimensions[2]==4;
-    
-    int start = 0;    
+    int rgba = A->dimensions[2]==4;    
     double r,g,b,alpha;
     int offset =0;
-    
+
     for (size_t rownum=0; rownum<imo->rowsIn; rownum++) 
       for (size_t colnum=0; colnum<imo->colsIn; colnum++) {
 	offset = rownum*A->strides[0] + colnum*A->strides[1];
@@ -901,35 +911,21 @@ _image_module::fromarray(const Py::Tuple& args) {
 	else
 	  alpha = 1.0;
 	
-	*(buffer+start++) = int(255*r);         // red
-	*(buffer+start++) = int(255*g);         // green
-	*(buffer+start++) = int(255*b);         // blue
-	*(buffer+start++) = int(255*alpha);     // alpha
+	*buffer++ = int(255*r);         // red
+	*buffer++ = int(255*g);         // green
+	*buffer++ = int(255*b);         // blue
+	*buffer++ = int(255*alpha);     // alpha
 	
       }
+    
   } 
   else   { // error
     Py_XDECREF(A);  
     throw Py::ValueError("Illegal array rank; must be rank; must 2 or 3"); 
   }
+  buffer -= NUMBYTES;
   Py_XDECREF(A);  
   
-  if (isoutput) {
-    // make the output buffer point to the input buffer
-    
-    imo->rowsOut  = imo->rowsIn;
-    imo->colsOut  = imo->colsIn;
-    
-    imo->bufferOut = new agg::int8u[NUMBYTES];  
-    if (buffer == imo->bufferOut) //todo: also handle allocation throw
-      throw Py::MemoryError("_image_module::fromarray could not allocate memory");
-    
-    imo->rbufOut = new agg::rendering_buffer;
-    imo->rbufOut->attach(imo->bufferOut, imo->colsOut, imo->rowsOut, imo->colsOut * imo->BPP);
-    
-    for (size_t i=0; i<NUMBYTES; i++)
-      *(imo->bufferOut +i) = *(imo->bufferIn +i);
-  }
   return Py::asObject( imo );
 }
 
