@@ -3,34 +3,33 @@ matplotlib has added some extension module code which can optionally
 be built by setting the appropriate flag below.
 """
 
+# build the freetype2 interface - this is required for mathtext and
+# the agg backends. Requires freetype2, and libz
+BUILD_FT2FONT = 1
+
 # Build the fonttools and TTFQuery packages, required by the Paint,
 # Agg and GD backends.
-BUILD_FONTTOOLS = 0
+BUILD_FONTTOOLS = 1
 
-# AGG is a new backend that wraps the antigrain geometry toolkit; set
-# BUILD_AGG to 1 to build it.  Agg makes heavy use of templates, so it
-# probably requires a fairly recent compiler to build it.  It makes
-# very nice antialiased output and also supports alpha blending
-BUILD_AGG          = 1
+# Build the antigrain geometry toolkit.  Agg makes heavy use of
+# templates, so it probably requires a fairly recent compiler to build
+# it.  It makes very nice antialiased output and also supports alpha
+# blending
+BUILD_AGG = 1
 
-# The builds below are experimental.  They use an image backend (eg GD
-# or Agg) to render to the GTK canvas.  The idea is that we could use
-# a single high quality image renderer to render to all the GUI
-# windows
+# The builds below are alpha.  They use an image backend (eg GD or
+# Agg) to render to the GTK canvas.  The idea is to could use a single
+# high quality image renderer to render to all the GUI windows
 
 # build GTK GUI with Agg renderer ; requires pygtk src distros installed
-BUILD_GTKAGG       = 0
+BUILD_GTKAGG       = 1
 
 # build GTK GUI with GD renderer ; requires pygtk and GD src distros installed
 BUILD_GTKGD        = 0
 
-# build TK GUI with Agg renderer ;  requires Tkinter Python extension and Tk includes
-BUILD_TKAGG        = 0
-
-# build the freetype2 interface - highly experimental and broken!
-# Unless your name is John Hunter, you probably don't want this
-BUILD_FT2FONT      = 1
-
+# build TK GUI with Agg renderer ; requires Tkinter Python extension
+# and Tk includes
+BUILD_TKAGG        = 1
 
 ## You shouldn't need to customize below this point
 
@@ -46,6 +45,7 @@ data.extend(glob.glob('fonts/afm/*.afm'))
 data.extend(glob.glob('fonts/ttf/*.ttf'))
 data.extend(glob.glob('images/*.xpm'))
 data.extend(glob.glob('images/*.ppm'))
+data.append('.matplotlibrc')
 
 data_files=[('share/matplotlib', data),]
 
@@ -55,39 +55,43 @@ packages = [
     'matplotlib/backends',
     ]
 
-if (BUILD_FONTTOOLS or BUILD_AGG or BUILD_GTKAGG or 
-    BUILD_TKAGG or BUILD_GTKGD or BUILD_FT2FONT):
+    
+if BUILD_GTKGD:
+    BUILD_FONTTOOLS = 1
+    build_gtkgd(ext_modules, packages)
+
+if BUILD_GTKAGG:
+    BUILD_AGG = 1
+    build_gtkagg(ext_modules, packages)
+
+if BUILD_TKAGG:
+    BUILD_AGG = 1
+    build_tkagg(ext_modules, packages)
+
+if BUILD_AGG:
+    BUILD_FT2FONT = 1
+    build_agg(ext_modules, packages)
+
+if BUILD_FT2FONT:
+    BUILD_FONTTOOLS = 1
+    build_ft2font(ext_modules, packages)
+
+if BUILD_FONTTOOLS:
     build_fonttools(ext_modules, packages)
     # we need to manually install FontTools.pth since we can't use
     # extra_path which puts all packages -- matplotlib, ttfquery and
     # FontTools -- in the FontTools subdir
     sitep = distutils.sysconfig.get_python_lib()
+    ind = sitep.rfind(distutils.sysconfig.PREFIX)
+
+    if ind>=0:
+        sitep = sitep[len(distutils.sysconfig.PREFIX) + len(os.sep):]
     data_files.append( (sitep, ['FontTools.pth']) )
+    #print distutils.sysconfig.PREFIX, sitep, ind
 
-if BUILD_GTKGD:
-    build_fonttools(ext_modules, packages)
-    build_gtkgd(ext_modules, packages)
-
-if BUILD_AGG:
-    build_fonttools(ext_modules, packages)
-    build_agg(ext_modules, packages)
-
-if BUILD_GTKAGG:
-    build_fonttools(ext_modules, packages)
-    build_agg(ext_modules, packages)
-    build_gtkagg(ext_modules, packages)
-
-if BUILD_TKAGG:
-    build_fonttools(ext_modules, packages)
-    build_agg(ext_modules, packages)
-    build_tkagg(ext_modules, packages)
-
-if BUILD_FT2FONT:
-    build_fonttools(ext_modules, packages)
-    build_ft2font(ext_modules, packages)
 
 setup(name="matplotlib",
-      version= '0.51d',
+      version= '0.51e',
       description = "Matlab style python plotting package",
       author = "John D. Hunter",
       author_email="jdhunter@ace.bsd.uchicago.edu",

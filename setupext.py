@@ -29,25 +29,21 @@ def add_agg_flags(module):
     'Add the module flags to build extensions which use agg'
 
     module.include_dirs.extend(['src','agg2/include'])
-    if sys.platform in ('win32', 'darwin'):
+    module.libraries.extend(['freetype', 'png', 'z'])
+    if sys.platform == 'win32':
         module.include_dirs.extend(
-            [  # build these libs on win32
-            'win32src/freetype1',
-            'win32src/libpng',
-            'win32src/zlib',
-            ]
-            )
+            ['c:/GnuWin32/include',  ] )
+        module.library_dirs.append('win32_static')
+        module.libraries.append('gw32c')
+
     else:
         module.include_dirs.extend(
             ['/usr/include/freetype2',]
             )
 
+    # put these later for correct link order
+    module.libraries.extend(['stdc++', 'm'])
 
-    if sys.platform not in ('win32', 'darwin'):
-        module.libraries.extend(['z', 'freetype', 'png'])
-
-
-    module.libraries.extend(['stdc++'])
 
 def add_gd_flags(module):
     'Add the module flags to build extensions which use gd'
@@ -56,10 +52,22 @@ def add_gd_flags(module):
 
 def add_ft2font_flags(module):
     'Add the module flags to build extensions which use gd'
-    module.include_dirs.extend(
-        ['/usr/include', '/usr/include/freetype2',]
-        )
-    module.libraries.extend(['freetype', 'm'])
+    module.libraries.extend(['freetype', 'z'])
+    if sys.platform == 'win32':
+        module.include_dirs.extend(
+            [  'c:/GnuWin32/include', # for ft2build.h
+               'c:/GnuWin32/include/freetype', # renamed from freetype2
+               ]
+            )
+        module.library_dirs.append('win32_static')
+        module.libraries.append('gw32c')
+    else:
+        module.include_dirs.extend(
+            ['/usr/include', '/usr/include/freetype2',])
+
+    # put this last for library link order     
+    module.libraries.append('m')
+
     
 
 def add_pygtk_flags(module):
@@ -79,33 +87,36 @@ def add_pygtk_flags(module):
     module.library_dirs.extend(
         [flag[2:] for dir in linkerFlags if flag.startswith('-L')])
 
+    if sys.platform=='win32':
+        module.library_dirs.extend(['C:\\GTK\\bin', 'C:\\GTK\\lib'])
     module.extra_link_args.extend(
         [flag for flag in linkerFlags if not
          (flag.startswith('-l') or flag.startswith('-L'))])
 
+
+
+    print module.include_dirs
+    print module.libraries
+    print module.library_dirs
+    
 
 def add_tk_flags(module):
     'Add the module flags to build extensions which use tk'
-    includes = [] # ["-I/usr/include"]
-    module.include_dirs.extend([include[2:] for include in includes])
 
-    linkerFlags = ["-ltcl", "-ltk"]  # [, "-L/usr/lib"]
-    module.libraries.extend(
-        [flag[2:] for flag in linkerFlags if flag.startswith('-l')])
-
-    module.library_dirs.extend(
-        [flag[2:] for dir in linkerFlags if flag.startswith('-L')])
-
-    module.extra_link_args.extend(
-        [flag for flag in linkerFlags if not
-         (flag.startswith('-l') or flag.startswith('-L'))])
+    if sys.platform=='win32':
+        module.include_dirs.extend(['C:\\Tcl\\include'])
+        module.library_dirs.extend(['C:\\Tcl\\lib'])
+        module.libraries.extend(['tk84', 'tcl84'])
+    else:
+        module.libraries.extend(['tk', 'tcl'])
 
 
 def build_ft2font(ext_modules, packages):
     global BUILT_FT2FONT
     if BUILT_FT2FONT: return # only build it if you you haven't already
     module = Extension('matplotlib.ft2font',
-                       ['src/ft2font.c'],
+                       ['src/ft2font.c',
+                        ],
                        )
     add_ft2font_flags(module)
     ext_modules.append(module)    
@@ -151,12 +162,13 @@ def build_tkagg(ext_modules, packages):
 
     # add agg flags before pygtk because agg only supports freetype1
     # and pygtk includes freetype2.  This is a bit fragile.
-    
+
+    add_tk_flags(module) # do this first
     add_agg_flags(module)  
-    add_tk_flags(module)
+
 
     ext_modules.append(module)    
-    BUILT_GTKAGG = True
+    BUILT_TKAGG = True
 
 
 def build_agg(ext_modules, packages):
@@ -165,10 +177,6 @@ def build_agg(ext_modules, packages):
     
     deps = ['src/_backend_agg.cpp', 'src/ft2font.c'] 
     deps.extend(glob.glob('agg2/src/*.cpp'))
-    if sys.platform in ('win32', 'darwin'):
-        deps.extend(glob.glob('win32src/freetype2/freetype/*.c'))
-        deps.extend(glob.glob('win32src/libpng/*.c'))
-        deps.extend(glob.glob('win32src/zlib/*.c'))
                        
     module = Extension(
         'matplotlib.backends._backend_agg',
@@ -182,9 +190,11 @@ def build_agg(ext_modules, packages):
 def build_fonttools(ext_modules, packages):
 
     # don't build it if we have it
-    try: import ttfquery
-    except ImportError: pass
-    else: return
+    #if sys.platform != 'win32': # always build for win32
+    if 0:
+        try: import ttfquery
+        except ImportError: pass
+        else: return
         
     global BUILT_FONTTOOLS
 

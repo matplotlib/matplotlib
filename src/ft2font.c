@@ -364,7 +364,7 @@ void load_glyphs(FT2FontObject *self) {
     if ( use_kerning && previous && glyph_index ) { 
       FT_Vector delta;
       FT_Get_Kerning( self->face, previous, glyph_index, 
-		      FT_KERNING_DEFAULT, &delta );
+		      ft_kerning_default, &delta );
       self->pen.x += delta.x;  
     } 
 
@@ -693,7 +693,7 @@ FT2Font_draw_glyphs_to_bitmap(FT2FontObject *self, PyObject *args)
       FT_Glyph_Get_CBox(self->glyphs[n], ft_glyph_bbox_pixels, &bbox);
 
       error = FT_Glyph_To_Bitmap(&self->glyphs[n],
-				 FT_RENDER_MODE_NORMAL,
+				 ft_render_mode_normal,
 				 0,
 				 //&self->pos[n],
 				 0  //don't destroy image
@@ -761,7 +761,7 @@ FT2Font_draw_glyph_to_bitmap(FT2FontObject *self, PyObject *args)
   
   //printf("draw_glyph_to_bitmap parsed args: %ld %ld\n", x, y);
   error = FT_Glyph_To_Bitmap(&self->glyphs[glyph->glyph_num],
-			     FT_RENDER_MODE_NORMAL,
+			     ft_render_mode_normal,
 			     0,  //no additional translation
 			     0  //don't destroy image
 			     );

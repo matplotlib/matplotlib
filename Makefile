@@ -2,6 +2,9 @@
 # Copyright (C) 2003  <jdhunter@ace.bsd.uchicago.edu>
 # $Header$
 # $Log$
+# Revision 1.23  2004/02/27 14:47:46  jdh2358
+# added matplotlibrc and tk win32 compile fixes
+#
 # Revision 1.22  2004/02/18 18:11:24  jdh2358
 # updated setepext to work with darwin
 #
@@ -90,6 +93,7 @@ MODULES =					\
 	matplotlib.backends.backend_paint       \
 	matplotlib.backends.backend_ps		\
 	matplotlib.backends.backend_template	\
+	matplotlib.backends.backend_tkagg	\
         matplotlib.backends.backend_wx          \
 	matplotlib.cbook			\
 	matplotlib.colors			\
@@ -97,7 +101,9 @@ MODULES =					\
 	matplotlib.legend			\
 	matplotlib.lines			\
 	matplotlib.matlab			\
+	matplotlib.mathtext			\
 	matplotlib.mlab				\
+	matplotlib.numerix      		\
 	matplotlib.patches			\
 	matplotlib.table			\
 	matplotlib.text				\
@@ -113,12 +119,13 @@ clean:
 	find examples \( -name "*.png" -o -name "*.ps"  -o -name "*.jpg" -o -name "*.eps" \) | xargs rm -f
 
 htmldocs: 
+	cp build/lib.linux-i686-2.3/matplotlib/*.so matplotlib/;\
 	cp build/lib.linux-i686-2.3/matplotlib/backends/*.so matplotlib/backends/;\
 	rm -rf htdocs/matplotlib;\
 	cp -a matplotlib htdocs/;\
 	rm htdocs/matplotlib/backends/*.so;\
 	cp examples/*.py htdocs/examples;\
-	cp API_CHANGES htdocs/;\
+	cp .matplotlibrc NUMARRAY_ISSUES API_CHANGES htdocs/;\
 	rm -f docs/*.html;\
 	${PYDOC} -w ${MODULES};\
 	mv *.html docs/

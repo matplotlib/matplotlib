@@ -23,9 +23,15 @@ typedef struct {
     Tcl_Interp* interp;
 } TkappObject;
 
+// const on win32
+#ifdef WIN32
+#define argv_t const char
+#else
+#define argv_t char
+#endif
 static int
 PyAggImagePhoto(ClientData clientdata, Tcl_Interp* interp,
-               int argc, char **argv)
+               int argc, argv_t **argv)
 {
     Tk_PhotoHandle photo;
     Tk_PhotoImageBlock block;
@@ -132,11 +138,9 @@ static PyMethodDef functions[] = {
     {"tkinit", (PyCFunction)_tkinit, 1},
     {NULL, NULL} /* sentinel */
 };
-#ifdef MS_WIN32
-__declspec(dllexport)
-#endif
 
-extern "C" void init_tkagg(void)
+extern "C"
+DL_EXPORT(void) init_tkagg(void)
 {
     Py_InitModule("_tkagg", functions);
 }
