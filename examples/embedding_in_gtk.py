@@ -1,4 +1,4 @@
-from Numeric import arange, sin, pi
+from matplotlib.numerix import arange, sin, pi
 
 import matplotlib
 matplotlib.use('GTK')

@@ -5,7 +5,7 @@ all artists and properties.  Volunteers welcome!
 """
 
 from __future__ import division
-from Numeric import sin, pi, arange, absolute, sqrt
+from matplotlib.numerix import sin, pi, arange, absolute, sqrt
 
 import matplotlib
 matplotlib.use('GTK')

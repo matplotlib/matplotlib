@@ -19,6 +19,10 @@ embedding_in_wx.py, which provides these features.
 
 Modification History:
 $Log$
+Revision 1.2  2004/02/26 20:22:58  jaytmiller
+Added the "numerix" Numeric/numarray selector module enabling matplotlib
+to work with either numarray or Numeric.  See matplotlib.numerix.__doc__.
+
 Revision 1.1  2003/12/30 17:22:09  jodonoghue
 First version of dynamic_demo for backend_wx
 
@@ -29,7 +33,7 @@ matplotlib.use('WX')
 
 from matplotlib.backends import Figure, Toolbar, FigureManager
 from matplotlib.axes import Subplot
-import Numeric as numpy
+import matplotlib.numerix as numpy
 
 from matplotlib.matlab import *
 from wxPython.wx import *

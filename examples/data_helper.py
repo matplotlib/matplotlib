@@ -1,6 +1,6 @@
 # Some functions to load a return data for the plot demos
 
-from Numeric import fromstring, argsort, take, array
+from matplotlib.numerix import fromstring, argsort, take, array
 def get_two_stock_data():
     """
     load stock time and price data for two stocks The return values
