@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 from matplotlib.matlab import *
 
 # create some data to use for the plot
