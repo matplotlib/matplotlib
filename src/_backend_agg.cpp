@@ -912,10 +912,13 @@ RendererAgg::draw_lines(const Py::Tuple& args) {
   double thisx, thisy;
   bool moveto = true;
   double heightd = height;
+
+  double lastx(-2.0), lasty(-2.0);
   for (size_t i=0; i<Nx; ++i) {
     thisx = *(double *)(xa->data + i*xa->strides[0]);
     thisy = *(double *)(ya->data + i*ya->strides[0]);
-
+    
+	
     if (needNonlinear)
       try {
 	mpltransform->nonlinear_only_api(&thisx, &thisy);
@@ -929,7 +932,18 @@ RendererAgg::draw_lines(const Py::Tuple& args) {
     xytrans.transform(&thisx, &thisy);
     thisy = heightd - thisy; //flipy
     
-    
+    //don't render line segments less that on pixel long!
+    if ((i>0) && fabs(thisx-lastx)<1.0 && fabs(thisy-lasty)<1.0) {
+      //std::cout << "skipping " << thisx << " " << thisy << " " << lastx << " " << lasty << " " << fabs(thisx-lastx) << " " << fabs(thisy-lasty) << std::endl;
+      continue;
+    }
+    else {
+      //std::cout << "drawing " << thisx << " " << thisy << " " << lastx << " " << lasty << std::endl;
+
+    }
+
+    lastx = thisx;
+    lasty = thisy;
     if (moveto)
       path.move_to(thisx, thisy);
     else
@@ -937,8 +951,24 @@ RendererAgg::draw_lines(const Py::Tuple& args) {
     
     moveto = false;
     
+    /*
+    if ((i>0) && (i%100000==0)) {
+      //render the sucker
+      _render_lines_path(path, gc);
+      path.remove_all();
+      path.move_to(thisx, thisy);
+    }
+    */
   }
   
+
+  _render_lines_path(path, gc);
+  return Py::Object();
+  
+}
+
+void 
+RendererAgg::_render_lines_path(agg::path_storage &path, const GCAgg& gc) {
 
   typedef agg::path_storage path_t;
   //typedef agg::conv_transform<agg::path_storage, agg::trans_affine> path_t;
@@ -979,11 +1009,8 @@ RendererAgg::draw_lines(const Py::Tuple& args) {
     rendererBin->color(gc.color);     
     agg::render_scanlines(*theRasterizer, *slineBin, *rendererBin); 
   }
-    
-  return Py::Object();
-  
-}
 
+}
 
 Py::Object
 RendererAgg::draw_markers(const Py::Tuple& args) {

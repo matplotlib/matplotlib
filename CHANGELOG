@@ -1,7 +1,8 @@
 New entries should be added at the top
 
 2005-02-10 backend renderer draw_lines now has transform in backend,
-           as in draw_markers; use numerix in _backend_agg
+           as in draw_markers; use numerix in _backend_agg, aded small
+           line optimization to agg
 
 2005-02-09 subplot now deletes axes that it overlaps 
 

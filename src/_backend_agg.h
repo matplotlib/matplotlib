@@ -139,7 +139,9 @@ protected:
   facepair_t _get_rgba_face(const Py::Object& rgbFace, double alpha);
   void set_clipbox_rasterizer( double *cliprect);
   template <class VS> void _fill_and_stroke(VS&, const GCAgg&, const facepair_t&);  
-} ;
+
+  void _render_lines_path(agg::path_storage &ps, const GCAgg& gc);
+};
 
 
 // the extension module
