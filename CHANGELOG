@@ -1,6 +1,11 @@
 New entries should be added at the top
 
 ==============================================================
+2004-10-28 backend_svg.py: change print_figure() to restore original face/edge 
+           color
+           backend_ps.py : change print_figure() to ensure original face/edge 
+           colors are restored even if there's an IOError - SC
+
 2004-10-27 Applied Norbert's errorbar patch to support barsabove kwarg
 
 2004-10-27 Applied Norbert's legend patch to support None handles

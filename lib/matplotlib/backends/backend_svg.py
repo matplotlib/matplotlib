@@ -356,6 +356,9 @@ class FigureCanvasSVG(FigureCanvasBase):
         self.figure.draw(renderer)
         renderer.finish()
 
+        self.figure.set_facecolor(origfacecolor)
+        self.figure.set_edgecolor(origedgecolor)
+
         try: fh = file(filename, 'w')
         except IOError:
             error_msg_svg('Could not open %s for writing' % filename)
