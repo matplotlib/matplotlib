@@ -117,6 +117,7 @@ ACCEPTS: float
         else:
             raise RuntimeError('You must first set the image array or the image attribute')
 
+
         bg = colorConverter.to_rgba(self.axes.get_frame().get_facecolor(), 0)
         im.set_bg( *bg)
         im.is_grayscale = (self.cmap.name == "gray" and
@@ -151,6 +152,7 @@ ACCEPTS: float
 
         l, b, widthDisplay, heightDisplay = self.axes.bbox.get_bounds()
 
+
         im.apply_translation(tx, ty)
         im.apply_scaling(sx, sy)
 
@@ -172,6 +174,7 @@ ACCEPTS: float
         return im
     
     def draw(self, renderer, *args, **kwargs):
+
         if not self.get_visible(): return 
         isUpper = self.origin=='upper'
         flipy = renderer.flipy()

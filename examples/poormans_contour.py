@@ -31,15 +31,14 @@ y = arange(-3.0, 3.0, delta)
 X,Y = meshgrid(x, y)
 Z1 = bivariate_normal(X, Y, 1.0, 1.0, 0.0, 0.0)
 Z2 = bivariate_normal(X, Y, 1.5, 0.5, 1, 1)
+Z = Z2 - Z1 # difference of Gaussians
 
+cmap = cm.get_cmap('jet', 10)    # 10 discrete colors
 
-cmap = ColormapJet(10)    # 10 discrete contours
-im = imshow(Z2-Z1, cmap)  # difference of Gaussians
-
-# set the interpolation method: 'nearest', 'bilinear', 'bicubic' and much more
-im.set_interpolation('bilinear')
-
+im = imshow(Z, cmap=cmap, interpolation='bilinear')
 axis('off')
+colorbar(tickfmt='%1.2f')
+clim(-.1, .1)
 #savefig('test')
 show()
 

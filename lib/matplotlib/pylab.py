@@ -615,13 +615,14 @@ def colorbar(tickfmt='%1.1f', cax=None, orientation='vertical'):
 
     if orientation=='vertical':
         C = transpose(C)
+
     coll = cax.imshow(C,
                       interpolation='nearest', 
                       origin='lower',
                       cmap=cmap, norm=norm,
                       extent=(0, 1, cmin, cmax))
     mappable.add_observer(coll)
-
+    mappable.set_colorbar(coll, cax)
     if orientation=='vertical':
         cax.set_xticks([])
         cax.yaxis.tick_right()

@@ -1140,16 +1140,18 @@ Refs:
             im = self.images[0]
             im.draw(renderer)
         elif len(self.images)>1:
+
             # make a composite image blending alpha
             # list of (_image.Image, ox, oy)
 
             if not allequal([im.origin for im in self.images]):
                 raise ValueError('Composite images with different origins not supported')
             else:
-                origin = self.images[0].origin
+                    origin = self.images[0].origin
+
             ims = [(im.make_image(renderer),0,0) for im in self.images if im.get_visible()]
 
-                
+
             im = _image.from_images(self.bbox.height(), self.bbox.width(), ims)
             im.is_grayscale = False
             l, b, w, h = self.bbox.get_bounds()

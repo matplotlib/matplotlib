@@ -238,6 +238,9 @@ class BakomaTrueTypeFonts(Fonts):
             [ (name, FT2Font(os.path.join(self.basepath, name) + '.ttf'))
               for name in self.fnames])
 
+        self.charmaps = dict(
+            [ (name, self.fonts[name].get_charmap()) for name in self.fnames])
+        
         for font in self.fonts.values():
             font.clear()
         if useSVG:
@@ -261,7 +264,7 @@ class BakomaTrueTypeFonts(Fonts):
 
         if latex_to_bakoma.has_key(sym):
             basename, num = latex_to_bakoma[sym]
-            num = self.fonts[basename].get_charmap()[num]
+            num = self.charmaps[basename][num]
         elif len(sym) == 1:
             num = ord(sym)
         else:
@@ -311,7 +314,7 @@ class BakomaTrueTypeFonts(Fonts):
             basename = self.fontmap[font]
             if latex_to_bakoma.has_key(sym):
                 basename, num = latex_to_bakoma[sym]
-                num = self.fonts[basename].get_charmap()[num]
+                num = self.charmaps[basename][num]
             elif len(sym) == 1:
                 num = ord(sym)
             else:
@@ -342,6 +345,8 @@ class BakomaPSFonts(Fonts):
             [ (name, FT2Font(os.path.join(self.basepath, name) + '.ttf'))
               for name in self.fnames])
 
+        self.charmaps = dict(
+            [ (name, self.fonts[name].get_charmap()) for name in self.fnames])
         for font in self.fonts.values():
             font.clear()
 
@@ -358,7 +363,7 @@ class BakomaPSFonts(Fonts):
         if latex_to_bakoma.has_key(sym):
             basename, num = latex_to_bakoma[sym]
             sym = self.fonts[basename].get_glyph_name(num)
-            num = self.fonts[basename].get_charmap()[num]
+            num = self.charmaps[basename][num]
         elif len(sym) == 1:
             num = ord(sym)
         else:
@@ -480,6 +485,7 @@ class Element:
             if loc=='above':
                 nx = self.centerx() - element.width()/2.0
                 ny = self.ymax() + self.pady()
+                #print element, self.ymax(), element.height(), element.ymax(), element.ymin(), ny
             elif loc=='below':
                 nx = self.centerx() - element.width()/2.0
                 ny = self.ymin() - self.pady() - element.height()
@@ -529,7 +535,7 @@ class Element:
         self._scale = scale
         
     def centerx(self):
-        return self.ox + self.advance()/2.0
+        return 0.5 * (self.xmax() + self.xmin() ) 
 
     def centery(self):
         return 0.5 * (self.ymax() + self.ymin() ) 
@@ -539,10 +545,14 @@ class Element:
                
 class SpaceElement(Element):
     'blank horizontal space'
-    def __init__(self, space):
-        'space is the amount of blank space in fraction of fontsize'
+    def __init__(self, space, height=0):
+        """
+        space is the amount of blank space in fraction of fontsize
+        height is the height of the space in fraction of fontsize
+        """
         Element.__init__(self)
         self.space = space
+        self._height = height
 
     def advance(self):
         'get the horiz advance'
@@ -550,7 +560,7 @@ class SpaceElement(Element):
 
     def height(self):
         'get the element height: ymax-ymin'
-        return 0
+        return self._height*self.dpi/72.0*self.fontsize
 
     def width(self):
         'get the element width: xmax-xmin'
@@ -570,7 +580,7 @@ class SpaceElement(Element):
 
     def ymax(self):
         'get the max ink in y'
-        return self.oy 
+        return self.oy + self.height()
 
     def set_font(self, f):
         # space doesn't care about font, only size
@@ -772,7 +782,23 @@ class Handler:
         self.symbols.append(sym1)        
         
         return loc, [sym0]    
-    
+
+    def accent(self, s, loc, toks):
+
+        assert(len(toks)==1)
+        accent, sym = toks[0]
+
+        d = {
+            r'\hat'   : r'\circumflexaccent',
+            r'\breve' : r'\combiningbreve',
+            r'\bar'   : r'\combiningoverline',                        
+             }
+        above = SymbolElement(d[accent])
+        sym.neighbors['above'] = above
+        sym.set_pady(1)
+        self.symbols.append(above)
+        return loc, [sym]    
+
     def group(self, s, loc, toks):
         assert(len(toks)==1)
         #print 'grp', toks
@@ -790,7 +816,11 @@ class Handler:
     def subscript(self, s, loc, toks):
         assert(len(toks)==1)
         #print 'subsup', toks
-        prev, under, next = toks[0]
+        if len(toks[0])==2:
+            under, next = toks[0]
+            prev = SpaceElement(0)
+        else:
+            prev, under, next = toks[0]            
 
         if self.is_overunder(prev):
             prev.neighbors['below'] = next
@@ -805,8 +835,11 @@ class Handler:
     def superscript(self, s, loc, toks):
         assert(len(toks)==1)
         #print 'subsup', toks
-        prev, under, next = toks[0]
-
+        if len(toks[0])==2:
+            under, next = toks[0]
+            prev = SpaceElement(0,0.6)
+        else:
+            prev, under, next = toks[0]
         if self.is_overunder(prev):
             prev.neighbors['above'] = next
         else:
@@ -866,6 +899,10 @@ under = Literal('under')
 #~ composite = over | under
 overUnder = over | under
 
+accent = Literal('hat') | Literal('check') | Literal('dot') | \
+         Literal('breve') | Literal('acute') | Literal('ddot') | \
+         Literal('grave') | Literal('tilde') | Literal('bar') | Literal('vec')
+
 
 
 number = Combine(Word(nums) + Optional(Literal('.')) + Optional( Word(nums) ))
@@ -904,20 +941,20 @@ group = Group( lbrace + OneOrMore(symbol^subscript^superscript^subsuperscript^sp
 #~ composite = Group( Combine(bslash + composite) + group + group).setParseAction(handler.composite).setName("composite")
 composite = Group( Combine(bslash + overUnder) + group + group).setParseAction(handler.composite).setName("composite")
 
-
+accent = Group( Combine(bslash + accent) + group).setParseAction(handler.accent).setName("accent")
 
 #~ symgroup = symbol ^ group
 symgroup = symbol | group
 
-subscript << Group( symgroup + Literal('_') + symgroup  )
-superscript << Group( symgroup + Literal('^') + symgroup  )
+subscript << Group( Optional(symgroup) + Literal('_') + symgroup  )
+superscript << Group( Optional(symgroup) + Literal('^') + symgroup  )
 subsuperscript << Group( symgroup + Literal('_') + symgroup + Literal('^') + symgroup  )
 
 
 font = Group( Combine(bslash + fontname) + group).setParseAction(handler.font).setName("font")
 
 expression = OneOrMore(
-    space ^ font ^ symbol ^ subscript ^ superscript ^ subsuperscript ^ group ^ composite ).setParseAction(handler.expression).setName("expression")
+    space ^ font ^ accent ^ symbol ^ subscript ^ superscript ^ subsuperscript ^ group ^ composite  ).setParseAction(handler.expression).setName("expression")
 #~ expression = OneOrMore(
     #~ group | composite | space | font | subsuperscript | subscript | superscript | symbol ).setParseAction(handler.expression).setName("expression")
 

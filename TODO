@@ -629,3 +629,12 @@ ZeroDivisionError: SeparableTransformation::eval_scalars yin interval is zero; c
 -- Jim's tick bug in non-interactive mode
 
 -- more flexible tick placement.
+
+-- fix horizontal colorbar axes resize if cax is None
+
+-- mathtext layout bug
+
+    from pylab import *
+    plot(range(10))
+    title(r'$This\ is\ a\ test$')
+    show()
