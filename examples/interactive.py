@@ -127,12 +127,12 @@ class GtkInterpreter (threading.Thread):
         except:
             pass
 
-        gtk.mainloop ()
+        gtk.main ()
 
     def code_exec (self):
         """Execute waiting code.  Called every timeout period."""
         self.ready.acquire ()
-        if self._kill: gtk.mainquit ()
+        if self._kill: gtk.main_quit ()
         if self.new_cmd != None:  
             self.ready.notify ()  
             self.cmd = self.cmd + self.new_cmd
