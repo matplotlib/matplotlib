@@ -47,8 +47,34 @@ double
 _points_to_pixels(RendererAggObject* renderer, double pt) {
   // convert a value in points to pixels depending on renderer dpi and
   // scrren pixels per inch
-  return pt*PIXELS_PER_INCH/72.0*renderer->dpi/72.0;
+  return (int)(pt*PIXELS_PER_INCH/72.0*renderer->dpi/72.0)+0.5;
 
+}
+
+
+int 
+_gc_antialiased(PyObject *gc) {
+
+
+  // return whether to use antialiased drawing on the object; default true
+
+
+  PyObject *antialiased;
+  int isaa;
+  int defaultVal=1;
+
+  //TODO: PyObject_GetAttrString returns ownership - do I need to manipulate the ref count here
+  antialiased = PyObject_GetAttrString( gc, "_antialiased");
+
+  if (antialiased==NULL) {
+    printf("Failed to find _antialiased attribute\n");
+    return defaultVal;  //defaultVal true
+  }
+
+  isaa = (int)PyInt_AsLong(antialiased);
+  
+  //printf("Returning antialiased=%d\n", isaa);
+  return isaa;
 }
 
 agg::gen_stroke::line_cap_e
@@ -294,13 +320,16 @@ newRendererAggObject(PyObject *args)
   
   self->rbuf = new agg::rendering_buffer;
   self->rbuf->attach(buffer, width, height, stride);
-  self->sline = new scanline;
- 
+  self->sline_p8 = new scanline_p8;
+  self->sline_bin = new scanline_bin;
+
+
   self->pixf = new pixfmt(*self->rbuf);
   self->rbase = new renderer_base(*self->pixf);
   self->rbase->clear(agg::rgba(1, 1, 1));
   
   self->ren = new renderer(*self->rbase);
+  self->ren_bin = new renderer_bin(*self->rbase);
   self->ras = new rasterizer(); 
   self->buffer = buffer; 
   self->dpi = dpi; 
@@ -358,7 +387,7 @@ RendererAgg_draw_ellipse(RendererAggObject *renderer, PyObject* args) {
     }
     renderer->ren->color(*facecolor);
     renderer->ras->add_path(path);    
-    renderer->ras->render(*renderer->sline, *renderer->ren);  
+    renderer->ras->render(*renderer->sline_p8, *renderer->ren);  
     delete facecolor;
   }
   
@@ -374,7 +403,7 @@ RendererAgg_draw_ellipse(RendererAggObject *renderer, PyObject* args) {
   renderer->ren->color(*edgecolor);
   //self->ras->gamma(agg::gamma_power(gamma));
   renderer->ras->add_path(stroke);
-  renderer->ras->render(*renderer->sline, *renderer->ren);  
+  renderer->ras->render(*renderer->sline_p8, *renderer->ren);  
   delete edgecolor;
   Py_INCREF(Py_None);
   return Py_None;
@@ -453,7 +482,7 @@ RendererAgg_draw_polygon(RendererAggObject *renderer, PyObject* args) {
     }
     renderer->ren->color(*facecolor);
     renderer->ras->add_path(path);    
-    renderer->ras->render(*renderer->sline, *renderer->ren);  
+    renderer->ras->render(*renderer->sline_p8, *renderer->ren);  
     delete facecolor;
   }
   
@@ -464,7 +493,7 @@ RendererAgg_draw_polygon(RendererAggObject *renderer, PyObject* args) {
   renderer->ren->color(*edgecolor);
   //self->ras->gamma(agg::gamma_power(gamma));
   renderer->ras->add_path(stroke);
-  renderer->ras->render(*renderer->sline, *renderer->ren);  
+  renderer->ras->render(*renderer->sline_p8, *renderer->ren);  
   delete edgecolor;
   Py_INCREF(Py_None);
   return Py_None;
@@ -505,7 +534,7 @@ RendererAgg_draw_rectangle(RendererAggObject *renderer, PyObject* args) {
     }
     renderer->ren->color(*facecolor);
     renderer->ras->add_path(path);    
-    renderer->ras->render(*renderer->sline, *renderer->ren);  
+    renderer->ras->render(*renderer->sline_p8, *renderer->ren);  
     delete facecolor;
   }
   
@@ -515,7 +544,7 @@ RendererAgg_draw_rectangle(RendererAggObject *renderer, PyObject* args) {
   renderer->ren->color(*edgecolor);
   //self->ras->gamma(agg::gamma_power(gamma));
   renderer->ras->add_path(stroke);
-  renderer->ras->render(*renderer->sline, *renderer->ren);  
+  renderer->ras->render(*renderer->sline_p8, *renderer->ren);  
   delete edgecolor;
   Py_INCREF(Py_None);
   return Py_None;
@@ -528,8 +557,7 @@ RendererAgg_draw_lines(RendererAggObject *renderer, PyObject* args) {
 
   PyObject *gc;
   PyObject *x, *y;
-
-
+  
   if (!PyArg_ParseTuple(args, "OOO", &gc, &x, &y))
     return NULL;
 
@@ -601,21 +629,20 @@ RendererAgg_draw_lines(RendererAggObject *renderer, PyObject* args) {
 
   double thisX, thisY;	
   unsigned winHeight = renderer->rbase->height();
-  thisX = _seqitem_as_double(x, 0);
-  thisY = winHeight - _seqitem_as_double(y, 0);
+  thisX = (int)(_seqitem_as_double(x, 0))+0.5;
+  thisY = (int)(winHeight - _seqitem_as_double(y, 0))+0.5;
   path.move_to(thisX, thisY);
   for (int i=1; i<Nx; ++i) {
-    thisX = _seqitem_as_double(x, i);
-    thisY = winHeight - _seqitem_as_double(y, i);
+    thisX = (int)(_seqitem_as_double(x, i))+0.5;
+    thisY = (int)(winHeight - _seqitem_as_double(y, i)) + 0.5;
     path.line_to(thisX, thisY);
   }
 
-  renderer->ren->color(*color);
+
 
 
   if (! useDashes ) {
     agg::conv_stroke<agg::path_storage> stroke(path);
-    stroke.width(1.0);
     stroke.line_cap(cap);
     stroke.line_join(join);
     stroke.width(lw);
@@ -648,18 +675,29 @@ RendererAgg_draw_lines(RendererAggObject *renderer, PyObject* args) {
       off = _points_to_pixels(renderer, _seqitem_as_double(dashSeq, 2*i+1));
       dash.add_dash(on, off);
     }
-    stroke.width(1.0);
     stroke.line_cap(cap);
     stroke.line_join(join);
     stroke.width(lw);
     renderer->ras->add_path(stroke);
     Py_XDECREF(dashSeq);
   }
-    
 
+  
+  if ( _gc_antialiased(gc) ) {
+  //if ( 0 ) {
+    renderer->ren->color(*color);    
+    renderer->ras->render(*renderer->sline_p8, *renderer->ren);  
+  }
+  else {
+    renderer->ren_bin->color(*color);    
+    renderer->ras->render(*renderer->sline_bin, *renderer->ren_bin);  
+  }
 
-
-  renderer->ras->render(*renderer->sline, *renderer->ren);  
+  
+  /*
+    renderer->ren->color(*color);    
+  renderer->ras->render(*renderer->sline_p8, *renderer->ren);  
+  */
   delete color;
 
   Py_INCREF(Py_None);
@@ -722,16 +760,27 @@ RendererAgg_draw_text(RendererAggObject *renderer, PyObject* args) {
   //printf("%u %u %u %u %d %d\n", iwidth, iheight, font->image.width, font->image.height, x, y);
   pixfmt::color_type p;
   p.r = int(255*r); p.b = int(255*b); p.g = int(255*g); p.a = int(255*a);
-
+  
   for (size_t i=0; i<font->image.width; ++i) {
     for (size_t j=0; j<font->image.height; ++j) {
-      if (i+x>=iwidth) continue;
+      if (i+x>=iwidth)  continue;
       if (j+y>=iheight) continue;
+     
       renderer->pixf->blend_pixel(i+x, j+y, p, 
 				  font->image.buffer[i + j*font->image.width]);
-	}
+    }
   }
+  /*  // display the chars to screen for debugging
+  printf("\n\n%s\n", font->text);
+  for ( size_t i = 0; i < font->image.height; i++ ) {
+    printf("%u   ", i);
+    for ( size_t j = 0; j < font->image.width; j++ ) {
+      printf("%3u ", font->image.buffer[j + i*font->image.width]);
 
+    }
+    printf("\n");
+  }
+  */
   Py_INCREF(Py_None);
   return Py_None;
 

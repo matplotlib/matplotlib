@@ -26,6 +26,8 @@ http://matplotlib.sourceforge.net
 
 ### Doing a release 
 
+0) Turn off all the build flags
+
 0) when building the win installer, comment out the import ttfquery in
    build_fonttools
 

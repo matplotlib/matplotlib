@@ -1,3 +1,13 @@
+"""
+
+In order to use mathtext, you must build matplotlib.ft2font.  This is
+built by default in the windows installer.
+
+For other platforms, edit setup.py and set
+
+BUILD_FT2FONT = True
+
+"""
 from matplotlib.matlab import *
 subplot(111, axisbg='y')
 plot([1,2,3])

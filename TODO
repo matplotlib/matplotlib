@@ -224,7 +224,6 @@
 
 -- decreasing axes - James Boyle <boyle5@llnl.gov>
 
--- make rgb rgba
 
 -- check out Helge's contour
 
@@ -243,13 +242,13 @@
 
 -- DONE 2004-02-25 fix setup.py to build ft2
 
--- TkAgg resize
+-- TkAgg resize (test on win32)
 
 -- DONE TkAgg interactive on win32
 
 -- DONE test mathdemo on win32
 
--- figure out what you want to do about mathtext on GTK for next relase
+-- DONE 2004-03-01 - figure out what you want to do about mathtext on GTK for next relase
 
 -- DONE mathtext screenshot demo
 
@@ -260,3 +259,7 @@
 -- DONE - (Todd updated docs) - python2.2 no default tkinter
 
 -- check out wx
+
+-- DONE 2004-03-02 - fix ft2font clipping on agg
+
+-- DONE 2004-03-02 - why are aliased lines of varying widths on agg?
