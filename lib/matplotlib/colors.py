@@ -146,6 +146,7 @@ def makeMappingArray(N, data):
     x  = adata[:,0]
     y0 = adata[:,1]
     y1 = adata[:,2]
+
     if x[0] != 0. or x[-1] != 1.0:
         raise ValueError(
            "data mapping points must start with x=0. and end with x=1")
@@ -251,6 +252,7 @@ class normalize:
 
         vmin = self.vmin
         vmax = self.vmax
+
         if type(value) in [IntType, FloatType]:
             vtype = 'scalar'
             val = array([value])
@@ -276,6 +278,7 @@ class normalize:
         return result
 
     def autoscale(self, A):
+
         if not self.scaled():
             rval = ravel(A)
             if self.vmin is None:

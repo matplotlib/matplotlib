@@ -3,9 +3,13 @@ New entries should be added at the top
 ==============================================================
 2004-09-30 Add GTK+ 2.4 support for the message in the toolbar. SC
 
+2004-09-30 Made some changes to support python22 - lots of doc
+fixes. - JDH
 
+2004-09-29 Added a Verbose class for reporting - JDH
 
 ==============================================================
+
 2004-09-28 Released 0.63.0
 
 2004-09-28 Added save to file object for agg - see

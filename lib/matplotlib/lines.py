@@ -20,7 +20,7 @@ from transforms import lbwh_to_bbox
 from matplotlib import rcParams
 
 TICKLEFT, TICKRIGHT, TICKUP, TICKDOWN = range(4)
-lineStyles  = {'-':1, '--':1, '-.':1, ':':1, 'None':1}
+lineStyles  = {'-':1, '--':1, '-.':1, ':':1, 'steps':1, 'None':1}
 lineMarkers =    {'.':1, ',':1, 'o':1, '^':1, 'v':1, '<':1, '>':1, 's':1,
                   '+':1, 'x':1, 'd':1, 'D':1, '|':1, '_':1, 'h':1, 'H':1,
                   'p':1, '1':1, '2':1, '3':1, '4':1,
@@ -37,6 +37,7 @@ class Line2D(Artist):
         '--'   : '_draw_dashed', 
         '-.'   : '_draw_dash_dot', 
         ':'    : '_draw_dotted',
+        'steps': '_draw_steps',
         'None' : '_draw_nothing'}
     
     _markers =  {
@@ -380,7 +381,18 @@ class Line2D(Artist):
         
     def _draw_nothing(self, renderer, gc, xt, yt):
         pass
-    
+
+    def _draw_steps(self, renderer, gc, xt, yt):
+        siz=len(xt)
+        if siz<2: return
+        xt2=ones((2*siz,), xt.typecode())
+        xt2[0:-1:2], xt2[1:-1:2], xt2[-1]=xt, xt[1:], xt[-1]
+        yt2=ones((2*siz,), yt.typecode())
+        yt2[0:-1:2], yt2[1::2]=yt, yt
+        gc.set_linestyle('solid')
+        gc.set_capstyle('projecting')
+        renderer.draw_lines(gc, xt2, yt2)    
+
     def _draw_solid(self, renderer, gc, xt, yt):
         if len(xt)<2: return
         gc.set_linestyle('solid')

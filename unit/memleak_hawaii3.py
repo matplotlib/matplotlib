@@ -13,22 +13,23 @@ def report_memory(i):
 
 
 # take a memory snapshot on indStart and compare it with indEnd
-indStart, indEnd = 10, 60
+indStart, indEnd = 30, 150
 for i in range(indEnd):
     ind = arange(100)
     xx = rand(len(ind))
+
     figure(1)
-
     subplot(221)
-    #plot(ind, xx)
-    #subplot(222)
-    X = rand(50,50)
-    #imshow(X)
+    plot(ind, xx)
 
-    #subplot(223)
-    #scatter(rand(50), rand(50))
-    #subplot(224)
-    #pcolor(10*rand(50,50))
+    subplot(222)
+    X = rand(50,50)
+    
+    imshow(X)
+    subplot(223)
+    scatter(rand(50), rand(50))
+    subplot(224)
+    pcolor(10*rand(50,50))
 
     savefig('tmp%d' % i, dpi = 75)
     #fd = file('tmp%d' % i, 'wb')

@@ -1130,6 +1130,7 @@ def bivariate_normal(X, Y, sigmax=1.0, sigmay=1.0,
 
 
 
+
 ### the following code was written and submitted by Fernando Perez
 ### from the ipython numutils package under a BSD license
 """

@@ -34,10 +34,12 @@ License   : matplotlib license (PSF compatible)
 """
 
 import os, sys, glob
+import matplotlib
 from matplotlib import afm
 from matplotlib import ft2font
 from matplotlib import rcParams, get_data_path, get_home
 
+verbose = matplotlib.verbose
 
 font_scalings = {'xx-small': 0.579, 'x-small': 0.694, 'small': 0.833,
                  'medium': 1.0, 'large': 1.200, 'x-large': 1.440,

@@ -2,6 +2,7 @@
 Figure and Axes text
 """
 from __future__ import division
+import matplotlib
 import math
 from artist import Artist
 from cbook import True, False, enumerate
@@ -19,6 +20,7 @@ def _process_text_args(override, fontdict=None, **kwargs):
 
     override.update(kwargs)
     return override
+
 
 
 
@@ -465,6 +467,7 @@ class Text(Artist):
 
 
     def is_math_text(self):
+        if not matplotlib._havemath: return False
         return ( self._text.startswith('$') and
                  self._text.endswith('$') )
 

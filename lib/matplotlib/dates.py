@@ -80,8 +80,7 @@ import matplotlib
 
 try: import datetime
 except ImportError:
-    print 'matplotlib %s date handling requires python2.3' % matplotlib.__version__
-    sys.exit()
+    raise ValueError('matplotlib %s date handling requires python2.3' % matplotlib.__version__)
 
 from cbook import iterable
 from pytz import timezone
