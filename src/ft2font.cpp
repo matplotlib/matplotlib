@@ -346,10 +346,11 @@ FT2Font::compute_string_bbox( ) {
     if ( glyph_bbox.yMin < bbox.yMin ) bbox.yMin = glyph_bbox.yMin;
     if ( glyph_bbox.xMax > bbox.xMax ) bbox.xMax = glyph_bbox.xMax;
     if ( glyph_bbox.yMax > bbox.yMax ) bbox.yMax = glyph_bbox.yMax;
-  } /* check that we really grew the string bbox */
+  }
+  /* check that we really grew the string bbox */
   if ( bbox.xMin > bbox.xMax ) {
     bbox.xMin = 0; bbox.yMin = 0; bbox.xMax = 0; bbox.yMax = 0;
-  } /* return string bbox */
+  }
   return bbox;
 }
 
@@ -372,7 +373,7 @@ FT2Font::load_glyphs() {
     if ( use_kerning && previous && glyph_index ) { 
       FT_Vector delta;
       FT_Get_Kerning( face, previous, glyph_index,
-		      ft_kerning_default, &delta );
+		      FT_KERNING_DEFAULT, &delta );
       pen.x += delta.x;
     }
     error = FT_Load_Glyph( face, glyph_index, FT_LOAD_DEFAULT ); 
