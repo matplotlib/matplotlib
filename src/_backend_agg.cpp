@@ -2,6 +2,21 @@
 
 #include <cstring>
 
+
+// font stuff from paint
+
+static char agg_font__doc__[] =
+"Font(filename, size = 12, rotate = 0)\n"
+"\n"
+"Load the named font and return the font object";
+
+static PyObject *agg_font(PyObject *module, PyObject *args)
+{
+    return font_new(args);
+}
+
+
+
 // image renderers that also have to deal with points (72/inch) make
 // an assumption about how many pixels represent 1 inch.  GD and paint
 // use 96.  What's good for the goose ...
@@ -278,7 +293,6 @@ _gc_get_linewidth(PyObject *gc) {
 
 
 extern "C" staticforward PyTypeObject RendererAgg_Type;
-
 
 #define RendererAggObject_Check(v)	((v)->ob_type == &RendererAgg_Type)
 
@@ -597,6 +611,48 @@ RendererAgg_draw_lines(RendererAggObject *renderer, PyObject* args) {
 }
 
 
+
+static char RendererAgg_rgb__doc__[] =
+"rgb(r, g, b)\n"
+"\n"
+"Create an rgba color value with a = 0xff.";
+
+static PyObject *RendererAgg_rgb(PyObject *self, PyObject *args)
+{
+    int r, g, b;
+
+    if (!PyArg_ParseTuple(args, "iii", &r, &g, &b))
+	return NULL;
+
+    return (PyObject*)PyInt_FromLong((r << 24) + (g << 16) + (b << 8) + 0xff);
+}
+
+static char RendererAgg_rgba__doc__[] =
+"rgba(r, g, b, a)\n"
+"\n"
+"Create an rgba color value.";
+
+static PyObject *RendererAgg_rgba(PyObject *self, PyObject *args)
+{
+    int r, g, b, a;
+
+    if (!PyArg_ParseTuple(args, "iiii", &r, &g, &b, &a))
+	return NULL;
+
+    return (PyObject*)PyInt_FromLong((r << 24) + (g << 16) + (b << 8) + a);
+}
+
+char RendererAgg_draw_text__doc__[] = 
+"draw_text(font, x, y, textcolor, text)\n"
+"\n"
+"Render the text in the supplied font at the specified location";
+
+PyObject *
+RendererAgg_draw_text(RendererAggObject *renderer, PyObject* args) {
+
+  return font_draw_text(renderer, args);
+}
+
 static PyObject *
 RendererAgg_write_rgba(RendererAggObject *renderer, PyObject* args) {
   //printf("save buffer called\n");
@@ -702,11 +758,15 @@ RendererAgg_write_png(RendererAggObject *renderer, PyObject *args)
 // must be defined before getattr
 static PyMethodDef RendererAgg_methods[] = {
 
-  {"draw_ellipse",	(PyCFunction)RendererAgg_draw_ellipse,	METH_VARARGS},
-  {"draw_rectangle",	(PyCFunction)RendererAgg_draw_rectangle,	METH_VARARGS},
-  {"draw_lines",	(PyCFunction)RendererAgg_draw_lines,	METH_VARARGS},
-  {"write_rgba",	(PyCFunction)RendererAgg_write_rgba,	METH_VARARGS},
-  {"write_png",	        (PyCFunction)RendererAgg_write_png,	METH_VARARGS},
+  { "draw_ellipse",	(PyCFunction)RendererAgg_draw_ellipse,	 METH_VARARGS},
+  { "draw_rectangle",	(PyCFunction)RendererAgg_draw_rectangle, METH_VARARGS},
+  { "draw_lines",	(PyCFunction)RendererAgg_draw_lines,	 METH_VARARGS},
+  { "draw_text",	(PyCFunction)RendererAgg_draw_text,	 METH_VARARGS, RendererAgg_draw_text__doc__},
+  { "write_rgba",	(PyCFunction)RendererAgg_write_rgba,	 METH_VARARGS},
+  { "write_png",	(PyCFunction)RendererAgg_write_png,	 METH_VARARGS},
+  { "rgb",              (PyCFunction)RendererAgg_rgb, METH_VARARGS, RendererAgg_rgb__doc__ },
+  { "rgba",             (PyCFunction)RendererAgg_rgba, METH_VARARGS, RendererAgg_rgba__doc__ },
+
   {NULL,		NULL}		/* sentinel */
 };
 
@@ -805,6 +865,7 @@ static PyTypeObject RendererAgg_Type = {
 
 static PyMethodDef _backend_agg_methods[] = {
   {"RendererAgg",	_backend_agg_new_renderer,      METH_VARARGS},
+  { "Font",             (PyCFunction)agg_font,          METH_VARARGS, agg_font__doc__ },
   {NULL,		NULL}		/* sentinel */
 };
 
@@ -818,6 +879,7 @@ DL_EXPORT(void)
   /* Initialize the type of the new type object here; doing it here
    * is required for portability to Windows without requiring C++. */
   RendererAgg_Type.ob_type = &PyType_Type;
+  Font_Type.ob_type = &PyType_Type;
   
   /* Create the module and add the functions */
   module = Py_InitModule("_backend_agg", _backend_agg_methods);
