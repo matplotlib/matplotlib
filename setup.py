@@ -30,6 +30,8 @@ BUILD_AGG = 1
 #BUILD_GTKAGG       = 0
 BUILD_GTKAGG       = 'auto'
 
+BUILD_GTK          = 'auto'
+
 # build TK GUI with Agg renderer ; requires Tkinter Python extension
 # and Tk includes
 # Use False or 0 if you don't want to build
@@ -54,7 +56,7 @@ import glob
 from distutils.core import Extension
 from setupext import build_agg, build_gtkagg, build_tkagg, \
      build_ft2font, build_image, build_windowing, build_transforms, \
-     build_contour, build_enthought, build_swigagg
+     build_contour, build_enthought, build_swigagg, build_gdk
 import distutils.sysconfig
 
 major, minor1, minor2, s, tmp = sys.version_info
@@ -152,6 +154,16 @@ if havedate: # dates require python23 datetime
 build_swigagg(ext_modules, packages)
 build_transforms(ext_modules, packages, NUMERIX)
 build_enthought(ext_modules, packages)
+
+if BUILD_GTK:
+    try:
+        import gtk
+    except ImportError:
+        print 'GTK requires pygtk'
+        BUILD_GTK=0
+    except RuntimeError:
+        print 'pygtk present but import failed'
+    build_gdk(ext_modules, packages, NUMERIX)
 
 if BUILD_GTKAGG:
     try:
