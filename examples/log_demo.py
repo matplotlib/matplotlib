@@ -19,8 +19,7 @@ grid(True)
 gca().xaxis.grid(True, which='minor')  # minor grid on too
 
 subplot(313)
-loglog(t, 20*exp(-t/10.0))
-gca().set_xscale('log',base=4)
+loglog(t, 20*exp(-t/10.0), basex=4)
 grid(True)
 ylabel('loglog base 4 on x')
 #savefig('log_demo')
