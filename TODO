@@ -153,3 +153,5 @@
 
 -- DONE 2003-11-20 - problem with stale _set_font.  legend axes box
    doesn't resize on save in GTK backend -- see htdocs legend_demo.py
+
+-- make sure grid is enabled in PS backend.

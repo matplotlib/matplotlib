@@ -12,8 +12,11 @@ examples/README
 examples/__init__.py
 examples/arctest.py
 examples/axes_demo.py
+examples/axes_props.py
+examples/barchart_demo.py
 examples/break.py
 examples/color_demo.py
+examples/csd_demo.py
 examples/data_helper.py
 examples/dynamic_demo.py
 examples/embedding_in_gtk.py
@@ -21,6 +24,7 @@ examples/embedding_in_gtk2.py
 examples/errorbar_demo.py
 examples/figtext.py
 examples/gdtest.py
+examples/gdtest2.py
 examples/histogram_demo.py
 examples/interactive.py
 examples/interactive2.py
@@ -35,12 +39,15 @@ examples/mri_demo.py
 examples/mri_with_eeg.py
 examples/multiple_figs_demo.py
 examples/pcolor_demo.py
+examples/psd_demo.py
 examples/pstest.py
 examples/scatter_demo.py
+examples/scatter_demo2.py
 examples/simple_plot.py
 examples/stock_demo.py
 examples/subplot_demo.py
 examples/system_monitor.py
+examples/test.py
 examples/text_handles.py
 examples/text_themes.py
 examples/vline_demo.py
@@ -49,7 +56,9 @@ examples/xyerrorbar.py
 examples/data/AAPL.dat
 examples/data/INTC.dat
 examples/data/eeg.dat
+examples/data/intc.csv
 examples/data/membrane.dat
+examples/data/msft.csv
 examples/data/s1045.ima
 fonts/afm/pagd8a.afm
 fonts/afm/pagdo8a.afm
