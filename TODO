@@ -152,4 +152,9 @@
 
 -- DONE 2003-11-02 - Do a nearest neighbor color pick on GD when
    allocate fails
-   
+
+-- make a nice errorbar and scatter screenshot   
+
+-- finish contour
+
+-- allow rectangle select region for zoom tool
