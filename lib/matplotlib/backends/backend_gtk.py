@@ -14,7 +14,7 @@ from matplotlib.cbook import is_string_like, enumerate, onetrue
 from matplotlib.font_manager import fontManager
 
 from matplotlib.backend_bases import RendererBase, GraphicsContextBase, \
-     FigureManagerBase, FigureCanvasBase, NavigationToolbar2, cursors, MplEvent
+     FigureManagerBase, FigureCanvasBase, NavigationToolbar2, cursors
 from matplotlib._pylab_helpers import Gcf
 from matplotlib.figure import Figure
 
@@ -148,14 +148,25 @@ class FigureCanvasGTK(gtk.DrawingArea, FigureCanvasBase):
         self._renderer_init()
 
     def button_press_event(self, widget, event):
+        x = event.x
+        # flipy so y=0 is bottom of canvas
+        y = self.figure.bbox.height() - event.y
         self._button = event.button
-
+        FigureCanvasBase.button_press_event(self, x, y, event.button, self._key)
+        
     def button_release_event(self, widget, event):
+        x = event.x
+        # flipy so y=0 is bottom of canvas
+        y = self.figure.bbox.height() - event.y
+        FigureCanvasBase.button_release_event(self, x, y, self._button, self._key)
         self._button = None
 
+
     def motion_notify_event(self, widget, event):
-        #print 'backend_gtk', event.x, event.y
-        pass
+        x = event.x
+        # flipy so y=0 is bottom of canvas
+        y = self.figure.bbox.height() - event.y
+        FigureCanvasBase.motion_notify_event(self, x, y, self._button, self._key)
     
     def key_press_event(self, widget, event):
 
@@ -170,45 +181,12 @@ class FigureCanvasGTK(gtk.DrawingArea, FigureCanvasBase):
         shift = event.state & gtk.gdk.SHIFT_MASK
         
         self._key = key
+        FigureCanvasBase.key_press_event(self, self._key)
 
     def key_release_event(self, widget, event):        
+        FigureCanvasBase.key_release_event(self, self._key)
         self._key = None
         
-    def mpl_connect(self, s, func):
-        
-        if s not in self.events:
-            raise MPLError('Can only connect events of type "%s"\nDo not know how to handle "%s"' %(', '.join(self.events), s))
-            #error_msg('Can only connect events of type "%s"\nDo not know how to handle "%s"' %(', '.join(self.events), s),
-            #          parent=self)            
-
-        def wrapper(widget, event):
-            thisEvent = MplEvent(s, self) 
-
-            thisEvent.x = event.x
-            # flipy so y=0 is bottom of canvas
-            thisEvent.y = self.figure.bbox.height() - event.y
- 
-            thisEvent.button = self._button
-            thisEvent.key = self._key
-
-            thisEvent.inaxes = None
-            for a in self.figure.get_axes():
-                if a.in_axes(thisEvent.x, thisEvent.y):
-                    thisEvent.inaxes = a
-                    xdata, ydata = a.transData.inverse_xy_tup((thisEvent.x, thisEvent.y))
-                    thisEvent.xdata  = xdata
-                    thisEvent.ydata  = ydata
-                    break
-                
-            
-            func(thisEvent)
-            return False  # return True blocks other connects
-        cid =  self.connect(s, wrapper)
-        return cid
-
-    def mpl_disconnect(self, cid):
-        self.disconnect(cid)
-        return None
 
 
     def configure_event(self, widget, event):

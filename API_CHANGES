@@ -1,3 +1,9 @@
+API CHANGES in matplotlib-0.70
+
+   MplEvent factored into a base class Event and derived classes
+   MouseEvent and KeyEvent
+
+   Removed definct set_measurement in wx toolbar
 API CHANGES in matplotlib-0.65.1
 
   removed add_axes and add_subplot from backend_bases.  Use

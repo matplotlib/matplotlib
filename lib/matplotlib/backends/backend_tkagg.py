@@ -13,8 +13,7 @@ import os.path
 import matplotlib
 from matplotlib.cbook import is_string_like,  enumerate
 from matplotlib.backend_bases import RendererBase, GraphicsContextBase, \
-     FigureManagerBase, FigureCanvasBase, NavigationToolbar2, cursors, \
-     MplEvent
+     FigureManagerBase, FigureCanvasBase, NavigationToolbar2, cursors
 
 from matplotlib.figure import Figure
 from matplotlib._pylab_helpers import Gcf
@@ -108,10 +107,18 @@ class FigureCanvasTkAgg(FigureCanvasAgg):
         self._resize_callback = resize_callback
         self._tkcanvas.bind("<Configure>", self.resize)
         self._tkcanvas.bind("<Key>", self.key_press)
+        self._tkcanvas.bind("<Motion>", self.motion_notify_event)        
         self._tkcanvas.bind("<KeyRelease>", self.key_release)
+        for name in "<Button-1>", "<Button-2>", "<Button-3>":
+            self._tkcanvas.bind(name, self.button_press_event)
+
+        for name in "<ButtonRelease-1>", "<ButtonRelease-2>", "<ButtonRelease-3>":
+            self._tkcanvas.bind(name, self.button_release_event)
+            
         self._master = master
         self._tkcanvas.focus_set()
         self._key = None  # the key that is pressed
+        self._button = None  # the key that is pressed        
         
     def resize(self, event):
         width, height = event.width, event.height
@@ -153,27 +160,33 @@ class FigureCanvasTkAgg(FigureCanvasAgg):
         agg = self.switch_backends(FigureCanvasAgg)
         agg.print_figure(filename, dpi, facecolor, edgecolor, orientation)
 
-    def connect(self, eventname, handler):
-        tkname = {
-            "motion_notify_event":["<Motion>"],
-            "button_press_event": ["<Button-1>",
-                                   "<Button-2>",
-                                   "<Button-3>",
-                                   ],
-            "button_release_event": ["<ButtonRelease-1>",
-                                     "<ButtonRelease-2>",
-                                     "<ButtonRelease-3>",
-                                     ],
-            "key_press_event":["<Key>"],
-            "key_release_event":["<KeyRelease>"],            
-            }
-        def the_binding(e):
-            e.button = e.num
-            return handler(e.widget, e)
-        for name in tkname[eventname]:
-            self._tkcanvas.bind(name, the_binding)
-        return (eventname, the_binding)
 
+    def motion_notify_event(self, event):
+        x = event.x
+        # flipy so y=0 is bottom of canvas
+        y = self.figure.bbox.height() - event.y
+        FigureCanvasBase.motion_notify_event(self, x, y, self._button, self._key)
+
+    def button_press_event(self, event):
+        x = event.x
+        # flipy so y=0 is bottom of canvas
+        y = self.figure.bbox.height() - event.y
+        num = getattr(event, 'num', None)
+
+        if sys.platform=='darwin':
+            # 2 and 3 were reversed on the OSX platform I
+            # tested under tkagg
+            if   num==2: num=3
+            elif num==3: num=2
+        self._button = num
+        FigureCanvasBase.button_press_event(self, x, y, num, self._key)
+
+    def button_release_event(self, event):
+        x = event.x
+        # flipy so y=0 is bottom of canvas
+        y = self.figure.bbox.height() - event.y
+        FigureCanvasBase.button_release_event(self, x, y, self._button, self._key)
+        
     def key_press(self, event):
         val = event.keysym_num
         if self.keyvald.has_key(val):
@@ -184,62 +197,12 @@ class FigureCanvasTkAgg(FigureCanvasAgg):
             key = None
 
         self._key = key
+        FigureCanvasBase.key_press_event(self, self._key)        
 
     def key_release(self, event):
+        FigureCanvasBase.key_release_event(self, self._key)                
         self._key = None
 
-
-    def mpl_connect(self, s, func):
-        if s not in self.events:
-            error_msg('Can only connect events of type "%s"\nDo not know how to handle "%s"' %(', '.join(self.events), s))    
-
-        needPosition = s in  ('button_press_event',
-                              'button_release_event',
-                              'motion_notify_event',
-                              )
-
-        needButton = s in  ('button_press_event',
-                            'button_release_event',
-                              )
-
-        def wrapper(widget, event):
-            thisEvent = MplEvent(s, self) 
-            if needPosition:  
-                thisEvent.x = event.x
-                # flipy so y=0 is bottom of canvas
-                thisEvent.y = self.figure.bbox.height() - event.y
-
-            #print 'wrapper', event.keysym, event.keycode, event.keysym_num        
-
-            try: num = event.num
-            except AttributeError: thisEvent.button = None
-            else:
-                if num in (1,2,3):
-                    if sys.platform=='darwin':
-                        # 2 and 3 were reversed on the OSX platform I
-                        # tested under tkagg
-                        if   num==2: num=3
-                        elif num==3: num=2
-                    thisEvent.button = num
-                else: thisEvent.button = None
-            thisEvent.inaxes = None
-            thisEvent.key = self._key
-            for a in self.figure.get_axes():
-                if a.in_axes(thisEvent.x, thisEvent.y):
-                    thisEvent.inaxes = a
-                    xdata, ydata = a.transData.inverse_xy_tup((thisEvent.x, thisEvent.y))
-                    thisEvent.xdata  = xdata
-                    thisEvent.ydata  = ydata
-                    break
-                
-            func(thisEvent)
-            
-        return self.connect(s, wrapper)
-
-    def mpl_disconnect(self, cid):
-        eventname, the_binding = cid
-        self._tkcanvas.unbind(eventname) #, the_binding)
-        return None
     
 class FigureManagerTkAgg(FigureManagerBase):
     """
