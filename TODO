@@ -516,4 +516,8 @@ ZeroDivisionError: SeparableTransformation::eval_scalars yin interval is zero; c
 
 -- add copy/deepcopy support for transforms
 
--- text looks funky in SVG
+-- text looks funky in SVG - stroke width?
+
+-- blit on gtkagg after print is whacked
+
+-- investigate matfile inclusion
