@@ -9,32 +9,58 @@ The following matlab compatible commands are provided by
 Plotting commands
 
   axes     - Create a new axes
+  axhline  - draw a horizontal line across axes
+  axvline  - draw a vertical line across axes
+  axhspan  - draw a horizontal bar across axes
+  axvspan  - draw a vertical bar across axes 
   axis     - Set or return the current axis limits
   bar      - make a bar chart
+  barh     - a horizontal bar chart  
   cla      - clear current axes
   clf      - clear a figure window
   close    - close a figure window
+  colorbar - add a colorbar to the current figure
   cohere   - make a plot of coherence
-  csd      - make a plot of cross spectral density
+  csd      - make a plot of cross spectral density  
+  draw     - Force a redraw of the current figure
   errorbar - make an errorbar graph
+  figlegend - make legend on the figure rather than the axes
+  figimage  - make a figure image
+  figtext   - add text in figure coords
   figure   - create or change active figure
+  fill     - make filled polygons
   gca      - return the current axes
   gcf      - return the current figure
+  gci      - get the current image, or None
   get      - get a handle graphics property
+  gray     - set the current colormap to gray
+  jet      - set the current colormap to jet
   hist     - make a histogram
+  hold     - set the axes hold state
+  legend   - make an axes legend
   loglog   - a log log plot
+  imread   - load image file into array
+  imshow   - plot image data
   pcolor   - make a pseudocolor plot
   plot     - make a line plot
   psd      - make a plot of power spectral density
+  rc       - control the default params
   savefig  - save the current figure
   scatter  - make a scatter plot
   set      - set a handle graphics property
   semilogx - log x axis
   semilogy - log y axis
   show     - show the figures
+  specgram - a spectrogram plot
+  stem     - make a stem plot
   subplot  - make a subplot (numrows, numcols, axesnum)
+  table    - add a table to the plot
   text     - add some text at location x,y to the current axes
   title    - add a title to the current axes
+  xlim     - set/get the xlimits
+  ylim     - set/get the ylimits
+  xticks   - set/get the xticks
+  yticks   - set/get the yticks
   xlabel   - add an xlabel to the current axes
   ylabel   - add a ylabel to the current axes
 
@@ -163,7 +189,15 @@ class Verbose:
     """
     levels = ('silent', 'error', 'helpful', 'debug', 'debug-annoying')
     vald = dict( [(level, i) for i,level in enumerate(levels)])
-    
+
+    # parse the verbosity from the command line; flags look like
+    # --verbose-error or --verbose-error
+    _commandLineVerbose = None
+    for arg in sys.argv[1:]:
+        if not arg.startswith('--verbose-'): continue
+        _commandLineVerbose = arg[10:]
+        
+        
     def __init__(self, level):
         self.set_level(level)
         self.fileo = sys.stdout
@@ -171,7 +205,11 @@ class Verbose:
         
     def set_level(self, level):
         'set the verbosity to one of the Verbose.levels strings'
-        assert level in self.levels
+
+        if self._commandLineVerbose is not None:
+            level = self._commandLineVerbose
+        if level not in self.levels:
+            raise ValueError('Illegal verbose string "%s".  Legal values are %s'%(level, self.levels))
         self.level = level
 
     def report(self, s, level='helpful'):
@@ -221,9 +259,14 @@ class Verbose:
     def ge(self, level):
         'return true if self.level is >= level'
         return self.vald[self.level]>=self.vald[level]
-        
-verbose=Verbose('silent')  # silent until rc is parsed
 
+
+
+        
+verbose=Verbose('error')  # default unitl rc / flags are parsed
+
+
+        
 def get_home():
     """
     return the users HOME dir across platforms or None.
@@ -569,7 +612,7 @@ def rc_params():
     if not os.path.exists(fname):
         message = 'could not find rc file; returning defaults'
         ret =  dict([ (key, tup[0]) for key, tup in defaultParams.items()])
-        verbose.report(message)
+        verbose.report_error(message)
         return ret
         
     cnt = 0

@@ -603,11 +603,11 @@ class Axes(Artist):
 
 
 
-    def hbar(self, x, y, height=0.8, left=0,
+    def barh(self, x, y, height=0.8, left=0,
             color='b', yerr=None, xerr=None, ecolor='k', capsize=3
             ):
         """
-        HBAR(x, y)
+        BARH(x, y)
         
         The y values give the heights of the center of the bars.  The
         x values give the length of the bars.
