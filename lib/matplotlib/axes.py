@@ -1000,7 +1000,10 @@ matplotlib.collections.LineCollection instances
         reg = ones((jmax,imax), Int32)
         reg[:,0]=0
         triangle = zeros((jmax,imax), Int32)
-        y, x = indices((jmax,imax), 'd')
+
+        if x == None and y == None:
+            y, x = indices((jmax,imax), 'd')
+
         rz = ravel(z)
         zmax = nxmax(rz)
         zmin = nxmin(rz)

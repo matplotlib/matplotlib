@@ -625,3 +625,7 @@ ZeroDivisionError: SeparableTransformation::eval_scalars yin interval is zero; c
 -- tex_rotation svg line bug (clipping??)
 
 -- lag in release events makes key press nav difficult
+
+-- Jim's tick bug in non-interactive mode
+
+-- more flexible tick placement.
