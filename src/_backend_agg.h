@@ -53,6 +53,7 @@ public:
   Py::Object draw_rectangle(const Py::Tuple & args);
   Py::Object draw_ellipse(const Py::Tuple & args);
   Py::Object draw_polygon(const Py::Tuple & args);
+  Py::Object draw_line_collection(const Py::Tuple& args);
   Py::Object draw_lines(const Py::Tuple & args);
   Py::Object draw_text(const Py::Tuple & args);
   Py::Object draw_image(const Py::Tuple & args);

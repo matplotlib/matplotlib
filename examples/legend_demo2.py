@@ -11,6 +11,9 @@ l4 = plot(t2, exp(-t2)*sin(2*pi*t2), 'rs-.')
 
 
 legend( (l2, l4), ('oscillatory', 'damped'), 'upper right')
+xlabel('time')
+ylabel('volts')
+title('Damped oscillation')
 #savefig('legend_demo2')
 show()
 

@@ -346,3 +346,16 @@
 -- expose line set dashes
 
 -- fix vertical layout in PS
+
+-- DONE y clipping broken
+
+-- fix data lim problem with image; see image_demo2
+
+-- handle space in roman/font text
+
+-- scatter demos whacked
+
+-- fix small artist bboxing problems
+
+-- fix backend image area problem for vert text in GTK - related to
+   rect I think

@@ -1,6 +1,9 @@
 New entries should be added at the top
 ------------------------------------------------------------
 
+2004-05-15 Rewrote transformation class in extension code, simplified
+           all the artist constructors - JDH
+
 2004-05-14 Modified the type definitions in the numarray side of
 	   numerix so that they are Numeric typecodes and can be
 	   used with Numeric compilex extensions.  The original

@@ -10,5 +10,7 @@ xlabel('time (s)')
 ylabel('voltage (mV)')
 title('About as simple as it gets, folks')
 grid(True)
-savefig('simple_plot')
+#axis([0,1,-1,1])
+savefig('simple_plot', dpi=300)
+
 show()

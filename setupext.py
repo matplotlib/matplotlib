@@ -34,9 +34,9 @@ import os
 basedir = {
 
     'win32'  : ['win32_static',],
-    'linux2' : ['/usr',],
-    'linux'  : ['/usr',],
-    'darwin' : ['/usr/local', '/sw'],
+    'linux2' : ['/usr/local', '/usr',],
+    'linux'  : ['/usr/local', '/usr',],
+    'darwin' : ['/usr/local', '/usr', '/sw'],
     'sunos5' : [os.getenv('MPLIB_BASE') or '/usr/local',],
 }
 
@@ -131,6 +131,7 @@ def add_pygtk_flags(module):
              'C:/GTK/include',
              ])
 
+    add_base_flags(module)
 
     pygtkIncludes = getoutput('pkg-config --cflags-only-I pygtk-2.0').split()
     gtkIncludes = getoutput('pkg-config --cflags-only-I gtk+-2.0').split()
@@ -144,8 +145,9 @@ def add_pygtk_flags(module):
     module.libraries.extend(
         [flag[2:] for flag in linkerFlags if flag.startswith('-l')])
 
+    
     module.library_dirs.extend(
-        [flag[2:] for dir in linkerFlags if flag.startswith('-L')])
+        [flag[2:] for flag in linkerFlags if flag.startswith('-L')])
 
 
     module.extra_link_args.extend(

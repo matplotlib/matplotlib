@@ -19,7 +19,7 @@ from matplotlib.axes import Subplot
 
 from matplotlib.figure import Figure
 from matplotlib.lines import Line2D, lineStyles, lineMarkers
-from matplotlib.transforms import Bound2D
+from matplotlib.transforms import Bbox, lbwh_to_bbox
 from matplotlib.patches import draw_bbox
 from matplotlib.colors import colorConverter
 import gtk
@@ -208,8 +208,8 @@ class LineDialog(gtk.Dialog):
 class PickerCanvas(FigureCanvas):
 
     def button_press_event(self, widget, event):
-        width = self.figure.bbox.x.interval()
-        height = self.figure.bbox.y.interval()
+        width = self.figure.bbox.width()
+        height = self.figure.bbox.height()
         
         self.pick(event.x, height-event.y)
 
@@ -229,18 +229,19 @@ class PickerCanvas(FigureCanvas):
         (in pixels)
         """
 
-        clickBBox = Bound2D(x-epsilon/2, y-epsilon/2, epsilon, epsilon)
-        draw_bbox(self.figure.dpi, clickBBox, self.figure.renderer)
+        clickBBox = lbwh_to_bbox(x-epsilon/2, y-epsilon/2, epsilon, epsilon)
+        draw_bbox(clickBBox, self.renderer)
 
         def over_text(t):
-            bbox = t.get_window_extent(self.figure.renderer)
+            bbox = t.get_window_extent(self.renderer)
             return clickBBox.overlap(bbox)
 
         def over_line(line):
             # can't use the line bbox because it covers the entire extent
             # of the line
-            xdata = line.transx.positions(line.get_xdata())
-            ydata = line.transy.positions(line.get_ydata())
+            trans = line.get_transform()
+            xdata, ydata = trans.numerix_x_y(line.get_xdata(),
+                                             line.get_ydata())
             distances = sqrt((x-xdata)**2 + (y-ydata)**2)
             return min(distances)<epsilon
 
@@ -272,13 +273,13 @@ vbox.show()
 
 fig = Figure(figsize=(5,4), dpi=100)
 
-ax = Subplot(fig, 111)
+ax = fig.add_subplot(111)
 t = arange(0.0,3.0,0.01)
 s = sin(2*pi*t)
 
 ax.plot(t,s)
 ax.set_title('click on line or text')
-fig.add_axis(ax)
+
 
 canvas = PickerCanvas(fig)
 canvas.show()
