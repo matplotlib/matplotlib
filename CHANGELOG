@@ -1,4 +1,10 @@
 New entries should be added at the top
+
+2004-12-04 Fixed some legend bugs JDH
+
+2004-11-30 Added over command for oneoff over plots.  Eg over(plot, x,
+           y, lw=2).  Works with any plot function.
+ 
 2004-11-30 Added bbox property to text - JDH
 
 2004-11-29 Added the over command to the matlab interface.  over

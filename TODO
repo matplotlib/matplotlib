@@ -600,3 +600,8 @@ ZeroDivisionError: SeparableTransformation::eval_scalars yin interval is zero; c
 -- oplot
 
 -- override setattr in matlab interface for artists.
+
+-- cmap observer bug - see
+   ~/python/matplotlib_support/test/cmap_observer_bug.py
+
+-- add connect function.
