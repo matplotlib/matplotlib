@@ -18,8 +18,8 @@ from colors import colorConverter, normalize, Colormap, LinearSegmentedColormap
 import cm
 from cm import ColormapJet, Grayscale, ScalarMappable
 import _image
-from ticker import AutoLocator, LogLocator
-from ticker import ScalarFormatter, LogFormatter, LogFormatterExponent, LogFormatterMathtext
+from ticker import AutoLocator, LogLocator, NullLocator
+from ticker import ScalarFormatter, LogFormatter, LogFormatterExponent, LogFormatterMathtext, NullFormatter
 
 from image import AxesImage
 from legend import Legend
@@ -2825,6 +2825,8 @@ ACCEPTS: str
         elif value == 'linear':
             self.xaxis.set_major_locator(AutoLocator())
             self.xaxis.set_major_formatter(ScalarFormatter())
+            self.xaxis.set_minor_locator(NullLocator())
+            self.xaxis.set_minor_formatter(NullFormatter())        
             self.transData.get_funcx().set_type( IDENTITY )
 
 
@@ -2908,6 +2910,8 @@ ACCEPTS: str
         elif value == 'linear':
             self.yaxis.set_major_locator(AutoLocator())
             self.yaxis.set_major_formatter(ScalarFormatter())
+            self.yaxis.set_minor_locator(NullLocator())
+            self.yaxis.set_minor_formatter(NullFormatter())        
             self.transData.get_funcy().set_type( IDENTITY )
 
     def set_yticklabels(self, labels, fontdict=None, **kwargs):
