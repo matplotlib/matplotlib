@@ -91,6 +91,7 @@ latex_to_bakoma = {
     r'\nu'                  : ('cmmi10',  34),
     r'\xi'                  : ('cmmi10',   7),
     r'\pi'                  : ('cmmi10',  36),
+    r'\kappa'               : ('cmmi10',  30),    
     r'\rho'                 : ('cmmi10',  39),
     r'\sigma'               : ('cmmi10',  21),
     r'\tau'                 : ('cmmi10',  43),
