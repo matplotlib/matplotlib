@@ -88,16 +88,16 @@ class RendererGTK(RendererBase):
         'ultrabold'  : pango.WEIGHT_ULTRABOLD,
         'black'      : pango.WEIGHT_ULTRABOLD,
                    }
-    fontangles = {
-        'italic'  : pango.STYLE_ITALIC,
-        'normal'  : pango.STYLE_NORMAL,
-        'oblique' : pango.STYLE_OBLIQUE,
-        }
+    #fontangles = {
+    #    'italic'  : pango.STYLE_ITALIC,
+    #    'normal'  : pango.STYLE_NORMAL,
+    #    'oblique' : pango.STYLE_OBLIQUE,
+    #    }
 
     # cache for efficiency, these must be at class, not instance level
     layoutd = {}  # a map from text prop tups to pango layouts
-    extentd = {}  # a map from text prop tups to text extents
-    offsetd = {}  # a map from text prop tups to text offsets
+    #extentd = {}  # a map from text prop tups to text extents
+    #offsetd = {}  # a map from text prop tups to text offsets
     rotated = {}  # a map from text prop tups to rotated text pixbufs
 
     #def __init__(self, gtkDA, gdkDrawable, width, height, dpi):
@@ -347,16 +347,24 @@ class RendererGTK(RendererBase):
         if layout is not None:
             return layout
 
-        fontname = prop.get_name()
-        #if fontname.lower()=='times': fontname = "serif"
-        
-        font = pango.FontDescription('%s' % fontname)
-        
-        font.set_weight(self.fontweights[prop.get_weight()])
-        font.set_style(self.fontangles[prop.get_style()])
+        #fontname = prop.get_name()
+        #font = pango.FontDescription('%s' % fontname)
+        #font.set_weight(self.fontweights[prop.get_weight()])
+        #font.set_style(self.fontangles[prop.get_style()])
+        #size = prop.get_size_in_points() * self.dpi.get() / PIXELS_PER_INCH
+        #font.set_size (int(size * 1024))  # pango.SCALE = 1024, not defined in pygtk 1.99.16
+        #layout = self.gtkDA.create_pango_layout(s)
+        #layout.set_font_description(font)    
 
         size = prop.get_size_in_points() * self.dpi.get() / PIXELS_PER_INCH
-        font.set_size (int(size * 1024))  # pango.SCALE = 1024, not defined in pygtk 1.99.16
+        size = round(size)
+
+        font_str = '%s, %s %i' % (prop.get_name(), prop.get_style(), size,)
+        font = pango.FontDescription(font_str)
+
+        # later - add fontweight to font_str
+        font.set_weight(self.fontweights[prop.get_weight()])
+
         layout = self.gtkDA.create_pango_layout(s)
         layout.set_font_description(font)    
 
