@@ -105,7 +105,7 @@ ACCEPTS: [True | False]
 
     def draw(self, renderer, *args, **kwargs):
         'Derived classes drawing method'
-        pass
+        if not self.get_visible(): return 
 
     def set_alpha(self, alpha):
         """

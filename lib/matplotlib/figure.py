@@ -303,6 +303,7 @@ simply make that subplot current and return it
         """
         # draw the figure bounding box, perhaps none for white figure
         #print 'figure draw'
+        if not self.get_visible(): return 
         renderer.open_group('figure')
         self.transFigure.freeze()  # eval the lazy objects
         if self.frameon: self.figurePatch.draw(renderer)

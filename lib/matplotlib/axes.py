@@ -1117,6 +1117,7 @@ Refs:
 
     def draw(self, renderer):
         "Draw everything (plot lines, axes, labels)"
+        if not self.get_visible(): return 
         renderer.open_group('axes')
         self.transData.freeze()  # eval the lazy objects
         self.transAxes.freeze()  # eval the lazy objects
@@ -1125,7 +1126,7 @@ Refs:
 
         if len(self.images)==1:
             im = self.images[0]
-            if im.get_visible(): im.draw(renderer)
+            im.draw(renderer)
         elif len(self.images)>1:
             # make a composite image blending alpha
             # list of (_image.Image, ox, oy)
@@ -1146,8 +1147,8 @@ Refs:
             
 
         if self.axison:
-            if self.xaxis.get_visible(): self.xaxis.draw(renderer)
-            if self.yaxis.get_visible(): self.yaxis.draw(renderer)
+            self.xaxis.draw(renderer)
+            self.yaxis.draw(renderer)
 
 
         artists = []
@@ -1156,13 +1157,13 @@ Refs:
         artists.extend(self.lines)
         artists.extend(self.texts)
 
-        dsu = [ (a.zorder, a) for a in artists if a.get_visible()]
+        dsu = [ (a.zorder, a) for a in artists]
         dsu.sort()
         
         for zorder, a in dsu:
             a.draw(renderer)
 
-        if self.title.get_visible(): self.title.draw(renderer)
+        self.title.draw(renderer)
         if 0: bbox_artist(self.title, renderer)
         # optional artists
         for a in self.artists:
@@ -1170,10 +1171,10 @@ Refs:
 
 
         if self.legend_ is not None:
-           if self.legend_.get_visible(): self.legend_.draw(renderer)
+            self.legend_.draw(renderer)
 
         for table in self.tables:
-            if table.get_visible(): table.draw(renderer)
+            table.draw(renderer)
 
         self.transData.thaw()  # release the lazy objects
         self.transAxes.thaw()  # release the lazy objects
@@ -3454,6 +3455,7 @@ ACCEPTS: sequence of floats
         return max(vmin, vmax)
 
     def draw(self, renderer):
+        if not self.get_visible(): return
         renderer.open_group('polar_axes')
         self.transData.freeze()  # eval the lazy objects
         self.transAxes.freeze()  # eval the lazy objects

@@ -163,6 +163,7 @@ The following dimensions are in axes coords
 
             
     def draw(self, renderer):
+        if not self.get_visible(): return 
         renderer.open_group('legend')
         self._update_positions(renderer)
         if self._drawFrame:
