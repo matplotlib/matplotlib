@@ -13,73 +13,73 @@
    id="svg1">
 <g id="figure1">
 <polygon         
-style="stroke: #ffffff;  stroke-width: 1.000000pt;  stroke-linejoin: miter;  stroke-linecap: square;   opacity: 1.000000;  fill: #bfbfbf;  "
+style="stroke: #ffffff;  stroke-width: 1.000000pt;  stroke-linejoin: miter;  stroke-linecap: square;   opacity: 1.000000;  fill: #bfbfbf;   "
    points = "0.000000,36.000000 0.000000,0.000000 36.000000,0.000000 36.000000,36.000000"  />
 <g id="axes1">
 <polygon         
-style="stroke: #000000;  stroke-width: 1.000000pt;  stroke-linejoin: miter;  stroke-linecap: square;   opacity: 1.000000;  fill: #ffffff;  "
+style="stroke: #000000;  stroke-width: 1.000000pt;  stroke-linejoin: miter;  stroke-linecap: square;   opacity: 1.000000;  fill: #ffffff;   "
    points = "4.500000,32.040000 4.500000,3.600000 32.400000,3.600000 32.400000,32.040000"  />
 <g id="matplotlib.axis1">
 <g id="xtick1">
 </g>
 <g id="xtick2">
 <path         
-style="stroke: #000000;  stroke-width: 0.500000pt;  stroke-linejoin: miter;  stroke-linecap: square;   opacity: 1.000000;  fill: none;  "
+style="stroke: #000000;  stroke-width: 0.500000pt;  stroke-linejoin: miter;  stroke-linecap: square;   opacity: 1.000000;  fill: none;   "
  d="M 11.475000,32.040000 L 11.475000,32.040000 "   />
 <path         
-style="stroke: #000000;  stroke-width: 0.500000pt;  stroke-linejoin: miter;  stroke-linecap: butt;   opacity: 1.000000;  fill: none;  "
+style="stroke: #000000;  stroke-width: 0.500000pt;  stroke-linejoin: miter;  stroke-linecap: butt;   opacity: 1.000000;  fill: none;   "
  d="M 11.475000,32.040000 L 11.475000,28.040000"   />
 <path         
-style="stroke: #000000;  stroke-width: 0.500000pt;  stroke-linejoin: miter;  stroke-linecap: butt;   opacity: 1.000000;  fill: none;  "
+style="stroke: #000000;  stroke-width: 0.500000pt;  stroke-linejoin: miter;  stroke-linecap: butt;   opacity: 1.000000;  fill: none;   "
  d="M 11.475000,32.040000 L 11.475000,28.040000"   />
 <path         
-style="stroke: #000000;  stroke-width: 0.500000pt;  stroke-linejoin: miter;  stroke-linecap: square;   opacity: 1.000000;  fill: none;  "
+style="stroke: #000000;  stroke-width: 0.500000pt;  stroke-linejoin: miter;  stroke-linecap: square;   opacity: 1.000000;  fill: none;   "
  d="M 11.475000,3.600000 L 11.475000,3.600000 "   />
 <path         
-style="stroke: #000000;  stroke-width: 0.500000pt;  stroke-linejoin: miter;  stroke-linecap: butt;   opacity: 1.000000;  fill: none;  "
+style="stroke: #000000;  stroke-width: 0.500000pt;  stroke-linejoin: miter;  stroke-linecap: butt;   opacity: 1.000000;  fill: none;   "
  d="M 11.475000,7.600000 L 11.475000,3.600000"   />
 <path         
-style="stroke: #000000;  stroke-width: 0.500000pt;  stroke-linejoin: miter;  stroke-linecap: butt;   opacity: 1.000000;  fill: none;  "
+style="stroke: #000000;  stroke-width: 0.500000pt;  stroke-linejoin: miter;  stroke-linecap: butt;   opacity: 1.000000;  fill: none;   "
  d="M 11.475000,7.600000 L 11.475000,3.600000"   />
 </g>
 <g id="xtick3">
 <path         
-style="stroke: #000000;  stroke-width: 0.500000pt;  stroke-linejoin: miter;  stroke-linecap: square;   opacity: 1.000000;  fill: none;  "
+style="stroke: #000000;  stroke-width: 0.500000pt;  stroke-linejoin: miter;  stroke-linecap: square;   opacity: 1.000000;  fill: none;   "
  d="M 18.450000,32.040000 L 18.450000,32.040000 "   />
 <path         
-style="stroke: #000000;  stroke-width: 0.500000pt;  stroke-linejoin: miter;  stroke-linecap: butt;   opacity: 1.000000;  fill: none;  "
+style="stroke: #000000;  stroke-width: 0.500000pt;  stroke-linejoin: miter;  stroke-linecap: butt;   opacity: 1.000000;  fill: none;   "
  d="M 18.450000,32.040000 L 18.450000,28.040000"   />
 <path         
-style="stroke: #000000;  stroke-width: 0.500000pt;  stroke-linejoin: miter;  stroke-linecap: butt;   opacity: 1.000000;  fill: none;  "
+style="stroke: #000000;  stroke-width: 0.500000pt;  stroke-linejoin: miter;  stroke-linecap: butt;   opacity: 1.000000;  fill: none;   "
  d="M 18.450000,32.040000 L 18.450000,28.040000"   />
 <path         
-style="stroke: #000000;  stroke-width: 0.500000pt;  stroke-linejoin: miter;  stroke-linecap: square;   opacity: 1.000000;  fill: none;  "
+style="stroke: #000000;  stroke-width: 0.500000pt;  stroke-linejoin: miter;  stroke-linecap: square;   opacity: 1.000000;  fill: none;   "
  d="M 18.450000,3.600000 L 18.450000,3.600000 "   />
 <path         
-style="stroke: #000000;  stroke-width: 0.500000pt;  stroke-linejoin: miter;  stroke-linecap: butt;   opacity: 1.000000;  fill: none;  "
+style="stroke: #000000;  stroke-width: 0.500000pt;  stroke-linejoin: miter;  stroke-linecap: butt;   opacity: 1.000000;  fill: none;   "
  d="M 18.450000,7.600000 L 18.450000,3.600000"   />
 <path         
-style="stroke: #000000;  stroke-width: 0.500000pt;  stroke-linejoin: miter;  stroke-linecap: butt;   opacity: 1.000000;  fill: none;  "
+style="stroke: #000000;  stroke-width: 0.500000pt;  stroke-linejoin: miter;  stroke-linecap: butt;   opacity: 1.000000;  fill: none;   "
  d="M 18.450000,7.600000 L 18.450000,3.600000"   />
 </g>
 <g id="xtick4">
 <path         
-style="stroke: #000000;  stroke-width: 0.500000pt;  stroke-linejoin: miter;  stroke-linecap: square;   opacity: 1.000000;  fill: none;  "
+style="stroke: #000000;  stroke-width: 0.500000pt;  stroke-linejoin: miter;  stroke-linecap: square;   opacity: 1.000000;  fill: none;   "
  d="M 25.425000,32.040000 L 25.425000,32.040000 "   />
 <path         
-style="stroke: #000000;  stroke-width: 0.500000pt;  stroke-linejoin: miter;  stroke-linecap: butt;   opacity: 1.000000;  fill: none;  "
+style="stroke: #000000;  stroke-width: 0.500000pt;  stroke-linejoin: miter;  stroke-linecap: butt;   opacity: 1.000000;  fill: none;   "
  d="M 25.425000,32.040000 L 25.425000,28.040000"   />
 <path         
-style="stroke: #000000;  stroke-width: 0.500000pt;  stroke-linejoin: miter;  stroke-linecap: butt;   opacity: 1.000000;  fill: none;  "
+style="stroke: #000000;  stroke-width: 0.500000pt;  stroke-linejoin: miter;  stroke-linecap: butt;   opacity: 1.000000;  fill: none;   "
  d="M 25.425000,32.040000 L 25.425000,28.040000"   />
 <path         
-style="stroke: #000000;  stroke-width: 0.500000pt;  stroke-linejoin: miter;  stroke-linecap: square;   opacity: 1.000000;  fill: none;  "
+style="stroke: #000000;  stroke-width: 0.500000pt;  stroke-linejoin: miter;  stroke-linecap: square;   opacity: 1.000000;  fill: none;   "
  d="M 25.425000,3.600000 L 25.425000,3.600000 "   />
 <path         
-style="stroke: #000000;  stroke-width: 0.500000pt;  stroke-linejoin: miter;  stroke-linecap: butt;   opacity: 1.000000;  fill: none;  "
+style="stroke: #000000;  stroke-width: 0.500000pt;  stroke-linejoin: miter;  stroke-linecap: butt;   opacity: 1.000000;  fill: none;   "
  d="M 25.425000,7.600000 L 25.425000,3.600000"   />
 <path         
-style="stroke: #000000;  stroke-width: 0.500000pt;  stroke-linejoin: miter;  stroke-linecap: butt;   opacity: 1.000000;  fill: none;  "
+style="stroke: #000000;  stroke-width: 0.500000pt;  stroke-linejoin: miter;  stroke-linecap: butt;   opacity: 1.000000;  fill: none;   "
  d="M 25.425000,7.600000 L 25.425000,3.600000"   />
 </g>
 <g id="xtick5">
@@ -90,72 +90,78 @@ style="stroke: #000000;  stroke-width: 0.500000pt;  stroke-linejoin: miter;  str
 </g>
 <g id="ytick2">
 <path         
-style="stroke: #000000;  stroke-width: 0.500000pt;  stroke-linejoin: miter;  stroke-linecap: square;   opacity: 1.000000;  fill: none;  "
+style="stroke: #000000;  stroke-width: 0.500000pt;  stroke-linejoin: miter;  stroke-linecap: square;   opacity: 1.000000;  fill: none;   "
  d="M 4.500000,24.930000 L 4.500000,24.930000 "   />
 <path         
-style="stroke: #000000;  stroke-width: 0.500000pt;  stroke-linejoin: miter;  stroke-linecap: butt;   opacity: 1.000000;  fill: none;  "
+style="stroke: #000000;  stroke-width: 0.500000pt;  stroke-linejoin: miter;  stroke-linecap: butt;   opacity: 1.000000;  fill: none;   "
  d="M 4.500000,24.930000 L 8.500000,24.930000"   />
 <path         
-style="stroke: #000000;  stroke-width: 0.500000pt;  stroke-linejoin: miter;  stroke-linecap: butt;   opacity: 1.000000;  fill: none;  "
+style="stroke: #000000;  stroke-width: 0.500000pt;  stroke-linejoin: miter;  stroke-linecap: butt;   opacity: 1.000000;  fill: none;   "
  d="M 4.500000,24.930000 L 8.500000,24.930000"   />
 <path         
-style="stroke: #000000;  stroke-width: 0.500000pt;  stroke-linejoin: miter;  stroke-linecap: square;   opacity: 1.000000;  fill: none;  "
+style="stroke: #000000;  stroke-width: 0.500000pt;  stroke-linejoin: miter;  stroke-linecap: square;   opacity: 1.000000;  fill: none;   "
  d="M 32.400000,24.930000 L 32.400000,24.930000 "   />
 <path         
-style="stroke: #000000;  stroke-width: 0.500000pt;  stroke-linejoin: miter;  stroke-linecap: butt;   opacity: 1.000000;  fill: none;  "
+style="stroke: #000000;  stroke-width: 0.500000pt;  stroke-linejoin: miter;  stroke-linecap: butt;   opacity: 1.000000;  fill: none;   "
  d="M 28.400000,24.930000 L 32.400000,24.930000"   />
 <path         
-style="stroke: #000000;  stroke-width: 0.500000pt;  stroke-linejoin: miter;  stroke-linecap: butt;   opacity: 1.000000;  fill: none;  "
+style="stroke: #000000;  stroke-width: 0.500000pt;  stroke-linejoin: miter;  stroke-linecap: butt;   opacity: 1.000000;  fill: none;   "
  d="M 28.400000,24.930000 L 32.400000,24.930000"   />
 </g>
 <g id="ytick3">
 <path         
-style="stroke: #000000;  stroke-width: 0.500000pt;  stroke-linejoin: miter;  stroke-linecap: square;   opacity: 1.000000;  fill: none;  "
+style="stroke: #000000;  stroke-width: 0.500000pt;  stroke-linejoin: miter;  stroke-linecap: square;   opacity: 1.000000;  fill: none;   "
  d="M 4.500000,17.820000 L 4.500000,17.820000 "   />
 <path         
-style="stroke: #000000;  stroke-width: 0.500000pt;  stroke-linejoin: miter;  stroke-linecap: butt;   opacity: 1.000000;  fill: none;  "
+style="stroke: #000000;  stroke-width: 0.500000pt;  stroke-linejoin: miter;  stroke-linecap: butt;   opacity: 1.000000;  fill: none;   "
  d="M 4.500000,17.820000 L 8.500000,17.820000"   />
 <path         
-style="stroke: #000000;  stroke-width: 0.500000pt;  stroke-linejoin: miter;  stroke-linecap: butt;   opacity: 1.000000;  fill: none;  "
+style="stroke: #000000;  stroke-width: 0.500000pt;  stroke-linejoin: miter;  stroke-linecap: butt;   opacity: 1.000000;  fill: none;   "
  d="M 4.500000,17.820000 L 8.500000,17.820000"   />
 <path         
-style="stroke: #000000;  stroke-width: 0.500000pt;  stroke-linejoin: miter;  stroke-linecap: square;   opacity: 1.000000;  fill: none;  "
+style="stroke: #000000;  stroke-width: 0.500000pt;  stroke-linejoin: miter;  stroke-linecap: square;   opacity: 1.000000;  fill: none;   "
  d="M 32.400000,17.820000 L 32.400000,17.820000 "   />
 <path         
-style="stroke: #000000;  stroke-width: 0.500000pt;  stroke-linejoin: miter;  stroke-linecap: butt;   opacity: 1.000000;  fill: none;  "
+style="stroke: #000000;  stroke-width: 0.500000pt;  stroke-linejoin: miter;  stroke-linecap: butt;   opacity: 1.000000;  fill: none;   "
  d="M 28.400000,17.820000 L 32.400000,17.820000"   />
 <path         
-style="stroke: #000000;  stroke-width: 0.500000pt;  stroke-linejoin: miter;  stroke-linecap: butt;   opacity: 1.000000;  fill: none;  "
+style="stroke: #000000;  stroke-width: 0.500000pt;  stroke-linejoin: miter;  stroke-linecap: butt;   opacity: 1.000000;  fill: none;   "
  d="M 28.400000,17.820000 L 32.400000,17.820000"   />
 </g>
 <g id="ytick4">
 <path         
-style="stroke: #000000;  stroke-width: 0.500000pt;  stroke-linejoin: miter;  stroke-linecap: square;   opacity: 1.000000;  fill: none;  "
+style="stroke: #000000;  stroke-width: 0.500000pt;  stroke-linejoin: miter;  stroke-linecap: square;   opacity: 1.000000;  fill: none;   "
  d="M 4.500000,10.710000 L 4.500000,10.710000 "   />
 <path         
-style="stroke: #000000;  stroke-width: 0.500000pt;  stroke-linejoin: miter;  stroke-linecap: butt;   opacity: 1.000000;  fill: none;  "
+style="stroke: #000000;  stroke-width: 0.500000pt;  stroke-linejoin: miter;  stroke-linecap: butt;   opacity: 1.000000;  fill: none;   "
  d="M 4.500000,10.710000 L 8.500000,10.710000"   />
 <path         
-style="stroke: #000000;  stroke-width: 0.500000pt;  stroke-linejoin: miter;  stroke-linecap: butt;   opacity: 1.000000;  fill: none;  "
+style="stroke: #000000;  stroke-width: 0.500000pt;  stroke-linejoin: miter;  stroke-linecap: butt;   opacity: 1.000000;  fill: none;   "
  d="M 4.500000,10.710000 L 8.500000,10.710000"   />
 <path         
-style="stroke: #000000;  stroke-width: 0.500000pt;  stroke-linejoin: miter;  stroke-linecap: square;   opacity: 1.000000;  fill: none;  "
+style="stroke: #000000;  stroke-width: 0.500000pt;  stroke-linejoin: miter;  stroke-linecap: square;   opacity: 1.000000;  fill: none;   "
  d="M 32.400000,10.710000 L 32.400000,10.710000 "   />
 <path         
-style="stroke: #000000;  stroke-width: 0.500000pt;  stroke-linejoin: miter;  stroke-linecap: butt;   opacity: 1.000000;  fill: none;  "
+style="stroke: #000000;  stroke-width: 0.500000pt;  stroke-linejoin: miter;  stroke-linecap: butt;   opacity: 1.000000;  fill: none;   "
  d="M 28.400000,10.710000 L 32.400000,10.710000"   />
 <path         
-style="stroke: #000000;  stroke-width: 0.500000pt;  stroke-linejoin: miter;  stroke-linecap: butt;   opacity: 1.000000;  fill: none;  "
+style="stroke: #000000;  stroke-width: 0.500000pt;  stroke-linejoin: miter;  stroke-linecap: butt;   opacity: 1.000000;  fill: none;   "
  d="M 28.400000,10.710000 L 32.400000,10.710000"   />
 </g>
 <g id="ytick5">
 </g>
 </g>
+
 <defs>
-	<clipPath id="1122589624"><path d="M 4.500000,32.040000 L 32.400000,32.040000 L 32.400000,3.600000 L 4.500000,3.600000 L 4.500000,32.040000" /> </clipPath>
-</defs><path         
-style="stroke: #0000ff;  stroke-width: 0.500000pt;  stroke-linejoin: miter;  stroke-linecap: square;   opacity: 1.000000;  fill: none;  "
- d="M 4.500000,17.820000 L 5.197500,13.425778 L 5.895000,9.461694 L 6.592500,6.315778 L 7.290000,4.295976 L 7.987500,3.600000 L 8.685000,4.295976 L 9.382500,6.315778 L 10.080000,9.461694 L 10.777500,13.425778 L 11.475000,17.820000 L 12.172500,22.214222 L 12.870000,26.178306 L 13.567500,29.324222 L 14.265000,31.344024 L 14.962500,32.040000 L 15.660000,31.344024 L 16.357500,29.324222 L 17.055000,26.178306 L 17.752500,22.214222 L 18.450000,17.820000 L 19.147500,13.425778 L 19.845000,9.461694 L 20.542500,6.315778 L 21.240000,4.295976 L 21.937500,3.600000 L 22.635000,4.295976 L 23.332500,6.315778 L 24.030000,9.461694 L 24.727500,13.425778 L 25.425000,17.820000 L 26.122500,22.214222 L 26.820000,26.178306 L 27.517500,29.324222 L 28.215000,31.344024 L 28.912500,32.040000 L 29.610000,31.344024 L 30.307500,29.324222 L 31.005000,26.178306 L 31.702500,22.214222 "   clip-path="url(#1122589624)" />
+    <clipPath id="1122589624">
+    <rect x="4.500000" y="3.600000" width="27.900000" height="28.440000"
+    style="stroke: gray; fill: none;"/>
+    </clipPath>
+</defs>
+
+<path         
+style="stroke: #0000ff;  stroke-width: 0.500000pt;  stroke-linejoin: miter;  stroke-linecap: square;   opacity: 1.000000;  fill: none;   clip-path:url(#1122589624);  "
+ d="M 4.500000,17.820000 L 5.197500,13.425778 L 5.895000,9.461694 L 6.592500,6.315778 L 7.290000,4.295976 L 7.987500,3.600000 L 8.685000,4.295976 L 9.382500,6.315778 L 10.080000,9.461694 L 10.777500,13.425778 L 11.475000,17.820000 L 12.172500,22.214222 L 12.870000,26.178306 L 13.567500,29.324222 L 14.265000,31.344024 L 14.962500,32.040000 L 15.660000,31.344024 L 16.357500,29.324222 L 17.055000,26.178306 L 17.752500,22.214222 L 18.450000,17.820000 L 19.147500,13.425778 L 19.845000,9.461694 L 20.542500,6.315778 L 21.240000,4.295976 L 21.937500,3.600000 L 22.635000,4.295976 L 23.332500,6.315778 L 24.030000,9.461694 L 24.727500,13.425778 L 25.425000,17.820000 L 26.122500,22.214222 L 26.820000,26.178306 L 27.517500,29.324222 L 28.215000,31.344024 L 28.912500,32.040000 L 29.610000,31.344024 L 30.307500,29.324222 L 31.005000,26.178306 L 31.702500,22.214222 "   />
 </g>
 </g>
 </svg>
