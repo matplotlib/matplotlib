@@ -1,5 +1,8 @@
 New entries should be added at the top
 
+2004-12-18 Minor refactoring of tkagg toolbar to support embedding in
+           an application - JDH
+
 2004-12-14 Added linestyle to collections -  JDH
 
 2004-12-14 Applied Nadia's setupext patch to fix libstdc++ link

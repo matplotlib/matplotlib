@@ -262,7 +262,7 @@ class FigureManagerTkAgg(FigureManagerBase):
         if matplotlib.rcParams['toolbar']=='classic':
             self.toolbar = NavigationToolbar( canvas, self )
         elif matplotlib.rcParams['toolbar']=='toolbar2':
-            self.toolbar = NavigationToolbar2TkAgg( canvas, self )
+            self.toolbar = NavigationToolbar2TkAgg( canvas, self.window )
         else:
             self.toolbar = None
         if self.toolbar is not None:
@@ -523,9 +523,9 @@ class NavigationToolbar2TkAgg(NavigationToolbar2, Tk.Frame):
       canvas   - the FigureCanvas  (gtk.DrawingArea)
       win   - the gtk.Window
     """
-    def __init__(self, canvas, figman):
+    def __init__(self, canvas, window):
         self.canvas = canvas
-        self.figman = figman
+        self.window = window
         self._idle = True
         Tk.Frame.__init__(self, master=self.canvas._tkcanvas)
         NavigationToolbar2.__init__(self, canvas)
@@ -552,7 +552,7 @@ class NavigationToolbar2TkAgg(NavigationToolbar2, Tk.Frame):
             del self.lastrect
 
     def set_cursor(self, cursor):
-        self.figman.window.configure(cursor=cursord[cursor])
+        self.window.configure(cursor=cursord[cursor])
     
     def _Button(self, text, file, command):
         file = os.path.join(rcParams['datapath'], file)
@@ -566,7 +566,7 @@ class NavigationToolbar2TkAgg(NavigationToolbar2, Tk.Frame):
     def _init_toolbar(self):
         xmin, xmax = self.canvas.figure.bbox.intervalx().get_bounds()
         height, width = 50, xmax-xmin
-        Tk.Frame.__init__(self, master=self.figman.window,
+        Tk.Frame.__init__(self, master=self.window,
                           width=width, height=height,
                           borderwidth=2)
         
@@ -596,7 +596,7 @@ class NavigationToolbar2TkAgg(NavigationToolbar2, Tk.Frame):
         self.pack(side=Tk.BOTTOM, fill=Tk.X)
         
     def save_figure(self):
-        fs = FileDialog.SaveFileDialog(master=self.figman.window,
+        fs = FileDialog.SaveFileDialog(master=self.window,
                                        title='Save the figure')
         try:
             self.lastDir
