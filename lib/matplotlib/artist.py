@@ -59,6 +59,10 @@ ACCEPTS: a matplotlib.transform transformation instance
     def is_figure_set(self):
         return self.figure is not None
 
+    def get_figure(self):
+        'return the figure instance'
+        return self.figure
+    
     def set_figure(self, fig):
         """
 Set the figure instance the artist belong to

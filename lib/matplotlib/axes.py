@@ -31,7 +31,7 @@ from lines import Line2D, lineStyles, lineMarkers
 
 from mlab import meshgrid
 from matplotlib import rcParams
-from patches import Rectangle, Circle, Polygon, Wedge, bbox_artist
+from patches import Rectangle, Circle, Polygon, Wedge, Shadow, bbox_artist
 from table import Table
 from text import Text, _process_text_args
 from transforms import Bbox, Point, Value, Affine, NonseparableTransformation
@@ -322,7 +322,7 @@ class Axes(Artist):
         # funcs used to format x and y - fall back on major formatters
         self.fmt_xdata = None  
         self.fmt_ydata = None
-
+        
     def set_figure(self, fig):
         """
 Set the Axes figure
@@ -1643,6 +1643,7 @@ and so on.  The following kwargs are supported
   handlelen = 0.05     # the length of the legend lines
   handletextsep = 0.02 # the space between the legend line and legend text
   axespad = 0.02       # the border between the axes and legend edge
+  shadow = False       # if True, draw a shadow behind legend
         """
 
         def get_handles():
@@ -1980,6 +1981,7 @@ Grid orientation
     def pie(self, x, explode=None, labels=None,
             colors=('b', 'g', 'r', 'c', 'm', 'y', 'k', 'w'),
             autopct=None,
+            shadow=False
             ):
         """
 Make a pie chart of array x.  The fractional area of each wedge is
@@ -1999,6 +2001,8 @@ fractional area directly and the array will not be normalized.
     the wedge.  If it is a format string, the label will be fmt%pct.
     If it is a function, it will be called
 
+  - shadow, if True, will draw a shadow beneath the pie.
+  
 The pie chart will probably look best if the figure and axes are
 square.  Eg,
 
@@ -2044,9 +2048,19 @@ Return value:
 
             w = Wedge((x,y), radius, 360.*theta1, 360.*theta2,
                       facecolor=colors[i%len(colors)])
-            slices.append(w)
+            slices.append(w) 
             self.add_patch(w)
             self.set_label(label)
+
+            if shadow:
+                # make sure to add a shadow after the call to
+                # add_patch so the figure and transform props will be
+                # set
+                shad = Shadow(w, -0.02, -0.02,
+                              #props={'facecolor':w.get_facecolor()}
+                              )
+                shad.set_zorder(0.9*w.get_zorder())
+                self.add_patch(shad) 
 
 
             xt = x + 1.1*radius*math.cos(thetam)

@@ -31,7 +31,7 @@ from cbook import enumerate, is_string_like, iterable, silent_list
 from font_manager import FontProperties
 from lines import Line2D
 from mlab import linspace
-from patches import Patch, Rectangle, bbox_artist, draw_bbox
+from patches import Patch, Rectangle, Shadow, bbox_artist, draw_bbox
 from collections import LineCollection
 from text import Text
 from transforms import Bbox, Point, Value, get_bbox_transform, bbox_all,\
@@ -89,6 +89,7 @@ class Legend(Artist):
                  handletextsep = 0.02, # the space between the legend line and legend text
                  axespad = 0.02,       # the border between the axes and legend edge
 
+                 shadow=False,
                  ):
         """
   parent                # the artist that contains the legend
@@ -99,6 +100,7 @@ class Legend(Artist):
   numpoints = 4         # the number of points in the legend line
   fontprop = FontProperties('smaller')  # the font property
   pad = 0.2             # the fractional whitespace inside the legend border
+  shadow                # if True, draw a shadow behind legend 
 
 The following dimensions are in axes coords
   labelsep = 0.005     # the vertical space between the legend entries
@@ -119,6 +121,7 @@ The following dimensions are in axes coords
         self.handlelen = handlelen
         self.handletextsep = handletextsep
         self.axespad = axespad
+        self.shadow = shadow
         
         if isaxes:  # parent is an Axes
             self.set_figure(parent.figure)
@@ -162,7 +165,13 @@ The following dimensions are in axes coords
     def draw(self, renderer):
         renderer.open_group('legend')
         self._update_positions(renderer)
-        if self._drawFrame:  self.legendPatch.draw(renderer)
+        if self._drawFrame:
+            if self.shadow:
+                shadow = Shadow(self.legendPatch, -0.005, -0.005)
+                shadow.draw(renderer)
+            self.legendPatch.draw(renderer)
+        
+
         for h in self.handles:            
             if h is not None:
 		h.draw(renderer)

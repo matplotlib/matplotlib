@@ -1,5 +1,8 @@
 New entries should be added at the top
 
+2004-12-27 Added Shadow class and added shadow kwarg to legend and pie
+           for shadow effect - JDH
+
 2004-12-27 Added pie charts and new example/pie_demo.py
 
 2004-12-23 Fixed an agg text rotation alignment bug, fixed some text

@@ -400,8 +400,9 @@ grestore
             self._pswriter.write('%s clipbox\n' % _nums_to_str(w,h,x,y))
         self._pswriter.write(ps.strip()+'\n')
         if rgbFace:
+            #print 'rgbface', rgbFace
             self._pswriter.write("gsave\n")
-            self.set_color(store=0,*rgbFace)
+            self.set_color(store=0, *rgbFace)
             self._pswriter.write("fill\n")
             self._pswriter.write("grestore\n")
         self._pswriter.write("stroke\n")
