@@ -128,7 +128,6 @@ class RendererCairo(RendererBase):
     
     def draw_image(self, x, y, im, origin, bbox):
         if DEBUG: print 'backend_cairo.RendererCairo.%s()' % _fn_name()
-        # works for numpy image, not a numarray image
 
         try: import cairo.numpy
         except:
@@ -155,8 +154,13 @@ class RendererCairo(RendererBase):
         #X = fromstring(s, UInt8)
         #X.shape = rows, cols, 4
 
-        # ARGB32 
-        surface = cairo.numpy.surface_create_for_array (X)
+        # ARGB32
+        try:
+           # works for numpy image, not a numarray image
+           surface = cairo.numpy.surface_create_for_array (X)
+        except TypeError, exc:
+            verbose.report_error("%s: %s" % (_fn_name(), exc))
+            return
 
         # Alternative
         #surface = cairo.surface_create_for_image(buf, cairo.FORMAT_ARGB32, cols, rows) #, stride)
