@@ -704,7 +704,9 @@ major formatter
         if l.get_transform() != self.transData:
             xys = self._get_verts_in_data_coords(
                 l.get_transform(), zip(xdata, ydata))
-            xdata, ydata = zip(*xys)
+            xdata = array([x for x,y in xys])
+            ydata = array([y for x,y in xys])
+            
         self.update_datalim_numerix( xdata, ydata )        
         #self.update_datalim(zip(xdata, ydata))
         self.lines.append(l)
@@ -723,8 +725,8 @@ major formatter
         p.set_clip_box(self.bbox)
         xys = self._get_verts_in_data_coords(
             p.get_transform(), p.get_verts())
+        #for x,y in xys: print x,y
         self.update_datalim(xys)
-
         self.patches.append(p)
 
     def add_table(self, tab):
