@@ -14,3 +14,5 @@ prune examples/_tmp_*
 recursive-include src  *.cpp *.c *.h
 recursive-include CXX  *.cxx *.hxx *.c
 recursive-include agg2 *
+recursive-include pytz *
+recursive-include dateutil *
