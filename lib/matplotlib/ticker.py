@@ -501,7 +501,7 @@ class Base:
     def le(self, x):
         'return the largest multiple of base <= x'
         d,m = divmod(x, self._base)
-        if closeto(m, self._base):
+        if closeto(m/self._base,1): # was closeto(m, self._base)
             #looks like floating point error
             return (d+1)*self._base
         else:
@@ -516,14 +516,11 @@ class Base:
         else:
             return (d+1)*self._base
 
-
-
     def ge(self, x):
         'return the largest multiple of base >= x'
         d,m = divmod(x, self._base)
-        if m==0: return x
+        if closeto(m,0) and not closeto(m/self._base,1): return x
         return (d+1)*self._base
-
     def get_base(self):
         return self._base
     
