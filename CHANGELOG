@@ -1,6 +1,7 @@
 New entries should be added at the top
 
-2004-12-21 Lots of image optimizations - JDH
+2004-12-21 Lots of image optimizations - 4x performance boost over
+           0.65 JDH
 
 2004-12-20 Fixed a figimage bug where the axes is shown and modified
            tkagg to move the destroy binding into the show method.

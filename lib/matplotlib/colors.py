@@ -31,6 +31,8 @@ Finally, legal html names for colors, like 'red', 'burlywood' and
 
 from numerix import MLab, array, arange, take, put, Float, Int, where, \
      zeros, asarray, sort, searchsorted, sometrue, ravel, divide
+from numerix import min as nxmin
+from numerix import max as nxmax
 from types import IntType, FloatType
 from cbook import enumerate, is_string_like, iterable
 
@@ -444,7 +446,7 @@ def makeMappingArray(N, data):
     
     lut[1:-1] = ( divide(xind[1:-1] - take(x,ind-1),
                          take(x,ind)-take(x,ind-1) )
-                *(take(y0,ind)-take(y1,ind-1)) + take(y1,ind-1))
+                  *(take(y0,ind)-take(y1,ind-1)) + take(y1,ind-1))
     lut[0] = y1[0]
     lut[-1] = y0[-1]
     # ensure that the lut is confined to values between 0 and 1 by clipping it
@@ -552,16 +554,14 @@ class normalize:
             val = asarray(value)
         if vmin is None or vmax is None:
             rval = ravel(val)
-            if vmin is None:
-                vmin = min(rval)
-            if vmax is None:
-                vmax = max(rval)
+            if vmin is None: vmin = nxmin(rval)
+            if vmax is None: vmax = nxmax(rval)
         if vmin > vmax:
             raise ValueError("minvalue must be less than or equal to maxvalue")
         elif vmin==vmax:
             return 0.*value
         else:
-            # assume the normalization is proper
+            
             val = where(val<vmin, vmin, val)
             val = where(val>vmax, vmax, val)
             result = (1.0/(vmax-vmin))*(val-vmin)
@@ -572,11 +572,8 @@ class normalize:
     def autoscale(self, A):
         if not self.scaled():
             rval = ravel(A)
-
-            if self.vmin is None:
-                self.vmin = min(rval)
-            if self.vmax is None:
-                self.vmax = max(rval)
+            if self.vmin is None: self.vmin = nxmin(rval)
+            if self.vmax is None: self.vmax = nxmax(rval)
 
     def scaled(self):
         'return true if vmin and vmax set'

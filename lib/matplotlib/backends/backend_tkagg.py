@@ -57,6 +57,7 @@ def draw_if_interactive():
         figManager =  Gcf.get_active()
         if figManager is not None:
             figManager.show()
+        
 
 def show():
     """
@@ -281,8 +282,9 @@ class FigureManagerTkAgg(FigureManagerBase):
         if not self._shown: self.window.bind("<Destroy>", destroy)
 
         _focus = windowing.FocusManager()
-        self.window.deiconify()
-        #self.canvas.draw()
+        if not self._shown: self.window.deiconify()
+        else: self.canvas.draw()
+
         self._shown = True
         
     def add_subplot(self, *args, **kwargs):
