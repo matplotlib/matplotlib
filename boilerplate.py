@@ -75,6 +75,7 @@ _plotcommands = (
     'spy2',
     'stem',
     'vlines',
+    'quiver',
     )
 
 _misccommands = (

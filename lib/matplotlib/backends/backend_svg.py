@@ -166,7 +166,7 @@ class RendererSVG(RendererBase):
         for fontname, fontsize, num, ox, oy, metrics in svg_glyphs:
             thetext=unichr(num)
             thetext.encode('utf-8')
-            style = 'font-size: %f; font-family: %s; stroke-width: 0.5; stroke: %s; fill: %s;'%(fontsize, fontname, color, color)
+            style = 'font-size: %f; font-family: %s; fill: %s;'%(fontsize, fontname, color)
             if angle!=0:
                 transform = 'transform="translate(%f,%f) rotate(%1.1f) translate(%f,%f)"' % (x,y,-angle,-x,-y) # Inkscape doesn't support rotate(angle x y)
             else: transform = ''
@@ -187,23 +187,20 @@ class RendererSVG(RendererBase):
         
         font = self._get_font(prop)
 
-        fontsize = prop.get_size_in_points()
-        
         thetext = '%s' % s
-        fontname = font.get_sfnt()[(1,0,0,6)]
+        fontfamily=font.family_name
+        fontstyle=font.style_name
         fontsize = prop.get_size_in_points()
         color = rgb2hex(gc.get_rgb())
-        style = 'font-size: %f; font-family: %s; stroke-width: 0.5; stroke: %s; fill: %s;'%(fontsize, fontname, color, color)
-        #style = 'font-size: %f; font-family: %s; stroke: %s;'%(fontsize, fontname, color)
+
+        style = 'font-size: %f; font-family: %s; font-style: %s; fill: %s;'%(fontsize, fontfamily,fontstyle, color)
         if angle!=0:
             transform = 'transform="translate(%f,%f) rotate(%1.1f) translate(%f,%f)"' % (x,y,-angle,-x,-y) # Inkscape doesn't support rotate(angle x y)
         else: transform = ''
 
 
         svg = """\
-<text style="%(style)s" x="%(x)f" y="%(y)f" %(transform)s>
-  %(thetext)s
-</text>
+<text style="%(style)s" x="%(x)f" y="%(y)f" %(transform)s>%(thetext)s</text>
 """ % locals()
         self._draw_rawsvg(svg)
 

@@ -1,7 +1,7 @@
 from __future__ import division
 import math
 from matplotlib import rcParams
-from numerix import array, arange, sin, cos, pi, Float
+from numerix import array, arange, sin, cos, pi, Float, sqrt, matrixmultiply
 from artist import Artist
 from cbook import enumerate, popd
 from colors import colorConverter
@@ -45,7 +45,7 @@ class Patch(Artist):
                 func(v)
         
     def update_from(self, other):
-        Artist.update_from(self, other)        
+        Artist.update_from(self, other)
         self.set_edgecolor(other.get_edgecolor())
         self.set_facecolor(other.get_facecolor())
         self.set_fill(other.get_fill())
@@ -377,6 +377,29 @@ class Wedge(Polygon):
         verts.extend([(x,y) for x,y in zip(xs,ys)])
 
         Polygon.__init__(self, verts, **kwargs)
+
+class Arrow(Polygon):
+    """
+    An arrow patch
+    """
+    def __init__( self, x, y, dx, dy, width=1.0, **kwargs ):
+        """Draws an arrow, starting at (x,y), direction and length
+        given by (dx,dy) the width of the arrow is scaled by width
+        """
+        arrow = array( [
+            [ 0.0,  0.1 ], [ 0.0, -0.1],
+            [ 0.8, -0.1 ], [ 0.8, -0.3],
+            [ 1.0,  0.0 ], [ 0.8,  0.3],
+            [ 0.8,  0.1 ] ] )
+        L = sqrt(dx**2+dy**2)
+        arrow[:,0] *= L
+        arrow[:,1] *= width
+        cx = float(dx)/L
+        sx = float(dy)/L
+        M = array( [ [ cx, sx],[ -sx, cx ] ] )
+        verts = matrixmultiply( arrow, M )+ [x,y]
+        Polygon.__init__( self, [ tuple(t) for t in verts ], **kwargs )
+        
 
 class Circle(RegularPolygon):
     """
