@@ -23,21 +23,22 @@ from text import Text, _process_text_args
 class Tick(Artist):
     """
     Abstract base class for the axis ticks, grid lines and labels
+    
+    1 refers to the bottom of the plot for xticks and the left for yticks
+    2 refers to the top of the plot for xticks and the right for yticks
 
     Publicly accessible attributes
-
+    
       tick1line  : a Line2D instance
       tick2line  : a Line2D instance
       gridline   : a Line2D instance
-      label1      : an Text instance
-      label2      : an Text instance
+      label1     : a Text instance
+      label2     : a Text instance
       gridOn     : a boolean which determines whether to draw the tickline
       tick1On    : a boolean which determines whether to draw the 1st tickline
-                   (left for xtick and bottom for yticks)
       tick2On    : a boolean which determines whether to draw the 2nd tickline
-                   (left for xtick and bottom for yticks)
-      label1On    : a boolean which determines whether to draw tick label
-      label2On    : a boolean which determines whether to draw tick label
+      label1On   : a boolean which determines whether to draw tick label
+      label2On   : a boolean which determines whether to draw tick label
       
       
     """
