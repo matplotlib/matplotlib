@@ -1,6 +1,11 @@
 New entries should be added at the top
 
 ==============================================================
+2004-10-30 backend_gtk.py: removed FigureCanvasGTK.realize() as its no longer 
+           needed. Merged ColorManager into GraphicsContext
+           backend_bases.py: For set_capstyle/joinstyle() only set cap or 
+           joinstyle if there is no error. - SC
+
 2004-10-30 backend_gtk.py: tidied up print_figure() and removed some of the 
            dependency on widget events - SC
 
