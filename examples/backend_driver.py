@@ -115,6 +115,7 @@ for backend in backends:
 #print times
 for backend, elapsed in times.items():
     print 'Backend %s took %1.2f minutes to complete' % ( backend, elapsed)
-    print '\ttemplate ratio %1.3f, template residual %1.3f' % (
-        elapsed/times['Template'], elapsed-times['Template'])
+    if 'Template' in times:
+        print '\ttemplate ratio %1.3f, template residual %1.3f' % (
+            elapsed/times['Template'], elapsed-times['Template'])
     
