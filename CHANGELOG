@@ -1,6 +1,8 @@
 New entries should be added at the top
 ------------------------------------------------------------
 
+2004-05-05 Added a Matrix capability for numarray to numerix.  JTM
+
 2004-05-04 Updated whats_new.html.template to use dictionary and
            template loop, added anchors for all versions and items;
            updated goals.txt to use those for links. PG
