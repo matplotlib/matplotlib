@@ -3,7 +3,8 @@ from matplotlib.matlab import *
 
 
 # convert data to mV
-x = 1000*0.1*fromstring(file('data/membrane.dat').read(), typecode=Float32)
+x = 1000*0.1*fromstring(
+    file('data/membrane.dat', 'rb').read(), typecode=Float32)
 # 0.0005 is the sample interval
 t = 0.0005*arange(len(x))
 figure(1, size=(700,100))
@@ -16,5 +17,5 @@ text(1.1,-55,'matplotlib', color=(47,79,79), fontsize=50, fontname='Courier')
 axis([1, 1.72,-60, 10])
 set(gca(), 'xticklabels', [])
 set(gca(), 'yticklabels', [])
-savefig('logo2.png', dpi=300)
+#savefig('logo2.png', dpi=300)
 show()

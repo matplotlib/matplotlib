@@ -137,4 +137,8 @@
        See examples/legend_demo2.py
  
 
+2003-11-14 Fixed legend positioning bug and added new position args
 
+2003-11-16 Finsihed porting GD to new axes API
+
+ 

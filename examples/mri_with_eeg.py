@@ -1,3 +1,8 @@
+# note, this is currentl *very slow*.  I'm working on improving the
+# efficiency of pcolor.  If you want to run this example and your
+# computer is not very fast, I suggest you grab a cup of coffee while
+# it runs
+
 from matplotlib.matlab import *
 from matplotlib.lines import Line2D
 
@@ -6,7 +11,7 @@ from matplotlib.lines import Line2D
 if 1:   # load the data
     # data are 256x256 16 bit integers
     dfile = 'data/s1045.ima'
-    im = fromstring(file(dfile).read(), Int16).astype(Float)
+    im = fromstring(file(dfile, 'rb').read(), Int16).astype(Float)
     im.shape = 256, 256
     # flip upside down
     im = array([im[i] for i in arange(255,-1,-1)])
@@ -30,7 +35,7 @@ if 1:  # plot the histogram of MRI intensity
 if 1:   # plot the EEG
     # load the data
     numSamples, numRows = 800,4
-    data = fromstring(file('data/eeg.dat').read(), Float)
+    data = fromstring(file('data/eeg.dat', 'rb').read(), Float)
     data.shape = numSamples, numRows
     t = arange(numSamples)/float(numSamples)*10.0
     ticklocs = []
@@ -49,5 +54,5 @@ if 1:   # plot the EEG
     xlabel('time (s)')
 
 
-#savefig('mri_with_eeg')
+savefig('mri_with_eeg')
 show()

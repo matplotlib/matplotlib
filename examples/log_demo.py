@@ -11,5 +11,5 @@ semilogx(t, sin(2*pi*t))
 
 subplot(313)
 loglog(t, exp(-t/10.0))
-savefig('log_demo')
+#savefig('log_demo')
 show()

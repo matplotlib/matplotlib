@@ -29,6 +29,6 @@ if 0:
 
 ax = gca()
 patch = Rectangle(
-savefig('gdtest', dpi=150)
+#savefig('gdtest', dpi=150)
 show()
 
