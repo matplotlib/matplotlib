@@ -44,7 +44,7 @@ http://matplotlib.sourceforge.net
 2) edit __init__.py, setup.py license.html.template to the correct version number 
    local> clearbak
    local> make htmldocs
-   local> scp htdocs/site.tar.gz jdh2358@matplotlib.sf.net:/home/groups/m/ma/matplotlib/htdocs/
+   local> scp site.tar.gz jdh2358@matplotlib.sf.net:/home/groups/m/ma/matplotlib/htdocs/
    local> ssh -l jdh2358 shell.sf.net
    sf> cd /home/groups/m/ma/matplotlib/htdocs
    sf> tar xvfz site.tar.gz

@@ -17,6 +17,7 @@ _Plotting commands
   barh     - a horizontal bar chart  
   cla      - clear current axes
   clf      - clear a figure window
+  clim     - adjust the color limits of the current image
   close    - close a figure window
   colorbar - add a colorbar to the current figure
   cohere   - make a plot of coherence
@@ -33,18 +34,23 @@ _Plotting commands
   gcf      - return the current figure
   gci      - get the current image, or None
   get      - get a handle graphics property
+  grid     - set whether gridding is on
   hist     - make a histogram
   hold     - set the axes hold state
-  legend   - make an axes legend
-  loglog   - a log log plot
+  ioff     - turn interaction mode off
+  ion      - turn interaction mode on
+  isinteractive - return True if interaction mode is on
   imread   - load image file into array
   imshow   - plot image data
   ishold   - return the hold state of the current axes
+  legend   - make an axes legend
+  loglog   - a log log plot
   pcolor   - make a pseudocolor plot
   plot     - make a line plot
   polar    - make a polar plot on a PolarAxes
   psd      - make a plot of power spectral density
   rc       - control the default params
+  rgrids   - customize the radial grids and labels for polar 
   savefig  - save the current figure
   scatter  - make a scatter plot
   set      - set a handle graphics property
@@ -58,6 +64,7 @@ _Plotting commands
   subplot  - make a subplot (numrows, numcols, axesnum)
   table    - add a table to the plot
   text     - add some text at location x,y to the current axes
+  thetagrids - customize the radial theta grids and labels for polar 
   title    - add a title to the current axes
   xlim     - set/get the xlimits
   ylim     - set/get the ylimits
