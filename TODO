@@ -297,3 +297,9 @@
 -- aligment test of backend_ps and table_demo on all backends
 
 -- fix the sqrt mathtext bug revealed by Flavio's eample
+
+-- fix the parser for sqrt, etc..
+
+-- add \/ for TeX
+
+-- fix kerning for TeX
