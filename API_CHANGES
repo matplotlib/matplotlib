@@ -55,6 +55,16 @@ symbol in points) as in matlab and is not in data coords as before.
 Using sizes in data coords caused several problems.  So you will need
 to adjust your size arguments accordingly or use scatter_classic.
 
+mathtext spacing
+----------------
+
+For reasons not clear to me (and which I'll eventually fix) spacing no
+longer works in font groups.  However, I added three new spacing
+commands which compensate for this '\ ' (regular space), '\/' (small
+space) and '\hspace{frac}' where frac is a fraction of fontsize in
+points.  You will need to quote spaces in font strings, is
+
+  title(r'$\rm{Histogram\ of\ IQ:}\ \mu=100,\ \sigma=15$')
 
 
 

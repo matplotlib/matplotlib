@@ -164,6 +164,8 @@ RendererAgg::draw_polygon(const Py::Tuple& args) {
   
   
   set_clip_rectangle(gcEdge);
+  agg::gen_stroke::line_cap_e cap = get_linecap(gcEdge);
+  agg::gen_stroke::line_join_e join = get_joinstyle(gcEdge);
   
   double lw = points_to_pixels ( gcEdge.getAttr("_linewidth") ) ;
   
@@ -172,28 +174,32 @@ RendererAgg::draw_polygon(const Py::Tuple& args) {
     return Py::Object();
   
   
-  Py::SeqBase<Py::Object> xy = Py::SeqBase<Py::Object>( points[0] );
-  double x = Py::Float( xy[0] );
-  double y = Py::Float( xy[1] );
+  // dump the x.y vertices into a double array for faster look ahread
+  // and behind access
+  double xs[Npoints];
+  double ys[Npoints];
+  Py::Tuple xy;
+  for (size_t i=0; i<Npoints; ++i) {
+    xy = Py::Tuple(points[i]);
+    xs[i] = Py::Float(xy[0]);
+    ys[i] = Py::Float(xy[1]);
+    ys[i] = height - ys[i];
+
+  }
   
-  y = height - y;
-  
-  agg::path_storage path;
-  path.move_to(x, y);
-  
-  for (size_t i=1; i<Npoints; ++i) {
-    
-    xy = points[i];
-    x = Py::Float( xy[0] );
-    y = Py::Float( xy[1] );
-    
-    y = height - y;
-    path.line_to(x, y);
-    
+  agg::path_storage path;  
+  for (size_t j=0; j<Npoints; ++j) {
+
+    double x = xs[j];
+    double y = ys[j];
+     
+    if (j==0) path.move_to(x,y);
+    else path.line_to(x,y); 
   }
   path.close_polygon();
   
   agg::rgba edgecolor = get_color(gcEdge);
+
   
   if (rgbFaceMaybeNone.ptr() != Py_None) {
     //fill the face
@@ -207,6 +213,8 @@ RendererAgg::draw_polygon(const Py::Tuple& args) {
   //now fill the edge
   agg::conv_stroke<agg::path_storage> stroke(path);
   stroke.width(lw);
+  stroke.line_cap(cap);
+  stroke.line_join(join);
   
   theRenderer->color(edgecolor);
   //self->theRasterizer->gamma(agg::gamma_power(gamma));
@@ -277,6 +285,7 @@ RendererAgg::draw_line_collection(const Py::Tuple& args) {
     double x1 = Py::Float(pos[2]);
     double y1 = Py::Float(pos[3]);
 
+
     std::pair<double, double> xy = transform->operator()(x0,y0);
     x0 = xy.first;
     y0 = xy.second;
@@ -296,8 +305,6 @@ RendererAgg::draw_line_collection(const Py::Tuple& args) {
       y1 += xy.second;
       
     }
-
-      
     //snap x to pixel for verical lines
     if (x0==x1) {
       x0 = (int)x0 + 0.5;
@@ -309,8 +316,8 @@ RendererAgg::draw_line_collection(const Py::Tuple& args) {
       y0 = (int)y0 + 0.5;
       y1 = (int)y1 + 0.5;
     }
-     
-    
+
+      
     agg::path_storage path;
     path.move_to(x0, height-y0);
     path.line_to(x1, height-y1);
@@ -467,7 +474,6 @@ RendererAgg::draw_poly_collection(const Py::Tuple& args) {
 	if (xs[j] == xs[j-1]) x = (int)xs[j] + 0.5;
 	if (ys[j] == ys[j-1]) y = (int)ys[j] + 0.5;
       }
-      
 
       if (j==0) path.move_to(x,y);
       else path.line_to(x,y); 
@@ -701,29 +707,37 @@ RendererAgg::draw_lines(const Py::Tuple& args) {
   agg::path_storage path;
   
   int isaa = antialiased(gc);
-  double thisX(0), thisY(0);
-  int ix(0), iy(0);
+
+
   if (Nx==2) { 
     // this is a little hack - len(2) lines are probably grid and
     // ticks so I'm going to snap to pixel
     //printf("snapto %d\n", Nx);
-    ix = Py::Float(x[0]);
-    iy = Py::Float(y[0]);
-    thisX = ix+0.5;
-    thisY = height - iy + 0.5;  //flipy
-    path.move_to(thisX, thisY);
-    for (size_t i=1; i<Nx; ++i) {
-      ix = Py::Float(x[i]);
-      iy = Py::Float(y[i]);
-      thisX = ix+0.5;
-      thisY = height - iy + 0.5;  //flipy
-      path.line_to(thisX, thisY);
+    double x0 = Py::Float(x[0]);
+    double y0 = Py::Float(y[0]);
+    double x1 = Py::Float(x[1]);
+    double y1 = Py::Float(y[1]);
+
+    if (x0==x1) {
+      x0 = (int)x0 + 0.5;
+      x1 = (int)x1 + 0.5;
     }
+
+    if (y0==y1) {
+      y0 = (int)y0 + 0.5;
+      y1 = (int)y1 + 0.5;
+    }
+
+    y0 = height-y0;
+    y1 = height-y1;
+
+    path.move_to(x0, y0);
+    path.line_to(x1, y1);
     
   }
   else {
-    thisX = Py::Float( x[0] );
-    thisY = Py::Float( y[0] );
+    double thisX = Py::Float( x[0] );
+    double thisY = Py::Float( y[0] );
     thisY = height - thisY; //flipy
     path.move_to(thisX, thisY);
     for (size_t i=1; i<Nx; ++i) {

@@ -217,6 +217,7 @@ examples/invert_axes.py
 examples/legend_demo.py
 examples/legend_demo2.py
 examples/line_styles.py
+examples/log_bar.py
 examples/log_demo.py
 examples/log_test.py
 examples/logo.py
@@ -228,6 +229,7 @@ examples/mpl_with_glade.glade
 examples/mpl_with_glade.py
 examples/mri_demo.py
 examples/mri_with_eeg.py
+examples/multiline.py
 examples/multiple_figs_demo.py
 examples/object_picker.py
 examples/pcolor_demo.py

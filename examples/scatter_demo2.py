@@ -14,7 +14,11 @@ set(p, 'alpha', 0.75)
 set(gca(), 'xticks', arange(-0.06, 0.061, 0.02))
 set(gca(), 'yticks', arange(-0.06, 0.061, 0.02))
 xlabel(r'$\Delta_i$', fontsize='x-large')
-ylabel(r'$\Delta_{i+1}$', fontsize='x-large')
+ylabel(r'$\Delta_{i+1}$', fontsize='x-large',
+       verticalalignment='center',
+       horizontalalignment='right',
+       rotation='horizontal'
+       )
 title(r'Volume and percent change')
 grid(True)
 #savefig('scatter_demo2')

@@ -352,7 +352,7 @@ public:
 
   //the inverse mapping
   double inverse_api(const double& x) { 
-    return pow(x,10.0);
+    return pow(10.0, x);
   };
 };
 
