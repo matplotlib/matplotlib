@@ -133,15 +133,15 @@ _Statistics
 
   corrcoef  - correlation coefficient
   cov       - covariance matrix
-  max       - the maximum along dimension m
+  amax       - the maximum along dimension m
   mean      - the mean along dimension m
   median    - the median along dimension m
-  min       - the minimum along dimension m
+  amin       - the minimum along dimension m
   norm      - the norm of vector x
   prod      - the product along dimension m
   ptp       - the max-min along dimension m
   std       - the standard deviation along dimension m
-  sum       - the sum along dimension m
+  asum       - the sum along dimension m
 
 _Time series analysis
 
@@ -2483,7 +2483,7 @@ __plotting_all__ = [
     'Line2D', 'Polygon', 'Rectangle', 'Circle', 'Text', 'cm',
     'get_cmap', 'normalize',
 
-    'show'
+    'show', 'rcParams'
     ]
 
 
