@@ -195,9 +195,7 @@ Bbox::~Bbox() {
 }
 
 Py::Object 
-Bbox::deepcopy(const Py::Tuple &args) {
-  _VERBOSE("Bbox::deepcopy");
-  args.verify_length(0);
+Bbox::_deepcopy() {
   
   double minx = _ll->xval();
   double miny = _ll->yval();
@@ -207,6 +205,12 @@ Bbox::deepcopy(const Py::Tuple &args) {
   
   return Py::asObject( new Bbox( new Point(new Value(minx), new Value(miny) ),
 				 new Point(new Value(maxx), new Value(maxy) )));
+}
+Py::Object 
+Bbox::deepcopy(const Py::Tuple &args) {
+  _VERBOSE("Bbox::deepcopy");
+  args.verify_length(0);
+  return _deepcopy();
 }
 
 Py::Object 
@@ -992,6 +996,14 @@ SeparableTransformation::eval_scalars(void) {
   }
 }
 
+
+Py::Object 
+SeparableTransformation::deepcopy(const Py::Tuple &args) {
+  _VERBOSE("SeparableTransformation::deepcopy");
+  args.verify_length(0);
+  return Py::asObject( new SeparableTransformation( static_cast<Bbox*>((_b1->_deepcopy()).ptr()),static_cast<Bbox*>((_b2->_deepcopy()).ptr()), _funcx,_funcy ));
+}
+
 Affine::Affine(LazyValue *a, LazyValue *b,  LazyValue *c, 
 	       LazyValue *d, LazyValue *tx, LazyValue *ty) : 
   _a(a), _b(b), _c(c), _d(d), _tx(tx), _ty(ty) {
@@ -1102,6 +1114,15 @@ Affine::eval_scalars(void) {
     _xot = _transOffset->xy.first;
     _yot = _transOffset->xy.second;
   }
+}
+
+Py::Object 
+Affine::deepcopy(const Py::Tuple &args) {
+  _VERBOSE("Affine::deepcopy");
+  args.verify_length(0);
+  eval_scalars();
+  return Py::asObject( new Affine( new Value(_aval),new Value(_bval), new Value(_cval),
+                                   new Value(_dval),new Value(_txval),new Value(_tyval) ));
 }
 
  
@@ -1420,6 +1441,7 @@ Transformation::init_type()
   add_varargs_method("set_offset",   &Transformation::set_offset,  "set_offset(xy, trans)\n");
 
   add_varargs_method("as_vec6", &Transformation::as_vec6, "as_vec6(): return the affine as length 6 list of Values\n");
+  add_varargs_method("deepcopy", &Transformation::deepcopy, "deepcopy()\n");
 
 }
 
