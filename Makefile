@@ -2,6 +2,9 @@
 # Copyright (C) 2003  <jdhunter@ace.bsd.uchicago.edu>
 # $Header$
 # $Log$
+# Revision 1.26  2004/03/16 20:26:36  jdh2358
+# sync to 0.52 release
+#
 # Revision 1.25  2004/03/15 14:49:46  jdh2358
 # updated image to work with data coords; moved image extendsion to _image
 #
@@ -82,7 +85,7 @@ PYTHON = /usr/local/bin/python2.3
 PYDOC = /usr/local/bin/pydoc
 VERSION = `${PYTHON} setup.py --version`
 
-DISTFILES = API_CHANGES KNOWN_BUGS INSTALL README TODO LICENSE	\
+DISTFILES = API_CHANGES KNOWN_BUGS INSTALL README TODO license	\
 	CHANGELOG Makefile GOALS INTERACTIVE			\
 	MANIFEST.in matplotlib examples setup.py
 

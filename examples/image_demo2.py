@@ -7,7 +7,7 @@ A *= 1.0/max(A)
 A.shape = w, h
 
 im = imshow(A)
-im.set_aspect('free')
+#im.set_aspect('preserve')
 
 # plot some data with the image; currently broken with aspect preserve
 gca().set_image_extent(0, 25, 0, 25)

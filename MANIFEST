@@ -6,7 +6,6 @@ GOALS
 INSTALL
 INTERACTIVE
 KNOWN_BUGS
-MANIFEST
 MANIFEST.in
 Makefile
 README
@@ -266,10 +265,12 @@ examples/embedding_in_gtk2.py
 examples/embedding_in_wx.py
 examples/errorbar_demo.py
 examples/figtext.py
+examples/fill_demo.py
 examples/ftface_props.py
 examples/gdtest.py
 examples/histogram_demo.py
 examples/image_demo.py
+examples/image_demo2.py
 examples/interactive.py
 examples/interactive2.py
 examples/legend_demo.py
@@ -286,11 +287,13 @@ examples/mri_with_eeg.py
 examples/multiple_figs_demo.py
 examples/object_picker.py
 examples/pcolor_demo.py
+examples/pcolor_demo2.py
 examples/psd_demo.py
 examples/pstest.py
 examples/scatter_demo.py
 examples/scatter_demo2.py
 examples/simple_plot.py
+examples/specgram_demo.py
 examples/stock_demo.py
 examples/subplot_demo.py
 examples/system_monitor.py
@@ -432,10 +435,14 @@ src/_tkagg.cpp
 src/ft2font.c
 src/ft2font.h
 ttfquery/__init__.py
+ttfquery/__init__.pyc
 ttfquery/_scriptregistry.py
+ttfquery/_scriptregistry.pyc
 ttfquery/describe.py
+ttfquery/describe.pyc
 ttfquery/family_query.py
 ttfquery/findsystem.py
+ttfquery/findsystem.pyc
 ttfquery/font_family_groups.py
 ttfquery/glyph.py
 ttfquery/glyphquery.py
@@ -443,3 +450,4 @@ ttfquery/guessdescription.py
 ttfquery/license.txt
 ttfquery/metadata_query.py
 ttfquery/ttffiles.py
+ttfquery/ttffiles.pyc

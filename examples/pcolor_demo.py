@@ -1,3 +1,6 @@
+"""
+See pcolor_demo2 for a much faster way of generating pcolor plots
+"""
 from __future__ import division
 from matplotlib.matlab import *
 
