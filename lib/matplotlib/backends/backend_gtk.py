@@ -588,7 +588,7 @@ def draw_if_interactive():
 
 def show(mainloop=True):
     """
-    Show all the figures and enter the gtk mainloop
+    Show all the figures and enter the gtk main loop
 
     This should be the last line of your script
     """
@@ -596,11 +596,12 @@ def show(mainloop=True):
     for manager in Gcf.get_all_fig_managers():
         manager.window.show()
         
-    if show._needmain and mainloop:
+    #if show._needmain and mainloop:
+    if gtk.main_level() == 0 and mainloop:
         if gtk.pygtk_version >= (2,3,97):  gtk.main()
         else:                              gtk.mainloop()
-        show._needmain = False
-show._needmain = True
+        #show._needmain = False
+#show._needmain = True
 
 def _quit_after_print_xvfb(*args):
 
@@ -666,13 +667,13 @@ class FigureCanvasGTK(gtk.DrawingArea, FigureCanvasBase):
         self.set_size_request(int(w), int(h))
         self.set_double_buffered(False)
         
-        self.connect('key_press_event', self.key_press_event)
-        self.connect('key_release_event', self.key_release_event)
-        self.connect('expose_event', self.expose_event)
-        self.connect('configure_event', self.configure_event)
-        self.connect('realize', self.realize)
-        self.connect('motion_notify_event', self.motion_notify_event)
-        self.connect('button_press_event', self.button_press_event)
+        self.connect('key_press_event',      self.key_press_event)
+        self.connect('key_release_event',    self.key_release_event)
+        self.connect('expose_event',         self.expose_event)
+        self.connect('configure_event',      self.configure_event)
+        self.connect('realize',              self.realize)
+        self.connect('motion_notify_event',  self.motion_notify_event)
+        self.connect('button_press_event',   self.button_press_event)
         self.connect('button_release_event', self.button_release_event)
 
         self.set_events(
@@ -912,12 +913,11 @@ class FigureManagerGTK(FigureManagerBase):
     def __init__(self, canvas, num):
         FigureManagerBase.__init__(self, canvas, num)
         
-
         self.window = gtk.Window()
         self.window.set_title("Figure %d" % num)
-        #self.window.set_border_width(5)
 
-        vbox = gtk.VBox(spacing=3)
+        #vbox = gtk.VBox(spacing=3)
+        vbox = gtk.VBox()
         self.window.add(vbox)
         vbox.show()
 
@@ -929,8 +929,7 @@ class FigureManagerGTK(FigureManagerBase):
         if matplotlib.rcParams['toolbar']=='classic':
             self.toolbar = NavigationToolbar( canvas, self.window )
         elif matplotlib.rcParams['toolbar']=='toolbar2':
-            self.toolbar = NavigationToolbar2GTK( canvas )            
-
+            self.toolbar = NavigationToolbar2GTK( canvas )
         else:
             self.toolbar = None
 
