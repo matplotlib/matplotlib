@@ -1,5 +1,7 @@
 New entries should be added at the top
 
+2004-05-31 Added renderer markteredgewidth attribute of Line2D. - ADS
+
 2004-05-28 Added renderer grouping commands to support groups in
            SVG/PS. - JDH
 
