@@ -359,6 +359,7 @@ RendererAgg::draw_poly_collection(const Py::Tuple& args) {
   theRasterizer->reset_clipping();
   
   _VERBOSE("RendererAgg::draw_poly_collection");
+
   args.verify_length(9);  
   
 
@@ -490,6 +491,7 @@ RendererAgg::draw_poly_collection(const Py::Tuple& args) {
     g = Py::Float(rgba[1]);
     b = Py::Float(rgba[2]);
     a = Py::Float(rgba[3]);
+
     if (a>0) { //only render if alpha>0
       agg::rgba edgecolor(r, g, b, a); 
 

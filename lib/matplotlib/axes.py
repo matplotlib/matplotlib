@@ -2800,7 +2800,7 @@ class PolarAxes(Axes):
       thetagridlines  : a list of Line2D for the theta grids
       rgridlines      : a list of Line2D for the radial grids
       thetagridlabels : a list of Text for the theta grid labels
-      rgridlabels : a list of Text for the theta grid labels                  
+      rgridlabels     : a list of Text for the theta grid labels                  
 
     """
 
@@ -2837,6 +2837,7 @@ class PolarAxes(Axes):
 
         self._gridOn = rcParams['polaraxes.grid']
         self.lines = []
+        self.collections = []        
         self.texts = []     # text in axis coords
 
         self.grid(self._gridOn)
@@ -2973,6 +2974,8 @@ class PolarAxes(Axes):
         for t in self.texts:
             t.draw(renderer)
 
+        for c in self.collections:
+            c.draw(renderer)
         self.title.draw(renderer)
         self.transData.thaw()  # release the lazy objects
         self.transAxes.thaw()  # release the lazy objects
@@ -3013,7 +3016,7 @@ class PolarAxes(Axes):
             self.thetagridlabels.append(t)
         return self.thetagridlabels
 
-    def set_rgridlabels(self, radii, angle=67.5, **kwargs):
+    def set_rgridlabels(self, radii, angle=22.5, **kwargs):
         """
         Set the radial grid labels at radial distances in radii along
         the radius at angle
@@ -3041,7 +3044,7 @@ class PolarAxes(Axes):
 
     def has_data(self):
         'return true if any artists have been added to axes'
-        return len(self.lines)
+        return len(self.lines)+len(self.collections)
 
     def set_xlabel(self, xlabel, fontdict=None, **kwargs):
         'xlabel not implemented'
