@@ -17,7 +17,7 @@ title('A tale of 2 subplots')
 ylabel('Damped oscillation')
 
 subplot(212)
-plot(t3, cos(2*pi*t3), 'r--')
+plot(t3, cos(2*pi*t3), 'r<')
 grid(True)
 xlabel('time (s)')
 ylabel('Undamped')
