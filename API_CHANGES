@@ -14,6 +14,30 @@ API changes at 0.50
   * Figure is now an Artist (like everything else in the figure) and
     is totally backend independent
 
+Migrating code:
+
+  There are no API changes for the matlab interface.  
+
+  There is one important API change for application developers.
+  Figure instances used subclass GUI widgets that enabled them to be
+  placed directly into figures.  Eg, FigureGTK subclassed
+  gtk.DrawingArea.  Now the Figure class is independent of the
+  backend, and FigureCanvas takes over the functionality formerly
+  handled by Figure.  In order to include figures into your apps, you
+  now need to do, for example
+
+    # gtk example
+    fig = Figure(figsize=(5,4), dpi=100)
+    canvas = FigureCanvasGTK(fig)  # a gtk.DrawingArea
+    canvas.show()
+    vbox.pack_start(canvas)
+
+  Apologies for the inconvenience.  This refactorization brings
+  significant more freedom in developing matplotlib and should bring
+  better plotting capabilities, so I hope the inconvenience is worth
+  it.
+  
+
 API changes at 0.42
 
   * Refactoring AxisText to be backend independent.  Text drawing and

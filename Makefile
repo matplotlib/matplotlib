@@ -2,6 +2,9 @@
 # Copyright (C) 2003  <jdhunter@ace.bsd.uchicago.edu>
 # $Header$
 # $Log$
+# Revision 1.14  2004/01/29 19:26:46  jdh2358
+# added API_CHANGES to htdocs
+#
 # Revision 1.13  2004/01/27 16:18:08  jdh2358
 # updated README and INSTALL
 #
@@ -82,6 +85,7 @@ htmldocs:
 	rm -rf htdocs/matplotlib;\
 	cp -a matplotlib htdocs/;\
 	cp examples/*.py htdocs/examples;\
+	cp API_CHANGES htdocs/
 	rm -f docs/*.html;\
 	${PYDOC} -w ${MODULES};\
 	mv *.html docs/
