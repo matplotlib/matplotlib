@@ -12,12 +12,12 @@ Features of Cairo:
    - PostScript (50% complete)
    - PDF        (proposed, 0% complete)
 
-http://www.freedesktop.org/Cairo/Home
 http://cairographics.org
+http://www.freedesktop.org/Cairo/Home
 Requires (in order, all available from Cairo website):
     libpixman, cairo, pycairo
 
-pycairo from Nov 02 2004 onwards is required
+cairo, pycairo from cvs fom Nov 06 2004 onwards are required
 
 Naming Conventions
   * classes MixedUpperCase
@@ -325,8 +325,6 @@ class RendererCairo(RendererBase):
             scale = self.get_text_scale()
             size  = prop.get_size_in_points()
 
-            # Cairo bug - rotated text on drawable target is not working,
-            # rotated text on the png and ps targets surfaces is fine.
             ctx.save()
             if angle:
                 ctx.rotate (-angle * pi / 180)
