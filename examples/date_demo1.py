@@ -32,9 +32,6 @@ from matplotlib.dates import PyDatetimeConverter
 from matplotlib.finance import quotes_historical_yahoo
 from matplotlib.ticker import YearLocator, MonthLocator, DateFormatter
 
-
-
-
 date1 = datetime.date( 1995, 1, 1 )
 date2 = datetime.date( 2004, 4, 12 )
 

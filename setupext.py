@@ -98,6 +98,11 @@ def add_ft2font_flags(module):
     basedirs = module.include_dirs[:]  # copy the list to avoid inf loop!
     for d in basedirs:
         module.include_dirs.append(os.path.join(d, 'freetype2'))
+        if sys.platform == 'darwin':
+            module.include_dirs.append(
+                os.path.join(d, 'lib/freetype2/include'))
+            module.include_dirs.append(
+                os.path.join(d, 'lib/freetype2/include/freetype2'))
 
 
     if sys.platform == 'win32':
@@ -174,9 +179,16 @@ def find_tcltk():
     else:
 	tk.withdraw()
 	o.tcl_lib = os.path.join((tk.getvar('tcl_library')), '../')
-	o.tcl_inc = os.path.join((tk.getvar('tcl_library')), '../../include')
+
 	o.tk_lib = os.path.join((tk.getvar('tk_library')), '../')
+	o.tcl_inc = os.path.join((tk.getvar('tcl_library')), '../../include')
 	o.tkv = str(Tkinter.TkVersion)[:3]
+        if not os.path.exists(o.tcl_inc):
+            o.tcl_inc = os.path.join((tk.getvar('tcl_library')), '../../include/tcl'+o.tkv)        
+        if not os.path.exists(o.tcl_inc):
+            print 'cannot find tcl/tk headers. giving up.'
+            sys.exit()
+
     return o
 	
 

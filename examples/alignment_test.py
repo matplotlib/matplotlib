@@ -61,7 +61,7 @@ ax.text(left, 0.5*(bottom+top), 'right center',
         transx=ax.xaxis.transAxis,
         transy=ax.yaxis.transAxis)
 
-ax.text(left, 0.5*(bottom+top), 'leftcenter',
+ax.text(left, 0.5*(bottom+top), 'left center',
         horizontalalignment='left',
         verticalalignment='center',
         rotation='vertical',

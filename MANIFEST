@@ -5,7 +5,6 @@ GOALS
 INSTALL
 INTERACTIVE
 KNOWN_BUGS
-MANIFEST
 MANIFEST.in
 Makefile
 README
@@ -176,8 +175,7 @@ examples/barchart_demo.py
 examples/break.py
 examples/color_demo.py
 examples/colours.py
-examples/coords_demo_gtk.py
-examples/coords_interact.py
+examples/coords_demo.py
 examples/csd_demo.py
 examples/data_helper.py
 examples/date_demo1.py
@@ -192,6 +190,7 @@ examples/errorbar_demo.py
 examples/figtext.py
 examples/fill_demo.py
 examples/font_properties_demo.py
+examples/fonts_demo.py
 examples/ftface_props.py
 examples/gdtest.py
 examples/histogram_demo.py
@@ -200,6 +199,7 @@ examples/image_demo2.py
 examples/image_demo_na.py
 examples/interactive.py
 examples/interactive2.py
+examples/invert_axes.py
 examples/legend_demo.py
 examples/legend_demo2.py
 examples/line_styles.py
@@ -207,6 +207,7 @@ examples/log_demo.py
 examples/log_test.py
 examples/logo.py
 examples/major_minor_demo1.py
+examples/major_minor_demo2.py
 examples/mathtext_demo.py
 examples/mpl_with_glade.glade
 examples/mpl_with_glade.py
@@ -228,6 +229,7 @@ examples/system_monitor.py
 examples/table_demo.py
 examples/text_handles.py
 examples/text_themes.py
+examples/two_scales.py
 examples/vertical_ticklabels.py
 examples/vline_demo.py
 examples/data/AAPL.dat
@@ -342,7 +344,6 @@ matplotlib/numerix.py
 matplotlib/patches.py
 matplotlib/postinstall.py
 matplotlib/pyparsing.py
-matplotlib/setup.py
 matplotlib/setupext.py
 matplotlib/table.py
 matplotlib/text.py
