@@ -2,6 +2,9 @@
 # Copyright (C) 2003  <jdhunter@ace.bsd.uchicago.edu>
 # $Header$
 # $Log$
+# Revision 1.12  2004/01/26 18:27:46  jdh2358
+# more ps and text API fixes
+#
 # Revision 1.11  2003/11/19 16:45:09  jdh2358
 # updated plotting commands list
 #
@@ -39,14 +42,29 @@
 PYTHON = /usr/local/bin/python2.3
 PYDOC = /usr/local/bin/pydoc
 VERSION = `${PYTHON} setup.py --version`
-DISTFILES = INSTALL README TODO LICENSE CHANGELOG Makefile GOALS INTERACTIVE \
+
+DISTFILES = API_CHANGES KNOWN_BUGS INSTALL README TODO LICENSE	\
+	CHANGELOG Makefile GOALS INTERACTIVE			\
 	MANIFEST.in matplotlib examples setup.py
-MODULES = matplotlib.afm matplotlib.axes matplotlib.artist		\
-	matplotlib.backend_bases matplotlib.cbook matplotlib.lines	\
-	matplotlib.patches matplotlib.matlab matplotlib.mlab		\
-	matplotlib.transforms		\
-	matplotlib.backends.backend_gtk matplotlib.backends.backend_gd	\
-	matplotlib.backends.backend_ps 	matplotlib.backends.backend_template \
+
+MODULES =                                       \
+        matplotlib.afm				\
+	matplotlib.axis				\
+	matplotlib.axes				\
+	matplotlib.artist			\
+	matplotlib.backend_bases		\
+	matplotlib.cbook			\
+	matplotlib.legend			\
+	matplotlib.lines			\
+	matplotlib.patches			\
+	matplotlib.matlab			\
+	matplotlib.mlab				\
+	matplotlib.text				\
+	matplotlib.transforms			\
+	matplotlib.backends.backend_gtk		\
+	matplotlib.backends.backend_gd		\
+	matplotlib.backends.backend_ps		\
+	matplotlib.backends.backend_template	\
         matplotlib.backends.backend_wx
 
 RELEASE = matplotlib-${VERSION}
