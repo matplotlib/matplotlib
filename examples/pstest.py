@@ -1,3 +1,5 @@
+import matplotlib
+matplotlib.use('PS')
 from matplotlib.matlab import *
 
 def f(t):
@@ -9,7 +11,7 @@ t1 = arange(0.0, 5.0, .1)
 t2 = arange(0.0, 5.0, 0.02)
 t3 = arange(0.0, 2.0, 0.01)
 
-figure(1, size=(800,600))
+figure(1)
 subplot(211)
 l = plot(t1, f(t1), 'k^')
 set(l, 'markerfacecolor', 'k')
@@ -24,6 +26,6 @@ l = plot(t1, f(t1), 'k>')
 
 ylabel('Signal 2', fontsize=12)
 xlabel('time (s)', fontsize=12)
-
+savefig('pstest')
 show()
 
