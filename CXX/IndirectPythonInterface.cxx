@@ -195,9 +195,9 @@ static char **GetCharPointer_as_CharPointerPointer( const char *name )
 
 
 #ifdef _DEBUG
-static const char *python_dll_name_format = "PYTHON%1.1d%1.1d_D.DLL";
+static const char python_dll_name_format[] = "PYTHON%1.1d%1.1d_D.DLL";
 #else
-static const char *python_dll_name_format = "PYTHON%1.1d%1.1d.DLL";
+static const char python_dll_name_format[] = "PYTHON%1.1d%1.1d.DLL";
 #endif
 
 //--------------------------------------------------------------------------------

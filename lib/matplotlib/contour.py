@@ -2,6 +2,7 @@
 These are helper functions and classes to support contour plotting and
 labelling for the axes class
 """
+from __future__ import division
 from matplotlib import rcParams
 import numerix.ma as ma
 
@@ -156,7 +157,7 @@ class ContourLabeler:
             for a in toadd:
                 self.ax.add_collection(a)
         else:
-            self.labels(levels, contours, colors, fslist)
+            self.labels(levels, contours, colors, fslist, fmt)
 
         for label in self.cl:
             self.ax.add_artist(label)
@@ -382,7 +383,7 @@ class ContourLabeler:
 
         return toremove, toadd
 
-    def labels(self, levels, contours, colors, fslist):
+    def labels(self, levels, contours, colors, fslist, fmt):
         trans = self.ax.transData
         for lev, con, color, fsize in zip(levels, contours, colors, fslist):
             lw = self.get_label_width(lev, fmt, fsize)

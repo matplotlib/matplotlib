@@ -6,6 +6,8 @@
 #include "CXX/Objects.hxx"
 namespace Py {
 
+Py_UNICODE unicode_null_string[1] = { 0 };
+
 Type Object::type () const
 	{ 
 	return Type (PyObject_Type (p), true);
@@ -122,7 +124,7 @@ bool operator!=(const Mapping::const_iterator& left, const Mapping::const_iterat
 	return left.neq( right );
 	}
 
-// TMM: 31May'01 - Added the #ifndef so I can exlude iostreams.
+// TMM: 31May'01 - Added the #ifndef so I can exclude iostreams.
 #ifndef CXX_NO_IOSTREAMS
 // output
 

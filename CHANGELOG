@@ -1,5 +1,7 @@
 New entries should be added at the top
 
+2005-03-11 Upgraded CXX to 5.3.1
+
 2005-03-10 remove GraphicsContextPS.set_linestyle()
 	   and GraphicsContextSVG.set_linestyle() since they do no more than 
            the base class GraphicsContext.set_linestyle() - SC

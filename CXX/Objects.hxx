@@ -322,7 +322,12 @@ namespace Py
 
 		bool isString() const
 			{
-			return Py::_String_Check(p);
+			return Py::_String_Check(p) || Py::_Unicode_Check(p);
+			}
+
+		bool isUnicode() const
+			{
+			return Py::_Unicode_Check(p);
 			}
 
 		// Commands
@@ -407,6 +412,12 @@ namespace Py
 		return Object(Py::_None());
 		}
 
+	// Python special None value
+	inline Object None()
+		{
+		return Object(Py::_None());
+		}
+
 	// TMM: 31May'01 - Added the #ifndef so I can exlude iostreams.
 #ifndef CXX_NO_IOSTREAMS
 	std::ostream& operator<< (std::ostream& os, const Object& ob);
@@ -421,7 +432,7 @@ namespace Py
 			validate();
 			}
 
-		explicit Type (const Object& ob): Object(*ob)
+		Type (const Object& ob): Object(*ob)
 			{
 			validate();
 			}
@@ -490,7 +501,7 @@ namespace Py
 			validate();
 			}
 
-		explicit Int (const Object& ob)
+		Int (const Object& ob)
 			{
 			set(PyNumber_Int(*ob), true);
 			validate();
@@ -563,7 +574,7 @@ namespace Py
 			}
 
 		// try to create from any object
-		explicit Long (const Object& ob)
+		Long (const Object& ob)
 			: Object(PyNumber_Long(*ob), true)
 			{
 			validate();
@@ -585,7 +596,7 @@ namespace Py
 		// Membership
 		virtual bool accepts (PyObject *pyob) const
 			{
-			return pyob && PyLong_Check (pyob);
+			return pyob && Py::_Long_Check (pyob);
 			}
 		// convert to long
 		operator long() const
@@ -635,7 +646,7 @@ namespace Py
 			}
 
 		// try to make from any object
-		explicit Float (const Object& ob)
+		Float (const Object& ob)
 			: Object(PyNumber_Float(*ob), true)
 			{
 			validate();
@@ -655,7 +666,7 @@ namespace Py
 		// Membership
 		virtual bool accepts (PyObject *pyob) const
 			{
-			return pyob && PyFloat_Check (pyob);
+			return pyob && Py::_Float_Check (pyob);
 			}
 		// convert to double
 		operator double () const
@@ -725,7 +736,7 @@ namespace Py
 		// Membership
 		virtual bool accepts (PyObject *pyob) const
 			{
-			return pyob && PyComplex_Check (pyob);
+			return pyob && Py::_Complex_Check (pyob);
 			}
 		// convert to Py_complex
 		operator Py_complex () const
@@ -986,7 +997,7 @@ namespace Py
 		{
 	public:
 		// STL definitions
-		typedef unsigned int size_type;
+		typedef size_t size_type;
 		typedef seqref<T> reference;
 		typedef T const_reference;
 		typedef seqref<T>* pointer;
@@ -1137,20 +1148,19 @@ namespace Py
 				{}
 
 			iterator ()
-				{
-				seq = 0;
-				count = 0;
-				}
+				: seq( 0 )
+				, count( 0 )
+				{}
 
 			iterator (SeqBase<T>* s, int where)
-				:seq(s), count(where)
+				: seq( s )
+				, count( where )
 				{}
 
 			iterator (const iterator& other)
-				{
-				seq = other.seq;
-				count = other.count;
-				}
+				: seq( other.seq )
+				, count( other.count )
+				{}
 
 			bool eql (const iterator& other) const
 				{
@@ -1273,20 +1283,19 @@ namespace Py
 				{}
 
 			const_iterator ()
-				{
-				seq = 0;
-				count = 0;
-				}
+				: seq( 0 )
+				, count( 0 )
+				{}
 
 			const_iterator (const SeqBase<T>* s, int where)
-				:seq(s), count(where)
+				: seq( s )
+				, count( where )
 				{}
 
 			const_iterator(const const_iterator& other)
-				{
-				seq = other.seq;
-				count = other.count;
-				}
+				: seq( other.seq )
+				, count( other.count )
+				{}
 
 			const T operator*() const
 				{
@@ -1426,6 +1435,9 @@ namespace Py
 	// Python strings return strings as individual elements.
 	// I'll try having a class Char which is a String of length 1
 	//
+	typedef std::basic_string<Py_UNICODE> unicodestring;
+	extern Py_UNICODE unicode_null_string[1];
+
 	class Char: public Object
 		{
 	public:
@@ -1450,8 +1462,13 @@ namespace Py
 			{
 			validate();
 			}
-		// Assignment acquires new ownership of pointer
 
+		Char (Py_UNICODE v)
+			: Object(PyUnicode_FromUnicode (&v, 1), true)
+			{
+			validate();
+			}
+		// Assignment acquires new ownership of pointer
 		Char& operator= (const Object& rhs)
 			{
 			return (*this = *rhs);
@@ -1463,11 +1480,11 @@ namespace Py
 			set (rhsp);
 			return *this;
 			}
+
 		// Membership
 		virtual bool accepts (PyObject *pyob) const
 			{
-			return pyob && Py::_String_Check(pyob) &&
-			(PySequence_Length (pyob) == 1);
+			return pyob && (Py::_String_Check(pyob) || Py::_Unicode_Check(pyob)) && PySequence_Length (pyob) == 1;
 			}
 
 		// Assignment from C string
@@ -1480,6 +1497,18 @@ namespace Py
 		Char& operator= (char v)
 			{
 			set(PyString_FromStringAndSize (&v, 1), true);
+			return *this;
+			}
+
+		Char& operator= (const unicodestring& v)
+			{
+			set(PyUnicode_FromUnicode (const_cast<Py_UNICODE*>(v.c_str()),1), true);
+			return *this;
+			}
+
+		Char& operator= (Py_UNICODE v)
+			{
+			set(PyUnicode_FromUnicode (&v, 1), true);
 			return *this;
 			}
 
@@ -1516,70 +1545,143 @@ namespace Py
 			validate();
 			}
 
-		String (const std::string& v )
-			: SeqBase<Char>( PyString_FromStringAndSize( const_cast<char*>(v.data()), v.length() ), true )
+		String( const std::string& v )
+			: SeqBase<Char>( PyString_FromStringAndSize( const_cast<char*>(v.data()),
+				static_cast<int>( v.length() ) ), true )
 			{
 			validate();
 			}
 
-
-		String (const std::string& v, std::string::size_type vsize)
-			:SeqBase<Char>(PyString_FromStringAndSize( const_cast<char*>(v.data()), vsize), true)
+		String( const char *s, const char *encoding, const char *error="strict" )
+			: SeqBase<Char>( PyUnicode_Decode( s, strlen( s ), encoding, error ), true )
 			{
 			validate();
 			}
 
-		String (const char *v, int vsize)
-			:SeqBase<Char>(PyString_FromStringAndSize (const_cast<char*>(v), vsize), true)
+		String( const char *s, int len, const char *encoding, const char *error="strict" )
+			: SeqBase<Char>( PyUnicode_Decode( s, len, encoding, error ), true )
 			{
 			validate();
 			}
 
-		String (const char* v)
-			:SeqBase<Char>(PyString_FromString (v), true)
+		String( const std::string &s, const char *encoding, const char *error="strict" )
+			: SeqBase<Char>( PyUnicode_Decode( s.c_str(), s.length(), encoding, error ), true )
 			{
 			validate();
 			}
+
+		String( const std::string& v, std::string::size_type vsize )
+			: SeqBase<Char>(PyString_FromStringAndSize( const_cast<char*>(v.data()),
+					static_cast<int>( vsize ) ), true)
+			{
+			validate();
+			}
+
+		String( const char *v, int vsize )
+			: SeqBase<Char>(PyString_FromStringAndSize( const_cast<char*>(v), vsize ), true )
+			{
+			validate();
+			}
+
+		String( const char* v )
+			: SeqBase<Char>( PyString_FromString( v ), true )
+			{
+			validate();
+			}
+
 		// Assignment acquires new ownership of pointer
-
-		String& operator= (const Object& rhs)
+		String& operator= ( const Object& rhs )
 			{
-			return (*this = *rhs);
+			return *this = *rhs;
 			}
 
 		String& operator= (PyObject* rhsp)
 			{
-			if(ptr() == rhsp) return *this;
+			if( ptr() == rhsp )
+				return *this;
 			set (rhsp);
 			return *this;
 			}
 		// Membership
 		virtual bool accepts (PyObject *pyob) const
 			{
-			return pyob && Py::_String_Check(pyob);
+			return pyob && (Py::_String_Check(pyob) || Py::_Unicode_Check(pyob));
 			}
 
 		// Assignment from C string
 		String& operator= (const std::string& v)
 			{
-			set(PyString_FromStringAndSize (const_cast<char*>(v.data()), v.length() ), true);
+			set( PyString_FromStringAndSize( const_cast<char*>( v.data() ),
+					static_cast<int>( v.length() ) ), true );
 			return *this;
+			}
+		String& operator= (const unicodestring& v)
+			{
+			set( PyUnicode_FromUnicode( const_cast<Py_UNICODE*>( v.data() ),
+					static_cast<int>( v.length() ) ), true );
+			return *this;
+			}
+
+
+		// Encode
+		String encode( const char *encoding, const char *error="strict" )
+			{
+			if( isUnicode() )
+			{
+				return String( PyUnicode_AsEncodedString( ptr(), encoding, error ) );
+			}
+			else
+			{
+				return String( PyString_AsEncodedObject( ptr(), encoding, error ) );
+			}
+			}
+
+		String decode( const char *encoding, const char *error="strict" )
+			{
+			return Object( PyString_AsDecodedObject( ptr(), encoding, error ) );
 			}
 
 		// Queries
 		virtual size_type size () const
 			{
-			return PyString_Size (ptr());
+			if( isUnicode() )
+			{
+				return static_cast<size_type>( PyUnicode_GET_SIZE (ptr()) );
+			}
+			else
+			{
+				return static_cast<size_type>( PyString_Size (ptr()) );
+			}
 			}
 
 		operator std::string () const
 			{
-			return std::string( PyString_AsString( ptr() ), PyString_Size( ptr() ) );
+			return as_std_string();
 			}
 
 		std::string as_std_string() const
 			{
-			return std::string( PyString_AsString( ptr() ), PyString_Size( ptr() ) );
+			if( isUnicode() )
+			{
+				throw TypeError("cannot return std::string from Unicode object");
+			}
+			else
+			{
+				return std::string( PyString_AsString( ptr() ), static_cast<size_type>( PyString_Size( ptr() ) ) );
+			}
+			}
+
+		unicodestring as_unicodestring() const
+			{
+			if( isUnicode() )
+			{
+				return unicodestring( PyUnicode_AS_UNICODE( ptr() ),
+					static_cast<size_type>( PyUnicode_GET_SIZE( ptr() ) ) );
+			}
+			else
+			{
+				throw TypeError("can only return unicodestring from Unicode object");
+			}
 			}
 		};
 
@@ -1960,7 +2062,7 @@ namespace Py
 		// If you assume that Python mapping is a hash_map...
 		// hash_map::value_type is not assignable, but
 		// (*it).second = data must be a valid expression
-		typedef unsigned int size_type;
+		typedef size_t size_type;
 		typedef Object key_type;
 		typedef mapref<T> data_type;
 		typedef std::pair< const T, T > value_type;
@@ -2041,14 +2143,14 @@ namespace Py
 			return PyMapping_Length (ptr());
 			}
 
-		int hasKey (const std::string& s) const
+		bool hasKey (const std::string& s) const
 			{
-			return PyMapping_HasKeyString (ptr(),const_cast<char*>(s.c_str()));
+			return PyMapping_HasKeyString (ptr(),const_cast<char*>(s.c_str())) != 0;
 			}
 
-		int hasKey (const Object& s) const
+		bool hasKey (const Object& s) const
 			{
-			return PyMapping_HasKey (ptr(), s.ptr());
+			return PyMapping_HasKey (ptr(), s.ptr()) != 0;
 			}
 
 		T getItem (const std::string& s) const
@@ -2063,6 +2165,14 @@ namespace Py
 			return T(
 			asObject(PyObject_GetItem (ptr(), s.ptr()))
 			);
+			}
+
+		virtual void setItem (const char *s, const Object& ob)
+			{
+			if (PyMapping_SetItemString (ptr(), const_cast<char*>(s), *ob) == -1)
+				{
+				throw Exception();
+				}
 			}
 
 		virtual void setItem (const std::string& s, const Object& ob)
@@ -2166,24 +2276,22 @@ namespace Py
 				{}
 
 			iterator ()
-				{ map = 0; }
+				: map( 0 )
+				, keys()
+				, pos()
+				{}
 
 			iterator (MapBase<T>* m, bool end = false )
-				: map(m)
+				: map( m )
 				, keys( m->keys() )
-				{
-				if (end)
-				pos = keys.end();
-				else
-				pos = keys.begin();
-				}
+				, pos( end ? keys.end() : keys.begin() )
+				{}
 
 			iterator (const iterator& other)
-				{
-				map = other.map;
-				keys = other.keys;
-				pos = other.pos;
-				}
+				: map( other.map )
+				, keys( other.keys )
+				, pos( other.pos )
+				{}
 
 			reference operator*()
 				{
@@ -2193,7 +2301,8 @@ namespace Py
 
 			iterator& operator=(const iterator& other)
 				{
-				if (this == &other) return *this;
+				if (this == &other)
+					return *this;
 				map = other.map;
 				keys = other.keys;
 				pos = other.pos;
@@ -2263,20 +2372,22 @@ namespace Py
 				{}
 
 			const_iterator ()
-				{
-				map = 0;
-				}
+				: map( 0 )
+				, keys()
+				, pos()
+				{}
 
 			const_iterator (const MapBase<T>* m, List k, List::iterator p )
-				: map(m), keys(k), pos(p)
+				: map( m )
+				, keys( k )
+				, pos( p )
 				{}
 
 			const_iterator(const const_iterator& other)
-				{
-				map = other.map;
-				keys = other.keys;
-				pos = other.pos;
-				}
+				: map( other.map )
+				, keys( other.keys )
+				, pos( other.pos )
+				{}
 
 			bool eql(const const_iterator& right) const
 				{
@@ -2450,7 +2561,6 @@ namespace Py
 			{
 			PyObject *m = PyImport_AddModule( const_cast<char *>(s.c_str()) );
 			set( m, false );
-			//set (PyImport_ImportModule(const_cast<char *>(s.c_str())), true);
 			validate ();
 			}
 
