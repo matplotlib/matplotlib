@@ -505,7 +505,7 @@ Traceback (most recent call last):
 ZeroDivisionError: SeparableTransformation::eval_scalars yin interval is zero; cannot transform
 
 
--- some backends (ps and svg) appear to layout legend_demo2 text
+-- DONE some backends (ps and svg) appear to layout legend_demo2 text
    improperly
 
 -- DONE text colors for svg
@@ -522,3 +522,5 @@ ZeroDivisionError: SeparableTransformation::eval_scalars yin interval is zero; c
 -- blit on gtkagg after print is whacked
 
 -- investigate matfile inclusion
+
+-- offset ps and svg text by max descender
