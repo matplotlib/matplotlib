@@ -147,6 +147,8 @@ __date__     = '$Date$'
 import sys, os
 import distutils.sysconfig
 
+if not hasattr(sys, 'argv'):  # for modpython
+    sys.argv = ['modpython']
 
 """
 Manage user customizations through a rc file.
@@ -193,9 +195,12 @@ class Verbose:
     # parse the verbosity from the command line; flags look like
     # --verbose-error or --verbose-helpful
     _commandLineVerbose = None
+
+
     for arg in sys.argv[1:]:
         if not arg.startswith('--verbose-'): continue
         _commandLineVerbose = arg[10:]
+
         
         
     def __init__(self, level):
