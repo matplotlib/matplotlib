@@ -63,6 +63,8 @@ public:
   Py::Object write_rgba(const Py::Tuple & args);
   Py::Object write_png(const Py::Tuple & args);
   Py::Object tostring_rgb(const Py::Tuple & args);
+  Py::Object buffer_rgba(const Py::Tuple & args);
+  Py::Object clear(const Py::Tuple & args);
 
 
   virtual ~RendererAgg(); 

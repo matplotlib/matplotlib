@@ -1042,6 +1042,17 @@ RendererAgg::tostring_rgb(const Py::Tuple& args) {
   return Py::asObject(o);
 }
 
+Py::Object 
+RendererAgg::buffer_rgba(const Py::Tuple& args) {
+  //"expose the rendered buffer as Python buffer object";
+  
+  _VERBOSE("RendererAgg::buffer_rgba");
+  
+  args.verify_length(0);    
+  int row_len = width*4;
+  return Py::asObject(PyBuffer_FromMemory( pixBuffer, row_len*height));
+}
+
 agg::rgba
 RendererAgg::get_color(const Py::Object& gc) {
   
@@ -1056,6 +1067,18 @@ RendererAgg::get_color(const Py::Object& gc) {
   double b = Py::Float(rgb[2]);
   return agg::rgba(r, g, b, alpha); 
   
+}
+
+Py::Object
+RendererAgg::clear(const Py::Tuple& args) {
+  //"clear the rendered buffer";
+  
+  _VERBOSE("RendererAgg::clear");
+  
+  args.verify_length(0);    
+  rendererBase->clear(agg::rgba(1, 1, 1, 0));
+  
+  return Py::Object();
 }
 
 agg::gen_stroke::line_cap_e
@@ -1245,6 +1268,10 @@ void RendererAgg::init_type()
 		     "write_png(fname)");
   add_varargs_method("tostring_rgb", &RendererAgg::tostring_rgb, 
 		     "s = tostring_rgb()");
+  add_varargs_method("buffer_rgba", &RendererAgg::buffer_rgba, 
+		     "buffer = buffer_rgba()");
+  add_varargs_method("clear", &RendererAgg::clear, 
+		     "clear()");
   
 }
 
