@@ -29,14 +29,17 @@ import sys
 def _fn_name(): return sys._getframe(1).f_code.co_name
 
 from matplotlib import verbose
-from matplotlib.numerix import asarray, pi, fromstring, UInt8 #, zeros, where,
-     #transpose, nonzero, indices, ones, nx
-#from matplotlib._pylab_helpers import Gcf
+from matplotlib.numerix import asarray, pi, fromstring, UInt8, zeros
+     # where, transpose, nonzero, indices, ones, nx
+#from matplotlib._matlab_helpers import Gcf
+import matplotlib.numerix as numerix
+
 from matplotlib.backend_bases import RendererBase, GraphicsContextBase,\
      FigureManagerBase, FigureCanvasBase, error_msg
 from matplotlib.cbook import enumerate, True, False
 from matplotlib.figure import Figure
 from matplotlib.transforms import Bbox
+from matplotlib.mathtext import math_parse_s_ft2font
 
 import cairo
 
@@ -224,27 +227,77 @@ class RendererCairo(RendererBase):
 
     def draw_text(self, gc, x, y, s, prop, angle, ismath=False):    
         if DEBUG: print 'backend_cairo.RendererCairo.%s()' % _fn_name()
-        ctx = gc.ctx
 
         if ismath:
-            verbose.report_error('Mathtext not implemented yet')
+           self._draw_mathtext(gc, x, y, s, prop, angle)
+
         else:
-            ctx.new_path()
-            ctx.move_to (x, y)
-            ctx.select_font (prop.get_name(),
-                             self.fontangles [prop.get_style()],
-                             self.fontweights[prop.get_weight()])
-            # 1.4 scales font to a similar size to GTK / GTKAgg backends
-            size = prop.get_size_in_points() * self.dpi.get() / PIXELS_PER_INCH * 1.4
+           ctx = gc.ctx
+           ctx.new_path()
+           ctx.move_to (x, y)
+           ctx.select_font (prop.get_name(),
+                            self.fontangles [prop.get_style()],
+                            self.fontweights[prop.get_weight()])
+           # 1.4 scales font to a similar size to GTK / GTKAgg backends
+           size = prop.get_size_in_points() * self.dpi.get() / PIXELS_PER_INCH * 1.4
 
-            ctx.save()
-            if angle:
-                ctx.rotate (-angle * pi / 180)
-            ctx.scale_font (size)
-            ctx.show_text (s)
-            ctx.restore()
+           ctx.save()
+           if angle:
+              ctx.rotate (-angle * pi / 180)
+           ctx.scale_font (size)
+           ctx.show_text (s)
+           ctx.restore()
 
-         
+
+    def _draw_mathtext(self, gc, x, y, s, prop, angle):
+        if DEBUG: print 'backend_cairo.RendererCairo.%s()' % _fn_name()
+       # mathtext using the gtk/gdk method
+
+        try: import cairo.numpy
+        except:
+            verbose.report_error("cairo.numpy module required for _draw_mathtext()")
+            return
+
+        size = prop.get_size_in_points()
+        width, height, fonts = math_parse_s_ft2font(
+            s, self.dpi.get(), size)
+
+        if angle==90:
+            width, height = height, width
+            x -= width
+        y -= height
+
+        imw, imh, s = fonts[0].image_as_str()
+        N = imw*imh
+
+        # a numpixels by num fonts array
+        Xall = zeros((N,len(fonts)), typecode=UInt8)
+
+        for i, font in enumerate(fonts):
+            if angle == 90:
+                font.horiz_image_to_vert_image() # <-- Rotate
+            imw, imh, s = font.image_as_str()
+            Xall[:,i] = fromstring(s, UInt8)  
+
+        # get the max alpha at each pixel
+        Xs = numerix.max(Xall,1)
+
+        # convert it to it's proper shape
+        Xs.shape = imh, imw
+
+        pa = zeros(shape=(imh,imw,4), typecode=UInt8)
+        rgb = gc.get_rgb()
+        pa[:,:,0] = int(rgb[0]*255)
+        pa[:,:,1] = int(rgb[1]*255)
+        pa[:,:,2] = int(rgb[2]*255)
+        pa[:,:,3] = Xs
+
+        surface = cairo.numpy.surface_create_for_array(pa)
+        gc.ctx.translate (x,y)
+        gc.ctx.show_surface (surface, imw, imh)
+        # should really restore state before translate?
+            
+
     def flipy(self):
         if DEBUG: print 'backend_cairo.RendererCairo.%s()' % _fn_name()
         return True
@@ -258,26 +311,27 @@ class RendererCairo(RendererBase):
     def get_text_width_height(self, s, prop, ismath):
         if DEBUG: print 'backend_cairo.RendererCairo.%s()' % _fn_name()
         if ismath:
-            print 'ismath get_text_width_height() not implemented yet'
-            return 1, 1
-        else:
-            ctx = self.text_ctx
-            ctx.save()
-            ctx.select_font (prop.get_name(),
-                             self.fontangles [prop.get_style()],
-                             self.fontweights[prop.get_weight()])
+            width, height, fonts = math_parse_s_ft2font(
+               s, self.dpi.get(), prop.get_size_in_points())
+            return width, height
 
-            # 1.4 scales font to a similar size to GTK / GTKAgg backends
-            size = prop.get_size_in_points() * self.dpi.get() / PIXELS_PER_INCH * 1.4
-            # problem - scale remembers last setting and font can become
-            # enormous causing program to crash
-            # save/restore prevents the problem
-            ctx.scale_font (size)
+        ctx = self.text_ctx
+        ctx.save()
+        ctx.select_font (prop.get_name(),
+                         self.fontangles [prop.get_style()],
+                         self.fontweights[prop.get_weight()])
+
+        # 1.4 scales font to a similar size to GTK / GTKAgg backends
+        size = prop.get_size_in_points() * self.dpi.get() / PIXELS_PER_INCH * 1.4
+        # problem - scale remembers last setting and font can become
+        # enormous causing program to crash
+        # save/restore prevents the problem
+        ctx.scale_font (size)
         
-            w, h = ctx.text_extents (s)[2:4]
-            ctx.restore()
+        w, h = ctx.text_extents (s)[2:4]
+        ctx.restore()
             
-            return w, h
+        return w, h
 
                               
     def new_gc(self):
