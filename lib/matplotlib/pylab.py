@@ -1611,7 +1611,7 @@ def matshow(*args,**kw):
     stretching.  If the window dimensions can't accomodate this (extremely
     tall/wide arrays), some stretching will inevitably occur.
 
-    matshow() calls imshow() with Aargs and **kwargs, but by default
+    matshow() calls imshow() with args and **kwargs, but by default
     it sets interpolation='nearest' (unless you override it).  All
     other arguments and keywords are passed to imshow(), so see its
     docstring for further details.
@@ -1631,7 +1631,7 @@ def matshow(*args,**kw):
     dimlist = [(12,12),(128,64),(64,512),(2048,256)]
 
     
-    for i, d in enumerate(dimlist):
+    for d in dimlist:
         fig, ax, im = matshow(samplemat(d))
     show()
     
@@ -1640,7 +1640,7 @@ def matshow(*args,**kw):
     arr = args[0]
     w,h = figaspect(arr)
     fig = figure(figsize=(w,h))
-    ax = fig.add_axes([0.0, 0.05, 0.8, 0.8])
+    ax = fig.add_axes([0.15, 0.09, 0.775, 0.775])
 
     ax.xaxis.tick_top()
     ax.title.set_y(1.05) # raise it up a bit for tick top
