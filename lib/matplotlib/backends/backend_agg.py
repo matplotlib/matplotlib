@@ -244,7 +244,7 @@ class RendererAgg(RendererBase):
         
         if font is None:
             fname = fontManager.findfont(prop)
-            font = FT2Font(fname)
+            font = FT2Font(str(fname))
             _fontd[key] = font
 
         font.clear()

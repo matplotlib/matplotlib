@@ -312,9 +312,11 @@ FT2Font::FT2Font(std::string facefile)
 {
   _VERBOSE("FT2Font::FT2Font");
   clear(Py::Tuple(0));
+
   
   int error = FT_New_Face( _ft2Library, facefile.c_str(), 0, &face );
   
+
   if (error == FT_Err_Unknown_File_Format ) {
     std::ostringstream s;
     s << "Could not load facefile " << facefile << "; Unknown_File_Format" << std::endl;

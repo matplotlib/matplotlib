@@ -97,7 +97,8 @@ public:
   Py::Object draw_regpoly_collection(const Py::Tuple& args);
   Py::Object draw_lines(const Py::Tuple & args);
   Py::Object draw_path(const Py::Tuple & args);
-  Py::Object _draw_markers(const Py::Tuple & args);
+  Py::Object _draw_markers_nocache(const Py::Tuple & args);
+  Py::Object _draw_markers_cache(const Py::Tuple & args);
   Py::Object draw_markers(const Py::Tuple & args);
   Py::Object draw_text(const Py::Tuple & args);
   Py::Object draw_image(const Py::Tuple & args);

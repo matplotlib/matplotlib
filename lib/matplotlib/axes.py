@@ -3351,12 +3351,14 @@ class Axes(Artist):
 
             func(ax)  # where ax is the instance making the callback.
 
-        The following events can be connected to: %s
+        The following events can be connected to:
+
+          'xlim_changed','ylim_changed'
 
         The connection id is is returned - you can use this with
         disconnect to disconnect from the axes event
 
-        """ % ', '.join(Axes._events)
+        """ 
 
         if s not in Axes._events:
             raise ValueError('You can only connect to the following axes events: %s' % ', '.join(Axes._events))

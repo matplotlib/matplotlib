@@ -196,7 +196,8 @@ from axes import Axes, PolarAxes
 import backends
 from backends import new_figure_manager, draw_if_interactive, show
 
-from cbook import flatten, is_string_like, exception_to_str, popd, silent_list, iterable
+from cbook import flatten, is_string_like, exception_to_str, popd, \
+     silent_list, iterable, enumerate
 from colors import normalize
 from cm import get_cmap
 from figure import Figure, figaspect
