@@ -1,8 +1,13 @@
 New entries should be added at the top
 
-2005-02-10 new zorder example for fine control in zorder_demo.py - FP
+2005-02-09 matplotlib-0.72 released
 
-2005-02-10 backend renderer draw_lines now has transform in backend,
+2005-02-09 new zorder example for fine control in zorder_demo.py - FP
+
+2005-02-09 backend renderer draw_lines now has transform in backend,
+
+
+2005-02-09 backend renderer draw_lines now has transform in backend,
            as in draw_markers; use numerix in _backend_agg, aded small
            line optimization to agg
 
@@ -25,8 +30,8 @@ New entries should be added at the top
 2005-02-05 Added some default key press events to pylab figures: 'g'
            toggles grid - JDH
 
- 2005-02-05 Added some support for handling log switching
-for lines that have nonpos data - JDH
+ 2005-02-05 Added some support for handling log switching for lines
+           that have nonpos data - JDH
 
 2005-02-04 Added Nadia's contour patch - contour now has matlab
            compatible syntax; this also fixed an unequal sized contour
