@@ -206,7 +206,7 @@ class RendererBase:
         
 
     def draw_line_collection(self, segments, transform, clipbox,
-                             colors, linewidths, linestyles, antialiaseds,
+                             colors, linewidths, linestyle, antialiaseds,
                              offsets, transOffset):
         """
         This is a function for optimized line drawing.  If you need to
@@ -229,7 +229,7 @@ class RendererBase:
 
         linewidths is a tuple of linewidths
 
-        linestyles is a tuple of (offset, onoffseq) tuples
+        linestyle is an (offset, onoffseq) tuple or None,None for solid
 
         antialiseds is a tuple of ones or zeros indicating whether the
         segment should be aa or not
@@ -249,7 +249,7 @@ class RendererBase:
         i = 0
         Nc = len(colors)
         Nlw = len(linewidths)
-        Nls = len(linestyles)        
+
         Naa = len(antialiaseds)
 
         usingOffsets = offsets is not None
@@ -262,6 +262,9 @@ class RendererBase:
             
         gc.set_clip_rectangle(clipbox.get_bounds())
 
+        if linestyle[0] is not None:
+            offset, seq = linestyle
+            gc.set_dashes( offset, seq )
 
         for i in xrange(N):
             x, y = zip(*segments[i % Nsegments])
@@ -274,9 +277,7 @@ class RendererBase:
             gc.set_foreground( rgb, isRGB=True)
             gc.set_alpha( alpha )
             gc.set_linewidth( linewidths[i % Nlw] )
-
-            offset, seq = linestyles[i % Nls]
-            gc.set_dashes( offset, seq )            
+    
             gc.set_antialiased( antialiaseds[i % Naa] )
             if usingOffsets:
                 xo, yo = transOffset.xy_tup(offsets[i % Noffsets])

@@ -19,7 +19,7 @@ ylabel('Damped oscillation')
 #axis([0,5,-1,1])
 
 subplot(212)
-plot(t3, cos(2*pi*t3), 'r>')
+plot(t3, cos(2*pi*t3), 'r.')
 grid(True)
 xlabel('time (s)')
 ylabel('Undamped')

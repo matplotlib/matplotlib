@@ -1057,10 +1057,9 @@ matplotlib.collections.LineCollection instances
             col.set_label(fmt%level)
             self.add_collection(col)
             levels.append(level)
-            #col.set_linestyle('dashed') # dashed|dotted|solid|dashdot
+            #col.set_linestyle('dashdot') # dashed|dotted|solid|dashdot
             #dashes = 0, (4,2,8,1)
             #col.set_linestyle( (dashes,) ) # offset, onoffseq
-
             collections.append(col)
 
 

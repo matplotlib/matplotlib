@@ -467,8 +467,8 @@ class ScalarMappable:
         If this is called then we are pegged to another mappable.
         Update the cmap, norm accordingly
         """
-        self.cmap = mappable.cmap
-        self.norm = mappable.norm
+        self.set_cmap(mappable.cmap)
+        self.set_norm(mappable.norm)
 
     def changed(self):
         """
