@@ -45,7 +45,9 @@ examples/wx_demo.py
 examples/xyerrorbar.py
 examples/data/AAPL.dat
 examples/data/INTC.dat
+examples/data/README
 examples/data/eeg.dat
+examples/data/s1045.ima
 fonts/afm/pagd8a.afm
 fonts/afm/pagdo8a.afm
 fonts/afm/pagk8a.afm
