@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # try plotting very large numbers
 
-from matplotlib.matlab import *
+from pylab import *
 x = arange(1000) + 2**32
 
 subplot(211)

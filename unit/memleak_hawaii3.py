@@ -4,7 +4,7 @@ import os, sys, time
 import matplotlib
 #matplotlib.use('Cairo')
 matplotlib.use('Agg')
-from matplotlib.matlab import *
+from pylab import *
 
 
 def report_memory(i):
