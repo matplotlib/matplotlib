@@ -103,24 +103,24 @@ class RendererPS(RendererBase):
     def set_color(self, r, g, b, store=1):
         if (r,g,b) != self.color:
             if r==g and r==b:
-                self._pswriter.write("%s setgray\n"%_num_to_str(r))
+                self._pswriter.write("%1.3f setgray\n"%r)
             else:
-                self._pswriter.write("%s setrgbcolor\n"%_nums_to_str(r,g,b))
+                self._pswriter.write("%1.3f %1.3f %1.3f setrgbcolor\n"%(r,g,b))
             self.color = (r,g,b)
 
     def set_linewidth(self, linewidth):
         if linewidth != self.linewidth:
-            self._pswriter.write("%s setlinewidth\n"%_num_to_str(linewidth))
+            self._pswriter.write("%1.3f setlinewidth\n"%linewidth)
             self.linewidth = linewidth
 
     def set_linejoin(self, linejoin):
         if linejoin != self.linejoin:
-            self._pswriter.write("%s setlinejoin\n"%_num_to_str(linejoin))
+            self._pswriter.write("%1.3f setlinejoin\n"%linejoin)
             self.linejoin = linejoin
 
     def set_linecap(self, linecap):
         if linecap != self.linecap:
-            self._pswriter.write("%s setlinecap\n"%_num_to_str(linecap))
+            self._pswriter.write("%1.3f setlinecap\n"%linecap)
             self.linecap = linecap
 
     def set_linedash(self, offset, seq):        
@@ -137,9 +137,10 @@ class RendererPS(RendererBase):
 
     def set_font(self, fontname, fontsize):
         if (fontname,fontsize) != (self.fontname,self.fontsize):
-            self._pswriter.write("/%s findfont\n"%fontname)
-            self._pswriter.write("%s scalefont\n"%_num_to_str(fontsize))
-            self._pswriter.write("setfont\n")
+            writer = self._pswriter
+            writer.write("/%s findfont\n"%fontname)
+            writer.write("%1.3f scalefont\n"%fontsize)
+            writer.write("setfont\n")
             self.fontname = fontname
             self.fontsize = fontsize
 
@@ -387,8 +388,10 @@ grestore
         Emit the PostScript sniplet 'ps' with all the attributes from 'gc'
         applied.  'ps' must consist of PostScript commands to construct a path.
         """
+        # local attr lookup faster and this is
+        writer = self._pswriter  
         if debugPS and command:
-            self._pswriter.write("% "+command+"\n")
+            writer.write("% "+command+"\n")
 
         cliprect = gc.get_clip_rectangle()
         self.set_color(*gc.get_rgb())
@@ -401,20 +404,20 @@ grestore
         self.set_linecap(cint)
         self.set_linedash(*gc.get_dashes())
         if cliprect:
-            self._pswriter.write("gsave\n")
-        if cliprect:
             x,y,w,h=cliprect
-            self._pswriter.write('%s clipbox\n' % _nums_to_str(w,h,x,y))
-        self._pswriter.write(ps.strip()+'\n')
+            writer.write('gsave\n%1.3f %1.3f %1.3f %1.3f clipbox\n' % (w,h,x,y))
+        # Jochen, is the strip necessary? - this could be a honking big string
+        writer.write(ps.strip())  
+        writer.write("\n")        
         if rgbFace:
             #print 'rgbface', rgbFace
-            self._pswriter.write("gsave\n")
+            writer.write("gsave\n")
             self.set_color(store=0, *rgbFace)
-            self._pswriter.write("fill\n")
-            self._pswriter.write("grestore\n")
-        self._pswriter.write("stroke\n")
+            writer.write("fill\ngrestore\n")
+
+        writer.write("stroke\n")
         if cliprect:
-            self._pswriter.write("grestore\n")
+            writer.write("grestore\n")
 
 
 class GraphicsContextPS(GraphicsContextBase):

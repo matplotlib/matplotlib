@@ -216,6 +216,7 @@ ACCEPTS: [True | False]
         # if the x or y clip is set, only plot the points in the
         # clipping region.  If log scale is set, only pos data will be
         # returned
+
         try: self._xc, self._yc
         except AttributeError: x, y = self._x, self._y
         else: x, y = self._xc, self._yc
@@ -226,11 +227,14 @@ ACCEPTS: [True | False]
         try: logy = self._transform.get_funcy().get_type()==LOG10
         except RuntimeError: logy = False  # non-separable
         
-        if not logx and not logy: return x, y
+        if not logx and not logy:
+            return x, y
 
         if self._logcache is not None:
-            return self._logcache
-
+            waslogx, waslogy, xcache, ycache = self._logcache
+            if logx==waslogx and waslogy==logy:            
+                return xcache, ycache
+            
         Nx = len(x)
         Ny = len(y)
 
@@ -244,7 +248,7 @@ ACCEPTS: [True | False]
         x = take(x, ind)
         y = take(y, ind)
 
-        self._logcache = x, y
+        self._logcache = logx, logy, x, y
         return x, y
 
     def draw(self, renderer):
@@ -710,9 +714,19 @@ ACCEPTS: sequence of on/off ink in points
 
     def _draw_plus(self, renderer, gc, xt, yt):
         offset = 0.5*renderer.points_to_pixels(self._markersize)
-        for (x,y) in zip(xt, yt):
-            renderer.draw_line(gc, x-offset, y, x+offset, y)
-            renderer.draw_line(gc, x, y-offset, x, y+offset)
+        if 0:
+            path = (
+                (1, -offset, 0),
+                (2, offset, 0),
+                (1, 0, -offset),
+                (2, 0, offset),
+                )
+            renderer.draw_markers(gc, path, xt, yt)
+            print 'called draw plus'
+        else:
+            for (x,y) in zip(xt, yt):
+                renderer.draw_line(gc, x-offset, y, x+offset, y)
+                renderer.draw_line(gc, x, y-offset, x, y+offset)
 
     def _draw_tri_down(self, renderer, gc, xt, yt):
         offset = 0.5*renderer.points_to_pixels(self._markersize)

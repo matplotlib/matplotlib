@@ -2812,7 +2812,7 @@ ACCEPTS: str
             self.xaxis.set_minor_locator(LogLocator(basex,subsx))            
             self.transData.get_funcx().set_type(LOG10)
             minx, maxx = self.get_xlim()
-            if min(minx, maxx)<0:
+            if min(minx, maxx)<=0:
                 self.autoscale_view()
         elif value == 'linear':
             self.xaxis.set_major_locator(AutoLocator())
@@ -2894,7 +2894,7 @@ ACCEPTS: str
             self.yaxis.set_minor_locator(LogLocator(basey,subsy))
             self.transData.get_funcy().set_type(LOG10)
             miny, maxy = self.get_ylim()
-            if min(miny, maxy)<0:
+            if min(miny, maxy)<=0:
                 self.autoscale_view()
 
         elif value == 'linear':
