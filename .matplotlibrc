@@ -29,18 +29,21 @@ interactive  : False     # see http://matplotlib.sourceforge.net/interactive.htm
 # information on line properties.  Note antialiased rendering looks
 # better, but can be slower.  If you want fast antialiased rendering,
 # use the agg backend (or TkAgg, or GTKAgg)
-lines.linewidth   : 0.5   # the line width in points
-lines.linestyle   : -     # solid line
-lines.color       : b     # blue; color format or hex string
-lines.markersize  : 6     # markersize, in points
-lines.antialiased : True  # render lines in antialised (no jaggies)
+lines.linewidth   : 0.5     # line width in points
+lines.linestyle   : -       # solid line
+lines.color       : b       # blue; color format or hex string
+lines.markersize  : 6       # markersize, in points
+lines.antialiased : True    # render lines in antialised (no jaggies)
+lines.data_clipping : False # Use data clipping in addition to viewport
+                            # clipping.  Useful if you plot long data
+                            # sets with only a fraction in the viewport
 
 ### TEXT
 # text properties used by text.Text.  See
 # http://matplotlib.sourceforge.net/matplotlib.Text.html for more
 # information on text properties
-text.fontname : Times   # the default font name
-text.fontsize : 10      # the default size used by axes.text
+text.fontname : Times   # default font name
+text.fontsize : 10      # default size used by axes.text
 text.color    : k       # black
 
 ### AXES
