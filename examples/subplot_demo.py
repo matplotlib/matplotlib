@@ -22,6 +22,6 @@ grid(True)
 xlabel('time (s)')
 ylabel('Undamped')
 
-savefig('subplot_demo', dpi=300)
+#savefig('subplot_demo', dpi=300)
 show()
 

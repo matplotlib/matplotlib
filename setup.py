@@ -5,13 +5,13 @@ be built by setting the appropriate flag below.
 
 # Build the fonttools and TTFQuery packages, required by the Paint,
 # Agg and GD backends.
-BUILD_FONTTOOLS    = 1
+BUILD_FONTTOOLS = 0
 
 # AGG is a new backend that wraps the antigrain geometry toolkit; set
 # BUILD_AGG to 1 to build it.  Agg makes heavy use of templates, so it
 # probably requires a fairly recent compiler to build it.  It makes
 # very nice antialiased output and also supports alpha blending
-BUILD_AGG          = 1   
+BUILD_AGG          = 0
 
 # The two builds below are experimental.  They use an image backend
 # (eg GD or Agg) to render to the GTK canvas.  The idea is that we
@@ -31,11 +31,14 @@ from distutils.core import setup
 import sys,os
 import glob
 from setupext import build_gtkgd, build_agg, build_fonttools, build_gtkagg
+import distutils.sysconfig
 
 data = []
 data.extend(glob.glob('fonts/afm/*.afm'))
 data.extend(glob.glob('fonts/ttf/*.ttf'))
 data.extend(glob.glob('images/*.xpm'))
+
+data_files=[('share/matplotlib', data),]
 
 ext_modules = []
 packages = [
@@ -44,8 +47,13 @@ packages = [
     ]
 
 
-if BUILD_FONTTOOLS:
+if BUILD_FONTTOOLS or BUILD_AGG or BUILD_GTKAGG or BUILDGTKGD:
     build_fonttools(ext_modules, packages)
+    # we need to manually install FontTools.pth since we can't use
+    # extra_path which puts all packages -- matplotlib, ttfquery and
+    # FontTools -- in the FontTools subdir
+    sitep = distutils.sysconfig.get_python_lib()
+    data_files.append( (sitep, ['FontTools.pth']) )
 
 if BUILD_GTKGD:
     build_fonttools(ext_modules, packages)
@@ -60,6 +68,8 @@ if BUILD_GTKAGG:
     build_agg(ext_modules, packages)
     build_gtkagg(ext_modules, packages)
 
+
+        
 
 setup(name="matplotlib",
       version= '0.50',
@@ -76,7 +86,8 @@ setup(name="matplotlib",
       packages = packages,
       platforms='any',
       ext_modules = ext_modules, 
-      data_files=[('share/matplotlib', data)],
+      data_files = data_files,
       )
 
 
+        

@@ -2,6 +2,9 @@
 # Copyright (C) 2003  <jdhunter@ace.bsd.uchicago.edu>
 # $Header$
 # $Log$
+# Revision 1.21  2004/02/17 15:10:43  jdh2358
+# updating to 0.50
+#
 # Revision 1.20  2004/02/16 18:04:55  jdh2358
 # fexed wx to work on windows and linux
 #
@@ -124,9 +127,7 @@ htmldocs:
 
 release: ${DISTFILES}
 	${PYTHON} license.py ${VERSION};\
-	${PYTHON} setup.py sdist --formats=gztar,zip;\
-	${PYTHON} setup.py bdist_wininst;
-
+	${PYTHON} setup.py sdist --formats=gztar,zip;
 
 pyback: 
 	tar cvfz pyback.tar.gz *.py matplotlib/*.py examples/*.py matplotlib/backends/*.py unit/*.py

@@ -130,7 +130,8 @@ def build_fonttools(ext_modules, packages):
     global builtFonttools
 
     # only build them if not already installed
-    if sys.platform != 'win32':
+    #if sys.platform != 'win32':
+    if 0:
         try: import ttfquery
         except ImportError: pass
         else:
@@ -140,7 +141,7 @@ def build_fonttools(ext_modules, packages):
     if builtFonttools: return # only build it if you you haven't already
     packages.extend(
         ['ttfquery',
-         'FontTools',         
+         'FontTools',
          'FontTools.fontTools',
          'FontTools.fontTools.encodings',
          'FontTools.fontTools.misc',
