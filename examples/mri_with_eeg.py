@@ -36,7 +36,8 @@ if 1:   # plot the EEG
     ticklocs = []
     ax = subplot(212)
     for i in range(numRows):
-        thisLine = Line2D(t, data[:,i])
+        thisLine = Line2D(ax.dpi, ax.bbox, t, data[:,i],
+                          transx=ax.xaxis.transData, transy=ax.yaxis.transData)
         thisLine.set_vertical_offset(3*i)
         ax.add_line(thisLine)
         ticklocs.append(3*i)
@@ -48,5 +49,5 @@ if 1:   # plot the EEG
     xlabel('time (s)')
 
 
-savefig('mri_with_eeg')
+#savefig('mri_with_eeg')
 show()

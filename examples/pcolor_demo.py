@@ -14,7 +14,8 @@ X,Y = meshgrid(x, y)
 
 Z = func3(X, Y)
 pcolor(X, Y, Z, shading='flat')
-axis('off')
+#axis([-3, 3, -3, 3])
+#axis('off')
 #savefig('pcolor_demo')
 show()
 

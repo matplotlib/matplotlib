@@ -127,3 +127,14 @@
    - added nearest neighbor color picker when GD max colors exceeded
    - fixed figure background color bug in GD backend
 
+2003-11-10 - 2003-11-11
+   - major refactoring.  
+     * Ticks (with labels, lines and grid) handled by dedicated class
+     * Artist now know bounding box and dpi
+     * Bounding boxes and transforms handled by dedicated classes
+     * legend in dedicated class.  Does a better job of alignment and
+       bordering.  Can be initialized with specific line instances.
+       See examples/legend_demo2.py
+ 
+
+

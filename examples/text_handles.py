@@ -18,7 +18,7 @@ t2 = arange(0.0, 5.0, 0.02)
 
 subplot(111)
 plot(t1, f(t1), 'bo', t2, f(t2), 'k')
-text(3.5, 0.6, 'f(t) = exp(-t) sin(2 pi t)')
+text(3.0, 0.6, 'f(t) = exp(-t) sin(2 pi t)')
 ttext = title('Fun with text!')
 ytext = ylabel('Damped oscillation')
 xtext = xlabel('time (s)')
