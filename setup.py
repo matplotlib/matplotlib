@@ -5,13 +5,13 @@ be built by setting the appropriate flag below.
 
 # Build the fonttools and TTFQuery packages, required by the Paint,
 # Agg and GD backends.
-BUILD_FONTTOOLS = 0
+BUILD_FONTTOOLS = 1
 
 # AGG is a new backend that wraps the antigrain geometry toolkit; set
 # BUILD_AGG to 1 to build it.  Agg makes heavy use of templates, so it
 # probably requires a fairly recent compiler to build it.  It makes
 # very nice antialiased output and also supports alpha blending
-BUILD_AGG          = 0
+BUILD_AGG          = 1
 
 # The two builds below are experimental.  They use an image backend
 # (eg GD or Agg) to render to the GTK canvas.  The idea is that we
@@ -19,10 +19,10 @@ BUILD_AGG          = 0
 # GUI windows
 
 # build GTK GUI with Agg renderer ; requires pygtk src distros installed
-BUILD_GTKAGG       = 0
+BUILD_GTKAGG       = 1
 
 # build GTK GUI with GD renderer ; requires pygtk and GD src distros installed
-BUILD_GTKGD        = 0   
+BUILD_GTKGD        = 1
 
 
 ## You shouldn't need to customize below this point
@@ -47,7 +47,7 @@ packages = [
     ]
 
 
-if BUILD_FONTTOOLS or BUILD_AGG or BUILD_GTKAGG or BUILDGTKGD:
+if BUILD_FONTTOOLS or BUILD_AGG or BUILD_GTKAGG or BUILD_GTKGD:
     build_fonttools(ext_modules, packages)
     # we need to manually install FontTools.pth since we can't use
     # extra_path which puts all packages -- matplotlib, ttfquery and
