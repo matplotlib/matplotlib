@@ -305,3 +305,9 @@
 -- fix kerning for TeX
 
 -- DONE - text_themes is segfaulting on gtkagg
+
+-- mathtext s l o w
+
+-- ps backend fails alignment test
+
+-- ps backend is slow!  parsing afm files!

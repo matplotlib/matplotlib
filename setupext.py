@@ -33,11 +33,11 @@ import os
 
 basedir = {
 
-    'win32' : 'win32_static',
-    'linux2' : '/usr',
-    'linux'  : '/usr',
-    'darwin' : '/usr/local',
-    'sunos5' : os.getenv('MPLIB_BASE') or '/usr/local'
+    'win32'  : ['win32_static',],
+    'linux2' : ['/usr',],
+    'linux'  : ['/usr',],
+    'darwin' : ['/usr/local', '/sw'],
+    'sunos5' : [os.getenv('MPLIB_BASE') or '/usr/local',],
 }
 
 import sys, os
@@ -59,6 +59,13 @@ BUILT_IMAGE     = False
 BUILT_TKAGG     = False
 BUILT_WINDOWING = False
 
+
+def add_base_flags(module):
+    incdirs = [os.path.join(p, 'include') for p in basedir[sys.platform]]
+    libdirs = [os.path.join(p, 'lib')     for p in basedir[sys.platform]]
+    module.include_dirs.extend(incdirs)
+    module.library_dirs.extend(libdirs)
+    
 def getoutput(s):
     'get the output of a system command'
 
@@ -70,11 +77,9 @@ def add_agg_flags(module):
     'Add the module flags to build extensions which use agg'
 
     # before adding the freetype flags since -z comes later
-    module.libraries.append('png')  
-    module.include_dirs.append(os.path.join(basedir[sys.platform], 'include'))
+    module.libraries.append('png')
+    add_base_flags(module)
     module.include_dirs.extend(['src','agg2/include'])
-    module.library_dirs.append(os.path.join(basedir[sys.platform], 'lib'))
-
 
 
     # put these later for correct link order
@@ -88,12 +93,12 @@ def add_gd_flags(module):
 def add_ft2font_flags(module):
     'Add the module flags to build extensions which use gd'
     module.libraries.extend(['freetype', 'z'])
+    add_base_flags(module)
 
-    inc = os.path.join(basedir[sys.platform], 'include')
-    module.include_dirs.append(inc)
-    module.include_dirs.append(os.path.join(inc, 'freetype2'))
+    basedirs = module.include_dirs[:]  # copy the list to avoid inf loop!
+    for d in basedirs:
+        module.include_dirs.append(os.path.join(d, 'freetype2'))
 
-    module.library_dirs.append(os.path.join(basedir[sys.platform], 'lib'))
 
     if sys.platform == 'win32':
         module.libraries.append('gw32c')
