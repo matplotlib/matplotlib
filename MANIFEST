@@ -267,7 +267,6 @@ examples/stock_demo.py
 examples/subplot_demo.py
 examples/system_monitor.py
 examples/table_demo.py
-examples/test.py
 examples/text_handles.py
 examples/text_themes.py
 examples/to_numeric.py
@@ -420,11 +419,7 @@ matplotlib/font_manager.py
 matplotlib/image.py
 matplotlib/legend.py
 matplotlib/lines.py
-matplotlib/mathtext.dummy.py
-matplotlib/mathtext.orig.py
 matplotlib/mathtext.py
-matplotlib/mathtext.woring.py
-matplotlib/mathtext_2.py
 matplotlib/matlab.py
 matplotlib/mlab.py
 matplotlib/na_imports.py
