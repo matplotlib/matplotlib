@@ -4,7 +4,7 @@ some examples of customizing rc params on the fly
 
 If you like to work interactively, and need to create different sets
 of defaults for figures (eg one set of defaults for publication, one
-set for interactive exmplotation, you may want to define some
+set for interactive exploration), you may want to define some
 functions in a custom module that set the defaults, eg
 
 def set_pub():
@@ -21,7 +21,7 @@ Then as you are working interactively, you just need to do
 >>> set_pub()
 >>> subplot(111)
 >>> plot([1,2,3])
->>> #savefig('myfig')
+>>> savefig('myfig')
 >>> rcdefaults()  # restore the defaults
 
 """
@@ -37,9 +37,9 @@ rc('tick', labelsize=15)
 
 # using aliases for color, linestyle and linewith; gray, solid, thick
 rc('grid', c=0.5, ls='-', lw=5)
-
-subplot(312)
 rc('lines', lw=2, color='g')
+subplot(312)
+
 plot([1,2,3])
 grid(True)
 

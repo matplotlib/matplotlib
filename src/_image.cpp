@@ -1,7 +1,8 @@
-#include <iostream>
+ #include <iostream>
 #include <fstream>
 #include <cmath>
 #include <cstdio>
+#include <png.h>
 #include "Python.h"
 
 #ifdef NUMARRAY
@@ -39,7 +40,7 @@ typedef agg::rasterizer_scanline_aa<> rasterizer;
 Image::Image() :
   bufferIn(NULL), rbufIn(NULL), colsIn(0), rowsIn(0),
   bufferOut(NULL), rbufOut(NULL), colsOut(0), rowsOut(0),  BPP(4),
-  interpolation(BILINEAR), aspect(ASPECT_FREE) {
+  interpolation(BILINEAR), aspect(ASPECT_FREE), bg(1,1,1,0) {
   _VERBOSE("Image::Image");
 }
 
@@ -87,6 +88,24 @@ Image::apply_rotation(const Py::Tuple& args) {
   return Py::Object();  
 }
 
+
+char Image::set_bg__doc__[] = 
+"set_bg(r,g,b,a)\n"
+"\n"
+"Set the background color"
+;
+
+Py::Object
+Image::set_bg(const Py::Tuple& args) {
+  _VERBOSE("Image::set_bg");
+
+  args.verify_length(4);
+  bg.r = Py::Float(args[0]);
+  bg.g = Py::Float(args[1]);
+  bg.b = Py::Float(args[2]);
+  bg.a = Py::Float(args[3]);
+  return Py::Object();
+}
 
 char Image::apply_scaling__doc__[] = 
 "apply_scaling(sx, sy)\n"
@@ -222,7 +241,7 @@ Image::resize(const Py::Tuple& args) {
   // init the output rendering/rasterizing stuff
   pixfmt pixf(*rbufOut);
   renderer_base rb(pixf);
-  rb.clear(agg::rgba(1, 1, 1));
+  rb.clear(bg);
   agg::rasterizer_scanline_aa<> ras;
   agg::scanline_u8 sl;
   
@@ -382,6 +401,83 @@ Image::set_interpolation(const Py::Tuple& args) {
 }
 
 
+// this code is heavily adapted from the paint license, which is in
+// the file paint.license (BSD compatible) included in this
+// distribution.  TODO, add license file to MANIFEST.in and CVS
+char Image::write_png__doc__[] = 
+"write_png(fname)\n"
+"\n"
+"Write the image to filename fname as png";
+Py::Object 
+Image::write_png(const Py::Tuple& args)
+{
+  //small memory leak in this function - JDH 2004-06-08
+  _VERBOSE("Image::write_png");
+  
+  args.verify_length(1);
+  
+  std::string fileName = Py::String(args[0]);
+  const char *file_name = fileName.c_str();
+  FILE *fp;
+  png_structp png_ptr;
+  png_infop info_ptr;
+  struct        png_color_8_struct sig_bit;
+  png_uint_32 row;
+  
+  png_bytep row_pointers[rowsOut];
+  for (row = 0; row < rowsOut; ++row) {
+    row_pointers[row] = bufferOut + row * colsOut * 4;
+  }
+  
+  fp = fopen(file_name, "wb");
+  if (fp == NULL) 
+    throw Py::RuntimeError("could not open file");
+  
+  
+  png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
+  if (png_ptr == NULL) {
+    fclose(fp);
+    throw Py::RuntimeError("could not create write struct");
+  }
+  
+  info_ptr = png_create_info_struct(png_ptr);
+  if (info_ptr == NULL) {
+    fclose(fp);
+    png_destroy_write_struct(&png_ptr, (png_infopp)NULL);
+    throw Py::RuntimeError("could not create info struct");
+  }
+  
+  if (setjmp(png_ptr->jmpbuf)) {
+    fclose(fp);
+    png_destroy_write_struct(&png_ptr, (png_infopp)NULL);
+    throw Py::RuntimeError("error building image");
+  }
+  
+  png_init_io(png_ptr, fp);
+  png_set_IHDR(png_ptr, info_ptr,
+	       colsOut, rowsOut, 8,
+	       PNG_COLOR_TYPE_RGB_ALPHA, PNG_INTERLACE_NONE,
+	       PNG_COMPRESSION_TYPE_BASE, PNG_FILTER_TYPE_BASE);
+  
+  // this a a color image!
+  sig_bit.gray = 0;
+  sig_bit.red = 8;
+  sig_bit.green = 8;
+  sig_bit.blue = 8;
+  /* if the image has an alpha channel then */
+  sig_bit.alpha = 8;
+  png_set_sBIT(png_ptr, info_ptr, &sig_bit);
+  
+  png_write_info(png_ptr, info_ptr);
+  png_write_image(png_ptr, row_pointers);
+  png_write_end(png_ptr, info_ptr);
+  png_destroy_write_struct(&png_ptr, (png_infopp)NULL);
+  fclose(fp);
+  
+  return Py::Object();
+}
+
+
 
 char Image::set_aspect__doc__[] = 
 "set_aspect(scheme)\n"
@@ -420,6 +516,8 @@ Image::init_type() {
   add_varargs_method( "resize", &Image::resize, Image::resize__doc__);
   add_varargs_method( "set_interpolation", &Image::set_interpolation, Image::set_interpolation__doc__);
   add_varargs_method( "set_aspect", &Image::set_aspect, Image::set_aspect__doc__);
+  add_varargs_method( "write_png", &Image::write_png, Image::write_png__doc__);
+  add_varargs_method( "set_bg", &Image::set_bg, Image::set_bg__doc__);
   
   
 }
@@ -464,11 +562,13 @@ _image_module::from_images(const Py::Tuple& args) {
   
   pixfmt pixf(*imo->rbufOut);
   renderer_base rb(pixf);
-  rb.clear(agg::rgba(1, 1, 1, 0));
+
 
   for (size_t imnum=0; imnum< N; imnum++) {
     tup = Py::Tuple(tups[imnum]);
     Image* thisim = static_cast<Image*>(tup[0].ptr());    
+    if (imnum==0) 
+      rb.clear(thisim->bg);
     ox = Py::Int(tup[1]);
     oy = Py::Int(tup[2]);
 

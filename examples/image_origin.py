@@ -9,14 +9,15 @@ from matplotlib.matlab import *
 
 x = arange(100.0); x.shape = 10,10
 
-
-subplot(211)
+lim = -2,11,-2,6
+subplot(211, axisbg='g')
 title('blue should be up')
 imshow(x, origin='upper', interpolation='nearest')
+#axis(lim)
 
-subplot(212)
+subplot(212, axisbg='y')
 title('blue should be down')
 imshow(x, origin='lower', interpolation='nearest')
-
-#savefig('image_origin')
+#axis(lim)
+#savefig('test.eps')
 show()

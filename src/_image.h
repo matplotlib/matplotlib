@@ -9,6 +9,7 @@
 
 #include "agg_affine_matrix.h"
 #include "agg_rendering_buffer.h"
+#include "agg_color_rgba8.h"
 #include "CXX/Extensions.hxx"
 
 
@@ -33,6 +34,8 @@ public:
   Py::Object get_interpolation(const Py::Tuple& args);
   Py::Object set_interpolation(const Py::Tuple& args);
   Py::Object set_aspect(const Py::Tuple& args);
+  Py::Object write_png(const Py::Tuple& args);
+  Py::Object set_bg(const Py::Tuple& args);
 
   enum { BICUBIC=0, BILINEAR, BLACKMAN100, BLACKMAN256, BLACKMAN64, 
 	 NEAREST, SINC144, SINC256, SINC64, SPLINE16, SPLINE36};
@@ -48,10 +51,11 @@ public:
   unsigned BPP;
 
   unsigned interpolation, aspect;
-  
+  agg::rgba bg;  
 private:
   Py::Dict __dict__;
   agg::affine_matrix srcMatrix, imageMatrix;
+
 
   static char apply_rotation__doc__[];
   static char apply_scaling__doc__[];
@@ -64,6 +68,8 @@ private:
   static char get_interpolation__doc__[];
   static char set_interpolation__doc__[];
   static char set_aspect__doc__[];
+  static char write_png__doc__[];
+  static char set_bg__doc__[];
 
 };
 

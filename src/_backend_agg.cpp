@@ -55,7 +55,7 @@ Py::Object
 RendererAgg::draw_rectangle(const Py::Tuple & args) {
   _VERBOSE("RendererAgg::draw_rectangle");
   args.verify_length(6);
-  
+  theRasterizer->reset_clipping();
   Py::Object gcEdge( args[0] );
   Py::Object rgbFaceMaybeNone( args[1] );
   
@@ -107,7 +107,7 @@ RendererAgg::draw_rectangle(const Py::Tuple & args) {
 Py::Object
 RendererAgg::draw_ellipse(const Py::Tuple& args) {
   _VERBOSE("RendererAgg::draw_ellipse");
-  
+  theRasterizer->reset_clipping();
   args.verify_length(6);  
   Py::Object gcEdge = args[0];
   Py::Object rgbFaceMaybeNone = args[1];
@@ -152,7 +152,7 @@ RendererAgg::draw_ellipse(const Py::Tuple& args) {
 Py::Object
 RendererAgg::draw_polygon(const Py::Tuple& args) {
   _VERBOSE("RendererAgg::draw_polygon");
-  
+  theRasterizer->reset_clipping();  
   args.verify_length(3);  
 
   Py::Object gcEdge( args[0] );
@@ -224,9 +224,10 @@ RendererAgg::draw_polygon(const Py::Tuple& args) {
 
 Py::Object
 RendererAgg::draw_line_collection(const Py::Tuple& args) {
-  
+  theRasterizer->reset_clipping();
   
   _VERBOSE("RendererAgg::draw_line_collection");
+
   args.verify_length(8);  
   
   
@@ -252,10 +253,6 @@ RendererAgg::draw_line_collection(const Py::Tuple& args) {
   Py::SeqBase<Py::Object> offsets;
   Transformation* transOffset=NULL;
   if  (usingOffsets) {
-    /* this line is broken, mysteriously
-    if (!Transformation::check(args[7])) 
-      throw Py::TypeError("RendererAgg::draw_line_collection expected a Transformation instance for transOffset");
-    */
     offsets = Py::SeqBase<Py::Object>(args[6]);        
     transOffset = static_cast<Transformation*>(args[7].ptr());
   }
@@ -271,53 +268,42 @@ RendererAgg::draw_line_collection(const Py::Tuple& args) {
     Noffsets = offsets.length();
     if (Noffsets>Nsegments) N = Noffsets;
   }
-  
 
-  Py::Tuple xyo, pos;
+  double xo(0.0), yo(0.0), thisx(0.0), thisy(0.0);
+  std::pair<double, double> xy;  
+  Py::Tuple xyo;
+  Py::SeqBase<Py::Object> xys;
   for (size_t i=0; i<N; ++i) {
-    
-    pos = Py::Tuple(segments[i%Nsegments]);
-    double x0 = Py::Float(pos[0]);
-    double y0 = Py::Float(pos[1]);
-    double x1 = Py::Float(pos[2]);
-    double y1 = Py::Float(pos[3]);
-
-
-    std::pair<double, double> xy = transform->operator()(x0,y0);
-    x0 = xy.first;
-    y0 = xy.second;
-
-    xy = transform->operator()(x1,y1);
-    x1 = xy.first;
-    y1 = xy.second;
-
     if (usingOffsets) {
       xyo = Py::Tuple(offsets[i%Noffsets]);
-      double xo = Py::Float(xyo[0]);
-      double yo = Py::Float(xyo[1]);
-      std::pair<double, double> xy = transOffset->operator()(xo,yo);
-      x0 += xy.first;
-      y0 += xy.second;
-      x1 += xy.first;
-      y1 += xy.second;
-      
-    }
-    //snap x to pixel for verical lines
-    if (x0==x1) {
-      x0 = (int)x0 + 0.5;
-      x1 = (int)x1 + 0.5;
-    }
-    
-    //snap y to pixel for horizontal lines
-    if (y0==y1) {
-      y0 = (int)y0 + 0.5;
-      y1 = (int)y1 + 0.5;
+      xo = Py::Float(xyo[0]);
+      yo = Py::Float(xyo[1]);
+      xy = transOffset->operator()(xo,yo);
+      xo = xy.first;
+      yo = xy.second;
     }
 
+    xys = segments[i%Nsegments];
+    size_t numtups = xys.length();
+    if (numtups<2) continue;
       
     agg::path_storage path;
-    path.move_to(x0, height-y0);
-    path.line_to(x1, height-y1);
+
+    for (size_t j=0; j<numtups; j++) {
+      xyo = xys[j];
+      thisx = Py::Float(xyo[0]);
+      thisy = Py::Float(xyo[1]);
+      xy = transform->operator()(thisx,thisy);
+      thisx = xy.first;
+      thisy = xy.second;
+
+      if (usingOffsets) {
+	thisx += xo;
+	thisy += yo;
+      }      
+      if (j==0)  path.move_to(thisx, height-thisy);
+      else       path.line_to(thisx, height-thisy);
+    }
 
     agg::conv_stroke<agg::path_storage> stroke(path);
     //stroke.line_cap(cap);
@@ -356,6 +342,7 @@ RendererAgg::set_clip_from_bbox(const Py::Object& o) {
     // Bbox::check(args[0]) failing; something about cross module?
     // set the clip rectangle
     // flipy
+
     Bbox* clipbox = static_cast<Bbox*>(o.ptr());
     double l = clipbox->ll_api()->x_api()->val() ; 
     double b = clipbox->ll_api()->y_api()->val();
@@ -370,7 +357,7 @@ RendererAgg::set_clip_from_bbox(const Py::Object& o) {
 
 Py::Object
 RendererAgg::draw_poly_collection(const Py::Tuple& args) {
-  
+  theRasterizer->reset_clipping();
   
   _VERBOSE("RendererAgg::draw_poly_collection");
   args.verify_length(9);  
@@ -531,7 +518,7 @@ RendererAgg::draw_poly_collection(const Py::Tuple& args) {
 
 Py::Object
 RendererAgg::draw_regpoly_collection(const Py::Tuple& args) {
-  
+  theRasterizer->reset_clipping();
   
   _VERBOSE("RendererAgg::draw_regpoly_collection");
   args.verify_length(9);  
@@ -656,7 +643,7 @@ RendererAgg::draw_regpoly_collection(const Py::Tuple& args) {
 Py::Object
 RendererAgg::draw_lines(const Py::Tuple& args) {
   
-  
+  theRasterizer->reset_clipping();
   _VERBOSE("RendererAgg::draw_lines");
   args.verify_length(3);  
   Py::Object gc = args[0];
@@ -793,7 +780,7 @@ RendererAgg::draw_lines(const Py::Tuple& args) {
 Py::Object
 RendererAgg::draw_text(const Py::Tuple& args) {
   _VERBOSE("RendererAgg::draw_text");
-  
+  theRasterizer->reset_clipping();
   args.verify_length(4);
   
   
@@ -870,7 +857,8 @@ RendererAgg::draw_text(const Py::Tuple& args) {
 Py::Object 
 RendererAgg::draw_image(const Py::Tuple& args) {
   _VERBOSE("RendererAgg::draw_image");
-  args.verify_length(4);
+  theRasterizer->reset_clipping();
+  args.verify_length(5);
   
   int x = Py::Int(args[0]);
   int y = Py::Int(args[1]);
@@ -881,28 +869,38 @@ RendererAgg::draw_image(const Py::Tuple& args) {
     throw Py::ValueError("origin must be upper|lower");
   
   bool isUpper = origin=="upper";
-  //std::cout << "agg says isupper " << origin << " " << isUpper << std::endl;
-
   
-  //todo: handle x and y
-  //agg::rect r(0, 0, image->colsOut, image->rowsOut);
-  //rendererBase->copy_from(*image->rbufOut, &r, x, y);
-  size_t ind=0;
+  size_t ind = 0;
   size_t thisx, thisy;
   size_t oy = isUpper ? y : height-y;
+
+  size_t minx(0), maxx(width), miny(0), maxy(height);
+
+  if (args[4].ptr() != Py_None) {
+    Bbox* bbox = static_cast<Bbox*>(args[4].ptr());
+    minx = (size_t) (bbox->ll_api()->x_api()->val());
+    maxy = height-(size_t) (bbox->ll_api()->y_api()->val());
+    maxx = (size_t) (bbox->ur_api()->x_api()->val());
+    miny = height-(size_t) (bbox->ur_api()->y_api()->val());
+  }
+
   //if (isUpper) oy -= image->rowsOut;  //start at top
-  //std::cout << "params " << height << " " << y << " " << oy << " " << image->rowsOut << std::endl;
+  //std::cout << minx << " " << maxx << " " << miny << " " << maxy << std::endl;
   for (size_t j=0; j<image->rowsOut; j++) {
+    thisy =  isUpper ?  oy+j : oy-j; 
+    if (thisy<miny || thisy>=maxy) {
+     ind += 4*image->colsOut;
+      continue;
+    }
     for (size_t i=0; i<image->colsOut; i++) {
       thisx = i+x; 
-      thisy =  isUpper ?  oy+j : oy-j; 
-
-      if (thisx<0 || thisx>=width || thisy<0 || thisy>=height) {
-	ind += 4;
-	continue;
+      if (thisx<minx || thisx>=maxx) {
+      ind += 4;
+      	continue;
       }
 	
       pixfmt::color_type p;
+
       p.r = *(image->bufferOut+ind++);
       p.g = *(image->bufferOut+ind++);
       p.b = *(image->bufferOut+ind++);
@@ -1112,7 +1110,7 @@ RendererAgg::rgb_to_color(const Py::SeqBase<Py::Object>& rgb, double alpha) {
 void
 RendererAgg::set_clip_rectangle( const Py::Object& gc) {
   //set the clip rectangle from the gc
-  
+
   _VERBOSE("RendererAgg::set_clip_rectangle");
   
   Py::Object o ( gc.getAttr( "_cliprect" ) );
