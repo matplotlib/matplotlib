@@ -588,7 +588,7 @@ def show(mainloop=True):
         
     #if show._needmain and mainloop:
     if gtk.main_level() == 0 and mainloop:
-        if gtk.pygtk_version >= (2,3,97):  gtk.main()
+        if gtk.pygtk_version >= (2,4,0):  gtk.main()
         else:                              gtk.mainloop()
         #show._needmain = False
 #show._needmain = True
@@ -610,7 +610,7 @@ def show_xvfb():
         manager.window.show()
         
     gtk.idle_add(_quit_after_print_xvfb)
-    if gtk.pygtk_version >= (2,3,97):
+    if gtk.pygtk_version >= (2,4,0):
         gtk.main()
     else:
         gtk.mainloop()
@@ -1062,7 +1062,7 @@ class NavigationToolbar2GTK(NavigationToolbar2, gtk.Toolbar):
     def _init_toolbar(self):
         self.set_style(gtk.TOOLBAR_ICONS)
 
-        if gtk.pygtk_version >= (2,3,97):
+        if gtk.pygtk_version >= (2,4,0):
             self._init_toolbar2_4()
         else:
             self._init_toolbar2_2()
@@ -1188,7 +1188,7 @@ class NavigationToolbar(gtk.Toolbar):
         
         self.set_style(gtk.TOOLBAR_ICONS)
 
-        if gtk.pygtk_version >= (2,3,97):
+        if gtk.pygtk_version >= (2,4,0):
             self._create_toolitems_2_4()
             self.update = self._update_2_4
             self.fileselect = FileChooserDialog(title='Save the figure',
@@ -1303,7 +1303,6 @@ class NavigationToolbar(gtk.Toolbar):
         # called by __init__() and FigureManagerGTK
         
         self._axes = self.canvas.figure.axes
-        #self.set_active(range(len(self._axes))) # duplicates line below
         
         if len(self._axes) >= 2:                
             # set up the axis menu
@@ -1439,7 +1438,7 @@ class FileSelection(gtk.FileSelection):
         return filename
     
 
-if gtk.pygtk_version >= (2,3,97):
+if gtk.pygtk_version >= (2,4,0):
     class FileChooserDialog(gtk.FileChooserDialog):
         """GTK+ 2.4 file selector which remembers the last
         file/directory selected
@@ -1481,4 +1480,4 @@ if gtk.pygtk_version >= (2,2,0):
     fname = os.path.join(basedir, 'matplotlib.svg')
     try:   gtk.window_set_default_icon_from_file (fname)
     except:
-        print >>sys.stderr, 'Could not load matplotlib icon:', sys.exc_info()[1]
+        verbose.report_error('Could not load matplotlib icon: %s' % sys.exc_info()[1])
