@@ -157,23 +157,23 @@ RendererAgg::draw_polygon(const Py::Tuple& args) {
     std::cout << "RendererAgg::draw_polygon" << std::endl;
   
   args.verify_length(3);  
-  
+
   Py::Object gcEdge( args[0] );
   Py::Object rgbFaceMaybeNone( args[1] );
   Py::SeqBase<Py::Object> points( args[2] );
-  
+
   
   set_clip_rectangle(gcEdge);
   agg::gen_stroke::line_cap_e cap = get_linecap(gcEdge);
   agg::gen_stroke::line_join_e join = get_joinstyle(gcEdge);
   
   double lw = points_to_pixels ( gcEdge.getAttr("_linewidth") ) ;
-  
+
   size_t Npoints = points.length();
   if (Npoints<=0)
     return Py::Object();
-  
-  
+
+
   // dump the x.y vertices into a double array for faster look ahread
   // and behind access
   double xs[Npoints];
@@ -187,6 +187,7 @@ RendererAgg::draw_polygon(const Py::Tuple& args) {
 
   }
   
+
   agg::path_storage path;  
   for (size_t j=0; j<Npoints; ++j) {
 
@@ -197,7 +198,7 @@ RendererAgg::draw_polygon(const Py::Tuple& args) {
     else path.line_to(x,y); 
   }
   path.close_polygon();
-  
+
   agg::rgba edgecolor = get_color(gcEdge);
 
   
@@ -209,7 +210,7 @@ RendererAgg::draw_polygon(const Py::Tuple& args) {
     theRasterizer->add_path(path);    
     theRasterizer->render(*slineP8, *theRenderer);  
   }
-  
+
   //now fill the edge
   agg::conv_stroke<agg::path_storage> stroke(path);
   stroke.width(lw);

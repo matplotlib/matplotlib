@@ -1,12 +1,16 @@
 #include <functional>
 #include <numeric>
 #include "_transforms.h"
- 
+
+
 #ifdef NUMARRAY
 #include "numarray/arrayobject.h" 
 #else
 #include "Numeric/arrayobject.h" 
 #endif   
+
+
+
 
 #define DEBUG_MEM 0
 
@@ -650,6 +654,7 @@ Transformation::numerix_x_y(const Py::Tuple & args) {
   if (x==NULL) 
     throw Py::TypeError("Transformation::numerix_x_y expected numerix array");
 
+  
   PyArrayObject *y = (PyArrayObject *) PyArray_ContiguousFromObject(yo.ptr(), PyArray_DOUBLE, 1, 1); 
   
   if (y==NULL) 
@@ -667,13 +672,21 @@ Transformation::numerix_x_y(const Py::Tuple & args) {
 
   int dimensions[1];
   dimensions[0] = Nx;
+
+  
   PyArrayObject *retx = (PyArrayObject *)PyArray_FromDims(1,dimensions,PyArray_DOUBLE);
-  if (retx==NULL)
+  if (retx==NULL) {
+    Py_XDECREF(x);
+    Py_XDECREF(y);
     throw Py::RuntimeError("Could not create return x array");
+  }
 
   PyArrayObject *rety = (PyArrayObject *)PyArray_FromDims(1,dimensions,PyArray_DOUBLE);
-  if (retx==NULL)
+  if (rety==NULL) {
+    Py_XDECREF(x);
+    Py_XDECREF(y);
     throw Py::RuntimeError("Could not create return x array");
+  }
 
   for (size_t i=0; i< Nx; ++i) {
 
@@ -684,10 +697,15 @@ Transformation::numerix_x_y(const Py::Tuple & args) {
     *(double *)(retx->data + i*retx->strides[0]) = xy.first;
     *(double *)(rety->data + i*rety->strides[0]) = xy.second;
   }
+  
+  Py_XDECREF(x);
+  Py_XDECREF(y);
 
   Py::Tuple ret(2);
   ret[0] = Py::Object((PyObject*)retx);
   ret[1] = Py::Object((PyObject*)rety);
+  Py_XDECREF(retx);
+  Py_XDECREF(rety);
   return ret;
 }
 

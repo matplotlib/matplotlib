@@ -410,6 +410,24 @@
 
 -- use RGBA throughout lib
 
--- fix wrt log and recommit cvs
+-- DONE fix wrt log and recommit cvs
 
 -- check Fernando's bounds problem with pcolor.
+
+-- Write John's Letter
+
+-- add default args to imshow per Fernando's suggestion
+
+-- DONE - check out Fernando's wx prob
+
+-- add interp and aspect info to imshow doc
+
+-- add write png method to image module
+
+-- change the viewlim on call to log if min ax <=0
+
+-- fix set_def font example and update API_CHANGES
+
+-- upload 0.54.2 zip
+
+-- need a new way to indicate linestyle=None!

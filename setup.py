@@ -6,6 +6,7 @@ The GTKAgg and TkAgg will try to build if they detect pygtk or Tkinter
 respectively; set them to 0 if you do not want to build them
 """
 
+# The NUMERIX
 NUMERIX = 'Numeric'  # or numarray
 # build the freetype2 interface - this is required for mathtext
 # Requires freetype2, and libz

@@ -1,8 +1,22 @@
 New entries should be added at the top
+=======
+
+
+2004-06-11 More memory leak fixes in transforms and ft2font - JDH
 
 2004-06-11 Eliminated numerix .numerix file and environment variable
 	   NUMERIX.  Fixed bug which prevented command line overrides:
 	   --numarray or --numeric. - JTM
+
+2004-06-10 Added rc configuration function rc; deferred all rc param
+           setting until object creation time; added new rc attrs:
+           lines.markerfacecolor, lines.markeredgecolor,
+           lines.markeredgewidth, patch.linewidth, patch.facecolor,
+           patch.edgecolor, patch.antialiased - JDH
+
+
+---------------------------------------------------------------
+2004-06-09 0.54.2 released
 
 2004-06-08 Rewrote ft2font using CXX as part of general memory leak
            fixes; also fixed transform memory leaks  - JDH
