@@ -1,0 +1,7 @@
+from matplotlib.matlab import *
+t = arange(0.0, 1.01, 0.01)
+s = sin(2*2*pi*t)
+
+fill(t, s, 'r')
+grid(True)
+show()
