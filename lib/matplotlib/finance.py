@@ -4,7 +4,7 @@ financial data.   User contributions welcome!
 
 """
 #from __future__ import division  
-import sys, os, math, time
+import time
 from urllib import urlopen
 
 
