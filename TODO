@@ -377,3 +377,5 @@
 -- DONE PS text vert centering off
 
 -- DONE - pcolor edge color
+
+-- convert rank 1 arrays as per Flaviu's post
