@@ -28,6 +28,7 @@ examples/break.py
 examples/color_demo.py
 examples/csd_demo.py
 examples/data_helper.py
+examples/data_table_demo.py
 examples/dynamic_demo.py
 examples/dynamic_demo_wx.py
 examples/embedding_in_gtk.py
@@ -61,6 +62,7 @@ examples/simple_plot.py
 examples/stock_demo.py
 examples/subplot_demo.py
 examples/system_monitor.py
+examples/table_demo.py
 examples/text_handles.py
 examples/text_themes.py
 examples/vline_demo.py
@@ -164,6 +166,7 @@ matplotlib/backends/backend_ps.py
 matplotlib/backends/backend_template.py
 matplotlib/backends/backend_wx.py
 matplotlib/backends/ttf_font_manager.py
+src/_backend_agg.cpp
 test/README
 test/alignment_test.py
 test/bar_test.py
@@ -183,15 +186,19 @@ test/manset.py
 test/matplotlibc_test.py
 test/memleak.py
 test/memleak2.py
+test/memleak3.py
 test/mesh_test.py
 test/plot_bug.py
+test/plotraw.py
 test/print_only.py
 test/rounding.py
 test/semilog_test.py
 test/specgram_demo.py
 test/table_demo.py
+test/table_demo3.py
 test/table_test.py
 test/table_test2.py
 test/test.py
+test/test_backend_agg.py
 test/transtest.py
 test/vline_demo.py
