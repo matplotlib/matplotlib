@@ -7,12 +7,13 @@ KNOWN BUGS
 
   - DONE - autoscale on y not satisfactory -- see histogram demo
 
-  - with multiple subplots there is a small gap between the bottom of
-    the xtick1 line and the axes patch edge. see subplot_demo
+  - DONE with multiple subplots there is a small gap between the
+    bottom of the xtick1 line and the axes patch edge. see
+    subplot_demo
 
   - DONE 2003-11-14 -  lowest line position is off in legend_demo
 
-  - the markers for circ and square in the gtk backend do not have the
+  - DONE the markers for circ and square in the gtk backend do not have the
     same center.  See the stock_demo for example.
 
   - DONE 2003-11-16 - GD port of new API not done
