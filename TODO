@@ -512,11 +512,12 @@ ZeroDivisionError: SeparableTransformation::eval_scalars yin interval is zero; c
 
 -- update installing.html from INSTALL
 
--- rubberbanding broken on subplot_demo/gtk
+-- DONE rubberbanding broken on subplot_demo/gtk
 
--- add copy/deepcopy support for transforms
+-- PARTIAL - need to copy function type - add copy/deepcopy support
+   for transforms
 
--- text looks funky in SVG - stroke width?
+-- DONE (added stroke width) text looks funky in SVG - stroke width?
 
 -- blit on gtkagg after print is whacked
 

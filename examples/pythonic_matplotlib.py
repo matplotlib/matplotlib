@@ -17,11 +17,11 @@ examples/embedding_in_gtk.py or examples/embedding_in_tk.py.  In this
 case you will want to control the creation of all your figures,
 embedding them in application windows, etc.
 
-If you seen an example in the examples dir written in matlab
-interface, and you want to emulate that using the true python method
-calls, there is an easy mapping.  Many of those examples use 'set' to
-control figure properties.  Here's how to map those commands onto
-instance methods
+If you see an example in the examples dir written in matlab interface,
+and you want to emulate that using the true python method calls, there
+is an easy mapping.  Many of those examples use 'set' to control
+figure properties.  Here's how to map those commands onto instance
+methods
 
 The syntax of set is
 
