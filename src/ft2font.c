@@ -592,6 +592,51 @@ FT2Font_write_bitmap(FT2FontObject *self, PyObject *args)
 
 }
 
+
+char FT2Font_draw_rect__doc__[] = 
+"draw_bbox(x0, y0, x1, y1)\n"
+"\n"
+"Draw a rect to the image.  It is you responsibility to set the dimensions\n"
+"of the image, eg, with set_bitmap_size\n"
+"\n"
+;
+static PyObject *
+FT2Font_draw_rect(FT2FontObject *self, PyObject *args)
+{
+
+  long x0, y0, x1, y1, i=0, j=0;
+  long width, height;
+  if (!PyArg_ParseTuple(args, "llll:draw_glyphs_to_bitmap", 
+			&x0, &y0, &x1, &y1))
+    return NULL;
+  
+  width = abs(x1-x0);
+  height = abs(y1-y0);
+  
+  if ( x0<0 || y0<0 || x1<0 || y1<0 || 
+       x0>self->image.width || x1>self->image.width ||
+       y0>self->image.height || y1>self->image.height ) {
+    PyErr_SetString(PyExc_ValueError, 
+		    "rect coords outside image bounds");
+	return NULL;
+  }
+
+    
+  printf("%ld, %ld, %ld, %ld\n", x0, x1, y0, y1);
+  for (i=x0; i<x1; ++i) {
+    self->image.buffer[i + y0*self->image.width] = 255;
+    self->image.buffer[i + y1*self->image.width] = 255;
+  }
+
+  for (j=y0; j<y1; ++j) {
+    self->image.buffer[x0 + j*self->image.width] = 255;
+    self->image.buffer[x1 + j*self->image.width] = 255;
+  }
+  
+  Py_INCREF(Py_None);
+  return Py_None;
+}
+
 char FT2Font_draw_glyphs_to_bitmap__doc__[] = 
 "draw_glyphs_to_bitmap()\n"
 "\n"
@@ -736,6 +781,7 @@ FT2Font_draw_glyph_to_bitmap(FT2FontObject *self, PyObject *args)
 static PyMethodDef FT2Font_methods[] = {
   {"write_bitmap",  (PyCFunction)FT2Font_write_bitmap,	METH_VARARGS, FT2Font_write_bitmap__doc__},
   {"set_bitmap_size",  (PyCFunction)FT2Font_set_bitmap_size,	METH_VARARGS, FT2Font_load_char__doc__},
+  {"draw_rect",  (PyCFunction)FT2Font_draw_rect,	METH_VARARGS, FT2Font_draw_rect__doc__},
   {"draw_glyph_to_bitmap",  (PyCFunction)FT2Font_draw_glyph_to_bitmap,	METH_VARARGS, FT2Font_draw_glyph_to_bitmap__doc__},
   {"draw_glyphs_to_bitmap",  (PyCFunction)FT2Font_draw_glyphs_to_bitmap,	METH_VARARGS, FT2Font_draw_glyphs_to_bitmap__doc__},
   {"load_char",	   (PyCFunction)FT2Font_load_char,	METH_VARARGS, FT2Font_load_char__doc__},
