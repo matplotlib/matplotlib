@@ -1,5 +1,8 @@
 New entries should be added at the top
 
+2004-07-24 Added images/matplotlib.svg to be used when GTK+ windows are 
+           minimised - SC
+
 2004-07-22 Added right mouse click zoom for NavigationToolbar2 panning
 	   mode. - JTM
 		
@@ -11,7 +14,7 @@ New entries should be added at the top
 
 2004-07-22 Backend_gtk.py: Added support for GtkFileChooser, changed
            FileSelection/FileChooser so that only one instance pops up,
-           and made them both modal.
+           and made them both modal. - SC
 
 2004-07-21 Applied backend_agg memory leak patch from hayden -
            jocallo@online.no.  Found and fixed a leak in binary
