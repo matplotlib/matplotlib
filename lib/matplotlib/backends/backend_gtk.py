@@ -5,7 +5,7 @@ import sys
 def fn_name(): return sys._getframe(1).f_code.co_name
 
 import matplotlib
-from matplotlib import verbose
+from matplotlib import verbose, MPLError
 from matplotlib.numerix import asarray, fromstring, UInt8, zeros, \
      where, transpose, nonzero, indices, ones, nx
 
