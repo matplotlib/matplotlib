@@ -18,4 +18,5 @@ title('Damped exponential decay', font, fontsize=12)
 text(3, 0.65, 'cos(2 pi t) exp(-t)', font, color='k')
 xlabel('time (s)', font)
 ylabel('voltage (mV)', font)
+
 show()

@@ -14,8 +14,9 @@ subplot(121)
 plot(t1, f(t1), 'bo', t2, f(t2), 'k')
 title('subplot 1')
 ylabel('Damped oscillation')
-t = gcf().text(0.5, 0.95, 'Figure Title', fontsize=12)
-set(t, 'horizontalalignment', 'center')
+t = gcf().text(0.5, 0.95, 'Figure Title',
+               fontsize=20, horizontalalignment='center')
+
 
 subplot(122)
 plot(t3, cos(2*pi*t3), 'r--')
