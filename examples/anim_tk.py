@@ -1,7 +1,10 @@
 #!/usr/bin/env python2.3
 
+import matplotlib
+matplotlib.use('TkAgg')
 import matplotlib.matlab
-import Tkinter as Tk
+
+#import Tkinter as Tk
 import matplotlib.numerix as numerix
 
 fig = matplotlib.matlab.figure(1)
@@ -28,8 +31,6 @@ tstart = time.time()
 while 1:
     cnt = updatefig()
     if cnt==100: break
-    
-
 
 
 print 'elapsed', 100.0/(time.time() - tstart)
