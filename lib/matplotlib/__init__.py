@@ -114,7 +114,7 @@ Most of the other commands are from the Numeric, MLab and FFT, with
 the exception of those in mlab.py provided by matplotlib.
 """
 
-__version__  = '0.63.5a'
+__version__  = '0.63.4'
 __revision__ = '$Revision$'
 __date__     = '$Date$'
 
@@ -597,6 +597,9 @@ def rc_params():
     # strip the conveter funcs and return
     ret =  dict([ (key, tup[0]) for key, tup in defaultParams.items()])
     verbose.report('loaded rc file %s'%fname)
+    verbose.report('verbose.level %s'%verbose.level)
+    verbose.report('interactive %s'%ret['interactive'])
+    verbose.report('matplotlib version %s'%__version__)            
     return ret
 
 

@@ -3,7 +3,7 @@ New entries should be added at the top
 ==============================================================
 
 2004-09-30 Added Andrew Dalke's strftime code to extend the range of
-           dates supported by the DateFormatter
+           dates supported by the DateFormatter - JDH
 
 2004-09-30 Added hbar - JDH
 
@@ -13,7 +13,7 @@ New entries should be added at the top
 2004-09-30 Add GTK+ 2.4 support for the message in the toolbar. SC
 
 2004-09-30 Made some changes to support python22 - lots of doc
-fixes. - JDH
+           fixes. - JDH
 
 2004-09-29 Added a Verbose class for reporting - JDH
 

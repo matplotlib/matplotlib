@@ -19,7 +19,7 @@ fails to import, the other is tried.
 """
 
 import sys, os
-from matplotlib import rcParams
+from matplotlib import rcParams, verbose
 
 which = None, None
 
@@ -49,10 +49,16 @@ if which[0] not in ["numeric", "numarray"]:
 
 if which[0] == "numarray":
     from na_imports import *
+    import numarray
+    version = 'numarray %s'%numarray.__version__
+
 elif which[0] == "numeric":
     from nc_imports import *
+    import Numeric
+    version = 'Numeric %s'%Numeric.__version__
 else:
     raise RuntimeError("invalid numerix selector")
 
+verbose.report('numerix %s'%version)
 # a bug fix for blas numeric suggested by Fernando Perez
 matrixmultiply=dot
