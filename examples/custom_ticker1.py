@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 """
 The new ticker code was designed to explicity support user customized
 ticking.  The documentation
