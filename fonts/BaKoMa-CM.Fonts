@@ -1,0 +1,310 @@
+******************************************************************************
+*                                                                            *
+*                        BaKoMa Fonts Collection                             *
+*                        ======= Level B =======                             *
+*                         Version 1.1/12-Nov-94                              *
+*                                                                            *
+*          Copyright (C) 1994, Basil K. Malyshev. All Rights Reserved.       *
+*                                                                            *
+******************************************************************************
+
+
+This font software package is the first part of the BaKoMa Font Collection.
+The package includes 88 basic fonts of the Computer Modern font family
+that were designed by D.E.Knuth.
+The fonts are in a ATM compatible PostScript Type 1 font format (PFB+AFM+PFM)
+as well as in a TrueType font format (TTF).
+
+ This font set can be used for typesetting most of (La)TeX documents:
+
+ - printing documents on a PostScript printer
+   by using, for example, Rokiki's DVIPS;
+
+ - printing documents on a wide set of matrix printers 
+   by using DVIPS and GhostScript.
+
+ - drawing slides on vector plotters by using PostScript 'plot.ps' program
+   which is supplied with the collection.
+   For drawing documents on HPGL plotters, the 'ps2hpgl' utility can be used. 
+   It is available in 'ftp.mathworks.com' host 
+   in the '/pub/contrib/tools' directory.
+
+ - displaing documents under MS Windows by using TrueType version of
+   those fonts or by using PostScript version with ATM.
+   For this case, fonts have specific encoding. Please read
+   section about font encoding before using these fonts with MS Windows.
+
+******************************************************************************
+*                           Licensing agreement                              *
+******************************************************************************
+
+The author of this fonts grants to any individual or non-commercial
+organization the right to use and to make an unlimited number of copies of 
+full package or selected fonts when this is done WITHOUT CHARGE
+and has attached this file with licence agreement.
+
+This fonts cannot be sold or distributed with any commercial product or used 
+in any commercial organization without additional agreement with author.
+If you want to charge a small fee via distribution these fonts 
+or any derivations from this fonts, you should contact the author.
+
+This restriction is also true for only outlines from this fonts 
+i.e. outlines exported into other font formats, for example TrueType or Type3.
+
+This restriction is not intended to apply to connect time charges,
+or flat rate connection/download fees for electronic bulletin board services.
+
+******************************************************************************
+*********** List of fonts included in BaKoMa Fonts Collection ****************
+******************************************************************************
+
+============================ Basic text fonts ==========================
+cmr	5	6	7	8	9	10	12	17
+cmbx	5	6	7	8	9	10	12
+cmti			7	8	9	10	12
+cmsl				8	9	10 	12
+cmcsc				8*	9*	10 
+cmtex				8	9	10
+cmb						10	
+cmbxsl						10
+cmbxti						10 
+============================ Sans Serif ================================
+cmss				8	9	10	12	17
+cmssi				8	9	10	12	17
+cmssbx						10
+cmssdc						10 
+cmssq				8 
+cmssqi				8 
+============================ Mathematical fonts ========================
+cmmi	5+	6+	7+	8+	9+	10+	12+
+cmsy	5	6	7	8	9	10
+cmmib		6*+	7*+	8*+	9*+	10+ 
+cmbsy		6*	7*	8*	9*	10
+cmex			7*	8*	9	10 
+============================ Typewriter ================================
+cmtt				8	9	10	12
+cmsltt						10 
+cmitt						10 
+cmvtt						10 
+cmtcsc						10 
+============================ Exotic fonts ==============================
+cmff10	cmfi10	cmfib8	cminch	cmu10	cmdunh10
+========================================================================
+
+In this table some fonts have special markers:
+
+ * - This font is from AMS extension for CM math fonts.
+ + - This font have some additional characters.
+     cmmi & cmmib: have kappa variant at position 128.
+
+******************************************************************************
+*                          Encoding in this fonts.                           *
+******************************************************************************
+
+Main encoding problem is that TeX standard fonts have characters
+in position from 0 upto 127.
+However MicroSoft Windows software don't like fonts with characters
+in 0..31 positions. These BLUE characters break normal functionality
+of the set of programs.
+So, ATM, version 2.0 will not show characters at position 0.
+If you will use ATM, version 2.6 you will look this characters 
+but some printer drivers will not work correctly when will try to use
+characters with codes from 0 to 31.
+
+The obvious solution of this problem is reencode a font
+such that characters from positions 0..31 will be moved 
+to something other positions.
+
+Of course, you can always reencode this fonts such as you want
+but in this collection I use special encoding hack such that
+you can use this fonts in DPS, PostScript printer, ps2pk program
+and ATM under MS windows or even convert this fonts via FontMonger program
+into TrueType format without any font reencoding.
+
+PFB files have following encoding vector:
+
+/Encoding 256 array
+0 1 255 {1 index exch /.notdef put} for
+dup 32 /space put	% position 32 is filled by space. Don't use it !
+dup 33 /exclam put
+dup 34 /quotedblright put
+dup 35 /numbersign put
+dup 36 /dollar put
+dup 37 /percent put
+dup 38 /ampersand put
+dup 39 /quoteright put
+dup 40 /parenleft put
+dup 41 /parenright put
+dup 42 /asterisk put
+dup 43 /plus put
+dup 44 /comma put
+dup 45 /hyphen put
+dup 46 /period put
+dup 47 /slash put
+dup 48 /zero put
+dup 49 /one put
+dup 50 /two put
+dup 51 /three put
+dup 52 /four put
+dup 53 /five put
+dup 54 /six put
+dup 55 /seven put
+dup 56 /eight put
+dup 57 /nine put
+dup 58 /colon put
+dup 59 /semicolon put
+dup 60 /exclamdown put
+dup 61 /equal put
+dup 62 /questiondown put
+dup 63 /question put
+dup 64 /at put
+dup 65 /A put
+dup 66 /B put
+dup 67 /C put
+dup 68 /D put
+dup 69 /E put
+dup 70 /F put
+dup 71 /G put
+dup 72 /H put
+dup 73 /I put
+dup 74 /J put
+dup 75 /K put
+dup 76 /L put
+dup 77 /M put
+dup 78 /N put
+dup 79 /O put
+dup 80 /P put
+dup 81 /Q put
+dup 82 /R put
+dup 83 /S put
+dup 84 /T put
+dup 85 /U put
+dup 86 /V put
+dup 87 /W put
+dup 88 /X put
+dup 89 /Y put
+dup 90 /Z put
+dup 91 /bracketleft put
+dup 92 /quotedblleft put
+dup 93 /bracketright put
+dup 94 /circumflex put
+dup 95 /dotaccent put
+dup 96 /quoteleft put
+dup 97 /a put
+dup 98 /b put
+dup 99 /c put
+dup 100 /d put
+dup 101 /e put
+dup 102 /f put
+dup 103 /g put
+dup 104 /h put
+dup 105 /i put
+dup 106 /j put
+dup 107 /k put
+dup 108 /l put
+dup 109 /m put
+dup 110 /n put
+dup 111 /o put
+dup 112 /p put
+dup 113 /q put
+dup 114 /r put
+dup 115 /s put
+dup 116 /t put
+dup 117 /u put
+dup 118 /v put
+dup 119 /w put
+dup 120 /x put
+dup 121 /y put
+dup 122 /z put
+dup 123 /endash put
+dup 124 /emdash put
+dup 125 /hungarumlaut put
+dup 126 /tilde put
+dup 160 /space put	% space. Using of this position is prefrable.
+dup 161 /Gamma put	% Original position 0
+dup 162 /Delta put
+dup 163 /Theta put
+dup 164 /Lambda put
+dup 165 /Xi put
+dup 166 /Pi put
+dup 167 /Sigma put
+dup 168 /Upsilon put
+dup 169 /Phi put
+dup 170 /Psi put	% Original position 9
+dup 173 /Omega put	% Original position 10
+dup 174 /ff put
+dup 175 /fi put
+dup 176 /fl put
+dup 177 /ffi put
+dup 178 /ffl put
+dup 179 /dotlessi put
+dup 180 /dotlessj put
+dup 181 /grave put
+dup 182 /acute put
+dup 183 /caron put
+dup 184 /breve put
+dup 185 /macron put
+dup 186 /ring put
+dup 187 /cedilla put
+dup 188 /germandbls put
+dup 189 /ae put
+dup 190 /oe put
+dup 191 /oslash put
+dup 192 /AE put
+dup 193 /OE put
+dup 194 /Oslash put
+dup 195 /polishlcross put % Original position 32	
+dup 196 /dieresis put	% Original postion 127 
+% There is PostScript instructions to copying(duplicating) BLUE characters 
+% to its original positions 0..32, and 127.
+dup dup 161 10 getinterval 0 exch putinterval dup dup 173 23 getinterval 10 exch putinterval dup dup 127 exch 196 get put readonly def
+
+So:
+ - PostScript printers and interpreters (like DPS) will found
+   BLUE characters in both positions in 0..32 and in 161..196.
+ - ps2pk program uses encoding from AFM-file. AFM-file contain
+   standard TeX encoding.
+   In this reason it will be generate fonts with BLUE characters
+   in positions 0..32 (standard TeX encoding).
+ - ATM and FontMonger program will look BLUE characters only in positions
+   161..196. In this reason PFM encoding vector contains BLUE characters
+   only in positions 161..196. This is good because ATM loads to printer 
+   all characters from font. And once appearence of the BLUE characters 
+   in font will be save printer memory.
+   This is actual, for example, for HP LaserJet/PCL printers.
+
+WARNING:
+  Don't use space in position 32 if you print documents on PS printer
+  by using Type 1 fonts because this position will be filled by 'polishlcross'.
+
+******************************************************************************
+*                    Font production technology remarks                      *
+******************************************************************************
+
+ This font collection have been produced from Knuth's METAFONT scripts
+ by using original algorithms developed by collection author.
+
+******************************************************************************
+*                 Author location and bug report address                     *
+******************************************************************************
+
+If you have some remarks about fonts shape quality, encoding or compatibily
+with different software you can notify author:
+
+ Basil K. Malyshev
+ INSTITUTE FOR HIGH ENERGY PHYSICS
+ IHEP, OMVT
+ Moscow Region
+ 142284 PROTVINO
+ RUSSIA
+
+ E-Mail:	malyshev@mx.ihep.su
+      or	malyshev@dxcern.cern.ch
+
+Happy TeXing with my fonts.
+Basil K. Malyshev, 12-Nov-1994, Geneva, Switzerland.
+
+******************************************************************************
+*                        End of BaKoMa-CM.Fonts file.                        *
+******************************************************************************
+
