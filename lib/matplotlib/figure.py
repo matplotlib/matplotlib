@@ -16,10 +16,10 @@ from transforms import Bbox, Value, Point, get_bbox_transform, unit_bbox
 class Figure(Artist):
     
     def __init__(self,
-                 figsize   = None, # defaults to rc figure.figsize
-                 dpi       = None, # defaults to rc figure.dpi
-                 facecolor = None, # defaults to rc figure.facecolor
-                 edgecolor = None, # defaults to rc figure.edgecolor
+                 figsize   = None,  # defaults to rc figure.figsize
+                 dpi       = None,  # defaults to rc figure.dpi
+                 facecolor = None,  # defaults to rc figure.facecolor
+                 edgecolor = None,  # defaults to rc figure.edgecolor
                  linewidth = 1.0,   # the default linewidth of the frame
                  frameon = True,
                  ):
