@@ -5,7 +5,8 @@ mu, sigma = 100, 15
 x = mu + sigma*randn(10000)
 
 # the histogram of the data
-n, bins, patches = hist(x, 50, normed=1, bottom=0.001)
+n, bins, patches = hist(x, 50, normed=1)
+set(patches, 'facecolor', 'g', 'alpha', 0.75)
 
 # add a 'best fit' line
 y = normpdf( bins, mu, sigma)

@@ -1,5 +1,7 @@
 New entries should be added at the top
 
+2004-06-03 Fixed draw_if_interactive bug for semilogx; 
+
 2004-06-02 Fixed text clipping to clip to axes - JDH
 
 2004-06-02 Fixed leading newline text and multiple newline text - JDH
