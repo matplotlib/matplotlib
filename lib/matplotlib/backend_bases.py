@@ -15,6 +15,8 @@ from transforms import lbwh_to_bbox
 from matplotlib import verbose
 
 class RendererBase:
+    """An abstract base class to handle drawing/rendering operations
+    """
 
     def open_group(self, s):
         'open a grouping element with label s'
@@ -289,7 +291,7 @@ class RendererBase:
 
     def draw_polygon(self, gc, rgbFace, points):
         """
-        Draw a polygon using the GraphicsContext instance gc
+        Draw a polygon using the GraphicsContext instance gc.
         points is a len vertices tuple, each element
         giving the x,y coords a vertex
 
@@ -299,7 +301,7 @@ class RendererBase:
 
     def draw_rectangle(self, gcEdge, rgbFace, x, y, width, height):
         """
-        Draw a rectangle using the GraphicsContext instance gcEdge,
+        Draw a non-filled rectangle using the GraphicsContext instance gcEdge,
         with lower left at x,y with width and height.
 
         If rgbFace is not None, fill the rectangle with it.
@@ -311,8 +313,8 @@ class RendererBase:
               
     def draw_text(self, gc, x, y, s, prop, angle, ismath=False):
         """
-        Draw string s at x,y (display coords) with font properties
-        instance prop at angle in degrees
+        Draw the text.Text instance s at x,y (display coords) with font
+        properties instance prop at angle in degrees
         """
         pass
 
@@ -324,8 +326,9 @@ class RendererBase:
         return GraphicsContextBase()
 
 
-
-class GraphicsContextBase:    
+class GraphicsContextBase:
+    """An abstract base class that provides color, line styles, etc...
+    """
 
     # a mapping from dash styles to suggested offset, dash pairs
     _dashd = {

@@ -229,17 +229,19 @@ class GraphicsContextTemplate(GraphicsContextBase):
 
 def draw_if_interactive():
     """
-    This should be overriden in a windowing environment if drawing
-    should be done in interactive python mode
+    For image backends - is not required
+    For GUI backends - this should be overriden if drawing should be done in
+    interactive python mode
     """
     pass
 
 def show():
     """
-    This is usually the last line of a matlab script and tells the
-    backend that it is time to draw.  In interactive mode, this may be
-    a do nothing func.  See the GTK backend for an example of how to
-    handle interactive versus batch mode
+    For image backends - is not required
+    For GUI backends - show() is usually the last line of a matlab script and
+    tells the backend that it is time to draw.  In interactive mode, this may
+    be a do nothing func.  See the GTK backend for an example of how to handle
+    interactive versus batch mode
     """
     for manager in Gcf.get_all_fig_managers():
         manager.canvas.realize()
