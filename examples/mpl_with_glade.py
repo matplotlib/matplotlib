@@ -39,6 +39,8 @@ class WidgetsWrapper:
         self.widgets = gtk.glade.XML('mpl_with_glade.glade')
         self.widgets.signal_autoconnect(GladeHandlers.__dict__)
 
+        self['windowMain'].connect('destroy', lambda x: gtk.main_quit())
+
         self.figure = Figure(figsize=(8,6), dpi=72)
         self.axis = self.figure.add_subplot(111)
         
@@ -70,4 +72,4 @@ class WidgetsWrapper:
         return self.widgets.get_widget(key)
 
 widgets = WidgetsWrapper()
-gtk.mainloop ()
+gtk.main()
