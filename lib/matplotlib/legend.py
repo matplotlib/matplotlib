@@ -137,8 +137,9 @@ class Legend(Artist):
         self._update_positions(renderer)
         if self._drawFrame:  self.legendPatch.draw(renderer)
         for h in self.handles:            
-            h.draw(renderer)
-            if 0: bbox_artist(h, renderer)
+            if h is not None:
+		h.draw(renderer)
+        	if 0: bbox_artist(h, renderer)
 
         for t in self.texts:
             if 0: bbox_artist(t, renderer)
@@ -151,7 +152,7 @@ class Legend(Artist):
         'Get a bbox for the text and lines in axes coords'
         boxes = []
         bboxesText = [t.get_window_extent(renderer) for t in self.texts]
-        bboxesHandles = [h.get_window_extent(renderer) for h in self.handles]
+        bboxesHandles = [h.get_window_extent(renderer) for h in self.handles if h is not None]
 
 
         bboxesAll = bboxesText
@@ -187,6 +188,8 @@ class Legend(Artist):
                 self._set_artist_props(p)
                 p.copy_properties(handle)
                 ret.append(p)
+	    else:
+		ret.append(None)
                                                
         return ret
 

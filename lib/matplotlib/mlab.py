@@ -1372,7 +1372,8 @@ def binary_repr(number, max_length = 1025):
     32-bit machines, 2**1023 is the largest integer power of 2 which can be
     converted to a Python float."""
     
-    assert number < 2L << max_length
+
+    #assert number < 2L << max_length
     shifts = map (operator.rshift, max_length * [number], \
                   range (max_length - 1, -1, -1))
     digits = map (operator.mod, shifts, max_length * [2])
