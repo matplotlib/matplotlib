@@ -511,7 +511,7 @@ class GraphicsContextGTK(GraphicsContextBase):
         """
         try:
             #return self._cached[tuple(rgb)] # tuple not needed?
-            return self._cached[rgb] # tuple not needed?
+            return self._cached[rgb] 
         except KeyError:
             color = self._cmap.alloc_color(
                 int(rgb[0]*65535),int(rgb[1]*65535),int(rgb[2]*65535))
@@ -602,11 +602,11 @@ def error_msg_gtk(msg, parent=None):
 
 
 def draw_if_interactive():
-
     if matplotlib.is_interactive():
         figManager =  Gcf.get_active()
         if figManager is not None:
             figManager.canvas.draw()
+
 
 def show(mainloop=True):
     """
@@ -1088,8 +1088,8 @@ class NavigationToolbar2GTK(NavigationToolbar2, gtk.Toolbar):
         self.append_widget(self.message, None, None)
         self.message.show()
 
-        self.fileselect = FileSelection(path=None,
-                                        title='Save the figure')
+        self.fileselect = FileSelection(title='Save the figure',
+                                        parent=self.win,)
 
         
         
@@ -1122,8 +1122,7 @@ class NavigationToolbar2GTK(NavigationToolbar2, gtk.Toolbar):
         self.show_all()
 
         self.fileselect = FileChooserDialog(title='Save the figure',
-                                            #parent=None,)  # later - add parent
-                                            parent=self.win,)  # later - add parent
+                                            parent=self.win,)
                                             
     
     def save_figure(self, button):
@@ -1193,8 +1192,7 @@ class NavigationToolbar(gtk.Toolbar):
         else:
             self._create_toolitems_2_2()
             self.update = self._update_2_2
-            self.fileselect = FileSelection(path=None,
-                                            title='Save the figure',
+            self.fileselect = FileSelection(title='Save the figure',
                                             parent=self.win)
         self.show_all()            
         self.update()
@@ -1437,8 +1435,8 @@ class FileSelection(gtk.FileSelection):
 
 if gtk.pygtk_version >= (2,4,0):
     class FileChooserDialog(gtk.FileChooserDialog):
-        """GTK+ 2.4 file selector which remembers the last
-        file/directory selected
+        """GTK+ 2.4 file selector which remembers the last file/directory
+        selected and presents the user with a menu of supported image formats
         """
         def __init__ (self,
                       title   = 'Save file',
