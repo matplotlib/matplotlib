@@ -78,5 +78,5 @@ ax.text(left, top, 'rotated\nwith newlines',
         transform=ax.transAxes)
 
 axis('off')
-savefig('alignment_test', dpi=100)
+#savefig('alignment_test', dpi=100)
 show()

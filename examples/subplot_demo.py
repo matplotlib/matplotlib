@@ -24,6 +24,6 @@ grid(True)
 xlabel('time (s)')
 ylabel('Undamped')
 #axis([0,2,-1,1])
-savefig('subplot_demo')
+#savefig('subplot_demo')
 show()
 
