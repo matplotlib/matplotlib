@@ -276,9 +276,8 @@ def cohere(x, y, NFFT=256, Fs=2, detrend=detrend_none,
 
 def corrcoef(*args):
     """
-    
     corrcoef(X) where X is a matrix returns a matrix of correlation
-    coefficients for each row of X.
+    coefficients for each numrows observations and numcols variables.
     
     corrcoef(x,y) where x and y are vectors returns the matrix or
     correlation coefficients for x and y.
@@ -287,8 +286,9 @@ def corrcoef(*args):
 
     The correlation matrix is defined from the covariance matrix C as
 
-    r(i,j) = C[i,j] / (C[i,i]*C[j,j])
+    r(i,j) = C[i,j] / sqrt(C[i,i]*C[j,j])
     """
+
 
     if len(args)==2:
         X = transpose(array([args[0]]+[args[1]]))
@@ -299,8 +299,18 @@ def corrcoef(*args):
 
     
     C = cov(X)
-    d = resize(diagonal(C), (2,1))
-    denom = sqrt(matrixmultiply(d,transpose(d)))
+
+    if len(args)==2:
+       d = resize(diagonal(C), (2,1))
+       denom = sqrt(matrixmultiply(d,transpose(d)))
+    else:
+       dc = diagonal(C)
+       N = len(dc)       
+       shape = N,N
+       vi = resize(dc, shape)
+       denom = sqrt(vi*transpose(vi)) # element wise multiplication
+       
+
     r = divide(C,denom)
     try: return r.real
     except AttributeError: return r
@@ -1140,7 +1150,7 @@ A set of convenient utilities for numerical work.
 Most of this module requires Numerical Python or is meant to be used with it.
 See http://www.pfdubois.com/numpy for details.
 
-Copyright (c) 2001-2004, Fernando Pérez. <Fernando.Perez@colorado.edu>
+Copyright (c) 2001-2004, Fernando Perez. <Fernando.Perez@colorado.edu>
 All rights reserved.
 
 This license was generated from the BSD license template as found in:

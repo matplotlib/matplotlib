@@ -1,6 +1,9 @@
 New entries should be added at the top
 
 ==============================================================
+2004-10-20 Fixed corrcoef bug exposed by corrcoef(X) where X is matrix
+           - JDH
+
 2004-10-19 Added kwarg support to xticks and yticks to set ticklabel
            text properties -- thanks to T. Edward Whalen for the suggestion
 
