@@ -267,6 +267,7 @@ examples/color_demo.py
 examples/colours.py
 examples/contour_demo.py
 examples/contour_demo2.py
+examples/contour_image.py
 examples/contourf_demo.py
 examples/coords_demo.py
 examples/coords_report.py
@@ -528,6 +529,8 @@ lib/matplotlib/cm.py
 lib/matplotlib/collections.py
 lib/matplotlib/collections.py.~1.15.~
 lib/matplotlib/colors.py
+lib/matplotlib/contour.py
+lib/matplotlib/contour.py~
 lib/matplotlib/dates.py
 lib/matplotlib/figure.py
 lib/matplotlib/figure.py.~1.16.~

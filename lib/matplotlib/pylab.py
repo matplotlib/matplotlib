@@ -1797,7 +1797,7 @@ def clabel(*args, **kwargs):
     except:
         hold(b)
         raise
-    
+    if ret.mappable is not None: gci._current = ret.mappable
     hold(b)
     return ret
 clabel.__doc__ = _shift_string(Axes.clabel.__doc__) + """

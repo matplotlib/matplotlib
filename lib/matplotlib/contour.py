@@ -28,15 +28,29 @@ class ContourMappable(ScalarMappable):
     """
     a class to allow contours to respond properly to change in cmaps, etc
     """
-    def __init__(self, levels, collections, norm=None, cmap=None):
+    def __init__(self, levels, collections, norm=None, cmap=None, labeld=None):
+        """
+        See comment on labeld in the ContourLabeler class
+        
+        """
         ScalarMappable.__init__(self, norm, cmap)
         self.levels = levels
         self.collections = collections
+        if labeld is None: labeld = {}
+        self.labeld = labeld
 
     def changed(self):
         colors = [ (tuple(rgba),) for rgba in self.to_rgba(self.levels)]
+        contourNum = 0
         for color, collection in zip(colors, self.collections):
             collection.set_color(color)
+            Ncolor = len(color) # collections could have more than 1 in principle
+            for segNum, segment in enumerate(collection._segments):
+                key = contourNum, segNum
+                t = self.labeld.get(key)
+                if t is not None: t.set_color(color[segNum%Ncolor])
+            contourNum += 1
+            
         ScalarMappable.changed(self)
 
 class ContourLabeler:
@@ -128,6 +142,13 @@ class ContourLabeler:
         self.cl = []
         self.cl_xy = []
 
+        # we have a list of contours and each contour has a list of
+        # segments.  We want changes in the contour color to be
+        # reflected in changes in the label color.  This is a good use
+        # for traits observers, but in the interim, until traits are
+        # utilized, we'll create a dict mapping i,j to text instances.
+        # i is the contour level index, j is the sement index
+        self.labeld = {}
         if inline == 1:
             toremove, toadd = self.inline_labels(levels, contours, colors, fslist, fmt)
             for r in toremove:
@@ -139,7 +160,19 @@ class ContourLabeler:
 
         for label in self.cl:
             self.ax.add_artist(label)
-        return silent_list('Text', self.cl)
+
+
+        if hasattr(contours, 'mappable'):
+            old = getattr(contours, 'mappable')
+            mappable = ContourMappable(old.get_array(), toadd, cmap=old.cmap, labeld=self.labeld)            
+            mappable.set_array(old.get_array())
+            mappable.autoscale()
+        else:
+            mappable = None
+
+        ret =  silent_list('Text', self.cl)
+        ret.mappable = mappable
+        return ret
 
 
 
@@ -316,10 +349,12 @@ class ContourLabeler:
         toremove = []
         toadd = []
         trans = self.ax.transData
+        contourNum = 0
         for lev, con, color, fsize in zip(levels, contours, colors, fslist):
             col = []
             lw = self.get_label_width(lev, fmt, fsize)
-            for linecontour in con._segments:
+            for segNum, linecontour in enumerate(con._segments):
+                key = contourNum, segNum
                 # for closed contours add one more point to
                 # avoid division by zero
                 if linecontour[0] == linecontour[-1]:
@@ -332,15 +367,18 @@ class ContourLabeler:
                     # data coordinates
                     dx,dy = trans.inverse_xy_tup((x,y))
                     t = Text(dx, dy, rotation = rotation, horizontalalignment='center', verticalalignment='center')
+                    self.labeld[key] = t
                     text = self.get_text(lev,fmt)
                     self.set_label_props(t, text, color)
                     self.cl.append(t)
 
                     new  =  self.break_linecontour(linecontour, rotation, lw, ind)
                     for c in new: col.append(c)
-                else: col.append(linecontour)
+                else:
+                    col.append(linecontour)
             toremove.append(con)
             toadd.append(LineCollection(col, colors=con._colors, linewidths = con._lw))
+            contourNum += 1
 
         return toremove, toadd
 

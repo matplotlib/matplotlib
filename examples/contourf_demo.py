@@ -4,7 +4,7 @@ from pylab import *
 origin = 'lower'
 #origin = 'upper'
 
-delta = 0.5 #0.025
+delta = 0.025
 x = y = arange(-3.0, 3.01, delta)
 X, Y = meshgrid(x, y)
 Z1 = bivariate_normal(X, Y, 1.0, 1.0, 0.0, 0.0)
