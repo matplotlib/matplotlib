@@ -10,10 +10,11 @@ from Numeric import sin, pi, arange, absolute, sqrt
 import matplotlib
 matplotlib.use('GTK')
 
-from matplotlib.backends.backend_gtk import FigureGTK, NavigationToolbar, \
-     error_msg, colorManager
+from matplotlib.backends.backend_gtk import NavigationToolbar, \
+     error_msg, colorManager, FigureCanvasGTK
 from matplotlib.axes import Subplot
 
+from matplotlib.figure import Figure
 from matplotlib.lines import Line2D, lineStyles, lineMarkers
 from matplotlib.transforms import Bound2D
 from matplotlib.patches import draw_bbox
@@ -201,10 +202,10 @@ class LineDialog(gtk.Dialog):
                 break
         self.destroy()            
 
-class ArtistPickerFigure(FigureGTK):
+class PickerCanvas(FigureCanvasGTK):
 
     def button_press_event(self, widget, event):
-        width, height = self.renderer.gdkDrawable.get_size()
+        width, height = self.figure.renderer.gdkDrawable.get_size()
         
         self.pick(event.x, height-event.y)
 
@@ -225,10 +226,10 @@ class ArtistPickerFigure(FigureGTK):
         """
 
         clickBBox = Bound2D(x-epsilon/2, y-epsilon/2, epsilon, epsilon)
-        draw_bbox(self.dpi, clickBBox, self.renderer)
+        draw_bbox(self.figure.dpi, clickBBox, self.figure.renderer)
 
         def over_text(t):
-            bbox = t.get_window_extent(self.renderer)
+            bbox = t.get_window_extent(self.figure.renderer)
             return clickBBox.overlap(bbox)
 
         def over_line(line):
@@ -239,9 +240,9 @@ class ArtistPickerFigure(FigureGTK):
             distances = sqrt((x-xdata)**2 + (y-ydata)**2)
             return min(distances)<epsilon
 
-        for ax in fig.axes:
+        for ax in self.figure.axes:
 
-            for line in ax._lines:
+            for line in ax.get_lines():
                 if over_line(line):
                     self.select_line(line)
                     return
@@ -265,17 +266,21 @@ vbox = gtk.VBox(spacing=3)
 win.add(vbox)
 vbox.show()
 
-fig = ArtistPickerFigure(figsize=(5,4), dpi=100)
+fig = Figure(figsize=(5,4), dpi=100)
+
 ax = Subplot(fig, 111)
 t = arange(0.0,3.0,0.01)
 s = sin(2*pi*t)
 
 ax.plot(t,s)
+ax.set_title('click on line or text')
 fig.add_axis(ax)
-fig.show()
-vbox.pack_start(fig)
 
-toolbar = NavigationToolbar(fig, win)
+canvas = PickerCanvas(fig)
+canvas.show()
+vbox.pack_start(canvas)
+
+toolbar = NavigationToolbar(canvas, win)
 toolbar.show()
 vbox.pack_start(toolbar, gtk.FALSE, gtk.FALSE)
 

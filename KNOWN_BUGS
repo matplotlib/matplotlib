@@ -22,3 +22,12 @@ KNOWN BUGS
   - x and y ticklabels overlap at origin
 
   - parse error on lines like plot(bins, mu, bins, mu+sigma, '--')
+
+GD 
+
+  - right tickline is off
+ 
+  - dashes not scaling with dpi properly - rounding error or other?
+
+
+ 
