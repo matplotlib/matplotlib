@@ -21,6 +21,8 @@ Thanks to matplotlib and wx teams for creating such great software!
 import sys, time, os, gc
 import matplotlib
 matplotlib.use('WXAgg')
+# some of this code is numarray dependent
+matplotlib.rcParams['numerix'] = 'numarray'  
 import matplotlib.cm as cm
 from matplotlib.backends.backend_wxagg import Toolbar, FigureCanvasWxAgg
 from matplotlib.figure import Figure
@@ -65,6 +67,7 @@ class PlotPanel(wxPanel):
         self.im = a.imshow( z, cmap=cm.jet)#, interpolation='nearest')
         
         zmax = numerix.max(numerix.max(z))-ERR_TOL
+        
         ymax_i, xmax_i = numerix.nonzero(
             numerix.greater_equal(z, zmax))
         if self.im.origin == 'upper':
