@@ -269,3 +269,5 @@
 -- DONE add figure legend
 
 -- fix newlines across backends
+
+-- support partial window expose redraws in agg
