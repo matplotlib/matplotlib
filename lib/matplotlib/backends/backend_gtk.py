@@ -476,17 +476,15 @@ class GraphicsContextGTK(GraphicsContextBase):
 
     def rgb_to_gdk_color(self, rgb):
         """
-        Take an RGB tuple (with three 0.0-1.0 values) and return an allocated
-        gtk.gdk.Color
+        rgb - an RGB tuple (three 0.0-1.0 values)
+        return an allocated gtk.gdk.Color
         """
         try:
-            #return self._cached[tuple(rgb)] # tuple not needed?
             return self._cached[rgb] 
         except KeyError:
-            color = self._cmap.alloc_color(
-                int(rgb[0]*65535),int(rgb[1]*65535),int(rgb[2]*65535))
-            #self._cached[tuple(rgb)] = color
-            self._cached[rgb] = color
+            color = self._cached[rgb] = \
+                    self._cmap.alloc_color(
+                        int(rgb[0]*65535),int(rgb[1]*65535),int(rgb[2]*65535))
             return color
 
 
