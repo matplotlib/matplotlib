@@ -260,6 +260,7 @@ def add_tk_flags(module):
         # Find the directory that contains the Tcl.framwork and Tk.framework
         # bundles.
         # XXX distutils should support -F!
+	tk_framework_found = 0
         for F in framework_dirs:
             # both Tcl.framework and Tk.framework should be present
             for fw in 'Tcl', 'Tk':
