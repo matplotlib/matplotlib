@@ -17,7 +17,8 @@ BUILT_AGG       = False
 BUILT_FONTTOOLS = False
 BUILT_GTKGD     = False
 BUILT_GTKAGG    = False
-BUILT_FT2FONT       = False
+BUILT_TKAGG     = False
+BUILT_FT2FONT   = False
 
 def getoutput(s):
     'get the output of a system command'
@@ -83,6 +84,23 @@ def add_pygtk_flags(module):
          (flag.startswith('-l') or flag.startswith('-L'))])
 
 
+def add_tk_flags(module):
+    'Add the module flags to build extensions which use tk'
+    includes = [] # ["-I/usr/include"]
+    module.include_dirs.extend([include[2:] for include in includes])
+
+    linkerFlags = ["-ltcl", "-ltk"]  # [, "-L/usr/lib"]
+    module.libraries.extend(
+        [flag[2:] for flag in linkerFlags if flag.startswith('-l')])
+
+    module.library_dirs.extend(
+        [flag[2:] for dir in linkerFlags if flag.startswith('-L')])
+
+    module.extra_link_args.extend(
+        [flag for flag in linkerFlags if not
+         (flag.startswith('-l') or flag.startswith('-L'))])
+
+
 def build_ft2font(ext_modules, packages):
     global BUILT_FT2FONT
     if BUILT_FT2FONT: return # only build it if you you haven't already
@@ -121,6 +139,24 @@ def build_gtkagg(ext_modules, packages):
     ext_modules.append(module)    
     BUILT_GTKAGG = True
 
+
+
+def build_tkagg(ext_modules, packages):
+    global BUILT_TKAGG
+    if BUILT_TKAGG: return # only build it if you you haven't already
+    module = Extension('matplotlib.backends._tkagg',
+                       ['src/_tkagg.cpp'],
+                       )
+
+
+    # add agg flags before pygtk because agg only supports freetype1
+    # and pygtk includes freetype2.  This is a bit fragile.
+    
+    add_agg_flags(module)  
+    add_tk_flags(module)
+
+    ext_modules.append(module)    
+    BUILT_GTKAGG = True
 
 
 def build_agg(ext_modules, packages):

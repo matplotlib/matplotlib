@@ -54,7 +54,7 @@ def drive(backend):
             lines.append(line)
         basename, ext = os.path.splitext(fname)
         outfile = basename + '_%s'%backend
-        if backend in ('GTK', 'WX'):
+        if backend in ('GTK', 'WX', 'TkAgg'):
             lines.append('show()')
         else:
             lines.append('savefig("%s", dpi=150)' % outfile)
@@ -63,7 +63,7 @@ def drive(backend):
         os.system('python %s' % tmpfile)
 
 times = {}
-backends = ['PS', 'GD', 'Paint', 'Agg', 'Template']
+backends = ['PS', 'GD', 'Paint', 'Agg', 'TkAgg', 'Template']
 backends.extend([ 'GTK', 'WX'])
 #backends = [ 'Agg']
 

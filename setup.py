@@ -24,11 +24,12 @@ BUILD_GTKAGG       = 1
 # build GTK GUI with GD renderer ; requires pygtk and GD src distros installed
 BUILD_GTKGD        = 0
 
+# build TK GUI with Agg renderer ;  requires Tkinter Python extension and Tk includes
+BUILD_TKAGG        = 0
+
 # build the freetype2 interface - highly experimental and broken!
 # Unless your name is John Hunter, you probably don't want this
-BUILD_FT2FONT      = 1  
-
-
+BUILD_FT2FONT      = 1
 
 
 ## You shouldn't need to customize below this point
@@ -37,13 +38,14 @@ from distutils.core import setup
 import sys,os
 import glob
 from setupext import build_gtkgd, build_agg, build_fonttools, build_gtkagg, \
-     build_ft2font
+     build_tkagg, build_ft2font
 import distutils.sysconfig
 
 data = []
 data.extend(glob.glob('fonts/afm/*.afm'))
 data.extend(glob.glob('fonts/ttf/*.ttf'))
 data.extend(glob.glob('images/*.xpm'))
+data.extend(glob.glob('images/*.ppm'))
 
 data_files=[('share/matplotlib', data),]
 
@@ -53,9 +55,8 @@ packages = [
     'matplotlib/backends',
     ]
 
-
-if (BUILD_FONTTOOLS or BUILD_AGG or BUILD_GTKAGG or
-    BUILD_GTKGD or BUILD_FT2FONT):
+if (BUILD_FONTTOOLS or BUILD_AGG or BUILD_GTKAGG or 
+    BUILD_TKAGG or BUILD_GTKGD or BUILD_FT2FONT):
     build_fonttools(ext_modules, packages)
     # we need to manually install FontTools.pth since we can't use
     # extra_path which puts all packages -- matplotlib, ttfquery and
@@ -76,12 +77,14 @@ if BUILD_GTKAGG:
     build_agg(ext_modules, packages)
     build_gtkagg(ext_modules, packages)
 
+if BUILD_TKAGG:
+    build_fonttools(ext_modules, packages)
+    build_agg(ext_modules, packages)
+    build_tkagg(ext_modules, packages)
+
 if BUILD_FT2FONT:
     build_fonttools(ext_modules, packages)
     build_ft2font(ext_modules, packages)
-
-
-        
 
 setup(name="matplotlib",
       version= '0.51b',
@@ -100,6 +103,3 @@ setup(name="matplotlib",
       ext_modules = ext_modules, 
       data_files = data_files,
       )
-
-
-        
