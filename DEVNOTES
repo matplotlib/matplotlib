@@ -17,7 +17,7 @@ http://matplotlib.sourceforge.net
   mother> python process_docs.py
   mother> python convert.py
   mother> tar cvfz site.tar.gz *.html screenshots tut examples
-  mother> scp site.tar.gz jdh2358@matplotlib.sf.net:/home/groups/m/ma/matplotlib/htdocs/
+  mother> scp htdocs/site.tar.gz jdh2358@matplotlib.sf.net:/home/groups/m/ma/matplotlib/htdocs/
 
  mother> ssh -l jdh2358 shell.sf.net
  sf> cd /home/groups/m/ma/matplotlib/htdocs

@@ -54,5 +54,5 @@ if 1:   # plot the EEG
     xlabel('time (s)')
 
 
-#savefig('mri_with_eeg')
+savefig('mri_with_eeg')
 show()

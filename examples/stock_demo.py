@@ -10,7 +10,7 @@ ylabel('Normalized price')
 set(gca(), 'xlim', [0, 3])
 title('INTC vs AAPL')
 legend( ('INTC', 'AAPL') )
-#savefig('stock_demo')
+savefig('stock_demo')
 show()
 
 
