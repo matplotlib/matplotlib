@@ -1,6 +1,6 @@
 New entries should be added at the top
 
-
+2005-03-01 Added Eric's contourf routines
 
 2005-03-01 Added start of proper agg SWIG wrapper.  I would like to
            expose agg functionality directly a the user level and this
