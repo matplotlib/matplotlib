@@ -1,6 +1,8 @@
 from __future__ import division
 
-import os, sys, math
+import os, math
+import sys
+def function_name(): return sys._getframe(1).f_code.co_name
 
 try:
     import pygtk
@@ -42,6 +44,12 @@ except ImportError:
     useMathText = False
 else: useMathText = True
 
+Debug = False
+
+# ref gtk+/gtk/gtkwidget.h
+def GTK_WIDGET_DRAWABLE(w): flags = w.flags(); return flags & gtk.VISIBLE !=0 and flags & gtk.MAPPED != 0
+
+
 # the true dots per inch on the screen; should be display dependent
 # see http://groups.google.com/groups?q=screen+dpi+x11&hl=en&lr=&ie=UTF-8&oe=UTF-8&safe=off&selm=7077.26e81ad5%40swift.cs.tcd.ie&rnum=5 for some info about screen dpi
 PIXELS_PER_INCH = 96
@@ -58,12 +66,15 @@ class ColorManagerGTK:
     _cached = {}  # a map from get_color args to colors
     _cmap = None
     
+
     def set_drawing_area(self, da):
         self._cmap = da.get_colormap()
 
+
     def get_color(self, rgb):
         """
-        Take an RGB (a unit RGB tuple) and return a allocated gtk.gdk.Color
+        Take an RGB tuple (with three 0.0-1.0 values) and return an allocated
+        gtk.gdk.Color
         """
         try:
             return self._cached[tuple(rgb)]
@@ -79,7 +90,7 @@ class ColorManagerGTK:
 
     def get_rgb(self, color):
         """
-        Take a gtk.gdk.Color and return an RGB (a unit RGB tuple)
+        Take a gtk.gdk.Color and return an RGB tuple
         """
         return [val/65535 for val in (color.red, color.green, color.blue)]
 
@@ -119,10 +130,12 @@ class RendererGTK(RendererBase):
     offsetd = {}  # a map from text prop tups to text offsets
     rotated = {}  # a map from text prop tups to rotated text pixbufs
 
-    def __init__(self, gtkDA, gdkDrawable, dpi):
+    #def __init__(self, gtkDA, gdkDrawable, dpi):
+    def __init__(self, gtkDA, gdkDrawable, width, height, dpi):
         self.gtkDA = gtkDA
         self.gdkDrawable = gdkDrawable
-        self.width, self.height = self.gdkDrawable.get_size()
+        #self.width, self.height = self.gdkDrawable.get_size()
+        self.width, self.height = width, height
         self.dpi = dpi
 
     def flipy(self):
@@ -223,8 +236,8 @@ class RendererGTK(RendererBase):
     def draw_lines(self, gc, x, y):
         x = x.astype(nx.Int16)
         y = self.height*ones(y.shape, nx.Int16) - y.astype(nx.Int16)  
-
         self.gdkDrawable.draw_lines(gc.gdkGC, zip(x,y))
+        
 
     def draw_point(self, gc, x, y):
         """
@@ -521,14 +534,12 @@ class GraphicsContextGTK(GraphicsContextBase):
         self.gdkGC.foreground = self._get_gdk_color()
         
 
-    def set_linewidth(self, lw):
-        GraphicsContextBase.set_linewidth(self, lw)
+    def set_linewidth(self, w):
+        GraphicsContextBase.set_linewidth(self, w)
 
-        pixels = self.renderer.points_to_pixels(lw)
+        pixels = self.renderer.points_to_pixels(w)
         self.gdkGC.line_width = max(1, int(round(pixels)))
 
-    def set_linestyle(self, style):
-        GraphicsContextBase.set_linestyle(self, style)
                                                
     def set_capstyle(self, cs):
         """
@@ -613,10 +624,10 @@ def new_figure_manager(num, *args, **kwargs):
     """
     Create a new figure manager instance
     """
-    figure = Figure(*args, **kwargs)
-
-    canvas = FigureCanvasGTK(figure)
-    return FigureManagerGTK(canvas, num)
+    thisFig = Figure(*args, **kwargs)
+    canvas = FigureCanvasGTK(thisFig)
+    manager = FigureManagerGTK(canvas, num)
+    return manager
 
 
 class FigureCanvasGTK(gtk.DrawingArea, FigureCanvasBase):
@@ -636,7 +647,6 @@ class FigureCanvasGTK(gtk.DrawingArea, FigureCanvasBase):
         self.set_flags(gtk.CAN_FOCUS)
         self.grab_focus()
         self._isRealized = False
-        self._gpixmap    = None
         self._doplot     = True
         self._printQued  = []
         self._idleID     = 0        # used in gtkAgg
@@ -770,28 +780,32 @@ class FigureCanvasGTK(gtk.DrawingArea, FigureCanvasBase):
 
 
     def expose_event(self, widget, event):
-        if self.window is None: return 
+        if self._new_pixmap and GTK_WIDGET_DRAWABLE(self):
+            width, height = self.allocation.width, self.allocation.height
+            #width  = int(self.figure.bbox.width())
+            #height = int(self.figure.bbox.height())
 
-        if self._new_pixmap: # create new pixmap
-            width  = int(self.figure.bbox.width())
-            height = int(self.figure.bbox.height())
+            #self._pixmap = gtk.gdk.Pixmap(self.window, width, height)
+            if width > self._pixmap_width or height > self._pixmap_height:
+                if Debug: print 'backend_gtk.%s: new pixmap allocated' % function_name()
+                self._pixmap = gtk.gdk.Pixmap (self.window, width, height)
+                self._pixmap_width, self._pixmap_height = width, height
 
-            self._gpixmap = gtk.gdk.Pixmap(self.window, width, height)
-            self.figure.draw(RendererGTK(self, self._gpixmap, self.figure.dpi))
-            self.window.draw_drawable(self._ggc, self._gpixmap,
-                                      0, 0, 0, 0, width, height)
-        else:                # draw from existing pixmap
-            r = event.area
-            self.window.draw_drawable(self._ggc, self._gpixmap,
-                                      r.x, r.y, r.x, r.y, r.width, r.height)
-        self._new_pixmap = False
+            #self.figure.draw (RendererGTK (self, self._pixmap, self.figure.dpi))
+            self.figure.draw (RendererGTK (self, self._pixmap, width, height, self.figure.dpi))
+            #self.window.draw_drawable(self._ggc, self._pixmap,
+            #                          0, 0, 0, 0, width, height)
+
+            self.window.set_back_pixmap (self._pixmap, False)
+            self.window.clear()  # draws the pixmap onto the window bg
+            self._new_pixmap = False
+
+        #else:                # draw from existing pixmap
+        #    r = event.area
+        #    self.window.draw_drawable(self._ggc, self._pixmap,
+        #                              r.x, r.y, r.x, r.y, r.width, r.height)
+        
         return True
-
-#    def _draw_new(self):
-#        if width > self.pixmap_width or height > self.pixmap_height:
-#            self._gpixmap = gtk.gdk.Pixmap(drawable, width, height)
-#            self.pixmap_width  = width
-#            self.pixmap_height = height
 
 
     def print_figure(self, filename, dpi=150, facecolor='w', edgecolor='w'):
@@ -855,7 +869,8 @@ class FigureCanvasGTK(gtk.DrawingArea, FigureCanvasBase):
         height    = int(height)
         gdrawable = self.window
         gpixmap   = gtk.gdk.Pixmap(gdrawable, width, height)
-        pixmap    = RendererGTK(self, gpixmap, self.figure.dpi)
+        #pixmap    = RendererGTK(self, gpixmap, self.figure.dpi)
+        pixmap    = RendererGTK(self, gpixmap, width, height, self.figure.dpi)
 
         self.figure.draw(pixmap)  # ? just create pixmap, don't need to draw to screen
         
