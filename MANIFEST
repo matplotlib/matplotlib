@@ -52,6 +52,7 @@ examples/text_handles.py
 examples/text_themes.py
 examples/vline_demo.py
 examples/wx_demo.py
+examples/xvfb_demo.py
 examples/data/AAPL.dat
 examples/data/INTC.dat
 examples/data/eeg.dat

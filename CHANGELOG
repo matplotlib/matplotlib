@@ -119,6 +119,9 @@
   Fixed a bug in that prevented the manual setting of ticklabel
   strings from working properly
 
+2003-11-02 - Do a nearest neighbor color pick on GD when
+             allocate fails
+
 2003-11-02 
    - Added pcolor plot
    - Added MRI example
@@ -140,5 +143,28 @@
 2003-11-14 Fixed legend positioning bug and added new position args
 
 2003-11-16 Finsihed porting GD to new axes API
+
+
+2003-11-20 - add TM for matlab on website and in docs
+
+
+2003-11-20 - make a nice errorbar and scatter screenshot   
+
+2003-11-20 - auto line style cycling for multiple line types
+   broken
+
+2003-11-18 (using inkrect) :logical rect too big on gtk backend
+
+2003-11-18 ticks don't reach edge of axes in gtk mode --
+   rounding error?
+
+2003-11-20 - port Gary's errorbar code to new API before 0.40
+
+2003-11-20 - problem with stale _set_font.  legend axes box
+   doesn't resize on save in GTK backend -- see htdocs legend_demo.py
+
+2003-11-21 - make a dash-dot dict for the GC
+
+2003-12-15 - fix install path bug
 
  
