@@ -99,7 +99,7 @@ if BUILD_FONTTOOLS:
 
 
 setup(name="matplotlib",
-      version= '0.52',
+      version= '0.52.1a',
       description = "Matlab style python plotting package",
       author = "John D. Hunter",
       author_email="jdhunter@ace.bsd.uchicago.edu",

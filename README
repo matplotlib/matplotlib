@@ -26,7 +26,7 @@ INTRODUCTION:
 
 REQUIREMENTS:
 
-   python 2.2+, and Numeric-22+.  Other requirements are backend
+   python 2.2+, and Numeric-22+ or numarray.  Other requirements are backend
    dependent.  See http://matplotlib.sourceforge.net/backends.html
 
 INSTALL
