@@ -140,9 +140,11 @@ matplotlib/_matlab_helpers.py
 matplotlib/afm.py
 matplotlib/artist.py
 matplotlib/axes.py
+matplotlib/axis.py
 matplotlib/backend_bases.py
 matplotlib/cbook.py
 matplotlib/colormap.py
+matplotlib/legend.py
 matplotlib/lines.py
 matplotlib/matlab.py
 matplotlib/mlab.py
