@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 from matplotlib import matlab
 
 data = ((3,1000), (10,3), (100,30), (500, 800), (50,1))
