@@ -1,5 +1,7 @@
 New entries should be added at the top
 
+2004-05-27 Lots of small bug fixes: rotated text at negative angles,
+           errorbar autoscaling, right tick label position - JDH
 
 2004-05-26 Added Gary's errorbar stuff and made some fixes for length
            one plots and constant data plots - JDH

@@ -396,8 +396,14 @@
 
 -- DONE incorporate gary's errorbar
 
---  bug in -45 newline text
+-- DONE  bug in -45 newline text
 
 -- write to stream in Agg
 
--- gtkagg bug in win98
+-- DONE gtkagg bug in win98
+
+-- DONE fix try in errorbar
+
+-- add collections to lines
+
+-- some strangeness in table when multiple saves are called

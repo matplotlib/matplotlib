@@ -328,6 +328,9 @@ FT2Font_clear(FT2FontObject *self)
   self->image.buffer = NULL;
   self->image.width = 0;
   self->image.height = 0;
+  self->image.offsetx = 0.0;
+  self->image.offsety = 0.0;
+
   self->text = NULL;
   self->angle = 0.0;
 
@@ -763,12 +766,19 @@ FT2Font_draw_glyphs_to_bitmap(FT2FontObject *self, PyObject *args)
   self->image.width   = (string_bbox.xMax-string_bbox.xMin) / 64+2;
   self->image.height  = (string_bbox.yMax-string_bbox.yMin) / 64+2;
 
+  self->image.offsetx = string_bbox.xMin/64.0;
+  if (self->angle==0)  
+    self->image.offsety =    -self->image.height;
+  else 
+    self->image.offsety =   -string_bbox.yMax/64.0;
+  
+  //printf("offset %d, %1.2f, %1.2f\n", self->image.height, string_bbox.yMin/64.0, string_bbox.yMax/64.0);
   numBytes = self->image.width*self->image.height;
   free(self->image.buffer);
   self->image.buffer = (unsigned char *)malloc(numBytes);
   for (n=0; n<numBytes; n++) 
     self->image.buffer[n] = 0;
-  
+
   for ( n = 0; n < self->num_glyphs; n++ )
     {
       FT_BBox bbox;
@@ -792,7 +802,7 @@ FT2Font_draw_glyphs_to_bitmap(FT2FontObject *self, PyObject *args)
       /* now, draw to our target surface (convert position) */
       
       
-      //bitmap left and top in pixel, string bbok in subpixel
+      //bitmap left and top in pixel, string bbox in subpixel
       draw_bitmap( &bitmap->bitmap, 
 		   &self->image, 		   	       
 		   bitmap->left-string_bbox.xMin/64,

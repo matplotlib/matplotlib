@@ -14,6 +14,7 @@ typedef struct {
   unsigned char *buffer;
   unsigned long width;
   unsigned long height;
+  int offsetx, offsety;
 } FT2_Image;
 
 typedef struct {
@@ -39,6 +40,7 @@ typedef struct {
   double angle;
   int num_chars;
   int num_glyphs;
+
   FT2_Image image;
 } FT2FontObject;
 
