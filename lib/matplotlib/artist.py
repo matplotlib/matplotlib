@@ -136,4 +136,4 @@ ACCEPTS: [True | False]
             if func is None or not callable(func):
                 raise AttributeError('Unknown property %s'%k)
             func(v)
-            print 'set', k, v
+
