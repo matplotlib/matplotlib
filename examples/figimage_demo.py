@@ -5,7 +5,7 @@ See pcolor_demo2 for a much faster way of generating pcolor plots
 from __future__ import division
 from matplotlib.matlab import *
 rc('axes', hold=True)
-rc('image', origin='lower')
+rc('image', origin='upper')
 figure(1, frameon=False)
 Z = arange(10000.0); Z.shape = 100,100
 Z[:,50:] = 1
