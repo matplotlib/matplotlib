@@ -8,10 +8,12 @@ from __future__ import division
 from matplotlib.numerix import sin, pi, arange, absolute, sqrt
 
 import matplotlib
-matplotlib.use('GTK')
+matplotlib.use('GTKAgg')
 
 from matplotlib.backends.backend_gtk import NavigationToolbar, \
-     error_msg, colorManager, FigureCanvasGTK
+     error_msg, colorManager
+from matplotlib.backends.backend_gtkagg import FigureCanvasGTKAgg as FigureCanvas
+
 from matplotlib.axes import Subplot
 
 from matplotlib.figure import Figure
@@ -202,10 +204,11 @@ class LineDialog(gtk.Dialog):
                 break
         self.destroy()            
 
-class PickerCanvas(FigureCanvasGTK):
+class PickerCanvas(FigureCanvas):
 
     def button_press_event(self, widget, event):
-        width, height = self.figure.renderer.gdkDrawable.get_size()
+        width = self.figure.bbox.x.interval()
+        height = self.figure.bbox.y.interval()
         
         self.pick(event.x, height-event.y)
 

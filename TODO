@@ -282,4 +282,11 @@
 
 -- rotated mathtext
 
+-- fix mathtext sub and super layout
+
+-- get a sf request to remove fonttools and ttfquery
+
+-- add polar plots
+
+-- add pie charts
 
