@@ -83,7 +83,7 @@ def add_agg_flags(module):
     module.libraries.append('png')
     module.libraries.append('z')
     add_base_flags(module)
-    module.include_dirs.extend(['src','agg21/include', '.'])
+    module.include_dirs.extend(['src','agg2/include', '.'])
 
     # put these later for correct link order
     module.libraries.extend(['stdc++', 'm'])
@@ -304,7 +304,7 @@ def build_agg(ext_modules, packages):
     if BUILT_AGG: return # only build it if you you haven't already
     
     deps = ['src/_backend_agg.cpp', 'src/ft2font.cpp', 'src/mplutils.cpp']
-    deps.extend(glob.glob('agg21/src/*.cpp'))
+    deps.extend(glob.glob('agg2/src/*.cpp'))
     deps.extend(glob.glob('CXX/*.cxx'))
     deps.extend(glob.glob('CXX/*.c'))
 
@@ -324,7 +324,7 @@ def build_image(ext_modules, packages, numerix):
     if BUILT_IMAGE: return # only build it if you you haven't already
     
     deps = ['src/_image.cpp', 'src/mplutils.cpp'] 
-    deps.extend(glob.glob('agg21/src/*.cpp'))
+    deps.extend(glob.glob('agg2/src/*.cpp'))
     deps.extend(glob.glob('CXX/*.cxx'))
     deps.extend(glob.glob('CXX/*.c'))
 
