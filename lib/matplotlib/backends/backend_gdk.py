@@ -77,12 +77,12 @@ class RendererGDK(RendererBase):
     layoutd = {}  # a map from text prop tups to pango layouts
     rotated = {}  # a map from text prop tups to rotated text pixbufs
 
-    #def __init__(self, gtkDA, gdkDrawable, width, height, dpi):
     def __init__(self, gtkDA, dpi):
         # gtkDA is used in '<widget>.create_pango_layout(s)' only
         self.gtkDA = gtkDA
-        self.dpi = dpi
-
+        self.dpi   = dpi
+        self._cmap = gtkDA.get_colormap()
+        
     def _set_pixmap (self, gdkDrawable):
         self.gdkDrawable = gdkDrawable
 
@@ -191,12 +191,9 @@ class RendererGDK(RendererBase):
             self._draw_rotated_text(gc, x, y, s, prop, angle)
 
         else:
-            layout = self._get_pango_layout(s, prop)
-            inkRect, logicalRect = layout.get_pixel_extents()
+            layout, inkRect, logicalRect = self._get_pango_layout(s, prop)
             l, b, w, h = inkRect
-
-            self.gdkDrawable.draw_layout(gc.gdkGC, x=x, y=y-h-b,
-                                         layout=layout)
+            self.gdkDrawable.draw_layout(gc.gdkGC, x, y-h-b, layout)
 
         
     def _draw_mathtext(self, gc, x, y, s, prop, angle):
@@ -251,42 +248,35 @@ class RendererGDK(RendererBase):
         
     def _draw_rotated_text(self, gc, x, y, s, prop, angle):
         """
-        Draw the text rotated 90 degrees
+        Draw the text rotated 90 degrees, other angles are not supported
         """
+        # this function (and its called functions) is a bottleneck
+        # Pango 1.6 supports rotated text, but pygtk 2.4.0 does not yet have wrapper functions
 
         gdrawable = self.gdkDrawable
         ggc = gc.gdkGC
 
-        layout = self._get_pango_layout(s, prop)
-        inkRect, logicalRect = layout.get_pixel_extents()
-        rect = inkRect
-        l, b, w, h = rect
-
+        layout, inkRect, logicalRect = self._get_pango_layout(s, prop)
+        l, b, w, h = inkRect
         x = int(x-h)
         y = int(y-w)
-        # get the background image
 
-        # todo: cache rotation for dynamic redraw until pygtk mem leak
-        # fixed
         key = (x,y,s,angle,hash(prop))
-        imageOut = self.rotated.get(key)
-        if imageOut != None:
-            gdrawable.draw_image(ggc, imageOut, 0, 0, x, y, h, w)
+        imageVert = self.rotated.get(key)
+        if imageVert != None:
+            gdrawable.draw_image(ggc, imageVert, 0, 0, x, y, h, w)
             return
 
-        # save the background
         imageBack = gdrawable.get_image(x, y, w, h)
         imageVert = gdrawable.get_image(x, y, h, w)
-
-        # transform the vertical image, write it onto the renderer,
-        # and draw the layout onto it
-        imageFlip = gtk.gdk.Image(type=gdk.IMAGE_NORMAL,
+        #imageFlip = gtk.gdk.Image(type=gdk.IMAGE_NORMAL,
+        imageFlip = gtk.gdk.Image(type=gdk.IMAGE_FASTEST,
                                   visual=gdrawable.get_visual(),
                                   width=w, height=h)
         if imageFlip == None or imageBack == None or imageVert == None:
             verbose.report_error("Could not renderer vertical text", s)
             return
-        imageFlip.set_colormap(gdrawable.get_colormap())
+        imageFlip.set_colormap(self._cmap)
         for i in range(w):
             for j in range(h):
                 imageFlip.put_pixel(i, j, imageVert.get_pixel(j,w-i-1) )
@@ -294,41 +284,30 @@ class RendererGDK(RendererBase):
         gdrawable.draw_image(ggc, imageFlip, 0, 0, x, y, w, h)
         gdrawable.draw_layout(ggc, x, y-b, layout)
 
-        # now get that image and flip it vertical
-        imageIn = gdrawable.get_image(x, y, w, h)
-        imageOut = gtk.gdk.Image(type=gdk.IMAGE_NORMAL,
-                                 visual=gdrawable.get_visual(),
-                                 width=h, height=w)
-        imageOut.set_colormap(gdrawable.get_colormap())
+        imageIn  = gdrawable.get_image(x, y, w, h)
         for i in range(w):
             for j in range(h):
-                imageOut.put_pixel(j, i, imageIn.get_pixel(w-i-1,j) )
+                imageVert.put_pixel(j, i, imageIn.get_pixel(w-i-1,j) )
 
-        # draw the old background and the flipped text
         gdrawable.draw_image(ggc, imageBack, 0, 0, x, y, w, h)
-        gdrawable.draw_image(ggc, imageOut, 0, 0, x, y, h, w)
-        self.rotated[key] = imageOut
-        return True
+        gdrawable.draw_image(ggc, imageVert, 0, 0, x, y, h, w)
+        self.rotated[key] = imageVert
 
 
     def _get_pango_layout(self, s, prop):
         """
-        Return a pango layout instance for Text 's' with properties 'prop'.
-        cache to layoutd
+        Create a pango layout instance for Text 's' with properties 'prop'.
+        Return - pango layout (from cache if already exists)
         """
+        # problem? - cache gets bigger and bigger, is never cleared out
+        # two (not one) layouts are created for every text item s (then they are cached) - why?
+        
         key = self.dpi.get(), s, hash(prop)
-        layout = self.layoutd.get(key)
-        if layout != None:
-            return layout
-
-        #fontname = prop.get_name()
-        #font = pango.FontDescription('%s' % fontname)
-        #font.set_weight(self.fontweights[prop.get_weight()])
-        #font.set_style(self.fontangles[prop.get_style()])
-        #size = prop.get_size_in_points() * self.dpi.get() / PIXELS_PER_INCH
-        #font.set_size (int(size * 1024))  # pango.SCALE = 1024, not defined in pygtk 1.99.16
-        #layout = self.gtkDA.create_pango_layout(s)
-        #layout.set_font_description(font)    
+        value = self.layoutd.get(key)
+        if value != None:
+            #print 'layoutd cached value'
+            return value
+        #print 'len(self.layoutd), s', len(self.layoutd), s
 
         size = prop.get_size_in_points() * self.dpi.get() / PIXELS_PER_INCH
         size = round(size)
@@ -341,9 +320,10 @@ class RendererGDK(RendererBase):
 
         layout = self.gtkDA.create_pango_layout(s)
         layout.set_font_description(font)    
-
-        self.layoutd[key] = layout
-        return layout
+        inkRect, logicalRect = layout.get_pixel_extents()
+        
+        self.layoutd[key] = layout, inkRect, logicalRect
+        return layout, inkRect, logicalRect
 
 
     def flipy(self):
@@ -359,8 +339,7 @@ class RendererGDK(RendererBase):
                 s, self.dpi.get(), prop.get_size_in_points())
             return width, height
 
-        layout = self._get_pango_layout(s, prop)
-        inkRect, logicalRect = layout.get_pixel_extents()
+        layout, inkRect, logicalRect = self._get_pango_layout(s, prop)
         l, b, w, h = inkRect
         return w, h+1
 
@@ -393,7 +372,7 @@ class GraphicsContextGDK(GraphicsContextBase):
         GraphicsContextBase.__init__(self)
         self.renderer = renderer
         self.gdkGC    = gtk.gdk.GC(renderer.gdkDrawable)
-        self._cmap    = self.gdkGC.get_colormap()
+        self._cmap    = renderer._cmap
 
 
     def rgb_to_gdk_color(self, rgb):
@@ -533,7 +512,8 @@ class FigureCanvasGDK(FigureCanvasBase):
             # jpg colors don't match the display very well, png colors match better
             pixbuf = gtk.gdk.Pixbuf(gtk.gdk.COLORSPACE_RGB, 0, 8,
                                     width, height)
-            pixbuf.get_from_drawable(self._pixmap, self._pixmap.get_colormap(),
+            #pixbuf.get_from_drawable(self._pixmap, self._pixmap.get_colormap(),
+            pixbuf.get_from_drawable(self._pixmap, self._renderer._cmap,
                                      0, 0, 0, 0, width, height)
         
             # pixbuf.save() recognises 'jpeg' not 'jpg'

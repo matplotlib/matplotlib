@@ -19,12 +19,7 @@ from matplotlib._pylab_helpers import Gcf
 from matplotlib.figure import Figure
 
 from backend_gdk import RendererGDK
-
-try: from matplotlib.mathtext import math_parse_s_ft2font
-except ImportError:
-    verbose.report_error('backend_gtk could not import mathtext (build with ft2font)')
-    useMathText = False
-else: useMathText = True
+from matplotlib.mathtext import math_parse_s_ft2font
 
 pygtk_version_required = (1,99,16)
 try:
@@ -292,6 +287,7 @@ class FigureCanvasGTK(gtk.DrawingArea, FigureCanvasBase):
 
     def print_figure(self, filename, dpi=150, facecolor='w', edgecolor='w',
                      orientation='portrait'):
+        # TODO - use gdk print figure?
         root, ext = os.path.splitext(filename)       
         ext = ext[1:]
         if ext == '':
