@@ -280,12 +280,6 @@ style="%(style)s %(rgbhex)s %(clippath)s "
         return GraphicsContextSVG()
 
 class GraphicsContextSVG(GraphicsContextBase):
-
-    def set_linestyle(self, style):
-        GraphicsContextBase.set_linestyle(self, style)
-        offset, dashes = self.dashd[style]
-        self.set_dashes(offset, dashes)
-
     def get_capstyle(self):
         'one of butt/round/square/none'
         d = {'projecting' : 'square',
