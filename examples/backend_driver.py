@@ -1,11 +1,7 @@
 #!/usr/bin/env python
 """
-This is use to drive many of the examples across the image backends
-and is used for regression testing and comparing backend efficiency
-
-This example creates a lot of temp files name _tmp_*.py.  You'll
-probably want to remove them after the script runs
-
+This is used to drive many of the examples across the image backends,
+for regression testing, and comparing backend efficiency
 """
 
 from __future__ import division
@@ -75,50 +71,59 @@ fail22  = (
     'date_demo2.py',    
     'finance_demo.py',
     )
+
 def drive(backend, python='python2.3'):
     
     for fname in files:
         if python=='python2.2' and fname in fail22:
             print '\tSkipping %s, known to fail on python2.2'%fname
             continue
-        lines = [
-            'from __future__ import division\n',
-            'import matplotlib\n',
-            'matplotlib.use("%s")\n' % backend]
         print '\tdriving %s' % fname
-        for line in file(fname):
-            if line.strip().startswith('from __future__ import division'): continue
-            if line.strip().startswith('matplotlib.use'): continue
-            if line.strip().startswith('savefig'): continue
-            if line.strip().startswith('show'): continue
-            lines.append(line)
         basename, ext = os.path.splitext(fname)
         outfile = basename + '_%s'%backend
+        tmpfile_name = '_tmp_%s.py' % basename
+        tmpfile = file(tmpfile_name, 'w')
+
+        tmpfile.writelines((
+            'from __future__ import division\n',
+            'import matplotlib\n',
+            'matplotlib.use("%s")\n' % backend,
+            ))
+        for line in file(fname):
+            line_lstrip = line.lstrip()
+            if (line_lstrip.startswith('from __future__ import division') or
+                line_lstrip.startswith('matplotlib.use') or
+                line_lstrip.startswith('savefig') or
+                line_lstrip.startswith('show')):
+                continue
+            tmpfile.write(line)
         if backend in ('GTK', 'WX', 'TkAgg'):
-            lines.append('show()')
+            tmpfile.write('show()')
         else:
-            lines.append('savefig("%s", dpi=150)' % outfile)
-        tmpfile = '_tmp_%s.py' % basename
-        file(tmpfile, 'w').write(''.join(lines))
-        os.system('%s %s' % (python, tmpfile))
+            tmpfile.write('savefig("%s", dpi=150)' % outfile)
 
-times = {}
-#backends = ['Agg', 'Cairo', 'GDK', 'PS', 'SVG', 'Template']
-backends = ['Agg', 'PS', 'SVG', 'Template']
-#backends = [ 'GTK', 'WX', 'TkAgg']
-#backends = ['PS']
-python = 'python2.3'
-for backend in backends:
-    print 'testing %s' % backend
-    t0 = time.time()
-    drive(backend, python)
-    t1 = time.time()
-    times[backend] = (t1-t0)/60.0
+        tmpfile.close()
+        os.system('%s %s' % (python, tmpfile_name))
+        os.remove(tmpfile_name)
 
-#print times
-for backend, elapsed in times.items():
-    print 'Backend %s took %1.2f minutes to complete' % ( backend, elapsed)
-    if 'Template' in times:
-        print '\ttemplate ratio %1.3f, template residual %1.3f' % (
-            elapsed/times['Template'], elapsed-times['Template'])
-    
+
+if __name__ == '__main__':
+    times = {}
+    # backends = ['Agg', 'Cairo', 'GDK', 'PS', 'SVG', 'Template']
+    backends = ['Agg', 'PS', 'SVG', 'Template']
+    # backends = [ 'GTK', 'WX', 'TkAgg']
+    # backends = ['PS']
+    python = 'python2.3'
+    for backend in backends:
+        print 'testing %s' % backend
+        t0 = time.time()
+        drive(backend, python)
+        t1 = time.time()
+        times[backend] = (t1-t0)/60.0
+
+    # print times
+    for backend, elapsed in times.items():
+        print 'Backend %s took %1.2f minutes to complete' % ( backend, elapsed)
+        if 'Template' in times:
+            print '\ttemplate ratio %1.3f, template residual %1.3f' % (
+                elapsed/times['Template'], elapsed-times['Template'])
