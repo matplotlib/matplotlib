@@ -25,29 +25,31 @@ from matplotlib import get_data_path
 from matplotlib.numerix import fromstring, UInt8, Float32
 import binascii
 
+
 backend_version = 'Level II'
-
-defaultPaperSize = 8.5,11
-
+defaultPaperSize = 8.5,11               # TODO: make this configurable
+debugPS = 0
 
 
 def error_msg_ps(msg, *args):
     """
-    Signal an error condition -- in a GUI, popup a error dialog
+    Signal an error condition.
     """
-    verbose.report_error('Error: %s'% msg)
+    verbose.report_error('Error: %s' % msg)
     sys.exit()
 
 
-def _nums_to_str(seq, fmt='%1.3f'):
-    return ' '.join([_int_or_float(val, fmt) for val in seq])
-
-def _int_or_float(val, fmt='%1.3f'):
-    "return val as %d if it's equal to an int, otherwise return fmt%val"
+def _num_to_str(val):
     if is_string_like(val): return val
     ival = int(val)
     if val==ival: return str(ival)
-    else: return fmt%val
+    s = "%1.3f"%val
+    s = s.rstrip("0")
+    s = s.rstrip(".")
+    return s
+
+def _nums_to_str(*args):
+    return ' '.join(map(_num_to_str,args))
 
 
 _fontd = {}
@@ -57,13 +59,62 @@ _type42 = []
 class RendererPS(RendererBase):
     """
     The renderer handles all the drawing primitives using a graphics
-    context instance that controls the colors/styles
+    context instance that controls the colors/styles.
     """
 
     def __init__(self, width, height, pswriter):
         self.width = width
         self.height = height
         self._pswriter = pswriter
+
+        # current renderer state (None=uninitialised)
+        self.color = None
+        self.linewidth = None
+        self.linejoin = None
+        self.linecap = None
+        self.linedash = None
+        self.fontname = None
+        self.fontsize = None
+
+    def set_color(self, r, g, b, store=1):
+        if (r,g,b) != self.color:
+            if r==g and r==b:
+                self._pswriter.write("%s setgray\n"%_num_to_str(r))
+            else:
+                self._pswriter.write("%s setrgbcolor\n"%_nums_to_str(r,g,b))
+            self.color = (r,g,b)
+
+    def set_linewidth(self, linewidth):
+        if linewidth != self.linewidth:
+            self._pswriter.write("%s setlinewidth\n"%_num_to_str(linewidth))
+            self.linewidth = linewidth
+
+    def set_linejoin(self, linejoin):
+        if linejoin != self.linejoin:
+            self._pswriter.write("%s setlinejoin\n"%_num_to_str(linejoin))
+            self.linejoin = linejoin
+
+    def set_linecap(self, linecap):
+        if linecap != self.linecap:
+            self._pswriter.write("%s setlinecap\n"%_num_to_str(linecap))
+            self.linecap = linecap
+
+    def set_linedash(self, offset, seq):
+        if (offset,seq) != self.linedash:
+            if seq:
+                s="[%s] %d setdash\n"%(_nums_to_str(*seq), offset)
+                self._pswriter.write(s)
+            else:
+                self._pswriter.write("[] 0 setdash\n")
+            self.linedash = (offset,seq)
+
+    def set_font(self, fontname, fontsize):
+        if (fontname,fontsize) != (self.fontname,self.fontsize):
+            self._pswriter.write("/%s findfont\n"%fontname)
+            self._pswriter.write("%s scalefont\n"%_num_to_str(fontsize))
+            self._pswriter.write("setfont\n")
+            self.fontname = fontname
+            self.fontsize = fontsize
 
     def get_canvas_width_height(self):
         'return the canvas width and height in display coords'
@@ -87,7 +138,7 @@ class RendererPS(RendererBase):
         return w, h
 
     def flipy(self):
-        'return true if y small numbers are top for renderer'
+        'return true if small y numbers are top for renderer'
         return False
 
     def _get_font(self, prop):
@@ -108,21 +159,18 @@ class RendererPS(RendererBase):
         size = prop.get_size_in_points()
         font.set_size(size, 72.0)
         return font
-    
-    def draw_postscript(self, ps):
-        self._pswriter.write(ps)
         
     def draw_arc(self, gc, rgbFace, x, y, width, height, angle1, angle2):
         """
         Draw an arc centered at x,y with width and height and angles
         from 0.0 to 360.0
 
-        If gcFace is not None, fill the rectangle with it.  gcEdge
+        If gcFace is not None, fill the arc slice with it.  gcEdge
         is a GraphicsContext instance
         """
-        ps = '%s ellipse' % _nums_to_str( (angle1, angle2,
-                                           0.5*width, 0.5*height, x, y) )
-        self._draw_ps(ps, gc, rgbFace)
+        ps = '%s ellipse' % _nums_to_str(angle1, angle2,
+                                         0.5*width, 0.5*height, x, y)
+        self._draw_ps(ps, gc, rgbFace, "arc")
 
     def _rgba(self, im, flipud):
         return im.as_str(fliud)
@@ -182,7 +230,7 @@ class RendererPS(RendererBase):
         #print 'values', origin, flipud, figh, h, y
         if bbox is not None:
             clipx,clipy,clipw,cliph = bbox.get_bounds()
-            clip = '%s clipbox' % _nums_to_str( (clipw, cliph, clipx, clipy) )
+            clip = '%s clipbox' % _nums_to_str(clipw, cliph, clipx, clipy)
         if not flipud: y = figh-(y+h)
         ps = """gsave
 %(clip)s
@@ -196,42 +244,44 @@ currentfile DataString readhexstring pop
 %(hexlines)s
 grestore
 """ % locals()
-        self.draw_postscript(ps)
+        self._pswriter.write(ps)
     
-    def draw_line(self, gc, x1, y1, x2, y2):
+    def draw_line(self, gc, x0, y0, x1, y1):
         """
-        Draw a single line from x1,y1 to x2,y2
+        Draw a single line from x0,y0 to x1,y1
         """
-        ps = '%s line' % _nums_to_str( (x1,y1,x2,y2) )
-        self._draw_ps(ps, gc, None)
+        ps = '%s m\n' % _nums_to_str(x0,y0)
+        ps += '%s l' % _nums_to_str(x1,y1)
+        self._draw_ps(ps, gc, None, "line")
+
+    def _draw_lines(self, gc, points):
+        """
+        Draw many lines.  'points' is a list of point coordinates.
+        """
+        ps=[]
+        ps.append("%s m"%_nums_to_str(*points[0]))
+        for x,y in points[1:]:
+            ps.append("%s l"%_nums_to_str(x,y))
+        self._draw_ps("\n".join(ps), gc, None)
 
     def draw_lines(self, gc, x, y):
         """
         x and y are equal length arrays, draw lines connecting each
         point in x, y
         """
-        if len(x)==0: return
-        j, ps = 0, []
-        
-        while j < len(x)-1001:
-            ps.append('newpath %s m' % _nums_to_str((x[j], y[j])))
-            for tup in zip(x[j+1:j+1001], y[j+1:j+1001]):
-                ps.append('%s l' % _nums_to_str(tup))
-            ps.append(self._get_gc_props_ps(gc))
-            ps.append('stroke')
-            j += 1000
-
-        ps.append('newpath %s m' % _nums_to_str((x[j], y[j])))
-        for tup in zip(x[j+1:], y[j+1:]):
-            ps.append('%s l' % _nums_to_str(tup))
-
-        self._draw_ps('\n'.join(ps), gc, None)
+        if debugPS:
+            self._pswriter.write("% lines\n")
+        points=zip(x,y)
+        while points:
+            self._draw_lines(gc,points[0:1000])
+            del(points[0:1000])
 
     def draw_point(self, gc, x, y):
         """
         Draw a single point at x,y
         """
-        # todo: is there a better way to draw points in postscript?
+        # TODO: is there a better way to draw points in postscript?
+        #       (use a small circle?)
         self.draw_line(gc, x, y, x+1, y+1)
 
     def draw_polygon(self, gc, rgbFace, points):
@@ -242,12 +292,11 @@ grestore
         If rgbFace is not None, fill the poly with it.  gc
         is a GraphicsContext instance
         """
-        ps = "newpath\n"
-        ps += "%s m\n" % _nums_to_str(points[0])
+        ps = "%s m\n" % _nums_to_str(*points[0])
         for x,y in points[1:]:
-            ps += "%s l\n" % _nums_to_str( (x,y) )
-        ps += "closepath\n"
-        self._draw_ps(ps, gc, rgbFace)
+            ps += "%s l\n" % _nums_to_str(x, y)
+        ps += "closepath"
+        self._draw_ps(ps, gc, rgbFace, "polygon")
         
     def draw_rectangle(self, gc, rgbFace, x, y, width, height):
         """
@@ -256,8 +305,9 @@ grestore
         If gcFace is not None, fill the rectangle with it.  gcEdge
         is a GraphicsContext instance
         """
-        ps = '%s box' % _nums_to_str( (width, height, x, y) )
-        self._draw_ps(ps, gc, rgbFace)
+        # TODO: use rectstroke
+        ps = '%s box' % _nums_to_str(width, height, x, y)
+        self._draw_ps(ps, gc, rgbFace, "rectangle")
 
     def draw_text(self, gc, x, y, s, prop, angle, ismath):
         """
@@ -266,58 +316,35 @@ grestore
 
         if ismath:
             return self.draw_mathtext(gc, x, y, s, prop, angle)
+        if debugPS:
+            self._pswriter.write("% text\n")
         
         font = self._get_font(prop)
         font.set_text(s,0)
 
-        pos = _nums_to_str((x, y))
-        thetext = '(%s)' % s
-        fontname = font.get_sfnt()[(1,0,0,6)]
-        fontsize = prop.get_size_in_points()
-        rotate = '%1.1f rotate' % angle
+        self.set_color(*gc.get_rgb())
+        self.set_font(font.get_sfnt()[(1,0,0,6)], prop.get_size_in_points())
+        self._pswriter.write("%s m\n"%_nums_to_str(x,y))
+        if angle:
+            self._pswriter.write("gsave\n")
+            self._pswriter.write("%s rotate\n"%_num_to_str(angle))
         descent = font.get_descent() / 64.0
-        setcolor = '%1.3f %1.3f %1.3f setrgbcolor' % gc.get_rgb()
-        ps = """gsave
-/%(fontname)s findfont
-%(fontsize)s scalefont
-setfont
-%(pos)s m
-%(rotate)s
-0 %(descent).2f rmoveto
-%(thetext)s
-%(setcolor)s
-show
-grestore
-""" % locals()
-        self.draw_postscript(ps)
-
-    def get_ps(self):
-        return self._pswriter.getvalue()
+        if descent:
+            self._pswriter.write("0 %s rmoveto\n"%_num_to_str(descent))
+        self._pswriter.write("(%s) show\n"%s)
+        if angle:
+            self._pswriter.write("grestore\n")
 
     def new_gc(self):
         return GraphicsContextPS()
-
-    def _draw_ps(self, ps, gc, rgbFace):
-        if rgbFace is not None:
-            fill = 'gsave %1.3f %1.3f %1.3f setrgbcolor fill grestore'%rgbFace
-        else:
-            fill = ''
-        gcprops = self._get_gc_props_ps(gc)
-        clip = self._get_gc_clip_ps(gc)
-        s = """gsave
-%(clip)s
-%(ps)s
-%(gcprops)s
-%(fill)s
-stroke
-grestore
-""" % locals()
-        self._pswriter.write(s)
 
     def draw_mathtext(self, gc, x, y, s, prop, angle):
         """
         Draw the math text using matplotlib.mathtext
         """
+        if debugPS:
+            self._pswriter.write("% mathtext\n")
+
         fontsize = prop.get_size_in_points()
         width, height, pswriter = math_parse_s_ps(s, 72, fontsize)
         thetext = pswriter.getvalue()
@@ -327,32 +354,40 @@ grestore
 %(thetext)s
 grestore
 """ % locals()
-        self.draw_postscript(ps)
+        self._pswriter.write(ps)
 
-    def _get_gc_clip_ps(self, gc):
+    def _draw_ps(self, ps, gc, rgbFace, command=None):
+        """
+        Emit the PostScript sniplet 'ps' with all the attributes from 'gc'
+        applied.  'ps' must consist of PostScript commands to construct a path.
+        """
+        if debugPS and command:
+            self._pswriter.write("% "+command+"\n")
+
         cliprect = gc.get_clip_rectangle()
-        if cliprect is not None:
-            clipx,clipy,clipw,cliph=cliprect
-            return '%s clipbox' % _nums_to_str( (clipw, cliph, clipx, clipy) )
-        return ''
-        
-    def _get_gc_props_ps(self, gc):
-        setcolor = '%1.3f %1.3f %1.3f setrgbcolor' % gc.get_rgb()
-        linewidth  = '%1.5f setlinewidth' % gc.get_linewidth()
-
+        self.set_color(*gc.get_rgb())
+        self.set_linewidth(gc.get_linewidth())
+        # TODO: move the lookup into GraphicsContextPS
         jint = {'miter':0, 'round':1, 'bevel':2}[gc.get_joinstyle()]
-        join = '%d setlinejoin' % jint
+        self.set_linejoin(jint)
+        # TODO: move the lookup into GraphicsContextPS
         cint = {'butt':0, 'round':1, 'projecting':2}[gc.get_capstyle()]
-        cap = '%d setlinecap' % cint
-        offset, seq = gc.get_dashes()
-        if seq is not None:
-            seq = ' '.join(['%d'%val for val in  seq])
-            dashes = '[%s] %d setdash' % (seq, offset)
-        else:
-            dashes = None
-
-        args = (setcolor, linewidth, join, cap, dashes)
-        return '\n'.join([s for s in args if s is not None])
+        self.set_linecap(cint)
+        self.set_linedash(*gc.get_dashes())
+        if cliprect:
+            self._pswriter.write("gsave\n")
+        if cliprect:
+            x,y,w,h=cliprect
+            self._pswriter.write('%s clipbox\n' % _nums_to_str(w,h,x,y))
+        self._pswriter.write(ps.strip()+'\n')
+        if rgbFace:
+            self._pswriter.write("gsave\n")
+            self.set_color(store=0,*rgbFace)
+            self._pswriter.write("fill\n")
+            self._pswriter.write("grestore\n")
+        self._pswriter.write("stroke\n")
+        if cliprect:
+            self._pswriter.write("grestore\n")
 
 
 class GraphicsContextPS(GraphicsContextBase):
@@ -388,7 +423,7 @@ def encodeTTFasPS(fontfile):
     """
     Encode a TrueType font file for embedding in a PS file.
     """
-    fontfile = str(fontfile) # todo: handle unicode filenames
+    fontfile = str(fontfile) # TODO: handle unicode filenames
     font = file(fontfile, 'rb')
     hexdata, data = '', font.read(65520)
     while len(data):
@@ -569,7 +604,7 @@ class FigureCanvasPS(FigureCanvasBase):
             for l in d.split('\n'):
                 print >>fh, l.strip()
         for font in type42:
-            font = str(font)  # todo: handle unicode filenames
+            font = str(font)  # TODO: handle unicode filenames
             print >>fh, "%%BeginFont: "+FT2Font(font).postscript_name
             print >>fh, encodeTTFasPS(font)
             print >>fh, "%%EndFont"
@@ -578,13 +613,13 @@ class FigureCanvasPS(FigureCanvasBase):
         if not isEPSF: print >>fh, "%%Page: 1 1"
         print >>fh, "mpldict begin"
         print >>fh, "gsave"
-        print >>fh, "%s translate"%_nums_to_str( (xo, yo) )
+        print >>fh, "%s translate"%_nums_to_str(xo, yo)
         if rotation:
             print >>fh, "%d rotate"%rotation
-        print >>fh, "%s clipbox"%_nums_to_str( (width*72, height*72, 0, 0) )
+        print >>fh, "%s clipbox"%_nums_to_str(width*72, height*72, 0, 0)
 
         # write the figure
-        print >>fh, renderer.get_ps()
+        print >>fh, self._pswriter.getvalue()
 
         # write the trailer
         print >>fh, "grestore"
@@ -648,11 +683,8 @@ _psDefs = [
     "/l { lineto } bind def",
     # x y  *r*  -
     "/r { rlineto } bind def",
-    # x0 y0 x1 y1  *line*  -
-    "/line { newpath m l } bind def",
     # w h x y  *box*  -
     """/box {
-      newpath
       m
       1 index 0 r
       0 exch r
@@ -663,10 +695,10 @@ _psDefs = [
     """/clipbox {
       box
       clip
+      newpath
     } bind def""",
     # angle1 angle2 rx ry x y  *ellipse*  -
     """/ellipse {
-      newpath
       matrix currentmatrix 7 1 roll
       translate
       scale
