@@ -4,7 +4,7 @@ from matplotlib.matlab import *
 
 # convert data to mV
 x = 1000*0.1*fromstring(
-    file('data/membrane.dat', 'rb').read(), typecode=Float32)
+    file('data/membrane.dat', 'rb').read(), Float32)
 # 0.0005 is the sample interval
 t = 0.0005*arange(len(x))
 figure(1, figsize=(7,1), dpi=100)

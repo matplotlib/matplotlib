@@ -2,7 +2,7 @@ from matplotlib.matlab import *
 
 w, h = 512, 512
 s = file('data/ct.raw', 'rb').read()
-A = fromstring(s, typecode=UInt16).astype(Float)
+A = fromstring(s, UInt16).astype(Float)
 A *= 1.0/max(A)
 A.shape = w, h
 
