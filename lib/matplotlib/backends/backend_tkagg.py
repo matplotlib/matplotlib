@@ -286,6 +286,7 @@ class FigureManagerTkAgg(FigureManagerBase):
         if self.window is not None:
             #print 'calling window destroy'
             self.window.destroy()
+            pass
         self.window = None
 
 class AxisMenu:

@@ -59,8 +59,12 @@ class Figure(Artist):
         self._set_artist_props(self.figurePatch)
 
         self._hold = rcParams['axes.hold']
+        self.canvas = None
         self.clf()
 
+    def set_canvas(self, canvas):
+        'set the canvas the contains the figure'
+        self.canvas = canvas
         
     def hold(self, b=None):
         """
@@ -427,3 +431,26 @@ Return the current axes, creating one if necessary
         'whenever the axes state change, func(self) will be called'
         self._axobservers.append(func)
         
+
+    def savefig(self, *args, **kwargs):
+        """
+SAVEFIG(fname, dpi=150, facecolor='w', edgecolor='w',
+orientation='portrait'):
+
+Save the current figure to filename fname.  dpi is the resolution
+in dots per inch.
+
+Output file types currently supported are jpeg and png and will be
+deduced by the extension to fname
+
+facecolor and edgecolor are the colors os the figure rectangle
+
+orientation is either 'landscape' or 'portrait' - not supported on
+all backends; currently only on postscript output."""
+    
+        for key in ('dpi', 'facecolor', 'edgecolor'):
+            if not kwargs.has_key(key):
+                kwargs[key] = rcParams['savefig.%s'%key]
+
+        self.canvas.print_figure(*args, **kwargs)
+    

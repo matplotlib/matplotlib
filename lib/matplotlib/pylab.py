@@ -610,10 +610,10 @@ def close(*args):
             _pylab_helpers.Gcf.destroy(arg)
         elif isinstance(arg, Figure):
             for manager in _pylab_helpers.Gcf.get_all_fig_managers():
-                if manager.figure==arg:
+                if manager.canvas.figure==arg:
                     _pylab_helpers.Gcf.destroy(manager.num)
         else:
-            error_msg('Unrecognized argument type to close')
+            error_msg('Unrecognized argument type %s to close'%type(arg))
     else:
         error_msg('close takes 0 or 1 arguments')
 
@@ -757,6 +757,15 @@ def figlegend(handles, labels, loc, **kwargs):
     l=  gcf().legend(handles, labels, loc, **kwargs)
     draw_if_interactive()
     return l
+
+def savefig(*args, **kwargs):    
+    try: ret =  gcf().savefig(*args, **kwargs)
+    except RuntimeError, msg:
+        msg = raise_msg_to_str(msg)
+        error_msg(msg)
+        raise RuntimeError(msg)
+    else: return ret
+savefig.__doc__ = Figure.savefig.__doc__
     
 
 def figure(num=None, # autoincrement if None, else integer from 1-N
@@ -767,23 +776,27 @@ def figure(num=None, # autoincrement if None, else integer from 1-N
            frameon = True,
            ):
     """
-    figure(num = 1, figsize=(8, 6), dpi=80, facecolor='w', edgecolor='k')
+    figure(num = None, figsize=(8, 6), dpi=80, facecolor='w', edgecolor='k')
 
 
-    Create a new figure and return a handle to it
+    Create a new figure and return a handle to it.  If num=None, the
+    figure number will be incremented and a new figure will be
+    created.
 
-    If figure(num) already exists, make it active and return the
-    handle to it.
+
+    If num is an integer, and figure(num) already exists, make it
+    active and return the handle to it.  If figure(num) does not exist
+    it will be created.  Numbering starts at 1, matlab style
 
       figure(1)
 
-    If num=None, the figure number will be incremented and a new
-    figure will be created.
-    
-    figsize - width in height x inches; defaults to rc figure.figsize
-    dpi     - resolution; defaults to rc figure.dpi
-    facecolor - the background color; defaults to rc figure.facecolor
-    edgecolor - the border color; defaults to rc figure.edgecolor
+
+    kwargs:
+
+      figsize - width in height x inches; defaults to rc figure.figsize
+      dpi     - resolution; defaults to rc figure.dpi
+      facecolor - the background color; defaults to rc figure.facecolor
+      edgecolor - the border color; defaults to rc figure.edgecolor
 
     rcParams gives the default values from the .matplotlibrc file
 
@@ -1019,28 +1032,6 @@ def save(fname, X, fmt='%1.4f'):
     if origShape is not None:
         X.shape = origShape
 
-def savefig(*args, **kwargs):
-    """
-    SAVEFIG(fname, dpi=150, facecolor='w', edgecolor='w',
-            orientation='portrait'):
-
-    Save the current figure to filename fname.  dpi is the resolution
-    in dots per inch.
-
-    Output file types currently supported are jpeg and png and will be
-    deduced by the extension to fname
-
-    facecolor and edgecolor are the colors os the figure rectangle
-
-    orientation is either 'landscape' or 'portrait' - not supported on
-    all backends; currently only on postscript output."""
-
-    for key in ('dpi', 'facecolor', 'edgecolor'):
-        if not kwargs.has_key(key):
-            kwargs[key] = rcParams['savefig.%s'%key]
-
-    manager = get_current_fig_manager()
-    manager.canvas.print_figure(*args, **kwargs)
 
 class _ObjectInspector:
 
