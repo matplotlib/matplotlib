@@ -6,7 +6,7 @@
 from __future__ import division
 from cStringIO import StringIO
 import sys, os
-
+from matplotlib import verbose
 from matplotlib.afm import AFM
 from matplotlib.backend_bases import RendererBase, GraphicsContextBase,\
      FigureManagerBase, FigureCanvasBase
@@ -26,10 +26,12 @@ from matplotlib import rcParams, get_data_path
 from matplotlib.numerix import fromstring, UInt8, Float32
 import binascii
 
+backend_version = 'Level II'
+
 defaultPaperSize = 8.5,11
 
 def error_msg_ps(msg, *args):
-    print >>sys.stderr, 'Error:', msg
+    verbose.report_error('Error: %s'% msg)
     sys.exit()
 
 
@@ -46,7 +48,6 @@ def _int_or_float(val, fmt='%1.3f'):
 _fontd = {}
 _type42 = []
 
-DEBUG = 0
 
 class RendererPS(RendererBase):
 
@@ -88,7 +89,7 @@ class RendererPS(RendererBase):
             try:
                 font = FT2Font(str(fname))
             except RuntimeError, msg:
-                print >> sys.stderr, 'Could not load filename for text',fname
+                verbose.report_error('Could not load filename for text "%s"'%fname)
                 return None
             else:
                 _fontd[key] = font
@@ -200,10 +201,6 @@ class RendererPS(RendererBase):
             clip =   '%s clipbox' % ' '.join(box)
         else: clip = 'figure_clip'
         if not flipud: y = figh-(y+h)
-        if 0:
-            print "RendererPS.draw_image:"
-            print "x, y: ", x, y
-            print "xscale, yscale:", xscale, yscale
         ps = """gsave
 %(clip)s
 %(x)s %(y)s translate
@@ -222,8 +219,6 @@ grestore
         """
         Draw the math text using matplotlib.mathtext
         """
-        if DEBUG:
-            print 'RendererPS.draw_mathtext'
         fontsize = prop.get_size_in_points()
         width, height, pswriter = math_parse_s_ps(s, 72, fontsize)
         thetext = pswriter.getvalue()
@@ -491,16 +486,6 @@ class FigureCanvasPS(FigureCanvasBase):
                               height*72))
         self._pswriter.write('figure_clip\n')
 
-        if 0:
-            print "FigureCanvasPS.print_figure:"
-            print "orientation:", orientation
-            print "DPI:", self.figure.dpi.get()
-            print "defaultWidth:",defaultWidth, "defaultHeight:",defaultHeight
-            print "figsize:",self.figure.get_size()
-            print "bboxstr:", bboxstr
-            print "pstype:", pstype
-            print "translation xo, yo:", xo, yo
-            print "rotation:", rotation
 
         renderer = RendererPS(width, height, self._pswriter)
         self.figure.draw(renderer)

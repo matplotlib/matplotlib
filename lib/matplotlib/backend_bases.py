@@ -14,8 +14,7 @@ from colors import colorConverter
 from numerix import asarray, ones, Float
 from patches import Rectangle
 from transforms import lbwh_to_bbox
-        
-        
+
 class RendererBase:
 
     def open_group(self, s):

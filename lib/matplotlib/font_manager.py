@@ -408,15 +408,14 @@ dictionary can optionally be created.
             try:
                 font = ft2font.FT2Font(str(fpath))
             except RuntimeError:
-                print >> sys.stderr, "Could not open font file", fpath
+                verbose.report_error("Could not open font file", fpath)
                 continue
             prop = ttfFontProperty(font)
         elif fontext == 'afm':
             try:
-                #print 'parsing', fpath
                 font = afm.AFM(file(fpath))
             except RuntimeError:
-                print >> sys.stderr, "Could not open font file", fpath
+                verbose.report_error("Could not open font file", fpath)
                 continue
             prop = afmFontProperty(font)
         add_filename(fontdict, prop, fpath)
@@ -646,7 +645,7 @@ set_family() method.
         #  Remove family names from list of font names.
         for name in names[:]:
             if name.lower() in font_family:
-                print >> sys.stderr, msg % name
+                verbose.report_error( msg % name)
                 while name in names:
                     names.remove(name.lower())
 
@@ -803,11 +802,6 @@ Delete this file to have matplotlib rebuild the cache."""
                         findSystemFonts(fontext='afm')
         self.afmdict = {}
 
-
-        # the verbose wrapped functions
-        self.findfont = verbose.wrap('findfont returning %s', self._findfont, level='annoying')
-
-
     def get_default_weight(self):
         "Return the default font weight."
         return self.__default_weight
@@ -831,7 +825,7 @@ Currently not implemented."""
         raise NotImplementedError
 
     
-    def _findfont(self, prop, fontext='ttf'):
+    def findfont(self, prop, fontext='ttf'):
 
         """Search the font dictionary for a font that exactly or closely
 matches the specified font properties.  See the FontProperties class
@@ -866,7 +860,7 @@ Delete this file to have matplotlib rebuild the cache."""
                 except:
                     self.afmdict = createFontDict(self.afmfiles, fontext='afm')
                     pickle.dump(self.afmdict, file(afmcache, 'w'))
-                    print cache_message % afmcache
+                    verbose.report(cache_message % afmcache)
             fontdict = self.afmdict
 
         name    = prop.get_family()[0]
@@ -876,11 +870,11 @@ Delete this file to have matplotlib rebuild the cache."""
         stretch = prop.get_stretch()
         size    = str(prop.get_size_in_points())
 
-        verbose.report('findfont looking for %(name)s, %(style)s, %(variant)s, %(weight)s, %(stretch)s, %(size)s'%locals(), 'annoying')
+
         try:
             fname = fontdict[name][style][variant][weight][stretch][size]
-            if debug:
-                print 'Cache:', name, style, variant, weight, stretch, size
+            verbose.report('\tfindfont cached %(name)s, %(style)s, %(variant)s, %(weight)s, %(stretch)s, %(size)s'%locals(), 'debug')
+            verbose.report('findfont returning %s'%fname, 'debug')
             return fname
         except KeyError:
             pass
@@ -890,24 +884,21 @@ Delete this file to have matplotlib rebuild the cache."""
             if font.has_key(name):
                 font = font[name]
             else:
-                if debug:
-                    print name
+                verbose.report('\tfindfont failed %(name)s'%locals(), 'debug')
                 continue
-
+                
             if font.has_key(style):
                 font = font[style]
             elif style == 'italics' and font.has_key('oblique'):
                 font = font['oblique']
             else:
-                if debug:
-                    print name, style
+                verbose.report('\tfindfont failed %(name)s, %(style)s'%locals(), 'debug')
                 continue
 
             if font.has_key(variant):
                 font = font[variant]
             else:
-                if debug:
-                    print name, style, variant
+                verbose.report('\tfindfont failed %(name)s, %(style)s, %(variant)s'%locals(), 'debug')
                 continue
 
             if not font.has_key(weight):
@@ -918,8 +909,7 @@ Delete this file to have matplotlib rebuild the cache."""
             if font.has_key(stretch):
                 font = font[stretch]
             else:
-                if debug:
-                    print name, style, variant, weight, stretch
+                verbose.report('\tfindfont failed %(name)s, %(style)s, %(variant)s %(weight)s, %(stretch)s'%locals(), 'debug')
                 continue
 
             if font.has_key('scalable'):
@@ -927,27 +917,20 @@ Delete this file to have matplotlib rebuild the cache."""
             elif font.has_key(size):
                 fname = font[size]
             else:
-                if debug:
-                    print name, style, variant, weight, stretch, size
+                verbose.report('\tfindfont failed %(name)s, %(style)s, %(variant)s %(weight)s, %(stretch)s, %(size)s'%locals(), 'debug')                
                 continue
 
             fontkey = FontKey(name, style, variant, weight, stretch, size)
             add_filename(fontdict, fontkey, fname)
-            if debug:
-                print 'Found:', name, style, variant, weight, stretch, size
-            
+            verbose.report('\tfindfont found %(name)s, %(style)s, %(variant)s %(weight)s, %(stretch)s, %(size)s'%locals(), 'debug')
+            verbose.report('findfont returning %s'%fname, 'debug')
+                
             return fname
 
-        if debug:
-            print name, style, variant, weight, stretch, size
         fontkey = FontKey(name, style, variant, weight, stretch, size)
         add_filename(fontdict, fontkey, self.defaultFont)
-        print >> sys.stderr, 'Could not match %s, %s, %s.  Returning %s' % (name, style, variant, self.defaultFont)
+        verbose.report_error('Could not match %s, %s, %s.  Returning %s' % (name, style, variant, self.defaultFont))
 
         return self.defaultFont
-        #raise KeyError, """Cannot match font family with known fonts.
-        #Please set the environment variable TTFPATH or AFMPATH to your fonts.
-        #"""+str(prop.get_family())
-
 
 fontManager = FontManager()

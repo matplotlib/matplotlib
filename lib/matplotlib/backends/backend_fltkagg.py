@@ -19,8 +19,7 @@ import os.path
 
 import matplotlib
 
-from matplotlib import rcParams
-
+from matplotlib import rcParams, verbose
 from matplotlib.cbook import is_string_like,  enumerate, True, False
 from matplotlib.backend_bases import \
      RendererBase, GraphicsContextBase, FigureManagerBase, FigureCanvasBase,\

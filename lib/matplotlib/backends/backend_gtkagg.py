@@ -4,14 +4,14 @@ Render to gtk from agg
 from __future__ import division
 
 import os, sys
-
+from matplotlib import verbose
 from matplotlib.cbook import enumerate, True, False
 from matplotlib.figure import Figure
 
 from backend_agg import FigureCanvasAgg
 from backend_gtk import gtk, FigureManagerGTK, FigureCanvasGTK,\
      show, draw_if_interactive,\
-     error_msg, NavigationToolbar, PIXELS_PER_INCH
+     error_msg, NavigationToolbar, PIXELS_PER_INCH, backend_version
 
 from _gtkagg import agg_to_gtk_drawable
 

@@ -71,6 +71,7 @@ INSTALLING
 from __future__ import division
 
 import os, sys
+from matplotlib import verbose
 from matplotlib.numerix import array, Float
 
 from matplotlib._matlab_helpers import Gcf
@@ -85,9 +86,9 @@ from matplotlib.mathtext import math_parse_s_ft2font
 
 from _backend_agg import RendererAgg as _RendererAgg
 
+backend_version = 'v2.2'
 _fontd = {}     # a map from fname to font instances
 
-DEBUG = 0
 class RendererAgg(RendererBase):
     """
     The renderer handles all the drawing primitives using a graphics
@@ -96,12 +97,12 @@ class RendererAgg(RendererBase):
     
     debug=1
     def __init__(self, width, height, dpi):
-        if DEBUG: print 'RendererAgg.__init__'
+        verbose.report('RendererAgg.__init__', 'debug-annoying')
         self.dpi = dpi
         self.width = width
         self.height = height
         self._renderer = _RendererAgg(int(width), int(height), dpi.get(),
-                                    debug=DEBUG)
+                                    debug=False)
         self.draw_polygon = self._renderer.draw_polygon
         self.draw_rectangle = self._renderer.draw_rectangle
         self.draw_lines = self._renderer.draw_lines
@@ -121,7 +122,7 @@ class RendererAgg(RendererBase):
         Currently, I'm only supporting ellipses, ie angle args are
         ignored
         """
-        if DEBUG: print 'RendererAgg.draw_arc'        
+        verbose.report('RendererAgg.draw_arc', 'debug-annoying')
         self._renderer.draw_ellipse(
             gcEdge, rgbFace, x, y, width/2, height/2)  # ellipse takes radius
         
@@ -131,7 +132,7 @@ class RendererAgg(RendererBase):
         Draw the Image instance into the current axes; x, y is the
         upper left hand corner of the image
         """
-        if DEBUG: print 'RendererAgg.draw_image'                
+        verbose.report('RendererAgg.draw_image', 'debug-annoying')
         #self._renderer.draw_image(int(x), int(self.height-y), im)
         self._renderer.draw_image(int(x), int(y), im)        
 
@@ -140,7 +141,7 @@ class RendererAgg(RendererBase):
         x and y are equal length arrays, draw lines connecting each
         point in x, y
         """
-        if DEBUG: print 'RendererAgg.draw_line'
+        verbose.report('RendererAgg.draw_line', 'debug-annoying')
         x = array([x1,x2], typecode=Float)
         y = array([y1,y2], typecode=Float)
         self._renderer.draw_lines(gc, x, y)
@@ -150,7 +151,7 @@ class RendererAgg(RendererBase):
         """
         Draw a single point at x,y
         """
-        if DEBUG: print 'RendererAgg.draw_point'        
+        verbose.report('RendererAgg.draw_point', 'debug-annoying')
         rgbFace = gc.get_rgb()
         self._renderer.draw_ellipse(
             gc, rgbFace, x, y, 0.5, 0.5)        
@@ -159,7 +160,7 @@ class RendererAgg(RendererBase):
         """
         Draw the math text using matplotlib.mathtext
         """
-        if DEBUG: print 'RendererAgg.draw_mathtext'
+        verbose.report('RendererAgg.draw_mathtext', 'debug-annoying')
         size = prop.get_size_in_points()
         width, height, fonts = math_parse_s_ft2font(
             s, self.dpi.get(), size, angle)
@@ -184,7 +185,7 @@ class RendererAgg(RendererBase):
         """
         Render the text
         """
-        if DEBUG: print 'RendererAgg.draw_text'        
+        verbose.report('RendererAgg.draw_text', 'debug-annoying')
 
         if ismath:
             return self.draw_mathtext(gc, x, y, s, prop, angle)
@@ -223,7 +224,7 @@ class RendererAgg(RendererBase):
         """
         Get the font for text instance t, cacheing for efficiency
         """
-        if DEBUG: print 'RendererAgg._get_agg_font'                
+        verbose.report('RendererAgg._get_agg_font', 'debug-annoying')
 
         key = hash(prop)
         font = _fontd.get(key)
@@ -245,15 +246,15 @@ class RendererAgg(RendererBase):
         convert point measures to pixes using dpi and the pixels per
         inch of the display
         """
-        if DEBUG: print 'RendererAgg.points_to_pixels'        
+        verbose.report('RendererAgg.points_to_pixels', 'debug-annoying')
         return points*self.dpi.get()/72.0
 
     def tostring_rgb(self):
-        if DEBUG: print 'RendererAgg.tostring_rgb'                
+        verbose.report('RendererAgg.tostring_rgb', 'debug-annoying')
         return self._renderer.tostring_rgb()
         
     def buffer_rgba(self):
-        if DEBUG: print 'RendererAgg.buffer_rgba'                
+        verbose.report('RendererAgg.buffer_rgba', 'debug-annoying')
         return self._renderer.buffer_rgba()
         
     def clear(self):
@@ -265,7 +266,7 @@ def new_figure_manager(num, *args, **kwargs):
     """
     Create a new figure manager instance
     """
-    if DEBUG: print 'backend_agg.new_figure_manager'                
+    verbose.report('backend_agg.new_figure_manager', 'debug-annoying')
 
     thisFig = Figure(*args, **kwargs)
     canvas = FigureCanvasAgg(thisFig)
@@ -288,7 +289,7 @@ class FigureCanvasAgg(FigureCanvasBase):
         """
         Draw the figure using the renderer
         """
-        if DEBUG: print 'FigureCanvasAgg.draw'                        
+        verbose.report('FigureCanvasAgg.draw', 'debug-annoying')
 
         l,b,w,h = self.figure.bbox.get_bounds()
         key = w, h, self.figure.dpi.get()
@@ -302,11 +303,11 @@ class FigureCanvasAgg(FigureCanvasBase):
         self.figure.draw(self.renderer)
 
     def tostring_rgb(self):
-        if DEBUG: print 'FigureCanvasAgg.tostring_rgb'                        
+        verbose.report('FigureCanvasAgg.tostring_rgb', 'debug-annoying')
         return self.renderer.tostring_rgb()
         
     def buffer_rgba(self):
-        if DEBUG: print 'FigureCanvasAgg.buffer_rgba'                        
+        verbose.report('FigureCanvasAgg.buffer_rgba', 'debug-annoying')
         return self.renderer.buffer_rgba()
     
     def print_figure(self, filename, dpi=150,
@@ -325,7 +326,7 @@ class FigureCanvasAgg(FigureCanvasBase):
         If filename is a fileobject, write png to file object (thus
         you can, for example, write the png to stdout
         """
-        if DEBUG: print 'FigureCanvasAgg.print_figure'
+        verbose.report('FigureCanvasAgg.print_figure', 'debug-annoying')
 
             
 

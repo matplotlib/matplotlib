@@ -10,12 +10,8 @@ Because the .matplotlibrc always provides *some* value for numerix (it
 has it's own system of default values), this default is most likely
 never used.
 
-3. Whichever numerical package is selected, if the import fails, the
-other is tried.
-
 To summarize: the  commandline is examined first, the  rc file second,
-and the default array package is Numeric.  If the selected package
-fails to import, the other is tried.
+and the default array package is Numeric.  
 """
 
 import sys, os
@@ -44,7 +40,7 @@ if which[0] is None:
 
 which = which[0].strip().lower(), which[1]
 if which[0] not in ["numeric", "numarray"]:
-    print >>sys.stderr, __doc__
+    verbose.report_error(__doc__)
     raise ValueError("numerix selector must be either 'Numeric' or 'numarray' but the value obtained from the %s was '%s'." % (which[1], which[0]))
 
 if which[0] == "numarray":

@@ -20,6 +20,7 @@ from gtk import gdk
 import pango
 
 import matplotlib
+from matplotlib import verbose
 from matplotlib.numerix import asarray, fromstring, UInt8, zeros, \
      where, transpose, nonzero, indices, ones, nx
 

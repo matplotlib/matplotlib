@@ -52,6 +52,7 @@ REQUIREMENTS
 """
 
 import sys
+from matplotlib import verbose
 from matplotlib._matlab_helpers import Gcf
 from matplotlib.backend_bases import RendererBase, GraphicsContextBase,\
      FigureManagerBase, FigureCanvasBase, error_msg
@@ -66,7 +67,7 @@ def error_msg_template(msg, *args):
     """
     Signal an error condition -- in a GUI, popup a error dialog
     """
-    print >>sys.stderr, 'Error:', msg
+    verbose.report('Error: %s'%msg)
     sys.exit()
     
 class RendererTemplate(RendererBase):
