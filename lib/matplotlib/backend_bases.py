@@ -292,7 +292,6 @@ class RendererBase:
 
         If rgbFace is not None, fill the poly with it.  gc
         is a GraphicsContext instance
-
         """  
         pass # derived must override
 
