@@ -1,5 +1,10 @@
 #!/usr/bin/env python
+"""
+Show how to set custom font properties.
 
+For interactive users, you can also use kwargs to the text command,
+which requires less typing.  See exampes/fonts_demo_kw.py
+"""
 from matplotlib.font_manager import fontManager, FontProperties
 from matplotlib.matlab import *
 
@@ -45,14 +50,14 @@ for k in range(3):
 
 variant= ['normal', 'small-caps']
 
-t = text(0.2, 0.9, 'variant', fontproperties=font1,
+t = text(0.0, 0.9, 'variant', fontproperties=font1,
          **alignment)
 
 for k in range(1):
     font = font0.copy()
     font.set_family('serif')
     font.set_variant(variant[k])
-    t = text( 0.2, yp[k], variant[k], fontproperties=font,
+    t = text( 0.0, yp[k], variant[k], fontproperties=font,
              **alignment)
 
 ###  Show weight options
@@ -83,26 +88,27 @@ for k in range(7):
              **alignment)
 
 ###  Show bold italic
-left = 0.1
+
 font = font0.copy()
 font.set_style('italic')
 font.set_weight('bold')
 font.set_size('x-small')
-t = text(left, 0.1, 'bold italic', fontproperties=font,
+t = text(0, 0.1, 'bold italic', fontproperties=font,
          **alignment)
 
 font = font0.copy()
 font.set_style('italic')
 font.set_weight('bold')
 font.set_size('medium')
-t = text(left, 0.2, 'bold italic', fontproperties=font,
+t = text(0, 0.2, 'bold italic', fontproperties=font,
          **alignment)
 
 font = font0.copy()
 font.set_style('italic')
 font.set_weight('bold')
 font.set_size('x-large')
-t = text(left, 0.3, 'bold italic', fontproperties=font,
+t = text(0, 0.3, 'bold italic', fontproperties=font,
          **alignment)
 
+axis([-1,1,0,1])
 show()

@@ -1,6 +1,9 @@
 New entries should be added at the top
 =======
 
+2004-06-25 Fixed fonts_demo spacing problems and added a kwargs
+           version of the fonts_demo fonts_demo_kw.py - JDH
+
 2004-06-25 finance.py: handle case when urlopen() fails - SC
 
 2004-06-24 Support for multiple images on axes and figure, with
@@ -34,7 +37,8 @@ New entries should be added at the top
 
 2004-06-15 removed set_default_font from font_manager to unify font
            customization using the new function rc.  See API_CHANGES
-           fpr more info -  JDH
+           for more info.  The examples fonts_demo.py and
+           fonts_demo_kw.py are ported to the new API - JDH
 
 2004-06-15 Improved (yet again!) axis scaling to properly handle
            singleton plots - JDH
