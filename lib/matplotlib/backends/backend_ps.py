@@ -281,6 +281,51 @@ grestore
         ps = '%1.3f %1.3f m %1.3f %1.3f l'%(x0, y0, x1, y1)
         self._draw_ps(ps, gc, None, "line")
 
+    def _draw_markers(self, gc, path, x, y, transform):
+        """
+        Draw the markers defined by path at each of the positions in x
+        and y.  path coordinates are points, x and y coords will be
+        transformed by the transform
+        """
+        if debugPS:
+            self._pswriter.write("% markers\n")
+
+        if transform.need_nonlinear():
+            x,y = transform.nonlinear_only_numerix(x, y)
+
+        # the a,b,c,d,tx,ty affine which transforms x and y
+        vec6 = transform.as_vec6_val()
+        # this defines a single vertex.  We need to define this as ps
+        # function, properly stroked and filled with linewidth etc,
+        # and then simply iterate over the x and y and call this
+        # function at each position.  Eg, this is the path that is
+        # relative to each x and y offset.
+        ps = []
+        for p in path:
+            code = p[0]
+            if code==MOVETO:
+                mx, my = p[1:]
+                ps.append('%1.3f %1.3f m')
+            elif code==LINETO:
+                mx, my = p[1:]
+                ps.append('%1.3f %1.3f l')
+            elif code==ENDPOLY:
+                fill = p[1]
+                if fill:  # we can get the fill color here
+                    rgba = p[2:]
+                    
+        vertfunc = 'some magic ps function that draws the marker relative to an x,y point'
+        # the gc contains the stroke width and color as always
+        for i in xrange(len(x)):
+            # for large numbers of markers you may need to chunk the
+            # output, eg dump the ps in 1000 marker batches
+            thisx = x[i]
+            thisy = y[i]
+            # apply affine transform x and y to define marker center
+            #draw_marker_here
+
+        print 'I did nothing!'
+
     def _draw_lines(self, gc, points):
         """
         Draw many lines.  'points' is a list of point coordinates.

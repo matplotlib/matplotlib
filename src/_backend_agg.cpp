@@ -852,14 +852,23 @@ RendererAgg::draw_lines(const Py::Tuple& args) {
 
 Py::Object
 RendererAgg::draw_markers(const Py::Tuple& args) {
-  //draw_markers(gc, path, xo, yo)
+  //draw_markers(gc, path, xo, yo, transform)
   theRasterizer->reset_clipping();
   _VERBOSE("RendererAgg::draw_markers");
-  args.verify_length(4);  
+  args.verify_length(5);  
   Py::Object gc = args[0];
   Py::SeqBase<Py::Object> pathseq = args[1];
   Py::SeqBase<Py::Object> xo = args[2];
   Py::SeqBase<Py::Object> yo = args[3];
+
+  Transformation* mpltransform = static_cast<Transformation*>(args[4].ptr());
+
+  
+  
+  double a, b, c, d, tx, ty;
+  mpltransform->affine_params_api(&a, &b, &c, &d, &tx, &ty);
+  agg::trans_affine xytrans = agg::trans_affine(a,b,c,d,tx,ty);  
+
   
   set_clip_rectangle(gc);
   size_t Npath = pathseq.length();
@@ -904,12 +913,12 @@ RendererAgg::draw_markers(const Py::Tuple& args) {
     if (code==1) { //moveto
       double x = Py::Float(tup[1]);
       double y = Py::Float(tup[2]);
-      marker.move_to(x, heightd-y);
+      marker.move_to(x, -y);
     }
     else if (code==2) { //lineto
       double x = Py::Float(tup[1]);
       double y = Py::Float(tup[2]);
-      marker.line_to(x, heightd-y);
+      marker.line_to(x, -y);
     }
     else if (code==6) { //endpoly
       marker.close_polygon();
@@ -934,29 +943,52 @@ RendererAgg::draw_markers(const Py::Tuple& args) {
   */
   int isaa = antialiased(gc);
   
-  
+
   agg::path_storage path;
   typedef agg::conv_transform<agg::path_storage, agg::trans_affine> transpath;
   for (size_t i=0; i<Nx; ++i) {
     double thisx = Py::Float( xo[i] );
     double thisy = Py::Float( yo[i] );
+    //std::cout << "Input " << thisx << " " << thisy << std::endl;
+
+    try {
+      //std::cout << thisy << std::endl;
+      if (mpltransform->need_nonlinear_api())
+	mpltransform->nonlinear_only_api(&thisx, &thisy);
+    }
+    catch (std::domain_error& err) {
+      //std::cout << "caught a live one, ignoring" << std::endl;
+      continue;
+    }
+
+    xytrans.transform(&thisx, &thisy);
+
+
     thisy = heightd - thisy;  //flipy
+    thisx = (int)(thisx)+0.5; //snapto
+    thisy = (int)(thisy)+0.5;
+    //std::cout << "Output " << thisx << " " << thisy << std::endl;
     agg::trans_affine mtx;
     mtx *= agg::trans_affine_translation(thisx,thisy);
     transpath trans(marker, mtx);
     
+    if (fill) {
+      rendererAA->color(fillColor);
+      theRasterizer->add_path(trans);    
+      agg::render_scanlines(*theRasterizer, *slineP8, *rendererAA);     
+    }
+
     //std::cout << width << " " << height << std::endl;
     if (! useDashes ) {
-      std::cout << "stroking" << std::endl;
       agg::conv_stroke<transpath> stroke(trans);
       stroke.line_cap(cap);
       stroke.line_join(join);
       stroke.width(lw);
-      //freeze was here std::cout << "\t adding path!" << std::endl;         
       theRasterizer->add_path(stroke);
+      
     }
     else {
-      /*
+      
 	size_t N = dashSeq.length();
 	if (N%2 != 0  ) 
 	throw Py::ValueError(Printf("dashes must be an even length sequence; found %d", N).str());     
@@ -977,18 +1009,20 @@ RendererAgg::draw_markers(const Py::Tuple& args) {
 	stroke.line_join(join);
 	stroke.width(lw);
 	theRasterizer->add_path(stroke);
-      */
+      
     }
-  }
-  if ( isaa ) {
-    std::cout << "drawing " << color.r << std::endl;;
-    rendererAA->color(color);    
-    agg::render_scanlines(*theRasterizer, *slineP8, *rendererAA); 
-  }
-  else {
-    rendererBin->color(color);     
-    agg::render_scanlines(*theRasterizer, *slineBin, *rendererBin); 
-  }
+
+    if ( isaa ) {
+      rendererAA->color(color);    
+      agg::render_scanlines(*theRasterizer, *slineP8, *rendererAA); 
+    }
+    else {
+      rendererBin->color(color);     
+      agg::render_scanlines(*theRasterizer, *slineBin, *rendererBin); 
+    }
+
+  } //for each marker
+    
   
   return Py::Object();
   

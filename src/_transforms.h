@@ -4,6 +4,7 @@
 
 #ifndef _TRANSFORMS_H
 #define _TRANSFORMS_H
+#include <stdexcept>
 #include <iostream>
 #include <cmath>
 #include <limits>
@@ -377,6 +378,10 @@ public:
     return Py::Object();
   }
 
+  int get_type_api() const {
+    return (int)_type;
+  }
+
   Py::Object get_type(const Py::Tuple &args) {
     return Py::Int((int)_type);
   }
@@ -390,7 +395,7 @@ public:
     if (_type==IDENTITY) return x;
     else if (_type==LOG10) {
       if (x<=0) {
-	throw Py::ValueError("Cannot take log of nonpositive value");
+	throw std::domain_error("Cannot take log of nonpositive value");
 	
       }
       return log10(x);
@@ -461,6 +466,35 @@ public:
 
   static void init_type(void);
 
+  //return whether a nonlinear transform is needed
+  virtual bool need_nonlinear_api() {return true;}; 
+  Py::Object need_nonlinear(const Py::Tuple& args) {
+    return Py::Int(need_nonlinear_api());
+  }
+
+  //all derived classes must implement these
+  // do the nonlinear transformation compenent in place
+  virtual void nonlinear_only_api(double *x, double *y) {}; // do nothing
+
+  // the affine for the linear part
+  virtual void affine_params_api(double* a, double* b, double* c, double*d, double* tx, double* ty)=0;
+
+  Py::Object as_vec6_val(const Py::Tuple &args) {
+    double a,b,c,d,tx,ty;
+    affine_params_api(&a, &b, &c, &d, &tx, &ty);
+    Py::Tuple ret(6);
+    ret[0] = Py::Float(a);
+    ret[1] = Py::Float(b);
+    ret[2] = Py::Float(c);
+    ret[3] = Py::Float(d);
+    ret[4] = Py::Float(tx);
+    ret[5] = Py::Float(ty);
+    return ret;
+    
+  }
+
+
+
   // for custom methods of derived classes to work in pycxx, the base
   // class must define them all.  I define them, and raise by default.
   // Ugly, yes.  for bbox transforms
@@ -482,12 +516,14 @@ public:
 
   // for affine transforms 
   virtual Py::Object as_vec6(const Py::Tuple &args);
+  
 
   // for all children
   Py::Object xy_tup(const Py::Tuple &args);
   Py::Object seq_xy_tups(const Py::Tuple &args);
   Py::Object seq_x_y(const Py::Tuple &args);
   Py::Object numerix_x_y(const Py::Tuple &args);
+  Py::Object nonlinear_only_numerix(const Py::Tuple &args);
   Py::Object inverse_xy_tup(const Py::Tuple &args);
   virtual Py::Object deepcopy(const Py::Tuple &args) =0;
 
@@ -539,6 +575,7 @@ public:
   Py::Object set_bbox1(const Py::Tuple &args);
   Py::Object set_bbox2(const Py::Tuple &args);
 
+  void affine_params_api(double* a, double* b, double* c, double*d, double* tx, double* ty);
 protected:
   Bbox *_b1, *_b2;
   double _sx, _sy, _tx, _ty;      // the bbox transform params
@@ -557,11 +594,20 @@ public:
   static void init_type(void);
 
 
+
+  bool need_nonlinear_api() {
+    return !(_funcx->get_type_api()==Func::IDENTITY &&
+	     _funcy->get_type_api()==Func::IDENTITY);
+  }
+
+  Py::Object as_vec6_val(const Py::Tuple &args);
   Py::Object get_funcx(const Py::Tuple &args);
   Py::Object get_funcy(const Py::Tuple &args);
   Py::Object set_funcx(const Py::Tuple &args);
   Py::Object set_funcy(const Py::Tuple &args);
   Py::Object set_offset(const Py::Tuple &args);  
+
+  void nonlinear_only_api(double *x, double *y);
   std::pair<double, double> & operator()(const double &x, const double &y);
   std::pair<double, double> & inverse_api(const double &x, const double &y);
   
@@ -588,6 +634,7 @@ public:
   
   Py::Object deepcopy(const Py::Tuple &args) ;
 
+  void nonlinear_only_api(double *x, double *y);
 
 protected:
   FuncXY *_funcxy;
@@ -604,13 +651,18 @@ public:
 
   static void init_type(void);
 
+  bool need_nonlinear_api() {
+    return false;
+  }
+
   Py::Object as_vec6(const Py::Tuple &args);
 
   std::pair<double, double> & operator()(const double &x, const double &y);
   std::pair<double, double> & inverse_api(const double &x, const double &y);
   void eval_scalars(void);
   Py::Object deepcopy(const Py::Tuple &args);
-  
+
+  void affine_params_api(double* a, double* b, double* c, double*d, double* tx, double* ty);  
 private:
   LazyValue *_a;
   LazyValue *_b;

@@ -6,17 +6,18 @@ variety of line styles, markers and colors
 # TODO: expose cap and join style attrs
 from __future__ import division
 
-import sys
+import sys, math
 
 from numerix import Float, alltrue, arange, array, logical_and,\
      nonzero, searchsorted, take, asarray, ones, where, less, ravel, \
-     greater, logical_and
+     greater, logical_and, cos, sin, pi
 from matplotlib import verbose
 from artist import Artist
 from cbook import iterable, is_string_like
 from collections import RegularPolyCollection, PolyCollection
 from colors import colorConverter
 from patches import bbox_artist
+from path import MOVETO, LINETO, ENDPOLY
 from transforms import lbwh_to_bbox, LOG10
 from matplotlib import rcParams
 
@@ -32,6 +33,8 @@ lineMarkers =    {'.':1, ',':1, 'o':1, '^':1, 'v':1, '<':1, '>':1, 's':1,
                   'None':1
                   }
 
+
+    
 class Line2D(Artist):
     _lineStyles =  {
         '-'    : '_draw_solid',
@@ -253,13 +256,9 @@ ACCEPTS: [True | False]
 
     def draw(self, renderer):
         #renderer.open_group('line2d')
-        x, y = self._get_numeric_clipped_data_in_range()
-        if len(x)==0: return 
 
-        #xys = self._transform.seq_xy_tups(zip(x,y))
-        #xy, yt = zip(*xys)
+        self._newstyle = hasattr(renderer, 'draw_markers')
 
-        xt, yt = self._transform.numerix_x_y(x, y)
         gc = renderer.new_gc()
         gc.set_foreground(self._color)
         gc.set_antialiased(self._antialiased)
@@ -267,6 +266,16 @@ ACCEPTS: [True | False]
         gc.set_alpha(self._alpha)
         if self.get_clip_on():
             gc.set_clip_rectangle(self.clipbox.get_bounds())
+
+        
+        if self._newstyle and self._linestyle == 'None':
+            # we don't need xt
+            xt = self._x
+            yt = self._y
+        else:    
+            x, y = self._get_numeric_clipped_data_in_range()
+            if len(x)==0: return 
+            xt, yt = self._transform.numerix_x_y(x, y)
 
 
         lineFunc = getattr(self, self._lineFunc)
@@ -280,6 +289,9 @@ ACCEPTS: [True | False]
             if self.get_clip_on():
                 gc.set_clip_rectangle(self.clipbox.get_bounds())
             markerFunc = getattr(self, self._markerFunc)
+            if self._newstyle:
+                xt = self._x
+                yt = self._y
             markerFunc(renderer, gc, xt, yt)
 
         #if 1: bbox_artist(self, renderer)
@@ -549,9 +561,22 @@ ACCEPTS: sequence of on/off ink in points
         w = h = renderer.points_to_pixels(self._markersize)
         
         rgbFace = self._get_rgb_face()
-        for (x,y) in zip(xt, yt):
-            renderer.draw_arc(gc, rgbFace,
-                              x, y, w, h, 0.0, 360.0)
+
+        if self._newstyle:
+            N = 50.0
+            r = w/2.
+            rads = (2*math.pi/N)*arange(N)
+            xs = r*cos(rads)
+            ys = r*sin(rads)
+            verts = [(MOVETO, xs[0], ys[0])]
+            verts.extend([(LINETO, x, y) for x, y in zip(xs[1:], ys[1:])])
+            CLOSE = self._get_close(rgbFace)
+            verts.append(CLOSE)
+            renderer.draw_markers(gc, verts, xt, yt, self._transform)
+        else:
+            for (x,y) in zip(xt, yt):
+                renderer.draw_arc(gc, rgbFace,
+                                  x, y, w, h, 0.0, 360.0)
         
 
     def _draw_circle_collection(self, renderer):        
@@ -567,75 +592,166 @@ ACCEPTS: sequence of on/off ink in points
         
 
     def _draw_triangle_up(self, renderer, gc, xt, yt):
+
         
         offset = 0.5*renderer.points_to_pixels(self._markersize)
         rgbFace = self._get_rgb_face()
-        for (x,y) in zip(xt, yt):
-            verts = ( (x, y+offset),
-                      (x-offset, y-offset),
-                      (x+offset, y-offset) )
-            renderer.draw_polygon(gc, rgbFace, verts)
+
+        if self._newstyle:
+            CLOSE = self._get_close(rgbFace)
+            path = (
+                (MOVETO, 0, offset),
+                (LINETO, -offset, -offset),
+                (LINETO, offset, -offset),
+                CLOSE
+                )
+            renderer.draw_markers(gc, path, xt, yt, self._transform)
+        else:
+
+
+            for (x,y) in zip(xt, yt):
+                verts = ( (x, y+offset),
+                          (x-offset, y-offset),
+                          (x+offset, y-offset) )
+                renderer.draw_polygon(gc, rgbFace, verts)
 
 
     def _draw_triangle_down(self, renderer, gc, xt, yt):
         offset = 0.5*renderer.points_to_pixels(self._markersize)
         rgbFace = self._get_rgb_face()
-        for (x,y) in zip(xt, yt):            
-            verts = ( (x-offset, y+offset),
-                      (x+offset, y+offset),
-                      (x, y-offset))
-            renderer.draw_polygon(gc, rgbFace, verts)
+
+        if self._newstyle:
+            CLOSE = self._get_close(rgbFace)
+            path = (
+                (MOVETO, -offset, offset),
+                (LINETO, offset, offset),
+                (LINETO, 0, -offset),
+                CLOSE
+                )
+            renderer.draw_markers(gc, path, xt, yt, self._transform)
+        else:
+            for (x,y) in zip(xt, yt):            
+                verts = ( (x-offset, y+offset),
+                          (x+offset, y+offset),
+                          (x, y-offset))
+                renderer.draw_polygon(gc, rgbFace, verts)
 
     def _draw_triangle_left(self, renderer, gc, xt, yt):
         offset = 0.5*renderer.points_to_pixels(self._markersize)
         rgbFace = self._get_rgb_face()
-        for (x,y) in zip(xt, yt):            
-            verts = ( (x-offset, y),
-                      (x+offset, y-offset),
-                      (x+offset, y+offset))
-            renderer.draw_polygon(gc, rgbFace, verts)
+
+        if self._newstyle:
+            CLOSE = self._get_close(rgbFace)
+            path = (
+                (MOVETO, -offset, 0),
+                (LINETO, offset, -offset),
+                (LINETO, offset, offset),
+                CLOSE
+                )
+            renderer.draw_markers(gc, path, xt, yt, self._transform)
+        else:
+            for (x,y) in zip(xt, yt):            
+                verts = ( (x-offset, y),
+                          (x+offset, y-offset),
+                          (x+offset, y+offset))
+                renderer.draw_polygon(gc, rgbFace, verts)
 
 
     def _draw_triangle_right(self, renderer, gc, xt, yt):
         offset = 0.5*renderer.points_to_pixels(self._markersize)
         rgbFace = self._get_rgb_face()
-        for (x,y) in zip(xt, yt):            
-            verts = ( (x+offset, y),
-                      (x-offset, y-offset),
-                      (x-offset, y+offset))
-            renderer.draw_polygon(gc, rgbFace, verts)
+        if self._newstyle:
+            CLOSE = self._get_close(rgbFace)
+            path = (
+                (MOVETO, offset, 0),
+                (LINETO, -offset, -offset),
+                (LINETO, -offset, offset),
+                CLOSE
+                )
+            renderer.draw_markers(gc, path, xt, yt, self._transform)
+        else:
+            for (x,y) in zip(xt, yt):            
+                verts = ( (x+offset, y),
+                          (x-offset, y-offset),
+                          (x-offset, y+offset))
+                renderer.draw_polygon(gc, rgbFace, verts)
 
-            
+
+    def _get_close(self, rgbFace):
+        if rgbFace is None:
+            CLOSE = ENDPOLY, 0
+        else:
+            r,g,b = rgbFace
+            CLOSE = ENDPOLY, 1, r, g, b, self._alpha
+        return CLOSE
 
     def _draw_square(self, renderer, gc, xt, yt):
         side = renderer.points_to_pixels(self._markersize)
         offset = side*0.5
         rgbFace = self._get_rgb_face()
-        for (x,y) in zip(xt, yt):            
-            renderer.draw_rectangle(
-                gc, rgbFace,
-                x-offset, y-offset, side, side) 
+        
+        if self._newstyle:
+            CLOSE = self._get_close(rgbFace)
+            path = (
+                (MOVETO, -offset, -offset),
+                (LINETO, -offset, offset),
+                (LINETO, offset, offset),
+                (LINETO, offset, -offset),
+                CLOSE
+                )
+            renderer.draw_markers(gc, path, xt, yt, self._transform)
+        else:
+
+            for (x,y) in zip(xt, yt):            
+                renderer.draw_rectangle(
+                    gc, rgbFace,
+                    x-offset, y-offset, side, side) 
 
     def _draw_diamond(self, renderer, gc, xt, yt):
         offset = 0.6*renderer.points_to_pixels(self._markersize)
         rgbFace = self._get_rgb_face()
-        for (x,y) in zip(xt, yt):            
-            verts = ( (x+offset, y),
-                      (x, y-offset),
-                      (x-offset, y),
-                      (x, y+offset))
-            renderer.draw_polygon(gc, rgbFace, verts)
+        if self._newstyle:
+            CLOSE = self._get_close(rgbFace)
+            path = (
+                (MOVETO, offset, 0),
+                (LINETO, 0, -offset),
+                (LINETO, -offset, 0),
+                (LINETO, 0, offset),
+                CLOSE
+                )
+            renderer.draw_markers(gc, path, xt, yt, self._transform)
+        else:
+
+
+            for (x,y) in zip(xt, yt):            
+                verts = ( (x+offset, y),
+                          (x, y-offset),
+                          (x-offset, y),
+                          (x, y+offset))
+                renderer.draw_polygon(gc, rgbFace, verts)
 
     def _draw_thin_diamond(self, renderer, gc, xt, yt):
         offset = 0.7*renderer.points_to_pixels(self._markersize)
         xoffset = 0.6*offset
         rgbFace = self._get_rgb_face()
-        for (x,y) in zip(xt, yt):            
-            verts = ( (x+xoffset, y),
-                      (x, y-offset),
-                      (x-xoffset, y),
-                      (x, y+offset))
-            renderer.draw_polygon(gc, rgbFace, verts)
+
+        if self._newstyle:
+            CLOSE = self._get_close(rgbFace)
+            path = (
+                (MOVETO, xoffset, 0),
+                (LINETO, 0, -offset),
+                (LINETO, -xoffset, 0),
+                (LINETO, 0, offset),
+                CLOSE
+                )
+            renderer.draw_markers(gc, path, xt, yt, self._transform)
+        else:
+            for (x,y) in zip(xt, yt):            
+                verts = ( (x+xoffset, y),
+                          (x, y-offset),
+                          (x-xoffset, y),
+                          (x, y+offset))
+                renderer.draw_polygon(gc, rgbFace, verts)
 
     def _draw_pentagon(self, renderer, gc, xt, yt):
         offset = 0.6*renderer.points_to_pixels(self._markersize)
@@ -644,85 +760,167 @@ ACCEPTS: sequence of on/off ink in points
         offsetX2 = offset*0.59
         offsetY2 = offset*0.81
         rgbFace = self._get_rgb_face()
-        for (x,y) in zip(xt, yt):            
-            verts = ( (x, y+offset),
-                      (x-offsetX1, y+offsetY1),
-                      (x-offsetX2, y-offsetY2),
-                      (x+offsetX2, y-offsetY2),
-                      (x+offsetX1, y+offsetY1))
-            renderer.draw_polygon(gc, rgbFace, verts)
+
+        if self._newstyle:
+            CLOSE = self._get_close(rgbFace)
+            path = (
+                (MOVETO, 0, offset),
+                (LINETO, -offsetX1, offsetY1),
+                (LINETO, -offsetX2, -offsetY2),
+                (LINETO, +offsetX2, -offsetY2),
+                (LINETO, +offsetX1, offsetY1),
+                CLOSE
+                )
+            renderer.draw_markers(gc, path, xt, yt, self._transform)
+        else:
+            for (x,y) in zip(xt, yt):            
+                verts = ( (x, y+offset),
+                          (x-offsetX1, y+offsetY1),
+                          (x-offsetX2, y-offsetY2),
+                          (x+offsetX2, y-offsetY2),
+                          (x+offsetX1, y+offsetY1))
+                renderer.draw_polygon(gc, rgbFace, verts)
 
     def _draw_hexagon1(self, renderer, gc, xt, yt):
         offset = 0.6*renderer.points_to_pixels(self._markersize)
         offsetX1 = offset*0.87
         offsetY1 = offset*0.5
         rgbFace = self._get_rgb_face()
-        for (x,y) in zip(xt, yt):            
-            verts = ( (x, y+offset),
-                      (x-offsetX1, y+offsetY1),
-                      (x-offsetX1, y-offsetY1),
-                      (x, y-offset),
-                      (x+offsetX1, y-offsetY1),
-                      (x+offsetX1, y+offsetY1))
-            renderer.draw_polygon(gc, rgbFace, verts)
+
+        if self._newstyle:
+            CLOSE = self._get_close(rgbFace)
+            path = (
+                (MOVETO, 0, offset),
+                (LINETO, -offsetX1, offsetY1),
+                (LINETO, -offsetX1, -offsetY1),
+                (LINETO, 0, -offset),
+                (LINETO, offsetX1, -offsetY1),
+                (LINETO, offsetX1, offsetY1),
+                CLOSE
+                )
+            renderer.draw_markers(gc, path, xt, yt, self._transform)
+        else:
+            for (x,y) in zip(xt, yt):            
+                verts = ( (x, y+offset),
+                          (x-offsetX1, y+offsetY1),
+                          (x-offsetX1, y-offsetY1),
+                          (x, y-offset),
+                          (x+offsetX1, y-offsetY1),
+                          (x+offsetX1, y+offsetY1))
+                renderer.draw_polygon(gc, rgbFace, verts)
 
     def _draw_hexagon2(self, renderer, gc, xt, yt):
         offset = 0.6*renderer.points_to_pixels(self._markersize)
         offsetX1 = offset*0.5
         offsetY1 = offset*0.87
         rgbFace = self._get_rgb_face()
-        for (x,y) in zip(xt, yt):            
-            verts = ( (x+offset, y),
-                      (x+offsetX1, y+offsetY1),
-                      (x-offsetX1, y+offsetY1),
-                      (x-offset, y),
-                      (x-offsetX1, y-offsetY1),
-                      (x+offsetX1, y-offsetY1))
-            renderer.draw_polygon(gc, rgbFace, verts)
+        if self._newstyle:
+            CLOSE = self._get_close(rgbFace)
+            path = (
+                (MOVETO, offset, 0),
+                (LINETO, offsetX1, offsetY1),
+                (LINETO, -offsetX1, offsetY1),
+                (LINETO, -offset, 0),
+                (LINETO, -offsetX1, -offsetY1),
+                (LINETO, offsetX1, -offsetY1),
+                CLOSE
+                )
+            renderer.draw_markers(gc, path, xt, yt, self._transform)
+        else:
+
+
+            for (x,y) in zip(xt, yt):            
+                verts = ( (x+offset, y),
+                          (x+offsetX1, y+offsetY1),
+                          (x-offsetX1, y+offsetY1),
+                          (x-offset, y),
+                          (x-offsetX1, y-offsetY1),
+                          (x+offsetX1, y-offsetY1))
+                renderer.draw_polygon(gc, rgbFace, verts)
 
     def _draw_vline(self, renderer, gc, xt, yt):
         offset = 0.5*renderer.points_to_pixels(self._markersize)
-        for (x,y) in zip(xt, yt):            
-            renderer.draw_line(gc, x, y-offset, x, y+offset)
+        if self._newstyle:
+            path = (
+                (MOVETO, 0, -offset),
+                (LINETO, 0, offset),
+                )
+            renderer.draw_markers(gc, path, xt, yt, self._transform)
+        else:
+            for (x,y) in zip(xt, yt):            
+                renderer.draw_line(gc, x, y-offset, x, y+offset)
 
     def _draw_hline(self, renderer, gc, xt, yt):
         offset = 0.5*renderer.points_to_pixels(self._markersize)
-        for (x,y) in zip(xt, yt):
-            renderer.draw_line(gc, x-offset, y, x+offset, y)
+        if self._newstyle:
+            path = (
+                (MOVETO, -offset, 0),
+                (LINETO, offset, 0),
+                )
+            renderer.draw_markers(gc, path, xt, yt, self._transform)
+        else:
+            for (x,y) in zip(xt, yt):
+                renderer.draw_line(gc, x-offset, y, x+offset, y)
 
     def _draw_tickleft(self, renderer, gc, xt, yt):
         offset = renderer.points_to_pixels(self._markersize)
-        for (x,y) in zip(xt, yt):
-            renderer.draw_line(gc, x-offset, y, x, y)
+        if self._newstyle:
+            path = (
+                (MOVETO, -offset, 0),
+                (LINETO, 0, 0),
+                )
+            renderer.draw_markers(gc, path, xt, yt, self._transform)
+        else:
+            for (x,y) in zip(xt, yt):
+                renderer.draw_line(gc, x-offset, y, x, y)
 
     def _draw_tickright(self, renderer, gc, xt, yt):
 
         offset = renderer.points_to_pixels(self._markersize)
-        for (x,y) in zip(xt, yt):
-            renderer.draw_line(gc, x, y, x+offset, y)
+        if self._newstyle:
+            path = (
+                (MOVETO, 0, 0),
+                (LINETO, offset, 0),
+                )
+            renderer.draw_markers(gc, path, xt, yt, self._transform)
+        else:
+            for (x,y) in zip(xt, yt):
+                renderer.draw_line(gc, x, y, x+offset, y)
 
     def _draw_tickup(self, renderer, gc, xt, yt):
         offset = renderer.points_to_pixels(self._markersize)
-
-        for (x,y) in zip(xt, yt):
-            renderer.draw_line(gc, x, y, x, y+offset)
+        if self._newstyle:
+            path = (
+                (MOVETO, 0, 0),
+                (LINETO, 0, offset),
+                )
+            renderer.draw_markers(gc, path, xt, yt, self._transform)
+        else:
+            for (x,y) in zip(xt, yt):
+                renderer.draw_line(gc, x, y, x, y+offset)
 
     def _draw_tickdown(self, renderer, gc, xt, yt):
         offset = renderer.points_to_pixels(self._markersize)
-        for (x,y) in zip(xt, yt):
-            renderer.draw_line(gc, x, y-offset, x, y)
+        if self._newstyle:
+            path = (
+                (MOVETO, 0, -offset),
+                (LINETO, 0, 0),
+                )
+            renderer.draw_markers(gc, path, xt, yt, self._transform)
+        else:
+            for (x,y) in zip(xt, yt):
+                renderer.draw_line(gc, x, y-offset, x, y)
 
     def _draw_plus(self, renderer, gc, xt, yt):
         offset = 0.5*renderer.points_to_pixels(self._markersize)
-        if 0:
+        if self._newstyle:
             path = (
-                (1, -offset, 0),
-                (2, offset, 0),
-                (1, 0, -offset),
-                (2, 0, offset),
+                (MOVETO, -offset, 0),
+                (LINETO, offset, 0),
+                (MOVETO, 0, -offset),
+                (LINETO, 0, offset),
                 )
-            renderer.draw_markers(gc, path, xt, yt)
-            print 'called draw plus'
+            renderer.draw_markers(gc, path, xt, yt, self._transform)
         else:
             for (x,y) in zip(xt, yt):
                 renderer.draw_line(gc, x-offset, y, x+offset, y)
@@ -732,37 +930,81 @@ ACCEPTS: sequence of on/off ink in points
         offset = 0.5*renderer.points_to_pixels(self._markersize)
         offset1 = offset*0.8
         offset2 = offset*0.5
-        for (x,y) in zip(xt, yt):
-            renderer.draw_line(gc, x, y, x, y-offset)
-            renderer.draw_line(gc, x, y, x+offset1, y+offset2)
-            renderer.draw_line(gc, x, y, x-offset1, y+offset2)
+        if self._newstyle:
+            path = (
+                (MOVETO, 0, 0),
+                (LINETO, 0, -offset),
+                (MOVETO, 0, 0),
+                (LINETO, offset1, offset2),
+                (MOVETO, 0, 0),
+                (LINETO, -offset1, offset2),
+                )
+            renderer.draw_markers(gc, path, xt, yt, self._transform)
+        else:
+            for (x,y) in zip(xt, yt):
+                renderer.draw_line(gc, x, y, x, y-offset)
+                renderer.draw_line(gc, x, y, x+offset1, y+offset2)
+                renderer.draw_line(gc, x, y, x-offset1, y+offset2)
 
     def _draw_tri_up(self, renderer, gc, xt, yt):
         offset = 0.5*renderer.points_to_pixels(self._markersize)
         offset1 = offset*0.8
         offset2 = offset*0.5
-        for (x,y) in zip(xt, yt):
-            renderer.draw_line(gc, x, y, x, y+offset)
-            renderer.draw_line(gc, x, y, x+offset1, y-offset2)
-            renderer.draw_line(gc, x, y, x-offset1, y-offset2)
+        if self._newstyle:
+            path = (
+                (MOVETO, 0, 0),
+                (LINETO, 0, offset),
+                (MOVETO, 0, 0),
+                (LINETO, offset1, -offset2),
+                (MOVETO, 0, 0),
+                (LINETO, -offset1, -offset2),
+                )
+            renderer.draw_markers(gc, path, xt, yt, self._transform)
+        else:
+            for (x,y) in zip(xt, yt):
+                renderer.draw_line(gc, x, y, x, y+offset)
+                renderer.draw_line(gc, x, y, x+offset1, y-offset2)
+                renderer.draw_line(gc, x, y, x-offset1, y-offset2)
 
     def _draw_tri_left(self, renderer, gc, xt, yt):
         offset = 0.5*renderer.points_to_pixels(self._markersize)
         offset1 = offset*0.8
         offset2 = offset*0.5
-        for (x,y) in zip(xt, yt):
-            renderer.draw_line(gc, x, y, x-offset, y)
-            renderer.draw_line(gc, x, y, x+offset2, y+offset1)
-            renderer.draw_line(gc, x, y, x+offset2, y-offset1)
+        if self._newstyle:
+            path = (
+                (MOVETO, 0, 0),
+                (LINETO, -offset, 0),
+                (MOVETO, 0, 0),
+                (LINETO, offset2, offset1),
+                (MOVETO, 0, 0),
+                (LINETO, offset2, -offset1),
+                )
+            renderer.draw_markers(gc, path, xt, yt, self._transform)
+        else:
+            for (x,y) in zip(xt, yt):
+                renderer.draw_line(gc, x, y, x-offset, y)
+                renderer.draw_line(gc, x, y, x+offset2, y+offset1)
+                renderer.draw_line(gc, x, y, x+offset2, y-offset1)
 
     def _draw_tri_right(self, renderer, gc, xt, yt):
         offset = 0.5*renderer.points_to_pixels(self._markersize)
         offset1 = offset*0.8
         offset2 = offset*0.5
-        for (x,y) in zip(xt, yt):
-            renderer.draw_line(gc, x, y, x+offset, y)
-            renderer.draw_line(gc, x, y, x-offset2, y+offset1)
-            renderer.draw_line(gc, x, y, x-offset2, y-offset1)
+        if self._newstyle:
+            path = (
+                (MOVETO, 0, 0),
+                (LINETO, offset, 0),
+                (MOVETO, 0, 0),
+                (LINETO, -offset2, offset1),
+                (MOVETO, 0, 0),
+                (LINETO, -offset2, -offset1),
+                )
+            renderer.draw_markers(gc, path, xt, yt, self._transform)
+        else:
+            for (x,y) in zip(xt, yt):
+                renderer.draw_line(gc, x, y, x+offset, y)
+                renderer.draw_line(gc, x, y, x-offset2, y+offset1)
+                renderer.draw_line(gc, x, y, x-offset2, y-offset1)
 
     def _draw_x(self, renderer, gc, xt, yt):
         offset = 0.5*renderer.points_to_pixels(self._markersize)

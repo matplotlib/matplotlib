@@ -25,6 +25,8 @@ API CHANGES in matplotlib-0.72
 
    subs=none now does autosubbing in the tick locator.
 
+   removed BBoxTransformation
+
 API CHANGES in matplotlib-0.71   
 
    Significant numerix namespace changes, introduced to resolve
