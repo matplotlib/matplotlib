@@ -159,3 +159,5 @@
 -- dashes broken in GTK backend on win32?
 
 -- finish XVFB architecture
+
+-- write a PDF user's guide
