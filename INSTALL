@@ -45,12 +45,13 @@ COMPILING
   /some/path/include/somheader.h, put /some/path in the basedir list
   for your platform.
 
-  Note, matplotlib works with with Numeric or numarray, but it is
-  important that you set NUMERIX in setup.py to the array package you
-  typically use, for efficiency reasons.  For performace, it is
-  critical that the numerix settings in setup.py and in your
-  .matplotlibrc file are the same, and are the same as the array
-  package you typicaly use.
+  matplotlib works with with Numeric or numarray.  At compile time,
+  setup.py will look for both packages and compile the appropriate
+  extensions into matplotlib.  At runtime, the correct extension code
+  will be chosen based on your numerix setting in matplotlibrc.  If
+  you want to be able to use either Numeric or numarray efficiently
+  with matplotlib, it is important that you have *both* present and in
+  your PYTHONPATH when you compile matplotlib.
 
   Note that if you install matplotlib anywhere other than the default
   location, you will need to set the MATPLOTLIBDATA environment
