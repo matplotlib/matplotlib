@@ -1,3 +1,4 @@
+from matplotlib.font_manager import FontProperties
 from matplotlib.matlab import *
 
 def f(t):
@@ -16,7 +17,8 @@ title('subplot 1')
 ylabel('Damped oscillation')
 figtitle = 'This is a somewhat long figure title'
 t = gcf().text(0.5, 0.95, figtitle,
-               horizontalalignment='center', fontsize=16,)
+               horizontalalignment='center',
+               fontproperties=FontProperties(size=16))
 
 
 subplot(122)
