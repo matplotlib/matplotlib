@@ -1,5 +1,7 @@
 New entries should be added at the top
 
+2005-02-10 new zorder example for fine control in zorder_demo.py - FP
+
 2005-02-10 backend renderer draw_lines now has transform in backend,
            as in draw_markers; use numerix in _backend_agg, aded small
            line optimization to agg
