@@ -467,24 +467,30 @@ def build_contour(ext_modules, packages, numerix):
 
     if numerix in ["numarray","both"]: # Build for numarray
         temp_copy('src/_contour.c', 'src/_na_contour.c')
-        deps = ['src/_na_contour.c', 'src/gcntr.c'] 
+        #deps = ['src/_na_contour.c', 'src/gcntr.c',  libraries = ['stdc++']] 
         module = Extension(
             'matplotlib._na_contour',
-            deps
-            ,
+            [  'src/_na_contour.c',
+		'src/gcntr.c'],
+		libraries = ['stdc++'],
             )    
         module.extra_compile_args.append('-DNUMARRAY=1')
         ext_modules.append(module)    
 
     if numerix in ["Numeric","both"]: # Build for Numeric
         temp_copy('src/_contour.c', 'src/_nc_contour.c')
-        deps = ['src/_nc_contour.c', 'src/gcntr.c'] 
+        #deps = ['src/_nc_contour.c', 'src/gcntr.c'] 
         module = Extension(
             'matplotlib._nc_contour',
-            deps
-            ,
+		[ 'src/_nc_contour.c',
+		'src/gcntr.c'],
+		libraries = ['stdc++'],
             )
         module.extra_compile_args.append('-DNUMERIC=1')
         ext_modules.append(module)
 
     BUILT_CONTOUR = True
+
+
+
+
