@@ -1,7 +1,7 @@
 #include <functional>
 #include <numeric>
 #include "_transforms.h"
-
+ 
 #ifdef NUMARRAY
 #include "numarray/arrayobject.h" 
 #else
@@ -588,6 +588,7 @@ Transformation::numerix_x_y(const Py::Tuple & args) {
 
     double thisx = *(double *)(x->data + i*x->strides[0]);
     double thisy = *(double *)(y->data + i*y->strides[0]);
+    //std::cout << "calling operator " << thisx << " " << thisy << " " << std::endl;
     this->operator()(thisx, thisy);
     *(double *)(retx->data + i*retx->strides[0]) = xy.first;
     *(double *)(rety->data + i*rety->strides[0]) = xy.second;

@@ -33,6 +33,7 @@ ax.xaxis.set_major_formatter(weekFormatter)
 
 #plot_day_summary(ax, quotes, ticksize=3, converter=converter)
 candlestick(ax, quotes, width=0.6, converter=converter)
+set( gca().get_xticklabels(), 'rotation', 45, 'horizontalalignment', 'right')
 
 show()
 

@@ -11,6 +11,6 @@ ylabel('voltage (mV)')
 title('About as simple as it gets, folks')
 grid(True)
 #axis([0,1,-1,1])
-#savefig('simple_plot', dpi=300)
+savefig('simple_plot')
 
 show()

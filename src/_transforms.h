@@ -345,8 +345,10 @@ public:
   static void init_type(void);
 
   double operator()(const double& x) { 
-    if (x<=0) 
+    if (x<=0) {
       throw Py::ValueError("Cannot take log of nonpositive value");
+      
+    }
     return log10(x);
   };
 
