@@ -2,6 +2,8 @@ New entries should be added at the top
 
 2004-08-18 Some pixel edge effects fixes for images
 
+2004-08-18 Fixed TTF files reads in backend_ps on win32.  
+
 2004-08-18 Added base and subs properties for logscale plots, user
            modifiable using
            set_[x,y]scale('log',base=b,subs=[mt1,mt2,...]) - GL
