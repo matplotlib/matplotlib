@@ -21,7 +21,7 @@ from matplotlib.text import Text
 
 from matplotlib import get_data_path
 
-from matplotlib.numerix import fromstring, UInt8, Float32
+from matplotlib.numerix import fromstring, UInt8, Float32, equal, alltrue
 import binascii
 
 
@@ -55,6 +55,23 @@ _fontd = {}
 _type42 = []
 
 
+def seq_allequal(seq1, seq2):
+    """
+    seq1 and seq2 are either None or sequences or numerix arrays
+    Return True if both are None or both are seqs with identical
+    elements
+    """
+    if seq1 is None:
+        return seq2 is None
+
+    if seq2 is None:
+        return False
+    #ok, neither are None:, assuming iterable
+        
+    if len(seq1) != len(seq2): return False
+    return alltrue(equal(seq1, seq2))
+    
+    
 class RendererPS(RendererBase):
     """
     The renderer handles all the drawing primitives using a graphics
@@ -101,7 +118,7 @@ class RendererPS(RendererBase):
     def set_linedash(self, offset, seq):        
         if self.linedash is not None:
             oldo, oldseq = self.linedash
-            if offset==oldo and seq==oldseq: return        
+            if seq_allequal(seq, oldseq): return
             
         if seq is not None and len(seq):
             s="[%s] %d setdash\n"%(_nums_to_str(*seq), offset)
