@@ -31,14 +31,13 @@ REQUIREMENTS:
 
 INSTALL
 
-  If you have the requirements, just do 'python setup.py install'.
+   The latest installation instructions can be found at
 
+    http://matplotlib.sourceforge.net/installing.html
 
-  Quick start install instructions can be found here -
-  http://matplotlib.sourceforge.net/installing.html
+  and for backend specific install information see
 
-  For backend specific install information see
-  http://matplotlib.sourceforge.net/backends.html
+    http://matplotlib.sourceforge.net/backends.html
 
   If you want to use matplotlib interactively from the prompt, see
   http://matplotlib.sourceforge.net/interactive.html
