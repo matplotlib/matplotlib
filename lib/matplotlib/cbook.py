@@ -217,6 +217,13 @@ def mkdirs(newdir, mode=0777):
          raise
 
 
+def dict_delall(d, keys):
+    'delete all of the keys from the dict d'
+    for key in keys:
+        try: del d[key]
+        except KeyError: pass
+        
+
 class RingBuffer:
     """ class that implements a not-yet-full buffer """
     def __init__(self,size_max):

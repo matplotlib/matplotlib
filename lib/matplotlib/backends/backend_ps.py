@@ -4,9 +4,8 @@ Encapsulated PostScript .eps files.
 """
 
 from __future__ import division
-import sys, os
+import sys, os, time
 from cStringIO import StringIO
-from datetime import datetime
 from matplotlib import verbose, __version__
 from matplotlib._matlab_helpers import Gcf
 from matplotlib.backend_bases import RendererBase, GraphicsContextBase,\
@@ -581,7 +580,7 @@ class FigureCanvasPS(FigureCanvasBase):
         if title: print >>fh, "%%Title: "+title
         print >>fh, ("%%Creator: matplotlib version "
                      +__version__+", http://matplotlib.sourceforge.net/")
-        print >>fh, "%%CreationDate: "+datetime.today().ctime()
+        print >>fh, "%%CreationDate: "+time.ctime(time.time())
         if not isEPSF:
             if paperWidth > paperHeight:
                 ostr="Landscape"

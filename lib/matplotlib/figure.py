@@ -1,7 +1,7 @@
 import sys
 from artist import Artist
 from axes import Axes, Subplot, PolarSubplot, PolarAxes
-from cbook import flatten, True, False, allequal
+from cbook import flatten, True, False, allequal, dict_delall
 import _image
 from colors import normalize
 from image import FigureImage
@@ -191,7 +191,7 @@ instructions on how to port your code.
         The Axes instance will be returned
         """
         ispolar = kwargs.get('polar', False)
-
+        dict_delall(kwargs, ('polar', ) )
         if ispolar:
             a = PolarSubplot(self, *args, **kwargs)
         else:

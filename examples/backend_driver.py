@@ -47,7 +47,9 @@ files = (
     'multiple_figs_demo.py',
     'pcolor_demo.py',
     'pcolor_demo2.py',
-    'pcolor_small.py',    
+    'pcolor_small.py',
+    'polar_demo.py',
+    'polar_scatter.py',
     'psd_demo.py',
     'scatter_demo.py',
     'scatter_demo2.py',
@@ -55,6 +57,7 @@ files = (
     'specgram_demo.py',
     'stock_demo.py',
     'subplot_demo.py',
+#    'set_and_get.py',    
     'table_demo.py',
     'text_handles.py',
     'text_themes.py',
@@ -62,9 +65,19 @@ files = (
     'vline_demo.py',
     )
 
-def drive(backend):
 
+#tests known to fail on python22 (require datetime)
+fail22  = (
+    'date_demo1.py',
+    'date_demo2.py',    
+    'finance_demo.py',
+    )
+def drive(backend, python='python2.3'):
+    
     for fname in files:
+        if python=='python2.2' and fname in fail22:
+            print '\tSkipping %s, known to fail on python2.2'%fname
+            continue
         lines = [
             'from __future__ import division\n',
             'import matplotlib\n',
@@ -84,7 +97,7 @@ def drive(backend):
             lines.append('savefig("%s", dpi=150)' % outfile)
         tmpfile = '_tmp_%s.py' % basename
         file(tmpfile, 'w').write(''.join(lines))
-        os.system('python %s' % tmpfile)
+        os.system('%s %s' % (python, tmpfile))
 
 times = {}
 backends = ['PS', 'GD', 'Paint', 'Agg', 'Template']
@@ -92,10 +105,11 @@ backends = ['PS', 'GD', 'Paint', 'Agg', 'Template']
 #backends = [ 'Agg']
 backends = [ 'SVG', 'PS', 'Agg', 'Template']
 
+python = 'python2.3'
 for backend in backends:
     print 'testing %s' % backend
     t0 = time.time()
-    drive(backend)
+    drive(backend, python)
     t1 = time.time()
     times[backend] = (t1-t0)/60.0
 
