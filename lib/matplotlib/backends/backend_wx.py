@@ -153,7 +153,7 @@ from matplotlib import verbose
 from matplotlib.backend_bases import RendererBase, GraphicsContextBase,\
      FigureCanvasBase, FigureManagerBase, error_msg, NavigationToolbar2, \
      MplEvent, cursors
-from matplotlib._matlab_helpers import Gcf
+from matplotlib._pylab_helpers import Gcf
 from matplotlib.artist import Artist
 from matplotlib.cbook import exception_to_str
 from matplotlib.figure import Figure
@@ -1141,8 +1141,8 @@ The current aspect ration will be kept."""
 
 ########################################################################
 #    
-# The following functions and classes are for matlab compatibility
-# mode (matplotlib.matlab) and implement figure managers, etc...
+# The following functions and classes are for pylab compatibility
+# mode (matplotlib.pylab) and implement figure managers, etc...
 #
 ########################################################################
 
@@ -1191,7 +1191,7 @@ def new_figure_manager(num, *args, **kwargs):
     """
     Create a new figure manager instance
     """
-    # in order to expose the Figure constructor to the matlab
+    # in order to expose the Figure constructor to the pylab
     # interface we need to create the figure here
     DEBUG_MSG("new_figure_manager()", 3, None)
     fig = Figure(*args, **kwargs)
@@ -1280,7 +1280,7 @@ class FigureManagerWx(FigureManagerBase):
     It is instantiated by GcfWx whenever a new figure is created. GcfWx is
     responsible for managing multiple instances of FigureManagerWx.
     
-    NB: FigureManagerBase is found in _matlab_helpers
+    NB: FigureManagerBase is found in _pylab_helpers
     """
     def __init__(self, canvas, num, frame):
         DEBUG_MSG("__init__()", 1, self)
