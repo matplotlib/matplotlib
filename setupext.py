@@ -1,57 +1,40 @@
 """
 Some helper functions for building the C extensions
 
-BUILDING ON WIN32
+you may need to edit basedir to point to the default location of your
+required libs, eg, png, z, freetype
 
-  * You need to make the cygwin import library.  Assuming you have a
-    typical cygwin and python install, run the script importlib22.bat or
-    importlib23.bat to build the python2.2 or 2.3 import libs
+DARWIN
 
-  * You need to following libraries (saved in win32_static):
+  I have installed all of the backends on OSX.
 
-      http://gnuwin32.sourceforge.net/downlinks/freetype.php
-      http://gnuwin32.sourceforge.net/downlinks/zlib.php
-      http://gnuwin32.sourceforge.net/downlinks/libgw32c.php
-      http://gnuwin32.sourceforge.net/downlinks/libpng.php
-      http://www.activestate.com/Products/Download/Download.plex?id=ActiveTcl
+  Tk: If you want to install TkAgg, I recommend the "batteries included"
+  binary build of Tcl/Tk at
+  http://www.apple.com/downloads/macosx/unix_open_source/tcltkaqua.html 
 
-  * To install the gtk packages, you need pkg-config.  This is
-    included in the GTK development lib.  You should have the GTK
-    runtime and development libs installed to C:\GTK and make sure
-    c:\GTK\lib and c:\GTK\bin are in your PATH.  Also, copy
-    win32_static/pygtk-2.0.pc to c:\GTK\lib\pkgconfig
-  
-  * You must patch distutils for python23 or python22 to build agg
-    with g++.  See
-    http://mail.python.org/pipermail/distutils-sig/2004-January/003553.html.
-    Edit c:/Python23/lib/distutils/cygwinccompiler.py and add the line
-    to the two set_executables calls
+  GTK: I installed GTK from src as described at
+  http://www.macgimp.org/index.php?topic=gtk.  There are several
+  packages, but all configure/make/make install w/o problem.  In
+  addition to the packages listed there, You will also need libpng,
+  libjpeg, and libtiff if you want output to these formats from GTK.
 
-      compiler_cxx='g++ -mcygwin -O -Wall',
+WIN32
 
-  * build command
+  If you are sufficiently masochistic that you want to build this
+  yourself, contact me and I'll send you win32_static as a zip file.
 
-    > python setup.py build --compiler=mingw32 > build23.out
+  python setup.py build --compiler=mingw32 bdist_wininst --install-script postinstall.py > build23.out
 
-  * make the windows installer
-
-    > python setup.py bdist_wininst
-
-    Note on some systems this fails with a "extensions need to be
-    built with the same version of the compiler" message.  The
-    following workaround helps
-
-    > python setup.py build --compiler=mingw32 bdist_wininst > build23.out
-                        
-    See for details http://groups.google.com/groups?hl=en&lr=&ie=UTF-8&oe=UTF-8&threadm=mailman.1060311735.32666.python-list%40python.org&rnum=1&prev=/groups%3Fhl%3Den%26lr%3D%26ie%3DUTF-8%26oe%3DUTF-8%26q%3Dpython%2B%2522extensions%2Bneed%2Bto%2Bbe%2Bbuilt%2Bwith%2Bthe%2Bsame%2Bversion%2Bof%2Bthe%2Bcompiler%2522 
-
-
-    Note building for python22.  Delete c:\python22\lib\distutils and copy
-    the (patched) python23 version into this folder.  Delete all the
-    *.pyc in c:\python22\lib\distutils and the command subdir.  Should work
-    
-    
 """
+
+basedir = {
+
+    'win32' : 'win32_static',
+    'linux2' : '/usr',
+    'linux'  : '/usr',
+    'darwin' : '/usr/local',
+}
+
 import sys, os
 from distutils.core import Extension
 import glob
@@ -81,18 +64,12 @@ def getoutput(s):
 def add_agg_flags(module):
     'Add the module flags to build extensions which use agg'
 
-    module.include_dirs.extend(['src','agg2/include'])
-    module.libraries.extend(['freetype', 'png', 'z'])
-    if sys.platform == 'win32':
-        module.include_dirs.extend(
-            ['win32_static/include',  ] )
-        module.library_dirs.append('win32_static')
-        module.libraries.append('gw32c')
+    # before adding the freetype flags since -z comes later
+    module.libraries.append('png')  
 
-    else:
-        module.include_dirs.extend(
-            ['/usr/include/freetype2',]
-            )
+    add_ft2font_flags(module)
+
+    module.include_dirs.extend(['src','agg2/include'])
 
     # put these later for correct link order
     module.libraries.extend(['stdc++', 'm'])
@@ -106,17 +83,14 @@ def add_gd_flags(module):
 def add_ft2font_flags(module):
     'Add the module flags to build extensions which use gd'
     module.libraries.extend(['freetype', 'z'])
+
+    inc = os.path.join(basedir[sys.platform], 'include')
+    module.include_dirs.append(inc)
+    module.include_dirs.append(os.path.join(inc, 'freetype2'))
+    module.library_dirs.append(os.path.join(basedir[sys.platform], 'lib'))
+
     if sys.platform == 'win32':
-        module.include_dirs.extend(
-            [  'win32_static/include',          # for ft2build.h
-               'win32_static/include/freetype', # renamed from freetype2
-               ]
-            )
-        module.library_dirs.append('win32_static')
         module.libraries.append('gw32c')
-    else:
-        module.include_dirs.extend(
-            ['/usr/include', '/usr/include/freetype2',])
 
     # put this last for library link order     
     module.libraries.append('m')
@@ -131,44 +105,31 @@ def add_pygtk_flags(module):
         module.library_dirs.extend(
             ['C:/GTK/bin', 'C:/GTK/lib'])
 
-
         module.include_dirs.extend(
             ['win32_static/include/pygtk-2.0',
              'C:/GTK/include',
-             'C:/GTK/include/glib-2.0',
-             'C:/GTK/lib/glib-2.0/include',
-             'C:/GTK/include/gtk-2.0',
-             'C:/GTK/lib/gtk-2.0/include',
-             'C:/GTK/include/atk-1.0',
-             'C:/GTK/include/pango-1.0',
              ])
-        
-        module.libraries.extend([
-            'gtk-win32-2.0', 'gdk-win32-2.0', 'atk-1.0',
-            'gdk_pixbuf-2.0', 'pangowin32-1.0', 'gdi32',
-            'pango-1.0', 'gobject-2.0', 'gmodule-2.0',
-            'glib-2.0', 'intl', 'iconv'])
-
-    else:
-        pygtkIncludes = getoutput('pkg-config --cflags-only-I pygtk-2.0').split()
-        gtkIncludes = getoutput('pkg-config --cflags-only-I gtk+-2.0').split()
-        includes = pygtkIncludes + gtkIncludes
-        module.include_dirs.extend([include[2:] for include in includes])
-
-        pygtkLinker = getoutput('pkg-config --libs pygtk-2.0').split()
-        gtkLinker =  getoutput('pkg-config --libs gtk+-2.0').split()
-        linkerFlags = pygtkLinker + gtkLinker 
-
-        module.libraries.extend(
-            [flag[2:] for flag in linkerFlags if flag.startswith('-l')])
-
-        module.library_dirs.extend(
-            [flag[2:] for dir in linkerFlags if flag.startswith('-L')])
 
 
-        module.extra_link_args.extend(
-            [flag for flag in linkerFlags if not
-             (flag.startswith('-l') or flag.startswith('-L'))])
+    pygtkIncludes = getoutput('pkg-config --cflags-only-I pygtk-2.0').split()
+    gtkIncludes = getoutput('pkg-config --cflags-only-I gtk+-2.0').split()
+    includes = pygtkIncludes + gtkIncludes
+    module.include_dirs.extend([include[2:] for include in includes])
+
+    pygtkLinker = getoutput('pkg-config --libs pygtk-2.0').split()
+    gtkLinker =  getoutput('pkg-config --libs gtk+-2.0').split()
+    linkerFlags = pygtkLinker + gtkLinker 
+
+    module.libraries.extend(
+        [flag[2:] for flag in linkerFlags if flag.startswith('-l')])
+
+    module.library_dirs.extend(
+        [flag[2:] for dir in linkerFlags if flag.startswith('-L')])
+
+
+    module.extra_link_args.extend(
+        [flag for flag in linkerFlags if not
+         (flag.startswith('-l') or flag.startswith('-L'))])
 
 
 def add_tk_flags(module):
@@ -178,6 +139,9 @@ def add_tk_flags(module):
         module.include_dirs.extend(['win32_static/include/tcl'])
         module.library_dirs.extend(['C:/Python23/dlls'])
         module.libraries.extend(['tk84', 'tcl84'])
+    elif sys.platform == 'darwin':
+        module.extra_link_args.extend(['-framework','Tcl'])
+        module.extra_link_args.extend(['-framework','Tk'])
     else:
         module.libraries.extend(['tk', 'tcl'])
 

@@ -36,7 +36,8 @@ There are a few small complexities worth noting in the example:
    figure resizable or not.
 """
 
-
+import matplotlib
+matplotlib.use('WX')
 from matplotlib.backends.backend_wx import Toolbar, FigureCanvasWx,\
      FigureManager
 
@@ -72,6 +73,7 @@ class PlotFigure(wxFrame):
         sizer.Add(self.toolbar, 0, wxGROW)
         self.SetSizer(sizer)
         self.Fit()
+
     def plot_data(self):
         # Use ths line if using a toolbar
         a = self.figmgr.add_subplot(111)

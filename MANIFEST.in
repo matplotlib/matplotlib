@@ -2,7 +2,7 @@ include LICENSE LICENSE_PAINT API_CHANGES CHANGELOG KNOWN_BUGS GOALS INSTALL
 include INTERACTIVE TODO
 include Makefile  MANIFEST.in MANIFEST
 include .matplotlibrc
-include __init__.py setupext.py setup.py
+include __init__.py setupext.py setup.py postinstall.py
 include examples/data/*
 include images/*
 include test/*.py
