@@ -346,7 +346,7 @@ def main():
   w.add(console)
   
   def destroy(arg=None):
-      gtk.mainquit()
+      gtk.main_quit()
   
   def key_event(widget,event):
       if gtk.gdk.keyval_name( event.keyval) == 'd' and \
