@@ -564,15 +564,20 @@ Transformation::set_offset(const Py::Tuple & args) {
   args.verify_length(2);
 
   Py::SeqBase<Py::Object> xy = args[0];
-
+  //std::cout << "checking args" << std::endl;
   if (!check(args[1]))
     throw Py::TypeError("Transformation::set_offset(xy,trans) requires trans to be a Transformation instance");
-  
+
+  //std::cout << "getting x,y" << std::endl;  
+
   _usingOffset = 1;
   _xo = Py::Float(xy[0]);
   _yo = Py::Float(xy[1]);
+  //std::cout << "casting" << std::endl;  
   _transOffset = static_cast<Transformation*>(args[1].ptr());
+  //std::cout << "increffing" << std::endl;  
   Py_INCREF(_transOffset);
+  //std::cout << "returning" << std::endl;  
   return Py::Object();
 }
 
