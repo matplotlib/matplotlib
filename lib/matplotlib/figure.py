@@ -10,7 +10,7 @@ from patches import Rectangle
 from text import Text, _process_text_args
 from legend import Legend
 from transforms import Bbox, Value, Point, get_bbox_transform, unit_bbox
-
+from numerix import array, clip
 
 
 class Figure(Artist):
@@ -454,3 +454,45 @@ all backends; currently only on postscript output."""
 
         self.canvas.print_figure(*args, **kwargs)
     
+
+def figaspect(arr):
+    """
+    Determine the width and height for a figure that would fit array
+    preserving aspcect ratio.  The figure width, height in inches are
+    returned.  Be sure to create an axes with equal with and height, eg
+
+    w, h = figaspect(A)
+    fig = Figure(figsize=(w,h))
+    ax = fig.add_axes([0.1, 0.1, 0.8, 0.8])
+    ax.imshow(A, **kwargs)
+
+    Thanks to Fernando Perez for this function
+    """
+
+    # min/max sizes to respect when autoscaling.  If John likes the idea, they
+    # could become rc parameters, for now they're hardwired.
+    figsize_min = array((4.0,2.0)) # min length for width/height
+    figsize_max = array((16.0,16.0)) # max length for width/height
+    #figsize_min = rcParams['figure.figsize_min']
+    #figsize_max = rcParams['figure.figsize_max']
+
+    # Extract the aspect ratio of the array
+    nr,nc = arr.shape[:2]
+    arr_ratio = float(nr)/nc
+
+    # Height of user figure defaults
+    fig_height = rcParams['figure.figsize'][1]
+
+    # New size for the figure, keeping the aspect ratio of the caller
+    newsize = array((fig_height/arr_ratio,fig_height))
+
+    # Sanity checks, don't drop either dimension below figsize_min
+    newsize /= min(1.0,*(newsize/figsize_min))
+
+    # Avoid humongous windows as well
+    newsize /= max(1.0,*(newsize/figsize_max))
+
+    # Finally, if we have a really funky aspect ratio, break it but respect
+    # the min/max dimensions (we don't want figures 10 feet tall!)
+    newsize = clip(newsize,figsize_min,figsize_max)
+    return newsize

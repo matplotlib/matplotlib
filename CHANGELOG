@@ -1,5 +1,7 @@
 New entries should be added at the top
  
+2005-02-02 Incorporated  Fernando's matshow
+
 2005-02-01 Added Fernando's figure num patch, including experemental
            support for pylab backend switching, LineCOllection.color
            warns, savefig now a figure method, fixed a close(fig) bug

@@ -643,3 +643,7 @@ ZeroDivisionError: SeparableTransformation::eval_scalars yin interval is zero; c
 -- fix contour mappable to work under changes in clim, cmap
 
 -- port colorbar, current mappable to API
+
+-- add qt / gpl warning
+
+-- Nil's xtick labeling bug
