@@ -112,15 +112,16 @@ class FigureCanvasGTKCairo(FigureCanvasGTK, FigureCanvasCairo):
             self.figure.set_facecolor(facecolor)
             self.figure.set_edgecolor(edgecolor)
 
-            l,b, width, height = self.figure.bbox.get_bounds()
+            width, height = self.figure.get_width_height()
+            # l,b, width, height = self.figure.bbox.get_bounds()
             width, height = int(width), int(height)
 
-            pixmap   = gtk.gdk.Pixmap (self.window, width, height)
+            pixmap = gtk.gdk.Pixmap (self.window, width, height)
 
             # Cairo specific part (next 3 lines)
+            ctx = cairo.Context()
             surface  = cairo.gtk.surface_create_for_drawable (pixmap)
-            matrix = None
-            renderer = RendererCairo (surface, matrix, width, height, self.figure.dpi)
+            renderer = RendererCairo (surface, ctx.matrix, width, height, self.figure.dpi)
 
             self.figure.draw (renderer)
         
