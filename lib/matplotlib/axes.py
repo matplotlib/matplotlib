@@ -323,10 +323,9 @@ class Axes(Artist):
         self._sharey = sharey
 
         self.set_figure(fig)
-        
-        self.xaxis = XAxis(self)
-        self.yaxis = YAxis(self)
-        
+
+        # this call may differ for non-sep axes, eg polar
+        self._init_axis()
 
 
         if axisbg is None: axisbg = rcParams['axes.facecolor']
@@ -341,6 +340,11 @@ class Axes(Artist):
         # funcs used to format x and y - fall back on major formatters
         self.fmt_xdata = None  
         self.fmt_ydata = None
+
+    def _init_axis(self):
+        "move this out of __init__ because non-separable axes don't use it"
+        self.xaxis = XAxis(self)
+        self.yaxis = YAxis(self)
         
     def set_figure(self, fig):
         """
@@ -3393,6 +3397,9 @@ class PolarAxes(Axes):
         self.rgridlines = []        
         Axes.__init__(self, *args, **kwarg)
 
+    def _init_axis(self):
+        "nuthin to do"
+        pass
     def _set_lim_and_transforms(self):
         """
         set the dataLim and viewLim BBox attributes and the
