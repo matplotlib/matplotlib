@@ -103,36 +103,6 @@ class RendererCairo(RendererBase):
         self.width    = width
         self.height   = height
 
-    def get_canvas_width_height(self):
-        if DEBUG: print 'backend_cairo.RendererCairo.%s()' % _fn_name()
-        return self.width, self.height
-    
-
-    def get_text_width_height(self, s, prop, ismath):
-        if DEBUG: print 'backend_cairo.RendererCairo.%s()' % _fn_name()
-        if ismath:
-            print 'ismath get_text_width_height() not implemented yet'
-            return 1, 1
-        else:
-            ctx = self.text_ctx
-            ctx.save()
-            ctx.select_font (prop.get_name(),
-                             self.fontangles [prop.get_style()],
-                             self.fontweights[prop.get_weight()])
-
-            # 1.4 scales font to a similar size to GTK / GTKAgg backends
-            size = prop.get_size_in_points() * self.dpi.get() / PIXELS_PER_INCH * 1.4
-            # problem - scale remembers last setting and font can become
-            # enormous causing program to crash
-            # save/restore prevents the problem
-            ctx.scale_font (size)
-        
-            w, h = ctx.text_extents (s)[2:4]
-            ctx.restore()
-            
-            return w, h
-
-                              
     def draw_arc(self, gc, rgbFace, x, y, width, height, angle1, angle2):
         if DEBUG: print 'backend_cairo.RendererCairo.%s()' % _fn_name()
         # cairo draws circular arcs (width=height)
@@ -280,6 +250,36 @@ class RendererCairo(RendererBase):
         return True
 
     
+    def get_canvas_width_height(self):
+        if DEBUG: print 'backend_cairo.RendererCairo.%s()' % _fn_name()
+        return self.width, self.height
+    
+
+    def get_text_width_height(self, s, prop, ismath):
+        if DEBUG: print 'backend_cairo.RendererCairo.%s()' % _fn_name()
+        if ismath:
+            print 'ismath get_text_width_height() not implemented yet'
+            return 1, 1
+        else:
+            ctx = self.text_ctx
+            ctx.save()
+            ctx.select_font (prop.get_name(),
+                             self.fontangles [prop.get_style()],
+                             self.fontweights[prop.get_weight()])
+
+            # 1.4 scales font to a similar size to GTK / GTKAgg backends
+            size = prop.get_size_in_points() * self.dpi.get() / PIXELS_PER_INCH * 1.4
+            # problem - scale remembers last setting and font can become
+            # enormous causing program to crash
+            # save/restore prevents the problem
+            ctx.scale_font (size)
+        
+            w, h = ctx.text_extents (s)[2:4]
+            ctx.restore()
+            
+            return w, h
+
+                              
     def new_gc(self):
         if DEBUG: print 'backend_cairo.RendererCairo.%s()' % _fn_name()
         gc = GraphicsContextCairo (renderer=self)
