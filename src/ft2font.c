@@ -700,7 +700,7 @@ FT2Font_draw_glyph_to_bitmap(FT2FontObject *self, PyObject *args)
   //printf("draw_glyph_to_bitmap parsed args: %ld %ld\n", x, y);
   error = FT_Glyph_To_Bitmap(&self->glyphs[glyph->glyph_num],
 			     FT_RENDER_MODE_NORMAL,
-			     0,  //no additional translation			     
+			     0,  //no additional translation
 			     0  //don't destroy image
 			     );
 
@@ -715,7 +715,7 @@ FT2Font_draw_glyph_to_bitmap(FT2FontObject *self, PyObject *args)
 
   //printf("draw_glyph_to_bitmap to image at %ld, %lu, %lu, %lu\n", 
   //x, y, self->image.width, self->image.height);            
-  printf("\tbitmap props %d, %d\n",  bitmap->left, bitmap->top);            
+  //printf("\tbitmap props %d, %d\n",  bitmap->left, bitmap->top);            
 
 
   draw_bitmap( &bitmap->bitmap, 
