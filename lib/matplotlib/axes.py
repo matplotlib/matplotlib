@@ -1082,8 +1082,7 @@ class Axes(Artist):
         Set the data units of the image.  This is useful if you want to
         plot other things over the image, eg, lines or scatter
         """
-        print >>sys.stderr, 'set_image_extent deprecated; please pass extent in imshow constructor; see help(imshow)'
-        sys.exit()
+        raise SystemExit('set_image_extent deprecated; please pass extent in imshow constructor; see help(imshow)')
         
     def imshow(self, X,
                cmap = None, 
@@ -1688,8 +1687,7 @@ Neither line will be antialiased.
         """
 
         if not matplotlib._havedate:
-            print 'plot_date: no dates support - dates require python2.3'
-            sys.exit()
+            raise SystemExit('plot_date: no dates support - dates require python2.3')
         
         if not self._hold: self.cla()
 

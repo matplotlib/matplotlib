@@ -2,6 +2,7 @@
 Figure and Axes text
 """
 from __future__ import division
+from matplotlib import verbose
 import matplotlib
 import math
 from artist import Artist

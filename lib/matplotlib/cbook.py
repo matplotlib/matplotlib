@@ -360,10 +360,6 @@ def exception_to_str(s = None):
    return sh.getvalue()
 
 
-def warn(s):
-    'issue a warning'
-    print >> sys.stderr, s
-
 def allequal(seq):
     """
     return true if all elements of seq compare equal.  If seq is 0 or

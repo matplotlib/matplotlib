@@ -25,7 +25,7 @@ import sys
 from numerix import array, ones, Float
 
 
-
+from matplotlib import verbose
 from artist import Artist
 from cbook import enumerate, True, False, is_string_like, iterable
 from font_manager import FontProperties
@@ -88,7 +88,7 @@ class Legend(Artist):
     def __init__(self, parent, handles, labels, loc, isaxes=True):
         Artist.__init__(self)
         if is_string_like(loc) and not self.codes.has_key(loc):
-            print >>sys.stderr, 'Unrecognized location %s. Falling back on upper right; valid locations are\n%s\t' %(loc, '\n\t'.join(self.codes.keys()))
+            verbose.report_error('Unrecognized location %s. Falling back on upper right; valid locations are\n%s\t' %(loc, '\n\t'.join(self.codes.keys())))
         if is_string_like(loc): loc = self.codes.get(loc, 1)
         
 

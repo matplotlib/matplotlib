@@ -10,9 +10,9 @@ from urllib import urlopen
 
 try: import datetime
 except ImportError:
-    print 'The finance module requires datetime support (python2.3)'
-    sys.exit()
+    raise SystemExit('The finance module requires datetime support (python2.3)')
 
+from matplotlib import verbose
 from artist import Artist
 from dates import date2num, num2date
 from matplotlib.collections import LineCollection, PolyCollection
@@ -53,7 +53,7 @@ def quotes_historical_yahoo(ticker, date1, date2):
     try:
         lines = urlopen(url).readlines()
     except IOError, exc:
-        print >>sys.stderr, 'urlopen() failure\n' + url + '\n' + exc.strerror[1]
+        verbose.report_error('urlopen() failure\n' + url + '\n' + exc.strerror[1])
         return None
     for line in lines[1:]:
 
