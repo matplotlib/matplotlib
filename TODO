@@ -426,10 +426,14 @@
 
 -- change the viewlim on call to log if min ax <=0
 
--- fix set_def font example and update API_CHANGES
+-- DONE fix set_def font example and update API_CHANGES
 
 -- upload 0.54.2 zip
 
 -- DONE need a new way to indicate linestyle
 
--- update website re debian
+-- DONE update website re debian
+
+-- DONE Fix stale link on GTK FAQ entry
+
+-- DONE flush all traces of gtkgd
