@@ -139,3 +139,6 @@
 -- ticks too short with log scaling
 
 -- arbitrary patches for scatter
+
+-- zoom x and y controls in wrong direction.  tick labels not updating
+   with interactive zoom
