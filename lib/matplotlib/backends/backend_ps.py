@@ -295,7 +295,7 @@ grestore
 
     def _draw_ps(self, ps, gc, rgbFace):
         if rgbFace is not None:
-            fill = '%1.3f %1.3f %1.3f setrgbcolor fill' % rgbFace
+            fill = 'gsave %1.3f %1.3f %1.3f setrgbcolor fill grestore'%rgbFace
         else:
             fill = ''
         gcprops = self._get_gc_props_ps(gc)
@@ -304,8 +304,8 @@ grestore
 %(clip)s
 %(ps)s
 %(gcprops)s
-gsr
 %(fill)s
+stroke
 grestore
 """ % locals()
         self._pswriter.write(s)
@@ -619,8 +619,6 @@ error_msg = error_msg_ps
 # The usage comments use the notation of the operator summary
 # in the PostScript Language reference manual.
 _psDefs = [
-    # -  *gsr*  -
-    "/gsr { gsave stroke grestore } bind def",
     # x y  *m*  -
     "/m { moveto } bind def",
     # x y  *l*  -
