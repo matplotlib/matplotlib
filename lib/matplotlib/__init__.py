@@ -394,11 +394,16 @@ def validate_color(s):
         try: return float(s)
         except ValueError:
             raise ValueError('Could not convert "%s" to float' % s)
-        
-    if len(s)==6 and s.isalnum: # looks like hex
+
+    
+    if len(s)==6 and s.isalnum(): # looks like hex
         return '#' + s
 
-    raise ValueError('"s" does not look like color arg')
+    if s.isalpha(): 
+        #assuming a color name, hold on
+        return s
+
+    raise ValueError('"s" does not look like color arg')    
 
 def validate_comma_sep_str(s):
     'return a list'
@@ -558,6 +563,7 @@ defaultParams = {
     'savefig.orientation' : [ 'portait', validate_orientation],  # edgecolor; white
 
     'tk.window_focus'   : [ False, validate_bool],  # Maintain shell focus for TkAgg
+    'tk.pythoninspect'   : [ False, validate_bool],  # Set PYTHONINSPECT
     'plugins.directory' : ['.matplotlib_plugins', str], # where plugin directory is locate
 
     }

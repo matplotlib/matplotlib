@@ -142,13 +142,16 @@ class FigureCanvasQtAgg(qt.QWidget, FigureCanvasAgg):
         """
         FigureCanvasAgg.draw(self)
         self.stringBuffer = str(self.buffer_rgba())
+        #self.stringBuffer = self.tostring_argb()
+        self.stringBuffer = self.renderer._renderer.tostring_bgra()
         self.qimage = qt.QImage(self.stringBuffer, 
-                            self.renderer.width, 
-                            self.renderer.height,
-                            32,
-                            None, 
-                            0, 
-                            qt.QImage.IgnoreEndian)
+                                self.renderer.width, 
+                                self.renderer.height,
+                                32,
+                                None, 
+                                0,
+                                qt.QImage.IgnoreEndian,
+                                )
         self.update()
         
     def paintEvent(self, ev):

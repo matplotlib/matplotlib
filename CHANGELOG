@@ -2,6 +2,10 @@ New entries should be added at the top
 
 2005-01-30 Added backend_qtagg.py provided by Sigve Tjora - SC
 
+2005-01-28 Added tk.inspect rc param to .matplotlibrc.  IDLE users
+           should set tk.pythoninspect:True and interactive:True and
+           backend:TkAgg
+
 2005-01-28 Replaced examples/interactive.py with an updated script from
            Fernando Perez - SC
 

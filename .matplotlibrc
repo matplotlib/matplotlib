@@ -25,6 +25,7 @@
 #  - an rgb tuple, such as (1.0, 0.5, 0.0)
 #  - a hex string, such as ff00ff  (no '#' symbol)
 #  - a scalar grayscale intensity such as 0.75
+#  - a legal html color name, eg red, blue, darkslategray
 
 #### CONFIGURATION BEGINS HERE
 backend      : GTKAgg    # the default backend
@@ -45,10 +46,10 @@ timezone     : UTC        # a pytz timezone string, eg US/Central or Europe/Pari
 # use the Agg backend (or TkAgg, GTKAgg, WxAgg)
 lines.linewidth   : 0.5     # line width in points
 lines.linestyle   : -       # solid line
-lines.color       : b       # blue
+lines.color       : blue    
 lines.marker      : None    # the default marker
-lines.markerfacecolor  : b       # blue
-lines.markeredgecolor  : k       # black
+lines.markerfacecolor  : blue
+lines.markeredgecolor  : black
 lines.markeredgewidth  : 0.5     # the line width around the marker symbol
 lines.markersize  : 6            # markersize, in points
 lines.antialiased : True         # render lines in antialised (no jaggies)
@@ -62,8 +63,8 @@ lines.data_clipping : False      # Use data clipping in addition to viewport
 # http://matplotlib.sourceforge.net/matplotlib.patches.html for more
 # information on patch properties
 patch.linewidth   	: 1.0     # edge width in points
-patch.facecolor  	: b       
-patch.edgecolor  	: k
+patch.facecolor  	: blue       
+patch.edgecolor  	: black
 patch.antialiased 	: True    # render patches in antialised (no jaggies)
 
 ### FONT
@@ -120,19 +121,19 @@ font.monospace      : Andale Mono, Bitstream Vera Sans Mono, Nimbus Mono L, Cour
 # text properties used by text.Text.  See
 # http://matplotlib.sourceforge.net/matplotlib.Text.html for more
 # information on text properties
-text.color          : k       # black
+text.color          : black
 
 ### AXES
 # default face and edge color, default tick sizes,
 # default fontsizes for ticklabels, and so on
 axes.hold           : True    # whether to clear the axes by default on
-axes.facecolor      : w       # background color; white
-axes.edgecolor      : k       # edge color; black
+axes.facecolor      : white   # axes background color
+axes.edgecolor      : black   # axes edge color
 axes.linewidth      : 1.0     # edge linewidth
 axes.grid           : False   # display grid or not
 axes.titlesize      : 14      # fontsize of the axes title
 axes.labelsize      : 12      # fontsize of the x any y labels
-axes.labelcolor     : k       # black
+axes.labelcolor     : black
 
 polaraxes.grid      : True    # display grid on polar axes
 
@@ -141,11 +142,11 @@ tick.major.size     : 4      # major tick size in points
 tick.minor.size     : 2      # minor tick size in points
 tick.major.pad      : 4      # distance to major tick label in points
 tick.minor.pad      : 4      # distance to the minor tick label in points
-tick.color          : k      # color of the tick labels 
+tick.color          : black  # color of the tick labels 
 tick.labelsize      : 10     # fontsize of the tick labels
 
 ### Grids
-grid.color       :   k       # grid color
+grid.color       :   black       # grid color
 grid.linestyle   :   :       # dotted
 grid.linewidth   :   0.5     # in points            
 
@@ -153,7 +154,7 @@ grid.linewidth   :   0.5     # in points
 figure.figsize   : 8, 6    # figure size in inches
 figure.dpi       : 80      # figure dots per inch
 figure.facecolor : 0.75    # figure facecolor; 0.75 is scalar gray
-figure.edgecolor : w       # figure edgecolor; w is white
+figure.edgecolor : white   # figure edgecolor
 
 ### images
 image.aspect : free              # free | preserve
@@ -167,11 +168,11 @@ image.origin : upper             # lower | upper
 # Eg, you may want a higher resolution, or to make the figure
 # background white
 savefig.dpi       : 100      # figure dots per inch
-savefig.facecolor : w        # figure facecolor; 0.75 is scalar gray
-savefig.edgecolor : w        # figure edgecolor; w is white
+savefig.facecolor : white    # figure facecolor when saving
+savefig.edgecolor : white    # figure edgecolor when saving
 
 tk.window_focus   : False    # Maintain shell focus for TkAgg
-
+tk.pythoninspect  : False    # tk sets PYTHONINSEPCT
 
 # Set the verbose flags.  This controls how much information
 # matplotlib gives you at runtime and where it goes.  Ther verbosity

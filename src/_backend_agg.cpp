@@ -1126,6 +1126,67 @@ RendererAgg::tostring_rgb(const Py::Tuple& args) {
   return Py::asObject(o);
 }
 
+
+Py::Object 
+RendererAgg::tostring_argb(const Py::Tuple& args) {
+  //"Return the rendered buffer as an RGB string";
+  
+  _VERBOSE("RendererAgg::tostring_argb");
+  
+  args.verify_length(0);    
+  int row_len = width*4;
+  unsigned char* buf_tmp = new unsigned char[row_len * height];
+  if (buf_tmp ==NULL) {
+    //todo: also handle allocation throw
+    throw Py::MemoryError("RendererAgg::tostring_argb could not allocate memory");
+  }
+  agg::rendering_buffer renderingBufferTmp;
+  renderingBufferTmp.attach(buf_tmp, 
+			    width, 
+			    height, 
+			    row_len);
+  
+  color_conv(&renderingBufferTmp, renderingBuffer, agg::color_conv_rgba32_to_argb32());
+  
+  
+  //todo: how to do this with native CXX
+  PyObject* o = Py_BuildValue("s#", 
+			      buf_tmp, 
+			      row_len * height);
+  delete [] buf_tmp;
+  return Py::asObject(o);
+}
+
+Py::Object 
+RendererAgg::tostring_bgra(const Py::Tuple& args) {
+  //"Return the rendered buffer as an RGB string";
+  
+  _VERBOSE("RendererAgg::tostring_bgra");
+  
+  args.verify_length(0);    
+  int row_len = width*4;
+  unsigned char* buf_tmp = new unsigned char[row_len * height];
+  if (buf_tmp ==NULL) {
+    //todo: also handle allocation throw
+    throw Py::MemoryError("RendererAgg::tostring_bgra could not allocate memory");
+  }
+  agg::rendering_buffer renderingBufferTmp;
+  renderingBufferTmp.attach(buf_tmp, 
+			    width, 
+			    height, 
+			    row_len);
+  
+  color_conv(&renderingBufferTmp, renderingBuffer, agg::color_conv_rgba32_to_bgra32());
+  
+  
+  //todo: how to do this with native CXX
+  PyObject* o = Py_BuildValue("s#", 
+			      buf_tmp, 
+			      row_len * height);
+  delete [] buf_tmp;
+  return Py::asObject(o);
+}
+
 Py::Object 
 RendererAgg::buffer_rgba(const Py::Tuple& args) {
   //"expose the rendered buffer as Python buffer object";
@@ -1136,6 +1197,7 @@ RendererAgg::buffer_rgba(const Py::Tuple& args) {
   int row_len = width*4;
   return Py::asObject(PyBuffer_FromMemory( pixBuffer, row_len*height));
 }
+
 
 agg::rgba
 RendererAgg::get_color(const Py::Object& gc) {
@@ -1352,10 +1414,14 @@ void RendererAgg::init_type()
 		     "write_png(fname)");
   add_varargs_method("tostring_rgb", &RendererAgg::tostring_rgb, 
 		     "s = tostring_rgb()");
+  add_varargs_method("tostring_argb", &RendererAgg::tostring_argb, 
+		     "s = tostring_argb()");
+  add_varargs_method("tostring_bgra", &RendererAgg::tostring_bgra, 
+		     "s = tostring_bgra()");
   add_varargs_method("buffer_rgba", &RendererAgg::buffer_rgba, 
 		     "buffer = buffer_rgba()");
   add_varargs_method("clear", &RendererAgg::clear, 
-		     "clear()");
+		     "clear()"); 
   
 }
 
