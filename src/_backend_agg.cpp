@@ -886,7 +886,7 @@ RendererAgg::draw_image(const Py::Tuple& args) {
   
   
   //todo: handle x and y
-  agg::rect r(0, 0, image->rowsOut, image->colsOut);
+  agg::rect r(0, 0, image->colsOut, image->rowsOut);
   
   rendererBase->copy_from(*image->rbufOut, &r, x, y);
   

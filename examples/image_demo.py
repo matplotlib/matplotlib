@@ -31,6 +31,6 @@ im = imshow(Z2-Z1)
 im.set_interpolation('bilinear')
 
 axis('off')
-#savefig('test')
+savefig('image_demo')
 show()
 

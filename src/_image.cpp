@@ -181,13 +181,13 @@ Image_resize(ImageObject *image, PyObject* args) {
   if (!PyArg_ParseTuple(args, "ii", &numcols, &numrows))
     return NULL;
   
-  image->colsOut  = numcols;
+  image->colsOut = numcols;
   image->rowsOut = numrows;
   
   size_t NUMBYTES(numrows * numcols * image->BPP);
   agg::int8u *buffer = new agg::int8u[NUMBYTES];  
   image->rbufOut = new agg::rendering_buffer;
-  image->rbufOut->attach(buffer, numrows, numcols, numrows * image->BPP);
+  image->rbufOut->attach(buffer, numcols, numrows, numcols * image->BPP);
   
   // init the output rendering/rasterizing stuff
   pixfmt pixf(*image->rbufOut);

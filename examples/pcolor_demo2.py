@@ -22,7 +22,7 @@ cmap = ColormapJet(500)
 ax = subplot(111)
 imshow(Z, cmap)
 ax.set_image_extent(-3, 3, -3, 3)
-#savefig('pcolor_demo2')
+savefig('pcolor_demo2')
 show()
 
     

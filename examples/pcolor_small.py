@@ -1,7 +1,12 @@
 from matplotlib.matlab import *
 
-Z = rand(6,6)
+#Z = arange(60)
+#Z.shape = 6,10
+#Z.shape = 10,6
+#print Z
+Z = rand(10,6)
 
 c = pcolor(Z)
 c.set_linewidth(4)
+savefig('pcolor_small')
 show()
