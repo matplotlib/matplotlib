@@ -1022,11 +1022,10 @@ class _ObjectInspector:
         aliases = {}
         for name in names:
             func = getattr(self.o, name)
+            if not self.is_alias(func): continue
             docstring = func.__doc__
-            if docstring is None: continue
-            if docstring.startswith('alias for '):
-                fullname = docstring[10:]
-                aliases[fullname[4:]] = name[4:]
+            fullname = docstring[10:]
+            aliases[fullname[4:]] = name[4:]
         return aliases
 
     def get_valid_values(self, attr):
@@ -1039,13 +1038,14 @@ class _ObjectInspector:
 
         name = 'set_%s'%attr
         if not hasattr(self.o, name):
-            raise AttributeError('%s has no function %s'%(h,name))
+            raise AttributeError('%s has no function %s'%(self.o,name))
         func = getattr(self.o, name)
 
         docstring = func.__doc__
         if docstring is None: return 'unknown'
 
-        if docstring.startswith('alias'): return docstring
+        if docstring.startswith('alias for '):
+            return None
         for line in docstring.split('\n'):
             line = line.lstrip()
             if not line.startswith('ACCEPTS:'): continue
@@ -1057,10 +1057,21 @@ class _ObjectInspector:
         Get the attribute strings with setters for object h
         """
 
-        return [name[4:] for name in dir(self.o)
-                if name.startswith('set_') and
-                callable(getattr(self.o,name))]
+        setters = []
+        for name in dir(self.o):
+            if not name.startswith('set_'): continue
+            o = getattr(self.o,name)
+            if not callable(o): continue
+            func = o
+            if self.is_alias(func): continue
+            setters.append(name[4:])
+        return setters
 
+    def is_alias(self, o):
+        ds = o.__doc__
+        if ds is None: return False
+        return ds.startswith('alias for ')
+    
     def aliased_name(self, s):
         """
         return 'fullname or alias' if s has an alias.  
@@ -1083,8 +1094,9 @@ class _ObjectInspector:
             return '    %s: %s' %(property, accepts)
 
         attrs = self.get_setters()
-        lines = []
         attrs.sort()
+        lines = []
+
         for property in attrs:
             accepts = self.get_valid_values(property)
             name = self.aliased_name(property)
@@ -1102,10 +1114,9 @@ class _ObjectInspector:
         lines = []
         for name in getters:
             func = getattr(self.o, name)
-            docstring = func.__doc__
-            if docstring is not None and docstring.startswith('alias'): continue
+            if self.is_alias(func): continue
             try: val = func()
-            except: pass
+            except: continue
             if iterable(val) and len(val)>6:
                 s = str(val[:6]) + '...'
             else:

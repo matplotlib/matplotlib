@@ -1,3 +1,10 @@
+API CHANGES in matplotlib-0.65
+
+Did away with the text methods for angle since they were ambiguous.
+fontangle could mean fontstyle (obligue, etc) or the rotation of the
+text.  Use style and rotation instead.
+
+
 API CHANGES in matplotlib-0.63
 
   Dates are now represented internally as float days since 0001-01-01,

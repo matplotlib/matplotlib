@@ -3,6 +3,24 @@ import sys
 from cbook import True, False
 from transforms import identity_transform
 
+## Note, matplotlib artists use the doc strings for set and get
+# methods to enable the introspection methods of set and get in the
+# matlab interface Every set_ to be controlled by the set function
+# method should have a docstring containing the line
+#
+# ACCEPTS: [ legal | values ]
+#
+# and aliases for setters and getters should have a docstring that
+# starts with 'alias for ', as in 'alias for set_somemethod'
+#
+# You may wonder why we use so much boiler-plate manually defining the
+# set_alias and get_alias functions, rather than using some clever
+# python trick.  The answer is that I need to be able to manipulate
+# the docstring, and there is no clever way to do that in python 2.2,
+# as far as I can see - see
+# http://groups.google.com/groups?hl=en&lr=&threadm=mailman.5090.1098044946.5135.python-list%40python.org&rnum=1&prev=/groups%3Fq%3D__doc__%2Bauthor%253Ajdhunter%2540ace.bsd.uchicago.edu%26hl%3Den%26btnG%3DGoogle%2BSearch
+
+
 class Artist:
     """
     Abstract base class for someone who renders into a FigureCanvas
@@ -59,8 +77,8 @@ ACCEPTS: a matplotlib.transform.Bbox instance
         
     def get_alpha(self):
         """
-        Return the alpha value used for blending - not supported on
-        all backends
+Return the alpha value used for blending - not supported on all
+backends
         """
         return self._alpha
 

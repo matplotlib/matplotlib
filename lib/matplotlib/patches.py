@@ -135,6 +135,42 @@ ACCEPTS: [True | False]
         verts = self.get_verts()
         tverts = self._transform.seq_xy_tups(verts)
         return bound_vertices(tverts)
+
+
+
+    def set_lw(self, val):
+        'alias for set_linewidth'
+        self.set_linewidth(val)
+    
+
+    def set_ec(self, val):
+        'alias for set_edgecolor'
+        self.set_edgecolor(val)
+    
+
+    def set_fc(self, val):
+        'alias for set_facecolor'
+        self.set_facecolor(val)
+
+
+    def get_aa(self):
+        'alias for get_antialiased'
+        return self.get_antialiased()
+    
+
+    def get_lw(self):
+        'alias for get_linewidth'
+        return self.get_linewidth()
+    
+
+    def get_ec(self):
+        'alias for get_edgecolor'
+        return self.get_edgecolor()
+    
+
+    def get_fc(self):
+        'alias for get_facecolor'
+        return self.get_facecolor()
         
 class Rectangle(Patch):
     """
@@ -323,22 +359,3 @@ def draw_bbox(bbox, renderer, color='k', trans=None):
     r.set_clip_on( False )
     r.draw(renderer)
 
-
-    def set_aa(self, val):
-        'alias for set_antialiased'
-        self.set_antialiased(val)
-    
-
-    def set_lw(self, val):
-        'alias for set_linewidth'
-        self.set_linewidth(val)
-    
-
-    def set_ec(self, val):
-        'alias for set_edgecolor'
-        self.set_edgecolor(val)
-    
-
-    def set_fc(self, val):
-        'alias for set_facecolor'
-        self.set_facecolor(val)
