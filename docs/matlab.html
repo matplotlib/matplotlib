@@ -144,6 +144,7 @@ the&nbsp;exception&nbsp;of&nbsp;those&nbsp;in&nbsp;mlab.py&nbsp;provided&nbsp;by
 <td width="100%"><dl>
 <dt><font face="helvetica, arial"><a href="matlab.html#FigureWin">FigureWin</a>
 </font></dt><dt><font face="helvetica, arial"><a href="matlab.html#Gcf">Gcf</a>
+</font></dt><dt><font face="helvetica, arial"><a href="matlab.html#ShowOn">ShowOn</a>
 </font></dt></dl>
  
 <table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
@@ -159,7 +160,7 @@ the&nbsp;exception&nbsp;of&nbsp;those&nbsp;in&nbsp;mlab.py&nbsp;provided&nbsp;by
 
 <dl><dt><a name="FigureWin-add_axes"><strong>add_axes</strong></a>(self, rect, axisbg)</dt></dl>
 
-<dl><dt><a name="FigureWin-add_subplot"><strong>add_subplot</strong></a>(self, *args)</dt></dl>
+<dl><dt><a name="FigureWin-add_subplot"><strong>add_subplot</strong></a>(self, *args, **kwargs)</dt></dl>
 
 <dl><dt><a name="FigureWin-get_current_axis"><strong>get_current_axis</strong></a>(self)</dt></dl>
 
@@ -181,15 +182,21 @@ Data and non-method functions defined here:<br>
 <td colspan=2>&nbsp;</td></tr>
 <tr><td>&nbsp;&nbsp;</td>
 <td width="100%">Methods defined here:<br>
-<dl><dt><a name="Gcf-__init__"><strong>__init__</strong></a>(self, num<font color="#909090">=None</font>)</dt></dl>
+<dl><dt><a name="Gcf-__init__"><strong>__init__</strong></a>(self, num<font color="#909090">=None</font>, size<font color="#909090">=None</font>)</dt></dl>
+
+<dl><dt><a name="Gcf-_get_active"><strong>_get_active</strong></a>(self)</dt></dl>
+
+<dl><dt><a name="Gcf-_set_active"><strong>_set_active</strong></a>(self, fig)</dt></dl>
 
 <dl><dt><a name="Gcf-destroy"><strong>destroy</strong></a>(self, num)</dt></dl>
 
+<dl><dt><a name="Gcf-get_all_figwins"><strong>get_all_figwins</strong></a>(self)</dt></dl>
+
 <dl><dt><a name="Gcf-get_current_figwin"><strong>get_current_figwin</strong></a>(self)</dt></dl>
 
-<dl><dt><a name="Gcf-has_fignum"><strong>has_fignum</strong></a>(num)</dt></dl>
+<dl><dt><a name="Gcf-has_fignum"><strong>has_fignum</strong></a>(self, num)</dt></dl>
 
-<dl><dt><a name="Gcf-newfig"><strong>newfig</strong></a>(self, num<font color="#909090">=None</font>)</dt></dl>
+<dl><dt><a name="Gcf-newfig"><strong>newfig</strong></a>(self, num<font color="#909090">=None</font>, size<font color="#909090">=None</font>)</dt></dl>
 
 <hr>
 Data and non-method functions defined here:<br>
@@ -199,11 +206,37 @@ Data and non-method functions defined here:<br>
 
 <dl><dt><strong>__module__</strong> = 'matlab'</dl>
 
-<dl><dt><strong>active</strong> = None</dl>
+<dl><dt><strong>_activeQue</strong> = []</dl>
+
+<dl><dt><strong>defaultSize</strong> = (600, 400)</dl>
 
 <dl><dt><strong>figs</strong> = {}</dl>
 
-<dl><dt><strong>lastActive</strong> = None</dl>
+</td></tr></table> 
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ffc8d8">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#000000" face="helvetica, arial"><a name="ShowOn">class <strong>ShowOn</strong></a></font></td></tr>
+    
+<tr bgcolor="#ffc8d8"><td rowspan=2><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td>
+<td colspan=2>&nbsp;</td></tr>
+<tr><td>&nbsp;&nbsp;</td>
+<td width="100%">Methods defined here:<br>
+<dl><dt><a name="ShowOn-__init__"><strong>__init__</strong></a>(self)</dt></dl>
+
+<dl><dt><a name="ShowOn-get"><strong>get</strong></a>(self)</dt></dl>
+
+<dl><dt><a name="ShowOn-set"><strong>set</strong></a>(self, on)</dt></dl>
+
+<hr>
+Data and non-method functions defined here:<br>
+<dl><dt><strong>_ShowOn__sharedState</strong> = {}</dl>
+
+<dl><dt><strong>__doc__</strong> = None</dl>
+
+<dl><dt><strong>__module__</strong> = 'matlab'</dl>
+
+<dl><dt><strong>show</strong> = 0</dl>
 
 </td></tr></table></td></tr></table>
 <table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
@@ -258,10 +291,15 @@ fmt&nbsp;is&nbsp;the&nbsp;plot&nbsp;format&nbsp;symbol&nbsp;for&nbsp;y<br>
 &nbsp;<br>
 Return&nbsp;value&nbsp;is&nbsp;a&nbsp;length&nbsp;2&nbsp;tuple.&nbsp;&nbsp;The&nbsp;first&nbsp;element&nbsp;is&nbsp;a&nbsp;list&nbsp;of<br>
 y&nbsp;symbol&nbsp;lines.&nbsp;&nbsp;The&nbsp;second&nbsp;element&nbsp;is&nbsp;a&nbsp;list&nbsp;of&nbsp;error&nbsp;bar&nbsp;lines.</tt></dd></dl>
- <dl><dt><a name="-figure"><strong>figure</strong></a>(num<font color="#909090">=1</font>)</dt><dd><tt>Create&nbsp;a&nbsp;new&nbsp;figure&nbsp;and&nbsp;return&nbsp;a&nbsp;handle&nbsp;to&nbsp;it<br>
+ <dl><dt><a name="-figure"><strong>figure</strong></a>(num<font color="#909090">=1</font>, size<font color="#909090">=None</font>)</dt><dd><tt>Create&nbsp;a&nbsp;new&nbsp;figure&nbsp;and&nbsp;return&nbsp;a&nbsp;handle&nbsp;to&nbsp;it<br>
 &nbsp;<br>
 If&nbsp;<a href="#-figure">figure</a>(num)&nbsp;already&nbsp;exists,&nbsp;make&nbsp;it&nbsp;active&nbsp;and&nbsp;return&nbsp;the<br>
-handle&nbsp;to&nbsp;it.</tt></dd></dl>
+handle&nbsp;to&nbsp;it.<br>
+&nbsp;<br>
+optional&nbsp;argument&nbsp;size&nbsp;specifies&nbsp;the&nbsp;figure&nbsp;size&nbsp;as&nbsp;a&nbsp;(width,<br>
+height)&nbsp;tuple&nbsp;in&nbsp;pixels,&nbsp;eg<br>
+&nbsp;<br>
+&nbsp;&nbsp;<a href="#-figure">figure</a>(1,&nbsp;size=(500,400))</tt></dd></dl>
  <dl><dt><a name="-fromstring"><strong>fromstring</strong></a>(...)</dt><dd><tt><a href="#-fromstring">fromstring</a>(string,&nbsp;typecode='l',&nbsp;count=-1)&nbsp;returns&nbsp;a&nbsp;new&nbsp;1d&nbsp;array&nbsp;initialized&nbsp;from&nbsp;the&nbsp;raw&nbsp;binary&nbsp;data&nbsp;in&nbsp;string.&nbsp;&nbsp;If&nbsp;count&nbsp;is&nbsp;positive,&nbsp;the&nbsp;new&nbsp;array&nbsp;will&nbsp;have&nbsp;count&nbsp;elements,&nbsp;otherwise&nbsp;it's&nbsp;size&nbsp;is&nbsp;determined&nbsp;by&nbsp;the&nbsp;size&nbsp;of&nbsp;string.</tt></dd></dl>
  <dl><dt><a name="-gca"><strong>gca</strong></a>()</dt><dd><tt>Return&nbsp;the&nbsp;current&nbsp;axis&nbsp;instance.&nbsp;&nbsp;This&nbsp;can&nbsp;be&nbsp;used&nbsp;to&nbsp;control<br>
 axis&nbsp;properties&nbsp;either&nbsp;using&nbsp;set&nbsp;or&nbsp;the&nbsp;Axes&nbsp;methods.<br>
@@ -400,7 +438,7 @@ for&nbsp;every&nbsp;instance&nbsp;in&nbsp;o&nbsp;in&nbsp;h</tt></dd></dl>
  <dl><dt><a name="-show"><strong>show</strong></a>()</dt><dd><tt>Show&nbsp;all&nbsp;the&nbsp;figures&nbsp;and&nbsp;enter&nbsp;the&nbsp;gtk&nbsp;mainloop<br>
 &nbsp;<br>
 This&nbsp;should&nbsp;be&nbsp;the&nbsp;last&nbsp;line&nbsp;of&nbsp;your&nbsp;script</tt></dd></dl>
- <dl><dt><a name="-subplot"><strong>subplot</strong></a>(*args)</dt><dd><tt>Create&nbsp;a&nbsp;subplot&nbsp;command,&nbsp;creating&nbsp;axes&nbsp;with<br>
+ <dl><dt><a name="-subplot"><strong>subplot</strong></a>(*args, **kwargs)</dt><dd><tt>Create&nbsp;a&nbsp;subplot&nbsp;command,&nbsp;creating&nbsp;axes&nbsp;with<br>
 &nbsp;<br>
 &nbsp;&nbsp;<a href="#-subplot">subplot</a>(numRows,&nbsp;numCols,&nbsp;plotNum)<br>
 &nbsp;<br>
@@ -412,7 +450,12 @@ in<br>
 &nbsp;<br>
 &nbsp;&nbsp;<a href="#-subplot">subplot</a>(211)&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;2&nbsp;rows,&nbsp;1&nbsp;column,&nbsp;first&nbsp;(upper)&nbsp;plot<br>
 &nbsp;<br>
-<a href="#-subplot">subplot</a>(111)&nbsp;is&nbsp;the&nbsp;default&nbsp;axis</tt></dd></dl>
+<a href="#-subplot">subplot</a>(111)&nbsp;is&nbsp;the&nbsp;default&nbsp;axis<br>
+&nbsp;<br>
+The&nbsp;background&nbsp;color&nbsp;of&nbsp;the&nbsp;subplot&nbsp;can&nbsp;be&nbsp;specified&nbsp;via&nbsp;keyword<br>
+argument&nbsp;'axisbg',&nbsp;which&nbsp;takes&nbsp;a&nbsp;color&nbsp;string&nbsp;or&nbsp;gdk.Color&nbsp;as&nbsp;value,&nbsp;as&nbsp;in<br>
+&nbsp;<br>
+<a href="#-subplot">subplot</a>(211,&nbsp;axisbg='y')</tt></dd></dl>
  <dl><dt><a name="-take"><strong>take</strong></a>(...)</dt><dd><tt><a href="#-take">take</a>(a,&nbsp;indices,&nbsp;axis=0).&nbsp;&nbsp;Selects&nbsp;the&nbsp;elements&nbsp;in&nbsp;indices&nbsp;from&nbsp;array&nbsp;a&nbsp;along&nbsp;the&nbsp;given&nbsp;axis.</tt></dd></dl>
  <dl><dt><a name="-text"><strong>text</strong></a>(x, y, label, *args, **kwargs)</dt><dd><tt>Add&nbsp;text&nbsp;to&nbsp;axis&nbsp;at&nbsp;location&nbsp;x,y<br>
 &nbsp;<br>
@@ -539,7 +582,7 @@ optional&nbsp;args&nbsp;work</tt></dd></dl>
 <strong>UnsignedInt32</strong> = 'u'<br>
 <strong>UnsignedInt8</strong> = 'b'<br>
 <strong>UnsignedInteger</strong> = 'u'<br>
-<strong>__file__</strong> = './matlab.py'<br>
+<strong>__file__</strong> = './matlab.pyc'<br>
 <strong>__name__</strong> = 'matlab'<br>
 <strong>absolute</strong> = &lt;ufunc 'absolute'&gt;<br>
 <strong>add</strong> = &lt;ufunc 'add'&gt;<br>
@@ -570,7 +613,6 @@ optional&nbsp;args&nbsp;work</tt></dd></dl>
 <strong>greater</strong> = &lt;ufunc 'greater'&gt;<br>
 <strong>greater_equal</strong> = &lt;ufunc 'greater_equal'&gt;<br>
 <strong>hypot</strong> = &lt;ufunc 'hypot'&gt;<br>
-<strong>interactive</strong> = 0<br>
 <strong>invert</strong> = &lt;ufunc 'invert'&gt;<br>
 <strong>left_shift</strong> = &lt;ufunc 'left_shift'&gt;<br>
 <strong>less</strong> = &lt;ufunc 'less'&gt;<br>
