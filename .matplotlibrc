@@ -17,7 +17,7 @@
 #  - a matplotlib color string, such as r, k, or b
 #  - an rgb tuple, such as (1.0, 0.5, 0.0)
 #  - a hex string, such as ff00ff  (no '#' symbol)
-#  - a scalarar grayscale intensity such as 0.75
+#  - a scalar grayscale intensity such as 0.75
 
 #### CONFIGURATION BEGINS HERE
 backend      : GTK       # the default backend
