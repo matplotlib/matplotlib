@@ -21,6 +21,7 @@ X,Y = meshgrid(x, y)
 Z = func3(X, Y)
 pcolor(X, Y, Z, shading='flat')
 colorbar()
+savefig('pcolor_demo')
 show()
 
     
