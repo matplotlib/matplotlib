@@ -4,6 +4,7 @@ Some simple functions to generate colours.
 from Numeric import asarray
 from matplotlib.mlab import linspace
 from matplotlib.colors import colorConverter
+from Numeric import sum
 
 def pastel(colour, weight=2.4):
     """ Convert colour into a nice pastel shade"""
