@@ -22,10 +22,81 @@ Naming Conventions
   * classes MixedUpperCase
   * varables lowerUpper
   * functions underscore_separated
+
+
+backend_cairo requires Cairo functions that are not (yet?) wrapped by pycairo
+
+/* Add the following to pycairo/cairo/pycairo-context.c */
+static PyObject *
+pycairo_set_target_png(PyCairoContext *self, PyObject *args)
+{
+    FILE *file;
+    char *filename;
+    cairo_format_t format;
+    int width, height;
+
+    if (!PyArg_ParseTuple(args, "siii", &filename, &format, &width, &height))
+	return NULL;
+
+    if ((file = fopen (filename, "w")) == NULL) {
+        PyErr_SetString(PyExc_IOError, "file open failed");
+	return NULL;
+	}
+
+    cairo_set_target_png(self->ctx, file, format, width, height);
+    if (pycairo_check_status(cairo_status(self->ctx)))
+	return NULL;
+
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+static PyObject *
+pycairo_set_target_ps(PyCairoContext *self, PyObject *args)
+{
+    FILE *file;
+    char *filename;
+    double width_inches, height_inches;
+    double x_pixels_per_inch, y_pixels_per_inch;
+
+    if (!PyArg_ParseTuple(args, "sdddd:Context.set_target_ps",
+			  &filename, &width_inches, &height_inches, 
+			  &x_pixels_per_inch, &y_pixels_per_inch))
+	return NULL;
+
+    if ((file = fopen (filename, "w")) == NULL) {
+        PyErr_SetString(PyExc_IOError, "file open failed"); /* add err string */
+	return NULL;
+	}
+
+    cairo_set_target_ps(self->ctx, file, width_inches, height_inches, 
+			x_pixels_per_inch, y_pixels_per_inch);
+    if (pycairo_check_status(cairo_status(self->ctx)))
+	return NULL;
+
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+static PyObject *
+pycairo_show_page(PyCairoContext *self)
+{
+    cairo_show_page(self->ctx);
+    if (pycairo_check_status(cairo_status(self->ctx)))
+	return NULL;
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+/* Add to static PyMethodDef pycairo_methods[] = { */
+    { "set_target_png", (PyCFunction)pycairo_set_target_png, METH_VARARGS },
+    { "set_target_ps", (PyCFunction)pycairo_set_target_ps, METH_VARARGS },
+    { "show_page", (PyCFunction)pycairo_show_page, METH_NOARGS },
 """
 
 from __future__ import division
 
+import os
 import sys
 def _fn_name(): return sys._getframe(1).f_code.co_name
 
@@ -46,23 +117,17 @@ except:
 backend_version = '0.1.23' # cairo does not report version, yet
 
 
-Debug = False
-
+DEBUG = False
 
 # the true dots per inch on the screen; should be display dependent
 # see http://groups.google.com/groups?q=screen+dpi+x11&hl=en&lr=&ie=UTF-8&oe=UTF-8&safe=off&selm=7077.26e81ad5%40swift.cs.tcd.ie&rnum=5 for some info about screen dpi
 PIXELS_PER_INCH = 96
 
+# Image formats that this backend supports - for print_figure()
+IMAGE_FORMAT          = ['eps', 'png', 'ps', 'svg']
+IMAGE_FORMAT_DEFAULT  = 'png'
 
-def error_msg_cairo(msg, *args):
-    """
-    Signal an error condition -- in a GUI, popup a error dialog
-    """
-    if Debug: print 'backend_cairo.%s()' % _fn_name()
-    verbose.report('Error: %s'%msg)
-    sys.exit()
 
-    
 class RendererCairo(RendererBase):
     """
     The renderer handles all the drawing primitives using a graphics
@@ -95,9 +160,10 @@ class RendererCairo(RendererBase):
         }
     
 
-    def __init__(self, surface, width, height, dpi):
-        if Debug: print 'backend_cairo.RendererCairo.%s()' % _fn_name()
+    def __init__(self, surface, matrix, width, height, dpi):
+        if DEBUG: print 'backend_cairo.RendererCairo.%s()' % _fn_name()
         self.surface = surface
+        self.matrix  = matrix
         self.width   = width
         self.height  = height
         self.dpi     = dpi    # should not need dpi? Cairo is device independent
@@ -105,7 +171,7 @@ class RendererCairo(RendererBase):
 
     def get_canvas_width_height(self):
         'return the canvas width and height in display coords'
-        if Debug: print 'backend_cairo.RendererCairo.%s()' % _fn_name()
+        if DEBUG: print 'backend_cairo.RendererCairo.%s()' % _fn_name()
         return self.width, self.height
     
 
@@ -123,7 +189,8 @@ class RendererCairo(RendererBase):
         get the width and height in display coords of the string s
         with FontPropertry prop
         """
-        if Debug: print 'backend_cairo.RendererCairo.%s()' % _fn_name()
+        #return 1, 1
+        if DEBUG: print 'backend_cairo.RendererCairo.%s()' % _fn_name()
         if ismath:
             print 'ismath get_text_width_height() not implemented yet'
             return 1, 1
@@ -146,7 +213,8 @@ class RendererCairo(RendererBase):
         from 0.0 to 360.0.
         If rgbFace is not None, fill the arc with it.
         """
-        if Debug: print 'backend_cairo.RendererCairo.%s()' % _fn_name()
+        #return
+        if DEBUG: print 'backend_cairo.RendererCairo.%s()' % _fn_name()
         # cairo draws circular arcs (width=height) only?
         # could curve_to() and draw a spline instead?
         radius = (height + width) / 4
@@ -175,7 +243,7 @@ class RendererCairo(RendererBase):
         bbox is a matplotlib.transforms.BBox instance for clipping, or
         None
         """
-        if Debug: print 'backend_cairo.RendererCairo.%s()' % _fn_name()
+        if DEBUG: print 'backend_cairo.RendererCairo.%s()' % _fn_name()
         pass
         # how does cairo do this?
     
@@ -184,7 +252,8 @@ class RendererCairo(RendererBase):
         """
         Draw a single line from x1,y1 to x2,y2
         """
-        if Debug: print 'backend_cairo.RendererCairo.%s()' % _fn_name()
+        #return
+        if DEBUG: print 'backend_cairo.RendererCairo.%s()' % _fn_name()
         ctx = gc.ctx
         ctx.new_path()
         ctx.move_to (x1, self.height - y1)
@@ -197,7 +266,8 @@ class RendererCairo(RendererBase):
         x and y are equal length arrays, draw lines connecting each
         point in x, y
         """
-        if Debug: print 'backend_cairo.RendererCairo.%s()' % _fn_name()
+        #return
+        if DEBUG: print 'backend_cairo.RendererCairo.%s()' % _fn_name()
         y = [self.height - y for y in y]
         points = zip(x,y)
         x, y = points.pop(0)
@@ -214,7 +284,8 @@ class RendererCairo(RendererBase):
         """
         Draw a single point at x,y
         """
-        if Debug: print 'backend_cairo.RendererCairo.%s()' % _fn_name()
+        #return
+        if DEBUG: print 'backend_cairo.RendererCairo.%s()' % _fn_name()
         # render by drawing a 0.5 radius circle
         gc.ctx.new_path()
         gc.ctx.arc (x, self.height - y, 0.5, 0, 2*pi)
@@ -226,15 +297,17 @@ class RendererCairo(RendererBase):
         Draw a polygon.  points is a len vertices tuple, each element
         giving the x,y coords a vertex.
         If rgbFace is not None, fill the rectangle with it.
-        """  
-        if Debug: print 'backend_cairo.RendererCairo.%s()' % _fn_name()
+        """
+        if DEBUG: print 'backend_cairo.RendererCairo.%s()' % _fn_name()
         points = [(x, (self.height-y)) for x,y in points]
 
         ctx = gc.ctx
         ctx.new_path()
-        x, y = points.pop(0)
+        #x, y = points.pop(0)
+        x, y = points[0]
         ctx.move_to (x, y)
-        for x,y in points:
+        #for x,y in points:
+        for x,y in points[1:]:
             ctx.line_to (x, y)
         ctx.close_path()
 
@@ -253,7 +326,8 @@ class RendererCairo(RendererBase):
         Draw a filled rectangle within it of color rgbFace, if rgbFace is not
         None.
         """
-        if Debug: print 'backend_cairo.RendererCairo.%s()' % _fn_name()
+        #return
+        if DEBUG: print 'backend_cairo.RendererCairo.%s()' % _fn_name()
         ctx = gc.ctx
         ctx.new_path()
         ctx.rectangle (x, self.height - y - height, width, height)
@@ -270,7 +344,8 @@ class RendererCairo(RendererBase):
         Render the matplotlib.text.Text instance at x, y in window
         coords using GraphicsContext gc
         """
-        if Debug: print 'backend_cairo.RendererCairo.%s()' % _fn_name()
+        #return
+        if DEBUG: print 'backend_cairo.RendererCairo.%s()' % _fn_name()
         ctx = gc.ctx
 
         if ismath:
@@ -286,7 +361,11 @@ class RendererCairo(RendererBase):
                              self.fontweights[prop.get_weight()])
             scale = self.get_text_scale()
             size  = prop.get_size_in_points()
-            if angle: # rotated text looks awful!
+
+            # rotated text
+            # drawable (gtk) target surface - it looks awful
+            # yet on the png target surface its fine
+            if angle:
                 ctx.rotate (-angle * pi / 180)
             ctx.scale_font (scale*size)
             ctx.show_text (s)
@@ -294,21 +373,24 @@ class RendererCairo(RendererBase):
          
     def flipy(self):
         """return true if y small numbers are top for renderer"""
-        if Debug: print 'backend_cairo.RendererCairo.%s()' % _fn_name()
-        return True
+        if DEBUG: print 'backend_cairo.RendererCairo.%s()' % _fn_name()
+        return True  # GTK/GDK default, 0,0 top left origin
+        #return False  # Cairo using affine transform (matrix)
 
     
     def new_gc(self):
         """
         Return an instance of a GraphicsContextCairo
         """
-        if Debug: print 'backend_cairo.RendererCairo.%s()' % _fn_name()
+        if DEBUG: print 'backend_cairo.RendererCairo.%s()' % _fn_name()
         gc = GraphicsContextCairo (renderer=self)
         if self.surface:
             gc.ctx.set_target_surface (self.surface)
-        #else: # testing
-        #    gc.ctx.set_target_png (file, cairo.FORMAT_ARGB32, self.width, self.height)
-        #    set_target_png(), set_target_ps() are not wrapped
+
+        #if self.matrix:
+        #    gc.ctx.set_matrix (self.matrix) # for affine transform
+        #print 'matrix1', self.matrix
+        #print 'matrix2', gc.ctx.matrix
         return gc
 
 
@@ -316,7 +398,7 @@ class RendererCairo(RendererBase):
         """
         Convert points to display units.
         """
-        if Debug: print 'backend_cairo.RendererCairo.%s()' % _fn_name()
+        if DEBUG: print 'backend_cairo.RendererCairo.%s()' % _fn_name()
         # should not need points_to_pixels() ? Cairo is device independent
         return points * PIXELS_PER_INCH/72.0 * self.dpi.get()/72.0
 
@@ -333,7 +415,7 @@ class GraphicsContextCairo(GraphicsContextBase):
 
     _capd = {
         'butt'       : cairo.LINE_CAP_BUTT,
-        'projecting' : cairo.LINE_CAP_SQUARE,  # same as CAP_PROJECTING ?
+        'projecting' : cairo.LINE_CAP_SQUARE,
         'round'      : cairo.LINE_CAP_ROUND,
         }
 
@@ -437,7 +519,7 @@ def draw_if_interactive():
     This should be overriden in a windowing environment if drawing
     should be done in interactive python mode
     """
-    if Debug: print 'backend_cairo.%s()' % _fn_name()
+    if DEBUG: print 'backend_cairo.%s()' % _fn_name()
     pass
 
 
@@ -448,7 +530,7 @@ def show():
     a do nothing func.  See the GTK backend for an example of how to
     handle interactive versus batch mode
     """
-    if Debug: print 'backend_cairo.%s()' % _fn_name()
+    if DEBUG: print 'backend_cairo.%s()' % _fn_name()
     for manager in Gcf.get_all_fig_managers():
         manager.canvas.realize()
 
@@ -457,10 +539,10 @@ def new_figure_manager(num, *args, **kwargs):
     """
     Create a new figure manager instance
     """
-    if Debug: print 'backend_cairo.%s()' % _fn_name()
+    if DEBUG: print 'backend_cairo.%s()' % _fn_name()
     thisFig = Figure(*args, **kwargs)
-    canvas = FigureCanvasCairo(thisFig)
-    manager = FigureManagerCairo(canvas, num)
+    canvas  = FigureCanvasCairo(thisFig)
+    manager = FigureManagerBase(canvas, num)
     return manager
 
 
@@ -474,11 +556,11 @@ class FigureCanvasCairo(FigureCanvasBase):
       figure - A Figure instance
     """
 
-    def draw(self):
+    def draw(self): # not required?
         """
         Draw the figure using the renderer
         """
-        if Debug: print 'backend_cairo.FigureCanvasCairo%s()' % _fn_name()
+        if DEBUG: print 'backend_cairo.FigureCanvasCairo.%s()' % _fn_name()
         pass
         #renderer = RendererCairo()  # height, width, figure.dpi
         #self.figure.draw(renderer)
@@ -492,28 +574,60 @@ class FigureCanvasCairo(FigureCanvasBase):
         gray figure face color background and you'll probably want to
         override this on hardcopy
         """
-        if Debug: print 'backend_cairo.FigureCanvasCairo%s()' % _fn_name()
-        # set the new parameters
+        if DEBUG: print 'backend_cairo.FigureCanvasCairo.%s()' % _fn_name()
+
+        root, ext = os.path.splitext(filename)       
+        ext = ext[1:]
+        if ext == '':
+            ext      = IMAGE_FORMAT_DEFAULT
+            filename = filename + '.' + ext
+
+        # save figure state
         origDPI       = self.figure.dpi.get()
         origfacecolor = self.figure.get_facecolor()
         origedgecolor = self.figure.get_edgecolor()
         
+        # settings for printing
         self.figure.dpi.set(dpi)
         self.figure.set_facecolor(facecolor)
         self.figure.set_edgecolor(edgecolor)        
 
+        l,b, width, height = self.figure.bbox.get_bounds()
+        width, height = int(width), int(height)
 
-        l,b,width, height = self.figure.bbox.get_bounds()
-        renderer = RendererCairo (None, height, width, self.figure.dpi)
-        #ctx.set_target_png ( FILE *file, cairo_format_t format, width, height) - not wrapped?
+        ext = ext.lower()
+        if ext == 'png':
+            # sizing is correct for cairo, but wrong for gtkcairo?
+            ctx = cairo.Context()
+            ctx.set_target_png (filename, cairo.FORMAT_ARGB32, width, height) # 4 png formats supported
+            renderer = RendererCairo (ctx.target_surface, None, width, height, self.figure.dpi)
+            self.figure.draw(renderer)
+            ctx.show_page()
+            
+        elif ext in ('eps', 'ps'):
+            # sizing is wrong on cairo and gtkcairo?
+            ctx = cairo.Context()
 
-        # 1 draw to an image, -> save image as a file
-        # 2 or draw direct to a (png) file
+            #self.figure.dpi.set(72)
+            width_in, height_in = self.figure.get_size_inches()
+            #l,b, width, height = self.figure.bbox.get_bounds()
         
-        self.figure.draw(renderer)
-        # do something to save to hardcopy
+            xppi = yppi = self.figure.dpi.get()
+            #xppi = yppi = 72, 72  # size used in backend_agg
+            ctx.set_target_ps (filename, width_in, height_in, xppi, yppi)
+            renderer = RendererCairo (ctx.target_surface, None, width, height, self.figure.dpi)
+            self.figure.draw(renderer)
+            ctx.show_page()
 
-        print 'saving hardcopy, not implemented yet'
+        elif ext == 'svg':  # backend_svg
+            from backend_svg import FigureCanvasSVG as FigureCanvas
+            fc = self.switch_backends(FigureCanvas)
+            fc.figure.dpi.set(72)
+            fc.print_figure(filename, 72, facecolor, edgecolor, orientation)
+
+        else:
+            error_msg('Format "%s" is not supported.\nSupported formats: %s.' %
+                      (ext, ', '.join(IMAGE_FORMAT)))
 
         # restore the new params and redraw the screen if necessary
         self.figure.dpi.set(origDPI)
@@ -527,26 +641,6 @@ class FigureCanvasCairo(FigureCanvasBase):
         This method will be called when the system is ready to draw,
         eg when a GUI window is realized
         """
-        if Debug: print 'backend_cairo.FigureCanvasCairo%s()' % _fn_name()
+        if DEBUG: print 'backend_cairo.FigureCanvasCairo.%s()' % _fn_name()
         self._isRealized = True  
         self.draw()
-
-    
-class FigureManagerCairo(FigureManagerBase):
-    """
-    Wrap everything up into a window for the matlab interface
-
-    For non interactive backends, the base class does all the work
-    """
-    pass
-
-
-########################################################################
-#    
-# Now just provide the standard names that backend.__init__ is expecting
-# 
-########################################################################
-
-
-FigureManager = FigureManagerCairo
-error_msg = error_msg_cairo
