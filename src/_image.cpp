@@ -569,8 +569,10 @@ _image_fromarray(PyObject *self, PyObject *args) {
   ImageObject *imo;
   
   imo = newImageObject(args);
-  if ( imo == NULL )
+  if ( imo == NULL ) {
+    Py_XDECREF(A);  
     return NULL;
+  }
   
   imo->rowsIn  = A->dimensions[0];
   imo->colsIn  = A->dimensions[1];
@@ -604,6 +606,7 @@ _image_fromarray(PyObject *self, PyObject *args) {
     if (A->dimensions[2] != 3 && A->dimensions[2] != 4 ) {
       PyErr_SetString(PyExc_ValueError, 
 		      "3rd dimension must be length 3 (RGB) or 4 (RGBA)"); 
+      Py_XDECREF(A);  
       return NULL;
       
     }
@@ -635,9 +638,10 @@ _image_fromarray(PyObject *self, PyObject *args) {
   else   { // error
     PyErr_SetString(PyExc_ValueError, 
 		    "Illegal array rank; must be rank; must 2 or 3"); 
+    Py_XDECREF(A);  
     return NULL;
   }
-  
+  Py_XDECREF(A);  
   return (PyObject *)imo;
 }
 

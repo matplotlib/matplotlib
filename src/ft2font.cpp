@@ -232,7 +232,18 @@ FT2Font::clear(const Py::Tuple & args) {
   
   pen.x = 0;
   pen.y = 0;
-  
+
+  for (size_t i=0; i<glyphs.size(); i++) {
+    FT_Done_Glyph( glyphs[i] );    
+  }
+
+  for (size_t i=0; i<gms.size(); i++) {
+    Py_DECREF(gms[i]);
+  }
+
+  glyphs.resize(0);
+  gms.resize(0);
+
   return Py::Object();
   
 }

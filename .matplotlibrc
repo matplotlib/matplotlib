@@ -36,11 +36,24 @@ interactive  : False     # see http://matplotlib.sourceforge.net/interactive.htm
 lines.linewidth   : 0.5     # line width in points
 lines.linestyle   : -       # solid line
 lines.color       : b       # blue; color format or hex string
-lines.markersize  : 6       # markersize, in points
-lines.antialiased : True    # render lines in antialised (no jaggies)
+lines.markerfacecolor  : b       
+lines.markeredgecolor  : k
+lines.markeredgewidth  : 0.5
+lines.markersize  : 6        # markersize, in points
+lines.antialiased : True     # render lines in antialised (no jaggies)
 lines.data_clipping : False  # Use data clipping in addition to viewport
-                            # clipping.  Useful if you plot long data
-                            # sets with only a fraction in the viewport
+                             # clipping.  Useful if you plot long data
+                             # sets with only a fraction in the viewport
+
+### Patches 
+# Patches are graphical objects that fill 2D space, like polygons or
+# circles.  See
+# http://matplotlib.sourceforge.net/matplotlib.patches.html for more
+# information on patch properties
+patch.linewidth   	: 0.5     # edge width in points
+patch.facecolor  	: b       
+patch.edgecolor  	: k
+patch.antialiased 	: True    # render patches in antialised (no jaggies)
 
 ### FONT
 #
