@@ -225,7 +225,9 @@ Image::buffer_argb32(const Py::Tuple& args) {
   
   
   //todo: how to do this with native CXX
-  PyObject* o = Py_BuildValue("s#", buf_tmp, row_len * rowsOut);
+  //PyObject* o = Py_BuildValue("s#", buf_tmp, row_len * rowsOut);
+  PyObject* o = Py_BuildValue("lls#", rowsOut, colsOut, 
+			      buf_tmp, row_len * rowsOut);
   delete [] buf_tmp;
   return Py::asObject(o);
 

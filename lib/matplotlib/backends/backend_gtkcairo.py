@@ -17,8 +17,6 @@ from backend_gtk import gtk, FigureManagerGTK, FigureCanvasGTK, show,    \
      draw_if_interactive, error_msg, NavigationToolbar, backend_version, \
      gdk_pixmap_save
 
-import gobject
-
 import cairo
 import cairo.gtk
 
