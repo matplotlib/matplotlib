@@ -292,7 +292,7 @@ def corrcoef(*args):
 
     if len(args)==2:
         X = transpose(array([args[0]]+[args[1]]))
-    elif len(args==1):
+    elif len(args)==1:
         X = args[0]
     else:
         raise RuntimeError, 'Only expecting 1 or 2 arguments'
