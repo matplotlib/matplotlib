@@ -691,7 +691,7 @@ class FigureCanvasWx(FigureCanvasBase, wxPanel):
         l,b,w,h = figure.bbox.get_bounds()
         w = int(math.ceil(w))
         h = int(math.ceil(h))
-        
+        self._idle = True        
         wxPanel.__init__(self, parent, id, size=wxSize(w, h))
         # Create the drawing bitmap
         self.bitmap = wxEmptyBitmap(w, h)
@@ -846,6 +846,13 @@ The current aspect ration will be kept."""
         self.renderer = RendererWx(self.bitmap, self.figure.dpi)
         self.figure.draw(self.renderer)
         self.gui_repaint()
+
+    def draw_idle(self):
+        d = self._idle
+        self._idle = False
+        if d:
+            self.draw()
+            self._idle = True
 
     def _get_imagesave_wildcards(self):
         'return the wildcard string for the filesave dialog'
@@ -1500,11 +1507,7 @@ class NavigationToolbar2Wx(NavigationToolbar2, wxToolBar):
         except AttributeError: pass
 
     def dynamic_update(self):
-        d = self._idle
-        self._idle = False
-        if d:
-            self.canvas.draw()
-            self._idle = True
+        self.canvas.draw_idle()
         
     def draw_rubberband(self, event, x0, y0, x1, y1):
         'adapted from http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/189744'

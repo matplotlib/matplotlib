@@ -11,8 +11,55 @@ from cbook import enumerate, popd, is_string_like
 from font_manager import FontProperties
 from matplotlib import rcParams
 from patches import bbox_artist
-from numerix import sin, cos, pi, cumsum, dot, array
+from numerix import sin, cos, pi, cumsum, dot, asarray, array, where, nonzero, equal
 from transforms import lbwh_to_bbox, bbox_all
+
+
+def scanner(s):
+    """
+    Split a string into mathtext and non-mathtext parts.  mathtext is
+    surrounded by $ symbols.  quoted \$ are ignored
+
+    All slash quotes dollar signs are ignored
+
+    The number of unquoted dollar signs must be even
+
+    Return value is a list of (substring, inmath) tuples
+    """
+    if not len(s): return [(s, False)]
+    #print 'testing', s, type(s)
+    inddollar = nonzero(asarray(equal(s,'$')))
+    quoted = dict([ (ind,1) for ind in nonzero(asarray(equal(s,'\\')))])
+    indkeep = [ind for ind in inddollar if not quoted.has_key(ind-1)]
+    if len(indkeep)==0:
+        return [(s, False)]
+    if len(indkeep)%2:
+        raise ValueError('Illegal string "%s" (must have balanced dollar signs)'%s)
+
+    Ns = len(s)
+
+    indkeep = [ind for ind in indkeep]
+    # make sure we start with the first element
+    if indkeep[0]!=0: indkeep.insert(0,0)
+    # and end with one past the end of the string
+    indkeep.append(Ns+1)
+
+    Nkeep = len(indkeep)
+    results = []
+
+    inmath = s[0] == '$'
+    for i in range(Nkeep-1):        
+        i0, i1 = indkeep[i], indkeep[i+1]
+        if not inmath:
+            if i0>0: i0 +=1
+        else:
+            i1 += 1
+        if i0>=Ns: break
+            
+        results.append((s[i0:i1], inmath))
+        inmath = not inmath
+
+    return results
 
 
 
@@ -57,7 +104,7 @@ class Text(Artist):
         if fontproperties is None: fontproperties=FontProperties()
 
         self._color = color
-        self._text = text
+        self.set_text(text)
         self._verticalalignment = verticalalignment
         self._horizontalalignment = horizontalalignment
         self._multialignment = multialignment        
@@ -246,7 +293,27 @@ ACCEPTS: rectangle prop dict plus key 'pad' which is a pad in points
                                    ismath=False)
                 return
 
-                    
+
+        if len(self._substrings)>1:
+            print 'substrs', self._substrings
+            # embedded mathtext
+            thisx, thisy = self._transform.xy_tup((self._x, self._y))
+            for s,ismath in self._substrings:
+                w, h = renderer.get_text_width_height(
+                    s, self._fontproperties, ismath)
+
+                renderx, rendery = thisx, thisy
+                if renderer.flipy():
+                    canvasw, canvash = renderer.get_canvas_width_height()
+                    rendery = canvash-rendery
+            
+                renderer.draw_text(gc, renderx, rendery, s,
+                                   self._fontproperties, angle,
+                                   ismath)
+                thisx += w
+
+                
+            return
         bbox, info = self._get_layout(renderer)
 
         for line, wh, x, y in info:
@@ -461,6 +528,7 @@ ACCEPTS: string eg, ['Sans' | 'Courier' | 'Helvetica' ...]
 
     def set_fontname(self, fontname):
         'alias for set_name'
+        self.set_name(fontname)
 
     def set_style(self, fontstyle):
         """
@@ -559,10 +627,11 @@ Set the text string s
 
 ACCEPTS: string
 """
+        if not is_string_like(s):
+            raise TypeError("This doesn't look like a string: '%s'"%s)
         self._text = s
-
-
-
+        #self._substrings = scanner(s)  # support embedded mathtext
+        self._substrings = []           # ignore embedded mathtext for now
 
     def is_math_text(self):
         if not matplotlib._havemath: return False

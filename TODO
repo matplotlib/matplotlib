@@ -694,3 +694,7 @@ ZeroDivisionError: SeparableTransformation::eval_scalars yin interval is zero; c
 -- add a get description to axes which returns the args and kwargs to construct it 
 
 -- restore __all__ to pylab and add ArtistInspector
+
+
+-- create set_window_title in the figure manager interface expose this
+   in the figure command

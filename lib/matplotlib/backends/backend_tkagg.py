@@ -98,6 +98,7 @@ class FigureCanvasTkAgg(FigureCanvasAgg):
 
     def __init__(self, figure, master=None, resize_callback=None):
         FigureCanvasAgg.__init__(self, figure)
+        self._idle = True
         t1,t2,w,h = self.figure.bbox.get_bounds()
         w, h = int(w), int(h)
         self._tkcanvas = Tk.Canvas(
@@ -145,6 +146,16 @@ class FigureCanvasTkAgg(FigureCanvasAgg):
         self._master.update_idletasks()
 
     show = draw
+
+    def draw_idle(self):
+        'update drawing area only if idle'
+        d = self._idle
+        self._idle = False
+        def idle_draw(*args):
+            self.draw()
+            self._idle = True
+
+        if d: self._tkcanvas.after_idle(idle_draw)
 
     def get_tk_widget(self):
         """returns the Tk widget used to implement FigureCanvasTkAgg.
@@ -613,14 +624,9 @@ class NavigationToolbar2TkAgg(NavigationToolbar2, Tk.Frame):
 
     def dynamic_update(self):
         'update drawing area only if idle'
-        d = self._idle
-        self._idle = False
-        def idle_draw(*args):
-            self.canvas.draw()
-            self._idle = True
+        # legacy method; new method is canvas.draw_idle
+        self.canvas.draw_idle()
 
-        if d: self.canvas._tkcanvas.after_idle(idle_draw)
-            
 
 FigureManager = FigureManagerTkAgg
 

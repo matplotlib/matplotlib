@@ -203,6 +203,14 @@ class FigureCanvasGTK(gtk.DrawingArea, FigureCanvasBase):
         self._draw_pixmap = True
         self.expose_event(self, None)
 
+    def draw_idle(self):
+        def idle_draw(*args):
+            self.draw()
+            self._idleID = 0
+            return False
+        if self._idleID==0:
+            self._idleID = gtk.idle_add(idle_draw)
+
 
     def _renderer_init(self):
         """Override by GTK backends to select a different renderer
@@ -461,13 +469,9 @@ class NavigationToolbar2GTK(NavigationToolbar2, gtk.Toolbar):
         except AttributeError: pass
 
     def dynamic_update(self):
-        def idle_draw(*args):
-            self.canvas.draw()
-            self._idleId = 0
-            return False
-        if self._idleId==0:
-            self._idleId = gtk.idle_add(idle_draw)
-        
+        # legacy method; new method is canvas.draw_idle
+        self.canvas.draw_idle()
+            
     def draw_rubberband(self, event, x0, y0, x1, y1):
         'adapted from http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/189744'
         drawable = self.canvas.window
