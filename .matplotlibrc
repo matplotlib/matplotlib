@@ -76,5 +76,4 @@ savefig.dpi       : 100      # figure dots per inch
 savefig.facecolor : w        # figure facecolor; 0.75 is scalar gray
 savefig.edgecolor : w        # figure edgecolor; w is white
 
-
-
+tk.window_focus   : False    # Maintain shell focus for TkAgg
