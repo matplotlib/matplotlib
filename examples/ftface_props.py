@@ -29,6 +29,7 @@ print 'Num faces   :', font.num_faces       # number of faces in file
 print 'Num glyphs  :', font.num_glyphs      # number of glyphs in the face
 print 'Family name :', font.family_name     # face family name
 print 'Syle name   :', font.style_name      # face syle name
+print 'PS name     :', font.postscript_name # the postscript name
 print 'Num fixed   :', font.num_fixed_sizes # number of embedded bitmap in face
 
 # the following are only available if face.scalable
@@ -65,3 +66,5 @@ print 'Fast glyphs   :', font.style_flags & FT_FACE_FLAG_FAST_GLYPHS      != 0
 print 'Mult. masters :', font.style_flags & FT_FACE_FLAG_MULTIPLE_MASTERS != 0
 print 'Glyph names   :', font.style_flags & FT_FACE_FLAG_GLYPH_NAMES      != 0
 
+font.jdh = 'hi'
+print dir(font)

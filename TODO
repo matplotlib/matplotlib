@@ -232,3 +232,9 @@
 
 -- test agg/freetype2 with ms freetype fonts in path.  Be sure to
    remove ~/.fonts.cache after changing yout ttfpath
+
+-- why doesn't dir reveal any attrs on my Glyph and FT2Font objs?
+
+-- get module docs for ft2font working right
+
+-- kwargs in plot to set lineprops?

@@ -11,6 +11,29 @@ FT_Library    _ft2Library;
 #define FT2FontObject_Check(v)	((v)->ob_type == &FT2Font_Type)
 #define GlyphObject_Check(v)	((v)->ob_type == &Glyph_Type)
 
+#define SETATTR(o,setattr_func,name,PyBuilder,val) \
+{ \
+PyObject *pval =PyBuilder(val);\
+if (pval == NULL) {PyErr_NoMemory(); return NULL;}\
+int gsetResult = setattr_func(o, name, pval);\
+Py_DECREF(pval);\
+if (gsetResult == -1) {\
+      PyErr_SetString(PyExc_RuntimeError, "Could not set attr");\
+    return NULL;\
+}\
+}
+
+#define SETATTR_PYOBJ(o,setattr_func,name,pval) \
+{ \
+int gsetResult = setattr_func(o, name, pval);\
+Py_DECREF(pval);\
+if (gsetResult == -1) {\
+      PyErr_SetString(PyExc_RuntimeError, "Could not set attr");\
+    return NULL;\
+}\
+}
+
+
 
 static PyMethodDef Glyph_methods[] = {
   {NULL,		NULL}		/* sentinel */
@@ -171,35 +194,36 @@ newFT2FontObject(PyObject *args)
   if ( ps_name == NULL )
     ps_name = "UNAVAILABLE";
     
-  FT2Font_setattr(self, "postscript_name", PyString_FromString(ps_name));
-  FT2Font_setattr(self, "num_faces", PyInt_FromLong(self->face->num_faces));  
-  FT2Font_setattr(self, "family_name", PyString_FromString(self->face->family_name));  
-  FT2Font_setattr(self, "style_name", PyString_FromString(self->face->style_name));  
-  FT2Font_setattr(self, "face_flags", PyInt_FromLong(self->face->face_flags));  
-  FT2Font_setattr(self, "style_flags", PyInt_FromLong(self->face->style_flags));  
-  FT2Font_setattr(self, "num_glyphs", PyInt_FromLong(self->face->num_glyphs));  
-  FT2Font_setattr(self, "num_fixed_sizes", PyInt_FromLong(self->face->num_fixed_sizes));  
-  FT2Font_setattr(self, "num_charmaps", PyInt_FromLong(self->face->num_charmaps));  
+  SETATTR(self, FT2Font_setattr, "postscript_name", PyString_FromString, ps_name);
+  SETATTR(self, FT2Font_setattr, "num_faces",       PyInt_FromLong,      self->face->num_faces);
+  SETATTR(self, FT2Font_setattr, "family_name",     PyString_FromString, self->face->family_name);
+  SETATTR(self, FT2Font_setattr, "style_name",      PyString_FromString, self->face->style_name);
+  SETATTR(self, FT2Font_setattr, "face_flags",      PyInt_FromLong,      self->face->face_flags);
+  SETATTR(self, FT2Font_setattr, "style_flags",     PyInt_FromLong,      self->face->style_flags);
+  SETATTR(self, FT2Font_setattr, "num_glyphs",      PyInt_FromLong,      self->face->num_glyphs);
+  SETATTR(self, FT2Font_setattr, "num_fixed_sizes", PyInt_FromLong,      self->face->num_fixed_sizes);
+  SETATTR(self, FT2Font_setattr, "num_charmaps",    PyInt_FromLong,      self->face->num_charmaps);
+
 
   int scalable;
   scalable = FT_IS_SCALABLE( self->face );
-  FT2Font_setattr(self, "scalable", PyInt_FromLong(scalable));  
+  SETATTR(self, FT2Font_setattr, "scalable", PyInt_FromLong, scalable);
 
   if (scalable) {
-    FT2Font_setattr(self, "units_per_EM", PyInt_FromLong(self->face->units_per_EM));  
+    SETATTR(self, FT2Font_setattr, "units_per_EM", PyInt_FromLong, self->face->units_per_EM);
+
     PyObject *bbox = Py_BuildValue
       ("(llll)", 
        self->face->bbox.xMin, self->face->bbox.yMin, 
        self->face->bbox.xMax, self->face->bbox.yMax );
-    FT2Font_setattr(self, "bbox", bbox);
-    FT2Font_setattr(self, "ascender", PyInt_FromLong(self->face->ascender));  
-    FT2Font_setattr(self, "descender", PyInt_FromLong(self->face->descender));  
-    FT2Font_setattr(self, "height", PyInt_FromLong(self->face->height));  
-    FT2Font_setattr(self, "max_advance_width", PyInt_FromLong(self->face->max_advance_width));  
-    FT2Font_setattr(self, "max_advance_height", PyInt_FromLong(self->face->max_advance_height));  
-    FT2Font_setattr(self, "underline_position", PyInt_FromLong(self->face->underline_position));  
-    FT2Font_setattr(self, "underline_thickness", PyInt_FromLong(self->face->underline_thickness));  
-       
+    SETATTR_PYOBJ(self, FT2Font_setattr, "bbox",  bbox);
+    SETATTR(self, FT2Font_setattr, "ascender",            PyInt_FromLong, self->face->ascender);
+    SETATTR(self, FT2Font_setattr, "descender",           PyInt_FromLong, self->face->descender);
+    SETATTR(self, FT2Font_setattr, "height",              PyInt_FromLong, self->face->height);
+    SETATTR(self, FT2Font_setattr, "max_advance_width",   PyInt_FromLong, self->face->max_advance_width);
+    SETATTR(self, FT2Font_setattr, "max_advance_height",  PyInt_FromLong, self->face->max_advance_height);
+    SETATTR(self, FT2Font_setattr, "underline_position",  PyInt_FromLong, self->face->underline_position);
+    SETATTR(self, FT2Font_setattr, "underline_thickness", PyInt_FromLong, self->face->underline_thickness);
     
   }
 
@@ -261,6 +285,12 @@ FT2Font_dealloc(FT2FontObject *self)
   PyObject_Del(self);
 
 }
+
+char FT2Font_set_size__doc__[] = 
+"set_size(ptsize, dpi)\n"
+"\n"
+"Set the point size and dpi of the text.\n"
+;
 
 static PyObject *
 FT2Font_set_size(FT2FontObject *self, PyObject *args)
@@ -376,6 +406,12 @@ void load_glyphs(FT2FontObject *self) {
 }
 
 
+char FT2Font_set_text__doc__[] = 
+"set_text(s, angle)\n"
+"\n"
+"Set the text string and angle.\n"
+"You must call this before draw_glyphs_to_bitmap\n"
+;
 
 static PyObject *
 FT2Font_set_text(FT2FontObject *self, PyObject *args)
@@ -405,13 +441,12 @@ char FT2Font_load_char__doc__[] =
 "Return value is a Glyph object, with attributes\n"
 "  width          # glyph width\n"
 "  height         # glyph height\n"
-"\n"
+"  bbox           # the glyph bbox (xmin, ymin, xmax, ymax)\n" 
 "  horiBearingX   # left side bearing in horizontal layouts\n"
 "  horiBearingY   # top side bearing in horizontal layouts\n"
 "  horiAdvance    # advance width for horizontal layout\n"
-"\n"
 "  vertBearingX   # left side bearing in vertical layouts\n"
-"  vertBearingY  #top side bearing in vertical layouts\n"
+"  vertBearingY   #top side bearing in vertical layouts\n"
 "  vertAdvance    # advance height for vertical layout\n"
 ;
 static  GlyphObject *
@@ -447,27 +482,45 @@ FT2Font_load_char(FT2FontObject *self, PyObject *args)
 
   if (gm == NULL) {
     PyErr_SetString(PyExc_RuntimeError, 
-		    "Could not create glyph metrix object");
+		    "Could not create glyph metrics object");
     
     return NULL;
   }
+
+  FT_BBox bbox;
+  FT_Glyph_Get_CBox( self->glyphs[self->num_glyphs], ft_glyph_bbox_subpixels, &bbox );
 
   gm->glyph_num = self->num_glyphs++;
 
   gm->x_attr = NULL;
 
-  Glyph_setattr(gm, "width", PyInt_FromLong(self->face->glyph->metrics.width));
-  Glyph_setattr(gm, "height", PyInt_FromLong(self->face->glyph->metrics.height));
-  Glyph_setattr(gm, "horiBearingX", PyInt_FromLong(self->face->glyph->metrics.horiBearingX));
-  Glyph_setattr(gm, "horiBearingY", PyInt_FromLong(self->face->glyph->metrics.horiBearingY));
-  Glyph_setattr(gm, "horiAdvance", PyInt_FromLong(self->face->glyph->metrics.horiAdvance));
-  Glyph_setattr(gm, "vertBearingX", PyInt_FromLong(self->face->glyph->metrics.vertBearingX));
-  Glyph_setattr(gm, "vertBearingY", PyInt_FromLong(self->face->glyph->metrics.vertBearingY));
-  Glyph_setattr(gm, "vertAdvance", PyInt_FromLong(self->face->glyph->metrics.vertAdvance));
+  SETATTR(gm, Glyph_setattr, "width", PyInt_FromLong, self->face->glyph->metrics.width);
+  SETATTR(gm, Glyph_setattr, "height", PyInt_FromLong, self->face->glyph->metrics.height);
+  SETATTR(gm, Glyph_setattr, "horiBearingX", PyInt_FromLong, self->face->glyph->metrics.horiBearingX);
+  SETATTR(gm, Glyph_setattr, "horiBearingY", PyInt_FromLong, self->face->glyph->metrics.horiBearingY);
+  SETATTR(gm, Glyph_setattr, "horiAdvance", PyInt_FromLong, self->face->glyph->metrics.horiAdvance);
+  SETATTR(gm, Glyph_setattr, "vertBearingX", PyInt_FromLong, self->face->glyph->metrics.vertBearingX);
+
+  SETATTR(gm, Glyph_setattr, "vertBearingY", PyInt_FromLong, self->face->glyph->metrics.vertBearingY);
+  SETATTR(gm, Glyph_setattr, "vertAdvance", PyInt_FromLong, self->face->glyph->metrics.vertAdvance);
+
+  PyObject *pbbox = Py_BuildValue
+    ("(llll)", 
+     bbox.xMin, bbox.yMin, bbox.xMax, bbox.yMax );
+  SETATTR_PYOBJ(gm, Glyph_setattr, "bbox",  pbbox);
+
+
     
   return gm;
 }
 
+char FT2Font_get_width_height__doc__[] = 
+"w, h = get_width_height()\n"
+"\n"
+"Get the width and height in 26.6 subpixels of the current string set by set_text\n"
+"The rotation of the string is accounted for.  To get width and height\n"
+"in pixels, divide these values by 64\n"
+;
 static PyObject *
 FT2Font_get_width_height(FT2FontObject *self, PyObject *args)
 {
@@ -477,8 +530,8 @@ FT2Font_get_width_height(FT2FontObject *self, PyObject *args)
   
   compute_string_bbox(self, &bbox);
   return Py_BuildValue("(ll)", 
-		       (bbox.xMax - bbox.xMin)/64, 
-		       (bbox.yMax - bbox.yMin)/64);
+		       (bbox.xMax - bbox.xMin), 
+		       (bbox.yMax - bbox.yMin));
 }
 
 
@@ -506,6 +559,11 @@ draw_bitmap( FT_Bitmap*  bitmap,
 }
 
 
+char FT2Font_write_bitmap__doc__[] = 
+"write_bitmap(fname)\n"
+"\n"
+"Write the bitmap to file fname\n"
+;
 
 static PyObject *
 FT2Font_write_bitmap(FT2FontObject *self, PyObject *args)
@@ -534,7 +592,12 @@ FT2Font_write_bitmap(FT2FontObject *self, PyObject *args)
 
 }
 
-
+char FT2Font_draw_glyphs_to_bitmap__doc__[] = 
+"draw_glyphs_to_bitmap()\n"
+"\n"
+"Draw the glyphs that were loaded by set_text to the bitmap\n"
+"The bitmap size will be automatically set to include the glyphs\n"
+;
 static PyObject *
 FT2Font_draw_glyphs_to_bitmap(FT2FontObject *self, PyObject *args)
 {
@@ -652,7 +715,7 @@ FT2Font_draw_glyph_to_bitmap(FT2FontObject *self, PyObject *args)
 
   //printf("draw_glyph_to_bitmap to image at %ld, %lu, %lu, %lu\n", 
   //x, y, self->image.width, self->image.height);            
-  //printf("bitmap props %d, %d\n",  bitmap->left, bitmap->top);            
+  printf("\tbitmap props %d, %d\n",  bitmap->left, bitmap->top);            
 
 
   draw_bitmap( &bitmap->bitmap, 
@@ -671,14 +734,14 @@ FT2Font_draw_glyph_to_bitmap(FT2FontObject *self, PyObject *args)
 }
   
 static PyMethodDef FT2Font_methods[] = {
-  {"write_bitmap",  (PyCFunction)FT2Font_write_bitmap,	METH_VARARGS},
+  {"write_bitmap",  (PyCFunction)FT2Font_write_bitmap,	METH_VARARGS, FT2Font_write_bitmap__doc__},
   {"set_bitmap_size",  (PyCFunction)FT2Font_set_bitmap_size,	METH_VARARGS, FT2Font_load_char__doc__},
-  {"draw_glyph_to_bitmap",  (PyCFunction)FT2Font_draw_glyph_to_bitmap,	METH_VARARGS},
-  {"draw_glyphs_to_bitmap",  (PyCFunction)FT2Font_draw_glyphs_to_bitmap,	METH_VARARGS},
+  {"draw_glyph_to_bitmap",  (PyCFunction)FT2Font_draw_glyph_to_bitmap,	METH_VARARGS, FT2Font_draw_glyph_to_bitmap__doc__},
+  {"draw_glyphs_to_bitmap",  (PyCFunction)FT2Font_draw_glyphs_to_bitmap,	METH_VARARGS, FT2Font_draw_glyphs_to_bitmap__doc__},
   {"load_char",	   (PyCFunction)FT2Font_load_char,	METH_VARARGS, FT2Font_load_char__doc__},
-  {"set_text",	   (PyCFunction)FT2Font_set_text,	METH_VARARGS},
-  {"set_size",	   (PyCFunction)FT2Font_set_size,	METH_VARARGS},
-  {"get_width_height",	   (PyCFunction)FT2Font_get_width_height,	METH_VARARGS},
+  {"set_text",	   (PyCFunction)FT2Font_set_text,	METH_VARARGS, FT2Font_set_text__doc__},
+  {"set_size",	   (PyCFunction)FT2Font_set_size,	METH_VARARGS, FT2Font_set_size__doc__},
+  {"get_width_height",	   (PyCFunction)FT2Font_get_width_height,	METH_VARARGS, FT2Font_get_width_height__doc__},
   {NULL,		NULL}		/* sentinel */
 };
 
