@@ -33,7 +33,9 @@ import sys
 def _fn_name(): return sys._getframe(1).f_code.co_name
 
 from matplotlib import verbose
-from matplotlib.numerix import asarray, pi #, fromstring, UInt8, zeros, where, transpose, nonzero, indices, ones, nxfrom matplotlib._matlab_helpers import Gcf
+from matplotlib.numerix import asarray, pi, fromstring, UInt8 #, zeros, where,
+     #transpose, nonzero, indices, ones, nx
+#from matplotlib._matlab_helpers import Gcf
 from matplotlib.backend_bases import RendererBase, GraphicsContextBase,\
      FigureManagerBase, FigureCanvasBase
 from matplotlib.cbook import enumerate, True, False
@@ -179,9 +181,33 @@ class RendererCairo(RendererBase):
         None
         """
         if DEBUG: print 'backend_cairo.RendererCairo.%s()' % _fn_name()
-        pass
-        # how does cairo do this?
-    
+        # why is there no gc arg?
+
+        try: import cairo.numpy
+        except:
+            verbose.report_error("cairo.numpy module required for draw_image()")
+            return
+
+        ctx = cairo.Context()
+        ctx.set_target_surface (self.surface)
+        ctx.set_matrix (self.matrix)
+
+        # bbox - not used
+        flipud = origin=='lower'
+        rows, cols, s = im.as_str(flipud)
+        
+        X = fromstring(s, UInt8)
+        X.shape = rows, cols, 4
+        # ARGB32 is incompatible with Image format? - colors are wrong
+        surface = cairo.numpy.surface_create_for_array (X)
+
+        # Alternative
+        #surface = cairo.surface_create_for_image(buffer, cairo.FORMAT_ARGB32, cols, rows) #, stride)
+        # error: TypeError: Cannot use string as modifiable buffer
+
+        ctx.translate (x,y)
+        ctx.show_surface (surface, cols, rows)
+
 
     def draw_line(self, gc, x1, y1, x2, y2):
         """
@@ -485,6 +511,7 @@ def print_figure_fn(figure, filename, dpi=150, facecolor='w', edgecolor='w',
     override this on hardcopy
 
     orientation - only currently applies to PostScript printing.
+    filename - can also be a file object, png format is assumed
     """
     if DEBUG: print 'backend_cairo.FigureCanvasCairo.%s()' % _fn_name()
 
@@ -507,7 +534,10 @@ def print_figure_fn(figure, filename, dpi=150, facecolor='w', edgecolor='w',
     figure.set_edgecolor(edgecolor)        
 
     ext = ext.lower()
-    if ext in ('png', 'ps'):
+    if isinstance(filename, file):
+        # for fileobjects assume PNG format
+        _save_png (figure, filename)
+    elif ext in ('png', 'ps'):
         try:
             fileObject = file(filename,'wb')
         except IOError, exc:
