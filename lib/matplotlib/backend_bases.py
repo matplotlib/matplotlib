@@ -5,13 +5,10 @@ graphics contexts must implement to serve as a matplotlib backend
 
 from __future__ import division
 import sys
-from numerix import array, sqrt, pi, log
-
-from cbook import True, False
 
 from cbook import is_string_like, enumerate, True, False
 from colors import colorConverter
-from numerix import asarray, ones, Float
+from numerix import array, sqrt, pi, log, asarray, ones, Float
 from patches import Rectangle
 from transforms import lbwh_to_bbox
 
@@ -341,27 +338,27 @@ class GraphicsContextBase:
               }
 
     def __init__(self):
-        self._rgb = (0.0, 0.0, 0.0)
-        self._linewidth = 1
-        self._capstyle = 'butt'
-        self._joinstyle = 'miter'
-        self._dashes = None, None
-        self._cliprect = None
-        self._linestyle = 'solid'
-        self._antialiased = 1  # use 0,1 not True, False for extension code
         self._alpha = 1.0
+        self._antialiased = 1  # use 0,1 not True, False for extension code
+        self._capstyle = 'butt'
+        self._cliprect = None
+        self._dashes = None, None
+        self._joinstyle = 'miter'
+        self._linestyle = 'solid'
+        self._linewidth = 1
+        self._rgb = (0.0, 0.0, 0.0)
     
     def copy_properties(self, gc):
         'Copy properties from gc to self'
-        self._rgb = gc._rgb
-        self._linewidth = gc._linewidth
+        self._alpha = gc._alpha
+        self._antialiased = gc._antialiased
         self._capstyle = gc._capstyle
+        self._cliprect = gc._cliprect
+        self._dashes = gc._dashes
         self._joinstyle = gc._joinstyle
         self._linestyle = gc._linestyle
-        self._dashes = gc._dashes
-        self._cliprect = gc._cliprect
-        self._antialiased = gc._antialiased
-        self._alpha = gc._alpha
+        self._linewidth = gc._linewidth
+        self._rgb = gc._rgb
         
     def get_alpha(self):
         """
@@ -442,9 +439,10 @@ class GraphicsContextBase:
         """
         Set the capstyle as a string in ('butt', 'round', 'projecting')
         """
-        if cs not in ('butt', 'round', 'projecting'):
+        if cs in ('butt', 'round', 'projecting'):
+            self._capstyle = cs
+        else:
             error_msg('Unrecognized cap style.  Found %s' % cs)
-        self._capstyle = cs
 
     def set_clip_rectangle(self, rectangle):
         """
@@ -460,7 +458,7 @@ class GraphicsContextBase:
         """
         self._dashes = dash_offset, dash_list
     
-    def set_foreground(self, fg, isRGB=None):
+    def set_foreground(self, fg, isRGB=False):
         """
         Set the foreground color.  fg can be a matlab format string, a
         html hex color string, an rgb unit tuple, or a float between 0
@@ -485,10 +483,10 @@ class GraphicsContextBase:
         """
         Set the join style to be one of ('miter', 'round', 'bevel')
         """
-        
-        if js not in ('miter', 'round', 'bevel'):
+        if js in ('miter', 'round', 'bevel'):
+            self._joinstyle = js
+        else:
             error_msg('Unrecognized join style.  Found %s' % js)
-        self._joinstyle = js
 
     def set_linewidth(self, w):
         """
@@ -506,7 +504,7 @@ class GraphicsContextBase:
             offset, dashes = self._dashd[style]
             self.set_dashes(offset, dashes)
         else:
-            error_msg('Unrecognized linestyle: %s' % style)
+            error_msg('Unrecognized linestyle:  Found %s' % style)
 
 
 class MplEvent:

@@ -67,40 +67,39 @@ cursord = {
 def GTK_WIDGET_DRAWABLE(w): flags = w.flags(); return flags & gtk.VISIBLE !=0 and flags & gtk.MAPPED != 0
 
 
-class ColorManagerGTK:
-    _cached = {}  # a map from rgb colors to gdk.Colors
-    _cmap = None
+#class ColorManagerGTK:
+#    _cached = {}  # a map from rgb colors to gdk.Colors
+#    _cmap = None
     
 
-    def set_drawing_area(self, da):
-        self._cmap = da.get_colormap()
+#    def set_drawing_area(self, da):
+#        self._cmap = da.get_colormap()
 
 
-    def get_gdk_color(self, rgb):
-    #def get_color(self, rgb):
-        """
-        Take an RGB tuple (with three 0.0-1.0 values) and return an allocated
-        gtk.gdk.Color
-        """
-        try:
-            return self._cached[tuple(rgb)]
-        except KeyError:
-            if self._cmap is None:
-                raise RuntimeError('First set the drawing area!')
+#    def get_gdk_color(self, rgb):
+#        """
+#        Take an RGB tuple (with three 0.0-1.0 values) and return an allocated
+#        gtk.gdk.Color
+#        """
+#        try:
+#            return self._cached[tuple(rgb)]
+#        except KeyError:
+#            if self._cmap is None:
+#                raise RuntimeError('First set the drawing area!')
 
-            r,g,b = rgb
-            color = self._cmap.alloc_color(
-                int(r*65535),int(g*65535),int(b*65535))
-            self._cached[tuple(rgb)] = color
-            return color
+#            r,g,b = rgb
+#            color = self._cmap.alloc_color(
+#                int(r*65535),int(g*65535),int(b*65535))
+#            self._cached[tuple(rgb)] = color
+#            return color
 
-    def get_rgb(self, color):
-        """
-        Take a gtk.gdk.Color and return an RGB tuple
-        """
-        return [val/65535 for val in (color.red, color.green, color.blue)]
+    #def get_rgb(self, color): # never used
+    #    """
+    #    Take a gtk.gdk.Color and return an RGB tuple
+    #    """
+    #    return [val/65535 for val in (color.red, color.green, color.blue)]
 
-colorManager = ColorManagerGTK()
+#colorManager = ColorManagerGTK()
 
 
 class RendererGTK(RendererBase):
@@ -180,7 +179,8 @@ class RendererGTK(RendererBase):
         
         if rgbFace:
             saveColor = gc.gdkGC.foreground
-            gc.gdkGC.foreground = colorManager.get_gdk_color(rgbFace)
+            gc.gdkGC.foreground = gc.rgb_to_gdk_color(rgbFace)
+            #gc.gdkGC.foreground = colorManager.get_gdk_color(rgbFace)
             self.gdkDrawable.draw_arc(gc.gdkGC, True, x, y, w, h, a1, a2)
             gc.gdkGC.foreground = saveColor
         self.gdkDrawable.draw_arc(gc.gdkGC, False, x, y, w, h, a1, a2)
@@ -268,7 +268,8 @@ class RendererGTK(RendererBase):
         points = [(int(x), self.height-int(y)) for x,y in points]
         if rgbFace:
             saveColor = gc.gdkGC.foreground
-            gc.gdkGC.foreground = colorManager.get_gdk_color(rgbFace)
+            gc.gdkGC.foreground = gc.rgb_to_gdk_color(rgbFace)
+            #gc.gdkGC.foreground = colorManager.get_gdk_color(rgbFace)
             self.gdkDrawable.draw_polygon(gc.gdkGC, True, points)
             gc.gdkGC.foreground = saveColor
         self.gdkDrawable.draw_polygon(gc.gdkGC, False, points)
@@ -286,7 +287,8 @@ class RendererGTK(RendererBase):
 
         if rgbFace:
             saveColor = gc.gdkGC.foreground
-            gc.gdkGC.foreground = colorManager.get_gdk_color(rgbFace)
+            gc.gdkGC.foreground = gc.rgb_to_gdk_color(rgbFace)
+            #gc.gdkGC.foreground = colorManager.get_gdk_color(rgbFace)
             self.gdkDrawable.draw_rectangle(gc.gdkGC, True, x, y, w, h)
             gc.gdkGC.foreground = saveColor
         self.gdkDrawable.draw_rectangle(gc.gdkGC, False, x, y, w, h)
@@ -464,21 +466,23 @@ class RendererGTK(RendererBase):
         inch into account
         """
         return self.dpi.get()/PIXELS_PER_INCH
-        #return self.dpi.get()/72.0
+
 
     def new_gc(self):
         return GraphicsContextGTK(renderer=self)
+
 
     def points_to_pixels(self, points):
         """
         convert point measures to pixels using dpi and the pixels per
         inch of the display
         """
-        # should return int(round(points...)) ? - saves calling fn doing the work
         return points * PIXELS_PER_INCH/72.0 * self.dpi.get()/72.0
 
 
 class GraphicsContextGTK(GraphicsContextBase):
+    # a cache shared use by all class instances
+    _cached = {}  # map: rgb color -> gdk.Color
 
     _joind = {
         'bevel' : gdk.JOIN_BEVEL,
@@ -497,6 +501,23 @@ class GraphicsContextGTK(GraphicsContextBase):
         GraphicsContextBase.__init__(self)
         self.renderer = renderer
         self.gdkGC    = gtk.gdk.GC(renderer.gdkDrawable)
+        self._cmap    = self.gdkGC.get_colormap()
+
+
+    def rgb_to_gdk_color(self, rgb):
+        """
+        Take an RGB tuple (with three 0.0-1.0 values) and return an allocated
+        gtk.gdk.Color
+        """
+        try:
+            #return self._cached[tuple(rgb)] # tuple not needed?
+            return self._cached[rgb] # tuple not needed?
+        except KeyError:
+            color = self._cmap.alloc_color(
+                int(rgb[0]*65535),int(rgb[1]*65535),int(rgb[2]*65535))
+            #self._cached[tuple(rgb)] = color
+            self._cached[rgb] = color
+            return color
 
 
     def set_clip_rectangle(self, rectangle):
@@ -521,14 +542,15 @@ class GraphicsContextGTK(GraphicsContextBase):
             self.gdkGC.line_style = gdk.LINE_ON_OFF_DASH
 
 
-    def set_foreground(self, fg, isRGB=None):
+    def set_foreground(self, fg, isRGB=False):
         """
         Set the foreground color.  fg can be a matlab format string, a
         html hex color string, an rgb unit tuple, or a float between 0
         and 1.  In the latter case, grayscale is used.
         """
         GraphicsContextBase.set_foreground(self, fg, isRGB)
-        self.gdkGC.foreground = colorManager.get_gdk_color(self.get_rgb())
+        self.gdkGC.foreground = self.rgb_to_gdk_color(self.get_rgb())
+        #self.gdkGC.foreground = colorManager.get_gdk_color(self.get_rgb())
 
 
     def set_graylevel(self, frac):
@@ -536,12 +558,12 @@ class GraphicsContextGTK(GraphicsContextBase):
         Set the foreground color to be a gray level with frac frac
         """
         GraphicsContextBase.set_graylevel(self, frac)
-        self.gdkGC.foreground = colorManager.get_gdk_color(self.get_rgb())
+        self.gdkGC.foreground = self.rgb_to_gdk_color(self.get_rgb())
+        #self.gdkGC.foreground = colorManager.get_gdk_color(self.get_rgb())
         
 
     def set_linewidth(self, w):
         GraphicsContextBase.set_linewidth(self, w)
-
         pixels = self.renderer.points_to_pixels(w)
         self.gdkGC.line_width = max(1, int(round(pixels)))
 
@@ -552,6 +574,7 @@ class GraphicsContextGTK(GraphicsContextBase):
         """
         GraphicsContextBase.set_capstyle(self, cs)
         self.gdkGC.cap_style = self._capd[self._capstyle]
+
 
     def set_joinstyle(self, js):
         """
@@ -599,11 +622,9 @@ def show(mainloop=True):
         if gtk.pygtk_version >= (2,4,0):  gtk.main()
         else:                              gtk.mainloop()
 
-def _quit_after_print_xvfb(*args):
 
+def _quit_after_print_xvfb(*args):
     for manager in Gcf.get_all_fig_managers():
-        if len(manager.canvas._printQued): break
-    else:
         gtk.main_quit()
     
 
@@ -612,7 +633,7 @@ def show_xvfb():
     Print the pending figures only then quit, no screen draw
     """
     for manager in Gcf.get_all_fig_managers():
-        manager.canvas.set_do_plot(False)
+        #manager.canvas.set_do_plot(False)
         manager.window.show()
         
     gtk.idle_add(_quit_after_print_xvfb)
@@ -646,10 +667,7 @@ class FigureCanvasGTK(gtk.DrawingArea, FigureCanvasBase):
         FigureCanvasBase.__init__(self, figure)
         gtk.DrawingArea.__init__(self)
         
-        self.set_flags(gtk.CAN_FOCUS)
-        self.grab_focus()
-        self._doplot     = True
-        self._printQued  = []
+        #self._doplot     = True
         self._idleID     = 0        # used in gtkAgg
         
         self._pixmap        = None
@@ -657,34 +675,36 @@ class FigureCanvasGTK(gtk.DrawingArea, FigureCanvasBase):
         self._pixmap_width  = -1
         self._pixmap_height = -1
 
-        self._button = None  # the button pressed
-        self._key = None     # the key pressed
-        w = figure.bbox.width()
-        h = figure.bbox.height()
-        self.set_size_request(int(w), int(h))
+        self._lastCursor = None
+        self._button     = None  # the button pressed
+        self._key        = None  # the key pressed
+
+        self.set_flags(gtk.CAN_FOCUS)
+        self.grab_focus()
+        self.set_size_request (int (figure.bbox.width()),
+                               int (figure.bbox.height()))
         self.set_double_buffered(False)
-        
+
         self.connect('key_press_event',      self.key_press_event)
         self.connect('key_release_event',    self.key_release_event)
         self.connect('expose_event',         self.expose_event)
         self.connect('configure_event',      self.configure_event)
-        self.connect('realize',              self.realize)
+        #self.connect('realize',              self.realize)
         self.connect('motion_notify_event',  self.motion_notify_event)
         self.connect('button_press_event',   self.button_press_event)
         self.connect('button_release_event', self.button_release_event)
 
-        self.set_events(
-            #gdk.FOCUS_CHANGE_MASK|
-            gdk.KEY_PRESS_MASK|
-            gdk.KEY_RELEASE_MASK|
-            gdk.EXPOSURE_MASK |
-            gdk.LEAVE_NOTIFY_MASK |
-            gdk.BUTTON_PRESS_MASK |
-            gdk.BUTTON_RELEASE_MASK |
-            gdk.POINTER_MOTION_MASK )
+        #colorManager.set_drawing_area(self)
 
-        self._lastCursor = None
-        colorManager.set_drawing_area(self)
+        self.set_events(
+            #gdk.FOCUS_CHANGE_MASK  |
+            gdk.KEY_PRESS_MASK      |
+            gdk.KEY_RELEASE_MASK    |
+            gdk.EXPOSURE_MASK       |
+            gdk.LEAVE_NOTIFY_MASK   |
+            gdk.BUTTON_PRESS_MASK   |
+            gdk.BUTTON_RELEASE_MASK |
+            gdk.POINTER_MOTION_MASK  )
 
 
     def button_press_event(self, widget, event):
@@ -749,11 +769,10 @@ class FigureCanvasGTK(gtk.DrawingArea, FigureCanvasBase):
         self.disconnect(cid)
         return None
 
-    def realize(self, widget):
-        # move to init and delete this method and remove connect()
-        # problem? backend_template has   manager.canvas.realize() in show()
-        self._ggc = self.window.new_gc() 
-        return True
+
+    #def realize(self, widget):
+    #    #self._ggc = self.window.new_gc() 
+    #    return True
 
 
     def configure_event(self, widget, event):
@@ -773,9 +792,9 @@ class FigureCanvasGTK(gtk.DrawingArea, FigureCanvasBase):
         
 
     def draw(self):
-        if self._doplot:
-            self._new_pixmap = True
-            self.expose_event(self, None)
+        #if self._doplot:
+        self._new_pixmap = True
+        self.expose_event(self, None)
 
 
     def expose_event(self, widget, event):
@@ -783,7 +802,6 @@ class FigureCanvasGTK(gtk.DrawingArea, FigureCanvasBase):
         if self._new_pixmap and GTK_WIDGET_DRAWABLE(self):
             width, height = self.allocation.width, self.allocation.height
 
-            #self._pixmap = gtk.gdk.Pixmap(self.window, width, height)
             if width > self._pixmap_width or height > self._pixmap_height:
                 if DEBUG: print 'backend_gtk.%s: new pixmap allocated' % _fn_name()
                 self._pixmap = gtk.gdk.Pixmap (self.window, width, height)
@@ -808,13 +826,13 @@ class FigureCanvasGTK(gtk.DrawingArea, FigureCanvasBase):
             filename = filename + '.' + ext
         
         if self.flags() & gtk.REALIZED == 0:
-            gtk.DrawingArea.realize(self) # for self.window and figure sizing
+            gtk.DrawingArea.realize(self) # for self.window(for pixmap) and figure sizing?
 
         # save figure settings
         origDPI       = self.figure.dpi.get()
         origfacecolor = self.figure.get_facecolor()
         origedgecolor = self.figure.get_edgecolor()
-        origW, origH  = self.window.get_size()
+        origW, origH  = int (self.figure.bbox.width()), int (self.figure.bbox.height())
 
         self.figure.dpi.set(dpi)        
         self.figure.set_facecolor(facecolor)
@@ -828,9 +846,9 @@ class FigureCanvasGTK(gtk.DrawingArea, FigureCanvasBase):
             fc = self.switch_backends(FigureCanvas)
             fc.figure.dpi.set(72)
             fc.print_figure(filename, 72, facecolor, edgecolor, orientation)
+
         elif ext in ('jpg', 'png'):
             l,b,width, height = self.figure.bbox.get_bounds()
-
             width, height = int(width), int(height)
             pixmap   = gtk.gdk.Pixmap (self.window, width, height)
             renderer = RendererGTK(self, pixmap, width, height,
@@ -861,9 +879,9 @@ class FigureCanvasGTK(gtk.DrawingArea, FigureCanvasBase):
         self.figure.set_figsize_inches(origW/origDPI, origH/origDPI)
 
 
-    def set_do_plot(self, b):
-        'True if you want to render to screen, False is hardcopy only'
-        self._doplot = b
+    #def set_do_plot(self, b):
+    #    'True if you want to render to screen, False is hardcopy only'
+    #    self._doplot = b
 
 
 class FigureManagerGTK(FigureManagerBase):

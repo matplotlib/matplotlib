@@ -12,36 +12,44 @@ import matplotlib
 matplotlib.use('GTKAgg')
 
 from matplotlib.backends.backend_gtk import NavigationToolbar, \
-     error_msg, colorManager
+     error_msg, GraphicsContextGTK
 from matplotlib.backends.backend_gtkagg import FigureCanvasGTKAgg as FigureCanvas
 
 from matplotlib.figure import Figure
 from matplotlib.lines import Line2D, lineStyles, lineMarkers
 from matplotlib.transforms import Bbox, lbwh_to_bbox
 from matplotlib.patches import draw_bbox
-from matplotlib.cbook import is_string_like
+from matplotlib.cbook import is_string_like, True, False
 from matplotlib.colors import colorConverter
+
 import gtk
 
 
 def get_color(rgb):
+    def rgb_to_gdk_color(rgb):
+        r,g,b = rgb
+        color = gtk.gdk.Color(int(r*65535), int(g*65535), int(b*65535))
+        return color
+
+    def gdk_color_to_rgb(color):
+        return color.red/65535.0, color.green/65535.0, color.blue/65535.0
+
     dialog = gtk.ColorSelectionDialog('Choose color')
 
     colorsel = dialog.colorsel
-    color = colorManager.get_color(rgb)
+    color = rgb_to_gdk_color(rgb)
     colorsel.set_previous_color(color)
     colorsel.set_current_color(color)
-    colorsel.set_has_palette(gtk.TRUE)
+    colorsel.set_has_palette(True)
 
     response = dialog.run()
 
     if response == gtk.RESPONSE_OK:
-        rgb = colorManager.get_rgb(colorsel.get_current_color())
+        rgb = gdk_color_to_rgb(colorsel.get_current_color())
     else: 
         rgb = None
     dialog.destroy()
     return rgb
-
 
 
 def make_option_menu( names, func=None ):
@@ -77,8 +85,6 @@ def make_option_menu( names, func=None ):
     return optmenu, d
 
 
-
-
 class LineDialog(gtk.Dialog):
     def __init__(self, line, fig):
         gtk.Dialog.__init__(self, 'Line Properties')
@@ -91,11 +97,9 @@ class LineDialog(gtk.Dialog):
         table.set_row_spacings(4)
         table.set_col_spacings(4)
         table.set_homogeneous(True)
-        self.vbox.pack_start(table, gtk.TRUE, gtk.TRUE)
+        self.vbox.pack_start(table, True, True)
 
         row = 0
-
-
         
         label = gtk.Label('linewidth')
         label.show()
@@ -104,11 +108,10 @@ class LineDialog(gtk.Dialog):
         entry.set_text(str(line.get_linewidth()))
         self.entryLineWidth = entry
         table.attach(label, 0, 1, row, row+1,
-                     xoptions=gtk.FALSE, yoptions=gtk.FALSE)
+                     xoptions=False, yoptions=False)
         table.attach(entry, 1, 2, row, row+1,
-                     xoptions=gtk.TRUE, yoptions=gtk.FALSE)
+                     xoptions=True, yoptions=False)
         row += 1
-
 
         self.rgbLine = colorConverter.to_rgb(self.line.get_color())
         
@@ -123,9 +126,9 @@ class LineDialog(gtk.Dialog):
         button.show()
         button.connect('clicked', set_color)
         table.attach(label, 0, 1, row, row+1,
-                     xoptions=gtk.FALSE, yoptions=gtk.FALSE)
+                     xoptions=False, yoptions=False)
         table.attach(button, 1, 2, row, row+1,
-                     xoptions=gtk.TRUE, yoptions=gtk.FALSE)
+                     xoptions=True, yoptions=False)
         row += 1
 
         
@@ -140,9 +143,9 @@ class LineDialog(gtk.Dialog):
 
         self.menuLineStyle, self.menuLineStyleItemd = make_option_menu(styles)
         table.attach(label, 0, 1, row, row+1,
-                     xoptions=gtk.FALSE, yoptions=gtk.FALSE)
+                     xoptions=False, yoptions=False)
         table.attach(self.menuLineStyle, 1, 2, row, row+1,
-                     xoptions=gtk.TRUE, yoptions=gtk.FALSE)
+                     xoptions=True, yoptions=False)
         row += 1
 
         ## marker
@@ -160,9 +163,9 @@ class LineDialog(gtk.Dialog):
 
         self.menuMarker, self.menuMarkerItemd = make_option_menu(styles)
         table.attach(label, 0, 1, row, row+1,
-                     xoptions=gtk.FALSE, yoptions=gtk.FALSE)
+                     xoptions=False, yoptions=False)
         table.attach(self.menuMarker, 1, 2, row, row+1,
-                     xoptions=gtk.TRUE, yoptions=gtk.FALSE)
+                     xoptions=True, yoptions=False)
         row += 1
         
         
@@ -205,8 +208,8 @@ class LineDialog(gtk.Dialog):
                 break
         self.destroy()            
 
-class PickerCanvas(FigureCanvas):
 
+class PickerCanvas(FigureCanvas):
     def button_press_event(self, widget, event):
         width = self.figure.bbox.width()
         height = self.figure.bbox.height()
@@ -220,7 +223,6 @@ class PickerCanvas(FigureCanvas):
         
     def select_text(self, text):
         print 'select text', text.get_text()
-
 
 
     def pick(self, x, y, epsilon=5):
@@ -263,7 +265,7 @@ class PickerCanvas(FigureCanvas):
 
                             
 win = gtk.Window()
-win.set_name("Embedding in GTK")
+win.set_name("Object Picker")
 win.connect("destroy", lambda x: gtk.main_quit())
 
 vbox = gtk.VBox()
@@ -279,15 +281,13 @@ s = sin(2*pi*t)
 ax.plot(t,s)
 ax.set_title('click on line or text')
 
-
 canvas = PickerCanvas(fig)
 canvas.show()
 vbox.pack_start(canvas)
 
 toolbar = NavigationToolbar(canvas, win)
 toolbar.show()
-vbox.pack_start(toolbar, gtk.FALSE, gtk.FALSE)
-
+vbox.pack_start(toolbar, False, False)
 
 win.show()
 gtk.main()
