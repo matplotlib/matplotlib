@@ -34,7 +34,7 @@ BUILD_GTKAGG       = 1
 BUILD_TKAGG        = 1
 
 # build a small extension to manage the focus on win32 platforms.
-BUILD_WINDOWING        = 1
+BUILD_WINDOWING        = 0
 
 ## You shouldn't need to customize below this point
 
@@ -85,7 +85,7 @@ if BUILD_IMAGE:
     build_image(ext_modules, packages, BUILD_IMAGE)
 
 setup(name="matplotlib",
-      version= '0.52.1a',
+      version= '0.52.1b',
       description = "Matlab style python plotting package",
       author = "John D. Hunter",
       author_email="jdhunter@ace.bsd.uchicago.edu",
