@@ -23,6 +23,7 @@ examples/color_demo.py
 examples/csd_demo.py
 examples/data_helper.py
 examples/dynamic_demo.py
+examples/dynamic_demo_wx.py
 examples/embedding_in_gtk.py
 examples/embedding_in_gtk2.py
 examples/embedding_in_wx.py
@@ -144,6 +145,7 @@ matplotlib/lines.py
 matplotlib/matlab.py
 matplotlib/mlab.py
 matplotlib/patches.py
+matplotlib/text.py
 matplotlib/transforms.py
 matplotlib/backends/__init__.py
 matplotlib/backends/backend_gd.py
