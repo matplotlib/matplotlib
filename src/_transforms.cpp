@@ -1157,15 +1157,11 @@ SeparableTransformation::eval_scalars(void) {
   double xmaxIn;
   double yminIn;
   double ymaxIn;
-  try {
-    xminIn  = _funcx->operator()( _b1->ll_api()->xval() );
-    xmaxIn  = _funcx->operator()( _b1->ur_api()->xval() );
-    yminIn  = _funcy->operator()( _b1->ll_api()->yval() );
-    ymaxIn  = _funcy->operator()( _b1->ur_api()->yval() );
-  }
-  catch (std::domain_error &err) {
-    throw Py::ValueError("es 1");  
-  }
+  
+  xminIn  = _funcx->operator()( _b1->ll_api()->xval() );
+  xmaxIn  = _funcx->operator()( _b1->ur_api()->xval() );
+  yminIn  = _funcy->operator()( _b1->ll_api()->yval() );
+  ymaxIn  = _funcy->operator()( _b1->ur_api()->yval() );
 
   double xminOut  = _b2->ll_api()->xval();
   double xmaxOut  = _b2->ur_api()->xval();
@@ -1208,15 +1204,9 @@ SeparableTransformation::eval_scalars(void) {
   if (_usingOffset) {
     
       _transOffset->eval_scalars();
-      try {
-	_transOffset->operator()(_xo, _yo);
-      }
-        catch (std::domain_error &err) {
-    throw Py::ValueError("es 2");  
-  }
-
-    _xot = _transOffset->xy.first;
-    _yot = _transOffset->xy.second;
+      _transOffset->operator()(_xo, _yo);
+      _xot = _transOffset->xy.first;
+      _yot = _transOffset->xy.second;
   }
 }
 
