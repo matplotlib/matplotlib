@@ -113,12 +113,11 @@ except:
     print >>sys.stderr, "Matplotlib backend_wx requires wxPython be installed"
     sys.exit()    
 
-wxapp = wxPySimpleApp()
-wxapp.SetExitOnFrameDelete(True)
-
+wxapp = None
 
 #!!! this is the call that is causing the exception swallowing !!!
 #wxInitAllImageHandlers()
+
 
 def DEBUG_MSG(string, lvl=3, o=None):
     if lvl >= _DEBUG:
@@ -164,7 +163,6 @@ from matplotlib import rcParams
 import wx
 backend_version = wx.VERSION_STRING
 
-
 # the true dots per inch on the screen; should be display dependent
 # see http://groups.google.com/groups?q=screen+dpi+x11&hl=en&lr=&ie=UTF-8&oe=UTF-8&safe=off&selm=7077.26e81ad5%40swift.cs.tcd.ie&rnum=5 for some info about screen dpi
 PIXELS_PER_INCH = 75
@@ -186,6 +184,7 @@ def raise_msg_to_str(msg):
     if not is_string_like(msg):
         msg = '\n'.join(map(str, msg))
     return msg
+
 
 class RendererWx(RendererBase):
     """
@@ -464,6 +463,7 @@ class RendererWx(RendererBase):
         """
         return points*(PIXELS_PER_INCH/72.0*self.dpi.get()/72.0)
 
+
 class GraphicsContextWx(GraphicsContextBase, wxMemoryDC):
     """
     The graphics context provides the color, line styles, etc...
@@ -652,7 +652,6 @@ class GraphicsContextWx(GraphicsContextBase, wxMemoryDC):
         b *= 255
         return wxColour(red=int(r), green=int(g), blue=int(b))
         
-
 # Filetypes supported for saving files
 _FILETYPES = {'.bmp': wxBITMAP_TYPE_BMP,
               '.jpg': wxBITMAP_TYPE_JPEG,
@@ -660,7 +659,7 @@ _FILETYPES = {'.bmp': wxBITMAP_TYPE_BMP,
               '.pcx': wxBITMAP_TYPE_PCX,
               '.tif': wxBITMAP_TYPE_TIF,
               '.xpm': wxBITMAP_TYPE_XPM}
-              
+
 class FigureCanvasWx(FigureCanvasBase, wxPanel):
     """
     The FigureCanvas contains the figure and does event handling.
@@ -691,7 +690,7 @@ class FigureCanvasWx(FigureCanvasBase, wxPanel):
         l,b,w,h = figure.bbox.get_bounds()
         w = int(math.ceil(w))
         h = int(math.ceil(h))
-        self._idle = True        
+
         wxPanel.__init__(self, parent, id, size=wxSize(w, h))
         # Create the drawing bitmap
         self.bitmap = wxEmptyBitmap(w, h)
@@ -700,6 +699,7 @@ class FigureCanvasWx(FigureCanvasBase, wxPanel):
         self._isRealized = False
         self._isConfigured = False
         self._printQued = []		
+
         # Event handlers
         EVT_SIZE(self, self._onSize)
         EVT_PAINT(self, self._onPaint)
@@ -712,7 +712,6 @@ class FigureCanvasWx(FigureCanvasBase, wxPanel):
         EVT_LEFT_UP(self, self._onLeftButtonUp)
         EVT_MOTION(self, self._onMotion)
         self.macros = {} # dict from wx id to seq of macros
-        
         self.Printer_Init()
 
     def Destroy(self, *args, **kwargs):
@@ -846,13 +845,6 @@ The current aspect ration will be kept."""
         self.renderer = RendererWx(self.bitmap, self.figure.dpi)
         self.figure.draw(self.renderer)
         self.gui_repaint()
-
-    def draw_idle(self):
-        d = self._idle
-        self._idle = False
-        if d:
-            self.draw()
-            self._idle = True
 
     def _get_imagesave_wildcards(self):
         'return the wildcard string for the filesave dialog'
@@ -1127,7 +1119,6 @@ The current aspect ration will be kept."""
 ########################################################################
 
 
-
 def draw_if_interactive():
     """
     This should be overriden in a windowing environment if drawing
@@ -1163,9 +1154,7 @@ def show():
         figwin.canvas.draw()
  
     if show._needmain and not matplotlib.is_interactive():
-        #wxapp = wx.PySimpleApp()
-        #wxapp.SetExitOnFrameDelete(True)
-        wxapp.MainLoop()
+        if wxapp is not None: wxapp.MainLoop()
         show._needmain = False        
 show._needmain = True
 
@@ -1175,8 +1164,14 @@ def new_figure_manager(num, *args, **kwargs):
     """
     # in order to expose the Figure constructor to the pylab
     # interface we need to create the figure here
-    DEBUG_MSG("new_figure_manager()", 3, None)
+    DEBUG_MSG("new_figure_manager ()", 3, None)
+    global wxapp
+    if wxapp is None:
+        wxapp = wx.PySimpleApp()
+        wxapp.SetExitOnFrameDelete(True)
+
     fig = Figure(*args, **kwargs)
+
     frame = FigureFrameWx(num, fig)
     figmgr = frame.get_figure_manager()
     if matplotlib.is_interactive():
@@ -1197,7 +1192,6 @@ class FigureFrameWx(wxFrame):
                           title="Figure %d" % num)
         DEBUG_MSG("__init__()", 1, self)
         self.num = num
-
         self.canvas = self.get_canvas(fig)
         statbar = StatusBarWx(self)
         self.SetStatusBar(statbar)
@@ -1205,7 +1199,6 @@ class FigureFrameWx(wxFrame):
         self.sizer.Add(self.canvas, 1, wxTOP | wxLEFT | wxEXPAND)
         # By adding toolbar in sizer, we are able to put it at the bottom
         # of the frame - so appearance is closer to GTK version
-
 
         if matplotlib.rcParams['toolbar']=='classic':
             self.toolbar = NavigationToolbarWx(self.canvas, True)
@@ -1260,7 +1253,8 @@ class FigureFrameWx(wxFrame):
         wxFrame.Destroy(self, *args, **kwargs)
         if self.toolbar is not None:
             self.toolbar.Destroy()
-            
+
+
 class FigureManagerWx(FigureManagerBase):
     """
     This class contains the FigureCanvas and GUI frame
@@ -1334,6 +1328,7 @@ def _load_bitmap(filename):
 
     bmp = wxBitmap(bmpFilename, wxBITMAP_TYPE_XPM)
     return bmp
+
 
 class MenuButtonWx(wxButton):
     """
@@ -1439,6 +1434,7 @@ cursord = {
     cursors.SELECT_REGION : wxCURSOR_CROSS,
     }
 
+
 class NavigationToolbar2Wx(NavigationToolbar2, wxToolBar):
     def __init__(self, canvas):
         wxToolBar.__init__(self, canvas.GetParent(), -1)
@@ -1507,7 +1503,11 @@ class NavigationToolbar2Wx(NavigationToolbar2, wxToolBar):
         except AttributeError: pass
 
     def dynamic_update(self):
-        self.canvas.draw_idle()
+        d = self._idle
+        self._idle = False
+        if d:
+            self.canvas.draw()
+            self._idle = True
         
     def draw_rubberband(self, event, x0, y0, x1, y1):
         'adapted from http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/189744'
@@ -1556,6 +1556,7 @@ class NavigationToolbar2Wx(NavigationToolbar2, wxToolBar):
 
     def set_message(self, s):
         if self.statbar is not None: self.statbar.set_function(s)
+
 
 class NavigationToolbarWx(wxToolBar):
     def __init__(self, canvas, can_kill=False):

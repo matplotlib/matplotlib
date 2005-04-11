@@ -633,7 +633,7 @@ class Axes(Artist):
         a.set_figure(self.figure)
         if not a.is_transform_set():
             a.set_transform(self.transData)
-
+        a.axes = self
 
     def cla(self):
         'Clear the current axes'
@@ -758,7 +758,7 @@ class Axes(Artist):
         #for x,y in xys: print x,y
         self.update_datalim(xys)
         self.patches.append(p)
-
+        
     def add_table(self, tab):
         'Add a table instance to the list of axes tables'
         self._set_artist_props(tab)

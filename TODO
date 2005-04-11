@@ -691,10 +691,16 @@ ZeroDivisionError: SeparableTransformation::eval_scalars yin interval is zero; c
 
 -- DONE hide lazy values make dpi and friends setters
 
--- add a get description to axes which returns the args and kwargs to construct it 
+-- add a get description to axes which returns the args and kwargs to
+   construct it
 
 -- restore __all__ to pylab and add ArtistInspector
 
-
 -- create set_window_title in the figure manager interface expose this
    in the figure command
+
+-- multiple tick marks
+
+-- colorbar not updating in CVS
+
+-- tkagg figure not launching new figure until plot is called?

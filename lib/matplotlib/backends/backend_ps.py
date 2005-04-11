@@ -1,6 +1,6 @@
 """
 A PostScript backend, which can produce both PostScript .ps and
-Encapsulated PostScript .eps files.
+
 """
 
 from __future__ import division
@@ -102,7 +102,6 @@ class RendererPS(RendererBase):
         self.fontsize = None
 
     def set_color(self, r, g, b, store=1):
-        # why is this comparison failing??
         if (r,g,b) != self.color:
             if r==g and r==b:
                 self._pswriter.write("%1.3f setgray\n"%r)
@@ -300,14 +299,15 @@ grestore
         ps = '%1.3f %1.3f m %1.3f %1.3f l'%(x0, y0, x1, y1)
         self._draw_ps(ps, gc, None, "line")
         
-    def _draw_markers(self, gc, path, rgbFace, x, y, transform):
+    def draw_markers(self, gc, path, rgbFace, x, y, transform):
         """
         Draw the markers defined by path at each of the positions in x
         and y.  path coordinates are points, x and y coords will be
         transformed by the transform
         """
         if debugPS: self._pswriter.write('% draw_markers \n')
-            
+        
+
         if rgbFace:
             if rgbFace[0]==rgbFace[0] and rgbFace[0]==rgbFace[2]:
                 ps_color = '%1.3f setgray' % rgbFace[0]
@@ -351,10 +351,10 @@ grestore
                 pass
             else: print code
         if rgbFace:
-                ps_cmd.append('gsave')
-                ps_cmd.append(ps_color)
-                ps_cmd.append('fill')
-                ps_cmd.append('grestore')
+            ps_cmd.append('gsave')
+            ps_cmd.append(ps_color)
+            ps_cmd.append('fill')
+            ps_cmd.append('grestore')
         ps_cmd.append('stroke')
         ps_cmd.append('grestore') # undo translate()
         ps_cmd = '\n'.join(ps_cmd)
