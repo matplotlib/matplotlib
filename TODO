@@ -701,6 +701,6 @@ ZeroDivisionError: SeparableTransformation::eval_scalars yin interval is zero; c
 
 -- multiple tick marks
 
--- colorbar not updating in CVS
+-- DONE colorbar not updating in CVS
 
 -- tkagg figure not launching new figure until plot is called?

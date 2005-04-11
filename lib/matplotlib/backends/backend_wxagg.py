@@ -27,7 +27,6 @@ import backend_wx
 from matplotlib.figure import Figure
 from matplotlib import rcParams
 import matplotlib
-from wxPython.wx import *
 import wx
 
 class FigureFrameWxAgg(FigureFrameWx):
@@ -56,7 +55,7 @@ class FigureCanvasWxAgg(FigureCanvasWx,FigureCanvasAgg):
         s = self.tostring_rgb()  
         w = int(self.renderer.width)
         h = int(self.renderer.height)
-        image = wxEmptyImage(w,h)
+        image = wx.EmptyImage(w,h)
         image.SetData(s)
         self.bitmap = image.ConvertToBitmap()
         self.gui_repaint()

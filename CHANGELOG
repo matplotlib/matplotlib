@@ -1,6 +1,15 @@
 New entries should be added at the top
 
-2005-04-11 fixed wxapp init bug
+2005-04-11 Incorporated Werner's wx patch -- wx backend should be
+           compatible with wxpython2.4 and recent versions of 2.5.
+           Some early versions of wxpython 2.5 will not work because
+           there was a temporary change in the dc API that was rolled
+           back to make it 2.4 compliant
+
+2005-04-11 modified tkagg show so that new figure window pops up on
+           call to figure
+
+2005-04-11 fixed wxapp init bug 
 
 2005-04-02 updated backend_ps.draw_lines, draw_markers for use with the
            new API - DSD

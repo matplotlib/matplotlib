@@ -84,6 +84,8 @@ def new_figure_manager(num, *args, **kwargs):
     window = Tk.Tk()
     canvas = FigureCanvasTkAgg(figure, master=window)    
     figManager = FigureManagerTkAgg(canvas, num, window)
+    if matplotlib.is_interactive():
+        figManager.show()
     return figManager
 
 
@@ -286,7 +288,8 @@ class FigureManagerTkAgg(FigureManagerBase):
             self.window.deiconify()
             # anim.py requires this
             if sys.platform=='win32' : self.window.update()            
-        else: self.canvas.draw()
+        else:
+            self.canvas.draw()
         self._shown = True
 
 
