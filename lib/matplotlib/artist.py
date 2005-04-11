@@ -39,7 +39,28 @@ class Artist:
         self._clipon = False
         self._lod = False
         self._label = ''
-        
+
+        self.eventson = False  # fire events only if eventson
+        self._oid = 0  # an observer id
+        self._propobservers = {} # a dict from oids to funcs
+
+
+
+    def add_callback(self, func):
+        oid = self._oid
+        self._propobservers[oid] = func
+        self._oid += 1
+        return oid
+
+    def remove_callback(self, oid):        
+        try: del self._propobservers[oid]
+        except KeyError: pass
+
+    def pchanged(self):
+        'fire event when property changed'
+        for oid, func in self._propobservers.items():
+            func(self)
+            
     def is_transform_set(self):
         'Artist has transform explicity let'                
         return self._transformSet
@@ -52,7 +73,8 @@ ACCEPTS: a matplotlib.transform transformation instance
 """
         self._transform = t
         self._transformSet = True
-
+        self.pchanged()
+        
     def get_transform(self):
         'return the Transformation instance used by this artist'
         return self._transform
@@ -71,7 +93,8 @@ Set the figure instance the artist belong to
 ACCEPTS: a matplotlib.figure.Figure instance
         """
         self.figure = fig
-                
+        self.pchanged()
+        
     def set_clip_box(self, clipbox):        
         """
 Set the artist's clip Bbox
@@ -80,6 +103,7 @@ ACCEPTS: a matplotlib.transform.Bbox instance
         """
         self.clipbox = clipbox
         self._clipon = clipbox is not None
+        self.pchanged()
         
     def get_alpha(self):
         """
@@ -87,7 +111,7 @@ Return the alpha value used for blending - not supported on all
 backends
         """
         return self._alpha
-
+    
     def get_visible(self):
         "return the artist's visiblity"
         return self._visible 
@@ -95,6 +119,10 @@ backends
     def get_clip_on(self):
         'Return whether artist uses clipping'
         return self._clipon and self.clipbox is not None
+
+    def get_clip_box(self):
+        'Return artist clipbox'
+        return self.clipbox
 
     def set_clip_on(self, b):
         """
@@ -104,7 +132,7 @@ ACCEPTS: [True | False]
 """
         self._clipon = b
         if not b: self.clipbox = None
-        
+        self.pchanged()
     def draw(self, renderer, *args, **kwargs):
         'Derived classes drawing method'
         if not self.get_visible(): return 
@@ -117,7 +145,7 @@ all backends
 ACCEPTS: float
         """
         self._alpha = alpha
-
+        self.pchanged()
 
     def set_lod(self, on):
         """
@@ -128,7 +156,8 @@ their contents accordingly
 ACCEPTS: [True | False]
         """
         self._lod = on
-
+        self.pchanged()
+        
     def set_visible(self, b):
         """
 set the artist's visiblity
@@ -136,15 +165,24 @@ set the artist's visiblity
 ACCEPTS: [True | False]
 """
         self._visible = b
+        self.pchanged()
 
     def update(self, props):
+        store = self.eventson
+        self.eventson = False
+        changed = False
         for k,v in props.items():
             func = getattr(self, 'set_'+k, None)
             if func is None or not callable(func):
                 raise AttributeError('Unknown property %s'%k)
             func(v)
+            changed = True
+        self.eventson = store
+        if changed: self.pchanged()
+        
 
-    def get_label(self): return self._label
+    def get_label(self):
+        return self._label
 
     def set_label(self, s):
         """
@@ -153,6 +191,7 @@ Set the line label to s for auto legend
 ACCEPTS: any string
 """
         self._label = s
+        self.pchanged()
 
     def get_zorder(self): return self.zorder
 
@@ -163,6 +202,7 @@ Set the zorder for the artist
 ACCEPTS: any number
 """
         self.zorder = level
+        self.pchanged()
     
     def update_from(self, other):
         'copy properties from other to self'
@@ -174,7 +214,7 @@ ACCEPTS: any number
         self._clipon = other._clipon
         self._lod = other._lod
         self._label = other._label
-        
+        self.pchanged()
 
 class ArtistInspector:
     """
@@ -422,3 +462,6 @@ def set(h, *args, **kwargs):
             ret.extend( [func(val)] )
     return [x for x in flatten(ret)]
 
+
+    
+    

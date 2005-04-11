@@ -22,10 +22,13 @@ from backend_wx import FigureManagerWx, FigureCanvasWx, FigureFrameWx, \
      DEBUG_MSG
 from backend_wx import error_msg_wx, draw_if_interactive, show, Toolbar, \
      backend_version
+import backend_wx
+
 from matplotlib.figure import Figure
 from matplotlib import rcParams
 import matplotlib
 from wxPython.wx import *
+import wx
 
 class FigureFrameWxAgg(FigureFrameWx):
     def get_canvas(self, fig):
@@ -87,6 +90,10 @@ def new_figure_manager(num, *args, **kwargs):
     # interface we need to create the figure here
     DEBUG_MSG("new_figure_manager()", 3, None)
 
+    if backend_wx.wxapp is None:
+        backend_wx.wxapp = wx.PySimpleApp()
+        backend_wx.wxapp.SetExitOnFrameDelete(True)
+    
     fig = Figure(*args, **kwargs)
     frame = FigureFrameWxAgg(num, fig)
     figmgr = frame.get_figure_manager()

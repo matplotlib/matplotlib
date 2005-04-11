@@ -432,6 +432,11 @@ simply make that subplot current and return it
           'upper center' : 9,
           'center'       : 10,
 
+        loc can also be an (x,y) tuple in figure coords, which
+        specifies the lower left of the legend box.  figure coords are
+        (0,0) is the left, bottom of the figure and 1,1 is the right,
+        top.
+
         The legend instance is returned
         """
 
@@ -578,6 +583,7 @@ all backends; currently only on postscript output."""
                           extent=extent)
         mappable.add_observer(coll)
         mappable.set_colorbar(coll, cax)
+
         if orientation=='vertical':
             cax.set_xticks([])
             cax.yaxis.tick_right()

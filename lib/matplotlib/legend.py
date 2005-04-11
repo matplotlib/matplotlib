@@ -99,7 +99,7 @@ class Legend(Artist):
   loc                   # a location code
   isaxes=True           # whether this is an axes legend
   numpoints = 4         # the number of points in the legend line
-  fontprop = FontProperties('smaller')  # the font property
+  fontprop = FontProperties(size='smaller')  # the font property
   pad = 0.2             # the fractional whitespace inside the legend border
   markerscale = 0.6     # the relative size of legend markers vs. original
   shadow                # if True, draw a shadow behind legend 

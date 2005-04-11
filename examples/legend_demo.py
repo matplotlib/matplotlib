@@ -37,8 +37,8 @@ frame  = leg.get_frame()  # the patch.Rectangle instance surrounding the legend
 # see text.Text, lines.Line2D, and patches.Rectangle for more info on
 # the settable properties of lines, text, and rectangles
 frame.set_facecolor(0.80)     # set the frame face color to light gray
-set(ltext, 'fontsize', 'small')    # the legend text fontsize
-set(llines, 'linewidth', 1.5) # the legend linewidth
+set(ltext, fontsize='small')    # the legend text fontsize
+set(llines, linewidth=1.5) # the legend linewidth
 #leg.draw_frame(False)         # don't draw the legend frame
 #savefig('legend_demo')
 show()

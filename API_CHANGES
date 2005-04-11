@@ -17,7 +17,7 @@ API CHANGES in matplotlib-0.72
   pylab figure now defaults to num=None, which creates a new figure
   with a guaranteed unique number 
 
-  contour method syntax changed - now it is matlab compatible
+  contsour method syntax changed - now it is matlab compatible
 
     unchanged: contour(Z)
     old: contour(Z, x=Y, y=Y)
