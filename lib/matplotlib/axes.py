@@ -1,4 +1,3 @@
-
 from __future__ import division, generators
 
 import math, sys
@@ -2892,22 +2891,55 @@ class Axes(Artist):
             func(self)
 
 
-    def set_xlim(self, v, emit=True):
+    def set_xlim(self, *args, **kwargs):    
         """
-        SET_XLIM(v, emit=True)
+        set_xlim(self, *args, **kwargs):
 
         Set the limits for the xaxis; v = [xmin, xmax]
+        
+        set_xlim((valmin, valmax))
+        set_xlim(valmin, valmax)
+        set_xlim(xmin=1) # xmax unchanged
+        set_xlim(xmax=1) # xmin unchanged
 
-        If emit is false, do not trigger an event
+        Valid kwargs:
+
+        xmin : the min of the xlim
+        xmax : the max of the xlim        
+        emit : notify observers of lim change
+        
+
+        Returns the current xlimits as a length 2 tuple
 
         ACCEPTS: len(2) sequence of floats
         """
-        vmin, vmax = v
+        
+        vmin, vmax = self.get_xlim()
+
+        xmin = popd(kwargs, 'xmin', None)
+        xmax = popd(kwargs, 'xmax', None)
+        emit = popd(kwargs, 'emit', False)                
+        if len(args)!=0 and (xmin is not None or xmax is not None):
+            raise TypeError('You cannot pass args and xmin/xmax kwargs')
+
+        if len(args)==0:
+            if xmin is not None: vmin = xmin
+            if xmax is not None: vmax = xmax
+        elif len(args)==1:
+            vmin, vmax = args[0]
+        elif len(args)==2:
+            vmin, vmax = args
+        else:
+            raise ValueError('args must be length 0, 1 or 2')
+        
+            
+        
         if self.transData.get_funcx().get_type()==LOG10 and min(vmin, vmax)<=0:
             raise ValueError('Cannot set nonpositive limits with log transform')
-        self.viewLim.intervalx().set_bounds(*v)
+        
+        self.viewLim.intervalx().set_bounds(vmin, vmax)
         if emit: self._send_xlim_event()
-
+        return vmin, vmax
 
     def set_xscale(self, value, basex = 10, subsx=None):
         """
@@ -2980,20 +3012,56 @@ class Axes(Artist):
         label.update(kwargs)
         return label
 
-    def set_ylim(self, v, emit=True):
-        """
-        SET_YLIM(v, emit=True)
 
-        Set the limits for the xaxis; v = [ymin, ymax].  If emit is false, do
-        not trigger an event.
+    def set_ylim(self, *args, **kwargs):    
+        """
+        set_ylim(self, *args, **kwargs):
+
+        Set the limits for the yaxis; v = [ymin, ymax]
+        
+        set_ylim((valmin, valmax))
+        set_ylim(valmin, valmax)
+        set_ylim(ymin=1) # ymax unchanged
+        set_ylim(ymax=1) # ymin unchanged
+
+        Valid kwargs:
+
+        ymin : the min of the ylim
+        ymax : the max of the ylim        
+        emit : notify observers of lim change
+        
+
+        Returns the current ylimits as a length 2 tuple
 
         ACCEPTS: len(2) sequence of floats
         """
-        vmin, vmax = v
+        
+        vmin, vmax = self.get_ylim()
+
+        ymin = popd(kwargs, 'ymin', None)
+        ymax = popd(kwargs, 'ymax', None)
+        emit = popd(kwargs, 'emit', False)                
+        if len(args)!=0 and (ymin is not None or ymax is not None):
+            raise TypeError('You cannot pass args and ymin/ymax kwargs')
+
+        if len(args)==0:
+            if ymin is not None: vmin = ymin
+            if ymax is not None: vmax = ymax
+        elif len(args)==1:
+            vmin, vmax = args[0]
+        elif len(args)==2:
+            vmin, vmax = args
+        else:
+            raise ValueError('args must be length 0, 1 or 2')
+        
+            
+        
         if self.transData.get_funcy().get_type()==LOG10 and min(vmin, vmax)<=0:
             raise ValueError('Cannot set nonpositive limits with log transform')
-        self.viewLim.intervaly().set_bounds(*v)
+        
+        self.viewLim.intervaly().set_bounds(vmin, vmax)
         if emit: self._send_ylim_event()
+        return vmin, vmax
 
     def set_yscale(self, value, basey=10, subsy=None):
         """

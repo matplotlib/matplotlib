@@ -1,3 +1,10 @@
+API CHANGES in matplotlib-0.75
+
+  xlim/ylim/axis always return the new limits regardless of arguments.
+  They now take kwargs which allow you to selectively change the upper
+  or lower limits while leaving unnamed limits unchanged.  See
+  help(xlim) for example
+
 API CHANGES in matplotlib-0.73
 
   Removed deprecated ColormapJet and friends

@@ -484,7 +484,7 @@ def raise_msg_to_str(msg):
 
 
 
-def axis(*v):
+def axis(*v, **kwargs):
     """
     Set/Get the axis properties::
 
@@ -497,6 +497,13 @@ def axis(*v):
 
         axis('equal') sets the xlim width and ylim height to be to be
             identical.  The longer of the two intervals is chosen
+
+
+       if len(*v)==0, you can pass in xmin, xmax, ymin, ymax as kwargs
+       selectively to alter just those limits w/o changing the others.
+       See help(xlim) and help(ylim) for more information
+
+       The xmin, xmax, ymin, ymax tuple is returned
 
     """
 
@@ -520,21 +527,28 @@ def axis(*v):
 
         else:
             raise ValueError('Unrecognized string %s to axis; try on or off' % s)
-        return
+        ax  = gca()
+        xmin, xmax = ax.get_xlim() 
+        ymin, ymax = ax.get_ylim()
+        draw_if_interactive()
+        return xmin, xmax, ymin, ymax
 
     try: v[0]
     except IndexError:
-        xlim = gca().get_xlim()
-        ylim = gca().get_ylim()
-        return [xlim[0], xlim[1], ylim[0], ylim[1]]
+        xmin, xmax = gca().set_xlim(**kwargs)
+        ymin, ymax = gca().set_ylim(**kwargs)
+        draw_if_interactive()
+        return [xmin, xmax, ymin, ymax]
 
     v = v[0]
     if len(v) != 4:
         raise ValueError('v must contain [xmin xmax ymin ymax]')
-
+    
+    
     gca().set_xlim([v[0], v[1]])
     gca().set_ylim([v[2], v[3]])
     draw_if_interactive()
+    return v
 
 def axes(*args, **kwargs):
     """
@@ -1099,14 +1113,21 @@ def xlim(*args, **kwargs):
     xmin, xmax = xlim()   : return the current xlim
     xlim( (xmin, xmax) )  : set the xlim to xmin, xmax
     xlim( xmin, xmax )    : set the xlim to xmin, xmax
+
+    If you do not specify args, you can pass the xmin and xmax as
+    kwargs, eg
+
+      xlim(xmax=3) # adjust the max leaving min unchanged
+      xlim(xmin=1) # adjust the min leaving max unchanged
+
+    The new axis limits are returned as a length 2 tuple
+
     """
     ax = gca()
-    if len(args)==0: return ax.get_xlim()
-    elif len(args)==1: lim = ax.set_xlim(args)
-    elif len(args)==2: lim = ax.set_xlim((args[0], args[1]))
-    else: raise TypeError('Illegal number of arguments to xlim')
+    ret = ax.set_xlim(*args, **kwargs)
     draw_if_interactive()
-    return lim
+    return ret
+
 
 def ylim(*args, **kwargs):
     """
@@ -1115,14 +1136,23 @@ def ylim(*args, **kwargs):
     ymin, ymax = ylim()   : return the current ylim
     ylim( (ymin, ymax) )  : set the ylim to ymin, ymax
     ylim( ymin, ymax )    : set the ylim to ymin, ymax
+
+    If you do not specify args, you can pass the ymin and ymax as
+    kwargs, eg
+
+      ylim(ymax=3) # adjust the max leaving min unchanged
+      ylim(ymin=1) # adjust the min leaving max unchanged
+
+    The new axis limits are returned as a length 2 tuple
+
     """
     ax = gca()
-    if len(args)==0: return ax.get_ylim()
-    elif len(args)==1: lim = ax.set_ylim(args)
-    elif len(args)==2: lim = ax.set_ylim((args[0], args[1]))
-    else: raise TypeError('Illegal number of arguments to ylim')
+    ret = ax.set_ylim(*args, **kwargs)
     draw_if_interactive()
-    return lim
+    return ret
+
+
+
 
 def xticks(*args, **kwargs):
     """

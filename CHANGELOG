@@ -1,5 +1,11 @@
 New entries should be added at the top
 
+2005-04-11 Applied a variant of rick's xlim/ylim/axis patch.  These
+           functions now take kwargs to let you selectively alter only
+           the min or max if desired.  Eg xlim(xmin=2) or
+           axis(ymax=3).  They always return the new lim
+
+
 2005-04-11 Incorporated Werner's wx patch -- wx backend should be
            compatible with wxpython2.4 and recent versions of 2.5.
            Some early versions of wxpython 2.5 will not work because
