@@ -690,7 +690,7 @@ class FigureCanvasWx(FigureCanvasBase, wx.Panel):
         l,b,w,h = figure.bbox.get_bounds()
         w = int(math.ceil(w))
         h = int(math.ceil(h))
-
+ 
         wx.Panel.__init__(self, parent, id, size=wx.Size(w, h))
         # Create the drawing bitmap
         self.bitmap =wx.EmptyBitmap(w, h)
