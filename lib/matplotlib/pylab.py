@@ -791,7 +791,8 @@ def gca(**kwargs):
       a.set_xlim([0,10])          # does the same
     """
 
-    return gcf().gca(**kwargs)
+    ax =  gcf().gca(**kwargs)
+    return ax
 
 def gcf():
     "Return a handle to the current figure"

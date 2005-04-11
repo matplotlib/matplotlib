@@ -349,7 +349,9 @@ grestore
                 ps_cmd.append('closepath')
             elif code == agg.path_cmd_mask:
                 pass
-            else: print code
+            else:
+                pass
+                #print code
         if rgbFace:
             ps_cmd.append('gsave')
             ps_cmd.append(ps_color)

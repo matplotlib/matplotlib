@@ -173,7 +173,7 @@ def new_figure_manager(num, *args, **kwargs):
     # if a main-level app must be created, this is the usual place to
     # do it -- see backend_wx, backend_wxagg and backend_tkagg for
     # examples.  Not all GUIs require explicit instantiation of a
-    # main-level app (egg backend_gtk, backend_gtkagg)
+    # main-level app (egg backend_gtk, backend_gtkagg) for pylab
 
     thisFig = Figure(*args, **kwargs)
     canvas = FigureCanvasTemplate(thisFig)
