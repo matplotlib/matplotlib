@@ -5,7 +5,7 @@ specifying the legend location
 
 The location codes are
 
-  'best'         : 0,  (currently not supported, defaults to upper right)
+  'best'         : 0,  
   'upper right'  : 1,  (default)
   'upper left'   : 2,
   'lower left'   : 3,
@@ -45,7 +45,7 @@ class Legend(Artist):
 
     The location codes are
 
-      'best'         : 0,  (currently not supported, defaults to upper right)
+      'best'         : 0, 
       'upper right'  : 1,  (default)
       'upper left'   : 2,
       'lower left'   : 3,
@@ -113,7 +113,7 @@ The following dimensions are in axes coords
         Artist.__init__(self)
         if is_string_like(loc) and not self.codes.has_key(loc):
             warnings.warn('Unrecognized location %s. Falling back on upper right; valid locations are\n%s\t' %(loc, '\n\t'.join(self.codes.keys())))
-        if is_string_like(loc): loc = self.codes.get(loc, 0)
+        if is_string_like(loc): loc = self.codes.get(loc, 1)
         
         self.numpoints = numpoints
         self.prop = prop

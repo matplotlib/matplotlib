@@ -299,7 +299,7 @@ grestore
         ps = '%1.3f %1.3f m %1.3f %1.3f l'%(x0, y0, x1, y1)
         self._draw_ps(ps, gc, None, "line")
         
-    def draw_markers(self, gc, path, rgbFace, x, y, transform):
+    def _draw_markers(self, gc, path, rgbFace, x, y, transform):
         """
         Draw the markers defined by path at each of the positions in x
         and y.  path coordinates are points, x and y coords will be

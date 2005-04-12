@@ -681,7 +681,7 @@ ZeroDivisionError: SeparableTransformation::eval_scalars yin interval is zero; c
 
 -- axes packing sizes
 
--- direction fields
+-- DONE direction fields
 
 -- DONE add a force option to the add_axes code.
 
@@ -691,7 +691,7 @@ ZeroDivisionError: SeparableTransformation::eval_scalars yin interval is zero; c
 
 -- DONE hide lazy values make dpi and friends setters
 
--- add a get description to axes which returns the args and kwargs to
+-- CLOSED add a get description to axes which returns the args and kwargs to
    construct it
 
 -- restore __all__ to pylab and add ArtistInspector
@@ -703,4 +703,4 @@ ZeroDivisionError: SeparableTransformation::eval_scalars yin interval is zero; c
 
 -- DONE colorbar not updating in CVS
 
--- tkagg figure not launching new figure until plot is called?
+-- DONE tkagg figure not launching new figure until plot is called?
