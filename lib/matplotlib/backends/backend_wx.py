@@ -1216,8 +1216,10 @@ class FigureFrameWx(wx.Frame):
             pos = wx.DefaultPosition
         else:
             pos =wx.Point(20,20)
+        l,b,w,h = fig.bbox.get_bounds()
         wx.Frame.__init__(self, parent=None, id=-1, pos=pos,
-                          title="Figure %d" % num)
+                          title="Figure %d" % num,
+                          size=(w,h))
         DEBUG_MSG("__init__()", 1, self)
         self.num = num
 

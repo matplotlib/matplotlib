@@ -104,6 +104,7 @@ class CanvasFrame(wxFrame):
 
     def OnPaint(self, event):
         self.canvas.draw()
+        event.Skip()
         
 class App(wxApp):
     
