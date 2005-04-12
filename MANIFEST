@@ -352,6 +352,7 @@ examples/picker_demo.py
 examples/pie_demo.py
 examples/polar_demo.py
 examples/polar_scatter.py
+examples/poly_editor.py
 examples/poormans_contour.py
 examples/print_stdout.py
 examples/printing_in_wx.py
