@@ -752,7 +752,7 @@ class FigureCanvasBase:
         """
         draw only if idle; defaults to draw but backends can overrride
         """
-        self.draw(self, *args, **kwargs)
+        self.draw(*args, **kwargs)
 
     def draw_cursor(self, event):
         """
