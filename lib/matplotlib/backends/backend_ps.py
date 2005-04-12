@@ -397,7 +397,7 @@ grestore
         point in x, y
         """
         if debugPS: self._pswriter.write('% draw_lines \n')
-
+ 
         if transform:
             if transform.need_nonlinear():
                 x, y = transform.nonlinear_only_numerix(x, y)
