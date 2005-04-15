@@ -35,7 +35,7 @@ basedir = {
     'win32'  : ['win32_static',],
     'linux2' : ['/usr/local', '/usr',],
     'linux'  : ['/usr/local', '/usr',],
-    'darwin' : ['/usr/local', '/usr', '/sw', '/usr/X11R6'],
+    'darwin' : ['/sw/lib/freetype219', '/usr/local', '/usr', '/sw', '/usr/X11R6'],
     'freebsd4' : ['/usr/local', '/usr'],
     'freebsd5' : ['/usr/local', '/usr'],
     'freebsd6' : ['/usr/local', '/usr'],    

@@ -799,7 +799,7 @@ Transformation::seq_x_y(const Py::Tuple & args) {
 }
 
 Py::Object
-Transformation::numerix_x_y(const Py::Tuple & args) {
+Transformation::numerix_x_y(const Py::Tuple & args, const Py::Dict &kwargs) {
   _VERBOSE("Transformation::numerix_x_y");
   args.verify_length(2);
 
@@ -880,10 +880,14 @@ Transformation::numerix_x_y(const Py::Tuple & args) {
 }
 
 Py::Object
-Transformation::nonlinear_only_numerix(const Py::Tuple & args) {
+Transformation::nonlinear_only_numerix(const Py::Tuple & args, const Py::Dict &kwargs) {
   _VERBOSE("Transformation::nonlinear_only_numerix");
   args.verify_length(2);
 
+  int returnMask = false;
+  if (kwargs.hasKey("returnMask")) {
+    returnMask = Py::Int(kwargs["returnMask"]);
+  }
 
   Py::Object xo = args[0];
   Py::Object yo = args[1];
@@ -921,34 +925,77 @@ Transformation::nonlinear_only_numerix(const Py::Tuple & args) {
   if (rety==NULL) {
     Py_XDECREF(x);
     Py_XDECREF(y);
+    Py_XDECREF(retx);
     throw Py::RuntimeError("Could not create return x array");
   }
+
+  PyArrayObject *retmask = NULL;
+  
+  if (returnMask) {
+    retmask = (PyArrayObject *)PyArray_FromDims(1,dimensions,PyArray_UBYTE);
+    if (retmask==NULL) {
+      Py_XDECREF(x);
+      Py_XDECREF(y);
+      Py_XDECREF(retx);
+      Py_XDECREF(rety);
+      throw Py::RuntimeError("Could not create return mask array");
+    }
+
+  }
+
 
   for (size_t i=0; i< Nx; ++i) {
 
     double thisx = *(double *)(x->data + i*x->strides[0]);
     double thisy = *(double *)(y->data + i*y->strides[0]);
-    //std::cout << "calling operator " << thisx << " " << thisy << " " << std::endl;
     try {
       this->nonlinear_only_api(&thisx, &thisy);
     }
     catch(...) {
-      throw Py::ValueError("Domain error on this->nonlinear_only_api(&thisx, &thisy) in Transformation::nonlinear_only_numerix");  
+
+      if (returnMask) {
+	*(unsigned char *)(retmask->data + i*retmask->strides[0]) = 0;
+	*(double *)(retx->data + i*retx->strides[0]) = 0.0;
+	*(double *)(rety->data + i*rety->strides[0]) = 0.0;
+	continue;
+      }
+      else {
+	throw Py::ValueError("Domain error on this->nonlinear_only_api(&thisx, &thisy) in Transformation::nonlinear_only_numerix");  
+      }
     }
 
     *(double *)(retx->data + i*retx->strides[0]) = thisx;
     *(double *)(rety->data + i*rety->strides[0]) = thisy;
+    if (returnMask) {
+      *(unsigned char *)(retmask->data + i*retmask->strides[0]) = 1;
+    }
+
   }
   
   Py_XDECREF(x);
   Py_XDECREF(y);
+  
+  if (returnMask) {
+    Py::Tuple ret(3);
+    ret[0] = Py::Object((PyObject*)retx);
+    ret[1] = Py::Object((PyObject*)rety);
+    ret[2] = Py::Object((PyObject*)retmask);
+    Py_XDECREF(retx);
+    Py_XDECREF(rety);
+    Py_XDECREF(retmask);
+    return ret;
+  }
+  else {
+    Py::Tuple ret(2);
+    ret[0] = Py::Object((PyObject*)retx);
+    ret[1] = Py::Object((PyObject*)rety);
+    Py_XDECREF(retx);
+    Py_XDECREF(rety);
+    return ret;
 
-  Py::Tuple ret(2);
-  ret[0] = Py::Object((PyObject*)retx);
-  ret[1] = Py::Object((PyObject*)rety);
-  Py_XDECREF(retx);
-  Py_XDECREF(rety);
-  return ret;
+  }
+
+
 }
 
 Py::Object
@@ -1863,8 +1910,8 @@ Transformation::init_type()
 
   add_varargs_method("xy_tup",   &Transformation::xy_tup,  "xy_tup(xy)\n");
   add_varargs_method("seq_x_y",  &Transformation::seq_x_y, "seq_x_y(x, y)\n");
-  add_varargs_method("numerix_x_y",  &Transformation::numerix_x_y, "numerix_x_y(x, y)\n");
-  add_varargs_method("nonlinear_only_numerix",  &Transformation::nonlinear_only_numerix, "nonlinear_only_numerix\n");
+  add_keyword_method("numerix_x_y",  &Transformation::numerix_x_y, "numerix_x_y(x, y)\n");
+  add_keyword_method("nonlinear_only_numerix",  &Transformation::nonlinear_only_numerix, "nonlinear_only_numerix\n");
   add_varargs_method("need_nonlinear",  &Transformation::need_nonlinear, "need_nonlinear\n");
   add_varargs_method("seq_xy_tups", &Transformation::seq_xy_tups, "seq_xy_tups(seq)\n");  
   add_varargs_method("inverse_xy_tup",   &Transformation::inverse_xy_tup,  "inverse_xy_tup(xy)\n");

@@ -1,9 +1,31 @@
 New entries should be added at the top
 
+
+2005-04-14 Applied Michael Brady's qt backend patch: 1) fix a bug
+           where keyboard input was grabbed by the figure and not
+           released  2) turn on cursor changes  3) clean up a typo
+           and commented-out print statement. - JDH
+
+
+2005-04-14 Applied Eric Firing's masked data lines patch and contour
+           patch.  Support for masked arrays has been added to the
+           plot command and to the Line2D object.  Only the valid
+           points are plotted.  A "valid_only" kwarg was added to the
+           get_xdata() and get_ydata() methods of Line2D; by default
+           it is False, so that the original data arrays are
+           returned. Setting it to True returns the plottable points.
+           - see examples/masked_demo.py - JDH
+
+2005-04-13 Applied Tim Leslie's arrow key event handling patch - JDH
+
+
+=================================================================
+0.80 released
+
 2005-04-11 Applied a variant of rick's xlim/ylim/axis patch.  These
            functions now take kwargs to let you selectively alter only
            the min or max if desired.  Eg xlim(xmin=2) or
-           axis(ymax=3).  They always return the new lim
+           axis(ymax=3).  They always return the new lim. - JDH
 
 
 2005-04-11 Incorporated Werner's wx patch -- wx backend should be

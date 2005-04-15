@@ -1,4 +1,18 @@
-API CHANGES in matplotlib-0.75
+API CHANGES in matplotlib-0.81
+
+  Contour and contourf now accept masked arrays as the variable to be
+  contoured.  Masking works correctly for contour, but a bug remains
+  to be fixed before it will work for contourf.  The "badmask" kwarg
+  has been removed from both functions.
+
+  Support for masked arrays has been added to the plot command and to
+  the Line2D object.  Only the valid points are plotted.  A
+  "valid_only" kwarg was added to the get_xdata() and get_ydata()
+  methods of Line2D; by default it is False, so that the original data
+  arrays are returned. Setting it to True returns the plottable
+  points.
+
+API CHANGES in matplotlib-0.80
 
   xlim/ylim/axis always return the new limits regardless of arguments.
   They now take kwargs which allow you to selectively change the upper

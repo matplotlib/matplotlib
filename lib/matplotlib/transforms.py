@@ -185,9 +185,12 @@ but should use the helper functions defined in this module.
 
 The units/transform_unit.py code has many examples.
 """
+import math
 from _transforms import Value, Point, Interval, Bbox, Affine
 from _transforms import IDENTITY, LOG10, POLAR, Func, FuncXY
 from _transforms import SeparableTransformation, NonseparableTransformation
+from matplotlib.numerix import array, Float
+from matplotlib.numerix.linear_algebra import inverse
 
 def zero(): return Value(0)
 
@@ -297,6 +300,22 @@ def lbwh_to_bbox(l,b,w,h):
     return Bbox( Point( Value(l), Value(b)),
                  Point( Value(l+w), Value(b + h) ) )
                  
+
+def invert_vec6(v):
+    """
+    v is a,b,c,d,tx,ty vec6 repr of a matrix
+    [ a  b  0
+      c  d  0
+      tx ty 1]
+
+    Return the inverse of v as a vec6
+    """
+    M = array([ [a,b,0], [c,d,0], [tx,ty,1]], typecode=Float)
+    Mi = inverse(M)
+    a, b = M[0,0:2]
+    c, d = M[1,0:2]
+    tx, ty = M[2,0:2]        
+    return a,b,c,d,tx,ty
 
 def multiply_affines( v1, v2):
     """
@@ -408,3 +427,17 @@ def copy_bbox_transform(trans):
     newtrans.get_funcx().set_type(typex)
     newtrans.get_funcy().set_type(typey)    
     return newtrans
+
+def get_vec6_scales(v):
+    'v is an affine vec6 a,b,c,d,tx,ty; return sx, sy'
+    a,b,c,d = v[:4]
+    sx = math.sqrt(a**2 + b**2)
+    sy = math.sqrt(c**2 + d**2)
+    return sx, sy
+
+def get_vec6_rotation(v):
+    'v is an affine vec6 a,b,c,d,tx,ty; return rotation in degrees'
+    sx, sy = get_vec6_scales(v)
+    c,d = v[2:4]
+    angle = math.atan2(c,d)/math.pi*180
+    return angle

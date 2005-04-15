@@ -669,10 +669,16 @@ class FigureCanvasWx(FigureCanvasBase, wx.Panel):
     implements a wx.Sizer to control the displayed control size - but we give a
     hint as to our preferred minimum size.
     """
-    keyvald = {308 : 'control',
-               306 : 'shift',
-               307 : 'alt',
-               }
+
+    keyvald = {
+        wx.WXK_CONTROL : 'control',
+        wx.WXK_SHIFT   : 'shift',
+        wx.WXK_ALT     : 'alt',
+        wx.WXK_LEFT    : 'left',
+        wx.WXK_UP      : 'up',
+        wx.WXK_RIGHT   : 'right',
+        wx.WXK_DOWN    : 'down',
+        }    
 
     def __init__(self, parent, id, figure):
         """

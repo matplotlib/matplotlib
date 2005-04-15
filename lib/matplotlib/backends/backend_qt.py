@@ -15,7 +15,7 @@ from matplotlib.figure import Figure
 from matplotlib.mathtext import math_parse_s_ft2font
 import qt
 
-backend_version = "0.9"
+backend_version = "0.9.1"
 def fn_name(): return sys._getframe(1).f_code.co_name
 
 DEBUG = False
@@ -68,10 +68,16 @@ def new_figure_manager( num, *args, **kwargs ):
 
 
 class FigureCanvasQT( qt.QWidget, FigureCanvasBase ):
-    keyvald = { qt.Qt.Key_Control : 'control',
-                qt.Qt.Key_Shift : 'shift',
-                qt.Qt.Key_Alt : 'alt',
-               }
+    keyvald = {
+        qt.Qt.Key_Control : 'control',
+        qt.Qt.Key_Shift   : 'shift',
+        qt.Qt.Key_Alt     : 'alt',
+        qt.Qt.Key_Left    : 'left',
+        qt.Qt.Key_Up      : 'up',
+        qt.Qt.Key_Right   : 'right',
+        qt.Qt.Key_Down    : 'down',
+        }
+    
     # left 1, middle 2, right 3
     buttond = {1:1, 2:3, 4:2}
     def __init__( self, figure ):
@@ -88,10 +94,9 @@ class FigureCanvasQT( qt.QWidget, FigureCanvasBase ):
         x = event.pos().x()
         # flipy so y=0 is bottom of canvas
         y = self.figure.bbox.height() - event.pos().y()
-        #print 'event.button()', event.button()
         button = self.buttond[event.button()]
         FigureCanvasBase.button_press_event( self, x, y, button )
-        if DEBUG: print 'button pressed'
+        if DEBUG: print 'button pressed:', event.button()
         
     def mouseMoveEvent( self, event ):
         x = event.x()
@@ -104,7 +109,7 @@ class FigureCanvasQT( qt.QWidget, FigureCanvasBase ):
         x = event.x()
         # flipy so y=0 is bottom of canvas
         y = self.figure.bbox.height() - event.y()
-        button = button = self.buttond[event.button()]
+        button = self.buttond[event.button()]
         FigureCanvasBase.button_release_event( self, x, y, button )
         if DEBUG: print 'button released'
         self.draw()
@@ -147,7 +152,8 @@ class FigureManagerQT( FigureManagerBase ):
         
         self.canvas.reparent( self.window, qt.QPoint( 0, 0 ) )
         # Give the keyboard focus to the figure instead of the manager
-        self.canvas.grabKeyboard()
+        self.canvas.setFocusPolicy( qt.QWidget.ClickFocus )
+        self.canvas.setFocus()
         self.window.setCaption( "Figure %d" % num )
         self.window.setCentralWidget( self.canvas )
 
@@ -227,8 +233,8 @@ class NavigationToolbar2QT( NavigationToolbar2, qt.QToolBar ):
 
     def set_cursor( self, cursor ):
         if DEBUG: print 'Set cursor' , cursor
-        #qt.QApplication.restoreOverrideCursor()
-        #qt.QApplication.setOverrideCursor( qt.QCursor( cursord[cursor] ) )
+        qt.QApplication.restoreOverrideCursor()
+        qt.QApplication.setOverrideCursor( qt.QCursor( cursord[cursor] ) )
                 
     def draw_rubberband( self, event, x0, y0, x1, y1 ):
         height = self.canvas.figure.bbox.height()
@@ -242,12 +248,9 @@ class NavigationToolbar2QT( NavigationToolbar2, qt.QToolBar ):
         self.canvas.drawRectangle( rect )
     
     def save_figure( self ):     
-        self.canvas.releaseKeyboard()
         fname = qt.QFileDialog.getSaveFileName()
-        
         if fname:
             self.canvas.print_figure( fname.latin1() )
-        self.canvas.grabKeyboard()
 
 # set icon used when windows are minimized
 try:

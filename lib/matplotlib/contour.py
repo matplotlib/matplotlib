@@ -204,7 +204,7 @@ class ContourLabeler:
         lcsize = len(linecontour)
         if lcsize > 10 * labelwidth:
             return 1
-        
+
         xmax = amax(array(linecontour)[:,0])
         xmin = amin(array(linecontour)[:,0])
         ymax = amax(array(linecontour)[:,1])
@@ -303,14 +303,14 @@ class ContourLabeler:
             #should rewrite this in a better way
             linds = nonzero(inds[1:]- inds[:-1] != 1)
             if inds[0] == 0 and len(linds) != 0:
-                ii = inds[linds[0]] 
+                ii = inds[linds[0]]
                 lc1 =linecontour[ii+1:inds[ii+1]]
                 lc2 = []
 
             else:
                 lc1=linecontour[:inds[0]]
                 lc2= linecontour[inds[-1]+1:]
-            
+
         else:
             lc1=linecontour[:ind]
             lc2 = linecontour[ind+1:]
@@ -450,7 +450,7 @@ class ContourSupport:
         self.ax = ax
         self.labeler = ContourLabeler(ax)
 
-    def _autolev(self, z, N, filled, badmask):
+    def _autolev(self, z, N, filled):
         '''
         Select contour levels to span the data.
 
@@ -462,9 +462,8 @@ class ContourSupport:
         two levels.  These are taken as the lower boundaries of
         the regions.
         '''
-        rz = ma.masked_array(z, badmask)
-        zmax = ma.maximum(rz)     # was: zmax = amax(rz)
-        zmin = ma.minimum(rz)
+        zmax = ma.maximum(z)
+        zmin = ma.minimum(z)
         if filled:
             lev = linspace(zmin, zmax, N+2)[:-1]
         else:
@@ -528,7 +527,7 @@ class ContourSupport:
 
 
 
-    def _contour_args(self, filled, badmask, origin, extent, *args):
+    def _contour_args(self, filled, origin, extent, *args):
         if filled: fn = 'contourf'
         else:      fn = 'contour'
         Nargs = len(args)
@@ -539,25 +538,23 @@ class ContourSupport:
             x,y,z = self._check_xyz(args[:3])
         else:
             raise TypeError("Too many arguments to %s; see help(%s)" % (fn,fn))
-        z = asarray(z)  # Convert to native array format if necessary.
+        z = ma.asarray(z)  # Convert to native masked array format if necessary.
         if Nargs == 1 or Nargs == 3:
-            lev = self._autolev(z, 7, filled, badmask)
+            lev = self._autolev(z, 7, filled)
         else:   # 2 or 4 args
             level_arg = args[-1]
             if type(level_arg) == int:
-                lev = self._autolev(z, level_arg, filled, badmask)
+                lev = self._autolev(z, level_arg, filled)
             elif iterable(level_arg) and len(shape(level_arg)) == 1:
                 lev = array([float(fl) for fl in level_arg])
             else:
                 raise TypeError("Last %s arg must give levels; see help(%s)" % (fn,fn))
-        rx = ravel(x)
-        ry = ravel(y)
-        self.ax.set_xlim((min(rx), max(rx)))
-        self.ax.set_ylim((min(ry), max(ry)))
+        self.ax.set_xlim((ma.minimum(x), ma.maximum(x)))
+        self.ax.set_ylim((ma.minimum(y), ma.maximum(y)))
         return (x, y, z, lev)
 
 
-    def _initialize_reg_tri(self, z, badmask):
+    def _initialize_reg_tri(self, z):
         '''
         Initialize two arrays used by the low-level contour
         algorithm.  This is temporary code; most of the reg
@@ -573,6 +570,7 @@ class ContourSupport:
         reg[0,-jmax:]=0
         for j in range(0, nreg, jmax):
             reg[0,j]=0
+        badmask = z.mask()
         if badmask is not None:
             for i in range(imax):
                 for j in range(jmax):
@@ -652,6 +650,8 @@ class ContourSupport:
 
         [L,C] = contour(...) returns a list of levels and a silent_list of LineCollections
 
+        Z may be a masked array.
+
         Optional keywork args are shown with their defaults below (you must
         use kwargs for these):
 
@@ -680,15 +680,6 @@ class ContourSupport:
             * extent = None: (x0,x1,y0,y1); also active only if X and Y
               are not specified.
 
-            * badmask = None: array with dimensions of Z, and with values
-              of zero at locations corresponding to valid data, and one
-              at locations where the value of Z should be ignored.
-              This is experimental.  It presently works for edge regions
-              for line and filled contours, but for interior regions it
-              works correctly only for line contours.  The badmask kwarg
-              may go away in the future, to be replaced by the use of
-              NaN value in Z and/or the use of a masked array in Z.
-
             * linewidths = None: or one of these:
               - a number - all levels will be plotted with this linewidth,
                 e.g. linewidths = 0.6
@@ -712,8 +703,6 @@ class ContourSupport:
         extent = kwargs.get('extent', None)
         cmap = kwargs.get('cmap', None)
         colors = kwargs.get('colors', None)
-        badmask = kwargs.get('badmask', None)
-
 
         if cmap is not None: assert(isinstance(cmap, Colormap))
         if origin is not None: assert(origin in ['lower', 'upper', 'image'])
@@ -724,7 +713,7 @@ class ContourSupport:
         if origin == 'image': origin = rcParams['image.origin']
 
 
-        x, y, z, lev = self._contour_args(False, badmask, origin, extent, *args)
+        x, y, z, lev = self._contour_args(False, origin, extent, *args)
 
         # Manipulate the plot *after* checking the input arguments.
         if not self.ax.ishold(): self.ax.cla()
@@ -739,7 +728,7 @@ class ContourSupport:
             Ncolors = Nlev
 
 
-        reg, triangle = self._initialize_reg_tri(z, badmask)
+        reg, triangle = self._initialize_reg_tri(z)
 
         tcolors, mappable, collections = self._process_colors(
             z, colors, alpha, lev, cmap)
@@ -756,7 +745,7 @@ class ContourSupport:
         region = 0
         for level, color, width in zip(lev, tcolors, tlinewidths):
             ntotal, nparts  = _contour.GcInit1(x, y, reg, triangle,
-                                               region, z, level)
+                                               region, z.filled(), level)
             np = zeros((nparts,), typecode='l')
             xp = zeros((ntotal, ), Float64)
             yp = zeros((ntotal,), Float64)
@@ -804,6 +793,8 @@ class ContourSupport:
         [L,C] = contourf(...) returns a list of levels and a silent_list
              of PolyCollections
 
+        Z may be a masked array, but a bug remains to be fixed.
+
         Optional keywork args are shown with their defaults below (you must
         use kwargs for these):
 
@@ -829,15 +820,6 @@ class ContourSupport:
               one or two arguments, that is, without explicitly
               specifying X and Y.
 
-            * badmask = None: array with dimensions of Z, and with values
-              of zero at locations corresponding to valid data, and one
-              at locations where the value of Z should be ignored.
-              This is experimental.  It presently works for edge regions
-              for line and filled contours, but for interior regions it
-              works correctly only for line contours.  The badmask kwarg
-              may go away in the future, to be replaced by the use of
-              NaN value in Z and/or the use of a masked array in Z.
-
             reg is a 1D region number array with of imax*(jmax+1)+1 size
             The values of reg should be positive region numbers, and zero fro
             zones wich do not exist.
@@ -856,7 +838,6 @@ class ContourSupport:
         extent = kwargs.get('extent', None)
         cmap = kwargs.get('cmap', None)
         colors = kwargs.get('colors', None)
-        badmask = kwargs.get('badmask', None)
 
         if cmap is not None: assert(isinstance(cmap, Colormap))
         if origin is not None: assert(origin in ['lower', 'upper', 'image'])
@@ -865,14 +846,14 @@ class ContourSupport:
             raise RuntimeError('Either colors or cmap must be None')
         if origin == 'image': origin = rcParams['image.origin']
 
-        x, y, z, lev = self._contour_args(True, badmask, origin, extent, *args)
+        x, y, z, lev = self._contour_args(True, origin, extent, *args)
         # Manipulate the plot *after* checking the input arguments.
         if not self.ax.ishold(): self.ax.cla()
 
         Nlev = len(lev)
 
 
-        reg, triangle = self._initialize_reg_tri(z, badmask)
+        reg, triangle = self._initialize_reg_tri(z)
 
         tcolors, mappable, collections = self._process_colors(z, colors,
                                                                alpha,
@@ -884,7 +865,7 @@ class ContourSupport:
         for level, level_upper, color in zip(lev, lev_upper, tcolors):
             levs = (level, level_upper)
             ntotal, nparts  = _contour.GcInit2(x, y, reg, triangle,
-                                               region, z, levs, 30)
+                                               region, z.filled(), levs, 30)
             np = zeros((nparts,), typecode='l')
             xp = zeros((ntotal, ), Float64)
             yp = zeros((ntotal,), Float64)

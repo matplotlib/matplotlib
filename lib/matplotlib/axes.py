@@ -1357,9 +1357,6 @@ class Axes(Artist):
             renderer.draw_image(ox, oy, im, origin, self.bbox)
 
 
-        if self.axison:
-            self.xaxis.draw(renderer)
-            self.yaxis.draw(renderer)
 
 
         artists = []
@@ -1384,6 +1381,10 @@ class Axes(Artist):
 
         if self.legend_ is not None:
             self.legend_.draw(renderer)
+
+        if self.axison:
+            self.xaxis.draw(renderer)
+            self.yaxis.draw(renderer)
 
         for table in self.tables:
             table.draw(renderer)
@@ -3481,8 +3482,8 @@ class Axes(Artist):
                 tverts = a.get_transform().seq_xy_tups(verts)
                 xt, yt = zip(*tverts)
             elif isinstance(a, Line2D):
-                xdata = a.get_xdata()
-                ydata = a.get_ydata()
+                xdata = a.get_xdata(valid_only = True)
+                ydata = a.get_ydata(valid_only = True)
                 xt, yt = a.get_transform().numerix_x_y(xdata, ydata)
 
             return dist_x_y(xywin, asarray(xt), asarray(yt))
@@ -3954,7 +3955,7 @@ class PolarSubplot(SubplotBase, PolarAxes):
                 # find the min pos value in the data
                 xs = []
                 for line in self.lines:
-                    xs.extend(line.get_xdata())
+                    xs.extend(line.get_xdata(valid_only = True))
                 for patch in self.patches:
                     xs.extend([x for x,y in patch.get_verts()])
                 for collection in self.collections:

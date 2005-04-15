@@ -106,6 +106,10 @@ class FigureCanvasGTK(gtk.DrawingArea, FigureCanvasBase):
                65508 : 'control',
                65506 : 'shift',
                65514 : 'alt',
+               65361 : 'left',
+               65362 : 'up',
+               65363 : 'right',
+               65364 : 'down',
                }
 
                           
@@ -177,10 +181,12 @@ class FigureCanvasGTK(gtk.DrawingArea, FigureCanvasBase):
 
     def key_press_event(self, widget, event):
         key = self._get_key(event)
+        #print "hit", key
         FigureCanvasBase.key_press_event(self, key)
 
     def key_release_event(self, widget, event):        
         key = self._get_key(event)
+        #print "release", key
         FigureCanvasBase.key_release_event(self, key)
 
     def configure_event(self, widget, event):
