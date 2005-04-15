@@ -11,7 +11,9 @@ import sys, math, warnings
 import agg
 from numerix import Float, alltrue, arange, array, logical_and,\
      nonzero, searchsorted, take, asarray, ones, where, less, ravel, \
-     greater, logical_and, cos, sin, pi
+     greater, logical_and, cos, sin, pi,\
+     compress, zeros, concatenate, cumsum
+import numerix.ma as ma
 from matplotlib import verbose
 from artist import Artist
 from cbook import iterable, is_string_like
@@ -32,28 +34,80 @@ lineMarkers =    {'.':1, ',':1, 'o':1, '^':1, 'v':1, '<':1, '>':1, 's':1,
                   TICKDOWN:1,
                   'None':1
                   }
-    
+
+def unmasked_index_ranges(mask, compressed = True):
+    '''
+    Calculate the good data ranges in a masked 1-D array, based on mask.
+
+    Returns Nx2 array with each row the start and stop indices
+    for slices of the compressed array corresponding to each of N
+    uninterrupted runs of unmasked values.
+    If optional argument compressed is False, it returns the
+    start and stop indices into the original array, not the
+    compressed array.
+    In either case, an empty array is returned if there are no
+    unmasked values.
+
+    Example:
+
+    y = ma.array(arange(5), mask = [0,0,1,0,0])
+    ii = unmasked_index_ranges(y.mask())
+        # returns [[0,2,] [2,4,]]
+
+    y.compressed().filled()[ii[1,0]:ii[1,1]]
+        # returns array [3,4,]
+        # (The 'filled()' method converts the masked array to a numerix array.)
+
+    i0, i1 = unmasked_index_ranges(y.mask(), compressed=False)
+        # returns [[0,3,] [2,5,]]
+
+    y.filled()[ii[1,0]:ii[1,1]]
+        # returns array [3,4,]
+
+    '''
+    m = concatenate(((1,), mask, (1,)))
+    indices = arange(len(mask) + 1)
+    mdif = m[1:] - m[:-1]
+    i0 = compress(mdif == -1, indices)
+    i1 = compress(mdif == 1, indices)
+    assert len(i0) == len(i1)
+    if not compressed:
+        if len(i1):
+            return concatenate((i0[:, ma.NewAxis], i1[:, ma.NewAxis]), axis=1)
+        else:
+            return zeros((0,0), 'i')
+    seglengths = i1 - i0
+    breakpoints = cumsum(seglengths)
+    try:
+        ic0 = concatenate(((0,), breakpoints[:-1]))
+        ic1 = breakpoints
+        return concatenate((ic0[:, ma.NewAxis], ic1[:, ma.NewAxis]), axis=1)
+    except:
+        return zeros((0,0), 'i')
+
+
+
 class Line2D(Artist):
     _lineStyles =  {
         '-'    : '_draw_solid',
-        '--'   : '_draw_dashed', 
-        '-.'   : '_draw_dash_dot', 
+        '--'   : '_draw_dashed',
+        '-.'   : '_draw_dash_dot',
         ':'    : '_draw_dotted',
         'steps': '_draw_steps',
         'None' : '_draw_nothing'}
-    
+
     _markers =  {
         '.'  : '_draw_point',
-        ','  : '_draw_pixel', 
-        'o'  : '_draw_circle', 
-        'v'  : '_draw_triangle_down', 
-        '^'  : '_draw_triangle_up', 
-        '<'  : '_draw_triangle_left', 
-        '>'  : '_draw_triangle_right', 
-        '1'  : '_draw_tri_down', 
-        '2'  : '_draw_tri_up', 
-        '3'  : '_draw_tri_left', 
-        '4'  : '_draw_tri_right', 
+        ','  : '_draw_pixel',
+        'o'  : '_draw_circle',
+        'v'  : '_draw_triangle_down',
+        '^'  : '_draw_triangle_up',
+        '<'  : '_draw_triangle_left',
+        '>'  : '_draw_triangle_right',
+        '1'  : '_draw_tri_down',
+        '2'  : '_draw_tri_up',
+        '3'  : '_draw_tri_left',
+        '4'  : '_draw_tri_right',
         's'  : '_draw_square',
         'p'  : '_draw_pentagon',
         'h'  : '_draw_hexagon1',
@@ -64,7 +118,7 @@ class Line2D(Artist):
         'd'  : '_draw_thin_diamond',
         '|'  : '_draw_vline',
         '_'  : '_draw_hline',
-        TICKLEFT    : '_draw_tickleft', 
+        TICKLEFT    : '_draw_tickleft',
         TICKRIGHT   : '_draw_tickright',
         TICKUP      : '_draw_tickup',
         TICKDOWN    : '_draw_tickdown',
@@ -72,7 +126,7 @@ class Line2D(Artist):
         }
 
     zorder = 2
-        
+
     def __init__(self, xdata, ydata,
                  linewidth       = None, # default to rc
                  linestyle       = None, # default to rc
@@ -91,7 +145,7 @@ class Line2D(Artist):
         linestyle is one of lineStyles
         marker is one of lineMarkers or None
         markersize is the size of the marker in points
-        markeredgecolor  and markerfacecolor can be any color arg 
+        markeredgecolor  and markerfacecolor can be any color arg
         markeredgewidth is the size of the markter edge in points
 
         """
@@ -113,7 +167,7 @@ class Line2D(Artist):
             markerfacecolor=rcParams['lines.markerfacecolor']
         if markeredgewidth is None :
             markeredgewidth=rcParams['lines.markeredgewidth']
-        
+
         if markersize is None  : markersize=rcParams['lines.markersize']
         if antialiased is None : antialiased=rcParams['lines.antialiased']
 
@@ -130,7 +184,7 @@ class Line2D(Artist):
         self._markeredgecolor = markeredgecolor
         self._markeredgewidth = markeredgewidth
 
-        self.verticalOffset = None        
+        self.verticalOffset = None
         self._useDataClipping = rcParams['lines.data_clipping']
         self.set_data(xdata, ydata)
 
@@ -142,7 +196,7 @@ class Line2D(Artist):
         self.set_marker(marker)
 
         self._logcache = None
-            
+
     def get_window_extent(self, renderer):
         self._newstyle = hasattr(renderer, 'draw_markers')
         if self._newstyle:
@@ -172,10 +226,10 @@ class Line2D(Artist):
 
     def set_data(self, *args):
         """
-Set the x and y data
+        Set the x and y data
 
-ACCEPTS: (array xdata, array ydata)
-"""
+        ACCEPTS: (array xdata, array ydata)
+        """
 
         if len(args)==1:
             x, y = args[0]
@@ -186,6 +240,24 @@ ACCEPTS: (array xdata, array ydata)
         try: del self._xc, self._yc
         except AttributeError: pass
 
+        self._masked_x = None
+        self._masked_y = None
+        mx = ma.getmask(x)
+        my = ma.getmask(y)
+        if mx is not None:
+            mx = ravel(mx)
+            self._masked_x = x
+        if my is not None:
+            my = ravel(my)
+            self._masked_y = y
+        mask = ma.mask_or(mx, my)
+        if mask is not None:
+            x = ma.masked_array(ma.ravel(x), mask=mask).compressed()
+            y = ma.masked_array(ma.ravel(y), mask=mask).compressed()
+            self._segments = unmasked_index_ranges(mask)
+        else:
+            self._segments = None
+
         self._x = asarray(x, Float)
         self._y = asarray(y, Float)
 
@@ -194,7 +266,8 @@ ACCEPTS: (array xdata, array ydata)
         if len(self._y.shape)>1:
             self._y = ravel(self._y)
 
-
+        # What is the rationale for the following two lines?
+        # And why is there not a similar pair with _x and _y reversed?
         if len(self._y)==1 and len(self._x)>1:
             self._y = self._y*ones(self._x.shape, Float)
 
@@ -204,21 +277,21 @@ ACCEPTS: (array xdata, array ydata)
         if self._useDataClipping: self._xsorted = self._is_sorted(self._x)
 
         self._logcache = None
-        
+
     def set_data_clipping(self, b):
         """
-b is a boolean that sets whether data clipping is on
+        b is a boolean that sets whether data clipping is on
 
-ACCEPTS: [True | False]
+        ACCEPTS: [True | False]
         """
         self._useDataClipping = b
 
-                
+
     def _is_sorted(self, x):
         "return true if x is sorted"
         if len(x)<2: return 1
         return alltrue(x[1:]-x[0:-1]>=0)
-    
+
     def _get_numeric_clipped_data_in_range(self):
         # if the x or y clip is set, only plot the points in the
         # clipping region.  If log scale is set, only pos data will be
@@ -230,18 +303,18 @@ ACCEPTS: [True | False]
 
         try: logx = self._transform.get_funcx().get_type()==LOG10
         except RuntimeError: logx = False  # non-separable
-        
+
         try: logy = self._transform.get_funcy().get_type()==LOG10
         except RuntimeError: logy = False  # non-separable
-        
+
         if not logx and not logy:
             return x, y
 
         if self._logcache is not None:
             waslogx, waslogy, xcache, ycache = self._logcache
-            if logx==waslogx and waslogy==logy:            
+            if logx==waslogx and waslogy==logy:
                 return xcache, ycache
-            
+
         Nx = len(x)
         Ny = len(y)
 
@@ -260,7 +333,7 @@ ACCEPTS: [True | False]
 
     def draw(self, renderer):
         #renderer.open_group('line2d')
-        if not self._visible: return 
+        if not self._visible: return
         self._newstyle = hasattr(renderer, 'draw_markers')
         gc = renderer.new_gc()
         gc.set_foreground(self._color)
@@ -270,20 +343,24 @@ ACCEPTS: [True | False]
         if self.get_clip_on():
             gc.set_clip_rectangle(self.clipbox.get_bounds())
 
-        
+
         if self._newstyle:
             # transform in backend
             xt = self._x
             yt = self._y
-        else:    
+        else:
             x, y = self._get_numeric_clipped_data_in_range()
-            if len(x)==0: return 
+            if len(x)==0: return
             xt, yt = self._transform.numerix_x_y(x, y)
 
 
         funcname = self._lineStyles.get(self._linestyle, '_draw_nothing')
         lineFunc = getattr(self, funcname)
-        lineFunc(renderer, gc, xt, yt)
+        if self._segments is not None:
+            for ii in self._segments:
+                lineFunc(renderer, gc, xt[ii[0]:ii[1]], yt[ii[0]:ii[1]])
+        else:
+            lineFunc(renderer, gc, xt, yt)
 
 
         if self._marker is not None:
@@ -298,7 +375,7 @@ ACCEPTS: [True | False]
 
         #if 1: bbox_artist(self, renderer)
         #renderer.close_group('line2d')
-        
+
     def get_antialiased(self): return self._antialiased
     def get_color(self): return self._color
     def get_linestyle(self): return self._linestyle
@@ -309,16 +386,22 @@ ACCEPTS: [True | False]
     def get_markeredgewidth(self): return self._markeredgewidth
     def get_markerfacecolor(self): return self._markerfacecolor
     def get_markersize(self): return self._markersize
-    def get_xdata(self): return self._x
-    def get_ydata(self):  return self._y
+    def get_xdata(self, valid_only = False):
+        if self._masked_x is None or valid_only:
+            return self._x
+        return self._masked_x
+    def get_ydata(self, valid_only = False):
+        if self._masked_y is None or valid_only:
+            return self._y
+        return self._masked_y
 
-        
+
     def _set_clip(self):
 
-        
+
         if not self._useDataClipping: return
         #self._logcache = None
-        
+
         try: self._xmin, self._xmax
         except AttributeError: indx = arange(len(self._x))
         else:
@@ -340,7 +423,7 @@ ACCEPTS: [True | False]
                     # based on pixel width
                     raise NotImplementedError('LOD deprecated')
                     l, b, w, h = self.get_window_extent().get_bounds()
-                    skip = int((indMax-indMin)/w)                    
+                    skip = int((indMax-indMin)/w)
                 if skip>0:  indx = arange(indMin, indMax, skip)
                 else: indx = arange(indMin, indMax)
             else:
@@ -354,7 +437,7 @@ ACCEPTS: [True | False]
         # y data clipping for connected lines can introduce horizontal
         # line artifacts near the clip region.  If you really need y
         # clipping for efficiency, consider using plot(y,x) instead.
-        if ( self._yc.shape==self._xc.shape and 
+        if ( self._yc.shape==self._xc.shape and
              self._linestyle is None):
             try: self._ymin, self._ymax
             except AttributeError: indy = arange(len(self._yc))
@@ -363,148 +446,148 @@ ACCEPTS: [True | False]
                                   self._yc<=self._ymax ))
         else:
             indy = arange(len(self._yc))
-            
+
         self._xc = take(self._xc, indy)
         self._yc = take(self._yc, indy)
 
     def set_antialiased(self, b):
         """
-True if line should be drawin with antialiased rendering
+        True if line should be drawin with antialiased rendering
 
-ACCEPTS: [True | False]
-        """            
+        ACCEPTS: [True | False]
+        """
         self._antialiased = b
 
     def set_color(self, color):
         """
-Set the color of the line
+        Set the color of the line
 
-ACCEPTS: any matplotlib color - see help(colors)
+        ACCEPTS: any matplotlib color - see help(colors)
         """
         self._color = color
 
     def set_linewidth(self, w):
         """
-Set the line width in points
+        Set the line width in points
 
-ACCEPTS: float value in points
+        ACCEPTS: float value in points
         """
         self._linewidth = w
 
     def set_linestyle(self, s):
         """
-Set the linestyle of the line
+        Set the linestyle of the line
 
-ACCEPTS: [ '-' | '--' | '-.' | ':' | 'steps' | 'None' ]
+        ACCEPTS: [ '-' | '--' | '-.' | ':' | 'steps' | 'None' ]
         """
         self._linestyle = s
 
 
     def set_marker(self, marker):
         """
-Set the line marker
+        Set the line marker
 
-ACCEPTS: [ '+' | ',' | '.' | '1' | '2' | '3' | '4' | '<' | '>' | 'D' | 'H' | '^' | '_' | 'd' | 'h' | 'o' | 'p' | 's' | 'v' | 'x' | '|' ]
+        ACCEPTS: [ '+' | ',' | '.' | '1' | '2' | '3' | '4' | '<' | '>' | 'D' | 'H' | '^' | '_' | 'd' | 'h' | 'o' | 'p' | 's' | 'v' | 'x' | '|' ]
 
-"""
+        """
         self._marker = marker
 
     def set_markeredgecolor(self, ec):
         """
-Set the marker edge color
+        Set the marker edge color
 
-ACCEPTS: any matplotlib color - see help(colors)
-"""
+        ACCEPTS: any matplotlib color - see help(colors)
+        """
         self._markeredgecolor = ec
 
     def set_markeredgewidth(self, ew):
         """
-Set the marker edge width in points
+        Set the marker edge width in points
 
-ACCEPTS: float value in points
-"""
+        ACCEPTS: float value in points
+        """
         self._markeredgewidth = ew
 
     def set_markerfacecolor(self, fc):
         """
-Set the marker face color
+        Set the marker face color
 
-ACCEPTS: any matplotlib color - see help(colors)
-"""
+        ACCEPTS: any matplotlib color - see help(colors)
+        """
         self._markerfacecolor = fc
 
     def set_markersize(self, sz):
         """
-Set the marker size in points
+        Set the marker size in points
 
-ACCEPTS: float
-"""
+        ACCEPTS: float
+        """
         self._markersize = sz
 
     def set_xdata(self, x):
         """
-Set the data array for x
+        Set the data array for x
 
-ACCEPTS: array
-"""
+        ACCEPTS: array
+        """
         try: del self._xsorted
         except AttributeError: pass
-            
-        self.set_data(x, self._y)
-        
+
+        self.set_data(x, self.get_ydata())
+
     def set_ydata(self, y):
         """
-Set the data array for y
+        Set the data array for y
 
-ACCEPTS: array
-"""
+        ACCEPTS: array
+        """
 
-        self.set_data(self._x, y)
-        
+        self.set_data(self.get_xdata(), y)
+
     def set_xclip(self, *args):
         """
-Set the x clipping range for data clipping to xmin, xmax
+        Set the x clipping range for data clipping to xmin, xmax
 
-ACCEPTS: (xmin, xmax)
-"""
+        ACCEPTS: (xmin, xmax)
+        """
         if len(args)==1:
             xmin, xmax = args[0]
         else:
             xmin, xmax = args
-        
+
         if xmax<xmin: xmax, xmin = xmin, xmax
         self._xmin, self._xmax = xmin, xmax
         self._set_clip()
 
 
-        
+
     def set_yclip(self, *args):
         """
-Set the y clipping range for data clipping to ymin, ymax
+        Set the y clipping range for data clipping to ymin, ymax
 
-ACCEPTS: (ymin, ymax)
-"""
+        ACCEPTS: (ymin, ymax)
+        """
         if len(args)==1:
             ymin, ymax = args[0]
         else:
             ymin, ymax = args
-            
+
         if ymax<ymin: ymax, ymin = ymin, ymax
         self._ymin, self._ymax = ymin, ymax
         self._set_clip()
 
     def set_dashes(self, seq):
         """
-Set the dash sequence, sequence of dashes with on off ink in points
+        Set the dash sequence, sequence of dashes with on off ink in points
 
-ACCEPTS: sequence of on/off ink in points
-"""
+        ACCEPTS: sequence of on/off ink in points
+        """
         if seq == (None, None):
             self.set_linestyle('-')
         else:
             self.set_linestyle('--')
         self._dashSeq = seq  # TODO: offset ignored for now
-        
+
     def _draw_nothing(self, renderer, gc, xt, yt):
         pass
 
@@ -526,7 +609,7 @@ ACCEPTS: sequence of on/off ink in points
     def _draw_solid(self, renderer, gc, xt, yt):
         if len(xt)<2: return
         gc.set_linestyle('solid')
-        gc.set_capstyle('projecting')   
+        gc.set_capstyle('projecting')
 
         if self._newstyle:
             renderer.draw_lines(gc, xt, yt, self._transform)
@@ -539,8 +622,8 @@ ACCEPTS: sequence of on/off ink in points
         gc.set_linestyle('dashed')
         if self._dashSeq is not None:
             gc.set_dashes(0, self._dashSeq)
-        gc.set_capstyle('butt')   
-        gc.set_joinstyle('miter') 
+        gc.set_capstyle('butt')
+        gc.set_joinstyle('miter')
 
         if self._newstyle:
             renderer.draw_lines(gc, xt, yt, self._transform)
@@ -551,8 +634,8 @@ ACCEPTS: sequence of on/off ink in points
     def _draw_dash_dot(self, renderer, gc, xt, yt):
         if len(xt)<2: return
         gc.set_linestyle('dashdot')
-        gc.set_capstyle('butt')   
-        gc.set_joinstyle('miter') 
+        gc.set_capstyle('butt')
+        gc.set_joinstyle('miter')
         if self._newstyle:
             renderer.draw_lines(gc, xt, yt, self._transform)
         else:
@@ -564,13 +647,13 @@ ACCEPTS: sequence of on/off ink in points
 
         if len(xt)<2: return
         gc.set_linestyle('dotted')
-        gc.set_capstyle('butt')   
+        gc.set_capstyle('butt')
         gc.set_joinstyle('miter')
         if self._newstyle:
             renderer.draw_lines(gc, xt, yt, self._transform)
         else:
             renderer.draw_lines(gc, xt, yt)
-        
+
     def _draw_point(self, renderer, gc, xt, yt):
         if self._newstyle:
             rgbFace = self._get_rgb_face()
@@ -586,7 +669,7 @@ ACCEPTS: sequence of on/off ink in points
 
     def _draw_pixel(self, renderer, gc, xt, yt):
         if self._newstyle:
-            rgbFace = self._get_rgb_face()            
+            rgbFace = self._get_rgb_face()
             path = agg.path_storage()
             path.move_to(-0.5, -0.5)
             path.line_to(-0.5, 0.5)
@@ -601,7 +684,7 @@ ACCEPTS: sequence of on/off ink in points
     def _draw_circle(self, renderer, gc, xt, yt):
 
         w = h = renderer.points_to_pixels(self._markersize)
-        
+
         rgbFace = self._get_rgb_face()
 
         if self._newstyle:
@@ -613,21 +696,21 @@ ACCEPTS: sequence of on/off ink in points
             # todo: use curve3!
             path = agg.path_storage()
             path.move_to(xs[0], ys[0])
-            for x, y in zip(xs[1:], ys[1:]):                
-                path.line_to(x, y) 
-            
+            for x, y in zip(xs[1:], ys[1:]):
+                path.line_to(x, y)
+
             path.end_poly()
             renderer.draw_markers(gc, path, rgbFace, xt, yt, self._transform)
         else:
             for (x,y) in zip(xt, yt):
                 renderer.draw_arc(gc, rgbFace,
                                   x, y, w, h, 0.0, 360.0)
-        
+
 
 
     def _draw_triangle_up(self, renderer, gc, xt, yt):
 
-        
+
         offset = 0.5*renderer.points_to_pixels(self._markersize)
         rgbFace = self._get_rgb_face()
 
@@ -651,16 +734,16 @@ ACCEPTS: sequence of on/off ink in points
         rgbFace = self._get_rgb_face()
 
         if self._newstyle:
-            
+
             path = agg.path_storage()
             path.move_to(-offset, offset)
             path.line_to(offset, offset)
             path.line_to(0, -offset)
             path.end_poly()
-                
+
             renderer.draw_markers(gc, path, rgbFace, xt, yt, self._transform)
         else:
-            for (x,y) in zip(xt, yt):            
+            for (x,y) in zip(xt, yt):
                 verts = ( (x-offset, y+offset),
                           (x+offset, y+offset),
                           (x, y-offset))
@@ -671,16 +754,16 @@ ACCEPTS: sequence of on/off ink in points
         rgbFace = self._get_rgb_face()
 
         if self._newstyle:
-            
+
             path = agg.path_storage()
             path.move_to(-offset, 0)
             path.line_to(offset, -offset)
             path.line_to(offset, offset)
             path.end_poly()
-                
+
             renderer.draw_markers(gc, path, rgbFace, xt, yt, self._transform)
         else:
-            for (x,y) in zip(xt, yt):            
+            for (x,y) in zip(xt, yt):
                 verts = ( (x-offset, y),
                           (x+offset, y-offset),
                           (x+offset, y+offset))
@@ -698,7 +781,7 @@ ACCEPTS: sequence of on/off ink in points
             path.end_poly()
             renderer.draw_markers(gc, path, rgbFace, xt, yt, self._transform)
         else:
-            for (x,y) in zip(xt, yt):            
+            for (x,y) in zip(xt, yt):
                 verts = ( (x+offset, y),
                           (x-offset, y-offset),
                           (x-offset, y+offset))
@@ -710,40 +793,40 @@ ACCEPTS: sequence of on/off ink in points
         side = renderer.points_to_pixels(self._markersize)
         offset = side*0.5
         rgbFace = self._get_rgb_face()
-        
+
         if self._newstyle:
-            
+
             path = agg.path_storage()
             path.move_to(-offset, -offset)
             path.line_to(-offset, offset)
             path.line_to(offset, offset)
             path.line_to(offset, -offset)
             path.end_poly()
-                
+
             renderer.draw_markers(gc, path, rgbFace, xt, yt, self._transform)
         else:
 
-            for (x,y) in zip(xt, yt):            
+            for (x,y) in zip(xt, yt):
                 renderer.draw_rectangle(
                     gc, rgbFace,
-                    x-offset, y-offset, side, side) 
+                    x-offset, y-offset, side, side)
 
     def _draw_diamond(self, renderer, gc, xt, yt):
         offset = 0.6*renderer.points_to_pixels(self._markersize)
         rgbFace = self._get_rgb_face()
-        if self._newstyle:            
+        if self._newstyle:
             path = agg.path_storage()
             path.move_to(offset, 0)
             path.line_to(0, -offset)
             path.line_to(-offset, 0)
             path.line_to(0, offset)
             path.end_poly()
-                
+
             renderer.draw_markers(gc, path, rgbFace, xt, yt, self._transform)
         else:
 
 
-            for (x,y) in zip(xt, yt):            
+            for (x,y) in zip(xt, yt):
                 verts = ( (x+offset, y),
                           (x, y-offset),
                           (x-offset, y),
@@ -755,16 +838,16 @@ ACCEPTS: sequence of on/off ink in points
         xoffset = 0.6*offset
         rgbFace = self._get_rgb_face()
 
-        if self._newstyle:            
+        if self._newstyle:
             path = agg.path_storage()
             path.move_to(xoffset, 0)
             path.line_to(0, -offset)
             path.line_to(-xoffset, 0)
             path.line_to(0, offset)
-            path.end_poly()                
+            path.end_poly()
             renderer.draw_markers(gc, path, rgbFace, xt, yt, self._transform)
         else:
-            for (x,y) in zip(xt, yt):            
+            for (x,y) in zip(xt, yt):
                 verts = ( (x+xoffset, y),
                           (x, y-offset),
                           (x-xoffset, y),
@@ -779,7 +862,7 @@ ACCEPTS: sequence of on/off ink in points
         offsetY2 = offset*0.81
         rgbFace = self._get_rgb_face()
 
-        if self._newstyle:            
+        if self._newstyle:
             path = agg.path_storage()
             path.move_to(0, offset)
             path.line_to(-offsetX1, offsetY1)
@@ -787,10 +870,10 @@ ACCEPTS: sequence of on/off ink in points
             path.line_to(+offsetX2, -offsetY2)
             path.line_to(+offsetX1, offsetY1)
             path.end_poly()
-                
+
             renderer.draw_markers(gc, path, rgbFace, xt, yt, self._transform)
         else:
-            for (x,y) in zip(xt, yt):            
+            for (x,y) in zip(xt, yt):
                 verts = ( (x, y+offset),
                           (x-offsetX1, y+offsetY1),
                           (x-offsetX2, y-offsetY2),
@@ -812,10 +895,10 @@ ACCEPTS: sequence of on/off ink in points
             path.line_to(0, -offset)
             path.line_to(offsetX1, -offsetY1)
             path.line_to(offsetX1, offsetY1)
-            path.end_poly()                
+            path.end_poly()
             renderer.draw_markers(gc, path, rgbFace, xt, yt, self._transform)
         else:
-            for (x,y) in zip(xt, yt):            
+            for (x,y) in zip(xt, yt):
                 verts = ( (x, y+offset),
                           (x-offsetX1, y+offsetY1),
                           (x-offsetX1, y-offsetY1),
@@ -829,7 +912,7 @@ ACCEPTS: sequence of on/off ink in points
         offsetX1 = offset*0.5
         offsetY1 = offset*0.87
         rgbFace = self._get_rgb_face()
-        if self._newstyle:            
+        if self._newstyle:
             path = agg.path_storage()
             path.move_to(offset, 0)
             path.line_to(offsetX1, offsetY1)
@@ -838,10 +921,10 @@ ACCEPTS: sequence of on/off ink in points
             path.line_to(-offsetX1, -offsetY1)
             path.line_to(offsetX1, -offsetY1)
             path.end_poly()
-                
+
             renderer.draw_markers(gc, path, rgbFace, xt, yt, self._transform)
         else:
-            for (x,y) in zip(xt, yt):            
+            for (x,y) in zip(xt, yt):
                 verts = ( (x+offset, y),
                           (x+offsetX1, y+offsetY1),
                           (x-offsetX1, y+offsetY1),
@@ -855,10 +938,10 @@ ACCEPTS: sequence of on/off ink in points
         if self._newstyle:
             path = agg.path_storage()
             path.move_to(0, -offset)
-            path.line_to(0, offset)                
+            path.line_to(0, offset)
             renderer.draw_markers(gc, path, None, xt, yt, self._transform)
         else:
-            for (x,y) in zip(xt, yt):            
+            for (x,y) in zip(xt, yt):
                 renderer.draw_line(gc, x, y-offset, x, y+offset)
 
     def _draw_hline(self, renderer, gc, xt, yt):
@@ -866,7 +949,7 @@ ACCEPTS: sequence of on/off ink in points
         if self._newstyle:
             path = agg.path_storage()
             path.move_to(-offset, 0)
-            path.line_to(offset, 0)                
+            path.line_to(offset, 0)
             renderer.draw_markers(gc, path, None, xt, yt, self._transform)
         else:
             for (x,y) in zip(xt, yt):
@@ -877,7 +960,7 @@ ACCEPTS: sequence of on/off ink in points
         if self._newstyle:
             path = agg.path_storage()
             path.move_to(-offset, 0)
-            path.line_to(0, 0)                            
+            path.line_to(0, 0)
             renderer.draw_markers(gc, path, None, xt, yt, self._transform)
         else:
             for (x,y) in zip(xt, yt):
@@ -889,7 +972,7 @@ ACCEPTS: sequence of on/off ink in points
         if self._newstyle:
             path = agg.path_storage()
             path.move_to(0, 0)
-            path.line_to(offset, 0)                
+            path.line_to(offset, 0)
             renderer.draw_markers(gc, path, None, xt, yt, self._transform)
         else:
             for (x,y) in zip(xt, yt):
@@ -900,7 +983,7 @@ ACCEPTS: sequence of on/off ink in points
         if self._newstyle:
             path = agg.path_storage()
             path.move_to(0, 0)
-            path.line_to(0, offset)                
+            path.line_to(0, offset)
             renderer.draw_markers(gc, path, None, xt, yt, self._transform)
         else:
             for (x,y) in zip(xt, yt):
@@ -911,7 +994,7 @@ ACCEPTS: sequence of on/off ink in points
         if self._newstyle:
             path = agg.path_storage()
             path.move_to(0, -offset)
-            path.line_to(0, 0)                
+            path.line_to(0, 0)
             renderer.draw_markers(gc, path, None, xt, yt, self._transform)
         else:
             for (x,y) in zip(xt, yt):
@@ -920,7 +1003,7 @@ ACCEPTS: sequence of on/off ink in points
     def _draw_plus(self, renderer, gc, xt, yt):
         offset = 0.5*renderer.points_to_pixels(self._markersize)
         if self._newstyle:
-            
+
             path = agg.path_storage()
             path.move_to(-offset, 0)
             path.line_to( offset, 0)
@@ -943,7 +1026,7 @@ ACCEPTS: sequence of on/off ink in points
             path.move_to(0, 0)
             path.line_to(offset1, offset2)
             path.move_to(0, 0)
-            path.line_to(-offset1, offset2)                
+            path.line_to(-offset1, offset2)
             renderer.draw_markers(gc, path, None, xt, yt, self._transform)
         else:
             for (x,y) in zip(xt, yt):
@@ -962,7 +1045,7 @@ ACCEPTS: sequence of on/off ink in points
             path.move_to(0, 0)
             path.line_to(offset1, -offset2)
             path.move_to(0, 0)
-            path.line_to(-offset1, -offset2)                
+            path.line_to(-offset1, -offset2)
             renderer.draw_markers(gc, path, None, xt, yt, self._transform)
         else:
             for (x,y) in zip(xt, yt):
@@ -981,7 +1064,7 @@ ACCEPTS: sequence of on/off ink in points
             path.move_to(0, 0)
             path.line_to(offset2, offset1)
             path.move_to(0, 0)
-            path.line_to(offset2, -offset1)                
+            path.line_to(offset2, -offset1)
             renderer.draw_markers(gc, path, None, xt, yt, self._transform)
         else:
             for (x,y) in zip(xt, yt):
@@ -1000,7 +1083,7 @@ ACCEPTS: sequence of on/off ink in points
             path.move_to(0, 0)
             path.line_to(-offset2, offset1)
             path.move_to(0, 0)
-            path.line_to(-offset2, -offset1)                
+            path.line_to(-offset2, -offset1)
             renderer.draw_markers(gc, path, None, xt, yt, self._transform)
         else:
             for (x,y) in zip(xt, yt):
@@ -1016,7 +1099,7 @@ ACCEPTS: sequence of on/off ink in points
             path.move_to(-offset, -offset)
             path.line_to(offset, offset)
             path.move_to(-offset, offset)
-            path.line_to(offset, -offset)                
+            path.line_to(offset, -offset)
             renderer.draw_markers(gc, path, None, xt, yt, self._transform)
         else:
             for (x,y) in zip(xt, yt):
@@ -1025,11 +1108,11 @@ ACCEPTS: sequence of on/off ink in points
 
     def update_from(self, other):
         'copy properties from other to self'
-        Artist.update_from(self, other)        
+        Artist.update_from(self, other)
         self._linestyle = other._linestyle
         self._linewidth = other._linewidth
         self._color = other._color
-        self._markersize = other._markersize        
+        self._markersize = other._markersize
         self._markerfacecolor = other._markerfacecolor
         self._markeredgecolor = other._markeredgecolor
         self._markeredgewidth = other._markeredgewidth
@@ -1050,74 +1133,74 @@ ACCEPTS: sequence of on/off ink in points
     def set_aa(self, val):
         'alias for set_antialiased'
         self.set_antialiased(val)
-    
+
     def set_c(self, val):
         'alias for set_color'
         self.set_color(val)
-    
+
 
     def set_ls(self, val):
         'alias for set_linestyle'
         self.set_linestyle(val)
-    
+
 
     def set_lw(self, val):
         'alias for set_linewidth'
         self.set_linewidth(val)
-    
+
 
     def set_mec(self, val):
         'alias for set_markeredgecolor'
         self.set_markeredgecolor(val)
-    
+
 
     def set_mew(self, val):
         'alias for set_markeredgewidth'
         self.set_markeredgewidth(val)
-    
+
 
     def set_mfc(self, val):
         'alias for set_markerfacecolor'
         self.set_markerfacecolor(val)
-    
+
 
     def set_ms(self, val):
         'alias for set_markersize'
         self.set_markersize(val)
-    
+
     def get_aa(self):
         'alias for get_antialiased'
         return self.get_antialiased()
-    
+
     def get_c(self):
         'alias for get_color'
         return self.get_color()
-    
+
 
     def get_ls(self):
         'alias for get_linestyle'
         return self.get_linestyle()
-    
+
 
     def get_lw(self):
         'alias for get_linewidth'
         return self.get_linewidth()
-    
+
 
     def get_mec(self):
         'alias for get_markeredgecolor'
         return self.get_markeredgecolor()
-    
+
 
     def get_mew(self):
         'alias for get_markeredgewidth'
         return self.get_markeredgewidth()
-    
+
 
     def get_mfc(self):
         'alias for get_markerfacecolor'
         return self.get_markerfacecolor()
-    
+
 
     def get_ms(self):
         'alias for get_markersize'

@@ -50,7 +50,7 @@ def get_color(rgb):
 
     if response == gtk.RESPONSE_OK:
         rgb = gdk_color_to_rgb(colorsel.get_current_color())
-    else: 
+    else:
         rgb = None
     dialog.destroy()
     return rgb
@@ -104,7 +104,7 @@ class LineDialog(gtk.Dialog):
         self.vbox.pack_start(table, True, True)
 
         row = 0
-        
+
         label = gtk.Label('linewidth')
         label.show()
         entry = gtk.Entry()
@@ -118,12 +118,12 @@ class LineDialog(gtk.Dialog):
         row += 1
 
         self.rgbLine = colorConverter.to_rgb(self.line.get_color())
-        
+
         def set_color(button):
             rgb = get_color(self.rgbLine)
             if rgb is not None:
                 self.rgbLine = rgb
-                
+
         label = gtk.Label('color')
         label.show()
         button = gtk.Button(stock=gtk.STOCK_SELECT_COLOR)
@@ -135,7 +135,7 @@ class LineDialog(gtk.Dialog):
                      xoptions=True, yoptions=False)
         row += 1
 
-        
+
         ## line styles
         label = gtk.Label('linestyle')
         label.show()
@@ -159,7 +159,7 @@ class LineDialog(gtk.Dialog):
         keys = lineMarkers.keys()
         keys.append('None')
         marker = line.get_marker()
-        if marker is None: marker = 'None'        
+        if marker is None: marker = 'None'
         styles = [marker]
         for key in keys:
             if key == marker: continue
@@ -171,9 +171,9 @@ class LineDialog(gtk.Dialog):
         table.attach(self.menuMarker, 1, 2, row, row+1,
                      xoptions=True, yoptions=False)
         row += 1
-        
-        
-        
+
+
+
         self.add_button(gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL)
         self.add_button(gtk.STOCK_APPLY, gtk.RESPONSE_APPLY)
         self.add_button(gtk.STOCK_OK, gtk.RESPONSE_OK)
@@ -210,21 +210,21 @@ class LineDialog(gtk.Dialog):
                 break
             elif response==gtk.RESPONSE_CANCEL:
                 break
-        self.destroy()            
+        self.destroy()
 
 
 class PickerCanvas(FigureCanvas):
     def button_press_event(self, widget, event):
         width = self.figure.bbox.width()
         height = self.figure.bbox.height()
-        
+
         self.pick(event.x, height-event.y)
 
-    def select_line(self, line):        
+    def select_line(self, line):
         dlg = LineDialog(line, self)
         dlg.show()
         dlg.run()
-        
+
     def select_text(self, text):
         print 'select text', text.get_text()
 
@@ -246,8 +246,8 @@ class PickerCanvas(FigureCanvas):
             # can't use the line bbox because it covers the entire extent
             # of the line
             trans = line.get_transform()
-            xdata, ydata = trans.numerix_x_y(line.get_xdata(),
-                                             line.get_ydata())
+            xdata, ydata = trans.numerix_x_y(line.get_xdata(valid_only = True),
+                                             line.get_ydata(valid_only = True))
             distances = sqrt((x-xdata)**2 + (y-ydata)**2)
             return amin(distances)<epsilon
 
@@ -260,14 +260,14 @@ class PickerCanvas(FigureCanvas):
 
             text = ax.get_xticklabels()
             text.extend( ax.get_yticklabels() )
-            
+
             for t in text:
                 if over_text(t):
                     self.select_text(t)
                     return
-                
 
-                            
+
+
 win = gtk.Window()
 win.set_default_size(400,300)
 win.set_name("Object Picker")

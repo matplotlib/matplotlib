@@ -96,6 +96,10 @@ class FigureCanvasTkAgg(FigureCanvasAgg):
                65508 : 'control',
                65506 : 'shift',
                65514 : 'alt',
+               65361 : 'left',
+               65362 : 'up',
+               65363 : 'right',
+               65364 : 'down',
                }
 
     def __init__(self, figure, master=None, resize_callback=None):

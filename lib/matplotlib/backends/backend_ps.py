@@ -4,7 +4,7 @@ A PostScript backend, which can produce both PostScript .ps and
 """
 
 from __future__ import division
-import sys, os, time
+import math, sys, os, time
 def _fn_name(): return sys._getframe(1).f_code.co_name
     
 from cStringIO import StringIO
@@ -22,10 +22,11 @@ from matplotlib.font_manager import fontManager
 from matplotlib.ft2font import FT2Font, KERNING_UNFITTED, KERNING_DEFAULT, KERNING_UNSCALED
 from matplotlib.mathtext import math_parse_s_ps, bakoma_fonts
 from matplotlib.text import Text
-
+from matplotlib.transforms import get_vec6_scales
 from matplotlib import get_data_path
 
-from matplotlib.numerix import fromstring, UInt8, Float32, equal, alltrue
+from matplotlib.numerix import fromstring, UInt8, Float32, equal, alltrue, \
+     nonzero, take, where, ones, put
 import binascii
 import re
 
@@ -307,19 +308,23 @@ grestore
         """
         if debugPS: self._pswriter.write('% draw_markers \n')
         
-
+        return 
         if rgbFace:
             if rgbFace[0]==rgbFace[0] and rgbFace[0]==rgbFace[2]:
                 ps_color = '%1.3f setgray' % rgbFace[0]
             else:
                 ps_color = '%1.3f %1.3f %1.3f setrgbcolor' % rgbFace
 
-        if transform.need_nonlinear():
-            x,y = transform.nonlinear_only_numerix(x, y)
+        #if transform.need_nonlinear():
+        #    x,y,mask = transform.nonlinear_only_numerix(x, y, returnMask=1)
+        #else:
+        #    mask = ones(x.shape)
+            
         x, y = transform.numerix_x_y(x, y)
 
         # the a,b,c,d,tx,ty affine which transforms x and y
-        vec6 = transform.as_vec6_val()
+        #vec6 = transform.as_vec6_val()
+        #theta = (180 / pi) * math.atan2 (vec6[1], src[0])
         # this defines a single vertex.  We need to define this as ps
         # function, properly stroked and filled with linewidth etc,
         # and then simply iterate over the x and y and call this
@@ -361,13 +366,14 @@ grestore
         ps_cmd.append('grestore') # undo translate()
         ps_cmd = '\n'.join(ps_cmd)
         
-        self._pswriter.write(' '.join(['/marker {', ps_cmd, '} bind def\n']))
-        
+        #self._pswriter.write(' '.join(['/marker {', ps_cmd, '} bind def\n']))
+        #self._pswriter.write('[%s]' % ';'.join([float(val) for val in vec6]))        
         # Now evaluate the marker command at each marker location:
 ##        points = zip(x,y)
         start  = 0
         end    = 1000
         while start < len(x):
+
             to_draw = izip(x[start:end],y[start:end])
 ##            ps = [ps_cmd % point for point in to_draw] 
             ps = ['%1.3f %1.3f marker' % point for point in to_draw] 
@@ -390,7 +396,8 @@ grestore
         ps = ["%1.3f %1.3f m" % points[0]] 
         ps.extend(["%1.3f %1.3f l" % point for point in points[1:] ])
         self._draw_ps("\n".join(ps), gc, None)
-        
+
+
     def draw_lines(self, gc, x, y, transform=None):
         """
         x and y are equal length arrays, draw lines connecting each
@@ -398,9 +405,9 @@ grestore
         """
         if debugPS: self._pswriter.write('% draw_lines \n')
  
-        if transform:
-            if transform.need_nonlinear():
-                x, y = transform.nonlinear_only_numerix(x, y)
+        if transform:  # this won't be called if draw_markers is hidden
+            #if transform.need_nonlinear():
+            #    x, y = transform.nonlinear_only_numerix(x, y)
             x, y = transform.numerix_x_y(x, y)
         
         start  = 0
@@ -413,7 +420,59 @@ grestore
             self._draw_ps("\n".join(ps), gc, None)
             start = end
             end   += 1000
+        
+    def __draw_lines_hide(self, gc, x, y, transform=None):
+        """
+        x and y are equal length arrays, draw lines connecting each
+        point in x, y
+        """
+        if debugPS: self._pswriter.write('% draw_lines \n')
+    
+    
+        if transform:
+            if transform.need_nonlinear():
+                x, y, mask = transform.nonlinear_only_numerix(x, y, returnMask=1)
+            else:
+                mask = ones(x.shape)
 
+        vec6 = transform.as_vec6_val()
+        a,b,c,d,tx,ty = vec6
+        sx, sy = get_vec6_scales(vec6)
+
+        start  = 0
+        end    = 1000
+        points = zip(x,y)
+
+        write = self._pswriter.write
+        write('gsave\n')
+        self.push_gc(gc)
+        write('[%f %f %f %f %f %f] concat\n'%(a,b,c,d,tx,ty))                
+        
+        while start < len(x):
+            # put moveto on all the bad data and on the first good
+            # point after the bad data
+            codes = where(mask[start:end+1], 'l', 'm')
+            ind = nonzero(mask[start:end+1]==0)+1
+            if ind[-1]>=len(codes):
+                ind = ind[:-1]
+            put(codes, ind, 'm')
+            
+            thisx = x[start:end+1]
+            thisy = y[start:end+1]
+            to_draw = izip(thisx, thisy, codes)
+            if not to_draw:
+                break
+
+            ps = ['%1.3f %1.3f m' % to_draw.next()[:2]]
+            ps.extend(["%1.3f %1.3f %c" % tup for tup in to_draw])
+            # we don't want to scale the line width, etc so invert the
+            # scale for the stroke
+            ps.append('\ngsave %f %f scale stroke grestore\n'%(1./sx,1./sy))
+            write('\n'.join(ps))
+            start = end
+            end   += 1000
+        write("grestore\n")
+        
     def draw_lines_old(self, gc, x, y):
         """
         x and y are equal length arrays, draw lines connecting each
@@ -642,6 +701,28 @@ grestore
         write("stroke\n")
         if cliprect:
             write("grestore\n")
+
+    def push_gc(self, gc):
+        """
+        Push the current onto stack
+        """
+        # local variable eliminates all repeated attribute lookups
+        write = self._pswriter.write
+        
+        cliprect = gc.get_clip_rectangle()
+        self.set_color(*gc.get_rgb())
+        self.set_linewidth(gc.get_linewidth())
+        # TODO: move the lookup into GraphicsContextPS
+        jint = {'miter':0, 'round':1, 'bevel':2}[gc.get_joinstyle()]
+        self.set_linejoin(jint)
+        # TODO: move the lookup into GraphicsContextPS
+        cint = {'butt':0, 'round':1, 'projecting':2}[gc.get_capstyle()]
+        self.set_linecap(cint)
+        self.set_linedash(*gc.get_dashes())
+        if cliprect:
+            x,y,w,h=cliprect
+            write('%1.3f %1.3f %1.3f %1.3f clipbox\n' % (w,h,x,y))
+        write("\n")        
 
 
 class GraphicsContextPS(GraphicsContextBase):
