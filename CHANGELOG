@@ -1,5 +1,6 @@
 New entries should be added at the top
 
+2005-04-26 Added embedding in qt example.
 
 2005-04-14 Applied Michael Brady's qt backend patch: 1) fix a bug
            where keyboard input was grabbed by the figure and not
