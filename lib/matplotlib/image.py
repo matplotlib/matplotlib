@@ -80,13 +80,17 @@ class AxesImage(Artist, cm.ScalarMappable):
 
 
         self._imcache = None
+        self._isbuffer = False
         
     def get_size(self):
         'Get the numrows, numcols of the input image'
         if self._A is None:
             raise RuntimeError('You must first set the image array')
 
-        return self._A.shape[:2]
+        if self._isbuffer:
+            return self._shape
+        else:
+            return self._A.shape[:2]
 
     def set_alpha(self, alpha):
         """
@@ -109,9 +113,12 @@ ACCEPTS: float
     def make_image(self, flipy):
         if self._A is not None:
             if self._imcache is None:
-                x = self.to_rgba(self._A, self._alpha)
-                im = _image.fromarray(x, 0)
-                self._imcache = im
+                if self._isbuffer:
+                    im = _image.frombuffer(self._A, self._shape[0], self._shape[1], 0)
+                else:
+                    x = self.to_rgba(self._A, self._alpha)
+                    im = _image.fromarray(x, 0)
+                    self._imcache = im
             else:
                 im = self._imcache
         else:
@@ -120,8 +127,11 @@ ACCEPTS: float
 
         bg = colorConverter.to_rgba(self.axes.get_frame().get_facecolor(), 0)
         im.set_bg( *bg)
-        im.is_grayscale = (self.cmap.name == "gray" and
-                           len(self._A.shape) == 2)
+        if self._isbuffer:
+            im.is_greyscale = False
+        else:
+            im.is_grayscale = (self.cmap.name == "gray" and
+                               len(self._A.shape) == 2)
         
         im.set_aspect(self._aspectd[self._aspect])        
         im.set_interpolation(self._interpd[self._interpolation])
@@ -196,17 +206,27 @@ ACCEPTS: float
         im.write_png(fname)
         
 
-    def set_data(self, A):
+    def set_data(self, A, shape=None):
         """
 Set the image array
 
 ACCEPTS: numeric/numarray/PIL Image A"""
         # check if data is PIL Image without importing Image
-        if hasattr(A,'getpixel'): X = pil_to_array(A)
-        else: X = A # assume array
-        cm.ScalarMappable.set_array(self, X)
-        self._imcache =None
+        if shape is None:
+            if hasattr(A,'getpixel'): X = pil_to_array(A)
+            else: X = A # assume array
+            cm.ScalarMappable.set_array(self, X)
+            self._isbuffer = False
+        else:
+            if not isinstance(shape, tuple):
+                raise ValueError
+            if not len(shape) == 2:
+                raise ValueError
+            self._shape = shape
+            self._A = A
+            self._isbuffer = True
 
+        self._imcache =None
 
     def set_array(self, A):
         """

@@ -767,7 +767,7 @@ def figure(num=None, # autoincrement if None, else integer from 1-N
 
     kwargs:
 
-      figsize - width in height x inches; defaults to rc figure.figsize
+      figsize - width x height in inches; defaults to rc figure.figsize
       dpi     - resolution; defaults to rc figure.dpi
       facecolor - the background color; defaults to rc figure.facecolor
       edgecolor - the border color; defaults to rc figure.edgecolor
