@@ -721,14 +721,15 @@ class Axes(Artist):
         # limits and set the bound to be the bounds of the xydata.
         # Otherwise, it will compute the bounds of it's current data
         # and the data in xydata
+        #print type(x), type(y)
         self.dataLim.update_numerix(x, y, not self.has_data())
 
     def add_line(self, l):
         'Add a line to the list of plot lines'
         self._set_artist_props(l)
         l.set_clip_box(self.bbox)
-        xdata = l.get_xdata()
-        ydata = l.get_ydata()
+        xdata = l.get_xdata(valid_only=True)
+        ydata = l.get_ydata(valid_only=True)
 
         if l.get_transform() != self.transData:
             xys = self._get_verts_in_data_coords(
@@ -1678,7 +1679,8 @@ class Axes(Artist):
                vmin = None,
                vmax = None,
                origin=None,
-               extent=None):
+               extent=None,
+               shape=None):
         """
 
         IMSHOW(X, cmap=None, norm=None, aspect=None, interpolation=None,
@@ -1701,6 +1703,19 @@ class Axes(Artist):
             MxNx4  : RGBA
 
         A matplotlib.image.AxesImage instance is returned
+
+
+        Alternative form:
+
+        IMSHOW(BUFFER, aspect=None, interpolation=None, vmax=None, 
+               origin=None, extent=None, shape=SHAPE)
+
+        Display a buffer of shape shape stored in 4 byte per pixel, RGBA 
+		form.  BUFFER can be any read-only or writable buffer (eg: string
+        or array.array); writable buffers will be altered when shown.
+		SHAPE is required and should be a tupple of length 2:
+        (width, height).  Allowed keyword arguments cmap, norm, alpha, vmin
+        and vmax are ignored.
 
         The following kwargs are allowed:
 
@@ -1741,10 +1756,10 @@ class Axes(Artist):
         if cmap is not None: assert(isinstance(cmap, Colormap))
 
         im = AxesImage(self, cmap, norm, aspect, interpolation, origin, extent)
-        if norm is None:
+        if norm is None and shape is None:
             im.set_clim(vmin, vmax)
 
-        im.set_data(X)
+        im.set_data(X, shape)
         im.set_alpha(alpha)
 
         xmin, xmax, ymin, ymax = im.get_extent()
