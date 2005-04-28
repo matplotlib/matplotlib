@@ -31,11 +31,40 @@ import binascii
 import re
 
 backend_version = 'Level II'
-defaultPaperSize = 8.5,11               # TODO: make this configurable
+
 debugPS = 1
 
-
-
+papersize = {'executive': (7.5,11),
+             'letter': (8.5,11),
+             'legal': (8.5,14), 
+             'ledger': (11,17),
+             'a0': (33.11,46.81),
+             'a1': (23.39,33.11),
+             'a2': (16.54,23.39),
+             'a3': (11.69,16.54),
+             'a4': (8.27,11.69),
+             'a5': (5.83,8.27),
+             'a6': (4.13,5.83),
+             'a7': (2.91,4.13),
+             'a8': (2.07,2.91),
+             'a9': (1.457,2.05),
+             'a10': (1.02,1.457),
+             'b0': (40.55,57.32),
+             'b1': (28.66,40.55),
+             'b2': (20.27,28.66),
+             'b3': (14.33,20.27),
+             'b4': (10.11,14.33),
+             'b5': (7.16,10.11),
+             'b6': (5.04,7.16),
+             'c0': (36.10,51.06),
+             'c1': (25.51,36.10),
+             'c2': (18.03,25.51),
+             'c3': (12.75,18.03),
+             'c4': (9.01,12.75),
+             'c5': (6.38,9.01),
+             'c6': (4.49,6.38)}
+defaultPaperType = rcParams['ps.papersize']
+defaultPaperSize = papersize[defaultPaperType]
 
 def _num_to_str(val):
     if is_string_like(val): return val
@@ -334,7 +363,6 @@ grestore
         # construct the generic marker command:
         ps_cmd = ['gsave']
         ps_cmd.append('newpath')
-##        ps_cmd.append('%1.3f %1.3f translate')
         ps_cmd.append('translate')
         while 1:
             code, xp, yp = path.vertex()
@@ -357,6 +385,7 @@ grestore
             else:
                 pass
                 #print code
+                
         if rgbFace:
             ps_cmd.append('gsave')
             ps_cmd.append(ps_color)
@@ -369,21 +398,15 @@ grestore
         #self._pswriter.write(' '.join(['/marker {', ps_cmd, '} bind def\n']))
         #self._pswriter.write('[%s]' % ';'.join([float(val) for val in vec6]))        
         # Now evaluate the marker command at each marker location:
-##        points = zip(x,y)
         start  = 0
         end    = 1000
         while start < len(x):
 
             to_draw = izip(x[start:end],y[start:end])
-##            ps = [ps_cmd % point for point in to_draw] 
             ps = ['%1.3f %1.3f marker' % point for point in to_draw] 
             self._draw_ps("\n".join(ps), gc, None)
             start = end
             end   += 1000
-        
-##        draw_ps = self._draw_ps
-##        for xp,yp in izip(x,y):
-##            draw_ps(ps_cmd % (xp,yp), gc, None)
             
     def draw_path(self,gc,rgbFace,path,trans):
         pass
@@ -905,6 +928,7 @@ class FigureCanvasPS(FigureCanvasBase):
             else:
                 ostr="Portrait"
             print >>fh, "%%Orientation: "+ostr
+            print >>fh, "%%DocumentPaperSizes: "+defaultPaperType
         print >>fh, "%%%%BoundingBox: %d %d %d %d" % (llx, lly, urx, ury)
         if not isEPSF: print >>fh, "%%Pages: 1"
         print >>fh, "%%EndComments"
