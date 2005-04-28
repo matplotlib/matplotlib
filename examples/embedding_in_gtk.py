@@ -1,5 +1,8 @@
 #!/usr/bin/env python
-# show how to add a matplotlib FigureCanvasGTK widget to a gtk.Window
+"""
+show how to add a matplotlib FigureCanvasGTK or FigureCanvasGTKAgg widget to a
+gtk.Window
+"""
 
 from matplotlib.numerix import arange, sin, pi
 
