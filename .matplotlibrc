@@ -176,6 +176,7 @@ tk.window_focus   : False    # Maintain shell focus for TkAgg
 tk.pythoninspect  : False    # tk sets PYTHONINSEPCT
 
 # ps backend params
+ps.papersize      : letter   # executive, letter, legal, ledger, A0-A10, B0-B6, C0-C6
 ps.useafm         : False    # use of afm fonts -- breaks mathtext but results in small files
 
 # Set the verbose flags.  This controls how much information
