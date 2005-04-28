@@ -30,7 +30,7 @@
 #endif   
 
 /* ------------ RendererAgg methods ------------- */
-
+ 
 
 GCAgg::GCAgg(const Py::Object &gc, double dpi) : 
   dpi(dpi), isaa(true), linewidth(1.0), alpha(1.0), cliprect(NULL), 
@@ -40,6 +40,7 @@ GCAgg::GCAgg(const Py::Object &gc, double dpi) :
   linewidth = points_to_pixels ( gc.getAttr("_linewidth") ) ;
   alpha = Py::Float( gc.getAttr("_alpha") );
   color = get_color(gc);
+  _set_antialiased(gc);
   _set_linecap(gc);
   _set_joinstyle(gc);
   _set_dashes(gc);
@@ -913,6 +914,7 @@ RendererAgg::draw_lines(const Py::Tuple& args) {
   _VERBOSE("RendererAgg::draw_lines");
   args.verify_length(4);  
   GCAgg gc = GCAgg(args[0], dpi);
+  
   set_clipbox_rasterizer(gc.cliprect);
   
   Py::Object xo = args[1];

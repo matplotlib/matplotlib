@@ -5,7 +5,8 @@
 # ie, where matplotlib installs its data files (fonts, etc).  On
 # windows, this would be, for example, C:\Python23\share\matplotlib.
 # On OSX, using the python framework, it will be (depending on your
-# version number) in /System/Library/Frameworks/Python.framework/Versions/2.3/share/matplotlib/.matplotlibrc
+# version number) in 
+# /System/Library/Frameworks/Python.framework/Versions/2.3/share/matplotlib/.matplotlibrc
 
 #
 # By default, the installer will overwrite the existing file in the
@@ -69,8 +70,8 @@ patch.antialiased 	: True    # render patches in antialised (no jaggies)
 
 ### FONT
 #
-# font properties used by text.Text.  see
-# http://matplotlib.sourceforge.net/matplotlib.fonts.html for more
+# font properties used by text.Text.  See
+# http://matplotlib.sourceforge.net/matplotlib.font_manager.html for more
 # information on font properties.  The 6 font properties used for font
 # matching are given below with their default values.
 #
@@ -119,13 +120,14 @@ font.monospace      : Andale Mono, Bitstream Vera Sans Mono, Nimbus Mono L, Cour
 
 ### TEXT
 # text properties used by text.Text.  See
-# http://matplotlib.sourceforge.net/matplotlib.Text.html for more
+# http://matplotlib.sourceforge.net/matplotlib.text.html for more
 # information on text properties
 text.color          : black
 
 ### AXES
 # default face and edge color, default tick sizes,
-# default fontsizes for ticklabels, and so on
+# default fontsizes for ticklabels, and so on.  See
+# http://matplotlib.sourceforge.net/matplotlib.axes.html#Axes
 axes.hold           : True    # whether to clear the axes by default on
 axes.facecolor      : white   # axes background color
 axes.edgecolor      : black   # axes edge color
@@ -138,6 +140,7 @@ axes.labelcolor     : black
 polaraxes.grid      : True    # display grid on polar axes
 
 ### TICKS
+# see http://matplotlib.sourceforge.net/matplotlib.axis.html#Ticks
 tick.major.size     : 4      # major tick size in points
 tick.minor.size     : 2      # minor tick size in points
 tick.major.pad      : 4      # distance to major tick label in points
@@ -151,6 +154,7 @@ grid.linestyle   :   :       # dotted
 grid.linewidth   :   0.5     # in points            
 
 ### FIGURE
+# See http://matplotlib.sourceforge.net/matplotlib.figure.html#Figure
 figure.figsize   : 8, 6    # figure size in inches
 figure.dpi       : 80      # figure dots per inch
 figure.facecolor : 0.75    # figure facecolor; 0.75 is scalar gray

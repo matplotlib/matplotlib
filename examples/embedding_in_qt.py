@@ -1,8 +1,13 @@
 #! /usr/bin/env python
+
+# embedding_in_qt.py --- Simple Qt application embedding matplotlib canvases
+#
 # Copyright (C) 2005 Florent Rougon
 #
-# This file is an example program for matplotlib. It may be used,
-# distributed and modified without limitation.
+# This file is an example program for matplotlib. It may be used and
+# modified with no restriction; raw copies as well as modified versions
+# may be distributed without limitation.
+
 import sys, os, random
 from qt import *
 
@@ -10,12 +15,16 @@ from matplotlib.numerix import arange, sin, pi
 
 # The QApplication has to be created before backend_qt is imported, otherwise
 # it will create one itself.
+# Note: color-intensive applications may require a different color allocation
+# strategy.
 QApplication.setColorSpec(QApplication.NormalColor)
 app = QApplication(sys.argv)
 
 from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
 
+# This seems to be what PyQt expects, according to the examples shipped in
+# its distribution.
 TRUE  = 1
 FALSE = 0
 
@@ -23,10 +32,10 @@ progname = os.path.basename(sys.argv[0])
 progversion = "0.1"
 
 
-class FloMplCanvas(FigureCanvas):
-    """Ultimately, this is a qWidget (as well as a FigureCanvasAgg, etc.)."""
+class MyMplCanvas(FigureCanvas):
+    """Ultimately, this is a QWidget (as well as a FigureCanvasAgg, etc.)."""
     def __init__(self, parent=None, width=5, height=4, dpi=100):
-        self.fig = Figure(figsize=(width,height), dpi=dpi)
+        self.fig = Figure(figsize=(width, height), dpi=dpi)
         self.axes = self.fig.add_subplot(111)
         self.compute_initial_figure()
         
@@ -46,16 +55,19 @@ class FloMplCanvas(FigureCanvas):
         return QSize(10, 10)
 
 
-class FloCanvas1(FloMplCanvas):
+class MyStaticMplCanvas(MyMplCanvas):
+    """Simple canvas with a sine plot."""
     def compute_initial_figure(self):
         t = arange(0.0, 3.0, 0.01)
         s = sin(2*pi*t)
         self.axes.plot(t, s)
 
-class FloCanvas2(FloMplCanvas):
+
+class MyDynamicMplCanvas(MyMplCanvas):
+    """A canvas that updates itself every second with a new plot."""
     def __init__(self, *args, **kwargs):
-        FloMplCanvas.__init__(self, *args, **kwargs)
-        timer = QTimer(self, "Canvas update timer")
+        MyMplCanvas.__init__(self, *args, **kwargs)
+        timer = QTimer(self, "canvas update timer")
         QObject.connect(timer, SIGNAL("timeout()"), self.update_figure)
         timer.start(1000, FALSE)
 
@@ -63,11 +75,10 @@ class FloCanvas2(FloMplCanvas):
          self.axes.plot([0, 1, 2, 3], [1, 2, 0, 4], 'r')
 
     def update_figure(self):
-        l = []
-        for i in range(4):
-            l.append(random.randint(0, 10))
+        # Build a list of 4 random integers between 0 and 10 (both inclusive)
+        l = [ random.randint(0, 10) for i in xrange(4) ]
 
-        self.axes.lines = []
+        self.axes.lines = []            # Throw away the previous plot
         self.axes.plot([0, 1, 2, 3], l, 'r')
         self.draw()
 
@@ -82,8 +93,6 @@ class ApplicationWindow(QMainWindow):
         self.file_menu.insertItem('&Quit', self.fileQuit, Qt.CTRL + Qt.Key_Q)
         self.menuBar().insertItem('&File', self.file_menu)
 
-#        self.file_menu.insertSeparator()
-
         self.help_menu = QPopupMenu(self)
         self.menuBar().insertSeparator()
         self.menuBar().insertItem('&Help', self.help_menu)
@@ -93,15 +102,15 @@ class ApplicationWindow(QMainWindow):
         self.main_widget = QWidget(self, "Main widget")
 
         l = QVBoxLayout(self.main_widget)
-        c1 = FloCanvas1(self.main_widget, width=5, height=4, dpi=100)
-        c2 = FloCanvas2(self.main_widget, width=5, height=4, dpi=100)
-        l.addWidget(c1)
-        l.addWidget(c2)
+        sc = MyStaticMplCanvas(self.main_widget, width=5, height=4, dpi=100)
+        dc = MyDynamicMplCanvas(self.main_widget, width=5, height=4, dpi=100)
+        l.addWidget(sc)
+        l.addWidget(dc)
 
         self.main_widget.setFocus()
         self.setCentralWidget(self.main_widget)
 
-        self.statusBar().message("Ready", 2000)
+        self.statusBar().message("All hail matplotlib!", 2000)
 
     def fileQuit(self):
         qApp.exit(0)
@@ -111,19 +120,23 @@ class ApplicationWindow(QMainWindow):
 
     def about(self):
         QMessageBox.about(self, "About %s" % progname,
-"""%(prog)s version %(version)s
-Copyright (c) 2005 Florent Rougon
+u"""%(prog)s version %(version)s
+Copyright \N{COPYRIGHT SIGN} 2005 Florent Rougon
 
-This program is a monitor for the Conrad Charge Manager 2010
-""" % {"prog": progname, "version": progversion})
+This program is a simple example of a Qt application embedding matplotlib
+canvases.
+
+It may be used and modified with no restriction; raw copies as well as
+modified versions may be distributed without limitation."""
+                          % {"prog": progname, "version": progversion})
 
 
 def main():
-    mw = ApplicationWindow()
-    mw.setCaption("%s" % progname)
-    qApp.setMainWidget(mw)
-    mw.show()
-    sys.exit(app.exec_loop())
+    aw = ApplicationWindow()
+    aw.setCaption("%s" % progname)
+    qApp.setMainWidget(aw)
+    aw.show()
+    sys.exit(qApp.exec_loop())
 
 
 if __name__ == "__main__": main()

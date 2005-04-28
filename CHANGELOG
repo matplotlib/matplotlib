@@ -1,8 +1,10 @@
 New entries should be added at the top
 
+2005-04-28 Fixed aa property in agg - JDH
+
 2005-04-27 Set postscript page size in .matplotlibrc - DSD
 
-2005-04-26 Added embedding in qt example.
+2005-04-26 Added embedding in qt example. - JDH
 
 2005-04-14 Applied Michael Brady's qt backend patch: 1) fix a bug
            where keyboard input was grabbed by the figure and not
