@@ -215,7 +215,7 @@ class FigureCanvasGTK(gtk.DrawingArea, FigureCanvasBase):
             self._idleID = 0
             return False
         if self._idleID==0:
-            self._idleID = gtk.idle_add(idle_draw)
+            self._idleID = gobject.idle_add(idle_draw)
 
 
     def _renderer_init(self):
@@ -513,7 +513,7 @@ class NavigationToolbar2GTK(NavigationToolbar2, gtk.Toolbar):
                 self._idleId = 0
                 return False
             if self._idleId==0:
-                self._idleId = gtk.idle_add(idle_draw)
+                self._idleId = gobject.idle_add(idle_draw)
         
 
     def _init_toolbar(self):
