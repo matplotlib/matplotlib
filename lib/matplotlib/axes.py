@@ -2415,7 +2415,7 @@ class Axes(Artist):
         If you make multiple lines with one plot command, the kwargs apply
         to all those lines, eg
 
-            plot(x1, y1, x2, y2, antialising=False)
+            plot(x1, y1, x2, y2, antialised=False)
 
         Neither line will be antialiased.
         """

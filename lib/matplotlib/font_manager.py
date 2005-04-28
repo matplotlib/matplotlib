@@ -415,27 +415,18 @@ the FontKey properties.  If a font property has no dictionary, then
 create it.
 """
 
-    if not fontdict.has_key(prop.name):
-        fontdict[prop.name] = {}
-    fontdict = fontdict[prop.name]
-    if not fontdict.has_key(prop.style):
-        fontdict[prop.style] = {}
-    fontdict = fontdict[prop.style]
-    if not fontdict.has_key(prop.variant):
-        fontdict[prop.variant] = {}
-    fontdict = fontdict[prop.variant]
-    if not fontdict.has_key(prop.weight):
-        fontdict[prop.weight] = {}
-    fontdict = fontdict[prop.weight]
-    if not fontdict.has_key(prop.stretch):
-        fontdict[prop.stretch] = {}
-    fontdict = fontdict[prop.stretch]
-
     try:
         size = str(float(prop.size))
     except ValueError:
         size = prop.size
-    fontdict[size] = fname
+
+    d = fontdict.                    \
+        setdefault(prop.name,    {}).\
+        setdefault(prop.style,   {}).\
+        setdefault(prop.variant, {}).\
+        setdefault(prop.weight,  {}).\
+        setdefault(prop.stretch, {})
+    d[size] = fname
 
 
 def createFontDict(fontfiles, fontext='ttf'):

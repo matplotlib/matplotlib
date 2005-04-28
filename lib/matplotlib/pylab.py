@@ -187,7 +187,6 @@ Most of the other commands are from Numeric, MLab and FFT, with the
 exception of those in mlab.py provided by matplotlib.
 """
 
-import gzip
 import cm
 import _pylab_helpers
 import mlab  #so I can override hist, psd, etc...
@@ -906,6 +905,7 @@ def load(fname,comments='%'):
 
     if is_string_like(fname):
         if fname.endswith('.gz'):
+            import gzip
             fh = gzip.open(fname)
         else:
             fh = file(fname)
@@ -962,6 +962,7 @@ def save(fname, X, fmt='%.18e'):
 
     if is_string_like(fname):
         if fname.endswith('.gz'):
+            import gzip
             fh = gzip.open(fname,'wb')
         else:
             fh = file(fname,'w')
