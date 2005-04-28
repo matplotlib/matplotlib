@@ -1,14 +1,18 @@
 #!/usr/bin/env python
-# show how to add a matplotlib FigureCanvasGTK widget and a toolbar to a gtk.Window
+"""
+show how to add a matplotlib FigureCanvasGTK or FigureCanvasGTKAgg widget and
+a toolbar to a gtk.Window
+"""
 
 from matplotlib.numerix import arange, sin, pi
 
 import matplotlib
-matplotlib.use('GTKAgg')  # or 'GTK'
+#matplotlib.use('GTK')
+matplotlib.use('GTKAgg')
 
 # switch comments for gtk over gtkagg
-from matplotlib.backends.backend_gtk import FigureCanvasGTK as FigureCanvas
-#from matplotlib.backends.backend_gtkagg import FigureCanvasGTKAgg as FigureCanvas
+#from matplotlib.backends.backend_gtk import FigureCanvasGTK as FigureCanvas
+from matplotlib.backends.backend_gtkagg import FigureCanvasGTKAgg as FigureCanvas
 
 # or NavigationToolbar for classic
 from matplotlib.backends.backend_gtk import NavigationToolbar2GTK as NavigationToolbar
