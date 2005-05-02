@@ -534,7 +534,6 @@ class Axis(Artist):
         self.minor.formatter.set_locs(minorLocs)
         minorLabels = [self.minor.formatter(val, i) for i, val in enumerate(minorLocs)]
 
-
         for tick, loc, label in zip(minorTicks, minorLocs, minorLabels):
             if tick is None: continue
             if not interval.contains(loc): continue
@@ -550,16 +549,11 @@ class Axis(Artist):
                 extent = tick.label2.get_window_extent(renderer) 
                 ticklabelBoxes2.append(extent)
 
-
-
         # scale up the axis label box to also find the neighbors, not
         # just the tick labels that actually overlap note we need a
         # *copy* of the axis label box because we don't wan't to scale
         # the actual bbox
-
-
         self._update_label_postion(ticklabelBoxes, ticklabelBoxes2)
-
         self.label.draw(renderer)  # memory leak here, vertical text
 
         if 0: # draw the bounding boxes around the text for debug
@@ -572,7 +566,6 @@ class Axis(Artist):
 
     def _get_label(self):
         raise NotImplementedError('Derived must override')
-
 
     def get_gridlines(self):
         'Return the grid lines as a list of Line2D instance'
@@ -588,7 +581,6 @@ class Axis(Artist):
         labels2 = [tick.label2 for tick in self.get_major_ticks() if tick.label2On]
         return silent_list('Text ticklabel', labels1+labels2)
         
-
     def get_ticklines(self):
         'Return the ticklines lines as a list of Line2D instance'
         lines = []

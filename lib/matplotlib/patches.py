@@ -425,6 +425,7 @@ def bbox_artist(artist, renderer, props=None):
     'pad' that sets the padding around the bbox in points
     """
     if props is None: props = {}
+    props = props.copy() # don't want to alter the pad externally
     pad = popd(props, 'pad', 4)
     pad = renderer.points_to_pixels(pad)
     bbox = artist.get_window_extent(renderer)
