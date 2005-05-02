@@ -459,6 +459,22 @@ class Axis(Artist):
         self.majorTicks = []
         self.minorTicks = []
         
+        if self.__name__=='xaxis': 
+            ox,oy = 1, -0.06
+            v,h = 'top','right'
+        else: 
+            ox,oy = 0, 1.01
+            v,h='bottom','left'
+        self.offsetText = Text(x=ox, y=oy,
+            fontproperties = FontProperties(size=rcParams['tick.labelsize']),
+            color = rcParams['axes.labelcolor'],
+            verticalalignment=v,
+            horizontalalignment=h,
+            )
+        self.offsetText.set_transform(self.axes.transAxes)
+##        self.offsetText.set_transform( blend_xy_sep_transform( self.axes.transAxes,
+##                                                     identity_transform() ))
+        self._set_artist_props(self.offsetText)
 
         self.cla()
         
@@ -548,6 +564,9 @@ class Axis(Artist):
             if tick.label2On:
                 extent = tick.label2.get_window_extent(renderer) 
                 ticklabelBoxes2.append(extent)
+        
+        self.offsetText.set_text( self.major.formatter.get_offset() )
+        self.offsetText.draw(renderer)
 
         # scale up the axis label box to also find the neighbors, not
         # just the tick labels that actually overlap note we need a
@@ -660,6 +679,7 @@ class Axis(Artist):
         ticks = self.minorTicks[:numticks]
 
         return ticks
+        
 
     def grid(self, b=None, which='major'): 
         """
@@ -719,6 +739,7 @@ ACCEPTS: a Locator instance"""
         self.minor.locator = locator
         self.minor.locator.set_view_interval( self.get_view_interval() )
         self.minor.locator.set_data_interval( self.get_data_interval() )
+        
                
     def set_ticklabels(self, ticklabels, *args, **kwargs):
         """
@@ -857,7 +878,6 @@ ACCEPTS: [ 'top' | 'bottom' ]
     def get_data_interval(self):
         'return the Interval instance for this axis data limits'
         return self.axes.dataLim.intervalx()
-
 
 
 class YAxis(Axis):
