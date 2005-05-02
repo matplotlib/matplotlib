@@ -11,7 +11,7 @@ import matplotlib.mlab
 from artist import Artist
 from axis import XAxis, YAxis
 from cbook import iterable, is_string_like, flatten, enumerate, \
-     allequal, dict_delall, strip_math, popd, popall, silent_list
+     allequal, dict_delall, popd, popall, silent_list
 from collections import RegularPolyCollection, PolyCollection, LineCollection
 from colors import colorConverter, normalize, Colormap, LinearSegmentedColormap, looks_like_color
 import cm
@@ -582,15 +582,8 @@ class Axes(Artist):
         """
         try: return self.fmt_xdata(x)
         except TypeError:
-            func = self.xaxis.get_major_formatter()
-            # log formatters label only the decades which is not what
-            # we want for coord formatting.  hackish, yes
-            if isinstance(func, LogFormatter) and func.labelOnlyBase:
-                func.labelOnlyBase = False
-                val = strip_math(func(x))
-                func.labelOnlyBase = True
-            else:
-                val = func(x)
+            func = self.xaxis.get_major_formatter().format_data
+            val = func(x)
             return val
 
     def format_ydata(self, y):
@@ -601,15 +594,8 @@ class Axes(Artist):
         """
         try: return self.fmt_ydata(y)
         except TypeError:
-            func = self.yaxis.get_major_formatter()
-            # log formatters label only the decades which is not what
-            # we want for coord formatting.  hackish, yes
-            if isinstance(func, LogFormatter) and func.labelOnlyBase:
-                func.labelOnlyBase = False
-                val = strip_math(func(y))
-                func.labelOnlyBase = True
-            else:
-                val =  func(y)
+            func = self.yaxis.get_major_formatter().format_data
+            val =  func(y)
             return val
 
     def format_coord(self, x, y):

@@ -111,8 +111,11 @@ from __future__ import division
 import sys, os, re, time, math, warnings
 from mlab import linspace
 from matplotlib import verbose
-from numerix import arange, array, asarray, ones, zeros, \
-     nonzero, take, Float, log, logical_and
+from numerix import absolute, arange, array, asarray, average, Float, floor, log, \
+     logical_and, nonzero, ones, take, zeros
+from matplotlib.numerix.mlab import amin, amax, std
+from matplotlib.mlab import frange
+from cbook import strip_math
 
 class TickHelper:
 
@@ -144,6 +147,12 @@ class Formatter(TickHelper):
     def __call__(self, x, pos=0):
         'Return the format for tick val x at position pos'
         raise NotImplementedError('Derived must overide')
+        
+    def format_data(self,value):
+        return self.__call__(value)
+        
+    def get_offset(self):
+        return ''
 
     def set_locs(self, locs):
         self.locs = locs
@@ -190,10 +199,8 @@ class FormatStrFormatter(Formatter):
     def __call__(self, x, pos=0):
         'Return the format for tick val x at position pos'
         return self.fmt % x
-
-
-
-
+        
+        
 class ScalarFormatter(Formatter):
     """
     Tick location is a plain old number.  If viewInterval is set, the
@@ -231,7 +238,116 @@ class ScalarFormatter(Formatter):
             s = s.rstrip('0').rstrip('.')
         return s
 
-class LogFormatter(ScalarFormatter):
+
+class NewScalarFormatter(Formatter):
+    """
+    Tick location is a plain old number.  If useOffset==True and the data range
+    <1e-4* the data average, then an offset will be determined such that the
+    tick labels are meaningful. Scientific notation is used for data < 1e-4 or 
+    data >= 1e4. Scientific notation is presented once for each axis, in the 
+    last ticklabel.
+    """
+    def __init__(self, useOffset=True):
+        """
+        useOffset allows plotting small data ranges with large offsets:
+        for example: [1+1e-9,1+2e-9,1+3e-9]
+        """
+        self._useOffset = useOffset
+        self.offset = 0
+        self.orderOfMagnitude = 0
+        self.format = ''
+        
+    def __call__(self, x, pos=0):
+        'Return the format for tick val x at position pos'        
+        self.verify_intervals()
+        d = abs(self.viewInterval.span())
+        if self._useOffset: self._set_offset(d)
+        self._set_orderOfMagnitude(d)
+        self._set_format()
+        return self.pprint_val(x)
+        
+    def format_data(self,value):
+        'return a formatted string representation of a number'
+        s = '%1.5e'% value
+        return self._formatSciNotation(s)
+        
+    def get_offset(self):
+        """Return scientific notation, plus offset"""
+        if self.orderOfMagnitude or self.offset:
+            offsetStr = ''
+            sciNotStr = ''
+##            if self.offset: 
+##                p = ('+%1.10e'% self.offset).replace('+-','-')
+##                offsetStr = self._formatSciNotation(p).replace('e',r'\times 10^{') + '}'
+##            if self.orderOfMagnitude: 
+##                p = '%1.e'% 10**self.orderOfMagnitude
+##                sciNotStr = self._formatSciNotation(p).replace('1e',r'\times 10^{') + '}'
+##            return ''.join(('$',sciNotStr,offsetStr,'$'))
+            if self.offset: 
+                p = ('+%1.10e'% self.offset).replace('+-','-')
+                offsetStr = self._formatSciNotation(p)
+            if self.orderOfMagnitude: 
+                p = '%1.e'% 10**self.orderOfMagnitude
+                sciNotStr = self._formatSciNotation(p)
+            return ''.join((sciNotStr,offsetStr))
+        else: return ''
+        
+    def set_locs(self, locs):
+        self.locs = locs
+        
+    def _set_offset(self, range):
+        # offset of 20,001 is 20,000, for example
+        locs = self.locs
+        ave_loc = average(locs)
+        if ave_loc: # dont want to take log10(0)
+            ave_oom = math.floor(math.log10(absolute(ave_loc)))
+            range_oom = math.ceil(math.log10(range))
+            if absolute(ave_oom-range_oom) >= 4: # four sig-figs
+                if ave_loc < 0: self.offset = math.floor(amax(locs)/10**range_oom)*10**range_oom
+                else: self.offset = math.floor(amin(locs)/10**range_oom)*10**range_oom
+            else: self.offset = 0
+        
+    def _set_orderOfMagnitude(self,range):
+        # if scientific notation is to be used, find the appropriate exponent
+        # if using an numerical offset, find the exponent after applying the offset
+        locs = absolute(self.locs)
+        if self._useOffset: oom = math.floor(math.log10(range))
+        else: 
+            if locs[0] > locs[-1]: oom = math.floor(math.log10(locs[0]))
+            else: oom = math.floor(math.log10(locs[-1]))
+        if oom <= -3:
+            self.orderOfMagnitude = oom
+        elif oom >= 4:
+            self.orderOfMagnitude = oom
+        else:
+            self.orderOfMagnitude = 0
+                
+    def _set_format(self):
+        # set the format string to format all the ticklabels
+        locs = (array(self.locs)-self.offset) / 10**self.orderOfMagnitude+1e-15
+        sigfigs = [len(str('%1.3f'% loc).split('.')[1].rstrip('0')) \
+                   for loc in locs]
+        sigfigs.sort()
+        self.format = '%1.' + str(sigfigs[-1]) + 'f'
+                
+    def pprint_val(self, x):
+        xp = (x-self.offset)/10**self.orderOfMagnitude
+        if closeto(xp,0): return '0'
+        else: return self.format % xp
+            
+    def _formatSciNotation(self,s):
+        # transform 1e+004 into 1e4, for example
+        tup = s.split('e')
+        try:
+            mantissa = tup[0].rstrip('0').rstrip('.')
+            sign = tup[1][0].replace('+', '')
+            exponent = tup[1][1:].lstrip('0')
+            return ('%se%s%s' %(mantissa, sign, exponent)).rstrip('e')
+        except IndexError,msg:
+            return s
+
+
+class LogFormatter(Formatter):
     """
     Format values for log axis; 
 
@@ -270,6 +386,12 @@ class LogFormatter(ScalarFormatter):
         else        : s =  self.pprint_val(x,d)
         return s
 
+    def format_data(self,value):
+        self.labelOnlyBase = False
+        value = strip_math(self.__call__(value))
+        self.labelOnlyBase = True
+        return value
+
     def is_decade(self, x):
         n = self.nearest_long(x)
         return abs(x-n)<1e-10
@@ -278,6 +400,29 @@ class LogFormatter(ScalarFormatter):
         if x==0: return 0L
         elif x>0: return long(x+0.5)
         else: return long(x-0.5)
+            
+    def pprint_val(self, x, d):
+        #if the number is not too big and it's an int, format it as an
+        #int
+        if abs(x)<1e4 and x==int(x): return '%d' % x
+
+        if d < 1e-2: fmt = '%1.3e'
+        elif d < 1e-1: fmt = '%1.3f'
+        elif d > 1e5: fmt = '%1.1e'
+        elif d > 10 : fmt = '%1.1f'
+        elif d > 1 : fmt = '%1.2f'
+        else: fmt = '%1.3f'
+        s =  fmt % x
+        #print d, x, fmt, s
+        tup = s.split('e')
+        if len(tup)==2:
+            mantissa = tup[0].rstrip('0').rstrip('.')
+            sign = tup[1][0].replace('+', '')
+            exponent = tup[1][1:].lstrip('0')
+            s = '%se%s%s' %(mantissa, sign, exponent)
+        else:
+            s = s.rstrip('0').rstrip('.')
+        return s
         
 class LogFormatterExponent(LogFormatter):
     """
@@ -542,7 +687,8 @@ class MultipleLocator(Locator):
         if vmax<vmin:
             vmin, vmax = vmax, vmin
         vmin = self._base.ge(vmin)
-        locs =  arange(vmin, vmax+0.001*self._base.get_base(), self._base.get_base())
+
+        locs =  frange(vmin, vmax+0.001*self._base.get_base(), self._base.get_base())
 
         return locs
 
@@ -560,7 +706,6 @@ class MultipleLocator(Locator):
         if vmin==vmax:
             vmin -=1
             vmax +=1
-
         
         return self.nonsingular(vmin, vmax)
 
