@@ -945,8 +945,7 @@ class NavigationToolbar2:
     def home(self, *args):
         'restore the original view'
         self._views.home()
-        self._update_view()
-        self.draw()
+        self._update_view()       
 
     def _init_toolbar(self):
         """
