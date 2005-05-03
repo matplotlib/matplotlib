@@ -871,7 +871,7 @@ if _imread.__doc__ is not None:
     imread.__doc__ = _imread.__doc__
 
 
-def load(fname,comments='%'):
+def load(fname,comments='%',delimiter=None):
     """
     Load ASCII data from fname into an array and return the array.
 
@@ -900,6 +900,10 @@ def load(fname,comments='%'):
 
     comments is the character used to indicate the start of a comment
     in the file
+    
+    delimiter is a string-like character used to seperate values in the
+    file. If delimiter is unspecified or none, any whitespace string is 
+    a separator.
 
     """
 
@@ -918,7 +922,8 @@ def load(fname,comments='%'):
     for line in fh:
         line = line[:line.find(comments)].strip()
         if not len(line): continue
-        row = [float(val) for val in line.split()]
+        if delimiter: row = [float(val) for val in line.split(delimiter)]
+        else: row = [float(val) for val in line.split()]
         thisLen = len(row)
         if numCols is not None and thisLen != numCols:
             raise ValueError('All rows must have the same number of columns')

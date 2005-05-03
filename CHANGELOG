@@ -1,5 +1,7 @@
 New entries should be added at the top
 
+2005-05-03 Added the option to specify a delimiter in pylab.load -DSD
+
 2005-04-28 Added Darren's line collection example
 
 2005-04-28 Fixed aa property in agg - JDH
