@@ -35,6 +35,7 @@ files = (
     'layer_images.py',
     'legend_demo.py',
     'legend_demo2.py',
+    'line_collection.py',
     'line_styles.py',
     'log_demo.py',
     'log_test.py',
