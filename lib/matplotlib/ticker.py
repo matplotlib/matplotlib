@@ -242,17 +242,18 @@ class ScalarFormatter(Formatter):
 class NewScalarFormatter(Formatter):
     """
     Tick location is a plain old number.  If useOffset==True and the data range
-    <1e-4* the data average, then an offset will be determined such that the
-    tick labels are meaningful. Scientific notation is used for data < 1e-4 or 
-    data >= 1e4. Scientific notation is presented once for each axis, in the 
-    last ticklabel.
+    is much smaller than the data average, then an offset will be determined 
+    such that the tick labels are meaningful. Scientific notation is used for 
+    data < 1e-3 or data >= 1e4.
     """
-    def __init__(self, useOffset=True):
-        """
-        useOffset allows plotting small data ranges with large offsets:
-        for example: [1+1e-9,1+2e-9,1+3e-9]
-        """
+    # To use, rename ScalarFormatter to OldScalarFormatter, 
+    # and rename NewScalarFormatter to ScalarFormatter.
+    def __init__(self, useOffset=True, useMathText=False):
+        # useOffset allows plotting small data ranges with large offsets:
+        # for example: [1+1e-9,1+2e-9,1+3e-9]
+        # useMathText will render the offset an scientific notation in mathtext
         self._useOffset = useOffset
+        self._useMathText = useMathText
         self.offset = 0
         self.orderOfMagnitude = 0
         self.format = ''
@@ -268,7 +269,7 @@ class NewScalarFormatter(Formatter):
         
     def format_data(self,value):
         'return a formatted string representation of a number'
-        s = '%1.5e'% value
+        s = '%1.4e'% value
         return self._formatSciNotation(s)
         
     def get_offset(self):
@@ -276,20 +277,14 @@ class NewScalarFormatter(Formatter):
         if self.orderOfMagnitude or self.offset:
             offsetStr = ''
             sciNotStr = ''
-##            if self.offset: 
-##                p = ('+%1.10e'% self.offset).replace('+-','-')
-##                offsetStr = self._formatSciNotation(p).replace('e',r'\times 10^{') + '}'
-##            if self.orderOfMagnitude: 
-##                p = '%1.e'% 10**self.orderOfMagnitude
-##                sciNotStr = self._formatSciNotation(p).replace('1e',r'\times 10^{') + '}'
-##            return ''.join(('$',sciNotStr,offsetStr,'$'))
             if self.offset: 
                 p = ('+%1.10e'% self.offset).replace('+-','-')
-                offsetStr = self._formatSciNotation(p)
+                offsetStr = self._formatSciNotation(p,mathtext=self._useMathText)
             if self.orderOfMagnitude: 
-                p = '%1.e'% 10**self.orderOfMagnitude
-                sciNotStr = self._formatSciNotation(p)
-            return ''.join((sciNotStr,offsetStr))
+                if self._useMathText: sciNotStr = r'{\times}10^{%d}'% self.orderOfMagnitude
+                else: sciNotStr = 'x1e%d'% self.orderOfMagnitude
+            if self._useMathText: return ''.join(('$',sciNotStr,offsetStr,'$'))
+            else: return ''.join((sciNotStr,offsetStr))
         else: return ''
         
     def set_locs(self, locs):
@@ -301,9 +296,9 @@ class NewScalarFormatter(Formatter):
         ave_loc = average(locs)
         if ave_loc: # dont want to take log10(0)
             ave_oom = math.floor(math.log10(absolute(ave_loc)))
-            range_oom = math.ceil(math.log10(range))
+            range_oom = math.floor(math.log10(range))
             if absolute(ave_oom-range_oom) >= 4: # four sig-figs
-                if ave_loc < 0: self.offset = math.floor(amax(locs)/10**range_oom)*10**range_oom
+                if ave_loc < 0: self.offset = math.ceil(amax(locs)/10**range_oom)*10**range_oom
                 else: self.offset = math.floor(amin(locs)/10**range_oom)*10**range_oom
             else: self.offset = 0
         
@@ -311,7 +306,7 @@ class NewScalarFormatter(Formatter):
         # if scientific notation is to be used, find the appropriate exponent
         # if using an numerical offset, find the exponent after applying the offset
         locs = absolute(self.locs)
-        if self._useOffset: oom = math.floor(math.log10(range))
+        if self.offset: oom = math.floor(math.log10(range))
         else: 
             if locs[0] > locs[-1]: oom = math.floor(math.log10(locs[0]))
             else: oom = math.floor(math.log10(locs[-1]))
@@ -335,14 +330,18 @@ class NewScalarFormatter(Formatter):
         if closeto(xp,0): return '0'
         else: return self.format % xp
             
-    def _formatSciNotation(self,s):
+    def _formatSciNotation(self,s,mathtext=False):
         # transform 1e+004 into 1e4, for example
         tup = s.split('e')
         try:
             mantissa = tup[0].rstrip('0').rstrip('.')
             sign = tup[1][0].replace('+', '')
             exponent = tup[1][1:].lstrip('0')
-            return ('%se%s%s' %(mantissa, sign, exponent)).rstrip('e')
+            if mathtext: 
+                res = '%se{%s%s}' %(mantissa, sign, exponent)
+                return res.replace('e{}','').replace('e',r'{\times}10^')
+            else: 
+                return ('%se%s%s' %(mantissa, sign, exponent)).rstrip('e')
         except IndexError,msg:
             return s
 

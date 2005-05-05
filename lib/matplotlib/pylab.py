@@ -922,8 +922,7 @@ def load(fname,comments='%',delimiter=None):
     for line in fh:
         line = line[:line.find(comments)].strip()
         if not len(line): continue
-        if delimiter: row = [float(val) for val in line.split(delimiter)]
-        else: row = [float(val) for val in line.split()]
+        row = [float(val) for val in line.split(delimiter)]
         thisLen = len(row)
         if numCols is not None and thisLen != numCols:
             raise ValueError('All rows must have the same number of columns')

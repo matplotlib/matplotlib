@@ -438,6 +438,7 @@ class Axis(Artist):
 
     """
     LABELPAD = 5
+    OFFSETTEXTPAD = 3
     
     def __init__(self, axes):
         """
@@ -456,25 +457,9 @@ class Axis(Artist):
         #self.minor = dummy()
 
         self.label = self._get_label()
+        self.offsetText = self._get_offset_text()
         self.majorTicks = []
         self.minorTicks = []
-        
-        if self.__name__=='xaxis': 
-            ox,oy = 1, -0.06
-            v,h = 'top','right'
-        else: 
-            ox,oy = 0, 1.01
-            v,h='bottom','left'
-        self.offsetText = Text(x=ox, y=oy,
-            fontproperties = FontProperties(size=rcParams['tick.labelsize']),
-            color = rcParams['axes.labelcolor'],
-            verticalalignment=v,
-            horizontalalignment=h,
-            )
-        self.offsetText.set_transform(self.axes.transAxes)
-##        self.offsetText.set_transform( blend_xy_sep_transform( self.axes.transAxes,
-##                                                     identity_transform() ))
-        self._set_artist_props(self.offsetText)
 
         self.cla()
         
@@ -564,16 +549,17 @@ class Axis(Artist):
             if tick.label2On:
                 extent = tick.label2.get_window_extent(renderer) 
                 ticklabelBoxes2.append(extent)
-        
-        self.offsetText.set_text( self.major.formatter.get_offset() )
-        self.offsetText.draw(renderer)
 
         # scale up the axis label box to also find the neighbors, not
         # just the tick labels that actually overlap note we need a
         # *copy* of the axis label box because we don't wan't to scale
         # the actual bbox
-        self._update_label_postion(ticklabelBoxes, ticklabelBoxes2)
+        self._update_label_position(ticklabelBoxes, ticklabelBoxes2)
         self.label.draw(renderer)  # memory leak here, vertical text
+        
+        self._update_offset_text_position(ticklabelBoxes, ticklabelBoxes2)
+        self.offsetText.set_text( self.major.formatter.get_offset() )
+        self.offsetText.draw(renderer)
 
         if 0: # draw the bounding boxes around the text for debug
             for tick in majorTicks:
@@ -585,14 +571,21 @@ class Axis(Artist):
 
     def _get_label(self):
         raise NotImplementedError('Derived must override')
+        
+    def _get_offset_text(self):
+        raise NotImplementedError('Derived must override')
 
     def get_gridlines(self):
         'Return the grid lines as a list of Line2D instance'
         return silent_list('Line2D gridline', [tick.gridline for tick in self.majorTicks])
 
     def get_label(self):
-        'Return the axis label as an Text instance'
+        'Return the axis label as a Text instance'
         return self.label
+        
+    def get_offset_text(self):
+        'Return the axis offsetText as a Text instance'
+        return self.offsetText
 
     def get_ticklabels(self):
         'Return a list of Text instances for ticklabels'
@@ -768,7 +761,14 @@ ACCEPTS: sequence of floats"""
         self.get_view_interval().update(ticks,0)
         return self.get_major_ticks()
     
-    def _update_label_postion(self, bboxes):
+    def _update_label_position(self, bboxes, bboxes2):
+        """
+        Update the label position based on the sequence of bounding
+        boxes of all the ticklabels
+        """
+        raise NotImplementedError('Derived must override')
+        
+    def _update_offset_text_postion(self, bboxes, bboxes2):
         """
         Update the label position based on the sequence of bounding
         boxes of all the ticklabels
@@ -791,7 +791,7 @@ class XAxis(Axis):
 
     def _get_label(self):
         # x in axes coords, y in display coords (to be updated at draw
-        # time by _update_label_positions
+        # time by _update_label_positions)
         label = Text(x=0.5, y=0,  
             fontproperties = FontProperties(size=rcParams['axes.labelsize']),
             color = rcParams['axes.labelcolor'],
@@ -804,6 +804,20 @@ class XAxis(Axis):
         self._set_artist_props(label)
         self.label_position='bottom'
         return label
+        
+    def _get_offset_text(self):
+        # x in axes coords, y in display coords (to be updated at draw time)
+        offsetText = Text(x=1, y=0,
+            fontproperties = FontProperties(size=rcParams['tick.labelsize']),
+            color = rcParams['tick.color'],
+            verticalalignment='top',
+            horizontalalignment='right',
+            )
+        offsetText.set_transform( blend_xy_sep_transform( self.axes.transAxes,
+                                                     identity_transform() ))
+        self._set_artist_props(offsetText)
+        self.offset_text_position='bottom'
+        return offsetText
 
     def get_label_position(self):
         """
@@ -824,7 +838,7 @@ ACCEPTS: [ 'top' | 'bottom' ]
             self.label.set_verticalalignment('top')
         self.label_position=position
 
-    def _update_label_postion(self, bboxes, bboxes2):
+    def _update_label_position(self, bboxes, bboxes2):
         """
         Update the label position based on the sequence of bounding
         boxes of all the ticklabels 
@@ -850,6 +864,19 @@ ACCEPTS: [ 'top' | 'bottom' ]
                 top = bbox.ymax()
             
             self.label.set_position( (x, top+self.LABELPAD*self.figure.dpi.get()/72.0))
+            
+    def _update_offset_text_position(self, bboxes, bboxes2):
+        """
+        Update the offset_text position based on the sequence of bounding
+        boxes of all the ticklabels 
+        """
+        x,y = self.offsetText.get_position()
+        if not len(bboxes):
+            bottom = self.axes.bbox.ymin()
+        else:
+            bbox = bbox_all(bboxes)
+            bottom = bbox.ymin()
+        self.offsetText.set_position((x, bottom-self.OFFSETTEXTPAD*self.figure.dpi.get()/72.0))
 
     def tick_top(self):
         'use ticks only on top'
@@ -904,6 +931,20 @@ class YAxis(Axis):
         self._set_artist_props(label)
         self.label_position='left'
         return label
+        
+    def _get_offset_text(self):
+        # x in display coords, y in axes coords (to be updated at draw time)
+        offsetText = Text(x=0, y=0.5,
+            fontproperties = FontProperties(size=rcParams['tick.labelsize']),
+            color = rcParams['tick.color'],
+            verticalalignment='bottom',
+            horizontalalignment='left',
+            )
+        offsetText.set_transform(blend_xy_sep_transform(self.axes.transAxes,
+                                                        identity_transform()) )
+        self._set_artist_props(offsetText)
+        self.offset_text_position='left'
+        return offsetText
 
     def get_label_position(self):
         """
@@ -924,7 +965,7 @@ ACCEPTS: [ 'left' | 'right' ]
             self.label.set_horizontalalignment('right')
         self.label_position=position
 
-    def _update_label_postion(self, bboxes, bboxes2):
+    def _update_label_position(self, bboxes, bboxes2):
         """
         Update the label position based on the sequence of bounding
         boxes of all the ticklabels 
@@ -950,6 +991,15 @@ ACCEPTS: [ 'left' | 'right' ]
                 right = bbox.xmax()
             
             self.label.set_position( (right+self.LABELPAD*self.figure.dpi.get()/72.0, y))
+            
+    def _update_offset_text_position(self, bboxes, bboxes2):
+        """
+        Update the offset_text position based on the sequence of bounding
+        boxes of all the ticklabels 
+        """
+        x,y = self.offsetText.get_position()
+        top = self.axes.bbox.ymax()
+        self.offsetText.set_position((x, top+self.OFFSETTEXTPAD*self.figure.dpi.get()/72.0))
 
     def tick_right(self):
         'use ticks only on right'
