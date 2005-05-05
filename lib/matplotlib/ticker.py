@@ -259,13 +259,16 @@ class NewScalarFormatter(Formatter):
         self.format = ''
         
     def __call__(self, x, pos=0):
-        'Return the format for tick val x at position pos'        
-        self.verify_intervals()
-        d = abs(self.viewInterval.span())
-        if self._useOffset: self._set_offset(d)
-        self._set_orderOfMagnitude(d)
-        self._set_format()
-        return self.pprint_val(x)
+        'Return the format for tick val x at position pos'  
+        if self.locs==None:
+            return ''
+        else:
+            self.verify_intervals()
+            d = abs(self.viewInterval.span())
+            if self._useOffset: self._set_offset(d)
+            self._set_orderOfMagnitude(d)
+            self._set_format()
+            return self.pprint_val(x)
         
     def format_data(self,value):
         'return a formatted string representation of a number'
@@ -274,6 +277,7 @@ class NewScalarFormatter(Formatter):
         
     def get_offset(self):
         """Return scientific notation, plus offset"""
+        if self.locs==None: return ''
         if self.orderOfMagnitude or self.offset:
             offsetStr = ''
             sciNotStr = ''
