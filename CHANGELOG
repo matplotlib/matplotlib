@@ -1,11 +1,11 @@
 New entries should be added at the top
 
-2005-05-04 Added NewScalarFormatter. This can be renamed ScalarFormatter
-	   in order to be used as the default for linearscale plots. 
-           Improved formatting of ticklabels, scientific notation, and 
-           the ability to plot large large numbers with small ranges, by 
-	   determining a numerical offset. See ticker.NewScalarFormatter
-           for more details. -DSD 
+2005-05-05 Added newscalarformatter_demo.py to examples. -DSD 
+
+2005-05-04 Added NewScalarFormatter. Improved formatting of ticklabels, 
+           scientific notation, and the ability to plot large large 
+           numbers with small ranges, by determining a numerical offset. 
+           See ticker.NewScalarFormatter for more details. -DSD 
 
 2005-05-03 Added the option to specify a delimiter in pylab.load -DSD
 
