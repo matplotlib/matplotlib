@@ -81,7 +81,7 @@ class Text(Artist):
 
     """
     # special case superscripting to speedup logplots
-    _rgxsuper = re.compile('\$([0-9]+)\^\{(-?[0-9]+)\}\$')
+    _rgxsuper = re.compile('\$([\-+0-9]+)\^\{(-?[0-9]+)\}\$')
 
     zorder = 3
     def __init__(self, 
@@ -281,6 +281,7 @@ ACCEPTS: rectangle prop dict plus key 'pad' which is a pad in points
         if angle==0:
             m = self._rgxsuper.match(self._text)
             if m is not None:
+                print self._text
                 bbox, info = self._get_layout_super(self._renderer, m)
                 base, xt, yt = info[0]
                 renderer.draw_text(gc, xt, yt, base,
