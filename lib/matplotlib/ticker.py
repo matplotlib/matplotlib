@@ -304,8 +304,10 @@ class NewScalarFormatter(Formatter):
             ave_oom = math.floor(math.log10(absolute(ave_loc)))
             range_oom = math.floor(math.log10(range))
             if absolute(ave_oom-range_oom) >= 4: # four sig-figs
-                if ave_loc < 0: self.offset = math.ceil(amax(locs)/10**range_oom)*10**range_oom
-                else: self.offset = math.floor(amin(locs)/10**range_oom)*10**range_oom
+                if ave_loc < 0: 
+                    self.offset = math.ceil(average(locs)/10**range_oom)*10**range_oom
+                else: 
+                    self.offset = math.floor(average(locs)/10**range_oom)*10**range_oom
             else: self.offset = 0
         
     def _set_orderOfMagnitude(self,range):
@@ -333,8 +335,8 @@ class NewScalarFormatter(Formatter):
                 
     def pprint_val(self, x):
         xp = (x-self.offset)/10**self.orderOfMagnitude
-        if closeto(xp,0): return '0'
-        else: return self.format % xp
+        if absolute(xp) < 1e-8: xp = 0
+        return self.format % xp
             
     def _formatSciNotation(self,s,mathtext=False):
         # transform 1e+004 into 1e4, for example
