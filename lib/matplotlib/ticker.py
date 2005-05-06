@@ -263,11 +263,6 @@ class NewScalarFormatter(Formatter):
         if self.locs==None:
             return ''
         else:
-            self.verify_intervals()
-            d = abs(self.viewInterval.span())
-            if self._useOffset: self._set_offset(d)
-            self._set_orderOfMagnitude(d)
-            self._set_format()
             return self.pprint_val(x)
         
     def format_data(self,value):
@@ -292,7 +287,14 @@ class NewScalarFormatter(Formatter):
         else: return ''
         
     def set_locs(self, locs):
+        'set the locations of the ticks'
         self.locs = locs
+        if self.locs != None:
+            self.verify_intervals()
+            d = abs(self.viewInterval.span())
+            if self._useOffset: self._set_offset(d)
+            self._set_orderOfMagnitude(d)
+            self._set_format()
         
     def _set_offset(self, range):
         # offset of 20,001 is 20,000, for example
