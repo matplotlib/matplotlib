@@ -305,9 +305,9 @@ class NewScalarFormatter(Formatter):
             range_oom = math.floor(math.log10(range))
             if absolute(ave_oom-range_oom) >= 4: # four sig-figs
                 if ave_loc < 0: 
-                    self.offset = math.ceil(average(locs)/10**range_oom)*10**range_oom
+                    self.offset = math.ceil(amax(locs)/10**range_oom)*10**range_oom
                 else: 
-                    self.offset = math.floor(average(locs)/10**range_oom)*10**range_oom
+                    self.offset = math.floor(amin(locs)/10**range_oom)*10**range_oom
             else: self.offset = 0
         
     def _set_orderOfMagnitude(self,range):
