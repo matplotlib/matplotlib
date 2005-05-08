@@ -4,7 +4,7 @@ tables relate to one another.  Mainly for mpl developers....
 
 """
 import matplotlib
-from matplotlib.ft2font import FT2Font
+from matplotlib.ft2font import FT2Font, KERNING_DEFAULT
 
 
 
@@ -33,5 +33,5 @@ code =  coded['A']
 glyph = font.load_char(code)
 print glyph.bbox
 
-print 'AV', font.get_kerning(glyphd['A'], glyphd['V'])/64.0
-print 'AA', font.get_kerning(glyphd['A'], glyphd['A'])/64.0
+print 'AV', font.get_kerning(glyphd['A'], glyphd['V'], KERNING_DEFAULT)/64.0
+print 'AA', font.get_kerning(glyphd['A'], glyphd['A'], KERNING_DEFAULT)/64.0
