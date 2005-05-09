@@ -9,7 +9,7 @@
 
 #include "agg_trans_affine.h"
 #include "agg_rendering_buffer.h"
-#include "agg_color_rgba8.h"
+#include "agg_color_rgba.h"
 #include "CXX/Extensions.hxx"
 
 
@@ -29,7 +29,7 @@ public:
   Py::Object as_str(const Py::Tuple& args);
   Py::Object buffer_argb32(const Py::Tuple& args);
   Py::Object reset_matrix(const Py::Tuple& args);
-  Py::Object resize(const Py::Tuple& args);
+  Py::Object resize(const Py::Tuple& args, const Py::Dict& kwargs);
   Py::Object get_aspect(const Py::Tuple& args);
   Py::Object get_size(const Py::Tuple& args);
   Py::Object get_interpolation(const Py::Tuple& args);

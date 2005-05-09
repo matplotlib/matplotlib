@@ -66,7 +66,6 @@ namespace agg
 		  bool solid_path = false,
 		  unsigned end_flags = path_flags_none);
     
-    void add_vertices(const double* vertices, unsigned num);
     unsigned start_new_path();
     
     void copy_from(const path_storage& ps);

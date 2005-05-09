@@ -37,6 +37,7 @@ GCAgg::GCAgg(const Py::Object &gc, double dpi) :
   Ndash(0), dashOffset(0.0), dasha(NULL)
 {
   
+  _VERBOSE("GCAgg::GCAgg");
   linewidth = points_to_pixels ( gc.getAttr("_linewidth") ) ;
   alpha = Py::Float( gc.getAttr("_alpha") );
   color = get_color(gc);
@@ -82,11 +83,11 @@ GCAgg::_set_linecap(const Py::Object& gc) {
   std::string capstyle = Py::String( gc.getAttr( "_capstyle" ) );
   
   if (capstyle=="butt") 
-    cap = agg::vcgen_stroke::butt_cap;
+    cap = agg::butt_cap;
   else if (capstyle=="round") 
-    cap = agg::vcgen_stroke::round_cap;
+    cap = agg::round_cap;
   else if(capstyle=="projecting") 
-    cap = agg::vcgen_stroke::square_cap;
+    cap = agg::square_cap;
   else 
     throw Py::ValueError(Printf("GC _capstyle attribute must be one of butt, round, projecting; found %s", capstyle.c_str()).str());
   
@@ -99,11 +100,11 @@ GCAgg::_set_joinstyle(const Py::Object& gc) {
   std::string joinstyle = Py::String( gc.getAttr("_joinstyle") );
   
   if (joinstyle=="miter") 
-    join =  agg::vcgen_stroke::miter_join;
+    join =  agg::miter_join;
   else if (joinstyle=="round") 
-    join = agg::vcgen_stroke::round_join;
+    join = agg::round_join;
   else if(joinstyle=="bevel") 
-    join = agg::vcgen_stroke::bevel_join;
+    join = agg::bevel_join;
   else 
     throw Py::ValueError(Printf("GC _joinstyle attribute must be one of butt, round, projecting; found %s", joinstyle.c_str()).str());
   
@@ -147,16 +148,17 @@ void
 GCAgg::_set_clip_rectangle( const Py::Object& gc) {
   //set the clip rectangle from the gc
   
-  _VERBOSE("GCAgg::set_clip_rectangle");
+  _VERBOSE("GCAgg::_set_clip_rectangle");
 
   delete [] cliprect;
   cliprect = NULL;
+
   
   Py::Object o ( gc.getAttr( "_cliprect" ) );
-  if (o.ptr()==Py_None) 
+  if (o.ptr()==Py_None) {
     return;
-  
-  
+  } 
+
   Py::SeqBase<Py::Object> rect( o );
   
   double l = Py::Float(rect[0]) ; 
@@ -165,15 +167,15 @@ GCAgg::_set_clip_rectangle( const Py::Object& gc) {
   double h = Py::Float(rect[3]) ; 
   
   cliprect = new double[4];
+  //todo check for memory alloc failure
   cliprect[0] = l;
   cliprect[1] = b;
   cliprect[2] = w;
   cliprect[3] = h;
-  
 }
 
 
-
+ 
 
 
 const size_t 
@@ -192,6 +194,8 @@ RendererAgg::RendererAgg(unsigned int width, unsigned int height, double dpi,
   
   
   pixBuffer = new agg::int8u[NUMBYTES];  
+  cacheBuffer = NULL;
+
   
   renderingBuffer = new agg::rendering_buffer;
   renderingBuffer->attach(pixBuffer, width, height, stride);
@@ -208,6 +212,40 @@ RendererAgg::RendererAgg(unsigned int width, unsigned int height, double dpi,
   theRasterizer = new rasterizer(); 
   
 };
+
+Py::Object
+RendererAgg::cache( const Py::Tuple& args ) {
+  //copy pixel buffer to cache
+  _VERBOSE("RendererAgg::cache");
+
+  args.verify_length(0);
+  delete [] cacheBuffer;
+  size_t i = 0;
+  cacheBuffer = new agg::int8u[NUMBYTES];  
+  while (i++<NUMBYTES) *cacheBuffer++ = *pixBuffer++;
+  cacheBuffer -= NUMBYTES;
+  pixBuffer -= NUMBYTES;
+  return Py::Object();
+
+}
+
+Py::Object
+RendererAgg::blit( const Py::Tuple& args) {
+  // blit from the pixel buffer
+  
+  _VERBOSE("RendererAgg::blit");
+  args.verify_length(0);
+  if (cacheBuffer==NULL)
+    throw Py::RuntimeError("You must first cache the pixel buffer with cache");
+ 
+  size_t i = 0;
+  while (i++<NUMBYTES) *pixBuffer++ = *cacheBuffer++;
+  cacheBuffer -= NUMBYTES;
+  pixBuffer -= NUMBYTES;
+  return Py::Object();
+  
+}
+
 
 void
 RendererAgg::set_clipbox_rasterizer( double *cliprect) {
@@ -984,8 +1022,9 @@ RendererAgg::draw_lines(const Py::Tuple& args) {
     //don't render line segments less that on pixel long!
     if (!moveto && (i>0) && fabs(thisx-lastx)<1.0 && fabs(thisy-lasty)<1.0) {
       continue;
-    }
-    
+     }
+    thisx = (int)thisx + 0.5;
+    thisy = (int)thisy + 0.5;
     lastx = thisx;
     lasty = thisy;
     if (moveto)
@@ -1000,6 +1039,8 @@ RendererAgg::draw_lines(const Py::Tuple& args) {
   Py_XDECREF(xa);
   Py_XDECREF(ya);
   
+  //typedef agg::conv_transform<agg::path_storage, agg::trans_affine> path_t;
+  //path_t transpath(path, xytrans);
   _render_lines_path(path, gc);
   
   _VERBOSE("RendererAgg::draw_lines DONE");
@@ -1007,10 +1048,11 @@ RendererAgg::draw_lines(const Py::Tuple& args) {
   
 }
 
+template<class PathSource>
 void 
-RendererAgg::_render_lines_path(agg::path_storage &path, const GCAgg& gc) {
+RendererAgg::_render_lines_path(PathSource &path, const GCAgg& gc) {
   
-  typedef agg::path_storage path_t;
+  typedef PathSource path_t;
   //typedef agg::conv_transform<agg::path_storage, agg::trans_affine> path_t;
   typedef agg::conv_stroke<path_t> stroke_t;
   typedef agg::conv_dash<path_t> dash_t;
@@ -1169,6 +1211,9 @@ RendererAgg::_draw_markers_nocache(const Py::Tuple& args) {
     
     
     thisy = heightd - thisy;  //flipy
+
+    thisx = (int)thisx + 0.5;
+    thisy = (int)thisy + 0.5;
     markers.move_to(thisx, thisy);
     //agg::path_storage marker;
     double x, y;
@@ -1205,7 +1250,7 @@ RendererAgg::_draw_markers_cache(const Py::Tuple& args) {
   if (SWIG_ConvertPtr(args[1].ptr(),(void **)(&ppath), descr, 0) == -1) 
     throw Py::TypeError("Could not convert path_storage");
   facepair_t face = _get_rgba_face(args[2], gc.alpha);
-  
+
   Py::Object xo = args[3];
   Py::Object yo = args[4];
   
@@ -1247,7 +1292,6 @@ RendererAgg::_draw_markers_cache(const Py::Tuple& args) {
   typedef agg::conv_curve<agg::path_storage> curve_t;
   curve_t curve(*ppath);
 
-
   //maxim's suggestions for cached scanlines
   agg::scanline_storage_aa8 scanlines;  
   theRasterizer->reset();
@@ -1262,7 +1306,7 @@ RendererAgg::_draw_markers_cache(const Py::Tuple& args) {
     scanlines.serialize(fillCache);
   }
   
-  
+
   agg::conv_stroke<curve_t> stroke(curve);
   stroke.width(gc.linewidth);
   stroke.line_cap(gc.cap);
@@ -1273,8 +1317,6 @@ RendererAgg::_draw_markers_cache(const Py::Tuple& args) {
   unsigned strokeSize = scanlines.byte_size();
   agg::int8u* strokeCache = new agg::int8u[strokeSize]; // or any container
   scanlines.serialize(strokeCache);
-  
-  
   
   theRasterizer->reset_clipping();
   
@@ -1289,7 +1331,7 @@ RendererAgg::_draw_markers_cache(const Py::Tuple& args) {
     int h = (int)(gc.cliprect[3]) ;     
     rendererBase->clip_box(l, height-(b+h),l+w, height-b);
   }
-  
+
   double thisx, thisy;
   for (size_t i=0; i<Nx; i++) {
     thisx = *(double *)(xa->data + i*xa->strides[0]);
@@ -1304,9 +1346,11 @@ RendererAgg::_draw_markers_cache(const Py::Tuple& args) {
       }
     
     xytrans.transform(&thisx, &thisy);
-    
-    
+
     thisy = heightd - thisy;  //flipy
+
+    thisx = (int)thisx + 0.5;
+    thisy = (int)thisy + 0.5;
     
     agg::serialized_scanlines_adaptor_aa8 sa;
     agg::serialized_scanlines_adaptor_aa8::embedded_scanline sl;
@@ -1324,14 +1368,13 @@ RendererAgg::_draw_markers_cache(const Py::Tuple& args) {
     agg::render_scanlines(sa, sl, *rendererAA);
     
   } //for each marker
-  
+
   Py_XDECREF(xa);
   Py_XDECREF(ya);
   
   if (face.first) 
     delete [] fillCache;
   delete [] strokeCache;
-  
   return Py::Object();
   
 }
@@ -1808,6 +1851,7 @@ RendererAgg::~RendererAgg() {
   delete pixFmt;
   delete renderingBuffer;
   delete [] pixBuffer;
+  delete [] cacheBuffer;
     
 }
 
@@ -1875,6 +1919,11 @@ void RendererAgg::init_type()
 		     "buffer = buffer_rgba()");
   add_varargs_method("clear", &RendererAgg::clear, 
 		     "clear()"); 
+  add_varargs_method("cache", &RendererAgg::cache, 
+		     "cache()"); 
+  add_varargs_method("blit", &RendererAgg::blit, 
+		     "blit()"); 
+
   
 }
 

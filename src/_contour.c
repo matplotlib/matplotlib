@@ -62,6 +62,8 @@ static PyObject * GcInit1_wrap(PyObject *self, PyObject *args)
 
   if (xdata->nd != 2 || ydata->nd != 2 || regdata->nd != 2 || tridata->nd != 2 || zzdata->nd !=2)
   {
+    Py_XDECREF(xdata); Py_XDECREF(ydata); Py_XDECREF(regdata); Py_XDECREF(tridata); Py_XDECREF(zzdata);       
+    Py_XDECREF(ox); Py_XDECREF(oy); Py_XDECREF(ozz); Py_XDECREF(oreg); Py_XDECREF(otriangle);       
     PyErr_SetString(PyExc_ValueError, "Argument must be a 2D array");
     return NULL;
   }
@@ -70,12 +72,16 @@ static PyObject * GcInit1_wrap(PyObject *self, PyObject *args)
 
   if ((zzsize[0] != xdata->dimensions[0]) || (zzsize[1] != xdata->dimensions[1]))
   {
+    Py_XDECREF(xdata); Py_XDECREF(ydata); Py_XDECREF(regdata); Py_XDECREF(tridata); Py_XDECREF(zzdata);       
+    Py_XDECREF(ox); Py_XDECREF(oy); Py_XDECREF(ozz); Py_XDECREF(oreg); Py_XDECREF(otriangle);       
     PyErr_SetString(PyExc_ValueError, "Arrays x and z must have equal shapes");
     return NULL;
   }
 
   if ((zzsize[0] != ydata->dimensions[0]) || (zzsize[1] != ydata->dimensions[1]))
   {
+    Py_XDECREF(xdata); Py_XDECREF(ydata); Py_XDECREF(regdata); Py_XDECREF(tridata); Py_XDECREF(zzdata);       
+    Py_XDECREF(ox); Py_XDECREF(oy); Py_XDECREF(ozz); Py_XDECREF(oreg); Py_XDECREF(otriangle);       
      PyErr_SetString(PyExc_ValueError, "Arrays y and z must have equal shapes");
      return NULL;
   }
@@ -87,6 +93,8 @@ static PyObject * GcInit1_wrap(PyObject *self, PyObject *args)
    // }
   if ((zzsize[0] != tridata->dimensions[0]) || (zzsize[1] != tridata->dimensions[1]))
   {
+    Py_XDECREF(xdata); Py_XDECREF(ydata); Py_XDECREF(regdata); Py_XDECREF(tridata); Py_XDECREF(zzdata);       
+    Py_XDECREF(ox); Py_XDECREF(oy); Py_XDECREF(ozz); Py_XDECREF(oreg); Py_XDECREF(otriangle);       
      PyErr_SetString(PyExc_ValueError, "Arrays triangle and z must have equal shapes");
      return NULL;
   }
@@ -96,6 +104,8 @@ static PyObject * GcInit1_wrap(PyObject *self, PyObject *args)
 
    ntotal = GcInit1(imax, jmax, (double *) xdata->data, (double *) ydata->data, (int *)regdata->data, (short *) tridata->data, region, (double *) zzdata->data, lev, &nparts);
 
+    Py_XDECREF(xdata); Py_XDECREF(ydata); Py_XDECREF(regdata); Py_XDECREF(tridata); Py_XDECREF(zzdata);       
+    Py_XDECREF(ox); Py_XDECREF(oy); Py_XDECREF(ozz); Py_XDECREF(oreg); Py_XDECREF(otriangle);       
    return Py_BuildValue("ll", ntotal, nparts);
 }
 
@@ -114,29 +124,39 @@ static PyObject * GcInit2_wrap(PyObject *self, PyObject *args)
 
   if (!PyArray_Check(ox))
   {
+    Py_XDECREF(xdata); Py_XDECREF(ydata); Py_XDECREF(regdata); Py_XDECREF(tridata); Py_XDECREF(zzdata);       
+    Py_XDECREF(ox); Py_XDECREF(oy); Py_XDECREF(ozz); Py_XDECREF(oreg); Py_XDECREF(otriangle);       
     PyErr_SetString(PyExc_TypeError, "Argument x must be an array");
     return NULL;
   }
 
   if (!PyArray_Check(oy))
   {
+    Py_XDECREF(xdata); Py_XDECREF(ydata); Py_XDECREF(regdata); Py_XDECREF(tridata); Py_XDECREF(zzdata);       
+    Py_XDECREF(ox); Py_XDECREF(oy); Py_XDECREF(ozz); Py_XDECREF(oreg); Py_XDECREF(otriangle);       
     PyErr_SetString(PyExc_TypeError, "Argument y must be an array");
     return NULL;
   }
 
   if (!PyArray_Check(oreg))
   {
+    Py_XDECREF(xdata); Py_XDECREF(ydata); Py_XDECREF(regdata); Py_XDECREF(tridata); Py_XDECREF(zzdata);       
+    Py_XDECREF(ox); Py_XDECREF(oy); Py_XDECREF(ozz); Py_XDECREF(oreg); Py_XDECREF(otriangle);       
     PyErr_SetString(PyExc_TypeError, "Argument reg must be an array");
      return NULL;
   }
 
   if (!PyArray_Check(otriangle))
   {
+    Py_XDECREF(xdata); Py_XDECREF(ydata); Py_XDECREF(regdata); Py_XDECREF(tridata); Py_XDECREF(zzdata);       
+    Py_XDECREF(ox); Py_XDECREF(oy); Py_XDECREF(ozz); Py_XDECREF(oreg); Py_XDECREF(otriangle);       
     PyErr_SetString(PyExc_TypeError, "Argument triangle must be an array");
     return NULL;
   }
   if (!PyArray_Check(ozz))
   {
+    Py_XDECREF(xdata); Py_XDECREF(ydata); Py_XDECREF(regdata); Py_XDECREF(tridata); Py_XDECREF(zzdata);       
+    Py_XDECREF(ox); Py_XDECREF(oy); Py_XDECREF(ozz); Py_XDECREF(oreg); Py_XDECREF(otriangle);       
     PyErr_SetString(PyExc_TypeError, "Argument z must be an array");
     return NULL;
     }
@@ -149,6 +169,8 @@ static PyObject * GcInit2_wrap(PyObject *self, PyObject *args)
 
   if (xdata->nd != 2 || ydata->nd != 2 || regdata->nd != 2 || tridata->nd != 2 || zzdata->nd !=2)
   {
+    Py_XDECREF(xdata); Py_XDECREF(ydata); Py_XDECREF(regdata); Py_XDECREF(tridata); Py_XDECREF(zzdata);       
+    Py_XDECREF(ox); Py_XDECREF(oy); Py_XDECREF(ozz); Py_XDECREF(oreg); Py_XDECREF(otriangle);       
     PyErr_SetString(PyExc_ValueError, "Argument must be a 2D array");
     return NULL;
   }
@@ -157,12 +179,16 @@ static PyObject * GcInit2_wrap(PyObject *self, PyObject *args)
 
   if ((zzsize[0] != xdata->dimensions[0]) || (zzsize[1] != xdata->dimensions[1]))
   {
+    Py_XDECREF(xdata); Py_XDECREF(ydata); Py_XDECREF(regdata); Py_XDECREF(tridata); Py_XDECREF(zzdata);       
+    Py_XDECREF(ox); Py_XDECREF(oy); Py_XDECREF(ozz); Py_XDECREF(oreg); Py_XDECREF(otriangle);       
     PyErr_SetString(PyExc_ValueError, "Arrays x and z must have equal shapes");
     return NULL;
   }
 
   if ((zzsize[0] != ydata->dimensions[0]) || (zzsize[1] != ydata->dimensions[1]))
   {
+    Py_XDECREF(xdata); Py_XDECREF(ydata); Py_XDECREF(regdata); Py_XDECREF(tridata); Py_XDECREF(zzdata);       
+    Py_XDECREF(ox); Py_XDECREF(oy); Py_XDECREF(ozz); Py_XDECREF(oreg); Py_XDECREF(otriangle);       
      PyErr_SetString(PyExc_ValueError, "Arrays y and z must have equal shapes");
      return NULL;
   }
@@ -174,6 +200,8 @@ static PyObject * GcInit2_wrap(PyObject *self, PyObject *args)
    // }
   if ((zzsize[0] != tridata->dimensions[0]) || (zzsize[1] != tridata->dimensions[1]))
   {
+    Py_XDECREF(xdata); Py_XDECREF(ydata); Py_XDECREF(regdata); Py_XDECREF(tridata); Py_XDECREF(zzdata);       
+    Py_XDECREF(ox); Py_XDECREF(oy); Py_XDECREF(ozz); Py_XDECREF(oreg); Py_XDECREF(otriangle);       
      PyErr_SetString(PyExc_ValueError, "Arrays triangle and z must have equal shapes");
      return NULL;
   }
@@ -185,6 +213,8 @@ static PyObject * GcInit2_wrap(PyObject *self, PyObject *args)
                      (int *)regdata->data, (short *) tridata->data,
                      region, (double *) zzdata->data, levs, nchunk, &nparts);
 
+    Py_XDECREF(xdata); Py_XDECREF(ydata); Py_XDECREF(regdata); Py_XDECREF(tridata); Py_XDECREF(zzdata);       
+    Py_XDECREF(ox); Py_XDECREF(oy); Py_XDECREF(ozz); Py_XDECREF(oreg); Py_XDECREF(otriangle);       
    return Py_BuildValue("ll", ntotal, nparts);
 }
 
@@ -207,18 +237,24 @@ static PyObject * GcTrace_wrap(PyObject *self, PyObject *args)
 
   if (npdata->nd != 1)
   {
+    Py_XDECREF(npdata); Py_XDECREF(xcpdata); Py_XDECREF(ycpdata);
+    Py_XDECREF(oxp); Py_XDECREF(oyp); Py_XDECREF(onp); 
      PyErr_SetString(PyExc_ValueError, "Argument np must be a 1D array");
      return NULL;
   }
 
   if (xcpdata->nd != 1)
   {
+    Py_XDECREF(npdata); Py_XDECREF(xcpdata); Py_XDECREF(ycpdata);
+    Py_XDECREF(oxp); Py_XDECREF(oyp); Py_XDECREF(onp); 
      PyErr_SetString(PyExc_ValueError, "Argument xp must be a 1D array");
      return NULL;
   }
 
   if (ycpdata->nd != 1)
   {
+    Py_XDECREF(npdata); Py_XDECREF(xcpdata); Py_XDECREF(ycpdata);
+    Py_XDECREF(oxp); Py_XDECREF(oyp); Py_XDECREF(onp); 
      PyErr_SetString(PyExc_ValueError, "Argument yp must be a 1D array");
      return NULL;
   }
@@ -228,6 +264,8 @@ static PyObject * GcTrace_wrap(PyObject *self, PyObject *args)
 
   if (ntotal<0)
     {
+    Py_XDECREF(npdata); Py_XDECREF(xcpdata); Py_XDECREF(ycpdata);
+    Py_XDECREF(oxp); Py_XDECREF(oyp); Py_XDECREF(onp); 
      PyErr_SetString(PyExc_ValueError, "Illegal return value ntotal in GcTrace");
      return NULL;
   }
@@ -248,17 +286,23 @@ static PyObject * GcTrace_wrap(PyObject *self, PyObject *args)
 	   point = Py_BuildValue("(d,d)", ((double *) xcpdata->data)[p],((double *) ycpdata->data)[p]);
 	   if (PyList_Append(contourList, point))
 	   {
+	     Py_XDECREF(npdata); Py_XDECREF(xcpdata); Py_XDECREF(ycpdata);
+	     Py_XDECREF(oxp); Py_XDECREF(oyp); Py_XDECREF(onp); 
 	      printf ("Error in appending to list\n");
 	      return NULL;
 	      }
 	  }
 	if (PyList_Append(all_contours, contourList))
 	  {
+	    Py_XDECREF(npdata); Py_XDECREF(xcpdata); Py_XDECREF(ycpdata);
+	    Py_XDECREF(oxp); Py_XDECREF(oyp); Py_XDECREF(onp); 
 	    printf ("error in appending to all_contours\n");
 	    return NULL;
 	  }
 	}
-return Py_BuildValue("O", all_contours);
+  Py_XDECREF(npdata); Py_XDECREF(xcpdata); Py_XDECREF(ycpdata);
+  Py_XDECREF(oxp); Py_XDECREF(oyp); Py_XDECREF(onp); 
+  return Py_BuildValue("O", all_contours);
 }
 
 

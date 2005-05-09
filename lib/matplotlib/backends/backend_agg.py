@@ -119,6 +119,9 @@ class RendererAgg(RendererBase):
         self.draw_line_collection = self._renderer.draw_line_collection
         self.draw_poly_collection = self._renderer.draw_poly_collection
         self.draw_regpoly_collection = self._renderer.draw_regpoly_collection
+        self.cache = self._renderer.cache
+        self.blit = self._renderer.blit
+
 
     def draw_arc(self, gcEdge, rgbFace, x, y, width, height, angle1, angle2):
         """
@@ -299,8 +302,7 @@ class FigureCanvasAgg(FigureCanvasBase):
     Public attribute
 
       figure - A Figure instance
-    """
-    
+    """    
 
     def draw(self):
         """

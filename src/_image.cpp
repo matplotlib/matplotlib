@@ -11,17 +11,16 @@
 #include "Numeric/arrayobject.h" 
 #endif   
 
-#include "agg_pixfmt_rgb24.h"
-#include "agg_pixfmt_rgba32.h"
-#include "agg_pixfmt_rgba32.h"
-#include "agg_color_rgba8.h"
+#include "agg_pixfmt_rgb.h"
+#include "agg_pixfmt_rgba.h"
+#include "agg_color_rgba.h"
 #include "agg_rendering_buffer.h"
 #include "agg_rasterizer_scanline_aa.h"
 #include "agg_scanline_bin.h"
 #include "agg_path_storage.h"
 #include "agg_conv_transform.h"
-#include "agg_span_image_filter_rgb24.h"
-#include "agg_span_image_filter_rgba32.h"
+#include "agg_span_image_filter_rgb.h"
+#include "agg_span_image_filter_rgba.h"
 #include "agg_span_interpolator_linear.h"
 #include "agg_scanline_bin.h"
 #include "agg_scanline_u.h"
@@ -32,11 +31,9 @@
   
 
 
-typedef agg::pixel_formats_rgba32<agg::order_rgba32> pixfmt;
+typedef agg::pixfmt_rgba32 pixfmt;
 typedef agg::renderer_base<pixfmt> renderer_base;
 typedef agg::span_interpolator_linear<> interpolator_type;
-typedef agg::span_image_filter_rgba32_bilinear<agg::order_rgba32, interpolator_type> span_gen_type;
-typedef agg::renderer_scanline_aa<renderer_base, span_gen_type> renderer_type;
 typedef agg::rasterizer_scanline_aa<> rasterizer;
 
 
@@ -252,17 +249,25 @@ Image::reset_matrix(const Py::Tuple& args) {
 }
 
 char Image::resize__doc__[] = 
-"resize(width, height)\n"
+"resize(width, height, norm=1, radius=4.0)\n"
 "\n"
-"Resize the image to width, height using interpolation"
+"Resize the image to width, height using interpolation\n"
+"norm and radius are optional args for some of the filters and must be\n"
+"passed as kwargs\n"
 ;
 
 Py::Object
-Image::resize(const Py::Tuple& args) {
+Image::resize(const Py::Tuple& args, const Py::Dict& kwargs) {
   _VERBOSE("Image::resize");
   
   args.verify_length(2);
   
+  int norm = 1;
+  if ( kwargs.hasKey("norm") ) norm = Py::Int( kwargs["norm"] );
+
+  double radius = 4.0;
+  if ( kwargs.hasKey("radius") ) radius = Py::Float( kwargs["radius"] );
+
   if (bufferIn ==NULL) 
     throw Py::RuntimeError("You must first load the image"); 
   
@@ -367,25 +372,11 @@ Image::resize(const Py::Tuple& args) {
   
   switch(interpolation)
     {
-    case NEAREST:
-      {
-	
-	typedef agg::span_image_filter_rgba32_nn<agg::order_rgba32,
-	  interpolator_type> span_gen_type;
-	typedef agg::renderer_scanline_aa<renderer_base, span_gen_type> renderer_type;
-	
-	span_gen_type sg(sa, *rbufIn, background, interpolator);
-	renderer_type ri(rb, sg);
-	agg::render_scanlines(ras, sl, ri);
-	
-      }
-      break;
       
-    case BILINEAR:
+    case 0:
       {
-	
-	
-	typedef agg::span_image_filter_rgba32_bilinear<agg::order_rgba32,
+	typedef agg::span_image_filter_rgb_nn<agg::rgba8,
+	  agg::order_bgr,
 	  interpolator_type> span_gen_type;
 	typedef agg::renderer_scanline_aa<renderer_base, span_gen_type> renderer_type;
 	
@@ -394,39 +385,51 @@ Image::resize(const Py::Tuple& args) {
 	agg::render_scanlines(ras, sl, ri);
       }
       break;
-    case BICUBIC:
-    case SPLINE16:
-    case SPLINE36:
-    case SINC64:
-    case SINC144:
-    case SINC256:
-    case BLACKMAN64:
-    case BLACKMAN100:
-    case BLACKMAN256:
-      {
-	agg::image_filter_base* filter = 0;
-	switch(interpolation) {
-	  
-	case BICUBIC:     filter = new agg::image_filter<agg::image_filter_bicubic>; break;
-	case SPLINE16:    filter = new agg::image_filter<agg::image_filter_spline16>; break;
-	case SPLINE36:    filter = new agg::image_filter<agg::image_filter_spline36>; break;  
-	case SINC64:      filter = new agg::image_filter<agg::image_filter_sinc64>; break;    
-	case SINC144:     filter = new agg::image_filter<agg::image_filter_sinc144>; break;   
-	case SINC256:     filter = new agg::image_filter<agg::image_filter_sinc256>; break;   
-	case BLACKMAN64:  filter = new agg::image_filter<agg::image_filter_blackman64>; break; 
-	case BLACKMAN100: filter = new agg::image_filter<agg::image_filter_blackman100>; break;
-	case BLACKMAN256: filter = new agg::image_filter<agg::image_filter_blackman256>; break;
-	}
-	
-	
-	typedef agg::span_image_filter_rgba32<agg::order_rgba32,
+        case 1:
+        case 2:
+        case 3:
+        case 4:
+        case 5:
+        case 6:
+        case 7:
+        case 8:  
+        case 9:  
+        case 10: 
+        case 11: 
+        case 12: 
+        case 13: 
+        case 14: 
+        case 15: 
+        case 16: 
+            {
+                agg::image_filter_lut filter;
+                switch(interpolation)
+                {
+                case 1:  filter.calculate(agg::image_filter_bilinear(),                 norm); break; 
+                case 2:  filter.calculate(agg::image_filter_bicubic(),                  norm); break; 
+                case 3:  filter.calculate(agg::image_filter_spline16(),                 norm); break; 
+                case 4:  filter.calculate(agg::image_filter_spline36(),                 norm); break; 
+                case 5:  filter.calculate(agg::image_filter_hanning(),                  norm); break; 
+                case 6:  filter.calculate(agg::image_filter_hamming(),                  norm); break; 
+                case 7:  filter.calculate(agg::image_filter_hermite(),                  norm); break; 
+                case 8:  filter.calculate(agg::image_filter_kaiser(),                   norm); break; 
+                case 9:  filter.calculate(agg::image_filter_quadric(),                  norm); break; 
+                case 10: filter.calculate(agg::image_filter_catrom(),                   norm); break; 
+                case 11: filter.calculate(agg::image_filter_gaussian(),                 norm); break; 
+                case 12: filter.calculate(agg::image_filter_bessel(),                   norm); break; 
+                case 13: filter.calculate(agg::image_filter_mitchell(),                 norm); break; 
+                case 14: filter.calculate(agg::image_filter_sinc(radius),     norm); break; 
+                case 15: filter.calculate(agg::image_filter_lanczos(radius),  norm); break; 
+                case 16: filter.calculate(agg::image_filter_blackman(radius), norm); break; 
+                }
+
+	typedef agg::span_image_filter_rgba<agg::rgba8, agg::order_rgba,
 	  interpolator_type> span_gen_type;
 	typedef agg::renderer_scanline_aa<renderer_base, span_gen_type> renderer_type;
-	span_gen_type sg(sa, rbufPad, background, interpolator, *filter);
+	span_gen_type sg(sa, rbufPad, background, interpolator, filter);
 	renderer_type ri(rb, sg);
 	agg::render_scanlines(ras, sl, ri);
-	
-	delete filter;    
+
       }
       break;
       
@@ -626,7 +629,7 @@ Image::init_type() {
   add_varargs_method( "get_interpolation", &Image::get_interpolation, Image::get_interpolation__doc__);
   add_varargs_method( "get_size", &Image::get_size, Image::get_size__doc__);
   add_varargs_method( "reset_matrix", &Image::reset_matrix, Image::reset_matrix__doc__);
-  add_varargs_method( "resize", &Image::resize, Image::resize__doc__);
+  add_keyword_method( "resize", &Image::resize, Image::resize__doc__);
   add_varargs_method( "set_interpolation", &Image::set_interpolation, Image::set_interpolation__doc__);
   add_varargs_method( "set_aspect", &Image::set_aspect, Image::set_aspect__doc__);
   add_varargs_method( "write_png", &Image::write_png, Image::write_png__doc__);

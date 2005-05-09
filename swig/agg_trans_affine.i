@@ -1,7 +1,13 @@
 %include "agg_typemaps.i"
 
+
 // ** affine transformation **
 namespace agg{
+  %rename(as_vec6) trans_affine::store_to(double* array6) const;
+  %rename(get_rotation) trans_affine::rotation() const;
+  %rename(get_translation) trans_affine::translation(double* OUTPUT, double* OUTPUT) const;
+  %rename(get_scaling) trans_affine::scaling(double* OUTPUT, double* OUTPUT) const;
+
   class trans_affine
   {
   public:
@@ -27,7 +33,7 @@ namespace agg{
     const trans_affine& flip_x();
     const trans_affine& flip_y();
     
-    %name(as_vec6) void store_to(double* array6) const;
+    void store_to(double* array6) const;
     
     const trans_affine& load_from(const double *parl);
     const trans_affine& operator *= (const trans_affine& m);
@@ -43,9 +49,9 @@ namespace agg{
     bool is_identity(double epsilon = agg::affine_epsilon) const;
     bool is_equal(const trans_affine& m, double epsilon = agg::affine_epsilon) const;
     //avoid swig name clashes with classes trans_affine_rotation, etc
-    %name(get_rotation) double rotation() const;
-    %name(get_translation) void   translation(double* OUTPUT, double* OUTPUT) const;
-    %name(get_scaling) void   scaling(double* OUTPUT, double* OUTPUT) const;
+    double rotation() const;
+    void translation(double* OUTPUT, double* OUTPUT) const;
+    void   scaling(double* OUTPUT, double* OUTPUT) const;
   }; 
   
 
