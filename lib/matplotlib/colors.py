@@ -31,7 +31,8 @@ Finally, legal html names for colors, like 'red', 'burlywood' and
 import re
 
 from numerix import array, arange, take, put, Float, Int, where, \
-     zeros, asarray, sort, searchsorted, sometrue, ravel, divide
+     zeros, asarray, sort, searchsorted, sometrue, ravel, divide,\
+     clip
 
 from numerix.mlab import amin, amax
 from types import IntType, FloatType
@@ -558,6 +559,15 @@ class normalize:
         else:
             vtype = 'array'
             val = asarray(value)
+
+        # if both vmin is None and vmax is None, we'll automatically
+        # norm the data to vmin/vmax of the actual data, so the
+        # clipping step won't be needed.
+        if vmin is None and vmax is None:
+            needs_clipping = False
+        else:
+            needs_clipping = True
+
         if vmin is None or vmax is None:
             rval = ravel(val)
             if vmin is None: vmin = amin(rval)
@@ -567,9 +577,8 @@ class normalize:
         elif vmin==vmax:
             return 0.*value
         else:
-            
-            val = where(val<vmin, vmin, val)
-            val = where(val>vmax, vmax, val)
+            if needs_clipping:
+                val = clip(val,vmin, vmax)
             result = (1.0/(vmax-vmin))*(val-vmin)
         if vtype == 'scalar':
             result = result[0]

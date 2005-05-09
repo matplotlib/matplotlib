@@ -333,6 +333,7 @@ class Line2D(Artist):
 
     def draw(self, renderer):
         #renderer.open_group('line2d')
+
         if not self._visible: return
         self._newstyle = hasattr(renderer, 'draw_markers')
         gc = renderer.new_gc()
@@ -354,8 +355,10 @@ class Line2D(Artist):
             xt, yt = self._transform.numerix_x_y(x, y)
 
 
+
         funcname = self._lineStyles.get(self._linestyle, '_draw_nothing')
         lineFunc = getattr(self, funcname)
+
         if self._segments is not None:
             for ii in self._segments:
                 lineFunc(renderer, gc, xt[ii[0]:ii[1]], yt[ii[0]:ii[1]])
@@ -610,7 +613,7 @@ class Line2D(Artist):
         if len(xt)<2: return
         gc.set_linestyle('solid')
         gc.set_capstyle('projecting')
-
+        print 'called draw lines', self._newstyle, renderer
         if self._newstyle:
             renderer.draw_lines(gc, xt, yt, self._transform)
         else:
@@ -959,8 +962,8 @@ class Line2D(Artist):
         offset = renderer.points_to_pixels(self._markersize)
         if self._newstyle:
             path = agg.path_storage()
-            path.move_to(-offset, 0)
-            path.line_to(0, 0)
+            path.move_to(-offset, 0.5)
+            path.line_to(0, 0.5)
             renderer.draw_markers(gc, path, None, xt, yt, self._transform)
         else:
             for (x,y) in zip(xt, yt):
@@ -971,8 +974,8 @@ class Line2D(Artist):
         offset = renderer.points_to_pixels(self._markersize)
         if self._newstyle:
             path = agg.path_storage()
-            path.move_to(0, 0)
-            path.line_to(offset, 0)
+            path.move_to(0, 0.5)
+            path.line_to(offset, 0.5)
             renderer.draw_markers(gc, path, None, xt, yt, self._transform)
         else:
             for (x,y) in zip(xt, yt):
@@ -982,8 +985,8 @@ class Line2D(Artist):
         offset = renderer.points_to_pixels(self._markersize)
         if self._newstyle:
             path = agg.path_storage()
-            path.move_to(0, 0)
-            path.line_to(0, offset)
+            path.move_to(-0.5, 0)
+            path.line_to(-0.5, offset)
             renderer.draw_markers(gc, path, None, xt, yt, self._transform)
         else:
             for (x,y) in zip(xt, yt):
@@ -993,8 +996,8 @@ class Line2D(Artist):
         offset = renderer.points_to_pixels(self._markersize)
         if self._newstyle:
             path = agg.path_storage()
-            path.move_to(0, -offset)
-            path.line_to(0, 0)
+            path.move_to(-0.5, -offset)
+            path.line_to(-0.5, 0)
             renderer.draw_markers(gc, path, None, xt, yt, self._transform)
         else:
             for (x,y) in zip(xt, yt):

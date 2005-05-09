@@ -50,6 +50,9 @@ path_cmd_move_to = _agg.path_cmd_move_to
 path_cmd_line_to = _agg.path_cmd_line_to
 path_cmd_curve3 = _agg.path_cmd_curve3
 path_cmd_curve4 = _agg.path_cmd_curve4
+path_cmd_curveN = _agg.path_cmd_curveN
+path_cmd_catrom = _agg.path_cmd_catrom
+path_cmd_ubspline = _agg.path_cmd_ubspline
 path_cmd_end_poly = _agg.path_cmd_end_poly
 path_cmd_mask = _agg.path_cmd_mask
 path_flags_none = _agg.path_flags_none
@@ -240,6 +243,398 @@ unite_rectangles_d = _agg.unite_rectangles_d
 intersect_rectangles = _agg.intersect_rectangles
 
 intersect_rectangles_d = _agg.intersect_rectangles_d
+class binary_data(_object):
+    __swig_setmethods__ = {}
+    __setattr__ = lambda self, name, value: _swig_setattr(self, binary_data, name, value)
+    __swig_getmethods__ = {}
+    __getattr__ = lambda self, name: _swig_getattr(self, binary_data, name)
+    def __repr__(self):
+        return "<%s.%s; proxy of C++ agg::binary_data instance at %s>" % (self.__class__.__module__, self.__class__.__name__, self.this,)
+    __swig_setmethods__["size"] = _agg.binary_data_size_set
+    __swig_getmethods__["size"] = _agg.binary_data_size_get
+    if _newclass:size = property(_agg.binary_data_size_get, _agg.binary_data_size_set)
+    __swig_setmethods__["data"] = _agg.binary_data_data_set
+    __swig_getmethods__["data"] = _agg.binary_data_data_get
+    if _newclass:data = property(_agg.binary_data_data_get, _agg.binary_data_data_set)
+    def __init__(self, *args):
+        _swig_setattr(self, binary_data, 'this', _agg.new_binary_data(*args))
+        _swig_setattr(self, binary_data, 'thisown', 1)
+    def __del__(self, destroy=_agg.delete_binary_data):
+        try:
+            if self.thisown: destroy(self)
+        except: pass
+
+
+class binary_dataPtr(binary_data):
+    def __init__(self, this):
+        _swig_setattr(self, binary_data, 'this', this)
+        if not hasattr(self,"thisown"): _swig_setattr(self, binary_data, 'thisown', 0)
+        _swig_setattr(self, binary_data,self.__class__,binary_data)
+_agg.binary_data_swigregister(binary_dataPtr)
+
+class buffer(_object):
+    __swig_setmethods__ = {}
+    __setattr__ = lambda self, name, value: _swig_setattr(self, buffer, name, value)
+    __swig_getmethods__ = {}
+    __getattr__ = lambda self, name: _swig_getattr(self, buffer, name)
+    def __repr__(self):
+        return "<%s.%s; proxy of C++ agg::buffer instance at %s>" % (self.__class__.__module__, self.__class__.__name__, self.this,)
+    def __init__(self, *args):
+        _swig_setattr(self, buffer, 'this', _agg.new_buffer(*args))
+        _swig_setattr(self, buffer, 'thisown', 1)
+    def __del__(self, destroy=_agg.delete_buffer):
+        try:
+            if self.thisown: destroy(self)
+        except: pass
+
+    def speak(*args): return _agg.buffer_speak(*args)
+    def to_string(*args): return _agg.buffer_to_string(*args)
+    __swig_getmethods__["width"] = _agg.buffer_width_get
+    if _newclass:width = property(_agg.buffer_width_get)
+    __swig_getmethods__["height"] = _agg.buffer_height_get
+    if _newclass:height = property(_agg.buffer_height_get)
+    __swig_getmethods__["stride"] = _agg.buffer_stride_get
+    if _newclass:stride = property(_agg.buffer_stride_get)
+    __swig_setmethods__["data"] = _agg.buffer_data_set
+    __swig_getmethods__["data"] = _agg.buffer_data_get
+    if _newclass:data = property(_agg.buffer_data_get, _agg.buffer_data_set)
+
+class bufferPtr(buffer):
+    def __init__(self, this):
+        _swig_setattr(self, buffer, 'this', this)
+        if not hasattr(self,"thisown"): _swig_setattr(self, buffer, 'thisown', 0)
+        _swig_setattr(self, buffer,self.__class__,buffer)
+_agg.buffer_swigregister(bufferPtr)
+
+class order_rgb(_object):
+    __swig_setmethods__ = {}
+    __setattr__ = lambda self, name, value: _swig_setattr(self, order_rgb, name, value)
+    __swig_getmethods__ = {}
+    __getattr__ = lambda self, name: _swig_getattr(self, order_rgb, name)
+    def __repr__(self):
+        return "<%s.%s; proxy of C++ agg::order_rgb instance at %s>" % (self.__class__.__module__, self.__class__.__name__, self.this,)
+    R = _agg.order_rgb_R
+    G = _agg.order_rgb_G
+    B = _agg.order_rgb_B
+    rgb_tag = _agg.order_rgb_rgb_tag
+    def __init__(self, *args):
+        _swig_setattr(self, order_rgb, 'this', _agg.new_order_rgb(*args))
+        _swig_setattr(self, order_rgb, 'thisown', 1)
+    def __del__(self, destroy=_agg.delete_order_rgb):
+        try:
+            if self.thisown: destroy(self)
+        except: pass
+
+
+class order_rgbPtr(order_rgb):
+    def __init__(self, this):
+        _swig_setattr(self, order_rgb, 'this', this)
+        if not hasattr(self,"thisown"): _swig_setattr(self, order_rgb, 'thisown', 0)
+        _swig_setattr(self, order_rgb,self.__class__,order_rgb)
+_agg.order_rgb_swigregister(order_rgbPtr)
+
+class order_bgr(_object):
+    __swig_setmethods__ = {}
+    __setattr__ = lambda self, name, value: _swig_setattr(self, order_bgr, name, value)
+    __swig_getmethods__ = {}
+    __getattr__ = lambda self, name: _swig_getattr(self, order_bgr, name)
+    def __repr__(self):
+        return "<%s.%s; proxy of C++ agg::order_bgr instance at %s>" % (self.__class__.__module__, self.__class__.__name__, self.this,)
+    B = _agg.order_bgr_B
+    G = _agg.order_bgr_G
+    R = _agg.order_bgr_R
+    rgb_tag = _agg.order_bgr_rgb_tag
+    def __init__(self, *args):
+        _swig_setattr(self, order_bgr, 'this', _agg.new_order_bgr(*args))
+        _swig_setattr(self, order_bgr, 'thisown', 1)
+    def __del__(self, destroy=_agg.delete_order_bgr):
+        try:
+            if self.thisown: destroy(self)
+        except: pass
+
+
+class order_bgrPtr(order_bgr):
+    def __init__(self, this):
+        _swig_setattr(self, order_bgr, 'this', this)
+        if not hasattr(self,"thisown"): _swig_setattr(self, order_bgr, 'thisown', 0)
+        _swig_setattr(self, order_bgr,self.__class__,order_bgr)
+_agg.order_bgr_swigregister(order_bgrPtr)
+
+class order_rgba(_object):
+    __swig_setmethods__ = {}
+    __setattr__ = lambda self, name, value: _swig_setattr(self, order_rgba, name, value)
+    __swig_getmethods__ = {}
+    __getattr__ = lambda self, name: _swig_getattr(self, order_rgba, name)
+    def __repr__(self):
+        return "<%s.%s; proxy of C++ agg::order_rgba instance at %s>" % (self.__class__.__module__, self.__class__.__name__, self.this,)
+    R = _agg.order_rgba_R
+    G = _agg.order_rgba_G
+    B = _agg.order_rgba_B
+    A = _agg.order_rgba_A
+    rgba_tag = _agg.order_rgba_rgba_tag
+    def __init__(self, *args):
+        _swig_setattr(self, order_rgba, 'this', _agg.new_order_rgba(*args))
+        _swig_setattr(self, order_rgba, 'thisown', 1)
+    def __del__(self, destroy=_agg.delete_order_rgba):
+        try:
+            if self.thisown: destroy(self)
+        except: pass
+
+
+class order_rgbaPtr(order_rgba):
+    def __init__(self, this):
+        _swig_setattr(self, order_rgba, 'this', this)
+        if not hasattr(self,"thisown"): _swig_setattr(self, order_rgba, 'thisown', 0)
+        _swig_setattr(self, order_rgba,self.__class__,order_rgba)
+_agg.order_rgba_swigregister(order_rgbaPtr)
+
+class order_argb(_object):
+    __swig_setmethods__ = {}
+    __setattr__ = lambda self, name, value: _swig_setattr(self, order_argb, name, value)
+    __swig_getmethods__ = {}
+    __getattr__ = lambda self, name: _swig_getattr(self, order_argb, name)
+    def __repr__(self):
+        return "<%s.%s; proxy of C++ agg::order_argb instance at %s>" % (self.__class__.__module__, self.__class__.__name__, self.this,)
+    A = _agg.order_argb_A
+    R = _agg.order_argb_R
+    G = _agg.order_argb_G
+    B = _agg.order_argb_B
+    rgba_tag = _agg.order_argb_rgba_tag
+    def __init__(self, *args):
+        _swig_setattr(self, order_argb, 'this', _agg.new_order_argb(*args))
+        _swig_setattr(self, order_argb, 'thisown', 1)
+    def __del__(self, destroy=_agg.delete_order_argb):
+        try:
+            if self.thisown: destroy(self)
+        except: pass
+
+
+class order_argbPtr(order_argb):
+    def __init__(self, this):
+        _swig_setattr(self, order_argb, 'this', this)
+        if not hasattr(self,"thisown"): _swig_setattr(self, order_argb, 'thisown', 0)
+        _swig_setattr(self, order_argb,self.__class__,order_argb)
+_agg.order_argb_swigregister(order_argbPtr)
+
+class order_abgr(_object):
+    __swig_setmethods__ = {}
+    __setattr__ = lambda self, name, value: _swig_setattr(self, order_abgr, name, value)
+    __swig_getmethods__ = {}
+    __getattr__ = lambda self, name: _swig_getattr(self, order_abgr, name)
+    def __repr__(self):
+        return "<%s.%s; proxy of C++ agg::order_abgr instance at %s>" % (self.__class__.__module__, self.__class__.__name__, self.this,)
+    A = _agg.order_abgr_A
+    B = _agg.order_abgr_B
+    G = _agg.order_abgr_G
+    R = _agg.order_abgr_R
+    rgba_tag = _agg.order_abgr_rgba_tag
+    def __init__(self, *args):
+        _swig_setattr(self, order_abgr, 'this', _agg.new_order_abgr(*args))
+        _swig_setattr(self, order_abgr, 'thisown', 1)
+    def __del__(self, destroy=_agg.delete_order_abgr):
+        try:
+            if self.thisown: destroy(self)
+        except: pass
+
+
+class order_abgrPtr(order_abgr):
+    def __init__(self, this):
+        _swig_setattr(self, order_abgr, 'this', this)
+        if not hasattr(self,"thisown"): _swig_setattr(self, order_abgr, 'thisown', 0)
+        _swig_setattr(self, order_abgr,self.__class__,order_abgr)
+_agg.order_abgr_swigregister(order_abgrPtr)
+
+class order_bgra(_object):
+    __swig_setmethods__ = {}
+    __setattr__ = lambda self, name, value: _swig_setattr(self, order_bgra, name, value)
+    __swig_getmethods__ = {}
+    __getattr__ = lambda self, name: _swig_getattr(self, order_bgra, name)
+    def __repr__(self):
+        return "<%s.%s; proxy of C++ agg::order_bgra instance at %s>" % (self.__class__.__module__, self.__class__.__name__, self.this,)
+    B = _agg.order_bgra_B
+    G = _agg.order_bgra_G
+    R = _agg.order_bgra_R
+    A = _agg.order_bgra_A
+    rgba_tag = _agg.order_bgra_rgba_tag
+    def __init__(self, *args):
+        _swig_setattr(self, order_bgra, 'this', _agg.new_order_bgra(*args))
+        _swig_setattr(self, order_bgra, 'thisown', 1)
+    def __del__(self, destroy=_agg.delete_order_bgra):
+        try:
+            if self.thisown: destroy(self)
+        except: pass
+
+
+class order_bgraPtr(order_bgra):
+    def __init__(self, this):
+        _swig_setattr(self, order_bgra, 'this', this)
+        if not hasattr(self,"thisown"): _swig_setattr(self, order_bgra, 'thisown', 0)
+        _swig_setattr(self, order_bgra,self.__class__,order_bgra)
+_agg.order_bgra_swigregister(order_bgraPtr)
+
+class rgba(_object):
+    __swig_setmethods__ = {}
+    __setattr__ = lambda self, name, value: _swig_setattr(self, rgba, name, value)
+    __swig_getmethods__ = {}
+    __getattr__ = lambda self, name: _swig_getattr(self, rgba, name)
+    def __repr__(self):
+        return "<%s.%s; proxy of C++ agg::rgba instance at %s>" % (self.__class__.__module__, self.__class__.__name__, self.this,)
+    __swig_setmethods__["r"] = _agg.rgba_r_set
+    __swig_getmethods__["r"] = _agg.rgba_r_get
+    if _newclass:r = property(_agg.rgba_r_get, _agg.rgba_r_set)
+    __swig_setmethods__["g"] = _agg.rgba_g_set
+    __swig_getmethods__["g"] = _agg.rgba_g_get
+    if _newclass:g = property(_agg.rgba_g_get, _agg.rgba_g_set)
+    __swig_setmethods__["b"] = _agg.rgba_b_set
+    __swig_getmethods__["b"] = _agg.rgba_b_get
+    if _newclass:b = property(_agg.rgba_b_get, _agg.rgba_b_set)
+    __swig_setmethods__["a"] = _agg.rgba_a_set
+    __swig_getmethods__["a"] = _agg.rgba_a_get
+    if _newclass:a = property(_agg.rgba_a_get, _agg.rgba_a_set)
+    def clear(*args): return _agg.rgba_clear(*args)
+    def transparent(*args): return _agg.rgba_transparent(*args)
+    def opacity(*args): return _agg.rgba_opacity(*args)
+    def premultiply(*args): return _agg.rgba_premultiply(*args)
+    def demultiply(*args): return _agg.rgba_demultiply(*args)
+    def gradient(*args): return _agg.rgba_gradient(*args)
+    __swig_getmethods__["no_color"] = lambda x: _agg.rgba_no_color
+    if _newclass:no_color = staticmethod(_agg.rgba_no_color)
+    __swig_getmethods__["from_wavelength"] = lambda x: _agg.rgba_from_wavelength
+    if _newclass:from_wavelength = staticmethod(_agg.rgba_from_wavelength)
+    def __init__(self, *args):
+        _swig_setattr(self, rgba, 'this', _agg.new_rgba(*args))
+        _swig_setattr(self, rgba, 'thisown', 1)
+    def __del__(self, destroy=_agg.delete_rgba):
+        try:
+            if self.thisown: destroy(self)
+        except: pass
+
+
+class rgbaPtr(rgba):
+    def __init__(self, this):
+        _swig_setattr(self, rgba, 'this', this)
+        if not hasattr(self,"thisown"): _swig_setattr(self, rgba, 'thisown', 0)
+        _swig_setattr(self, rgba,self.__class__,rgba)
+_agg.rgba_swigregister(rgbaPtr)
+
+rgba_no_color = _agg.rgba_no_color
+
+rgba_from_wavelength = _agg.rgba_from_wavelength
+
+class rgba8(_object):
+    __swig_setmethods__ = {}
+    __setattr__ = lambda self, name, value: _swig_setattr(self, rgba8, name, value)
+    __swig_getmethods__ = {}
+    __getattr__ = lambda self, name: _swig_getattr(self, rgba8, name)
+    def __repr__(self):
+        return "<%s.%s; proxy of C++ agg::rgba8 instance at %s>" % (self.__class__.__module__, self.__class__.__name__, self.this,)
+    base_shift = _agg.rgba8_base_shift
+    base_size = _agg.rgba8_base_size
+    base_mask = _agg.rgba8_base_mask
+    __swig_setmethods__["r"] = _agg.rgba8_r_set
+    __swig_getmethods__["r"] = _agg.rgba8_r_get
+    if _newclass:r = property(_agg.rgba8_r_get, _agg.rgba8_r_set)
+    __swig_setmethods__["g"] = _agg.rgba8_g_set
+    __swig_getmethods__["g"] = _agg.rgba8_g_get
+    if _newclass:g = property(_agg.rgba8_g_get, _agg.rgba8_g_set)
+    __swig_setmethods__["b"] = _agg.rgba8_b_set
+    __swig_getmethods__["b"] = _agg.rgba8_b_get
+    if _newclass:b = property(_agg.rgba8_b_get, _agg.rgba8_b_set)
+    __swig_setmethods__["a"] = _agg.rgba8_a_set
+    __swig_getmethods__["a"] = _agg.rgba8_a_get
+    if _newclass:a = property(_agg.rgba8_a_get, _agg.rgba8_a_set)
+    def __init__(self, *args):
+        _swig_setattr(self, rgba8, 'this', _agg.new_rgba8(*args))
+        _swig_setattr(self, rgba8, 'thisown', 1)
+    def clear(*args): return _agg.rgba8_clear(*args)
+    def transparent(*args): return _agg.rgba8_transparent(*args)
+    def opacity(*args): return _agg.rgba8_opacity(*args)
+    def premultiply(*args): return _agg.rgba8_premultiply(*args)
+    def demultiply(*args): return _agg.rgba8_demultiply(*args)
+    def gradient(*args): return _agg.rgba8_gradient(*args)
+    __swig_getmethods__["no_color"] = lambda x: _agg.rgba8_no_color
+    if _newclass:no_color = staticmethod(_agg.rgba8_no_color)
+    __swig_getmethods__["from_wavelength"] = lambda x: _agg.rgba8_from_wavelength
+    if _newclass:from_wavelength = staticmethod(_agg.rgba8_from_wavelength)
+    def __del__(self, destroy=_agg.delete_rgba8):
+        try:
+            if self.thisown: destroy(self)
+        except: pass
+
+
+class rgba8Ptr(rgba8):
+    def __init__(self, this):
+        _swig_setattr(self, rgba8, 'this', this)
+        if not hasattr(self,"thisown"): _swig_setattr(self, rgba8, 'thisown', 0)
+        _swig_setattr(self, rgba8,self.__class__,rgba8)
+_agg.rgba8_swigregister(rgba8Ptr)
+
+rgba_pre = _agg.rgba_pre
+
+rgba8_no_color = _agg.rgba8_no_color
+
+rgba8_from_wavelength = _agg.rgba8_from_wavelength
+
+
+rgb8_packed = _agg.rgb8_packed
+
+bgr8_packed = _agg.bgr8_packed
+
+argb8_packed = _agg.argb8_packed
+class rgba16(_object):
+    __swig_setmethods__ = {}
+    __setattr__ = lambda self, name, value: _swig_setattr(self, rgba16, name, value)
+    __swig_getmethods__ = {}
+    __getattr__ = lambda self, name: _swig_getattr(self, rgba16, name)
+    def __repr__(self):
+        return "<%s.%s; proxy of C++ agg::rgba16 instance at %s>" % (self.__class__.__module__, self.__class__.__name__, self.this,)
+    base_shift = _agg.rgba16_base_shift
+    base_size = _agg.rgba16_base_size
+    base_mask = _agg.rgba16_base_mask
+    __swig_setmethods__["r"] = _agg.rgba16_r_set
+    __swig_getmethods__["r"] = _agg.rgba16_r_get
+    if _newclass:r = property(_agg.rgba16_r_get, _agg.rgba16_r_set)
+    __swig_setmethods__["g"] = _agg.rgba16_g_set
+    __swig_getmethods__["g"] = _agg.rgba16_g_get
+    if _newclass:g = property(_agg.rgba16_g_get, _agg.rgba16_g_set)
+    __swig_setmethods__["b"] = _agg.rgba16_b_set
+    __swig_getmethods__["b"] = _agg.rgba16_b_get
+    if _newclass:b = property(_agg.rgba16_b_get, _agg.rgba16_b_set)
+    __swig_setmethods__["a"] = _agg.rgba16_a_set
+    __swig_getmethods__["a"] = _agg.rgba16_a_get
+    if _newclass:a = property(_agg.rgba16_a_get, _agg.rgba16_a_set)
+    def __init__(self, *args):
+        _swig_setattr(self, rgba16, 'this', _agg.new_rgba16(*args))
+        _swig_setattr(self, rgba16, 'thisown', 1)
+    def clear(*args): return _agg.rgba16_clear(*args)
+    def transparent(*args): return _agg.rgba16_transparent(*args)
+    def opacity(*args): return _agg.rgba16_opacity(*args)
+    def premultiply(*args): return _agg.rgba16_premultiply(*args)
+    def demultiply(*args): return _agg.rgba16_demultiply(*args)
+    def gradient(*args): return _agg.rgba16_gradient(*args)
+    __swig_getmethods__["no_color"] = lambda x: _agg.rgba16_no_color
+    if _newclass:no_color = staticmethod(_agg.rgba16_no_color)
+    __swig_getmethods__["from_wavelength"] = lambda x: _agg.rgba16_from_wavelength
+    if _newclass:from_wavelength = staticmethod(_agg.rgba16_from_wavelength)
+    def __del__(self, destroy=_agg.delete_rgba16):
+        try:
+            if self.thisown: destroy(self)
+        except: pass
+
+
+class rgba16Ptr(rgba16):
+    def __init__(self, this):
+        _swig_setattr(self, rgba16, 'this', this)
+        if not hasattr(self,"thisown"): _swig_setattr(self, rgba16, 'thisown', 0)
+        _swig_setattr(self, rgba16,self.__class__,rgba16)
+_agg.rgba16_swigregister(rgba16Ptr)
+
+rgba8_pre = _agg.rgba8_pre
+
+rgba16_no_color = _agg.rgba16_no_color
+
+rgba16_from_wavelength = _agg.rgba16_from_wavelength
+
 class trans_affine(_object):
     __swig_setmethods__ = {}
     __setattr__ = lambda self, name, value: _swig_setattr(self, trans_affine, name, value)
@@ -287,6 +682,8 @@ class trans_affinePtr(trans_affine):
         if not hasattr(self,"thisown"): _swig_setattr(self, trans_affine, 'thisown', 0)
         _swig_setattr(self, trans_affine,self.__class__,trans_affine)
 _agg.trans_affine_swigregister(trans_affinePtr)
+
+rgba16_pre = _agg.rgba16_pre
 
 class trans_affine_rotation(trans_affine):
     __swig_setmethods__ = {}
@@ -420,7 +817,6 @@ class path_storage(_object):
     def end_poly(*args): return _agg.path_storage_end_poly(*args)
     def close_polygon(*args): return _agg.path_storage_close_polygon(*args)
     def add_poly(*args): return _agg.path_storage_add_poly(*args)
-    def add_vertices(*args): return _agg.path_storage_add_vertices(*args)
     def start_new_path(*args): return _agg.path_storage_start_new_path(*args)
     def copy_from(*args): return _agg.path_storage_copy_from(*args)
     def total_vertices(*args): return _agg.path_storage_total_vertices(*args)
@@ -442,4 +838,475 @@ class path_storagePtr(path_storage):
         _swig_setattr(self, path_storage,self.__class__,path_storage)
 _agg.path_storage_swigregister(path_storagePtr)
 
+butt_cap = _agg.butt_cap
+square_cap = _agg.square_cap
+round_cap = _agg.round_cap
+miter_join = _agg.miter_join
+miter_join_revert = _agg.miter_join_revert
+round_join = _agg.round_join
+bevel_join = _agg.bevel_join
+class vcgen_stroke(_object):
+    __swig_setmethods__ = {}
+    __setattr__ = lambda self, name, value: _swig_setattr(self, vcgen_stroke, name, value)
+    __swig_getmethods__ = {}
+    __getattr__ = lambda self, name: _swig_getattr(self, vcgen_stroke, name)
+    def __repr__(self):
+        return "<%s.%s; proxy of C++ agg::vcgen_stroke instance at %s>" % (self.__class__.__module__, self.__class__.__name__, self.this,)
+    def __init__(self, *args):
+        _swig_setattr(self, vcgen_stroke, 'this', _agg.new_vcgen_stroke(*args))
+        _swig_setattr(self, vcgen_stroke, 'thisown', 1)
+    def line_cap(*args): return _agg.vcgen_stroke_line_cap(*args)
+    def line_join(*args): return _agg.vcgen_stroke_line_join(*args)
+    def inner_line_join(*args): return _agg.vcgen_stroke_inner_line_join(*args)
+    def miter_limit_theta(*args): return _agg.vcgen_stroke_miter_limit_theta(*args)
+    def width(*args): return _agg.vcgen_stroke_width(*args)
+    def miter_limit(*args): return _agg.vcgen_stroke_miter_limit(*args)
+    def inner_miter_limit(*args): return _agg.vcgen_stroke_inner_miter_limit(*args)
+    def approximation_scale(*args): return _agg.vcgen_stroke_approximation_scale(*args)
+    def shorten(*args): return _agg.vcgen_stroke_shorten(*args)
+    def remove_all(*args): return _agg.vcgen_stroke_remove_all(*args)
+    def add_vertex(*args): return _agg.vcgen_stroke_add_vertex(*args)
+    def rewind(*args): return _agg.vcgen_stroke_rewind(*args)
+    def vertex(*args): return _agg.vcgen_stroke_vertex(*args)
+    def __del__(self, destroy=_agg.delete_vcgen_stroke):
+        try:
+            if self.thisown: destroy(self)
+        except: pass
+
+
+class vcgen_strokePtr(vcgen_stroke):
+    def __init__(self, this):
+        _swig_setattr(self, vcgen_stroke, 'this', this)
+        if not hasattr(self,"thisown"): _swig_setattr(self, vcgen_stroke, 'thisown', 0)
+        _swig_setattr(self, vcgen_stroke,self.__class__,vcgen_stroke)
+_agg.vcgen_stroke_swigregister(vcgen_strokePtr)
+stroke_theta = cvar.stroke_theta
+
+class null_markers(_object):
+    __swig_setmethods__ = {}
+    __setattr__ = lambda self, name, value: _swig_setattr(self, null_markers, name, value)
+    __swig_getmethods__ = {}
+    __getattr__ = lambda self, name: _swig_getattr(self, null_markers, name)
+    def __repr__(self):
+        return "<%s.%s; proxy of C++ agg::null_markers instance at %s>" % (self.__class__.__module__, self.__class__.__name__, self.this,)
+    def __init__(self, *args):
+        _swig_setattr(self, null_markers, 'this', _agg.new_null_markers(*args))
+        _swig_setattr(self, null_markers, 'thisown', 1)
+    def __del__(self, destroy=_agg.delete_null_markers):
+        try:
+            if self.thisown: destroy(self)
+        except: pass
+
+
+class null_markersPtr(null_markers):
+    def __init__(self, this):
+        _swig_setattr(self, null_markers, 'this', this)
+        if not hasattr(self,"thisown"): _swig_setattr(self, null_markers, 'thisown', 0)
+        _swig_setattr(self, null_markers,self.__class__,null_markers)
+_agg.null_markers_swigregister(null_markersPtr)
+
+class conv_adaptor_vcgen(_object):
+    __swig_setmethods__ = {}
+    __setattr__ = lambda self, name, value: _swig_setattr(self, conv_adaptor_vcgen, name, value)
+    __swig_getmethods__ = {}
+    __getattr__ = lambda self, name: _swig_getattr(self, conv_adaptor_vcgen, name)
+    def __repr__(self):
+        return "<%s.%s; proxy of C++ conv_adaptor_vcgen<agg::path_storage,agg::vcgen_stroke,agg::null_markers > instance at %s>" % (self.__class__.__module__, self.__class__.__name__, self.this,)
+    def __init__(self, *args):
+        _swig_setattr(self, conv_adaptor_vcgen, 'this', _agg.new_conv_adaptor_vcgen(*args))
+        _swig_setattr(self, conv_adaptor_vcgen, 'thisown', 1)
+    def __del__(self, destroy=_agg.delete_conv_adaptor_vcgen):
+        try:
+            if self.thisown: destroy(self)
+        except: pass
+
+
+class conv_adaptor_vcgenPtr(conv_adaptor_vcgen):
+    def __init__(self, this):
+        _swig_setattr(self, conv_adaptor_vcgen, 'this', this)
+        if not hasattr(self,"thisown"): _swig_setattr(self, conv_adaptor_vcgen, 'thisown', 0)
+        _swig_setattr(self, conv_adaptor_vcgen,self.__class__,conv_adaptor_vcgen)
+_agg.conv_adaptor_vcgen_swigregister(conv_adaptor_vcgenPtr)
+
+class rendering_buffer(_object):
+    __swig_setmethods__ = {}
+    __setattr__ = lambda self, name, value: _swig_setattr(self, rendering_buffer, name, value)
+    __swig_getmethods__ = {}
+    __getattr__ = lambda self, name: _swig_getattr(self, rendering_buffer, name)
+    def __repr__(self):
+        return "<%s.%s; proxy of C++ agg::row_ptr_cache<agg::int8u > instance at %s>" % (self.__class__.__module__, self.__class__.__name__, self.this,)
+    def __del__(self, destroy=_agg.delete_rendering_buffer):
+        try:
+            if self.thisown: destroy(self)
+        except: pass
+
+    def __init__(self, *args):
+        _swig_setattr(self, rendering_buffer, 'this', _agg.new_rendering_buffer(*args))
+        _swig_setattr(self, rendering_buffer, 'thisown', 1)
+    def attach(*args): return _agg.rendering_buffer_attach(*args)
+    def buf(*args): return _agg.rendering_buffer_buf(*args)
+    def width(*args): return _agg.rendering_buffer_width(*args)
+    def height(*args): return _agg.rendering_buffer_height(*args)
+    def stride(*args): return _agg.rendering_buffer_stride(*args)
+    def stride_abs(*args): return _agg.rendering_buffer_stride_abs(*args)
+    def row(*args): return _agg.rendering_buffer_row(*args)
+    def next_row(*args): return _agg.rendering_buffer_next_row(*args)
+    def rows(*args): return _agg.rendering_buffer_rows(*args)
+    def copy_from(*args): return _agg.rendering_buffer_copy_from(*args)
+    def clear(*args): return _agg.rendering_buffer_clear(*args)
+    def attachb(*args): return _agg.rendering_buffer_attachb(*args)
+
+class rendering_bufferPtr(rendering_buffer):
+    def __init__(self, this):
+        _swig_setattr(self, rendering_buffer, 'this', this)
+        if not hasattr(self,"thisown"): _swig_setattr(self, rendering_buffer, 'thisown', 0)
+        _swig_setattr(self, rendering_buffer,self.__class__,rendering_buffer)
+_agg.rendering_buffer_swigregister(rendering_bufferPtr)
+
+comp_op_clear = _agg.comp_op_clear
+comp_op_src = _agg.comp_op_src
+comp_op_dst = _agg.comp_op_dst
+comp_op_src_over = _agg.comp_op_src_over
+comp_op_dst_over = _agg.comp_op_dst_over
+comp_op_src_in = _agg.comp_op_src_in
+comp_op_dst_in = _agg.comp_op_dst_in
+comp_op_src_out = _agg.comp_op_src_out
+comp_op_dst_out = _agg.comp_op_dst_out
+comp_op_src_atop = _agg.comp_op_src_atop
+comp_op_dst_atop = _agg.comp_op_dst_atop
+comp_op_xor = _agg.comp_op_xor
+comp_op_plus = _agg.comp_op_plus
+comp_op_minus = _agg.comp_op_minus
+comp_op_multiply = _agg.comp_op_multiply
+comp_op_screen = _agg.comp_op_screen
+comp_op_overlay = _agg.comp_op_overlay
+comp_op_darken = _agg.comp_op_darken
+comp_op_lighten = _agg.comp_op_lighten
+comp_op_color_dodge = _agg.comp_op_color_dodge
+comp_op_color_burn = _agg.comp_op_color_burn
+comp_op_hard_light = _agg.comp_op_hard_light
+comp_op_soft_light = _agg.comp_op_soft_light
+comp_op_difference = _agg.comp_op_difference
+comp_op_exclusion = _agg.comp_op_exclusion
+comp_op_contrast = _agg.comp_op_contrast
+end_of_comp_op_e = _agg.end_of_comp_op_e
+class pixel64_type(_object):
+    __swig_setmethods__ = {}
+    __setattr__ = lambda self, name, value: _swig_setattr(self, pixel64_type, name, value)
+    __swig_getmethods__ = {}
+    __getattr__ = lambda self, name: _swig_getattr(self, pixel64_type, name)
+    def __repr__(self):
+        return "<%s.%s; proxy of C++ agg::pixel64_type instance at %s>" % (self.__class__.__module__, self.__class__.__name__, self.this,)
+    __swig_setmethods__["c"] = _agg.pixel64_type_c_set
+    __swig_getmethods__["c"] = _agg.pixel64_type_c_get
+    if _newclass:c = property(_agg.pixel64_type_c_get, _agg.pixel64_type_c_set)
+    def __init__(self, *args):
+        _swig_setattr(self, pixel64_type, 'this', _agg.new_pixel64_type(*args))
+        _swig_setattr(self, pixel64_type, 'thisown', 1)
+    def __del__(self, destroy=_agg.delete_pixel64_type):
+        try:
+            if self.thisown: destroy(self)
+        except: pass
+
+
+class pixel64_typePtr(pixel64_type):
+    def __init__(self, this):
+        _swig_setattr(self, pixel64_type, 'this', this)
+        if not hasattr(self,"thisown"): _swig_setattr(self, pixel64_type, 'thisown', 0)
+        _swig_setattr(self, pixel64_type,self.__class__,pixel64_type)
+_agg.pixel64_type_swigregister(pixel64_typePtr)
+
+class pixel_format(_object):
+    __swig_setmethods__ = {}
+    __setattr__ = lambda self, name, value: _swig_setattr(self, pixel_format, name, value)
+    __swig_getmethods__ = {}
+    __getattr__ = lambda self, name: _swig_getattr(self, pixel_format, name)
+    def __repr__(self):
+        return "<%s.%s; proxy of C++ agg::pixel_formats_rgba<agg::blender_rgba32,agg::pixel32_type > instance at %s>" % (self.__class__.__module__, self.__class__.__name__, self.this,)
+    base_shift = _agg.pixel_format_base_shift
+    base_size = _agg.pixel_format_base_size
+    base_mask = _agg.pixel_format_base_mask
+    def __init__(self, *args):
+        _swig_setattr(self, pixel_format, 'this', _agg.new_pixel_format(*args))
+        _swig_setattr(self, pixel_format, 'thisown', 1)
+    def width(*args): return _agg.pixel_format_width(*args)
+    def height(*args): return _agg.pixel_format_height(*args)
+    def pixel(*args): return _agg.pixel_format_pixel(*args)
+    def row(*args): return _agg.pixel_format_row(*args)
+    def span(*args): return _agg.pixel_format_span(*args)
+    def copy_pixel(*args): return _agg.pixel_format_copy_pixel(*args)
+    def blend_pixel(*args): return _agg.pixel_format_blend_pixel(*args)
+    def copy_hline(*args): return _agg.pixel_format_copy_hline(*args)
+    def copy_vline(*args): return _agg.pixel_format_copy_vline(*args)
+    def blend_hline(*args): return _agg.pixel_format_blend_hline(*args)
+    def blend_vline(*args): return _agg.pixel_format_blend_vline(*args)
+    def blend_solid_hspan(*args): return _agg.pixel_format_blend_solid_hspan(*args)
+    def blend_solid_vspan(*args): return _agg.pixel_format_blend_solid_vspan(*args)
+    def copy_color_hspan(*args): return _agg.pixel_format_copy_color_hspan(*args)
+    def blend_color_hspan(*args): return _agg.pixel_format_blend_color_hspan(*args)
+    def blend_color_vspan(*args): return _agg.pixel_format_blend_color_vspan(*args)
+    def premultiply(*args): return _agg.pixel_format_premultiply(*args)
+    def demultiply(*args): return _agg.pixel_format_demultiply(*args)
+    def copy_from(*args): return _agg.pixel_format_copy_from(*args)
+    def __del__(self, destroy=_agg.delete_pixel_format):
+        try:
+            if self.thisown: destroy(self)
+        except: pass
+
+
+class pixel_formatPtr(pixel_format):
+    def __init__(self, this):
+        _swig_setattr(self, pixel_format, 'this', this)
+        if not hasattr(self,"thisown"): _swig_setattr(self, pixel_format, 'thisown', 0)
+        _swig_setattr(self, pixel_format,self.__class__,pixel_format)
+_agg.pixel_format_swigregister(pixel_formatPtr)
+
+class renderer_base(_object):
+    __swig_setmethods__ = {}
+    __setattr__ = lambda self, name, value: _swig_setattr(self, renderer_base, name, value)
+    __swig_getmethods__ = {}
+    __getattr__ = lambda self, name: _swig_getattr(self, renderer_base, name)
+    def __repr__(self):
+        return "<%s.%s; proxy of C++ renderer_base<pixel_format > instance at %s>" % (self.__class__.__module__, self.__class__.__name__, self.this,)
+    def __init__(self, *args):
+        _swig_setattr(self, renderer_base, 'this', _agg.new_renderer_base(*args))
+        _swig_setattr(self, renderer_base, 'thisown', 1)
+    def ren(*args): return _agg.renderer_base_ren(*args)
+    def width(*args): return _agg.renderer_base_width(*args)
+    def height(*args): return _agg.renderer_base_height(*args)
+    def reset_clipping(*args): return _agg.renderer_base_reset_clipping(*args)
+    def clip_box_naked(*args): return _agg.renderer_base_clip_box_naked(*args)
+    def inbox(*args): return _agg.renderer_base_inbox(*args)
+    def first_clip_box(*args): return _agg.renderer_base_first_clip_box(*args)
+    def next_clip_box(*args): return _agg.renderer_base_next_clip_box(*args)
+    def clip_box(*args): return _agg.renderer_base_clip_box(*args)
+    def xmin(*args): return _agg.renderer_base_xmin(*args)
+    def ymin(*args): return _agg.renderer_base_ymin(*args)
+    def xmax(*args): return _agg.renderer_base_xmax(*args)
+    def ymax(*args): return _agg.renderer_base_ymax(*args)
+    def bounding_clip_box(*args): return _agg.renderer_base_bounding_clip_box(*args)
+    def bounding_xmin(*args): return _agg.renderer_base_bounding_xmin(*args)
+    def bounding_ymin(*args): return _agg.renderer_base_bounding_ymin(*args)
+    def bounding_xmax(*args): return _agg.renderer_base_bounding_xmax(*args)
+    def bounding_ymax(*args): return _agg.renderer_base_bounding_ymax(*args)
+    def clear(*args): return _agg.renderer_base_clear(*args)
+    def copy_pixel(*args): return _agg.renderer_base_copy_pixel(*args)
+    def blend_pixel(*args): return _agg.renderer_base_blend_pixel(*args)
+    def pixel(*args): return _agg.renderer_base_pixel(*args)
+    def copy_hline(*args): return _agg.renderer_base_copy_hline(*args)
+    def copy_vline(*args): return _agg.renderer_base_copy_vline(*args)
+    def blend_hline(*args): return _agg.renderer_base_blend_hline(*args)
+    def blend_vline(*args): return _agg.renderer_base_blend_vline(*args)
+    def copy_bar(*args): return _agg.renderer_base_copy_bar(*args)
+    def blend_bar(*args): return _agg.renderer_base_blend_bar(*args)
+    def blend_solid_hspan(*args): return _agg.renderer_base_blend_solid_hspan(*args)
+    def blend_solid_vspan(*args): return _agg.renderer_base_blend_solid_vspan(*args)
+    def blend_color_hspan(*args): return _agg.renderer_base_blend_color_hspan(*args)
+    def blend_color_vspan(*args): return _agg.renderer_base_blend_color_vspan(*args)
+    def blend_color_hspan_no_clip(*args): return _agg.renderer_base_blend_color_hspan_no_clip(*args)
+    def blend_color_vspan_no_clip(*args): return _agg.renderer_base_blend_color_vspan_no_clip(*args)
+    def clip_rect_area(*args): return _agg.renderer_base_clip_rect_area(*args)
+    def copy_from(*args): return _agg.renderer_base_copy_from(*args)
+    def __del__(self, destroy=_agg.delete_renderer_base):
+        try:
+            if self.thisown: destroy(self)
+        except: pass
+
+
+class renderer_basePtr(renderer_base):
+    def __init__(self, this):
+        _swig_setattr(self, renderer_base, 'this', this)
+        if not hasattr(self,"thisown"): _swig_setattr(self, renderer_base, 'thisown', 0)
+        _swig_setattr(self, renderer_base,self.__class__,renderer_base)
+_agg.renderer_base_swigregister(renderer_basePtr)
+
+class conv_stroke(_object):
+    __swig_setmethods__ = {}
+    __setattr__ = lambda self, name, value: _swig_setattr(self, conv_stroke, name, value)
+    __swig_getmethods__ = {}
+    __getattr__ = lambda self, name: _swig_getattr(self, conv_stroke, name)
+    def __repr__(self):
+        return "<%s.%s; proxy of C++ conv_stroke<agg::path_storage > instance at %s>" % (self.__class__.__module__, self.__class__.__name__, self.this,)
+    def __init__(self, *args):
+        _swig_setattr(self, conv_stroke, 'this', _agg.new_conv_stroke(*args))
+        _swig_setattr(self, conv_stroke, 'thisown', 1)
+    def line_cap(*args): return _agg.conv_stroke_line_cap(*args)
+    def line_join(*args): return _agg.conv_stroke_line_join(*args)
+    def miter_limit_theta(*args): return _agg.conv_stroke_miter_limit_theta(*args)
+    def width(*args): return _agg.conv_stroke_width(*args)
+    def miter_limit(*args): return _agg.conv_stroke_miter_limit(*args)
+    def approximation_scale(*args): return _agg.conv_stroke_approximation_scale(*args)
+    def shorten(*args): return _agg.conv_stroke_shorten(*args)
+    def __del__(self, destroy=_agg.delete_conv_stroke):
+        try:
+            if self.thisown: destroy(self)
+        except: pass
+
+
+class conv_strokePtr(conv_stroke):
+    def __init__(self, this):
+        _swig_setattr(self, conv_stroke, 'this', this)
+        if not hasattr(self,"thisown"): _swig_setattr(self, conv_stroke, 'thisown', 0)
+        _swig_setattr(self, conv_stroke,self.__class__,conv_stroke)
+_agg.conv_stroke_swigregister(conv_strokePtr)
+
+class rasterizer_scanline_aa(_object):
+    __swig_setmethods__ = {}
+    __setattr__ = lambda self, name, value: _swig_setattr(self, rasterizer_scanline_aa, name, value)
+    __swig_getmethods__ = {}
+    __getattr__ = lambda self, name: _swig_getattr(self, rasterizer_scanline_aa, name)
+    def __repr__(self):
+        return "<%s.%s; proxy of C++ rasterizer_scanline_aa< > instance at %s>" % (self.__class__.__module__, self.__class__.__name__, self.this,)
+    def __init__(self, *args):
+        _swig_setattr(self, rasterizer_scanline_aa, 'this', _agg.new_rasterizer_scanline_aa(*args))
+        _swig_setattr(self, rasterizer_scanline_aa, 'thisown', 1)
+    def reset(*args): return _agg.rasterizer_scanline_aa_reset(*args)
+    def filling_rule(*args): return _agg.rasterizer_scanline_aa_filling_rule(*args)
+    def clip_box(*args): return _agg.rasterizer_scanline_aa_clip_box(*args)
+    def reset_clipping(*args): return _agg.rasterizer_scanline_aa_reset_clipping(*args)
+    def apply_gamma(*args): return _agg.rasterizer_scanline_aa_apply_gamma(*args)
+    def add_vertex(*args): return _agg.rasterizer_scanline_aa_add_vertex(*args)
+    def move_to(*args): return _agg.rasterizer_scanline_aa_move_to(*args)
+    def line_to(*args): return _agg.rasterizer_scanline_aa_line_to(*args)
+    def close_polygon(*args): return _agg.rasterizer_scanline_aa_close_polygon(*args)
+    def move_to_d(*args): return _agg.rasterizer_scanline_aa_move_to_d(*args)
+    def line_to_d(*args): return _agg.rasterizer_scanline_aa_line_to_d(*args)
+    def min_x(*args): return _agg.rasterizer_scanline_aa_min_x(*args)
+    def min_y(*args): return _agg.rasterizer_scanline_aa_min_y(*args)
+    def max_x(*args): return _agg.rasterizer_scanline_aa_max_x(*args)
+    def max_y(*args): return _agg.rasterizer_scanline_aa_max_y(*args)
+    def calculate_alpha(*args): return _agg.rasterizer_scanline_aa_calculate_alpha(*args)
+    def sort(*args): return _agg.rasterizer_scanline_aa_sort(*args)
+    def rewind_scanlines(*args): return _agg.rasterizer_scanline_aa_rewind_scanlines(*args)
+    def hit_test(*args): return _agg.rasterizer_scanline_aa_hit_test(*args)
+    def add_path(*args): return _agg.rasterizer_scanline_aa_add_path(*args)
+    def __del__(self, destroy=_agg.delete_rasterizer_scanline_aa):
+        try:
+            if self.thisown: destroy(self)
+        except: pass
+
+
+class rasterizer_scanline_aaPtr(rasterizer_scanline_aa):
+    def __init__(self, this):
+        _swig_setattr(self, rasterizer_scanline_aa, 'this', this)
+        if not hasattr(self,"thisown"): _swig_setattr(self, rasterizer_scanline_aa, 'thisown', 0)
+        _swig_setattr(self, rasterizer_scanline_aa,self.__class__,rasterizer_scanline_aa)
+_agg.rasterizer_scanline_aa_swigregister(rasterizer_scanline_aaPtr)
+
+class renderer_scanline_aa_solid(_object):
+    __swig_setmethods__ = {}
+    __setattr__ = lambda self, name, value: _swig_setattr(self, renderer_scanline_aa_solid, name, value)
+    __swig_getmethods__ = {}
+    __getattr__ = lambda self, name: _swig_getattr(self, renderer_scanline_aa_solid, name)
+    def __repr__(self):
+        return "<%s.%s; proxy of C++ renderer_scanline_aa_solid<renderer_base<pixel_format > > instance at %s>" % (self.__class__.__module__, self.__class__.__name__, self.this,)
+    def __init__(self, *args):
+        _swig_setattr(self, renderer_scanline_aa_solid, 'this', _agg.new_renderer_scanline_aa_solid(*args))
+        _swig_setattr(self, renderer_scanline_aa_solid, 'thisown', 1)
+    def color(*args): return _agg.renderer_scanline_aa_solid_color(*args)
+    def prepare(*args): return _agg.renderer_scanline_aa_solid_prepare(*args)
+    def __del__(self, destroy=_agg.delete_renderer_scanline_aa_solid):
+        try:
+            if self.thisown: destroy(self)
+        except: pass
+
+
+class renderer_scanline_aa_solidPtr(renderer_scanline_aa_solid):
+    def __init__(self, this):
+        _swig_setattr(self, renderer_scanline_aa_solid, 'this', this)
+        if not hasattr(self,"thisown"): _swig_setattr(self, renderer_scanline_aa_solid, 'thisown', 0)
+        _swig_setattr(self, renderer_scanline_aa_solid,self.__class__,renderer_scanline_aa_solid)
+_agg.renderer_scanline_aa_solid_swigregister(renderer_scanline_aa_solidPtr)
+
+class renderer_scanline_bin_solid(_object):
+    __swig_setmethods__ = {}
+    __setattr__ = lambda self, name, value: _swig_setattr(self, renderer_scanline_bin_solid, name, value)
+    __swig_getmethods__ = {}
+    __getattr__ = lambda self, name: _swig_getattr(self, renderer_scanline_bin_solid, name)
+    def __repr__(self):
+        return "<%s.%s; proxy of C++ renderer_scanline_bin_solid<renderer_base<pixel_format > > instance at %s>" % (self.__class__.__module__, self.__class__.__name__, self.this,)
+    def __init__(self, *args):
+        _swig_setattr(self, renderer_scanline_bin_solid, 'this', _agg.new_renderer_scanline_bin_solid(*args))
+        _swig_setattr(self, renderer_scanline_bin_solid, 'thisown', 1)
+    def color(*args): return _agg.renderer_scanline_bin_solid_color(*args)
+    def prepare(*args): return _agg.renderer_scanline_bin_solid_prepare(*args)
+    def __del__(self, destroy=_agg.delete_renderer_scanline_bin_solid):
+        try:
+            if self.thisown: destroy(self)
+        except: pass
+
+
+class renderer_scanline_bin_solidPtr(renderer_scanline_bin_solid):
+    def __init__(self, this):
+        _swig_setattr(self, renderer_scanline_bin_solid, 'this', this)
+        if not hasattr(self,"thisown"): _swig_setattr(self, renderer_scanline_bin_solid, 'thisown', 0)
+        _swig_setattr(self, renderer_scanline_bin_solid,self.__class__,renderer_scanline_bin_solid)
+_agg.renderer_scanline_bin_solid_swigregister(renderer_scanline_bin_solidPtr)
+
+class scanline_p8(_object):
+    __swig_setmethods__ = {}
+    __setattr__ = lambda self, name, value: _swig_setattr(self, scanline_p8, name, value)
+    __swig_getmethods__ = {}
+    __getattr__ = lambda self, name: _swig_getattr(self, scanline_p8, name)
+    def __repr__(self):
+        return "<%s.%s; proxy of C++ agg::scanline_p<agg::int8u > instance at %s>" % (self.__class__.__module__, self.__class__.__name__, self.this,)
+    def __del__(self, destroy=_agg.delete_scanline_p8):
+        try:
+            if self.thisown: destroy(self)
+        except: pass
+
+    def __init__(self, *args):
+        _swig_setattr(self, scanline_p8, 'this', _agg.new_scanline_p8(*args))
+        _swig_setattr(self, scanline_p8, 'thisown', 1)
+    def reset(*args): return _agg.scanline_p8_reset(*args)
+    def add_cell(*args): return _agg.scanline_p8_add_cell(*args)
+    def add_cells(*args): return _agg.scanline_p8_add_cells(*args)
+    def add_span(*args): return _agg.scanline_p8_add_span(*args)
+    def finalize(*args): return _agg.scanline_p8_finalize(*args)
+    def reset_spans(*args): return _agg.scanline_p8_reset_spans(*args)
+    def y(*args): return _agg.scanline_p8_y(*args)
+    def num_spans(*args): return _agg.scanline_p8_num_spans(*args)
+    def begin(*args): return _agg.scanline_p8_begin(*args)
+
+class scanline_p8Ptr(scanline_p8):
+    def __init__(self, this):
+        _swig_setattr(self, scanline_p8, 'this', this)
+        if not hasattr(self,"thisown"): _swig_setattr(self, scanline_p8, 'thisown', 0)
+        _swig_setattr(self, scanline_p8,self.__class__,scanline_p8)
+_agg.scanline_p8_swigregister(scanline_p8Ptr)
+
+class scanline_bin(_object):
+    __swig_setmethods__ = {}
+    __setattr__ = lambda self, name, value: _swig_setattr(self, scanline_bin, name, value)
+    __swig_getmethods__ = {}
+    __getattr__ = lambda self, name: _swig_getattr(self, scanline_bin, name)
+    def __repr__(self):
+        return "<%s.%s; proxy of C++ agg::scanline_bin instance at %s>" % (self.__class__.__module__, self.__class__.__name__, self.this,)
+    def __del__(self, destroy=_agg.delete_scanline_bin):
+        try:
+            if self.thisown: destroy(self)
+        except: pass
+
+    def __init__(self, *args):
+        _swig_setattr(self, scanline_bin, 'this', _agg.new_scanline_bin(*args))
+        _swig_setattr(self, scanline_bin, 'thisown', 1)
+    def reset(*args): return _agg.scanline_bin_reset(*args)
+    def add_cell(*args): return _agg.scanline_bin_add_cell(*args)
+    def add_cells(*args): return _agg.scanline_bin_add_cells(*args)
+    def add_span(*args): return _agg.scanline_bin_add_span(*args)
+    def finalize(*args): return _agg.scanline_bin_finalize(*args)
+    def reset_spans(*args): return _agg.scanline_bin_reset_spans(*args)
+    def y(*args): return _agg.scanline_bin_y(*args)
+    def num_spans(*args): return _agg.scanline_bin_num_spans(*args)
+    def begin(*args): return _agg.scanline_bin_begin(*args)
+
+class scanline_binPtr(scanline_bin):
+    def __init__(self, this):
+        _swig_setattr(self, scanline_bin, 'this', this)
+        if not hasattr(self,"thisown"): _swig_setattr(self, scanline_bin, 'thisown', 0)
+        _swig_setattr(self, scanline_bin,self.__class__,scanline_bin)
+_agg.scanline_bin_swigregister(scanline_binPtr)
+
+
+render_scanlines = _agg.render_scanlines
 

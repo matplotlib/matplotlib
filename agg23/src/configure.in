@@ -1,0 +1,15 @@
+AC_INIT(src/agg_arc.cpp) # give me a source file, any source file...
+AM_INIT_AUTOMAKE(agg, 2.0.0)
+
+AC_PROG_LN_S
+AC_PROG_CC
+AC_PROG_CPP
+AC_PROG_CXX
+AC_PROG_LIBTOOL
+
+AC_OUTPUT(
+   Makefile 
+   gpc/Makefile
+   src/Makefile
+   src/ctrl/Makefile
+) 

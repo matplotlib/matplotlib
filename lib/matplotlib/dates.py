@@ -31,15 +31,15 @@ Date tickers -
   Most of the date tickers can locate single or multiple values.  Eg
 
     # tick on mondays every week
-    loc = WeekdayLocator(byweekday=MO, tz=tz)  
+    loc = WeekdayLocator(byweekday=MO, tz=tz)
 
     # tick on mondays and saturdays
-    loc = WeekdayLocator(byweekday=(MO, SA))  
+    loc = WeekdayLocator(byweekday=(MO, SA))
 
   In addition, most of the constructors take an interval argument.
 
     # tick on mondays every second week
-    loc = WeekdayLocator(byweekday=MO, interval=2)  
+    loc = WeekdayLocator(byweekday=MO, interval=2)
 
   The rrule locator allows completely general date ticking
 
@@ -49,9 +49,9 @@ Date tickers -
 
   Here are all the date tickers
 
-    * MinuteLocator  - locate minutes 
+    * MinuteLocator  - locate minutes
 
-    * HourLocator    - locate hours 
+    * HourLocator    - locate hours
 
     * DayLocator     - locate specifed days of the month
 
@@ -73,9 +73,10 @@ Date formatters
   DateFormatter - use strftime format strings
 
   DateIndexFormatter - date plots with implicit x indexing.
-  
+
 """
 import sys, re, time
+import locale
 
 import matplotlib
 
@@ -132,7 +133,7 @@ def _to_ordinalf(dt):
         delta = dt.tzinfo.utcoffset(dt)
         if delta is not None:
             dt -= delta
-    
+
     base =  dt.toordinal()
     if hasattr(dt, 'hour'):
         base += (dt.hour/HOURS_PER_DAY + dt.minute/MINUTES_PER_DAY +
@@ -156,10 +157,10 @@ def _from_ordinalf(x, tz=None):
     if microsecond<10: microsecond=0 # compensate for rounding errors
     dt = datetime.datetime(dt.year, dt.month, dt.day, int(hour), int(minute), int(second), microsecond, tzinfo=UTC).astimezone(tz)
 
-    
+
     if microsecond>999990:  # compensate for rounding errors
         dt += datetime.timedelta(microseconds=1e6-microsecond)
-        
+
     return dt
 
 def date2num(d):
@@ -187,7 +188,7 @@ def num2date(x, tz=None):
     if tz is None: tz = _get_rc_timezone()
     if not iterable(x): return _from_ordinalf(x, tz)
     else: return [_from_ordinalf(val, tz) for val in x]
-    
+
 def drange(dstart, dend, delta):
     """
     Return a date range as float gregorian ordinals.  dstart and dend
@@ -216,7 +217,7 @@ class DateFormatter(Formatter):
     """
 
     illegal_s = re.compile(r"((^|[^%])(%%)*%s)")
-    
+
     def __init__(self, fmt, tz=None):
         """
         fmt is an strftime format string; tz is the tzinfo instance
@@ -233,16 +234,16 @@ class DateFormatter(Formatter):
         self.tz = tz
 
     def _findall(self, text, substr):
-         # Also finds overlaps
-         sites = []
-         i = 0
-         while 1:
-             j = text.find(substr, i)
-             if j == -1:
-                 break
-             sites.append(j)
-             i=j+1
-         return sites
+        # Also finds overlaps
+        sites = []
+        i = 0
+        while 1:
+            j = text.find(substr, i)
+            if j == -1:
+                break
+            sites.append(j)
+            i=j+1
+        return sites
 
     # Dalke: I hope I did this math right.  Every 28 years the
     # calendar repeats, except through century leap years excepting
@@ -250,41 +251,42 @@ class DateFormatter(Formatter):
     # calendar.
 
     def strftime(self, dt, fmt):
-         fmt = self.illegal_s.sub(r"\1", fmt)
-         fmt = fmt.replace("%s", "s")
-         if dt.year > 1900:
-             return dt.strftime(fmt)
+        fmt = self.illegal_s.sub(r"\1", fmt)
+        fmt = fmt.replace("%s", "s")
+        if dt.year > 1900:
+            return unicode(dt.strftime(fmt), locale.getpreferredencoding())
 
-         year = dt.year
-         # For every non-leap year century, advance by
-         # 6 years to get into the 28-year repeat cycle
-         delta = 2000 - year
-         off = 6*(delta // 100 + delta // 400)
-         year = year + off
+        year = dt.year
+        # For every non-leap year century, advance by
+        # 6 years to get into the 28-year repeat cycle
+        delta = 2000 - year
+        off = 6*(delta // 100 + delta // 400)
+        year = year + off
 
-         # Move to around the year 2000
-         year = year + ((2000 - year)//28)*28
-         timetuple = dt.timetuple()
-         s1 = time.strftime(fmt, (year,) + timetuple[1:])
-         sites1 = self._findall(s1, str(year))
+        # Move to around the year 2000
+        year = year + ((2000 - year)//28)*28
+        timetuple = dt.timetuple()
+        s1 = time.strftime(fmt, (year,) + timetuple[1:])
+        sites1 = self._findall(s1, str(year))
 
-         s2 = time.strftime(fmt, (year+28,) + timetuple[1:])
-         sites2 = self._findall(s2, str(year+28))
+        s2 = time.strftime(fmt, (year+28,) + timetuple[1:])
+        sites2 = self._findall(s2, str(year+28))
 
-         sites = []
-         for site in sites1:
-             if site in sites2:
-                 sites.append(site)
+        sites = []
+        for site in sites1:
+            if site in sites2:
+                sites.append(site)
 
-         s = s1
-         syear = "%4d" % (dt.year,)
-         for site in sites:
-             s = s[:site] + syear + s[site+4:]
-         return s
+        s = s1
+        syear = "%4d" % (dt.year,)
+        for site in sites:
+            s = s[:site] + syear + s[site+4:]
+
+        return unicode(s, locale.getpreferredencoding())
 
 class IndexDateFormatter(Formatter):
     """
-    Use with IndexLocator to cycle format strings by index.  
+    Use with IndexLocator to cycle format strings by index.
     """
     def __init__(self, t, fmt, tz=None):
         """
@@ -301,9 +303,10 @@ class IndexDateFormatter(Formatter):
         'Return the label for time x at position pos'
         ind = int(x)
         if ind>=len(self.t) or ind<=0: return ''
-        
+
         dt = num2date(self.t[ind], self.tz)
-        return dt.strftime(self.fmt)
+        
+        return unicode(dt.strftime(self.fmt), locale.getpreferredencoding())
 
 class rrulewrapper:
 
@@ -334,19 +337,19 @@ class DateLocator(Locator):
         self.tz = tz
 
     def datalim_to_dt(self):
-        self.verify_intervals()        
+        self.verify_intervals()
         dmin, dmax = self.dataInterval.get_bounds()
         return num2date(dmin, self.tz), num2date(dmax, self.tz)
 
     def viewlim_to_dt(self):
-        self.verify_intervals()        
+        self.verify_intervals()
         vmin, vmax = self.viewInterval.get_bounds()
         return num2date(vmin, self.tz), num2date(vmax, self.tz)
 
 
 class RRuleLocator(DateLocator):
-    # use the dateutil rrule instance 
-        
+    # use the dateutil rrule instance
+
     def __init__(self, o, tz=None):
         DateLocator.__init__(self, tz)
         self.rule = o
@@ -357,14 +360,14 @@ class RRuleLocator(DateLocator):
         dmin, dmax = self.viewlim_to_dt()
         delta = relativedelta(dmax, dmin)
         self.rule.set(dtstart=dmin-delta, until=dmax+delta)
-        dates = self.rule.between(dmin, dmax, True)        
+        dates = self.rule.between(dmin, dmax, True)
         return date2num(dates)
 
     def autoscale(self):
         """
         Set the view limits to include the data range
-        """        
-        self.verify_intervals()        
+        """
+        self.verify_intervals()
         dmin, dmax = self.datalim_to_dt()
         delta = relativedelta(dmax, dmin)
         self.rule.set(dtstart=dmin-delta, until=dmax+delta)
@@ -376,13 +379,13 @@ class RRuleLocator(DateLocator):
 
         vmax = self.rule.after(dmax, True)
         if not vmax: vmax=dmax
-        
+
         vmin = date2num(vmin)
-        vmax = date2num(vmax)        
+        vmax = date2num(vmax)
         return self.nonsingular(vmin, vmax)
 
 
-        
+
 class YearLocator(DateLocator):
     """
     Make ticks on a given day of each year that is a multiple of base.
@@ -394,7 +397,7 @@ class YearLocator(DateLocator):
     # Tick every 5 years on July 4th
     locator = YearLocator(5, month=7, day=4)
 
-    
+
     """
     def __init__(self, base=1, month=1, day=1, tz=None):
         """
@@ -430,19 +433,19 @@ class YearLocator(DateLocator):
     def autoscale(self):
         """
         Set the view limits to include the data range
-        """        
-        self.verify_intervals()        
+        """
+        self.verify_intervals()
         dmin, dmax = self.datalim_to_dt()
 
         ymin = self.base.le(dmin.year)
-        ymax = self.base.ge(dmax.year)        
+        ymax = self.base.ge(dmax.year)
         vmin = dmin.replace(year=ymin, **self.replaced)
-        vmax = dmax.replace(year=ymax, **self.replaced)        
+        vmax = dmax.replace(year=ymax, **self.replaced)
 
         vmin = date2num(vmin)
-        vmax = date2num(vmax)        
+        vmax = date2num(vmax)
         return self.nonsingular(vmin, vmax)
-    
+
 class MonthLocator(RRuleLocator):
     """
     Make ticks on occurances of each month month, eg 1, 3, 12
@@ -453,7 +456,7 @@ class MonthLocator(RRuleLocator):
         sequence.  default is range(1,13), ie every month
 
         interval is the interval between each iteration.  Eg, if
-        interval=2, mark every second occurance    
+        interval=2, mark every second occurance
         """
         if bymonth is None: bymonth=range(1,13)
         o = rrulewrapper(MONTHLY, bymonth=bymonth, bymonthday=bymonthday,
@@ -475,7 +478,7 @@ class WeekdayLocator(RRuleLocator):
 
         interval specifies the number of weeks to skip.  Ie interval=2
         plots every second week
-        
+
         """
         o = rrulewrapper(DAILY, byweekday=byweekday, interval=interval, **self.hms0d)
         RRuleLocator.__init__(self, o, tz)
@@ -511,7 +514,7 @@ class HourLocator(RRuleLocator):
         rule = rrulewrapper(HOURLY, byhour=byhour, interval=interval,
                             byminute=0, bysecond=0)
         RRuleLocator.__init__(self, rule, tz)
-        
+
 
 class MinuteLocator(RRuleLocator):
     """
@@ -523,7 +526,7 @@ class MinuteLocator(RRuleLocator):
         sequence.  default is to tick every minute - byminute=range(60)
 
         interval is the interval between each iteration.  Eg, if
-        interval=2, mark every second occurance    
+        interval=2, mark every second occurance
 
         """
         if byminute is None: byminute=range(60)
@@ -541,7 +544,7 @@ class SecondLocator(RRuleLocator):
         sequence.  Default is to tick every second bysecond = range(60)
 
         interval is the interval between each iteration.  Eg, if
-        interval=2, mark every second occurance    
+        interval=2, mark every second occurance
 
         """
         if bysecond is None: bysecond=range(60)
@@ -551,15 +554,15 @@ class SecondLocator(RRuleLocator):
 
 
 def _close_to_dt(d1, d2, epsilon=5):
-   'assert that datetimes d1 and d2 are within epsilon microseconds'
-   delta = d2-d1
-   mus = abs(delta.days*MUSECONDS_PER_DAY + delta.seconds*1e6 + delta.microseconds)
-   assert(mus<epsilon)
+    'assert that datetimes d1 and d2 are within epsilon microseconds'
+    delta = d2-d1
+    mus = abs(delta.days*MUSECONDS_PER_DAY + delta.seconds*1e6 + delta.microseconds)
+    assert(mus<epsilon)
 
 def _close_to_num(o1, o2, epsilon=5):
-   'assert that float ordinals o1 and o2 are within epsilon microseconds'
-   delta = abs((o2-o1)*MUSECONDS_PER_DAY)
-   assert(delta<epsilon)
+    'assert that float ordinals o1 and o2 are within epsilon microseconds'
+    delta = abs((o2-o1)*MUSECONDS_PER_DAY)
+    assert(delta<epsilon)
 
 def epoch2num(e):
     """
@@ -567,7 +570,7 @@ def epoch2num(e):
     days since 0001
     """
     spd = 24.*3600.
-    return 719163 + asarray(e)/spd     
+    return 719163 + asarray(e)/spd
 
 def num2epoch(d):
     """
@@ -588,11 +591,11 @@ def mx2num(mxdates):
     ret = epoch2num([m.ticks() for m in mxdates])
     if scalar: return ret[0]
     else: return ret
-    
+
 if __name__=='__main__':
-    
+
     #tz = None
-    tz = timezone('US/Pacific')    
+    tz = timezone('US/Pacific')
     #tz = UTC
 
     dt = datetime.datetime(1011, 10, 9, 13, 44, 22, 101010, tzinfo=tz)
@@ -625,7 +628,7 @@ if __name__=='__main__':
     #locator = YearLocator(base=5, month=7, day=4, tz=tz)
     #locator = MonthLocator(bymonthday=15)
     locator = DayLocator(tz=tz)
-    locator.set_data_interval(dlim)    
+    locator.set_data_interval(dlim)
     locator.set_view_interval(vlim)
     dmin, dmax = locator.autoscale()
     vlim.set_bounds(dmin, dmax)

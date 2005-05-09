@@ -9,19 +9,20 @@
 
 #include "agg_arrowhead.h"
 #include "agg_basics.h"
+#include "agg_color_rgba.h"
 #include "agg_conv_concat.h"
 #include "agg_conv_contour.h"
 #include "agg_conv_curve.h"
 #include "agg_conv_dash.h"
 #include "agg_conv_marker.h"
 #include "agg_conv_marker_adaptor.h"
+#include "agg_math_stroke.h"
 #include "agg_conv_stroke.h"
 #include "agg_ellipse.h"
 #include "agg_embedded_raster_fonts.h"
 #include "agg_path_storage.h"
-#include "agg_pixfmt_rgb24.h"
-#include "agg_pixfmt_rgba32.h"
-#include "agg_pixfmt_rgba32.h"
+#include "agg_pixfmt_rgb.h"
+#include "agg_pixfmt_rgba.h"
 #include "agg_rasterizer_outline.h"
 #include "agg_rasterizer_scanline_aa.h"
 #include "agg_renderer_outline_aa.h"
@@ -32,8 +33,7 @@
 #include "agg_scanline_p.h"
 #include "agg_vcgen_markers_term.h"
 
-typedef agg::pixel_formats_rgba32<agg::order_rgba32> pixfmt;
-//typedef agg::pixel_formats_rgb24<agg::order_bgr24> pixfmt;
+typedef agg::pixfmt_rgba32 pixfmt;
 typedef agg::renderer_base<pixfmt> renderer_base;
 typedef agg::renderer_scanline_aa_solid<renderer_base> renderer_aa;
 typedef agg::renderer_scanline_bin_solid<renderer_base> renderer_bin;
@@ -54,8 +54,8 @@ public:
   double dpi;
   bool isaa;
   
-  agg::vcgen_stroke::line_cap_e cap; 
-  agg::vcgen_stroke::line_join_e join;
+  agg::line_cap_e cap; 
+  agg::line_join_e join;
 
   
   double linewidth;
@@ -110,6 +110,8 @@ public:
   Py::Object tostring_bgra(const Py::Tuple & args);
   Py::Object buffer_rgba(const Py::Tuple & args);
   Py::Object clear(const Py::Tuple & args);
+  Py::Object cache(const Py::Tuple & args);
+  Py::Object blit(const Py::Tuple & args);
 
 
   virtual ~RendererAgg(); 
@@ -118,8 +120,10 @@ public:
   unsigned int width, height;
   double dpi;
   size_t NUMBYTES;  //the number of bytes in buffer
+  size_t CACHEBYTES;  //the number of bytes in cache buffer
 
   agg::int8u *pixBuffer;
+  agg::int8u *cacheBuffer;
   agg::rendering_buffer *renderingBuffer;
 
   scanline_p8* slineP8;
@@ -143,7 +147,8 @@ protected:
   void set_clipbox_rasterizer( double *cliprect);
   template <class VS> void _fill_and_stroke(VS&, const GCAgg&, const facepair_t&, bool curvy=true);  
 
-  void _render_lines_path(agg::path_storage &ps, const GCAgg& gc);
+  template<class PathSource>
+  void _render_lines_path(PathSource &ps, const GCAgg& gc);
 };
 
 

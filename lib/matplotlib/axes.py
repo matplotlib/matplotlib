@@ -347,7 +347,12 @@ class Axes(Artist):
         self._contourLabeler = ContourLabeler(self)
 
         self.set_cursor_props((1,'k')) # set the cursor properties for axes
-        
+
+        # a mapping from artists to 1 -- would use a set but we are
+        # python2.2 compliant
+        self.animated = {}  
+        self._lastRenderer = None
+
     def _init_axis(self):
         "move this out of __init__ because non-separable axes don't use it"
         self.xaxis = XAxis(self)
@@ -1353,7 +1358,8 @@ class Axes(Artist):
         artists.extend(self.texts)
 
         # keep track of i to guarantee stable sort for python 2.2
-        dsu = [ (a.zorder, i, a) for i, a in enumerate(artists)]
+        dsu = [ (a.zorder, i, a) for i, a in enumerate(artists)
+                if a not in self.animated]
         dsu.sort()
 
         for zorder, i, a in dsu:
@@ -1379,6 +1385,20 @@ class Axes(Artist):
         self.transData.thaw()  # release the lazy objects
         self.transAxes.thaw()  # release the lazy objects
         renderer.close_group('axes')
+
+        if len(self.animated):
+            self._lastRenderer = renderer
+            renderer.cache()
+
+    def draw_animate(self):
+        if self._lastRenderer is None:
+            raise RuntimeError('You must first call ax.draw()')
+        dsu = [(a.zorder, a) for a in self.animated.keys()]
+        dsu.sort()
+        renderer = self._lastRenderer
+        renderer.blit()
+        for tmp, a in dsu:
+            a.draw(renderer)
 
     def errorbar(self, x, y, yerr=None, xerr=None,
                  fmt='b-', ecolor=None, capsize=3,
@@ -1643,6 +1663,12 @@ class Axes(Artist):
             hold()      # toggle hold
             hold(True)  # hold is on
             hold(False) # hold is off
+
+
+        When hold is True, subsequent plot commands will be added to
+        the current axes.  When hold is False, the current axes and
+        figure will be cleared on the next plot command
+            
         """
         if b is None: self._hold = not self._hold
         else: self._hold = b
@@ -1818,7 +1844,8 @@ class Axes(Artist):
           legend by itself will try and build a legend using the label
           property of the lines/patches/collections.  You can set the label of
           a line by doing plot(x, y, label='my data') or line.set_label('my
-          data')
+          data'). If label is set to '_nolegend_', the item will not be shown
+          in legend.
 
             # automatically generate the legend from labels
             legend( ('label1', 'label2', 'label3') )
@@ -1873,8 +1900,16 @@ class Axes(Artist):
             return handles
 
         if len(args)==0:
-            labels = [line.get_label() for line in get_handles()]
-            handles = get_handles()
+            handles = []
+            labels = []
+            for line in get_handles():
+                label = line.get_label()
+                if label != '_nolegend_':
+                    handles.append(line)
+                    labels.append(label)
+            ## alternative version -- IMHO less readable:
+            #handles, labels = zip([(h, h.get_label()) for h in get_handles() 
+            #                       if h.get_label() != '_nolegend_'])
             loc = popd(kwargs, 'loc', 1)
 
         elif len(args)==1:

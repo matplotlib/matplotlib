@@ -596,7 +596,7 @@ FT2Font::set_charmap(const Py::Tuple & args) {
 }
 
 FT_BBox
-FT2Font::compute_string_bbox( ) {
+FT2Font::compute_string_bbox(  ) {
   _VERBOSE("FT2Font::compute_string_bbox");
   
   FT_BBox bbox;
@@ -842,6 +842,8 @@ FT2Font::get_width_height(const Py::Tuple & args) {
   _VERBOSE("FT2Font::get_width_height");
   args.verify_length(0);
   
+
+
   FT_BBox bbox = compute_string_bbox();
   
   Py::Tuple ret(2);

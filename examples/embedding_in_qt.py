@@ -37,6 +37,9 @@ class MyMplCanvas(FigureCanvas):
     def __init__(self, parent=None, width=5, height=4, dpi=100):
         self.fig = Figure(figsize=(width, height), dpi=dpi)
         self.axes = self.fig.add_subplot(111)
+        # We want the axes cleared every time plot() is called
+        self.axes.hold(False)
+
         self.compute_initial_figure()
         
         FigureCanvas.__init__(self, self.fig)
@@ -78,7 +81,6 @@ class MyDynamicMplCanvas(MyMplCanvas):
         # Build a list of 4 random integers between 0 and 10 (both inclusive)
         l = [ random.randint(0, 10) for i in xrange(4) ]
 
-        self.axes.lines = []            # Throw away the previous plot
         self.axes.plot([0, 1, 2, 3], l, 'r')
         self.draw()
 

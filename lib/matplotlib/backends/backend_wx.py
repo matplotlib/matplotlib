@@ -1496,47 +1496,56 @@ class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
 
         self._parent = self.canvas.GetParent()
         _NTB2_HOME    =wx.NewId()
-        _NTB2_BACK    =wx.NewId()
-        _NTB2_FORWARD =wx.NewId()
-        _NTB2_PAN     =wx.NewId()
-        _NTB2_ZOOM    =wx.NewId()
+        self._NTB2_BACK    =wx.NewId()
+        self._NTB2_FORWARD =wx.NewId()
+        self._NTB2_PAN     =wx.NewId()
+        self._NTB2_ZOOM    =wx.NewId()
         _NTB2_SAVE    =wx.NewId()
 
         self.SetToolBitmapSize(wx.Size(24,24))
 
         self.AddSimpleTool(_NTB2_HOME, _load_bitmap('home.xpm'),
-                           '', 'Reset original view')
-        self.AddSimpleTool(_NTB2_BACK, _load_bitmap('back.xpm'),
-                           '', 'Back navigation view')
-        self.AddSimpleTool(_NTB2_FORWARD, _load_bitmap('forward.xpm'),
-                           '', 'Forward navigation view')
+                           'Home', 'Reset original view')
+        self.AddSimpleTool(self._NTB2_BACK, _load_bitmap('back.xpm'),
+                           'Back', 'Back navigation view')
+        self.AddSimpleTool(self._NTB2_FORWARD, _load_bitmap('forward.xpm'),
+                           'Forward', 'Forward navigation view')
         # todo: get new bitmap
-        self.AddSimpleTool(_NTB2_PAN, _load_bitmap('move.xpm'),
-                           '', 'Pan with left, zoom with right')
-        self.AddSimpleTool(_NTB2_ZOOM, _load_bitmap('zoom_to_rect.xpm'),
-                           '', 'Zoom to rectangle')
+        self.AddCheckTool(self._NTB2_PAN, _load_bitmap('move.xpm'),
+                           shortHelp='Pan', 
+                           longHelp='Pan with left, zoom with right')
+        self.AddCheckTool(self._NTB2_ZOOM, _load_bitmap('zoom_to_rect.xpm'),
+                           shortHelp='Zoom', longHelp='Zoom to rectangle')
 
         self.AddSeparator()
         self.AddSimpleTool(_NTB2_SAVE, _load_bitmap('filesave.xpm'),
-                           '', 'Save plot contents to file')
+                           'Save', 'Save plot contents to file')
 
         if wx.VERSION_STRING >= '2.5':
             self.Bind(wx.EVT_TOOL, self.home, id=_NTB2_HOME)
-            self.Bind(wx.EVT_TOOL, self.forward, id=_NTB2_FORWARD)
-            self.Bind(wx.EVT_TOOL, self.back, id=_NTB2_BACK)
-            self.Bind(wx.EVT_TOOL, self.zoom, id=_NTB2_ZOOM)
-            self.Bind(wx.EVT_TOOL, self.pan, id=_NTB2_PAN)
+            self.Bind(wx.EVT_TOOL, self.forward, id=self._NTB2_FORWARD)
+            self.Bind(wx.EVT_TOOL, self.back, id=self._NTB2_BACK)
+            self.Bind(wx.EVT_TOOL, self.zoom, id=self._NTB2_ZOOM)
+            self.Bind(wx.EVT_TOOL, self.pan, id=self._NTB2_PAN)
             self.Bind(wx.EVT_TOOL, self.save, id=_NTB2_SAVE)
         else:
             wx.EVT_TOOL(self, _NTB2_HOME, self.home)
-            wx.EVT_TOOL(self, _NTB2_FORWARD, self.forward)
-            wx.EVT_TOOL(self, _NTB2_BACK, self.back)
-            wx.EVT_TOOL(self, _NTB2_ZOOM, self.zoom)
-            wx.EVT_TOOL(self, _NTB2_PAN, self.pan)
+            wx.EVT_TOOL(self, self._NTB2_FORWARD, self.forward)
+            wx.EVT_TOOL(self, self._NTB2_BACK, self.back)
+            wx.EVT_TOOL(self, self._NTB2_ZOOM, self.zoom)
+            wx.EVT_TOOL(self, self._NTB2_PAN, self.pan)
             wx.EVT_TOOL(self, _NTB2_SAVE, self.save)
 
         self.Realize()
 
+
+    def zoom(self, *args):
+        self.ToggleTool(self._NTB2_PAN, False)
+        NavigationToolbar2.zoom(self, *args)
+
+    def pan(self, *args):
+        self.ToggleTool(self._NTB2_ZOOM, False)
+        NavigationToolbar2.pan(self, *args)
 
     def save(self, evt):
         # Fetch the required filename and file type.
@@ -1612,6 +1621,13 @@ class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
 
     def set_message(self, s):
         if self.statbar is not None: self.statbar.set_function(s)
+
+    def set_history_buttons(self):
+        can_backward = (self._views._pos > 0)
+        can_forward = (self._views._pos < len(self._views._elements) - 1)
+        self.EnableTool(self._NTB2_BACK, can_backward)
+        self.EnableTool(self._NTB2_FORWARD, can_forward)
+
 
 class NavigationToolbarWx(wx.ToolBar):
     def __init__(self, canvas, can_kill=False):

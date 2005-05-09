@@ -847,6 +847,10 @@ def hold(b=None):
     hold()      # toggle hold
     hold(True)  # hold is on
     hold(False) # hold is off
+
+    When hold is True, subsequent plot commands will be added to the
+    current axes.  When hold is False, the current axes and figure
+    will be cleared on the next plot command
     """
 
     gcf().hold(b)

@@ -16,6 +16,21 @@ class RendererBase:
     """An abstract base class to handle drawing/rendering operations
     """
 
+    def cache(self):
+        """
+        save a copy of the canvas, to be used in conjunction with blit
+        in support of animation
+        """
+        pass
+
+    def blit(self):
+        """
+        blit the cached copy of the canvas, to be used in conjunction
+        with blit in support of animation
+        """
+        pass
+
+    
     def open_group(self, s):
         """open a grouping element with label s
         Is only currently used by backend_svg
@@ -159,6 +174,7 @@ class RendererBase:
         x and y are equal length arrays, draw lines connecting each
         point in x, y
         """
+
         raise NotImplementedError
     
     def draw_point(self, gc, x, y):
@@ -696,6 +712,8 @@ class FigureCanvasBase:
         self._lastx, self._lasty = None, None
 
 
+
+
     def key_press_event(self, key, guiEvent=None):
         self._key = key
         event = KeyEvent('key_press_event', self, key, self._lastx, self._lasty, guiEvent=guiEvent)        
@@ -901,6 +919,9 @@ class NavigationToolbar2:
       navigating
 
     * set_message (optional) - display message
+
+    * set_history_buttons (optional) - you can change the history 
+       back / forward buttons to indicate disabled / enabled state.
     
     That's it, we'll do the rest!
     """
@@ -920,6 +941,7 @@ class NavigationToolbar2:
         self._button_pressed = None # determined by the button pressed at start
 
         self.mode = ''  # a mode string for the status bar
+        self.set_history_buttons()
 
     def set_message(self, s):
         'display a message on toolbar or in status bar'
@@ -928,6 +950,7 @@ class NavigationToolbar2:
     def back(self, *args):
         'move back up the view lim stack'
         self._views.back()
+        self.set_history_buttons()
         self._update_view()
 
     def dynamic_update(self):
@@ -940,11 +963,13 @@ class NavigationToolbar2:
     def forward(self, *args):
         'move forward in the view lim stack'
         self._views.forward()
+        self.set_history_buttons()
         self._update_view()
 
     def home(self, *args):
         'restore the original view'
         self._views.home()
+        self.set_history_buttons()
         self._update_view()       
 
     def _init_toolbar(self):
@@ -1093,6 +1118,7 @@ class NavigationToolbar2:
             ymin, ymax = a.get_ylim()
             lims.append( (xmin, xmax, ymin, ymax) )
         self._views.push(lims)
+        self.set_history_buttons()
         
         
 
@@ -1313,6 +1339,7 @@ class NavigationToolbar2:
     def update(self):
         'reset the axes stack'
         self._views.clear()
+        self.set_history_buttons()
 
     def zoom(self, *args):
         'activate zoom to rect mode'
@@ -1335,3 +1362,10 @@ class NavigationToolbar2:
             self.mode = 'Zoom to rect mode'
 
         self.set_message(self.mode)
+
+
+    def set_history_buttons(self):
+        'enable or disable back/forward button'
+        pass
+
+

@@ -73,6 +73,11 @@ class FigureCanvasGTKAgg(FigureCanvasGTK, FigureCanvasAgg):
         FigureCanvasAgg.draw(self)
         agg_to_gtk_drawable(self._pixmap, self.renderer._renderer)
 
+    def blit(self):
+        agg_to_gtk_drawable(self._pixmap, self.renderer._renderer)
+        self.window.set_back_pixmap (self._pixmap, False)
+        self.window.clear()  # draw pixmap as the gdk.Window's bg
+        self._draw_pixmap = False
 
     def print_figure(self, filename, dpi=150,
                      facecolor='w', edgecolor='w',
