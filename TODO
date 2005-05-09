@@ -704,3 +704,5 @@ ZeroDivisionError: SeparableTransformation::eval_scalars yin interval is zero; c
 -- DONE colorbar not updating in CVS
 
 -- DONE tkagg figure not launching new figure until plot is called?
+
+-- clipping off in date_demo_rrule (agg 0.5 offset bug?)

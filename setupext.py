@@ -65,6 +65,7 @@ BUILT_ENTHOUGHT   = False
 BUILT_CONTOUR   = False
 BUILT_GDK       = False
 
+AGG_VERSION = 'agg23'
 
 class CleanUpFile:
     """CleanUpFile deletes the specified filename when self is destroyed."""
@@ -110,7 +111,7 @@ def add_agg_flags(module):
     module.libraries.append('png')
     module.libraries.append('z')
     add_base_flags(module)
-    module.include_dirs.extend(['src','agg22/include', '.'])
+    module.include_dirs.extend(['src','%s/include'%AGG_VERSION, '.'])
 
     # put these later for correct link order
     module.libraries.extend(['stdc++', 'm'])
@@ -390,15 +391,16 @@ def build_agg(ext_modules, packages, numerix):
 
     agg = ('agg_trans_affine.cpp',
            'agg_path_storage.cpp',
-           'agg_vcgen_stroke.cpp',
            'agg_bezier_arc.cpp',
            'agg_curves.cpp',
            'agg_vcgen_dash.cpp',
+           'agg_vcgen_stroke.cpp',
+           #'agg_vcgen_markers_term.cpp',
            'agg_rasterizer_scanline_aa.cpp',
            )
 
     if numerix in ["numarray","both"]: # Build for numarray
-        deps = ['agg22/src/%s'%name for name in agg]
+        deps = ['%s/src/%s'%(AGG_VERSION,name) for name in agg]
         deps.extend(('src/ft2font.cpp', 'src/mplutils.cpp'))
         deps.extend(glob.glob('CXX/*.cxx'))
         deps.extend(glob.glob('CXX/*.c'))
@@ -414,7 +416,7 @@ def build_agg(ext_modules, packages, numerix):
         add_ft2font_flags(module)
         ext_modules.append(module)    
     if numerix in ["Numeric","both"]: # Build for Numeric
-        deps = ['agg22/src/%s'%name for name in agg]
+        deps = ['%s/src/%s'%(AGG_VERSION, name) for name in agg]
         deps.extend(('src/ft2font.cpp', 'src/mplutils.cpp'))
         deps.extend(glob.glob('CXX/*.cxx'))
         deps.extend(glob.glob('CXX/*.c'))
@@ -448,7 +450,7 @@ def build_image(ext_modules, packages, numerix):
     if numerix in ["numarray","both"]: # Build for numarray
         temp_copy('src/_image.cpp', 'src/_na_image.cpp')
         deps = ['src/_na_image.cpp', 'src/mplutils.cpp'] 
-        deps.extend(['agg22/src/%s'%name for name in agg])
+        deps.extend(['%s/src/%s'%(AGG_VERSION, name) for name in agg])
         deps.extend(glob.glob('CXX/*.cxx'))
         deps.extend(glob.glob('CXX/*.c'))
         module = Extension(
@@ -463,7 +465,7 @@ def build_image(ext_modules, packages, numerix):
     if numerix in ["Numeric","both"]: # Build for Numeric
         temp_copy('src/_image.cpp', 'src/_nc_image.cpp')
         deps = ['src/_nc_image.cpp', 'src/mplutils.cpp'] 
-        deps.extend(['agg22/src/%s'%name for name in agg])
+        deps.extend(['%s/src/%s'%(AGG_VERSION,name) for name in agg])
         deps.extend(glob.glob('CXX/*.cxx'))
         deps.extend(glob.glob('CXX/*.c'))
 
@@ -480,16 +482,24 @@ def build_image(ext_modules, packages, numerix):
 
 def build_swigagg(ext_modules, packages):
     # setup the swig agg wrapper
-    deps = ['src/agg.cxx',
-            'agg22/src/agg_path_storage.cpp',
-            'agg22/src/agg_bezier_arc.cpp',
-            'agg22/src/agg_trans_affine.cpp',            
-            ]
+    deps = ['src/agg.cxx']
+    deps.extend(['%s/src/%s'%(AGG_VERSION, fname) for fname in
+                 (
+        'agg_trans_affine.cpp',
+        'agg_path_storage.cpp',
+        'agg_bezier_arc.cpp',
+        'agg_vcgen_dash.cpp',
+        'agg_vcgen_stroke.cpp',
+        'agg_rasterizer_scanline_aa.cpp',
+        )
+                 ])
+                 
+            
     agg = Extension('matplotlib._agg',
                     deps,
                     )
 
-    agg.include_dirs.extend(['agg22/include', 'src', 'swig'])
+    agg.include_dirs.extend(['%s/include'%AGG_VERSION, 'src', 'swig'])
     agg.libraries.extend(['stdc++', 'm'])
     ext_modules.append(agg)
 

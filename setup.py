@@ -96,6 +96,7 @@ except ImportError:
     
 NUMERIX=["neither", "Numeric","numarray","both"][HAVE_NUMARRAY*2+HAVE_NUMERIC]
 
+
 if NUMERIX == "neither":
     raise RuntimeError("You must install Numeric, numarray, or both to build matplotlib")
 
