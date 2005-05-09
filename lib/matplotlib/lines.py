@@ -613,7 +613,6 @@ class Line2D(Artist):
         if len(xt)<2: return
         gc.set_linestyle('solid')
         gc.set_capstyle('projecting')
-        print 'called draw lines', self._newstyle, renderer
         if self._newstyle:
             renderer.draw_lines(gc, xt, yt, self._transform)
         else:
