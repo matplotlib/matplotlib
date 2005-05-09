@@ -137,7 +137,6 @@ def new_figure_manager(num, *args, **kwargs):
     """
     if __debug__: verbose.report('backend_agg.new_figure_manager', 'debug-annoying')
 
-    print 'new figure manager'
     thisFig = Figure(*args, **kwargs)
     canvas = FigureCanvasAgg(thisFig)
     manager = FigureManagerBase(canvas, num)
@@ -163,7 +162,6 @@ class FigureCanvasAgg(FigureCanvasBase):
         if __debug__: verbose.report('FigureCanvasAgg.draw', 'debug-annoying')
 
         renderer = self.get_renderer()
-        print 'calling figure draw'
         self.figure.draw(renderer)
         return renderer
         
