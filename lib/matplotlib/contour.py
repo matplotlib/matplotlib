@@ -553,45 +553,6 @@ class ContourSupport:
         self.ax.set_ylim((ma.minimum(y), ma.maximum(y)))
         return (x, y, z, lev)
 
-
-    def _initialize_reg_tri(self, z):
-        '''
-        Initialize two arrays used by the low-level contour
-        algorithm.  This is temporary code; most of the reg
-        initialization should be done in c.
-
-        For each masked point, we need to mark as missing
-        the four regions with that point as a corner.
-        '''
-        imax, jmax = shape(z)
-        nreg = jmax*(imax+1)+1
-        reg = ones((1, nreg), typecode = 'i')
-        reg[0,:jmax+1]=0
-        reg[0,-jmax:]=0
-        for j in range(0, nreg, jmax):
-            reg[0,j]=0
-        badmask = z.mask()
-        if badmask is not None:
-            for i in range(imax):
-                for j in range(jmax):
-                    if badmask[i,j]:
-                        ii = i*jmax+j
-                        if ii < nreg:
-                            reg[0,ii] = 0
-                        ii += 1
-                        if ii < nreg:
-                            reg[0,ii] = 0
-                        ii += jmax
-                        if ii < nreg:
-                            reg[0,ii] = 0
-                        ii -= 1
-                        if ii < nreg:
-                            reg[0,ii] = 0
-
-        triangle = zeros((imax,jmax), typecode='s')
-
-        return reg, triangle
-
     def _process_colors(self, z, colors, alpha, lev, cmap):
         """
         Color argument processing for contouring.
@@ -728,8 +689,6 @@ class ContourSupport:
             Ncolors = Nlev
 
 
-        reg, triangle = self._initialize_reg_tri(z)
-
         tcolors, mappable, collections = self._process_colors(
             z, colors, alpha, lev, cmap)
 
@@ -743,13 +702,9 @@ class ContourSupport:
             tlinewidths = [(w,) for w in linewidths]
 
         region = 0
+        C = _contour.Cntr(x, y, z.filled(), z.mask())
         for level, color, width in zip(lev, tcolors, tlinewidths):
-            ntotal, nparts  = _contour.GcInit1(x, y, reg, triangle,
-                                               region, z.filled(), level)
-            np = zeros((nparts,), typecode='l')
-            xp = zeros((ntotal, ), Float64)
-            yp = zeros((ntotal,), Float64)
-            nlist = _contour.GcTrace(np, xp, yp)
+            nlist = C.trace(level, points = 1)
             col = LineCollection(nlist)
             col.set_color(color)
             col.set_linewidth(width)
@@ -852,9 +807,6 @@ class ContourSupport:
 
         Nlev = len(lev)
 
-
-        reg, triangle = self._initialize_reg_tri(z)
-
         tcolors, mappable, collections = self._process_colors(z, colors,
                                                                alpha,
                                                                lev, cmap)
@@ -862,14 +814,9 @@ class ContourSupport:
         region = 0
         lev_upper = list(lev[1:])
         lev_upper.append(1e38)
+        C = _contour.Cntr(x, y, z.filled(), z.mask())
         for level, level_upper, color in zip(lev, lev_upper, tcolors):
-            levs = (level, level_upper)
-            ntotal, nparts  = _contour.GcInit2(x, y, reg, triangle,
-                                               region, z.filled(), levs, 30)
-            np = zeros((nparts,), typecode='l')
-            xp = zeros((ntotal, ), Float64)
-            yp = zeros((ntotal,), Float64)
-            nlist = _contour.GcTrace(np, xp, yp)
+            nlist = C.trace(level, level_upper, points = 1)
             col = PolyCollection(nlist,
                                          linewidths=(1,))
                   # linewidths = 1 is necessary to avoid artifacts
