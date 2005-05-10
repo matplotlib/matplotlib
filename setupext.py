@@ -554,26 +554,22 @@ def build_contour(ext_modules, packages, numerix):
     if BUILT_CONTOUR: return # only build it if you you haven't already
 
     if numerix in ["numarray","both"]: # Build for numarray
-        temp_copy('src/_contour.c', 'src/_na_contour.c')
-        #deps = ['src/_na_contour.c', 'src/gcntr.c',  libraries = ['stdc++']] 
+        temp_copy('src/cntr.c', 'src/_na_cntr.c')
         module = Extension(
-            'matplotlib._na_contour',
-            [  'src/_na_contour.c',
-		'src/gcntr.c'],
-		libraries = ['stdc++'],
-            )    
+            'matplotlib._na_cntr',
+            [  'src/_na_cntr.c',],
+            #libraries = ['stdc++'],
+            )
         module.extra_compile_args.append('-DNUMARRAY=1')
         add_base_flags(module)
         ext_modules.append(module)    
 
     if numerix in ["Numeric","both"]: # Build for Numeric
-        temp_copy('src/_contour.c', 'src/_nc_contour.c')
-        #deps = ['src/_nc_contour.c', 'src/gcntr.c'] 
+        temp_copy('src/cntr.c', 'src/_nc_cntr.c')
         module = Extension(
-            'matplotlib._nc_contour',
-		[ 'src/_nc_contour.c',
-		'src/gcntr.c'],
-		libraries = ['stdc++'],
+            'matplotlib._nc_cntr',
+            [ 'src/_nc_cntr.c'],
+            #libraries = ['stdc++'],
             )
         module.extra_compile_args.append('-DNUMERIC=1')
         add_base_flags(module)
