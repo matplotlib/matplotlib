@@ -373,54 +373,52 @@ Image::resize(const Py::Tuple& args, const Py::Dict& kwargs) {
   switch(interpolation)
     {
       
-    case 0:
+    case NEAREST:
       {
-	typedef agg::span_image_filter_rgb_nn<agg::rgba8,
-	  agg::order_bgr,
-	  interpolator_type> span_gen_type;
+	typedef agg::span_image_filter_rgba_nn<agg::rgba8,agg::order_rgba, interpolator_type> span_gen_type;
 	typedef agg::renderer_scanline_aa<renderer_base, span_gen_type> renderer_type;
 	
-	span_gen_type sg(sa, rbufPad, background, interpolator);
+	span_gen_type sg(sa, *rbufIn, background, interpolator);
 	renderer_type ri(rb, sg);
 	agg::render_scanlines(ras, sl, ri);
       }
       break;
-        case 1:
-        case 2:
-        case 3:
-        case 4:
-        case 5:
-        case 6:
-        case 7:
-        case 8:  
-        case 9:  
-        case 10: 
-        case 11: 
-        case 12: 
-        case 13: 
-        case 14: 
-        case 15: 
-        case 16: 
+        case BILINEAR:
+        case BICUBIC:
+        case SPLINE16:
+        case SPLINE36:
+        case HANNING:
+        case HAMMING:
+        case HERMITE:
+        case KAISER:  
+        case QUADRIC:  
+        case CATROM: 
+        case GAUSSIAN: 
+        case BESSEL: 
+        case MITCHELL: 
+        case SINC: 
+        case LANCZOS: 
+        case BLACKMAN: 
             {
                 agg::image_filter_lut filter;
                 switch(interpolation)
                 {
-                case 1:  filter.calculate(agg::image_filter_bilinear(),                 norm); break; 
-                case 2:  filter.calculate(agg::image_filter_bicubic(),                  norm); break; 
-                case 3:  filter.calculate(agg::image_filter_spline16(),                 norm); break; 
-                case 4:  filter.calculate(agg::image_filter_spline36(),                 norm); break; 
-                case 5:  filter.calculate(agg::image_filter_hanning(),                  norm); break; 
-                case 6:  filter.calculate(agg::image_filter_hamming(),                  norm); break; 
-                case 7:  filter.calculate(agg::image_filter_hermite(),                  norm); break; 
-                case 8:  filter.calculate(agg::image_filter_kaiser(),                   norm); break; 
-                case 9:  filter.calculate(agg::image_filter_quadric(),                  norm); break; 
-                case 10: filter.calculate(agg::image_filter_catrom(),                   norm); break; 
-                case 11: filter.calculate(agg::image_filter_gaussian(),                 norm); break; 
-                case 12: filter.calculate(agg::image_filter_bessel(),                   norm); break; 
-                case 13: filter.calculate(agg::image_filter_mitchell(),                 norm); break; 
-                case 14: filter.calculate(agg::image_filter_sinc(radius),     norm); break; 
-                case 15: filter.calculate(agg::image_filter_lanczos(radius),  norm); break; 
-                case 16: filter.calculate(agg::image_filter_blackman(radius), norm); break; 
+                case BILINEAR:  filter.calculate(agg::image_filter_bilinear(), norm); break; 
+                case BICUBIC:  filter.calculate(agg::image_filter_bicubic(), norm); break; 
+                case SPLINE16:  filter.calculate(agg::image_filter_spline16(), norm); break; 
+                case SPLINE36:  filter.calculate(agg::image_filter_spline36(), norm); break; 
+                case HANNING:  filter.calculate(agg::image_filter_hanning(), norm); break; 
+                case HAMMING:  filter.calculate(agg::image_filter_hamming(), norm); break; 
+                case HERMITE:  filter.calculate(agg::image_filter_hermite(), norm); break; 
+                case KAISER:  filter.calculate(agg::image_filter_kaiser(), norm); break; 
+                case QUADRIC:  filter.calculate(agg::image_filter_quadric(), norm); break; 
+                case CATROM: filter.calculate(agg::image_filter_catrom(), norm); break; 
+                case GAUSSIAN: filter.calculate(agg::image_filter_gaussian(), norm); break; 
+                case BESSEL: filter.calculate(agg::image_filter_bessel(), norm); break; 
+                case MITCHELL: filter.calculate(agg::image_filter_mitchell(), norm); break; 
+                case SINC: filter.calculate(agg::image_filter_sinc(radius), norm); break; 
+                case LANCZOS: filter.calculate(agg::image_filter_lanczos(radius), norm); break; 
+                case BLACKMAN: filter.calculate(agg::image_filter_blackman(radius), norm); break; 
                 }
 
 	typedef agg::span_image_filter_rgba<agg::rgba8, agg::order_rgba,
@@ -1080,7 +1078,7 @@ _image_module::frombuffer(const Py::Tuple& args) {
     throw Py::ValueError("Cannot get buffer from object.");
 
   // Check buffer is required size.
-  if (buflen != NUMBYTES)
+  if ((size_t)buflen != NUMBYTES)
     throw Py::ValueError("Buffer length must be width * height * 4.");
 
   // Copy from input buffer to new buffer for agg.
@@ -1137,17 +1135,24 @@ init_na_image(void) {
     
     import_array();  
     Py::Dict d = _image->moduleDictionary();
-    d["BICUBIC"] = Py::Int(Image::BICUBIC);
-    d["BILINEAR"] = Py::Int(Image::BILINEAR);
-    d["BLACKMAN100"] = Py::Int(Image::BLACKMAN100);
-    d["BLACKMAN256"] = Py::Int(Image::BLACKMAN256);
-    d["BLACKMAN64"] = Py::Int(Image::BLACKMAN64);
+
     d["NEAREST"] = Py::Int(Image::NEAREST);
-    d["SINC144"] = Py::Int(Image::SINC144);
-    d["SINC256"] = Py::Int(Image::SINC256);
-    d["SINC64"] = Py::Int(Image::SINC64);
+    d["BILINEAR"] = Py::Int(Image::BILINEAR);
+    d["BICUBIC"] = Py::Int(Image::BICUBIC);
     d["SPLINE16"] = Py::Int(Image::SPLINE16);
     d["SPLINE36"] = Py::Int(Image::SPLINE36);
+    d["HANNING"] = Py::Int(Image::HANNING);
+    d["HAMMING"] = Py::Int(Image::HAMMING);
+    d["HERMITE"] = Py::Int(Image::HERMITE);
+    d["KAISER"]   = Py::Int(Image::KAISER);
+    d["QUADRIC"]   = Py::Int(Image::QUADRIC);
+    d["CATROM"]  = Py::Int(Image::CATROM);
+    d["GAUSSIAN"]  = Py::Int(Image::GAUSSIAN);
+    d["BESSEL"]  = Py::Int(Image::BESSEL);
+    d["MITCHELL"]  = Py::Int(Image::MITCHELL);
+    d["SINC"]  = Py::Int(Image::SINC);
+    d["LANCZOS"]  = Py::Int(Image::LANCZOS);
+    d["BLACKMAN"] = Py::Int(Image::BLACKMAN);
     
     d["ASPECT_FREE"] = Py::Int(Image::ASPECT_FREE);
     d["ASPECT_PRESERVE"] = Py::Int(Image::ASPECT_PRESERVE);

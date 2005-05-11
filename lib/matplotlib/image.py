@@ -24,6 +24,8 @@ class AxesImage(Artist, cm.ScalarMappable):
                  interpolation=None,
                  origin=None,
                  extent=None,
+                 filternorm=1,
+                 filterrad=4.0,
                  ):
 
         """
@@ -42,21 +44,30 @@ class AxesImage(Artist, cm.ScalarMappable):
 
         if origin is None: origin = rcParams['image.origin']
         self.origin = origin
-        self._extent = extent      
+        self._extent = extent
+        self.set_filternorm(filternorm)
+        self.set_filterrad(filterrad)
+
 
         # map interpolation strings to module constants
         self._interpd = {
-            'bicubic'     : _image.BICUBIC,
-            'bilinear'    : _image.BILINEAR,
-            'blackman100' : _image.BLACKMAN100,
-            'blackman256' : _image.BLACKMAN256,
-            'blackman64'  : _image.BLACKMAN64,
-            'nearest'     : _image.NEAREST,
-            'sinc144'     : _image.SINC144,
-            'sinc256'     : _image.SINC256,
-            'sinc64'      : _image.SINC64,
-            'spline16'    : _image.SPLINE16,
-            'spline36'    : _image.SPLINE36,       
+            'nearest'  : _image.NEAREST,
+            'bilinear' : _image.BILINEAR,
+            'bicubic'  : _image.BICUBIC,
+            'spline16' : _image.SPLINE16,
+            'spline36' : _image.SPLINE36,
+            'hanning'  : _image.HANNING,
+            'hamming'  : _image.HAMMING,
+            'hermite'  : _image.HERMITE,
+            'kaiser'   : _image.KAISER,
+            'quadric'  : _image.QUADRIC,
+            'catrom'   : _image.CATROM,
+            'gaussian' : _image.GAUSSIAN,
+            'bessel'   : _image.BESSEL,
+            'mitchell' : _image.MITCHELL,
+            'sinc'     : _image.SINC,
+            'lanczos'  : _image.LANCZOS,
+            'blackman' : _image.BLACKMAN,
         }
 
         # map aspect ratio strings to module constants
@@ -180,7 +191,8 @@ ACCEPTS: float
             im.apply_scaling(rx, ry)
 
         #print tx, ty, sx, sy, rx, ry, widthDisplay, heightDisplay
-        im.resize(int(widthDisplay+0.5), int(heightDisplay+0.5))
+        im.resize(int(widthDisplay+0.5), int(heightDisplay+0.5),
+                  norm=self._filternorm, radius=self._filterrad)
         return im
     
     def draw(self, renderer, *args, **kwargs):
@@ -298,7 +310,34 @@ ACCEPTS: ['bicubic' | 'bilinear' | 'blackman100' | 'blackman256' | 'blackman64',
 
             if self.get_aspect()=='preserve' and sy<sx: sx = sy 
             return 0, 1.0/sx*dwidth, 0, 1.0/sy*dheight
-        
+
+    def set_filternorm(self, filternorm):
+        """Set whether the resize filter norms the weights -- see help for imshow
+ACCEPTS: 0 or 1
+"""
+        if filternorm:
+            self._filternorm = 1
+        else:
+            self._filternorm = 0
+
+    def get_filternorm(self):
+        'return the filternorm setting'
+        return self._filternorm
+
+    def set_filterrad(self, filterrad):
+        """Set the resize filter radius only applicable to some
+interpolation schemes -- see help for imshow
+
+ACCEPTS: positive float
+"""
+        r = float(filterrad)
+        assert(r>0)
+        self._filterrad = r
+
+    def get_filterrad(self):
+        'return the filterrad setting'
+        return self._filterrad
+
 class FigureImage(Artist, cm.ScalarMappable):
     def __init__(self, fig,
                  cmap = None,

@@ -577,7 +577,8 @@ all backends; currently only on postscript output."""
         else:
             extent=(cmin, cmax, 0, 1)
         coll = cax.imshow(C,
-                          interpolation='nearest', 
+                          interpolation='nearest',
+                          #interpolation='bilinear', 
                           origin='lower',
                           cmap=cmap, norm=norm,
                           extent=extent)

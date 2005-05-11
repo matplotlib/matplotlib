@@ -1,5 +1,17 @@
 New entries should be added at the top
 
+2005-05-10 New image resize options interpolation options.  New values
+           for the interp kwarg are   
+        
+           'nearest', 'bilinear', 'bicubic', 'spline16', 'spline36',
+	   'hanning', 'hamming', 'hermite', 'kaiser', 'quadric',
+	   'catrom', 'gaussian', 'bessel', 'mitchell', 'sinc',
+	   'lanczos', 'blackman'
+
+           See help(imshow) for details, particularly the
+           interpolation, filternorm and filterrad kwargs
+
+
 2005-05-10 Applied Eric's contour mem leak fixes - JDH
 
 2005-05-10 Extended python agg wrapper and started implementing backend_agg2,

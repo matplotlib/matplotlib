@@ -38,8 +38,26 @@ public:
   Py::Object write_png(const Py::Tuple& args);
   Py::Object set_bg(const Py::Tuple& args);
 
-  enum { BICUBIC=0, BILINEAR, BLACKMAN100, BLACKMAN256, BLACKMAN64, 
-	 NEAREST, SINC144, SINC256, SINC64, SPLINE16, SPLINE36};
+  enum {NEAREST,
+	BILINEAR,
+        BICUBIC,
+        SPLINE16,
+        SPLINE36,
+        HANNING,
+        HAMMING,
+        HERMITE,
+        KAISER,  
+        QUADRIC,  
+        CATROM, 
+        GAUSSIAN, 
+        BESSEL, 
+        MITCHELL, 
+        SINC, 
+        LANCZOS, 
+        BLACKMAN,};
+
+  //enum { BICUBIC=0, BILINEAR, BLACKMAN100, BLACKMAN256, BLACKMAN64, 
+  //	 NEAREST, SINC144, SINC256, SINC64, SPLINE16, SPLINE36};
   enum { ASPECT_PRESERVE=0, ASPECT_FREE};
 
   agg::int8u *bufferIn;
