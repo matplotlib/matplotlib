@@ -1,5 +1,9 @@
 API CHANGES in matplotlib-0.81
 
+  imshow interpolation arguments changes for advanced interpolation
+  schemes.  See help imshow, particularly the interpolation,
+  filternorm and filterrad kwargs
+
   Contour and contourf now accept masked arrays as the variable to be
   contoured.  Masking works correctly for contour, but a bug remains
   to be fixed before it will work for contourf.  The "badmask" kwarg

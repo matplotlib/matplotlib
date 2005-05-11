@@ -1692,7 +1692,9 @@ class Axes(Artist):
                vmax = None,
                origin=None,
                extent=None,
-               shape=None):
+               shape=None,
+               filternorm=1,
+               filterrad=4.0):
         """
 
         IMSHOW(X, cmap=None, norm=None, aspect=None, interpolation=None,
@@ -1737,9 +1739,16 @@ class Axes(Artist):
           * aspect is one of: free or preserve.  if None, default to rc
             image.aspect value
 
-          * interpolation is one of: bicubic bilinear blackman100 blackman256
-            blackman64 nearest sinc144 sinc256 sinc64 spline16 or spline36.
-            If None, default to rc image.interpolation
+          * interpolation is one of:
+
+            'nearest', 'bilinear', 'bicubic', 'spline16', 'spline36',
+	    'hanning', 'hamming', 'hermite', 'kaiser', 'quadric',
+	    'catrom', 'gaussian', 'bessel', 'mitchell', 'sinc',
+	    'lanczos', 'blackman'
+
+            if interpolation is None, default to rc
+            image.interpolation.  See also th the filternorm and
+            filterrad parameters
 
           * norm is a matplotlib.colors.normalize instance; default is
             normalization().  This scales luminance -> 0-1 (Ignored when X is
@@ -1760,6 +1769,21 @@ class Axes(Artist):
             registered with data plots.  Default is the image dimensions
             in pixels
 
+          * shape is for raw buffer images
+
+          * filternorm is a parameter for the antigrain image resize
+            filter.  From the antigrain documentation, if normalize=1,
+            the filter normalizes integer values and corrects the
+            rounding errors. It doesn't do anything with the source
+            floating point values, it corrects only integers according
+            to the rule of 1.0 which means that any sum of pixel
+            weights must be equal to 1.0.  So, the filter function
+            must produce a graph of the proper shape.
+
+         * filterrad: the filter radius for filters that have a radius
+           parameter, ie when interpolation is one of: 'sinc',
+           'lanczos' or 'blackman'
+
     """
 
         if not self._hold: self.cla()
@@ -1767,11 +1791,14 @@ class Axes(Artist):
         if norm is not None: assert(isinstance(norm, normalize))
         if cmap is not None: assert(isinstance(cmap, Colormap))
 
-        im = AxesImage(self, cmap, norm, aspect, interpolation, origin, extent)
+        im = AxesImage(self, cmap, norm, aspect, interpolation, origin, extent,
+                       filternorm=filternorm,
+                       filterrad=filterrad)
         if norm is None and shape is None:
             im.set_clim(vmin, vmax)
 
-        im.set_data(X, shape)
+        #im.set_data(X, shape)
+        im.set_data(X)
         im.set_alpha(alpha)
 
         xmin, xmax, ymin, ymax = im.get_extent()
@@ -1907,9 +1934,6 @@ class Axes(Artist):
                 if label != '_nolegend_':
                     handles.append(line)
                     labels.append(label)
-            ## alternative version -- IMHO less readable:
-            #handles, labels = zip([(h, h.get_label()) for h in get_handles() 
-            #                       if h.get_label() != '_nolegend_'])
             loc = popd(kwargs, 'loc', 1)
 
         elif len(args)==1:
