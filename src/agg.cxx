@@ -1409,96 +1409,112 @@ SWIG_Python_SetModule(swig_module_info *swig_module) {
 #define SWIGTYPE_p_agg__blender_rgba_preTagg__rgba8_agg__order_bgra_t swig_types[20]
 #define SWIGTYPE_p_agg__blender_rgba_preTagg__rgba8_agg__order_rgba_t swig_types[21]
 #define SWIGTYPE_p_agg__buffer swig_types[22]
-#define SWIGTYPE_p_agg__filling_rule_e swig_types[23]
-#define SWIGTYPE_p_agg__null_markers swig_types[24]
-#define SWIGTYPE_p_agg__order_abgr swig_types[25]
-#define SWIGTYPE_p_agg__order_argb swig_types[26]
-#define SWIGTYPE_p_agg__order_bgr swig_types[27]
-#define SWIGTYPE_p_agg__order_bgra swig_types[28]
-#define SWIGTYPE_p_agg__order_rgb swig_types[29]
-#define SWIGTYPE_p_agg__order_rgba swig_types[30]
-#define SWIGTYPE_p_agg__path_storage swig_types[31]
-#define SWIGTYPE_p_agg__pixel64_type swig_types[32]
-#define SWIGTYPE_p_agg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba16_agg__order_abgr_t_agg__pixel64_type_t swig_types[33]
-#define SWIGTYPE_p_agg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba16_agg__order_argb_t_agg__pixel64_type_t swig_types[34]
-#define SWIGTYPE_p_agg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba16_agg__order_bgra_t_agg__pixel64_type_t swig_types[35]
-#define SWIGTYPE_p_agg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba16_agg__order_rgba_t_agg__pixel64_type_t swig_types[36]
-#define SWIGTYPE_p_agg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_abgr_t_unsigned_int_t swig_types[37]
-#define SWIGTYPE_p_agg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_argb_t_unsigned_int_t swig_types[38]
-#define SWIGTYPE_p_agg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_bgra_t_unsigned_int_t swig_types[39]
-#define SWIGTYPE_p_agg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t swig_types[40]
-#define SWIGTYPE_p_agg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t__blender_type__color_type swig_types[41]
-#define SWIGTYPE_p_agg__pixel_formats_rgbaTagg__blender_rgba_plainTagg__rgba8_agg__order_abgr_t_unsigned_int_t swig_types[42]
-#define SWIGTYPE_p_agg__pixel_formats_rgbaTagg__blender_rgba_plainTagg__rgba8_agg__order_argb_t_unsigned_int_t swig_types[43]
-#define SWIGTYPE_p_agg__pixel_formats_rgbaTagg__blender_rgba_plainTagg__rgba8_agg__order_bgra_t_unsigned_int_t swig_types[44]
-#define SWIGTYPE_p_agg__pixel_formats_rgbaTagg__blender_rgba_plainTagg__rgba8_agg__order_rgba_t_unsigned_int_t swig_types[45]
-#define SWIGTYPE_p_agg__pixel_formats_rgbaTagg__blender_rgba_preTagg__rgba16_agg__order_abgr_t_agg__pixel64_type_t swig_types[46]
-#define SWIGTYPE_p_agg__pixel_formats_rgbaTagg__blender_rgba_preTagg__rgba16_agg__order_argb_t_agg__pixel64_type_t swig_types[47]
-#define SWIGTYPE_p_agg__pixel_formats_rgbaTagg__blender_rgba_preTagg__rgba16_agg__order_bgra_t_agg__pixel64_type_t swig_types[48]
-#define SWIGTYPE_p_agg__pixel_formats_rgbaTagg__blender_rgba_preTagg__rgba16_agg__order_rgba_t_agg__pixel64_type_t swig_types[49]
-#define SWIGTYPE_p_agg__pixel_formats_rgbaTagg__blender_rgba_preTagg__rgba8_agg__order_abgr_t_unsigned_int_t swig_types[50]
-#define SWIGTYPE_p_agg__pixel_formats_rgbaTagg__blender_rgba_preTagg__rgba8_agg__order_argb_t_unsigned_int_t swig_types[51]
-#define SWIGTYPE_p_agg__pixel_formats_rgbaTagg__blender_rgba_preTagg__rgba8_agg__order_bgra_t_unsigned_int_t swig_types[52]
-#define SWIGTYPE_p_agg__pixel_formats_rgbaTagg__blender_rgba_preTagg__rgba8_agg__order_rgba_t_unsigned_int_t swig_types[53]
-#define SWIGTYPE_p_agg__point_type swig_types[54]
-#define SWIGTYPE_p_agg__rect_baseTdouble_t swig_types[55]
-#define SWIGTYPE_p_agg__rect_baseTint_t swig_types[56]
-#define SWIGTYPE_p_agg__rendering_buffer__row_data swig_types[57]
-#define SWIGTYPE_p_agg__rendering_buffer__span_data swig_types[58]
-#define SWIGTYPE_p_agg__rgba swig_types[59]
-#define SWIGTYPE_p_agg__rgba16 swig_types[60]
-#define SWIGTYPE_p_agg__rgba8 swig_types[61]
-#define SWIGTYPE_p_agg__row_ptr_cacheTunsigned_char_t swig_types[62]
-#define SWIGTYPE_p_agg__scanline_bin swig_types[63]
-#define SWIGTYPE_p_agg__scanline_pTunsigned_char_short_t swig_types[64]
-#define SWIGTYPE_p_agg__scanline_pTunsigned_int_short_t swig_types[65]
-#define SWIGTYPE_p_agg__scanline_pTunsigned_short_short_t swig_types[66]
-#define SWIGTYPE_p_agg__trans_affine swig_types[67]
-#define SWIGTYPE_p_agg__trans_affine_rotation swig_types[68]
-#define SWIGTYPE_p_agg__trans_affine_scaling swig_types[69]
-#define SWIGTYPE_p_agg__trans_affine_skewing swig_types[70]
-#define SWIGTYPE_p_agg__trans_affine_translation swig_types[71]
-#define SWIGTYPE_p_agg__vcgen_stroke swig_types[72]
-#define SWIGTYPE_p_agg__vertex_type swig_types[73]
-#define SWIGTYPE_p_blender_type swig_types[74]
-#define SWIGTYPE_p_calc_type swig_types[75]
-#define SWIGTYPE_p_char swig_types[76]
-#define SWIGTYPE_p_cob_type swig_types[77]
-#define SWIGTYPE_p_conv_adaptor_vcgenTagg__path_storage_agg__vcgen_stroke_agg__null_markers_t swig_types[78]
-#define SWIGTYPE_p_conv_strokeTagg__path_storage_t swig_types[79]
-#define SWIGTYPE_p_coord_storage swig_types[80]
-#define SWIGTYPE_p_coord_type swig_types[81]
-#define SWIGTYPE_p_cover_type swig_types[82]
-#define SWIGTYPE_p_double swig_types[83]
-#define SWIGTYPE_p_int swig_types[84]
-#define SWIGTYPE_p_long_long swig_types[85]
-#define SWIGTYPE_p_long_type swig_types[86]
-#define SWIGTYPE_p_order_type swig_types[87]
-#define SWIGTYPE_p_p_unsigned_char swig_types[88]
-#define SWIGTYPE_p_pixel_type swig_types[89]
-#define SWIGTYPE_p_rasterizer_scanline_aaT_t swig_types[90]
-#define SWIGTYPE_p_rect swig_types[91]
-#define SWIGTYPE_p_renderer_baseTagg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t_t swig_types[92]
-#define SWIGTYPE_p_renderer_scanline_aa_solidTrenderer_baseTagg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t_t_t swig_types[93]
-#define SWIGTYPE_p_renderer_scanline_bin_solidTrenderer_baseTagg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t_t_t swig_types[94]
-#define SWIGTYPE_p_row_data swig_types[95]
-#define SWIGTYPE_p_self_type swig_types[96]
-#define SWIGTYPE_p_short swig_types[97]
-#define SWIGTYPE_p_signed_char swig_types[98]
-#define SWIGTYPE_p_span swig_types[99]
-#define SWIGTYPE_p_span_data swig_types[100]
-#define SWIGTYPE_p_unsigned_char swig_types[101]
-#define SWIGTYPE_p_unsigned_int swig_types[102]
-#define SWIGTYPE_p_unsigned_long_long swig_types[103]
-#define SWIGTYPE_p_unsigned_short swig_types[104]
-#define SWIGTYPE_p_value_type swig_types[105]
-#define SWIGTYPE_p_vertex_storage swig_types[106]
-#define SWIGTYPE_ptrdiff_t swig_types[107]
-#define SWIGTYPE_size_t swig_types[108]
-#define SWIGTYPE_std__ptrdiff_t swig_types[109]
-#define SWIGTYPE_std__size_t swig_types[110]
-static swig_type_info *swig_types[111];
-static swig_module_info swig_module = {swig_types, 111, 0, 0, 0, 0};
+#define SWIGTYPE_p_agg__conv_adaptor_vcgenTagg__conv_curveTpath_t_t_agg__vcgen_stroke_agg__null_markers_t swig_types[23]
+#define SWIGTYPE_p_agg__conv_adaptor_vcgenTagg__conv_curveTtranspath_t_t_agg__vcgen_stroke_agg__null_markers_t swig_types[24]
+#define SWIGTYPE_p_agg__conv_adaptor_vcgenTagg__conv_transformTcurve_t_agg__trans_affine_t_agg__vcgen_stroke_agg__null_markers_t swig_types[25]
+#define SWIGTYPE_p_agg__conv_adaptor_vcgenTagg__conv_transformTpath_t_agg__trans_affine_t_agg__vcgen_stroke_agg__null_markers_t swig_types[26]
+#define SWIGTYPE_p_agg__conv_adaptor_vcgenTagg__path_storage_agg__vcgen_stroke_agg__null_markers_t swig_types[27]
+#define SWIGTYPE_p_agg__conv_curveTagg__conv_transformTpath_t_agg__trans_affine_t_t swig_types[28]
+#define SWIGTYPE_p_agg__conv_curveTagg__path_storage_t swig_types[29]
+#define SWIGTYPE_p_agg__conv_strokeTagg__conv_curveTpath_t_t_agg__null_markers_t swig_types[30]
+#define SWIGTYPE_p_agg__conv_strokeTagg__conv_curveTtranspath_t_t_agg__null_markers_t swig_types[31]
+#define SWIGTYPE_p_agg__conv_strokeTagg__conv_transformTcurve_t_agg__trans_affine_t_agg__null_markers_t swig_types[32]
+#define SWIGTYPE_p_agg__conv_strokeTagg__conv_transformTpath_t_agg__trans_affine_t_agg__null_markers_t swig_types[33]
+#define SWIGTYPE_p_agg__conv_strokeTagg__path_storage_agg__null_markers_t swig_types[34]
+#define SWIGTYPE_p_agg__conv_transformTagg__conv_curveTpath_t_t_agg__trans_affine_t swig_types[35]
+#define SWIGTYPE_p_agg__conv_transformTagg__path_storage_agg__trans_affine_t swig_types[36]
+#define SWIGTYPE_p_agg__filling_rule_e swig_types[37]
+#define SWIGTYPE_p_agg__null_markers swig_types[38]
+#define SWIGTYPE_p_agg__order_abgr swig_types[39]
+#define SWIGTYPE_p_agg__order_argb swig_types[40]
+#define SWIGTYPE_p_agg__order_bgr swig_types[41]
+#define SWIGTYPE_p_agg__order_bgra swig_types[42]
+#define SWIGTYPE_p_agg__order_rgb swig_types[43]
+#define SWIGTYPE_p_agg__order_rgba swig_types[44]
+#define SWIGTYPE_p_agg__path_storage swig_types[45]
+#define SWIGTYPE_p_agg__pixel64_type swig_types[46]
+#define SWIGTYPE_p_agg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba16_agg__order_abgr_t_agg__pixel64_type_t swig_types[47]
+#define SWIGTYPE_p_agg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba16_agg__order_argb_t_agg__pixel64_type_t swig_types[48]
+#define SWIGTYPE_p_agg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba16_agg__order_bgra_t_agg__pixel64_type_t swig_types[49]
+#define SWIGTYPE_p_agg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba16_agg__order_rgba_t_agg__pixel64_type_t swig_types[50]
+#define SWIGTYPE_p_agg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_abgr_t_unsigned_int_t swig_types[51]
+#define SWIGTYPE_p_agg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_argb_t_unsigned_int_t swig_types[52]
+#define SWIGTYPE_p_agg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_bgra_t_unsigned_int_t swig_types[53]
+#define SWIGTYPE_p_agg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t swig_types[54]
+#define SWIGTYPE_p_agg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t__blender_type__color_type swig_types[55]
+#define SWIGTYPE_p_agg__pixel_formats_rgbaTagg__blender_rgba_plainTagg__rgba8_agg__order_abgr_t_unsigned_int_t swig_types[56]
+#define SWIGTYPE_p_agg__pixel_formats_rgbaTagg__blender_rgba_plainTagg__rgba8_agg__order_argb_t_unsigned_int_t swig_types[57]
+#define SWIGTYPE_p_agg__pixel_formats_rgbaTagg__blender_rgba_plainTagg__rgba8_agg__order_bgra_t_unsigned_int_t swig_types[58]
+#define SWIGTYPE_p_agg__pixel_formats_rgbaTagg__blender_rgba_plainTagg__rgba8_agg__order_rgba_t_unsigned_int_t swig_types[59]
+#define SWIGTYPE_p_agg__pixel_formats_rgbaTagg__blender_rgba_preTagg__rgba16_agg__order_abgr_t_agg__pixel64_type_t swig_types[60]
+#define SWIGTYPE_p_agg__pixel_formats_rgbaTagg__blender_rgba_preTagg__rgba16_agg__order_argb_t_agg__pixel64_type_t swig_types[61]
+#define SWIGTYPE_p_agg__pixel_formats_rgbaTagg__blender_rgba_preTagg__rgba16_agg__order_bgra_t_agg__pixel64_type_t swig_types[62]
+#define SWIGTYPE_p_agg__pixel_formats_rgbaTagg__blender_rgba_preTagg__rgba16_agg__order_rgba_t_agg__pixel64_type_t swig_types[63]
+#define SWIGTYPE_p_agg__pixel_formats_rgbaTagg__blender_rgba_preTagg__rgba8_agg__order_abgr_t_unsigned_int_t swig_types[64]
+#define SWIGTYPE_p_agg__pixel_formats_rgbaTagg__blender_rgba_preTagg__rgba8_agg__order_argb_t_unsigned_int_t swig_types[65]
+#define SWIGTYPE_p_agg__pixel_formats_rgbaTagg__blender_rgba_preTagg__rgba8_agg__order_bgra_t_unsigned_int_t swig_types[66]
+#define SWIGTYPE_p_agg__pixel_formats_rgbaTagg__blender_rgba_preTagg__rgba8_agg__order_rgba_t_unsigned_int_t swig_types[67]
+#define SWIGTYPE_p_agg__point_type swig_types[68]
+#define SWIGTYPE_p_agg__rect_baseTdouble_t swig_types[69]
+#define SWIGTYPE_p_agg__rect_baseTint_t swig_types[70]
+#define SWIGTYPE_p_agg__renderer_baseTagg__pixel_formats_rgbaTagg__blender_rgba32_agg__pixel32_type_t_t swig_types[71]
+#define SWIGTYPE_p_agg__renderer_scanline_aa_solidTagg__renderer_baseTpixfmt_rgba_t_t_t swig_types[72]
+#define SWIGTYPE_p_agg__renderer_scanline_bin_solidTagg__renderer_baseTpixfmt_rgba_t_t_t swig_types[73]
+#define SWIGTYPE_p_agg__rendering_buffer__row_data swig_types[74]
+#define SWIGTYPE_p_agg__rendering_buffer__span_data swig_types[75]
+#define SWIGTYPE_p_agg__rgba swig_types[76]
+#define SWIGTYPE_p_agg__rgba16 swig_types[77]
+#define SWIGTYPE_p_agg__rgba8 swig_types[78]
+#define SWIGTYPE_p_agg__row_ptr_cacheTunsigned_char_t swig_types[79]
+#define SWIGTYPE_p_agg__scanline_bin swig_types[80]
+#define SWIGTYPE_p_agg__scanline_pTunsigned_char_short_t swig_types[81]
+#define SWIGTYPE_p_agg__scanline_pTunsigned_int_short_t swig_types[82]
+#define SWIGTYPE_p_agg__scanline_pTunsigned_short_short_t swig_types[83]
+#define SWIGTYPE_p_agg__trans_affine swig_types[84]
+#define SWIGTYPE_p_agg__trans_affine_rotation swig_types[85]
+#define SWIGTYPE_p_agg__trans_affine_scaling swig_types[86]
+#define SWIGTYPE_p_agg__trans_affine_skewing swig_types[87]
+#define SWIGTYPE_p_agg__trans_affine_translation swig_types[88]
+#define SWIGTYPE_p_agg__vcgen_stroke swig_types[89]
+#define SWIGTYPE_p_agg__vertex_type swig_types[90]
+#define SWIGTYPE_p_base_ren_type swig_types[91]
+#define SWIGTYPE_p_base_type swig_types[92]
+#define SWIGTYPE_p_blender_type swig_types[93]
+#define SWIGTYPE_p_calc_type swig_types[94]
+#define SWIGTYPE_p_char swig_types[95]
+#define SWIGTYPE_p_cob_type swig_types[96]
+#define SWIGTYPE_p_color_type swig_types[97]
+#define SWIGTYPE_p_coord_storage swig_types[98]
+#define SWIGTYPE_p_coord_type swig_types[99]
+#define SWIGTYPE_p_cover_type swig_types[100]
+#define SWIGTYPE_p_double swig_types[101]
+#define SWIGTYPE_p_int swig_types[102]
+#define SWIGTYPE_p_long_long swig_types[103]
+#define SWIGTYPE_p_long_type swig_types[104]
+#define SWIGTYPE_p_marker_type swig_types[105]
+#define SWIGTYPE_p_order_type swig_types[106]
+#define SWIGTYPE_p_p_unsigned_char swig_types[107]
+#define SWIGTYPE_p_pixel_type swig_types[108]
+#define SWIGTYPE_p_pixfmt_type swig_types[109]
+#define SWIGTYPE_p_rasterizer_scanline_aaT_t swig_types[110]
+#define SWIGTYPE_p_row_data swig_types[111]
+#define SWIGTYPE_p_self_type swig_types[112]
+#define SWIGTYPE_p_short swig_types[113]
+#define SWIGTYPE_p_signed_char swig_types[114]
+#define SWIGTYPE_p_span swig_types[115]
+#define SWIGTYPE_p_span_data swig_types[116]
+#define SWIGTYPE_p_unsigned_char swig_types[117]
+#define SWIGTYPE_p_unsigned_int swig_types[118]
+#define SWIGTYPE_p_unsigned_long_long swig_types[119]
+#define SWIGTYPE_p_unsigned_short swig_types[120]
+#define SWIGTYPE_p_value_type swig_types[121]
+#define SWIGTYPE_p_vertex_storage swig_types[122]
+#define SWIGTYPE_ptrdiff_t swig_types[123]
+#define SWIGTYPE_size_t swig_types[124]
+#define SWIGTYPE_std__ptrdiff_t swig_types[125]
+#define SWIGTYPE_std__size_t swig_types[126]
+static swig_type_info *swig_types[127];
+static swig_module_info swig_module = {swig_types, 127, 0, 0, 0, 0};
 #define SWIG_TypeQuery(name) SWIG_TypeQueryModule(&swig_module, &swig_module, name)
 #define SWIG_MangledTypeQuery(name) SWIG_MangledTypeQueryModule(&swig_module, &swig_module, name)
 
@@ -1522,6 +1538,8 @@ static swig_module_info swig_module = {swig_types, 111, 0, 0, 0, 0};
 #include "agg_renderer_base.h"
 #include "agg_math_stroke.h"
 #include "agg_conv_stroke.h"
+#include "agg_conv_transform.h"
+#include "agg_conv_curve.h"
 #include "agg_vcgen_stroke.h"  
 #include "agg_rasterizer_scanline_aa.h"
 #include "agg_renderer_scanline.h"
@@ -1531,9 +1549,7 @@ static swig_module_info swig_module = {swig_types, 111, 0, 0, 0, 0};
 
 using namespace agg;
 
-typedef agg::rgba8 color_type;
-typedef agg::pixfmt_rgba32 pixel_format;  
-
+#include "agg_typedefs.h"
  
 
   /*@/usr/local/share/swig/1.3.25/python/pymacros.swg,66,SWIG_define@*/
@@ -1986,6 +2002,24 @@ SWIG_Check_bool(PyObject* obj)
 
 static void agg_row_ptr_cache_Sl_agg_int8u_Sg__attachb(agg::row_ptr_cache<agg::int8u > *self,agg::buffer *buf){
     self->attach(buf->data, buf->width, buf->height, buf->stride);
+  }
+static void agg_renderer_base_Sl_pixfmt_rgba_t_Sg__clear_rgba8(agg::renderer_base<pixfmt_rgba_t > *self,agg::rgba8 const &color){
+    self->clear(color);
+  }
+static void agg_renderer_base_Sl_pixfmt_rgba_t_Sg__clear_rgba(agg::renderer_base<pixfmt_rgba_t > *self,agg::rgba const &color){
+    self->clear(color);
+  }
+static void agg_renderer_scanline_aa_solid_Sl_renderer_base_rgba_t_Sg__color_rgba8(agg::renderer_scanline_aa_solid<renderer_base_rgba_t > *self,agg::rgba8 const &color){
+    self->color(color);
+  }
+static void agg_renderer_scanline_aa_solid_Sl_renderer_base_rgba_t_Sg__color_rgba(agg::renderer_scanline_aa_solid<renderer_base_rgba_t > *self,agg::rgba const &color){
+    self->color(color);
+  }
+static void agg_renderer_scanline_bin_solid_Sl_renderer_base_rgba_t_Sg__color_rgba8(agg::renderer_scanline_bin_solid<renderer_base_rgba_t > *self,agg::rgba8 const &color){
+    self->color(color);
+  }
+static void agg_renderer_scanline_bin_solid_Sl_renderer_base_rgba_t_Sg__color_rgba(agg::renderer_scanline_bin_solid<renderer_base_rgba_t > *self,agg::rgba const &color){
+    self->color(color);
   }
 #ifdef __cplusplus
 extern "C" {
@@ -11456,6 +11490,4757 @@ static PyObject *_wrap_stroke_theta_get(void) {
 }
 
 
+static PyObject *_wrap_delete_rendering_buffer(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::row_ptr_cache<agg::int8u > *arg1 = (agg::row_ptr_cache<agg::int8u > *) 0 ;
+    PyObject * obj0 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"O:delete_rendering_buffer",&obj0)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__row_ptr_cacheTunsigned_char_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    delete arg1;
+    
+    Py_INCREF(Py_None); resultobj = Py_None;
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_new_rendering_buffer__SWIG_0(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::row_ptr_cache<agg::int8u > *result;
+    
+    if(!PyArg_ParseTuple(args,(char *)":new_rendering_buffer")) goto fail;
+    result = (agg::row_ptr_cache<agg::int8u > *)new agg::row_ptr_cache<agg::int8u >();
+    
+    resultobj = SWIG_NewPointerObj((void*)(result), SWIGTYPE_p_agg__row_ptr_cacheTunsigned_char_t, 1);
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_new_rendering_buffer__SWIG_1(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::int8u *arg1 = (agg::int8u *) 0 ;
+    unsigned int arg2 ;
+    unsigned int arg3 ;
+    int arg4 ;
+    agg::row_ptr_cache<agg::int8u > *result;
+    PyObject * obj0 = 0 ;
+    PyObject * obj1 = 0 ;
+    PyObject * obj2 = 0 ;
+    PyObject * obj3 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"OOOO:new_rendering_buffer",&obj0,&obj1,&obj2,&obj3)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_unsigned_char, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    {
+        arg2 = (unsigned int)(SWIG_As_unsigned_SS_int(obj1)); 
+        if (SWIG_arg_fail(2)) SWIG_fail;
+    }
+    {
+        arg3 = (unsigned int)(SWIG_As_unsigned_SS_int(obj2)); 
+        if (SWIG_arg_fail(3)) SWIG_fail;
+    }
+    {
+        arg4 = (int)(SWIG_As_int(obj3)); 
+        if (SWIG_arg_fail(4)) SWIG_fail;
+    }
+    result = (agg::row_ptr_cache<agg::int8u > *)new agg::row_ptr_cache<agg::int8u >(arg1,arg2,arg3,arg4);
+    
+    resultobj = SWIG_NewPointerObj((void*)(result), SWIGTYPE_p_agg__row_ptr_cacheTunsigned_char_t, 1);
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_new_rendering_buffer(PyObject *self, PyObject *args) {
+    int argc;
+    PyObject *argv[5];
+    int ii;
+    
+    argc = PyObject_Length(args);
+    for (ii = 0; (ii < argc) && (ii < 4); ii++) {
+        argv[ii] = PyTuple_GetItem(args,ii);
+    }
+    if (argc == 0) {
+        return _wrap_new_rendering_buffer__SWIG_0(self,args);
+    }
+    if (argc == 4) {
+        int _v;
+        {
+            void *ptr;
+            if (SWIG_ConvertPtr(argv[0], &ptr, SWIGTYPE_p_unsigned_char, 0) == -1) {
+                _v = 0;
+                PyErr_Clear();
+            } else {
+                _v = 1;
+            }
+        }
+        if (_v) {
+            _v = SWIG_Check_unsigned_SS_int(argv[1]);
+            if (_v) {
+                _v = SWIG_Check_unsigned_SS_int(argv[2]);
+                if (_v) {
+                    _v = SWIG_Check_int(argv[3]);
+                    if (_v) {
+                        return _wrap_new_rendering_buffer__SWIG_1(self,args);
+                    }
+                }
+            }
+        }
+    }
+    
+    PyErr_SetString(PyExc_NotImplementedError,"No matching function for overloaded 'new_rendering_buffer'");
+    return NULL;
+}
+
+
+static PyObject *_wrap_rendering_buffer_attach(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::row_ptr_cache<agg::int8u > *arg1 = (agg::row_ptr_cache<agg::int8u > *) 0 ;
+    agg::int8u *arg2 = (agg::int8u *) 0 ;
+    unsigned int arg3 ;
+    unsigned int arg4 ;
+    int arg5 ;
+    PyObject * obj0 = 0 ;
+    PyObject * obj1 = 0 ;
+    PyObject * obj2 = 0 ;
+    PyObject * obj3 = 0 ;
+    PyObject * obj4 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"OOOOO:rendering_buffer_attach",&obj0,&obj1,&obj2,&obj3,&obj4)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__row_ptr_cacheTunsigned_char_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    SWIG_Python_ConvertPtr(obj1, (void **)&arg2, SWIGTYPE_p_unsigned_char, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(2)) SWIG_fail;
+    {
+        arg3 = (unsigned int)(SWIG_As_unsigned_SS_int(obj2)); 
+        if (SWIG_arg_fail(3)) SWIG_fail;
+    }
+    {
+        arg4 = (unsigned int)(SWIG_As_unsigned_SS_int(obj3)); 
+        if (SWIG_arg_fail(4)) SWIG_fail;
+    }
+    {
+        arg5 = (int)(SWIG_As_int(obj4)); 
+        if (SWIG_arg_fail(5)) SWIG_fail;
+    }
+    (arg1)->attach(arg2,arg3,arg4,arg5);
+    
+    Py_INCREF(Py_None); resultobj = Py_None;
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_rendering_buffer_buf__SWIG_0(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::row_ptr_cache<agg::int8u > *arg1 = (agg::row_ptr_cache<agg::int8u > *) 0 ;
+    agg::int8u *result;
+    PyObject * obj0 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"O:rendering_buffer_buf",&obj0)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__row_ptr_cacheTunsigned_char_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    result = (agg::int8u *)(arg1)->buf();
+    
+    resultobj = SWIG_NewPointerObj((void*)(result), SWIGTYPE_p_unsigned_char, 0);
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_rendering_buffer_buf__SWIG_1(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::row_ptr_cache<agg::int8u > *arg1 = (agg::row_ptr_cache<agg::int8u > *) 0 ;
+    agg::int8u *result;
+    PyObject * obj0 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"O:rendering_buffer_buf",&obj0)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__row_ptr_cacheTunsigned_char_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    result = (agg::int8u *)((agg::row_ptr_cache<agg::int8u > const *)arg1)->buf();
+    
+    resultobj = SWIG_NewPointerObj((void*)(result), SWIGTYPE_p_unsigned_char, 0);
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_rendering_buffer_buf(PyObject *self, PyObject *args) {
+    int argc;
+    PyObject *argv[2];
+    int ii;
+    
+    argc = PyObject_Length(args);
+    for (ii = 0; (ii < argc) && (ii < 1); ii++) {
+        argv[ii] = PyTuple_GetItem(args,ii);
+    }
+    if (argc == 1) {
+        int _v;
+        {
+            void *ptr;
+            if (SWIG_ConvertPtr(argv[0], &ptr, SWIGTYPE_p_agg__row_ptr_cacheTunsigned_char_t, 0) == -1) {
+                _v = 0;
+                PyErr_Clear();
+            } else {
+                _v = 1;
+            }
+        }
+        if (_v) {
+            return _wrap_rendering_buffer_buf__SWIG_0(self,args);
+        }
+    }
+    if (argc == 1) {
+        int _v;
+        {
+            void *ptr;
+            if (SWIG_ConvertPtr(argv[0], &ptr, SWIGTYPE_p_agg__row_ptr_cacheTunsigned_char_t, 0) == -1) {
+                _v = 0;
+                PyErr_Clear();
+            } else {
+                _v = 1;
+            }
+        }
+        if (_v) {
+            return _wrap_rendering_buffer_buf__SWIG_1(self,args);
+        }
+    }
+    
+    PyErr_SetString(PyExc_NotImplementedError,"No matching function for overloaded 'rendering_buffer_buf'");
+    return NULL;
+}
+
+
+static PyObject *_wrap_rendering_buffer_width(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::row_ptr_cache<agg::int8u > *arg1 = (agg::row_ptr_cache<agg::int8u > *) 0 ;
+    unsigned int result;
+    PyObject * obj0 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"O:rendering_buffer_width",&obj0)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__row_ptr_cacheTunsigned_char_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    result = (unsigned int)((agg::row_ptr_cache<agg::int8u > const *)arg1)->width();
+    
+    {
+        resultobj = SWIG_From_unsigned_SS_int((unsigned int)(result)); 
+    }
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_rendering_buffer_height(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::row_ptr_cache<agg::int8u > *arg1 = (agg::row_ptr_cache<agg::int8u > *) 0 ;
+    unsigned int result;
+    PyObject * obj0 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"O:rendering_buffer_height",&obj0)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__row_ptr_cacheTunsigned_char_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    result = (unsigned int)((agg::row_ptr_cache<agg::int8u > const *)arg1)->height();
+    
+    {
+        resultobj = SWIG_From_unsigned_SS_int((unsigned int)(result)); 
+    }
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_rendering_buffer_stride(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::row_ptr_cache<agg::int8u > *arg1 = (agg::row_ptr_cache<agg::int8u > *) 0 ;
+    int result;
+    PyObject * obj0 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"O:rendering_buffer_stride",&obj0)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__row_ptr_cacheTunsigned_char_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    result = (int)((agg::row_ptr_cache<agg::int8u > const *)arg1)->stride();
+    
+    {
+        resultobj = SWIG_From_int((int)(result)); 
+    }
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_rendering_buffer_stride_abs(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::row_ptr_cache<agg::int8u > *arg1 = (agg::row_ptr_cache<agg::int8u > *) 0 ;
+    unsigned int result;
+    PyObject * obj0 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"O:rendering_buffer_stride_abs",&obj0)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__row_ptr_cacheTunsigned_char_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    result = (unsigned int)((agg::row_ptr_cache<agg::int8u > const *)arg1)->stride_abs();
+    
+    {
+        resultobj = SWIG_From_unsigned_SS_int((unsigned int)(result)); 
+    }
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_rendering_buffer_row__SWIG_0(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::row_ptr_cache<agg::int8u > *arg1 = (agg::row_ptr_cache<agg::int8u > *) 0 ;
+    unsigned int arg2 ;
+    agg::int8u *result;
+    PyObject * obj0 = 0 ;
+    PyObject * obj1 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"OO:rendering_buffer_row",&obj0,&obj1)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__row_ptr_cacheTunsigned_char_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    {
+        arg2 = (unsigned int)(SWIG_As_unsigned_SS_int(obj1)); 
+        if (SWIG_arg_fail(2)) SWIG_fail;
+    }
+    result = (agg::int8u *)(arg1)->row(arg2);
+    
+    resultobj = SWIG_NewPointerObj((void*)(result), SWIGTYPE_p_unsigned_char, 0);
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_rendering_buffer_row__SWIG_1(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::row_ptr_cache<agg::int8u > *arg1 = (agg::row_ptr_cache<agg::int8u > *) 0 ;
+    unsigned int arg2 ;
+    agg::int8u *result;
+    PyObject * obj0 = 0 ;
+    PyObject * obj1 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"OO:rendering_buffer_row",&obj0,&obj1)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__row_ptr_cacheTunsigned_char_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    {
+        arg2 = (unsigned int)(SWIG_As_unsigned_SS_int(obj1)); 
+        if (SWIG_arg_fail(2)) SWIG_fail;
+    }
+    result = (agg::int8u *)((agg::row_ptr_cache<agg::int8u > const *)arg1)->row(arg2);
+    
+    resultobj = SWIG_NewPointerObj((void*)(result), SWIGTYPE_p_unsigned_char, 0);
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_rendering_buffer_row(PyObject *self, PyObject *args) {
+    int argc;
+    PyObject *argv[3];
+    int ii;
+    
+    argc = PyObject_Length(args);
+    for (ii = 0; (ii < argc) && (ii < 2); ii++) {
+        argv[ii] = PyTuple_GetItem(args,ii);
+    }
+    if (argc == 2) {
+        int _v;
+        {
+            void *ptr;
+            if (SWIG_ConvertPtr(argv[0], &ptr, SWIGTYPE_p_agg__row_ptr_cacheTunsigned_char_t, 0) == -1) {
+                _v = 0;
+                PyErr_Clear();
+            } else {
+                _v = 1;
+            }
+        }
+        if (_v) {
+            _v = SWIG_Check_unsigned_SS_int(argv[1]);
+            if (_v) {
+                return _wrap_rendering_buffer_row__SWIG_0(self,args);
+            }
+        }
+    }
+    if (argc == 2) {
+        int _v;
+        {
+            void *ptr;
+            if (SWIG_ConvertPtr(argv[0], &ptr, SWIGTYPE_p_agg__row_ptr_cacheTunsigned_char_t, 0) == -1) {
+                _v = 0;
+                PyErr_Clear();
+            } else {
+                _v = 1;
+            }
+        }
+        if (_v) {
+            _v = SWIG_Check_unsigned_SS_int(argv[1]);
+            if (_v) {
+                return _wrap_rendering_buffer_row__SWIG_1(self,args);
+            }
+        }
+    }
+    
+    PyErr_SetString(PyExc_NotImplementedError,"No matching function for overloaded 'rendering_buffer_row'");
+    return NULL;
+}
+
+
+static PyObject *_wrap_rendering_buffer_next_row__SWIG_0(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::row_ptr_cache<agg::int8u > *arg1 = (agg::row_ptr_cache<agg::int8u > *) 0 ;
+    void *arg2 = (void *) 0 ;
+    agg::int8u *result;
+    PyObject * obj0 = 0 ;
+    PyObject * obj1 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"OO:rendering_buffer_next_row",&obj0,&obj1)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__row_ptr_cacheTunsigned_char_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    {
+        if ((SWIG_ConvertPtr(obj1,(void **)(&arg2),0,SWIG_POINTER_EXCEPTION|0))== -1) {
+            SWIG_arg_fail(2);SWIG_fail;
+        }
+    }
+    result = (agg::int8u *)(arg1)->next_row(arg2);
+    
+    resultobj = SWIG_NewPointerObj((void*)(result), SWIGTYPE_p_unsigned_char, 0);
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_rendering_buffer_next_row__SWIG_1(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::row_ptr_cache<agg::int8u > *arg1 = (agg::row_ptr_cache<agg::int8u > *) 0 ;
+    void *arg2 = (void *) 0 ;
+    agg::int8u *result;
+    PyObject * obj0 = 0 ;
+    PyObject * obj1 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"OO:rendering_buffer_next_row",&obj0,&obj1)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__row_ptr_cacheTunsigned_char_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    {
+        if ((SWIG_ConvertPtr(obj1,(void **)(&arg2),0,SWIG_POINTER_EXCEPTION|0))== -1) {
+            SWIG_arg_fail(2);SWIG_fail;
+        }
+    }
+    result = (agg::int8u *)((agg::row_ptr_cache<agg::int8u > const *)arg1)->next_row((void const *)arg2);
+    
+    resultobj = SWIG_NewPointerObj((void*)(result), SWIGTYPE_p_unsigned_char, 0);
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_rendering_buffer_next_row(PyObject *self, PyObject *args) {
+    int argc;
+    PyObject *argv[3];
+    int ii;
+    
+    argc = PyObject_Length(args);
+    for (ii = 0; (ii < argc) && (ii < 2); ii++) {
+        argv[ii] = PyTuple_GetItem(args,ii);
+    }
+    if (argc == 2) {
+        int _v;
+        {
+            void *ptr;
+            if (SWIG_ConvertPtr(argv[0], &ptr, SWIGTYPE_p_agg__row_ptr_cacheTunsigned_char_t, 0) == -1) {
+                _v = 0;
+                PyErr_Clear();
+            } else {
+                _v = 1;
+            }
+        }
+        if (_v) {
+            {
+                void *ptr;
+                if (SWIG_ConvertPtr(argv[1], &ptr, 0, 0) == -1) {
+                    _v = 0;
+                    PyErr_Clear();
+                } else {
+                    _v = 1;
+                }
+            }
+            if (_v) {
+                return _wrap_rendering_buffer_next_row__SWIG_0(self,args);
+            }
+        }
+    }
+    if (argc == 2) {
+        int _v;
+        {
+            void *ptr;
+            if (SWIG_ConvertPtr(argv[0], &ptr, SWIGTYPE_p_agg__row_ptr_cacheTunsigned_char_t, 0) == -1) {
+                _v = 0;
+                PyErr_Clear();
+            } else {
+                _v = 1;
+            }
+        }
+        if (_v) {
+            {
+                void *ptr;
+                if (SWIG_ConvertPtr(argv[1], &ptr, 0, 0) == -1) {
+                    _v = 0;
+                    PyErr_Clear();
+                } else {
+                    _v = 1;
+                }
+            }
+            if (_v) {
+                return _wrap_rendering_buffer_next_row__SWIG_1(self,args);
+            }
+        }
+    }
+    
+    PyErr_SetString(PyExc_NotImplementedError,"No matching function for overloaded 'rendering_buffer_next_row'");
+    return NULL;
+}
+
+
+static PyObject *_wrap_rendering_buffer_rows(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::row_ptr_cache<agg::int8u > *arg1 = (agg::row_ptr_cache<agg::int8u > *) 0 ;
+    agg::int8u **result;
+    PyObject * obj0 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"O:rendering_buffer_rows",&obj0)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__row_ptr_cacheTunsigned_char_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    result = (agg::int8u **)((agg::row_ptr_cache<agg::int8u > const *)arg1)->rows();
+    
+    resultobj = SWIG_NewPointerObj((void*)(result), SWIGTYPE_p_p_unsigned_char, 0);
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_rendering_buffer_copy_from(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::row_ptr_cache<agg::int8u > *arg1 = (agg::row_ptr_cache<agg::int8u > *) 0 ;
+    agg::row_ptr_cache<agg::int8u > *arg2 = 0 ;
+    PyObject * obj0 = 0 ;
+    PyObject * obj1 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"OO:rendering_buffer_copy_from",&obj0,&obj1)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__row_ptr_cacheTunsigned_char_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    {
+        SWIG_Python_ConvertPtr(obj1, (void **)&arg2, SWIGTYPE_p_agg__row_ptr_cacheTunsigned_char_t, SWIG_POINTER_EXCEPTION | 0);
+        if (SWIG_arg_fail(2)) SWIG_fail;
+        if (arg2 == NULL) {
+            SWIG_null_ref("agg::row_ptr_cache<agg::int8u >");
+        }
+        if (SWIG_arg_fail(2)) SWIG_fail;
+    }
+    (arg1)->copy_from((agg::row_ptr_cache<unsigned char > const &)*arg2);
+    
+    Py_INCREF(Py_None); resultobj = Py_None;
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_rendering_buffer_clear(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::row_ptr_cache<agg::int8u > *arg1 = (agg::row_ptr_cache<agg::int8u > *) 0 ;
+    agg::int8u arg2 ;
+    PyObject * obj0 = 0 ;
+    PyObject * obj1 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"OO:rendering_buffer_clear",&obj0,&obj1)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__row_ptr_cacheTunsigned_char_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    {
+        arg2 = (agg::int8u)(SWIG_As_unsigned_SS_char(obj1)); 
+        if (SWIG_arg_fail(2)) SWIG_fail;
+    }
+    (arg1)->clear(arg2);
+    
+    Py_INCREF(Py_None); resultobj = Py_None;
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_rendering_buffer_attachb(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::row_ptr_cache<agg::int8u > *arg1 = (agg::row_ptr_cache<agg::int8u > *) 0 ;
+    agg::buffer *arg2 = (agg::buffer *) 0 ;
+    PyObject * obj0 = 0 ;
+    PyObject * obj1 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"OO:rendering_buffer_attachb",&obj0,&obj1)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__row_ptr_cacheTunsigned_char_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    SWIG_Python_ConvertPtr(obj1, (void **)&arg2, SWIGTYPE_p_agg__buffer, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(2)) SWIG_fail;
+    agg_row_ptr_cache_Sl_agg_int8u_Sg__attachb(arg1,arg2);
+    
+    Py_INCREF(Py_None); resultobj = Py_None;
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject * rendering_buffer_swigregister(PyObject *, PyObject *args) {
+    PyObject *obj;
+    if (!PyArg_ParseTuple(args,(char*)"O", &obj)) return NULL;
+    SWIG_TypeClientData(SWIGTYPE_p_agg__row_ptr_cacheTunsigned_char_t, obj);
+    Py_INCREF(obj);
+    return Py_BuildValue((char *)"");
+}
+static PyObject *_wrap_pixel64_type_c_set(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::pixel64_type *arg1 = (agg::pixel64_type *) 0 ;
+    agg::int16u *arg2 ;
+    PyObject * obj0 = 0 ;
+    PyObject * obj1 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"OO:pixel64_type_c_set",&obj0,&obj1)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__pixel64_type, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    SWIG_Python_ConvertPtr(obj1, (void **)&arg2, SWIGTYPE_p_unsigned_short, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(2)) SWIG_fail;
+    {
+        agg::int16u *inp = (agg::int16u *)(arg2);
+        if (inp) {
+            agg::int16u *dest = (agg::int16u *)(arg1->c);
+            size_t ii = 0;
+            for (; ii < 4; ++ii) dest[ii] = inp[ii];
+        } else {
+            SWIG_null_ref("agg::int16u");
+        }
+    }
+    Py_INCREF(Py_None); resultobj = Py_None;
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_pixel64_type_c_get(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::pixel64_type *arg1 = (agg::pixel64_type *) 0 ;
+    agg::int16u *result;
+    PyObject * obj0 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"O:pixel64_type_c_get",&obj0)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__pixel64_type, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    result = (agg::int16u *)(agg::int16u *) ((arg1)->c);
+    
+    resultobj = SWIG_NewPointerObj((void*)(result), SWIGTYPE_p_unsigned_short, 0);
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_new_pixel64_type(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::pixel64_type *result;
+    
+    if(!PyArg_ParseTuple(args,(char *)":new_pixel64_type")) goto fail;
+    result = (agg::pixel64_type *)new agg::pixel64_type();
+    
+    resultobj = SWIG_NewPointerObj((void*)(result), SWIGTYPE_p_agg__pixel64_type, 1);
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_delete_pixel64_type(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::pixel64_type *arg1 = (agg::pixel64_type *) 0 ;
+    PyObject * obj0 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"O:delete_pixel64_type",&obj0)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__pixel64_type, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    delete arg1;
+    
+    Py_INCREF(Py_None); resultobj = Py_None;
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject * pixel64_type_swigregister(PyObject *, PyObject *args) {
+    PyObject *obj;
+    if (!PyArg_ParseTuple(args,(char*)"O", &obj)) return NULL;
+    SWIG_TypeClientData(SWIGTYPE_p_agg__pixel64_type, obj);
+    Py_INCREF(obj);
+    return Py_BuildValue((char *)"");
+}
+static PyObject *_wrap_new_pixel_format_rgba(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::rendering_buffer *arg1 = 0 ;
+    agg::pixel_formats_rgba<agg::blender_rgba32,agg::pixel32_type > *result;
+    PyObject * obj0 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"O:new_pixel_format_rgba",&obj0)) goto fail;
+    {
+        SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__row_ptr_cacheTunsigned_char_t, SWIG_POINTER_EXCEPTION | 0);
+        if (SWIG_arg_fail(1)) SWIG_fail;
+        if (arg1 == NULL) {
+            SWIG_null_ref("agg::rendering_buffer");
+        }
+        if (SWIG_arg_fail(1)) SWIG_fail;
+    }
+    result = (agg::pixel_formats_rgba<agg::blender_rgba32,agg::pixel32_type > *)new agg::pixel_formats_rgba<agg::blender_rgba32,agg::pixel32_type >(*arg1);
+    
+    resultobj = SWIG_NewPointerObj((void*)(result), SWIGTYPE_p_agg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t, 1);
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_pixel_format_rgba_width(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::pixel_formats_rgba<agg::blender_rgba32,agg::pixel32_type > *arg1 = (agg::pixel_formats_rgba<agg::blender_rgba32,agg::pixel32_type > *) 0 ;
+    unsigned int result;
+    PyObject * obj0 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"O:pixel_format_rgba_width",&obj0)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    result = (unsigned int)((agg::pixel_formats_rgba<agg::blender_rgba32,agg::pixel32_type > const *)arg1)->width();
+    
+    {
+        resultobj = SWIG_From_unsigned_SS_int((unsigned int)(result)); 
+    }
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_pixel_format_rgba_height(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::pixel_formats_rgba<agg::blender_rgba32,agg::pixel32_type > *arg1 = (agg::pixel_formats_rgba<agg::blender_rgba32,agg::pixel32_type > *) 0 ;
+    unsigned int result;
+    PyObject * obj0 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"O:pixel_format_rgba_height",&obj0)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    result = (unsigned int)((agg::pixel_formats_rgba<agg::blender_rgba32,agg::pixel32_type > const *)arg1)->height();
+    
+    {
+        resultobj = SWIG_From_unsigned_SS_int((unsigned int)(result)); 
+    }
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_pixel_format_rgba_pixel(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::pixel_formats_rgba<agg::blender_rgba32,agg::pixel32_type > *arg1 = (agg::pixel_formats_rgba<agg::blender_rgba32,agg::pixel32_type > *) 0 ;
+    int arg2 ;
+    int arg3 ;
+    SwigValueWrapper<agg::pixel_formats_rgba<agg::blender_rgba<agg::rgba8,agg::order_rgba >,unsigned int >::blender_type::color_type > result;
+    PyObject * obj0 = 0 ;
+    PyObject * obj1 = 0 ;
+    PyObject * obj2 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"OOO:pixel_format_rgba_pixel",&obj0,&obj1,&obj2)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    {
+        arg2 = (int)(SWIG_As_int(obj1)); 
+        if (SWIG_arg_fail(2)) SWIG_fail;
+    }
+    {
+        arg3 = (int)(SWIG_As_int(obj2)); 
+        if (SWIG_arg_fail(3)) SWIG_fail;
+    }
+    result = ((agg::pixel_formats_rgba<agg::blender_rgba32,agg::pixel32_type > const *)arg1)->pixel(arg2,arg3);
+    
+    {
+        agg::pixel_formats_rgba<agg::blender_rgba<agg::rgba8,agg::order_rgba >,unsigned int >::color_type * resultptr;
+        resultptr = new agg::pixel_formats_rgba<agg::blender_rgba<agg::rgba8,agg::order_rgba >,unsigned int >::color_type((agg::pixel_formats_rgba<agg::blender_rgba<agg::rgba8,agg::order_rgba >,unsigned int >::color_type &)(result));
+        resultobj = SWIG_NewPointerObj((void *)(resultptr), SWIGTYPE_p_agg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t__blender_type__color_type, 1);
+    }
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_pixel_format_rgba_row(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::pixel_formats_rgba<agg::blender_rgba32,agg::pixel32_type > *arg1 = (agg::pixel_formats_rgba<agg::blender_rgba32,agg::pixel32_type > *) 0 ;
+    int arg2 ;
+    int arg3 ;
+    agg::pixel_formats_rgba<agg::blender_rgba<agg::rgba8,agg::order_rgba >,unsigned int >::row_data result;
+    PyObject * obj0 = 0 ;
+    PyObject * obj1 = 0 ;
+    PyObject * obj2 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"OOO:pixel_format_rgba_row",&obj0,&obj1,&obj2)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    {
+        arg2 = (int)(SWIG_As_int(obj1)); 
+        if (SWIG_arg_fail(2)) SWIG_fail;
+    }
+    {
+        arg3 = (int)(SWIG_As_int(obj2)); 
+        if (SWIG_arg_fail(3)) SWIG_fail;
+    }
+    result = ((agg::pixel_formats_rgba<agg::blender_rgba32,agg::pixel32_type > const *)arg1)->row(arg2,arg3);
+    
+    {
+        agg::pixel_formats_rgba<agg::blender_rgba<agg::rgba8,agg::order_rgba >,unsigned int >::row_data * resultptr;
+        resultptr = new agg::pixel_formats_rgba<agg::blender_rgba<agg::rgba8,agg::order_rgba >,unsigned int >::row_data((agg::pixel_formats_rgba<agg::blender_rgba<agg::rgba8,agg::order_rgba >,unsigned int >::row_data &)(result));
+        resultobj = SWIG_NewPointerObj((void *)(resultptr), SWIGTYPE_p_agg__rendering_buffer__row_data, 1);
+    }
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_pixel_format_rgba_span(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::pixel_formats_rgba<agg::blender_rgba32,agg::pixel32_type > *arg1 = (agg::pixel_formats_rgba<agg::blender_rgba32,agg::pixel32_type > *) 0 ;
+    int arg2 ;
+    int arg3 ;
+    unsigned int arg4 ;
+    agg::pixel_formats_rgba<agg::blender_rgba<agg::rgba8,agg::order_rgba >,unsigned int >::span_data result;
+    PyObject * obj0 = 0 ;
+    PyObject * obj1 = 0 ;
+    PyObject * obj2 = 0 ;
+    PyObject * obj3 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"OOOO:pixel_format_rgba_span",&obj0,&obj1,&obj2,&obj3)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    {
+        arg2 = (int)(SWIG_As_int(obj1)); 
+        if (SWIG_arg_fail(2)) SWIG_fail;
+    }
+    {
+        arg3 = (int)(SWIG_As_int(obj2)); 
+        if (SWIG_arg_fail(3)) SWIG_fail;
+    }
+    {
+        arg4 = (unsigned int)(SWIG_As_unsigned_SS_int(obj3)); 
+        if (SWIG_arg_fail(4)) SWIG_fail;
+    }
+    result = (arg1)->span(arg2,arg3,arg4);
+    
+    {
+        agg::pixel_formats_rgba<agg::blender_rgba<agg::rgba8,agg::order_rgba >,unsigned int >::span_data * resultptr;
+        resultptr = new agg::pixel_formats_rgba<agg::blender_rgba<agg::rgba8,agg::order_rgba >,unsigned int >::span_data((agg::pixel_formats_rgba<agg::blender_rgba<agg::rgba8,agg::order_rgba >,unsigned int >::span_data &)(result));
+        resultobj = SWIG_NewPointerObj((void *)(resultptr), SWIGTYPE_p_agg__rendering_buffer__span_data, 1);
+    }
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_pixel_format_rgba_copy_pixel(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::pixel_formats_rgba<agg::blender_rgba32,agg::pixel32_type > *arg1 = (agg::pixel_formats_rgba<agg::blender_rgba32,agg::pixel32_type > *) 0 ;
+    int arg2 ;
+    int arg3 ;
+    agg::pixel_formats_rgba<agg::blender_rgba<agg::rgba8,agg::order_rgba >,unsigned int >::color_type *arg4 = 0 ;
+    PyObject * obj0 = 0 ;
+    PyObject * obj1 = 0 ;
+    PyObject * obj2 = 0 ;
+    PyObject * obj3 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"OOOO:pixel_format_rgba_copy_pixel",&obj0,&obj1,&obj2,&obj3)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    {
+        arg2 = (int)(SWIG_As_int(obj1)); 
+        if (SWIG_arg_fail(2)) SWIG_fail;
+    }
+    {
+        arg3 = (int)(SWIG_As_int(obj2)); 
+        if (SWIG_arg_fail(3)) SWIG_fail;
+    }
+    {
+        SWIG_Python_ConvertPtr(obj3, (void **)&arg4, SWIGTYPE_p_agg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t__blender_type__color_type, SWIG_POINTER_EXCEPTION | 0);
+        if (SWIG_arg_fail(4)) SWIG_fail;
+        if (arg4 == NULL) {
+            SWIG_null_ref("agg::pixel_formats_rgba<agg::blender_rgba<agg::rgba8,agg::order_rgba >,unsigned int >::color_type");
+        }
+        if (SWIG_arg_fail(4)) SWIG_fail;
+    }
+    (arg1)->copy_pixel(arg2,arg3,(agg::pixel_formats_rgba<agg::blender_rgba<agg::rgba8,agg::order_rgba >,unsigned int >::blender_type::color_type const &)*arg4);
+    
+    Py_INCREF(Py_None); resultobj = Py_None;
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_pixel_format_rgba_blend_pixel(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::pixel_formats_rgba<agg::blender_rgba32,agg::pixel32_type > *arg1 = (agg::pixel_formats_rgba<agg::blender_rgba32,agg::pixel32_type > *) 0 ;
+    int arg2 ;
+    int arg3 ;
+    agg::pixel_formats_rgba<agg::blender_rgba<agg::rgba8,agg::order_rgba >,unsigned int >::color_type *arg4 = 0 ;
+    agg::int8u arg5 ;
+    PyObject * obj0 = 0 ;
+    PyObject * obj1 = 0 ;
+    PyObject * obj2 = 0 ;
+    PyObject * obj3 = 0 ;
+    PyObject * obj4 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"OOOOO:pixel_format_rgba_blend_pixel",&obj0,&obj1,&obj2,&obj3,&obj4)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    {
+        arg2 = (int)(SWIG_As_int(obj1)); 
+        if (SWIG_arg_fail(2)) SWIG_fail;
+    }
+    {
+        arg3 = (int)(SWIG_As_int(obj2)); 
+        if (SWIG_arg_fail(3)) SWIG_fail;
+    }
+    {
+        SWIG_Python_ConvertPtr(obj3, (void **)&arg4, SWIGTYPE_p_agg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t__blender_type__color_type, SWIG_POINTER_EXCEPTION | 0);
+        if (SWIG_arg_fail(4)) SWIG_fail;
+        if (arg4 == NULL) {
+            SWIG_null_ref("agg::pixel_formats_rgba<agg::blender_rgba<agg::rgba8,agg::order_rgba >,unsigned int >::color_type");
+        }
+        if (SWIG_arg_fail(4)) SWIG_fail;
+    }
+    {
+        arg5 = (agg::int8u)(SWIG_As_unsigned_SS_char(obj4)); 
+        if (SWIG_arg_fail(5)) SWIG_fail;
+    }
+    (arg1)->blend_pixel(arg2,arg3,(agg::pixel_formats_rgba<agg::blender_rgba<agg::rgba8,agg::order_rgba >,unsigned int >::blender_type::color_type const &)*arg4,arg5);
+    
+    Py_INCREF(Py_None); resultobj = Py_None;
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_pixel_format_rgba_copy_hline(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::pixel_formats_rgba<agg::blender_rgba32,agg::pixel32_type > *arg1 = (agg::pixel_formats_rgba<agg::blender_rgba32,agg::pixel32_type > *) 0 ;
+    int arg2 ;
+    int arg3 ;
+    unsigned int arg4 ;
+    agg::pixel_formats_rgba<agg::blender_rgba<agg::rgba8,agg::order_rgba >,unsigned int >::color_type *arg5 = 0 ;
+    PyObject * obj0 = 0 ;
+    PyObject * obj1 = 0 ;
+    PyObject * obj2 = 0 ;
+    PyObject * obj3 = 0 ;
+    PyObject * obj4 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"OOOOO:pixel_format_rgba_copy_hline",&obj0,&obj1,&obj2,&obj3,&obj4)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    {
+        arg2 = (int)(SWIG_As_int(obj1)); 
+        if (SWIG_arg_fail(2)) SWIG_fail;
+    }
+    {
+        arg3 = (int)(SWIG_As_int(obj2)); 
+        if (SWIG_arg_fail(3)) SWIG_fail;
+    }
+    {
+        arg4 = (unsigned int)(SWIG_As_unsigned_SS_int(obj3)); 
+        if (SWIG_arg_fail(4)) SWIG_fail;
+    }
+    {
+        SWIG_Python_ConvertPtr(obj4, (void **)&arg5, SWIGTYPE_p_agg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t__blender_type__color_type, SWIG_POINTER_EXCEPTION | 0);
+        if (SWIG_arg_fail(5)) SWIG_fail;
+        if (arg5 == NULL) {
+            SWIG_null_ref("agg::pixel_formats_rgba<agg::blender_rgba<agg::rgba8,agg::order_rgba >,unsigned int >::color_type");
+        }
+        if (SWIG_arg_fail(5)) SWIG_fail;
+    }
+    (arg1)->copy_hline(arg2,arg3,arg4,(agg::pixel_formats_rgba<agg::blender_rgba<agg::rgba8,agg::order_rgba >,unsigned int >::blender_type::color_type const &)*arg5);
+    
+    Py_INCREF(Py_None); resultobj = Py_None;
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_pixel_format_rgba_copy_vline(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::pixel_formats_rgba<agg::blender_rgba32,agg::pixel32_type > *arg1 = (agg::pixel_formats_rgba<agg::blender_rgba32,agg::pixel32_type > *) 0 ;
+    int arg2 ;
+    int arg3 ;
+    unsigned int arg4 ;
+    agg::pixel_formats_rgba<agg::blender_rgba<agg::rgba8,agg::order_rgba >,unsigned int >::color_type *arg5 = 0 ;
+    PyObject * obj0 = 0 ;
+    PyObject * obj1 = 0 ;
+    PyObject * obj2 = 0 ;
+    PyObject * obj3 = 0 ;
+    PyObject * obj4 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"OOOOO:pixel_format_rgba_copy_vline",&obj0,&obj1,&obj2,&obj3,&obj4)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    {
+        arg2 = (int)(SWIG_As_int(obj1)); 
+        if (SWIG_arg_fail(2)) SWIG_fail;
+    }
+    {
+        arg3 = (int)(SWIG_As_int(obj2)); 
+        if (SWIG_arg_fail(3)) SWIG_fail;
+    }
+    {
+        arg4 = (unsigned int)(SWIG_As_unsigned_SS_int(obj3)); 
+        if (SWIG_arg_fail(4)) SWIG_fail;
+    }
+    {
+        SWIG_Python_ConvertPtr(obj4, (void **)&arg5, SWIGTYPE_p_agg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t__blender_type__color_type, SWIG_POINTER_EXCEPTION | 0);
+        if (SWIG_arg_fail(5)) SWIG_fail;
+        if (arg5 == NULL) {
+            SWIG_null_ref("agg::pixel_formats_rgba<agg::blender_rgba<agg::rgba8,agg::order_rgba >,unsigned int >::color_type");
+        }
+        if (SWIG_arg_fail(5)) SWIG_fail;
+    }
+    (arg1)->copy_vline(arg2,arg3,arg4,(agg::pixel_formats_rgba<agg::blender_rgba<agg::rgba8,agg::order_rgba >,unsigned int >::blender_type::color_type const &)*arg5);
+    
+    Py_INCREF(Py_None); resultobj = Py_None;
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_pixel_format_rgba_blend_hline(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::pixel_formats_rgba<agg::blender_rgba32,agg::pixel32_type > *arg1 = (agg::pixel_formats_rgba<agg::blender_rgba32,agg::pixel32_type > *) 0 ;
+    int arg2 ;
+    int arg3 ;
+    unsigned int arg4 ;
+    agg::pixel_formats_rgba<agg::blender_rgba<agg::rgba8,agg::order_rgba >,unsigned int >::color_type *arg5 = 0 ;
+    agg::int8u arg6 ;
+    PyObject * obj0 = 0 ;
+    PyObject * obj1 = 0 ;
+    PyObject * obj2 = 0 ;
+    PyObject * obj3 = 0 ;
+    PyObject * obj4 = 0 ;
+    PyObject * obj5 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"OOOOOO:pixel_format_rgba_blend_hline",&obj0,&obj1,&obj2,&obj3,&obj4,&obj5)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    {
+        arg2 = (int)(SWIG_As_int(obj1)); 
+        if (SWIG_arg_fail(2)) SWIG_fail;
+    }
+    {
+        arg3 = (int)(SWIG_As_int(obj2)); 
+        if (SWIG_arg_fail(3)) SWIG_fail;
+    }
+    {
+        arg4 = (unsigned int)(SWIG_As_unsigned_SS_int(obj3)); 
+        if (SWIG_arg_fail(4)) SWIG_fail;
+    }
+    {
+        SWIG_Python_ConvertPtr(obj4, (void **)&arg5, SWIGTYPE_p_agg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t__blender_type__color_type, SWIG_POINTER_EXCEPTION | 0);
+        if (SWIG_arg_fail(5)) SWIG_fail;
+        if (arg5 == NULL) {
+            SWIG_null_ref("agg::pixel_formats_rgba<agg::blender_rgba<agg::rgba8,agg::order_rgba >,unsigned int >::color_type");
+        }
+        if (SWIG_arg_fail(5)) SWIG_fail;
+    }
+    {
+        arg6 = (agg::int8u)(SWIG_As_unsigned_SS_char(obj5)); 
+        if (SWIG_arg_fail(6)) SWIG_fail;
+    }
+    (arg1)->blend_hline(arg2,arg3,arg4,(agg::pixel_formats_rgba<agg::blender_rgba<agg::rgba8,agg::order_rgba >,unsigned int >::blender_type::color_type const &)*arg5,arg6);
+    
+    Py_INCREF(Py_None); resultobj = Py_None;
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_pixel_format_rgba_blend_vline(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::pixel_formats_rgba<agg::blender_rgba32,agg::pixel32_type > *arg1 = (agg::pixel_formats_rgba<agg::blender_rgba32,agg::pixel32_type > *) 0 ;
+    int arg2 ;
+    int arg3 ;
+    unsigned int arg4 ;
+    agg::pixel_formats_rgba<agg::blender_rgba<agg::rgba8,agg::order_rgba >,unsigned int >::color_type *arg5 = 0 ;
+    agg::int8u arg6 ;
+    PyObject * obj0 = 0 ;
+    PyObject * obj1 = 0 ;
+    PyObject * obj2 = 0 ;
+    PyObject * obj3 = 0 ;
+    PyObject * obj4 = 0 ;
+    PyObject * obj5 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"OOOOOO:pixel_format_rgba_blend_vline",&obj0,&obj1,&obj2,&obj3,&obj4,&obj5)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    {
+        arg2 = (int)(SWIG_As_int(obj1)); 
+        if (SWIG_arg_fail(2)) SWIG_fail;
+    }
+    {
+        arg3 = (int)(SWIG_As_int(obj2)); 
+        if (SWIG_arg_fail(3)) SWIG_fail;
+    }
+    {
+        arg4 = (unsigned int)(SWIG_As_unsigned_SS_int(obj3)); 
+        if (SWIG_arg_fail(4)) SWIG_fail;
+    }
+    {
+        SWIG_Python_ConvertPtr(obj4, (void **)&arg5, SWIGTYPE_p_agg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t__blender_type__color_type, SWIG_POINTER_EXCEPTION | 0);
+        if (SWIG_arg_fail(5)) SWIG_fail;
+        if (arg5 == NULL) {
+            SWIG_null_ref("agg::pixel_formats_rgba<agg::blender_rgba<agg::rgba8,agg::order_rgba >,unsigned int >::color_type");
+        }
+        if (SWIG_arg_fail(5)) SWIG_fail;
+    }
+    {
+        arg6 = (agg::int8u)(SWIG_As_unsigned_SS_char(obj5)); 
+        if (SWIG_arg_fail(6)) SWIG_fail;
+    }
+    (arg1)->blend_vline(arg2,arg3,arg4,(agg::pixel_formats_rgba<agg::blender_rgba<agg::rgba8,agg::order_rgba >,unsigned int >::blender_type::color_type const &)*arg5,arg6);
+    
+    Py_INCREF(Py_None); resultobj = Py_None;
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_pixel_format_rgba_blend_solid_hspan(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::pixel_formats_rgba<agg::blender_rgba32,agg::pixel32_type > *arg1 = (agg::pixel_formats_rgba<agg::blender_rgba32,agg::pixel32_type > *) 0 ;
+    int arg2 ;
+    int arg3 ;
+    unsigned int arg4 ;
+    agg::pixel_formats_rgba<agg::blender_rgba<agg::rgba8,agg::order_rgba >,unsigned int >::color_type *arg5 = 0 ;
+    agg::int8u *arg6 = (agg::int8u *) 0 ;
+    PyObject * obj0 = 0 ;
+    PyObject * obj1 = 0 ;
+    PyObject * obj2 = 0 ;
+    PyObject * obj3 = 0 ;
+    PyObject * obj4 = 0 ;
+    PyObject * obj5 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"OOOOOO:pixel_format_rgba_blend_solid_hspan",&obj0,&obj1,&obj2,&obj3,&obj4,&obj5)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    {
+        arg2 = (int)(SWIG_As_int(obj1)); 
+        if (SWIG_arg_fail(2)) SWIG_fail;
+    }
+    {
+        arg3 = (int)(SWIG_As_int(obj2)); 
+        if (SWIG_arg_fail(3)) SWIG_fail;
+    }
+    {
+        arg4 = (unsigned int)(SWIG_As_unsigned_SS_int(obj3)); 
+        if (SWIG_arg_fail(4)) SWIG_fail;
+    }
+    {
+        SWIG_Python_ConvertPtr(obj4, (void **)&arg5, SWIGTYPE_p_agg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t__blender_type__color_type, SWIG_POINTER_EXCEPTION | 0);
+        if (SWIG_arg_fail(5)) SWIG_fail;
+        if (arg5 == NULL) {
+            SWIG_null_ref("agg::pixel_formats_rgba<agg::blender_rgba<agg::rgba8,agg::order_rgba >,unsigned int >::color_type");
+        }
+        if (SWIG_arg_fail(5)) SWIG_fail;
+    }
+    SWIG_Python_ConvertPtr(obj5, (void **)&arg6, SWIGTYPE_p_unsigned_char, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(6)) SWIG_fail;
+    (arg1)->blend_solid_hspan(arg2,arg3,arg4,(agg::pixel_formats_rgba<agg::blender_rgba<agg::rgba8,agg::order_rgba >,unsigned int >::blender_type::color_type const &)*arg5,(agg::int8u const *)arg6);
+    
+    Py_INCREF(Py_None); resultobj = Py_None;
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_pixel_format_rgba_blend_solid_vspan(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::pixel_formats_rgba<agg::blender_rgba32,agg::pixel32_type > *arg1 = (agg::pixel_formats_rgba<agg::blender_rgba32,agg::pixel32_type > *) 0 ;
+    int arg2 ;
+    int arg3 ;
+    unsigned int arg4 ;
+    agg::pixel_formats_rgba<agg::blender_rgba<agg::rgba8,agg::order_rgba >,unsigned int >::color_type *arg5 = 0 ;
+    agg::int8u *arg6 = (agg::int8u *) 0 ;
+    PyObject * obj0 = 0 ;
+    PyObject * obj1 = 0 ;
+    PyObject * obj2 = 0 ;
+    PyObject * obj3 = 0 ;
+    PyObject * obj4 = 0 ;
+    PyObject * obj5 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"OOOOOO:pixel_format_rgba_blend_solid_vspan",&obj0,&obj1,&obj2,&obj3,&obj4,&obj5)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    {
+        arg2 = (int)(SWIG_As_int(obj1)); 
+        if (SWIG_arg_fail(2)) SWIG_fail;
+    }
+    {
+        arg3 = (int)(SWIG_As_int(obj2)); 
+        if (SWIG_arg_fail(3)) SWIG_fail;
+    }
+    {
+        arg4 = (unsigned int)(SWIG_As_unsigned_SS_int(obj3)); 
+        if (SWIG_arg_fail(4)) SWIG_fail;
+    }
+    {
+        SWIG_Python_ConvertPtr(obj4, (void **)&arg5, SWIGTYPE_p_agg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t__blender_type__color_type, SWIG_POINTER_EXCEPTION | 0);
+        if (SWIG_arg_fail(5)) SWIG_fail;
+        if (arg5 == NULL) {
+            SWIG_null_ref("agg::pixel_formats_rgba<agg::blender_rgba<agg::rgba8,agg::order_rgba >,unsigned int >::color_type");
+        }
+        if (SWIG_arg_fail(5)) SWIG_fail;
+    }
+    SWIG_Python_ConvertPtr(obj5, (void **)&arg6, SWIGTYPE_p_unsigned_char, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(6)) SWIG_fail;
+    (arg1)->blend_solid_vspan(arg2,arg3,arg4,(agg::pixel_formats_rgba<agg::blender_rgba<agg::rgba8,agg::order_rgba >,unsigned int >::blender_type::color_type const &)*arg5,(agg::int8u const *)arg6);
+    
+    Py_INCREF(Py_None); resultobj = Py_None;
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_pixel_format_rgba_copy_color_hspan(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::pixel_formats_rgba<agg::blender_rgba32,agg::pixel32_type > *arg1 = (agg::pixel_formats_rgba<agg::blender_rgba32,agg::pixel32_type > *) 0 ;
+    int arg2 ;
+    int arg3 ;
+    unsigned int arg4 ;
+    agg::pixel_formats_rgba<agg::blender_rgba<agg::rgba8,agg::order_rgba >,unsigned int >::color_type *arg5 = (agg::pixel_formats_rgba<agg::blender_rgba<agg::rgba8,agg::order_rgba >,unsigned int >::color_type *) 0 ;
+    PyObject * obj0 = 0 ;
+    PyObject * obj1 = 0 ;
+    PyObject * obj2 = 0 ;
+    PyObject * obj3 = 0 ;
+    PyObject * obj4 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"OOOOO:pixel_format_rgba_copy_color_hspan",&obj0,&obj1,&obj2,&obj3,&obj4)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    {
+        arg2 = (int)(SWIG_As_int(obj1)); 
+        if (SWIG_arg_fail(2)) SWIG_fail;
+    }
+    {
+        arg3 = (int)(SWIG_As_int(obj2)); 
+        if (SWIG_arg_fail(3)) SWIG_fail;
+    }
+    {
+        arg4 = (unsigned int)(SWIG_As_unsigned_SS_int(obj3)); 
+        if (SWIG_arg_fail(4)) SWIG_fail;
+    }
+    SWIG_Python_ConvertPtr(obj4, (void **)&arg5, SWIGTYPE_p_agg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t__blender_type__color_type, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(5)) SWIG_fail;
+    (arg1)->copy_color_hspan(arg2,arg3,arg4,(agg::pixel_formats_rgba<agg::blender_rgba<agg::rgba8,agg::order_rgba >,unsigned int >::color_type const *)arg5);
+    
+    Py_INCREF(Py_None); resultobj = Py_None;
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_pixel_format_rgba_blend_color_hspan(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::pixel_formats_rgba<agg::blender_rgba32,agg::pixel32_type > *arg1 = (agg::pixel_formats_rgba<agg::blender_rgba32,agg::pixel32_type > *) 0 ;
+    int arg2 ;
+    int arg3 ;
+    unsigned int arg4 ;
+    agg::pixel_formats_rgba<agg::blender_rgba<agg::rgba8,agg::order_rgba >,unsigned int >::color_type *arg5 = (agg::pixel_formats_rgba<agg::blender_rgba<agg::rgba8,agg::order_rgba >,unsigned int >::color_type *) 0 ;
+    agg::int8u *arg6 = (agg::int8u *) 0 ;
+    agg::int8u arg7 ;
+    PyObject * obj0 = 0 ;
+    PyObject * obj1 = 0 ;
+    PyObject * obj2 = 0 ;
+    PyObject * obj3 = 0 ;
+    PyObject * obj4 = 0 ;
+    PyObject * obj5 = 0 ;
+    PyObject * obj6 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"OOOOOOO:pixel_format_rgba_blend_color_hspan",&obj0,&obj1,&obj2,&obj3,&obj4,&obj5,&obj6)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    {
+        arg2 = (int)(SWIG_As_int(obj1)); 
+        if (SWIG_arg_fail(2)) SWIG_fail;
+    }
+    {
+        arg3 = (int)(SWIG_As_int(obj2)); 
+        if (SWIG_arg_fail(3)) SWIG_fail;
+    }
+    {
+        arg4 = (unsigned int)(SWIG_As_unsigned_SS_int(obj3)); 
+        if (SWIG_arg_fail(4)) SWIG_fail;
+    }
+    SWIG_Python_ConvertPtr(obj4, (void **)&arg5, SWIGTYPE_p_agg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t__blender_type__color_type, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(5)) SWIG_fail;
+    SWIG_Python_ConvertPtr(obj5, (void **)&arg6, SWIGTYPE_p_unsigned_char, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(6)) SWIG_fail;
+    {
+        arg7 = (agg::int8u)(SWIG_As_unsigned_SS_char(obj6)); 
+        if (SWIG_arg_fail(7)) SWIG_fail;
+    }
+    (arg1)->blend_color_hspan(arg2,arg3,arg4,(agg::pixel_formats_rgba<agg::blender_rgba<agg::rgba8,agg::order_rgba >,unsigned int >::color_type const *)arg5,(agg::int8u const *)arg6,arg7);
+    
+    Py_INCREF(Py_None); resultobj = Py_None;
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_pixel_format_rgba_blend_color_vspan(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::pixel_formats_rgba<agg::blender_rgba32,agg::pixel32_type > *arg1 = (agg::pixel_formats_rgba<agg::blender_rgba32,agg::pixel32_type > *) 0 ;
+    int arg2 ;
+    int arg3 ;
+    unsigned int arg4 ;
+    agg::pixel_formats_rgba<agg::blender_rgba<agg::rgba8,agg::order_rgba >,unsigned int >::color_type *arg5 = (agg::pixel_formats_rgba<agg::blender_rgba<agg::rgba8,agg::order_rgba >,unsigned int >::color_type *) 0 ;
+    agg::int8u *arg6 = (agg::int8u *) 0 ;
+    agg::int8u arg7 ;
+    PyObject * obj0 = 0 ;
+    PyObject * obj1 = 0 ;
+    PyObject * obj2 = 0 ;
+    PyObject * obj3 = 0 ;
+    PyObject * obj4 = 0 ;
+    PyObject * obj5 = 0 ;
+    PyObject * obj6 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"OOOOOOO:pixel_format_rgba_blend_color_vspan",&obj0,&obj1,&obj2,&obj3,&obj4,&obj5,&obj6)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    {
+        arg2 = (int)(SWIG_As_int(obj1)); 
+        if (SWIG_arg_fail(2)) SWIG_fail;
+    }
+    {
+        arg3 = (int)(SWIG_As_int(obj2)); 
+        if (SWIG_arg_fail(3)) SWIG_fail;
+    }
+    {
+        arg4 = (unsigned int)(SWIG_As_unsigned_SS_int(obj3)); 
+        if (SWIG_arg_fail(4)) SWIG_fail;
+    }
+    SWIG_Python_ConvertPtr(obj4, (void **)&arg5, SWIGTYPE_p_agg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t__blender_type__color_type, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(5)) SWIG_fail;
+    SWIG_Python_ConvertPtr(obj5, (void **)&arg6, SWIGTYPE_p_unsigned_char, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(6)) SWIG_fail;
+    {
+        arg7 = (agg::int8u)(SWIG_As_unsigned_SS_char(obj6)); 
+        if (SWIG_arg_fail(7)) SWIG_fail;
+    }
+    (arg1)->blend_color_vspan(arg2,arg3,arg4,(agg::pixel_formats_rgba<agg::blender_rgba<agg::rgba8,agg::order_rgba >,unsigned int >::color_type const *)arg5,(agg::int8u const *)arg6,arg7);
+    
+    Py_INCREF(Py_None); resultobj = Py_None;
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_pixel_format_rgba_premultiply(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::pixel_formats_rgba<agg::blender_rgba32,agg::pixel32_type > *arg1 = (agg::pixel_formats_rgba<agg::blender_rgba32,agg::pixel32_type > *) 0 ;
+    PyObject * obj0 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"O:pixel_format_rgba_premultiply",&obj0)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    (arg1)->premultiply();
+    
+    Py_INCREF(Py_None); resultobj = Py_None;
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_pixel_format_rgba_demultiply(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::pixel_formats_rgba<agg::blender_rgba32,agg::pixel32_type > *arg1 = (agg::pixel_formats_rgba<agg::blender_rgba32,agg::pixel32_type > *) 0 ;
+    PyObject * obj0 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"O:pixel_format_rgba_demultiply",&obj0)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    (arg1)->demultiply();
+    
+    Py_INCREF(Py_None); resultobj = Py_None;
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_pixel_format_rgba_copy_from(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::pixel_formats_rgba<agg::blender_rgba32,agg::pixel32_type > *arg1 = (agg::pixel_formats_rgba<agg::blender_rgba32,agg::pixel32_type > *) 0 ;
+    agg::rendering_buffer *arg2 = 0 ;
+    int arg3 ;
+    int arg4 ;
+    int arg5 ;
+    int arg6 ;
+    unsigned int arg7 ;
+    PyObject * obj0 = 0 ;
+    PyObject * obj1 = 0 ;
+    PyObject * obj2 = 0 ;
+    PyObject * obj3 = 0 ;
+    PyObject * obj4 = 0 ;
+    PyObject * obj5 = 0 ;
+    PyObject * obj6 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"OOOOOOO:pixel_format_rgba_copy_from",&obj0,&obj1,&obj2,&obj3,&obj4,&obj5,&obj6)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    {
+        SWIG_Python_ConvertPtr(obj1, (void **)&arg2, SWIGTYPE_p_agg__row_ptr_cacheTunsigned_char_t, SWIG_POINTER_EXCEPTION | 0);
+        if (SWIG_arg_fail(2)) SWIG_fail;
+        if (arg2 == NULL) {
+            SWIG_null_ref("agg::rendering_buffer");
+        }
+        if (SWIG_arg_fail(2)) SWIG_fail;
+    }
+    {
+        arg3 = (int)(SWIG_As_int(obj2)); 
+        if (SWIG_arg_fail(3)) SWIG_fail;
+    }
+    {
+        arg4 = (int)(SWIG_As_int(obj3)); 
+        if (SWIG_arg_fail(4)) SWIG_fail;
+    }
+    {
+        arg5 = (int)(SWIG_As_int(obj4)); 
+        if (SWIG_arg_fail(5)) SWIG_fail;
+    }
+    {
+        arg6 = (int)(SWIG_As_int(obj5)); 
+        if (SWIG_arg_fail(6)) SWIG_fail;
+    }
+    {
+        arg7 = (unsigned int)(SWIG_As_unsigned_SS_int(obj6)); 
+        if (SWIG_arg_fail(7)) SWIG_fail;
+    }
+    (arg1)->copy_from((agg::row_ptr_cache<agg::int8u > const &)*arg2,arg3,arg4,arg5,arg6,arg7);
+    
+    Py_INCREF(Py_None); resultobj = Py_None;
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_delete_pixel_format_rgba(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::pixel_formats_rgba<agg::blender_rgba32,agg::pixel32_type > *arg1 = (agg::pixel_formats_rgba<agg::blender_rgba32,agg::pixel32_type > *) 0 ;
+    PyObject * obj0 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"O:delete_pixel_format_rgba",&obj0)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    delete arg1;
+    
+    Py_INCREF(Py_None); resultobj = Py_None;
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject * pixel_format_rgba_swigregister(PyObject *, PyObject *args) {
+    PyObject *obj;
+    if (!PyArg_ParseTuple(args,(char*)"O", &obj)) return NULL;
+    SWIG_TypeClientData(SWIGTYPE_p_agg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t, obj);
+    Py_INCREF(obj);
+    return Py_BuildValue((char *)"");
+}
+static PyObject *_wrap_new_renderer_base_rgba(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::renderer_base<agg::pixel_formats_rgba<agg::blender_rgba<agg::rgba8,agg::order_rgba >,unsigned int > >::pixfmt_type *arg1 = 0 ;
+    agg::renderer_base<pixfmt_rgba_t > *result;
+    PyObject * obj0 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"O:new_renderer_base_rgba",&obj0)) goto fail;
+    {
+        SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t, SWIG_POINTER_EXCEPTION | 0);
+        if (SWIG_arg_fail(1)) SWIG_fail;
+        if (arg1 == NULL) {
+            SWIG_null_ref("agg::renderer_base<agg::pixel_formats_rgba<agg::blender_rgba<agg::rgba8,agg::order_rgba >,unsigned int > >::pixfmt_type");
+        }
+        if (SWIG_arg_fail(1)) SWIG_fail;
+    }
+    result = (agg::renderer_base<pixfmt_rgba_t > *)new agg::renderer_base<pixfmt_rgba_t >(*arg1);
+    
+    resultobj = SWIG_NewPointerObj((void*)(result), SWIGTYPE_p_agg__renderer_baseTagg__pixel_formats_rgbaTagg__blender_rgba32_agg__pixel32_type_t_t, 1);
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_renderer_base_rgba_ren__SWIG_0(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::renderer_base<pixfmt_rgba_t > *arg1 = (agg::renderer_base<pixfmt_rgba_t > *) 0 ;
+    agg::renderer_base<agg::pixel_formats_rgba<agg::blender_rgba<agg::rgba8,agg::order_rgba >,unsigned int > >::pixfmt_type *result;
+    PyObject * obj0 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"O:renderer_base_rgba_ren",&obj0)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__renderer_baseTagg__pixel_formats_rgbaTagg__blender_rgba32_agg__pixel32_type_t_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    {
+        agg::renderer_base<agg::pixel_formats_rgba<agg::blender_rgba<agg::rgba8,agg::order_rgba >,unsigned int > >::pixfmt_type const &_result_ref = ((agg::renderer_base<pixfmt_rgba_t > const *)arg1)->ren();
+        result = (agg::renderer_base<agg::pixel_formats_rgba<agg::blender_rgba<agg::rgba8,agg::order_rgba >,unsigned int > >::pixfmt_type *) &_result_ref;
+    }
+    
+    resultobj = SWIG_NewPointerObj((void*)(result), SWIGTYPE_p_agg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t, 0);
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_renderer_base_rgba_ren__SWIG_1(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::renderer_base<pixfmt_rgba_t > *arg1 = (agg::renderer_base<pixfmt_rgba_t > *) 0 ;
+    agg::renderer_base<agg::pixel_formats_rgba<agg::blender_rgba<agg::rgba8,agg::order_rgba >,unsigned int > >::pixfmt_type *result;
+    PyObject * obj0 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"O:renderer_base_rgba_ren",&obj0)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__renderer_baseTagg__pixel_formats_rgbaTagg__blender_rgba32_agg__pixel32_type_t_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    {
+        agg::renderer_base<agg::pixel_formats_rgba<agg::blender_rgba<agg::rgba8,agg::order_rgba >,unsigned int > >::pixfmt_type &_result_ref = (arg1)->ren();
+        result = (agg::renderer_base<agg::pixel_formats_rgba<agg::blender_rgba<agg::rgba8,agg::order_rgba >,unsigned int > >::pixfmt_type *) &_result_ref;
+    }
+    
+    resultobj = SWIG_NewPointerObj((void*)(result), SWIGTYPE_p_agg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t, 0);
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_renderer_base_rgba_ren(PyObject *self, PyObject *args) {
+    int argc;
+    PyObject *argv[2];
+    int ii;
+    
+    argc = PyObject_Length(args);
+    for (ii = 0; (ii < argc) && (ii < 1); ii++) {
+        argv[ii] = PyTuple_GetItem(args,ii);
+    }
+    if (argc == 1) {
+        int _v;
+        {
+            void *ptr;
+            if (SWIG_ConvertPtr(argv[0], &ptr, SWIGTYPE_p_agg__renderer_baseTagg__pixel_formats_rgbaTagg__blender_rgba32_agg__pixel32_type_t_t, 0) == -1) {
+                _v = 0;
+                PyErr_Clear();
+            } else {
+                _v = 1;
+            }
+        }
+        if (_v) {
+            return _wrap_renderer_base_rgba_ren__SWIG_1(self,args);
+        }
+    }
+    if (argc == 1) {
+        int _v;
+        {
+            void *ptr;
+            if (SWIG_ConvertPtr(argv[0], &ptr, SWIGTYPE_p_agg__renderer_baseTagg__pixel_formats_rgbaTagg__blender_rgba32_agg__pixel32_type_t_t, 0) == -1) {
+                _v = 0;
+                PyErr_Clear();
+            } else {
+                _v = 1;
+            }
+        }
+        if (_v) {
+            return _wrap_renderer_base_rgba_ren__SWIG_0(self,args);
+        }
+    }
+    
+    PyErr_SetString(PyExc_NotImplementedError,"No matching function for overloaded 'renderer_base_rgba_ren'");
+    return NULL;
+}
+
+
+static PyObject *_wrap_renderer_base_rgba_width(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::renderer_base<pixfmt_rgba_t > *arg1 = (agg::renderer_base<pixfmt_rgba_t > *) 0 ;
+    unsigned int result;
+    PyObject * obj0 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"O:renderer_base_rgba_width",&obj0)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__renderer_baseTagg__pixel_formats_rgbaTagg__blender_rgba32_agg__pixel32_type_t_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    result = (unsigned int)((agg::renderer_base<pixfmt_rgba_t > const *)arg1)->width();
+    
+    {
+        resultobj = SWIG_From_unsigned_SS_int((unsigned int)(result)); 
+    }
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_renderer_base_rgba_height(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::renderer_base<pixfmt_rgba_t > *arg1 = (agg::renderer_base<pixfmt_rgba_t > *) 0 ;
+    unsigned int result;
+    PyObject * obj0 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"O:renderer_base_rgba_height",&obj0)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__renderer_baseTagg__pixel_formats_rgbaTagg__blender_rgba32_agg__pixel32_type_t_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    result = (unsigned int)((agg::renderer_base<pixfmt_rgba_t > const *)arg1)->height();
+    
+    {
+        resultobj = SWIG_From_unsigned_SS_int((unsigned int)(result)); 
+    }
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_renderer_base_rgba_clip_box__SWIG_0(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::renderer_base<pixfmt_rgba_t > *arg1 = (agg::renderer_base<pixfmt_rgba_t > *) 0 ;
+    int arg2 ;
+    int arg3 ;
+    int arg4 ;
+    int arg5 ;
+    bool result;
+    PyObject * obj0 = 0 ;
+    PyObject * obj1 = 0 ;
+    PyObject * obj2 = 0 ;
+    PyObject * obj3 = 0 ;
+    PyObject * obj4 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"OOOOO:renderer_base_rgba_clip_box",&obj0,&obj1,&obj2,&obj3,&obj4)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__renderer_baseTagg__pixel_formats_rgbaTagg__blender_rgba32_agg__pixel32_type_t_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    {
+        arg2 = (int)(SWIG_As_int(obj1)); 
+        if (SWIG_arg_fail(2)) SWIG_fail;
+    }
+    {
+        arg3 = (int)(SWIG_As_int(obj2)); 
+        if (SWIG_arg_fail(3)) SWIG_fail;
+    }
+    {
+        arg4 = (int)(SWIG_As_int(obj3)); 
+        if (SWIG_arg_fail(4)) SWIG_fail;
+    }
+    {
+        arg5 = (int)(SWIG_As_int(obj4)); 
+        if (SWIG_arg_fail(5)) SWIG_fail;
+    }
+    result = (bool)(arg1)->clip_box(arg2,arg3,arg4,arg5);
+    
+    {
+        resultobj = SWIG_From_bool((bool)(result)); 
+    }
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_renderer_base_rgba_reset_clipping(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::renderer_base<pixfmt_rgba_t > *arg1 = (agg::renderer_base<pixfmt_rgba_t > *) 0 ;
+    bool arg2 ;
+    PyObject * obj0 = 0 ;
+    PyObject * obj1 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"OO:renderer_base_rgba_reset_clipping",&obj0,&obj1)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__renderer_baseTagg__pixel_formats_rgbaTagg__blender_rgba32_agg__pixel32_type_t_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    {
+        arg2 = (bool)(SWIG_As_bool(obj1)); 
+        if (SWIG_arg_fail(2)) SWIG_fail;
+    }
+    (arg1)->reset_clipping(arg2);
+    
+    Py_INCREF(Py_None); resultobj = Py_None;
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_renderer_base_rgba_clip_box_naked(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::renderer_base<pixfmt_rgba_t > *arg1 = (agg::renderer_base<pixfmt_rgba_t > *) 0 ;
+    int arg2 ;
+    int arg3 ;
+    int arg4 ;
+    int arg5 ;
+    PyObject * obj0 = 0 ;
+    PyObject * obj1 = 0 ;
+    PyObject * obj2 = 0 ;
+    PyObject * obj3 = 0 ;
+    PyObject * obj4 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"OOOOO:renderer_base_rgba_clip_box_naked",&obj0,&obj1,&obj2,&obj3,&obj4)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__renderer_baseTagg__pixel_formats_rgbaTagg__blender_rgba32_agg__pixel32_type_t_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    {
+        arg2 = (int)(SWIG_As_int(obj1)); 
+        if (SWIG_arg_fail(2)) SWIG_fail;
+    }
+    {
+        arg3 = (int)(SWIG_As_int(obj2)); 
+        if (SWIG_arg_fail(3)) SWIG_fail;
+    }
+    {
+        arg4 = (int)(SWIG_As_int(obj3)); 
+        if (SWIG_arg_fail(4)) SWIG_fail;
+    }
+    {
+        arg5 = (int)(SWIG_As_int(obj4)); 
+        if (SWIG_arg_fail(5)) SWIG_fail;
+    }
+    (arg1)->clip_box_naked(arg2,arg3,arg4,arg5);
+    
+    Py_INCREF(Py_None); resultobj = Py_None;
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_renderer_base_rgba_inbox(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::renderer_base<pixfmt_rgba_t > *arg1 = (agg::renderer_base<pixfmt_rgba_t > *) 0 ;
+    int arg2 ;
+    int arg3 ;
+    bool result;
+    PyObject * obj0 = 0 ;
+    PyObject * obj1 = 0 ;
+    PyObject * obj2 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"OOO:renderer_base_rgba_inbox",&obj0,&obj1,&obj2)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__renderer_baseTagg__pixel_formats_rgbaTagg__blender_rgba32_agg__pixel32_type_t_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    {
+        arg2 = (int)(SWIG_As_int(obj1)); 
+        if (SWIG_arg_fail(2)) SWIG_fail;
+    }
+    {
+        arg3 = (int)(SWIG_As_int(obj2)); 
+        if (SWIG_arg_fail(3)) SWIG_fail;
+    }
+    result = (bool)((agg::renderer_base<pixfmt_rgba_t > const *)arg1)->inbox(arg2,arg3);
+    
+    {
+        resultobj = SWIG_From_bool((bool)(result)); 
+    }
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_renderer_base_rgba_first_clip_box(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::renderer_base<pixfmt_rgba_t > *arg1 = (agg::renderer_base<pixfmt_rgba_t > *) 0 ;
+    PyObject * obj0 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"O:renderer_base_rgba_first_clip_box",&obj0)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__renderer_baseTagg__pixel_formats_rgbaTagg__blender_rgba32_agg__pixel32_type_t_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    (arg1)->first_clip_box();
+    
+    Py_INCREF(Py_None); resultobj = Py_None;
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_renderer_base_rgba_next_clip_box(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::renderer_base<pixfmt_rgba_t > *arg1 = (agg::renderer_base<pixfmt_rgba_t > *) 0 ;
+    bool result;
+    PyObject * obj0 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"O:renderer_base_rgba_next_clip_box",&obj0)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__renderer_baseTagg__pixel_formats_rgbaTagg__blender_rgba32_agg__pixel32_type_t_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    result = (bool)(arg1)->next_clip_box();
+    
+    {
+        resultobj = SWIG_From_bool((bool)(result)); 
+    }
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_renderer_base_rgba_clip_box__SWIG_1(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::renderer_base<pixfmt_rgba_t > *arg1 = (agg::renderer_base<pixfmt_rgba_t > *) 0 ;
+    agg::rect *result;
+    PyObject * obj0 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"O:renderer_base_rgba_clip_box",&obj0)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__renderer_baseTagg__pixel_formats_rgbaTagg__blender_rgba32_agg__pixel32_type_t_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    {
+        agg::rect const &_result_ref = ((agg::renderer_base<pixfmt_rgba_t > const *)arg1)->clip_box();
+        result = (agg::rect *) &_result_ref;
+    }
+    
+    resultobj = SWIG_NewPointerObj((void*)(result), SWIGTYPE_p_agg__rect_baseTint_t, 0);
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_renderer_base_rgba_clip_box(PyObject *self, PyObject *args) {
+    int argc;
+    PyObject *argv[6];
+    int ii;
+    
+    argc = PyObject_Length(args);
+    for (ii = 0; (ii < argc) && (ii < 5); ii++) {
+        argv[ii] = PyTuple_GetItem(args,ii);
+    }
+    if (argc == 1) {
+        int _v;
+        {
+            void *ptr;
+            if (SWIG_ConvertPtr(argv[0], &ptr, SWIGTYPE_p_agg__renderer_baseTagg__pixel_formats_rgbaTagg__blender_rgba32_agg__pixel32_type_t_t, 0) == -1) {
+                _v = 0;
+                PyErr_Clear();
+            } else {
+                _v = 1;
+            }
+        }
+        if (_v) {
+            return _wrap_renderer_base_rgba_clip_box__SWIG_1(self,args);
+        }
+    }
+    if (argc == 5) {
+        int _v;
+        {
+            void *ptr;
+            if (SWIG_ConvertPtr(argv[0], &ptr, SWIGTYPE_p_agg__renderer_baseTagg__pixel_formats_rgbaTagg__blender_rgba32_agg__pixel32_type_t_t, 0) == -1) {
+                _v = 0;
+                PyErr_Clear();
+            } else {
+                _v = 1;
+            }
+        }
+        if (_v) {
+            _v = SWIG_Check_int(argv[1]);
+            if (_v) {
+                _v = SWIG_Check_int(argv[2]);
+                if (_v) {
+                    _v = SWIG_Check_int(argv[3]);
+                    if (_v) {
+                        _v = SWIG_Check_int(argv[4]);
+                        if (_v) {
+                            return _wrap_renderer_base_rgba_clip_box__SWIG_0(self,args);
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
+    PyErr_SetString(PyExc_NotImplementedError,"No matching function for overloaded 'renderer_base_rgba_clip_box'");
+    return NULL;
+}
+
+
+static PyObject *_wrap_renderer_base_rgba_xmin(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::renderer_base<pixfmt_rgba_t > *arg1 = (agg::renderer_base<pixfmt_rgba_t > *) 0 ;
+    int result;
+    PyObject * obj0 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"O:renderer_base_rgba_xmin",&obj0)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__renderer_baseTagg__pixel_formats_rgbaTagg__blender_rgba32_agg__pixel32_type_t_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    result = (int)((agg::renderer_base<pixfmt_rgba_t > const *)arg1)->xmin();
+    
+    {
+        resultobj = SWIG_From_int((int)(result)); 
+    }
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_renderer_base_rgba_ymin(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::renderer_base<pixfmt_rgba_t > *arg1 = (agg::renderer_base<pixfmt_rgba_t > *) 0 ;
+    int result;
+    PyObject * obj0 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"O:renderer_base_rgba_ymin",&obj0)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__renderer_baseTagg__pixel_formats_rgbaTagg__blender_rgba32_agg__pixel32_type_t_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    result = (int)((agg::renderer_base<pixfmt_rgba_t > const *)arg1)->ymin();
+    
+    {
+        resultobj = SWIG_From_int((int)(result)); 
+    }
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_renderer_base_rgba_xmax(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::renderer_base<pixfmt_rgba_t > *arg1 = (agg::renderer_base<pixfmt_rgba_t > *) 0 ;
+    int result;
+    PyObject * obj0 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"O:renderer_base_rgba_xmax",&obj0)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__renderer_baseTagg__pixel_formats_rgbaTagg__blender_rgba32_agg__pixel32_type_t_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    result = (int)((agg::renderer_base<pixfmt_rgba_t > const *)arg1)->xmax();
+    
+    {
+        resultobj = SWIG_From_int((int)(result)); 
+    }
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_renderer_base_rgba_ymax(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::renderer_base<pixfmt_rgba_t > *arg1 = (agg::renderer_base<pixfmt_rgba_t > *) 0 ;
+    int result;
+    PyObject * obj0 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"O:renderer_base_rgba_ymax",&obj0)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__renderer_baseTagg__pixel_formats_rgbaTagg__blender_rgba32_agg__pixel32_type_t_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    result = (int)((agg::renderer_base<pixfmt_rgba_t > const *)arg1)->ymax();
+    
+    {
+        resultobj = SWIG_From_int((int)(result)); 
+    }
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_renderer_base_rgba_bounding_clip_box(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::renderer_base<pixfmt_rgba_t > *arg1 = (agg::renderer_base<pixfmt_rgba_t > *) 0 ;
+    agg::rect *result;
+    PyObject * obj0 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"O:renderer_base_rgba_bounding_clip_box",&obj0)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__renderer_baseTagg__pixel_formats_rgbaTagg__blender_rgba32_agg__pixel32_type_t_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    {
+        agg::rect const &_result_ref = ((agg::renderer_base<pixfmt_rgba_t > const *)arg1)->bounding_clip_box();
+        result = (agg::rect *) &_result_ref;
+    }
+    
+    resultobj = SWIG_NewPointerObj((void*)(result), SWIGTYPE_p_agg__rect_baseTint_t, 0);
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_renderer_base_rgba_bounding_xmin(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::renderer_base<pixfmt_rgba_t > *arg1 = (agg::renderer_base<pixfmt_rgba_t > *) 0 ;
+    int result;
+    PyObject * obj0 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"O:renderer_base_rgba_bounding_xmin",&obj0)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__renderer_baseTagg__pixel_formats_rgbaTagg__blender_rgba32_agg__pixel32_type_t_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    result = (int)((agg::renderer_base<pixfmt_rgba_t > const *)arg1)->bounding_xmin();
+    
+    {
+        resultobj = SWIG_From_int((int)(result)); 
+    }
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_renderer_base_rgba_bounding_ymin(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::renderer_base<pixfmt_rgba_t > *arg1 = (agg::renderer_base<pixfmt_rgba_t > *) 0 ;
+    int result;
+    PyObject * obj0 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"O:renderer_base_rgba_bounding_ymin",&obj0)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__renderer_baseTagg__pixel_formats_rgbaTagg__blender_rgba32_agg__pixel32_type_t_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    result = (int)((agg::renderer_base<pixfmt_rgba_t > const *)arg1)->bounding_ymin();
+    
+    {
+        resultobj = SWIG_From_int((int)(result)); 
+    }
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_renderer_base_rgba_bounding_xmax(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::renderer_base<pixfmt_rgba_t > *arg1 = (agg::renderer_base<pixfmt_rgba_t > *) 0 ;
+    int result;
+    PyObject * obj0 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"O:renderer_base_rgba_bounding_xmax",&obj0)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__renderer_baseTagg__pixel_formats_rgbaTagg__blender_rgba32_agg__pixel32_type_t_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    result = (int)((agg::renderer_base<pixfmt_rgba_t > const *)arg1)->bounding_xmax();
+    
+    {
+        resultobj = SWIG_From_int((int)(result)); 
+    }
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_renderer_base_rgba_bounding_ymax(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::renderer_base<pixfmt_rgba_t > *arg1 = (agg::renderer_base<pixfmt_rgba_t > *) 0 ;
+    int result;
+    PyObject * obj0 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"O:renderer_base_rgba_bounding_ymax",&obj0)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__renderer_baseTagg__pixel_formats_rgbaTagg__blender_rgba32_agg__pixel32_type_t_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    result = (int)((agg::renderer_base<pixfmt_rgba_t > const *)arg1)->bounding_ymax();
+    
+    {
+        resultobj = SWIG_From_int((int)(result)); 
+    }
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_renderer_base_rgba_clear(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::renderer_base<pixfmt_rgba_t > *arg1 = (agg::renderer_base<pixfmt_rgba_t > *) 0 ;
+    agg::renderer_base<agg::pixel_formats_rgba<agg::blender_rgba<agg::rgba8,agg::order_rgba >,unsigned int > >::color_type *arg2 = 0 ;
+    PyObject * obj0 = 0 ;
+    PyObject * obj1 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"OO:renderer_base_rgba_clear",&obj0,&obj1)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__renderer_baseTagg__pixel_formats_rgbaTagg__blender_rgba32_agg__pixel32_type_t_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    {
+        SWIG_Python_ConvertPtr(obj1, (void **)&arg2, SWIGTYPE_p_agg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t__blender_type__color_type, SWIG_POINTER_EXCEPTION | 0);
+        if (SWIG_arg_fail(2)) SWIG_fail;
+        if (arg2 == NULL) {
+            SWIG_null_ref("agg::renderer_base<agg::pixel_formats_rgba<agg::blender_rgba<agg::rgba8,agg::order_rgba >,unsigned int > >::color_type");
+        }
+        if (SWIG_arg_fail(2)) SWIG_fail;
+    }
+    (arg1)->clear((agg::renderer_base<agg::pixel_formats_rgba<agg::blender_rgba32,agg::pixel32_type > >::pixfmt_type::color_type const &)*arg2);
+    
+    Py_INCREF(Py_None); resultobj = Py_None;
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_renderer_base_rgba_copy_pixel(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::renderer_base<pixfmt_rgba_t > *arg1 = (agg::renderer_base<pixfmt_rgba_t > *) 0 ;
+    int arg2 ;
+    int arg3 ;
+    agg::renderer_base<agg::pixel_formats_rgba<agg::blender_rgba<agg::rgba8,agg::order_rgba >,unsigned int > >::color_type *arg4 = 0 ;
+    PyObject * obj0 = 0 ;
+    PyObject * obj1 = 0 ;
+    PyObject * obj2 = 0 ;
+    PyObject * obj3 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"OOOO:renderer_base_rgba_copy_pixel",&obj0,&obj1,&obj2,&obj3)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__renderer_baseTagg__pixel_formats_rgbaTagg__blender_rgba32_agg__pixel32_type_t_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    {
+        arg2 = (int)(SWIG_As_int(obj1)); 
+        if (SWIG_arg_fail(2)) SWIG_fail;
+    }
+    {
+        arg3 = (int)(SWIG_As_int(obj2)); 
+        if (SWIG_arg_fail(3)) SWIG_fail;
+    }
+    {
+        SWIG_Python_ConvertPtr(obj3, (void **)&arg4, SWIGTYPE_p_agg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t__blender_type__color_type, SWIG_POINTER_EXCEPTION | 0);
+        if (SWIG_arg_fail(4)) SWIG_fail;
+        if (arg4 == NULL) {
+            SWIG_null_ref("agg::renderer_base<agg::pixel_formats_rgba<agg::blender_rgba<agg::rgba8,agg::order_rgba >,unsigned int > >::color_type");
+        }
+        if (SWIG_arg_fail(4)) SWIG_fail;
+    }
+    (arg1)->copy_pixel(arg2,arg3,(agg::renderer_base<agg::pixel_formats_rgba<agg::blender_rgba32,agg::pixel32_type > >::pixfmt_type::color_type const &)*arg4);
+    
+    Py_INCREF(Py_None); resultobj = Py_None;
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_renderer_base_rgba_blend_pixel(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::renderer_base<pixfmt_rgba_t > *arg1 = (agg::renderer_base<pixfmt_rgba_t > *) 0 ;
+    int arg2 ;
+    int arg3 ;
+    agg::renderer_base<agg::pixel_formats_rgba<agg::blender_rgba<agg::rgba8,agg::order_rgba >,unsigned int > >::color_type *arg4 = 0 ;
+    agg::cover_type arg5 ;
+    PyObject * obj0 = 0 ;
+    PyObject * obj1 = 0 ;
+    PyObject * obj2 = 0 ;
+    PyObject * obj3 = 0 ;
+    PyObject * obj4 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"OOOOO:renderer_base_rgba_blend_pixel",&obj0,&obj1,&obj2,&obj3,&obj4)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__renderer_baseTagg__pixel_formats_rgbaTagg__blender_rgba32_agg__pixel32_type_t_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    {
+        arg2 = (int)(SWIG_As_int(obj1)); 
+        if (SWIG_arg_fail(2)) SWIG_fail;
+    }
+    {
+        arg3 = (int)(SWIG_As_int(obj2)); 
+        if (SWIG_arg_fail(3)) SWIG_fail;
+    }
+    {
+        SWIG_Python_ConvertPtr(obj3, (void **)&arg4, SWIGTYPE_p_agg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t__blender_type__color_type, SWIG_POINTER_EXCEPTION | 0);
+        if (SWIG_arg_fail(4)) SWIG_fail;
+        if (arg4 == NULL) {
+            SWIG_null_ref("agg::renderer_base<agg::pixel_formats_rgba<agg::blender_rgba<agg::rgba8,agg::order_rgba >,unsigned int > >::color_type");
+        }
+        if (SWIG_arg_fail(4)) SWIG_fail;
+    }
+    {
+        arg5 = (agg::cover_type)(SWIG_As_unsigned_SS_char(obj4)); 
+        if (SWIG_arg_fail(5)) SWIG_fail;
+    }
+    (arg1)->blend_pixel(arg2,arg3,(agg::renderer_base<agg::pixel_formats_rgba<agg::blender_rgba32,agg::pixel32_type > >::pixfmt_type::color_type const &)*arg4,arg5);
+    
+    Py_INCREF(Py_None); resultobj = Py_None;
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_renderer_base_rgba_pixel(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::renderer_base<pixfmt_rgba_t > *arg1 = (agg::renderer_base<pixfmt_rgba_t > *) 0 ;
+    int arg2 ;
+    int arg3 ;
+    SwigValueWrapper<agg::pixel_formats_rgba<agg::blender_rgba<agg::rgba8,agg::order_rgba >,unsigned int >::blender_type::color_type > result;
+    PyObject * obj0 = 0 ;
+    PyObject * obj1 = 0 ;
+    PyObject * obj2 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"OOO:renderer_base_rgba_pixel",&obj0,&obj1,&obj2)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__renderer_baseTagg__pixel_formats_rgbaTagg__blender_rgba32_agg__pixel32_type_t_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    {
+        arg2 = (int)(SWIG_As_int(obj1)); 
+        if (SWIG_arg_fail(2)) SWIG_fail;
+    }
+    {
+        arg3 = (int)(SWIG_As_int(obj2)); 
+        if (SWIG_arg_fail(3)) SWIG_fail;
+    }
+    result = ((agg::renderer_base<pixfmt_rgba_t > const *)arg1)->pixel(arg2,arg3);
+    
+    {
+        agg::renderer_base<agg::pixel_formats_rgba<agg::blender_rgba<agg::rgba8,agg::order_rgba >,unsigned int > >::color_type * resultptr;
+        resultptr = new agg::renderer_base<agg::pixel_formats_rgba<agg::blender_rgba<agg::rgba8,agg::order_rgba >,unsigned int > >::color_type((agg::renderer_base<agg::pixel_formats_rgba<agg::blender_rgba<agg::rgba8,agg::order_rgba >,unsigned int > >::color_type &)(result));
+        resultobj = SWIG_NewPointerObj((void *)(resultptr), SWIGTYPE_p_agg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t__blender_type__color_type, 1);
+    }
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_renderer_base_rgba_copy_hline(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::renderer_base<pixfmt_rgba_t > *arg1 = (agg::renderer_base<pixfmt_rgba_t > *) 0 ;
+    int arg2 ;
+    int arg3 ;
+    int arg4 ;
+    agg::renderer_base<agg::pixel_formats_rgba<agg::blender_rgba<agg::rgba8,agg::order_rgba >,unsigned int > >::color_type *arg5 = 0 ;
+    PyObject * obj0 = 0 ;
+    PyObject * obj1 = 0 ;
+    PyObject * obj2 = 0 ;
+    PyObject * obj3 = 0 ;
+    PyObject * obj4 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"OOOOO:renderer_base_rgba_copy_hline",&obj0,&obj1,&obj2,&obj3,&obj4)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__renderer_baseTagg__pixel_formats_rgbaTagg__blender_rgba32_agg__pixel32_type_t_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    {
+        arg2 = (int)(SWIG_As_int(obj1)); 
+        if (SWIG_arg_fail(2)) SWIG_fail;
+    }
+    {
+        arg3 = (int)(SWIG_As_int(obj2)); 
+        if (SWIG_arg_fail(3)) SWIG_fail;
+    }
+    {
+        arg4 = (int)(SWIG_As_int(obj3)); 
+        if (SWIG_arg_fail(4)) SWIG_fail;
+    }
+    {
+        SWIG_Python_ConvertPtr(obj4, (void **)&arg5, SWIGTYPE_p_agg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t__blender_type__color_type, SWIG_POINTER_EXCEPTION | 0);
+        if (SWIG_arg_fail(5)) SWIG_fail;
+        if (arg5 == NULL) {
+            SWIG_null_ref("agg::renderer_base<agg::pixel_formats_rgba<agg::blender_rgba<agg::rgba8,agg::order_rgba >,unsigned int > >::color_type");
+        }
+        if (SWIG_arg_fail(5)) SWIG_fail;
+    }
+    (arg1)->copy_hline(arg2,arg3,arg4,(agg::renderer_base<agg::pixel_formats_rgba<agg::blender_rgba32,agg::pixel32_type > >::pixfmt_type::color_type const &)*arg5);
+    
+    Py_INCREF(Py_None); resultobj = Py_None;
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_renderer_base_rgba_copy_vline(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::renderer_base<pixfmt_rgba_t > *arg1 = (agg::renderer_base<pixfmt_rgba_t > *) 0 ;
+    int arg2 ;
+    int arg3 ;
+    int arg4 ;
+    agg::renderer_base<agg::pixel_formats_rgba<agg::blender_rgba<agg::rgba8,agg::order_rgba >,unsigned int > >::color_type *arg5 = 0 ;
+    PyObject * obj0 = 0 ;
+    PyObject * obj1 = 0 ;
+    PyObject * obj2 = 0 ;
+    PyObject * obj3 = 0 ;
+    PyObject * obj4 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"OOOOO:renderer_base_rgba_copy_vline",&obj0,&obj1,&obj2,&obj3,&obj4)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__renderer_baseTagg__pixel_formats_rgbaTagg__blender_rgba32_agg__pixel32_type_t_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    {
+        arg2 = (int)(SWIG_As_int(obj1)); 
+        if (SWIG_arg_fail(2)) SWIG_fail;
+    }
+    {
+        arg3 = (int)(SWIG_As_int(obj2)); 
+        if (SWIG_arg_fail(3)) SWIG_fail;
+    }
+    {
+        arg4 = (int)(SWIG_As_int(obj3)); 
+        if (SWIG_arg_fail(4)) SWIG_fail;
+    }
+    {
+        SWIG_Python_ConvertPtr(obj4, (void **)&arg5, SWIGTYPE_p_agg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t__blender_type__color_type, SWIG_POINTER_EXCEPTION | 0);
+        if (SWIG_arg_fail(5)) SWIG_fail;
+        if (arg5 == NULL) {
+            SWIG_null_ref("agg::renderer_base<agg::pixel_formats_rgba<agg::blender_rgba<agg::rgba8,agg::order_rgba >,unsigned int > >::color_type");
+        }
+        if (SWIG_arg_fail(5)) SWIG_fail;
+    }
+    (arg1)->copy_vline(arg2,arg3,arg4,(agg::renderer_base<agg::pixel_formats_rgba<agg::blender_rgba32,agg::pixel32_type > >::pixfmt_type::color_type const &)*arg5);
+    
+    Py_INCREF(Py_None); resultobj = Py_None;
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_renderer_base_rgba_blend_hline(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::renderer_base<pixfmt_rgba_t > *arg1 = (agg::renderer_base<pixfmt_rgba_t > *) 0 ;
+    int arg2 ;
+    int arg3 ;
+    int arg4 ;
+    agg::renderer_base<agg::pixel_formats_rgba<agg::blender_rgba<agg::rgba8,agg::order_rgba >,unsigned int > >::color_type *arg5 = 0 ;
+    agg::cover_type arg6 ;
+    PyObject * obj0 = 0 ;
+    PyObject * obj1 = 0 ;
+    PyObject * obj2 = 0 ;
+    PyObject * obj3 = 0 ;
+    PyObject * obj4 = 0 ;
+    PyObject * obj5 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"OOOOOO:renderer_base_rgba_blend_hline",&obj0,&obj1,&obj2,&obj3,&obj4,&obj5)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__renderer_baseTagg__pixel_formats_rgbaTagg__blender_rgba32_agg__pixel32_type_t_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    {
+        arg2 = (int)(SWIG_As_int(obj1)); 
+        if (SWIG_arg_fail(2)) SWIG_fail;
+    }
+    {
+        arg3 = (int)(SWIG_As_int(obj2)); 
+        if (SWIG_arg_fail(3)) SWIG_fail;
+    }
+    {
+        arg4 = (int)(SWIG_As_int(obj3)); 
+        if (SWIG_arg_fail(4)) SWIG_fail;
+    }
+    {
+        SWIG_Python_ConvertPtr(obj4, (void **)&arg5, SWIGTYPE_p_agg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t__blender_type__color_type, SWIG_POINTER_EXCEPTION | 0);
+        if (SWIG_arg_fail(5)) SWIG_fail;
+        if (arg5 == NULL) {
+            SWIG_null_ref("agg::renderer_base<agg::pixel_formats_rgba<agg::blender_rgba<agg::rgba8,agg::order_rgba >,unsigned int > >::color_type");
+        }
+        if (SWIG_arg_fail(5)) SWIG_fail;
+    }
+    {
+        arg6 = (agg::cover_type)(SWIG_As_unsigned_SS_char(obj5)); 
+        if (SWIG_arg_fail(6)) SWIG_fail;
+    }
+    (arg1)->blend_hline(arg2,arg3,arg4,(agg::renderer_base<agg::pixel_formats_rgba<agg::blender_rgba32,agg::pixel32_type > >::pixfmt_type::color_type const &)*arg5,arg6);
+    
+    Py_INCREF(Py_None); resultobj = Py_None;
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_renderer_base_rgba_blend_vline(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::renderer_base<pixfmt_rgba_t > *arg1 = (agg::renderer_base<pixfmt_rgba_t > *) 0 ;
+    int arg2 ;
+    int arg3 ;
+    int arg4 ;
+    agg::renderer_base<agg::pixel_formats_rgba<agg::blender_rgba<agg::rgba8,agg::order_rgba >,unsigned int > >::color_type *arg5 = 0 ;
+    agg::cover_type arg6 ;
+    PyObject * obj0 = 0 ;
+    PyObject * obj1 = 0 ;
+    PyObject * obj2 = 0 ;
+    PyObject * obj3 = 0 ;
+    PyObject * obj4 = 0 ;
+    PyObject * obj5 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"OOOOOO:renderer_base_rgba_blend_vline",&obj0,&obj1,&obj2,&obj3,&obj4,&obj5)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__renderer_baseTagg__pixel_formats_rgbaTagg__blender_rgba32_agg__pixel32_type_t_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    {
+        arg2 = (int)(SWIG_As_int(obj1)); 
+        if (SWIG_arg_fail(2)) SWIG_fail;
+    }
+    {
+        arg3 = (int)(SWIG_As_int(obj2)); 
+        if (SWIG_arg_fail(3)) SWIG_fail;
+    }
+    {
+        arg4 = (int)(SWIG_As_int(obj3)); 
+        if (SWIG_arg_fail(4)) SWIG_fail;
+    }
+    {
+        SWIG_Python_ConvertPtr(obj4, (void **)&arg5, SWIGTYPE_p_agg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t__blender_type__color_type, SWIG_POINTER_EXCEPTION | 0);
+        if (SWIG_arg_fail(5)) SWIG_fail;
+        if (arg5 == NULL) {
+            SWIG_null_ref("agg::renderer_base<agg::pixel_formats_rgba<agg::blender_rgba<agg::rgba8,agg::order_rgba >,unsigned int > >::color_type");
+        }
+        if (SWIG_arg_fail(5)) SWIG_fail;
+    }
+    {
+        arg6 = (agg::cover_type)(SWIG_As_unsigned_SS_char(obj5)); 
+        if (SWIG_arg_fail(6)) SWIG_fail;
+    }
+    (arg1)->blend_vline(arg2,arg3,arg4,(agg::renderer_base<agg::pixel_formats_rgba<agg::blender_rgba32,agg::pixel32_type > >::pixfmt_type::color_type const &)*arg5,arg6);
+    
+    Py_INCREF(Py_None); resultobj = Py_None;
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_renderer_base_rgba_copy_bar(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::renderer_base<pixfmt_rgba_t > *arg1 = (agg::renderer_base<pixfmt_rgba_t > *) 0 ;
+    int arg2 ;
+    int arg3 ;
+    int arg4 ;
+    int arg5 ;
+    agg::renderer_base<agg::pixel_formats_rgba<agg::blender_rgba<agg::rgba8,agg::order_rgba >,unsigned int > >::color_type *arg6 = 0 ;
+    PyObject * obj0 = 0 ;
+    PyObject * obj1 = 0 ;
+    PyObject * obj2 = 0 ;
+    PyObject * obj3 = 0 ;
+    PyObject * obj4 = 0 ;
+    PyObject * obj5 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"OOOOOO:renderer_base_rgba_copy_bar",&obj0,&obj1,&obj2,&obj3,&obj4,&obj5)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__renderer_baseTagg__pixel_formats_rgbaTagg__blender_rgba32_agg__pixel32_type_t_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    {
+        arg2 = (int)(SWIG_As_int(obj1)); 
+        if (SWIG_arg_fail(2)) SWIG_fail;
+    }
+    {
+        arg3 = (int)(SWIG_As_int(obj2)); 
+        if (SWIG_arg_fail(3)) SWIG_fail;
+    }
+    {
+        arg4 = (int)(SWIG_As_int(obj3)); 
+        if (SWIG_arg_fail(4)) SWIG_fail;
+    }
+    {
+        arg5 = (int)(SWIG_As_int(obj4)); 
+        if (SWIG_arg_fail(5)) SWIG_fail;
+    }
+    {
+        SWIG_Python_ConvertPtr(obj5, (void **)&arg6, SWIGTYPE_p_agg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t__blender_type__color_type, SWIG_POINTER_EXCEPTION | 0);
+        if (SWIG_arg_fail(6)) SWIG_fail;
+        if (arg6 == NULL) {
+            SWIG_null_ref("agg::renderer_base<agg::pixel_formats_rgba<agg::blender_rgba<agg::rgba8,agg::order_rgba >,unsigned int > >::color_type");
+        }
+        if (SWIG_arg_fail(6)) SWIG_fail;
+    }
+    (arg1)->copy_bar(arg2,arg3,arg4,arg5,(agg::renderer_base<agg::pixel_formats_rgba<agg::blender_rgba32,agg::pixel32_type > >::pixfmt_type::color_type const &)*arg6);
+    
+    Py_INCREF(Py_None); resultobj = Py_None;
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_renderer_base_rgba_blend_bar(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::renderer_base<pixfmt_rgba_t > *arg1 = (agg::renderer_base<pixfmt_rgba_t > *) 0 ;
+    int arg2 ;
+    int arg3 ;
+    int arg4 ;
+    int arg5 ;
+    agg::renderer_base<agg::pixel_formats_rgba<agg::blender_rgba<agg::rgba8,agg::order_rgba >,unsigned int > >::color_type *arg6 = 0 ;
+    agg::cover_type arg7 ;
+    PyObject * obj0 = 0 ;
+    PyObject * obj1 = 0 ;
+    PyObject * obj2 = 0 ;
+    PyObject * obj3 = 0 ;
+    PyObject * obj4 = 0 ;
+    PyObject * obj5 = 0 ;
+    PyObject * obj6 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"OOOOOOO:renderer_base_rgba_blend_bar",&obj0,&obj1,&obj2,&obj3,&obj4,&obj5,&obj6)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__renderer_baseTagg__pixel_formats_rgbaTagg__blender_rgba32_agg__pixel32_type_t_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    {
+        arg2 = (int)(SWIG_As_int(obj1)); 
+        if (SWIG_arg_fail(2)) SWIG_fail;
+    }
+    {
+        arg3 = (int)(SWIG_As_int(obj2)); 
+        if (SWIG_arg_fail(3)) SWIG_fail;
+    }
+    {
+        arg4 = (int)(SWIG_As_int(obj3)); 
+        if (SWIG_arg_fail(4)) SWIG_fail;
+    }
+    {
+        arg5 = (int)(SWIG_As_int(obj4)); 
+        if (SWIG_arg_fail(5)) SWIG_fail;
+    }
+    {
+        SWIG_Python_ConvertPtr(obj5, (void **)&arg6, SWIGTYPE_p_agg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t__blender_type__color_type, SWIG_POINTER_EXCEPTION | 0);
+        if (SWIG_arg_fail(6)) SWIG_fail;
+        if (arg6 == NULL) {
+            SWIG_null_ref("agg::renderer_base<agg::pixel_formats_rgba<agg::blender_rgba<agg::rgba8,agg::order_rgba >,unsigned int > >::color_type");
+        }
+        if (SWIG_arg_fail(6)) SWIG_fail;
+    }
+    {
+        arg7 = (agg::cover_type)(SWIG_As_unsigned_SS_char(obj6)); 
+        if (SWIG_arg_fail(7)) SWIG_fail;
+    }
+    (arg1)->blend_bar(arg2,arg3,arg4,arg5,(agg::renderer_base<agg::pixel_formats_rgba<agg::blender_rgba32,agg::pixel32_type > >::pixfmt_type::color_type const &)*arg6,arg7);
+    
+    Py_INCREF(Py_None); resultobj = Py_None;
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_renderer_base_rgba_span(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::renderer_base<pixfmt_rgba_t > *arg1 = (agg::renderer_base<pixfmt_rgba_t > *) 0 ;
+    int arg2 ;
+    int arg3 ;
+    unsigned int arg4 ;
+    agg::renderer_base<agg::pixel_formats_rgba<agg::blender_rgba<agg::rgba8,agg::order_rgba >,unsigned int > >::span_data result;
+    PyObject * obj0 = 0 ;
+    PyObject * obj1 = 0 ;
+    PyObject * obj2 = 0 ;
+    PyObject * obj3 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"OOOO:renderer_base_rgba_span",&obj0,&obj1,&obj2,&obj3)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__renderer_baseTagg__pixel_formats_rgbaTagg__blender_rgba32_agg__pixel32_type_t_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    {
+        arg2 = (int)(SWIG_As_int(obj1)); 
+        if (SWIG_arg_fail(2)) SWIG_fail;
+    }
+    {
+        arg3 = (int)(SWIG_As_int(obj2)); 
+        if (SWIG_arg_fail(3)) SWIG_fail;
+    }
+    {
+        arg4 = (unsigned int)(SWIG_As_unsigned_SS_int(obj3)); 
+        if (SWIG_arg_fail(4)) SWIG_fail;
+    }
+    result = (arg1)->span(arg2,arg3,arg4);
+    
+    {
+        agg::renderer_base<agg::pixel_formats_rgba<agg::blender_rgba<agg::rgba8,agg::order_rgba >,unsigned int > >::span_data * resultptr;
+        resultptr = new agg::renderer_base<agg::pixel_formats_rgba<agg::blender_rgba<agg::rgba8,agg::order_rgba >,unsigned int > >::span_data((agg::renderer_base<agg::pixel_formats_rgba<agg::blender_rgba<agg::rgba8,agg::order_rgba >,unsigned int > >::span_data &)(result));
+        resultobj = SWIG_NewPointerObj((void *)(resultptr), SWIGTYPE_p_agg__rendering_buffer__span_data, 1);
+    }
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_renderer_base_rgba_blend_solid_hspan(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::renderer_base<pixfmt_rgba_t > *arg1 = (agg::renderer_base<pixfmt_rgba_t > *) 0 ;
+    int arg2 ;
+    int arg3 ;
+    int arg4 ;
+    agg::renderer_base<agg::pixel_formats_rgba<agg::blender_rgba<agg::rgba8,agg::order_rgba >,unsigned int > >::color_type *arg5 = 0 ;
+    agg::cover_type *arg6 = (agg::cover_type *) 0 ;
+    PyObject * obj0 = 0 ;
+    PyObject * obj1 = 0 ;
+    PyObject * obj2 = 0 ;
+    PyObject * obj3 = 0 ;
+    PyObject * obj4 = 0 ;
+    PyObject * obj5 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"OOOOOO:renderer_base_rgba_blend_solid_hspan",&obj0,&obj1,&obj2,&obj3,&obj4,&obj5)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__renderer_baseTagg__pixel_formats_rgbaTagg__blender_rgba32_agg__pixel32_type_t_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    {
+        arg2 = (int)(SWIG_As_int(obj1)); 
+        if (SWIG_arg_fail(2)) SWIG_fail;
+    }
+    {
+        arg3 = (int)(SWIG_As_int(obj2)); 
+        if (SWIG_arg_fail(3)) SWIG_fail;
+    }
+    {
+        arg4 = (int)(SWIG_As_int(obj3)); 
+        if (SWIG_arg_fail(4)) SWIG_fail;
+    }
+    {
+        SWIG_Python_ConvertPtr(obj4, (void **)&arg5, SWIGTYPE_p_agg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t__blender_type__color_type, SWIG_POINTER_EXCEPTION | 0);
+        if (SWIG_arg_fail(5)) SWIG_fail;
+        if (arg5 == NULL) {
+            SWIG_null_ref("agg::renderer_base<agg::pixel_formats_rgba<agg::blender_rgba<agg::rgba8,agg::order_rgba >,unsigned int > >::color_type");
+        }
+        if (SWIG_arg_fail(5)) SWIG_fail;
+    }
+    SWIG_Python_ConvertPtr(obj5, (void **)&arg6, SWIGTYPE_p_unsigned_char, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(6)) SWIG_fail;
+    (arg1)->blend_solid_hspan(arg2,arg3,arg4,(agg::renderer_base<agg::pixel_formats_rgba<agg::blender_rgba32,agg::pixel32_type > >::pixfmt_type::color_type const &)*arg5,(agg::cover_type const *)arg6);
+    
+    Py_INCREF(Py_None); resultobj = Py_None;
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_renderer_base_rgba_blend_solid_vspan(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::renderer_base<pixfmt_rgba_t > *arg1 = (agg::renderer_base<pixfmt_rgba_t > *) 0 ;
+    int arg2 ;
+    int arg3 ;
+    int arg4 ;
+    agg::renderer_base<agg::pixel_formats_rgba<agg::blender_rgba<agg::rgba8,agg::order_rgba >,unsigned int > >::color_type *arg5 = 0 ;
+    agg::cover_type *arg6 = (agg::cover_type *) 0 ;
+    PyObject * obj0 = 0 ;
+    PyObject * obj1 = 0 ;
+    PyObject * obj2 = 0 ;
+    PyObject * obj3 = 0 ;
+    PyObject * obj4 = 0 ;
+    PyObject * obj5 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"OOOOOO:renderer_base_rgba_blend_solid_vspan",&obj0,&obj1,&obj2,&obj3,&obj4,&obj5)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__renderer_baseTagg__pixel_formats_rgbaTagg__blender_rgba32_agg__pixel32_type_t_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    {
+        arg2 = (int)(SWIG_As_int(obj1)); 
+        if (SWIG_arg_fail(2)) SWIG_fail;
+    }
+    {
+        arg3 = (int)(SWIG_As_int(obj2)); 
+        if (SWIG_arg_fail(3)) SWIG_fail;
+    }
+    {
+        arg4 = (int)(SWIG_As_int(obj3)); 
+        if (SWIG_arg_fail(4)) SWIG_fail;
+    }
+    {
+        SWIG_Python_ConvertPtr(obj4, (void **)&arg5, SWIGTYPE_p_agg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t__blender_type__color_type, SWIG_POINTER_EXCEPTION | 0);
+        if (SWIG_arg_fail(5)) SWIG_fail;
+        if (arg5 == NULL) {
+            SWIG_null_ref("agg::renderer_base<agg::pixel_formats_rgba<agg::blender_rgba<agg::rgba8,agg::order_rgba >,unsigned int > >::color_type");
+        }
+        if (SWIG_arg_fail(5)) SWIG_fail;
+    }
+    SWIG_Python_ConvertPtr(obj5, (void **)&arg6, SWIGTYPE_p_unsigned_char, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(6)) SWIG_fail;
+    (arg1)->blend_solid_vspan(arg2,arg3,arg4,(agg::renderer_base<agg::pixel_formats_rgba<agg::blender_rgba32,agg::pixel32_type > >::pixfmt_type::color_type const &)*arg5,(agg::cover_type const *)arg6);
+    
+    Py_INCREF(Py_None); resultobj = Py_None;
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_renderer_base_rgba_copy_color_hspan(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::renderer_base<pixfmt_rgba_t > *arg1 = (agg::renderer_base<pixfmt_rgba_t > *) 0 ;
+    int arg2 ;
+    int arg3 ;
+    int arg4 ;
+    agg::renderer_base<agg::pixel_formats_rgba<agg::blender_rgba<agg::rgba8,agg::order_rgba >,unsigned int > >::color_type *arg5 = (agg::renderer_base<agg::pixel_formats_rgba<agg::blender_rgba<agg::rgba8,agg::order_rgba >,unsigned int > >::color_type *) 0 ;
+    PyObject * obj0 = 0 ;
+    PyObject * obj1 = 0 ;
+    PyObject * obj2 = 0 ;
+    PyObject * obj3 = 0 ;
+    PyObject * obj4 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"OOOOO:renderer_base_rgba_copy_color_hspan",&obj0,&obj1,&obj2,&obj3,&obj4)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__renderer_baseTagg__pixel_formats_rgbaTagg__blender_rgba32_agg__pixel32_type_t_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    {
+        arg2 = (int)(SWIG_As_int(obj1)); 
+        if (SWIG_arg_fail(2)) SWIG_fail;
+    }
+    {
+        arg3 = (int)(SWIG_As_int(obj2)); 
+        if (SWIG_arg_fail(3)) SWIG_fail;
+    }
+    {
+        arg4 = (int)(SWIG_As_int(obj3)); 
+        if (SWIG_arg_fail(4)) SWIG_fail;
+    }
+    SWIG_Python_ConvertPtr(obj4, (void **)&arg5, SWIGTYPE_p_agg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t__blender_type__color_type, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(5)) SWIG_fail;
+    (arg1)->copy_color_hspan(arg2,arg3,arg4,(agg::renderer_base<agg::pixel_formats_rgba<agg::blender_rgba<agg::rgba8,agg::order_rgba >,unsigned int > >::color_type const *)arg5);
+    
+    Py_INCREF(Py_None); resultobj = Py_None;
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_renderer_base_rgba_blend_color_hspan__SWIG_0(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::renderer_base<pixfmt_rgba_t > *arg1 = (agg::renderer_base<pixfmt_rgba_t > *) 0 ;
+    int arg2 ;
+    int arg3 ;
+    int arg4 ;
+    agg::renderer_base<agg::pixel_formats_rgba<agg::blender_rgba<agg::rgba8,agg::order_rgba >,unsigned int > >::color_type *arg5 = (agg::renderer_base<agg::pixel_formats_rgba<agg::blender_rgba<agg::rgba8,agg::order_rgba >,unsigned int > >::color_type *) 0 ;
+    agg::cover_type *arg6 = (agg::cover_type *) 0 ;
+    agg::cover_type arg7 ;
+    PyObject * obj0 = 0 ;
+    PyObject * obj1 = 0 ;
+    PyObject * obj2 = 0 ;
+    PyObject * obj3 = 0 ;
+    PyObject * obj4 = 0 ;
+    PyObject * obj5 = 0 ;
+    PyObject * obj6 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"OOOOOOO:renderer_base_rgba_blend_color_hspan",&obj0,&obj1,&obj2,&obj3,&obj4,&obj5,&obj6)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__renderer_baseTagg__pixel_formats_rgbaTagg__blender_rgba32_agg__pixel32_type_t_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    {
+        arg2 = (int)(SWIG_As_int(obj1)); 
+        if (SWIG_arg_fail(2)) SWIG_fail;
+    }
+    {
+        arg3 = (int)(SWIG_As_int(obj2)); 
+        if (SWIG_arg_fail(3)) SWIG_fail;
+    }
+    {
+        arg4 = (int)(SWIG_As_int(obj3)); 
+        if (SWIG_arg_fail(4)) SWIG_fail;
+    }
+    SWIG_Python_ConvertPtr(obj4, (void **)&arg5, SWIGTYPE_p_agg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t__blender_type__color_type, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(5)) SWIG_fail;
+    SWIG_Python_ConvertPtr(obj5, (void **)&arg6, SWIGTYPE_p_unsigned_char, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(6)) SWIG_fail;
+    {
+        arg7 = (agg::cover_type)(SWIG_As_unsigned_SS_char(obj6)); 
+        if (SWIG_arg_fail(7)) SWIG_fail;
+    }
+    (arg1)->blend_color_hspan(arg2,arg3,arg4,(agg::renderer_base<agg::pixel_formats_rgba<agg::blender_rgba<agg::rgba8,agg::order_rgba >,unsigned int > >::color_type const *)arg5,(agg::cover_type const *)arg6,arg7);
+    
+    Py_INCREF(Py_None); resultobj = Py_None;
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_renderer_base_rgba_blend_color_hspan__SWIG_1(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::renderer_base<pixfmt_rgba_t > *arg1 = (agg::renderer_base<pixfmt_rgba_t > *) 0 ;
+    int arg2 ;
+    int arg3 ;
+    int arg4 ;
+    agg::renderer_base<agg::pixel_formats_rgba<agg::blender_rgba<agg::rgba8,agg::order_rgba >,unsigned int > >::color_type *arg5 = (agg::renderer_base<agg::pixel_formats_rgba<agg::blender_rgba<agg::rgba8,agg::order_rgba >,unsigned int > >::color_type *) 0 ;
+    agg::cover_type *arg6 = (agg::cover_type *) 0 ;
+    PyObject * obj0 = 0 ;
+    PyObject * obj1 = 0 ;
+    PyObject * obj2 = 0 ;
+    PyObject * obj3 = 0 ;
+    PyObject * obj4 = 0 ;
+    PyObject * obj5 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"OOOOOO:renderer_base_rgba_blend_color_hspan",&obj0,&obj1,&obj2,&obj3,&obj4,&obj5)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__renderer_baseTagg__pixel_formats_rgbaTagg__blender_rgba32_agg__pixel32_type_t_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    {
+        arg2 = (int)(SWIG_As_int(obj1)); 
+        if (SWIG_arg_fail(2)) SWIG_fail;
+    }
+    {
+        arg3 = (int)(SWIG_As_int(obj2)); 
+        if (SWIG_arg_fail(3)) SWIG_fail;
+    }
+    {
+        arg4 = (int)(SWIG_As_int(obj3)); 
+        if (SWIG_arg_fail(4)) SWIG_fail;
+    }
+    SWIG_Python_ConvertPtr(obj4, (void **)&arg5, SWIGTYPE_p_agg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t__blender_type__color_type, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(5)) SWIG_fail;
+    SWIG_Python_ConvertPtr(obj5, (void **)&arg6, SWIGTYPE_p_unsigned_char, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(6)) SWIG_fail;
+    (arg1)->blend_color_hspan(arg2,arg3,arg4,(agg::renderer_base<agg::pixel_formats_rgba<agg::blender_rgba<agg::rgba8,agg::order_rgba >,unsigned int > >::color_type const *)arg5,(agg::cover_type const *)arg6);
+    
+    Py_INCREF(Py_None); resultobj = Py_None;
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_renderer_base_rgba_blend_color_hspan(PyObject *self, PyObject *args) {
+    int argc;
+    PyObject *argv[8];
+    int ii;
+    
+    argc = PyObject_Length(args);
+    for (ii = 0; (ii < argc) && (ii < 7); ii++) {
+        argv[ii] = PyTuple_GetItem(args,ii);
+    }
+    if (argc == 6) {
+        int _v;
+        {
+            void *ptr;
+            if (SWIG_ConvertPtr(argv[0], &ptr, SWIGTYPE_p_agg__renderer_baseTagg__pixel_formats_rgbaTagg__blender_rgba32_agg__pixel32_type_t_t, 0) == -1) {
+                _v = 0;
+                PyErr_Clear();
+            } else {
+                _v = 1;
+            }
+        }
+        if (_v) {
+            _v = SWIG_Check_int(argv[1]);
+            if (_v) {
+                _v = SWIG_Check_int(argv[2]);
+                if (_v) {
+                    _v = SWIG_Check_int(argv[3]);
+                    if (_v) {
+                        {
+                            void *ptr;
+                            if (SWIG_ConvertPtr(argv[4], &ptr, SWIGTYPE_p_agg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t__blender_type__color_type, 0) == -1) {
+                                _v = 0;
+                                PyErr_Clear();
+                            } else {
+                                _v = 1;
+                            }
+                        }
+                        if (_v) {
+                            {
+                                void *ptr;
+                                if (SWIG_ConvertPtr(argv[5], &ptr, SWIGTYPE_p_unsigned_char, 0) == -1) {
+                                    _v = 0;
+                                    PyErr_Clear();
+                                } else {
+                                    _v = 1;
+                                }
+                            }
+                            if (_v) {
+                                return _wrap_renderer_base_rgba_blend_color_hspan__SWIG_1(self,args);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    if (argc == 7) {
+        int _v;
+        {
+            void *ptr;
+            if (SWIG_ConvertPtr(argv[0], &ptr, SWIGTYPE_p_agg__renderer_baseTagg__pixel_formats_rgbaTagg__blender_rgba32_agg__pixel32_type_t_t, 0) == -1) {
+                _v = 0;
+                PyErr_Clear();
+            } else {
+                _v = 1;
+            }
+        }
+        if (_v) {
+            _v = SWIG_Check_int(argv[1]);
+            if (_v) {
+                _v = SWIG_Check_int(argv[2]);
+                if (_v) {
+                    _v = SWIG_Check_int(argv[3]);
+                    if (_v) {
+                        {
+                            void *ptr;
+                            if (SWIG_ConvertPtr(argv[4], &ptr, SWIGTYPE_p_agg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t__blender_type__color_type, 0) == -1) {
+                                _v = 0;
+                                PyErr_Clear();
+                            } else {
+                                _v = 1;
+                            }
+                        }
+                        if (_v) {
+                            {
+                                void *ptr;
+                                if (SWIG_ConvertPtr(argv[5], &ptr, SWIGTYPE_p_unsigned_char, 0) == -1) {
+                                    _v = 0;
+                                    PyErr_Clear();
+                                } else {
+                                    _v = 1;
+                                }
+                            }
+                            if (_v) {
+                                _v = SWIG_Check_unsigned_SS_char(argv[6]);
+                                if (_v) {
+                                    return _wrap_renderer_base_rgba_blend_color_hspan__SWIG_0(self,args);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
+    PyErr_SetString(PyExc_NotImplementedError,"No matching function for overloaded 'renderer_base_rgba_blend_color_hspan'");
+    return NULL;
+}
+
+
+static PyObject *_wrap_renderer_base_rgba_blend_color_vspan__SWIG_0(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::renderer_base<pixfmt_rgba_t > *arg1 = (agg::renderer_base<pixfmt_rgba_t > *) 0 ;
+    int arg2 ;
+    int arg3 ;
+    int arg4 ;
+    agg::renderer_base<agg::pixel_formats_rgba<agg::blender_rgba<agg::rgba8,agg::order_rgba >,unsigned int > >::color_type *arg5 = (agg::renderer_base<agg::pixel_formats_rgba<agg::blender_rgba<agg::rgba8,agg::order_rgba >,unsigned int > >::color_type *) 0 ;
+    agg::cover_type *arg6 = (agg::cover_type *) 0 ;
+    agg::cover_type arg7 ;
+    PyObject * obj0 = 0 ;
+    PyObject * obj1 = 0 ;
+    PyObject * obj2 = 0 ;
+    PyObject * obj3 = 0 ;
+    PyObject * obj4 = 0 ;
+    PyObject * obj5 = 0 ;
+    PyObject * obj6 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"OOOOOOO:renderer_base_rgba_blend_color_vspan",&obj0,&obj1,&obj2,&obj3,&obj4,&obj5,&obj6)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__renderer_baseTagg__pixel_formats_rgbaTagg__blender_rgba32_agg__pixel32_type_t_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    {
+        arg2 = (int)(SWIG_As_int(obj1)); 
+        if (SWIG_arg_fail(2)) SWIG_fail;
+    }
+    {
+        arg3 = (int)(SWIG_As_int(obj2)); 
+        if (SWIG_arg_fail(3)) SWIG_fail;
+    }
+    {
+        arg4 = (int)(SWIG_As_int(obj3)); 
+        if (SWIG_arg_fail(4)) SWIG_fail;
+    }
+    SWIG_Python_ConvertPtr(obj4, (void **)&arg5, SWIGTYPE_p_agg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t__blender_type__color_type, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(5)) SWIG_fail;
+    SWIG_Python_ConvertPtr(obj5, (void **)&arg6, SWIGTYPE_p_unsigned_char, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(6)) SWIG_fail;
+    {
+        arg7 = (agg::cover_type)(SWIG_As_unsigned_SS_char(obj6)); 
+        if (SWIG_arg_fail(7)) SWIG_fail;
+    }
+    (arg1)->blend_color_vspan(arg2,arg3,arg4,(agg::renderer_base<agg::pixel_formats_rgba<agg::blender_rgba<agg::rgba8,agg::order_rgba >,unsigned int > >::color_type const *)arg5,(agg::cover_type const *)arg6,arg7);
+    
+    Py_INCREF(Py_None); resultobj = Py_None;
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_renderer_base_rgba_blend_color_vspan__SWIG_1(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::renderer_base<pixfmt_rgba_t > *arg1 = (agg::renderer_base<pixfmt_rgba_t > *) 0 ;
+    int arg2 ;
+    int arg3 ;
+    int arg4 ;
+    agg::renderer_base<agg::pixel_formats_rgba<agg::blender_rgba<agg::rgba8,agg::order_rgba >,unsigned int > >::color_type *arg5 = (agg::renderer_base<agg::pixel_formats_rgba<agg::blender_rgba<agg::rgba8,agg::order_rgba >,unsigned int > >::color_type *) 0 ;
+    agg::cover_type *arg6 = (agg::cover_type *) 0 ;
+    PyObject * obj0 = 0 ;
+    PyObject * obj1 = 0 ;
+    PyObject * obj2 = 0 ;
+    PyObject * obj3 = 0 ;
+    PyObject * obj4 = 0 ;
+    PyObject * obj5 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"OOOOOO:renderer_base_rgba_blend_color_vspan",&obj0,&obj1,&obj2,&obj3,&obj4,&obj5)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__renderer_baseTagg__pixel_formats_rgbaTagg__blender_rgba32_agg__pixel32_type_t_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    {
+        arg2 = (int)(SWIG_As_int(obj1)); 
+        if (SWIG_arg_fail(2)) SWIG_fail;
+    }
+    {
+        arg3 = (int)(SWIG_As_int(obj2)); 
+        if (SWIG_arg_fail(3)) SWIG_fail;
+    }
+    {
+        arg4 = (int)(SWIG_As_int(obj3)); 
+        if (SWIG_arg_fail(4)) SWIG_fail;
+    }
+    SWIG_Python_ConvertPtr(obj4, (void **)&arg5, SWIGTYPE_p_agg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t__blender_type__color_type, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(5)) SWIG_fail;
+    SWIG_Python_ConvertPtr(obj5, (void **)&arg6, SWIGTYPE_p_unsigned_char, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(6)) SWIG_fail;
+    (arg1)->blend_color_vspan(arg2,arg3,arg4,(agg::renderer_base<agg::pixel_formats_rgba<agg::blender_rgba<agg::rgba8,agg::order_rgba >,unsigned int > >::color_type const *)arg5,(agg::cover_type const *)arg6);
+    
+    Py_INCREF(Py_None); resultobj = Py_None;
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_renderer_base_rgba_blend_color_vspan(PyObject *self, PyObject *args) {
+    int argc;
+    PyObject *argv[8];
+    int ii;
+    
+    argc = PyObject_Length(args);
+    for (ii = 0; (ii < argc) && (ii < 7); ii++) {
+        argv[ii] = PyTuple_GetItem(args,ii);
+    }
+    if (argc == 6) {
+        int _v;
+        {
+            void *ptr;
+            if (SWIG_ConvertPtr(argv[0], &ptr, SWIGTYPE_p_agg__renderer_baseTagg__pixel_formats_rgbaTagg__blender_rgba32_agg__pixel32_type_t_t, 0) == -1) {
+                _v = 0;
+                PyErr_Clear();
+            } else {
+                _v = 1;
+            }
+        }
+        if (_v) {
+            _v = SWIG_Check_int(argv[1]);
+            if (_v) {
+                _v = SWIG_Check_int(argv[2]);
+                if (_v) {
+                    _v = SWIG_Check_int(argv[3]);
+                    if (_v) {
+                        {
+                            void *ptr;
+                            if (SWIG_ConvertPtr(argv[4], &ptr, SWIGTYPE_p_agg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t__blender_type__color_type, 0) == -1) {
+                                _v = 0;
+                                PyErr_Clear();
+                            } else {
+                                _v = 1;
+                            }
+                        }
+                        if (_v) {
+                            {
+                                void *ptr;
+                                if (SWIG_ConvertPtr(argv[5], &ptr, SWIGTYPE_p_unsigned_char, 0) == -1) {
+                                    _v = 0;
+                                    PyErr_Clear();
+                                } else {
+                                    _v = 1;
+                                }
+                            }
+                            if (_v) {
+                                return _wrap_renderer_base_rgba_blend_color_vspan__SWIG_1(self,args);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    if (argc == 7) {
+        int _v;
+        {
+            void *ptr;
+            if (SWIG_ConvertPtr(argv[0], &ptr, SWIGTYPE_p_agg__renderer_baseTagg__pixel_formats_rgbaTagg__blender_rgba32_agg__pixel32_type_t_t, 0) == -1) {
+                _v = 0;
+                PyErr_Clear();
+            } else {
+                _v = 1;
+            }
+        }
+        if (_v) {
+            _v = SWIG_Check_int(argv[1]);
+            if (_v) {
+                _v = SWIG_Check_int(argv[2]);
+                if (_v) {
+                    _v = SWIG_Check_int(argv[3]);
+                    if (_v) {
+                        {
+                            void *ptr;
+                            if (SWIG_ConvertPtr(argv[4], &ptr, SWIGTYPE_p_agg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t__blender_type__color_type, 0) == -1) {
+                                _v = 0;
+                                PyErr_Clear();
+                            } else {
+                                _v = 1;
+                            }
+                        }
+                        if (_v) {
+                            {
+                                void *ptr;
+                                if (SWIG_ConvertPtr(argv[5], &ptr, SWIGTYPE_p_unsigned_char, 0) == -1) {
+                                    _v = 0;
+                                    PyErr_Clear();
+                                } else {
+                                    _v = 1;
+                                }
+                            }
+                            if (_v) {
+                                _v = SWIG_Check_unsigned_SS_char(argv[6]);
+                                if (_v) {
+                                    return _wrap_renderer_base_rgba_blend_color_vspan__SWIG_0(self,args);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
+    PyErr_SetString(PyExc_NotImplementedError,"No matching function for overloaded 'renderer_base_rgba_blend_color_vspan'");
+    return NULL;
+}
+
+
+static PyObject *_wrap_renderer_base_rgba_copy_color_hspan_no_clip(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::renderer_base<pixfmt_rgba_t > *arg1 = (agg::renderer_base<pixfmt_rgba_t > *) 0 ;
+    int arg2 ;
+    int arg3 ;
+    int arg4 ;
+    agg::renderer_base<agg::pixel_formats_rgba<agg::blender_rgba<agg::rgba8,agg::order_rgba >,unsigned int > >::color_type *arg5 = (agg::renderer_base<agg::pixel_formats_rgba<agg::blender_rgba<agg::rgba8,agg::order_rgba >,unsigned int > >::color_type *) 0 ;
+    PyObject * obj0 = 0 ;
+    PyObject * obj1 = 0 ;
+    PyObject * obj2 = 0 ;
+    PyObject * obj3 = 0 ;
+    PyObject * obj4 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"OOOOO:renderer_base_rgba_copy_color_hspan_no_clip",&obj0,&obj1,&obj2,&obj3,&obj4)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__renderer_baseTagg__pixel_formats_rgbaTagg__blender_rgba32_agg__pixel32_type_t_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    {
+        arg2 = (int)(SWIG_As_int(obj1)); 
+        if (SWIG_arg_fail(2)) SWIG_fail;
+    }
+    {
+        arg3 = (int)(SWIG_As_int(obj2)); 
+        if (SWIG_arg_fail(3)) SWIG_fail;
+    }
+    {
+        arg4 = (int)(SWIG_As_int(obj3)); 
+        if (SWIG_arg_fail(4)) SWIG_fail;
+    }
+    SWIG_Python_ConvertPtr(obj4, (void **)&arg5, SWIGTYPE_p_agg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t__blender_type__color_type, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(5)) SWIG_fail;
+    (arg1)->copy_color_hspan_no_clip(arg2,arg3,arg4,(agg::renderer_base<agg::pixel_formats_rgba<agg::blender_rgba<agg::rgba8,agg::order_rgba >,unsigned int > >::color_type const *)arg5);
+    
+    Py_INCREF(Py_None); resultobj = Py_None;
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_renderer_base_rgba_blend_color_hspan_no_clip__SWIG_0(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::renderer_base<pixfmt_rgba_t > *arg1 = (agg::renderer_base<pixfmt_rgba_t > *) 0 ;
+    int arg2 ;
+    int arg3 ;
+    int arg4 ;
+    agg::renderer_base<agg::pixel_formats_rgba<agg::blender_rgba<agg::rgba8,agg::order_rgba >,unsigned int > >::color_type *arg5 = (agg::renderer_base<agg::pixel_formats_rgba<agg::blender_rgba<agg::rgba8,agg::order_rgba >,unsigned int > >::color_type *) 0 ;
+    agg::cover_type *arg6 = (agg::cover_type *) 0 ;
+    agg::cover_type arg7 ;
+    PyObject * obj0 = 0 ;
+    PyObject * obj1 = 0 ;
+    PyObject * obj2 = 0 ;
+    PyObject * obj3 = 0 ;
+    PyObject * obj4 = 0 ;
+    PyObject * obj5 = 0 ;
+    PyObject * obj6 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"OOOOOOO:renderer_base_rgba_blend_color_hspan_no_clip",&obj0,&obj1,&obj2,&obj3,&obj4,&obj5,&obj6)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__renderer_baseTagg__pixel_formats_rgbaTagg__blender_rgba32_agg__pixel32_type_t_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    {
+        arg2 = (int)(SWIG_As_int(obj1)); 
+        if (SWIG_arg_fail(2)) SWIG_fail;
+    }
+    {
+        arg3 = (int)(SWIG_As_int(obj2)); 
+        if (SWIG_arg_fail(3)) SWIG_fail;
+    }
+    {
+        arg4 = (int)(SWIG_As_int(obj3)); 
+        if (SWIG_arg_fail(4)) SWIG_fail;
+    }
+    SWIG_Python_ConvertPtr(obj4, (void **)&arg5, SWIGTYPE_p_agg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t__blender_type__color_type, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(5)) SWIG_fail;
+    SWIG_Python_ConvertPtr(obj5, (void **)&arg6, SWIGTYPE_p_unsigned_char, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(6)) SWIG_fail;
+    {
+        arg7 = (agg::cover_type)(SWIG_As_unsigned_SS_char(obj6)); 
+        if (SWIG_arg_fail(7)) SWIG_fail;
+    }
+    (arg1)->blend_color_hspan_no_clip(arg2,arg3,arg4,(agg::renderer_base<agg::pixel_formats_rgba<agg::blender_rgba<agg::rgba8,agg::order_rgba >,unsigned int > >::color_type const *)arg5,(agg::cover_type const *)arg6,arg7);
+    
+    Py_INCREF(Py_None); resultobj = Py_None;
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_renderer_base_rgba_blend_color_hspan_no_clip__SWIG_1(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::renderer_base<pixfmt_rgba_t > *arg1 = (agg::renderer_base<pixfmt_rgba_t > *) 0 ;
+    int arg2 ;
+    int arg3 ;
+    int arg4 ;
+    agg::renderer_base<agg::pixel_formats_rgba<agg::blender_rgba<agg::rgba8,agg::order_rgba >,unsigned int > >::color_type *arg5 = (agg::renderer_base<agg::pixel_formats_rgba<agg::blender_rgba<agg::rgba8,agg::order_rgba >,unsigned int > >::color_type *) 0 ;
+    agg::cover_type *arg6 = (agg::cover_type *) 0 ;
+    PyObject * obj0 = 0 ;
+    PyObject * obj1 = 0 ;
+    PyObject * obj2 = 0 ;
+    PyObject * obj3 = 0 ;
+    PyObject * obj4 = 0 ;
+    PyObject * obj5 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"OOOOOO:renderer_base_rgba_blend_color_hspan_no_clip",&obj0,&obj1,&obj2,&obj3,&obj4,&obj5)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__renderer_baseTagg__pixel_formats_rgbaTagg__blender_rgba32_agg__pixel32_type_t_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    {
+        arg2 = (int)(SWIG_As_int(obj1)); 
+        if (SWIG_arg_fail(2)) SWIG_fail;
+    }
+    {
+        arg3 = (int)(SWIG_As_int(obj2)); 
+        if (SWIG_arg_fail(3)) SWIG_fail;
+    }
+    {
+        arg4 = (int)(SWIG_As_int(obj3)); 
+        if (SWIG_arg_fail(4)) SWIG_fail;
+    }
+    SWIG_Python_ConvertPtr(obj4, (void **)&arg5, SWIGTYPE_p_agg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t__blender_type__color_type, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(5)) SWIG_fail;
+    SWIG_Python_ConvertPtr(obj5, (void **)&arg6, SWIGTYPE_p_unsigned_char, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(6)) SWIG_fail;
+    (arg1)->blend_color_hspan_no_clip(arg2,arg3,arg4,(agg::renderer_base<agg::pixel_formats_rgba<agg::blender_rgba<agg::rgba8,agg::order_rgba >,unsigned int > >::color_type const *)arg5,(agg::cover_type const *)arg6);
+    
+    Py_INCREF(Py_None); resultobj = Py_None;
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_renderer_base_rgba_blend_color_hspan_no_clip(PyObject *self, PyObject *args) {
+    int argc;
+    PyObject *argv[8];
+    int ii;
+    
+    argc = PyObject_Length(args);
+    for (ii = 0; (ii < argc) && (ii < 7); ii++) {
+        argv[ii] = PyTuple_GetItem(args,ii);
+    }
+    if (argc == 6) {
+        int _v;
+        {
+            void *ptr;
+            if (SWIG_ConvertPtr(argv[0], &ptr, SWIGTYPE_p_agg__renderer_baseTagg__pixel_formats_rgbaTagg__blender_rgba32_agg__pixel32_type_t_t, 0) == -1) {
+                _v = 0;
+                PyErr_Clear();
+            } else {
+                _v = 1;
+            }
+        }
+        if (_v) {
+            _v = SWIG_Check_int(argv[1]);
+            if (_v) {
+                _v = SWIG_Check_int(argv[2]);
+                if (_v) {
+                    _v = SWIG_Check_int(argv[3]);
+                    if (_v) {
+                        {
+                            void *ptr;
+                            if (SWIG_ConvertPtr(argv[4], &ptr, SWIGTYPE_p_agg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t__blender_type__color_type, 0) == -1) {
+                                _v = 0;
+                                PyErr_Clear();
+                            } else {
+                                _v = 1;
+                            }
+                        }
+                        if (_v) {
+                            {
+                                void *ptr;
+                                if (SWIG_ConvertPtr(argv[5], &ptr, SWIGTYPE_p_unsigned_char, 0) == -1) {
+                                    _v = 0;
+                                    PyErr_Clear();
+                                } else {
+                                    _v = 1;
+                                }
+                            }
+                            if (_v) {
+                                return _wrap_renderer_base_rgba_blend_color_hspan_no_clip__SWIG_1(self,args);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    if (argc == 7) {
+        int _v;
+        {
+            void *ptr;
+            if (SWIG_ConvertPtr(argv[0], &ptr, SWIGTYPE_p_agg__renderer_baseTagg__pixel_formats_rgbaTagg__blender_rgba32_agg__pixel32_type_t_t, 0) == -1) {
+                _v = 0;
+                PyErr_Clear();
+            } else {
+                _v = 1;
+            }
+        }
+        if (_v) {
+            _v = SWIG_Check_int(argv[1]);
+            if (_v) {
+                _v = SWIG_Check_int(argv[2]);
+                if (_v) {
+                    _v = SWIG_Check_int(argv[3]);
+                    if (_v) {
+                        {
+                            void *ptr;
+                            if (SWIG_ConvertPtr(argv[4], &ptr, SWIGTYPE_p_agg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t__blender_type__color_type, 0) == -1) {
+                                _v = 0;
+                                PyErr_Clear();
+                            } else {
+                                _v = 1;
+                            }
+                        }
+                        if (_v) {
+                            {
+                                void *ptr;
+                                if (SWIG_ConvertPtr(argv[5], &ptr, SWIGTYPE_p_unsigned_char, 0) == -1) {
+                                    _v = 0;
+                                    PyErr_Clear();
+                                } else {
+                                    _v = 1;
+                                }
+                            }
+                            if (_v) {
+                                _v = SWIG_Check_unsigned_SS_char(argv[6]);
+                                if (_v) {
+                                    return _wrap_renderer_base_rgba_blend_color_hspan_no_clip__SWIG_0(self,args);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
+    PyErr_SetString(PyExc_NotImplementedError,"No matching function for overloaded 'renderer_base_rgba_blend_color_hspan_no_clip'");
+    return NULL;
+}
+
+
+static PyObject *_wrap_renderer_base_rgba_blend_color_vspan_no_clip__SWIG_0(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::renderer_base<pixfmt_rgba_t > *arg1 = (agg::renderer_base<pixfmt_rgba_t > *) 0 ;
+    int arg2 ;
+    int arg3 ;
+    int arg4 ;
+    agg::renderer_base<agg::pixel_formats_rgba<agg::blender_rgba<agg::rgba8,agg::order_rgba >,unsigned int > >::color_type *arg5 = (agg::renderer_base<agg::pixel_formats_rgba<agg::blender_rgba<agg::rgba8,agg::order_rgba >,unsigned int > >::color_type *) 0 ;
+    agg::cover_type *arg6 = (agg::cover_type *) 0 ;
+    agg::cover_type arg7 ;
+    PyObject * obj0 = 0 ;
+    PyObject * obj1 = 0 ;
+    PyObject * obj2 = 0 ;
+    PyObject * obj3 = 0 ;
+    PyObject * obj4 = 0 ;
+    PyObject * obj5 = 0 ;
+    PyObject * obj6 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"OOOOOOO:renderer_base_rgba_blend_color_vspan_no_clip",&obj0,&obj1,&obj2,&obj3,&obj4,&obj5,&obj6)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__renderer_baseTagg__pixel_formats_rgbaTagg__blender_rgba32_agg__pixel32_type_t_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    {
+        arg2 = (int)(SWIG_As_int(obj1)); 
+        if (SWIG_arg_fail(2)) SWIG_fail;
+    }
+    {
+        arg3 = (int)(SWIG_As_int(obj2)); 
+        if (SWIG_arg_fail(3)) SWIG_fail;
+    }
+    {
+        arg4 = (int)(SWIG_As_int(obj3)); 
+        if (SWIG_arg_fail(4)) SWIG_fail;
+    }
+    SWIG_Python_ConvertPtr(obj4, (void **)&arg5, SWIGTYPE_p_agg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t__blender_type__color_type, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(5)) SWIG_fail;
+    SWIG_Python_ConvertPtr(obj5, (void **)&arg6, SWIGTYPE_p_unsigned_char, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(6)) SWIG_fail;
+    {
+        arg7 = (agg::cover_type)(SWIG_As_unsigned_SS_char(obj6)); 
+        if (SWIG_arg_fail(7)) SWIG_fail;
+    }
+    (arg1)->blend_color_vspan_no_clip(arg2,arg3,arg4,(agg::renderer_base<agg::pixel_formats_rgba<agg::blender_rgba<agg::rgba8,agg::order_rgba >,unsigned int > >::color_type const *)arg5,(agg::cover_type const *)arg6,arg7);
+    
+    Py_INCREF(Py_None); resultobj = Py_None;
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_renderer_base_rgba_blend_color_vspan_no_clip__SWIG_1(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::renderer_base<pixfmt_rgba_t > *arg1 = (agg::renderer_base<pixfmt_rgba_t > *) 0 ;
+    int arg2 ;
+    int arg3 ;
+    int arg4 ;
+    agg::renderer_base<agg::pixel_formats_rgba<agg::blender_rgba<agg::rgba8,agg::order_rgba >,unsigned int > >::color_type *arg5 = (agg::renderer_base<agg::pixel_formats_rgba<agg::blender_rgba<agg::rgba8,agg::order_rgba >,unsigned int > >::color_type *) 0 ;
+    agg::cover_type *arg6 = (agg::cover_type *) 0 ;
+    PyObject * obj0 = 0 ;
+    PyObject * obj1 = 0 ;
+    PyObject * obj2 = 0 ;
+    PyObject * obj3 = 0 ;
+    PyObject * obj4 = 0 ;
+    PyObject * obj5 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"OOOOOO:renderer_base_rgba_blend_color_vspan_no_clip",&obj0,&obj1,&obj2,&obj3,&obj4,&obj5)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__renderer_baseTagg__pixel_formats_rgbaTagg__blender_rgba32_agg__pixel32_type_t_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    {
+        arg2 = (int)(SWIG_As_int(obj1)); 
+        if (SWIG_arg_fail(2)) SWIG_fail;
+    }
+    {
+        arg3 = (int)(SWIG_As_int(obj2)); 
+        if (SWIG_arg_fail(3)) SWIG_fail;
+    }
+    {
+        arg4 = (int)(SWIG_As_int(obj3)); 
+        if (SWIG_arg_fail(4)) SWIG_fail;
+    }
+    SWIG_Python_ConvertPtr(obj4, (void **)&arg5, SWIGTYPE_p_agg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t__blender_type__color_type, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(5)) SWIG_fail;
+    SWIG_Python_ConvertPtr(obj5, (void **)&arg6, SWIGTYPE_p_unsigned_char, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(6)) SWIG_fail;
+    (arg1)->blend_color_vspan_no_clip(arg2,arg3,arg4,(agg::renderer_base<agg::pixel_formats_rgba<agg::blender_rgba<agg::rgba8,agg::order_rgba >,unsigned int > >::color_type const *)arg5,(agg::cover_type const *)arg6);
+    
+    Py_INCREF(Py_None); resultobj = Py_None;
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_renderer_base_rgba_blend_color_vspan_no_clip(PyObject *self, PyObject *args) {
+    int argc;
+    PyObject *argv[8];
+    int ii;
+    
+    argc = PyObject_Length(args);
+    for (ii = 0; (ii < argc) && (ii < 7); ii++) {
+        argv[ii] = PyTuple_GetItem(args,ii);
+    }
+    if (argc == 6) {
+        int _v;
+        {
+            void *ptr;
+            if (SWIG_ConvertPtr(argv[0], &ptr, SWIGTYPE_p_agg__renderer_baseTagg__pixel_formats_rgbaTagg__blender_rgba32_agg__pixel32_type_t_t, 0) == -1) {
+                _v = 0;
+                PyErr_Clear();
+            } else {
+                _v = 1;
+            }
+        }
+        if (_v) {
+            _v = SWIG_Check_int(argv[1]);
+            if (_v) {
+                _v = SWIG_Check_int(argv[2]);
+                if (_v) {
+                    _v = SWIG_Check_int(argv[3]);
+                    if (_v) {
+                        {
+                            void *ptr;
+                            if (SWIG_ConvertPtr(argv[4], &ptr, SWIGTYPE_p_agg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t__blender_type__color_type, 0) == -1) {
+                                _v = 0;
+                                PyErr_Clear();
+                            } else {
+                                _v = 1;
+                            }
+                        }
+                        if (_v) {
+                            {
+                                void *ptr;
+                                if (SWIG_ConvertPtr(argv[5], &ptr, SWIGTYPE_p_unsigned_char, 0) == -1) {
+                                    _v = 0;
+                                    PyErr_Clear();
+                                } else {
+                                    _v = 1;
+                                }
+                            }
+                            if (_v) {
+                                return _wrap_renderer_base_rgba_blend_color_vspan_no_clip__SWIG_1(self,args);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    if (argc == 7) {
+        int _v;
+        {
+            void *ptr;
+            if (SWIG_ConvertPtr(argv[0], &ptr, SWIGTYPE_p_agg__renderer_baseTagg__pixel_formats_rgbaTagg__blender_rgba32_agg__pixel32_type_t_t, 0) == -1) {
+                _v = 0;
+                PyErr_Clear();
+            } else {
+                _v = 1;
+            }
+        }
+        if (_v) {
+            _v = SWIG_Check_int(argv[1]);
+            if (_v) {
+                _v = SWIG_Check_int(argv[2]);
+                if (_v) {
+                    _v = SWIG_Check_int(argv[3]);
+                    if (_v) {
+                        {
+                            void *ptr;
+                            if (SWIG_ConvertPtr(argv[4], &ptr, SWIGTYPE_p_agg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t__blender_type__color_type, 0) == -1) {
+                                _v = 0;
+                                PyErr_Clear();
+                            } else {
+                                _v = 1;
+                            }
+                        }
+                        if (_v) {
+                            {
+                                void *ptr;
+                                if (SWIG_ConvertPtr(argv[5], &ptr, SWIGTYPE_p_unsigned_char, 0) == -1) {
+                                    _v = 0;
+                                    PyErr_Clear();
+                                } else {
+                                    _v = 1;
+                                }
+                            }
+                            if (_v) {
+                                _v = SWIG_Check_unsigned_SS_char(argv[6]);
+                                if (_v) {
+                                    return _wrap_renderer_base_rgba_blend_color_vspan_no_clip__SWIG_0(self,args);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
+    PyErr_SetString(PyExc_NotImplementedError,"No matching function for overloaded 'renderer_base_rgba_blend_color_vspan_no_clip'");
+    return NULL;
+}
+
+
+static PyObject *_wrap_renderer_base_rgba_clip_rect_area(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::renderer_base<pixfmt_rgba_t > *arg1 = (agg::renderer_base<pixfmt_rgba_t > *) 0 ;
+    agg::rect *arg2 = 0 ;
+    agg::rect *arg3 = 0 ;
+    int arg4 ;
+    int arg5 ;
+    agg::rect result;
+    PyObject * obj0 = 0 ;
+    PyObject * obj1 = 0 ;
+    PyObject * obj2 = 0 ;
+    PyObject * obj3 = 0 ;
+    PyObject * obj4 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"OOOOO:renderer_base_rgba_clip_rect_area",&obj0,&obj1,&obj2,&obj3,&obj4)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__renderer_baseTagg__pixel_formats_rgbaTagg__blender_rgba32_agg__pixel32_type_t_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    {
+        SWIG_Python_ConvertPtr(obj1, (void **)&arg2, SWIGTYPE_p_agg__rect_baseTint_t, SWIG_POINTER_EXCEPTION | 0);
+        if (SWIG_arg_fail(2)) SWIG_fail;
+        if (arg2 == NULL) {
+            SWIG_null_ref("agg::rect");
+        }
+        if (SWIG_arg_fail(2)) SWIG_fail;
+    }
+    {
+        SWIG_Python_ConvertPtr(obj2, (void **)&arg3, SWIGTYPE_p_agg__rect_baseTint_t, SWIG_POINTER_EXCEPTION | 0);
+        if (SWIG_arg_fail(3)) SWIG_fail;
+        if (arg3 == NULL) {
+            SWIG_null_ref("agg::rect");
+        }
+        if (SWIG_arg_fail(3)) SWIG_fail;
+    }
+    {
+        arg4 = (int)(SWIG_As_int(obj3)); 
+        if (SWIG_arg_fail(4)) SWIG_fail;
+    }
+    {
+        arg5 = (int)(SWIG_As_int(obj4)); 
+        if (SWIG_arg_fail(5)) SWIG_fail;
+    }
+    result = ((agg::renderer_base<pixfmt_rgba_t > const *)arg1)->clip_rect_area(*arg2,*arg3,arg4,arg5);
+    
+    {
+        agg::rect * resultptr;
+        resultptr = new agg::rect((agg::rect &)(result));
+        resultobj = SWIG_NewPointerObj((void *)(resultptr), SWIGTYPE_p_agg__rect_baseTint_t, 1);
+    }
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_renderer_base_rgba_copy_from__SWIG_0(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::renderer_base<pixfmt_rgba_t > *arg1 = (agg::renderer_base<pixfmt_rgba_t > *) 0 ;
+    agg::rendering_buffer *arg2 = 0 ;
+    agg::rect *arg3 = (agg::rect *) 0 ;
+    int arg4 ;
+    int arg5 ;
+    PyObject * obj0 = 0 ;
+    PyObject * obj1 = 0 ;
+    PyObject * obj2 = 0 ;
+    PyObject * obj3 = 0 ;
+    PyObject * obj4 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"OOOOO:renderer_base_rgba_copy_from",&obj0,&obj1,&obj2,&obj3,&obj4)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__renderer_baseTagg__pixel_formats_rgbaTagg__blender_rgba32_agg__pixel32_type_t_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    {
+        SWIG_Python_ConvertPtr(obj1, (void **)&arg2, SWIGTYPE_p_agg__row_ptr_cacheTunsigned_char_t, SWIG_POINTER_EXCEPTION | 0);
+        if (SWIG_arg_fail(2)) SWIG_fail;
+        if (arg2 == NULL) {
+            SWIG_null_ref("agg::rendering_buffer");
+        }
+        if (SWIG_arg_fail(2)) SWIG_fail;
+    }
+    SWIG_Python_ConvertPtr(obj2, (void **)&arg3, SWIGTYPE_p_agg__rect_baseTint_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(3)) SWIG_fail;
+    {
+        arg4 = (int)(SWIG_As_int(obj3)); 
+        if (SWIG_arg_fail(4)) SWIG_fail;
+    }
+    {
+        arg5 = (int)(SWIG_As_int(obj4)); 
+        if (SWIG_arg_fail(5)) SWIG_fail;
+    }
+    (arg1)->copy_from((agg::row_ptr_cache<agg::int8u > const &)*arg2,(agg::rect const *)arg3,arg4,arg5);
+    
+    Py_INCREF(Py_None); resultobj = Py_None;
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_renderer_base_rgba_copy_from__SWIG_1(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::renderer_base<pixfmt_rgba_t > *arg1 = (agg::renderer_base<pixfmt_rgba_t > *) 0 ;
+    agg::rendering_buffer *arg2 = 0 ;
+    agg::rect *arg3 = (agg::rect *) 0 ;
+    int arg4 ;
+    PyObject * obj0 = 0 ;
+    PyObject * obj1 = 0 ;
+    PyObject * obj2 = 0 ;
+    PyObject * obj3 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"OOOO:renderer_base_rgba_copy_from",&obj0,&obj1,&obj2,&obj3)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__renderer_baseTagg__pixel_formats_rgbaTagg__blender_rgba32_agg__pixel32_type_t_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    {
+        SWIG_Python_ConvertPtr(obj1, (void **)&arg2, SWIGTYPE_p_agg__row_ptr_cacheTunsigned_char_t, SWIG_POINTER_EXCEPTION | 0);
+        if (SWIG_arg_fail(2)) SWIG_fail;
+        if (arg2 == NULL) {
+            SWIG_null_ref("agg::rendering_buffer");
+        }
+        if (SWIG_arg_fail(2)) SWIG_fail;
+    }
+    SWIG_Python_ConvertPtr(obj2, (void **)&arg3, SWIGTYPE_p_agg__rect_baseTint_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(3)) SWIG_fail;
+    {
+        arg4 = (int)(SWIG_As_int(obj3)); 
+        if (SWIG_arg_fail(4)) SWIG_fail;
+    }
+    (arg1)->copy_from((agg::row_ptr_cache<agg::int8u > const &)*arg2,(agg::rect const *)arg3,arg4);
+    
+    Py_INCREF(Py_None); resultobj = Py_None;
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_renderer_base_rgba_copy_from__SWIG_2(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::renderer_base<pixfmt_rgba_t > *arg1 = (agg::renderer_base<pixfmt_rgba_t > *) 0 ;
+    agg::rendering_buffer *arg2 = 0 ;
+    agg::rect *arg3 = (agg::rect *) 0 ;
+    PyObject * obj0 = 0 ;
+    PyObject * obj1 = 0 ;
+    PyObject * obj2 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"OOO:renderer_base_rgba_copy_from",&obj0,&obj1,&obj2)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__renderer_baseTagg__pixel_formats_rgbaTagg__blender_rgba32_agg__pixel32_type_t_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    {
+        SWIG_Python_ConvertPtr(obj1, (void **)&arg2, SWIGTYPE_p_agg__row_ptr_cacheTunsigned_char_t, SWIG_POINTER_EXCEPTION | 0);
+        if (SWIG_arg_fail(2)) SWIG_fail;
+        if (arg2 == NULL) {
+            SWIG_null_ref("agg::rendering_buffer");
+        }
+        if (SWIG_arg_fail(2)) SWIG_fail;
+    }
+    SWIG_Python_ConvertPtr(obj2, (void **)&arg3, SWIGTYPE_p_agg__rect_baseTint_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(3)) SWIG_fail;
+    (arg1)->copy_from((agg::row_ptr_cache<agg::int8u > const &)*arg2,(agg::rect const *)arg3);
+    
+    Py_INCREF(Py_None); resultobj = Py_None;
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_renderer_base_rgba_copy_from__SWIG_3(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::renderer_base<pixfmt_rgba_t > *arg1 = (agg::renderer_base<pixfmt_rgba_t > *) 0 ;
+    agg::rendering_buffer *arg2 = 0 ;
+    PyObject * obj0 = 0 ;
+    PyObject * obj1 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"OO:renderer_base_rgba_copy_from",&obj0,&obj1)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__renderer_baseTagg__pixel_formats_rgbaTagg__blender_rgba32_agg__pixel32_type_t_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    {
+        SWIG_Python_ConvertPtr(obj1, (void **)&arg2, SWIGTYPE_p_agg__row_ptr_cacheTunsigned_char_t, SWIG_POINTER_EXCEPTION | 0);
+        if (SWIG_arg_fail(2)) SWIG_fail;
+        if (arg2 == NULL) {
+            SWIG_null_ref("agg::rendering_buffer");
+        }
+        if (SWIG_arg_fail(2)) SWIG_fail;
+    }
+    (arg1)->copy_from((agg::row_ptr_cache<agg::int8u > const &)*arg2);
+    
+    Py_INCREF(Py_None); resultobj = Py_None;
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_renderer_base_rgba_copy_from(PyObject *self, PyObject *args) {
+    int argc;
+    PyObject *argv[6];
+    int ii;
+    
+    argc = PyObject_Length(args);
+    for (ii = 0; (ii < argc) && (ii < 5); ii++) {
+        argv[ii] = PyTuple_GetItem(args,ii);
+    }
+    if (argc == 2) {
+        int _v;
+        {
+            void *ptr;
+            if (SWIG_ConvertPtr(argv[0], &ptr, SWIGTYPE_p_agg__renderer_baseTagg__pixel_formats_rgbaTagg__blender_rgba32_agg__pixel32_type_t_t, 0) == -1) {
+                _v = 0;
+                PyErr_Clear();
+            } else {
+                _v = 1;
+            }
+        }
+        if (_v) {
+            {
+                void *ptr = 0;
+                if (SWIG_ConvertPtr(argv[1], &ptr, SWIGTYPE_p_agg__row_ptr_cacheTunsigned_char_t, 0) == -1) {
+                    _v = 0;
+                    PyErr_Clear();
+                } else {
+                    _v = (ptr != 0);
+                }
+            }
+            if (_v) {
+                return _wrap_renderer_base_rgba_copy_from__SWIG_3(self,args);
+            }
+        }
+    }
+    if (argc == 3) {
+        int _v;
+        {
+            void *ptr;
+            if (SWIG_ConvertPtr(argv[0], &ptr, SWIGTYPE_p_agg__renderer_baseTagg__pixel_formats_rgbaTagg__blender_rgba32_agg__pixel32_type_t_t, 0) == -1) {
+                _v = 0;
+                PyErr_Clear();
+            } else {
+                _v = 1;
+            }
+        }
+        if (_v) {
+            {
+                void *ptr = 0;
+                if (SWIG_ConvertPtr(argv[1], &ptr, SWIGTYPE_p_agg__row_ptr_cacheTunsigned_char_t, 0) == -1) {
+                    _v = 0;
+                    PyErr_Clear();
+                } else {
+                    _v = (ptr != 0);
+                }
+            }
+            if (_v) {
+                {
+                    void *ptr;
+                    if (SWIG_ConvertPtr(argv[2], &ptr, SWIGTYPE_p_agg__rect_baseTint_t, 0) == -1) {
+                        _v = 0;
+                        PyErr_Clear();
+                    } else {
+                        _v = 1;
+                    }
+                }
+                if (_v) {
+                    return _wrap_renderer_base_rgba_copy_from__SWIG_2(self,args);
+                }
+            }
+        }
+    }
+    if (argc == 4) {
+        int _v;
+        {
+            void *ptr;
+            if (SWIG_ConvertPtr(argv[0], &ptr, SWIGTYPE_p_agg__renderer_baseTagg__pixel_formats_rgbaTagg__blender_rgba32_agg__pixel32_type_t_t, 0) == -1) {
+                _v = 0;
+                PyErr_Clear();
+            } else {
+                _v = 1;
+            }
+        }
+        if (_v) {
+            {
+                void *ptr = 0;
+                if (SWIG_ConvertPtr(argv[1], &ptr, SWIGTYPE_p_agg__row_ptr_cacheTunsigned_char_t, 0) == -1) {
+                    _v = 0;
+                    PyErr_Clear();
+                } else {
+                    _v = (ptr != 0);
+                }
+            }
+            if (_v) {
+                {
+                    void *ptr;
+                    if (SWIG_ConvertPtr(argv[2], &ptr, SWIGTYPE_p_agg__rect_baseTint_t, 0) == -1) {
+                        _v = 0;
+                        PyErr_Clear();
+                    } else {
+                        _v = 1;
+                    }
+                }
+                if (_v) {
+                    _v = SWIG_Check_int(argv[3]);
+                    if (_v) {
+                        return _wrap_renderer_base_rgba_copy_from__SWIG_1(self,args);
+                    }
+                }
+            }
+        }
+    }
+    if (argc == 5) {
+        int _v;
+        {
+            void *ptr;
+            if (SWIG_ConvertPtr(argv[0], &ptr, SWIGTYPE_p_agg__renderer_baseTagg__pixel_formats_rgbaTagg__blender_rgba32_agg__pixel32_type_t_t, 0) == -1) {
+                _v = 0;
+                PyErr_Clear();
+            } else {
+                _v = 1;
+            }
+        }
+        if (_v) {
+            {
+                void *ptr = 0;
+                if (SWIG_ConvertPtr(argv[1], &ptr, SWIGTYPE_p_agg__row_ptr_cacheTunsigned_char_t, 0) == -1) {
+                    _v = 0;
+                    PyErr_Clear();
+                } else {
+                    _v = (ptr != 0);
+                }
+            }
+            if (_v) {
+                {
+                    void *ptr;
+                    if (SWIG_ConvertPtr(argv[2], &ptr, SWIGTYPE_p_agg__rect_baseTint_t, 0) == -1) {
+                        _v = 0;
+                        PyErr_Clear();
+                    } else {
+                        _v = 1;
+                    }
+                }
+                if (_v) {
+                    _v = SWIG_Check_int(argv[3]);
+                    if (_v) {
+                        _v = SWIG_Check_int(argv[4]);
+                        if (_v) {
+                            return _wrap_renderer_base_rgba_copy_from__SWIG_0(self,args);
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
+    PyErr_SetString(PyExc_NotImplementedError,"No matching function for overloaded 'renderer_base_rgba_copy_from'");
+    return NULL;
+}
+
+
+static PyObject *_wrap_renderer_base_rgba_clear_rgba8(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::renderer_base<pixfmt_rgba_t > *arg1 = (agg::renderer_base<pixfmt_rgba_t > *) 0 ;
+    agg::rgba8 *arg2 = 0 ;
+    PyObject * obj0 = 0 ;
+    PyObject * obj1 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"OO:renderer_base_rgba_clear_rgba8",&obj0,&obj1)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__renderer_baseTagg__pixel_formats_rgbaTagg__blender_rgba32_agg__pixel32_type_t_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    {
+        SWIG_Python_ConvertPtr(obj1, (void **)&arg2, SWIGTYPE_p_agg__rgba8, SWIG_POINTER_EXCEPTION | 0);
+        if (SWIG_arg_fail(2)) SWIG_fail;
+        if (arg2 == NULL) {
+            SWIG_null_ref("agg::rgba8");
+        }
+        if (SWIG_arg_fail(2)) SWIG_fail;
+    }
+    agg_renderer_base_Sl_pixfmt_rgba_t_Sg__clear_rgba8(arg1,(agg::rgba8 const &)*arg2);
+    
+    Py_INCREF(Py_None); resultobj = Py_None;
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_renderer_base_rgba_clear_rgba(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::renderer_base<pixfmt_rgba_t > *arg1 = (agg::renderer_base<pixfmt_rgba_t > *) 0 ;
+    agg::rgba *arg2 = 0 ;
+    PyObject * obj0 = 0 ;
+    PyObject * obj1 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"OO:renderer_base_rgba_clear_rgba",&obj0,&obj1)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__renderer_baseTagg__pixel_formats_rgbaTagg__blender_rgba32_agg__pixel32_type_t_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    {
+        SWIG_Python_ConvertPtr(obj1, (void **)&arg2, SWIGTYPE_p_agg__rgba, SWIG_POINTER_EXCEPTION | 0);
+        if (SWIG_arg_fail(2)) SWIG_fail;
+        if (arg2 == NULL) {
+            SWIG_null_ref("agg::rgba");
+        }
+        if (SWIG_arg_fail(2)) SWIG_fail;
+    }
+    agg_renderer_base_Sl_pixfmt_rgba_t_Sg__clear_rgba(arg1,(agg::rgba const &)*arg2);
+    
+    Py_INCREF(Py_None); resultobj = Py_None;
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_delete_renderer_base_rgba(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::renderer_base<pixfmt_rgba_t > *arg1 = (agg::renderer_base<pixfmt_rgba_t > *) 0 ;
+    PyObject * obj0 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"O:delete_renderer_base_rgba",&obj0)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__renderer_baseTagg__pixel_formats_rgbaTagg__blender_rgba32_agg__pixel32_type_t_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    delete arg1;
+    
+    Py_INCREF(Py_None); resultobj = Py_None;
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject * renderer_base_rgba_swigregister(PyObject *, PyObject *args) {
+    PyObject *obj;
+    if (!PyArg_ParseTuple(args,(char*)"O", &obj)) return NULL;
+    SWIG_TypeClientData(SWIGTYPE_p_agg__renderer_baseTagg__pixel_formats_rgbaTagg__blender_rgba32_agg__pixel32_type_t_t, obj);
+    Py_INCREF(obj);
+    return Py_BuildValue((char *)"");
+}
+static PyObject *_wrap_new_conv_curve_path(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    path_t *arg1 = 0 ;
+    agg::conv_curve<path_t > *result;
+    PyObject * obj0 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"O:new_conv_curve_path",&obj0)) goto fail;
+    {
+        SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__path_storage, SWIG_POINTER_EXCEPTION | 0);
+        if (SWIG_arg_fail(1)) SWIG_fail;
+        if (arg1 == NULL) {
+            SWIG_null_ref("path_t");
+        }
+        if (SWIG_arg_fail(1)) SWIG_fail;
+    }
+    result = (agg::conv_curve<path_t > *)new agg::conv_curve<path_t >(*arg1);
+    
+    resultobj = SWIG_NewPointerObj((void*)(result), SWIGTYPE_p_agg__conv_curveTagg__path_storage_t, 1);
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_conv_curve_path_set_source(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::conv_curve<path_t > *arg1 = (agg::conv_curve<path_t > *) 0 ;
+    path_t *arg2 = 0 ;
+    PyObject * obj0 = 0 ;
+    PyObject * obj1 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"OO:conv_curve_path_set_source",&obj0,&obj1)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__conv_curveTagg__path_storage_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    {
+        SWIG_Python_ConvertPtr(obj1, (void **)&arg2, SWIGTYPE_p_agg__path_storage, SWIG_POINTER_EXCEPTION | 0);
+        if (SWIG_arg_fail(2)) SWIG_fail;
+        if (arg2 == NULL) {
+            SWIG_null_ref("path_t");
+        }
+        if (SWIG_arg_fail(2)) SWIG_fail;
+    }
+    (arg1)->set_source(*arg2);
+    
+    Py_INCREF(Py_None); resultobj = Py_None;
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_conv_curve_path_approximation_scale__SWIG_0(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::conv_curve<path_t > *arg1 = (agg::conv_curve<path_t > *) 0 ;
+    double arg2 ;
+    PyObject * obj0 = 0 ;
+    PyObject * obj1 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"OO:conv_curve_path_approximation_scale",&obj0,&obj1)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__conv_curveTagg__path_storage_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    {
+        arg2 = (double)(SWIG_As_double(obj1)); 
+        if (SWIG_arg_fail(2)) SWIG_fail;
+    }
+    (arg1)->approximation_scale(arg2);
+    
+    Py_INCREF(Py_None); resultobj = Py_None;
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_conv_curve_path_approximation_scale__SWIG_1(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::conv_curve<path_t > *arg1 = (agg::conv_curve<path_t > *) 0 ;
+    double result;
+    PyObject * obj0 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"O:conv_curve_path_approximation_scale",&obj0)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__conv_curveTagg__path_storage_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    result = (double)((agg::conv_curve<path_t > const *)arg1)->approximation_scale();
+    
+    {
+        resultobj = SWIG_From_double((double)(result)); 
+    }
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_conv_curve_path_approximation_scale(PyObject *self, PyObject *args) {
+    int argc;
+    PyObject *argv[3];
+    int ii;
+    
+    argc = PyObject_Length(args);
+    for (ii = 0; (ii < argc) && (ii < 2); ii++) {
+        argv[ii] = PyTuple_GetItem(args,ii);
+    }
+    if (argc == 1) {
+        int _v;
+        {
+            void *ptr;
+            if (SWIG_ConvertPtr(argv[0], &ptr, SWIGTYPE_p_agg__conv_curveTagg__path_storage_t, 0) == -1) {
+                _v = 0;
+                PyErr_Clear();
+            } else {
+                _v = 1;
+            }
+        }
+        if (_v) {
+            return _wrap_conv_curve_path_approximation_scale__SWIG_1(self,args);
+        }
+    }
+    if (argc == 2) {
+        int _v;
+        {
+            void *ptr;
+            if (SWIG_ConvertPtr(argv[0], &ptr, SWIGTYPE_p_agg__conv_curveTagg__path_storage_t, 0) == -1) {
+                _v = 0;
+                PyErr_Clear();
+            } else {
+                _v = 1;
+            }
+        }
+        if (_v) {
+            _v = SWIG_Check_double(argv[1]);
+            if (_v) {
+                return _wrap_conv_curve_path_approximation_scale__SWIG_0(self,args);
+            }
+        }
+    }
+    
+    PyErr_SetString(PyExc_NotImplementedError,"No matching function for overloaded 'conv_curve_path_approximation_scale'");
+    return NULL;
+}
+
+
+static PyObject *_wrap_conv_curve_path_rewind(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::conv_curve<path_t > *arg1 = (agg::conv_curve<path_t > *) 0 ;
+    unsigned int arg2 ;
+    PyObject * obj0 = 0 ;
+    PyObject * obj1 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"OO:conv_curve_path_rewind",&obj0,&obj1)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__conv_curveTagg__path_storage_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    {
+        arg2 = (unsigned int)(SWIG_As_unsigned_SS_int(obj1)); 
+        if (SWIG_arg_fail(2)) SWIG_fail;
+    }
+    (arg1)->rewind(arg2);
+    
+    Py_INCREF(Py_None); resultobj = Py_None;
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_conv_curve_path_vertex(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::conv_curve<path_t > *arg1 = (agg::conv_curve<path_t > *) 0 ;
+    double *arg2 = (double *) 0 ;
+    double *arg3 = (double *) 0 ;
+    unsigned int result;
+    PyObject * obj0 = 0 ;
+    PyObject * obj1 = 0 ;
+    PyObject * obj2 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"OOO:conv_curve_path_vertex",&obj0,&obj1,&obj2)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__conv_curveTagg__path_storage_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    SWIG_Python_ConvertPtr(obj1, (void **)&arg2, SWIGTYPE_p_double, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(2)) SWIG_fail;
+    SWIG_Python_ConvertPtr(obj2, (void **)&arg3, SWIGTYPE_p_double, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(3)) SWIG_fail;
+    result = (unsigned int)(arg1)->vertex(arg2,arg3);
+    
+    {
+        resultobj = SWIG_From_unsigned_SS_int((unsigned int)(result)); 
+    }
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_delete_conv_curve_path(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::conv_curve<path_t > *arg1 = (agg::conv_curve<path_t > *) 0 ;
+    PyObject * obj0 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"O:delete_conv_curve_path",&obj0)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__conv_curveTagg__path_storage_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    delete arg1;
+    
+    Py_INCREF(Py_None); resultobj = Py_None;
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject * conv_curve_path_swigregister(PyObject *, PyObject *args) {
+    PyObject *obj;
+    if (!PyArg_ParseTuple(args,(char*)"O", &obj)) return NULL;
+    SWIG_TypeClientData(SWIGTYPE_p_agg__conv_curveTagg__path_storage_t, obj);
+    Py_INCREF(obj);
+    return Py_BuildValue((char *)"");
+}
+static PyObject *_wrap_new_conv_curve_trans(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    transpath_t *arg1 = 0 ;
+    agg::conv_curve<transpath_t > *result;
+    PyObject * obj0 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"O:new_conv_curve_trans",&obj0)) goto fail;
+    {
+        SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__conv_transformTagg__path_storage_agg__trans_affine_t, SWIG_POINTER_EXCEPTION | 0);
+        if (SWIG_arg_fail(1)) SWIG_fail;
+        if (arg1 == NULL) {
+            SWIG_null_ref("transpath_t");
+        }
+        if (SWIG_arg_fail(1)) SWIG_fail;
+    }
+    result = (agg::conv_curve<transpath_t > *)new agg::conv_curve<transpath_t >(*arg1);
+    
+    resultobj = SWIG_NewPointerObj((void*)(result), SWIGTYPE_p_agg__conv_curveTagg__conv_transformTpath_t_agg__trans_affine_t_t, 1);
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_conv_curve_trans_set_source(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::conv_curve<transpath_t > *arg1 = (agg::conv_curve<transpath_t > *) 0 ;
+    transpath_t *arg2 = 0 ;
+    PyObject * obj0 = 0 ;
+    PyObject * obj1 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"OO:conv_curve_trans_set_source",&obj0,&obj1)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__conv_curveTagg__conv_transformTpath_t_agg__trans_affine_t_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    {
+        SWIG_Python_ConvertPtr(obj1, (void **)&arg2, SWIGTYPE_p_agg__conv_transformTagg__path_storage_agg__trans_affine_t, SWIG_POINTER_EXCEPTION | 0);
+        if (SWIG_arg_fail(2)) SWIG_fail;
+        if (arg2 == NULL) {
+            SWIG_null_ref("transpath_t");
+        }
+        if (SWIG_arg_fail(2)) SWIG_fail;
+    }
+    (arg1)->set_source(*arg2);
+    
+    Py_INCREF(Py_None); resultobj = Py_None;
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_conv_curve_trans_approximation_scale__SWIG_0(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::conv_curve<transpath_t > *arg1 = (agg::conv_curve<transpath_t > *) 0 ;
+    double arg2 ;
+    PyObject * obj0 = 0 ;
+    PyObject * obj1 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"OO:conv_curve_trans_approximation_scale",&obj0,&obj1)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__conv_curveTagg__conv_transformTpath_t_agg__trans_affine_t_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    {
+        arg2 = (double)(SWIG_As_double(obj1)); 
+        if (SWIG_arg_fail(2)) SWIG_fail;
+    }
+    (arg1)->approximation_scale(arg2);
+    
+    Py_INCREF(Py_None); resultobj = Py_None;
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_conv_curve_trans_approximation_scale__SWIG_1(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::conv_curve<transpath_t > *arg1 = (agg::conv_curve<transpath_t > *) 0 ;
+    double result;
+    PyObject * obj0 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"O:conv_curve_trans_approximation_scale",&obj0)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__conv_curveTagg__conv_transformTpath_t_agg__trans_affine_t_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    result = (double)((agg::conv_curve<transpath_t > const *)arg1)->approximation_scale();
+    
+    {
+        resultobj = SWIG_From_double((double)(result)); 
+    }
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_conv_curve_trans_approximation_scale(PyObject *self, PyObject *args) {
+    int argc;
+    PyObject *argv[3];
+    int ii;
+    
+    argc = PyObject_Length(args);
+    for (ii = 0; (ii < argc) && (ii < 2); ii++) {
+        argv[ii] = PyTuple_GetItem(args,ii);
+    }
+    if (argc == 1) {
+        int _v;
+        {
+            void *ptr;
+            if (SWIG_ConvertPtr(argv[0], &ptr, SWIGTYPE_p_agg__conv_curveTagg__conv_transformTpath_t_agg__trans_affine_t_t, 0) == -1) {
+                _v = 0;
+                PyErr_Clear();
+            } else {
+                _v = 1;
+            }
+        }
+        if (_v) {
+            return _wrap_conv_curve_trans_approximation_scale__SWIG_1(self,args);
+        }
+    }
+    if (argc == 2) {
+        int _v;
+        {
+            void *ptr;
+            if (SWIG_ConvertPtr(argv[0], &ptr, SWIGTYPE_p_agg__conv_curveTagg__conv_transformTpath_t_agg__trans_affine_t_t, 0) == -1) {
+                _v = 0;
+                PyErr_Clear();
+            } else {
+                _v = 1;
+            }
+        }
+        if (_v) {
+            _v = SWIG_Check_double(argv[1]);
+            if (_v) {
+                return _wrap_conv_curve_trans_approximation_scale__SWIG_0(self,args);
+            }
+        }
+    }
+    
+    PyErr_SetString(PyExc_NotImplementedError,"No matching function for overloaded 'conv_curve_trans_approximation_scale'");
+    return NULL;
+}
+
+
+static PyObject *_wrap_conv_curve_trans_rewind(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::conv_curve<transpath_t > *arg1 = (agg::conv_curve<transpath_t > *) 0 ;
+    unsigned int arg2 ;
+    PyObject * obj0 = 0 ;
+    PyObject * obj1 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"OO:conv_curve_trans_rewind",&obj0,&obj1)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__conv_curveTagg__conv_transformTpath_t_agg__trans_affine_t_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    {
+        arg2 = (unsigned int)(SWIG_As_unsigned_SS_int(obj1)); 
+        if (SWIG_arg_fail(2)) SWIG_fail;
+    }
+    (arg1)->rewind(arg2);
+    
+    Py_INCREF(Py_None); resultobj = Py_None;
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_conv_curve_trans_vertex(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::conv_curve<transpath_t > *arg1 = (agg::conv_curve<transpath_t > *) 0 ;
+    double *arg2 = (double *) 0 ;
+    double *arg3 = (double *) 0 ;
+    unsigned int result;
+    PyObject * obj0 = 0 ;
+    PyObject * obj1 = 0 ;
+    PyObject * obj2 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"OOO:conv_curve_trans_vertex",&obj0,&obj1,&obj2)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__conv_curveTagg__conv_transformTpath_t_agg__trans_affine_t_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    SWIG_Python_ConvertPtr(obj1, (void **)&arg2, SWIGTYPE_p_double, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(2)) SWIG_fail;
+    SWIG_Python_ConvertPtr(obj2, (void **)&arg3, SWIGTYPE_p_double, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(3)) SWIG_fail;
+    result = (unsigned int)(arg1)->vertex(arg2,arg3);
+    
+    {
+        resultobj = SWIG_From_unsigned_SS_int((unsigned int)(result)); 
+    }
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_delete_conv_curve_trans(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::conv_curve<transpath_t > *arg1 = (agg::conv_curve<transpath_t > *) 0 ;
+    PyObject * obj0 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"O:delete_conv_curve_trans",&obj0)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__conv_curveTagg__conv_transformTpath_t_agg__trans_affine_t_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    delete arg1;
+    
+    Py_INCREF(Py_None); resultobj = Py_None;
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject * conv_curve_trans_swigregister(PyObject *, PyObject *args) {
+    PyObject *obj;
+    if (!PyArg_ParseTuple(args,(char*)"O", &obj)) return NULL;
+    SWIG_TypeClientData(SWIGTYPE_p_agg__conv_curveTagg__conv_transformTpath_t_agg__trans_affine_t_t, obj);
+    Py_INCREF(obj);
+    return Py_BuildValue((char *)"");
+}
+static PyObject *_wrap_new_conv_transform_path(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    path_t *arg1 = 0 ;
+    agg::trans_affine *arg2 = 0 ;
+    agg::conv_transform<path_t,agg::trans_affine > *result;
+    PyObject * obj0 = 0 ;
+    PyObject * obj1 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"OO:new_conv_transform_path",&obj0,&obj1)) goto fail;
+    {
+        SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__path_storage, SWIG_POINTER_EXCEPTION | 0);
+        if (SWIG_arg_fail(1)) SWIG_fail;
+        if (arg1 == NULL) {
+            SWIG_null_ref("path_t");
+        }
+        if (SWIG_arg_fail(1)) SWIG_fail;
+    }
+    {
+        SWIG_Python_ConvertPtr(obj1, (void **)&arg2, SWIGTYPE_p_agg__trans_affine, SWIG_POINTER_EXCEPTION | 0);
+        if (SWIG_arg_fail(2)) SWIG_fail;
+        if (arg2 == NULL) {
+            SWIG_null_ref("agg::trans_affine");
+        }
+        if (SWIG_arg_fail(2)) SWIG_fail;
+    }
+    result = (agg::conv_transform<path_t,agg::trans_affine > *)new agg::conv_transform<path_t,agg::trans_affine >(*arg1,(agg::trans_affine const &)*arg2);
+    
+    resultobj = SWIG_NewPointerObj((void*)(result), SWIGTYPE_p_agg__conv_transformTagg__path_storage_agg__trans_affine_t, 1);
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_conv_transform_path_set_source(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::conv_transform<path_t,agg::trans_affine > *arg1 = (agg::conv_transform<path_t,agg::trans_affine > *) 0 ;
+    path_t *arg2 = 0 ;
+    PyObject * obj0 = 0 ;
+    PyObject * obj1 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"OO:conv_transform_path_set_source",&obj0,&obj1)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__conv_transformTagg__path_storage_agg__trans_affine_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    {
+        SWIG_Python_ConvertPtr(obj1, (void **)&arg2, SWIGTYPE_p_agg__path_storage, SWIG_POINTER_EXCEPTION | 0);
+        if (SWIG_arg_fail(2)) SWIG_fail;
+        if (arg2 == NULL) {
+            SWIG_null_ref("path_t");
+        }
+        if (SWIG_arg_fail(2)) SWIG_fail;
+    }
+    (arg1)->set_source(*arg2);
+    
+    Py_INCREF(Py_None); resultobj = Py_None;
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_conv_transform_path_rewind(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::conv_transform<path_t,agg::trans_affine > *arg1 = (agg::conv_transform<path_t,agg::trans_affine > *) 0 ;
+    unsigned int arg2 ;
+    PyObject * obj0 = 0 ;
+    PyObject * obj1 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"OO:conv_transform_path_rewind",&obj0,&obj1)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__conv_transformTagg__path_storage_agg__trans_affine_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    {
+        arg2 = (unsigned int)(SWIG_As_unsigned_SS_int(obj1)); 
+        if (SWIG_arg_fail(2)) SWIG_fail;
+    }
+    (arg1)->rewind(arg2);
+    
+    Py_INCREF(Py_None); resultobj = Py_None;
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_conv_transform_path_vertex(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::conv_transform<path_t,agg::trans_affine > *arg1 = (agg::conv_transform<path_t,agg::trans_affine > *) 0 ;
+    double *arg2 = (double *) 0 ;
+    double *arg3 = (double *) 0 ;
+    unsigned int result;
+    PyObject * obj0 = 0 ;
+    PyObject * obj1 = 0 ;
+    PyObject * obj2 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"OOO:conv_transform_path_vertex",&obj0,&obj1,&obj2)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__conv_transformTagg__path_storage_agg__trans_affine_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    SWIG_Python_ConvertPtr(obj1, (void **)&arg2, SWIGTYPE_p_double, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(2)) SWIG_fail;
+    SWIG_Python_ConvertPtr(obj2, (void **)&arg3, SWIGTYPE_p_double, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(3)) SWIG_fail;
+    result = (unsigned int)(arg1)->vertex(arg2,arg3);
+    
+    {
+        resultobj = SWIG_From_unsigned_SS_int((unsigned int)(result)); 
+    }
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_conv_transform_path_transformer(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::conv_transform<path_t,agg::trans_affine > *arg1 = (agg::conv_transform<path_t,agg::trans_affine > *) 0 ;
+    agg::trans_affine *arg2 = 0 ;
+    PyObject * obj0 = 0 ;
+    PyObject * obj1 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"OO:conv_transform_path_transformer",&obj0,&obj1)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__conv_transformTagg__path_storage_agg__trans_affine_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    {
+        SWIG_Python_ConvertPtr(obj1, (void **)&arg2, SWIGTYPE_p_agg__trans_affine, SWIG_POINTER_EXCEPTION | 0);
+        if (SWIG_arg_fail(2)) SWIG_fail;
+        if (arg2 == NULL) {
+            SWIG_null_ref("agg::trans_affine");
+        }
+        if (SWIG_arg_fail(2)) SWIG_fail;
+    }
+    (arg1)->transformer((agg::trans_affine const &)*arg2);
+    
+    Py_INCREF(Py_None); resultobj = Py_None;
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_delete_conv_transform_path(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::conv_transform<path_t,agg::trans_affine > *arg1 = (agg::conv_transform<path_t,agg::trans_affine > *) 0 ;
+    PyObject * obj0 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"O:delete_conv_transform_path",&obj0)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__conv_transformTagg__path_storage_agg__trans_affine_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    delete arg1;
+    
+    Py_INCREF(Py_None); resultobj = Py_None;
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject * conv_transform_path_swigregister(PyObject *, PyObject *args) {
+    PyObject *obj;
+    if (!PyArg_ParseTuple(args,(char*)"O", &obj)) return NULL;
+    SWIG_TypeClientData(SWIGTYPE_p_agg__conv_transformTagg__path_storage_agg__trans_affine_t, obj);
+    Py_INCREF(obj);
+    return Py_BuildValue((char *)"");
+}
+static PyObject *_wrap_new_conv_transform_curve(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    curve_t *arg1 = 0 ;
+    agg::trans_affine *arg2 = 0 ;
+    agg::conv_transform<curve_t,agg::trans_affine > *result;
+    PyObject * obj0 = 0 ;
+    PyObject * obj1 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"OO:new_conv_transform_curve",&obj0,&obj1)) goto fail;
+    {
+        SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__conv_curveTagg__path_storage_t, SWIG_POINTER_EXCEPTION | 0);
+        if (SWIG_arg_fail(1)) SWIG_fail;
+        if (arg1 == NULL) {
+            SWIG_null_ref("curve_t");
+        }
+        if (SWIG_arg_fail(1)) SWIG_fail;
+    }
+    {
+        SWIG_Python_ConvertPtr(obj1, (void **)&arg2, SWIGTYPE_p_agg__trans_affine, SWIG_POINTER_EXCEPTION | 0);
+        if (SWIG_arg_fail(2)) SWIG_fail;
+        if (arg2 == NULL) {
+            SWIG_null_ref("agg::trans_affine");
+        }
+        if (SWIG_arg_fail(2)) SWIG_fail;
+    }
+    result = (agg::conv_transform<curve_t,agg::trans_affine > *)new agg::conv_transform<curve_t,agg::trans_affine >(*arg1,(agg::trans_affine const &)*arg2);
+    
+    resultobj = SWIG_NewPointerObj((void*)(result), SWIGTYPE_p_agg__conv_transformTagg__conv_curveTpath_t_t_agg__trans_affine_t, 1);
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_conv_transform_curve_set_source(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::conv_transform<curve_t,agg::trans_affine > *arg1 = (agg::conv_transform<curve_t,agg::trans_affine > *) 0 ;
+    curve_t *arg2 = 0 ;
+    PyObject * obj0 = 0 ;
+    PyObject * obj1 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"OO:conv_transform_curve_set_source",&obj0,&obj1)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__conv_transformTagg__conv_curveTpath_t_t_agg__trans_affine_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    {
+        SWIG_Python_ConvertPtr(obj1, (void **)&arg2, SWIGTYPE_p_agg__conv_curveTagg__path_storage_t, SWIG_POINTER_EXCEPTION | 0);
+        if (SWIG_arg_fail(2)) SWIG_fail;
+        if (arg2 == NULL) {
+            SWIG_null_ref("curve_t");
+        }
+        if (SWIG_arg_fail(2)) SWIG_fail;
+    }
+    (arg1)->set_source(*arg2);
+    
+    Py_INCREF(Py_None); resultobj = Py_None;
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_conv_transform_curve_rewind(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::conv_transform<curve_t,agg::trans_affine > *arg1 = (agg::conv_transform<curve_t,agg::trans_affine > *) 0 ;
+    unsigned int arg2 ;
+    PyObject * obj0 = 0 ;
+    PyObject * obj1 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"OO:conv_transform_curve_rewind",&obj0,&obj1)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__conv_transformTagg__conv_curveTpath_t_t_agg__trans_affine_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    {
+        arg2 = (unsigned int)(SWIG_As_unsigned_SS_int(obj1)); 
+        if (SWIG_arg_fail(2)) SWIG_fail;
+    }
+    (arg1)->rewind(arg2);
+    
+    Py_INCREF(Py_None); resultobj = Py_None;
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_conv_transform_curve_vertex(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::conv_transform<curve_t,agg::trans_affine > *arg1 = (agg::conv_transform<curve_t,agg::trans_affine > *) 0 ;
+    double *arg2 = (double *) 0 ;
+    double *arg3 = (double *) 0 ;
+    unsigned int result;
+    PyObject * obj0 = 0 ;
+    PyObject * obj1 = 0 ;
+    PyObject * obj2 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"OOO:conv_transform_curve_vertex",&obj0,&obj1,&obj2)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__conv_transformTagg__conv_curveTpath_t_t_agg__trans_affine_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    SWIG_Python_ConvertPtr(obj1, (void **)&arg2, SWIGTYPE_p_double, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(2)) SWIG_fail;
+    SWIG_Python_ConvertPtr(obj2, (void **)&arg3, SWIGTYPE_p_double, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(3)) SWIG_fail;
+    result = (unsigned int)(arg1)->vertex(arg2,arg3);
+    
+    {
+        resultobj = SWIG_From_unsigned_SS_int((unsigned int)(result)); 
+    }
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_conv_transform_curve_transformer(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::conv_transform<curve_t,agg::trans_affine > *arg1 = (agg::conv_transform<curve_t,agg::trans_affine > *) 0 ;
+    agg::trans_affine *arg2 = 0 ;
+    PyObject * obj0 = 0 ;
+    PyObject * obj1 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"OO:conv_transform_curve_transformer",&obj0,&obj1)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__conv_transformTagg__conv_curveTpath_t_t_agg__trans_affine_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    {
+        SWIG_Python_ConvertPtr(obj1, (void **)&arg2, SWIGTYPE_p_agg__trans_affine, SWIG_POINTER_EXCEPTION | 0);
+        if (SWIG_arg_fail(2)) SWIG_fail;
+        if (arg2 == NULL) {
+            SWIG_null_ref("agg::trans_affine");
+        }
+        if (SWIG_arg_fail(2)) SWIG_fail;
+    }
+    (arg1)->transformer((agg::trans_affine const &)*arg2);
+    
+    Py_INCREF(Py_None); resultobj = Py_None;
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_delete_conv_transform_curve(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::conv_transform<curve_t,agg::trans_affine > *arg1 = (agg::conv_transform<curve_t,agg::trans_affine > *) 0 ;
+    PyObject * obj0 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"O:delete_conv_transform_curve",&obj0)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__conv_transformTagg__conv_curveTpath_t_t_agg__trans_affine_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    delete arg1;
+    
+    Py_INCREF(Py_None); resultobj = Py_None;
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject * conv_transform_curve_swigregister(PyObject *, PyObject *args) {
+    PyObject *obj;
+    if (!PyArg_ParseTuple(args,(char*)"O", &obj)) return NULL;
+    SWIG_TypeClientData(SWIGTYPE_p_agg__conv_transformTagg__conv_curveTpath_t_t_agg__trans_affine_t, obj);
+    Py_INCREF(obj);
+    return Py_BuildValue((char *)"");
+}
 static PyObject *_wrap_new_vcgen_stroke(PyObject *, PyObject *args) {
     PyObject *resultobj = NULL;
     agg::vcgen_stroke *result;
@@ -12342,6 +17127,126 @@ static PyObject * vcgen_stroke_swigregister(PyObject *, PyObject *args) {
     Py_INCREF(obj);
     return Py_BuildValue((char *)"");
 }
+static PyObject *_wrap_null_markers_remove_all(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::null_markers *arg1 = (agg::null_markers *) 0 ;
+    PyObject * obj0 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"O:null_markers_remove_all",&obj0)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__null_markers, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    (arg1)->remove_all();
+    
+    Py_INCREF(Py_None); resultobj = Py_None;
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_null_markers_add_vertex(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::null_markers *arg1 = (agg::null_markers *) 0 ;
+    double arg2 ;
+    double arg3 ;
+    unsigned int arg4 ;
+    PyObject * obj0 = 0 ;
+    PyObject * obj1 = 0 ;
+    PyObject * obj2 = 0 ;
+    PyObject * obj3 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"OOOO:null_markers_add_vertex",&obj0,&obj1,&obj2,&obj3)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__null_markers, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    {
+        arg2 = (double)(SWIG_As_double(obj1)); 
+        if (SWIG_arg_fail(2)) SWIG_fail;
+    }
+    {
+        arg3 = (double)(SWIG_As_double(obj2)); 
+        if (SWIG_arg_fail(3)) SWIG_fail;
+    }
+    {
+        arg4 = (unsigned int)(SWIG_As_unsigned_SS_int(obj3)); 
+        if (SWIG_arg_fail(4)) SWIG_fail;
+    }
+    (arg1)->add_vertex(arg2,arg3,arg4);
+    
+    Py_INCREF(Py_None); resultobj = Py_None;
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_null_markers_prepare_src(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::null_markers *arg1 = (agg::null_markers *) 0 ;
+    PyObject * obj0 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"O:null_markers_prepare_src",&obj0)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__null_markers, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    (arg1)->prepare_src();
+    
+    Py_INCREF(Py_None); resultobj = Py_None;
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_null_markers_rewind(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::null_markers *arg1 = (agg::null_markers *) 0 ;
+    unsigned int arg2 ;
+    PyObject * obj0 = 0 ;
+    PyObject * obj1 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"OO:null_markers_rewind",&obj0,&obj1)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__null_markers, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    {
+        arg2 = (unsigned int)(SWIG_As_unsigned_SS_int(obj1)); 
+        if (SWIG_arg_fail(2)) SWIG_fail;
+    }
+    (arg1)->rewind(arg2);
+    
+    Py_INCREF(Py_None); resultobj = Py_None;
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_null_markers_vertex(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::null_markers *arg1 = (agg::null_markers *) 0 ;
+    double *arg2 = (double *) 0 ;
+    double *arg3 = (double *) 0 ;
+    unsigned int result;
+    PyObject * obj0 = 0 ;
+    PyObject * obj1 = 0 ;
+    PyObject * obj2 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"OOO:null_markers_vertex",&obj0,&obj1,&obj2)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__null_markers, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    SWIG_Python_ConvertPtr(obj1, (void **)&arg2, SWIGTYPE_p_double, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(2)) SWIG_fail;
+    SWIG_Python_ConvertPtr(obj2, (void **)&arg3, SWIGTYPE_p_double, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(3)) SWIG_fail;
+    result = (unsigned int)(arg1)->vertex(arg2,arg3);
+    
+    {
+        resultobj = SWIG_From_unsigned_SS_int((unsigned int)(result)); 
+    }
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
 static PyObject *_wrap_new_null_markers(PyObject *, PyObject *args) {
     PyObject *resultobj = NULL;
     agg::null_markers *result;
@@ -12380,194 +17285,49 @@ static PyObject * null_markers_swigregister(PyObject *, PyObject *args) {
     Py_INCREF(obj);
     return Py_BuildValue((char *)"");
 }
-static PyObject *_wrap_new_conv_adaptor_vcgen(PyObject *, PyObject *args) {
+static PyObject *_wrap_new_conv_adaptor_vcgen_path(PyObject *, PyObject *args) {
     PyObject *resultobj = NULL;
-    agg::path_storage *arg1 = 0 ;
-    conv_adaptor_vcgen<agg::path_storage,agg::vcgen_stroke,agg::null_markers > *result;
+    path_t *arg1 = 0 ;
+    agg::conv_adaptor_vcgen<path_t,agg::vcgen_stroke,agg::null_markers > *result;
     PyObject * obj0 = 0 ;
     
-    if(!PyArg_ParseTuple(args,(char *)"O:new_conv_adaptor_vcgen",&obj0)) goto fail;
+    if(!PyArg_ParseTuple(args,(char *)"O:new_conv_adaptor_vcgen_path",&obj0)) goto fail;
     {
         SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__path_storage, SWIG_POINTER_EXCEPTION | 0);
         if (SWIG_arg_fail(1)) SWIG_fail;
         if (arg1 == NULL) {
-            SWIG_null_ref("agg::path_storage");
+            SWIG_null_ref("path_t");
         }
         if (SWIG_arg_fail(1)) SWIG_fail;
     }
-    result = (conv_adaptor_vcgen<agg::path_storage,agg::vcgen_stroke,agg::null_markers > *)new conv_adaptor_vcgen<agg::path_storage,agg::vcgen_stroke,agg::null_markers >(*arg1);
+    result = (agg::conv_adaptor_vcgen<path_t,agg::vcgen_stroke,agg::null_markers > *)new agg::conv_adaptor_vcgen<path_t,agg::vcgen_stroke,agg::null_markers >(*arg1);
     
-    resultobj = SWIG_NewPointerObj((void*)(result), SWIGTYPE_p_conv_adaptor_vcgenTagg__path_storage_agg__vcgen_stroke_agg__null_markers_t, 1);
+    resultobj = SWIG_NewPointerObj((void*)(result), SWIGTYPE_p_agg__conv_adaptor_vcgenTagg__path_storage_agg__vcgen_stroke_agg__null_markers_t, 1);
     return resultobj;
     fail:
     return NULL;
 }
 
 
-static PyObject *_wrap_delete_conv_adaptor_vcgen(PyObject *, PyObject *args) {
+static PyObject *_wrap_conv_adaptor_vcgen_path_set_source(PyObject *, PyObject *args) {
     PyObject *resultobj = NULL;
-    conv_adaptor_vcgen<agg::path_storage,agg::vcgen_stroke,agg::null_markers > *arg1 = (conv_adaptor_vcgen<agg::path_storage,agg::vcgen_stroke,agg::null_markers > *) 0 ;
-    PyObject * obj0 = 0 ;
-    
-    if(!PyArg_ParseTuple(args,(char *)"O:delete_conv_adaptor_vcgen",&obj0)) goto fail;
-    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_conv_adaptor_vcgenTagg__path_storage_agg__vcgen_stroke_agg__null_markers_t, SWIG_POINTER_EXCEPTION | 0);
-    if (SWIG_arg_fail(1)) SWIG_fail;
-    delete arg1;
-    
-    Py_INCREF(Py_None); resultobj = Py_None;
-    return resultobj;
-    fail:
-    return NULL;
-}
-
-
-static PyObject * conv_adaptor_vcgen_swigregister(PyObject *, PyObject *args) {
-    PyObject *obj;
-    if (!PyArg_ParseTuple(args,(char*)"O", &obj)) return NULL;
-    SWIG_TypeClientData(SWIGTYPE_p_conv_adaptor_vcgenTagg__path_storage_agg__vcgen_stroke_agg__null_markers_t, obj);
-    Py_INCREF(obj);
-    return Py_BuildValue((char *)"");
-}
-static PyObject *_wrap_delete_rendering_buffer(PyObject *, PyObject *args) {
-    PyObject *resultobj = NULL;
-    agg::row_ptr_cache<agg::int8u > *arg1 = (agg::row_ptr_cache<agg::int8u > *) 0 ;
-    PyObject * obj0 = 0 ;
-    
-    if(!PyArg_ParseTuple(args,(char *)"O:delete_rendering_buffer",&obj0)) goto fail;
-    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__row_ptr_cacheTunsigned_char_t, SWIG_POINTER_EXCEPTION | 0);
-    if (SWIG_arg_fail(1)) SWIG_fail;
-    delete arg1;
-    
-    Py_INCREF(Py_None); resultobj = Py_None;
-    return resultobj;
-    fail:
-    return NULL;
-}
-
-
-static PyObject *_wrap_new_rendering_buffer__SWIG_0(PyObject *, PyObject *args) {
-    PyObject *resultobj = NULL;
-    agg::row_ptr_cache<agg::int8u > *result;
-    
-    if(!PyArg_ParseTuple(args,(char *)":new_rendering_buffer")) goto fail;
-    result = (agg::row_ptr_cache<agg::int8u > *)new agg::row_ptr_cache<agg::int8u >();
-    
-    resultobj = SWIG_NewPointerObj((void*)(result), SWIGTYPE_p_agg__row_ptr_cacheTunsigned_char_t, 1);
-    return resultobj;
-    fail:
-    return NULL;
-}
-
-
-static PyObject *_wrap_new_rendering_buffer__SWIG_1(PyObject *, PyObject *args) {
-    PyObject *resultobj = NULL;
-    agg::int8u *arg1 = (agg::int8u *) 0 ;
-    unsigned int arg2 ;
-    unsigned int arg3 ;
-    int arg4 ;
-    agg::row_ptr_cache<agg::int8u > *result;
+    agg::conv_adaptor_vcgen<path_t,agg::vcgen_stroke,agg::null_markers > *arg1 = (agg::conv_adaptor_vcgen<path_t,agg::vcgen_stroke,agg::null_markers > *) 0 ;
+    path_t *arg2 = 0 ;
     PyObject * obj0 = 0 ;
     PyObject * obj1 = 0 ;
-    PyObject * obj2 = 0 ;
-    PyObject * obj3 = 0 ;
     
-    if(!PyArg_ParseTuple(args,(char *)"OOOO:new_rendering_buffer",&obj0,&obj1,&obj2,&obj3)) goto fail;
-    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_unsigned_char, SWIG_POINTER_EXCEPTION | 0);
+    if(!PyArg_ParseTuple(args,(char *)"OO:conv_adaptor_vcgen_path_set_source",&obj0,&obj1)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__conv_adaptor_vcgenTagg__path_storage_agg__vcgen_stroke_agg__null_markers_t, SWIG_POINTER_EXCEPTION | 0);
     if (SWIG_arg_fail(1)) SWIG_fail;
     {
-        arg2 = (unsigned int)(SWIG_As_unsigned_SS_int(obj1)); 
+        SWIG_Python_ConvertPtr(obj1, (void **)&arg2, SWIGTYPE_p_agg__path_storage, SWIG_POINTER_EXCEPTION | 0);
+        if (SWIG_arg_fail(2)) SWIG_fail;
+        if (arg2 == NULL) {
+            SWIG_null_ref("path_t");
+        }
         if (SWIG_arg_fail(2)) SWIG_fail;
     }
-    {
-        arg3 = (unsigned int)(SWIG_As_unsigned_SS_int(obj2)); 
-        if (SWIG_arg_fail(3)) SWIG_fail;
-    }
-    {
-        arg4 = (int)(SWIG_As_int(obj3)); 
-        if (SWIG_arg_fail(4)) SWIG_fail;
-    }
-    result = (agg::row_ptr_cache<agg::int8u > *)new agg::row_ptr_cache<agg::int8u >(arg1,arg2,arg3,arg4);
-    
-    resultobj = SWIG_NewPointerObj((void*)(result), SWIGTYPE_p_agg__row_ptr_cacheTunsigned_char_t, 1);
-    return resultobj;
-    fail:
-    return NULL;
-}
-
-
-static PyObject *_wrap_new_rendering_buffer(PyObject *self, PyObject *args) {
-    int argc;
-    PyObject *argv[5];
-    int ii;
-    
-    argc = PyObject_Length(args);
-    for (ii = 0; (ii < argc) && (ii < 4); ii++) {
-        argv[ii] = PyTuple_GetItem(args,ii);
-    }
-    if (argc == 0) {
-        return _wrap_new_rendering_buffer__SWIG_0(self,args);
-    }
-    if (argc == 4) {
-        int _v;
-        {
-            void *ptr;
-            if (SWIG_ConvertPtr(argv[0], &ptr, SWIGTYPE_p_unsigned_char, 0) == -1) {
-                _v = 0;
-                PyErr_Clear();
-            } else {
-                _v = 1;
-            }
-        }
-        if (_v) {
-            _v = SWIG_Check_unsigned_SS_int(argv[1]);
-            if (_v) {
-                _v = SWIG_Check_unsigned_SS_int(argv[2]);
-                if (_v) {
-                    _v = SWIG_Check_int(argv[3]);
-                    if (_v) {
-                        return _wrap_new_rendering_buffer__SWIG_1(self,args);
-                    }
-                }
-            }
-        }
-    }
-    
-    PyErr_SetString(PyExc_NotImplementedError,"No matching function for overloaded 'new_rendering_buffer'");
-    return NULL;
-}
-
-
-static PyObject *_wrap_rendering_buffer_attach(PyObject *, PyObject *args) {
-    PyObject *resultobj = NULL;
-    agg::row_ptr_cache<agg::int8u > *arg1 = (agg::row_ptr_cache<agg::int8u > *) 0 ;
-    agg::int8u *arg2 = (agg::int8u *) 0 ;
-    unsigned int arg3 ;
-    unsigned int arg4 ;
-    int arg5 ;
-    PyObject * obj0 = 0 ;
-    PyObject * obj1 = 0 ;
-    PyObject * obj2 = 0 ;
-    PyObject * obj3 = 0 ;
-    PyObject * obj4 = 0 ;
-    
-    if(!PyArg_ParseTuple(args,(char *)"OOOOO:rendering_buffer_attach",&obj0,&obj1,&obj2,&obj3,&obj4)) goto fail;
-    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__row_ptr_cacheTunsigned_char_t, SWIG_POINTER_EXCEPTION | 0);
-    if (SWIG_arg_fail(1)) SWIG_fail;
-    SWIG_Python_ConvertPtr(obj1, (void **)&arg2, SWIGTYPE_p_unsigned_char, SWIG_POINTER_EXCEPTION | 0);
-    if (SWIG_arg_fail(2)) SWIG_fail;
-    {
-        arg3 = (unsigned int)(SWIG_As_unsigned_SS_int(obj2)); 
-        if (SWIG_arg_fail(3)) SWIG_fail;
-    }
-    {
-        arg4 = (unsigned int)(SWIG_As_unsigned_SS_int(obj3)); 
-        if (SWIG_arg_fail(4)) SWIG_fail;
-    }
-    {
-        arg5 = (int)(SWIG_As_int(obj4)); 
-        if (SWIG_arg_fail(5)) SWIG_fail;
-    }
-    (arg1)->attach(arg2,arg3,arg4,arg5);
+    (arg1)->set_source(*arg2);
     
     Py_INCREF(Py_None); resultobj = Py_None;
     return resultobj;
@@ -12576,43 +17336,49 @@ static PyObject *_wrap_rendering_buffer_attach(PyObject *, PyObject *args) {
 }
 
 
-static PyObject *_wrap_rendering_buffer_buf__SWIG_0(PyObject *, PyObject *args) {
+static PyObject *_wrap_conv_adaptor_vcgen_path_generator__SWIG_0(PyObject *, PyObject *args) {
     PyObject *resultobj = NULL;
-    agg::row_ptr_cache<agg::int8u > *arg1 = (agg::row_ptr_cache<agg::int8u > *) 0 ;
-    agg::int8u *result;
+    agg::conv_adaptor_vcgen<path_t,agg::vcgen_stroke,agg::null_markers > *arg1 = (agg::conv_adaptor_vcgen<path_t,agg::vcgen_stroke,agg::null_markers > *) 0 ;
+    agg::vcgen_stroke *result;
     PyObject * obj0 = 0 ;
     
-    if(!PyArg_ParseTuple(args,(char *)"O:rendering_buffer_buf",&obj0)) goto fail;
-    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__row_ptr_cacheTunsigned_char_t, SWIG_POINTER_EXCEPTION | 0);
+    if(!PyArg_ParseTuple(args,(char *)"O:conv_adaptor_vcgen_path_generator",&obj0)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__conv_adaptor_vcgenTagg__path_storage_agg__vcgen_stroke_agg__null_markers_t, SWIG_POINTER_EXCEPTION | 0);
     if (SWIG_arg_fail(1)) SWIG_fail;
-    result = (agg::int8u *)(arg1)->buf();
+    {
+        agg::vcgen_stroke &_result_ref = (arg1)->generator();
+        result = (agg::vcgen_stroke *) &_result_ref;
+    }
     
-    resultobj = SWIG_NewPointerObj((void*)(result), SWIGTYPE_p_unsigned_char, 0);
+    resultobj = SWIG_NewPointerObj((void*)(result), SWIGTYPE_p_agg__vcgen_stroke, 0);
     return resultobj;
     fail:
     return NULL;
 }
 
 
-static PyObject *_wrap_rendering_buffer_buf__SWIG_1(PyObject *, PyObject *args) {
+static PyObject *_wrap_conv_adaptor_vcgen_path_generator__SWIG_1(PyObject *, PyObject *args) {
     PyObject *resultobj = NULL;
-    agg::row_ptr_cache<agg::int8u > *arg1 = (agg::row_ptr_cache<agg::int8u > *) 0 ;
-    agg::int8u *result;
+    agg::conv_adaptor_vcgen<path_t,agg::vcgen_stroke,agg::null_markers > *arg1 = (agg::conv_adaptor_vcgen<path_t,agg::vcgen_stroke,agg::null_markers > *) 0 ;
+    agg::vcgen_stroke *result;
     PyObject * obj0 = 0 ;
     
-    if(!PyArg_ParseTuple(args,(char *)"O:rendering_buffer_buf",&obj0)) goto fail;
-    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__row_ptr_cacheTunsigned_char_t, SWIG_POINTER_EXCEPTION | 0);
+    if(!PyArg_ParseTuple(args,(char *)"O:conv_adaptor_vcgen_path_generator",&obj0)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__conv_adaptor_vcgenTagg__path_storage_agg__vcgen_stroke_agg__null_markers_t, SWIG_POINTER_EXCEPTION | 0);
     if (SWIG_arg_fail(1)) SWIG_fail;
-    result = (agg::int8u *)((agg::row_ptr_cache<agg::int8u > const *)arg1)->buf();
+    {
+        agg::vcgen_stroke const &_result_ref = ((agg::conv_adaptor_vcgen<path_t,agg::vcgen_stroke,agg::null_markers > const *)arg1)->generator();
+        result = (agg::vcgen_stroke *) &_result_ref;
+    }
     
-    resultobj = SWIG_NewPointerObj((void*)(result), SWIGTYPE_p_unsigned_char, 0);
+    resultobj = SWIG_NewPointerObj((void*)(result), SWIGTYPE_p_agg__vcgen_stroke, 0);
     return resultobj;
     fail:
     return NULL;
 }
 
 
-static PyObject *_wrap_rendering_buffer_buf(PyObject *self, PyObject *args) {
+static PyObject *_wrap_conv_adaptor_vcgen_path_generator(PyObject *self, PyObject *args) {
     int argc;
     PyObject *argv[2];
     int ii;
@@ -12625,7 +17391,7 @@ static PyObject *_wrap_rendering_buffer_buf(PyObject *self, PyObject *args) {
         int _v;
         {
             void *ptr;
-            if (SWIG_ConvertPtr(argv[0], &ptr, SWIGTYPE_p_agg__row_ptr_cacheTunsigned_char_t, 0) == -1) {
+            if (SWIG_ConvertPtr(argv[0], &ptr, SWIGTYPE_p_agg__conv_adaptor_vcgenTagg__path_storage_agg__vcgen_stroke_agg__null_markers_t, 0) == -1) {
                 _v = 0;
                 PyErr_Clear();
             } else {
@@ -12633,14 +17399,14 @@ static PyObject *_wrap_rendering_buffer_buf(PyObject *self, PyObject *args) {
             }
         }
         if (_v) {
-            return _wrap_rendering_buffer_buf__SWIG_0(self,args);
+            return _wrap_conv_adaptor_vcgen_path_generator__SWIG_0(self,args);
         }
     }
     if (argc == 1) {
         int _v;
         {
             void *ptr;
-            if (SWIG_ConvertPtr(argv[0], &ptr, SWIGTYPE_p_agg__row_ptr_cacheTunsigned_char_t, 0) == -1) {
+            if (SWIG_ConvertPtr(argv[0], &ptr, SWIGTYPE_p_agg__conv_adaptor_vcgenTagg__path_storage_agg__vcgen_stroke_agg__null_markers_t, 0) == -1) {
                 _v = 0;
                 PyErr_Clear();
             } else {
@@ -12648,1587 +17414,71 @@ static PyObject *_wrap_rendering_buffer_buf(PyObject *self, PyObject *args) {
             }
         }
         if (_v) {
-            return _wrap_rendering_buffer_buf__SWIG_1(self,args);
+            return _wrap_conv_adaptor_vcgen_path_generator__SWIG_1(self,args);
         }
     }
     
-    PyErr_SetString(PyExc_NotImplementedError,"No matching function for overloaded 'rendering_buffer_buf'");
+    PyErr_SetString(PyExc_NotImplementedError,"No matching function for overloaded 'conv_adaptor_vcgen_path_generator'");
     return NULL;
 }
 
 
-static PyObject *_wrap_rendering_buffer_width(PyObject *, PyObject *args) {
+static PyObject *_wrap_conv_adaptor_vcgen_path_markers__SWIG_0(PyObject *, PyObject *args) {
     PyObject *resultobj = NULL;
-    agg::row_ptr_cache<agg::int8u > *arg1 = (agg::row_ptr_cache<agg::int8u > *) 0 ;
-    unsigned int result;
+    agg::conv_adaptor_vcgen<path_t,agg::vcgen_stroke,agg::null_markers > *arg1 = (agg::conv_adaptor_vcgen<path_t,agg::vcgen_stroke,agg::null_markers > *) 0 ;
+    agg::null_markers *result;
     PyObject * obj0 = 0 ;
     
-    if(!PyArg_ParseTuple(args,(char *)"O:rendering_buffer_width",&obj0)) goto fail;
-    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__row_ptr_cacheTunsigned_char_t, SWIG_POINTER_EXCEPTION | 0);
+    if(!PyArg_ParseTuple(args,(char *)"O:conv_adaptor_vcgen_path_markers",&obj0)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__conv_adaptor_vcgenTagg__path_storage_agg__vcgen_stroke_agg__null_markers_t, SWIG_POINTER_EXCEPTION | 0);
     if (SWIG_arg_fail(1)) SWIG_fail;
-    result = (unsigned int)((agg::row_ptr_cache<agg::int8u > const *)arg1)->width();
-    
     {
-        resultobj = SWIG_From_unsigned_SS_int((unsigned int)(result)); 
+        agg::null_markers &_result_ref = (arg1)->markers();
+        result = (agg::null_markers *) &_result_ref;
     }
+    
+    resultobj = SWIG_NewPointerObj((void*)(result), SWIGTYPE_p_agg__null_markers, 0);
     return resultobj;
     fail:
     return NULL;
 }
 
 
-static PyObject *_wrap_rendering_buffer_height(PyObject *, PyObject *args) {
+static PyObject *_wrap_conv_adaptor_vcgen_path_markers__SWIG_1(PyObject *, PyObject *args) {
     PyObject *resultobj = NULL;
-    agg::row_ptr_cache<agg::int8u > *arg1 = (agg::row_ptr_cache<agg::int8u > *) 0 ;
-    unsigned int result;
+    agg::conv_adaptor_vcgen<path_t,agg::vcgen_stroke,agg::null_markers > *arg1 = (agg::conv_adaptor_vcgen<path_t,agg::vcgen_stroke,agg::null_markers > *) 0 ;
+    agg::null_markers *result;
     PyObject * obj0 = 0 ;
     
-    if(!PyArg_ParseTuple(args,(char *)"O:rendering_buffer_height",&obj0)) goto fail;
-    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__row_ptr_cacheTunsigned_char_t, SWIG_POINTER_EXCEPTION | 0);
+    if(!PyArg_ParseTuple(args,(char *)"O:conv_adaptor_vcgen_path_markers",&obj0)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__conv_adaptor_vcgenTagg__path_storage_agg__vcgen_stroke_agg__null_markers_t, SWIG_POINTER_EXCEPTION | 0);
     if (SWIG_arg_fail(1)) SWIG_fail;
-    result = (unsigned int)((agg::row_ptr_cache<agg::int8u > const *)arg1)->height();
-    
     {
-        resultobj = SWIG_From_unsigned_SS_int((unsigned int)(result)); 
+        agg::null_markers const &_result_ref = ((agg::conv_adaptor_vcgen<path_t,agg::vcgen_stroke,agg::null_markers > const *)arg1)->markers();
+        result = (agg::null_markers *) &_result_ref;
     }
+    
+    resultobj = SWIG_NewPointerObj((void*)(result), SWIGTYPE_p_agg__null_markers, 0);
     return resultobj;
     fail:
     return NULL;
 }
 
 
-static PyObject *_wrap_rendering_buffer_stride(PyObject *, PyObject *args) {
-    PyObject *resultobj = NULL;
-    agg::row_ptr_cache<agg::int8u > *arg1 = (agg::row_ptr_cache<agg::int8u > *) 0 ;
-    int result;
-    PyObject * obj0 = 0 ;
-    
-    if(!PyArg_ParseTuple(args,(char *)"O:rendering_buffer_stride",&obj0)) goto fail;
-    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__row_ptr_cacheTunsigned_char_t, SWIG_POINTER_EXCEPTION | 0);
-    if (SWIG_arg_fail(1)) SWIG_fail;
-    result = (int)((agg::row_ptr_cache<agg::int8u > const *)arg1)->stride();
-    
-    {
-        resultobj = SWIG_From_int((int)(result)); 
-    }
-    return resultobj;
-    fail:
-    return NULL;
-}
-
-
-static PyObject *_wrap_rendering_buffer_stride_abs(PyObject *, PyObject *args) {
-    PyObject *resultobj = NULL;
-    agg::row_ptr_cache<agg::int8u > *arg1 = (agg::row_ptr_cache<agg::int8u > *) 0 ;
-    unsigned int result;
-    PyObject * obj0 = 0 ;
-    
-    if(!PyArg_ParseTuple(args,(char *)"O:rendering_buffer_stride_abs",&obj0)) goto fail;
-    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__row_ptr_cacheTunsigned_char_t, SWIG_POINTER_EXCEPTION | 0);
-    if (SWIG_arg_fail(1)) SWIG_fail;
-    result = (unsigned int)((agg::row_ptr_cache<agg::int8u > const *)arg1)->stride_abs();
-    
-    {
-        resultobj = SWIG_From_unsigned_SS_int((unsigned int)(result)); 
-    }
-    return resultobj;
-    fail:
-    return NULL;
-}
-
-
-static PyObject *_wrap_rendering_buffer_row__SWIG_0(PyObject *, PyObject *args) {
-    PyObject *resultobj = NULL;
-    agg::row_ptr_cache<agg::int8u > *arg1 = (agg::row_ptr_cache<agg::int8u > *) 0 ;
-    unsigned int arg2 ;
-    agg::int8u *result;
-    PyObject * obj0 = 0 ;
-    PyObject * obj1 = 0 ;
-    
-    if(!PyArg_ParseTuple(args,(char *)"OO:rendering_buffer_row",&obj0,&obj1)) goto fail;
-    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__row_ptr_cacheTunsigned_char_t, SWIG_POINTER_EXCEPTION | 0);
-    if (SWIG_arg_fail(1)) SWIG_fail;
-    {
-        arg2 = (unsigned int)(SWIG_As_unsigned_SS_int(obj1)); 
-        if (SWIG_arg_fail(2)) SWIG_fail;
-    }
-    result = (agg::int8u *)(arg1)->row(arg2);
-    
-    resultobj = SWIG_NewPointerObj((void*)(result), SWIGTYPE_p_unsigned_char, 0);
-    return resultobj;
-    fail:
-    return NULL;
-}
-
-
-static PyObject *_wrap_rendering_buffer_row__SWIG_1(PyObject *, PyObject *args) {
-    PyObject *resultobj = NULL;
-    agg::row_ptr_cache<agg::int8u > *arg1 = (agg::row_ptr_cache<agg::int8u > *) 0 ;
-    unsigned int arg2 ;
-    agg::int8u *result;
-    PyObject * obj0 = 0 ;
-    PyObject * obj1 = 0 ;
-    
-    if(!PyArg_ParseTuple(args,(char *)"OO:rendering_buffer_row",&obj0,&obj1)) goto fail;
-    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__row_ptr_cacheTunsigned_char_t, SWIG_POINTER_EXCEPTION | 0);
-    if (SWIG_arg_fail(1)) SWIG_fail;
-    {
-        arg2 = (unsigned int)(SWIG_As_unsigned_SS_int(obj1)); 
-        if (SWIG_arg_fail(2)) SWIG_fail;
-    }
-    result = (agg::int8u *)((agg::row_ptr_cache<agg::int8u > const *)arg1)->row(arg2);
-    
-    resultobj = SWIG_NewPointerObj((void*)(result), SWIGTYPE_p_unsigned_char, 0);
-    return resultobj;
-    fail:
-    return NULL;
-}
-
-
-static PyObject *_wrap_rendering_buffer_row(PyObject *self, PyObject *args) {
+static PyObject *_wrap_conv_adaptor_vcgen_path_markers(PyObject *self, PyObject *args) {
     int argc;
-    PyObject *argv[3];
+    PyObject *argv[2];
     int ii;
     
     argc = PyObject_Length(args);
-    for (ii = 0; (ii < argc) && (ii < 2); ii++) {
-        argv[ii] = PyTuple_GetItem(args,ii);
-    }
-    if (argc == 2) {
-        int _v;
-        {
-            void *ptr;
-            if (SWIG_ConvertPtr(argv[0], &ptr, SWIGTYPE_p_agg__row_ptr_cacheTunsigned_char_t, 0) == -1) {
-                _v = 0;
-                PyErr_Clear();
-            } else {
-                _v = 1;
-            }
-        }
-        if (_v) {
-            _v = SWIG_Check_unsigned_SS_int(argv[1]);
-            if (_v) {
-                return _wrap_rendering_buffer_row__SWIG_0(self,args);
-            }
-        }
-    }
-    if (argc == 2) {
-        int _v;
-        {
-            void *ptr;
-            if (SWIG_ConvertPtr(argv[0], &ptr, SWIGTYPE_p_agg__row_ptr_cacheTunsigned_char_t, 0) == -1) {
-                _v = 0;
-                PyErr_Clear();
-            } else {
-                _v = 1;
-            }
-        }
-        if (_v) {
-            _v = SWIG_Check_unsigned_SS_int(argv[1]);
-            if (_v) {
-                return _wrap_rendering_buffer_row__SWIG_1(self,args);
-            }
-        }
-    }
-    
-    PyErr_SetString(PyExc_NotImplementedError,"No matching function for overloaded 'rendering_buffer_row'");
-    return NULL;
-}
-
-
-static PyObject *_wrap_rendering_buffer_next_row__SWIG_0(PyObject *, PyObject *args) {
-    PyObject *resultobj = NULL;
-    agg::row_ptr_cache<agg::int8u > *arg1 = (agg::row_ptr_cache<agg::int8u > *) 0 ;
-    void *arg2 = (void *) 0 ;
-    agg::int8u *result;
-    PyObject * obj0 = 0 ;
-    PyObject * obj1 = 0 ;
-    
-    if(!PyArg_ParseTuple(args,(char *)"OO:rendering_buffer_next_row",&obj0,&obj1)) goto fail;
-    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__row_ptr_cacheTunsigned_char_t, SWIG_POINTER_EXCEPTION | 0);
-    if (SWIG_arg_fail(1)) SWIG_fail;
-    {
-        if ((SWIG_ConvertPtr(obj1,(void **)(&arg2),0,SWIG_POINTER_EXCEPTION|0))== -1) {
-            SWIG_arg_fail(2);SWIG_fail;
-        }
-    }
-    result = (agg::int8u *)(arg1)->next_row(arg2);
-    
-    resultobj = SWIG_NewPointerObj((void*)(result), SWIGTYPE_p_unsigned_char, 0);
-    return resultobj;
-    fail:
-    return NULL;
-}
-
-
-static PyObject *_wrap_rendering_buffer_next_row__SWIG_1(PyObject *, PyObject *args) {
-    PyObject *resultobj = NULL;
-    agg::row_ptr_cache<agg::int8u > *arg1 = (agg::row_ptr_cache<agg::int8u > *) 0 ;
-    void *arg2 = (void *) 0 ;
-    agg::int8u *result;
-    PyObject * obj0 = 0 ;
-    PyObject * obj1 = 0 ;
-    
-    if(!PyArg_ParseTuple(args,(char *)"OO:rendering_buffer_next_row",&obj0,&obj1)) goto fail;
-    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__row_ptr_cacheTunsigned_char_t, SWIG_POINTER_EXCEPTION | 0);
-    if (SWIG_arg_fail(1)) SWIG_fail;
-    {
-        if ((SWIG_ConvertPtr(obj1,(void **)(&arg2),0,SWIG_POINTER_EXCEPTION|0))== -1) {
-            SWIG_arg_fail(2);SWIG_fail;
-        }
-    }
-    result = (agg::int8u *)((agg::row_ptr_cache<agg::int8u > const *)arg1)->next_row((void const *)arg2);
-    
-    resultobj = SWIG_NewPointerObj((void*)(result), SWIGTYPE_p_unsigned_char, 0);
-    return resultobj;
-    fail:
-    return NULL;
-}
-
-
-static PyObject *_wrap_rendering_buffer_next_row(PyObject *self, PyObject *args) {
-    int argc;
-    PyObject *argv[3];
-    int ii;
-    
-    argc = PyObject_Length(args);
-    for (ii = 0; (ii < argc) && (ii < 2); ii++) {
-        argv[ii] = PyTuple_GetItem(args,ii);
-    }
-    if (argc == 2) {
-        int _v;
-        {
-            void *ptr;
-            if (SWIG_ConvertPtr(argv[0], &ptr, SWIGTYPE_p_agg__row_ptr_cacheTunsigned_char_t, 0) == -1) {
-                _v = 0;
-                PyErr_Clear();
-            } else {
-                _v = 1;
-            }
-        }
-        if (_v) {
-            {
-                void *ptr;
-                if (SWIG_ConvertPtr(argv[1], &ptr, 0, 0) == -1) {
-                    _v = 0;
-                    PyErr_Clear();
-                } else {
-                    _v = 1;
-                }
-            }
-            if (_v) {
-                return _wrap_rendering_buffer_next_row__SWIG_0(self,args);
-            }
-        }
-    }
-    if (argc == 2) {
-        int _v;
-        {
-            void *ptr;
-            if (SWIG_ConvertPtr(argv[0], &ptr, SWIGTYPE_p_agg__row_ptr_cacheTunsigned_char_t, 0) == -1) {
-                _v = 0;
-                PyErr_Clear();
-            } else {
-                _v = 1;
-            }
-        }
-        if (_v) {
-            {
-                void *ptr;
-                if (SWIG_ConvertPtr(argv[1], &ptr, 0, 0) == -1) {
-                    _v = 0;
-                    PyErr_Clear();
-                } else {
-                    _v = 1;
-                }
-            }
-            if (_v) {
-                return _wrap_rendering_buffer_next_row__SWIG_1(self,args);
-            }
-        }
-    }
-    
-    PyErr_SetString(PyExc_NotImplementedError,"No matching function for overloaded 'rendering_buffer_next_row'");
-    return NULL;
-}
-
-
-static PyObject *_wrap_rendering_buffer_rows(PyObject *, PyObject *args) {
-    PyObject *resultobj = NULL;
-    agg::row_ptr_cache<agg::int8u > *arg1 = (agg::row_ptr_cache<agg::int8u > *) 0 ;
-    agg::int8u **result;
-    PyObject * obj0 = 0 ;
-    
-    if(!PyArg_ParseTuple(args,(char *)"O:rendering_buffer_rows",&obj0)) goto fail;
-    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__row_ptr_cacheTunsigned_char_t, SWIG_POINTER_EXCEPTION | 0);
-    if (SWIG_arg_fail(1)) SWIG_fail;
-    result = (agg::int8u **)((agg::row_ptr_cache<agg::int8u > const *)arg1)->rows();
-    
-    resultobj = SWIG_NewPointerObj((void*)(result), SWIGTYPE_p_p_unsigned_char, 0);
-    return resultobj;
-    fail:
-    return NULL;
-}
-
-
-static PyObject *_wrap_rendering_buffer_copy_from(PyObject *, PyObject *args) {
-    PyObject *resultobj = NULL;
-    agg::row_ptr_cache<agg::int8u > *arg1 = (agg::row_ptr_cache<agg::int8u > *) 0 ;
-    agg::row_ptr_cache<agg::int8u > *arg2 = 0 ;
-    PyObject * obj0 = 0 ;
-    PyObject * obj1 = 0 ;
-    
-    if(!PyArg_ParseTuple(args,(char *)"OO:rendering_buffer_copy_from",&obj0,&obj1)) goto fail;
-    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__row_ptr_cacheTunsigned_char_t, SWIG_POINTER_EXCEPTION | 0);
-    if (SWIG_arg_fail(1)) SWIG_fail;
-    {
-        SWIG_Python_ConvertPtr(obj1, (void **)&arg2, SWIGTYPE_p_agg__row_ptr_cacheTunsigned_char_t, SWIG_POINTER_EXCEPTION | 0);
-        if (SWIG_arg_fail(2)) SWIG_fail;
-        if (arg2 == NULL) {
-            SWIG_null_ref("agg::row_ptr_cache<agg::int8u >");
-        }
-        if (SWIG_arg_fail(2)) SWIG_fail;
-    }
-    (arg1)->copy_from((agg::row_ptr_cache<unsigned char > const &)*arg2);
-    
-    Py_INCREF(Py_None); resultobj = Py_None;
-    return resultobj;
-    fail:
-    return NULL;
-}
-
-
-static PyObject *_wrap_rendering_buffer_clear(PyObject *, PyObject *args) {
-    PyObject *resultobj = NULL;
-    agg::row_ptr_cache<agg::int8u > *arg1 = (agg::row_ptr_cache<agg::int8u > *) 0 ;
-    agg::int8u arg2 ;
-    PyObject * obj0 = 0 ;
-    PyObject * obj1 = 0 ;
-    
-    if(!PyArg_ParseTuple(args,(char *)"OO:rendering_buffer_clear",&obj0,&obj1)) goto fail;
-    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__row_ptr_cacheTunsigned_char_t, SWIG_POINTER_EXCEPTION | 0);
-    if (SWIG_arg_fail(1)) SWIG_fail;
-    {
-        arg2 = (agg::int8u)(SWIG_As_unsigned_SS_char(obj1)); 
-        if (SWIG_arg_fail(2)) SWIG_fail;
-    }
-    (arg1)->clear(arg2);
-    
-    Py_INCREF(Py_None); resultobj = Py_None;
-    return resultobj;
-    fail:
-    return NULL;
-}
-
-
-static PyObject *_wrap_rendering_buffer_attachb(PyObject *, PyObject *args) {
-    PyObject *resultobj = NULL;
-    agg::row_ptr_cache<agg::int8u > *arg1 = (agg::row_ptr_cache<agg::int8u > *) 0 ;
-    agg::buffer *arg2 = (agg::buffer *) 0 ;
-    PyObject * obj0 = 0 ;
-    PyObject * obj1 = 0 ;
-    
-    if(!PyArg_ParseTuple(args,(char *)"OO:rendering_buffer_attachb",&obj0,&obj1)) goto fail;
-    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__row_ptr_cacheTunsigned_char_t, SWIG_POINTER_EXCEPTION | 0);
-    if (SWIG_arg_fail(1)) SWIG_fail;
-    SWIG_Python_ConvertPtr(obj1, (void **)&arg2, SWIGTYPE_p_agg__buffer, SWIG_POINTER_EXCEPTION | 0);
-    if (SWIG_arg_fail(2)) SWIG_fail;
-    agg_row_ptr_cache_Sl_agg_int8u_Sg__attachb(arg1,arg2);
-    
-    Py_INCREF(Py_None); resultobj = Py_None;
-    return resultobj;
-    fail:
-    return NULL;
-}
-
-
-static PyObject * rendering_buffer_swigregister(PyObject *, PyObject *args) {
-    PyObject *obj;
-    if (!PyArg_ParseTuple(args,(char*)"O", &obj)) return NULL;
-    SWIG_TypeClientData(SWIGTYPE_p_agg__row_ptr_cacheTunsigned_char_t, obj);
-    Py_INCREF(obj);
-    return Py_BuildValue((char *)"");
-}
-static PyObject *_wrap_pixel64_type_c_set(PyObject *, PyObject *args) {
-    PyObject *resultobj = NULL;
-    agg::pixel64_type *arg1 = (agg::pixel64_type *) 0 ;
-    agg::int16u *arg2 ;
-    PyObject * obj0 = 0 ;
-    PyObject * obj1 = 0 ;
-    
-    if(!PyArg_ParseTuple(args,(char *)"OO:pixel64_type_c_set",&obj0,&obj1)) goto fail;
-    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__pixel64_type, SWIG_POINTER_EXCEPTION | 0);
-    if (SWIG_arg_fail(1)) SWIG_fail;
-    SWIG_Python_ConvertPtr(obj1, (void **)&arg2, SWIGTYPE_p_unsigned_short, SWIG_POINTER_EXCEPTION | 0);
-    if (SWIG_arg_fail(2)) SWIG_fail;
-    {
-        agg::int16u *inp = (agg::int16u *)(arg2);
-        if (inp) {
-            agg::int16u *dest = (agg::int16u *)(arg1->c);
-            size_t ii = 0;
-            for (; ii < 4; ++ii) dest[ii] = inp[ii];
-        } else {
-            SWIG_null_ref("agg::int16u");
-        }
-    }
-    Py_INCREF(Py_None); resultobj = Py_None;
-    return resultobj;
-    fail:
-    return NULL;
-}
-
-
-static PyObject *_wrap_pixel64_type_c_get(PyObject *, PyObject *args) {
-    PyObject *resultobj = NULL;
-    agg::pixel64_type *arg1 = (agg::pixel64_type *) 0 ;
-    agg::int16u *result;
-    PyObject * obj0 = 0 ;
-    
-    if(!PyArg_ParseTuple(args,(char *)"O:pixel64_type_c_get",&obj0)) goto fail;
-    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__pixel64_type, SWIG_POINTER_EXCEPTION | 0);
-    if (SWIG_arg_fail(1)) SWIG_fail;
-    result = (agg::int16u *)(agg::int16u *) ((arg1)->c);
-    
-    resultobj = SWIG_NewPointerObj((void*)(result), SWIGTYPE_p_unsigned_short, 0);
-    return resultobj;
-    fail:
-    return NULL;
-}
-
-
-static PyObject *_wrap_new_pixel64_type(PyObject *, PyObject *args) {
-    PyObject *resultobj = NULL;
-    agg::pixel64_type *result;
-    
-    if(!PyArg_ParseTuple(args,(char *)":new_pixel64_type")) goto fail;
-    result = (agg::pixel64_type *)new agg::pixel64_type();
-    
-    resultobj = SWIG_NewPointerObj((void*)(result), SWIGTYPE_p_agg__pixel64_type, 1);
-    return resultobj;
-    fail:
-    return NULL;
-}
-
-
-static PyObject *_wrap_delete_pixel64_type(PyObject *, PyObject *args) {
-    PyObject *resultobj = NULL;
-    agg::pixel64_type *arg1 = (agg::pixel64_type *) 0 ;
-    PyObject * obj0 = 0 ;
-    
-    if(!PyArg_ParseTuple(args,(char *)"O:delete_pixel64_type",&obj0)) goto fail;
-    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__pixel64_type, SWIG_POINTER_EXCEPTION | 0);
-    if (SWIG_arg_fail(1)) SWIG_fail;
-    delete arg1;
-    
-    Py_INCREF(Py_None); resultobj = Py_None;
-    return resultobj;
-    fail:
-    return NULL;
-}
-
-
-static PyObject * pixel64_type_swigregister(PyObject *, PyObject *args) {
-    PyObject *obj;
-    if (!PyArg_ParseTuple(args,(char*)"O", &obj)) return NULL;
-    SWIG_TypeClientData(SWIGTYPE_p_agg__pixel64_type, obj);
-    Py_INCREF(obj);
-    return Py_BuildValue((char *)"");
-}
-static PyObject *_wrap_new_pixel_format(PyObject *, PyObject *args) {
-    PyObject *resultobj = NULL;
-    agg::rendering_buffer *arg1 = 0 ;
-    agg::pixel_formats_rgba<agg::blender_rgba32,agg::pixel32_type > *result;
-    PyObject * obj0 = 0 ;
-    
-    if(!PyArg_ParseTuple(args,(char *)"O:new_pixel_format",&obj0)) goto fail;
-    {
-        SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__row_ptr_cacheTunsigned_char_t, SWIG_POINTER_EXCEPTION | 0);
-        if (SWIG_arg_fail(1)) SWIG_fail;
-        if (arg1 == NULL) {
-            SWIG_null_ref("agg::rendering_buffer");
-        }
-        if (SWIG_arg_fail(1)) SWIG_fail;
-    }
-    result = (agg::pixel_formats_rgba<agg::blender_rgba32,agg::pixel32_type > *)new agg::pixel_formats_rgba<agg::blender_rgba32,agg::pixel32_type >(*arg1);
-    
-    resultobj = SWIG_NewPointerObj((void*)(result), SWIGTYPE_p_agg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t, 1);
-    return resultobj;
-    fail:
-    return NULL;
-}
-
-
-static PyObject *_wrap_pixel_format_width(PyObject *, PyObject *args) {
-    PyObject *resultobj = NULL;
-    agg::pixel_formats_rgba<agg::blender_rgba32,agg::pixel32_type > *arg1 = (agg::pixel_formats_rgba<agg::blender_rgba32,agg::pixel32_type > *) 0 ;
-    unsigned int result;
-    PyObject * obj0 = 0 ;
-    
-    if(!PyArg_ParseTuple(args,(char *)"O:pixel_format_width",&obj0)) goto fail;
-    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t, SWIG_POINTER_EXCEPTION | 0);
-    if (SWIG_arg_fail(1)) SWIG_fail;
-    result = (unsigned int)((agg::pixel_formats_rgba<agg::blender_rgba32,agg::pixel32_type > const *)arg1)->width();
-    
-    {
-        resultobj = SWIG_From_unsigned_SS_int((unsigned int)(result)); 
-    }
-    return resultobj;
-    fail:
-    return NULL;
-}
-
-
-static PyObject *_wrap_pixel_format_height(PyObject *, PyObject *args) {
-    PyObject *resultobj = NULL;
-    agg::pixel_formats_rgba<agg::blender_rgba32,agg::pixel32_type > *arg1 = (agg::pixel_formats_rgba<agg::blender_rgba32,agg::pixel32_type > *) 0 ;
-    unsigned int result;
-    PyObject * obj0 = 0 ;
-    
-    if(!PyArg_ParseTuple(args,(char *)"O:pixel_format_height",&obj0)) goto fail;
-    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t, SWIG_POINTER_EXCEPTION | 0);
-    if (SWIG_arg_fail(1)) SWIG_fail;
-    result = (unsigned int)((agg::pixel_formats_rgba<agg::blender_rgba32,agg::pixel32_type > const *)arg1)->height();
-    
-    {
-        resultobj = SWIG_From_unsigned_SS_int((unsigned int)(result)); 
-    }
-    return resultobj;
-    fail:
-    return NULL;
-}
-
-
-static PyObject *_wrap_pixel_format_pixel(PyObject *, PyObject *args) {
-    PyObject *resultobj = NULL;
-    agg::pixel_formats_rgba<agg::blender_rgba32,agg::pixel32_type > *arg1 = (agg::pixel_formats_rgba<agg::blender_rgba32,agg::pixel32_type > *) 0 ;
-    int arg2 ;
-    int arg3 ;
-    SwigValueWrapper<agg::pixel_formats_rgba<agg::blender_rgba<agg::rgba8,agg::order_rgba >,unsigned int >::blender_type::color_type > result;
-    PyObject * obj0 = 0 ;
-    PyObject * obj1 = 0 ;
-    PyObject * obj2 = 0 ;
-    
-    if(!PyArg_ParseTuple(args,(char *)"OOO:pixel_format_pixel",&obj0,&obj1,&obj2)) goto fail;
-    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t, SWIG_POINTER_EXCEPTION | 0);
-    if (SWIG_arg_fail(1)) SWIG_fail;
-    {
-        arg2 = (int)(SWIG_As_int(obj1)); 
-        if (SWIG_arg_fail(2)) SWIG_fail;
-    }
-    {
-        arg3 = (int)(SWIG_As_int(obj2)); 
-        if (SWIG_arg_fail(3)) SWIG_fail;
-    }
-    result = ((agg::pixel_formats_rgba<agg::blender_rgba32,agg::pixel32_type > const *)arg1)->pixel(arg2,arg3);
-    
-    {
-        agg::pixel_formats_rgba<agg::blender_rgba<agg::rgba8,agg::order_rgba >,unsigned int >::color_type * resultptr;
-        resultptr = new agg::pixel_formats_rgba<agg::blender_rgba<agg::rgba8,agg::order_rgba >,unsigned int >::color_type((agg::pixel_formats_rgba<agg::blender_rgba<agg::rgba8,agg::order_rgba >,unsigned int >::color_type &)(result));
-        resultobj = SWIG_NewPointerObj((void *)(resultptr), SWIGTYPE_p_agg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t__blender_type__color_type, 1);
-    }
-    return resultobj;
-    fail:
-    return NULL;
-}
-
-
-static PyObject *_wrap_pixel_format_row(PyObject *, PyObject *args) {
-    PyObject *resultobj = NULL;
-    agg::pixel_formats_rgba<agg::blender_rgba32,agg::pixel32_type > *arg1 = (agg::pixel_formats_rgba<agg::blender_rgba32,agg::pixel32_type > *) 0 ;
-    int arg2 ;
-    int arg3 ;
-    agg::pixel_formats_rgba<agg::blender_rgba<agg::rgba8,agg::order_rgba >,unsigned int >::row_data result;
-    PyObject * obj0 = 0 ;
-    PyObject * obj1 = 0 ;
-    PyObject * obj2 = 0 ;
-    
-    if(!PyArg_ParseTuple(args,(char *)"OOO:pixel_format_row",&obj0,&obj1,&obj2)) goto fail;
-    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t, SWIG_POINTER_EXCEPTION | 0);
-    if (SWIG_arg_fail(1)) SWIG_fail;
-    {
-        arg2 = (int)(SWIG_As_int(obj1)); 
-        if (SWIG_arg_fail(2)) SWIG_fail;
-    }
-    {
-        arg3 = (int)(SWIG_As_int(obj2)); 
-        if (SWIG_arg_fail(3)) SWIG_fail;
-    }
-    result = ((agg::pixel_formats_rgba<agg::blender_rgba32,agg::pixel32_type > const *)arg1)->row(arg2,arg3);
-    
-    {
-        agg::pixel_formats_rgba<agg::blender_rgba<agg::rgba8,agg::order_rgba >,unsigned int >::row_data * resultptr;
-        resultptr = new agg::pixel_formats_rgba<agg::blender_rgba<agg::rgba8,agg::order_rgba >,unsigned int >::row_data((agg::pixel_formats_rgba<agg::blender_rgba<agg::rgba8,agg::order_rgba >,unsigned int >::row_data &)(result));
-        resultobj = SWIG_NewPointerObj((void *)(resultptr), SWIGTYPE_p_agg__rendering_buffer__row_data, 1);
-    }
-    return resultobj;
-    fail:
-    return NULL;
-}
-
-
-static PyObject *_wrap_pixel_format_span(PyObject *, PyObject *args) {
-    PyObject *resultobj = NULL;
-    agg::pixel_formats_rgba<agg::blender_rgba32,agg::pixel32_type > *arg1 = (agg::pixel_formats_rgba<agg::blender_rgba32,agg::pixel32_type > *) 0 ;
-    int arg2 ;
-    int arg3 ;
-    unsigned int arg4 ;
-    agg::pixel_formats_rgba<agg::blender_rgba<agg::rgba8,agg::order_rgba >,unsigned int >::span_data result;
-    PyObject * obj0 = 0 ;
-    PyObject * obj1 = 0 ;
-    PyObject * obj2 = 0 ;
-    PyObject * obj3 = 0 ;
-    
-    if(!PyArg_ParseTuple(args,(char *)"OOOO:pixel_format_span",&obj0,&obj1,&obj2,&obj3)) goto fail;
-    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t, SWIG_POINTER_EXCEPTION | 0);
-    if (SWIG_arg_fail(1)) SWIG_fail;
-    {
-        arg2 = (int)(SWIG_As_int(obj1)); 
-        if (SWIG_arg_fail(2)) SWIG_fail;
-    }
-    {
-        arg3 = (int)(SWIG_As_int(obj2)); 
-        if (SWIG_arg_fail(3)) SWIG_fail;
-    }
-    {
-        arg4 = (unsigned int)(SWIG_As_unsigned_SS_int(obj3)); 
-        if (SWIG_arg_fail(4)) SWIG_fail;
-    }
-    result = (arg1)->span(arg2,arg3,arg4);
-    
-    {
-        agg::pixel_formats_rgba<agg::blender_rgba<agg::rgba8,agg::order_rgba >,unsigned int >::span_data * resultptr;
-        resultptr = new agg::pixel_formats_rgba<agg::blender_rgba<agg::rgba8,agg::order_rgba >,unsigned int >::span_data((agg::pixel_formats_rgba<agg::blender_rgba<agg::rgba8,agg::order_rgba >,unsigned int >::span_data &)(result));
-        resultobj = SWIG_NewPointerObj((void *)(resultptr), SWIGTYPE_p_agg__rendering_buffer__span_data, 1);
-    }
-    return resultobj;
-    fail:
-    return NULL;
-}
-
-
-static PyObject *_wrap_pixel_format_copy_pixel(PyObject *, PyObject *args) {
-    PyObject *resultobj = NULL;
-    agg::pixel_formats_rgba<agg::blender_rgba32,agg::pixel32_type > *arg1 = (agg::pixel_formats_rgba<agg::blender_rgba32,agg::pixel32_type > *) 0 ;
-    int arg2 ;
-    int arg3 ;
-    agg::pixel_formats_rgba<agg::blender_rgba<agg::rgba8,agg::order_rgba >,unsigned int >::color_type *arg4 = 0 ;
-    PyObject * obj0 = 0 ;
-    PyObject * obj1 = 0 ;
-    PyObject * obj2 = 0 ;
-    PyObject * obj3 = 0 ;
-    
-    if(!PyArg_ParseTuple(args,(char *)"OOOO:pixel_format_copy_pixel",&obj0,&obj1,&obj2,&obj3)) goto fail;
-    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t, SWIG_POINTER_EXCEPTION | 0);
-    if (SWIG_arg_fail(1)) SWIG_fail;
-    {
-        arg2 = (int)(SWIG_As_int(obj1)); 
-        if (SWIG_arg_fail(2)) SWIG_fail;
-    }
-    {
-        arg3 = (int)(SWIG_As_int(obj2)); 
-        if (SWIG_arg_fail(3)) SWIG_fail;
-    }
-    {
-        SWIG_Python_ConvertPtr(obj3, (void **)&arg4, SWIGTYPE_p_agg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t__blender_type__color_type, SWIG_POINTER_EXCEPTION | 0);
-        if (SWIG_arg_fail(4)) SWIG_fail;
-        if (arg4 == NULL) {
-            SWIG_null_ref("agg::pixel_formats_rgba<agg::blender_rgba<agg::rgba8,agg::order_rgba >,unsigned int >::color_type");
-        }
-        if (SWIG_arg_fail(4)) SWIG_fail;
-    }
-    (arg1)->copy_pixel(arg2,arg3,(agg::pixel_formats_rgba<agg::blender_rgba<agg::rgba8,agg::order_rgba >,unsigned int >::blender_type::color_type const &)*arg4);
-    
-    Py_INCREF(Py_None); resultobj = Py_None;
-    return resultobj;
-    fail:
-    return NULL;
-}
-
-
-static PyObject *_wrap_pixel_format_blend_pixel(PyObject *, PyObject *args) {
-    PyObject *resultobj = NULL;
-    agg::pixel_formats_rgba<agg::blender_rgba32,agg::pixel32_type > *arg1 = (agg::pixel_formats_rgba<agg::blender_rgba32,agg::pixel32_type > *) 0 ;
-    int arg2 ;
-    int arg3 ;
-    agg::pixel_formats_rgba<agg::blender_rgba<agg::rgba8,agg::order_rgba >,unsigned int >::color_type *arg4 = 0 ;
-    agg::int8u arg5 ;
-    PyObject * obj0 = 0 ;
-    PyObject * obj1 = 0 ;
-    PyObject * obj2 = 0 ;
-    PyObject * obj3 = 0 ;
-    PyObject * obj4 = 0 ;
-    
-    if(!PyArg_ParseTuple(args,(char *)"OOOOO:pixel_format_blend_pixel",&obj0,&obj1,&obj2,&obj3,&obj4)) goto fail;
-    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t, SWIG_POINTER_EXCEPTION | 0);
-    if (SWIG_arg_fail(1)) SWIG_fail;
-    {
-        arg2 = (int)(SWIG_As_int(obj1)); 
-        if (SWIG_arg_fail(2)) SWIG_fail;
-    }
-    {
-        arg3 = (int)(SWIG_As_int(obj2)); 
-        if (SWIG_arg_fail(3)) SWIG_fail;
-    }
-    {
-        SWIG_Python_ConvertPtr(obj3, (void **)&arg4, SWIGTYPE_p_agg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t__blender_type__color_type, SWIG_POINTER_EXCEPTION | 0);
-        if (SWIG_arg_fail(4)) SWIG_fail;
-        if (arg4 == NULL) {
-            SWIG_null_ref("agg::pixel_formats_rgba<agg::blender_rgba<agg::rgba8,agg::order_rgba >,unsigned int >::color_type");
-        }
-        if (SWIG_arg_fail(4)) SWIG_fail;
-    }
-    {
-        arg5 = (agg::int8u)(SWIG_As_unsigned_SS_char(obj4)); 
-        if (SWIG_arg_fail(5)) SWIG_fail;
-    }
-    (arg1)->blend_pixel(arg2,arg3,(agg::pixel_formats_rgba<agg::blender_rgba<agg::rgba8,agg::order_rgba >,unsigned int >::blender_type::color_type const &)*arg4,arg5);
-    
-    Py_INCREF(Py_None); resultobj = Py_None;
-    return resultobj;
-    fail:
-    return NULL;
-}
-
-
-static PyObject *_wrap_pixel_format_copy_hline(PyObject *, PyObject *args) {
-    PyObject *resultobj = NULL;
-    agg::pixel_formats_rgba<agg::blender_rgba32,agg::pixel32_type > *arg1 = (agg::pixel_formats_rgba<agg::blender_rgba32,agg::pixel32_type > *) 0 ;
-    int arg2 ;
-    int arg3 ;
-    unsigned int arg4 ;
-    agg::pixel_formats_rgba<agg::blender_rgba<agg::rgba8,agg::order_rgba >,unsigned int >::color_type *arg5 = 0 ;
-    PyObject * obj0 = 0 ;
-    PyObject * obj1 = 0 ;
-    PyObject * obj2 = 0 ;
-    PyObject * obj3 = 0 ;
-    PyObject * obj4 = 0 ;
-    
-    if(!PyArg_ParseTuple(args,(char *)"OOOOO:pixel_format_copy_hline",&obj0,&obj1,&obj2,&obj3,&obj4)) goto fail;
-    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t, SWIG_POINTER_EXCEPTION | 0);
-    if (SWIG_arg_fail(1)) SWIG_fail;
-    {
-        arg2 = (int)(SWIG_As_int(obj1)); 
-        if (SWIG_arg_fail(2)) SWIG_fail;
-    }
-    {
-        arg3 = (int)(SWIG_As_int(obj2)); 
-        if (SWIG_arg_fail(3)) SWIG_fail;
-    }
-    {
-        arg4 = (unsigned int)(SWIG_As_unsigned_SS_int(obj3)); 
-        if (SWIG_arg_fail(4)) SWIG_fail;
-    }
-    {
-        SWIG_Python_ConvertPtr(obj4, (void **)&arg5, SWIGTYPE_p_agg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t__blender_type__color_type, SWIG_POINTER_EXCEPTION | 0);
-        if (SWIG_arg_fail(5)) SWIG_fail;
-        if (arg5 == NULL) {
-            SWIG_null_ref("agg::pixel_formats_rgba<agg::blender_rgba<agg::rgba8,agg::order_rgba >,unsigned int >::color_type");
-        }
-        if (SWIG_arg_fail(5)) SWIG_fail;
-    }
-    (arg1)->copy_hline(arg2,arg3,arg4,(agg::pixel_formats_rgba<agg::blender_rgba<agg::rgba8,agg::order_rgba >,unsigned int >::blender_type::color_type const &)*arg5);
-    
-    Py_INCREF(Py_None); resultobj = Py_None;
-    return resultobj;
-    fail:
-    return NULL;
-}
-
-
-static PyObject *_wrap_pixel_format_copy_vline(PyObject *, PyObject *args) {
-    PyObject *resultobj = NULL;
-    agg::pixel_formats_rgba<agg::blender_rgba32,agg::pixel32_type > *arg1 = (agg::pixel_formats_rgba<agg::blender_rgba32,agg::pixel32_type > *) 0 ;
-    int arg2 ;
-    int arg3 ;
-    unsigned int arg4 ;
-    agg::pixel_formats_rgba<agg::blender_rgba<agg::rgba8,agg::order_rgba >,unsigned int >::color_type *arg5 = 0 ;
-    PyObject * obj0 = 0 ;
-    PyObject * obj1 = 0 ;
-    PyObject * obj2 = 0 ;
-    PyObject * obj3 = 0 ;
-    PyObject * obj4 = 0 ;
-    
-    if(!PyArg_ParseTuple(args,(char *)"OOOOO:pixel_format_copy_vline",&obj0,&obj1,&obj2,&obj3,&obj4)) goto fail;
-    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t, SWIG_POINTER_EXCEPTION | 0);
-    if (SWIG_arg_fail(1)) SWIG_fail;
-    {
-        arg2 = (int)(SWIG_As_int(obj1)); 
-        if (SWIG_arg_fail(2)) SWIG_fail;
-    }
-    {
-        arg3 = (int)(SWIG_As_int(obj2)); 
-        if (SWIG_arg_fail(3)) SWIG_fail;
-    }
-    {
-        arg4 = (unsigned int)(SWIG_As_unsigned_SS_int(obj3)); 
-        if (SWIG_arg_fail(4)) SWIG_fail;
-    }
-    {
-        SWIG_Python_ConvertPtr(obj4, (void **)&arg5, SWIGTYPE_p_agg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t__blender_type__color_type, SWIG_POINTER_EXCEPTION | 0);
-        if (SWIG_arg_fail(5)) SWIG_fail;
-        if (arg5 == NULL) {
-            SWIG_null_ref("agg::pixel_formats_rgba<agg::blender_rgba<agg::rgba8,agg::order_rgba >,unsigned int >::color_type");
-        }
-        if (SWIG_arg_fail(5)) SWIG_fail;
-    }
-    (arg1)->copy_vline(arg2,arg3,arg4,(agg::pixel_formats_rgba<agg::blender_rgba<agg::rgba8,agg::order_rgba >,unsigned int >::blender_type::color_type const &)*arg5);
-    
-    Py_INCREF(Py_None); resultobj = Py_None;
-    return resultobj;
-    fail:
-    return NULL;
-}
-
-
-static PyObject *_wrap_pixel_format_blend_hline(PyObject *, PyObject *args) {
-    PyObject *resultobj = NULL;
-    agg::pixel_formats_rgba<agg::blender_rgba32,agg::pixel32_type > *arg1 = (agg::pixel_formats_rgba<agg::blender_rgba32,agg::pixel32_type > *) 0 ;
-    int arg2 ;
-    int arg3 ;
-    unsigned int arg4 ;
-    agg::pixel_formats_rgba<agg::blender_rgba<agg::rgba8,agg::order_rgba >,unsigned int >::color_type *arg5 = 0 ;
-    agg::int8u arg6 ;
-    PyObject * obj0 = 0 ;
-    PyObject * obj1 = 0 ;
-    PyObject * obj2 = 0 ;
-    PyObject * obj3 = 0 ;
-    PyObject * obj4 = 0 ;
-    PyObject * obj5 = 0 ;
-    
-    if(!PyArg_ParseTuple(args,(char *)"OOOOOO:pixel_format_blend_hline",&obj0,&obj1,&obj2,&obj3,&obj4,&obj5)) goto fail;
-    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t, SWIG_POINTER_EXCEPTION | 0);
-    if (SWIG_arg_fail(1)) SWIG_fail;
-    {
-        arg2 = (int)(SWIG_As_int(obj1)); 
-        if (SWIG_arg_fail(2)) SWIG_fail;
-    }
-    {
-        arg3 = (int)(SWIG_As_int(obj2)); 
-        if (SWIG_arg_fail(3)) SWIG_fail;
-    }
-    {
-        arg4 = (unsigned int)(SWIG_As_unsigned_SS_int(obj3)); 
-        if (SWIG_arg_fail(4)) SWIG_fail;
-    }
-    {
-        SWIG_Python_ConvertPtr(obj4, (void **)&arg5, SWIGTYPE_p_agg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t__blender_type__color_type, SWIG_POINTER_EXCEPTION | 0);
-        if (SWIG_arg_fail(5)) SWIG_fail;
-        if (arg5 == NULL) {
-            SWIG_null_ref("agg::pixel_formats_rgba<agg::blender_rgba<agg::rgba8,agg::order_rgba >,unsigned int >::color_type");
-        }
-        if (SWIG_arg_fail(5)) SWIG_fail;
-    }
-    {
-        arg6 = (agg::int8u)(SWIG_As_unsigned_SS_char(obj5)); 
-        if (SWIG_arg_fail(6)) SWIG_fail;
-    }
-    (arg1)->blend_hline(arg2,arg3,arg4,(agg::pixel_formats_rgba<agg::blender_rgba<agg::rgba8,agg::order_rgba >,unsigned int >::blender_type::color_type const &)*arg5,arg6);
-    
-    Py_INCREF(Py_None); resultobj = Py_None;
-    return resultobj;
-    fail:
-    return NULL;
-}
-
-
-static PyObject *_wrap_pixel_format_blend_vline(PyObject *, PyObject *args) {
-    PyObject *resultobj = NULL;
-    agg::pixel_formats_rgba<agg::blender_rgba32,agg::pixel32_type > *arg1 = (agg::pixel_formats_rgba<agg::blender_rgba32,agg::pixel32_type > *) 0 ;
-    int arg2 ;
-    int arg3 ;
-    unsigned int arg4 ;
-    agg::pixel_formats_rgba<agg::blender_rgba<agg::rgba8,agg::order_rgba >,unsigned int >::color_type *arg5 = 0 ;
-    agg::int8u arg6 ;
-    PyObject * obj0 = 0 ;
-    PyObject * obj1 = 0 ;
-    PyObject * obj2 = 0 ;
-    PyObject * obj3 = 0 ;
-    PyObject * obj4 = 0 ;
-    PyObject * obj5 = 0 ;
-    
-    if(!PyArg_ParseTuple(args,(char *)"OOOOOO:pixel_format_blend_vline",&obj0,&obj1,&obj2,&obj3,&obj4,&obj5)) goto fail;
-    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t, SWIG_POINTER_EXCEPTION | 0);
-    if (SWIG_arg_fail(1)) SWIG_fail;
-    {
-        arg2 = (int)(SWIG_As_int(obj1)); 
-        if (SWIG_arg_fail(2)) SWIG_fail;
-    }
-    {
-        arg3 = (int)(SWIG_As_int(obj2)); 
-        if (SWIG_arg_fail(3)) SWIG_fail;
-    }
-    {
-        arg4 = (unsigned int)(SWIG_As_unsigned_SS_int(obj3)); 
-        if (SWIG_arg_fail(4)) SWIG_fail;
-    }
-    {
-        SWIG_Python_ConvertPtr(obj4, (void **)&arg5, SWIGTYPE_p_agg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t__blender_type__color_type, SWIG_POINTER_EXCEPTION | 0);
-        if (SWIG_arg_fail(5)) SWIG_fail;
-        if (arg5 == NULL) {
-            SWIG_null_ref("agg::pixel_formats_rgba<agg::blender_rgba<agg::rgba8,agg::order_rgba >,unsigned int >::color_type");
-        }
-        if (SWIG_arg_fail(5)) SWIG_fail;
-    }
-    {
-        arg6 = (agg::int8u)(SWIG_As_unsigned_SS_char(obj5)); 
-        if (SWIG_arg_fail(6)) SWIG_fail;
-    }
-    (arg1)->blend_vline(arg2,arg3,arg4,(agg::pixel_formats_rgba<agg::blender_rgba<agg::rgba8,agg::order_rgba >,unsigned int >::blender_type::color_type const &)*arg5,arg6);
-    
-    Py_INCREF(Py_None); resultobj = Py_None;
-    return resultobj;
-    fail:
-    return NULL;
-}
-
-
-static PyObject *_wrap_pixel_format_blend_solid_hspan(PyObject *, PyObject *args) {
-    PyObject *resultobj = NULL;
-    agg::pixel_formats_rgba<agg::blender_rgba32,agg::pixel32_type > *arg1 = (agg::pixel_formats_rgba<agg::blender_rgba32,agg::pixel32_type > *) 0 ;
-    int arg2 ;
-    int arg3 ;
-    unsigned int arg4 ;
-    agg::pixel_formats_rgba<agg::blender_rgba<agg::rgba8,agg::order_rgba >,unsigned int >::color_type *arg5 = 0 ;
-    agg::int8u *arg6 = (agg::int8u *) 0 ;
-    PyObject * obj0 = 0 ;
-    PyObject * obj1 = 0 ;
-    PyObject * obj2 = 0 ;
-    PyObject * obj3 = 0 ;
-    PyObject * obj4 = 0 ;
-    PyObject * obj5 = 0 ;
-    
-    if(!PyArg_ParseTuple(args,(char *)"OOOOOO:pixel_format_blend_solid_hspan",&obj0,&obj1,&obj2,&obj3,&obj4,&obj5)) goto fail;
-    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t, SWIG_POINTER_EXCEPTION | 0);
-    if (SWIG_arg_fail(1)) SWIG_fail;
-    {
-        arg2 = (int)(SWIG_As_int(obj1)); 
-        if (SWIG_arg_fail(2)) SWIG_fail;
-    }
-    {
-        arg3 = (int)(SWIG_As_int(obj2)); 
-        if (SWIG_arg_fail(3)) SWIG_fail;
-    }
-    {
-        arg4 = (unsigned int)(SWIG_As_unsigned_SS_int(obj3)); 
-        if (SWIG_arg_fail(4)) SWIG_fail;
-    }
-    {
-        SWIG_Python_ConvertPtr(obj4, (void **)&arg5, SWIGTYPE_p_agg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t__blender_type__color_type, SWIG_POINTER_EXCEPTION | 0);
-        if (SWIG_arg_fail(5)) SWIG_fail;
-        if (arg5 == NULL) {
-            SWIG_null_ref("agg::pixel_formats_rgba<agg::blender_rgba<agg::rgba8,agg::order_rgba >,unsigned int >::color_type");
-        }
-        if (SWIG_arg_fail(5)) SWIG_fail;
-    }
-    SWIG_Python_ConvertPtr(obj5, (void **)&arg6, SWIGTYPE_p_unsigned_char, SWIG_POINTER_EXCEPTION | 0);
-    if (SWIG_arg_fail(6)) SWIG_fail;
-    (arg1)->blend_solid_hspan(arg2,arg3,arg4,(agg::pixel_formats_rgba<agg::blender_rgba<agg::rgba8,agg::order_rgba >,unsigned int >::blender_type::color_type const &)*arg5,(agg::int8u const *)arg6);
-    
-    Py_INCREF(Py_None); resultobj = Py_None;
-    return resultobj;
-    fail:
-    return NULL;
-}
-
-
-static PyObject *_wrap_pixel_format_blend_solid_vspan(PyObject *, PyObject *args) {
-    PyObject *resultobj = NULL;
-    agg::pixel_formats_rgba<agg::blender_rgba32,agg::pixel32_type > *arg1 = (agg::pixel_formats_rgba<agg::blender_rgba32,agg::pixel32_type > *) 0 ;
-    int arg2 ;
-    int arg3 ;
-    unsigned int arg4 ;
-    agg::pixel_formats_rgba<agg::blender_rgba<agg::rgba8,agg::order_rgba >,unsigned int >::color_type *arg5 = 0 ;
-    agg::int8u *arg6 = (agg::int8u *) 0 ;
-    PyObject * obj0 = 0 ;
-    PyObject * obj1 = 0 ;
-    PyObject * obj2 = 0 ;
-    PyObject * obj3 = 0 ;
-    PyObject * obj4 = 0 ;
-    PyObject * obj5 = 0 ;
-    
-    if(!PyArg_ParseTuple(args,(char *)"OOOOOO:pixel_format_blend_solid_vspan",&obj0,&obj1,&obj2,&obj3,&obj4,&obj5)) goto fail;
-    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t, SWIG_POINTER_EXCEPTION | 0);
-    if (SWIG_arg_fail(1)) SWIG_fail;
-    {
-        arg2 = (int)(SWIG_As_int(obj1)); 
-        if (SWIG_arg_fail(2)) SWIG_fail;
-    }
-    {
-        arg3 = (int)(SWIG_As_int(obj2)); 
-        if (SWIG_arg_fail(3)) SWIG_fail;
-    }
-    {
-        arg4 = (unsigned int)(SWIG_As_unsigned_SS_int(obj3)); 
-        if (SWIG_arg_fail(4)) SWIG_fail;
-    }
-    {
-        SWIG_Python_ConvertPtr(obj4, (void **)&arg5, SWIGTYPE_p_agg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t__blender_type__color_type, SWIG_POINTER_EXCEPTION | 0);
-        if (SWIG_arg_fail(5)) SWIG_fail;
-        if (arg5 == NULL) {
-            SWIG_null_ref("agg::pixel_formats_rgba<agg::blender_rgba<agg::rgba8,agg::order_rgba >,unsigned int >::color_type");
-        }
-        if (SWIG_arg_fail(5)) SWIG_fail;
-    }
-    SWIG_Python_ConvertPtr(obj5, (void **)&arg6, SWIGTYPE_p_unsigned_char, SWIG_POINTER_EXCEPTION | 0);
-    if (SWIG_arg_fail(6)) SWIG_fail;
-    (arg1)->blend_solid_vspan(arg2,arg3,arg4,(agg::pixel_formats_rgba<agg::blender_rgba<agg::rgba8,agg::order_rgba >,unsigned int >::blender_type::color_type const &)*arg5,(agg::int8u const *)arg6);
-    
-    Py_INCREF(Py_None); resultobj = Py_None;
-    return resultobj;
-    fail:
-    return NULL;
-}
-
-
-static PyObject *_wrap_pixel_format_copy_color_hspan(PyObject *, PyObject *args) {
-    PyObject *resultobj = NULL;
-    agg::pixel_formats_rgba<agg::blender_rgba32,agg::pixel32_type > *arg1 = (agg::pixel_formats_rgba<agg::blender_rgba32,agg::pixel32_type > *) 0 ;
-    int arg2 ;
-    int arg3 ;
-    unsigned int arg4 ;
-    agg::pixel_formats_rgba<agg::blender_rgba<agg::rgba8,agg::order_rgba >,unsigned int >::color_type *arg5 = (agg::pixel_formats_rgba<agg::blender_rgba<agg::rgba8,agg::order_rgba >,unsigned int >::color_type *) 0 ;
-    PyObject * obj0 = 0 ;
-    PyObject * obj1 = 0 ;
-    PyObject * obj2 = 0 ;
-    PyObject * obj3 = 0 ;
-    PyObject * obj4 = 0 ;
-    
-    if(!PyArg_ParseTuple(args,(char *)"OOOOO:pixel_format_copy_color_hspan",&obj0,&obj1,&obj2,&obj3,&obj4)) goto fail;
-    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t, SWIG_POINTER_EXCEPTION | 0);
-    if (SWIG_arg_fail(1)) SWIG_fail;
-    {
-        arg2 = (int)(SWIG_As_int(obj1)); 
-        if (SWIG_arg_fail(2)) SWIG_fail;
-    }
-    {
-        arg3 = (int)(SWIG_As_int(obj2)); 
-        if (SWIG_arg_fail(3)) SWIG_fail;
-    }
-    {
-        arg4 = (unsigned int)(SWIG_As_unsigned_SS_int(obj3)); 
-        if (SWIG_arg_fail(4)) SWIG_fail;
-    }
-    SWIG_Python_ConvertPtr(obj4, (void **)&arg5, SWIGTYPE_p_agg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t__blender_type__color_type, SWIG_POINTER_EXCEPTION | 0);
-    if (SWIG_arg_fail(5)) SWIG_fail;
-    (arg1)->copy_color_hspan(arg2,arg3,arg4,(agg::pixel_formats_rgba<agg::blender_rgba<agg::rgba8,agg::order_rgba >,unsigned int >::color_type const *)arg5);
-    
-    Py_INCREF(Py_None); resultobj = Py_None;
-    return resultobj;
-    fail:
-    return NULL;
-}
-
-
-static PyObject *_wrap_pixel_format_blend_color_hspan(PyObject *, PyObject *args) {
-    PyObject *resultobj = NULL;
-    agg::pixel_formats_rgba<agg::blender_rgba32,agg::pixel32_type > *arg1 = (agg::pixel_formats_rgba<agg::blender_rgba32,agg::pixel32_type > *) 0 ;
-    int arg2 ;
-    int arg3 ;
-    unsigned int arg4 ;
-    agg::pixel_formats_rgba<agg::blender_rgba<agg::rgba8,agg::order_rgba >,unsigned int >::color_type *arg5 = (agg::pixel_formats_rgba<agg::blender_rgba<agg::rgba8,agg::order_rgba >,unsigned int >::color_type *) 0 ;
-    agg::int8u *arg6 = (agg::int8u *) 0 ;
-    agg::int8u arg7 ;
-    PyObject * obj0 = 0 ;
-    PyObject * obj1 = 0 ;
-    PyObject * obj2 = 0 ;
-    PyObject * obj3 = 0 ;
-    PyObject * obj4 = 0 ;
-    PyObject * obj5 = 0 ;
-    PyObject * obj6 = 0 ;
-    
-    if(!PyArg_ParseTuple(args,(char *)"OOOOOOO:pixel_format_blend_color_hspan",&obj0,&obj1,&obj2,&obj3,&obj4,&obj5,&obj6)) goto fail;
-    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t, SWIG_POINTER_EXCEPTION | 0);
-    if (SWIG_arg_fail(1)) SWIG_fail;
-    {
-        arg2 = (int)(SWIG_As_int(obj1)); 
-        if (SWIG_arg_fail(2)) SWIG_fail;
-    }
-    {
-        arg3 = (int)(SWIG_As_int(obj2)); 
-        if (SWIG_arg_fail(3)) SWIG_fail;
-    }
-    {
-        arg4 = (unsigned int)(SWIG_As_unsigned_SS_int(obj3)); 
-        if (SWIG_arg_fail(4)) SWIG_fail;
-    }
-    SWIG_Python_ConvertPtr(obj4, (void **)&arg5, SWIGTYPE_p_agg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t__blender_type__color_type, SWIG_POINTER_EXCEPTION | 0);
-    if (SWIG_arg_fail(5)) SWIG_fail;
-    SWIG_Python_ConvertPtr(obj5, (void **)&arg6, SWIGTYPE_p_unsigned_char, SWIG_POINTER_EXCEPTION | 0);
-    if (SWIG_arg_fail(6)) SWIG_fail;
-    {
-        arg7 = (agg::int8u)(SWIG_As_unsigned_SS_char(obj6)); 
-        if (SWIG_arg_fail(7)) SWIG_fail;
-    }
-    (arg1)->blend_color_hspan(arg2,arg3,arg4,(agg::pixel_formats_rgba<agg::blender_rgba<agg::rgba8,agg::order_rgba >,unsigned int >::color_type const *)arg5,(agg::int8u const *)arg6,arg7);
-    
-    Py_INCREF(Py_None); resultobj = Py_None;
-    return resultobj;
-    fail:
-    return NULL;
-}
-
-
-static PyObject *_wrap_pixel_format_blend_color_vspan(PyObject *, PyObject *args) {
-    PyObject *resultobj = NULL;
-    agg::pixel_formats_rgba<agg::blender_rgba32,agg::pixel32_type > *arg1 = (agg::pixel_formats_rgba<agg::blender_rgba32,agg::pixel32_type > *) 0 ;
-    int arg2 ;
-    int arg3 ;
-    unsigned int arg4 ;
-    agg::pixel_formats_rgba<agg::blender_rgba<agg::rgba8,agg::order_rgba >,unsigned int >::color_type *arg5 = (agg::pixel_formats_rgba<agg::blender_rgba<agg::rgba8,agg::order_rgba >,unsigned int >::color_type *) 0 ;
-    agg::int8u *arg6 = (agg::int8u *) 0 ;
-    agg::int8u arg7 ;
-    PyObject * obj0 = 0 ;
-    PyObject * obj1 = 0 ;
-    PyObject * obj2 = 0 ;
-    PyObject * obj3 = 0 ;
-    PyObject * obj4 = 0 ;
-    PyObject * obj5 = 0 ;
-    PyObject * obj6 = 0 ;
-    
-    if(!PyArg_ParseTuple(args,(char *)"OOOOOOO:pixel_format_blend_color_vspan",&obj0,&obj1,&obj2,&obj3,&obj4,&obj5,&obj6)) goto fail;
-    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t, SWIG_POINTER_EXCEPTION | 0);
-    if (SWIG_arg_fail(1)) SWIG_fail;
-    {
-        arg2 = (int)(SWIG_As_int(obj1)); 
-        if (SWIG_arg_fail(2)) SWIG_fail;
-    }
-    {
-        arg3 = (int)(SWIG_As_int(obj2)); 
-        if (SWIG_arg_fail(3)) SWIG_fail;
-    }
-    {
-        arg4 = (unsigned int)(SWIG_As_unsigned_SS_int(obj3)); 
-        if (SWIG_arg_fail(4)) SWIG_fail;
-    }
-    SWIG_Python_ConvertPtr(obj4, (void **)&arg5, SWIGTYPE_p_agg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t__blender_type__color_type, SWIG_POINTER_EXCEPTION | 0);
-    if (SWIG_arg_fail(5)) SWIG_fail;
-    SWIG_Python_ConvertPtr(obj5, (void **)&arg6, SWIGTYPE_p_unsigned_char, SWIG_POINTER_EXCEPTION | 0);
-    if (SWIG_arg_fail(6)) SWIG_fail;
-    {
-        arg7 = (agg::int8u)(SWIG_As_unsigned_SS_char(obj6)); 
-        if (SWIG_arg_fail(7)) SWIG_fail;
-    }
-    (arg1)->blend_color_vspan(arg2,arg3,arg4,(agg::pixel_formats_rgba<agg::blender_rgba<agg::rgba8,agg::order_rgba >,unsigned int >::color_type const *)arg5,(agg::int8u const *)arg6,arg7);
-    
-    Py_INCREF(Py_None); resultobj = Py_None;
-    return resultobj;
-    fail:
-    return NULL;
-}
-
-
-static PyObject *_wrap_pixel_format_premultiply(PyObject *, PyObject *args) {
-    PyObject *resultobj = NULL;
-    agg::pixel_formats_rgba<agg::blender_rgba32,agg::pixel32_type > *arg1 = (agg::pixel_formats_rgba<agg::blender_rgba32,agg::pixel32_type > *) 0 ;
-    PyObject * obj0 = 0 ;
-    
-    if(!PyArg_ParseTuple(args,(char *)"O:pixel_format_premultiply",&obj0)) goto fail;
-    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t, SWIG_POINTER_EXCEPTION | 0);
-    if (SWIG_arg_fail(1)) SWIG_fail;
-    (arg1)->premultiply();
-    
-    Py_INCREF(Py_None); resultobj = Py_None;
-    return resultobj;
-    fail:
-    return NULL;
-}
-
-
-static PyObject *_wrap_pixel_format_demultiply(PyObject *, PyObject *args) {
-    PyObject *resultobj = NULL;
-    agg::pixel_formats_rgba<agg::blender_rgba32,agg::pixel32_type > *arg1 = (agg::pixel_formats_rgba<agg::blender_rgba32,agg::pixel32_type > *) 0 ;
-    PyObject * obj0 = 0 ;
-    
-    if(!PyArg_ParseTuple(args,(char *)"O:pixel_format_demultiply",&obj0)) goto fail;
-    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t, SWIG_POINTER_EXCEPTION | 0);
-    if (SWIG_arg_fail(1)) SWIG_fail;
-    (arg1)->demultiply();
-    
-    Py_INCREF(Py_None); resultobj = Py_None;
-    return resultobj;
-    fail:
-    return NULL;
-}
-
-
-static PyObject *_wrap_pixel_format_copy_from(PyObject *, PyObject *args) {
-    PyObject *resultobj = NULL;
-    agg::pixel_formats_rgba<agg::blender_rgba32,agg::pixel32_type > *arg1 = (agg::pixel_formats_rgba<agg::blender_rgba32,agg::pixel32_type > *) 0 ;
-    agg::rendering_buffer *arg2 = 0 ;
-    int arg3 ;
-    int arg4 ;
-    int arg5 ;
-    int arg6 ;
-    unsigned int arg7 ;
-    PyObject * obj0 = 0 ;
-    PyObject * obj1 = 0 ;
-    PyObject * obj2 = 0 ;
-    PyObject * obj3 = 0 ;
-    PyObject * obj4 = 0 ;
-    PyObject * obj5 = 0 ;
-    PyObject * obj6 = 0 ;
-    
-    if(!PyArg_ParseTuple(args,(char *)"OOOOOOO:pixel_format_copy_from",&obj0,&obj1,&obj2,&obj3,&obj4,&obj5,&obj6)) goto fail;
-    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t, SWIG_POINTER_EXCEPTION | 0);
-    if (SWIG_arg_fail(1)) SWIG_fail;
-    {
-        SWIG_Python_ConvertPtr(obj1, (void **)&arg2, SWIGTYPE_p_agg__row_ptr_cacheTunsigned_char_t, SWIG_POINTER_EXCEPTION | 0);
-        if (SWIG_arg_fail(2)) SWIG_fail;
-        if (arg2 == NULL) {
-            SWIG_null_ref("agg::rendering_buffer");
-        }
-        if (SWIG_arg_fail(2)) SWIG_fail;
-    }
-    {
-        arg3 = (int)(SWIG_As_int(obj2)); 
-        if (SWIG_arg_fail(3)) SWIG_fail;
-    }
-    {
-        arg4 = (int)(SWIG_As_int(obj3)); 
-        if (SWIG_arg_fail(4)) SWIG_fail;
-    }
-    {
-        arg5 = (int)(SWIG_As_int(obj4)); 
-        if (SWIG_arg_fail(5)) SWIG_fail;
-    }
-    {
-        arg6 = (int)(SWIG_As_int(obj5)); 
-        if (SWIG_arg_fail(6)) SWIG_fail;
-    }
-    {
-        arg7 = (unsigned int)(SWIG_As_unsigned_SS_int(obj6)); 
-        if (SWIG_arg_fail(7)) SWIG_fail;
-    }
-    (arg1)->copy_from((agg::row_ptr_cache<agg::int8u > const &)*arg2,arg3,arg4,arg5,arg6,arg7);
-    
-    Py_INCREF(Py_None); resultobj = Py_None;
-    return resultobj;
-    fail:
-    return NULL;
-}
-
-
-static PyObject *_wrap_delete_pixel_format(PyObject *, PyObject *args) {
-    PyObject *resultobj = NULL;
-    agg::pixel_formats_rgba<agg::blender_rgba32,agg::pixel32_type > *arg1 = (agg::pixel_formats_rgba<agg::blender_rgba32,agg::pixel32_type > *) 0 ;
-    PyObject * obj0 = 0 ;
-    
-    if(!PyArg_ParseTuple(args,(char *)"O:delete_pixel_format",&obj0)) goto fail;
-    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t, SWIG_POINTER_EXCEPTION | 0);
-    if (SWIG_arg_fail(1)) SWIG_fail;
-    delete arg1;
-    
-    Py_INCREF(Py_None); resultobj = Py_None;
-    return resultobj;
-    fail:
-    return NULL;
-}
-
-
-static PyObject * pixel_format_swigregister(PyObject *, PyObject *args) {
-    PyObject *obj;
-    if (!PyArg_ParseTuple(args,(char*)"O", &obj)) return NULL;
-    SWIG_TypeClientData(SWIGTYPE_p_agg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t, obj);
-    Py_INCREF(obj);
-    return Py_BuildValue((char *)"");
-}
-static PyObject *_wrap_new_renderer_base(PyObject *, PyObject *args) {
-    PyObject *resultobj = NULL;
-    pixel_format *arg1 = 0 ;
-    renderer_base<pixel_format > *result;
-    PyObject * obj0 = 0 ;
-    
-    if(!PyArg_ParseTuple(args,(char *)"O:new_renderer_base",&obj0)) goto fail;
-    {
-        SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t, SWIG_POINTER_EXCEPTION | 0);
-        if (SWIG_arg_fail(1)) SWIG_fail;
-        if (arg1 == NULL) {
-            SWIG_null_ref("pixel_format");
-        }
-        if (SWIG_arg_fail(1)) SWIG_fail;
-    }
-    result = (renderer_base<pixel_format > *)new renderer_base<pixel_format >(*arg1);
-    
-    resultobj = SWIG_NewPointerObj((void*)(result), SWIGTYPE_p_renderer_baseTagg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t_t, 1);
-    return resultobj;
-    fail:
-    return NULL;
-}
-
-
-static PyObject *_wrap_renderer_base_ren(PyObject *, PyObject *args) {
-    PyObject *resultobj = NULL;
-    renderer_base<pixel_format > *arg1 = (renderer_base<pixel_format > *) 0 ;
-    pixel_format *result;
-    PyObject * obj0 = 0 ;
-    
-    if(!PyArg_ParseTuple(args,(char *)"O:renderer_base_ren",&obj0)) goto fail;
-    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_renderer_baseTagg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t_t, SWIG_POINTER_EXCEPTION | 0);
-    if (SWIG_arg_fail(1)) SWIG_fail;
-    {
-        pixel_format const &_result_ref = (arg1)->ren();
-        result = (pixel_format *) &_result_ref;
-    }
-    
-    resultobj = SWIG_NewPointerObj((void*)(result), SWIGTYPE_p_agg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t, 0);
-    return resultobj;
-    fail:
-    return NULL;
-}
-
-
-static PyObject *_wrap_renderer_base_width(PyObject *, PyObject *args) {
-    PyObject *resultobj = NULL;
-    renderer_base<pixel_format > *arg1 = (renderer_base<pixel_format > *) 0 ;
-    unsigned int result;
-    PyObject * obj0 = 0 ;
-    
-    if(!PyArg_ParseTuple(args,(char *)"O:renderer_base_width",&obj0)) goto fail;
-    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_renderer_baseTagg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t_t, SWIG_POINTER_EXCEPTION | 0);
-    if (SWIG_arg_fail(1)) SWIG_fail;
-    result = (unsigned int)((renderer_base<pixel_format > const *)arg1)->width();
-    
-    {
-        resultobj = SWIG_From_unsigned_SS_int((unsigned int)(result)); 
-    }
-    return resultobj;
-    fail:
-    return NULL;
-}
-
-
-static PyObject *_wrap_renderer_base_height(PyObject *, PyObject *args) {
-    PyObject *resultobj = NULL;
-    renderer_base<pixel_format > *arg1 = (renderer_base<pixel_format > *) 0 ;
-    unsigned int result;
-    PyObject * obj0 = 0 ;
-    
-    if(!PyArg_ParseTuple(args,(char *)"O:renderer_base_height",&obj0)) goto fail;
-    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_renderer_baseTagg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t_t, SWIG_POINTER_EXCEPTION | 0);
-    if (SWIG_arg_fail(1)) SWIG_fail;
-    result = (unsigned int)((renderer_base<pixel_format > const *)arg1)->height();
-    
-    {
-        resultobj = SWIG_From_unsigned_SS_int((unsigned int)(result)); 
-    }
-    return resultobj;
-    fail:
-    return NULL;
-}
-
-
-static PyObject *_wrap_renderer_base_clip_box__SWIG_0(PyObject *, PyObject *args) {
-    PyObject *resultobj = NULL;
-    renderer_base<pixel_format > *arg1 = (renderer_base<pixel_format > *) 0 ;
-    int arg2 ;
-    int arg3 ;
-    int arg4 ;
-    int arg5 ;
-    bool result;
-    PyObject * obj0 = 0 ;
-    PyObject * obj1 = 0 ;
-    PyObject * obj2 = 0 ;
-    PyObject * obj3 = 0 ;
-    PyObject * obj4 = 0 ;
-    
-    if(!PyArg_ParseTuple(args,(char *)"OOOOO:renderer_base_clip_box",&obj0,&obj1,&obj2,&obj3,&obj4)) goto fail;
-    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_renderer_baseTagg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t_t, SWIG_POINTER_EXCEPTION | 0);
-    if (SWIG_arg_fail(1)) SWIG_fail;
-    {
-        arg2 = (int)(SWIG_As_int(obj1)); 
-        if (SWIG_arg_fail(2)) SWIG_fail;
-    }
-    {
-        arg3 = (int)(SWIG_As_int(obj2)); 
-        if (SWIG_arg_fail(3)) SWIG_fail;
-    }
-    {
-        arg4 = (int)(SWIG_As_int(obj3)); 
-        if (SWIG_arg_fail(4)) SWIG_fail;
-    }
-    {
-        arg5 = (int)(SWIG_As_int(obj4)); 
-        if (SWIG_arg_fail(5)) SWIG_fail;
-    }
-    result = (bool)(arg1)->clip_box(arg2,arg3,arg4,arg5);
-    
-    {
-        resultobj = SWIG_From_bool((bool)(result)); 
-    }
-    return resultobj;
-    fail:
-    return NULL;
-}
-
-
-static PyObject *_wrap_renderer_base_reset_clipping(PyObject *, PyObject *args) {
-    PyObject *resultobj = NULL;
-    renderer_base<pixel_format > *arg1 = (renderer_base<pixel_format > *) 0 ;
-    bool arg2 ;
-    PyObject * obj0 = 0 ;
-    PyObject * obj1 = 0 ;
-    
-    if(!PyArg_ParseTuple(args,(char *)"OO:renderer_base_reset_clipping",&obj0,&obj1)) goto fail;
-    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_renderer_baseTagg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t_t, SWIG_POINTER_EXCEPTION | 0);
-    if (SWIG_arg_fail(1)) SWIG_fail;
-    {
-        arg2 = (bool)(SWIG_As_bool(obj1)); 
-        if (SWIG_arg_fail(2)) SWIG_fail;
-    }
-    (arg1)->reset_clipping(arg2);
-    
-    Py_INCREF(Py_None); resultobj = Py_None;
-    return resultobj;
-    fail:
-    return NULL;
-}
-
-
-static PyObject *_wrap_renderer_base_clip_box_naked(PyObject *, PyObject *args) {
-    PyObject *resultobj = NULL;
-    renderer_base<pixel_format > *arg1 = (renderer_base<pixel_format > *) 0 ;
-    int arg2 ;
-    int arg3 ;
-    int arg4 ;
-    int arg5 ;
-    PyObject * obj0 = 0 ;
-    PyObject * obj1 = 0 ;
-    PyObject * obj2 = 0 ;
-    PyObject * obj3 = 0 ;
-    PyObject * obj4 = 0 ;
-    
-    if(!PyArg_ParseTuple(args,(char *)"OOOOO:renderer_base_clip_box_naked",&obj0,&obj1,&obj2,&obj3,&obj4)) goto fail;
-    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_renderer_baseTagg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t_t, SWIG_POINTER_EXCEPTION | 0);
-    if (SWIG_arg_fail(1)) SWIG_fail;
-    {
-        arg2 = (int)(SWIG_As_int(obj1)); 
-        if (SWIG_arg_fail(2)) SWIG_fail;
-    }
-    {
-        arg3 = (int)(SWIG_As_int(obj2)); 
-        if (SWIG_arg_fail(3)) SWIG_fail;
-    }
-    {
-        arg4 = (int)(SWIG_As_int(obj3)); 
-        if (SWIG_arg_fail(4)) SWIG_fail;
-    }
-    {
-        arg5 = (int)(SWIG_As_int(obj4)); 
-        if (SWIG_arg_fail(5)) SWIG_fail;
-    }
-    (arg1)->clip_box_naked(arg2,arg3,arg4,arg5);
-    
-    Py_INCREF(Py_None); resultobj = Py_None;
-    return resultobj;
-    fail:
-    return NULL;
-}
-
-
-static PyObject *_wrap_renderer_base_inbox(PyObject *, PyObject *args) {
-    PyObject *resultobj = NULL;
-    renderer_base<pixel_format > *arg1 = (renderer_base<pixel_format > *) 0 ;
-    int arg2 ;
-    int arg3 ;
-    bool result;
-    PyObject * obj0 = 0 ;
-    PyObject * obj1 = 0 ;
-    PyObject * obj2 = 0 ;
-    
-    if(!PyArg_ParseTuple(args,(char *)"OOO:renderer_base_inbox",&obj0,&obj1,&obj2)) goto fail;
-    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_renderer_baseTagg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t_t, SWIG_POINTER_EXCEPTION | 0);
-    if (SWIG_arg_fail(1)) SWIG_fail;
-    {
-        arg2 = (int)(SWIG_As_int(obj1)); 
-        if (SWIG_arg_fail(2)) SWIG_fail;
-    }
-    {
-        arg3 = (int)(SWIG_As_int(obj2)); 
-        if (SWIG_arg_fail(3)) SWIG_fail;
-    }
-    result = (bool)((renderer_base<pixel_format > const *)arg1)->inbox(arg2,arg3);
-    
-    {
-        resultobj = SWIG_From_bool((bool)(result)); 
-    }
-    return resultobj;
-    fail:
-    return NULL;
-}
-
-
-static PyObject *_wrap_renderer_base_first_clip_box(PyObject *, PyObject *args) {
-    PyObject *resultobj = NULL;
-    renderer_base<pixel_format > *arg1 = (renderer_base<pixel_format > *) 0 ;
-    PyObject * obj0 = 0 ;
-    
-    if(!PyArg_ParseTuple(args,(char *)"O:renderer_base_first_clip_box",&obj0)) goto fail;
-    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_renderer_baseTagg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t_t, SWIG_POINTER_EXCEPTION | 0);
-    if (SWIG_arg_fail(1)) SWIG_fail;
-    (arg1)->first_clip_box();
-    
-    Py_INCREF(Py_None); resultobj = Py_None;
-    return resultobj;
-    fail:
-    return NULL;
-}
-
-
-static PyObject *_wrap_renderer_base_next_clip_box(PyObject *, PyObject *args) {
-    PyObject *resultobj = NULL;
-    renderer_base<pixel_format > *arg1 = (renderer_base<pixel_format > *) 0 ;
-    bool result;
-    PyObject * obj0 = 0 ;
-    
-    if(!PyArg_ParseTuple(args,(char *)"O:renderer_base_next_clip_box",&obj0)) goto fail;
-    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_renderer_baseTagg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t_t, SWIG_POINTER_EXCEPTION | 0);
-    if (SWIG_arg_fail(1)) SWIG_fail;
-    result = (bool)(arg1)->next_clip_box();
-    
-    {
-        resultobj = SWIG_From_bool((bool)(result)); 
-    }
-    return resultobj;
-    fail:
-    return NULL;
-}
-
-
-static PyObject *_wrap_renderer_base_clip_box__SWIG_1(PyObject *, PyObject *args) {
-    PyObject *resultobj = NULL;
-    renderer_base<pixel_format > *arg1 = (renderer_base<pixel_format > *) 0 ;
-    agg::rect *result;
-    PyObject * obj0 = 0 ;
-    
-    if(!PyArg_ParseTuple(args,(char *)"O:renderer_base_clip_box",&obj0)) goto fail;
-    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_renderer_baseTagg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t_t, SWIG_POINTER_EXCEPTION | 0);
-    if (SWIG_arg_fail(1)) SWIG_fail;
-    {
-        agg::rect const &_result_ref = ((renderer_base<pixel_format > const *)arg1)->clip_box();
-        result = (agg::rect *) &_result_ref;
-    }
-    
-    resultobj = SWIG_NewPointerObj((void*)(result), SWIGTYPE_p_agg__rect_baseTint_t, 0);
-    return resultobj;
-    fail:
-    return NULL;
-}
-
-
-static PyObject *_wrap_renderer_base_clip_box(PyObject *self, PyObject *args) {
-    int argc;
-    PyObject *argv[6];
-    int ii;
-    
-    argc = PyObject_Length(args);
-    for (ii = 0; (ii < argc) && (ii < 5); ii++) {
+    for (ii = 0; (ii < argc) && (ii < 1); ii++) {
         argv[ii] = PyTuple_GetItem(args,ii);
     }
     if (argc == 1) {
         int _v;
         {
             void *ptr;
-            if (SWIG_ConvertPtr(argv[0], &ptr, SWIGTYPE_p_renderer_baseTagg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t_t, 0) == -1) {
+            if (SWIG_ConvertPtr(argv[0], &ptr, SWIGTYPE_p_agg__conv_adaptor_vcgenTagg__path_storage_agg__vcgen_stroke_agg__null_markers_t, 0) == -1) {
                 _v = 0;
                 PyErr_Clear();
             } else {
@@ -14236,14 +17486,14 @@ static PyObject *_wrap_renderer_base_clip_box(PyObject *self, PyObject *args) {
             }
         }
         if (_v) {
-            return _wrap_renderer_base_clip_box__SWIG_1(self,args);
+            return _wrap_conv_adaptor_vcgen_path_markers__SWIG_0(self,args);
         }
     }
-    if (argc == 5) {
+    if (argc == 1) {
         int _v;
         {
             void *ptr;
-            if (SWIG_ConvertPtr(argv[0], &ptr, SWIGTYPE_p_renderer_baseTagg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t_t, 0) == -1) {
+            if (SWIG_ConvertPtr(argv[0], &ptr, SWIGTYPE_p_agg__conv_adaptor_vcgenTagg__path_storage_agg__vcgen_stroke_agg__null_markers_t, 0) == -1) {
                 _v = 0;
                 PyErr_Clear();
             } else {
@@ -14251,227 +17501,30 @@ static PyObject *_wrap_renderer_base_clip_box(PyObject *self, PyObject *args) {
             }
         }
         if (_v) {
-            _v = SWIG_Check_int(argv[1]);
-            if (_v) {
-                _v = SWIG_Check_int(argv[2]);
-                if (_v) {
-                    _v = SWIG_Check_int(argv[3]);
-                    if (_v) {
-                        _v = SWIG_Check_int(argv[4]);
-                        if (_v) {
-                            return _wrap_renderer_base_clip_box__SWIG_0(self,args);
-                        }
-                    }
-                }
-            }
+            return _wrap_conv_adaptor_vcgen_path_markers__SWIG_1(self,args);
         }
     }
     
-    PyErr_SetString(PyExc_NotImplementedError,"No matching function for overloaded 'renderer_base_clip_box'");
+    PyErr_SetString(PyExc_NotImplementedError,"No matching function for overloaded 'conv_adaptor_vcgen_path_markers'");
     return NULL;
 }
 
 
-static PyObject *_wrap_renderer_base_xmin(PyObject *, PyObject *args) {
+static PyObject *_wrap_conv_adaptor_vcgen_path_rewind(PyObject *, PyObject *args) {
     PyObject *resultobj = NULL;
-    renderer_base<pixel_format > *arg1 = (renderer_base<pixel_format > *) 0 ;
-    int result;
-    PyObject * obj0 = 0 ;
-    
-    if(!PyArg_ParseTuple(args,(char *)"O:renderer_base_xmin",&obj0)) goto fail;
-    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_renderer_baseTagg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t_t, SWIG_POINTER_EXCEPTION | 0);
-    if (SWIG_arg_fail(1)) SWIG_fail;
-    result = (int)((renderer_base<pixel_format > const *)arg1)->xmin();
-    
-    {
-        resultobj = SWIG_From_int((int)(result)); 
-    }
-    return resultobj;
-    fail:
-    return NULL;
-}
-
-
-static PyObject *_wrap_renderer_base_ymin(PyObject *, PyObject *args) {
-    PyObject *resultobj = NULL;
-    renderer_base<pixel_format > *arg1 = (renderer_base<pixel_format > *) 0 ;
-    int result;
-    PyObject * obj0 = 0 ;
-    
-    if(!PyArg_ParseTuple(args,(char *)"O:renderer_base_ymin",&obj0)) goto fail;
-    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_renderer_baseTagg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t_t, SWIG_POINTER_EXCEPTION | 0);
-    if (SWIG_arg_fail(1)) SWIG_fail;
-    result = (int)((renderer_base<pixel_format > const *)arg1)->ymin();
-    
-    {
-        resultobj = SWIG_From_int((int)(result)); 
-    }
-    return resultobj;
-    fail:
-    return NULL;
-}
-
-
-static PyObject *_wrap_renderer_base_xmax(PyObject *, PyObject *args) {
-    PyObject *resultobj = NULL;
-    renderer_base<pixel_format > *arg1 = (renderer_base<pixel_format > *) 0 ;
-    int result;
-    PyObject * obj0 = 0 ;
-    
-    if(!PyArg_ParseTuple(args,(char *)"O:renderer_base_xmax",&obj0)) goto fail;
-    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_renderer_baseTagg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t_t, SWIG_POINTER_EXCEPTION | 0);
-    if (SWIG_arg_fail(1)) SWIG_fail;
-    result = (int)((renderer_base<pixel_format > const *)arg1)->xmax();
-    
-    {
-        resultobj = SWIG_From_int((int)(result)); 
-    }
-    return resultobj;
-    fail:
-    return NULL;
-}
-
-
-static PyObject *_wrap_renderer_base_ymax(PyObject *, PyObject *args) {
-    PyObject *resultobj = NULL;
-    renderer_base<pixel_format > *arg1 = (renderer_base<pixel_format > *) 0 ;
-    int result;
-    PyObject * obj0 = 0 ;
-    
-    if(!PyArg_ParseTuple(args,(char *)"O:renderer_base_ymax",&obj0)) goto fail;
-    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_renderer_baseTagg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t_t, SWIG_POINTER_EXCEPTION | 0);
-    if (SWIG_arg_fail(1)) SWIG_fail;
-    result = (int)((renderer_base<pixel_format > const *)arg1)->ymax();
-    
-    {
-        resultobj = SWIG_From_int((int)(result)); 
-    }
-    return resultobj;
-    fail:
-    return NULL;
-}
-
-
-static PyObject *_wrap_renderer_base_bounding_clip_box(PyObject *, PyObject *args) {
-    PyObject *resultobj = NULL;
-    renderer_base<pixel_format > *arg1 = (renderer_base<pixel_format > *) 0 ;
-    agg::rect *result;
-    PyObject * obj0 = 0 ;
-    
-    if(!PyArg_ParseTuple(args,(char *)"O:renderer_base_bounding_clip_box",&obj0)) goto fail;
-    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_renderer_baseTagg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t_t, SWIG_POINTER_EXCEPTION | 0);
-    if (SWIG_arg_fail(1)) SWIG_fail;
-    {
-        agg::rect const &_result_ref = ((renderer_base<pixel_format > const *)arg1)->bounding_clip_box();
-        result = (agg::rect *) &_result_ref;
-    }
-    
-    resultobj = SWIG_NewPointerObj((void*)(result), SWIGTYPE_p_agg__rect_baseTint_t, 0);
-    return resultobj;
-    fail:
-    return NULL;
-}
-
-
-static PyObject *_wrap_renderer_base_bounding_xmin(PyObject *, PyObject *args) {
-    PyObject *resultobj = NULL;
-    renderer_base<pixel_format > *arg1 = (renderer_base<pixel_format > *) 0 ;
-    int result;
-    PyObject * obj0 = 0 ;
-    
-    if(!PyArg_ParseTuple(args,(char *)"O:renderer_base_bounding_xmin",&obj0)) goto fail;
-    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_renderer_baseTagg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t_t, SWIG_POINTER_EXCEPTION | 0);
-    if (SWIG_arg_fail(1)) SWIG_fail;
-    result = (int)((renderer_base<pixel_format > const *)arg1)->bounding_xmin();
-    
-    {
-        resultobj = SWIG_From_int((int)(result)); 
-    }
-    return resultobj;
-    fail:
-    return NULL;
-}
-
-
-static PyObject *_wrap_renderer_base_bounding_ymin(PyObject *, PyObject *args) {
-    PyObject *resultobj = NULL;
-    renderer_base<pixel_format > *arg1 = (renderer_base<pixel_format > *) 0 ;
-    int result;
-    PyObject * obj0 = 0 ;
-    
-    if(!PyArg_ParseTuple(args,(char *)"O:renderer_base_bounding_ymin",&obj0)) goto fail;
-    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_renderer_baseTagg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t_t, SWIG_POINTER_EXCEPTION | 0);
-    if (SWIG_arg_fail(1)) SWIG_fail;
-    result = (int)((renderer_base<pixel_format > const *)arg1)->bounding_ymin();
-    
-    {
-        resultobj = SWIG_From_int((int)(result)); 
-    }
-    return resultobj;
-    fail:
-    return NULL;
-}
-
-
-static PyObject *_wrap_renderer_base_bounding_xmax(PyObject *, PyObject *args) {
-    PyObject *resultobj = NULL;
-    renderer_base<pixel_format > *arg1 = (renderer_base<pixel_format > *) 0 ;
-    int result;
-    PyObject * obj0 = 0 ;
-    
-    if(!PyArg_ParseTuple(args,(char *)"O:renderer_base_bounding_xmax",&obj0)) goto fail;
-    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_renderer_baseTagg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t_t, SWIG_POINTER_EXCEPTION | 0);
-    if (SWIG_arg_fail(1)) SWIG_fail;
-    result = (int)((renderer_base<pixel_format > const *)arg1)->bounding_xmax();
-    
-    {
-        resultobj = SWIG_From_int((int)(result)); 
-    }
-    return resultobj;
-    fail:
-    return NULL;
-}
-
-
-static PyObject *_wrap_renderer_base_bounding_ymax(PyObject *, PyObject *args) {
-    PyObject *resultobj = NULL;
-    renderer_base<pixel_format > *arg1 = (renderer_base<pixel_format > *) 0 ;
-    int result;
-    PyObject * obj0 = 0 ;
-    
-    if(!PyArg_ParseTuple(args,(char *)"O:renderer_base_bounding_ymax",&obj0)) goto fail;
-    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_renderer_baseTagg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t_t, SWIG_POINTER_EXCEPTION | 0);
-    if (SWIG_arg_fail(1)) SWIG_fail;
-    result = (int)((renderer_base<pixel_format > const *)arg1)->bounding_ymax();
-    
-    {
-        resultobj = SWIG_From_int((int)(result)); 
-    }
-    return resultobj;
-    fail:
-    return NULL;
-}
-
-
-static PyObject *_wrap_renderer_base_clear(PyObject *, PyObject *args) {
-    PyObject *resultobj = NULL;
-    renderer_base<pixel_format > *arg1 = (renderer_base<pixel_format > *) 0 ;
-    color_type *arg2 = 0 ;
+    agg::conv_adaptor_vcgen<path_t,agg::vcgen_stroke,agg::null_markers > *arg1 = (agg::conv_adaptor_vcgen<path_t,agg::vcgen_stroke,agg::null_markers > *) 0 ;
+    unsigned int arg2 ;
     PyObject * obj0 = 0 ;
     PyObject * obj1 = 0 ;
     
-    if(!PyArg_ParseTuple(args,(char *)"OO:renderer_base_clear",&obj0,&obj1)) goto fail;
-    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_renderer_baseTagg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t_t, SWIG_POINTER_EXCEPTION | 0);
+    if(!PyArg_ParseTuple(args,(char *)"OO:conv_adaptor_vcgen_path_rewind",&obj0,&obj1)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__conv_adaptor_vcgenTagg__path_storage_agg__vcgen_stroke_agg__null_markers_t, SWIG_POINTER_EXCEPTION | 0);
     if (SWIG_arg_fail(1)) SWIG_fail;
     {
-        SWIG_Python_ConvertPtr(obj1, (void **)&arg2, SWIGTYPE_p_agg__rgba8, SWIG_POINTER_EXCEPTION | 0);
-        if (SWIG_arg_fail(2)) SWIG_fail;
-        if (arg2 == NULL) {
-            SWIG_null_ref("color_type");
-        }
+        arg2 = (unsigned int)(SWIG_As_unsigned_SS_int(obj1)); 
         if (SWIG_arg_fail(2)) SWIG_fail;
     }
-    (arg1)->clear((agg::rgba8 const &)*arg2);
+    (arg1)->rewind(arg2);
     
     Py_INCREF(Py_None); resultobj = Py_None;
     return resultobj;
@@ -14480,1690 +17533,41 @@ static PyObject *_wrap_renderer_base_clear(PyObject *, PyObject *args) {
 }
 
 
-static PyObject *_wrap_renderer_base_copy_pixel(PyObject *, PyObject *args) {
+static PyObject *_wrap_conv_adaptor_vcgen_path_vertex(PyObject *, PyObject *args) {
     PyObject *resultobj = NULL;
-    renderer_base<pixel_format > *arg1 = (renderer_base<pixel_format > *) 0 ;
-    int arg2 ;
-    int arg3 ;
-    color_type *arg4 = 0 ;
-    PyObject * obj0 = 0 ;
-    PyObject * obj1 = 0 ;
-    PyObject * obj2 = 0 ;
-    PyObject * obj3 = 0 ;
-    
-    if(!PyArg_ParseTuple(args,(char *)"OOOO:renderer_base_copy_pixel",&obj0,&obj1,&obj2,&obj3)) goto fail;
-    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_renderer_baseTagg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t_t, SWIG_POINTER_EXCEPTION | 0);
-    if (SWIG_arg_fail(1)) SWIG_fail;
-    {
-        arg2 = (int)(SWIG_As_int(obj1)); 
-        if (SWIG_arg_fail(2)) SWIG_fail;
-    }
-    {
-        arg3 = (int)(SWIG_As_int(obj2)); 
-        if (SWIG_arg_fail(3)) SWIG_fail;
-    }
-    {
-        SWIG_Python_ConvertPtr(obj3, (void **)&arg4, SWIGTYPE_p_agg__rgba8, SWIG_POINTER_EXCEPTION | 0);
-        if (SWIG_arg_fail(4)) SWIG_fail;
-        if (arg4 == NULL) {
-            SWIG_null_ref("color_type");
-        }
-        if (SWIG_arg_fail(4)) SWIG_fail;
-    }
-    (arg1)->copy_pixel(arg2,arg3,(agg::rgba8 const &)*arg4);
-    
-    Py_INCREF(Py_None); resultobj = Py_None;
-    return resultobj;
-    fail:
-    return NULL;
-}
-
-
-static PyObject *_wrap_renderer_base_blend_pixel(PyObject *, PyObject *args) {
-    PyObject *resultobj = NULL;
-    renderer_base<pixel_format > *arg1 = (renderer_base<pixel_format > *) 0 ;
-    int arg2 ;
-    int arg3 ;
-    color_type *arg4 = 0 ;
-    agg::cover_type arg5 ;
-    PyObject * obj0 = 0 ;
-    PyObject * obj1 = 0 ;
-    PyObject * obj2 = 0 ;
-    PyObject * obj3 = 0 ;
-    PyObject * obj4 = 0 ;
-    
-    if(!PyArg_ParseTuple(args,(char *)"OOOOO:renderer_base_blend_pixel",&obj0,&obj1,&obj2,&obj3,&obj4)) goto fail;
-    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_renderer_baseTagg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t_t, SWIG_POINTER_EXCEPTION | 0);
-    if (SWIG_arg_fail(1)) SWIG_fail;
-    {
-        arg2 = (int)(SWIG_As_int(obj1)); 
-        if (SWIG_arg_fail(2)) SWIG_fail;
-    }
-    {
-        arg3 = (int)(SWIG_As_int(obj2)); 
-        if (SWIG_arg_fail(3)) SWIG_fail;
-    }
-    {
-        SWIG_Python_ConvertPtr(obj3, (void **)&arg4, SWIGTYPE_p_agg__rgba8, SWIG_POINTER_EXCEPTION | 0);
-        if (SWIG_arg_fail(4)) SWIG_fail;
-        if (arg4 == NULL) {
-            SWIG_null_ref("color_type");
-        }
-        if (SWIG_arg_fail(4)) SWIG_fail;
-    }
-    {
-        arg5 = (agg::cover_type)(SWIG_As_unsigned_SS_char(obj4)); 
-        if (SWIG_arg_fail(5)) SWIG_fail;
-    }
-    (arg1)->blend_pixel(arg2,arg3,(agg::rgba8 const &)*arg4,arg5);
-    
-    Py_INCREF(Py_None); resultobj = Py_None;
-    return resultobj;
-    fail:
-    return NULL;
-}
-
-
-static PyObject *_wrap_renderer_base_pixel(PyObject *, PyObject *args) {
-    PyObject *resultobj = NULL;
-    renderer_base<pixel_format > *arg1 = (renderer_base<pixel_format > *) 0 ;
-    int arg2 ;
-    int arg3 ;
-    color_type result;
+    agg::conv_adaptor_vcgen<path_t,agg::vcgen_stroke,agg::null_markers > *arg1 = (agg::conv_adaptor_vcgen<path_t,agg::vcgen_stroke,agg::null_markers > *) 0 ;
+    double *arg2 = (double *) 0 ;
+    double *arg3 = (double *) 0 ;
+    unsigned int result;
     PyObject * obj0 = 0 ;
     PyObject * obj1 = 0 ;
     PyObject * obj2 = 0 ;
     
-    if(!PyArg_ParseTuple(args,(char *)"OOO:renderer_base_pixel",&obj0,&obj1,&obj2)) goto fail;
-    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_renderer_baseTagg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t_t, SWIG_POINTER_EXCEPTION | 0);
+    if(!PyArg_ParseTuple(args,(char *)"OOO:conv_adaptor_vcgen_path_vertex",&obj0,&obj1,&obj2)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__conv_adaptor_vcgenTagg__path_storage_agg__vcgen_stroke_agg__null_markers_t, SWIG_POINTER_EXCEPTION | 0);
     if (SWIG_arg_fail(1)) SWIG_fail;
-    {
-        arg2 = (int)(SWIG_As_int(obj1)); 
-        if (SWIG_arg_fail(2)) SWIG_fail;
-    }
-    {
-        arg3 = (int)(SWIG_As_int(obj2)); 
-        if (SWIG_arg_fail(3)) SWIG_fail;
-    }
-    result = ((renderer_base<pixel_format > const *)arg1)->pixel(arg2,arg3);
-    
-    {
-        color_type * resultptr;
-        resultptr = new color_type((color_type &)(result));
-        resultobj = SWIG_NewPointerObj((void *)(resultptr), SWIGTYPE_p_agg__rgba8, 1);
-    }
-    return resultobj;
-    fail:
-    return NULL;
-}
-
-
-static PyObject *_wrap_renderer_base_copy_hline(PyObject *, PyObject *args) {
-    PyObject *resultobj = NULL;
-    renderer_base<pixel_format > *arg1 = (renderer_base<pixel_format > *) 0 ;
-    int arg2 ;
-    int arg3 ;
-    int arg4 ;
-    color_type *arg5 = 0 ;
-    PyObject * obj0 = 0 ;
-    PyObject * obj1 = 0 ;
-    PyObject * obj2 = 0 ;
-    PyObject * obj3 = 0 ;
-    PyObject * obj4 = 0 ;
-    
-    if(!PyArg_ParseTuple(args,(char *)"OOOOO:renderer_base_copy_hline",&obj0,&obj1,&obj2,&obj3,&obj4)) goto fail;
-    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_renderer_baseTagg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t_t, SWIG_POINTER_EXCEPTION | 0);
-    if (SWIG_arg_fail(1)) SWIG_fail;
-    {
-        arg2 = (int)(SWIG_As_int(obj1)); 
-        if (SWIG_arg_fail(2)) SWIG_fail;
-    }
-    {
-        arg3 = (int)(SWIG_As_int(obj2)); 
-        if (SWIG_arg_fail(3)) SWIG_fail;
-    }
-    {
-        arg4 = (int)(SWIG_As_int(obj3)); 
-        if (SWIG_arg_fail(4)) SWIG_fail;
-    }
-    {
-        SWIG_Python_ConvertPtr(obj4, (void **)&arg5, SWIGTYPE_p_agg__rgba8, SWIG_POINTER_EXCEPTION | 0);
-        if (SWIG_arg_fail(5)) SWIG_fail;
-        if (arg5 == NULL) {
-            SWIG_null_ref("color_type");
-        }
-        if (SWIG_arg_fail(5)) SWIG_fail;
-    }
-    (arg1)->copy_hline(arg2,arg3,arg4,(agg::rgba8 const &)*arg5);
-    
-    Py_INCREF(Py_None); resultobj = Py_None;
-    return resultobj;
-    fail:
-    return NULL;
-}
-
-
-static PyObject *_wrap_renderer_base_copy_vline(PyObject *, PyObject *args) {
-    PyObject *resultobj = NULL;
-    renderer_base<pixel_format > *arg1 = (renderer_base<pixel_format > *) 0 ;
-    int arg2 ;
-    int arg3 ;
-    int arg4 ;
-    color_type *arg5 = 0 ;
-    PyObject * obj0 = 0 ;
-    PyObject * obj1 = 0 ;
-    PyObject * obj2 = 0 ;
-    PyObject * obj3 = 0 ;
-    PyObject * obj4 = 0 ;
-    
-    if(!PyArg_ParseTuple(args,(char *)"OOOOO:renderer_base_copy_vline",&obj0,&obj1,&obj2,&obj3,&obj4)) goto fail;
-    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_renderer_baseTagg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t_t, SWIG_POINTER_EXCEPTION | 0);
-    if (SWIG_arg_fail(1)) SWIG_fail;
-    {
-        arg2 = (int)(SWIG_As_int(obj1)); 
-        if (SWIG_arg_fail(2)) SWIG_fail;
-    }
-    {
-        arg3 = (int)(SWIG_As_int(obj2)); 
-        if (SWIG_arg_fail(3)) SWIG_fail;
-    }
-    {
-        arg4 = (int)(SWIG_As_int(obj3)); 
-        if (SWIG_arg_fail(4)) SWIG_fail;
-    }
-    {
-        SWIG_Python_ConvertPtr(obj4, (void **)&arg5, SWIGTYPE_p_agg__rgba8, SWIG_POINTER_EXCEPTION | 0);
-        if (SWIG_arg_fail(5)) SWIG_fail;
-        if (arg5 == NULL) {
-            SWIG_null_ref("color_type");
-        }
-        if (SWIG_arg_fail(5)) SWIG_fail;
-    }
-    (arg1)->copy_vline(arg2,arg3,arg4,(agg::rgba8 const &)*arg5);
-    
-    Py_INCREF(Py_None); resultobj = Py_None;
-    return resultobj;
-    fail:
-    return NULL;
-}
-
-
-static PyObject *_wrap_renderer_base_blend_hline(PyObject *, PyObject *args) {
-    PyObject *resultobj = NULL;
-    renderer_base<pixel_format > *arg1 = (renderer_base<pixel_format > *) 0 ;
-    int arg2 ;
-    int arg3 ;
-    int arg4 ;
-    color_type *arg5 = 0 ;
-    agg::cover_type arg6 ;
-    PyObject * obj0 = 0 ;
-    PyObject * obj1 = 0 ;
-    PyObject * obj2 = 0 ;
-    PyObject * obj3 = 0 ;
-    PyObject * obj4 = 0 ;
-    PyObject * obj5 = 0 ;
-    
-    if(!PyArg_ParseTuple(args,(char *)"OOOOOO:renderer_base_blend_hline",&obj0,&obj1,&obj2,&obj3,&obj4,&obj5)) goto fail;
-    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_renderer_baseTagg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t_t, SWIG_POINTER_EXCEPTION | 0);
-    if (SWIG_arg_fail(1)) SWIG_fail;
-    {
-        arg2 = (int)(SWIG_As_int(obj1)); 
-        if (SWIG_arg_fail(2)) SWIG_fail;
-    }
-    {
-        arg3 = (int)(SWIG_As_int(obj2)); 
-        if (SWIG_arg_fail(3)) SWIG_fail;
-    }
-    {
-        arg4 = (int)(SWIG_As_int(obj3)); 
-        if (SWIG_arg_fail(4)) SWIG_fail;
-    }
-    {
-        SWIG_Python_ConvertPtr(obj4, (void **)&arg5, SWIGTYPE_p_agg__rgba8, SWIG_POINTER_EXCEPTION | 0);
-        if (SWIG_arg_fail(5)) SWIG_fail;
-        if (arg5 == NULL) {
-            SWIG_null_ref("color_type");
-        }
-        if (SWIG_arg_fail(5)) SWIG_fail;
-    }
-    {
-        arg6 = (agg::cover_type)(SWIG_As_unsigned_SS_char(obj5)); 
-        if (SWIG_arg_fail(6)) SWIG_fail;
-    }
-    (arg1)->blend_hline(arg2,arg3,arg4,(agg::rgba8 const &)*arg5,arg6);
-    
-    Py_INCREF(Py_None); resultobj = Py_None;
-    return resultobj;
-    fail:
-    return NULL;
-}
-
-
-static PyObject *_wrap_renderer_base_blend_vline(PyObject *, PyObject *args) {
-    PyObject *resultobj = NULL;
-    renderer_base<pixel_format > *arg1 = (renderer_base<pixel_format > *) 0 ;
-    int arg2 ;
-    int arg3 ;
-    int arg4 ;
-    color_type *arg5 = 0 ;
-    agg::cover_type arg6 ;
-    PyObject * obj0 = 0 ;
-    PyObject * obj1 = 0 ;
-    PyObject * obj2 = 0 ;
-    PyObject * obj3 = 0 ;
-    PyObject * obj4 = 0 ;
-    PyObject * obj5 = 0 ;
-    
-    if(!PyArg_ParseTuple(args,(char *)"OOOOOO:renderer_base_blend_vline",&obj0,&obj1,&obj2,&obj3,&obj4,&obj5)) goto fail;
-    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_renderer_baseTagg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t_t, SWIG_POINTER_EXCEPTION | 0);
-    if (SWIG_arg_fail(1)) SWIG_fail;
-    {
-        arg2 = (int)(SWIG_As_int(obj1)); 
-        if (SWIG_arg_fail(2)) SWIG_fail;
-    }
-    {
-        arg3 = (int)(SWIG_As_int(obj2)); 
-        if (SWIG_arg_fail(3)) SWIG_fail;
-    }
-    {
-        arg4 = (int)(SWIG_As_int(obj3)); 
-        if (SWIG_arg_fail(4)) SWIG_fail;
-    }
-    {
-        SWIG_Python_ConvertPtr(obj4, (void **)&arg5, SWIGTYPE_p_agg__rgba8, SWIG_POINTER_EXCEPTION | 0);
-        if (SWIG_arg_fail(5)) SWIG_fail;
-        if (arg5 == NULL) {
-            SWIG_null_ref("color_type");
-        }
-        if (SWIG_arg_fail(5)) SWIG_fail;
-    }
-    {
-        arg6 = (agg::cover_type)(SWIG_As_unsigned_SS_char(obj5)); 
-        if (SWIG_arg_fail(6)) SWIG_fail;
-    }
-    (arg1)->blend_vline(arg2,arg3,arg4,(agg::rgba8 const &)*arg5,arg6);
-    
-    Py_INCREF(Py_None); resultobj = Py_None;
-    return resultobj;
-    fail:
-    return NULL;
-}
-
-
-static PyObject *_wrap_renderer_base_copy_bar(PyObject *, PyObject *args) {
-    PyObject *resultobj = NULL;
-    renderer_base<pixel_format > *arg1 = (renderer_base<pixel_format > *) 0 ;
-    int arg2 ;
-    int arg3 ;
-    int arg4 ;
-    int arg5 ;
-    color_type *arg6 = 0 ;
-    PyObject * obj0 = 0 ;
-    PyObject * obj1 = 0 ;
-    PyObject * obj2 = 0 ;
-    PyObject * obj3 = 0 ;
-    PyObject * obj4 = 0 ;
-    PyObject * obj5 = 0 ;
-    
-    if(!PyArg_ParseTuple(args,(char *)"OOOOOO:renderer_base_copy_bar",&obj0,&obj1,&obj2,&obj3,&obj4,&obj5)) goto fail;
-    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_renderer_baseTagg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t_t, SWIG_POINTER_EXCEPTION | 0);
-    if (SWIG_arg_fail(1)) SWIG_fail;
-    {
-        arg2 = (int)(SWIG_As_int(obj1)); 
-        if (SWIG_arg_fail(2)) SWIG_fail;
-    }
-    {
-        arg3 = (int)(SWIG_As_int(obj2)); 
-        if (SWIG_arg_fail(3)) SWIG_fail;
-    }
-    {
-        arg4 = (int)(SWIG_As_int(obj3)); 
-        if (SWIG_arg_fail(4)) SWIG_fail;
-    }
-    {
-        arg5 = (int)(SWIG_As_int(obj4)); 
-        if (SWIG_arg_fail(5)) SWIG_fail;
-    }
-    {
-        SWIG_Python_ConvertPtr(obj5, (void **)&arg6, SWIGTYPE_p_agg__rgba8, SWIG_POINTER_EXCEPTION | 0);
-        if (SWIG_arg_fail(6)) SWIG_fail;
-        if (arg6 == NULL) {
-            SWIG_null_ref("color_type");
-        }
-        if (SWIG_arg_fail(6)) SWIG_fail;
-    }
-    (arg1)->copy_bar(arg2,arg3,arg4,arg5,(agg::rgba8 const &)*arg6);
-    
-    Py_INCREF(Py_None); resultobj = Py_None;
-    return resultobj;
-    fail:
-    return NULL;
-}
-
-
-static PyObject *_wrap_renderer_base_blend_bar(PyObject *, PyObject *args) {
-    PyObject *resultobj = NULL;
-    renderer_base<pixel_format > *arg1 = (renderer_base<pixel_format > *) 0 ;
-    int arg2 ;
-    int arg3 ;
-    int arg4 ;
-    int arg5 ;
-    color_type *arg6 = 0 ;
-    agg::cover_type arg7 ;
-    PyObject * obj0 = 0 ;
-    PyObject * obj1 = 0 ;
-    PyObject * obj2 = 0 ;
-    PyObject * obj3 = 0 ;
-    PyObject * obj4 = 0 ;
-    PyObject * obj5 = 0 ;
-    PyObject * obj6 = 0 ;
-    
-    if(!PyArg_ParseTuple(args,(char *)"OOOOOOO:renderer_base_blend_bar",&obj0,&obj1,&obj2,&obj3,&obj4,&obj5,&obj6)) goto fail;
-    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_renderer_baseTagg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t_t, SWIG_POINTER_EXCEPTION | 0);
-    if (SWIG_arg_fail(1)) SWIG_fail;
-    {
-        arg2 = (int)(SWIG_As_int(obj1)); 
-        if (SWIG_arg_fail(2)) SWIG_fail;
-    }
-    {
-        arg3 = (int)(SWIG_As_int(obj2)); 
-        if (SWIG_arg_fail(3)) SWIG_fail;
-    }
-    {
-        arg4 = (int)(SWIG_As_int(obj3)); 
-        if (SWIG_arg_fail(4)) SWIG_fail;
-    }
-    {
-        arg5 = (int)(SWIG_As_int(obj4)); 
-        if (SWIG_arg_fail(5)) SWIG_fail;
-    }
-    {
-        SWIG_Python_ConvertPtr(obj5, (void **)&arg6, SWIGTYPE_p_agg__rgba8, SWIG_POINTER_EXCEPTION | 0);
-        if (SWIG_arg_fail(6)) SWIG_fail;
-        if (arg6 == NULL) {
-            SWIG_null_ref("color_type");
-        }
-        if (SWIG_arg_fail(6)) SWIG_fail;
-    }
-    {
-        arg7 = (agg::cover_type)(SWIG_As_unsigned_SS_char(obj6)); 
-        if (SWIG_arg_fail(7)) SWIG_fail;
-    }
-    (arg1)->blend_bar(arg2,arg3,arg4,arg5,(agg::rgba8 const &)*arg6,arg7);
-    
-    Py_INCREF(Py_None); resultobj = Py_None;
-    return resultobj;
-    fail:
-    return NULL;
-}
-
-
-static PyObject *_wrap_renderer_base_blend_solid_hspan(PyObject *, PyObject *args) {
-    PyObject *resultobj = NULL;
-    renderer_base<pixel_format > *arg1 = (renderer_base<pixel_format > *) 0 ;
-    int arg2 ;
-    int arg3 ;
-    int arg4 ;
-    color_type *arg5 = 0 ;
-    agg::cover_type *arg6 = (agg::cover_type *) 0 ;
-    PyObject * obj0 = 0 ;
-    PyObject * obj1 = 0 ;
-    PyObject * obj2 = 0 ;
-    PyObject * obj3 = 0 ;
-    PyObject * obj4 = 0 ;
-    PyObject * obj5 = 0 ;
-    
-    if(!PyArg_ParseTuple(args,(char *)"OOOOOO:renderer_base_blend_solid_hspan",&obj0,&obj1,&obj2,&obj3,&obj4,&obj5)) goto fail;
-    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_renderer_baseTagg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t_t, SWIG_POINTER_EXCEPTION | 0);
-    if (SWIG_arg_fail(1)) SWIG_fail;
-    {
-        arg2 = (int)(SWIG_As_int(obj1)); 
-        if (SWIG_arg_fail(2)) SWIG_fail;
-    }
-    {
-        arg3 = (int)(SWIG_As_int(obj2)); 
-        if (SWIG_arg_fail(3)) SWIG_fail;
-    }
-    {
-        arg4 = (int)(SWIG_As_int(obj3)); 
-        if (SWIG_arg_fail(4)) SWIG_fail;
-    }
-    {
-        SWIG_Python_ConvertPtr(obj4, (void **)&arg5, SWIGTYPE_p_agg__rgba8, SWIG_POINTER_EXCEPTION | 0);
-        if (SWIG_arg_fail(5)) SWIG_fail;
-        if (arg5 == NULL) {
-            SWIG_null_ref("color_type");
-        }
-        if (SWIG_arg_fail(5)) SWIG_fail;
-    }
-    SWIG_Python_ConvertPtr(obj5, (void **)&arg6, SWIGTYPE_p_unsigned_char, SWIG_POINTER_EXCEPTION | 0);
-    if (SWIG_arg_fail(6)) SWIG_fail;
-    (arg1)->blend_solid_hspan(arg2,arg3,arg4,(agg::rgba8 const &)*arg5,(agg::cover_type const *)arg6);
-    
-    Py_INCREF(Py_None); resultobj = Py_None;
-    return resultobj;
-    fail:
-    return NULL;
-}
-
-
-static PyObject *_wrap_renderer_base_blend_solid_vspan(PyObject *, PyObject *args) {
-    PyObject *resultobj = NULL;
-    renderer_base<pixel_format > *arg1 = (renderer_base<pixel_format > *) 0 ;
-    int arg2 ;
-    int arg3 ;
-    int arg4 ;
-    color_type *arg5 = 0 ;
-    agg::cover_type *arg6 = (agg::cover_type *) 0 ;
-    PyObject * obj0 = 0 ;
-    PyObject * obj1 = 0 ;
-    PyObject * obj2 = 0 ;
-    PyObject * obj3 = 0 ;
-    PyObject * obj4 = 0 ;
-    PyObject * obj5 = 0 ;
-    
-    if(!PyArg_ParseTuple(args,(char *)"OOOOOO:renderer_base_blend_solid_vspan",&obj0,&obj1,&obj2,&obj3,&obj4,&obj5)) goto fail;
-    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_renderer_baseTagg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t_t, SWIG_POINTER_EXCEPTION | 0);
-    if (SWIG_arg_fail(1)) SWIG_fail;
-    {
-        arg2 = (int)(SWIG_As_int(obj1)); 
-        if (SWIG_arg_fail(2)) SWIG_fail;
-    }
-    {
-        arg3 = (int)(SWIG_As_int(obj2)); 
-        if (SWIG_arg_fail(3)) SWIG_fail;
-    }
-    {
-        arg4 = (int)(SWIG_As_int(obj3)); 
-        if (SWIG_arg_fail(4)) SWIG_fail;
-    }
-    {
-        SWIG_Python_ConvertPtr(obj4, (void **)&arg5, SWIGTYPE_p_agg__rgba8, SWIG_POINTER_EXCEPTION | 0);
-        if (SWIG_arg_fail(5)) SWIG_fail;
-        if (arg5 == NULL) {
-            SWIG_null_ref("color_type");
-        }
-        if (SWIG_arg_fail(5)) SWIG_fail;
-    }
-    SWIG_Python_ConvertPtr(obj5, (void **)&arg6, SWIGTYPE_p_unsigned_char, SWIG_POINTER_EXCEPTION | 0);
-    if (SWIG_arg_fail(6)) SWIG_fail;
-    (arg1)->blend_solid_vspan(arg2,arg3,arg4,(agg::rgba8 const &)*arg5,(agg::cover_type const *)arg6);
-    
-    Py_INCREF(Py_None); resultobj = Py_None;
-    return resultobj;
-    fail:
-    return NULL;
-}
-
-
-static PyObject *_wrap_renderer_base_blend_color_hspan__SWIG_0(PyObject *, PyObject *args) {
-    PyObject *resultobj = NULL;
-    renderer_base<pixel_format > *arg1 = (renderer_base<pixel_format > *) 0 ;
-    int arg2 ;
-    int arg3 ;
-    int arg4 ;
-    color_type *arg5 = (color_type *) 0 ;
-    agg::cover_type *arg6 = (agg::cover_type *) 0 ;
-    agg::cover_type arg7 ;
-    PyObject * obj0 = 0 ;
-    PyObject * obj1 = 0 ;
-    PyObject * obj2 = 0 ;
-    PyObject * obj3 = 0 ;
-    PyObject * obj4 = 0 ;
-    PyObject * obj5 = 0 ;
-    PyObject * obj6 = 0 ;
-    
-    if(!PyArg_ParseTuple(args,(char *)"OOOOOOO:renderer_base_blend_color_hspan",&obj0,&obj1,&obj2,&obj3,&obj4,&obj5,&obj6)) goto fail;
-    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_renderer_baseTagg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t_t, SWIG_POINTER_EXCEPTION | 0);
-    if (SWIG_arg_fail(1)) SWIG_fail;
-    {
-        arg2 = (int)(SWIG_As_int(obj1)); 
-        if (SWIG_arg_fail(2)) SWIG_fail;
-    }
-    {
-        arg3 = (int)(SWIG_As_int(obj2)); 
-        if (SWIG_arg_fail(3)) SWIG_fail;
-    }
-    {
-        arg4 = (int)(SWIG_As_int(obj3)); 
-        if (SWIG_arg_fail(4)) SWIG_fail;
-    }
-    SWIG_Python_ConvertPtr(obj4, (void **)&arg5, SWIGTYPE_p_agg__rgba8, SWIG_POINTER_EXCEPTION | 0);
-    if (SWIG_arg_fail(5)) SWIG_fail;
-    SWIG_Python_ConvertPtr(obj5, (void **)&arg6, SWIGTYPE_p_unsigned_char, SWIG_POINTER_EXCEPTION | 0);
-    if (SWIG_arg_fail(6)) SWIG_fail;
-    {
-        arg7 = (agg::cover_type)(SWIG_As_unsigned_SS_char(obj6)); 
-        if (SWIG_arg_fail(7)) SWIG_fail;
-    }
-    (arg1)->blend_color_hspan(arg2,arg3,arg4,(color_type const *)arg5,(agg::cover_type const *)arg6,arg7);
-    
-    Py_INCREF(Py_None); resultobj = Py_None;
-    return resultobj;
-    fail:
-    return NULL;
-}
-
-
-static PyObject *_wrap_renderer_base_blend_color_hspan__SWIG_1(PyObject *, PyObject *args) {
-    PyObject *resultobj = NULL;
-    renderer_base<pixel_format > *arg1 = (renderer_base<pixel_format > *) 0 ;
-    int arg2 ;
-    int arg3 ;
-    int arg4 ;
-    color_type *arg5 = (color_type *) 0 ;
-    agg::cover_type *arg6 = (agg::cover_type *) 0 ;
-    PyObject * obj0 = 0 ;
-    PyObject * obj1 = 0 ;
-    PyObject * obj2 = 0 ;
-    PyObject * obj3 = 0 ;
-    PyObject * obj4 = 0 ;
-    PyObject * obj5 = 0 ;
-    
-    if(!PyArg_ParseTuple(args,(char *)"OOOOOO:renderer_base_blend_color_hspan",&obj0,&obj1,&obj2,&obj3,&obj4,&obj5)) goto fail;
-    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_renderer_baseTagg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t_t, SWIG_POINTER_EXCEPTION | 0);
-    if (SWIG_arg_fail(1)) SWIG_fail;
-    {
-        arg2 = (int)(SWIG_As_int(obj1)); 
-        if (SWIG_arg_fail(2)) SWIG_fail;
-    }
-    {
-        arg3 = (int)(SWIG_As_int(obj2)); 
-        if (SWIG_arg_fail(3)) SWIG_fail;
-    }
-    {
-        arg4 = (int)(SWIG_As_int(obj3)); 
-        if (SWIG_arg_fail(4)) SWIG_fail;
-    }
-    SWIG_Python_ConvertPtr(obj4, (void **)&arg5, SWIGTYPE_p_agg__rgba8, SWIG_POINTER_EXCEPTION | 0);
-    if (SWIG_arg_fail(5)) SWIG_fail;
-    SWIG_Python_ConvertPtr(obj5, (void **)&arg6, SWIGTYPE_p_unsigned_char, SWIG_POINTER_EXCEPTION | 0);
-    if (SWIG_arg_fail(6)) SWIG_fail;
-    (arg1)->blend_color_hspan(arg2,arg3,arg4,(color_type const *)arg5,(agg::cover_type const *)arg6);
-    
-    Py_INCREF(Py_None); resultobj = Py_None;
-    return resultobj;
-    fail:
-    return NULL;
-}
-
-
-static PyObject *_wrap_renderer_base_blend_color_hspan(PyObject *self, PyObject *args) {
-    int argc;
-    PyObject *argv[8];
-    int ii;
-    
-    argc = PyObject_Length(args);
-    for (ii = 0; (ii < argc) && (ii < 7); ii++) {
-        argv[ii] = PyTuple_GetItem(args,ii);
-    }
-    if (argc == 6) {
-        int _v;
-        {
-            void *ptr;
-            if (SWIG_ConvertPtr(argv[0], &ptr, SWIGTYPE_p_renderer_baseTagg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t_t, 0) == -1) {
-                _v = 0;
-                PyErr_Clear();
-            } else {
-                _v = 1;
-            }
-        }
-        if (_v) {
-            _v = SWIG_Check_int(argv[1]);
-            if (_v) {
-                _v = SWIG_Check_int(argv[2]);
-                if (_v) {
-                    _v = SWIG_Check_int(argv[3]);
-                    if (_v) {
-                        {
-                            void *ptr;
-                            if (SWIG_ConvertPtr(argv[4], &ptr, SWIGTYPE_p_agg__rgba8, 0) == -1) {
-                                _v = 0;
-                                PyErr_Clear();
-                            } else {
-                                _v = 1;
-                            }
-                        }
-                        if (_v) {
-                            {
-                                void *ptr;
-                                if (SWIG_ConvertPtr(argv[5], &ptr, SWIGTYPE_p_unsigned_char, 0) == -1) {
-                                    _v = 0;
-                                    PyErr_Clear();
-                                } else {
-                                    _v = 1;
-                                }
-                            }
-                            if (_v) {
-                                return _wrap_renderer_base_blend_color_hspan__SWIG_1(self,args);
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-    if (argc == 7) {
-        int _v;
-        {
-            void *ptr;
-            if (SWIG_ConvertPtr(argv[0], &ptr, SWIGTYPE_p_renderer_baseTagg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t_t, 0) == -1) {
-                _v = 0;
-                PyErr_Clear();
-            } else {
-                _v = 1;
-            }
-        }
-        if (_v) {
-            _v = SWIG_Check_int(argv[1]);
-            if (_v) {
-                _v = SWIG_Check_int(argv[2]);
-                if (_v) {
-                    _v = SWIG_Check_int(argv[3]);
-                    if (_v) {
-                        {
-                            void *ptr;
-                            if (SWIG_ConvertPtr(argv[4], &ptr, SWIGTYPE_p_agg__rgba8, 0) == -1) {
-                                _v = 0;
-                                PyErr_Clear();
-                            } else {
-                                _v = 1;
-                            }
-                        }
-                        if (_v) {
-                            {
-                                void *ptr;
-                                if (SWIG_ConvertPtr(argv[5], &ptr, SWIGTYPE_p_unsigned_char, 0) == -1) {
-                                    _v = 0;
-                                    PyErr_Clear();
-                                } else {
-                                    _v = 1;
-                                }
-                            }
-                            if (_v) {
-                                _v = SWIG_Check_unsigned_SS_char(argv[6]);
-                                if (_v) {
-                                    return _wrap_renderer_base_blend_color_hspan__SWIG_0(self,args);
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-    
-    PyErr_SetString(PyExc_NotImplementedError,"No matching function for overloaded 'renderer_base_blend_color_hspan'");
-    return NULL;
-}
-
-
-static PyObject *_wrap_renderer_base_blend_color_vspan__SWIG_0(PyObject *, PyObject *args) {
-    PyObject *resultobj = NULL;
-    renderer_base<pixel_format > *arg1 = (renderer_base<pixel_format > *) 0 ;
-    int arg2 ;
-    int arg3 ;
-    int arg4 ;
-    color_type *arg5 = (color_type *) 0 ;
-    agg::cover_type *arg6 = (agg::cover_type *) 0 ;
-    agg::cover_type arg7 ;
-    PyObject * obj0 = 0 ;
-    PyObject * obj1 = 0 ;
-    PyObject * obj2 = 0 ;
-    PyObject * obj3 = 0 ;
-    PyObject * obj4 = 0 ;
-    PyObject * obj5 = 0 ;
-    PyObject * obj6 = 0 ;
-    
-    if(!PyArg_ParseTuple(args,(char *)"OOOOOOO:renderer_base_blend_color_vspan",&obj0,&obj1,&obj2,&obj3,&obj4,&obj5,&obj6)) goto fail;
-    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_renderer_baseTagg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t_t, SWIG_POINTER_EXCEPTION | 0);
-    if (SWIG_arg_fail(1)) SWIG_fail;
-    {
-        arg2 = (int)(SWIG_As_int(obj1)); 
-        if (SWIG_arg_fail(2)) SWIG_fail;
-    }
-    {
-        arg3 = (int)(SWIG_As_int(obj2)); 
-        if (SWIG_arg_fail(3)) SWIG_fail;
-    }
-    {
-        arg4 = (int)(SWIG_As_int(obj3)); 
-        if (SWIG_arg_fail(4)) SWIG_fail;
-    }
-    SWIG_Python_ConvertPtr(obj4, (void **)&arg5, SWIGTYPE_p_agg__rgba8, SWIG_POINTER_EXCEPTION | 0);
-    if (SWIG_arg_fail(5)) SWIG_fail;
-    SWIG_Python_ConvertPtr(obj5, (void **)&arg6, SWIGTYPE_p_unsigned_char, SWIG_POINTER_EXCEPTION | 0);
-    if (SWIG_arg_fail(6)) SWIG_fail;
-    {
-        arg7 = (agg::cover_type)(SWIG_As_unsigned_SS_char(obj6)); 
-        if (SWIG_arg_fail(7)) SWIG_fail;
-    }
-    (arg1)->blend_color_vspan(arg2,arg3,arg4,(color_type const *)arg5,(agg::cover_type const *)arg6,arg7);
-    
-    Py_INCREF(Py_None); resultobj = Py_None;
-    return resultobj;
-    fail:
-    return NULL;
-}
-
-
-static PyObject *_wrap_renderer_base_blend_color_vspan__SWIG_1(PyObject *, PyObject *args) {
-    PyObject *resultobj = NULL;
-    renderer_base<pixel_format > *arg1 = (renderer_base<pixel_format > *) 0 ;
-    int arg2 ;
-    int arg3 ;
-    int arg4 ;
-    color_type *arg5 = (color_type *) 0 ;
-    agg::cover_type *arg6 = (agg::cover_type *) 0 ;
-    PyObject * obj0 = 0 ;
-    PyObject * obj1 = 0 ;
-    PyObject * obj2 = 0 ;
-    PyObject * obj3 = 0 ;
-    PyObject * obj4 = 0 ;
-    PyObject * obj5 = 0 ;
-    
-    if(!PyArg_ParseTuple(args,(char *)"OOOOOO:renderer_base_blend_color_vspan",&obj0,&obj1,&obj2,&obj3,&obj4,&obj5)) goto fail;
-    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_renderer_baseTagg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t_t, SWIG_POINTER_EXCEPTION | 0);
-    if (SWIG_arg_fail(1)) SWIG_fail;
-    {
-        arg2 = (int)(SWIG_As_int(obj1)); 
-        if (SWIG_arg_fail(2)) SWIG_fail;
-    }
-    {
-        arg3 = (int)(SWIG_As_int(obj2)); 
-        if (SWIG_arg_fail(3)) SWIG_fail;
-    }
-    {
-        arg4 = (int)(SWIG_As_int(obj3)); 
-        if (SWIG_arg_fail(4)) SWIG_fail;
-    }
-    SWIG_Python_ConvertPtr(obj4, (void **)&arg5, SWIGTYPE_p_agg__rgba8, SWIG_POINTER_EXCEPTION | 0);
-    if (SWIG_arg_fail(5)) SWIG_fail;
-    SWIG_Python_ConvertPtr(obj5, (void **)&arg6, SWIGTYPE_p_unsigned_char, SWIG_POINTER_EXCEPTION | 0);
-    if (SWIG_arg_fail(6)) SWIG_fail;
-    (arg1)->blend_color_vspan(arg2,arg3,arg4,(color_type const *)arg5,(agg::cover_type const *)arg6);
-    
-    Py_INCREF(Py_None); resultobj = Py_None;
-    return resultobj;
-    fail:
-    return NULL;
-}
-
-
-static PyObject *_wrap_renderer_base_blend_color_vspan(PyObject *self, PyObject *args) {
-    int argc;
-    PyObject *argv[8];
-    int ii;
-    
-    argc = PyObject_Length(args);
-    for (ii = 0; (ii < argc) && (ii < 7); ii++) {
-        argv[ii] = PyTuple_GetItem(args,ii);
-    }
-    if (argc == 6) {
-        int _v;
-        {
-            void *ptr;
-            if (SWIG_ConvertPtr(argv[0], &ptr, SWIGTYPE_p_renderer_baseTagg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t_t, 0) == -1) {
-                _v = 0;
-                PyErr_Clear();
-            } else {
-                _v = 1;
-            }
-        }
-        if (_v) {
-            _v = SWIG_Check_int(argv[1]);
-            if (_v) {
-                _v = SWIG_Check_int(argv[2]);
-                if (_v) {
-                    _v = SWIG_Check_int(argv[3]);
-                    if (_v) {
-                        {
-                            void *ptr;
-                            if (SWIG_ConvertPtr(argv[4], &ptr, SWIGTYPE_p_agg__rgba8, 0) == -1) {
-                                _v = 0;
-                                PyErr_Clear();
-                            } else {
-                                _v = 1;
-                            }
-                        }
-                        if (_v) {
-                            {
-                                void *ptr;
-                                if (SWIG_ConvertPtr(argv[5], &ptr, SWIGTYPE_p_unsigned_char, 0) == -1) {
-                                    _v = 0;
-                                    PyErr_Clear();
-                                } else {
-                                    _v = 1;
-                                }
-                            }
-                            if (_v) {
-                                return _wrap_renderer_base_blend_color_vspan__SWIG_1(self,args);
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-    if (argc == 7) {
-        int _v;
-        {
-            void *ptr;
-            if (SWIG_ConvertPtr(argv[0], &ptr, SWIGTYPE_p_renderer_baseTagg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t_t, 0) == -1) {
-                _v = 0;
-                PyErr_Clear();
-            } else {
-                _v = 1;
-            }
-        }
-        if (_v) {
-            _v = SWIG_Check_int(argv[1]);
-            if (_v) {
-                _v = SWIG_Check_int(argv[2]);
-                if (_v) {
-                    _v = SWIG_Check_int(argv[3]);
-                    if (_v) {
-                        {
-                            void *ptr;
-                            if (SWIG_ConvertPtr(argv[4], &ptr, SWIGTYPE_p_agg__rgba8, 0) == -1) {
-                                _v = 0;
-                                PyErr_Clear();
-                            } else {
-                                _v = 1;
-                            }
-                        }
-                        if (_v) {
-                            {
-                                void *ptr;
-                                if (SWIG_ConvertPtr(argv[5], &ptr, SWIGTYPE_p_unsigned_char, 0) == -1) {
-                                    _v = 0;
-                                    PyErr_Clear();
-                                } else {
-                                    _v = 1;
-                                }
-                            }
-                            if (_v) {
-                                _v = SWIG_Check_unsigned_SS_char(argv[6]);
-                                if (_v) {
-                                    return _wrap_renderer_base_blend_color_vspan__SWIG_0(self,args);
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-    
-    PyErr_SetString(PyExc_NotImplementedError,"No matching function for overloaded 'renderer_base_blend_color_vspan'");
-    return NULL;
-}
-
-
-static PyObject *_wrap_renderer_base_blend_color_hspan_no_clip__SWIG_0(PyObject *, PyObject *args) {
-    PyObject *resultobj = NULL;
-    renderer_base<pixel_format > *arg1 = (renderer_base<pixel_format > *) 0 ;
-    int arg2 ;
-    int arg3 ;
-    int arg4 ;
-    color_type *arg5 = (color_type *) 0 ;
-    agg::cover_type *arg6 = (agg::cover_type *) 0 ;
-    agg::cover_type arg7 ;
-    PyObject * obj0 = 0 ;
-    PyObject * obj1 = 0 ;
-    PyObject * obj2 = 0 ;
-    PyObject * obj3 = 0 ;
-    PyObject * obj4 = 0 ;
-    PyObject * obj5 = 0 ;
-    PyObject * obj6 = 0 ;
-    
-    if(!PyArg_ParseTuple(args,(char *)"OOOOOOO:renderer_base_blend_color_hspan_no_clip",&obj0,&obj1,&obj2,&obj3,&obj4,&obj5,&obj6)) goto fail;
-    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_renderer_baseTagg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t_t, SWIG_POINTER_EXCEPTION | 0);
-    if (SWIG_arg_fail(1)) SWIG_fail;
-    {
-        arg2 = (int)(SWIG_As_int(obj1)); 
-        if (SWIG_arg_fail(2)) SWIG_fail;
-    }
-    {
-        arg3 = (int)(SWIG_As_int(obj2)); 
-        if (SWIG_arg_fail(3)) SWIG_fail;
-    }
-    {
-        arg4 = (int)(SWIG_As_int(obj3)); 
-        if (SWIG_arg_fail(4)) SWIG_fail;
-    }
-    SWIG_Python_ConvertPtr(obj4, (void **)&arg5, SWIGTYPE_p_agg__rgba8, SWIG_POINTER_EXCEPTION | 0);
-    if (SWIG_arg_fail(5)) SWIG_fail;
-    SWIG_Python_ConvertPtr(obj5, (void **)&arg6, SWIGTYPE_p_unsigned_char, SWIG_POINTER_EXCEPTION | 0);
-    if (SWIG_arg_fail(6)) SWIG_fail;
-    {
-        arg7 = (agg::cover_type)(SWIG_As_unsigned_SS_char(obj6)); 
-        if (SWIG_arg_fail(7)) SWIG_fail;
-    }
-    (arg1)->blend_color_hspan_no_clip(arg2,arg3,arg4,(color_type const *)arg5,(agg::cover_type const *)arg6,arg7);
-    
-    Py_INCREF(Py_None); resultobj = Py_None;
-    return resultobj;
-    fail:
-    return NULL;
-}
-
-
-static PyObject *_wrap_renderer_base_blend_color_hspan_no_clip__SWIG_1(PyObject *, PyObject *args) {
-    PyObject *resultobj = NULL;
-    renderer_base<pixel_format > *arg1 = (renderer_base<pixel_format > *) 0 ;
-    int arg2 ;
-    int arg3 ;
-    int arg4 ;
-    color_type *arg5 = (color_type *) 0 ;
-    agg::cover_type *arg6 = (agg::cover_type *) 0 ;
-    PyObject * obj0 = 0 ;
-    PyObject * obj1 = 0 ;
-    PyObject * obj2 = 0 ;
-    PyObject * obj3 = 0 ;
-    PyObject * obj4 = 0 ;
-    PyObject * obj5 = 0 ;
-    
-    if(!PyArg_ParseTuple(args,(char *)"OOOOOO:renderer_base_blend_color_hspan_no_clip",&obj0,&obj1,&obj2,&obj3,&obj4,&obj5)) goto fail;
-    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_renderer_baseTagg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t_t, SWIG_POINTER_EXCEPTION | 0);
-    if (SWIG_arg_fail(1)) SWIG_fail;
-    {
-        arg2 = (int)(SWIG_As_int(obj1)); 
-        if (SWIG_arg_fail(2)) SWIG_fail;
-    }
-    {
-        arg3 = (int)(SWIG_As_int(obj2)); 
-        if (SWIG_arg_fail(3)) SWIG_fail;
-    }
-    {
-        arg4 = (int)(SWIG_As_int(obj3)); 
-        if (SWIG_arg_fail(4)) SWIG_fail;
-    }
-    SWIG_Python_ConvertPtr(obj4, (void **)&arg5, SWIGTYPE_p_agg__rgba8, SWIG_POINTER_EXCEPTION | 0);
-    if (SWIG_arg_fail(5)) SWIG_fail;
-    SWIG_Python_ConvertPtr(obj5, (void **)&arg6, SWIGTYPE_p_unsigned_char, SWIG_POINTER_EXCEPTION | 0);
-    if (SWIG_arg_fail(6)) SWIG_fail;
-    (arg1)->blend_color_hspan_no_clip(arg2,arg3,arg4,(color_type const *)arg5,(agg::cover_type const *)arg6);
-    
-    Py_INCREF(Py_None); resultobj = Py_None;
-    return resultobj;
-    fail:
-    return NULL;
-}
-
-
-static PyObject *_wrap_renderer_base_blend_color_hspan_no_clip(PyObject *self, PyObject *args) {
-    int argc;
-    PyObject *argv[8];
-    int ii;
-    
-    argc = PyObject_Length(args);
-    for (ii = 0; (ii < argc) && (ii < 7); ii++) {
-        argv[ii] = PyTuple_GetItem(args,ii);
-    }
-    if (argc == 6) {
-        int _v;
-        {
-            void *ptr;
-            if (SWIG_ConvertPtr(argv[0], &ptr, SWIGTYPE_p_renderer_baseTagg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t_t, 0) == -1) {
-                _v = 0;
-                PyErr_Clear();
-            } else {
-                _v = 1;
-            }
-        }
-        if (_v) {
-            _v = SWIG_Check_int(argv[1]);
-            if (_v) {
-                _v = SWIG_Check_int(argv[2]);
-                if (_v) {
-                    _v = SWIG_Check_int(argv[3]);
-                    if (_v) {
-                        {
-                            void *ptr;
-                            if (SWIG_ConvertPtr(argv[4], &ptr, SWIGTYPE_p_agg__rgba8, 0) == -1) {
-                                _v = 0;
-                                PyErr_Clear();
-                            } else {
-                                _v = 1;
-                            }
-                        }
-                        if (_v) {
-                            {
-                                void *ptr;
-                                if (SWIG_ConvertPtr(argv[5], &ptr, SWIGTYPE_p_unsigned_char, 0) == -1) {
-                                    _v = 0;
-                                    PyErr_Clear();
-                                } else {
-                                    _v = 1;
-                                }
-                            }
-                            if (_v) {
-                                return _wrap_renderer_base_blend_color_hspan_no_clip__SWIG_1(self,args);
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-    if (argc == 7) {
-        int _v;
-        {
-            void *ptr;
-            if (SWIG_ConvertPtr(argv[0], &ptr, SWIGTYPE_p_renderer_baseTagg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t_t, 0) == -1) {
-                _v = 0;
-                PyErr_Clear();
-            } else {
-                _v = 1;
-            }
-        }
-        if (_v) {
-            _v = SWIG_Check_int(argv[1]);
-            if (_v) {
-                _v = SWIG_Check_int(argv[2]);
-                if (_v) {
-                    _v = SWIG_Check_int(argv[3]);
-                    if (_v) {
-                        {
-                            void *ptr;
-                            if (SWIG_ConvertPtr(argv[4], &ptr, SWIGTYPE_p_agg__rgba8, 0) == -1) {
-                                _v = 0;
-                                PyErr_Clear();
-                            } else {
-                                _v = 1;
-                            }
-                        }
-                        if (_v) {
-                            {
-                                void *ptr;
-                                if (SWIG_ConvertPtr(argv[5], &ptr, SWIGTYPE_p_unsigned_char, 0) == -1) {
-                                    _v = 0;
-                                    PyErr_Clear();
-                                } else {
-                                    _v = 1;
-                                }
-                            }
-                            if (_v) {
-                                _v = SWIG_Check_unsigned_SS_char(argv[6]);
-                                if (_v) {
-                                    return _wrap_renderer_base_blend_color_hspan_no_clip__SWIG_0(self,args);
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-    
-    PyErr_SetString(PyExc_NotImplementedError,"No matching function for overloaded 'renderer_base_blend_color_hspan_no_clip'");
-    return NULL;
-}
-
-
-static PyObject *_wrap_renderer_base_blend_color_vspan_no_clip__SWIG_0(PyObject *, PyObject *args) {
-    PyObject *resultobj = NULL;
-    renderer_base<pixel_format > *arg1 = (renderer_base<pixel_format > *) 0 ;
-    int arg2 ;
-    int arg3 ;
-    int arg4 ;
-    color_type *arg5 = (color_type *) 0 ;
-    agg::cover_type *arg6 = (agg::cover_type *) 0 ;
-    agg::cover_type arg7 ;
-    PyObject * obj0 = 0 ;
-    PyObject * obj1 = 0 ;
-    PyObject * obj2 = 0 ;
-    PyObject * obj3 = 0 ;
-    PyObject * obj4 = 0 ;
-    PyObject * obj5 = 0 ;
-    PyObject * obj6 = 0 ;
-    
-    if(!PyArg_ParseTuple(args,(char *)"OOOOOOO:renderer_base_blend_color_vspan_no_clip",&obj0,&obj1,&obj2,&obj3,&obj4,&obj5,&obj6)) goto fail;
-    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_renderer_baseTagg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t_t, SWIG_POINTER_EXCEPTION | 0);
-    if (SWIG_arg_fail(1)) SWIG_fail;
-    {
-        arg2 = (int)(SWIG_As_int(obj1)); 
-        if (SWIG_arg_fail(2)) SWIG_fail;
-    }
-    {
-        arg3 = (int)(SWIG_As_int(obj2)); 
-        if (SWIG_arg_fail(3)) SWIG_fail;
-    }
-    {
-        arg4 = (int)(SWIG_As_int(obj3)); 
-        if (SWIG_arg_fail(4)) SWIG_fail;
-    }
-    SWIG_Python_ConvertPtr(obj4, (void **)&arg5, SWIGTYPE_p_agg__rgba8, SWIG_POINTER_EXCEPTION | 0);
-    if (SWIG_arg_fail(5)) SWIG_fail;
-    SWIG_Python_ConvertPtr(obj5, (void **)&arg6, SWIGTYPE_p_unsigned_char, SWIG_POINTER_EXCEPTION | 0);
-    if (SWIG_arg_fail(6)) SWIG_fail;
-    {
-        arg7 = (agg::cover_type)(SWIG_As_unsigned_SS_char(obj6)); 
-        if (SWIG_arg_fail(7)) SWIG_fail;
-    }
-    (arg1)->blend_color_vspan_no_clip(arg2,arg3,arg4,(color_type const *)arg5,(agg::cover_type const *)arg6,arg7);
-    
-    Py_INCREF(Py_None); resultobj = Py_None;
-    return resultobj;
-    fail:
-    return NULL;
-}
-
-
-static PyObject *_wrap_renderer_base_blend_color_vspan_no_clip__SWIG_1(PyObject *, PyObject *args) {
-    PyObject *resultobj = NULL;
-    renderer_base<pixel_format > *arg1 = (renderer_base<pixel_format > *) 0 ;
-    int arg2 ;
-    int arg3 ;
-    int arg4 ;
-    color_type *arg5 = (color_type *) 0 ;
-    agg::cover_type *arg6 = (agg::cover_type *) 0 ;
-    PyObject * obj0 = 0 ;
-    PyObject * obj1 = 0 ;
-    PyObject * obj2 = 0 ;
-    PyObject * obj3 = 0 ;
-    PyObject * obj4 = 0 ;
-    PyObject * obj5 = 0 ;
-    
-    if(!PyArg_ParseTuple(args,(char *)"OOOOOO:renderer_base_blend_color_vspan_no_clip",&obj0,&obj1,&obj2,&obj3,&obj4,&obj5)) goto fail;
-    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_renderer_baseTagg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t_t, SWIG_POINTER_EXCEPTION | 0);
-    if (SWIG_arg_fail(1)) SWIG_fail;
-    {
-        arg2 = (int)(SWIG_As_int(obj1)); 
-        if (SWIG_arg_fail(2)) SWIG_fail;
-    }
-    {
-        arg3 = (int)(SWIG_As_int(obj2)); 
-        if (SWIG_arg_fail(3)) SWIG_fail;
-    }
-    {
-        arg4 = (int)(SWIG_As_int(obj3)); 
-        if (SWIG_arg_fail(4)) SWIG_fail;
-    }
-    SWIG_Python_ConvertPtr(obj4, (void **)&arg5, SWIGTYPE_p_agg__rgba8, SWIG_POINTER_EXCEPTION | 0);
-    if (SWIG_arg_fail(5)) SWIG_fail;
-    SWIG_Python_ConvertPtr(obj5, (void **)&arg6, SWIGTYPE_p_unsigned_char, SWIG_POINTER_EXCEPTION | 0);
-    if (SWIG_arg_fail(6)) SWIG_fail;
-    (arg1)->blend_color_vspan_no_clip(arg2,arg3,arg4,(color_type const *)arg5,(agg::cover_type const *)arg6);
-    
-    Py_INCREF(Py_None); resultobj = Py_None;
-    return resultobj;
-    fail:
-    return NULL;
-}
-
-
-static PyObject *_wrap_renderer_base_blend_color_vspan_no_clip(PyObject *self, PyObject *args) {
-    int argc;
-    PyObject *argv[8];
-    int ii;
-    
-    argc = PyObject_Length(args);
-    for (ii = 0; (ii < argc) && (ii < 7); ii++) {
-        argv[ii] = PyTuple_GetItem(args,ii);
-    }
-    if (argc == 6) {
-        int _v;
-        {
-            void *ptr;
-            if (SWIG_ConvertPtr(argv[0], &ptr, SWIGTYPE_p_renderer_baseTagg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t_t, 0) == -1) {
-                _v = 0;
-                PyErr_Clear();
-            } else {
-                _v = 1;
-            }
-        }
-        if (_v) {
-            _v = SWIG_Check_int(argv[1]);
-            if (_v) {
-                _v = SWIG_Check_int(argv[2]);
-                if (_v) {
-                    _v = SWIG_Check_int(argv[3]);
-                    if (_v) {
-                        {
-                            void *ptr;
-                            if (SWIG_ConvertPtr(argv[4], &ptr, SWIGTYPE_p_agg__rgba8, 0) == -1) {
-                                _v = 0;
-                                PyErr_Clear();
-                            } else {
-                                _v = 1;
-                            }
-                        }
-                        if (_v) {
-                            {
-                                void *ptr;
-                                if (SWIG_ConvertPtr(argv[5], &ptr, SWIGTYPE_p_unsigned_char, 0) == -1) {
-                                    _v = 0;
-                                    PyErr_Clear();
-                                } else {
-                                    _v = 1;
-                                }
-                            }
-                            if (_v) {
-                                return _wrap_renderer_base_blend_color_vspan_no_clip__SWIG_1(self,args);
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-    if (argc == 7) {
-        int _v;
-        {
-            void *ptr;
-            if (SWIG_ConvertPtr(argv[0], &ptr, SWIGTYPE_p_renderer_baseTagg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t_t, 0) == -1) {
-                _v = 0;
-                PyErr_Clear();
-            } else {
-                _v = 1;
-            }
-        }
-        if (_v) {
-            _v = SWIG_Check_int(argv[1]);
-            if (_v) {
-                _v = SWIG_Check_int(argv[2]);
-                if (_v) {
-                    _v = SWIG_Check_int(argv[3]);
-                    if (_v) {
-                        {
-                            void *ptr;
-                            if (SWIG_ConvertPtr(argv[4], &ptr, SWIGTYPE_p_agg__rgba8, 0) == -1) {
-                                _v = 0;
-                                PyErr_Clear();
-                            } else {
-                                _v = 1;
-                            }
-                        }
-                        if (_v) {
-                            {
-                                void *ptr;
-                                if (SWIG_ConvertPtr(argv[5], &ptr, SWIGTYPE_p_unsigned_char, 0) == -1) {
-                                    _v = 0;
-                                    PyErr_Clear();
-                                } else {
-                                    _v = 1;
-                                }
-                            }
-                            if (_v) {
-                                _v = SWIG_Check_unsigned_SS_char(argv[6]);
-                                if (_v) {
-                                    return _wrap_renderer_base_blend_color_vspan_no_clip__SWIG_0(self,args);
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-    
-    PyErr_SetString(PyExc_NotImplementedError,"No matching function for overloaded 'renderer_base_blend_color_vspan_no_clip'");
-    return NULL;
-}
-
-
-static PyObject *_wrap_renderer_base_clip_rect_area(PyObject *, PyObject *args) {
-    PyObject *resultobj = NULL;
-    renderer_base<pixel_format > *arg1 = (renderer_base<pixel_format > *) 0 ;
-    agg::rect *arg2 = 0 ;
-    agg::rect *arg3 = 0 ;
-    int arg4 ;
-    int arg5 ;
-    rect result;
-    PyObject * obj0 = 0 ;
-    PyObject * obj1 = 0 ;
-    PyObject * obj2 = 0 ;
-    PyObject * obj3 = 0 ;
-    PyObject * obj4 = 0 ;
-    
-    if(!PyArg_ParseTuple(args,(char *)"OOOOO:renderer_base_clip_rect_area",&obj0,&obj1,&obj2,&obj3,&obj4)) goto fail;
-    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_renderer_baseTagg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t_t, SWIG_POINTER_EXCEPTION | 0);
-    if (SWIG_arg_fail(1)) SWIG_fail;
-    {
-        SWIG_Python_ConvertPtr(obj1, (void **)&arg2, SWIGTYPE_p_agg__rect_baseTint_t, SWIG_POINTER_EXCEPTION | 0);
-        if (SWIG_arg_fail(2)) SWIG_fail;
-        if (arg2 == NULL) {
-            SWIG_null_ref("agg::rect");
-        }
-        if (SWIG_arg_fail(2)) SWIG_fail;
-    }
-    {
-        SWIG_Python_ConvertPtr(obj2, (void **)&arg3, SWIGTYPE_p_agg__rect_baseTint_t, SWIG_POINTER_EXCEPTION | 0);
-        if (SWIG_arg_fail(3)) SWIG_fail;
-        if (arg3 == NULL) {
-            SWIG_null_ref("agg::rect");
-        }
-        if (SWIG_arg_fail(3)) SWIG_fail;
-    }
-    {
-        arg4 = (int)(SWIG_As_int(obj3)); 
-        if (SWIG_arg_fail(4)) SWIG_fail;
-    }
-    {
-        arg5 = (int)(SWIG_As_int(obj4)); 
-        if (SWIG_arg_fail(5)) SWIG_fail;
-    }
-    result = ((renderer_base<pixel_format > const *)arg1)->clip_rect_area(*arg2,*arg3,arg4,arg5);
-    
-    {
-        rect * resultptr;
-        resultptr = new rect((rect &)(result));
-        resultobj = SWIG_NewPointerObj((void *)(resultptr), SWIGTYPE_p_rect, 1);
-    }
-    return resultobj;
-    fail:
-    return NULL;
-}
-
-
-static PyObject *_wrap_renderer_base_copy_from__SWIG_0(PyObject *, PyObject *args) {
-    PyObject *resultobj = NULL;
-    renderer_base<pixel_format > *arg1 = (renderer_base<pixel_format > *) 0 ;
-    agg::rendering_buffer *arg2 = 0 ;
-    agg::rect *arg3 = (agg::rect *) 0 ;
-    int arg4 ;
-    int arg5 ;
-    PyObject * obj0 = 0 ;
-    PyObject * obj1 = 0 ;
-    PyObject * obj2 = 0 ;
-    PyObject * obj3 = 0 ;
-    PyObject * obj4 = 0 ;
-    
-    if(!PyArg_ParseTuple(args,(char *)"OOOOO:renderer_base_copy_from",&obj0,&obj1,&obj2,&obj3,&obj4)) goto fail;
-    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_renderer_baseTagg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t_t, SWIG_POINTER_EXCEPTION | 0);
-    if (SWIG_arg_fail(1)) SWIG_fail;
-    {
-        SWIG_Python_ConvertPtr(obj1, (void **)&arg2, SWIGTYPE_p_agg__row_ptr_cacheTunsigned_char_t, SWIG_POINTER_EXCEPTION | 0);
-        if (SWIG_arg_fail(2)) SWIG_fail;
-        if (arg2 == NULL) {
-            SWIG_null_ref("agg::rendering_buffer");
-        }
-        if (SWIG_arg_fail(2)) SWIG_fail;
-    }
-    SWIG_Python_ConvertPtr(obj2, (void **)&arg3, SWIGTYPE_p_agg__rect_baseTint_t, SWIG_POINTER_EXCEPTION | 0);
+    SWIG_Python_ConvertPtr(obj1, (void **)&arg2, SWIGTYPE_p_double, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(2)) SWIG_fail;
+    SWIG_Python_ConvertPtr(obj2, (void **)&arg3, SWIGTYPE_p_double, SWIG_POINTER_EXCEPTION | 0);
     if (SWIG_arg_fail(3)) SWIG_fail;
-    {
-        arg4 = (int)(SWIG_As_int(obj3)); 
-        if (SWIG_arg_fail(4)) SWIG_fail;
-    }
-    {
-        arg5 = (int)(SWIG_As_int(obj4)); 
-        if (SWIG_arg_fail(5)) SWIG_fail;
-    }
-    (arg1)->copy_from((agg::row_ptr_cache<agg::int8u > const &)*arg2,(agg::rect const *)arg3,arg4,arg5);
+    result = (unsigned int)(arg1)->vertex(arg2,arg3);
     
-    Py_INCREF(Py_None); resultobj = Py_None;
+    {
+        resultobj = SWIG_From_unsigned_SS_int((unsigned int)(result)); 
+    }
     return resultobj;
     fail:
     return NULL;
 }
 
 
-static PyObject *_wrap_renderer_base_copy_from__SWIG_1(PyObject *, PyObject *args) {
+static PyObject *_wrap_delete_conv_adaptor_vcgen_path(PyObject *, PyObject *args) {
     PyObject *resultobj = NULL;
-    renderer_base<pixel_format > *arg1 = (renderer_base<pixel_format > *) 0 ;
-    agg::rendering_buffer *arg2 = 0 ;
-    agg::rect *arg3 = (agg::rect *) 0 ;
-    int arg4 ;
-    PyObject * obj0 = 0 ;
-    PyObject * obj1 = 0 ;
-    PyObject * obj2 = 0 ;
-    PyObject * obj3 = 0 ;
-    
-    if(!PyArg_ParseTuple(args,(char *)"OOOO:renderer_base_copy_from",&obj0,&obj1,&obj2,&obj3)) goto fail;
-    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_renderer_baseTagg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t_t, SWIG_POINTER_EXCEPTION | 0);
-    if (SWIG_arg_fail(1)) SWIG_fail;
-    {
-        SWIG_Python_ConvertPtr(obj1, (void **)&arg2, SWIGTYPE_p_agg__row_ptr_cacheTunsigned_char_t, SWIG_POINTER_EXCEPTION | 0);
-        if (SWIG_arg_fail(2)) SWIG_fail;
-        if (arg2 == NULL) {
-            SWIG_null_ref("agg::rendering_buffer");
-        }
-        if (SWIG_arg_fail(2)) SWIG_fail;
-    }
-    SWIG_Python_ConvertPtr(obj2, (void **)&arg3, SWIGTYPE_p_agg__rect_baseTint_t, SWIG_POINTER_EXCEPTION | 0);
-    if (SWIG_arg_fail(3)) SWIG_fail;
-    {
-        arg4 = (int)(SWIG_As_int(obj3)); 
-        if (SWIG_arg_fail(4)) SWIG_fail;
-    }
-    (arg1)->copy_from((agg::row_ptr_cache<agg::int8u > const &)*arg2,(agg::rect const *)arg3,arg4);
-    
-    Py_INCREF(Py_None); resultobj = Py_None;
-    return resultobj;
-    fail:
-    return NULL;
-}
-
-
-static PyObject *_wrap_renderer_base_copy_from__SWIG_2(PyObject *, PyObject *args) {
-    PyObject *resultobj = NULL;
-    renderer_base<pixel_format > *arg1 = (renderer_base<pixel_format > *) 0 ;
-    agg::rendering_buffer *arg2 = 0 ;
-    agg::rect *arg3 = (agg::rect *) 0 ;
-    PyObject * obj0 = 0 ;
-    PyObject * obj1 = 0 ;
-    PyObject * obj2 = 0 ;
-    
-    if(!PyArg_ParseTuple(args,(char *)"OOO:renderer_base_copy_from",&obj0,&obj1,&obj2)) goto fail;
-    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_renderer_baseTagg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t_t, SWIG_POINTER_EXCEPTION | 0);
-    if (SWIG_arg_fail(1)) SWIG_fail;
-    {
-        SWIG_Python_ConvertPtr(obj1, (void **)&arg2, SWIGTYPE_p_agg__row_ptr_cacheTunsigned_char_t, SWIG_POINTER_EXCEPTION | 0);
-        if (SWIG_arg_fail(2)) SWIG_fail;
-        if (arg2 == NULL) {
-            SWIG_null_ref("agg::rendering_buffer");
-        }
-        if (SWIG_arg_fail(2)) SWIG_fail;
-    }
-    SWIG_Python_ConvertPtr(obj2, (void **)&arg3, SWIGTYPE_p_agg__rect_baseTint_t, SWIG_POINTER_EXCEPTION | 0);
-    if (SWIG_arg_fail(3)) SWIG_fail;
-    (arg1)->copy_from((agg::row_ptr_cache<agg::int8u > const &)*arg2,(agg::rect const *)arg3);
-    
-    Py_INCREF(Py_None); resultobj = Py_None;
-    return resultobj;
-    fail:
-    return NULL;
-}
-
-
-static PyObject *_wrap_renderer_base_copy_from__SWIG_3(PyObject *, PyObject *args) {
-    PyObject *resultobj = NULL;
-    renderer_base<pixel_format > *arg1 = (renderer_base<pixel_format > *) 0 ;
-    agg::rendering_buffer *arg2 = 0 ;
-    PyObject * obj0 = 0 ;
-    PyObject * obj1 = 0 ;
-    
-    if(!PyArg_ParseTuple(args,(char *)"OO:renderer_base_copy_from",&obj0,&obj1)) goto fail;
-    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_renderer_baseTagg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t_t, SWIG_POINTER_EXCEPTION | 0);
-    if (SWIG_arg_fail(1)) SWIG_fail;
-    {
-        SWIG_Python_ConvertPtr(obj1, (void **)&arg2, SWIGTYPE_p_agg__row_ptr_cacheTunsigned_char_t, SWIG_POINTER_EXCEPTION | 0);
-        if (SWIG_arg_fail(2)) SWIG_fail;
-        if (arg2 == NULL) {
-            SWIG_null_ref("agg::rendering_buffer");
-        }
-        if (SWIG_arg_fail(2)) SWIG_fail;
-    }
-    (arg1)->copy_from((agg::row_ptr_cache<agg::int8u > const &)*arg2);
-    
-    Py_INCREF(Py_None); resultobj = Py_None;
-    return resultobj;
-    fail:
-    return NULL;
-}
-
-
-static PyObject *_wrap_renderer_base_copy_from(PyObject *self, PyObject *args) {
-    int argc;
-    PyObject *argv[6];
-    int ii;
-    
-    argc = PyObject_Length(args);
-    for (ii = 0; (ii < argc) && (ii < 5); ii++) {
-        argv[ii] = PyTuple_GetItem(args,ii);
-    }
-    if (argc == 2) {
-        int _v;
-        {
-            void *ptr;
-            if (SWIG_ConvertPtr(argv[0], &ptr, SWIGTYPE_p_renderer_baseTagg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t_t, 0) == -1) {
-                _v = 0;
-                PyErr_Clear();
-            } else {
-                _v = 1;
-            }
-        }
-        if (_v) {
-            {
-                void *ptr = 0;
-                if (SWIG_ConvertPtr(argv[1], &ptr, SWIGTYPE_p_agg__row_ptr_cacheTunsigned_char_t, 0) == -1) {
-                    _v = 0;
-                    PyErr_Clear();
-                } else {
-                    _v = (ptr != 0);
-                }
-            }
-            if (_v) {
-                return _wrap_renderer_base_copy_from__SWIG_3(self,args);
-            }
-        }
-    }
-    if (argc == 3) {
-        int _v;
-        {
-            void *ptr;
-            if (SWIG_ConvertPtr(argv[0], &ptr, SWIGTYPE_p_renderer_baseTagg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t_t, 0) == -1) {
-                _v = 0;
-                PyErr_Clear();
-            } else {
-                _v = 1;
-            }
-        }
-        if (_v) {
-            {
-                void *ptr = 0;
-                if (SWIG_ConvertPtr(argv[1], &ptr, SWIGTYPE_p_agg__row_ptr_cacheTunsigned_char_t, 0) == -1) {
-                    _v = 0;
-                    PyErr_Clear();
-                } else {
-                    _v = (ptr != 0);
-                }
-            }
-            if (_v) {
-                {
-                    void *ptr;
-                    if (SWIG_ConvertPtr(argv[2], &ptr, SWIGTYPE_p_agg__rect_baseTint_t, 0) == -1) {
-                        _v = 0;
-                        PyErr_Clear();
-                    } else {
-                        _v = 1;
-                    }
-                }
-                if (_v) {
-                    return _wrap_renderer_base_copy_from__SWIG_2(self,args);
-                }
-            }
-        }
-    }
-    if (argc == 4) {
-        int _v;
-        {
-            void *ptr;
-            if (SWIG_ConvertPtr(argv[0], &ptr, SWIGTYPE_p_renderer_baseTagg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t_t, 0) == -1) {
-                _v = 0;
-                PyErr_Clear();
-            } else {
-                _v = 1;
-            }
-        }
-        if (_v) {
-            {
-                void *ptr = 0;
-                if (SWIG_ConvertPtr(argv[1], &ptr, SWIGTYPE_p_agg__row_ptr_cacheTunsigned_char_t, 0) == -1) {
-                    _v = 0;
-                    PyErr_Clear();
-                } else {
-                    _v = (ptr != 0);
-                }
-            }
-            if (_v) {
-                {
-                    void *ptr;
-                    if (SWIG_ConvertPtr(argv[2], &ptr, SWIGTYPE_p_agg__rect_baseTint_t, 0) == -1) {
-                        _v = 0;
-                        PyErr_Clear();
-                    } else {
-                        _v = 1;
-                    }
-                }
-                if (_v) {
-                    _v = SWIG_Check_int(argv[3]);
-                    if (_v) {
-                        return _wrap_renderer_base_copy_from__SWIG_1(self,args);
-                    }
-                }
-            }
-        }
-    }
-    if (argc == 5) {
-        int _v;
-        {
-            void *ptr;
-            if (SWIG_ConvertPtr(argv[0], &ptr, SWIGTYPE_p_renderer_baseTagg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t_t, 0) == -1) {
-                _v = 0;
-                PyErr_Clear();
-            } else {
-                _v = 1;
-            }
-        }
-        if (_v) {
-            {
-                void *ptr = 0;
-                if (SWIG_ConvertPtr(argv[1], &ptr, SWIGTYPE_p_agg__row_ptr_cacheTunsigned_char_t, 0) == -1) {
-                    _v = 0;
-                    PyErr_Clear();
-                } else {
-                    _v = (ptr != 0);
-                }
-            }
-            if (_v) {
-                {
-                    void *ptr;
-                    if (SWIG_ConvertPtr(argv[2], &ptr, SWIGTYPE_p_agg__rect_baseTint_t, 0) == -1) {
-                        _v = 0;
-                        PyErr_Clear();
-                    } else {
-                        _v = 1;
-                    }
-                }
-                if (_v) {
-                    _v = SWIG_Check_int(argv[3]);
-                    if (_v) {
-                        _v = SWIG_Check_int(argv[4]);
-                        if (_v) {
-                            return _wrap_renderer_base_copy_from__SWIG_0(self,args);
-                        }
-                    }
-                }
-            }
-        }
-    }
-    
-    PyErr_SetString(PyExc_NotImplementedError,"No matching function for overloaded 'renderer_base_copy_from'");
-    return NULL;
-}
-
-
-static PyObject *_wrap_delete_renderer_base(PyObject *, PyObject *args) {
-    PyObject *resultobj = NULL;
-    renderer_base<pixel_format > *arg1 = (renderer_base<pixel_format > *) 0 ;
+    agg::conv_adaptor_vcgen<path_t,agg::vcgen_stroke,agg::null_markers > *arg1 = (agg::conv_adaptor_vcgen<path_t,agg::vcgen_stroke,agg::null_markers > *) 0 ;
     PyObject * obj0 = 0 ;
     
-    if(!PyArg_ParseTuple(args,(char *)"O:delete_renderer_base",&obj0)) goto fail;
-    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_renderer_baseTagg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t_t, SWIG_POINTER_EXCEPTION | 0);
+    if(!PyArg_ParseTuple(args,(char *)"O:delete_conv_adaptor_vcgen_path",&obj0)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__conv_adaptor_vcgenTagg__path_storage_agg__vcgen_stroke_agg__null_markers_t, SWIG_POINTER_EXCEPTION | 0);
     if (SWIG_arg_fail(1)) SWIG_fail;
     delete arg1;
     
@@ -16174,46 +17578,1246 @@ static PyObject *_wrap_delete_renderer_base(PyObject *, PyObject *args) {
 }
 
 
-static PyObject * renderer_base_swigregister(PyObject *, PyObject *args) {
+static PyObject * conv_adaptor_vcgen_path_swigregister(PyObject *, PyObject *args) {
     PyObject *obj;
     if (!PyArg_ParseTuple(args,(char*)"O", &obj)) return NULL;
-    SWIG_TypeClientData(SWIGTYPE_p_renderer_baseTagg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t_t, obj);
+    SWIG_TypeClientData(SWIGTYPE_p_agg__conv_adaptor_vcgenTagg__path_storage_agg__vcgen_stroke_agg__null_markers_t, obj);
     Py_INCREF(obj);
     return Py_BuildValue((char *)"");
 }
-static PyObject *_wrap_new_conv_stroke(PyObject *, PyObject *args) {
+static PyObject *_wrap_new_conv_adaptor_vcgen_transpath(PyObject *, PyObject *args) {
     PyObject *resultobj = NULL;
-    agg::path_storage *arg1 = 0 ;
-    conv_stroke<agg::path_storage > *result;
+    transpath_t *arg1 = 0 ;
+    agg::conv_adaptor_vcgen<transpath_t,agg::vcgen_stroke,agg::null_markers > *result;
     PyObject * obj0 = 0 ;
     
-    if(!PyArg_ParseTuple(args,(char *)"O:new_conv_stroke",&obj0)) goto fail;
+    if(!PyArg_ParseTuple(args,(char *)"O:new_conv_adaptor_vcgen_transpath",&obj0)) goto fail;
+    {
+        SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__conv_transformTagg__path_storage_agg__trans_affine_t, SWIG_POINTER_EXCEPTION | 0);
+        if (SWIG_arg_fail(1)) SWIG_fail;
+        if (arg1 == NULL) {
+            SWIG_null_ref("transpath_t");
+        }
+        if (SWIG_arg_fail(1)) SWIG_fail;
+    }
+    result = (agg::conv_adaptor_vcgen<transpath_t,agg::vcgen_stroke,agg::null_markers > *)new agg::conv_adaptor_vcgen<transpath_t,agg::vcgen_stroke,agg::null_markers >(*arg1);
+    
+    resultobj = SWIG_NewPointerObj((void*)(result), SWIGTYPE_p_agg__conv_adaptor_vcgenTagg__conv_transformTpath_t_agg__trans_affine_t_agg__vcgen_stroke_agg__null_markers_t, 1);
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_conv_adaptor_vcgen_transpath_set_source(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::conv_adaptor_vcgen<transpath_t,agg::vcgen_stroke,agg::null_markers > *arg1 = (agg::conv_adaptor_vcgen<transpath_t,agg::vcgen_stroke,agg::null_markers > *) 0 ;
+    transpath_t *arg2 = 0 ;
+    PyObject * obj0 = 0 ;
+    PyObject * obj1 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"OO:conv_adaptor_vcgen_transpath_set_source",&obj0,&obj1)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__conv_adaptor_vcgenTagg__conv_transformTpath_t_agg__trans_affine_t_agg__vcgen_stroke_agg__null_markers_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    {
+        SWIG_Python_ConvertPtr(obj1, (void **)&arg2, SWIGTYPE_p_agg__conv_transformTagg__path_storage_agg__trans_affine_t, SWIG_POINTER_EXCEPTION | 0);
+        if (SWIG_arg_fail(2)) SWIG_fail;
+        if (arg2 == NULL) {
+            SWIG_null_ref("transpath_t");
+        }
+        if (SWIG_arg_fail(2)) SWIG_fail;
+    }
+    (arg1)->set_source(*arg2);
+    
+    Py_INCREF(Py_None); resultobj = Py_None;
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_conv_adaptor_vcgen_transpath_generator__SWIG_0(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::conv_adaptor_vcgen<transpath_t,agg::vcgen_stroke,agg::null_markers > *arg1 = (agg::conv_adaptor_vcgen<transpath_t,agg::vcgen_stroke,agg::null_markers > *) 0 ;
+    agg::vcgen_stroke *result;
+    PyObject * obj0 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"O:conv_adaptor_vcgen_transpath_generator",&obj0)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__conv_adaptor_vcgenTagg__conv_transformTpath_t_agg__trans_affine_t_agg__vcgen_stroke_agg__null_markers_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    {
+        agg::vcgen_stroke &_result_ref = (arg1)->generator();
+        result = (agg::vcgen_stroke *) &_result_ref;
+    }
+    
+    resultobj = SWIG_NewPointerObj((void*)(result), SWIGTYPE_p_agg__vcgen_stroke, 0);
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_conv_adaptor_vcgen_transpath_generator__SWIG_1(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::conv_adaptor_vcgen<transpath_t,agg::vcgen_stroke,agg::null_markers > *arg1 = (agg::conv_adaptor_vcgen<transpath_t,agg::vcgen_stroke,agg::null_markers > *) 0 ;
+    agg::vcgen_stroke *result;
+    PyObject * obj0 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"O:conv_adaptor_vcgen_transpath_generator",&obj0)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__conv_adaptor_vcgenTagg__conv_transformTpath_t_agg__trans_affine_t_agg__vcgen_stroke_agg__null_markers_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    {
+        agg::vcgen_stroke const &_result_ref = ((agg::conv_adaptor_vcgen<transpath_t,agg::vcgen_stroke,agg::null_markers > const *)arg1)->generator();
+        result = (agg::vcgen_stroke *) &_result_ref;
+    }
+    
+    resultobj = SWIG_NewPointerObj((void*)(result), SWIGTYPE_p_agg__vcgen_stroke, 0);
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_conv_adaptor_vcgen_transpath_generator(PyObject *self, PyObject *args) {
+    int argc;
+    PyObject *argv[2];
+    int ii;
+    
+    argc = PyObject_Length(args);
+    for (ii = 0; (ii < argc) && (ii < 1); ii++) {
+        argv[ii] = PyTuple_GetItem(args,ii);
+    }
+    if (argc == 1) {
+        int _v;
+        {
+            void *ptr;
+            if (SWIG_ConvertPtr(argv[0], &ptr, SWIGTYPE_p_agg__conv_adaptor_vcgenTagg__conv_transformTpath_t_agg__trans_affine_t_agg__vcgen_stroke_agg__null_markers_t, 0) == -1) {
+                _v = 0;
+                PyErr_Clear();
+            } else {
+                _v = 1;
+            }
+        }
+        if (_v) {
+            return _wrap_conv_adaptor_vcgen_transpath_generator__SWIG_0(self,args);
+        }
+    }
+    if (argc == 1) {
+        int _v;
+        {
+            void *ptr;
+            if (SWIG_ConvertPtr(argv[0], &ptr, SWIGTYPE_p_agg__conv_adaptor_vcgenTagg__conv_transformTpath_t_agg__trans_affine_t_agg__vcgen_stroke_agg__null_markers_t, 0) == -1) {
+                _v = 0;
+                PyErr_Clear();
+            } else {
+                _v = 1;
+            }
+        }
+        if (_v) {
+            return _wrap_conv_adaptor_vcgen_transpath_generator__SWIG_1(self,args);
+        }
+    }
+    
+    PyErr_SetString(PyExc_NotImplementedError,"No matching function for overloaded 'conv_adaptor_vcgen_transpath_generator'");
+    return NULL;
+}
+
+
+static PyObject *_wrap_conv_adaptor_vcgen_transpath_markers__SWIG_0(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::conv_adaptor_vcgen<transpath_t,agg::vcgen_stroke,agg::null_markers > *arg1 = (agg::conv_adaptor_vcgen<transpath_t,agg::vcgen_stroke,agg::null_markers > *) 0 ;
+    agg::null_markers *result;
+    PyObject * obj0 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"O:conv_adaptor_vcgen_transpath_markers",&obj0)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__conv_adaptor_vcgenTagg__conv_transformTpath_t_agg__trans_affine_t_agg__vcgen_stroke_agg__null_markers_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    {
+        agg::null_markers &_result_ref = (arg1)->markers();
+        result = (agg::null_markers *) &_result_ref;
+    }
+    
+    resultobj = SWIG_NewPointerObj((void*)(result), SWIGTYPE_p_agg__null_markers, 0);
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_conv_adaptor_vcgen_transpath_markers__SWIG_1(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::conv_adaptor_vcgen<transpath_t,agg::vcgen_stroke,agg::null_markers > *arg1 = (agg::conv_adaptor_vcgen<transpath_t,agg::vcgen_stroke,agg::null_markers > *) 0 ;
+    agg::null_markers *result;
+    PyObject * obj0 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"O:conv_adaptor_vcgen_transpath_markers",&obj0)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__conv_adaptor_vcgenTagg__conv_transformTpath_t_agg__trans_affine_t_agg__vcgen_stroke_agg__null_markers_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    {
+        agg::null_markers const &_result_ref = ((agg::conv_adaptor_vcgen<transpath_t,agg::vcgen_stroke,agg::null_markers > const *)arg1)->markers();
+        result = (agg::null_markers *) &_result_ref;
+    }
+    
+    resultobj = SWIG_NewPointerObj((void*)(result), SWIGTYPE_p_agg__null_markers, 0);
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_conv_adaptor_vcgen_transpath_markers(PyObject *self, PyObject *args) {
+    int argc;
+    PyObject *argv[2];
+    int ii;
+    
+    argc = PyObject_Length(args);
+    for (ii = 0; (ii < argc) && (ii < 1); ii++) {
+        argv[ii] = PyTuple_GetItem(args,ii);
+    }
+    if (argc == 1) {
+        int _v;
+        {
+            void *ptr;
+            if (SWIG_ConvertPtr(argv[0], &ptr, SWIGTYPE_p_agg__conv_adaptor_vcgenTagg__conv_transformTpath_t_agg__trans_affine_t_agg__vcgen_stroke_agg__null_markers_t, 0) == -1) {
+                _v = 0;
+                PyErr_Clear();
+            } else {
+                _v = 1;
+            }
+        }
+        if (_v) {
+            return _wrap_conv_adaptor_vcgen_transpath_markers__SWIG_0(self,args);
+        }
+    }
+    if (argc == 1) {
+        int _v;
+        {
+            void *ptr;
+            if (SWIG_ConvertPtr(argv[0], &ptr, SWIGTYPE_p_agg__conv_adaptor_vcgenTagg__conv_transformTpath_t_agg__trans_affine_t_agg__vcgen_stroke_agg__null_markers_t, 0) == -1) {
+                _v = 0;
+                PyErr_Clear();
+            } else {
+                _v = 1;
+            }
+        }
+        if (_v) {
+            return _wrap_conv_adaptor_vcgen_transpath_markers__SWIG_1(self,args);
+        }
+    }
+    
+    PyErr_SetString(PyExc_NotImplementedError,"No matching function for overloaded 'conv_adaptor_vcgen_transpath_markers'");
+    return NULL;
+}
+
+
+static PyObject *_wrap_conv_adaptor_vcgen_transpath_rewind(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::conv_adaptor_vcgen<transpath_t,agg::vcgen_stroke,agg::null_markers > *arg1 = (agg::conv_adaptor_vcgen<transpath_t,agg::vcgen_stroke,agg::null_markers > *) 0 ;
+    unsigned int arg2 ;
+    PyObject * obj0 = 0 ;
+    PyObject * obj1 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"OO:conv_adaptor_vcgen_transpath_rewind",&obj0,&obj1)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__conv_adaptor_vcgenTagg__conv_transformTpath_t_agg__trans_affine_t_agg__vcgen_stroke_agg__null_markers_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    {
+        arg2 = (unsigned int)(SWIG_As_unsigned_SS_int(obj1)); 
+        if (SWIG_arg_fail(2)) SWIG_fail;
+    }
+    (arg1)->rewind(arg2);
+    
+    Py_INCREF(Py_None); resultobj = Py_None;
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_conv_adaptor_vcgen_transpath_vertex(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::conv_adaptor_vcgen<transpath_t,agg::vcgen_stroke,agg::null_markers > *arg1 = (agg::conv_adaptor_vcgen<transpath_t,agg::vcgen_stroke,agg::null_markers > *) 0 ;
+    double *arg2 = (double *) 0 ;
+    double *arg3 = (double *) 0 ;
+    unsigned int result;
+    PyObject * obj0 = 0 ;
+    PyObject * obj1 = 0 ;
+    PyObject * obj2 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"OOO:conv_adaptor_vcgen_transpath_vertex",&obj0,&obj1,&obj2)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__conv_adaptor_vcgenTagg__conv_transformTpath_t_agg__trans_affine_t_agg__vcgen_stroke_agg__null_markers_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    SWIG_Python_ConvertPtr(obj1, (void **)&arg2, SWIGTYPE_p_double, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(2)) SWIG_fail;
+    SWIG_Python_ConvertPtr(obj2, (void **)&arg3, SWIGTYPE_p_double, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(3)) SWIG_fail;
+    result = (unsigned int)(arg1)->vertex(arg2,arg3);
+    
+    {
+        resultobj = SWIG_From_unsigned_SS_int((unsigned int)(result)); 
+    }
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_delete_conv_adaptor_vcgen_transpath(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::conv_adaptor_vcgen<transpath_t,agg::vcgen_stroke,agg::null_markers > *arg1 = (agg::conv_adaptor_vcgen<transpath_t,agg::vcgen_stroke,agg::null_markers > *) 0 ;
+    PyObject * obj0 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"O:delete_conv_adaptor_vcgen_transpath",&obj0)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__conv_adaptor_vcgenTagg__conv_transformTpath_t_agg__trans_affine_t_agg__vcgen_stroke_agg__null_markers_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    delete arg1;
+    
+    Py_INCREF(Py_None); resultobj = Py_None;
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject * conv_adaptor_vcgen_transpath_swigregister(PyObject *, PyObject *args) {
+    PyObject *obj;
+    if (!PyArg_ParseTuple(args,(char*)"O", &obj)) return NULL;
+    SWIG_TypeClientData(SWIGTYPE_p_agg__conv_adaptor_vcgenTagg__conv_transformTpath_t_agg__trans_affine_t_agg__vcgen_stroke_agg__null_markers_t, obj);
+    Py_INCREF(obj);
+    return Py_BuildValue((char *)"");
+}
+static PyObject *_wrap_new_conv_adaptor_vcgen_curve(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    curve_t *arg1 = 0 ;
+    agg::conv_adaptor_vcgen<curve_t,agg::vcgen_stroke,agg::null_markers > *result;
+    PyObject * obj0 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"O:new_conv_adaptor_vcgen_curve",&obj0)) goto fail;
+    {
+        SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__conv_curveTagg__path_storage_t, SWIG_POINTER_EXCEPTION | 0);
+        if (SWIG_arg_fail(1)) SWIG_fail;
+        if (arg1 == NULL) {
+            SWIG_null_ref("curve_t");
+        }
+        if (SWIG_arg_fail(1)) SWIG_fail;
+    }
+    result = (agg::conv_adaptor_vcgen<curve_t,agg::vcgen_stroke,agg::null_markers > *)new agg::conv_adaptor_vcgen<curve_t,agg::vcgen_stroke,agg::null_markers >(*arg1);
+    
+    resultobj = SWIG_NewPointerObj((void*)(result), SWIGTYPE_p_agg__conv_adaptor_vcgenTagg__conv_curveTpath_t_t_agg__vcgen_stroke_agg__null_markers_t, 1);
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_conv_adaptor_vcgen_curve_set_source(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::conv_adaptor_vcgen<curve_t,agg::vcgen_stroke,agg::null_markers > *arg1 = (agg::conv_adaptor_vcgen<curve_t,agg::vcgen_stroke,agg::null_markers > *) 0 ;
+    curve_t *arg2 = 0 ;
+    PyObject * obj0 = 0 ;
+    PyObject * obj1 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"OO:conv_adaptor_vcgen_curve_set_source",&obj0,&obj1)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__conv_adaptor_vcgenTagg__conv_curveTpath_t_t_agg__vcgen_stroke_agg__null_markers_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    {
+        SWIG_Python_ConvertPtr(obj1, (void **)&arg2, SWIGTYPE_p_agg__conv_curveTagg__path_storage_t, SWIG_POINTER_EXCEPTION | 0);
+        if (SWIG_arg_fail(2)) SWIG_fail;
+        if (arg2 == NULL) {
+            SWIG_null_ref("curve_t");
+        }
+        if (SWIG_arg_fail(2)) SWIG_fail;
+    }
+    (arg1)->set_source(*arg2);
+    
+    Py_INCREF(Py_None); resultobj = Py_None;
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_conv_adaptor_vcgen_curve_generator__SWIG_0(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::conv_adaptor_vcgen<curve_t,agg::vcgen_stroke,agg::null_markers > *arg1 = (agg::conv_adaptor_vcgen<curve_t,agg::vcgen_stroke,agg::null_markers > *) 0 ;
+    agg::vcgen_stroke *result;
+    PyObject * obj0 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"O:conv_adaptor_vcgen_curve_generator",&obj0)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__conv_adaptor_vcgenTagg__conv_curveTpath_t_t_agg__vcgen_stroke_agg__null_markers_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    {
+        agg::vcgen_stroke &_result_ref = (arg1)->generator();
+        result = (agg::vcgen_stroke *) &_result_ref;
+    }
+    
+    resultobj = SWIG_NewPointerObj((void*)(result), SWIGTYPE_p_agg__vcgen_stroke, 0);
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_conv_adaptor_vcgen_curve_generator__SWIG_1(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::conv_adaptor_vcgen<curve_t,agg::vcgen_stroke,agg::null_markers > *arg1 = (agg::conv_adaptor_vcgen<curve_t,agg::vcgen_stroke,agg::null_markers > *) 0 ;
+    agg::vcgen_stroke *result;
+    PyObject * obj0 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"O:conv_adaptor_vcgen_curve_generator",&obj0)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__conv_adaptor_vcgenTagg__conv_curveTpath_t_t_agg__vcgen_stroke_agg__null_markers_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    {
+        agg::vcgen_stroke const &_result_ref = ((agg::conv_adaptor_vcgen<curve_t,agg::vcgen_stroke,agg::null_markers > const *)arg1)->generator();
+        result = (agg::vcgen_stroke *) &_result_ref;
+    }
+    
+    resultobj = SWIG_NewPointerObj((void*)(result), SWIGTYPE_p_agg__vcgen_stroke, 0);
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_conv_adaptor_vcgen_curve_generator(PyObject *self, PyObject *args) {
+    int argc;
+    PyObject *argv[2];
+    int ii;
+    
+    argc = PyObject_Length(args);
+    for (ii = 0; (ii < argc) && (ii < 1); ii++) {
+        argv[ii] = PyTuple_GetItem(args,ii);
+    }
+    if (argc == 1) {
+        int _v;
+        {
+            void *ptr;
+            if (SWIG_ConvertPtr(argv[0], &ptr, SWIGTYPE_p_agg__conv_adaptor_vcgenTagg__conv_curveTpath_t_t_agg__vcgen_stroke_agg__null_markers_t, 0) == -1) {
+                _v = 0;
+                PyErr_Clear();
+            } else {
+                _v = 1;
+            }
+        }
+        if (_v) {
+            return _wrap_conv_adaptor_vcgen_curve_generator__SWIG_0(self,args);
+        }
+    }
+    if (argc == 1) {
+        int _v;
+        {
+            void *ptr;
+            if (SWIG_ConvertPtr(argv[0], &ptr, SWIGTYPE_p_agg__conv_adaptor_vcgenTagg__conv_curveTpath_t_t_agg__vcgen_stroke_agg__null_markers_t, 0) == -1) {
+                _v = 0;
+                PyErr_Clear();
+            } else {
+                _v = 1;
+            }
+        }
+        if (_v) {
+            return _wrap_conv_adaptor_vcgen_curve_generator__SWIG_1(self,args);
+        }
+    }
+    
+    PyErr_SetString(PyExc_NotImplementedError,"No matching function for overloaded 'conv_adaptor_vcgen_curve_generator'");
+    return NULL;
+}
+
+
+static PyObject *_wrap_conv_adaptor_vcgen_curve_markers__SWIG_0(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::conv_adaptor_vcgen<curve_t,agg::vcgen_stroke,agg::null_markers > *arg1 = (agg::conv_adaptor_vcgen<curve_t,agg::vcgen_stroke,agg::null_markers > *) 0 ;
+    agg::null_markers *result;
+    PyObject * obj0 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"O:conv_adaptor_vcgen_curve_markers",&obj0)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__conv_adaptor_vcgenTagg__conv_curveTpath_t_t_agg__vcgen_stroke_agg__null_markers_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    {
+        agg::null_markers &_result_ref = (arg1)->markers();
+        result = (agg::null_markers *) &_result_ref;
+    }
+    
+    resultobj = SWIG_NewPointerObj((void*)(result), SWIGTYPE_p_agg__null_markers, 0);
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_conv_adaptor_vcgen_curve_markers__SWIG_1(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::conv_adaptor_vcgen<curve_t,agg::vcgen_stroke,agg::null_markers > *arg1 = (agg::conv_adaptor_vcgen<curve_t,agg::vcgen_stroke,agg::null_markers > *) 0 ;
+    agg::null_markers *result;
+    PyObject * obj0 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"O:conv_adaptor_vcgen_curve_markers",&obj0)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__conv_adaptor_vcgenTagg__conv_curveTpath_t_t_agg__vcgen_stroke_agg__null_markers_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    {
+        agg::null_markers const &_result_ref = ((agg::conv_adaptor_vcgen<curve_t,agg::vcgen_stroke,agg::null_markers > const *)arg1)->markers();
+        result = (agg::null_markers *) &_result_ref;
+    }
+    
+    resultobj = SWIG_NewPointerObj((void*)(result), SWIGTYPE_p_agg__null_markers, 0);
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_conv_adaptor_vcgen_curve_markers(PyObject *self, PyObject *args) {
+    int argc;
+    PyObject *argv[2];
+    int ii;
+    
+    argc = PyObject_Length(args);
+    for (ii = 0; (ii < argc) && (ii < 1); ii++) {
+        argv[ii] = PyTuple_GetItem(args,ii);
+    }
+    if (argc == 1) {
+        int _v;
+        {
+            void *ptr;
+            if (SWIG_ConvertPtr(argv[0], &ptr, SWIGTYPE_p_agg__conv_adaptor_vcgenTagg__conv_curveTpath_t_t_agg__vcgen_stroke_agg__null_markers_t, 0) == -1) {
+                _v = 0;
+                PyErr_Clear();
+            } else {
+                _v = 1;
+            }
+        }
+        if (_v) {
+            return _wrap_conv_adaptor_vcgen_curve_markers__SWIG_0(self,args);
+        }
+    }
+    if (argc == 1) {
+        int _v;
+        {
+            void *ptr;
+            if (SWIG_ConvertPtr(argv[0], &ptr, SWIGTYPE_p_agg__conv_adaptor_vcgenTagg__conv_curveTpath_t_t_agg__vcgen_stroke_agg__null_markers_t, 0) == -1) {
+                _v = 0;
+                PyErr_Clear();
+            } else {
+                _v = 1;
+            }
+        }
+        if (_v) {
+            return _wrap_conv_adaptor_vcgen_curve_markers__SWIG_1(self,args);
+        }
+    }
+    
+    PyErr_SetString(PyExc_NotImplementedError,"No matching function for overloaded 'conv_adaptor_vcgen_curve_markers'");
+    return NULL;
+}
+
+
+static PyObject *_wrap_conv_adaptor_vcgen_curve_rewind(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::conv_adaptor_vcgen<curve_t,agg::vcgen_stroke,agg::null_markers > *arg1 = (agg::conv_adaptor_vcgen<curve_t,agg::vcgen_stroke,agg::null_markers > *) 0 ;
+    unsigned int arg2 ;
+    PyObject * obj0 = 0 ;
+    PyObject * obj1 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"OO:conv_adaptor_vcgen_curve_rewind",&obj0,&obj1)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__conv_adaptor_vcgenTagg__conv_curveTpath_t_t_agg__vcgen_stroke_agg__null_markers_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    {
+        arg2 = (unsigned int)(SWIG_As_unsigned_SS_int(obj1)); 
+        if (SWIG_arg_fail(2)) SWIG_fail;
+    }
+    (arg1)->rewind(arg2);
+    
+    Py_INCREF(Py_None); resultobj = Py_None;
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_conv_adaptor_vcgen_curve_vertex(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::conv_adaptor_vcgen<curve_t,agg::vcgen_stroke,agg::null_markers > *arg1 = (agg::conv_adaptor_vcgen<curve_t,agg::vcgen_stroke,agg::null_markers > *) 0 ;
+    double *arg2 = (double *) 0 ;
+    double *arg3 = (double *) 0 ;
+    unsigned int result;
+    PyObject * obj0 = 0 ;
+    PyObject * obj1 = 0 ;
+    PyObject * obj2 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"OOO:conv_adaptor_vcgen_curve_vertex",&obj0,&obj1,&obj2)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__conv_adaptor_vcgenTagg__conv_curveTpath_t_t_agg__vcgen_stroke_agg__null_markers_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    SWIG_Python_ConvertPtr(obj1, (void **)&arg2, SWIGTYPE_p_double, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(2)) SWIG_fail;
+    SWIG_Python_ConvertPtr(obj2, (void **)&arg3, SWIGTYPE_p_double, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(3)) SWIG_fail;
+    result = (unsigned int)(arg1)->vertex(arg2,arg3);
+    
+    {
+        resultobj = SWIG_From_unsigned_SS_int((unsigned int)(result)); 
+    }
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_delete_conv_adaptor_vcgen_curve(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::conv_adaptor_vcgen<curve_t,agg::vcgen_stroke,agg::null_markers > *arg1 = (agg::conv_adaptor_vcgen<curve_t,agg::vcgen_stroke,agg::null_markers > *) 0 ;
+    PyObject * obj0 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"O:delete_conv_adaptor_vcgen_curve",&obj0)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__conv_adaptor_vcgenTagg__conv_curveTpath_t_t_agg__vcgen_stroke_agg__null_markers_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    delete arg1;
+    
+    Py_INCREF(Py_None); resultobj = Py_None;
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject * conv_adaptor_vcgen_curve_swigregister(PyObject *, PyObject *args) {
+    PyObject *obj;
+    if (!PyArg_ParseTuple(args,(char*)"O", &obj)) return NULL;
+    SWIG_TypeClientData(SWIGTYPE_p_agg__conv_adaptor_vcgenTagg__conv_curveTpath_t_t_agg__vcgen_stroke_agg__null_markers_t, obj);
+    Py_INCREF(obj);
+    return Py_BuildValue((char *)"");
+}
+static PyObject *_wrap_new_conv_adaptor_vcgen_transcurve(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    transcurve_t *arg1 = 0 ;
+    agg::conv_adaptor_vcgen<transcurve_t,agg::vcgen_stroke,agg::null_markers > *result;
+    PyObject * obj0 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"O:new_conv_adaptor_vcgen_transcurve",&obj0)) goto fail;
+    {
+        SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__conv_transformTagg__conv_curveTpath_t_t_agg__trans_affine_t, SWIG_POINTER_EXCEPTION | 0);
+        if (SWIG_arg_fail(1)) SWIG_fail;
+        if (arg1 == NULL) {
+            SWIG_null_ref("transcurve_t");
+        }
+        if (SWIG_arg_fail(1)) SWIG_fail;
+    }
+    result = (agg::conv_adaptor_vcgen<transcurve_t,agg::vcgen_stroke,agg::null_markers > *)new agg::conv_adaptor_vcgen<transcurve_t,agg::vcgen_stroke,agg::null_markers >(*arg1);
+    
+    resultobj = SWIG_NewPointerObj((void*)(result), SWIGTYPE_p_agg__conv_adaptor_vcgenTagg__conv_transformTcurve_t_agg__trans_affine_t_agg__vcgen_stroke_agg__null_markers_t, 1);
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_conv_adaptor_vcgen_transcurve_set_source(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::conv_adaptor_vcgen<transcurve_t,agg::vcgen_stroke,agg::null_markers > *arg1 = (agg::conv_adaptor_vcgen<transcurve_t,agg::vcgen_stroke,agg::null_markers > *) 0 ;
+    transcurve_t *arg2 = 0 ;
+    PyObject * obj0 = 0 ;
+    PyObject * obj1 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"OO:conv_adaptor_vcgen_transcurve_set_source",&obj0,&obj1)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__conv_adaptor_vcgenTagg__conv_transformTcurve_t_agg__trans_affine_t_agg__vcgen_stroke_agg__null_markers_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    {
+        SWIG_Python_ConvertPtr(obj1, (void **)&arg2, SWIGTYPE_p_agg__conv_transformTagg__conv_curveTpath_t_t_agg__trans_affine_t, SWIG_POINTER_EXCEPTION | 0);
+        if (SWIG_arg_fail(2)) SWIG_fail;
+        if (arg2 == NULL) {
+            SWIG_null_ref("transcurve_t");
+        }
+        if (SWIG_arg_fail(2)) SWIG_fail;
+    }
+    (arg1)->set_source(*arg2);
+    
+    Py_INCREF(Py_None); resultobj = Py_None;
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_conv_adaptor_vcgen_transcurve_generator__SWIG_0(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::conv_adaptor_vcgen<transcurve_t,agg::vcgen_stroke,agg::null_markers > *arg1 = (agg::conv_adaptor_vcgen<transcurve_t,agg::vcgen_stroke,agg::null_markers > *) 0 ;
+    agg::vcgen_stroke *result;
+    PyObject * obj0 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"O:conv_adaptor_vcgen_transcurve_generator",&obj0)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__conv_adaptor_vcgenTagg__conv_transformTcurve_t_agg__trans_affine_t_agg__vcgen_stroke_agg__null_markers_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    {
+        agg::vcgen_stroke &_result_ref = (arg1)->generator();
+        result = (agg::vcgen_stroke *) &_result_ref;
+    }
+    
+    resultobj = SWIG_NewPointerObj((void*)(result), SWIGTYPE_p_agg__vcgen_stroke, 0);
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_conv_adaptor_vcgen_transcurve_generator__SWIG_1(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::conv_adaptor_vcgen<transcurve_t,agg::vcgen_stroke,agg::null_markers > *arg1 = (agg::conv_adaptor_vcgen<transcurve_t,agg::vcgen_stroke,agg::null_markers > *) 0 ;
+    agg::vcgen_stroke *result;
+    PyObject * obj0 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"O:conv_adaptor_vcgen_transcurve_generator",&obj0)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__conv_adaptor_vcgenTagg__conv_transformTcurve_t_agg__trans_affine_t_agg__vcgen_stroke_agg__null_markers_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    {
+        agg::vcgen_stroke const &_result_ref = ((agg::conv_adaptor_vcgen<transcurve_t,agg::vcgen_stroke,agg::null_markers > const *)arg1)->generator();
+        result = (agg::vcgen_stroke *) &_result_ref;
+    }
+    
+    resultobj = SWIG_NewPointerObj((void*)(result), SWIGTYPE_p_agg__vcgen_stroke, 0);
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_conv_adaptor_vcgen_transcurve_generator(PyObject *self, PyObject *args) {
+    int argc;
+    PyObject *argv[2];
+    int ii;
+    
+    argc = PyObject_Length(args);
+    for (ii = 0; (ii < argc) && (ii < 1); ii++) {
+        argv[ii] = PyTuple_GetItem(args,ii);
+    }
+    if (argc == 1) {
+        int _v;
+        {
+            void *ptr;
+            if (SWIG_ConvertPtr(argv[0], &ptr, SWIGTYPE_p_agg__conv_adaptor_vcgenTagg__conv_transformTcurve_t_agg__trans_affine_t_agg__vcgen_stroke_agg__null_markers_t, 0) == -1) {
+                _v = 0;
+                PyErr_Clear();
+            } else {
+                _v = 1;
+            }
+        }
+        if (_v) {
+            return _wrap_conv_adaptor_vcgen_transcurve_generator__SWIG_0(self,args);
+        }
+    }
+    if (argc == 1) {
+        int _v;
+        {
+            void *ptr;
+            if (SWIG_ConvertPtr(argv[0], &ptr, SWIGTYPE_p_agg__conv_adaptor_vcgenTagg__conv_transformTcurve_t_agg__trans_affine_t_agg__vcgen_stroke_agg__null_markers_t, 0) == -1) {
+                _v = 0;
+                PyErr_Clear();
+            } else {
+                _v = 1;
+            }
+        }
+        if (_v) {
+            return _wrap_conv_adaptor_vcgen_transcurve_generator__SWIG_1(self,args);
+        }
+    }
+    
+    PyErr_SetString(PyExc_NotImplementedError,"No matching function for overloaded 'conv_adaptor_vcgen_transcurve_generator'");
+    return NULL;
+}
+
+
+static PyObject *_wrap_conv_adaptor_vcgen_transcurve_markers__SWIG_0(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::conv_adaptor_vcgen<transcurve_t,agg::vcgen_stroke,agg::null_markers > *arg1 = (agg::conv_adaptor_vcgen<transcurve_t,agg::vcgen_stroke,agg::null_markers > *) 0 ;
+    agg::null_markers *result;
+    PyObject * obj0 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"O:conv_adaptor_vcgen_transcurve_markers",&obj0)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__conv_adaptor_vcgenTagg__conv_transformTcurve_t_agg__trans_affine_t_agg__vcgen_stroke_agg__null_markers_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    {
+        agg::null_markers &_result_ref = (arg1)->markers();
+        result = (agg::null_markers *) &_result_ref;
+    }
+    
+    resultobj = SWIG_NewPointerObj((void*)(result), SWIGTYPE_p_agg__null_markers, 0);
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_conv_adaptor_vcgen_transcurve_markers__SWIG_1(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::conv_adaptor_vcgen<transcurve_t,agg::vcgen_stroke,agg::null_markers > *arg1 = (agg::conv_adaptor_vcgen<transcurve_t,agg::vcgen_stroke,agg::null_markers > *) 0 ;
+    agg::null_markers *result;
+    PyObject * obj0 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"O:conv_adaptor_vcgen_transcurve_markers",&obj0)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__conv_adaptor_vcgenTagg__conv_transformTcurve_t_agg__trans_affine_t_agg__vcgen_stroke_agg__null_markers_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    {
+        agg::null_markers const &_result_ref = ((agg::conv_adaptor_vcgen<transcurve_t,agg::vcgen_stroke,agg::null_markers > const *)arg1)->markers();
+        result = (agg::null_markers *) &_result_ref;
+    }
+    
+    resultobj = SWIG_NewPointerObj((void*)(result), SWIGTYPE_p_agg__null_markers, 0);
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_conv_adaptor_vcgen_transcurve_markers(PyObject *self, PyObject *args) {
+    int argc;
+    PyObject *argv[2];
+    int ii;
+    
+    argc = PyObject_Length(args);
+    for (ii = 0; (ii < argc) && (ii < 1); ii++) {
+        argv[ii] = PyTuple_GetItem(args,ii);
+    }
+    if (argc == 1) {
+        int _v;
+        {
+            void *ptr;
+            if (SWIG_ConvertPtr(argv[0], &ptr, SWIGTYPE_p_agg__conv_adaptor_vcgenTagg__conv_transformTcurve_t_agg__trans_affine_t_agg__vcgen_stroke_agg__null_markers_t, 0) == -1) {
+                _v = 0;
+                PyErr_Clear();
+            } else {
+                _v = 1;
+            }
+        }
+        if (_v) {
+            return _wrap_conv_adaptor_vcgen_transcurve_markers__SWIG_0(self,args);
+        }
+    }
+    if (argc == 1) {
+        int _v;
+        {
+            void *ptr;
+            if (SWIG_ConvertPtr(argv[0], &ptr, SWIGTYPE_p_agg__conv_adaptor_vcgenTagg__conv_transformTcurve_t_agg__trans_affine_t_agg__vcgen_stroke_agg__null_markers_t, 0) == -1) {
+                _v = 0;
+                PyErr_Clear();
+            } else {
+                _v = 1;
+            }
+        }
+        if (_v) {
+            return _wrap_conv_adaptor_vcgen_transcurve_markers__SWIG_1(self,args);
+        }
+    }
+    
+    PyErr_SetString(PyExc_NotImplementedError,"No matching function for overloaded 'conv_adaptor_vcgen_transcurve_markers'");
+    return NULL;
+}
+
+
+static PyObject *_wrap_conv_adaptor_vcgen_transcurve_rewind(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::conv_adaptor_vcgen<transcurve_t,agg::vcgen_stroke,agg::null_markers > *arg1 = (agg::conv_adaptor_vcgen<transcurve_t,agg::vcgen_stroke,agg::null_markers > *) 0 ;
+    unsigned int arg2 ;
+    PyObject * obj0 = 0 ;
+    PyObject * obj1 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"OO:conv_adaptor_vcgen_transcurve_rewind",&obj0,&obj1)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__conv_adaptor_vcgenTagg__conv_transformTcurve_t_agg__trans_affine_t_agg__vcgen_stroke_agg__null_markers_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    {
+        arg2 = (unsigned int)(SWIG_As_unsigned_SS_int(obj1)); 
+        if (SWIG_arg_fail(2)) SWIG_fail;
+    }
+    (arg1)->rewind(arg2);
+    
+    Py_INCREF(Py_None); resultobj = Py_None;
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_conv_adaptor_vcgen_transcurve_vertex(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::conv_adaptor_vcgen<transcurve_t,agg::vcgen_stroke,agg::null_markers > *arg1 = (agg::conv_adaptor_vcgen<transcurve_t,agg::vcgen_stroke,agg::null_markers > *) 0 ;
+    double *arg2 = (double *) 0 ;
+    double *arg3 = (double *) 0 ;
+    unsigned int result;
+    PyObject * obj0 = 0 ;
+    PyObject * obj1 = 0 ;
+    PyObject * obj2 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"OOO:conv_adaptor_vcgen_transcurve_vertex",&obj0,&obj1,&obj2)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__conv_adaptor_vcgenTagg__conv_transformTcurve_t_agg__trans_affine_t_agg__vcgen_stroke_agg__null_markers_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    SWIG_Python_ConvertPtr(obj1, (void **)&arg2, SWIGTYPE_p_double, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(2)) SWIG_fail;
+    SWIG_Python_ConvertPtr(obj2, (void **)&arg3, SWIGTYPE_p_double, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(3)) SWIG_fail;
+    result = (unsigned int)(arg1)->vertex(arg2,arg3);
+    
+    {
+        resultobj = SWIG_From_unsigned_SS_int((unsigned int)(result)); 
+    }
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_delete_conv_adaptor_vcgen_transcurve(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::conv_adaptor_vcgen<transcurve_t,agg::vcgen_stroke,agg::null_markers > *arg1 = (agg::conv_adaptor_vcgen<transcurve_t,agg::vcgen_stroke,agg::null_markers > *) 0 ;
+    PyObject * obj0 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"O:delete_conv_adaptor_vcgen_transcurve",&obj0)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__conv_adaptor_vcgenTagg__conv_transformTcurve_t_agg__trans_affine_t_agg__vcgen_stroke_agg__null_markers_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    delete arg1;
+    
+    Py_INCREF(Py_None); resultobj = Py_None;
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject * conv_adaptor_vcgen_transcurve_swigregister(PyObject *, PyObject *args) {
+    PyObject *obj;
+    if (!PyArg_ParseTuple(args,(char*)"O", &obj)) return NULL;
+    SWIG_TypeClientData(SWIGTYPE_p_agg__conv_adaptor_vcgenTagg__conv_transformTcurve_t_agg__trans_affine_t_agg__vcgen_stroke_agg__null_markers_t, obj);
+    Py_INCREF(obj);
+    return Py_BuildValue((char *)"");
+}
+static PyObject *_wrap_new_conv_adaptor_vcgen_curvetrans(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    curvetrans_t *arg1 = 0 ;
+    agg::conv_adaptor_vcgen<curvetrans_t,agg::vcgen_stroke,agg::null_markers > *result;
+    PyObject * obj0 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"O:new_conv_adaptor_vcgen_curvetrans",&obj0)) goto fail;
+    {
+        SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__conv_curveTagg__conv_transformTpath_t_agg__trans_affine_t_t, SWIG_POINTER_EXCEPTION | 0);
+        if (SWIG_arg_fail(1)) SWIG_fail;
+        if (arg1 == NULL) {
+            SWIG_null_ref("curvetrans_t");
+        }
+        if (SWIG_arg_fail(1)) SWIG_fail;
+    }
+    result = (agg::conv_adaptor_vcgen<curvetrans_t,agg::vcgen_stroke,agg::null_markers > *)new agg::conv_adaptor_vcgen<curvetrans_t,agg::vcgen_stroke,agg::null_markers >(*arg1);
+    
+    resultobj = SWIG_NewPointerObj((void*)(result), SWIGTYPE_p_agg__conv_adaptor_vcgenTagg__conv_curveTtranspath_t_t_agg__vcgen_stroke_agg__null_markers_t, 1);
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_conv_adaptor_vcgen_curvetrans_set_source(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::conv_adaptor_vcgen<curvetrans_t,agg::vcgen_stroke,agg::null_markers > *arg1 = (agg::conv_adaptor_vcgen<curvetrans_t,agg::vcgen_stroke,agg::null_markers > *) 0 ;
+    curvetrans_t *arg2 = 0 ;
+    PyObject * obj0 = 0 ;
+    PyObject * obj1 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"OO:conv_adaptor_vcgen_curvetrans_set_source",&obj0,&obj1)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__conv_adaptor_vcgenTagg__conv_curveTtranspath_t_t_agg__vcgen_stroke_agg__null_markers_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    {
+        SWIG_Python_ConvertPtr(obj1, (void **)&arg2, SWIGTYPE_p_agg__conv_curveTagg__conv_transformTpath_t_agg__trans_affine_t_t, SWIG_POINTER_EXCEPTION | 0);
+        if (SWIG_arg_fail(2)) SWIG_fail;
+        if (arg2 == NULL) {
+            SWIG_null_ref("curvetrans_t");
+        }
+        if (SWIG_arg_fail(2)) SWIG_fail;
+    }
+    (arg1)->set_source(*arg2);
+    
+    Py_INCREF(Py_None); resultobj = Py_None;
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_conv_adaptor_vcgen_curvetrans_generator__SWIG_0(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::conv_adaptor_vcgen<curvetrans_t,agg::vcgen_stroke,agg::null_markers > *arg1 = (agg::conv_adaptor_vcgen<curvetrans_t,agg::vcgen_stroke,agg::null_markers > *) 0 ;
+    agg::vcgen_stroke *result;
+    PyObject * obj0 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"O:conv_adaptor_vcgen_curvetrans_generator",&obj0)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__conv_adaptor_vcgenTagg__conv_curveTtranspath_t_t_agg__vcgen_stroke_agg__null_markers_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    {
+        agg::vcgen_stroke &_result_ref = (arg1)->generator();
+        result = (agg::vcgen_stroke *) &_result_ref;
+    }
+    
+    resultobj = SWIG_NewPointerObj((void*)(result), SWIGTYPE_p_agg__vcgen_stroke, 0);
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_conv_adaptor_vcgen_curvetrans_generator__SWIG_1(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::conv_adaptor_vcgen<curvetrans_t,agg::vcgen_stroke,agg::null_markers > *arg1 = (agg::conv_adaptor_vcgen<curvetrans_t,agg::vcgen_stroke,agg::null_markers > *) 0 ;
+    agg::vcgen_stroke *result;
+    PyObject * obj0 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"O:conv_adaptor_vcgen_curvetrans_generator",&obj0)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__conv_adaptor_vcgenTagg__conv_curveTtranspath_t_t_agg__vcgen_stroke_agg__null_markers_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    {
+        agg::vcgen_stroke const &_result_ref = ((agg::conv_adaptor_vcgen<curvetrans_t,agg::vcgen_stroke,agg::null_markers > const *)arg1)->generator();
+        result = (agg::vcgen_stroke *) &_result_ref;
+    }
+    
+    resultobj = SWIG_NewPointerObj((void*)(result), SWIGTYPE_p_agg__vcgen_stroke, 0);
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_conv_adaptor_vcgen_curvetrans_generator(PyObject *self, PyObject *args) {
+    int argc;
+    PyObject *argv[2];
+    int ii;
+    
+    argc = PyObject_Length(args);
+    for (ii = 0; (ii < argc) && (ii < 1); ii++) {
+        argv[ii] = PyTuple_GetItem(args,ii);
+    }
+    if (argc == 1) {
+        int _v;
+        {
+            void *ptr;
+            if (SWIG_ConvertPtr(argv[0], &ptr, SWIGTYPE_p_agg__conv_adaptor_vcgenTagg__conv_curveTtranspath_t_t_agg__vcgen_stroke_agg__null_markers_t, 0) == -1) {
+                _v = 0;
+                PyErr_Clear();
+            } else {
+                _v = 1;
+            }
+        }
+        if (_v) {
+            return _wrap_conv_adaptor_vcgen_curvetrans_generator__SWIG_0(self,args);
+        }
+    }
+    if (argc == 1) {
+        int _v;
+        {
+            void *ptr;
+            if (SWIG_ConvertPtr(argv[0], &ptr, SWIGTYPE_p_agg__conv_adaptor_vcgenTagg__conv_curveTtranspath_t_t_agg__vcgen_stroke_agg__null_markers_t, 0) == -1) {
+                _v = 0;
+                PyErr_Clear();
+            } else {
+                _v = 1;
+            }
+        }
+        if (_v) {
+            return _wrap_conv_adaptor_vcgen_curvetrans_generator__SWIG_1(self,args);
+        }
+    }
+    
+    PyErr_SetString(PyExc_NotImplementedError,"No matching function for overloaded 'conv_adaptor_vcgen_curvetrans_generator'");
+    return NULL;
+}
+
+
+static PyObject *_wrap_conv_adaptor_vcgen_curvetrans_markers__SWIG_0(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::conv_adaptor_vcgen<curvetrans_t,agg::vcgen_stroke,agg::null_markers > *arg1 = (agg::conv_adaptor_vcgen<curvetrans_t,agg::vcgen_stroke,agg::null_markers > *) 0 ;
+    agg::null_markers *result;
+    PyObject * obj0 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"O:conv_adaptor_vcgen_curvetrans_markers",&obj0)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__conv_adaptor_vcgenTagg__conv_curveTtranspath_t_t_agg__vcgen_stroke_agg__null_markers_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    {
+        agg::null_markers &_result_ref = (arg1)->markers();
+        result = (agg::null_markers *) &_result_ref;
+    }
+    
+    resultobj = SWIG_NewPointerObj((void*)(result), SWIGTYPE_p_agg__null_markers, 0);
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_conv_adaptor_vcgen_curvetrans_markers__SWIG_1(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::conv_adaptor_vcgen<curvetrans_t,agg::vcgen_stroke,agg::null_markers > *arg1 = (agg::conv_adaptor_vcgen<curvetrans_t,agg::vcgen_stroke,agg::null_markers > *) 0 ;
+    agg::null_markers *result;
+    PyObject * obj0 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"O:conv_adaptor_vcgen_curvetrans_markers",&obj0)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__conv_adaptor_vcgenTagg__conv_curveTtranspath_t_t_agg__vcgen_stroke_agg__null_markers_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    {
+        agg::null_markers const &_result_ref = ((agg::conv_adaptor_vcgen<curvetrans_t,agg::vcgen_stroke,agg::null_markers > const *)arg1)->markers();
+        result = (agg::null_markers *) &_result_ref;
+    }
+    
+    resultobj = SWIG_NewPointerObj((void*)(result), SWIGTYPE_p_agg__null_markers, 0);
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_conv_adaptor_vcgen_curvetrans_markers(PyObject *self, PyObject *args) {
+    int argc;
+    PyObject *argv[2];
+    int ii;
+    
+    argc = PyObject_Length(args);
+    for (ii = 0; (ii < argc) && (ii < 1); ii++) {
+        argv[ii] = PyTuple_GetItem(args,ii);
+    }
+    if (argc == 1) {
+        int _v;
+        {
+            void *ptr;
+            if (SWIG_ConvertPtr(argv[0], &ptr, SWIGTYPE_p_agg__conv_adaptor_vcgenTagg__conv_curveTtranspath_t_t_agg__vcgen_stroke_agg__null_markers_t, 0) == -1) {
+                _v = 0;
+                PyErr_Clear();
+            } else {
+                _v = 1;
+            }
+        }
+        if (_v) {
+            return _wrap_conv_adaptor_vcgen_curvetrans_markers__SWIG_0(self,args);
+        }
+    }
+    if (argc == 1) {
+        int _v;
+        {
+            void *ptr;
+            if (SWIG_ConvertPtr(argv[0], &ptr, SWIGTYPE_p_agg__conv_adaptor_vcgenTagg__conv_curveTtranspath_t_t_agg__vcgen_stroke_agg__null_markers_t, 0) == -1) {
+                _v = 0;
+                PyErr_Clear();
+            } else {
+                _v = 1;
+            }
+        }
+        if (_v) {
+            return _wrap_conv_adaptor_vcgen_curvetrans_markers__SWIG_1(self,args);
+        }
+    }
+    
+    PyErr_SetString(PyExc_NotImplementedError,"No matching function for overloaded 'conv_adaptor_vcgen_curvetrans_markers'");
+    return NULL;
+}
+
+
+static PyObject *_wrap_conv_adaptor_vcgen_curvetrans_rewind(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::conv_adaptor_vcgen<curvetrans_t,agg::vcgen_stroke,agg::null_markers > *arg1 = (agg::conv_adaptor_vcgen<curvetrans_t,agg::vcgen_stroke,agg::null_markers > *) 0 ;
+    unsigned int arg2 ;
+    PyObject * obj0 = 0 ;
+    PyObject * obj1 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"OO:conv_adaptor_vcgen_curvetrans_rewind",&obj0,&obj1)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__conv_adaptor_vcgenTagg__conv_curveTtranspath_t_t_agg__vcgen_stroke_agg__null_markers_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    {
+        arg2 = (unsigned int)(SWIG_As_unsigned_SS_int(obj1)); 
+        if (SWIG_arg_fail(2)) SWIG_fail;
+    }
+    (arg1)->rewind(arg2);
+    
+    Py_INCREF(Py_None); resultobj = Py_None;
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_conv_adaptor_vcgen_curvetrans_vertex(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::conv_adaptor_vcgen<curvetrans_t,agg::vcgen_stroke,agg::null_markers > *arg1 = (agg::conv_adaptor_vcgen<curvetrans_t,agg::vcgen_stroke,agg::null_markers > *) 0 ;
+    double *arg2 = (double *) 0 ;
+    double *arg3 = (double *) 0 ;
+    unsigned int result;
+    PyObject * obj0 = 0 ;
+    PyObject * obj1 = 0 ;
+    PyObject * obj2 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"OOO:conv_adaptor_vcgen_curvetrans_vertex",&obj0,&obj1,&obj2)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__conv_adaptor_vcgenTagg__conv_curveTtranspath_t_t_agg__vcgen_stroke_agg__null_markers_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    SWIG_Python_ConvertPtr(obj1, (void **)&arg2, SWIGTYPE_p_double, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(2)) SWIG_fail;
+    SWIG_Python_ConvertPtr(obj2, (void **)&arg3, SWIGTYPE_p_double, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(3)) SWIG_fail;
+    result = (unsigned int)(arg1)->vertex(arg2,arg3);
+    
+    {
+        resultobj = SWIG_From_unsigned_SS_int((unsigned int)(result)); 
+    }
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_delete_conv_adaptor_vcgen_curvetrans(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::conv_adaptor_vcgen<curvetrans_t,agg::vcgen_stroke,agg::null_markers > *arg1 = (agg::conv_adaptor_vcgen<curvetrans_t,agg::vcgen_stroke,agg::null_markers > *) 0 ;
+    PyObject * obj0 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"O:delete_conv_adaptor_vcgen_curvetrans",&obj0)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__conv_adaptor_vcgenTagg__conv_curveTtranspath_t_t_agg__vcgen_stroke_agg__null_markers_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    delete arg1;
+    
+    Py_INCREF(Py_None); resultobj = Py_None;
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject * conv_adaptor_vcgen_curvetrans_swigregister(PyObject *, PyObject *args) {
+    PyObject *obj;
+    if (!PyArg_ParseTuple(args,(char*)"O", &obj)) return NULL;
+    SWIG_TypeClientData(SWIGTYPE_p_agg__conv_adaptor_vcgenTagg__conv_curveTtranspath_t_t_agg__vcgen_stroke_agg__null_markers_t, obj);
+    Py_INCREF(obj);
+    return Py_BuildValue((char *)"");
+}
+static PyObject *_wrap_new_conv_stroke_path(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    path_t *arg1 = 0 ;
+    agg::conv_stroke<path_t > *result;
+    PyObject * obj0 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"O:new_conv_stroke_path",&obj0)) goto fail;
     {
         SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__path_storage, SWIG_POINTER_EXCEPTION | 0);
         if (SWIG_arg_fail(1)) SWIG_fail;
         if (arg1 == NULL) {
-            SWIG_null_ref("agg::path_storage");
+            SWIG_null_ref("path_t");
         }
         if (SWIG_arg_fail(1)) SWIG_fail;
     }
-    result = (conv_stroke<agg::path_storage > *)new conv_stroke<agg::path_storage >(*arg1);
+    result = (agg::conv_stroke<path_t > *)new agg::conv_stroke<path_t >(*arg1);
     
-    resultobj = SWIG_NewPointerObj((void*)(result), SWIGTYPE_p_conv_strokeTagg__path_storage_t, 1);
+    resultobj = SWIG_NewPointerObj((void*)(result), SWIGTYPE_p_agg__conv_strokeTagg__path_storage_agg__null_markers_t, 1);
     return resultobj;
     fail:
     return NULL;
 }
 
 
-static PyObject *_wrap_conv_stroke_line_cap__SWIG_0(PyObject *, PyObject *args) {
+static PyObject *_wrap_conv_stroke_path_line_cap__SWIG_0(PyObject *, PyObject *args) {
     PyObject *resultobj = NULL;
-    conv_stroke<agg::path_storage > *arg1 = (conv_stroke<agg::path_storage > *) 0 ;
+    agg::conv_stroke<path_t > *arg1 = (agg::conv_stroke<path_t > *) 0 ;
     agg::line_cap_e arg2 ;
     PyObject * obj0 = 0 ;
     PyObject * obj1 = 0 ;
     
-    if(!PyArg_ParseTuple(args,(char *)"OO:conv_stroke_line_cap",&obj0,&obj1)) goto fail;
-    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_conv_strokeTagg__path_storage_t, SWIG_POINTER_EXCEPTION | 0);
+    if(!PyArg_ParseTuple(args,(char *)"OO:conv_stroke_path_line_cap",&obj0,&obj1)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__conv_strokeTagg__path_storage_agg__null_markers_t, SWIG_POINTER_EXCEPTION | 0);
     if (SWIG_arg_fail(1)) SWIG_fail;
     {
         arg2 = (agg::line_cap_e)(SWIG_As_int(obj1)); 
@@ -16228,15 +18832,15 @@ static PyObject *_wrap_conv_stroke_line_cap__SWIG_0(PyObject *, PyObject *args) 
 }
 
 
-static PyObject *_wrap_conv_stroke_line_join__SWIG_0(PyObject *, PyObject *args) {
+static PyObject *_wrap_conv_stroke_path_line_join__SWIG_0(PyObject *, PyObject *args) {
     PyObject *resultobj = NULL;
-    conv_stroke<agg::path_storage > *arg1 = (conv_stroke<agg::path_storage > *) 0 ;
+    agg::conv_stroke<path_t > *arg1 = (agg::conv_stroke<path_t > *) 0 ;
     agg::line_join_e arg2 ;
     PyObject * obj0 = 0 ;
     PyObject * obj1 = 0 ;
     
-    if(!PyArg_ParseTuple(args,(char *)"OO:conv_stroke_line_join",&obj0,&obj1)) goto fail;
-    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_conv_strokeTagg__path_storage_t, SWIG_POINTER_EXCEPTION | 0);
+    if(!PyArg_ParseTuple(args,(char *)"OO:conv_stroke_path_line_join",&obj0,&obj1)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__conv_strokeTagg__path_storage_agg__null_markers_t, SWIG_POINTER_EXCEPTION | 0);
     if (SWIG_arg_fail(1)) SWIG_fail;
     {
         arg2 = (agg::line_join_e)(SWIG_As_int(obj1)); 
@@ -16251,16 +18855,39 @@ static PyObject *_wrap_conv_stroke_line_join__SWIG_0(PyObject *, PyObject *args)
 }
 
 
-static PyObject *_wrap_conv_stroke_line_cap__SWIG_1(PyObject *, PyObject *args) {
+static PyObject *_wrap_conv_stroke_path_inner_line_join__SWIG_0(PyObject *, PyObject *args) {
     PyObject *resultobj = NULL;
-    conv_stroke<agg::path_storage > *arg1 = (conv_stroke<agg::path_storage > *) 0 ;
+    agg::conv_stroke<path_t > *arg1 = (agg::conv_stroke<path_t > *) 0 ;
+    agg::line_join_e arg2 ;
+    PyObject * obj0 = 0 ;
+    PyObject * obj1 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"OO:conv_stroke_path_inner_line_join",&obj0,&obj1)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__conv_strokeTagg__path_storage_agg__null_markers_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    {
+        arg2 = (agg::line_join_e)(SWIG_As_int(obj1)); 
+        if (SWIG_arg_fail(2)) SWIG_fail;
+    }
+    (arg1)->inner_line_join(arg2);
+    
+    Py_INCREF(Py_None); resultobj = Py_None;
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_conv_stroke_path_line_cap__SWIG_1(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::conv_stroke<path_t > *arg1 = (agg::conv_stroke<path_t > *) 0 ;
     agg::line_cap_e result;
     PyObject * obj0 = 0 ;
     
-    if(!PyArg_ParseTuple(args,(char *)"O:conv_stroke_line_cap",&obj0)) goto fail;
-    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_conv_strokeTagg__path_storage_t, SWIG_POINTER_EXCEPTION | 0);
+    if(!PyArg_ParseTuple(args,(char *)"O:conv_stroke_path_line_cap",&obj0)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__conv_strokeTagg__path_storage_agg__null_markers_t, SWIG_POINTER_EXCEPTION | 0);
     if (SWIG_arg_fail(1)) SWIG_fail;
-    result = (agg::line_cap_e)(arg1)->line_cap();
+    result = (agg::line_cap_e)((agg::conv_stroke<path_t > const *)arg1)->line_cap();
     
     resultobj = SWIG_From_int((result));
     return resultobj;
@@ -16269,7 +18896,7 @@ static PyObject *_wrap_conv_stroke_line_cap__SWIG_1(PyObject *, PyObject *args) 
 }
 
 
-static PyObject *_wrap_conv_stroke_line_cap(PyObject *self, PyObject *args) {
+static PyObject *_wrap_conv_stroke_path_line_cap(PyObject *self, PyObject *args) {
     int argc;
     PyObject *argv[3];
     int ii;
@@ -16282,7 +18909,7 @@ static PyObject *_wrap_conv_stroke_line_cap(PyObject *self, PyObject *args) {
         int _v;
         {
             void *ptr;
-            if (SWIG_ConvertPtr(argv[0], &ptr, SWIGTYPE_p_conv_strokeTagg__path_storage_t, 0) == -1) {
+            if (SWIG_ConvertPtr(argv[0], &ptr, SWIGTYPE_p_agg__conv_strokeTagg__path_storage_agg__null_markers_t, 0) == -1) {
                 _v = 0;
                 PyErr_Clear();
             } else {
@@ -16290,14 +18917,14 @@ static PyObject *_wrap_conv_stroke_line_cap(PyObject *self, PyObject *args) {
             }
         }
         if (_v) {
-            return _wrap_conv_stroke_line_cap__SWIG_1(self,args);
+            return _wrap_conv_stroke_path_line_cap__SWIG_1(self,args);
         }
     }
     if (argc == 2) {
         int _v;
         {
             void *ptr;
-            if (SWIG_ConvertPtr(argv[0], &ptr, SWIGTYPE_p_conv_strokeTagg__path_storage_t, 0) == -1) {
+            if (SWIG_ConvertPtr(argv[0], &ptr, SWIGTYPE_p_agg__conv_strokeTagg__path_storage_agg__null_markers_t, 0) == -1) {
                 _v = 0;
                 PyErr_Clear();
             } else {
@@ -16307,26 +18934,26 @@ static PyObject *_wrap_conv_stroke_line_cap(PyObject *self, PyObject *args) {
         if (_v) {
             _v = SWIG_Check_int(argv[1]);
             if (_v) {
-                return _wrap_conv_stroke_line_cap__SWIG_0(self,args);
+                return _wrap_conv_stroke_path_line_cap__SWIG_0(self,args);
             }
         }
     }
     
-    PyErr_SetString(PyExc_NotImplementedError,"No matching function for overloaded 'conv_stroke_line_cap'");
+    PyErr_SetString(PyExc_NotImplementedError,"No matching function for overloaded 'conv_stroke_path_line_cap'");
     return NULL;
 }
 
 
-static PyObject *_wrap_conv_stroke_line_join__SWIG_1(PyObject *, PyObject *args) {
+static PyObject *_wrap_conv_stroke_path_line_join__SWIG_1(PyObject *, PyObject *args) {
     PyObject *resultobj = NULL;
-    conv_stroke<agg::path_storage > *arg1 = (conv_stroke<agg::path_storage > *) 0 ;
+    agg::conv_stroke<path_t > *arg1 = (agg::conv_stroke<path_t > *) 0 ;
     agg::line_join_e result;
     PyObject * obj0 = 0 ;
     
-    if(!PyArg_ParseTuple(args,(char *)"O:conv_stroke_line_join",&obj0)) goto fail;
-    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_conv_strokeTagg__path_storage_t, SWIG_POINTER_EXCEPTION | 0);
+    if(!PyArg_ParseTuple(args,(char *)"O:conv_stroke_path_line_join",&obj0)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__conv_strokeTagg__path_storage_agg__null_markers_t, SWIG_POINTER_EXCEPTION | 0);
     if (SWIG_arg_fail(1)) SWIG_fail;
-    result = (agg::line_join_e)(arg1)->line_join();
+    result = (agg::line_join_e)((agg::conv_stroke<path_t > const *)arg1)->line_join();
     
     resultobj = SWIG_From_int((result));
     return resultobj;
@@ -16335,7 +18962,7 @@ static PyObject *_wrap_conv_stroke_line_join__SWIG_1(PyObject *, PyObject *args)
 }
 
 
-static PyObject *_wrap_conv_stroke_line_join(PyObject *self, PyObject *args) {
+static PyObject *_wrap_conv_stroke_path_line_join(PyObject *self, PyObject *args) {
     int argc;
     PyObject *argv[3];
     int ii;
@@ -16348,7 +18975,7 @@ static PyObject *_wrap_conv_stroke_line_join(PyObject *self, PyObject *args) {
         int _v;
         {
             void *ptr;
-            if (SWIG_ConvertPtr(argv[0], &ptr, SWIGTYPE_p_conv_strokeTagg__path_storage_t, 0) == -1) {
+            if (SWIG_ConvertPtr(argv[0], &ptr, SWIGTYPE_p_agg__conv_strokeTagg__path_storage_agg__null_markers_t, 0) == -1) {
                 _v = 0;
                 PyErr_Clear();
             } else {
@@ -16356,14 +18983,14 @@ static PyObject *_wrap_conv_stroke_line_join(PyObject *self, PyObject *args) {
             }
         }
         if (_v) {
-            return _wrap_conv_stroke_line_join__SWIG_1(self,args);
+            return _wrap_conv_stroke_path_line_join__SWIG_1(self,args);
         }
     }
     if (argc == 2) {
         int _v;
         {
             void *ptr;
-            if (SWIG_ConvertPtr(argv[0], &ptr, SWIGTYPE_p_conv_strokeTagg__path_storage_t, 0) == -1) {
+            if (SWIG_ConvertPtr(argv[0], &ptr, SWIGTYPE_p_agg__conv_strokeTagg__path_storage_agg__null_markers_t, 0) == -1) {
                 _v = 0;
                 PyErr_Clear();
             } else {
@@ -16373,25 +19000,91 @@ static PyObject *_wrap_conv_stroke_line_join(PyObject *self, PyObject *args) {
         if (_v) {
             _v = SWIG_Check_int(argv[1]);
             if (_v) {
-                return _wrap_conv_stroke_line_join__SWIG_0(self,args);
+                return _wrap_conv_stroke_path_line_join__SWIG_0(self,args);
             }
         }
     }
     
-    PyErr_SetString(PyExc_NotImplementedError,"No matching function for overloaded 'conv_stroke_line_join'");
+    PyErr_SetString(PyExc_NotImplementedError,"No matching function for overloaded 'conv_stroke_path_line_join'");
     return NULL;
 }
 
 
-static PyObject *_wrap_conv_stroke_width__SWIG_0(PyObject *, PyObject *args) {
+static PyObject *_wrap_conv_stroke_path_inner_line_join__SWIG_1(PyObject *, PyObject *args) {
     PyObject *resultobj = NULL;
-    conv_stroke<agg::path_storage > *arg1 = (conv_stroke<agg::path_storage > *) 0 ;
+    agg::conv_stroke<path_t > *arg1 = (agg::conv_stroke<path_t > *) 0 ;
+    agg::line_join_e result;
+    PyObject * obj0 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"O:conv_stroke_path_inner_line_join",&obj0)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__conv_strokeTagg__path_storage_agg__null_markers_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    result = (agg::line_join_e)((agg::conv_stroke<path_t > const *)arg1)->inner_line_join();
+    
+    resultobj = SWIG_From_int((result));
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_conv_stroke_path_inner_line_join(PyObject *self, PyObject *args) {
+    int argc;
+    PyObject *argv[3];
+    int ii;
+    
+    argc = PyObject_Length(args);
+    for (ii = 0; (ii < argc) && (ii < 2); ii++) {
+        argv[ii] = PyTuple_GetItem(args,ii);
+    }
+    if (argc == 1) {
+        int _v;
+        {
+            void *ptr;
+            if (SWIG_ConvertPtr(argv[0], &ptr, SWIGTYPE_p_agg__conv_strokeTagg__path_storage_agg__null_markers_t, 0) == -1) {
+                _v = 0;
+                PyErr_Clear();
+            } else {
+                _v = 1;
+            }
+        }
+        if (_v) {
+            return _wrap_conv_stroke_path_inner_line_join__SWIG_1(self,args);
+        }
+    }
+    if (argc == 2) {
+        int _v;
+        {
+            void *ptr;
+            if (SWIG_ConvertPtr(argv[0], &ptr, SWIGTYPE_p_agg__conv_strokeTagg__path_storage_agg__null_markers_t, 0) == -1) {
+                _v = 0;
+                PyErr_Clear();
+            } else {
+                _v = 1;
+            }
+        }
+        if (_v) {
+            _v = SWIG_Check_int(argv[1]);
+            if (_v) {
+                return _wrap_conv_stroke_path_inner_line_join__SWIG_0(self,args);
+            }
+        }
+    }
+    
+    PyErr_SetString(PyExc_NotImplementedError,"No matching function for overloaded 'conv_stroke_path_inner_line_join'");
+    return NULL;
+}
+
+
+static PyObject *_wrap_conv_stroke_path_width__SWIG_0(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::conv_stroke<path_t > *arg1 = (agg::conv_stroke<path_t > *) 0 ;
     double arg2 ;
     PyObject * obj0 = 0 ;
     PyObject * obj1 = 0 ;
     
-    if(!PyArg_ParseTuple(args,(char *)"OO:conv_stroke_width",&obj0,&obj1)) goto fail;
-    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_conv_strokeTagg__path_storage_t, SWIG_POINTER_EXCEPTION | 0);
+    if(!PyArg_ParseTuple(args,(char *)"OO:conv_stroke_path_width",&obj0,&obj1)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__conv_strokeTagg__path_storage_agg__null_markers_t, SWIG_POINTER_EXCEPTION | 0);
     if (SWIG_arg_fail(1)) SWIG_fail;
     {
         arg2 = (double)(SWIG_As_double(obj1)); 
@@ -16406,15 +19099,15 @@ static PyObject *_wrap_conv_stroke_width__SWIG_0(PyObject *, PyObject *args) {
 }
 
 
-static PyObject *_wrap_conv_stroke_miter_limit__SWIG_0(PyObject *, PyObject *args) {
+static PyObject *_wrap_conv_stroke_path_miter_limit__SWIG_0(PyObject *, PyObject *args) {
     PyObject *resultobj = NULL;
-    conv_stroke<agg::path_storage > *arg1 = (conv_stroke<agg::path_storage > *) 0 ;
+    agg::conv_stroke<path_t > *arg1 = (agg::conv_stroke<path_t > *) 0 ;
     double arg2 ;
     PyObject * obj0 = 0 ;
     PyObject * obj1 = 0 ;
     
-    if(!PyArg_ParseTuple(args,(char *)"OO:conv_stroke_miter_limit",&obj0,&obj1)) goto fail;
-    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_conv_strokeTagg__path_storage_t, SWIG_POINTER_EXCEPTION | 0);
+    if(!PyArg_ParseTuple(args,(char *)"OO:conv_stroke_path_miter_limit",&obj0,&obj1)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__conv_strokeTagg__path_storage_agg__null_markers_t, SWIG_POINTER_EXCEPTION | 0);
     if (SWIG_arg_fail(1)) SWIG_fail;
     {
         arg2 = (double)(SWIG_As_double(obj1)); 
@@ -16429,15 +19122,15 @@ static PyObject *_wrap_conv_stroke_miter_limit__SWIG_0(PyObject *, PyObject *arg
 }
 
 
-static PyObject *_wrap_conv_stroke_miter_limit_theta(PyObject *, PyObject *args) {
+static PyObject *_wrap_conv_stroke_path_miter_limit_theta(PyObject *, PyObject *args) {
     PyObject *resultobj = NULL;
-    conv_stroke<agg::path_storage > *arg1 = (conv_stroke<agg::path_storage > *) 0 ;
+    agg::conv_stroke<path_t > *arg1 = (agg::conv_stroke<path_t > *) 0 ;
     double arg2 ;
     PyObject * obj0 = 0 ;
     PyObject * obj1 = 0 ;
     
-    if(!PyArg_ParseTuple(args,(char *)"OO:conv_stroke_miter_limit_theta",&obj0,&obj1)) goto fail;
-    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_conv_strokeTagg__path_storage_t, SWIG_POINTER_EXCEPTION | 0);
+    if(!PyArg_ParseTuple(args,(char *)"OO:conv_stroke_path_miter_limit_theta",&obj0,&obj1)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__conv_strokeTagg__path_storage_agg__null_markers_t, SWIG_POINTER_EXCEPTION | 0);
     if (SWIG_arg_fail(1)) SWIG_fail;
     {
         arg2 = (double)(SWIG_As_double(obj1)); 
@@ -16452,15 +19145,38 @@ static PyObject *_wrap_conv_stroke_miter_limit_theta(PyObject *, PyObject *args)
 }
 
 
-static PyObject *_wrap_conv_stroke_approximation_scale__SWIG_0(PyObject *, PyObject *args) {
+static PyObject *_wrap_conv_stroke_path_inner_miter_limit__SWIG_0(PyObject *, PyObject *args) {
     PyObject *resultobj = NULL;
-    conv_stroke<agg::path_storage > *arg1 = (conv_stroke<agg::path_storage > *) 0 ;
+    agg::conv_stroke<path_t > *arg1 = (agg::conv_stroke<path_t > *) 0 ;
     double arg2 ;
     PyObject * obj0 = 0 ;
     PyObject * obj1 = 0 ;
     
-    if(!PyArg_ParseTuple(args,(char *)"OO:conv_stroke_approximation_scale",&obj0,&obj1)) goto fail;
-    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_conv_strokeTagg__path_storage_t, SWIG_POINTER_EXCEPTION | 0);
+    if(!PyArg_ParseTuple(args,(char *)"OO:conv_stroke_path_inner_miter_limit",&obj0,&obj1)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__conv_strokeTagg__path_storage_agg__null_markers_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    {
+        arg2 = (double)(SWIG_As_double(obj1)); 
+        if (SWIG_arg_fail(2)) SWIG_fail;
+    }
+    (arg1)->inner_miter_limit(arg2);
+    
+    Py_INCREF(Py_None); resultobj = Py_None;
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_conv_stroke_path_approximation_scale__SWIG_0(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::conv_stroke<path_t > *arg1 = (agg::conv_stroke<path_t > *) 0 ;
+    double arg2 ;
+    PyObject * obj0 = 0 ;
+    PyObject * obj1 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"OO:conv_stroke_path_approximation_scale",&obj0,&obj1)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__conv_strokeTagg__path_storage_agg__null_markers_t, SWIG_POINTER_EXCEPTION | 0);
     if (SWIG_arg_fail(1)) SWIG_fail;
     {
         arg2 = (double)(SWIG_As_double(obj1)); 
@@ -16475,16 +19191,16 @@ static PyObject *_wrap_conv_stroke_approximation_scale__SWIG_0(PyObject *, PyObj
 }
 
 
-static PyObject *_wrap_conv_stroke_width__SWIG_1(PyObject *, PyObject *args) {
+static PyObject *_wrap_conv_stroke_path_width__SWIG_1(PyObject *, PyObject *args) {
     PyObject *resultobj = NULL;
-    conv_stroke<agg::path_storage > *arg1 = (conv_stroke<agg::path_storage > *) 0 ;
+    agg::conv_stroke<path_t > *arg1 = (agg::conv_stroke<path_t > *) 0 ;
     double result;
     PyObject * obj0 = 0 ;
     
-    if(!PyArg_ParseTuple(args,(char *)"O:conv_stroke_width",&obj0)) goto fail;
-    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_conv_strokeTagg__path_storage_t, SWIG_POINTER_EXCEPTION | 0);
+    if(!PyArg_ParseTuple(args,(char *)"O:conv_stroke_path_width",&obj0)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__conv_strokeTagg__path_storage_agg__null_markers_t, SWIG_POINTER_EXCEPTION | 0);
     if (SWIG_arg_fail(1)) SWIG_fail;
-    result = (double)((conv_stroke<agg::path_storage > const *)arg1)->width();
+    result = (double)((agg::conv_stroke<path_t > const *)arg1)->width();
     
     {
         resultobj = SWIG_From_double((double)(result)); 
@@ -16495,7 +19211,7 @@ static PyObject *_wrap_conv_stroke_width__SWIG_1(PyObject *, PyObject *args) {
 }
 
 
-static PyObject *_wrap_conv_stroke_width(PyObject *self, PyObject *args) {
+static PyObject *_wrap_conv_stroke_path_width(PyObject *self, PyObject *args) {
     int argc;
     PyObject *argv[3];
     int ii;
@@ -16508,7 +19224,7 @@ static PyObject *_wrap_conv_stroke_width(PyObject *self, PyObject *args) {
         int _v;
         {
             void *ptr;
-            if (SWIG_ConvertPtr(argv[0], &ptr, SWIGTYPE_p_conv_strokeTagg__path_storage_t, 0) == -1) {
+            if (SWIG_ConvertPtr(argv[0], &ptr, SWIGTYPE_p_agg__conv_strokeTagg__path_storage_agg__null_markers_t, 0) == -1) {
                 _v = 0;
                 PyErr_Clear();
             } else {
@@ -16516,14 +19232,14 @@ static PyObject *_wrap_conv_stroke_width(PyObject *self, PyObject *args) {
             }
         }
         if (_v) {
-            return _wrap_conv_stroke_width__SWIG_1(self,args);
+            return _wrap_conv_stroke_path_width__SWIG_1(self,args);
         }
     }
     if (argc == 2) {
         int _v;
         {
             void *ptr;
-            if (SWIG_ConvertPtr(argv[0], &ptr, SWIGTYPE_p_conv_strokeTagg__path_storage_t, 0) == -1) {
+            if (SWIG_ConvertPtr(argv[0], &ptr, SWIGTYPE_p_agg__conv_strokeTagg__path_storage_agg__null_markers_t, 0) == -1) {
                 _v = 0;
                 PyErr_Clear();
             } else {
@@ -16533,26 +19249,26 @@ static PyObject *_wrap_conv_stroke_width(PyObject *self, PyObject *args) {
         if (_v) {
             _v = SWIG_Check_double(argv[1]);
             if (_v) {
-                return _wrap_conv_stroke_width__SWIG_0(self,args);
+                return _wrap_conv_stroke_path_width__SWIG_0(self,args);
             }
         }
     }
     
-    PyErr_SetString(PyExc_NotImplementedError,"No matching function for overloaded 'conv_stroke_width'");
+    PyErr_SetString(PyExc_NotImplementedError,"No matching function for overloaded 'conv_stroke_path_width'");
     return NULL;
 }
 
 
-static PyObject *_wrap_conv_stroke_miter_limit__SWIG_1(PyObject *, PyObject *args) {
+static PyObject *_wrap_conv_stroke_path_miter_limit__SWIG_1(PyObject *, PyObject *args) {
     PyObject *resultobj = NULL;
-    conv_stroke<agg::path_storage > *arg1 = (conv_stroke<agg::path_storage > *) 0 ;
+    agg::conv_stroke<path_t > *arg1 = (agg::conv_stroke<path_t > *) 0 ;
     double result;
     PyObject * obj0 = 0 ;
     
-    if(!PyArg_ParseTuple(args,(char *)"O:conv_stroke_miter_limit",&obj0)) goto fail;
-    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_conv_strokeTagg__path_storage_t, SWIG_POINTER_EXCEPTION | 0);
+    if(!PyArg_ParseTuple(args,(char *)"O:conv_stroke_path_miter_limit",&obj0)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__conv_strokeTagg__path_storage_agg__null_markers_t, SWIG_POINTER_EXCEPTION | 0);
     if (SWIG_arg_fail(1)) SWIG_fail;
-    result = (double)((conv_stroke<agg::path_storage > const *)arg1)->miter_limit();
+    result = (double)((agg::conv_stroke<path_t > const *)arg1)->miter_limit();
     
     {
         resultobj = SWIG_From_double((double)(result)); 
@@ -16563,7 +19279,7 @@ static PyObject *_wrap_conv_stroke_miter_limit__SWIG_1(PyObject *, PyObject *arg
 }
 
 
-static PyObject *_wrap_conv_stroke_miter_limit(PyObject *self, PyObject *args) {
+static PyObject *_wrap_conv_stroke_path_miter_limit(PyObject *self, PyObject *args) {
     int argc;
     PyObject *argv[3];
     int ii;
@@ -16576,7 +19292,7 @@ static PyObject *_wrap_conv_stroke_miter_limit(PyObject *self, PyObject *args) {
         int _v;
         {
             void *ptr;
-            if (SWIG_ConvertPtr(argv[0], &ptr, SWIGTYPE_p_conv_strokeTagg__path_storage_t, 0) == -1) {
+            if (SWIG_ConvertPtr(argv[0], &ptr, SWIGTYPE_p_agg__conv_strokeTagg__path_storage_agg__null_markers_t, 0) == -1) {
                 _v = 0;
                 PyErr_Clear();
             } else {
@@ -16584,14 +19300,14 @@ static PyObject *_wrap_conv_stroke_miter_limit(PyObject *self, PyObject *args) {
             }
         }
         if (_v) {
-            return _wrap_conv_stroke_miter_limit__SWIG_1(self,args);
+            return _wrap_conv_stroke_path_miter_limit__SWIG_1(self,args);
         }
     }
     if (argc == 2) {
         int _v;
         {
             void *ptr;
-            if (SWIG_ConvertPtr(argv[0], &ptr, SWIGTYPE_p_conv_strokeTagg__path_storage_t, 0) == -1) {
+            if (SWIG_ConvertPtr(argv[0], &ptr, SWIGTYPE_p_agg__conv_strokeTagg__path_storage_agg__null_markers_t, 0) == -1) {
                 _v = 0;
                 PyErr_Clear();
             } else {
@@ -16601,26 +19317,26 @@ static PyObject *_wrap_conv_stroke_miter_limit(PyObject *self, PyObject *args) {
         if (_v) {
             _v = SWIG_Check_double(argv[1]);
             if (_v) {
-                return _wrap_conv_stroke_miter_limit__SWIG_0(self,args);
+                return _wrap_conv_stroke_path_miter_limit__SWIG_0(self,args);
             }
         }
     }
     
-    PyErr_SetString(PyExc_NotImplementedError,"No matching function for overloaded 'conv_stroke_miter_limit'");
+    PyErr_SetString(PyExc_NotImplementedError,"No matching function for overloaded 'conv_stroke_path_miter_limit'");
     return NULL;
 }
 
 
-static PyObject *_wrap_conv_stroke_approximation_scale__SWIG_1(PyObject *, PyObject *args) {
+static PyObject *_wrap_conv_stroke_path_inner_miter_limit__SWIG_1(PyObject *, PyObject *args) {
     PyObject *resultobj = NULL;
-    conv_stroke<agg::path_storage > *arg1 = (conv_stroke<agg::path_storage > *) 0 ;
+    agg::conv_stroke<path_t > *arg1 = (agg::conv_stroke<path_t > *) 0 ;
     double result;
     PyObject * obj0 = 0 ;
     
-    if(!PyArg_ParseTuple(args,(char *)"O:conv_stroke_approximation_scale",&obj0)) goto fail;
-    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_conv_strokeTagg__path_storage_t, SWIG_POINTER_EXCEPTION | 0);
+    if(!PyArg_ParseTuple(args,(char *)"O:conv_stroke_path_inner_miter_limit",&obj0)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__conv_strokeTagg__path_storage_agg__null_markers_t, SWIG_POINTER_EXCEPTION | 0);
     if (SWIG_arg_fail(1)) SWIG_fail;
-    result = (double)(arg1)->approximation_scale();
+    result = (double)((agg::conv_stroke<path_t > const *)arg1)->inner_miter_limit();
     
     {
         resultobj = SWIG_From_double((double)(result)); 
@@ -16631,7 +19347,7 @@ static PyObject *_wrap_conv_stroke_approximation_scale__SWIG_1(PyObject *, PyObj
 }
 
 
-static PyObject *_wrap_conv_stroke_approximation_scale(PyObject *self, PyObject *args) {
+static PyObject *_wrap_conv_stroke_path_inner_miter_limit(PyObject *self, PyObject *args) {
     int argc;
     PyObject *argv[3];
     int ii;
@@ -16644,7 +19360,7 @@ static PyObject *_wrap_conv_stroke_approximation_scale(PyObject *self, PyObject 
         int _v;
         {
             void *ptr;
-            if (SWIG_ConvertPtr(argv[0], &ptr, SWIGTYPE_p_conv_strokeTagg__path_storage_t, 0) == -1) {
+            if (SWIG_ConvertPtr(argv[0], &ptr, SWIGTYPE_p_agg__conv_strokeTagg__path_storage_agg__null_markers_t, 0) == -1) {
                 _v = 0;
                 PyErr_Clear();
             } else {
@@ -16652,14 +19368,14 @@ static PyObject *_wrap_conv_stroke_approximation_scale(PyObject *self, PyObject 
             }
         }
         if (_v) {
-            return _wrap_conv_stroke_approximation_scale__SWIG_1(self,args);
+            return _wrap_conv_stroke_path_inner_miter_limit__SWIG_1(self,args);
         }
     }
     if (argc == 2) {
         int _v;
         {
             void *ptr;
-            if (SWIG_ConvertPtr(argv[0], &ptr, SWIGTYPE_p_conv_strokeTagg__path_storage_t, 0) == -1) {
+            if (SWIG_ConvertPtr(argv[0], &ptr, SWIGTYPE_p_agg__conv_strokeTagg__path_storage_agg__null_markers_t, 0) == -1) {
                 _v = 0;
                 PyErr_Clear();
             } else {
@@ -16669,25 +19385,93 @@ static PyObject *_wrap_conv_stroke_approximation_scale(PyObject *self, PyObject 
         if (_v) {
             _v = SWIG_Check_double(argv[1]);
             if (_v) {
-                return _wrap_conv_stroke_approximation_scale__SWIG_0(self,args);
+                return _wrap_conv_stroke_path_inner_miter_limit__SWIG_0(self,args);
             }
         }
     }
     
-    PyErr_SetString(PyExc_NotImplementedError,"No matching function for overloaded 'conv_stroke_approximation_scale'");
+    PyErr_SetString(PyExc_NotImplementedError,"No matching function for overloaded 'conv_stroke_path_inner_miter_limit'");
     return NULL;
 }
 
 
-static PyObject *_wrap_conv_stroke_shorten__SWIG_0(PyObject *, PyObject *args) {
+static PyObject *_wrap_conv_stroke_path_approximation_scale__SWIG_1(PyObject *, PyObject *args) {
     PyObject *resultobj = NULL;
-    conv_stroke<agg::path_storage > *arg1 = (conv_stroke<agg::path_storage > *) 0 ;
+    agg::conv_stroke<path_t > *arg1 = (agg::conv_stroke<path_t > *) 0 ;
+    double result;
+    PyObject * obj0 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"O:conv_stroke_path_approximation_scale",&obj0)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__conv_strokeTagg__path_storage_agg__null_markers_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    result = (double)((agg::conv_stroke<path_t > const *)arg1)->approximation_scale();
+    
+    {
+        resultobj = SWIG_From_double((double)(result)); 
+    }
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_conv_stroke_path_approximation_scale(PyObject *self, PyObject *args) {
+    int argc;
+    PyObject *argv[3];
+    int ii;
+    
+    argc = PyObject_Length(args);
+    for (ii = 0; (ii < argc) && (ii < 2); ii++) {
+        argv[ii] = PyTuple_GetItem(args,ii);
+    }
+    if (argc == 1) {
+        int _v;
+        {
+            void *ptr;
+            if (SWIG_ConvertPtr(argv[0], &ptr, SWIGTYPE_p_agg__conv_strokeTagg__path_storage_agg__null_markers_t, 0) == -1) {
+                _v = 0;
+                PyErr_Clear();
+            } else {
+                _v = 1;
+            }
+        }
+        if (_v) {
+            return _wrap_conv_stroke_path_approximation_scale__SWIG_1(self,args);
+        }
+    }
+    if (argc == 2) {
+        int _v;
+        {
+            void *ptr;
+            if (SWIG_ConvertPtr(argv[0], &ptr, SWIGTYPE_p_agg__conv_strokeTagg__path_storage_agg__null_markers_t, 0) == -1) {
+                _v = 0;
+                PyErr_Clear();
+            } else {
+                _v = 1;
+            }
+        }
+        if (_v) {
+            _v = SWIG_Check_double(argv[1]);
+            if (_v) {
+                return _wrap_conv_stroke_path_approximation_scale__SWIG_0(self,args);
+            }
+        }
+    }
+    
+    PyErr_SetString(PyExc_NotImplementedError,"No matching function for overloaded 'conv_stroke_path_approximation_scale'");
+    return NULL;
+}
+
+
+static PyObject *_wrap_conv_stroke_path_shorten__SWIG_0(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::conv_stroke<path_t > *arg1 = (agg::conv_stroke<path_t > *) 0 ;
     double arg2 ;
     PyObject * obj0 = 0 ;
     PyObject * obj1 = 0 ;
     
-    if(!PyArg_ParseTuple(args,(char *)"OO:conv_stroke_shorten",&obj0,&obj1)) goto fail;
-    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_conv_strokeTagg__path_storage_t, SWIG_POINTER_EXCEPTION | 0);
+    if(!PyArg_ParseTuple(args,(char *)"OO:conv_stroke_path_shorten",&obj0,&obj1)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__conv_strokeTagg__path_storage_agg__null_markers_t, SWIG_POINTER_EXCEPTION | 0);
     if (SWIG_arg_fail(1)) SWIG_fail;
     {
         arg2 = (double)(SWIG_As_double(obj1)); 
@@ -16702,16 +19486,16 @@ static PyObject *_wrap_conv_stroke_shorten__SWIG_0(PyObject *, PyObject *args) {
 }
 
 
-static PyObject *_wrap_conv_stroke_shorten__SWIG_1(PyObject *, PyObject *args) {
+static PyObject *_wrap_conv_stroke_path_shorten__SWIG_1(PyObject *, PyObject *args) {
     PyObject *resultobj = NULL;
-    conv_stroke<agg::path_storage > *arg1 = (conv_stroke<agg::path_storage > *) 0 ;
+    agg::conv_stroke<path_t > *arg1 = (agg::conv_stroke<path_t > *) 0 ;
     double result;
     PyObject * obj0 = 0 ;
     
-    if(!PyArg_ParseTuple(args,(char *)"O:conv_stroke_shorten",&obj0)) goto fail;
-    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_conv_strokeTagg__path_storage_t, SWIG_POINTER_EXCEPTION | 0);
+    if(!PyArg_ParseTuple(args,(char *)"O:conv_stroke_path_shorten",&obj0)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__conv_strokeTagg__path_storage_agg__null_markers_t, SWIG_POINTER_EXCEPTION | 0);
     if (SWIG_arg_fail(1)) SWIG_fail;
-    result = (double)((conv_stroke<agg::path_storage > const *)arg1)->shorten();
+    result = (double)((agg::conv_stroke<path_t > const *)arg1)->shorten();
     
     {
         resultobj = SWIG_From_double((double)(result)); 
@@ -16722,7 +19506,7 @@ static PyObject *_wrap_conv_stroke_shorten__SWIG_1(PyObject *, PyObject *args) {
 }
 
 
-static PyObject *_wrap_conv_stroke_shorten(PyObject *self, PyObject *args) {
+static PyObject *_wrap_conv_stroke_path_shorten(PyObject *self, PyObject *args) {
     int argc;
     PyObject *argv[3];
     int ii;
@@ -16735,7 +19519,7 @@ static PyObject *_wrap_conv_stroke_shorten(PyObject *self, PyObject *args) {
         int _v;
         {
             void *ptr;
-            if (SWIG_ConvertPtr(argv[0], &ptr, SWIGTYPE_p_conv_strokeTagg__path_storage_t, 0) == -1) {
+            if (SWIG_ConvertPtr(argv[0], &ptr, SWIGTYPE_p_agg__conv_strokeTagg__path_storage_agg__null_markers_t, 0) == -1) {
                 _v = 0;
                 PyErr_Clear();
             } else {
@@ -16743,14 +19527,14 @@ static PyObject *_wrap_conv_stroke_shorten(PyObject *self, PyObject *args) {
             }
         }
         if (_v) {
-            return _wrap_conv_stroke_shorten__SWIG_1(self,args);
+            return _wrap_conv_stroke_path_shorten__SWIG_1(self,args);
         }
     }
     if (argc == 2) {
         int _v;
         {
             void *ptr;
-            if (SWIG_ConvertPtr(argv[0], &ptr, SWIGTYPE_p_conv_strokeTagg__path_storage_t, 0) == -1) {
+            if (SWIG_ConvertPtr(argv[0], &ptr, SWIGTYPE_p_agg__conv_strokeTagg__path_storage_agg__null_markers_t, 0) == -1) {
                 _v = 0;
                 PyErr_Clear();
             } else {
@@ -16760,23 +19544,23 @@ static PyObject *_wrap_conv_stroke_shorten(PyObject *self, PyObject *args) {
         if (_v) {
             _v = SWIG_Check_double(argv[1]);
             if (_v) {
-                return _wrap_conv_stroke_shorten__SWIG_0(self,args);
+                return _wrap_conv_stroke_path_shorten__SWIG_0(self,args);
             }
         }
     }
     
-    PyErr_SetString(PyExc_NotImplementedError,"No matching function for overloaded 'conv_stroke_shorten'");
+    PyErr_SetString(PyExc_NotImplementedError,"No matching function for overloaded 'conv_stroke_path_shorten'");
     return NULL;
 }
 
 
-static PyObject *_wrap_delete_conv_stroke(PyObject *, PyObject *args) {
+static PyObject *_wrap_delete_conv_stroke_path(PyObject *, PyObject *args) {
     PyObject *resultobj = NULL;
-    conv_stroke<agg::path_storage > *arg1 = (conv_stroke<agg::path_storage > *) 0 ;
+    agg::conv_stroke<path_t > *arg1 = (agg::conv_stroke<path_t > *) 0 ;
     PyObject * obj0 = 0 ;
     
-    if(!PyArg_ParseTuple(args,(char *)"O:delete_conv_stroke",&obj0)) goto fail;
-    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_conv_strokeTagg__path_storage_t, SWIG_POINTER_EXCEPTION | 0);
+    if(!PyArg_ParseTuple(args,(char *)"O:delete_conv_stroke_path",&obj0)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__conv_strokeTagg__path_storage_agg__null_markers_t, SWIG_POINTER_EXCEPTION | 0);
     if (SWIG_arg_fail(1)) SWIG_fail;
     delete arg1;
     
@@ -16787,10 +19571,3182 @@ static PyObject *_wrap_delete_conv_stroke(PyObject *, PyObject *args) {
 }
 
 
-static PyObject * conv_stroke_swigregister(PyObject *, PyObject *args) {
+static PyObject * conv_stroke_path_swigregister(PyObject *, PyObject *args) {
     PyObject *obj;
     if (!PyArg_ParseTuple(args,(char*)"O", &obj)) return NULL;
-    SWIG_TypeClientData(SWIGTYPE_p_conv_strokeTagg__path_storage_t, obj);
+    SWIG_TypeClientData(SWIGTYPE_p_agg__conv_strokeTagg__path_storage_agg__null_markers_t, obj);
+    Py_INCREF(obj);
+    return Py_BuildValue((char *)"");
+}
+static PyObject *_wrap_new_conv_stroke_transpath(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    transpath_t *arg1 = 0 ;
+    agg::conv_stroke<transpath_t > *result;
+    PyObject * obj0 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"O:new_conv_stroke_transpath",&obj0)) goto fail;
+    {
+        SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__conv_transformTagg__path_storage_agg__trans_affine_t, SWIG_POINTER_EXCEPTION | 0);
+        if (SWIG_arg_fail(1)) SWIG_fail;
+        if (arg1 == NULL) {
+            SWIG_null_ref("transpath_t");
+        }
+        if (SWIG_arg_fail(1)) SWIG_fail;
+    }
+    result = (agg::conv_stroke<transpath_t > *)new agg::conv_stroke<transpath_t >(*arg1);
+    
+    resultobj = SWIG_NewPointerObj((void*)(result), SWIGTYPE_p_agg__conv_strokeTagg__conv_transformTpath_t_agg__trans_affine_t_agg__null_markers_t, 1);
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_conv_stroke_transpath_line_cap__SWIG_0(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::conv_stroke<transpath_t > *arg1 = (agg::conv_stroke<transpath_t > *) 0 ;
+    agg::line_cap_e arg2 ;
+    PyObject * obj0 = 0 ;
+    PyObject * obj1 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"OO:conv_stroke_transpath_line_cap",&obj0,&obj1)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__conv_strokeTagg__conv_transformTpath_t_agg__trans_affine_t_agg__null_markers_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    {
+        arg2 = (agg::line_cap_e)(SWIG_As_int(obj1)); 
+        if (SWIG_arg_fail(2)) SWIG_fail;
+    }
+    (arg1)->line_cap(arg2);
+    
+    Py_INCREF(Py_None); resultobj = Py_None;
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_conv_stroke_transpath_line_join__SWIG_0(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::conv_stroke<transpath_t > *arg1 = (agg::conv_stroke<transpath_t > *) 0 ;
+    agg::line_join_e arg2 ;
+    PyObject * obj0 = 0 ;
+    PyObject * obj1 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"OO:conv_stroke_transpath_line_join",&obj0,&obj1)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__conv_strokeTagg__conv_transformTpath_t_agg__trans_affine_t_agg__null_markers_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    {
+        arg2 = (agg::line_join_e)(SWIG_As_int(obj1)); 
+        if (SWIG_arg_fail(2)) SWIG_fail;
+    }
+    (arg1)->line_join(arg2);
+    
+    Py_INCREF(Py_None); resultobj = Py_None;
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_conv_stroke_transpath_inner_line_join__SWIG_0(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::conv_stroke<transpath_t > *arg1 = (agg::conv_stroke<transpath_t > *) 0 ;
+    agg::line_join_e arg2 ;
+    PyObject * obj0 = 0 ;
+    PyObject * obj1 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"OO:conv_stroke_transpath_inner_line_join",&obj0,&obj1)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__conv_strokeTagg__conv_transformTpath_t_agg__trans_affine_t_agg__null_markers_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    {
+        arg2 = (agg::line_join_e)(SWIG_As_int(obj1)); 
+        if (SWIG_arg_fail(2)) SWIG_fail;
+    }
+    (arg1)->inner_line_join(arg2);
+    
+    Py_INCREF(Py_None); resultobj = Py_None;
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_conv_stroke_transpath_line_cap__SWIG_1(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::conv_stroke<transpath_t > *arg1 = (agg::conv_stroke<transpath_t > *) 0 ;
+    agg::line_cap_e result;
+    PyObject * obj0 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"O:conv_stroke_transpath_line_cap",&obj0)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__conv_strokeTagg__conv_transformTpath_t_agg__trans_affine_t_agg__null_markers_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    result = (agg::line_cap_e)((agg::conv_stroke<transpath_t > const *)arg1)->line_cap();
+    
+    resultobj = SWIG_From_int((result));
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_conv_stroke_transpath_line_cap(PyObject *self, PyObject *args) {
+    int argc;
+    PyObject *argv[3];
+    int ii;
+    
+    argc = PyObject_Length(args);
+    for (ii = 0; (ii < argc) && (ii < 2); ii++) {
+        argv[ii] = PyTuple_GetItem(args,ii);
+    }
+    if (argc == 1) {
+        int _v;
+        {
+            void *ptr;
+            if (SWIG_ConvertPtr(argv[0], &ptr, SWIGTYPE_p_agg__conv_strokeTagg__conv_transformTpath_t_agg__trans_affine_t_agg__null_markers_t, 0) == -1) {
+                _v = 0;
+                PyErr_Clear();
+            } else {
+                _v = 1;
+            }
+        }
+        if (_v) {
+            return _wrap_conv_stroke_transpath_line_cap__SWIG_1(self,args);
+        }
+    }
+    if (argc == 2) {
+        int _v;
+        {
+            void *ptr;
+            if (SWIG_ConvertPtr(argv[0], &ptr, SWIGTYPE_p_agg__conv_strokeTagg__conv_transformTpath_t_agg__trans_affine_t_agg__null_markers_t, 0) == -1) {
+                _v = 0;
+                PyErr_Clear();
+            } else {
+                _v = 1;
+            }
+        }
+        if (_v) {
+            _v = SWIG_Check_int(argv[1]);
+            if (_v) {
+                return _wrap_conv_stroke_transpath_line_cap__SWIG_0(self,args);
+            }
+        }
+    }
+    
+    PyErr_SetString(PyExc_NotImplementedError,"No matching function for overloaded 'conv_stroke_transpath_line_cap'");
+    return NULL;
+}
+
+
+static PyObject *_wrap_conv_stroke_transpath_line_join__SWIG_1(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::conv_stroke<transpath_t > *arg1 = (agg::conv_stroke<transpath_t > *) 0 ;
+    agg::line_join_e result;
+    PyObject * obj0 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"O:conv_stroke_transpath_line_join",&obj0)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__conv_strokeTagg__conv_transformTpath_t_agg__trans_affine_t_agg__null_markers_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    result = (agg::line_join_e)((agg::conv_stroke<transpath_t > const *)arg1)->line_join();
+    
+    resultobj = SWIG_From_int((result));
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_conv_stroke_transpath_line_join(PyObject *self, PyObject *args) {
+    int argc;
+    PyObject *argv[3];
+    int ii;
+    
+    argc = PyObject_Length(args);
+    for (ii = 0; (ii < argc) && (ii < 2); ii++) {
+        argv[ii] = PyTuple_GetItem(args,ii);
+    }
+    if (argc == 1) {
+        int _v;
+        {
+            void *ptr;
+            if (SWIG_ConvertPtr(argv[0], &ptr, SWIGTYPE_p_agg__conv_strokeTagg__conv_transformTpath_t_agg__trans_affine_t_agg__null_markers_t, 0) == -1) {
+                _v = 0;
+                PyErr_Clear();
+            } else {
+                _v = 1;
+            }
+        }
+        if (_v) {
+            return _wrap_conv_stroke_transpath_line_join__SWIG_1(self,args);
+        }
+    }
+    if (argc == 2) {
+        int _v;
+        {
+            void *ptr;
+            if (SWIG_ConvertPtr(argv[0], &ptr, SWIGTYPE_p_agg__conv_strokeTagg__conv_transformTpath_t_agg__trans_affine_t_agg__null_markers_t, 0) == -1) {
+                _v = 0;
+                PyErr_Clear();
+            } else {
+                _v = 1;
+            }
+        }
+        if (_v) {
+            _v = SWIG_Check_int(argv[1]);
+            if (_v) {
+                return _wrap_conv_stroke_transpath_line_join__SWIG_0(self,args);
+            }
+        }
+    }
+    
+    PyErr_SetString(PyExc_NotImplementedError,"No matching function for overloaded 'conv_stroke_transpath_line_join'");
+    return NULL;
+}
+
+
+static PyObject *_wrap_conv_stroke_transpath_inner_line_join__SWIG_1(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::conv_stroke<transpath_t > *arg1 = (agg::conv_stroke<transpath_t > *) 0 ;
+    agg::line_join_e result;
+    PyObject * obj0 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"O:conv_stroke_transpath_inner_line_join",&obj0)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__conv_strokeTagg__conv_transformTpath_t_agg__trans_affine_t_agg__null_markers_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    result = (agg::line_join_e)((agg::conv_stroke<transpath_t > const *)arg1)->inner_line_join();
+    
+    resultobj = SWIG_From_int((result));
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_conv_stroke_transpath_inner_line_join(PyObject *self, PyObject *args) {
+    int argc;
+    PyObject *argv[3];
+    int ii;
+    
+    argc = PyObject_Length(args);
+    for (ii = 0; (ii < argc) && (ii < 2); ii++) {
+        argv[ii] = PyTuple_GetItem(args,ii);
+    }
+    if (argc == 1) {
+        int _v;
+        {
+            void *ptr;
+            if (SWIG_ConvertPtr(argv[0], &ptr, SWIGTYPE_p_agg__conv_strokeTagg__conv_transformTpath_t_agg__trans_affine_t_agg__null_markers_t, 0) == -1) {
+                _v = 0;
+                PyErr_Clear();
+            } else {
+                _v = 1;
+            }
+        }
+        if (_v) {
+            return _wrap_conv_stroke_transpath_inner_line_join__SWIG_1(self,args);
+        }
+    }
+    if (argc == 2) {
+        int _v;
+        {
+            void *ptr;
+            if (SWIG_ConvertPtr(argv[0], &ptr, SWIGTYPE_p_agg__conv_strokeTagg__conv_transformTpath_t_agg__trans_affine_t_agg__null_markers_t, 0) == -1) {
+                _v = 0;
+                PyErr_Clear();
+            } else {
+                _v = 1;
+            }
+        }
+        if (_v) {
+            _v = SWIG_Check_int(argv[1]);
+            if (_v) {
+                return _wrap_conv_stroke_transpath_inner_line_join__SWIG_0(self,args);
+            }
+        }
+    }
+    
+    PyErr_SetString(PyExc_NotImplementedError,"No matching function for overloaded 'conv_stroke_transpath_inner_line_join'");
+    return NULL;
+}
+
+
+static PyObject *_wrap_conv_stroke_transpath_width__SWIG_0(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::conv_stroke<transpath_t > *arg1 = (agg::conv_stroke<transpath_t > *) 0 ;
+    double arg2 ;
+    PyObject * obj0 = 0 ;
+    PyObject * obj1 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"OO:conv_stroke_transpath_width",&obj0,&obj1)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__conv_strokeTagg__conv_transformTpath_t_agg__trans_affine_t_agg__null_markers_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    {
+        arg2 = (double)(SWIG_As_double(obj1)); 
+        if (SWIG_arg_fail(2)) SWIG_fail;
+    }
+    (arg1)->width(arg2);
+    
+    Py_INCREF(Py_None); resultobj = Py_None;
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_conv_stroke_transpath_miter_limit__SWIG_0(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::conv_stroke<transpath_t > *arg1 = (agg::conv_stroke<transpath_t > *) 0 ;
+    double arg2 ;
+    PyObject * obj0 = 0 ;
+    PyObject * obj1 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"OO:conv_stroke_transpath_miter_limit",&obj0,&obj1)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__conv_strokeTagg__conv_transformTpath_t_agg__trans_affine_t_agg__null_markers_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    {
+        arg2 = (double)(SWIG_As_double(obj1)); 
+        if (SWIG_arg_fail(2)) SWIG_fail;
+    }
+    (arg1)->miter_limit(arg2);
+    
+    Py_INCREF(Py_None); resultobj = Py_None;
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_conv_stroke_transpath_miter_limit_theta(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::conv_stroke<transpath_t > *arg1 = (agg::conv_stroke<transpath_t > *) 0 ;
+    double arg2 ;
+    PyObject * obj0 = 0 ;
+    PyObject * obj1 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"OO:conv_stroke_transpath_miter_limit_theta",&obj0,&obj1)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__conv_strokeTagg__conv_transformTpath_t_agg__trans_affine_t_agg__null_markers_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    {
+        arg2 = (double)(SWIG_As_double(obj1)); 
+        if (SWIG_arg_fail(2)) SWIG_fail;
+    }
+    (arg1)->miter_limit_theta(arg2);
+    
+    Py_INCREF(Py_None); resultobj = Py_None;
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_conv_stroke_transpath_inner_miter_limit__SWIG_0(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::conv_stroke<transpath_t > *arg1 = (agg::conv_stroke<transpath_t > *) 0 ;
+    double arg2 ;
+    PyObject * obj0 = 0 ;
+    PyObject * obj1 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"OO:conv_stroke_transpath_inner_miter_limit",&obj0,&obj1)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__conv_strokeTagg__conv_transformTpath_t_agg__trans_affine_t_agg__null_markers_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    {
+        arg2 = (double)(SWIG_As_double(obj1)); 
+        if (SWIG_arg_fail(2)) SWIG_fail;
+    }
+    (arg1)->inner_miter_limit(arg2);
+    
+    Py_INCREF(Py_None); resultobj = Py_None;
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_conv_stroke_transpath_approximation_scale__SWIG_0(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::conv_stroke<transpath_t > *arg1 = (agg::conv_stroke<transpath_t > *) 0 ;
+    double arg2 ;
+    PyObject * obj0 = 0 ;
+    PyObject * obj1 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"OO:conv_stroke_transpath_approximation_scale",&obj0,&obj1)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__conv_strokeTagg__conv_transformTpath_t_agg__trans_affine_t_agg__null_markers_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    {
+        arg2 = (double)(SWIG_As_double(obj1)); 
+        if (SWIG_arg_fail(2)) SWIG_fail;
+    }
+    (arg1)->approximation_scale(arg2);
+    
+    Py_INCREF(Py_None); resultobj = Py_None;
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_conv_stroke_transpath_width__SWIG_1(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::conv_stroke<transpath_t > *arg1 = (agg::conv_stroke<transpath_t > *) 0 ;
+    double result;
+    PyObject * obj0 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"O:conv_stroke_transpath_width",&obj0)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__conv_strokeTagg__conv_transformTpath_t_agg__trans_affine_t_agg__null_markers_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    result = (double)((agg::conv_stroke<transpath_t > const *)arg1)->width();
+    
+    {
+        resultobj = SWIG_From_double((double)(result)); 
+    }
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_conv_stroke_transpath_width(PyObject *self, PyObject *args) {
+    int argc;
+    PyObject *argv[3];
+    int ii;
+    
+    argc = PyObject_Length(args);
+    for (ii = 0; (ii < argc) && (ii < 2); ii++) {
+        argv[ii] = PyTuple_GetItem(args,ii);
+    }
+    if (argc == 1) {
+        int _v;
+        {
+            void *ptr;
+            if (SWIG_ConvertPtr(argv[0], &ptr, SWIGTYPE_p_agg__conv_strokeTagg__conv_transformTpath_t_agg__trans_affine_t_agg__null_markers_t, 0) == -1) {
+                _v = 0;
+                PyErr_Clear();
+            } else {
+                _v = 1;
+            }
+        }
+        if (_v) {
+            return _wrap_conv_stroke_transpath_width__SWIG_1(self,args);
+        }
+    }
+    if (argc == 2) {
+        int _v;
+        {
+            void *ptr;
+            if (SWIG_ConvertPtr(argv[0], &ptr, SWIGTYPE_p_agg__conv_strokeTagg__conv_transformTpath_t_agg__trans_affine_t_agg__null_markers_t, 0) == -1) {
+                _v = 0;
+                PyErr_Clear();
+            } else {
+                _v = 1;
+            }
+        }
+        if (_v) {
+            _v = SWIG_Check_double(argv[1]);
+            if (_v) {
+                return _wrap_conv_stroke_transpath_width__SWIG_0(self,args);
+            }
+        }
+    }
+    
+    PyErr_SetString(PyExc_NotImplementedError,"No matching function for overloaded 'conv_stroke_transpath_width'");
+    return NULL;
+}
+
+
+static PyObject *_wrap_conv_stroke_transpath_miter_limit__SWIG_1(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::conv_stroke<transpath_t > *arg1 = (agg::conv_stroke<transpath_t > *) 0 ;
+    double result;
+    PyObject * obj0 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"O:conv_stroke_transpath_miter_limit",&obj0)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__conv_strokeTagg__conv_transformTpath_t_agg__trans_affine_t_agg__null_markers_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    result = (double)((agg::conv_stroke<transpath_t > const *)arg1)->miter_limit();
+    
+    {
+        resultobj = SWIG_From_double((double)(result)); 
+    }
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_conv_stroke_transpath_miter_limit(PyObject *self, PyObject *args) {
+    int argc;
+    PyObject *argv[3];
+    int ii;
+    
+    argc = PyObject_Length(args);
+    for (ii = 0; (ii < argc) && (ii < 2); ii++) {
+        argv[ii] = PyTuple_GetItem(args,ii);
+    }
+    if (argc == 1) {
+        int _v;
+        {
+            void *ptr;
+            if (SWIG_ConvertPtr(argv[0], &ptr, SWIGTYPE_p_agg__conv_strokeTagg__conv_transformTpath_t_agg__trans_affine_t_agg__null_markers_t, 0) == -1) {
+                _v = 0;
+                PyErr_Clear();
+            } else {
+                _v = 1;
+            }
+        }
+        if (_v) {
+            return _wrap_conv_stroke_transpath_miter_limit__SWIG_1(self,args);
+        }
+    }
+    if (argc == 2) {
+        int _v;
+        {
+            void *ptr;
+            if (SWIG_ConvertPtr(argv[0], &ptr, SWIGTYPE_p_agg__conv_strokeTagg__conv_transformTpath_t_agg__trans_affine_t_agg__null_markers_t, 0) == -1) {
+                _v = 0;
+                PyErr_Clear();
+            } else {
+                _v = 1;
+            }
+        }
+        if (_v) {
+            _v = SWIG_Check_double(argv[1]);
+            if (_v) {
+                return _wrap_conv_stroke_transpath_miter_limit__SWIG_0(self,args);
+            }
+        }
+    }
+    
+    PyErr_SetString(PyExc_NotImplementedError,"No matching function for overloaded 'conv_stroke_transpath_miter_limit'");
+    return NULL;
+}
+
+
+static PyObject *_wrap_conv_stroke_transpath_inner_miter_limit__SWIG_1(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::conv_stroke<transpath_t > *arg1 = (agg::conv_stroke<transpath_t > *) 0 ;
+    double result;
+    PyObject * obj0 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"O:conv_stroke_transpath_inner_miter_limit",&obj0)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__conv_strokeTagg__conv_transformTpath_t_agg__trans_affine_t_agg__null_markers_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    result = (double)((agg::conv_stroke<transpath_t > const *)arg1)->inner_miter_limit();
+    
+    {
+        resultobj = SWIG_From_double((double)(result)); 
+    }
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_conv_stroke_transpath_inner_miter_limit(PyObject *self, PyObject *args) {
+    int argc;
+    PyObject *argv[3];
+    int ii;
+    
+    argc = PyObject_Length(args);
+    for (ii = 0; (ii < argc) && (ii < 2); ii++) {
+        argv[ii] = PyTuple_GetItem(args,ii);
+    }
+    if (argc == 1) {
+        int _v;
+        {
+            void *ptr;
+            if (SWIG_ConvertPtr(argv[0], &ptr, SWIGTYPE_p_agg__conv_strokeTagg__conv_transformTpath_t_agg__trans_affine_t_agg__null_markers_t, 0) == -1) {
+                _v = 0;
+                PyErr_Clear();
+            } else {
+                _v = 1;
+            }
+        }
+        if (_v) {
+            return _wrap_conv_stroke_transpath_inner_miter_limit__SWIG_1(self,args);
+        }
+    }
+    if (argc == 2) {
+        int _v;
+        {
+            void *ptr;
+            if (SWIG_ConvertPtr(argv[0], &ptr, SWIGTYPE_p_agg__conv_strokeTagg__conv_transformTpath_t_agg__trans_affine_t_agg__null_markers_t, 0) == -1) {
+                _v = 0;
+                PyErr_Clear();
+            } else {
+                _v = 1;
+            }
+        }
+        if (_v) {
+            _v = SWIG_Check_double(argv[1]);
+            if (_v) {
+                return _wrap_conv_stroke_transpath_inner_miter_limit__SWIG_0(self,args);
+            }
+        }
+    }
+    
+    PyErr_SetString(PyExc_NotImplementedError,"No matching function for overloaded 'conv_stroke_transpath_inner_miter_limit'");
+    return NULL;
+}
+
+
+static PyObject *_wrap_conv_stroke_transpath_approximation_scale__SWIG_1(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::conv_stroke<transpath_t > *arg1 = (agg::conv_stroke<transpath_t > *) 0 ;
+    double result;
+    PyObject * obj0 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"O:conv_stroke_transpath_approximation_scale",&obj0)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__conv_strokeTagg__conv_transformTpath_t_agg__trans_affine_t_agg__null_markers_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    result = (double)((agg::conv_stroke<transpath_t > const *)arg1)->approximation_scale();
+    
+    {
+        resultobj = SWIG_From_double((double)(result)); 
+    }
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_conv_stroke_transpath_approximation_scale(PyObject *self, PyObject *args) {
+    int argc;
+    PyObject *argv[3];
+    int ii;
+    
+    argc = PyObject_Length(args);
+    for (ii = 0; (ii < argc) && (ii < 2); ii++) {
+        argv[ii] = PyTuple_GetItem(args,ii);
+    }
+    if (argc == 1) {
+        int _v;
+        {
+            void *ptr;
+            if (SWIG_ConvertPtr(argv[0], &ptr, SWIGTYPE_p_agg__conv_strokeTagg__conv_transformTpath_t_agg__trans_affine_t_agg__null_markers_t, 0) == -1) {
+                _v = 0;
+                PyErr_Clear();
+            } else {
+                _v = 1;
+            }
+        }
+        if (_v) {
+            return _wrap_conv_stroke_transpath_approximation_scale__SWIG_1(self,args);
+        }
+    }
+    if (argc == 2) {
+        int _v;
+        {
+            void *ptr;
+            if (SWIG_ConvertPtr(argv[0], &ptr, SWIGTYPE_p_agg__conv_strokeTagg__conv_transformTpath_t_agg__trans_affine_t_agg__null_markers_t, 0) == -1) {
+                _v = 0;
+                PyErr_Clear();
+            } else {
+                _v = 1;
+            }
+        }
+        if (_v) {
+            _v = SWIG_Check_double(argv[1]);
+            if (_v) {
+                return _wrap_conv_stroke_transpath_approximation_scale__SWIG_0(self,args);
+            }
+        }
+    }
+    
+    PyErr_SetString(PyExc_NotImplementedError,"No matching function for overloaded 'conv_stroke_transpath_approximation_scale'");
+    return NULL;
+}
+
+
+static PyObject *_wrap_conv_stroke_transpath_shorten__SWIG_0(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::conv_stroke<transpath_t > *arg1 = (agg::conv_stroke<transpath_t > *) 0 ;
+    double arg2 ;
+    PyObject * obj0 = 0 ;
+    PyObject * obj1 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"OO:conv_stroke_transpath_shorten",&obj0,&obj1)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__conv_strokeTagg__conv_transformTpath_t_agg__trans_affine_t_agg__null_markers_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    {
+        arg2 = (double)(SWIG_As_double(obj1)); 
+        if (SWIG_arg_fail(2)) SWIG_fail;
+    }
+    (arg1)->shorten(arg2);
+    
+    Py_INCREF(Py_None); resultobj = Py_None;
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_conv_stroke_transpath_shorten__SWIG_1(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::conv_stroke<transpath_t > *arg1 = (agg::conv_stroke<transpath_t > *) 0 ;
+    double result;
+    PyObject * obj0 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"O:conv_stroke_transpath_shorten",&obj0)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__conv_strokeTagg__conv_transformTpath_t_agg__trans_affine_t_agg__null_markers_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    result = (double)((agg::conv_stroke<transpath_t > const *)arg1)->shorten();
+    
+    {
+        resultobj = SWIG_From_double((double)(result)); 
+    }
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_conv_stroke_transpath_shorten(PyObject *self, PyObject *args) {
+    int argc;
+    PyObject *argv[3];
+    int ii;
+    
+    argc = PyObject_Length(args);
+    for (ii = 0; (ii < argc) && (ii < 2); ii++) {
+        argv[ii] = PyTuple_GetItem(args,ii);
+    }
+    if (argc == 1) {
+        int _v;
+        {
+            void *ptr;
+            if (SWIG_ConvertPtr(argv[0], &ptr, SWIGTYPE_p_agg__conv_strokeTagg__conv_transformTpath_t_agg__trans_affine_t_agg__null_markers_t, 0) == -1) {
+                _v = 0;
+                PyErr_Clear();
+            } else {
+                _v = 1;
+            }
+        }
+        if (_v) {
+            return _wrap_conv_stroke_transpath_shorten__SWIG_1(self,args);
+        }
+    }
+    if (argc == 2) {
+        int _v;
+        {
+            void *ptr;
+            if (SWIG_ConvertPtr(argv[0], &ptr, SWIGTYPE_p_agg__conv_strokeTagg__conv_transformTpath_t_agg__trans_affine_t_agg__null_markers_t, 0) == -1) {
+                _v = 0;
+                PyErr_Clear();
+            } else {
+                _v = 1;
+            }
+        }
+        if (_v) {
+            _v = SWIG_Check_double(argv[1]);
+            if (_v) {
+                return _wrap_conv_stroke_transpath_shorten__SWIG_0(self,args);
+            }
+        }
+    }
+    
+    PyErr_SetString(PyExc_NotImplementedError,"No matching function for overloaded 'conv_stroke_transpath_shorten'");
+    return NULL;
+}
+
+
+static PyObject *_wrap_delete_conv_stroke_transpath(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::conv_stroke<transpath_t > *arg1 = (agg::conv_stroke<transpath_t > *) 0 ;
+    PyObject * obj0 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"O:delete_conv_stroke_transpath",&obj0)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__conv_strokeTagg__conv_transformTpath_t_agg__trans_affine_t_agg__null_markers_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    delete arg1;
+    
+    Py_INCREF(Py_None); resultobj = Py_None;
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject * conv_stroke_transpath_swigregister(PyObject *, PyObject *args) {
+    PyObject *obj;
+    if (!PyArg_ParseTuple(args,(char*)"O", &obj)) return NULL;
+    SWIG_TypeClientData(SWIGTYPE_p_agg__conv_strokeTagg__conv_transformTpath_t_agg__trans_affine_t_agg__null_markers_t, obj);
+    Py_INCREF(obj);
+    return Py_BuildValue((char *)"");
+}
+static PyObject *_wrap_new_conv_stroke_curve(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    curve_t *arg1 = 0 ;
+    agg::conv_stroke<curve_t > *result;
+    PyObject * obj0 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"O:new_conv_stroke_curve",&obj0)) goto fail;
+    {
+        SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__conv_curveTagg__path_storage_t, SWIG_POINTER_EXCEPTION | 0);
+        if (SWIG_arg_fail(1)) SWIG_fail;
+        if (arg1 == NULL) {
+            SWIG_null_ref("curve_t");
+        }
+        if (SWIG_arg_fail(1)) SWIG_fail;
+    }
+    result = (agg::conv_stroke<curve_t > *)new agg::conv_stroke<curve_t >(*arg1);
+    
+    resultobj = SWIG_NewPointerObj((void*)(result), SWIGTYPE_p_agg__conv_strokeTagg__conv_curveTpath_t_t_agg__null_markers_t, 1);
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_conv_stroke_curve_line_cap__SWIG_0(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::conv_stroke<curve_t > *arg1 = (agg::conv_stroke<curve_t > *) 0 ;
+    agg::line_cap_e arg2 ;
+    PyObject * obj0 = 0 ;
+    PyObject * obj1 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"OO:conv_stroke_curve_line_cap",&obj0,&obj1)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__conv_strokeTagg__conv_curveTpath_t_t_agg__null_markers_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    {
+        arg2 = (agg::line_cap_e)(SWIG_As_int(obj1)); 
+        if (SWIG_arg_fail(2)) SWIG_fail;
+    }
+    (arg1)->line_cap(arg2);
+    
+    Py_INCREF(Py_None); resultobj = Py_None;
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_conv_stroke_curve_line_join__SWIG_0(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::conv_stroke<curve_t > *arg1 = (agg::conv_stroke<curve_t > *) 0 ;
+    agg::line_join_e arg2 ;
+    PyObject * obj0 = 0 ;
+    PyObject * obj1 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"OO:conv_stroke_curve_line_join",&obj0,&obj1)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__conv_strokeTagg__conv_curveTpath_t_t_agg__null_markers_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    {
+        arg2 = (agg::line_join_e)(SWIG_As_int(obj1)); 
+        if (SWIG_arg_fail(2)) SWIG_fail;
+    }
+    (arg1)->line_join(arg2);
+    
+    Py_INCREF(Py_None); resultobj = Py_None;
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_conv_stroke_curve_inner_line_join__SWIG_0(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::conv_stroke<curve_t > *arg1 = (agg::conv_stroke<curve_t > *) 0 ;
+    agg::line_join_e arg2 ;
+    PyObject * obj0 = 0 ;
+    PyObject * obj1 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"OO:conv_stroke_curve_inner_line_join",&obj0,&obj1)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__conv_strokeTagg__conv_curveTpath_t_t_agg__null_markers_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    {
+        arg2 = (agg::line_join_e)(SWIG_As_int(obj1)); 
+        if (SWIG_arg_fail(2)) SWIG_fail;
+    }
+    (arg1)->inner_line_join(arg2);
+    
+    Py_INCREF(Py_None); resultobj = Py_None;
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_conv_stroke_curve_line_cap__SWIG_1(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::conv_stroke<curve_t > *arg1 = (agg::conv_stroke<curve_t > *) 0 ;
+    agg::line_cap_e result;
+    PyObject * obj0 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"O:conv_stroke_curve_line_cap",&obj0)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__conv_strokeTagg__conv_curveTpath_t_t_agg__null_markers_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    result = (agg::line_cap_e)((agg::conv_stroke<curve_t > const *)arg1)->line_cap();
+    
+    resultobj = SWIG_From_int((result));
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_conv_stroke_curve_line_cap(PyObject *self, PyObject *args) {
+    int argc;
+    PyObject *argv[3];
+    int ii;
+    
+    argc = PyObject_Length(args);
+    for (ii = 0; (ii < argc) && (ii < 2); ii++) {
+        argv[ii] = PyTuple_GetItem(args,ii);
+    }
+    if (argc == 1) {
+        int _v;
+        {
+            void *ptr;
+            if (SWIG_ConvertPtr(argv[0], &ptr, SWIGTYPE_p_agg__conv_strokeTagg__conv_curveTpath_t_t_agg__null_markers_t, 0) == -1) {
+                _v = 0;
+                PyErr_Clear();
+            } else {
+                _v = 1;
+            }
+        }
+        if (_v) {
+            return _wrap_conv_stroke_curve_line_cap__SWIG_1(self,args);
+        }
+    }
+    if (argc == 2) {
+        int _v;
+        {
+            void *ptr;
+            if (SWIG_ConvertPtr(argv[0], &ptr, SWIGTYPE_p_agg__conv_strokeTagg__conv_curveTpath_t_t_agg__null_markers_t, 0) == -1) {
+                _v = 0;
+                PyErr_Clear();
+            } else {
+                _v = 1;
+            }
+        }
+        if (_v) {
+            _v = SWIG_Check_int(argv[1]);
+            if (_v) {
+                return _wrap_conv_stroke_curve_line_cap__SWIG_0(self,args);
+            }
+        }
+    }
+    
+    PyErr_SetString(PyExc_NotImplementedError,"No matching function for overloaded 'conv_stroke_curve_line_cap'");
+    return NULL;
+}
+
+
+static PyObject *_wrap_conv_stroke_curve_line_join__SWIG_1(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::conv_stroke<curve_t > *arg1 = (agg::conv_stroke<curve_t > *) 0 ;
+    agg::line_join_e result;
+    PyObject * obj0 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"O:conv_stroke_curve_line_join",&obj0)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__conv_strokeTagg__conv_curveTpath_t_t_agg__null_markers_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    result = (agg::line_join_e)((agg::conv_stroke<curve_t > const *)arg1)->line_join();
+    
+    resultobj = SWIG_From_int((result));
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_conv_stroke_curve_line_join(PyObject *self, PyObject *args) {
+    int argc;
+    PyObject *argv[3];
+    int ii;
+    
+    argc = PyObject_Length(args);
+    for (ii = 0; (ii < argc) && (ii < 2); ii++) {
+        argv[ii] = PyTuple_GetItem(args,ii);
+    }
+    if (argc == 1) {
+        int _v;
+        {
+            void *ptr;
+            if (SWIG_ConvertPtr(argv[0], &ptr, SWIGTYPE_p_agg__conv_strokeTagg__conv_curveTpath_t_t_agg__null_markers_t, 0) == -1) {
+                _v = 0;
+                PyErr_Clear();
+            } else {
+                _v = 1;
+            }
+        }
+        if (_v) {
+            return _wrap_conv_stroke_curve_line_join__SWIG_1(self,args);
+        }
+    }
+    if (argc == 2) {
+        int _v;
+        {
+            void *ptr;
+            if (SWIG_ConvertPtr(argv[0], &ptr, SWIGTYPE_p_agg__conv_strokeTagg__conv_curveTpath_t_t_agg__null_markers_t, 0) == -1) {
+                _v = 0;
+                PyErr_Clear();
+            } else {
+                _v = 1;
+            }
+        }
+        if (_v) {
+            _v = SWIG_Check_int(argv[1]);
+            if (_v) {
+                return _wrap_conv_stroke_curve_line_join__SWIG_0(self,args);
+            }
+        }
+    }
+    
+    PyErr_SetString(PyExc_NotImplementedError,"No matching function for overloaded 'conv_stroke_curve_line_join'");
+    return NULL;
+}
+
+
+static PyObject *_wrap_conv_stroke_curve_inner_line_join__SWIG_1(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::conv_stroke<curve_t > *arg1 = (agg::conv_stroke<curve_t > *) 0 ;
+    agg::line_join_e result;
+    PyObject * obj0 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"O:conv_stroke_curve_inner_line_join",&obj0)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__conv_strokeTagg__conv_curveTpath_t_t_agg__null_markers_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    result = (agg::line_join_e)((agg::conv_stroke<curve_t > const *)arg1)->inner_line_join();
+    
+    resultobj = SWIG_From_int((result));
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_conv_stroke_curve_inner_line_join(PyObject *self, PyObject *args) {
+    int argc;
+    PyObject *argv[3];
+    int ii;
+    
+    argc = PyObject_Length(args);
+    for (ii = 0; (ii < argc) && (ii < 2); ii++) {
+        argv[ii] = PyTuple_GetItem(args,ii);
+    }
+    if (argc == 1) {
+        int _v;
+        {
+            void *ptr;
+            if (SWIG_ConvertPtr(argv[0], &ptr, SWIGTYPE_p_agg__conv_strokeTagg__conv_curveTpath_t_t_agg__null_markers_t, 0) == -1) {
+                _v = 0;
+                PyErr_Clear();
+            } else {
+                _v = 1;
+            }
+        }
+        if (_v) {
+            return _wrap_conv_stroke_curve_inner_line_join__SWIG_1(self,args);
+        }
+    }
+    if (argc == 2) {
+        int _v;
+        {
+            void *ptr;
+            if (SWIG_ConvertPtr(argv[0], &ptr, SWIGTYPE_p_agg__conv_strokeTagg__conv_curveTpath_t_t_agg__null_markers_t, 0) == -1) {
+                _v = 0;
+                PyErr_Clear();
+            } else {
+                _v = 1;
+            }
+        }
+        if (_v) {
+            _v = SWIG_Check_int(argv[1]);
+            if (_v) {
+                return _wrap_conv_stroke_curve_inner_line_join__SWIG_0(self,args);
+            }
+        }
+    }
+    
+    PyErr_SetString(PyExc_NotImplementedError,"No matching function for overloaded 'conv_stroke_curve_inner_line_join'");
+    return NULL;
+}
+
+
+static PyObject *_wrap_conv_stroke_curve_width__SWIG_0(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::conv_stroke<curve_t > *arg1 = (agg::conv_stroke<curve_t > *) 0 ;
+    double arg2 ;
+    PyObject * obj0 = 0 ;
+    PyObject * obj1 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"OO:conv_stroke_curve_width",&obj0,&obj1)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__conv_strokeTagg__conv_curveTpath_t_t_agg__null_markers_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    {
+        arg2 = (double)(SWIG_As_double(obj1)); 
+        if (SWIG_arg_fail(2)) SWIG_fail;
+    }
+    (arg1)->width(arg2);
+    
+    Py_INCREF(Py_None); resultobj = Py_None;
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_conv_stroke_curve_miter_limit__SWIG_0(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::conv_stroke<curve_t > *arg1 = (agg::conv_stroke<curve_t > *) 0 ;
+    double arg2 ;
+    PyObject * obj0 = 0 ;
+    PyObject * obj1 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"OO:conv_stroke_curve_miter_limit",&obj0,&obj1)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__conv_strokeTagg__conv_curveTpath_t_t_agg__null_markers_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    {
+        arg2 = (double)(SWIG_As_double(obj1)); 
+        if (SWIG_arg_fail(2)) SWIG_fail;
+    }
+    (arg1)->miter_limit(arg2);
+    
+    Py_INCREF(Py_None); resultobj = Py_None;
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_conv_stroke_curve_miter_limit_theta(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::conv_stroke<curve_t > *arg1 = (agg::conv_stroke<curve_t > *) 0 ;
+    double arg2 ;
+    PyObject * obj0 = 0 ;
+    PyObject * obj1 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"OO:conv_stroke_curve_miter_limit_theta",&obj0,&obj1)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__conv_strokeTagg__conv_curveTpath_t_t_agg__null_markers_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    {
+        arg2 = (double)(SWIG_As_double(obj1)); 
+        if (SWIG_arg_fail(2)) SWIG_fail;
+    }
+    (arg1)->miter_limit_theta(arg2);
+    
+    Py_INCREF(Py_None); resultobj = Py_None;
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_conv_stroke_curve_inner_miter_limit__SWIG_0(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::conv_stroke<curve_t > *arg1 = (agg::conv_stroke<curve_t > *) 0 ;
+    double arg2 ;
+    PyObject * obj0 = 0 ;
+    PyObject * obj1 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"OO:conv_stroke_curve_inner_miter_limit",&obj0,&obj1)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__conv_strokeTagg__conv_curveTpath_t_t_agg__null_markers_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    {
+        arg2 = (double)(SWIG_As_double(obj1)); 
+        if (SWIG_arg_fail(2)) SWIG_fail;
+    }
+    (arg1)->inner_miter_limit(arg2);
+    
+    Py_INCREF(Py_None); resultobj = Py_None;
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_conv_stroke_curve_approximation_scale__SWIG_0(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::conv_stroke<curve_t > *arg1 = (agg::conv_stroke<curve_t > *) 0 ;
+    double arg2 ;
+    PyObject * obj0 = 0 ;
+    PyObject * obj1 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"OO:conv_stroke_curve_approximation_scale",&obj0,&obj1)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__conv_strokeTagg__conv_curveTpath_t_t_agg__null_markers_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    {
+        arg2 = (double)(SWIG_As_double(obj1)); 
+        if (SWIG_arg_fail(2)) SWIG_fail;
+    }
+    (arg1)->approximation_scale(arg2);
+    
+    Py_INCREF(Py_None); resultobj = Py_None;
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_conv_stroke_curve_width__SWIG_1(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::conv_stroke<curve_t > *arg1 = (agg::conv_stroke<curve_t > *) 0 ;
+    double result;
+    PyObject * obj0 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"O:conv_stroke_curve_width",&obj0)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__conv_strokeTagg__conv_curveTpath_t_t_agg__null_markers_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    result = (double)((agg::conv_stroke<curve_t > const *)arg1)->width();
+    
+    {
+        resultobj = SWIG_From_double((double)(result)); 
+    }
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_conv_stroke_curve_width(PyObject *self, PyObject *args) {
+    int argc;
+    PyObject *argv[3];
+    int ii;
+    
+    argc = PyObject_Length(args);
+    for (ii = 0; (ii < argc) && (ii < 2); ii++) {
+        argv[ii] = PyTuple_GetItem(args,ii);
+    }
+    if (argc == 1) {
+        int _v;
+        {
+            void *ptr;
+            if (SWIG_ConvertPtr(argv[0], &ptr, SWIGTYPE_p_agg__conv_strokeTagg__conv_curveTpath_t_t_agg__null_markers_t, 0) == -1) {
+                _v = 0;
+                PyErr_Clear();
+            } else {
+                _v = 1;
+            }
+        }
+        if (_v) {
+            return _wrap_conv_stroke_curve_width__SWIG_1(self,args);
+        }
+    }
+    if (argc == 2) {
+        int _v;
+        {
+            void *ptr;
+            if (SWIG_ConvertPtr(argv[0], &ptr, SWIGTYPE_p_agg__conv_strokeTagg__conv_curveTpath_t_t_agg__null_markers_t, 0) == -1) {
+                _v = 0;
+                PyErr_Clear();
+            } else {
+                _v = 1;
+            }
+        }
+        if (_v) {
+            _v = SWIG_Check_double(argv[1]);
+            if (_v) {
+                return _wrap_conv_stroke_curve_width__SWIG_0(self,args);
+            }
+        }
+    }
+    
+    PyErr_SetString(PyExc_NotImplementedError,"No matching function for overloaded 'conv_stroke_curve_width'");
+    return NULL;
+}
+
+
+static PyObject *_wrap_conv_stroke_curve_miter_limit__SWIG_1(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::conv_stroke<curve_t > *arg1 = (agg::conv_stroke<curve_t > *) 0 ;
+    double result;
+    PyObject * obj0 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"O:conv_stroke_curve_miter_limit",&obj0)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__conv_strokeTagg__conv_curveTpath_t_t_agg__null_markers_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    result = (double)((agg::conv_stroke<curve_t > const *)arg1)->miter_limit();
+    
+    {
+        resultobj = SWIG_From_double((double)(result)); 
+    }
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_conv_stroke_curve_miter_limit(PyObject *self, PyObject *args) {
+    int argc;
+    PyObject *argv[3];
+    int ii;
+    
+    argc = PyObject_Length(args);
+    for (ii = 0; (ii < argc) && (ii < 2); ii++) {
+        argv[ii] = PyTuple_GetItem(args,ii);
+    }
+    if (argc == 1) {
+        int _v;
+        {
+            void *ptr;
+            if (SWIG_ConvertPtr(argv[0], &ptr, SWIGTYPE_p_agg__conv_strokeTagg__conv_curveTpath_t_t_agg__null_markers_t, 0) == -1) {
+                _v = 0;
+                PyErr_Clear();
+            } else {
+                _v = 1;
+            }
+        }
+        if (_v) {
+            return _wrap_conv_stroke_curve_miter_limit__SWIG_1(self,args);
+        }
+    }
+    if (argc == 2) {
+        int _v;
+        {
+            void *ptr;
+            if (SWIG_ConvertPtr(argv[0], &ptr, SWIGTYPE_p_agg__conv_strokeTagg__conv_curveTpath_t_t_agg__null_markers_t, 0) == -1) {
+                _v = 0;
+                PyErr_Clear();
+            } else {
+                _v = 1;
+            }
+        }
+        if (_v) {
+            _v = SWIG_Check_double(argv[1]);
+            if (_v) {
+                return _wrap_conv_stroke_curve_miter_limit__SWIG_0(self,args);
+            }
+        }
+    }
+    
+    PyErr_SetString(PyExc_NotImplementedError,"No matching function for overloaded 'conv_stroke_curve_miter_limit'");
+    return NULL;
+}
+
+
+static PyObject *_wrap_conv_stroke_curve_inner_miter_limit__SWIG_1(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::conv_stroke<curve_t > *arg1 = (agg::conv_stroke<curve_t > *) 0 ;
+    double result;
+    PyObject * obj0 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"O:conv_stroke_curve_inner_miter_limit",&obj0)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__conv_strokeTagg__conv_curveTpath_t_t_agg__null_markers_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    result = (double)((agg::conv_stroke<curve_t > const *)arg1)->inner_miter_limit();
+    
+    {
+        resultobj = SWIG_From_double((double)(result)); 
+    }
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_conv_stroke_curve_inner_miter_limit(PyObject *self, PyObject *args) {
+    int argc;
+    PyObject *argv[3];
+    int ii;
+    
+    argc = PyObject_Length(args);
+    for (ii = 0; (ii < argc) && (ii < 2); ii++) {
+        argv[ii] = PyTuple_GetItem(args,ii);
+    }
+    if (argc == 1) {
+        int _v;
+        {
+            void *ptr;
+            if (SWIG_ConvertPtr(argv[0], &ptr, SWIGTYPE_p_agg__conv_strokeTagg__conv_curveTpath_t_t_agg__null_markers_t, 0) == -1) {
+                _v = 0;
+                PyErr_Clear();
+            } else {
+                _v = 1;
+            }
+        }
+        if (_v) {
+            return _wrap_conv_stroke_curve_inner_miter_limit__SWIG_1(self,args);
+        }
+    }
+    if (argc == 2) {
+        int _v;
+        {
+            void *ptr;
+            if (SWIG_ConvertPtr(argv[0], &ptr, SWIGTYPE_p_agg__conv_strokeTagg__conv_curveTpath_t_t_agg__null_markers_t, 0) == -1) {
+                _v = 0;
+                PyErr_Clear();
+            } else {
+                _v = 1;
+            }
+        }
+        if (_v) {
+            _v = SWIG_Check_double(argv[1]);
+            if (_v) {
+                return _wrap_conv_stroke_curve_inner_miter_limit__SWIG_0(self,args);
+            }
+        }
+    }
+    
+    PyErr_SetString(PyExc_NotImplementedError,"No matching function for overloaded 'conv_stroke_curve_inner_miter_limit'");
+    return NULL;
+}
+
+
+static PyObject *_wrap_conv_stroke_curve_approximation_scale__SWIG_1(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::conv_stroke<curve_t > *arg1 = (agg::conv_stroke<curve_t > *) 0 ;
+    double result;
+    PyObject * obj0 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"O:conv_stroke_curve_approximation_scale",&obj0)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__conv_strokeTagg__conv_curveTpath_t_t_agg__null_markers_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    result = (double)((agg::conv_stroke<curve_t > const *)arg1)->approximation_scale();
+    
+    {
+        resultobj = SWIG_From_double((double)(result)); 
+    }
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_conv_stroke_curve_approximation_scale(PyObject *self, PyObject *args) {
+    int argc;
+    PyObject *argv[3];
+    int ii;
+    
+    argc = PyObject_Length(args);
+    for (ii = 0; (ii < argc) && (ii < 2); ii++) {
+        argv[ii] = PyTuple_GetItem(args,ii);
+    }
+    if (argc == 1) {
+        int _v;
+        {
+            void *ptr;
+            if (SWIG_ConvertPtr(argv[0], &ptr, SWIGTYPE_p_agg__conv_strokeTagg__conv_curveTpath_t_t_agg__null_markers_t, 0) == -1) {
+                _v = 0;
+                PyErr_Clear();
+            } else {
+                _v = 1;
+            }
+        }
+        if (_v) {
+            return _wrap_conv_stroke_curve_approximation_scale__SWIG_1(self,args);
+        }
+    }
+    if (argc == 2) {
+        int _v;
+        {
+            void *ptr;
+            if (SWIG_ConvertPtr(argv[0], &ptr, SWIGTYPE_p_agg__conv_strokeTagg__conv_curveTpath_t_t_agg__null_markers_t, 0) == -1) {
+                _v = 0;
+                PyErr_Clear();
+            } else {
+                _v = 1;
+            }
+        }
+        if (_v) {
+            _v = SWIG_Check_double(argv[1]);
+            if (_v) {
+                return _wrap_conv_stroke_curve_approximation_scale__SWIG_0(self,args);
+            }
+        }
+    }
+    
+    PyErr_SetString(PyExc_NotImplementedError,"No matching function for overloaded 'conv_stroke_curve_approximation_scale'");
+    return NULL;
+}
+
+
+static PyObject *_wrap_conv_stroke_curve_shorten__SWIG_0(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::conv_stroke<curve_t > *arg1 = (agg::conv_stroke<curve_t > *) 0 ;
+    double arg2 ;
+    PyObject * obj0 = 0 ;
+    PyObject * obj1 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"OO:conv_stroke_curve_shorten",&obj0,&obj1)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__conv_strokeTagg__conv_curveTpath_t_t_agg__null_markers_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    {
+        arg2 = (double)(SWIG_As_double(obj1)); 
+        if (SWIG_arg_fail(2)) SWIG_fail;
+    }
+    (arg1)->shorten(arg2);
+    
+    Py_INCREF(Py_None); resultobj = Py_None;
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_conv_stroke_curve_shorten__SWIG_1(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::conv_stroke<curve_t > *arg1 = (agg::conv_stroke<curve_t > *) 0 ;
+    double result;
+    PyObject * obj0 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"O:conv_stroke_curve_shorten",&obj0)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__conv_strokeTagg__conv_curveTpath_t_t_agg__null_markers_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    result = (double)((agg::conv_stroke<curve_t > const *)arg1)->shorten();
+    
+    {
+        resultobj = SWIG_From_double((double)(result)); 
+    }
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_conv_stroke_curve_shorten(PyObject *self, PyObject *args) {
+    int argc;
+    PyObject *argv[3];
+    int ii;
+    
+    argc = PyObject_Length(args);
+    for (ii = 0; (ii < argc) && (ii < 2); ii++) {
+        argv[ii] = PyTuple_GetItem(args,ii);
+    }
+    if (argc == 1) {
+        int _v;
+        {
+            void *ptr;
+            if (SWIG_ConvertPtr(argv[0], &ptr, SWIGTYPE_p_agg__conv_strokeTagg__conv_curveTpath_t_t_agg__null_markers_t, 0) == -1) {
+                _v = 0;
+                PyErr_Clear();
+            } else {
+                _v = 1;
+            }
+        }
+        if (_v) {
+            return _wrap_conv_stroke_curve_shorten__SWIG_1(self,args);
+        }
+    }
+    if (argc == 2) {
+        int _v;
+        {
+            void *ptr;
+            if (SWIG_ConvertPtr(argv[0], &ptr, SWIGTYPE_p_agg__conv_strokeTagg__conv_curveTpath_t_t_agg__null_markers_t, 0) == -1) {
+                _v = 0;
+                PyErr_Clear();
+            } else {
+                _v = 1;
+            }
+        }
+        if (_v) {
+            _v = SWIG_Check_double(argv[1]);
+            if (_v) {
+                return _wrap_conv_stroke_curve_shorten__SWIG_0(self,args);
+            }
+        }
+    }
+    
+    PyErr_SetString(PyExc_NotImplementedError,"No matching function for overloaded 'conv_stroke_curve_shorten'");
+    return NULL;
+}
+
+
+static PyObject *_wrap_delete_conv_stroke_curve(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::conv_stroke<curve_t > *arg1 = (agg::conv_stroke<curve_t > *) 0 ;
+    PyObject * obj0 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"O:delete_conv_stroke_curve",&obj0)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__conv_strokeTagg__conv_curveTpath_t_t_agg__null_markers_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    delete arg1;
+    
+    Py_INCREF(Py_None); resultobj = Py_None;
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject * conv_stroke_curve_swigregister(PyObject *, PyObject *args) {
+    PyObject *obj;
+    if (!PyArg_ParseTuple(args,(char*)"O", &obj)) return NULL;
+    SWIG_TypeClientData(SWIGTYPE_p_agg__conv_strokeTagg__conv_curveTpath_t_t_agg__null_markers_t, obj);
+    Py_INCREF(obj);
+    return Py_BuildValue((char *)"");
+}
+static PyObject *_wrap_new_conv_stroke_transcurve(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    transcurve_t *arg1 = 0 ;
+    agg::conv_stroke<transcurve_t > *result;
+    PyObject * obj0 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"O:new_conv_stroke_transcurve",&obj0)) goto fail;
+    {
+        SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__conv_transformTagg__conv_curveTpath_t_t_agg__trans_affine_t, SWIG_POINTER_EXCEPTION | 0);
+        if (SWIG_arg_fail(1)) SWIG_fail;
+        if (arg1 == NULL) {
+            SWIG_null_ref("transcurve_t");
+        }
+        if (SWIG_arg_fail(1)) SWIG_fail;
+    }
+    result = (agg::conv_stroke<transcurve_t > *)new agg::conv_stroke<transcurve_t >(*arg1);
+    
+    resultobj = SWIG_NewPointerObj((void*)(result), SWIGTYPE_p_agg__conv_strokeTagg__conv_transformTcurve_t_agg__trans_affine_t_agg__null_markers_t, 1);
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_conv_stroke_transcurve_line_cap__SWIG_0(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::conv_stroke<transcurve_t > *arg1 = (agg::conv_stroke<transcurve_t > *) 0 ;
+    agg::line_cap_e arg2 ;
+    PyObject * obj0 = 0 ;
+    PyObject * obj1 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"OO:conv_stroke_transcurve_line_cap",&obj0,&obj1)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__conv_strokeTagg__conv_transformTcurve_t_agg__trans_affine_t_agg__null_markers_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    {
+        arg2 = (agg::line_cap_e)(SWIG_As_int(obj1)); 
+        if (SWIG_arg_fail(2)) SWIG_fail;
+    }
+    (arg1)->line_cap(arg2);
+    
+    Py_INCREF(Py_None); resultobj = Py_None;
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_conv_stroke_transcurve_line_join__SWIG_0(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::conv_stroke<transcurve_t > *arg1 = (agg::conv_stroke<transcurve_t > *) 0 ;
+    agg::line_join_e arg2 ;
+    PyObject * obj0 = 0 ;
+    PyObject * obj1 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"OO:conv_stroke_transcurve_line_join",&obj0,&obj1)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__conv_strokeTagg__conv_transformTcurve_t_agg__trans_affine_t_agg__null_markers_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    {
+        arg2 = (agg::line_join_e)(SWIG_As_int(obj1)); 
+        if (SWIG_arg_fail(2)) SWIG_fail;
+    }
+    (arg1)->line_join(arg2);
+    
+    Py_INCREF(Py_None); resultobj = Py_None;
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_conv_stroke_transcurve_inner_line_join__SWIG_0(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::conv_stroke<transcurve_t > *arg1 = (agg::conv_stroke<transcurve_t > *) 0 ;
+    agg::line_join_e arg2 ;
+    PyObject * obj0 = 0 ;
+    PyObject * obj1 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"OO:conv_stroke_transcurve_inner_line_join",&obj0,&obj1)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__conv_strokeTagg__conv_transformTcurve_t_agg__trans_affine_t_agg__null_markers_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    {
+        arg2 = (agg::line_join_e)(SWIG_As_int(obj1)); 
+        if (SWIG_arg_fail(2)) SWIG_fail;
+    }
+    (arg1)->inner_line_join(arg2);
+    
+    Py_INCREF(Py_None); resultobj = Py_None;
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_conv_stroke_transcurve_line_cap__SWIG_1(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::conv_stroke<transcurve_t > *arg1 = (agg::conv_stroke<transcurve_t > *) 0 ;
+    agg::line_cap_e result;
+    PyObject * obj0 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"O:conv_stroke_transcurve_line_cap",&obj0)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__conv_strokeTagg__conv_transformTcurve_t_agg__trans_affine_t_agg__null_markers_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    result = (agg::line_cap_e)((agg::conv_stroke<transcurve_t > const *)arg1)->line_cap();
+    
+    resultobj = SWIG_From_int((result));
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_conv_stroke_transcurve_line_cap(PyObject *self, PyObject *args) {
+    int argc;
+    PyObject *argv[3];
+    int ii;
+    
+    argc = PyObject_Length(args);
+    for (ii = 0; (ii < argc) && (ii < 2); ii++) {
+        argv[ii] = PyTuple_GetItem(args,ii);
+    }
+    if (argc == 1) {
+        int _v;
+        {
+            void *ptr;
+            if (SWIG_ConvertPtr(argv[0], &ptr, SWIGTYPE_p_agg__conv_strokeTagg__conv_transformTcurve_t_agg__trans_affine_t_agg__null_markers_t, 0) == -1) {
+                _v = 0;
+                PyErr_Clear();
+            } else {
+                _v = 1;
+            }
+        }
+        if (_v) {
+            return _wrap_conv_stroke_transcurve_line_cap__SWIG_1(self,args);
+        }
+    }
+    if (argc == 2) {
+        int _v;
+        {
+            void *ptr;
+            if (SWIG_ConvertPtr(argv[0], &ptr, SWIGTYPE_p_agg__conv_strokeTagg__conv_transformTcurve_t_agg__trans_affine_t_agg__null_markers_t, 0) == -1) {
+                _v = 0;
+                PyErr_Clear();
+            } else {
+                _v = 1;
+            }
+        }
+        if (_v) {
+            _v = SWIG_Check_int(argv[1]);
+            if (_v) {
+                return _wrap_conv_stroke_transcurve_line_cap__SWIG_0(self,args);
+            }
+        }
+    }
+    
+    PyErr_SetString(PyExc_NotImplementedError,"No matching function for overloaded 'conv_stroke_transcurve_line_cap'");
+    return NULL;
+}
+
+
+static PyObject *_wrap_conv_stroke_transcurve_line_join__SWIG_1(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::conv_stroke<transcurve_t > *arg1 = (agg::conv_stroke<transcurve_t > *) 0 ;
+    agg::line_join_e result;
+    PyObject * obj0 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"O:conv_stroke_transcurve_line_join",&obj0)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__conv_strokeTagg__conv_transformTcurve_t_agg__trans_affine_t_agg__null_markers_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    result = (agg::line_join_e)((agg::conv_stroke<transcurve_t > const *)arg1)->line_join();
+    
+    resultobj = SWIG_From_int((result));
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_conv_stroke_transcurve_line_join(PyObject *self, PyObject *args) {
+    int argc;
+    PyObject *argv[3];
+    int ii;
+    
+    argc = PyObject_Length(args);
+    for (ii = 0; (ii < argc) && (ii < 2); ii++) {
+        argv[ii] = PyTuple_GetItem(args,ii);
+    }
+    if (argc == 1) {
+        int _v;
+        {
+            void *ptr;
+            if (SWIG_ConvertPtr(argv[0], &ptr, SWIGTYPE_p_agg__conv_strokeTagg__conv_transformTcurve_t_agg__trans_affine_t_agg__null_markers_t, 0) == -1) {
+                _v = 0;
+                PyErr_Clear();
+            } else {
+                _v = 1;
+            }
+        }
+        if (_v) {
+            return _wrap_conv_stroke_transcurve_line_join__SWIG_1(self,args);
+        }
+    }
+    if (argc == 2) {
+        int _v;
+        {
+            void *ptr;
+            if (SWIG_ConvertPtr(argv[0], &ptr, SWIGTYPE_p_agg__conv_strokeTagg__conv_transformTcurve_t_agg__trans_affine_t_agg__null_markers_t, 0) == -1) {
+                _v = 0;
+                PyErr_Clear();
+            } else {
+                _v = 1;
+            }
+        }
+        if (_v) {
+            _v = SWIG_Check_int(argv[1]);
+            if (_v) {
+                return _wrap_conv_stroke_transcurve_line_join__SWIG_0(self,args);
+            }
+        }
+    }
+    
+    PyErr_SetString(PyExc_NotImplementedError,"No matching function for overloaded 'conv_stroke_transcurve_line_join'");
+    return NULL;
+}
+
+
+static PyObject *_wrap_conv_stroke_transcurve_inner_line_join__SWIG_1(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::conv_stroke<transcurve_t > *arg1 = (agg::conv_stroke<transcurve_t > *) 0 ;
+    agg::line_join_e result;
+    PyObject * obj0 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"O:conv_stroke_transcurve_inner_line_join",&obj0)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__conv_strokeTagg__conv_transformTcurve_t_agg__trans_affine_t_agg__null_markers_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    result = (agg::line_join_e)((agg::conv_stroke<transcurve_t > const *)arg1)->inner_line_join();
+    
+    resultobj = SWIG_From_int((result));
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_conv_stroke_transcurve_inner_line_join(PyObject *self, PyObject *args) {
+    int argc;
+    PyObject *argv[3];
+    int ii;
+    
+    argc = PyObject_Length(args);
+    for (ii = 0; (ii < argc) && (ii < 2); ii++) {
+        argv[ii] = PyTuple_GetItem(args,ii);
+    }
+    if (argc == 1) {
+        int _v;
+        {
+            void *ptr;
+            if (SWIG_ConvertPtr(argv[0], &ptr, SWIGTYPE_p_agg__conv_strokeTagg__conv_transformTcurve_t_agg__trans_affine_t_agg__null_markers_t, 0) == -1) {
+                _v = 0;
+                PyErr_Clear();
+            } else {
+                _v = 1;
+            }
+        }
+        if (_v) {
+            return _wrap_conv_stroke_transcurve_inner_line_join__SWIG_1(self,args);
+        }
+    }
+    if (argc == 2) {
+        int _v;
+        {
+            void *ptr;
+            if (SWIG_ConvertPtr(argv[0], &ptr, SWIGTYPE_p_agg__conv_strokeTagg__conv_transformTcurve_t_agg__trans_affine_t_agg__null_markers_t, 0) == -1) {
+                _v = 0;
+                PyErr_Clear();
+            } else {
+                _v = 1;
+            }
+        }
+        if (_v) {
+            _v = SWIG_Check_int(argv[1]);
+            if (_v) {
+                return _wrap_conv_stroke_transcurve_inner_line_join__SWIG_0(self,args);
+            }
+        }
+    }
+    
+    PyErr_SetString(PyExc_NotImplementedError,"No matching function for overloaded 'conv_stroke_transcurve_inner_line_join'");
+    return NULL;
+}
+
+
+static PyObject *_wrap_conv_stroke_transcurve_width__SWIG_0(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::conv_stroke<transcurve_t > *arg1 = (agg::conv_stroke<transcurve_t > *) 0 ;
+    double arg2 ;
+    PyObject * obj0 = 0 ;
+    PyObject * obj1 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"OO:conv_stroke_transcurve_width",&obj0,&obj1)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__conv_strokeTagg__conv_transformTcurve_t_agg__trans_affine_t_agg__null_markers_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    {
+        arg2 = (double)(SWIG_As_double(obj1)); 
+        if (SWIG_arg_fail(2)) SWIG_fail;
+    }
+    (arg1)->width(arg2);
+    
+    Py_INCREF(Py_None); resultobj = Py_None;
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_conv_stroke_transcurve_miter_limit__SWIG_0(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::conv_stroke<transcurve_t > *arg1 = (agg::conv_stroke<transcurve_t > *) 0 ;
+    double arg2 ;
+    PyObject * obj0 = 0 ;
+    PyObject * obj1 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"OO:conv_stroke_transcurve_miter_limit",&obj0,&obj1)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__conv_strokeTagg__conv_transformTcurve_t_agg__trans_affine_t_agg__null_markers_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    {
+        arg2 = (double)(SWIG_As_double(obj1)); 
+        if (SWIG_arg_fail(2)) SWIG_fail;
+    }
+    (arg1)->miter_limit(arg2);
+    
+    Py_INCREF(Py_None); resultobj = Py_None;
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_conv_stroke_transcurve_miter_limit_theta(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::conv_stroke<transcurve_t > *arg1 = (agg::conv_stroke<transcurve_t > *) 0 ;
+    double arg2 ;
+    PyObject * obj0 = 0 ;
+    PyObject * obj1 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"OO:conv_stroke_transcurve_miter_limit_theta",&obj0,&obj1)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__conv_strokeTagg__conv_transformTcurve_t_agg__trans_affine_t_agg__null_markers_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    {
+        arg2 = (double)(SWIG_As_double(obj1)); 
+        if (SWIG_arg_fail(2)) SWIG_fail;
+    }
+    (arg1)->miter_limit_theta(arg2);
+    
+    Py_INCREF(Py_None); resultobj = Py_None;
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_conv_stroke_transcurve_inner_miter_limit__SWIG_0(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::conv_stroke<transcurve_t > *arg1 = (agg::conv_stroke<transcurve_t > *) 0 ;
+    double arg2 ;
+    PyObject * obj0 = 0 ;
+    PyObject * obj1 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"OO:conv_stroke_transcurve_inner_miter_limit",&obj0,&obj1)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__conv_strokeTagg__conv_transformTcurve_t_agg__trans_affine_t_agg__null_markers_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    {
+        arg2 = (double)(SWIG_As_double(obj1)); 
+        if (SWIG_arg_fail(2)) SWIG_fail;
+    }
+    (arg1)->inner_miter_limit(arg2);
+    
+    Py_INCREF(Py_None); resultobj = Py_None;
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_conv_stroke_transcurve_approximation_scale__SWIG_0(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::conv_stroke<transcurve_t > *arg1 = (agg::conv_stroke<transcurve_t > *) 0 ;
+    double arg2 ;
+    PyObject * obj0 = 0 ;
+    PyObject * obj1 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"OO:conv_stroke_transcurve_approximation_scale",&obj0,&obj1)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__conv_strokeTagg__conv_transformTcurve_t_agg__trans_affine_t_agg__null_markers_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    {
+        arg2 = (double)(SWIG_As_double(obj1)); 
+        if (SWIG_arg_fail(2)) SWIG_fail;
+    }
+    (arg1)->approximation_scale(arg2);
+    
+    Py_INCREF(Py_None); resultobj = Py_None;
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_conv_stroke_transcurve_width__SWIG_1(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::conv_stroke<transcurve_t > *arg1 = (agg::conv_stroke<transcurve_t > *) 0 ;
+    double result;
+    PyObject * obj0 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"O:conv_stroke_transcurve_width",&obj0)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__conv_strokeTagg__conv_transformTcurve_t_agg__trans_affine_t_agg__null_markers_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    result = (double)((agg::conv_stroke<transcurve_t > const *)arg1)->width();
+    
+    {
+        resultobj = SWIG_From_double((double)(result)); 
+    }
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_conv_stroke_transcurve_width(PyObject *self, PyObject *args) {
+    int argc;
+    PyObject *argv[3];
+    int ii;
+    
+    argc = PyObject_Length(args);
+    for (ii = 0; (ii < argc) && (ii < 2); ii++) {
+        argv[ii] = PyTuple_GetItem(args,ii);
+    }
+    if (argc == 1) {
+        int _v;
+        {
+            void *ptr;
+            if (SWIG_ConvertPtr(argv[0], &ptr, SWIGTYPE_p_agg__conv_strokeTagg__conv_transformTcurve_t_agg__trans_affine_t_agg__null_markers_t, 0) == -1) {
+                _v = 0;
+                PyErr_Clear();
+            } else {
+                _v = 1;
+            }
+        }
+        if (_v) {
+            return _wrap_conv_stroke_transcurve_width__SWIG_1(self,args);
+        }
+    }
+    if (argc == 2) {
+        int _v;
+        {
+            void *ptr;
+            if (SWIG_ConvertPtr(argv[0], &ptr, SWIGTYPE_p_agg__conv_strokeTagg__conv_transformTcurve_t_agg__trans_affine_t_agg__null_markers_t, 0) == -1) {
+                _v = 0;
+                PyErr_Clear();
+            } else {
+                _v = 1;
+            }
+        }
+        if (_v) {
+            _v = SWIG_Check_double(argv[1]);
+            if (_v) {
+                return _wrap_conv_stroke_transcurve_width__SWIG_0(self,args);
+            }
+        }
+    }
+    
+    PyErr_SetString(PyExc_NotImplementedError,"No matching function for overloaded 'conv_stroke_transcurve_width'");
+    return NULL;
+}
+
+
+static PyObject *_wrap_conv_stroke_transcurve_miter_limit__SWIG_1(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::conv_stroke<transcurve_t > *arg1 = (agg::conv_stroke<transcurve_t > *) 0 ;
+    double result;
+    PyObject * obj0 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"O:conv_stroke_transcurve_miter_limit",&obj0)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__conv_strokeTagg__conv_transformTcurve_t_agg__trans_affine_t_agg__null_markers_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    result = (double)((agg::conv_stroke<transcurve_t > const *)arg1)->miter_limit();
+    
+    {
+        resultobj = SWIG_From_double((double)(result)); 
+    }
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_conv_stroke_transcurve_miter_limit(PyObject *self, PyObject *args) {
+    int argc;
+    PyObject *argv[3];
+    int ii;
+    
+    argc = PyObject_Length(args);
+    for (ii = 0; (ii < argc) && (ii < 2); ii++) {
+        argv[ii] = PyTuple_GetItem(args,ii);
+    }
+    if (argc == 1) {
+        int _v;
+        {
+            void *ptr;
+            if (SWIG_ConvertPtr(argv[0], &ptr, SWIGTYPE_p_agg__conv_strokeTagg__conv_transformTcurve_t_agg__trans_affine_t_agg__null_markers_t, 0) == -1) {
+                _v = 0;
+                PyErr_Clear();
+            } else {
+                _v = 1;
+            }
+        }
+        if (_v) {
+            return _wrap_conv_stroke_transcurve_miter_limit__SWIG_1(self,args);
+        }
+    }
+    if (argc == 2) {
+        int _v;
+        {
+            void *ptr;
+            if (SWIG_ConvertPtr(argv[0], &ptr, SWIGTYPE_p_agg__conv_strokeTagg__conv_transformTcurve_t_agg__trans_affine_t_agg__null_markers_t, 0) == -1) {
+                _v = 0;
+                PyErr_Clear();
+            } else {
+                _v = 1;
+            }
+        }
+        if (_v) {
+            _v = SWIG_Check_double(argv[1]);
+            if (_v) {
+                return _wrap_conv_stroke_transcurve_miter_limit__SWIG_0(self,args);
+            }
+        }
+    }
+    
+    PyErr_SetString(PyExc_NotImplementedError,"No matching function for overloaded 'conv_stroke_transcurve_miter_limit'");
+    return NULL;
+}
+
+
+static PyObject *_wrap_conv_stroke_transcurve_inner_miter_limit__SWIG_1(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::conv_stroke<transcurve_t > *arg1 = (agg::conv_stroke<transcurve_t > *) 0 ;
+    double result;
+    PyObject * obj0 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"O:conv_stroke_transcurve_inner_miter_limit",&obj0)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__conv_strokeTagg__conv_transformTcurve_t_agg__trans_affine_t_agg__null_markers_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    result = (double)((agg::conv_stroke<transcurve_t > const *)arg1)->inner_miter_limit();
+    
+    {
+        resultobj = SWIG_From_double((double)(result)); 
+    }
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_conv_stroke_transcurve_inner_miter_limit(PyObject *self, PyObject *args) {
+    int argc;
+    PyObject *argv[3];
+    int ii;
+    
+    argc = PyObject_Length(args);
+    for (ii = 0; (ii < argc) && (ii < 2); ii++) {
+        argv[ii] = PyTuple_GetItem(args,ii);
+    }
+    if (argc == 1) {
+        int _v;
+        {
+            void *ptr;
+            if (SWIG_ConvertPtr(argv[0], &ptr, SWIGTYPE_p_agg__conv_strokeTagg__conv_transformTcurve_t_agg__trans_affine_t_agg__null_markers_t, 0) == -1) {
+                _v = 0;
+                PyErr_Clear();
+            } else {
+                _v = 1;
+            }
+        }
+        if (_v) {
+            return _wrap_conv_stroke_transcurve_inner_miter_limit__SWIG_1(self,args);
+        }
+    }
+    if (argc == 2) {
+        int _v;
+        {
+            void *ptr;
+            if (SWIG_ConvertPtr(argv[0], &ptr, SWIGTYPE_p_agg__conv_strokeTagg__conv_transformTcurve_t_agg__trans_affine_t_agg__null_markers_t, 0) == -1) {
+                _v = 0;
+                PyErr_Clear();
+            } else {
+                _v = 1;
+            }
+        }
+        if (_v) {
+            _v = SWIG_Check_double(argv[1]);
+            if (_v) {
+                return _wrap_conv_stroke_transcurve_inner_miter_limit__SWIG_0(self,args);
+            }
+        }
+    }
+    
+    PyErr_SetString(PyExc_NotImplementedError,"No matching function for overloaded 'conv_stroke_transcurve_inner_miter_limit'");
+    return NULL;
+}
+
+
+static PyObject *_wrap_conv_stroke_transcurve_approximation_scale__SWIG_1(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::conv_stroke<transcurve_t > *arg1 = (agg::conv_stroke<transcurve_t > *) 0 ;
+    double result;
+    PyObject * obj0 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"O:conv_stroke_transcurve_approximation_scale",&obj0)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__conv_strokeTagg__conv_transformTcurve_t_agg__trans_affine_t_agg__null_markers_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    result = (double)((agg::conv_stroke<transcurve_t > const *)arg1)->approximation_scale();
+    
+    {
+        resultobj = SWIG_From_double((double)(result)); 
+    }
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_conv_stroke_transcurve_approximation_scale(PyObject *self, PyObject *args) {
+    int argc;
+    PyObject *argv[3];
+    int ii;
+    
+    argc = PyObject_Length(args);
+    for (ii = 0; (ii < argc) && (ii < 2); ii++) {
+        argv[ii] = PyTuple_GetItem(args,ii);
+    }
+    if (argc == 1) {
+        int _v;
+        {
+            void *ptr;
+            if (SWIG_ConvertPtr(argv[0], &ptr, SWIGTYPE_p_agg__conv_strokeTagg__conv_transformTcurve_t_agg__trans_affine_t_agg__null_markers_t, 0) == -1) {
+                _v = 0;
+                PyErr_Clear();
+            } else {
+                _v = 1;
+            }
+        }
+        if (_v) {
+            return _wrap_conv_stroke_transcurve_approximation_scale__SWIG_1(self,args);
+        }
+    }
+    if (argc == 2) {
+        int _v;
+        {
+            void *ptr;
+            if (SWIG_ConvertPtr(argv[0], &ptr, SWIGTYPE_p_agg__conv_strokeTagg__conv_transformTcurve_t_agg__trans_affine_t_agg__null_markers_t, 0) == -1) {
+                _v = 0;
+                PyErr_Clear();
+            } else {
+                _v = 1;
+            }
+        }
+        if (_v) {
+            _v = SWIG_Check_double(argv[1]);
+            if (_v) {
+                return _wrap_conv_stroke_transcurve_approximation_scale__SWIG_0(self,args);
+            }
+        }
+    }
+    
+    PyErr_SetString(PyExc_NotImplementedError,"No matching function for overloaded 'conv_stroke_transcurve_approximation_scale'");
+    return NULL;
+}
+
+
+static PyObject *_wrap_conv_stroke_transcurve_shorten__SWIG_0(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::conv_stroke<transcurve_t > *arg1 = (agg::conv_stroke<transcurve_t > *) 0 ;
+    double arg2 ;
+    PyObject * obj0 = 0 ;
+    PyObject * obj1 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"OO:conv_stroke_transcurve_shorten",&obj0,&obj1)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__conv_strokeTagg__conv_transformTcurve_t_agg__trans_affine_t_agg__null_markers_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    {
+        arg2 = (double)(SWIG_As_double(obj1)); 
+        if (SWIG_arg_fail(2)) SWIG_fail;
+    }
+    (arg1)->shorten(arg2);
+    
+    Py_INCREF(Py_None); resultobj = Py_None;
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_conv_stroke_transcurve_shorten__SWIG_1(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::conv_stroke<transcurve_t > *arg1 = (agg::conv_stroke<transcurve_t > *) 0 ;
+    double result;
+    PyObject * obj0 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"O:conv_stroke_transcurve_shorten",&obj0)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__conv_strokeTagg__conv_transformTcurve_t_agg__trans_affine_t_agg__null_markers_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    result = (double)((agg::conv_stroke<transcurve_t > const *)arg1)->shorten();
+    
+    {
+        resultobj = SWIG_From_double((double)(result)); 
+    }
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_conv_stroke_transcurve_shorten(PyObject *self, PyObject *args) {
+    int argc;
+    PyObject *argv[3];
+    int ii;
+    
+    argc = PyObject_Length(args);
+    for (ii = 0; (ii < argc) && (ii < 2); ii++) {
+        argv[ii] = PyTuple_GetItem(args,ii);
+    }
+    if (argc == 1) {
+        int _v;
+        {
+            void *ptr;
+            if (SWIG_ConvertPtr(argv[0], &ptr, SWIGTYPE_p_agg__conv_strokeTagg__conv_transformTcurve_t_agg__trans_affine_t_agg__null_markers_t, 0) == -1) {
+                _v = 0;
+                PyErr_Clear();
+            } else {
+                _v = 1;
+            }
+        }
+        if (_v) {
+            return _wrap_conv_stroke_transcurve_shorten__SWIG_1(self,args);
+        }
+    }
+    if (argc == 2) {
+        int _v;
+        {
+            void *ptr;
+            if (SWIG_ConvertPtr(argv[0], &ptr, SWIGTYPE_p_agg__conv_strokeTagg__conv_transformTcurve_t_agg__trans_affine_t_agg__null_markers_t, 0) == -1) {
+                _v = 0;
+                PyErr_Clear();
+            } else {
+                _v = 1;
+            }
+        }
+        if (_v) {
+            _v = SWIG_Check_double(argv[1]);
+            if (_v) {
+                return _wrap_conv_stroke_transcurve_shorten__SWIG_0(self,args);
+            }
+        }
+    }
+    
+    PyErr_SetString(PyExc_NotImplementedError,"No matching function for overloaded 'conv_stroke_transcurve_shorten'");
+    return NULL;
+}
+
+
+static PyObject *_wrap_delete_conv_stroke_transcurve(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::conv_stroke<transcurve_t > *arg1 = (agg::conv_stroke<transcurve_t > *) 0 ;
+    PyObject * obj0 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"O:delete_conv_stroke_transcurve",&obj0)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__conv_strokeTagg__conv_transformTcurve_t_agg__trans_affine_t_agg__null_markers_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    delete arg1;
+    
+    Py_INCREF(Py_None); resultobj = Py_None;
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject * conv_stroke_transcurve_swigregister(PyObject *, PyObject *args) {
+    PyObject *obj;
+    if (!PyArg_ParseTuple(args,(char*)"O", &obj)) return NULL;
+    SWIG_TypeClientData(SWIGTYPE_p_agg__conv_strokeTagg__conv_transformTcurve_t_agg__trans_affine_t_agg__null_markers_t, obj);
+    Py_INCREF(obj);
+    return Py_BuildValue((char *)"");
+}
+static PyObject *_wrap_new_conv_stroke_curvetrans(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    curvetrans_t *arg1 = 0 ;
+    agg::conv_stroke<curvetrans_t > *result;
+    PyObject * obj0 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"O:new_conv_stroke_curvetrans",&obj0)) goto fail;
+    {
+        SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__conv_curveTagg__conv_transformTpath_t_agg__trans_affine_t_t, SWIG_POINTER_EXCEPTION | 0);
+        if (SWIG_arg_fail(1)) SWIG_fail;
+        if (arg1 == NULL) {
+            SWIG_null_ref("curvetrans_t");
+        }
+        if (SWIG_arg_fail(1)) SWIG_fail;
+    }
+    result = (agg::conv_stroke<curvetrans_t > *)new agg::conv_stroke<curvetrans_t >(*arg1);
+    
+    resultobj = SWIG_NewPointerObj((void*)(result), SWIGTYPE_p_agg__conv_strokeTagg__conv_curveTtranspath_t_t_agg__null_markers_t, 1);
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_conv_stroke_curvetrans_line_cap__SWIG_0(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::conv_stroke<curvetrans_t > *arg1 = (agg::conv_stroke<curvetrans_t > *) 0 ;
+    agg::line_cap_e arg2 ;
+    PyObject * obj0 = 0 ;
+    PyObject * obj1 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"OO:conv_stroke_curvetrans_line_cap",&obj0,&obj1)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__conv_strokeTagg__conv_curveTtranspath_t_t_agg__null_markers_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    {
+        arg2 = (agg::line_cap_e)(SWIG_As_int(obj1)); 
+        if (SWIG_arg_fail(2)) SWIG_fail;
+    }
+    (arg1)->line_cap(arg2);
+    
+    Py_INCREF(Py_None); resultobj = Py_None;
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_conv_stroke_curvetrans_line_join__SWIG_0(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::conv_stroke<curvetrans_t > *arg1 = (agg::conv_stroke<curvetrans_t > *) 0 ;
+    agg::line_join_e arg2 ;
+    PyObject * obj0 = 0 ;
+    PyObject * obj1 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"OO:conv_stroke_curvetrans_line_join",&obj0,&obj1)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__conv_strokeTagg__conv_curveTtranspath_t_t_agg__null_markers_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    {
+        arg2 = (agg::line_join_e)(SWIG_As_int(obj1)); 
+        if (SWIG_arg_fail(2)) SWIG_fail;
+    }
+    (arg1)->line_join(arg2);
+    
+    Py_INCREF(Py_None); resultobj = Py_None;
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_conv_stroke_curvetrans_inner_line_join__SWIG_0(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::conv_stroke<curvetrans_t > *arg1 = (agg::conv_stroke<curvetrans_t > *) 0 ;
+    agg::line_join_e arg2 ;
+    PyObject * obj0 = 0 ;
+    PyObject * obj1 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"OO:conv_stroke_curvetrans_inner_line_join",&obj0,&obj1)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__conv_strokeTagg__conv_curveTtranspath_t_t_agg__null_markers_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    {
+        arg2 = (agg::line_join_e)(SWIG_As_int(obj1)); 
+        if (SWIG_arg_fail(2)) SWIG_fail;
+    }
+    (arg1)->inner_line_join(arg2);
+    
+    Py_INCREF(Py_None); resultobj = Py_None;
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_conv_stroke_curvetrans_line_cap__SWIG_1(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::conv_stroke<curvetrans_t > *arg1 = (agg::conv_stroke<curvetrans_t > *) 0 ;
+    agg::line_cap_e result;
+    PyObject * obj0 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"O:conv_stroke_curvetrans_line_cap",&obj0)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__conv_strokeTagg__conv_curveTtranspath_t_t_agg__null_markers_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    result = (agg::line_cap_e)((agg::conv_stroke<curvetrans_t > const *)arg1)->line_cap();
+    
+    resultobj = SWIG_From_int((result));
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_conv_stroke_curvetrans_line_cap(PyObject *self, PyObject *args) {
+    int argc;
+    PyObject *argv[3];
+    int ii;
+    
+    argc = PyObject_Length(args);
+    for (ii = 0; (ii < argc) && (ii < 2); ii++) {
+        argv[ii] = PyTuple_GetItem(args,ii);
+    }
+    if (argc == 1) {
+        int _v;
+        {
+            void *ptr;
+            if (SWIG_ConvertPtr(argv[0], &ptr, SWIGTYPE_p_agg__conv_strokeTagg__conv_curveTtranspath_t_t_agg__null_markers_t, 0) == -1) {
+                _v = 0;
+                PyErr_Clear();
+            } else {
+                _v = 1;
+            }
+        }
+        if (_v) {
+            return _wrap_conv_stroke_curvetrans_line_cap__SWIG_1(self,args);
+        }
+    }
+    if (argc == 2) {
+        int _v;
+        {
+            void *ptr;
+            if (SWIG_ConvertPtr(argv[0], &ptr, SWIGTYPE_p_agg__conv_strokeTagg__conv_curveTtranspath_t_t_agg__null_markers_t, 0) == -1) {
+                _v = 0;
+                PyErr_Clear();
+            } else {
+                _v = 1;
+            }
+        }
+        if (_v) {
+            _v = SWIG_Check_int(argv[1]);
+            if (_v) {
+                return _wrap_conv_stroke_curvetrans_line_cap__SWIG_0(self,args);
+            }
+        }
+    }
+    
+    PyErr_SetString(PyExc_NotImplementedError,"No matching function for overloaded 'conv_stroke_curvetrans_line_cap'");
+    return NULL;
+}
+
+
+static PyObject *_wrap_conv_stroke_curvetrans_line_join__SWIG_1(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::conv_stroke<curvetrans_t > *arg1 = (agg::conv_stroke<curvetrans_t > *) 0 ;
+    agg::line_join_e result;
+    PyObject * obj0 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"O:conv_stroke_curvetrans_line_join",&obj0)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__conv_strokeTagg__conv_curveTtranspath_t_t_agg__null_markers_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    result = (agg::line_join_e)((agg::conv_stroke<curvetrans_t > const *)arg1)->line_join();
+    
+    resultobj = SWIG_From_int((result));
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_conv_stroke_curvetrans_line_join(PyObject *self, PyObject *args) {
+    int argc;
+    PyObject *argv[3];
+    int ii;
+    
+    argc = PyObject_Length(args);
+    for (ii = 0; (ii < argc) && (ii < 2); ii++) {
+        argv[ii] = PyTuple_GetItem(args,ii);
+    }
+    if (argc == 1) {
+        int _v;
+        {
+            void *ptr;
+            if (SWIG_ConvertPtr(argv[0], &ptr, SWIGTYPE_p_agg__conv_strokeTagg__conv_curveTtranspath_t_t_agg__null_markers_t, 0) == -1) {
+                _v = 0;
+                PyErr_Clear();
+            } else {
+                _v = 1;
+            }
+        }
+        if (_v) {
+            return _wrap_conv_stroke_curvetrans_line_join__SWIG_1(self,args);
+        }
+    }
+    if (argc == 2) {
+        int _v;
+        {
+            void *ptr;
+            if (SWIG_ConvertPtr(argv[0], &ptr, SWIGTYPE_p_agg__conv_strokeTagg__conv_curveTtranspath_t_t_agg__null_markers_t, 0) == -1) {
+                _v = 0;
+                PyErr_Clear();
+            } else {
+                _v = 1;
+            }
+        }
+        if (_v) {
+            _v = SWIG_Check_int(argv[1]);
+            if (_v) {
+                return _wrap_conv_stroke_curvetrans_line_join__SWIG_0(self,args);
+            }
+        }
+    }
+    
+    PyErr_SetString(PyExc_NotImplementedError,"No matching function for overloaded 'conv_stroke_curvetrans_line_join'");
+    return NULL;
+}
+
+
+static PyObject *_wrap_conv_stroke_curvetrans_inner_line_join__SWIG_1(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::conv_stroke<curvetrans_t > *arg1 = (agg::conv_stroke<curvetrans_t > *) 0 ;
+    agg::line_join_e result;
+    PyObject * obj0 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"O:conv_stroke_curvetrans_inner_line_join",&obj0)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__conv_strokeTagg__conv_curveTtranspath_t_t_agg__null_markers_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    result = (agg::line_join_e)((agg::conv_stroke<curvetrans_t > const *)arg1)->inner_line_join();
+    
+    resultobj = SWIG_From_int((result));
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_conv_stroke_curvetrans_inner_line_join(PyObject *self, PyObject *args) {
+    int argc;
+    PyObject *argv[3];
+    int ii;
+    
+    argc = PyObject_Length(args);
+    for (ii = 0; (ii < argc) && (ii < 2); ii++) {
+        argv[ii] = PyTuple_GetItem(args,ii);
+    }
+    if (argc == 1) {
+        int _v;
+        {
+            void *ptr;
+            if (SWIG_ConvertPtr(argv[0], &ptr, SWIGTYPE_p_agg__conv_strokeTagg__conv_curveTtranspath_t_t_agg__null_markers_t, 0) == -1) {
+                _v = 0;
+                PyErr_Clear();
+            } else {
+                _v = 1;
+            }
+        }
+        if (_v) {
+            return _wrap_conv_stroke_curvetrans_inner_line_join__SWIG_1(self,args);
+        }
+    }
+    if (argc == 2) {
+        int _v;
+        {
+            void *ptr;
+            if (SWIG_ConvertPtr(argv[0], &ptr, SWIGTYPE_p_agg__conv_strokeTagg__conv_curveTtranspath_t_t_agg__null_markers_t, 0) == -1) {
+                _v = 0;
+                PyErr_Clear();
+            } else {
+                _v = 1;
+            }
+        }
+        if (_v) {
+            _v = SWIG_Check_int(argv[1]);
+            if (_v) {
+                return _wrap_conv_stroke_curvetrans_inner_line_join__SWIG_0(self,args);
+            }
+        }
+    }
+    
+    PyErr_SetString(PyExc_NotImplementedError,"No matching function for overloaded 'conv_stroke_curvetrans_inner_line_join'");
+    return NULL;
+}
+
+
+static PyObject *_wrap_conv_stroke_curvetrans_width__SWIG_0(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::conv_stroke<curvetrans_t > *arg1 = (agg::conv_stroke<curvetrans_t > *) 0 ;
+    double arg2 ;
+    PyObject * obj0 = 0 ;
+    PyObject * obj1 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"OO:conv_stroke_curvetrans_width",&obj0,&obj1)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__conv_strokeTagg__conv_curveTtranspath_t_t_agg__null_markers_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    {
+        arg2 = (double)(SWIG_As_double(obj1)); 
+        if (SWIG_arg_fail(2)) SWIG_fail;
+    }
+    (arg1)->width(arg2);
+    
+    Py_INCREF(Py_None); resultobj = Py_None;
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_conv_stroke_curvetrans_miter_limit__SWIG_0(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::conv_stroke<curvetrans_t > *arg1 = (agg::conv_stroke<curvetrans_t > *) 0 ;
+    double arg2 ;
+    PyObject * obj0 = 0 ;
+    PyObject * obj1 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"OO:conv_stroke_curvetrans_miter_limit",&obj0,&obj1)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__conv_strokeTagg__conv_curveTtranspath_t_t_agg__null_markers_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    {
+        arg2 = (double)(SWIG_As_double(obj1)); 
+        if (SWIG_arg_fail(2)) SWIG_fail;
+    }
+    (arg1)->miter_limit(arg2);
+    
+    Py_INCREF(Py_None); resultobj = Py_None;
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_conv_stroke_curvetrans_miter_limit_theta(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::conv_stroke<curvetrans_t > *arg1 = (agg::conv_stroke<curvetrans_t > *) 0 ;
+    double arg2 ;
+    PyObject * obj0 = 0 ;
+    PyObject * obj1 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"OO:conv_stroke_curvetrans_miter_limit_theta",&obj0,&obj1)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__conv_strokeTagg__conv_curveTtranspath_t_t_agg__null_markers_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    {
+        arg2 = (double)(SWIG_As_double(obj1)); 
+        if (SWIG_arg_fail(2)) SWIG_fail;
+    }
+    (arg1)->miter_limit_theta(arg2);
+    
+    Py_INCREF(Py_None); resultobj = Py_None;
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_conv_stroke_curvetrans_inner_miter_limit__SWIG_0(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::conv_stroke<curvetrans_t > *arg1 = (agg::conv_stroke<curvetrans_t > *) 0 ;
+    double arg2 ;
+    PyObject * obj0 = 0 ;
+    PyObject * obj1 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"OO:conv_stroke_curvetrans_inner_miter_limit",&obj0,&obj1)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__conv_strokeTagg__conv_curveTtranspath_t_t_agg__null_markers_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    {
+        arg2 = (double)(SWIG_As_double(obj1)); 
+        if (SWIG_arg_fail(2)) SWIG_fail;
+    }
+    (arg1)->inner_miter_limit(arg2);
+    
+    Py_INCREF(Py_None); resultobj = Py_None;
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_conv_stroke_curvetrans_approximation_scale__SWIG_0(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::conv_stroke<curvetrans_t > *arg1 = (agg::conv_stroke<curvetrans_t > *) 0 ;
+    double arg2 ;
+    PyObject * obj0 = 0 ;
+    PyObject * obj1 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"OO:conv_stroke_curvetrans_approximation_scale",&obj0,&obj1)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__conv_strokeTagg__conv_curveTtranspath_t_t_agg__null_markers_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    {
+        arg2 = (double)(SWIG_As_double(obj1)); 
+        if (SWIG_arg_fail(2)) SWIG_fail;
+    }
+    (arg1)->approximation_scale(arg2);
+    
+    Py_INCREF(Py_None); resultobj = Py_None;
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_conv_stroke_curvetrans_width__SWIG_1(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::conv_stroke<curvetrans_t > *arg1 = (agg::conv_stroke<curvetrans_t > *) 0 ;
+    double result;
+    PyObject * obj0 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"O:conv_stroke_curvetrans_width",&obj0)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__conv_strokeTagg__conv_curveTtranspath_t_t_agg__null_markers_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    result = (double)((agg::conv_stroke<curvetrans_t > const *)arg1)->width();
+    
+    {
+        resultobj = SWIG_From_double((double)(result)); 
+    }
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_conv_stroke_curvetrans_width(PyObject *self, PyObject *args) {
+    int argc;
+    PyObject *argv[3];
+    int ii;
+    
+    argc = PyObject_Length(args);
+    for (ii = 0; (ii < argc) && (ii < 2); ii++) {
+        argv[ii] = PyTuple_GetItem(args,ii);
+    }
+    if (argc == 1) {
+        int _v;
+        {
+            void *ptr;
+            if (SWIG_ConvertPtr(argv[0], &ptr, SWIGTYPE_p_agg__conv_strokeTagg__conv_curveTtranspath_t_t_agg__null_markers_t, 0) == -1) {
+                _v = 0;
+                PyErr_Clear();
+            } else {
+                _v = 1;
+            }
+        }
+        if (_v) {
+            return _wrap_conv_stroke_curvetrans_width__SWIG_1(self,args);
+        }
+    }
+    if (argc == 2) {
+        int _v;
+        {
+            void *ptr;
+            if (SWIG_ConvertPtr(argv[0], &ptr, SWIGTYPE_p_agg__conv_strokeTagg__conv_curveTtranspath_t_t_agg__null_markers_t, 0) == -1) {
+                _v = 0;
+                PyErr_Clear();
+            } else {
+                _v = 1;
+            }
+        }
+        if (_v) {
+            _v = SWIG_Check_double(argv[1]);
+            if (_v) {
+                return _wrap_conv_stroke_curvetrans_width__SWIG_0(self,args);
+            }
+        }
+    }
+    
+    PyErr_SetString(PyExc_NotImplementedError,"No matching function for overloaded 'conv_stroke_curvetrans_width'");
+    return NULL;
+}
+
+
+static PyObject *_wrap_conv_stroke_curvetrans_miter_limit__SWIG_1(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::conv_stroke<curvetrans_t > *arg1 = (agg::conv_stroke<curvetrans_t > *) 0 ;
+    double result;
+    PyObject * obj0 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"O:conv_stroke_curvetrans_miter_limit",&obj0)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__conv_strokeTagg__conv_curveTtranspath_t_t_agg__null_markers_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    result = (double)((agg::conv_stroke<curvetrans_t > const *)arg1)->miter_limit();
+    
+    {
+        resultobj = SWIG_From_double((double)(result)); 
+    }
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_conv_stroke_curvetrans_miter_limit(PyObject *self, PyObject *args) {
+    int argc;
+    PyObject *argv[3];
+    int ii;
+    
+    argc = PyObject_Length(args);
+    for (ii = 0; (ii < argc) && (ii < 2); ii++) {
+        argv[ii] = PyTuple_GetItem(args,ii);
+    }
+    if (argc == 1) {
+        int _v;
+        {
+            void *ptr;
+            if (SWIG_ConvertPtr(argv[0], &ptr, SWIGTYPE_p_agg__conv_strokeTagg__conv_curveTtranspath_t_t_agg__null_markers_t, 0) == -1) {
+                _v = 0;
+                PyErr_Clear();
+            } else {
+                _v = 1;
+            }
+        }
+        if (_v) {
+            return _wrap_conv_stroke_curvetrans_miter_limit__SWIG_1(self,args);
+        }
+    }
+    if (argc == 2) {
+        int _v;
+        {
+            void *ptr;
+            if (SWIG_ConvertPtr(argv[0], &ptr, SWIGTYPE_p_agg__conv_strokeTagg__conv_curveTtranspath_t_t_agg__null_markers_t, 0) == -1) {
+                _v = 0;
+                PyErr_Clear();
+            } else {
+                _v = 1;
+            }
+        }
+        if (_v) {
+            _v = SWIG_Check_double(argv[1]);
+            if (_v) {
+                return _wrap_conv_stroke_curvetrans_miter_limit__SWIG_0(self,args);
+            }
+        }
+    }
+    
+    PyErr_SetString(PyExc_NotImplementedError,"No matching function for overloaded 'conv_stroke_curvetrans_miter_limit'");
+    return NULL;
+}
+
+
+static PyObject *_wrap_conv_stroke_curvetrans_inner_miter_limit__SWIG_1(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::conv_stroke<curvetrans_t > *arg1 = (agg::conv_stroke<curvetrans_t > *) 0 ;
+    double result;
+    PyObject * obj0 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"O:conv_stroke_curvetrans_inner_miter_limit",&obj0)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__conv_strokeTagg__conv_curveTtranspath_t_t_agg__null_markers_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    result = (double)((agg::conv_stroke<curvetrans_t > const *)arg1)->inner_miter_limit();
+    
+    {
+        resultobj = SWIG_From_double((double)(result)); 
+    }
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_conv_stroke_curvetrans_inner_miter_limit(PyObject *self, PyObject *args) {
+    int argc;
+    PyObject *argv[3];
+    int ii;
+    
+    argc = PyObject_Length(args);
+    for (ii = 0; (ii < argc) && (ii < 2); ii++) {
+        argv[ii] = PyTuple_GetItem(args,ii);
+    }
+    if (argc == 1) {
+        int _v;
+        {
+            void *ptr;
+            if (SWIG_ConvertPtr(argv[0], &ptr, SWIGTYPE_p_agg__conv_strokeTagg__conv_curveTtranspath_t_t_agg__null_markers_t, 0) == -1) {
+                _v = 0;
+                PyErr_Clear();
+            } else {
+                _v = 1;
+            }
+        }
+        if (_v) {
+            return _wrap_conv_stroke_curvetrans_inner_miter_limit__SWIG_1(self,args);
+        }
+    }
+    if (argc == 2) {
+        int _v;
+        {
+            void *ptr;
+            if (SWIG_ConvertPtr(argv[0], &ptr, SWIGTYPE_p_agg__conv_strokeTagg__conv_curveTtranspath_t_t_agg__null_markers_t, 0) == -1) {
+                _v = 0;
+                PyErr_Clear();
+            } else {
+                _v = 1;
+            }
+        }
+        if (_v) {
+            _v = SWIG_Check_double(argv[1]);
+            if (_v) {
+                return _wrap_conv_stroke_curvetrans_inner_miter_limit__SWIG_0(self,args);
+            }
+        }
+    }
+    
+    PyErr_SetString(PyExc_NotImplementedError,"No matching function for overloaded 'conv_stroke_curvetrans_inner_miter_limit'");
+    return NULL;
+}
+
+
+static PyObject *_wrap_conv_stroke_curvetrans_approximation_scale__SWIG_1(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::conv_stroke<curvetrans_t > *arg1 = (agg::conv_stroke<curvetrans_t > *) 0 ;
+    double result;
+    PyObject * obj0 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"O:conv_stroke_curvetrans_approximation_scale",&obj0)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__conv_strokeTagg__conv_curveTtranspath_t_t_agg__null_markers_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    result = (double)((agg::conv_stroke<curvetrans_t > const *)arg1)->approximation_scale();
+    
+    {
+        resultobj = SWIG_From_double((double)(result)); 
+    }
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_conv_stroke_curvetrans_approximation_scale(PyObject *self, PyObject *args) {
+    int argc;
+    PyObject *argv[3];
+    int ii;
+    
+    argc = PyObject_Length(args);
+    for (ii = 0; (ii < argc) && (ii < 2); ii++) {
+        argv[ii] = PyTuple_GetItem(args,ii);
+    }
+    if (argc == 1) {
+        int _v;
+        {
+            void *ptr;
+            if (SWIG_ConvertPtr(argv[0], &ptr, SWIGTYPE_p_agg__conv_strokeTagg__conv_curveTtranspath_t_t_agg__null_markers_t, 0) == -1) {
+                _v = 0;
+                PyErr_Clear();
+            } else {
+                _v = 1;
+            }
+        }
+        if (_v) {
+            return _wrap_conv_stroke_curvetrans_approximation_scale__SWIG_1(self,args);
+        }
+    }
+    if (argc == 2) {
+        int _v;
+        {
+            void *ptr;
+            if (SWIG_ConvertPtr(argv[0], &ptr, SWIGTYPE_p_agg__conv_strokeTagg__conv_curveTtranspath_t_t_agg__null_markers_t, 0) == -1) {
+                _v = 0;
+                PyErr_Clear();
+            } else {
+                _v = 1;
+            }
+        }
+        if (_v) {
+            _v = SWIG_Check_double(argv[1]);
+            if (_v) {
+                return _wrap_conv_stroke_curvetrans_approximation_scale__SWIG_0(self,args);
+            }
+        }
+    }
+    
+    PyErr_SetString(PyExc_NotImplementedError,"No matching function for overloaded 'conv_stroke_curvetrans_approximation_scale'");
+    return NULL;
+}
+
+
+static PyObject *_wrap_conv_stroke_curvetrans_shorten__SWIG_0(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::conv_stroke<curvetrans_t > *arg1 = (agg::conv_stroke<curvetrans_t > *) 0 ;
+    double arg2 ;
+    PyObject * obj0 = 0 ;
+    PyObject * obj1 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"OO:conv_stroke_curvetrans_shorten",&obj0,&obj1)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__conv_strokeTagg__conv_curveTtranspath_t_t_agg__null_markers_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    {
+        arg2 = (double)(SWIG_As_double(obj1)); 
+        if (SWIG_arg_fail(2)) SWIG_fail;
+    }
+    (arg1)->shorten(arg2);
+    
+    Py_INCREF(Py_None); resultobj = Py_None;
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_conv_stroke_curvetrans_shorten__SWIG_1(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::conv_stroke<curvetrans_t > *arg1 = (agg::conv_stroke<curvetrans_t > *) 0 ;
+    double result;
+    PyObject * obj0 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"O:conv_stroke_curvetrans_shorten",&obj0)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__conv_strokeTagg__conv_curveTtranspath_t_t_agg__null_markers_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    result = (double)((agg::conv_stroke<curvetrans_t > const *)arg1)->shorten();
+    
+    {
+        resultobj = SWIG_From_double((double)(result)); 
+    }
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_conv_stroke_curvetrans_shorten(PyObject *self, PyObject *args) {
+    int argc;
+    PyObject *argv[3];
+    int ii;
+    
+    argc = PyObject_Length(args);
+    for (ii = 0; (ii < argc) && (ii < 2); ii++) {
+        argv[ii] = PyTuple_GetItem(args,ii);
+    }
+    if (argc == 1) {
+        int _v;
+        {
+            void *ptr;
+            if (SWIG_ConvertPtr(argv[0], &ptr, SWIGTYPE_p_agg__conv_strokeTagg__conv_curveTtranspath_t_t_agg__null_markers_t, 0) == -1) {
+                _v = 0;
+                PyErr_Clear();
+            } else {
+                _v = 1;
+            }
+        }
+        if (_v) {
+            return _wrap_conv_stroke_curvetrans_shorten__SWIG_1(self,args);
+        }
+    }
+    if (argc == 2) {
+        int _v;
+        {
+            void *ptr;
+            if (SWIG_ConvertPtr(argv[0], &ptr, SWIGTYPE_p_agg__conv_strokeTagg__conv_curveTtranspath_t_t_agg__null_markers_t, 0) == -1) {
+                _v = 0;
+                PyErr_Clear();
+            } else {
+                _v = 1;
+            }
+        }
+        if (_v) {
+            _v = SWIG_Check_double(argv[1]);
+            if (_v) {
+                return _wrap_conv_stroke_curvetrans_shorten__SWIG_0(self,args);
+            }
+        }
+    }
+    
+    PyErr_SetString(PyExc_NotImplementedError,"No matching function for overloaded 'conv_stroke_curvetrans_shorten'");
+    return NULL;
+}
+
+
+static PyObject *_wrap_delete_conv_stroke_curvetrans(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::conv_stroke<curvetrans_t > *arg1 = (agg::conv_stroke<curvetrans_t > *) 0 ;
+    PyObject * obj0 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"O:delete_conv_stroke_curvetrans",&obj0)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__conv_strokeTagg__conv_curveTtranspath_t_t_agg__null_markers_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    delete arg1;
+    
+    Py_INCREF(Py_None); resultobj = Py_None;
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject * conv_stroke_curvetrans_swigregister(PyObject *, PyObject *args) {
+    PyObject *obj;
+    if (!PyArg_ParseTuple(args,(char*)"O", &obj)) return NULL;
+    SWIG_TypeClientData(SWIGTYPE_p_agg__conv_strokeTagg__conv_curveTtranspath_t_t_agg__null_markers_t, obj);
     Py_INCREF(obj);
     return Py_BuildValue((char *)"");
 }
@@ -17284,7 +23240,7 @@ static PyObject *_wrap_rasterizer_scanline_aa_hit_test(PyObject *, PyObject *arg
 static PyObject *_wrap_rasterizer_scanline_aa_add_path__SWIG_0(PyObject *, PyObject *args) {
     PyObject *resultobj = NULL;
     rasterizer_scanline_aa< > *arg1 = (rasterizer_scanline_aa< > *) 0 ;
-    agg::path_storage *arg2 = 0 ;
+    path_t *arg2 = 0 ;
     unsigned int arg3 ;
     PyObject * obj0 = 0 ;
     PyObject * obj1 = 0 ;
@@ -17297,7 +23253,7 @@ static PyObject *_wrap_rasterizer_scanline_aa_add_path__SWIG_0(PyObject *, PyObj
         SWIG_Python_ConvertPtr(obj1, (void **)&arg2, SWIGTYPE_p_agg__path_storage, SWIG_POINTER_EXCEPTION | 0);
         if (SWIG_arg_fail(2)) SWIG_fail;
         if (arg2 == NULL) {
-            SWIG_null_ref("agg::path_storage");
+            SWIG_null_ref("path_t");
         }
         if (SWIG_arg_fail(2)) SWIG_fail;
     }
@@ -17317,7 +23273,7 @@ static PyObject *_wrap_rasterizer_scanline_aa_add_path__SWIG_0(PyObject *, PyObj
 static PyObject *_wrap_rasterizer_scanline_aa_add_path__SWIG_1(PyObject *, PyObject *args) {
     PyObject *resultobj = NULL;
     rasterizer_scanline_aa< > *arg1 = (rasterizer_scanline_aa< > *) 0 ;
-    agg::path_storage *arg2 = 0 ;
+    path_t *arg2 = 0 ;
     PyObject * obj0 = 0 ;
     PyObject * obj1 = 0 ;
     
@@ -17328,7 +23284,7 @@ static PyObject *_wrap_rasterizer_scanline_aa_add_path__SWIG_1(PyObject *, PyObj
         SWIG_Python_ConvertPtr(obj1, (void **)&arg2, SWIGTYPE_p_agg__path_storage, SWIG_POINTER_EXCEPTION | 0);
         if (SWIG_arg_fail(2)) SWIG_fail;
         if (arg2 == NULL) {
-            SWIG_null_ref("agg::path_storage");
+            SWIG_null_ref("path_t");
         }
         if (SWIG_arg_fail(2)) SWIG_fail;
     }
@@ -17344,7 +23300,7 @@ static PyObject *_wrap_rasterizer_scanline_aa_add_path__SWIG_1(PyObject *, PyObj
 static PyObject *_wrap_rasterizer_scanline_aa_add_path__SWIG_2(PyObject *, PyObject *args) {
     PyObject *resultobj = NULL;
     rasterizer_scanline_aa< > *arg1 = (rasterizer_scanline_aa< > *) 0 ;
-    agg::conv_stroke<agg::path_storage > *arg2 = 0 ;
+    stroke_t *arg2 = 0 ;
     unsigned int arg3 ;
     PyObject * obj0 = 0 ;
     PyObject * obj1 = 0 ;
@@ -17354,10 +23310,10 @@ static PyObject *_wrap_rasterizer_scanline_aa_add_path__SWIG_2(PyObject *, PyObj
     SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_rasterizer_scanline_aaT_t, SWIG_POINTER_EXCEPTION | 0);
     if (SWIG_arg_fail(1)) SWIG_fail;
     {
-        SWIG_Python_ConvertPtr(obj1, (void **)&arg2, SWIGTYPE_p_conv_strokeTagg__path_storage_t, SWIG_POINTER_EXCEPTION | 0);
+        SWIG_Python_ConvertPtr(obj1, (void **)&arg2, SWIGTYPE_p_agg__conv_strokeTagg__path_storage_agg__null_markers_t, SWIG_POINTER_EXCEPTION | 0);
         if (SWIG_arg_fail(2)) SWIG_fail;
         if (arg2 == NULL) {
-            SWIG_null_ref("agg::conv_stroke<agg::path_storage >");
+            SWIG_null_ref("stroke_t");
         }
         if (SWIG_arg_fail(2)) SWIG_fail;
     }
@@ -17377,7 +23333,7 @@ static PyObject *_wrap_rasterizer_scanline_aa_add_path__SWIG_2(PyObject *, PyObj
 static PyObject *_wrap_rasterizer_scanline_aa_add_path__SWIG_3(PyObject *, PyObject *args) {
     PyObject *resultobj = NULL;
     rasterizer_scanline_aa< > *arg1 = (rasterizer_scanline_aa< > *) 0 ;
-    agg::conv_stroke<agg::path_storage > *arg2 = 0 ;
+    stroke_t *arg2 = 0 ;
     PyObject * obj0 = 0 ;
     PyObject * obj1 = 0 ;
     
@@ -17385,10 +23341,490 @@ static PyObject *_wrap_rasterizer_scanline_aa_add_path__SWIG_3(PyObject *, PyObj
     SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_rasterizer_scanline_aaT_t, SWIG_POINTER_EXCEPTION | 0);
     if (SWIG_arg_fail(1)) SWIG_fail;
     {
-        SWIG_Python_ConvertPtr(obj1, (void **)&arg2, SWIGTYPE_p_conv_strokeTagg__path_storage_t, SWIG_POINTER_EXCEPTION | 0);
+        SWIG_Python_ConvertPtr(obj1, (void **)&arg2, SWIGTYPE_p_agg__conv_strokeTagg__path_storage_agg__null_markers_t, SWIG_POINTER_EXCEPTION | 0);
         if (SWIG_arg_fail(2)) SWIG_fail;
         if (arg2 == NULL) {
-            SWIG_null_ref("agg::conv_stroke<agg::path_storage >");
+            SWIG_null_ref("stroke_t");
+        }
+        if (SWIG_arg_fail(2)) SWIG_fail;
+    }
+    (arg1)->add_path(*arg2);
+    
+    Py_INCREF(Py_None); resultobj = Py_None;
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_rasterizer_scanline_aa_add_path__SWIG_4(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    rasterizer_scanline_aa< > *arg1 = (rasterizer_scanline_aa< > *) 0 ;
+    transpath_t *arg2 = 0 ;
+    unsigned int arg3 ;
+    PyObject * obj0 = 0 ;
+    PyObject * obj1 = 0 ;
+    PyObject * obj2 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"OOO:rasterizer_scanline_aa_add_path",&obj0,&obj1,&obj2)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_rasterizer_scanline_aaT_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    {
+        SWIG_Python_ConvertPtr(obj1, (void **)&arg2, SWIGTYPE_p_agg__conv_transformTagg__path_storage_agg__trans_affine_t, SWIG_POINTER_EXCEPTION | 0);
+        if (SWIG_arg_fail(2)) SWIG_fail;
+        if (arg2 == NULL) {
+            SWIG_null_ref("transpath_t");
+        }
+        if (SWIG_arg_fail(2)) SWIG_fail;
+    }
+    {
+        arg3 = (unsigned int)(SWIG_As_unsigned_SS_int(obj2)); 
+        if (SWIG_arg_fail(3)) SWIG_fail;
+    }
+    (arg1)->add_path(*arg2,arg3);
+    
+    Py_INCREF(Py_None); resultobj = Py_None;
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_rasterizer_scanline_aa_add_path__SWIG_5(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    rasterizer_scanline_aa< > *arg1 = (rasterizer_scanline_aa< > *) 0 ;
+    transpath_t *arg2 = 0 ;
+    PyObject * obj0 = 0 ;
+    PyObject * obj1 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"OO:rasterizer_scanline_aa_add_path",&obj0,&obj1)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_rasterizer_scanline_aaT_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    {
+        SWIG_Python_ConvertPtr(obj1, (void **)&arg2, SWIGTYPE_p_agg__conv_transformTagg__path_storage_agg__trans_affine_t, SWIG_POINTER_EXCEPTION | 0);
+        if (SWIG_arg_fail(2)) SWIG_fail;
+        if (arg2 == NULL) {
+            SWIG_null_ref("transpath_t");
+        }
+        if (SWIG_arg_fail(2)) SWIG_fail;
+    }
+    (arg1)->add_path(*arg2);
+    
+    Py_INCREF(Py_None); resultobj = Py_None;
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_rasterizer_scanline_aa_add_path__SWIG_6(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    rasterizer_scanline_aa< > *arg1 = (rasterizer_scanline_aa< > *) 0 ;
+    stroketrans_t *arg2 = 0 ;
+    unsigned int arg3 ;
+    PyObject * obj0 = 0 ;
+    PyObject * obj1 = 0 ;
+    PyObject * obj2 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"OOO:rasterizer_scanline_aa_add_path",&obj0,&obj1,&obj2)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_rasterizer_scanline_aaT_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    {
+        SWIG_Python_ConvertPtr(obj1, (void **)&arg2, SWIGTYPE_p_agg__conv_strokeTagg__conv_transformTpath_t_agg__trans_affine_t_agg__null_markers_t, SWIG_POINTER_EXCEPTION | 0);
+        if (SWIG_arg_fail(2)) SWIG_fail;
+        if (arg2 == NULL) {
+            SWIG_null_ref("stroketrans_t");
+        }
+        if (SWIG_arg_fail(2)) SWIG_fail;
+    }
+    {
+        arg3 = (unsigned int)(SWIG_As_unsigned_SS_int(obj2)); 
+        if (SWIG_arg_fail(3)) SWIG_fail;
+    }
+    (arg1)->add_path(*arg2,arg3);
+    
+    Py_INCREF(Py_None); resultobj = Py_None;
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_rasterizer_scanline_aa_add_path__SWIG_7(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    rasterizer_scanline_aa< > *arg1 = (rasterizer_scanline_aa< > *) 0 ;
+    stroketrans_t *arg2 = 0 ;
+    PyObject * obj0 = 0 ;
+    PyObject * obj1 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"OO:rasterizer_scanline_aa_add_path",&obj0,&obj1)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_rasterizer_scanline_aaT_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    {
+        SWIG_Python_ConvertPtr(obj1, (void **)&arg2, SWIGTYPE_p_agg__conv_strokeTagg__conv_transformTpath_t_agg__trans_affine_t_agg__null_markers_t, SWIG_POINTER_EXCEPTION | 0);
+        if (SWIG_arg_fail(2)) SWIG_fail;
+        if (arg2 == NULL) {
+            SWIG_null_ref("stroketrans_t");
+        }
+        if (SWIG_arg_fail(2)) SWIG_fail;
+    }
+    (arg1)->add_path(*arg2);
+    
+    Py_INCREF(Py_None); resultobj = Py_None;
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_rasterizer_scanline_aa_add_path__SWIG_8(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    rasterizer_scanline_aa< > *arg1 = (rasterizer_scanline_aa< > *) 0 ;
+    curve_t *arg2 = 0 ;
+    unsigned int arg3 ;
+    PyObject * obj0 = 0 ;
+    PyObject * obj1 = 0 ;
+    PyObject * obj2 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"OOO:rasterizer_scanline_aa_add_path",&obj0,&obj1,&obj2)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_rasterizer_scanline_aaT_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    {
+        SWIG_Python_ConvertPtr(obj1, (void **)&arg2, SWIGTYPE_p_agg__conv_curveTagg__path_storage_t, SWIG_POINTER_EXCEPTION | 0);
+        if (SWIG_arg_fail(2)) SWIG_fail;
+        if (arg2 == NULL) {
+            SWIG_null_ref("curve_t");
+        }
+        if (SWIG_arg_fail(2)) SWIG_fail;
+    }
+    {
+        arg3 = (unsigned int)(SWIG_As_unsigned_SS_int(obj2)); 
+        if (SWIG_arg_fail(3)) SWIG_fail;
+    }
+    (arg1)->add_path(*arg2,arg3);
+    
+    Py_INCREF(Py_None); resultobj = Py_None;
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_rasterizer_scanline_aa_add_path__SWIG_9(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    rasterizer_scanline_aa< > *arg1 = (rasterizer_scanline_aa< > *) 0 ;
+    curve_t *arg2 = 0 ;
+    PyObject * obj0 = 0 ;
+    PyObject * obj1 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"OO:rasterizer_scanline_aa_add_path",&obj0,&obj1)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_rasterizer_scanline_aaT_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    {
+        SWIG_Python_ConvertPtr(obj1, (void **)&arg2, SWIGTYPE_p_agg__conv_curveTagg__path_storage_t, SWIG_POINTER_EXCEPTION | 0);
+        if (SWIG_arg_fail(2)) SWIG_fail;
+        if (arg2 == NULL) {
+            SWIG_null_ref("curve_t");
+        }
+        if (SWIG_arg_fail(2)) SWIG_fail;
+    }
+    (arg1)->add_path(*arg2);
+    
+    Py_INCREF(Py_None); resultobj = Py_None;
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_rasterizer_scanline_aa_add_path__SWIG_10(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    rasterizer_scanline_aa< > *arg1 = (rasterizer_scanline_aa< > *) 0 ;
+    strokecurve_t *arg2 = 0 ;
+    unsigned int arg3 ;
+    PyObject * obj0 = 0 ;
+    PyObject * obj1 = 0 ;
+    PyObject * obj2 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"OOO:rasterizer_scanline_aa_add_path",&obj0,&obj1,&obj2)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_rasterizer_scanline_aaT_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    {
+        SWIG_Python_ConvertPtr(obj1, (void **)&arg2, SWIGTYPE_p_agg__conv_strokeTagg__conv_curveTpath_t_t_agg__null_markers_t, SWIG_POINTER_EXCEPTION | 0);
+        if (SWIG_arg_fail(2)) SWIG_fail;
+        if (arg2 == NULL) {
+            SWIG_null_ref("strokecurve_t");
+        }
+        if (SWIG_arg_fail(2)) SWIG_fail;
+    }
+    {
+        arg3 = (unsigned int)(SWIG_As_unsigned_SS_int(obj2)); 
+        if (SWIG_arg_fail(3)) SWIG_fail;
+    }
+    (arg1)->add_path(*arg2,arg3);
+    
+    Py_INCREF(Py_None); resultobj = Py_None;
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_rasterizer_scanline_aa_add_path__SWIG_11(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    rasterizer_scanline_aa< > *arg1 = (rasterizer_scanline_aa< > *) 0 ;
+    strokecurve_t *arg2 = 0 ;
+    PyObject * obj0 = 0 ;
+    PyObject * obj1 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"OO:rasterizer_scanline_aa_add_path",&obj0,&obj1)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_rasterizer_scanline_aaT_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    {
+        SWIG_Python_ConvertPtr(obj1, (void **)&arg2, SWIGTYPE_p_agg__conv_strokeTagg__conv_curveTpath_t_t_agg__null_markers_t, SWIG_POINTER_EXCEPTION | 0);
+        if (SWIG_arg_fail(2)) SWIG_fail;
+        if (arg2 == NULL) {
+            SWIG_null_ref("strokecurve_t");
+        }
+        if (SWIG_arg_fail(2)) SWIG_fail;
+    }
+    (arg1)->add_path(*arg2);
+    
+    Py_INCREF(Py_None); resultobj = Py_None;
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_rasterizer_scanline_aa_add_path__SWIG_12(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    rasterizer_scanline_aa< > *arg1 = (rasterizer_scanline_aa< > *) 0 ;
+    transcurve_t *arg2 = 0 ;
+    unsigned int arg3 ;
+    PyObject * obj0 = 0 ;
+    PyObject * obj1 = 0 ;
+    PyObject * obj2 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"OOO:rasterizer_scanline_aa_add_path",&obj0,&obj1,&obj2)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_rasterizer_scanline_aaT_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    {
+        SWIG_Python_ConvertPtr(obj1, (void **)&arg2, SWIGTYPE_p_agg__conv_transformTagg__conv_curveTpath_t_t_agg__trans_affine_t, SWIG_POINTER_EXCEPTION | 0);
+        if (SWIG_arg_fail(2)) SWIG_fail;
+        if (arg2 == NULL) {
+            SWIG_null_ref("transcurve_t");
+        }
+        if (SWIG_arg_fail(2)) SWIG_fail;
+    }
+    {
+        arg3 = (unsigned int)(SWIG_As_unsigned_SS_int(obj2)); 
+        if (SWIG_arg_fail(3)) SWIG_fail;
+    }
+    (arg1)->add_path(*arg2,arg3);
+    
+    Py_INCREF(Py_None); resultobj = Py_None;
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_rasterizer_scanline_aa_add_path__SWIG_13(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    rasterizer_scanline_aa< > *arg1 = (rasterizer_scanline_aa< > *) 0 ;
+    transcurve_t *arg2 = 0 ;
+    PyObject * obj0 = 0 ;
+    PyObject * obj1 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"OO:rasterizer_scanline_aa_add_path",&obj0,&obj1)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_rasterizer_scanline_aaT_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    {
+        SWIG_Python_ConvertPtr(obj1, (void **)&arg2, SWIGTYPE_p_agg__conv_transformTagg__conv_curveTpath_t_t_agg__trans_affine_t, SWIG_POINTER_EXCEPTION | 0);
+        if (SWIG_arg_fail(2)) SWIG_fail;
+        if (arg2 == NULL) {
+            SWIG_null_ref("transcurve_t");
+        }
+        if (SWIG_arg_fail(2)) SWIG_fail;
+    }
+    (arg1)->add_path(*arg2);
+    
+    Py_INCREF(Py_None); resultobj = Py_None;
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_rasterizer_scanline_aa_add_path__SWIG_14(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    rasterizer_scanline_aa< > *arg1 = (rasterizer_scanline_aa< > *) 0 ;
+    stroketranscurve_t *arg2 = 0 ;
+    unsigned int arg3 ;
+    PyObject * obj0 = 0 ;
+    PyObject * obj1 = 0 ;
+    PyObject * obj2 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"OOO:rasterizer_scanline_aa_add_path",&obj0,&obj1,&obj2)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_rasterizer_scanline_aaT_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    {
+        SWIG_Python_ConvertPtr(obj1, (void **)&arg2, SWIGTYPE_p_agg__conv_strokeTagg__conv_transformTcurve_t_agg__trans_affine_t_agg__null_markers_t, SWIG_POINTER_EXCEPTION | 0);
+        if (SWIG_arg_fail(2)) SWIG_fail;
+        if (arg2 == NULL) {
+            SWIG_null_ref("stroketranscurve_t");
+        }
+        if (SWIG_arg_fail(2)) SWIG_fail;
+    }
+    {
+        arg3 = (unsigned int)(SWIG_As_unsigned_SS_int(obj2)); 
+        if (SWIG_arg_fail(3)) SWIG_fail;
+    }
+    (arg1)->add_path(*arg2,arg3);
+    
+    Py_INCREF(Py_None); resultobj = Py_None;
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_rasterizer_scanline_aa_add_path__SWIG_15(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    rasterizer_scanline_aa< > *arg1 = (rasterizer_scanline_aa< > *) 0 ;
+    stroketranscurve_t *arg2 = 0 ;
+    PyObject * obj0 = 0 ;
+    PyObject * obj1 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"OO:rasterizer_scanline_aa_add_path",&obj0,&obj1)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_rasterizer_scanline_aaT_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    {
+        SWIG_Python_ConvertPtr(obj1, (void **)&arg2, SWIGTYPE_p_agg__conv_strokeTagg__conv_transformTcurve_t_agg__trans_affine_t_agg__null_markers_t, SWIG_POINTER_EXCEPTION | 0);
+        if (SWIG_arg_fail(2)) SWIG_fail;
+        if (arg2 == NULL) {
+            SWIG_null_ref("stroketranscurve_t");
+        }
+        if (SWIG_arg_fail(2)) SWIG_fail;
+    }
+    (arg1)->add_path(*arg2);
+    
+    Py_INCREF(Py_None); resultobj = Py_None;
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_rasterizer_scanline_aa_add_path__SWIG_16(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    rasterizer_scanline_aa< > *arg1 = (rasterizer_scanline_aa< > *) 0 ;
+    curvetrans_t *arg2 = 0 ;
+    unsigned int arg3 ;
+    PyObject * obj0 = 0 ;
+    PyObject * obj1 = 0 ;
+    PyObject * obj2 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"OOO:rasterizer_scanline_aa_add_path",&obj0,&obj1,&obj2)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_rasterizer_scanline_aaT_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    {
+        SWIG_Python_ConvertPtr(obj1, (void **)&arg2, SWIGTYPE_p_agg__conv_curveTagg__conv_transformTpath_t_agg__trans_affine_t_t, SWIG_POINTER_EXCEPTION | 0);
+        if (SWIG_arg_fail(2)) SWIG_fail;
+        if (arg2 == NULL) {
+            SWIG_null_ref("curvetrans_t");
+        }
+        if (SWIG_arg_fail(2)) SWIG_fail;
+    }
+    {
+        arg3 = (unsigned int)(SWIG_As_unsigned_SS_int(obj2)); 
+        if (SWIG_arg_fail(3)) SWIG_fail;
+    }
+    (arg1)->add_path(*arg2,arg3);
+    
+    Py_INCREF(Py_None); resultobj = Py_None;
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_rasterizer_scanline_aa_add_path__SWIG_17(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    rasterizer_scanline_aa< > *arg1 = (rasterizer_scanline_aa< > *) 0 ;
+    curvetrans_t *arg2 = 0 ;
+    PyObject * obj0 = 0 ;
+    PyObject * obj1 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"OO:rasterizer_scanline_aa_add_path",&obj0,&obj1)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_rasterizer_scanline_aaT_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    {
+        SWIG_Python_ConvertPtr(obj1, (void **)&arg2, SWIGTYPE_p_agg__conv_curveTagg__conv_transformTpath_t_agg__trans_affine_t_t, SWIG_POINTER_EXCEPTION | 0);
+        if (SWIG_arg_fail(2)) SWIG_fail;
+        if (arg2 == NULL) {
+            SWIG_null_ref("curvetrans_t");
+        }
+        if (SWIG_arg_fail(2)) SWIG_fail;
+    }
+    (arg1)->add_path(*arg2);
+    
+    Py_INCREF(Py_None); resultobj = Py_None;
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_rasterizer_scanline_aa_add_path__SWIG_18(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    rasterizer_scanline_aa< > *arg1 = (rasterizer_scanline_aa< > *) 0 ;
+    strokecurvetrans_t *arg2 = 0 ;
+    unsigned int arg3 ;
+    PyObject * obj0 = 0 ;
+    PyObject * obj1 = 0 ;
+    PyObject * obj2 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"OOO:rasterizer_scanline_aa_add_path",&obj0,&obj1,&obj2)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_rasterizer_scanline_aaT_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    {
+        SWIG_Python_ConvertPtr(obj1, (void **)&arg2, SWIGTYPE_p_agg__conv_strokeTagg__conv_curveTtranspath_t_t_agg__null_markers_t, SWIG_POINTER_EXCEPTION | 0);
+        if (SWIG_arg_fail(2)) SWIG_fail;
+        if (arg2 == NULL) {
+            SWIG_null_ref("strokecurvetrans_t");
+        }
+        if (SWIG_arg_fail(2)) SWIG_fail;
+    }
+    {
+        arg3 = (unsigned int)(SWIG_As_unsigned_SS_int(obj2)); 
+        if (SWIG_arg_fail(3)) SWIG_fail;
+    }
+    (arg1)->add_path(*arg2,arg3);
+    
+    Py_INCREF(Py_None); resultobj = Py_None;
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_rasterizer_scanline_aa_add_path__SWIG_19(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    rasterizer_scanline_aa< > *arg1 = (rasterizer_scanline_aa< > *) 0 ;
+    strokecurvetrans_t *arg2 = 0 ;
+    PyObject * obj0 = 0 ;
+    PyObject * obj1 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"OO:rasterizer_scanline_aa_add_path",&obj0,&obj1)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_rasterizer_scanline_aaT_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    {
+        SWIG_Python_ConvertPtr(obj1, (void **)&arg2, SWIGTYPE_p_agg__conv_strokeTagg__conv_curveTtranspath_t_t_agg__null_markers_t, SWIG_POINTER_EXCEPTION | 0);
+        if (SWIG_arg_fail(2)) SWIG_fail;
+        if (arg2 == NULL) {
+            SWIG_null_ref("strokecurvetrans_t");
         }
         if (SWIG_arg_fail(2)) SWIG_fail;
     }
@@ -17450,7 +23886,7 @@ static PyObject *_wrap_rasterizer_scanline_aa_add_path(PyObject *self, PyObject 
         if (_v) {
             {
                 void *ptr = 0;
-                if (SWIG_ConvertPtr(argv[1], &ptr, SWIGTYPE_p_conv_strokeTagg__path_storage_t, 0) == -1) {
+                if (SWIG_ConvertPtr(argv[1], &ptr, SWIGTYPE_p_agg__conv_strokeTagg__path_storage_agg__null_markers_t, 0) == -1) {
                     _v = 0;
                     PyErr_Clear();
                 } else {
@@ -17459,6 +23895,214 @@ static PyObject *_wrap_rasterizer_scanline_aa_add_path(PyObject *self, PyObject 
             }
             if (_v) {
                 return _wrap_rasterizer_scanline_aa_add_path__SWIG_3(self,args);
+            }
+        }
+    }
+    if (argc == 2) {
+        int _v;
+        {
+            void *ptr;
+            if (SWIG_ConvertPtr(argv[0], &ptr, SWIGTYPE_p_rasterizer_scanline_aaT_t, 0) == -1) {
+                _v = 0;
+                PyErr_Clear();
+            } else {
+                _v = 1;
+            }
+        }
+        if (_v) {
+            {
+                void *ptr = 0;
+                if (SWIG_ConvertPtr(argv[1], &ptr, SWIGTYPE_p_agg__conv_transformTagg__path_storage_agg__trans_affine_t, 0) == -1) {
+                    _v = 0;
+                    PyErr_Clear();
+                } else {
+                    _v = (ptr != 0);
+                }
+            }
+            if (_v) {
+                return _wrap_rasterizer_scanline_aa_add_path__SWIG_5(self,args);
+            }
+        }
+    }
+    if (argc == 2) {
+        int _v;
+        {
+            void *ptr;
+            if (SWIG_ConvertPtr(argv[0], &ptr, SWIGTYPE_p_rasterizer_scanline_aaT_t, 0) == -1) {
+                _v = 0;
+                PyErr_Clear();
+            } else {
+                _v = 1;
+            }
+        }
+        if (_v) {
+            {
+                void *ptr = 0;
+                if (SWIG_ConvertPtr(argv[1], &ptr, SWIGTYPE_p_agg__conv_strokeTagg__conv_transformTpath_t_agg__trans_affine_t_agg__null_markers_t, 0) == -1) {
+                    _v = 0;
+                    PyErr_Clear();
+                } else {
+                    _v = (ptr != 0);
+                }
+            }
+            if (_v) {
+                return _wrap_rasterizer_scanline_aa_add_path__SWIG_7(self,args);
+            }
+        }
+    }
+    if (argc == 2) {
+        int _v;
+        {
+            void *ptr;
+            if (SWIG_ConvertPtr(argv[0], &ptr, SWIGTYPE_p_rasterizer_scanline_aaT_t, 0) == -1) {
+                _v = 0;
+                PyErr_Clear();
+            } else {
+                _v = 1;
+            }
+        }
+        if (_v) {
+            {
+                void *ptr = 0;
+                if (SWIG_ConvertPtr(argv[1], &ptr, SWIGTYPE_p_agg__conv_curveTagg__path_storage_t, 0) == -1) {
+                    _v = 0;
+                    PyErr_Clear();
+                } else {
+                    _v = (ptr != 0);
+                }
+            }
+            if (_v) {
+                return _wrap_rasterizer_scanline_aa_add_path__SWIG_9(self,args);
+            }
+        }
+    }
+    if (argc == 2) {
+        int _v;
+        {
+            void *ptr;
+            if (SWIG_ConvertPtr(argv[0], &ptr, SWIGTYPE_p_rasterizer_scanline_aaT_t, 0) == -1) {
+                _v = 0;
+                PyErr_Clear();
+            } else {
+                _v = 1;
+            }
+        }
+        if (_v) {
+            {
+                void *ptr = 0;
+                if (SWIG_ConvertPtr(argv[1], &ptr, SWIGTYPE_p_agg__conv_strokeTagg__conv_curveTpath_t_t_agg__null_markers_t, 0) == -1) {
+                    _v = 0;
+                    PyErr_Clear();
+                } else {
+                    _v = (ptr != 0);
+                }
+            }
+            if (_v) {
+                return _wrap_rasterizer_scanline_aa_add_path__SWIG_11(self,args);
+            }
+        }
+    }
+    if (argc == 2) {
+        int _v;
+        {
+            void *ptr;
+            if (SWIG_ConvertPtr(argv[0], &ptr, SWIGTYPE_p_rasterizer_scanline_aaT_t, 0) == -1) {
+                _v = 0;
+                PyErr_Clear();
+            } else {
+                _v = 1;
+            }
+        }
+        if (_v) {
+            {
+                void *ptr = 0;
+                if (SWIG_ConvertPtr(argv[1], &ptr, SWIGTYPE_p_agg__conv_transformTagg__conv_curveTpath_t_t_agg__trans_affine_t, 0) == -1) {
+                    _v = 0;
+                    PyErr_Clear();
+                } else {
+                    _v = (ptr != 0);
+                }
+            }
+            if (_v) {
+                return _wrap_rasterizer_scanline_aa_add_path__SWIG_13(self,args);
+            }
+        }
+    }
+    if (argc == 2) {
+        int _v;
+        {
+            void *ptr;
+            if (SWIG_ConvertPtr(argv[0], &ptr, SWIGTYPE_p_rasterizer_scanline_aaT_t, 0) == -1) {
+                _v = 0;
+                PyErr_Clear();
+            } else {
+                _v = 1;
+            }
+        }
+        if (_v) {
+            {
+                void *ptr = 0;
+                if (SWIG_ConvertPtr(argv[1], &ptr, SWIGTYPE_p_agg__conv_strokeTagg__conv_transformTcurve_t_agg__trans_affine_t_agg__null_markers_t, 0) == -1) {
+                    _v = 0;
+                    PyErr_Clear();
+                } else {
+                    _v = (ptr != 0);
+                }
+            }
+            if (_v) {
+                return _wrap_rasterizer_scanline_aa_add_path__SWIG_15(self,args);
+            }
+        }
+    }
+    if (argc == 2) {
+        int _v;
+        {
+            void *ptr;
+            if (SWIG_ConvertPtr(argv[0], &ptr, SWIGTYPE_p_rasterizer_scanline_aaT_t, 0) == -1) {
+                _v = 0;
+                PyErr_Clear();
+            } else {
+                _v = 1;
+            }
+        }
+        if (_v) {
+            {
+                void *ptr = 0;
+                if (SWIG_ConvertPtr(argv[1], &ptr, SWIGTYPE_p_agg__conv_curveTagg__conv_transformTpath_t_agg__trans_affine_t_t, 0) == -1) {
+                    _v = 0;
+                    PyErr_Clear();
+                } else {
+                    _v = (ptr != 0);
+                }
+            }
+            if (_v) {
+                return _wrap_rasterizer_scanline_aa_add_path__SWIG_17(self,args);
+            }
+        }
+    }
+    if (argc == 2) {
+        int _v;
+        {
+            void *ptr;
+            if (SWIG_ConvertPtr(argv[0], &ptr, SWIGTYPE_p_rasterizer_scanline_aaT_t, 0) == -1) {
+                _v = 0;
+                PyErr_Clear();
+            } else {
+                _v = 1;
+            }
+        }
+        if (_v) {
+            {
+                void *ptr = 0;
+                if (SWIG_ConvertPtr(argv[1], &ptr, SWIGTYPE_p_agg__conv_strokeTagg__conv_curveTtranspath_t_t_agg__null_markers_t, 0) == -1) {
+                    _v = 0;
+                    PyErr_Clear();
+                } else {
+                    _v = (ptr != 0);
+                }
+            }
+            if (_v) {
+                return _wrap_rasterizer_scanline_aa_add_path__SWIG_19(self,args);
             }
         }
     }
@@ -17476,7 +24120,36 @@ static PyObject *_wrap_rasterizer_scanline_aa_add_path(PyObject *self, PyObject 
         if (_v) {
             {
                 void *ptr = 0;
-                if (SWIG_ConvertPtr(argv[1], &ptr, SWIGTYPE_p_conv_strokeTagg__path_storage_t, 0) == -1) {
+                if (SWIG_ConvertPtr(argv[1], &ptr, SWIGTYPE_p_agg__conv_strokeTagg__conv_curveTpath_t_t_agg__null_markers_t, 0) == -1) {
+                    _v = 0;
+                    PyErr_Clear();
+                } else {
+                    _v = (ptr != 0);
+                }
+            }
+            if (_v) {
+                _v = SWIG_Check_unsigned_SS_int(argv[2]);
+                if (_v) {
+                    return _wrap_rasterizer_scanline_aa_add_path__SWIG_10(self,args);
+                }
+            }
+        }
+    }
+    if (argc == 3) {
+        int _v;
+        {
+            void *ptr;
+            if (SWIG_ConvertPtr(argv[0], &ptr, SWIGTYPE_p_rasterizer_scanline_aaT_t, 0) == -1) {
+                _v = 0;
+                PyErr_Clear();
+            } else {
+                _v = 1;
+            }
+        }
+        if (_v) {
+            {
+                void *ptr = 0;
+                if (SWIG_ConvertPtr(argv[1], &ptr, SWIGTYPE_p_agg__conv_strokeTagg__path_storage_agg__null_markers_t, 0) == -1) {
                     _v = 0;
                     PyErr_Clear();
                 } else {
@@ -17487,6 +24160,93 @@ static PyObject *_wrap_rasterizer_scanline_aa_add_path(PyObject *self, PyObject 
                 _v = SWIG_Check_unsigned_SS_int(argv[2]);
                 if (_v) {
                     return _wrap_rasterizer_scanline_aa_add_path__SWIG_2(self,args);
+                }
+            }
+        }
+    }
+    if (argc == 3) {
+        int _v;
+        {
+            void *ptr;
+            if (SWIG_ConvertPtr(argv[0], &ptr, SWIGTYPE_p_rasterizer_scanline_aaT_t, 0) == -1) {
+                _v = 0;
+                PyErr_Clear();
+            } else {
+                _v = 1;
+            }
+        }
+        if (_v) {
+            {
+                void *ptr = 0;
+                if (SWIG_ConvertPtr(argv[1], &ptr, SWIGTYPE_p_agg__conv_transformTagg__conv_curveTpath_t_t_agg__trans_affine_t, 0) == -1) {
+                    _v = 0;
+                    PyErr_Clear();
+                } else {
+                    _v = (ptr != 0);
+                }
+            }
+            if (_v) {
+                _v = SWIG_Check_unsigned_SS_int(argv[2]);
+                if (_v) {
+                    return _wrap_rasterizer_scanline_aa_add_path__SWIG_12(self,args);
+                }
+            }
+        }
+    }
+    if (argc == 3) {
+        int _v;
+        {
+            void *ptr;
+            if (SWIG_ConvertPtr(argv[0], &ptr, SWIGTYPE_p_rasterizer_scanline_aaT_t, 0) == -1) {
+                _v = 0;
+                PyErr_Clear();
+            } else {
+                _v = 1;
+            }
+        }
+        if (_v) {
+            {
+                void *ptr = 0;
+                if (SWIG_ConvertPtr(argv[1], &ptr, SWIGTYPE_p_agg__conv_strokeTagg__conv_transformTpath_t_agg__trans_affine_t_agg__null_markers_t, 0) == -1) {
+                    _v = 0;
+                    PyErr_Clear();
+                } else {
+                    _v = (ptr != 0);
+                }
+            }
+            if (_v) {
+                _v = SWIG_Check_unsigned_SS_int(argv[2]);
+                if (_v) {
+                    return _wrap_rasterizer_scanline_aa_add_path__SWIG_6(self,args);
+                }
+            }
+        }
+    }
+    if (argc == 3) {
+        int _v;
+        {
+            void *ptr;
+            if (SWIG_ConvertPtr(argv[0], &ptr, SWIGTYPE_p_rasterizer_scanline_aaT_t, 0) == -1) {
+                _v = 0;
+                PyErr_Clear();
+            } else {
+                _v = 1;
+            }
+        }
+        if (_v) {
+            {
+                void *ptr = 0;
+                if (SWIG_ConvertPtr(argv[1], &ptr, SWIGTYPE_p_agg__conv_strokeTagg__conv_transformTcurve_t_agg__trans_affine_t_agg__null_markers_t, 0) == -1) {
+                    _v = 0;
+                    PyErr_Clear();
+                } else {
+                    _v = (ptr != 0);
+                }
+            }
+            if (_v) {
+                _v = SWIG_Check_unsigned_SS_int(argv[2]);
+                if (_v) {
+                    return _wrap_rasterizer_scanline_aa_add_path__SWIG_14(self,args);
                 }
             }
         }
@@ -17516,6 +24276,122 @@ static PyObject *_wrap_rasterizer_scanline_aa_add_path(PyObject *self, PyObject 
                 _v = SWIG_Check_unsigned_SS_int(argv[2]);
                 if (_v) {
                     return _wrap_rasterizer_scanline_aa_add_path__SWIG_0(self,args);
+                }
+            }
+        }
+    }
+    if (argc == 3) {
+        int _v;
+        {
+            void *ptr;
+            if (SWIG_ConvertPtr(argv[0], &ptr, SWIGTYPE_p_rasterizer_scanline_aaT_t, 0) == -1) {
+                _v = 0;
+                PyErr_Clear();
+            } else {
+                _v = 1;
+            }
+        }
+        if (_v) {
+            {
+                void *ptr = 0;
+                if (SWIG_ConvertPtr(argv[1], &ptr, SWIGTYPE_p_agg__conv_curveTagg__conv_transformTpath_t_agg__trans_affine_t_t, 0) == -1) {
+                    _v = 0;
+                    PyErr_Clear();
+                } else {
+                    _v = (ptr != 0);
+                }
+            }
+            if (_v) {
+                _v = SWIG_Check_unsigned_SS_int(argv[2]);
+                if (_v) {
+                    return _wrap_rasterizer_scanline_aa_add_path__SWIG_16(self,args);
+                }
+            }
+        }
+    }
+    if (argc == 3) {
+        int _v;
+        {
+            void *ptr;
+            if (SWIG_ConvertPtr(argv[0], &ptr, SWIGTYPE_p_rasterizer_scanline_aaT_t, 0) == -1) {
+                _v = 0;
+                PyErr_Clear();
+            } else {
+                _v = 1;
+            }
+        }
+        if (_v) {
+            {
+                void *ptr = 0;
+                if (SWIG_ConvertPtr(argv[1], &ptr, SWIGTYPE_p_agg__conv_curveTagg__path_storage_t, 0) == -1) {
+                    _v = 0;
+                    PyErr_Clear();
+                } else {
+                    _v = (ptr != 0);
+                }
+            }
+            if (_v) {
+                _v = SWIG_Check_unsigned_SS_int(argv[2]);
+                if (_v) {
+                    return _wrap_rasterizer_scanline_aa_add_path__SWIG_8(self,args);
+                }
+            }
+        }
+    }
+    if (argc == 3) {
+        int _v;
+        {
+            void *ptr;
+            if (SWIG_ConvertPtr(argv[0], &ptr, SWIGTYPE_p_rasterizer_scanline_aaT_t, 0) == -1) {
+                _v = 0;
+                PyErr_Clear();
+            } else {
+                _v = 1;
+            }
+        }
+        if (_v) {
+            {
+                void *ptr = 0;
+                if (SWIG_ConvertPtr(argv[1], &ptr, SWIGTYPE_p_agg__conv_strokeTagg__conv_curveTtranspath_t_t_agg__null_markers_t, 0) == -1) {
+                    _v = 0;
+                    PyErr_Clear();
+                } else {
+                    _v = (ptr != 0);
+                }
+            }
+            if (_v) {
+                _v = SWIG_Check_unsigned_SS_int(argv[2]);
+                if (_v) {
+                    return _wrap_rasterizer_scanline_aa_add_path__SWIG_18(self,args);
+                }
+            }
+        }
+    }
+    if (argc == 3) {
+        int _v;
+        {
+            void *ptr;
+            if (SWIG_ConvertPtr(argv[0], &ptr, SWIGTYPE_p_rasterizer_scanline_aaT_t, 0) == -1) {
+                _v = 0;
+                PyErr_Clear();
+            } else {
+                _v = 1;
+            }
+        }
+        if (_v) {
+            {
+                void *ptr = 0;
+                if (SWIG_ConvertPtr(argv[1], &ptr, SWIGTYPE_p_agg__conv_transformTagg__path_storage_agg__trans_affine_t, 0) == -1) {
+                    _v = 0;
+                    PyErr_Clear();
+                } else {
+                    _v = (ptr != 0);
+                }
+            }
+            if (_v) {
+                _v = SWIG_Check_unsigned_SS_int(argv[2]);
+                if (_v) {
+                    return _wrap_rasterizer_scanline_aa_add_path__SWIG_4(self,args);
                 }
             }
         }
@@ -17550,49 +24426,49 @@ static PyObject * rasterizer_scanline_aa_swigregister(PyObject *, PyObject *args
     Py_INCREF(obj);
     return Py_BuildValue((char *)"");
 }
-static PyObject *_wrap_new_renderer_scanline_aa_solid(PyObject *, PyObject *args) {
+static PyObject *_wrap_new_renderer_scanline_aa_solid_rgba(PyObject *, PyObject *args) {
     PyObject *resultobj = NULL;
-    renderer_base<pixel_format > *arg1 = 0 ;
-    renderer_scanline_aa_solid<renderer_base<pixel_format > > *result;
+    agg::renderer_scanline_aa_solid<agg::renderer_base<agg::pixel_formats_rgba<agg::blender_rgba<agg::rgba8,agg::order_rgba >,unsigned int > > >::base_ren_type *arg1 = 0 ;
+    agg::renderer_scanline_aa_solid<renderer_base_rgba_t > *result;
     PyObject * obj0 = 0 ;
     
-    if(!PyArg_ParseTuple(args,(char *)"O:new_renderer_scanline_aa_solid",&obj0)) goto fail;
+    if(!PyArg_ParseTuple(args,(char *)"O:new_renderer_scanline_aa_solid_rgba",&obj0)) goto fail;
     {
-        SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_renderer_baseTagg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t_t, SWIG_POINTER_EXCEPTION | 0);
+        SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__renderer_baseTagg__pixel_formats_rgbaTagg__blender_rgba32_agg__pixel32_type_t_t, SWIG_POINTER_EXCEPTION | 0);
         if (SWIG_arg_fail(1)) SWIG_fail;
         if (arg1 == NULL) {
-            SWIG_null_ref("renderer_base<pixel_format >");
+            SWIG_null_ref("agg::renderer_scanline_aa_solid<agg::renderer_base<agg::pixel_formats_rgba<agg::blender_rgba<agg::rgba8,agg::order_rgba >,unsigned int > > >::base_ren_type");
         }
         if (SWIG_arg_fail(1)) SWIG_fail;
     }
-    result = (renderer_scanline_aa_solid<renderer_base<pixel_format > > *)new renderer_scanline_aa_solid<renderer_base<pixel_format > >(*arg1);
+    result = (agg::renderer_scanline_aa_solid<renderer_base_rgba_t > *)new agg::renderer_scanline_aa_solid<renderer_base_rgba_t >(*arg1);
     
-    resultobj = SWIG_NewPointerObj((void*)(result), SWIGTYPE_p_renderer_scanline_aa_solidTrenderer_baseTagg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t_t_t, 1);
+    resultobj = SWIG_NewPointerObj((void*)(result), SWIGTYPE_p_agg__renderer_scanline_aa_solidTagg__renderer_baseTpixfmt_rgba_t_t_t, 1);
     return resultobj;
     fail:
     return NULL;
 }
 
 
-static PyObject *_wrap_renderer_scanline_aa_solid_color__SWIG_0(PyObject *, PyObject *args) {
+static PyObject *_wrap_renderer_scanline_aa_solid_rgba_color__SWIG_0(PyObject *, PyObject *args) {
     PyObject *resultobj = NULL;
-    renderer_scanline_aa_solid<renderer_base<pixel_format > > *arg1 = (renderer_scanline_aa_solid<renderer_base<pixel_format > > *) 0 ;
-    color_type *arg2 = 0 ;
+    agg::renderer_scanline_aa_solid<renderer_base_rgba_t > *arg1 = (agg::renderer_scanline_aa_solid<renderer_base_rgba_t > *) 0 ;
+    agg::renderer_scanline_aa_solid<agg::renderer_base<agg::pixel_formats_rgba<agg::blender_rgba<agg::rgba8,agg::order_rgba >,unsigned int > > >::color_type *arg2 = 0 ;
     PyObject * obj0 = 0 ;
     PyObject * obj1 = 0 ;
     
-    if(!PyArg_ParseTuple(args,(char *)"OO:renderer_scanline_aa_solid_color",&obj0,&obj1)) goto fail;
-    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_renderer_scanline_aa_solidTrenderer_baseTagg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t_t_t, SWIG_POINTER_EXCEPTION | 0);
+    if(!PyArg_ParseTuple(args,(char *)"OO:renderer_scanline_aa_solid_rgba_color",&obj0,&obj1)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__renderer_scanline_aa_solidTagg__renderer_baseTpixfmt_rgba_t_t_t, SWIG_POINTER_EXCEPTION | 0);
     if (SWIG_arg_fail(1)) SWIG_fail;
     {
-        SWIG_Python_ConvertPtr(obj1, (void **)&arg2, SWIGTYPE_p_agg__rgba8, SWIG_POINTER_EXCEPTION | 0);
+        SWIG_Python_ConvertPtr(obj1, (void **)&arg2, SWIGTYPE_p_agg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t__blender_type__color_type, SWIG_POINTER_EXCEPTION | 0);
         if (SWIG_arg_fail(2)) SWIG_fail;
         if (arg2 == NULL) {
-            SWIG_null_ref("color_type");
+            SWIG_null_ref("agg::renderer_scanline_aa_solid<agg::renderer_base<agg::pixel_formats_rgba<agg::blender_rgba<agg::rgba8,agg::order_rgba >,unsigned int > > >::color_type");
         }
         if (SWIG_arg_fail(2)) SWIG_fail;
     }
-    (arg1)->color((agg::rgba8 const &)*arg2);
+    (arg1)->color((agg::renderer_scanline_aa_solid<agg::renderer_base<pixfmt_rgba_t > >::base_ren_type::color_type const &)*arg2);
     
     Py_INCREF(Py_None); resultobj = Py_None;
     return resultobj;
@@ -17601,28 +24477,28 @@ static PyObject *_wrap_renderer_scanline_aa_solid_color__SWIG_0(PyObject *, PyOb
 }
 
 
-static PyObject *_wrap_renderer_scanline_aa_solid_color__SWIG_1(PyObject *, PyObject *args) {
+static PyObject *_wrap_renderer_scanline_aa_solid_rgba_color__SWIG_1(PyObject *, PyObject *args) {
     PyObject *resultobj = NULL;
-    renderer_scanline_aa_solid<renderer_base<pixel_format > > *arg1 = (renderer_scanline_aa_solid<renderer_base<pixel_format > > *) 0 ;
-    color_type *result;
+    agg::renderer_scanline_aa_solid<renderer_base_rgba_t > *arg1 = (agg::renderer_scanline_aa_solid<renderer_base_rgba_t > *) 0 ;
+    agg::renderer_scanline_aa_solid<agg::renderer_base<agg::pixel_formats_rgba<agg::blender_rgba<agg::rgba8,agg::order_rgba >,unsigned int > > >::color_type *result;
     PyObject * obj0 = 0 ;
     
-    if(!PyArg_ParseTuple(args,(char *)"O:renderer_scanline_aa_solid_color",&obj0)) goto fail;
-    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_renderer_scanline_aa_solidTrenderer_baseTagg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t_t_t, SWIG_POINTER_EXCEPTION | 0);
+    if(!PyArg_ParseTuple(args,(char *)"O:renderer_scanline_aa_solid_rgba_color",&obj0)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__renderer_scanline_aa_solidTagg__renderer_baseTpixfmt_rgba_t_t_t, SWIG_POINTER_EXCEPTION | 0);
     if (SWIG_arg_fail(1)) SWIG_fail;
     {
-        color_type const &_result_ref = ((renderer_scanline_aa_solid<renderer_base<pixel_format > > const *)arg1)->color();
-        result = (color_type *) &_result_ref;
+        agg::renderer_scanline_aa_solid<agg::renderer_base<agg::pixel_formats_rgba<agg::blender_rgba<agg::rgba8,agg::order_rgba >,unsigned int > > >::color_type const &_result_ref = ((agg::renderer_scanline_aa_solid<renderer_base_rgba_t > const *)arg1)->color();
+        result = (agg::renderer_scanline_aa_solid<agg::renderer_base<agg::pixel_formats_rgba<agg::blender_rgba<agg::rgba8,agg::order_rgba >,unsigned int > > >::color_type *) &_result_ref;
     }
     
-    resultobj = SWIG_NewPointerObj((void*)(result), SWIGTYPE_p_agg__rgba8, 0);
+    resultobj = SWIG_NewPointerObj((void*)(result), SWIGTYPE_p_agg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t__blender_type__color_type, 0);
     return resultobj;
     fail:
     return NULL;
 }
 
 
-static PyObject *_wrap_renderer_scanline_aa_solid_color(PyObject *self, PyObject *args) {
+static PyObject *_wrap_renderer_scanline_aa_solid_rgba_color(PyObject *self, PyObject *args) {
     int argc;
     PyObject *argv[3];
     int ii;
@@ -17635,7 +24511,7 @@ static PyObject *_wrap_renderer_scanline_aa_solid_color(PyObject *self, PyObject
         int _v;
         {
             void *ptr;
-            if (SWIG_ConvertPtr(argv[0], &ptr, SWIGTYPE_p_renderer_scanline_aa_solidTrenderer_baseTagg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t_t_t, 0) == -1) {
+            if (SWIG_ConvertPtr(argv[0], &ptr, SWIGTYPE_p_agg__renderer_scanline_aa_solidTagg__renderer_baseTpixfmt_rgba_t_t_t, 0) == -1) {
                 _v = 0;
                 PyErr_Clear();
             } else {
@@ -17643,14 +24519,14 @@ static PyObject *_wrap_renderer_scanline_aa_solid_color(PyObject *self, PyObject
             }
         }
         if (_v) {
-            return _wrap_renderer_scanline_aa_solid_color__SWIG_1(self,args);
+            return _wrap_renderer_scanline_aa_solid_rgba_color__SWIG_1(self,args);
         }
     }
     if (argc == 2) {
         int _v;
         {
             void *ptr;
-            if (SWIG_ConvertPtr(argv[0], &ptr, SWIGTYPE_p_renderer_scanline_aa_solidTrenderer_baseTagg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t_t_t, 0) == -1) {
+            if (SWIG_ConvertPtr(argv[0], &ptr, SWIGTYPE_p_agg__renderer_scanline_aa_solidTagg__renderer_baseTpixfmt_rgba_t_t_t, 0) == -1) {
                 _v = 0;
                 PyErr_Clear();
             } else {
@@ -17660,7 +24536,7 @@ static PyObject *_wrap_renderer_scanline_aa_solid_color(PyObject *self, PyObject
         if (_v) {
             {
                 void *ptr = 0;
-                if (SWIG_ConvertPtr(argv[1], &ptr, SWIGTYPE_p_agg__rgba8, 0) == -1) {
+                if (SWIG_ConvertPtr(argv[1], &ptr, SWIGTYPE_p_agg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t__blender_type__color_type, 0) == -1) {
                     _v = 0;
                     PyErr_Clear();
                 } else {
@@ -17668,25 +24544,25 @@ static PyObject *_wrap_renderer_scanline_aa_solid_color(PyObject *self, PyObject
                 }
             }
             if (_v) {
-                return _wrap_renderer_scanline_aa_solid_color__SWIG_0(self,args);
+                return _wrap_renderer_scanline_aa_solid_rgba_color__SWIG_0(self,args);
             }
         }
     }
     
-    PyErr_SetString(PyExc_NotImplementedError,"No matching function for overloaded 'renderer_scanline_aa_solid_color'");
+    PyErr_SetString(PyExc_NotImplementedError,"No matching function for overloaded 'renderer_scanline_aa_solid_rgba_color'");
     return NULL;
 }
 
 
-static PyObject *_wrap_renderer_scanline_aa_solid_prepare(PyObject *, PyObject *args) {
+static PyObject *_wrap_renderer_scanline_aa_solid_rgba_prepare(PyObject *, PyObject *args) {
     PyObject *resultobj = NULL;
-    renderer_scanline_aa_solid<renderer_base<pixel_format > > *arg1 = (renderer_scanline_aa_solid<renderer_base<pixel_format > > *) 0 ;
+    agg::renderer_scanline_aa_solid<renderer_base_rgba_t > *arg1 = (agg::renderer_scanline_aa_solid<renderer_base_rgba_t > *) 0 ;
     unsigned int arg2 ;
     PyObject * obj0 = 0 ;
     PyObject * obj1 = 0 ;
     
-    if(!PyArg_ParseTuple(args,(char *)"OO:renderer_scanline_aa_solid_prepare",&obj0,&obj1)) goto fail;
-    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_renderer_scanline_aa_solidTrenderer_baseTagg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t_t_t, SWIG_POINTER_EXCEPTION | 0);
+    if(!PyArg_ParseTuple(args,(char *)"OO:renderer_scanline_aa_solid_rgba_prepare",&obj0,&obj1)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__renderer_scanline_aa_solidTagg__renderer_baseTpixfmt_rgba_t_t_t, SWIG_POINTER_EXCEPTION | 0);
     if (SWIG_arg_fail(1)) SWIG_fail;
     {
         arg2 = (unsigned int)(SWIG_As_unsigned_SS_int(obj1)); 
@@ -17701,13 +24577,67 @@ static PyObject *_wrap_renderer_scanline_aa_solid_prepare(PyObject *, PyObject *
 }
 
 
-static PyObject *_wrap_delete_renderer_scanline_aa_solid(PyObject *, PyObject *args) {
+static PyObject *_wrap_renderer_scanline_aa_solid_rgba_color_rgba8(PyObject *, PyObject *args) {
     PyObject *resultobj = NULL;
-    renderer_scanline_aa_solid<renderer_base<pixel_format > > *arg1 = (renderer_scanline_aa_solid<renderer_base<pixel_format > > *) 0 ;
+    agg::renderer_scanline_aa_solid<renderer_base_rgba_t > *arg1 = (agg::renderer_scanline_aa_solid<renderer_base_rgba_t > *) 0 ;
+    agg::rgba8 *arg2 = 0 ;
+    PyObject * obj0 = 0 ;
+    PyObject * obj1 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"OO:renderer_scanline_aa_solid_rgba_color_rgba8",&obj0,&obj1)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__renderer_scanline_aa_solidTagg__renderer_baseTpixfmt_rgba_t_t_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    {
+        SWIG_Python_ConvertPtr(obj1, (void **)&arg2, SWIGTYPE_p_agg__rgba8, SWIG_POINTER_EXCEPTION | 0);
+        if (SWIG_arg_fail(2)) SWIG_fail;
+        if (arg2 == NULL) {
+            SWIG_null_ref("agg::rgba8");
+        }
+        if (SWIG_arg_fail(2)) SWIG_fail;
+    }
+    agg_renderer_scanline_aa_solid_Sl_renderer_base_rgba_t_Sg__color_rgba8(arg1,(agg::rgba8 const &)*arg2);
+    
+    Py_INCREF(Py_None); resultobj = Py_None;
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_renderer_scanline_aa_solid_rgba_color_rgba(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::renderer_scanline_aa_solid<renderer_base_rgba_t > *arg1 = (agg::renderer_scanline_aa_solid<renderer_base_rgba_t > *) 0 ;
+    agg::rgba *arg2 = 0 ;
+    PyObject * obj0 = 0 ;
+    PyObject * obj1 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"OO:renderer_scanline_aa_solid_rgba_color_rgba",&obj0,&obj1)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__renderer_scanline_aa_solidTagg__renderer_baseTpixfmt_rgba_t_t_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    {
+        SWIG_Python_ConvertPtr(obj1, (void **)&arg2, SWIGTYPE_p_agg__rgba, SWIG_POINTER_EXCEPTION | 0);
+        if (SWIG_arg_fail(2)) SWIG_fail;
+        if (arg2 == NULL) {
+            SWIG_null_ref("agg::rgba");
+        }
+        if (SWIG_arg_fail(2)) SWIG_fail;
+    }
+    agg_renderer_scanline_aa_solid_Sl_renderer_base_rgba_t_Sg__color_rgba(arg1,(agg::rgba const &)*arg2);
+    
+    Py_INCREF(Py_None); resultobj = Py_None;
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_delete_renderer_scanline_aa_solid_rgba(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::renderer_scanline_aa_solid<renderer_base_rgba_t > *arg1 = (agg::renderer_scanline_aa_solid<renderer_base_rgba_t > *) 0 ;
     PyObject * obj0 = 0 ;
     
-    if(!PyArg_ParseTuple(args,(char *)"O:delete_renderer_scanline_aa_solid",&obj0)) goto fail;
-    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_renderer_scanline_aa_solidTrenderer_baseTagg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t_t_t, SWIG_POINTER_EXCEPTION | 0);
+    if(!PyArg_ParseTuple(args,(char *)"O:delete_renderer_scanline_aa_solid_rgba",&obj0)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__renderer_scanline_aa_solidTagg__renderer_baseTpixfmt_rgba_t_t_t, SWIG_POINTER_EXCEPTION | 0);
     if (SWIG_arg_fail(1)) SWIG_fail;
     delete arg1;
     
@@ -17718,56 +24648,56 @@ static PyObject *_wrap_delete_renderer_scanline_aa_solid(PyObject *, PyObject *a
 }
 
 
-static PyObject * renderer_scanline_aa_solid_swigregister(PyObject *, PyObject *args) {
+static PyObject * renderer_scanline_aa_solid_rgba_swigregister(PyObject *, PyObject *args) {
     PyObject *obj;
     if (!PyArg_ParseTuple(args,(char*)"O", &obj)) return NULL;
-    SWIG_TypeClientData(SWIGTYPE_p_renderer_scanline_aa_solidTrenderer_baseTagg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t_t_t, obj);
+    SWIG_TypeClientData(SWIGTYPE_p_agg__renderer_scanline_aa_solidTagg__renderer_baseTpixfmt_rgba_t_t_t, obj);
     Py_INCREF(obj);
     return Py_BuildValue((char *)"");
 }
-static PyObject *_wrap_new_renderer_scanline_bin_solid(PyObject *, PyObject *args) {
+static PyObject *_wrap_new_renderer_scanline_bin_solid_rgba(PyObject *, PyObject *args) {
     PyObject *resultobj = NULL;
-    renderer_base<pixel_format > *arg1 = 0 ;
-    renderer_scanline_bin_solid<renderer_base<pixel_format > > *result;
+    agg::renderer_scanline_bin_solid<agg::renderer_base<agg::pixel_formats_rgba<agg::blender_rgba<agg::rgba8,agg::order_rgba >,unsigned int > > >::base_ren_type *arg1 = 0 ;
+    agg::renderer_scanline_bin_solid<renderer_base_rgba_t > *result;
     PyObject * obj0 = 0 ;
     
-    if(!PyArg_ParseTuple(args,(char *)"O:new_renderer_scanline_bin_solid",&obj0)) goto fail;
+    if(!PyArg_ParseTuple(args,(char *)"O:new_renderer_scanline_bin_solid_rgba",&obj0)) goto fail;
     {
-        SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_renderer_baseTagg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t_t, SWIG_POINTER_EXCEPTION | 0);
+        SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__renderer_baseTagg__pixel_formats_rgbaTagg__blender_rgba32_agg__pixel32_type_t_t, SWIG_POINTER_EXCEPTION | 0);
         if (SWIG_arg_fail(1)) SWIG_fail;
         if (arg1 == NULL) {
-            SWIG_null_ref("renderer_base<pixel_format >");
+            SWIG_null_ref("agg::renderer_scanline_bin_solid<agg::renderer_base<agg::pixel_formats_rgba<agg::blender_rgba<agg::rgba8,agg::order_rgba >,unsigned int > > >::base_ren_type");
         }
         if (SWIG_arg_fail(1)) SWIG_fail;
     }
-    result = (renderer_scanline_bin_solid<renderer_base<pixel_format > > *)new renderer_scanline_bin_solid<renderer_base<pixel_format > >(*arg1);
+    result = (agg::renderer_scanline_bin_solid<renderer_base_rgba_t > *)new agg::renderer_scanline_bin_solid<renderer_base_rgba_t >(*arg1);
     
-    resultobj = SWIG_NewPointerObj((void*)(result), SWIGTYPE_p_renderer_scanline_bin_solidTrenderer_baseTagg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t_t_t, 1);
+    resultobj = SWIG_NewPointerObj((void*)(result), SWIGTYPE_p_agg__renderer_scanline_bin_solidTagg__renderer_baseTpixfmt_rgba_t_t_t, 1);
     return resultobj;
     fail:
     return NULL;
 }
 
 
-static PyObject *_wrap_renderer_scanline_bin_solid_color__SWIG_0(PyObject *, PyObject *args) {
+static PyObject *_wrap_renderer_scanline_bin_solid_rgba_color__SWIG_0(PyObject *, PyObject *args) {
     PyObject *resultobj = NULL;
-    renderer_scanline_bin_solid<renderer_base<pixel_format > > *arg1 = (renderer_scanline_bin_solid<renderer_base<pixel_format > > *) 0 ;
-    color_type *arg2 = 0 ;
+    agg::renderer_scanline_bin_solid<renderer_base_rgba_t > *arg1 = (agg::renderer_scanline_bin_solid<renderer_base_rgba_t > *) 0 ;
+    agg::renderer_scanline_bin_solid<agg::renderer_base<agg::pixel_formats_rgba<agg::blender_rgba<agg::rgba8,agg::order_rgba >,unsigned int > > >::color_type *arg2 = 0 ;
     PyObject * obj0 = 0 ;
     PyObject * obj1 = 0 ;
     
-    if(!PyArg_ParseTuple(args,(char *)"OO:renderer_scanline_bin_solid_color",&obj0,&obj1)) goto fail;
-    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_renderer_scanline_bin_solidTrenderer_baseTagg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t_t_t, SWIG_POINTER_EXCEPTION | 0);
+    if(!PyArg_ParseTuple(args,(char *)"OO:renderer_scanline_bin_solid_rgba_color",&obj0,&obj1)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__renderer_scanline_bin_solidTagg__renderer_baseTpixfmt_rgba_t_t_t, SWIG_POINTER_EXCEPTION | 0);
     if (SWIG_arg_fail(1)) SWIG_fail;
     {
-        SWIG_Python_ConvertPtr(obj1, (void **)&arg2, SWIGTYPE_p_agg__rgba8, SWIG_POINTER_EXCEPTION | 0);
+        SWIG_Python_ConvertPtr(obj1, (void **)&arg2, SWIGTYPE_p_agg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t__blender_type__color_type, SWIG_POINTER_EXCEPTION | 0);
         if (SWIG_arg_fail(2)) SWIG_fail;
         if (arg2 == NULL) {
-            SWIG_null_ref("color_type");
+            SWIG_null_ref("agg::renderer_scanline_bin_solid<agg::renderer_base<agg::pixel_formats_rgba<agg::blender_rgba<agg::rgba8,agg::order_rgba >,unsigned int > > >::color_type");
         }
         if (SWIG_arg_fail(2)) SWIG_fail;
     }
-    (arg1)->color((agg::rgba8 const &)*arg2);
+    (arg1)->color((agg::renderer_scanline_bin_solid<agg::renderer_base<pixfmt_rgba_t > >::base_ren_type::color_type const &)*arg2);
     
     Py_INCREF(Py_None); resultobj = Py_None;
     return resultobj;
@@ -17776,28 +24706,28 @@ static PyObject *_wrap_renderer_scanline_bin_solid_color__SWIG_0(PyObject *, PyO
 }
 
 
-static PyObject *_wrap_renderer_scanline_bin_solid_color__SWIG_1(PyObject *, PyObject *args) {
+static PyObject *_wrap_renderer_scanline_bin_solid_rgba_color__SWIG_1(PyObject *, PyObject *args) {
     PyObject *resultobj = NULL;
-    renderer_scanline_bin_solid<renderer_base<pixel_format > > *arg1 = (renderer_scanline_bin_solid<renderer_base<pixel_format > > *) 0 ;
-    color_type *result;
+    agg::renderer_scanline_bin_solid<renderer_base_rgba_t > *arg1 = (agg::renderer_scanline_bin_solid<renderer_base_rgba_t > *) 0 ;
+    agg::renderer_scanline_bin_solid<agg::renderer_base<agg::pixel_formats_rgba<agg::blender_rgba<agg::rgba8,agg::order_rgba >,unsigned int > > >::color_type *result;
     PyObject * obj0 = 0 ;
     
-    if(!PyArg_ParseTuple(args,(char *)"O:renderer_scanline_bin_solid_color",&obj0)) goto fail;
-    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_renderer_scanline_bin_solidTrenderer_baseTagg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t_t_t, SWIG_POINTER_EXCEPTION | 0);
+    if(!PyArg_ParseTuple(args,(char *)"O:renderer_scanline_bin_solid_rgba_color",&obj0)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__renderer_scanline_bin_solidTagg__renderer_baseTpixfmt_rgba_t_t_t, SWIG_POINTER_EXCEPTION | 0);
     if (SWIG_arg_fail(1)) SWIG_fail;
     {
-        color_type const &_result_ref = ((renderer_scanline_bin_solid<renderer_base<pixel_format > > const *)arg1)->color();
-        result = (color_type *) &_result_ref;
+        agg::renderer_scanline_bin_solid<agg::renderer_base<agg::pixel_formats_rgba<agg::blender_rgba<agg::rgba8,agg::order_rgba >,unsigned int > > >::color_type const &_result_ref = ((agg::renderer_scanline_bin_solid<renderer_base_rgba_t > const *)arg1)->color();
+        result = (agg::renderer_scanline_bin_solid<agg::renderer_base<agg::pixel_formats_rgba<agg::blender_rgba<agg::rgba8,agg::order_rgba >,unsigned int > > >::color_type *) &_result_ref;
     }
     
-    resultobj = SWIG_NewPointerObj((void*)(result), SWIGTYPE_p_agg__rgba8, 0);
+    resultobj = SWIG_NewPointerObj((void*)(result), SWIGTYPE_p_agg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t__blender_type__color_type, 0);
     return resultobj;
     fail:
     return NULL;
 }
 
 
-static PyObject *_wrap_renderer_scanline_bin_solid_color(PyObject *self, PyObject *args) {
+static PyObject *_wrap_renderer_scanline_bin_solid_rgba_color(PyObject *self, PyObject *args) {
     int argc;
     PyObject *argv[3];
     int ii;
@@ -17810,7 +24740,7 @@ static PyObject *_wrap_renderer_scanline_bin_solid_color(PyObject *self, PyObjec
         int _v;
         {
             void *ptr;
-            if (SWIG_ConvertPtr(argv[0], &ptr, SWIGTYPE_p_renderer_scanline_bin_solidTrenderer_baseTagg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t_t_t, 0) == -1) {
+            if (SWIG_ConvertPtr(argv[0], &ptr, SWIGTYPE_p_agg__renderer_scanline_bin_solidTagg__renderer_baseTpixfmt_rgba_t_t_t, 0) == -1) {
                 _v = 0;
                 PyErr_Clear();
             } else {
@@ -17818,14 +24748,14 @@ static PyObject *_wrap_renderer_scanline_bin_solid_color(PyObject *self, PyObjec
             }
         }
         if (_v) {
-            return _wrap_renderer_scanline_bin_solid_color__SWIG_1(self,args);
+            return _wrap_renderer_scanline_bin_solid_rgba_color__SWIG_1(self,args);
         }
     }
     if (argc == 2) {
         int _v;
         {
             void *ptr;
-            if (SWIG_ConvertPtr(argv[0], &ptr, SWIGTYPE_p_renderer_scanline_bin_solidTrenderer_baseTagg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t_t_t, 0) == -1) {
+            if (SWIG_ConvertPtr(argv[0], &ptr, SWIGTYPE_p_agg__renderer_scanline_bin_solidTagg__renderer_baseTpixfmt_rgba_t_t_t, 0) == -1) {
                 _v = 0;
                 PyErr_Clear();
             } else {
@@ -17835,7 +24765,7 @@ static PyObject *_wrap_renderer_scanline_bin_solid_color(PyObject *self, PyObjec
         if (_v) {
             {
                 void *ptr = 0;
-                if (SWIG_ConvertPtr(argv[1], &ptr, SWIGTYPE_p_agg__rgba8, 0) == -1) {
+                if (SWIG_ConvertPtr(argv[1], &ptr, SWIGTYPE_p_agg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t__blender_type__color_type, 0) == -1) {
                     _v = 0;
                     PyErr_Clear();
                 } else {
@@ -17843,25 +24773,25 @@ static PyObject *_wrap_renderer_scanline_bin_solid_color(PyObject *self, PyObjec
                 }
             }
             if (_v) {
-                return _wrap_renderer_scanline_bin_solid_color__SWIG_0(self,args);
+                return _wrap_renderer_scanline_bin_solid_rgba_color__SWIG_0(self,args);
             }
         }
     }
     
-    PyErr_SetString(PyExc_NotImplementedError,"No matching function for overloaded 'renderer_scanline_bin_solid_color'");
+    PyErr_SetString(PyExc_NotImplementedError,"No matching function for overloaded 'renderer_scanline_bin_solid_rgba_color'");
     return NULL;
 }
 
 
-static PyObject *_wrap_renderer_scanline_bin_solid_prepare(PyObject *, PyObject *args) {
+static PyObject *_wrap_renderer_scanline_bin_solid_rgba_prepare(PyObject *, PyObject *args) {
     PyObject *resultobj = NULL;
-    renderer_scanline_bin_solid<renderer_base<pixel_format > > *arg1 = (renderer_scanline_bin_solid<renderer_base<pixel_format > > *) 0 ;
+    agg::renderer_scanline_bin_solid<renderer_base_rgba_t > *arg1 = (agg::renderer_scanline_bin_solid<renderer_base_rgba_t > *) 0 ;
     unsigned int arg2 ;
     PyObject * obj0 = 0 ;
     PyObject * obj1 = 0 ;
     
-    if(!PyArg_ParseTuple(args,(char *)"OO:renderer_scanline_bin_solid_prepare",&obj0,&obj1)) goto fail;
-    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_renderer_scanline_bin_solidTrenderer_baseTagg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t_t_t, SWIG_POINTER_EXCEPTION | 0);
+    if(!PyArg_ParseTuple(args,(char *)"OO:renderer_scanline_bin_solid_rgba_prepare",&obj0,&obj1)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__renderer_scanline_bin_solidTagg__renderer_baseTpixfmt_rgba_t_t_t, SWIG_POINTER_EXCEPTION | 0);
     if (SWIG_arg_fail(1)) SWIG_fail;
     {
         arg2 = (unsigned int)(SWIG_As_unsigned_SS_int(obj1)); 
@@ -17876,13 +24806,67 @@ static PyObject *_wrap_renderer_scanline_bin_solid_prepare(PyObject *, PyObject 
 }
 
 
-static PyObject *_wrap_delete_renderer_scanline_bin_solid(PyObject *, PyObject *args) {
+static PyObject *_wrap_renderer_scanline_bin_solid_rgba_color_rgba8(PyObject *, PyObject *args) {
     PyObject *resultobj = NULL;
-    renderer_scanline_bin_solid<renderer_base<pixel_format > > *arg1 = (renderer_scanline_bin_solid<renderer_base<pixel_format > > *) 0 ;
+    agg::renderer_scanline_bin_solid<renderer_base_rgba_t > *arg1 = (agg::renderer_scanline_bin_solid<renderer_base_rgba_t > *) 0 ;
+    agg::rgba8 *arg2 = 0 ;
+    PyObject * obj0 = 0 ;
+    PyObject * obj1 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"OO:renderer_scanline_bin_solid_rgba_color_rgba8",&obj0,&obj1)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__renderer_scanline_bin_solidTagg__renderer_baseTpixfmt_rgba_t_t_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    {
+        SWIG_Python_ConvertPtr(obj1, (void **)&arg2, SWIGTYPE_p_agg__rgba8, SWIG_POINTER_EXCEPTION | 0);
+        if (SWIG_arg_fail(2)) SWIG_fail;
+        if (arg2 == NULL) {
+            SWIG_null_ref("agg::rgba8");
+        }
+        if (SWIG_arg_fail(2)) SWIG_fail;
+    }
+    agg_renderer_scanline_bin_solid_Sl_renderer_base_rgba_t_Sg__color_rgba8(arg1,(agg::rgba8 const &)*arg2);
+    
+    Py_INCREF(Py_None); resultobj = Py_None;
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_renderer_scanline_bin_solid_rgba_color_rgba(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::renderer_scanline_bin_solid<renderer_base_rgba_t > *arg1 = (agg::renderer_scanline_bin_solid<renderer_base_rgba_t > *) 0 ;
+    agg::rgba *arg2 = 0 ;
+    PyObject * obj0 = 0 ;
+    PyObject * obj1 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"OO:renderer_scanline_bin_solid_rgba_color_rgba",&obj0,&obj1)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__renderer_scanline_bin_solidTagg__renderer_baseTpixfmt_rgba_t_t_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    {
+        SWIG_Python_ConvertPtr(obj1, (void **)&arg2, SWIGTYPE_p_agg__rgba, SWIG_POINTER_EXCEPTION | 0);
+        if (SWIG_arg_fail(2)) SWIG_fail;
+        if (arg2 == NULL) {
+            SWIG_null_ref("agg::rgba");
+        }
+        if (SWIG_arg_fail(2)) SWIG_fail;
+    }
+    agg_renderer_scanline_bin_solid_Sl_renderer_base_rgba_t_Sg__color_rgba(arg1,(agg::rgba const &)*arg2);
+    
+    Py_INCREF(Py_None); resultobj = Py_None;
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_delete_renderer_scanline_bin_solid_rgba(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::renderer_scanline_bin_solid<renderer_base_rgba_t > *arg1 = (agg::renderer_scanline_bin_solid<renderer_base_rgba_t > *) 0 ;
     PyObject * obj0 = 0 ;
     
-    if(!PyArg_ParseTuple(args,(char *)"O:delete_renderer_scanline_bin_solid",&obj0)) goto fail;
-    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_renderer_scanline_bin_solidTrenderer_baseTagg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t_t_t, SWIG_POINTER_EXCEPTION | 0);
+    if(!PyArg_ParseTuple(args,(char *)"O:delete_renderer_scanline_bin_solid_rgba",&obj0)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__renderer_scanline_bin_solidTagg__renderer_baseTpixfmt_rgba_t_t_t, SWIG_POINTER_EXCEPTION | 0);
     if (SWIG_arg_fail(1)) SWIG_fail;
     delete arg1;
     
@@ -17893,10 +24877,10 @@ static PyObject *_wrap_delete_renderer_scanline_bin_solid(PyObject *, PyObject *
 }
 
 
-static PyObject * renderer_scanline_bin_solid_swigregister(PyObject *, PyObject *args) {
+static PyObject * renderer_scanline_bin_solid_rgba_swigregister(PyObject *, PyObject *args) {
     PyObject *obj;
     if (!PyArg_ParseTuple(args,(char*)"O", &obj)) return NULL;
-    SWIG_TypeClientData(SWIGTYPE_p_renderer_scanline_bin_solidTrenderer_baseTagg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t_t_t, obj);
+    SWIG_TypeClientData(SWIGTYPE_p_agg__renderer_scanline_bin_solidTagg__renderer_baseTpixfmt_rgba_t_t_t, obj);
     Py_INCREF(obj);
     return Py_BuildValue((char *)"");
 }
@@ -18427,21 +25411,21 @@ static PyObject * scanline_bin_swigregister(PyObject *, PyObject *args) {
     Py_INCREF(obj);
     return Py_BuildValue((char *)"");
 }
-static PyObject *_wrap_render_scanlines(PyObject *, PyObject *args) {
+static PyObject *_wrap_render_scanlines_rgba(PyObject *, PyObject *args) {
     PyObject *resultobj = NULL;
-    rasterizer_scanline_aa< > *arg1 = 0 ;
+    agg::rasterizer_scanline_aa< > *arg1 = 0 ;
     agg::scanline_p<agg::int8u,agg::int16 > *arg2 = 0 ;
-    renderer_scanline_aa_solid<renderer_base<pixel_format > > *arg3 = 0 ;
+    agg::renderer_scanline_aa_solid<renderer_base_rgba_t > *arg3 = 0 ;
     PyObject * obj0 = 0 ;
     PyObject * obj1 = 0 ;
     PyObject * obj2 = 0 ;
     
-    if(!PyArg_ParseTuple(args,(char *)"OOO:render_scanlines",&obj0,&obj1,&obj2)) goto fail;
+    if(!PyArg_ParseTuple(args,(char *)"OOO:render_scanlines_rgba",&obj0,&obj1,&obj2)) goto fail;
     {
         SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_rasterizer_scanline_aaT_t, SWIG_POINTER_EXCEPTION | 0);
         if (SWIG_arg_fail(1)) SWIG_fail;
         if (arg1 == NULL) {
-            SWIG_null_ref("rasterizer_scanline_aa< >");
+            SWIG_null_ref("agg::rasterizer_scanline_aa< >");
         }
         if (SWIG_arg_fail(1)) SWIG_fail;
     }
@@ -18454,14 +25438,14 @@ static PyObject *_wrap_render_scanlines(PyObject *, PyObject *args) {
         if (SWIG_arg_fail(2)) SWIG_fail;
     }
     {
-        SWIG_Python_ConvertPtr(obj2, (void **)&arg3, SWIGTYPE_p_renderer_scanline_aa_solidTrenderer_baseTagg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t_t_t, SWIG_POINTER_EXCEPTION | 0);
+        SWIG_Python_ConvertPtr(obj2, (void **)&arg3, SWIGTYPE_p_agg__renderer_scanline_aa_solidTagg__renderer_baseTpixfmt_rgba_t_t_t, SWIG_POINTER_EXCEPTION | 0);
         if (SWIG_arg_fail(3)) SWIG_fail;
         if (arg3 == NULL) {
-            SWIG_null_ref("renderer_scanline_aa_solid<renderer_base<pixel_format > >");
+            SWIG_null_ref("agg::renderer_scanline_aa_solid<renderer_base_rgba_t >");
         }
         if (SWIG_arg_fail(3)) SWIG_fail;
     }
-    agg::SWIGTEMPLATEDISAMBIGUATOR render_scanlines<rasterizer_scanline_aa< >,agg::scanline_p<agg::int8u >,renderer_scanline_aa_solid<renderer_base<pixel_format > > >(*arg1,*arg2,*arg3);
+    agg::SWIGTEMPLATEDISAMBIGUATOR render_scanlines<agg::rasterizer_scanline_aa< >,agg::scanline_p<agg::int8u >,agg::renderer_scanline_aa_solid<renderer_base_rgba_t > >(*arg1,*arg2,*arg3);
     
     Py_INCREF(Py_None); resultobj = Py_None;
     return resultobj;
@@ -18710,28 +25694,6 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"path_storage_modify_vertex", _wrap_path_storage_modify_vertex, METH_VARARGS, NULL},
 	 { (char *)"path_storage_modify_command", _wrap_path_storage_modify_command, METH_VARARGS, NULL},
 	 { (char *)"path_storage_swigregister", path_storage_swigregister, METH_VARARGS, NULL},
-	 { (char *)"new_vcgen_stroke", _wrap_new_vcgen_stroke, METH_VARARGS, NULL},
-	 { (char *)"vcgen_stroke_line_cap", _wrap_vcgen_stroke_line_cap, METH_VARARGS, NULL},
-	 { (char *)"vcgen_stroke_line_join", _wrap_vcgen_stroke_line_join, METH_VARARGS, NULL},
-	 { (char *)"vcgen_stroke_inner_line_join", _wrap_vcgen_stroke_inner_line_join, METH_VARARGS, NULL},
-	 { (char *)"vcgen_stroke_miter_limit_theta", _wrap_vcgen_stroke_miter_limit_theta, METH_VARARGS, NULL},
-	 { (char *)"vcgen_stroke_width", _wrap_vcgen_stroke_width, METH_VARARGS, NULL},
-	 { (char *)"vcgen_stroke_miter_limit", _wrap_vcgen_stroke_miter_limit, METH_VARARGS, NULL},
-	 { (char *)"vcgen_stroke_inner_miter_limit", _wrap_vcgen_stroke_inner_miter_limit, METH_VARARGS, NULL},
-	 { (char *)"vcgen_stroke_approximation_scale", _wrap_vcgen_stroke_approximation_scale, METH_VARARGS, NULL},
-	 { (char *)"vcgen_stroke_shorten", _wrap_vcgen_stroke_shorten, METH_VARARGS, NULL},
-	 { (char *)"vcgen_stroke_remove_all", _wrap_vcgen_stroke_remove_all, METH_VARARGS, NULL},
-	 { (char *)"vcgen_stroke_add_vertex", _wrap_vcgen_stroke_add_vertex, METH_VARARGS, NULL},
-	 { (char *)"vcgen_stroke_rewind", _wrap_vcgen_stroke_rewind, METH_VARARGS, NULL},
-	 { (char *)"vcgen_stroke_vertex", _wrap_vcgen_stroke_vertex, METH_VARARGS, NULL},
-	 { (char *)"delete_vcgen_stroke", _wrap_delete_vcgen_stroke, METH_VARARGS, NULL},
-	 { (char *)"vcgen_stroke_swigregister", vcgen_stroke_swigregister, METH_VARARGS, NULL},
-	 { (char *)"new_null_markers", _wrap_new_null_markers, METH_VARARGS, NULL},
-	 { (char *)"delete_null_markers", _wrap_delete_null_markers, METH_VARARGS, NULL},
-	 { (char *)"null_markers_swigregister", null_markers_swigregister, METH_VARARGS, NULL},
-	 { (char *)"new_conv_adaptor_vcgen", _wrap_new_conv_adaptor_vcgen, METH_VARARGS, NULL},
-	 { (char *)"delete_conv_adaptor_vcgen", _wrap_delete_conv_adaptor_vcgen, METH_VARARGS, NULL},
-	 { (char *)"conv_adaptor_vcgen_swigregister", conv_adaptor_vcgen_swigregister, METH_VARARGS, NULL},
 	 { (char *)"delete_rendering_buffer", _wrap_delete_rendering_buffer, METH_VARARGS, NULL},
 	 { (char *)"new_rendering_buffer", _wrap_new_rendering_buffer, METH_VARARGS, NULL},
 	 { (char *)"rendering_buffer_attach", _wrap_rendering_buffer_attach, METH_VARARGS, NULL},
@@ -18752,77 +25714,224 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"new_pixel64_type", _wrap_new_pixel64_type, METH_VARARGS, NULL},
 	 { (char *)"delete_pixel64_type", _wrap_delete_pixel64_type, METH_VARARGS, NULL},
 	 { (char *)"pixel64_type_swigregister", pixel64_type_swigregister, METH_VARARGS, NULL},
-	 { (char *)"new_pixel_format", _wrap_new_pixel_format, METH_VARARGS, NULL},
-	 { (char *)"pixel_format_width", _wrap_pixel_format_width, METH_VARARGS, NULL},
-	 { (char *)"pixel_format_height", _wrap_pixel_format_height, METH_VARARGS, NULL},
-	 { (char *)"pixel_format_pixel", _wrap_pixel_format_pixel, METH_VARARGS, NULL},
-	 { (char *)"pixel_format_row", _wrap_pixel_format_row, METH_VARARGS, NULL},
-	 { (char *)"pixel_format_span", _wrap_pixel_format_span, METH_VARARGS, NULL},
-	 { (char *)"pixel_format_copy_pixel", _wrap_pixel_format_copy_pixel, METH_VARARGS, NULL},
-	 { (char *)"pixel_format_blend_pixel", _wrap_pixel_format_blend_pixel, METH_VARARGS, NULL},
-	 { (char *)"pixel_format_copy_hline", _wrap_pixel_format_copy_hline, METH_VARARGS, NULL},
-	 { (char *)"pixel_format_copy_vline", _wrap_pixel_format_copy_vline, METH_VARARGS, NULL},
-	 { (char *)"pixel_format_blend_hline", _wrap_pixel_format_blend_hline, METH_VARARGS, NULL},
-	 { (char *)"pixel_format_blend_vline", _wrap_pixel_format_blend_vline, METH_VARARGS, NULL},
-	 { (char *)"pixel_format_blend_solid_hspan", _wrap_pixel_format_blend_solid_hspan, METH_VARARGS, NULL},
-	 { (char *)"pixel_format_blend_solid_vspan", _wrap_pixel_format_blend_solid_vspan, METH_VARARGS, NULL},
-	 { (char *)"pixel_format_copy_color_hspan", _wrap_pixel_format_copy_color_hspan, METH_VARARGS, NULL},
-	 { (char *)"pixel_format_blend_color_hspan", _wrap_pixel_format_blend_color_hspan, METH_VARARGS, NULL},
-	 { (char *)"pixel_format_blend_color_vspan", _wrap_pixel_format_blend_color_vspan, METH_VARARGS, NULL},
-	 { (char *)"pixel_format_premultiply", _wrap_pixel_format_premultiply, METH_VARARGS, NULL},
-	 { (char *)"pixel_format_demultiply", _wrap_pixel_format_demultiply, METH_VARARGS, NULL},
-	 { (char *)"pixel_format_copy_from", _wrap_pixel_format_copy_from, METH_VARARGS, NULL},
-	 { (char *)"delete_pixel_format", _wrap_delete_pixel_format, METH_VARARGS, NULL},
-	 { (char *)"pixel_format_swigregister", pixel_format_swigregister, METH_VARARGS, NULL},
-	 { (char *)"new_renderer_base", _wrap_new_renderer_base, METH_VARARGS, NULL},
-	 { (char *)"renderer_base_ren", _wrap_renderer_base_ren, METH_VARARGS, NULL},
-	 { (char *)"renderer_base_width", _wrap_renderer_base_width, METH_VARARGS, NULL},
-	 { (char *)"renderer_base_height", _wrap_renderer_base_height, METH_VARARGS, NULL},
-	 { (char *)"renderer_base_reset_clipping", _wrap_renderer_base_reset_clipping, METH_VARARGS, NULL},
-	 { (char *)"renderer_base_clip_box_naked", _wrap_renderer_base_clip_box_naked, METH_VARARGS, NULL},
-	 { (char *)"renderer_base_inbox", _wrap_renderer_base_inbox, METH_VARARGS, NULL},
-	 { (char *)"renderer_base_first_clip_box", _wrap_renderer_base_first_clip_box, METH_VARARGS, NULL},
-	 { (char *)"renderer_base_next_clip_box", _wrap_renderer_base_next_clip_box, METH_VARARGS, NULL},
-	 { (char *)"renderer_base_clip_box", _wrap_renderer_base_clip_box, METH_VARARGS, NULL},
-	 { (char *)"renderer_base_xmin", _wrap_renderer_base_xmin, METH_VARARGS, NULL},
-	 { (char *)"renderer_base_ymin", _wrap_renderer_base_ymin, METH_VARARGS, NULL},
-	 { (char *)"renderer_base_xmax", _wrap_renderer_base_xmax, METH_VARARGS, NULL},
-	 { (char *)"renderer_base_ymax", _wrap_renderer_base_ymax, METH_VARARGS, NULL},
-	 { (char *)"renderer_base_bounding_clip_box", _wrap_renderer_base_bounding_clip_box, METH_VARARGS, NULL},
-	 { (char *)"renderer_base_bounding_xmin", _wrap_renderer_base_bounding_xmin, METH_VARARGS, NULL},
-	 { (char *)"renderer_base_bounding_ymin", _wrap_renderer_base_bounding_ymin, METH_VARARGS, NULL},
-	 { (char *)"renderer_base_bounding_xmax", _wrap_renderer_base_bounding_xmax, METH_VARARGS, NULL},
-	 { (char *)"renderer_base_bounding_ymax", _wrap_renderer_base_bounding_ymax, METH_VARARGS, NULL},
-	 { (char *)"renderer_base_clear", _wrap_renderer_base_clear, METH_VARARGS, NULL},
-	 { (char *)"renderer_base_copy_pixel", _wrap_renderer_base_copy_pixel, METH_VARARGS, NULL},
-	 { (char *)"renderer_base_blend_pixel", _wrap_renderer_base_blend_pixel, METH_VARARGS, NULL},
-	 { (char *)"renderer_base_pixel", _wrap_renderer_base_pixel, METH_VARARGS, NULL},
-	 { (char *)"renderer_base_copy_hline", _wrap_renderer_base_copy_hline, METH_VARARGS, NULL},
-	 { (char *)"renderer_base_copy_vline", _wrap_renderer_base_copy_vline, METH_VARARGS, NULL},
-	 { (char *)"renderer_base_blend_hline", _wrap_renderer_base_blend_hline, METH_VARARGS, NULL},
-	 { (char *)"renderer_base_blend_vline", _wrap_renderer_base_blend_vline, METH_VARARGS, NULL},
-	 { (char *)"renderer_base_copy_bar", _wrap_renderer_base_copy_bar, METH_VARARGS, NULL},
-	 { (char *)"renderer_base_blend_bar", _wrap_renderer_base_blend_bar, METH_VARARGS, NULL},
-	 { (char *)"renderer_base_blend_solid_hspan", _wrap_renderer_base_blend_solid_hspan, METH_VARARGS, NULL},
-	 { (char *)"renderer_base_blend_solid_vspan", _wrap_renderer_base_blend_solid_vspan, METH_VARARGS, NULL},
-	 { (char *)"renderer_base_blend_color_hspan", _wrap_renderer_base_blend_color_hspan, METH_VARARGS, NULL},
-	 { (char *)"renderer_base_blend_color_vspan", _wrap_renderer_base_blend_color_vspan, METH_VARARGS, NULL},
-	 { (char *)"renderer_base_blend_color_hspan_no_clip", _wrap_renderer_base_blend_color_hspan_no_clip, METH_VARARGS, NULL},
-	 { (char *)"renderer_base_blend_color_vspan_no_clip", _wrap_renderer_base_blend_color_vspan_no_clip, METH_VARARGS, NULL},
-	 { (char *)"renderer_base_clip_rect_area", _wrap_renderer_base_clip_rect_area, METH_VARARGS, NULL},
-	 { (char *)"renderer_base_copy_from", _wrap_renderer_base_copy_from, METH_VARARGS, NULL},
-	 { (char *)"delete_renderer_base", _wrap_delete_renderer_base, METH_VARARGS, NULL},
-	 { (char *)"renderer_base_swigregister", renderer_base_swigregister, METH_VARARGS, NULL},
-	 { (char *)"new_conv_stroke", _wrap_new_conv_stroke, METH_VARARGS, NULL},
-	 { (char *)"conv_stroke_line_cap", _wrap_conv_stroke_line_cap, METH_VARARGS, NULL},
-	 { (char *)"conv_stroke_line_join", _wrap_conv_stroke_line_join, METH_VARARGS, NULL},
-	 { (char *)"conv_stroke_miter_limit_theta", _wrap_conv_stroke_miter_limit_theta, METH_VARARGS, NULL},
-	 { (char *)"conv_stroke_width", _wrap_conv_stroke_width, METH_VARARGS, NULL},
-	 { (char *)"conv_stroke_miter_limit", _wrap_conv_stroke_miter_limit, METH_VARARGS, NULL},
-	 { (char *)"conv_stroke_approximation_scale", _wrap_conv_stroke_approximation_scale, METH_VARARGS, NULL},
-	 { (char *)"conv_stroke_shorten", _wrap_conv_stroke_shorten, METH_VARARGS, NULL},
-	 { (char *)"delete_conv_stroke", _wrap_delete_conv_stroke, METH_VARARGS, NULL},
-	 { (char *)"conv_stroke_swigregister", conv_stroke_swigregister, METH_VARARGS, NULL},
+	 { (char *)"new_pixel_format_rgba", _wrap_new_pixel_format_rgba, METH_VARARGS, NULL},
+	 { (char *)"pixel_format_rgba_width", _wrap_pixel_format_rgba_width, METH_VARARGS, NULL},
+	 { (char *)"pixel_format_rgba_height", _wrap_pixel_format_rgba_height, METH_VARARGS, NULL},
+	 { (char *)"pixel_format_rgba_pixel", _wrap_pixel_format_rgba_pixel, METH_VARARGS, NULL},
+	 { (char *)"pixel_format_rgba_row", _wrap_pixel_format_rgba_row, METH_VARARGS, NULL},
+	 { (char *)"pixel_format_rgba_span", _wrap_pixel_format_rgba_span, METH_VARARGS, NULL},
+	 { (char *)"pixel_format_rgba_copy_pixel", _wrap_pixel_format_rgba_copy_pixel, METH_VARARGS, NULL},
+	 { (char *)"pixel_format_rgba_blend_pixel", _wrap_pixel_format_rgba_blend_pixel, METH_VARARGS, NULL},
+	 { (char *)"pixel_format_rgba_copy_hline", _wrap_pixel_format_rgba_copy_hline, METH_VARARGS, NULL},
+	 { (char *)"pixel_format_rgba_copy_vline", _wrap_pixel_format_rgba_copy_vline, METH_VARARGS, NULL},
+	 { (char *)"pixel_format_rgba_blend_hline", _wrap_pixel_format_rgba_blend_hline, METH_VARARGS, NULL},
+	 { (char *)"pixel_format_rgba_blend_vline", _wrap_pixel_format_rgba_blend_vline, METH_VARARGS, NULL},
+	 { (char *)"pixel_format_rgba_blend_solid_hspan", _wrap_pixel_format_rgba_blend_solid_hspan, METH_VARARGS, NULL},
+	 { (char *)"pixel_format_rgba_blend_solid_vspan", _wrap_pixel_format_rgba_blend_solid_vspan, METH_VARARGS, NULL},
+	 { (char *)"pixel_format_rgba_copy_color_hspan", _wrap_pixel_format_rgba_copy_color_hspan, METH_VARARGS, NULL},
+	 { (char *)"pixel_format_rgba_blend_color_hspan", _wrap_pixel_format_rgba_blend_color_hspan, METH_VARARGS, NULL},
+	 { (char *)"pixel_format_rgba_blend_color_vspan", _wrap_pixel_format_rgba_blend_color_vspan, METH_VARARGS, NULL},
+	 { (char *)"pixel_format_rgba_premultiply", _wrap_pixel_format_rgba_premultiply, METH_VARARGS, NULL},
+	 { (char *)"pixel_format_rgba_demultiply", _wrap_pixel_format_rgba_demultiply, METH_VARARGS, NULL},
+	 { (char *)"pixel_format_rgba_copy_from", _wrap_pixel_format_rgba_copy_from, METH_VARARGS, NULL},
+	 { (char *)"delete_pixel_format_rgba", _wrap_delete_pixel_format_rgba, METH_VARARGS, NULL},
+	 { (char *)"pixel_format_rgba_swigregister", pixel_format_rgba_swigregister, METH_VARARGS, NULL},
+	 { (char *)"new_renderer_base_rgba", _wrap_new_renderer_base_rgba, METH_VARARGS, NULL},
+	 { (char *)"renderer_base_rgba_ren", _wrap_renderer_base_rgba_ren, METH_VARARGS, NULL},
+	 { (char *)"renderer_base_rgba_width", _wrap_renderer_base_rgba_width, METH_VARARGS, NULL},
+	 { (char *)"renderer_base_rgba_height", _wrap_renderer_base_rgba_height, METH_VARARGS, NULL},
+	 { (char *)"renderer_base_rgba_reset_clipping", _wrap_renderer_base_rgba_reset_clipping, METH_VARARGS, NULL},
+	 { (char *)"renderer_base_rgba_clip_box_naked", _wrap_renderer_base_rgba_clip_box_naked, METH_VARARGS, NULL},
+	 { (char *)"renderer_base_rgba_inbox", _wrap_renderer_base_rgba_inbox, METH_VARARGS, NULL},
+	 { (char *)"renderer_base_rgba_first_clip_box", _wrap_renderer_base_rgba_first_clip_box, METH_VARARGS, NULL},
+	 { (char *)"renderer_base_rgba_next_clip_box", _wrap_renderer_base_rgba_next_clip_box, METH_VARARGS, NULL},
+	 { (char *)"renderer_base_rgba_clip_box", _wrap_renderer_base_rgba_clip_box, METH_VARARGS, NULL},
+	 { (char *)"renderer_base_rgba_xmin", _wrap_renderer_base_rgba_xmin, METH_VARARGS, NULL},
+	 { (char *)"renderer_base_rgba_ymin", _wrap_renderer_base_rgba_ymin, METH_VARARGS, NULL},
+	 { (char *)"renderer_base_rgba_xmax", _wrap_renderer_base_rgba_xmax, METH_VARARGS, NULL},
+	 { (char *)"renderer_base_rgba_ymax", _wrap_renderer_base_rgba_ymax, METH_VARARGS, NULL},
+	 { (char *)"renderer_base_rgba_bounding_clip_box", _wrap_renderer_base_rgba_bounding_clip_box, METH_VARARGS, NULL},
+	 { (char *)"renderer_base_rgba_bounding_xmin", _wrap_renderer_base_rgba_bounding_xmin, METH_VARARGS, NULL},
+	 { (char *)"renderer_base_rgba_bounding_ymin", _wrap_renderer_base_rgba_bounding_ymin, METH_VARARGS, NULL},
+	 { (char *)"renderer_base_rgba_bounding_xmax", _wrap_renderer_base_rgba_bounding_xmax, METH_VARARGS, NULL},
+	 { (char *)"renderer_base_rgba_bounding_ymax", _wrap_renderer_base_rgba_bounding_ymax, METH_VARARGS, NULL},
+	 { (char *)"renderer_base_rgba_clear", _wrap_renderer_base_rgba_clear, METH_VARARGS, NULL},
+	 { (char *)"renderer_base_rgba_copy_pixel", _wrap_renderer_base_rgba_copy_pixel, METH_VARARGS, NULL},
+	 { (char *)"renderer_base_rgba_blend_pixel", _wrap_renderer_base_rgba_blend_pixel, METH_VARARGS, NULL},
+	 { (char *)"renderer_base_rgba_pixel", _wrap_renderer_base_rgba_pixel, METH_VARARGS, NULL},
+	 { (char *)"renderer_base_rgba_copy_hline", _wrap_renderer_base_rgba_copy_hline, METH_VARARGS, NULL},
+	 { (char *)"renderer_base_rgba_copy_vline", _wrap_renderer_base_rgba_copy_vline, METH_VARARGS, NULL},
+	 { (char *)"renderer_base_rgba_blend_hline", _wrap_renderer_base_rgba_blend_hline, METH_VARARGS, NULL},
+	 { (char *)"renderer_base_rgba_blend_vline", _wrap_renderer_base_rgba_blend_vline, METH_VARARGS, NULL},
+	 { (char *)"renderer_base_rgba_copy_bar", _wrap_renderer_base_rgba_copy_bar, METH_VARARGS, NULL},
+	 { (char *)"renderer_base_rgba_blend_bar", _wrap_renderer_base_rgba_blend_bar, METH_VARARGS, NULL},
+	 { (char *)"renderer_base_rgba_span", _wrap_renderer_base_rgba_span, METH_VARARGS, NULL},
+	 { (char *)"renderer_base_rgba_blend_solid_hspan", _wrap_renderer_base_rgba_blend_solid_hspan, METH_VARARGS, NULL},
+	 { (char *)"renderer_base_rgba_blend_solid_vspan", _wrap_renderer_base_rgba_blend_solid_vspan, METH_VARARGS, NULL},
+	 { (char *)"renderer_base_rgba_copy_color_hspan", _wrap_renderer_base_rgba_copy_color_hspan, METH_VARARGS, NULL},
+	 { (char *)"renderer_base_rgba_blend_color_hspan", _wrap_renderer_base_rgba_blend_color_hspan, METH_VARARGS, NULL},
+	 { (char *)"renderer_base_rgba_blend_color_vspan", _wrap_renderer_base_rgba_blend_color_vspan, METH_VARARGS, NULL},
+	 { (char *)"renderer_base_rgba_copy_color_hspan_no_clip", _wrap_renderer_base_rgba_copy_color_hspan_no_clip, METH_VARARGS, NULL},
+	 { (char *)"renderer_base_rgba_blend_color_hspan_no_clip", _wrap_renderer_base_rgba_blend_color_hspan_no_clip, METH_VARARGS, NULL},
+	 { (char *)"renderer_base_rgba_blend_color_vspan_no_clip", _wrap_renderer_base_rgba_blend_color_vspan_no_clip, METH_VARARGS, NULL},
+	 { (char *)"renderer_base_rgba_clip_rect_area", _wrap_renderer_base_rgba_clip_rect_area, METH_VARARGS, NULL},
+	 { (char *)"renderer_base_rgba_copy_from", _wrap_renderer_base_rgba_copy_from, METH_VARARGS, NULL},
+	 { (char *)"renderer_base_rgba_clear_rgba8", _wrap_renderer_base_rgba_clear_rgba8, METH_VARARGS, NULL},
+	 { (char *)"renderer_base_rgba_clear_rgba", _wrap_renderer_base_rgba_clear_rgba, METH_VARARGS, NULL},
+	 { (char *)"delete_renderer_base_rgba", _wrap_delete_renderer_base_rgba, METH_VARARGS, NULL},
+	 { (char *)"renderer_base_rgba_swigregister", renderer_base_rgba_swigregister, METH_VARARGS, NULL},
+	 { (char *)"new_conv_curve_path", _wrap_new_conv_curve_path, METH_VARARGS, NULL},
+	 { (char *)"conv_curve_path_set_source", _wrap_conv_curve_path_set_source, METH_VARARGS, NULL},
+	 { (char *)"conv_curve_path_approximation_scale", _wrap_conv_curve_path_approximation_scale, METH_VARARGS, NULL},
+	 { (char *)"conv_curve_path_rewind", _wrap_conv_curve_path_rewind, METH_VARARGS, NULL},
+	 { (char *)"conv_curve_path_vertex", _wrap_conv_curve_path_vertex, METH_VARARGS, NULL},
+	 { (char *)"delete_conv_curve_path", _wrap_delete_conv_curve_path, METH_VARARGS, NULL},
+	 { (char *)"conv_curve_path_swigregister", conv_curve_path_swigregister, METH_VARARGS, NULL},
+	 { (char *)"new_conv_curve_trans", _wrap_new_conv_curve_trans, METH_VARARGS, NULL},
+	 { (char *)"conv_curve_trans_set_source", _wrap_conv_curve_trans_set_source, METH_VARARGS, NULL},
+	 { (char *)"conv_curve_trans_approximation_scale", _wrap_conv_curve_trans_approximation_scale, METH_VARARGS, NULL},
+	 { (char *)"conv_curve_trans_rewind", _wrap_conv_curve_trans_rewind, METH_VARARGS, NULL},
+	 { (char *)"conv_curve_trans_vertex", _wrap_conv_curve_trans_vertex, METH_VARARGS, NULL},
+	 { (char *)"delete_conv_curve_trans", _wrap_delete_conv_curve_trans, METH_VARARGS, NULL},
+	 { (char *)"conv_curve_trans_swigregister", conv_curve_trans_swigregister, METH_VARARGS, NULL},
+	 { (char *)"new_conv_transform_path", _wrap_new_conv_transform_path, METH_VARARGS, NULL},
+	 { (char *)"conv_transform_path_set_source", _wrap_conv_transform_path_set_source, METH_VARARGS, NULL},
+	 { (char *)"conv_transform_path_rewind", _wrap_conv_transform_path_rewind, METH_VARARGS, NULL},
+	 { (char *)"conv_transform_path_vertex", _wrap_conv_transform_path_vertex, METH_VARARGS, NULL},
+	 { (char *)"conv_transform_path_transformer", _wrap_conv_transform_path_transformer, METH_VARARGS, NULL},
+	 { (char *)"delete_conv_transform_path", _wrap_delete_conv_transform_path, METH_VARARGS, NULL},
+	 { (char *)"conv_transform_path_swigregister", conv_transform_path_swigregister, METH_VARARGS, NULL},
+	 { (char *)"new_conv_transform_curve", _wrap_new_conv_transform_curve, METH_VARARGS, NULL},
+	 { (char *)"conv_transform_curve_set_source", _wrap_conv_transform_curve_set_source, METH_VARARGS, NULL},
+	 { (char *)"conv_transform_curve_rewind", _wrap_conv_transform_curve_rewind, METH_VARARGS, NULL},
+	 { (char *)"conv_transform_curve_vertex", _wrap_conv_transform_curve_vertex, METH_VARARGS, NULL},
+	 { (char *)"conv_transform_curve_transformer", _wrap_conv_transform_curve_transformer, METH_VARARGS, NULL},
+	 { (char *)"delete_conv_transform_curve", _wrap_delete_conv_transform_curve, METH_VARARGS, NULL},
+	 { (char *)"conv_transform_curve_swigregister", conv_transform_curve_swigregister, METH_VARARGS, NULL},
+	 { (char *)"new_vcgen_stroke", _wrap_new_vcgen_stroke, METH_VARARGS, NULL},
+	 { (char *)"vcgen_stroke_line_cap", _wrap_vcgen_stroke_line_cap, METH_VARARGS, NULL},
+	 { (char *)"vcgen_stroke_line_join", _wrap_vcgen_stroke_line_join, METH_VARARGS, NULL},
+	 { (char *)"vcgen_stroke_inner_line_join", _wrap_vcgen_stroke_inner_line_join, METH_VARARGS, NULL},
+	 { (char *)"vcgen_stroke_miter_limit_theta", _wrap_vcgen_stroke_miter_limit_theta, METH_VARARGS, NULL},
+	 { (char *)"vcgen_stroke_width", _wrap_vcgen_stroke_width, METH_VARARGS, NULL},
+	 { (char *)"vcgen_stroke_miter_limit", _wrap_vcgen_stroke_miter_limit, METH_VARARGS, NULL},
+	 { (char *)"vcgen_stroke_inner_miter_limit", _wrap_vcgen_stroke_inner_miter_limit, METH_VARARGS, NULL},
+	 { (char *)"vcgen_stroke_approximation_scale", _wrap_vcgen_stroke_approximation_scale, METH_VARARGS, NULL},
+	 { (char *)"vcgen_stroke_shorten", _wrap_vcgen_stroke_shorten, METH_VARARGS, NULL},
+	 { (char *)"vcgen_stroke_remove_all", _wrap_vcgen_stroke_remove_all, METH_VARARGS, NULL},
+	 { (char *)"vcgen_stroke_add_vertex", _wrap_vcgen_stroke_add_vertex, METH_VARARGS, NULL},
+	 { (char *)"vcgen_stroke_rewind", _wrap_vcgen_stroke_rewind, METH_VARARGS, NULL},
+	 { (char *)"vcgen_stroke_vertex", _wrap_vcgen_stroke_vertex, METH_VARARGS, NULL},
+	 { (char *)"delete_vcgen_stroke", _wrap_delete_vcgen_stroke, METH_VARARGS, NULL},
+	 { (char *)"vcgen_stroke_swigregister", vcgen_stroke_swigregister, METH_VARARGS, NULL},
+	 { (char *)"null_markers_remove_all", _wrap_null_markers_remove_all, METH_VARARGS, NULL},
+	 { (char *)"null_markers_add_vertex", _wrap_null_markers_add_vertex, METH_VARARGS, NULL},
+	 { (char *)"null_markers_prepare_src", _wrap_null_markers_prepare_src, METH_VARARGS, NULL},
+	 { (char *)"null_markers_rewind", _wrap_null_markers_rewind, METH_VARARGS, NULL},
+	 { (char *)"null_markers_vertex", _wrap_null_markers_vertex, METH_VARARGS, NULL},
+	 { (char *)"new_null_markers", _wrap_new_null_markers, METH_VARARGS, NULL},
+	 { (char *)"delete_null_markers", _wrap_delete_null_markers, METH_VARARGS, NULL},
+	 { (char *)"null_markers_swigregister", null_markers_swigregister, METH_VARARGS, NULL},
+	 { (char *)"new_conv_adaptor_vcgen_path", _wrap_new_conv_adaptor_vcgen_path, METH_VARARGS, NULL},
+	 { (char *)"conv_adaptor_vcgen_path_set_source", _wrap_conv_adaptor_vcgen_path_set_source, METH_VARARGS, NULL},
+	 { (char *)"conv_adaptor_vcgen_path_generator", _wrap_conv_adaptor_vcgen_path_generator, METH_VARARGS, NULL},
+	 { (char *)"conv_adaptor_vcgen_path_markers", _wrap_conv_adaptor_vcgen_path_markers, METH_VARARGS, NULL},
+	 { (char *)"conv_adaptor_vcgen_path_rewind", _wrap_conv_adaptor_vcgen_path_rewind, METH_VARARGS, NULL},
+	 { (char *)"conv_adaptor_vcgen_path_vertex", _wrap_conv_adaptor_vcgen_path_vertex, METH_VARARGS, NULL},
+	 { (char *)"delete_conv_adaptor_vcgen_path", _wrap_delete_conv_adaptor_vcgen_path, METH_VARARGS, NULL},
+	 { (char *)"conv_adaptor_vcgen_path_swigregister", conv_adaptor_vcgen_path_swigregister, METH_VARARGS, NULL},
+	 { (char *)"new_conv_adaptor_vcgen_transpath", _wrap_new_conv_adaptor_vcgen_transpath, METH_VARARGS, NULL},
+	 { (char *)"conv_adaptor_vcgen_transpath_set_source", _wrap_conv_adaptor_vcgen_transpath_set_source, METH_VARARGS, NULL},
+	 { (char *)"conv_adaptor_vcgen_transpath_generator", _wrap_conv_adaptor_vcgen_transpath_generator, METH_VARARGS, NULL},
+	 { (char *)"conv_adaptor_vcgen_transpath_markers", _wrap_conv_adaptor_vcgen_transpath_markers, METH_VARARGS, NULL},
+	 { (char *)"conv_adaptor_vcgen_transpath_rewind", _wrap_conv_adaptor_vcgen_transpath_rewind, METH_VARARGS, NULL},
+	 { (char *)"conv_adaptor_vcgen_transpath_vertex", _wrap_conv_adaptor_vcgen_transpath_vertex, METH_VARARGS, NULL},
+	 { (char *)"delete_conv_adaptor_vcgen_transpath", _wrap_delete_conv_adaptor_vcgen_transpath, METH_VARARGS, NULL},
+	 { (char *)"conv_adaptor_vcgen_transpath_swigregister", conv_adaptor_vcgen_transpath_swigregister, METH_VARARGS, NULL},
+	 { (char *)"new_conv_adaptor_vcgen_curve", _wrap_new_conv_adaptor_vcgen_curve, METH_VARARGS, NULL},
+	 { (char *)"conv_adaptor_vcgen_curve_set_source", _wrap_conv_adaptor_vcgen_curve_set_source, METH_VARARGS, NULL},
+	 { (char *)"conv_adaptor_vcgen_curve_generator", _wrap_conv_adaptor_vcgen_curve_generator, METH_VARARGS, NULL},
+	 { (char *)"conv_adaptor_vcgen_curve_markers", _wrap_conv_adaptor_vcgen_curve_markers, METH_VARARGS, NULL},
+	 { (char *)"conv_adaptor_vcgen_curve_rewind", _wrap_conv_adaptor_vcgen_curve_rewind, METH_VARARGS, NULL},
+	 { (char *)"conv_adaptor_vcgen_curve_vertex", _wrap_conv_adaptor_vcgen_curve_vertex, METH_VARARGS, NULL},
+	 { (char *)"delete_conv_adaptor_vcgen_curve", _wrap_delete_conv_adaptor_vcgen_curve, METH_VARARGS, NULL},
+	 { (char *)"conv_adaptor_vcgen_curve_swigregister", conv_adaptor_vcgen_curve_swigregister, METH_VARARGS, NULL},
+	 { (char *)"new_conv_adaptor_vcgen_transcurve", _wrap_new_conv_adaptor_vcgen_transcurve, METH_VARARGS, NULL},
+	 { (char *)"conv_adaptor_vcgen_transcurve_set_source", _wrap_conv_adaptor_vcgen_transcurve_set_source, METH_VARARGS, NULL},
+	 { (char *)"conv_adaptor_vcgen_transcurve_generator", _wrap_conv_adaptor_vcgen_transcurve_generator, METH_VARARGS, NULL},
+	 { (char *)"conv_adaptor_vcgen_transcurve_markers", _wrap_conv_adaptor_vcgen_transcurve_markers, METH_VARARGS, NULL},
+	 { (char *)"conv_adaptor_vcgen_transcurve_rewind", _wrap_conv_adaptor_vcgen_transcurve_rewind, METH_VARARGS, NULL},
+	 { (char *)"conv_adaptor_vcgen_transcurve_vertex", _wrap_conv_adaptor_vcgen_transcurve_vertex, METH_VARARGS, NULL},
+	 { (char *)"delete_conv_adaptor_vcgen_transcurve", _wrap_delete_conv_adaptor_vcgen_transcurve, METH_VARARGS, NULL},
+	 { (char *)"conv_adaptor_vcgen_transcurve_swigregister", conv_adaptor_vcgen_transcurve_swigregister, METH_VARARGS, NULL},
+	 { (char *)"new_conv_adaptor_vcgen_curvetrans", _wrap_new_conv_adaptor_vcgen_curvetrans, METH_VARARGS, NULL},
+	 { (char *)"conv_adaptor_vcgen_curvetrans_set_source", _wrap_conv_adaptor_vcgen_curvetrans_set_source, METH_VARARGS, NULL},
+	 { (char *)"conv_adaptor_vcgen_curvetrans_generator", _wrap_conv_adaptor_vcgen_curvetrans_generator, METH_VARARGS, NULL},
+	 { (char *)"conv_adaptor_vcgen_curvetrans_markers", _wrap_conv_adaptor_vcgen_curvetrans_markers, METH_VARARGS, NULL},
+	 { (char *)"conv_adaptor_vcgen_curvetrans_rewind", _wrap_conv_adaptor_vcgen_curvetrans_rewind, METH_VARARGS, NULL},
+	 { (char *)"conv_adaptor_vcgen_curvetrans_vertex", _wrap_conv_adaptor_vcgen_curvetrans_vertex, METH_VARARGS, NULL},
+	 { (char *)"delete_conv_adaptor_vcgen_curvetrans", _wrap_delete_conv_adaptor_vcgen_curvetrans, METH_VARARGS, NULL},
+	 { (char *)"conv_adaptor_vcgen_curvetrans_swigregister", conv_adaptor_vcgen_curvetrans_swigregister, METH_VARARGS, NULL},
+	 { (char *)"new_conv_stroke_path", _wrap_new_conv_stroke_path, METH_VARARGS, NULL},
+	 { (char *)"conv_stroke_path_line_cap", _wrap_conv_stroke_path_line_cap, METH_VARARGS, NULL},
+	 { (char *)"conv_stroke_path_line_join", _wrap_conv_stroke_path_line_join, METH_VARARGS, NULL},
+	 { (char *)"conv_stroke_path_inner_line_join", _wrap_conv_stroke_path_inner_line_join, METH_VARARGS, NULL},
+	 { (char *)"conv_stroke_path_miter_limit_theta", _wrap_conv_stroke_path_miter_limit_theta, METH_VARARGS, NULL},
+	 { (char *)"conv_stroke_path_width", _wrap_conv_stroke_path_width, METH_VARARGS, NULL},
+	 { (char *)"conv_stroke_path_miter_limit", _wrap_conv_stroke_path_miter_limit, METH_VARARGS, NULL},
+	 { (char *)"conv_stroke_path_inner_miter_limit", _wrap_conv_stroke_path_inner_miter_limit, METH_VARARGS, NULL},
+	 { (char *)"conv_stroke_path_approximation_scale", _wrap_conv_stroke_path_approximation_scale, METH_VARARGS, NULL},
+	 { (char *)"conv_stroke_path_shorten", _wrap_conv_stroke_path_shorten, METH_VARARGS, NULL},
+	 { (char *)"delete_conv_stroke_path", _wrap_delete_conv_stroke_path, METH_VARARGS, NULL},
+	 { (char *)"conv_stroke_path_swigregister", conv_stroke_path_swigregister, METH_VARARGS, NULL},
+	 { (char *)"new_conv_stroke_transpath", _wrap_new_conv_stroke_transpath, METH_VARARGS, NULL},
+	 { (char *)"conv_stroke_transpath_line_cap", _wrap_conv_stroke_transpath_line_cap, METH_VARARGS, NULL},
+	 { (char *)"conv_stroke_transpath_line_join", _wrap_conv_stroke_transpath_line_join, METH_VARARGS, NULL},
+	 { (char *)"conv_stroke_transpath_inner_line_join", _wrap_conv_stroke_transpath_inner_line_join, METH_VARARGS, NULL},
+	 { (char *)"conv_stroke_transpath_miter_limit_theta", _wrap_conv_stroke_transpath_miter_limit_theta, METH_VARARGS, NULL},
+	 { (char *)"conv_stroke_transpath_width", _wrap_conv_stroke_transpath_width, METH_VARARGS, NULL},
+	 { (char *)"conv_stroke_transpath_miter_limit", _wrap_conv_stroke_transpath_miter_limit, METH_VARARGS, NULL},
+	 { (char *)"conv_stroke_transpath_inner_miter_limit", _wrap_conv_stroke_transpath_inner_miter_limit, METH_VARARGS, NULL},
+	 { (char *)"conv_stroke_transpath_approximation_scale", _wrap_conv_stroke_transpath_approximation_scale, METH_VARARGS, NULL},
+	 { (char *)"conv_stroke_transpath_shorten", _wrap_conv_stroke_transpath_shorten, METH_VARARGS, NULL},
+	 { (char *)"delete_conv_stroke_transpath", _wrap_delete_conv_stroke_transpath, METH_VARARGS, NULL},
+	 { (char *)"conv_stroke_transpath_swigregister", conv_stroke_transpath_swigregister, METH_VARARGS, NULL},
+	 { (char *)"new_conv_stroke_curve", _wrap_new_conv_stroke_curve, METH_VARARGS, NULL},
+	 { (char *)"conv_stroke_curve_line_cap", _wrap_conv_stroke_curve_line_cap, METH_VARARGS, NULL},
+	 { (char *)"conv_stroke_curve_line_join", _wrap_conv_stroke_curve_line_join, METH_VARARGS, NULL},
+	 { (char *)"conv_stroke_curve_inner_line_join", _wrap_conv_stroke_curve_inner_line_join, METH_VARARGS, NULL},
+	 { (char *)"conv_stroke_curve_miter_limit_theta", _wrap_conv_stroke_curve_miter_limit_theta, METH_VARARGS, NULL},
+	 { (char *)"conv_stroke_curve_width", _wrap_conv_stroke_curve_width, METH_VARARGS, NULL},
+	 { (char *)"conv_stroke_curve_miter_limit", _wrap_conv_stroke_curve_miter_limit, METH_VARARGS, NULL},
+	 { (char *)"conv_stroke_curve_inner_miter_limit", _wrap_conv_stroke_curve_inner_miter_limit, METH_VARARGS, NULL},
+	 { (char *)"conv_stroke_curve_approximation_scale", _wrap_conv_stroke_curve_approximation_scale, METH_VARARGS, NULL},
+	 { (char *)"conv_stroke_curve_shorten", _wrap_conv_stroke_curve_shorten, METH_VARARGS, NULL},
+	 { (char *)"delete_conv_stroke_curve", _wrap_delete_conv_stroke_curve, METH_VARARGS, NULL},
+	 { (char *)"conv_stroke_curve_swigregister", conv_stroke_curve_swigregister, METH_VARARGS, NULL},
+	 { (char *)"new_conv_stroke_transcurve", _wrap_new_conv_stroke_transcurve, METH_VARARGS, NULL},
+	 { (char *)"conv_stroke_transcurve_line_cap", _wrap_conv_stroke_transcurve_line_cap, METH_VARARGS, NULL},
+	 { (char *)"conv_stroke_transcurve_line_join", _wrap_conv_stroke_transcurve_line_join, METH_VARARGS, NULL},
+	 { (char *)"conv_stroke_transcurve_inner_line_join", _wrap_conv_stroke_transcurve_inner_line_join, METH_VARARGS, NULL},
+	 { (char *)"conv_stroke_transcurve_miter_limit_theta", _wrap_conv_stroke_transcurve_miter_limit_theta, METH_VARARGS, NULL},
+	 { (char *)"conv_stroke_transcurve_width", _wrap_conv_stroke_transcurve_width, METH_VARARGS, NULL},
+	 { (char *)"conv_stroke_transcurve_miter_limit", _wrap_conv_stroke_transcurve_miter_limit, METH_VARARGS, NULL},
+	 { (char *)"conv_stroke_transcurve_inner_miter_limit", _wrap_conv_stroke_transcurve_inner_miter_limit, METH_VARARGS, NULL},
+	 { (char *)"conv_stroke_transcurve_approximation_scale", _wrap_conv_stroke_transcurve_approximation_scale, METH_VARARGS, NULL},
+	 { (char *)"conv_stroke_transcurve_shorten", _wrap_conv_stroke_transcurve_shorten, METH_VARARGS, NULL},
+	 { (char *)"delete_conv_stroke_transcurve", _wrap_delete_conv_stroke_transcurve, METH_VARARGS, NULL},
+	 { (char *)"conv_stroke_transcurve_swigregister", conv_stroke_transcurve_swigregister, METH_VARARGS, NULL},
+	 { (char *)"new_conv_stroke_curvetrans", _wrap_new_conv_stroke_curvetrans, METH_VARARGS, NULL},
+	 { (char *)"conv_stroke_curvetrans_line_cap", _wrap_conv_stroke_curvetrans_line_cap, METH_VARARGS, NULL},
+	 { (char *)"conv_stroke_curvetrans_line_join", _wrap_conv_stroke_curvetrans_line_join, METH_VARARGS, NULL},
+	 { (char *)"conv_stroke_curvetrans_inner_line_join", _wrap_conv_stroke_curvetrans_inner_line_join, METH_VARARGS, NULL},
+	 { (char *)"conv_stroke_curvetrans_miter_limit_theta", _wrap_conv_stroke_curvetrans_miter_limit_theta, METH_VARARGS, NULL},
+	 { (char *)"conv_stroke_curvetrans_width", _wrap_conv_stroke_curvetrans_width, METH_VARARGS, NULL},
+	 { (char *)"conv_stroke_curvetrans_miter_limit", _wrap_conv_stroke_curvetrans_miter_limit, METH_VARARGS, NULL},
+	 { (char *)"conv_stroke_curvetrans_inner_miter_limit", _wrap_conv_stroke_curvetrans_inner_miter_limit, METH_VARARGS, NULL},
+	 { (char *)"conv_stroke_curvetrans_approximation_scale", _wrap_conv_stroke_curvetrans_approximation_scale, METH_VARARGS, NULL},
+	 { (char *)"conv_stroke_curvetrans_shorten", _wrap_conv_stroke_curvetrans_shorten, METH_VARARGS, NULL},
+	 { (char *)"delete_conv_stroke_curvetrans", _wrap_delete_conv_stroke_curvetrans, METH_VARARGS, NULL},
+	 { (char *)"conv_stroke_curvetrans_swigregister", conv_stroke_curvetrans_swigregister, METH_VARARGS, NULL},
 	 { (char *)"new_rasterizer_scanline_aa", _wrap_new_rasterizer_scanline_aa, METH_VARARGS, NULL},
 	 { (char *)"rasterizer_scanline_aa_reset", _wrap_rasterizer_scanline_aa_reset, METH_VARARGS, NULL},
 	 { (char *)"rasterizer_scanline_aa_filling_rule", _wrap_rasterizer_scanline_aa_filling_rule, METH_VARARGS, NULL},
@@ -18846,16 +25955,20 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"rasterizer_scanline_aa_add_path", _wrap_rasterizer_scanline_aa_add_path, METH_VARARGS, NULL},
 	 { (char *)"delete_rasterizer_scanline_aa", _wrap_delete_rasterizer_scanline_aa, METH_VARARGS, NULL},
 	 { (char *)"rasterizer_scanline_aa_swigregister", rasterizer_scanline_aa_swigregister, METH_VARARGS, NULL},
-	 { (char *)"new_renderer_scanline_aa_solid", _wrap_new_renderer_scanline_aa_solid, METH_VARARGS, NULL},
-	 { (char *)"renderer_scanline_aa_solid_color", _wrap_renderer_scanline_aa_solid_color, METH_VARARGS, NULL},
-	 { (char *)"renderer_scanline_aa_solid_prepare", _wrap_renderer_scanline_aa_solid_prepare, METH_VARARGS, NULL},
-	 { (char *)"delete_renderer_scanline_aa_solid", _wrap_delete_renderer_scanline_aa_solid, METH_VARARGS, NULL},
-	 { (char *)"renderer_scanline_aa_solid_swigregister", renderer_scanline_aa_solid_swigregister, METH_VARARGS, NULL},
-	 { (char *)"new_renderer_scanline_bin_solid", _wrap_new_renderer_scanline_bin_solid, METH_VARARGS, NULL},
-	 { (char *)"renderer_scanline_bin_solid_color", _wrap_renderer_scanline_bin_solid_color, METH_VARARGS, NULL},
-	 { (char *)"renderer_scanline_bin_solid_prepare", _wrap_renderer_scanline_bin_solid_prepare, METH_VARARGS, NULL},
-	 { (char *)"delete_renderer_scanline_bin_solid", _wrap_delete_renderer_scanline_bin_solid, METH_VARARGS, NULL},
-	 { (char *)"renderer_scanline_bin_solid_swigregister", renderer_scanline_bin_solid_swigregister, METH_VARARGS, NULL},
+	 { (char *)"new_renderer_scanline_aa_solid_rgba", _wrap_new_renderer_scanline_aa_solid_rgba, METH_VARARGS, NULL},
+	 { (char *)"renderer_scanline_aa_solid_rgba_color", _wrap_renderer_scanline_aa_solid_rgba_color, METH_VARARGS, NULL},
+	 { (char *)"renderer_scanline_aa_solid_rgba_prepare", _wrap_renderer_scanline_aa_solid_rgba_prepare, METH_VARARGS, NULL},
+	 { (char *)"renderer_scanline_aa_solid_rgba_color_rgba8", _wrap_renderer_scanline_aa_solid_rgba_color_rgba8, METH_VARARGS, NULL},
+	 { (char *)"renderer_scanline_aa_solid_rgba_color_rgba", _wrap_renderer_scanline_aa_solid_rgba_color_rgba, METH_VARARGS, NULL},
+	 { (char *)"delete_renderer_scanline_aa_solid_rgba", _wrap_delete_renderer_scanline_aa_solid_rgba, METH_VARARGS, NULL},
+	 { (char *)"renderer_scanline_aa_solid_rgba_swigregister", renderer_scanline_aa_solid_rgba_swigregister, METH_VARARGS, NULL},
+	 { (char *)"new_renderer_scanline_bin_solid_rgba", _wrap_new_renderer_scanline_bin_solid_rgba, METH_VARARGS, NULL},
+	 { (char *)"renderer_scanline_bin_solid_rgba_color", _wrap_renderer_scanline_bin_solid_rgba_color, METH_VARARGS, NULL},
+	 { (char *)"renderer_scanline_bin_solid_rgba_prepare", _wrap_renderer_scanline_bin_solid_rgba_prepare, METH_VARARGS, NULL},
+	 { (char *)"renderer_scanline_bin_solid_rgba_color_rgba8", _wrap_renderer_scanline_bin_solid_rgba_color_rgba8, METH_VARARGS, NULL},
+	 { (char *)"renderer_scanline_bin_solid_rgba_color_rgba", _wrap_renderer_scanline_bin_solid_rgba_color_rgba, METH_VARARGS, NULL},
+	 { (char *)"delete_renderer_scanline_bin_solid_rgba", _wrap_delete_renderer_scanline_bin_solid_rgba, METH_VARARGS, NULL},
+	 { (char *)"renderer_scanline_bin_solid_rgba_swigregister", renderer_scanline_bin_solid_rgba_swigregister, METH_VARARGS, NULL},
 	 { (char *)"delete_scanline_p8", _wrap_delete_scanline_p8, METH_VARARGS, NULL},
 	 { (char *)"new_scanline_p8", _wrap_new_scanline_p8, METH_VARARGS, NULL},
 	 { (char *)"scanline_p8_reset", _wrap_scanline_p8_reset, METH_VARARGS, NULL},
@@ -18880,13 +25993,16 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"scanline_bin_num_spans", _wrap_scanline_bin_num_spans, METH_VARARGS, NULL},
 	 { (char *)"scanline_bin_begin", _wrap_scanline_bin_begin, METH_VARARGS, NULL},
 	 { (char *)"scanline_bin_swigregister", scanline_bin_swigregister, METH_VARARGS, NULL},
-	 { (char *)"render_scanlines", _wrap_render_scanlines, METH_VARARGS, NULL},
+	 { (char *)"render_scanlines_rgba", _wrap_render_scanlines_rgba, METH_VARARGS, NULL},
 	 { NULL, NULL, 0, NULL }
 };
 
 
 /* -------- TYPE CONVERSION AND EQUIVALENCE RULES (BEGIN) -------- */
 
+static void *_p_agg__conv_strokeTagg__conv_curveTpath_t_t_agg__null_markers_tTo_p_agg__conv_adaptor_vcgenTagg__conv_curveTpath_t_t_agg__vcgen_stroke_agg__null_markers_t(void *x) {
+    return (void *)((agg::conv_adaptor_vcgen<agg::conv_curve<path_t >,agg::vcgen_stroke,agg::null_markers > *)  ((agg::conv_stroke<agg::conv_curve<path_t >,agg::null_markers > *) x));
+}
 static void *_p_agg__trans_affine_scalingTo_p_agg__trans_affine(void *x) {
     return (void *)((agg::trans_affine *)  ((agg::trans_affine_scaling *) x));
 }
@@ -18898,6 +26014,15 @@ static void *_p_agg__trans_affine_translationTo_p_agg__trans_affine(void *x) {
 }
 static void *_p_agg__trans_affine_rotationTo_p_agg__trans_affine(void *x) {
     return (void *)((agg::trans_affine *)  ((agg::trans_affine_rotation *) x));
+}
+static void *_p_agg__conv_strokeTagg__conv_transformTcurve_t_agg__trans_affine_t_agg__null_markers_tTo_p_agg__conv_adaptor_vcgenTagg__conv_transformTcurve_t_agg__trans_affine_t_agg__vcgen_stroke_agg__null_markers_t(void *x) {
+    return (void *)((agg::conv_adaptor_vcgen<agg::conv_transform<curve_t,agg::trans_affine >,agg::vcgen_stroke,agg::null_markers > *)  ((agg::conv_stroke<agg::conv_transform<curve_t,agg::trans_affine >,agg::null_markers > *) x));
+}
+static void *_p_agg__conv_strokeTagg__conv_transformTpath_t_agg__trans_affine_t_agg__null_markers_tTo_p_agg__conv_adaptor_vcgenTagg__conv_transformTpath_t_agg__trans_affine_t_agg__vcgen_stroke_agg__null_markers_t(void *x) {
+    return (void *)((agg::conv_adaptor_vcgen<agg::conv_transform<path_t,agg::trans_affine >,agg::vcgen_stroke,agg::null_markers > *)  ((agg::conv_stroke<agg::conv_transform<path_t,agg::trans_affine >,agg::null_markers > *) x));
+}
+static void *_p_agg__conv_strokeTagg__path_storage_agg__null_markers_tTo_p_agg__conv_adaptor_vcgenTagg__path_storage_agg__vcgen_stroke_agg__null_markers_t(void *x) {
+    return (void *)((agg::conv_adaptor_vcgen<agg::path_storage,agg::vcgen_stroke,agg::null_markers > *)  ((agg::conv_stroke<agg::path_storage,agg::null_markers > *) x));
 }
 static swig_type_info _swigt__agg__scanline_pTunsigned_char_agg__int16_t__const_iterator = {"_agg__scanline_pTunsigned_char_agg__int16_t__const_iterator", "span *|agg::scanline_p<unsigned char >::const_iterator", 0, 0, 0};
 static swig_type_info _swigt__p_agg__binary_data = {"_p_agg__binary_data", "agg::binary_data *", 0, 0, 0};
@@ -18922,6 +26047,20 @@ static swig_type_info _swigt__p_agg__blender_rgba_preTagg__rgba8_agg__order_argb
 static swig_type_info _swigt__p_agg__blender_rgba_preTagg__rgba8_agg__order_bgra_t = {"_p_agg__blender_rgba_preTagg__rgba8_agg__order_bgra_t", "agg::blender_rgba_pre<agg::rgba8,agg::order_bgra > *|agg::blender_bgra32_pre *", 0, 0, 0};
 static swig_type_info _swigt__p_agg__blender_rgba_preTagg__rgba8_agg__order_rgba_t = {"_p_agg__blender_rgba_preTagg__rgba8_agg__order_rgba_t", "agg::blender_rgba_pre<agg::rgba8,agg::order_rgba > *|agg::blender_rgba32_pre *", 0, 0, 0};
 static swig_type_info _swigt__p_agg__buffer = {"_p_agg__buffer", "agg::buffer *", 0, 0, 0};
+static swig_type_info _swigt__p_agg__conv_adaptor_vcgenTagg__conv_curveTpath_t_t_agg__vcgen_stroke_agg__null_markers_t = {"_p_agg__conv_adaptor_vcgenTagg__conv_curveTpath_t_t_agg__vcgen_stroke_agg__null_markers_t", "agg::conv_adaptor_vcgen<agg::conv_curve<agg::path_storage >,agg::vcgen_stroke,agg::null_markers > *|agg::conv_adaptor_vcgen<curve_t,agg::vcgen_stroke,agg::null_markers > *", 0, 0, 0};
+static swig_type_info _swigt__p_agg__conv_adaptor_vcgenTagg__conv_curveTtranspath_t_t_agg__vcgen_stroke_agg__null_markers_t = {"_p_agg__conv_adaptor_vcgenTagg__conv_curveTtranspath_t_t_agg__vcgen_stroke_agg__null_markers_t", "agg::conv_adaptor_vcgen<agg::conv_curve<agg::conv_transform<agg::path_storage,agg::trans_affine > >,agg::vcgen_stroke,agg::null_markers > *|agg::conv_adaptor_vcgen<curvetrans_t,agg::vcgen_stroke,agg::null_markers > *", 0, 0, 0};
+static swig_type_info _swigt__p_agg__conv_adaptor_vcgenTagg__conv_transformTcurve_t_agg__trans_affine_t_agg__vcgen_stroke_agg__null_markers_t = {"_p_agg__conv_adaptor_vcgenTagg__conv_transformTcurve_t_agg__trans_affine_t_agg__vcgen_stroke_agg__null_markers_t", "agg::conv_adaptor_vcgen<agg::conv_transform<agg::conv_curve<agg::path_storage >,agg::trans_affine >,agg::vcgen_stroke,agg::null_markers > *|agg::conv_adaptor_vcgen<transcurve_t,agg::vcgen_stroke,agg::null_markers > *", 0, 0, 0};
+static swig_type_info _swigt__p_agg__conv_adaptor_vcgenTagg__conv_transformTpath_t_agg__trans_affine_t_agg__vcgen_stroke_agg__null_markers_t = {"_p_agg__conv_adaptor_vcgenTagg__conv_transformTpath_t_agg__trans_affine_t_agg__vcgen_stroke_agg__null_markers_t", "agg::conv_adaptor_vcgen<agg::conv_transform<agg::path_storage,agg::trans_affine >,agg::vcgen_stroke,agg::null_markers > *|agg::conv_adaptor_vcgen<transpath_t,agg::vcgen_stroke,agg::null_markers > *", 0, 0, 0};
+static swig_type_info _swigt__p_agg__conv_adaptor_vcgenTagg__path_storage_agg__vcgen_stroke_agg__null_markers_t = {"_p_agg__conv_adaptor_vcgenTagg__path_storage_agg__vcgen_stroke_agg__null_markers_t", "agg::conv_adaptor_vcgen<agg::path_storage,agg::vcgen_stroke,agg::null_markers > *|agg::conv_adaptor_vcgen<path_t,agg::vcgen_stroke,agg::null_markers > *", 0, 0, 0};
+static swig_type_info _swigt__p_agg__conv_curveTagg__conv_transformTpath_t_agg__trans_affine_t_t = {"_p_agg__conv_curveTagg__conv_transformTpath_t_agg__trans_affine_t_t", "agg::conv_curve<agg::conv_transform<agg::path_storage,agg::trans_affine > > *|curvetrans_t *", 0, 0, 0};
+static swig_type_info _swigt__p_agg__conv_curveTagg__path_storage_t = {"_p_agg__conv_curveTagg__path_storage_t", "agg::conv_curve<agg::path_storage > *|curve_t *", 0, 0, 0};
+static swig_type_info _swigt__p_agg__conv_strokeTagg__conv_curveTpath_t_t_agg__null_markers_t = {"_p_agg__conv_strokeTagg__conv_curveTpath_t_t_agg__null_markers_t", "agg::conv_stroke<agg::conv_curve<agg::path_storage >,agg::null_markers > *|strokecurve_t *", 0, 0, 0};
+static swig_type_info _swigt__p_agg__conv_strokeTagg__conv_curveTtranspath_t_t_agg__null_markers_t = {"_p_agg__conv_strokeTagg__conv_curveTtranspath_t_t_agg__null_markers_t", "agg::conv_stroke<agg::conv_curve<agg::conv_transform<agg::path_storage,agg::trans_affine > >,agg::null_markers > *|strokecurvetrans_t *", 0, 0, 0};
+static swig_type_info _swigt__p_agg__conv_strokeTagg__conv_transformTcurve_t_agg__trans_affine_t_agg__null_markers_t = {"_p_agg__conv_strokeTagg__conv_transformTcurve_t_agg__trans_affine_t_agg__null_markers_t", "agg::conv_stroke<agg::conv_transform<agg::conv_curve<agg::path_storage >,agg::trans_affine >,agg::null_markers > *|stroketranscurve_t *", 0, 0, 0};
+static swig_type_info _swigt__p_agg__conv_strokeTagg__conv_transformTpath_t_agg__trans_affine_t_agg__null_markers_t = {"_p_agg__conv_strokeTagg__conv_transformTpath_t_agg__trans_affine_t_agg__null_markers_t", "agg::conv_stroke<agg::conv_transform<agg::path_storage,agg::trans_affine >,agg::null_markers > *|stroketrans_t *", 0, 0, 0};
+static swig_type_info _swigt__p_agg__conv_strokeTagg__path_storage_agg__null_markers_t = {"_p_agg__conv_strokeTagg__path_storage_agg__null_markers_t", "agg::conv_stroke<agg::path_storage,agg::null_markers > *|stroke_t *", 0, 0, 0};
+static swig_type_info _swigt__p_agg__conv_transformTagg__conv_curveTpath_t_t_agg__trans_affine_t = {"_p_agg__conv_transformTagg__conv_curveTpath_t_t_agg__trans_affine_t", "agg::conv_transform<agg::conv_curve<agg::path_storage >,agg::trans_affine > *|transcurve_t *", 0, 0, 0};
+static swig_type_info _swigt__p_agg__conv_transformTagg__path_storage_agg__trans_affine_t = {"_p_agg__conv_transformTagg__path_storage_agg__trans_affine_t", "agg::conv_transform<agg::path_storage,agg::trans_affine > *|transpath_t *", 0, 0, 0};
 static swig_type_info _swigt__p_agg__filling_rule_e = {"_p_agg__filling_rule_e", "agg::filling_rule_e *", 0, 0, 0};
 static swig_type_info _swigt__p_agg__null_markers = {"_p_agg__null_markers", "agg::null_markers *", 0, 0, 0};
 static swig_type_info _swigt__p_agg__order_abgr = {"_p_agg__order_abgr", "agg::order_abgr *", 0, 0, 0};
@@ -18930,7 +26069,7 @@ static swig_type_info _swigt__p_agg__order_bgr = {"_p_agg__order_bgr", "agg::ord
 static swig_type_info _swigt__p_agg__order_bgra = {"_p_agg__order_bgra", "agg::order_bgra *", 0, 0, 0};
 static swig_type_info _swigt__p_agg__order_rgb = {"_p_agg__order_rgb", "agg::order_rgb *", 0, 0, 0};
 static swig_type_info _swigt__p_agg__order_rgba = {"_p_agg__order_rgba", "agg::order_rgba *", 0, 0, 0};
-static swig_type_info _swigt__p_agg__path_storage = {"_p_agg__path_storage", "agg::path_storage *", 0, 0, 0};
+static swig_type_info _swigt__p_agg__path_storage = {"_p_agg__path_storage", "agg::path_storage *|path_t *", 0, 0, 0};
 static swig_type_info _swigt__p_agg__pixel64_type = {"_p_agg__pixel64_type", "agg::pixel64_type *", 0, 0, 0};
 static swig_type_info _swigt__p_agg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba16_agg__order_abgr_t_agg__pixel64_type_t = {"_p_agg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba16_agg__order_abgr_t_agg__pixel64_type_t", "agg::pixel_formats_rgba<agg::blender_rgba<agg::rgba16,agg::order_abgr >,agg::pixel64_type > *|agg::pixfmt_abgr64 *", 0, 0, 0};
 static swig_type_info _swigt__p_agg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba16_agg__order_argb_t_agg__pixel64_type_t = {"_p_agg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba16_agg__order_argb_t_agg__pixel64_type_t", "agg::pixel_formats_rgba<agg::blender_rgba<agg::rgba16,agg::order_argb >,agg::pixel64_type > *|agg::pixfmt_argb64 *", 0, 0, 0};
@@ -18939,8 +26078,8 @@ static swig_type_info _swigt__p_agg__pixel_formats_rgbaTagg__blender_rgbaTagg__r
 static swig_type_info _swigt__p_agg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_abgr_t_unsigned_int_t = {"_p_agg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_abgr_t_unsigned_int_t", "agg::pixel_formats_rgba<agg::blender_rgba<agg::rgba8,agg::order_abgr >,unsigned int > *|agg::pixfmt_abgr32 *", 0, 0, 0};
 static swig_type_info _swigt__p_agg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_argb_t_unsigned_int_t = {"_p_agg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_argb_t_unsigned_int_t", "agg::pixel_formats_rgba<agg::blender_rgba<agg::rgba8,agg::order_argb >,unsigned int > *|agg::pixfmt_argb32 *", 0, 0, 0};
 static swig_type_info _swigt__p_agg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_bgra_t_unsigned_int_t = {"_p_agg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_bgra_t_unsigned_int_t", "agg::pixel_formats_rgba<agg::blender_rgba<agg::rgba8,agg::order_bgra >,unsigned int > *|agg::pixfmt_bgra32 *", 0, 0, 0};
-static swig_type_info _swigt__p_agg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t = {"_p_agg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t", "agg::pixel_formats_rgba<agg::blender_rgba<agg::rgba8,agg::order_rgba >,unsigned int > *|pixel_format *", 0, 0, 0};
-static swig_type_info _swigt__p_agg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t__blender_type__color_type = {"_p_agg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t__blender_type__color_type", "agg::pixel_formats_rgba<agg::blender_rgba<agg::rgba8,agg::order_rgba >,unsigned int >::blender_type::color_type *|agg::pixel_formats_rgba<agg::blender_rgba<agg::rgba8,agg::order_rgba >,unsigned int >::color_type *", 0, 0, 0};
+static swig_type_info _swigt__p_agg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t = {"_p_agg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t", "agg::pixel_formats_rgba<agg::blender_rgba<agg::rgba8,agg::order_rgba >,unsigned int > *|agg::renderer_base<agg::pixel_formats_rgba<agg::blender_rgba<agg::rgba8,agg::order_rgba >,unsigned int > >::pixfmt_type *", 0, 0, 0};
+static swig_type_info _swigt__p_agg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t__blender_type__color_type = {"_p_agg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t__blender_type__color_type", "agg::pixel_formats_rgba<agg::blender_rgba<agg::rgba8,agg::order_rgba >,unsigned int >::blender_type::color_type *|agg::renderer_scanline_bin_solid<agg::renderer_base<agg::pixel_formats_rgba<agg::blender_rgba<agg::rgba8,agg::order_rgba >,unsigned int > > >::color_type *", 0, 0, 0};
 static swig_type_info _swigt__p_agg__pixel_formats_rgbaTagg__blender_rgba_plainTagg__rgba8_agg__order_abgr_t_unsigned_int_t = {"_p_agg__pixel_formats_rgbaTagg__blender_rgba_plainTagg__rgba8_agg__order_abgr_t_unsigned_int_t", "agg::pixel_formats_rgba<agg::blender_rgba_plain<agg::rgba8,agg::order_abgr >,unsigned int > *|agg::pixfmt_abgr32_plain *", 0, 0, 0};
 static swig_type_info _swigt__p_agg__pixel_formats_rgbaTagg__blender_rgba_plainTagg__rgba8_agg__order_argb_t_unsigned_int_t = {"_p_agg__pixel_formats_rgbaTagg__blender_rgba_plainTagg__rgba8_agg__order_argb_t_unsigned_int_t", "agg::pixel_formats_rgba<agg::blender_rgba_plain<agg::rgba8,agg::order_argb >,unsigned int > *|agg::pixfmt_argb32_plain *", 0, 0, 0};
 static swig_type_info _swigt__p_agg__pixel_formats_rgbaTagg__blender_rgba_plainTagg__rgba8_agg__order_bgra_t_unsigned_int_t = {"_p_agg__pixel_formats_rgbaTagg__blender_rgba_plainTagg__rgba8_agg__order_bgra_t_unsigned_int_t", "agg::pixel_formats_rgba<agg::blender_rgba_plain<agg::rgba8,agg::order_bgra >,unsigned int > *|agg::pixfmt_bgra32_plain *", 0, 0, 0};
@@ -18956,11 +26095,14 @@ static swig_type_info _swigt__p_agg__pixel_formats_rgbaTagg__blender_rgba_preTag
 static swig_type_info _swigt__p_agg__point_type = {"_p_agg__point_type", "agg::point_type *", 0, 0, 0};
 static swig_type_info _swigt__p_agg__rect_baseTdouble_t = {"_p_agg__rect_baseTdouble_t", "agg::rect_base<double > *|agg::rect_d *", 0, 0, 0};
 static swig_type_info _swigt__p_agg__rect_baseTint_t = {"_p_agg__rect_baseTint_t", "agg::rect_base<int > *|agg::rect *", 0, 0, 0};
+static swig_type_info _swigt__p_agg__renderer_baseTagg__pixel_formats_rgbaTagg__blender_rgba32_agg__pixel32_type_t_t = {"_p_agg__renderer_baseTagg__pixel_formats_rgbaTagg__blender_rgba32_agg__pixel32_type_t_t", "agg::renderer_base<agg::pixel_formats_rgba<agg::blender_rgba<agg::rgba8,agg::order_rgba >,unsigned int > > *|agg::renderer_scanline_bin_solid<agg::renderer_base<agg::pixel_formats_rgba<agg::blender_rgba<agg::rgba8,agg::order_rgba >,unsigned int > > >::base_ren_type *", 0, 0, 0};
+static swig_type_info _swigt__p_agg__renderer_scanline_aa_solidTagg__renderer_baseTpixfmt_rgba_t_t_t = {"_p_agg__renderer_scanline_aa_solidTagg__renderer_baseTpixfmt_rgba_t_t_t", "agg::renderer_scanline_aa_solid<agg::renderer_base<agg::pixel_formats_rgba<agg::blender_rgba<agg::rgba8,agg::order_rgba >,unsigned int > > > *|agg::renderer_scanline_aa_solid<renderer_base_rgba_t > *", 0, 0, 0};
+static swig_type_info _swigt__p_agg__renderer_scanline_bin_solidTagg__renderer_baseTpixfmt_rgba_t_t_t = {"_p_agg__renderer_scanline_bin_solidTagg__renderer_baseTpixfmt_rgba_t_t_t", "agg::renderer_scanline_bin_solid<agg::renderer_base<agg::pixel_formats_rgba<agg::blender_rgba<agg::rgba8,agg::order_rgba >,unsigned int > > > *|agg::renderer_scanline_bin_solid<renderer_base_rgba_t > *", 0, 0, 0};
 static swig_type_info _swigt__p_agg__rendering_buffer__row_data = {"_p_agg__rendering_buffer__row_data", "agg::rendering_buffer::row_data *|agg::pixel_formats_rgba<agg::blender_rgba<agg::rgba8,agg::order_rgba >,unsigned int >::row_data *", 0, 0, 0};
-static swig_type_info _swigt__p_agg__rendering_buffer__span_data = {"_p_agg__rendering_buffer__span_data", "agg::rendering_buffer::span_data *|agg::pixel_formats_rgba<agg::blender_rgba<agg::rgba8,agg::order_rgba >,unsigned int >::span_data *", 0, 0, 0};
+static swig_type_info _swigt__p_agg__rendering_buffer__span_data = {"_p_agg__rendering_buffer__span_data", "agg::rendering_buffer::span_data *|agg::renderer_base<agg::pixel_formats_rgba<agg::blender_rgba<agg::rgba8,agg::order_rgba >,unsigned int > >::span_data *", 0, 0, 0};
 static swig_type_info _swigt__p_agg__rgba = {"_p_agg__rgba", "agg::rgba *", 0, 0, 0};
 static swig_type_info _swigt__p_agg__rgba16 = {"_p_agg__rgba16", "agg::rgba16 *", 0, 0, 0};
-static swig_type_info _swigt__p_agg__rgba8 = {"_p_agg__rgba8", "agg::rgba8 *|color_type *", 0, 0, 0};
+static swig_type_info _swigt__p_agg__rgba8 = {"_p_agg__rgba8", "agg::rgba8 *", 0, 0, 0};
 static swig_type_info _swigt__p_agg__row_ptr_cacheTunsigned_char_t = {"_p_agg__row_ptr_cacheTunsigned_char_t", "agg::row_ptr_cache<unsigned char > *|agg::rendering_buffer *", 0, 0, 0};
 static swig_type_info _swigt__p_agg__scanline_bin = {"_p_agg__scanline_bin", "agg::scanline_bin *", 0, 0, 0};
 static swig_type_info _swigt__p_agg__scanline_pTunsigned_char_short_t = {"_p_agg__scanline_pTunsigned_char_short_t", "agg::scanline_p<unsigned char,short > *|agg::scanline_p<agg::int8u,agg::int16 > *", 0, 0, 0};
@@ -18973,12 +26115,13 @@ static swig_type_info _swigt__p_agg__trans_affine_skewing = {"_p_agg__trans_affi
 static swig_type_info _swigt__p_agg__trans_affine_translation = {"_p_agg__trans_affine_translation", "agg::trans_affine_translation *", 0, 0, 0};
 static swig_type_info _swigt__p_agg__vcgen_stroke = {"_p_agg__vcgen_stroke", "agg::vcgen_stroke *", 0, 0, 0};
 static swig_type_info _swigt__p_agg__vertex_type = {"_p_agg__vertex_type", "agg::vertex_type *", 0, 0, 0};
+static swig_type_info _swigt__p_base_ren_type = {"_p_base_ren_type", "base_ren_type *", 0, 0, 0};
+static swig_type_info _swigt__p_base_type = {"_p_base_type", "base_type *", 0, 0, 0};
 static swig_type_info _swigt__p_blender_type = {"_p_blender_type", "blender_type *", 0, 0, 0};
 static swig_type_info _swigt__p_calc_type = {"_p_calc_type", "calc_type *", 0, 0, 0};
 static swig_type_info _swigt__p_char = {"_p_char", "char *", 0, 0, 0};
 static swig_type_info _swigt__p_cob_type = {"_p_cob_type", "cob_type *", 0, 0, 0};
-static swig_type_info _swigt__p_conv_adaptor_vcgenTagg__path_storage_agg__vcgen_stroke_agg__null_markers_t = {"_p_conv_adaptor_vcgenTagg__path_storage_agg__vcgen_stroke_agg__null_markers_t", "conv_adaptor_vcgen<agg::path_storage,agg::vcgen_stroke,agg::null_markers > *", 0, 0, 0};
-static swig_type_info _swigt__p_conv_strokeTagg__path_storage_t = {"_p_conv_strokeTagg__path_storage_t", "conv_stroke<agg::path_storage > *|agg::conv_stroke<agg::path_storage > *", 0, 0, 0};
+static swig_type_info _swigt__p_color_type = {"_p_color_type", "color_type *", 0, 0, 0};
 static swig_type_info _swigt__p_coord_storage = {"_p_coord_storage", "coord_storage *", 0, 0, 0};
 static swig_type_info _swigt__p_coord_type = {"_p_coord_type", "coord_type *", 0, 0, 0};
 static swig_type_info _swigt__p_cover_type = {"_p_cover_type", "cover_type *", 0, 0, 0};
@@ -18986,14 +26129,12 @@ static swig_type_info _swigt__p_double = {"_p_double", "double *", 0, 0, 0};
 static swig_type_info _swigt__p_int = {"_p_int", "int *|agg::int32 *", 0, 0, 0};
 static swig_type_info _swigt__p_long_long = {"_p_long_long", "long long *|agg::int64 *", 0, 0, 0};
 static swig_type_info _swigt__p_long_type = {"_p_long_type", "long_type *", 0, 0, 0};
+static swig_type_info _swigt__p_marker_type = {"_p_marker_type", "marker_type *", 0, 0, 0};
 static swig_type_info _swigt__p_order_type = {"_p_order_type", "order_type *", 0, 0, 0};
 static swig_type_info _swigt__p_p_unsigned_char = {"_p_p_unsigned_char", "unsigned char **|agg::int8u **", 0, 0, 0};
 static swig_type_info _swigt__p_pixel_type = {"_p_pixel_type", "pixel_type *", 0, 0, 0};
-static swig_type_info _swigt__p_rasterizer_scanline_aaT_t = {"_p_rasterizer_scanline_aaT_t", "rasterizer_scanline_aa< > *", 0, 0, 0};
-static swig_type_info _swigt__p_rect = {"_p_rect", "rect *", 0, 0, 0};
-static swig_type_info _swigt__p_renderer_baseTagg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t_t = {"_p_renderer_baseTagg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t_t", "renderer_base<agg::pixel_formats_rgba<agg::blender_rgba<agg::rgba8,agg::order_rgba >,unsigned int > > *|renderer_base<pixel_format > *", 0, 0, 0};
-static swig_type_info _swigt__p_renderer_scanline_aa_solidTrenderer_baseTagg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t_t_t = {"_p_renderer_scanline_aa_solidTrenderer_baseTagg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t_t_t", "renderer_scanline_aa_solid<renderer_base<agg::pixel_formats_rgba<agg::blender_rgba<agg::rgba8,agg::order_rgba >,unsigned int > > > *|renderer_scanline_aa_solid<renderer_base<pixel_format > > *", 0, 0, 0};
-static swig_type_info _swigt__p_renderer_scanline_bin_solidTrenderer_baseTagg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t_t_t = {"_p_renderer_scanline_bin_solidTrenderer_baseTagg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t_t_t", "renderer_scanline_bin_solid<renderer_base<agg::pixel_formats_rgba<agg::blender_rgba<agg::rgba8,agg::order_rgba >,unsigned int > > > *|renderer_scanline_bin_solid<renderer_base<pixel_format > > *", 0, 0, 0};
+static swig_type_info _swigt__p_pixfmt_type = {"_p_pixfmt_type", "pixfmt_type *", 0, 0, 0};
+static swig_type_info _swigt__p_rasterizer_scanline_aaT_t = {"_p_rasterizer_scanline_aaT_t", "rasterizer_scanline_aa< > *|agg::rasterizer_scanline_aa< > *", 0, 0, 0};
 static swig_type_info _swigt__p_row_data = {"_p_row_data", "row_data *", 0, 0, 0};
 static swig_type_info _swigt__p_self_type = {"_p_self_type", "self_type *", 0, 0, 0};
 static swig_type_info _swigt__p_short = {"_p_short", "short *|agg::int16 *", 0, 0, 0};
@@ -19035,6 +26176,20 @@ static swig_type_info *swig_type_initial[] = {
   &_swigt__p_agg__blender_rgba_preTagg__rgba8_agg__order_bgra_t,
   &_swigt__p_agg__blender_rgba_preTagg__rgba8_agg__order_rgba_t,
   &_swigt__p_agg__buffer,
+  &_swigt__p_agg__conv_adaptor_vcgenTagg__conv_curveTpath_t_t_agg__vcgen_stroke_agg__null_markers_t,
+  &_swigt__p_agg__conv_adaptor_vcgenTagg__conv_curveTtranspath_t_t_agg__vcgen_stroke_agg__null_markers_t,
+  &_swigt__p_agg__conv_adaptor_vcgenTagg__conv_transformTcurve_t_agg__trans_affine_t_agg__vcgen_stroke_agg__null_markers_t,
+  &_swigt__p_agg__conv_adaptor_vcgenTagg__conv_transformTpath_t_agg__trans_affine_t_agg__vcgen_stroke_agg__null_markers_t,
+  &_swigt__p_agg__conv_adaptor_vcgenTagg__path_storage_agg__vcgen_stroke_agg__null_markers_t,
+  &_swigt__p_agg__conv_curveTagg__conv_transformTpath_t_agg__trans_affine_t_t,
+  &_swigt__p_agg__conv_curveTagg__path_storage_t,
+  &_swigt__p_agg__conv_strokeTagg__conv_curveTpath_t_t_agg__null_markers_t,
+  &_swigt__p_agg__conv_strokeTagg__conv_curveTtranspath_t_t_agg__null_markers_t,
+  &_swigt__p_agg__conv_strokeTagg__conv_transformTcurve_t_agg__trans_affine_t_agg__null_markers_t,
+  &_swigt__p_agg__conv_strokeTagg__conv_transformTpath_t_agg__trans_affine_t_agg__null_markers_t,
+  &_swigt__p_agg__conv_strokeTagg__path_storage_agg__null_markers_t,
+  &_swigt__p_agg__conv_transformTagg__conv_curveTpath_t_t_agg__trans_affine_t,
+  &_swigt__p_agg__conv_transformTagg__path_storage_agg__trans_affine_t,
   &_swigt__p_agg__filling_rule_e,
   &_swigt__p_agg__null_markers,
   &_swigt__p_agg__order_abgr,
@@ -19069,6 +26224,9 @@ static swig_type_info *swig_type_initial[] = {
   &_swigt__p_agg__point_type,
   &_swigt__p_agg__rect_baseTdouble_t,
   &_swigt__p_agg__rect_baseTint_t,
+  &_swigt__p_agg__renderer_baseTagg__pixel_formats_rgbaTagg__blender_rgba32_agg__pixel32_type_t_t,
+  &_swigt__p_agg__renderer_scanline_aa_solidTagg__renderer_baseTpixfmt_rgba_t_t_t,
+  &_swigt__p_agg__renderer_scanline_bin_solidTagg__renderer_baseTpixfmt_rgba_t_t_t,
   &_swigt__p_agg__rendering_buffer__row_data,
   &_swigt__p_agg__rendering_buffer__span_data,
   &_swigt__p_agg__rgba,
@@ -19086,12 +26244,13 @@ static swig_type_info *swig_type_initial[] = {
   &_swigt__p_agg__trans_affine_translation,
   &_swigt__p_agg__vcgen_stroke,
   &_swigt__p_agg__vertex_type,
+  &_swigt__p_base_ren_type,
+  &_swigt__p_base_type,
   &_swigt__p_blender_type,
   &_swigt__p_calc_type,
   &_swigt__p_char,
   &_swigt__p_cob_type,
-  &_swigt__p_conv_adaptor_vcgenTagg__path_storage_agg__vcgen_stroke_agg__null_markers_t,
-  &_swigt__p_conv_strokeTagg__path_storage_t,
+  &_swigt__p_color_type,
   &_swigt__p_coord_storage,
   &_swigt__p_coord_type,
   &_swigt__p_cover_type,
@@ -19099,14 +26258,12 @@ static swig_type_info *swig_type_initial[] = {
   &_swigt__p_int,
   &_swigt__p_long_long,
   &_swigt__p_long_type,
+  &_swigt__p_marker_type,
   &_swigt__p_order_type,
   &_swigt__p_p_unsigned_char,
   &_swigt__p_pixel_type,
+  &_swigt__p_pixfmt_type,
   &_swigt__p_rasterizer_scanline_aaT_t,
-  &_swigt__p_rect,
-  &_swigt__p_renderer_baseTagg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t_t,
-  &_swigt__p_renderer_scanline_aa_solidTrenderer_baseTagg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t_t_t,
-  &_swigt__p_renderer_scanline_bin_solidTrenderer_baseTagg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t_t_t,
   &_swigt__p_row_data,
   &_swigt__p_self_type,
   &_swigt__p_short,
@@ -19148,6 +26305,20 @@ static swig_cast_info _swigc__p_agg__blender_rgba_preTagg__rgba8_agg__order_argb
 static swig_cast_info _swigc__p_agg__blender_rgba_preTagg__rgba8_agg__order_bgra_t[] = {  {&_swigt__p_agg__blender_rgba_preTagg__rgba8_agg__order_bgra_t, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_agg__blender_rgba_preTagg__rgba8_agg__order_rgba_t[] = {  {&_swigt__p_agg__blender_rgba_preTagg__rgba8_agg__order_rgba_t, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_agg__buffer[] = {  {&_swigt__p_agg__buffer, 0, 0, 0},{0, 0, 0, 0}};
+static swig_cast_info _swigc__p_agg__conv_adaptor_vcgenTagg__conv_curveTpath_t_t_agg__vcgen_stroke_agg__null_markers_t[] = {  {&_swigt__p_agg__conv_strokeTagg__conv_curveTpath_t_t_agg__null_markers_t, _p_agg__conv_strokeTagg__conv_curveTpath_t_t_agg__null_markers_tTo_p_agg__conv_adaptor_vcgenTagg__conv_curveTpath_t_t_agg__vcgen_stroke_agg__null_markers_t, 0, 0},  {&_swigt__p_agg__conv_adaptor_vcgenTagg__conv_curveTpath_t_t_agg__vcgen_stroke_agg__null_markers_t, 0, 0, 0},{0, 0, 0, 0}};
+static swig_cast_info _swigc__p_agg__conv_adaptor_vcgenTagg__conv_curveTtranspath_t_t_agg__vcgen_stroke_agg__null_markers_t[] = {  {&_swigt__p_agg__conv_adaptor_vcgenTagg__conv_curveTtranspath_t_t_agg__vcgen_stroke_agg__null_markers_t, 0, 0, 0},{0, 0, 0, 0}};
+static swig_cast_info _swigc__p_agg__conv_adaptor_vcgenTagg__conv_transformTcurve_t_agg__trans_affine_t_agg__vcgen_stroke_agg__null_markers_t[] = {  {&_swigt__p_agg__conv_strokeTagg__conv_transformTcurve_t_agg__trans_affine_t_agg__null_markers_t, _p_agg__conv_strokeTagg__conv_transformTcurve_t_agg__trans_affine_t_agg__null_markers_tTo_p_agg__conv_adaptor_vcgenTagg__conv_transformTcurve_t_agg__trans_affine_t_agg__vcgen_stroke_agg__null_markers_t, 0, 0},  {&_swigt__p_agg__conv_adaptor_vcgenTagg__conv_transformTcurve_t_agg__trans_affine_t_agg__vcgen_stroke_agg__null_markers_t, 0, 0, 0},{0, 0, 0, 0}};
+static swig_cast_info _swigc__p_agg__conv_adaptor_vcgenTagg__conv_transformTpath_t_agg__trans_affine_t_agg__vcgen_stroke_agg__null_markers_t[] = {  {&_swigt__p_agg__conv_strokeTagg__conv_transformTpath_t_agg__trans_affine_t_agg__null_markers_t, _p_agg__conv_strokeTagg__conv_transformTpath_t_agg__trans_affine_t_agg__null_markers_tTo_p_agg__conv_adaptor_vcgenTagg__conv_transformTpath_t_agg__trans_affine_t_agg__vcgen_stroke_agg__null_markers_t, 0, 0},  {&_swigt__p_agg__conv_adaptor_vcgenTagg__conv_transformTpath_t_agg__trans_affine_t_agg__vcgen_stroke_agg__null_markers_t, 0, 0, 0},{0, 0, 0, 0}};
+static swig_cast_info _swigc__p_agg__conv_adaptor_vcgenTagg__path_storage_agg__vcgen_stroke_agg__null_markers_t[] = {  {&_swigt__p_agg__conv_adaptor_vcgenTagg__path_storage_agg__vcgen_stroke_agg__null_markers_t, 0, 0, 0},  {&_swigt__p_agg__conv_strokeTagg__path_storage_agg__null_markers_t, _p_agg__conv_strokeTagg__path_storage_agg__null_markers_tTo_p_agg__conv_adaptor_vcgenTagg__path_storage_agg__vcgen_stroke_agg__null_markers_t, 0, 0},{0, 0, 0, 0}};
+static swig_cast_info _swigc__p_agg__conv_curveTagg__conv_transformTpath_t_agg__trans_affine_t_t[] = {  {&_swigt__p_agg__conv_curveTagg__conv_transformTpath_t_agg__trans_affine_t_t, 0, 0, 0},{0, 0, 0, 0}};
+static swig_cast_info _swigc__p_agg__conv_curveTagg__path_storage_t[] = {  {&_swigt__p_agg__conv_curveTagg__path_storage_t, 0, 0, 0},{0, 0, 0, 0}};
+static swig_cast_info _swigc__p_agg__conv_strokeTagg__conv_curveTpath_t_t_agg__null_markers_t[] = {  {&_swigt__p_agg__conv_strokeTagg__conv_curveTpath_t_t_agg__null_markers_t, 0, 0, 0},{0, 0, 0, 0}};
+static swig_cast_info _swigc__p_agg__conv_strokeTagg__conv_curveTtranspath_t_t_agg__null_markers_t[] = {  {&_swigt__p_agg__conv_strokeTagg__conv_curveTtranspath_t_t_agg__null_markers_t, 0, 0, 0},{0, 0, 0, 0}};
+static swig_cast_info _swigc__p_agg__conv_strokeTagg__conv_transformTcurve_t_agg__trans_affine_t_agg__null_markers_t[] = {  {&_swigt__p_agg__conv_strokeTagg__conv_transformTcurve_t_agg__trans_affine_t_agg__null_markers_t, 0, 0, 0},{0, 0, 0, 0}};
+static swig_cast_info _swigc__p_agg__conv_strokeTagg__conv_transformTpath_t_agg__trans_affine_t_agg__null_markers_t[] = {  {&_swigt__p_agg__conv_strokeTagg__conv_transformTpath_t_agg__trans_affine_t_agg__null_markers_t, 0, 0, 0},{0, 0, 0, 0}};
+static swig_cast_info _swigc__p_agg__conv_strokeTagg__path_storage_agg__null_markers_t[] = {  {&_swigt__p_agg__conv_strokeTagg__path_storage_agg__null_markers_t, 0, 0, 0},{0, 0, 0, 0}};
+static swig_cast_info _swigc__p_agg__conv_transformTagg__conv_curveTpath_t_t_agg__trans_affine_t[] = {  {&_swigt__p_agg__conv_transformTagg__conv_curveTpath_t_t_agg__trans_affine_t, 0, 0, 0},{0, 0, 0, 0}};
+static swig_cast_info _swigc__p_agg__conv_transformTagg__path_storage_agg__trans_affine_t[] = {  {&_swigt__p_agg__conv_transformTagg__path_storage_agg__trans_affine_t, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_agg__filling_rule_e[] = {  {&_swigt__p_agg__filling_rule_e, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_agg__null_markers[] = {  {&_swigt__p_agg__null_markers, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_agg__order_abgr[] = {  {&_swigt__p_agg__order_abgr, 0, 0, 0},{0, 0, 0, 0}};
@@ -19182,6 +26353,9 @@ static swig_cast_info _swigc__p_agg__pixel_formats_rgbaTagg__blender_rgba_preTag
 static swig_cast_info _swigc__p_agg__point_type[] = {  {&_swigt__p_agg__point_type, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_agg__rect_baseTdouble_t[] = {  {&_swigt__p_agg__rect_baseTdouble_t, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_agg__rect_baseTint_t[] = {  {&_swigt__p_agg__rect_baseTint_t, 0, 0, 0},{0, 0, 0, 0}};
+static swig_cast_info _swigc__p_agg__renderer_baseTagg__pixel_formats_rgbaTagg__blender_rgba32_agg__pixel32_type_t_t[] = {  {&_swigt__p_agg__renderer_baseTagg__pixel_formats_rgbaTagg__blender_rgba32_agg__pixel32_type_t_t, 0, 0, 0},{0, 0, 0, 0}};
+static swig_cast_info _swigc__p_agg__renderer_scanline_aa_solidTagg__renderer_baseTpixfmt_rgba_t_t_t[] = {  {&_swigt__p_agg__renderer_scanline_aa_solidTagg__renderer_baseTpixfmt_rgba_t_t_t, 0, 0, 0},{0, 0, 0, 0}};
+static swig_cast_info _swigc__p_agg__renderer_scanline_bin_solidTagg__renderer_baseTpixfmt_rgba_t_t_t[] = {  {&_swigt__p_agg__renderer_scanline_bin_solidTagg__renderer_baseTpixfmt_rgba_t_t_t, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_agg__rendering_buffer__row_data[] = {  {&_swigt__p_agg__rendering_buffer__row_data, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_agg__rendering_buffer__span_data[] = {  {&_swigt__p_agg__rendering_buffer__span_data, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_agg__rgba[] = {  {&_swigt__p_agg__rgba, 0, 0, 0},{0, 0, 0, 0}};
@@ -19199,12 +26373,13 @@ static swig_cast_info _swigc__p_agg__trans_affine_skewing[] = {  {&_swigt__p_agg
 static swig_cast_info _swigc__p_agg__trans_affine_translation[] = {  {&_swigt__p_agg__trans_affine_translation, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_agg__vcgen_stroke[] = {  {&_swigt__p_agg__vcgen_stroke, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_agg__vertex_type[] = {  {&_swigt__p_agg__vertex_type, 0, 0, 0},{0, 0, 0, 0}};
+static swig_cast_info _swigc__p_base_ren_type[] = {  {&_swigt__p_base_ren_type, 0, 0, 0},{0, 0, 0, 0}};
+static swig_cast_info _swigc__p_base_type[] = {  {&_swigt__p_base_type, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_blender_type[] = {  {&_swigt__p_blender_type, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_calc_type[] = {  {&_swigt__p_calc_type, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_char[] = {  {&_swigt__p_char, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_cob_type[] = {  {&_swigt__p_cob_type, 0, 0, 0},{0, 0, 0, 0}};
-static swig_cast_info _swigc__p_conv_adaptor_vcgenTagg__path_storage_agg__vcgen_stroke_agg__null_markers_t[] = {  {&_swigt__p_conv_adaptor_vcgenTagg__path_storage_agg__vcgen_stroke_agg__null_markers_t, 0, 0, 0},{0, 0, 0, 0}};
-static swig_cast_info _swigc__p_conv_strokeTagg__path_storage_t[] = {  {&_swigt__p_conv_strokeTagg__path_storage_t, 0, 0, 0},{0, 0, 0, 0}};
+static swig_cast_info _swigc__p_color_type[] = {  {&_swigt__p_color_type, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_coord_storage[] = {  {&_swigt__p_coord_storage, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_coord_type[] = {  {&_swigt__p_coord_type, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_cover_type[] = {  {&_swigt__p_cover_type, 0, 0, 0},{0, 0, 0, 0}};
@@ -19212,14 +26387,12 @@ static swig_cast_info _swigc__p_double[] = {  {&_swigt__p_double, 0, 0, 0},{0, 0
 static swig_cast_info _swigc__p_int[] = {  {&_swigt__p_int, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_long_long[] = {  {&_swigt__p_long_long, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_long_type[] = {  {&_swigt__p_long_type, 0, 0, 0},{0, 0, 0, 0}};
+static swig_cast_info _swigc__p_marker_type[] = {  {&_swigt__p_marker_type, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_order_type[] = {  {&_swigt__p_order_type, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_p_unsigned_char[] = {  {&_swigt__p_p_unsigned_char, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_pixel_type[] = {  {&_swigt__p_pixel_type, 0, 0, 0},{0, 0, 0, 0}};
+static swig_cast_info _swigc__p_pixfmt_type[] = {  {&_swigt__p_pixfmt_type, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_rasterizer_scanline_aaT_t[] = {  {&_swigt__p_rasterizer_scanline_aaT_t, 0, 0, 0},{0, 0, 0, 0}};
-static swig_cast_info _swigc__p_rect[] = {  {&_swigt__p_rect, 0, 0, 0},{0, 0, 0, 0}};
-static swig_cast_info _swigc__p_renderer_baseTagg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t_t[] = {  {&_swigt__p_renderer_baseTagg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t_t, 0, 0, 0},{0, 0, 0, 0}};
-static swig_cast_info _swigc__p_renderer_scanline_aa_solidTrenderer_baseTagg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t_t_t[] = {  {&_swigt__p_renderer_scanline_aa_solidTrenderer_baseTagg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t_t_t, 0, 0, 0},{0, 0, 0, 0}};
-static swig_cast_info _swigc__p_renderer_scanline_bin_solidTrenderer_baseTagg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t_t_t[] = {  {&_swigt__p_renderer_scanline_bin_solidTrenderer_baseTagg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t_t_t, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_row_data[] = {  {&_swigt__p_row_data, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_self_type[] = {  {&_swigt__p_self_type, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_short[] = {  {&_swigt__p_short, 0, 0, 0},{0, 0, 0, 0}};
@@ -19261,6 +26434,20 @@ static swig_cast_info *swig_cast_initial[] = {
   _swigc__p_agg__blender_rgba_preTagg__rgba8_agg__order_bgra_t,
   _swigc__p_agg__blender_rgba_preTagg__rgba8_agg__order_rgba_t,
   _swigc__p_agg__buffer,
+  _swigc__p_agg__conv_adaptor_vcgenTagg__conv_curveTpath_t_t_agg__vcgen_stroke_agg__null_markers_t,
+  _swigc__p_agg__conv_adaptor_vcgenTagg__conv_curveTtranspath_t_t_agg__vcgen_stroke_agg__null_markers_t,
+  _swigc__p_agg__conv_adaptor_vcgenTagg__conv_transformTcurve_t_agg__trans_affine_t_agg__vcgen_stroke_agg__null_markers_t,
+  _swigc__p_agg__conv_adaptor_vcgenTagg__conv_transformTpath_t_agg__trans_affine_t_agg__vcgen_stroke_agg__null_markers_t,
+  _swigc__p_agg__conv_adaptor_vcgenTagg__path_storage_agg__vcgen_stroke_agg__null_markers_t,
+  _swigc__p_agg__conv_curveTagg__conv_transformTpath_t_agg__trans_affine_t_t,
+  _swigc__p_agg__conv_curveTagg__path_storage_t,
+  _swigc__p_agg__conv_strokeTagg__conv_curveTpath_t_t_agg__null_markers_t,
+  _swigc__p_agg__conv_strokeTagg__conv_curveTtranspath_t_t_agg__null_markers_t,
+  _swigc__p_agg__conv_strokeTagg__conv_transformTcurve_t_agg__trans_affine_t_agg__null_markers_t,
+  _swigc__p_agg__conv_strokeTagg__conv_transformTpath_t_agg__trans_affine_t_agg__null_markers_t,
+  _swigc__p_agg__conv_strokeTagg__path_storage_agg__null_markers_t,
+  _swigc__p_agg__conv_transformTagg__conv_curveTpath_t_t_agg__trans_affine_t,
+  _swigc__p_agg__conv_transformTagg__path_storage_agg__trans_affine_t,
   _swigc__p_agg__filling_rule_e,
   _swigc__p_agg__null_markers,
   _swigc__p_agg__order_abgr,
@@ -19295,6 +26482,9 @@ static swig_cast_info *swig_cast_initial[] = {
   _swigc__p_agg__point_type,
   _swigc__p_agg__rect_baseTdouble_t,
   _swigc__p_agg__rect_baseTint_t,
+  _swigc__p_agg__renderer_baseTagg__pixel_formats_rgbaTagg__blender_rgba32_agg__pixel32_type_t_t,
+  _swigc__p_agg__renderer_scanline_aa_solidTagg__renderer_baseTpixfmt_rgba_t_t_t,
+  _swigc__p_agg__renderer_scanline_bin_solidTagg__renderer_baseTpixfmt_rgba_t_t_t,
   _swigc__p_agg__rendering_buffer__row_data,
   _swigc__p_agg__rendering_buffer__span_data,
   _swigc__p_agg__rgba,
@@ -19312,12 +26502,13 @@ static swig_cast_info *swig_cast_initial[] = {
   _swigc__p_agg__trans_affine_translation,
   _swigc__p_agg__vcgen_stroke,
   _swigc__p_agg__vertex_type,
+  _swigc__p_base_ren_type,
+  _swigc__p_base_type,
   _swigc__p_blender_type,
   _swigc__p_calc_type,
   _swigc__p_char,
   _swigc__p_cob_type,
-  _swigc__p_conv_adaptor_vcgenTagg__path_storage_agg__vcgen_stroke_agg__null_markers_t,
-  _swigc__p_conv_strokeTagg__path_storage_t,
+  _swigc__p_color_type,
   _swigc__p_coord_storage,
   _swigc__p_coord_type,
   _swigc__p_cover_type,
@@ -19325,14 +26516,12 @@ static swig_cast_info *swig_cast_initial[] = {
   _swigc__p_int,
   _swigc__p_long_long,
   _swigc__p_long_type,
+  _swigc__p_marker_type,
   _swigc__p_order_type,
   _swigc__p_p_unsigned_char,
   _swigc__p_pixel_type,
+  _swigc__p_pixfmt_type,
   _swigc__p_rasterizer_scanline_aaT_t,
-  _swigc__p_rect,
-  _swigc__p_renderer_baseTagg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t_t,
-  _swigc__p_renderer_scanline_aa_solidTrenderer_baseTagg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t_t_t,
-  _swigc__p_renderer_scanline_bin_solidTrenderer_baseTagg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t_t_t,
   _swigc__p_row_data,
   _swigc__p_self_type,
   _swigc__p_short,
@@ -20084,13 +27273,13 @@ SWIGEXPORT(void) SWIG_init(void) {
         PyDict_SetItemString(d,"end_of_comp_op_e", SWIG_From_int((int)(agg::end_of_comp_op_e))); 
     }
     {
-        PyDict_SetItemString(d,"pixel_format_base_shift", SWIG_From_int((int)(agg::pixel_formats_rgba<agg::blender_rgba32,agg::pixel32_type >::base_shift))); 
+        PyDict_SetItemString(d,"pixel_format_rgba_base_shift", SWIG_From_int((int)(agg::pixel_formats_rgba<agg::blender_rgba32,agg::pixel32_type >::base_shift))); 
     }
     {
-        PyDict_SetItemString(d,"pixel_format_base_size", SWIG_From_int((int)(agg::pixel_formats_rgba<agg::blender_rgba32,agg::pixel32_type >::base_size))); 
+        PyDict_SetItemString(d,"pixel_format_rgba_base_size", SWIG_From_int((int)(agg::pixel_formats_rgba<agg::blender_rgba32,agg::pixel32_type >::base_size))); 
     }
     {
-        PyDict_SetItemString(d,"pixel_format_base_mask", SWIG_From_int((int)(agg::pixel_formats_rgba<agg::blender_rgba32,agg::pixel32_type >::base_mask))); 
+        PyDict_SetItemString(d,"pixel_format_rgba_base_mask", SWIG_From_int((int)(agg::pixel_formats_rgba<agg::blender_rgba32,agg::pixel32_type >::base_mask))); 
     }
 }
 

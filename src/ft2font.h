@@ -43,6 +43,7 @@ public:
   Py::Object get_path( const FT_Face& face );
 private:
   Py::Dict __dict__;
+  static char get_path__doc__[];
 };
 
 class FT2Font : public Py::PythonExtension<FT2Font> {

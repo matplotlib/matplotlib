@@ -491,6 +491,7 @@ def build_swigagg(ext_modules, packages):
         'agg_vcgen_dash.cpp',
         'agg_vcgen_stroke.cpp',
         'agg_rasterizer_scanline_aa.cpp',
+        'agg_curves.cpp',
         )
                  ])
                  

@@ -322,7 +322,8 @@ class Axes(Artist):
         # must be set before set_figure
         self._sharex = sharex
         self._sharey = sharey
-        self.set_label(label)
+        self.set_label1(label)
+        self.set_label2(label)        
         self.set_figure(fig)
 
         # this call may differ for non-sep axes, eg polar
@@ -3670,12 +3671,9 @@ class PolarAxes(Axes):
     RESOLUTION = 200
 
     def __init__(self, *args, **kwarg):
-        self.thetagridlabels = []
-        self.thetagridlines = []
-        self.rgridlabels = []
-        self.rgridlines = []
         Axes.__init__(self, *args, **kwarg)
-
+        self.cla()
+        
     def _init_axis(self):
         "nuthin to do"
         pass
@@ -3706,7 +3704,14 @@ class PolarAxes(Axes):
         self._get_patches_for_fill = _process_plot_var_args('fill')
 
         self._gridOn = rcParams['polaraxes.grid']
+        self.thetagridlabels = []
+        self.thetagridlines = []
+        self.rgridlabels = []
+        self.rgridlines = []
+
         self.lines = []
+        self.images = []
+        self.patches = []                
         self.collections = []
         self.texts = []     # text in axis coords
 
@@ -3758,6 +3763,20 @@ class PolarAxes(Axes):
         self._gridOn = b
 
 
+
+    def legend(self, *args, **kwargs):
+        """
+        LEGEND(*args, **kwargs)
+        Not implemented for polar yet -- use figlegend    
+        """
+        raise NotImplementedError('legend not implemented for polar yet -- use figlegend')
+
+    def table(self, *args, **kwargs):
+        """
+        TABLE(*args, **kwargs)
+        Not implemented for polar axes
+        """
+        raise NotImplementedError('legend not implemented for polar axes')
 
     def autoscale_view(self):
 
