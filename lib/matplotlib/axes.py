@@ -322,8 +322,7 @@ class Axes(Artist):
         # must be set before set_figure
         self._sharex = sharex
         self._sharey = sharey
-        self.set_label1(label)
-        self.set_label2(label)        
+        self.set_label(label)
         self.set_figure(fig)
 
         # this call may differ for non-sep axes, eg polar
