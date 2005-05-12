@@ -1,6 +1,7 @@
 %include "agg_typemaps.i"
 
 
+
 // ** affine transformation **
 namespace agg{
   %rename(as_vec6) trans_affine::store_to(double* array6) const;

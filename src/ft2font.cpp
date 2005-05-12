@@ -64,10 +64,12 @@ inline double conv(int v)
 }
 
 
+//see http://freetype.sourceforge.net/freetype2/docs/glyphs/glyphs-6.html
 Py::Object
 Glyph::get_path( const FT_Face& face) {
   //get the glyph as a path, a list of (COMMAND, *args) as desribed in matplotlib.path
   // this code is from agg's decompose_ft_outline with minor modifications
+
 
   enum {MOVETO, LINETO, CURVE3, CURVE4, ENDPOLY};
   FT_Outline& outline = face->glyph->outline;
