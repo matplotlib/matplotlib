@@ -278,8 +278,11 @@ ACCEPTS: rectangle prop dict plus key 'pad' which is a pad in points
             bbox_artist(self, renderer, self._bbox)
         angle = self.get_rotation()
 
+        ismath = self.is_math_text()
+        
         if angle==0:
-            m = self._rgxsuper.match(self._text)
+            if ismath!='TeX': m = None
+            else: m = self._rgxsuper.match(self._text)
             if m is not None:
                 bbox, info = self._get_layout_super(self._renderer, m)
                 base, xt, yt = info[0]
@@ -295,7 +298,6 @@ ACCEPTS: rectangle prop dict plus key 'pad' which is a pad in points
 
 
         if len(self._substrings)>1:
-            print 'substrs', self._substrings
             # embedded mathtext
             thisx, thisy = self._transform.xy_tup((self._x, self._y))
             for s,ismath in self._substrings:
@@ -316,6 +318,17 @@ ACCEPTS: rectangle prop dict plus key 'pad' which is a pad in points
             return
         bbox, info = self._get_layout(renderer)
 
+        if ismath=='TeX':
+            canvasw, canvash = renderer.get_canvas_width_height()
+            for line, wh, x, y in info:
+                x, y = self._transform.xy_tup((x, y))
+                if renderer.flipy():
+                    y = canvash-y
+                renderer.draw_tex(gc, x, y, line,
+                                  self._fontproperties, angle,
+                                  )
+            return 
+            
         for line, wh, x, y in info:
             x, y = self._transform.xy_tup((x, y))
             #renderer.draw_arc(gc, (1,0,0),
@@ -634,6 +647,7 @@ ACCEPTS: string
         self._substrings = []           # ignore embedded mathtext for now
 
     def is_math_text(self):
+        if rcParams['text.usetex']: return 'TeX'
         if not matplotlib._havemath: return False
         if len(self._text)<2: return False
         return ( self._text.startswith('$') and

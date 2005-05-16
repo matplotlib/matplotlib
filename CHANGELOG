@@ -1,5 +1,13 @@
 New entries should be added at the top
 
+2005-05-13 Added Florent Rougon's Axis set_label1 patch
+
+2005-05-12 Started work on TeX text for antigrain using pngdvi -- see
+           examples/tex_demo.py and the new module
+           matplotlib.texmanager.  Rotated text not supported and
+           rendering small glyps is not working right yet.  BUt large
+           fontsizes and/or high dpi saved figs work great.
+
 2005-05-16 Added support for masked arrays in pcolor - JSWHIT
 
 2005-05-10 New image resize options interpolation options.  New values

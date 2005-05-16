@@ -83,7 +83,8 @@ from matplotlib.figure import Figure
 from matplotlib.font_manager import fontManager
 from matplotlib.ft2font import FT2Font
 from matplotlib.mathtext import math_parse_s_ft2font
-
+from matplotlib.texmanager import TexManager
+from matplotlib.transforms import lbwh_to_bbox
 
 import matplotlib.numerix
 
@@ -121,7 +122,9 @@ class RendererAgg(RendererBase):
         self.draw_regpoly_collection = self._renderer.draw_regpoly_collection
         self.cache = self._renderer.cache
         self.blit = self._renderer.blit
-
+        self.texmanager = None
+        self.bbox = lbwh_to_bbox(0,0, self.width, self.height)
+        
 
     def draw_arc(self, gcEdge, rgbFace, x, y, width, height, angle1, angle2):
         """
@@ -213,13 +216,31 @@ class RendererAgg(RendererBase):
 
         self._renderer.draw_text(font, int(x), int(y), gc)
 
-        
-    def get_text_width_height(self, s, prop, ismath):
+
+    def get_tex_manager(self):
+        if self.texmanager is None:
+            self.texmanager = TexManager()
+        return self.texmanager
+
+    def get_text_width_height(self, s, prop, ismath, rgb=(0,0,0)):
         """
         get the width and height in display coords of the string s
         with FontPropertry prop
+
+        # passing rgb is a little hack to make cacheing in the
+        # texmanager more efficient.  It is not meant to be used
+        # outside the backend
         """
 
+        if ismath=='TeX':
+            # todo: handle props
+            size = prop.get_size_in_points()
+            dpi = self.dpi.get()
+            manager = self.get_tex_manager()
+            im = manager.get_image(s, size, dpi, rgb)
+            m,n = im.get_size()
+            return n,m
+            
         if ismath:
             width, height, fonts = math_parse_s_ft2font(
                 s, self.dpi.get(), prop.get_size_in_points())
@@ -229,8 +250,19 @@ class RendererAgg(RendererBase):
         w, h = font.get_width_height()
         w /= 64.0  # convert from subpixels
         h /= 64.0
-        return w+2, h+2
+        return w, h
 
+    def draw_tex(self, gc, x, y, s, prop, angle):
+        # todo, handle props, angle, origin
+        rgb = gc.get_rgb()
+        size = prop.get_size_in_points()
+        dpi = self.dpi.get()
+        w,h = self.get_text_width_height(s, prop, 'TeX', rgb)
+        manager = self.get_tex_manager()
+        im = manager.get_image(s, size, dpi, rgb)
+        #print 'drawing image at', x, y, im.get_size()
+        self.draw_image(x, y-h, im, 'upper', self.bbox)
+        
     def get_canvas_width_height(self):
         'return the canvas width and height in display coords'
         return self.width, self.height

@@ -142,7 +142,7 @@ A image.FigureImage instance is returned.
         im.set_alpha(alpha)
         if norm is None:
             im.set_clim(vmin, vmax)
-        self.images.append(im )
+        self.images.append(im)
         return im
 
         

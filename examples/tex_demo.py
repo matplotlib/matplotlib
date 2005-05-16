@@ -2,6 +2,8 @@
 
 from pylab import *
 
+rc('text', usetex= True)
+
 figure(1)
 ax = axes([0.1, 0.1, 0.8, 0.7])
 t = arange(0.0, 1.0+0.01, 0.01)
@@ -10,9 +12,7 @@ plot(t, s)
 
 xlabel('time (s)')
 ylabel('voltage (mV)')
-title('About as simple as it gets, folks')
+title(r"\TeX\ is Number $e^{-i\pi}$!", fontsize=30)
 grid(True)
-#axis([0,1,-1,1])
-#savefig('simple_plot')
 
 show()
