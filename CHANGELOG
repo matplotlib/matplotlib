@@ -1,5 +1,7 @@
 New entries should be added at the top
 
+2005-05-16 Added support for masked arrays in pcolor - JSWHIT
+
 2005-05-10 New image resize options interpolation options.  New values
            for the interp kwarg are   
         
