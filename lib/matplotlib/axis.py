@@ -540,7 +540,8 @@ class Axis(Artist):
             if not interval.contains(loc): continue
             if seen.has_key(loc): continue
             tick.update_position(loc)
-            tick.set_label(label)
+            tick.set_label1(label)
+            tick.set_label2(label)            
 
             tick.draw(renderer)  
             if tick.label1On:

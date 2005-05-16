@@ -31,6 +31,7 @@ except:
 
 import gtk, gobject, pango
 from gtk import gdk
+
 if gtk.pygtk_version < pygtk_version_required:
     raise SystemExit ("PyGTK %d.%d.%d is installed\n"
                       "PyGTK %d.%d.%d or later is required"

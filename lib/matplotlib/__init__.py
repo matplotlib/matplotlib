@@ -142,7 +142,7 @@ the exception of those in mlab.py provided by matplotlib.
 """
 from __future__ import generators
 
-__version__  = '0.80'
+__version__  = '0.81alpha'
 __revision__ = '$Revision$'
 __date__     = '$Date$'
 
@@ -510,6 +510,7 @@ defaultParams = {
 
     # text props
     'text.color'        : ['k', validate_color],     # black
+    'text.usetex'       : [False, validate_bool],     # black    
     'text.fontstyle'    : ['normal', str],
     'text.fontangle'    : ['normal', str],
     'text.fontvariant'  : ['normal', str],

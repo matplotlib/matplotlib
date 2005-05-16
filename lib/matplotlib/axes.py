@@ -5,7 +5,9 @@ import math, sys
 from numerix import absolute, arange, array, asarray, ones, divide,\
      transpose, log, log10, Float, Float32, ravel, zeros,\
      Int16, Int32, Int, Float64, ceil, indices, \
-     shape, which, where, sqrt, asum, compress, maximum, minimum, ma
+     shape, which, where, sqrt, asum, compress, maximum, minimum
+
+import numerix.ma as ma
 
 import matplotlib.mlab
 from artist import Artist
@@ -145,7 +147,6 @@ class _process_plot_var_args:
         self.count = 0
 
     def __call__(self, *args, **kwargs):
-
         ret =  self._grab_next_args(*args, **kwargs)
         return ret
 
