@@ -5,7 +5,7 @@ import math, sys
 from numerix import absolute, arange, array, asarray, ones, divide,\
      transpose, log, log10, Float, Float32, ravel, zeros,\
      Int16, Int32, Int, Float64, ceil, indices, \
-     shape, which, where, sqrt, asum, compress, maximum, minimum
+     shape, which, where, sqrt, asum, compress, maximum, minimum, ma
 
 import matplotlib.mlab
 from artist import Artist
@@ -2034,6 +2034,10 @@ class Axes(Artist):
           PCOLOR(C, **kwargs) - Use keywork args to control colormapping and
                                 scaling; see below
 
+        X,Y and C may be masked arrays.  If either C[i,j], or one
+        of the vertices surrounding C[i,j] (X or Y at [i,j],[i+1,j],
+        [i,j+1],[i=1,j+1]) is masked, nothing is plotted.
+
         Optional keywork args are shown with their defaults below (you must
         use kwargs for these):
 
@@ -2101,11 +2105,20 @@ class Axes(Artist):
 
         Nx, Ny = X.shape
 
+        # convert to MA, if necessary.
+        C = ma.asarray(C)
+        X = ma.asarray(X)
+        Y = ma.asarray(Y)
+        mask = ma.getmaskarray(X)+ma.getmaskarray(Y)
+        xymask = mask[0:-1,0:-1]+mask[1:,1:]+mask[0:-1,1:]+mask[1:,0:-1]
+        # don't plot if C or any of the surrounding vertices are masked.
+        mask = ma.getmaskarray(C)[0:Nx-1,0:Ny-1]+xymask
+
         verts =  [ ( (X[i,j], Y[i,j]),     (X[i+1,j], Y[i+1,j]),
                      (X[i+1,j+1], Y[i+1,j+1]), (X[i,j+1], Y[i,j+1]))
-                   for i in range(Nx-1)   for j in range(Ny-1)]
+                   for i in range(Nx-1)   for j in range(Ny-1) if not mask[i,j]]
 
-        C = array([C[i,j] for i in range(Nx-1)  for j in range(Ny-1)])
+        C = array([C[i,j] for i in range(Nx-1)  for j in range(Ny-1) if not mask[i,j]])
 
         if shading == 'faceted':
             edgecolors =  (0,0,0,1),
@@ -2131,8 +2144,8 @@ class Axes(Artist):
 
         self.grid(False)
 
-        x = ravel(X)
-        y = ravel(Y)
+        x = X.compressed()
+        y = X.compressed()
         minx = amin(x)
         maxx = amax(x)
         miny = amin(y)
