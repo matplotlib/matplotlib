@@ -741,7 +741,7 @@ Set the text values of the tick labels. Return a list of Text
 instances.
 
 ACCEPTS: sequence of strings"""
-        ticklabels = [str(l) for l in ticklabels]
+        #ticklabels = [str(l) for l in ticklabels]
 
         self.set_major_formatter( FixedFormatter(ticklabels) )
 

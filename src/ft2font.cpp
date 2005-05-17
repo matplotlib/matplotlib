@@ -642,12 +642,12 @@ FT2Font::get_kerning(const Py::Tuple & args) {
 
   if (!FT_HAS_KERNING( face )) return Py::Int(0);
   FT_Vector delta;
-  
-  if (FT_Get_Kerning( face, left, right, mode, &delta )) {    
-    return Py::Int(0);
+   
+  if (!FT_Get_Kerning( face, left, right, mode, &delta )) {    
+    return Py::Int(delta.x);
   }
   else {
-    return Py::Int(delta.x);
+    return Py::Int(0);
 
   }
 }

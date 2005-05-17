@@ -944,7 +944,7 @@ class Axes(Artist):
         patches = []
 
 
-        # if color looks like a color string, and RGB tuple or a
+        # if color looks like a color string, an RGB tuple or a
         # scalar, then repeat it by len(x)
         if (is_string_like(color) or
             (iterable(color) and len(color)==3 and len(left)!=3) or

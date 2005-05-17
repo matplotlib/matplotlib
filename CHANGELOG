@@ -1,10 +1,19 @@
 New entries should be added at the top
 
+
+2005-05-17 Added a psfrag latex backend -- some alignment issues need
+           to be worked out. Run with -dLaTeX and a *.tex file and
+           *.eps file are generated.  latex and dvips the generated
+           latex file to get ps output.  Note xdvi *does* not work,
+           you must generate ps.- JDH
+
+2005-05-13 Added Florent Rougon's Axis set_label1
+           patch
+
 2005-05-17 pcolor optimization, fixed bug in previous pcolor patch - JSWHIT
 
 2005-05-16 Added support for masked arrays in pcolor - JSWHIT
 
-2005-05-13 Added Florent Rougon's Axis set_label1 patch
 
 2005-05-12 Started work on TeX text for antigrain using pngdvi -- see
            examples/tex_demo.py and the new module
