@@ -1916,17 +1916,16 @@ class PrintoutWx(wx.Printout):
         fig_dpi   = self.canvas.figure.dpi.get()
 
         # draw the bitmap, scaled appropriately
-        vscale    = ppw / fig_dpi
+        vscale    = float(ppw) / fig_dpi
 
         # set figure resolution,bg color for printer
         self.canvas.figure.dpi.set(ppw)
         self.canvas.figure.set_facecolor('#FFFFFF')
 
-
         renderer  = RendererWx(self.canvas.bitmap, self.canvas.figure.dpi)
         self.canvas.figure.draw(renderer)
-        self.canvas.bitmap.SetWidth( self.canvas.bitmap.GetWidth() * vscale)
-        self.canvas.bitmap.SetHeight(self.canvas.bitmap.GetHeight()* vscale)
+        self.canvas.bitmap.SetWidth(  int(self.canvas.bitmap.GetWidth() * vscale))
+        self.canvas.bitmap.SetHeight( int(self.canvas.bitmap.GetHeight()* vscale))
         self.canvas.draw()
 
         # page may need additional scaling on preview
