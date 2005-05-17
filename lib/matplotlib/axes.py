@@ -2115,11 +2115,17 @@ class Axes(Artist):
         # don't plot if C or any of the surrounding vertices are masked.
         mask = ma.getmaskarray(C)[0:Nx-1,0:Ny-1]+xymask
 
-        verts =  [ ( (X[i,j], Y[i,j]),     (X[i+1,j], Y[i+1,j]),
-                     (X[i+1,j+1], Y[i+1,j+1]), (X[i,j+1], Y[i,j+1]))
-                   for i in range(Nx-1)   for j in range(Ny-1) if not mask[i,j]]
+        X1 = compress(ravel(mask==0),ravel(ma.filled(X[0:-1,0:-1])))
+        Y1 = compress(ravel(mask==0),ravel(ma.filled(Y[0:-1,0:-1])))
+        X2 = compress(ravel(mask==0),ravel(ma.filled(X[1:,0:-1])))
+        Y2 = compress(ravel(mask==0),ravel(ma.filled(Y[1:,0:-1])))
+        X3 = compress(ravel(mask==0),ravel(ma.filled(X[1:,1:])))
+        Y3 = compress(ravel(mask==0),ravel(ma.filled(Y[1:,1:])))
+        X4 = compress(ravel(mask==0),ravel(ma.filled(X[0:-1,1:])))
+        Y4 = compress(ravel(mask==0),ravel(ma.filled(Y[0:-1,1:])))
+        verts = zip(zip(X1,Y1),zip(X2,Y2),zip(X3,Y3),zip(X4,Y4))
 
-        C = array([C[i,j] for i in range(Nx-1)  for j in range(Ny-1) if not mask[i,j]])
+        C = compress(ravel(mask==0),ravel(ma.filled(C[0:Nx-1,0:Ny-1])))
 
         if shading == 'faceted':
             edgecolors =  (0,0,0,1),
@@ -2146,7 +2152,7 @@ class Axes(Artist):
         self.grid(False)
 
         x = X.compressed()
-        y = X.compressed()
+        y = Y.compressed()
         minx = amin(x)
         maxx = amax(x)
         miny = amin(y)
