@@ -22,7 +22,9 @@ from matplotlib.font_manager import fontManager
 from matplotlib.ft2font import FT2Font, KERNING_UNFITTED, KERNING_DEFAULT, KERNING_UNSCALED
 from matplotlib.mathtext import math_parse_s_ps, bakoma_fonts
 from matplotlib.text import Text
+
 from matplotlib.transforms import get_vec6_scales
+
 from matplotlib import get_data_path
 
 from matplotlib.numerix import fromstring, UInt8, Float32, equal, alltrue, \
@@ -185,6 +187,7 @@ class RendererPS(RendererBase):
         """
         get the width and height in display coords of the string s
         with FontPropertry prop
+
         """
 
         if rcParams['ps.useafm']:
@@ -197,6 +200,7 @@ class RendererPS(RendererBase):
             h *= 0.001*fontsize
             return w, h
 
+            
         if ismath:
             width, height, pswriter = math_parse_s_ps(
                 s, 72, prop.get_size_in_points())
@@ -207,6 +211,7 @@ class RendererPS(RendererBase):
         w, h = font.get_width_height()
         w /= 64.0  # convert from subpixels
         h /= 64.0
+        print s, w, h
         return w, h
 
     def flipy(self):
@@ -547,6 +552,7 @@ grestore
         ps = '%s box' % _nums_to_str(width, height, x, y)
         self._draw_ps(ps, gc, rgbFace, "rectangle")
 
+
     def draw_text(self, gc, x, y, s, prop, angle, ismath):
         """
         draw a Text instance
@@ -592,6 +598,9 @@ show
 grestore
     """ % locals()
             self._draw_ps(ps, gc, None)
+
+        elif ismath=='TeX':
+            return self.tex(gc, x, y, s, prop, angle)
 
         elif ismath:
             return self.draw_mathtext(gc, x, y, s, prop, angle)
@@ -936,13 +945,13 @@ class FigureCanvasPS(FigureCanvasBase):
         type42 = _type42 + [os.path.join(self.basepath, name) + '.ttf' \
                             for name in bakoma_fonts]
         print >>fh, "%%BeginProlog"
-        Ndict = len(_psDefs)
+        Ndict = len(psDefs)
         if not rcParams['ps.useafm']:
             Ndict += len(type42)
         print >>fh, "/mpldict %d dict def"%Ndict
         print >>fh, "mpldict begin"
 
-        for d in _psDefs:
+        for d in psDefs:
             d=d.strip()
             for l in d.split('\n'):
                 print >>fh, l.strip()
@@ -951,11 +960,12 @@ class FigureCanvasPS(FigureCanvasBase):
                 print >>fh, "%%BeginFont: "+FT2Font(str(font)).postscript_name
                 print >>fh, encodeTTFasPS(font)
                 print >>fh, "%%EndFont"
+
             print >>fh, "%%EndProlog"
         
         if not isEPSF: print >>fh, "%%Page: 1 1"
         print >>fh, "mpldict begin"
-        print >>fh, "gsave"
+        #print >>fh, "gsave"
         print >>fh, "%s translate"%_nums_to_str(xo, yo)
         if rotation:
             print >>fh, "%d rotate"%rotation
@@ -965,7 +975,7 @@ class FigureCanvasPS(FigureCanvasBase):
         print >>fh, self._pswriter.getvalue()
 
         # write the trailer
-        print >>fh, "grestore"
+        #print >>fh, "grestore"
         print >>fh, "end"
         print >>fh, "showpage"
 
@@ -979,7 +989,7 @@ class FigureManagerPS(FigureManagerBase):
 FigureManager = FigureManagerPS
 
 
-# The following Python dictionary _psDefs contains the entries for the
+# The following Python dictionary psDefs contains the entries for the
 # PostScript dictionary mpldict.  This dictionary implements most of
 # the matplotlib primitives and some abbreviations.
 #
@@ -1018,7 +1028,7 @@ FigureManager = FigureManagerPS
 
 # The usage comments use the notation of the operator summary
 # in the PostScript Language reference manual.
-_psDefs = [
+psDefs = [
     # x y  *m*  -
     "/m { moveto } bind def",
     # x y  *l*  -

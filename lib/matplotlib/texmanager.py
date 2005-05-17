@@ -25,8 +25,10 @@ class TexManager:
     def __init__(self):
         if not os.path.isdir(self.texcache):
             os.mkdir(self.texcache)
-        self.images = {}
-
+        self.imaged = {}
+        self.postscriptd = {}
+        self.pscnt = 0
+        
     def make_dvi(self, tex):
         prefix = self.get_prefix(tex)
         fname = os.path.join(self.texcache, prefix+ '.tex')
@@ -45,6 +47,7 @@ class TexManager:
             os.rename(dvitmp, dvifile)
             os.remove(logfile)
         return dvifile
+
 
     def get_prefix(self, tex):
         return md5.md5(tex).hexdigest()
@@ -65,9 +68,113 @@ class TexManager:
         # see get_image for a discussion of the background
         if force or not os.path.exists(pngfile):
             os.system(command)
-
+            raise SystemExit
         return pngfile
 
+    def make_ps(self, tex, dpi, force=0):
+        dvifile = self.make_dvi(tex)
+        prefix = self.get_prefix(tex)
+        psfile = os.path.join(self.texcache, '%s_%d.epsf'% (prefix, dpi))
+
+        if not os.path.exists(psfile):
+            command = "dvips -E -D %d -o %s %s"% (dpi, psfile, dvifile)
+            os.system(command)
+
+        return psfile
+
+    def get_ps_bbox(self, tex):
+        key = tex
+        val = self.postscriptd.get(key)
+        if val is not None: return val
+        psfile = self.make_ps(tex, dpi=72.27)
+        ps = file(psfile).read()
+        for line in ps.split('\n'):
+            if line.startswith('%%BoundingBox:'):
+                return [int(val) for val in line.split()[1:]]
+        raise RuntimeError('Could not parse %s'%psfile)
+        
+        
+    def __get_ps(self, tex, fontsize=10, dpi=80, rgb=(0,0,0)):
+        """
+        Return bbox, header, texps for tex string via make_ps    
+        """
+
+        # this is badly broken and safe to ignore.
+        key = tex, fontsize, dpi, rgb
+        val = self.postscriptd.get(key)
+        if val is not None: return val
+        psfile = self.make_ps(tex, dpi)
+        ps = file(psfile).read()
+        
+        # parse the ps
+        bbox = None
+        header = []
+        tex = []
+        inheader = False
+        texon = False
+        fonts = []
+        infont = False
+        replaced = {}
+        for line in ps.split('\n'):
+            if line.startswith('%%EndProlog'):
+                inheader = False
+            if line.startswith('%%Trailer'):
+                break
+
+            if line.startswith('%%BoundingBox:'):
+                bbox = [int(val) for val in line.split()[1:]]
+                continue
+            if line.startswith('%%BeginFont:'):
+                fontname = line.split()[-1].strip()
+                newfontname = fontname + str(self.pscnt)
+                replaced[fontname] = newfontname
+                thisfont = [line]
+                infont = True
+                continue
+            if line.startswith('%%EndFont'):
+                thisfont.append('%%EndFont\n')
+                fonts.append('\n'.join(thisfont).replace(fontname, newfontname))
+                thisfont = []
+                infont = False                
+                continue
+            if infont:
+                thisfont.append(line)
+                continue
+            if line.startswith('%%BeginProcSet:'):                
+                inheader = True
+            if inheader:
+                header.append(line)
+            if line.startswith('%%EndSetup'):
+                assert(not inheader)
+                texon = True
+                continue
+
+
+
+            if texon:
+                line = line.replace('eop end', 'end')
+                tex.append(line)
+
+        def clean(s):
+            for k,v in replaced.items():
+                s = s.replace(k,v)
+            return s
+        
+        header.append('\n')
+        tex.append('\n')
+        if bbox is None:
+            raise RuntimeError('Failed to parse dvips file: %s' % psfile)
+        
+        replaced['TeXDict'] = 'TeXDict%d'%self.pscnt
+        header = clean('\n'.join(header))
+        tex = clean('\n'.join(tex))
+        fonts = '\n'.join(fonts)
+        val = bbox, header, fonts, tex
+        self.postscriptd[key] = val
+
+        self.pscnt += 1
+        return val
+        
     def get_image(self, tex, fontsize=10, dpi=80, rgb=(0,0,0)):
         """
         Return tex string as a matplotlib._image.Image
@@ -98,7 +205,7 @@ class TexManager:
         
         r,g,b = rgb
         key = tex, dpi, tuple(rgb)
-        im = self.images.get(key)
+        im = self.imaged.get(key)
 
 
         if im is None:
@@ -127,6 +234,6 @@ class TexManager:
                 print 'ptile', prctile(ravel(alpha))
                 im = fromarray(X, 1)
                
-            self.images[key] = im
+            self.imaged[key] = im
         return im
        

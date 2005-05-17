@@ -122,7 +122,7 @@ class RendererAgg(RendererBase):
         self.draw_regpoly_collection = self._renderer.draw_regpoly_collection
         self.cache = self._renderer.cache
         self.blit = self._renderer.blit
-        self.texmanager = None
+        self.texmanager = TexManager()
         self.bbox = lbwh_to_bbox(0,0, self.width, self.height)
         
 
@@ -217,11 +217,6 @@ class RendererAgg(RendererBase):
         self._renderer.draw_text(font, int(x), int(y), gc)
 
 
-    def get_tex_manager(self):
-        if self.texmanager is None:
-            self.texmanager = TexManager()
-        return self.texmanager
-
     def get_text_width_height(self, s, prop, ismath, rgb=(0,0,0)):
         """
         get the width and height in display coords of the string s
@@ -236,8 +231,7 @@ class RendererAgg(RendererBase):
             # todo: handle props
             size = prop.get_size_in_points()
             dpi = self.dpi.get()
-            manager = self.get_tex_manager()
-            im = manager.get_image(s, size, dpi, rgb)
+            im = self.texmanager.get_image(s, size, dpi, rgb)
             m,n = im.get_size()
             return n,m
             
@@ -258,8 +252,7 @@ class RendererAgg(RendererBase):
         size = prop.get_size_in_points()
         dpi = self.dpi.get()
         w,h = self.get_text_width_height(s, prop, 'TeX', rgb)
-        manager = self.get_tex_manager()
-        im = manager.get_image(s, size, dpi, rgb)
+        im = self.texmanager.get_image(s, size, dpi, rgb)
         #print 'drawing image at', x, y, im.get_size()
         self.draw_image(x, y-h, im, 'upper', self.bbox)
         
