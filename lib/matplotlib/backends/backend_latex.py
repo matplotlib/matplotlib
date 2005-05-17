@@ -34,16 +34,14 @@ class RendererLatex(RendererPS):
         pos = _nums_to_str(x, y)
         thetext = 'psmarker%d' % self.textcnt
         setcolor = '%1.3f %1.3f %1.3f setrgbcolor' % gc.get_rgb()
-        
-        self.psfrag.append(r'\psfrag{%s}[bl][bl][1][%f]{%s}'%(thetext, angle, s))
+        fontsize = prop.get_size_in_points()
+        scale = float(fontsize/10.0)
+        self.psfrag.append(r'\psfrag{%s}[bl][bl][%f][%f]{%s}'%(thetext, scale, angle, s))
         ps = """\
 gsave
-/CMR10 findfont
-12 scalefont
-setfont
 %(pos)s moveto
-(%(thetext)s)
 %(setcolor)s
+(%(thetext)s)
 show
 grestore
     """ % locals()
