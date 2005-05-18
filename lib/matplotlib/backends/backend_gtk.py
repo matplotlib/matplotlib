@@ -47,8 +47,9 @@ DEBUG = False
 PIXELS_PER_INCH = 96
 
 # Image formats that this backend supports - for FileChooser and print_figure()
-IMAGE_FORMAT          = ['bmp', 'eps', 'jpg', 'png', 'ps', 'svg']
-#IMAGE_FORMAT          = ['bmp', 'eps', 'jpg', 'png', 'pdf', 'ps', 'svg'] # pdf not ready yet
+IMAGE_FORMAT = ['bmp', 'eps', 'jpg', 'png', 'ps', 'svg']
+# pdf not ready yet
+#IMAGE_FORMAT  = ['bmp', 'eps', 'jpg', 'png', 'pdf', 'ps', 'svg']
 IMAGE_FORMAT.sort()
 IMAGE_FORMAT_DEFAULT  = 'png'
 
@@ -64,7 +65,9 @@ cursord = {
     }
 
 # ref gtk+/gtk/gtkwidget.h
-def GTK_WIDGET_DRAWABLE(w): flags = w.flags(); return flags & gtk.VISIBLE !=0 and flags & gtk.MAPPED != 0
+def GTK_WIDGET_DRAWABLE(w):
+    flags = w.flags();
+    return flags & gtk.VISIBLE !=0 and flags & gtk.MAPPED != 0
 
 
 def draw_if_interactive():
@@ -118,7 +121,7 @@ class FigureCanvasGTK(gtk.DrawingArea, FigureCanvasBase):
         FigureCanvasBase.__init__(self, figure)
         gtk.DrawingArea.__init__(self)
         
-        self._idleID        = 0      # used in gtkAgg
+        self._idleID        = 0
         self._draw_pixmap   = True
         self._pixmap_width  = -1
         self._pixmap_height = -1
@@ -242,11 +245,13 @@ class FigureCanvasGTK(gtk.DrawingArea, FigureCanvasBase):
             create_pixmap = False
             if width > self._pixmap_width:
                 # increase the pixmap in 10%+ (rather than 1 pixel) steps
-                self._pixmap_width  = max (int (self._pixmap_width  * 1.1), width)
+                self._pixmap_width  = max (int (self._pixmap_width  * 1.1),
+                                           width)
                 create_pixmap = True
 
             if height > self._pixmap_height:
-                self._pixmap_height = max (int (self._pixmap_height * 1.1), height)
+                self._pixmap_height = max (int (self._pixmap_height * 1.1),
+                                           height)
                 create_pixmap = True
 
             if create_pixmap:
@@ -298,7 +303,8 @@ class FigureCanvasGTK(gtk.DrawingArea, FigureCanvasBase):
         origWIn, origHIn = self.figure.get_size_inches()
 
         if self.flags() & gtk.REALIZED == 0:
-            # for self.window(for pixmap) and has a side effect of altering figure width,height (via configure-event?)
+            # for self.window(for pixmap) and has a side effect of altering
+            # figure width,height (via configure-event?)
             gtk.DrawingArea.realize(self) 
 
         self.figure.dpi.set(dpi)        
@@ -317,7 +323,8 @@ class FigureCanvasGTK(gtk.DrawingArea, FigureCanvasBase):
 
             DBL_BUFFER = dbl_buffer_save
 
-            # jpg colors don't match the display very well, png colors match better
+            # jpg colors don't match the display very well, png colors match
+            # better
             pixbuf = gtk.gdk.Pixbuf(gtk.gdk.COLORSPACE_RGB, 0, 8,
                                     width, height)
             pixbuf.get_from_drawable(self._pixmap, self._pixmap.get_colormap(),
@@ -338,7 +345,8 @@ class FigureCanvasGTK(gtk.DrawingArea, FigureCanvasBase):
 
             try:
                 fc = self.switch_backends(FigureCanvas)
-                fc.print_figure(filename, dpi, facecolor, edgecolor, orientation)
+                fc.print_figure(filename, dpi, facecolor, edgecolor,
+                                orientation)
             except IOError, exc:
                 error_msg_gtk("Save figure failure:\n%s: %s" %
                           (exc.filename, exc.strerror), parent=self)
@@ -354,7 +362,8 @@ class FigureCanvasGTK(gtk.DrawingArea, FigureCanvasBase):
                           parent=self)                
             else:
                 fc = self.switch_backends(FigureCanvas)
-                fc.print_figure(filename, dpi, facecolor, edgecolor, orientation)
+                fc.print_figure(filename, dpi, facecolor, edgecolor,
+                                orientation)
 
         elif ext in ('pdf',):
             try: 
@@ -365,7 +374,8 @@ class FigureCanvasGTK(gtk.DrawingArea, FigureCanvasBase):
                           parent=self)                
             else:
                 fc = self.switch_backends(FigureCanvas)
-                fc.print_figure(filename, dpi, facecolor, edgecolor, orientation)
+                fc.print_figure(filename, dpi, facecolor, edgecolor,
+                                orientation)
 
         else:
             error_msg_gtk('Format "%s" is not supported.\nSupported formats are %s.' %
@@ -501,7 +511,7 @@ class NavigationToolbar2GTK(NavigationToolbar2, gtk.Toolbar):
 
             ax = event.inaxes
             l,b,w,h = [int(val) for val in ax.bbox.get_bounds()]
-            b = int(height)-(b+h)            # b = y = int(height)-(b+h)  # y not used
+            b = int(height)-(b+h)
             axrect = l,b,w,h
             self._imageBack = axrect, drawable.get_image(*axrect)            
             drawable.draw_rectangle(gc, False, *rect)
@@ -573,7 +583,9 @@ class NavigationToolbar2GTK(NavigationToolbar2, gtk.Toolbar):
 
         toolitem = gtk.SeparatorToolItem()
         self.insert(toolitem, -1)
-        toolitem.set_draw(False)  # set_draw() not making separator invisible, bug #143692 fixed Jun 06 2004, will be in GTK+ 2.6
+        # set_draw() not making separator invisible,
+        # bug #143692 fixed Jun 06 2004, will be in GTK+ 2.6
+        toolitem.set_draw(False)
         toolitem.set_expand(True)
 
         toolitem = gtk.ToolItem()
@@ -608,10 +620,12 @@ class NavigationToolbar(gtk.Toolbar):
          gtk.STOCK_GO_BACK, 'panx', -1, True),
         ('Right', 'Pan right with click or wheel mouse (bidirectional)',
          gtk.STOCK_GO_FORWARD, 'panx', 1, True),
-        ('Zoom In X', 'Zoom In X (shrink the x axis limits) with click or wheel' 
+        ('Zoom In X',
+         'Zoom In X (shrink the x axis limits) with click or wheel' 
          ' mouse (bidirectional)',
          gtk.STOCK_ZOOM_IN, 'zoomx', 1, True),
-        ('Zoom Out X', 'Zoom Out X (expand the x axis limits) with click or wheel'
+        ('Zoom Out X',
+         'Zoom Out X (expand the x axis limits) with click or wheel'
          ' mouse (bidirectional)',
          gtk.STOCK_ZOOM_OUT, 'zoomx', -1, True),
         (None, None, None, None, None, None,),   
@@ -619,10 +633,12 @@ class NavigationToolbar(gtk.Toolbar):
          gtk.STOCK_GO_UP, 'pany', 1, True),
         ('Down', 'Pan down with click or wheel mouse (bidirectional)',
          gtk.STOCK_GO_DOWN, 'pany', -1, True),
-        ('Zoom In Y', 'Zoom in Y (shrink the y axis limits) with click or wheel'
+        ('Zoom In Y',
+         'Zoom in Y (shrink the y axis limits) with click or wheel'
          ' mouse (bidirectional)',
          gtk.STOCK_ZOOM_IN, 'zoomy', 1, True),
-        ('Zoom Out Y', 'Zoom Out Y (expand the y axis limits) with click or wheel'
+        ('Zoom Out Y',
+         'Zoom Out Y (expand the y axis limits) with click or wheel'
          ' mouse (bidirectional)',
          gtk.STOCK_ZOOM_OUT, 'zoomy', -1, True),
         (None, None, None, None, None, None,),
@@ -639,7 +655,8 @@ class NavigationToolbar(gtk.Toolbar):
         gtk.Toolbar.__init__(self)
 
         self.canvas = canvas
-        self.win    = window # Note: gtk.Toolbar already has a 'window' attribute
+        # Note: gtk.Toolbar already has a 'window' attribute
+        self.win    = window
         
         self.set_style(gtk.TOOLBAR_ICONS)
 
@@ -671,7 +688,8 @@ class NavigationToolbar(gtk.Toolbar):
                                      text)
             self.insert(tbutton, -1)
             if callback_arg:
-                tbutton.connect('clicked', getattr(self, callback), callback_arg)
+                tbutton.connect('clicked', getattr(self, callback),
+                                callback_arg)
             else:
                 tbutton.connect('clicked', getattr(self, callback))
             if scroll:
@@ -681,9 +699,10 @@ class NavigationToolbar(gtk.Toolbar):
         # Axes toolitem, is empty at start, update() adds a menu if >=2 axes
         self.axes_toolitem = gtk.ToolItem()
         self.insert(self.axes_toolitem, 0)
-        self.axes_toolitem.set_tooltip(self.tooltips,
-                                       tip_text='Select axes that controls affect',
-                                       tip_private = 'Private')
+        self.axes_toolitem.set_tooltip (
+            self.tooltips,
+            tip_text='Select axes that controls affect',
+            tip_private = 'Private')
 
         align = gtk.Alignment (xalign=0.5, yalign=0.5, xscale=0.0, yscale=0.0)
         self.axes_toolitem.add(align)
@@ -709,7 +728,8 @@ class NavigationToolbar(gtk.Toolbar):
             return x, y, True
         
         def button_clicked (button, data=None):
-            self.axismenu.popup (None, None, position_menu, 0, gtk.get_current_event_time())
+            self.axismenu.popup (None, None, position_menu, 0,
+                                 gtk.get_current_event_time())
 
         self.menubutton.connect ("clicked", button_clicked)
 

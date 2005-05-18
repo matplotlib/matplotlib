@@ -37,7 +37,8 @@ if gtk.pygtk_version < pygtk_version_required:
 backend_version = "%d.%d.%d" % gtk.pygtk_version
 del pygtk_version_required
 
-# do after gtk else get "pygtk.require() must be called before importing gtk" errors
+# do after gtk else get "pygtk.require() must be called before importing gtk"
+# errors
 if numerix.which[0] == "numarray":
     from matplotlib._na_backend_gdk import pixbuf_get_pixels_array
 else:
@@ -47,7 +48,7 @@ else:
 DEBUG = False
 
 # Image formats that this backend supports - for FileChooser and print_figure()
-IMAGE_FORMAT          = ['eps', 'jpg', 'png', 'ps', 'svg'] + ['bmp'] # , 'raw', 'rgb']
+IMAGE_FORMAT  = ['eps', 'jpg', 'png', 'ps', 'svg'] + ['bmp'] # , 'raw', 'rgb']
 IMAGE_FORMAT.sort()
 IMAGE_FORMAT_DEFAULT  = 'png'
 
@@ -79,7 +80,8 @@ class RendererGDK(RendererBase):
     rotated = {}  # a map from text prop tups to rotated text pixbufs
 
     def __init__(self, gtkDA, dpi):
-        # gtkDA is used in '<widget>.create_pango_layout(s)' (and cmap line below) only
+        # gtkDA is used in '<widget>.create_pango_layout(s)' (and cmap line
+        # below) only
         self.gtkDA = gtkDA
         self.dpi   = dpi
         self._cmap = gtkDA.get_colormap()
@@ -257,7 +259,8 @@ class RendererGDK(RendererBase):
         Draw the text rotated 90 degrees, other angles are not supported
         """
         # this function (and its called functions) is a bottleneck
-        # Pango 1.6 supports rotated text, but pygtk 2.4.0 does not yet have wrapper functions
+        # Pango 1.6 supports rotated text, but pygtk 2.4.0 does not yet have
+        # wrapper functions
         # GTK+ 2.6 pixbufs support rotation
 
         gdrawable = self.gdkDrawable
@@ -279,7 +282,6 @@ class RendererGDK(RendererBase):
 
         imageBack = gdrawable.get_image(x, y, w, h)
         imageVert = gdrawable.get_image(x, y, h, w)
-        #imageFlip = gtk.gdk.Image(type=gdk.IMAGE_NORMAL,
         imageFlip = gtk.gdk.Image(type=gdk.IMAGE_FASTEST,
                                   visual=gdrawable.get_visual(),
                                   width=w, height=h)
@@ -313,7 +315,8 @@ class RendererGDK(RendererBase):
         Ref: pango/fonts.c/pango_font_description_set_size() manual page
         """
         # problem? - cache gets bigger and bigger, is never cleared out
-        # two (not one) layouts are created for every text item s (then they are cached) - why?
+        # two (not one) layouts are created for every text item s (then they
+        # are cached) - why?
         
         key = self.dpi.get(), s, hash(prop)
         value = self.layoutd.get(key)
@@ -458,7 +461,8 @@ def new_figure_manager(num, *args, **kwargs):
     canvas  = FigureCanvasGDK(thisFig)
     manager = FigureManagerBase(canvas, num)
     # equals:
-    #manager = FigureManagerBase (FigureCanvasGDK (Figure(*args, **kwargs), num)
+    #manager = FigureManagerBase (FigureCanvasGDK (Figure(*args, **kwargs),
+    #                             num)
     return manager
 
 
@@ -519,10 +523,10 @@ class FigureCanvasGDK(FigureCanvasBase):
             width, height = int(width), int(height)
             self._render_figure(width, height)
 
-            # jpg colors don't match the display very well, png colors match better
+            # jpg colors don't match the display very well, png colors match
+            # better
             pixbuf = gtk.gdk.Pixbuf(gtk.gdk.COLORSPACE_RGB, 0, 8,
                                     width, height)
-            #pixbuf.get_from_drawable(self._pixmap, self._pixmap.get_colormap(),
             pixbuf.get_from_drawable(self._pixmap, self._renderer._cmap,
                                      0, 0, 0, 0, width, height)
         

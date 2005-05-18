@@ -106,18 +106,20 @@ class RendererCairo(RendererBase):
         self.height = height
         self.matrix_flipy = cairo.Matrix (d=-1, ty=self.height)
         # use matrix_flipy for ALL rendering?
-        # - problem with text? - will need to switch matrix_flipy off, or do a font transform?
+        # - problem with text? - will need to switch matrix_flipy off, or do a
+        # font transform?
 
     def draw_arc(self, gc, rgbFace, x, y, width, height, angle1, angle2):
         if DEBUG: print 'backend_cairo.RendererCairo.%s()' % _fn_name()
         # draws circular arcs where width=height
         # FIXME
-        # to get a proper arc of width/height you can use translate() and scale()
-        # see draw_arc() manual page
+        # to get a proper arc of width/height you can use translate() and
+        # scale(), see draw_arc() manual page
         radius = (height + width) / 4
         ctx    = gc.ctx
         ctx.new_path()
-        ctx.arc (x, self.height - y, radius, angle1 * pi/180.0, angle2 * pi/180.0)
+        ctx.arc (x, self.height - y, radius,
+                 angle1 * pi/180.0, angle2 * pi/180.0)
 
         if rgbFace:
             ctx.save()
@@ -131,7 +133,8 @@ class RendererCairo(RendererBase):
         if DEBUG: print 'backend_cairo.RendererCairo.%s()' % _fn_name()
 
         if numerix.which[0] == "numarray":
-            warnings.warn("draw_image() currently works for numpy, but not numarray")
+            warnings.warn("draw_image() currently works for numpy, but not "
+                          "numarray")
             return
 
         if not HAVE_CAIRO_NUMPY:
@@ -163,7 +166,8 @@ class RendererCairo(RendererBase):
         surface = cairo.numpy.surface_create_for_array (X)
 
         # Alternative
-        #surface = cairo.surface_create_for_image(buf, cairo.FORMAT_ARGB32, cols, rows) #, stride)
+        # surface = cairo.ImageSurface(buf, cairo.FORMAT_ARGB32, cols, rows)
+        # stride)
         # error: TypeError: Cannot use string as modifiable buffer
 
         ctx.translate (x,y)
@@ -297,7 +301,8 @@ class RendererCairo(RendererBase):
 
 
     def draw_text(self, gc, x, y, s, prop, angle, ismath=False):
-        # Note: x,y are device/display coords, not user-coords, unlike other draw_* methods
+        # Note: x,y are device/display coords, not user-coords, unlike other
+        # draw_* methods
         if DEBUG: print 'backend_cairo.RendererCairo.%s()' % _fn_name()
 
         if ismath:
@@ -327,7 +332,8 @@ class RendererCairo(RendererBase):
        # mathtext using the gtk/gdk method
 
         if numerix.which[0] == "numarray":
-            warnings.warn("_draw_mathtext() currently works for numpy, but not numarray")
+            warnings.warn("_draw_mathtext() currently works for numpy, but "
+                          "not numarray")
             return
 
         if not HAVE_CAIRO_NUMPY:
@@ -378,7 +384,8 @@ class RendererCairo(RendererBase):
     def flipy(self):
         if DEBUG: print 'backend_cairo.RendererCairo.%s()' % _fn_name()
         return True
-        #return False # tried - all draw objects ok except text (and images?) which comes out mirrored!
+        #return False # tried - all draw objects ok except text (and images?)
+        # which comes out mirrored!
 
     
     def get_canvas_width_height(self):
@@ -559,7 +566,8 @@ def print_figure_fn(figure, filename, dpi=150, facecolor='w', edgecolor='w',
                 warnings.warn("%s: %s" % (exc.filename, exc.strerror))
             else:
                 if ext == 'png': _save_png (figure, fileObject)
-                else:            _save_ps_pdf (figure, fileObject, ext, orientation)
+                else:            _save_ps_pdf (figure, fileObject, ext,
+                                               orientation)
                 fileObject.close()
             
         elif ext in ('eps', 'svg'): # backend_svg/ps
