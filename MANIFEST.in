@@ -11,6 +11,6 @@ recursive-include examples README *.py *.glade
 prune examples/_tmp_*
 recursive-include src  *.cpp *.c *.h
 recursive-include CXX  *.cxx *.hxx *.c
-recursive-include agg22 *
+recursive-include agg23 *
 recursive-include lib *
 recursive-include swig *

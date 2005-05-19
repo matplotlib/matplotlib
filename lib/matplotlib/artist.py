@@ -2,7 +2,7 @@ from __future__ import division
 import sys
 from cbook import iterable, flatten
 from transforms import identity_transform
-
+import warnings
 ## Note, matplotlib artists use the doc strings for set and get
 # methods to enable the introspection methods of set and get in the
 # matlab interface Every set_ to be controlled by the set function
@@ -390,7 +390,13 @@ def get(o, *args):
     func = getattr(o, 'get_' + name)
     return func()
 
-def set(h, *args, **kwargs):
+def set(*args, **kwargs):
+    message = 'set deprecated because it overrides python2.4 builtin set.  Use setp'
+    warnings.warn(message, DeprecationWarning, stacklevel=2)
+
+    return setp(*args, **kwargs)
+    
+def setp(h, *args, **kwargs):
     """
     matlab(TM) and pylab allow you to use set and get to set and get
     object properties, as well as to do introspection on the object

@@ -68,16 +68,10 @@ def new_figure_manager( num, *args, **kwargs ):
 
 
 class FigureCanvasQT( qt.QWidget, FigureCanvasBase ):
-    keyvald = {
-        qt.Qt.Key_Control : 'control',
-        qt.Qt.Key_Shift   : 'shift',
-        qt.Qt.Key_Alt     : 'alt',
-        qt.Qt.Key_Left    : 'left',
-        qt.Qt.Key_Up      : 'up',
-        qt.Qt.Key_Right   : 'right',
-        qt.Qt.Key_Down    : 'down',
-        }
-    
+    keyvald = { qt.Qt.Key_Control : 'control',
+                qt.Qt.Key_Shift : 'shift',
+                qt.Qt.Key_Alt : 'alt',
+               }
     # left 1, middle 2, right 3
     buttond = {1:1, 2:3, 4:2}
     def __init__( self, figure ):
@@ -148,7 +142,7 @@ class FigureManagerQT( FigureManagerBase ):
         if DEBUG: print 'FigureManagerQT.%s' % fn_name()
         FigureManagerBase.__init__( self, canvas, num )
         self.canvas = canvas
-        self.window = qt.QMainWindow()
+        self.window = qt.QMainWindow( None, None, qt.Qt.WDestructiveClose )
         
         self.canvas.reparent( self.window, qt.QPoint( 0, 0 ) )
         # Give the keyboard focus to the figure instead of the manager
@@ -156,6 +150,9 @@ class FigureManagerQT( FigureManagerBase ):
         self.canvas.setFocus()
         self.window.setCaption( "Figure %d" % num )
         self.window.setCentralWidget( self.canvas )
+        qt.QObject.connect( self.window, qt.SIGNAL( 'destroyed()' ),
+                            self._widgetclosed )
+        self.window._destroying = False
 
         if matplotlib.rcParams['toolbar'] == 'classic':
             print "Classic toolbar is not yet supported"
@@ -176,10 +173,17 @@ class FigureManagerQT( FigureManagerBase ):
            if self.toolbar != None: self.toolbar.update()
            self.canvas.figure.add_axobserver( notify_axes_change )
 
-    #def destroy( self, *args ):
-    #    if DEBUG: print "destroy figure manager"
-    #    self.window.exit()
-               
+    def _widgetclosed( self ):
+        if self.window._destroying: return
+        self.window._destroying = True
+        Gcf.destroy(self.num)
+
+    def destroy( self, *args ):
+        if self.window._destroying: return
+        self.window._destroying = True
+        if DEBUG: print "destroy figure manager"
+        self.window.close(True)
+
 class NavigationToolbar2QT( NavigationToolbar2, qt.QToolBar ):
     # list of toolitems to add to the toolbar, format is:
     # text, tooltip_text, image_file, callback(str)

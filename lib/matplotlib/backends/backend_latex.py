@@ -36,6 +36,8 @@ class RendererLatex(RendererPS):
         setcolor = '%1.3f %1.3f %1.3f setrgbcolor' % gc.get_rgb()
         fontsize = prop.get_size_in_points()
         scale = float(fontsize/10.0)
+        color = r'\rgb %1.3f %1.3f %1.3f'%gc.get_rgb()
+        tex = '\color{rgb}{%s}'%s
         self.psfrag.append(r'\psfrag{%s}[bl][bl][%f][%f]{%s}'%(thetext, scale, angle, s))
         ps = """\
 gsave
@@ -161,7 +163,7 @@ class FigureCanvasLatex(FigureCanvasBase):
 
 \begin{figure}[t]
   %s
-  \includegraphics{%s}
+  \resizebox{5.5in}{!}{\includegraphics{%s}}
  
 \end{figure}
 
