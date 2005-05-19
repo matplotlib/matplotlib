@@ -68,7 +68,6 @@ class TexManager:
         # see get_image for a discussion of the background
         if force or not os.path.exists(pngfile):
             os.system(command)
-            raise SystemExit
         return pngfile
 
     def make_ps(self, tex, dpi, force=0):
