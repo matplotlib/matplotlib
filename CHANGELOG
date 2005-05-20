@@ -1,5 +1,8 @@
 New entries should be added at the top
 
+2005-05-20 Added linewidth and faceted kwarg to scatter to control
+           edgewidth and color
+
 2005-05-18 Added Orsay and JPL qt fixes - JDH
 
 2005-05-17 Added a psfrag latex backend -- some alignment issues need
