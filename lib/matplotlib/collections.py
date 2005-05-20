@@ -444,3 +444,18 @@ class LineCollection(Collection):
             verts = self._segments[i%Nsegments]
             vertsall.extend([(x+ox, y+oy) for x,y in verts])
         return vertsall
+
+    def get_lines(self):
+        'return seq of lines in collection'
+        if self._offsets is None:
+            offsets = [(0,0)]
+        else:
+            offsets = self._offsets
+        Noffsets = len(offsets)
+        Nsegments = len(self._segments)
+        lines = []
+        for i in range(max(Noffsets, Nsegments)):
+            ox, oy = offsets[i%Noffsets]
+            segment = self._segments[i%Nsegments]
+            lines.append([(x+ox, y+oy) for x,y in segment])
+        return lines

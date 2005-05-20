@@ -30,12 +30,43 @@ from artist import Artist
 from cbook import enumerate, is_string_like, iterable, silent_list
 from font_manager import FontProperties
 from lines import Line2D
-from mlab import linspace
+from mlab import linspace, segments_intersect
 from patches import Patch, Rectangle, Shadow, bbox_artist, draw_bbox
 from collections import LineCollection
 from text import Text
 from transforms import Bbox, Point, Value, get_bbox_transform, bbox_all,\
      unit_bbox, inverse_transform_bbox, lbwh_to_bbox
+
+
+
+
+def line_cuts_bbox(line, bbox):
+    """ Return True if and only if line cuts bbox. """
+    minx, miny, width, height = bbox.get_bounds()
+    maxx = minx + width
+    maxy = miny + height
+
+    n = len(line)
+    if n == 0:
+        return False
+
+    if n == 1:
+        return bbox.contains(line[0])
+    
+    p1 = line[0]
+    for p2 in line[1:]:
+        segment = (p1, p2)
+        # See if the segment cuts any of the edges of bbox
+        for edge in (((minx, miny), (minx, maxy)),
+                     ((minx, miny), (maxx, miny)),
+                     ((maxx, miny), (maxx, maxy)),
+                     ((minx, maxy), (maxx, maxy))):
+            if segments_intersect(segment, edge):
+                return True
+        p1=p2
+
+    return False
+
 
 class Legend(Artist):
     """
@@ -276,6 +307,7 @@ The following dimensions are in axes coords
         handles = get_handles(ax)
         vertices = []
         bboxes = []
+        lines = []
 
         inv = ax.transAxes.inverse_xy_tup
         for handle in handles:
@@ -289,7 +321,7 @@ The following dimensions are in axes coords
 
                 # XXX need a special method in transform to do a list of verts
                 averts = [inv(v) for v in zip(xt, yt)]
-                vertices.extend(averts)
+                lines.append(averts)
 
             elif isinstance(handle, Patch):
 
@@ -304,13 +336,14 @@ The following dimensions are in axes coords
                 bboxes.append(bbox)
 
             elif isinstance(handle, LineCollection):
-                verts = handle.get_verts()
+                hlines = handle.get_lines()
                 trans = handle.get_transform()
-                tverts = trans.seq_xy_tups(verts)
-                averts = [inv(v) for v in tverts]
-                vertices.extend(averts)
-
-        return [vertices, bboxes]
+                for line in hlines:
+                    tline = trans.seq_xy_tups(line)
+                    aline = [inv(v) for v in tline]
+                    lines.extend(line)
+                    
+        return [vertices, bboxes, lines]
 
     def draw_frame(self, b):
         'b is a boolean.  Set draw frame to b'
@@ -384,7 +417,7 @@ The following dimensions are in axes coords
         lower-left corner of the legend. All are axes coords.
         """
 
-        verts, bboxes = self._auto_legend_data()
+        verts, bboxes, lines = self._auto_legend_data()
 
         consider = [self._loc_to_axes_coords(x, width, height) for x in range(1, len(self.codes))]
 
@@ -398,6 +431,10 @@ The following dimensions are in axes coords
             ox, oy = l-tx, b-ty
             for bbox in bboxes:
                 if legendBox.overlaps(bbox):
+                    badness += 1
+
+            for line in lines:
+                if line_cuts_bbox(line, legendBox):
                     badness += 1
 
             if badness == 0:

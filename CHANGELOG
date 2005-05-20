@@ -1,7 +1,8 @@
 New entries should be added at the top
 
 2005-05-20 Added linewidth and faceted kwarg to scatter to control
-           edgewidth and color
+           edgewidth and color.  Also added autolegend patch to
+           inspect line segments.
 
 2005-05-18 Added Orsay and JPL qt fixes - JDH
 
