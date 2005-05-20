@@ -2677,7 +2677,9 @@ class Axes(Artist):
         self.axison = True
 
     def scatter(self, x, y, s=20, c='b', marker='o', cmap=None, norm=None,
-        vmin=None, vmax=None, alpha=1.0, **kwargs):
+                    vmin=None, vmax=None, alpha=1.0, linewidths=None,
+                    faceted=True,
+                    **kwargs):
         """
         SCATTER(x, y, s=20, c='b', marker='o', cmap=None, norm=None,
                 vmin=None, vmax=None, alpha=1.0)
@@ -2730,7 +2732,18 @@ class Axes(Artist):
             instance, your settings for vmin and vmax will be ignored
 
           * alpha =1.0 : the alpha value for the patches
-    """
+
+          * linewidths, if None, defaults to (lines.linewidth,).  Note
+            that this is a tuple, and if you set the linewidths
+            argument you must set it as a sequence of floats, as
+            required by PolyCollection -- see
+            matplotlib.collections.PolyCollection for details
+
+         * faceted: if True, will use the default edgecolor for the
+           markers.  If False, will set the edgecolors to be the same
+           as the facecolors
+           """
+
         if not self._hold: self.cla()
 
         syms =  { # a dict from symbol to (numsides, angle)
@@ -2766,10 +2779,15 @@ class Axes(Artist):
         else:
             scales = s
 
+        if faceted: edgecolors = None
+        else: edgecolors = 'None'
+        
         collection = RegularPolyCollection(
             self.figure.dpi,
             numsides, rotation, scales,
             facecolors = colors,
+            edgecolors = edgecolors,
+            linewidths = linewidths,
             offsets = zip(x,y),
             transOffset = self.transData,
             )
