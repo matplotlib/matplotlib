@@ -323,7 +323,7 @@ def looks_like_color(c):
     if is_string_like(c):
         if cnames.has_key(c): return True
         elif len(c)==1: return True
-        elif len(s)==7 and c.startswith('#') and len(s)==7: return True
+        elif len(c)==7 and c.startswith('#') and len(c)==7: return True
         else: return False
     elif iterable(c) and len(c)==3:
         try:
