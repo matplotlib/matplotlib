@@ -12,7 +12,7 @@ import os, sys, md5
 from matplotlib import get_home, get_data_path
 from matplotlib._image import readpng, fromarray
 from matplotlib.numerix import ravel, where, array, \
-     zeros, Float, absolute, nonzero, put, putmask
+     zeros, Float, absolute, nonzero, sqrt
 class TexManager:
     """
     Convert strings to dvi files using TeX, caching the results to a
@@ -21,6 +21,7 @@ class TexManager:
     path = get_home()
     if path is None: path = get_data_path()
     texcache = os.path.join(path, '.tex.cache')
+
     
     def __init__(self):
         if not os.path.isdir(self.texcache):
@@ -28,6 +29,7 @@ class TexManager:
         self.imaged = {}
         self.postscriptd = {}
         self.pscnt = 0
+        self.dvipngVersion = None
         
     def make_dvi(self, tex):
         prefix = self.get_prefix(tex)
@@ -215,31 +217,36 @@ class TexManager:
 
 
         if im is None:
-            # skip cacheing while debugging
+            # force=True to skip cacheing while debugging
             pngfile = self.make_png(tex, dpi, force=False) 
             X = readpng(pngfile)
-            # To compare my results with the result of using dvipng's,
-            # change this to 'if 0:' and uncomment the third "command"
-            # variable in make_png.  The black text for the tick
-            # labels on the gray background look better with the
-            # dvipng rendering, so I must be making some error in how
-            # I try and recover the alpha information
-            if 1:                
-                alpha = 1-X[:,:,0]
-                #visible = alpha>0
-                #print 'min/max', min(ravel(alpha)), max(ravel(alpha))
-                Z = zeros(X.shape, Float)
-                Z[:,:,0] = r
-                Z[:,:,1] = g
-                Z[:,:,2] = b
-                Z[:,:,3] = alpha
-                im = fromarray(Z, 1)
+
+            vers = self.get_dvipng_version()
+            if vers<'1.6':
+                alpha = sqrt(1-X[:,:,0])
             else:
-                alpha = X[:,:,-1]
-                from matplotlib.mlab import prctile
-                print 'ptile', prctile(ravel(alpha))
-                im = fromarray(X, 1)
+                # 1.6 has the alpha channel right
+                alpha = sqrt(X[:,:,-1])
+            
+            #from matplotlib.mlab import prctile
+            #print 'ptile', prctile(ravel(X[:,:,0])), prctile(ravel(X[:,:,-1]))
+
+            Z = zeros(X.shape, Float)
+            Z[:,:,0] = r
+            Z[:,:,1] = g
+            Z[:,:,2] = b
+            Z[:,:,3] = alpha
+            im = fromarray(Z, 1)
                
             self.imaged[key] = im
         return im
-       
+
+    def get_dvipng_version(self):
+        if self.dvipngVersion is not None: return self.dvipngVersion
+        sin, sout = os.popen2('dvipng --version')
+        for line in sout.readlines():
+            if line.startswith('dvipng '):
+                self.dvipngVersion = line.split()[-1]
+                return self.dvipngVersion
+        raise RuntimeError('Could not obtain dvipng version')
+            
