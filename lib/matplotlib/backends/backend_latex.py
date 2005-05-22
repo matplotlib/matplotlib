@@ -31,10 +31,12 @@ class RendererLatex(RendererPS):
         """
         draw a Text instance
         """
-        pos = _nums_to_str(x, y)
+        w, h = self.get_text_width_height(s, prop, ismath)
+        fontsize = prop.get_size_in_points()
+        corr = w/2*(fontsize-10)/10
+        pos = _nums_to_str(x-corr, y)
         thetext = 'psmarker%d' % self.textcnt
         setcolor = '%1.3f %1.3f %1.3f setrgbcolor' % gc.get_rgb()
-        fontsize = prop.get_size_in_points()
         scale = float(fontsize/10.0)
         color = r'\rgb %1.3f %1.3f %1.3f'%gc.get_rgb()
         tex = '\color{rgb}{%s}'%s
@@ -158,6 +160,7 @@ class FigureCanvasLatex(FigureCanvasBase):
         print >>latexh, r"""\documentclass{article}
 \usepackage{psfrag}
 \usepackage[dvips]{graphicx}
+\pagestyle{empty}
 \begin{document}
 
 
