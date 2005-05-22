@@ -216,7 +216,7 @@ class TexManager:
 
         if im is None:
             # skip cacheing while debugging
-            pngfile = self.make_png(tex, dpi, force=True) 
+            pngfile = self.make_png(tex, dpi, force=False) 
             X = readpng(pngfile)
             # To compare my results with the result of using dvipng's,
             # change this to 'if 0:' and uncomment the third "command"
@@ -226,8 +226,8 @@ class TexManager:
             # I try and recover the alpha information
             if 1:                
                 alpha = 1-X[:,:,0]
-                visible = alpha>0
-                print 'min/max', min(ravel(alpha)), max(ravel(alpha))
+                #visible = alpha>0
+                #print 'min/max', min(ravel(alpha)), max(ravel(alpha))
                 Z = zeros(X.shape, Float)
                 Z[:,:,0] = r
                 Z[:,:,1] = g

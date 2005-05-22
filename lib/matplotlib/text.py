@@ -324,8 +324,8 @@ ACCEPTS: rectangle prop dict plus key 'pad' which is a pad in points
                 x, y = self._transform.xy_tup((x, y))
                 if renderer.flipy():
                     y = canvash-y
-                renderer.draw_text(gc, x, y, line,
-                                  self._fontproperties, angle, ismath)
+                renderer.draw_tex(gc, x, y, line,
+                                  self._fontproperties, angle)
             return 
             
         for line, wh, x, y in info:
