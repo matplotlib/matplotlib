@@ -301,7 +301,7 @@ class NewScalarFormatter(Formatter):
         locs = self.locs
         ave_loc = average(locs)
         if ave_loc: # dont want to take log10(0)
-            ave_oom = math.floor(math.log10(absolute(ave_loc)))
+            ave_oom = math.floor(math.log10(average(absolute(locs))))
             range_oom = math.floor(math.log10(range))
             if absolute(ave_oom-range_oom) >= 4: # four sig-figs
                 if ave_loc < 0: 
