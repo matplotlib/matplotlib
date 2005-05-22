@@ -1001,6 +1001,8 @@ RendererAgg::draw_lines(const Py::Tuple& args) {
   
   double lastx(-2.0), lasty(-2.0);
   
+  bool snapto = Nx==2;
+  
   for (size_t i=0; i<Nx; i++) {
     thisx = *(double *)(xa->data + i*xa->strides[0]);
     thisy = *(double *)(ya->data + i*ya->strides[0]);
@@ -1022,11 +1024,15 @@ RendererAgg::draw_lines(const Py::Tuple& args) {
     //don't render line segments less that on pixel long!
     if (!moveto && (i>0) && fabs(thisx-lastx)<1.0 && fabs(thisy-lasty)<1.0) {
       continue;
-     }
-    thisx = (int)thisx + 0.5;
-    thisy = (int)thisy + 0.5;
+    }
+
     lastx = thisx;
     lasty = thisy;
+    if (snapto) {
+      thisx = (int)thisx + 0.5;
+      thisy = (int)thisy + 0.5;
+    }
+
     if (moveto)
       path.move_to(thisx, thisy);
     else
