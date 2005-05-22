@@ -1,5 +1,8 @@
 New entries should be added at the top
 
+2005-05-21 Fixed raster problem for small rasters with dvipng -- looks
+           like it was a premultipled alpha problem - JDH
+
 2005-05-20 Added linewidth and faceted kwarg to scatter to control
            edgewidth and color.  Also added autolegend patch to
            inspect line segments.
