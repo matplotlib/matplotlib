@@ -12,4 +12,5 @@ title(r"\TeX\ is Number $\displaystyle\sum_{n=1}^\infty\frac{-e^{i\pi}}{2^n}$!",
         fontsize=20)
 grid(True)
 savefig('tex_demo')
+
 show()
