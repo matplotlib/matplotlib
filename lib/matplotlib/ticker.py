@@ -111,9 +111,9 @@ from __future__ import division
 import sys, os, re, time, math, warnings
 from mlab import linspace
 from matplotlib import verbose
-from numerix import absolute, arange, array, asarray, average, Float, floor, log, \
+from numerix import absolute, arange, array, asarray, Float, floor, log, \
      logical_and, nonzero, ones, take, zeros
-from matplotlib.numerix.mlab import amin, amax, std
+from matplotlib.numerix.mlab import amin, amax, std, mean
 from matplotlib.mlab import frange
 from cbook import strip_math
 
@@ -299,9 +299,9 @@ class NewScalarFormatter(Formatter):
     def _set_offset(self, range):
         # offset of 20,001 is 20,000, for example
         locs = self.locs
-        ave_loc = average(locs)
+        ave_loc = mean(locs)
         if ave_loc: # dont want to take log10(0)
-            ave_oom = math.floor(math.log10(average(absolute(locs))))
+            ave_oom = math.floor(math.log10(mean(absolute(locs))))
             range_oom = math.floor(math.log10(range))
             if absolute(ave_oom-range_oom) >= 4: # four sig-figs
                 if ave_loc < 0: 

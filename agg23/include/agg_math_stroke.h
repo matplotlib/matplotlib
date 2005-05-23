@@ -43,8 +43,7 @@ namespace agg
     };
 
     // Minimal angle to calculate round joins, less than 0.1 degree.
-    const double stroke_theta = 0.001; //----stroke_theta
-
+    const double stroke_theta = 0.001;       //----stroke_theta
 
     //--------------------------------------------------------stroke_calc_arc
     template<class VertexConsumer>
@@ -125,50 +124,27 @@ namespace agg
         double xi = v1.x;
         double yi = v1.y;
 
-        if(!calc_intersection(v0.x + dx1, v0.y - dy1,
-                              v1.x + dx1, v1.y - dy1,
-                              v1.x + dx2, v1.y - dy2,
-                              v2.x + dx2, v2.y - dy2,
-                              &xi, &yi))
+        if(calc_intersection(v0.x + dx1, v0.y - dy1,
+                             v1.x + dx1, v1.y - dy1,
+                             v1.x + dx2, v1.y - dy2,
+                             v2.x + dx2, v2.y - dy2,
+                             &xi, &yi))
         {
-            // The calculation didn't succeed, most probaly
-            // the three points lie one straight line
-            //----------------
-            if(calc_distance(dx1, -dy1, dx2, -dy2) < width * 0.025)
+            // Calculation of the intersection succeeded
+            //---------------------
+            double d1 = calc_distance(v1.x, v1.y, xi, yi);
+            double lim = width * miter_limit;
+            if(d1 <= lim)
             {
-                // This case means that the next segment continues 
-                // the previous one (straight line)
-                //-----------------
-                out_vertices.add(coord_type(v1.x + dx1, v1.y - dy1));
+                // Inside the miter limit
+                //---------------------
+                out_vertices.add(coord_type(xi, yi));
             }
             else
             {
-                // This case means that the next segment goes back  
-                //-----------------
-                if(revert_flag)
-                {
-                    out_vertices.add(coord_type(v1.x + dx1, v1.y - dy1));
-                    out_vertices.add(coord_type(v1.x + dx2, v1.y - dy2));
-                }
-                else
-                {
-                    // If no miter-revert, calcuate new dx1, dy1, dx2, dy2
-                    out_vertices.add(coord_type(v1.x + dx1 + dy1 * miter_limit, 
-                                                v1.y - dy1 + dx1 * miter_limit));
-                    out_vertices.add(coord_type(v1.x + dx2 - dy2 * miter_limit, 
-                                                v1.y - dy2 - dx2 * miter_limit));
-                }
-            }
-        }
-        else
-        {
-            double d1 = calc_distance(v1.x, v1.y, xi, yi);
-            double lim = width * miter_limit;
-            if(d1 > lim)
-            {
                 // Miter limit exceeded
                 //------------------------
-                if(revert_flag)
+                if(revert_flag || d1 < intersection_epsilon)
                 {
                     // For the compatibility with SVG, PDF, etc, 
                     // we use a simple bevel join instead of
@@ -195,11 +171,44 @@ namespace agg
                     out_vertices.add(coord_type(x2, y2));
                 }
             }
+        }
+        else
+        {
+            // Calculation of the intersection failed, most probaly
+            // the three points lie one straight line. 
+            // First check if v0 and v2 lie on the opposite sides of vector: 
+            // (v1.x, v1.y) -> (v1.x+dx1, v1.y-dy1), that is, the perpendicular
+            // to the line determined by vertices v0 and v1.
+            // This condition deternines whether the next line segments continues
+            // the previous one or goes back.
+            //----------------
+            double x2 = v1.x + dx1;
+            double y2 = v1.y - dy1;
+            if(((x2 - v0.x)*dy1 - (v0.y - y2)*dx1 < 0.0) !=
+               ((x2 - v2.x)*dy1 - (v2.y - y2)*dx1 < 0.0))
+            {
+                // This case means that the next segment continues 
+                // the previous one (straight line)
+                //-----------------
+                out_vertices.add(coord_type(v1.x + dx1, v1.y - dy1));
+            }
             else
             {
-                // Inside the miter limit
-                //---------------------
-                out_vertices.add(coord_type(xi, yi));
+                // This case means that the next segment goes back  
+                //-----------------
+                if(revert_flag)
+                {
+                    out_vertices.add(coord_type(v1.x + dx1, v1.y - dy1));
+                    out_vertices.add(coord_type(v1.x + dx2, v1.y - dy2));
+                }
+                else
+                {
+                    // If no miter-revert, calcuate new dx1, dy1, dx2, dy2
+                    out_vertices.add(coord_type(v1.x + dx1 + dy1 * miter_limit, 
+                                                v1.y - dy1 + dx1 * miter_limit));
+                    out_vertices.add(coord_type(v1.x + dx2 - dy2 * miter_limit, 
+                                                v1.y - dy2 - dx2 * miter_limit));
+                }
             }
         }
     }
@@ -223,18 +232,27 @@ namespace agg
 
         out_vertices.remove_all();
 
-        double dx1 = width * (v1.y - v0.y) / len;
-        double dy1 = width * (v1.x - v0.x) / len;
+        double dx1 = (v1.y - v0.y) / len;
+        double dy1 = (v1.x - v0.x) / len;
         double dx2 = 0;
         double dy2 = 0;
 
-        if(line_cap == square_cap)
-        {
-            dx2 = dy1;
-            dy2 = dx1;
-        }
+        dx1 *= width;
+        dy1 *= width;
 
-        if(line_cap == round_cap)
+        if(line_cap != round_cap)
+        {
+            if(line_cap == square_cap)
+            {
+                dx2 = dy1;
+                dy2 = dx1;
+            }
+            double dx = dx1 - dx2;
+            double dy = dy1 - dy2;
+            out_vertices.add(coord_type(v0.x - dx, v0.y + dy));
+            out_vertices.add(coord_type(v0.x + dx, v0.y - dy));
+        }
+        else
         {
             double a1 = atan2(dy1, -dx1);
             double a2 = a1 + pi;
@@ -246,11 +264,6 @@ namespace agg
                 a1 += da;
             }
             out_vertices.add(coord_type(v0.x + dx1, v0.y - dy1));
-        }
-        else
-        {
-            out_vertices.add(coord_type(v0.x - dx1 - dx2, v0.y + dy1 - dy2));
-            out_vertices.add(coord_type(v0.x + dx1 - dx2, v0.y - dy1 - dy2));
         }
     }
 
@@ -283,7 +296,7 @@ namespace agg
 
         out_vertices.remove_all();
 
-        if(calc_point_location(v0.x, v0.y, v1.x, v1.y, v2.x, v2.y) > 0.0)
+        if(calc_point_location(v0.x, v0.y, v1.x, v1.y, v2.x, v2.y) > 0)
         {
             // Inner join
             //---------------
