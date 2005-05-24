@@ -39,16 +39,24 @@ class TexManager:
 
         logfile = prefix + '.log'
         fh = file(fname, 'w')
-##        fh.write(tex + '\n\\nopagenumbers\n\\bye\n')
-        s = r"""\documentclass{article}
+        if True: #use latex
+            s = r"""\documentclass{article}
 \pagestyle{empty}
 \begin{document}
 %s
-\end{document}""" % tex
-        fh.write(s)
-        fh.close()
-##        command = 'tex %s'%fname
-        command = 'latex %s'%fname
+\end{document}
+""" % tex
+            fh.write(s)
+            fh.close()
+            command = 'latex %s'%fname
+        else:
+            s = r"""\nopagenumbers
+%s
+\bye
+""" % tex
+            fh.write(s)
+            fh.close()
+            command = 'tex %s'%fname
         if not os.path.exists(dvifile):
             #sin, sout = os.popen2(command)
             #sout.close()

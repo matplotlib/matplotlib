@@ -8,7 +8,9 @@ plot(t, s)
 
 xlabel('time (s)')
 ylabel('voltage (mV)')
-title(r"\TeX\ is Number $\displaystyle\sum_{n=1}^\infty\frac{-e^{i\pi}}{2^n}$!", 
+##title(r"\TeX\ is Number $\displaystyle\sum_{n=1}^\infty\frac{-e^{i\pi}}{2^n}$!", 
+##        fontsize=20)
+title(r"\TeX\ is Number $\displaystyle\sum_{n=1}^\infty{-e^{i\pi} \over 2^n}$!", 
         fontsize=20)
 grid(True)
 savefig('tex_demo')

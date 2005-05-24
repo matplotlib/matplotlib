@@ -21,9 +21,10 @@ class RendererLatex(RendererPS):
         get the width and height in display coords of the string s
         with FontPropertry prop
         """
+        fontsize = prop.get_size_in_points()
         l,b,r,t = self.texmanager.get_ps_bbox(s)
-        w = r-l
-        h = t-b
+        w = (r-l)#*fontsize/10.
+        h = (t-b)#*fontsize/10.
         #print s, w, h
         return w, h
 
@@ -33,7 +34,7 @@ class RendererLatex(RendererPS):
         """
         w, h = self.get_text_width_height(s, prop, ismath)
         fontsize = prop.get_size_in_points()
-        corr = w/2*(fontsize-10)/10
+        corr = 0#w/2*(fontsize-10)/10
         pos = _nums_to_str(x-corr, y)
         thetext = 'psmarker%d' % self.textcnt
         setcolor = '%1.3f %1.3f %1.3f setrgbcolor' % gc.get_rgb()
