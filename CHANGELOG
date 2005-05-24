@@ -1,5 +1,7 @@
 New entries should be added at the top
 
+2005-05-24 Fixed alignment and color issues in latex backend. - DSD
+
 2005-05-21 Fixed raster problem for small rasters with dvipng -- looks
            like it was a premultipled alpha problem - JDH
 
