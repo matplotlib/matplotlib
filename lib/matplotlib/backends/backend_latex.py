@@ -23,8 +23,8 @@ class RendererLatex(RendererPS):
         """
         fontsize = prop.get_size_in_points()
         l,b,r,t = self.texmanager.get_ps_bbox(s)
-        w = (r-l)#*fontsize/10.
-        h = (t-b)#*fontsize/10.
+        w = (r-l)*fontsize/10.
+        h = (t-b)*fontsize/10.
         #print s, w, h
         return w, h
 
@@ -37,15 +37,13 @@ class RendererLatex(RendererPS):
         corr = 0#w/2*(fontsize-10)/10
         pos = _nums_to_str(x-corr, y)
         thetext = 'psmarker%d' % self.textcnt
-        setcolor = '%1.3f %1.3f %1.3f setrgbcolor' % gc.get_rgb()
         scale = float(fontsize/10.0)
-        color = r'\rgb %1.3f %1.3f %1.3f'%gc.get_rgb()
-        tex = '\color{rgb}{%s}'%s
-        self.psfrag.append(r'\psfrag{%s}[bl][bl][%f][%f]{%s}'%(thetext, scale, angle, s))
+        color = '%1.3f,%1.3f,%1.3f'% gc.get_rgb()
+        tex = r'\color[rgb]{%s} %s' % (color, s)
+        self.psfrag.append(r'\psfrag{%s}[bl][bl][%f][%f]{%s}'%(thetext, scale, angle, tex))
         ps = """\
 gsave
 %(pos)s moveto
-%(setcolor)s
 (%(thetext)s)
 show
 grestore
@@ -53,8 +51,6 @@ grestore
 
         self._pswriter.write(ps)
         self.textcnt += 1
-
-
 
 
 class FigureCanvasLatex(FigureCanvasBase):
@@ -82,7 +78,7 @@ class FigureCanvasLatex(FigureCanvasBase):
         latexh = file(outfile, 'w')
 
         # center the figure on the paper
-        self.figure.dpi.set(72)        # ignore the passsed dpi setting for PS
+        self.figure.dpi.set(72)        # ignore the passed dpi setting for PS
         width, height = self.figure.get_size_inches()
 
         if orientation=='landscape':
@@ -161,14 +157,13 @@ class FigureCanvasLatex(FigureCanvasBase):
         print >>latexh, r"""\documentclass{article}
 \usepackage{psfrag}
 \usepackage[dvips]{graphicx}
+\usepackage{color}
 \pagestyle{empty}
 \begin{document}
 
-
 \begin{figure}[t]
   %s
-  \resizebox{5.5in}{!}{\includegraphics{%s}}
- 
+  \scalebox{1}{\includegraphics{%s}}
 \end{figure}
 
 \end{document}

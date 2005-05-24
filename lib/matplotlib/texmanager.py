@@ -13,6 +13,9 @@ from matplotlib import get_home, get_data_path
 from matplotlib._image import readpng, fromarray
 from matplotlib.numerix import ravel, where, array, \
      zeros, Float, absolute, nonzero, sqrt
+     
+debug = False
+     
 class TexManager:
     """
     Convert strings to dvi files using TeX, caching the results to a
@@ -31,7 +34,9 @@ class TexManager:
         self.pscnt = 0
         self.dvipngVersion = None
         
-    def make_dvi(self, tex):
+    def make_dvi(self, tex, force=0):
+        if debug: force = True
+        
         prefix = self.get_prefix(tex)
         fname = os.path.join(self.texcache, prefix+ '.tex')
         dvitmp = prefix + '.dvi'
@@ -39,25 +44,17 @@ class TexManager:
 
         logfile = prefix + '.log'
         fh = file(fname, 'w')
-        if True: #use latex
-            s = r"""\documentclass{article}
-\pagestyle{empty}
-\begin{document}
-%s
-\end{document}
-""" % tex
-            fh.write(s)
-            fh.close()
-            command = 'latex %s'%fname
-        else:
-            s = r"""\nopagenumbers
+        s = r"""\nopagenumbers
+\hsize=72in
+\vsize=72in
 %s
 \bye
 """ % tex
-            fh.write(s)
-            fh.close()
-            command = 'tex %s'%fname
-        if not os.path.exists(dvifile):
+        fh.write(s)
+        fh.close()
+        command = 'tex %s'%fname
+
+        if force or not os.path.exists(dvifile):
             #sin, sout = os.popen2(command)
             #sout.close()
             os.system(command)
@@ -70,6 +67,8 @@ class TexManager:
         return md5.md5(tex).hexdigest()
         
     def make_png(self, tex, dpi, force=0):
+        if debug: force = True
+        
         dvifile = self.make_dvi(tex)
         prefix = self.get_prefix(tex)
         pngfile = os.path.join(self.texcache, '%s_%d.png'% (prefix, dpi))
@@ -88,6 +87,8 @@ class TexManager:
         return pngfile
 
     def make_ps(self, tex, dpi, force=0):
+        if debug: force = True
+        
         dvifile = self.make_dvi(tex)
         prefix = self.get_prefix(tex)
         psfile = os.path.join(self.texcache, '%s_%d.epsf'% (prefix, dpi))

@@ -6,12 +6,10 @@ t = arange(0.0, 1.0+0.01, 0.01)
 s = cos(2*2*pi*t)
 plot(t, s)
 
-xlabel('time (s)')
-ylabel('voltage (mV)')
-##title(r"\TeX\ is Number $\displaystyle\sum_{n=1}^\infty\frac{-e^{i\pi}}{2^n}$!", 
-##        fontsize=20)
+xlabel(r'\bf{time (s)}')
+ylabel(r'\it{voltage (mV)}',fontsize=16)
 title(r"\TeX\ is Number $\displaystyle\sum_{n=1}^\infty{-e^{i\pi} \over 2^n}$!", 
-        fontsize=20)
+        {'bbox':{'fc':0.8,'pad':0}}, fontsize=16, color='r')
 grid(True)
 savefig('tex_demo')
 
