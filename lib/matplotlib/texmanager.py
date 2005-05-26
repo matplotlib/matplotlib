@@ -44,7 +44,8 @@ class TexManager:
 
         logfile = prefix + '.log'
         fh = file(fname, 'w')
-        s = r"""\nopagenumbers
+        s = r"""\def\frac#1#2{ {#1 \over #2} }
+\nopagenumbers
 \hsize=72in
 \vsize=72in
 %s

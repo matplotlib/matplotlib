@@ -1,5 +1,10 @@
 New entries should be added at the top
 
+2005-05-26 Moved backend_latex functionality into backend_ps. If 
+           text.usetex=True, the PostScript backend will use LaTeX to 
+           generate the .ps or .eps file. Ghostscript is required for 
+           eps output. - DSD
+
 2005-05-24 Fixed alignment and color issues in latex backend. - DSD
 
 2005-05-21 Fixed raster problem for small rasters with dvipng -- looks

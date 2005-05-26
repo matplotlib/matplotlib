@@ -8,7 +8,7 @@ import math, sys, os, time
 def _fn_name(): return sys._getframe(1).f_code.co_name
     
 from cStringIO import StringIO
-from matplotlib import verbose, __version__, rcParams
+from matplotlib import verbose, __version__, rcParams, get_data_path
 from matplotlib._pylab_helpers import Gcf
 import matplotlib.agg as agg
 from matplotlib.afm import AFM
@@ -22,10 +22,9 @@ from matplotlib.font_manager import fontManager
 from matplotlib.ft2font import FT2Font, KERNING_UNFITTED, KERNING_DEFAULT, KERNING_UNSCALED
 from matplotlib.mathtext import math_parse_s_ps, bakoma_fonts
 from matplotlib.text import Text
+from matplotlib.texmanager import TexManager
 
 from matplotlib.transforms import get_vec6_scales
-
-from matplotlib import get_data_path
 
 from matplotlib.numerix import fromstring, UInt8, Float32, equal, alltrue, \
      nonzero, take, where, ones, put
@@ -123,6 +122,10 @@ class RendererPS(RendererBase):
         self.width = width
         self.height = height
         self._pswriter = pswriter
+        if rcParams['text.usetex']:
+            self.textcnt = 0
+            self.psfrag = []
+            self.texmanager = TexManager()
 
         # current renderer state (None=uninitialised)
         self.color = None
@@ -189,6 +192,13 @@ class RendererPS(RendererBase):
         with FontPropertry prop
 
         """
+        if rcParams['text.usetex']:
+            fontsize = prop.get_size_in_points()
+            l,b,r,t = self.texmanager.get_ps_bbox(s)
+            w = (r-l)*fontsize/10.
+            h = (t-b)*fontsize/10.
+            #print s, w, h
+            return w, h
 
         if rcParams['ps.useafm']:
             if ismath: s = s[1:-1]
@@ -211,7 +221,7 @@ class RendererPS(RendererBase):
         w, h = font.get_width_height()
         w /= 64.0  # convert from subpixels
         h /= 64.0
-        print s, w, h
+        #print s, w, h
         return w, h
 
     def flipy(self):
@@ -552,6 +562,29 @@ grestore
         ps = '%s box' % _nums_to_str(width, height, x, y)
         self._draw_ps(ps, gc, rgbFace, "rectangle")
 
+    def draw_tex(self, gc, x, y, s, prop, angle, ismath='TeX!'):
+        """
+        draw a Text instance
+        """
+        w, h = self.get_text_width_height(s, prop, ismath)
+        fontsize = prop.get_size_in_points()
+        corr = 0#w/2*(fontsize-10)/10
+        pos = _nums_to_str(x-corr, y)
+        thetext = 'psmarker%d' % self.textcnt
+        scale = float(fontsize/10.0)
+        color = '%1.3f,%1.3f,%1.3f'% gc.get_rgb()
+        tex = r'\color[rgb]{%s} %s' % (color, s)
+        self.psfrag.append(r'\psfrag{%s}[bl][bl][%f][%f]{%s}'%(thetext, scale, angle, tex))
+        ps = """\
+gsave
+%(pos)s moveto
+(%(thetext)s)
+show
+grestore
+    """ % locals()
+
+        self._pswriter.write(ps)
+        self.textcnt += 1
 
     def draw_text(self, gc, x, y, s, prop, angle, ismath):
         """
@@ -876,9 +909,21 @@ class FigureCanvasPS(FigureCanvasBase):
             title = None
         else:
             basename, ext = os.path.splitext(outfile)
-            if not ext: outfile += '.ps'
-            isEPSF = ext.lower().startswith('.ep')
-            fh = file(outfile, 'w')
+            if not ext: 
+                if rcParams['text.usetex']: 
+                    ext = '.eps'
+                    outfile += ext
+                else:
+                    ext = '.ps'
+                    outfile += ext
+            if rcParams['text.usetex']:
+                epsfile = basename + '.eps'
+                psfile = basename + '.ps'
+                texfile = basename + '.tex'
+                latexh = file(texfile, 'w')
+                fh = file(epsfile, 'w')
+            else: fh = file(outfile, 'w')
+            isEPSF = ext.lower().startswith('.ep') or rcParams['text.usetex']
             needsClose = True
             title = outfile
         
@@ -942,12 +987,14 @@ class FigureCanvasPS(FigureCanvasBase):
         if not isEPSF: print >>fh, "%%Pages: 1"
         print >>fh, "%%EndComments"
         
-        type42 = _type42 + [os.path.join(self.basepath, name) + '.ttf' \
-                            for name in bakoma_fonts]
-        print >>fh, "%%BeginProlog"
         Ndict = len(psDefs)
-        if not rcParams['ps.useafm']:
-            Ndict += len(type42)
+        print >>fh, "%%BeginProlog"
+        if not rcParams['text.usetex']:
+            type42 = _type42 + [os.path.join(self.basepath, name) + '.ttf' \
+                                for name in bakoma_fonts]
+            if not rcParams['ps.useafm']:
+                Ndict += len(type42)
+                
         print >>fh, "/mpldict %d dict def"%Ndict
         print >>fh, "mpldict begin"
 
@@ -955,13 +1002,14 @@ class FigureCanvasPS(FigureCanvasBase):
             d=d.strip()
             for l in d.split('\n'):
                 print >>fh, l.strip()
-        if not rcParams['ps.useafm']:
-            for font in type42:
-                print >>fh, "%%BeginFont: "+FT2Font(str(font)).postscript_name
-                print >>fh, encodeTTFasPS(font)
-                print >>fh, "%%EndFont"
+        if not rcParams['text.usetex']:
+            if not rcParams['ps.useafm']:
+                for font in type42:
+                    print >>fh, "%%BeginFont: "+FT2Font(str(font)).postscript_name
+                    print >>fh, encodeTTFasPS(font)
+                    print >>fh, "%%EndFont"
 
-            print >>fh, "%%EndProlog"
+        print >>fh, "%%EndProlog"
         
         if not isEPSF: print >>fh, "%%Page: 1 1"
         print >>fh, "mpldict begin"
@@ -981,6 +1029,48 @@ class FigureCanvasPS(FigureCanvasBase):
 
         if not isEPSF: print >>fh, "%%EOF"
         if needsClose: fh.close()
+            
+        if rcParams['text.usetex']:
+            if defaultPaperType in ['a4','a5','b5','letter','legal','executive']:
+                latexPaperType = defaultPaperType + 'paper'
+            else: 
+                verbose.report('"%s" is not a valid LaTeX papertype.'% defaultPaperType + \
+                               'Defaulting to letter.')
+                latexPaperType = 'letterpaper'
+            print >>latexh, r"""\documentclass[%s]{article}
+\usepackage{psfrag}
+\usepackage{type1cm}
+\usepackage[dvips]{graphicx}
+\usepackage{color}
+\pagestyle{empty}
+\begin{document}
+\begin{figure}[th!]
+\begin{center}
+%s
+\includegraphics{%s}
+\end{center}
+\end{figure}
+\end{document}
+"""% (latexPaperType, '\n'.join(renderer.psfrag), epsfile)
+        
+            latexh.close()
+
+            command = 'latex %s' % texfile
+            os.system(command)
+            command = 'dvips -o %s %s' % (psfile, basename+'.dvi')
+            os.system(command)
+            if ext.startswith('.ep'):
+                command = 'ps2epsi %s %s' % (psfile, outfile)
+                msg = os.system(command)
+                if msg==32512: raise 'ps2epsi: command not found! Please install Ghostscript.'
+                os.remove(psfile)
+            os.remove(texfile)
+            os.remove(basename+'.dvi')
+            try: os.remove(basename+'.log')
+            except OSError: pass
+            try: os.remove(basename+'.aux')
+            except OSError: pass
+
 
 class FigureManagerPS(FigureManagerBase):
     pass
