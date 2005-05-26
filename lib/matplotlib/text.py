@@ -283,7 +283,7 @@ ACCEPTS: rectangle prop dict plus key 'pad' which is a pad in points
         if angle==0:
             if ismath!='TeX': m = None
             else: m = self._rgxsuper.match(self._text)
-            if m is not None:
+            if m is not None and not rcParams['text.usetex']:
                 bbox, info = self._get_layout_super(self._renderer, m)
                 base, xt, yt = info[0]
                 renderer.draw_text(gc, xt, yt, base,
