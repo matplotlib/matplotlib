@@ -26,27 +26,27 @@ xfit = array( [amin(x), amax(x) ] )
 subplot(221)
 plot(x,y1,'ks', xfit, fit(xfit), 'r-', lw=2)
 axis([2,20,2,14])       
-set(gca(), xticklabels=[], yticks=(4,8,12), xticks=(0,10,20))
+setp(gca(), xticklabels=[], yticks=(4,8,12), xticks=(0,10,20))
 text(3,12, 'I', fontsize=20)
 
 subplot(222)
 plot(x,y2,'ks', xfit, fit(xfit), 'r-', lw=2)
 axis([2,20,2,14])
-set(gca(), xticklabels=[], yticks=(4,8,12), yticklabels=[], xticks=(0,10,20))
+setp(gca(), xticklabels=[], yticks=(4,8,12), yticklabels=[], xticks=(0,10,20))
 text(3,12, 'II', fontsize=20)
 
 subplot(223)
 plot(x,y3,'ks', xfit, fit(xfit), 'r-', lw=2)
 axis([2,20,2,14])
 text(3,12, 'IIII', fontsize=20)
-set(gca(), yticks=(4,8,12), xticks=(0,10,20))
+setp(gca(), yticks=(4,8,12), xticks=(0,10,20))
 
 subplot(224)
 
 xfit = array([amin(x4),amax(x4)])
 plot(x4,y4,'ks', xfit, fit(xfit), 'r-', lw=2)
 axis([2,20,2,14])
-set(gca(), yticklabels=[], yticks=(4,8,12), xticks=(0,10,20))
+setp(gca(), yticklabels=[], yticks=(4,8,12), xticks=(0,10,20))
 text(3,12, 'IV', fontsize=20)
 
 #verify the stats

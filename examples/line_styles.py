@@ -18,9 +18,9 @@ for row in range(5):
         plot(t,s, style + color)
         # turn off the ticklabels if not first row or first col
         if not gca().is_first_col():
-            set(gca(), 'yticklabels', [])
+            setp(gca(), 'yticklabels', [])
         if not gca().is_last_row():
-            set(gca(), 'xticklabels', [])
+            setp(gca(), 'xticklabels', [])
         
 #savefig('line_styles', dpi=300)
 show()

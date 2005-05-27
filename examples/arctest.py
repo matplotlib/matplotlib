@@ -11,8 +11,8 @@ t1 = arange(0.0, 5.0, .2)
 
 
 l = plot(t1, f(t1), 'ro')
-set(l, 'markersize', 30)
-set(l, 'markerfacecolor', 'b')
+setp(l, 'markersize', 30)
+setp(l, 'markerfacecolor', 'b')
 #savefig('arctest', dpi=150)
 show()
 

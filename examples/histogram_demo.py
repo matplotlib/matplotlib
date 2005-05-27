@@ -6,12 +6,12 @@ x = mu + sigma*randn(10000)
 
 # the histogram of the data
 n, bins, patches = hist(x, 50, normed=1)
-set(patches, 'facecolor', 'g', 'alpha', 0.75)
+setp(patches, 'facecolor', 'g', 'alpha', 0.75)
 
 # add a 'best fit' line
 y = normpdf( bins, mu, sigma)
 l = plot(bins, y, 'r--')
-set(l, 'linewidth', 1)
+setp(l, 'linewidth', 1)
 
 xlabel('Smarts')
 ylabel('Probability')

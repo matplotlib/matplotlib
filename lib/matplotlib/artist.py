@@ -216,6 +216,19 @@ ACCEPTS: any number
         self._label = other._label
         self.pchanged()
 
+
+    def set(self, **kwargs):
+        """
+        A tkstyle set command, pass kwargs to set properties
+        """
+        ret = []
+        for k,v in kwargs.items():
+            k = k.lower()
+            funcName = "set_%s"%k
+            func = getattr(self,funcName)
+            ret.extend( [func(v)] )
+        return ret
+
 class ArtistInspector:
     """
     A helper class to insect an Artist and return information about
@@ -390,6 +403,7 @@ def get(o, *args):
     func = getattr(o, 'get_' + name)
     return func()
 
+                        
 def set(*args, **kwargs):
     message = 'set deprecated because it overrides python2.4 builtin set.  Use setp'
     warnings.warn(message, DeprecationWarning, stacklevel=2)

@@ -8,7 +8,7 @@ d1, p1, d2, p2 = get_two_stock_data()
 
 ax = subplot(111)
 lines = plot(d1, p1, 'bs', d2, p2, 'go')
-set(lines, 'data_clipping', True)
+setp(lines, 'data_clipping', True)
 xlabel('Days')
 ylabel('Normalized price')
 xlim(0, 3) 

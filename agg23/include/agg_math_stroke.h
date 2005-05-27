@@ -247,10 +247,8 @@ namespace agg
                 dx2 = dy1;
                 dy2 = dx1;
             }
-            double dx = dx1 - dx2;
-            double dy = dy1 - dy2;
-            out_vertices.add(coord_type(v0.x - dx, v0.y + dy));
-            out_vertices.add(coord_type(v0.x + dx, v0.y - dy));
+            out_vertices.add(coord_type(v0.x - dx1 - dx2, v0.y + dy1 - dy2));
+            out_vertices.add(coord_type(v0.x + dx1 - dx2, v0.y - dy1 - dy2));
         }
         else
         {

@@ -18,12 +18,12 @@ ygridlines = get(gca(), 'ygridlines')
 xticklabels = get(gca(), 'xticklabels')
 yticklabels = get(gca(), 'yticklabels')
 
-set(xticklines, 'linewidth', 3)
-set(yticklines, 'linewidth', 3)
-set(xgridlines, 'linestyle', '-')
-set(ygridlines, 'linestyle', '-')
-set(yticklabels, 'color', 'r', fontsize='medium')
-set(xticklabels, 'color', 'r', fontsize='medium')
+setp(xticklines, 'linewidth', 3)
+setp(yticklines, 'linewidth', 3)
+setp(xgridlines, 'linestyle', '-')
+setp(ygridlines, 'linestyle', '-')
+setp(yticklabels, 'color', 'r', fontsize='medium')
+setp(xticklabels, 'color', 'r', fontsize='medium')
 
 # keyword args are legal too
 #set(xticklabels, color='r', fontsize='medium')

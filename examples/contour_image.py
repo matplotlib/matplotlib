@@ -87,7 +87,7 @@ v = axis()
 contour(Z, levels, hold='on', colors = 'k', origin='image', extent=extent)
 axis(v)
 ylim = get(gca(), 'ylim')
-set(gca(), ylim=ylim[::-1])
+setp(gca(), ylim=ylim[::-1])
 title("Image, origin from rc, reversed y-axis")
 
 #savefig('contour_image')

@@ -126,9 +126,10 @@ class PatchCollection(Collection, ScalarMappable):
 
     def set_facecolor(self, c):
         """
-        Set the facecolor(s) of the collection.  c can be a matplotlib color arg
-        (all patches have same color), or a a sequence or rgba tuples; if it
-        is a sequence the patches will cycle through the sequence
+        Set the facecolor(s) of the collection.  c can be a matplotlib
+        color arg (all patches have same color), or a a sequence or
+        rgba tuples; if it is a sequence the patches will cycle
+        through the sequence
 
         ACCEPTS: matplotlib color arg or sequence of rgba tuples
         """
@@ -146,8 +147,9 @@ class PatchCollection(Collection, ScalarMappable):
 
     def set_alpha(self, alpha):
         """
-        Set the alpha tranpancies of the collection.  Alpha can be a float, in
-        which case it is applied to the entire collection, or a sequence of floats
+        Set the alpha tranpancies of the collection.  Alpha can be a
+        float, in which case it is applied to the entire collection,
+        or a sequence of floats
 
         ACCEPTS: float or sequence of floats
         """
@@ -167,7 +169,9 @@ class PatchCollection(Collection, ScalarMappable):
         if self._A is None: return
         if len(self._A.shape)>1:
             raise ValueError('PatchCollections can only map rank 1 arrays')
-        self._facecolors = [(r,g,b,a) for r,g,b,a in self.to_rgba(self._A, self._alpha)]
+        R = self.to_rgba(self._A, self._alpha)
+        #print self._A.shape, type(R), R.shape
+        self._facecolors = [(r,g,b,a) for r,g,b,a in R]
 
 
 class PolyCollection(PatchCollection):
@@ -235,13 +239,14 @@ class RegularPolyCollection(PatchCollection):
                  sizes = (1,),
                  **kwargs):
         """
-        Draw a regular polygon with numsides.  sizes gives the area of the
-        circle circumscribing the regular polygon and rotation is the rotation
-        of the polygon in radians.
+        Draw a regular polygon with numsides.  sizes gives the area of
+        the circle circumscribing the regular polygon and rotation is
+        the rotation of the polygon in radians.
 
-        offsets are a sequence of x,y tuples that give the centers of the
-        polygon in data coordinates, and transOffset is the Transformation
-        instance used to transform the centers onto the canvas.
+        offsets are a sequence of x,y tuples that give the centers of
+        the polygon in data coordinates, and transOffset is the
+        Transformation instance used to transform the centers onto the
+        canvas.
 
         dpi is the figure dpi instance, and is required to do the area
         scaling.
@@ -295,7 +300,6 @@ class LineCollection(Collection):
     All parameters must be sequences.  The property of the ith line
     segment is the prop[i % len(props)], ie the properties cycle if
     the len of props is less than the number of sements
-
     """
     zorder = 2
     def __init__(self, segments,
@@ -383,9 +387,10 @@ class LineCollection(Collection):
 
     def set_color(self, c):
         """
-        Set the color(s) of the line collection.  c can be a matplotlib color arg
-        (all patches have same color), or a a sequence or rgba tuples; if it
-        is a sequence the patches will cycle through the sequence
+        Set the color(s) of the line collection.  c can be a
+        matplotlib color arg (all patches have same color), or a a
+        sequence or rgba tuples; if it is a sequence the patches will
+        cycle through the sequence
 
         ACCEPTS: matplotlib color arg or sequence of rgba tuples
         """
@@ -393,9 +398,10 @@ class LineCollection(Collection):
 
     def color(self, c):
         """
-        Set the color(s) of the line collection.  c can be a matplotlib color arg
-        (all patches have same color), or a a sequence or rgba tuples; if it
-        is a sequence the patches will cycle through the sequence
+        Set the color(s) of the line collection.  c can be a
+        matplotlib color arg (all patches have same color), or a a
+        sequence or rgba tuples; if it is a sequence the patches will
+        cycle through the sequence
 
         ACCEPTS: matplotlib color arg or sequence of rgba tuples
         """
@@ -404,8 +410,9 @@ class LineCollection(Collection):
 
     def set_alpha(self, alpha):
         """
-        Set the alpha tranpancies of the collection.  Alpha can be a float, in
-        which case it is applied to the entire collection, or a sequence of floats
+        Set the alpha tranpancies of the collection.  Alpha can be a
+        float, in which case it is applied to the entire collection,
+        or a sequence of floats
 
         ACCEPTS: float or sequence of floats
         """

@@ -53,6 +53,7 @@ _Plotting commands
   pcolor   - make a pseudocolor plot
   pie      - make a pie chart
   plot     - make a line plot
+  plot_date - plot dates
   pie      - pie charts
   polar    - make a polar plot on a PolarAxes
   psd      - make a plot of power spectral density

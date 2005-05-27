@@ -454,11 +454,15 @@ def validate_verbose_fileo(s):
     
     
 def validate_ps_papersize(s):
-    papertypes = ['executive', 'letter', 'legal', 'ledger', 'a0', 'a1', 'a2', 'a3', 'a4',
-                     'a5', 'a6', 'a7', 'a8', 'a9', 'a10', 'b0', 'b1', 'b2', 'b3', 'b4', 'b5',
-                     'b6', 'c0', 'c1', 'c2', 'c3', 'c4', 'c5', 'c6']
-    if s.lower() in papertypes:
-        return s.lower()
+    papertypes = [
+        'executive', 'letter', 'legal', 'ledger',
+        'a0', 'a1', 'a2','a3', 'a4', 'a5', 'a6', 'a7', 'a8', 'a9', 'a10',
+        'b0', 'b1', 'b2', 'b3', 'b4', 'b5', 'b6',
+        'c0', 'c1', 'c2', 'c3', 'c4', 'c5', 'c6'
+        ]
+    s = s.lower()
+    if s in papertypes:
+        return s
     else:
         raise ValueError('ps.papersize must be one of: %s'% ', '.join(papertypes))
 
@@ -525,7 +529,7 @@ defaultParams = {
     'image.origin'    : ['upper', str],  # lookup table    
 
     # axes props
-    'axes.hold'         : [True, validate_bool],    # background color; white    
+    'axes.hold'         : [True, validate_bool],    
     'axes.facecolor'    : ['w', validate_color],    # background color; white
     'axes.edgecolor'    : ['k', validate_color],    # edge color; black
     'axes.linewidth'    : [1.0, validate_float],    # edge linewidth
@@ -534,7 +538,7 @@ defaultParams = {
     'axes.labelsize'    : ['medium', validate_fontsize], # fontsize of the x any y labels
     'axes.labelcolor'   : ['k', validate_color],    # color of axis label
 
-    'polaraxes.grid'         : [True, validate_bool],   # display grid or not    
+    'polaraxes.grid'         : [True, validate_bool],   # display polar grid or not    
 
     # tick properties
     'tick.major.size'   : [5, validate_float],      # major tick size in points
