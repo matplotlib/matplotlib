@@ -90,8 +90,10 @@ def new_figure_manager(num, *args, **kwargs):
     DEBUG_MSG("new_figure_manager()", 3, None)
 
     if backend_wx.wxapp is None:
-        backend_wx.wxapp = wx.PySimpleApp()
-        backend_wx.wxapp.SetExitOnFrameDelete(True)
+        backend_wx.wxapp = wx.GetApp()
+        if backend_wx.wxapp is None:
+            backend_wx.wxapp = wx.PySimpleApp()
+            backend_wx.wxapp.SetExitOnFrameDelete(True)
     
     fig = Figure(*args, **kwargs)
     frame = FigureFrameWxAgg(num, fig)
