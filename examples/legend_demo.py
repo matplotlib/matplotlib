@@ -23,8 +23,8 @@ ax.grid(0)
 xlabel('Model complexity --->')
 ylabel('Message length --->')
 title('Minimum Message Length')
-set(gca(), 'yticklabels', [])
-set(gca(), 'xticklabels', [])
+setp(gca(), 'yticklabels', [])
+setp(gca(), 'xticklabels', [])
 
 # set some legend properties.  All the code below is optional.  The
 # defaults are usually sensible but if you need more control, this
@@ -37,8 +37,8 @@ frame  = leg.get_frame()  # the patch.Rectangle instance surrounding the legend
 # see text.Text, lines.Line2D, and patches.Rectangle for more info on
 # the settable properties of lines, text, and rectangles
 frame.set_facecolor(0.80)     # set the frame face color to light gray
-set(ltext, fontsize='small')    # the legend text fontsize
-set(llines, linewidth=1.5) # the legend linewidth
+setp(ltext, fontsize='small')    # the legend text fontsize
+setp(llines, linewidth=1.5) # the legend linewidth
 #leg.draw_frame(False)         # don't draw the legend frame
 #savefig('legend_demo')
 show()

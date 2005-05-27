@@ -16,7 +16,7 @@ t3 = arange(0.0, 2.0, 0.01)
 if 1:
     subplot(211)
     l = plot(t1, f(t1), 'k-^')
-    set(l, 'markerfacecolor', 'r')
+    setp(l, 'markerfacecolor', 'r')
     xlim(0,5)
     #set(l, 'markeredgecolor', 'r')
     title('A tale of 2 subplots', fontsize=12)

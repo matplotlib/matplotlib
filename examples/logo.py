@@ -18,7 +18,7 @@ text(0.5, 0.5,'matplotlib', color='r',
      transform = ax.transAxes,
      )
 axis([1, 1.72,-60, 10])
-set(gca(), 'xticklabels', [])
-set(gca(), 'yticklabels', [])
+setp(gca(), 'xticklabels', [])
+setp(gca(), 'yticklabels', [])
 #savefig('logo2.png', dpi=300)
 show()

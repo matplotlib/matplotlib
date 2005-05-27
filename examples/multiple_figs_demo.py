@@ -19,7 +19,7 @@ plot(t,s2)
 figure(1)
 subplot(211)
 plot(t,s2, 'gs')
-set(gca(), 'xticklabels', [])
+setp(gca(), 'xticklabels', [])
 
 #figure(1)
 #savefig('fig1')

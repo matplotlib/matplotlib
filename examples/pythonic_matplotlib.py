@@ -33,7 +33,7 @@ methods
 
 The syntax of set is
 
-  set(object or sequence, somestring, attribute)
+  setp(object or sequence, somestring, attribute)
 
 if called with an object, set calls
 

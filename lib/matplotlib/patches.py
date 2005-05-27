@@ -415,7 +415,7 @@ class Circle(RegularPolygon):
                                 orientation=0,
                                 **kwargs)
         
-def bbox_artist(artist, renderer, props=None):
+def bbox_artist(artist, renderer, props=None, fill=True):
     """
     This is a debug function to draw a rectangle around the bounding
     box returned by get_window_extent of an artist, to test whether
@@ -434,9 +434,10 @@ def bbox_artist(artist, renderer, props=None):
     b-=pad/2.
     w+=pad
     h+=pad
-    r = Rectangle(xy=(l,b), 
-                  width=w, 
-                  height=h, 
+    r = Rectangle(xy=(l,b),
+                  width=w,
+                  height=h,
+                  fill=fill,
                   )
     r.set_clip_on( False )
     r.update(props)

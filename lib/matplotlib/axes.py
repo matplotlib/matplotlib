@@ -1349,6 +1349,9 @@ class Axes(Artist):
             oy = self.figure.bbox.height()-(b+h)
             renderer.draw_image(ox, oy, im, origin, self.bbox)
 
+        if self.axison:
+            self.xaxis.draw(renderer)
+            self.yaxis.draw(renderer)
 
 
 
@@ -1376,9 +1379,6 @@ class Axes(Artist):
         if self.legend_ is not None:
             self.legend_.draw(renderer)
 
-        if self.axison:
-            self.xaxis.draw(renderer)
-            self.yaxis.draw(renderer)
 
         for table in self.tables:
             table.draw(renderer)
@@ -2797,6 +2797,7 @@ class Axes(Artist):
         if colors is None:
             if norm is not None: assert(isinstance(norm, normalize))
             if cmap is not None: assert(isinstance(cmap, Colormap))
+            print 'coll set array', type(c)
             collection.set_array(c)
             collection.set_cmap(cmap)
             collection.set_norm(norm)

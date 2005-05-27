@@ -20,13 +20,13 @@ title('Gaussian colored noise')
 a = axes([.65, .6, .2, .2], axisbg='y')
 n, bins, patches = hist(s, 400, normed=1)
 title('Probability')
-set(a, xticks=[], yticks=[])
+setp(a, xticks=[], yticks=[])
 
 # this is another inset axes over the main axes
 a = axes([0.2, 0.6, .2, .2], axisbg='y')
 plot(t[:len(r)], r)
 title('Impulse response')
-set(a, xlim=(0,.2), xticks=[], yticks=[])
+setp(a, xlim=(0,.2), xticks=[], yticks=[])
     
 #savefig('../figures/axes_demo.eps')
 #savefig('../figures/axes_demo.png')

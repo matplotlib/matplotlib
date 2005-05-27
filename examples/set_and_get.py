@@ -72,24 +72,24 @@ y1 = sin(2*pi*x)
 y2 = sin(4*pi*x)
 lines = plot(x, y1, x, y2)
 l1, l2 = lines
-set(lines, linestyle='--')       # set both to dashed 
-set(l1, linewidth=2, color='r')  # line1 is thick and red
-set(l2, linewidth=1, color='g')  # line2 is thicker and green
+setp(lines, linestyle='--')       # set both to dashed 
+setp(l1, linewidth=2, color='r')  # line1 is thick and red
+setp(l2, linewidth=1, color='g')  # line2 is thicker and green
 
 
 print 'Line setters'
-set(l1)
+setp(l1)
 print 'Line getters'
 get(l1)
 
 print 'Rectangle setters'
-set(gca().axesPatch)
+setp(gca().axesPatch)
 print 'Rectangle getters'
 get(gca().axesPatch)
 
 t = title('Hi mom')
 print 'Text setters'
-set(t)
+setp(t)
 print 'Text getters'
 get(t)
 

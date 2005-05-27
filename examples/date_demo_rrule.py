@@ -27,7 +27,7 @@ plot_date(dates, s)
 ax.xaxis.set_major_locator(loc)
 ax.xaxis.set_major_formatter(formatter)
 labels = ax.get_xticklabels()
-set(labels, rotation=30, fontsize=10)
+setp(labels, rotation=30, fontsize=10)
 
 
 show()

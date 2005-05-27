@@ -28,7 +28,7 @@ if 0:
     bar(arange(w), x)
     xlim(0,h-1)
     ylabel('density')
-    set(gca(), 'xticklabels', [])
+    setp(gca(), 'xticklabels', [])
 
 #savefig('image_demo2')
 show()

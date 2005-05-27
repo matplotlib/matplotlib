@@ -11,6 +11,6 @@ x = concatenate( (x1,x1[::-1]) )
 y = concatenate( (y1,y2[::-1]) )
                  
 p = fill(x, y, facecolor='g')
-set(p, alpha=0.5)
+setp(p, alpha=0.5)
 show()
                  

@@ -412,10 +412,13 @@ class ScalarMappable:
 
     def to_rgba(self, x, alpha=1.0):
         # assume normalized rgb, rgba
+        #print '0', type(x), x.shape
         x = asarray(x)
+        #print '1', type(x), x.shape
         if len(x.shape)>2: return x
         x = self.norm(x)
-        return self.cmap(x, alpha)
+        x = self.cmap(x, alpha)
+        return x
     
     def set_array(self, A):
         'Set the image array from numeric/numarray A'

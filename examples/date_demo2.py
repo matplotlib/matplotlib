@@ -37,7 +37,7 @@ ax.autoscale_view()
 #ax.xaxis.grid(True, 'minor')
 
 labels = ax.get_xticklabels()
-set(labels, rotation=45)
+setp(labels, rotation=45)
 
 grid(True)
 savefig('date_demo2')
