@@ -1,5 +1,8 @@
 New entries should be added at the top
 
+2005-05-27 Fixed bug where 2nd wxapp could be started if using wxagg
+           backend. - ADS
+
 2005-05-26 Added Daisha text with dash patch -- see examples/dashtick.py
 
 2005-05-26 Moved backend_latex functionality into backend_ps. If 
