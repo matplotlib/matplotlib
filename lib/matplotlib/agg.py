@@ -947,6 +947,7 @@ class pixel_format_rgba(_object):
     def __init__(self, *args):
         _swig_setattr(self, pixel_format_rgba, 'this', _agg.new_pixel_format_rgba(*args))
         _swig_setattr(self, pixel_format_rgba, 'thisown', 1)
+    def attach(*args): return _agg.pixel_format_rgba_attach(*args)
     def width(*args): return _agg.pixel_format_rgba_width(*args)
     def height(*args): return _agg.pixel_format_rgba_height(*args)
     def pixel(*args): return _agg.pixel_format_rgba_pixel(*args)
@@ -989,6 +990,7 @@ class renderer_base_rgba(_object):
     def __init__(self, *args):
         _swig_setattr(self, renderer_base_rgba, 'this', _agg.new_renderer_base_rgba(*args))
         _swig_setattr(self, renderer_base_rgba, 'thisown', 1)
+    def attach(*args): return _agg.renderer_base_rgba_attach(*args)
     def ren(*args): return _agg.renderer_base_rgba_ren(*args)
     def width(*args): return _agg.renderer_base_rgba_width(*args)
     def height(*args): return _agg.renderer_base_rgba_height(*args)
@@ -1576,6 +1578,7 @@ class renderer_scanline_aa_solid_rgba(_object):
     def __init__(self, *args):
         _swig_setattr(self, renderer_scanline_aa_solid_rgba, 'this', _agg.new_renderer_scanline_aa_solid_rgba(*args))
         _swig_setattr(self, renderer_scanline_aa_solid_rgba, 'thisown', 1)
+    def attach(*args): return _agg.renderer_scanline_aa_solid_rgba_attach(*args)
     def color(*args): return _agg.renderer_scanline_aa_solid_rgba_color(*args)
     def prepare(*args): return _agg.renderer_scanline_aa_solid_rgba_prepare(*args)
     def color_rgba8(*args): return _agg.renderer_scanline_aa_solid_rgba_color_rgba8(*args)
@@ -1603,6 +1606,7 @@ class renderer_scanline_bin_solid_rgba(_object):
     def __init__(self, *args):
         _swig_setattr(self, renderer_scanline_bin_solid_rgba, 'this', _agg.new_renderer_scanline_bin_solid_rgba(*args))
         _swig_setattr(self, renderer_scanline_bin_solid_rgba, 'thisown', 1)
+    def attach(*args): return _agg.renderer_scanline_bin_solid_rgba_attach(*args)
     def color(*args): return _agg.renderer_scanline_bin_solid_rgba_color(*args)
     def prepare(*args): return _agg.renderer_scanline_bin_solid_rgba_prepare(*args)
     def color_rgba8(*args): return _agg.renderer_scanline_bin_solid_rgba_color_rgba8(*args)
@@ -1669,13 +1673,12 @@ class scanline_bin(_object):
         _swig_setattr(self, scanline_bin, 'thisown', 1)
     def reset(*args): return _agg.scanline_bin_reset(*args)
     def add_cell(*args): return _agg.scanline_bin_add_cell(*args)
-    def add_cells(*args): return _agg.scanline_bin_add_cells(*args)
     def add_span(*args): return _agg.scanline_bin_add_span(*args)
+    def add_cells(*args): return _agg.scanline_bin_add_cells(*args)
     def finalize(*args): return _agg.scanline_bin_finalize(*args)
     def reset_spans(*args): return _agg.scanline_bin_reset_spans(*args)
     def y(*args): return _agg.scanline_bin_y(*args)
     def num_spans(*args): return _agg.scanline_bin_num_spans(*args)
-    def begin(*args): return _agg.scanline_bin_begin(*args)
 
 class scanline_binPtr(scanline_bin):
     def __init__(self, this):
@@ -1683,6 +1686,37 @@ class scanline_binPtr(scanline_bin):
         if not hasattr(self,"thisown"): _swig_setattr(self, scanline_bin, 'thisown', 0)
         _swig_setattr(self, scanline_bin,self.__class__,scanline_bin)
 _agg.scanline_bin_swigregister(scanline_binPtr)
+
+class scanline32_bin(_object):
+    __swig_setmethods__ = {}
+    __setattr__ = lambda self, name, value: _swig_setattr(self, scanline32_bin, name, value)
+    __swig_getmethods__ = {}
+    __getattr__ = lambda self, name: _swig_getattr(self, scanline32_bin, name)
+    def __repr__(self):
+        return "<%s.%s; proxy of C++ agg::scanline32_bin instance at %s>" % (self.__class__.__module__, self.__class__.__name__, self.this,)
+    def __del__(self, destroy=_agg.delete_scanline32_bin):
+        try:
+            if self.thisown: destroy(self)
+        except: pass
+
+    def __init__(self, *args):
+        _swig_setattr(self, scanline32_bin, 'this', _agg.new_scanline32_bin(*args))
+        _swig_setattr(self, scanline32_bin, 'thisown', 1)
+    def reset(*args): return _agg.scanline32_bin_reset(*args)
+    def add_cell(*args): return _agg.scanline32_bin_add_cell(*args)
+    def add_span(*args): return _agg.scanline32_bin_add_span(*args)
+    def add_cells(*args): return _agg.scanline32_bin_add_cells(*args)
+    def finalize(*args): return _agg.scanline32_bin_finalize(*args)
+    def reset_spans(*args): return _agg.scanline32_bin_reset_spans(*args)
+    def y(*args): return _agg.scanline32_bin_y(*args)
+    def num_spans(*args): return _agg.scanline32_bin_num_spans(*args)
+
+class scanline32_binPtr(scanline32_bin):
+    def __init__(self, this):
+        _swig_setattr(self, scanline32_bin, 'this', this)
+        if not hasattr(self,"thisown"): _swig_setattr(self, scanline32_bin, 'thisown', 0)
+        _swig_setattr(self, scanline32_bin,self.__class__,scanline32_bin)
+_agg.scanline32_bin_swigregister(scanline32_binPtr)
 
 
 render_scanlines_rgba = _agg.render_scanlines_rgba
