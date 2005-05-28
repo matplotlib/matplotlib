@@ -27,6 +27,8 @@ WIN32
 
   > python setup.py build --compiler=mingw32 bdist_wininst  > build23.out
 
+  NOTE, if you are building on python24 on win32, see
+  http://mail.python.org/pipermail/python-list/2004-December/254826.html
 """
 
 import os

@@ -22,7 +22,7 @@
 namespace agg
 {
 
-    const double intersection_epsilon = 1.0e-8;
+    const double intersection_epsilon = 1.0e-30;
 
     //------------------------------------------------------calc_point_location
     AGG_INLINE double calc_point_location(double x1, double y1, 

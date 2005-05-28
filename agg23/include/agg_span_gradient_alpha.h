@@ -77,7 +77,7 @@ namespace agg
             {
                 m_interpolator->coordinates(&x, &y);
                 int d = m_gradient_function->calculate(x >> downscale_shift, 
-                                                       y >> downscale_shift, dd);
+                                                       y >> downscale_shift, m_d2);
                 d = ((d - m_d1) * (int)m_alpha_function->size()) / dd;
                 if(d < 0) d = 0;
                 if(d >= (int)m_alpha_function->size()) d = m_alpha_function->size() - 1;

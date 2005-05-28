@@ -33,7 +33,7 @@ namespace agg
     // and curve4. Curve3 is a conic Bezier curve with 2 endpoints and 1 control
     // point. Curve4 has 2 control points (4 points in total) and can be used
     // to interpolate more complicated curves. Curve4, unlike curve3 can be used 
-    // to approximate arcs, both curcular and elliptical. Curves are approximated 
+    // to approximate arcs, both circular and elliptical. Curves are approximated 
     // with straight lines and one of the approaches is just to store the whole 
     // sequence of vertices that approximate our curve. It takes additional 
     // memory, and at the same time the consecutive vertices can be calculated 

@@ -99,7 +99,7 @@ namespace agg
             {
                 m_interpolator->coordinates(&x, &y);
                 int d = m_gradient_function->calculate(x >> downscale_shift, 
-                                                       y >> downscale_shift, dd);
+                                                       y >> downscale_shift, m_d2);
                 d = ((d - m_d1) * (int)m_color_function->size()) / dd;
                 if(d < 0) d = 0;
                 if(d >= (int)m_color_function->size()) d = m_color_function->size() - 1;
@@ -222,7 +222,7 @@ namespace agg
         double focus_y() const { return double(m_focus_y) / gradient_subpixel_size; }
 
         //---------------------------------------------------------------------
-        int calculate(int x, int y, int d) const
+        int calculate(int x, int y, int) const
         {
             double solution_x;
             double solution_y;
@@ -272,7 +272,7 @@ namespace agg
             double cur_to_focus = double(x - m_focus_x) * double(x - m_focus_x) +
                                   double(y - m_focus_y) * double(y - m_focus_y);
 
-            return int(sqrt(cur_to_focus / int_to_focus) * d);
+            return int(sqrt(cur_to_focus / int_to_focus) * m_radius);
         }
 
     private:

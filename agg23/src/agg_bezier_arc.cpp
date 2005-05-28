@@ -26,6 +26,14 @@
 namespace agg
 {
 
+    // This epsilon is used to prevent us from adding degenerate curves 
+    // (converging to a single point).
+    // The value isn't very critical. Function arc_to_bezier() has a limit 
+    // of the sweep_angle. If fabs(sweep_angle) exceeds pi/2 the curve 
+    // becomes inaccurate. But slight exceeding is quite appropriate.
+    //-------------------------------------------------bezier_arc_angle_epsilon
+    const double bezier_arc_angle_epsilon = 0.01;
+
     //------------------------------------------------------------arc_to_bezier
     void arc_to_bezier(double cx, double cy, double rx, double ry, 
                        double start_angle, double sweep_angle,
@@ -71,27 +79,30 @@ namespace agg
 
         double total_sweep = 0.0;
         double local_sweep = 0.0;
+        double prev_sweep;
         m_num_vertices = 2;
         bool done = false;
         do
         {
             if(sweep_angle < 0.0)
             {
+                prev_sweep  = total_sweep;
                 local_sweep = -pi * 0.5;
                 total_sweep -= pi * 0.5;
-                if(total_sweep <= sweep_angle)
+                if(total_sweep <= sweep_angle + bezier_arc_angle_epsilon)
                 {
-                    local_sweep = sweep_angle - (total_sweep + pi * 0.5);
+                    local_sweep = sweep_angle - prev_sweep;
                     done = true;
                 }
             }
             else
             {
+                prev_sweep  = total_sweep;
                 local_sweep =  pi * 0.5;
                 total_sweep += pi * 0.5;
-                if(total_sweep >= sweep_angle)
+                if(total_sweep >= sweep_angle - bezier_arc_angle_epsilon)
                 {
-                    local_sweep = sweep_angle - (total_sweep - pi * 0.5);
+                    local_sweep = sweep_angle - prev_sweep;
                     done = true;
                 }
             }

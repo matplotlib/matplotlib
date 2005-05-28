@@ -2797,7 +2797,6 @@ class Axes(Artist):
         if colors is None:
             if norm is not None: assert(isinstance(norm, normalize))
             if cmap is not None: assert(isinstance(cmap, Colormap))
-            print 'coll set array', type(c)
             collection.set_array(c)
             collection.set_cmap(cmap)
             collection.set_norm(norm)

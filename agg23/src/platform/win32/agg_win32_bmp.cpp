@@ -64,6 +64,28 @@ namespace agg
     }
 
 
+    //------------------------------------------------------------------------
+    HBITMAP pixel_map::create_dib_section(HDC h_dc,
+                                          unsigned width, 
+                                          unsigned height, 
+                                          org_e    org,
+                                          unsigned clear_val)
+    {
+        destroy();
+        if(width == 0)  width = 1;
+        if(height == 0) height = 1;
+        m_bpp = org;
+        HBITMAP h_bitmap = create_dib_section_from_args(h_dc, width, height, m_bpp);
+        create_gray_scale_palette(m_bmp);
+        m_is_internal = true;
+        if(clear_val <= 255)
+        {
+            memset(m_buf, clear_val, m_img_size);
+        }
+        return h_bitmap;
+    }
+
+
 
     //------------------------------------------------------------------------
     void pixel_map::clear(unsigned clear_val)
@@ -558,13 +580,45 @@ namespace agg
     }
 
 
-
-
-
-
-
-
-
+    //private
+    //------------------------------------------------------------------------
+    HBITMAP pixel_map::create_dib_section_from_args(HDC h_dc,
+                                                    unsigned width, 
+                                                    unsigned height, 
+                                                    unsigned bits_per_pixel)
+    {
+        unsigned line_len  = calc_row_len(width, bits_per_pixel);
+        unsigned img_size  = line_len * height;
+        unsigned rgb_size  = calc_palette_size(0, bits_per_pixel) * sizeof(RGBQUAD);
+        unsigned full_size = sizeof(BITMAPINFOHEADER) + rgb_size;
+        
+        BITMAPINFO *bmp = (BITMAPINFO *) new unsigned char[full_size];
+        
+        bmp->bmiHeader.biSize   = sizeof(BITMAPINFOHEADER);
+        bmp->bmiHeader.biWidth  = width;
+        bmp->bmiHeader.biHeight = height;
+        bmp->bmiHeader.biPlanes = 1;
+        bmp->bmiHeader.biBitCount = (unsigned short)bits_per_pixel;
+        bmp->bmiHeader.biCompression = 0;
+        bmp->bmiHeader.biSizeImage = img_size;
+        bmp->bmiHeader.biXPelsPerMeter = 0;
+        bmp->bmiHeader.biYPelsPerMeter = 0;
+        bmp->bmiHeader.biClrUsed = 0;
+        bmp->bmiHeader.biClrImportant = 0;
+        
+        void*   img_ptr  = 0;
+        HBITMAP h_bitmap = ::CreateDIBSection(h_dc, bmp, DIB_RGB_COLORS, &img_ptr, NULL, 0);
+        
+        if(img_ptr)
+        {
+            m_img_size  = calc_row_len(width, bits_per_pixel) * height;
+            m_full_size = 0;
+            m_bmp       = bmp;
+            m_buf       = (unsigned char *) img_ptr;
+        }
+        
+        return h_bitmap;
+    }
 }
 
 

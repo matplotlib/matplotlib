@@ -36,10 +36,15 @@ namespace agg
         typedef typename pixfmt_type::span_data span_data;
 
         //--------------------------------------------------------------------
+        renderer_base() : m_ren(0), m_clip_box(1, 1, 0, 0) {}
         renderer_base(pixfmt_type& ren) :
             m_ren(&ren),
             m_clip_box(0, 0, ren.width() - 1, ren.height() - 1)
+        {}
+        void attach(pixfmt_type& ren)
         {
+            m_ren = &ren;
+            m_clip_box = rect(0, 0, ren.width() - 1, ren.height() - 1);
         }
 
         //--------------------------------------------------------------------

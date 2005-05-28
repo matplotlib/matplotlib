@@ -714,10 +714,12 @@ namespace agg
                                               app->m_specific->m_input_flags);
                 }
             }
+/*
             if(!app->wait_mode())
             {
                 app->on_idle();
             }
+*/
             break;
 
         //--------------------------------------------------------------------
@@ -743,10 +745,12 @@ namespace agg
             app->on_mouse_button_up(app->m_specific->m_cur_x, 
                                     app->m_specific->m_cur_y, 
                                     app->m_specific->m_input_flags);
+/*
             if(!app->wait_mode())
             {
                 app->on_idle();
             }
+*/
             break;
 
 
@@ -766,10 +770,12 @@ namespace agg
             app->on_mouse_button_down(app->m_specific->m_cur_x, 
                                       app->m_specific->m_cur_y, 
                                       app->m_specific->m_input_flags);
+/*
             if(!app->wait_mode())
             {
                 app->on_idle();
             }
+*/
             break;
 
         //--------------------------------------------------------------------
@@ -788,10 +794,12 @@ namespace agg
             app->on_mouse_button_up(app->m_specific->m_cur_x, 
                                     app->m_specific->m_cur_y, 
                                     app->m_specific->m_input_flags);
+/*
             if(!app->wait_mode())
             {
                 app->on_idle();
             }
+*/
             break;
 
         //--------------------------------------------------------------------
@@ -826,10 +834,12 @@ namespace agg
                                        app->m_specific->m_input_flags);
                 }
             }
+/*
             if(!app->wait_mode())
             {
                 app->on_idle();
             }
+*/
             break;
 
         //--------------------------------------------------------------------
@@ -905,10 +915,12 @@ namespace agg
                     }
                 }
             }
+/*
             if(!app->wait_mode())
             {
                 app->on_idle();
             }
+*/
             break;
 
         //--------------------------------------------------------------------

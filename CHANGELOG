@@ -1,5 +1,18 @@
 New entries should be added at the top
 
+2005-05-27 Finally found the pesky agg bug (which Maxim was kind
+           enough to fix withing hours) that was causing a segfault in
+           the win32 cached marker drawing.  Now windows users can get
+           the enormouse performance benefits of caced markers w/o
+           those occasional pesy screenshots.
+
+2005-05-27 Got win32 build system working again, using a more recent
+           version of gtk and pygtk in the win32 build, gtk 2.6 from
+           http://www.gimp.org/~tml/gimp/win32/downloads.html (you
+           will also need libpng12.dll to use these).  I haven't
+           tested whether this binary build of mpl for win32 will work
+           with older gtk runtimes, so you may need to upgrade.
+
 2005-05-27 Fixed bug where 2nd wxapp could be started if using wxagg
            backend. - ADS
 
