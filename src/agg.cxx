@@ -1386,135 +1386,138 @@ SWIG_Python_SetModule(swig_module_info *swig_module) {
 
 /* -------- TYPES TABLE (BEGIN) -------- */
 
-#define SWIGTYPE_agg__scanline_pTunsigned_char_agg__int16_t__const_iterator swig_types[0]
-#define SWIGTYPE_p_agg__binary_data swig_types[1]
-#define SWIGTYPE_p_agg__blender_rgbaTagg__rgba16_agg__order_abgr_t swig_types[2]
-#define SWIGTYPE_p_agg__blender_rgbaTagg__rgba16_agg__order_argb_t swig_types[3]
-#define SWIGTYPE_p_agg__blender_rgbaTagg__rgba16_agg__order_bgra_t swig_types[4]
-#define SWIGTYPE_p_agg__blender_rgbaTagg__rgba16_agg__order_rgba_t swig_types[5]
-#define SWIGTYPE_p_agg__blender_rgbaTagg__rgba8_agg__order_abgr_t swig_types[6]
-#define SWIGTYPE_p_agg__blender_rgbaTagg__rgba8_agg__order_argb_t swig_types[7]
-#define SWIGTYPE_p_agg__blender_rgbaTagg__rgba8_agg__order_bgra_t swig_types[8]
-#define SWIGTYPE_p_agg__blender_rgbaTagg__rgba8_agg__order_rgba_t swig_types[9]
-#define SWIGTYPE_p_agg__blender_rgba_plainTagg__rgba8_agg__order_abgr_t swig_types[10]
-#define SWIGTYPE_p_agg__blender_rgba_plainTagg__rgba8_agg__order_argb_t swig_types[11]
-#define SWIGTYPE_p_agg__blender_rgba_plainTagg__rgba8_agg__order_bgra_t swig_types[12]
-#define SWIGTYPE_p_agg__blender_rgba_plainTagg__rgba8_agg__order_rgba_t swig_types[13]
-#define SWIGTYPE_p_agg__blender_rgba_preTagg__rgba16_agg__order_abgr_t swig_types[14]
-#define SWIGTYPE_p_agg__blender_rgba_preTagg__rgba16_agg__order_argb_t swig_types[15]
-#define SWIGTYPE_p_agg__blender_rgba_preTagg__rgba16_agg__order_bgra_t swig_types[16]
-#define SWIGTYPE_p_agg__blender_rgba_preTagg__rgba16_agg__order_rgba_t swig_types[17]
-#define SWIGTYPE_p_agg__blender_rgba_preTagg__rgba8_agg__order_abgr_t swig_types[18]
-#define SWIGTYPE_p_agg__blender_rgba_preTagg__rgba8_agg__order_argb_t swig_types[19]
-#define SWIGTYPE_p_agg__blender_rgba_preTagg__rgba8_agg__order_bgra_t swig_types[20]
-#define SWIGTYPE_p_agg__blender_rgba_preTagg__rgba8_agg__order_rgba_t swig_types[21]
-#define SWIGTYPE_p_agg__buffer swig_types[22]
-#define SWIGTYPE_p_agg__conv_adaptor_vcgenTagg__conv_curveTpath_t_t_agg__vcgen_stroke_agg__null_markers_t swig_types[23]
-#define SWIGTYPE_p_agg__conv_adaptor_vcgenTagg__conv_curveTtranspath_t_t_agg__vcgen_stroke_agg__null_markers_t swig_types[24]
-#define SWIGTYPE_p_agg__conv_adaptor_vcgenTagg__conv_transformTcurve_t_agg__trans_affine_t_agg__vcgen_stroke_agg__null_markers_t swig_types[25]
-#define SWIGTYPE_p_agg__conv_adaptor_vcgenTagg__conv_transformTpath_t_agg__trans_affine_t_agg__vcgen_stroke_agg__null_markers_t swig_types[26]
-#define SWIGTYPE_p_agg__conv_adaptor_vcgenTagg__path_storage_agg__vcgen_stroke_agg__null_markers_t swig_types[27]
-#define SWIGTYPE_p_agg__conv_curveTagg__conv_transformTpath_t_agg__trans_affine_t_t swig_types[28]
-#define SWIGTYPE_p_agg__conv_curveTagg__path_storage_t swig_types[29]
-#define SWIGTYPE_p_agg__conv_strokeTagg__conv_curveTpath_t_t_agg__null_markers_t swig_types[30]
-#define SWIGTYPE_p_agg__conv_strokeTagg__conv_curveTtranspath_t_t_agg__null_markers_t swig_types[31]
-#define SWIGTYPE_p_agg__conv_strokeTagg__conv_transformTcurve_t_agg__trans_affine_t_agg__null_markers_t swig_types[32]
-#define SWIGTYPE_p_agg__conv_strokeTagg__conv_transformTpath_t_agg__trans_affine_t_agg__null_markers_t swig_types[33]
-#define SWIGTYPE_p_agg__conv_strokeTagg__path_storage_agg__null_markers_t swig_types[34]
-#define SWIGTYPE_p_agg__conv_transformTagg__conv_curveTpath_t_t_agg__trans_affine_t swig_types[35]
-#define SWIGTYPE_p_agg__conv_transformTagg__path_storage_agg__trans_affine_t swig_types[36]
-#define SWIGTYPE_p_agg__filling_rule_e swig_types[37]
-#define SWIGTYPE_p_agg__null_markers swig_types[38]
-#define SWIGTYPE_p_agg__order_abgr swig_types[39]
-#define SWIGTYPE_p_agg__order_argb swig_types[40]
-#define SWIGTYPE_p_agg__order_bgr swig_types[41]
-#define SWIGTYPE_p_agg__order_bgra swig_types[42]
-#define SWIGTYPE_p_agg__order_rgb swig_types[43]
-#define SWIGTYPE_p_agg__order_rgba swig_types[44]
-#define SWIGTYPE_p_agg__path_storage swig_types[45]
-#define SWIGTYPE_p_agg__pixel64_type swig_types[46]
-#define SWIGTYPE_p_agg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba16_agg__order_abgr_t_agg__pixel64_type_t swig_types[47]
-#define SWIGTYPE_p_agg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba16_agg__order_argb_t_agg__pixel64_type_t swig_types[48]
-#define SWIGTYPE_p_agg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba16_agg__order_bgra_t_agg__pixel64_type_t swig_types[49]
-#define SWIGTYPE_p_agg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba16_agg__order_rgba_t_agg__pixel64_type_t swig_types[50]
-#define SWIGTYPE_p_agg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_abgr_t_unsigned_int_t swig_types[51]
-#define SWIGTYPE_p_agg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_argb_t_unsigned_int_t swig_types[52]
-#define SWIGTYPE_p_agg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_bgra_t_unsigned_int_t swig_types[53]
-#define SWIGTYPE_p_agg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t swig_types[54]
-#define SWIGTYPE_p_agg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t__blender_type__color_type swig_types[55]
-#define SWIGTYPE_p_agg__pixel_formats_rgbaTagg__blender_rgba_plainTagg__rgba8_agg__order_abgr_t_unsigned_int_t swig_types[56]
-#define SWIGTYPE_p_agg__pixel_formats_rgbaTagg__blender_rgba_plainTagg__rgba8_agg__order_argb_t_unsigned_int_t swig_types[57]
-#define SWIGTYPE_p_agg__pixel_formats_rgbaTagg__blender_rgba_plainTagg__rgba8_agg__order_bgra_t_unsigned_int_t swig_types[58]
-#define SWIGTYPE_p_agg__pixel_formats_rgbaTagg__blender_rgba_plainTagg__rgba8_agg__order_rgba_t_unsigned_int_t swig_types[59]
-#define SWIGTYPE_p_agg__pixel_formats_rgbaTagg__blender_rgba_preTagg__rgba16_agg__order_abgr_t_agg__pixel64_type_t swig_types[60]
-#define SWIGTYPE_p_agg__pixel_formats_rgbaTagg__blender_rgba_preTagg__rgba16_agg__order_argb_t_agg__pixel64_type_t swig_types[61]
-#define SWIGTYPE_p_agg__pixel_formats_rgbaTagg__blender_rgba_preTagg__rgba16_agg__order_bgra_t_agg__pixel64_type_t swig_types[62]
-#define SWIGTYPE_p_agg__pixel_formats_rgbaTagg__blender_rgba_preTagg__rgba16_agg__order_rgba_t_agg__pixel64_type_t swig_types[63]
-#define SWIGTYPE_p_agg__pixel_formats_rgbaTagg__blender_rgba_preTagg__rgba8_agg__order_abgr_t_unsigned_int_t swig_types[64]
-#define SWIGTYPE_p_agg__pixel_formats_rgbaTagg__blender_rgba_preTagg__rgba8_agg__order_argb_t_unsigned_int_t swig_types[65]
-#define SWIGTYPE_p_agg__pixel_formats_rgbaTagg__blender_rgba_preTagg__rgba8_agg__order_bgra_t_unsigned_int_t swig_types[66]
-#define SWIGTYPE_p_agg__pixel_formats_rgbaTagg__blender_rgba_preTagg__rgba8_agg__order_rgba_t_unsigned_int_t swig_types[67]
-#define SWIGTYPE_p_agg__point_type swig_types[68]
-#define SWIGTYPE_p_agg__rect_baseTdouble_t swig_types[69]
-#define SWIGTYPE_p_agg__rect_baseTint_t swig_types[70]
-#define SWIGTYPE_p_agg__renderer_baseTagg__pixel_formats_rgbaTagg__blender_rgba32_agg__pixel32_type_t_t swig_types[71]
-#define SWIGTYPE_p_agg__renderer_scanline_aa_solidTagg__renderer_baseTpixfmt_rgba_t_t_t swig_types[72]
-#define SWIGTYPE_p_agg__renderer_scanline_bin_solidTagg__renderer_baseTpixfmt_rgba_t_t_t swig_types[73]
-#define SWIGTYPE_p_agg__rendering_buffer__row_data swig_types[74]
-#define SWIGTYPE_p_agg__rendering_buffer__span_data swig_types[75]
-#define SWIGTYPE_p_agg__rgba swig_types[76]
-#define SWIGTYPE_p_agg__rgba16 swig_types[77]
-#define SWIGTYPE_p_agg__rgba8 swig_types[78]
-#define SWIGTYPE_p_agg__row_ptr_cacheTunsigned_char_t swig_types[79]
-#define SWIGTYPE_p_agg__scanline_bin swig_types[80]
-#define SWIGTYPE_p_agg__scanline_pTunsigned_char_short_t swig_types[81]
-#define SWIGTYPE_p_agg__scanline_pTunsigned_int_short_t swig_types[82]
-#define SWIGTYPE_p_agg__scanline_pTunsigned_short_short_t swig_types[83]
-#define SWIGTYPE_p_agg__trans_affine swig_types[84]
-#define SWIGTYPE_p_agg__trans_affine_rotation swig_types[85]
-#define SWIGTYPE_p_agg__trans_affine_scaling swig_types[86]
-#define SWIGTYPE_p_agg__trans_affine_skewing swig_types[87]
-#define SWIGTYPE_p_agg__trans_affine_translation swig_types[88]
-#define SWIGTYPE_p_agg__vcgen_stroke swig_types[89]
-#define SWIGTYPE_p_agg__vertex_type swig_types[90]
-#define SWIGTYPE_p_base_ren_type swig_types[91]
-#define SWIGTYPE_p_base_type swig_types[92]
-#define SWIGTYPE_p_blender_type swig_types[93]
-#define SWIGTYPE_p_calc_type swig_types[94]
-#define SWIGTYPE_p_char swig_types[95]
-#define SWIGTYPE_p_cob_type swig_types[96]
-#define SWIGTYPE_p_color_type swig_types[97]
-#define SWIGTYPE_p_coord_storage swig_types[98]
-#define SWIGTYPE_p_coord_type swig_types[99]
-#define SWIGTYPE_p_cover_type swig_types[100]
-#define SWIGTYPE_p_double swig_types[101]
-#define SWIGTYPE_p_int swig_types[102]
-#define SWIGTYPE_p_long_long swig_types[103]
-#define SWIGTYPE_p_long_type swig_types[104]
-#define SWIGTYPE_p_marker_type swig_types[105]
-#define SWIGTYPE_p_order_type swig_types[106]
-#define SWIGTYPE_p_p_unsigned_char swig_types[107]
-#define SWIGTYPE_p_pixel_type swig_types[108]
-#define SWIGTYPE_p_pixfmt_type swig_types[109]
-#define SWIGTYPE_p_rasterizer_scanline_aaT_t swig_types[110]
-#define SWIGTYPE_p_row_data swig_types[111]
-#define SWIGTYPE_p_self_type swig_types[112]
-#define SWIGTYPE_p_short swig_types[113]
-#define SWIGTYPE_p_signed_char swig_types[114]
-#define SWIGTYPE_p_span swig_types[115]
-#define SWIGTYPE_p_span_data swig_types[116]
-#define SWIGTYPE_p_unsigned_char swig_types[117]
-#define SWIGTYPE_p_unsigned_int swig_types[118]
-#define SWIGTYPE_p_unsigned_long_long swig_types[119]
-#define SWIGTYPE_p_unsigned_short swig_types[120]
-#define SWIGTYPE_p_value_type swig_types[121]
-#define SWIGTYPE_p_vertex_storage swig_types[122]
-#define SWIGTYPE_ptrdiff_t swig_types[123]
-#define SWIGTYPE_size_t swig_types[124]
-#define SWIGTYPE_std__ptrdiff_t swig_types[125]
-#define SWIGTYPE_std__size_t swig_types[126]
-static swig_type_info *swig_types[127];
-static swig_module_info swig_module = {swig_types, 127, 0, 0, 0, 0};
+#define SWIGTYPE_p_agg__binary_data swig_types[0]
+#define SWIGTYPE_p_agg__blender_rgbaTagg__rgba16_agg__order_abgr_t swig_types[1]
+#define SWIGTYPE_p_agg__blender_rgbaTagg__rgba16_agg__order_argb_t swig_types[2]
+#define SWIGTYPE_p_agg__blender_rgbaTagg__rgba16_agg__order_bgra_t swig_types[3]
+#define SWIGTYPE_p_agg__blender_rgbaTagg__rgba16_agg__order_rgba_t swig_types[4]
+#define SWIGTYPE_p_agg__blender_rgbaTagg__rgba8_agg__order_abgr_t swig_types[5]
+#define SWIGTYPE_p_agg__blender_rgbaTagg__rgba8_agg__order_argb_t swig_types[6]
+#define SWIGTYPE_p_agg__blender_rgbaTagg__rgba8_agg__order_bgra_t swig_types[7]
+#define SWIGTYPE_p_agg__blender_rgbaTagg__rgba8_agg__order_rgba_t swig_types[8]
+#define SWIGTYPE_p_agg__blender_rgba_plainTagg__rgba8_agg__order_abgr_t swig_types[9]
+#define SWIGTYPE_p_agg__blender_rgba_plainTagg__rgba8_agg__order_argb_t swig_types[10]
+#define SWIGTYPE_p_agg__blender_rgba_plainTagg__rgba8_agg__order_bgra_t swig_types[11]
+#define SWIGTYPE_p_agg__blender_rgba_plainTagg__rgba8_agg__order_rgba_t swig_types[12]
+#define SWIGTYPE_p_agg__blender_rgba_preTagg__rgba16_agg__order_abgr_t swig_types[13]
+#define SWIGTYPE_p_agg__blender_rgba_preTagg__rgba16_agg__order_argb_t swig_types[14]
+#define SWIGTYPE_p_agg__blender_rgba_preTagg__rgba16_agg__order_bgra_t swig_types[15]
+#define SWIGTYPE_p_agg__blender_rgba_preTagg__rgba16_agg__order_rgba_t swig_types[16]
+#define SWIGTYPE_p_agg__blender_rgba_preTagg__rgba8_agg__order_abgr_t swig_types[17]
+#define SWIGTYPE_p_agg__blender_rgba_preTagg__rgba8_agg__order_argb_t swig_types[18]
+#define SWIGTYPE_p_agg__blender_rgba_preTagg__rgba8_agg__order_bgra_t swig_types[19]
+#define SWIGTYPE_p_agg__blender_rgba_preTagg__rgba8_agg__order_rgba_t swig_types[20]
+#define SWIGTYPE_p_agg__buffer swig_types[21]
+#define SWIGTYPE_p_agg__conv_adaptor_vcgenTagg__conv_curveTpath_t_t_agg__vcgen_stroke_agg__null_markers_t swig_types[22]
+#define SWIGTYPE_p_agg__conv_adaptor_vcgenTagg__conv_curveTtranspath_t_t_agg__vcgen_stroke_agg__null_markers_t swig_types[23]
+#define SWIGTYPE_p_agg__conv_adaptor_vcgenTagg__conv_transformTcurve_t_agg__trans_affine_t_agg__vcgen_stroke_agg__null_markers_t swig_types[24]
+#define SWIGTYPE_p_agg__conv_adaptor_vcgenTagg__conv_transformTpath_t_agg__trans_affine_t_agg__vcgen_stroke_agg__null_markers_t swig_types[25]
+#define SWIGTYPE_p_agg__conv_adaptor_vcgenTagg__path_storage_agg__vcgen_stroke_agg__null_markers_t swig_types[26]
+#define SWIGTYPE_p_agg__conv_curveTagg__conv_transformTpath_t_agg__trans_affine_t_t swig_types[27]
+#define SWIGTYPE_p_agg__conv_curveTagg__path_storage_t swig_types[28]
+#define SWIGTYPE_p_agg__conv_strokeTagg__conv_curveTpath_t_t_agg__null_markers_t swig_types[29]
+#define SWIGTYPE_p_agg__conv_strokeTagg__conv_curveTtranspath_t_t_agg__null_markers_t swig_types[30]
+#define SWIGTYPE_p_agg__conv_strokeTagg__conv_transformTcurve_t_agg__trans_affine_t_agg__null_markers_t swig_types[31]
+#define SWIGTYPE_p_agg__conv_strokeTagg__conv_transformTpath_t_agg__trans_affine_t_agg__null_markers_t swig_types[32]
+#define SWIGTYPE_p_agg__conv_strokeTagg__path_storage_agg__null_markers_t swig_types[33]
+#define SWIGTYPE_p_agg__conv_transformTagg__conv_curveTpath_t_t_agg__trans_affine_t swig_types[34]
+#define SWIGTYPE_p_agg__conv_transformTagg__path_storage_agg__trans_affine_t swig_types[35]
+#define SWIGTYPE_p_agg__filling_rule_e swig_types[36]
+#define SWIGTYPE_p_agg__null_markers swig_types[37]
+#define SWIGTYPE_p_agg__order_abgr swig_types[38]
+#define SWIGTYPE_p_agg__order_argb swig_types[39]
+#define SWIGTYPE_p_agg__order_bgr swig_types[40]
+#define SWIGTYPE_p_agg__order_bgra swig_types[41]
+#define SWIGTYPE_p_agg__order_rgb swig_types[42]
+#define SWIGTYPE_p_agg__order_rgba swig_types[43]
+#define SWIGTYPE_p_agg__path_storage swig_types[44]
+#define SWIGTYPE_p_agg__pixel64_type swig_types[45]
+#define SWIGTYPE_p_agg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba16_agg__order_abgr_t_agg__pixel64_type_t swig_types[46]
+#define SWIGTYPE_p_agg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba16_agg__order_argb_t_agg__pixel64_type_t swig_types[47]
+#define SWIGTYPE_p_agg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba16_agg__order_bgra_t_agg__pixel64_type_t swig_types[48]
+#define SWIGTYPE_p_agg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba16_agg__order_rgba_t_agg__pixel64_type_t swig_types[49]
+#define SWIGTYPE_p_agg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_abgr_t_unsigned_int_t swig_types[50]
+#define SWIGTYPE_p_agg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_argb_t_unsigned_int_t swig_types[51]
+#define SWIGTYPE_p_agg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_bgra_t_unsigned_int_t swig_types[52]
+#define SWIGTYPE_p_agg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t swig_types[53]
+#define SWIGTYPE_p_agg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t__blender_type__color_type swig_types[54]
+#define SWIGTYPE_p_agg__pixel_formats_rgbaTagg__blender_rgba_plainTagg__rgba8_agg__order_abgr_t_unsigned_int_t swig_types[55]
+#define SWIGTYPE_p_agg__pixel_formats_rgbaTagg__blender_rgba_plainTagg__rgba8_agg__order_argb_t_unsigned_int_t swig_types[56]
+#define SWIGTYPE_p_agg__pixel_formats_rgbaTagg__blender_rgba_plainTagg__rgba8_agg__order_bgra_t_unsigned_int_t swig_types[57]
+#define SWIGTYPE_p_agg__pixel_formats_rgbaTagg__blender_rgba_plainTagg__rgba8_agg__order_rgba_t_unsigned_int_t swig_types[58]
+#define SWIGTYPE_p_agg__pixel_formats_rgbaTagg__blender_rgba_preTagg__rgba16_agg__order_abgr_t_agg__pixel64_type_t swig_types[59]
+#define SWIGTYPE_p_agg__pixel_formats_rgbaTagg__blender_rgba_preTagg__rgba16_agg__order_argb_t_agg__pixel64_type_t swig_types[60]
+#define SWIGTYPE_p_agg__pixel_formats_rgbaTagg__blender_rgba_preTagg__rgba16_agg__order_bgra_t_agg__pixel64_type_t swig_types[61]
+#define SWIGTYPE_p_agg__pixel_formats_rgbaTagg__blender_rgba_preTagg__rgba16_agg__order_rgba_t_agg__pixel64_type_t swig_types[62]
+#define SWIGTYPE_p_agg__pixel_formats_rgbaTagg__blender_rgba_preTagg__rgba8_agg__order_abgr_t_unsigned_int_t swig_types[63]
+#define SWIGTYPE_p_agg__pixel_formats_rgbaTagg__blender_rgba_preTagg__rgba8_agg__order_argb_t_unsigned_int_t swig_types[64]
+#define SWIGTYPE_p_agg__pixel_formats_rgbaTagg__blender_rgba_preTagg__rgba8_agg__order_bgra_t_unsigned_int_t swig_types[65]
+#define SWIGTYPE_p_agg__pixel_formats_rgbaTagg__blender_rgba_preTagg__rgba8_agg__order_rgba_t_unsigned_int_t swig_types[66]
+#define SWIGTYPE_p_agg__point_type swig_types[67]
+#define SWIGTYPE_p_agg__rect_baseTdouble_t swig_types[68]
+#define SWIGTYPE_p_agg__rect_baseTint_t swig_types[69]
+#define SWIGTYPE_p_agg__renderer_baseTagg__pixel_formats_rgbaTagg__blender_rgba32_agg__pixel32_type_t_t swig_types[70]
+#define SWIGTYPE_p_agg__renderer_scanline_aa_solidTagg__renderer_baseTpixfmt_rgba_t_t_t swig_types[71]
+#define SWIGTYPE_p_agg__renderer_scanline_bin_solidTagg__renderer_baseTpixfmt_rgba_t_t_t swig_types[72]
+#define SWIGTYPE_p_agg__rendering_buffer__row_data swig_types[73]
+#define SWIGTYPE_p_agg__rendering_buffer__span_data swig_types[74]
+#define SWIGTYPE_p_agg__rgba swig_types[75]
+#define SWIGTYPE_p_agg__rgba16 swig_types[76]
+#define SWIGTYPE_p_agg__rgba8 swig_types[77]
+#define SWIGTYPE_p_agg__row_ptr_cacheTunsigned_char_t swig_types[78]
+#define SWIGTYPE_p_agg__scanline32_bin swig_types[79]
+#define SWIGTYPE_p_agg__scanline32_pTunsigned_char_t swig_types[80]
+#define SWIGTYPE_p_agg__scanline32_pTunsigned_int_t swig_types[81]
+#define SWIGTYPE_p_agg__scanline32_pTunsigned_short_t swig_types[82]
+#define SWIGTYPE_p_agg__scanline_bin swig_types[83]
+#define SWIGTYPE_p_agg__scanline_pTunsigned_char_t swig_types[84]
+#define SWIGTYPE_p_agg__scanline_pTunsigned_int_t swig_types[85]
+#define SWIGTYPE_p_agg__scanline_pTunsigned_short_t swig_types[86]
+#define SWIGTYPE_p_agg__trans_affine swig_types[87]
+#define SWIGTYPE_p_agg__trans_affine_rotation swig_types[88]
+#define SWIGTYPE_p_agg__trans_affine_scaling swig_types[89]
+#define SWIGTYPE_p_agg__trans_affine_skewing swig_types[90]
+#define SWIGTYPE_p_agg__trans_affine_translation swig_types[91]
+#define SWIGTYPE_p_agg__vcgen_stroke swig_types[92]
+#define SWIGTYPE_p_agg__vertex_type swig_types[93]
+#define SWIGTYPE_p_base_ren_type swig_types[94]
+#define SWIGTYPE_p_base_type swig_types[95]
+#define SWIGTYPE_p_blender_type swig_types[96]
+#define SWIGTYPE_p_calc_type swig_types[97]
+#define SWIGTYPE_p_char swig_types[98]
+#define SWIGTYPE_p_cob_type swig_types[99]
+#define SWIGTYPE_p_color_type swig_types[100]
+#define SWIGTYPE_p_coord_storage swig_types[101]
+#define SWIGTYPE_p_coord_type swig_types[102]
+#define SWIGTYPE_p_cover_type swig_types[103]
+#define SWIGTYPE_p_double swig_types[104]
+#define SWIGTYPE_p_int swig_types[105]
+#define SWIGTYPE_p_long_long swig_types[106]
+#define SWIGTYPE_p_long_type swig_types[107]
+#define SWIGTYPE_p_marker_type swig_types[108]
+#define SWIGTYPE_p_order_type swig_types[109]
+#define SWIGTYPE_p_p_unsigned_char swig_types[110]
+#define SWIGTYPE_p_pixel_type swig_types[111]
+#define SWIGTYPE_p_pixfmt_type swig_types[112]
+#define SWIGTYPE_p_rasterizer_scanline_aaT_t swig_types[113]
+#define SWIGTYPE_p_row_data swig_types[114]
+#define SWIGTYPE_p_self_type swig_types[115]
+#define SWIGTYPE_p_short swig_types[116]
+#define SWIGTYPE_p_signed_char swig_types[117]
+#define SWIGTYPE_p_span swig_types[118]
+#define SWIGTYPE_p_span_data swig_types[119]
+#define SWIGTYPE_p_unsigned_char swig_types[120]
+#define SWIGTYPE_p_unsigned_int swig_types[121]
+#define SWIGTYPE_p_unsigned_long_long swig_types[122]
+#define SWIGTYPE_p_unsigned_short swig_types[123]
+#define SWIGTYPE_p_value_type swig_types[124]
+#define SWIGTYPE_p_vertex_storage swig_types[125]
+#define SWIGTYPE_ptrdiff_t swig_types[126]
+#define SWIGTYPE_size_t swig_types[127]
+#define SWIGTYPE_std__ptrdiff_t swig_types[128]
+#define SWIGTYPE_std__size_t swig_types[129]
+static swig_type_info *swig_types[130];
+static swig_module_info swig_module = {swig_types, 130, 0, 0, 0, 0};
 #define SWIG_TypeQuery(name) SWIG_TypeQueryModule(&swig_module, &swig_module, name)
 #define SWIG_MangledTypeQuery(name) SWIG_MangledTypeQueryModule(&swig_module, &swig_module, name)
 
@@ -12196,7 +12199,21 @@ static PyObject * pixel64_type_swigregister(PyObject *, PyObject *args) {
     Py_INCREF(obj);
     return Py_BuildValue((char *)"");
 }
-static PyObject *_wrap_new_pixel_format_rgba(PyObject *, PyObject *args) {
+static PyObject *_wrap_new_pixel_format_rgba__SWIG_0(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::pixel_formats_rgba<agg::blender_rgba32,agg::pixel32_type > *result;
+    
+    if(!PyArg_ParseTuple(args,(char *)":new_pixel_format_rgba")) goto fail;
+    result = (agg::pixel_formats_rgba<agg::blender_rgba32,agg::pixel32_type > *)new agg::pixel_formats_rgba<agg::blender_rgba32,agg::pixel32_type >();
+    
+    resultobj = SWIG_NewPointerObj((void*)(result), SWIGTYPE_p_agg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t, 1);
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_new_pixel_format_rgba__SWIG_1(PyObject *, PyObject *args) {
     PyObject *resultobj = NULL;
     agg::rendering_buffer *arg1 = 0 ;
     agg::pixel_formats_rgba<agg::blender_rgba32,agg::pixel32_type > *result;
@@ -12214,6 +12231,66 @@ static PyObject *_wrap_new_pixel_format_rgba(PyObject *, PyObject *args) {
     result = (agg::pixel_formats_rgba<agg::blender_rgba32,agg::pixel32_type > *)new agg::pixel_formats_rgba<agg::blender_rgba32,agg::pixel32_type >(*arg1);
     
     resultobj = SWIG_NewPointerObj((void*)(result), SWIGTYPE_p_agg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t, 1);
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_new_pixel_format_rgba(PyObject *self, PyObject *args) {
+    int argc;
+    PyObject *argv[2];
+    int ii;
+    
+    argc = PyObject_Length(args);
+    for (ii = 0; (ii < argc) && (ii < 1); ii++) {
+        argv[ii] = PyTuple_GetItem(args,ii);
+    }
+    if (argc == 0) {
+        return _wrap_new_pixel_format_rgba__SWIG_0(self,args);
+    }
+    if (argc == 1) {
+        int _v;
+        {
+            void *ptr = 0;
+            if (SWIG_ConvertPtr(argv[0], &ptr, SWIGTYPE_p_agg__row_ptr_cacheTunsigned_char_t, 0) == -1) {
+                _v = 0;
+                PyErr_Clear();
+            } else {
+                _v = (ptr != 0);
+            }
+        }
+        if (_v) {
+            return _wrap_new_pixel_format_rgba__SWIG_1(self,args);
+        }
+    }
+    
+    PyErr_SetString(PyExc_NotImplementedError,"No matching function for overloaded 'new_pixel_format_rgba'");
+    return NULL;
+}
+
+
+static PyObject *_wrap_pixel_format_rgba_attach(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::pixel_formats_rgba<agg::blender_rgba32,agg::pixel32_type > *arg1 = (agg::pixel_formats_rgba<agg::blender_rgba32,agg::pixel32_type > *) 0 ;
+    agg::rendering_buffer *arg2 = 0 ;
+    PyObject * obj0 = 0 ;
+    PyObject * obj1 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"OO:pixel_format_rgba_attach",&obj0,&obj1)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    {
+        SWIG_Python_ConvertPtr(obj1, (void **)&arg2, SWIGTYPE_p_agg__row_ptr_cacheTunsigned_char_t, SWIG_POINTER_EXCEPTION | 0);
+        if (SWIG_arg_fail(2)) SWIG_fail;
+        if (arg2 == NULL) {
+            SWIG_null_ref("agg::rendering_buffer");
+        }
+        if (SWIG_arg_fail(2)) SWIG_fail;
+    }
+    (arg1)->attach(*arg2);
+    
+    Py_INCREF(Py_None); resultobj = Py_None;
     return resultobj;
     fail:
     return NULL;
@@ -12994,7 +13071,21 @@ static PyObject * pixel_format_rgba_swigregister(PyObject *, PyObject *args) {
     Py_INCREF(obj);
     return Py_BuildValue((char *)"");
 }
-static PyObject *_wrap_new_renderer_base_rgba(PyObject *, PyObject *args) {
+static PyObject *_wrap_new_renderer_base_rgba__SWIG_0(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::renderer_base<pixfmt_rgba_t > *result;
+    
+    if(!PyArg_ParseTuple(args,(char *)":new_renderer_base_rgba")) goto fail;
+    result = (agg::renderer_base<pixfmt_rgba_t > *)new agg::renderer_base<pixfmt_rgba_t >();
+    
+    resultobj = SWIG_NewPointerObj((void*)(result), SWIGTYPE_p_agg__renderer_baseTagg__pixel_formats_rgbaTagg__blender_rgba32_agg__pixel32_type_t_t, 1);
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_new_renderer_base_rgba__SWIG_1(PyObject *, PyObject *args) {
     PyObject *resultobj = NULL;
     agg::renderer_base<agg::pixel_formats_rgba<agg::blender_rgba<agg::rgba8,agg::order_rgba >,unsigned int > >::pixfmt_type *arg1 = 0 ;
     agg::renderer_base<pixfmt_rgba_t > *result;
@@ -13012,6 +13103,66 @@ static PyObject *_wrap_new_renderer_base_rgba(PyObject *, PyObject *args) {
     result = (agg::renderer_base<pixfmt_rgba_t > *)new agg::renderer_base<pixfmt_rgba_t >(*arg1);
     
     resultobj = SWIG_NewPointerObj((void*)(result), SWIGTYPE_p_agg__renderer_baseTagg__pixel_formats_rgbaTagg__blender_rgba32_agg__pixel32_type_t_t, 1);
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_new_renderer_base_rgba(PyObject *self, PyObject *args) {
+    int argc;
+    PyObject *argv[2];
+    int ii;
+    
+    argc = PyObject_Length(args);
+    for (ii = 0; (ii < argc) && (ii < 1); ii++) {
+        argv[ii] = PyTuple_GetItem(args,ii);
+    }
+    if (argc == 0) {
+        return _wrap_new_renderer_base_rgba__SWIG_0(self,args);
+    }
+    if (argc == 1) {
+        int _v;
+        {
+            void *ptr = 0;
+            if (SWIG_ConvertPtr(argv[0], &ptr, SWIGTYPE_p_agg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t, 0) == -1) {
+                _v = 0;
+                PyErr_Clear();
+            } else {
+                _v = (ptr != 0);
+            }
+        }
+        if (_v) {
+            return _wrap_new_renderer_base_rgba__SWIG_1(self,args);
+        }
+    }
+    
+    PyErr_SetString(PyExc_NotImplementedError,"No matching function for overloaded 'new_renderer_base_rgba'");
+    return NULL;
+}
+
+
+static PyObject *_wrap_renderer_base_rgba_attach(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::renderer_base<pixfmt_rgba_t > *arg1 = (agg::renderer_base<pixfmt_rgba_t > *) 0 ;
+    agg::renderer_base<agg::pixel_formats_rgba<agg::blender_rgba<agg::rgba8,agg::order_rgba >,unsigned int > >::pixfmt_type *arg2 = 0 ;
+    PyObject * obj0 = 0 ;
+    PyObject * obj1 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"OO:renderer_base_rgba_attach",&obj0,&obj1)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__renderer_baseTagg__pixel_formats_rgbaTagg__blender_rgba32_agg__pixel32_type_t_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    {
+        SWIG_Python_ConvertPtr(obj1, (void **)&arg2, SWIGTYPE_p_agg__pixel_formats_rgbaTagg__blender_rgbaTagg__rgba8_agg__order_rgba_t_unsigned_int_t, SWIG_POINTER_EXCEPTION | 0);
+        if (SWIG_arg_fail(2)) SWIG_fail;
+        if (arg2 == NULL) {
+            SWIG_null_ref("agg::renderer_base<agg::pixel_formats_rgba<agg::blender_rgba<agg::rgba8,agg::order_rgba >,unsigned int > >::pixfmt_type");
+        }
+        if (SWIG_arg_fail(2)) SWIG_fail;
+    }
+    (arg1)->attach(*arg2);
+    
+    Py_INCREF(Py_None); resultobj = Py_None;
     return resultobj;
     fail:
     return NULL;
@@ -24426,7 +24577,21 @@ static PyObject * rasterizer_scanline_aa_swigregister(PyObject *, PyObject *args
     Py_INCREF(obj);
     return Py_BuildValue((char *)"");
 }
-static PyObject *_wrap_new_renderer_scanline_aa_solid_rgba(PyObject *, PyObject *args) {
+static PyObject *_wrap_new_renderer_scanline_aa_solid_rgba__SWIG_0(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::renderer_scanline_aa_solid<renderer_base_rgba_t > *result;
+    
+    if(!PyArg_ParseTuple(args,(char *)":new_renderer_scanline_aa_solid_rgba")) goto fail;
+    result = (agg::renderer_scanline_aa_solid<renderer_base_rgba_t > *)new agg::renderer_scanline_aa_solid<renderer_base_rgba_t >();
+    
+    resultobj = SWIG_NewPointerObj((void*)(result), SWIGTYPE_p_agg__renderer_scanline_aa_solidTagg__renderer_baseTpixfmt_rgba_t_t_t, 1);
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_new_renderer_scanline_aa_solid_rgba__SWIG_1(PyObject *, PyObject *args) {
     PyObject *resultobj = NULL;
     agg::renderer_scanline_aa_solid<agg::renderer_base<agg::pixel_formats_rgba<agg::blender_rgba<agg::rgba8,agg::order_rgba >,unsigned int > > >::base_ren_type *arg1 = 0 ;
     agg::renderer_scanline_aa_solid<renderer_base_rgba_t > *result;
@@ -24444,6 +24609,66 @@ static PyObject *_wrap_new_renderer_scanline_aa_solid_rgba(PyObject *, PyObject 
     result = (agg::renderer_scanline_aa_solid<renderer_base_rgba_t > *)new agg::renderer_scanline_aa_solid<renderer_base_rgba_t >(*arg1);
     
     resultobj = SWIG_NewPointerObj((void*)(result), SWIGTYPE_p_agg__renderer_scanline_aa_solidTagg__renderer_baseTpixfmt_rgba_t_t_t, 1);
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_new_renderer_scanline_aa_solid_rgba(PyObject *self, PyObject *args) {
+    int argc;
+    PyObject *argv[2];
+    int ii;
+    
+    argc = PyObject_Length(args);
+    for (ii = 0; (ii < argc) && (ii < 1); ii++) {
+        argv[ii] = PyTuple_GetItem(args,ii);
+    }
+    if (argc == 0) {
+        return _wrap_new_renderer_scanline_aa_solid_rgba__SWIG_0(self,args);
+    }
+    if (argc == 1) {
+        int _v;
+        {
+            void *ptr = 0;
+            if (SWIG_ConvertPtr(argv[0], &ptr, SWIGTYPE_p_agg__renderer_baseTagg__pixel_formats_rgbaTagg__blender_rgba32_agg__pixel32_type_t_t, 0) == -1) {
+                _v = 0;
+                PyErr_Clear();
+            } else {
+                _v = (ptr != 0);
+            }
+        }
+        if (_v) {
+            return _wrap_new_renderer_scanline_aa_solid_rgba__SWIG_1(self,args);
+        }
+    }
+    
+    PyErr_SetString(PyExc_NotImplementedError,"No matching function for overloaded 'new_renderer_scanline_aa_solid_rgba'");
+    return NULL;
+}
+
+
+static PyObject *_wrap_renderer_scanline_aa_solid_rgba_attach(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::renderer_scanline_aa_solid<renderer_base_rgba_t > *arg1 = (agg::renderer_scanline_aa_solid<renderer_base_rgba_t > *) 0 ;
+    agg::renderer_scanline_aa_solid<agg::renderer_base<agg::pixel_formats_rgba<agg::blender_rgba<agg::rgba8,agg::order_rgba >,unsigned int > > >::base_ren_type *arg2 = 0 ;
+    PyObject * obj0 = 0 ;
+    PyObject * obj1 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"OO:renderer_scanline_aa_solid_rgba_attach",&obj0,&obj1)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__renderer_scanline_aa_solidTagg__renderer_baseTpixfmt_rgba_t_t_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    {
+        SWIG_Python_ConvertPtr(obj1, (void **)&arg2, SWIGTYPE_p_agg__renderer_baseTagg__pixel_formats_rgbaTagg__blender_rgba32_agg__pixel32_type_t_t, SWIG_POINTER_EXCEPTION | 0);
+        if (SWIG_arg_fail(2)) SWIG_fail;
+        if (arg2 == NULL) {
+            SWIG_null_ref("agg::renderer_scanline_aa_solid<agg::renderer_base<agg::pixel_formats_rgba<agg::blender_rgba<agg::rgba8,agg::order_rgba >,unsigned int > > >::base_ren_type");
+        }
+        if (SWIG_arg_fail(2)) SWIG_fail;
+    }
+    (arg1)->attach(*arg2);
+    
+    Py_INCREF(Py_None); resultobj = Py_None;
     return resultobj;
     fail:
     return NULL;
@@ -24655,7 +24880,21 @@ static PyObject * renderer_scanline_aa_solid_rgba_swigregister(PyObject *, PyObj
     Py_INCREF(obj);
     return Py_BuildValue((char *)"");
 }
-static PyObject *_wrap_new_renderer_scanline_bin_solid_rgba(PyObject *, PyObject *args) {
+static PyObject *_wrap_new_renderer_scanline_bin_solid_rgba__SWIG_0(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::renderer_scanline_bin_solid<renderer_base_rgba_t > *result;
+    
+    if(!PyArg_ParseTuple(args,(char *)":new_renderer_scanline_bin_solid_rgba")) goto fail;
+    result = (agg::renderer_scanline_bin_solid<renderer_base_rgba_t > *)new agg::renderer_scanline_bin_solid<renderer_base_rgba_t >();
+    
+    resultobj = SWIG_NewPointerObj((void*)(result), SWIGTYPE_p_agg__renderer_scanline_bin_solidTagg__renderer_baseTpixfmt_rgba_t_t_t, 1);
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_new_renderer_scanline_bin_solid_rgba__SWIG_1(PyObject *, PyObject *args) {
     PyObject *resultobj = NULL;
     agg::renderer_scanline_bin_solid<agg::renderer_base<agg::pixel_formats_rgba<agg::blender_rgba<agg::rgba8,agg::order_rgba >,unsigned int > > >::base_ren_type *arg1 = 0 ;
     agg::renderer_scanline_bin_solid<renderer_base_rgba_t > *result;
@@ -24673,6 +24912,66 @@ static PyObject *_wrap_new_renderer_scanline_bin_solid_rgba(PyObject *, PyObject
     result = (agg::renderer_scanline_bin_solid<renderer_base_rgba_t > *)new agg::renderer_scanline_bin_solid<renderer_base_rgba_t >(*arg1);
     
     resultobj = SWIG_NewPointerObj((void*)(result), SWIGTYPE_p_agg__renderer_scanline_bin_solidTagg__renderer_baseTpixfmt_rgba_t_t_t, 1);
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_new_renderer_scanline_bin_solid_rgba(PyObject *self, PyObject *args) {
+    int argc;
+    PyObject *argv[2];
+    int ii;
+    
+    argc = PyObject_Length(args);
+    for (ii = 0; (ii < argc) && (ii < 1); ii++) {
+        argv[ii] = PyTuple_GetItem(args,ii);
+    }
+    if (argc == 0) {
+        return _wrap_new_renderer_scanline_bin_solid_rgba__SWIG_0(self,args);
+    }
+    if (argc == 1) {
+        int _v;
+        {
+            void *ptr = 0;
+            if (SWIG_ConvertPtr(argv[0], &ptr, SWIGTYPE_p_agg__renderer_baseTagg__pixel_formats_rgbaTagg__blender_rgba32_agg__pixel32_type_t_t, 0) == -1) {
+                _v = 0;
+                PyErr_Clear();
+            } else {
+                _v = (ptr != 0);
+            }
+        }
+        if (_v) {
+            return _wrap_new_renderer_scanline_bin_solid_rgba__SWIG_1(self,args);
+        }
+    }
+    
+    PyErr_SetString(PyExc_NotImplementedError,"No matching function for overloaded 'new_renderer_scanline_bin_solid_rgba'");
+    return NULL;
+}
+
+
+static PyObject *_wrap_renderer_scanline_bin_solid_rgba_attach(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::renderer_scanline_bin_solid<renderer_base_rgba_t > *arg1 = (agg::renderer_scanline_bin_solid<renderer_base_rgba_t > *) 0 ;
+    agg::renderer_scanline_bin_solid<agg::renderer_base<agg::pixel_formats_rgba<agg::blender_rgba<agg::rgba8,agg::order_rgba >,unsigned int > > >::base_ren_type *arg2 = 0 ;
+    PyObject * obj0 = 0 ;
+    PyObject * obj1 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"OO:renderer_scanline_bin_solid_rgba_attach",&obj0,&obj1)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__renderer_scanline_bin_solidTagg__renderer_baseTpixfmt_rgba_t_t_t, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    {
+        SWIG_Python_ConvertPtr(obj1, (void **)&arg2, SWIGTYPE_p_agg__renderer_baseTagg__pixel_formats_rgbaTagg__blender_rgba32_agg__pixel32_type_t_t, SWIG_POINTER_EXCEPTION | 0);
+        if (SWIG_arg_fail(2)) SWIG_fail;
+        if (arg2 == NULL) {
+            SWIG_null_ref("agg::renderer_scanline_bin_solid<agg::renderer_base<agg::pixel_formats_rgba<agg::blender_rgba<agg::rgba8,agg::order_rgba >,unsigned int > > >::base_ren_type");
+        }
+        if (SWIG_arg_fail(2)) SWIG_fail;
+    }
+    (arg1)->attach(*arg2);
+    
+    Py_INCREF(Py_None); resultobj = Py_None;
     return resultobj;
     fail:
     return NULL;
@@ -24890,7 +25189,7 @@ static PyObject *_wrap_delete_scanline_p8(PyObject *, PyObject *args) {
     PyObject * obj0 = 0 ;
     
     if(!PyArg_ParseTuple(args,(char *)"O:delete_scanline_p8",&obj0)) goto fail;
-    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__scanline_pTunsigned_char_short_t, SWIG_POINTER_EXCEPTION | 0);
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__scanline_pTunsigned_char_t, SWIG_POINTER_EXCEPTION | 0);
     if (SWIG_arg_fail(1)) SWIG_fail;
     delete arg1;
     
@@ -24908,7 +25207,7 @@ static PyObject *_wrap_new_scanline_p8(PyObject *, PyObject *args) {
     if(!PyArg_ParseTuple(args,(char *)":new_scanline_p8")) goto fail;
     result = (agg::scanline_p<agg::int8u > *)new agg::scanline_p<agg::int8u >();
     
-    resultobj = SWIG_NewPointerObj((void*)(result), SWIGTYPE_p_agg__scanline_pTunsigned_char_short_t, 1);
+    resultobj = SWIG_NewPointerObj((void*)(result), SWIGTYPE_p_agg__scanline_pTunsigned_char_t, 1);
     return resultobj;
     fail:
     return NULL;
@@ -24925,7 +25224,7 @@ static PyObject *_wrap_scanline_p8_reset(PyObject *, PyObject *args) {
     PyObject * obj2 = 0 ;
     
     if(!PyArg_ParseTuple(args,(char *)"OOO:scanline_p8_reset",&obj0,&obj1,&obj2)) goto fail;
-    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__scanline_pTunsigned_char_short_t, SWIG_POINTER_EXCEPTION | 0);
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__scanline_pTunsigned_char_t, SWIG_POINTER_EXCEPTION | 0);
     if (SWIG_arg_fail(1)) SWIG_fail;
     {
         arg2 = (int)(SWIG_As_int(obj1)); 
@@ -24954,7 +25253,7 @@ static PyObject *_wrap_scanline_p8_add_cell(PyObject *, PyObject *args) {
     PyObject * obj2 = 0 ;
     
     if(!PyArg_ParseTuple(args,(char *)"OOO:scanline_p8_add_cell",&obj0,&obj1,&obj2)) goto fail;
-    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__scanline_pTunsigned_char_short_t, SWIG_POINTER_EXCEPTION | 0);
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__scanline_pTunsigned_char_t, SWIG_POINTER_EXCEPTION | 0);
     if (SWIG_arg_fail(1)) SWIG_fail;
     {
         arg2 = (int)(SWIG_As_int(obj1)); 
@@ -24985,7 +25284,7 @@ static PyObject *_wrap_scanline_p8_add_cells(PyObject *, PyObject *args) {
     PyObject * obj3 = 0 ;
     
     if(!PyArg_ParseTuple(args,(char *)"OOOO:scanline_p8_add_cells",&obj0,&obj1,&obj2,&obj3)) goto fail;
-    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__scanline_pTunsigned_char_short_t, SWIG_POINTER_EXCEPTION | 0);
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__scanline_pTunsigned_char_t, SWIG_POINTER_EXCEPTION | 0);
     if (SWIG_arg_fail(1)) SWIG_fail;
     {
         arg2 = (int)(SWIG_As_int(obj1)); 
@@ -25018,7 +25317,7 @@ static PyObject *_wrap_scanline_p8_add_span(PyObject *, PyObject *args) {
     PyObject * obj3 = 0 ;
     
     if(!PyArg_ParseTuple(args,(char *)"OOOO:scanline_p8_add_span",&obj0,&obj1,&obj2,&obj3)) goto fail;
-    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__scanline_pTunsigned_char_short_t, SWIG_POINTER_EXCEPTION | 0);
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__scanline_pTunsigned_char_t, SWIG_POINTER_EXCEPTION | 0);
     if (SWIG_arg_fail(1)) SWIG_fail;
     {
         arg2 = (int)(SWIG_As_int(obj1)); 
@@ -25049,7 +25348,7 @@ static PyObject *_wrap_scanline_p8_finalize(PyObject *, PyObject *args) {
     PyObject * obj1 = 0 ;
     
     if(!PyArg_ParseTuple(args,(char *)"OO:scanline_p8_finalize",&obj0,&obj1)) goto fail;
-    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__scanline_pTunsigned_char_short_t, SWIG_POINTER_EXCEPTION | 0);
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__scanline_pTunsigned_char_t, SWIG_POINTER_EXCEPTION | 0);
     if (SWIG_arg_fail(1)) SWIG_fail;
     {
         arg2 = (int)(SWIG_As_int(obj1)); 
@@ -25070,7 +25369,7 @@ static PyObject *_wrap_scanline_p8_reset_spans(PyObject *, PyObject *args) {
     PyObject * obj0 = 0 ;
     
     if(!PyArg_ParseTuple(args,(char *)"O:scanline_p8_reset_spans",&obj0)) goto fail;
-    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__scanline_pTunsigned_char_short_t, SWIG_POINTER_EXCEPTION | 0);
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__scanline_pTunsigned_char_t, SWIG_POINTER_EXCEPTION | 0);
     if (SWIG_arg_fail(1)) SWIG_fail;
     (arg1)->reset_spans();
     
@@ -25088,7 +25387,7 @@ static PyObject *_wrap_scanline_p8_y(PyObject *, PyObject *args) {
     PyObject * obj0 = 0 ;
     
     if(!PyArg_ParseTuple(args,(char *)"O:scanline_p8_y",&obj0)) goto fail;
-    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__scanline_pTunsigned_char_short_t, SWIG_POINTER_EXCEPTION | 0);
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__scanline_pTunsigned_char_t, SWIG_POINTER_EXCEPTION | 0);
     if (SWIG_arg_fail(1)) SWIG_fail;
     result = (int)((agg::scanline_p<agg::int8u > const *)arg1)->y();
     
@@ -25108,7 +25407,7 @@ static PyObject *_wrap_scanline_p8_num_spans(PyObject *, PyObject *args) {
     PyObject * obj0 = 0 ;
     
     if(!PyArg_ParseTuple(args,(char *)"O:scanline_p8_num_spans",&obj0)) goto fail;
-    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__scanline_pTunsigned_char_short_t, SWIG_POINTER_EXCEPTION | 0);
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__scanline_pTunsigned_char_t, SWIG_POINTER_EXCEPTION | 0);
     if (SWIG_arg_fail(1)) SWIG_fail;
     result = (unsigned int)((agg::scanline_p<agg::int8u > const *)arg1)->num_spans();
     
@@ -25128,11 +25427,11 @@ static PyObject *_wrap_scanline_p8_begin(PyObject *, PyObject *args) {
     PyObject * obj0 = 0 ;
     
     if(!PyArg_ParseTuple(args,(char *)"O:scanline_p8_begin",&obj0)) goto fail;
-    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__scanline_pTunsigned_char_short_t, SWIG_POINTER_EXCEPTION | 0);
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__scanline_pTunsigned_char_t, SWIG_POINTER_EXCEPTION | 0);
     if (SWIG_arg_fail(1)) SWIG_fail;
     result = (agg::scanline_p<unsigned char >::const_iterator)((agg::scanline_p<agg::int8u > const *)arg1)->begin();
     
-    resultobj = SWIG_NewPointerObj((void*)(result), SWIGTYPE_agg__scanline_pTunsigned_char_agg__int16_t__const_iterator, 0);
+    resultobj = SWIG_NewPointerObj((void*)(result), SWIGTYPE_p_span, 0);
     return resultobj;
     fail:
     return NULL;
@@ -25142,7 +25441,7 @@ static PyObject *_wrap_scanline_p8_begin(PyObject *, PyObject *args) {
 static PyObject * scanline_p8_swigregister(PyObject *, PyObject *args) {
     PyObject *obj;
     if (!PyArg_ParseTuple(args,(char*)"O", &obj)) return NULL;
-    SWIG_TypeClientData(SWIGTYPE_p_agg__scanline_pTunsigned_char_short_t, obj);
+    SWIG_TypeClientData(SWIGTYPE_p_agg__scanline_pTunsigned_char_t, obj);
     Py_INCREF(obj);
     return Py_BuildValue((char *)"");
 }
@@ -25235,6 +25534,41 @@ static PyObject *_wrap_scanline_bin_add_cell(PyObject *, PyObject *args) {
 }
 
 
+static PyObject *_wrap_scanline_bin_add_span(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::scanline_bin *arg1 = (agg::scanline_bin *) 0 ;
+    int arg2 ;
+    unsigned int arg3 ;
+    unsigned int arg4 ;
+    PyObject * obj0 = 0 ;
+    PyObject * obj1 = 0 ;
+    PyObject * obj2 = 0 ;
+    PyObject * obj3 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"OOOO:scanline_bin_add_span",&obj0,&obj1,&obj2,&obj3)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__scanline_bin, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    {
+        arg2 = (int)(SWIG_As_int(obj1)); 
+        if (SWIG_arg_fail(2)) SWIG_fail;
+    }
+    {
+        arg3 = (unsigned int)(SWIG_As_unsigned_SS_int(obj2)); 
+        if (SWIG_arg_fail(3)) SWIG_fail;
+    }
+    {
+        arg4 = (unsigned int)(SWIG_As_unsigned_SS_int(obj3)); 
+        if (SWIG_arg_fail(4)) SWIG_fail;
+    }
+    (arg1)->add_span(arg2,arg3,arg4);
+    
+    Py_INCREF(Py_None); resultobj = Py_None;
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
 static PyObject *_wrap_scanline_bin_add_cells(PyObject *, PyObject *args) {
     PyObject *resultobj = NULL;
     agg::scanline_bin *arg1 = (agg::scanline_bin *) 0 ;
@@ -25263,41 +25597,6 @@ static PyObject *_wrap_scanline_bin_add_cells(PyObject *, PyObject *args) {
         }
     }
     (arg1)->add_cells(arg2,arg3,(void const *)arg4);
-    
-    Py_INCREF(Py_None); resultobj = Py_None;
-    return resultobj;
-    fail:
-    return NULL;
-}
-
-
-static PyObject *_wrap_scanline_bin_add_span(PyObject *, PyObject *args) {
-    PyObject *resultobj = NULL;
-    agg::scanline_bin *arg1 = (agg::scanline_bin *) 0 ;
-    int arg2 ;
-    unsigned int arg3 ;
-    unsigned int arg4 ;
-    PyObject * obj0 = 0 ;
-    PyObject * obj1 = 0 ;
-    PyObject * obj2 = 0 ;
-    PyObject * obj3 = 0 ;
-    
-    if(!PyArg_ParseTuple(args,(char *)"OOOO:scanline_bin_add_span",&obj0,&obj1,&obj2,&obj3)) goto fail;
-    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__scanline_bin, SWIG_POINTER_EXCEPTION | 0);
-    if (SWIG_arg_fail(1)) SWIG_fail;
-    {
-        arg2 = (int)(SWIG_As_int(obj1)); 
-        if (SWIG_arg_fail(2)) SWIG_fail;
-    }
-    {
-        arg3 = (unsigned int)(SWIG_As_unsigned_SS_int(obj2)); 
-        if (SWIG_arg_fail(3)) SWIG_fail;
-    }
-    {
-        arg4 = (unsigned int)(SWIG_As_unsigned_SS_int(obj3)); 
-        if (SWIG_arg_fail(4)) SWIG_fail;
-    }
-    (arg1)->add_span(arg2,arg3,arg4);
     
     Py_INCREF(Py_None); resultobj = Py_None;
     return resultobj;
@@ -25355,7 +25654,7 @@ static PyObject *_wrap_scanline_bin_y(PyObject *, PyObject *args) {
     if(!PyArg_ParseTuple(args,(char *)"O:scanline_bin_y",&obj0)) goto fail;
     SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__scanline_bin, SWIG_POINTER_EXCEPTION | 0);
     if (SWIG_arg_fail(1)) SWIG_fail;
-    result = (int)((agg::scanline_bin const *)arg1)->y();
+    result = (int)(arg1)->y();
     
     {
         resultobj = SWIG_From_int((int)(result)); 
@@ -25386,24 +25685,6 @@ static PyObject *_wrap_scanline_bin_num_spans(PyObject *, PyObject *args) {
 }
 
 
-static PyObject *_wrap_scanline_bin_begin(PyObject *, PyObject *args) {
-    PyObject *resultobj = NULL;
-    agg::scanline_bin *arg1 = (agg::scanline_bin *) 0 ;
-    agg::scanline_bin::const_iterator result;
-    PyObject * obj0 = 0 ;
-    
-    if(!PyArg_ParseTuple(args,(char *)"O:scanline_bin_begin",&obj0)) goto fail;
-    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__scanline_bin, SWIG_POINTER_EXCEPTION | 0);
-    if (SWIG_arg_fail(1)) SWIG_fail;
-    result = (agg::scanline_bin::const_iterator)((agg::scanline_bin const *)arg1)->begin();
-    
-    resultobj = SWIG_NewPointerObj((void*)(result), SWIGTYPE_p_span, 0);
-    return resultobj;
-    fail:
-    return NULL;
-}
-
-
 static PyObject * scanline_bin_swigregister(PyObject *, PyObject *args) {
     PyObject *obj;
     if (!PyArg_ParseTuple(args,(char*)"O", &obj)) return NULL;
@@ -25411,10 +25692,257 @@ static PyObject * scanline_bin_swigregister(PyObject *, PyObject *args) {
     Py_INCREF(obj);
     return Py_BuildValue((char *)"");
 }
+static PyObject *_wrap_delete_scanline32_bin(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::scanline32_bin *arg1 = (agg::scanline32_bin *) 0 ;
+    PyObject * obj0 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"O:delete_scanline32_bin",&obj0)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__scanline32_bin, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    delete arg1;
+    
+    Py_INCREF(Py_None); resultobj = Py_None;
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_new_scanline32_bin(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::scanline32_bin *result;
+    
+    if(!PyArg_ParseTuple(args,(char *)":new_scanline32_bin")) goto fail;
+    result = (agg::scanline32_bin *)new agg::scanline32_bin();
+    
+    resultobj = SWIG_NewPointerObj((void*)(result), SWIGTYPE_p_agg__scanline32_bin, 1);
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_scanline32_bin_reset(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::scanline32_bin *arg1 = (agg::scanline32_bin *) 0 ;
+    int arg2 ;
+    int arg3 ;
+    PyObject * obj0 = 0 ;
+    PyObject * obj1 = 0 ;
+    PyObject * obj2 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"OOO:scanline32_bin_reset",&obj0,&obj1,&obj2)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__scanline32_bin, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    {
+        arg2 = (int)(SWIG_As_int(obj1)); 
+        if (SWIG_arg_fail(2)) SWIG_fail;
+    }
+    {
+        arg3 = (int)(SWIG_As_int(obj2)); 
+        if (SWIG_arg_fail(3)) SWIG_fail;
+    }
+    (arg1)->reset(arg2,arg3);
+    
+    Py_INCREF(Py_None); resultobj = Py_None;
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_scanline32_bin_add_cell(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::scanline32_bin *arg1 = (agg::scanline32_bin *) 0 ;
+    int arg2 ;
+    unsigned int arg3 ;
+    PyObject * obj0 = 0 ;
+    PyObject * obj1 = 0 ;
+    PyObject * obj2 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"OOO:scanline32_bin_add_cell",&obj0,&obj1,&obj2)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__scanline32_bin, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    {
+        arg2 = (int)(SWIG_As_int(obj1)); 
+        if (SWIG_arg_fail(2)) SWIG_fail;
+    }
+    {
+        arg3 = (unsigned int)(SWIG_As_unsigned_SS_int(obj2)); 
+        if (SWIG_arg_fail(3)) SWIG_fail;
+    }
+    (arg1)->add_cell(arg2,arg3);
+    
+    Py_INCREF(Py_None); resultobj = Py_None;
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_scanline32_bin_add_span(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::scanline32_bin *arg1 = (agg::scanline32_bin *) 0 ;
+    int arg2 ;
+    unsigned int arg3 ;
+    unsigned int arg4 ;
+    PyObject * obj0 = 0 ;
+    PyObject * obj1 = 0 ;
+    PyObject * obj2 = 0 ;
+    PyObject * obj3 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"OOOO:scanline32_bin_add_span",&obj0,&obj1,&obj2,&obj3)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__scanline32_bin, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    {
+        arg2 = (int)(SWIG_As_int(obj1)); 
+        if (SWIG_arg_fail(2)) SWIG_fail;
+    }
+    {
+        arg3 = (unsigned int)(SWIG_As_unsigned_SS_int(obj2)); 
+        if (SWIG_arg_fail(3)) SWIG_fail;
+    }
+    {
+        arg4 = (unsigned int)(SWIG_As_unsigned_SS_int(obj3)); 
+        if (SWIG_arg_fail(4)) SWIG_fail;
+    }
+    (arg1)->add_span(arg2,arg3,arg4);
+    
+    Py_INCREF(Py_None); resultobj = Py_None;
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_scanline32_bin_add_cells(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::scanline32_bin *arg1 = (agg::scanline32_bin *) 0 ;
+    int arg2 ;
+    unsigned int arg3 ;
+    void *arg4 = (void *) 0 ;
+    PyObject * obj0 = 0 ;
+    PyObject * obj1 = 0 ;
+    PyObject * obj2 = 0 ;
+    PyObject * obj3 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"OOOO:scanline32_bin_add_cells",&obj0,&obj1,&obj2,&obj3)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__scanline32_bin, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    {
+        arg2 = (int)(SWIG_As_int(obj1)); 
+        if (SWIG_arg_fail(2)) SWIG_fail;
+    }
+    {
+        arg3 = (unsigned int)(SWIG_As_unsigned_SS_int(obj2)); 
+        if (SWIG_arg_fail(3)) SWIG_fail;
+    }
+    {
+        if ((SWIG_ConvertPtr(obj3,(void **)(&arg4),0,SWIG_POINTER_EXCEPTION|0))== -1) {
+            SWIG_arg_fail(4);SWIG_fail;
+        }
+    }
+    (arg1)->add_cells(arg2,arg3,(void const *)arg4);
+    
+    Py_INCREF(Py_None); resultobj = Py_None;
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_scanline32_bin_finalize(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::scanline32_bin *arg1 = (agg::scanline32_bin *) 0 ;
+    int arg2 ;
+    PyObject * obj0 = 0 ;
+    PyObject * obj1 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"OO:scanline32_bin_finalize",&obj0,&obj1)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__scanline32_bin, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    {
+        arg2 = (int)(SWIG_As_int(obj1)); 
+        if (SWIG_arg_fail(2)) SWIG_fail;
+    }
+    (arg1)->finalize(arg2);
+    
+    Py_INCREF(Py_None); resultobj = Py_None;
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_scanline32_bin_reset_spans(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::scanline32_bin *arg1 = (agg::scanline32_bin *) 0 ;
+    PyObject * obj0 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"O:scanline32_bin_reset_spans",&obj0)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__scanline32_bin, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    (arg1)->reset_spans();
+    
+    Py_INCREF(Py_None); resultobj = Py_None;
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_scanline32_bin_y(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::scanline32_bin *arg1 = (agg::scanline32_bin *) 0 ;
+    int result;
+    PyObject * obj0 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"O:scanline32_bin_y",&obj0)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__scanline32_bin, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    result = (int)(arg1)->y();
+    
+    {
+        resultobj = SWIG_From_int((int)(result)); 
+    }
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_scanline32_bin_num_spans(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::scanline32_bin *arg1 = (agg::scanline32_bin *) 0 ;
+    unsigned int result;
+    PyObject * obj0 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"O:scanline32_bin_num_spans",&obj0)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__scanline32_bin, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    result = (unsigned int)((agg::scanline32_bin const *)arg1)->num_spans();
+    
+    {
+        resultobj = SWIG_From_unsigned_SS_int((unsigned int)(result)); 
+    }
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject * scanline32_bin_swigregister(PyObject *, PyObject *args) {
+    PyObject *obj;
+    if (!PyArg_ParseTuple(args,(char*)"O", &obj)) return NULL;
+    SWIG_TypeClientData(SWIGTYPE_p_agg__scanline32_bin, obj);
+    Py_INCREF(obj);
+    return Py_BuildValue((char *)"");
+}
 static PyObject *_wrap_render_scanlines_rgba(PyObject *, PyObject *args) {
     PyObject *resultobj = NULL;
     agg::rasterizer_scanline_aa< > *arg1 = 0 ;
-    agg::scanline_p<agg::int8u,agg::int16 > *arg2 = 0 ;
+    agg::scanline_p<agg::int8u > *arg2 = 0 ;
     agg::renderer_scanline_aa_solid<renderer_base_rgba_t > *arg3 = 0 ;
     PyObject * obj0 = 0 ;
     PyObject * obj1 = 0 ;
@@ -25430,10 +25958,10 @@ static PyObject *_wrap_render_scanlines_rgba(PyObject *, PyObject *args) {
         if (SWIG_arg_fail(1)) SWIG_fail;
     }
     {
-        SWIG_Python_ConvertPtr(obj1, (void **)&arg2, SWIGTYPE_p_agg__scanline_pTunsigned_char_short_t, SWIG_POINTER_EXCEPTION | 0);
+        SWIG_Python_ConvertPtr(obj1, (void **)&arg2, SWIGTYPE_p_agg__scanline_pTunsigned_char_t, SWIG_POINTER_EXCEPTION | 0);
         if (SWIG_arg_fail(2)) SWIG_fail;
         if (arg2 == NULL) {
-            SWIG_null_ref("agg::scanline_p<agg::int8u,agg::int16 >");
+            SWIG_null_ref("agg::scanline_p<agg::int8u >");
         }
         if (SWIG_arg_fail(2)) SWIG_fail;
     }
@@ -25715,6 +26243,7 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"delete_pixel64_type", _wrap_delete_pixel64_type, METH_VARARGS, NULL},
 	 { (char *)"pixel64_type_swigregister", pixel64_type_swigregister, METH_VARARGS, NULL},
 	 { (char *)"new_pixel_format_rgba", _wrap_new_pixel_format_rgba, METH_VARARGS, NULL},
+	 { (char *)"pixel_format_rgba_attach", _wrap_pixel_format_rgba_attach, METH_VARARGS, NULL},
 	 { (char *)"pixel_format_rgba_width", _wrap_pixel_format_rgba_width, METH_VARARGS, NULL},
 	 { (char *)"pixel_format_rgba_height", _wrap_pixel_format_rgba_height, METH_VARARGS, NULL},
 	 { (char *)"pixel_format_rgba_pixel", _wrap_pixel_format_rgba_pixel, METH_VARARGS, NULL},
@@ -25737,6 +26266,7 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"delete_pixel_format_rgba", _wrap_delete_pixel_format_rgba, METH_VARARGS, NULL},
 	 { (char *)"pixel_format_rgba_swigregister", pixel_format_rgba_swigregister, METH_VARARGS, NULL},
 	 { (char *)"new_renderer_base_rgba", _wrap_new_renderer_base_rgba, METH_VARARGS, NULL},
+	 { (char *)"renderer_base_rgba_attach", _wrap_renderer_base_rgba_attach, METH_VARARGS, NULL},
 	 { (char *)"renderer_base_rgba_ren", _wrap_renderer_base_rgba_ren, METH_VARARGS, NULL},
 	 { (char *)"renderer_base_rgba_width", _wrap_renderer_base_rgba_width, METH_VARARGS, NULL},
 	 { (char *)"renderer_base_rgba_height", _wrap_renderer_base_rgba_height, METH_VARARGS, NULL},
@@ -25956,6 +26486,7 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"delete_rasterizer_scanline_aa", _wrap_delete_rasterizer_scanline_aa, METH_VARARGS, NULL},
 	 { (char *)"rasterizer_scanline_aa_swigregister", rasterizer_scanline_aa_swigregister, METH_VARARGS, NULL},
 	 { (char *)"new_renderer_scanline_aa_solid_rgba", _wrap_new_renderer_scanline_aa_solid_rgba, METH_VARARGS, NULL},
+	 { (char *)"renderer_scanline_aa_solid_rgba_attach", _wrap_renderer_scanline_aa_solid_rgba_attach, METH_VARARGS, NULL},
 	 { (char *)"renderer_scanline_aa_solid_rgba_color", _wrap_renderer_scanline_aa_solid_rgba_color, METH_VARARGS, NULL},
 	 { (char *)"renderer_scanline_aa_solid_rgba_prepare", _wrap_renderer_scanline_aa_solid_rgba_prepare, METH_VARARGS, NULL},
 	 { (char *)"renderer_scanline_aa_solid_rgba_color_rgba8", _wrap_renderer_scanline_aa_solid_rgba_color_rgba8, METH_VARARGS, NULL},
@@ -25963,6 +26494,7 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"delete_renderer_scanline_aa_solid_rgba", _wrap_delete_renderer_scanline_aa_solid_rgba, METH_VARARGS, NULL},
 	 { (char *)"renderer_scanline_aa_solid_rgba_swigregister", renderer_scanline_aa_solid_rgba_swigregister, METH_VARARGS, NULL},
 	 { (char *)"new_renderer_scanline_bin_solid_rgba", _wrap_new_renderer_scanline_bin_solid_rgba, METH_VARARGS, NULL},
+	 { (char *)"renderer_scanline_bin_solid_rgba_attach", _wrap_renderer_scanline_bin_solid_rgba_attach, METH_VARARGS, NULL},
 	 { (char *)"renderer_scanline_bin_solid_rgba_color", _wrap_renderer_scanline_bin_solid_rgba_color, METH_VARARGS, NULL},
 	 { (char *)"renderer_scanline_bin_solid_rgba_prepare", _wrap_renderer_scanline_bin_solid_rgba_prepare, METH_VARARGS, NULL},
 	 { (char *)"renderer_scanline_bin_solid_rgba_color_rgba8", _wrap_renderer_scanline_bin_solid_rgba_color_rgba8, METH_VARARGS, NULL},
@@ -25985,14 +26517,24 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"new_scanline_bin", _wrap_new_scanline_bin, METH_VARARGS, NULL},
 	 { (char *)"scanline_bin_reset", _wrap_scanline_bin_reset, METH_VARARGS, NULL},
 	 { (char *)"scanline_bin_add_cell", _wrap_scanline_bin_add_cell, METH_VARARGS, NULL},
-	 { (char *)"scanline_bin_add_cells", _wrap_scanline_bin_add_cells, METH_VARARGS, NULL},
 	 { (char *)"scanline_bin_add_span", _wrap_scanline_bin_add_span, METH_VARARGS, NULL},
+	 { (char *)"scanline_bin_add_cells", _wrap_scanline_bin_add_cells, METH_VARARGS, NULL},
 	 { (char *)"scanline_bin_finalize", _wrap_scanline_bin_finalize, METH_VARARGS, NULL},
 	 { (char *)"scanline_bin_reset_spans", _wrap_scanline_bin_reset_spans, METH_VARARGS, NULL},
 	 { (char *)"scanline_bin_y", _wrap_scanline_bin_y, METH_VARARGS, NULL},
 	 { (char *)"scanline_bin_num_spans", _wrap_scanline_bin_num_spans, METH_VARARGS, NULL},
-	 { (char *)"scanline_bin_begin", _wrap_scanline_bin_begin, METH_VARARGS, NULL},
 	 { (char *)"scanline_bin_swigregister", scanline_bin_swigregister, METH_VARARGS, NULL},
+	 { (char *)"delete_scanline32_bin", _wrap_delete_scanline32_bin, METH_VARARGS, NULL},
+	 { (char *)"new_scanline32_bin", _wrap_new_scanline32_bin, METH_VARARGS, NULL},
+	 { (char *)"scanline32_bin_reset", _wrap_scanline32_bin_reset, METH_VARARGS, NULL},
+	 { (char *)"scanline32_bin_add_cell", _wrap_scanline32_bin_add_cell, METH_VARARGS, NULL},
+	 { (char *)"scanline32_bin_add_span", _wrap_scanline32_bin_add_span, METH_VARARGS, NULL},
+	 { (char *)"scanline32_bin_add_cells", _wrap_scanline32_bin_add_cells, METH_VARARGS, NULL},
+	 { (char *)"scanline32_bin_finalize", _wrap_scanline32_bin_finalize, METH_VARARGS, NULL},
+	 { (char *)"scanline32_bin_reset_spans", _wrap_scanline32_bin_reset_spans, METH_VARARGS, NULL},
+	 { (char *)"scanline32_bin_y", _wrap_scanline32_bin_y, METH_VARARGS, NULL},
+	 { (char *)"scanline32_bin_num_spans", _wrap_scanline32_bin_num_spans, METH_VARARGS, NULL},
+	 { (char *)"scanline32_bin_swigregister", scanline32_bin_swigregister, METH_VARARGS, NULL},
 	 { (char *)"render_scanlines_rgba", _wrap_render_scanlines_rgba, METH_VARARGS, NULL},
 	 { NULL, NULL, 0, NULL }
 };
@@ -26024,7 +26566,6 @@ static void *_p_agg__conv_strokeTagg__conv_transformTpath_t_agg__trans_affine_t_
 static void *_p_agg__conv_strokeTagg__path_storage_agg__null_markers_tTo_p_agg__conv_adaptor_vcgenTagg__path_storage_agg__vcgen_stroke_agg__null_markers_t(void *x) {
     return (void *)((agg::conv_adaptor_vcgen<agg::path_storage,agg::vcgen_stroke,agg::null_markers > *)  ((agg::conv_stroke<agg::path_storage,agg::null_markers > *) x));
 }
-static swig_type_info _swigt__agg__scanline_pTunsigned_char_agg__int16_t__const_iterator = {"_agg__scanline_pTunsigned_char_agg__int16_t__const_iterator", "span *|agg::scanline_p<unsigned char >::const_iterator", 0, 0, 0};
 static swig_type_info _swigt__p_agg__binary_data = {"_p_agg__binary_data", "agg::binary_data *", 0, 0, 0};
 static swig_type_info _swigt__p_agg__blender_rgbaTagg__rgba16_agg__order_abgr_t = {"_p_agg__blender_rgbaTagg__rgba16_agg__order_abgr_t", "agg::blender_rgba<agg::rgba16,agg::order_abgr > *|agg::blender_abgr64 *", 0, 0, 0};
 static swig_type_info _swigt__p_agg__blender_rgbaTagg__rgba16_agg__order_argb_t = {"_p_agg__blender_rgbaTagg__rgba16_agg__order_argb_t", "agg::blender_rgba<agg::rgba16,agg::order_argb > *|agg::blender_argb64 *", 0, 0, 0};
@@ -26104,10 +26645,14 @@ static swig_type_info _swigt__p_agg__rgba = {"_p_agg__rgba", "agg::rgba *", 0, 0
 static swig_type_info _swigt__p_agg__rgba16 = {"_p_agg__rgba16", "agg::rgba16 *", 0, 0, 0};
 static swig_type_info _swigt__p_agg__rgba8 = {"_p_agg__rgba8", "agg::rgba8 *", 0, 0, 0};
 static swig_type_info _swigt__p_agg__row_ptr_cacheTunsigned_char_t = {"_p_agg__row_ptr_cacheTunsigned_char_t", "agg::row_ptr_cache<unsigned char > *|agg::rendering_buffer *", 0, 0, 0};
+static swig_type_info _swigt__p_agg__scanline32_bin = {"_p_agg__scanline32_bin", "agg::scanline32_bin *", 0, 0, 0};
+static swig_type_info _swigt__p_agg__scanline32_pTunsigned_char_t = {"_p_agg__scanline32_pTunsigned_char_t", "agg::scanline32_p<unsigned char > *|agg::scanline32_p8 *", 0, 0, 0};
+static swig_type_info _swigt__p_agg__scanline32_pTunsigned_int_t = {"_p_agg__scanline32_pTunsigned_int_t", "agg::scanline32_p<unsigned int > *|agg::scanline32_p32 *", 0, 0, 0};
+static swig_type_info _swigt__p_agg__scanline32_pTunsigned_short_t = {"_p_agg__scanline32_pTunsigned_short_t", "agg::scanline32_p<unsigned short > *|agg::scanline32_p16 *", 0, 0, 0};
 static swig_type_info _swigt__p_agg__scanline_bin = {"_p_agg__scanline_bin", "agg::scanline_bin *", 0, 0, 0};
-static swig_type_info _swigt__p_agg__scanline_pTunsigned_char_short_t = {"_p_agg__scanline_pTunsigned_char_short_t", "agg::scanline_p<unsigned char,short > *|agg::scanline_p<agg::int8u,agg::int16 > *", 0, 0, 0};
-static swig_type_info _swigt__p_agg__scanline_pTunsigned_int_short_t = {"_p_agg__scanline_pTunsigned_int_short_t", "agg::scanline_p<unsigned int,short > *|agg::scanline_p32 *", 0, 0, 0};
-static swig_type_info _swigt__p_agg__scanline_pTunsigned_short_short_t = {"_p_agg__scanline_pTunsigned_short_short_t", "agg::scanline_p<unsigned short,short > *|agg::scanline_p16 *", 0, 0, 0};
+static swig_type_info _swigt__p_agg__scanline_pTunsigned_char_t = {"_p_agg__scanline_pTunsigned_char_t", "agg::scanline_p<unsigned char > *|agg::scanline_p<agg::int8u > *", 0, 0, 0};
+static swig_type_info _swigt__p_agg__scanline_pTunsigned_int_t = {"_p_agg__scanline_pTunsigned_int_t", "agg::scanline_p<unsigned int > *|agg::scanline_p32 *", 0, 0, 0};
+static swig_type_info _swigt__p_agg__scanline_pTunsigned_short_t = {"_p_agg__scanline_pTunsigned_short_t", "agg::scanline_p<unsigned short > *|agg::scanline_p16 *", 0, 0, 0};
 static swig_type_info _swigt__p_agg__trans_affine = {"_p_agg__trans_affine", "agg::trans_affine *", 0, 0, 0};
 static swig_type_info _swigt__p_agg__trans_affine_rotation = {"_p_agg__trans_affine_rotation", "agg::trans_affine_rotation *", 0, 0, 0};
 static swig_type_info _swigt__p_agg__trans_affine_scaling = {"_p_agg__trans_affine_scaling", "agg::trans_affine_scaling *", 0, 0, 0};
@@ -26139,7 +26684,7 @@ static swig_type_info _swigt__p_row_data = {"_p_row_data", "row_data *", 0, 0, 0
 static swig_type_info _swigt__p_self_type = {"_p_self_type", "self_type *", 0, 0, 0};
 static swig_type_info _swigt__p_short = {"_p_short", "short *|agg::int16 *", 0, 0, 0};
 static swig_type_info _swigt__p_signed_char = {"_p_signed_char", "signed char *|agg::int8 *", 0, 0, 0};
-static swig_type_info _swigt__p_span = {"_p_span", "span *|agg::scanline_bin::const_iterator", 0, 0, 0};
+static swig_type_info _swigt__p_span = {"_p_span", "span *|agg::scanline_p<unsigned char >::const_iterator", 0, 0, 0};
 static swig_type_info _swigt__p_span_data = {"_p_span_data", "span_data *", 0, 0, 0};
 static swig_type_info _swigt__p_unsigned_char = {"_p_unsigned_char", "unsigned char *|agg::int8u *", 0, 0, 0};
 static swig_type_info _swigt__p_unsigned_int = {"_p_unsigned_int", "unsigned int *|agg::pixel32_type *", 0, 0, 0};
@@ -26153,7 +26698,6 @@ static swig_type_info _swigt__std__ptrdiff_t = {"_std__ptrdiff_t", "std::ptrdiff
 static swig_type_info _swigt__std__size_t = {"_std__size_t", "std::size_t", 0, 0, 0};
 
 static swig_type_info *swig_type_initial[] = {
-  &_swigt__agg__scanline_pTunsigned_char_agg__int16_t__const_iterator,
   &_swigt__p_agg__binary_data,
   &_swigt__p_agg__blender_rgbaTagg__rgba16_agg__order_abgr_t,
   &_swigt__p_agg__blender_rgbaTagg__rgba16_agg__order_argb_t,
@@ -26233,10 +26777,14 @@ static swig_type_info *swig_type_initial[] = {
   &_swigt__p_agg__rgba16,
   &_swigt__p_agg__rgba8,
   &_swigt__p_agg__row_ptr_cacheTunsigned_char_t,
+  &_swigt__p_agg__scanline32_bin,
+  &_swigt__p_agg__scanline32_pTunsigned_char_t,
+  &_swigt__p_agg__scanline32_pTunsigned_int_t,
+  &_swigt__p_agg__scanline32_pTunsigned_short_t,
   &_swigt__p_agg__scanline_bin,
-  &_swigt__p_agg__scanline_pTunsigned_char_short_t,
-  &_swigt__p_agg__scanline_pTunsigned_int_short_t,
-  &_swigt__p_agg__scanline_pTunsigned_short_short_t,
+  &_swigt__p_agg__scanline_pTunsigned_char_t,
+  &_swigt__p_agg__scanline_pTunsigned_int_t,
+  &_swigt__p_agg__scanline_pTunsigned_short_t,
   &_swigt__p_agg__trans_affine,
   &_swigt__p_agg__trans_affine_rotation,
   &_swigt__p_agg__trans_affine_scaling,
@@ -26282,7 +26830,6 @@ static swig_type_info *swig_type_initial[] = {
   &_swigt__std__size_t,
 };
 
-static swig_cast_info _swigc__agg__scanline_pTunsigned_char_agg__int16_t__const_iterator[] = {  {&_swigt__p_span, 0, 0, 0},  {&_swigt__agg__scanline_pTunsigned_char_agg__int16_t__const_iterator, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_agg__binary_data[] = {  {&_swigt__p_agg__binary_data, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_agg__blender_rgbaTagg__rgba16_agg__order_abgr_t[] = {  {&_swigt__p_agg__blender_rgbaTagg__rgba16_agg__order_abgr_t, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_agg__blender_rgbaTagg__rgba16_agg__order_argb_t[] = {  {&_swigt__p_agg__blender_rgbaTagg__rgba16_agg__order_argb_t, 0, 0, 0},{0, 0, 0, 0}};
@@ -26362,10 +26909,14 @@ static swig_cast_info _swigc__p_agg__rgba[] = {  {&_swigt__p_agg__rgba, 0, 0, 0}
 static swig_cast_info _swigc__p_agg__rgba16[] = {  {&_swigt__p_agg__rgba16, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_agg__rgba8[] = {  {&_swigt__p_agg__rgba8, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_agg__row_ptr_cacheTunsigned_char_t[] = {  {&_swigt__p_agg__row_ptr_cacheTunsigned_char_t, 0, 0, 0},{0, 0, 0, 0}};
+static swig_cast_info _swigc__p_agg__scanline32_bin[] = {  {&_swigt__p_agg__scanline32_bin, 0, 0, 0},{0, 0, 0, 0}};
+static swig_cast_info _swigc__p_agg__scanline32_pTunsigned_char_t[] = {  {&_swigt__p_agg__scanline32_pTunsigned_char_t, 0, 0, 0},{0, 0, 0, 0}};
+static swig_cast_info _swigc__p_agg__scanline32_pTunsigned_int_t[] = {  {&_swigt__p_agg__scanline32_pTunsigned_int_t, 0, 0, 0},{0, 0, 0, 0}};
+static swig_cast_info _swigc__p_agg__scanline32_pTunsigned_short_t[] = {  {&_swigt__p_agg__scanline32_pTunsigned_short_t, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_agg__scanline_bin[] = {  {&_swigt__p_agg__scanline_bin, 0, 0, 0},{0, 0, 0, 0}};
-static swig_cast_info _swigc__p_agg__scanline_pTunsigned_char_short_t[] = {  {&_swigt__p_agg__scanline_pTunsigned_char_short_t, 0, 0, 0},{0, 0, 0, 0}};
-static swig_cast_info _swigc__p_agg__scanline_pTunsigned_int_short_t[] = {  {&_swigt__p_agg__scanline_pTunsigned_int_short_t, 0, 0, 0},{0, 0, 0, 0}};
-static swig_cast_info _swigc__p_agg__scanline_pTunsigned_short_short_t[] = {  {&_swigt__p_agg__scanline_pTunsigned_short_short_t, 0, 0, 0},{0, 0, 0, 0}};
+static swig_cast_info _swigc__p_agg__scanline_pTunsigned_char_t[] = {  {&_swigt__p_agg__scanline_pTunsigned_char_t, 0, 0, 0},{0, 0, 0, 0}};
+static swig_cast_info _swigc__p_agg__scanline_pTunsigned_int_t[] = {  {&_swigt__p_agg__scanline_pTunsigned_int_t, 0, 0, 0},{0, 0, 0, 0}};
+static swig_cast_info _swigc__p_agg__scanline_pTunsigned_short_t[] = {  {&_swigt__p_agg__scanline_pTunsigned_short_t, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_agg__trans_affine[] = {  {&_swigt__p_agg__trans_affine_scaling, _p_agg__trans_affine_scalingTo_p_agg__trans_affine, 0, 0},  {&_swigt__p_agg__trans_affine, 0, 0, 0},  {&_swigt__p_agg__trans_affine_skewing, _p_agg__trans_affine_skewingTo_p_agg__trans_affine, 0, 0},  {&_swigt__p_agg__trans_affine_translation, _p_agg__trans_affine_translationTo_p_agg__trans_affine, 0, 0},  {&_swigt__p_agg__trans_affine_rotation, _p_agg__trans_affine_rotationTo_p_agg__trans_affine, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_agg__trans_affine_rotation[] = {  {&_swigt__p_agg__trans_affine_rotation, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_agg__trans_affine_scaling[] = {  {&_swigt__p_agg__trans_affine_scaling, 0, 0, 0},{0, 0, 0, 0}};
@@ -26397,7 +26948,7 @@ static swig_cast_info _swigc__p_row_data[] = {  {&_swigt__p_row_data, 0, 0, 0},{
 static swig_cast_info _swigc__p_self_type[] = {  {&_swigt__p_self_type, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_short[] = {  {&_swigt__p_short, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_signed_char[] = {  {&_swigt__p_signed_char, 0, 0, 0},{0, 0, 0, 0}};
-static swig_cast_info _swigc__p_span[] = {  {&_swigt__p_span, 0, 0, 0},  {&_swigt__agg__scanline_pTunsigned_char_agg__int16_t__const_iterator, 0, 0, 0},{0, 0, 0, 0}};
+static swig_cast_info _swigc__p_span[] = {  {&_swigt__p_span, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_span_data[] = {  {&_swigt__p_span_data, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_unsigned_char[] = {  {&_swigt__p_unsigned_char, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_unsigned_int[] = {  {&_swigt__p_unsigned_int, 0, 0, 0},{0, 0, 0, 0}};
@@ -26411,7 +26962,6 @@ static swig_cast_info _swigc__std__ptrdiff_t[] = {  {&_swigt__std__ptrdiff_t, 0,
 static swig_cast_info _swigc__std__size_t[] = {  {&_swigt__std__size_t, 0, 0, 0},{0, 0, 0, 0}};
 
 static swig_cast_info *swig_cast_initial[] = {
-  _swigc__agg__scanline_pTunsigned_char_agg__int16_t__const_iterator,
   _swigc__p_agg__binary_data,
   _swigc__p_agg__blender_rgbaTagg__rgba16_agg__order_abgr_t,
   _swigc__p_agg__blender_rgbaTagg__rgba16_agg__order_argb_t,
@@ -26491,10 +27041,14 @@ static swig_cast_info *swig_cast_initial[] = {
   _swigc__p_agg__rgba16,
   _swigc__p_agg__rgba8,
   _swigc__p_agg__row_ptr_cacheTunsigned_char_t,
+  _swigc__p_agg__scanline32_bin,
+  _swigc__p_agg__scanline32_pTunsigned_char_t,
+  _swigc__p_agg__scanline32_pTunsigned_int_t,
+  _swigc__p_agg__scanline32_pTunsigned_short_t,
   _swigc__p_agg__scanline_bin,
-  _swigc__p_agg__scanline_pTunsigned_char_short_t,
-  _swigc__p_agg__scanline_pTunsigned_int_short_t,
-  _swigc__p_agg__scanline_pTunsigned_short_short_t,
+  _swigc__p_agg__scanline_pTunsigned_char_t,
+  _swigc__p_agg__scanline_pTunsigned_int_t,
+  _swigc__p_agg__scanline_pTunsigned_short_t,
   _swigc__p_agg__trans_affine,
   _swigc__p_agg__trans_affine_rotation,
   _swigc__p_agg__trans_affine_scaling,

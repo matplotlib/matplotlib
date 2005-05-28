@@ -88,7 +88,7 @@ using namespace agg;
 %include "agg_scanline_p.h"
 %template(scanline_p8) agg::scanline_p<agg::int8u>;
 
-%include "agg_scanline_bin.h"
+%include "agg_scanline_bin.i"
 
 %include "agg_render_scanlines.h"
 %template(render_scanlines_rgba) agg::render_scanlines<
