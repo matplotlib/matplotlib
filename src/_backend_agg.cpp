@@ -1100,6 +1100,7 @@ RendererAgg::_render_lines_path(PathSource &path, const GCAgg& gc) {
   
 }
 
+/*
 Py::Object
 RendererAgg::draw_markers(const Py::Tuple& args) {
   // there is a win32 specific segfault that happens when using the
@@ -1114,6 +1115,7 @@ RendererAgg::draw_markers(const Py::Tuple& args) {
   return _draw_markers_cache(args);
 #endif
 }
+
 
 Py::Object
 RendererAgg::_draw_markers_nocache(const Py::Tuple& args) {
@@ -1239,9 +1241,9 @@ RendererAgg::_draw_markers_nocache(const Py::Tuple& args) {
   
 }
 
-
+*/
 Py::Object
-RendererAgg::_draw_markers_cache(const Py::Tuple& args) {
+RendererAgg::draw_markers(const Py::Tuple& args) {
   //_draw_markers_cache(gc, path, rgbFace, xo, yo, transform)
   theRasterizer->reset_clipping();
   
@@ -1373,7 +1375,7 @@ RendererAgg::_draw_markers_cache(const Py::Tuple& args) {
     rendererAA->color(gc.color);          
     agg::render_scanlines(sa, sl, *rendererAA);
     
-  } //for each marker
+  } //for each marker 
 
   Py_XDECREF(xa);
   Py_XDECREF(ya);
@@ -1382,10 +1384,13 @@ RendererAgg::_draw_markers_cache(const Py::Tuple& args) {
     delete [] fillCache;
   delete [] strokeCache;
   return Py::Object();
-  
+   
 }
 
-Py::Object
+
+
+ 
+Py::Object 
 RendererAgg::draw_path(const Py::Tuple& args) {
   //draw_path(gc, rgbFace, path, transform)
   theRasterizer->reset_clipping();
@@ -1411,8 +1416,8 @@ RendererAgg::draw_path(const Py::Tuple& args) {
   }
   catch(...) {
     throw Py::ValueError("Domain error on affine_params_api in RendererAgg::draw_path");  
-  }
-  
+  } 
+   
   agg::trans_affine xytrans = agg::trans_affine(a,b,c,d,tx,ty);  
   
   double heightd = double(height);  

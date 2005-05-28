@@ -33,8 +33,12 @@ namespace agg
             m_array(array), m_size(size) {}
 
         unsigned size() const { return m_size; }
-        const T& operator [] (unsigned idx) const { return m_array[idx]; }
-              T& operator [] (unsigned idx)       { return m_array[idx]; }
+        const T& operator [] (unsigned i) const { return m_array[i]; }
+              T& operator [] (unsigned i)       { return m_array[i]; }
+        const T& at(unsigned i) const           { return m_array[i]; }
+              T& at(unsigned i)                 { return m_array[i]; }
+        T  value_at(unsigned i) const           { return m_array[i]; }
+
     private:
         T*       m_array;
         unsigned m_size;
@@ -64,6 +68,10 @@ namespace agg
         static unsigned size() { return Size; }
         const T& operator [] (unsigned i) const { return m_array[i]; }
               T& operator [] (unsigned i)       { return m_array[i]; }
+        const T& at(unsigned i) const           { return m_array[i]; }
+              T& at(unsigned i)                 { return m_array[i]; }
+        T  value_at(unsigned i) const           { return m_array[i]; }
+
     private:
         T m_array[Size];
     };
@@ -100,6 +108,9 @@ namespace agg
         unsigned size() const { return m_size; }
         const T& operator [] (unsigned i) const { return m_array[i]; }
               T& operator [] (unsigned i)       { return m_array[i]; }
+        const T& at(unsigned i) const           { return m_array[i]; }
+              T& at(unsigned i)                 { return m_array[i]; }
+        T  value_at(unsigned i) const           { return m_array[i]; }
 
         const T* data() const { return m_array; }
               T* data()       { return m_array; }
@@ -150,8 +161,11 @@ namespace agg
         unsigned byte_size() const { return m_size * sizeof(T); }
         void serialize(int8u* ptr) const;
         void deserialize(const int8u* data, unsigned byte_size);
-        const T& operator [] (unsigned idx) const { return m_array[idx]; }
-              T& operator [] (unsigned idx)       { return m_array[idx]; }
+        const T& operator [] (unsigned i) const { return m_array[i]; }
+              T& operator [] (unsigned i)       { return m_array[i]; }
+        const T& at(unsigned i) const           { return m_array[i]; }
+              T& at(unsigned i)                 { return m_array[i]; }
+        T  value_at(unsigned i) const           { return m_array[i]; }
 
         const T* data() const { return m_array; }
               T* data()       { return m_array; }
@@ -312,14 +326,29 @@ namespace agg
 
         unsigned size() const { return m_size; }
 
-        const T& operator [] (unsigned idx) const
+        const T& operator [] (unsigned i) const
         {
-            return m_blocks[idx >> block_shift][idx & block_mask];
+            return m_blocks[i >> block_shift][i & block_mask];
         }
 
-        T& operator [] (unsigned idx)
+        T& operator [] (unsigned i)
         {
-            return m_blocks[idx >> block_shift][idx & block_mask];
+            return m_blocks[i >> block_shift][i & block_mask];
+        }
+
+        const T& at(unsigned i) const
+        { 
+            return m_blocks[i >> block_shift][i & block_mask];
+        }
+
+        T& at(unsigned i) 
+        { 
+            return m_blocks[i >> block_shift][i & block_mask];
+        }
+
+        T value_at(unsigned i) const
+        { 
+            return m_blocks[i >> block_shift][i & block_mask];
         }
 
         const T& curr(unsigned idx) const

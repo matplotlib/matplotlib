@@ -30,11 +30,12 @@ namespace agg
     class ellipse
     {
     public:
-        ellipse() : m_x(0.0), m_y(0.0), m_rx(1.0), m_ry(1.0), m_num(4), m_step(0) {}
-        ellipse(double x, double y, double rx, double ry, unsigned num_steps) 
-            : m_x(x), m_y(y), m_rx(rx), m_ry(ry), m_num(num_steps), m_step(0) {}
+        ellipse() : m_x(0.0), m_y(0.0), m_rx(1.0), m_ry(1.0), m_num(4), m_step(0), m_cw(false) {}
+        ellipse(double x, double y, double rx, double ry, unsigned num_steps, bool cw=false) 
+            : m_x(x), m_y(y), m_rx(rx), m_ry(ry), m_num(num_steps), m_step(0), m_cw(cw) {}
 
-        void init(double x, double y, double rx, double ry, unsigned num_steps);
+        void init(double x, double y, double rx, double ry, unsigned num_steps, 
+                  bool cw=false);
         void approximation_scale(double scale);
         void rewind(unsigned path_id);
         unsigned vertex(double* x, double* y);
@@ -46,11 +47,13 @@ namespace agg
         double m_ry;
         unsigned m_num;
         unsigned m_step;
+        bool m_cw;
     };
 
 
     //------------------------------------------------------------------------
-    inline void ellipse::init(double x, double y, double rx, double ry, unsigned num_steps)
+    inline void ellipse::init(double x, double y, double rx, double ry, 
+                              unsigned num_steps, bool cw)
     {
         m_x = x;
         m_y = y;
@@ -58,6 +61,7 @@ namespace agg
         m_ry = ry;
         m_num = num_steps;
         m_step = 0;
+        m_cw = cw;
     }
 
     //------------------------------------------------------------------------
@@ -83,6 +87,7 @@ namespace agg
         }
         if(m_step > m_num) return path_cmd_stop;
         double angle = double(m_step) / double(m_num) * 2.0 * pi;
+        if(m_cw) angle = 2.0 * pi - angle;
         *x = m_x + cos(angle) * m_rx;
         *y = m_y + sin(angle) * m_ry;
         m_step++;

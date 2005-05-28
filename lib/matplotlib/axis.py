@@ -172,19 +172,16 @@ class TextWithDash(Artist):
         (x2, y2) = transform.inverse_xy_tup(tuple(c2))
         self.dashline.set_data((x, x2), (y, y2))
 
-        # We now need to extend this vector out to
-        # the center of the text area.
-        # The basic problem here is that we're "rotating"
-        # two separate objects but want it to appear as
-        # if they're rotated together.
-        # This is made non-trivial because of the
-        # interaction between text rotation and alignment -
-        # text alignment is based on the bbox after rotation.
-        # We reset/force both alignments to 'center'
-        # so we can do something relatively reasonable.
-        # There's probably a better way to do this by
-        # embedding all this in the object's transformations,
-        # but I don't grok the transformation stuff
+        # We now need to extend this vector out to the center of the
+        # text area.  The basic problem here is that we're "rotating"
+        # two separate objects but want it to appear as if they're
+        # rotated together.  This is made non-trivial because of the
+        # interaction between text rotation and alignment - text
+        # alignment is based on the bbox after rotation.  We
+        # reset/force both alignments to 'center' so we can do
+        # something relatively reasonable.  There's probably a better
+        # way to do this by embedding all this in the object's
+        # transformations, but I don't grok the transformation stuff
         # well enough yet.
         we = self._mytext.get_window_extent(renderer=renderer)
         w, h = we.width(), we.height()

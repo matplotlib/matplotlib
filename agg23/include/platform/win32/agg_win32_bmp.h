@@ -48,6 +48,11 @@ namespace agg
                            unsigned height, 
                            org_e    org,
                            unsigned clear_val=256);
+        HBITMAP     create_dib_section(HDC h_dc,
+                                       unsigned width, 
+                                       unsigned height, 
+                                       org_e    org,
+                                       unsigned clear_val=256);
 
         void        clear(unsigned clear_val=256);
         void        attach_to_bmp(BITMAPINFO* bmp);
@@ -91,6 +96,11 @@ namespace agg
         pixel_map(const pixel_map&);
         const pixel_map& operator = (const pixel_map&);
         void create_from_bmp(BITMAPINFO *bmp);
+        
+        HBITMAP create_dib_section_from_args(HDC h_dc,
+                                             unsigned width,
+                                             unsigned height,
+                                             unsigned bits_per_pixel);
 
     private:
         BITMAPINFO*    m_bmp;

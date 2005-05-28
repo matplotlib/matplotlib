@@ -631,12 +631,12 @@ namespace agg
         sl.reset_spans();
         typename Scanline1::const_iterator span = sl1.begin();
         unsigned num_spans = sl1.num_spans();
-        do
+        for(;;)
         {
             add_span(span, span->x, abs((int)span->len), sl);
+            if(--num_spans == 0) break;
             ++span;
         }
-        while(--num_spans);
         sl.finalize(sl1.y());
         ren.render(sl);
     }
@@ -705,20 +705,20 @@ namespace agg
             {
                 --num1;
                 --num2;
-                ++span1;
-                ++span2;
+                if(num1) ++span1;
+                if(num2) ++span2;
             }
             else
             {
                 if(advance_span1)
                 {
                     --num1;
-                    ++span1;
+                    if(num1) ++span1;
                 }
                 else
                 {
                     --num2;
-                    ++span2;
+                    if(num2) ++span2;
                 }
             }
         }

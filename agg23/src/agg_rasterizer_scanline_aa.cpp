@@ -7,6 +7,8 @@
 // This software is provided "as is" without express or implied
 // warranty, and with no claim as to its suitability for any purpose.
 //
+//----------------------------------------------------------------------------
+//
 // The author gratefully acknowleges the support of David Turner, 
 // Robert Wilhelm, and Werner Lemberg - the authors of the FreeType 
 // libray - in producing this work. See http://www.freetype.org for details.
@@ -15,6 +17,14 @@
 // Contact: mcseem@antigrain.com
 //          mcseemagg@yahoo.com
 //          http://www.antigrain.com
+//----------------------------------------------------------------------------
+//
+// Adaptation for 32-bit screen coordinates has been sponsored by 
+// Liberty Technology Systems, Inc., visit http://lib-sys.com
+//
+// Liberty Technology Systems, Inc. is the provider of
+// PostScript and PDF technology for software developers.
+// 
 //----------------------------------------------------------------------------
 //
 // Class outline_aa - implementation.

@@ -27,13 +27,19 @@ namespace agg
     template<class BaseRenderer, class SpanGenerator> class renderer_scanline_aa
     {
     public:
-        typedef BaseRenderer base_ren_type;
+        typedef BaseRenderer  base_ren_type;
+        typedef SpanGenerator span_gen_type;
 
         //--------------------------------------------------------------------
-        renderer_scanline_aa(base_ren_type& ren, SpanGenerator& span_gen) :
+        renderer_scanline_aa() : m_ren(0), m_span_gen(0) {}
+        renderer_scanline_aa(base_ren_type& ren, span_gen_type& span_gen) :
             m_ren(&ren),
             m_span_gen(&span_gen)
+        {}
+        void attach(base_ren_type& ren, span_gen_type& span_gen)
         {
+            m_ren = ren;
+            m_span_gen = span_gen;
         }
         
         //--------------------------------------------------------------------
@@ -56,7 +62,7 @@ namespace agg
                 {
                     unsigned num_spans = sl.num_spans();
                     typename Scanline::const_iterator span = sl.begin();
-                    do
+                    for(;;)
                     {
                         int x = span->x;
                         int len = span->len;
@@ -94,9 +100,9 @@ namespace agg
                                     *covers);
                             }
                         }
+                        if(--num_spans == 0) break;
                         ++span;
                     }
-                    while(--num_spans);
                 }
             }
             while(m_ren->next_clip_box());
@@ -117,9 +123,13 @@ namespace agg
         typedef typename base_ren_type::color_type color_type;
 
         //--------------------------------------------------------------------
+        renderer_scanline_aa_solid() : m_ren(0) {}
         renderer_scanline_aa_solid(base_ren_type& ren) :
             m_ren(&ren)
+        {}
+        void attach(base_ren_type& ren)
         {
+            m_ren = &ren;
         }
         
         //--------------------------------------------------------------------
@@ -136,7 +146,7 @@ namespace agg
             unsigned num_spans = sl.num_spans();
             typename Scanline::const_iterator span = sl.begin();
 
-            do
+            for(;;)
             {
                 int x = span->x;
                 if(span->len > 0)
@@ -151,9 +161,9 @@ namespace agg
                                        m_color, 
                                        *(span->covers));
                 }
+                if(--num_spans == 0) break;
                 ++span;
             }
-            while(--num_spans);
         }
         
     private:
@@ -171,13 +181,19 @@ namespace agg
     template<class BaseRenderer, class SpanGenerator> class renderer_scanline_bin
     {
     public:
-        typedef BaseRenderer base_ren_type;
+        typedef BaseRenderer  base_ren_type;
+        typedef SpanGenerator span_gen_type;
 
         //--------------------------------------------------------------------
-        renderer_scanline_bin(base_ren_type& ren, SpanGenerator& span_gen) :
+        renderer_scanline_bin() : m_ren(0), m_span_gen(0) {}
+        renderer_scanline_bin(base_ren_type& ren, span_gen_type& span_gen) :
             m_ren(&ren),
             m_span_gen(&span_gen)
+        {}
+        void attach(base_ren_type& ren, span_gen_type& span_gen)
         {
+            m_ren = ren;
+            m_span_gen = span_gen;
         }
         
         //--------------------------------------------------------------------
@@ -200,7 +216,7 @@ namespace agg
                 {
                     unsigned num_spans = sl.num_spans();
                     typename Scanline::const_iterator span = sl.begin();
-                    do
+                    for(;;)
                     {
                         int x = span->x;
                         int len = span->len;
@@ -225,9 +241,9 @@ namespace agg
                                     0);
                             }
                         }
+                        if(--num_spans == 0) break;
                         ++span;
                     }
-                    while(--num_spans);
                 }
             }
             while(m_ren->next_clip_box());
@@ -246,16 +262,22 @@ namespace agg
     template<class BaseRenderer, class SpanGenerator> class renderer_scanline_direct
     {
     public:
-        typedef BaseRenderer base_ren_type;
+        typedef BaseRenderer  base_ren_type;
+        typedef SpanGenerator span_gen_type;
         typedef typename base_ren_type::span_data span_data;
 
         //--------------------------------------------------------------------
-        renderer_scanline_direct(base_ren_type& ren, SpanGenerator& span_gen) :
+        renderer_scanline_direct() : m_ren(0), m_span_gen(0) {}
+        renderer_scanline_direct(base_ren_type& ren, span_gen_type& span_gen) :
             m_ren(&ren),
             m_span_gen(&span_gen)
+        {}
+        void attach(base_ren_type& ren, span_gen_type& span_gen)
         {
+            m_ren = ren;
+            m_span_gen = span_gen;
         }
-        
+
         //--------------------------------------------------------------------
         void prepare(unsigned max_span_len) 
         { 
@@ -276,7 +298,7 @@ namespace agg
                 {
                     unsigned num_spans = sl.num_spans();
                     typename Scanline::const_iterator span = sl.begin();
-                    do
+                    for(;;)
                     {
                         int x = span->x;
                         int len = span->len;
@@ -302,9 +324,9 @@ namespace agg
                                 }
                             }
                         }
+                        if(--num_spans == 0) break;
                         ++span;
                     }
-                    while(--num_spans);
                 }
             }
             while(m_ren->next_clip_box());
@@ -324,13 +346,19 @@ namespace agg
     template<class BaseRenderer, class SpanGenerator> class renderer_scanline_bin_copy
     {
     public:
-        typedef BaseRenderer base_ren_type;
+        typedef BaseRenderer  base_ren_type;
+        typedef SpanGenerator span_gen_type;
 
         //--------------------------------------------------------------------
-        renderer_scanline_bin_copy(base_ren_type& ren, SpanGenerator& span_gen) :
+        renderer_scanline_bin_copy() : m_ren(0), m_span_gen(0) {}
+        renderer_scanline_bin_copy(base_ren_type& ren, span_gen_type& span_gen) :
             m_ren(&ren),
             m_span_gen(&span_gen)
+        {}
+        void attach(base_ren_type& ren, span_gen_type& span_gen)
         {
+            m_ren = ren;
+            m_span_gen = span_gen;
         }
         
         //--------------------------------------------------------------------
@@ -353,7 +381,7 @@ namespace agg
                 {
                     unsigned num_spans = sl.num_spans();
                     typename Scanline::const_iterator span = sl.begin();
-                    do
+                    for(;;)
                     {
                         int x = span->x;
                         int len = span->len;
@@ -377,9 +405,9 @@ namespace agg
                                     m_span_gen->generate(x, y, len));
                             }
                         }
+                        if(--num_spans == 0) break;
                         ++span;
                     }
-                    while(--num_spans);
                 }
             }
             while(m_ren->next_clip_box());
@@ -400,9 +428,13 @@ namespace agg
         typedef typename base_ren_type::color_type color_type;
 
         //--------------------------------------------------------------------
+        renderer_scanline_bin_solid() : m_ren(0) {}
         renderer_scanline_bin_solid(base_ren_type& ren) :
             m_ren(&ren)
+        {}
+        void attach(base_ren_type& ren)
         {
+            m_ren = &ren;
         }
         
         //--------------------------------------------------------------------
@@ -417,7 +449,7 @@ namespace agg
         {
             unsigned num_spans = sl.num_spans();
             typename Scanline::const_iterator span = sl.begin();
-            do
+            for(;;)
             {
                 m_ren->blend_hline(span->x, 
                                    sl.y(), 
@@ -426,9 +458,9 @@ namespace agg
                                                       span->len), 
                                    m_color, 
                                    cover_full);
+                if(--num_spans == 0) break;
                 ++span;
             }
-            while(--num_spans);
         }
         
     private:

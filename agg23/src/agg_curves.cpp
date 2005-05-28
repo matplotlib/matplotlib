@@ -220,6 +220,7 @@ namespace agg
             --m_step;
             return path_cmd_move_to;
         }
+
         if(m_step == 0)
         {
             *x = m_end_x;
@@ -227,6 +228,7 @@ namespace agg
             --m_step;
             return path_cmd_line_to;
         }
+
         m_fx   += m_dfx; 
         m_fy   += m_dfy;
         m_dfx  += m_ddfx; 

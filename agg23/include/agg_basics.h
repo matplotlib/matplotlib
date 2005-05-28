@@ -49,7 +49,7 @@
 #endif
 
 #ifndef AGG_INT64
-#if defined(_MSC_VER)
+#if defined(_MSC_VER) || defined(__BORLANDC__)
 #define AGG_INT64 signed __int64
 #else
 #define AGG_INT64 signed long long
@@ -57,7 +57,7 @@
 #endif
 
 #ifndef AGG_INT64U
-#if defined(_MSC_VER)
+#if defined(_MSC_VER) || defined(__BORLANDC__)
 #define AGG_INT64U unsigned __int64
 #else
 #define AGG_INT64U unsigned long long
