@@ -1171,14 +1171,20 @@ data_init (Csite * site, int region, long nchunk)
 void
 mask_zones (long iMax, long jMax, char *mask, char *reg)
 {
-    long i, j, ij = 0;
+    long i, j, ij;
     long nreg = iMax * jMax + iMax + 1;
+
+    for (ij = iMax+1; ij < iMax*jMax; ij++)
+    {
+        reg[ij] = 1;
+    }
+
+    ij = 0;
     for (j = 0; j < jMax; j++)
     {
         for (i = 0; i < iMax; i++, ij++)
         {
-            reg[ij] = 1;
-            if (i == 0) reg[ij] = 0;
+            if (i == 0 || j == 0) reg[ij] = 0;
             if (mask[ij] != 0)
             {
                 reg[ij] = 0;

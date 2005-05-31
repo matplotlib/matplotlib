@@ -10,7 +10,7 @@ requires dvipng to be installed.
 """
 import os, sys, md5
 from matplotlib import get_home, get_data_path
-from matplotlib._image import readpng, fromarray
+from matplotlib._image import readpng
 from matplotlib.numerix import ravel, where, array, \
      zeros, Float, absolute, nonzero, sqrt
      
@@ -29,7 +29,7 @@ class TexManager:
     def __init__(self):
         if not os.path.isdir(self.texcache):
             os.mkdir(self.texcache)
-        self.imaged = {}
+        self.arrayd = {}
         self.postscriptd = {}
         self.pscnt = 0
         self.dvipngVersion = None
@@ -82,7 +82,7 @@ class TexManager:
         # assume gray bg
         #command = "dvipng -bg 'rgb 0.75 0.75 .75' -fg 'rgb 0.0 0.0 0.0' -D %d -T tight -o %s %s"% (dpi, pngfile, dvifile)                
 
-        # see get_image for a discussion of the background
+        # see get_rgba for a discussion of the background
         if force or not os.path.exists(pngfile):
             os.system(command)
         return pngfile
@@ -193,9 +193,9 @@ class TexManager:
         self.pscnt += 1
         return val
         
-    def get_image(self, tex, fontsize=10, dpi=80, rgb=(0,0,0)):
+    def get_rgba(self, tex, fontsize=10, dpi=80, rgb=(0,0,0)):
         """
-        Return tex string as a matplotlib._image.Image
+        Return tex string as an rgba array
         """
         # dvipng assumes a constant background, whereas we want to
         # overlay these rasters with antialiasing over arbitrary
@@ -223,10 +223,9 @@ class TexManager:
         
         r,g,b = rgb
         key = tex, dpi, tuple(rgb)
-        im = self.imaged.get(key)
+        Z = self.arrayd.get(key)
 
-
-        if im is None:
+        if Z is None:
             # force=True to skip cacheing while debugging
             pngfile = self.make_png(tex, dpi, force=False) 
             X = readpng(pngfile)
@@ -246,10 +245,10 @@ class TexManager:
             Z[:,:,1] = g
             Z[:,:,2] = b
             Z[:,:,3] = alpha
-            im = fromarray(Z, 1)
+            #im = fromarray(Z, 1)
                
-            self.imaged[key] = im
-        return im
+            self.arrayd[key] = Z
+        return Z
 
     def get_dvipng_version(self):
         if self.dvipngVersion is not None: return self.dvipngVersion
