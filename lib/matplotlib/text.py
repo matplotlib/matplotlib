@@ -11,9 +11,10 @@ from cbook import enumerate, popd, is_string_like
 from font_manager import FontProperties
 from matplotlib import rcParams
 from patches import bbox_artist
-from numerix import sin, cos, pi, cumsum, dot, asarray, array, where, nonzero, equal
+from numerix import sin, cos, pi, cumsum, dot, asarray, array, \
+     where, nonzero, equal, sqrt
 from transforms import lbwh_to_bbox, bbox_all
-
+from lines import Line2D
 
 def scanner(s):
     """
@@ -72,8 +73,16 @@ def _process_text_args(override, fontdict=None, **kwargs):
     override.update(kwargs)
     return override
 
-
-
+# Extracted from Text's method to serve as a function
+def get_rotation(rotation):
+    'return the text angle as float'
+    if rotation in ('horizontal', None):
+        angle = 0.
+    elif rotation == 'vertical':            
+        angle = 90.
+    else:
+        angle = float(rotation)
+    return angle%360
 
 class Text(Artist):
     """
@@ -120,13 +129,19 @@ class Text(Artist):
     def get_rotation(self):
         'return the text angle as float'
         #return 0
-        if self._rotation in ('horizontal', None):
-            angle = 0.
-        elif self._rotation == 'vertical':            
-            angle = 90.
-        else:
-            angle = float(self._rotation)
-        return angle%360
+
+#         if self._rotation in ('horizontal', None):
+#             angle = 0.
+#         elif self._rotation == 'vertical':            
+#             angle = 90.
+#         else:
+#             angle = float(self._rotation)
+#         return angle%360
+
+        # Since the get_rotation logic was extracted
+        # into a function for TextWithDash, this
+        # method could now read as follows.
+        return get_rotation(self._rotation)
     
     def update_from(self, other):
         'Copy properties from t to self'
@@ -712,3 +727,332 @@ ACCEPTS: a matplotlib.font_manager.FontProperties instance
         self.cached[key] = val
 
         return val
+
+class TextWithDash(Artist):
+    """
+    This is basically a Text with a dash (drawn with a Line2D)
+    before/after it. It is intended to be a drop-in replacement
+    for Text (implemented using delegation and get/setattr),
+    and should behave identically to Text when dashlength=0.0.
+
+    The dash always comes between the point specified by
+    set_position() and the text. When a dash exists, the
+    text alignment arguments (horizontalalignment,
+    verticalalignment) are ignored.
+
+    dashlength is the length of the dash in canvas units.
+    (default=0.0).
+
+    dashdirection is one of 0 or 1, where 0 draws the dash
+    after the text and 1 before.
+    (default=0).
+
+    dashrotation specifies the rotation of the dash, and
+    should generally stay None. In this case
+    self.get_dashrotation() returns self.get_rotation().
+    (I.e., the dash takes its rotation from the text's
+    rotation). Because the text center is projected onto
+    the dash, major deviations in the rotation cause
+    what may be considered visually unappealing results.
+    (default=None).
+
+    dashpad is a padding length to add (or subtract) space
+    between the text and the dash, in canvas units.
+    (default=3).
+
+    dashpush "pushes" the dash and text away from the point
+    specified by set_position() by the amount in canvas units.
+    (default=0)
+
+    NOTE: The alignment of the two objects is based on the
+    bbox of the Text, as obtained by get_window_extent().
+    This, in turn, appears to depend on the font metrics
+    as given by the rendering backend. Hence the quality
+    of the "centering" of the label text with respect to
+    the dash varies depending on the backend used.
+
+    NOTE2: I'm not sure that I got the get_window_extent()
+    right, or whether that's sufficient for providing the
+    object bbox.
+    """
+    __name__ = 'textwithdash'
+
+    def __init__(self, 
+                 x=0, y=0, text='',
+                 color=None,          # defaults to rc params
+                 verticalalignment='center',
+                 horizontalalignment='center',
+                 multialignment=None,
+                 fontproperties=None, # defaults to FontProperties()
+                 rotation=None,
+                 dashlength=0.0,
+                 dashdirection=0,
+                 dashrotation=None,
+                 dashpad=3,
+                 dashpush=0,
+                 xaxis=True,
+                 ):
+        Artist.__init__(self)
+        # The position (x,y) values for _mytext and dashline
+        # are bogus as given in the instantiation; they will
+        # be set correctly by update_coords() in draw()
+        self._mytext = Text(
+                      x=x, y=y, text=text,
+                      color=color,
+                      verticalalignment=verticalalignment,
+                      horizontalalignment=horizontalalignment,
+                      multialignment=multialignment,
+                      fontproperties=fontproperties,
+                      rotation=rotation,
+                      )
+        self.dashline = Line2D(xdata=(x, x),
+                               ydata=(y, y),
+                               color='k',
+                               linestyle='-')
+        self._x = x
+        self._y = y
+        self._dashlength = dashlength
+        self._dashdirection = dashdirection
+        self._dashrotation = dashrotation
+        self._dashpad = dashpad
+        self._dashpush = dashpush
+        
+    def __getattr__(self, name):
+        """Delegate most things to self._mytext.
+        """
+        # We need to protect for the __init__ case
+        if '_mytext' in self.__dict__:
+            return getattr(self._mytext, name)
+
+    def __setattr__(self, name, value):
+        """Capture only a few things as necessary
+        and send the rest off to self._mytext
+        """
+        if name in ['_mytext', '_dashlength',
+                    '_dashdirection', '_dashrotation',
+                    '_dashpad', '_dashpush',
+                    '_x', '_y',
+                    '_transform', '_transformSet',
+                    'figure',                    ]:
+            self.__dict__[name] = value
+        else:
+            # We need to protect for the init case
+            text = self._mytext
+            if text != None:
+                setattr(self._mytext, name, value)
+
+    def draw(self, renderer):
+        if not self.get_visible(): return
+        self.update_coords(renderer)
+        self._mytext.draw(renderer)
+        #bbox_artist(self._mytext, renderer, props={'pad':0}, fill=False)
+        if self.get_dashlength() > 0.0:
+            self.dashline.draw(renderer)
+
+    def update_coords(self, renderer):
+        """Computes the actual x,y coordinates for
+        self._mytext based on the input x,y and the
+        dashlength. Since the rotation is with respect
+        to the actual canvas's coordinates we need to
+        map back and forth.
+        """
+        (x, y) = self.get_position()
+        dashlength = self.get_dashlength()
+
+        # Shortcircuit this process if we don't have a dash
+        if dashlength == 0.0:
+            self._mytext.set_position((x, y))
+            return
+
+        dashrotation = self.get_dashrotation()
+        dashdirection = self.get_dashdirection()
+        dashpad = self.get_dashpad()
+        dashpush = self.get_dashpush()
+        transform = self.get_transform()
+        
+        angle = get_rotation(dashrotation)
+        theta = pi*(angle/180.0+dashdirection-1)
+        cos_theta, sin_theta = cos(theta), sin(theta)
+
+        # Compute the dash end points
+        # The 'c' prefix is for canvas coordinates
+        cxy = array(transform.xy_tup((x, y)))
+        cd = array([cos_theta, sin_theta])
+        c1 = cxy+dashpush*cd
+        c2 = cxy+(dashpush+dashlength)*cd
+        (x1, y1) = transform.inverse_xy_tup(tuple(c1))
+        (x2, y2) = transform.inverse_xy_tup(tuple(c2))
+        self.dashline.set_data((x1, x2), (y1, y2))
+
+        # We now need to extend this vector out to
+        # the center of the text area.
+        # The basic problem here is that we're "rotating"
+        # two separate objects but want it to appear as
+        # if they're rotated together.
+        # This is made non-trivial because of the
+        # interaction between text rotation and alignment -
+        # text alignment is based on the bbox after rotation.
+        # We reset/force both alignments to 'center'
+        # so we can do something relatively reasonable.
+        # There's probably a better way to do this by
+        # embedding all this in the object's transformations,
+        # but I don't grok the transformation stuff
+        # well enough yet.
+        we = self._mytext.get_window_extent(renderer=renderer)
+        w, h = we.width(), we.height()
+        # Watch for zeros
+        if sin_theta == 0.0:
+            dx = w
+            dy = 0.0
+        elif cos_theta == 0.0:
+            dx = 0.0
+            dy = h
+        else:
+            tan_theta = sin_theta/cos_theta
+            dx = w
+            dy = w*tan_theta
+            if dy > h or dy < -h:
+                dy = h
+                dx = h/tan_theta
+        cwd = array([dx, dy])/2
+        cwd *= 1+dashpad/sqrt(dot(cwd,cwd))
+        cw = c2+(dashdirection*2-1)*cwd
+        self._mytext.set_position(transform.inverse_xy_tup(tuple(cw)))
+
+        # Now set the window extent
+        # I'm not at all sure this is the right way to do this.
+        we = self._mytext.get_window_extent(renderer=renderer)
+        self._window_extent = we.deepcopy()
+        self._window_extent.update(((c1[0], c1[1]),), False)
+        
+        # Finally, make text align center
+        self._mytext.set_horizontalalignment('center')
+        self._mytext.set_verticalalignment('center')
+
+    def get_window_extent(self, renderer=None):
+        if self.get_dashlength() == 0.0:
+            return self._mytext.get_window_extent(renderer=renderer)
+        else:
+            self.update_coords(renderer)
+            return self._window_extent
+        
+    def get_dashlength(self):
+        return self._dashlength
+
+    def set_dashlength(self, dl):
+        """
+Set the length of the dash.
+
+ACCEPTS: float
+"""
+        self._dashlength = dl
+
+    def get_dashdirection(self):
+        return self._dashdirection
+
+    def set_dashdirection(self, dd):
+        """
+Set the direction of the dash following the text.
+1 is before the text and 0 is after. The default
+is 0, which is what you'd want for the typical
+case of ticks below and on the left of the figure.
+
+ACCEPTS: int
+"""
+        self._dashdirection = dd
+
+    def get_dashrotation(self):
+        if self._dashrotation == None:
+            return self.get_rotation()
+        else:
+            return self._dashrotation
+
+    def set_dashrotation(self, dr):
+        """
+Set the rotation of the dash.
+
+ACCEPTS: float
+"""
+        self._dashrotation = dr
+
+    def get_dashpad(self):
+        return self._dashpad
+
+    def set_dashpad(self, dp):
+        """
+Set the "pad" of the TextWithDash, which
+is the extra spacing between the dash and
+the text, in canvas units.
+
+ACCEPTS: float
+"""
+        self._dashpad = dp
+
+    def get_dashpush(self):
+        return self._dashpush
+
+    def set_dashpush(self, dp):
+        """
+Set the "push" of the TextWithDash, which
+is the extra spacing between the beginning
+of the dash and the specified position.
+
+ACCEPTS: float
+"""
+        self._dashpush = dp
+
+    def get_position(self):
+        "Return x, y as tuple"
+        return self._x, self._y
+
+    def set_position(self, xy):
+        """
+Set the xy position of the TextWithDash.
+
+ACCEPTS: (x,y)
+"""
+        self.set_x(xy[0])
+        self.set_y(xy[1])
+
+    def set_x(self, x):        
+        """
+Set the x position of the TextWithDash.
+
+ACCEPTS: float
+"""
+        try: self._x.set(x)
+        except AttributeError: self._x = x
+
+    def set_y(self, y):
+        """
+Set the y position of the TextWithDash.
+
+ACCEPTS: float
+"""
+        try: self._y.set(y)
+        except AttributeError: self._y = y
+
+    def set_transform(self, t):
+        """
+Set the Transformation instance used by this artist.
+
+ACCEPTS: a matplotlib.transform transformation instance
+"""
+        self._transform = t
+        self._transformSet = True
+        self._mytext.set_transform(t)
+        self.dashline.set_transform(t)
+
+    def get_figure(self):
+        'return the figure instance'
+        return self.figure
+    
+    def set_figure(self, fig):
+        """
+Set the figure instance the artist belong to.
+
+ACCEPTS: a matplotlib.figure.Figure instance
+        """
+        self.figure = fig
+        self._mytext.set_figure(fig)
+        self.dashline.set_figure(fig)
