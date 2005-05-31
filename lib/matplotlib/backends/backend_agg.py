@@ -72,8 +72,8 @@ from __future__ import division
 
 import os, sys
 from matplotlib import verbose
-from matplotlib.numerix import array, Float
-
+from matplotlib.numerix import array, Float, zeros, transpose
+from matplotlib._image import fromarray
 from matplotlib._pylab_helpers import Gcf
 from matplotlib.backend_bases import RendererBase,\
      GraphicsContextBase, FigureManagerBase, FigureCanvasBase
@@ -85,7 +85,7 @@ from matplotlib.ft2font import FT2Font
 from matplotlib.mathtext import math_parse_s_ft2font
 from matplotlib.texmanager import TexManager
 from matplotlib.transforms import lbwh_to_bbox
-
+from matplotlib.numerix.mlab import fliplr
 import matplotlib.numerix
 
 if matplotlib.numerix.which[0] == "numarray":
@@ -231,10 +231,10 @@ class RendererAgg(RendererBase):
             # todo: handle props
             size = prop.get_size_in_points()
             dpi = self.dpi.get()
-            im = self.texmanager.get_image(s, size, dpi, rgb)
-            m,n = im.get_size()
+            Z = self.texmanager.get_rgba(s, size, dpi, rgb)
+            m,n,tmp = Z.shape
             return n,m
-            
+        
         if ismath:
             width, height, fonts = math_parse_s_ft2font(
                 s, self.dpi.get(), prop.get_size_in_points())
@@ -247,13 +247,34 @@ class RendererAgg(RendererBase):
         return w, h
 
     def draw_tex(self, gc, x, y, s, prop, angle):
-        # todo, handle props, angle, origin
+        # todo, handle props, angle, origins
         rgb = gc.get_rgb()
         size = prop.get_size_in_points()
         dpi = self.dpi.get()
+
+        flip = angle==90
         w,h = self.get_text_width_height(s, prop, 'TeX', rgb)
-        im = self.texmanager.get_image(s, size, dpi, rgb)
-        #print 'drawing image at', x, y, im.get_size()
+
+        Z = self.texmanager.get_rgba(s, size, dpi, rgb)
+        if flip:
+            w,h = h,w
+            x -= w
+            r = Z[:,:,0]
+            g = Z[:,:,1]
+            b = Z[:,:,2]
+            a = Z[:,:,3]
+            m,n,tmp = Z.shape
+            
+            def func(x):
+                return transpose(fliplr(x))
+                
+            Z = zeros((n,m,4), typecode=Float)
+            Z[:,:,0] = func(r)
+            Z[:,:,1] = func(g)
+            Z[:,:,2] = func(b)
+            Z[:,:,3] = func(a)
+
+        im = fromarray(Z, 1)
         self.draw_image(x, y-h, im, 'upper', self.bbox)
         
     def get_canvas_width_height(self):

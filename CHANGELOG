@@ -1,5 +1,9 @@
 New entries should be added at the top
 
+2005-05-31 Added vertical TeX support for agg - JDH
+
+2005-05-31 Applied Eric's cntr patch - JDH
+
 2005-05-27 Finally found the pesky agg bug (which Maxim was kind
            enough to fix within hours) that was causing a segfault in
            the win32 cached marker drawing.  Now windows users can get
