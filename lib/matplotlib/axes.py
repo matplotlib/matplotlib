@@ -35,7 +35,7 @@ from matplotlib.numerix.mlab import flipud, amin, amax
 from matplotlib import rcParams
 from patches import Patch, Rectangle, Circle, Polygon, Arrow, Wedge, Shadow, bbox_artist
 from table import Table
-from text import Text, _process_text_args
+from text import Text, TextWithDash, _process_text_args
 from transforms import Bbox, Point, Value, Affine, NonseparableTransformation
 from transforms import  FuncXY, Func, LOG10, IDENTITY, POLAR
 from transforms import get_bbox_transform, unit_bbox, one, origin, zero
@@ -3403,7 +3403,8 @@ class Axes(Artist):
         return table
 
 
-    def text(self, x, y, s, fontdict=None, **kwargs):
+    def text(self, x, y, s, fontdict=None,
+             withdash=False, **kwargs):
         """
         TEXT(x, y, s, fontdict=None, **kwargs)
 
@@ -3412,6 +3413,9 @@ class Axes(Artist):
           fontdict is a dictionary to override the default text properties.
           If fontdict is None, the defaults are determined by your rc
           parameters.
+
+          withdash=True will create a TextWithDash instance instead
+          of a Text instance.
 
         Individual keyword arguemnts can be used to override any given
         parameter
@@ -3437,9 +3441,20 @@ class Axes(Artist):
             'transform' : self.transData,
             }
 
-        t = Text(
-            x=x, y=y, text=s,
-            )
+        # At some point if we feel confident that TextWithDash
+        # is robust as a drop-in replacement for Text and that
+        # the performance impact of the heavier-weight class
+        # isn't too significant, it may make sense to eliminate
+        # the withdash kwarg and simply delegate whether there's
+        # a dash to TextWithDash and dashlength.
+        if withdash:
+            t = TextWithDash(
+                x=x, y=y, text=s,
+                )
+        else:
+            t = Text(
+                x=x, y=y, text=s,
+                )
         self._set_artist_props(t)
 
         t.update(default)
