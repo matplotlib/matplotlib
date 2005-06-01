@@ -115,6 +115,8 @@ public:
 		       "fromarray");
     add_varargs_method("fromarray2", &_image_module::fromarray2, 
 		       "fromarray2");
+    add_varargs_method("frombyte", &_image_module::frombyte, 
+		       "frombyte");
     add_varargs_method("frombuffer", &_image_module::frombuffer, 
 		       "frombuffer");
     add_varargs_method("readpng", &_image_module::readpng, 
@@ -127,6 +129,7 @@ public:
   ~_image_module() {} 
   
 private:
+  Py::Object frombyte (const Py::Tuple &args);
   Py::Object frombuffer (const Py::Tuple &args);
   Py::Object fromarray (const Py::Tuple &args);
   Py::Object fromarray2 (const Py::Tuple &args);
@@ -134,6 +137,7 @@ private:
   Py::Object from_images (const Py::Tuple &args);
   static char _image_module_fromarray__doc__[];
   static char _image_module_fromarray2__doc__[];
+  static char _image_module_frombyte__doc__[];
   static char _image_module_frombuffer__doc__[];
 
 };

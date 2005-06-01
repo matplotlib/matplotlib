@@ -1682,7 +1682,6 @@ class Axes(Artist):
         """
         self._frameon = b
 
-
     def imshow(self, X,
                cmap = None,
                norm = None,
@@ -1708,29 +1707,20 @@ class Axes(Artist):
         colormapping etc. See below for details
 
 
-        Display the image in X to current axes.  X may be a float array or a
-        PIL image. If X is a float array, X can have the following shapes
+        Display the image in X to current axes.  X may be a float array, a 
+        UInt8 array or a PIL image. If X is an array, X can have the following
+        shapes:
 
-            MxN    : luminance (grayscale)
+            MxN    : luminance (grayscale, float array only)
 
-            MxNx3  : RGB
+            MxNx3  : RGB (float or UInt8 array)
 
-            MxNx4  : RGBA
+            MxNx4  : RGBA (float or UInt8 array)
+
+        The value for each component of MxNx3 and MxNx4 float arrays should be
+        in the range 0.0 to 1.0; MxN float arrays may be normalised.
 
         A matplotlib.image.AxesImage instance is returned
-
-
-        Alternative form:
-
-        IMSHOW(BUFFER, aspect=None, interpolation=None, vmax=None, 
-               origin=None, extent=None, shape=SHAPE)
-
-        Display a buffer of shape shape stored in 4 byte per pixel, RGBA 
-		form.  BUFFER can be any read-only or writable buffer (eg: string
-        or array.array); writable buffers will be altered when shown.
-		SHAPE is required and should be a tupple of length 2:
-        (width, height).  Allowed keyword arguments cmap, norm, alpha, vmin
-        and vmax are ignored.
 
         The following kwargs are allowed:
 
@@ -1752,8 +1742,8 @@ class Axes(Artist):
             filterrad parameters
 
           * norm is a matplotlib.colors.normalize instance; default is
-            normalization().  This scales luminance -> 0-1 (Ignored when X is
-            PIL image).
+            normalization().  This scales luminance -> 0-1 (only used for an 
+            MxN float array).
 
           * vmin and vmax are used to scale a luminance image to 0-1.  If
             either is None, the min and max of the luminance values will be
@@ -1798,7 +1788,6 @@ class Axes(Artist):
         if norm is None and shape is None:
             im.set_clim(vmin, vmax)
 
-        #im.set_data(X, shape)
         im.set_data(X)
         im.set_alpha(alpha)
 
