@@ -11,12 +11,12 @@ plot(t, s)
 grid(True)
 
 # matlab handle graphics style
-xticklines = get(gca(), 'xticklines')
-yticklines = get(gca(), 'yticklines')
-xgridlines = get(gca(), 'xgridlines')
-ygridlines = get(gca(), 'ygridlines')
-xticklabels = get(gca(), 'xticklabels')
-yticklabels = get(gca(), 'yticklabels')
+xticklines = getp(gca(), 'xticklines')
+yticklines = getp(gca(), 'yticklines')
+xgridlines = getp(gca(), 'xgridlines')
+ygridlines = getp(gca(), 'ygridlines')
+xticklabels = getp(gca(), 'xticklabels')
+yticklabels = getp(gca(), 'yticklabels')
 
 setp(xticklines, 'linewidth', 3)
 setp(yticklines, 'linewidth', 3)
@@ -25,8 +25,6 @@ setp(ygridlines, 'linestyle', '-')
 setp(yticklabels, 'color', 'r', fontsize='medium')
 setp(xticklabels, 'color', 'r', fontsize='medium')
 
-# keyword args are legal too
-#set(xticklabels, color='r', fontsize='medium')
 
 #savefig('axprops_demo')
 show()

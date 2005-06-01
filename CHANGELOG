@@ -72,10 +72,10 @@ New entries should be added at the top
 
 2005-05-10 Applied Eric's contour mem leak fixes - JDH
 
-2005-05-10 Extended python agg wrapper and started implementing backend_agg2,
-           an agg renderer based on the python wrapper.  This will be
-           more flexible and easier to extend than the current
-           backend_agg.  See also examples/agg_test.py - JDH
+2005-05-10 Extended python agg wrapper and started implementing
+           backend_agg2, an agg renderer based on the python wrapper.
+           This will be more flexible and easier to extend than the
+           current backend_agg.  See also examples/agg_test.py - JDH
 
 2005-05-09 Added Marcin's no legend patch to exclude lines from the
            autolegend builder

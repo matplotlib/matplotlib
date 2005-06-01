@@ -34,7 +34,5 @@ ax2 = twinx()
 s2 = sin(2*pi*t)
 plot(t, s2, 'r.')
 ylabel('sin')
-#xlim(0.01, 10)
-#set(gca(), xscale='log')
 
 show()

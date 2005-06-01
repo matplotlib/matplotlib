@@ -1,24 +1,24 @@
 """
 
-matlab(TM) and pylab allow you to use set and get to set and get
+matlab(TM) and pylab allow you to use setp and get to set and get
 object properties, as well as to do introspection on the object
 
 set
     To set the linestyle of a line to be dashed, you can do
 
       >>> line, = plot([1,2,3])
-      >>> set(line, linestyle='--')
+      >>> setp(line, linestyle='--')
 
     If you want to know the valid types of arguments, you can provide the
     name of the property you want to set without a value
 
-      >>> set(line, 'linestyle')
+      >>> setp(line, 'linestyle')
           linestyle: [ '-' | '--' | '-.' | ':' | 'steps' | 'None' ]
 
     If you want to see all the properties that can be set, and their
     possible values, you can do
 
-        >>> set(line)
+        >>> setp(line)
 
     set operates on a single instance or a list of instances.  If you are
     in quey mode introspecting the possible values, only the first
@@ -30,7 +30,7 @@ set
         >>> y1 = sin(2*pi*x)
         >>> y2 = sin(4*pi*x)
         >>> lines = plot(x, y1, x, y2)
-        >>> set(lines, linewidth=2, color='r')
+        >>> setp(lines, linewidth=2, color='r')
 
 
 get:
@@ -38,12 +38,12 @@ get:
     get returns the value of a given attribute.  You can use get to query
     the value of a single attribute
 
-        >>> get(line, 'linewidth')
+        >>> getp(line, 'linewidth')
             0.5
 
     or all the attribute/value pairs
 
-    >>> get(line)
+    >>> getp(line)
         aa = True
         alpha = 1.0
         antialiased = True
@@ -80,17 +80,17 @@ setp(l2, linewidth=1, color='g')  # line2 is thicker and green
 print 'Line setters'
 setp(l1)
 print 'Line getters'
-get(l1)
+getp(l1)
 
 print 'Rectangle setters'
 setp(gca().axesPatch)
 print 'Rectangle getters'
-get(gca().axesPatch)
+getp(gca().axesPatch)
 
 t = title('Hi mom')
 print 'Text setters'
 setp(t)
 print 'Text getters'
-get(t)
+getp(t)
 
 show()
