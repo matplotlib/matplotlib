@@ -18,7 +18,6 @@ if 1:
     l = plot(t1, f(t1), 'k-^')
     setp(l, 'markerfacecolor', 'r')
     xlim(0,5)
-    #set(l, 'markeredgecolor', 'r')
     title('A tale of 2 subplots', fontsize=12)
     ylabel('Signal 1', fontsize=10)
 

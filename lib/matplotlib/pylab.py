@@ -37,7 +37,7 @@ _Plotting commands
   gca      - return the current axes
   gcf      - return the current figure
   gci      - get the current image, or None
-  get      - get a handle graphics property
+  getp      - get a handle graphics property
   grid     - set whether gridding is on
   hist     - make a histogram
   hold     - set the axes hold state
@@ -206,6 +206,8 @@ from matplotlib import rcParams, rcParamsDefault, get_backend
 from backend_bases import FigureCanvasBase
 from artist import ArtistInspector, get
 from artist import setp as _setp
+
+getp = get
 
 from image import imread as _imread
 from lines import Line2D

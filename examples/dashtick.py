@@ -32,20 +32,20 @@ def test_dashticklabel():
         tick.label2On = True
     step = 0
     for label in axis.get_xticklabels():
-        pylab.set(label,
-                  rotation=ROTATION,
-                  dashlength=dashlen(step),
-                  dashrotation=DASHROTATION,
-                  fontsize=FONTSIZE,
+        pylab.setp(label,
+                   rotation=ROTATION,
+                   dashlength=dashlen(step),
+                   dashrotation=DASHROTATION,
+                   fontsize=FONTSIZE,
                   )
         step += 1
     step = 0
     for label in axis.get_yticklabels():
-        pylab.set(label,
-                  rotation=90-ROTATION,
-                  dashlength=dashlen(step),
-                  dashrotation=90-DASHROTATION,
-                  fontsize=FONTSIZE,
+        pylab.setp(label,
+                   rotation=90-ROTATION,
+                   dashlength=dashlen(step),
+                   dashrotation=90-DASHROTATION,
+                   fontsize=FONTSIZE,
                   )
         step += 1
     pylab.xlabel('X Label')
