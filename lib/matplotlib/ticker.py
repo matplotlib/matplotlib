@@ -110,7 +110,7 @@ multiple axes can share the same locator w/o side effects!
 from __future__ import division
 import sys, os, re, time, math, warnings
 from mlab import linspace
-from matplotlib import verbose
+from matplotlib import verbose, rcParams
 from numerix import absolute, arange, array, asarray, Float, floor, log, \
      logical_and, nonzero, ones, take, zeros
 from matplotlib.numerix.mlab import amin, amax, std, mean
@@ -199,9 +199,9 @@ class FormatStrFormatter(Formatter):
     def __call__(self, x, pos=0):
         'Return the format for tick val x at position pos'
         return self.fmt % x
-        
-        
-class ScalarFormatter(Formatter):
+
+
+class _ScalarFormatter(Formatter):
     """
     Tick location is a plain old number.  If viewInterval is set, the
     formatter will use %d, %1.#f or %1.ef as appropriate.  If it is
@@ -239,7 +239,7 @@ class ScalarFormatter(Formatter):
         return s
 
 
-class NewScalarFormatter(Formatter):
+class ScalarFormatter(Formatter):
     """
     Tick location is a plain old number.  If useOffset==True and the data range
     is much smaller than the data average, then an offset will be determined 
@@ -253,7 +253,7 @@ class NewScalarFormatter(Formatter):
         # for example: [1+1e-9,1+2e-9,1+3e-9]
         # useMathText will render the offset an scientific notation in mathtext
         self._useOffset = useOffset
-        self._useMathText = useMathText
+        self._useMathText = useMathText or rcParams['text.usetex']
         self.offset = 0
         self.orderOfMagnitude = 0
         self.format = ''
