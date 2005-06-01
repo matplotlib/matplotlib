@@ -1,5 +1,9 @@
 New entries should be added at the top
 
+2005-06-01 The default behavior of ScalarFormatter now renders scientific 
+           notation and large numerical offsets in a label at the end of 
+           the axis. - DSD
+
 2005-06-01 Added Nicholas' frombyte image patch - JDH
 
 2005-05-31 Added vertical TeX support for agg - JDH
