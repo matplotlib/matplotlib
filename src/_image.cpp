@@ -3,6 +3,7 @@
 #include <cmath>
 #include <cstdio>
 #include <png.h>
+#include <string>
 #include "Python.h"
 
 #ifdef NUMARRAY
@@ -1078,7 +1079,80 @@ _image_module::fromarray2(const Py::Tuple& args) {
   return Py::asObject( imo );
 }
 
+char _image_module_frombyte__doc__[] = 
+"frombyte(A, isoutput)\n"
+"\n"
+"Load the image from a byte array.\n"
+"By default this function fills the input buffer, which can subsequently\n"
+"be resampled using resize.  If isoutput=1, fill the output buffer.\n"
+"This is used to support raw pixel images w/o resampling."
+;
+Py::Object
+_image_module::frombyte(const Py::Tuple& args) {
+  _VERBOSE("_image_module::frombyte");
+  
+  args.verify_length(2);
+  
+  Py::Object x = args[0];
+  int isoutput = Py::Int(args[1]);
+  
+  PyArrayObject *A = (PyArrayObject *) PyArray_ContiguousFromObject(x.ptr(), PyArray_UBYTE, 3, 3);
 
+  if (A->dimensions[2]<3 || A->dimensions[2]>4)
+      throw Py::ValueError("Array dimension 3 must have size 3 or 4");
+  
+  Image* imo = new Image;
+  
+  imo->rowsIn = A->dimensions[0];
+  imo->colsIn = A->dimensions[1];
+  
+  agg::int8u *arrbuf;
+  agg::int8u *buffer;
+  
+  arrbuf = reinterpret_cast<agg::int8u *>(A->data);
+  
+  size_t NUMBYTES(imo->colsIn * imo->rowsIn * imo->BPP);
+  buffer = new agg::int8u[NUMBYTES];
+     
+  if (buffer==NULL) //todo: also handle allocation throw
+      throw Py::MemoryError("_image_module::frombyte could not allocate memory");
+  
+  const size_t N = imo->rowsIn * imo->colsIn * imo->BPP;
+  size_t i = 0;
+  if (A->dimensions[2] == 4) {
+      std::memmove(buffer, arrbuf, N);
+  } else {
+      while (i < N) {
+          std::memmove(buffer, arrbuf, 3);
+          buffer += 3;
+          arrbuf += 3;
+          *buffer++ = 255;
+          i += 4;
+      }
+      buffer -= N;
+      arrbuf -= imo->rowsIn * imo->colsIn;
+  }
+  Py_XDECREF(A);  
+ 
+  if (isoutput) {
+    // make the output buffer point to the input buffer
+    
+    imo->rowsOut  = imo->rowsIn;
+    imo->colsOut  = imo->colsIn;
+    
+    imo->rbufOut = new agg::rendering_buffer;
+    imo->bufferOut = buffer;
+    imo->rbufOut->attach(imo->bufferOut, imo->colsOut, imo->rowsOut, imo->colsOut * imo->BPP);
+    
+  }
+  else {
+    imo->bufferIn = buffer;
+    imo->rbufIn = new agg::rendering_buffer;
+    imo->rbufIn->attach(buffer, imo->colsIn, imo->rowsIn, imo->colsIn*imo->BPP);
+  }
+  
+  return Py::asObject( imo );
+}
 
 char _image_module_frombuffer__doc__[] = 
 "frombuffer(buffer, width, height, isoutput)\n"
@@ -1121,15 +1195,7 @@ _image_module::frombuffer(const Py::Tuple& args) {
   agg::int8u* buffer = new agg::int8u[NUMBYTES];  
   if (buffer==NULL) //todo: also handle allocation throw
     throw Py::MemoryError("_image_module::frombuffer could not allocate memory");
-  for (size_t inum=0; inum<NUMBYTES; inum++)
-    *buffer++ = *rawbuf++;
-  rawbuf -= NUMBYTES;
-  buffer -= NUMBYTES;
-
-  //for (size_t inum=0; inum<NUMBYTES; inum++)
-  //  std::cout << int(*buffer++);
-  //buffer -= NUMBYTES;
-
+  std::memmove(buffer, rawbuf, NUMBYTES);
   
   if (isoutput) {
     // make the output buffer point to the input buffer

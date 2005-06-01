@@ -10,7 +10,7 @@ from artist import Artist
 from colors import normalize, colorConverter
 import cm
 import numerix
-from numerix import arange
+from numerix import arange, asarray, UInt8
 import _image
 
 
@@ -91,17 +91,13 @@ class AxesImage(Artist, cm.ScalarMappable):
 
 
         self._imcache = None
-        self._isbuffer = False
         
     def get_size(self):
         'Get the numrows, numcols of the input image'
         if self._A is None:
             raise RuntimeError('You must first set the image array')
 
-        if self._isbuffer:
-            return self._shape
-        else:
-            return self._A.shape[:2]
+        return self._A.shape[:2]
 
     def set_alpha(self, alpha):
         """
@@ -124,12 +120,12 @@ ACCEPTS: float
     def make_image(self, flipy):
         if self._A is not None:
             if self._imcache is None:
-                if self._isbuffer:
-                    im = _image.frombuffer(self._A, self._shape[0], self._shape[1], 0)
+                if self._A.typecode() == UInt8:
+                    im = _image.frombyte(self._A, 0)
                 else:
                     x = self.to_rgba(self._A, self._alpha)
                     im = _image.fromarray(x, 0)
-                    self._imcache = im
+                self._imcache = im
             else:
                 im = self._imcache
         else:
@@ -138,11 +134,8 @@ ACCEPTS: float
 
         bg = colorConverter.to_rgba(self.axes.get_frame().get_facecolor(), 0)
         im.set_bg( *bg)
-        if self._isbuffer:
-            im.is_greyscale = False
-        else:
-            im.is_grayscale = (self.cmap.name == "gray" and
-                               len(self._A.shape) == 2)
+        im.is_grayscale = (self.cmap.name == "gray" and
+                           len(self._A.shape) == 2)
         
         im.set_aspect(self._aspectd[self._aspect])        
         im.set_interpolation(self._interpd[self._interpolation])
@@ -224,19 +217,16 @@ Set the image array
 
 ACCEPTS: numeric/numarray/PIL Image A"""
         # check if data is PIL Image without importing Image
-        if shape is None:
-            if hasattr(A,'getpixel'): X = pil_to_array(A)
-            else: X = A # assume array
+        if hasattr(A,'getpixel'): X = pil_to_array(A)
+        else: X = asarray(A) # assume array
+        
+        if (X.typecode() != UInt8
+            or len(X.shape) != 3
+            or X.shape[2] > 4
+            or X.shape[2] < 3):
             cm.ScalarMappable.set_array(self, X)
-            self._isbuffer = False
         else:
-            if not isinstance(shape, tuple):
-                raise ValueError
-            if not len(shape) == 2:
-                raise ValueError
-            self._shape = shape
-            self._A = A
-            self._isbuffer = True
+            self._A = X
 
         self._imcache =None
 
@@ -338,6 +328,7 @@ ACCEPTS: positive float
         'return the filterrad setting'
         return self._filterrad
 
+
 class FigureImage(Artist, cm.ScalarMappable):
     def __init__(self, fig,
                  cmap = None,
@@ -410,24 +401,15 @@ def imread(fname):
     
 
 def pil_to_array( pilImage ):
-    if pilImage.mode == 'P': # convert from paletted
-        im = pilImage.convert('RGBX')
-    else:
-        im = pilImage
-
-    # There's a whole lotta conversion and copying going on
-    # here -- could it be optimized?
-
-    if im.mode in ('RGBA','RGBX'): n_channels = 4
-    elif im.mode == 'RGB': n_channels = 3
-    elif im.mode == 'L': n_channels = 1
-    else: raise RuntimeError('Unknown image mode')
+    if pilImage.mode in ('RGBA', 'RGBX'):
+        im = pilImage # no need to convert images in rgba format
+    else: # try to convert to an rgba image
+        try:
+            im = pilImage.convert('RGBA')
+        except ValueError:
+            raise RuntimeError('Unknown image mode')
 
     x_str = im.tostring('raw',im.mode,0,-1)
     x = numerix.fromstring(x_str,numerix.UInt8)
-    if n_channels == 1:
-        x.shape = im.size[1], im.size[0]
-    else:
-        x.shape = im.size[1], im.size[0], n_channels
-    x=x.astype(numerix.Float32)/255.0
+    x.shape = im.size[1], im.size[0], 4
     return x
