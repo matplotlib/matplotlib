@@ -53,9 +53,6 @@ IMAGE_FORMAT = ['bmp', 'eps', 'jpg', 'png', 'ps', 'svg']
 IMAGE_FORMAT.sort()
 IMAGE_FORMAT_DEFAULT  = 'png'
 
-DBL_BUFFER = True 
-#DBL_BUFFER = False # test to see if switching double buffering off is useful
-
 
 cursord = {
     cursors.MOVE          : gtk.gdk.Cursor(gtk.gdk.FLEUR),
@@ -241,26 +238,24 @@ class FigureCanvasGTK(gtk.DrawingArea, FigureCanvasBase):
         Should not be overridden by GTK backends
         """
         if DEBUG: print 'FigureCanvasGTK.%s' % fn_name()
-        if DBL_BUFFER:
-            create_pixmap = False
-            if width > self._pixmap_width:
-                # increase the pixmap in 10%+ (rather than 1 pixel) steps
-                self._pixmap_width  = max (int (self._pixmap_width  * 1.1),
-                                           width)
-                create_pixmap = True
 
-            if height > self._pixmap_height:
-                self._pixmap_height = max (int (self._pixmap_height * 1.1),
+        create_pixmap = False
+        if width > self._pixmap_width:
+            # increase the pixmap in 10%+ (rather than 1 pixel) steps
+            self._pixmap_width  = max (int (self._pixmap_width  * 1.1),
+                                       width)
+            create_pixmap = True
+
+        if height > self._pixmap_height:
+            self._pixmap_height = max (int (self._pixmap_height * 1.1),
                                            height)
-                create_pixmap = True
+            create_pixmap = True
 
-            if create_pixmap:
-                if DEBUG: print 'FigureCanvasGTK.%s new pixmap' % fn_name()
-                self._pixmap = gtk.gdk.Pixmap (self.window, self._pixmap_width,
-                                               self._pixmap_height)
-                self._renderer._set_pixmap (self._pixmap)
-        else:
-            self._renderer._set_pixmap (self.window)
+        if create_pixmap:
+            if DEBUG: print 'FigureCanvasGTK.%s new pixmap' % fn_name()
+            self._pixmap = gtk.gdk.Pixmap (self.window, self._pixmap_width,
+                                           self._pixmap_height)
+            self._renderer._set_pixmap (self._pixmap)
 
         self._renderer._set_width_height (width, height)
         self.figure.draw (self._renderer)
@@ -272,17 +267,18 @@ class FigureCanvasGTK(gtk.DrawingArea, FigureCanvasBase):
         """
         if DEBUG: print 'FigureCanvasGTK.%s' % fn_name()
 
-        if DBL_BUFFER:
-            if self._draw_pixmap and GTK_WIDGET_DRAWABLE(self):
-                width, height = self.allocation.width, self.allocation.height
-                self._render_figure(width, height)
-                self.window.set_back_pixmap (self._pixmap, False)
-                self.window.clear()  # draw pixmap as the gdk.Window's bg
-                self._draw_pixmap = False
-        else:
-            if GTK_WIDGET_DRAWABLE(self):
-                width, height = self.allocation.width, self.allocation.height
-                self._render_figure(width, height)
+        if not GTK_WIDGET_DRAWABLE(self):
+            return False
+
+        if self._draw_pixmap:
+            width, height = self.allocation.width, self.allocation.height
+            self._render_figure(width, height)
+            self.window.set_back_pixmap (self._pixmap, False)
+            self.window.clear()  # draw pixmap as the gdk.Window's bg
+            self._draw_pixmap = False
+        else: # workaround pygtk 2.6 problem - bg not being redrawn
+            self.window.clear_area (event.area.x, event.area.y,
+                                    event.area.width, event.area.height)
             
         return False # allow signal to propagate further
 
@@ -313,15 +309,9 @@ class FigureCanvasGTK(gtk.DrawingArea, FigureCanvasBase):
 
         ext = ext.lower()
         if ext in ('jpg', 'png'):          # native printing
-            global DBL_BUFFER
-            dbl_buffer_save = DBL_BUFFER
-            DBL_BUFFER = True  # need to use pixmap not gdk.window
-            
             width, height = self.figure.get_width_height()
             width, height = int(width), int(height)
             self._render_figure(width, height)
-
-            DBL_BUFFER = dbl_buffer_save
 
             # jpg colors don't match the display very well, png colors match
             # better
