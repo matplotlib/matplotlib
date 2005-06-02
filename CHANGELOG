@@ -1,6 +1,6 @@
 New entries should be added at the top
 
-2005-06-01 backend_gtk.py remove DBL_BUFFER, add like to expose_event to
+2005-06-02 backend_gtk.py remove DBL_BUFFER, add like to expose_event to
            try to fix pygtk 2.6 redraw problem - SC
 
 2005-06-01 The default behavior of ScalarFormatter now renders scientific 
