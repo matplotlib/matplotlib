@@ -207,6 +207,29 @@ struct Csite
     double *xcp, *ycp;          /* output contour points */
 };
 
+void print_Csite(Csite *Csite)
+{
+    Cdata *data = Csite->data;
+    int i, j, ij;
+    int nd = Csite->imax * (Csite->jmax + 1) + 1;
+    printf("zlevels: %8.2lg %8.2lg\n", Csite->zlevel[0], Csite->zlevel[1]);
+    printf("edge %ld, left %ld, n %ld, count %ld, edge0 %ld, left0 %ld\n",
+            Csite->edge, Csite->left, Csite->n, Csite->count,
+            Csite->edge0, Csite->left0);
+    printf("  level0 %d, edge00 %ld\n", Csite->level0, Csite->edge00);
+    printf("%04x\n", data[nd-1]);
+    for (j = Csite->jmax; j >= 0; j--)
+    {
+        for (i=0; i < Csite->imax; i++)
+        {
+            ij = i + j * Csite->imax;
+            printf("%04x ", data[ij]);
+        }
+        printf("\n");
+    }
+    printf("\n");
+}
+
 /* triangle only takes values of -1, 0, 1, so it could be a signed char. */
 /* most or all of the longs probably could be converted to ints with no loss */
 
@@ -762,6 +785,8 @@ curve_tracer (Csite * site, int pass2)
      * -- sigh, several other rare possibilities,
      *    allow for general case, just go in order i1, i0, j1, j0 */
     int two_starts;
+    /* printf("curve_tracer pass %d\n", pass2); */
+    /* print_Csite(site); */
     if (left0 == 1)
         two_starts = data[edge0] & (I0_START | J1_START | J0_START);
     else if (left0 == -1)
@@ -1244,7 +1269,7 @@ cntr_init(Csite *site, long iMax, long jMax, double *x, double *y,
     site->reg = NULL;
     if (mask != NULL)
     {
-        site->reg = (char *) PyMem_Malloc(sizeof(int) * nreg);
+        site->reg = (char *) PyMem_Malloc(sizeof(char) * nreg);
         if (site->reg == NULL)
         {
             PyMem_Free(site->triangle);
@@ -1593,7 +1618,7 @@ Cntr_init(Cntr *self, PyObject *args, PyObject *kwds)
 static PyObject *
 Cntr_trace(Cntr *self, PyObject *args, PyObject *kwds)
 {
-    double levels[2] = {1e38, 1e38};
+    double levels[2] = {0.0, -1e100};
     int nlevels = 2;
     int points = 0;
     static char *kwlist[] = {"level0", "level1", "points", NULL};
@@ -1603,7 +1628,7 @@ Cntr_trace(Cntr *self, PyObject *args, PyObject *kwds)
     {
         return NULL;
     }
-    if (levels[1] > 1e37 || levels[1] <= levels[0])
+    if (levels[1] == -1e100 || levels[1] <= levels[0])
         nlevels = 1;
     return cntr_trace(self->site, levels, nlevels, points);
 }
