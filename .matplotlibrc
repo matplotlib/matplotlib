@@ -125,6 +125,7 @@ font.latex.package  : type1cm  # This must be an available LaTeX font package, l
 text.color          : black
 text.usetex         : False  # use tex for all text handling.  See http://matplotlib.sf.net/matplotlib.texmanager.html
 text.tex.engine     : latex  # tex is faster, but latex is required to use special font packages
+text.tex.epsres     : 600    # dpi
 
 ### AXES
 # default face and edge color, default tick sizes,

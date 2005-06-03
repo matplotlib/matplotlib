@@ -524,6 +524,7 @@ defaultParams = {
     'text.color'        : ['k', validate_color],     # black
     'text.usetex'       : [False, validate_bool],
     'text.tex.engine'   : ['tex', validate_tex_engine], # TeX or LaTeX
+    'text.tex.epsres'   : [600, validate_int],       # dpi
     'text.fontstyle'    : ['normal', str],
     'text.fontangle'    : ['normal', str],
     'text.fontvariant'  : ['normal', str],
