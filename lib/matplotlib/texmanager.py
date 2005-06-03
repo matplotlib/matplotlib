@@ -31,7 +31,7 @@ text.usetex in your matplotlibrc file
 """
 
 import os, sys, md5, shutil
-from matplotlib import get_home, get_data_path
+from matplotlib import get_home, get_data_path, rcParams
 from matplotlib._image import readpng
 from matplotlib.numerix import ravel, where, array, \
      zeros, Float, absolute, nonzero, sqrt
@@ -66,16 +66,32 @@ class TexManager:
 
         logfile = prefix + '.log'
         fh = file(fname, 'w')
-        s = r"""\def\frac#1#2{ {#1 \over #2} }
+        if rcParams['text.tex.engine'] == 'latex':
+            s = r"""\documentclass{article}
+\usepackage{%s}
+\setlength{\paperwidth}{72in}
+\setlength{\paperheight}{72in}
+\pagestyle{empty}
+\begin{document}
+%s
+\end{document}
+""" % (rcParams['font.latex.package'], tex)
+            fh.write(s)
+            fh.close()
+            command = "latex -interaction=nonstopmode '%s'"%fname
+            try: os.remove(prefix + '.aux')
+            except OSError: pass
+        else:
+            s = r"""\def\frac#1#2{ {#1 \over #2} }
 \nopagenumbers
 \hsize=72in
 \vsize=72in
 %s
 \bye
 """ % tex
-        fh.write(s)
-        fh.close()
-        command = 'tex %s'%fname
+            fh.write(s)
+            fh.close()
+            command = 'tex %s'%fname
 
         if force or not os.path.exists(dvifile):
             #sin, sout = os.popen2(command)
@@ -117,7 +133,7 @@ class TexManager:
         psfile = os.path.join(self.texcache, '%s_%d.epsf'% (prefix, dpi))
 
         if not os.path.exists(psfile):
-            command = "dvips -E -D %d -o %s %s"% (dpi, psfile, dvifile)
+            command = "dvips -q -E -D %d -o %s %s"% (dpi, psfile, dvifile)
             os.system(command)
 
         return psfile

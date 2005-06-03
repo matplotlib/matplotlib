@@ -1,5 +1,10 @@
 New entries should be added at the top
 
+2005-06-03 Improved support for tex handling of text in backend_ps. - DSD 
+
+2005-06-03 Added rc options to render text with tex or latex, and to select 
+           the latex font package. - DSD
+
 2005-06-03 Fixed a bug in ticker.py causing a ZeroDivisionError
 
 2005-06-02 backend_gtk.py remove DBL_BUFFER, add line to expose_event to
