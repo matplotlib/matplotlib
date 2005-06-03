@@ -4,7 +4,7 @@ A PostScript backend, which can produce both PostScript .ps and
 """
 
 from __future__ import division
-import math, sys, os, time
+import glob, math, md5, os, shutil, sys, time
 def _fn_name(): return sys._getframe(1).f_code.co_name
     
 from cStringIO import StringIO
@@ -928,9 +928,12 @@ class FigureCanvasPS(FigureCanvasBase):
                     ext = '.ps'
                     outfile += ext
             if rcParams['text.usetex']:
-                epsfile = basename + '.eps'
-                psfile = basename + '.ps'
-                texfile = basename + '.tex'
+                m = md5.md5(outfile)
+                tmpname = m.hexdigest()
+                epsfile = tmpname + '.eps'
+                psfile = tmpname + '.ps'
+                texfile = tmpname + '.tex'
+                dvifile = tmpname + '.dvi'
                 latexh = file(texfile, 'w')
                 fh = file(epsfile, 'w')
             else: fh = file(outfile, 'w')
@@ -1077,7 +1080,7 @@ class FigureCanvasPS(FigureCanvasBase):
             command = command = "latex -interaction=nonstopmode '%s'" % texfile
             os.system(command)
             os.system(command)
-            command = 'dvips -R -T %f,%f -q -o %s %s' % (pw, ph, psfile, basename+'.dvi')
+            command = 'dvips -R -T %fin,%fin -q -o %s %s' % (pw, ph, psfile, dvifile)
             os.system(command)
             os.remove(epsfile)
             if ext.startswith('.ep'):
@@ -1085,15 +1088,12 @@ class FigureCanvasPS(FigureCanvasBase):
                 command = 'gs -dBATCH -dNOPAUSE -dSAFER -q -r%d -g%dx%d -sDEVICE=epswrite '% \
                             (dpi, int((pw)*dpi), int((ph)*dpi)) + \
                             '-dLanguageLevel=2 -dEPSFitPage -sOutputFile=%s %s'% \
-                            (outfile, psfile)
+                            (epsfile, psfile)
                 os.system(command)
-                os.remove(psfile)
-            os.remove(texfile)
-            os.remove(basename+'.dvi')
-            try: os.remove(basename+'.log')
-            except OSError: pass
-            try: os.remove(basename+'.aux')
-            except OSError: pass
+                shutil.move(epsfile, outfile)
+            else: shutil.move(psfile, outfile)
+            cleanup = glob.glob(tmpname+'.*')
+            for fname in cleanup: os.remove(fname)
 
 
 class FigureManagerPS(FigureManagerBase):
