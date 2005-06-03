@@ -1037,12 +1037,18 @@ class FigureCanvasPS(FigureCanvasBase):
                 verbose.report('"%s" is not a valid LaTeX papertype.'% defaultPaperType + \
                                'Defaulting to letter.')
                 latexPaperType = 'letterpaper'
-            print >>latexh, r"""\documentclass[%s]{article}
+            pw, ph = defaultPaperSize
+            print >>latexh, r"""\documentclass{scrartcl}
 \usepackage{%s}
 \usepackage{psfrag}
 \usepackage[dvips]{graphicx}
 \usepackage{color}
 \pagestyle{empty}
+\setlength{\paperheight}{%fin}
+\setlength{\paperwidth}{%fin}
+\setlength{\textwidth}{%fin}
+\setlength{\textheight}{%fin}
+\special{papersize=%fin,%fin}
 \begin{document}
 \begin{figure}[th!]
 \begin{center}
@@ -1051,19 +1057,23 @@ class FigureCanvasPS(FigureCanvasBase):
 \end{center}
 \end{figure}
 \end{document}
-"""% (latexPaperType, rcParams['font.latex.package'], 
+"""% (rcParams['font.latex.package'], pw, ph, pw-2, ph-2, pw, ph, 
         '\n'.join(renderer.psfrag), epsfile)
-        
+
             latexh.close()
 
             command = command = "latex -interaction=nonstopmode '%s'" % texfile
             os.system(command)
             os.system(command)
-            command = 'dvips -q -o %s %s' % (psfile, basename+'.dvi')
+            command = 'dvips -T %f,%f -q -o %s %s' % (pw, ph, psfile, basename+'.dvi')
             os.system(command)
+            os.remove(epsfile)
             if ext.startswith('.ep'):
-                command = 'gs -dBATCH -dNOPAUSE -dSAFER -q -r6000 -sDEVICE=epswrite ' + \
-                            '-dLanguageLevel=3 -dEPSFitPage -sOutputFile=%s %s'% (outfile, psfile)
+                dpi = rcParams['text.tex.epsres']
+                command = 'gs -dBATCH -dNOPAUSE -dSAFER -q -r%d -g%dx%d -sDEVICE=epswrite '% \
+                            (dpi, int((width+4)*dpi), int((height+4)*dpi)) + \
+                            '-dLanguageLevel=2 -dEPSFitPage -sOutputFile=%s %s'% \
+                            (outfile, psfile)
                 os.system(command)
                 os.remove(psfile)
             os.remove(texfile)
