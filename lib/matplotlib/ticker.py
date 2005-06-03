@@ -143,7 +143,7 @@ class Formatter(TickHelper):
 
     # some classes want to see all the locs to help format
     # individual ones    
-    locs = None 
+    locs = []
     def __call__(self, x, pos=0):
         'Return the format for tick val x at position pos'
         raise NotImplementedError('Derived must overide')
@@ -201,7 +201,7 @@ class FormatStrFormatter(Formatter):
         return self.fmt % x
 
 
-class _ScalarFormatter(Formatter):
+class OldScalarFormatter(Formatter):
     """
     Tick location is a plain old number.  If viewInterval is set, the
     formatter will use %d, %1.#f or %1.ef as appropriate.  If it is
@@ -260,7 +260,7 @@ class ScalarFormatter(Formatter):
         
     def __call__(self, x, pos=0):
         'Return the format for tick val x at position pos'  
-        if self.locs==None:
+        if len(self.locs)==0:
             return ''
         else:
             return self.pprint_val(x)
@@ -272,7 +272,7 @@ class ScalarFormatter(Formatter):
         
     def get_offset(self):
         """Return scientific notation, plus offset"""
-        if self.locs==None: return ''
+        if len(self.locs)==0: return ''
         if self.orderOfMagnitude or self.offset:
             offsetStr = ''
             sciNotStr = ''
@@ -289,7 +289,7 @@ class ScalarFormatter(Formatter):
     def set_locs(self, locs):
         'set the locations of the ticks'
         self.locs = locs
-        if self.locs != None:
+        if len(self.locs) > 0:
             self.verify_intervals()
             d = abs(self.viewInterval.span())
             if self._useOffset: self._set_offset(d)
