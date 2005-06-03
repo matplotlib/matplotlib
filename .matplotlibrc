@@ -123,7 +123,7 @@ font.monospace      : Andale Mono, Bitstream Vera Sans Mono, Nimbus Mono L, Cour
 # http://matplotlib.sourceforge.net/matplotlib.text.html for more
 # information on text properties
 text.color          : black
-text.usetex         : False  # experimental
+text.usetex         : False  # use tex for all text handling.  See http://matplotlib.sf.net/matplotlib.texmanager.html
 
 ### AXES
 # default face and edge color, default tick sizes,

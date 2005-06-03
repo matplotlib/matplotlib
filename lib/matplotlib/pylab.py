@@ -204,10 +204,11 @@ from figure import Figure, figaspect
 import image
 from matplotlib import rcParams, rcParamsDefault, get_backend
 from backend_bases import FigureCanvasBase
-from artist import ArtistInspector, get
+from artist import ArtistInspector, getp, get
 from artist import setp as _setp
 
-getp = get
+
+
 
 from image import imread as _imread
 from lines import Line2D
@@ -449,6 +450,7 @@ def colormaps():
     see which one works best for your data.
     """
     pass
+
 
 
 def get_current_fig_manager():
@@ -1484,6 +1486,8 @@ def set(*args, **kwargs):
     warnings.warn(message, DeprecationWarning, stacklevel=2)
 
     return setp(*args, **kwargs)
+
+
 
 def setp(*args, **kwargs):
     ret = _setp(*args, **kwargs)
