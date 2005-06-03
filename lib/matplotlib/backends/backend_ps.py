@@ -1038,8 +1038,8 @@ class FigureCanvasPS(FigureCanvasBase):
                                'Defaulting to letter.')
                 latexPaperType = 'letterpaper'
             print >>latexh, r"""\documentclass[%s]{article}
+\usepackage{%s}
 \usepackage{psfrag}
-\usepackage{type1cm}
 \usepackage[dvips]{graphicx}
 \usepackage{color}
 \pagestyle{empty}
@@ -1051,18 +1051,20 @@ class FigureCanvasPS(FigureCanvasBase):
 \end{center}
 \end{figure}
 \end{document}
-"""% (latexPaperType, '\n'.join(renderer.psfrag), epsfile)
+"""% (latexPaperType, rcParams['font.latex.package'], 
+        '\n'.join(renderer.psfrag), epsfile)
         
             latexh.close()
 
-            command = 'latex %s' % texfile
+            command = command = "latex -interaction=nonstopmode '%s'" % texfile
             os.system(command)
-            command = 'dvips -o %s %s' % (psfile, basename+'.dvi')
+            os.system(command)
+            command = 'dvips -q -o %s %s' % (psfile, basename+'.dvi')
             os.system(command)
             if ext.startswith('.ep'):
-                command = 'ps2epsi %s %s' % (psfile, outfile)
-                msg = os.system(command)
-                if msg==32512: raise 'ps2epsi: command not found! Please install Ghostscript.'
+                command = 'gs -dBATCH -dNOPAUSE -dSAFER -q -r6000 -sDEVICE=epswrite ' + \
+                            '-dLanguageLevel=3 -dEPSFitPage -sOutputFile=%s %s'% (outfile, psfile)
+                os.system(command)
                 os.remove(psfile)
             os.remove(texfile)
             os.remove(basename+'.dvi')
