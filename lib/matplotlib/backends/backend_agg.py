@@ -422,7 +422,7 @@ class FigureCanvasAgg(FigureCanvasBase):
         # render the printed figure
         self.draw()
 
-        if  isinstance(filename, file):
+        if not is_string_like(filename):
             # assume png and write to fileobject
             self.renderer._renderer.write_png(filename)
             #pass
@@ -432,7 +432,7 @@ class FigureCanvasAgg(FigureCanvasBase):
             if not len(ext):
                 ext = '.png'
                 filename += ext
-
+ 
             ext = ext.lower()
             if (ext.find('rgb')>=0 or
                 ext.find('raw')>=0 or

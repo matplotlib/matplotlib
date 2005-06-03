@@ -454,20 +454,20 @@ class ContourSupport:
         '''
         Select contour levels to span the data.
 
-        We need one more level for filled contours than for
+        We need two more levels for filled contours than for
         line contours, because for the latter we need to specify
         the lower and upper boundary of each range. For example,
         a single contour boundary, say at z = 0, requires only
         one contour line, but two filled regions, and therefore
-        two levels.  These are taken as the lower boundaries of
-        the regions.
+        three levels to provide boundaries for both regions.
         '''
         zmax = ma.maximum(z)
         zmin = ma.minimum(z)
+        zmargin = (zmax - zmin) * 0.001 # so z < (zmax + zmargin)
         if filled:
-            lev = linspace(zmin, zmax, N+2)[:-1]
+            lev = linspace(zmin, zmax + zmargin, N+2)
         else:
-            lev = linspace(zmin, zmax, N+2)[1:-1]
+            lev = linspace(zmin, zmax + zmargin, N+2)[1:-1]
         return lev
 
     def _initialize_x_y(self, z, origin, extent):
@@ -549,11 +549,17 @@ class ContourSupport:
                 lev = array([float(fl) for fl in level_arg])
             else:
                 raise TypeError("Last %s arg must give levels; see help(%s)" % (fn,fn))
+        if filled and len(lev) < 2:
+            raise ValueError("Filled contours require at least 2 levels.")
         self.ax.set_xlim((ma.minimum(x), ma.maximum(x)))
         self.ax.set_ylim((ma.minimum(y), ma.maximum(y)))
+        # Workaround for cntr.c bug wrt masked interior regions:
+        #if filled:
+        #    z = ma.masked_array(z.filled(-1e38))
+        # It's not clear this is any better than the original bug.
         return (x, y, z, lev)
 
-    def _process_colors(self, z, colors, alpha, lev, cmap):
+    def _process_colors(self, colors, alpha, lev, cmap):
         """
         Color argument processing for contouring.
 
@@ -561,10 +567,6 @@ class ContourSupport:
         not on the actual range of the Z values.  This means we
         don't have to worry about bad values in Z, and we always have
         the full dynamic range available for the selected levels.
-
-        The input argument Z is not actually being used now; if
-        using the levels for autoscaling instead of Z works well,
-        then it will be removed.
         """
         Nlev = len(lev)
         collections = []
@@ -583,7 +585,6 @@ class ContourSupport:
             mappable = None
         else:
             mappable = ContourMappable(lev, collections, cmap=cmap)
-            #mappable.set_array(z)
             mappable.set_array(lev)
             mappable.autoscale()
             tcolors = [ (tuple(rgba),) for rgba in mappable.to_rgba(lev)]
@@ -616,7 +617,7 @@ class ContourSupport:
         Optional keywork args are shown with their defaults below (you must
         use kwargs for these):
 
-            * colors = None: one of these:
+            * colors = None; or one of the following:
               - a tuple of matplotlib color args (string, float, rgb, etc),
               different levels will be plotted in different colors in the order
               specified
@@ -669,8 +670,7 @@ class ContourSupport:
         if origin is not None: assert(origin in ['lower', 'upper', 'image'])
         if extent is not None: assert(len(extent) == 4)
         if colors is not None and cmap is not None:
-            raise RuntimeError('Either colors or cmap must be None')
-        # todo: shouldn't this use the current image rather than the rc param?
+            raise ValueError('Either colors or cmap must be None')
         if origin == 'image': origin = rcParams['image.origin']
 
 
@@ -689,8 +689,8 @@ class ContourSupport:
             Ncolors = Nlev
 
 
-        tcolors, mappable, collections = self._process_colors(
-            z, colors, alpha, lev, cmap)
+        tcolors, mappable, collections = self._process_colors(colors,
+                                                            alpha, lev, cmap)
 
         if linewidths == None:
             tlinewidths = [rcParams['lines.linewidth']] *Nlev
@@ -701,7 +701,6 @@ class ContourSupport:
                 linewidths = [linewidths] * Nlev
             tlinewidths = [(w,) for w in linewidths]
 
-        region = 0
         C = _contour.Cntr(x, y, z.filled(), z.mask())
         for level, color, width in zip(lev, tcolors, tlinewidths):
             nlist = C.trace(level, points = 1)
@@ -738,9 +737,8 @@ class ContourSupport:
         contourf(Z,N) and contourf(X,Y,Z,N) - make a filled contour plot
                  corresponding to N contour levels
 
-        contourf(Z,V) and contourf(X,Y,Z,V) - fill len(V) regions,
-                 between the levels specified in sequence V, and a final region
-                 for values of Z greater than the last element in V
+        contourf(Z,V) and contourf(X,Y,Z,V) - fill len(V)-1 regions,
+                 between the levels specified in sequence V
 
         contourf(Z, **kwargs) - Use keyword args to control colors,
                     origin, cmap ... see below
@@ -750,10 +748,10 @@ class ContourSupport:
 
         Z may be a masked array, but a bug remains to be fixed.
 
-        Optional keywork args are shown with their defaults below (you must
+        Optional keyword args are shown with their defaults below (you must
         use kwargs for these):
 
-            * colors = None: one of these:
+            * colors = None, or one of the following:
               - a tuple of matplotlib color args (string, float, rgb, etc),
               different levels will be plotted in different colors in the order
               specified
@@ -775,11 +773,8 @@ class ContourSupport:
               one or two arguments, that is, without explicitly
               specifying X and Y.
 
-            reg is a 1D region number array with of imax*(jmax+1)+1 size
-            The values of reg should be positive region numbers, and zero fro
-            zones wich do not exist.
-
-            triangle - triangulation array - must be the same shape as reg
+            * extent = None: (x0,x1,y0,y1); also active only if X and Y
+              are not specified.
 
             contourf differs from the Matlab (TM) version in that it does not
                 draw the polygon edges (because the contouring engine yields
@@ -798,24 +793,19 @@ class ContourSupport:
         if origin is not None: assert(origin in ['lower', 'upper', 'image'])
 
         if colors is not None and cmap is not None:
-            raise RuntimeError('Either colors or cmap must be None')
+            raise ValueError('Either colors or cmap must be None')
         if origin == 'image': origin = rcParams['image.origin']
 
         x, y, z, lev = self._contour_args(True, origin, extent, *args)
         # Manipulate the plot *after* checking the input arguments.
         if not self.ax.ishold(): self.ax.cla()
 
-        Nlev = len(lev)
-
-        tcolors, mappable, collections = self._process_colors(z, colors,
+        tcolors, mappable, collections = self._process_colors(colors,
                                                                alpha,
-                                                               lev, cmap)
+                                                               lev[:-1], cmap)
 
-        region = 0
-        lev_upper = list(lev[1:])
-        lev_upper.append(1e38)
         C = _contour.Cntr(x, y, z.filled(), z.mask())
-        for level, level_upper, color in zip(lev, lev_upper, tcolors):
+        for level, level_upper, color in zip(lev[:-1], lev[1:], tcolors):
             nlist = C.trace(level, level_upper, points = 1)
             col = PolyCollection(nlist,
                                          linewidths=(1,))
