@@ -67,6 +67,17 @@ papersize = {'executive': (7.5,11),
 defaultPaperType = rcParams['ps.papersize']
 defaultPaperSize = papersize[defaultPaperType]
 
+def _get_papersize(w,h):
+    keys = papersize.keys()
+    keys.sort()
+    keys.reverse()
+    for key in keys:
+        if key.startswith('l'): continue
+        val = papersize[key]
+        # will the image fit within latex margins?
+        if w+2 < val[0] and h+2 < val[1]: return val
+    else: return papersize['a0']
+
 def _num_to_str(val):
     if is_string_like(val): return val
 
@@ -1038,6 +1049,7 @@ class FigureCanvasPS(FigureCanvasBase):
                                'Defaulting to letter.')
                 latexPaperType = 'letterpaper'
             pw, ph = defaultPaperSize
+            if width>pw-2 or height>ph-2: pw,ph = _get_papersize(width,height)
             print >>latexh, r"""\documentclass{scrartcl}
 \usepackage{%s}
 \usepackage{psfrag}
@@ -1065,13 +1077,13 @@ class FigureCanvasPS(FigureCanvasBase):
             command = command = "latex -interaction=nonstopmode '%s'" % texfile
             os.system(command)
             os.system(command)
-            command = 'dvips -T %f,%f -q -o %s %s' % (pw, ph, psfile, basename+'.dvi')
+            command = 'dvips -R -T %f,%f -q -o %s %s' % (pw, ph, psfile, basename+'.dvi')
             os.system(command)
             os.remove(epsfile)
             if ext.startswith('.ep'):
                 dpi = rcParams['text.tex.epsres']
                 command = 'gs -dBATCH -dNOPAUSE -dSAFER -q -r%d -g%dx%d -sDEVICE=epswrite '% \
-                            (dpi, int((width+4)*dpi), int((height+4)*dpi)) + \
+                            (dpi, int((pw)*dpi), int((ph)*dpi)) + \
                             '-dLanguageLevel=2 -dEPSFitPage -sOutputFile=%s %s'% \
                             (outfile, psfile)
                 os.system(command)
