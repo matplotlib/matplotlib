@@ -299,6 +299,9 @@ class ScalarFormatter(Formatter):
     def _set_offset(self, range):
         # offset of 20,001 is 20,000, for example
         locs = self.locs
+
+        if locs is None or not len(locs):
+            self.offset = 0
         ave_loc = mean(locs)
         if ave_loc: # dont want to take log10(0)
             ave_oom = math.floor(math.log10(mean(absolute(locs))))

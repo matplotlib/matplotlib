@@ -1,14 +1,36 @@
 """
-A class to manage TeX to figure conversion.
+This module supports embedded TeX expressions in matplotlib via dvipng
+and dvips for the raster and postscript backends.  The tex and
+dvipng/dvips information is cached in ~/.tex.cache for reuse between
+sessions
 
-Requires tex to be installed on your system
+Requirements:
 
-For raster output, eg for the agg backend, this module
-requires dvipng to be installed.
+  tex
 
+  *Agg backends: dvipng
+
+  PS backend: latex w/ psfrag, dvips
+
+Backends:
+
+  Only supported on *Agg and PS backends currently
+  
+
+For raster output, you can get RGBA numerix arrays from TeX expressions
+as follows
+
+  texmanager = TexManager()
+  s = r'\TeX\ is Number $\displaystyle\sum_{n=1}^\infty\frac{-e^{i\pi}}{2^n}$!'
+  Z = self.texmanager.get_rgba(s, size=12, dpi=80, rgb=(1,0,0))
+
+To enable tex rendering of all text in your matplotlib figure, set
+text.usetex in your matplotlibrc file
+(http://matplotlib.sf.net/.matplotlibrc)
 
 """
-import os, sys, md5
+
+import os, sys, md5, shutil
 from matplotlib import get_home, get_data_path
 from matplotlib._image import readpng
 from matplotlib.numerix import ravel, where, array, \
@@ -59,7 +81,7 @@ class TexManager:
             #sin, sout = os.popen2(command)
             #sout.close()
             os.system(command)
-            os.rename(dvitmp, dvifile)
+            shutil.move(dvitmp, dvifile)
             os.remove(logfile)
         return dvifile
 

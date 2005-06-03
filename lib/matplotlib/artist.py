@@ -372,7 +372,7 @@ class ArtistInspector:
         return lines
 
 
-def get(o, *args):
+def getp(o, *args):
     """
     Return the value of handle property s
 
@@ -403,6 +403,9 @@ def get(o, *args):
     func = getattr(o, 'get_' + name)
     return func()
 
+def get(o, *args, **kwargs):
+    return geto(o, *args, **kwargs)
+get.__doc__ = getp.__doc__
                         
 def set(*args, **kwargs):
     message = 'set deprecated because it overrides python2.4 builtin set.  Use setp'
