@@ -579,6 +579,7 @@ defaultParams = {
     'tk.pythoninspect'   : [ False, validate_bool],  # Set PYTHONINSPECT
     'ps.papersize'      : [ 'letter', validate_ps_papersize], # Set the papersize/type
     'ps.useafm'   : [ False, validate_bool],  # Set PYTHONINSPECT
+    'ps.distill'        : [ False, validate_bool],  # use ghostscript to distill ps output
     'plugins.directory' : ['.matplotlib_plugins', str], # where plugin directory is locate
 
     }
@@ -831,7 +832,7 @@ def tk_window_focus():
      This currently works only for python.exe and IPython.exe.
      Both IDLE and Pythonwin.exe fail badly when tk_window_focus is on."""
     if rcParams['backend'] != 'TkAgg':
-	return False    
+        return False    
     return rcParams['tk.window_focus']
 
 
