@@ -1051,6 +1051,10 @@ class FigureCanvasPS(FigureCanvasBase):
         if needsClose: fh.close()
             
         if rcParams['text.usetex']:
+            if rcParams['text.tex.engine'] == 'latex': 
+                fontpackage = rcParams['font.latex.package']
+            else: 
+                fontpackage = 'type1cm'
             pw, ph = defaultPaperSize
             if width>pw-2 or height>ph-2: pw,ph = _get_papersize(width,height)
             print >>latexh, r"""\documentclass{scrartcl}
@@ -1072,8 +1076,7 @@ class FigureCanvasPS(FigureCanvasBase):
 \end{center}
 \end{figure}
 \end{document}
-"""% (rcParams['font.latex.package'], pw, ph, pw-2, ph-2, pw, ph, 
-        '\n'.join(renderer.psfrag), epsfile)
+"""% (fontpackage, pw, ph, pw-2, ph-2, pw, ph, '\n'.join(renderer.psfrag), epsfile)
 
             latexh.close()
 
@@ -1087,7 +1090,7 @@ class FigureCanvasPS(FigureCanvasBase):
             verbose.report(''.join(stderr.readlines()), 'helpful')
             os.remove(epsfile)
             if ext.startswith('.ep'):
-                dpi = rcParams['text.tex.epsres']
+                dpi = rcParams['ps.distiller.res']
                 command = 'gs -dBATCH -dNOPAUSE -dSAFER -r%d -sDEVICE=epswrite '% dpi + \
                           '-dLanguageLevel=2 -dEPSFitPage -sOutputFile=%s %s'% (epsfile, psfile)
                 stdin, stdout, stderr = os.popen3(command)
@@ -1098,8 +1101,8 @@ class FigureCanvasPS(FigureCanvasBase):
             cleanup = glob.glob(tmpname+'.*')
             for fname in cleanup: os.remove(fname)
                 
-        if rcParams['ps.distill']:
-            dpi = rcParams['text.tex.epsres']
+        if rcParams['ps.usedistiller']:
+            dpi = rcParams['ps.distiller.res']
             m = md5.md5(outfile)
             tmpfile = m.hexdigest()
             if ext.startswith('ep'):
