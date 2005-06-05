@@ -910,6 +910,10 @@ class FigureCanvasPS(FigureCanvasBase):
 
         If outfile is a file object, a stand-alone PostScript file is
         written into this file object.
+        
+        If text.usetex is True in rc, a temporary pair of tex/eps files 
+        are created to allow tex to handle the text. The final output 
+        is a simple ps or eps file.
         """
 
         if  isinstance(outfile, file):
@@ -928,6 +932,8 @@ class FigureCanvasPS(FigureCanvasBase):
                     ext = '.ps'
                     outfile += ext
             if rcParams['text.usetex']:
+                # need to make some temporary files so latex can run without
+                # writing over something important.
                 m = md5.md5(outfile)
                 tmpname = m.hexdigest()
                 epsfile = tmpname + '.eps'
@@ -1045,12 +1051,6 @@ class FigureCanvasPS(FigureCanvasBase):
         if needsClose: fh.close()
             
         if rcParams['text.usetex']:
-            if defaultPaperType in ['a4','a5','b5','letter','legal','executive']:
-                latexPaperType = defaultPaperType + 'paper'
-            else: 
-                verbose.report('"%s" is not a valid LaTeX papertype.'% defaultPaperType + \
-                               'Defaulting to letter.')
-                latexPaperType = 'letterpaper'
             pw, ph = defaultPaperSize
             if width>pw-2 or height>ph-2: pw,ph = _get_papersize(width,height)
             print >>latexh, r"""\documentclass{scrartcl}
@@ -1077,24 +1077,39 @@ class FigureCanvasPS(FigureCanvasBase):
 
             latexh.close()
 
-            command = command = "latex -interaction=nonstopmode '%s'" % texfile
-            os.system(command)
-            os.system(command)
-            command = 'dvips -R -T %fin,%fin -q -o %s %s' % (pw, ph, psfile, dvifile)
-            os.system(command)
+            command = "latex -interaction=nonstopmode '%s'" % texfile
+            stdin, stdout, stderr = os.popen3(command)
+            verbose.report(''.join(stdout.readlines()), 'debug-annoying')
+            verbose.report(''.join(stderr.readlines()), 'helpful')
+            command = 'dvips -R -T %fin,%fin -o %s %s' % (pw, ph, psfile, dvifile)
+            stdin, stdout, stderr = os.popen3(command)
+            verbose.report(''.join(stdout.readlines()), 'debug-annoying')
+            verbose.report(''.join(stderr.readlines()), 'helpful')
             os.remove(epsfile)
             if ext.startswith('.ep'):
                 dpi = rcParams['text.tex.epsres']
-                command = 'gs -dBATCH -dNOPAUSE -dSAFER -q -r%d -g%dx%d -sDEVICE=epswrite '% \
-                            (dpi, int((pw)*dpi), int((ph)*dpi)) + \
-                            '-dLanguageLevel=2 -dEPSFitPage -sOutputFile=%s %s'% \
-                            (epsfile, psfile)
-                os.system(command)
+                command = 'gs -dBATCH -dNOPAUSE -dSAFER -r%d -sDEVICE=epswrite '% dpi + \
+                          '-dLanguageLevel=2 -dEPSFitPage -sOutputFile=%s %s'% (epsfile, psfile)
+                stdin, stdout, stderr = os.popen3(command)
+                verbose.report(''.join(stdout.readlines()), 'debug-annoying')
+                verbose.report(''.join(stderr.readlines()), 'helpful')
                 shutil.move(epsfile, outfile)
             else: shutil.move(psfile, outfile)
             cleanup = glob.glob(tmpname+'.*')
             for fname in cleanup: os.remove(fname)
-
+                
+        if rcParams['ps.distill']:
+            dpi = rcParams['text.tex.epsres']
+            m = md5.md5(outfile)
+            tmpfile = m.hexdigest()
+            if ext.startswith('ep'):
+                command = 'eps2eps -dSAFER -r%d %s %s'% (dpi, outfile, tmpfile)
+            else:
+                command = 'ps2ps -dSAFER -r%d %s %s'% (dpi, outfile, tmpfile)
+            stdin, stdout, stderr = os.popen3(command)
+            verbose.report(''.join(stdout.readlines()), 'debug-annoying')
+            verbose.report(''.join(stderr.readlines()), 'helpful')
+            shutil.move(tmpfile, outfile)
 
 class FigureManagerPS(FigureManagerBase):
     pass
