@@ -125,7 +125,6 @@ font.latex.package  : type1cm  # This must be an available LaTeX font package, l
 text.color          : black
 text.usetex         : False  # use tex for all text handling.  See http://matplotlib.sf.net/matplotlib.texmanager.html
 text.tex.engine     : latex  # tex is faster, but latex is required to use special font packages
-text.tex.epsres     : 600    # dpi
 
 ### AXES
 # default face and edge color, default tick sizes,
@@ -185,8 +184,8 @@ tk.pythoninspect  : False    # tk sets PYTHONINSEPCT
 # ps backend params
 ps.papersize      : letter   # executive, letter, legal, ledger, A0-A10, B0-B6, C0-C6
 ps.useafm         : False    # use of afm fonts -- breaks mathtext but results in small files
-ps.distill        : False    # Experimental: use ghostscript to distill ps output - may yield smaller files
-
+ps.usedistiller   : False    # Experimental: use ghostscript to distill ps output - may yield smaller files
+ps.distiller.res  : 600      # dpi
 
 # Set the verbose flags.  This controls how much information
 # matplotlib gives you at runtime and where it goes.  Ther verbosity

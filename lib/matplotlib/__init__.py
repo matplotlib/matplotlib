@@ -302,7 +302,6 @@ def _get_data_path():
                         'share','matplotlib')
     if os.path.isdir(path): return path
 
-	
     # CODE ADDED TO SUPPORT PY2EXE - you will need to copy
     # C:\Python23\share\matplotlib into your dist dir.  See
     # http://starship.python.net/crew/theller/moin.cgi/MatPlotLib
@@ -524,7 +523,6 @@ defaultParams = {
     'text.color'        : ['k', validate_color],     # black
     'text.usetex'       : [False, validate_bool],
     'text.tex.engine'   : ['tex', validate_tex_engine], # TeX or LaTeX
-    'text.tex.epsres'   : [600, validate_int],       # dpi
     'text.fontstyle'    : ['normal', str],
     'text.fontangle'    : ['normal', str],
     'text.fontvariant'  : ['normal', str],
@@ -579,7 +577,8 @@ defaultParams = {
     'tk.pythoninspect'   : [ False, validate_bool],  # Set PYTHONINSPECT
     'ps.papersize'      : [ 'letter', validate_ps_papersize], # Set the papersize/type
     'ps.useafm'   : [ False, validate_bool],  # Set PYTHONINSPECT
-    'ps.distill'        : [ False, validate_bool],  # use ghostscript to distill ps output
+    'ps.usedistiller'   : [ False, validate_bool],  # use ghostscript to distill ps output
+    'ps.distiller.res'  : [600, validate_int],       # dpi
     'plugins.directory' : ['.matplotlib_plugins', str], # where plugin directory is locate
 
     }
