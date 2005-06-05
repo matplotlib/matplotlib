@@ -31,7 +31,7 @@ text.usetex in your matplotlibrc file
 """
 
 import os, sys, md5, shutil
-from matplotlib import get_home, get_data_path, rcParams
+from matplotlib import get_home, get_data_path, rcParams, verbose
 from matplotlib._image import readpng
 from matplotlib.numerix import ravel, where, array, \
      zeros, Float, absolute, nonzero, sqrt
@@ -96,7 +96,10 @@ class TexManager:
         if force or not os.path.exists(dvifile):
             #sin, sout = os.popen2(command)
             #sout.close()
-            os.system(command)
+            stdin, stdout, stderr = os.popen3(command)
+            verbose.report(''.join(stdout.readlines()), 'debug-annoying')
+            err = ''.join(stderr.readlines())
+            if err: verbose.report(err, 'helpful')
             shutil.move(dvitmp, dvifile)
             os.remove(logfile)
         return dvifile
@@ -122,7 +125,10 @@ class TexManager:
 
         # see get_rgba for a discussion of the background
         if force or not os.path.exists(pngfile):
-            os.system(command)
+            stdin, stdout, stderr = os.popen3(command)
+            verbose.report(''.join(stdout.readlines()), 'debug-annoying')
+            err = ''.join(stderr.readlines())
+            if err: verbose.report(err, 'helpful')
         return pngfile
 
     def make_ps(self, tex, dpi, force=0):
@@ -134,7 +140,10 @@ class TexManager:
 
         if not os.path.exists(psfile):
             command = "dvips -q -E -D %d -o %s %s"% (dpi, psfile, dvifile)
-            os.system(command)
+            stdin, stdout, stderr = os.popen3(command)
+            verbose.report(''.join(stdout.readlines()), 'debug-annoying')
+            err = ''.join(stderr.readlines())
+            if err: verbose.report(err, 'helpful')
 
         return psfile
 
