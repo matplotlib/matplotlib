@@ -3621,7 +3621,7 @@ class Axes(Artist):
             return dist_x_y(xywin, asarray(xt), asarray(yt))
 
         artists = self.lines + self.patches + self.texts
-        if callable(among):
+        if among is not None and callable(among):
             artists = filter(test, artists)
         elif iterable(among):
             amongd = dict([(k,1) for k in among])

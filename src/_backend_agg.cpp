@@ -1460,10 +1460,17 @@ RendererAgg::draw_text(const Py::Tuple& args) {
   
   
   FT2Font *font = static_cast<FT2Font*>(args[0].ptr());
-  
-  int x = Py::Int( args[1] );
-  int y = Py::Int( args[2] );
-  
+
+  int x(0),y(0);
+  try {
+    x = Py::Int( args[1] );
+    y = Py::Int( args[2] );
+  }
+  catch (Py::TypeError) {
+    //x,y out of range; todo issue warning?
+    return Py::Object();
+  }
+   
   GCAgg gc = GCAgg(args[3], dpi);
   
   set_clipbox_rasterizer( gc.cliprect);
