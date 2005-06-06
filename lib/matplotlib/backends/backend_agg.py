@@ -123,6 +123,7 @@ class RendererAgg(RendererBase):
         self.cache = self._renderer.cache
         self.blit = self._renderer.blit
         self.texmanager = TexManager()
+        self.texd = {}  # a cache of tex image rasters
         self.bbox = lbwh_to_bbox(0,0, self.width, self.height)
         
 
@@ -254,27 +255,33 @@ class RendererAgg(RendererBase):
 
         flip = angle==90
         w,h = self.get_text_width_height(s, prop, 'TeX', rgb)
-
-        Z = self.texmanager.get_rgba(s, size, dpi, rgb)
         if flip:
             w,h = h,w
             x -= w
-            r = Z[:,:,0]
-            g = Z[:,:,1]
-            b = Z[:,:,2]
-            a = Z[:,:,3]
-            m,n,tmp = Z.shape
-            
-            def func(x):
-                return transpose(fliplr(x))
-                
-            Z = zeros((n,m,4), typecode=Float)
-            Z[:,:,0] = func(r)
-            Z[:,:,1] = func(g)
-            Z[:,:,2] = func(b)
-            Z[:,:,3] = func(a)
 
-        im = fromarray(Z, 1)
+        key = s, size, dpi, rgb
+        im = self.texd.get(key)
+        
+        if im is None:
+            Z = self.texmanager.get_rgba(s, size, dpi, rgb)
+            if flip:
+                r = Z[:,:,0]
+                g = Z[:,:,1]
+                b = Z[:,:,2]
+                a = Z[:,:,3]
+                m,n,tmp = Z.shape
+
+                def func(x):
+                    return transpose(fliplr(x))
+
+                Z = zeros((n,m,4), typecode=Float)
+                Z[:,:,0] = func(r)
+                Z[:,:,1] = func(g)
+                Z[:,:,2] = func(b)
+                Z[:,:,3] = func(a)
+            im = fromarray(Z, 1)
+            self.texd[key] = im            
+
         self.draw_image(x, y-h, im, 'upper', self.bbox)
         
     def get_canvas_width_height(self):
