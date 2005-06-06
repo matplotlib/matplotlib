@@ -1,5 +1,9 @@
 New entries should be added at the top
 
+2005-06-06 Added autoscale_on prop to axes
+
+2005-06-06 Added Nick's picker "among" patch - JDH
+
 2005-06-05 Fixed a TeX/LaTeX font discrepency in backend_ps. - DSD
 
 2005-06-05 Added a ps.distill option in rc settings. If True, postscript
