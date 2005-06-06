@@ -655,6 +655,8 @@ class Axes(Artist):
 
         self.images = []
 
+        self._autoscaleon = True
+        
         self.grid(self._gridOn)
         self.title =  Text(
             x=0.5, y=1.02, text='',
@@ -761,6 +763,7 @@ class Axes(Artist):
         'autoscale the view limits using the data limits'
         # if image data only just use the datalim
 
+        if not self._autoscaleon: return
         if (len(self.images)>0 and
             len(self.lines)==0 and
             len(self.patches)==0):
@@ -1622,6 +1625,18 @@ class Axes(Artist):
         'Return the y ticks as a list of locations'
         return self.yaxis.get_ticklocs()
 
+    def get_frame_on(self):
+        """
+        Get whether the axes rectangle patch is drawn
+        """
+        return self._frameon
+
+    def get_autoscale_on(self):
+        """
+        Get whether autoscaling is applied on plot commands
+        """
+        return self._autoscaleon
+
     def grid(self, b=None):
         """
         Set the axes grids on or off; b is a boolean
@@ -1681,6 +1696,14 @@ class Axes(Artist):
         ACCEPTS: True|False
         """
         self._frameon = b
+
+    def set_autoscale_on(self, b):
+        """
+        Set whether the axes rectangle patch is drawn
+
+        ACCEPTS: True|False
+        """
+        self._autoscaleon = b
 
     def imshow(self, X,
                cmap = None,
@@ -3547,13 +3570,20 @@ class Axes(Artist):
                     self._connected[key].remove(item)
                     return
 
-    def pick(self, x, y, trans=None):
+    def pick(self, x, y, trans=None, among=None):
         """
         Return the artist under point that is closest to the x, y.  if trans
         is None, x, and y are in window coords, 0,0 = lower left.  Otherwise,
         trans is a matplotlib transform that specifies the coordinate system
         of x, y.
-
+        
+        The selection of artists from amongst which the pick function
+        finds an artist can be narrowed using the optional keyword
+        argument among. If provided, this should be either a sequence
+        of permitted artists or a function taking an artist as its
+        argument and returning a true value if and only if that artist
+        can be selected.
+        
         Note this algorithm calculates distance to the vertices of the
         polygon, so if you want to pick a patch, click on the edge!
         """
@@ -3591,6 +3621,11 @@ class Axes(Artist):
             return dist_x_y(xywin, asarray(xt), asarray(yt))
 
         artists = self.lines + self.patches + self.texts
+        if callable(among):
+            artists = filter(test, artists)
+        elif iterable(among):
+            amongd = dict([(k,1) for k in among])
+            artists = [a for a in artists if a in amongd]
         if not len(artists): return None
         ds = [ (dist(a),a) for a in artists]
         ds.sort()
