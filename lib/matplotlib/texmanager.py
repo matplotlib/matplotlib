@@ -10,7 +10,8 @@ Requirements:
 
   *Agg backends: dvipng
 
-  PS backend: latex w/ psfrag, dvips
+  PS backend: latex w/ psfrag, dvips, and Ghostscript 8.51
+  (older versions do not work properly)
 
 Backends:
 

@@ -116,14 +116,15 @@ font.sans-serif     : Lucida Grande, Verdana, Geneva, Lucida, Bitstream Vera San
 font.cursive        : Apple Chancery, Textile, Zapf Chancery, Sand, cursive
 font.fantasy        : Comic Sans MS, Chicago, Charcoal, Impact, Western, fantasy
 font.monospace      : Andale Mono, Bitstream Vera Sans Mono, Nimbus Mono L, Courier New, Courier, Fixed, Terminal, monospace
-font.latex.package  : type1cm  # This must be an available LaTeX font package, like 'times' or 'pslatex' 
+font.latex.package  : type1cm  # This must be an available LaTeX font
+#package, like 'times' or 'pslatex' ; only applies if text.usetex is set
 
 ### TEXT
 # text properties used by text.Text.  See
 # http://matplotlib.sourceforge.net/matplotlib.text.html for more
 # information on text properties
 text.color          : black
-text.usetex         : False  # use tex for all text handling.  See http://matplotlib.sf.net/matplotlib.texmanager.html
+text.usetex         : False  # use tex/latex for all text handling.  See http://matplotlib.sf.net/matplotlib.texmanager.html
 text.tex.engine     : latex  # tex is faster, but latex is required to use special font packages
 
 ### AXES
