@@ -215,8 +215,10 @@ class RendererAgg(RendererBase):
             font.set_text(s, angle)
         font.draw_glyphs_to_bitmap()
 
+        #print x, y, int(x), int(y)
+        
         self._renderer.draw_text(font, int(x), int(y), gc)
-
+        
 
     def get_text_width_height(self, s, prop, ismath, rgb=(0,0,0)):
         """
