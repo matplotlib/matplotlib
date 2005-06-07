@@ -31,7 +31,7 @@ text.usetex in your matplotlibrc file
 
 """
 
-import os, sys, md5, shutil
+import glob, os, sys, md5, shutil
 from matplotlib import get_home, get_data_path, rcParams, verbose
 from matplotlib._image import readpng
 from matplotlib.numerix import ravel, where, array, \
@@ -57,15 +57,10 @@ class TexManager:
         self.pscnt = 0
         self.dvipngVersion = None
         
-    def make_dvi(self, tex, force=0):
-        if debug: force = True
+    def get_prefix(self, tex):
+        return md5.md5(tex).hexdigest()
         
-        prefix = self.get_prefix(tex)
-        fname = os.path.join(self.texcache, prefix+ '.tex')
-        dvitmp = prefix + '.dvi'
-        dvifile = os.path.join(self.texcache, dvitmp)
-
-        logfile = prefix + '.log'
+    def get_tex_command(self, tex, fname):
         fh = file(fname, 'w')
         if rcParams['text.tex.engine'] == 'latex':
             s = r"""\documentclass{article}
@@ -80,8 +75,6 @@ class TexManager:
             fh.write(s)
             fh.close()
             command = "latex -interaction=nonstopmode '%s'"%fname
-            try: os.remove(prefix + '.aux')
-            except OSError: pass
         else:
             s = r"""\def\frac#1#2{ {#1 \over #2} }
 \nopagenumbers
@@ -93,21 +86,26 @@ class TexManager:
             fh.write(s)
             fh.close()
             command = 'tex %s'%fname
+        return command
+        
+    def make_dvi(self, tex, force=0):
+        if debug: force = True
+        
+        prefix = self.get_prefix(tex)
+        fname = os.path.join(self.texcache, prefix+ '.tex')
+        dvitmp = prefix + '.dvi'
+        dvifile = os.path.join(self.texcache, dvitmp)
 
         if force or not os.path.exists(dvifile):
-            #sin, sout = os.popen2(command)
-            #sout.close()
+            command = self.get_tex_command(tex, fname)
             stdin, stdout, stderr = os.popen3(command)
             verbose.report(''.join(stdout.readlines()), 'debug-annoying')
             err = ''.join(stderr.readlines())
             if err: verbose.report(err, 'helpful')
             shutil.move(dvitmp, dvifile)
-            os.remove(logfile)
+            cleanup = glob.glob(prefix+'.*')
+            for fname in cleanup: os.remove(fname)
         return dvifile
-
-
-    def get_prefix(self, tex):
-        return md5.md5(tex).hexdigest()
         
     def make_png(self, tex, dpi, force=0):
         if debug: force = True
