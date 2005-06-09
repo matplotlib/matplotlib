@@ -617,7 +617,11 @@ def hist(y, bins=10, normed=0):
         if ymin==ymax:
             ymin -= 0.5
             ymax += 0.5
-        bins = linspace(ymin, ymax, bins)
+
+        if bins==1: bins=ymax
+        dy = (ymax-ymin)/bins 
+        bins = ymin + dy*arange(bins)
+
 
     n = searchsorted(sort(y), bins)
     n = diff(concatenate([n, [len(y)]]))
