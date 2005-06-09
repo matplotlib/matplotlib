@@ -116,7 +116,7 @@ if __name__ == '__main__':
     # backends = ['Agg', 'Cairo', 'GDK', 'PS', 'SVG', 'Template']
     backends = ['Agg', 'PS', 'SVG', 'Template']
     # backends = [ 'GTK', 'WX', 'TkAgg']
-    # backends = ['PS']
+    backends = ['Agg', 'PS']
     python = 'python2.4'
     for backend in backends:
         print 'testing %s' % backend

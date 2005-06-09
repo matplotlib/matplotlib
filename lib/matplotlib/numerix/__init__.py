@@ -87,3 +87,14 @@ this module was turned off in setup.py.  If it appears that
 %(which)s and then re-install matplotlib. Otherwise, the following
 traceback gives more details:\n""" % _dict
 
+
+g = globals()
+l = locals()
+__import__('ma', g, l)
+__import__('fft', g, l)
+__import__('linear_algebra', g, l)
+__import__('random_array', g, l)
+__import__('mlab', g, l)
+
+la = linear_algebra
+ra = random_array

@@ -216,6 +216,8 @@ from text import Text
 from patches import Polygon, Rectangle, Circle, Arrow
 from transforms import blend_xy_sep_transform
 
+import numerix as nx
+
 # catch more than an import error here, since the src could fail too,
 # eg a bad pytz install.  I don't want to break all of matplotlib for
 # date support

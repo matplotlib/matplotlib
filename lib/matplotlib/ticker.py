@@ -857,8 +857,8 @@ class AutoLocator(Locator):
 
             try: ld = math.log10(d)
             except OverflowError:
-                warnings.warn('AutoLocator illegal dataInterval range %s; returning NullLocator'%d)
-                return NullLocator()
+                raise RuntimeError('AutoLocator illegal dataInterval range')
+            
 
             fld = math.floor(ld)
             base = 10**fld

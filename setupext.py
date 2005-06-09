@@ -37,7 +37,9 @@ basedir = {
     'win32'  : ['win32_static',],
     'linux2' : ['/usr/local', '/usr',],
     'linux'  : ['/usr/local', '/usr',],
-    'darwin' : ['/sw/lib/freetype219', '/usr/local', '/usr', '/sw', '/usr/X11R6'],
+    # Charles Moad recommends not putting in /usr/X11R6 for darwin
+    # because freetype in this dir is too old for mpl
+    'darwin' : ['/sw/lib/freetype219', '/usr/local', '/usr', '/sw'], 
     'freebsd4' : ['/usr/local', '/usr'],
     'freebsd5' : ['/usr/local', '/usr'],
     'freebsd6' : ['/usr/local', '/usr'],    

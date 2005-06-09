@@ -1,6 +1,14 @@
 New entries should be added at the top
 
-2005-06-07 Fixed a bug in texmanager.py: .aux files not being removed - DSD
+
+2005-06-08 Added Sean Richard's hist binning fix -- see API_CHANGES - JDH
+
+2005-06-07 Fixed a bug in texmanager.py: .aux files not being removed
+           - DSD
+
+================================================================
+
+2005-06-07 matplotlib-0.81 released
 
 2005-06-06 Added autoscale_on prop to axes
 
