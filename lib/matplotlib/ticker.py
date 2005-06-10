@@ -306,7 +306,7 @@ class ScalarFormatter(Formatter):
         if ave_loc: # dont want to take log10(0)
             ave_oom = math.floor(math.log10(mean(absolute(locs))))
             range_oom = math.floor(math.log10(range))
-            if absolute(ave_oom-range_oom) >= 4: # four sig-figs
+            if absolute(ave_oom-range_oom) >= 3: # four sig-figs
                 if ave_loc < 0: 
                     self.offset = math.ceil(amax(locs)/10**range_oom)*10**range_oom
                 else: 
@@ -319,8 +319,10 @@ class ScalarFormatter(Formatter):
         locs = absolute(self.locs)
         if self.offset: oom = math.floor(math.log10(range))
         else: 
-            if locs[0] > locs[-1]: oom = math.floor(math.log10(locs[0]))
-            else: oom = math.floor(math.log10(locs[-1]))
+            if locs[0] > locs[-1]: val = locs[0]
+            else: val = locs[-1]
+            if val == 0: oom = 0
+            else: oom = math.floor(math.log10(val))
         if oom <= -3:
             self.orderOfMagnitude = oom
         elif oom >= 4:
