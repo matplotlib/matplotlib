@@ -1,12 +1,13 @@
 New entries should be added at the top
 
+2005-06-10 Fixed bug #1217637 in ticker.py - DSD
+
+2005-06-07 Fixed a bug in texmanager.py: .aux files not being removed - DSD
 
 2005-06-08 Added Sean Richard's hist binning fix -- see API_CHANGES - JDH
 
 2005-06-07 Fixed a bug in texmanager.py: .aux files not being removed
            - DSD
-
-================================================================
 
 2005-06-07 matplotlib-0.81 released
 
