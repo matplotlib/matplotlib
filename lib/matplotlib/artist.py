@@ -404,7 +404,7 @@ def getp(o, *args):
     return func()
 
 def get(o, *args, **kwargs):
-    return geto(o, *args, **kwargs)
+    return getp(o, *args, **kwargs)
 get.__doc__ = getp.__doc__
                         
 def set(*args, **kwargs):

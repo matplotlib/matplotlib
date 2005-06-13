@@ -315,23 +315,23 @@ def get_split_ind(seq, N):
   
 def wrap(prefix, text, cols):
     'wrap text with prefix at length cols'
-   pad = ' '*len(prefix.expandtabs())
-   available = cols - len(pad)
+    pad = ' '*len(prefix.expandtabs())
+    available = cols - len(pad)
 
-   seq = text.split(' ')
-   Nseq = len(seq)
-   ind = 0
-   lines = []
-   while ind<Nseq:
-      lastInd = ind
-      ind += get_split_ind(seq[ind:], available)
-      lines.append(seq[lastInd:ind])
+    seq = text.split(' ')
+    Nseq = len(seq)
+    ind = 0
+    lines = []
+    while ind<Nseq:
+        lastInd = ind
+        ind += get_split_ind(seq[ind:], available)
+        lines.append(seq[lastInd:ind])
 
-   # add the prefix to the first line, pad with spaces otherwise
-   ret = prefix + ' '.join(lines[0]) + '\n'
-   for line in lines[1:]:
-      ret += pad + ' '.join(line) + '\n'
-   return ret
+    # add the prefix to the first line, pad with spaces otherwise
+    ret = prefix + ' '.join(lines[0]) + '\n'
+    for line in lines[1:]:
+        ret += pad + ' '.join(line) + '\n'
+    return ret
 
 
 

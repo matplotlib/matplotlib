@@ -898,25 +898,72 @@ ACCEPTS: [ 'top' | 'bottom' ]
             bottom = bbox.ymin()
         self.offsetText.set_position((x, bottom-self.OFFSETTEXTPAD*self.figure.dpi.get()/72.0))
 
+    def set_ticks_position(self, position):
+        """
+Set the ticks position (top, bottom, both or default)
+both sets the ticks to appear on both positions, but 
+does not change the tick labels.
+default resets the tick positions to the default:
+ticks on both positions, labels at bottom.
+
+ACCEPTS: [ 'top' | 'bottom' | 'both' | 'default' ]
+        """
+        assert position == 'top' or position == 'bottom' or position == 'both' or position == 'default'
+
+        ticks = self.majorTicks
+        ticks.extend( self.minorTicks )
+	
+        if position == 'top':
+            for t in ticks:
+                t.tick1On = False
+                t.tick2On = True
+                t.label1On = False
+                t.label2On = True
+        elif position == 'bottom':
+            for t in ticks:
+                t.tick1On = True
+                t.tick2On = False
+                t.label1On = True
+                t.label2On = False
+        elif position == 'default':
+            for t in ticks:
+                t.tick1On = True
+                t.tick2On = True
+                t.label1On = True
+                t.label2On = False
+        else:
+            for t in ticks:
+                t.tick1On = True
+                t.tick2On = True
+
     def tick_top(self):
         'use ticks only on top'
-        ticks = self.get_major_ticks()
-        ticks.extend( self.get_minor_ticks() )
-        for t in ticks:
-            t.tick1On = False
-            t.tick2On = True
-            t.label1On = False
-            t.label2On = True
+        self.set_ticks_position('top')
 
     def tick_bottom(self):
         'use ticks only on bottom'
-        ticks = self.get_major_ticks()
-        ticks.extend( self.get_minor_ticks() )
-        for t in ticks:
-            t.tick1On = True
-            t.tick2On = False
-            t.label1On = True
-            t.label2On = False
+        self.set_ticks_position('bottom')
+
+    def get_ticks_position(self):
+        """
+Return the ticks position (top, bottom, default or unknown)
+        """
+        majt=self.majorTicks[0]
+        mT=self.minorTicks[0]
+	
+	majorTop=(not majt.tick1On) and majt.tick2On and (not majt.label1On) and majt.label2On
+	minorTop=(not mT.tick1On) and mT.tick2On and (not mT.label1On) and mT.label2On	
+        if majorTop and minorTop: return 'top'
+
+	MajorBottom=majt.tick1On and (not majt.tick2On) and majt.label1On and (not majt.label2On)
+	MinorBottom=mT.tick1On and (not mT.tick2On) and mT.label1On and (not mT.label2On)
+        if MajorBottom and MinorBottom: return 'bottom'
+
+	majorDefault=majt.tick1On and majt.tick2On and majt.label1On and (not majt.label2On)
+	minorDefault=mT.tick1On and mT.tick2On and mT.label1On and (not mT.label2On)
+        if majorDefault and minorDefault: return 'default'
+
+        return 'unknown'
 
     def get_view_interval(self):
         'return the Interval instance for this axis view limits'
@@ -1021,25 +1068,72 @@ ACCEPTS: [ 'left' | 'right' ]
         top = self.axes.bbox.ymax()
         self.offsetText.set_position((x, top+self.OFFSETTEXTPAD*self.figure.dpi.get()/72.0))
 
+    def set_ticks_position(self, position):
+        """
+Set the ticks position (left, right, both or default)
+both sets the ticks to appear on both positions, but
+does not change the tick labels.
+default resets the tick positions to the default:
+ticks on both positions, labels on the left.
+
+ACCEPTS: [ 'left' | 'right' | 'both' | 'default' ]
+        """
+        assert position == 'left' or position == 'right' or position == 'both' or position == 'default'
+
+        ticks = self.majorTicks
+        ticks.extend( self.minorTicks )
+	
+        if position == 'right':
+            for t in ticks:
+                t.tick1On = False
+                t.tick2On = True
+                t.label1On = False
+                t.label2On = True
+        elif position == 'left':
+            for t in ticks:
+                t.tick1On = True
+                t.tick2On = False
+                t.label1On = True
+                t.label2On = False
+        elif position == 'default':
+            for t in ticks:
+                t.tick1On = True
+                t.tick2On = True
+                t.label1On = True
+                t.label2On = False
+        else:
+            for t in ticks:
+                t.tick1On = True
+                t.tick2On = True
+
     def tick_right(self):
         'use ticks only on right'
-        ticks = self.get_major_ticks()
-        ticks.extend( self.get_minor_ticks() )
-        for t in ticks:
-            t.tick1On = False
-            t.tick2On = True
-            t.label1On = False
-            t.label2On = True
+        self.set_ticks_position('right')
 
     def tick_left(self):
         'use ticks only on left'
-        ticks = self.get_major_ticks()
-        ticks.extend( self.get_minor_ticks() )
-        for t in ticks:
-            t.tick1On = True
-            t.tick2On = False
-            t.label1On = True
-            t.label2On = False
+        self.set_ticks_position('left')
+
+    def get_ticks_position(self):
+        """
+Return the ticks position (left, right, both or unknown)
+        """
+        majt=self.majorTicks[0]
+        mT=self.minorTicks[0]
+	
+	majorRight=(not majt.tick1On) and majt.tick2On and (not majt.label1On) and majt.label2On
+	minorRight=(not mT.tick1On) and mT.tick2On and (not mT.label1On) and mT.label2On	
+        if majorRight and minorRight: return 'right'
+
+	majorLeft=majt.tick1On and (not majt.tick2On) and majt.label1On and (not majt.label2On)
+	minorLeft=mT.tick1On and (not mT.tick2On) and mT.label1On and (not mT.label2On)
+        if majorLeft and minorLeft: return 'left'
+
+	majorDefault=majt.tick1On and majt.tick2On and majt.label1On and (not majt.label2On)
+	minorDefault=mT.tick1On and mT.tick2On and mT.label1On and (not mT.label2On)
+        if majorDefault and minorDefault: return 'default'
+
+        return 'unknown'
 
     def get_view_interval(self):
         'return the Interval instance for this axis view limits'
