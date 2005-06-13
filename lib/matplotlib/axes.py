@@ -355,7 +355,7 @@ class Axes(Artist):
         self.animated = {}  
         self._lastRenderer = None
 
-        setp(self, **kwargs)
+        if len(kwargs): setp(self, **kwargs)
         
     def _init_axis(self):
         "move this out of __init__ because non-separable axes don't use it"
