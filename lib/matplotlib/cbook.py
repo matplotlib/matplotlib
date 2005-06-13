@@ -314,7 +314,7 @@ def get_split_ind(seq, N):
      
   
 def wrap(prefix, text, cols):
-
+    'wrap text with prefix at length cols'
    pad = ' '*len(prefix.expandtabs())
    available = cols - len(pad)
 
@@ -438,12 +438,6 @@ def allpairs(x):
     return [ (s, f) for i, f in enumerate(x) for s in x[i+1:] ]
 
         
-if __name__=='__main__':
-    assert( allequal([1,1,1]) )
-    assert(not  allequal([1,1,0]) )
-    assert( allequal([]) )
-    assert( allequal(('a', 'a')))
-    assert( not allequal(('a', 'b')))    
 
 
 # python 2.2 dicts don't have pop
@@ -566,3 +560,11 @@ def finddir(o, match, case=False):
 def reverse_dict(d):
     'reverse the dictionary -- may lose data if values are not uniq!'
     return dict([(v,k) for k,v in d.items()])
+
+
+if __name__=='__main__':
+    assert( allequal([1,1,1]) )
+    assert(not  allequal([1,1,0]) )
+    assert( allequal([]) )
+    assert( allequal(('a', 'a')))
+    assert( not allequal(('a', 'b')))    

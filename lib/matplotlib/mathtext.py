@@ -115,10 +115,8 @@ USAGE:
 BACKENDS
 
   mathtext currently works with GTK, Agg, GTKAgg, TkAgg and WxAgg and
-  PS, though only horizontal and vertical rotations are supported.  If
-  David incorporates ft2font into paint, it will be easy to add to
-  Paint.  WX can follow the lead of GTK and use pixels API calls to
-  use mathtext.
+  PS, though only horizontal and vertical rotations are supported in
+  *Agg
 
   mathtext now embeds the TrueType computer modern fonts into the PS
   file, so what you see on the screen should be what you get on paper.
@@ -129,13 +127,12 @@ BACKENDS
 
 KNOWN ISSUES:
 
- - FIXED in 0.54 - some hackish ways I deal with a strange offset in cmex10
  - nested subscripts, eg, x_i_j not working; but you can do x_{i_j}
  - nesting fonts changes in sub/superscript groups not parsing
  - I would also like to add a few more layout commands, like \frac.
 
 Author    : John Hunter <jdhunter@ace.bsd.uchicago.edu>
-Copyright : John Hunter (2004)
+Copyright : John Hunter (2004,2005)
 License   : matplotlib license (PSF compatible)
  
 """
@@ -159,7 +156,7 @@ from matplotlib import get_data_path
 
 bakoma_fonts = []
 
-# symbolx that have the sub and superscripts over/under 
+# symbols that have the sub and superscripts over/under 
 overunder = { r'\sum'    : 1,
               r'\int'    : 1,
               r'\prod'   : 1,
