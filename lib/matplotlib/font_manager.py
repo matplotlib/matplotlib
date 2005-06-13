@@ -25,9 +25,9 @@ KNOWN ISSUES
   - update_fonts not implemented
 
 
-Authors   : John Hunter <jdhunter@nitace.bsd.uchicago.edu>
+Authors   : John Hunter <jdhunter@ace.bsd.uchicago.edu>
             Paul Barrett <Barrett@STScI.Edu>
-Copyright : John Hunter (2004), Paul Barrett (2004)
+Copyright : John Hunter (2004,2005), Paul Barrett (2004,2005)
 License   : matplotlib license (PSF compatible)
             The font directory code is from ttfquery,
             see license/LICENSE_TTFQUERY.

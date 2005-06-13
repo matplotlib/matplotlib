@@ -643,8 +643,6 @@ class Line2D(Artist):
         else:
             renderer.draw_lines(gc, xt, yt)
 
-
-
     def _draw_dotted(self, renderer, gc, xt, yt):
 
         if len(xt)<2: return

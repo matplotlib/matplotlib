@@ -17,7 +17,7 @@ them, etc.  When you do something like
   width  = inches * dpi
 
 width is a BinOp instance (that tells you the width of the figure in
-pixels.  Later, if the figure size in changed, ie we call
+pixels).  Later, if the figure size in changed, ie we call
 
   inches.set(10)
 
@@ -94,7 +94,7 @@ and funcy both identity.  Eg,
 maps the axes view limits to display limits.  If the xaxis scaling is
 changed to log, one simply calls
 
-  transData.get_funcx.set_type(LOG10)
+  transData.get_funcx().set_type(LOG10)
 
 For more general transformations including rotation, the Affine class
 is provided, which is constructed with 6 LazyValue instances:
@@ -256,16 +256,9 @@ def bound_vertices(verts):
     Return the Bbox of the sequence of x,y tuples in verts    
     """
     # this is a good candidate to move to _transforms
-    xs = [x for x,y in verts]
-    ys = [y for x,y in verts]
-
-    minx = min(xs)
-    maxx = max(xs)
-    miny = min(ys)
-    maxy = max(ys)
-    return Bbox( Point( Value(minx), Value(miny) ),
-                 Point( Value(maxx), Value(maxy) )
-                 )
+    bbox = unit_bbox()
+    bbox.update(verts, 1)
+    return bbox
 
 def bbox_all(bboxes):
     """
@@ -273,6 +266,7 @@ def bbox_all(bboxes):
     """
     # this is a good candidate to move to _transforms
     assert(len(bboxes))
+        
     if len(bboxes)==1: return bboxes[0]
 
     bbox = bboxes[0]

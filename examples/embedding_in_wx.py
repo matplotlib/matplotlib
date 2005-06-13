@@ -53,7 +53,7 @@ class PlotFigure(wxFrame):
     def __init__(self):
         wxFrame.__init__(self, None, -1, "Test embedded wxFigure")
 
-        self.fig = Figure((5,4), 75)
+        self.fig = Figure((9,8), 75)
         self.canvas = FigureCanvasWx(self, -1, self.fig)
         self.toolbar = Toolbar(self.canvas)
         self.toolbar.Realize()
