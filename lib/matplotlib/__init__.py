@@ -714,15 +714,10 @@ def rc(group, **kwargs):
         'mec' : 'markeredgecolor'
         'mew' : 'markeredgewidth'
         'aa'  : 'antialiased'            
-        'l'   : 'lines'
-        'a'   : 'axes'
-        'f'   : 'figure'
-        'p'   : 'patches'
-        'g'   : 'grid'
 
     Thus you could abbreviate the above rc command as
 
-          rc('l', lw=2, c='r')
+          rc('lines', lw=2, c='r')
 
 
     Note you can use python's kwargs dictionary facility to store
@@ -750,11 +745,6 @@ def rc(group, **kwargs):
         'mec' : 'markeredgecolor',
         'mew' : 'markeredgewidth',
         'aa'  : 'antialiased',                        
-        'l'   : 'lines',
-        'a'   : 'axes',
-        'f'   : 'figure',
-        'p'   : 'patches',
-        'g'   : 'grid',        
         }
     
     for k,v in kwargs.items():

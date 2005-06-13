@@ -130,7 +130,6 @@ def detrend_linear(x):
     a = mean(x) - b*mean(xx)
     return x-(b*xx+a)
 
-
 def psd(x, NFFT=256, Fs=2, detrend=detrend_none,
         window=window_hanning, noverlap=0):
     """

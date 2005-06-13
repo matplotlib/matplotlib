@@ -1,5 +1,8 @@
 New entries should be added at the top
 
+2005-06-13 Fixed rc alias 'l' bug reported by Fernando by removing
+           aliases for mainlevel rc options.
+
 2005-06-10 Fixed bug #1217637 in ticker.py - DSD
 
 2005-06-07 Fixed a bug in texmanager.py: .aux files not being removed - DSD
@@ -8,6 +11,9 @@ New entries should be added at the top
 
 2005-06-07 Fixed a bug in texmanager.py: .aux files not being removed
            - DSD
+
+
+=====================================================================
 
 2005-06-07 matplotlib-0.81 released
 
