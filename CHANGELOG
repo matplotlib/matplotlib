@@ -1,5 +1,14 @@
 New entries should be added at the top
 
+2005-06-13 Exposed cap and join style for lines with new rc params and
+           line properties 
+
+	lines.dash_joinstyle : miter        # miter|round|bevel
+	lines.dash_capstyle : butt          # butt|round|projecting
+	lines.solid_joinstyle : miter       # miter|round|bevel
+	lines.solid_capstyle : projecting   # butt|round|projecting
+
+
 2005-06-13 Added kwargs to Axes init
 
 2005-06-13 Applied Baptiste's tick patch - JDH
