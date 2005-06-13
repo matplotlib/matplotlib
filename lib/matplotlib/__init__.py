@@ -415,11 +415,22 @@ def validate_comma_sep_str(s):
     except ValueError:
         raise ValueError('Could not convert all entries to strings')
 
-def validate_orientation(s):
-    if s.lower() in ['landscape', 'portrait']:
-        return True
-    else:
-        raise ValueError('orientation must be one of: portrait, landscape')
+class ValidateInStrings:
+    def __init__(self, valid, ignorecase=False):
+        'valid is a list of legal strings'
+        self.ignorecase = ignorecase
+        def func(s):
+            if ignorecase: return s.lower()
+            else: return s
+        self.validd = dict([(func(k),1) for k in valid])
+
+    def __call__(self, s):
+        if self.ignorecase: s = s.lower()
+        if s in self.validd: return s
+        raise ValueError('Unrecognized string "%s": valid strings are %s'%(s, self.validd.keys()))
+
+
+validate_orientation = ValidateInStrings(['landscape', 'portrait'])
 
 def validate_fontsize(s):
     if s.lower() in ['xx-small', 'x-small', 'small', 'medium', 'large', 'x-large',
@@ -451,28 +462,19 @@ def validate_verbose_fileo(s):
             verbose.fileo = fileo
     return verbose.fileo
     
-    
-def validate_ps_papersize(s):
-    papertypes = [
+
+validate_ps_papersize = ValidateInStrings([
         'executive', 'letter', 'legal', 'ledger',
         'a0', 'a1', 'a2','a3', 'a4', 'a5', 'a6', 'a7', 'a8', 'a9', 'a10',
         'b0', 'b1', 'b2', 'b3', 'b4', 'b5', 'b6',
         'c0', 'c1', 'c2', 'c3', 'c4', 'c5', 'c6'
-        ]
-    s = s.lower()
-    if s in papertypes:
-        return s
-    else:
-        raise ValueError('ps.papersize must be one of: %s'% ', '.join(papertypes))
-        
+        ], ignorecase=True)
 
-def validate_tex_engine(s):
-    if s.lower() in ['tex', 'latex']:
-        return s
-    else:
-        raise ValueError('text.tex.engine must be one of: tex, latex')
+validate_tex_engine = ValidateInStrings(['tex', 'latex'], ignorecase=True)
 
+validate_joinstyle = ValidateInStrings(['miter', 'round', 'bevel'], ignorecase=True)
 
+validate_capstyle = ValidateInStrings(['butt', 'round', 'projecting'], ignorecase=True)
 # a map from key -> value, converter
 defaultParams = {
     'backend'           : ['GTK', str],
@@ -496,6 +498,10 @@ defaultParams = {
     'lines.markeredgewidth'       : [0.5, validate_float],     
     'lines.markersize'  : [6, validate_float],       # markersize, in points
     'lines.antialiased' : [True, validate_bool],     # antialised (no jaggies)
+    'lines.dash_joinstyle' : ['miter', validate_joinstyle],
+    'lines.solid_joinstyle' : ['miter', validate_joinstyle],    
+    'lines.dash_capstyle' : ['butt', validate_capstyle],
+    'lines.solid_capstyle' : ['projecting', validate_capstyle],       
     'lines.data_clipping' : [False, validate_bool],  # clip data
 
     # patch props    

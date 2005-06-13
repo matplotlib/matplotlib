@@ -126,17 +126,23 @@ class Line2D(Artist):
         }
 
     zorder = 2
+    validCap = ('butt', 'round', 'projecting')
+    validJoin =   ('miter', 'round', 'bevel')
 
     def __init__(self, xdata, ydata,
-                 linewidth       = None, # default to rc
-                 linestyle       = None, # default to rc
-                 color           = None, # default to rc
-                 marker          = None, # default to rc
-                 markersize      = None, # default to rc
-                 markeredgewidth = None, # default to rc
-                 markeredgecolor = None, # default to rc
-                 markerfacecolor = None, # default to rc
-                 antialiased     = None, # default to rc
+                 linewidth       = None, # all Nones default to rc
+                 linestyle       = None, 
+                 color           = None, 
+                 marker          = None, 
+                 markersize      = None, 
+                 markeredgewidth = None, 
+                 markeredgecolor = None, 
+                 markerfacecolor = None, 
+                 antialiased     = None, 
+                 dash_capstyle = None,
+                 solid_capstyle = None,                 
+                 dash_joinstyle = None,
+                 solid_joinstyle = None,                 
                  ):
         """
         xdata is a sequence of x data
@@ -170,6 +176,15 @@ class Line2D(Artist):
 
         if markersize is None  : markersize=rcParams['lines.markersize']
         if antialiased is None : antialiased=rcParams['lines.antialiased']
+        if dash_capstyle is None : dc=rcParams['lines.dash_capstyle']
+        if dash_joinstyle is None : dj=rcParams['lines.dash_joinstyle']
+        if solid_capstyle is None : sc=rcParams['lines.solid_capstyle']
+        if solid_joinstyle is None : sj=rcParams['lines.solid_joinstyle']
+
+        self.set_dash_capstyle(dc)
+        self.set_dash_joinstyle(dj)
+        self.set_solid_capstyle(sc)
+        self.set_solid_joinstyle(sj)
 
 
         self._linestyle = linestyle
@@ -344,6 +359,14 @@ class Line2D(Artist):
         if self.get_clip_on():
             gc.set_clip_rectangle(self.clipbox.get_bounds())
 
+        if self.is_dashed():
+            cap = self._dashcapstyle
+            join = self._dashjoinstyle
+        else:
+            cap = self._solidcapstyle
+            join = self._solidjoinstyle
+        gc.set_joinstyle(join)
+        gc.set_capstyle(cap)        
 
         if self._newstyle:
             # transform in backend
@@ -602,7 +625,6 @@ class Line2D(Artist):
         yt2=ones((2*siz,), yt.typecode())
         yt2[0:-1:2], yt2[1::2]=yt, yt
         gc.set_linestyle('solid')
-        gc.set_capstyle('projecting')
 
         if self._newstyle:
             renderer.draw_lines(gc, xt2, yt2, self._transform)
@@ -612,7 +634,6 @@ class Line2D(Artist):
     def _draw_solid(self, renderer, gc, xt, yt):
         if len(xt)<2: return
         gc.set_linestyle('solid')
-        gc.set_capstyle('projecting')
         if self._newstyle:
             renderer.draw_lines(gc, xt, yt, self._transform)
         else:
@@ -624,8 +645,6 @@ class Line2D(Artist):
         gc.set_linestyle('dashed')
         if self._dashSeq is not None:
             gc.set_dashes(0, self._dashSeq)
-        gc.set_capstyle('butt')
-        gc.set_joinstyle('miter')
 
         if self._newstyle:
             renderer.draw_lines(gc, xt, yt, self._transform)
@@ -636,8 +655,6 @@ class Line2D(Artist):
     def _draw_dash_dot(self, renderer, gc, xt, yt):
         if len(xt)<2: return
         gc.set_linestyle('dashdot')
-        gc.set_capstyle('butt')
-        gc.set_joinstyle('miter')
         if self._newstyle:
             renderer.draw_lines(gc, xt, yt, self._transform)
         else:
@@ -647,8 +664,6 @@ class Line2D(Artist):
 
         if len(xt)<2: return
         gc.set_linestyle('dotted')
-        gc.set_capstyle('butt')
-        gc.set_joinstyle('miter')
         if self._newstyle:
             renderer.draw_lines(gc, xt, yt, self._transform)
         else:
@@ -1205,3 +1220,77 @@ class Line2D(Artist):
     def get_ms(self):
         'alias for get_markersize'
         return self.get_markersize()
+
+    def set_dash_joinstyle(self, s):
+        """
+        Set the join style for dashed linestyles
+        ACCEPTS: ['miter' | 'round' | 'bevel']        
+        """
+        s = s.lower()
+        if s not in self.validJoin:
+            raise ValueError('set_dash_joinstyle passed "%s"; valid joinstyles are %s'%(s, self.validJoin))
+        self._dashjoinstyle = s
+
+    def set_solid_joinstyle(self, s):
+        """
+        Set the join style for solid linestyles
+        ACCEPTS: ['miter' | 'round' | 'bevel']        
+        """
+        s = s.lower()
+        if s not in self.validJoin:
+            raise ValueError('set_solid_joinstyle passed "%s"; valid joinstyles are %s'%(s, self.validJoin))
+        self._solidjoinstyle = s
+
+
+    def get_dash_joinstyle(self):
+        """
+        Get the join style for dashed linestyles
+        """
+        return self._dashjoinstyle
+
+    def get_solid_joinstyle(self):
+        """
+        Get the join style for solid linestyles
+        """
+        return self._solidjoinstyle
+
+    def set_dash_capstyle(self, s):
+        """
+        Set the cap style for dashed linestyles
+        ACCEPTS: ['butt' | 'round' | 'projecting']
+        """
+        s = s.lower()
+        if s not in self.validCap:
+            raise ValueError('set_dash_capstyle passed "%s"; valid capstyles are %s'%(s, self.validJoin))
+
+        self._dashcapstyle = s
+        
+
+    def set_solid_capstyle(self, s):
+        """
+        Set the cap style for solid linestyles
+        ACCEPTS: ['butt' | 'round' |  'projecting']
+        """
+        s = s.lower()
+        if s not in self.validCap:
+            raise ValueError('set_solid_capstyle passed "%s"; valid capstyles are %s'%(s, self.validJoin))
+
+        self._solidcapstyle = s
+
+
+    def get_dash_capstyle(self):
+        """
+        Get the cap style for dashed linestyles
+        """
+        return self._dashcapstyle
+
+    def get_solid_capstyle(self):
+        """
+        Get the cap style for solid linestyles
+        """
+        return self._solidcapstyle
+
+    def is_dashed(self):
+        'return True if line is dashstyle'
+        return self._linestyle in ('--', '-.', ':')
+

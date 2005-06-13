@@ -53,6 +53,10 @@ lines.markerfacecolor  : blue
 lines.markeredgecolor  : black
 lines.markeredgewidth  : 0.5     # the line width around the marker symbol
 lines.markersize  : 6            # markersize, in points
+lines.dash_joinstyle : miter        # miter|round|bevel
+lines.dash_capstyle : butt          # butt|round|projecting
+lines.solid_joinstyle : miter       # miter|round|bevel
+lines.solid_capstyle : projecting   # butt|round|projecting
 lines.antialiased : True         # render lines in antialised (no jaggies)
 lines.data_clipping : False      # Use data clipping in addition to viewport
                                  # clipping.  Useful if you plot long data
