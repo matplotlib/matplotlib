@@ -1,7 +1,11 @@
 New entries should be added at the top
 
+2005-06-13 Added kwargs to Axes init
+
+2005-06-13 Applied Baptiste's tick patch - JDH
+
 2005-06-13 Fixed rc alias 'l' bug reported by Fernando by removing
-           aliases for mainlevel rc options.
+           aliases for mainlevel rc options. - JDH
 
 2005-06-10 Fixed bug #1217637 in ticker.py - DSD
 

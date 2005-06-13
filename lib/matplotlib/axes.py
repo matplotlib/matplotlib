@@ -10,7 +10,7 @@ from numerix import absolute, arange, array, asarray, ones, divide,\
 import numerix.ma as ma
 
 import matplotlib.mlab
-from artist import Artist
+from artist import Artist, setp
 from axis import XAxis, YAxis
 from cbook import iterable, is_string_like, flatten, enumerate, \
      allequal, dict_delall, popd, popall, silent_list
@@ -317,6 +317,7 @@ class Axes(Artist):
                  sharex=None, # use Axes instance's xaxis info
                  sharey=None, # use Axes instance's yaxis info
                  label='',
+                 **kwargs
                  ):
         Artist.__init__(self)
         self._position = map(makeValue, rect)
@@ -354,6 +355,8 @@ class Axes(Artist):
         self.animated = {}  
         self._lastRenderer = None
 
+        setp(self, **kwargs)
+        
     def _init_axis(self):
         "move this out of __init__ because non-separable axes don't use it"
         self.xaxis = XAxis(self)
@@ -3626,6 +3629,8 @@ class Axes(Artist):
         elif iterable(among):
             amongd = dict([(k,1) for k in among])
             artists = [a for a in artists if a in amongd]
+        else:
+            raise ValueError('among mut be callable or iterable')
         if not len(artists): return None
         ds = [ (dist(a),a) for a in artists]
         ds.sort()
