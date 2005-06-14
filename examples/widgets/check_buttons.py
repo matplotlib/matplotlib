@@ -11,7 +11,7 @@ l0, = ax.plot(t, s0, visible=False, lw=2)
 l1, = ax.plot(t, s1, lw=2)
 l2, = ax.plot(t, s2, lw=2)
 subplots_adjust(left=0.2)
-x
+
 rax = axes([0.05, 0.4, 0.1, 0.15])
 check = CheckButtons(rax, ('2 Hz', '4 Hz', '6 Hz'), (False, True, True))
 
