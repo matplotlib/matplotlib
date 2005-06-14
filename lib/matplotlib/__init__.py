@@ -475,6 +475,36 @@ validate_tex_engine = ValidateInStrings(['tex', 'latex'], ignorecase=True)
 validate_joinstyle = ValidateInStrings(['miter', 'round', 'bevel'], ignorecase=True)
 
 validate_capstyle = ValidateInStrings(['butt', 'round', 'projecting'], ignorecase=True)
+
+
+class ValidateInterval:
+    """
+    Value must be in interval 
+    """
+    def __init__(self, vmin, vmax, closedmin=True, closedmax=True):
+        self.vmin = vmin
+        self.vmax = vmax
+        self.cmin = closedmin
+        self.cmax = closedmax
+
+    def __call__(self, s):
+        try: s = float(s)
+        except: raise RuntimeError('Value must be a float; found "%s"'%s)
+
+        if self.cmin and s<self.vmin:
+            raise RuntimeError('Value must be >= %f; found "%f"'%(self.vmin, s))
+        elif not self.cmin and s<=self.vmin:
+            raise RuntimeError('Value must be > %f; found "%f"'%(self.vmin, s))
+
+        if self.cmax and s>self.vmax:
+            raise RuntimeError('Value must be <= %f; found "%f"'%(self.vmax, s))
+        elif not self.cmax and s>=self.vmax:
+            raise RuntimeError('Value must be < %f; found "%f"'%(self.vmax, s))
+        return s
+    
+        
+
+
 # a map from key -> value, converter
 defaultParams = {
     'backend'           : ['GTK', str],
@@ -573,6 +603,14 @@ defaultParams = {
     'figure.dpi'        : [ 80, validate_float],   # DPI
     'figure.facecolor'  : [ 0.75, validate_color], # facecolor; scalar gray
     'figure.edgecolor'  : [ 'w', validate_color],  # edgecolor; white
+
+    'figure.subplot.left'   : [0.125, ValidateInterval(0, 1, closedmin=False, closedmax=False)],
+    'figure.subplot.right'  : [0.9, ValidateInterval(0, 1, closedmin=False, closedmax=False)],
+    'figure.subplot.bottom' : [0.1, ValidateInterval(0, 1, closedmin=False, closedmax=False)],
+    'figure.subplot.top'    : [0.9, ValidateInterval(0, 1, closedmin=False, closedmax=False)],
+    'figure.subplot.wspace' : [0.2, ValidateInterval(0, 1, closedmin=False, closedmax=True)],
+    'figure.subplot.hspace' : [0.2, ValidateInterval(0, 1, closedmin=False, closedmax=True)],                    
+    
 
     'savefig.dpi'       : [ 150, validate_float],   # DPI
     'savefig.facecolor' : [ 'w', validate_color],  # facecolor; white

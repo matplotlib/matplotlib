@@ -24,6 +24,10 @@ major ticks of the y and y axis together.  If you want to control the
 grid of the minor ticks for a given axis, use for example
 
   ax.xaxis.grid(True, which='minor')
+
+Note, you should not use the same locator between different Axis
+because the locator stores references to the Axis data and view limits
+
 """
 
 from pylab import *

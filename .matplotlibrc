@@ -167,6 +167,18 @@ figure.dpi       : 80      # figure dots per inch
 figure.facecolor : 0.75    # figure facecolor; 0.75 is scalar gray
 figure.edgecolor : white   # figure edgecolor
 
+# The figure subplot parameters.  All dimensions are fraction of the
+# figure width or height
+figure.subplot.left  : 0.125  # the left side of the subplots of the figure
+figure.subplot.right : 0.9    # the right side of the subplots of the figure
+figure.subplot.bottom : 0.1   # the bottom of the subplots of the figure
+figure.subplot.top : 0.9      # the top of the subplots of the figure
+figure.subplot.wspace : 0.2   # the amount of width reserved for blank space between subplots
+figure.subplot.hspace : 0.2   # the amount of height reserved for white space between subplots        
+
+
+
+
 ### images
 image.aspect : free              # free | preserve
 image.interpolation  : bilinear  # see help(imshow) for options
