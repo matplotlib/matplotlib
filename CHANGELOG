@@ -1,5 +1,9 @@
 New entries should be added at the top
 
+2005-06-14 Wrote some GUI neutral widgets (Button, Slider,
+           RadioButton) in matplotlib.widgets.  See examples/widgets -
+           JDH
+
 2005-06-14 Exposed subplot parameters as rc vars and as the fig
            SubplotParams instance subplotpars.  See
            figure.SubplotParams, figure.Figure.subplots_adjust and the
