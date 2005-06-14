@@ -1016,7 +1016,7 @@ class NavigationToolbar2:
 
                 self._lastCursor = cursors.MOVE
 
-        if event.inaxes:
+        if event.inaxes and event.inaxes.get_navigate():
 
             s = event.inaxes.format_coord(event.xdata, event.ydata)
             if len(self.mode):
@@ -1074,7 +1074,7 @@ class NavigationToolbar2:
         
             
         for i, a in enumerate(self.canvas.figure.get_axes()):
-            if event.inaxes == a:
+            if event.inaxes == a and event.inaxes.get_navigate():
                 xmin, xmax = a.get_xlim()
                 ymin, ymax = a.get_ylim()
                 lim = xmin, xmax, ymin, ymax
@@ -1101,7 +1101,7 @@ class NavigationToolbar2:
         if self._views.empty(): self.push_current()
 
         for i, a in enumerate(self.canvas.figure.get_axes()):
-            if event.inaxes==a:
+            if event.inaxes==a and event.inaxes.get_navigate():
                 xmin, xmax = a.get_xlim()
                 ymin, ymax = a.get_ylim()
                 lim = xmin, xmax, ymin, ymax

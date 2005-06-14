@@ -65,14 +65,10 @@ class Button(Widget):
         self.observers = {}
         self.ax = ax
 
-        def silent(*args):
-            'turn off the coords reporting for ax'
-            return ''
-        ax.format_coord = silent
         
         ax.figure.canvas.mpl_connect('button_press_event', self._click)
         ax.figure.canvas.mpl_connect('motion_notify_event', self._motion)
-
+        ax.set_navigate(False)
         ax.set_axis_bgcolor(color)
         ax.set_xticks([])
         ax.set_yticks([])        
@@ -162,6 +158,7 @@ class Slider(Widget):
         ax.set_yticks([])
         ax.set_xlim((valmin, valmax))
         ax.set_xticks([])
+        ax.set_navigate(False)
         
         ax.figure.canvas.mpl_connect('button_press_event', self._update)
         self.label = ax.text(-0.02, 0.5, label, transform=ax.transAxes,
@@ -259,16 +256,11 @@ class RadioButtons(Widget):
         activecolor is the color of the button when clicked
         """
         self.activecolor = activecolor
-
-        def silent(*args):
-            'turn off the coords reporting for ax'
-            return ''
-        ax.format_coord = silent
         
 
         ax.set_xticks([])
         ax.set_yticks([])
-        
+        ax.set_navigate(False)        
         dy = 1./(len(labels)+1)
         ys = linspace(1-dy, dy, len(labels))
         cnt = 0
@@ -376,37 +368,37 @@ class SubplotTool(Widget):
 
         self.axleft = toolfig.add_subplot(711)
         self.axleft.set_title('Click on slider to adjust subplot param')
+        self.axleft.set_navigate(False)
         
         self.sliderleft = Slider(self.axleft, 'left', 0, 1, targetfig.subplotpars.left, closedmax=False)
         self.sliderleft.on_changed(self.funcleft)
-        self.axleft.format_coord = toolbarfmt(self.sliderleft)
 
 
         self.axbottom = toolfig.add_subplot(712)
+        self.axbottom.set_navigate(False)
         self.sliderbottom = Slider(self.axbottom, 'bottom', 0, 1, targetfig.subplotpars.bottom, closedmax=False)
         self.sliderbottom.on_changed(self.funcbottom)
-        self.axbottom.format_coord = toolbarfmt(self.sliderbottom)
         
         self.axright = toolfig.add_subplot(713)
+        self.axright.set_navigate(False)
         self.sliderright = Slider(self.axright, 'right', 0, 1, targetfig.subplotpars.right, closedmin=False)
         self.sliderright.on_changed(self.funcright)
-        self.axright.format_coord = toolbarfmt(self.sliderright)
         
         self.axtop = toolfig.add_subplot(714)
+        self.axtop.set_navigate(False)
         self.slidertop = Slider(self.axtop, 'top', 0, 1, targetfig.subplotpars.top, closedmin=False)
         self.slidertop.on_changed(self.functop)
-        self.axtop.format_coord = toolbarfmt(self.slidertop)
 
         
         self.axwspace = toolfig.add_subplot(715)
+        self.axwspace.set_navigate(False)
         self.sliderwspace = Slider(self.axwspace, 'wspace', 0, 1, targetfig.subplotpars.wspace, closedmax=False)
         self.sliderwspace.on_changed(self.funcwspace)
-        self.axwspace.format_coord = toolbarfmt(self.sliderwspace)
         
         self.axhspace = toolfig.add_subplot(716)
+        self.axhspace.set_navigate(False)
         self.sliderhspace = Slider(self.axhspace, 'hspace', 0, 1, targetfig.subplotpars.hspace, closedmax=False)
         self.sliderhspace.on_changed(self.funchspace)
-        self.axhspace.format_coord = toolbarfmt(self.sliderhspace)
 
 
         # constraints
@@ -422,6 +414,8 @@ class SubplotTool(Widget):
         sliders = (self.sliderleft, self.sliderbottom, self.sliderright,
                    self.slidertop, self.sliderwspace, self.sliderhspace, )
 
+
+            
         def func(event):
             thisdrawon = self.drawon
 
