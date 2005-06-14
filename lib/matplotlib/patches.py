@@ -350,11 +350,15 @@ class Polygon(Patch):
     """
     def __init__(self, xy, **kwargs):
         Patch.__init__(self, **kwargs)
+        if not isinstance(xy, list):
+            xy = list(xy)
         self.xy = xy
 
     def get_verts(self):
         return self.xy
-    
+
+        
+              
 
 class Wedge(Polygon):
     def __init__(self, center, r, theta1, theta2,

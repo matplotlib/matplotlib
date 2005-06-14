@@ -575,8 +575,9 @@ class Axes(Artist):
 
         """
 
+
         trans = blend_xy_sep_transform( self.transData, self.transAxes   )
-        verts = (xmin, ymin), (xmin, ymax), (xmax, ymax), (xmax, ymin)
+        verts = [(xmin, ymin), (xmin, ymax), (xmax, ymax), (xmax, ymin)]
         p = Polygon(verts, **kwargs)
         p.set_transform(trans)
         self.add_patch(p)
@@ -3652,33 +3653,59 @@ class SubplotBase:
       Subplot(211)    # 2 rows, 1 column, first (upper) plot
     """
 
-    def __init__(self, *args):
-        # Axes __init__ below
+    def __init__(self, fig, *args, **kwargs):
+        """
+        fig is a figure instance
+
+        args is a varargs to specify the subplot
+
+        """
+
+        self.figure = fig
 
         if len(args)==1:
-            s = str(*args)
+            s = str(args[0])
             if len(s) != 3:
-                raise ValueError, 'Argument to subplot must be a 3 digits long'
+                raise ValueError('Argument to subplot must be a 3 digits long')
             rows, cols, num = map(int, s)
         elif len(args)==3:
             rows, cols, num = args
         else:
-            raise ValueError, 'Illegal argument to subplot'
+            raise ValueError(  'Illegal argument to subplot')
+
+
         total = rows*cols
         num -= 1    # convert from matlab to python indexing ie num in range(0,total)
         if num >= total:
-            raise ValueError, 'Subplot number exceeds total subplots'
-        left, right = .125, .9
-        bottom, top = .11, .9
-        rat = 0.2             # ratio of fig to seperator for multi row/col figs
+            raise ValueError( 'Subplot number exceeds total subplots')
+        self._rows = rows
+        self._cols = cols
+        self._num = num
+
+        self.update_params()
+
+    def update_params(self):
+        'update the subplot position from fig.subplotpars'
+
+        rows = self._rows
+        cols = self._cols
+        num = self._num
+
+        pars = self.figure.subplotpars
+        left = pars.left
+        right = pars.right
+        bottom = pars.bottom
+        top = pars.top
+        wspace = pars.wspace
+        hspace = pars.hspace        
         totWidth = right-left
         totHeight = top-bottom
 
-        figH = totHeight/(rows + rat*(rows-1))
-        sepH = rat*figH
+        figH = totHeight/(rows + hspace*(rows-1))
+        sepH = hspace*figH
 
-        figW = totWidth/(cols + rat*(cols-1))
-        sepW = rat*figW
+        figW = totWidth/(cols + wspace*(cols-1))
+        sepW = wspace*figW
 
         rowNum, colNum =  divmod(num, cols)
 
@@ -3694,6 +3721,19 @@ class SubplotBase:
         self.numRows = rows
         self.numCols = cols
 
+        if 0:
+            print 'rcn', rows, cols, num
+            print 'lbrt', left, bottom, right, top
+            print 'self.figBottom', self.figBottom
+            print 'self.figLeft', self.figLeft
+            print 'self.figW', self.figW
+            print 'self.figH', self.figH
+            print 'self.rowNum', self.rowNum
+            print 'self.colNum', self.colNum
+            print 'self.numRows', self.numRows
+            print 'self.numCols', self.numCols
+
+        
     def is_first_col(self):
         return self.colNum==0
 
@@ -3722,7 +3762,7 @@ class Subplot(SubplotBase, Axes):
       Subplot(211)    # 2 rows, 1 column, first (upper) plot
     """
     def __init__(self, fig, *args, **kwargs):
-        SubplotBase.__init__(self, *args)
+        SubplotBase.__init__(self, fig, *args)
         Axes.__init__(self, fig, [self.figLeft, self.figBottom,
                                   self.figW, self.figH], **kwargs)
 
@@ -3860,7 +3900,7 @@ class PolarAxes(Axes):
         raise NotImplementedError('legend not implemented for polar axes')
 
     def autoscale_view(self):
-
+        'set the view limits to include all the data in the axes'
         self.rintd.set_bounds(0, self.get_rmax())
         rmin, rmax = self.rlocator.autoscale()
         self.rintv.set_bounds(rmin, rmax)
@@ -4098,7 +4138,7 @@ class PolarSubplot(SubplotBase, PolarAxes):
       Subplot(211)    # 2 rows, 1 column, first (upper) plot
     """
     def __init__(self, fig, *args, **kwargs):
-        SubplotBase.__init__(self, *args)
+        SubplotBase.__init__(self, fig, *args)
         PolarAxes.__init__(self, fig, [self.figLeft, self.figBottom, self.figW, self.figH], **kwargs)
 
 

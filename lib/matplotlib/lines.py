@@ -153,7 +153,10 @@ class Line2D(Artist):
         markersize is the size of the marker in points
         markeredgecolor  and markerfacecolor can be any color arg
         markeredgewidth is the size of the markter edge in points
-
+        dash_capstyle set the capstyle for dashed line
+        solid_capstyle set the capstyle for solid line
+        dash_joinstyle set the joinstyle for dashed line
+        solid_joinstyle set the joinstyle for solid line
         """
         Artist.__init__(self)
 

@@ -15,6 +15,53 @@ from numerix import array, clip, transpose
 from mlab import linspace
 from ticker import FormatStrFormatter
 
+
+class SubplotParams:
+    """
+    A class to hold the parameters for a subplot    
+    """
+    def __init__(self, left=None, bottom=None, right=None, top=None,
+                 wspace=None, hspace=None):
+        """
+        All dimensions are fraction of the figure width or height.
+        All values default to their rc params
+
+        The following attributes are available:
+        
+        left : the left side of the subplots of the figure
+        right : the right side of the subplots of the figure
+        bottom : the bottom of the subplots of the figure
+        top : the top of the subplots of the figure
+        wspace : the amount of width reserved for blank space between subplots
+        hspace : the amount of height reserved for white space between subplots                
+        """
+        self.update(left, bottom, right, top, wspace, hspace)
+
+    def update(self,left=None, bottom=None, right=None, top=None,
+               wspace=None, hspace=None):
+        """
+        Update the current values.  If any kwarg is None, default to
+        the current value, if set, otherwise to rc
+        """
+
+        self._update_this('left', left)
+        self._update_this('right', right)
+        self._update_this('bottom', bottom)
+        self._update_this('top', top)
+        self._update_this('wspace', wspace)
+        self._update_this('hspace', hspace)                        
+        
+
+    def _update_this(self, s, val):
+        if val is None:
+            val = getattr(self, s, None)
+            if val is None:
+                key = 'figure.subplot.' + s
+                val = rcParams[key]
+                
+        setattr(self, s, val)
+            
+        
 class Figure(Artist):
     
     def __init__(self,
@@ -24,10 +71,12 @@ class Figure(Artist):
                  edgecolor = None,  # defaults to rc figure.edgecolor
                  linewidth = 1.0,   # the default linewidth of the frame
                  frameon = True,
+                 subplotpars = None, # default to rc
                  ):
         """
         paper size is a w,h tuple in inches
-        DPI is dots per inch 
+        DPI is dots per inch
+        subplotpars is a SubplotParams instance, defaults to rc
         """
         Artist.__init__(self)
         #self.set_figure(self)
@@ -62,6 +111,12 @@ class Figure(Artist):
 
         self._hold = rcParams['axes.hold']
         self.canvas = None
+
+        if subplotpars is None:
+            subplotpars = SubplotParams()
+            
+        self.subplotpars = subplotpars
+
         self.clf()
 
     def set_canvas(self, canvas):
@@ -597,6 +652,21 @@ all backends; currently only on postscript output."""
         return cax
 
 
+    def subplots_adjust(self, *args, **kwargs):
+        """
+        fig.subplots_adjust(left=None, bottom=None, right=None, wspace=None, hspace=None):        
+        Update the SubplotParams with kwargs (defaulting to rc where
+        None) and update the subplot locations
+        """
+        self.subplotpars.update(*args, **kwargs)        
+        import matplotlib.axes
+        for ax in self.axes:
+            if not isinstance(ax, matplotlib.axes.Subplot): continue
+            ax.update_params()
+            ax.set_position([ax.figLeft, ax.figBottom, ax.figW, ax.figH])
+            
+                
+
 def figaspect(arr):
     """
     Determine the width and height for a figure that would fit array
@@ -638,3 +708,4 @@ def figaspect(arr):
     # the min/max dimensions (we don't want figures 10 feet tall!)
     newsize = clip(newsize,figsize_min,figsize_max)
     return newsize
+

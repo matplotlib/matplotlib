@@ -1,5 +1,13 @@
 New entries should be added at the top
 
+2005-06-14 Exposed subplot parameters as rc vars and as the fig
+           SubplotParams instance subplotpars.  See
+           figure.SubplotParams, figure.Figure.subplots_adjust and the
+           pylab method subplots_adjust and
+           examples/subplots_adjust.py .  Also added a GUI neutral
+           widget for adjusting subplots, see
+           examples/subplot_toolbar.py - JDH
+
 2005-06-13 Exposed cap and join style for lines with new rc params and
            line properties 
 

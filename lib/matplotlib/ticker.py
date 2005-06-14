@@ -485,7 +485,11 @@ class LogFormatterMathtext(LogFormatter):
 
 class Locator(TickHelper):
     """
-    Determine the tick locations
+    Determine the tick locations;
+
+    Note, you should not use the same locator between different Axis
+    because the locator stores references to the Axis data and view
+    limits
     """
 
     def __call__(self):
@@ -591,6 +595,7 @@ class LinearLocator(Locator):
             self.presets = {}            
         else:
             self.presets = presets
+
     def __call__(self):
         'Return the locations of the ticks'
 
