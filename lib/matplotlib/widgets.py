@@ -1,5 +1,10 @@
 """
 GUI Neutral widgets
+
+All of these widgets require you to predefine an Axes instance and
+pass that as the first arg.  matplotlib doesn't try to be too smart in
+layout -- you have to figure out how wide and tall you want your Axes
+to be to accommodate your widget.
 """
 
 from matplotlib.mlab import linspace, dist
