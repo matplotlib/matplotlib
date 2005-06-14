@@ -7,6 +7,10 @@ class Widget:
     widgets
     """
     
+    drawon = True
+    eventson = True
+        
+        
 
 
 class Button(Widget):
@@ -42,6 +46,7 @@ class Button(Widget):
 
     def click(self, event):
         if event.inaxes != self.ax: return
+        if not self.eventson: return
         for cid, func in self.observers.items():
             func(event)
 
@@ -53,7 +58,7 @@ class Button(Widget):
         if c != self._lastcolor:
             self.ax.set_axis_bgcolor(c)
             self._lastcolor = c
-            self.ax.figure.canvas.draw()
+            if self.drawon: self.ax.figure.canvas.draw()
         
     def on_clicked(self, func):
         """
@@ -97,8 +102,9 @@ class Slider(Widget):
           closedmin : whether the slider is closed on the minimum 
           closedmax : whether the slider is closed on the maximum
           slidermin : another slider - if not None, this slider must be > slidermin
-          slidermax : another slider - if not None, this slider must be < slidermax          
-        """
+          slidermax : another slider - if not None, this slider must be < slidermax
+          supressEvents : swallow the events
+          """
         self.ax = ax
         self.valmin = valmin
         self.valmax = valmax
@@ -132,6 +138,7 @@ class Slider(Widget):
         self.slidermin = slidermin
         self.slidermax = slidermax
 
+
     def update(self, event):
         'update the slider position'
         if event.button !=1: return
@@ -152,11 +159,13 @@ class Slider(Widget):
         self.poly.xy[-1] = val, 0
         self.poly.xy[-2] = val, 1        
         self.valtext.set_text(self.valfmt%val)
-        self.ax.figure.canvas.draw()
+        if self.drawon: self.ax.figure.canvas.draw()
+        self.val = val
+        if not self.eventson: return
         for cid, func in self.observers.items():
             func(val)
 
-        self.val = val
+
         
     def on_changed(self, func):
         """
@@ -179,7 +188,7 @@ class Slider(Widget):
         "reset the slider to the initial value"
         self._set_val(self.valinit)        
 
-class SubplotTool:
+class SubplotTool(Widget):
     """
     A tool to adjust to subplot params of fig
     """
@@ -252,34 +261,57 @@ class SubplotTool:
 
         sliders = (self.sliderleft, self.sliderbottom, self.sliderright,
                    self.slidertop, self.sliderwspace, self.sliderhspace, )
+
         def func(event):
-            print 'clicked'
+            # store suppress status for each slider
+            thisdrawon = self.drawon
+
+            self.drawon = False
+
+            # store the drawon state of each slider
+            bs = [] 
+            for slider in sliders:
+                bs.append(slider.drawon)
+                slider.drawon = False
+
+            # reset the slider to the initial position
             for slider in sliders:
                 slider.reset()
+
+            # reset drawon
+            for slider, b in zip(sliders, bs):
+                slider.drawon = b
+
+            # draw the canvas
+            self.drawon = thisdrawon
+            if self.drawon:
+                toolfig.canvas.draw()
+                self.targetfig.canvas.draw()
+
                 
         self.buttonrestore.on_clicked(func)
 
 
     def funcleft(self, val):
         self.targetfig.subplots_adjust(left=val)
-        self.targetfig.canvas.draw()
+        if self.drawon: self.targetfig.canvas.draw()
 
     def funcright(self, val):
         self.targetfig.subplots_adjust(right=val)
-        self.targetfig.canvas.draw()
+        if self.drawon: self.targetfig.canvas.draw()
 
     def funcbottom(self, val):
         self.targetfig.subplots_adjust(bottom=val)
-        self.targetfig.canvas.draw()
+        if self.drawon: self.targetfig.canvas.draw()
 
     def functop(self, val):
         self.targetfig.subplots_adjust(top=val)
-        self.targetfig.canvas.draw()
+        if self.drawon: self.targetfig.canvas.draw()
 
     def funcwspace(self, val):
         self.targetfig.subplots_adjust(wspace=val)
-        self.targetfig.canvas.draw()
+        if self.drawon: self.targetfig.canvas.draw()
 
     def funchspace(self, val):
         self.targetfig.subplots_adjust(hspace=val)
-        self.targetfig.canvas.draw()
+        if self.drawon: self.targetfig.canvas.draw()
