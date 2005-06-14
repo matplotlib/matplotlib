@@ -9,7 +9,7 @@ ax = subplot(111)
 l, = ax.plot(t, s0, lw=2, color='red')
 subplots_adjust(left=0.3)
 
-rax = axes([0.05, 0.7, 0.175, 0.175])
+rax = axes([0.05, 0.7, 0.15, 0.15])
 radio = RadioButtons(rax, ('2 Hz', '4 Hz', '8 Hz'))
 def hzfunc(label):
     hzdict = {'2 Hz':s0, '4 Hz':s1, '8 Hz':s2}
@@ -18,14 +18,14 @@ def hzfunc(label):
     draw()
 radio.on_clicked(hzfunc)
 
-rax = axes([0.05, 0.4, 0.175, 0.175])
+rax = axes([0.05, 0.4, 0.15, 0.15])
 radio = RadioButtons(rax, ('red', 'blue', 'green'))
 def colorfunc(label):
     l.set_color(label)
     draw()
 radio.on_clicked(colorfunc)
 
-rax = axes([0.05, 0.1, 0.175, 0.175])
+rax = axes([0.05, 0.1, 0.15, 0.15])
 radio = RadioButtons(rax, ('-', '--', '-.', 'steps', ':'))
 def stylefunc(label):
     l.set_linestyle(label)
