@@ -1542,7 +1542,8 @@ def subplot_tool(targetfig=None):
         else: raise RuntimeError('Could not find manager for targetfig')
     
     
-    toolfig = figure(figsize=(6,4))
+    toolfig = figure(figsize=(6,3))
+    toolfig.subplots_adjust(top=0.9)
     ret =  SubplotTool(targetfig, toolfig)
     rcParams['toolbar'] = tbar
     _pylab_helpers.Gcf.set_active(manager)  # restore the current figure
