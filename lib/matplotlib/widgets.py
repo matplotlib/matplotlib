@@ -13,15 +13,33 @@ class Slider(Widget):
     """
     A slider representing a floating point range
     """
-    def __init__(self, ax, label, valmin, valmax, vinit=0.5, valfmt='%1.2f'):
+    def __init__(self, ax, label, valmin, valmax, vinit=0.5, valfmt='%1.2f',
+                 closedmin=True, closedmax=True):
         """
-        Create a slider from valmin to valmax in axes ax
+        Create a slider from valmin to valmax in axes ax;
 
+        label is the slider label vinit is the slider initial position
+        valfmt is used to format the slider value closedmin and
+        closedmax indicated whether the slider interval is open or
+        closed
+
+        Attributes exposed are
+          ax     : the slider axes.Axes instance
+          vline  : a Line2D instance representing the initial value
+          poly   : A patch.Polygon instance which is the slider
+          valfmt : the format string for formatting the slider text
+          label  : a text.Text instance, the slider label
+          closedmin : whether the slider is closed on the minimum 
+          closedmax : whether the slider is closed on the maximum           
         """
         self.ax = ax
         self.valmin = valmin
         self.valmax = valmax
         self.poly = ax.axvspan(valmin,vinit,0,1)
+
+        self.vline = ax.axvline(vinit,0,1, color='r', lw=1)
+
+        
         self.valfmt=valfmt
         ax.set_yticks([])
         ax.set_xlim((valmin, valmax))
@@ -39,11 +57,18 @@ class Slider(Widget):
 
         self.cnt = 0
         self.observers = {}
+
+        self.closedmin = closedmin
+        self.closedmax = closedmax
         
     def update(self, event):
         'update the slider position'
         if event.button !=1: return
         if event.inaxes != self.ax: return
+        val = event.xdata
+        if not self.closedmin and val<=self.valmin: return
+        if not self.closedmax and val>=self.valmax: return        
+
         self.poly.xy[-1] = event.xdata, 0
         self.poly.xy[-2] = event.xdata, 1        
         self.valtext.set_text(self.valfmt%event.xdata)
@@ -86,31 +111,48 @@ class SubplotTool:
 
         toolfig.subplots_adjust(left=0.2, right=0.9)
 
+        class toolbarfmt:
+            def __init__(self, slider):
+                self.slider = slider
+                
+            def __call__(self, x, y):
+                fmt = '%s=%s'%(self.slider.label.get_text(), self.slider.valfmt)
+                return fmt%x
+
         self.axleft = toolfig.add_subplot(611)
         self.axleft.set_title('Click on slider to adjust subplot param')
-        self.sliderleft = Slider(self.axleft, 'left', 0, 1, targetfig.subplotpars.left)
+        
+        self.sliderleft = Slider(self.axleft, 'left', 0, 1, targetfig.subplotpars.left, closedmax=False)
         self.sliderleft.on_changed(self.funcleft)
+        self.axleft.format_coord = toolbarfmt(self.sliderleft)
+
 
         self.axbottom = toolfig.add_subplot(612)
-        self.sliderbottom = Slider(self.axbottom, 'bottom', 0, 1, targetfig.subplotpars.bottom)
+        self.sliderbottom = Slider(self.axbottom, 'bottom', 0, 1, targetfig.subplotpars.bottom, closedmax=False)
         self.sliderbottom.on_changed(self.funcbottom)
-
+        self.axbottom.format_coord = toolbarfmt(self.sliderbottom)
+        
         self.axright = toolfig.add_subplot(613)
-        self.sliderright = Slider(self.axright, 'right', 0, 1, targetfig.subplotpars.right)
+        self.sliderright = Slider(self.axright, 'right', 0, 1, targetfig.subplotpars.right, closedmin=False)
         self.sliderright.on_changed(self.funcright)
+        self.axright.format_coord = toolbarfmt(self.sliderright)
         
         self.axtop = toolfig.add_subplot(614)
-        self.slidertop = Slider(self.axtop, 'top', 0, 1, targetfig.subplotpars.top)
+        self.slidertop = Slider(self.axtop, 'top', 0, 1, targetfig.subplotpars.top, closedmin=False)
         self.slidertop.on_changed(self.functop)
+        self.axtop.format_coord = toolbarfmt(self.slidertop)
+
         
         self.axwspace = toolfig.add_subplot(615)
-        self.sliderwspace = Slider(self.axwspace, 'wspace', 0, 1, targetfig.subplotpars.wspace)
+        self.sliderwspace = Slider(self.axwspace, 'wspace', 0, 1, targetfig.subplotpars.wspace, closedmax=False)
         self.sliderwspace.on_changed(self.funcwspace)
+        self.axwspace.format_coord = toolbarfmt(self.sliderwspace)
         
         self.axhspace = toolfig.add_subplot(616)
-        self.sliderhspace = Slider(self.axhspace, 'hspace', 0, 1, targetfig.subplotpars.hspace)
+        self.sliderhspace = Slider(self.axhspace, 'hspace', 0, 1, targetfig.subplotpars.hspace, closedmax=False)
         self.sliderhspace.on_changed(self.funchspace)
-
+        self.axhspace.format_coord = toolbarfmt(self.sliderhspace)
+            
 
     def funcleft(self, val):
         self.targetfig.subplots_adjust(left=val)
