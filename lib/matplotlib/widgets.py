@@ -13,31 +13,35 @@ class Slider(Widget):
     """
     A slider representing a floating point range
     """
-    def __init__(self, ax, label, valmin, valmax, vinit=0.5, valfmt='%1.2f',
-                 closedmin=True, closedmax=True):
+    def __init__(self, ax, label, valmin, valmax, valinit=0.5, valfmt='%1.2f',
+                 closedmin=True, closedmax=True, slidermin=None, slidermax=None):
         """
         Create a slider from valmin to valmax in axes ax;
 
-        label is the slider label vinit is the slider initial position
+        label is the slider label valinit is the slider initial position
         valfmt is used to format the slider value closedmin and
         closedmax indicated whether the slider interval is open or
         closed
 
         Attributes exposed are
           ax     : the slider axes.Axes instance
+          val    : the current slider value
           vline  : a Line2D instance representing the initial value
           poly   : A patch.Polygon instance which is the slider
           valfmt : the format string for formatting the slider text
           label  : a text.Text instance, the slider label
           closedmin : whether the slider is closed on the minimum 
-          closedmax : whether the slider is closed on the maximum           
+          closedmax : whether the slider is closed on the maximum
+          slidermin : another slider - if not None, this slider must be > slidermin
+          slidermax : another slider - if not None, this slider must be < slidermax          
         """
         self.ax = ax
         self.valmin = valmin
         self.valmax = valmax
-        self.poly = ax.axvspan(valmin,vinit,0,1)
-
-        self.vline = ax.axvline(vinit,0,1, color='r', lw=1)
+        self.val = valinit
+        self.poly = ax.axvspan(valmin,valinit,0,1)
+        
+        self.vline = ax.axvline(valinit,0,1, color='r', lw=1)
 
         
         self.valfmt=valfmt
@@ -50,7 +54,7 @@ class Slider(Widget):
                              verticalalignment='center',
                              horizontalalignment='right')
 
-        self.valtext = ax.text(1.02, 0.5, valfmt%vinit,
+        self.valtext = ax.text(1.02, 0.5, valfmt%valinit,
                                transform=ax.transAxes,
                                verticalalignment='center',
                                horizontalalignment='left')
@@ -60,7 +64,9 @@ class Slider(Widget):
 
         self.closedmin = closedmin
         self.closedmax = closedmax
-        
+        self.slidermin = slidermin
+        self.slidermax = slidermax
+
     def update(self, event):
         'update the slider position'
         if event.button !=1: return
@@ -69,6 +75,12 @@ class Slider(Widget):
         if not self.closedmin and val<=self.valmin: return
         if not self.closedmax and val>=self.valmax: return        
 
+        if self.slidermin is not None:
+            if val<=self.slidermin.val: return
+
+        if self.slidermax is not None:
+            if val>=self.slidermax.val: return
+
         self.poly.xy[-1] = event.xdata, 0
         self.poly.xy[-2] = event.xdata, 1        
         self.valtext.set_text(self.valfmt%event.xdata)
@@ -76,6 +88,8 @@ class Slider(Widget):
         for cid, func in self.observers.items():
             func(event.xdata)
 
+        self.val = val
+        
     def on_changed(self, func):
         """
         When the slider valud is changed, call this func with the new
@@ -152,7 +166,14 @@ class SubplotTool:
         self.sliderhspace = Slider(self.axhspace, 'hspace', 0, 1, targetfig.subplotpars.hspace, closedmax=False)
         self.sliderhspace.on_changed(self.funchspace)
         self.axhspace.format_coord = toolbarfmt(self.sliderhspace)
-            
+
+
+        # constraints
+        self.sliderleft.slidermax = self.sliderright
+        self.sliderright.slidermin = self.sliderleft
+        self.sliderbottom.slidermax = self.slidertop
+        self.slidertop.slidermin = self.sliderbottom
+        
 
     def funcleft(self, val):
         self.targetfig.subplots_adjust(left=val)
