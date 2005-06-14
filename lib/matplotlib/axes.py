@@ -355,6 +355,7 @@ class Axes(Artist):
         self.animated = {}  
         self._lastRenderer = None
 
+        self.set_navigate(True)
         if len(kwargs): setp(self, **kwargs)
         
     def _init_axis(self):
@@ -1635,6 +1636,13 @@ class Axes(Artist):
         """
         return self._frameon
 
+    def get_navigate(self):
+        """
+        Get whether the axes responds to navigation commands
+        """
+        return self._navigate
+
+
     def get_autoscale_on(self):
         """
         Get whether autoscaling is applied on plot commands
@@ -1700,6 +1708,14 @@ class Axes(Artist):
         ACCEPTS: True|False
         """
         self._frameon = b
+
+    def set_navigate(self, b):
+        """
+        Set whether the axes responds to navigation toolbar commands
+
+        ACCEPTS: True|False
+        """
+        self._navigate = b
 
     def set_autoscale_on(self, b):
         """
