@@ -2,7 +2,7 @@ from __future__ import division
 import math
 from matplotlib import rcParams
 from numerix import array, arange, sin, cos, pi, Float, sqrt, matrixmultiply
-from artist import Artist
+from artist import Artist, setp
 from cbook import enumerate, popd
 from colors import colorConverter
 from transforms import bound_vertices
@@ -38,12 +38,7 @@ class Patch(Artist):
         self.fill = fill
 
 
-        for k,v in kwargs.items():
-            func = 'set_' + k            
-            if hasattr(self, func):
-                func = getattr(self, func)
-                func(v)
-        
+        if len(kwargs): setp(self, **kwargs)
     def update_from(self, other):
         Artist.update_from(self, other)
         self.set_edgecolor(other.get_edgecolor())

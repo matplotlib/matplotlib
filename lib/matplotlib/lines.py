@@ -15,7 +15,7 @@ from numerix import Float, alltrue, arange, array, logical_and,\
      compress, zeros, concatenate, cumsum
 import numerix.ma as ma
 from matplotlib import verbose
-from artist import Artist
+from artist import Artist, setp
 from cbook import iterable, is_string_like
 from colors import colorConverter
 from patches import bbox_artist
@@ -143,6 +143,7 @@ class Line2D(Artist):
                  solid_capstyle = None,                 
                  dash_joinstyle = None,
                  solid_joinstyle = None,                 
+                 **kwargs
                  ):
         """
         xdata is a sequence of x data
@@ -179,15 +180,15 @@ class Line2D(Artist):
 
         if markersize is None  : markersize=rcParams['lines.markersize']
         if antialiased is None : antialiased=rcParams['lines.antialiased']
-        if dash_capstyle is None : dc=rcParams['lines.dash_capstyle']
-        if dash_joinstyle is None : dj=rcParams['lines.dash_joinstyle']
-        if solid_capstyle is None : sc=rcParams['lines.solid_capstyle']
-        if solid_joinstyle is None : sj=rcParams['lines.solid_joinstyle']
+        if dash_capstyle is None : dash_capstyle=rcParams['lines.dash_capstyle']
+        if dash_joinstyle is None : dash_joinstyle=rcParams['lines.dash_joinstyle']
+        if solid_capstyle is None : solid_capstyle=rcParams['lines.solid_capstyle']
+        if solid_joinstyle is None : solid_joinstyle=rcParams['lines.solid_joinstyle']
 
-        self.set_dash_capstyle(dc)
-        self.set_dash_joinstyle(dj)
-        self.set_solid_capstyle(sc)
-        self.set_solid_joinstyle(sj)
+        self.set_dash_capstyle(dash_capstyle)
+        self.set_dash_joinstyle(dash_joinstyle)
+        self.set_solid_capstyle(solid_capstyle)
+        self.set_solid_joinstyle(solid_joinstyle)
 
 
         self._linestyle = linestyle
@@ -215,6 +216,8 @@ class Line2D(Artist):
 
         self._logcache = None
 
+        if len(kwargs): setp(self, **kwargs)
+        
     def get_window_extent(self, renderer):
         self._newstyle = hasattr(renderer, 'draw_markers')
         if self._newstyle:
