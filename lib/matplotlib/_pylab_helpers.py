@@ -49,12 +49,12 @@ class Gcf(object):
         else: return Gcf._activeQue[-1]
     get_active = staticmethod(get_active)
 
-    def set_active(fig):
+    def set_active(manager):
         oldQue = Gcf._activeQue[:]
         Gcf._activeQue = []
-        for f in oldQue:
-            if f != fig: Gcf._activeQue.append(f)
-        Gcf._activeQue.append(fig)
-        Gcf.figs[fig.num] = fig
+        for m in oldQue:
+            if m != manager: Gcf._activeQue.append(m)
+        Gcf._activeQue.append(manager)
+        Gcf.figs[manager.num] = manager
     set_active = staticmethod(set_active)
 
