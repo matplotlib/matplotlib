@@ -458,7 +458,7 @@ def colormaps():
 
 
 def get_current_fig_manager():
-    figManager = _pylab_helpers.Gcf.get_active()
+    figManager = _pylab_helSgcfpers.Gcf.get_active()
     if figManager is None:
         gcf()  # creates an active figure as a side effect
         figManager = _pylab_helpers.Gcf.get_active()
@@ -757,6 +757,7 @@ def figure(num=None, # autoincrement if None, else integer from 1-N
            facecolor = None, # defaults to rc figure.facecolor
            edgecolor = None, # defaults to rc figure.edgecolor
            frameon = True,
+           preservegcf=False, # do not alter the current figure state           
            ):
     """
     figure(num = None, figsize=(8, 6), dpi=80, facecolor='w', edgecolor='k')
@@ -799,7 +800,7 @@ def figure(num=None, # autoincrement if None, else integer from 1-N
     if figManager is None:
         if get_backend()=='PS':  dpi = 72
         figManager = new_figure_manager(num, figsize, dpi, facecolor, edgecolor, frameon)
-        _pylab_helpers.Gcf.set_active(figManager)
+        if not preservegcf: _pylab_helpers.Gcf.set_active(figManager)
         figManager.canvas.figure.number = num
         
     return figManager.canvas.figure
@@ -1530,9 +1531,10 @@ def subplot_tool(targetfig=None):
     """
     tbar = rcParams['toolbar'] # turn off the navigation toolbar for the toolfig
     rcParams['toolbar'] = 'None'
-    if targetfig is None: targetfig = gcf()
+    if targetfig is None:
+        targetfig = gcf()
 
-    toolfig = figure(figsize=(6,4))
+    toolfig = figure(figsize=(6,4), preservegcf=True)
     ret =  SubplotTool(targetfig, toolfig)
     rcParams['toolbar'] = tbar
     
