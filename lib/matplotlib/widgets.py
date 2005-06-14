@@ -24,9 +24,36 @@ class Widget:
 
 
 class Button(Widget):
+    """
+    A GUI neutral button
+
+    The following attributes are accesible
+
+      ax    - the Axes the button renders into
+      label - a text.Text instance
+      color - the color of the button when not hovering
+      hovercolor - the color of the button when hovering
+
+    Call "on_clicked" to connect to the button
+    """
+
     def __init__(self, ax, label, image=None,
                  color=0.85, hovercolor=0.95):
+        """
+        ax is the Axes instance the button will be placed into
 
+        label is a string which is the button text
+
+        image if not None, is an image to place in the button -- can
+          be any legal arg to imshow (array, matplotlib Image
+          instance, or PIL image)
+
+        color is the color of the button when not activated
+
+        hovercolor is the color of the button when the mouse is over
+          it
+
+        """
         if image is not None:
             ax.imshow(image)
         self.label = ax.text(0.5, 0.5, label,
@@ -43,8 +70,8 @@ class Button(Widget):
             return ''
         ax.format_coord = silent
         
-        ax.figure.canvas.mpl_connect('button_press_event', self.click)
-        ax.figure.canvas.mpl_connect('motion_notify_event', self.motion)
+        ax.figure.canvas.mpl_connect('button_press_event', self._click)
+        ax.figure.canvas.mpl_connect('motion_notify_event', self._motion)
 
         ax.set_axis_bgcolor(color)
         ax.set_xticks([])
@@ -54,13 +81,13 @@ class Button(Widget):
         
         self._lastcolor = color
 
-    def click(self, event):
+    def _click(self, event):
         if event.inaxes != self.ax: return
         if not self.eventson: return
         for cid, func in self.observers.items():
             func(event)
 
-    def motion(self, event):
+    def _motion(self, event):
         if event.inaxes==self.ax:
             c = self.hovercolor
         else:
@@ -91,6 +118,21 @@ class Button(Widget):
 class Slider(Widget):
     """
     A slider representing a floating point range
+
+    The following attributes are defined 
+      ax     : the slider axes.Axes instance
+      val    : the current slider value
+      vline  : a Line2D instance representing the initial value
+      poly   : A patch.Polygon instance which is the slider
+      valfmt : the format string for formatting the slider text
+      label  : a text.Text instance, the slider label
+      closedmin : whether the slider is closed on the minimum 
+      closedmax : whether the slider is closed on the maximum
+      slidermin : another slider - if not None, this slider must be > slidermin
+      slidermax : another slider - if not None, this slider must be < slidermax
+
+      
+    Call on_changed to connect to the slider event
     """
     def __init__(self, ax, label, valmin, valmax, valinit=0.5, valfmt='%1.2f',
                  closedmin=True, closedmax=True, slidermin=None, slidermax=None):
@@ -98,22 +140,13 @@ class Slider(Widget):
         Create a slider from valmin to valmax in axes ax;
 
         label is the slider label valinit is the slider initial position
-        valfmt is used to format the slider value closedmin and
-        closedmax indicated whether the slider interval is open or
-        closed
 
-        Attributes exposed are
-          ax     : the slider axes.Axes instance
-          val    : the current slider value
-          vline  : a Line2D instance representing the initial value
-          poly   : A patch.Polygon instance which is the slider
-          valfmt : the format string for formatting the slider text
-          label  : a text.Text instance, the slider label
-          closedmin : whether the slider is closed on the minimum 
-          closedmax : whether the slider is closed on the maximum
-          slidermin : another slider - if not None, this slider must be > slidermin
-          slidermax : another slider - if not None, this slider must be < slidermax
-          supressEvents : swallow the events
+        valfmt is used to format the slider value
+
+        closedmin and closedmax indicated whether the slider interval is closed
+
+        slidermin and slidermax can be used to contrain the value of
+          this slider to the values of other sliders.
           """
         self.ax = ax
         self.valmin = valmin
@@ -130,7 +163,7 @@ class Slider(Widget):
         ax.set_xlim((valmin, valmax))
         ax.set_xticks([])
         
-        ax.figure.canvas.mpl_connect('button_press_event', self.update)
+        ax.figure.canvas.mpl_connect('button_press_event', self._update)
         self.label = ax.text(-0.02, 0.5, label, transform=ax.transAxes,
                              verticalalignment='center',
                              horizontalalignment='right')
@@ -149,7 +182,7 @@ class Slider(Widget):
         self.slidermax = slidermax
 
 
-    def update(self, event):
+    def _update(self, event):
         'update the slider position'
         if event.button !=1: return
         if event.inaxes != self.ax: return
@@ -203,12 +236,27 @@ class Slider(Widget):
 
 
 class RadioButtons(Widget):
+    """
+    A GUI neutral radio button
+
+    The following attributes are exposed
+
+     ax - the Axes instance the buttons are in
+     activecolor - the color of the button when clicked
+     labels - a list of text.Text instances
+     circles - a list of patch.Circle instances
+
+    Connect to the RadioButtons with the on_clicked method
+    """
     def __init__(self, ax, labels, active=0, activecolor='blue'):
         """
-        Add radio buttons to ax
+        Add radio buttons to axes.Axes instance ax
 
-        ax is a len(buttons) list of labels
+        labels is a len(buttons) list of labels as strings
+
         active is the index into labels for the button that is active
+
+        activecolor is the color of the button when clicked
         """
         self.activecolor = activecolor
 
@@ -375,7 +423,6 @@ class SubplotTool(Widget):
                    self.slidertop, self.sliderwspace, self.sliderhspace, )
 
         def func(event):
-            # store suppress status for each slider
             thisdrawon = self.drawon
 
             self.drawon = False
