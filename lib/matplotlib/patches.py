@@ -413,6 +413,8 @@ class Circle(RegularPolygon):
                  resolution=20,  # the number of vertices
                  **kwargs
                  ):
+        self.center = xy
+        self.radius = radius
         RegularPolygon.__init__(self, xy,
                                 resolution,
                                 radius,

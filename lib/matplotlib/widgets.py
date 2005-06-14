@@ -1,6 +1,11 @@
 """
 GUI Neutral widgets
 """
+
+from matplotlib.mlab import linspace, dist
+from matplotlib.patches import Circle
+from matplotlib.numerix import array
+
 class Widget:
     """
     OK, I couldn't resist; abstract base class for mpl GUI neutral
@@ -188,6 +193,108 @@ class Slider(Widget):
         "reset the slider to the initial value"
         self._set_val(self.valinit)        
 
+
+
+
+
+class RadioButtons(Widget):
+    def __init__(self, ax, labels, active=0, activecolor='blue'):
+        """
+        Add radio buttons to ax
+
+        ax is a len(buttons) list of labels
+        active is the index into labels for the button that is active
+        """
+        self.activecolor = activecolor
+
+        def silent(*args):
+            'turn off the coords reporting for ax'
+            return ''
+        ax.format_coord = silent
+        
+
+        ax.set_xticks([])
+        ax.set_yticks([])
+        
+        dy = 1./(len(labels)+1)
+        ys = linspace(1-dy, dy, len(labels))
+        cnt = 0
+        axcolor = ax.get_axis_bgcolor()
+
+        self.labels = []
+        self.circles = []
+        for y, label in zip(ys, labels):
+            t = ax.text(0.25, y, label, transform=ax.transAxes,
+                        horizontalalignment='left',
+                        verticalalignment='center')
+
+            if cnt==active:
+                facecolor = activecolor
+            else:
+                facecolor = axcolor
+                
+            p = Circle(xy=(0.15, y), radius=0.05, facecolor=facecolor,
+                       transform=ax.transAxes)
+
+            
+            self.labels.append(t)
+            self.circles.append(p)
+            ax.add_patch(p)
+            cnt += 1
+
+        ax.figure.canvas.mpl_connect('button_press_event', self._clicked)
+        self.ax = ax
+
+
+        self.cnt = 0
+        self.observers = {}
+        
+    def _clicked(self, event):
+        if event.button !=1 : return
+        if event.inaxes != self.ax: return
+        xy = self.ax.transAxes.inverse_xy_tup((event.x, event.y))
+        pclicked = array([xy[0], xy[1]])
+        def inside(p):
+            pcirc = array([p.center[0], p.center[1]])
+            return dist(pclicked, pcirc) < p.radius
+
+        for p,t in zip(self.circles, self.labels):
+            if t.get_window_extent().contains(event.x, event.y) or inside(p):
+                inp = p
+                thist = t
+                break
+        else: return
+
+        for p in self.circles:
+            if p==inp: color = self.activecolor
+            else: color = self.ax.get_axis_bgcolor()
+            p.set_facecolor(color)
+
+
+
+        if self.drawon: self.ax.figure.canvas.draw() 
+
+        if not self.eventson: return
+        for cid, func in self.observers.items():
+            func(thist.get_text())
+
+
+    def on_clicked(self, func):
+        """
+        When the button is clicked, call this func with button label
+
+        A connection id is returned which can be used to disconnect
+        """
+        cid = self.cnt
+        self.observers[cid] = func
+        self.cnt += 1        
+        return cid
+
+    def disconnect(self, cid):
+        'remove the observer with connection id cid'
+        try: del self.observers[cid]
+        except KeyError: pass
+                
 class SubplotTool(Widget):
     """
     A tool to adjust to subplot params of fig
