@@ -16,8 +16,7 @@ class Widget:
     """
     OK, I couldn't resist; abstract base class for mpl GUI neutral
     widgets
-    """
-    
+    """    
     drawon = True
     eventson = True
         
@@ -146,6 +145,7 @@ class Slider(Widget):
           this slider to the values of other sliders.
           """
         self.ax = ax
+
         self.valmin = valmin
         self.valmax = valmax
         self.val = valinit
@@ -239,10 +239,12 @@ class CheckButtons(Widget):
 
      ax - the Axes instance the buttons are in
      labels - a list of text.Text instances
+     lines - a list of (line1, line2) tuples for the x's in the check boxes.
+             These lines exist for each box, but have set_visible(False) when
+             box is not checked
      rectangles - a list of patch.Rectangle instances
-     checks - a list of patch.Line2D instances     
 
-    Connect to the RadioButtons with the on_clicked method
+    Connect to the CheckButtons with the on_clicked method
     """
     def __init__(self, ax, labels, actives):
         """
@@ -302,8 +304,6 @@ class CheckButtons(Widget):
         self.cnt = 0
         self.observers = {}
 
-        self.actives = actives
-        
     def _clicked(self, event):
         if event.button !=1 : return
         if event.inaxes != self.ax: return
@@ -467,9 +467,6 @@ class SubplotTool(Widget):
         using this from the GUI
         """
         self.targetfig = targetfig
-
-
-
         toolfig.subplots_adjust(left=0.2, right=0.9)
 
         class toolbarfmt:
@@ -523,13 +520,12 @@ class SubplotTool(Widget):
         
 
         bax = toolfig.add_axes([0.8, 0.05, 0.15, 0.075])
-        self.buttonrestore = Button(bax, 'Restore')
+        self.buttonreset = Button(bax, 'Reset')
 
         sliders = (self.sliderleft, self.sliderbottom, self.sliderright,
                    self.slidertop, self.sliderwspace, self.sliderhspace, )
 
 
-            
         def func(event):
             thisdrawon = self.drawon
 
@@ -555,9 +551,14 @@ class SubplotTool(Widget):
                 toolfig.canvas.draw()
                 self.targetfig.canvas.draw()
 
-                
-        self.buttonrestore.on_clicked(func)
 
+        # during reset there can be a temporary invalid state
+        # depending on the order of the reset so we turn off
+        # validation for the resetting
+        validate = toolfig.subplotpars.validate
+        toolfig.subplotpars.validate = False
+        self.buttonreset.on_clicked(func)
+        toolfig.subplotpars.validate = validate
 
     def funcleft(self, val):
         self.targetfig.subplots_adjust(left=val)

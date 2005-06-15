@@ -1541,7 +1541,6 @@ def subplot_tool(targetfig=None):
             if manager.canvas.figure==targetfig: break
         else: raise RuntimeError('Could not find manager for targetfig')
     
-    
     toolfig = figure(figsize=(6,3))
     toolfig.subplots_adjust(top=0.9)
     ret =  SubplotTool(targetfig, toolfig)

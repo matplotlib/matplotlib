@@ -34,7 +34,11 @@ class SubplotParams:
         top : the top of the subplots of the figure
         wspace : the amount of width reserved for blank space between subplots
         hspace : the amount of height reserved for white space between subplots                
+
+        validate : make sure the params are in a legal state
+        (left<right, etc)
         """
+        self.validate = True
         self.update(left, bottom, right, top, wspace, hspace)
 
     def update(self,left=None, bottom=None, right=None, top=None,
@@ -42,6 +46,7 @@ class SubplotParams:
         """
         Update the current values.  If any kwarg is None, default to
         the current value, if set, otherwise to rc
+
         """
 
         thisleft = getattr(self, 'left', None)
@@ -67,13 +72,14 @@ class SubplotParams:
             self.wspace = thiswspace
             self.hspace = thishspace
 
-        if self.left>=self.right:
-            reset()
-            raise ValueError('left cannot be >= right')
+        if self.validate:
+            if self.left>=self.right:
+                reset()
+                raise ValueError('left cannot be >= right')
 
-        if self.bottom>=self.top:
-            reset()
-            raise ValueError('bottom cannot be >= top')
+            if self.bottom>=self.top:
+                reset()
+                raise ValueError('bottom cannot be >= top')
 
         
 

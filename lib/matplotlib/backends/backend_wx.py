@@ -157,7 +157,7 @@ from matplotlib.artist import Artist
 from matplotlib.cbook import exception_to_str
 from matplotlib.figure import Figure
 from matplotlib.text import _process_text_args, Text
-
+from matplotlib.widgets import SubplotTool
 from matplotlib import rcParams
 
 ##import wx
@@ -1237,14 +1237,7 @@ class FigureFrameWx(wx.Frame):
         # By adding toolbar in sizer, we are able to put it at the bottom
         # of the frame - so appearance is closer to GTK version
 
-
-        if matplotlib.rcParams['toolbar']=='classic':
-            self.toolbar = NavigationToolbarWx(self.canvas, True)
-        elif matplotlib.rcParams['toolbar']=='toolbar2':
-            self.toolbar = NavigationToolbar2Wx(self.canvas)
-            self.toolbar.set_status_bar(statbar)
-        else:
-            self.toolbar = None
+        self.toolbar = self._get_toolbar(statbar)
 
         if self.toolbar is not None:
             self.toolbar.Realize()
@@ -1275,6 +1268,16 @@ class FigureFrameWx(wx.Frame):
             # Event handlers 2.4
             wx.EVT_CLOSE(self, self._onClose)
 
+    def _get_toolbar(self, statbar):
+        if matplotlib.rcParams['toolbar']=='classic':
+            toolbar = NavigationToolbarWx(self.canvas, True)
+        elif matplotlib.rcParams['toolbar']=='toolbar2':
+            toolbar = NavigationToolbar2Wx(self.canvas)
+            toolbar.set_status_bar(statbar)
+        else:
+            toolbar = None
+        return toolbar 
+        
     def get_canvas(self, fig):
         return FigureCanvasWx(self, -1, fig)
 
@@ -1346,6 +1349,7 @@ _NTB_Y_PAN_UP        =wx.NewId()
 _NTB_Y_PAN_DOWN      =wx.NewId()
 _NTB_Y_ZOOMIN        =wx.NewId()
 _NTB_Y_ZOOMOUT       =wx.NewId()
+#_NTB_SUBPLOT            =wx.NewId()
 _NTB_SAVE            =wx.NewId()
 _NTB_CLOSE           =wx.NewId()
 
@@ -1484,13 +1488,38 @@ cursord = {
     cursors.SELECT_REGION : wx.CURSOR_CROSS,
     }
 
+
+class SubplotToolWX(wx.Frame):
+    def __init__(self, targetfig):
+        wx.Frame.__init__(self, None, -1, "Configure subplots")
+
+        toolfig = Figure((6,3))
+        canvas = FigureCanvasWx(self, -1, toolfig)
+
+        # Create a figure manager to manage things
+        figmgr = FigureManager(canvas, 1, self)
+
+        # Now put all into a sizer
+        sizer = wx.BoxSizer(wx.VERTICAL)
+        # This way of adding to sizer allows resizing
+        sizer.Add(canvas, 1, wx.LEFT|wx.TOP|wx.GROW)
+        self.SetSizer(sizer)
+        self.Fit()
+        tool = SubplotTool(targetfig, toolfig)
+        
+
 class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
+
     def __init__(self, canvas):
         wx.ToolBar.__init__(self, canvas.GetParent(), -1)
         NavigationToolbar2.__init__(self, canvas)
         self.canvas = canvas
         self._idle = True
         self.statbar = None
+
+    def get_canvas(self, frame, fig):
+        return FigureCanvasWx(frame, -1, fig)
+        
     def _init_toolbar(self):
         DEBUG_MSG("_init_toolbar", 1, self)
 
@@ -1500,7 +1529,8 @@ class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
         self._NTB2_FORWARD =wx.NewId()
         self._NTB2_PAN     =wx.NewId()
         self._NTB2_ZOOM    =wx.NewId()
-        _NTB2_SAVE    =wx.NewId()
+        _NTB2_SAVE    = wx.NewId()
+        _NTB2_SUBPLOT    =wx.NewId()        
 
         self.SetToolBitmapSize(wx.Size(24,24))
 
@@ -1518,6 +1548,9 @@ class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
                            shortHelp='Zoom', longHelp='Zoom to rectangle')
 
         self.AddSeparator()
+        self.AddSimpleTool(_NTB2_SUBPLOT, _load_bitmap('subplots.xpm'),
+                           'Configure subplots', 'Configure subplot parameters')
+
         self.AddSimpleTool(_NTB2_SAVE, _load_bitmap('filesave.xpm'),
                            'Save', 'Save plot contents to file')
 
@@ -1527,6 +1560,7 @@ class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
             self.Bind(wx.EVT_TOOL, self.back, id=self._NTB2_BACK)
             self.Bind(wx.EVT_TOOL, self.zoom, id=self._NTB2_ZOOM)
             self.Bind(wx.EVT_TOOL, self.pan, id=self._NTB2_PAN)
+            self.Bind(wx.EVT_TOOL, self.configure_subplot, id=_NTB2_SUBPLOT)            
             self.Bind(wx.EVT_TOOL, self.save, id=_NTB2_SAVE)
         else:
             wx.EVT_TOOL(self, _NTB2_HOME, self.home)
@@ -1534,6 +1568,7 @@ class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
             wx.EVT_TOOL(self, self._NTB2_BACK, self.back)
             wx.EVT_TOOL(self, self._NTB2_ZOOM, self.zoom)
             wx.EVT_TOOL(self, self._NTB2_PAN, self.pan)
+            wx.EVT_TOOL(self, _NTB2_SUBPLOT, self.configure_subplot)            
             wx.EVT_TOOL(self, _NTB2_SAVE, self.save)
 
         self.Realize()
@@ -1547,6 +1582,25 @@ class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
         self.ToggleTool(self._NTB2_ZOOM, False)
         NavigationToolbar2.pan(self, *args)
 
+
+    def configure_subplot(self, evt):
+        frame = wx.Frame(None, -1, "Configure subplots")
+
+        toolfig = Figure((6,3))
+        canvas = self.get_canvas(frame, toolfig)
+
+        # Create a figure manager to manage things
+        figmgr = FigureManager(canvas, 1, frame)
+
+        # Now put all into a sizer
+        sizer = wx.BoxSizer(wx.VERTICAL)
+        # This way of adding to sizer allows resizing
+        sizer.Add(canvas, 1, wx.LEFT|wx.TOP|wx.GROW)
+        frame.SetSizer(sizer)
+        frame.Fit()
+        tool = SubplotTool(self.canvas.figure, toolfig)
+        frame.Show()
+        
     def save(self, evt):
         # Fetch the required filename and file type.
         filetypes = self.canvas._get_imagesave_wildcards()

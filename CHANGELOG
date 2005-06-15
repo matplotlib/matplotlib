@@ -1,10 +1,17 @@
 New entries should be added at the top
 
+2005-06-15 Added subplot config tool to GTK* backends -- note you must
+           now import the NavigationToolbar2 from your backend of
+           choice rather than from backend_gtk because it needs to
+           know about the backend specific canvas -- see
+           examples/embedding_in_gtk2.py.  Ditto for wx backend -- see
+           examples/embedding_in_wxagg.py
+
 2005-06-15 backend_cairo.py: updated to use pycairo 0.5.0 - SC
 
 2005-06-14 Wrote some GUI neutral widgets (Button, Slider,
-           RadioButton) in matplotlib.widgets.  See examples/widgets -
-           JDH
+           RadioButtons, CheckButtons) in matplotlib.widgets.  See
+           examples/widgets/*.py - JDH
 
 2005-06-14 Exposed subplot parameters as rc vars and as the fig
            SubplotParams instance subplotpars.  See

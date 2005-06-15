@@ -1,3 +1,11 @@
+API Changes in matplotlib-0.82
+
+  Added subplot config tool to GTK* backends -- note you must now
+  import the NavigationToolbar2 from your backend of choice rather
+  than from backend_gtk because it needs to know about the backend
+  specific canvas -- see examples/embedding_in_gtk2.py.  Ditto for wx
+  backend -- see examples/embedding_in_wxagg.py
+
 API CHANGES in matplotlib-0.81.1
 
   Sean Richards notes there was a problem in the way we created the

@@ -19,7 +19,7 @@ from backend_agg import FigureCanvasAgg
 
 from backend_wx import FigureManager
 from backend_wx import FigureManagerWx, FigureCanvasWx, FigureFrameWx, \
-     DEBUG_MSG
+     DEBUG_MSG, NavigationToolbar2Wx
 from backend_wx import error_msg_wx, draw_if_interactive, show, Toolbar, \
      backend_version
 import backend_wx
@@ -29,10 +29,22 @@ from matplotlib import rcParams
 import matplotlib
 import wx
 
+
+
 class FigureFrameWxAgg(FigureFrameWx):
+
     def get_canvas(self, fig):
         return FigureCanvasWxAgg(self, -1, fig)
 
+    def _get_toolbar(self, statbar):
+        if matplotlib.rcParams['toolbar']=='classic':
+            toolbar = NavigationToolbarWx(self.canvas, True)
+        elif matplotlib.rcParams['toolbar']=='toolbar2':
+            toolbar = NavigationToolbar2WxAgg(self.canvas)
+            toolbar.set_status_bar(statbar)
+        else:
+            toolbar = None
+        return toolbar 
               
 class FigureCanvasWxAgg(FigureCanvasWx,FigureCanvasAgg):
     """
@@ -79,7 +91,10 @@ class FigureCanvasWxAgg(FigureCanvasWx,FigureCanvasAgg):
                "BMP (*.bmp)|*.bmp|"  \
                "PNG (*.png)|*.png"  \
 
-    
+
+class NavigationToolbar2WxAgg(NavigationToolbar2Wx):
+    def get_canvas(self, frame, fig):
+        return FigureCanvasWxAgg(frame, -1, fig)
 
 def new_figure_manager(num, *args, **kwargs):
     """
