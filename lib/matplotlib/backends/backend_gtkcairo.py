@@ -25,8 +25,28 @@ def new_figure_manager(num, *args, **kwargs):
     return FigureManagerGTK(canvas, num)
 
 
+
+
 class FigureCanvasGTKCairo(FigureCanvasGTK):
     def _renderer_init(self):
         """Override to use Cairo rather than GDK renderer"""
         if _debug: print '%s.%s()' % (self.__class__.__name__, _fn_name())
         self._renderer = RendererCairo (self.figure.dpi)
+
+class NavigationToolbar2Cairo(NavigationToolbar2GTK):
+    def _get_canvas(self, fig):
+        return FigureCanvasGTKCairo(fig)
+    
+
+class FigureManagerGTKAgg(FigureManagerGTK):
+    def _get_toolbar(self, canvas):
+        # must be inited after the window, drawingArea and figure
+        # attrs are set
+        if matplotlib.rcParams['toolbar']=='classic':
+            toolbar = NavigationToolbar (canvas, self.window)
+        elif matplotlib.rcParams['toolbar']=='toolbar2':
+            toolbar = NavigationToolbar2GTKCairo (canvas, self.window)
+        else:
+            toolbar = None
+        return toolbar
+

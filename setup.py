@@ -50,6 +50,11 @@ VERBOSE =  False # insert lots of diagnostic prints in extension code
 
 ## You shouldn't need to customize below this point
 
+# BEFORE importing disutils, remove MANIFEST. distutils doesn't properly
+# update it when the contents of directories change.
+import os
+if os.path.exists('MANIFEST'): os.remove('MANIFEST')
+
 from distutils.core import setup
 import sys,os
 import glob

@@ -20,6 +20,7 @@ from matplotlib._pylab_helpers import Gcf
 from matplotlib.numerix import asarray
 
 import matplotlib.windowing as windowing
+from matplotlib.widgets import SubplotTool
 
 rcParams = matplotlib.rcParams
 verbose = matplotlib.verbose
@@ -586,13 +587,26 @@ class NavigationToolbar2TkAgg(NavigationToolbar2, Tk.Frame):
                                    file="zoom_to_rect.ppm",
                                    command = self.zoom)
 
+        self.bsubplot = self._Button( text="Configure Subplots", file="subplots.ppm",
+                                   command = self.configure_subplots)
+
         self.bsave = self._Button( text="Save", file="filesave.ppm",
                                    command = self.save_figure)
         self.message = Tk.StringVar(master=self)
         self._message_label = Tk.Label(master=self, textvariable=self.message)
         self._message_label.pack(side=Tk.RIGHT)
         self.pack(side=Tk.BOTTOM, fill=Tk.X)
-        
+
+
+    def configure_subplots(self):
+        toolfig = Figure(figsize=(6,3))
+        window = Tk.Tk()
+        canvas = FigureCanvasTkAgg(toolfig, master=window)    
+        toolfig.subplots_adjust(top=0.9)
+        tool =  SubplotTool(self.canvas.figure, toolfig)
+        canvas.show()
+        canvas.get_tk_widget().pack(side=Tk.TOP, fill=Tk.BOTH, expand=1)
+
     def save_figure(self):
         fs = FileDialog.SaveFileDialog(master=self.window,
                                        title='Save the figure')

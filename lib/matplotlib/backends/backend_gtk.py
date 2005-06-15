@@ -16,6 +16,7 @@ from matplotlib.font_manager import fontManager
 from matplotlib.numerix import asarray, fromstring, UInt8, zeros, \
      where, transpose, nonzero, indices, ones, nx
 import matplotlib.numerix as numerix
+from matplotlib.widgets import SubplotTool
 
 from backend_gdk import RendererGDK
 
@@ -404,15 +405,8 @@ class FigureManagerGTK(FigureManagerBase):
         self.canvas.show()
         self.vbox.pack_start(self.canvas, True, True)
 
-        # must be inited after the window, drawingArea and figure
-        # attrs are set
-        if matplotlib.rcParams['toolbar']=='classic':
-            self.toolbar = NavigationToolbar (canvas, self.window)
-        elif matplotlib.rcParams['toolbar']=='toolbar2':
-            self.toolbar = NavigationToolbar2GTK (canvas, self.window)
-        else:
-            self.toolbar = None
-
+        self.toolbar = self._get_toolbar(canvas)
+            
         # calculate size for window
         w = int (self.canvas.figure.bbox.width())
         h = int (self.canvas.figure.bbox.height())
@@ -444,6 +438,17 @@ class FigureManagerGTK(FigureManagerBase):
         if Gcf.get_num_fig_managers()==0 and not matplotlib.is_interactive():
             gtk.main_quit()
 
+    def _get_toolbar(self, canvas):
+        # must be inited after the window, drawingArea and figure
+        # attrs are set
+        if matplotlib.rcParams['toolbar']=='classic':
+            toolbar = NavigationToolbar (canvas, self.window)
+        elif matplotlib.rcParams['toolbar']=='toolbar2':
+            toolbar = NavigationToolbar2GTK (canvas, self.window)
+        else:
+            toolbar = None
+        return toolbar
+
 
         
 class NavigationToolbar2GTK(NavigationToolbar2, gtk.Toolbar):
@@ -456,6 +461,7 @@ class NavigationToolbar2GTK(NavigationToolbar2, gtk.Toolbar):
         ('Pan', 'Pan axes with left mouse, zoom with right', 'move.png','pan'),
         ('Zoom', 'Zoom to rectangle','zoom_to_rect.png', 'zoom'),
         (None, None, None, None),
+        ('Subplots', 'Configure subplots','subplots.png', 'configure_subplots'),
         ('Save', 'Save the figure','filesave.png', 'save_figure'),
         )
         
@@ -594,6 +600,30 @@ class NavigationToolbar2GTK(NavigationToolbar2, gtk.Toolbar):
         fname = self.fileselect.get_filename_from_user()
         if fname:
             self.canvas.print_figure(fname)
+
+    def configure_subplots(self, button):
+        toolfig = Figure(figsize=(6,3))
+        canvas = self._get_canvas(toolfig)
+        toolfig.subplots_adjust(top=0.9)
+        tool =  SubplotTool(self.canvas.figure, toolfig)
+
+        w = int (toolfig.bbox.width())
+        h = int (toolfig.bbox.height())
+
+
+        window = gtk.Window()
+        window.set_title("Subplot Configuration Tool")
+        window.set_default_size(w, h)
+        vbox = gtk.VBox()
+        window.add(vbox)
+        vbox.show()
+
+        canvas.show()
+        vbox.pack_start(canvas, True, True)
+        window.show()
+
+    def _get_canvas(self, fig):
+        return FigureCanvasGTK(fig)
                 
             
 class NavigationToolbar(gtk.Toolbar):

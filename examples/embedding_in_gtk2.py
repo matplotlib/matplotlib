@@ -15,7 +15,7 @@ matplotlib.use('GTKAgg')
 from matplotlib.backends.backend_gtkagg import FigureCanvasGTKAgg as FigureCanvas
 
 # or NavigationToolbar for classic
-from matplotlib.backends.backend_gtk import NavigationToolbar2GTK as NavigationToolbar
+from matplotlib.backends.backend_gtkagg import NavigationToolbar2GTKAgg as NavigationToolbar
 
 from matplotlib.axes import Subplot
 from matplotlib.figure import Figure

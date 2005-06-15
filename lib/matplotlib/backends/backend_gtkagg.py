@@ -4,19 +4,37 @@ Render to gtk from agg
 from __future__ import division
 
 import os
+import matplotlib
 from matplotlib.figure import Figure
 
 from backend_agg import FigureCanvasAgg
 from backend_gtk import gtk, FigureManagerGTK, FigureCanvasGTK,\
      show, draw_if_interactive,\
-     error_msg_gtk, NavigationToolbar, PIXELS_PER_INCH, backend_version
+     error_msg_gtk, NavigationToolbar, PIXELS_PER_INCH, backend_version, \
+     NavigationToolbar2GTK
 
 from _gtkagg import agg_to_gtk_drawable
 
 
 DEBUG = False
 
+class NavigationToolbar2GTKAgg(NavigationToolbar2GTK):
+    def _get_canvas(self, fig):
+        return FigureCanvasGTKAgg(fig)
+    
 
+class FigureManagerGTKAgg(FigureManagerGTK):
+    def _get_toolbar(self, canvas):
+        # must be inited after the window, drawingArea and figure
+        # attrs are set
+        if matplotlib.rcParams['toolbar']=='classic':
+            toolbar = NavigationToolbar (canvas, self.window)
+        elif matplotlib.rcParams['toolbar']=='toolbar2':
+            toolbar = NavigationToolbar2GTKAgg (canvas, self.window)
+        else:
+            toolbar = None
+        return toolbar
+    
 def new_figure_manager(num, *args, **kwargs):
     """
     Create a new figure manager instance
@@ -24,7 +42,7 @@ def new_figure_manager(num, *args, **kwargs):
     if DEBUG: print 'backend_gtkagg.new_figure_manager'
     thisFig = Figure(*args, **kwargs)
     canvas = FigureCanvasGTKAgg(thisFig)
-    return FigureManagerGTK(canvas, num)
+    return FigureManagerGTKAgg(canvas, num)
 
 
 class FigureCanvasGTKAgg(FigureCanvasGTK, FigureCanvasAgg):
