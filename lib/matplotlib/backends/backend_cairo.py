@@ -37,8 +37,8 @@ import cairo
 
 _version_required = (0,5,0)
 if cairo.version_info < _version_required:
-   raise SystemExit ("PyCairo %d.%d.%d is installed\n"
-                     "PyCairo %d.%d.%d or later is required"
+   raise SystemExit ("Pycairo %d.%d.%d is installed\n"
+                     "Pycairo %d.%d.%d or later is required"
                      % (cairo.version_info + _version_required))
 backend_version = cairo.version
 del _version_required
@@ -405,8 +405,7 @@ class RendererCairo(RendererBase):
                               
     def new_gc(self):
         if _debug: print '%s.%s()' % (self.__class__.__name__, _fn_name())
-        gc = GraphicsContextCairo (renderer=self,
-                                   surface=self.surface)
+        gc = GraphicsContextCairo (renderer=self, surface=self.surface)
         return gc
 
 
@@ -433,14 +432,10 @@ class GraphicsContextCairo(GraphicsContextBase):
         GraphicsContextBase.__init__(self)
         self.renderer = renderer
         self.ctx = cairo.Context (surface)
-        # default is 0.1, raise value to increase performance
-        # (and lower quality)
-        #self.ctx.set_tolerance(0.5)
         
     def set_alpha(self, alpha):
         self._alpha = alpha
         rgb = self._rgb
-        #self.ctx.set_alpha(alpha)
         self.ctx.set_source_rgba (rgb[0], rgb[1], rgb[2], alpha)
 
     #def set_antialiased(self, b):
@@ -565,22 +560,20 @@ def print_figure_fn(figure, filename, dpi=150, facecolor='w', edgecolor='w',
             fc.print_figure(filename, dpi, facecolor, edgecolor, orientation)
 
         else:
-            warnings.warn('Format "%s" is not supported.\nSupported formats: %s.' %
-                          (ext, ', '.join(IMAGE_FORMAT)))
+            warnings.warn('Format "%s" is not supported.\nSupported formats: '
+                          '%s.' % (ext, ', '.join(IMAGE_FORMAT)))
 
         
 def _save_png (figure, filename):
     width, height = figure.get_width_height()
     width, height = int(width), int(height)
 
-    surface = cairo.ImageSurface (cairo.FORMAT_ARGB32, width, height)
-    ctx = cairo.Context (surface)
-
     renderer = RendererCairo (figure.dpi)
     renderer._set_width_height (width, height)
-    renderer.surface = ctx.get_target()
+    renderer.surface = cairo.ImageSurface (cairo.FORMAT_ARGB32, width, height)
+
     figure.draw (renderer)
-    surface.write_to_png (filename)
+    renderer.surface.write_to_png (filename)
         
 
 def _save_ps_pdf (figure, filename, ext, orientation):
