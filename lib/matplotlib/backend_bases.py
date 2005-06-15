@@ -169,12 +169,11 @@ class RendererBase:
         """
         raise NotImplementedError
     
-    def draw_lines(self, gc, x, y):
+    def draw_lines(self, gc, x, y, transform=None):
         """
         x and y are equal length arrays, draw lines connecting each
         point in x, y
         """
-
         raise NotImplementedError
     
     def draw_point(self, gc, x, y):
