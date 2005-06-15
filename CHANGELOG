@@ -1,5 +1,7 @@
 New entries should be added at the top
 
+2005-06-15 backend_cairo.py: updated to use pycairo 0.5.0 - SC
+
 2005-06-14 Wrote some GUI neutral widgets (Button, Slider,
            RadioButton) in matplotlib.widgets.  See examples/widgets -
            JDH

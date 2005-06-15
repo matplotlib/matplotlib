@@ -524,7 +524,6 @@ def new_figure_manager(num, *args, **kwargs): # called by backends/__init__.py
 
 def print_figure_fn(figure, filename, dpi=150, facecolor='w', edgecolor='w',
                     orientation='portrait'):
-    #if _debug: print '%s.%s()' % (self.__class__.__name__, _fn_name())
     if _debug: print _fn_name()
 
     # settings for printing
@@ -588,26 +587,25 @@ def _save_ps_pdf (figure, filename, ext, orientation):
     # Cairo produces PostScript Level 3
     # 'ggv' can't read cairo ps files, but 'gv' can
 
-    ppi = 200.0   # not currently used
-    #figure.dpi.set(72)
-    figure.dpi.set(96) # Cairo uses 96 dpi
-
+    dpi = 72
+    figure.dpi.set (dpi)
     w_in, h_in = figure.get_size_inches()
-    width, height = figure.get_width_height()
+    width_in_points, height_in_points = w_in * dpi, h_in * dpi
     
     if orientation == 'landscape':
-        w_in, h_in = h_in, w_in
-        # TODO - change width, height
+        width_in_points, height_in_points = height_in_points, width_in_points
         
     if ext == 'ps':
-        surface = cairo.PSSurface (filename, width, height)        
+        surface = cairo.PSSurface (filename, width_in_points, height_in_points)
     else: # pdf
-        surface = cairo.PDFSurface (filename, width, height)        
+        surface = cairo.PDFSurface (filename, width_in_points,
+                                    height_in_points)
+    # surface.set_dpi() can be used
     ctx = cairo.Context (surface)
     
     if orientation == 'landscape':
-        ctx.rotate(numx.pi/2)
-        ctx.translate(0, -height)
+        ctx.rotate (numx.pi/2)
+        ctx.translate (0, -height_in_points)
         # cairo/src/cairo_ps_surface.c
         # '%%Orientation: Portrait' is always written to the file header
         # '%%Orientation: Landscape' would possibly cause problems
@@ -616,14 +614,14 @@ def _save_ps_pdf (figure, filename, ext, orientation):
         # add portrait/landscape checkbox to FileChooser
 
     renderer = RendererCairo (figure.dpi)
-    renderer._set_width_height(width, height)
+    renderer._set_width_height (width_in_points, height_in_points)
     renderer.surface = ctx.get_target()
-    figure.draw(renderer)
+    figure.draw (renderer)
 
     show_fig_border = False  # for testing figure orientation and scaling
     if show_fig_border:
         ctx.new_path()
-        ctx.rectangle(0, 0, width, height)
+        ctx.rectangle(0, 0, width_in_points, height_in_points)
         ctx.set_line_width(4.0)
         ctx.set_source_rgb(1,0,0)
         ctx.stroke()
