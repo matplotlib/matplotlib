@@ -4,8 +4,8 @@ import matplotlib
 __all__ = ['backend','show','draw_if_interactive',
            'new_figure_manager', 'backend_version']
 
-interactive_bk     = ['GTK','GTKAgg','GTKCairo','FltkAgg','QtAgg', 'TkAgg',
-                      'WX','WXAgg',]
+interactive_bk     = ['GTK','GTKAgg','GTKCairo','FltkAgg','QtAgg','TkAgg',
+                      'WX','WXAgg','CocoaAgg']
 non_interactive_bk = ['Agg2', 'Agg','Cairo','GD','GDK','Paint','PS', 'LaTeX', 'SVG','Template']
 all_backends       = interactive_bk + non_interactive_bk
 
