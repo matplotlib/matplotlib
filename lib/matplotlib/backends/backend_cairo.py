@@ -127,6 +127,7 @@ class RendererCairo(RendererBase):
     
     
     def draw_image(self, x, y, im, origin, bbox):
+        # bbox - not currently used
         if _debug: print '%s.%s()' % (self.__class__.__name__, _fn_name())
 
         if numx.which[0] == "numarray":
@@ -139,10 +140,8 @@ class RendererCairo(RendererBase):
                           "draw_image()")
             return
 
-        # bbox - not currently used
-        flipud = origin=='lower'  # not currently used
-
-        #rows, cols, s = im.as_str(flipud)    # gtk method, for RGBA
+        #flipud = origin=='lower'             # gtk method (uses RGBA)
+        #rows, cols, s = im.as_str(flipud)
         rows, cols, buf = im.buffer_argb32()  # ARGB32, but colors still wrong
         X = numx.fromstring (buf, numx.UInt8)
         X.shape = rows, cols, 4
@@ -151,6 +150,7 @@ class RendererCairo(RendererBase):
         ctx = cairo.Context (self.surface)
         surface = cairo.ImageSurface.create_for_array (X)
         ctx.set_source_surface (surface, x, y)
+        ctx.paint()
         
 
     def draw_line(self, gc, x1, y1, x2, y2):
@@ -316,7 +316,8 @@ class RendererCairo(RendererBase):
             return
 
         if not HAVE_CAIRO_NUMPY:
-            warnings.warn("cairo.numpy module required for _draw_mathtext()")
+            warnings.warn("cairo with Numeric support is required for "
+                          "_draw_mathtext()")
             return
 
         size = prop.get_size_in_points()
@@ -354,10 +355,10 @@ class RendererCairo(RendererBase):
         pa[:,:,3] = Xs
 
         # works for numpy pa, not a numarray pa
-        surface = cairo.numpy.surface_create_for_array(pa)
-        gc.ctx.translate (x,y)
-        gc.ctx.show_surface (surface, imw, imh)
-        # should really restore state before translate?
+        surface = cairo.ImageSurface.create_for_array (pa)
+        gc.ctx.set_source_surface (surface, x, y)
+        gc.ctx.paint()
+        #gc.ctx.show_surface (surface, imw, imh)
             
 
     def flipy(self):
@@ -523,7 +524,8 @@ def new_figure_manager(num, *args, **kwargs): # called by backends/__init__.py
 
 def print_figure_fn(figure, filename, dpi=150, facecolor='w', edgecolor='w',
                     orientation='portrait'):
-    if _debug: print '%s.%s()' % (self.__class__.__name__, _fn_name())
+    #if _debug: print '%s.%s()' % (self.__class__.__name__, _fn_name())
+    if _debug: print _fn_name()
 
     # settings for printing
     figure.dpi.set(dpi)
@@ -550,8 +552,9 @@ def print_figure_fn(figure, filename, dpi=150, facecolor='w', edgecolor='w',
             
             #if ext == 'png': _save_png (figure, fileObject)
             if ext == 'png': _save_png (figure, filename)
-            else:            _save_ps_pdf (figure, fileObject, ext,
-                                           orientation)
+            #else:            _save_ps_pdf (figure, fileObject, ext,
+            #                               orientation)
+            else:            _save_ps_pdf (figure, filename, ext, orientation)
             #fileObject.close()
             
         elif ext in ('eps', 'svg'): # backend_svg/ps
@@ -567,41 +570,41 @@ def print_figure_fn(figure, filename, dpi=150, facecolor='w', edgecolor='w',
                           (ext, ', '.join(IMAGE_FORMAT)))
 
         
-def _save_png (figure, fileObject):
+def _save_png (figure, filename):
     width, height = figure.get_width_height()
     width, height = int(width), int(height)
 
     surface = cairo.ImageSurface (cairo.FORMAT_ARGB32, width, height)
-    ctx = cairo.Context(surface)
+    ctx = cairo.Context (surface)
 
     renderer = RendererCairo (figure.dpi)
-    renderer._set_width_height(width, height)
+    renderer._set_width_height (width, height)
     renderer.surface = ctx.get_target()
-    figure.draw(renderer)
-    surface.write_to_png(fileObject)
+    figure.draw (renderer)
+    surface.write_to_png (filename)
         
 
-def _save_ps_pdf (figure, fileObject, ext, orientation):
+def _save_ps_pdf (figure, filename, ext, orientation):
     # Cairo produces PostScript Level 3
     # 'ggv' can't read cairo ps files, but 'gv' can
 
-    ppi = 200.0
+    ppi = 200.0   # not currently used
     #figure.dpi.set(72)
     figure.dpi.set(96) # Cairo uses 96 dpi
 
     w_in, h_in = figure.get_size_inches()
     width, height = figure.get_width_height()
     
-    ctx = cairo.Context()
-
     if orientation == 'landscape':
         w_in, h_in = h_in, w_in
+        # TODO - change width, height
         
     if ext == 'ps':
-        ctx.set_target_ps (fileObject, w_in, h_in, ppi, ppi)
+        surface = cairo.PSSurface (filename, width, height)        
     else: # pdf
-        ctx.set_target_pdf (fileObject, w_in, h_in, ppi, ppi)
-
+        surface = cairo.PDFSurface (filename, width, height)        
+    ctx = cairo.Context (surface)
+    
     if orientation == 'landscape':
         ctx.rotate(numx.pi/2)
         ctx.translate(0, -height)
@@ -614,7 +617,7 @@ def _save_ps_pdf (figure, fileObject, ext, orientation):
 
     renderer = RendererCairo (figure.dpi)
     renderer._set_width_height(width, height)
-    renderer.surface = ctx.target_surface
+    renderer.surface = ctx.get_target()
     figure.draw(renderer)
 
     show_fig_border = False  # for testing figure orientation and scaling
@@ -626,7 +629,7 @@ def _save_ps_pdf (figure, fileObject, ext, orientation):
         ctx.stroke()
         ctx.move_to(30,30)
         ctx.select_font_face ('sans-serif')
-        ctx.scale_font(20)
+        ctx.set_font_size(20)
         ctx.show_text('Origin corner')
     
     ctx.show_page()
