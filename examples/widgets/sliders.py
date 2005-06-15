@@ -23,7 +23,7 @@ def update(val):
 sfreq.on_changed(update)
 samp.on_changed(update)
 
-resetax = axes([0.8, 0.01, 0.1, 0.05])
+resetax = axes([0.8, 0.025, 0.1, 0.04])
 button = Button(resetax, 'Reset')
 
 def reset(event):
