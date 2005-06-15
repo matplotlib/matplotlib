@@ -67,12 +67,12 @@ DL_EXPORT(void)
 init_na_backend_gdk(void)
 {
     PyObject *mod;
-    mod = Py_InitModule("_na_backend_gdk", _backend_gdk_functions);
+    mod = Py_InitModule("matplotlib._na_backend_gdk", _backend_gdk_functions);
 #else
 init_nc_backend_gdk(void)
 {
     PyObject *mod;
-    mod = Py_InitModule("_nc_backend_gdk", _backend_gdk_functions);
+    mod = Py_InitModule("matplotlib._nc_backend_gdk", _backend_gdk_functions);
 #endif
 
     import_array();
