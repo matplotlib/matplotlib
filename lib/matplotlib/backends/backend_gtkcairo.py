@@ -8,21 +8,18 @@ from backend_cairo import RendererCairo
 import cairo
 import cairo.gtk
 
-try: cairo.version_info
-except AttributeError:
-    backend_version = 'PyGTK(%d.%d.%d),PyCairo ??' % gtk.pygtk_version
-else:
-    backend_version = 'PyGTK(%d.%d.%d),PyCairo(%d.%d.%d)' % (gtk.pygtk_version + cairo.version_info)
+backend_version = 'PyGTK(%d.%d.%d),Pycairo(%d.%d.%d)' % (gtk.pygtk_version + cairo.version_info)
 
 
-DEBUG = False
+_debug = False
+#_debug = True
 
 
 def new_figure_manager(num, *args, **kwargs):
     """
     Create a new figure manager instance
     """
-    if DEBUG: print 'backend_gtkcairo.%s()' % fn_name()
+    if _debug: print 'backend_gtkcairo.%s()' % fn_name()
     thisFig = Figure(*args, **kwargs)
     canvas = FigureCanvasGTKCairo(thisFig)
     return FigureManagerGTK(canvas, num)
@@ -31,5 +28,5 @@ def new_figure_manager(num, *args, **kwargs):
 class FigureCanvasGTKCairo(FigureCanvasGTK):
     def _renderer_init(self):
         """Override to use Cairo rather than GDK renderer"""
-        if DEBUG: print 'backend_gtkcairo.%s()' % fn_name()
+        if _debug: print '%s.%s()' % (self.__class__.__name__, _fn_name())
         self._renderer = RendererCairo (self.figure.dpi)

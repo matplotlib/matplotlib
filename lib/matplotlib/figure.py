@@ -549,10 +549,8 @@ simply make that subplot current and return it
         a.set_transform(self.transFigure)
 
     def get_width_height(self):
-        'return the figure width and height in pixels'
-        w = self.bbox.width()
-        h = self.bbox.height()
-        return w, h
+        'return the figure width and height in pixels (as floats)'
+        return self.bbox.width(), self.bbox.height()
 
 
     def gca(self, **kwargs):
