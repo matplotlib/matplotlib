@@ -3641,11 +3641,13 @@ class Axes(Artist):
             return dist_x_y(xywin, asarray(xt), asarray(yt))
 
         artists = self.lines + self.patches + self.texts
-        if among is not None and callable(among):
+        if callable(among):
             artists = filter(test, artists)
         elif iterable(among):
             amongd = dict([(k,1) for k in among])
             artists = [a for a in artists if a in amongd]
+        elif among is None:
+            pass
         else:
             raise ValueError('among mut be callable or iterable')
         if not len(artists): return None

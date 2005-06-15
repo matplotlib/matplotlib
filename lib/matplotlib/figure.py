@@ -327,6 +327,25 @@ ACCEPTS: boolean"""
         for func in self._axobservers: func(self)        
             
 
+
+    def _make_key(self, *args, **kwargs):
+        'make a hashable key out of args and kwargs'
+
+        def fixitems(items):
+            #items may have arrays and lists in them, so convert them
+            # to tuples for the kyey
+            ret = []
+            for k, v in items:
+                if iterable(v): v = tuple(v)                
+                ret.append((k,v))
+            return ret
+
+        if iterable(args[0]):
+            key = tuple(args[0]), tuple( fixitems(kwargs.items()))
+        else:		
+            key = args[0], tuple(fixitems( kwargs.items()))
+        return key
+        
     def add_axes(self, *args, **kwargs):
         """
 Add an a axes with axes rect [left, bottom, width, height] where all
@@ -353,10 +372,7 @@ unique labels:
 The Axes instance will be returned
         """
 
-        if iterable(args[0]):
-            key = tuple(args[0]), tuple(kwargs.items())
-        else:
-            key = args[0], tuple(kwargs.items())            
+	key = self._make_key(*args, **kwargs)
 
         if self._seen.has_key(key):
             ax = self._seen[key]
@@ -398,8 +414,9 @@ polar axes.  The Axes instance will be returned.
 If the figure already has a subplot with key *args, *kwargs then it will
 simply make that subplot current and return it
         """
-        
-        key = args, tuple(kwargs.items())
+
+	key = self._make_key(*args, **kwargs)        
+
         if self._seen.has_key(key):
             ax = self._seen[key]
             self.sca(ax)

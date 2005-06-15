@@ -13,7 +13,7 @@ from matplotlib.backends.backend_agg import FigureCanvasAgg
 from matplotlib.figure import Figure
 from matplotlib.axes import Subplot
 from matplotlib.mlab import normpdf
-from matplotlib.numerix import randn
+from matplotlib.numerix.mlab import randn
 
 fig = Figure(figsize=(5,4), dpi=100)
 ax = fig.add_subplot(111)
