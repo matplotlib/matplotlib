@@ -26,7 +26,8 @@ try:
         pygtk.require('2.0')
 except:
     print >> sys.stderr, sys.exc_info()[1]
-    raise SystemExit('PyGTK version %d.%d.%d or greater is required to run the GTK Matplotlib backends'
+    raise SystemExit('PyGTK version %d.%d.%d or greater is required to run '
+                     'the GTK Matplotlib backends'
                      % pygtk_version_required)
 
 import gtk, gobject, pango
