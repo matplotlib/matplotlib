@@ -96,7 +96,10 @@ class RendererCairo(RendererBase):
         self.text_ctx = cairo.Context (surface)
 
     def _set_pixmap(self, pixmap):
+        # used by GUI backend (backend_gtk)
+        # not used by image backend (backend_cairo)
         self.surface = pixmap
+        # new cairo API: ctx = gdk_cairo_create(surface)
 
     def _set_width_height(self, width, height):
         self.width  = width
@@ -432,11 +435,13 @@ class GraphicsContextCairo(GraphicsContextBase):
         GraphicsContextBase.__init__(self)
         self.renderer = renderer
         self.ctx = cairo.Context (surface)
+
         
     def set_alpha(self, alpha):
         self._alpha = alpha
         rgb = self._rgb
         self.ctx.set_source_rgba (rgb[0], rgb[1], rgb[2], alpha)
+
 
     #def set_antialiased(self, b):
         # enable/disable anti-aliasing is not (yet) supported by Cairo
@@ -608,7 +613,7 @@ def _save_ps_pdf (figure, filename, ext, orientation):
 
     renderer = RendererCairo (figure.dpi)
     renderer._set_width_height (width_in_points, height_in_points)
-    renderer.surface = ctx.get_target()
+    renderer.surface = surface
     figure.draw (renderer)
 
     show_fig_border = False  # for testing figure orientation and scaling
