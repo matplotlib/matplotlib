@@ -86,8 +86,8 @@ class RendererGDK(RendererBase):
         self.dpi   = dpi
         self._cmap = gtkDA.get_colormap()
         
-    def _set_pixmap (self, gdkDrawable):
-        self.gdkDrawable = gdkDrawable
+    def _set_pixmap (self, pixmap):
+        self.gdkDrawable = pixmap
 
     def _set_width_height (self, width, height):
         """w,h is the figure w,h not the pixmap w,h
