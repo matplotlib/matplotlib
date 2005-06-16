@@ -87,21 +87,28 @@ class RendererCairo(RendererBase):
     
 
     def __init__(self, dpi):
-        """width, height - the canvas width, height. Is not necessarily
-        the same as the surface (pixmap) width, height
+        """
         """
         if _debug: print '%s.%s()' % (self.__class__.__name__, _fn_name())
         self.dpi      = dpi
         surface = cairo.ImageSurface (cairo.FORMAT_ARGB32,1,1)
         self.text_ctx = cairo.Context (surface)
 
-    def _set_pixmap(self, pixmap):
-        # used by GUI backend (backend_gtk)
-        # not used by image backend (backend_cairo)
-        self.surface = pixmap
-        # new cairo API: ctx = gdk_cairo_create(surface)
 
-    def _set_width_height(self, width, height):
+    def set_ctx_from_surface (self, surface):
+        self.ctx = cairo.Context (surface)
+
+
+    def set_ctx_from_pixmap (self, pixmap): 
+        # not used by image backend (backend_cairo),
+        # uses _set_ctx_from_surface() instead
+        # used by GUI backend (backend_gtk)
+        self.ctx = cairo.gdk_cairo_create (pixmap)
+        
+    set_pixmap = set_ctx_from_pixmap
+    
+
+    def set_width_height(self, width, height):
         self.width  = width
         self.height = height
         self.matrix_flipy = cairo.Matrix (yy=-1, y0=self.height)
@@ -149,8 +156,8 @@ class RendererCairo(RendererBase):
         X = numx.fromstring (buf, numx.UInt8)
         X.shape = rows, cols, 4
 
-        # function does not pass a 'gc' so we create our own context
-        ctx = cairo.Context (self.surface)
+        # function does not pass a 'gc' so use renderer.ctx
+        ctx = self.ctx
         surface = cairo.ImageSurface.create_for_array (X)
         ctx.set_source_surface (surface, x, y)
         ctx.paint()
@@ -408,8 +415,9 @@ class RendererCairo(RendererBase):
                               
     def new_gc(self):
         if _debug: print '%s.%s()' % (self.__class__.__name__, _fn_name())
-        gc = GraphicsContextCairo (renderer=self, surface=self.surface)
-        return gc
+        #gc = GraphicsContextCairo (renderer=self, surface=self.surface)
+        #return gc
+        return GraphicsContextCairo (renderer=self)
 
 
     def points_to_pixels(self, points):
@@ -431,10 +439,12 @@ class GraphicsContextCairo(GraphicsContextBase):
         }
 
     
-    def __init__(self, renderer, surface):
+    #def __init__(self, renderer, surface):
+    def __init__(self, renderer):
         GraphicsContextBase.__init__(self)
         self.renderer = renderer
-        self.ctx = cairo.Context (surface)
+        #self.ctx = cairo.Context (surface)
+        self.ctx = renderer.ctx
 
         
     def set_alpha(self, alpha):
@@ -522,117 +532,116 @@ def new_figure_manager(num, *args, **kwargs): # called by backends/__init__.py
     return manager
 
 
-def print_figure_fn(figure, filename, dpi=150, facecolor='w', edgecolor='w',
-                    orientation='portrait'):
-    if _debug: print _fn_name()
-
-    # settings for printing
-    figure.dpi.set(dpi)
-    figure.set_facecolor(facecolor)
-    figure.set_edgecolor(edgecolor)        
-
-    #if isinstance(filename, file):   # eg when do savefig(sys.stdout)
-    #    _save_png (figure, filename) # assume PNG format
-    #else:
-    if True:
-        root, ext = os.path.splitext(filename)       
-        ext = ext[1:]
-        if ext == '':
-            ext      = IMAGE_FORMAT_DEFAULT
-            filename = filename + '.' + ext
-
-        ext = ext.lower()
-        if ext in ('pdf', 'png', 'ps'):  # native formats
-            #try:
-            #    fileObject = file(filename,'wb')
-            #except IOError, exc:
-            #    warnings.warn("%s: %s" % (exc.filename, exc.strerror))
-            #else:
-            
-            #if ext == 'png': _save_png (figure, fileObject)
-            if ext == 'png': _save_png (figure, filename)
-            #else:            _save_ps_pdf (figure, fileObject, ext,
-            #                               orientation)
-            else:            _save_ps_pdf (figure, filename, ext, orientation)
-            #fileObject.close()
-            
-        elif ext in ('eps', 'svg'): # backend_svg/ps
-            if ext == 'svg':
-                from backend_svg import FigureCanvasSVG as FigureCanvas
-            else:
-                from backend_ps import FigureCanvasPS  as FigureCanvas
-            fc = FigureCanvas(figure)
-            fc.print_figure(filename, dpi, facecolor, edgecolor, orientation)
-
-        else:
-            warnings.warn('Format "%s" is not supported.\nSupported formats: '
-                          '%s.' % (ext, ', '.join(IMAGE_FORMAT)))
-
-        
-def _save_png (figure, filename):
-    width, height = figure.get_width_height()
-    width, height = int(width), int(height)
-
-    renderer = RendererCairo (figure.dpi)
-    renderer._set_width_height (width, height)
-    renderer.surface = cairo.ImageSurface (cairo.FORMAT_ARGB32, width, height)
-
-    figure.draw (renderer)
-    renderer.surface.write_to_png (filename)
-        
-
-def _save_ps_pdf (figure, filename, ext, orientation):
-    # Cairo produces PostScript Level 3
-    # 'ggv' can't read cairo ps files, but 'gv' can
-
-    dpi = 72
-    figure.dpi.set (dpi)
-    w_in, h_in = figure.get_size_inches()
-    width_in_points, height_in_points = w_in * dpi, h_in * dpi
-    
-    if orientation == 'landscape':
-        width_in_points, height_in_points = height_in_points, width_in_points
-        
-    if ext == 'ps':
-        surface = cairo.PSSurface (filename, width_in_points, height_in_points)
-    else: # pdf
-        surface = cairo.PDFSurface (filename, width_in_points,
-                                    height_in_points)
-    # surface.set_dpi() can be used
-    ctx = cairo.Context (surface)
-    
-    if orientation == 'landscape':
-        ctx.rotate (numx.pi/2)
-        ctx.translate (0, -height_in_points)
-        # cairo/src/cairo_ps_surface.c
-        # '%%Orientation: Portrait' is always written to the file header
-        # '%%Orientation: Landscape' would possibly cause problems
-        # since some printers would rotate again ?
-        # TODO:
-        # add portrait/landscape checkbox to FileChooser
-
-    renderer = RendererCairo (figure.dpi)
-    renderer._set_width_height (width_in_points, height_in_points)
-    renderer.surface = surface
-    figure.draw (renderer)
-
-    show_fig_border = False  # for testing figure orientation and scaling
-    if show_fig_border:
-        ctx.new_path()
-        ctx.rectangle(0, 0, width_in_points, height_in_points)
-        ctx.set_line_width(4.0)
-        ctx.set_source_rgb(1,0,0)
-        ctx.stroke()
-        ctx.move_to(30,30)
-        ctx.select_font_face ('sans-serif')
-        ctx.set_font_size(20)
-        ctx.show_text('Origin corner')
-    
-    ctx.show_page()
-
-
-class FigureCanvasCairo(FigureCanvasBase):
+class FigureCanvasCairo (FigureCanvasBase):
     def print_figure(self, filename, dpi=150, facecolor='w', edgecolor='w',
                      orientation='portrait'):
-        print_figure_fn(self.figure, filename, dpi, facecolor, edgecolor,
-                      orientation)
+        if _debug: print '%s.%s()' % (self.__class__.__name__, _fn_name())
+        # settings for printing
+        self.figure.dpi.set(dpi)
+        self.figure.set_facecolor(facecolor)
+        self.figure.set_edgecolor(edgecolor)        
+
+        # if isinstance(filename, file):   # eg when do savefig(sys.stdout)
+        #    _save_png (self.figure, filename) # assume PNG format
+        # else:
+        if True:
+            root, ext = os.path.splitext(filename)       
+            ext = ext[1:]
+            if ext == '':
+                ext      = IMAGE_FORMAT_DEFAULT
+                filename = filename + '.' + ext
+
+            ext = ext.lower()
+            if ext in ('pdf', 'png', 'ps'):  # native formats
+                # try:
+                #    fileObject = file(filename,'wb')
+                # except IOError, exc:
+                #    warnings.warn("%s: %s" % (exc.filename, exc.strerror))
+                # else:
+            
+                # if ext == 'png': _save_png (fileObject)
+                if ext == 'png': self._save_png (filename)
+                # else:            _save_ps_pdf (self.figure, fileObject, ext,
+                #                               orientation)
+                else:    self._save_ps_pdf (self.figure, filename, ext, orientation)
+                # fileObject.close()
+            
+            elif ext in ('eps', 'svg'): # backend_svg/ps
+                if ext == 'svg':
+                    from backend_svg import FigureCanvasSVG as FigureCanvas
+                else:
+                    from backend_ps import FigureCanvasPS  as FigureCanvas
+                fc = FigureCanvas(self.figure)
+                fc.print_figure(filename, dpi, facecolor, edgecolor,
+                                orientation)
+
+            else:
+                warnings.warn('Format "%s" is not supported.\n'
+                              'Supported formats: '
+                              '%s.' % (ext, ', '.join(IMAGE_FORMAT)))
+
+        
+    def _save_png (self, filename):
+        width, height = self.figure.get_width_height()
+        width, height = int(width), int(height)
+
+        renderer = RendererCairo (self.figure.dpi)
+        renderer.set_width_height (width, height)
+        surface = cairo.ImageSurface (cairo.FORMAT_ARGB32, width, height)
+        renderer.set_ctx_from_surface (surface)
+
+        self.figure.draw (renderer)
+        surface.write_to_png (filename)
+        
+
+    def _save_ps_pdf (self, figure, filename, ext, orientation):
+        # Cairo produces PostScript Level 3
+        # 'ggv' can't read cairo ps files, but 'gv' can
+
+        dpi = 72
+        figure.dpi.set (dpi)
+        w_in, h_in = figure.get_size_inches()
+        width_in_points, height_in_points = w_in * dpi, h_in * dpi
+    
+        if orientation == 'landscape':
+            width_in_points, height_in_points = (height_in_points,
+                                                 width_in_points)
+        
+        if ext == 'ps':
+            surface = cairo.PSSurface (filename, width_in_points,
+                                       height_in_points)
+        else: # pdf
+            surface = cairo.PDFSurface (filename, width_in_points,
+                                        height_in_points)
+        # surface.set_dpi() can be used
+        # FIXME - use self._renderer?
+        renderer._set_ctx_from_surface (surface)
+    
+        if orientation == 'landscape':
+            ctx.rotate (numx.pi/2)
+            ctx.translate (0, -height_in_points)
+            # cairo/src/cairo_ps_surface.c
+            # '%%Orientation: Portrait' is always written to the file header
+            # '%%Orientation: Landscape' would possibly cause problems
+            # since some printers would rotate again ?
+            # TODO:
+            # add portrait/landscape checkbox to FileChooser
+
+        renderer = RendererCairo (figure.dpi)
+        renderer._set_width_height (width_in_points, height_in_points)
+        renderer.surface = surface
+        figure.draw (renderer)
+
+        show_fig_border = False  # for testing figure orientation and scaling
+        if show_fig_border:
+            ctx.new_path()
+            ctx.rectangle(0, 0, width_in_points, height_in_points)
+            ctx.set_line_width(4.0)
+            ctx.set_source_rgb(1,0,0)
+            ctx.stroke()
+            ctx.move_to(30,30)
+            ctx.select_font_face ('sans-serif')
+            ctx.set_font_size(20)
+            ctx.show_text('Origin corner')
+    
+        ctx.show_page()
