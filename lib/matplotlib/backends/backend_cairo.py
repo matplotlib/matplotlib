@@ -103,7 +103,7 @@ class RendererCairo(RendererBase):
         # not used by image backend (backend_cairo),
         # uses _set_ctx_from_surface() instead
         # used by GUI backend (backend_gtk)
-        self.ctx = cairo.gdk_cairo_create (pixmap)
+        self.ctx = cairo.gtk.gdk_cairo_create (pixmap)
         
     set_pixmap = set_ctx_from_pixmap
     

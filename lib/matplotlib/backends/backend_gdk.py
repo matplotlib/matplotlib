@@ -86,10 +86,10 @@ class RendererGDK(RendererBase):
         self.dpi   = dpi
         self._cmap = gtkDA.get_colormap()
         
-    def _set_pixmap (self, pixmap):
+    def set_pixmap (self, pixmap):
         self.gdkDrawable = pixmap
 
-    def _set_width_height (self, width, height):
+    def set_width_height (self, width, height):
         """w,h is the figure w,h not the pixmap w,h
         """
         self.width, self.height = width, height
@@ -499,9 +499,9 @@ class FigureCanvasGDK(FigureCanvasBase):
             self._pixmap = gtk.gdk.Pixmap (None, self._pixmap_width,
                                            self._pixmap_height, depth=24)
             # gtk backend must use self.window
-            self._renderer._set_pixmap (self._pixmap)
+            self._renderer.set_pixmap (self._pixmap)
 
-        self._renderer._set_width_height (width, height)
+        self._renderer.set_width_height (width, height)
         self.figure.draw (self._renderer)
 
 

@@ -224,8 +224,8 @@ class FigureCanvasGTK(gtk.DrawingArea, FigureCanvasBase):
     def _renderer_init(self):
         """Override by GTK backends to select a different renderer
         Renderer should provide the methods:
-            _set_pixmap ()
-            _set_width_height ()
+            set_pixmap ()
+            set_width_height ()
         that are used by
             _render_figure()        
         """
@@ -257,9 +257,9 @@ class FigureCanvasGTK(gtk.DrawingArea, FigureCanvasBase):
             if DEBUG: print 'FigureCanvasGTK.%s new pixmap' % fn_name()
             self._pixmap = gtk.gdk.Pixmap (self.window, self._pixmap_width,
                                            self._pixmap_height)
-            self._renderer._set_pixmap (self._pixmap)
+            self._renderer.set_pixmap (self._pixmap)
 
-        self._renderer._set_width_height (width, height)
+        self._renderer.set_width_height (width, height)
         self.figure.draw (self._renderer)
 
 
