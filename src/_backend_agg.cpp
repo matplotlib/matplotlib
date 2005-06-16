@@ -8,6 +8,7 @@
 #include <stdexcept>
 #include <png.h>
 
+
 #include "agg_conv_transform.h"
 #include "agg_conv_curve.h"
 #include "agg_scanline_storage_aa.h"
@@ -601,6 +602,84 @@ RendererAgg::draw_line_collection(const Py::Tuple& args) {
   return Py::Object();
 }
 
+
+
+Py::Object
+RendererAgg::copy_from_bbox(const Py::Tuple& args) {
+  //copy region in bbox to buffer and return swig/agg buffer object
+  args.verify_length(1);
+   
+
+  agg::rect r = bbox_to_rect(args[0]);
+  r.x1 -=5;
+  r.y1 -=5;
+  r.x2 +=5;
+  r.y2 +=5;
+  
+  int boxwidth = r.x2-r.x1;
+  int boxheight = r.y2-r.y1;
+  int boxstride = boxwidth*4;
+  agg::buffer buf(boxwidth, boxheight, boxstride, false);
+  if (buf.data ==NULL) {
+    throw Py::MemoryError("RendererAgg::copy_from_bbox could not allocate memory for buffer");
+  }
+    
+  agg::rendering_buffer rbuf;
+  rbuf.attach(buf.data, boxwidth, boxheight, boxstride);
+
+  pixfmt pf(rbuf);
+  renderer_base rb(pf);
+  rb.clear(agg::rgba(1, 0, 0)); //todo remove me
+  rb.copy_from(*renderingBuffer, &r, -r.x1, -r.y1);
+  Region* reg = new Region(buf, r);
+
+  return Py::asObject(reg);
+  
+  
+  
+}
+
+Py::Object
+RendererAgg::restore_region(const Py::Tuple& args) {
+  //copy Region to buffer
+  args.verify_length(1);
+  Region* region  = static_cast<Region*>(args[0].ptr());
+  
+  if (region->aggbuf.data==NULL) 
+    throw Py::ValueError("Cannot restore_region frm NULL data");
+
+    
+  agg::rendering_buffer rbuf;
+  rbuf.attach(region->aggbuf.data, 
+	      region->aggbuf.width, 
+	      region->aggbuf.height, 
+	      region->aggbuf.stride);
+
+  rendererBase->copy_from(rbuf, 0, region->rect.x1, region->rect.y1);
+
+  return Py::Object();
+  
+  
+  
+}
+
+
+agg::rect_base<int>
+RendererAgg::bbox_to_rect(const Py::Object& o) {
+  //return the agg::rect for bbox, flipping y
+
+  Bbox* clipbox = static_cast<Bbox*>(o.ptr());
+  double l = clipbox->ll_api()->x_api()->val() ; 
+  double b = clipbox->ll_api()->y_api()->val();
+  double r = clipbox->ur_api()->x_api()->val() ; 
+  double t = clipbox->ur_api()->y_api()->val() ; ;       
+  
+  agg::rect<int> rect( (int)l, height-(int)t, (int)r, height-(int)b ) ;
+  if (!rect.is_valid())
+    throw Py::ValueError("Invalid rectangle in bbox_to_rect");
+  return rect;
+  
+}
 
 void
 RendererAgg::set_clip_from_bbox(const Py::Object& o) {
@@ -1941,6 +2020,11 @@ void RendererAgg::init_type()
 		     "cache()"); 
   add_varargs_method("blit", &RendererAgg::blit, 
 		     "blit()"); 
+  add_varargs_method("copy_from_bbox", &RendererAgg::copy_from_bbox, 
+		     "copy_from_bbox(bbox)"); 
+
+  add_varargs_method("restore_region", &RendererAgg::restore_region, 
+		     "restore_region(region)"); 
 
   
 }

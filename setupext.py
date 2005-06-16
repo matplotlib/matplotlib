@@ -115,7 +115,9 @@ def add_agg_flags(module):
     module.libraries.append('png')
     module.libraries.append('z')
     add_base_flags(module)
-    module.include_dirs.extend(['src','%s/include'%AGG_VERSION, '.'])
+    module.include_dirs.extend(['src','swig', '%s/include'%AGG_VERSION, '.'])
+    
+
 
     # put these later for correct link order
     module.libraries.extend(['stdc++', 'm'])
@@ -351,7 +353,7 @@ def build_ft2font(ext_modules, packages):
 def build_gtkagg(ext_modules, packages, numerix):
     global BUILT_GTKAGG
     if BUILT_GTKAGG: return # only build it if you you haven't already
-    deps = ['src/_gtkagg.cpp', 'src/mplutils.cpp']
+    deps = ['src/_gtkagg.cpp', 'src/mplutils.cpp', 'src/_transforms.cpp']
     deps.extend(glob.glob('CXX/*.cxx'))
     deps.extend(glob.glob('CXX/*.c'))
 

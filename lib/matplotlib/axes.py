@@ -353,8 +353,7 @@ class Axes(Artist):
         # a mapping from artists to 1 -- would use a set but we are
         # python2.2 compliant
         self.animated = {}  
-        self._lastRenderer = None
-
+        self._cachedRenderer = None
         self.set_navigate(True)
         if len(kwargs): setp(self, **kwargs)
         
@@ -1324,7 +1323,25 @@ class Axes(Artist):
 
         return pxy, freqs
 
-    def draw(self, renderer):
+    def draw_artist(self, a):
+        """
+        This method can only be used after an initial draw which
+        caches the renderer.  It is used to efficiently update Axes
+        data (axis ticks, labels, etc are not updated)        
+        """
+        assert self._cachedRenderer is not None
+        a.draw(self._cachedRenderer)
+
+    def redraw_in_frame(self):
+        """
+        This method can only be used after an initial draw which
+        caches the renderer.  It is used to efficiently update Axes
+        data (axis ticks, labels, etc are not updated)        
+        """
+        assert self._cachedRenderer is not None
+        self.draw(self._cachedRenderer, inframe=True)
+        
+    def draw(self, renderer, inframe=False):
         "Draw everything (plot lines, axes, labels)"
         if not self.get_visible(): return
         renderer.open_group('axes')
@@ -1357,7 +1374,7 @@ class Axes(Artist):
             oy = self.figure.bbox.height()-(b+h)
             renderer.draw_image(ox, oy, im, origin, self.bbox)
 
-        if self.axison:
+        if self.axison and not inframe:
             self.xaxis.draw(renderer)
             self.yaxis.draw(renderer)
 
@@ -1395,11 +1412,10 @@ class Axes(Artist):
         self.transAxes.thaw()  # release the lazy objects
         renderer.close_group('axes')
 
-        if len(self.animated):
-            self._lastRenderer = renderer
-            renderer.cache()
+        self._cachedRenderer = renderer
 
-    def draw_animate(self):
+    def __draw_animate(self):
+        # ignore for now; broken
         if self._lastRenderer is None:
             raise RuntimeError('You must first call ax.draw()')
         dsu = [(a.zorder, a) for a in self.animated.keys()]

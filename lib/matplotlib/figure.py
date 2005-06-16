@@ -150,6 +150,8 @@ class Figure(Artist):
 
         self.clf()
 
+        self._cachedRenderer = None
+        
     def set_canvas(self, canvas):
         """\
 Set the canvas the contains the figure
@@ -336,16 +338,20 @@ ACCEPTS: boolean"""
             # to tuples for the kyey
             ret = []
             for k, v in items:
-                if iterable(v): v = tuple(v)                
+                if iterable(v): v = tuple(v)
                 ret.append((k,v))
-            return ret
+            return tuple(ret)
 
-        if iterable(args[0]):
-            key = tuple(args[0]), tuple( fixitems(kwargs.items()))
-        else:		
-            key = args[0], tuple(fixitems( kwargs.items()))
+        def fixlist(args):
+            ret = []
+            for a in args:
+                if iterable(a): a = tuple(a)
+                ret.append(a)
+            return tuple(ret)
+
+        key = fixlist(args), fixitems(kwargs.items())
         return key
-        
+
     def add_axes(self, *args, **kwargs):
         """
 Add an a axes with axes rect [left, bottom, width, height] where all
@@ -506,6 +512,13 @@ simply make that subplot current and return it
         self.transFigure.thaw()  # release the lazy objects
         renderer.close_group('figure')
 
+        self._cachedRenderer = renderer
+
+    def draw_artist(self, a):
+        'draw artist only -- this is available only after the figure is drawn'
+        assert self._cachedRenderer is not None
+        a.draw(self._cachedRenderer)
+            
     def get_axes(self):
         return self.axes
 
