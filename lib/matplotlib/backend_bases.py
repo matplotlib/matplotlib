@@ -16,20 +16,6 @@ class RendererBase:
     """An abstract base class to handle drawing/rendering operations
     """
 
-    def cache(self):
-        """
-        save a copy of the canvas, to be used in conjunction with blit
-        in support of animation
-        """
-        pass
-
-    def blit(self):
-        """
-        blit the cached copy of the canvas, to be used in conjunction
-        with blit in support of animation
-        """
-        pass
-
     
     def open_group(self, s):
         """open a grouping element with label s
@@ -712,6 +698,12 @@ class FigureCanvasBase:
 
 
 
+
+    def blit(self, bbox=None):
+        """
+        blit the canvas in bbox (default entire canvas)
+        """
+        pass
 
     def key_press_event(self, key, guiEvent=None):
         self._key = key

@@ -135,13 +135,15 @@ class Slider(Widget):
         """
         Create a slider from valmin to valmax in axes ax;
 
-        label is the slider label valinit is the slider initial position
+        valinit -  the slider initial position
 
-        valfmt is used to format the slider value
+        label - the slider label 
 
-        closedmin and closedmax indicated whether the slider interval is closed
+        valfmt - used to format the slider value
 
-        slidermin and slidermax can be used to contrain the value of
+        closedmin and closedmax - indicate whether the slider interval is closed
+
+        slidermin and slidermax - be used to contrain the value of
           this slider to the values of other sliders.
           """
         self.ax = ax

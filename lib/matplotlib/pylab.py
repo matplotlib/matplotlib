@@ -803,7 +803,8 @@ def figure(num=None, # autoincrement if None, else integer from 1-N
         figManager = new_figure_manager(num, figsize, dpi, facecolor, edgecolor, frameon)
         _pylab_helpers.Gcf.set_active(figManager)
         figManager.canvas.figure.number = num
-        
+
+    draw_if_interactive()
     return figManager.canvas.figure
 
 def gca(**kwargs):

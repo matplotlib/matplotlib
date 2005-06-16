@@ -120,6 +120,11 @@ class RendererAgg(RendererBase):
         self.draw_line_collection = self._renderer.draw_line_collection
         self.draw_poly_collection = self._renderer.draw_poly_collection
         self.draw_regpoly_collection = self._renderer.draw_regpoly_collection
+
+        self.copy_from_bbox = self._renderer.copy_from_bbox
+        self.restore_region = self._renderer.restore_region        
+        
+
         self.cache = self._renderer.cache
         self.blit = self._renderer.blit
         self.texmanager = TexManager()
@@ -359,6 +364,14 @@ class FigureCanvasAgg(FigureCanvasBase):
       figure - A Figure instance
     """    
 
+    def copy_from_bbox(self, bbox):
+        renderer = self.get_renderer()
+        return renderer.copy_from_bbox(bbox)
+
+    def restore_region(self, region):
+        renderer = self.get_renderer()
+        return renderer.restore_region(region)
+        
     def draw(self):
         """
         Draw the figure using the renderer

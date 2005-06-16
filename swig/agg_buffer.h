@@ -5,6 +5,7 @@
 #define _AGG_BUFFER_H
 
 #include <iostream>
+#include "agg_basics.h"
 
 namespace agg {
   
@@ -16,24 +17,14 @@ namespace agg {
 
   struct buffer {
   public: 
-    buffer(unsigned width, unsigned height, unsigned stride) : 
-      width(width), height(height), stride(stride) {
+    buffer(unsigned width, unsigned height, unsigned stride, bool freemem=true) : 
+      width(width), height(height), stride(stride), freemem(freemem) {
       
       data = new int8u[height*stride];
       
     }
-    ~buffer() {delete [] data;}
+    ~buffer() {if (freemem) delete [] data;}
     
-    void speak() {
-      for (size_t i=0; i < 20; i++) {
-	std::cout << "RGBA: " 
-		  << int(data[4*i+0]) << " " 
-		  << int(data[4*i+1]) << " " 
-		  << int(data[4*i+2]) << " " 
-		  << int(data[4*i+1]) << std::endl;
-      }
-
-    }
 
     binary_data to_string() { 
       binary_data result;
@@ -45,6 +36,7 @@ namespace agg {
     const unsigned width, height, stride;
     
     int8u *data;
+    bool freemem;
   };
 }  
 

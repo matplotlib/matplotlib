@@ -6,6 +6,7 @@
 #define __BACKEND_AGG_H
 
 #include "CXX/Extensions.hxx"
+#include "agg_buffer.h"  // a swig wrapper
 
 #include "agg_arrowhead.h"
 #include "agg_basics.h"
@@ -41,6 +42,20 @@ typedef agg::rasterizer_scanline_aa<> rasterizer;
 typedef agg::scanline_p8 scanline_p8;
 typedef agg::scanline_bin scanline_bin;
 
+// a helper class to pass agg::buffer objects around.  agg::buffer is
+// a class in the swig wrapper
+class Region : public Py::PythonExtension<Region> {
+public:
+  Region( agg::buffer& aggbuf, const agg::rect &r) : aggbuf(aggbuf), rect(r) {}
+  agg::buffer aggbuf;
+  agg::rect rect;
+  static void init_type(void) {
+    behaviors().name("Region");
+    behaviors().doc("A wrapper to pass agg buffer objects to and from the python level");
+  }
+
+  virtual ~Region() {};
+};
 
 class GCAgg {
 public:
@@ -113,6 +128,12 @@ public:
   Py::Object cache(const Py::Tuple & args);
   Py::Object blit(const Py::Tuple & args);
 
+  Py::Object copy_from_bbox(const Py::Tuple & args);
+  Py::Object restore_region(const Py::Tuple & args);
+
+  
+  
+
 
   virtual ~RendererAgg(); 
 
@@ -138,6 +159,7 @@ public:
   const int debug;
 
 protected:
+  agg::rect<int> bbox_to_rect( const Py::Object& o);
   double points_to_pixels( const Py::Object& points);
   double points_to_pixels_snapto( const Py::Object& points);
 
@@ -160,7 +182,9 @@ public:
     : Py::ExtensionModule<_backend_agg_module>( "_backend_agg" )
   {
 
+    Region::init_type();
     RendererAgg::init_type();
+
     add_keyword_method("RendererAgg", &_backend_agg_module::new_renderer, 
 		       "RendererAgg(width, height, dpi)");
     initialize( "The agg rendering backend" );

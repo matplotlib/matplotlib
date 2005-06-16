@@ -276,10 +276,10 @@ ACCEPTS: rectangle prop dict plus key 'pad' which is a pad in points
         self._bbox = rectprops
 
     def draw(self, renderer):
-        if not self.get_visible(): return 
-        if self._text=='': return
         if renderer is not None:
             self._renderer = renderer
+        if not self.get_visible(): return 
+        if self._text=='': return
 
         gc = renderer.new_gc()
         gc.set_foreground(self._color)

@@ -189,7 +189,6 @@ ACCEPTS: float
         return im
     
     def draw(self, renderer, *args, **kwargs):
-
         if not self.get_visible(): return 
         isUpper = self.origin=='upper'
         flipy = renderer.flipy()
