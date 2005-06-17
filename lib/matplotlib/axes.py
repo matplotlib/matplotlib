@@ -712,6 +712,7 @@ class Axes(Artist):
         # Otherwise, it will compute the bounds of it's current data
         # and the data in xydata
         self.dataLim.update(xys, not self.has_data())
+        
 
     def update_datalim_numerix(self, x, y):
         'Update the data lim bbox with seq of xy tups'
@@ -777,9 +778,9 @@ class Axes(Artist):
             self.set_ylim(self.dataLim.intervaly().get_bounds())
             return
 
+
         locator = self.xaxis.get_major_locator()
         self.set_xlim(locator.autoscale())
-
         locator = self.yaxis.get_major_locator()
         self.set_ylim(locator.autoscale())
 
@@ -2566,8 +2567,8 @@ class Axes(Artist):
 
         span  = self.dataLim.intervalx().span()
 
-        if span==0: span = SEC_PER_HOUR
-
+        if span==0: span = 1/24.
+        
         minutes = span*24*60
         hours  = span*24
         days   = span
@@ -2586,17 +2587,18 @@ class Axes(Artist):
             locator = WeekdayLocator(tz=tz)
             fmt = '%a, %b %d'
         elif days>numticks:
-            locator = DayLocator(interval=math.ceil(days/numticks), tz=tz)
+            locator = DayLocator(interval=int(math.ceil(days/numticks)), tz=tz)
             fmt = '%b %d'
         elif hours>numticks:
-            locator = HourLocator(interval=math.ceil(hours/numticks), tz=tz)
+            locator = HourLocator(interval=int(math.ceil(hours/numticks)), tz=tz)
             fmt = '%H:%M\n%b %d'
         elif minutes>numticks:
-            locator = MinuteLocator(interval=math.ceil(minutes/numticks), tz=tz)
+            locator = MinuteLocator(interval=int(math.ceil(minutes/numticks)), tz=tz)
             fmt = '%H:%M:%S'
         else:
             locator = MinuteLocator(tz=tz)
             fmt = '%H:%M:%S'
+
 
         formatter = DateFormatter(fmt, tz=tz)
         self.xaxis.set_major_locator(locator)

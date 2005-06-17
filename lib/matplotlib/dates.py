@@ -346,6 +346,18 @@ class DateLocator(Locator):
         vmin, vmax = self.viewInterval.get_bounds()
         return num2date(vmin, self.tz), num2date(vmax, self.tz)
 
+    def _get_unit(self):
+        """
+        return how many days a unit of the locator is; use for
+        intelligent autoscaling
+        """
+        return 1
+        
+    def nonsingular(self, vmin, vmax):
+        unit = self._get_unit()
+        vmin -= 2*unit
+        vmax += 2*unit
+        return vmin, vmax
 
 class RRuleLocator(DateLocator):
     # use the dateutil rrule instance
@@ -382,6 +394,7 @@ class RRuleLocator(DateLocator):
 
         vmin = date2num(vmin)
         vmax = date2num(vmax)
+        
         return self.nonsingular(vmin, vmax)
 
 
@@ -415,6 +428,13 @@ class YearLocator(DateLocator):
                           }
 
 
+    def _get_unit(self):
+        """
+        return how many days a unit of the locator is; use for
+        intelligent autoscaling
+        """
+        return 365
+    
     def __call__(self):
         self.verify_intervals()
 
@@ -463,6 +483,14 @@ class MonthLocator(RRuleLocator):
                          interval=interval, **self.hms0d)
         RRuleLocator.__init__(self, o, tz)
 
+    def _get_unit(self):
+        """
+        return how many days a unit of the locator is; use for
+        intelligent autoscaling
+        """
+        return 30
+    
+
 class WeekdayLocator(RRuleLocator):
     """
     Make ticks on occurances of each weekday
@@ -483,6 +511,13 @@ class WeekdayLocator(RRuleLocator):
         o = rrulewrapper(DAILY, byweekday=byweekday, interval=interval, **self.hms0d)
         RRuleLocator.__init__(self, o, tz)
 
+    def _get_unit(self):
+        """
+        return how many days a unit of the locator is; use for
+        intelligent autoscaling
+        """
+        return 7
+
 
 class DayLocator(RRuleLocator):
     """
@@ -497,6 +532,13 @@ class DayLocator(RRuleLocator):
         if bymonthday is None: bymonthday=range(1,32)
         o = rrulewrapper(DAILY, bymonthday=bymonthday, interval=interval, **self.hms0d)
         RRuleLocator.__init__(self, o, tz)
+
+    def _get_unit(self):
+        """
+        return how many days a unit of the locator is; use for
+        intelligent autoscaling
+        """
+        return 1
 
 class HourLocator(RRuleLocator):
     """
@@ -515,6 +557,12 @@ class HourLocator(RRuleLocator):
                             byminute=0, bysecond=0)
         RRuleLocator.__init__(self, rule, tz)
 
+    def _get_unit(self):
+        """
+        return how many days a unit of the locator is; use for
+        intelligent autoscaling
+        """
+        return 1/24.
 
 class MinuteLocator(RRuleLocator):
     """
@@ -534,6 +582,13 @@ class MinuteLocator(RRuleLocator):
                             bysecond=0)
         RRuleLocator.__init__(self, rule, tz)
 
+    def _get_unit(self):
+        """
+        return how many days a unit of the locator is; use for
+        intelligent autoscaling
+        """
+        return 1./(24*60)
+
 class SecondLocator(RRuleLocator):
     """
     Make ticks on occurances of each second
@@ -550,6 +605,13 @@ class SecondLocator(RRuleLocator):
         if bysecond is None: bysecond=range(60)
         rule = rrulewrapper(SECONDLY, bysecond=bysecond, interval=interval)
         RRuleLocator.__init__(self, rule, tz)
+
+    def _get_unit(self):
+        """
+        return how many days a unit of the locator is; use for
+        intelligent autoscaling
+        """
+        return 1./(24*60*60)
 
 
 
@@ -610,10 +672,8 @@ if __name__=='__main__':
 
     #d1 = datetime.datetime( 2002, 1, 5, tzinfo=tz)
     #d2 = datetime.datetime( 2003, 12, 1, tzinfo=tz)
-    print d1, d2
     delta = datetime.timedelta(hours=6)
     dates = drange(d1, d2, delta)
-    print 'len dates', len(dates)
 
     #print 'orig', d1
     #print 'd2n and back', num2date(date2num(d1), tz)
@@ -637,8 +697,6 @@ if __name__=='__main__':
 
     fmt = '%Y-%m-%d %H:%M:%S %Z'
     formatter = DateFormatter(fmt, tz)
-    print 'DMIN', formatter(dmin)
-    print 'DMAX', formatter(dmax)
 
     #for t in  ticks: print formatter(t)
 
