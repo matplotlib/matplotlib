@@ -159,7 +159,7 @@ public:
   const int debug;
 
 protected:
-  agg::rect<int> bbox_to_rect( const Py::Object& o);
+  agg::rect bbox_to_rect( const Py::Object& o);
   double points_to_pixels( const Py::Object& points);
   double points_to_pixels_snapto( const Py::Object& points);
 
