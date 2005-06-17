@@ -175,7 +175,7 @@ class FigureCanvasGTK(gtk.DrawingArea, FigureCanvasBase):
             state = event.state
 
         # flipy so y=0 is bottom of canvas
-        y = self.figure.bbox.height() - event.y
+        y = self.figure.bbox.height() - y
 
         if state:
             FigureCanvasBase.motion_notify_event(self, x, y)
