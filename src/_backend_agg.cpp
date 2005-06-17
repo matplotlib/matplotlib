@@ -674,7 +674,7 @@ RendererAgg::bbox_to_rect(const Py::Object& o) {
   double r = clipbox->ur_api()->x_api()->val() ; 
   double t = clipbox->ur_api()->y_api()->val() ; ;       
   
-  agg::rect<int> rect( (int)l, height-(int)t, (int)r, height-(int)b ) ;
+  agg::rect rect( (int)l, height-(int)t, (int)r, height-(int)b ) ;
   if (!rect.is_valid())
     throw Py::ValueError("Invalid rectangle in bbox_to_rect");
   return rect;
