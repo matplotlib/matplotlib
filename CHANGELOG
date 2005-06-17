@@ -1,5 +1,8 @@
 New entries should be added at the top
 
+2005-06-17 Modified the gtk backend to not queue mouse motion events.
+           This allows for live updates when dragging a slider. - CM
+
 2005-06-17 Added starter CocoaAgg backend.  Only works on OS 10.3 for
            now and requires PyObjC.  (10.4 is high priority) - CM
 

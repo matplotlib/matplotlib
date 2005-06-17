@@ -128,13 +128,12 @@ class Slider(Widget):
       slidermin : another slider - if not None, this slider must be > slidermin
       slidermax : another slider - if not None, this slider must be < slidermax
       dragging : allow for mouse dragging on slider
-        (dragging defaults to False since gtk doesn't drop motion events while busy)
       
     Call on_changed to connect to the slider event
     """
     def __init__(self, ax, label, valmin, valmax, valinit=0.5, valfmt='%1.2f',
                  closedmin=True, closedmax=True, slidermin=None, slidermax=None,
-                 dragging=False):
+                 dragging=True):
         """
         Create a slider from valmin to valmax in axes ax;
 
@@ -211,8 +210,6 @@ class Slider(Widget):
         if not self.eventson: return
         for cid, func in self.observers.items():
             func(val)
-
-
         
     def on_changed(self, func):
         """
