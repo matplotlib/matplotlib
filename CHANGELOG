@@ -1,7 +1,13 @@
 New entries should be added at the top
 
+2005-06-17 Upgraded pyparsing and applied Paul McGuire's suggestions
+           for speeding things up.  This more than doubles the speed
+           of mathtext in my simple tests. JDH
+
 2005-06-16 Applied David Cooke's subplot make_key patch
+
 ========================================================
+
 2005-06-15 0.82 released
 
 2005-06-15 Added subplot config tool to GTK* backends -- note you must

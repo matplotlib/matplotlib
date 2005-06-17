@@ -143,7 +143,7 @@ from cStringIO import StringIO
 from matplotlib import verbose
 from matplotlib.pyparsing import Literal, Word, OneOrMore, ZeroOrMore, \
      Combine, Group, Optional, Forward, NotAny, alphas, nums, alphanums, \
-     StringStart, StringEnd, ParseException
+     StringStart, StringEnd, ParseException, FollowedBy
 
 from matplotlib.afm import AFM
 from matplotlib.cbook import enumerate, iterable, Bunch
@@ -1145,11 +1145,11 @@ italics    = Literal('it')
 typewriter = Literal('tt')
 fontname   = roman | cal | italics | typewriter
 
-texsym = Combine(bslash + Word(alphanums) + NotAny(lbrace))
+texsym = Combine(bslash + Word(alphanums) + NotAny("{"))
 
 char = Word(alphanums + ' ', exact=1).leaveWhitespace()
 
-space = (Literal(r'\ ') | Literal(r'\/') | Group(Literal(r'\hspace{') + number + Literal('}'))).setParseAction(handler.space).setName('space')
+space = FollowedBy(bslash) + (Literal(r'\ ') | Literal(r'\/') | Group(Literal(r'\hspace{') + number + Literal('}'))).setParseAction(handler.space).setName('space')
 
 #~ symbol = (texsym ^ char ^ binop ^ relation ^ punctuation ^ misc ^ grouping  ).setParseAction(handler.symbol).leaveWhitespace()
 symbol = (texsym | char | binop | relation | punctuation | misc | grouping  ).setParseAction(handler.symbol).leaveWhitespace()
@@ -1174,7 +1174,7 @@ composite = Group( Combine(bslash + overUnder) + group + group).setParseAction(h
 
 
 
-symgroup = font ^ group ^ symbol 
+symgroup = font | group | symbol 
 
 subscript << Group( Optional(symgroup) + Literal('_') + symgroup  )
 superscript << Group( Optional(symgroup) + Literal('^') + symgroup  )
