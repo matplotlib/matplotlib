@@ -143,27 +143,49 @@ class FigureManagerQT( FigureManagerBase ):
         FigureManagerBase.__init__( self, canvas, num )
         self.canvas = canvas
         self.window = qt.QMainWindow( None, None, qt.Qt.WDestructiveClose )
+
+        centralWidget = qt.QWidget( self.window )
+        self.canvas.reparent( centralWidget, qt.QPoint( 0, 0 ) )
         
-        self.canvas.reparent( self.window, qt.QPoint( 0, 0 ) )
         # Give the keyboard focus to the figure instead of the manager
         self.canvas.setFocusPolicy( qt.QWidget.ClickFocus )
         self.canvas.setFocus()
         self.window.setCaption( "Figure %d" % num )
-        self.window.setCentralWidget( self.canvas )
+
         qt.QObject.connect( self.window, qt.SIGNAL( 'destroyed()' ),
                             self._widgetclosed )
         self.window._destroying = False
 
         if matplotlib.rcParams['toolbar'] == 'classic':
             print "Classic toolbar is not yet supported"
-            #self.toolbar = NavigationToolbar( canvas, self.window )
+            #self.toolbar = NavigationToolbarQT( centralWidget, canvas )
             self.toolbar = None
         elif matplotlib.rcParams['toolbar'] == 'toolbar2':
-            self.toolbar = NavigationToolbar2QT( canvas, self.window )
+            self.toolbar = NavigationToolbar2QT( centralWidget, canvas )
         else:
             self.toolbar = None
 
-        self.window.resize( self.canvas.size() )
+        # Use a vertical layout for the plot and the toolbar.  Set the
+        # stretch to all be in the plot so the toolbar doesn't resize.
+        layout = qt.QVBoxLayout( centralWidget )
+        layout.addWidget( self.canvas, 1 )
+        if self.toolbar:
+           layout.addWidget( self.toolbar, 0 )
+
+        self.window.setCentralWidget( centralWidget )
+
+        # Reset the window height so the canvas will be the right
+        # size.  This ALMOST works right.  The first issue is that the
+        # height w/ a toolbar seems to be off by just a little bit (so
+        # we add 4 pixels).  The second is that the total width/height
+        # is slightly smaller that we actually want.  It seems like
+        # the border of the window is being included in the size but
+        # AFAIK there is no way to get that size.  
+        w = self.canvas.width()
+        h = self.canvas.height()
+        if self.toolbar:
+           h += self.toolbar.height() + 4
+        self.window.resize( w, h )
         
         if matplotlib.is_interactive():
             self.window.show()
@@ -184,56 +206,66 @@ class FigureManagerQT( FigureManagerBase ):
         if DEBUG: print "destroy figure manager"
         self.window.close(True)
 
-class NavigationToolbar2QT( NavigationToolbar2, qt.QToolBar ):
+class NavigationToolbar2QT( NavigationToolbar2, qt.QWidget ):
     # list of toolitems to add to the toolbar, format is:
     # text, tooltip_text, image_file, callback(str)
     toolitems = (
-        ('Home', 'Reset original view', 'home.png', 'home'),
-        ('Back', 'Back to  previous view','back.png', 'back'),
-        ('Forward', 'Forward to next view','forward.png', 'forward'),
+        ('Home', 'Reset original view', 'home.ppm', 'home'),
+        ('Back', 'Back to  previous view','back.ppm', 'back'),
+        ('Forward', 'Forward to next view','forward.ppm', 'forward'),
         (None, None, None, None),        
-        ('Pan', 'Pan axes with left mouse, zoom with right', 'move.png', 'pan'),
-        ('Zoom', 'Zoom to rectangle','zoom_to_rect.png', 'zoom'),
+        ('Pan', 'Pan axes with left mouse, zoom with right', 'move.ppm', 'pan'),
+        ('Zoom', 'Zoom to rectangle','zoom_to_rect.ppm', 'zoom'),
         (None, None, None, None),
-        ('Save', 'Save the figure','filesave.png', 'save_figure'),
+        ('Save', 'Save the figure','filesave.ppm', 'save_figure'),
         )
         
-    def __init__( self, canvas, window ):
-        self.window = window
+    def __init__( self, parent, canvas ):
         self.canvas = canvas
-        qt.QToolBar.__init__( self, "Navigator2", window, qt.Qt.DockBottom )
+        qt.QWidget.__init__( self, parent )
+
+        # Layout toolbar buttons horizontally.
+        self.layout = qt.QHBoxLayout( self )
+        self.layout.setMargin( 2 )
+        
         NavigationToolbar2.__init__( self, canvas )
-        # If we don't do this, the status bar is hidden until needed.
-        self.window.statusBar().message( " " )
-         
+        
     def _init_toolbar( self ):
-        self.window.setUsesTextLabel( False )
         basedir = matplotlib.rcParams[ 'datapath' ]
         
         for text, tooltip_text, image_file, callback in self.toolitems:
             if text == None:
-                self.addSeparator()
+                self.layout.addSpacing( 8 )
                 continue
             
             fname = os.path.join( basedir, image_file )
             image = qt.QPixmap()
             image.load( fname )
-            a = qt.QAction( text, qt.QIconSet( image ), text,
-                            qt.QKeySequence('M'), self.window )
 
+            button = qt.QPushButton( qt.QIconSet( image ), "", self )
+            qt.QToolTip.add( button, tooltip_text )
 
-            #a = qt.QAction( qt.QIconSet( image ), text, qt.QKeySequence('M'),
-            #                self.window )
-            a.setToolTip( tooltip_text )
-            qt.QObject.connect( a, qt.SIGNAL( 'activated()' ),
+            # The automatic layout doesn't look that good - it's too close
+            # to the images so add a margin around it.
+            margin = 4
+            button.setFixedSize( image.width()+margin, image.height()+margin )
+
+            qt.QObject.connect( button, qt.SIGNAL( 'clicked()' ),
                                 getattr( self, callback ) )
-            a.addTo( self )
+            self.layout.addWidget( button )
+
+        # Add the x,y location widget at the right side of the toolbar
+        # The stretch factor is 1 which means any resizing of the toolbar
+        # will resize this label instead of the buttons.
+        self.locLabel = qt.QLabel( "", self )
+        self.locLabel.setAlignment( qt.Qt.AlignRight | qt.Qt.AlignVCenter )
+        self.layout.addWidget( self.locLabel, 1 )
 
     def dynamic_update( self ):
         self.canvas.draw()
 
     def set_message( self, s ):
-        self.window.statusBar().message( s )
+        self.locLabel.setText( s )
 
     def set_cursor( self, cursor ):
         if DEBUG: print 'Set cursor' , cursor

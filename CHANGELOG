@@ -1,5 +1,24 @@
 New entries should be added at the top
 
+2005-06-18 Applied Ted Drain's QtAgg patch: 1) Changed the toolbar to
+           be a horizontal bar of push buttons instead of a QToolbar
+           and updated the layout algorithms in the main window
+           accordingly.  This eliminates the ability to drag and drop
+           the toolbar and detach it from the window.  2) Updated the
+           resize algorithm in the main window to show the correct
+           size for the plot widget as requested.  This works almost
+           correctly right now.  It looks to me like the final size of
+           the widget is off by the border of the main window but I
+           haven't figured out a way to get that information yet.  We
+           could just add a small margin to the new size but that
+           seems a little hacky.  3) Changed the x/y location label to
+           be in the toolbar like the Tk backend instead of as a
+           status line at the bottom of the widget.  4) Changed the
+           toolbar pixmaps to use the ppm files instead of the png
+           files.  I noticed that the Tk backend buttons looked much
+           nicer and it uses the ppm files so I switched them.
+
+
 2005-06-17 Modified the gtk backend to not queue mouse motion events.
            This allows for live updates when dragging a slider. - CM
 
