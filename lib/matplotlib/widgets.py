@@ -11,6 +11,7 @@ from matplotlib.mlab import linspace, dist
 from matplotlib.patches import Circle, Rectangle
 from matplotlib.lines import Line2D
 from matplotlib.numerix import array
+import thread
 
 class Widget:
     """
@@ -126,12 +127,14 @@ class Slider(Widget):
       closedmax : whether the slider is closed on the maximum
       slidermin : another slider - if not None, this slider must be > slidermin
       slidermax : another slider - if not None, this slider must be < slidermax
-
+      dragging : allow for mouse dragging on slider
+        (dragging defaults to False since gtk doesn't drop motion events while busy)
       
     Call on_changed to connect to the slider event
     """
     def __init__(self, ax, label, valmin, valmax, valinit=0.5, valfmt='%1.2f',
-                 closedmin=True, closedmax=True, slidermin=None, slidermax=None):
+                 closedmin=True, closedmax=True, slidermin=None, slidermax=None,
+                 dragging=False):
         """
         Create a slider from valmin to valmax in axes ax;
 
@@ -164,6 +167,8 @@ class Slider(Widget):
         ax.set_navigate(False)
         
         ax.figure.canvas.mpl_connect('button_press_event', self._update)
+        if dragging:
+            ax.figure.canvas.mpl_connect('motion_notify_event', self._update)
         self.label = ax.text(-0.02, 0.5, label, transform=ax.transAxes,
                              verticalalignment='center',
                              horizontalalignment='right')
@@ -181,7 +186,6 @@ class Slider(Widget):
         self.slidermin = slidermin
         self.slidermax = slidermax
 
-
     def _update(self, event):
         'update the slider position'
         if event.button !=1: return
@@ -189,15 +193,15 @@ class Slider(Widget):
         val = event.xdata
         if not self.closedmin and val<=self.valmin: return
         if not self.closedmax and val>=self.valmax: return        
-
+        
         if self.slidermin is not None:
             if val<=self.slidermin.val: return
 
         if self.slidermax is not None:
             if val>=self.slidermax.val: return
-
+            
         self._set_val(val)
-        
+
     def _set_val(self, val):
         self.poly.xy[-1] = val, 0
         self.poly.xy[-2] = val, 1        
@@ -228,8 +232,9 @@ class Slider(Widget):
         except KeyError: pass
 
     def reset(self):
-        "reset the slider to the initial value"
-        self._set_val(self.valinit)        
+        "reset the slider to the initial value if needed"
+        if (self.val != self.valinit):
+            self._set_val(self.valinit)     
 
 
 
