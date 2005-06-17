@@ -287,7 +287,6 @@ class buffer(_object):
             if self.thisown: destroy(self)
         except: pass
 
-    def speak(*args): return _agg.buffer_speak(*args)
     def to_string(*args): return _agg.buffer_to_string(*args)
     __swig_getmethods__["width"] = _agg.buffer_width_get
     if _newclass:width = property(_agg.buffer_width_get)
@@ -298,6 +297,9 @@ class buffer(_object):
     __swig_setmethods__["data"] = _agg.buffer_data_set
     __swig_getmethods__["data"] = _agg.buffer_data_get
     if _newclass:data = property(_agg.buffer_data_get, _agg.buffer_data_set)
+    __swig_setmethods__["freemem"] = _agg.buffer_freemem_set
+    __swig_getmethods__["freemem"] = _agg.buffer_freemem_get
+    if _newclass:freemem = property(_agg.buffer_freemem_get, _agg.buffer_freemem_set)
 
 class bufferPtr(buffer):
     def __init__(self, this):
