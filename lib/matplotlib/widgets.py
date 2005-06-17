@@ -264,8 +264,13 @@ class CheckButtons(Widget):
         ax.set_xticks([])
         ax.set_yticks([])
         ax.set_navigate(False)        
-        dy = 1./(len(labels)+1)
-        ys = linspace(1-dy, dy, len(labels))
+
+        if len(labels)>1:
+            ys = linspace(1-dy, dy, len(labels))
+            dy = 1./(len(labels)+1)
+        else:
+            ys = [0.5]
+            dy = 0.25
         cnt = 0
         axcolor = ax.get_axis_bgcolor()
 
