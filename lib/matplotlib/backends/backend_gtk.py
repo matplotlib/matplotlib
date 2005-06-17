@@ -147,7 +147,8 @@ class FigureCanvasGTK(gtk.DrawingArea, FigureCanvasBase):
             gdk.LEAVE_NOTIFY_MASK   |
             gdk.BUTTON_PRESS_MASK   |
             gdk.BUTTON_RELEASE_MASK |
-            gdk.POINTER_MOTION_MASK  )
+            gdk.POINTER_MOTION_MASK |
+            gdk.POINTER_MOTION_HINT_MASK)
 
         self._renderer_init()
 
@@ -156,18 +157,29 @@ class FigureCanvasGTK(gtk.DrawingArea, FigureCanvasBase):
         # flipy so y=0 is bottom of canvas
         y = self.figure.bbox.height() - event.y
         FigureCanvasBase.button_press_event(self, x, y, event.button)
+        return True
         
     def button_release_event(self, widget, event):
         x = event.x
         # flipy so y=0 is bottom of canvas
         y = self.figure.bbox.height() - event.y
         FigureCanvasBase.button_release_event(self, x, y, event.button)
+        return True
 
     def motion_notify_event(self, widget, event):
-        x = event.x
+        if event.is_hint:
+            x, y, state = event.window.get_pointer()
+        else:
+            x = event.x
+            y = event.y
+            state = event.state
+
         # flipy so y=0 is bottom of canvas
         y = self.figure.bbox.height() - event.y
-        FigureCanvasBase.motion_notify_event(self, x, y)
+
+        if state:
+            FigureCanvasBase.motion_notify_event(self, x, y)
+        return True
 
     def _get_key(self, event):
         if self.keyvald.has_key(event.keyval):
