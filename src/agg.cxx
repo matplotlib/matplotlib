@@ -1843,6 +1843,52 @@ SWIG_Check_int(PyObject* obj)
 
 
 SWIGINTERN int
+  SWIG_AsVal_bool(PyObject *obj, bool *val)
+{
+  if (obj == Py_True) {
+    if (val) *val = true;
+    return 1;
+  }
+  if (obj == Py_False) {
+    if (val) *val = false;
+    return 1;
+  }
+  int res = 0;
+  if (SWIG_AsVal_int(obj, &res)) {    
+    if (val) *val = res ? true : false;
+    return 1;
+  } else {
+    PyErr_Clear();
+  }  
+  if (val) {
+    SWIG_type_error("bool", obj);
+  }
+  return 0;
+}
+
+
+SWIGINTERNINLINE bool
+SWIG_As_bool(PyObject* obj)
+{
+  bool v;
+  if (!SWIG_AsVal_bool(obj, &v)) {
+    /*
+      this is needed to make valgrind/purify happier. 
+     */
+    memset((void*)&v, 0, sizeof(bool));
+  }
+  return v;
+}
+
+  
+SWIGINTERNINLINE int
+SWIG_Check_bool(PyObject* obj)
+{
+  return SWIG_AsVal_bool(obj, (bool*)0);
+}
+
+
+SWIGINTERN int
   SWIG_AsVal_unsigned_SS_char(PyObject *obj, unsigned char *val)
 { 
   const char* errmsg = val ? "unsigned char" : (char*)0;
@@ -1956,52 +2002,6 @@ t_output_helper(PyObject* target, PyObject* o) {
   return target;
 }
 
-
-
-SWIGINTERN int
-  SWIG_AsVal_bool(PyObject *obj, bool *val)
-{
-  if (obj == Py_True) {
-    if (val) *val = true;
-    return 1;
-  }
-  if (obj == Py_False) {
-    if (val) *val = false;
-    return 1;
-  }
-  int res = 0;
-  if (SWIG_AsVal_int(obj, &res)) {    
-    if (val) *val = res ? true : false;
-    return 1;
-  } else {
-    PyErr_Clear();
-  }  
-  if (val) {
-    SWIG_type_error("bool", obj);
-  }
-  return 0;
-}
-
-
-SWIGINTERNINLINE bool
-SWIG_As_bool(PyObject* obj)
-{
-  bool v;
-  if (!SWIG_AsVal_bool(obj, &v)) {
-    /*
-      this is needed to make valgrind/purify happier. 
-     */
-    memset((void*)&v, 0, sizeof(bool));
-  }
-  return v;
-}
-
-  
-SWIGINTERNINLINE int
-SWIG_Check_bool(PyObject* obj)
-{
-  return SWIG_AsVal_bool(obj, (bool*)0);
-}
 
 static void agg_row_ptr_cache_Sl_agg_int8u_Sg__attachb(agg::row_ptr_cache<agg::int8u > *self,agg::buffer *buf){
     self->attach(buf->data, buf->width, buf->height, buf->stride);
@@ -3875,7 +3875,45 @@ static PyObject * binary_data_swigregister(PyObject *, PyObject *args) {
     Py_INCREF(obj);
     return Py_BuildValue((char *)"");
 }
-static PyObject *_wrap_new_buffer(PyObject *, PyObject *args) {
+static PyObject *_wrap_new_buffer__SWIG_0(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    unsigned int arg1 ;
+    unsigned int arg2 ;
+    unsigned int arg3 ;
+    bool arg4 ;
+    agg::buffer *result;
+    PyObject * obj0 = 0 ;
+    PyObject * obj1 = 0 ;
+    PyObject * obj2 = 0 ;
+    PyObject * obj3 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"OOOO:new_buffer",&obj0,&obj1,&obj2,&obj3)) goto fail;
+    {
+        arg1 = (unsigned int)(SWIG_As_unsigned_SS_int(obj0)); 
+        if (SWIG_arg_fail(1)) SWIG_fail;
+    }
+    {
+        arg2 = (unsigned int)(SWIG_As_unsigned_SS_int(obj1)); 
+        if (SWIG_arg_fail(2)) SWIG_fail;
+    }
+    {
+        arg3 = (unsigned int)(SWIG_As_unsigned_SS_int(obj2)); 
+        if (SWIG_arg_fail(3)) SWIG_fail;
+    }
+    {
+        arg4 = (bool)(SWIG_As_bool(obj3)); 
+        if (SWIG_arg_fail(4)) SWIG_fail;
+    }
+    result = (agg::buffer *)new agg::buffer(arg1,arg2,arg3,arg4);
+    
+    resultobj = SWIG_NewPointerObj((void*)(result), SWIGTYPE_p_agg__buffer, 1);
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_new_buffer__SWIG_1(PyObject *, PyObject *args) {
     PyObject *resultobj = NULL;
     unsigned int arg1 ;
     unsigned int arg2 ;
@@ -3907,6 +3945,50 @@ static PyObject *_wrap_new_buffer(PyObject *, PyObject *args) {
 }
 
 
+static PyObject *_wrap_new_buffer(PyObject *self, PyObject *args) {
+    int argc;
+    PyObject *argv[5];
+    int ii;
+    
+    argc = PyObject_Length(args);
+    for (ii = 0; (ii < argc) && (ii < 4); ii++) {
+        argv[ii] = PyTuple_GetItem(args,ii);
+    }
+    if (argc == 3) {
+        int _v;
+        _v = SWIG_Check_unsigned_SS_int(argv[0]);
+        if (_v) {
+            _v = SWIG_Check_unsigned_SS_int(argv[1]);
+            if (_v) {
+                _v = SWIG_Check_unsigned_SS_int(argv[2]);
+                if (_v) {
+                    return _wrap_new_buffer__SWIG_1(self,args);
+                }
+            }
+        }
+    }
+    if (argc == 4) {
+        int _v;
+        _v = SWIG_Check_unsigned_SS_int(argv[0]);
+        if (_v) {
+            _v = SWIG_Check_unsigned_SS_int(argv[1]);
+            if (_v) {
+                _v = SWIG_Check_unsigned_SS_int(argv[2]);
+                if (_v) {
+                    _v = SWIG_Check_bool(argv[3]);
+                    if (_v) {
+                        return _wrap_new_buffer__SWIG_0(self,args);
+                    }
+                }
+            }
+        }
+    }
+    
+    PyErr_SetString(PyExc_NotImplementedError,"No matching function for overloaded 'new_buffer'");
+    return NULL;
+}
+
+
 static PyObject *_wrap_delete_buffer(PyObject *, PyObject *args) {
     PyObject *resultobj = NULL;
     agg::buffer *arg1 = (agg::buffer *) 0 ;
@@ -3916,23 +3998,6 @@ static PyObject *_wrap_delete_buffer(PyObject *, PyObject *args) {
     SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__buffer, SWIG_POINTER_EXCEPTION | 0);
     if (SWIG_arg_fail(1)) SWIG_fail;
     delete arg1;
-    
-    Py_INCREF(Py_None); resultobj = Py_None;
-    return resultobj;
-    fail:
-    return NULL;
-}
-
-
-static PyObject *_wrap_buffer_speak(PyObject *, PyObject *args) {
-    PyObject *resultobj = NULL;
-    agg::buffer *arg1 = (agg::buffer *) 0 ;
-    PyObject * obj0 = 0 ;
-    
-    if(!PyArg_ParseTuple(args,(char *)"O:buffer_speak",&obj0)) goto fail;
-    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__buffer, SWIG_POINTER_EXCEPTION | 0);
-    if (SWIG_arg_fail(1)) SWIG_fail;
-    (arg1)->speak();
     
     Py_INCREF(Py_None); resultobj = Py_None;
     return resultobj;
@@ -4054,6 +4119,49 @@ static PyObject *_wrap_buffer_data_get(PyObject *, PyObject *args) {
     result = (agg::int8u *) ((arg1)->data);
     
     resultobj = SWIG_NewPointerObj((void*)(result), SWIGTYPE_p_unsigned_char, 0);
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_buffer_freemem_set(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::buffer *arg1 = (agg::buffer *) 0 ;
+    bool arg2 ;
+    PyObject * obj0 = 0 ;
+    PyObject * obj1 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"OO:buffer_freemem_set",&obj0,&obj1)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__buffer, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    {
+        arg2 = (bool)(SWIG_As_bool(obj1)); 
+        if (SWIG_arg_fail(2)) SWIG_fail;
+    }
+    if (arg1) (arg1)->freemem = arg2;
+    
+    Py_INCREF(Py_None); resultobj = Py_None;
+    return resultobj;
+    fail:
+    return NULL;
+}
+
+
+static PyObject *_wrap_buffer_freemem_get(PyObject *, PyObject *args) {
+    PyObject *resultobj = NULL;
+    agg::buffer *arg1 = (agg::buffer *) 0 ;
+    bool result;
+    PyObject * obj0 = 0 ;
+    
+    if(!PyArg_ParseTuple(args,(char *)"O:buffer_freemem_get",&obj0)) goto fail;
+    SWIG_Python_ConvertPtr(obj0, (void **)&arg1, SWIGTYPE_p_agg__buffer, SWIG_POINTER_EXCEPTION | 0);
+    if (SWIG_arg_fail(1)) SWIG_fail;
+    result = (bool) ((arg1)->freemem);
+    
+    {
+        resultobj = SWIG_From_bool((bool)(result)); 
+    }
     return resultobj;
     fail:
     return NULL;
@@ -26060,13 +26168,14 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"binary_data_swigregister", binary_data_swigregister, METH_VARARGS, NULL},
 	 { (char *)"new_buffer", _wrap_new_buffer, METH_VARARGS, NULL},
 	 { (char *)"delete_buffer", _wrap_delete_buffer, METH_VARARGS, NULL},
-	 { (char *)"buffer_speak", _wrap_buffer_speak, METH_VARARGS, NULL},
 	 { (char *)"buffer_to_string", _wrap_buffer_to_string, METH_VARARGS, NULL},
 	 { (char *)"buffer_width_get", _wrap_buffer_width_get, METH_VARARGS, NULL},
 	 { (char *)"buffer_height_get", _wrap_buffer_height_get, METH_VARARGS, NULL},
 	 { (char *)"buffer_stride_get", _wrap_buffer_stride_get, METH_VARARGS, NULL},
 	 { (char *)"buffer_data_set", _wrap_buffer_data_set, METH_VARARGS, NULL},
 	 { (char *)"buffer_data_get", _wrap_buffer_data_get, METH_VARARGS, NULL},
+	 { (char *)"buffer_freemem_set", _wrap_buffer_freemem_set, METH_VARARGS, NULL},
+	 { (char *)"buffer_freemem_get", _wrap_buffer_freemem_get, METH_VARARGS, NULL},
 	 { (char *)"buffer_swigregister", buffer_swigregister, METH_VARARGS, NULL},
 	 { (char *)"new_order_rgb", _wrap_new_order_rgb, METH_VARARGS, NULL},
 	 { (char *)"delete_order_rgb", _wrap_delete_order_rgb, METH_VARARGS, NULL},
