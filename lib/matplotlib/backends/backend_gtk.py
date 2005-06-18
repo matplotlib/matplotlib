@@ -323,8 +323,7 @@ class FigureCanvasGTK(gtk.DrawingArea, FigureCanvasBase):
 
         ext = ext.lower()
         if ext in ('jpg', 'png'):          # native printing
-            width, height = self.figure.get_width_height()
-            width, height = int(width), int(height)
+            width, height = self.get_width_height()
             self._render_figure(width, height)
 
             # jpg colors don't match the display very well, png colors match

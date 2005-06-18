@@ -582,8 +582,7 @@ class FigureCanvasCairo (FigureCanvasBase):
 
         
     def _save_png (self, filename):
-        width, height = self.figure.get_width_height()
-        width, height = int(width), int(height)
+        width, height = self.get_width_height()
 
         renderer = RendererCairo (self.figure.dpi)
         renderer.set_width_height (width, height)

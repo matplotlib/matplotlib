@@ -69,7 +69,7 @@ class FigureCanvasQTAgg( FigureCanvasQT, FigureCanvasAgg ):
         
         FigureCanvasQT.paintEvent( self, e )
         if DEBUG: print 'FigureCanvasQtAgg.paintEvent: ', \
-           self.figure.get_width_height()
+           self.get_width_height()
 
         p = qt.QPainter( self )
         FigureCanvasAgg.draw( self )
