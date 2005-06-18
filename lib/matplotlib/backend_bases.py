@@ -830,6 +830,10 @@ class FigureCanvasBase:
                 return
 
 
+    def get_width_height(self):
+        """return the figure width and height in points or pixels
+        (depending on the backend), truncated to integers"""
+        return int(self.figure.bbox.width()), int(self.figure.bbox.height())
 
 
 class FigureManagerBase:

@@ -62,13 +62,13 @@ class MatplotlibController(NibClassBuilder.AutoBaseClass):
     def updatePlot(self):
         self.canvas.draw() # tell the agg to render
 
-        w,h = self.canvas.figure.get_width_height()
+        w,h = self.canvas.get_width_height()
         
         image = NSImage.alloc().initWithSize_((w,h))
 	brep = NSBitmapImageRep.alloc().initWithBitmapDataPlanes_pixelsWide_pixelsHigh_bitsPerSample_samplesPerPixel_hasAlpha_isPlanar_colorSpaceName_bytesPerRow_bitsPerPixel_(
 	    (self.canvas.buffer_rgba(),'','','',''), # Image data
-	    int(w), # width
-	    int(h), # height
+	    w, # width
+	    h, # height
 	    8, # bits per pixel
 	    4, # components per pixel
 	    True, # has alpha?

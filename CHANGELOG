@@ -1,5 +1,8 @@
 New entries should be added at the top
 
+2005-06-18 Move Figure.get_width_height() to FigureCanvasBase and return
+           int instead of float. - SC
+
 2005-06-18 Applied Ted Drain's QtAgg patch: 1) Changed the toolbar to
            be a horizontal bar of push buttons instead of a QToolbar
            and updated the layout algorithms in the main window

@@ -81,7 +81,7 @@ class FigureCanvasQT( qt.QWidget, FigureCanvasBase ):
         self.figure = figure
         self.setMouseTracking( True )
 
-        w,h = self.figure.get_width_height()
+        w,h = self.get_width_height()
         self.resize( w, h )
         
     def mousePressEvent( self, event ):

@@ -1,3 +1,6 @@
+  Moved Figure.get_width_height() to FigureCanvasBase. It now returns
+  int instead of float.
+
 API Changes in matplotlib-0.82
 
   = toolbar import change in GTKAgg, GTKCairo and WXAgg =
