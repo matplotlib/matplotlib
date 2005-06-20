@@ -8,7 +8,8 @@
             OUTLETS = {plotView = PlotView; plotWindow = NSWindow; }; 
             SUPERCLASS = NSObject; 
         }, 
-        {CLASS = PlotView; LANGUAGE = ObjC; SUPERCLASS = NSImageView; }
+        {CLASS = PlotView; LANGUAGE = ObjC; SUPERCLASS = NSImageView; }, 
+        {CLASS = PlotWindow; LANGUAGE = ObjC; SUPERCLASS = NSWindow; }
     ); 
     IBVersion = 1; 
 }
