@@ -5,9 +5,10 @@
             ACTIONS = {quit = id; saveFigure = id; }; 
             CLASS = MatplotlibController; 
             LANGUAGE = ObjC; 
-            OUTLETS = {plotView = NSImageView; plotWindow = NSWindow; }; 
+            OUTLETS = {plotView = PlotView; plotWindow = NSWindow; }; 
             SUPERCLASS = NSObject; 
-        }
+        }, 
+        {CLASS = PlotView; LANGUAGE = ObjC; SUPERCLASS = NSImageView; }
     ); 
     IBVersion = 1; 
 }

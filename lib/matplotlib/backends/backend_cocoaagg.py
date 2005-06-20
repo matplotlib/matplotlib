@@ -9,7 +9,6 @@ from __future__ import division
  Notes:
   - THIS IS STILL IN DEVELOPMENT!
   - Requires PyObjC (currently testing v1.3.6)
-  - Only works with 10.3 at this time (10.4 is high priority)
 """
 
 import os, sys
@@ -43,27 +42,44 @@ def show():
 	
 def draw_if_interactive():
     if matplotlib.is_interactive():
-        print >>sys.stderr, 'Not implemented yet'
+        print >>sys.stderr, 'Interactive not implemented yet'
         
 NibClassBuilder.extractClasses('Matplotlib.nib', mplBundle)
 
 class MatplotlibController(NibClassBuilder.AutoBaseClass):
     # available outlets:
     #  NSWindow plotWindow
-    #  NSImageView plotView
+    #  PlotView plotView
     
     def awakeFromNib(self):
-        self.plotView.setImageFrameStyle_(NSImageFrameGroove)
-
 	self.plotWindow.setAcceptsMouseMovedEvents_(True)
 	self.plotWindow.useOptimizedDrawing_(True)
 	self.plotWindow.makeKeyAndOrderFront_(self)
+	self.plotWindow.makeFirstResponder_(self.plotView)
 
         # Get a reference to the active canvas
         self.canvas = pylab.get_current_fig_manager().canvas
 
         # Issue a update
         self.windowDidResize_(self)
+
+    def saveFigure_(self, sender):
+        pass
+
+    def quit_(self, sender):
+        pass
+
+    def windowDidResize_(self, sender):
+        w,h = self.plotView.frame().size
+        dpi = self.canvas.figure.dpi.get()
+        self.canvas.figure.set_figsize_inches(w / dpi, h / dpi)
+        self.plotView.updatePlot()
+
+class PlotView(NibClassBuilder.AutoBaseClass):
+    def awakeFromNib(self):
+	self.setImageFrameStyle_(NSImageFrameGroove)
+
+	self.canvas = pylab.get_current_fig_manager().canvas
 
     def updatePlot(self):
         self.canvas.draw() # tell the agg to render
@@ -84,20 +100,41 @@ class MatplotlibController(NibClassBuilder.AutoBaseClass):
 	    32) # bits per pixel
 
         image.addRepresentation_(brep)
-        self.plotView.setImage_(image)
-        self.plotView.setNeedsDisplay_(True)
-	
-    def saveFigure_(self, sender):
-        pass
+        self.setImage_(image)
+        self.setNeedsDisplay_(True)
 
-    def quit_(self, sender):
-        pass
+    def mouseDown_(self, event):
+	loc = self.convertPoint_fromView_(event.locationInWindow(), None)
+	type = event.type()
+	if (type == NSLeftMouseDown):
+	    button = 1
+	else:
+	    print >>sys.stderr, 'Unknown mouse event type:', type
+	    button = -1
+	self.canvas.button_press_event(loc.x, loc.y, button)
+	self.updatePlot()
 
-    def windowDidResize_(self, sender):
-        w,h = self.plotView.frame().size
-        dpi = self.canvas.figure.dpi.get()
-        self.canvas.figure.set_figsize_inches(w / dpi, h / dpi)
-        self.updatePlot()
+    def mouseDragged_(self, event):
+	loc = self.convertPoint_fromView_(event.locationInWindow(), None)
+	self.canvas.motion_notify_event(loc.x, loc.y)
+	self.updatePlot()
+
+    def mouseUp_(self, event):
+	loc = self.convertPoint_fromView_(event.locationInWindow(), None)
+	type = event.type()
+	if (type == NSLeftMouseUp):
+	    button = 1
+	else:
+	    print >>sys.stderr, 'Unknown mouse event type:', type
+	    button = -1
+	self.canvas.button_release_event(loc.x, loc.y, button)
+	self.updatePlot()
+
+    def keyDown_(self, event):
+	self.canvas.key_press_event(event.keyCode())
+
+    def keyUp_(self, event):
+	self.canvas.key_release_event(event.keyCode())
 
 class MPLBootstrap(NSObject):
     def startWithBundle_(self, bundle):
