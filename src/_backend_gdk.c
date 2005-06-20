@@ -15,10 +15,13 @@
 static PyTypeObject *_PyGdkPixbuf_Type;
 #define PyGdkPixbuf_Type (*_PyGdkPixbuf_Type)
 
-/* Implement an equivalent to the pygtk method pixbuf.get_pixels_array()
- * Fedora 1,2,3 (for example) has PyGTK but does not have Numeric
- * and so does not have pixbuf.get_pixels_array().
- * Also provide numarray as well as Numeric support
+/* Implement the equivalent to gtk.gdk.Pixbuf.get_pixels_array()
+ * To solve these problems with the pygtk version:
+ * 1) It works for Numeric, but not numarray
+ * 2) Its only available if pygtk is compiled with Numeric support
+ * Fedora 1,2,3 has PyGTK, but not Numeric and so does not have 
+ * Pixbuf.get_pixels_array().
+ * Fedora 4 does have PyGTK, Numeric and Pixbuf.get_pixels_array()
  */
 
 static PyObject *
@@ -67,12 +70,14 @@ DL_EXPORT(void)
 init_na_backend_gdk(void)
 {
     PyObject *mod;
-    mod = Py_InitModule("matplotlib._na_backend_gdk", _backend_gdk_functions);
+    mod = Py_InitModule("matplotlib.backends._na_backend_gdk", 
+			_backend_gdk_functions);
 #else
 init_nc_backend_gdk(void)
 {
     PyObject *mod;
-    mod = Py_InitModule("matplotlib._nc_backend_gdk", _backend_gdk_functions);
+    mod = Py_InitModule("matplotlib.backends._nc_backend_gdk", 
+			_backend_gdk_functions);
 #endif
 
     import_array();

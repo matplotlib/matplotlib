@@ -40,9 +40,9 @@ del pygtk_version_required
 # do after gtk else get "pygtk.require() must be called before importing gtk"
 # errors
 if numerix.which[0] == "numarray":
-    from matplotlib._na_backend_gdk import pixbuf_get_pixels_array
+    from matplotlib.backends._na_backend_gdk import pixbuf_get_pixels_array
 else:
-    from matplotlib._nc_backend_gdk import pixbuf_get_pixels_array
+    from matplotlib.backends._nc_backend_gdk import pixbuf_get_pixels_array
 
 
 DEBUG = False
