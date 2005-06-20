@@ -592,10 +592,9 @@ def build_gdk(ext_modules, packages, numerix):
     if numerix in ["numarray","both"]: # Build for numarray
         temp_copy('src/_backend_gdk.c', 'src/_na_backend_gdk.c')
         module = Extension(
-            'matplotlib._na_backend_gdk',
-		[ 'src/_na_backend_gdk.c',
-		],
-		libraries = [],
+            'matplotlib.backends._na_backend_gdk',
+            ['src/_na_backend_gdk.c', ],
+            libraries = [],
             )
         module.extra_compile_args.append('-DNUMARRAY=1')
         add_base_flags(module)
@@ -605,10 +604,9 @@ def build_gdk(ext_modules, packages, numerix):
     if numerix in ["Numeric","both"]: # Build for Numeric
         temp_copy('src/_backend_gdk.c', 'src/_nc_backend_gdk.c')
         module = Extension(
-            'matplotlib._nc_backend_gdk',
-		[ 'src/_nc_backend_gdk.c',
-		],
-		libraries = [],
+            'matplotlib.backends._nc_backend_gdk',
+            ['src/_nc_backend_gdk.c', ],
+            libraries = [],
             )
         module.extra_compile_args.append('-DNUMERIC=1')
         add_base_flags(module)

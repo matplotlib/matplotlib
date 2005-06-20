@@ -1,5 +1,8 @@
 New entries should be added at the top
   
+2005-06-20 setupext.py: fix problem where _nc_backend_gdk is installed to the
+           wrong directory - SC
+
 2005-06-19 Added 10.4 support for CocoaAgg. - CM
 
 2005-06-18 Move Figure.get_width_height() to FigureCanvasBase and return
