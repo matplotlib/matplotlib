@@ -29,7 +29,7 @@ from matplotlib.backend_bases import FigureManagerBase
 from backend_agg import FigureCanvasAgg
 import pylab
 
-DEBUG = True
+DEBUG = False
 
 mplBundle = NSBundle.bundleWithPath_(matplotlib.get_data_path())
 
@@ -62,26 +62,24 @@ class MatplotlibController(NibClassBuilder.AutoBaseClass):
 	self.plotWindow.plotView = self.plotView
 	self.plotView.canvas = self.canvas
 	
+	self.plotWindow.setAcceptsMouseMovedEvents_(True)
+	self.plotWindow.makeKeyAndOrderFront_(self)
+	self.plotWindow.setDelegate_(self.plotWindow)
+
+	self.plotView.setImageFrameStyle_(NSImageFrameGroove)
+        self.plotView.image = NSImage.alloc().initWithSize_((0,0))
+	self.plotView.setImage_(self.plotView.image)
+
 	# Make imageview first responder for key events
 	self.plotWindow.makeFirstResponder_(self.plotView)
 
-	# Issue a resize to update plot
+	# Force the first update
 	self.plotWindow.windowDidResize_(self)
 
     def saveFigure_(self, sender):
-        pass
-
-    def quit_(self, sender):
-        pass
+	if DEBUG: print >>sys.stderr, 'saveFigure_'
 
 class PlotWindow(NibClassBuilder.AutoBaseClass):
-    def awakeFromNib(self):
-	if DEBUG: print 'PlotWindow awakeFromNib'
-	self.setAcceptsMouseMovedEvents_(True)
-	self.useOptimizedDrawing_(True)
-	self.makeKeyAndOrderFront_(self)
-	self.setDelegate_(self)
-
     def windowDidResize_(self, sender):
         w,h = self.plotView.bounds().size
         dpi = self.plotView.canvas.figure.dpi.get()
@@ -89,17 +87,16 @@ class PlotWindow(NibClassBuilder.AutoBaseClass):
         self.plotView.updatePlot()
 
 class PlotView(NibClassBuilder.AutoBaseClass):
-    def awakeFromNib(self):
-	if DEBUG: print 'PlotView awakeFromNib'
-	self.setImageFrameStyle_(NSImageFrameGroove)
-
     def updatePlot(self):
         self.canvas.draw() # tell the agg to render
 
         w,h = self.canvas.get_width_height()
-        
-        image = NSImage.alloc().initWithSize_((w,h))
-	brep = NSBitmapImageRep.alloc().initWithBitmapDataPlanes_pixelsWide_pixelsHigh_bitsPerSample_samplesPerPixel_hasAlpha_isPlanar_colorSpaceName_bytesPerRow_bitsPerPixel_(
+	
+	if (hasattr(self, 'brep')):
+	    self.image.removeRepresentation_(self.brep)
+	self.image.setSize_((w,h))
+
+	self.brep = NSBitmapImageRep.alloc().initWithBitmapDataPlanes_pixelsWide_pixelsHigh_bitsPerSample_samplesPerPixel_hasAlpha_isPlanar_colorSpaceName_bytesPerRow_bitsPerPixel_(
 	    (self.canvas.buffer_rgba(),'','','',''), # Image data
 	    w, # width
 	    h, # height
@@ -111,8 +108,7 @@ class PlotView(NibClassBuilder.AutoBaseClass):
 	    w*4, # row bytes
 	    32) # bits per pixel
 
-        image.addRepresentation_(brep)
-        self.setImage_(image)
+        self.image.addRepresentation_(self.brep)
         self.setNeedsDisplay_(True)
 
     def mouseDown_(self, event):
