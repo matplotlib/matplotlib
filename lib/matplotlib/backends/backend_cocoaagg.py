@@ -54,10 +54,16 @@ class MatplotlibController(NibClassBuilder.AutoBaseClass):
     
     def awakeFromNib(self):
         self.plotView.setImageFrameStyle_(NSImageFrameGroove)
+
+	self.plotWindow.setAcceptsMouseMovedEvents_(True)
+	self.plotWindow.useOptimizedDrawing_(True)
+	self.plotWindow.makeKeyAndOrderFront_(self)
+
         # Get a reference to the active canvas
         self.canvas = pylab.get_current_fig_manager().canvas
+
         # Issue a update
-        self.windowDidResize_(None)
+        self.windowDidResize_(self)
 
     def updatePlot(self):
         self.canvas.draw() # tell the agg to render
@@ -74,7 +80,7 @@ class MatplotlibController(NibClassBuilder.AutoBaseClass):
 	    True, # has alpha?
 	    False, # is planar?
 	    NSCalibratedRGBColorSpace, # color space
-	    0, # row bytes (should be 0 for non planar)
+	    w*4, # row bytes
 	    32) # bits per pixel
 
         image.addRepresentation_(brep)
