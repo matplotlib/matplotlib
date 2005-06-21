@@ -48,14 +48,17 @@ class TexManager:
     if path is None: path = get_data_path()
     texcache = os.path.join(path, '.tex.cache')
 
-    
+
+    dvipngVersion = None
+
+    arrayd = {}
+    postscriptd = {}
+    pscnt = 0
+
     def __init__(self):
         if not os.path.isdir(self.texcache):
             os.mkdir(self.texcache)
-        self.arrayd = {}
-        self.postscriptd = {}
-        self.pscnt = 0
-        self.dvipngVersion = None
+
         
     def get_prefix(self, tex):
         return md5.md5(tex).hexdigest()

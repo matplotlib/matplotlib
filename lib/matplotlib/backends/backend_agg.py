@@ -104,6 +104,7 @@ class RendererAgg(RendererBase):
     """
     
     debug=1
+    texd = {}  # a cache of tex image rasters
     def __init__(self, width, height, dpi):
         if __debug__: verbose.report('RendererAgg.__init__', 'debug-annoying')
         self.dpi = dpi
@@ -128,7 +129,7 @@ class RendererAgg(RendererBase):
         self.cache = self._renderer.cache
         self.blit = self._renderer.blit
         self.texmanager = TexManager()
-        self.texd = {}  # a cache of tex image rasters
+
         self.bbox = lbwh_to_bbox(0,0, self.width, self.height)
         
 
