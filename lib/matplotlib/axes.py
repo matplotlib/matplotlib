@@ -1341,7 +1341,10 @@ class Axes(Artist):
         """
         assert self._cachedRenderer is not None
         self.draw(self._cachedRenderer, inframe=True)
-        
+
+    def get_renderer_cache(self):
+        return self._cachedRenderer
+    
     def draw(self, renderer, inframe=False):
         "Draw everything (plot lines, axes, labels)"
         if not self.get_visible(): return

@@ -1,5 +1,8 @@
 New entries should be added at the top
   
+2005-06-21 Moved some texmanager and backend_agg tex caching to class
+           level rather than instance level - JDH
+
 2005-06-20 setupext.py: fix problem where _nc_backend_gdk is installed to the
            wrong directory - SC
 

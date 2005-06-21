@@ -1,3 +1,5 @@
+API Changes in matplotlib-0.82.1
+
   Moved Figure.get_width_height() to FigureCanvasBase. It now returns
   int instead of float.
 
