@@ -19,6 +19,8 @@
 #include "agg_render_scanlines.h"
 #include "agg_scanline_bin.h"
 #include "agg_scanline_p.h"
+#include "agg_span_interpolator_linear.h"
+
 
 using namespace agg;
 
@@ -82,6 +84,12 @@ using namespace agg;
 %include "agg_conv_stroke.i"
 
 %include "agg_rasterizer_scanline_aa.i"
+
+
+//%include "agg_span_interpolator_linear.h"
+//%template(span_interpolator_linear_affine) agg::span_interpolator_linear<agg::trans_affine>;
+//%include "agg_span_image_filter.i"
+
 %include "agg_renderer_scanline.i"
 
 
@@ -90,8 +98,13 @@ using namespace agg;
 
 %include "agg_scanline_bin.i"
 
+
 %include "agg_render_scanlines.h"
 %template(render_scanlines_rgba) agg::render_scanlines<
   agg::rasterizer_scanline_aa<>,
   agg::scanline_p<agg::int8u>,
   agg::renderer_scanline_aa_solid<renderer_base_rgba_t> >;
+
+
+
+

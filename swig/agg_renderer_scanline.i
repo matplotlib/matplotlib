@@ -24,3 +24,5 @@
   }
 }
 
+
+//%template(renderer_scanline_aa_imfilt_nn) agg::renderer_scanline_aa<renderer_base_rgba_t, span_imfilt_rgba_nn_interplinear_t>;
