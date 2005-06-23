@@ -1,5 +1,8 @@
 New entries should be added at the top
   
+2005-06-23 Updated examples/agg_test.py to demonstrate curved paths
+           and fills - JDH
+
 2005-06-21 Moved some texmanager and backend_agg tex caching to class
            level rather than instance level - JDH
 
