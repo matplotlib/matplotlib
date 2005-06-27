@@ -1,5 +1,8 @@
 from __future__ import division
 
+import os
+import sys
+
 from matplotlib import verbose, rcParams, __version__
 from matplotlib.backend_bases import RendererBase, GraphicsContextBase,\
      FigureManagerBase, FigureCanvasBase
@@ -11,12 +14,7 @@ from matplotlib.font_manager import fontManager
 from matplotlib.ft2font import FT2Font
 from matplotlib.mathtext import math_parse_s_ft2font_svg
 
-import sys,os,math
-
 backend_version = __version__
-
-def _nums_to_str(seq, fmt='%1.3f'):
-    return ' '.join([_int_or_float(val, fmt) for val in seq])
 
 def new_figure_manager(num, *args):
     thisFig = Figure(*args)
@@ -102,23 +100,24 @@ class RendererSVG(RendererBase):
         'close a grouping element with label s'
         self._draw_rawsvg('</g>\n')
 
-    def draw_arc(self, gc, rgbFace, x, y, width, height, angle1, angle2):  #for now, draws a circle of diameter width
+    def draw_arc(self, gc, rgbFace, x, y, width, height, angle1, angle2):  
         """
         Draw a circle at x,y of diameter 'width'
         """
-        type = '<circle '
+        # angle1, angle2 not used
+        # for now, draws a circle of diameter width
         details = ' cx="%f" \n cy="%f" \n r="%f"\n' % (x,self.height-y,width/2)
-        self._draw_svg(type, details, gc, rgbFace)
+        self._draw_svg('<circle ', details, gc, rgbFace)
 
     def draw_line(self, gc, x1, y1, x2, y2):
         """
         Draw a single line from x1,y1 to x2,y2
         """
-        type = '<path '
-        details = ' d="M %f,%f L %f,%f" ' % (x1,self.height-y1,x2,self.height-y2)
-        self._draw_svg(type, details, gc, None)
+        details = ' d="M %f,%f L %f,%f" ' % (x1, self.height-y1,
+                                             x2, self.height-y2)
+        self._draw_svg('<path ', details, gc, None)
 
-    def draw_lines(self, gc, x, y):
+    def draw_lines(self, gc, x, y, transform=None):
         """
         x and y are equal length arrays, draw lines connecting each
         point in x, y
@@ -127,7 +126,6 @@ class RendererSVG(RendererBase):
         if len(x)==0: return
         if len(x)!=len(y):
             raise ValueError('x and y must be the same length')
-        type = '<path '
 
         y = self.height - y
         details = [' d="M %f,%f' % (x[0], y[0]) ]
@@ -135,23 +133,24 @@ class RendererSVG(RendererBase):
         details.extend(['L %f,%f' % tup for tup in xys])
         details.append('" ')
         details = ' '.join(details)
-        self._draw_svg(type, details, gc, None)
+        self._draw_svg('<path ', details, gc, None)
 
     def draw_rectangle(self, gc, rgbFace, x, y, width, height):
-        type = '<rect '
-        details = 'width="%f" height="%f" x="%f" y="%f" ' % (width, height, x, self.height-y-height)
-        self._draw_svg(type, details, gc, rgbFace)
+        details = 'width="%f" height="%f" x="%f" y="%f" ' % (width, height, x,
+                                                         self.height-y-height)
+        self._draw_svg('<rect ', details, gc, rgbFace)
 
     def draw_polygon(self, gc, rgbFace, points):
-        type = '<polygon '        
-        details = '   points = "%s"' % ' '.join(['%f,%f'%(x,self.height-y) for x, y in points])
-        self._draw_svg(type, details, gc, rgbFace)
+        details = '   points = "%s"' % ' '.join(['%f,%f'%(x,self.height-y)
+                                                 for x, y in points])
+        self._draw_svg('<polygon ', details, gc, rgbFace)
 
     def draw_point(self, gc, x, y):
         """
         Draw a point at x,y
         """
-        self.draw_arc(gc, gc.get_rgb(), x, y, 1, 0, 0, 0)  # result seems to have a hole in it...
+        # result seems to have a hole in it...
+        self.draw_arc(gc, gc.get_rgb(), x, y, 1, 0, 0, 0)  
 
     def draw_mathtext(self, gc, x, y, s, prop, angle):
         """
@@ -183,7 +182,8 @@ class RendererSVG(RendererBase):
         draw text
         """
         if ismath:
-             return self.draw_mathtext(gc, x, y, s, prop, angle)
+            self.draw_mathtext(gc, x, y, s, prop, angle)
+            return 
         
         font = self._get_font(prop)
 
@@ -198,7 +198,6 @@ class RendererSVG(RendererBase):
             transform = 'transform="translate(%f,%f) rotate(%1.1f) translate(%f,%f)"' % (x,y,-angle,-x,-y) # Inkscape doesn't support rotate(angle x y)
         else: transform = ''
 
-
         svg = """\
 <text style="%(style)s" x="%(x)f" y="%(y)f" %(transform)s>%(thetext)s</text>
 """ % locals()
@@ -206,9 +205,6 @@ class RendererSVG(RendererBase):
 
     def finish(self):
         self._svgwriter.write('</svg>')
-
-    def new_gc(self):
-        return GraphicsContextSVG()
 
     def _draw_svg(self, type, details, gc, rgbFace):
         if rgbFace is not None:
@@ -228,6 +224,7 @@ class RendererSVG(RendererBase):
 style="%(style)s %(rgbhex)s %(clippath)s "
 %(details)s  />
 """ % locals()
+        
         self._svgwriter.write(svg)
 
     def _get_gc_props_svg(self, gc):
@@ -248,7 +245,8 @@ style="%(style)s %(rgbhex)s %(clippath)s "
     def _get_gc_clip_svg(self, gc):
         cliprect = gc.get_clip_rectangle()
         if cliprect is not None:
-            key = hash(cliprect)  # See if we've already seen this clip rectangle
+            # See if we've already seen this clip rectangle
+            key = hash(cliprect)  
             cr = self._clipd.get(key)
 
             if cr is None:        # If not, store a new clipPath
@@ -288,9 +286,6 @@ class GraphicsContextSVG(GraphicsContextBase):
     
 class FigureCanvasSVG(FigureCanvasBase):
 
-    def draw(self):
-        pass
-
     def print_figure(self, filename, dpi=80,
                      facecolor='w', edgecolor='w',
                      orientation='portrait'):
@@ -311,7 +306,7 @@ class FigureCanvasSVG(FigureCanvasBase):
         svgwriter = file(filename, 'w')
         renderer = RendererSVG(w, h, svgwriter, basename)
 
-        svgwriter.write(svgProlog%(w,h) )
+        svgwriter.write(svgProlog%(w,h))
         self.figure.draw(renderer)
         renderer.finish()
 
@@ -336,7 +331,7 @@ svgProlog = """<?xml version="1.0" standalone="no"?>
    version="1.0"
    x="0.0"
    y="0.0"
-   width="%f"
-   height="%f"   
+   width="%i"
+   height="%i"   
    id="svg1">
 """
