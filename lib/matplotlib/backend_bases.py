@@ -316,6 +316,9 @@ class RendererBase:
         your text.
         """
         raise NotImplementedError
+
+    def draw_tex(self, gc, x, y, s, prop, angle, ismath='TeX!'):
+        raise NotImplementedError
     
     def flipy(self):
         """return true if y small numbers are top for renderer
