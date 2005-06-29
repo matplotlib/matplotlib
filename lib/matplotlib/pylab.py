@@ -304,14 +304,14 @@ def _shift_string(s):
 def colorbar(tickfmt='%1.1f', cax=None, orientation='vertical'):
     """
     Create a colorbar for current image
-    
+
     tickfmt is a format string to format the colorbar ticks
 
     cax is a colorbar axes instance in which the colorbar will be
     placed.  If None, as default axesd will be created resizing the
     current aqxes to make room for it.  If not None, the supplied axes
     will be used and the other axes positions will be unchanged.
-    
+
     orientation is the colorbar orientation: one of 'vertical' | 'horizontal'
     return value is the colorbar axes instance
     """
@@ -319,7 +319,7 @@ def colorbar(tickfmt='%1.1f', cax=None, orientation='vertical'):
     ret = gcf().colorbar(mappable, tickfmt, cax, orientation)
     draw_if_interactive()
     return ret
-    
+
 def colors():
     """
     This is a do nothing function to provide you with help on how
@@ -472,12 +472,12 @@ def get_current_fig_manager():
 def connect(s, func):
     return get_current_fig_manager().canvas.mpl_connect(s, func)
 if FigureCanvasBase.mpl_connect.__doc__ is not None:
-    connect.__doc__ = FigureCanvasBase.mpl_connect.__doc__
+    connect.__doc__ = _shift_string(FigureCanvasBase.mpl_connect.__doc__)
 
 def disconnect(cid):
     return get_current_fig_manager().canvas.mpl_disconnect(cid)
 if FigureCanvasBase.mpl_disconnect.__doc__ is not None:
-    disconnect.__doc__ = FigureCanvasBase.mpl_disconnect.__doc__
+    disconnect.__doc__ = _shift_string(FigureCanvasBase.mpl_disconnect.__doc__)
 
 def get_plot_commands(): return ( 'axes', 'axis', 'bar', 'boxplot', 'cla', 'clf',
     'close', 'colorbar', 'cohere', 'csd', 'draw', 'errorbar',
@@ -543,7 +543,7 @@ def axis(*v, **kwargs):
         else:
             raise ValueError('Unrecognized string %s to axis; try on or off' % s)
         ax  = gca()
-        xmin, xmax = ax.get_xlim() 
+        xmin, xmax = ax.get_xlim()
         ymin, ymax = ax.get_ylim()
         draw_if_interactive()
         return xmin, xmax, ymin, ymax
@@ -558,8 +558,8 @@ def axis(*v, **kwargs):
     v = v[0]
     if len(v) != 4:
         raise ValueError('v must contain [xmin xmax ymin ymax]')
-    
-    
+
+
     gca().set_xlim([v[0], v[1]])
     gca().set_ylim([v[2], v[3]])
     draw_if_interactive()
@@ -714,7 +714,7 @@ def figtext(*args, **kwargs):
     draw_if_interactive()
     return ret
 if Figure.text.__doc__ is not None:
-    figtext.__doc__ = Figure.text.__doc__
+    figtext.__doc__ = _shift_string(Figure.text.__doc__)
 
 def figimage(*args, **kwargs):
     # allow callers to override the hold state by passing hold=True|False
@@ -723,7 +723,7 @@ def figimage(*args, **kwargs):
     gci._current = ret
     return ret
 if Figure.figimage.__doc__ is not None:
-    figimage.__doc__ = Figure.figimage.__doc__ + """
+    figimage.__doc__ = _shift_string(Figure.figimage.__doc__) + """
 Addition kwargs: hold = [True|False] overrides default hold state"""
 
 def figlegend(handles, labels, loc, **kwargs):
@@ -750,7 +750,7 @@ def savefig(*args, **kwargs):
     fig = gcf()
     return fig.savefig(*args, **kwargs)
 if Figure.savefig.__doc__ is not None:
-    savefig.__doc__ = Figure.savefig.__doc__
+    savefig.__doc__ = _shift_string(Figure.savefig.__doc__)
 
 
 def figure(num=None, # autoincrement if None, else integer from 1-N
@@ -884,7 +884,7 @@ def isinteractive():
 def imread(*args, **kwargs):
     return _imread(*args, **kwargs)
 if _imread.__doc__ is not None:
-    imread.__doc__ = _imread.__doc__
+    imread.__doc__ = _shift_string(_imread.__doc__)
 
 
 def load(fname,comments='%',delimiter=None):
@@ -916,9 +916,9 @@ def load(fname,comments='%',delimiter=None):
 
     comments is the character used to indicate the start of a comment
     in the file
-    
+
     delimiter is a string-like character used to seperate values in the
-    file. If delimiter is unspecified or none, any whitespace string is 
+    file. If delimiter is unspecified or none, any whitespace string is
     a separator.
 
     """
@@ -954,13 +954,13 @@ def load(fname,comments='%',delimiter=None):
 def rc(*args, **kwargs):
     matplotlib.rc(*args, **kwargs)
 if matplotlib.rc.__doc__ is not None:
-    rc.__doc__ =   matplotlib.rc.__doc__
+    rc.__doc__ =  _shift_string(matplotlib.rc.__doc__)
 
 def rcdefaults():
     matplotlib.rcdefaults()
     draw_if_interactive()
 if matplotlib.rcdefaults.__doc__ is not None:
-    rcdefaults.__doc__ =   matplotlib.rcdefaults.__doc__
+    rcdefaults.__doc__ =   _shift_string(matplotlib.rcdefaults.__doc__)
 
 def save(fname, X, fmt='%.18e'):
     """
@@ -1516,14 +1516,14 @@ def subplots_adjust(*args, **kwargs):
       bottom = 0.1   # the bottom of the subplots of the figure
       top = 0.9      # the top of the subplots of the figure
       wspace = 0.2   # the amount of width reserved for blank space between subplots
-      hspace = 0.2   # the amount of height reserved for white space between subplots        
+      hspace = 0.2   # the amount of height reserved for white space between subplots
 
-    The actual defaults are controlled by the rc file    
+    The actual defaults are controlled by the rc file
     """
     fig = gcf()
     fig.subplots_adjust(*args, **kwargs)
     draw_if_interactive()
-    
+
 
 def subplot_tool(targetfig=None):
     """
@@ -1541,14 +1541,14 @@ def subplot_tool(targetfig=None):
         for manager in _pylab_helpers.Gcf._activeQue:
             if manager.canvas.figure==targetfig: break
         else: raise RuntimeError('Could not find manager for targetfig')
-    
+
     toolfig = figure(figsize=(6,3))
     toolfig.subplots_adjust(top=0.9)
     ret =  SubplotTool(targetfig, toolfig)
     rcParams['toolbar'] = tbar
     _pylab_helpers.Gcf.set_active(manager)  # restore the current figure
     return ret
-    
+
 ### The following functions were autogenerated by the boilerplate.py
 ### script.  They are simple wrappers around the Axes methods of the
 
@@ -1566,7 +1566,7 @@ def axhline(*args, **kwargs):
     except:
         hold(b)
         raise
-    
+
     hold(b)
     return ret
 if Axes.axhline.__doc__ is not None:
@@ -1587,7 +1587,7 @@ def axhspan(*args, **kwargs):
     except:
         hold(b)
         raise
-    
+
     hold(b)
     return ret
 if Axes.axhspan.__doc__ is not None:
@@ -1608,7 +1608,7 @@ def axvline(*args, **kwargs):
     except:
         hold(b)
         raise
-    
+
     hold(b)
     return ret
 if Axes.axvline.__doc__ is not None:
@@ -1629,7 +1629,7 @@ def axvspan(*args, **kwargs):
     except:
         hold(b)
         raise
-    
+
     hold(b)
     return ret
 if Axes.axvspan.__doc__ is not None:
@@ -1650,7 +1650,7 @@ def bar(*args, **kwargs):
     except:
         hold(b)
         raise
-    
+
     hold(b)
     return ret
 if Axes.bar.__doc__ is not None:
@@ -1671,7 +1671,7 @@ def barh(*args, **kwargs):
     except:
         hold(b)
         raise
-    
+
     hold(b)
     return ret
 if Axes.barh.__doc__ is not None:
@@ -1692,7 +1692,7 @@ def boxplot(*args, **kwargs):
     except:
         hold(b)
         raise
-    
+
     hold(b)
     return ret
 if Axes.boxplot.__doc__ is not None:
@@ -1713,7 +1713,7 @@ def cohere(*args, **kwargs):
     except:
         hold(b)
         raise
-    
+
     hold(b)
     return ret
 if Axes.cohere.__doc__ is not None:
@@ -1797,7 +1797,7 @@ def csd(*args, **kwargs):
     except:
         hold(b)
         raise
-    
+
     hold(b)
     return ret
 if Axes.csd.__doc__ is not None:
@@ -1818,7 +1818,7 @@ def errorbar(*args, **kwargs):
     except:
         hold(b)
         raise
-    
+
     hold(b)
     return ret
 if Axes.errorbar.__doc__ is not None:
@@ -1839,7 +1839,7 @@ def fill(*args, **kwargs):
     except:
         hold(b)
         raise
-    
+
     hold(b)
     return ret
 if Axes.fill.__doc__ is not None:
@@ -1860,7 +1860,7 @@ def hist(*args, **kwargs):
     except:
         hold(b)
         raise
-    
+
     hold(b)
     return ret
 if Axes.hist.__doc__ is not None:
@@ -1881,7 +1881,7 @@ def hlines(*args, **kwargs):
     except:
         hold(b)
         raise
-    
+
     hold(b)
     return ret
 if Axes.hlines.__doc__ is not None:
@@ -1923,7 +1923,7 @@ def loglog(*args, **kwargs):
     except:
         hold(b)
         raise
-    
+
     hold(b)
     return ret
 if Axes.loglog.__doc__ is not None:
@@ -1965,7 +1965,7 @@ def pcolor_classic(*args, **kwargs):
     except:
         hold(b)
         raise
-    
+
     hold(b)
     return ret
 if Axes.pcolor_classic.__doc__ is not None:
@@ -1986,7 +1986,7 @@ def pie(*args, **kwargs):
     except:
         hold(b)
         raise
-    
+
     hold(b)
     return ret
 if Axes.pie.__doc__ is not None:
@@ -2007,7 +2007,7 @@ def plot(*args, **kwargs):
     except:
         hold(b)
         raise
-    
+
     hold(b)
     return ret
 if Axes.plot.__doc__ is not None:
@@ -2028,7 +2028,7 @@ def plot_date(*args, **kwargs):
     except:
         hold(b)
         raise
-    
+
     hold(b)
     return ret
 if Axes.plot_date.__doc__ is not None:
@@ -2049,7 +2049,7 @@ def psd(*args, **kwargs):
     except:
         hold(b)
         raise
-    
+
     hold(b)
     return ret
 if Axes.psd.__doc__ is not None:
@@ -2091,7 +2091,7 @@ def scatter_classic(*args, **kwargs):
     except:
         hold(b)
         raise
-    
+
     hold(b)
     return ret
 if Axes.scatter_classic.__doc__ is not None:
@@ -2112,7 +2112,7 @@ def semilogx(*args, **kwargs):
     except:
         hold(b)
         raise
-    
+
     hold(b)
     return ret
 if Axes.semilogx.__doc__ is not None:
@@ -2133,7 +2133,7 @@ def semilogy(*args, **kwargs):
     except:
         hold(b)
         raise
-    
+
     hold(b)
     return ret
 if Axes.semilogy.__doc__ is not None:
@@ -2175,7 +2175,7 @@ def spy(*args, **kwargs):
     except:
         hold(b)
         raise
-    
+
     hold(b)
     return ret
 if Axes.spy.__doc__ is not None:
@@ -2217,7 +2217,7 @@ def stem(*args, **kwargs):
     except:
         hold(b)
         raise
-    
+
     hold(b)
     return ret
 if Axes.stem.__doc__ is not None:
@@ -2238,7 +2238,7 @@ def vlines(*args, **kwargs):
     except:
         hold(b)
         raise
-    
+
     hold(b)
     return ret
 if Axes.vlines.__doc__ is not None:
@@ -2259,7 +2259,7 @@ def quiver(*args, **kwargs):
     except:
         hold(b)
         raise
-    
+
     hold(b)
     return ret
 if Axes.quiver.__doc__ is not None:

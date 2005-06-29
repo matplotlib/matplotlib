@@ -823,6 +823,27 @@ The current aspect ration will be kept."""
         dlg.Destroy()
         return
 
+    def Printer_Setup2(self, event=None):
+        """set up figure for printing.  Using the standard wx Printer
+        Setup Dialog. """
+
+        if hasattr(self, 'printerData'):
+            data = wx.PageSetupDialogData()
+            data.SetPrintData(self.printerData)
+        else:
+            data = wx.PageSetupDialogData()
+        data.SetMarginTopLeft( (15, 15) )
+        data.SetMarginBottomRight( (15, 15) )
+
+        dlg = wx.PageSetupDialog(self, data)
+
+        if dlg.ShowModal() == wx.ID_OK:
+            data = dlg.GetPageSetupData()
+            tl = data.GetMarginTopLeft()
+            br = data.GetMarginBottomRight()
+        self.printerData = wx.PrintData(data.GetPrintData())
+        dlg.Destroy()
+
     def Printer_Preview(self, event=None):
         """ generate Print Preview with wx Print mechanism"""
         po1  = PrintoutWx(self, width=self.printer_width,

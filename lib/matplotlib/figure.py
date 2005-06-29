@@ -18,7 +18,7 @@ from ticker import FormatStrFormatter
 
 class SubplotParams:
     """
-    A class to hold the parameters for a subplot    
+    A class to hold the parameters for a subplot
     """
     def __init__(self, left=None, bottom=None, right=None, top=None,
                  wspace=None, hspace=None):
@@ -27,13 +27,13 @@ class SubplotParams:
         All values default to their rc params
 
         The following attributes are available:
-        
+
         left : the left side of the subplots of the figure
         right : the right side of the subplots of the figure
         bottom : the bottom of the subplots of the figure
         top : the top of the subplots of the figure
         wspace : the amount of width reserved for blank space between subplots
-        hspace : the amount of height reserved for white space between subplots                
+        hspace : the amount of height reserved for white space between subplots
 
         validate : make sure the params are in a legal state
         (left<right, etc)
@@ -55,14 +55,14 @@ class SubplotParams:
         thisbottom = getattr(self, 'bottom', None)
         thiswspace = getattr(self, 'wspace', None)
         thishspace = getattr(self, 'hspace', None)
-        
-            
+
+
         self._update_this('left', left)
         self._update_this('right', right)
         self._update_this('bottom', bottom)
         self._update_this('top', top)
         self._update_this('wspace', wspace)
-        self._update_this('hspace', hspace)                        
+        self._update_this('hspace', hspace)
 
         def reset():
             self.left = thisleft
@@ -81,7 +81,7 @@ class SubplotParams:
                 reset()
                 raise ValueError('bottom cannot be >= top')
 
-        
+
 
     def _update_this(self, s, val):
         if val is None:
@@ -89,12 +89,12 @@ class SubplotParams:
             if val is None:
                 key = 'figure.subplot.' + s
                 val = rcParams[key]
-                
+
         setattr(self, s, val)
-            
-        
+
+
 class Figure(Artist):
-    
+
     def __init__(self,
                  figsize   = None,  # defaults to rc figure.figsize
                  dpi       = None,  # defaults to rc figure.dpi
@@ -113,13 +113,13 @@ class Figure(Artist):
         #self.set_figure(self)
         self._axstack = Stack()  # maintain the current axes
         self._axobservers = []
-        self._seen = {}          # axes args we've seen        
+        self._seen = {}          # axes args we've seen
 
         if figsize is None  : figsize   = rcParams['figure.figsize']
         if dpi is None      : dpi       = rcParams['figure.dpi']
         if facecolor is None: facecolor = rcParams['figure.facecolor']
         if edgecolor is None: edgecolor = rcParams['figure.edgecolor']
-        
+
         self.dpi = Value(dpi)
         self.figwidth = Value(figsize[0])
         self.figheight = Value(figsize[1])
@@ -128,11 +128,11 @@ class Figure(Artist):
                          self.figheight*self.dpi )
         self.bbox = Bbox(self.ll, self.ur)
         self.frameon = frameon
-        
-        self.transFigure = get_bbox_transform( unit_bbox(), self.bbox) 
+
+        self.transFigure = get_bbox_transform( unit_bbox(), self.bbox)
 
 
-        
+
         self.figurePatch = Rectangle(
             xy=(0,0), width=1, height=1,
             facecolor=facecolor, edgecolor=edgecolor,
@@ -145,20 +145,21 @@ class Figure(Artist):
 
         if subplotpars is None:
             subplotpars = SubplotParams()
-            
+
         self.subplotpars = subplotpars
 
         self.clf()
 
         self._cachedRenderer = None
-        
-    def set_canvas(self, canvas):
-        """\
-Set the canvas the contains the figure
 
-ACCEPTS: a FigureCanvas instance"""
+    def set_canvas(self, canvas):
+        """
+        Set the canvas the contains the figure
+
+        ACCEPTS: a FigureCanvas instance
+        """
         self.canvas = canvas
-        
+
     def hold(self, b=None):
         """
         Set the hold state.  If hold is None (default), toggle the
@@ -177,51 +178,51 @@ ACCEPTS: a FigureCanvas instance"""
                  yo=0,
                  alpha=1.0,
                  norm=None,
-                 cmap=None, 
+                 cmap=None,
                  vmin=None,
                  vmax=None,
                  origin=None):
-        """\
-FIGIMAGE(X) # add non-resampled array to figure
+        """
+        FIGIMAGE(X) # add non-resampled array to figure
 
-FIGIMAGE(X, xo, yo) # with pixel offsets
+        FIGIMAGE(X, xo, yo) # with pixel offsets
 
-FIGIMAGE(X, **kwargs) # control interpolation ,scaling, etc
+        FIGIMAGE(X, **kwargs) # control interpolation ,scaling, etc
 
-Add a nonresampled figure to the figure from array X.  xo and yo are
-offsets in pixels
+        Add a nonresampled figure to the figure from array X.  xo and yo are
+        offsets in pixels
 
-X must be a float array
+        X must be a float array
 
-    If X is MxN, assume luminance (grayscale)
-    If X is MxNx3, assume RGB
-    If X is MxNx4, assume RGBA
+            If X is MxN, assume luminance (grayscale)
+            If X is MxNx3, assume RGB
+            If X is MxNx4, assume RGBA
 
-The following kwargs are allowed: 
+        The following kwargs are allowed:
 
-  * cmap is a cm colormap instance, eg cm.jet.  If None, default to
-    the rc image.cmap valuex
+          * cmap is a cm colormap instance, eg cm.jet.  If None, default to
+            the rc image.cmap valuex
 
-  * norm is a matplotlib.colors.normalize instance; default is
-    normalization().  This scales luminance -> 0-1
+          * norm is a matplotlib.colors.normalize instance; default is
+            normalization().  This scales luminance -> 0-1
 
-  * vmin and vmax are used to scale a luminance image to 0-1.  If
-    either is None, the min and max of the luminance values will be
-    used.  Note if you pass a norm instance, the settings for vmin and
-    vmax will be ignored.
+          * vmin and vmax are used to scale a luminance image to 0-1.  If
+            either is None, the min and max of the luminance values will be
+            used.  Note if you pass a norm instance, the settings for vmin and
+            vmax will be ignored.
 
-  * alpha = 1.0 : the alpha blending value
+          * alpha = 1.0 : the alpha blending value
 
-  * origin is either 'upper' or 'lower', which indicates where the [0,0]
-    index of the array is in the upper left or lower left corner of
-    the axes.  Defaults to the rc image.origin value
+          * origin is either 'upper' or 'lower', which indicates where the [0,0]
+            index of the array is in the upper left or lower left corner of
+            the axes.  Defaults to the rc image.origin value
 
-This complements the axes image (Axes.imshow) which will be resampled
-to fit the current axes.  If you want a resampled image to fill the
-entire figure, you can define an Axes with size [0,1,0,1].
+        This complements the axes image (Axes.imshow) which will be resampled
+        to fit the current axes.  If you want a resampled image to fill the
+        entire figure, you can define an Axes with size [0,1,0,1].
 
-A image.FigureImage instance is returned.
-"""        
+        A image.FigureImage instance is returned.
+        """
 
         if not self._hold: self.clf()
 
@@ -233,16 +234,16 @@ A image.FigureImage instance is returned.
         self.images.append(im)
         return im
 
-        
+
     def set_figsize_inches(self, *args):
         """
-Set the figure size in inches
+        Set the figure size in inches
 
-Usage: set_figsize_inches(self, w,h)  OR
-       set_figsize_inches(self, (w,h) )
+        Usage: set_figsize_inches(self, w,h)  OR
+               set_figsize_inches(self, (w,h) )
 
-ACCEPTS: a w,h tuple with w,h in inches
-"""
+        ACCEPTS: a w,h tuple with w,h in inches
+        """
         if len(args)==1:
             w,h = args[0]
         else:
@@ -254,7 +255,7 @@ ACCEPTS: a w,h tuple with w,h in inches
         return self.figwidth.get(), self.figheight.get()
 
     def get_edgecolor(self):
-        'Get the edge color of the Figure rectangle' 
+        'Get the edge color of the Figure rectangle'
         return self.figurePatch.get_edgecolor()
 
     def get_facecolor(self):
@@ -279,44 +280,50 @@ ACCEPTS: a w,h tuple with w,h in inches
 
     def set_edgecolor(self, color):
         """
-Set the edge color of the Figure rectangle
+        Set the edge color of the Figure rectangle
 
-ACCEPTS: any matplotlib color - see help(colors)"""
+        ACCEPTS: any matplotlib color - see help(colors)
+        """
         self.figurePatch.set_edgecolor(color)
 
     def set_facecolor(self, color):
         """
-Set the face color of the Figure rectangle
+        Set the face color of the Figure rectangle
 
-ACCEPTS: any matplotlib color - see help(colors)"""
+        ACCEPTS: any matplotlib color - see help(colors)
+        """
         self.figurePatch.set_facecolor(color)
 
     def set_dpi(self, val):
         """
-Set the dots-per-inch of the figure
+        Set the dots-per-inch of the figure
 
-ACCEPTS: float"""
+        ACCEPTS: float
+        """
         self.dpi.set(val)
 
     def set_figwidth(self, val):
         """
-Set the width of the figure in inches
+        Set the width of the figure in inches
 
-ACCEPTS: float"""
+        ACCEPTS: float
+        """
         self.figwidth.set(val)
 
     def set_figheight(self, val):
         """
-Set the height of the figure in inches
+        Set the height of the figure in inches
 
-ACCEPTS: float"""
+        ACCEPTS: float
+        """
         self.figheight.set(val)
 
     def set_frameon(self, b):
         """
-Set whether the figure frame (background) is displayed or invisible
+        Set whether the figure frame (background) is displayed or invisible
 
-ACCEPTS: boolean"""
+        ACCEPTS: boolean
+        """
         self.frameon = b
 
     def delaxes(self, a):
@@ -326,8 +333,8 @@ ACCEPTS: boolean"""
         keys = []
         for key, thisax in self._seen.items():
             if a==thisax: del self._seen[key]
-        for func in self._axobservers: func(self)        
-            
+        for func in self._axobservers: func(self)
+
 
 
     def _make_key(self, *args, **kwargs):
@@ -354,38 +361,38 @@ ACCEPTS: boolean"""
 
     def add_axes(self, *args, **kwargs):
         """
-Add an a axes with axes rect [left, bottom, width, height] where all
-quantities are in fractions of figure width and height.  kwargs are
-legal Axes kwargs plus"polar" which sets whether to create a polar axes
+        Add an a axes with axes rect [left, bottom, width, height] where all
+        quantities are in fractions of figure width and height.  kwargs are
+        legal Axes kwargs plus"polar" which sets whether to create a polar axes
 
-    add_axes((l,b,w,h))
-    add_axes((l,b,w,h), frameon=False, axisbg='g')
-    add_axes((l,b,w,h), polar=True)
-    add_axes(ax)   # add an Axes instance
+            add_axes((l,b,w,h))
+            add_axes((l,b,w,h), frameon=False, axisbg='g')
+            add_axes((l,b,w,h), polar=True)
+            add_axes(ax)   # add an Axes instance
 
 
-If the figure already has an axes with key *args, *kwargs then it will
-simply make that axes current and return it.  If you do not want this
-behavior, eg you want to force the creation of a new axes, you must
-use a unique set of args and kwargs.  The artist "label" attribute has
-been exposed for this purpose.  Eg, if you want two axes that are
-otherwise identical to be added to the axes, make sure you give them
-unique labels:
+        If the figure already has an axes with key *args, *kwargs then it will
+        simply make that axes current and return it.  If you do not want this
+        behavior, eg you want to force the creation of a new axes, you must
+        use a unique set of args and kwargs.  The artist "label" attribute has
+        been exposed for this purpose.  Eg, if you want two axes that are
+        otherwise identical to be added to the axes, make sure you give them
+        unique labels:
 
-    add_axes((l,b,w,h), label='1')
-    add_axes((l,b,w,h), label='2')
+            add_axes((l,b,w,h), label='1')
+            add_axes((l,b,w,h), label='2')
 
-The Axes instance will be returned
+        The Axes instance will be returned
         """
 
-	key = self._make_key(*args, **kwargs)
+        key = self._make_key(*args, **kwargs)
 
         if self._seen.has_key(key):
             ax = self._seen[key]
             self.sca(ax)
             return ax
 
-        if not len(args): return        
+        if not len(args): return
         if isinstance(args[0], Axes):
             a = args[0]
             a.set_figure(self)
@@ -396,8 +403,8 @@ The Axes instance will be returned
             if ispolar:
                 a = PolarAxes(self, rect, **kwargs)
             else:
-                a = Axes(self, rect, **kwargs)            
-                
+                a = Axes(self, rect, **kwargs)
+
 
         self.axes.append(a)
         self._axstack.push(a)
@@ -407,30 +414,30 @@ The Axes instance will be returned
 
     def add_subplot(self, *args, **kwargs):
         """
-Add an a subplot.  Examples
+        Add a subplot.  Examples
 
-    add_subplot(111)
-    add_subplot(212, axisbg='r')  # add subplot with red background
-    add_subplot(111, polar=True)  # add a polar subplot
-    add_subplot(sub)              # add Subplot instance sub
-        
-kwargs are legal Axes kwargs plus"polar" which sets whether to create a
-polar axes.  The Axes instance will be returned.
+            add_subplot(111)
+            add_subplot(212, axisbg='r')  # add subplot with red background
+            add_subplot(111, polar=True)  # add a polar subplot
+            add_subplot(sub)              # add Subplot instance sub
 
-If the figure already has a subplot with key *args, *kwargs then it will
-simply make that subplot current and return it
+        kwargs are legal Axes kwargs plus"polar" which sets whether to create a
+        polar axes.  The Axes instance will be returned.
+
+        If the figure already has a subplot with key *args, *kwargs then it will
+        simply make that subplot current and return it
         """
 
-	key = self._make_key(*args, **kwargs)        
+        key = self._make_key(*args, **kwargs)
 
         if self._seen.has_key(key):
             ax = self._seen[key]
             self.sca(ax)
             return ax
-        
-                
-        if not len(args): return        
-        
+
+
+        if not len(args): return
+
         if isinstance(args[0], Subplot) or isinstance(args, PolarSubplot):
             a = args[0]
             a.set_figure(self)
@@ -441,13 +448,13 @@ simply make that subplot current and return it
             else:
                 a = Subplot(self, *args, **kwargs)
 
-        
+
         self.axes.append(a)
         self._axstack.push(a)
         self.sca(a)
         self._seen[key] = a
         return a
-    
+
     def clf(self):
         """
         Clear the figure
@@ -466,14 +473,14 @@ simply make that subplot current and return it
         Clear the figure
         """
         self.clf()
-        
+
     def draw(self, renderer):
         """
         Render the figure using RendererGD instance renderer
         """
         # draw the figure bounding box, perhaps none for white figure
         #print 'figure draw'
-        if not self.get_visible(): return 
+        if not self.get_visible(): return
         renderer.open_group('figure')
         self.transFigure.freeze()  # eval the lazy objects
         if self.frameon: self.figurePatch.draw(renderer)
@@ -518,7 +525,7 @@ simply make that subplot current and return it
         'draw artist only -- this is available only after the figure is drawn'
         assert self._cachedRenderer is not None
         a.draw(self._cachedRenderer)
-            
+
     def get_axes(self):
         return self.axes
 
@@ -529,7 +536,7 @@ simply make that subplot current and return it
         loc can be a string or an integer specifying the legend
         location
 
-        USAGE: 
+        USAGE:
           legend( (line1, line2, line3),
                   ('label1', 'label2', 'label3'),
                   'upper right')
@@ -562,7 +569,7 @@ simply make that subplot current and return it
         self._set_artist_props(l)
         self.legends.append(l)
         return l
-    
+
     def text(self, x, y, s, *args, **kwargs):
         """
         Add text to figure at location x,y (relative 0-1 coords) See
@@ -586,12 +593,12 @@ simply make that subplot current and return it
 
     def gca(self, **kwargs):
         """
-Return the current axes, creating one if necessary
+        Return the current axes, creating one if necessary
         """
         ax = self._axstack()
         if ax is not None: return ax
         return self.add_subplot(111, **kwargs)
-        
+
     def sca(self, a):
         'Set the current axes to be a and return a'
         self._axstack.bubble(a)
@@ -601,30 +608,31 @@ Return the current axes, creating one if necessary
     def add_axobserver(self, func):
         'whenever the axes state change, func(self) will be called'
         self._axobservers.append(func)
-        
+
 
     def savefig(self, *args, **kwargs):
         """
-SAVEFIG(fname, dpi=150, facecolor='w', edgecolor='w',
-orientation='portrait'):
+        SAVEFIG(fname, dpi=150, facecolor='w', edgecolor='w',
+        orientation='portrait'):
 
-Save the current figure to filename fname.  dpi is the resolution
-in dots per inch.
+        Save the current figure to filename fname.  dpi is the resolution
+        in dots per inch.
 
-Output file types currently supported are jpeg and png and will be
-deduced by the extension to fname
+        Output file types currently supported are jpeg and png and will be
+        deduced by the extension to fname
 
-facecolor and edgecolor are the colors os the figure rectangle
+        facecolor and edgecolor are the colors os the figure rectangle
 
-orientation is either 'landscape' or 'portrait' - not supported on
-all backends; currently only on postscript output."""
-    
+        orientation is either 'landscape' or 'portrait' - not supported on
+        all backends; currently only on postscript output.
+        """
+
         for key in ('dpi', 'facecolor', 'edgecolor'):
             if not kwargs.has_key(key):
                 kwargs[key] = rcParams['savefig.%s'%key]
 
         self.canvas.print_figure(*args, **kwargs)
-    
+
 
     def colorbar(self, mappable, tickfmt='%1.1f', cax=None, orientation='vertical'):
         """
@@ -687,7 +695,7 @@ all backends; currently only on postscript output."""
             extent=(cmin, cmax, 0, 1)
         coll = cax.imshow(C,
                           interpolation='nearest',
-                          #interpolation='bilinear', 
+                          #interpolation='bilinear',
                           origin='lower',
                           cmap=cmap, norm=norm,
                           extent=extent)
@@ -708,18 +716,18 @@ all backends; currently only on postscript output."""
 
     def subplots_adjust(self, *args, **kwargs):
         """
-        fig.subplots_adjust(left=None, bottom=None, right=None, wspace=None, hspace=None):        
+        fig.subplots_adjust(left=None, bottom=None, right=None, wspace=None, hspace=None):
         Update the SubplotParams with kwargs (defaulting to rc where
         None) and update the subplot locations
         """
-        self.subplotpars.update(*args, **kwargs)        
+        self.subplotpars.update(*args, **kwargs)
         import matplotlib.axes
         for ax in self.axes:
             if not isinstance(ax, matplotlib.axes.Subplot): continue
             ax.update_params()
             ax.set_position([ax.figLeft, ax.figBottom, ax.figW, ax.figH])
-            
-                
+
+
 
 def figaspect(arr):
     """
