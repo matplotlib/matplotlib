@@ -17,10 +17,10 @@ class Patch(Artist):
     """
     zorder = 1
     def __init__(self,
-                 edgecolor=None,   
+                 edgecolor=None,
                  facecolor=None,
                  linewidth=None,
-                 antialiased = None, 
+                 antialiased = None,
                  fill=1,
                  **kwargs
                  ):
@@ -34,7 +34,7 @@ class Patch(Artist):
         self._edgecolor = edgecolor
         self._facecolor = facecolor
         self._linewidth = linewidth
-        self._antialiased = antialiased        
+        self._antialiased = antialiased
         self.fill = fill
 
 
@@ -47,8 +47,8 @@ class Patch(Artist):
         self.set_linewidth(other.get_linewidth())
         self.set_transform(other.get_transform())
         self.set_figure(other.get_figure())
-        self.set_alpha(other.get_alpha())                
-        
+        self.set_alpha(other.get_alpha())
+
     def get_antialiased(self):
         return self._antialiased
 
@@ -57,58 +57,58 @@ class Patch(Artist):
 
     def get_facecolor(self):
         return self._facecolor
-        
+
     def get_linewidth(self):
         return self._linewidth
 
     def set_antialiased(self, aa):
         """
-Set whether to use antialiased rendering
+        Set whether to use antialiased rendering
 
-ACCEPTS: [True | False]
-"""
+        ACCEPTS: [True | False]
+        """
         self._antialiased = aa
 
     def set_edgecolor(self, color):
         """
-Set the patch edge color
+        Set the patch edge color
 
-ACCEPTS: any matplotlib color - see help(colors)
-"""
+        ACCEPTS: any matplotlib color - see help(colors)
+        """
         self._edgecolor = color
 
     def set_facecolor(self, color):
         """
-Set the patch face color
+        Set the patch face color
 
-ACCEPTS: any matplotlib color - see help(colors)
-"""
+        ACCEPTS: any matplotlib color - see help(colors)
+        """
         self._facecolor = color
 
     def set_linewidth(self, w):
         """
-Set the patch linewidth in points
+        Set the patch linewidth in points
 
-ACCEPTS: float
-"""
+        ACCEPTS: float
+        """
         self._linewidth = w
 
     def set_fill(self, b):
         """
-Set whether to fill the patch
+        Set whether to fill the patch
 
-ACCEPTS: [True | False]
-"""
+        ACCEPTS: [True | False]
+        """
         self.fill = b
 
     def get_fill(self):
         'return whether fill is set'
         return self.fill
 
-     
-        
+
+
     def draw(self, renderer):
-        if not self.get_visible(): return 
+        if not self.get_visible(): return
         #renderer.open_group('patch')
         gc = renderer.new_gc()
         gc.set_foreground(self._edgecolor)
@@ -122,13 +122,13 @@ ACCEPTS: [True | False]
         if not self.fill or self._facecolor is None: rgbFace = None
         else: rgbFace = colorConverter.to_rgb(self._facecolor)
 
-        verts = self.get_verts()        
+        verts = self.get_verts()
         tverts = self._transform.seq_xy_tups(verts)
         renderer.draw_polygon(gc, rgbFace, tverts)
 
- 
+
         #renderer.close_group('patch')
-        
+
     def get_verts(self):
         """
         Return the vertices of the patch
@@ -145,12 +145,12 @@ ACCEPTS: [True | False]
     def set_lw(self, val):
         'alias for set_linewidth'
         self.set_linewidth(val)
-    
+
 
     def set_ec(self, val):
         'alias for set_edgecolor'
         self.set_edgecolor(val)
-    
+
 
     def set_fc(self, val):
         'alias for set_facecolor'
@@ -160,17 +160,17 @@ ACCEPTS: [True | False]
     def get_aa(self):
         'alias for get_antialiased'
         return self.get_antialiased()
-    
+
 
     def get_lw(self):
         'alias for get_linewidth'
         return self.get_linewidth()
-    
+
 
     def get_ec(self):
         'alias for get_edgecolor'
         return self.get_edgecolor()
-    
+
 
     def get_fc(self):
         'alias for get_facecolor'
@@ -179,17 +179,17 @@ ACCEPTS: [True | False]
 class Shadow(Patch):
     def __init__(self, patch, ox, oy, props=None):
         """
-Create a shadow of the patch offset by ox, oy.  props, if not None is
-a patch property update dictionary.  If None, the shadow will have
-have the same color as the face, but darkened
-"""
+        Create a shadow of the patch offset by ox, oy.  props, if not None is
+        a patch property update dictionary.  If None, the shadow will have
+        have the same color as the face, but darkened
+        """
         Patch.__init__(self)
         self.ox, self.oy = ox, oy
         self.patch = patch
         self.props = props
         self._update()
 
-    def _update(self):        
+    def _update(self):
         self.update_from(self.patch)
         if self.props is not None:
             self.update(self.props)
@@ -202,7 +202,7 @@ have the same color as the face, but darkened
 
             self.set_facecolor((r,g,b))
             self.set_edgecolor((r,g,b))
-                   
+
     def get_verts(self):
         verts = self.patch.get_verts()
         xs = [x+self.ox for x,y in verts]
@@ -231,7 +231,7 @@ class Rectangle(Patch):
         fill is a boolean indicating whether to fill the rectangle
 
         """
-                     
+
         Patch.__init__(self, **kwargs)
 
         self.xy  = array(xy, Float)
@@ -245,7 +245,7 @@ class Rectangle(Patch):
         return ( (x, y), (x, y+self.height),
                  (x+self.width, y+self.height), (x+self.width, y),
                  )
-        
+
     def get_x(self):
         "Return the left coord of the rectangle"
         return self.xy[0]
@@ -264,42 +264,42 @@ class Rectangle(Patch):
 
     def set_x(self, x):
         """
-Set the left coord of the rectangle
+        Set the left coord of the rectangle
 
-ACCEPTS: float
-"""     
+        ACCEPTS: float
+        """
         self.xy[0] = x
 
     def set_y(self, y):
         """
-Set the bottom coord of the rectangle
+        Set the bottom coord of the rectangle
 
-ACCEPTS: float
-"""
+        ACCEPTS: float
+        """
         self.xy[1] = y
 
     def set_width(self, w):
         """
-Set the width rectangle
+        Set the width rectangle
 
-ACCEPTS: float
-"""
+        ACCEPTS: float
+        """
         self.width = w
 
     def set_height(self, h):
         """
-Set the width rectangle
+        Set the width rectangle
 
-ACCEPTS: float
-"""
+        ACCEPTS: float
+        """
         self.height = h
 
     def set_bounds(self, *args):
         """
-Set the bounds of the rectangle: l,b,w,h
+        Set the bounds of the rectangle: l,b,w,h
 
-ACCEPTS: (left, bottom, width, height)
-"""
+        ACCEPTS: (left, bottom, width, height)
+        """
         if len(args)==0:
             l,b,w,h = args[0]
         else:
@@ -308,7 +308,7 @@ ACCEPTS: (left, bottom, width, height)
         self.width = w
         self.height = h
 
-    
+
 class RegularPolygon(Patch):
     """
     A regular polygon patch.  xy is a length 2 tuple (the center)
@@ -333,7 +333,7 @@ class RegularPolygon(Patch):
         r = self.radius
         xs = self.xy[0] + r*cos(theta)
         ys = self.xy[1] + r*sin(theta)
-        
+
         self.verts = zip(xs, ys)
 
     def get_verts(self):
@@ -352,8 +352,8 @@ class Polygon(Patch):
     def get_verts(self):
         return self.xy
 
-        
-              
+
+
 
 class Wedge(Polygon):
     def __init__(self, center, r, theta1, theta2,
@@ -362,7 +362,7 @@ class Wedge(Polygon):
         Draw a wedge centered at x,y tuple center with radius r that
         sweeps theta1 to theta2 (angles)
 
-        
+
         kwargs are Polygon keyword args
 
         dtheta is the resolution in degrees
@@ -398,7 +398,7 @@ class Arrow(Polygon):
         M = array( [ [ cx, sx],[ -sx, cx ] ] )
         verts = matrixmultiply( arrow, M )+ [x,y]
         Polygon.__init__( self, [ tuple(t) for t in verts ], **kwargs )
-        
+
 
 class Circle(RegularPolygon):
     """
@@ -415,7 +415,7 @@ class Circle(RegularPolygon):
                                 radius,
                                 orientation=0,
                                 **kwargs)
-        
+
 def bbox_artist(artist, renderer, props=None, fill=True):
     """
     This is a debug function to draw a rectangle around the bounding
@@ -443,7 +443,7 @@ def bbox_artist(artist, renderer, props=None, fill=True):
     r.set_clip_on( False )
     r.update(props)
     r.draw(renderer)
-    
+
 
 def draw_bbox(bbox, renderer, color='k', trans=None):
     """
@@ -453,8 +453,8 @@ def draw_bbox(bbox, renderer, color='k', trans=None):
     """
 
     l,b,w,h = bbox.get_bounds()
-    r = Rectangle(xy=(l,b), 
-                  width=w, 
+    r = Rectangle(xy=(l,b),
+                  width=w,
                   height=h,
                   edgecolor=color,
                   fill=False,

@@ -16,7 +16,7 @@ class RendererBase:
     """An abstract base class to handle drawing/rendering operations
     """
 
-    
+
     def open_group(self, s):
         """open a grouping element with label s
         Is only currently used by backend_svg
@@ -28,18 +28,18 @@ class RendererBase:
         Is only currently used by backend_svg
         """
         pass
-    
+
     def draw_arc(self, gcEdge, rgbFace, x, y, width, height, angle1, angle2):
         """
         Draw an arc using GraphicsContext instance gcEdge, centered at x,y,
         with width and height and angles from 0.0 to 360.0
         0 degrees is at 3-o'clock
         positive angles are anti-clockwise
-        
+
         If the color rgbFace is not None, fill the arc with it.
         """
         raise NotImplementedError
-    
+
     def draw_image(self, x, y, im, origin, bbox):
         """
         Draw the Image instance into the current axes; x is the
@@ -62,7 +62,7 @@ class RendererBase:
         backend drawing
 
         path - a matplotlib.agg.path_storage instance
-        
+
         Draw the marker specified in path with graphics context gc at
         each of the locations in arrays x and y.  trans is a
         matplotlib.transforms.Transformation instance used to
@@ -77,7 +77,7 @@ class RendererBase:
         ...backend dependent affine...
         """
         pass
-    
+
     def draw_line_collection(self, segments, transform, clipbox,
                              colors, linewidths, linestyle, antialiaseds,
                              offsets, transOffset):
@@ -96,7 +96,7 @@ class RendererBase:
         transform is used to Transform the lines
 
         clipbox is a  xmin, ymin, width, height clip rect
-        
+
         colors is a tuple of RGBA tuples
 
         linewidths is a tuple of linewidths
@@ -134,7 +134,7 @@ class RendererBase:
             color = colors[i % Nc]
             rgb   = color[0], color[1], color[2]
             alpha = color[-1]
-            
+
             gc.set_foreground(rgb, isRGB=True)
             gc.set_alpha( alpha )
             gc.set_linewidth( linewidths[i % Nlw] )
@@ -148,27 +148,27 @@ class RendererBase:
                 x += xo
                 y += yo
             self.draw_lines(gc, x, y)
-            
+
     def draw_line(self, gc, x1, y1, x2, y2):
         """
         Draw a single line from x1,y1 to x2,y2
         """
         raise NotImplementedError
-    
+
     def draw_lines(self, gc, x, y, transform=None):
         """
         x and y are equal length arrays, draw lines connecting each
         point in x, y
         """
         raise NotImplementedError
-    
+
     def draw_point(self, gc, x, y):
         """
         Draw a single point at x,y
         Where 'point' is a device-unit point (or pixel), not a matplotlib point
         """
         raise NotImplementedError
-    
+
     def draw_poly_collection(
         self, verts, transform, clipbox, facecolors, edgecolors,
         linewidths, antialiaseds, offsets, transOffset):
@@ -199,7 +199,7 @@ class RendererBase:
         if clipbox is not None: gc.set_clip_rectangle(clipbox.get_bounds())
 
         for i in xrange(N):
-            
+
             rf,gf,bf,af = facecolors[i % Nface]
             re,ge,be,ae = edgecolors[i % Nedge]
             if af==0: rgbFace = None
@@ -207,7 +207,7 @@ class RendererBase:
             # the draw_poly interface can't handle separate alphas for
             # edge and face so we'll just use the maximum
             alpha = max(af,ae)
-            
+
             gc.set_foreground( (re,ge,be), isRGB=True)
             gc.set_alpha( alpha )
             gc.set_linewidth( linewidths[i % Nlw] )
@@ -228,9 +228,9 @@ class RendererBase:
         giving the x,y coords a vertex
 
         If the color rgbFace is not None, fill the polygon with it
-        """  
+        """
         raise NotImplementedError
-    
+
     def draw_rectangle(self, gcEdge, rgbFace, x, y, width, height):
         """
         Draw a non-filled rectangle using the GraphicsContext instance gcEdge,
@@ -239,7 +239,7 @@ class RendererBase:
         If rgbFace is not None, fill the rectangle with it.
         """
         raise NotImplementedError
-    
+
     def draw_regpoly_collection(
         self, clipbox, offsets, transOffset, verts, sizes,
         facecolors, edgecolors, linewidths, antialiaseds):
@@ -265,7 +265,7 @@ class RendererBase:
         xverts, yverts = zip(*verts)
         xverts = asarray(xverts)
         yverts = asarray(yverts)
-                   
+
         Nface  = len(facecolors)
         Nedge  = len(edgecolors)
         Nlw    = len(linewidths)
@@ -287,17 +287,17 @@ class RendererBase:
             else:
                 rgbFace = rf,gf,bf
             # the draw_poly interface can't handle separate alphas for
-            # edge and face so we'll just use 
+            # edge and face so we'll just use
             alpha = max(af,ae)
-            
+
             gc.set_foreground( (re,ge,be), isRGB=True)
             gc.set_alpha( alpha )
             gc.set_linewidth( linewidths[i % Nlw] )
             gc.set_antialiased( antialiaseds[i % Naa] )
-            
+
             #print 'verts', zip(thisxverts, thisyverts)
             self.draw_polygon(gc, rgbFace, zip(thisxverts, thisyverts))
-        
+
 
     def draw_text(self, gc, x, y, s, prop, angle, ismath=False):
         """
@@ -305,7 +305,7 @@ class RendererBase:
         properties instance prop at angle in degrees, using GraphicsContext gc
 
         **backend implementers note**
-        
+
         When you are trying to determine if you have gotten your bounding box
         right (which is what enables the text layout/alignment to work
         properly), it helps to change the line in text.py
@@ -319,7 +319,7 @@ class RendererBase:
 
     def draw_tex(self, gc, x, y, s, prop, angle, ismath='TeX!'):
         raise NotImplementedError
-    
+
     def flipy(self):
         """return true if y small numbers are top for renderer
         Is used for drawing text (text.py) and images (image.py) only
@@ -342,7 +342,7 @@ class RendererBase:
         with FontPropertry prop
         """
         return 1,1
-    
+
     def new_gc(self):
         """
         Return an instance of a GraphicsContextBase
@@ -354,17 +354,17 @@ class RendererBase:
         Convert points to display units
         points - a float or a numerix array of float
         return points converted to pixels
-        
+
         You need to override this function (unless your backend doesn't have a
         dpi, eg, postscript or svg).
         Some imaging systems assume some value for pixels per inch.
         points to pixels = points * pixels_per_inch/72.0 * dpi/72.0
         """
-        return points  
-        
+        return points
+
     def strip_math(self, s):
         return strip_math(s)
-              
+
 
 class GraphicsContextBase:
     """An abstract base class that provides color, line styles, etc...
@@ -388,7 +388,7 @@ class GraphicsContextBase:
         self._linestyle = 'solid'
         self._linewidth = 1
         self._rgb = (0.0, 0.0, 0.0)
-    
+
     def copy_properties(self, gc):
         'Copy properties from gc to self'
         self._alpha = gc._alpha
@@ -400,7 +400,7 @@ class GraphicsContextBase:
         self._linestyle = gc._linestyle
         self._linewidth = gc._linewidth
         self._rgb = gc._rgb
-        
+
     def get_alpha(self):
         """
         Return the alpha value used for blending - not supported on
@@ -443,7 +443,7 @@ class GraphicsContextBase:
     def get_linestyle(self, style):
         """
         Return the linestyle: one of ('solid', 'dashed', 'dashdot',
-        'dotted').  
+        'dotted').
         """
         return self._linestyle
 
@@ -499,7 +499,7 @@ class GraphicsContextBase:
         (None, None) specifies a solid line
         """
         self._dashes = dash_offset, dash_list
-    
+
     def set_foreground(self, fg, isRGB=False):
         """
         Set the foreground color.  fg can be a matlab format string, a
@@ -520,7 +520,7 @@ class GraphicsContextBase:
         Set the foreground color to be a gray level with frac frac
         """
         self._rgb = (frac, frac, frac)
-        
+
     def set_joinstyle(self, js):
         """
         Set the join style to be one of ('miter', 'round', 'bevel')
@@ -539,7 +539,7 @@ class GraphicsContextBase:
     def set_linestyle(self, style):
         """
         Set the linestyle to be one of ('solid', 'dashed', 'dashdot',
-        'dotted').  
+        'dotted').
         """
         try:
             offset, dashes = self.dashd[style]
@@ -547,7 +547,7 @@ class GraphicsContextBase:
             raise ValueError('Unrecognized linestyle: %s' % style)
         self._linestyle = style
         self.set_dashes(offset, dashes)
-        
+
 
 class Event:
     """
@@ -556,7 +556,7 @@ class Event:
     shown with their default values
     name                # the event name
     canvas              # the FigureCanvas instance generating the event
-    
+
     """
     def __init__(self, name, canvas,guiEvent=None):
         self.name = name
@@ -565,7 +565,7 @@ class Event:
 
 class LocationEvent(Event):
     """
-    A event that has a screen location 
+    A event that has a screen location
 
     The following additional attributes are defined and shown with
     their default values
@@ -575,7 +575,7 @@ class LocationEvent(Event):
     inaxes = None       # the Axes instance if mouse us over axes
     xdata  = None       # x coord of mouse in data coords
     ydata  = None       # y coord of mouse in data coords
-    
+
     """
     x      = None       # x position - pixels from left of canvas
     y      = None       # y position - pixels from right of canvas
@@ -583,7 +583,7 @@ class LocationEvent(Event):
     inaxes = None       # the Axes instance if mouse us over axes
     xdata  = None       # x coord of mouse in data coords
     ydata  = None       # y coord of mouse in data coords
-    
+
     def __init__(self, name, canvas, x, y,guiEvent=None):
         """
         x, y in figure coords, 0,0 = bottom, left
@@ -596,13 +596,13 @@ class LocationEvent(Event):
         if self.x is None or self.y is None:
             # cannot check if event was in axes if no x,y info
             return
-        
+
         self.inaxes = None
         for a in self.canvas.figure.get_axes():
             if self.x is not None and self.y is not None and a.in_axes(self.x, self.y):
                 self.inaxes = a
                 #self.x, self.y, a.transData.get_funcx().get_type(), a.transData.get_funcy().get_type()
-                
+
                 try: xdata, ydata = a.transData.inverse_xy_tup((self.x, self.y))
                 except ValueError:
                     self.xdata  = None
@@ -628,7 +628,7 @@ class MouseEvent(LocationEvent):
     inaxes = None       # the Axes instance if mouse us over axes
     xdata  = None       # x coord of mouse in data coords
     ydata  = None       # y coord of mouse in data coords
-    
+
     """
     x      = None       # x position - pixels from left of canvas
     y      = None       # y position - pixels from right of canvas
@@ -636,7 +636,7 @@ class MouseEvent(LocationEvent):
     inaxes = None       # the Axes instance if mouse us over axes
     xdata  = None       # x coord of mouse in data coords
     ydata  = None       # y coord of mouse in data coords
-    
+
     def __init__(self, name, canvas, x, y, button=None, key=None,
                  guiEvent=None):
         """
@@ -682,7 +682,7 @@ class FigureCanvasBase:
     """
     events = (
         'key_press_event',
-        'key_release_event',        
+        'key_release_event',
         'button_press_event',
         'button_release_event',
         'motion_notify_event',
@@ -710,10 +710,10 @@ class FigureCanvasBase:
 
     def key_press_event(self, key, guiEvent=None):
         self._key = key
-        event = KeyEvent('key_press_event', self, key, self._lastx, self._lasty, guiEvent=guiEvent)        
+        event = KeyEvent('key_press_event', self, key, self._lastx, self._lasty, guiEvent=guiEvent)
         for cid, func in self.callbacks.get('key_press_event', {}).items():
             func(event)
-            
+
     def key_release_event(self, key, guiEvent=None):
         event = KeyEvent('key_release_event', self, key, self._lastx, self._lasty, guiEvent=guiEvent)
         for cid, func in self.callbacks.get('key_release_event', {}).items():
@@ -737,11 +737,11 @@ class FigureCanvasBase:
         button release.  x,y are the canvas coords: 0,0 is lower, left.
         button and key are as defined in MouseEvent
         """
-        
+
         event = MouseEvent('button_release_event', self, x, y, button, self._key, guiEvent=guiEvent)
         for cid, func in self.callbacks.get('button_release_event', {}).items():
             func(event)
-        self._button = None        
+        self._button = None
 
     def motion_notify_event(self, x, y, guiEvent=None):
         """
@@ -805,10 +805,10 @@ class FigureCanvasBase:
 
         where event is a MplEvent.  The following events are recognized
 
-         'key_press_event' 
-         'button_press_event' 
-         'button_release_event' 
-         'motion_notify_event' 
+         'key_press_event'
+         'button_press_event'
+         'button_release_event'
+         'motion_notify_event'
 
          For the three events above, if the mouse is over the axes,
          the variable event.inaxes will be set to the axes it is over,
@@ -821,7 +821,7 @@ class FigureCanvasBase:
         self.cid += 1
         self.callbacks.setdefault(s, {})[self.cid] = func
         return self.cid
-        
+
     def mpl_disconnect(self, cid):
         """
         Connect s to func. return an id that can be used with disconnect
@@ -852,24 +852,24 @@ class FigureManagerBase:
         self.num = num
 
         self.canvas.mpl_connect('key_press_event', self.key_press)
-        
+
     def destroy(self):
         pass
 
     def key_press(self, event):
 
         # these bindings happen whether you are over an axes or not
-        #if event.key == 'q':  
+        #if event.key == 'q':
         #    self.destroy() # how cruel to have to destroy oneself!
         #    return
-        
+
         if event.inaxes is None: return
-        
+
         # the mouse has to be over an axes to trigger these
-        if event.key == 'g':  
+        if event.key == 'g':
             event.inaxes.grid()
             self.canvas.draw()
-        elif event.key == 'l':  
+        elif event.key == 'l':
             event.inaxes.toggle_log_lineary()
             self.canvas.draw()
 
@@ -909,7 +909,7 @@ class NavigationToolbar2:
 
     * press : (optional) whenever a mouse button is pressed, you'll be
        notified with the event
-    
+
     * release : (optional) whenever a mouse button is released,
        you'll be notified with the event
 
@@ -918,24 +918,24 @@ class NavigationToolbar2:
 
     * set_message (optional) - display message
 
-    * set_history_buttons (optional) - you can change the history 
+    * set_history_buttons (optional) - you can change the history
        back / forward buttons to indicate disabled / enabled state.
-    
+
     That's it, we'll do the rest!
     """
 
     def __init__(self, canvas):
         self.canvas = canvas
-        
+
         # a dict from axes index to a list of view limits
         self._views = Stack()
-        self._xypress = None  # the  location and axis info at the time of the press 
+        self._xypress = None  # the  location and axis info at the time of the press
         self._idPress = None
         self._idRelease = None
         self._active = None
         self._lastCursor = None
         self._init_toolbar()
-        self._idDrag=self.canvas.mpl_connect('motion_notify_event', self.mouse_move)  
+        self._idDrag=self.canvas.mpl_connect('motion_notify_event', self.mouse_move)
         self._button_pressed = None # determined by the button pressed at start
 
         self.mode = ''  # a mode string for the status bar
@@ -944,7 +944,7 @@ class NavigationToolbar2:
     def set_message(self, s):
         'display a message on toolbar or in status bar'
         pass
-    
+
     def back(self, *args):
         'move back up the view lim stack'
         self._views.back()
@@ -953,7 +953,7 @@ class NavigationToolbar2:
 
     def dynamic_update(self):
         pass
-    
+
     def draw_rubberband(self, event, x0, y0, x1, y1):
         'draw a rectangle rubberband to indicate zoom limits'
         pass
@@ -968,7 +968,7 @@ class NavigationToolbar2:
         'restore the original view'
         self._views.home()
         self.set_history_buttons()
-        self._update_view()       
+        self._update_view()
 
     def _init_toolbar(self):
         """
@@ -988,7 +988,7 @@ class NavigationToolbar2:
 
         You only need to define the last one - the others are in the base
         class implementation.
-        
+
         """
         raise NotImplementedError
 
@@ -1021,8 +1021,8 @@ class NavigationToolbar2:
                 self.set_message('%s : %s' % (self.mode, s))
             else:
                 self.set_message(s)
-        else: self.set_message(self.mode)            
-            
+        else: self.set_message(self.mode)
+
     def pan(self,*args):
         'Activate the pan/zoom tool. pan with left button, zoom with right'
         # set the pointer icon and button press funcs to the
@@ -1041,7 +1041,7 @@ class NavigationToolbar2:
             self._idRelease = self.canvas.mpl_disconnect(self._idRelease)
             self.mode = ''
 
-        if self._active:    
+        if self._active:
             self._idPress = self.canvas.mpl_connect(
                 'button_press_event', self.press_pan)
             self._idRelease = self.canvas.mpl_connect(
@@ -1059,9 +1059,9 @@ class NavigationToolbar2:
 
         if event.button == 1:
             self._button_pressed=1
-        elif  event.button == 3: 
+        elif  event.button == 3:
             self._button_pressed=3
-        else: 
+        else:
             self._button_pressed=None
             return
 
@@ -1069,16 +1069,16 @@ class NavigationToolbar2:
 
         # push the current view to define home if stack is empty
         if self._views.empty(): self.push_current()
-        
-            
+
+
         for i, a in enumerate(self.canvas.figure.get_axes()):
             if event.inaxes == a and event.inaxes.get_navigate():
                 xmin, xmax = a.get_xlim()
                 ymin, ymax = a.get_ylim()
                 lim = xmin, xmax, ymin, ymax
                 self._xypress = x, y, a, i, lim,a.transData.deepcopy()
-                self.canvas.mpl_disconnect(self._idDrag)   
-                self._idDrag=self.canvas.mpl_connect('motion_notify_event', self.drag_pan) 
+                self.canvas.mpl_disconnect(self._idDrag)
+                self._idDrag=self.canvas.mpl_connect('motion_notify_event', self.drag_pan)
                 break
 
         self.press(event)
@@ -1087,12 +1087,12 @@ class NavigationToolbar2:
         'the press mouse button in zoom to rect mode callback'
         if event.button == 1:
             self._button_pressed=1
-        elif  event.button == 3: 
+        elif  event.button == 3:
             self._button_pressed=3
-        else: 
+        else:
             self._button_pressed=None
             return
-            
+
         x, y = event.x, event.y
 
         # push the current view to define home if stack is empty
@@ -1117,8 +1117,8 @@ class NavigationToolbar2:
             lims.append( (xmin, xmax, ymin, ymax) )
         self._views.push(lims)
         self.set_history_buttons()
-        
-        
+
+
 
     def release(self, event):
         'this will be called whenever mouse button is released'
@@ -1126,15 +1126,15 @@ class NavigationToolbar2:
 
     def release_pan(self, event):
         'the release mouse button callback in pan/zoom mode'
-        self.canvas.mpl_disconnect(self._idDrag)   
-        self._idDrag=self.canvas.mpl_connect('motion_notify_event', self.mouse_move)   
+        self.canvas.mpl_disconnect(self._idDrag)
+        self._idDrag=self.canvas.mpl_connect('motion_notify_event', self.mouse_move)
         if self._xypress is None: return
         self._xypress = None
         self._button_pressed=None
         self.push_current()
         self.release(event)
         self.draw()
-        
+
     def drag_pan(self, event):
         'the drag callback in pan/zoom mode'
 
@@ -1155,42 +1155,42 @@ class NavigationToolbar2:
                     dy=0
                 elif(abs(dx)>abs(dy)):
                     dy=dy/abs(dy)*abs(dx)
-                else:    
+                else:
                     dx=dx/abs(dx)*abs(dy)
-            return (dx,dy)                
-                    
+            return (dx,dy)
+
         if self._xypress is None: return
         x, y = event.x, event.y
 
         lastx, lasty, a, ind, lim, trans = self._xypress
         xmin, xmax, ymin, ymax = lim
-        #safer to use the recorded buttin at the press than current button: 
-        #multiple button can get pressed during motion...   
-        if self._button_pressed==1: 
+        #safer to use the recorded buttin at the press than current button:
+        #multiple button can get pressed during motion...
+        if self._button_pressed==1:
             lastx, lasty = trans.inverse_xy_tup( (lastx, lasty) )
             x, y = trans.inverse_xy_tup( (x, y) )
             if a.get_xscale()=='log':
                 dx=1-lastx/x
-            else:    
+            else:
                 dx=x-lastx
             if a.get_yscale()=='log':
                 dy=1-lasty/y
-            else:    
+            else:
                 dy=y-lasty
             dx,dy=format_deltas(event,dx,dy)
             if a.get_xscale()=='log':
                 xmin *= 1-dx
                 xmax *= 1-dx
-            else: 
+            else:
                 xmin -= dx
-                xmax -= dx   
+                xmax -= dx
             if a.get_yscale()=='log':
                 ymin *= 1-dy
                 ymax *= 1-dy
             else:
                 ymin -= dy
-                ymax -= dy   
-        elif self._button_pressed==3: 
+                ymax -= dy
+        elif self._button_pressed==3:
             dx=(lastx-x)/float(a.bbox.width())
             dy=(lasty-y)/float(a.bbox.height())
             dx,dy=format_deltas(event,dx,dy)
@@ -1215,14 +1215,14 @@ class NavigationToolbar2:
 
         self.dynamic_update()
 
-          
-            
+
+
     def release_zoom(self, event):
-        'the release mouse button callback in zoom to rect mode'        
+        'the release mouse button callback in zoom to rect mode'
         if self._xypress is None: return
         x, y = event.x, event.y
 
-        
+
         lastx, lasty, a, ind, lim, trans = self._xypress
         # ignore singular clicks - 5 pixels is a threshold
         if abs(x-lastx)<5 or abs(y-lasty)<5:
@@ -1235,41 +1235,41 @@ class NavigationToolbar2:
 
         # zoom to rect
         lastx, lasty = a.transData.inverse_xy_tup( (lastx, lasty) )
-        x, y = a.transData.inverse_xy_tup( (x, y) )  
+        x, y = a.transData.inverse_xy_tup( (x, y) )
         Xmin,Xmax=a.get_xlim()
-        Ymin,Ymax=a.get_ylim()          
+        Ymin,Ymax=a.get_ylim()
 
         if Xmin < Xmax:
             if x<lastx:  xmin, xmax = x, lastx
-            else: xmin, xmax = lastx, x  
+            else: xmin, xmax = lastx, x
             if xmin < Xmin: xmin=Xmin
             if xmax > Xmax: xmax=Xmax
-        else: 
+        else:
             if x>lastx:  xmin, xmax = x, lastx
-            else: xmin, xmax = lastx, x  
+            else: xmin, xmax = lastx, x
             if xmin > Xmin: xmin=Xmin
             if xmax < Xmax: xmax=Xmax
-                
+
         if Ymin < Ymax:
             if y<lasty:  ymin, ymax = y, lasty
-            else: ymin, ymax = lasty, y  
+            else: ymin, ymax = lasty, y
             if ymin < Ymin: ymin=Ymin
             if ymax > Ymax: ymax=Ymax
-        else: 
+        else:
             if y>lasty:  ymin, ymax = y, lasty
-            else: ymin, ymax = lasty, y  
+            else: ymin, ymax = lasty, y
             if ymin > Ymin: ymin=Ymin
             if ymax < Ymax: ymax=Ymax
 
-        if self._button_pressed == 1:  
+        if self._button_pressed == 1:
             a.set_xlim((xmin, xmax))
             a.set_ylim((ymin, ymax))
-        elif self._button_pressed == 3: 
+        elif self._button_pressed == 3:
             if a.get_xscale()=='log':
                 alpha=log(Xmax/Xmin)/log(xmax/xmin)
                 x1=pow(Xmin/xmin,alpha)*Xmin
                 x2=pow(Xmax/xmin,alpha)*Xmin
-            else:    
+            else:
                 alpha=(Xmax-Xmin)/(xmax-xmin)
                 x1=alpha*(Xmin-xmin)+Xmin
                 x2=alpha*(Xmax-xmin)+Xmin
@@ -1277,12 +1277,12 @@ class NavigationToolbar2:
                 alpha=log(Ymax/Ymin)/log(ymax/ymin)
                 y1=pow(Ymin/ymin,alpha)*Ymin
                 y2=pow(Ymax/ymin,alpha)*Ymin
-            else:    
+            else:
                 alpha=(Ymax-Ymin)/(ymax-ymin)
                 y1=alpha*(Ymin-ymin)+Ymin
                 y2=alpha*(Ymax-ymin)+Ymin
             a.set_xlim((x1, x2))
-            a.set_ylim((y1, y2))    
+            a.set_ylim((y1, y2))
 
         self.draw()
         self._xypress = None
@@ -1299,17 +1299,17 @@ class NavigationToolbar2:
             locators = []
             if xaxis is not None:
                 locators.append(xaxis.get_major_locator())
-                locators.append(xaxis.get_minor_locator())                
+                locators.append(xaxis.get_minor_locator())
             if yaxis is not None:
                 locators.append(yaxis.get_major_locator())
-                locators.append(yaxis.get_minor_locator())                
+                locators.append(yaxis.get_minor_locator())
 
             for loc in locators:
                 loc.refresh()
         self.canvas.draw()
-                       
-            
-                                
+
+
+
     def _update_view(self):
         'update the viewlim from the view stack for each axes'
 
@@ -1326,7 +1326,7 @@ class NavigationToolbar2:
     def save_figure(self, *args):
         'save the current figure'
         raise NotImplementedError
-        
+
     def set_cursor(self, cursor):
         """
         Set the current cursor to one of the backend_bases.Cursors
@@ -1353,8 +1353,8 @@ class NavigationToolbar2:
         if self._idRelease is not None:
             self._idRelease=self.canvas.mpl_disconnect(self._idRelease)
             self.mode = ''
-            
-        if  self._active: 
+
+        if  self._active:
             self._idPress = self.canvas.mpl_connect('button_press_event', self.press_zoom)
             self._idRelease = self.canvas.mpl_connect('button_release_event', self.release_zoom)
             self.mode = 'Zoom to rect mode'
