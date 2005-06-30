@@ -1,5 +1,8 @@
 New entries should be added at the top
 
+2005-09-30 setupext.py: added numarray_inc_dirs for building against
+           numarray when not installed in standard location - ADS
+
 2005-06-27 backend_svg.py: write figure width, height as int, not float.
            Update to fix some of the pychecker warnings - SC
   
