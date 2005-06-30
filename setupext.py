@@ -71,6 +71,9 @@ BUILT_GDK       = False
 
 AGG_VERSION = 'agg23'
 
+# for nonstandard installation/build with --prefix variable
+numarray_inc_dirs = ['']
+
 class CleanUpFile:
     """CleanUpFile deletes the specified filename when self is destroyed."""
     def __init__(self, name):
@@ -414,8 +417,8 @@ def build_agg(ext_modules, packages, numerix):
         deps.append('src/_na_backend_agg.cpp')
         module = Extension(
             'matplotlib.backends._na_backend_agg',
-            deps
-            ,
+            deps,
+            include_dirs=numarray_inc_dirs,
             )    
         module.extra_compile_args.append('-DNUMARRAY=1')
         add_agg_flags(module)
@@ -461,8 +464,8 @@ def build_image(ext_modules, packages, numerix):
         deps.extend(glob.glob('CXX/*.c'))
         module = Extension(
             'matplotlib._na_image',
-            deps
-            ,
+            deps,
+            include_dirs=numarray_inc_dirs,
             )    
         module.extra_compile_args.append('-DNUMARRAY=1')
         add_agg_flags(module)
@@ -519,7 +522,7 @@ def build_transforms(ext_modules, packages, numerix):
                              ['src/_na_transforms.cpp',
                               'src/mplutils.cpp'] + cxx,
                              libraries = ['stdc++', 'm'],
-                             include_dirs = ['src', '.'],
+                             include_dirs = ['src', '.']+numarray_inc_dirs,
                              )
         
         module.extra_compile_args.append("-DNUMARRAY=1")
@@ -566,6 +569,7 @@ def build_contour(ext_modules, packages, numerix):
             'matplotlib._na_cntr',
             [  'src/_na_cntr.c',],
             #libraries = ['stdc++'],
+            include_dirs=numarray_inc_dirs,
             )
         module.extra_compile_args.append('-DNUMARRAY=1')
         add_base_flags(module)
@@ -595,6 +599,7 @@ def build_gdk(ext_modules, packages, numerix):
             'matplotlib.backends._na_backend_gdk',
             ['src/_na_backend_gdk.c', ],
             libraries = [],
+            include_dirs=numarray_inc_dirs,
             )
         module.extra_compile_args.append('-DNUMARRAY=1')
         add_base_flags(module)
