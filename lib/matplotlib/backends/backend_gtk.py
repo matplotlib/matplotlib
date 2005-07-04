@@ -20,7 +20,7 @@ from matplotlib.widgets import SubplotTool
 
 from backend_gdk import RendererGDK
 
-pygtk_version_required = (1,99,16)
+pygtk_version_required = (2,0,0)
 try:
     import pygtk
     if not matplotlib.FROZEN:
@@ -31,8 +31,9 @@ except:
                      'the GTK Matplotlib backends'
                      % pygtk_version_required)
 
-import gtk, gobject, pango
-from gtk import gdk
+import gobject
+import gtk; gdk = gtk.gdk
+import pango
 
 if gtk.pygtk_version < pygtk_version_required:
     raise SystemExit ("PyGTK %d.%d.%d is installed\n"
@@ -285,14 +286,14 @@ class FigureCanvasGTK(gtk.DrawingArea, FigureCanvasBase):
             return False
 
         if self._draw_pixmap:
-            width, height = self.allocation.width, self.allocation.height
-            self._render_figure(width, height)
+            x, y, w, h = self.allocation
+            self._render_figure(w, h)
             self.window.set_back_pixmap (self._pixmap, False)
             self.window.clear()  # draw pixmap as the gdk.Window's bg
             self._draw_pixmap = False
         else: # workaround pygtk 2.6 problem - bg not being redrawn
-            self.window.clear_area (event.area.x, event.area.y,
-                                    event.area.width, event.area.height)
+            x, y, w, h = event.area
+            self.window.clear_area (x, y, w, h)
             
         return False # allow signal to propagate further
 
