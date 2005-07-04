@@ -18,18 +18,21 @@ from matplotlib.figure import Figure
 from matplotlib.font_manager import fontManager
 from matplotlib.mathtext import math_parse_s_ft2font
 
-pygtk_version_required = (1,99,16)
+pygtk_version_required = (2,0,0)
 try:
     import pygtk
     if not matplotlib.FROZEN:
         pygtk.require('2.0')
 except:
     print >> sys.stderr, sys.exc_info()[1]
-    raise SystemExit('PyGTK version %d.%d.%d or greater is required to run the GTK Matplotlib backends'
+    raise SystemExit('PyGTK version %d.%d.%d or greater is required to run '
+                     'the GTK Matplotlib backends'
                      % pygtk_version_required)
 
-import gtk, pango
-from gtk import gdk
+import gobject
+import gtk; gdk = gtk.gdk
+import pango
+
 if gtk.pygtk_version < pygtk_version_required:
     raise SystemExit ("PyGTK %d.%d.%d is installed\n"
                       "PyGTK %d.%d.%d or later is required"
@@ -149,7 +152,7 @@ class RendererGDK(RendererBase):
                                    int(x2), self.height-int(y2))
 
 
-    def draw_lines(self, gc, x, y):
+    def draw_lines(self, gc, x, y, transform=None):
         x = x.astype(nx.Int16)
         y = self.height - y.astype(nx.Int16)  
         self.gdkDrawable.draw_lines(gc.gdkGC, zip(x,y))
