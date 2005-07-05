@@ -749,7 +749,11 @@ class Axes(Artist):
         return [ self.transData.inverse_xy_tup(xy) for xy in xys]
 
     def add_patch(self, p):
-        'Add a line to the list of plot lines'
+        """
+        Add a patch to the list of Axes patches; the clipbox will be
+        set to the Axes clipping box.  If the transform is not set, it
+        wil be set to self.transData.
+        """
         self._set_artist_props(p)
         p.set_clip_box(self.bbox)
         xys = self._get_verts_in_data_coords(
@@ -1463,7 +1467,19 @@ class Axes(Artist):
             barsabove, if True, will plot the errorbars above the plot symbols
             - default is below
 
-            kwargs are passed on to the plot command for the markers
+            kwargs are passed on to the plot command for the markers.
+              So you can add additional key=value pairs to control the
+              errorbar markers.  For example, this code makes big red
+              squares with thick green edges
+
+              >>> x,y,yerr = rand(3,10)
+              >>> errorbar(x, y, yerr, marker='s',
+                           mfc='red', mec='green', ms=20, mew=4)
+
+             mfc, mec, ms and mew are aliases for the longer property
+             names, markerfacecolor, markeredgecolor, markersize and
+             markeredgewith.  
+
 
         Return value is a length 2 tuple.  The first element is a list of
         y symbol lines.  The second element is a list of error bar lines.

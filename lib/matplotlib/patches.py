@@ -39,6 +39,7 @@ class Patch(Artist):
 
 
         if len(kwargs): setp(self, **kwargs)
+
     def update_from(self, other):
         Artist.update_from(self, other)
         self.set_edgecolor(other.get_edgecolor())

@@ -1,5 +1,15 @@
+
 API Changes in matplotlib-0.82.1
 
+  backends/__init__.py no longer imports new_figure_manager,
+  draw_if_interactive and show from the default backend, but puts
+  these imports into a call to pylab_setup.  Also, the Toolbar is no
+  longer imported from WX/WXAgg.  New usage
+
+   from backends import pylab_setup
+   new_figure_manager, draw_if_interactive, show = pylab_setup()
+
+  
   Moved Figure.get_width_height() to FigureCanvasBase. It now returns
   int instead of float.
 
