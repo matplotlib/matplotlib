@@ -707,5 +707,6 @@ ZeroDivisionError: SeparableTransformation::eval_scalars yin interval is zero; c
 
 -- clipping off in date_demo_rrule (agg 0.5 offset bug?)
 
--- merge qt patch.
+-- DONE merge qt patch.
 
+-- add frac kwarg to 

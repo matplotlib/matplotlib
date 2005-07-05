@@ -197,7 +197,7 @@ import mlab  #so I can override hist, psd, etc...
 
 from axes import Axes, PolarAxes
 import backends
-from backends import new_figure_manager, draw_if_interactive, show
+from backends import pylab_setup
 
 from cbook import flatten, is_string_like, exception_to_str, popd, \
      silent_list, iterable, enumerate
@@ -211,7 +211,7 @@ from artist import ArtistInspector, getp, get
 from artist import setp as _setp
 
 
-
+new_figure_manager, draw_if_interactive, show = pylab_setup()
 
 from image import imread as _imread
 from lines import Line2D
