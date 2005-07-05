@@ -4,7 +4,6 @@ New entries should be added at the top
 2005-07-05 Fixed default backend import problem when using API (SF bug
            # 1209354 -  see API_CHANGES for more info - JDH
 
-
 2005-07-04 backend_gtk.py: require PyGTK version 2.0.0 or higher - SC
 
 2005-06-30 setupext.py: added numarray_inc_dirs for building against
