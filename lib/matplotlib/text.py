@@ -122,6 +122,8 @@ class Text(Artist):
         self._bbox = None
         self._renderer = None
 
+        #self.set_bbox(dict(pad=0))
+
     def _get_multialignment(self):
         if self._multialignment is not None: return self._multialignment
         else: return self._horizontalalignment
@@ -418,10 +420,11 @@ class Text(Artist):
         need to know if the text has changed
         """
 
-        x, y = self._transform.xy_tup((self._x, self._y))
-        return (x, y, self._text, self._color,
+        return (self._x, self._y, self._text, self._color,
                 self._verticalalignment, self._horizontalalignment,
-                hash(self._fontproperties), self._rotation)
+                hash(self._fontproperties), self._rotation,
+                self._transform.as_vec6_val(),
+                )
 
     def get_text(self):
         "Get the text as string"

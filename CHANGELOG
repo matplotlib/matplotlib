@@ -1,5 +1,8 @@
 New entries should be added at the top
 
+2005-07-05 Fixed bug #1231611 in subplots adjust layout.  The problem
+           was that the text cacheing mechanism was not using the
+           transformation affine in the key. - JDH
 
 2005-07-05 Fixed default backend import problem when using API (SF bug
            # 1209354 -  see API_CHANGES for more info - JDH
