@@ -2,3 +2,4 @@ build
 dist
 docs
 *.pyc
+.project
