@@ -580,7 +580,7 @@ class Axis(Artist):
         # *copy* of the axis label box because we don't wan't to scale
         # the actual bbox
         self._update_label_position(ticklabelBoxes, ticklabelBoxes2)
-        self.label.draw(renderer)  # memory leak here, vertical text
+        self.label.draw(renderer)  
 
         self._update_offset_text_position(ticklabelBoxes, ticklabelBoxes2)
         self.offsetText.set_text( self.major.formatter.get_offset() )
