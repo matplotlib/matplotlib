@@ -2750,9 +2750,9 @@ class Axes(Artist):
                     faceted=True,
                     **kwargs):
         """
-        SCATTER(x, y, s=20, c='b', marker='o', cmap=None, norm=None,
-                vmin=None, vmax=None, alpha=1.0)
-
+    SCATTER(x, y, s=20, c='b', marker='o', cmap=None, norm=None,
+            vmin=None, vmax=None, alpha=1.0, linewidths=None,
+            faceted=True, **kwargs)        
         Supported function signatures:
 
             SCATTER(x, y) - make a scatter plot of x vs y
