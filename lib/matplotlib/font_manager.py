@@ -456,7 +456,9 @@ dictionary can optionally be created.
             except RuntimeError:
                 warnings.warn("Could not open font file %s"%fpath)
                 continue
-            prop = ttfFontProperty(font)
+            try: prop = ttfFontProperty(font)
+            except: continue
+            
         add_filename(fontdict, prop, fpath)
 
         #  !!!!  Default font algorithm needs improvement
