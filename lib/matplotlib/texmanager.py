@@ -107,7 +107,8 @@ WARNING: found a TeX cache dir in the deprecated location "%s".
         
         prefix = self.get_prefix(tex)
         fname = os.path.join(self.texcache, prefix+ '.tex')
-        dvifile = os.path.join(self.texcache, prefix + '.dvi')
+        dvibase = prefix + '.dvi'
+        dvifile = os.path.join(self.texcache, dvibase)        
 
         if force or not os.path.exists(dvifile):
             command = self.get_tex_command(tex, fname)
@@ -115,6 +116,14 @@ WARNING: found a TeX cache dir in the deprecated location "%s".
             verbose.report(''.join(stdout.readlines()), 'debug-annoying')
             err = ''.join(stderr.readlines())
             if err: verbose.report(err, 'helpful')
+
+        # tex will put it's output in the current dir if possible, and
+        # if not in TEXMFOUTPUT.  So check for existence in current
+        # dir and move it if necessary and then cleanup
+        if os.path.exists(dvibase):
+            os.rename(dvibase, dvifile)
+            for fname in glob.glob(prefix+'*'):
+                os.remove(fname)
         return dvifile
         
     def make_png(self, tex, dpi, force=0):
@@ -124,7 +133,7 @@ WARNING: found a TeX cache dir in the deprecated location "%s".
         prefix = self.get_prefix(tex)
         pngfile = os.path.join(self.texcache, '%s_%d.png'% (prefix, dpi))
 
-        
+        #print 'makepng', prefix, dvifile, pngfile
         command = "dvipng -bg Transparent -fg 'rgb 0.0 0.0 0.0' -D %d -T tight -o %s %s"% (dpi, pngfile, dvifile)
 
         #assume white bg
