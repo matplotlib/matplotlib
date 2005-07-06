@@ -935,8 +935,7 @@ class FigureCanvasPS(FigureCanvasBase):
                 # need to make some temporary files so latex can run without
                 # writing over something important.
                 m = md5.md5(outfile)
-                tmpname = os.path.join(TexManager.texcache, m.hexdigest())
-                os.environ['TEXMFOUTPUT'] = TexManager.texcache
+                tmpname = m.hexdigest()
                 
                 epsfile = tmpname + '.eps'
                 psfile = tmpname + '.ps'
@@ -944,7 +943,9 @@ class FigureCanvasPS(FigureCanvasBase):
                 dvifile = tmpname + '.dvi'
                 latexh = file(texfile, 'w')
                 fh = file(epsfile, 'w')
-            else: fh = file(outfile, 'w')
+            else:
+                fh = file(outfile, 'w')
+            
             isEPSF = ext.lower().startswith('.ep') or rcParams['text.usetex']
             needsClose = True
             title = outfile
@@ -1100,8 +1101,9 @@ class FigureCanvasPS(FigureCanvasBase):
                 verbose.report(''.join(stderr.readlines()), 'helpful')
                 shutil.move(epsfile, outfile)
             else: shutil.move(psfile, outfile)
-            cleanup = glob.glob(tmpname+'.*')
-            for fname in cleanup: os.remove(fname)
+
+            for fname in glob.glob(tmpname+'.*'):
+                os.remove(fname)
                 
         if rcParams['ps.usedistiller']:
             dpi = rcParams['ps.distiller.res']
