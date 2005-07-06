@@ -1,4 +1,3 @@
-.matplotlibrc
 API_CHANGES
 CHANGELOG
 INSTALL
@@ -11,6 +10,7 @@ README
 TODO
 __init__.py
 makeswig.py
+matplotlibrc
 setup.py
 setupext.py
 CXX/Config.hxx
@@ -289,6 +289,7 @@ examples/README
 examples/__init__.py
 examples/accented_text.py
 examples/agg_oo.py
+examples/agg_resize.py
 examples/agg_test.py
 examples/alignment_test.py
 examples/anim.py
@@ -328,6 +329,7 @@ examples/dynamic_demo.py
 examples/dynamic_demo_wx.py
 examples/dynamic_image_gtkagg.py
 examples/dynamic_image_wxagg.py
+examples/dynamic_image_wxagg2.py
 examples/embedding_in_gtk.py
 examples/embedding_in_gtk2.py
 examples/embedding_in_qt.py
@@ -344,6 +346,7 @@ examples/figtext.py
 examples/fill_between.py
 examples/fill_between_posneg.py
 examples/fill_demo.py
+examples/fill_demo2.py
 examples/fill_spiral.py
 examples/finance_demo.py
 examples/font_indexing.py
@@ -418,6 +421,8 @@ examples/specgram_demo.py
 examples/stem_plot.py
 examples/stock_demo.py
 examples/subplot_demo.py
+examples/subplot_toolbar.py
+examples/subplots_adjust.py
 examples/system_monitor.py
 examples/table_demo.py
 examples/tex_demo.py
@@ -443,6 +448,11 @@ examples/data/lena.jpg
 examples/data/membrane.dat
 examples/data/msft.csv
 examples/data/s1045.ima
+examples/widgets/README
+examples/widgets/buttons.py
+examples/widgets/check_buttons.py
+examples/widgets/radio_buttons.py
+examples/widgets/sliders.py
 fonts/BaKoMa-CM.Fonts
 fonts/afm/cmex10.afm
 fonts/afm/cmmi10.afm
@@ -552,6 +562,9 @@ images/stock_zoom-in.ppm
 images/stock_zoom-in.xpm
 images/stock_zoom-out.ppm
 images/stock_zoom-out.xpm
+images/subplots.png
+images/subplots.ppm
+images/subplots.xpm
 images/zoom_to_rect.png
 images/zoom_to_rect.ppm
 images/zoom_to_rect.svg
@@ -586,6 +599,7 @@ lib/matplotlib/colors.py
 lib/matplotlib/contour.py
 lib/matplotlib/dates.py
 lib/matplotlib/figure.py
+lib/matplotlib/figure.py.orig
 lib/matplotlib/finance.py
 lib/matplotlib/font_manager.py
 lib/matplotlib/image.py
@@ -601,12 +615,16 @@ lib/matplotlib/texmanager.py
 lib/matplotlib/text.py
 lib/matplotlib/ticker.py
 lib/matplotlib/transforms.py
+lib/matplotlib/widgets.py
 lib/matplotlib/windowing.py
+lib/matplotlib.egg-info/PKG-INFO
+lib/matplotlib.egg-info/native_libs.txt
 lib/matplotlib/backends/.cvsignore
 lib/matplotlib/backends/__init__.py
 lib/matplotlib/backends/backend_agg.py
 lib/matplotlib/backends/backend_agg2.py
 lib/matplotlib/backends/backend_cairo.py
+lib/matplotlib/backends/backend_cocoaagg.py
 lib/matplotlib/backends/backend_fltkagg.py
 lib/matplotlib/backends/backend_gd.py
 lib/matplotlib/backends/backend_gdk.py
@@ -1297,6 +1315,7 @@ swig/agg_rasterizer_scanline_aa.i
 swig/agg_renderer_base.i
 swig/agg_renderer_scanline.i
 swig/agg_scanline_bin.i
+swig/agg_span_image_filter.i
 swig/agg_trans_affine.i
 swig/agg_typedefs.h
 swig/agg_typemaps.i
