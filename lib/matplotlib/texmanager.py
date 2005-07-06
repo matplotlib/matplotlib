@@ -32,7 +32,8 @@ text.usetex in your matplotlibrc file
 """
 
 import glob, os, sys, md5, shutil
-from matplotlib import get_home, get_data_path, rcParams, verbose
+from matplotlib import get_configdir, get_home, get_data_path, \
+     rcParams, verbose
 from matplotlib._image import readpng
 from matplotlib.numerix import ravel, where, array, \
      zeros, Float, absolute, nonzero, sqrt
@@ -44,10 +45,20 @@ class TexManager:
     Convert strings to dvi files using TeX, caching the results to a
     working dir
     """
-    path = get_home()
-    if path is None: path = get_data_path()
-    texcache = os.path.join(path, '.tex.cache')
+    
+    oldpath = get_home()
+    if oldpath is None: oldpath = get_data_path()
+    oldcache = os.path.join(oldpath, '.tex.cache')
 
+    configdir = get_configdir()
+    texcache = os.path.join(configdir, 'tex.cache')
+
+    os.environ['TEXMFOUTPUT'] = texcache
+    if os.path.exists(oldcache):
+        print >> sys.stderr, """\
+WARNING: found a TeX cache dir in the deprecated location "%s".
+  Moving it to the new default location "%s"."""%(oldcache, texcache)
+        os.rename(oldcache, texcache)
 
     dvipngVersion = None
 
@@ -96,8 +107,7 @@ class TexManager:
         
         prefix = self.get_prefix(tex)
         fname = os.path.join(self.texcache, prefix+ '.tex')
-        dvitmp = prefix + '.dvi'
-        dvifile = os.path.join(self.texcache, dvitmp)
+        dvifile = os.path.join(self.texcache, prefix + '.dvi')
 
         if force or not os.path.exists(dvifile):
             command = self.get_tex_command(tex, fname)
@@ -105,9 +115,6 @@ class TexManager:
             verbose.report(''.join(stdout.readlines()), 'debug-annoying')
             err = ''.join(stderr.readlines())
             if err: verbose.report(err, 'helpful')
-            shutil.move(dvitmp, dvifile)
-            cleanup = glob.glob(prefix+'.*')
-            for fname in cleanup: os.remove(fname)
         return dvifile
         
     def make_png(self, tex, dpi, force=0):

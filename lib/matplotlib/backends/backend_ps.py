@@ -935,7 +935,9 @@ class FigureCanvasPS(FigureCanvasBase):
                 # need to make some temporary files so latex can run without
                 # writing over something important.
                 m = md5.md5(outfile)
-                tmpname = m.hexdigest()
+                tmpname = os.path.join(TexManager.texcache, m.hexdigest())
+                os.environ['TEXMFOUTPUT'] = TexManager.texcache
+                
                 epsfile = tmpname + '.eps'
                 psfile = tmpname + '.ps'
                 texfile = tmpname + '.tex'

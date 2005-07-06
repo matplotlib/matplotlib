@@ -37,7 +37,8 @@ import os, sys, glob, warnings
 import matplotlib
 from matplotlib import afm
 from matplotlib import ft2font
-from matplotlib import rcParams, get_data_path, get_home
+from matplotlib import rcParams, get_data_path, get_home, get_configdir
+
 
 verbose = matplotlib.verbose
 
@@ -805,10 +806,17 @@ font dictionary can act like a font cache.
         cache_message = \
 """Saving TTF font cache for non-PS backends to %s.
 Delete this file to have matplotlib rebuild the cache."""
+
         
-        ttfpath = get_home()
-        if ttfpath is None: ttfpath = get_data_path()
-        ttfcache = os.path.join(ttfpath, '.ttffont.cache')
+
+        oldcache = os.path.join(get_home(), 'ttffont.cache')
+        ttfcache = os.path.join(get_configdir(), 'ttffont.cache')
+        if os.path.exists(oldcache):            
+            print >> sys.stderr, 'Moving old ttfcache location "%s" to new location "%s"'%(oldcache, ttfcache)
+            os.rename(oldcache, ttfcache)
+
+        
+
         try:
             import cPickle as pickle
         except ImportError:

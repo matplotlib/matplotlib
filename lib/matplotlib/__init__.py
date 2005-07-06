@@ -142,7 +142,7 @@ the exception of those in mlab.py provided by matplotlib.
 """
 from __future__ import generators
 
-__version__  = '0.82'
+__version__  = '0.83a'
 __revision__ = '$Revision$'
 __date__     = '$Date$'
 
@@ -159,13 +159,13 @@ The default file location is given in the following order
 
   - environment variable MATPLOTLIBRC
 
-  - HOME/.matplotlibrc if HOME is defined
+  - HOME/.matplotlib/matplotlibrc if HOME is defined
 
-  - PATH/.matplotlibrc where PATH is the return value of
+  - PATH/matplotlibrc where PATH is the return value of
     get_data_path()
 """
 
-import sys, os
+import sys, os, tempfile
 
     
 major, minor1, minor2, s, tmp = sys.version_info
@@ -185,6 +185,21 @@ if not _python23:
          for i in range(len(seq)):
              yield i, seq[i]
 
+
+
+def _is_writable_dir(p):
+    """
+    p is a string pointing to a putative writable dir -- return True p
+    is such a string, else False
+    """
+    try: p + ''  # test is string like
+    except TypeError: return False    
+    try:
+        t = tempfile.TemporaryFile(dir=p)
+        t.write('1')
+        t.close()
+    except OSError: return False
+    else: return True
 
 class Verbose:
     """
@@ -259,23 +274,65 @@ class Verbose:
         
 verbose=Verbose('silent')  
 
-def get_home():
+
+def _get_home():
+    """Return the closest possible equivalent to a 'home' directory.
+
+    We first try $HOME.  Absent that, on NT it's USERPROFILE if
+    defined, else, $HOMEDRIVE\$HOMEPATH, else C:\
+
     """
-    return the users HOME dir across platforms or None.
-    
-    On win32, if either HOME is not set or HOME is set but doesn't
-    exist, the value of USERPROFILE will be used instead.
+
+     
+    try: return os.environ['HOME']
+    except KeyError: pass
+
+    if os.name == 'nt':  
+        # For some strange reason, win9x returns 'nt' for os.name.
+
+        try: p = os.environ['USERPROFILE']
+        except KeyError: pass
+        else:
+            if os.path.exists(p): return p
+        
+        try: p =  os.path.join(os.environ['HOMEDRIVE'],os.environ['HOMEPATH'])
+        except KeyError: pass
+        else:
+            if os.path.exists(p): return p
+
+        try:
+            import _winreg as wreg
+            key = wreg.OpenKey(wreg.HKEY_CURRENT_USER,
+                               'Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders')
+            p = wreg.QueryValueEx(key,'Personal')[0]
+            key.Close()
+            if os.path.exists(p): return p
+        except: pass
+        return 'C:\\'
+
+    raise RuntimeError('please define environment variable $HOME')
+
+
+
+
+get_home = verbose.wrap('$HOME=%s', _get_home, always=False)
+
+def _get_configdir():
     """
+    Return the string representing the configuration dir.  If s is the
+    special string _default_, use HOME/.matplotlib.  s must be writable
+    """
+    h = get_home()
+    if not _is_writable_dir(h):
+        raise RuntimeError("'%s' is not a writable dir; you must set environment variable HOME to be a writable dir "%h)
 
-    if os.environ.has_key('HOME'):
-        path = os.environ['HOME']
-        if os.path.exists(path): return path
+    p = os.path.join(get_home(), '.matplotlib')
 
-    if sys.platform=='win32' and os.environ.has_key('USERPROFILE'):
-        path = os.environ['USERPROFILE']
-        if os.path.exists(path): return path
+    if not _is_writable_dir(p):
+        os.mkdir(p)
 
-    return None
+    return p
+get_configdir = verbose.wrap('$HOME=%s', _get_configdir, always=False)
 
 
 def _get_data_path():
@@ -319,6 +376,7 @@ def _get_data_path():
 
 get_data_path = verbose.wrap('matplotlib data path %s', _get_data_path, always=False)
     
+
 
 def validate_path_exists(s):
     'If s is a path, return s, else False'
@@ -594,7 +652,7 @@ defaultParams = {
 
     'grid.color'       :   ['k', validate_color],       # grid color
     'grid.linestyle'   :   [':', str],       # dotted
-    'grid.linewidth'   :   ['0.5', validate_float],     # in points            
+    'grid.linewidth'   :   [0.5, validate_float],     # in points            
 
 
     # figure props
@@ -628,17 +686,9 @@ defaultParams = {
     }
 
 
-def matplotlib_fname():
+def _old_matplotlib_fname():
     """
-    Return the path to the rc file
-
-    Search order:
-
-     * current working dir
-     * environ var MATPLOTLIBRC
-     * HOME/.matplotlibrc
-     * MATPLOTLIBDATA/.matplotlibrc
-     
+    Return the path to the rc file using the old search method
     """
 
     fname = os.path.join( os.getcwd(), '.matplotlibrc')
@@ -661,6 +711,60 @@ def matplotlib_fname():
     fname = os.path.join(path, '.matplotlibrc')
     if not os.path.exists(fname):
         warnings.warn('Could not find .matplotlibrc; using defaults')
+    return fname
+
+def matplotlib_fname():
+    """
+    Return the path to the rc file
+
+    Search order:
+
+     * current working dir
+     * environ var MATPLOTLIBRC
+     * HOME/.matplotlib/matplotlibrc
+     * MATPLOTLIBDATA/matplotlibrc
+     
+
+    """
+
+    oldname = os.path.join( os.getcwd(), '.matplotlibrc')
+    if os.path.exists(oldname):
+        print >> sys.stderr, """\
+WARNING: Old rc filename ".matplotlibrc" found in working dir
+  and and renamed to new default rc file name "matplotlibrc"
+  (no leading"dot"). """
+        os.rename('.matplotlibrc', 'matplotlibrc')
+
+    home = get_home()
+    oldname = os.path.join( home, '.matplotlibrc')
+    if os.path.exists(oldname):
+        configdir = get_configdir()
+        newname = os.path.join(configdir, 'matplotlibrc')
+        print >> sys.stderr, """\
+WARNING: Old rc filename "%s" found and renamed to
+  new default rc file name "%s"."""%(oldname, newname)
+
+        os.rename(oldname, newname)
+            
+        
+    fname = os.path.join( os.getcwd(), 'matplotlibrc')
+    if os.path.exists(fname): return fname
+
+    if os.environ.has_key('MATPLOTLIBRC'):
+        path =  os.environ['MATPLOTLIBRC']
+        if os.path.exists(path):
+            fname = os.path.join(path, 'matplotlibrc')
+            if os.path.exists(fname):
+                return fname
+
+    fname = os.path.join(get_configdir(), 'matplotlibrc')
+    if os.path.exists(fname): return fname
+    
+    
+    path =  get_data_path() # guaranteed to exist or raise
+    fname = os.path.join(path, 'matplotlibrc')
+    if not os.path.exists(fname):
+        warnings.warn('Could not find matplotlibrc; using defaults')
     return fname
 
 
@@ -699,7 +803,7 @@ def rc_params():
         key = key.strip()
         if key in deprecated_map.keys():
             alt = deprecated_map[key]
-            warnings.warn('%s is deprecated in .matplotlibrc - use %s instead.' % (key, alt))
+            warnings.warn('%s is deprecated in matplotlibrc - use %s instead.' % (key, alt))
             key = alt
             
         if not defaultParams.has_key(key):
@@ -807,6 +911,12 @@ def rcdefaults():
     matplotlib load time
     """
     rcParams.update(rcParamsDefault)
+
+
+    
+    
+        
+    
 
 
 

@@ -168,6 +168,7 @@ class Line2D(Artist):
             raise RuntimeError('ydata must be a sequence')
 
         if linewidth is None   : linewidth=rcParams['lines.linewidth']
+
         if linestyle is None   : linestyle=rcParams['lines.linestyle']
         if marker is None      : marker=rcParams['lines.marker']
         if color is None       : color=rcParams['lines.color']

@@ -20,6 +20,7 @@ from matplotlib.widgets import SubplotTool
 
 from backend_gdk import RendererGDK
 
+
 pygtk_version_required = (2,0,0)
 try:
     import pygtk

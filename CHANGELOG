@@ -1,5 +1,17 @@
 New entries should be added at the top
 
+2005-07-06 Made HOME/.matplotlib the new config dir where the
+           matplotlibrc file, the ttf.cache, and the tex.cache live.
+           The new default filenames in .matplotlib have no leading
+           dot and are not hidden.  Eg, the new names are matplotlibrc
+           tex.cache ttffont.cache.  This is how ipython does it so it
+           must be right.  If old files are found, a warning is issued
+           and they are moved to the new location.  Also fixed
+           texmanager to put all files, including temp files in
+           ~/.matplotlib/tex.cache, which allows you to usetex in
+           non-writable dirs.
+
+
 2005-07-05 Fixed bug #1231611 in subplots adjust layout.  The problem
            was that the text cacheing mechanism was not using the
            transformation affine in the key. - JDH
