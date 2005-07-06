@@ -44,17 +44,17 @@ typedef agg::scanline_bin scanline_bin;
 
 // a helper class to pass agg::buffer objects around.  agg::buffer is
 // a class in the swig wrapper
-class Region : public Py::PythonExtension<Region> {
+class BufferRegion : public Py::PythonExtension<BufferRegion> {
 public:
-  Region( agg::buffer& aggbuf, const agg::rect &r) : aggbuf(aggbuf), rect(r) {}
+  BufferRegion( agg::buffer& aggbuf, const agg::rect &r) : aggbuf(aggbuf), rect(r) {}
   agg::buffer aggbuf;
   agg::rect rect;
   static void init_type(void) {
-    behaviors().name("Region");
+    behaviors().name("BufferRegion");
     behaviors().doc("A wrapper to pass agg buffer objects to and from the python level");
   }
 
-  virtual ~Region() {};
+  virtual ~BufferRegion() {};
 };
 
 class GCAgg {
@@ -182,7 +182,7 @@ public:
     : Py::ExtensionModule<_backend_agg_module>( "_backend_agg" )
   {
 
-    Region::init_type();
+    BufferRegion::init_type();
     RendererAgg::init_type();
 
     add_keyword_method("RendererAgg", &_backend_agg_module::new_renderer, 

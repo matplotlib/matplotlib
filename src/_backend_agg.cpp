@@ -631,7 +631,7 @@ RendererAgg::copy_from_bbox(const Py::Tuple& args) {
   renderer_base rb(pf);
   rb.clear(agg::rgba(1, 0, 0)); //todo remove me
   rb.copy_from(*renderingBuffer, &r, -r.x1, -r.y1);
-  Region* reg = new Region(buf, r);
+  BufferRegion* reg = new BufferRegion(buf, r);
 
   return Py::asObject(reg);
   
@@ -641,9 +641,9 @@ RendererAgg::copy_from_bbox(const Py::Tuple& args) {
 
 Py::Object
 RendererAgg::restore_region(const Py::Tuple& args) {
-  //copy Region to buffer
+  //copy BufferRegion to buffer
   args.verify_length(1);
-  Region* region  = static_cast<Region*>(args[0].ptr());
+  BufferRegion* region  = static_cast<BufferRegion*>(args[0].ptr());
   
   if (region->aggbuf.data==NULL) 
     throw Py::ValueError("Cannot restore_region frm NULL data");

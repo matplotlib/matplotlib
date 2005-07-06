@@ -332,7 +332,7 @@ def _get_configdir():
         os.mkdir(p)
 
     return p
-get_configdir = verbose.wrap('$HOME=%s', _get_configdir, always=False)
+get_configdir = verbose.wrap('CONFIGDIR=%s', _get_configdir, always=False)
 
 
 def _get_data_path():
