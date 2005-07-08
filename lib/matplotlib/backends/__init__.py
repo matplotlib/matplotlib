@@ -18,6 +18,7 @@ if backend not in all_backends:
 def pylab_setup():
     'return new_figure_manager, draw_if_interactive and show for pylab'
     # Import the requested backend into a generic module object
+    if pylabcache is not None: return pylabcache
     backend_name = 'backend_'+backend.lower()
     backend_mod = __import__('matplotlib.backends.'+backend_name,
                              globals(),locals(),[backend_name])
@@ -46,10 +47,14 @@ def pylab_setup():
         __all__.append('Toolbar')
 
     matplotlib.verbose.report('backend %s version %s' % (backend,backend_version))
-    return new_figure_manager, draw_if_interactive, show
 
+    return new_figure_manager, draw_if_interactive, show
 
 # a hack to keep old versions of ipython working with mpl after bug
 # fix #1209354
+#print sys.modules
+pylabcache = None
 if 'IPython.Shell' in  sys.modules:
-    new_figure_manager, draw_if_interactive, show = pylab_setup()
+    pylabcache = pylab_setup()
+    new_figure_manager, draw_if_interactive, show = pylabcache
+    
