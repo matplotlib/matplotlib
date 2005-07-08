@@ -190,15 +190,13 @@ John D. Hunter <jdhunter@ace.bsd.uhicago.edu>
 Most of the other commands are from Numeric, MLab and FFT, with the
 exception of those in mlab.py provided by matplotlib.
 """
-import warnings
+import sys, warnings
 import cm
 import _pylab_helpers
 import mlab  #so I can override hist, psd, etc...
 
 from axes import Axes, PolarAxes
 import backends
-from backends import pylab_setup
-
 from cbook import flatten, is_string_like, exception_to_str, popd, \
      silent_list, iterable, enumerate
 from colors import normalize
@@ -210,8 +208,15 @@ from backend_bases import FigureCanvasBase
 from artist import ArtistInspector, getp, get
 from artist import setp as _setp
 
+# a hack to keep old versions of ipython working with mpl after bug
+# fix #1209354
+if 'IPython.Shell' in  sys.modules:
+    from backends import new_figure_manager, draw_if_interactive, show
+else:
+    from backends import pylab_setup
+    new_figure_manager, draw_if_interactive, show = pylab_setup()
 
-new_figure_manager, draw_if_interactive, show = pylab_setup()
+
 
 from image import imread as _imread
 from lines import Line2D
