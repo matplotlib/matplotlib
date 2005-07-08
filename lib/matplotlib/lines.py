@@ -131,18 +131,18 @@ class Line2D(Artist):
 
     def __init__(self, xdata, ydata,
                  linewidth       = None, # all Nones default to rc
-                 linestyle       = None, 
-                 color           = None, 
-                 marker          = None, 
-                 markersize      = None, 
-                 markeredgewidth = None, 
-                 markeredgecolor = None, 
-                 markerfacecolor = None, 
-                 antialiased     = None, 
+                 linestyle       = None,
+                 color           = None,
+                 marker          = None,
+                 markersize      = None,
+                 markeredgewidth = None,
+                 markeredgecolor = None,
+                 markerfacecolor = None,
+                 antialiased     = None,
                  dash_capstyle = None,
-                 solid_capstyle = None,                 
+                 solid_capstyle = None,
                  dash_joinstyle = None,
-                 solid_joinstyle = None,                 
+                 solid_joinstyle = None,
                  **kwargs
                  ):
         """
@@ -218,7 +218,7 @@ class Line2D(Artist):
         self._logcache = None
 
         if len(kwargs): setp(self, **kwargs)
-        
+
     def get_window_extent(self, renderer):
         self._newstyle = hasattr(renderer, 'draw_markers')
         if self._newstyle:
@@ -262,39 +262,31 @@ class Line2D(Artist):
         try: del self._xc, self._yc
         except AttributeError: pass
 
-        self._masked_x = None
-        self._masked_y = None
+        self._x_orig = x
+        self._y_orig = y
+
+        x = ma.ravel(x)
+        y = ma.ravel(y)
+        if len(x)==1 and len(y)>1:
+            x = x * ones(y.shape, Float)
+        if len(y)==1 and len(x)>1:
+            y = y * ones(x.shape, Float)
+
+        if len(x) != len(y):
+            raise RuntimeError('xdata and ydata must be the same length')
+
         mx = ma.getmask(x)
         my = ma.getmask(y)
-        if mx is not None:
-            mx = ravel(mx)
-            self._masked_x = x
-        if my is not None:
-            my = ravel(my)
-            self._masked_y = y
         mask = ma.mask_or(mx, my)
         if mask is not None:
-            x = ma.masked_array(ma.ravel(x), mask=mask).compressed()
-            y = ma.masked_array(ma.ravel(y), mask=mask).compressed()
+            x = ma.masked_array(x, mask=mask).compressed()
+            y = ma.masked_array(y, mask=mask).compressed()
             self._segments = unmasked_index_ranges(mask)
         else:
             self._segments = None
 
         self._x = asarray(x, Float)
         self._y = asarray(y, Float)
-
-        if len(self._x.shape)>1:
-            self._x = ravel(self._x)
-        if len(self._y.shape)>1:
-            self._y = ravel(self._y)
-
-        # What is the rationale for the following two lines?
-        # And why is there not a similar pair with _x and _y reversed?
-        if len(self._y)==1 and len(self._x)>1:
-            self._y = self._y*ones(self._x.shape, Float)
-
-        if len(self._x) != len(self._y):
-            raise RuntimeError('xdata and ydata must be the same length')
 
         if self._useDataClipping: self._xsorted = self._is_sorted(self._x)
 
@@ -373,7 +365,7 @@ class Line2D(Artist):
             cap = self._solidcapstyle
             join = self._solidjoinstyle
         gc.set_joinstyle(join)
-        gc.set_capstyle(cap)        
+        gc.set_capstyle(cap)
 
         if self._newstyle:
             # transform in backend
@@ -420,13 +412,13 @@ class Line2D(Artist):
     def get_markerfacecolor(self): return self._markerfacecolor
     def get_markersize(self): return self._markersize
     def get_xdata(self, valid_only = False):
-        if self._masked_x is None or valid_only:
+        if valid_only:
             return self._x
-        return self._masked_x
+        return self._x_orig
     def get_ydata(self, valid_only = False):
-        if self._masked_y is None or valid_only:
+        if valid_only:
             return self._y
-        return self._masked_y
+        return self._y_orig
 
 
     def _set_clip(self):
@@ -1231,7 +1223,7 @@ class Line2D(Artist):
     def set_dash_joinstyle(self, s):
         """
         Set the join style for dashed linestyles
-        ACCEPTS: ['miter' | 'round' | 'bevel']        
+        ACCEPTS: ['miter' | 'round' | 'bevel']
         """
         s = s.lower()
         if s not in self.validJoin:
@@ -1241,7 +1233,7 @@ class Line2D(Artist):
     def set_solid_joinstyle(self, s):
         """
         Set the join style for solid linestyles
-        ACCEPTS: ['miter' | 'round' | 'bevel']        
+        ACCEPTS: ['miter' | 'round' | 'bevel']
         """
         s = s.lower()
         if s not in self.validJoin:
@@ -1271,7 +1263,7 @@ class Line2D(Artist):
             raise ValueError('set_dash_capstyle passed "%s"; valid capstyles are %s'%(s, self.validJoin))
 
         self._dashcapstyle = s
-        
+
 
     def set_solid_capstyle(self, s):
         """

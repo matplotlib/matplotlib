@@ -80,7 +80,7 @@ def _process_plot_format(fmt):
     linestyle = 'None'
     marker = 'None'
     color = rcParams['lines.color']
-
+    
     # handle the multi char special cases and strip them from the
     # string
     if fmt.find('--')>=0:
