@@ -1,5 +1,7 @@
 New entries should be added at the top
 
+2005-07-07 Added Eric's MA set_xdata Line2D fix - JDH
+
 2005-07-06 Made HOME/.matplotlib the new config dir where the
            matplotlibrc file, the ttf.cache, and the tex.cache live.
            The new default filenames in .matplotlib have no leading
