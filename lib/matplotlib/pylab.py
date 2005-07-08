@@ -212,7 +212,6 @@ from artist import setp as _setp
 
 
 new_figure_manager, draw_if_interactive, show = pylab_setup()
-print 'pylab', dir(draw_if_interactive)
 
 from image import imread as _imread
 from lines import Line2D
