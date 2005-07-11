@@ -1,5 +1,8 @@
 New entries should be added at the top
 
+2005-07-11 Fixed color kwarg bug, setting color=1 or 0 caused an 
+		   exception - DSD
+
 2005-07-07 Added Eric's MA set_xdata Line2D fix - JDH
 
 2005-07-06 Made HOME/.matplotlib the new config dir where the
