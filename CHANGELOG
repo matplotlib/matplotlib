@@ -1,5 +1,7 @@
 New entries should be added at the top
 
+2005-07-14 Fixed a Windows related bug (#1238412) in texmanager - DSD
+
 2005-07-11 Fixed color kwarg bug, setting color=1 or 0 caused an 
 		   exception - DSD
 
