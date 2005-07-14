@@ -88,7 +88,7 @@ WARNING: found a TeX cache dir in the deprecated location "%s".
 """ % (rcParams['font.latex.package'], tex)
             fh.write(s)
             fh.close()
-            command = "latex -interaction=nonstopmode '%s'"%fname
+            command = 'latex -interaction=nonstopmode "%s"'%fname
         else:
             s = r"""\def\frac#1#2{ {#1 \over #2} }
 \nopagenumbers
@@ -99,7 +99,7 @@ WARNING: found a TeX cache dir in the deprecated location "%s".
 """ % tex
             fh.write(s)
             fh.close()
-            command = 'tex %s'%fname
+            command = 'tex "%s"'%fname
         return command
         
     def make_dvi(self, tex, force=0):
@@ -134,7 +134,7 @@ WARNING: found a TeX cache dir in the deprecated location "%s".
         pngfile = os.path.join(self.texcache, '%s_%d.png'% (prefix, dpi))
 
         #print 'makepng', prefix, dvifile, pngfile
-        command = "dvipng -bg Transparent -fg 'rgb 0.0 0.0 0.0' -D %d -T tight -o %s %s"% (dpi, pngfile, dvifile)
+        command = 'dvipng -bg Transparent -fg "rgb 0.0 0.0 0.0" -D %d -T tight -o "%s" "%s"'% (dpi, pngfile, dvifile)
 
         #assume white bg
         #command = "dvipng -bg 'rgb 1.0 1.0 1.0' -fg 'rgb 0.0 0.0 0.0' -D %d -T tight -o %s %s"% (dpi, pngfile, dvifile)
@@ -157,7 +157,7 @@ WARNING: found a TeX cache dir in the deprecated location "%s".
         psfile = os.path.join(self.texcache, '%s_%d.epsf'% (prefix, dpi))
 
         if not os.path.exists(psfile):
-            command = "dvips -q -E -D %d -o %s %s"% (dpi, psfile, dvifile)
+            command = 'dvips -q -E -D %d -o "%s" "%s"'% (dpi, psfile, dvifile)
             stdin, stdout, stderr = os.popen3(command)
             verbose.report(''.join(stdout.readlines()), 'debug-annoying')
             err = ''.join(stderr.readlines())
