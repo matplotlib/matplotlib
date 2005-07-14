@@ -44,7 +44,8 @@ backend_version = "%d.%d.%d" % gtk.pygtk_version
 del pygtk_version_required
 
 
-DEBUG = False
+_debug = False
+#_debug = True
 
 # the true dots per inch on the screen; should be display dependent
 # see http://groups.google.com/groups?q=screen+dpi+x11&hl=en&lr=&ie=UTF-8&oe=UTF-8&safe=off&selm=7077.26e81ad5%40swift.cs.tcd.ie&rnum=5 for some info about screen dpi
@@ -59,10 +60,10 @@ IMAGE_FORMAT_DEFAULT  = 'png'
 
 
 cursord = {
-    cursors.MOVE          : gtk.gdk.Cursor(gtk.gdk.FLEUR),
-    cursors.HAND          : gtk.gdk.Cursor(gtk.gdk.HAND2),
-    cursors.POINTER       : gtk.gdk.Cursor(gtk.gdk.LEFT_PTR),
-    cursors.SELECT_REGION : gtk.gdk.Cursor(gtk.gdk.TCROSS),
+    cursors.MOVE          : gdk.Cursor(gdk.FLEUR),
+    cursors.HAND          : gdk.Cursor(gdk.HAND2),
+    cursors.POINTER       : gdk.Cursor(gdk.LEFT_PTR),
+    cursors.SELECT_REGION : gdk.Cursor(gdk.TCROSS),
     }
 
 # ref gtk+/gtk/gtkwidget.h
@@ -119,6 +120,7 @@ class FigureCanvasGTK(gtk.DrawingArea, FigureCanvasBase):
 
                           
     def __init__(self, figure):
+        if _debug: print 'FigureCanvasGTK.%s' % fn_name()
         FigureCanvasBase.__init__(self, figure)
         gtk.DrawingArea.__init__(self)
         
@@ -129,46 +131,62 @@ class FigureCanvasGTK(gtk.DrawingArea, FigureCanvasBase):
 
         self._lastCursor = None
 
-        self.set_flags(gtk.CAN_FOCUS)
-        self.grab_focus()
         self.set_double_buffered(False)
 
-        self.connect('key_press_event',      self.key_press_event)
-        self.connect('key_release_event',    self.key_release_event)
-        self.connect('expose_event',         self.expose_event)
-        self.connect('configure_event',      self.configure_event)
-        self.connect('motion_notify_event',  self.motion_notify_event)
         self.connect('button_press_event',   self.button_press_event)
         self.connect('button_release_event', self.button_release_event)
+        self.connect('configure_event',      self.configure_event)
+        self.connect('expose_event',         self.expose_event)
+        self.connect('key_press_event',      self.key_press_event)
+        self.connect('key_release_event',    self.key_release_event)
+        self.connect('motion_notify_event',  self.motion_notify_event)
 
         self.set_events(
-            #gdk.FOCUS_CHANGE_MASK  |
-            gdk.KEY_PRESS_MASK      |
-            gdk.KEY_RELEASE_MASK    |
-            gdk.EXPOSURE_MASK       |
-            gdk.LEAVE_NOTIFY_MASK   |
             gdk.BUTTON_PRESS_MASK   |
             gdk.BUTTON_RELEASE_MASK |
+            gdk.EXPOSURE_MASK       |
+            gdk.KEY_PRESS_MASK      |
+            gdk.KEY_RELEASE_MASK    |
+            gdk.LEAVE_NOTIFY_MASK   |
             gdk.POINTER_MOTION_MASK |
             gdk.POINTER_MOTION_HINT_MASK)
+
+        self.set_flags(gtk.CAN_FOCUS)
+        self.grab_focus()
 
         self._renderer_init()
 
     def button_press_event(self, widget, event):
+        if _debug: print 'FigureCanvasGTK.%s' % fn_name()
         x = event.x
         # flipy so y=0 is bottom of canvas
         y = self.figure.bbox.height() - event.y
         FigureCanvasBase.button_press_event(self, x, y, event.button)
-        return True
+        #return True
+        return False
         
     def button_release_event(self, widget, event):
+        if _debug: print 'FigureCanvasGTK.%s' % fn_name()
         x = event.x
         # flipy so y=0 is bottom of canvas
         y = self.figure.bbox.height() - event.y
         FigureCanvasBase.button_release_event(self, x, y, event.button)
         return True
 
+    def key_press_event(self, widget, event):
+        if _debug: print 'FigureCanvasGTK.%s' % fn_name()
+        key = self._get_key(event)
+        if _debug: print "hit", key
+        FigureCanvasBase.key_press_event(self, key)
+
+    def key_release_event(self, widget, event):        
+        if _debug: print 'FigureCanvasGTK.%s' % fn_name()
+        key = self._get_key(event)
+        if _debug: print "release", key
+        FigureCanvasBase.key_release_event(self, key)
+
     def motion_notify_event(self, widget, event):
+        if _debug: print 'FigureCanvasGTK.%s' % fn_name()
         if event.is_hint:
             x, y, state = event.window.get_pointer()
         else:
@@ -191,22 +209,13 @@ class FigureCanvasGTK(gtk.DrawingArea, FigureCanvasBase):
         else:
             key = None
             
-        ctrl  = event.state & gtk.gdk.CONTROL_MASK
-        shift = event.state & gtk.gdk.SHIFT_MASK
+        ctrl  = event.state & gdk.CONTROL_MASK
+        shift = event.state & gdk.SHIFT_MASK
         return key
 
 
-    def key_press_event(self, widget, event):
-        key = self._get_key(event)
-        #print "hit", key
-        FigureCanvasBase.key_press_event(self, key)
-
-    def key_release_event(self, widget, event):        
-        key = self._get_key(event)
-        #print "release", key
-        FigureCanvasBase.key_release_event(self, key)
-
     def configure_event(self, widget, event):
+        if _debug: print 'FigureCanvasGTK.%s' % fn_name()
         if widget.window == None:
             return
 
@@ -253,7 +262,7 @@ class FigureCanvasGTK(gtk.DrawingArea, FigureCanvasBase):
            - rendering the pixmap to save to a file (pylab.savefig)
         Should not be overridden by GTK backends
         """
-        if DEBUG: print 'FigureCanvasGTK.%s' % fn_name()
+        if _debug: print 'FigureCanvasGTK.%s' % fn_name()
 
         create_pixmap = False
         if width > self._pixmap_width:
@@ -268,8 +277,8 @@ class FigureCanvasGTK(gtk.DrawingArea, FigureCanvasBase):
             create_pixmap = True
 
         if create_pixmap:
-            if DEBUG: print 'FigureCanvasGTK.%s new pixmap' % fn_name()
-            self._pixmap = gtk.gdk.Pixmap (self.window, self._pixmap_width,
+            if _debug: print 'FigureCanvasGTK.%s new pixmap' % fn_name()
+            self._pixmap = gdk.Pixmap (self.window, self._pixmap_width,
                                            self._pixmap_height)
             self._renderer.set_pixmap (self._pixmap)
 
@@ -281,7 +290,7 @@ class FigureCanvasGTK(gtk.DrawingArea, FigureCanvasBase):
         """Expose_event for all GTK backends
         Should not be overridden.
         """
-        if DEBUG: print 'FigureCanvasGTK.%s' % fn_name()
+        if _debug: print 'FigureCanvasGTK.%s' % fn_name()
 
         if not GTK_WIDGET_DRAWABLE(self):
             return False
@@ -330,7 +339,7 @@ class FigureCanvasGTK(gtk.DrawingArea, FigureCanvasBase):
 
             # jpg colors don't match the display very well, png colors match
             # better
-            pixbuf = gtk.gdk.Pixbuf(gtk.gdk.COLORSPACE_RGB, 0, 8,
+            pixbuf = gdk.Pixbuf(gdk.COLORSPACE_RGB, 0, 8,
                                     width, height)
             pixbuf.get_from_drawable(self._pixmap, self._pixmap.get_colormap(),
                                      0, 0, 0, 0, width, height)
@@ -405,7 +414,7 @@ class FigureManagerGTK(FigureManagerBase):
     window      : The gtk.Window   (gtk only)
     """
     def __init__(self, canvas, num):
-        if DEBUG: print 'FigureManagerGTK.%s' % fn_name()
+        if _debug: print 'FigureManagerGTK.%s' % fn_name()
         FigureManagerBase.__init__(self, canvas, num)
         
         self.window = gtk.Window()
@@ -446,7 +455,7 @@ class FigureManagerGTK(FigureManagerBase):
 
     
     def destroy(self, *args):
-        if DEBUG: print 'FigureManagerGTK.%s' % fn_name()
+        if _debug: print 'FigureManagerGTK.%s' % fn_name()
         self.window.destroy()
         if Gcf.get_num_fig_managers()==0 and not matplotlib.is_interactive():
             gtk.main_quit()
