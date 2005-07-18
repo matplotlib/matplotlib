@@ -962,11 +962,10 @@ if gtk.pygtk_version >= (2,4,0):
                       action  = gtk.FILE_CHOOSER_ACTION_SAVE,
                       buttons = (gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL,
                                  gtk.STOCK_SAVE,   gtk.RESPONSE_OK),
-                      backend = '',
                       path    = None,
                       ):
             super (FileChooserDialog, self).__init__ (title, parent, action,
-                                                      buttons, backend)
+                                                      buttons)
             self.set_default_response (gtk.RESPONSE_OK)
 
             if path: self.path = path
