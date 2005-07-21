@@ -16,7 +16,6 @@ class RendererBase:
     """An abstract base class to handle drawing/rendering operations
     """
 
-
     def open_group(self, s):
         """open a grouping element with label s
         Is only currently used by backend_svg
@@ -299,6 +298,9 @@ class RendererBase:
             self.draw_polygon(gc, rgbFace, zip(thisxverts, thisyverts))
 
 
+    def draw_tex(self, gc, x, y, s, prop, angle, ismath='TeX!'):
+        raise NotImplementedError
+
     def draw_text(self, gc, x, y, s, prop, angle, ismath=False):
         """
         Draw the text.Text instance s at x,y (display coords) with font
@@ -315,9 +317,6 @@ class RendererBase:
         to if 1, and then the actual bounding box will be blotted along with
         your text.
         """
-        raise NotImplementedError
-
-    def draw_tex(self, gc, x, y, s, prop, angle, ismath='TeX!'):
         raise NotImplementedError
 
     def flipy(self):
@@ -342,6 +341,11 @@ class RendererBase:
         with FontPropertry prop
         """
         return 1,1
+
+    def get_width_height(self):
+        """return the figure width and height in points or pixels
+        (depending on the backend), truncated to integers"""
+        return int(self.figure.bbox.width()), int(self.figure.bbox.height())
 
     def new_gc(self):
         """
@@ -831,12 +835,6 @@ class FigureCanvasBase:
             if callbackd.has_key(cid):
                 del callbackd[cid]
                 return
-
-
-    def get_width_height(self):
-        """return the figure width and height in points or pixels
-        (depending on the backend), truncated to integers"""
-        return int(self.figure.bbox.width()), int(self.figure.bbox.height())
 
 
 class FigureManagerBase:

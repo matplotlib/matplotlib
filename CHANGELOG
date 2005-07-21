@@ -1,5 +1,9 @@
 New entries should be added at the top
 
+2005-07-21 backend_svg.py: Remove unused imports. Remove methods doc strings
+           which just duplicate the docs from backend_bases.py. Rename
+           draw_mathtext to _draw_mathtext. - SC
+
 2005-07-17 examples/embedding_in_gtk3.py: new example demonstrating placing
            a FigureCanvas in a gtk.ScrolledWindow - SC
 
@@ -21,7 +25,6 @@ New entries should be added at the top
            ~/.matplotlib/tex.cache, which allows you to usetex in
            non-writable dirs.
 
-
 2005-07-05 Fixed bug #1231611 in subplots adjust layout.  The problem
            was that the text cacheing mechanism was not using the
            transformation affine in the key. - JDH
@@ -33,7 +36,6 @@ New entries should be added at the top
 
 2005-06-30 setupext.py: added numarray_inc_dirs for building against
            numarray when not installed in standard location - ADS
-
 
 2005-06-27 backend_svg.py: write figure width, height as int, not float.
            Update to fix some of the pychecker warnings - SC
@@ -69,7 +71,6 @@ New entries should be added at the top
            toolbar pixmaps to use the ppm files instead of the png
            files.  I noticed that the Tk backend buttons looked much
            nicer and it uses the ppm files so I switched them.
-
 
 2005-06-17 Modified the gtk backend to not queue mouse motion events.
            This allows for live updates when dragging a slider. - CM
