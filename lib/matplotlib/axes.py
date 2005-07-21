@@ -1693,9 +1693,10 @@ class Axes(Artist):
         self.xaxis.grid(b)
         self.yaxis.grid(b)
 
-    def hist(self, x, bins=10, normed=0, bottom=0, **kwargs):
+    def hist(self, x, bins=10, normed=0, bottom=0,
+             orientation='vertical', **kwargs):
         """
-        HIST(x, bins=10, normed=0, bottom=0)
+        HIST(x, bins=10, normed=0, bottom=0, orientiation='vertical', **kwargs)
 
         Compute the histogram of x.  bins is either an integer number of
         bins or a sequence giving the bins.  x are the data to be binned.
@@ -1706,12 +1707,20 @@ class Axes(Artist):
         counts normalized to form a probability distribtion, ie,
         n/(len(x)*dbin)
 
-        kwargs are used to update the properties of the hist bars
+
+        orientation = 'horizontal' | 'vertical'.  If horizontal, barh
+        will be used and the "bottom" kwarg will be the left.
+
+        kwargs are used to update the properties of the
+        hist bars
         """
         if not self._hold: self.cla()
         n,bins = matplotlib.mlab.hist(x, bins, normed)
         width = 0.9*(bins[1]-bins[0])
-        patches = self.bar(bins, n, width=width, bottom=bottom)
+        if orientation=='horizontal':
+            patches = self.barh(n, bins, height=width, left=bottom)
+        else:
+            patches = self.bar(bins, n, width=width, bottom=bottom)
         for p in patches:
             p.update(kwargs)
         return n, bins, silent_list('Patch', patches)
@@ -2564,7 +2573,7 @@ class Axes(Artist):
 
     def plot_date(self, d, y, fmt='bo', tz=None, **kwargs):
         """
-        PLOT_DATE(d, y, converter, fmt='bo', tz=None, **kwargs)
+        PLOT_DATE(d, y, fmt='bo', tz=None, **kwargs)
 
         d is a sequence of dates represented as float days since
         0001-01-01 UTC and y are the y values at those dates.  fmt is

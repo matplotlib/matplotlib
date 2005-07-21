@@ -51,7 +51,7 @@ def line_cuts_bbox(line, bbox):
         return False
 
     if n == 1:
-        return bbox.contains(line[0])
+        return bbox.contains(line[0][0], line[0][1])        
     
     p1 = line[0]
     for p2 in line[1:]:
