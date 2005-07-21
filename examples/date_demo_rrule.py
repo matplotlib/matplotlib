@@ -6,8 +6,7 @@ we put a tick mark on every 5th easter
 See https://moin.conectiva.com.br/DateUtil for help with rrules
 """
 from pylab import *
-from matplotlib.dates import YEARLY, DateFormatter, \
-     rrulewrapper, RRuleLocator, drange
+from matplotlib.dates import YEARLY, DateFormatter, rrulewrapper, RRuleLocator, drange
 import datetime
 
 # tick every 5th easter

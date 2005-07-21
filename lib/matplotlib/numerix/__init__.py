@@ -87,7 +87,6 @@ this module was turned off in setup.py.  If it appears that
 %(which)s and then re-install matplotlib. Otherwise, the following
 traceback gives more details:\n""" % _dict
 
-
 g = globals()
 l = locals()
 __import__('ma', g, l)
