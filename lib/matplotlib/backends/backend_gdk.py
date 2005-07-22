@@ -1,15 +1,22 @@
 from __future__ import division
 
-import math, os, warnings
+import math
+import os
 import sys
+import warnings
 def fn_name(): return sys._getframe(1).f_code.co_name
 
+import gobject
+import gtk; gdk = gtk.gdk
+import pango
+pygtk_version_required = (2,0,0)
+if gtk.pygtk_version < pygtk_version_required:
+    raise SystemExit ("PyGTK %d.%d.%d is installed\n"
+                      "PyGTK %d.%d.%d or later is required"
+                      % (gtk.pygtk_version + pygtk_version_required))
+del pygtk_version_required
+
 import matplotlib
-
-import matplotlib.numerix as numerix
-from matplotlib.numerix import asarray, fromstring, UInt8, zeros, \
-     where, transpose, nonzero, indices, ones, nx
-
 from matplotlib._pylab_helpers import Gcf
 from matplotlib.backend_bases import RendererBase, GraphicsContextBase, \
      FigureManagerBase, FigureCanvasBase
@@ -17,38 +24,18 @@ from matplotlib.cbook import is_string_like, enumerate
 from matplotlib.figure import Figure
 from matplotlib.font_manager import fontManager
 from matplotlib.mathtext import math_parse_s_ft2font
+import matplotlib.numerix as numerix
+from matplotlib.numerix import asarray, fromstring, UInt8, zeros, \
+     where, transpose, nonzero, indices, ones, nx
 
-pygtk_version_required = (2,0,0)
-try:
-    import pygtk
-    if not matplotlib.FROZEN:
-        pygtk.require('2.0')
-except:
-    print >> sys.stderr, sys.exc_info()[1]
-    raise SystemExit('PyGTK version %d.%d.%d or greater is required to run '
-                     'the GTK Matplotlib backends'
-                     % pygtk_version_required)
-
-import gobject
-import gtk; gdk = gtk.gdk
-import pango
-
-if gtk.pygtk_version < pygtk_version_required:
-    raise SystemExit ("PyGTK %d.%d.%d is installed\n"
-                      "PyGTK %d.%d.%d or later is required"
-                      % (gtk.pygtk_version + pygtk_version_required))
-backend_version = "%d.%d.%d" % gtk.pygtk_version
-del pygtk_version_required
-
-# do after gtk else get "pygtk.require() must be called before importing gtk"
-# errors
 if numerix.which[0] == "numarray":
     from matplotlib.backends._na_backend_gdk import pixbuf_get_pixels_array
 else:
     from matplotlib.backends._nc_backend_gdk import pixbuf_get_pixels_array
 
 
-DEBUG = False
+backend_version = "%d.%d.%d" % gtk.pygtk_version
+_debug = False
 
 # Image formats that this backend supports - for FileChooser and print_figure()
 IMAGE_FORMAT  = ['eps', 'jpg', 'png', 'ps', 'svg'] + ['bmp'] # , 'raw', 'rgb']
@@ -486,7 +473,7 @@ class FigureCanvasGDK(FigureCanvasBase):
            - rendering the pixmap to display        (pylab.draw)
            - rendering the pixmap to save to a file (pylab.savefig)
         """
-        if DEBUG: print 'FigureCanvasGDK.%s' % fn_name()
+        if _debug: print 'FigureCanvasGDK.%s' % fn_name()
         create_pixmap = False
         if width > self._pixmap_width:
             # increase the pixmap in 10%+ (rather than 1 pixel) steps
@@ -498,7 +485,7 @@ class FigureCanvasGDK(FigureCanvasBase):
             create_pixmap = True
 
         if create_pixmap:
-            if DEBUG: print 'FigureCanvasGTK.%s new pixmap' % fn_name()
+            if _debug: print 'FigureCanvasGTK.%s new pixmap' % fn_name()
             self._pixmap = gtk.gdk.Pixmap (None, self._pixmap_width,
                                            self._pixmap_height, depth=24)
             # gtk backend must use self.window
