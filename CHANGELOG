@@ -1,5 +1,7 @@
 New entries should be added at the top
 
+2005-07-22 backend_gdk.py: removed pygtk.require() - SC
+
 2005-07-21 backend_svg.py: Remove unused imports. Remove methods doc strings
            which just duplicate the docs from backend_bases.py. Rename
            draw_mathtext to _draw_mathtext. - SC
