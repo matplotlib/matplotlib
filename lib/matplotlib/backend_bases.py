@@ -342,11 +342,6 @@ class RendererBase:
         """
         return 1,1
 
-    def get_width_height(self):
-        """return the figure width and height in points or pixels
-        (depending on the backend), truncated to integers"""
-        return int(self.figure.bbox.width()), int(self.figure.bbox.height())
-
     def new_gc(self):
         """
         Return an instance of a GraphicsContextBase
@@ -704,8 +699,6 @@ class FigureCanvasBase:
         self._lastx, self._lasty = None, None
 
 
-
-
     def blit(self, bbox=None):
         """
         blit the canvas in bbox (default entire canvas)
@@ -776,6 +769,11 @@ class FigureCanvasBase:
         native GUI drawing for efficiency if possible
         """
         pass
+
+    def get_width_height(self):
+        """return the figure width and height in points or pixels
+        (depending on the backend), truncated to integers"""
+        return int(self.figure.bbox.width()), int(self.figure.bbox.height())
 
     def print_figure(self, filename, dpi=300, facecolor='w', edgecolor='w',
                      orientation='portrait'):
