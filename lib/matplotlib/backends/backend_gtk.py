@@ -4,44 +4,30 @@ import os
 import sys
 def fn_name(): return sys._getframe(1).f_code.co_name
 
-import matplotlib
-from matplotlib import verbose, MPLError
-
-from matplotlib._pylab_helpers import Gcf
-from matplotlib.backend_bases import RendererBase, GraphicsContextBase, \
-     FigureManagerBase, FigureCanvasBase, NavigationToolbar2, cursors
-from matplotlib.cbook import is_string_like, enumerate
-from matplotlib.figure import Figure
-from matplotlib.font_manager import fontManager
-from matplotlib.numerix import asarray, fromstring, UInt8, zeros, \
-     where, transpose, nonzero, indices, ones, nx
-import matplotlib.numerix as numerix
-from matplotlib.widgets import SubplotTool
-
-from backend_gdk import RendererGDK
-
-
-pygtk_version_required = (2,0,0)
-try:
-    import pygtk
-    if not matplotlib.FROZEN:
-        pygtk.require('2.0')
-except:
-    print >> sys.stderr, sys.exc_info()[1]
-    raise SystemExit('PyGTK version %d.%d.%d or greater is required to run '
-                     'the GTK Matplotlib backends'
-                     % pygtk_version_required)
-
 import gobject
 import gtk; gdk = gtk.gdk
 import pango
-
+pygtk_version_required = (2,0,0)
 if gtk.pygtk_version < pygtk_version_required:
     raise SystemExit ("PyGTK %d.%d.%d is installed\n"
                       "PyGTK %d.%d.%d or later is required"
                       % (gtk.pygtk_version + pygtk_version_required))
 backend_version = "%d.%d.%d" % gtk.pygtk_version
 del pygtk_version_required
+
+import matplotlib
+from matplotlib import verbose
+from matplotlib._pylab_helpers import Gcf
+from matplotlib.backend_bases import RendererBase, GraphicsContextBase, \
+     FigureManagerBase, FigureCanvasBase, NavigationToolbar2, cursors
+from matplotlib.backends.backend_gdk import RendererGDK
+from matplotlib.cbook import is_string_like, enumerate
+from matplotlib.figure import Figure
+from matplotlib.font_manager import fontManager
+import matplotlib.numerix as numerix
+from matplotlib.numerix import asarray, fromstring, UInt8, zeros, \
+     where, transpose, nonzero, indices, ones, nx
+from matplotlib.widgets import SubplotTool
 
 
 _debug = False

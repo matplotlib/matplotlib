@@ -985,18 +985,3 @@ verbose.report('verbose.level %s'%verbose.level)
 verbose.report('interactive is %s'%rcParams['interactive'])
 verbose.report('platform is %s'%sys.platform)
 verbose.report('loaded modules: %s'%sys.modules.keys(), 'debug')
-
-# True if we are running under Py2EXE (or similar)
-FROZEN = hasattr(sys, 'frozen')
-
-
-class MPLError (Exception):
-    """Exception for Matplotlib errors
-    Attributes:
-        message -- explanation of the error
-    """
-    def __init__ (self, message):
-        self.message = message
-
-    def __str__ (self):
-        return self.message
