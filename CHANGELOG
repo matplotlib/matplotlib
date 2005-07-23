@@ -1,8 +1,7 @@
 New entries should be added at the top
 
 2005-07-23 backend_gtk.py: change expose_event from using set_back_pixmap();
-           clear() to draw_drawable()
-           - SC
+           clear() to draw_drawable() - SC
 
 2005-07-23 backend_gtk.py: removed pygtk.require()
            matplotlib/__init__.py: delete 'FROZEN' and 'MPLError' which are 

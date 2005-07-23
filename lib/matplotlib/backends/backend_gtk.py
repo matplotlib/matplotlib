@@ -265,7 +265,7 @@ class FigureCanvasGTK(gtk.DrawingArea, FigureCanvasBase):
         if create_pixmap:
             if _debug: print 'FigureCanvasGTK.%s new pixmap' % fn_name()
             self._pixmap = gdk.Pixmap (self.window, self._pixmap_width,
-                                           self._pixmap_height)
+                                       self._pixmap_height)
             self._renderer.set_pixmap (self._pixmap)
 
         self._renderer.set_width_height (width, height)
@@ -1065,4 +1065,4 @@ def exception_handler(type, value, tb):
 FigureManager = FigureManagerGTK
 
 
-
+ 
