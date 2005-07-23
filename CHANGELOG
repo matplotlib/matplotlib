@@ -1,5 +1,9 @@
 New entries should be added at the top
 
+2005-07-23 backend_gtk.py: removed pygtk.require()
+           matplotlib/__init__.py: delete 'FROZEN' and 'MPLError' which are 
+           no longer used - SC
+
 2005-07-22 backend_gdk.py: removed pygtk.require() - SC
 
 2005-07-21 backend_svg.py: Remove unused imports. Remove methods doc strings

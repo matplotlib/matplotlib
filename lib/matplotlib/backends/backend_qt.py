@@ -1,8 +1,10 @@
 from __future__ import division
-import os, math
+import math
+import os
 import sys
+
 import matplotlib
-from matplotlib import verbose, MPLError
+from matplotlib import verbose
 from matplotlib.numerix import asarray, fromstring, UInt8, zeros, \
      where, transpose, nonzero, indices, ones, nx
 import matplotlib.numerix as numerix
