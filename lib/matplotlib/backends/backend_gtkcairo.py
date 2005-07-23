@@ -2,11 +2,12 @@
 GTK+ Matplotlib interface using Cairo (not GDK) drawing operations.
 Author: Steve Chaplin
 """
-from backend_gtk import *
-from backend_cairo import RendererCairo
-
 import cairo
 import cairo.gtk
+
+from matplotlib.backends.backend_gtk import *
+from matplotlib.backends.backend_cairo import RendererCairo
+
 
 backend_version = 'PyGTK(%d.%d.%d),Pycairo(%d.%d.%d)' % (gtk.pygtk_version + cairo.version_info)
 
@@ -23,8 +24,6 @@ def new_figure_manager(num, *args, **kwargs):
     thisFig = Figure(*args, **kwargs)
     canvas = FigureCanvasGTKCairo(thisFig)
     return FigureManagerGTK(canvas, num)
-
-
 
 
 class FigureCanvasGTKCairo(FigureCanvasGTK):
@@ -49,4 +48,3 @@ class FigureManagerGTKAgg(FigureManagerGTK):
         else:
             toolbar = None
         return toolbar
-
