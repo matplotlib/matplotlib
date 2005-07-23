@@ -111,7 +111,7 @@ class FigureCanvasGTK(gtk.DrawingArea, FigureCanvasBase):
         gtk.DrawingArea.__init__(self)
         
         self._idleID        = 0
-        self._draw_pixmap   = True
+        self._need_redraw   = True
         self._pixmap_width  = -1
         self._pixmap_height = -1
 
@@ -213,12 +213,12 @@ class FigureCanvasGTK(gtk.DrawingArea, FigureCanvasBase):
         dpi = self.figure.dpi.get()
         self.figure.set_figsize_inches (w/dpi, h/dpi)
         
-        self._draw_pixmap = True
+        self._need_redraw = True
         return True
         
 
     def draw(self):
-        self._draw_pixmap = True
+        self._need_redraw = True
         self.expose_event(self, None)
 
     def draw_idle(self):
@@ -279,19 +279,17 @@ class FigureCanvasGTK(gtk.DrawingArea, FigureCanvasBase):
         if _debug: print 'FigureCanvasGTK.%s' % fn_name()
 
         if not GTK_WIDGET_DRAWABLE(self):
-            return False
+            return False  # finish event propagation?
 
-        if self._draw_pixmap:
+        if self._need_redraw:
             x, y, w, h = self.allocation
             self._render_figure(w, h)
-            self.window.set_back_pixmap (self._pixmap, False)
-            self.window.clear()  # draw pixmap as the gdk.Window's bg
-            self._draw_pixmap = False
-        else: # workaround pygtk 2.6 problem - bg not being redrawn
-            x, y, w, h = event.area
-            self.window.clear_area (x, y, w, h)
-            
-        return False # allow signal to propagate further
+            self._need_redraw = False
+
+        x, y, w, h = event.area
+        self.window.draw_drawable (self.style.fg_gc[self.state], self._pixmap,
+                                   x, y, x, y, w, h)
+        return False  # finish event propagation?
 
 
     def print_figure(self, filename, dpi=150, facecolor='w', edgecolor='w',

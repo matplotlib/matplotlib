@@ -2,17 +2,15 @@
 Render to gtk from agg
 """
 from __future__ import division
-
 import os
+
 import matplotlib
 from matplotlib.figure import Figure
-
 from backend_agg import FigureCanvasAgg
 from backend_gtk import gtk, FigureManagerGTK, FigureCanvasGTK,\
      show, draw_if_interactive,\
      error_msg_gtk, NavigationToolbar, PIXELS_PER_INCH, backend_version, \
      NavigationToolbar2GTK
-
 from _gtkagg import agg_to_gtk_drawable
 
 
@@ -63,7 +61,7 @@ class FigureCanvasGTKAgg(FigureCanvasGTK, FigureCanvasAgg):
         winch = w/dpival
         hinch = h/dpival
         self.figure.set_figsize_inches(winch, hinch)
-        self._draw_pixmap = True
+        self._need_redraw = True
         
         if DEBUG: print 'FigureCanvasGTKAgg.configure_event end'        
         return True
@@ -93,9 +91,10 @@ class FigureCanvasGTKAgg(FigureCanvasGTK, FigureCanvasAgg):
 
     def blit(self, bbox=None):
         agg_to_gtk_drawable(self._pixmap, self.renderer._renderer, bbox)
-        self.window.set_back_pixmap (self._pixmap, False)
-        self.window.clear()  # draw pixmap as the gdk.Window's bg
-        self._draw_pixmap = False
+        x, y, w, h = self.allocation
+        self.window.draw_drawable (self.style.fg_gc[self.state], self._pixmap,
+                                   x, y, x, y, w, h)
+        self._need_redraw = False
 
     def print_figure(self, filename, dpi=150,
                      facecolor='w', edgecolor='w',
