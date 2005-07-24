@@ -12,7 +12,6 @@ if gtk.pygtk_version < pygtk_version_required:
     raise SystemExit ("PyGTK %d.%d.%d is installed\n"
                       "PyGTK %d.%d.%d or later is required"
                       % (gtk.pygtk_version + pygtk_version_required))
-backend_version = "%d.%d.%d" % gtk.pygtk_version
 del pygtk_version_required
 
 import matplotlib
@@ -29,6 +28,8 @@ from matplotlib.numerix import asarray, fromstring, UInt8, zeros, \
      where, transpose, nonzero, indices, ones, nx
 from matplotlib.widgets import SubplotTool
 
+
+backend_version = "%d.%d.%d" % gtk.pygtk_version
 
 _debug = False
 #_debug = True
