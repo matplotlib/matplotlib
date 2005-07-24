@@ -181,15 +181,11 @@ class FigureCanvasGTK (gtk.DrawingArea, FigureCanvasBase):
         if event.is_hint:
             x, y, state = event.window.get_pointer()
         else:
-            x = event.x
-            y = event.y
-            state = event.state
+            x, y, state = event.x, event.y, event.state
 
         # flipy so y=0 is bottom of canvas
-        y = self.figure.bbox.height() - y
-
-        if state:
-            FigureCanvasBase.motion_notify_event(self, x, y)
+        y = self.allocation.height - y
+        FigureCanvasBase.motion_notify_event(self, x, y)
 
         return False  # finish event propagation?
     
@@ -225,7 +221,8 @@ class FigureCanvasGTK (gtk.DrawingArea, FigureCanvasBase):
 
     def draw(self):
         self._need_redraw = True
-        self.expose_event(self, None)
+        #self.expose_event(self, None)
+        self.queue_draw()
 
     def draw_idle(self):
         def idle_draw(*args):

@@ -1,5 +1,9 @@
 New entries should be added at the top
 
+2005-07-24 backend_gtk.py: call FigureCanvasBase.motion_notify_event() on
+           all motion-notify-events, not just ones where a modifier key or
+           button has been pressed (fixes bug report from Niklas Volbers) - SC
+
 2005-07-24 backend_gtk.py: modify print_figure() use own pixmap, fixing 
            problems where print_figure() overwrites the display pixmap. 
 	   return False from all button/key etc events - to allow the event

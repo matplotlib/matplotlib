@@ -742,8 +742,8 @@ class FigureCanvasBase:
 
     def motion_notify_event(self, x, y, guiEvent=None):
         """
-        Backend derived classes should call this function on any mouse
-        button release.  x,y are the canvas coords: 0,0 is lower, left.
+        Backend derived classes should call this function on any
+        motion-notify-event. x,y are the canvas coords: 0,0 is lower, left.
         button and key are as defined in MouseEvent
         """
         self._lastx, self._lasty = x, y
