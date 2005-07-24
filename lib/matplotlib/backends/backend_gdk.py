@@ -70,8 +70,9 @@ class RendererGDK(RendererBase):
     rotated = {}  # a map from text prop tups to rotated text pixbufs
 
     def __init__(self, gtkDA, dpi):
-        # gtkDA is used in '<widget>.create_pango_layout(s)' (and cmap line
-        # below) only
+        # widget gtkDA is used for:
+        #  '<widget>.create_pango_layout(s)'
+        #  cmap line below)
         self.gtkDA = gtkDA
         self.dpi   = dpi
         self._cmap = gtkDA.get_colormap()
@@ -456,44 +457,19 @@ def new_figure_manager(num, *args, **kwargs):
     return manager
 
 
-class FigureCanvasGDK(FigureCanvasBase):
+class FigureCanvasGDK (FigureCanvasBase):
     def __init__(self, figure):
         FigureCanvasBase.__init__(self, figure)
-        self._pixmap_width  = -1
-        self._pixmap_height = -1
         
         self._renderer_init()
 
     def _renderer_init(self):
         self._renderer = RendererGDK (gtk.DrawingArea(), self.figure.dpi)
 
-        
-    def _render_figure(self, width, height):
-        """Render the figure to a gdk.Pixmap, is used for
-           - rendering the pixmap to display        (pylab.draw)
-           - rendering the pixmap to save to a file (pylab.savefig)
-        """
-        if _debug: print 'FigureCanvasGDK.%s' % fn_name()
-        create_pixmap = False
-        if width > self._pixmap_width:
-            # increase the pixmap in 10%+ (rather than 1 pixel) steps
-            self._pixmap_width  = max (int (self._pixmap_width  * 1.1), width)
-            create_pixmap = True
-
-        if height > self._pixmap_height:
-            self._pixmap_height = max (int (self._pixmap_height * 1.1), height)
-            create_pixmap = True
-
-        if create_pixmap:
-            if _debug: print 'FigureCanvasGTK.%s new pixmap' % fn_name()
-            self._pixmap = gtk.gdk.Pixmap (None, self._pixmap_width,
-                                           self._pixmap_height, depth=24)
-            # gtk backend must use self.window
-            self._renderer.set_pixmap (self._pixmap)
-
+    def _render_figure(self, pixmap, width, height):
+        self._renderer.set_pixmap (pixmap)
         self._renderer.set_width_height (width, height)
         self.figure.draw (self._renderer)
-
 
     def print_figure(self, filename, dpi=150, facecolor='w', edgecolor='w',
                      orientation='portrait'):
@@ -510,13 +486,14 @@ class FigureCanvasGDK(FigureCanvasBase):
         ext = ext.lower()
         if ext in ('jpg', 'png'):          # native printing
             width, height = self.get_width_height()
-            self._render_figure(width, height)
+            pixmap = gtk.gdk.Pixmap (None, width, height, depth=24)
+            self._render_figure(pixmap, width, height)
 
             # jpg colors don't match the display very well, png colors match
             # better
             pixbuf = gtk.gdk.Pixbuf(gtk.gdk.COLORSPACE_RGB, 0, 8,
                                     width, height)
-            pixbuf.get_from_drawable(self._pixmap, self._renderer._cmap,
+            pixbuf.get_from_drawable(pixmap, pixmap.get_colormap(),
                                      0, 0, 0, 0, width, height)
         
             # pixbuf.save() recognises 'jpeg' not 'jpg'
