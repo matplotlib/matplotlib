@@ -75,7 +75,6 @@ class FigureCanvasGTKAgg(FigureCanvasGTK, FigureCanvasAgg):
         x, y, w, h = self.allocation
         self.window.draw_drawable (self.style.fg_gc[self.state], self._pixmap,
                                    x, y, x, y, w, h)
-        self._need_redraw = False
 
     def print_figure(self, filename, dpi=150,
                      facecolor='w', edgecolor='w',
