@@ -1,5 +1,10 @@
 New entries should be added at the top
 
+2005-07-24 backend_gtk.py: modify print_figure() use own pixmap, fixing 
+           problems where print_figure() overwrites the display pixmap. 
+	   return False from all button/key etc events - to allow the event
+           to propagate further - SC
+
 2005-07-23 backend_gtk.py: change expose_event from using set_back_pixmap();
            clear() to draw_drawable() - SC
 

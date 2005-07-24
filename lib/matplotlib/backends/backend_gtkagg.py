@@ -66,28 +66,9 @@ class FigureCanvasGTKAgg(FigureCanvasGTK, FigureCanvasAgg):
         if DEBUG: print 'FigureCanvasGTKAgg.configure_event end'        
         return True
     
-
-    def _render_figure(self, width, height):
-        """Render the figure to a gdk.Pixmap, used by expose_event().
-        """
-        if DEBUG: print 'FigureCanvasGTKAgg._render_figure'
-        create_pixmap = False
-        if width > self._pixmap_width:
-            # increase the pixmap in 10%+ (rather than 1 pixel) steps
-            self._pixmap_width  = max (int (self._pixmap_width  * 1.1), width)
-            create_pixmap = True
-
-        if height > self._pixmap_height:
-            self._pixmap_height = max (int (self._pixmap_height * 1.1), height)
-            create_pixmap = True
-
-        if create_pixmap:
-            if DEBUG: print 'FigureCanvasGTK._render_figure new pixmap'
-            self._pixmap = gtk.gdk.Pixmap (self.window, self._pixmap_width,
-                                           self._pixmap_height)
-
+    def _render_figure(self, pixmap, width, height):
         FigureCanvasAgg.draw(self)
-        agg_to_gtk_drawable(self._pixmap, self.renderer._renderer, None)
+        agg_to_gtk_drawable(pixmap, self.renderer._renderer, None)
 
     def blit(self, bbox=None):
         agg_to_gtk_drawable(self._pixmap, self.renderer._renderer, bbox)

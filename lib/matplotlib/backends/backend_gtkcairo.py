@@ -2,11 +2,10 @@
 GTK+ Matplotlib interface using Cairo (not GDK) drawing operations.
 Author: Steve Chaplin
 """
-import cairo
 import cairo.gtk
 
-from matplotlib.backends.backend_gtk import *
 from matplotlib.backends.backend_cairo import RendererCairo
+from matplotlib.backends.backend_gtk import *
 
 
 backend_version = 'PyGTK(%d.%d.%d),Pycairo(%d.%d.%d)' % (gtk.pygtk_version + cairo.version_info)

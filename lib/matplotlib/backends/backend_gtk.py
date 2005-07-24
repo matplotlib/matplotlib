@@ -20,7 +20,7 @@ from matplotlib import verbose
 from matplotlib._pylab_helpers import Gcf
 from matplotlib.backend_bases import RendererBase, GraphicsContextBase, \
      FigureManagerBase, FigureCanvasBase, NavigationToolbar2, cursors
-from matplotlib.backends.backend_gdk import RendererGDK
+from matplotlib.backends.backend_gdk import RendererGDK, FigureCanvasGDK
 from matplotlib.cbook import is_string_like, enumerate
 from matplotlib.figure import Figure
 from matplotlib.font_manager import fontManager
@@ -91,7 +91,7 @@ def new_figure_manager(num, *args, **kwargs):
     return manager
 
 
-class FigureCanvasGTK(gtk.DrawingArea, FigureCanvasBase):
+class FigureCanvasGTK (gtk.DrawingArea, FigureCanvasBase):
     keyvald = {65507 : 'control',
                65505 : 'shift',
                65513 : 'alt',
@@ -104,7 +104,6 @@ class FigureCanvasGTK(gtk.DrawingArea, FigureCanvasBase):
                65364 : 'down',
                }
 
-                          
     def __init__(self, figure):
         if _debug: print 'FigureCanvasGTK.%s' % fn_name()
         FigureCanvasBase.__init__(self, figure)
@@ -148,8 +147,8 @@ class FigureCanvasGTK(gtk.DrawingArea, FigureCanvasBase):
         # flipy so y=0 is bottom of canvas
         y = self.figure.bbox.height() - event.y
         FigureCanvasBase.button_press_event(self, x, y, event.button)
-        #return True
-        return False
+
+        return False  # finish event propagation?    
         
     def button_release_event(self, widget, event):
         if _debug: print 'FigureCanvasGTK.%s' % fn_name()
@@ -157,7 +156,8 @@ class FigureCanvasGTK(gtk.DrawingArea, FigureCanvasBase):
         # flipy so y=0 is bottom of canvas
         y = self.figure.bbox.height() - event.y
         FigureCanvasBase.button_release_event(self, x, y, event.button)
-        return True
+
+        return False  # finish event propagation?    
 
     def key_press_event(self, widget, event):
         if _debug: print 'FigureCanvasGTK.%s' % fn_name()
@@ -165,11 +165,15 @@ class FigureCanvasGTK(gtk.DrawingArea, FigureCanvasBase):
         if _debug: print "hit", key
         FigureCanvasBase.key_press_event(self, key)
 
+        return False  # finish event propagation?
+
     def key_release_event(self, widget, event):        
         if _debug: print 'FigureCanvasGTK.%s' % fn_name()
         key = self._get_key(event)
         if _debug: print "release", key
         FigureCanvasBase.key_release_event(self, key)
+
+        return False  # finish event propagation?
 
     def motion_notify_event(self, widget, event):
         if _debug: print 'FigureCanvasGTK.%s' % fn_name()
@@ -185,8 +189,9 @@ class FigureCanvasGTK(gtk.DrawingArea, FigureCanvasBase):
 
         if state:
             FigureCanvasBase.motion_notify_event(self, x, y)
-        return True
 
+        return False  # finish event propagation?
+    
     def _get_key(self, event):
         if self.keyvald.has_key(event.keyval):
             key = self.keyvald[event.keyval]
@@ -214,7 +219,7 @@ class FigureCanvasGTK(gtk.DrawingArea, FigureCanvasBase):
         self.figure.set_figsize_inches (w/dpi, h/dpi)
         
         self._need_redraw = True
-        return True
+        return False  # finish event propagation?
         
 
     def draw(self):
@@ -241,12 +246,10 @@ class FigureCanvasGTK(gtk.DrawingArea, FigureCanvasBase):
         self._renderer = RendererGDK (self, self.figure.dpi)
 
 
-    def _render_figure(self, width, height):
-        """Render the figure to a gdk.Pixmap, used by expose_event().
-        Is used for
-           - rendering the pixmap to display        (pylab.draw)
-           - rendering the pixmap to save to a file (pylab.savefig)
-        Should not be overridden by GTK backends
+    def _pixmap_prepare(self, width, height):
+        """
+        Make sure _._pixmap is at least width, height,
+        create new pixmap if necessary
         """
         if _debug: print 'FigureCanvasGTK.%s' % fn_name()
 
@@ -266,35 +269,37 @@ class FigureCanvasGTK(gtk.DrawingArea, FigureCanvasBase):
             if _debug: print 'FigureCanvasGTK.%s new pixmap' % fn_name()
             self._pixmap = gdk.Pixmap (self.window, self._pixmap_width,
                                        self._pixmap_height)
-            self._renderer.set_pixmap (self._pixmap)
 
+
+    def _render_figure(self, pixmap, width, height):
+        """used by GTK and GTKcairo. GTKAgg overrides
+        """
+        self._renderer.set_pixmap (pixmap)
         self._renderer.set_width_height (width, height)
         self.figure.draw (self._renderer)
-
+        
 
     def expose_event(self, widget, event):
-        """Expose_event for all GTK backends
-        Should not be overridden.
+        """Expose_event for all GTK backends. Should not be overridden.
         """
         if _debug: print 'FigureCanvasGTK.%s' % fn_name()
 
-        if not GTK_WIDGET_DRAWABLE(self):
-            return False  # finish event propagation?
+        if GTK_WIDGET_DRAWABLE(self):
+            if self._need_redraw:
+                x, y, w, h = self.allocation
+                self._pixmap_prepare (w, h)
+                self._render_figure(self._pixmap, w, h)
+                self._need_redraw = False
 
-        if self._need_redraw:
-            x, y, w, h = self.allocation
-            self._render_figure(w, h)
-            self._need_redraw = False
-
-        x, y, w, h = event.area
-        self.window.draw_drawable (self.style.fg_gc[self.state], self._pixmap,
-                                   x, y, x, y, w, h)
+            x, y, w, h = event.area
+            self.window.draw_drawable (self.style.fg_gc[self.state],
+                                       self._pixmap, x, y, x, y, w, h)
         return False  # finish event propagation?
 
 
     def print_figure(self, filename, dpi=150, facecolor='w', edgecolor='w',
                      orientation='portrait'):
-        # TODO - use gdk print figure?
+        # TODO - use gdk/cairo/agg print_figure?
         root, ext = os.path.splitext(filename)       
         ext = ext[1:]
         if ext == '':
@@ -319,13 +324,14 @@ class FigureCanvasGTK(gtk.DrawingArea, FigureCanvasBase):
         ext = ext.lower()
         if ext in ('jpg', 'png'):          # native printing
             width, height = self.get_width_height()
-            self._render_figure(width, height)
+            pixmap = gdk.Pixmap (self.window, width, height)
+            self._render_figure(pixmap, width, height)
 
             # jpg colors don't match the display very well, png colors match
             # better
             pixbuf = gdk.Pixbuf(gdk.COLORSPACE_RGB, 0, 8,
                                     width, height)
-            pixbuf.get_from_drawable(self._pixmap, self._pixmap.get_colormap(),
+            pixbuf.get_from_drawable(pixmap, pixmap.get_colormap(),
                                      0, 0, 0, 0, width, height)
         
             # pixbuf.save() recognises 'jpeg' not 'jpg'
@@ -386,6 +392,7 @@ class FigureCanvasGTK(gtk.DrawingArea, FigureCanvasBase):
         self.figure.set_edgecolor(origedgecolor)
         self.figure.set_figsize_inches(origWIn, origHIn)
         self.figure.set_canvas(self)
+        
 
 class FigureManagerGTK(FigureManagerBase):
     """
