@@ -68,11 +68,14 @@ style="%(style)s %(rgbhex)s %(clippath)s "
         font.set_size(size, 72.0)
         return font
 
+        
     def _get_gc_props_svg(self, gc):
         color='stroke: %s; ' % rgb2hex(gc.get_rgb())
         linewidth = 'stroke-width: %f; ' % gc.get_linewidth()
-        join = 'stroke-linejoin: %s; ' % gc.get_joinstyle()
-        cap = 'stroke-linecap: %s; ' % gc.get_capstyle()
+        join  = 'stroke-linejoin: %s; ' % gc.get_joinstyle()
+        cap   = 'stroke-linecap: %s; ' % {'projecting' : 'square',
+                                          'butt' : 'butt',
+                                          'round': 'round',}[gc.get_capstyle()]
         alpha = 'opacity: %f; '% gc.get_alpha()
         offset, seq = gc.get_dashes()
         if seq is not None:
@@ -81,6 +84,7 @@ style="%(style)s %(rgbhex)s %(clippath)s "
         else:
             dashes = ''
         return '%(color)s %(linewidth)s %(join)s %(cap)s %(dashes)s %(alpha)s'%locals()
+
 
     def _get_gc_clip_svg(self, gc):
         cliprect = gc.get_clip_rectangle()
@@ -240,20 +244,7 @@ style="%(style)s %(rgbhex)s %(clippath)s "
         h /= 64.0
         return w, h
 
-    def new_gc(self):
-        return GraphicsContextSVG()
-    
 
-class GraphicsContextSVG(GraphicsContextBase):
-    def get_capstyle(self):
-        'one of butt/round/square/none'
-        d = {'projecting' : 'square',
-             'butt' : 'butt',             
-             'round' : 'round',
-             }
-        return d[self._capstyle.lower()]
-        
-    
 class FigureCanvasSVG(FigureCanvasBase):
 
     def print_figure(self, filename, dpi=80,
