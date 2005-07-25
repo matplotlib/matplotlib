@@ -1,5 +1,9 @@
 New entries should be added at the top
 
+2005-07-25 backend_svg.py: simplify code by deleting GraphicsContextSVG and
+           RendererSVG.new_gc(), and moving the gc.get_capstyle() code into
+           RendererSVG._get_gc_props_svg() - SC
+
 2005-07-24 backend_gtk.py: call FigureCanvasBase.motion_notify_event() on
            all motion-notify-events, not just ones where a modifier key or
            button has been pressed (fixes bug report from Niklas Volbers) - SC
