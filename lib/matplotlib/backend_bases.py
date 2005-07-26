@@ -852,6 +852,9 @@ class FigureManagerBase:
     def destroy(self):
         pass
 
+    def full_screen_toggle (self):
+        pass
+
     def key_press(self, event):
 
         # these bindings happen whether you are over an axes or not
@@ -859,7 +862,11 @@ class FigureManagerBase:
         #    self.destroy() # how cruel to have to destroy oneself!
         #    return
 
-        if event.inaxes is None: return
+        if event.key == 'f':
+            self.full_screen_toggle()
+
+        if event.inaxes is None:
+            return
 
         # the mouse has to be over an axes to trigger these
         if event.key == 'g':
