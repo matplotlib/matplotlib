@@ -1,5 +1,12 @@
 New entries should be added at the top
 
+2005-07-26 Added new widgets Cursor and HorizontalSpanSelector to
+           matplotlib.widgets.  See examples/widgets/cursor.py and
+           examples/widgets/span_selector.py - JDH
+
+2005-07-26 added draw event to mpl event hierarchy -- triggered on
+           figure.draw
+
 2005-07-26 backend_gtk.py: allow 'f' key to toggle window fullscreen mode
 
 2005-07-26 backend_svg.py: write "<.../>" elements all on one line and remove 
@@ -22,7 +29,7 @@ New entries should be added at the top
            clear() to draw_drawable() - SC
 
 2005-07-23 backend_gtk.py: removed pygtk.require()
-           matplotlib/__init__.py: delete 'FROZEN' and 'MPLError' which are 
+           matplotlib/__init__.py: delete 'FROZEN' and 'McPLError' which are 
            no longer used - SC
 
 2005-07-22 backend_gdk.py: removed pygtk.require() - SC

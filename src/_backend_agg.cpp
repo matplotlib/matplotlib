@@ -214,38 +214,6 @@ RendererAgg::RendererAgg(unsigned int width, unsigned int height, double dpi,
   
 };
 
-Py::Object
-RendererAgg::cache( const Py::Tuple& args ) {
-  //copy pixel buffer to cache
-  _VERBOSE("RendererAgg::cache");
-
-  args.verify_length(0);
-  delete [] cacheBuffer;
-  size_t i = 0;
-  cacheBuffer = new agg::int8u[NUMBYTES];  
-  while (i++<NUMBYTES) *cacheBuffer++ = *pixBuffer++;
-  cacheBuffer -= NUMBYTES;
-  pixBuffer -= NUMBYTES;
-  return Py::Object();
-
-}
-
-Py::Object
-RendererAgg::blit( const Py::Tuple& args) {
-  // blit from the pixel buffer
-  
-  _VERBOSE("RendererAgg::blit");
-  args.verify_length(0);
-  if (cacheBuffer==NULL)
-    throw Py::RuntimeError("You must first cache the pixel buffer with cache");
- 
-  size_t i = 0;
-  while (i++<NUMBYTES) *pixBuffer++ = *cacheBuffer++;
-  cacheBuffer -= NUMBYTES;
-  pixBuffer -= NUMBYTES;
-  return Py::Object();
-  
-}
 
 
 void
@@ -611,11 +579,12 @@ RendererAgg::copy_from_bbox(const Py::Tuple& args) {
    
 
   agg::rect r = bbox_to_rect(args[0]);
-  r.x1 -=5;
-  r.y1 -=5;
-  r.x2 +=5;
-  r.y2 +=5;
-  
+  /*
+    r.x1 -=5;
+    r.y1 -=5;
+    r.x2 +=5;
+    r.y2 +=5;
+  */
   int boxwidth = r.x2-r.x1;
   int boxheight = r.y2-r.y1;
   int boxstride = boxwidth*4;
@@ -629,7 +598,7 @@ RendererAgg::copy_from_bbox(const Py::Tuple& args) {
 
   pixfmt pf(rbuf);
   renderer_base rb(pf);
-  rb.clear(agg::rgba(1, 0, 0)); //todo remove me
+  //rb.clear(agg::rgba(1, 0, 0)); //todo remove me
   rb.copy_from(*renderingBuffer, &r, -r.x1, -r.y1);
   BufferRegion* reg = new BufferRegion(buf, r);
 
@@ -646,7 +615,8 @@ RendererAgg::restore_region(const Py::Tuple& args) {
   BufferRegion* region  = static_cast<BufferRegion*>(args[0].ptr());
   
   if (region->aggbuf.data==NULL) 
-    throw Py::ValueError("Cannot restore_region frm NULL data");
+    return Py::Object();
+  //throw Py::ValueError("Cannot restore_region from NULL data");
 
     
   agg::rendering_buffer rbuf;
@@ -2016,10 +1986,6 @@ void RendererAgg::init_type()
 		     "buffer = buffer_rgba()");
   add_varargs_method("clear", &RendererAgg::clear, 
 		     "clear()"); 
-  add_varargs_method("cache", &RendererAgg::cache, 
-		     "cache()"); 
-  add_varargs_method("blit", &RendererAgg::blit, 
-		     "blit()"); 
   add_varargs_method("copy_from_bbox", &RendererAgg::copy_from_bbox, 
 		     "copy_from_bbox(bbox)"); 
 

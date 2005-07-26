@@ -224,6 +224,7 @@ class FigureCanvasGTK (gtk.DrawingArea, FigureCanvasBase):
         #self.expose_event(self, None)
         self.queue_draw()
 
+
     def draw_idle(self):
         def idle_draw(*args):
             self.draw()

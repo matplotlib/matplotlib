@@ -126,8 +126,6 @@ class RendererAgg(RendererBase):
         self.restore_region = self._renderer.restore_region        
         
 
-        self.cache = self._renderer.cache
-        self.blit = self._renderer.blit
         self.texmanager = TexManager()
 
         self.bbox = lbwh_to_bbox(0,0, self.width, self.height)

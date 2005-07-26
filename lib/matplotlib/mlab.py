@@ -70,7 +70,7 @@ from numerix import array, asarray, arange, divide, exp, arctan2, \
 
 
 from numerix.mlab import hanning, cov, diff, svd, rand, std
-from numerix.fft import fft
+from numerix.fft import fft, inverse_fft
 
 from cbook import iterable
 
@@ -1247,6 +1247,16 @@ def segments_intersect(s1, s2):
 
     return 0.0 <= u1 <= 1.0 and 0.0 <= u2 <= 1.0
 
+
+def fftsurr(x):
+    """
+    Compute an FFT phase randomized surrogate of x
+    """
+    z = fft(x)
+    a = 2.*pi*1j
+    phase = a*rand(len(x))
+    z = z*exp(phase)
+    return inverse_fft(z).real
 
 ### the following code was written and submitted by Fernando Perez
 ### from the ipython numutils package under a BSD license

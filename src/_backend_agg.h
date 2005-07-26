@@ -125,8 +125,6 @@ public:
   Py::Object tostring_bgra(const Py::Tuple & args);
   Py::Object buffer_rgba(const Py::Tuple & args);
   Py::Object clear(const Py::Tuple & args);
-  Py::Object cache(const Py::Tuple & args);
-  Py::Object blit(const Py::Tuple & args);
 
   Py::Object copy_from_bbox(const Py::Tuple & args);
   Py::Object restore_region(const Py::Tuple & args);
