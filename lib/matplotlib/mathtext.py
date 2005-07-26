@@ -43,17 +43,9 @@ REQUIREMENTS
 LICENSING:
 
   The computer modern fonts this package uses are part of the BaKoMa
-  fonts, which are (in my understanding) free for noncommercial use.
-  For commercial use, please consult the licenses in fonts/ttf and the
-  author Basil K. Malyshev - see also
-  http://www.mozilla.org/projects/mathml/fonts/encoding/license-bakoma.txt
-  and the file BaKoMa-CM.Fonts in the matplotlib fonts dir.
-
-  Note that all the code in this module is distributed under the
-  matplotlib license, and a truly free implementation of mathtext for
-  either freetype or ps would simply require deriving another concrete
-  implementation from the Fonts class defined in this module which
-  used free fonts.
+  fonts, which are (now) free for commercial and noncommercial use and
+  redistribution; see license/LICENSE_BAKOMA in the matplotlib src
+  distribution for redistribution requirements.
 
 USAGE:
 

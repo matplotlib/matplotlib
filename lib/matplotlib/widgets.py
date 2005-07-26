@@ -7,10 +7,12 @@ layout -- you have to figure out how wide and tall you want your Axes
 to be to accommodate your widget.
 """
 
-from matplotlib.mlab import linspace, dist
-from matplotlib.patches import Circle, Rectangle
-from matplotlib.lines import Line2D
-from matplotlib.numerix import array
+from mlab import linspace, dist
+from patches import Circle, Rectangle
+from lines import Line2D
+from numerix import array
+from transforms import blend_xy_sep_transform
+
 import thread
 
 class Widget:
@@ -593,3 +595,174 @@ class SubplotTool(Widget):
     def funchspace(self, val):
         self.targetfig.subplots_adjust(hspace=val)
         if self.drawon: self.targetfig.canvas.draw()
+
+
+class Cursor:
+    def __init__(self, ax, useblit=False, **lineprops):
+        self.ax = ax
+        self.canvas = ax.figure.canvas
+
+        self.canvas.mpl_connect('motion_notify_event', self.onmove)
+        self.canvas.mpl_connect('draw_event', self.clear)
+
+        self.visible = True
+        self.horizOn = True
+        self.vertOn = True
+        self.useblit = useblit
+
+        self.lineh = ax.axhline(0, visible=False, **lineprops)
+        self.linev = ax.axvline(0, visible=False, **lineprops)
+
+        self.background = None
+        self.needclear = False
+        
+        
+    def clear(self, event):
+        self.background = self.canvas.copy_from_bbox(self.ax.bbox)
+        self.linev.set_visible(False)
+        self.lineh.set_visible(False)        
+
+    def onmove(self, event):
+        if event.inaxes != self.ax:
+            self.linev.set_visible(False)
+            self.lineh.set_visible(False)        
+
+            if self.needclear:            
+                self.canvas.draw()
+                self.needclear = False
+            return 
+        self.needclear = True
+
+        self.linev.set_xdata((event.xdata, event.xdata))
+        self.lineh.set_ydata((event.ydata, event.ydata))
+        self.linev.set_visible(self.visible and self.vertOn)
+        self.lineh.set_visible(self.visible and self.horizOn)        
+        self.update()
+        
+
+    def update(self):
+        if self.useblit:
+            if self.background is not None:
+                self.canvas.restore_region(self.background)
+            self.ax.draw_artist(self.linev)
+            self.ax.draw_artist(self.lineh)            
+            self.canvas.blit(self.ax.bbox)
+        else:
+            self.canvas.draw_idle()
+
+        return False
+
+class HorizontalSpanSelector:
+    """
+    Select a min/max range of the x axes for a matplotlib Axes
+
+    Example usage:
+
+      ax = subplot(111)
+      ax.plot(x,y)
+
+      def onselect(xmin, xmax):
+      print xmin, xmax
+      span = HorizontalSpanSelector(ax, onselect)
+
+    """
+    def __init__(self, ax, onselect, minspan=None, useblit=False, rectprops=None):
+        """
+        Create a span selector in ax.  When a selection is made, clear
+        the span and call onselect with
+
+          onselect(xmin, xmax)
+
+        and clear the span.
+
+        If minspan is not None, ignore events smaller than minspan
+
+        The span rect is drawn with rectprops; default
+          rectprops = dict(facecolor='red', alpha=0.5)
+
+        set the visible attribute to False if you want to turn off
+        the functionality of the span selector
+
+
+        """
+        if rectprops is None:
+            rectprops = dict(facecolor='red', alpha=0.5)        
+            
+        self.ax = ax
+        self.visible = True
+        self.canvas = ax.figure.canvas
+        self.canvas.mpl_connect('motion_notify_event', self.onmove)
+        self.canvas.mpl_connect('button_press_event', self.press)
+        self.canvas.mpl_connect('button_release_event', self.release)
+
+        self.rect = None
+        self.background = None
+
+        self.rectprops = rectprops
+        self.onselect = onselect
+        self.useblit = useblit
+        self.minspan = minspan
+
+        trans = blend_xy_sep_transform(self.ax.transData, self.ax.transAxes)
+
+        self.rect = Rectangle( (0,0), 0, 1,
+                               transform=trans,
+                               visible=False,
+                               **self.rectprops
+                               )
+        self.ax.add_patch(self.rect)
+        
+    def update_background(self):
+        'force an update of the background'
+        self.background = self.canvas.copy_from_bbox(self.ax.bbox)
+
+    def ignore(self, event):
+        'return True if event should be ignored'
+        return  event.inaxes!=self.ax or not self.visible or event.button !=1 
+
+    def press(self, event):
+        'on button press event'
+        if self.ignore(event): return
+        self.background = self.canvas.copy_from_bbox(self.ax.bbox)
+        self.rect.set_visible(self.visible)
+        self.pressx = event.xdata
+        print 'ressx', self.pressx
+        return False
+
+
+    def release(self, event):
+        'on button release event'
+        if self.ignore(event): return
+
+        self.rect.set_visible(False)
+        self.canvas.draw()
+        xmin = self.rect.xy[0]
+        xmax = xmin + self.rect.get_width()
+        span = xmax - xmin
+        if self.minspan is not None and span<self.minspan: return
+        self.onselect(xmin, xmax)
+        return False
+
+    def update(self):
+        'draw using newfangled blit or oldfangled draw depending on useblit'
+        if self.useblit:
+            if self.background is not None:
+                self.canvas.restore_region(self.background)
+            self.ax.draw_artist(self.rect)
+            self.canvas.blit(self.ax.bbox)
+        else:
+            self.canvas.draw_idle()
+
+        return False
+
+    def onmove(self, event):
+        'on motion notify event'
+        if self.ignore(event): return
+        x,y = event.xdata, event.ydata
+
+        minx, maxx = x, self.pressx
+        if minx>maxx: minx, maxx = maxx, minx
+        self.rect.xy[0] = minx
+        self.rect.set_width(maxx-minx)            
+        self.update()
+        return False

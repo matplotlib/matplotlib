@@ -2004,6 +2004,7 @@ class Axes(Artist):
             handles.extend([c for c in self.collections if isinstance(c, LineCollection)])
             return handles
 
+
         if len(args)==0:
             handles = []
             labels = []

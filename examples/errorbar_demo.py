@@ -11,8 +11,8 @@ h = 2*f
 figure(1)  
 #errorbar(t, s, e, fmt='o')             # vertical symmetric
 #errorbar(t, s, None, f, fmt='o')       # horizontal symmetric
-#errorbar(t, s, e, f, fmt='o')          # both symmetric
-errorbar(t, s, [e,g], [f,h], fmt='--o')  # both asymmetric
+errorbar(t, s, e, f, fmt='o')          # both symmetric
+#errorbar(t, s, [e,g], [f,h], fmt='--o')  # both asymmetric
 #errorbar(t, s, [e,g], f, fmt='o', ecolor='g')      # both mixed
 #errorbar(t, s, e, [f,h], fmt='o')      # both mixed
 #errorbar(t, s, [e,g], fmt='o')         # vertical asymmetric
@@ -22,6 +22,10 @@ xlabel('Distance (m)')
 ylabel('Height (m)')
 title('Mean and standard error as a function of distance')
 
+figure(2)
+ax = subplot(111)
+ax.set_yscale('log')
+errorbar(t, s+2, e, f, fmt='o')          # both symmetric
 
 #savefig('errorbar_demo')
 show()

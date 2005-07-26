@@ -562,6 +562,19 @@ class Event:
         self.canvas = canvas
         self.guiEvent = guiEvent
 
+class DrawEvent(Event):
+    """
+    An event triggered by a draw operation on the canvas
+
+    Attributes are
+      name   
+      canvas
+      renderer - the Renderer instance
+    """
+    def __init__(self, name, canvas, renderer):
+        Event.__init__(self, name, canvas)
+        self.renderer = renderer
+        
 class LocationEvent(Event):
     """
     A event that has a screen location
@@ -670,6 +683,8 @@ class KeyEvent(LocationEvent):
         LocationEvent.__init__(self, name, canvas, x, y, guiEvent=guiEvent)
         self.key = key
 
+
+
 class FigureCanvasBase:
     """
     The canvas the figure renders into.
@@ -705,6 +720,11 @@ class FigureCanvasBase:
         """
         pass
 
+    def draw_event(self, renderer):
+        event = DrawEvent('draw_event', self, renderer)
+        for cid, func in self.callbacks.get('draw_event', {}).items():
+            func(event)
+
     def key_press_event(self, key, guiEvent=None):
         self._key = key
         event = KeyEvent('key_press_event', self, key, self._lastx, self._lasty, guiEvent=guiEvent)
@@ -722,7 +742,7 @@ class FigureCanvasBase:
         Backend derived classes should call this function on any mouse
         button press.  x,y are the canvas coords: 0,0 is lower, left.
         button and key are as defined in MouseEvent
-        """
+        """         
         self._button = button
         event = MouseEvent('button_press_event', self, x, y, button, self._key, guiEvent=guiEvent)
         for cid, func in self.callbacks.get('button_press_event', {}).items():
@@ -807,7 +827,9 @@ class FigureCanvasBase:
 
         where event is a MplEvent.  The following events are recognized
 
+         'draw_event'
          'key_press_event'
+         'key_release_event'         
          'button_press_event'
          'button_release_event'
          'motion_notify_event'
@@ -820,6 +842,15 @@ class FigureCanvasBase:
 
         return value is a connection id that can be used with
         mpl_disconnect """
+
+        assert s in  ('draw_event',
+        'key_press_event',
+        'key_release_event',         
+        'button_press_event',
+        'button_release_event',
+        'motion_notify_event',
+        )
+
         self.cid += 1
         self.callbacks.setdefault(s, {})[self.cid] = func
         return self.cid

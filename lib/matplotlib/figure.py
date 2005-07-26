@@ -521,6 +521,8 @@ class Figure(Artist):
 
         self._cachedRenderer = renderer
 
+        self.canvas.draw_event(renderer)
+        
     def draw_artist(self, a):
         'draw artist only -- this is available only after the figure is drawn'
         assert self._cachedRenderer is not None
