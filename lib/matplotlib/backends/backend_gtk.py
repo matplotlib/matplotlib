@@ -449,6 +449,17 @@ class FigureManagerGTK(FigureManagerBase):
         if Gcf.get_num_fig_managers()==0 and not matplotlib.is_interactive():
             gtk.main_quit()
 
+
+    def full_screen_toggle (self):
+        if gtk.pygtk_version >= (2,2,0):
+            self._full_screen_flag = not self._full_screen_flag
+            if self._full_screen_flag:
+                self.window.fullscreen()
+            else:
+                self.window.unfullscreen()
+    _full_screen_flag = False
+
+
     def _get_toolbar(self, canvas):
         # must be inited after the window, drawingArea and figure
         # attrs are set

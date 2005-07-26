@@ -2,7 +2,11 @@
 Classes for the ticks and x and y axis
 """
 from __future__ import division
-import sys, math, re, copy
+import copy
+import math
+import re
+import sys
+
 from numerix import arange, array, asarray, ones, zeros, \
      nonzero, take, Float, log10, logical_and, \
      dot, sin, cos, tan, pi, sqrt
@@ -22,8 +26,7 @@ from font_manager import FontProperties
 from text import Text, TextWithDash, _process_text_args
 from patches import bbox_artist
 
-import pdb
-import sys
+#import pdb
 
 
 class Tick(Artist):
@@ -140,10 +143,10 @@ class Tick(Artist):
         renderer.open_group(self.__name__)
         midPoint = self.get_view_interval().contains_open( self.get_loc() )
 
-        if midPoint and self.gridOn:  self.gridline.draw(renderer)
-        if midPoint and self.tick1On: self.tick1line.draw(renderer)
-        if midPoint and self.tick2On: self.tick2line.draw(renderer)
-
+        if midPoint:
+            if self.gridOn:  self.gridline.draw(renderer)
+            if self.tick1On: self.tick1line.draw(renderer)
+            if self.tick2On: self.tick2line.draw(renderer)
 
         if self.label1On: self.label1.draw(renderer)
         if self.label2On: self.label2.draw(renderer)
