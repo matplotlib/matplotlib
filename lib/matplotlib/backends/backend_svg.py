@@ -21,40 +21,29 @@ def new_figure_manager(num, *args):
 
 
 _fontd = {}
+_capstyle_d = {'projecting' : 'square', 'butt' : 'butt', 'round': 'round',}
 class RendererSVG(RendererBase):
     def __init__(self, width, height, svgwriter, basename='_svg'):
-        # use basename to generate image files
-        self._svgwriter = svgwriter
         self.width=width
         self.height=height
+        self._svgwriter = svgwriter
+        # use basename to generate image files
         self.basename = basename
+        
         self._groupd = {}
         self._imaged = {}
         self._clipd = {}
 
-    def _draw_rawsvg(self, svg):
-        self._svgwriter.write(svg)
-
-    def _draw_svg(self, type, details, gc, rgbFace):
-        if rgbFace is not None:
-            rgbhex='fill: %s; '%rgb2hex(rgbFace)
+    def _draw_svg_element(self, element, details, gc, rgbFace):
+        cliprect, clipid = self._get_gc_clip_svg(gc)
+        if clipid is None:
+            clippath = ''
         else:
-            rgbhex='fill: none; '
-        style = self._get_gc_props_svg(gc)
-        cliprect,id = self._get_gc_clip_svg(gc)
-        if id is not None:  clippath = ' clip-path:url(#%s); ' % id
-        else: clippath = ''
+            clippath = 'clip-path:url(#%s);' % clipid
 
-        if len(cliprect) and id is not None: header = cliprect + type
-        else: header = type
-
-        svg = """\
-%(header)s        
-style="%(style)s %(rgbhex)s %(clippath)s "
-%(details)s  />
-""" % locals()
-        
-        self._svgwriter.write(svg)
+        self._svgwriter.write ('%s<%s %s %s/>\n' % (
+            cliprect,
+            element, self._get_style(gc, rgbFace, clippath), details))
 
     def _get_font(self, prop):
         key = hash(prop)
@@ -67,66 +56,74 @@ style="%(style)s %(rgbhex)s %(clippath)s "
         size = prop.get_size_in_points()
         font.set_size(size, 72.0)
         return font
-
         
-    def _get_gc_props_svg(self, gc):
-        color='stroke: %s; ' % rgb2hex(gc.get_rgb())
-        linewidth = 'stroke-width: %f; ' % gc.get_linewidth()
-        join  = 'stroke-linejoin: %s; ' % gc.get_joinstyle()
-        cap   = 'stroke-linecap: %s; ' % {'projecting' : 'square',
-                                          'butt' : 'butt',
-                                          'round': 'round',}[gc.get_capstyle()]
-        alpha = 'opacity: %f; '% gc.get_alpha()
-        offset, seq = gc.get_dashes()
-        if seq is not None:
-            dvals = ' '.join(['%f'%val for val in seq])
-            dashes = 'stroke-dasharray: %s; stroke-dashoffset: %f; ' % (dvals, offset)
+    def _get_style(self, gc, rgbFace, clippath):
+        """
+        return the style string.
+        style is generated from the GraphicsContext, rgbFace and clippath
+        """
+        if rgbFace is None:
+            fill = 'none'
         else:
+            fill = rgb2hex(rgbFace)
+            
+        offset, seq = gc.get_dashes()
+        if seq is None:
             dashes = ''
-        return '%(color)s %(linewidth)s %(join)s %(cap)s %(dashes)s %(alpha)s'%locals()
+        else:
+            dashes = 'stroke-dasharray: %s; stroke-dashoffset: %f;' % (
+                ' '.join(['%f'%val for val in seq]), offset)
 
+        return 'style="stroke: %s; stroke-width: %f; stroke-linejoin: %s; ' \
+               'stroke-linecap: %s; %s opacity: %f; fill: %s; %s"' % (
+            rgb2hex(gc.get_rgb()),
+            gc.get_linewidth(),
+            gc.get_joinstyle(),
+            _capstyle_d[gc.get_capstyle()],
+            dashes,
+            gc.get_alpha(),
+            fill,
+            clippath,
+            )
 
     def _get_gc_clip_svg(self, gc):
         cliprect = gc.get_clip_rectangle()
-        if cliprect is not None:
+        if cliprect is None:
+            return '', None
+        else:
             # See if we've already seen this clip rectangle
             key = hash(cliprect)  
-            cr = self._clipd.get(key)
-
-            if cr is None:        # If not, store a new clipPath
+            if self._clipd.get(key) is None:  # If not, store a new clipPath
                 self._clipd[key] = cliprect
                 x, y, w, h = cliprect
-
                 y = self.height-(y+h)
-                box = """
+                box = """\
 <defs>
     <clipPath id="%(key)s">
     <rect x="%(x)f" y="%(y)f" width="%(w)f" height="%(h)f"
     style="stroke: gray; fill: none;"/>
     </clipPath>
 </defs>
-
 """ % locals()
-
                 return box, key
-            else: return '',key   # If we're using a previously defined clipPath, reference its id
-        return '',None
+            else:
+                # return id of previously defined clipPath
+                return '', key
 
     def open_group(self, s):
         self._groupd[s] = self._groupd.get(s,0) + 1
-        svg = '<g id="%s%d">\n' % (s, self._groupd[s])
-        self._draw_rawsvg(svg)
-
+        self._svgwriter.write('<g id="%s%d">\n' % (s, self._groupd[s]))
+        
     def close_group(self, s):
-        self._draw_rawsvg('</g>\n')
-
+        self._svgwriter.write('</g>\n')
+        
     def draw_arc(self, gc, rgbFace, x, y, width, height, angle1, angle2):  
         """
         Currently implemented by drawing a circle of diameter width, not an
         arc. angle1, angle2 not used
         """
-        details = ' cx="%f" \n cy="%f" \n r="%f"\n' % (x,self.height-y,width/2)
-        self._draw_svg('<circle ', details, gc, rgbFace)
+        details = 'cx="%f" cy="%f" r="%f"' % (x,self.height-y,width/2)
+        self._draw_svg_element('circle', details, gc, rgbFace)
 
     def draw_image(self, x, y, im, origin, bbox):
         self._imaged[self.basename] = self._imaged.get(self.basename,0) + 1
@@ -141,12 +138,12 @@ style="%(style)s %(rgbhex)s %(clippath)s "
   x="%(x)f" y="%(y)f"
   width="%(width)f" height="%(height)f"
 />""" % locals()
-        self._draw_rawsvg(svg)
+        self._svgwriter.write(svg)
         
     def draw_line(self, gc, x1, y1, x2, y2):
-        details = ' d="M %f,%f L %f,%f" ' % (x1, self.height-y1,
-                                             x2, self.height-y2)
-        self._draw_svg('<path ', details, gc, None)
+        details = 'd="M %f,%f L %f,%f"' % (x1, self.height-y1,
+                                           x2, self.height-y2)
+        self._draw_svg_element('path', details, gc, None)
 
     def draw_lines(self, gc, x, y, transform=None):
         if len(x)==0: return
@@ -154,26 +151,26 @@ style="%(style)s %(rgbhex)s %(clippath)s "
             raise ValueError('x and y must be the same length')
 
         y = self.height - y
-        details = [' d="M %f,%f' % (x[0], y[0]) ]
+        details = ['d="M %f,%f' % (x[0], y[0])]
         xys = zip(x[1:], y[1:])
         details.extend(['L %f,%f' % tup for tup in xys])
-        details.append('" ')
+        details.append('"')
         details = ' '.join(details)
-        self._draw_svg('<path ', details, gc, None)
+        self._draw_svg_element('path', details, gc, None)
 
     def draw_point(self, gc, x, y):
         # result seems to have a hole in it...
         self.draw_arc(gc, gc.get_rgb(), x, y, 1, 0, 0, 0)  
 
     def draw_polygon(self, gc, rgbFace, points):
-        details = '   points = "%s"' % ' '.join(['%f,%f'%(x,self.height-y)
-                                                 for x, y in points])
-        self._draw_svg('<polygon ', details, gc, rgbFace)
+        details = 'points = "%s"' % ' '.join(['%f,%f'%(x,self.height-y)
+                                              for x, y in points])
+        self._draw_svg_element('polygon', details, gc, rgbFace)
 
     def draw_rectangle(self, gc, rgbFace, x, y, width, height):
-        details = 'width="%f" height="%f" x="%f" y="%f" ' % (width, height, x,
+        details = 'width="%f" height="%f" x="%f" y="%f"' % (width, height, x,
                                                          self.height-y-height)
-        self._draw_svg('<rect ', details, gc, rgbFace)
+        self._draw_svg_element('rect', details, gc, rgbFace)
 
     def draw_text(self, gc, x, y, s, prop, angle, ismath):
         if ismath:
@@ -196,8 +193,8 @@ style="%(style)s %(rgbhex)s %(clippath)s "
         svg = """\
 <text style="%(style)s" x="%(x)f" y="%(y)f" %(transform)s>%(thetext)s</text>
 """ % locals()
-        self._draw_rawsvg(svg)
-
+        self._svgwriter.write (svg)
+            
     def _draw_mathtext(self, gc, x, y, s, prop, angle):
         """
         Draw math text using matplotlib.mathtext
@@ -220,11 +217,11 @@ style="%(style)s %(rgbhex)s %(clippath)s "
 <text style="%(style)s" x="%(newx)f" y="%(newy)f" %(transform)s>%(thetext)s</text>
 """ % locals()
 
-        self._draw_rawsvg(svg.encode('utf-8'))
+        self._svgwriter.write (svg.encode('utf-8')) 
         self.close_group("mathtext")
 
     def finish(self):
-        self._svgwriter.write('</svg>')
+        self._svgwriter.write('</svg>\n')
 
     def flipy(self):
         return True

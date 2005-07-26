@@ -1,5 +1,8 @@
 New entries should be added at the top
 
+2005-07-26 backend_svg.py: write "<.../>" elements all on one line and remove 
+           surplus spaces - SC
+
 2005-07-25 backend_svg.py: simplify code by deleting GraphicsContextSVG and
            RendererSVG.new_gc(), and moving the gc.get_capstyle() code into
            RendererSVG._get_gc_props_svg() - SC
