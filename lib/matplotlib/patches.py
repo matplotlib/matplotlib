@@ -125,6 +125,7 @@ class Patch(Artist):
 
         verts = self.get_verts()
         tverts = self._transform.seq_xy_tups(verts)
+
         renderer.draw_polygon(gc, rgbFace, tverts)
 
 

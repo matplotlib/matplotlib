@@ -77,6 +77,9 @@ private:
       double r = clipbox->ur_api()->x_api()->val() ; 
       double t = clipbox->ur_api()->y_api()->val() ;
       
+      //std::cout << b << " " 
+      //		<< t << " ";
+
       destx = (int)l;
       desty = srcheight-(int)t;
       destwidth = (int)(r-l);
@@ -95,6 +98,7 @@ private:
       renderer_base destrb(destpf);
       //destrb.clear(agg::rgba(1, 0, 0));
       
+      //std::cout << "rect " << r << " " << srcheight << " " << b << " ";
       agg::rect_base<int> region(destx, desty, (int)r, srcheight-(int)b); 
       destrb.copy_from(*aggRenderer->renderingBuffer, &region, 
 		       -destx, -desty);
@@ -102,6 +106,13 @@ private:
       
     }
     
+    
+    /*std::cout << desty << " " 
+	      << destheight << " " 
+	      << srcheight << std::endl;*/
+    
+    
+    //gdk_rgb_init();
     gdk_draw_rgb_32_image(drawable, gc, destx, desty, 
 			  destwidth, 
 			  destheight, 

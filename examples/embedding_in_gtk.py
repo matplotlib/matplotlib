@@ -8,6 +8,7 @@ from matplotlib.axes import Subplot
 from matplotlib.figure import Figure
 from matplotlib.numerix import arange, sin, pi
 
+
 # switch comments for gtk over gtkagg
 #from matplotlib.backends.backend_gtk import FigureCanvasGTK as FigureCanvas
 from matplotlib.backends.backend_gtkagg import FigureCanvasGTKAgg as FigureCanvas
@@ -25,8 +26,10 @@ t = arange(0.0,3.0,0.01)
 s = sin(2*pi*t)
 a.plot(t,s)
 
+
 canvas = FigureCanvas(f)  # a gtk.DrawingArea
 win.add(canvas)
+
 
 win.show_all()
 gtk.main()
