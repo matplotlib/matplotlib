@@ -754,7 +754,7 @@ class Axes(Artist):
         set to the Axes clipping box.  If the transform is not set, it
         wil be set to self.transData.
         """
-        print 'calling add patch', p
+
         self._set_artist_props(p)
         p.set_clip_box(self.bbox)
         xys = self._get_verts_in_data_coords(
