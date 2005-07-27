@@ -714,6 +714,7 @@ class HorizontalSpanSelector:
                                )
         
         if not self.useblit: self.ax.add_patch(self.rect)
+        self.pressx = None
         
     def update_background(self, event):
         'force an update of the background'
@@ -736,7 +737,7 @@ class HorizontalSpanSelector:
 
     def release(self, event):
         'on button release event'
-        if self.ignore(event): return
+        if self.pressx is None or self.ignore(event): return
 
         self.rect.set_visible(False)
         self.canvas.draw()
@@ -746,6 +747,7 @@ class HorizontalSpanSelector:
         span = xmax - xmin
         if self.minspan is not None and span<self.minspan: return
         self.onselect(xmin, xmax)
+        self.pressx = None
         return False
 
     def update(self):
@@ -762,7 +764,7 @@ class HorizontalSpanSelector:
 
     def onmove(self, event):
         'on motion notify event'
-        if self.ignore(event): return
+        if self.pressx is None or self.ignore(event): return
         x,y = event.xdata, event.ydata
 
         minx, maxx = x, self.pressx
