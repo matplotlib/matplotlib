@@ -623,6 +623,7 @@ class Cursor:
         self.lineh.set_visible(False)        
 
     def onmove(self, event):
+
         if event.inaxes != self.ax:
             self.linev.set_visible(False)
             self.lineh.set_visible(False)        
@@ -632,7 +633,7 @@ class Cursor:
                 self.needclear = False
             return 
         self.needclear = True
-
+        if not self.visible: return 
         self.linev.set_xdata((event.xdata, event.xdata))
         self.lineh.set_ydata((event.ydata, event.ydata))
         self.linev.set_visible(self.visible and self.vertOn)
@@ -694,6 +695,7 @@ class HorizontalSpanSelector:
         self.canvas.mpl_connect('motion_notify_event', self.onmove)
         self.canvas.mpl_connect('button_press_event', self.press)
         self.canvas.mpl_connect('button_release_event', self.release)
+        self.canvas.mpl_connect('draw_event', self.update_background)
 
         self.rect = None
         self.background = None
@@ -708,14 +710,17 @@ class HorizontalSpanSelector:
         self.rect = Rectangle( (0,0), 0, 1,
                                transform=trans,
                                visible=False,
-                               **self.rectprops
+                               **self.rectprops                               
                                )
-        self.ax.add_patch(self.rect)
         
-    def update_background(self):
+        if not self.useblit: self.ax.add_patch(self.rect)
+        
+    def update_background(self, event):
         'force an update of the background'
-        self.background = self.canvas.copy_from_bbox(self.ax.bbox)
+        if self.useblit:
+            self.background = self.canvas.copy_from_bbox(self.ax.bbox)
 
+        
     def ignore(self, event):
         'return True if event should be ignored'
         return  event.inaxes!=self.ax or not self.visible or event.button !=1 
@@ -723,10 +728,9 @@ class HorizontalSpanSelector:
     def press(self, event):
         'on button press event'
         if self.ignore(event): return
-        self.background = self.canvas.copy_from_bbox(self.ax.bbox)
+        
         self.rect.set_visible(self.visible)
         self.pressx = event.xdata
-        print 'ressx', self.pressx
         return False
 
 
@@ -736,8 +740,9 @@ class HorizontalSpanSelector:
 
         self.rect.set_visible(False)
         self.canvas.draw()
-        xmin = self.rect.xy[0]
-        xmax = xmin + self.rect.get_width()
+        xmin = self.pressx
+        xmax = event.xdata
+        if xmin>xmax: xmin, xmax = xmax, xmin
         span = xmax - xmin
         if self.minspan is not None and span<self.minspan: return
         self.onselect(xmin, xmax)

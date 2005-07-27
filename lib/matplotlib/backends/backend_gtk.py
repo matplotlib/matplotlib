@@ -223,6 +223,7 @@ class FigureCanvasGTK (gtk.DrawingArea, FigureCanvasBase):
         self._need_redraw = True
         #self.expose_event(self, None)
         self.queue_draw()
+        
 
 
     def draw_idle(self):

@@ -4,7 +4,9 @@ matplotlib.use('GTK')
 
 from matplotlib.figure import Figure
 from matplotlib.axes import Subplot
-from matplotlib.backends.backend_gtk import FigureCanvasGTK, NavigationToolbar
+from matplotlib.backends.backend_gtkagg import FigureCanvasGTKAgg as FigureCanvas
+from matplotlib.backends.backend_gtkagg import NavigationToolbar2GTKAgg as NavigationToolbar
+from matplotlib.widgets import HorizontalSpanSelector
 
 from matplotlib.numerix import arange, sin, pi
 import gtk
@@ -36,11 +38,11 @@ class GladeHandlers:
 
 class WidgetsWrapper:
     def __init__(self):
-        self.widgets = gtk.glade.XML('mpl_with_glade.glade')
+        self.widgets = gtk.glade.XML('test.glade')
         self.widgets.signal_autoconnect(GladeHandlers.__dict__)
 
         self['windowMain'].connect('destroy', lambda x: gtk.main_quit())
-
+        self['windowMain'].move(10,10)
         self.figure = Figure(figsize=(8,6), dpi=72)
         self.axis = self.figure.add_subplot(111)
         
@@ -50,9 +52,18 @@ class WidgetsWrapper:
         self.axis.set_xlabel('time (s)')
         self.axis.set_ylabel('voltage')
 
-        self.canvas = FigureCanvasGTK(self.figure) # a gtk.DrawingArea
+        self.canvas = FigureCanvas(self.figure) # a gtk.DrawingArea
         self.canvas.show()
-        self['vboxMain'].pack_start(self.canvas, gtk.TRUE, gtk.TRUE)
+        self.canvas.set_size_request(600, 400)
+
+        def onselect(xmin, xmax):
+            print xmin, xmax
+
+        span = HorizontalSpanSelector(self.axis, onselect, useblit=False,
+                                          rectprops=dict(alpha=0.5, facecolor='red') )
+
+
+        self['vboxMain'].pack_start(self.canvas, True, True)
         self['vboxMain'].show()
         
         # below is optional if you want the navigation toolbar
@@ -63,10 +74,14 @@ class WidgetsWrapper:
 
         sep = gtk.HSeparator()
         sep.show()
-        self['vboxMain'].pack_start(sep, gtk.TRUE, gtk.TRUE)
+        self['vboxMain'].pack_start(sep, True, True)
 
 
         self['vboxMain'].reorder_child(self['buttonClickMe'],-1)
+
+
+
+
 
     def __getitem__(self, key):
         return self.widgets.get_widget(key)
