@@ -220,10 +220,22 @@ class FigureCanvasGTK (gtk.DrawingArea, FigureCanvasBase):
         
 
     def draw(self):
-        self._need_redraw = True
-        #self.expose_event(self, None)
-        self.queue_draw()
+        # synchronous window redraw (like GTK+ 1.2 used to do)
+        # Note: this does not follow the usual way that GTK redraws,
+        # which is asynchronous redraw using calls to gtk_widget_queue_draw(),
+        # which triggers an expose-event
         
+        # GTK+ 2.x style draw()
+        #self._need_redraw = True
+        #self.queue_draw()
+
+        # synchronous draw (needed for animation)
+        x, y, w, h = self.allocation
+        self._pixmap_prepare (w, h)
+        self._render_figure(self._pixmap, w, h)
+        self._need_redraw = False
+        self.window.draw_drawable (self.style.fg_gc[self.state],
+                                   self._pixmap, x, y, x, y, w, h)
 
 
     def draw_idle(self):

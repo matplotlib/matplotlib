@@ -1,5 +1,9 @@
 New entries should be added at the top
 
+2005-07-28 backend_gtk.py: update FigureCanvasGTK.draw() (needed due to the
+           recent expose_event() change) so that examples/anim.py works in the 
+           usual way - SC
+
 2005-07-26 Added new widgets Cursor and HorizontalSpanSelector to
            matplotlib.widgets.  See examples/widgets/cursor.py and
            examples/widgets/span_selector.py - JDH
