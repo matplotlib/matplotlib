@@ -332,6 +332,7 @@ examples/dynamic_image_wxagg.py
 examples/dynamic_image_wxagg2.py
 examples/embedding_in_gtk.py
 examples/embedding_in_gtk2.py
+examples/embedding_in_gtk3.py
 examples/embedding_in_qt.py
 examples/embedding_in_tk.py
 examples/embedding_in_tk2.py
@@ -451,9 +452,10 @@ examples/data/s1045.ima
 examples/widgets/README
 examples/widgets/buttons.py
 examples/widgets/check_buttons.py
+examples/widgets/cursor.py
 examples/widgets/radio_buttons.py
 examples/widgets/sliders.py
-fonts/BaKoMa-CM.Fonts
+examples/widgets/span_selector.py
 fonts/afm/cmex10.afm
 fonts/afm/cmmi10.afm
 fonts/afm/cmr10.afm
@@ -1273,6 +1275,7 @@ lib/pytz/zoneinfo/US/Samoa.py
 lib/pytz/zoneinfo/US/__init__.py
 license/DATEUTIL_LICENSE.txt
 license/LICENSE
+license/LICENSE_BAKOMA
 license/LICENSE_PAINT
 license/LICENSE_PIL
 license/LICENSE_enthought.txt

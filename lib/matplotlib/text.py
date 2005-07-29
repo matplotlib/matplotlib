@@ -177,16 +177,15 @@ class Text(Artist):
             lines = self._text.split('\n')
 
         whs = []
+        tmp, heightt = renderer.get_text_width_height(
+                'T', self._fontproperties, ismath=False)
+
         for line in lines:
             w,h = renderer.get_text_width_height(
                 line, self._fontproperties, ismath=self.is_math_text())
-            if not len(line) and not self.is_math_text():
-                # approx the height of empty line with tall char
-                tmp, h = renderer.get_text_width_height(
-                'T', self._fontproperties, ismath=False)
 
             whs.append( (w,h) )
-            offsety = h+pad
+            offsety = heightt+pad
             horizLayout.append((line, thisx, thisy, w, h))
             thisy -= offsety  # now translate down by text height, window coords
             width = max(width, w)

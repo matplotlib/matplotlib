@@ -598,7 +598,23 @@ class SubplotTool(Widget):
 
 
 class Cursor:
+    """
+    A horizontal and vertical line span the axes that and move with
+    the pointer.  You can turn off the hline or vline spectively with
+    the attributes
+
+      horizOn =True|False: controls visibility of the horizontal line
+      vertOn =True|False: controls visibility of the horizontal line      
+
+    And the visibility of the cursor itself with visible attribute
+    """
     def __init__(self, ax, useblit=False, **lineprops):
+        """
+        Add a cursor to ax.  If useblit=True, use the backend
+        dependent blitting features for faster updates (GTKAgg only
+        now).  lineprops is a dictionary of line properties.  See
+        examples/widgets/cursor.py.
+        """
         self.ax = ax
         self.canvas = ax.figure.canvas
 
@@ -618,12 +634,13 @@ class Cursor:
         
         
     def clear(self, event):
+        'clear the cursor'
         self.background = self.canvas.copy_from_bbox(self.ax.bbox)
         self.linev.set_visible(False)
         self.lineh.set_visible(False)        
 
     def onmove(self, event):
-
+        'on mouse motion draw the cursor if visible'
         if event.inaxes != self.ax:
             self.linev.set_visible(False)
             self.lineh.set_visible(False)        
@@ -638,10 +655,11 @@ class Cursor:
         self.lineh.set_ydata((event.ydata, event.ydata))
         self.linev.set_visible(self.visible and self.vertOn)
         self.lineh.set_visible(self.visible and self.horizOn)        
-        self.update()
+        self._update()
         
 
-    def update(self):
+    def _update(self):
+        
         if self.useblit:
             if self.background is not None:
                 self.canvas.restore_region(self.background)
