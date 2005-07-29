@@ -1,5 +1,7 @@
 New entries should be added at the top
 
+2005-07-29 Improved message reporting in texmanager and backend_ps - DSD
+
 2005-07-28 backend_gtk.py: update FigureCanvasGTK.draw() (needed due to the
            recent expose_event() change) so that examples/anim.py works in the 
            usual way - SC

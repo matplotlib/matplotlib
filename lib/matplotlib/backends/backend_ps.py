@@ -1085,20 +1085,21 @@ class FigureCanvasPS(FigureCanvasBase):
 
             command = "latex -interaction=nonstopmode '%s'" % texfile
             stdin, stdout, stderr = os.popen3(command)
-            verbose.report(''.join(stdout.readlines()), 'debug-annoying')
-            verbose.report(''.join(stderr.readlines()), 'helpful')
+            verbose.report(stdout.read(), 'debug-annoying')
+            verbose.report(stderr.read(), 'helpful')
             command = 'dvips -R -T %fin,%fin -o %s %s' % (pw, ph, psfile, dvifile)
             stdin, stdout, stderr = os.popen3(command)
-            verbose.report(''.join(stdout.readlines()), 'debug-annoying')
-            verbose.report(''.join(stderr.readlines()), 'helpful')
+            verbose.report(stdout.read(), 'debug-annoying')
+            verbose.report(stderr.read(), 'helpful')
             os.remove(epsfile)
             if ext.startswith('.ep'):
                 dpi = rcParams['ps.distiller.res']
-                command = 'gs -dBATCH -dNOPAUSE -dSAFER -r%d -sDEVICE=epswrite '% dpi + \
-                          '-dLanguageLevel=2 -dEPSFitPage -sOutputFile=%s %s'% (epsfile, psfile)
+                command = 'gs -dBATCH -dNOPAUSE -dSAFER -r%d \
+                    -sDEVICE=epswrite -dLanguageLevel=2 -dEPSFitPage \
+                    -sOutputFile=%s %s'% (dpi, epsfile, psfile)
                 stdin, stdout, stderr = os.popen3(command)
-                verbose.report(''.join(stdout.readlines()), 'debug-annoying')
-                verbose.report(''.join(stderr.readlines()), 'helpful')
+                verbose.report(stdout.read(), 'debug-annoying')
+                verbose.report(stderr.read(), 'helpful')
                 shutil.move(epsfile, outfile)
             else: shutil.move(psfile, outfile)
 
@@ -1114,8 +1115,8 @@ class FigureCanvasPS(FigureCanvasBase):
             else:
                 command = 'ps2ps -dSAFER -r%d %s %s'% (dpi, outfile, tmpfile)
             stdin, stdout, stderr = os.popen3(command)
-            verbose.report(''.join(stdout.readlines()), 'debug-annoying')
-            verbose.report(''.join(stderr.readlines()), 'helpful')
+            verbose.report(stdout.read(), 'debug-annoying')
+            verbose.report(stderr.read(), 'helpful')
             shutil.move(tmpfile, outfile)
 
 class FigureManagerPS(FigureManagerBase):
