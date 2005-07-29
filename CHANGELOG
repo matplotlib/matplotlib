@@ -1,5 +1,11 @@
 New entries should be added at the top
 
+
+2005-07-27 Applied SF patch 1242648: minor rounding error in
+           IndexDateFormatter in dates.py
+
+2005-07-27 Applied sf patch 1244732: Scale axis such that circle
+           looks like circle - JDH
 2005-07-29 Improved message reporting in texmanager and backend_ps - DSD
 
 2005-07-28 backend_gtk.py: update FigureCanvasGTK.draw() (needed due to the

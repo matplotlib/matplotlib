@@ -27,7 +27,7 @@ as follows
 
 To enable tex rendering of all text in your matplotlib figure, set
 text.usetex in your matplotlibrc file
-(http://matplotlib.sf.net/.matplotlibrc)
+(http://matplotlib.sf.net/matplotlibrc)
 
 """
 

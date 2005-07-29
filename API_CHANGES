@@ -1,172 +1,170 @@
 
 API Changes in matplotlib-0.83
 
-  Made HOME/.matplotlib the new config dir where the matplotlibrc
-  file, the ttf.cache, and the tex.cache live.  The new default
-  filenames in .matplotlib have no leading dot and are not hidden.
-  Eg, the new names are matplotlibrc tex.cache ttffont.cache.  This is
-  how ipython does it so it must be right.
+  - Made HOME/.matplotlib the new config dir where the matplotlibrc
+    file, the ttf.cache, and the tex.cache live.  The new default
+    filenames in .matplotlib have no leading dot and are not hidden.
+    Eg, the new names are matplotlibrc, tex.cache, and ttffont.cache.
+    This is how ipython does it so it must be right.
 
-           If old files are found, a warning is issued and they are
-           moved to the new location.
+    If old files are found, a warning is issued and they are moved to
+    the new location.
 
-  backends/__init__.py no longer imports new_figure_manager,
-  draw_if_interactive and show from the default backend, but puts
-  these imports into a call to pylab_setup.  Also, the Toolbar is no
-  longer imported from WX/WXAgg.  New usage
+  - backends/__init__.py no longer imports new_figure_manager,
+    draw_if_interactive and show from the default backend, but puts
+    these imports into a call to pylab_setup.  Also, the Toolbar is no
+    longer imported from WX/WXAgg.  New usage:
 
-   from backends import pylab_setup
-   new_figure_manager, draw_if_interactive, show = pylab_setup()
-
+      from backends import pylab_setup
+      new_figure_manager, draw_if_interactive, show = pylab_setup()
   
-  Moved Figure.get_width_height() to FigureCanvasBase. It now returns
-  int instead of float.
+  - Moved Figure.get_width_height() to FigureCanvasBase. It now
+    returns int instead of float.
 
 API Changes in matplotlib-0.82
 
-  = toolbar import change in GTKAgg, GTKCairo and WXAgg =
+  - toolbar import change in GTKAgg, GTKCairo and WXAgg 
 
-  Added subplot config tool to GTK* backends -- note you must now
-  import the NavigationToolbar2 from your backend of choice rather
-  than from backend_gtk because it needs to know about the backend
-  specific canvas -- see examples/embedding_in_gtk2.py.  Ditto for wx
-  backend -- see examples/embedding_in_wxagg.py
+  - Added subplot config tool to GTK* backends -- note you must now
+    import the NavigationToolbar2 from your backend of choice rather
+    than from backend_gtk because it needs to know about the backend
+    specific canvas -- see examples/embedding_in_gtk2.py.  Ditto for
+    wx backend -- see examples/embedding_in_wxagg.py
 
 
-  = hist bin change = 
+  - hist bin change 
 
-  Sean Richards notes there was a problem in the way we created the
-  binning for histogram, which made the last bin underrepresented.
-  From his post
+      Sean Richards notes there was a problem in the way we created
+      the binning for histogram, which made the last bin
+      underrepresented.  From his post:
 
-   I see that hist uses the linspace function to create the bins and
-   then uses searchsorted to put the values in their correct
-   bin. Thats all good but I am confused over the use of linspace for
-   the bin creation. I wouldn't have thought that it does what is
-   needed, to quote the docstring it creates a "Linear spaced array
-   from min to max". For it to work correctly shouldn't the values in
-   the bins array be the same bound for each bin? (i.e. each value
-   should be the lower bound of a bin). To provide the correct bins
-   for hist would it not be something like
+        I see that hist uses the linspace function to create the bins
+        and then uses searchsorted to put the values in their correct
+        bin. Thats all good but I am confused over the use of linspace
+        for the bin creation. I wouldn't have thought that it does
+        what is needed, to quote the docstring it creates a "Linear
+        spaced array from min to max". For it to work correctly
+        shouldn't the values in the bins array be the same bound for
+        each bin? (i.e. each value should be the lower bound of a
+        bin). To provide the correct bins for hist would it not be
+        something like
  
-    def bins(xmin, xmax, N):
-      if N==1: return xmax
-      dx = (xmax-xmin)/N # instead of N-1
-      return xmin + dx*arange(N)
+        def bins(xmin, xmax, N):
+          if N==1: return xmax
+          dx = (xmax-xmin)/N # instead of N-1
+          return xmin + dx*arange(N)
 
 
-   This suggestion in implemented in 0.81.  My test script with these
-   changes does not reveal any bias in the binning
+       This suggestion is implemented in 0.81.  My test script with these
+       changes does not reveal any bias in the binning
 
-    from matplotlib.numerix.mlab import randn, rand, zeros, Float
-    from matplotlib.mlab import hist, mean
+        from matplotlib.numerix.mlab import randn, rand, zeros, Float
+        from matplotlib.mlab import hist, mean
 
-    Nbins = 50
-    Ntests = 200
-    results = zeros((Ntests,Nbins), typecode=Float)
-    for i in range(Ntests):
-        print 'computing', i
-        x = rand(10000)
-        n, bins = hist(x, Nbins)
-        results[i] = n
-    print mean(results)
-
+        Nbins = 50
+        Ntests = 200
+        results = zeros((Ntests,Nbins), typecode=Float)
+        for i in range(Ntests):
+            print 'computing', i
+            x = rand(10000)
+            n, bins = hist(x, Nbins)
+            results[i] = n
+        print mean(results)
 
 
 API CHANGES in matplotlib-0.81
 
+  - pylab and artist "set" functions renamed to setp to avoid clash
+    with python2.4 built-in set.  Current version will issue a
+    deprecation warning which will be removed in future versions
 
-  pylab and artist "set" functions renamed to setp to avoid clash with
-  python2.4 built-in set.  Current version will issue a deprecation
-  warning which will be removed in future versions
+  - imshow interpolation arguments changes for advanced interpolation
+    schemes.  See help imshow, particularly the interpolation,
+    filternorm and filterrad kwargs
 
-  imshow interpolation arguments changes for advanced interpolation
-  schemes.  See help imshow, particularly the interpolation,
-  filternorm and filterrad kwargs
+  - Support for masked arrays has been added to the plot command and
+    to the Line2D object.  Only the valid points are plotted.  A
+    "valid_only" kwarg was added to the get_xdata() and get_ydata()
+    methods of Line2D; by default it is False, so that the original
+    data arrays are returned. Setting it to True returns the plottable
+    points.
 
-  Support for masked arrays has been added to the plot command and to
-  the Line2D object.  Only the valid points are plotted.  A
-  "valid_only" kwarg was added to the get_xdata() and get_ydata()
-  methods of Line2D; by default it is False, so that the original data
-  arrays are returned. Setting it to True returns the plottable
-  points.
+  - contour changes:
 
-  contour changes:
+    Masked arrays: contour and contourf now accept masked arrays as
+      the variable to be contoured.  Masking works correctly for
+      contour, but a bug remains to be fixed before it will work for
+      contourf.  The "badmask" kwarg has been removed from both
+      functions.
 
-   Masked arrays: contour and contourf now accept masked arrays as the
-    variable to be contoured.  Masking works correctly for contour,
-    but a bug remains to be fixed before it will work for contourf.
-    The "badmask" kwarg has been removed from both functions.
+     Level argument changes:
 
-   Level argument changes:
+       Old version: a list of levels as one of the positional
+       arguments specified the lower bound of each filled region; the
+       upper bound of the last region was taken as a very large
+       number.  Hence, it was not possible to specify that z values
+       between 0 and 1, for example, be filled, and that values
+       outside that range remain unfilled.
 
-     Old version: a list of levels as one of the positional arguments
-     specified the lower bound of each filled region; the upper bound
-     of the last region was taken as a very large number.  Hence, it
-     was not possible to specify that z values between 0 and 1, for
-     example, be filled, and that values outside that range remain
-     unfilled.
+       New version: a list of N levels is taken as specifying the
+       boundaries of N-1 z ranges.  Now the user has more control over
+       what is colored and what is not.  Repeated calls to contourf
+       (with different colormaps or color specifications, for example)
+       can be used to color different ranges of z.  Values of z
+       outside an expected range are left uncolored.
 
-     New version: a list of N levels is taken as specifying the
-     boundaries of N-1 z ranges.  Now the user has more control over
-     what is colored and what is not.  Repeated calls to contourf
-     (with different colormaps or color specifications, for example)
-     can be used to color different ranges of z.  Values of z outside
-     an expected range are left uncolored.
-
-     Example:
-       Old: contourf(z, [0, 1, 2]) would yield 3 regions: 0-1, 1-2, and >2.
-       New: it would yield 2 regions: 0-1, 1-2.  If the same 3 regions were
-       desired, the equivalent list of levels would be [0, 1, 2, 1e38].
-
-
-  
+       Example:
+         Old: contourf(z, [0, 1, 2]) would yield 3 regions: 0-1, 1-2, and >2.
+         New: it would yield 2 regions: 0-1, 1-2.  If the same 3 regions were
+         desired, the equivalent list of levels would be [0, 1, 2,
+         1e38].
 
 
 API CHANGES in matplotlib-0.80
 
-  xlim/ylim/axis always return the new limits regardless of arguments.
-  They now take kwargs which allow you to selectively change the upper
-  or lower limits while leaving unnamed limits unchanged.  See
-  help(xlim) for example
+  - xlim/ylim/axis always return the new limits regardless of
+    arguments.  They now take kwargs which allow you to selectively
+    change the upper or lower limits while leaving unnamed limits
+    unchanged.  See help(xlim) for example
 
 API CHANGES in matplotlib-0.73
 
-  Removed deprecated ColormapJet and friends
+  - Removed deprecated ColormapJet and friends
 
-  Removed all error handling from the verbose object
+  - Removed all error handling from the verbose object
 
-  figure num of zero is now allowed
+  - figure num of zero is now allowed
 
 API CHANGES in matplotlib-0.72
 
-  Line2D, Text, and Patch copy_properties renamed update_from and
-  moved into artist base class
+  - Line2D, Text, and Patch copy_properties renamed update_from and
+    moved into artist base class
 
-  LineCollecitons.color renamed to LineCollections.set_color for
-  consistency with set/get introspection mechanism,
+  - LineCollecitons.color renamed to LineCollections.set_color for
+    consistency with set/get introspection mechanism,
 
-  pylab figure now defaults to num=None, which creates a new figure
-  with a guaranteed unique number 
+  - pylab figure now defaults to num=None, which creates a new figure
+    with a guaranteed unique number 
 
-  contsour method syntax changed - now it is matlab compatible
+  - contour method syntax changed - now it is matlab compatible
 
-    unchanged: contour(Z)
-    old: contour(Z, x=Y, y=Y)
-    new: contour(X, Y, Z)
+      unchanged: contour(Z)
+      old: contour(Z, x=Y, y=Y)
+      new: contour(X, Y, Z)
 
-   see http://matplotlib.sf.net/matplotlib.pylab.html#-contour
+    see http://matplotlib.sf.net/matplotlib.pylab.html#-contour
 
 
-   Increased the default resolution for save command.
+   - Increased the default resolution for save command.
 
-   Renamed the base attribute of the ticker classes to _base to avoid conflict
-   with the base method.  Sitt for subs
+   - Renamed the base attribute of the ticker classes to _base to avoid conflict
+     with the base method.  Sitt for subs
 
-   subs=none now does autosubbing in the tick locator.
+   - subs=none now does autosubbing in the tick locator.
 
-   New subplots that overlap old will delete the old axes.  If you do
-   not want this behavior, use fig.add_subplot or the axes command
+   - New subplots that overlap old will delete the old axes.  If you
+     do not want this behavior, use fig.add_subplot or the axes
+     command
 
 API CHANGES in matplotlib-0.71   
 

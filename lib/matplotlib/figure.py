@@ -640,6 +640,10 @@ class Figure(Artist):
         """
         Create a colorbar for mappable image
 
+        mappable is the cm.ScalarMappable instance that you want to
+        colorbar to apply to, eg an Image as returned by imshow or a
+        PatchCollection as returned by scatter or pcolor.
+        
         tickfmt is a format string to format the colorbar ticks
 
         cax is a colorbar axes instance in which the colorbar will be

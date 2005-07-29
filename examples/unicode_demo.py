@@ -9,5 +9,5 @@ ylabel( unicode('Andr\xc3\xa9 was here!', 'utf-8') )
 text( 0.5, 2.5, unicode('Institut für Festkörperphysik', 'latin-1'), rotation=45)
 text( 1, 1.5, u'AVA (check kerning)')  
 
-savefig('test.ps')
+savefig('test.svg')
 show()

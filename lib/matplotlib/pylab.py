@@ -503,7 +503,6 @@ def raise_msg_to_str(msg):
 
 
 
-
 def axis(*v, **kwargs):
     """
     Set/Get the axis properties::
@@ -518,6 +517,10 @@ def axis(*v, **kwargs):
         axis('equal') sets the xlim width and ylim height to be to be
             identical.  The longer of the two intervals is chosen
 
+        axis('scaled') changes the size of the subplot such that equal
+          tick mark increments on the x- and y-axis are equal in size
+          (like the 'axis equal' command in matplab). This makes a
+          circle look like a circle, for example
 
        if len(*v)==0, you can pass in xmin, xmax, ymin, ymax as kwargs
        selectively to alter just those limits w/o changing the others.
@@ -544,11 +547,26 @@ def axis(*v, **kwargs):
             ax.set_xlim((xmin, xmin+interval))
             ax.set_ylim((ymin, ymin+interval))
             draw_if_interactive()
-
+        elif s.lower()=='scaled':
+            figwidth,figheight = gcf().get_size_inches()
+            figwidth = 0.8*figwidth; figheight = 0.8*figheight
+            ax = gca()
+            x1,x2 = ax.get_xlim()
+            y1,y2 = ax.get_ylim()
+            plotheight = y2-y1
+            plotwidth = x2-x1
+            if plotheight/plotwidth > figheight/figwidth:  # Plot is higher than figure
+                wfrac = figheight/figwidth * plotwidth/plotheight
+                hfrac = 1.0
+            else:
+                hfrac = figwidth/figheight * plotheight/plotwidth
+                wfrac = 1.0
+            gcf().subplots_adjust( left = 0.1, right = 0.1+wfrac*0.8, bottom = 0.1, top = 0.1+hfrac*0.8 )
+            draw_if_interactive()
         else:
             raise ValueError('Unrecognized string %s to axis; try on or off' % s)
         ax  = gca()
-        xmin, xmax = ax.get_xlim()
+        xmin, xmax = ax.get_xlim() 
         ymin, ymax = ax.get_ylim()
         draw_if_interactive()
         return xmin, xmax, ymin, ymax
@@ -563,13 +581,12 @@ def axis(*v, **kwargs):
     v = v[0]
     if len(v) != 4:
         raise ValueError('v must contain [xmin xmax ymin ymax]')
-
-
+    
+    
     gca().set_xlim([v[0], v[1]])
     gca().set_ylim([v[2], v[3]])
     draw_if_interactive()
     return v
-
 def axes(*args, **kwargs):
     """
     Add an axes at positon rect specified by::
