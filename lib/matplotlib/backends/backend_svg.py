@@ -1,6 +1,8 @@
 from __future__ import division
 
+import base64
 import os
+import tempfile
 
 from matplotlib import verbose, __version__
 from matplotlib.backend_bases import RendererBase, GraphicsContextBase,\
@@ -23,17 +25,15 @@ def new_figure_manager(num, *args):
 _fontd = {}
 _capstyle_d = {'projecting' : 'square', 'butt' : 'butt', 'round': 'round',}
 class RendererSVG(RendererBase):
-    def __init__(self, width, height, svgwriter, basename='_svg'):
+    def __init__(self, width, height, svgwriter):
         self.width=width
         self.height=height
         self._svgwriter = svgwriter
-        # use basename to generate image files
-        self.basename = basename
         
         self._groupd = {}
-        self._imaged = {}
         self._clipd = {}
-
+        svgwriter.write(svgProlog%(width,height))
+        
     def _draw_svg_element(self, element, details, gc, rgbFace):
         cliprect, clipid = self._get_gc_clip_svg(gc)
         if clipid is None:
@@ -74,17 +74,18 @@ class RendererSVG(RendererBase):
             dashes = 'stroke-dasharray: %s; stroke-dashoffset: %f;' % (
                 ' '.join(['%f'%val for val in seq]), offset)
 
-        return 'style="stroke: %s; stroke-width: %f; stroke-linejoin: %s; ' \
-               'stroke-linecap: %s; %s opacity: %f; fill: %s; %s"' % (
-            rgb2hex(gc.get_rgb()),
-            gc.get_linewidth(),
-            gc.get_joinstyle(),
-            _capstyle_d[gc.get_capstyle()],
-            dashes,
-            gc.get_alpha(),
-            fill,
-            clippath,
-            )
+        return 'style="fill: %s; stroke: %s; stroke-width: %f; ' \
+               'stroke-linejoin: %s; stroke-linecap: %s; %s opacity: %f; ' \
+               '%s"' % (
+                   fill,
+                   rgb2hex(gc.get_rgb()),
+                   gc.get_linewidth(),
+                   gc.get_joinstyle(),
+                   _capstyle_d[gc.get_capstyle()],
+                   dashes,
+                   gc.get_alpha(),
+                   clippath,
+                   )
 
     def _get_gc_clip_svg(self, gc):
         cliprect = gc.get_clip_rectangle()
@@ -92,7 +93,7 @@ class RendererSVG(RendererBase):
             return '', None
         else:
             # See if we've already seen this clip rectangle
-            key = hash(cliprect)  
+            key = hash(cliprect)
             if self._clipd.get(key) is None:  # If not, store a new clipPath
                 self._clipd[key] = cliprect
                 x, y, w, h = cliprect
@@ -117,7 +118,7 @@ class RendererSVG(RendererBase):
     def close_group(self, s):
         self._svgwriter.write('</g>\n')
         
-    def draw_arc(self, gc, rgbFace, x, y, width, height, angle1, angle2):  
+    def draw_arc(self, gc, rgbFace, x, y, width, height, angle1, angle2):
         """
         Currently implemented by drawing a circle of diameter width, not an
         arc. angle1, angle2 not used
@@ -126,20 +127,27 @@ class RendererSVG(RendererBase):
         self._draw_svg_element('circle', details, gc, rgbFace)
 
     def draw_image(self, x, y, im, origin, bbox):
-        self._imaged[self.basename] = self._imaged.get(self.basename,0) + 1
-        imName = '%s.image%d.png'%(self.basename, self._imaged[self.basename])
-        verbose.report( 'Writing image file for include: %s' % imName)
-        im.write_png(imName)
-        width = bbox.width()
-        height = bbox.height()
-    
-        svg = """
-<image xlink:href="%(imName)s"
-  x="%(x)f" y="%(y)f"
-  width="%(width)f" height="%(height)f"
-/>""" % locals()
-        self._svgwriter.write(svg)
+        filename = os.path.join (tempfile.gettempdir(),
+                                 tempfile.gettempprefix() + '.png'
+                                 )
         
+        verbose.report ('Writing image file for include: %s' % filename)
+        # im.write_png() accepts a filename, not file object,
+        # would be good to avoid using files and write to mem with StringIO
+        im.write_png (filename) 
+
+	imfile = file (filename, 'r')
+	image64 = base64.b64encode (imfile.read())
+	imfile.close()
+	os.remove(filename)
+        lines = [image64[i:i+76] for i in range(0, len(image64), 76)]
+    
+        self._svgwriter.write (
+            '<image x="%f" y="%f" width="%f" height="%f" '
+            'xlink:href="data:image/png;base64,\n%s" />\n'
+            % (x, y, bbox.width(), bbox.height(), '\n'.join(lines))
+            )
+
     def draw_line(self, gc, x1, y1, x2, y2):
         details = 'd="M %f,%f L %f,%f"' % (x1, self.height-y1,
                                            x2, self.height-y2)
@@ -160,7 +168,7 @@ class RendererSVG(RendererBase):
 
     def draw_point(self, gc, x, y):
         # result seems to have a hole in it...
-        self.draw_arc(gc, gc.get_rgb(), x, y, 1, 0, 0, 0)  
+        self.draw_arc(gc, gc.get_rgb(), x, y, 1, 0, 0, 0)
 
     def draw_polygon(self, gc, rgbFace, points):
         details = 'points = "%s"' % ' '.join(['%f,%f'%(x,self.height-y)
@@ -175,7 +183,7 @@ class RendererSVG(RendererBase):
     def draw_text(self, gc, x, y, s, prop, angle, ismath):
         if ismath:
             self._draw_mathtext(gc, x, y, s, prop, angle)
-            return 
+            return
         
         font = self._get_font(prop)
 
@@ -260,11 +268,8 @@ class FigureCanvasSVG(FigureCanvasBase):
 
         basename, ext = os.path.splitext(filename)
         if not len(ext): filename += '.svg'
-
         svgwriter = file(filename, 'w')
-        renderer = RendererSVG(w, h, svgwriter, basename)
-
-        svgwriter.write(svgProlog%(w,h))
+        renderer = RendererSVG(w, h, svgwriter)
         self.figure.draw(renderer)
         renderer.finish()
 
@@ -290,6 +295,6 @@ svgProlog = """<?xml version="1.0" standalone="no"?>
    x="0.0"
    y="0.0"
    width="%i"
-   height="%i"   
+   height="%i"
    id="svg1">
 """
