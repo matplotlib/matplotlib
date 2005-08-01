@@ -1,7 +1,8 @@
 ### MATPLOTLIBRC FORMAT 
 
 # This is a sample matplotlib configuration file.  It should be placed
-# in HOME/.matplotlib/matplotlibrc (unix/linux like systems)
+# in HOME/.matplotlib/matplotlibrc (unix/linux like systems) and
+# C:\Documents and Settings\yourname\.matplotlib (win32 systems)
 #
 # By default, the installer will overwrite the existing file in the
 # install path, so if you want to preserve your's, please move it to
