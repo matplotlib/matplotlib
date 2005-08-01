@@ -1,8 +1,6 @@
 from __future__ import division
 
-import base64
-import os
-import tempfile
+import os, codecs, base64, tempfile
 
 from matplotlib import verbose, __version__
 from matplotlib.backend_bases import RendererBase, GraphicsContextBase,\
@@ -225,7 +223,7 @@ class RendererSVG(RendererBase):
 <text style="%(style)s" x="%(newx)f" y="%(newy)f" %(transform)s>%(thetext)s</text>
 """ % locals()
 
-        self._svgwriter.write (svg.encode('utf-8')) 
+        self._svgwriter.write (svg) 
         self.close_group("mathtext")
 
     def finish(self):
@@ -268,7 +266,7 @@ class FigureCanvasSVG(FigureCanvasBase):
 
         basename, ext = os.path.splitext(filename)
         if not len(ext): filename += '.svg'
-        svgwriter = file(filename, 'w')
+        svgwriter = svgwriter = codecs.open( filename, 'w', 'utf-8' )
         renderer = RendererSVG(w, h, svgwriter)
         self.figure.draw(renderer)
         renderer.finish()
