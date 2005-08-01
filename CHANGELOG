@@ -1,8 +1,16 @@
 New entries should be added at the top
 
+
+2005-07-29 Modified figure.figaspect to take an array or number;
+           modified backend_svg to write utf-8 - JDH
+
 2005-07-30 backend_svg.py: embed png image files in svg rather than linking
            to a separate png file, fixes bug #1245306 (thanks to Norbert Nemec 
            for the patch) - SC
+
+=======================================================================
+
+2005-07-29 Released 0.83.2
 
 2005-07-27 Applied SF patch 1242648: minor rounding error in
            IndexDateFormatter in dates.py
