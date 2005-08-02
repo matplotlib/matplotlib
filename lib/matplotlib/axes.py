@@ -350,9 +350,6 @@ class Axes(Artist):
 
         self.set_cursor_props((1,'k')) # set the cursor properties for axes
 
-        # a mapping from artists to 1 -- would use a set but we are
-        # python2.2 compliant
-        self.animated = {}  
         self._cachedRenderer = None
         self.set_navigate(True)
         if len(kwargs): setp(self, **kwargs)
@@ -1397,7 +1394,7 @@ class Axes(Artist):
 
         # keep track of i to guarantee stable sort for python 2.2
         dsu = [ (a.zorder, i, a) for i, a in enumerate(artists)
-                if a not in self.animated]
+                if not a.get_animated()]
         dsu.sort()
 
         for zorder, i, a in dsu:
