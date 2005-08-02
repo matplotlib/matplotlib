@@ -27,11 +27,11 @@ class RendererSVG(RendererBase):
         self.width=width
         self.height=height
         self._svgwriter = svgwriter
-        
+
         self._groupd = {}
         self._clipd = {}
         svgwriter.write(svgProlog%(width,height))
-        
+
     def _draw_svg_element(self, element, details, gc, rgbFace):
         cliprect, clipid = self._get_gc_clip_svg(gc)
         if clipid is None:
@@ -54,7 +54,7 @@ class RendererSVG(RendererBase):
         size = prop.get_size_in_points()
         font.set_size(size, 72.0)
         return font
-        
+
     def _get_style(self, gc, rgbFace, clippath):
         """
         return the style string.
@@ -64,7 +64,7 @@ class RendererSVG(RendererBase):
             fill = 'none'
         else:
             fill = rgb2hex(rgbFace)
-            
+
         offset, seq = gc.get_dashes()
         if seq is None:
             dashes = ''
@@ -112,10 +112,10 @@ class RendererSVG(RendererBase):
     def open_group(self, s):
         self._groupd[s] = self._groupd.get(s,0) + 1
         self._svgwriter.write('<g id="%s%d">\n' % (s, self._groupd[s]))
-        
+
     def close_group(self, s):
         self._svgwriter.write('</g>\n')
-        
+
     def draw_arc(self, gc, rgbFace, x, y, width, height, angle1, angle2):
         """
         Currently implemented by drawing a circle of diameter width, not an
@@ -128,18 +128,18 @@ class RendererSVG(RendererBase):
         filename = os.path.join (tempfile.gettempdir(),
                                  tempfile.gettempprefix() + '.png'
                                  )
-        
+
         verbose.report ('Writing image file for include: %s' % filename)
         # im.write_png() accepts a filename, not file object,
         # would be good to avoid using files and write to mem with StringIO
-        im.write_png (filename) 
+        im.write_png (filename)
 
 	imfile = file (filename, 'r')
 	image64 = base64.b64encode (imfile.read())
 	imfile.close()
 	os.remove(filename)
         lines = [image64[i:i+76] for i in range(0, len(image64), 76)]
-    
+
         self._svgwriter.write (
             '<image x="%f" y="%f" width="%f" height="%f" '
             'xlink:href="data:image/png;base64,\n%s" />\n'
@@ -182,7 +182,7 @@ class RendererSVG(RendererBase):
         if ismath:
             self._draw_mathtext(gc, x, y, s, prop, angle)
             return
-        
+
         font = self._get_font(prop)
 
         thetext = '%s' % s
@@ -200,7 +200,7 @@ class RendererSVG(RendererBase):
 <text style="%(style)s" x="%(x)f" y="%(y)f" %(transform)s>%(thetext)s</text>
 """ % locals()
         self._svgwriter.write (svg)
-            
+
     def _draw_mathtext(self, gc, x, y, s, prop, angle):
         """
         Draw math text using matplotlib.mathtext
@@ -223,7 +223,7 @@ class RendererSVG(RendererBase):
 <text style="%(style)s" x="%(newx)f" y="%(newy)f" %(transform)s>%(thetext)s</text>
 """ % locals()
 
-        self._svgwriter.write (svg) 
+        self._svgwriter.write (svg)
         self.close_group("mathtext")
 
     def finish(self):
@@ -266,7 +266,7 @@ class FigureCanvasSVG(FigureCanvasBase):
 
         basename, ext = os.path.splitext(filename)
         if not len(ext): filename += '.svg'
-        svgwriter = svgwriter = codecs.open( filename, 'w', 'utf-8' )
+        svgwriter = codecs.open( filename, 'w', 'utf-8' )
         renderer = RendererSVG(w, h, svgwriter)
         self.figure.draw(renderer)
         renderer.finish()
