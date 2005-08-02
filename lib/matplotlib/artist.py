@@ -34,6 +34,7 @@ class Artist:
         self._transform = identity_transform()
         self._transformSet = False
         self._visible = True
+        self._animated = False
         self._alpha = 1.0
         self.clipbox = None
         self._clipon = False
@@ -116,6 +117,10 @@ class Artist:
         "return the artist's visiblity"
         return self._visible
 
+    def get_animated(self):
+        "return the artist's animated state"
+        return self._animated
+
     def get_clip_on(self):
         'Return whether artist uses clipping'
         return self._clipon and self.clipbox is not None
@@ -133,6 +138,7 @@ class Artist:
         self._clipon = b
         if not b: self.clipbox = None
         self.pchanged()
+
     def draw(self, renderer, *args, **kwargs):
         'Derived classes drawing method'
         if not self.get_visible(): return
@@ -165,6 +171,16 @@ class Artist:
         ACCEPTS: [True | False]
         """
         self._visible = b
+        self.pchanged()
+
+
+    def set_animated(self, b):
+        """
+        set the artist's animation state
+
+        ACCEPTS: [True | False]
+        """
+        self._animated = b
         self.pchanged()
 
     def update(self, props):
