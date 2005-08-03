@@ -1084,11 +1084,11 @@ class FigureCanvasPS(FigureCanvasBase):
 
             latexh.close()
 
-            command = "latex -interaction=nonstopmode '%s'" % texfile
+            command = 'latex -interaction=nonstopmode "%s"' % texfile
             stdin, stdout, stderr = os.popen3(command)
             verbose.report(stdout.read(), 'debug-annoying')
             verbose.report(stderr.read(), 'helpful')
-            command = 'dvips -R -T %fin,%fin -o %s %s' % (pw, ph, psfile, dvifile)
+            command = 'dvips -R -T %fin,%fin -o "%s" "%s"' % (pw, ph, psfile, dvifile)
             stdin, stdout, stderr = os.popen3(command)
             verbose.report(stdout.read(), 'debug-annoying')
             verbose.report(stderr.read(), 'helpful')
@@ -1097,7 +1097,7 @@ class FigureCanvasPS(FigureCanvasBase):
                 dpi = rcParams['ps.distiller.res']
                 command = 'gs -dBATCH -dNOPAUSE -dSAFER -r%d \
                     -sDEVICE=epswrite -dLanguageLevel=2 -dEPSFitPage \
-                    -sOutputFile=%s %s'% (dpi, epsfile, psfile)
+                    -sOutputFile="%s" "%s"'% (dpi, epsfile, psfile)
                 stdin, stdout, stderr = os.popen3(command)
                 verbose.report(stdout.read(), 'debug-annoying')
                 verbose.report(stderr.read(), 'helpful')
@@ -1112,9 +1112,9 @@ class FigureCanvasPS(FigureCanvasBase):
             m = md5.md5(outfile)
             tmpfile = m.hexdigest()
             if ext.startswith('ep'):
-                command = 'eps2eps -dSAFER -r%d %s %s'% (dpi, outfile, tmpfile)
+                command = 'eps2eps -dSAFER -r%d "%s" "%s"'% (dpi, outfile, tmpfile)
             else:
-                command = 'ps2ps -dSAFER -r%d %s %s'% (dpi, outfile, tmpfile)
+                command = 'ps2ps -dSAFER -r%d "%s" "%s"'% (dpi, outfile, tmpfile)
             stdin, stdout, stderr = os.popen3(command)
             verbose.report(stdout.read(), 'debug-annoying')
             verbose.report(stderr.read(), 'helpful')
