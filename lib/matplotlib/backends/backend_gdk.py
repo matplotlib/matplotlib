@@ -105,8 +105,9 @@ class RendererGDK(RendererBase):
             #             int(w), int(h))
             # set clip rect?
 
-        flipud = origin=='lower'
-        rows, cols, image_str = im.as_str(flipud)
+        if origin=='lower': flipud=1
+        else: flipud=0
+        rows, cols, image_str = im.as_rgba_str(flipud=flipud)
 
         image_array = fromstring(image_str, UInt8)
         image_array.shape = rows, cols, 4

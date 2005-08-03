@@ -87,6 +87,36 @@ Image::apply_rotation(const Py::Tuple& args) {
   return Py::Object();  
 }
 
+char Image::flipud__doc__[] = 
+"flipud()\n"
+"\n"
+"Flip the image upside down"
+;
+Py::Object
+Image::flipud(const Py::Tuple& args) {
+  _VERBOSE("Image::flipud");
+  
+  args.verify_length(0);  
+  const size_t NUMBYTES(rowsOut * colsOut * BPP);
+  const size_t BPR = colsOut * BPP; // bytes per row
+  
+  agg::int8u* buffer = new agg::int8u[NUMBYTES];    
+  if (buffer ==NULL) //todo: also handle allocation throw
+    throw Py::MemoryError("Image::flipud could not allocate memory");
+  
+  size_t ind=0;
+  for (long rowNum=rowsOut-1; rowNum>=0; rowNum--) { //not unsigned!
+    size_t start = rowNum*BPR;
+    for (size_t j=0; j<BPR; j++) {
+      buffer[ind++] = *(bufferOut + start + j);
+    }
+  }
+  delete [] bufferOut;
+  bufferOut = buffer;
+  rbufOut->attach(bufferOut, colsOut, rowsOut, colsOut*BPP);
+  return Py::Object();
+}
+
 
 char Image::set_bg__doc__[] = 
 "set_bg(r,g,b,a)\n"
@@ -154,32 +184,16 @@ Image::apply_translation(const Py::Tuple& args) {
   
 }
 
-
-char Image::as_str__doc__[] = 
-"numrows, numcols, s = as_str(flipud)"
-"\n"
-"Call this function after resize to get the data as string\n"
-"The string is a numrows by numcols x 4 (RGBA) unsigned char buffer\n"
-"if flipud==1, flip the rows upside down\n"
-;
-
-Py::Object
-Image::as_str(const Py::Tuple& args) {
-  _VERBOSE("Image::as_str");
-  
-  args.verify_length(1);
-  int flipud = Py::Int(args[0]);
-  if (!flipud) {
-    return Py::asObject(Py_BuildValue("lls#", rowsOut, colsOut, 
-				      bufferOut, colsOut*rowsOut*4));
-  }
-  
+//return a buffer flipped upside down. It is the callers responsibilty
+//to free the memory
+agg::int8u* 
+Image::buffer_flipud(){
   const size_t NUMBYTES(rowsOut * colsOut * BPP);
   const size_t BPR = colsOut * BPP; // bytes per row
   
   agg::int8u* buffer = new agg::int8u[NUMBYTES];    
   if (buffer ==NULL) //todo: also handle allocation throw
-    throw Py::MemoryError("Image::as_str could not allocate memory");
+    throw Py::MemoryError("Image::as_rgba_str could not allocate memory");
   
   size_t ind=0;
   for (long rowNum=rowsOut-1; rowNum>=0; rowNum--) { //not unsigned!
@@ -188,6 +202,33 @@ Image::as_str(const Py::Tuple& args) {
       buffer[ind++] = *(bufferOut + start + j);
     }
   }
+  return buffer;
+}
+
+char Image::as_rgba_str__doc__[] = 
+"numrows, numcols, s = as_rgba_str(flipud=0)"
+"\n"
+"Call this function after resize to get the data as string\n"
+"The string is a numrows by numcols x 4 (RGBA) unsigned char buffer\n"
+"if flipud==1, flip the rows upside down\n"
+"flipud must be a kwarg"
+;
+
+Py::Object
+Image::as_rgba_str(const Py::Tuple& args, const Py::Dict& kwargs) {
+  _VERBOSE("Image::as_rgba_str");
+  
+  args.verify_length(0);
+  int flipud = 0;
+  if ( kwargs.hasKey("flipud") ) flipud = Py::Int( kwargs["flipud"] );
+
+  if (!flipud) {
+    return Py::asObject(Py_BuildValue("lls#", rowsOut, colsOut, 
+				      bufferOut, colsOut*rowsOut*4));
+  }
+  
+  const agg::int8u* buffer = buffer_flipud();
+  const size_t NUMBYTES(rowsOut * colsOut * BPP);
   PyObject* o = Py_BuildValue("lls#", rowsOut, colsOut, 
 			      buffer, NUMBYTES);
   delete [] buffer;
@@ -197,7 +238,7 @@ Image::as_str(const Py::Tuple& args) {
 
 
 char Image::buffer_argb32__doc__[] = 
-"buffer = buffer_argb32)"
+"buffer = buffer_argb32()"
 "\n"
 "Return the image buffer as agbr32\n"
 ;
@@ -207,7 +248,8 @@ Image::buffer_argb32(const Py::Tuple& args) {
   
   _VERBOSE("RendererAgg::buffer_argb32");
   
-  args.verify_length(0);    
+  args.verify_length(0);
+
   int row_len = colsOut * 4;
   
   unsigned char* buf_tmp = new unsigned char[row_len * rowsOut];
@@ -218,7 +260,6 @@ Image::buffer_argb32(const Py::Tuple& args) {
   rtmp.attach(buf_tmp, colsOut, rowsOut, row_len);
   
   color_conv(&rtmp, rbufOut, agg::color_conv_rgba32_to_argb32());
-  
   
   //todo: how to do this with native CXX
   //PyObject* o = Py_BuildValue("s#", buf_tmp, row_len * rowsOut);
@@ -232,7 +273,7 @@ Image::buffer_argb32(const Py::Tuple& args) {
 
 
 char Image::buffer_rgba__doc__[] = 
-"buffer = buffer_rgba)"
+"buffer = buffer_rgba()"
 "\n"
 "Return the image buffer as rgba32\n"
 ;
@@ -244,22 +285,8 @@ Image::buffer_rgba(const Py::Tuple& args) {
   
   args.verify_length(0);    
   int row_len = colsOut * 4;
-  
-  //unsigned char* buf_tmp = new unsigned char[row_len * rowsOut];
-  //if (buf_tmp ==NULL) 
-  //  throw Py::MemoryError("RendererAgg::buffer_argb32 could not allocate memory");
-  
-  //agg::rendering_buffer rtmp;
-  //tmp.attach(buf_tmp, colsOut, rowsOut, row_len);
-  
-  //color_conv(&rtmp, rbufOut, agg::color_conv_rgba32_to_argb32());
-  
-  
-  //todo: how to do this with native CXX
-  //PyObject* o = Py_BuildValue("s#", buf_tmp, row_len * rowsOut);
   PyObject* o = Py_BuildValue("lls#", rowsOut, colsOut, 
 			      rbufOut, row_len * rowsOut);
-  //delete [] buf_tmp;
   return Py::asObject(o);
   
   
@@ -511,6 +538,25 @@ Image::get_size(const Py::Tuple& args) {
   
 }
 
+char Image::get_size_out__doc__[] = 
+"numrows, numcols = get_size()\n"
+"\n"
+"Get the number or rows and columns of the output image"
+;
+
+Py::Object
+Image::get_size_out(const Py::Tuple& args) {
+  _VERBOSE("Image::get_size");
+  
+  args.verify_length(0);
+  
+  Py::Tuple ret(2);
+  ret[0] = Py::Int((long)rowsOut);
+  ret[1] = Py::Int((long)colsOut);
+  return ret;
+  
+}
+
 
 char Image::get_interpolation__doc__[] = 
 "get_interpolation()\n"
@@ -555,7 +601,8 @@ Image::set_interpolation(const Py::Tuple& args) {
 char Image::write_png__doc__[] = 
 "write_png(fname)\n"
 "\n"
-"Write the image to filename fname as png";
+"Write the image to filename fname as png\n"
+;
 Py::Object 
 Image::write_png(const Py::Tuple& args)
 {
@@ -563,21 +610,20 @@ Image::write_png(const Py::Tuple& args)
   _VERBOSE("Image::write_png");
   
   args.verify_length(1);
-  
+
   std::string fileName = Py::String(args[0]);
   const char *file_name = fileName.c_str();
   FILE *fp;
   png_structp png_ptr;
   png_infop info_ptr;
   struct        png_color_8_struct sig_bit;
-  png_uint_32 row;
+  png_uint_32 row=0;
   
   //todo: allocate on heap
   png_bytep row_pointers[rowsOut];
-  for (row = 0; row < rowsOut; ++row) {
+  for (row = 0; row < rowsOut; ++row) 
     row_pointers[row] = bufferOut + row * colsOut * 4;
-  }
-  
+
   fp = fopen(file_name, "wb");
   if (fp == NULL) 
     throw Py::RuntimeError(Printf("Could not open file %s", file_name).str());
@@ -657,18 +703,20 @@ Image::init_type() {
   add_varargs_method( "apply_rotation", &Image::apply_rotation, Image::apply_rotation__doc__);
   add_varargs_method( "apply_scaling",	&Image::apply_scaling, Image::apply_scaling__doc__);
   add_varargs_method( "apply_translation", &Image::apply_translation, Image::apply_translation__doc__);
-  add_varargs_method( "as_str", &Image::as_str, Image::as_str__doc__);
+  add_keyword_method( "as_rgba_str", &Image::as_rgba_str, Image::as_rgba_str__doc__);
   add_varargs_method( "buffer_argb32", &Image::buffer_argb32, Image::buffer_argb32__doc__);
   add_varargs_method( "buffer_rgba", &Image::buffer_rgba, Image::buffer_rgba__doc__);
   add_varargs_method( "get_aspect", &Image::get_aspect, Image::get_aspect__doc__);
   add_varargs_method( "get_interpolation", &Image::get_interpolation, Image::get_interpolation__doc__);
   add_varargs_method( "get_size", &Image::get_size, Image::get_size__doc__);
+  add_varargs_method( "get_size_out", &Image::get_size_out, Image::get_size_out__doc__);
   add_varargs_method( "reset_matrix", &Image::reset_matrix, Image::reset_matrix__doc__);
   add_keyword_method( "resize", &Image::resize, Image::resize__doc__);
   add_varargs_method( "set_interpolation", &Image::set_interpolation, Image::set_interpolation__doc__);
   add_varargs_method( "set_aspect", &Image::set_aspect, Image::set_aspect__doc__);
   add_varargs_method( "write_png", &Image::write_png, Image::write_png__doc__);
   add_varargs_method( "set_bg", &Image::set_bg, Image::set_bg__doc__);
+  add_varargs_method( "flipud", &Image::flipud, Image::flipud__doc__);
   
   
 }

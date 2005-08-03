@@ -96,6 +96,7 @@ rotation = agg.trans_affine_rotation(pi/4)
 scaling = agg.trans_affine_scaling(30,30)
 translation = agg.trans_affine_translation(300,250)
 trans = rotation*scaling*translation
+trans.flip_y()
 
 transpath = agg.conv_transform_path(path, trans)
 curvetrans = agg.conv_curve_trans(transpath)
