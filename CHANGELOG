@@ -1,5 +1,7 @@
 New entries should be added at the top
 
+2005-07-03 Fixed a bug related to TeX commands in backend_ps
+
 2005-08-03 Fixed SVG images to respect uppoer and lower origins.
 
 2005-08-03 Added flipud method to image and removed it from to_str.
