@@ -1,5 +1,8 @@
 New entries should be added at the top
 
+2005-08-03 Fixed SVG images to respect uppoer and lower origins.
+
+2005-08-03 Added flipud method to image and removed it from to_str.
 
 2005-07-29 Modified figure.figaspect to take an array or number;
            modified backend_svg to write utf-8 - JDH

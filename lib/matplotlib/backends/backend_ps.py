@@ -273,18 +273,18 @@ class RendererPS(RendererBase):
                                          0.5*width, 0.5*height, x, y)
         self._draw_ps(ps, gc, rgbFace, "arc")
 
-    def _rgba(self, im, flipud):
-        return im.as_str(fliud)
+    def _rgba(self, im):
+        return im.as_rgba_str()
     
-    def _rgb(self, im, flipud):
-        rgbat = im.as_str(flipud)
+    def _rgb(self, im):
+        rgbat = im.as_rgba_str()
         rgba = fromstring(rgbat[2], UInt8)
         rgba.shape = (rgbat[0], rgbat[1], 4)
         rgb = rgba[:,:,:3]
         return rgbat[0], rgbat[1], rgb.tostring()
 
-    def _gray(self, im, flipud, rc=0.3, gc=0.59, bc=0.11):
-        rgbat = im.as_str(flipud)
+    def _gray(self, im, rc=0.3, gc=0.59, bc=0.11):
+        rgbat = im.as_rgba_str()
         rgba = fromstring(rgbat[2], UInt8)
         rgba.shape = (rgbat[0], rgbat[1], 4)
         rgba_f = rgba.astype(Float32)
@@ -318,11 +318,12 @@ class RendererPS(RendererBase):
         """
 
         flipud = origin=='lower'
+        if flipud:  im.flipud()
         if im.is_grayscale:
-            h, w, bits = self._gray(im, flipud)
+            h, w, bits = self._gray(im)
             imagecmd = "image"
         else:
-            h, w, bits = self._rgb(im, flipud)
+            h, w, bits = self._rgb(im)
             imagecmd = "false 3 colorimage"
         hexlines = '\n'.join(self._hex_lines(bits))
 

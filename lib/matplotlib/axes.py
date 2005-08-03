@@ -263,6 +263,7 @@ class _process_plot_var_args:
 
         remaining = args
         while 1:
+            
             if len(remaining)==0: return
             if len(remaining)==1:
                 yield self._plot_1_arg(remaining[0], **kwargs)

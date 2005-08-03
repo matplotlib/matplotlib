@@ -130,9 +130,20 @@ class RendererSVG(RendererBase):
                                  )
 
         verbose.report ('Writing image file for include: %s' % filename)
-        # im.write_png() accepts a filename, not file object,
-        # would be good to avoid using files and write to mem with StringIO
-        im.write_png (filename)
+        # im.write_png() accepts a filename, not file object, would be
+        # good to avoid using files and write to mem with StringIO
+
+        # JDH: it *would* be good, but I don't know how to do this
+        # since libpng seems to want a FILE* and StringIO doesn't seem
+        # to provide one.  I suspect there is a way, but I don't know
+        # it
+
+        flipud = origin=='lower'
+        h,w = im.get_size_out()
+        if flipud:
+            im.flipud()
+            y = self.height-y-h 
+        im.write_png(filename) 
 
 	imfile = file (filename, 'r')
 	image64 = base64.b64encode (imfile.read())
@@ -143,7 +154,7 @@ class RendererSVG(RendererBase):
         self._svgwriter.write (
             '<image x="%f" y="%f" width="%f" height="%f" '
             'xlink:href="data:image/png;base64,\n%s" />\n'
-            % (x, y, bbox.width(), bbox.height(), '\n'.join(lines))
+            % (x, y, w+1, h+1, '\n'.join(lines))
             )
 
     def draw_line(self, gc, x1, y1, x2, y2):

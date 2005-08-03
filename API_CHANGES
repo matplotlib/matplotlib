@@ -1,3 +1,6 @@
+API Changes in matplotlib-0.84
+
+    Added flipud method to image and removed it from to_str.
 
 API Changes in matplotlib-0.83
 
