@@ -303,22 +303,18 @@ class RendererPS(RendererBase):
             lines.append(s[i:limit])
         return lines
 
-    def draw_image(self, x, y, im, origin, bbox):
+    def draw_image(self, x, y, im, bbox):
         """
         Draw the Image instance into the current axes; x is the
-        distance in pixels from the left hand side of the canvas. y is
-        the distance from the origin.  That is, if origin is upper, y
-        is the distance from top.  If origin is lower, y is the
-        distance from bottom
-
-        origin is 'upper' or 'lower'
+        distance in pixels from the left hand side of the canvas and y
+        is the distance from bottom
 
         bbox is a matplotlib.transforms.BBox instance for clipping, or
         None
         """
 
-        flipud = origin=='lower'
-        if flipud:  im.flipud()
+        im.flipud_out()
+
         if im.is_grayscale:
             h, w, bits = self._gray(im)
             imagecmd = "image"
@@ -334,7 +330,7 @@ class RendererPS(RendererBase):
         if bbox is not None:
             clipx,clipy,clipw,cliph = bbox.get_bounds()
             clip = '%s clipbox' % _nums_to_str(clipw, cliph, clipx, clipy)
-        if not flipud: y = figh-(y+h)
+        #y = figh-(y+h)
         ps = """gsave
 %(clip)s
 %(x)s %(y)s translate
@@ -348,7 +344,9 @@ currentfile DataString readhexstring pop
 grestore
 """ % locals()
         self._pswriter.write(ps)
-    
+
+        # unflip
+        im.flipud_out()
     def draw_line(self, gc, x0, y0, x1, y1):
         """
         Draw a single line from x0,y0 to x1,y1

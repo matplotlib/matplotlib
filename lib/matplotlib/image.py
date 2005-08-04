@@ -117,7 +117,7 @@ ACCEPTS: float
         self._imcache = None
         cm.ScalarMappable.changed(self)
 
-    def make_image(self, flipy):
+    def make_image(self):
         if self._A is not None:
             if self._imcache is None:
                 if self._A.typecode() == UInt8:
@@ -133,6 +133,10 @@ ACCEPTS: float
 
 
         bg = colorConverter.to_rgba(self.axes.get_frame().get_facecolor(), 0)
+
+        if self.origin=='upper':
+            im.flipud_in()
+
         im.set_bg( *bg)
         im.is_grayscale = (self.cmap.name == "gray" and
                            len(self._A.shape) == 2)
@@ -159,10 +163,13 @@ ACCEPTS: float
 
         # the viewport translation
         tx = (xmin-self.axes.viewLim.xmin())/dxintv * numcols
-        if flipy: 
-            ty = -(ymax-self.axes.viewLim.ymax())/dyintv * numrows
-        else:
-            ty = (ymin-self.axes.viewLim.ymin())/dyintv * numrows
+
+        
+        #if flipy: 
+        #    ty = -(ymax-self.axes.viewLim.ymax())/dyintv * numrows
+        #else:
+        #    ty = (ymin-self.axes.viewLim.ymin())/dyintv * numrows
+        ty = (ymin-self.axes.viewLim.ymin())/dyintv * numrows
 
         l, b, widthDisplay, heightDisplay = self.axes.bbox.get_bounds()
 
@@ -186,13 +193,16 @@ ACCEPTS: float
         #print tx, ty, sx, sy, rx, ry, widthDisplay, heightDisplay
         im.resize(int(widthDisplay+0.5), int(heightDisplay+0.5),
                   norm=self._filternorm, radius=self._filterrad)
+
+        if self.origin=='upper':
+            im.flipud_in()
+
         return im
     
-    def draw(self, renderer, *args, **kwargs):
+    def __draw(self, renderer, *args, **kwargs):
         if not self.get_visible(): return 
         isUpper = self.origin=='upper'
         flipy = renderer.flipy()
-
         im = self.make_image(isUpper)
         l, b, widthDisplay, heightDisplay = self.axes.bbox.get_bounds()
         if isUpper:
@@ -203,6 +213,12 @@ ACCEPTS: float
             # compute the location of the origin
             oy = b
             renderer.draw_image(l, oy, im, self.origin, self.axes.bbox)
+
+    def draw(self, renderer, *args, **kwargs):
+        if not self.get_visible(): return 
+        im = self.make_image()
+        l, b, widthDisplay, heightDisplay = self.axes.bbox.get_bounds()
+        renderer.draw_image(l, b, im, self.axes.bbox)
 
     def write_png(self, fname):
         """Write the image to png file with fname"""

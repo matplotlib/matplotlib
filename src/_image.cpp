@@ -87,36 +87,38 @@ Image::apply_rotation(const Py::Tuple& args) {
   return Py::Object();  
 }
 
-char Image::flipud__doc__[] = 
+
+
+char Image::flipud_out__doc__[] = 
 "flipud()\n"
 "\n"
-"Flip the image upside down"
+"Flip the output image upside down"
 ;
 Py::Object
-Image::flipud(const Py::Tuple& args) {
-  _VERBOSE("Image::flipud");
+Image::flipud_out(const Py::Tuple& args) {
+  _VERBOSE("Image::flipud_out");
   
   args.verify_length(0);  
-  const size_t NUMBYTES(rowsOut * colsOut * BPP);
-  const size_t BPR = colsOut * BPP; // bytes per row
-  
-  agg::int8u* buffer = new agg::int8u[NUMBYTES];    
-  if (buffer ==NULL) //todo: also handle allocation throw
-    throw Py::MemoryError("Image::flipud could not allocate memory");
-  
-  size_t ind=0;
-  for (long rowNum=rowsOut-1; rowNum>=0; rowNum--) { //not unsigned!
-    size_t start = rowNum*BPR;
-    for (size_t j=0; j<BPR; j++) {
-      buffer[ind++] = *(bufferOut + start + j);
-    }
-  }
-  delete [] bufferOut;
-  bufferOut = buffer;
-  rbufOut->attach(bufferOut, colsOut, rowsOut, colsOut*BPP);
+  int stride = rbufOut->stride();
+  rbufOut->attach(bufferOut, colsOut, rowsOut, -stride);
   return Py::Object();
 }
 
+char Image::flipud_in__doc__[] = 
+"flipud()\n"
+"\n"
+"Flip the input image upside down"
+;
+Py::Object
+Image::flipud_in(const Py::Tuple& args) {
+  _VERBOSE("Image::flipud_in");
+  
+  args.verify_length(0);  
+  int stride = rbufIn->stride();
+  rbufIn->attach(bufferIn, colsIn, rowsIn, -stride);
+
+  return Py::Object();
+}
 
 char Image::set_bg__doc__[] = 
 "set_bg(r,g,b,a)\n"
@@ -184,34 +186,11 @@ Image::apply_translation(const Py::Tuple& args) {
   
 }
 
-//return a buffer flipped upside down. It is the callers responsibilty
-//to free the memory
-agg::int8u* 
-Image::buffer_flipud(){
-  const size_t NUMBYTES(rowsOut * colsOut * BPP);
-  const size_t BPR = colsOut * BPP; // bytes per row
-  
-  agg::int8u* buffer = new agg::int8u[NUMBYTES];    
-  if (buffer ==NULL) //todo: also handle allocation throw
-    throw Py::MemoryError("Image::as_rgba_str could not allocate memory");
-  
-  size_t ind=0;
-  for (long rowNum=rowsOut-1; rowNum>=0; rowNum--) { //not unsigned!
-    size_t start = rowNum*BPR;
-    for (size_t j=0; j<BPR; j++) {
-      buffer[ind++] = *(bufferOut + start + j);
-    }
-  }
-  return buffer;
-}
-
 char Image::as_rgba_str__doc__[] = 
-"numrows, numcols, s = as_rgba_str(flipud=0)"
+"numrows, numcols, s = as_rgba_str()"
 "\n"
 "Call this function after resize to get the data as string\n"
 "The string is a numrows by numcols x 4 (RGBA) unsigned char buffer\n"
-"if flipud==1, flip the rows upside down\n"
-"flipud must be a kwarg"
 ;
 
 Py::Object
@@ -219,20 +198,15 @@ Image::as_rgba_str(const Py::Tuple& args, const Py::Dict& kwargs) {
   _VERBOSE("Image::as_rgba_str");
   
   args.verify_length(0);
-  int flipud = 0;
-  if ( kwargs.hasKey("flipud") ) flipud = Py::Int( kwargs["flipud"] );
 
-  if (!flipud) {
-    return Py::asObject(Py_BuildValue("lls#", rowsOut, colsOut, 
-				      bufferOut, colsOut*rowsOut*4));
-  }
-  
-  const agg::int8u* buffer = buffer_flipud();
-  const size_t NUMBYTES(rowsOut * colsOut * BPP);
-  PyObject* o = Py_BuildValue("lls#", rowsOut, colsOut, 
-			      buffer, NUMBYTES);
-  delete [] buffer;
-  return Py::asObject(o);
+  std::pair<agg::int8u*,bool> bufpair = _get_output_buffer();
+
+  Py::Object ret =  Py::asObject(Py_BuildValue("lls#", rowsOut, colsOut, 
+					       bufpair.first, colsOut*rowsOut*4));
+
+  if (bufpair.second) delete [] bufpair.first;
+  return ret;
+
   
 }
 
@@ -378,7 +352,7 @@ Image::resize(const Py::Tuple& args, const Py::Dict& kwargs) {
   agg::path_storage path;
   agg::int8u *bufferPad = NULL;
   agg::rendering_buffer rbufPad;
-  
+
   double x0, y0, x1, y1;
   
   if (interpolation==NEAREST) {
@@ -397,33 +371,40 @@ Image::resize(const Py::Tuple& args, const Py::Dict& kwargs) {
     y0 = 1.0;
     y1 = rowsIn+1;
     
+
     bufferPad = new agg::int8u[(rowsIn+2) * (colsIn+2) * BPP];
     if (bufferPad ==NULL) 
       throw Py::MemoryError("Image::resize could not allocate memory");
-    //pad the input buffer
-    for (size_t rowNum=0; rowNum<rowsIn+2; rowNum++)
-      for (size_t colNum=0; colNum<colsIn+2; colNum++) {
-	if ( (colNum==0) && (rowNum==1||(rowNum==rowsIn+1))) {
-	  //rewind to begining of column
-	  bufferIn -= colsIn * BPP; 
-	}
-	*bufferPad++ = *bufferIn++;       //red
-	*bufferPad++ = *bufferIn++;       //green
-	*bufferPad++ = *bufferIn++;       //blue
-	*bufferPad++ = *bufferIn++;       //alpha
-	
-	//rewind one byte on the first and next to last columns
-	if ( colNum==0 || colNum==colsIn) bufferIn-=4;
-      }
-    //rewind the input buffers
-    bufferIn  -= rowsIn * colsIn * BPP;
-    bufferPad -= (rowsIn+2) * (colsIn+2) * BPP;
     rbufPad.attach(bufferPad, colsIn+2, rowsIn+2, (colsIn+2) * BPP);
+
+    pixfmt pixfpad(rbufPad);
+    renderer_base rbpad(pixfpad);
+
+    pixfmt pixfin(*rbufIn);
+    renderer_base rbin(pixfin);
+
+    rbpad.copy_from(*rbufIn, 0, 1, 1);
+
+    agg::rect_base<int> firstrow(0, 0, colsIn-1, 0); 
+    rbpad.copy_from(*rbufIn, &firstrow, 1, 0);
+
+    agg::rect_base<int> lastrow(0, rowsIn-1, colsIn-1, rowsIn-1); 
+    rbpad.copy_from(*rbufIn, &lastrow, 1, 2);
+
+    agg::rect_base<int> firstcol(0, 0, 0, rowsIn-1); 
+    rbpad.copy_from(*rbufIn, &firstcol, 0, 1);
+
+    agg::rect_base<int> lastcol(colsIn-1, 0, colsIn-1, rowsIn-1); 
+    rbpad.copy_from(*rbufIn, &lastcol, 2, 1);
+
+    rbpad.copy_pixel(0, 0, rbin.pixel(0,0) );
+    rbpad.copy_pixel(0, colsIn+1, rbin.pixel(0,colsIn-1) );
+    rbpad.copy_pixel(rowsIn+1, 0, rbin.pixel(rowsIn-1,0) );
+    rbpad.copy_pixel(rowsIn+1, colsIn+1, rbin.pixel(rowsIn-1,colsIn-1) );
+
+
   }
-  
-  
-  
-  
+    
   
   path.move_to(x0, y0);
   path.line_to(x1, y0);
@@ -503,8 +484,22 @@ Image::resize(const Py::Tuple& args, const Py::Dict& kwargs) {
 
 
 
+char Image::get_interpolation__doc__[] = 
+"get_interpolation()\n"
+"\n"
+"Get the interpolation scheme to one of the module constants, "
+"one of image.NEAREST, image.BILINEAR, etc..."
+;
 
+Py::Object
+Image::get_interpolation(const Py::Tuple& args) {
+  _VERBOSE("Image::get_interpolation");
+  
+  args.verify_length(0);
+  return Py::Int((int)interpolation);
+}
 
+ 
 char Image::get_aspect__doc__[] = 
 "get_aspect()\n"
 "\n"
@@ -557,20 +552,28 @@ Image::get_size_out(const Py::Tuple& args) {
   
 }
 
+//get the output buffer, flipped if necessary.  The second element of
+//the pair is a bool that indicates whether you need to free the
+//memory
+std::pair<agg::int8u*, bool>
+Image::_get_output_buffer() {
+  _VERBOSE("Image::_get_output_buffer");
+  std::pair<agg::int8u*, bool> ret;
+  bool flipy = rbufOut->stride()<0;
+  if (flipy) {
+    agg::int8u* buffer = new agg::int8u[rowsOut*colsOut*4];
+    agg::rendering_buffer rb;
+    rb.attach(buffer, rowsOut, colsOut, colsOut*4);
+    rb.copy_from(*rbufOut);
+    ret.first = buffer;
+    ret.second = true;
+  }
+  else {
+    ret.first = bufferOut;
+    ret.second = false;
+  }
+  return ret;
 
-char Image::get_interpolation__doc__[] = 
-"get_interpolation()\n"
-"\n"
-"Get the interpolation scheme to one of the module constants, "
-"one of image.NEAREST, image.BILINEAR, etc..."
-;
-
-Py::Object
-Image::get_interpolation(const Py::Tuple& args) {
-  _VERBOSE("Image::get_interpolation");
-  
-  args.verify_length(0);
-  return Py::Int((int)interpolation);
 }
 
 
@@ -611,6 +614,8 @@ Image::write_png(const Py::Tuple& args)
   
   args.verify_length(1);
 
+  std::pair<agg::int8u*,bool> bufpair = _get_output_buffer();
+
   std::string fileName = Py::String(args[0]);
   const char *file_name = fileName.c_str();
   FILE *fp;
@@ -622,27 +627,32 @@ Image::write_png(const Py::Tuple& args)
   //todo: allocate on heap
   png_bytep row_pointers[rowsOut];
   for (row = 0; row < rowsOut; ++row) 
-    row_pointers[row] = bufferOut + row * colsOut * 4;
+    row_pointers[row] = bufpair.first + row * colsOut * 4;
 
   fp = fopen(file_name, "wb");
-  if (fp == NULL) 
+  if (fp == NULL) {
+    if (bufpair.second) delete [] bufpair.first;
     throw Py::RuntimeError(Printf("Could not open file %s", file_name).str());
+  }
   
   
   png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
   if (png_ptr == NULL) {
+    if (bufpair.second) delete [] bufpair.first;
     fclose(fp);
     throw Py::RuntimeError("Could not create write struct");
   }
   
   info_ptr = png_create_info_struct(png_ptr);
   if (info_ptr == NULL) {
+    if (bufpair.second) delete [] bufpair.first;
     fclose(fp);
     png_destroy_write_struct(&png_ptr, &info_ptr);
     throw Py::RuntimeError("Could not create info struct");
   }
   
   if (setjmp(png_ptr->jmpbuf)) {
+    if (bufpair.second) delete [] bufpair.first;
     fclose(fp);
     png_destroy_write_struct(&png_ptr, &info_ptr);
     throw Py::RuntimeError("Error building image");
@@ -669,6 +679,7 @@ Image::write_png(const Py::Tuple& args)
   png_destroy_write_struct(&png_ptr, &info_ptr);
   fclose(fp);
   
+  if (bufpair.second) delete [] bufpair.first;
   return Py::Object();
 }
 
@@ -716,7 +727,8 @@ Image::init_type() {
   add_varargs_method( "set_aspect", &Image::set_aspect, Image::set_aspect__doc__);
   add_varargs_method( "write_png", &Image::write_png, Image::write_png__doc__);
   add_varargs_method( "set_bg", &Image::set_bg, Image::set_bg__doc__);
-  add_varargs_method( "flipud", &Image::flipud, Image::flipud__doc__);
+  add_varargs_method( "flipud_out", &Image::flipud_out, Image::flipud_out__doc__);
+  add_varargs_method( "flipud_in", &Image::flipud_in, Image::flipud_in__doc__);
   
   
 }

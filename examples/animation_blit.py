@@ -1,6 +1,8 @@
 # For detailed comments on animation and the techniqes used here, see
 # the wiki entry
 # http://www.scipy.org/wikis/topical_software/MatplotlibAnimation
+import matplotlib
+matplotlib.use('GTKAgg')
 import sys
 import gtk, gobject
 import pylab as p
@@ -19,9 +21,17 @@ line, = p.plot(x, nx.sin(x), animated=True)
 
 # save the clean slate background -- everything but the animated line
 # is drawn and saved in the pixel buffer background
-background = canvas.copy_from_bbox(ax.bbox)
+background = None
+
+def snap_background(self):
+    global background
+    background = canvas.copy_from_bbox(ax.bbox)
+    return True
+
+p.connect('draw_event', snap_background)
 
 def update_line(*args):
+    if background is None: return True
     # restore the clean slate background
     canvas.restore_region(background)
     # update the data

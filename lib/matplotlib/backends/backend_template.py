@@ -72,7 +72,7 @@ class RendererTemplate(RendererBase):
     def draw_arc(self, gcEdge, rgbFace, x, y, width, height, angle1, angle2):
         pass
     
-    def draw_image(self, x, y, im, origin, bbox):
+    def draw_image(self, x, y, im, bbox):
         pass
     
     def draw_line(self, gc, x1, y1, x2, y2):

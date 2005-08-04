@@ -98,16 +98,15 @@ class RendererGDK(RendererBase):
         self.gdkDrawable.draw_arc(gc.gdkGC, False, x, y, w, h, a1, a2)
 
 
-    def draw_image(self, x, y, im, origin, bbox):
+    def draw_image(self, x, y, im, bbox):
         if bbox != None:
             l,b,w,h = bbox.get_bounds()
             #rectangle = (int(l), self.height-int(b+h),
             #             int(w), int(h))
             # set clip rect?
 
-        if origin=='lower': flipud=1
-        else: flipud=0
-        rows, cols, image_str = im.as_rgba_str(flipud=flipud)
+        im.flipud_out()
+        rows, cols, image_str = im.as_rgba_str()
 
         image_array = fromstring(image_str, UInt8)
         image_array.shape = rows, cols, 4
@@ -121,8 +120,8 @@ class RendererGDK(RendererBase):
 
         gc = self.new_gc()
 
-        if flipud:
-            y = self.height-y-rows
+
+        y = self.height-y-rows
 
         try: # new in 2.2
             # can use None instead of gc.gdkGC, if don't need clipping
@@ -134,6 +133,9 @@ class RendererGDK(RendererBase):
             pixbuf.render_to_drawable(self.gdkDrawable, gc.gdkGC, 0, 0,
                                   int(x), int(y), cols, rows,
                                   gdk.RGB_DITHER_NONE, 0, 0)
+
+        # unflip
+        im.flipud_out()
 
             
     def draw_line(self, gc, x1, y1, x2, y2):
