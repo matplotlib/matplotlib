@@ -39,15 +39,13 @@ class RendererBase:
         """
         raise NotImplementedError
 
-    def draw_image(self, x, y, im, origin, bbox):
+    def draw_image(self, x, y, im, bbox):
         """
         Draw the Image instance into the current axes; x is the
         distance in pixels from the left hand side of the canvas. y is
         the distance from the origin.  That is, if origin is upper, y
         is the distance from top.  If origin is lower, y is the
         distance from bottom
-
-        origin is 'upper' or 'lower'
 
         bbox is a matplotlib.transforms.BBox instance for clipping, or
         None
@@ -567,14 +565,14 @@ class DrawEvent(Event):
     An event triggered by a draw operation on the canvas
 
     Attributes are
-      name   
+      name
       canvas
       renderer - the Renderer instance
     """
     def __init__(self, name, canvas, renderer):
         Event.__init__(self, name, canvas)
         self.renderer = renderer
-        
+
 class LocationEvent(Event):
     """
     A event that has a screen location
@@ -742,7 +740,7 @@ class FigureCanvasBase:
         Backend derived classes should call this function on any mouse
         button press.  x,y are the canvas coords: 0,0 is lower, left.
         button and key are as defined in MouseEvent
-        """         
+        """
         self._button = button
         event = MouseEvent('button_press_event', self, x, y, button, self._key, guiEvent=guiEvent)
         for cid, func in self.callbacks.get('button_press_event', {}).items():
@@ -829,7 +827,7 @@ class FigureCanvasBase:
 
          'draw_event'
          'key_press_event'
-         'key_release_event'         
+         'key_release_event'
          'button_press_event'
          'button_release_event'
          'motion_notify_event'
@@ -845,7 +843,7 @@ class FigureCanvasBase:
 
         assert s in  ('draw_event',
         'key_press_event',
-        'key_release_event',         
+        'key_release_event',
         'button_press_event',
         'button_release_event',
         'motion_notify_event',
