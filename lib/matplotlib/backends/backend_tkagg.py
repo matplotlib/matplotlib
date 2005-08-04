@@ -152,6 +152,10 @@ class FigureCanvasTkAgg(FigureCanvasAgg):
         tkagg.blit(self._tkphoto, self.renderer._renderer, 2)
         self._master.update_idletasks()
 
+    def blit(self, bbox=None):
+        tkagg.blit(self._tkphoto, self.renderer._renderer, 2)
+        self._master.update_idletasks()
+
     show = draw
 
     def draw_idle(self):
