@@ -9,15 +9,17 @@ from pylab import *
 
 x = arange(100.0); x.shape = 10,10
 
+interp = 'bilinear';
+#interp = 'nearest';
 lim = -2,11,-2,6
 subplot(211, axisbg='g')
 title('blue should be up')
-imshow(x, origin='upper', interpolation='nearest')
+imshow(x, origin='upper', interpolation=interp)
 #axis(lim)
 
 subplot(212, axisbg='y')
 title('blue should be down')
-imshow(x, origin='lower', interpolation='nearest')
+imshow(x, origin='lower', interpolation=interp)
 #axis(lim)
-savefig('image_origin.eps')
+savefig('image_origin')
 show()

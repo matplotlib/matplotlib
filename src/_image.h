@@ -4,7 +4,7 @@
 
 #ifndef _IMAGE_H
 #define _IMAGE_H
-
+#include <utility>
 #include "Python.h"
 
 #include "agg_trans_affine.h"
@@ -39,8 +39,11 @@ public:
   Py::Object set_aspect(const Py::Tuple& args);
   Py::Object write_png(const Py::Tuple& args);
   Py::Object set_bg(const Py::Tuple& args);
-  Py::Object flipud(const Py::Tuple& args);
+  Py::Object flipud_out(const Py::Tuple& args);
+  Py::Object flipud_in(const Py::Tuple& args);
 
+
+  std::pair<agg::int8u*, bool> _get_output_buffer();
   enum {NEAREST,
 	BILINEAR,
         BICUBIC,
@@ -78,7 +81,6 @@ private:
   Py::Dict __dict__;
   agg::trans_affine srcMatrix, imageMatrix;
 
-  agg::int8u* buffer_flipud();
   static char apply_rotation__doc__[];
   static char apply_scaling__doc__[];
   static char apply_translation__doc__[];
@@ -95,7 +97,8 @@ private:
   static char set_aspect__doc__[];
   static char write_png__doc__[];
   static char set_bg__doc__[];
-  static char flipud__doc__[];
+  static char flipud_out__doc__[];
+  static char flipud_in__doc__[];
 
 };
 

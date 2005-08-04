@@ -1366,12 +1366,8 @@ class Axes(Artist):
             # make a composite image blending alpha
             # list of (_image.Image, ox, oy)
 
-            if not allequal([im.origin for im in self.images]):
-                raise ValueError('Composite images with different origins not supported')
-            else:
-                    origin = self.images[0].origin
 
-            ims = [(im.make_image(renderer),0,0) for im in self.images if im.get_visible()]
+            ims = [(im.make_image(),0,0) for im in self.images if im.get_visible()]
 
 
             im = _image.from_images(self.bbox.height(), self.bbox.width(), ims)
@@ -1379,7 +1375,7 @@ class Axes(Artist):
             l, b, w, h = self.bbox.get_bounds()
             ox = l
             oy = self.figure.bbox.height()-(b+h)
-            renderer.draw_image(ox, oy, im, origin, self.bbox)
+            renderer.draw_image(ox, oy, im, self.bbox)
 
         if self.axison and not inframe:
             self.xaxis.draw(renderer)

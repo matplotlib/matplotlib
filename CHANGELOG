@@ -1,5 +1,8 @@
 New entries should be added at the top
 
+2005-08-04 Removed origin kwarg from backend.draw_image.  origin is
+           handled entirely by the frontend now.
+
 2005-07-03 Fixed a bug related to TeX commands in backend_ps
 
 2005-08-03 Fixed SVG images to respect uppoer and lower origins.

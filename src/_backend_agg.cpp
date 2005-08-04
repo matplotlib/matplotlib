@@ -1585,6 +1585,7 @@ RendererAgg::draw_text(const Py::Tuple& args) {
   
 }
 
+/*
 Py::Object 
 RendererAgg::draw_image(const Py::Tuple& args) {
   _VERBOSE("RendererAgg::draw_image");
@@ -1643,6 +1644,60 @@ RendererAgg::draw_image(const Py::Tuple& args) {
   return Py::Object();
   
 }
+*/
+
+Py::Object 
+RendererAgg::draw_image(const Py::Tuple& args) {
+  _VERBOSE("RendererAgg::draw_image");
+  theRasterizer->reset_clipping();
+  args.verify_length(4);
+  
+  float x = Py::Float(args[0]);
+  float y = Py::Float(args[1]);
+  Image *image = static_cast<Image*>(args[2].ptr());
+  
+  size_t ind = 0;
+  size_t thisx, thisy;
+  float oy = height-y;
+  
+  float minx(0), maxx(width), miny(0), maxy(height);
+  
+  if (args[3].ptr() != Py_None) {
+    Bbox* bbox = static_cast<Bbox*>(args[3].ptr());
+    minx = bbox->ll_api()->x_api()->val();
+    maxy = height-bbox->ll_api()->y_api()->val();
+    maxx = bbox->ur_api()->x_api()->val();
+    miny = height-bbox->ur_api()->y_api()->val();
+  }
+  
+  //if (isUpper) oy -= image->rowsOut;  //start at top
+  for (size_t j=0; j<image->rowsOut; j++) {
+    thisy =  (size_t)(oy-j-0.5);
+    if (thisy<miny || thisy>=maxy) {
+      ind += 4*image->colsOut;
+      continue;
+    }
+    for (size_t i=0; i<image->colsOut; i++) {
+      thisx = (size_t)(i+x); 
+      if (thisx<minx || thisx>=maxx) {
+	ind += 4;
+      	continue;
+      }
+      
+      pixfmt::color_type p;
+      
+      p.r = *(image->bufferOut+ind++);
+      p.g = *(image->bufferOut+ind++);
+      p.b = *(image->bufferOut+ind++);
+      p.a = *(image->bufferOut+ind++);
+      
+      pixFmt->blend_pixel(thisx, thisy, p, p.a);
+    }
+  }
+  
+  return Py::Object();
+  
+}
 
 
 Py::Object 
@@ -1670,7 +1725,7 @@ RendererAgg::write_png(const Py::Tuple& args)
   _VERBOSE("RendererAgg::write_png");
   
   args.verify_length(1);
-  
+   
   FILE *fp;
   Py::Object o = Py::Object(args[0]);
   bool fpclose = true;

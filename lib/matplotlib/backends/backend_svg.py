@@ -124,7 +124,7 @@ class RendererSVG(RendererBase):
         details = 'cx="%f" cy="%f" r="%f"' % (x,self.height-y,width/2)
         self._draw_svg_element('circle', details, gc, rgbFace)
 
-    def draw_image(self, x, y, im, origin, bbox):
+    def draw_image(self, x, y, im, bbox):
         filename = os.path.join (tempfile.gettempdir(),
                                  tempfile.gettempprefix() + '.png'
                                  )
@@ -138,11 +138,10 @@ class RendererSVG(RendererBase):
         # to provide one.  I suspect there is a way, but I don't know
         # it
 
-        flipud = origin=='lower'
+        im.flipud_out()
+
         h,w = im.get_size_out()
-        if flipud:
-            im.flipud()
-            y = self.height-y-h 
+        y = self.height-y-h 
         im.write_png(filename) 
 
 	imfile = file (filename, 'r')
@@ -156,6 +155,9 @@ class RendererSVG(RendererBase):
             'xlink:href="data:image/png;base64,\n%s" />\n'
             % (x, y, w+1, h+1, '\n'.join(lines))
             )
+
+         # unflip
+        im.flipud_out()
 
     def draw_line(self, gc, x1, y1, x2, y2):
         details = 'd="M %f,%f L %f,%f"' % (x1, self.height-y1,

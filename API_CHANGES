@@ -1,6 +1,8 @@
 API Changes in matplotlib-0.84
 
-    Added flipud method to image and removed it from to_str.
+    backend developers: Added flipud method to image and removed it
+    from to_str.  Removed origin kwarg from backend.draw_image.
+    origin is handled entirely by the frontend now.
 
 API Changes in matplotlib-0.83
 
