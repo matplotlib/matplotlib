@@ -221,7 +221,7 @@ RendererAgg::set_clipbox_rasterizer( double *cliprect) {
   //set the clip rectangle from the gc
   
   _VERBOSE("RendererAgg::set_clipbox_rasterizer");
-  
+
   if (cliprect==NULL) {
     theRasterizer->reset_clipping();
     rendererBase->reset_clipping(true); 

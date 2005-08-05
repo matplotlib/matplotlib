@@ -2363,6 +2363,10 @@ class Axes(Artist):
             shadow=False
             ):
         """
+        PIE(x, explode=None, labels=None,
+            colors=('b', 'g', 'r', 'c', 'm', 'y', 'k', 'w'),
+            autopct=None, shadow=False)
+
         Make a pie chart of array x.  The fractional area of each wedge is
         given by x/sum(x).  If sum(x)<=1, then the values of x give the
         fractional area directly and the array will not be normalized.
@@ -2397,7 +2401,7 @@ class Axes(Artist):
           If autopct is not None, return (patches, texts, autotexts), where
           patches and texts are as above, and autotexts is a list of text
           instances for the numeric labels
-  """
+        """
         self.set_frame_on(False)
 
         x = asarray(x).astype(Float32)

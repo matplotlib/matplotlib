@@ -1,5 +1,7 @@
 New entries should be added at the top
 
+2005-08-05 Added Clovis Goldemberg patch to the tk save dialog
+
 2005-08-04 Removed origin kwarg from backend.draw_image.  origin is
            handled entirely by the frontend now.
 
