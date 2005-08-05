@@ -258,7 +258,7 @@ class XTick(Tick):
     def _get_tick1line(self, loc):
         'Get the default line2D instance'
         # x in data coords, y in axes coords
-        l = Line2D( xdata=(loc, loc), ydata=(0, 0),
+        l = Line2D( xdata=(loc,), ydata=(0,),
                     color='k',
                     linestyle = 'None',
                     antialiased=False,
@@ -274,7 +274,7 @@ class XTick(Tick):
     def _get_tick2line(self, loc):
         'Get the default line2D instance'
         # x in data coords, y in axes coords
-        l = Line2D( xdata=(loc, loc), ydata=(1,1),
+        l = Line2D( xdata=(loc,), ydata=(1,),
                        color='k',
                        linestyle = 'None',
                        antialiased=False,
@@ -385,7 +385,7 @@ class YTick(Tick):
         'Get the default line2D instance'
         # x in axes coords, y in data coords
 
-        l = Line2D( (0, 0), (loc, loc), color='k',
+        l = Line2D( (0,), (loc,), color='k',
                     antialiased=False,
                     marker = TICKRIGHT,
                     linestyle = 'None',
@@ -399,7 +399,7 @@ class YTick(Tick):
     def _get_tick2line(self, loc):
         'Get the default line2D instance'
         # x in axes coords, y in data coords
-        l = Line2D( (1, 1), (0, 0), color='k',
+        l = Line2D( (1,), (0,), color='k',
                     antialiased=False,
                     marker = TICKLEFT,
                     linestyle = 'None',
