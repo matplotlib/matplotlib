@@ -1,7 +1,6 @@
 from __future__ import division
 
-import os
-import sys
+import os, sys
 def fn_name(): return sys._getframe(1).f_code.co_name
 
 import gobject
@@ -217,7 +216,7 @@ class FigureCanvasGTK (gtk.DrawingArea, FigureCanvasBase):
         
         self._need_redraw = True
         return False  # finish event propagation?
-        
+
 
     def draw(self):
         # synchronous window redraw (like GTK+ 1.2 used to do)
@@ -231,12 +230,15 @@ class FigureCanvasGTK (gtk.DrawingArea, FigureCanvasBase):
 
         # synchronous draw (needed for animation)
         x, y, w, h = self.allocation
+        #print x, y, w, h
         self._pixmap_prepare (w, h)
         self._render_figure(self._pixmap, w, h)
         self._need_redraw = False
         self.window.draw_drawable (self.style.fg_gc[self.state],
-                                   self._pixmap, x, y, x, y, w, h)
+                                   self._pixmap, 0, 0, 0, 0, w, h)
 
+
+    
 
     def draw_idle(self):
         def idle_draw(*args):
@@ -276,6 +278,12 @@ class FigureCanvasGTK (gtk.DrawingArea, FigureCanvasBase):
             self._pixmap_height = max (int (self._pixmap_height * 1.1),
                                            height)
             create_pixmap = True
+
+
+        if height > self._pixmap_height:
+            self._pixmap_height = max (int (self._pixmap_height * 1.1),
+                                           height)
+
 
         if create_pixmap:
             if _debug: print 'FigureCanvasGTK.%s new pixmap' % fn_name()
