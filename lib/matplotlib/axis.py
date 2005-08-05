@@ -308,9 +308,9 @@ class XTick(Tick):
         x = loc
 
 
-        self.tick1line.set_xdata((x, x))
-        self.tick2line.set_xdata((x, x))
-        self.gridline.set_xdata((x, x))
+        self.tick1line.set_xdata((x,))
+        self.tick2line.set_xdata((x,))
+        self.gridline.set_xdata((x, ))
         self.label1.set_x(x)
         self.label2.set_x(x)
         self._loc = loc
@@ -432,9 +432,9 @@ class YTick(Tick):
     def update_position(self, loc):
         'Set the location of tick in data coords with scalar loc'
         y = loc
-        self.tick1line.set_ydata((y, y))
-        self.tick2line.set_ydata((y, y))
-        self.gridline.set_ydata((y, y))
+        self.tick1line.set_ydata((y,))
+        self.tick2line.set_ydata((y,))
+        self.gridline.set_ydata((y, ))
 
         self.label1.set_y( y )
         self.label2.set_y( y )
