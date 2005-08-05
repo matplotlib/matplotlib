@@ -1,5 +1,11 @@
 New entries should be added at the top
 
+2005-08-05 Fixed duplicate tickline bug - JDH
+
+2005-08-05 Fixed a GTK animation bug that cropped up when doing
+           animations in gtk//gtkagg canvases that had widgets packed
+           above them
+
 2005-08-05 Added Clovis Goldemberg patch to the tk save dialog
 
 2005-08-04 Removed origin kwarg from backend.draw_image.  origin is

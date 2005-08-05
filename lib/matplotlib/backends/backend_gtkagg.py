@@ -71,11 +71,10 @@ class FigureCanvasGTKAgg(FigureCanvasGTK, FigureCanvasAgg):
         agg_to_gtk_drawable(pixmap, self.renderer._renderer, None)
 
     def blit(self, bbox=None):
-        
         agg_to_gtk_drawable(self._pixmap, self.renderer._renderer, bbox)
         x, y, w, h = self.allocation
         self.window.draw_drawable (self.style.fg_gc[self.state], self._pixmap,
-                                   x, y, x, y, w, h)
+                                   0, 0, 0, 0, w, h)
 
     def print_figure(self, filename, dpi=150,
                      facecolor='w', edgecolor='w',
