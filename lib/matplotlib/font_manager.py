@@ -452,11 +452,11 @@ dictionary can optionally be created.
                 continue
             prop = afmFontProperty(font)
         else:
-            #try:
-            font = ft2font.FT2Font(str(fpath))
-            #except RuntimeError:
-            #    warnings.warn("Could not open font file %s"%fpath)
-            #    continue
+            try:
+                font = ft2font.FT2Font(str(fpath))
+            except RuntimeError:
+                warnings.warn("Could not open font file %s"%fpath)
+                continue
             try: prop = ttfFontProperty(font)
             except: continue
             

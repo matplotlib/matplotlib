@@ -69,7 +69,7 @@ private:
       deststride = srcstride;
     }
     else {
-      //bbos is not None; copy the image in the bbox
+      //bbox is not None; copy the image in the bbox
       
       Bbox* clipbox = static_cast<Bbox*>(args[2].ptr());
       double l = clipbox->ll_api()->x_api()->val() ; 
