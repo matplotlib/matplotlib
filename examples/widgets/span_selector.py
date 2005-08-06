@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 """
 The HorizontalSpanSelector is a mouse widget to select a xmin/xmax
 range.  When you left click drag in the axes, a rectangle shows the
