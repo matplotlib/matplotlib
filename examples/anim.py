@@ -4,23 +4,22 @@ A simple example of an animated plot in matplotlib.  You can test the
 speed of animation of various backends by running the script with the
 '-dSomeBackend' flag
 
+SC Aug 06 2005 mpl 0.83.2:
 Here are some numbers from my system, where FPS is the frames rendered
 per second
 
-  TkAgg     20 FPS
-  GTK       50 FPS
-  GTKAgg    36 FPS
-  GTKCairo  15 FPS
-  WX        11 FPS
-  WXAgg     27 FPS
-
+  GTK       28 FPS
+  GTKAgg    18 FPS
+  GTKCairo  14 FPS
+  TkAgg     10 FPS
 """
-from pylab import *
 import time
+
+from pylab import *
 
 # turn interactive mode on for dynamic updates.  If you aren't in
 # interactive mode, you'll need to use a GUI event handler/timer.
-ion()  
+ion()
 
 tstart = time.time()              # for profiling
 x = arange(0,2*pi,0.01)           # x-array
