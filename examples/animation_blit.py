@@ -17,23 +17,15 @@ tstart = time.time()
 
 # create the initial line
 x = nx.arange(0,2*nx.pi,0.01)
-line, = p.plot(x, nx.sin(x), animated=True)
+line, = p.plot(x, nx.sin(x), animated=True, lw=2)
 
-# save the clean slate background -- everything but the animated line
-# is drawn and saved in the pixel buffer background
-background = None
-
-def snap_background(self):
-    global background
-    background = canvas.copy_from_bbox(ax.bbox)
-    return True
-
-p.connect('draw_event', snap_background)
 
 def update_line(*args):
-    if background is None: return True
+    if update_line.background is None:
+        update_line.background = canvas.copy_from_bbox(ax.bbox)
+
     # restore the clean slate background
-    canvas.restore_region(background)
+    canvas.restore_region(update_line.background)
     # update the data
     line.set_ydata(nx.sin(x+update_line.cnt/10.0))  
     # just draw the animated artist
@@ -49,6 +41,6 @@ def update_line(*args):
     update_line.cnt += 1
     return True
 update_line.cnt = 0
-
+update_line.background = None
 gobject.idle_add(update_line)
 p.show()
