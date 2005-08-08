@@ -1,17 +1,17 @@
 import _tkagg
 import Tkinter as Tk
 
-def blit(photoimage, aggimage, colormode=1):
+def blit(photoimage, aggimage, bbox=None, colormode=1):
     tk = photoimage.tk
     try:
-        tk.call("PyAggImagePhoto", photoimage, id(aggimage), colormode)
+        tk.call("PyAggImagePhoto", photoimage, id(aggimage), colormode, id(bbox))
     except Tk.TclError, v:
         try:
             try:
                 _tkagg.tkinit(tk.interpaddr(), 1)
             except AttributeError:
                 _tkagg.tkinit(id(tk), 0)
-            tk.call("PyAggImagePhoto", photoimage, id(aggimage), colormode)
+            tk.call("PyAggImagePhoto", photoimage, id(aggimage), colormode, id(bbox))
         except (ImportError, AttributeError, Tk.TclError):
             raise
 

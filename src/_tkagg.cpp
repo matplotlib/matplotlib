@@ -13,6 +13,7 @@
 #include <stdlib.h>
 
 #include "_backend_agg.h"
+#include "_transforms.h"
 
 extern "C" {
 #ifdef __APPLE__
@@ -41,10 +42,15 @@ PyAggImagePhoto(ClientData clientdata, Tcl_Interp* interp,
     Tk_PhotoHandle photo;
     Tk_PhotoImageBlock block;
     PyObject* aggo;
+    
+    // vars for blitting
+    PyObject* bboxo;
+    Bbox* bbox;
+    double l,b,r,t;
 
     long mode;
     long nval;
-    if (argc != 4) {
+    if (argc != 5) {
         Tcl_AppendResult(interp, "usage: ", argv[0],
                          " destPhoto srcImage", (char *) NULL);
         return TCL_ERROR;
@@ -69,6 +75,23 @@ PyAggImagePhoto(ClientData clientdata, Tcl_Interp* interp,
         return TCL_ERROR;
     }
 
+    /* check for bbox/blitting */
+    bboxo = (PyObject*)atol(argv[4]);
+    if (bboxo != Py_None) {
+      bbox = (Bbox*)bboxo;
+      l = bbox->ll_api()->x_api()->val();
+      b = bbox->ll_api()->y_api()->val();
+      r = bbox->ur_api()->x_api()->val();
+      t = bbox->ur_api()->y_api()->val();
+      // int casts messes up precision, so must round
+      l = round(l);
+      b = round(b);
+      r = round(r);
+      t = round(t);
+    } else {
+      bbox = NULL;
+    }
+
     /* setup tkblock */
     block.pixelSize = 1;
     if (mode == 0) {
@@ -87,16 +110,22 @@ PyAggImagePhoto(ClientData clientdata, Tcl_Interp* interp,
             block.pixelSize = 4;
             nval = 4;
         }
-    }    
+    }
+
     block.width  = aggRenderer->get_width();
     block.height = aggRenderer->get_height();
     //std::cout << "w,h: " << block.width << " " << block.height << std::endl;
     block.pitch = block.width * nval;
     block.pixelPtr =  aggRenderer->pixBuffer;
-    /* Clear current contents */
-    Tk_PhotoBlank(photo);
-    /* Copy opaque block to photo image, and leave the rest to TK */
-    Tk_PhotoPutBlock(photo, &block, 0, 0, block.width, block.height);
+
+    if (bbox) {
+      Tk_PhotoPutBlock(photo, &block, (int)l, (int)b, (int)(r-l), (int)(t-b));
+    } else {
+      /* Clear current contents */
+      Tk_PhotoBlank(photo);
+      /* Copy opaque block to photo image, and leave the rest to TK */
+      Tk_PhotoPutBlock(photo, &block, 0, 0, block.width, block.height);
+    }
 
     return TCL_OK;
 }
