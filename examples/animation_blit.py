@@ -2,7 +2,7 @@
 # the wiki entry
 # http://www.scipy.org/wikis/topical_software/MatplotlibAnimation
 import matplotlib
-#matplotlib.use('GTKAgg')
+matplotlib.use('GTKAgg')
 import sys
 import gtk, gobject
 import pylab as p
@@ -41,7 +41,7 @@ def update_line(*args):
     # just redraw the axes rectangle
     canvas.blit(ax.bbox) 
     
-    if update_line.cnt==50:
+    if update_line.cnt==200:
         # print the timing info and quit
         print 'FPS:' , 200/(time.time()-tstart)
         sys.exit()
@@ -50,8 +50,5 @@ def update_line(*args):
     return True
 update_line.cnt = 0
 
-#gobject.idle_add(update_line)
+gobject.idle_add(update_line)
 p.show()
-
-
-
