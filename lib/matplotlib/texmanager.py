@@ -113,7 +113,7 @@ WARNING: found a TeX cache dir in the deprecated location "%s".
         if force or not os.path.exists(dvifile):
             command = self.get_tex_command(tex, fname)
             stdin, stdout, stderr = os.popen3(command)
-            verbose.report(stdout.read(), 'debug-annoying')
+            #verbose.report(stdout.read(), 'debug-annoying')
             err = stderr.read()
             if err: verbose.report(err, 'helpful')
 
@@ -144,7 +144,7 @@ WARNING: found a TeX cache dir in the deprecated location "%s".
         # see get_rgba for a discussion of the background
         if force or not os.path.exists(pngfile):
             stdin, stdout, stderr = os.popen3(command)
-            verbose.report(stdout.read(), 'debug-annoying')
+            #verbose.report(stdout.read(), 'debug-annoying')
             err = stderr.read()
             if err: verbose.report(err, 'helpful')
         return pngfile
@@ -159,7 +159,7 @@ WARNING: found a TeX cache dir in the deprecated location "%s".
         if not os.path.exists(psfile):
             command = 'dvips -q -E -D %d -o "%s" "%s"'% (dpi, psfile, dvifile)
             stdin, stdout, stderr = os.popen3(command)
-            verbose.report(stdout.read(), 'debug-annoying')
+            #verbose.report(stdout.read(), 'debug-annoying')
             err = stderr.read()
             if err: verbose.report(err, 'helpful')
 

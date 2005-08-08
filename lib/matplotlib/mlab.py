@@ -1258,6 +1258,15 @@ def fftsurr(x):
     z = z*exp(phase)
     return inverse_fft(z).real
 
+
+def liaupunov(x, fprime):
+   """
+   x is a very long trajectory from a map, and derivs is the analytic
+   derivative of the map.  Return lambda = 1/n\sum ln|fprime(x_i)|.
+   See Sec 10.5 Strogatz (1994) "Nonlinear Dynamics and Chaos".   
+   """
+   return mean(log(fprime(x)))
+      
 ### the following code was written and submitted by Fernando Perez
 ### from the ipython numutils package under a BSD license
 """
