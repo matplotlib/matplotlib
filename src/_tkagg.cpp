@@ -12,6 +12,7 @@
 #include <Python.h>
 #include <stdlib.h>
 
+#include "agg_basics.h"
 #include "_backend_agg.h"
 #include "_transforms.h"
 
@@ -46,7 +47,9 @@ PyAggImagePhoto(ClientData clientdata, Tcl_Interp* interp,
     // vars for blitting
     PyObject* bboxo;
     Bbox* bbox;
+    agg::int8u *destbuffer;
     double l,b,r,t;
+    int destx, desty, destwidth, destheight, deststride;
 
     long mode;
     long nval;
@@ -83,11 +86,26 @@ PyAggImagePhoto(ClientData clientdata, Tcl_Interp* interp,
       b = bbox->ll_api()->y_api()->val();
       r = bbox->ur_api()->x_api()->val();
       t = bbox->ur_api()->y_api()->val();
-      // int casts messes up precision, so must round
-      l = round(l);
-      b = round(b);
-      r = round(r);
-      t = round(t);
+
+      destx = (int)l;
+      desty = (int)b;
+      destwidth = (int)(r-l);
+      destheight = (int)(t-b);
+      deststride = 4*destwidth;
+
+      destbuffer = new agg::int8u[deststride*destheight];
+      if (destbuffer == NULL) {
+	throw Py::MemoryError("_tkagg could not allocate memory for destbuffer");
+      }
+
+      agg::rendering_buffer destrbuf;
+      destrbuf.attach(destbuffer, destwidth, destheight, deststride);
+      pixfmt destpf(destrbuf);
+      renderer_base destrb(destpf);
+
+      agg::rect_base<int> region(destx, desty, (int)r, (int)t); 
+      destrb.copy_from(*aggRenderer->renderingBuffer, &region, 
+		       -destx, -desty);
     } else {
       bbox = NULL;
     }
@@ -112,15 +130,22 @@ PyAggImagePhoto(ClientData clientdata, Tcl_Interp* interp,
         }
     }
 
-    block.width  = aggRenderer->get_width();
-    block.height = aggRenderer->get_height();
-    //std::cout << "w,h: " << block.width << " " << block.height << std::endl;
-    block.pitch = block.width * nval;
-    block.pixelPtr =  aggRenderer->pixBuffer;
-
     if (bbox) {
-      Tk_PhotoPutBlock(photo, &block, (int)l, (int)b, (int)(r-l), (int)(t-b));
+      
+      block.width  = destwidth;
+      block.height = destheight;
+      block.pitch = deststride;
+      block.pixelPtr = destbuffer;
+
+      Tk_PhotoPutBlock(photo, &block, destx, desty, destwidth, destheight);
+      delete [] destbuffer;
+
     } else {
+      block.width  = aggRenderer->get_width();
+      block.height = aggRenderer->get_height();      
+      block.pitch = block.width * nval;
+      block.pixelPtr =  aggRenderer->pixBuffer;
+
       /* Clear current contents */
       Tk_PhotoBlank(photo);
       /* Copy opaque block to photo image, and leave the rest to TK */
