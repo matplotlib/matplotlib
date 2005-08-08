@@ -108,6 +108,8 @@ PyAggImagePhoto(ClientData clientdata, Tcl_Interp* interp,
 		       -destx, -desty);
     } else {
       bbox = NULL;
+      destbuffer = NULL;
+      destx = desty = destwidth = destheight = deststride = 0;
     }
 
     /* setup tkblock */
