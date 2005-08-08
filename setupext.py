@@ -379,8 +379,12 @@ def build_gtkagg(ext_modules, packages, numerix):
 def build_tkagg(ext_modules, packages, numerix):
     global BUILT_TKAGG
     if BUILT_TKAGG: return # only build it if you you haven't already
+    deps = ['src/_tkagg.cpp']
+    deps.extend(glob.glob('CXX/*.cxx'))
+    deps.extend(glob.glob('CXX/*.c'))
+    
     module = Extension('matplotlib.backends._tkagg',
-                       ['src/_tkagg.cpp'],
+                       deps,
                        )
 
     # add agg flags before pygtk because agg only supports freetype1

@@ -1,5 +1,7 @@
 New entries should be added at the top
 
+2005-08-08 Added blitting/animation for TkAgg
+
 2005-08-05 Fixed duplicate tickline bug - JDH
 
 2005-08-05 Fixed a GTK animation bug that cropped up when doing
