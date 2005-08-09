@@ -274,7 +274,18 @@ public:
   ~Bbox();
   static void init_type(void);
 
+  /*
+  Py::Object getattr( const char *name )
+	{
+	  std::cout <<"called getattr"<<std::endl;
+	return getattr_methods( name );
+	}
 
+  Py::Object repr () const {
+    std::cout <<"called repr"<<std::endl;
+    return Py::String("repr: hi mom");}
+  //Py::Object str () const {return Py::String("str:  hi mom");}
+  */
   // return lower left point
   Py::Object ll(const Py::Tuple &args) { return Py::Object(_ll); }
 

@@ -12,13 +12,13 @@ import time
 ax = p.subplot(111)
 canvas = ax.figure.canvas
 
-# for profiling
-tstart = time.time()
 
 # create the initial line
 x = nx.arange(0,2*nx.pi,0.01)
 line, = p.plot(x, nx.sin(x), animated=True, lw=2)
 
+# for profiling
+tstart = time.time()
 
 def update_line(*args):
     if update_line.background is None:

@@ -514,13 +514,22 @@ def axis(*v, **kwargs):
 
         axis('off') turns off the axis lines and labels
 
-        axis('equal') sets the xlim width and ylim height to be to be
-            identical.  The longer of the two intervals is chosen
+        axis('equal') changes limits of x or y axis such that equal
+          tick mark increments are equal in size. This makes a
+          circle look like a circle, for example. This is persistent.
+          For example, when axis limits are changed after this command,
+          the scale remains equal
 
-        axis('scaled') changes the size of the subplot such that equal
-          tick mark increments on the x- and y-axis are equal in size
-          (like the 'axis equal' command in matplab). This makes a
-          circle look like a circle, for example
+        axis('scaled') makes scale equal, changes lengths of axes while
+          keeping limits of x and y axes fixed. Keeps lower left hand corner
+          in original position
+
+        axis('tight') changes limits x and y axis such that all data is
+          shown. If all data is already shown, it will move it to the center
+          of the figure without modifying (xmax-xmin) or (ymax-ymin). Note
+          this is slightly different than in matlab.
+
+        axis('normal') sets the axis to normal, i.e. turns equal scale off
 
        if len(*v)==0, you can pass in xmin, xmax, ymin, ymax as kwargs
        selectively to alter just those limits w/o changing the others.
@@ -529,43 +538,26 @@ def axis(*v, **kwargs):
        The xmin, xmax, ymin, ymax tuple is returned
 
     """
-
+    ax = gca()
     if len(v)==1 and is_string_like(v[0]):
         s = v[0]
-        if s.lower()=='on': gca().set_axis_on()
-        elif s.lower()=='off': gca().set_axis_off()
+        if s.lower()=='on': ax.set_axis_on()
+        elif s.lower()=='off': ax.set_axis_off()
         elif s.lower()=='equal':
-            ax = gca()
-            xmin, xmax = ax.get_xlim()
-            ymin, ymax = ax.get_ylim()
-
-            width = xmax-xmin
-            height = ymax-ymin
-            # TODO: handle decreasing lim
-
-            interval = max([width, height])
-            ax.set_xlim((xmin, xmin+interval))
-            ax.set_ylim((ymin, ymin+interval))
+            ax.set_aspect('equal')
+            draw_if_interactive()
+        elif s.lower()=='tight':
+            ax.autoscale_view()
+            if ax.get_aspect() == 'equal':
+                ax.set_aspect('equal',True)
             draw_if_interactive()
         elif s.lower()=='scaled':
-            figwidth,figheight = gcf().get_size_inches()
-            figwidth = 0.8*figwidth; figheight = 0.8*figheight
-            ax = gca()
-            x1,x2 = ax.get_xlim()
-            y1,y2 = ax.get_ylim()
-            plotheight = y2-y1
-            plotwidth = x2-x1
-            if plotheight/plotwidth > figheight/figwidth:  # Plot is higher than figure
-                wfrac = figheight/figwidth * plotwidth/plotheight
-                hfrac = 1.0
-            else:
-                hfrac = figwidth/figheight * plotheight/plotwidth
-                wfrac = 1.0
-            gcf().subplots_adjust( left = 0.1, right = 0.1+wfrac*0.8, bottom = 0.1, top = 0.1+hfrac*0.8 )
+            ax.set_aspect('equal',True,'lowerleft')
             draw_if_interactive()
+        elif s.lower()=='normal':
+            ax.set_aspect('normal')
         else:
             raise ValueError('Unrecognized string %s to axis; try on or off' % s)
-        ax  = gca()
         xmin, xmax = ax.get_xlim() 
         ymin, ymax = ax.get_ylim()
         draw_if_interactive()
@@ -573,8 +565,8 @@ def axis(*v, **kwargs):
 
     try: v[0]
     except IndexError:
-        xmin, xmax = gca().set_xlim(**kwargs)
-        ymin, ymax = gca().set_ylim(**kwargs)
+        xmin, xmax = ax.set_xlim(**kwargs)
+        ymin, ymax = ax.set_ylim(**kwargs)
         draw_if_interactive()
         return [xmin, xmax, ymin, ymax]
 
@@ -583,10 +575,14 @@ def axis(*v, **kwargs):
         raise ValueError('v must contain [xmin xmax ymin ymax]')
     
     
-    gca().set_xlim([v[0], v[1]])
-    gca().set_ylim([v[2], v[3]])
+    ax.set_xlim([v[0], v[1]])
+    ax.set_ylim([v[2], v[3]])
+    if ax.get_aspect() == 'equal':
+        ax.set_aspect( 'equal', True )
+        
     draw_if_interactive()
     return v
+
 def axes(*args, **kwargs):
     """
     Add an axes at positon rect specified by::

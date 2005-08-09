@@ -1316,6 +1316,7 @@ class NavigationToolbar2:
             a.set_xlim((x1, x2))
             a.set_ylim((y1, y2))
 
+        if a.get_aspect() == 'equal': a.set_aspect('equal',True)
         self.draw()
         self._xypress = None
         self._button_pressed == None
