@@ -207,8 +207,7 @@ class FigureCanvasGTK (gtk.DrawingArea, FigureCanvasBase):
             return
 
         w,h = widget.window.get_size()
-        if w==1 or h==1:
-            return # empty fig
+        if w<3 or h<3: return # empty fig
 
         # resize the figure (in inches)
         dpi = self.figure.dpi.get()
@@ -231,6 +230,7 @@ class FigureCanvasGTK (gtk.DrawingArea, FigureCanvasBase):
         # synchronous draw (needed for animation)
         x, y, w, h = self.allocation
         #print x, y, w, h
+        #if w<3 or h<3: return # empty fig        
         self._pixmap_prepare (w, h)
         self._render_figure(self._pixmap, w, h)
         self._need_redraw = False

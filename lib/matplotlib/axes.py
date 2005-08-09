@@ -353,6 +353,11 @@ class Axes(Artist):
 
         self._cachedRenderer = None
         self.set_navigate(True)
+
+        # aspect ration atribute, and original position
+        self._aspect = 'normal'
+        self._originalPosition = self.get_position()
+        
         if len(kwargs): setp(self, **kwargs)
         
     def _init_axis(self):
@@ -786,7 +791,8 @@ class Axes(Artist):
         self.set_xlim(locator.autoscale())
         locator = self.yaxis.get_major_locator()
         self.set_ylim(locator.autoscale())
-
+        
+        if self._aspect == 'equal': self.set_aspect('equal')
 
     def quiver(self, U, V, *args, **kwargs ):
         """
@@ -3701,6 +3707,65 @@ class Axes(Artist):
         ds = [ (dist(a),a) for a in artists]
         ds.sort()
         return ds[0][1]
+
+    def set_aspect(self,aspect='normal',fixLimits=False,alignment='center'):
+        """
+        Set aspect to 'normal' or 'equal'
+            'normal' means matplotlib determines aspect ratio
+            'equal' means scale on x and y axes will be set equal such that circle looks like circle
+            In future we may want to add a number as input to have a certain aspect ratio,
+            such as vertical scale exagerrated by 2.
+
+        fixLimits: False means data limits will be changed, but height and widths of axes preserved.
+                   True means height or width will be changed, but data limits preserved
+
+        alignment is 'center' or 'lowerleft', only used when fixLimits is True
+
+        ACCEPTS: str, boolean, str
+        """
+
+        self._aspect = aspect
+        if self._aspect == 'normal':
+            self.set_position( self._originalPosition )
+        elif self._aspect == 'equal':
+            figW,figH = self.get_figure().get_size_inches()
+            xmin,xmax = self.get_xlim()
+            ymin,ymax = self.get_ylim()
+            if fixLimits:  # Change size of axes
+                l,b,w,h = self._originalPosition  # Always start from original position 
+                axW = w * figW; axH = h * figH
+                if (xmax-xmin) / axW > (ymax-ymin) / axH:  # y axis too long
+                    axH = axW * (ymax-ymin) / (xmax-xmin)
+                    if alignment == 'center':
+                        axc = b + 0.5 * h
+                        h = axH / figH; b = axc - 0.5 * h
+                    elif alignment == 'lowerleft':
+                        h = axH / figH
+                else:  # x axis too long
+                    axW = axH * (xmax-xmin) / (ymax-ymin)
+                    if alignment == 'center':
+                        axc = l + 0.5 * w
+                        w = axW / figW; l = axc - 0.5 * w
+                    elif alignment == 'lowerleft':
+                        w = axW / figW
+                self.set_position( (l,b,w,h) )
+            else:  # Change limits on axes
+                l,b,w,h = self.get_position()  # Keep size of subplot
+                axW = w * figW; axH = h * figH
+                if (xmax-xmin) / axW > (ymax-ymin) / axH:  # y limits too narrow
+                    dely = axH * (xmax-xmin) / axW
+                    yc = 0.5 * ( ymin + ymax )
+                    ymin = yc - 0.5*dely; ymax = yc + 0.5*dely
+                    self.set_ylim( ymin, ymax )
+                else:
+                    delx = axW * (ymax-ymin) / axH
+                    xc = 0.5 * ( xmin + xmax )
+                    xmin = xc - 0.5*delx; xmax = xc + 0.5*delx
+                    self.set_xlim( xmin, xmax )
+
+    def get_aspect(self):
+        """Get the aspect 'normal' or 'equal' """
+        return self._aspect
 
 
 class SubplotBase:

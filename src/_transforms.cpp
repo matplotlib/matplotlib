@@ -1829,7 +1829,10 @@ Bbox::init_type()
   _VERBOSE("Bbox::init_type");
   behaviors().name("Bbox");
   behaviors().doc("A 2D bounding box");
-  
+  //behaviors().supportRepr();
+  //behaviors().supportGetattr();
+  //behaviors().supportStr();
+   
   add_varargs_method("ll", 	&Bbox::ll, "ll()\n");
   add_varargs_method("ur", 	&Bbox::ur, "ur()\n");
   add_varargs_method("contains" , &Bbox::contains, "contains(x,y)\n");
@@ -1863,6 +1866,7 @@ Func::init_type()
   behaviors().name("Func");
   behaviors().doc("Map double -> double");
   behaviors().supportRepr();  
+  behaviors().supportGetattr();
   add_varargs_method("map",     &Func::map, "map(x)\n");
   add_varargs_method("inverse", &Func::inverse, "inverse(y)\n");
   add_varargs_method("set_type", &Func::set_type, "set_type(TYPE)\n");
