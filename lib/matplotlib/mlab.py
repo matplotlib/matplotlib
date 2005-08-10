@@ -1248,10 +1248,11 @@ def segments_intersect(s1, s2):
     return 0.0 <= u1 <= 1.0 and 0.0 <= u2 <= 1.0
 
 
-def fftsurr(x):
+def fftsurr(x, detrend=detrend_none, window=window_none):
     """
     Compute an FFT phase randomized surrogate of x
     """
+    x = window(detrend(x))
     z = fft(x)
     a = 2.*pi*1j
     phase = a*rand(len(x))
