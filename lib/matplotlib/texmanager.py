@@ -1,7 +1,7 @@
 """
 This module supports embedded TeX expressions in matplotlib via dvipng
 and dvips for the raster and postscript backends.  The tex and
-dvipng/dvips information is cached in ~/.tex.cache for reuse between
+dvipng/dvips information is cached in ~/.matplotlib/tex.cache for reuse between
 sessions
 
 Requirements:
@@ -26,8 +26,10 @@ as follows
   Z = self.texmanager.get_rgba(s, size=12, dpi=80, rgb=(1,0,0))
 
 To enable tex rendering of all text in your matplotlib figure, set
-text.usetex in your matplotlibrc file
-(http://matplotlib.sf.net/matplotlibrc)
+text.usetex in your matplotlibrc file (http://matplotlib.sf.net/matplotlibrc)
+or include these two lines in your script:
+from matplotlib import rc
+rc('text', usetex=True)
 
 """
 

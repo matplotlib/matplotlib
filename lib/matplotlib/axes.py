@@ -1260,7 +1260,7 @@ class Axes(Artist):
     
     
     def cohere(self, x, y, NFFT=256, Fs=2, detrend=detrend_none,
-               window=window_hanning, noverlap=0):
+               window=window_hanning, noverlap=0, **kwargs):
         """
         COHERE(x, y, NFFT=256, Fs=2, detrend=detrend_none,
               window=window_hanning, noverlap=0)
@@ -1275,6 +1275,8 @@ class Axes(Artist):
 
         See the PSD help for a description of the optional parameters.
 
+        kwargs are applied to the lines
+
         Returns the tuple Cxy, freqs
 
         Refs: Bendat & Piersol -- Random Data: Analysis and Measurement
@@ -1283,7 +1285,7 @@ class Axes(Artist):
         if not self._hold: self.cla()
         cxy, freqs = matplotlib.mlab.cohere(x, y, NFFT, Fs, detrend, window, noverlap)
 
-        self.plot(freqs, cxy)
+        self.plot(freqs, cxy, **kwargs)
         self.set_xlabel('Frequency')
         self.set_ylabel('Coherence')
         self.grid(True)
