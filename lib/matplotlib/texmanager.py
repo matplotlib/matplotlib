@@ -114,7 +114,6 @@ WARNING: found a TeX cache dir in the deprecated location "%s".
 
         if force or not os.path.exists(dvifile):
             command = self.get_tex_command(tex, fname)
-            print command
             stdin, stdout, stderr = os.popen3(command)
             verbose.report(stdout.read(), 'debug-annoying')
             err = stderr.read()
