@@ -278,7 +278,6 @@ class RendererAgg(RendererBase):
                 m,n,tmp = Z.shape
 
                 def func(x):
-                    return transpose(x)
                     return transpose(fliplr(x))
 
                 Z = zeros((n,m,4), typecode=Float)
@@ -290,7 +289,7 @@ class RendererAgg(RendererBase):
             im.flipud_out()
             self.texd[key] = im            
 
-        self.draw_image(x, y, im, self.bbox)
+        self.draw_image(x, self.height-y, im, self.bbox)
         
     def get_canvas_width_height(self):
         'return the canvas width and height in display coords'
