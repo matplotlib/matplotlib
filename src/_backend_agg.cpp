@@ -20,7 +20,7 @@
 #include "_backend_agg.h"
 #include "_transforms.h"
 #include "mplutils.h"
-
+ 
 #include "swig_runtime.h"
  
 
@@ -1646,6 +1646,7 @@ RendererAgg::draw_image(const Py::Tuple& args) {
 }
 */
 
+/*
 Py::Object 
 RendererAgg::draw_image(const Py::Tuple& args) {
   _VERBOSE("RendererAgg::draw_image");
@@ -1670,7 +1671,10 @@ RendererAgg::draw_image(const Py::Tuple& args) {
     miny = height-bbox->ur_api()->y_api()->val();
   }
   
+
+  
   //if (isUpper) oy -= image->rowsOut;  //start at top
+
   for (size_t j=0; j<image->rowsOut; j++) {
     thisy =  (size_t)(oy-j-0.5);
     if (thisy<miny || thisy>=maxy) {
@@ -1694,6 +1698,45 @@ RendererAgg::draw_image(const Py::Tuple& args) {
       pixFmt->blend_pixel(thisx, thisy, p, p.a);
     }
   }
+  
+  return Py::Object();
+  
+}
+
+*/
+
+
+Py::Object 
+RendererAgg::draw_image(const Py::Tuple& args) {
+  _VERBOSE("RendererAgg::draw_image");
+  theRasterizer->reset_clipping();
+  args.verify_length(4);
+  
+  float x = Py::Float(args[0]);
+  float y = Py::Float(args[1]);
+  Image *image = static_cast<Image*>(args[2].ptr());
+  
+  
+  float minx(0), maxx(width), miny(0), maxy(height);
+  
+  if (args[3].ptr() != Py_None) {
+    Bbox* bbox = static_cast<Bbox*>(args[3].ptr());
+    minx = bbox->ll_api()->x_api()->val();
+    maxy = height-bbox->ll_api()->y_api()->val();
+    maxx = bbox->ur_api()->x_api()->val();
+    miny = height-bbox->ur_api()->y_api()->val();
+    //theRasterizer->clip_box(minx, miny, maxx, maxy);
+  }
+
+  
+  pixfmt pixf(*(image->rbufOut));
+
+ 
+  Py::Tuple empty;
+  image->flipud_out(empty);
+  rendererBase->blend_from(pixf, 0, (int)x, (int)(height-(y+image->rowsOut)));
+  image->flipud_out(empty);
+  
   
   return Py::Object();
   
