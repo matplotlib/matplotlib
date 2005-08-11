@@ -1381,9 +1381,7 @@ class Axes(Artist):
             im = _image.from_images(self.bbox.height(), self.bbox.width(), ims)
             im.is_grayscale = False
             l, b, w, h = self.bbox.get_bounds()
-            ox = l
-            oy = self.figure.bbox.height()-(b+h)
-            renderer.draw_image(ox, oy, im, self.bbox)
+            renderer.draw_image(l, b, im, self.bbox)
 
         if self.axison and not inframe:
             self.xaxis.draw(renderer)
