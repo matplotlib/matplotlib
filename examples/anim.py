@@ -15,17 +15,17 @@ per second
 """
 import time
 
-from pylab import *
+import pylab as p
 
 # turn interactive mode on for dynamic updates.  If you aren't in
 # interactive mode, you'll need to use a GUI event handler/timer.
-ion()
+p.ion()
 
-tstart = time.time()              # for profiling
-x = arange(0,2*pi,0.01)           # x-array
-line, = plot(x,sin(x))
-for i in arange(1,200):
-    line.set_ydata(sin(x+i/10.0))  # update the data
-    draw()                         # redraw the canvas
+tstart = time.time()                 # for profiling
+x = p.arange(0, 2*p.pi, 0.01)        # x-array
+line, = p.plot(x, p.sin(x))
+for i in p.arange(1,200):
+    line.set_ydata(p.sin(x+i/10.0))  # update the data
+    p.draw()                         # redraw the canvas
 
 print 'FPS:' , 200/(time.time()-tstart)
