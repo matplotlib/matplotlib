@@ -1,17 +1,21 @@
-# For detailed comments on animation and the techniqes used here, see
+#!/usr/bin/env python
+
+# For detailed comments on animation and the techniques used here, see
 # the wiki entry
 # http://www.scipy.org/wikis/topical_software/MatplotlibAnimation
+import sys
+import time
+
+import gtk, gobject
+
 import matplotlib
 matplotlib.use('GTKAgg')
-import sys
-import gtk, gobject
-import pylab as p
 import matplotlib.numerix as nx
-import time
+import pylab as p
+
 
 ax = p.subplot(111)
 canvas = ax.figure.canvas
-
 
 # create the initial line
 x = nx.arange(0,2*nx.pi,0.01)
@@ -27,12 +31,12 @@ def update_line(*args):
     # restore the clean slate background
     canvas.restore_region(update_line.background)
     # update the data
-    line.set_ydata(nx.sin(x+update_line.cnt/10.0))  
+    line.set_ydata(nx.sin(x+update_line.cnt/10.0))
     # just draw the animated artist
     ax.draw_artist(line)
     # just redraw the axes rectangle
-    canvas.blit(ax.bbox) 
-    
+    canvas.blit(ax.bbox)
+
     if update_line.cnt==200:
         # print the timing info and quit
         print 'FPS:' , 200/(time.time()-tstart)
