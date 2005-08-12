@@ -265,7 +265,7 @@ class RendererAgg(RendererBase):
             w,h = h,w
             x -= w
 
-        key = s, size, dpi, rgb
+        key = s, size, dpi, rgb, angle
         im = self.texd.get(key)
         
         if im is None:

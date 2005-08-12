@@ -1083,10 +1083,12 @@ class FigureCanvasPS(FigureCanvasBase):
             latexh.close()
 
             command = 'latex -interaction=nonstopmode "%s"' % texfile
+            verbose.report(command, 'debug-annoying')
             stdin, stdout, stderr = os.popen3(command)
             verbose.report(stdout.read(), 'debug-annoying')
             verbose.report(stderr.read(), 'helpful')
             command = 'dvips -R -T %fin,%fin -o "%s" "%s"' % (pw, ph, psfile, dvifile)
+            verbose.report(command, 'debug-annoying')
             stdin, stdout, stderr = os.popen3(command)
             verbose.report(stdout.read(), 'debug-annoying')
             verbose.report(stderr.read(), 'helpful')
@@ -1096,6 +1098,7 @@ class FigureCanvasPS(FigureCanvasBase):
                 command = 'gs -dBATCH -dNOPAUSE -dSAFER -r%d \
                     -sDEVICE=epswrite -dLanguageLevel=2 -dEPSFitPage \
                     -sOutputFile="%s" "%s"'% (dpi, epsfile, psfile)
+                verbose.report(command, 'debug-annoying')
                 stdin, stdout, stderr = os.popen3(command)
                 verbose.report(stdout.read(), 'debug-annoying')
                 verbose.report(stderr.read(), 'helpful')
@@ -1113,6 +1116,7 @@ class FigureCanvasPS(FigureCanvasBase):
                 command = 'eps2eps -dSAFER -r%d "%s" "%s"'% (dpi, outfile, tmpfile)
             else:
                 command = 'ps2ps -dSAFER -r%d "%s" "%s"'% (dpi, outfile, tmpfile)
+            verbose.report(command, 'debug-annoying')
             stdin, stdout, stderr = os.popen3(command)
             verbose.report(stdout.read(), 'debug-annoying')
             verbose.report(stderr.read(), 'helpful')
