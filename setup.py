@@ -86,6 +86,10 @@ data.append('matplotlibrc')
 
 data_files=[('share/matplotlib', data),]
 
+# Needed for CocoaAgg
+data_files.append(('share/matplotlib/Matplotlib.nib',
+		   glob.glob('lib/matplotlib/backends/Matplotlib.nib/*.nib')))
+
 # Figure out which array packages to provide binary support for
 # and define the NUMERIX value: Numeric, numarray, or both.
 try:
