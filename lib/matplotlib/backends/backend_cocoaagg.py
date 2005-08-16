@@ -4,11 +4,11 @@ from __future__ import division
 
  A native Cocoa backend via PyObjC in OSX.
 
- Author: Charles Moad (cmoad@indiana.edu)
+ Author: Charles Moad (cmoad@users.sourceforge.net)
 
  Notes:
   - THIS IS STILL IN DEVELOPMENT!
-  - Requires PyObjC (currently testing v1.3.6)
+  - Requires PyObjC (currently testing v1.3.7)
 """
 
 import os, sys
@@ -17,6 +17,7 @@ try:
     import objc
 except:
     print >>sys.stderr, 'The CococaAgg backend required PyObjC to be installed!'
+    print >>sys.stderr, '  (currently testing v1.3.7)'
     sys.exit()
 
 from Foundation import *
@@ -27,27 +28,35 @@ import matplotlib
 from matplotlib.figure import Figure
 from matplotlib.backend_bases import FigureManagerBase
 from backend_agg import FigureCanvasAgg
+from matplotlib._pylab_helpers import Gcf
 import pylab
-
-DEBUG = False
 
 mplBundle = NSBundle.bundleWithPath_(matplotlib.get_data_path())
 
 def new_figure_manager(num, *args, **kwargs):
-    if DEBUG: print >>sys.stderr, 'new_figure_manager'
     thisFig = Figure( *args, **kwargs )
-    canvas = FigureCanvasAgg(thisFig)
+    canvas = FigureCanvasCocoaAgg(thisFig)
     return FigureManagerCocoaAgg(canvas, num)
-    
+
 def show():
-    if DEBUG: print >>sys.stderr, 'show'
+    for manager in Gcf.get_all_fig_managers():
+        manager.show()
     # Let the cocoa run loop take over
     NSApplication.sharedApplication().run()
-	
+
 def draw_if_interactive():
     if matplotlib.is_interactive():
-        print >>sys.stderr, 'Interactive not implemented yet'
-        
+	figManager =  Gcf.get_active()
+        if figManager is not None:
+            figManager.show()
+
+class FigureCanvasCocoaAgg(FigureCanvasAgg):
+    def draw(self):
+	FigureCanvasAgg.draw(self)
+
+    def blit(self, bbox):
+	pass
+
 NibClassBuilder.extractClasses('Matplotlib.nib', mplBundle)
 
 class MatplotlibController(NibClassBuilder.AutoBaseClass):
@@ -56,15 +65,14 @@ class MatplotlibController(NibClassBuilder.AutoBaseClass):
     #  PlotView plotView
     
     def awakeFromNib(self):
-	if DEBUG: print 'MPLController awakeFromNib'
         # Get a reference to the active canvas
         self.canvas = pylab.get_current_fig_manager().canvas
-	self.plotWindow.plotView = self.plotView
 	self.plotView.canvas = self.canvas
+	self.canvas.plotView = self.plotView
 	
 	self.plotWindow.setAcceptsMouseMovedEvents_(True)
 	self.plotWindow.makeKeyAndOrderFront_(self)
-	self.plotWindow.setDelegate_(self.plotWindow)
+	self.plotWindow.setDelegate_(self.plotView)
 
 	self.plotView.setImageFrameStyle_(NSImageFrameGroove)
         self.plotView.image = NSImage.alloc().initWithSize_((0,0))
@@ -74,29 +82,25 @@ class MatplotlibController(NibClassBuilder.AutoBaseClass):
 	self.plotWindow.makeFirstResponder_(self.plotView)
 
 	# Force the first update
-	self.plotWindow.windowDidResize_(self)
+	self.plotView.windowDidResize_(self)
 
     def saveFigure_(self, sender):
-	if DEBUG: print >>sys.stderr, 'saveFigure_'
+	print >>sys.stderr, 'Not Implented Yet'
 
 class PlotWindow(NibClassBuilder.AutoBaseClass):
-    def windowDidResize_(self, sender):
-        w,h = self.plotView.bounds().size
-        dpi = self.plotView.canvas.figure.dpi.get()
-        self.plotView.canvas.figure.set_figsize_inches(w / dpi, h / dpi)
-        self.plotView.updatePlot()
+    pass
 
 class PlotView(NibClassBuilder.AutoBaseClass):
     def updatePlot(self):
-        self.canvas.draw() # tell the agg to render
-
         w,h = self.canvas.get_width_height()
 	
-	if (hasattr(self, 'brep')):
-	    self.image.removeRepresentation_(self.brep)
+	# Remove all previous images
+	for i in xrange(self.image.representations().count()):
+	    self.image.removeRepresentation_(self.image.representations().objectAtIndex_(i))
+	
 	self.image.setSize_((w,h))
 
-	self.brep = NSBitmapImageRep.alloc().initWithBitmapDataPlanes_pixelsWide_pixelsHigh_bitsPerSample_samplesPerPixel_hasAlpha_isPlanar_colorSpaceName_bytesPerRow_bitsPerPixel_(
+	brep = NSBitmapImageRep.alloc().initWithBitmapDataPlanes_pixelsWide_pixelsHigh_bitsPerSample_samplesPerPixel_hasAlpha_isPlanar_colorSpaceName_bytesPerRow_bitsPerPixel_(
 	    (self.canvas.buffer_rgba(),'','','',''), # Image data
 	    w, # width
 	    h, # height
@@ -108,13 +112,19 @@ class PlotView(NibClassBuilder.AutoBaseClass):
 	    w*4, # row bytes
 	    32) # bits per pixel
 
-        self.image.addRepresentation_(self.brep)
+        self.image.addRepresentation_(brep)
         self.setNeedsDisplay_(True)
+
+    def windowDidResize_(self, sender):
+        w,h = self.bounds().size
+        dpi = self.canvas.figure.dpi.get()
+        self.canvas.figure.set_figsize_inches(w / dpi, h / dpi)
+	self.canvas.draw()
+        self.updatePlot()
 
     def mouseDown_(self, event):
 	loc = self.convertPoint_fromView_(event.locationInWindow(), None)
 	type = event.type()
-	if DEBUG: print >>sys.stderr, 'mouseDown_:', loc, type
 	if (type == NSLeftMouseDown):
 	    button = 1
 	else:
@@ -125,14 +135,12 @@ class PlotView(NibClassBuilder.AutoBaseClass):
 
     def mouseDragged_(self, event):
 	loc = self.convertPoint_fromView_(event.locationInWindow(), None)
-	if DEBUG: print >>sys.stderr, 'mouseDragged_:', loc
 	self.canvas.motion_notify_event(loc.x, loc.y)
 	self.updatePlot()
 
     def mouseUp_(self, event):
 	loc = self.convertPoint_fromView_(event.locationInWindow(), None)
 	type = event.type()
-	if DEBUG: print >>sys.stderr, 'mouseUp_:', loc, type
 	if (type == NSLeftMouseUp):
 	    button = 1
 	else:
@@ -142,12 +150,12 @@ class PlotView(NibClassBuilder.AutoBaseClass):
 	self.updatePlot()
 
     def keyDown_(self, event):
-	if DEBUG: print >>sys.stderr, 'keyDown_', event.keyCode()
-	self.canvas.key_press_event(event.keyCode())
+	self.canvas.key_press_event(event.characters())
+	self.updatePlot()
 
     def keyUp_(self, event):
-	if DEBUG: print >>sys.stderr, 'keyUp_', event.keyCode()
-	self.canvas.key_release_event(event.keyCode())
+	self.canvas.key_release_event(event.characters())
+	self.updatePlot()
 
 class MPLBootstrap(NSObject):
     # Loads the nib containing the PlotWindow and PlotView
@@ -164,12 +172,13 @@ class FigureManagerCocoaAgg(FigureManagerBase):
     def __init__(self, canvas, num):
         FigureManagerBase.__init__(self, canvas, num)
 
-	# If there are multiple figures we only need to enable once
         try:
 	    WMEnable('Matplotlib')
 	except:
-	    pass
+	    # MULTIPLE FIGURES ARE BUGGY!
+	    pass # If there are multiple figures we only need to enable once
 
+    def show(self):
 	# Load a new PlotWindow
 	MPLBootstrap.alloc().init().performSelectorOnMainThread_withObject_waitUntilDone_(
 	    'startWithBundle:',
