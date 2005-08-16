@@ -203,6 +203,7 @@ class Line2D(Artist):
         self._markerfacecolor = markerfacecolor
         self._markeredgecolor = markeredgecolor
         self._markeredgewidth = markeredgewidth
+        self._point_size_reduction = 0.5
 
         self.verticalOffset = None
         self._useDataClipping = rcParams['lines.data_clipping']
@@ -669,17 +670,16 @@ class Line2D(Artist):
             renderer.draw_lines(gc, xt, yt)
 
     def _draw_point(self, renderer, gc, xt, yt):
-        if self._newstyle:
-            rgbFace = self._get_rgb_face()
-            path = agg.path_storage()
-            path.move_to(-0.5, -0.5)
-            path.line_to(-0.5, 0.5)
-            path.line_to(0.5, 0.5)
-            path.line_to(0.5, -0.5)
-            renderer.draw_markers(gc, path, rgbFace, xt, yt, self._transform)
+
+        r = 0.5 * renderer.points_to_pixels(self._markersize)
+        r *= self._point_size_reduction
+        gc.set_linewidth(0)
+        if r <= 0.5:
+            self._draw_pixel(renderer, gc, xt, yt)
+        elif r <= 2:
+            self._draw_hexagon1(renderer, gc, xt, yt, point=True)
         else:
-            for (x,y) in zip(xt, yt):
-                renderer.draw_arc(gc, None, x, y, 1, 1, 0.0, 360.0)
+            self._draw_circle(renderer, gc, xt, yt, point=True)
 
     def _draw_pixel(self, renderer, gc, xt, yt):
         if self._newstyle:
@@ -695,9 +695,12 @@ class Line2D(Artist):
                 renderer.draw_point(gc, x, y)
 
 
-    def _draw_circle(self, renderer, gc, xt, yt):
+    def _draw_circle(self, renderer, gc, xt, yt, point=False):
 
-        w = h = renderer.points_to_pixels(self._markersize)
+        w = renderer.points_to_pixels(self._markersize)
+        if point:
+            w *= self._point_size_reduction
+
 
         rgbFace = self._get_rgb_face()
 
@@ -718,7 +721,7 @@ class Line2D(Artist):
         else:
             for (x,y) in zip(xt, yt):
                 renderer.draw_arc(gc, rgbFace,
-                                  x, y, w, h, 0.0, 360.0)
+                                  x, y, w, w, 0.0, 360.0)
 
 
 
@@ -895,8 +898,10 @@ class Line2D(Artist):
                           (x+offsetX1, y+offsetY1))
                 renderer.draw_polygon(gc, rgbFace, verts)
 
-    def _draw_hexagon1(self, renderer, gc, xt, yt):
+    def _draw_hexagon1(self, renderer, gc, xt, yt, point=False):
         offset = 0.6*renderer.points_to_pixels(self._markersize)
+        if point:
+            offset *= self._point_size_reduction
         offsetX1 = offset*0.87
         offsetY1 = offset*0.5
         rgbFace = self._get_rgb_face()
