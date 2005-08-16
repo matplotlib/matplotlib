@@ -15,6 +15,6 @@ ax.set_xlim(-2,2)
 ax.set_ylim(-2,2)
 
 # set useblit = True on gtkagg for enhanced performance
-cursor = Cursor(ax, useblit=False, color='red', linewidth=2 )
+cursor = Cursor(ax, useblit=True, color='red', linewidth=2 )
 
 pylab.show()

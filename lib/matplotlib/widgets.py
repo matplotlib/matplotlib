@@ -201,9 +201,9 @@ class Slider(Widget):
         if self.slidermax is not None:
             if val>=self.slidermax.val: return
             
-        self._set_val(val)
+        self.set_val(val)
 
-    def _set_val(self, val):
+    def set_val(self, val):
         self.poly.xy[-1] = val, 0
         self.poly.xy[-2] = val, 1        
         self.valtext.set_text(self.valfmt%val)
@@ -233,7 +233,7 @@ class Slider(Widget):
     def reset(self):
         "reset the slider to the initial value if needed"
         if (self.val != self.valinit):
-            self._set_val(self.valinit)     
+            self.set_val(self.valinit)     
 
 
 
