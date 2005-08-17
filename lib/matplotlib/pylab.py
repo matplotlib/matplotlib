@@ -1506,13 +1506,6 @@ def matshow(*args,**kw):
     else:
         return fig
 
-def set(*args, **kwargs):
-    message = 'set deprecated because it overrides python2.4 builtin set.  Use setp'
-    warnings.warn(message, DeprecationWarning, stacklevel=2)
-
-    return setp(*args, **kwargs)
-
-
 
 def setp(*args, **kwargs):
     ret = _setp(*args, **kwargs)

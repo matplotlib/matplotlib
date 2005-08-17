@@ -1,5 +1,7 @@
 API Changes in matplotlib-0.84
 
+    set removed - no more deprecation warnings
+
     backend developers: Added flipud method to image and removed it
     from to_str.  Removed origin kwarg from backend.draw_image.
     origin is handled entirely by the frontend now.

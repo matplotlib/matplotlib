@@ -423,11 +423,6 @@ def get(o, *args, **kwargs):
     return getp(o, *args, **kwargs)
 get.__doc__ = getp.__doc__
 
-def set(*args, **kwargs):
-    message = 'set deprecated because it overrides python2.4 builtin set.  Use setp'
-    warnings.warn(message, DeprecationWarning, stacklevel=2)
-
-    return setp(*args, **kwargs)
 
 def setp(h, *args, **kwargs):
     """

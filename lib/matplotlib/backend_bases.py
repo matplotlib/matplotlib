@@ -720,18 +720,18 @@ class FigureCanvasBase:
 
     def draw_event(self, renderer):
         event = DrawEvent('draw_event', self, renderer)
-        for cid, func in self.callbacks.get('draw_event', {}).items():
+        for func in self.callbacks.get('draw_event', {}).values():
             func(event)
 
     def key_press_event(self, key, guiEvent=None):
         self._key = key
         event = KeyEvent('key_press_event', self, key, self._lastx, self._lasty, guiEvent=guiEvent)
-        for cid, func in self.callbacks.get('key_press_event', {}).items():
+        for func in self.callbacks.get('key_press_event', {}).values():
             func(event)
 
     def key_release_event(self, key, guiEvent=None):
         event = KeyEvent('key_release_event', self, key, self._lastx, self._lasty, guiEvent=guiEvent)
-        for cid, func in self.callbacks.get('key_release_event', {}).items():
+        for func in self.callbacks.get('key_release_event', {}).values():
             func(event)
         self._key = None
 
@@ -743,7 +743,7 @@ class FigureCanvasBase:
         """
         self._button = button
         event = MouseEvent('button_press_event', self, x, y, button, self._key, guiEvent=guiEvent)
-        for cid, func in self.callbacks.get('button_press_event', {}).items():
+        for func in self.callbacks.get('button_press_event', {}).values():
             func(event)
 
     def button_release_event(self, x, y, button, guiEvent=None):
@@ -754,7 +754,7 @@ class FigureCanvasBase:
         """
 
         event = MouseEvent('button_release_event', self, x, y, button, self._key, guiEvent=guiEvent)
-        for cid, func in self.callbacks.get('button_release_event', {}).items():
+        for func in self.callbacks.get('button_release_event', {}).values():
             func(event)
         self._button = None
 
@@ -766,7 +766,7 @@ class FigureCanvasBase:
         """
         self._lastx, self._lasty = x, y
         event = MouseEvent('motion_notify_event', self, x, y, self._button, self._key, guiEvent=guiEvent)
-        for cid, func in self.callbacks.get('motion_notify_event', {}).items():
+        for func in self.callbacks.get('motion_notify_event', {}).values():
             func(event)
 
     def draw(self, *args, **kwargs):
@@ -841,7 +841,8 @@ class FigureCanvasBase:
         return value is a connection id that can be used with
         mpl_disconnect """
 
-        assert s in  ('draw_event',
+        assert s in  (
+        'draw_event',
         'key_press_event',
         'key_release_event',
         'button_press_event',

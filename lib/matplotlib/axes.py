@@ -1356,8 +1356,13 @@ class Axes(Artist):
     def get_renderer_cache(self):
         return self._cachedRenderer
     
-    def draw(self, renderer, inframe=False):
+    def draw(self, renderer=None, inframe=False):
         "Draw everything (plot lines, axes, labels)"
+        if renderer is None:
+            renderer = self._cachedRenderer
+
+        if renderer is None:
+            raise RuntimeError('No renderer defined')
         if not self.get_visible(): return
         renderer.open_group('axes')
 
