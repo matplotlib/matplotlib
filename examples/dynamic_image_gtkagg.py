@@ -8,7 +8,7 @@ matplotlib.use('GTKAgg')
 from matplotlib import rcParams
 
 from pylab import *
-import gtk
+import gobject, gtk
 
 fig = figure(1)
 a = subplot(111)
@@ -39,5 +39,5 @@ def updatefig(*args):
 
 cnt = 0
 
-gtk.idle_add(updatefig)
+gobject.idle_add(updatefig)
 show()
