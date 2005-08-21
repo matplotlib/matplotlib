@@ -333,9 +333,9 @@ class RendererAgg(RendererBase):
         if __debug__: verbose.report('RendererAgg.tostring_argb', 'debug-annoying')
         return self._renderer.tostring_argb()
         
-    def buffer_rgba(self):
+    def buffer_rgba(self,x,y):
         if __debug__: verbose.report('RendererAgg.buffer_rgba', 'debug-annoying')
-        return self._renderer.buffer_rgba()
+        return self._renderer.buffer_rgba(x,y)
         
     def clear(self):
         self._renderer.clear()
@@ -401,9 +401,9 @@ class FigureCanvasAgg(FigureCanvasBase):
         if __debug__: verbose.report('FigureCanvasAgg.tostring_argb', 'debug-annoying')
         return self.renderer.tostring_argb()
         
-    def buffer_rgba(self):
+    def buffer_rgba(self,x,y):
         if __debug__: verbose.report('FigureCanvasAgg.buffer_rgba', 'debug-annoying')
-        return self.renderer.buffer_rgba()
+        return self.renderer.buffer_rgba(x,y)
     
     def print_figure(self, filename, dpi=150,
                      facecolor='w', edgecolor='w',
