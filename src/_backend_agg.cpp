@@ -1944,13 +1944,16 @@ RendererAgg::tostring_bgra(const Py::Tuple& args) {
 
 Py::Object 
 RendererAgg::buffer_rgba(const Py::Tuple& args) {
-  //"expose the rendered buffer as Python buffer object";
+  //"expose the rendered buffer as Python buffer object, starting from postion x,y";
   
   _VERBOSE("RendererAgg::buffer_rgba");
   
-  args.verify_length(0);    
-  int row_len = width*4;
-  return Py::asObject(PyBuffer_FromMemory( pixBuffer, row_len*height));
+  args.verify_length(2); 
+  int startw = Py::Int(args[0]);   
+  int starth = Py::Int(args[1]);  
+  int row_len = width*4; 
+  int start=row_len*starth+startw*4;
+  return Py::asObject(PyBuffer_FromMemory( pixBuffer+start, row_len*height-start));
 }
 
 
