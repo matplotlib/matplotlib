@@ -28,6 +28,7 @@ from matplotlib.figure import Figure
 from matplotlib._pylab_helpers import Gcf
 from matplotlib.numerix import asarray
 import matplotlib.windowing as windowing
+from matplotlib.widgets import SubplotTool
 
 
 import thread,time
@@ -74,8 +75,22 @@ def draw_if_interactive():
         figManager =  Gcf.get_active()
         if figManager is not None:
             figManager.canvas.draw()
+ 
 
-def show(mainloop=False):
+def ishow():
+    """
+    Show all the figures and enter the fltk mainloop in another thread
+    This allows to keep hand in interractive python session
+    Warning: does not work under windows
+    This should be the last line of your script
+    """
+    for manager in Gcf.get_all_fig_managers():
+        manager.show()
+    if show._needmain:
+        thread.start_new_thread(Fltk_run_interactive,())
+    show._needmain = False
+    
+def show():
     """
     Show all the figures and enter the fltk mainloop
 
@@ -85,12 +100,10 @@ def show(mainloop=False):
         manager.show()
     #mainloop, if an fltk program exist no need to call that
     #threaded (and interractive) version    
-    if show._needmain and mainloop:
+    if show._needmain:
         Fltk.Fl.run()
         show._needmain = False
-    else:
-        thread.start_new_thread(Fltk_run_interactive,())
-        show._needmain = False
+        
 show._needmain = True
 
 
@@ -99,10 +112,14 @@ def new_figure_manager(num, *args, **kwargs):
     Create a new figure manager instance
     """
     figure = Figure(*args, **kwargs)
-    canvas = FigureCanvasFltkAgg(figure)   
     window = Fltk.Fl_Double_Window(10,10,30,30)
+    canvas = FigureCanvasFltkAgg(figure)   
     window.end()    
+    window.show()
+    window.make_current()
     figManager = FigureManagerFltkAgg(canvas, num, window)
+    if matplotlib.is_interactive():
+        figManager.show()
     return figManager
      
 
@@ -124,10 +141,20 @@ class FltkCanvas(Fltk.Fl_Widget):
             self._source.resize(newsize)
             self._source.draw()
         t1,t2,w,h = self._source.figure.bbox.get_bounds()
-        Fltk.fl_draw_image(self._source.buffer_rgba(),0,0,int(w),int(h),4,0)
+        Fltk.fl_draw_image(self._source.buffer_rgba(0,0),0,0,int(w),int(h),4,0)
+        self.redraw()
+        
+    def blit(self,bbox=None): 
+        if bbox is None:
+            t1,t2,w,h = self._source.figure.bbox.get_bounds()
+        else:
+           t1o,t2o,wo,ho = self._source.figure.bbox.get_bounds()
+           t1,t2,w,h = bbox.get_bounds()
+        x,y=int(t1),int(t2)   
+        Fltk.fl_draw_image(self._source.buffer_rgba(x,y),x,y,int(w),int(h),4,int(wo)*4)
+        #self.redraw()
                     
     def handle(self, event):
-        self.window().make_current()
         x=Fltk.Fl.event_x()
         y=Fltk.Fl.event_y()
         yf=self._source.figure.bbox.height() - y
@@ -148,6 +175,7 @@ class FltkCanvas(Fltk.Fl_Widget):
             FigureCanvasBase.key_release_event(self._source, self._key)
             self._key=None           
         elif event == Fltk.FL_PUSH:
+            self.window().make_current()
             if Fltk.Fl.event_button1():
                 self._button = 1
             elif  Fltk.Fl.event_button2():
@@ -175,6 +203,7 @@ class FltkCanvas(Fltk.Fl_Widget):
             FigureCanvasBase.motion_notify_event(self._source, x, yf) 
             return 1     
         elif event == Fltk.FL_DRAG:
+            self.window().make_current()
             if self._draw_overlay:
                 self._dx=Fltk.Fl.event_x()-self._oldx
                 self._dy=Fltk.Fl.event_y()-self._oldy
@@ -182,14 +211,13 @@ class FltkCanvas(Fltk.Fl_Widget):
             FigureCanvasBase.motion_notify_event(self._source, x, yf) 
             return 1   
         elif event == Fltk.FL_RELEASE:
+            self.window().make_current()
             if self._draw_overlay:
                 Fltk.fl_overlay_clear()
             FigureCanvasBase.button_release_event(self._source, x, yf, self._button)
             self._button = None
             return 1  
-        else:
-            return 0
-
+        return 0
 
 class FigureCanvasFltkAgg(FigureCanvasAgg):
     def __init__(self, figure):
@@ -210,6 +238,9 @@ class FigureCanvasFltkAgg(FigureCanvasAgg):
     def draw(self):
         FigureCanvasAgg.draw(self)
         self.canvas.redraw()
+        
+    def blit(self,bbox):
+        self.canvas.blit(bbox)
 
 
     show = draw
@@ -533,7 +564,17 @@ class NavigationToolbar2FltkAgg(NavigationToolbar2):
             self.bZoom.widget().value(1)
         else:    
             self.bZoom.widget().value(0)
-        NavigationToolbar2.zoom(self,args)        
+        NavigationToolbar2.zoom(self,args)     
+        
+    def configure_subplots(self,*args):
+        window = Fltk.Fl_Double_Window(100,100,480,240)
+        toolfig = Figure(figsize=(6,3))
+        canvas = FigureCanvasFltkAgg(toolfig)   
+        window.end()    
+        toolfig.subplots_adjust(top=0.9)
+        tool =  SubplotTool(self.canvas.figure, toolfig)
+        window.show()
+        canvas.show()
         
     def _init_toolbar(self):
         Fltk.Fl_File_Icon.load_system_icons()
@@ -567,6 +608,9 @@ class NavigationToolbar2FltkAgg(NavigationToolbar2):
             text="Zoom to rectangle",file="zoom_to_rect.ppm",
             command=self.zoom,argument=self,type="pushed")
             
+
+        self.bsubplot = FLTKButton( text="Configure Subplots", file="subplots.ppm",
+                                   command = self.configure_subplots,argument=self,type="pushed")
         self.bSave = FLTKButton(
             text="Save", file="filesave.ppm",
             command=save_figure, argument=self)
@@ -598,5 +642,3 @@ class NavigationToolbar2FltkAgg(NavigationToolbar2):
 
 
 FigureManager = FigureManagerFltkAgg
-if matplotlib.is_interactive():
-    show()

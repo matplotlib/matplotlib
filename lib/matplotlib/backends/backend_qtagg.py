@@ -76,7 +76,7 @@ class FigureCanvasQTAgg( FigureCanvasQT, FigureCanvasAgg ):
 
         # only replot data when needed
         if ( self.replot ):
-            stringBuffer = str( self.buffer_rgba() )
+            stringBuffer = str( self.buffer_rgba(0,0) )
             
 
             # matplotlib is in rgba byte order.
