@@ -372,6 +372,10 @@ def build_gtkagg(ext_modules, packages, numerix):
     add_agg_flags(module)  
     add_ft2font_flags(module)
     add_pygtk_flags(module)
+    if numerix in ["numarray","both"]: # Build for numarray
+        module.extra_compile_args.append('-DNUMARRAY=1')
+    if numerix in ["Numeric","both"]: # Build for Numeric
+        module.extra_compile_args.append('-DNUMERIC=1')
 
     ext_modules.append(module)    
     BUILT_GTKAGG = True
