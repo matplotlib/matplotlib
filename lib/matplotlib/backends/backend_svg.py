@@ -30,7 +30,7 @@ class RendererSVG(RendererBase):
 
         self._groupd = {}
         self._clipd = {}
-        svgwriter.write(svgProlog%(width,height))
+        svgwriter.write(svgProlog%(width,height,width,height))
 
     def _draw_svg_element(self, element, details, gc, rgbFace):
         cliprect, clipid = self._get_gc_clip_svg(gc)
@@ -302,10 +302,7 @@ svgProlog = """<?xml version="1.0" standalone="no"?>
 <svg
    xmlns="http://www.w3.org/2000/svg"
    xmlns:xlink="http://www.w3.org/1999/xlink"
-   version="1.0"
-   x="0.0"
-   y="0.0"
-   width="%i"
-   height="%i"
+   version="1.1"
+   width="%i" height="%i" viewBox="0 0 %i %i"
    id="svg1">
 """
