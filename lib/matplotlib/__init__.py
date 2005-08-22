@@ -591,7 +591,6 @@ defaultParams = {
     'lines.solid_joinstyle' : ['miter', validate_joinstyle],    
     'lines.dash_capstyle' : ['butt', validate_capstyle],
     'lines.solid_capstyle' : ['projecting', validate_capstyle],       
-    'lines.data_clipping' : [False, validate_bool],  # clip data
 
     # patch props    
     'patch.linewidth'   : [0.5, validate_float], # line width in points

@@ -1,5 +1,7 @@
 New entries should be added at the top
 
+2005-08-16 removed data_clipping line and rc property - JDH
+
 2005-08-22 backend_svg.py: Remove redundant "x=0.0 y=0.0" from svg element.
            Increase svg version from 1.0 to 1.1. Add viewBox attribute to svg
            element to allow SVG documents to scale-to-fit into an arbitrary
