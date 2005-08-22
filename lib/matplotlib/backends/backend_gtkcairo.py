@@ -34,9 +34,9 @@ class FigureCanvasGTKCairo(FigureCanvasGTK):
 class NavigationToolbar2Cairo(NavigationToolbar2GTK):
     def _get_canvas(self, fig):
         return FigureCanvasGTKCairo(fig)
-    
 
-class FigureManagerGTKAgg(FigureManagerGTK):
+
+class FigureManagerGTKCairo(FigureManagerGTK):
     def _get_toolbar(self, canvas):
         # must be inited after the window, drawingArea and figure
         # attrs are set
