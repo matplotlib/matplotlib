@@ -24,9 +24,9 @@
 #  - a legal html color name, eg red, blue, darkslategray
 
 #### CONFIGURATION BEGINS HERE
-backend      : GTKAgg    # the default backend
-numerix      : Numeric   # Numeric or numarray
-interactive  : False     # see http://matplotlib.sourceforge.net/interactive.html
+backend      : GTKAgg     # the default backend
+numerix      : Numeric    # Numeric or numarray
+interactive  : False      # see http://matplotlib.sourceforge.net/interactive.html
 toolbar      : toolbar2   # None | classic | toolbar2
 timezone     : UTC        # a pytz timezone string, eg US/Central or Europe/Paris
 
@@ -37,9 +37,7 @@ timezone     : UTC        # a pytz timezone string, eg US/Central or Europe/Pari
 
 ### LINES
 # See http://matplotlib.sourceforge.net/matplotlib.lines.html for more
-# information on line properties.  Note antialiased rendering looks
-# better, but can be slower.  If you want fast antialiased rendering,
-# use the Agg backend (or TkAgg, GTKAgg, WxAgg)
+# information on line properties.  
 lines.linewidth   : 0.5     # line width in points
 lines.linestyle   : -       # solid line
 lines.color       : blue    
@@ -53,9 +51,6 @@ lines.dash_capstyle : butt          # butt|round|projecting
 lines.solid_joinstyle : miter       # miter|round|bevel
 lines.solid_capstyle : projecting   # butt|round|projecting
 lines.antialiased : True         # render lines in antialised (no jaggies)
-lines.data_clipping : False      # Use data clipping in addition to viewport
-                                 # clipping.  Useful if you plot long data
-                                 # sets with only a fraction in the viewport
 
 ### Patches 
 # Patches are graphical objects that fill 2D space, like polygons or

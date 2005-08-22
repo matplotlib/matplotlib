@@ -347,6 +347,7 @@ grestore
 
         # unflip
         im.flipud_out()
+
     def draw_line(self, gc, x0, y0, x1, y1):
         """
         Draw a single line from x0,y0 to x1,y1

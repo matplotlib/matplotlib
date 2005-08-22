@@ -206,7 +206,7 @@ class Line2D(Artist):
         self._point_size_reduction = 0.5
 
         self.verticalOffset = None
-        self._useDataClipping = rcParams['lines.data_clipping']
+
         self.set_data(xdata, ydata)
 
         if not self._lineStyles.has_key(linestyle):
@@ -226,7 +226,7 @@ class Line2D(Artist):
             x = self._x
             y = self._y
         else:
-            x, y = self._get_numeric_clipped_data_in_range()
+            x, y = self._get_plottable()
 
 
         x, y = self._transform.numerix_x_y(x, y)
@@ -259,10 +259,6 @@ class Line2D(Artist):
         else:
             x, y = args
 
-
-        try: del self._xc, self._yc
-        except AttributeError: pass
-
         self._x_orig = x
         self._y_orig = y
 
@@ -289,17 +285,8 @@ class Line2D(Artist):
         self._x = asarray(x, Float)
         self._y = asarray(y, Float)
 
-        if self._useDataClipping: self._xsorted = self._is_sorted(self._x)
-
         self._logcache = None
 
-    def set_data_clipping(self, b):
-        """
-        b is a boolean that sets whether data clipping is on
-
-        ACCEPTS: [True | False]
-        """
-        self._useDataClipping = b
 
 
     def _is_sorted(self, x):
@@ -307,14 +294,10 @@ class Line2D(Artist):
         if len(x)<2: return 1
         return alltrue(x[1:]-x[0:-1]>=0)
 
-    def _get_numeric_clipped_data_in_range(self):
-        # if the x or y clip is set, only plot the points in the
-        # clipping region.  If log scale is set, only pos data will be
-        # returned
+    def _get_plottable(self):
+        # If log scale is set, only pos data will be returned
 
-        try: self._xc, self._yc
-        except AttributeError: x, y = self._x, self._y
-        else: x, y = self._xc, self._yc
+        x, y = self._x, self._y
 
         try: logx = self._transform.get_funcx().get_type()==LOG10
         except RuntimeError: logx = False  # non-separable
@@ -373,7 +356,7 @@ class Line2D(Artist):
             xt = self._x
             yt = self._y
         else:
-            x, y = self._get_numeric_clipped_data_in_range()
+            x, y = self._get_plottable()
             if len(x)==0: return
             xt, yt = self._transform.numerix_x_y(x, y)
 
@@ -422,59 +405,6 @@ class Line2D(Artist):
         return self._y_orig
 
 
-    def _set_clip(self):
-
-
-        if not self._useDataClipping: return
-        #self._logcache = None
-
-        try: self._xmin, self._xmax
-        except AttributeError: indx = arange(len(self._x))
-        else:
-            if not hasattr(self, '_xsorted'):
-                self._xsorted = self._is_sorted(self._x)
-            if len(self._x)==1:
-                indx = [0]
-            elif self._xsorted:
-                # for really long signals, if we know they are sorted
-                # on x we can save a lot of time using search sorted
-                # since the alternative approach requires 3 O(len(x) ) ops
-                indMin, indMax = searchsorted(
-                    self._x, array([self._xmin, self._xmax]))
-                indMin = max(0, indMin-1)
-                indMax = min(indMax+1, len(self._x))
-                skip = 0
-                if self._lod:
-                    # if level of detail is on, decimate the data
-                    # based on pixel width
-                    raise NotImplementedError('LOD deprecated')
-                    l, b, w, h = self.get_window_extent().get_bounds()
-                    skip = int((indMax-indMin)/w)
-                if skip>0:  indx = arange(indMin, indMax, skip)
-                else: indx = arange(indMin, indMax)
-            else:
-                indx = nonzero(
-                    logical_and( self._x>=self._xmin,
-                                 self._x<=self._xmax ))
-
-        self._xc = take(self._x, indx)
-        self._yc = take(self._y, indx)
-
-        # y data clipping for connected lines can introduce horizontal
-        # line artifacts near the clip region.  If you really need y
-        # clipping for efficiency, consider using plot(y,x) instead.
-        if ( self._yc.shape==self._xc.shape and
-             self._linestyle is None):
-            try: self._ymin, self._ymax
-            except AttributeError: indy = arange(len(self._yc))
-            else: indy = nonzero(
-                logical_and(self._yc>=self._ymin,
-                                  self._yc<=self._ymax ))
-        else:
-            indy = arange(len(self._yc))
-
-        self._xc = take(self._xc, indy)
-        self._yc = take(self._yc, indy)
 
     def set_antialiased(self, b):
         """
@@ -570,37 +500,6 @@ class Line2D(Artist):
 
         self.set_data(self.get_xdata(), y)
 
-    def set_xclip(self, *args):
-        """
-        Set the x clipping range for data clipping to xmin, xmax
-
-        ACCEPTS: (xmin, xmax)
-        """
-        if len(args)==1:
-            xmin, xmax = args[0]
-        else:
-            xmin, xmax = args
-
-        if xmax<xmin: xmax, xmin = xmin, xmax
-        self._xmin, self._xmax = xmin, xmax
-        self._set_clip()
-
-
-
-    def set_yclip(self, *args):
-        """
-        Set the y clipping range for data clipping to ymin, ymax
-
-        ACCEPTS: (ymin, ymax)
-        """
-        if len(args)==1:
-            ymin, ymax = args[0]
-        else:
-            ymin, ymax = args
-
-        if ymax<ymin: ymax, ymin = ymin, ymax
-        self._ymin, self._ymax = ymin, ymax
-        self._set_clip()
 
     def set_dashes(self, seq):
         """
@@ -1139,7 +1038,7 @@ class Line2D(Artist):
 
         self._linestyle = other._linestyle
         self._marker = other._marker
-        self._useDataClipping = other._useDataClipping
+
 
     def _get_rgb_face(self):
         if (self._markerfacecolor is None or
