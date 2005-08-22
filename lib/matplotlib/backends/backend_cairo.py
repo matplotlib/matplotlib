@@ -10,7 +10,7 @@ Features of Cairo:
 
 http://cairographics.org
 Requires (in order, all available from Cairo website):
-    libpixman, cairo, pycairo
+    cairo, pycairo
 
 Naming Conventions
   * classes MixedUpperCase
@@ -24,7 +24,6 @@ import sys
 import warnings
 def _fn_name(): return sys._getframe(1).f_code.co_name
 
-import matplotlib.agg as agg
 from matplotlib.backend_bases import RendererBase, GraphicsContextBase,\
      FigureManagerBase, FigureCanvasBase
 from matplotlib.cbook      import enumerate, izip
@@ -35,7 +34,7 @@ from matplotlib.transforms import Bbox
 
 import cairo
 
-_version_required = (0,5,0)
+_version_required = (0,9,0)
 if cairo.version_info < _version_required:
    raise SystemExit ("Pycairo %d.%d.%d is installed\n"
                      "Pycairo %d.%d.%d or later is required"
@@ -90,9 +89,9 @@ class RendererCairo(RendererBase):
         """
         """
         if _debug: print '%s.%s()' % (self.__class__.__name__, _fn_name())
-        self.dpi      = dpi
-        surface = cairo.ImageSurface (cairo.FORMAT_ARGB32,1,1)
-        self.text_ctx = cairo.Context (surface)
+        self.dpi = dpi
+        self.text_ctx = cairo.Context (
+           cairo.ImageSurface (cairo.FORMAT_ARGB32,1,1))
 
 
     def set_ctx_from_surface (self, surface):
@@ -100,9 +99,8 @@ class RendererCairo(RendererBase):
 
 
     def set_ctx_from_pixmap (self, pixmap):
-        # not used by image backend (backend_cairo),
-        # uses _set_ctx_from_surface() instead
         # used by GUI backend (backend_gtk)
+        # image backend (backend_cairo) uses _set_ctx_from_surface() instead
         self.ctx = cairo.gtk.gdk_cairo_create (pixmap)
 
     set_pixmap = set_ctx_from_pixmap
@@ -116,6 +114,28 @@ class RendererCairo(RendererBase):
         # - problem with text? - will need to switch matrix_flipy off, or do a
         # font transform?
 
+
+    def _fill_and_stroke (self, ctx, fill_c):
+        #assert fill_c or stroke_c
+
+        #_.ctx.save()
+
+        if fill_c:
+            ctx.save()
+            ctx.set_source_rgb (*fill_c)
+            #if stroke_c:   # always (implicitly) set at the moment
+            ctx.fill_preserve()
+            #else:
+            #    ctx.fill()
+            ctx.restore()
+
+        #if stroke_c:                      # always stroke
+            #ctx.set_source_rgb (stroke_c) # is already set
+        ctx.stroke()
+
+        #_.ctx.restore() # revert to the default attributes
+
+
     def draw_arc(self, gc, rgbFace, x, y, width, height, angle1, angle2):
         if _debug: print '%s.%s()' % (self.__class__.__name__, _fn_name())
         # draws circular arcs where width=height
@@ -123,17 +143,11 @@ class RendererCairo(RendererBase):
         # to get a proper arc of width/height you can use translate() and
         # scale(), see draw_arc() manual page
         radius = (height + width) / 4
-        ctx    = gc.ctx
+        ctx = gc.ctx
         ctx.new_path()
         ctx.arc (x, self.height - y, radius,
                  angle1 * numx.pi/180.0, angle2 * numx.pi/180.0)
-
-        if rgbFace:
-            ctx.save()
-            ctx.set_source_rgb (*rgbFace)
-            ctx.fill_preserve()
-            ctx.restore()
-        ctx.stroke()
+        self._fill_and_stroke (ctx, rgbFace)
 
 
     def draw_image(self, x, y, im, bbox):
@@ -171,7 +185,7 @@ class RendererCairo(RendererBase):
         ctx.new_path()
         ctx.move_to (x1, self.height - y1)
         ctx.line_to (x2, self.height - y2)
-        ctx.stroke()
+        self._fill_and_stroke (ctx, None)
 
 
     def draw_lines(self, gc, x, y, transform=None):
@@ -193,12 +207,12 @@ class RendererCairo(RendererBase):
 
         for x,y in points:
             ctx.line_to (x, y)
-        ctx.stroke()
+        self._fill_and_stroke (ctx, None)
 
         ctx.set_matrix (matrix_old)
 
 
-    def draw_markers(self, gc, path, rgbFace, x, y, transform):
+    def draw_markers_OLD(self, gc, path, rgbFace, x, y, transform):
         if _debug: print '%s.%s()' % (self.__class__.__name__, _fn_name())
 
         ctx = gc.ctx
@@ -234,14 +248,8 @@ class RendererCairo(RendererBase):
             ctx.translate(x, self.height - y)
             generate_path (path_list)
 
-            if rgbFace:
-               ctx.save()
-               ctx.set_source_rgb (*rgbFace)
-               # later - set alpha also?
-               ctx.fill_preserve()
-               ctx.restore() # undo colour change and restore path
+            self._fill_and_stroke (ctx, rgbFace)
 
-            ctx.stroke()
             ctx.restore() # undo translate()
 
         #ctx.set_matrix(matrix_old)
@@ -250,9 +258,10 @@ class RendererCairo(RendererBase):
     def draw_point(self, gc, x, y):
         if _debug: print '%s.%s()' % (self.__class__.__name__, _fn_name())
         # render by drawing a 0.5 radius circle
-        gc.ctx.new_path()
-        gc.ctx.arc (x, self.height - y, 0.5, 0, 2*numx.pi)
-        gc.ctx.fill()
+        ctx = gc.ctx
+        ctx.new_path()
+        ctx.arc (x, self.height - y, 0.5, 0, 2*numx.pi)
+        self._fill_and_stroke (ctx, _.get_rgb())
 
 
     def draw_polygon(self, gc, rgbFace, points):
@@ -269,12 +278,7 @@ class RendererCairo(RendererBase):
             ctx.line_to (x, y)
         ctx.close_path()
 
-        if rgbFace:
-            ctx.save()
-            ctx.set_source_rgb (*rgbFace)
-            ctx.fill_preserve()
-            ctx.restore()
-        ctx.stroke()
+        self._fill_and_stroke (ctx, rgbFace)
 
         ctx.set_matrix (matrix_old)
 
@@ -283,12 +287,7 @@ class RendererCairo(RendererBase):
         ctx = gc.ctx
         ctx.new_path()
         ctx.rectangle (x, self.height - y - height, width, height)
-        if rgbFace:
-            ctx.save()
-            ctx.set_source_rgb (*rgbFace)
-            ctx.fill_preserve()
-            ctx.restore()
-        ctx.stroke()
+        self._fill_and_stroke (ctx, rgbFace)
 
 
     def draw_text(self, gc, x, y, s, prop, angle, ismath=False):
@@ -417,8 +416,6 @@ class RendererCairo(RendererBase):
 
     def new_gc(self):
         if _debug: print '%s.%s()' % (self.__class__.__name__, _fn_name())
-        #gc = GraphicsContextCairo (renderer=self, surface=self.surface)
-        #return gc
         return GraphicsContextCairo (renderer=self)
 
 
@@ -441,11 +438,9 @@ class GraphicsContextCairo(GraphicsContextBase):
         }
 
 
-    #def __init__(self, renderer, surface):
     def __init__(self, renderer):
         GraphicsContextBase.__init__(self)
         self.renderer = renderer
-        #self.ctx = cairo.Context (surface)
         self.ctx = renderer.ctx
 
 
@@ -468,8 +463,6 @@ class GraphicsContextCairo(GraphicsContextBase):
 
 
     def set_clip_rectangle(self, rectangle):
-        # Cairo < 0.4.0: clipping is currently extremely slow
-        # Cairo 0.4.0  : pixel-aligned rectangular clip-regions are now faster
         self._cliprect = rectangle
 
         x,y,w,h = rectangle
@@ -479,15 +472,9 @@ class GraphicsContextCairo(GraphicsContextBase):
         ctx.new_path()
         ctx.rectangle (x, self.renderer.height - h - y, w, h)
 
-        #ctx.save()     # uncomment to view the clip rectangle
-        #ctx.set_source_rgb(1,0,0)
-        #ctx.set_line_width(6)
-        #ctx.stroke()
-        #ctx.restore()
-
-        #ctx.init_clip() # not needed? used unsuccessfully to fix clip problem
-        # when uncomment ctx.clip() it causes problems in line_styles.py
-        # - multiple axes, only the first one has its background drawn
+        # enabline ctx.clip() causes problems:
+        # line_styles.py - only see first axes
+        # simple_plot.py - lose text
         #ctx.clip ()
 
 
