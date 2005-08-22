@@ -1,5 +1,10 @@
 New entries should be added at the top
 
+2005-08-22 backend_svg.py: Remove redundant "x=0.0 y=0.0" from svg element.
+           Increase svg version from 1.0 to 1.1. Add viewBox attribute to svg
+           element to allow SVG documents to scale-to-fit into an arbitrary
+           viewport - SC
+
 2005-08-16 Added Eric's dot marker patch - JDH
 
 2005-08-08 Added blitting/animation for TkAgg - CM
@@ -25,7 +30,7 @@ New entries should be added at the top
            modified backend_svg to write utf-8 - JDH
 
 2005-07-30 backend_svg.py: embed png image files in svg rather than linking
-           to a separate png file, fixes bug #1245306 (thanks to Norbert Nemec 
+           to a separate png file, fixes bug #1245306 (thanks to Norbert Nemec
            for the patch) - SC
 
 =======================================================================
