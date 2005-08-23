@@ -33,9 +33,7 @@ import re
 from numerix import array, arange, take, put, Float, Int, where, \
      zeros, asarray, sort, searchsorted, sometrue, ravel, divide,\
      clip
-
 from numerix.mlab import amin, amax
-from types import IntType, FloatType
 from cbook import enumerate, is_string_like, iterable
 
 cnames = {
@@ -341,10 +339,13 @@ def rgb2hex(rgb):
 hexColorPattern = re.compile("\A#[a-fA-F0-9]{6}\Z")
 
 def hex2color(s):
-    "Convert hex string 's' (like html uses, eg, #efefef) to a r,g,b tuple"
-    if not isinstance(s, str):
+    """
+    Take a hex string 's' and return the corresponding rgb 3-tuple
+    Example: #efefef -> (0.93725, 0.93725, 0.93725)
+    """
+    if not isinstance(s, basestring):
         raise TypeError('hex2color requires a string argument')
-    if not hexColorPattern.match(s):
+    if hexColorPattern.match(s) is None:
         raise ValueError('invalid hex color string "%s"' % s)
     return tuple([int(n, 16)/255.0 for n in (s[1:3], s[3:5], s[5:7])])
 
@@ -511,7 +512,7 @@ class LinearSegmentedColormap(Colormap):
         if not self._isinit: self._init()
         alpha = min(alpha, 1.0) # alpha must be between 0 and 1
         alpha = max(alpha, 0.0)
-        if type(X) in [IntType, FloatType]:
+        if isinstance(X, (int, float)):
             vtype = 'scalar'
             xa = array([X])
         else:
@@ -553,7 +554,7 @@ class normalize:
         vmin = self.vmin
         vmax = self.vmax
 
-        if type(value) in [IntType, FloatType]:
+        if isinstance(value, (int, float)):
             vtype = 'scalar'
             val = array([value])
         else:

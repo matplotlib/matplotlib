@@ -1,5 +1,8 @@
 New entries should be added at the top
 
+2005-08-23 colors.py: change hex2color() to accept unicode strings as well as
+           normal strings. Use isinstance() instead of types.IntType etc - SC
+
 2005-08-16 removed data_clipping line and rc property - JDH
 
 2005-08-22 backend_svg.py: Remove redundant "x=0.0 y=0.0" from svg element.
