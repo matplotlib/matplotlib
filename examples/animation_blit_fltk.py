@@ -1,5 +1,7 @@
 import sys
 import fltk
+import matplotlib
+matplotlib.use('FltkAgg')
 import pylab as p
 import matplotlib.numerix as nx
 import time
@@ -14,8 +16,13 @@ class animator:
         self.canvas.mpl_connect('draw_event',self.clear)
         self.cnt=0
         self.background=None
+
+        # for profiling
+        self.tstart = time.time()
+
     def clear(self,event):
         self.background = self.canvas.copy_from_bbox(self.ax.bbox)   
+
     def update(self,ptr):
         # restore the clean slate background
         if self.background is None:
@@ -28,14 +35,11 @@ class animator:
         # just redraw the axes rectangle
         self.canvas.blit(ax.bbox) 
         self.cnt+=1
-        if self.cnt==1000:
+        if self.cnt==200:
             # print the timing info and quit
-            print 'FPS:' , 200/(time.time()-tstart)
+            print 'FPS:' , 200/(time.time()-self.tstart)
             sys.exit()
         return True
-            
-# for profiling
-tstart = time.time()
 
 ax = p.subplot(111)
 # create the initial line
