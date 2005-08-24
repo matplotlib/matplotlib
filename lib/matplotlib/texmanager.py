@@ -136,6 +136,7 @@ WARNING: found a TeX cache dir in the deprecated location "%s".
         prefix = self.get_prefix(tex)
         pngfile = os.path.join(self.texcache, '%s_%d.png'% (prefix, dpi))
 
+        self.get_dvipng_version()  # raises if dvipng is not up-to-date
         #print 'makepng', prefix, dvifile, pngfile
         command = 'dvipng -bg Transparent -fg "rgb 0.0 0.0 0.0" -D %d -T tight -o "%s" "%s"'% (dpi, pngfile, dvifile)
 

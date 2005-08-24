@@ -563,7 +563,7 @@ Image::_get_output_buffer() {
   if (flipy) {
     agg::int8u* buffer = new agg::int8u[rowsOut*colsOut*4];
     agg::rendering_buffer rb;
-    rb.attach(buffer, rowsOut, colsOut, colsOut*4);
+    rb.attach(buffer, colsOut, rowsOut, colsOut*4);
     rb.copy_from(*rbufOut);
     ret.first = buffer;
     ret.second = true;

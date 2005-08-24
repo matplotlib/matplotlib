@@ -43,7 +43,7 @@ BUILD_TKAGG        = 'auto'
 BUILD_WINDOWING        = 'auto'
 
 
-VERBOSE =  False # insert lots of diagnostic prints in extension code
+VERBOSE = False # insert lots of diagnostic prints in extension code
 
 
 

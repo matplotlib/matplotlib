@@ -709,4 +709,9 @@ ZeroDivisionError: SeparableTransformation::eval_scalars yin interval is zero; c
 
 -- DONE merge qt patch.
 
--- add frac kwarg to 
+-- properly handle sys.arv, so that it does not conflict with library
+   usage of mpl. mpl processes -Dagg, --verbose-helpful, etc, itself,
+   which can conflict with code that uses mpl as a library and process
+   options itself.
+
+-- Darren's black band ps image problem.
