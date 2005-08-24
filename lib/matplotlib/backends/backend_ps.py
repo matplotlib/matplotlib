@@ -277,11 +277,12 @@ class RendererPS(RendererBase):
         return im.as_rgba_str()
     
     def _rgb(self, im):
-        rgbat = im.as_rgba_str()
-        rgba = fromstring(rgbat[2], UInt8)
-        rgba.shape = (rgbat[0], rgbat[1], 4)
+        h,w,s = im.as_rgba_str()
+        
+        rgba = fromstring(s, UInt8)
+        rgba.shape = (h, w, 4)
         rgb = rgba[:,:,:3]
-        return rgbat[0], rgbat[1], rgb.tostring()
+        return h, w, rgb.tostring()
 
     def _gray(self, im, rc=0.3, gc=0.59, bc=0.11):
         rgbat = im.as_rgba_str()
@@ -327,6 +328,7 @@ class RendererPS(RendererBase):
 
         figh = self.height*72
         #print 'values', origin, flipud, figh, h, y
+
         if bbox is not None:
             clipx,clipy,clipw,cliph = bbox.get_bounds()
             clip = '%s clipbox' % _nums_to_str(clipw, cliph, clipx, clipy)
