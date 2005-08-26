@@ -306,7 +306,7 @@ def _shift_string(s):
     return ''.join(lines)
 
 
-def colorbar(tickfmt='%1.1f', cax=None, orientation='vertical'):
+def colorbar(tickfmt='%1.1f',cax=None,orientation='vertical',cspacing='proportional',clabels=None,drawedges=False,edgewidth=0.5,edgecolor='k'):
     """
     Create a colorbar for current image
 
@@ -318,10 +318,32 @@ def colorbar(tickfmt='%1.1f', cax=None, orientation='vertical'):
     will be used and the other axes positions will be unchanged.
 
     orientation is the colorbar orientation: one of 'vertical' | 'horizontal'
+
+    cspacing controls how colors are distributed on the colorbar.  
+    if cspacing == 'linear', each color occupies an equal area
+    on the colorbar, regardless of the contour spacing.
+    if cspacing == 'proportional' (Default), the area each color
+    occupies on the the colorbar is proportional to the contour interval.
+    Only relevant for a Contour image.
+
+    clabels can be a sequence containing the
+    contour levels to be labelled on the colorbar, or None (Default).
+    If clabels is None, labels for all contour intervals are
+    displayed. Only relevant for a Contour image.
+
+    if drawedges == True, lines are drawn at the edges between
+    each color on the colorbar. Default False.
+
+    edgecolor is the line color delimiting the edges of the colors
+    on the colorbar (if drawedges == True). Default black ('k')
+
+    edgewidth is the width of the lines delimiting the edges of
+    the colors on the colorbar (if drawedges == True). Default 0.5
+
     return value is the colorbar axes instance
     """
     mappable = gci()
-    ret = gcf().colorbar(mappable, tickfmt, cax, orientation)
+    ret = gcf().colorbar(mappable,tickfmt,cax,orientation,cspacing=cspacing,clabels=clabels,drawedges=drawedges,edgewidth=edgewidth,edgecolor=edgecolor)
     draw_if_interactive()
     return ret
 

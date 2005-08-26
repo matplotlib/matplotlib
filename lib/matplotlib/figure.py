@@ -3,18 +3,19 @@ from artist import Artist
 from axes import Axes, Subplot, PolarSubplot, PolarAxes
 from cbook import flatten, allequal, popd, Stack, iterable
 import _image
-from colors import normalize
+from colors import normalize, rgb2hex
 from image import FigureImage
 from matplotlib import rcParams
-from patches import Rectangle
+from patches import Rectangle, Polygon
 from text import Text, _process_text_args
 
 from legend import Legend
 from transforms import Bbox, Value, Point, get_bbox_transform, unit_bbox
 from numerix import array, clip, transpose
-from mlab import linspace
+from mlab import linspace, meshgrid
 from ticker import FormatStrFormatter
-
+from cm import ScalarMappable
+from contour import ContourMappable
 
 class SubplotParams:
     """
@@ -635,8 +636,7 @@ class Figure(Artist):
 
         self.canvas.print_figure(*args, **kwargs)
 
-
-    def colorbar(self, mappable, tickfmt='%1.1f', cax=None, orientation='vertical'):
+    def colorbar(self,mappable,tickfmt='%1.1f',cax=None,orientation='vertical',cspacing='proportional',clabels=None,drawedges=False,edgewidth=0.5,edgecolor='k'):
         """
         Create a colorbar for mappable image
 
@@ -652,6 +652,28 @@ class Figure(Artist):
         will be used and the other axes positions will be unchanged.
 
         orientation is the colorbar orientation: one of 'vertical' | 'horizontal'
+
+        cspacing controls how colors are distributed on the colorbar.  
+        if cspacing == 'linear', each color occupies an equal area
+        on the colorbar, regardless of the contour spacing.
+        if cspacing == 'proportional' (Default), the area each color
+        occupies on the the colorbar is proportional to the contour interval.
+        Only relevant for a Contour image.
+
+        clabels can be a sequence containing the
+        contour levels to be labelled on the colorbar, or None (Default).
+        If clabels is None, labels for all contour intervals are
+        displayed. Only relevant for a Contour image.
+
+        if drawedges == True, lines are drawn at the edges between
+        each color on the colorbar. Default False.
+
+        edgecolor is the line color delimiting the edges of the colors
+        on the colorbar (if drawedges == True). Default black ('k')
+
+        edgewidth is the width of the lines delimiting the edges of
+        the colors on the colorbar (if drawedges == True). Default 0.5
+
         return value is the colorbar axes instance
         """
 
@@ -665,12 +687,6 @@ class Figure(Artist):
         ax = self.gca()
 
         cmap = mappable.cmap
-        norm = mappable.norm
-
-        if norm.vmin is None or norm.vmax is None:
-            mappable.autoscale()
-        cmin = norm.vmin
-        cmax = norm.vmax
 
         if cax is None:
             l,b,w,h = ax.get_position()
@@ -687,34 +703,87 @@ class Figure(Artist):
             if not isinstance(cax, Axes):
                 raise TypeError('Expected an Axes instance for cax')
 
-        N = cmap.N
+        if isinstance(mappable, ContourMappable):
+        # mappable image is from contourf
+            clevs = mappable.levels.tolist()
+            if mappable.level_upper is not None:
+                clevs = array(clevs + [mappable.level_upper])
+            else:
+                clevs = array(clevs)
+            iscontourf = True
+        elif isinstance(mappable, ScalarMappable):
+        # from imshow or pcolor.
+            iscontourf = False
+            norm = mappable.norm
+            if norm.vmin is None or norm.vmax is None:
+                mappable.autoscale()
+            cmin = norm.vmin
+            cmax = norm.vmax
+            clevs = linspace(cmin, cmax, cmap.N)
+        else:
+            raise TypeError("don't know how to handle type %s"%type(mappable))
 
-        c = linspace(cmin, cmax, N)
-        C = array([c,c])
+        cmin = min(clevs); cmax = max(clevs)
+        N = len(clevs)
+        C = array([clevs,clevs])
 
         if orientation=='vertical':
             C = transpose(C)
 
         if orientation=='vertical':
-            extent=(0, 1, cmin, cmax)
+            if cspacing == 'linear':
+                X,Y = meshgrid([cmin,cmax],(clevs-cmin)/(cmax-cmin))
+            elif cspacing == 'proportional':
+                X,Y = meshgrid([cmin,cmax],linspace(0.,1.,N))
+            else:
+                raise ValueError("cspacing must be 'linear' or 'proportional'")
+            if drawedges:
+                levs,coll = cax.contour(X, C, Y, N-2,linewidths=edgewidth,colors=edgecolor)
+            levs,coll = cax.contourf(X, C, Y, N-2, cmap=cmap)
         else:
-            extent=(cmin, cmax, 0, 1)
-        coll = cax.imshow(C,
-                          interpolation='nearest',
-                          #interpolation='bilinear',
-                          origin='lower',
-                          cmap=cmap, norm=norm,
-                          extent=extent)
-        mappable.add_observer(coll)
-        mappable.set_colorbar(coll, cax)
+            if cspacing == 'linear':
+                X,Y = meshgrid((clevs-cmin)/(cmax-cmin),[cmin,cmax])
+            elif cspacing == 'proportional':
+                X,Y = meshgrid(linspace(0.,1.,N),[cmin,cmax])
+            else:
+                raise ValueError("cspacing must be 'linear' or 'proportional'")
+            if drawedges:
+                levs,coll = cax.contour(C, Y, X, N-2,linewidths=edgewidth,colors=edgecolor)
+            levs,coll = cax.contourf(C, Y, X, N-2, cmap=cmap)
 
+        mappable.add_observer(coll.mappable)
+        mappable.set_colorbar(coll.mappable, cax)
+
+        labs = [tickfmt % clev for clev in clevs]
+        if iscontourf and clabels is not None:
+            for cl in clabels:
+                if cl not in clevs:
+                    raise ValueError, 'clabels contains a value (%s) that is not a valid contour in the Contour image mappable'%(cl)
+            n = 0
+            for cl,lab in zip(clevs,labs):
+                if cl not in clabels: labs[n]=''
+                n = n + 1
         if orientation=='vertical':
             cax.set_xticks([])
             cax.yaxis.tick_right()
-            cax.yaxis.set_major_formatter(FormatStrFormatter(tickfmt))
+            if iscontourf:
+                if cspacing == 'linear':
+                    cax.set_yticks(linspace(cmin,cmax,N))
+                else:
+                    cax.set_yticks(clevs)
+                cax.set_yticklabels(labs)
+            else:
+                cax.yaxis.set_major_formatter(FormatStrFormatter(tickfmt))
         else:
             cax.set_yticks([])
-            cax.xaxis.set_major_formatter(FormatStrFormatter(tickfmt))
+            if iscontourf:
+                if cspacing == 'linear':
+                    cax.set_xticks(linspace(cmin,cmax,N))
+                else:
+                    cax.set_xticks(clevs)
+                cax.set_xticklabels(labs)
+            else:
+                cax.xaxis.set_major_formatter(FormatStrFormatter(tickfmt))
 
         self.sca(ax)
         return cax
