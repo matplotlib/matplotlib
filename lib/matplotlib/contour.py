@@ -86,6 +86,7 @@ class ContourfMappable(ScalarMappable):
 
         ScalarMappable.changed(self)
 
+
 class ContourLabeler:
     def __init__(self, ax):
         self.ax = ax
@@ -691,6 +692,8 @@ class ContourSupport:
 
         tcolors, mappable, collections = self._process_colors(colors,
                                                             alpha, lev, cmap)
+        if mappable is not None:
+            mappable.level_upper = None
 
         if linewidths == None:
             tlinewidths = [rcParams['lines.linewidth']] *Nlev
@@ -803,6 +806,7 @@ class ContourSupport:
         tcolors, mappable, collections = self._process_colors(colors,
                                                                alpha,
                                                                lev[:-1], cmap)
+        mappable.level_upper = lev[-1]
 
         C = _contour.Cntr(x, y, z.filled(), z.mask())
         for level, level_upper, color in zip(lev[:-1], lev[1:], tcolors):
