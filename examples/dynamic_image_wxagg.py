@@ -104,7 +104,7 @@ if __name__ == '__main__':
     # Initialise the timer - wxPython requires this to be connected to
     # the receiving event handler
     t = wxTimer(frame, TIMER_ID)
-    t.Start(200)
+    t.Start(10)
     
     frame.Show()
     app.MainLoop()
