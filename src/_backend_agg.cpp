@@ -494,7 +494,7 @@ RendererAgg::draw_line_collection(const Py::Tuple& args) {
     xys = segments[i%Nsegments];
     size_t numtups = xys.length();
     if (numtups<2) continue;
-    
+    bool snapto=numtups==2;
     agg::path_storage path;
     
     
@@ -517,6 +517,12 @@ RendererAgg::draw_line_collection(const Py::Tuple& args) {
 	thisx += xo;
 	thisy += yo;
       }      
+
+      if (snapto) { // snap to pixel for len(2) lines
+	thisx = (int)thisx + 0.5;
+	thisy = (int)thisy + 0.5;	
+      }
+
       if (j==0)  path.move_to(thisx, height-thisy);
       else       path.line_to(thisx, height-thisy);
     }
