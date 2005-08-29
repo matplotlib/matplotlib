@@ -7,9 +7,9 @@ from __future__ import division
  Jeremy O'Donoghue (jeremy@o-donoghue.com) and the Agg backend by John
  Hunter (jdhunter@ace.bsd.uchicago.edu)
 
- Copyright (C) 2003-4 Jeremy O'Donoghue & John Hunter
- Copyright (C) 2005 Illinois Institute of Technology
- 
+ Copyright (C) 2003-5 Jeremy O'Donoghue, John Hunter, Illinois Institute of Technology
+
+  
  License: This work is licensed under the matplotlib license( PSF
  compatible). A copy should be included with this source code.
 
