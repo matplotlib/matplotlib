@@ -890,7 +890,7 @@ The current aspect ration will be kept."""
         self.gui_repaint()
 
 
-    def draw(self):
+    def draw(self, repaint=True):
         """
         Render the figure using RendererWx instance renderer, or using a
         previously defined renderer if none is specified.
@@ -898,7 +898,8 @@ The current aspect ration will be kept."""
         DEBUG_MSG("draw()", 1, self)
         self.renderer = RendererWx(self.bitmap, self.figure.dpi)
         self.figure.draw(self.renderer)
-        self.gui_repaint()
+        if repaint:
+            self.gui_repaint()
 
     def _get_imagesave_wildcards(self):
         'return the wildcard string for the filesave dialog'
@@ -911,16 +912,17 @@ The current aspect ration will be kept."""
                "PNG (*.png)|*.png|"  \
                "XPM (*.xpm)|*.xpm"
 
-    def gui_repaint(self):
+    def gui_repaint(self, drawDC=None):
         """
-        Performs update of the displayed image on the GUI canvas
-
-        MUST NOT be called during a Paint event
+        Performs update of the displayed image on the GUI canvas, using the
+        supplied device context.  If drawDC is None, a ClientDC will be used to
+        redraw the image.
         """
         DEBUG_MSG("gui_repaint()", 1, self)
-        drawDC=wx.ClientDC(self)
+        if drawDC is None:
+            drawDC=wx.ClientDC(self)
+
         drawDC.BeginDrawing()
-        #drawDC.Clear()
         drawDC.DrawBitmap(self.bitmap, 0, 0)
         drawDC.EndDrawing()
 
@@ -1043,27 +1045,9 @@ The current aspect ration will be kept."""
         if not self._isRealized:
             self.realize()
         # Render to the bitmap
-        self.draw()
-        # Must use wxPaintDC during paint event
-
-        l,b,w,h = self.figure.bbox.get_bounds()
-        w = int(math.ceil(w))
-        h = int(math.ceil(h))
-
-
-        # I decoupled this from GraphicsContextWx so it would play
-        # nice with wxagg
-        memDC =wx.MemoryDC()
-        memDC.SelectObject(self.bitmap)
-        memDC.SetPen(wx.Pen('BLACK', 1, wx.SOLID))
-
-        drawDC=wx.PaintDC(self)
-
-        drawDC.BeginDrawing()
-        drawDC.Clear()
-        drawDC.Blit(0, 0, w, h, memDC, 0, 0)
-        #drawDC.DrawBitmap(self.bitmap, 0, 0)
-        drawDC.EndDrawing()
+        self.draw(repaint=False)
+        # Update the display using a PaintDC
+        self.gui_repaint(drawDC=wx.PaintDC(self))
         evt.Skip()
 
     def _onSize(self, evt):

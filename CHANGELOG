@@ -1,5 +1,8 @@
 New entries should be added at the top
 
+
+2005-08-29 Committed Ken's wx blit patch #1275002
+
 2005-08-26 colorbar modifications - now uses contourf instead of imshow
            so that colors used by contourf are displayed correctly.
            Added two new keyword args (cspacing and clabels) that are

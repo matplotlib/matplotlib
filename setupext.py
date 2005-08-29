@@ -39,7 +39,8 @@ basedir = {
     'linux'  : ['/usr/local', '/usr',],
     # Charles Moad recommends not putting in /usr/X11R6 for darwin
     # because freetype in this dir is too old for mpl
-    'darwin' : ['/sw/lib/freetype219', '/usr/local', '/usr', '/sw'], 
+    'darwin' : ['/sw/lib/freetype2', '/sw/lib/freetype219', '/usr/local',
+                '/usr', '/sw'], 
     'freebsd4' : ['/usr/local', '/usr'],
     'freebsd5' : ['/usr/local', '/usr'],
     'freebsd6' : ['/usr/local', '/usr'],    
@@ -63,6 +64,7 @@ BUILT_FT2FONT   = False
 BUILT_GTKAGG    = False
 BUILT_IMAGE     = False
 BUILT_TKAGG     = False
+BUILT_WXAGG     = False
 BUILT_WINDOWING = False
 BUILT_CONTOUR   = False
 BUILT_ENTHOUGHT   = False
@@ -191,6 +193,55 @@ def add_pygtk_flags(module):
     module.extra_link_args.extend(
         [flag for flag in linkerFlags if not
          (flag.startswith('-l') or flag.startswith('-L'))])
+
+
+def find_wx_config():
+    """If the WX_CONFIG environment variable has been set, returns it value.
+    Otherwise, search for `wx-config' in the PATH directories and return the
+    first match found.  Failing that, return None.
+    """
+
+    wxconfig = os.getenv('WX_CONFIG')
+    if wxconfig is not None:
+        return wxconfig
+
+    path = os.getenv('PATH') or ''
+    for dir in path.split(':'):
+        wxconfig = os.path.join(dir, 'wx-config')
+        if os.path.exists(wxconfig):
+            return wxconfig
+
+    return None
+
+
+def add_wx_flags(module, wxconfig):
+    """
+    Add the module flags to build extensions which use wxPython.
+    """
+
+    def getWX(fmt, *args):
+        return getoutput(wxconfig + ' ' + (fmt % args)).split()
+
+    wxFlags = getWX('--cppflags')
+    wxLibs = getWX('--libs')
+
+
+    add_base_flags(module)
+    module.include_dirs.extend(
+        [x[2:] for x in wxFlags if x.startswith('-I')])
+
+    print 'wxflags', wxFlags
+    module.define_macros.extend(
+        [(x[2:], None) for x in wxFlags if x.startswith('-D')])
+    module.undef_macros.extend(
+        [x[2:] for x in wxFlags if x.startswith('-U')])
+
+    module.libraries.extend(
+        [x[2:] for x in wxLibs if x.startswith('-l')])
+    module.library_dirs.extend(
+        [x[2:] for x in wxLibs if x.startswith('-L')])
+    module.extra_link_args.extend(
+        [x for x in wxLibs if not (x.startswith('-l') or x.startswith('-L'))])
 
 
 # Make sure you use the Tk version given by Tkinter.TkVersion
@@ -399,6 +450,42 @@ def build_tkagg(ext_modules, packages, numerix):
     add_ft2font_flags(module)    
     ext_modules.append(module)    
     BUILT_TKAGG = True
+
+
+def build_wxagg(ext_modules, packages, numerix, abortOnFailure):
+    global BUILT_WXAGG
+    if BUILT_WXAGG:
+        return
+
+    wxconfig = find_wx_config()
+
+    # Avoid aborting the whole build process if `wx-config' can't be found and
+    # BUILD_WXAGG in setup.py is set to "auto"
+    if wxconfig is None:
+        print 'WXAgg\'s accelerator requires `wx-config\'.'
+
+        if not abortOnFailure:
+            BUILT_WXAGG = True
+            return
+        else:
+            print '''\n\
+The `wx-config\' executable could not be located in any directory of the PATH
+environment variable.  If it is in some other location or has some other name,
+set the WX_CONFIG environment variable to the full path of the execuatable.'''
+            sys.exit(1)
+
+    deps = ['src/_wxagg.cpp', 'src/mplutils.cpp', 'src/_transforms.cpp']
+    deps.extend(glob.glob('CXX/*.cxx'))
+    deps.extend(glob.glob('CXX/*.c'))
+
+    module = Extension('matplotlib.backends._wxagg', deps)
+
+    add_agg_flags(module)  
+    add_ft2font_flags(module)
+    add_wx_flags(module, wxconfig)
+
+    ext_modules.append(module)    
+    BUILT_WXAGG = True
 
 
 def build_agg(ext_modules, packages, numerix):
