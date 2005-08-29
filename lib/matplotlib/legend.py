@@ -252,7 +252,7 @@ The following dimensions are in axes coords
                 self._set_artist_props(legline) # after update
                 legline.set_clip_box(None)
                 legline.set_markersize(self.markerscale*legline.get_markersize())
-                legline.set_data_clipping(False)
+
                 ret.append(legline)
             elif isinstance(handle, Patch):
 
