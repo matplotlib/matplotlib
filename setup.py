@@ -38,6 +38,10 @@ BUILD_GTK          = 'auto'
 #BUILD_TKAGG        = 0
 BUILD_TKAGG        = 'auto'
 
+# build wxPython GUI with Agg renderer ; requires wxPython package
+BUILD_WXAGG        = 'auto'
+
+
 # build a small extension to manage the focus on win32 platforms.
 #BUILD_WINDOWING        = 0
 BUILD_WINDOWING        = 'auto'
@@ -59,7 +63,7 @@ from distutils.core import setup
 import sys,os
 import glob
 from distutils.core import Extension
-from setupext import build_agg, build_gtkagg, build_tkagg, \
+from setupext import build_agg, build_gtkagg, build_tkagg, build_wxagg,\
      build_ft2font, build_image, build_windowing, build_transforms, \
      build_contour, build_enthought, build_swigagg, build_gdk
 import distutils.sysconfig
@@ -197,6 +201,14 @@ if BUILD_TKAGG:
         BUILD_AGG = 1
         build_tkagg(ext_modules, packages, NUMERIX)
 
+if BUILD_WXAGG:
+    try: import wxPython
+    except ImportError: print 'WXAgg\'s accelerator requires wxPython'
+    else:
+        BUILD_AGG = 1
+        build_wxagg(ext_modules, packages, NUMERIX,
+            not (isinstance(BUILD_WXAGG, str) # don't about if BUILD_WXAGG
+                 and BUILD_WXAGG.lower() == 'auto')) # is "auto"
 
 if BUILD_AGG:
     build_agg(ext_modules, packages, NUMERIX)
