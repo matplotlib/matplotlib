@@ -34,5 +34,5 @@ ax2 = twinx()
 s2 = sin(2*pi*t)
 plot(t, s2, 'r.')
 ylabel('sin')
-
+ax2.yaxis.tick_right()
 show()
