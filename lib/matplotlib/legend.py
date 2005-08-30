@@ -169,21 +169,26 @@ The following dimensions are in axes coords
 
         # make a trial box in the middle of the axes.  relocate it
         # based on it's bbox
-        left, upper = 0.5, 0.5
+        left, top = 0.5, 0.5
         if self.numpoints == 1:
             self._xdata = array([left + self.handlelen*0.5])
         else:
             self._xdata = linspace(left, left + self.handlelen, self.numpoints)
         textleft = left+ self.handlelen+self.handletextsep
-        self.texts = self._get_texts(labels, textleft, upper)
+        self.texts = self._get_texts(labels, textleft, top)
         self.legendHandles = self._get_handles(handles, self.texts)
 
-        left, top = self.texts[-1].get_position()
-        HEIGHT = self._approx_text_height()
+
+        if len(self.texts):
+            left, top = self.texts[-1].get_position()
+            HEIGHT = self._approx_text_height()*len(self.texts)
+        else:
+            HEIGHT = 0.2
+
         bottom = top-HEIGHT
         left -= self.handlelen + self.handletextsep + self.pad
         self.legendPatch = Rectangle(
-            xy=(left, bottom), width=0.5, height=HEIGHT*len(self.texts),
+            xy=(left, bottom), width=0.5, height=HEIGHT,
             facecolor='w', edgecolor='k',
             )
         self._set_artist_props(self.legendPatch)
@@ -208,6 +213,7 @@ The following dimensions are in axes coords
             self.legendPatch.draw(renderer)
 
 
+        if not len(self.legendHandles) and not len(self.texts): return
         for h in self.legendHandles:
             if h is not None:
 		h.draw(renderer)
@@ -497,6 +503,7 @@ The following dimensions are in axes coords
         # called from renderer to allow more precise estimates of
         # widths and heights with get_window_extent
 
+        if not len(self.legendHandles) and not len(self.texts): return
         def get_tbounds(text):  #get text bounds in axes coords
             bbox = text.get_window_extent(renderer)
             bboxa = inverse_transform_bbox(self._transform, bbox)
