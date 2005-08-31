@@ -600,8 +600,10 @@ class FigureCanvasCairo (FigureCanvasBase):
             surface = cairo.PDFSurface (filename, width_in_points,
                                         height_in_points)
         # surface.set_dpi() can be used
-        # FIXME - use self._renderer?
-        renderer._set_ctx_from_surface (surface)
+        renderer = RendererCairo (figure.dpi)
+        renderer.set_ctx_from_surface (surface)
+        renderer.set_width_height (width_in_points, height_in_points)
+        ctx = renderer.ctx
 
         if orientation == 'landscape':
             ctx.rotate (numx.pi/2)
@@ -613,9 +615,6 @@ class FigureCanvasCairo (FigureCanvasBase):
             # TODO:
             # add portrait/landscape checkbox to FileChooser
 
-        renderer = RendererCairo (figure.dpi)
-        renderer._set_width_height (width_in_points, height_in_points)
-        renderer.surface = surface
         figure.draw (renderer)
 
         show_fig_border = False  # for testing figure orientation and scaling
