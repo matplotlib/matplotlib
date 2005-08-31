@@ -1,14 +1,16 @@
 """
-GTK+ Matplotlib interface using Cairo (not GDK) drawing operations.
+GTK+ Matplotlib interface using cairo (not GDK) drawing operations.
 Author: Steve Chaplin
 """
-import cairo.gtk
+import gtk
+if gtk.pygtk_version < (2,7,0):
+    import cairo.gtk
 
-from matplotlib.backends.backend_cairo import RendererCairo
-from matplotlib.backends.backend_gtk import *
+import matplotlib.backends.backend_cairo as be_cairo
+from   matplotlib.backends.backend_gtk import *
 
-
-backend_version = 'PyGTK(%d.%d.%d),Pycairo(%d.%d.%d)' % (gtk.pygtk_version + cairo.version_info)
+backend_version = 'PyGTK(%d.%d.%d) ' % gtk.pygtk_version + \
+                  'Pycairo(%s)' % be_cairo.backend_version
 
 
 _debug = False
@@ -25,15 +27,22 @@ def new_figure_manager(num, *args, **kwargs):
     return FigureManagerGTK(canvas, num)
 
 
+class RendererGTKCairo (be_cairo.RendererCairo):
+    def set_ctx_from_pixmap (self, pixmap):
+        # TODO - do once in pixmap_prepare(), not before every redraw ?
+        if gtk.pygtk_version >= (2,7,0):
+            self.ctx = pixmap.cairo_create()
+        else:
+            self.ctx = cairo.gtk.gdk_cairo_create (pixmap)
+
+    set_pixmap = set_ctx_from_pixmap
+
+
 class FigureCanvasGTKCairo(FigureCanvasGTK):
     def _renderer_init(self):
-        """Override to use Cairo rather than GDK renderer"""
+        """Override to use cairo (rather than GDK) renderer"""
         if _debug: print '%s.%s()' % (self.__class__.__name__, _fn_name())
-        self._renderer = RendererCairo (self.figure.dpi)
-
-class NavigationToolbar2Cairo(NavigationToolbar2GTK):
-    def _get_canvas(self, fig):
-        return FigureCanvasGTKCairo(fig)
+        self._renderer = RendererGTKCairo (self.figure.dpi)
 
 
 class FigureManagerGTKCairo(FigureManagerGTK):
@@ -47,3 +56,8 @@ class FigureManagerGTKCairo(FigureManagerGTK):
         else:
             toolbar = None
         return toolbar
+
+
+class NavigationToolbar2Cairo(NavigationToolbar2GTK):
+    def _get_canvas(self, fig):
+        return FigureCanvasGTKCairo(fig)

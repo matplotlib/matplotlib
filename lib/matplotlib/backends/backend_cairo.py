@@ -98,14 +98,6 @@ class RendererCairo(RendererBase):
         self.ctx = cairo.Context (surface)
 
 
-    def set_ctx_from_pixmap (self, pixmap):
-        # used by GUI backend (backend_gtk)
-        # image backend (backend_cairo) uses _set_ctx_from_surface() instead
-        self.ctx = cairo.gtk.gdk_cairo_create (pixmap)
-
-    set_pixmap = set_ctx_from_pixmap
-
-
     def set_width_height(self, width, height):
         self.width  = width
         self.height = height
