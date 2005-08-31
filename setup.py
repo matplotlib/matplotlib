@@ -24,18 +24,13 @@ BUILD_IMAGE = 1
 # templates, so it probably requires a fairly recent compiler to build
 # it.  It makes very nice antialiased output and also supports alpha
 # blending
-BUILD_AGG = 1
-
-# Render Agg to the GTK canvas
-#BUILD_GTKAGG       = 0
+BUILD_AGG          = 1
 BUILD_GTKAGG       = 'auto'
-
 BUILD_GTK          = 'auto'
 
 # build TK GUI with Agg renderer ; requires Tkinter Python extension
 # and Tk includes
 # Use False or 0 if you don't want to build
-#BUILD_TKAGG        = 0
 BUILD_TKAGG        = 'auto'
 
 # build wxPython GUI with Agg renderer ; requires wxPython package
@@ -72,7 +67,7 @@ major, minor1, minor2, s, tmp = sys.version_info
 
 if major==2 and minor1==2:
     print >> sys.stderr, "***\n\nWARNING, see build info for python2.2 in the header of setup.py\n\n***"
-    
+
 for line in file('lib/matplotlib/__init__.py').readlines():
     if line[:11] == '__version__':
         exec(line)
@@ -106,7 +101,7 @@ try:
     HAVE_NUMARRAY=1
 except ImportError:
     HAVE_NUMARRAY=0
-    
+
 NUMERIX=["neither", "Numeric","numarray","both"][HAVE_NUMARRAY*2+HAVE_NUMERIC]
 
 
@@ -130,7 +125,7 @@ packages = [
     'matplotlib/numerix/ma',
     'matplotlib/numerix/linear_algebra',
     'matplotlib/numerix/random_array',
-    'matplotlib/numerix/fft',                    
+    'matplotlib/numerix/fft',
     ]
 
 
@@ -177,11 +172,10 @@ if BUILD_GTK:
         BUILD_GTK=0
     except RuntimeError:
         print 'pygtk present but import failed'
-    
 
 if BUILD_GTK:
-    build_gdk(ext_modules, packages, NUMERIX)
-    
+        build_gdk(ext_modules, packages, NUMERIX)
+
 if BUILD_GTKAGG:
     try:
         import gtk
@@ -203,7 +197,10 @@ if BUILD_TKAGG:
 
 if BUILD_WXAGG:
     try: import wxPython
-    except ImportError: print 'WXAgg\'s accelerator requires wxPython'
+    except ImportError:
+        if BUILD_WXAGG != 'auto':
+            print 'WXAgg\'s accelerator requires wxPython'
+        BUILD_WXAGG = 0
     else:
         BUILD_AGG = 1
         build_wxagg(ext_modules, packages, NUMERIX,
@@ -221,14 +218,14 @@ if BUILD_WINDOWING and sys.platform=='win32':
 
 if BUILD_IMAGE:
     build_image(ext_modules, packages, NUMERIX)
-    
+
 if 1:  # I don't think we need to make these optional
     build_contour(ext_modules, packages, NUMERIX)
-    
+
 for mod in ext_modules:
     if VERBOSE:
         mod.extra_compile_args.append('-DVERBOSE')
-    
+
 setup(name="matplotlib",
       version= __version__,
       description = "Matlab(TM) style python plotting package",
@@ -244,7 +241,7 @@ setup(name="matplotlib",
       packages = packages,
       platforms='any',
       py_modules = ['pylab'],
-      ext_modules = ext_modules, 
+      ext_modules = ext_modules,
       data_files = data_files,
       package_dir = {'': 'lib'},
       )

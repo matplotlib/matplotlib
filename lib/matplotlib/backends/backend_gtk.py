@@ -230,7 +230,7 @@ class FigureCanvasGTK (gtk.DrawingArea, FigureCanvasBase):
         # synchronous draw (needed for animation)
         x, y, w, h = self.allocation
         if w<3 or h<3: return # empty fig
-        
+
         self._pixmap_prepare (w, h)
         self._render_figure(self._pixmap, w, h)
         self._need_redraw = False
@@ -253,7 +253,7 @@ class FigureCanvasGTK (gtk.DrawingArea, FigureCanvasBase):
             set_pixmap ()
             set_width_height ()
         that are used by
-            _render_figure()
+            _render_figure() / _pixmap_prepare()
         """
         self._renderer = RendererGDK (self, self.figure.dpi)
 
@@ -278,15 +278,14 @@ class FigureCanvasGTK (gtk.DrawingArea, FigureCanvasBase):
             create_pixmap = True
 
         if create_pixmap:
-            if _debug: print 'FigureCanvasGTK.%s new pixmap' % fn_name()
             self._pixmap = gdk.Pixmap (self.window, self._pixmap_width,
                                        self._pixmap_height)
+            self._renderer.set_pixmap (self._pixmap)
 
 
     def _render_figure(self, pixmap, width, height):
         """used by GTK and GTKcairo. GTKAgg overrides
         """
-        self._renderer.set_pixmap (pixmap)
         self._renderer.set_width_height (width, height)
         self.figure.draw (self._renderer)
 
@@ -337,6 +336,7 @@ class FigureCanvasGTK (gtk.DrawingArea, FigureCanvasBase):
         if ext in ('jpg', 'png'):          # native printing
             width, height = self.get_width_height()
             pixmap = gdk.Pixmap (self.window, width, height)
+            self._renderer.set_pixmap (pixmap)
             self._render_figure(pixmap, width, height)
 
             # jpg colors don't match the display very well, png colors match
