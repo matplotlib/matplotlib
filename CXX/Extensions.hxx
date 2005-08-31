@@ -14,6 +14,7 @@
 #endif
 
 
+#include "CXX/Version.hxx"
 #include "CXX/Config.hxx"
 #include "CXX/Objects.hxx"
 
@@ -37,6 +38,7 @@ namespace Py
 		virtual ~ExtensionExceptionType();
 
 		// call init to create the type
+		void init(  ExtensionModuleBase &module, const std::string& name, ExtensionExceptionType &parent );
 		void init(  ExtensionModuleBase &module, const std::string& name );
 		};
 
@@ -319,6 +321,7 @@ namespace Py
 		void supportStr(void);
 		void supportHash(void);
 		void supportCall(void);
+                void supportIter(void);
 		
 		void supportSequenceType(void);
 		void supportMappingType(void);
@@ -385,6 +388,8 @@ namespace Py
 		virtual Object str();
 		virtual long hash();
 		virtual Object call( const Object &, const Object & );
+                virtual Object iter();
+                virtual PyObject* iternext();
 		
 		// Sequence methods
 		virtual int sequence_length();
@@ -487,7 +492,7 @@ namespace Py
 			static PythonType* p;
 			if( p == NULL ) 
 				{
-#if defined( _CPPRTTI )
+#if defined( _CPPRTTI ) || defined(__GNUG__)
 				const char *default_name = (typeid ( T )).name();
 #else
 				const char *default_name = "unknown";

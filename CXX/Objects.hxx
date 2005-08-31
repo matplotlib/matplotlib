@@ -7,6 +7,7 @@
 #define __CXX_Objects__h
 
 #include "Python.h"
+#include "CXX/Version.hxx"
 #include "CXX/Config.hxx"
 #include "CXX/Exception.hxx"
 
@@ -146,8 +147,8 @@ namespace Py
 					throw Exception();
 					}
 				// Better error message if RTTI available
-#if defined( _CPPRTTI )
-				std::string s("Error creating object of type ");
+#if defined( _CPPRTTI ) || defined(__GNUG__)
+				std::string s("CXX : Error creating object of type ");
 				s += (typeid (*this)).name();
 				throw TypeError (s);
 #else
@@ -501,7 +502,15 @@ namespace Py
 			validate();
 			}
 
-		Int (const Object& ob)
+		// create from bool
+		explicit Int (bool v)
+			{
+			long w = v ? 1 : 0;
+			set(PyInt_FromLong(w), true);
+			validate();
+			}
+
+		explicit Int (const Object& ob)
 			{
 			set(PyNumber_Int(*ob), true);
 			validate();
@@ -566,6 +575,12 @@ namespace Py
 			{
 			validate();
 			}
+		// create from unsigned long
+		explicit Long (unsigned long v)
+			: Object(PyLong_FromUnsignedLong(v), true)
+			{
+			validate();
+			}
 		// create from int
 		explicit Long (int v)
 			: Object(PyLong_FromLong(static_cast<long>(v)), true)
@@ -603,6 +618,11 @@ namespace Py
 			{
 			return PyLong_AsLong (ptr());
 			}
+		// convert to unsigned
+		operator unsigned long() const
+			{
+			return PyLong_AsUnsignedLong (ptr());
+			}
 		operator double() const
 			{
 			return PyLong_AsDouble (ptr());
@@ -617,6 +637,12 @@ namespace Py
 		Long& operator= (long v)
 			{
 			set(PyLong_FromLong (v), true);
+			return *this;
+			}
+		// assign from unsigned long
+		Long& operator= (unsigned long v)
+			{
+			set(PyLong_FromUnsignedLong (v), true);
 			return *this;
 			}
 		};
@@ -1502,7 +1528,7 @@ namespace Py
 
 		Char& operator= (const unicodestring& v)
 			{
-			set(PyUnicode_FromUnicode (const_cast<Py_UNICODE*>(v.c_str()),1), true);
+			set(PyUnicode_FromUnicode (const_cast<Py_UNICODE*>(v.data()),1), true);
 			return *this;
 			}
 
@@ -2495,11 +2521,9 @@ namespace Py
 
 	class Callable: public Object
 		{
-	protected:
-		explicit Callable (): Object()
-			{}
 	public:
 		// Constructor
+		explicit Callable (): Object()  {}
 		explicit Callable (PyObject *pyob, bool owned = false): Object (pyob, owned)
 			{
 			validate();
