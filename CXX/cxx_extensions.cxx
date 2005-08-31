@@ -5,7 +5,6 @@
 
 namespace Py 
 {
-
 //================================================================================
 //
 //	Implementation of MethodTable
@@ -146,6 +145,8 @@ extern "C"
 	static PyObject* str_handler (PyObject*);
 	static long hash_handler (PyObject*);
 	static PyObject* call_handler (PyObject*, PyObject*, PyObject*);
+        static PyObject* iter_handler (PyObject*);
+        static PyObject* iternext_handler (PyObject*);
 
 	// Sequence methods
 	static int sequence_length_handler(PyObject*);
@@ -201,6 +202,7 @@ void PythonType::supportSequenceType()
 	if( !sequence_table )
 		{
 		sequence_table = new PySequenceMethods;
+		memset( sequence_table, 0, sizeof( PySequenceMethods ) );   // ensure new fields are 0
 		table->tp_as_sequence = sequence_table;
 		sequence_table->sq_length = sequence_length_handler;
 		sequence_table->sq_concat = sequence_concat_handler;
@@ -218,6 +220,7 @@ void PythonType::supportMappingType()
 	if( !mapping_table )
 		{
 		mapping_table = new PyMappingMethods;
+		memset( mapping_table, 0, sizeof( PyMappingMethods ) );   // ensure new fields are 0
 		table->tp_as_mapping = mapping_table;
 		mapping_table->mp_length = mapping_length_handler;
 		mapping_table->mp_subscript = mapping_subscript_handler;
@@ -230,6 +233,7 @@ void PythonType::supportNumberType()
 	if( !number_table )
 		{
 		number_table = new PyNumberMethods;
+		memset( number_table, 0, sizeof( PyNumberMethods ) );   // ensure new fields are 0
 		table->tp_as_number = number_table;
 		number_table->nb_add = number_add_handler;
 		number_table->nb_subtract = number_subtract_handler;
@@ -262,6 +266,7 @@ void PythonType::supportBufferType()
 	if( !buffer_table )
 		{
 		buffer_table = new PyBufferProcs;
+		memset( buffer_table, 0, sizeof( PyBufferProcs ) );   // ensure new fields are 0
 		table->tp_as_buffer = buffer_table;
 		buffer_table->bf_getreadbuffer = buffer_getreadbuffer_handler;
 		buffer_table->bf_getwritebuffer = buffer_getwritebuffer_handler;
@@ -279,6 +284,7 @@ PythonType::PythonType( size_t basic_size, int itemsize, const char *default_nam
 	, number_table( NULL )
 	, buffer_table( NULL )
 	{
+	memset( table, 0, sizeof( PyTypeObject ) );   // ensure new fields are 0
 	*reinterpret_cast<PyObject*>( table ) = py_object_initializer;
 	table->ob_type = _Type_Type();
 	table->ob_size = 0;
@@ -300,7 +306,7 @@ PythonType::PythonType( size_t basic_size, int itemsize, const char *default_nam
 	table->tp_getattro = 0;
 	table->tp_setattro = 0;
 	table->tp_as_buffer = 0;
-	table->tp_flags = 0L;
+	table->tp_flags = Py_TPFLAGS_DEFAULT;
 	table->tp_doc = 0;
 #if PY_MAJOR_VERSION > 2 || (PY_MAJOR_VERSION == 2 && PY_MINOR_VERSION >= 0)
 	// first use in 2.0
@@ -317,6 +323,12 @@ PythonType::PythonType( size_t basic_size, int itemsize, const char *default_nam
 #else
 	table->tp_xxx7 = 0L;
 	table->tp_xxx8 = 0L;
+#endif
+
+#if PY_MAJOR_VERSION > 2 || (PY_MAJOR_VERSION == 2 && PY_MINOR_VERSION >= 2)
+	// first defined in 2.3
+	table->tp_iter = 0L;
+	table->tp_iternext = 0L;
 #endif
 
 #ifdef COUNT_ALLOCS
@@ -412,6 +424,12 @@ void PythonType::supportHash()
 void PythonType::supportCall()
 	{
 	table->tp_call = call_handler;
+	}
+
+void PythonType::supportIter()
+	{
+	table->tp_iter = iter_handler;
+        table->tp_iternext = iternext_handler;
 	}
 
 //--------------------------------------------------------------------------------
@@ -546,6 +564,32 @@ extern "C" PyObject* call_handler( PyObject *self, PyObject *args, PyObject *kw 
 		return new_reference_to( p->call( Py::Object( args ), Py::Object( kw ) ) );
 		else
 		return new_reference_to( p->call( Py::Object( args ), Py::Object() ) );
+		}
+	catch( Py::Exception & )
+		{
+		return NULL;	// indicate error
+		}
+	}
+
+extern "C" PyObject* iter_handler( PyObject *self )
+	{
+	try
+		{
+		PythonExtensionBase *p = static_cast<PythonExtensionBase *>( self );
+		return new_reference_to( p->iter() );
+		}
+	catch( Py::Exception & )
+		{
+		return NULL;	// indicate error
+		}
+	}
+
+extern "C" PyObject* iternext_handler( PyObject *self )
+	{
+	try
+		{
+		PythonExtensionBase *p = static_cast<PythonExtensionBase *>( self );
+		return p->iternext();  // might be a NULL ptr on end of iteration
 		}
 	catch( Py::Exception & )
 		{
@@ -1028,11 +1072,7 @@ PythonExtensionBase::PythonExtensionBase()
 
 PythonExtensionBase::~PythonExtensionBase()
 	{
-	  //JDH:
-	  //win32 appears to have a bug; when a class throws an
-	  //exception, the assert fails.
-
-	  //assert( ob_refcnt == 0 );
+	assert( ob_refcnt == 0 );
 	}
 
 int PythonExtensionBase::print( FILE *, int )
@@ -1061,6 +1101,12 @@ long PythonExtensionBase::hash()
 
 Py::Object PythonExtensionBase::call( const Py::Object &, const Py::Object & )
 	{ missing_method( call ); return Py::Nothing(); }
+
+Py::Object PythonExtensionBase::iter()
+	{ missing_method( iter ); return Py::Nothing(); }
+
+PyObject* PythonExtensionBase::iternext()
+	{ missing_method( iternext ); return NULL; }
 
 
 // Sequence methods
@@ -1272,6 +1318,15 @@ void ExtensionExceptionType::init( ExtensionModuleBase &module, const std::strin
 	set( PyErr_NewException( const_cast<char *>( module_name.c_str() ), NULL, NULL ), true );
 	}
 
+void ExtensionExceptionType::init( ExtensionModuleBase &module, const std::string& name, ExtensionExceptionType &parent)
+ 	{
+ 	std::string module_name( module.fullName() );
+ 	module_name += ".";
+ 	module_name += name;
+
+	set( PyErr_NewException( const_cast<char *>( module_name.c_str() ), parent.ptr(), NULL ), true );
+	}
+ 
 ExtensionExceptionType::~ExtensionExceptionType()
 	{
 	}
@@ -1281,5 +1336,14 @@ Exception::Exception( ExtensionExceptionType &exception, const std::string& reas
 	PyErr_SetString (exception.ptr(), reason.c_str());
 	}
 
+Exception::Exception( ExtensionExceptionType &exception, Object &reason )
+	{
+	PyErr_SetObject (exception.ptr(), reason.ptr());
+	}
+
+Exception::Exception( PyObject* exception, Object &reason )
+	{
+	PyErr_SetObject (exception, reason.ptr());
+	}		
 
 }	// end of namespace Py

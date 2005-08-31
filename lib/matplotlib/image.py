@@ -199,20 +199,6 @@ ACCEPTS: float
 
         return im
     
-    def __draw(self, renderer, *args, **kwargs):
-        if not self.get_visible(): return 
-        isUpper = self.origin=='upper'
-        flipy = renderer.flipy()
-        im = self.make_image(isUpper)
-        l, b, widthDisplay, heightDisplay = self.axes.bbox.get_bounds()
-        if isUpper:
-            #offset is distance from top of figure
-            oy = self.axes.figure.bbox.height()-(b+heightDisplay)
-            renderer.draw_image(l, oy, im, self.origin, self.axes.bbox)
-        else:
-            # compute the location of the origin
-            oy = b
-            renderer.draw_image(l, oy, im, self.origin, self.axes.bbox)
 
     def draw(self, renderer, *args, **kwargs):
         if not self.get_visible(): return 
@@ -244,7 +230,7 @@ ACCEPTS: numeric/numarray/PIL Image A"""
             self._A = X
 
         self._imcache =None
-
+        
     def set_array(self, A):
         """
 retained for backwards compatibility - use set_data instead
