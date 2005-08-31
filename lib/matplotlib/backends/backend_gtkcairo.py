@@ -28,14 +28,11 @@ def new_figure_manager(num, *args, **kwargs):
 
 
 class RendererGTKCairo (be_cairo.RendererCairo):
-    def set_ctx_from_pixmap (self, pixmap):
-        # TODO - do once in pixmap_prepare(), not before every redraw ?
+    def set_pixmap (self, pixmap):
         if gtk.pygtk_version >= (2,7,0):
             self.ctx = pixmap.cairo_create()
         else:
             self.ctx = cairo.gtk.gdk_cairo_create (pixmap)
-
-    set_pixmap = set_ctx_from_pixmap
 
 
 class FigureCanvasGTKCairo(FigureCanvasGTK):

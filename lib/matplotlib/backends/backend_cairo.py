@@ -95,7 +95,7 @@ class RendererCairo(RendererBase):
 
 
     def set_ctx_from_surface (self, surface):
-        self.ctx = cairo.Context (surface)
+       self.ctx = cairo.Context (surface)
 
 
     def set_width_height(self, width, height):
@@ -601,8 +601,8 @@ class FigureCanvasCairo (FigureCanvasBase):
                                         height_in_points)
         # surface.set_dpi() can be used
         renderer = RendererCairo (figure.dpi)
-        renderer.set_ctx_from_surface (surface)
         renderer.set_width_height (width_in_points, height_in_points)
+        renderer.set_ctx_from_surface (surface)
         ctx = renderer.ctx
 
         if orientation == 'landscape':
