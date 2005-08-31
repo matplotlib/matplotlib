@@ -24,6 +24,15 @@ import sys
 import warnings
 def _fn_name(): return sys._getframe(1).f_code.co_name
 
+import cairo
+_version_required = (0,9,0)
+if cairo.version_info < _version_required:
+   raise SystemExit ("Pycairo %d.%d.%d is installed\n"
+                     "Pycairo %d.%d.%d or later is required"
+                     % (cairo.version_info + _version_required))
+backend_version = cairo.version
+del _version_required
+
 from matplotlib.backend_bases import RendererBase, GraphicsContextBase,\
      FigureManagerBase, FigureCanvasBase
 from matplotlib.cbook      import enumerate, izip
@@ -32,15 +41,6 @@ from matplotlib.mathtext   import math_parse_s_ft2font
 import matplotlib.numerix as numx
 from matplotlib.transforms import Bbox
 
-import cairo
-
-_version_required = (0,9,0)
-if cairo.version_info < _version_required:
-   raise SystemExit ("Pycairo %d.%d.%d is installed\n"
-                     "Pycairo %d.%d.%d or later is required"
-                     % (cairo.version_info + _version_required))
-backend_version = cairo.version
-del _version_required
 
 if hasattr (cairo.ImageSurface, 'create_for_array'):
    HAVE_CAIRO_NUMPY = True
@@ -588,9 +588,15 @@ class FigureCanvasCairo (FigureCanvasBase):
                                                  width_in_points)
 
         if ext == 'ps':
+            if not cairo.HAS_PS_SURFACE:
+                raise RuntimeError ('cairo has not been compiled with PS '
+                                    'support enabled')
             surface = cairo.PSSurface (filename, width_in_points,
                                        height_in_points)
         else: # pdf
+            if not cairo.HAS_PDF_SURFACE:
+                raise RuntimeError ('cairo has not been compiled with PDF '
+                                    'support enabled')
             surface = cairo.PDFSurface (filename, width_in_points,
                                         height_in_points)
         # surface.set_dpi() can be used
