@@ -1900,7 +1900,7 @@ class Axes(Artist):
         'return True is the point xwin, ywin (display coords) are in the Axes'
         return self.bbox.contains(xwin, ywin)
 
-    def hlines(self, y, xmin, xmax, fmt='k-'):
+    def hlines(self, y, xmin, xmax, fmt='k-', **kwargs):
         """
         HLINES(y, xmin, xmax, fmt='k-')
 
@@ -1909,11 +1909,18 @@ class Axes(Artist):
         respective values are constant, else the widths of the lines are
         determined by xmin and xmax
 
+        fmt is a plot format string, eg 'g--'
+        
+        kwargs are matplotlib.lines.Line2D kwargs
+
         Returns a list of line instances that were added
         """
         linestyle, marker, color = _process_plot_format(fmt)
 
-        # todo: fix me for y is scalar and xmin and xmax are iterable
+
+        if not iterable(y): y = [y]
+        if not iterable(xmin): xmin = [xmin]
+        if not iterable(xmax): xmax = [xmax]        
         y = asarray(y)
         xmin = asarray(xmin)
         xmax = asarray(xmax)
@@ -1933,6 +1940,7 @@ class Axes(Artist):
             line = Line2D(
                 [thisMin, thisMax], [thisY, thisY],
                 color=color, linestyle=linestyle, marker=marker,
+                **kwargs
                 )
             self.add_line( line )
             lines.append(line)
@@ -3562,7 +3570,7 @@ class Axes(Artist):
         if funcy==LOG10: self.set_yscale('linear')
         elif funcy==IDENTITY: self.set_yscale('log')
 
-    def vlines(self, x, ymin, ymax, color='k'):
+    def vlines(self, x, ymin, ymax, fmt='k-', **kwargs):
         """
         VLINES(x, ymin, ymax, color='k')
 
@@ -3571,8 +3579,19 @@ class Axes(Artist):
         respective values are constant, else the heights of the lines are
         determined by ymin and ymax
 
+
+        fmt is a plot format string, eg 'g--'
+
+        kwargs are matplotlib.lines.Line2D kwargs
+        
         Returns a list of lines that were added
         """
+        linestyle, marker, color = _process_plot_format(fmt)
+        
+
+        if not iterable(x): x = [x]
+        if not iterable(ymin): ymin = [ymin]
+        if not iterable(ymax): ymax = [ymax]        
         x = asarray(x)
         ymin = asarray(ymin)
         ymax = asarray(ymax)
@@ -3592,7 +3611,9 @@ class Axes(Artist):
         lines = []
         for thisX, thisY in zip(x,Y):
             line = Line2D(
-                [thisX, thisX], thisY, color=color, linestyle='-',
+                [thisX, thisX], thisY,
+                color=color, linestyle=linestyle, marker=marker,
+                **kwargs
                 )
             self.add_line(line)
             lines.append(line)
