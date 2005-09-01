@@ -1,5 +1,9 @@
 API Changes in matplotlib-0.84
 
+    Unified argument handling between hlines and vlines.  Both now 
+    take optionally a fmt argument (as in plot) and a keyword args
+    that can be passed onto Line2D.
+
     Removed all references to "data clipping" in rc and lines.py since
     these were not used and not optimized.  I'm sure they'll be
     resurrected later with a better implementation when needed.
