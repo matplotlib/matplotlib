@@ -115,7 +115,7 @@ class RendererBase:
 
         gc = self.new_gc()
         if clipbox is not None:
-            gc.set_clip_rectangle(clipbox)
+            gc.set_clip_rectangle(clipbox.get_bounds())
         gc.set_dashes(*linestyle)
 
         Nc        = len(colors)
@@ -194,7 +194,8 @@ class RendererBase:
         N = max(Noffsets, Nverts)
 
         gc = self.new_gc()
-        if clipbox is not None: gc.set_clip_rectangle(clipbox.get_bounds())
+        if clipbox is not None:
+            gc.set_clip_rectangle(clipbox.get_bounds())
 
         for i in xrange(N):
 
