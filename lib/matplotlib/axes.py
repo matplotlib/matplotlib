@@ -1488,8 +1488,9 @@ class Axes(Artist):
              markeredgewith.  
 
 
-        Return value is a length 2 tuple.  The first element is a list of
-        y symbol lines.  The second element is a list of error bar lines.
+        Return value is a length 2 tuple.  The first element is the
+        Line2D instance for the y symbol lines.  The second element is
+        a list of error bar lines.
         """
         if not self._hold: self.cla()
         # make sure all the args are iterable arrays
@@ -1789,7 +1790,8 @@ class Axes(Artist):
                extent=None,
                shape=None,
                filternorm=1,
-               filterrad=4.0):
+               filterrad=4.0,
+               imlim=None):
         """
 
         IMSHOW(X, cmap=None, norm=None, aspect=None, interpolation=None,
@@ -1870,6 +1872,7 @@ class Axes(Artist):
            parameter, ie when interpolation is one of: 'sinc',
            'lanczos' or 'blackman'
 
+
     """
 
         if not self._hold: self.cla()
@@ -1890,8 +1893,9 @@ class Axes(Artist):
 
         corners = (xmin, ymin), (xmax, ymax)
         self.update_datalim(corners)
-        self.set_xlim((xmin, xmax))
-        self.set_ylim((ymin, ymax))
+        if self._autoscaleon:
+            self.set_xlim((xmin, xmax))
+            self.set_ylim((ymin, ymax))
         self.images.append(im)
 
         return im
