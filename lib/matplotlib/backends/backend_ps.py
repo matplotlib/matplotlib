@@ -764,6 +764,7 @@ grestore
         cint = {'butt':0, 'round':1, 'projecting':2}[gc.get_capstyle()]
         self.set_linecap(cint)
         self.set_linedash(*gc.get_dashes())
+
         if cliprect:
             x,y,w,h=cliprect
             write('gsave\n%1.3f %1.3f %1.3f %1.3f clipbox\n' % (w,h,x,y))
