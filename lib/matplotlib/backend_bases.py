@@ -114,7 +114,8 @@ class RendererBase:
         """
 
         gc = self.new_gc()
-        gc.set_clip_rectangle(clipbox.get_bounds())
+        if clipbox is not None:
+            gc.set_clip_rectangle(clipbox)
         gc.set_dashes(*linestyle)
 
         Nc        = len(colors)
