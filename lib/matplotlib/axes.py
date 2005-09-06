@@ -81,7 +81,7 @@ def _process_plot_format(fmt):
     linestyle = 'None'
     marker = 'None'
     color = rcParams['lines.color']
-    
+
     # handle the multi char special cases and strip them from the
     # string
     if fmt.find('--')>=0:
@@ -264,7 +264,7 @@ class _process_plot_var_args:
 
         remaining = args
         while 1:
-            
+
             if len(remaining)==0: return
             if len(remaining)==1:
                 yield self._plot_1_arg(remaining[0], **kwargs)
@@ -358,9 +358,9 @@ class Axes(Artist):
         # aspect ration atribute, and original position
         self._aspect = 'normal'
         self._originalPosition = self.get_position()
-        
+
         if len(kwargs): setp(self, **kwargs)
-        
+
     def _init_axis(self):
         "move this out of __init__ because non-separable axes don't use it"
         self.xaxis = XAxis(self)
@@ -387,7 +387,7 @@ class Axes(Artist):
         """return the cursor props as a linewidth, color tuple where
         linewidth is a float and color is an RGBA tuple"""
         return self._cursorProps
-        
+
     def set_figure(self, fig):
         """
         Set the Axes figure
@@ -661,10 +661,8 @@ class Axes(Artist):
         self.legend_ = None
         self.collections = []  # collection.Collection instances
 
-        self.images = []
-
         self._autoscaleon = True
-        
+
         self.grid(self._gridOn)
         self.title =  Text(
             x=0.5, y=1.02, text='',
@@ -716,7 +714,7 @@ class Axes(Artist):
         # Otherwise, it will compute the bounds of it's current data
         # and the data in xydata
         self.dataLim.update(xys, not self.has_data())
-        
+
 
     def update_datalim_numerix(self, x, y):
         'Update the data lim bbox with seq of xy tups'
@@ -766,7 +764,7 @@ class Axes(Artist):
         #for x,y in xys: print x,y
         self.update_datalim(xys)
         self.patches.append(p)
-        
+
     def add_table(self, tab):
         'Add a table instance to the list of axes tables'
         self._set_artist_props(tab)
@@ -792,7 +790,7 @@ class Axes(Artist):
         self.set_xlim(locator.autoscale())
         locator = self.yaxis.get_major_locator()
         self.set_ylim(locator.autoscale())
-        
+
         if self._aspect == 'equal': self.set_aspect('equal')
 
     def quiver(self, U, V, *args, **kwargs ):
@@ -808,10 +806,10 @@ class Axes(Artist):
         The optional arguments color and width are used to specify the color and width
         of the arrow. color can be an array of colors in which case the arrows can be
         colored according to another dataset.
-        
+
         If cm is specied and color is None, the colormap is used to give a color
         according to the vector's length.
-        
+
         If color is a scalar field, the colormap is used to map the scalar to a color
         If a colormap is specified and color is an array of color triplets, then the
         colormap is ignored
@@ -821,7 +819,7 @@ class Axes(Artist):
         if S is specified it is used to scale the vectors. Use S=0 to disable automatic
         scaling.
         If S!=0, vectors are scaled to fit within the grid and then are multiplied by S.
-        
+
 
         """
         if not self._hold: self.cla()
@@ -857,7 +855,7 @@ class Axes(Artist):
         assert U.shape == V.shape
         assert X.shape == Y.shape
         assert U.shape == X.shape
-        
+
         arrows = []
         N = sqrt( U**2+V**2 )
         if do_scale:
@@ -865,7 +863,7 @@ class Axes(Artist):
             U *= (S/Nmax)
             V *= (S/Nmax)
             N /= Nmax
-            
+
         alpha = kwargs.get('alpha', 1.0)
         width = kwargs.get('width', 0.25)
         norm = kwargs.get('norm', None)
@@ -916,7 +914,7 @@ class Axes(Artist):
         self.update_datalim( [ tuple(_min), tuple(_max) ] )
         self.autoscale_view()
         return arrows
-                
+
 
 
     def bar(self, left, height, width=0.8, bottom=0,
@@ -1015,38 +1013,38 @@ class Axes(Artist):
         of the data, with a line at the median.  The whiskers
         extend from the box to show the range of the data.  Flier
         points are those past the end of the whiskers.
-        
-        notch = 0 (default) produces a rectangular box plot.  
+
+        notch = 0 (default) produces a rectangular box plot.
         notch = 1 will produce a notched box plot
-        
+
         sym (default 'b+') is the default symbol for flier points.
         Enter an empty string ('') if you don't want to show fliers.
-        
+
         vert = 1 (default) makes the boxes vertical.
         vert = 0 makes horizontal boxes.  This seems goofy, but
         that's how Matlab did it.
-        
+
         whis (default 1.5) defines the length of the whiskers as
         a function of the inner quartile range.  They extend to the
         most extreme data point within ( whis*(75%-25%) ) data range.
 
         x is a Numeric array
-        
+
         Returns a list of the lines added
-        
+
         """
         if not self._hold: self.cla()
         holdStatus = self._hold
         lines = []
         x = asarray(x)
-        
+
         # if we've got a vector, reshape it
         rank = len(x.shape)
         if 1 == rank:
             x.shape = -1, 1
-        
+
         row, col = x.shape
-        
+
         # get some plot info
         num_plots = range(1, col + 1)
         box_width = col * min(0.15, 0.5/col)
@@ -1079,28 +1077,28 @@ class Axes(Artist):
             flier_lo_x = []
             if len(sym) != 0:
                 flier_hi = compress( d > wisk_hi, d )
-                flier_lo = compress( d < wisk_lo, d )            
+                flier_lo = compress( d < wisk_lo, d )
                 flier_hi_x = ones(flier_hi.shape[0]) * i
-                flier_lo_x = ones(flier_lo.shape[0]) * i            
+                flier_lo_x = ones(flier_lo.shape[0]) * i
 
             # get x locations for fliers, whisker, whisker cap and box sides
             box_x_min = i - box_width * 0.5
             box_x_max = i + box_width * 0.5
 
             wisk_x = ones(2) * i
-            
+
             cap_x_min = i - box_width * 0.25
             cap_x_max = i + box_width * 0.25
             cap_x = [cap_x_min, cap_x_max]
-            
+
             # get y location for median
             med_y = [med, med]
-            
+
             # calculate 'regular' plot
             if notch == 0:
                 # make our box vectors
                 box_x = [box_x_min, box_x_max, box_x_max, box_x_min, box_x_min ]
-                box_y = [q1, q1, q3, q3, q1 ]                
+                box_y = [q1, q1, q3, q3, q1 ]
                 # make our median line vectors
                 med_x = [box_x_min, box_x_max]
             # calculate 'notch' plot
@@ -1117,9 +1115,9 @@ class Axes(Artist):
                 # make our median line vectors
                 med_x = [cap_x_min, cap_x_max]
                 med_y = [med, med]
-            
+
             # make a vertical plot . . .
-            if 1 == vert:                        
+            if 1 == vert:
                 l = self.plot(wisk_x, [q1, wisk_lo], 'b--',
                               wisk_x, [q3, wisk_hi], 'b--',
                               cap_x, [wisk_hi, wisk_hi], 'k-',
@@ -1140,16 +1138,16 @@ class Axes(Artist):
                               flier_hi, flier_hi_x, sym,
                               flier_lo, flier_lo_x, sym )
                 lines.extend(l)
-            
+
 
         # fix our axes/ticks up a little
-        if 1 == vert:        
+        if 1 == vert:
             self.set_xlim([0.5, 0.5+col])
             self.set_xticks(num_plots)
         else:
             self.set_ylim([0.5, 0.5+col])
             self.set_yticks(num_plots)
-        
+
         # reset hold status
         self.hold(holdStatus)
 
@@ -1258,8 +1256,8 @@ class Axes(Artist):
     def contourf(self, *args, **kwargs):
         return self._contourHelper.contourf(*args, **kwargs)
     contourf.__doc__ = ContourSupport.contourf.__doc__
-    
-    
+
+
     def cohere(self, x, y, NFFT=256, Fs=2, detrend=detrend_none,
                window=window_hanning, noverlap=0, **kwargs):
         """
@@ -1340,7 +1338,7 @@ class Axes(Artist):
         """
         This method can only be used after an initial draw which
         caches the renderer.  It is used to efficiently update Axes
-        data (axis ticks, labels, etc are not updated)        
+        data (axis ticks, labels, etc are not updated)
         """
         assert self._cachedRenderer is not None
         a.draw(self._cachedRenderer)
@@ -1349,14 +1347,14 @@ class Axes(Artist):
         """
         This method can only be used after an initial draw which
         caches the renderer.  It is used to efficiently update Axes
-        data (axis ticks, labels, etc are not updated)        
+        data (axis ticks, labels, etc are not updated)
         """
         assert self._cachedRenderer is not None
         self.draw(self._cachedRenderer, inframe=True)
 
     def get_renderer_cache(self):
         return self._cachedRenderer
-    
+
     def draw(self, renderer=None, inframe=False):
         "Draw everything (plot lines, axes, labels)"
         if renderer is None:
@@ -1389,11 +1387,7 @@ class Axes(Artist):
             l, b, w, h = self.bbox.get_bounds()
             renderer.draw_image(l, b, im, self.bbox)
 
-        if self.axison and not inframe:
-            self.xaxis.draw(renderer)
-            self.yaxis.draw(renderer)
-
-
+        # axis drawing was here, where contourf etc clobbered them
 
         artists = []
         artists.extend(self.collections)
@@ -1414,6 +1408,12 @@ class Axes(Artist):
         # optional artists
         for a in self.artists:
             a.draw(renderer)
+
+        # draw axes here, so they are on top of most things
+        if self.axison and not inframe:
+            self.xaxis.draw(renderer)
+            self.yaxis.draw(renderer)
+
 
 
         if self.legend_ is not None:
@@ -1486,7 +1486,7 @@ class Axes(Artist):
 
              mfc, mec, ms and mew are aliases for the longer property
              names, markerfacecolor, markeredgecolor, markersize and
-             markeredgewith.  
+             markeredgewith.
 
 
         Return value is a length 2 tuple.  The first element is the
@@ -1750,7 +1750,7 @@ class Axes(Artist):
         When hold is True, subsequent plot commands will be added to
         the current axes.  When hold is False, the current axes and
         figure will be cleared on the next plot command
-            
+
         """
         if b is None: self._hold = not self._hold
         else: self._hold = b
@@ -1805,7 +1805,7 @@ class Axes(Artist):
         colormapping etc. See below for details
 
 
-        Display the image in X to current axes.  X may be a float array, a 
+        Display the image in X to current axes.  X may be a float array, a
         UInt8 array or a PIL image. If X is an array, X can have the following
         shapes:
 
@@ -1840,7 +1840,7 @@ class Axes(Artist):
             filterrad parameters
 
           * norm is a matplotlib.colors.normalize instance; default is
-            normalization().  This scales luminance -> 0-1 (only used for an 
+            normalization().  This scales luminance -> 0-1 (only used for an
             MxN float array).
 
           * vmin and vmax are used to scale a luminance image to 0-1.  If
@@ -1986,7 +1986,7 @@ class Axes(Artist):
 
         The location codes are
 
-          'best' : 0,          
+          'best' : 0,
           'upper right'  : 1, (default)
           'upper left'   : 2,
           'lower left'   : 3,
@@ -2621,7 +2621,7 @@ class Axes(Artist):
         span  = self.dataLim.intervalx().span()
 
         if span==0: span = 1/24.
-        
+
         minutes = span*24*60
         hours  = span*24
         days   = span
@@ -2786,7 +2786,7 @@ class Axes(Artist):
         """
     SCATTER(x, y, s=20, c='b', marker='o', cmap=None, norm=None,
             vmin=None, vmax=None, alpha=1.0, linewidths=None,
-            faceted=True, **kwargs)        
+            faceted=True, **kwargs)
         Supported function signatures:
 
             SCATTER(x, y) - make a scatter plot of x vs y
@@ -2884,7 +2884,7 @@ class Axes(Artist):
 
         if faceted: edgecolors = None
         else: edgecolors = 'None'
-        
+
         collection = RegularPolyCollection(
             self.figure.dpi,
             numsides, rotation, scales,
@@ -3093,12 +3093,12 @@ class Axes(Artist):
             func(self)
 
 
-    def set_xlim(self, *args, **kwargs):    
+    def set_xlim(self, *args, **kwargs):
         """
         set_xlim(self, *args, **kwargs):
 
         Set the limits for the xaxis; v = [xmin, xmax]
-        
+
         set_xlim((valmin, valmax))
         set_xlim(valmin, valmax)
         set_xlim(xmin=1) # xmax unchanged
@@ -3107,20 +3107,20 @@ class Axes(Artist):
         Valid kwargs:
 
         xmin : the min of the xlim
-        xmax : the max of the xlim        
+        xmax : the max of the xlim
         emit : notify observers of lim change
-        
+
 
         Returns the current xlimits as a length 2 tuple
 
         ACCEPTS: len(2) sequence of floats
         """
-        
+
         vmin, vmax = self.get_xlim()
 
         xmin = popd(kwargs, 'xmin', None)
         xmax = popd(kwargs, 'xmax', None)
-        emit = popd(kwargs, 'emit', False)                
+        emit = popd(kwargs, 'emit', False)
         if len(args)!=0 and (xmin is not None or xmax is not None):
             raise TypeError('You cannot pass args and xmin/xmax kwargs')
 
@@ -3133,12 +3133,12 @@ class Axes(Artist):
             vmin, vmax = args
         else:
             raise ValueError('args must be length 0, 1 or 2')
-        
-            
-        
+
+
+
         if self.transData.get_funcx().get_type()==LOG10 and min(vmin, vmax)<=0:
             raise ValueError('Cannot set nonpositive limits with log transform')
-        
+
         self.viewLim.intervalx().set_bounds(vmin, vmax)
         if emit: self._send_xlim_event()
         return vmin, vmax
@@ -3215,12 +3215,12 @@ class Axes(Artist):
         return label
 
 
-    def set_ylim(self, *args, **kwargs):    
+    def set_ylim(self, *args, **kwargs):
         """
         set_ylim(self, *args, **kwargs):
 
         Set the limits for the yaxis; v = [ymin, ymax]
-        
+
         set_ylim((valmin, valmax))
         set_ylim(valmin, valmax)
         set_ylim(ymin=1) # ymax unchanged
@@ -3229,20 +3229,20 @@ class Axes(Artist):
         Valid kwargs:
 
         ymin : the min of the ylim
-        ymax : the max of the ylim        
+        ymax : the max of the ylim
         emit : notify observers of lim change
-        
+
 
         Returns the current ylimits as a length 2 tuple
 
         ACCEPTS: len(2) sequence of floats
         """
-        
+
         vmin, vmax = self.get_ylim()
 
         ymin = popd(kwargs, 'ymin', None)
         ymax = popd(kwargs, 'ymax', None)
-        emit = popd(kwargs, 'emit', False)                
+        emit = popd(kwargs, 'emit', False)
         if len(args)!=0 and (ymin is not None or ymax is not None):
             raise TypeError('You cannot pass args and ymin/ymax kwargs')
 
@@ -3255,12 +3255,12 @@ class Axes(Artist):
             vmin, vmax = args
         else:
             raise ValueError('args must be length 0, 1 or 2')
-        
-            
-        
+
+
+
         if self.transData.get_funcy().get_type()==LOG10 and min(vmin, vmax)<=0:
             raise ValueError('Cannot set nonpositive limits with log transform')
-        
+
         self.viewLim.intervaly().set_bounds(vmin, vmax)
         if emit: self._send_ylim_event()
         return vmin, vmax
@@ -3656,7 +3656,7 @@ class Axes(Artist):
         The connection id is is returned - you can use this with
         disconnect to disconnect from the axes event
 
-        """ 
+        """
 
         if s not in Axes._events:
             raise ValueError('You can only connect to the following axes events: %s' % ', '.join(Axes._events))
@@ -3680,14 +3680,14 @@ class Axes(Artist):
         is None, x, and y are in window coords, 0,0 = lower left.  Otherwise,
         trans is a matplotlib transform that specifies the coordinate system
         of x, y.
-        
+
         The selection of artists from amongst which the pick function
         finds an artist can be narrowed using the optional keyword
         argument among. If provided, this should be either a sequence
         of permitted artists or a function taking an artist as its
         argument and returning a true value if and only if that artist
         can be selected.
-        
+
         Note this algorithm calculates distance to the vertices of the
         polygon, so if you want to pick a patch, click on the edge!
         """
@@ -3763,7 +3763,7 @@ class Axes(Artist):
             xmin,xmax = self.get_xlim()
             ymin,ymax = self.get_ylim()
             if fixLimits:  # Change size of axes
-                l,b,w,h = self._originalPosition  # Always start from original position 
+                l,b,w,h = self._originalPosition  # Always start from original position
                 axW = w * figW; axH = h * figH
                 if (xmax-xmin) / axW > (ymax-ymin) / axH:  # y axis too long
                     axH = axW * (ymax-ymin) / (xmax-xmin)
@@ -3858,7 +3858,7 @@ class SubplotBase:
         bottom = pars.bottom
         top = pars.top
         wspace = pars.wspace
-        hspace = pars.hspace        
+        hspace = pars.hspace
         totWidth = right-left
         totHeight = top-bottom
 
@@ -3894,7 +3894,7 @@ class SubplotBase:
             print 'self.numRows', self.numRows
             print 'self.numCols', self.numCols
 
-        
+
     def is_first_col(self):
         return self.colNum==0
 
@@ -3955,7 +3955,7 @@ class PolarAxes(Axes):
     def __init__(self, *args, **kwarg):
         Axes.__init__(self, *args, **kwarg)
         self.cla()
-        
+
     def _init_axis(self):
         "nuthin to do"
         pass
@@ -3993,7 +3993,7 @@ class PolarAxes(Axes):
 
         self.lines = []
         self.images = []
-        self.patches = []                
+        self.patches = []
         self.collections = []
         self.texts = []     # text in axis coords
 
@@ -4049,7 +4049,7 @@ class PolarAxes(Axes):
     def legend(self, *args, **kwargs):
         """
         LEGEND(*args, **kwargs)
-        Not implemented for polar yet -- use figlegend    
+        Not implemented for polar yet -- use figlegend
         """
         raise NotImplementedError('legend not implemented for polar yet -- use figlegend')
 

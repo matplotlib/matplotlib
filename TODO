@@ -714,4 +714,6 @@ ZeroDivisionError: SeparableTransformation::eval_scalars yin interval is zero; c
    which can conflict with code that uses mpl as a library and process
    options itself.
 
--- Darren's black band ps image problem.
+-- DONE Darren's black band ps image problem.
+
+-- Martin's zoomhist bug

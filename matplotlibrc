@@ -1,4 +1,4 @@
-### MATPLOTLIBRC FORMAT 
+### MATPLOTLIBRC FORMAT
 
 # This is a sample matplotlib configuration file.  It should be placed
 # in HOME/.matplotlib/matplotlibrc (unix/linux like systems) and
@@ -16,7 +16,7 @@
 #
 #   key : val   # optional comment
 #
-# Colors: for the color values below, you can either use 
+# Colors: for the color values below, you can either use
 #  - a matplotlib color string, such as r, k, or b
 #  - an rgb tuple, such as (1.0, 0.5, 0.0)
 #  - a hex string, such as ff00ff  (no '#' symbol)
@@ -37,10 +37,10 @@ timezone     : UTC        # a pytz timezone string, eg US/Central or Europe/Pari
 
 ### LINES
 # See http://matplotlib.sourceforge.net/matplotlib.lines.html for more
-# information on line properties.  
+# information on line properties.
 lines.linewidth   : 0.5     # line width in points
 lines.linestyle   : -       # solid line
-lines.color       : blue    
+lines.color       : blue
 lines.marker      : None    # the default marker
 lines.markerfacecolor  : blue
 lines.markeredgecolor  : black
@@ -52,13 +52,13 @@ lines.solid_joinstyle : miter       # miter|round|bevel
 lines.solid_capstyle : projecting   # butt|round|projecting
 lines.antialiased : True         # render lines in antialised (no jaggies)
 
-### Patches 
+### Patches
 # Patches are graphical objects that fill 2D space, like polygons or
 # circles.  See
 # http://matplotlib.sourceforge.net/matplotlib.patches.html for more
 # information on patch properties
 patch.linewidth   	: 1.0     # edge width in points
-patch.facecolor  	: blue       
+patch.facecolor  	: blue
 patch.edgecolor  	: black
 patch.antialiased 	: True    # render patches in antialised (no jaggies)
 
@@ -74,7 +74,7 @@ patch.antialiased 	: True    # render patches in antialised (no jaggies)
 # 'fantasy' (e.g. Western), and 'monospace' (e.g. Courier).  Each of
 # these font families has a default list of font names in decreasing
 # order of priority associated with them.
-# 
+#
 # The font.style property has three values: normal (or roman), italic
 # or oblique.  The oblique style will be used for italic, if it is not
 # present.
@@ -145,13 +145,14 @@ tick.major.size     : 4      # major tick size in points
 tick.minor.size     : 2      # minor tick size in points
 tick.major.pad      : 4      # distance to major tick label in points
 tick.minor.pad      : 4      # distance to the minor tick label in points
-tick.color          : k      # color of the tick labels 
+tick.color          : k      # color of the tick labels
 tick.labelsize      : 12     # fontsize of the tick labels
+tick.direction      : in     # direction: in or out
 
 ### Grids
 grid.color       :   black       # grid color
 grid.linestyle   :   :       # dotted
-grid.linewidth   :   0.5     # in points            
+grid.linewidth   :   0.5     # in points
 
 ### FIGURE
 # See http://matplotlib.sourceforge.net/matplotlib.figure.html#Figure
@@ -167,7 +168,7 @@ figure.subplot.right : 0.9    # the right side of the subplots of the figure
 figure.subplot.bottom : 0.1   # the bottom of the subplots of the figure
 figure.subplot.top : 0.9      # the top of the subplots of the figure
 figure.subplot.wspace : 0.2   # the amount of width reserved for blank space between subplots
-figure.subplot.hspace : 0.2   # the amount of height reserved for white space between subplots        
+figure.subplot.hspace : 0.2   # the amount of height reserved for white space between subplots
 
 
 
@@ -178,7 +179,7 @@ image.interpolation  : bilinear  # see help(imshow) for options
 image.cmap   : jet               # gray | jet
 image.lut    : 256               # the size of the colormap lookup table
 image.origin : upper             # lower | upper
- 
+
 ### SAVING FIGURES
 # the default savefig params can be different for the GUI backends.
 # Eg, you may want a higher resolution, or to make the figure
@@ -203,10 +204,10 @@ ps.distiller.res  : 6000      # dpi
 # inclusive of all the levels below it.  If you setting is debug,
 # you'll get all the debug and helpful messages.  When submitting
 # problems to the mailing-list, please set verbose to helpful or debug
-# and paste the output into your report.  
+# and paste the output into your report.
 #
 # The fileo gives the destination for any calls to verbose.report.
-# These objects can a filename, or a filehandle like sys.stdout.  
+# These objects can a filename, or a filehandle like sys.stdout.
 #
 # You can override the rc default verbosity from the command line by
 # giving the flags --verbose-LEVEL where LEVEL is one of the legal

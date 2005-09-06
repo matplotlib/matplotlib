@@ -80,9 +80,18 @@ class Tick(Artist):
                 size = rcParams['tick.minor.size']
                 pad = rcParams['tick.minor.pad']
 
+        self._tickdir = rcParams['tick.direction']
+        if self._tickdir == 'in':
+            self._xtickmarkers = (TICKUP, TICKDOWN)
+            self._ytickmarkers = (TICKRIGHT, TICKLEFT)
+            self._pad = Value(pad)
+        else:
+            self._xtickmarkers = (TICKDOWN, TICKUP)
+            self._ytickmarkers = (TICKLEFT, TICKRIGHT)
+            self._pad = Value(pad + size)
+
         self._loc = loc
         self._size = size
-        self._pad = Value(pad)
 
         self._padPixels = self.figure.dpi*self._pad*Value(1/72.0)
 
@@ -262,7 +271,7 @@ class XTick(Tick):
                     color='k',
                     linestyle = 'None',
                     antialiased=False,
-                    marker = TICKUP,
+                    marker = self._xtickmarkers[0],
                     markersize=self._size,
                     )
 
@@ -278,7 +287,7 @@ class XTick(Tick):
                        color='k',
                        linestyle = 'None',
                        antialiased=False,
-                       marker = TICKDOWN,
+                       marker = self._xtickmarkers[1],
                        markersize=self._size,
                        )
 
@@ -387,7 +396,7 @@ class YTick(Tick):
 
         l = Line2D( (0,), (loc,), color='k',
                     antialiased=False,
-                    marker = TICKRIGHT,
+                    marker = self._ytickmarkers[0],
                     linestyle = 'None',
                     markersize=self._size,
                        )
@@ -401,7 +410,7 @@ class YTick(Tick):
         # x in axes coords, y in data coords
         l = Line2D( (1,), (0,), color='k',
                     antialiased=False,
-                    marker = TICKLEFT,
+                    marker = self._ytickmarkers[1],
                     linestyle = 'None',
                     markersize=self._size,
                     )
@@ -583,7 +592,7 @@ class Axis(Artist):
         # *copy* of the axis label box because we don't wan't to scale
         # the actual bbox
         self._update_label_position(ticklabelBoxes, ticklabelBoxes2)
-        self.label.draw(renderer)  
+        self.label.draw(renderer)
 
         self._update_offset_text_position(ticklabelBoxes, ticklabelBoxes2)
         self.offsetText.set_text( self.major.formatter.get_offset() )
