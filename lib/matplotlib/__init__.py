@@ -11,10 +11,10 @@ Plotting commands
   axhline  - draw a horizontal line across axes
   axvline  - draw a vertical line across axes
   axhspan  - draw a horizontal bar across axes
-  axvspan  - draw a vertical bar across axes 
+  axvspan  - draw a vertical bar across axes
   axis     - Set or return the current axis limits
   bar      - make a bar chart
-  barh     - a horizontal bar chart  
+  barh     - a horizontal bar chart
   boxplot  - make a box and whisker plot
   cla      - clear current axes
   clf      - clear a figure window
@@ -22,7 +22,7 @@ Plotting commands
   colorbar - add a colorbar to the current figure
   cohere   - make a plot of coherence
   contour  - make a contour plot
-  csd      - make a plot of cross spectral density  
+  csd      - make a plot of cross spectral density
   draw     - Force a redraw of the current figure
   errorbar - make an errorbar graph
   figlegend - make legend on the figure rather than the axes
@@ -70,11 +70,11 @@ Matrix commands
   cumprod   - the cumulative product along a dimension
   cumsum    - the cumulative sum along a dimension
   detrend   - remove the mean or besdt fit line from an array
-  diag      - the k-th diagonal of matrix 
+  diag      - the k-th diagonal of matrix
   diff      - the n-th differnce of an array
   eig       - the eigenvalues and eigen vectors of v
-  eye       - a matrix where the k-th diagonal is ones, else zero 
-  find      - return the indices where a condition is nonzero  
+  eye       - a matrix where the k-th diagonal is ones, else zero
+  find      - return the indices where a condition is nonzero
   fliplr    - flip the rows of a matrix up/down
   flipud    - flip the columns of a matrix left/right
   linspace  - a linear spaced vector of N values from min to max inclusive
@@ -89,7 +89,7 @@ Matrix commands
   vander    - the Vandermonde matrix of vector x
   svd       - singular value decomposition
   zeros     - a matrix of zeros
-  
+
 Probability
 
   levypdf   - The levy probability density function from the char. func.
@@ -168,7 +168,7 @@ The default file location is given in the following order
 
 import sys, os, tempfile
 
-    
+
 major, minor1, minor2, s, tmp = sys.version_info
 _python23 = major>=2 and minor1>=3
 
@@ -194,7 +194,7 @@ def _is_writable_dir(p):
     is such a string, else False
     """
     try: p + ''  # test is string like
-    except TypeError: return False    
+    except TypeError: return False
     try:
         t = tempfile.TemporaryFile(dir=p)
         t.write('1')
@@ -219,12 +219,12 @@ class Verbose:
         if not arg.startswith('--verbose-'): continue
         _commandLineVerbose = arg[10:]
 
-        
-        
+
+
     def __init__(self, level):
         self.set_level(level)
         self.fileo = sys.stdout
-        
+
     def set_level(self, level):
         'set the verbosity to one of the Verbose.levels strings'
 
@@ -238,7 +238,7 @@ class Verbose:
         """
         print message s to self.fileo if self.level>=level.  Return
         value indicates whether a message was issued
-        
+
         """
         if self.ge(level):
             print >>self.fileo, s
@@ -272,8 +272,8 @@ class Verbose:
         'return true if self.level is >= level'
         return self.vald[self.level]>=self.vald[level]
 
-        
-verbose=Verbose('silent')  
+
+verbose=Verbose('silent')
 
 
 def _get_home():
@@ -284,18 +284,18 @@ def _get_home():
 
     """
 
-     
+
     try: return os.environ['HOME']
     except KeyError: pass
 
-    if os.name == 'nt':  
+    if os.name == 'nt':
         # For some strange reason, win9x returns 'nt' for os.name.
 
         try: p = os.environ['USERPROFILE']
         except KeyError: pass
         else:
             if os.path.exists(p): return p
-        
+
         try: p =  os.path.join(os.environ['HOMEDRIVE'],os.environ['HOMEPATH'])
         except KeyError: pass
         else:
@@ -352,11 +352,11 @@ def _get_data_path():
     path = '/usr/share/matplotlib'
     if os.path.isdir(path): return path
 
-    path = os.path.join(os.sep.join(__file__.split(os.sep)[:-1]), 
+    path = os.path.join(os.sep.join(__file__.split(os.sep)[:-1]),
                         'share','matplotlib')
     if os.path.isdir(path): return path
 
-    path = os.path.join(os.sep.join(__file__.split(os.sep)[:-5]), 
+    path = os.path.join(os.sep.join(__file__.split(os.sep)[:-5]),
                         'share','matplotlib')
     if os.path.isdir(path): return path
 
@@ -365,18 +365,18 @@ def _get_data_path():
     # http://starship.python.net/crew/theller/moin.cgi/MatPlotLib
     # for more info
 
-    if sys.platform=='win32' and sys.frozen: 
-        path = os.path.join(os.path.split(sys.path[0])[0], 'matplotlibdata') 
-        if os.path.isdir(path):  return path 
+    if sys.platform=='win32' and sys.frozen:
+        path = os.path.join(os.path.split(sys.path[0])[0], 'matplotlibdata')
+        if os.path.isdir(path):  return path
         else:
-            # Try again assuming sys.path[0] is a dir not a exe 
-            path = os.path.join(sys.path[0], 'matplotlibdata') 
+            # Try again assuming sys.path[0] is a dir not a exe
+            path = os.path.join(sys.path[0], 'matplotlibdata')
             if os.path.isdir(path): return path
 
     raise RuntimeError('Could not find the matplotlib data files')
 
 get_data_path = verbose.wrap('matplotlib data path %s', _get_data_path, always=False)
-    
+
 
 
 def validate_path_exists(s):
@@ -404,7 +404,7 @@ def validate_int(s):
     try: return int(s)
     except ValueError:
         raise ValueError('Could not convert "%s" to int' % s)
-        
+
 def validate_numerix(s):
     'return "Numeric" or "Numarray" or raise'
     sl = s.lower()
@@ -420,7 +420,7 @@ def validate_toolbar(s):
     s = s.lower()
     if s=='none': return 'None'
     elif s=='classic': return s
-    elif s=='toolbar2': return s    
+    elif s=='toolbar2': return s
     else:
         raise ValueError('toolbar must be None | classic | toolbar2')
 
@@ -446,7 +446,7 @@ def validate_color(s):
         vals = s.split(',')
         if len(vals)!=3:
             raise ValueError('Color tuples must be length 3')
-        
+
         try: return [float(val) for val in vals]
         except ValueError:
             raise ValueError('Could not convert all entries "%s" to floats'%s)
@@ -456,15 +456,15 @@ def validate_color(s):
         except ValueError:
             raise ValueError('Could not convert "%s" to float' % s)
 
-    
+
     if len(s)==6 and s.isalnum(): # looks like hex
         return '#' + s
 
-    if s.isalpha(): 
+    if s.isalpha():
         #assuming a color name, hold on
         return s
 
-    raise ValueError('"s" does not look like color arg')    
+    raise ValueError('"s" does not look like color arg')
 
 def validate_comma_sep_str(s):
     'return a list'
@@ -504,7 +504,7 @@ def validate_fontsize(s):
 def validate_verbose(s):
     verbose.set_level(s)
     return verbose
-    
+
 
 def validate_verbose_fileo(s):
     d = {'sys.stdout':sys.stdout,
@@ -515,12 +515,12 @@ def validate_verbose_fileo(s):
         try: fileo = file(s, 'w')
         except IOError:
             raise ValueError('Verbose object could not open log file "%s" for writing.\nCheck your matplotlibrc verbose.fileo setting'%s)
-        
+
 
         else:
             verbose.fileo = fileo
     return verbose.fileo
-    
+
 
 validate_ps_papersize = ValidateInStrings([
         'executive', 'letter', 'legal', 'ledger',
@@ -538,7 +538,7 @@ validate_capstyle = ValidateInStrings(['butt', 'round', 'projecting'], ignorecas
 
 class ValidateInterval:
     """
-    Value must be in interval 
+    Value must be in interval
     """
     def __init__(self, vmin, vmax, closedmin=True, closedmax=True):
         self.vmin = vmin
@@ -560,8 +560,8 @@ class ValidateInterval:
         elif not self.cmax and s>=self.vmax:
             raise RuntimeError('Value must be < %f; found "%f"'%(self.vmax, s))
         return s
-    
-        
+
+
 
 
 # a map from key -> value, converter
@@ -571,28 +571,28 @@ defaultParams = {
     'toolbar'           : ['toolbar2', validate_toolbar],
     'datapath'          : [get_data_path(), validate_path_exists],
     'interactive'       : [False, validate_bool],
-    'timezone'          : ['UTC', str],    
+    'timezone'          : ['UTC', str],
 
     # the verbosity setting
     'verbose.level'           : ['silent', validate_verbose],
     'verbose.fileo'           : ['sys.stdout', validate_verbose_fileo],
 
-    # line props    
+    # line props
     'lines.linewidth'   : [0.5, validate_float],     # line width in points
     'lines.linestyle'   : ['-', str],                # solid line
     'lines.color'       : ['b', validate_color],     # blue
     'lines.marker'       : ['None', str],     # black
     'lines.markeredgecolor'       : ['k', validate_color],     # black
     'lines.markerfacecolor'       : ['b', validate_color],     # blue
-    'lines.markeredgewidth'       : [0.5, validate_float],     
+    'lines.markeredgewidth'       : [0.5, validate_float],
     'lines.markersize'  : [6, validate_float],       # markersize, in points
     'lines.antialiased' : [True, validate_bool],     # antialised (no jaggies)
     'lines.dash_joinstyle' : ['miter', validate_joinstyle],
-    'lines.solid_joinstyle' : ['miter', validate_joinstyle],    
+    'lines.solid_joinstyle' : ['miter', validate_joinstyle],
     'lines.dash_capstyle' : ['butt', validate_capstyle],
-    'lines.solid_capstyle' : ['projecting', validate_capstyle],       
+    'lines.solid_capstyle' : ['projecting', validate_capstyle],
 
-    # patch props    
+    # patch props
     'patch.linewidth'   : [0.5, validate_float], # line width in points
     'patch.edgecolor'   : ['k', validate_color], # black
     'patch.facecolor'   : ['b', validate_color], # blue
@@ -603,7 +603,7 @@ defaultParams = {
     'font.family'       : ['serif', str],            # used by text object
     'font.style'        : ['normal', str],           #
     'font.variant'      : ['normal', str],           #
-    'font.stretch'      : ['normal', str],           # 
+    'font.stretch'      : ['normal', str],           #
     'font.weight'       : ['normal', str],           #
     'font.size'         : ['medium', validate_fontsize], #
     'font.serif'        : ['serif', validate_comma_sep_str],
@@ -625,13 +625,13 @@ defaultParams = {
 
 
     'image.aspect' : ['free', str],  # free| preserve
-    'image.interpolation'  : ['bilinear', str], 
+    'image.interpolation'  : ['bilinear', str],
     'image.cmap'   : ['gray', str],        # one of gray, jet, etc
     'image.lut'    : [256, validate_int],  # lookup table
-    'image.origin'    : ['upper', str],  # lookup table    
+    'image.origin'    : ['upper', str],  # lookup table
 
     # axes props
-    'axes.hold'         : [True, validate_bool],    
+    'axes.hold'         : [True, validate_bool],
     'axes.facecolor'    : ['w', validate_color],    # background color; white
     'axes.edgecolor'    : ['k', validate_color],    # edge color; black
     'axes.linewidth'    : [1.0, validate_float],    # edge linewidth
@@ -640,24 +640,25 @@ defaultParams = {
     'axes.labelsize'    : ['medium', validate_fontsize], # fontsize of the x any y labels
     'axes.labelcolor'   : ['k', validate_color],    # color of axis label
 
-    'polaraxes.grid'         : [True, validate_bool],   # display polar grid or not    
+    'polaraxes.grid'         : [True, validate_bool],   # display polar grid or not
 
     # tick properties
     'tick.major.size'   : [5, validate_float],      # major tick size in points
-    'tick.minor.size'   : [2, validate_float],      # minor tick size in points    
+    'tick.minor.size'   : [2, validate_float],      # minor tick size in points
     'tick.major.pad'   : [3, validate_float],      # distance to label in points
     'tick.minor.pad'   : [3, validate_float],      # distance to label in points
-    'tick.color'        : ['k', validate_color],    # color of the tick labels 
+    'tick.color'        : ['k', validate_color],    # color of the tick labels
     'tick.labelsize'    : ['small', validate_fontsize], # fontsize of the tick labels
+    'tick.direction'    : ['in', str],            # direction of ticks
 
     'grid.color'       :   ['k', validate_color],       # grid color
     'grid.linestyle'   :   [':', str],       # dotted
-    'grid.linewidth'   :   [0.5, validate_float],     # in points            
+    'grid.linewidth'   :   [0.5, validate_float],     # in points
 
 
     # figure props
     # figure size in inches: width by height
-    'figure.figsize'    : [ (8,6), validate_nseq_float(2)], 
+    'figure.figsize'    : [ (8,6), validate_nseq_float(2)],
     'figure.dpi'        : [ 80, validate_float],   # DPI
     'figure.facecolor'  : [ 0.75, validate_color], # facecolor; scalar gray
     'figure.edgecolor'  : [ 'w', validate_color],  # edgecolor; white
@@ -667,8 +668,8 @@ defaultParams = {
     'figure.subplot.bottom' : [0.1, ValidateInterval(0, 1, closedmin=False, closedmax=False)],
     'figure.subplot.top'    : [0.9, ValidateInterval(0, 1, closedmin=False, closedmax=False)],
     'figure.subplot.wspace' : [0.2, ValidateInterval(0, 1, closedmin=False, closedmax=True)],
-    'figure.subplot.hspace' : [0.2, ValidateInterval(0, 1, closedmin=False, closedmax=True)],                    
-    
+    'figure.subplot.hspace' : [0.2, ValidateInterval(0, 1, closedmin=False, closedmax=True)],
+
 
     'savefig.dpi'       : [ 150, validate_float],   # DPI
     'savefig.facecolor' : [ 'w', validate_color],  # facecolor; white
@@ -723,7 +724,7 @@ def matplotlib_fname():
      * environ var MATPLOTLIBRC
      * HOME/.matplotlib/matplotlibrc
      * MATPLOTLIBDATA/matplotlibrc
-     
+
 
     """
 
@@ -745,8 +746,8 @@ WARNING: Old rc filename "%s" found and renamed to
   new default rc file name "%s"."""%(oldname, newname)
 
         os.rename(oldname, newname)
-            
-        
+
+
     fname = os.path.join( os.getcwd(), 'matplotlibrc')
     if os.path.exists(fname): return fname
 
@@ -759,8 +760,8 @@ WARNING: Old rc filename "%s" found and renamed to
 
     fname = os.path.join(get_configdir(), 'matplotlibrc')
     if os.path.exists(fname): return fname
-    
-    
+
+
     path =  get_data_path() # guaranteed to exist or raise
     fname = os.path.join(path, 'matplotlibrc')
     if not os.path.exists(fname):
@@ -780,14 +781,14 @@ def rc_params():
         'text.fontsize':    'font.size',
         'tick.size' :       'tick.major.size',
         }
-    
+
     fname = matplotlib_fname()
     if not os.path.exists(fname):
         message = 'could not find rc file; returning defaults'
         ret =  dict([ (key, tup[0]) for key, tup in defaultParams.items()])
         warnings.warn(message)
         return ret
-        
+
     cnt = 0
     for line in file(fname):
         cnt +=1
@@ -805,12 +806,12 @@ def rc_params():
             alt = deprecated_map[key]
             warnings.warn('%s is deprecated in matplotlibrc - use %s instead.' % (key, alt))
             key = alt
-            
+
         if not defaultParams.has_key(key):
             warnings.warn('Bad key "%s" on line %d in %s' % (key, cnt, fname))
             continue
 
-        
+
         default, converter =  defaultParams[key]
 
 
@@ -833,7 +834,7 @@ def rc_params():
 
 
 # this is the instance used by the matplotlib classes
-rcParams = rc_params() 
+rcParams = rc_params()
 
 rcParamsDefault = dict(rcParams.items()) # a copy
 
@@ -847,21 +848,21 @@ def rc(group, **kwargs):
       rc('lines', linewidth=2, color='r')
 
     sets the current rc params and is equivalent to
-    
+
       rcParams['lines.linewidth'] = 2
       rcParams['lines.color'] = 'r'
 
     The following aliases are available to save typing for interactive
     users
         'lw'  : 'linewidth'
-        'ls'  : 'linestyle'        
+        'ls'  : 'linestyle'
         'c'   : 'color'
         'fc'  : 'facecolor'
         'ec'  : 'edgecolor'
         'mfc' : 'markerfacecolor'
         'mec' : 'markeredgecolor'
         'mew' : 'markeredgewidth'
-        'aa'  : 'antialiased'            
+        'aa'  : 'antialiased'
 
     Thus you could abbreviate the above rc command as
 
@@ -886,22 +887,22 @@ def rc(group, **kwargs):
     aliases = {
         'lw'  : 'linewidth',
         'ls'  : 'linestyle',
-        'c'   : 'color',                        
+        'c'   : 'color',
         'fc'  : 'facecolor',
         'ec'  : 'edgecolor',
         'mfc' : 'markerfacecolor',
         'mec' : 'markeredgecolor',
         'mew' : 'markeredgewidth',
-        'aa'  : 'antialiased',                        
+        'aa'  : 'antialiased',
         }
-    
+
     for k,v in kwargs.items():
         name = aliases.get(k) or k
         key = '%s.%s' % (group, name)
         if not rcParams.has_key(key):
             raise KeyError('Unrecognized key "%s" for group "%s" and name "%s"' %
                            (key, group, name))
-        
+
         rcParams[key] = v
 
 
@@ -913,10 +914,10 @@ def rcdefaults():
     rcParams.update(rcParamsDefault)
 
 
-    
-    
-        
-    
+
+
+
+
 
 
 
@@ -937,7 +938,7 @@ for s in sys.argv[1:]:
         name = s[2:].strip()
         # we don't want to assume all -d flags are backends, eg -debug
         if name in  known:
-            rcParams['backend'] = name            
+            rcParams['backend'] = name
             break
 
 
@@ -946,7 +947,7 @@ def use(arg):
     """
     Set the matplotlib backend to one of the _knownBackends
     """
-    
+
     if not _knownBackends.has_key(arg):
         raise ValueError('unrecognized backend %s.\n' % arg +\
               'Use one of %s' % ', '.join( _knownBackends.keys() ))
@@ -969,13 +970,13 @@ def is_interactive():
     'Return true if plot mode is interactive'
     b = rcParams['interactive']
     return b
-    
+
 def tk_window_focus():
     """Return true if focus maintenance under TkAgg on win32 is on.
      This currently works only for python.exe and IPython.exe.
      Both IDLE and Pythonwin.exe fail badly when tk_window_focus is on."""
     if rcParams['backend'] != 'TkAgg':
-        return False    
+        return False
     return rcParams['tk.window_focus']
 
 

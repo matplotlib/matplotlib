@@ -1,6 +1,9 @@
 New entries should be added at the top
 
+2005-09-06 Added Eric's tick.direction patch: in or out in rc
+
 2005-09-06 Added Martin's rectangle selector widget
+
 2005-09-04 Fixed a logic err in text.py that was preventing rgxsuper
            from matching - JDH
 

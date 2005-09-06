@@ -57,36 +57,6 @@ class ContourMappable(ScalarMappable):
         ScalarMappable.changed(self)
 
 
-class ContourfMappable(ScalarMappable):
-    """
-    a class to allow contours to respond properly to change in cmaps, etc
-    """
-    def __init__(self, levels, collections, norm=None, cmap=None, labeld=None):
-        """
-        See comment on labeld in the ContourLabeler class
-
-        """
-        ScalarMappable.__init__(self, norm, cmap)
-        self.levels = levels
-        self.collections = collections
-        if labeld is None: labeld = {}
-        self.labeld = labeld
-
-    def changed(self):
-        colors = [ (tuple(rgba),) for rgba in self.to_rgba(self.levels)]
-        contourNum = 0
-        for color, collection in zip(colors, self.collections):
-            collection.set_color(color)
-            Ncolor = len(color) # collections could have more than 1 in principle
-            for segNum, segment in enumerate(collection._segments):
-                key = contourNum, segNum
-                t = self.labeld.get(key)
-                if t is not None: t.set_color(color[segNum%Ncolor])
-            contourNum += 1
-
-        ScalarMappable.changed(self)
-
-
 class ContourLabeler:
     def __init__(self, ax):
         self.ax = ax
