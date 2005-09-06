@@ -1,5 +1,8 @@
 New entries should be added at the top
 
+2005-09-06 Added Martin's rectangle selector widget
+2005-09-04 Fixed a logic err in text.py that was preventing rgxsuper
+           from matching - JDH
 
 2005-08-29 Committed Ken's wx blit patch #1275002
 

@@ -297,9 +297,9 @@ class Text(Artist):
         ismath = self.is_math_text()
 
         if angle==0:
-            if ismath!='TeX': m = None
+            if ismath=='TeX': m = None
             else: m = self._rgxsuper.match(self._text)
-            if m is not None and not rcParams['text.usetex']:
+            if m is not None:
                 bbox, info = self._get_layout_super(self._renderer, m)
                 base, xt, yt = info[0]
                 renderer.draw_text(gc, xt, yt, base,

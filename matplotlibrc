@@ -104,7 +104,10 @@ font.style          : normal
 font.variant        : normal
 font.weight         : medium
 font.stretch        : normal
-font.size           : medium
+# note that font.size controls default text sizes.  To configure
+# special text sizes tick labels, axes, labels, title, etc, see the rc
+# settings for axes and ticks
+font.size           : medium  
 font.serif          : New Century Schoolbook, Century Schoolbook L, Utopia, ITC Bookman, Bookman, Bitstream Vera Serif, Nimbus Roman No9 L, Times New Roman, Times, Palatino, Charter, serif
 font.sans-serif     : Lucida Grande, Verdana, Geneva, Lucida, Bitstream Vera Sans, Arial, Helvetica, sans-serif
 font.cursive        : Apple Chancery, Textile, Zapf Chancery, Sand, cursive
