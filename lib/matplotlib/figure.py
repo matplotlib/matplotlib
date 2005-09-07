@@ -497,15 +497,11 @@ class Figure(Artist):
             # list of (_image.Image, ox, oy)
             if not allequal([im.origin for im in self.images]):
                 raise ValueError('Composite images with different origins not supported')
-            else:
-                origin = self.images[0].origin
-
             ims = [(im.make_image(), im.ox, im.oy) for im in self.images]
             im = _image.from_images(self.bbox.height(), self.bbox.width(), ims)
             im.is_grayscale = False
             l, b, w, h = self.bbox.get_bounds()
-            renderer.draw_image(0, 0, im, origin, self.bbox)
-
+            renderer.draw_image(0, 0, im, self.bbox)
 
 
         # render the axes
@@ -523,7 +519,7 @@ class Figure(Artist):
         self._cachedRenderer = renderer
 
         self.canvas.draw_event(renderer)
-        
+
     def draw_artist(self, a):
         'draw artist only -- this is available only after the figure is drawn'
         assert self._cachedRenderer is not None
@@ -643,7 +639,7 @@ class Figure(Artist):
         mappable is the cm.ScalarMappable instance that you want to
         colorbar to apply to, eg an Image as returned by imshow or a
         PatchCollection as returned by scatter or pcolor.
-        
+
         tickfmt is a format string to format the colorbar ticks
 
         cax is a colorbar axes instance in which the colorbar will be
@@ -653,7 +649,7 @@ class Figure(Artist):
 
         orientation is the colorbar orientation: one of 'vertical' | 'horizontal'
 
-        cspacing controls how colors are distributed on the colorbar.  
+        cspacing controls how colors are distributed on the colorbar.
         if cspacing == 'linear', each color occupies an equal area
         on the colorbar, regardless of the contour spacing.
         if cspacing == 'proportional' (Default), the area each color
@@ -833,7 +829,7 @@ def figaspect(arg):
     """
 
     isarray = hasattr(arg, 'shape')
-    
+
 
     # min/max sizes to respect when autoscaling.  If John likes the idea, they
     # could become rc parameters, for now they're hardwired.
