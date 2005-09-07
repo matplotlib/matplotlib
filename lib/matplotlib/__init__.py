@@ -143,7 +143,7 @@ the exception of those in mlab.py provided by matplotlib.
 from __future__ import generators
 
 
-__version__  = '0.84.cvs.2'
+__version__  = '0.84.cvs.3'
 __revision__ = '$Revision$'
 __date__     = '$Date$'
 

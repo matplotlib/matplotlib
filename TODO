@@ -717,3 +717,5 @@ ZeroDivisionError: SeparableTransformation::eval_scalars yin interval is zero; c
 -- DONE Darren's black band ps image problem.
 
 -- Martin's zoomhist bug
+
+-- Add shading for patches and patch collections.
