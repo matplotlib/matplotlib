@@ -1,5 +1,10 @@
 New entries should be added at the top
 
+2005-09-07 figure.py: update Figure.draw() to use the updated
+           renderer.draw_image() so that examples/figimage_demo.py works again.
+           examples/stock_demo.py: remove data_clipping (which no longer
+           exists) - SC
+
 2005-09-06 Added Eric's tick.direction patch: in or out in rc
 
 2005-09-06 Added Martin's rectangle selector widget
@@ -66,7 +71,7 @@ New entries should be added at the top
 2005-07-29 Improved message reporting in texmanager and backend_ps - DSD
 
 2005-07-28 backend_gtk.py: update FigureCanvasGTK.draw() (needed due to the
-           recent expose_event() change) so that examples/anim.py works in the 
+           recent expose_event() change) so that examples/anim.py works in the
            usual way - SC
 
 2005-07-26 Added new widgets Cursor and HorizontalSpanSelector to
@@ -78,7 +83,7 @@ New entries should be added at the top
 
 2005-07-26 backend_gtk.py: allow 'f' key to toggle window fullscreen mode
 
-2005-07-26 backend_svg.py: write "<.../>" elements all on one line and remove 
+2005-07-26 backend_svg.py: write "<.../>" elements all on one line and remove
            surplus spaces - SC
 
 2005-07-25 backend_svg.py: simplify code by deleting GraphicsContextSVG and
@@ -89,8 +94,8 @@ New entries should be added at the top
            all motion-notify-events, not just ones where a modifier key or
            button has been pressed (fixes bug report from Niklas Volbers) - SC
 
-2005-07-24 backend_gtk.py: modify print_figure() use own pixmap, fixing 
-           problems where print_figure() overwrites the display pixmap. 
+2005-07-24 backend_gtk.py: modify print_figure() use own pixmap, fixing
+           problems where print_figure() overwrites the display pixmap.
 	   return False from all button/key etc events - to allow the event
            to propagate further - SC
 
@@ -98,7 +103,7 @@ New entries should be added at the top
            clear() to draw_drawable() - SC
 
 2005-07-23 backend_gtk.py: removed pygtk.require()
-           matplotlib/__init__.py: delete 'FROZEN' and 'McPLError' which are 
+           matplotlib/__init__.py: delete 'FROZEN' and 'McPLError' which are
            no longer used - SC
 
 2005-07-22 backend_gdk.py: removed pygtk.require() - SC
@@ -112,7 +117,7 @@ New entries should be added at the top
 
 2005-07-14 Fixed a Windows related bug (#1238412) in texmanager - DSD
 
-2005-07-11 Fixed color kwarg bug, setting color=1 or 0 caused an 
+2005-07-11 Fixed color kwarg bug, setting color=1 or 0 caused an
 		   exception - DSD
 
 2005-07-07 Added Eric's MA set_xdata Line2D fix - JDH
@@ -142,7 +147,7 @@ New entries should be added at the top
 
 2005-06-27 backend_svg.py: write figure width, height as int, not float.
            Update to fix some of the pychecker warnings - SC
-  
+
 2005-06-23 Updated examples/agg_test.py to demonstrate curved paths
            and fills - JDH
 
@@ -213,7 +218,7 @@ New entries should be added at the top
            examples/subplot_toolbar.py - JDH
 
 2005-06-13 Exposed cap and join style for lines with new rc params and
-           line properties 
+           line properties
 
 	lines.dash_joinstyle : miter        # miter|round|bevel
 	lines.dash_capstyle : butt          # butt|round|projecting
@@ -251,12 +256,12 @@ New entries should be added at the top
 2005-06-05 Added a ps.distill option in rc settings. If True, postscript
            output will be distilled using ghostscript, which should trim
            the file size and allow it to load more quickly. Hopefully this
-           will address the issue of large ps files due to font 
+           will address the issue of large ps files due to font
            definitions. Tested with gnu-ghostscript-8.16. - DSD
 
-2005-06-03 Improved support for tex handling of text in backend_ps. - DSD 
+2005-06-03 Improved support for tex handling of text in backend_ps. - DSD
 
-2005-06-03 Added rc options to render text with tex or latex, and to select 
+2005-06-03 Added rc options to render text with tex or latex, and to select
            the latex font package. - DSD
 
 2005-06-03 Fixed a bug in ticker.py causing a ZeroDivisionError
@@ -264,8 +269,8 @@ New entries should be added at the top
 2005-06-02 backend_gtk.py remove DBL_BUFFER, add line to expose_event to
            try to fix pygtk 2.6 redraw problem - SC
 
-2005-06-01 The default behavior of ScalarFormatter now renders scientific 
-           notation and large numerical offsets in a label at the end of 
+2005-06-01 The default behavior of ScalarFormatter now renders scientific
+           notation and large numerical offsets in a label at the end of
            the axis. - DSD
 
 2005-06-01 Added Nicholas' frombyte image patch - JDH
@@ -292,9 +297,9 @@ New entries should be added at the top
 
 2005-05-26 Added Daishi text with dash patch -- see examples/dashtick.py
 
-2005-05-26 Moved backend_latex functionality into backend_ps. If 
-           text.usetex=True, the PostScript backend will use LaTeX to 
-           generate the .ps or .eps file. Ghostscript is required for 
+2005-05-26 Moved backend_latex functionality into backend_ps. If
+           text.usetex=True, the PostScript backend will use LaTeX to
+           generate the .ps or .eps file. Ghostscript is required for
            eps output. - DSD
 
 2005-05-24 Fixed alignment and color issues in latex backend. - DSD
@@ -329,8 +334,8 @@ New entries should be added at the top
            fontsizes and/or high dpi saved figs work great.
 
 2005-05-10 New image resize options interpolation options.  New values
-           for the interp kwarg are   
-        
+           for the interp kwarg are
+
            'nearest', 'bilinear', 'bicubic', 'spline16', 'spline36',
 	   'hanning', 'hamming', 'hermite', 'kaiser', 'quadric',
 	   'catrom', 'gaussian', 'bessel', 'mitchell', 'sinc',
@@ -354,12 +359,12 @@ New entries should be added at the top
 
 2005-05-05 Upgraded to agg23
 
-2005-05-05 Added newscalarformatter_demo.py to examples. -DSD 
+2005-05-05 Added newscalarformatter_demo.py to examples. -DSD
 
-2005-05-04 Added NewScalarFormatter. Improved formatting of ticklabels, 
-           scientific notation, and the ability to plot large large 
-           numbers with small ranges, by determining a numerical offset. 
-           See ticker.NewScalarFormatter for more details. -DSD 
+2005-05-04 Added NewScalarFormatter. Improved formatting of ticklabels,
+           scientific notation, and the ability to plot large large
+           numbers with small ranges, by determining a numerical offset.
+           See ticker.NewScalarFormatter for more details. -DSD
 
 2005-05-03 Added the option to specify a delimiter in pylab.load -DSD
 
@@ -407,7 +412,7 @@ New entries should be added at the top
 2005-04-11 modified tkagg show so that new figure window pops up on
            call to figure
 
-2005-04-11 fixed wxapp init bug 
+2005-04-11 fixed wxapp init bug
 
 2005-04-02 updated backend_ps.draw_lines, draw_markers for use with the
            new API - DSD
@@ -460,9 +465,9 @@ New entries should be added at the top
 2005-03-16 Added Japanses winreg patch - JDH
 
 2005-03-15 backend_gtkagg.py: changed to use double buffering, this fixes
-           the problem reported Joachim Berdal Haga - "Parts of plot lagging 
+           the problem reported Joachim Berdal Haga - "Parts of plot lagging
        from previous frame in animation". Tested with anim.py and it makes
-           no noticable difference to performance (23.7 before, 23.6 after) 
+           no noticable difference to performance (23.7 before, 23.6 after)
        - SC
 
 2005-03-14 add src/_backend_gdk.c extension to provide a substitute function
@@ -476,7 +481,7 @@ New entries should be added at the top
 2005-03-11 Upgraded CXX to 5.3.1
 
 2005-03-10 remove GraphicsContextPS.set_linestyle()
-       and GraphicsContextSVG.set_linestyle() since they do no more than 
+       and GraphicsContextSVG.set_linestyle() since they do no more than
            the base class GraphicsContext.set_linestyle() - SC
 
 2005-03-09 Refactored contour functionality into dedicated module
@@ -513,7 +518,7 @@ New entries should be added at the top
 2005-02-25 Add experimental feature to backend_gtk.py to enable/disable
            double buffering (DBL_BUFFER=True/False) - SC
 
-2005-02-24 colors.py change ColorConverter.to_rgb() so it always returns rgb 
+2005-02-24 colors.py change ColorConverter.to_rgb() so it always returns rgb
            (and not rgba), allow cnames keys to be cached, change the exception
            raised from RuntimeError to ValueError (like hex2color())
        hex2color() use a regular expression to check the color string is
@@ -566,7 +571,7 @@ New entries should be added at the top
            as in draw_markers; use numerix in _backend_agg, aded small
            line optimization to agg
 
-2005-02-09 subplot now deletes axes that it overlaps 
+2005-02-09 subplot now deletes axes that it overlaps
 
 2005-02-08 Added transparent support for gzipped files in load/save - Fernando
            Perez (FP from now on).
@@ -659,9 +664,9 @@ New entries should be added at the top
 
 2005-01-18 Fixed some mathtext parser problems relating to superscripts
 
-2005-01-17 Fixed a yticklabel problem for colorbars under change of  
+2005-01-17 Fixed a yticklabel problem for colorbars under change of
            clim - JDH
- 
+
 2005-01-17 Cleaned up Destroy handling in wx reducing memleak/fig from
            approx 800k to approx 6k- JDH
 
@@ -675,7 +680,7 @@ New entries should be added at the top
 2005-01-15 Added Nadia's x,y contour fix - JDH
 
 2005-01-15 backend_cairo: added PDF support which requires pycairo 0.1.4.
-           Its not usable yet, but is ready for when the Cairo PDF backend 
+           Its not usable yet, but is ready for when the Cairo PDF backend
        matures - SC
 
 2005-01-15 Added Nadia's x,y contour fix
@@ -782,7 +787,7 @@ New entries should be added at the top
 2004-12-11 backend_template.py: delete FigureCanvasTemplate.realize() - most
            backends don't use it and its no longer needed
 
-           backend_ps.py, backend_svg.py: delete show() and 
+           backend_ps.py, backend_svg.py: delete show() and
            draw_if_interactive() - they are not needed for image backends
 
            backend_svg.py: write direct to file instead of StringIO
@@ -803,11 +808,11 @@ New entries should be added at the top
 
 2004-12-09 Migrated matlab to pylab - JDH
 
-2004-12-09 backend_gtk.py: split into two parts 
+2004-12-09 backend_gtk.py: split into two parts
            - backend_gdk.py - an image backend
            - backend_gtk.py - A GUI backend that uses GDK - SC
 
-2004-12-08 backend_gtk.py: remove quit_after_print_xvfb(*args), show_xvfb(), 
+2004-12-08 backend_gtk.py: remove quit_after_print_xvfb(*args), show_xvfb(),
        Dialog_MeasureTool(gtk.Dialog) one month after sending mail to
            matplotlib-users asking if anyone still uses these functions - SC
 
@@ -815,19 +820,19 @@ New entries should be added at the top
            documentation to make them consistent with each other - SC
 
 2004-12-04 Fixed multiple bindings per event for TkAgg mpl_connect and
-    mpl_disconnect.  Added a "test_disconnect" command line 
+    mpl_disconnect.  Added a "test_disconnect" command line
     parameter to coords_demo.py  JTM
 
 2004-12-04 Fixed some legend bugs JDH
 
 2004-11-30 Added over command for oneoff over plots.  Eg over(plot, x,
            y, lw=2).  Works with any plot function.
- 
+
 2004-11-30 Added bbox property to text - JDH
 
-2004-11-29 Zoom to rect now respect reversed axes limits (for both 
+2004-11-29 Zoom to rect now respect reversed axes limits (for both
            linear and log axes). - GL
-           
+
 2004-11-29 Added the over command to the matlab interface.  over
            allows you to add an overlay plot regardless of hold
        state. - JDH
@@ -851,7 +856,7 @@ New entries should be added at the top
 
 2004-11-18 Fixed some report_error bugs in string interpolation as
            reported on SF bug tracker- JDH
- 
+
 2004-11-17 backend_gtkcairo.py: change so all print_figure() calls render using
            Cairo and get saved using backend_gtk.print_figure() - SC
 
@@ -889,14 +894,14 @@ New entries should be added at the top
 2004-11-04 Changed -dbackend processing to only use known backends, so
            we don't clobber other non-matplotlib uses of -d, like -debug.
 
-2004-11-04 backend_agg.py: added IMAGE_FORMAT to list the formats that the 
+2004-11-04 backend_agg.py: added IMAGE_FORMAT to list the formats that the
            backend can save to.
            backend_gtkagg.py: added support for saving JPG files by using the
            GTK backend - SC
 
 2004-10-31 backend_cairo.py: now produces png and ps files (although the figure
-           sizing needs some work). pycairo did not wrap all the necessary 
-           functions, so I wrapped them myself, they are included in the 
+           sizing needs some work). pycairo did not wrap all the necessary
+           functions, so I wrapped them myself, they are included in the
            backend_cairo.py doc string. - SC
 
 2004-10-31 backend_ps.py: clean up the generated PostScript code, use
@@ -916,12 +921,12 @@ New entries should be added at the top
            about drawing ellipses from the PostScript output into a
            Python comment. - JV
 
-2004-10-30 backend_gtk.py: removed FigureCanvasGTK.realize() as its no longer 
+2004-10-30 backend_gtk.py: removed FigureCanvasGTK.realize() as its no longer
            needed. Merged ColorManager into GraphicsContext
-           backend_bases.py: For set_capstyle/joinstyle() only set cap or 
+           backend_bases.py: For set_capstyle/joinstyle() only set cap or
            joinstyle if there is no error. - SC
 
-2004-10-30 backend_gtk.py: tidied up print_figure() and removed some of the 
+2004-10-30 backend_gtk.py: tidied up print_figure() and removed some of the
            dependency on widget events - SC
 
 2004-10-28 backend_cairo.py: The renderer is complete except for mathtext,
@@ -930,12 +935,12 @@ New entries should be added at the top
            'target surface', I don't think pycairo wraps the required functions
        - SC
 
-2004-10-28 backend_gtk.py: Improved the save dialog (GTK 2.4 only) so it 
+2004-10-28 backend_gtk.py: Improved the save dialog (GTK 2.4 only) so it
            presents the user with a menu of supported image formats - SC
 
-2004-10-28 backend_svg.py: change print_figure() to restore original face/edge 
+2004-10-28 backend_svg.py: change print_figure() to restore original face/edge
            color
-           backend_ps.py : change print_figure() to ensure original face/edge 
+           backend_ps.py : change print_figure() to ensure original face/edge
            colors are restored even if there's an IOError - SC
 
 2004-10-27 Applied Norbert's errorbar patch to support barsabove kwarg
@@ -943,7 +948,7 @@ New entries should be added at the top
 2004-10-27 Applied Norbert's legend patch to support None handles
 
 2004-10-27 Added two more backends: backend_cairo.py, backend_gtkcairo.py
-           They are not complete yet, currently backend_gtkcairo just renders 
+           They are not complete yet, currently backend_gtkcairo just renders
            polygons, rectangles and lines - SC
 
 2004-10-21 Added polar axes and plots - JDH
@@ -1020,7 +1025,7 @@ New entries should be added at the top
 2004-09-16 Re-designated all files in matplotlib/images as binary and
        w/o keyword substitution using "cvs admin -kb *.svg ...".
        See binary files in "info cvs" under Linux.  This was messing
-       up builds from CVS on windows since CVS was doing lf -> cr/lf 
+       up builds from CVS on windows since CVS was doing lf -> cr/lf
        and keyword substitution on the bitmaps.  - JTM
 
 2004-09-15 Modified setup to build array-package-specific extensions
@@ -1055,7 +1060,7 @@ New entries should be added at the top
 
 2004-08-18 Some pixel edge effects fixes for images
 
-2004-08-18 Fixed TTF files reads in backend_ps on win32.  
+2004-08-18 Fixed TTF files reads in backend_ps on win32.
 
 2004-08-18 Added base and subs properties for logscale plots, user
            modifiable using
@@ -1073,8 +1078,8 @@ New entries should be added at the top
 ==========================================================================
 2004-08-09 matplotlib-0.61.0 released
 
-2004-08-08 backend_gtk.py: get rid of the final PyGTK deprecation warning by 
-           replacing gtkOptionMenu with gtkMenu in the 2.4 version of the 
+2004-08-08 backend_gtk.py: get rid of the final PyGTK deprecation warning by
+           replacing gtkOptionMenu with gtkMenu in the 2.4 version of the
            classic toolbar.
 
 2004-08-06 Added Tk zoom to rect rectangle, proper idle drawing, and
@@ -1097,17 +1102,17 @@ New entries should be added at the top
            layout problems, added font and image support (through
            external pngs) - JDH
 
-2004-07-25 backend_gtk.py: modify toolbar2 to make it easier to support GTK+ 
+2004-07-25 backend_gtk.py: modify toolbar2 to make it easier to support GTK+
            2.4. Add GTK+ 2.4 toolbar support. - SC
 
 2004-07-24 backend_gtk.py: Simplified classic toolbar creation - SC
 
-2004-07-24 Added images/matplotlib.svg to be used when GTK+ windows are 
+2004-07-24 Added images/matplotlib.svg to be used when GTK+ windows are
            minimised - SC
 
 2004-07-22 Added right mouse click zoom for NavigationToolbar2 panning
        mode. - JTM
-        
+
 2004-07-22 Added NavigationToolbar2 support to backend_tkagg.
        Minor tweak to backend_bases.  - JTM
 
@@ -1191,7 +1196,7 @@ New entries should be added at the top
 2004-07-07 Fixed a bug in dynamic_demo_wx
 
 
-2004-07-07 backend_gtk.py: raise SystemExit immediately if 
+2004-07-07 backend_gtk.py: raise SystemExit immediately if
        'import pygtk' fails - SC
 
 2004-07-05 Added new mathtext commands \over{sym1}{sym2} and
@@ -1273,7 +1278,7 @@ New entries should be added at the top
 
 2004-06-07 Fixed width/height issues for images - JDH
 
-2004-06-03 Fixed draw_if_interactive bug for semilogx; 
+2004-06-03 Fixed draw_if_interactive bug for semilogx;
 
 2004-06-02 Fixed text clipping to clip to axes - JDH
 
@@ -1314,7 +1319,7 @@ New entries should be added at the top
        in 2 draws per figure mangager show().      - JTM
 
 ------------------------------------------------------------
-2004-05-19 0.54 released 
+2004-05-19 0.54 released
 
 2004-05-18 Added newline seperated text with rotations to text.Text
            layout - JDH
@@ -1325,12 +1330,12 @@ New entries should be added at the top
            them.  Added multiple symbols to scatter.  10x speedup on
        large scatters using *Agg and 5X speedup for ps. - JDH
 
-2004-05-14 On second thought... created an "nx" namespace in 
+2004-05-14 On second thought... created an "nx" namespace in
        in numerix which maps type names onto typecodes
        the same way for both numarray and Numeric.  This
        undoes my previous change immediately below. To get a
-       typename for Int16 useable in a Numeric extension: 
-       say nx.Int16. - JTM             
+       typename for Int16 useable in a Numeric extension:
+       say nx.Int16. - JTM
 
 2004-05-15 Rewrote transformation class in extension code, simplified
            all the artist constructors - JDH
@@ -1485,13 +1490,13 @@ This is the Old, stale, never used changelog
 2003-04-24 Added a new line style PixelLine2D which is the plots the
            markers as pixels (as small as possible) with format
            symbol ','
- 
+
            Added a new class Patch with derived classes Rectangle,
            RegularPolygon and Circle
 
 2003-04-25 Implemented new functions errorbar, scatter and hist
- 
-           Added a new line type '|' which is a vline.  syntax is 
+
+           Added a new line type '|' which is a vline.  syntax is
        plot(x, Y, '|') where y.shape = len(x),2 and each row gives
        the ymin,ymax for the respective values of x.  Previously I
        had implemented vlines as a list of lines, but I needed the
@@ -1499,13 +1504,13 @@ This is the Old, stale, never used changelog
        vlines outside the viewport, so I wrote a dedicated class
        Vline2D which derives from Line2D
 
-            
+
 2003-05-01
-   
+
    Fixed ytick bug where grid and tick show outside axis viewport with gc clip
 
 2003-05-14
- 
+
    Added new ways to specify colors 1) matlab format string 2)
    html-style hex string, 3) rgb tuple.  See examples/color_demo.py
 
@@ -1515,14 +1520,14 @@ This is the Old, stale, never used changelog
     See examples/system_monitor.py for an example where the plot is
     continusouly updated w/o flicker.  This example is meant to
     simulate a system monitor that shows free CPU, RAM, etc...
-    
+
 2003-08-04
 
     Added Jon Anderson's GTK shell, which doesn't require pygtk to
     have threading built-in and looks nice!
 
 2003-08-25
-   
+
    Fixed deprecation warnings for python2.3 and pygtk-1.99.18
 
 2003-08-26
@@ -1531,11 +1536,11 @@ This is the Old, stale, never used changelog
 
 
 2003-08-27
-  
+
    Fixed bugs i figure text with font override dictionairies and fig
    text that was placed outside the window bounding box
 
-2003-09-1 thru 2003-09-15  
+2003-09-1 thru 2003-09-15
 
    Added a postscript and a GD module backend
 
@@ -1546,8 +1551,8 @@ This is the Old, stale, never used changelog
    implemented on the gtk backend because I have not figured out how
    to scale fonts to arbitrary sizes with GTK
 
-2003-09-17 
- 
+2003-09-17
+
    Fixed figure text bug which crashed X windows on long figure text
    extending beyond display area.  This was, I believe, due to the
    vestigial erase functionality that was no longer needed since I
@@ -1566,14 +1571,14 @@ This is the Old, stale, never used changelog
   versus out with interactive scrolling, and a bug in the axis text
   reset system that prevented the text from being redrawn on a
   interactive gtk view lim set with the widget
- 
+
   Fixed a bug in that prevented the manual setting of ticklabel
   strings from working properly
 
 2003-11-02 - Do a nearest neighbor color pick on GD when
              allocate fails
 
-2003-11-02 
+2003-11-02
    - Added pcolor plot
    - Added MRI example
    - Fixed bug that screwed up label position if xticks or yticks were
@@ -1582,14 +1587,14 @@ This is the Old, stale, never used changelog
    - fixed figure background color bug in GD backend
 
 2003-11-10 - 2003-11-11
-   - major refactoring.  
+   - major refactoring.
      * Ticks (with labels, lines and grid) handled by dedicated class
      * Artist now know bounding box and dpi
      * Bounding boxes and transforms handled by dedicated classes
      * legend in dedicated class.  Does a better job of alignment and
        bordering.  Can be initialized with specific line instances.
        See examples/legend_demo2.py
- 
+
 
 2003-11-14 Fixed legend positioning bug and added new position args
 
@@ -1599,7 +1604,7 @@ This is the Old, stale, never used changelog
 2003-11-20 - add TM for matlab on website and in docs
 
 
-2003-11-20 - make a nice errorbar and scatter screenshot   
+2003-11-20 - make a nice errorbar and scatter screenshot
 
 2003-11-20 - auto line style cycling for multiple line types
    broken
