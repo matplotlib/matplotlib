@@ -33,6 +33,7 @@ class RendererGTKCairo (be_cairo.RendererCairo):
             self.ctx = pixmap.cairo_create()
         else:
             self.ctx = cairo.gtk.gdk_cairo_create (pixmap)
+        self.ctx.save()  # restore, save  - when call new_gc()
 
 
 class FigureCanvasGTKCairo(FigureCanvasGTK):
