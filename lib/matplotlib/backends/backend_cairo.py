@@ -96,6 +96,7 @@ class RendererCairo(RendererBase):
 
     def set_ctx_from_surface (self, surface):
        self.ctx = cairo.Context (surface)
+       self.ctx.save() # restore, save  - when call new_gc()
 
 
     def set_width_height(self, width, height):
@@ -408,6 +409,8 @@ class RendererCairo(RendererBase):
 
     def new_gc(self):
         if _debug: print '%s.%s()' % (self.__class__.__name__, _fn_name())
+        self.ctx.restore()  # matches save() in set_ctx_from_surface()
+        self.ctx.save()
         return GraphicsContextCairo (renderer=self)
 
 
