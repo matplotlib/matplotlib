@@ -52,7 +52,7 @@ lines.solid_joinstyle : miter       # miter|round|bevel
 lines.solid_capstyle : projecting   # butt|round|projecting
 lines.antialiased : True         # render lines in antialised (no jaggies)
 
-### Patches
+### PATCHES
 # Patches are graphical objects that fill 2D space, like polygons or
 # circles.  See
 # http://matplotlib.sourceforge.net/matplotlib.patches.html for more
@@ -107,7 +107,7 @@ font.stretch        : normal
 # note that font.size controls default text sizes.  To configure
 # special text sizes tick labels, axes, labels, title, etc, see the rc
 # settings for axes and ticks
-font.size           : medium  
+font.size           : medium
 font.serif          : New Century Schoolbook, Century Schoolbook L, Utopia, ITC Bookman, Bookman, Bitstream Vera Serif, Nimbus Roman No9 L, Times New Roman, Times, Palatino, Charter, serif
 font.sans-serif     : Lucida Grande, Verdana, Geneva, Lucida, Bitstream Vera Sans, Arial, Helvetica, sans-serif
 font.cursive        : Apple Chancery, Textile, Zapf Chancery, Sand, cursive
@@ -149,8 +149,8 @@ tick.color          : k      # color of the tick labels
 tick.labelsize      : 12     # fontsize of the tick labels
 tick.direction      : in     # direction: in or out
 
-### Grids
-grid.color       :   black       # grid color
+### GRIDS
+grid.color       :   black   # grid color
 grid.linestyle   :   :       # dotted
 grid.linewidth   :   0.5     # in points
 
@@ -171,9 +171,7 @@ figure.subplot.wspace : 0.2   # the amount of width reserved for blank space bet
 figure.subplot.hspace : 0.2   # the amount of height reserved for white space between subplots
 
 
-
-
-### images
+### IMAGES
 image.aspect : free              # free | preserve
 image.interpolation  : bilinear  # see help(imshow) for options
 image.cmap   : jet               # gray | jet
@@ -217,4 +215,3 @@ ps.distiller.res  : 6000      # dpi
 #   from matplotlib import verbose.
 verbose.level  : silent     # one of silent, helpful, debug, debug-annoying
 verbose.fileo  : sys.stdout  # a log filename, sys.stdout or sys.stderr
-
