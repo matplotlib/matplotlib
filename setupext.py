@@ -214,6 +214,24 @@ def find_wx_config():
     return None
 
 
+def check_wxpython_headers(wxconfig):
+    """Determines if wxPython.h can be found in one of the wxWidgets include
+    directories.
+    """
+
+    flags = getoutput(wxconfig + ' --cppflags').split()
+    incdirs = [os.path.join(p, 'include') for p in basedir[sys.platform]
+               if os.path.exists(p)]
+
+    incdirs += [x[2:] for x in flags if x.startswith('-I')]
+    header = os.path.join('wx', 'wxPython', 'wxPython.h')
+
+    for d in incdirs:
+        if os.path.exists(os.path.join(d, header)):
+            return True
+    return False
+
+
 def add_wx_flags(module, wxconfig):
     """
     Add the module flags to build extensions which use wxPython.
@@ -230,7 +248,7 @@ def add_wx_flags(module, wxconfig):
     module.include_dirs.extend(
         [x[2:] for x in wxFlags if x.startswith('-I')])
 
-    print 'wxflags', wxFlags
+
     module.define_macros.extend(
         [(x[2:], None) for x in wxFlags if x.startswith('-D')])
     module.undef_macros.extend(
@@ -472,6 +490,17 @@ def build_wxagg(ext_modules, packages, numerix, abortOnFailure):
 The `wx-config\' executable could not be located in any directory of the PATH
 environment variable.  If it is in some other location or has some other name,
 set the WX_CONFIG environment variable to the full path of the execuatable.'''
+            sys.exit(1)
+    elif not check_wxpython_headers(wxconfig):
+        print 'WXAgg\'s accelerator requires the wxPython headers.'
+
+        if not abortOnFailure:
+            BUILT_WXAGG = True
+            return
+        else:
+            print '''\n\
+The wxPython header files could not be located in any of the standard include
+directories or include directories reported by `wx-config --cppflags'.'''
             sys.exit(1)
 
     deps = ['src/_wxagg.cpp', 'src/mplutils.cpp', 'src/_transforms.cpp']
