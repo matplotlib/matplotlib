@@ -24,7 +24,9 @@
 #  - a legal html color name, eg red, blue, darkslategray
 
 #### CONFIGURATION BEGINS HERE
-backend      : GTKAgg     # the default backend
+# the default backend; one of GTK GTKAgg GTKCairo FltkAgg QtAgg TkAgg 
+#     Agg Cairo GD GDK Paint PS SVG Template
+backend      : GTKAgg     
 numerix      : Numeric    # Numeric or numarray
 interactive  : False      # see http://matplotlib.sourceforge.net/interactive.html
 toolbar      : toolbar2   # None | classic | toolbar2

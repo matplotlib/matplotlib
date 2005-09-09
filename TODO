@@ -719,3 +719,7 @@ ZeroDivisionError: SeparableTransformation::eval_scalars yin interval is zero; c
 -- Martin's zoomhist bug
 
 -- Add shading for patches and patch collections.
+
+-- tex system call problem
+
+-- tex rendering looks fuzzy (dvipng version or flag problem)
