@@ -624,7 +624,7 @@ class ContourSupport:
               - if linewidths == None, the default width in lines.linewidth in
                 .matplotlibrc is used
 
-            * fmt = '1.3f': a format string for adding a label to each collection.
+            * fmt = '%1.3f': a format string for adding a label to each collection.
               Useful for auto-legending.
 
         """
