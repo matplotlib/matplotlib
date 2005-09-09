@@ -25,6 +25,36 @@ from matplotlib.transforms import scale_transform, Value, zero, one, \
 from pylab import gca
 
 
+
+def parse_yahoo_historical(fh):
+    """
+    Parse the historical data in file handle fh from yahoo finance and return
+    results as a list of
+
+    d, open, close, high, low, volume
+    
+    where d is a floating poing representation of date, as returned by date2num
+
+    """
+    results = []
+
+
+
+    lines = fh.readlines()
+    for line in lines[1:]:
+
+        vals = line.split(',')
+        if len(vals)!=7: continue
+        datestr = vals[0]
+        dt = datetime.date(*time.strptime(datestr, '%d-%b-%y')[:3])
+        d = date2num(dt)
+        open, high, low, close =  [float(val) for val in vals[1:5]]
+        volume = int(vals[5])
+
+        results.append((d, open, close, high, low, volume))
+    results.reverse()
+    return results
+    
 def quotes_historical_yahoo(ticker, date1, date2):
 
     """
@@ -49,26 +79,12 @@ def quotes_historical_yahoo(ticker, date1, date2):
 
     ticker = ticker.upper()
 
-    results = []
-    try:
-        lines = urlopen(url).readlines()
+    try: ret = parse_yahoo_historical(urlopen(url))
     except IOError, exc:
         warnings.warn('urlopen() failure\n' + url + '\n' + exc.strerror[1])
         return None
-    for line in lines[1:]:
 
-        vals = line.split(',')
-        if len(vals)!=7: continue
-        datestr = vals[0]
-        dt = datetime.date(*time.strptime(datestr, '%d-%b-%y')[:3])
-        d = date2num(dt)
-        open, high, low, close =  [float(val) for val in vals[1:5]]
-        volume = int(vals[5])
-
-        results.append((d, open, close, high, low, volume))
-    results.reverse()
-    return results
-
+    return ret 
 
         
 def plot_day_summary(ax, quotes, ticksize=3,

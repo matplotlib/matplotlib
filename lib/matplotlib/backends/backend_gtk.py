@@ -141,6 +141,19 @@ class FigureCanvasGTK (gtk.DrawingArea, FigureCanvasBase):
 
         self._renderer_init()
 
+
+    def resize(self, w, h):
+        'set the drawing area size in pixels'
+        winw, winh = self.parent.parent.get_size()
+        tmp, tmp, myw, myh = self.get_allocation()
+
+        padw = winw-myw
+        padh = winh-myh
+
+        neww = w+padw)
+        newh = h+padh
+        self.parent.parent.resize(neww, newh)
+
     def button_press_event(self, widget, event):
         if _debug: print 'FigureCanvasGTK.%s' % fn_name()
         x = event.x

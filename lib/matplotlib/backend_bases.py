@@ -720,6 +720,12 @@ class FigureCanvasBase:
         """
         pass
 
+    def resize(self, w, h):
+        """
+        set the canvas size in pixels
+        """
+        pass
+    
     def draw_event(self, renderer):
         event = DrawEvent('draw_event', self, renderer)
         for func in self.callbacks.get('draw_event', {}).values():
