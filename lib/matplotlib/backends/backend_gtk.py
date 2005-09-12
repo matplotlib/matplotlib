@@ -150,7 +150,7 @@ class FigureCanvasGTK (gtk.DrawingArea, FigureCanvasBase):
         padw = winw-myw
         padh = winh-myh
 
-        neww = w+padw)
+        neww = w+padw
         newh = h+padh
         self.parent.parent.resize(neww, newh)
 
