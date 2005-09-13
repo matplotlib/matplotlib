@@ -723,3 +723,7 @@ ZeroDivisionError: SeparableTransformation::eval_scalars yin interval is zero; c
 -- tex system call problem
 
 -- tex rendering looks fuzzy (dvipng version or flag problem)
+
+-- Martin's zoomhist bug
+
+-- restore robert leftwich's tutorial link to FAQ

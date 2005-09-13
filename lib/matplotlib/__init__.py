@@ -275,8 +275,32 @@ class Verbose:
 
 verbose=Verbose('silent')
 
-
 def _get_home():
+    """Find user's home directory if possible.
+    Otherwise raise error.
+
+    :see:  http://mail.python.org/pipermail/python-list/2005-February/263921.html
+    """
+    path=''
+    try:
+        path=os.path.expanduser("~")
+    except:
+        pass
+    if not os.path.isdir(path):
+        for evar in ('HOME', 'USERPROFILE', 'TMP'):
+            try:
+                path = os.environ[evar]
+                if os.path.isdir(path):
+                    break
+            except: pass
+    if path:
+        return path
+    else:
+        raise RuntimeError('please define environment variable $HOME')
+
+
+
+def _old_get_home():  #ignore me
     """Return the closest possible equivalent to a 'home' directory.
 
     We first try $HOME.  Absent that, on NT it's USERPROFILE if

@@ -970,6 +970,7 @@ class NavigationToolbar2:
 
         # a dict from axes index to a list of view limits
         self._views = Stack()
+        self._positions = Stack()  # stack of subplot positions
         self._xypress = None  # the  location and axis info at the time of the press
         self._idPress = None
         self._idRelease = None
@@ -989,6 +990,7 @@ class NavigationToolbar2:
     def back(self, *args):
         'move back up the view lim stack'
         self._views.back()
+        self._positions.back()
         self.set_history_buttons()
         self._update_view()
 
@@ -1002,12 +1004,14 @@ class NavigationToolbar2:
     def forward(self, *args):
         'move forward in the view lim stack'
         self._views.forward()
+        self._positions.forward()
         self.set_history_buttons()
         self._update_view()
 
     def home(self, *args):
         'restore the original view'
         self._views.home()
+        self._positions.home()
         self.set_history_buttons()
         self._update_view()
 
@@ -1150,13 +1154,15 @@ class NavigationToolbar2:
         self.press(event)
 
     def push_current(self):
-        'push the current view limits onto the stack'
-        lims = []
+        'push the current view limits and position onto the stack'
+        lims = []; pos = []
         for a in self.canvas.figure.get_axes():
             xmin, xmax = a.get_xlim()
             ymin, ymax = a.get_ylim()
             lims.append( (xmin, xmax, ymin, ymax) )
+            pos.append( tuple( a.get_position() ) )
         self._views.push(lims)
+        self._positions.push(pos)
         self.set_history_buttons()
 
 
@@ -1353,14 +1359,17 @@ class NavigationToolbar2:
 
 
     def _update_view(self):
-        'update the viewlim from the view stack for each axes'
+        'update the viewlim and position from the view and position stack for each axes'
 
         lims = self._views()
         if lims is None:  return
+        pos = self._positions()
+        if pos is None: return
         for i, a in enumerate(self.canvas.figure.get_axes()):
             xmin, xmax, ymin, ymax = lims[i]
             a.set_xlim((xmin, xmax))
             a.set_ylim((ymin, ymax))
+            a.set_position( pos[i] )
 
         self.draw()
 
@@ -1379,6 +1388,7 @@ class NavigationToolbar2:
     def update(self):
         'reset the axes stack'
         self._views.clear()
+        self._positions.clear()
         self.set_history_buttons()
 
     def zoom(self, *args):
