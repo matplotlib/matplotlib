@@ -1,5 +1,7 @@
 New entries should be added at the top
 
+2005-09-13 Added Mark's axes positions history patch #1286915 
+
 2005-09-09 Added support for auto canvas resizing with
            fig.set_figsize_inches(9,5,forward=True) # inches
            OR
