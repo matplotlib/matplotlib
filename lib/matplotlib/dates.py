@@ -75,7 +75,7 @@ Date formatters
   DateIndexFormatter - date plots with implicit x indexing.
 
 """
-import sys, re, time
+import sys, re, time, math
 import locale
 
 import matplotlib
@@ -703,6 +703,49 @@ if __name__=='__main__':
     for t in dates: print formatter(t)
 
 
+def date_ticker_factory(span, tz=None, numticks=5):
+    """
+    Create a date locator with numticks (approx) and a date formatter
+    for span in days.  Return value is (locator, formatter)
+
+
+    """
+    
+    if span==0: span = 1/24.
+
+    minutes = span*24*60
+    hours  = span*24
+    days   = span
+    weeks  = span/7.
+    months = span/31. # approx
+    years  = span/365.
+
+    if years>numticks:
+        locator = YearLocator(int(years/numticks), tz=tz)  # define
+        fmt = '%Y'
+    elif months>numticks:
+        locator = MonthLocator(tz=tz)
+        fmt = '%b %Y'
+    elif weeks>numticks:
+        locator = WeekdayLocator(tz=tz)
+        fmt = '%a, %b %d'
+    elif days>numticks:
+        locator = DayLocator(interval=int(math.ceil(days/numticks)), tz=tz)
+        fmt = '%b %d'
+    elif hours>numticks:
+        locator = HourLocator(interval=int(math.ceil(hours/numticks)), tz=tz)
+        fmt = '%H:%M\n%b %d'
+    elif minutes>numticks:
+        locator = MinuteLocator(interval=int(math.ceil(minutes/numticks)), tz=tz)
+        fmt = '%H:%M:%S'
+    else:
+        locator = MinuteLocator(tz=tz)
+        fmt = '%H:%M:%S'
+
+
+    formatter = DateFormatter(fmt, tz=tz)
+    return locator, formatter
+
 __all__ = ( 'date2num', 'num2date', 'drange', 'epoch2num',
             'num2epoch', 'mx2num', 'DateFormatter',
             'IndexDateFormatter', 'DateLocator', 'RRuleLocator',
@@ -711,3 +754,4 @@ __all__ = ( 'date2num', 'num2date', 'drange', 'epoch2num',
             'SecondLocator', 'rrule', 'MO', 'TU', 'WE', 'TH', 'FR',
             'SA', 'SU', 'YEARLY', 'MONTHLY', 'WEEKLY', 'DAILY',
             'HOURLY', 'MINUTELY', 'SECONDLY', 'relativedelta')
+
