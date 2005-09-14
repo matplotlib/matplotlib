@@ -62,10 +62,11 @@ MSFontDirectories   = [
 X11FontDirectories  = [
     # what seems to be the standard installation point
     "/usr/X11R6/lib/X11/fonts/TTF/",
+    # documented as a good place to install new fonts...
+    "/usr/share/fonts/",
     # common application, not really useful
     "/usr/lib/openoffice/share/fonts/truetype/",
-    # documented as a good place to install new fonts...
-    "/usr/share/fonts/"]
+    ]
 
 OSXFontDirectories = [
     "/Library/Fonts/",
@@ -164,24 +165,17 @@ def OSXInstalledFonts(directory=None, fontext=None):
 
 def x11FontDirectory():
     """Return the system font directories for X11."""
+    fontpaths = []
+    def add(arg,directory,files):
+        fontpaths.append(directory)
 
-    chkfont = '/usr/sbin/chkfontpath'
-    if os.path.isfile(chkfont):
-        fontpaths = os.popen(chkfont).readlines()
-        return [p.split(':')[1].strip() for p in fontpaths if \
-                p.find(': /') >= 0]
-    else:
-        fontpaths = []
-        #def add(arg, directory, files):
-        def add(arg,directory,files):
-            fontpaths.append(directory)
-        for fontdir in X11FontDirectories:
-            try:
-                if os.path.isdir(fontdir):
-                    os.path.walk(fontdir, add, None)
-            except (IOError, OSError, TypeError, ValueError):
-                pass
-        return fontpaths
+    for fontdir in X11FontDirectories:
+        try:
+            if os.path.isdir(fontdir):
+                os.path.walk(fontdir, add, None)
+        except (IOError, OSError, TypeError, ValueError):
+            pass
+    return fontpaths
 
 def findSystemFonts(fontpaths=None, fontext='ttf'):
 
