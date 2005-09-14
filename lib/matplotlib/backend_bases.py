@@ -575,6 +575,20 @@ class DrawEvent(Event):
         Event.__init__(self, name, canvas)
         self.renderer = renderer
 
+class ResizeEvent(Event):
+    """
+    An event triggered by a canvas resize
+
+    Attributes are
+      name
+      canvas
+      width   # width of the canvas in pixels
+      height  # height of the canvas in pixels
+    """
+    def __init__(self, name, canvas):
+        Event.__init__(self, name, canvas)
+        self.width, self.height = canvas.get_width_height()
+
 class LocationEvent(Event):
     """
     A event that has a screen location
@@ -731,6 +745,11 @@ class FigureCanvasBase:
         for func in self.callbacks.get('draw_event', {}).values():
             func(event)
 
+    def resize_event(self):
+        event = ResizeEvent('resize_event', self)
+        for func in self.callbacks.get('resize_event', {}).values():
+            func(event)
+
     def key_press_event(self, key, guiEvent=None):
         self._key = key
         event = KeyEvent('key_press_event', self, key, self._lastx, self._lasty, guiEvent=guiEvent)
@@ -833,6 +852,7 @@ class FigureCanvasBase:
 
         where event is a MplEvent.  The following events are recognized
 
+         'resize_event'
          'draw_event'
          'key_press_event'
          'key_release_event'
@@ -850,6 +870,7 @@ class FigureCanvasBase:
         mpl_disconnect """
 
         assert s in  (
+        'resize_event',
         'draw_event',
         'key_press_event',
         'key_release_event',

@@ -827,12 +827,12 @@ class Axes(Artist):
             # ( U, V )
             U = asarray(U)
             V = asarray(V)
-            X,Y = meshgrid( arange(U.shape[0]), arange(U.shape[1]) )
+            X,Y = meshgrid( arange(U.shape[1]), arange(U.shape[0]) )
         elif len(args)==1:
             # ( U, V, S )
             U = asarray(U)
             V = asarray(V)
-            X,Y = meshgrid( arange(U.shape[0]), arange(U.shape[1]) )
+            X,Y = meshgrid( arange(U.shape[1]), arange(U.shape[0]) )
             S = float(args[0])
             do_scale = ( S != 0.0 )
         elif len(args)==2:

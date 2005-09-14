@@ -215,6 +215,7 @@ class FigureCanvasGTK (gtk.DrawingArea, FigureCanvasBase):
 
 
     def configure_event(self, widget, event):
+
         if _debug: print 'FigureCanvasGTK.%s' % fn_name()
         if widget.window == None:
             return
@@ -227,6 +228,8 @@ class FigureCanvasGTK (gtk.DrawingArea, FigureCanvasBase):
         self.figure.set_figsize_inches (w/dpi, h/dpi)
 
         self._need_redraw = True
+
+        self.resize_event()
         return False  # finish event propagation?
 
 

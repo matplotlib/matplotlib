@@ -1,9 +1,13 @@
 New entries should be added at the top
 
+2005-09-14 Added a new 'resize_event' which triggers a callback with a
+           backend_bases.ResizeEvent object - JDH
+
 2005-09-14 font_manager.py: removed chkfontpath from x11FontDirectory() - SC
 
 2005-09-14 Factored out auto date locator/formatter factory code into
-           matplotlib.date.date_ticker_factory
+           matplotlib.date.date_ticker_factory; applies John Bryne's
+           quiver patch.
 
 2005-09-13 Added Mark's axes positions history patch #1286915
 
