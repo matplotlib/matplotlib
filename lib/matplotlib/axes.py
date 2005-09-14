@@ -46,9 +46,7 @@ from font_manager import FontProperties
 import matplotlib
 
 if matplotlib._havedate:
-    from dates import YearLocator, MonthLocator, WeekdayLocator, \
-             DayLocator, HourLocator, MinuteLocator, DateFormatter,\
-             SEC_PER_MIN, SEC_PER_HOUR, SEC_PER_DAY, SEC_PER_WEEK
+    from dates import date_ticker_factory
 
 
 def _process_plot_format(fmt):
@@ -2620,40 +2618,7 @@ class Axes(Artist):
 
         span  = self.dataLim.intervalx().span()
 
-        if span==0: span = 1/24.
-
-        minutes = span*24*60
-        hours  = span*24
-        days   = span
-        weeks  = span/7.
-        months = span/31. # approx
-        years  = span/365.
-
-        numticks = 5
-        if years>numticks:
-            locator = YearLocator(int(years/numticks), tz=tz)  # define
-            fmt = '%Y'
-        elif months>numticks:
-            locator = MonthLocator(tz=tz)
-            fmt = '%b %Y'
-        elif weeks>numticks:
-            locator = WeekdayLocator(tz=tz)
-            fmt = '%a, %b %d'
-        elif days>numticks:
-            locator = DayLocator(interval=int(math.ceil(days/numticks)), tz=tz)
-            fmt = '%b %d'
-        elif hours>numticks:
-            locator = HourLocator(interval=int(math.ceil(hours/numticks)), tz=tz)
-            fmt = '%H:%M\n%b %d'
-        elif minutes>numticks:
-            locator = MinuteLocator(interval=int(math.ceil(minutes/numticks)), tz=tz)
-            fmt = '%H:%M:%S'
-        else:
-            locator = MinuteLocator(tz=tz)
-            fmt = '%H:%M:%S'
-
-
-        formatter = DateFormatter(fmt, tz=tz)
+        locator, formatter = date_ticker_factory(span, tz)
         self.xaxis.set_major_locator(locator)
         self.xaxis.set_major_formatter(formatter)
         self.autoscale_view()
