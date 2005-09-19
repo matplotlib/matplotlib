@@ -180,6 +180,7 @@ class Text(Artist):
         tmp, heightt = renderer.get_text_width_height(
                 'T', self._fontproperties, ismath=False)
 
+        heightt += 3  # 3 pixel pad
         for line in lines:
             w,h = renderer.get_text_width_height(
                 line, self._fontproperties, ismath=self.is_math_text())
