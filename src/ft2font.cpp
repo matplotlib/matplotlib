@@ -312,7 +312,7 @@ Glyph::get_path( const FT_Face& face) {
 
 FT2Font::FT2Font(std::string facefile) 
 {
-  _VERBOSE("FT2Font::FT2Font");
+  _VERBOSE(Printf("FT2Font::FT2Font %s", facefile.c_str()).str());
   clear(Py::Tuple(0));
 
   
@@ -397,6 +397,8 @@ FT2Font::FT2Font(std::string facefile)
     setattr("underline_position",  Py::Int(face->underline_position));
     setattr("underline_thickness", Py::Int(face->underline_thickness));
   }
+
+  _VERBOSE("FT2Font::FT2Font done");
 }
 
 FT2Font::~FT2Font()
@@ -752,7 +754,7 @@ FT2Font::set_text(const Py::Tuple & args) {
   for (unsigned int n=0; n<glyphs.size(); n++) 
     FT_Glyph_Transform(glyphs[n], &matrix, 0);
 
-  
+  _VERBOSE("FT2Font::set_text done");  
   return xys;
 }
 

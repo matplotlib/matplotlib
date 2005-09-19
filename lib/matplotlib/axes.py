@@ -1710,8 +1710,8 @@ class Axes(Artist):
 
         The return values is (n, bins, patches)
 
-        If normed is true, the first element of the return tuple will be the
-        counts normalized to form a probability distribtion, ie,
+        If normed is true, the first element of the return tuple will
+        be the counts normalized to form a probability density, ie,
         n/(len(x)*dbin)
 
 
