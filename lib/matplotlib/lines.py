@@ -18,7 +18,6 @@ from matplotlib import verbose
 from artist import Artist, setp
 from cbook import iterable, is_string_like
 from colors import colorConverter
-from patches import bbox_artist
 
 from transforms import lbwh_to_bbox, LOG10
 from matplotlib import rcParams
@@ -382,7 +381,6 @@ class Line2D(Artist):
             markerFunc = getattr(self, funcname)
             markerFunc(renderer, gc, xt, yt)
 
-        #if 1: bbox_artist(self, renderer)
         #renderer.close_group('line2d')
 
     def get_antialiased(self): return self._antialiased

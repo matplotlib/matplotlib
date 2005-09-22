@@ -624,7 +624,8 @@ def axes(*args, **kwargs):
       frameon=False  : don't display the frame
       sharex=otherax : the current axes shares xaxis attribute with otherax
       sharey=otherax : the current axes shares yaxis attribute with otherax
-
+      polar=True|False : use a polar axes or not
+      
     Examples
 
       examples/axes_demo.py places custom axes.

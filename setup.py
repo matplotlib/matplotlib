@@ -42,7 +42,7 @@ BUILD_WXAGG        = 'auto'
 BUILD_WINDOWING        = 'auto'
 
 
-VERBOSE = True # insert lots of diagnostic prints in extension code
+VERBOSE = False # insert lots of diagnostic prints in extension code
 
 
 

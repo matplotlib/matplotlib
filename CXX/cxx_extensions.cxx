@@ -1072,7 +1072,7 @@ PythonExtensionBase::PythonExtensionBase()
 
 PythonExtensionBase::~PythonExtensionBase()
 	{
-	assert( ob_refcnt == 0 );
+	  //assert( ob_refcnt == 0 );
 	}
 
 int PythonExtensionBase::print( FILE *, int )
