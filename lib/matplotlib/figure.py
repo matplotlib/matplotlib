@@ -11,11 +11,11 @@ from text import Text, _process_text_args
 
 from legend import Legend
 from transforms import Bbox, Value, Point, get_bbox_transform, unit_bbox
-from numerix import array, clip, transpose
+from numerix import array, clip, transpose, minimum, maximum
 from mlab import linspace, meshgrid
 from ticker import FormatStrFormatter
 from cm import ScalarMappable
-from contour import ContourMappable
+from contour import ContourSet
 
 class SubplotParams:
     """
@@ -246,7 +246,7 @@ class Figure(Artist):
         optional kwarg forward=True will cause the canvas size to be
         automatically updated; eg you can resize the figure window
         from the shell
-        
+
         ACCEPTS: a w,h tuple with w,h in inches
         """
 
@@ -644,7 +644,11 @@ class Figure(Artist):
 
         self.canvas.print_figure(*args, **kwargs)
 
-    def colorbar(self,mappable,tickfmt='%1.1f',cax=None,orientation='vertical',cspacing='proportional',clabels=None,drawedges=False,edgewidth=0.5,edgecolor='k'):
+    def colorbar(self, mappable,  cax=None,
+                    orientation='vertical', tickfmt='%1.1f',
+                    cspacing='proportional',
+                    clabels=None, drawedges=False, edgewidth=0.5,
+                    edgecolor='k'):
         """
         Create a colorbar for mappable image
 
@@ -711,84 +715,84 @@ class Figure(Artist):
             if not isinstance(cax, Axes):
                 raise TypeError('Expected an Axes instance for cax')
 
-        if isinstance(mappable, ContourMappable):
+        norm = mappable.norm
+        if norm.vmin is None or norm.vmax is None:
+            mappable.autoscale()
+        cmin = norm.vmin
+        cmax = norm.vmax
+        if isinstance(mappable, ContourSet):
         # mappable image is from contourf
-            clevs = mappable.levels.tolist()
-            if mappable.level_upper is not None:
-                clevs = array(clevs + [mappable.level_upper])
-            else:
-                clevs = array(clevs)
+            clevs = mappable.levels
+            clevs = minimum(clevs, cmax)
+            clevs = maximum(clevs, cmin)
             iscontourf = True
         elif isinstance(mappable, ScalarMappable):
         # from imshow or pcolor.
             iscontourf = False
-            norm = mappable.norm
-            if norm.vmin is None or norm.vmax is None:
-                mappable.autoscale()
-            cmin = norm.vmin
-            cmax = norm.vmax
             clevs = linspace(cmin, cmax, cmap.N)
         else:
             raise TypeError("don't know how to handle type %s"%type(mappable))
 
-        cmin = min(clevs); cmax = max(clevs)
         N = len(clevs)
-        C = array([clevs,clevs])
-
-        if orientation=='vertical':
-            C = transpose(C)
-
-        if orientation=='vertical':
-            if cspacing == 'linear':
-                X,Y = meshgrid([cmin,cmax],(clevs-cmin)/(cmax-cmin))
-            elif cspacing == 'proportional':
-                X,Y = meshgrid([cmin,cmax],linspace(0.,1.,N))
-            else:
-                raise ValueError("cspacing must be 'linear' or 'proportional'")
-            if drawedges:
-                levs,coll = cax.contour(X, C, Y, N-2,linewidths=edgewidth,colors=edgecolor)
-            levs,coll = cax.contourf(X, C, Y, N-2, cmap=cmap)
+        C = array([clevs, clevs])
+        if cspacing == 'linear':
+            X, Y = meshgrid(clevs, [0, 1])
+        elif cspacing == 'proportional':
+            X, Y = meshgrid(linspace(cmin, cmax, N), [0, 1])
         else:
+            raise ValueError("cspacing must be 'linear' or 'proportional'")
+
+        if orientation=='vertical':
+            args = (transpose(Y), transpose(C), transpose(X), clevs)
+        else:
+            args = (C, Y, X, clevs)
+        kw = {'cmap':cmap}
+        if iscontourf and not mappable.filled:
+            CS = cax.contour(*args, **kw)
+            colls = mappable.collections
+            for ii in range(len(colls)):
+                CS.collections[ii].set_linewidth(colls[ii].get_linewidth())
+        else:
+            CS = cax.contourf(*args, **kw)
+        if drawedges:
+            for col in CS.collections:
+                col.set_edgecolor(edgecolor)
+                col.set_linewidth(edgewidth)
+
+        mappable.add_observer(CS)
+        mappable.set_colorbar(CS, cax)
+
+
+        if iscontourf:
             if cspacing == 'linear':
-                X,Y = meshgrid((clevs-cmin)/(cmax-cmin),[cmin,cmax])
-            elif cspacing == 'proportional':
-                X,Y = meshgrid(linspace(0.,1.,N),[cmin,cmax])
+                ticks = linspace(cmin, cmax, N)
             else:
-                raise ValueError("cspacing must be 'linear' or 'proportional'")
-            if drawedges:
-                levs,coll = cax.contour(C, Y, X, N-2,linewidths=edgewidth,colors=edgecolor)
-            levs,coll = cax.contourf(C, Y, X, N-2, cmap=cmap)
+                ticks = clevs
+            if cmin == mappable.levels[0]:
+                ticklevs = clevs
+            else: # We are not showing the full ends of the range.
+                ticks = ticks[1:-1]
+                ticklevs = clevs[1:-1]
+            labs = [tickfmt % lev for lev in ticklevs]
+            if clabels is not None:
+                for i, lev in enumerate(ticklevs):
+                    if lev not in clabels:
+                        labs[i] = ''
 
-        mappable.add_observer(coll.mappable)
-        mappable.set_colorbar(coll.mappable, cax)
 
-        labs = [tickfmt % clev for clev in clevs]
-        if iscontourf and clabels is not None:
-            for cl in clabels:
-                if cl not in clevs:
-                    raise ValueError, 'clabels contains a value (%s) that is not a valid contour in the Contour image mappable'%(cl)
-            n = 0
-            for cl,lab in zip(clevs,labs):
-                if cl not in clabels: labs[n]=''
-                n = n + 1
         if orientation=='vertical':
             cax.set_xticks([])
             cax.yaxis.tick_right()
+            cax.yaxis.set_label_position('right')
             if iscontourf:
-                if cspacing == 'linear':
-                    cax.set_yticks(linspace(cmin,cmax,N))
-                else:
-                    cax.set_yticks(clevs)
+                cax.set_yticks(ticks)
                 cax.set_yticklabels(labs)
             else:
                 cax.yaxis.set_major_formatter(FormatStrFormatter(tickfmt))
         else:
             cax.set_yticks([])
             if iscontourf:
-                if cspacing == 'linear':
-                    cax.set_xticks(linspace(cmin,cmax,N))
-                else:
-                    cax.set_xticks(clevs)
+                cax.set_xticks(ticks)
                 cax.set_xticklabels(labs)
             else:
                 cax.xaxis.set_major_formatter(FormatStrFormatter(tickfmt))

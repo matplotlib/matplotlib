@@ -7,6 +7,8 @@ See also contour_image.py.
 '''
 from pylab import *
 
+rcParams['tick.direction'] = 'out'
+
 delta = 0.025
 x = arange(-3.0, 3.0, delta)
 y = arange(-2.0, 2.0, delta)
@@ -23,27 +25,29 @@ Z = 10.0 * (Z2 - Z1)
 # over the line segments of the contour, removing the lines beneath
 # the label
 figure()
-levels, colls = contour(X, Y, Z)
-clabel(colls, inline=1, fontsize=10)
+CS = contour(X, Y, Z)
+clabel(CS, inline=1, fontsize=10)
 title('Simplest default with labels')
 
 
-# You can force all the contours to be the same color
+# You can force all the contours to be the same color.
+# Use colors = 'k' to make negative contours dashed;
+# use colors = ('k',) to leave all contours solid.
 figure()
-levels, colls = contour(X, Y, Z, 6,
-                        colors=('k',)
-                        )
-clabel(colls, levels, fontsize=9, inline=1)
+CS = contour(X, Y, Z, 6,
+             colors='k', # or ('k',) for all solid
+             )
+clabel(CS, fontsize=9, inline=1)
 title('Single color')
 
 
 # And you can manually specify the colors of the contour
 figure()
-levels, colls = contour(X, Y, Z, 6,
-                        linewidths=arange(.5, 4, .5),
-                        colors=('r', 'green', 'blue', (1,1,0), '#afeeee', 0.5)
-                        )
-clabel(colls, levels, fontsize=9, inline=1)
+CS = contour(X, Y, Z, 6,
+             linewidths=arange(.5, 4, .5),
+             colors=('r', 'green', 'blue', (1,1,0), '#afeeee', 0.5)
+             )
+clabel(CS, fontsize=9, inline=1)
 title('Crazy lines')
 
 
@@ -52,20 +56,30 @@ title('Crazy lines')
 figure()
 im = imshow(Z, interpolation='bilinear', origin='lower',
             cmap=cm.gray, extent=(-3,3,-2,2))
-levels, colls = contour(Z, arange(-1.2,1.6,0.2),
-                        origin='lower',
-                        linewidths=2,
-                        extent=(-3,3,-2,2))
+levels = arange(-1.2, 1.6, 0.2)
+CS = contour(Z, levels,
+             origin='lower',
+             linewidths=2,
+             extent=(-3,3,-2,2))
 
-clabel(colls, levels,
+#Thicken the zero contour.
+zc = CS.collections[6]
+setp(zc, linewidth=4)
+
+clabel(CS, levels[1::2],  # label every second level
        inline=1,
        fmt='%1.1f',
-       fontsize=10)
+       fontsize=14)
 
-colorbar()  # make a colorbar for the contour lines
+colorbar(CS)  # make a colorbar for the contour lines
 title('Lines with colorbar')
 hot()  # Now change the colormap for the contour lines and colorbar
+flag()
 
+# We can still add a colorbar for the image, too.
+colorbar(im, orientation='horizontal')
+# We could manipulate the colorbar axes sizes for better
+# appearance, but we'll leave that for a later demo.
 
 savefig('contour_demo')
 show()

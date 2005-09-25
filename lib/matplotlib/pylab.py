@@ -306,9 +306,18 @@ def _shift_string(s):
     return ''.join(lines)
 
 
-def colorbar(tickfmt='%1.1f',cax=None,orientation='vertical',cspacing='proportional',clabels=None,drawedges=False,edgewidth=0.5,edgecolor='k'):
+def colorbar(mappable = None,
+             cax=None,
+             orientation='vertical',
+             tickfmt='%1.1f',
+             cspacing='proportional',
+             clabels=None,
+             drawedges=False,
+             edgewidth=0.5,
+             edgecolor='k'):
     """
-    Create a colorbar for current image
+    Create a colorbar for mappable; if mappable is None,
+    use current image.
 
     tickfmt is a format string to format the colorbar ticks
 
@@ -319,7 +328,7 @@ def colorbar(tickfmt='%1.1f',cax=None,orientation='vertical',cspacing='proportio
 
     orientation is the colorbar orientation: one of 'vertical' | 'horizontal'
 
-    cspacing controls how colors are distributed on the colorbar.  
+    cspacing controls how colors are distributed on the colorbar.
     if cspacing == 'linear', each color occupies an equal area
     on the colorbar, regardless of the contour spacing.
     if cspacing == 'proportional' (Default), the area each color
@@ -342,8 +351,16 @@ def colorbar(tickfmt='%1.1f',cax=None,orientation='vertical',cspacing='proportio
 
     return value is the colorbar axes instance
     """
-    mappable = gci()
-    ret = gcf().colorbar(mappable,tickfmt,cax,orientation,cspacing=cspacing,clabels=clabels,drawedges=drawedges,edgewidth=edgewidth,edgecolor=edgecolor)
+    if mappable is None:
+        mappable = gci()
+    ret = gcf().colorbar(mappable, cax = cax,
+                         orientation = orientation,
+                         tickfmt = tickfmt,
+                         cspacing=cspacing,
+                         clabels=clabels,
+                         drawedges=drawedges,
+                         edgewidth=edgewidth,
+                         edgecolor=edgecolor)
     draw_if_interactive()
     return ret
 
@@ -580,7 +597,7 @@ def axis(*v, **kwargs):
             ax.set_aspect('normal')
         else:
             raise ValueError('Unrecognized string %s to axis; try on or off' % s)
-        xmin, xmax = ax.get_xlim() 
+        xmin, xmax = ax.get_xlim()
         ymin, ymax = ax.get_ylim()
         draw_if_interactive()
         return xmin, xmax, ymin, ymax
@@ -595,13 +612,13 @@ def axis(*v, **kwargs):
     v = v[0]
     if len(v) != 4:
         raise ValueError('v must contain [xmin xmax ymin ymax]')
-    
-    
+
+
     ax.set_xlim([v[0], v[1]])
     ax.set_ylim([v[2], v[3]])
     if ax.get_aspect() == 'equal':
         ax.set_aspect( 'equal', True )
-        
+
     draw_if_interactive()
     return v
 
@@ -1768,7 +1785,6 @@ def clabel(*args, **kwargs):
     except:
         hold(b)
         raise
-    if ret.mappable is not None: gci._current = ret.mappable
     hold(b)
     return ret
 if Axes.clabel.__doc__ is not None:
@@ -1789,7 +1805,7 @@ def contour(*args, **kwargs):
     except:
         hold(b)
         raise
-    if ret[1].mappable is not None: gci._current = ret[1].mappable
+    if ret._A is not None: gci._current = ret
     hold(b)
     return ret
 if Axes.contour.__doc__ is not None:
@@ -1810,7 +1826,7 @@ def contourf(*args, **kwargs):
     except:
         hold(b)
         raise
-    if ret[1].mappable is not None: gci._current = ret[1].mappable
+    if ret._A is not None: gci._current = ret
     hold(b)
     return ret
 if Axes.contourf.__doc__ is not None:
