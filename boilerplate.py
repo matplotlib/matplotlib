@@ -92,9 +92,9 @@ _misccommands = (
     )
 
 cmappable = {
-    'clabel' : 'if ret.mappable is not None: gci._current = ret.mappable',
-    'contour' : 'if ret[1].mappable is not None: gci._current = ret[1].mappable',
-    'contourf': 'if ret[1].mappable is not None: gci._current = ret[1].mappable',
+    #'clabel' : 'if ret.mappable is not None: gci._current = ret.mappable',
+    'contour' : 'if ret._A is not None: gci._current = ret',
+    'contourf': 'if ret._A is not None: gci._current = ret',
     'scatter' : 'gci._current = ret',
     'pcolor'  : 'gci._current = ret',
     'imshow'  : 'gci._current = ret',

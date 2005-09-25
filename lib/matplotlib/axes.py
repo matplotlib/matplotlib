@@ -20,7 +20,7 @@ from colors import colorConverter, normalize, Colormap, LinearSegmentedColormap,
 import cm
 #from cm import ColormapJet, Grayscale, ScalarMappable
 from cm import ScalarMappable
-from contour import ContourSupport, ContourLabeler
+from contour import ContourSet
 import _image
 from ticker import AutoLocator, LogLocator, NullLocator
 from ticker import ScalarFormatter, LogFormatter, LogFormatterExponent, LogFormatterMathtext, NullFormatter
@@ -343,10 +343,6 @@ class Axes(Artist):
         # funcs used to format x and y - fall back on major formatters
         self.fmt_xdata = None
         self.fmt_ydata = None
-
-
-        self._contourHelper = ContourSupport(self)
-        self._contourLabeler = ContourLabeler(self)
 
         self.set_cursor_props((1,'k')) # set the cursor properties for axes
 
@@ -1243,17 +1239,19 @@ class Axes(Artist):
         'clear the axes'
         self.cla()
 
-    def clabel(self, *args, **kwargs):
-        return self._contourLabeler.clabel(*args, **kwargs)
-    clabel.__doc__ = ContourLabeler.clabel.__doc__
+    def clabel(self, CS, *args, **kwargs):
+        return CS.clabel(*args, **kwargs)
+    clabel.__doc__ = ContourSet.clabel.__doc__
 
     def contour(self, *args, **kwargs):
-        return self._contourHelper.contour(*args, **kwargs)
-    contour.__doc__ = ContourSupport.contour.__doc__
+        kwargs['filled'] = False
+        return ContourSet(self, *args, **kwargs)
+    contour.__doc__ = ContourSet.contour_doc
 
     def contourf(self, *args, **kwargs):
-        return self._contourHelper.contourf(*args, **kwargs)
-    contourf.__doc__ = ContourSupport.contourf.__doc__
+        kwargs['filled'] = True
+        return ContourSet(self, *args, **kwargs)
+    contourf.__doc__ = ContourSet.contour_doc
 
 
     def cohere(self, x, y, NFFT=256, Fs=2, detrend=detrend_none,
@@ -1913,7 +1911,7 @@ class Axes(Artist):
         determined by xmin and xmax
 
         fmt is a plot format string, eg 'g--'
-        
+
         kwargs are matplotlib.lines.Line2D kwargs
 
         Returns a list of line instances that were added
@@ -1923,7 +1921,7 @@ class Axes(Artist):
 
         if not iterable(y): y = [y]
         if not iterable(xmin): xmin = [xmin]
-        if not iterable(xmax): xmax = [xmax]        
+        if not iterable(xmax): xmax = [xmax]
         y = asarray(y)
         xmin = asarray(xmin)
         xmax = asarray(xmax)
@@ -3553,15 +3551,15 @@ class Axes(Artist):
         fmt is a plot format string, eg 'g--'
 
         kwargs are matplotlib.lines.Line2D kwargs
-        
+
         Returns a list of lines that were added
         """
         linestyle, marker, color = _process_plot_format(fmt)
-        
+
 
         if not iterable(x): x = [x]
         if not iterable(ymin): ymin = [ymin]
-        if not iterable(ymax): ymax = [ymax]        
+        if not iterable(ymax): ymax = [ymax]
         x = asarray(x)
         ymin = asarray(ymin)
         ymax = asarray(ymax)

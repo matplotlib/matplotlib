@@ -1,5 +1,13 @@
 New entries should be added at the top
 
+2005-09-25 contour.py modified to use a single ContourSet class
+           that handles filled contours, line contours, and labels;
+           added keyword arg (clip_ends) to contourf.
+           Colorbar modified to work with new ContourSet object;
+           if the ContourSet has lines rather than polygons, the
+           colorbar will follow suit. Fixed a bug introduced in
+           0.84, in which contourf(...,colors=...) was broken - EF
+
 2005-09-14 Added a new 'resize_event' which triggers a callback with a
            backend_bases.ResizeEvent object - JDH
 
