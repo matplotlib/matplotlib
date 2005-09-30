@@ -398,7 +398,7 @@ class Arrow(Polygon):
             [ 0.8, -0.1 ], [ 0.8, -0.3],
             [ 1.0,  0.0 ], [ 0.8,  0.3],
             [ 0.8,  0.1 ] ] )
-        L = sqrt(dx**2+dy**2)
+        L = sqrt(dx**2+dy**2) or 1 # account for div by zero
         arrow[:,0] *= L
         arrow[:,1] *= width
         cx = float(dx)/L
