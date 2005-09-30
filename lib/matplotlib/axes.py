@@ -853,10 +853,10 @@ class Axes(Artist):
         arrows = []
         N = sqrt( U**2+V**2 )
         if do_scale:
-            Nmax = maximum.reduce(maximum.reduce(N))
-            U *= (S/Nmax)
-            V *= (S/Nmax)
-            N /= Nmax
+            Nmax = maximum.reduce(maximum.reduce(N)) or 1 # account for div by zero
+            U = U*(S/Nmax)
+            V = V*(S/Nmax)
+            N = N*Nmax
 
         alpha = kwargs.get('alpha', 1.0)
         width = kwargs.get('width', 0.25)
@@ -890,7 +890,7 @@ class Axes(Artist):
             arrows,
             edgecolors = 'None',
             facecolors = (color,),
-            antialiaseds = (0,),
+            antialiaseds = (1,),
             linewidths = (width,),
             )
         if C is not None:
