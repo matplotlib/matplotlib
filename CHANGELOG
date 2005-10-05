@@ -1,5 +1,7 @@
 New entries should be added at the top
 
+2005-10-04 Added rkern's texmanager patch
+
 2005-09-25 contour.py modified to use a single ContourSet class
            that handles filled contours, line contours, and labels;
            added keyword arg (clip_ends) to contourf.

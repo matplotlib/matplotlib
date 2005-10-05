@@ -19,6 +19,7 @@ CXX/Extensions.hxx
 CXX/IndirectPythonInterface.cxx
 CXX/IndirectPythonInterface.hxx
 CXX/Objects.hxx
+CXX/Version.hxx
 CXX/cxx_extensions.cxx
 CXX/cxxextensions.c
 CXX/cxxsupport.cxx
@@ -294,11 +295,16 @@ examples/agg_test.py
 examples/alignment_test.py
 examples/anim.py
 examples/anim_tk.py
+examples/animation_blit.py
+examples/animation_blit_fltk.py
+examples/animation_blit_tk.py
+examples/animation_blit_wx.py
 examples/anscombe.py
 examples/arctest.py
 examples/axes_demo.py
 examples/axes_props.py
 examples/axhspan_demo.py
+examples/axis_equal_demo.py
 examples/backend_driver.py
 examples/bar_stacked.py
 examples/barchart_demo.py
@@ -421,11 +427,13 @@ examples/simple_plot.py
 examples/specgram_demo.py
 examples/stem_plot.py
 examples/stock_demo.py
+examples/strip_chart_demo.py
 examples/subplot_demo.py
 examples/subplot_toolbar.py
 examples/subplots_adjust.py
 examples/system_monitor.py
 examples/table_demo.py
+examples/test.py
 examples/tex_demo.py
 examples/text_handles.py
 examples/text_rotation.py
@@ -454,6 +462,7 @@ examples/widgets/buttons.py
 examples/widgets/check_buttons.py
 examples/widgets/cursor.py
 examples/widgets/radio_buttons.py
+examples/widgets/rectangle_selector.py
 examples/widgets/sliders.py
 examples/widgets/span_selector.py
 fonts/afm/cmex10.afm
@@ -580,6 +589,8 @@ lib/dateutil/rrule.py
 lib/dateutil/tz.py
 lib/matplotlib/.cvsignore
 lib/matplotlib/__init__.py
+lib/matplotlib/__init__.py.old
+lib/matplotlib/__init__.py.orig
 lib/matplotlib/_contour.py
 lib/matplotlib/_image.py
 lib/matplotlib/_mathtext_data.py
@@ -592,7 +603,6 @@ lib/matplotlib/axes.py
 lib/matplotlib/axes.py.orig
 lib/matplotlib/axis.py
 lib/matplotlib/axis.py.orig
-lib/matplotlib/axis.py.rej
 lib/matplotlib/backend_bases.py
 lib/matplotlib/cbook.py
 lib/matplotlib/cm.py
@@ -601,7 +611,6 @@ lib/matplotlib/colors.py
 lib/matplotlib/contour.py
 lib/matplotlib/dates.py
 lib/matplotlib/figure.py
-lib/matplotlib/figure.py.orig
 lib/matplotlib/finance.py
 lib/matplotlib/font_manager.py
 lib/matplotlib/image.py
@@ -614,6 +623,7 @@ lib/matplotlib/pylab.py
 lib/matplotlib/pyparsing.py
 lib/matplotlib/table.py
 lib/matplotlib/texmanager.py
+lib/matplotlib/texmanager.py.orig
 lib/matplotlib/text.py
 lib/matplotlib/ticker.py
 lib/matplotlib/transforms.py
@@ -1276,6 +1286,7 @@ lib/pytz/zoneinfo/US/__init__.py
 license/DATEUTIL_LICENSE.txt
 license/LICENSE
 license/LICENSE_BAKOMA
+license/LICENSE_COLORBREWER
 license/LICENSE_PAINT
 license/LICENSE_PIL
 license/LICENSE_enthought.txt
@@ -1300,6 +1311,7 @@ src/_tkagg.cpp
 src/_transforms.cpp
 src/_transforms.h
 src/_windowing.cpp
+src/_wxagg.cpp
 src/agg.cxx
 src/cntr.c
 src/ft2font.cpp

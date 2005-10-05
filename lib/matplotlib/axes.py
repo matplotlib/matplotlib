@@ -1,4 +1,3 @@
-'jdh'
 from __future__ import division, generators
 
 import math, sys
@@ -3808,6 +3807,13 @@ class SubplotBase:
 
         self.update_params()
 
+    def change_geometry(self, numrows, numcols, num):
+        'change subplot geometry, eg from 1,1,1 to 2,2,3'
+        self._rows = rows
+        self._cols = cols
+        self._num = num
+        self.update_params()
+        
     def update_params(self):
         'update the subplot position from fig.subplotpars'
 
