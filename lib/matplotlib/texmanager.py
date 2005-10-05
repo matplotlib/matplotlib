@@ -77,6 +77,11 @@ WARNING: found a TeX cache dir in the deprecated location "%s".
         return md5.md5(tex).hexdigest()
         
     def get_tex_command(self, tex, fname):
+
+        fontcmd = {'sans-serif' : r'{\sffamily %s}',
+                   'monospace'  : r'{\ttfamily %s}'}.get(
+        rcParams['font.family'],r'{\rmfamily %s}')
+        tex = fontcmd % tex
         fh = file(fname, 'w')
         if rcParams['text.tex.engine'] == 'latex':
             s = r"""\documentclass{article}

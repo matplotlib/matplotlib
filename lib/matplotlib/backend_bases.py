@@ -52,7 +52,7 @@ class RendererBase:
         """
         raise NotImplementedError
 
-    def _draw_markers(self, gc, path, rgbFace, x, y, trans):
+    def _draw_markers(self, bgc, path, rgbFace, x, y, trans):
         """
         This method is currently underscore hidden because the
         draw_markers method is being used as a sentinel for newstyle
