@@ -76,7 +76,7 @@ class RendererGDK(RendererBase):
         self.gtkDA = gtkDA
         self.dpi   = dpi
         self._cmap = gtkDA.get_colormap()
-        
+
     def set_pixmap (self, pixmap):
         self.gdkDrawable = pixmap
 
@@ -89,7 +89,7 @@ class RendererGDK(RendererBase):
         x, y = int(x-0.5*width), self.height-int(y+0.5*height)
         w, h = int(width)+1, int(height)+1
         a1, a2 = int(angle1*64), int(angle2*64)
-        
+
         if rgbFace:
             saveColor = gc.gdkGC.foreground
             gc.gdkGC.foreground = gc.rgb_to_gdk_color(rgbFace)
@@ -137,7 +137,7 @@ class RendererGDK(RendererBase):
         # unflip
         im.flipud_out()
 
-            
+
     def draw_line(self, gc, x1, y1, x2, y2):
         self.gdkDrawable.draw_line(gc.gdkGC, int(x1), self.height-int(y1),
                                    int(x2), self.height-int(y2))
@@ -145,9 +145,9 @@ class RendererGDK(RendererBase):
 
     def draw_lines(self, gc, x, y, transform=None):
         x = x.astype(nx.Int16)
-        y = self.height - y.astype(nx.Int16)  
+        y = self.height - y.astype(nx.Int16)
         self.gdkDrawable.draw_lines(gc.gdkGC, zip(x,y))
-        
+
 
     def draw_point(self, gc, x, y):
         self.gdkDrawable.draw_point(gc.gdkGC, int(x), self.height-int(y))
@@ -196,7 +196,7 @@ class RendererGDK(RendererBase):
             l, b, w, h = inkRect
             self.gdkDrawable.draw_layout(gc.gdkGC, x, y-h-b, layout)
 
-        
+
     def _draw_mathtext(self, gc, x, y, s, prop, angle):
         size = prop.get_size_in_points()
         width, height, fonts = math_parse_s_ft2font(
@@ -206,7 +206,7 @@ class RendererGDK(RendererBase):
             width, height = height, width
             x -= width
         y -= height
-        
+
         imw, imh, image_str = fonts[0].image_as_str()
         N = imw*imh
 
@@ -217,7 +217,7 @@ class RendererGDK(RendererBase):
             if angle == 90:
                 font.horiz_image_to_vert_image() # <-- Rotate
             imw, imh, image_str = font.image_as_str()
-            Xall[:,i] = fromstring(image_str, UInt8)  
+            Xall[:,i] = fromstring(image_str, UInt8)
 
         # get the max alpha at each pixel
         Xs = numerix.mlab.max(Xall,1)
@@ -246,8 +246,8 @@ class RendererGDK(RendererBase):
             pixbuf.render_to_drawable(self.gdkDrawable, gc.gdkGC, 0, 0,
                                   int(x), int(y), imw, imh,
                                   gdk.RGB_DITHER_NONE, 0, 0)
-            
-        
+
+
     def _draw_rotated_text(self, gc, x, y, s, prop, angle):
         """
         Draw the text rotated 90 degrees, other angles are not supported
@@ -311,7 +311,7 @@ class RendererGDK(RendererBase):
         # problem? - cache gets bigger and bigger, is never cleared out
         # two (not one) layouts are created for every text item s (then they
         # are cached) - why?
-        
+
         key = self.dpi.get(), s, hash(prop)
         value = self.layoutd.get(key)
         if value != None:
@@ -327,9 +327,9 @@ class RendererGDK(RendererBase):
         font.set_weight(self.fontweights[prop.get_weight()])
 
         layout = self.gtkDA.create_pango_layout(s)
-        layout.set_font_description(font)    
+        layout.set_font_description(font)
         inkRect, logicalRect = layout.get_pixel_extents()
-        
+
         self.layoutd[key] = layout, inkRect, logicalRect
         return layout, inkRect, logicalRect
 
@@ -374,7 +374,7 @@ class GraphicsContextGDK(GraphicsContextBase):
         'round'      : gdk.CAP_ROUND,
         }
 
-              
+
     def __init__(self, renderer):
         GraphicsContextBase.__init__(self)
         self.renderer = renderer
@@ -388,7 +388,7 @@ class GraphicsContextGDK(GraphicsContextBase):
         return an allocated gtk.gdk.Color
         """
         try:
-            return self._cached[rgb] 
+            return self._cached[rgb]
         except KeyError:
             color = self._cached[rgb] = \
                     self._cmap.alloc_color(
@@ -411,7 +411,7 @@ class GraphicsContextGDK(GraphicsContextBase):
                      int(w), int(h))
         #rectangle = (int(l), self.renderer.height-int(b+h),
         #             int(w+1), int(h+2))
-        self.gdkGC.set_clip_rectangle(rectangle)        
+        self.gdkGC.set_clip_rectangle(rectangle)
 
 
     def set_dashes(self, dash_offset, dash_list):
@@ -434,7 +434,7 @@ class GraphicsContextGDK(GraphicsContextBase):
     def set_graylevel(self, frac):
         GraphicsContextBase.set_graylevel(self, frac)
         self.gdkGC.foreground = self.rgb_to_gdk_color(self.get_rgb())
-        
+
 
     def set_joinstyle(self, js):
         GraphicsContextBase.set_joinstyle(self, js)
@@ -446,7 +446,7 @@ class GraphicsContextGDK(GraphicsContextBase):
         pixels = self.renderer.points_to_pixels(w)
         self.gdkGC.line_width = max(1, int(round(pixels)))
 
-                                               
+
 def new_figure_manager(num, *args, **kwargs):
     """
     Create a new figure manager instance
@@ -463,7 +463,7 @@ def new_figure_manager(num, *args, **kwargs):
 class FigureCanvasGDK (FigureCanvasBase):
     def __init__(self, figure):
         FigureCanvasBase.__init__(self, figure)
-        
+
         self._renderer_init()
 
     def _renderer_init(self):
@@ -476,13 +476,13 @@ class FigureCanvasGDK (FigureCanvasBase):
 
     def print_figure(self, filename, dpi=150, facecolor='w', edgecolor='w',
                      orientation='portrait'):
-        root, ext = os.path.splitext(filename)       
+        root, ext = os.path.splitext(filename)
         ext = ext[1:]
         if ext == '':
             ext      = IMAGE_FORMAT_DEFAULT
-            filename = filename + '.' + ext        
+            filename = filename + '.' + ext
 
-        self.figure.dpi.set(dpi)        
+        self.figure.dpi.set(dpi)
         self.figure.set_facecolor(facecolor)
         self.figure.set_edgecolor(edgecolor)
 
@@ -498,9 +498,9 @@ class FigureCanvasGDK (FigureCanvasBase):
                                     width, height)
             pixbuf.get_from_drawable(pixmap, pixmap.get_colormap(),
                                      0, 0, 0, 0, width, height)
-        
+
             # pixbuf.save() recognises 'jpeg' not 'jpg'
-            if ext == 'jpg': ext = 'jpeg' 
+            if ext == 'jpg': ext = 'jpeg'
 
             pixbuf.save(filename, ext)
 
@@ -510,11 +510,11 @@ class FigureCanvasGDK (FigureCanvasBase):
             else:
                 from backend_ps  import FigureCanvasPS  as FigureCanvas
 
-            
+
             fc = self.switch_backends(FigureCanvas)
             fc.print_figure(filename, dpi, facecolor, edgecolor, orientation)
         elif ext in ('bmp', 'raw', 'rgb',):
-            
+
             from backend_agg import FigureCanvasAgg  as FigureCanvas
             fc = self.switch_backends(FigureCanvas)
             fc.print_figure(filename, dpi, facecolor, edgecolor, orientation)

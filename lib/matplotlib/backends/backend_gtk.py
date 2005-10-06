@@ -113,10 +113,7 @@ class FigureCanvasGTK (gtk.DrawingArea, FigureCanvasBase):
         self._need_redraw   = True
         self._pixmap_width  = -1
         self._pixmap_height = -1
-
-        self._lastCursor = None
-
-        self.set_double_buffered(False)
+        self._lastCursor    = None
 
         self.connect('button_press_event',   self.button_press_event)
         self.connect('button_release_event', self.button_release_event)
@@ -136,40 +133,33 @@ class FigureCanvasGTK (gtk.DrawingArea, FigureCanvasBase):
             gdk.POINTER_MOTION_MASK |
             gdk.POINTER_MOTION_HINT_MASK)
 
+        self.set_double_buffered(False)
         self.set_flags(gtk.CAN_FOCUS)
-        self.grab_focus()
-
         self._renderer_init()
 
 
     def resize(self, w, h):
         'set the drawing area size in pixels'
         winw, winh = self.parent.parent.get_size()
-        tmp, tmp, myw, myh = self.get_allocation()
-
+        tmp, tmp, myw, myh = self.allocation
         padw = winw-myw
         padh = winh-myh
-
-        neww = w+padw
-        newh = h+padh
-        self.parent.parent.resize(neww, newh)
+        self.parent.parent.resize(w+padw, h+padh)
 
     def button_press_event(self, widget, event):
         if _debug: print 'FigureCanvasGTK.%s' % fn_name()
         x = event.x
         # flipy so y=0 is bottom of canvas
-        y = self.figure.bbox.height() - event.y
+        y = self.allocation.height - event.y
         FigureCanvasBase.button_press_event(self, x, y, event.button)
-
         return False  # finish event propagation?
 
     def button_release_event(self, widget, event):
         if _debug: print 'FigureCanvasGTK.%s' % fn_name()
         x = event.x
         # flipy so y=0 is bottom of canvas
-        y = self.figure.bbox.height() - event.y
+        y = self.allocation.height - event.y
         FigureCanvasBase.button_release_event(self, x, y, event.button)
-
         return False  # finish event propagation?
 
     def key_press_event(self, widget, event):
@@ -177,7 +167,6 @@ class FigureCanvasGTK (gtk.DrawingArea, FigureCanvasBase):
         key = self._get_key(event)
         if _debug: print "hit", key
         FigureCanvasBase.key_press_event(self, key)
-
         return False  # finish event propagation?
 
     def key_release_event(self, widget, event):
@@ -185,7 +174,6 @@ class FigureCanvasGTK (gtk.DrawingArea, FigureCanvasBase):
         key = self._get_key(event)
         if _debug: print "release", key
         FigureCanvasBase.key_release_event(self, key)
-
         return False  # finish event propagation?
 
     def motion_notify_event(self, widget, event):
@@ -198,7 +186,6 @@ class FigureCanvasGTK (gtk.DrawingArea, FigureCanvasBase):
         # flipy so y=0 is bottom of canvas
         y = self.allocation.height - y
         FigureCanvasBase.motion_notify_event(self, x, y)
-
         return False  # finish event propagation?
 
     def _get_key(self, event):
@@ -215,18 +202,16 @@ class FigureCanvasGTK (gtk.DrawingArea, FigureCanvasBase):
 
 
     def configure_event(self, widget, event):
-
         if _debug: print 'FigureCanvasGTK.%s' % fn_name()
-        if widget.window == None:
+        if widget.window is None:
             return
-
-        w,h = widget.window.get_size()
-        if w<3 or h<3: return # empty fig
+        w, h = event.width, event.height
+        if w<3 or h<3:
+            return # empty fig
 
         # resize the figure (in inches)
         dpi = self.figure.dpi.get()
         self.figure.set_figsize_inches (w/dpi, h/dpi)
-
         self._need_redraw = True
 
         self.resize_event()
@@ -357,8 +342,7 @@ class FigureCanvasGTK (gtk.DrawingArea, FigureCanvasBase):
 
             # jpg colors don't match the display very well, png colors match
             # better
-            pixbuf = gdk.Pixbuf(gdk.COLORSPACE_RGB, 0, 8,
-                                    width, height)
+            pixbuf = gdk.Pixbuf(gdk.COLORSPACE_RGB, 0, 8, width, height)
             pixbuf.get_from_drawable(pixmap, pixmap.get_colormap(),
                                      0, 0, 0, 0, width, height)
 
@@ -460,8 +444,8 @@ class FigureManagerGTK(FigureManagerBase):
             h += tb_h
         self.window.set_default_size (w, h)
 
-
-        def destroy(*args): Gcf.destroy(num)
+        def destroy(*args):
+            Gcf.destroy(num)
         self.window.connect("destroy", destroy)
         self.window.connect("delete_event", destroy)
         if matplotlib.is_interactive():
@@ -472,6 +456,7 @@ class FigureManagerGTK(FigureManagerBase):
             if self.toolbar != None: self.toolbar.update()
         self.canvas.figure.add_axobserver(notify_axes_change)
 
+        self.canvas.grab_focus()
 
     def destroy(self, *args):
         if _debug: print 'FigureManagerGTK.%s' % fn_name()
@@ -541,7 +526,8 @@ class NavigationToolbar2GTK(NavigationToolbar2, gtk.Toolbar):
     def draw_rubberband(self, event, x0, y0, x1, y1):
         'adapted from http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/189744'
         drawable = self.canvas.window
-        if drawable == None: return
+        if drawable is None:
+            return
 
         gc = drawable.new_gc()
 
@@ -556,7 +542,8 @@ class NavigationToolbar2GTK(NavigationToolbar2, gtk.Toolbar):
         try: lastrect, imageBack = self._imageBack
         except AttributeError:
             #snap image back
-            if event.inaxes == None: return
+            if event.inaxes is None:
+                return
 
             ax = event.inaxes
             l,b,w,h = [int(val) for val in ax.bbox.get_bounds()]
@@ -589,7 +576,7 @@ class NavigationToolbar2GTK(NavigationToolbar2, gtk.Toolbar):
         basedir = matplotlib.rcParams['datapath']
 
         for text, tooltip_text, image_file, callback in self.toolitems:
-            if text == None:
+            if text is None:
                  self.append_space()
                  continue
 
@@ -619,7 +606,7 @@ class NavigationToolbar2GTK(NavigationToolbar2, gtk.Toolbar):
         self.tooltips = gtk.Tooltips()
 
         for text, tooltip_text, image_file, callback in self.toolitems:
-            if text == None:
+            if text is None:
                 self.insert( gtk.SeparatorToolItem(), -1 )
                 continue
             fname = os.path.join(basedir, image_file)
@@ -754,7 +741,7 @@ class NavigationToolbar(gtk.Toolbar):
 
         for text, tooltip_text, image, callback, callback_arg, scroll \
                 in self.toolitems:
-            if text == None:
+            if text is None:
                 self.insert( gtk.SeparatorToolItem(), -1 )
                 continue
             tbutton = gtk.ToolButton(gtk.image_new_from_stock(image, iconSize),
@@ -828,7 +815,7 @@ class NavigationToolbar(gtk.Toolbar):
 
         for text, tooltip_text, image, callback, callback_arg, scroll \
                 in self.toolitems:
-            if text == None:
+            if text is None:
                 self.append_space()
                 continue
             item = self.append_item(text, tooltip_text, 'Private',
@@ -1069,7 +1056,6 @@ except:
     verbose.report('Could not load matplotlib icon: %s' % sys.exc_info()[1])
 
 
-
 def error_msg_gtk(msg, parent=None):
 
     if parent: # find the toplevel gtk.Window
@@ -1089,26 +1075,4 @@ def error_msg_gtk(msg, parent=None):
     dialog.destroy()
 
 
-def exception_handler(type, value, tb):
-    """Handle uncaught exceptions
-    It does not catch SystemExit
-    """
-    msg = ''
-    # get the filename attribute if available (for IOError)
-    if hasattr(value, 'filename') and value.filename != None:
-        msg = value.filename + ': '
-    if hasattr(value, 'strerror') and value.strerror != None:
-        msg += value.strerror
-    else:
-        msg += str(value)
-
-    if len(msg) :error_msg_gtk(msg)
-
-# override excepthook only if it has not already been overridden
-#if sys.__excepthook__ is sys.excepthook:
-#    sys.excepthook = exception_handler
-
 FigureManager = FigureManagerGTK
-
-
-
