@@ -138,13 +138,13 @@ class FigureCanvasGTK (gtk.DrawingArea, FigureCanvasBase):
         self._renderer_init()
 
 
-    def resize(self, w, h):
-        'set the drawing area size in pixels'
-        winw, winh = self.parent.parent.get_size()
-        tmp, tmp, myw, myh = self.allocation
-        padw = winw-myw
-        padh = winh-myh
-        self.parent.parent.resize(w+padw, h+padh)
+    #def resize(self, w, h):
+    #    'set the drawing area size in pixels'
+    #    winw, winh = self.parent.parent.get_size()
+    #    tmp, tmp, myw, myh = self.allocation
+    #    padw = winw-myw
+    #    padh = winh-myh
+    #    self.parent.parent.resize(w+padw, h+padh)
 
     def button_press_event(self, widget, event):
         if _debug: print 'FigureCanvasGTK.%s' % fn_name()
@@ -214,7 +214,7 @@ class FigureCanvasGTK (gtk.DrawingArea, FigureCanvasBase):
         self.figure.set_figsize_inches (w/dpi, h/dpi)
         self._need_redraw = True
 
-        self.resize_event()
+        #self.resize_event()
         return False  # finish event propagation?
 
 
@@ -486,6 +486,12 @@ class FigureManagerGTK(FigureManagerBase):
             toolbar = None
         return toolbar
 
+
+    def set_canvas_size(self, width, height):
+        'set the canvas size in pixels'
+        _, _, cw, ch = self.canvas.allocation
+        _, _, ww, wh = self.window.allocation
+        self.window.resize (width-cw+ww, height-ch+wh)
 
 
 class NavigationToolbar2GTK(NavigationToolbar2, gtk.Toolbar):
