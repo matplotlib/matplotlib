@@ -1,5 +1,9 @@
 New entries should be added at the top
 
+2005-10-10 Replaced all instances of os.rename with shutil.move
+
+2005-10-05 Added Michael Brady's ydate patch
+
 2005-10-04 Added rkern's texmanager patch
 
 2005-09-25 contour.py modified to use a single ContourSet class

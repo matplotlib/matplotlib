@@ -60,7 +60,7 @@ class TexManager:
         print >> sys.stderr, """\
 WARNING: found a TeX cache dir in the deprecated location "%s".
   Moving it to the new default location "%s"."""%(oldcache, texcache)
-        os.rename(oldcache, texcache)
+        shutil.move(oldcache, texcache)
 
     dvipngVersion = None
 
@@ -80,7 +80,7 @@ WARNING: found a TeX cache dir in the deprecated location "%s".
 
         fontcmd = {'sans-serif' : r'{\sffamily %s}',
                    'monospace'  : r'{\ttfamily %s}'}.get(
-        rcParams['font.family'],r'{\rmfamily %s}')
+            rcParams['font.family'], r'{\rmfamily %s}')
         tex = fontcmd % tex
         fh = file(fname, 'w')
         if rcParams['text.tex.engine'] == 'latex':
@@ -129,7 +129,7 @@ WARNING: found a TeX cache dir in the deprecated location "%s".
         # if not in TEXMFOUTPUT.  So check for existence in current
         # dir and move it if necessary and then cleanup
         if os.path.exists(dvibase):
-            os.rename(dvibase, dvifile)
+            shutil.move(dvibase, dvifile)
             for fname in glob.glob(prefix+'*'):
                 os.remove(fname)
         return dvifile
@@ -308,20 +308,19 @@ WARNING: found a TeX cache dir in the deprecated location "%s".
 
             vers = self.get_dvipng_version()
             if vers<'1.6':
+                # hack the alpha channel as described in comment above
                 alpha = sqrt(1-X[:,:,0])
             else:
-                # 1.6 has the alpha channel right
+                # dvipng 1.6 and above handles the alpha channel
+                # properly
                 alpha = sqrt(X[:,:,-1])
             
-            #from matplotlib.mlab import prctile
-            #print 'ptile', prctile(ravel(X[:,:,0])), prctile(ravel(X[:,:,-1]))
 
             Z = zeros(X.shape, Float)
             Z[:,:,0] = r
             Z[:,:,1] = g
             Z[:,:,2] = b
             Z[:,:,3] = alpha
-            #im = fromarray(Z, 1)
                
             self.arrayd[key] = Z
         return Z

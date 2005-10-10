@@ -25,7 +25,7 @@
 #include "agg_pixfmt_rgb.h"
 #include "agg_pixfmt_rgba.h"
 #include "agg_rasterizer_outline.h"
-#include "agg_rasterizer_scanline_aa.h"
+#include "agg_rasterizer_aa.h"
 #include "agg_renderer_outline_aa.h"
 #include "agg_renderer_raster_text.h"
 #include "agg_renderer_scanline.h"

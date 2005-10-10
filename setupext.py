@@ -102,6 +102,7 @@ def add_base_flags(module):
     libdirs = [os.path.join(p, 'lib')     for p in basedir[sys.platform]
                if os.path.exists(p)]
     module.include_dirs.extend(incdirs)
+    module.include_dirs.append('.')    
     module.library_dirs.extend(libdirs)
 
 
@@ -169,6 +170,16 @@ def add_pygtk_flags(module):
         module.include_dirs.extend(
             ['win32_static/include/pygtk-2.0',
              'C:/GTK/include',
+             'C:/GTK/include/gobject',
+             'C:/GTK/include/gmodule',                          
+             'C:/GTK/include/glib',
+             'C:/GTK/include/pango',                          
+             'C:/GTK/include/atk',
+             'C:/GTK/include/X11',                          
+             'C:/GTK/include/cairo',             
+             'C:/GTK/include/gdk',
+             'C:/GTK/include/gdk-pixbuf',
+             'C:/GTK/include/gtk',                          
              ])
 
     add_base_flags(module)

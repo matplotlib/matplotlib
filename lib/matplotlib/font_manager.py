@@ -33,7 +33,7 @@ License   : matplotlib license (PSF compatible)
             see license/LICENSE_TTFQUERY.
 """
 
-import os, sys, glob, warnings
+import os, sys, glob, warnings, shutil
 import matplotlib
 from matplotlib import afm
 from matplotlib import ft2font
@@ -811,7 +811,7 @@ Delete this file to have matplotlib rebuild the cache."""
         ttfcache = os.path.join(get_configdir(), 'ttffont.cache')
         if os.path.exists(oldcache):
             print >> sys.stderr, 'Moving old ttfcache location "%s" to new location "%s"'%(oldcache, ttfcache)
-            os.rename(oldcache, ttfcache)
+            shutil.move(oldcache, ttfcache)
 
 
 
