@@ -2591,19 +2591,29 @@ class Axes(Artist):
         self.autoscale_view()
         return lines
 
-    def plot_date(self, d, y, fmt='bo', tz=None, **kwargs):
+    def plot_date(self, x, y, fmt='bo', tz=None, xdate=True, ydate=False,
+                  **kwargs):
         """
-        PLOT_DATE(d, y, fmt='bo', tz=None, **kwargs)
+        PLOT_DATE(x, y, fmt='bo', tz=None, xdate=True, ydate=False, **kwargs)
 
-        d is a sequence of dates represented as float days since
-        0001-01-01 UTC and y are the y values at those dates.  fmt is
-        a plot format string.  kwargs are passed on to plot.  See plot
-        for more information.
+        Similar to the plot() command, except the x or y (or both) data
+        is considered to be dates, and the axis is labeled accordingly.
+
+        x or y (or both) can be a sequence of dates represented as
+        float days since 0001-01-01 UTC.
+
+        fmt is a plot format string.
+
+        tz is the time zone to use in labelling dates.  Defaults to rc value.
+
+        If xdate is True, the x-axis will be labeled with dates.
+
+        If ydate is True, the y-axis will be labeled with dates.
+
+        kwargs are passed on to plot.  See plot for more information.
 
         See matplotlib.dates for helper functions date2num, num2date
         and drange for help on creating the required floating point dates
-
-        tz is the timezone - defaults to rc value
         """
 
         if not matplotlib._havedate:
@@ -2611,13 +2621,13 @@ class Axes(Artist):
 
         if not self._hold: self.cla()
 
-        ret = self.plot(d, y, fmt, **kwargs)
+        ret = self.plot(x, y, fmt, **kwargs)
 
-        span  = self.dataLim.intervalx().span()
-
-        locator, formatter = date_ticker_factory(span, tz)
-        self.xaxis.set_major_locator(locator)
-        self.xaxis.set_major_formatter(formatter)
+        if xdate:
+            self.xaxis_date(tz)
+        if ydate:
+            self.yaxis_date(tz)
+            
         self.autoscale_view()
 
         return ret
@@ -3586,6 +3596,27 @@ class Axes(Artist):
             lines.append(line)
         return lines
 
+    def xaxis_date(self, tz=None):
+        """Sets up x-axis ticks and labels that treat the x data as dates.
+        
+        tz is the time zone to use in labeling dates.  Defaults to rc value.
+        """
+
+        span  = self.dataLim.intervalx().span()
+        locator, formatter = date_ticker_factory(span, tz)
+        self.xaxis.set_major_locator(locator)
+        self.xaxis.set_major_formatter(formatter)
+
+    def yaxis_date(self, tz=None):
+        """Sets up y-axis ticks and labels that treat the y data as dates.
+        
+        tz is the time zone to use in labeling dates.  Defaults to rc value.
+        """
+        
+        span  = self.dataLim.intervaly().span()
+        locator, formatter = date_ticker_factory(span, tz)
+        self.yaxis.set_major_locator(locator)
+        self.yaxis.set_major_formatter(formatter)
 
     def zoomx(self, numsteps):
         'Zoom in on the x xaxis numsteps (plus for zoom in, minus for zoom out)'
