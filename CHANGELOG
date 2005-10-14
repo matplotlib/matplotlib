@@ -1,5 +1,10 @@
 New entries should be added at the top
 
+2005-10-14 Removed aqrt from dvipng 1.6 alpha channel mask.  Where did
+           that come from?
+
+2005-10-14 Added width kwarg to hist function
+
 2005-10-10 Replaced all instances of os.rename with shutil.move
 
 2005-10-05 Added Michael Brady's ydate patch

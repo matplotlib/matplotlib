@@ -1697,8 +1697,9 @@ class Axes(Artist):
         self.xaxis.grid(b)
         self.yaxis.grid(b)
 
+
     def hist(self, x, bins=10, normed=0, bottom=0,
-             orientation='vertical', **kwargs):
+             orientation='vertical', width=None, **kwargs):
         """
         HIST(x, bins=10, normed=0, bottom=0, orientiation='vertical', **kwargs)
 
@@ -1715,12 +1716,15 @@ class Axes(Artist):
         orientation = 'horizontal' | 'vertical'.  If horizontal, barh
         will be used and the "bottom" kwarg will be the left.
 
+        width: the width of the bars.  If None, automatically compute
+        the width.
+
         kwargs are used to update the properties of the
         hist bars
         """
         if not self._hold: self.cla()
         n,bins = matplotlib.mlab.hist(x, bins, normed)
-        width = 0.9*(bins[1]-bins[0])
+        if width is None: width = 0.9*(bins[1]-bins[0])
         if orientation=='horizontal':
             patches = self.barh(n, bins, height=width, left=bottom)
         else:
@@ -1728,6 +1732,9 @@ class Axes(Artist):
         for p in patches:
             p.update(kwargs)
         return n, bins, silent_list('Patch', patches)
+
+
+
 
     def hold(self, b=None):
         """

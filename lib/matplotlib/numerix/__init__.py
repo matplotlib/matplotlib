@@ -1,14 +1,16 @@
-"""numerix  imports either Numeric or numarray based on various selectors.
+"""
+numerix  imports either Numeric or numarray based on various selectors.
 
 0.  If the value "--numarray" or "--Numeric" is specified on the
-command line, then numerix imports the specified array package.
+    command line, then numerix imports the specified
+    array package.
 
-1. The value of numerix in ~/.matplotlibrc: either Numeric or numarray
+1. The value of numerix in matplotlibrc: either Numeric or numarray
 
 2. If none of the above is done, the default array package is Numeric.
-Because the .matplotlibrc always provides *some* value for numerix (it
-has it's own system of default values), this default is most likely
-never used.
+   Because the matplotlibrc always provides *some* value for numerix
+   (it has it's own system of default values), this default is most
+   likely never used.
 
 To summarize: the  commandline is examined first, the  rc file second,
 and the default array package is Numeric.  
