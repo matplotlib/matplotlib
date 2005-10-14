@@ -143,7 +143,8 @@ WARNING: found a TeX cache dir in the deprecated location "%s".
 
         self.get_dvipng_version()  # raises if dvipng is not up-to-date
         #print 'makepng', prefix, dvifile, pngfile
-        command = 'dvipng -bg Transparent -fg "rgb 0.0 0.0 0.0" -D %d -T tight -o "%s" "%s"'% (dpi, pngfile, dvifile)
+        #command = 'dvipng -bg Transparent -fg "rgb 0.0 0.0 0.0" -D %d -T tight -o "%s" "%s"'% (dpi, pngfile, dvifile)
+        command = 'dvipng -bg Transparent -D %d -T tight -o "%s" "%s"'% (dpi, pngfile, dvifile)        
 
         #assume white bg
         #command = "dvipng -bg 'rgb 1.0 1.0 1.0' -fg 'rgb 0.0 0.0 0.0' -D %d -T tight -o %s %s"% (dpi, pngfile, dvifile)
@@ -306,14 +307,18 @@ WARNING: found a TeX cache dir in the deprecated location "%s".
             pngfile = self.make_png(tex, dpi, force=False) 
             X = readpng(pngfile)
 
-            vers = self.get_dvipng_version()
+            v
+            ers = self.get_dvipng_version()
+            #print 'dvipng version', vers
             if vers<'1.6':
                 # hack the alpha channel as described in comment above
                 alpha = sqrt(1-X[:,:,0])
             else:
                 # dvipng 1.6 and above handles the alpha channel
-                # properly
-                alpha = sqrt(X[:,:,-1])
+                # properly [JDH: for some reason I had square root in
+                # here which isn't correct
+                #alpha = sqrt(X[:,:,-1])
+                alpha = X[:,:,-1]
             
 
             Z = zeros(X.shape, Float)
