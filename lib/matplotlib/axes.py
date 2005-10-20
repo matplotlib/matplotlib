@@ -664,6 +664,7 @@ class Axes(Artist):
             horizontalalignment='center',
             )
         self.title.set_transform(self.transAxes)
+        self.title.set_clip_box(None)        
 
         self._set_artist_props(self.title)
 

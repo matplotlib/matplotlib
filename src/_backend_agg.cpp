@@ -659,6 +659,12 @@ RendererAgg::bbox_to_rect(const Py::Object& o) {
 
 void
 RendererAgg::set_clip_from_bbox(const Py::Object& o) {
+
+  // do not puut this in the else below.  We want to unconditionally
+  // clear the clip
+  theRasterizer->reset_clipping();
+  rendererBase->reset_clipping(true);
+
   if (o.ptr() != Py_None) {  //using clip
     // Bbox::check(args[0]) failing; something about cross module?
     // set the clip rectangle
@@ -670,8 +676,8 @@ RendererAgg::set_clip_from_bbox(const Py::Object& o) {
     double r = clipbox->ur_api()->x_api()->val() ; 
     double t = clipbox->ur_api()->y_api()->val() ; ;       
     theRasterizer->clip_box(l, height-t, r, height-b);      
+    rendererBase->clip_box((int)l, (int)(height-t), (int)r, (int)(height-b));      
   }
-  
   
 }
 
@@ -1591,150 +1597,18 @@ RendererAgg::draw_text(const Py::Tuple& args) {
   
 }
 
-/*
-Py::Object 
-RendererAgg::draw_image(const Py::Tuple& args) {
-  _VERBOSE("RendererAgg::draw_image");
-  theRasterizer->reset_clipping();
-  args.verify_length(5);
-  
-  float x = Py::Float(args[0]);
-  float y = Py::Float(args[1]);
-  Image *image = static_cast<Image*>(args[2].ptr());
-  std::string origin = Py::String(args[3]);
-  
-  if (origin!="lower" && origin!="upper")
-    throw Py::ValueError(Printf("origin must be upper|lower; found %s", origin.c_str()).str());
-  
-  bool isUpper = origin=="upper";
-  
-  size_t ind = 0;
-  size_t thisx, thisy;
-  float oy = isUpper ? y : height-y;
-  
-  float minx(0), maxx(width), miny(0), maxy(height);
-  
-  if (args[4].ptr() != Py_None) {
-    Bbox* bbox = static_cast<Bbox*>(args[4].ptr());
-    minx = bbox->ll_api()->x_api()->val();
-    maxy = height-bbox->ll_api()->y_api()->val();
-    maxx = bbox->ur_api()->x_api()->val();
-    miny = height-bbox->ur_api()->y_api()->val();
-  }
-  
-  //if (isUpper) oy -= image->rowsOut;  //start at top
-  for (size_t j=0; j<image->rowsOut; j++) {
-    thisy =  (size_t)(isUpper ?  oy+j : oy-j-0.5);
-    if (thisy<miny || thisy>=maxy) {
-      ind += 4*image->colsOut;
-      continue;
-    }
-    for (size_t i=0; i<image->colsOut; i++) {
-      thisx = (size_t)(i+x); 
-      if (thisx<minx || thisx>=maxx) {
-	ind += 4;
-      	continue;
-      }
-      
-      pixfmt::color_type p;
-      
-      p.r = *(image->bufferOut+ind++);
-      p.g = *(image->bufferOut+ind++);
-      p.b = *(image->bufferOut+ind++);
-      p.a = *(image->bufferOut+ind++);
-      
-      pixFmt->blend_pixel(thisx, thisy, p, p.a);
-    }
-  }
-  
-  return Py::Object();
-  
-}
-*/
 
-/*
 Py::Object 
 RendererAgg::draw_image(const Py::Tuple& args) {
   _VERBOSE("RendererAgg::draw_image");
-  theRasterizer->reset_clipping();
   args.verify_length(4);
   
   float x = Py::Float(args[0]);
   float y = Py::Float(args[1]);
   Image *image = static_cast<Image*>(args[2].ptr());
   
-  size_t ind = 0;
-  size_t thisx, thisy;
-  float oy = height-y;
-  
-  float minx(0), maxx(width), miny(0), maxy(height);
-  
-  if (args[3].ptr() != Py_None) {
-    Bbox* bbox = static_cast<Bbox*>(args[3].ptr());
-    minx = bbox->ll_api()->x_api()->val();
-    maxy = height-bbox->ll_api()->y_api()->val();
-    maxx = bbox->ur_api()->x_api()->val();
-    miny = height-bbox->ur_api()->y_api()->val();
-  }
-  
+  set_clip_from_bbox(args[3]);
 
-  
-  //if (isUpper) oy -= image->rowsOut;  //start at top
-
-  for (size_t j=0; j<image->rowsOut; j++) {
-    thisy =  (size_t)(oy-j-0.5);
-    if (thisy<miny || thisy>=maxy) {
-      ind += 4*image->colsOut;
-      continue;
-    }
-    for (size_t i=0; i<image->colsOut; i++) {
-      thisx = (size_t)(i+x); 
-      if (thisx<minx || thisx>=maxx) {
-	ind += 4;
-      	continue;
-      }
-      
-      pixfmt::color_type p;
-      
-      p.r = *(image->bufferOut+ind++);
-      p.g = *(image->bufferOut+ind++);
-      p.b = *(image->bufferOut+ind++);
-      p.a = *(image->bufferOut+ind++);
-      
-      pixFmt->blend_pixel(thisx, thisy, p, p.a);
-    }
-  }
-  
-  return Py::Object();
-  
-}
-
-*/
-
-
-Py::Object 
-RendererAgg::draw_image(const Py::Tuple& args) {
-  _VERBOSE("RendererAgg::draw_image");
-  theRasterizer->reset_clipping();
-  args.verify_length(4);
-  
-  float x = Py::Float(args[0]);
-  float y = Py::Float(args[1]);
-  Image *image = static_cast<Image*>(args[2].ptr());
-  
-  
-  float minx(0), maxx(width), miny(0), maxy(height);
-  
-  if (args[3].ptr() != Py_None) {
-    Bbox* bbox = static_cast<Bbox*>(args[3].ptr());
-    minx = bbox->ll_api()->x_api()->val();
-    maxy = height-bbox->ll_api()->y_api()->val();
-    maxx = bbox->ur_api()->x_api()->val();
-    miny = height-bbox->ur_api()->y_api()->val();
-    //theRasterizer->clip_box(minx, miny, maxx, maxy);
-  }
-
-  
   pixfmt pixf(*(image->rbufOut));
 
  

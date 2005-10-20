@@ -341,6 +341,7 @@ class Text(Artist):
                 x, y = self._transform.xy_tup((x, y))
                 if renderer.flipy():
                     y = canvash-y
+
                 renderer.draw_tex(gc, x, y, line,
                                   self._fontproperties, angle)
             return

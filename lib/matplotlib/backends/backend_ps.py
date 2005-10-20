@@ -1087,6 +1087,7 @@ class FigureCanvasPS(FigureCanvasBase):
             latexh.close()
 
             command = 'latex -interaction=nonstopmode "%s"' % texfile
+
             verbose.report(command, 'debug-annoying')
             stdin, stdout, stderr = os.popen3(command)
             verbose.report(stdout.read(), 'debug-annoying')
@@ -1099,9 +1100,16 @@ class FigureCanvasPS(FigureCanvasBase):
             os.remove(epsfile)
             if ext.startswith('.ep'):
                 dpi = rcParams['ps.distiller.res']
-                command = 'gs -dBATCH -dNOPAUSE -dSAFER -r%d \
+
+                if sys.platform == 'win32':
+                    command = 'gswin32c -dBATCH -dNOPAUSE -dSAFER -r%d \
+                      -sDEVICE=epswrite -dLanguageLevel=2 -dEPSFitPage \
+                      -sOutputFile="%s" "%s"'% (dpi, epsfile, psfile)
+                else:
+                    command = 'gs -dBATCH -dNOPAUSE -dSAFER -r%d \
                     -sDEVICE=epswrite -dLanguageLevel=2 -dEPSFitPage \
                     -sOutputFile="%s" "%s"'% (dpi, epsfile, psfile)
+
                 verbose.report(command, 'debug-annoying')
                 stdin, stdout, stderr = os.popen3(command)
                 verbose.report(stdout.read(), 'debug-annoying')

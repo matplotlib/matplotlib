@@ -129,7 +129,6 @@ class RendererAgg(RendererBase):
         self.texmanager = TexManager()
 
         self.bbox = lbwh_to_bbox(0,0, self.width, self.height)
-        
 
     def draw_arc(self, gcEdge, rgbFace, x, y, width, height, angle1, angle2):
         """
@@ -241,7 +240,7 @@ class RendererAgg(RendererBase):
             Z = self.texmanager.get_rgba(s, size, dpi, rgb)
             m,n,tmp = Z.shape
             return n,m
-        
+         
         if ismath:
             width, height, fonts = math_parse_s_ft2font(
                 s, self.dpi.get(), prop.get_size_in_points())
@@ -267,7 +266,6 @@ class RendererAgg(RendererBase):
 
         key = s, size, dpi, rgb, angle
         im = self.texd.get(key)
-        
         if im is None:
             Z = self.texmanager.get_rgba(s, size, dpi, rgb)
             if flip:
@@ -289,7 +287,10 @@ class RendererAgg(RendererBase):
             im.flipud_out()
             self.texd[key] = im            
 
-        self.draw_image(x, self.height-y, im, self.bbox)
+        cliprect = gc.get_clip_rectangle()
+        if cliprect is None: bbox = None
+        else: bbox = lbwh_to_bbox(*cliprect)
+        self.draw_image(x, self.height-y, im, bbox)
         
     def get_canvas_width_height(self):
         'return the canvas width and height in display coords'
