@@ -274,6 +274,7 @@ WARNING: found a TeX cache dir in the deprecated location "%s".
         """
         Return tex string as an rgba array
         """
+
         # dvipng assumes a constant background, whereas we want to
         # overlay these rasters with antialiasing over arbitrary
         # backgrounds that may have other figure elements under them.
@@ -301,14 +302,12 @@ WARNING: found a TeX cache dir in the deprecated location "%s".
         r,g,b = rgb
         key = tex, dpi, tuple(rgb)
         Z = self.arrayd.get(key)
-
+        
         if Z is None:
             # force=True to skip cacheing while debugging
             pngfile = self.make_png(tex, dpi, force=False) 
             X = readpng(pngfile)
-
-            v
-            ers = self.get_dvipng_version()
+            vers = self.get_dvipng_version()
             #print 'dvipng version', vers
             if vers<'1.6':
                 # hack the alpha channel as described in comment above
@@ -328,6 +327,7 @@ WARNING: found a TeX cache dir in the deprecated location "%s".
             Z[:,:,3] = alpha
                
             self.arrayd[key] = Z
+
         return Z
 
     def get_dvipng_version(self):
