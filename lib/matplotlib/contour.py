@@ -445,9 +445,8 @@ class ContourSet(ScalarMappable, ContourLabeler):
             uppers = self.levels[1:]
             for level, level_upper, color in zip(lowers, uppers, self.tcolors):
                 nlist = C.trace(level, level_upper, points = 1)
-                col = PolyCollection(nlist,
-                                             linewidths=(1,))
-                      # linewidths = 1 is necessary to avoid artifacts
+                col = PolyCollection(nlist, linewidths=(0.01,))
+                      # linewidths > 0 is necessary to avoid artifacts
                       # in rendering the region boundaries.
                 col.set_color(color) # sets both facecolor and edgecolor
                 self.ax.add_collection(col)
