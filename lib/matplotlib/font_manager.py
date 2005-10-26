@@ -452,6 +452,9 @@ dictionary can optionally be created.
             except RuntimeError:
                 warnings.warn("Could not open font file %s"%fpath)
                 continue
+            except UnicodeError:
+                warnings.warn("Cannot handle unicode filenames %s"%fpath)
+                continue
             try: prop = ttfFontProperty(font)
             except: continue
 
