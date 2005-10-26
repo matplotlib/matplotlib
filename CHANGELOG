@@ -1,5 +1,10 @@
 New entries should be added at the top
 
+2005-10-26 Added support for scatter legends - thanks John Gill
+
+2005-10-20 Fixed image clipping bug that made some tex labels
+           disappear.  Closes bug - JDH
+
 2005-10-14 Removed aqrt from dvipng 1.6 alpha channel mask.  Where did
            that come from?
 

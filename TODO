@@ -729,3 +729,8 @@ ZeroDivisionError: SeparableTransformation::eval_scalars yin interval is zero; c
 -- restore robert leftwich's tutorial link to FAQ
 
 -- JPL and NIST screenshots...
+
+-- John Gill's patch!
+
+-- Fix latex texmanager caching bug that is preventing the cache from
+   recognizing a font change

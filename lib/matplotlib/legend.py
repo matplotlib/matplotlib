@@ -31,8 +31,8 @@ from cbook import enumerate, is_string_like, iterable, silent_list
 from font_manager import FontProperties
 from lines import Line2D
 from mlab import linspace, segments_intersect
-from patches import Patch, Rectangle, Shadow, bbox_artist, draw_bbox
-from collections import LineCollection
+from patches import Patch, Rectangle, RegularPolygon, Shadow, bbox_artist, draw_bbox
+from collections import LineCollection, RegularPolyCollection, PatchCollection
 from text import Text
 from transforms import Bbox, Point, Value, get_bbox_transform, bbox_all,\
      unit_bbox, inverse_transform_bbox, lbwh_to_bbox
@@ -282,6 +282,18 @@ The following dimensions are in axes coords
                 legline.set_dashes(dashes)
                 ret.append(legline)
 
+            elif isinstance(handle, RegularPolyCollection):
+
+                p = Rectangle(xy=(min(self._xdata), y-3/4*HEIGHT),
+                              width = self.handlelen, height=HEIGHT/2,
+                              )
+                p.set_facecolor(handle._facecolors[0])
+                if handle._edgecolors != 'None':
+                    p.set_edgecolor(handle._edgecolors[0])
+                self._set_artist_props(p)
+                p.set_clip_box(None)
+                ret.append(p)
+
 	    else:
 		ret.append(None)
 
@@ -307,6 +319,7 @@ The following dimensions are in axes coords
             handles = ax.lines
             handles.extend(ax.patches)
             handles.extend([c for c in ax.collections if isinstance(c, LineCollection)])
+
             return handles
 
         ax = self.parent
@@ -411,6 +424,8 @@ The following dimensions are in axes coords
             elif isinstance(h, Rectangle):
                 h.xy[0] = h.xy[0] + ox
                 h.xy[1] = h.xy[1] + oy
+            elif isinstance(h, RegularPolygon):
+                h.verts = [(x + ox, y + oy) for x, y in h.verts]
 
         x, y = self.legendPatch.get_x(), self.legendPatch.get_y()
         self.legendPatch.set_x(x+ox)
