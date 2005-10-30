@@ -420,6 +420,9 @@ class ContourSet(ScalarMappable, ContourLabeler):
         cmap = kwargs.get('cmap', None)
         self.colors = kwargs.get('colors', None)
         self.clip_ends = kwargs.get('clip_ends', True)
+        self.antialiased = kwargs.get('antialiased', True)
+        self.nchunk = kwargs.get('nchunk', 0)
+
 
         if cmap is not None: assert(isinstance(cmap, Colormap))
         if self.origin is not None: assert(self.origin in
@@ -438,16 +441,21 @@ class ContourSet(ScalarMappable, ContourLabeler):
         self.labeld = {}
         # Note: _process_colors must follow initialization of self.collections.
         if self.filled:
+            if self.linewidths is None:
+                self.linewidths = 0.05 # Good default for Postscript.
+            if iterable(self.linewidths):
+                self.linewidths = self.linewidths[0]
             self.collections = silent_list('PolyCollection')
             self._process_colors()                     # sets self.tcolors
             C = _contour.Cntr(x, y, z.filled(), z.mask())
             lowers = self.levels[:-1]
             uppers = self.levels[1:]
             for level, level_upper, color in zip(lowers, uppers, self.tcolors):
-                nlist = C.trace(level, level_upper, points = 1)
-                col = PolyCollection(nlist, linewidths=(0.01,))
-                      # linewidths > 0 is necessary to avoid artifacts
-                      # in rendering the region boundaries.
+                nlist = C.trace(level, level_upper, points = 1,
+                        nchunk = self.nchunk)
+                col = PolyCollection(nlist,
+                                     linewidths = (self.linewidths,),
+                                     antialiaseds = (self.antialiased,))
                 col.set_color(color) # sets both facecolor and edgecolor
                 self.ax.add_collection(col)
                 self.collections.append(col)
@@ -744,7 +752,21 @@ class ContourSet(ScalarMappable, ContourLabeler):
               if the contour boundaries are V = [-100, 2, 1, 0, 1, 2, 100],
               then the scaling limits will be [-100, 100] if clip_ends
               is False, and [-3, 3] if clip_ends is True.
-
+            * linewidths = None or a number; default of 0.05 works for
+              Postscript; a value of about 0.5 seems better for Agg.
+            * antialiased = True (default) or False; if False, there is
+              no need to increase the linewidths for Agg, but True gives
+              nicer color boundaries.  If antialiased is True and linewidths
+              is too small, then there may be light-colored lines at the
+              color boundaries caused by the antialiasing.
+            * nchunk = 0 (default) for no subdivision of the domain;
+              specify a positive integer to divide the domain into
+              subdomains of roughly nchunk by nchunk points. This may
+              never actually be advantageous, so this option may be
+              removed.  Chunking introduces artifacts at the chunk
+              boundaries unless antialiased = False, or linewidths is
+              set to a large enough value for the particular renderer and
+              resolution.
         """
 
 

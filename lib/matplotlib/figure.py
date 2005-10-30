@@ -753,6 +753,7 @@ class Figure(Artist):
             for ii in range(len(colls)):
                 CS.collections[ii].set_linewidth(colls[ii].get_linewidth())
         else:
+            kw['antialiased'] = False
             CS = cax.contourf(*args, **kw)
         if drawedges:
             for col in CS.collections:

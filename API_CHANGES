@@ -14,6 +14,8 @@
                if the contour boundaries are V = [-100, 2, 1, 0, 1, 2, 100],
                then the scaling limits will be [-100, 100] if clip_ends
                is False, and [-3, 3] if clip_ends is True.
+    Added kwargs linewidths, antialiased, and nchunk to contourf.  These
+    are experimental; see the docstring.
 
     Changed Figure.colorbar():
         kw argument order changed;
