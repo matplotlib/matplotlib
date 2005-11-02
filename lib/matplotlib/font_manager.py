@@ -902,8 +902,7 @@ Delete this file to have matplotlib rebuild the cache."""
 
         if fontext == 'afm':
             if len(self.afmdict) == 0:
-                afmpath = os.environ.get('HOME', get_data_path())
-                afmcache = os.path.join(afmpath, '.afmfont.cache')
+                afmcache = os.path.join(get_configdir(), '.afmfont.cache')
                 try:
                     import cPickle as pickle
                 except ImportError:

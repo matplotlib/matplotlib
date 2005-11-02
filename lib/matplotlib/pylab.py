@@ -1126,7 +1126,7 @@ def twinx(ax=None):
     ax2 = gcf().add_axes(ax.get_position(), sharex=ax, frameon=False)
     ax2.yaxis.tick_right()
     ax2.yaxis.set_label_position('right')
-
+    ax.yaxis.tick_left()
     draw_if_interactive()
     return ax2
 

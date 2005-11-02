@@ -211,6 +211,11 @@ class RendererPS(RendererBase):
             #print s, w, h
             return w, h
 
+        if ismath:
+            width, height, pswriter = math_parse_s_ps(
+                s, 72, prop.get_size_in_points())
+            return width, height
+
         if rcParams['ps.useafm']:
             if ismath: s = s[1:-1]
             font = self._get_font_afm(prop)
@@ -220,12 +225,6 @@ class RendererPS(RendererBase):
             w *= 0.001*fontsize
             h *= 0.001*fontsize
             return w, h
-
-            
-        if ismath:
-            width, height, pswriter = math_parse_s_ps(
-                s, 72, prop.get_size_in_points())
-            return width, height
 
         font = self._get_font_ttf(prop)
         font.set_text(s, 0.0)
@@ -610,7 +609,13 @@ grestore
         if debugPS:
             write("% text\n")
 
-        if rcParams['ps.useafm']:
+        if ismath=='TeX':
+            return self.tex(gc, x, y, s, prop, angle)
+
+        elif ismath:
+            return self.draw_mathtext(gc, x, y, s, prop, angle)
+
+        elif rcParams['ps.useafm']:
             if ismath: s = s[1:-1]
             font = self._get_font_afm(prop)
 
@@ -644,12 +649,6 @@ show
 grestore
     """ % locals()
             self._draw_ps(ps, gc, None)
-
-        elif ismath=='TeX':
-            return self.tex(gc, x, y, s, prop, angle)
-
-        elif ismath:
-            return self.draw_mathtext(gc, x, y, s, prop, angle)
 
         elif isinstance(s, unicode):
             return self.draw_unicode(gc, x, y, s, prop, angle)
