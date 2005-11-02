@@ -28,5 +28,5 @@ ax.xaxis.set_major_formatter(formatter)
 labels = ax.get_xticklabels()
 setp(labels, rotation=30, fontsize=10)
 
-
+savefig('date_demo_rrule')
 show()

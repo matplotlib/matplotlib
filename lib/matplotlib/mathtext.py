@@ -141,9 +141,10 @@ from matplotlib.afm import AFM
 from matplotlib.cbook import enumerate, iterable, Bunch
 from matplotlib.ft2font import FT2Font
 from matplotlib.font_manager import fontManager
-from matplotlib._mathtext_data import latex_to_bakoma, cmkern
+from matplotlib._mathtext_data import latex_to_bakoma, cmkern, \
+        latex_to_standard
 from matplotlib.numerix import absolute
-from matplotlib import get_data_path
+from matplotlib import get_data_path, rcParams
 
 
 bakoma_fonts = []
@@ -328,7 +329,7 @@ class TrueTypeFonts(Fonts):
             self.svg_glyphs.append((basename, fontsize, num, ox, oy, metrics))
         
 
-    def get_kern(self, font, symleft, symright, fontsize, dpi):
+    def _old_get_kern(self, font, symleft, symright, fontsize, dpi):
         """
         Get the kerning distance for font between symleft and symright.
 
@@ -473,7 +474,7 @@ class BakomaTrueTypeFonts(Fonts):
             self.svg_glyphs.append((basename, fontsize, num, ox, oy, metrics))
         
 
-    def get_kern(self, font, symleft, symright, fontsize, dpi):
+    def _old_get_kern(self, font, symleft, symright, fontsize, dpi):
         """
         Get the kerning distance for font between symleft and symright.
 
@@ -605,6 +606,103 @@ setfont
         basename, metrics, sym, offset  = \
                 self._get_info(font, sym, fontsize, dpi) 
         return metrics
+
+
+class StandardPSFonts(Fonts):
+    """
+    Use the standard postscript fonts for rendering to backend_ps
+    """
+    fnames = ('psyr', 'pncri8a', 'pcrr8a', 'pncr8a', 'pzcmi8a')
+    # allocate a new set of fonts
+    basepath = get_data_path()
+    
+    fontmap = { 'cal' : 'pzcmi8a',
+                'rm'  : 'pncr8a',
+                'tt'  : 'pcrr8a',
+                'it'  : 'pncri8a',
+                }
+
+    def __init__(self):
+        self.glyphd = {}
+        self.fonts = dict(
+            [ (name, AFM(file(os.path.join(self.basepath, name) + '.afm')))
+              for name in self.fnames])
+
+    def _get_info (self, font, sym, fontsize, dpi):
+        'load the cmfont, metrics and glyph with caching'
+        key = font, sym, fontsize, dpi
+        tup = self.glyphd.get(key)
+
+        if tup is not None:
+            return tup
+
+        basename = self.fontmap[font]
+
+        if latex_to_standard.has_key(sym):
+            basename, num = latex_to_standard[sym]
+            char = chr(num)
+        elif len(sym) == 1:
+            char = sym
+        else:
+            raise ValueError('unrecognized symbol "%s"' % (sym))
+
+        try:
+            sym = self.fonts[basename].get_name_char(char)
+        except KeyError:
+            raise ValueError('unrecognized symbol "%s"' % (sym))
+
+        offset = 0
+        cmfont = self.fonts[basename]
+        fontname = cmfont.get_fontname()
+
+        scale = 0.001 * fontsize
+        
+        xmin, ymin, xmax, ymax = [val * scale
+                                  for val in cmfont.get_bbox_char(char)]
+        metrics = Bunch(
+            advance  = (xmax-xmin),
+            width    = cmfont.get_width_char(char) * scale,
+            height   = cmfont.get_width_char(char) * scale,
+            xmin = xmin,
+            xmax = xmax,
+            ymin = ymin+offset,
+            ymax = ymax+offset
+            )
+
+        self.glyphd[key] = fontname, basename, metrics, sym, offset, char
+        return fontname, basename, metrics, '/'+sym, offset, char
+
+    def set_canvas_size(self, w, h, pswriter):
+        'Dimension the drawing canvas; may be a noop'
+        self.width  = w
+        self.height = h
+        self.pswriter = pswriter
+
+
+    def render(self, ox, oy, font, sym, fontsize, dpi):
+        fontname, basename, metrics, glyphname, offset, char = \
+                self._get_info(font, sym, fontsize, dpi)
+        ps = """/%(fontname)s findfont
+%(fontsize)s scalefont
+setfont
+%(ox)f %(oy)f moveto
+/%(glyphname)s glyphshow
+""" % locals()
+        self.pswriter.write(ps)
+
+
+    def get_metrics(self, font, sym, fontsize, dpi):
+        fontname, basename, metrics, sym, offset, char  = \
+                self._get_info(font, sym, fontsize, dpi) 
+        return metrics
+    
+    def get_kern(self, font, symleft, symright, fontsize, dpi):
+        fontname, basename, metrics, sym, offset, char1 = \
+                self._get_info(font, symleft, fontsize, dpi)
+        fontname, basename, metrics, sym, offset, char2 = \
+                self._get_info(font, symright, fontsize, dpi)
+        cmfont = self.fonts[basename]
+        return cmfont.get_kern_dist(char1, char2) * 0.001 * fontsize
 
 class Element:
     fontsize = 12
@@ -773,7 +871,7 @@ class SymbolElement(Element):
     def __init__(self, sym):
         Element.__init__(self)
         self.sym = sym
-        self.kern = 0
+        self.kern = None
         self.widthm = 1  # the width of an m; will be resized below
         
     def set_font(self, font):
@@ -795,7 +893,20 @@ class SymbolElement(Element):
 
     def advance(self):
         'get the horiz advance'
-        return self.metrics.advance # how to handle cm units?+ self.kern*self.widthm
+        if self.kern is None:
+            self.kern = 0
+            if self.neighbors.has_key('right'):
+                sym = None
+                o = self.neighbors['right']
+                if hasattr(o, 'sym'):
+                    sym = o.sym
+                elif isinstance(o, SpaceElement):
+                    sym = ' '
+                if sym is not None:
+                    self.kern = Element.fonts.get_kern(
+                        self.font, self.sym, sym, self.fontsize, self.dpi)
+        return self.metrics.advance + self.kern
+        #return self.metrics.advance # how to handle cm units?+ self.kern*self.widthm
 
 
     def height(self):
@@ -855,7 +966,8 @@ class GroupElement(Element):
             if not isinstance(self.elements[i+1], SymbolElement): continue
             symleft = self.elements[i].sym
             symright = self.elements[i+1].sym            
-            self.elements[i].kern = Element.fonts.get_kern(font, symleft, symright, self.fontsize, self.dpi)
+            self.elements[i].kern = None
+            #self.elements[i].kern = Element.fonts.get_kern(font, symleft, symright, self.fontsize, self.dpi)
         
         
     def set_size_info(self, fontsize, dpi):        
@@ -1305,8 +1417,12 @@ def math_parse_s_ps(s, dpi, fontsize):
         w, h, pswriter = math_parse_s_ps.cache[cacheKey]
         return w, h, pswriter
 
-    bakomaFonts = BakomaPSFonts()
-    Element.fonts = bakomaFonts
+    if rcParams['ps.useafm']:
+        standardFonts = StandardPSFonts()
+        Element.fonts = standardFonts
+    else:
+        bakomaFonts = BakomaPSFonts()
+        Element.fonts = bakomaFonts
     handler.clear()
     expression.parseString( s )
 

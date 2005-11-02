@@ -1,5 +1,9 @@
 New entries should be added at the top
 
+2005-11-01 Contributed Nickolas Young's patch for afm mathtext to
+           support mathtext based upon the standard postscript Symbol
+           font when ps.usetex = True.
+
 2005-10-26 Added support for scatter legends - thanks John Gill
 
 2005-10-20 Fixed image clipping bug that made some tex labels
