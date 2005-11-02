@@ -27,7 +27,7 @@ class Gcf(object):
         #print len(Gcf.figs.keys()), len(Gcf._activeQue)
         figManager.destroy()
         gc.collect()
-]        
+
     destroy = staticmethod(destroy)
     
     def has_fignum(num):
