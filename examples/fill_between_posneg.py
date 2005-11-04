@@ -29,21 +29,15 @@ maybe someone else would find it useful.
 
 from pylab import *
 
-x1 = arange(0, 2, 0.01)
-y1 = sin(2*pi*x1)
-y2 = sin(4*pi*x1)
-
-# find positive and negative polygons of difference
-pos,neg =  posNegFill(x1,y1,y2)
-# positive y2 > y1 is blue
-for x,y  in pos:
-     p = fill(x,y,'b')
-
-# negative Y2 < y1 is red
-for x,y in neg:
-     p = fill(x,y,'r')
-
-
+def findZero(i,x,y1,y2):
+     im1 = i-1
+     m1 = (y1[i] - y1[im1])/(x[i] - x[im1])
+     m2 = (y2[i] - y2[im1])/(x[i] - x[im1])
+     b1 = y1[im1] - m1*x[im1]
+     b2 = y2[im1] - m2*x[im1]
+     xZero = (b1 - b2)/(m2 - m1)
+     yZero = m1*xZero + b1
+     return (xZero, yZero)
 
 def posNegFill(x,y1,y2):
       diff = y2 - y1
@@ -90,14 +84,18 @@ def posNegFill(x,y1,y2):
                       pos.append( (xx1,yy1) )
       return pos,neg
 
-def findZero(i,x,y1,y2):
-     im1 = i-1
-     m1 = (y1[i] - y1[im1])/(x[i] - x[im1])
-     m2 = (y2[i] - y2[im1])/(x[i] - x[im1])
-     b1 = y1[im1] - m1*x[im1]
-     b2 = y2[im1] - m2*x[im1]
-     xZero = (b1 - b2)/(m2 - m1)
-     yZero = m1*xZero + b1
-     return (xZero, yZero)
+x1 = arange(0, 2, 0.01)
+y1 = sin(2*pi*x1)
+y2 = sin(4*pi*x1)
+
+# find positive and negative polygons of difference
+pos,neg =  posNegFill(x1,y1,y2)
+# positive y2 > y1 is blue
+for x,y  in pos:
+     p = fill(x,y,'b')
+
+# negative Y2 < y1 is red
+for x,y in neg:
+     p = fill(x,y,'r')
 
 show()
