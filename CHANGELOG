@@ -1,5 +1,10 @@
 New entries should be added at the top
 
+2005-11-08 Deprecated HorizontalSpanSelector and replaced with
+           SpanSelection that takes a third arg, direction.  The
+           new SpanSelector supports horizontal and vertical span
+           selection, and the appropriate min/max is returned. - CM
+
 2005-11-01 Contributed Nickolas Young's patch for afm mathtext to
            support mathtext based upon the standard postscript Symbol
            font when ps.usetex = True.

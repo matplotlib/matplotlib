@@ -675,28 +675,30 @@ class Cursor:
 
         return False
 
-class HorizontalSpanSelector:
+class SpanSelector:
     """
-    Select a min/max range of the x axes for a matplotlib Axes
+    Select a min/max range of the x or y axes for a matplotlib Axes
 
     Example usage:
 
       ax = subplot(111)
       ax.plot(x,y)
 
-      def onselect(xmin, xmax):
-      print xmin, xmax
+      def onselect(vmin, vmax):
+          print vmin, vmax
       span = HorizontalSpanSelector(ax, onselect)
 
     """
-    def __init__(self, ax, onselect, minspan=None, useblit=False, rectprops=None):
+    def __init__(self, ax, onselect, direction, minspan=None, useblit=False, rectprops=None):
         """
         Create a span selector in ax.  When a selection is made, clear
         the span and call onselect with
 
-          onselect(xmin, xmax)
+          onselect(vmin, vmax)
 
         and clear the span.
+        
+        direction must be 'horizontal' or 'vertical'
 
         If minspan is not None, ignore events smaller than minspan
 
@@ -709,7 +711,10 @@ class HorizontalSpanSelector:
 
         """
         if rectprops is None:
-            rectprops = dict(facecolor='red', alpha=0.5)        
+            rectprops = dict(facecolor='red', alpha=0.5)
+            
+        assert direction in ['horizontal', 'vertical'], 'Must choose horizontal or vertical for direction'
+        self.direction = direction
             
         self.ax = ax
         self.visible = True
@@ -727,16 +732,20 @@ class HorizontalSpanSelector:
         self.useblit = useblit
         self.minspan = minspan
 
-        trans = blend_xy_sep_transform(self.ax.transData, self.ax.transAxes)
-
-        self.rect = Rectangle( (0,0), 0, 1,
+        if self.direction == 'horizontal':
+            trans = blend_xy_sep_transform(self.ax.transData, self.ax.transAxes)
+            w,h = 0,1
+        else:
+            trans = blend_xy_sep_transform(self.ax.transAxes, self.ax.transData)
+            w,h = 1,0
+        self.rect = Rectangle( (0,0), w, h,
                                transform=trans,
                                visible=False,
-                               **self.rectprops                               
+                               **self.rectprops
                                )
         
         if not self.useblit: self.ax.add_patch(self.rect)
-        self.pressx = None
+        self.pressv = None
         
     def update_background(self, event):
         'force an update of the background'
@@ -753,23 +762,29 @@ class HorizontalSpanSelector:
         if self.ignore(event): return
         
         self.rect.set_visible(self.visible)
-        self.pressx = event.xdata
+        if self.direction == 'horizontal':
+            self.pressv = event.xdata
+        else:
+            self.pressv = event.ydata
         return False
 
 
     def release(self, event):
         'on button release event'
-        if self.pressx is None or self.ignore(event): return
+        if self.pressv is None or self.ignore(event): return
 
         self.rect.set_visible(False)
         self.canvas.draw()
-        xmin = self.pressx
-        xmax = event.xdata
-        if xmin>xmax: xmin, xmax = xmax, xmin
-        span = xmax - xmin
+        vmin = self.pressv
+        if self.direction == 'horizontal':
+            vmax = event.xdata
+        else:
+            vmax = event.ydata
+        if vmin>vmax: vmin, vmax = vmax, vmin
+        span = vmax - vmin
         if self.minspan is not None and span<self.minspan: return
-        self.onselect(xmin, xmax)
-        self.pressx = None
+        self.onselect(vmin, vmax)
+        self.pressv = None
         return False
 
     def update(self):
@@ -786,16 +801,30 @@ class HorizontalSpanSelector:
 
     def onmove(self, event):
         'on motion notify event'
-        if self.pressx is None or self.ignore(event): return
+        if self.pressv is None or self.ignore(event): return
         x,y = event.xdata, event.ydata
+        if self.direction == 'horizontal':
+            v = x
+        else:
+            v = y
 
-        minx, maxx = x, self.pressx
-        if minx>maxx: minx, maxx = maxx, minx
-        self.rect.xy[0] = minx
-        self.rect.set_width(maxx-minx)            
+        minv, maxv = v, self.pressv
+        if minv>maxv: minv, maxv = maxv, minv
+        if self.direction == 'horizontal':
+            self.rect.xy[0] = minv
+            self.rect.set_width(maxv-minv)
+        else:
+            self.rect.xy[1] = minv
+            self.rect.set_height(maxv-minv)
         self.update()
         return False
 
+# For backwards compatibility only!
+class HorizontalSpanSelector(SpanSelector):
+    def __init__(self, ax, onselect, **kwargs):
+        import warnings
+        warnings.warn(DeprecationWarning('Use SpanSelector instead!'))
+        SpanSelector.__init__(self, ax, onselect, 'horizontal', **kwargs)
 
 class RectangleSelector:
     """
