@@ -1,5 +1,7 @@
 New entries should be added at the top
 
+2005-11-08 Added Nicolas' irregularly spaced image patch
+
 2005-11-08 Deprecated HorizontalSpanSelector and replaced with
            SpanSelection that takes a third arg, direction.  The
            new SpanSelector supports horizontal and vertical span
