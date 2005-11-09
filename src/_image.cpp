@@ -1277,6 +1277,190 @@ _image_module::frombuffer(const Py::Tuple& args) {
 }
 
 
+char __image_module_pcolor__doc__[] = 
+"pcolor(x, y, data, rows, cols, bounds)\n"
+"\n"
+"Generate a psudo-color image from data on a non-univorm grid using\n"
+"nearest neighbour interpolation.\n"
+"bounds = (x_min, x_max, y_min, y_max)\n"
+;
+Py::Object
+_image_module::pcolor(const Py::Tuple& args) {
+  _VERBOSE("_image_module::pcolor");
+
+  if (args.length() != 6)
+      throw Py::TypeError("Incorrect number of arguments (6 expected)");
+
+  Py::Object xp = args[0];
+  Py::Object yp = args[1];
+  Py::Object dp = args[2];
+  unsigned int rows = Py::Int(args[3]);
+  unsigned int cols = Py::Int(args[4]);
+  Py::Tuple bounds = args[5];
+  
+  if (bounds.length() !=4)
+      throw Py::TypeError("Incorrect number of bounds (4 expected)");
+  float x_min = Py::Float(bounds[0]);
+  float x_max = Py::Float(bounds[1]);
+  float y_min = Py::Float(bounds[2]);
+  float y_max = Py::Float(bounds[3]);
+  float width = x_max - x_min;
+  float height = y_max - y_min;
+  float dx = width / ((float) cols);
+  float dy = height / ((float) rows);
+
+  // Check we have something to output to
+  if (rows == 0 || cols ==0)
+      throw Py::ValueError("Cannot scale to zero size");
+  
+  // Get numeric arrays
+  PyArrayObject *x = (PyArrayObject *) PyArray_ContiguousFromObject(xp.ptr(), PyArray_FLOAT, 1, 1);
+  if (x == NULL)
+      throw Py::ValueError("x is of incorrect type (wanted 1D float)");
+  PyArrayObject *y = (PyArrayObject *) PyArray_ContiguousFromObject(yp.ptr(), PyArray_FLOAT, 1, 1);
+  if (y == NULL) {
+      Py_XDECREF(x);
+      throw Py::ValueError("y is of incorrect type (wanted 1D float)");
+  }
+  PyArrayObject *d = (PyArrayObject *) PyArray_ContiguousFromObject(dp.ptr(), PyArray_UBYTE, 3, 3);
+  if (d == NULL) {
+      Py_XDECREF(x);
+      Py_XDECREF(y);
+      throw Py::ValueError("data is of incorrect type (wanted 3D UInt8)");
+  }
+  if (d->dimensions[2] != 4) {
+      Py_XDECREF(x);
+      Py_XDECREF(y);
+      Py_XDECREF(d);
+      throw Py::ValueError("data must be in RGBA format");
+  }
+
+  // Check dimensions match
+  int nx = x->dimensions[0];
+  int ny = y->dimensions[0];
+  if (nx != d->dimensions[1] || ny != d->dimensions[0]) {
+      Py_XDECREF(x);
+      Py_XDECREF(y);
+      Py_XDECREF(d);
+      throw Py::ValueError("data and axis dimensions do not match");
+  }
+  
+  // Allocate memory for pointer arrays
+  unsigned int * rowstarts = reinterpret_cast<unsigned int*>(PyMem_Malloc(sizeof(unsigned int)*rows));
+  if (rowstarts == NULL) {
+      Py_XDECREF(x);
+      Py_XDECREF(y);
+      Py_XDECREF(d);
+      throw Py::MemoryError("Cannot allocate memory for lookup table");
+  }
+  unsigned int * colstarts = reinterpret_cast<unsigned int*>(PyMem_Malloc(sizeof(unsigned int*)*cols));
+  if (colstarts == NULL) {
+      Py_XDECREF(x);
+      Py_XDECREF(y);
+      Py_XDECREF(d);
+      PyMem_Free(rowstarts);
+      throw Py::MemoryError("Cannot allocate memory for lookup table");
+  }
+
+  // Create output
+  Image* imo = new Image;
+  imo->rowsIn = rows;
+  imo->rowsOut = rows;
+  imo->colsIn = cols;
+  imo->colsOut = cols;
+  size_t NUMBYTES(rows * cols * 4);
+  agg::int8u *buffer = new agg::int8u[NUMBYTES];
+  if (buffer == NULL) {
+      Py_XDECREF(x);
+      Py_XDECREF(y);
+      Py_XDECREF(d);
+      PyMem_Free(rowstarts);
+      PyMem_Free(colstarts);
+      throw Py::MemoryError("Could not allocate memory for image");
+  }
+  
+  // Calculate the pointer arrays to map input x to output x
+  unsigned int i, j, j_last;
+  unsigned int * colstart = colstarts;
+  unsigned int * rowstart = rowstarts;
+  float *xs1 = reinterpret_cast<float*>(x->data);
+  float *ys1 = reinterpret_cast<float*>(y->data);
+  float *xs2 = xs1+1;
+  float *ys2 = ys1+1;
+  float *xl = xs1 + nx - 1;
+  float *yl = ys1 + ny - 1;
+  float xo = x_min + dx/2.0;
+  float yo = y_min + dy/2.0;
+  float xm = 0.5*(*xs1 + *xs2);
+  float ym = 0.5*(*ys1 + *ys2);
+  // x/cols
+  j = 0;
+  j_last = j;
+  for (i=0;i<cols;i++,xo+=dx,colstart++) {
+      while(xs2 != xl && xo > xm) {
+          xs1 = xs2;
+          xs2 = xs1+1;
+          xm = 0.5*(*xs1 + *xs2);
+          j++;
+      }
+      *colstart = j - j_last;
+      j_last = j;
+  }
+  // y/rows
+  j = 0;
+  j_last = j;
+  for (i=0;i<rows;i++,yo+=dy,rowstart++) {
+      while(ys2 != yl && yo > ym) {
+          ys1 = ys2;
+          ys2 = ys1+1;
+          ym = 0.5*(*ys1 + *ys2);
+          j++;
+      }
+      *rowstart = j - j_last;
+      j_last = j;
+  }
+
+  
+  // Copy data to output buffer
+  unsigned char *start;
+  unsigned char *inposition;
+  size_t inrowsize(nx*4);
+  size_t rowsize(cols*4);
+  rowstart = rowstarts;
+  agg::int8u * position = buffer;
+  agg::int8u * oldposition;
+  start = reinterpret_cast<unsigned char*>(d->data);
+  for(i=0;i<rows;i++,rowstart++)
+  { 
+      if (i > 0 && *rowstart == 0) {
+          memcpy(position, oldposition, rowsize*sizeof(agg::int8u));
+          oldposition = position;
+          position += rowsize;
+      } else {
+          oldposition = position;
+          start += *rowstart * inrowsize;
+          inposition = start;
+          for(j=0,colstart=colstarts;j<cols;j++,position+=4,colstart++) {
+              inposition += *colstart * 4;
+              memcpy(position, inposition, 4*sizeof(agg::int8u));
+          }
+      }
+  }
+
+  // Attatch output buffer to output buffer
+  imo->rbufOut = new agg::rendering_buffer;
+  imo->bufferOut = buffer;
+  imo->rbufOut->attach(imo->bufferOut, imo->colsOut, imo->rowsOut, imo->colsOut * imo->BPP);
+  
+  Py_XDECREF(x);
+  Py_XDECREF(y);
+  Py_XDECREF(d);
+  PyMem_Free(rowstarts);
+  PyMem_Free(colstarts);
+
+  return Py::asObject(imo);
+}
+
 #if defined(_MSC_VER)
 DL_EXPORT(void)
 #elif defined(__cplusplus)

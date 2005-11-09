@@ -10,7 +10,7 @@ from artist import Artist
 from colors import normalize, colorConverter
 import cm
 import numerix
-from numerix import arange, asarray, UInt8
+from numerix import arange, asarray, UInt8, Float32, repeat, NewAxis
 import _image
 
 
@@ -328,6 +328,96 @@ ACCEPTS: positive float
     def get_filterrad(self):
         'return the filterrad setting'
         return self._filterrad
+
+class NonUniformImage(AxesImage):
+    def __init__(self, ax,
+                 cmap = None,
+                 norm = None,
+                ):
+        AxesImage.__init__(self, ax,
+                           cmap = cmap,
+                           norm = norm,
+                           aspect = 'free',
+                           interpolation = 'nearest',
+                           origin = 'lower',
+                          )
+        
+    def make_image(self):
+        if self._A is None:
+            raise RuntimeError('You must first set the image array')
+        
+        x0, y0, v_width, v_height = self.axes.viewLim.get_bounds()
+        l, b, width, height = self.axes.bbox.get_bounds()
+        im = _image.pcolor(self._Ax, self._Ay, self._A,
+                           height, width,
+                           (x0, x0+v_width, y0, y0+v_height),
+                          )
+        
+        bg = colorConverter.to_rgba(self.axes.get_frame().get_facecolor(), 0)
+        im.set_bg(*bg)
+        im.set_aspect(self._aspectd[self._aspect])
+        return im
+
+    def set_data(self, x, y, A):
+        x = asarray(x).astype(Float32)
+        y = asarray(y).astype(Float32)
+        A = asarray(A)
+        if len(x.shape) != 1 or len(y.shape) != 1\
+           or A.shape[0:2] != (y.shape[0], x.shape[0]):
+            raise TypeError("Axes don't match array shape")
+        if len(A.shape) not in [2, 3]:
+            raise TypeError("Can only plot 2D or 3D data")
+        if len(A.shape) == 3 and A.shape[2] not in [1, 3, 4]:
+            raise TypeError("3D arrays must have three (RGB) or four (RGBA) color components")
+        if len(A.shape) == 3 and A.shape[2] == 1:
+             A.shape = A.shape[0:2]
+        if len(A.shape) == 2:
+            if A.typecode() != UInt8:
+                A = (self.cmap(self.norm(A))*255).astype(UInt8)
+            else:
+                A = repeat(A[:,:,NewAxis], 4, 2)
+                A[:,:,3] = 255
+        else:
+            if A.typecode() != UInt8:
+                A = (255*A).astype(UInt8)
+            if A.shape[2] == 3:
+                B = zeros(tuple(list(A.shape[0:2]) + [4]), UInt8)
+                B[:,:,0:3] = A
+                B[:,:,3] = 255
+                A = B
+        self._A = A
+        self._Ax = x
+        self._Ay = y
+        self._imcache = None
+
+    def set_array(self, *args):
+        raise NotImplementedError('Method not supported')
+    
+    def set_interpolation(self, s):
+        if s != 'nearest':
+            raise NotImplementedError('Only nearest neighbor supported')
+
+    def get_extent(self):
+        if self._A is None:
+            raise RuntimeError('Must set data first')
+        return self._Ax[0], self._Ax[-1], self._Ay[0], self._Ay[-1]
+
+    def set_filternorm(self, s):
+        pass
+
+    def set_filterrad(self, s):
+        pass
+
+    def set_norm(self, norm):
+        if self._A is not None:
+            raise RuntimeError('Cannot change colors after loading data')
+        cm.ScalarMappable.set_norm(self, norm)
+
+    def set_cmap(self, cmap):
+        if self._A is not None:
+            raise RuntimeError('Cannot change colors after loading data')
+        cm.ScalarMappable.set_cmap(self, norm)
+    
 
 
 class FigureImage(Artist, cm.ScalarMappable):

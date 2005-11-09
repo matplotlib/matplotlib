@@ -1,3 +1,4 @@
+API Changes in matplotlib-0.85
 
     Changed the internal structure of contour.py to a more OO style.
     Calls to contour or contourf in axes.py or pylab.py now return
@@ -20,7 +21,7 @@
     Changed Figure.colorbar():
         kw argument order changed;
         if mappable arg is a non-filled ContourSet, colorbar() shows
-                lines instead of polygons.
+                lines instead hof polygons.
         if mappable arg is a filled ContourSet with clip_ends=True,
                 the endpoints are not labelled, so as to give the
                 correct impression of open-endedness.
