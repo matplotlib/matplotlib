@@ -46,6 +46,8 @@ basedir = {
     'freebsd5' : ['/usr/local', '/usr'],
     'freebsd6' : ['/usr/local', '/usr'],    
     'sunos5' : [os.getenv('MPLIB_BASE') or '/usr/local',],
+    'gnukfreebsd5' : ['/usr/local', '/usr'],
+    'gnukfreebsd6' : ['/usr/local', '/usr'],
 }
 
 import sys, os, stat
