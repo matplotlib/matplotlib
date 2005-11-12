@@ -77,7 +77,8 @@ BUILT_GDK       = False
 AGG_VERSION = 'agg23'
 
 # for nonstandard installation/build with --prefix variable
-numarray_inc_dirs = ['']
+numeric_inc_dirs = []
+numarray_inc_dirs = []
 
 class CleanUpFile:
     """CleanUpFile deletes the specified filename when self is destroyed."""
@@ -574,8 +575,8 @@ def build_agg(ext_modules, packages, numerix):
         deps.append('src/_nc_backend_agg.cpp')
         module = Extension(
             'matplotlib.backends._nc_backend_agg',
-            deps
-            ,
+            deps,
+            include_dirs=numeric_inc_dirs,
             )
         module.extra_compile_args.append('-DNUMERIC=1')
 
@@ -620,8 +621,8 @@ def build_image(ext_modules, packages, numerix):
 
         module = Extension(
             'matplotlib._nc_image',
-            deps
-            ,
+            deps,
+            include_dirs=numeric_inc_dirs,
             )
         module.extra_compile_args.append('-DNUMERIC=1')
         add_agg_flags(module)
@@ -677,7 +678,7 @@ def build_transforms(ext_modules, packages, numerix):
                              ['src/_nc_transforms.cpp',
                               'src/mplutils.cpp'] + cxx,
                              libraries = ['stdc++', 'm'],
-                             include_dirs = ['src', '.'],
+                             include_dirs = ['src', '.']+numeric_inc_dirs,
                              )
         module.extra_compile_args.append("-DNUMERIC=1")
         add_base_flags(module)
@@ -721,6 +722,7 @@ def build_contour(ext_modules, packages, numerix):
             'matplotlib._nc_cntr',
             [ 'src/_nc_cntr.c'],
             #libraries = ['stdc++'],
+            include_dirs=numeric_inc_dirs,
             )
         module.extra_compile_args.append('-DNUMERIC=1')
         add_base_flags(module)
@@ -752,6 +754,7 @@ def build_gdk(ext_modules, packages, numerix):
             'matplotlib.backends._nc_backend_gdk',
             ['src/_nc_backend_gdk.c', ],
             libraries = [],
+            include_dirs=numeric_inc_dirs,            
             )
         module.extra_compile_args.append('-DNUMERIC=1')
         add_base_flags(module)
