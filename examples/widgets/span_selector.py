@@ -9,7 +9,7 @@ import pylab
 from matplotlib.widgets import SpanSelector
 
 fig = pylab.figure(figsize=(8,6))
-ax = fig.add_subplot(111, axisbg='#FFFFCC')
+ax = fig.add_subplot(211, axisbg='#FFFFCC')
 
 x,y = 4*(pylab.rand(2,100)-.5)
 ax.plot(x,y,'o')
@@ -25,4 +25,7 @@ def onselect(vmin, vmax):
 span = SpanSelector(ax, onselect, 'horizontal', useblit=False,
                     rectprops=dict(alpha=0.5, facecolor='red') )
 
+
+ax2 = fig.add_subplot(212)
+ax2.plot([1,2,3])
 pylab.show()

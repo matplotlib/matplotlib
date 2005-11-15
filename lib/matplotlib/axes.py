@@ -998,9 +998,11 @@ class Axes(Artist):
         self.autoscale_view()
         return patches
 
-    def boxplot(self, x, notch=0, sym='b+', vert=1, whis=1.5):
+    def boxplot(self, x, notch=0, sym='b+', vert=1, whis=1.5,
+                positions=None, widths=None):
         """
-        boxplot(x, notch=0, sym='+', vert=1, whis=1.5)
+        boxplot(x, notch=0, sym='+', vert=1, whis=1.5,
+                positions=None, widths=None)
 
         Make a box and whisker plot for each column of x.
         The box extends from the lower to upper quartile values
@@ -1022,6 +1024,14 @@ class Axes(Artist):
         a function of the inner quartile range.  They extend to the
         most extreme data point within ( whis*(75%-25%) ) data range.
 
+        positions (default 1,2,...,n) sets the horizontal positions of
+        the boxes. The ticks and limits are automatically set to match
+        the positions.
+
+        widths is either a scalar or a vector and sets the width of
+        each box. The default is 0.5, or 0.15*(distance between extreme
+        positions) if that is smaller.
+
         x is a Numeric array
 
         Returns a list of the lines added
@@ -1040,13 +1050,18 @@ class Axes(Artist):
         row, col = x.shape
 
         # get some plot info
-        num_plots = range(1, col + 1)
-        box_width = col * min(0.15, 0.5/col)
+        if positions is None:
+            positions = range(1, col + 1)
+        if widths is None:
+            distance = max(positions) - min(positions)
+            widths = distance * min(0.15, 0.5/distance)
+        if isinstance(widths, float) or isinstance(widths, int):
+            widths = ones((col,), 'd') * widths
 
         # loop through columns, adding each to plot
         self.hold(True)
-        for i in num_plots:
-            d = x[:,i-1]
+        for i,pos in enumerate(positions):
+            d = x[:,i]
             # get median and quartiles
             q1, med, q3 = prctile(d,[25,50,75])
             # get high extreme
@@ -1072,17 +1087,17 @@ class Axes(Artist):
             if len(sym) != 0:
                 flier_hi = compress( d > wisk_hi, d )
                 flier_lo = compress( d < wisk_lo, d )
-                flier_hi_x = ones(flier_hi.shape[0]) * i
-                flier_lo_x = ones(flier_lo.shape[0]) * i
+                flier_hi_x = ones(flier_hi.shape[0]) * pos
+                flier_lo_x = ones(flier_lo.shape[0]) * pos
 
             # get x locations for fliers, whisker, whisker cap and box sides
-            box_x_min = i - box_width * 0.5
-            box_x_max = i + box_width * 0.5
+            box_x_min = pos - widths[i] * 0.5
+            box_x_max = pos + widths[i] * 0.5
 
-            wisk_x = ones(2) * i
+            wisk_x = ones(2) * pos
 
-            cap_x_min = i - box_width * 0.25
-            cap_x_max = i + box_width * 0.25
+            cap_x_min = pos - widths[i] * 0.25
+            cap_x_max = pos + widths[i] * 0.25
             cap_x = [cap_x_min, cap_x_max]
 
             # get y location for median
@@ -1136,12 +1151,14 @@ class Axes(Artist):
 
         # fix our axes/ticks up a little
         if 1 == vert:
-            self.set_xlim([0.5, 0.5+col])
-            self.set_xticks(num_plots)
+            setticks, setlim = self.set_xticks, self.set_xlim
         else:
-            self.set_ylim([0.5, 0.5+col])
-            self.set_yticks(num_plots)
+            setticks, setlim = self.set_yticks, self.set_ylim
 
+        newlimits = min(positions)-0.5, max(positions)+0.5
+        setlim(newlimits)
+        setticks(positions)
+            
         # reset hold status
         self.hold(holdStatus)
 
@@ -2112,8 +2129,6 @@ class Axes(Artist):
         'Pan the x axis numsteps (plus pan right, minus pan left)'
         self.xaxis.pan(numsteps)
         xmin, xmax = self.viewLim.intervalx().get_bounds()
-        for line in self.lines:
-            line.set_xclip(xmin, xmax)
         self._send_xlim_event()
 
     def pany(self, numsteps):
@@ -3630,8 +3645,6 @@ class Axes(Artist):
         'Zoom in on the x xaxis numsteps (plus for zoom in, minus for zoom out)'
         self.xaxis.zoom(numsteps)
         xmin, xmax = self.viewLim.intervalx().get_bounds()
-        for line in self.lines:
-            line.set_xclip(xmin, xmax)
         self._send_xlim_event()
 
     def zoomy(self, numsteps):

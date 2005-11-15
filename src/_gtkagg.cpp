@@ -37,11 +37,9 @@ private:
     // to gtk.  If bbox is not None, blit only the region defined by
     // the bbox
     args.verify_length(3);
-    
-    
+
     PyGObject *py_drawable = (PyGObject *)(args[0].ptr());
     RendererAgg* aggRenderer = static_cast<RendererAgg*>(args[1].ptr());
-    
     
     GdkDrawable *drawable = GDK_DRAWABLE(py_drawable->obj);
     GdkGC* gc = gdk_gc_new(drawable);
@@ -61,6 +59,7 @@ private:
     bool needfree = false;
     
     agg::int8u *destbuffer = NULL;
+
     if (args[2].ptr() == Py_None) {
       //bbox is None; copy the entire image
       destbuffer = aggRenderer->pixBuffer;
@@ -98,7 +97,6 @@ private:
       renderer_base destrb(destpf);
       //destrb.clear(agg::rgba(1, 0, 0));
       
-      //std::cout << "rect " << r << " " << srcheight << " " << b << " ";
       agg::rect_base<int> region(destx, desty, (int)r, srcheight-(int)b); 
       destrb.copy_from(*aggRenderer->renderingBuffer, &region, 
 		       -destx, -desty);
@@ -121,7 +119,6 @@ private:
 			  deststride);
     
     if (needfree) delete [] destbuffer;
-    
     
     return Py::Object();
     
