@@ -1,3 +1,6 @@
+2005-11-15 Fixed a colorup/colordown reversal bug in finance.py --
+           Thanks Gilles
+
 2005-11-15 New entries should be added at the top 2005-08-14 Applied
            Jouni K Steppanen's boxplot patch SF patch#1349997 - JDH
 
