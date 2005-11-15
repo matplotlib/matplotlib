@@ -266,7 +266,7 @@ def plot_day_summary2(ax, opens, closes, highs, lows, ticksize=4,
     colord = { True : colorup,
                False : colordown,
                }
-    colors = [colord[open>=close] for open, close in zip(opens, closes) if open!=-1 and close !=-1]
+    colors = [colord[open<close] for open, close in zip(opens, closes) if open!=-1 and close !=-1]
 
     assert(len(rangeSegments)==len(offsetsOpen))
     assert(len(offsetsOpen)==len(offsetsClose))
@@ -358,7 +358,7 @@ def candlestick2(ax, opens, closes, highs, lows, width=4,
     colord = { True : colorup,
                False : colordown,
                }
-    colors = [colord[open>=close] for open, close in zip(opens, closes) if open!=-1 and close !=-1]
+    colors = [colord[open<close] for open, close in zip(opens, closes) if open!=-1 and close !=-1]
 
 
     assert(len(barVerts)==len(rangeSegments))
@@ -424,7 +424,7 @@ def volume_overlay(ax, opens, closes, volumes,
     colord = { True : colorup,
                False : colordown,
                }
-    colors = [colord[open>=close] for open, close in zip(opens, closes) if open!=-1 and close !=-1]
+    colors = [colord[open<close] for open, close in zip(opens, closes) if open!=-1 and close !=-1]
 
     right = width/2.0
     left = -width/2.0
