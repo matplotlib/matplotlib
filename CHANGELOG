@@ -1,3 +1,7 @@
+2005-11-16 Replaced agg_to_gtk_drawable with pure pygtk pixbuf code in
+           backend_gtkagg.  When the equivalent is doe for blit, the
+           agg extension code will no longer be needed
+
 2005-11-15 Fixed a colorup/colordown reversal bug in finance.py --
            Thanks Gilles
 
