@@ -20,8 +20,8 @@ from matplotlib.backend_bases import RendererBase, GraphicsContextBase, \
      FigureManagerBase, FigureCanvasBase, NavigationToolbar2, cursors
 from matplotlib.backends.backend_gdk import RendererGDK, FigureCanvasGDK
 from matplotlib.cbook import is_string_like, enumerate
+from matplotlib.colors import colorConverter
 from matplotlib.figure import Figure
-from matplotlib.font_manager import fontManager
 import matplotlib.numerix as numerix
 from matplotlib.numerix import asarray, fromstring, UInt8, zeros, \
      where, transpose, nonzero, indices, ones, nx
@@ -1052,6 +1052,198 @@ if gtk.pygtk_version >= (2,4,0):
             self.hide()
             return filename
 
+
+class DialogLineprops:
+    """
+    A GUI dialog for controlling lineprops
+    """
+    signals = (
+        'on_combobox_lineprops_changed',
+        'on_combobox_linestyle_changed',                        
+        'on_combobox_marker_changed',
+        'on_colorbutton_linestyle_color_set',
+        'on_colorbutton_markerface_color_set',
+        'on_dialog_lineprops_okbutton_clicked',
+        'on_dialog_lineprops_cancelbutton_clicked',            
+        )
+
+    linestyles = (
+        '-'    ,
+        '--'   ,
+        '-.'   ,
+        ','    ,
+        'steps',
+        'None' ,
+    )
+
+    linestyled = dict([ (s,i) for i,s in enumerate(linestyles)])
+
+
+    markers =  (
+        'None', 
+        '.'  , 
+        ','  , 
+        'o'  , 
+        'v'  , 
+        '^'  , 
+        '<'  , 
+        '>'  , 
+        '1'  , 
+        '2'  , 
+        '3'  , 
+        '4'  , 
+        's'  , 
+        'p'  , 
+        'h'  , 
+        'H'  , 
+        '+'  , 
+        'x'  , 
+        'D'  , 
+        'd'  , 
+        '|'  , 
+        '_'  , 
+        )
+
+    markerd = dict([(s,i) for i,s in enumerate(markers)])
+
+    def __init__(self, lines):
+
+        datadir = matplotlib.get_data_path()
+        gladefile = os.path.join(datadir, 'lineprops.glade')
+        if not os.path.exists(gladefile):
+            raise IOError('Could not find gladefile lineprops.glade in %s'%datadir)
+        
+        self._inited = False
+        self._updateson = True # suppress updates when setting widgets manually
+        self.wtree = gtk.glade.XML(gladefile, 'dialog_lineprops')        
+        self.wtree.signal_autoconnect(dict([(s, getattr(self, s)) for s in self.signals]))
+
+        self.dlg = self.wtree.get_widget('dialog_lineprops') 
+
+        self.lines = lines
+
+        cbox = self.wtree.get_widget('combobox_lineprops')
+        cbox.set_active(0)
+        self.cbox_lineprops = cbox
+
+        cbox = self.wtree.get_widget('combobox_linestyles')
+        for ls in self.linestyles:
+            cbox.append_text(ls)
+        cbox.set_active(0)
+        self.cbox_linestyles = cbox
+
+        cbox = self.wtree.get_widget('combobox_markers')
+        for m in self.markers:
+            cbox.append_text(m)
+        cbox.set_active(0)
+        self.cbox_markers = cbox
+        self._lastcnt = 0
+        self._inited = True
+
+
+    def show(self):
+        'populate the combo box'
+        self._updateson = False
+        # flush the old
+        cbox = self.cbox_lineprops
+        for i in range(self._lastcnt-1,-1,-1):
+            cbox.remove_text(i)
+
+        # add the new
+        for line in self.lines:
+            cbox.append_text(line.get_label())
+        cbox.set_active(0)
+
+        self._updateson = True
+        self._lastcnt = len(self.lines)
+        self.dlg.show()
+
+    def get_active_line(self):
+        'get the active line'
+        ind = self.cbox_lineprops.get_active()
+        line = self.lines[ind]
+        return line
+
+
+    def get_active_linestyle(self):
+        'get the active lineinestyle'
+        ind = self.cbox_linestyles.get_active()
+        ls = self.linestyles[ind]
+        return ls
+
+    def get_active_marker(self):
+        'get the active lineinestyle'
+        ind = self.cbox_markers.get_active()
+        m = self.markers[ind]
+        return m
+
+    def _update(self):
+        'update the active line props from the widgets'
+        if not self._inited or not self._updateson: return 
+        line = self.get_active_line()
+        ls = self.get_active_linestyle()
+        marker = self.get_active_marker()
+        line.set_linestyle(ls)
+        line.set_marker(marker)
+
+        button = self.wtree.get_widget('colorbutton_linestyle')
+        color = button.get_color()
+        r, g, b = [val/65535. for val in color.red, color.green, color.blue]
+        line.set_color((r,g,b))
+
+        button = self.wtree.get_widget('colorbutton_markerface')
+        color = button.get_color()
+        r, g, b = [val/65535. for val in color.red, color.green, color.blue]
+        line.set_markerfacecolor((r,g,b))
+
+        line.figure.canvas.draw()
+
+
+
+    def on_combobox_lineprops_changed(self, item):
+        'update the widgets from the active line'
+        if not self._inited: return 
+        self._updateson = False
+        line = self.get_active_line()
+
+        ls = line.get_linestyle()
+        if ls is None: ls = 'None'
+        self.cbox_linestyles.set_active(self.linestyled[ls])
+
+        marker = line.get_marker()
+        if marker is None: marker = 'None'
+        self.cbox_markers.set_active(self.markerd[marker])
+
+        r,g,b = colorConverter.to_rgb(line.get_color())
+        color = gtk.gdk.Color(*[int(val*65535) for val in r,g,b])
+        button = self.wtree.get_widget('colorbutton_linestyle')
+        button.set_color(color)
+
+        r,g,b = colorConverter.to_rgb(line.get_markerfacecolor())
+        color = gtk.gdk.Color(*[int(val*65535) for val in r,g,b])
+        button = self.wtree.get_widget('colorbutton_markerface')
+        button.set_color(color)
+        self._updateson = True
+
+    def on_combobox_linestyle_changed(self, item):
+        self._update()
+
+    def on_combobox_marker_changed(self, item):
+        self._update()
+
+    def on_colorbutton_linestyle_color_set(self, button):
+        self._update()
+
+    def on_colorbutton_markerface_color_set(self, button):
+        'called colorbutton marker clicked'
+        self._update()
+
+    def on_dialog_lineprops_okbutton_clicked(self, button):
+        self._update()
+        self.dlg.hide()
+
+    def on_dialog_lineprops_cancelbutton_clicked(self, button):
+        self.dlg.hide()
 
 # set icon used when windows are minimized, it requires
 # gtk.pygtk_version >= (2,2,0) with a GDK pixbuf loader for SVG installed

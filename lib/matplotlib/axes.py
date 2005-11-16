@@ -333,7 +333,7 @@ class Axes(Artist):
         if axisbg is None: axisbg = rcParams['axes.facecolor']
         self._axisbg = axisbg
         self._frameon = frameon
-
+        self._axisbelow = False  # todo make me an rcparam
 
         self._hold = rcParams['axes.hold']
         self._connected = {} # a dict from events to (id, func)
@@ -607,6 +607,7 @@ class Axes(Artist):
 
     def format_coord(self, x, y):
         'return a format string formatting the x, y coord'
+        
         xs = self.format_xdata(x)
         ys = self.format_ydata(y)
         return  'x=%s, y=%s'%(xs,ys)
@@ -734,6 +735,8 @@ class Axes(Artist):
 
         self.update_datalim_numerix( xdata, ydata )
         #self.update_datalim(zip(xdata, ydata))
+        label = l.get_label()
+        if not label: l.set_label('line%d'%len(self.lines))
         self.lines.append(l)
 
     def _get_verts_in_data_coords(self, trans, xys):
@@ -1378,7 +1381,11 @@ class Axes(Artist):
         if not self.get_visible(): return
         renderer.open_group('axes')
 
-        self.transData.freeze()  # eval the lazy objects
+        try: self.transData.freeze()  # eval the lazy objects
+        except ValueError:
+            print >> sys.stderr, 'data freeze value error', self.get_position(), self.dataLim.get_bounds(), self.viewLim.get_bounds()
+            raise
+        
         self.transAxes.freeze()  # eval the lazy objects
         if self.axison:
             if self._frameon: self.axesPatch.draw(renderer)
@@ -1402,6 +1409,12 @@ class Axes(Artist):
 
         # axis drawing was here, where contourf etc clobbered them
 
+        # draw axes here, so they are on top of most things
+        if self._axisbelow:
+            if self.axison and not inframe:
+                self.xaxis.draw(renderer)
+                self.yaxis.draw(renderer)
+
         artists = []
         artists.extend(self.collections)
         artists.extend(self.patches)
@@ -1422,12 +1435,10 @@ class Axes(Artist):
         for a in self.artists:
             a.draw(renderer)
 
-        # draw axes here, so they are on top of most things
-        if self.axison and not inframe:
-            self.xaxis.draw(renderer)
-            self.yaxis.draw(renderer)
-
-
+        if not self._axisbelow:
+            if self.axison and not inframe:
+                self.xaxis.draw(renderer)
+                self.yaxis.draw(renderer)
 
         if self.legend_ is not None:
             self.legend_.draw(renderer)
@@ -1701,6 +1712,12 @@ class Axes(Artist):
         return self._navigate
 
 
+    def get_axisbelow(self):
+        """
+        Get whether axist below is true or not
+        """
+        return self._axisbelow
+
     def get_autoscale_on(self):
         """
         Get whether autoscaling is applied on plot commands
@@ -1798,6 +1815,15 @@ class Axes(Artist):
         ACCEPTS: True|False
         """
         self._autoscaleon = b
+
+
+    def set_axisbelow(self, b):
+        """
+        Set whether the axis ticks and gridlines are above or below most artists
+
+        ACCEPTS: True|False
+        """
+        self._axisbelow = b
 
     def imshow(self, X,
                cmap = None,
@@ -2492,7 +2518,7 @@ class Axes(Artist):
             yt = y + 1.1*radius*math.sin(thetam)
 
             t = self.text(xt, yt, label,
-                          size=rcParams['tick.labelsize'],
+                          size=rcParams['xtick.labelsize'],
                           horizontalalignment='center',
                           verticalalignment='center')
 
@@ -4135,10 +4161,10 @@ class PolarAxes(Axes):
         popall(self.rgridlabels)
 
 
-        color = rcParams['tick.color']
+        color = rcParams['xtick.color']
 
 
-        props=FontProperties(size=rcParams['tick.labelsize'])
+        props=FontProperties(size=rcParams['xtick.labelsize'])
         if labels is None:
             labels = [self.rformatter(r,0) for r in radii]
         for r,l in zip(radii, labels):
@@ -4193,9 +4219,9 @@ class PolarAxes(Axes):
 
         popall(self.thetagridlabels)
 
-        color = rcParams['tick.color']
+        color = rcParams['xtick.color']
 
-        props=FontProperties(size=rcParams['tick.labelsize'])
+        props=FontProperties(size=rcParams['xtick.labelsize'])
         r = frac*self.get_rmax()
         if labels is None:
             labels = [fmt%a for a in angles]

@@ -1,5 +1,5 @@
 import sys, time, os
-from matplotlib.numerix import rand
+from matplotlib.numerix.mlab import rand
 from matplotlib.transforms import identity_transform, unit_bbox, Func, IDENTITY
 from matplotlib.transforms import one, Point, Value, Bbox, get_bbox_transform
 

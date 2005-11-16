@@ -19,6 +19,7 @@ from matplotlib.collections import LineCollection, PolyCollection
 from matplotlib.colors import colorConverter
 from lines import Line2D, TICKLEFT, TICKRIGHT
 from patches import Rectangle
+import matplotlib.numerix as nx
 from matplotlib.transforms import scale_transform, Value, zero, one, \
      scale_sep_transform, blend_xy_sep_transform
 
@@ -55,20 +56,31 @@ def parse_yahoo_historical(fh):
     results.reverse()
     return results
     
-def quotes_historical_yahoo(ticker, date1, date2):
+def quotes_historical_yahoo(ticker, date1, date2, asarrays=False):
 
     """
     Get historical data for ticker between date1 and date2.  date1 and
     date2 are datetime instances
     
-    results are a list of
+    results are a list of tuples
 
-    d, open, close, high, low, volume
+      (d, open, close, high, low, volume)
     
     where d is a floating poing representation of date, as returned by date2num
+
+    if asarrays is True, the return val is a tuple of arrays
+
+
+    Ex:
+    d, o, c, h, l, v = f.quotes_historical_yahoo('^GSPC', d1, d2, asarrays=True)
+    returns = (o[1:] - o[:-1])/o[1:]
+    [n,bins,patches] = hist(returns, 100)
+    mu = mean(returns)
+    sigma = std(returns)
+    x = normpdf(bins, mu, sigma)
+    plot(bins, x, color='red', lw=2)
     """
-
-
+    
     d1 = (date1.month-1, date1.day, date1.year)
     d2 = (date2.month-1, date2.day, date2.year)    
 
@@ -84,7 +96,10 @@ def quotes_historical_yahoo(ticker, date1, date2):
         warnings.warn('urlopen() failure\n' + url + '\n' + exc.strerror[1])
         return None
 
-    return ret 
+    if asarrays:
+        return map(nx.asarray, zip(*ret)) 
+    else:
+        return ret
 
         
 def plot_day_summary(ax, quotes, ticksize=3,

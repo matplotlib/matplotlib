@@ -1,12 +1,18 @@
 import sys, time, os
 from helpers import rand_val, rand_point, rand_bbox, rand_transform
-from matplotlib.numerix import rand
+from matplotlib.numerix.mlab import rand
+
 
 def report_memory(i):
     pid = os.getpid()
-    a2 = os.popen('ps -p %d -o rss,sz' % pid).readlines()
+    if sys.platform=='sunos5':
+        command = 'ps -p %d -o rss,osz' % pid
+    else:
+        'ps -p %d -o rss,sz' % pid
+    a2 = os.popen(command).readlines()
     print i, '  ', a2[1],
-    return int(a2[1].split()[0])
+    return int(a2[1].split()[1])
+
 
 N = 200
 for i in range(N):

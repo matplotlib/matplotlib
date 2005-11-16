@@ -7,7 +7,7 @@ from matplotlib import verbose
 import matplotlib
 import math
 from artist import Artist
-from cbook import enumerate, popd, is_string_like
+from cbook import enumerate, popd, is_string_like, maxdict
 from font_manager import FontProperties
 from matplotlib import rcParams
 from patches import bbox_artist
@@ -84,6 +84,8 @@ def get_rotation(rotation):
         angle = float(rotation)
     return angle%360
 
+_unit_box = lbwh_to_bbox(0,0,1,1)
+
 class Text(Artist):
     """
     Handle storing and drawing of text in window or data coordinates
@@ -106,7 +108,7 @@ class Text(Artist):
         Artist.__init__(self)
         if not is_string_like(text):
             raise TypeError('text must be a string type')
-        self.cached = {}
+        self.cached = maxdict(5)
         self._x, self._y = x, y
 
         if color is None: color = rcParams['text.color']
@@ -160,7 +162,7 @@ class Text(Artist):
 
         # layout the xylocs in display coords as if angle = zero and
         # then rotate them around self._x, self._y
-
+        #return _unit_box
         key = self.get_prop_tup()
         if self.cached.has_key(key): return self.cached[key]
 
@@ -278,6 +280,7 @@ class Text(Artist):
         self._bbox = rectprops
 
     def draw(self, renderer):
+        #return 
         if renderer is not None:
             self._renderer = renderer
         if not self.get_visible(): return
@@ -346,6 +349,7 @@ class Text(Artist):
                                   self._fontproperties, angle)
             return
 
+        #print 'xy', self._x, self._y, info
         for line, wh, x, y in info:
             x, y = self._transform.xy_tup((x, y))
             #renderer.draw_arc(gc, (1,0,0),
@@ -440,6 +444,8 @@ class Text(Artist):
         return self._verticalalignment
 
     def get_window_extent(self, renderer=None):
+        #return _unit_box
+        if not self.get_visible(): return _unit_box
         if self._text == '':
             tx, ty = self._transform.xy_tup( (self._x, self._y) )
             return lbwh_to_bbox(tx,ty,0,0)
@@ -611,8 +617,7 @@ class Text(Artist):
 
         ACCEPTS: float
         """
-        try: self._x.set(x)
-        except AttributeError: self._x = x
+        self._x = float(x)
 
 
     def set_y(self, y):
@@ -621,8 +626,7 @@ class Text(Artist):
 
         ACCEPTS: float
         """
-        try: self._y.set(y)
-        except AttributeError: self._y = y
+        self._y = float(y)
 
 
     def set_rotation(self, s):

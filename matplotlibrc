@@ -143,13 +143,22 @@ polaraxes.grid      : True    # display grid on polar axes
 
 ### TICKS
 # see http://matplotlib.sourceforge.net/matplotlib.axis.html#Ticks
-tick.major.size     : 4      # major tick size in points
-tick.minor.size     : 2      # minor tick size in points
-tick.major.pad      : 4      # distance to major tick label in points
-tick.minor.pad      : 4      # distance to the minor tick label in points
-tick.color          : k      # color of the tick labels
-tick.labelsize      : 12     # fontsize of the tick labels
-tick.direction      : in     # direction: in or out
+xtick.major.size     : 4      # major tick size in points
+xtick.minor.size     : 2      # minor tick size in points
+xtick.major.pad      : 4      # distance to major tick label in points
+xtick.minor.pad      : 4      # distance to the minor tick label in points
+xtick.color          : k      # color of the tick labels
+xtick.labelsize      : 12     # fontsize of the tick labels
+xtick.direction      : in     # direction: in or out
+
+ytick.major.size     : 4      # major tick size in points
+ytick.minor.size     : 2      # minor tick size in points
+ytick.major.pad      : 4      # distance to major tick label in points
+ytick.minor.pad      : 4      # distance to the minor tick label in points
+ytick.color          : k      # color of the tick labels
+ytick.labelsize      : 12     # fontsize of the tick labels
+ytick.direction      : in     # direction: in or out
+
 
 ### GRIDS
 grid.color       :   black   # grid color

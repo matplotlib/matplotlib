@@ -60,6 +60,7 @@ from matplotlib import verbose
 import numerix
 import numerix.mlab 
 from numerix import linear_algebra
+import numerix as nx
 
 from numerix import array, asarray, arange, divide, exp, arctan2, \
      multiply, transpose, ravel, repeat, resize, reshape, floor, ceil,\
@@ -1267,7 +1268,84 @@ def liaupunov(x, fprime):
    See Sec 10.5 Strogatz (1994) "Nonlinear Dynamics and Chaos".   
    """
    return mean(log(fprime(x)))
-      
+
+class FIFOBuffer:
+    """
+    A FIFO queue to hold incoming x, y data in a rotating buffer using
+    numerix arrrays under the hood.  It is assumed that you will call
+    asarrays much less frequently than you add data to the queue --
+    otherwise another data structure will be faster
+
+    This can be used to support plots where data is added from a real
+    time feed and the plot object wants grab data from the buffer and
+    plot it to screen less freqeuently than the incoming
+
+    If you set the dataLim attr to a matplotlib BBox (eg ax.dataLim),
+    the dataLim will be updated as new data come in
+
+    TODI: add a grow method that will extend nmax
+    """
+    def __init__(self, nmax):
+        'buffer up to nmax points'
+        self._xa = nx.zeros((nmax,), typecode=nx.Float)
+        self._ya = nx.zeros((nmax,), typecode=nx.Float)        
+        self._xs = nx.zeros((nmax,), typecode=nx.Float)
+        self._ys = nx.zeros((nmax,), typecode=nx.Float)        
+        self._ind = 0
+        self._nmax = nmax
+        self.dataLim = None
+        self.callbackd = {}
+        
+    def register(self, func, N):
+        'call func everytime N events are passed; func signature is func(fifo)'
+        self.callbackd.setdefault(N, []).append(func)
+        
+    def add(self, x, y):
+        'add scalar x and y to the queue'
+        if self.dataLim is not None:
+           xys = ((x,y),) 
+           self.dataLim.update(xys, -1) #-1 means use the default ignore setting
+        ind = self._ind % self._nmax
+        #print 'adding to fifo:', ind, x, y
+        self._xs[ind] = x
+        self._ys[ind] = y
+
+        for N,funcs in self.callbackd.items():
+           if (self._ind%N)==0:
+              for func in funcs:
+                 func(self)
+                 
+        self._ind += 1
+
+    def last(self):
+        'get the last x, y or None, None if no data set'
+        if self._ind==0: return None, None
+        ind = (self._ind-1) % self._nmax
+        return self._xs[ind], self._ys[ind]
+
+    def asarrays(self):
+        """
+        return x and y as arrays; their length will be the len of data
+        added or nmax
+        """
+        if self._ind<self._nmax:
+            return self._xs[:self._ind], self._ys[:self._ind]
+        ind = self._ind % self._nmax
+
+        self._xa[:self._nmax-ind] = self._xs[ind:]
+        self._xa[self._nmax-ind:] = self._xs[:ind]
+        self._ya[:self._nmax-ind] = self._ys[ind:]
+        self._ya[self._nmax-ind:] = self._ys[:ind]
+
+        return self._xa, self._ya
+
+    def update_datalim_to_current(self):
+        'update the datalim in the current data in the fifo'
+        if self.dataLim is None:
+            raise ValueError('You must first set the dataLim attr')
+        x, y = self.asarrays()
+        self.dataLim.update_numerix(x, y, True)
+
 ### the following code was written and submitted by Fernando Perez
 ### from the ipython numutils package under a BSD license
 """

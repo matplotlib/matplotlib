@@ -1082,11 +1082,14 @@ class NavigationToolbar2:
 
         if event.inaxes and event.inaxes.get_navigate():
 
-            s = event.inaxes.format_coord(event.xdata, event.ydata)
-            if len(self.mode):
-                self.set_message('%s : %s' % (self.mode, s))
+            try: s = event.inaxes.format_coord(event.xdata, event.ydata)
+            except ValueError: pass
+            except OverflowError: pass            
             else:
-                self.set_message(s)
+                if len(self.mode):
+                    self.set_message('%s : %s' % (self.mode, s))
+                else:
+                    self.set_message(s)
         else: self.set_message(self.mode)
 
     def pan(self,*args):

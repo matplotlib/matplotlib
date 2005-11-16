@@ -1,9 +1,9 @@
-# This file was created automatically by SWIG.
+# This file was created automatically by SWIG 1.3.27.
 # Don't modify this file, modify the SWIG interface instead.
-# This file is compatible with both classic and new-style classes.
 
 import _agg
 
+# This file is compatible with both classic and new-style classes.
 def _swig_setattr_nondynamic(self,class_type,name,value,static=1):
     if (name == "this"):
         if isinstance(value, class_type):
@@ -122,7 +122,7 @@ class point_typePtr(point_type):
     def __init__(self, this):
         _swig_setattr(self, point_type, 'this', this)
         if not hasattr(self,"thisown"): _swig_setattr(self, point_type, 'thisown', 0)
-        _swig_setattr(self, point_type,self.__class__,point_type)
+        self.__class__ = point_type
 _agg.point_type_swigregister(point_typePtr)
 cvar = _agg.cvar
 pi = cvar.pi
@@ -156,7 +156,7 @@ class vertex_typePtr(vertex_type):
     def __init__(self, this):
         _swig_setattr(self, vertex_type, 'this', this)
         if not hasattr(self,"thisown"): _swig_setattr(self, vertex_type, 'thisown', 0)
-        _swig_setattr(self, vertex_type,self.__class__,vertex_type)
+        self.__class__ = vertex_type
 _agg.vertex_type_swigregister(vertex_typePtr)
 
 class rect(_object):
@@ -194,7 +194,7 @@ class rectPtr(rect):
     def __init__(self, this):
         _swig_setattr(self, rect, 'this', this)
         if not hasattr(self,"thisown"): _swig_setattr(self, rect, 'thisown', 0)
-        _swig_setattr(self, rect,self.__class__,rect)
+        self.__class__ = rect
 _agg.rect_swigregister(rectPtr)
 
 class rect_d(_object):
@@ -232,7 +232,7 @@ class rect_dPtr(rect_d):
     def __init__(self, this):
         _swig_setattr(self, rect_d, 'this', this)
         if not hasattr(self,"thisown"): _swig_setattr(self, rect_d, 'thisown', 0)
-        _swig_setattr(self, rect_d,self.__class__,rect_d)
+        self.__class__ = rect_d
 _agg.rect_d_swigregister(rect_dPtr)
 
 
@@ -269,7 +269,7 @@ class binary_dataPtr(binary_data):
     def __init__(self, this):
         _swig_setattr(self, binary_data, 'this', this)
         if not hasattr(self,"thisown"): _swig_setattr(self, binary_data, 'thisown', 0)
-        _swig_setattr(self, binary_data,self.__class__,binary_data)
+        self.__class__ = binary_data
 _agg.binary_data_swigregister(binary_dataPtr)
 
 class buffer(_object):
@@ -305,7 +305,7 @@ class bufferPtr(buffer):
     def __init__(self, this):
         _swig_setattr(self, buffer, 'this', this)
         if not hasattr(self,"thisown"): _swig_setattr(self, buffer, 'thisown', 0)
-        _swig_setattr(self, buffer,self.__class__,buffer)
+        self.__class__ = buffer
 _agg.buffer_swigregister(bufferPtr)
 
 class order_rgb(_object):
@@ -332,7 +332,7 @@ class order_rgbPtr(order_rgb):
     def __init__(self, this):
         _swig_setattr(self, order_rgb, 'this', this)
         if not hasattr(self,"thisown"): _swig_setattr(self, order_rgb, 'thisown', 0)
-        _swig_setattr(self, order_rgb,self.__class__,order_rgb)
+        self.__class__ = order_rgb
 _agg.order_rgb_swigregister(order_rgbPtr)
 
 class order_bgr(_object):
@@ -359,7 +359,7 @@ class order_bgrPtr(order_bgr):
     def __init__(self, this):
         _swig_setattr(self, order_bgr, 'this', this)
         if not hasattr(self,"thisown"): _swig_setattr(self, order_bgr, 'thisown', 0)
-        _swig_setattr(self, order_bgr,self.__class__,order_bgr)
+        self.__class__ = order_bgr
 _agg.order_bgr_swigregister(order_bgrPtr)
 
 class order_rgba(_object):
@@ -387,7 +387,7 @@ class order_rgbaPtr(order_rgba):
     def __init__(self, this):
         _swig_setattr(self, order_rgba, 'this', this)
         if not hasattr(self,"thisown"): _swig_setattr(self, order_rgba, 'thisown', 0)
-        _swig_setattr(self, order_rgba,self.__class__,order_rgba)
+        self.__class__ = order_rgba
 _agg.order_rgba_swigregister(order_rgbaPtr)
 
 class order_argb(_object):
@@ -415,7 +415,7 @@ class order_argbPtr(order_argb):
     def __init__(self, this):
         _swig_setattr(self, order_argb, 'this', this)
         if not hasattr(self,"thisown"): _swig_setattr(self, order_argb, 'thisown', 0)
-        _swig_setattr(self, order_argb,self.__class__,order_argb)
+        self.__class__ = order_argb
 _agg.order_argb_swigregister(order_argbPtr)
 
 class order_abgr(_object):
@@ -443,7 +443,7 @@ class order_abgrPtr(order_abgr):
     def __init__(self, this):
         _swig_setattr(self, order_abgr, 'this', this)
         if not hasattr(self,"thisown"): _swig_setattr(self, order_abgr, 'thisown', 0)
-        _swig_setattr(self, order_abgr,self.__class__,order_abgr)
+        self.__class__ = order_abgr
 _agg.order_abgr_swigregister(order_abgrPtr)
 
 class order_bgra(_object):
@@ -471,7 +471,7 @@ class order_bgraPtr(order_bgra):
     def __init__(self, this):
         _swig_setattr(self, order_bgra, 'this', this)
         if not hasattr(self,"thisown"): _swig_setattr(self, order_bgra, 'thisown', 0)
-        _swig_setattr(self, order_bgra,self.__class__,order_bgra)
+        self.__class__ = order_bgra
 _agg.order_bgra_swigregister(order_bgraPtr)
 
 class rgba(_object):
@@ -516,7 +516,7 @@ class rgbaPtr(rgba):
     def __init__(self, this):
         _swig_setattr(self, rgba, 'this', this)
         if not hasattr(self,"thisown"): _swig_setattr(self, rgba, 'thisown', 0)
-        _swig_setattr(self, rgba,self.__class__,rgba)
+        self.__class__ = rgba
 _agg.rgba_swigregister(rgbaPtr)
 
 rgba_no_color = _agg.rgba_no_color
@@ -568,7 +568,7 @@ class rgba8Ptr(rgba8):
     def __init__(self, this):
         _swig_setattr(self, rgba8, 'this', this)
         if not hasattr(self,"thisown"): _swig_setattr(self, rgba8, 'thisown', 0)
-        _swig_setattr(self, rgba8,self.__class__,rgba8)
+        self.__class__ = rgba8
 _agg.rgba8_swigregister(rgba8Ptr)
 
 rgba_pre = _agg.rgba_pre
@@ -628,7 +628,7 @@ class rgba16Ptr(rgba16):
     def __init__(self, this):
         _swig_setattr(self, rgba16, 'this', this)
         if not hasattr(self,"thisown"): _swig_setattr(self, rgba16, 'thisown', 0)
-        _swig_setattr(self, rgba16,self.__class__,rgba16)
+        self.__class__ = rgba16
 _agg.rgba16_swigregister(rgba16Ptr)
 
 rgba8_pre = _agg.rgba8_pre
@@ -682,7 +682,7 @@ class trans_affinePtr(trans_affine):
     def __init__(self, this):
         _swig_setattr(self, trans_affine, 'this', this)
         if not hasattr(self,"thisown"): _swig_setattr(self, trans_affine, 'thisown', 0)
-        _swig_setattr(self, trans_affine,self.__class__,trans_affine)
+        self.__class__ = trans_affine
 _agg.trans_affine_swigregister(trans_affinePtr)
 
 rgba16_pre = _agg.rgba16_pre
@@ -709,7 +709,7 @@ class trans_affine_rotationPtr(trans_affine_rotation):
     def __init__(self, this):
         _swig_setattr(self, trans_affine_rotation, 'this', this)
         if not hasattr(self,"thisown"): _swig_setattr(self, trans_affine_rotation, 'thisown', 0)
-        _swig_setattr(self, trans_affine_rotation,self.__class__,trans_affine_rotation)
+        self.__class__ = trans_affine_rotation
 _agg.trans_affine_rotation_swigregister(trans_affine_rotationPtr)
 
 class trans_affine_scaling(trans_affine):
@@ -734,7 +734,7 @@ class trans_affine_scalingPtr(trans_affine_scaling):
     def __init__(self, this):
         _swig_setattr(self, trans_affine_scaling, 'this', this)
         if not hasattr(self,"thisown"): _swig_setattr(self, trans_affine_scaling, 'thisown', 0)
-        _swig_setattr(self, trans_affine_scaling,self.__class__,trans_affine_scaling)
+        self.__class__ = trans_affine_scaling
 _agg.trans_affine_scaling_swigregister(trans_affine_scalingPtr)
 
 class trans_affine_translation(trans_affine):
@@ -759,7 +759,7 @@ class trans_affine_translationPtr(trans_affine_translation):
     def __init__(self, this):
         _swig_setattr(self, trans_affine_translation, 'this', this)
         if not hasattr(self,"thisown"): _swig_setattr(self, trans_affine_translation, 'thisown', 0)
-        _swig_setattr(self, trans_affine_translation,self.__class__,trans_affine_translation)
+        self.__class__ = trans_affine_translation
 _agg.trans_affine_translation_swigregister(trans_affine_translationPtr)
 
 class trans_affine_skewing(trans_affine):
@@ -784,7 +784,7 @@ class trans_affine_skewingPtr(trans_affine_skewing):
     def __init__(self, this):
         _swig_setattr(self, trans_affine_skewing, 'this', this)
         if not hasattr(self,"thisown"): _swig_setattr(self, trans_affine_skewing, 'thisown', 0)
-        _swig_setattr(self, trans_affine_skewing,self.__class__,trans_affine_skewing)
+        self.__class__ = trans_affine_skewing
 _agg.trans_affine_skewing_swigregister(trans_affine_skewingPtr)
 
 class path_storage(_object):
@@ -837,7 +837,7 @@ class path_storagePtr(path_storage):
     def __init__(self, this):
         _swig_setattr(self, path_storage, 'this', this)
         if not hasattr(self,"thisown"): _swig_setattr(self, path_storage, 'thisown', 0)
-        _swig_setattr(self, path_storage,self.__class__,path_storage)
+        self.__class__ = path_storage
 _agg.path_storage_swigregister(path_storagePtr)
 
 butt_cap = _agg.butt_cap
@@ -879,7 +879,7 @@ class rendering_bufferPtr(rendering_buffer):
     def __init__(self, this):
         _swig_setattr(self, rendering_buffer, 'this', this)
         if not hasattr(self,"thisown"): _swig_setattr(self, rendering_buffer, 'thisown', 0)
-        _swig_setattr(self, rendering_buffer,self.__class__,rendering_buffer)
+        self.__class__ = rendering_buffer
 _agg.rendering_buffer_swigregister(rendering_bufferPtr)
 stroke_theta = cvar.stroke_theta
 
@@ -933,7 +933,7 @@ class pixel64_typePtr(pixel64_type):
     def __init__(self, this):
         _swig_setattr(self, pixel64_type, 'this', this)
         if not hasattr(self,"thisown"): _swig_setattr(self, pixel64_type, 'thisown', 0)
-        _swig_setattr(self, pixel64_type,self.__class__,pixel64_type)
+        self.__class__ = pixel64_type
 _agg.pixel64_type_swigregister(pixel64_typePtr)
 
 class pixel_format_rgba(_object):
@@ -979,7 +979,7 @@ class pixel_format_rgbaPtr(pixel_format_rgba):
     def __init__(self, this):
         _swig_setattr(self, pixel_format_rgba, 'this', this)
         if not hasattr(self,"thisown"): _swig_setattr(self, pixel_format_rgba, 'thisown', 0)
-        _swig_setattr(self, pixel_format_rgba,self.__class__,pixel_format_rgba)
+        self.__class__ = pixel_format_rgba
 _agg.pixel_format_rgba_swigregister(pixel_format_rgbaPtr)
 
 class renderer_base_rgba(_object):
@@ -1044,7 +1044,7 @@ class renderer_base_rgbaPtr(renderer_base_rgba):
     def __init__(self, this):
         _swig_setattr(self, renderer_base_rgba, 'this', this)
         if not hasattr(self,"thisown"): _swig_setattr(self, renderer_base_rgba, 'thisown', 0)
-        _swig_setattr(self, renderer_base_rgba,self.__class__,renderer_base_rgba)
+        self.__class__ = renderer_base_rgba
 _agg.renderer_base_rgba_swigregister(renderer_base_rgbaPtr)
 
 class conv_curve_path(_object):
@@ -1071,7 +1071,7 @@ class conv_curve_pathPtr(conv_curve_path):
     def __init__(self, this):
         _swig_setattr(self, conv_curve_path, 'this', this)
         if not hasattr(self,"thisown"): _swig_setattr(self, conv_curve_path, 'thisown', 0)
-        _swig_setattr(self, conv_curve_path,self.__class__,conv_curve_path)
+        self.__class__ = conv_curve_path
 _agg.conv_curve_path_swigregister(conv_curve_pathPtr)
 
 class conv_curve_trans(_object):
@@ -1098,7 +1098,7 @@ class conv_curve_transPtr(conv_curve_trans):
     def __init__(self, this):
         _swig_setattr(self, conv_curve_trans, 'this', this)
         if not hasattr(self,"thisown"): _swig_setattr(self, conv_curve_trans, 'thisown', 0)
-        _swig_setattr(self, conv_curve_trans,self.__class__,conv_curve_trans)
+        self.__class__ = conv_curve_trans
 _agg.conv_curve_trans_swigregister(conv_curve_transPtr)
 
 class conv_transform_path(_object):
@@ -1125,7 +1125,7 @@ class conv_transform_pathPtr(conv_transform_path):
     def __init__(self, this):
         _swig_setattr(self, conv_transform_path, 'this', this)
         if not hasattr(self,"thisown"): _swig_setattr(self, conv_transform_path, 'thisown', 0)
-        _swig_setattr(self, conv_transform_path,self.__class__,conv_transform_path)
+        self.__class__ = conv_transform_path
 _agg.conv_transform_path_swigregister(conv_transform_pathPtr)
 
 class conv_transform_curve(_object):
@@ -1152,7 +1152,7 @@ class conv_transform_curvePtr(conv_transform_curve):
     def __init__(self, this):
         _swig_setattr(self, conv_transform_curve, 'this', this)
         if not hasattr(self,"thisown"): _swig_setattr(self, conv_transform_curve, 'thisown', 0)
-        _swig_setattr(self, conv_transform_curve,self.__class__,conv_transform_curve)
+        self.__class__ = conv_transform_curve
 _agg.conv_transform_curve_swigregister(conv_transform_curvePtr)
 
 class vcgen_stroke(_object):
@@ -1188,7 +1188,7 @@ class vcgen_strokePtr(vcgen_stroke):
     def __init__(self, this):
         _swig_setattr(self, vcgen_stroke, 'this', this)
         if not hasattr(self,"thisown"): _swig_setattr(self, vcgen_stroke, 'thisown', 0)
-        _swig_setattr(self, vcgen_stroke,self.__class__,vcgen_stroke)
+        self.__class__ = vcgen_stroke
 _agg.vcgen_stroke_swigregister(vcgen_strokePtr)
 
 class null_markers(_object):
@@ -1216,7 +1216,7 @@ class null_markersPtr(null_markers):
     def __init__(self, this):
         _swig_setattr(self, null_markers, 'this', this)
         if not hasattr(self,"thisown"): _swig_setattr(self, null_markers, 'thisown', 0)
-        _swig_setattr(self, null_markers,self.__class__,null_markers)
+        self.__class__ = null_markers
 _agg.null_markers_swigregister(null_markersPtr)
 
 class conv_adaptor_vcgen_path(_object):
@@ -1244,7 +1244,7 @@ class conv_adaptor_vcgen_pathPtr(conv_adaptor_vcgen_path):
     def __init__(self, this):
         _swig_setattr(self, conv_adaptor_vcgen_path, 'this', this)
         if not hasattr(self,"thisown"): _swig_setattr(self, conv_adaptor_vcgen_path, 'thisown', 0)
-        _swig_setattr(self, conv_adaptor_vcgen_path,self.__class__,conv_adaptor_vcgen_path)
+        self.__class__ = conv_adaptor_vcgen_path
 _agg.conv_adaptor_vcgen_path_swigregister(conv_adaptor_vcgen_pathPtr)
 
 class conv_adaptor_vcgen_transpath(_object):
@@ -1272,7 +1272,7 @@ class conv_adaptor_vcgen_transpathPtr(conv_adaptor_vcgen_transpath):
     def __init__(self, this):
         _swig_setattr(self, conv_adaptor_vcgen_transpath, 'this', this)
         if not hasattr(self,"thisown"): _swig_setattr(self, conv_adaptor_vcgen_transpath, 'thisown', 0)
-        _swig_setattr(self, conv_adaptor_vcgen_transpath,self.__class__,conv_adaptor_vcgen_transpath)
+        self.__class__ = conv_adaptor_vcgen_transpath
 _agg.conv_adaptor_vcgen_transpath_swigregister(conv_adaptor_vcgen_transpathPtr)
 
 class conv_adaptor_vcgen_curve(_object):
@@ -1300,7 +1300,7 @@ class conv_adaptor_vcgen_curvePtr(conv_adaptor_vcgen_curve):
     def __init__(self, this):
         _swig_setattr(self, conv_adaptor_vcgen_curve, 'this', this)
         if not hasattr(self,"thisown"): _swig_setattr(self, conv_adaptor_vcgen_curve, 'thisown', 0)
-        _swig_setattr(self, conv_adaptor_vcgen_curve,self.__class__,conv_adaptor_vcgen_curve)
+        self.__class__ = conv_adaptor_vcgen_curve
 _agg.conv_adaptor_vcgen_curve_swigregister(conv_adaptor_vcgen_curvePtr)
 
 class conv_adaptor_vcgen_transcurve(_object):
@@ -1328,7 +1328,7 @@ class conv_adaptor_vcgen_transcurvePtr(conv_adaptor_vcgen_transcurve):
     def __init__(self, this):
         _swig_setattr(self, conv_adaptor_vcgen_transcurve, 'this', this)
         if not hasattr(self,"thisown"): _swig_setattr(self, conv_adaptor_vcgen_transcurve, 'thisown', 0)
-        _swig_setattr(self, conv_adaptor_vcgen_transcurve,self.__class__,conv_adaptor_vcgen_transcurve)
+        self.__class__ = conv_adaptor_vcgen_transcurve
 _agg.conv_adaptor_vcgen_transcurve_swigregister(conv_adaptor_vcgen_transcurvePtr)
 
 class conv_adaptor_vcgen_curvetrans(_object):
@@ -1356,7 +1356,7 @@ class conv_adaptor_vcgen_curvetransPtr(conv_adaptor_vcgen_curvetrans):
     def __init__(self, this):
         _swig_setattr(self, conv_adaptor_vcgen_curvetrans, 'this', this)
         if not hasattr(self,"thisown"): _swig_setattr(self, conv_adaptor_vcgen_curvetrans, 'thisown', 0)
-        _swig_setattr(self, conv_adaptor_vcgen_curvetrans,self.__class__,conv_adaptor_vcgen_curvetrans)
+        self.__class__ = conv_adaptor_vcgen_curvetrans
 _agg.conv_adaptor_vcgen_curvetrans_swigregister(conv_adaptor_vcgen_curvetransPtr)
 
 class conv_stroke_path(conv_adaptor_vcgen_path):
@@ -1390,7 +1390,7 @@ class conv_stroke_pathPtr(conv_stroke_path):
     def __init__(self, this):
         _swig_setattr(self, conv_stroke_path, 'this', this)
         if not hasattr(self,"thisown"): _swig_setattr(self, conv_stroke_path, 'thisown', 0)
-        _swig_setattr(self, conv_stroke_path,self.__class__,conv_stroke_path)
+        self.__class__ = conv_stroke_path
 _agg.conv_stroke_path_swigregister(conv_stroke_pathPtr)
 
 class conv_stroke_transpath(conv_adaptor_vcgen_transpath):
@@ -1424,7 +1424,7 @@ class conv_stroke_transpathPtr(conv_stroke_transpath):
     def __init__(self, this):
         _swig_setattr(self, conv_stroke_transpath, 'this', this)
         if not hasattr(self,"thisown"): _swig_setattr(self, conv_stroke_transpath, 'thisown', 0)
-        _swig_setattr(self, conv_stroke_transpath,self.__class__,conv_stroke_transpath)
+        self.__class__ = conv_stroke_transpath
 _agg.conv_stroke_transpath_swigregister(conv_stroke_transpathPtr)
 
 class conv_stroke_curve(conv_adaptor_vcgen_curve):
@@ -1458,7 +1458,7 @@ class conv_stroke_curvePtr(conv_stroke_curve):
     def __init__(self, this):
         _swig_setattr(self, conv_stroke_curve, 'this', this)
         if not hasattr(self,"thisown"): _swig_setattr(self, conv_stroke_curve, 'thisown', 0)
-        _swig_setattr(self, conv_stroke_curve,self.__class__,conv_stroke_curve)
+        self.__class__ = conv_stroke_curve
 _agg.conv_stroke_curve_swigregister(conv_stroke_curvePtr)
 
 class conv_stroke_transcurve(conv_adaptor_vcgen_transcurve):
@@ -1492,7 +1492,7 @@ class conv_stroke_transcurvePtr(conv_stroke_transcurve):
     def __init__(self, this):
         _swig_setattr(self, conv_stroke_transcurve, 'this', this)
         if not hasattr(self,"thisown"): _swig_setattr(self, conv_stroke_transcurve, 'thisown', 0)
-        _swig_setattr(self, conv_stroke_transcurve,self.__class__,conv_stroke_transcurve)
+        self.__class__ = conv_stroke_transcurve
 _agg.conv_stroke_transcurve_swigregister(conv_stroke_transcurvePtr)
 
 class conv_stroke_curvetrans(_object):
@@ -1524,7 +1524,7 @@ class conv_stroke_curvetransPtr(conv_stroke_curvetrans):
     def __init__(self, this):
         _swig_setattr(self, conv_stroke_curvetrans, 'this', this)
         if not hasattr(self,"thisown"): _swig_setattr(self, conv_stroke_curvetrans, 'thisown', 0)
-        _swig_setattr(self, conv_stroke_curvetrans,self.__class__,conv_stroke_curvetrans)
+        self.__class__ = conv_stroke_curvetrans
 _agg.conv_stroke_curvetrans_swigregister(conv_stroke_curvetransPtr)
 
 class rasterizer_scanline_aa(_object):
@@ -1567,7 +1567,7 @@ class rasterizer_scanline_aaPtr(rasterizer_scanline_aa):
     def __init__(self, this):
         _swig_setattr(self, rasterizer_scanline_aa, 'this', this)
         if not hasattr(self,"thisown"): _swig_setattr(self, rasterizer_scanline_aa, 'thisown', 0)
-        _swig_setattr(self, rasterizer_scanline_aa,self.__class__,rasterizer_scanline_aa)
+        self.__class__ = rasterizer_scanline_aa
 _agg.rasterizer_scanline_aa_swigregister(rasterizer_scanline_aaPtr)
 
 class renderer_scanline_aa_solid_rgba(_object):
@@ -1595,7 +1595,7 @@ class renderer_scanline_aa_solid_rgbaPtr(renderer_scanline_aa_solid_rgba):
     def __init__(self, this):
         _swig_setattr(self, renderer_scanline_aa_solid_rgba, 'this', this)
         if not hasattr(self,"thisown"): _swig_setattr(self, renderer_scanline_aa_solid_rgba, 'thisown', 0)
-        _swig_setattr(self, renderer_scanline_aa_solid_rgba,self.__class__,renderer_scanline_aa_solid_rgba)
+        self.__class__ = renderer_scanline_aa_solid_rgba
 _agg.renderer_scanline_aa_solid_rgba_swigregister(renderer_scanline_aa_solid_rgbaPtr)
 
 class renderer_scanline_bin_solid_rgba(_object):
@@ -1623,7 +1623,7 @@ class renderer_scanline_bin_solid_rgbaPtr(renderer_scanline_bin_solid_rgba):
     def __init__(self, this):
         _swig_setattr(self, renderer_scanline_bin_solid_rgba, 'this', this)
         if not hasattr(self,"thisown"): _swig_setattr(self, renderer_scanline_bin_solid_rgba, 'thisown', 0)
-        _swig_setattr(self, renderer_scanline_bin_solid_rgba,self.__class__,renderer_scanline_bin_solid_rgba)
+        self.__class__ = renderer_scanline_bin_solid_rgba
 _agg.renderer_scanline_bin_solid_rgba_swigregister(renderer_scanline_bin_solid_rgbaPtr)
 
 class scanline_p8(_object):
@@ -1655,7 +1655,7 @@ class scanline_p8Ptr(scanline_p8):
     def __init__(self, this):
         _swig_setattr(self, scanline_p8, 'this', this)
         if not hasattr(self,"thisown"): _swig_setattr(self, scanline_p8, 'thisown', 0)
-        _swig_setattr(self, scanline_p8,self.__class__,scanline_p8)
+        self.__class__ = scanline_p8
 _agg.scanline_p8_swigregister(scanline_p8Ptr)
 
 class scanline_bin(_object):
@@ -1686,7 +1686,7 @@ class scanline_binPtr(scanline_bin):
     def __init__(self, this):
         _swig_setattr(self, scanline_bin, 'this', this)
         if not hasattr(self,"thisown"): _swig_setattr(self, scanline_bin, 'thisown', 0)
-        _swig_setattr(self, scanline_bin,self.__class__,scanline_bin)
+        self.__class__ = scanline_bin
 _agg.scanline_bin_swigregister(scanline_binPtr)
 
 class scanline32_bin(_object):
@@ -1717,9 +1717,10 @@ class scanline32_binPtr(scanline32_bin):
     def __init__(self, this):
         _swig_setattr(self, scanline32_bin, 'this', this)
         if not hasattr(self,"thisown"): _swig_setattr(self, scanline32_bin, 'thisown', 0)
-        _swig_setattr(self, scanline32_bin,self.__class__,scanline32_bin)
+        self.__class__ = scanline32_bin
 _agg.scanline32_bin_swigregister(scanline32_binPtr)
 
 
 render_scanlines_rgba = _agg.render_scanlines_rgba
+
 

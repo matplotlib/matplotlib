@@ -144,8 +144,8 @@ class Formatter(TickHelper):
     # some classes want to see all the locs to help format
     # individual ones    
     locs = []
-    def __call__(self, x, pos=0):
-        'Return the format for tick val x at position pos'
+    def __call__(self, x, pos=None):
+        'Return the format for tick val x at position pos; pos=None indicated unspecified'
         raise NotImplementedError('Derived must overide')
         
     def format_data(self,value):
@@ -159,7 +159,7 @@ class Formatter(TickHelper):
 
 class NullFormatter(Formatter):
     'Always return the empty string'
-    def __call__(self, x, pos=0):
+    def __call__(self, x, pos=None):
         'Return the format for tick val x at position pos'        
         return ''
 
@@ -172,7 +172,7 @@ class FixedFormatter(Formatter):
         """
         self.seq = seq
         
-    def __call__(self, x, pos=0):
+    def __call__(self, x, pos=None):
         'Return the format for tick val x at position pos'        
         if pos>=len(self.seq): return ''
         else: return self.seq[pos]
@@ -184,7 +184,7 @@ class FuncFormatter(Formatter):
     def __init__(self, func):
         self.func = func
 
-    def __call__(self, x, pos=0):
+    def __call__(self, x, pos=None):
         'Return the format for tick val x at position pos'                
         return self.func(x, pos)
 
@@ -196,7 +196,7 @@ class FormatStrFormatter(Formatter):
     def __init__(self, fmt):
         self.fmt = fmt
 
-    def __call__(self, x, pos=0):
+    def __call__(self, x, pos=None):
         'Return the format for tick val x at position pos'
         return self.fmt % x
 
@@ -208,7 +208,7 @@ class OldScalarFormatter(Formatter):
     not set, the formatter will do str conversion
     """
 
-    def __call__(self, x, pos=0):
+    def __call__(self, x, pos=None):
         'Return the format for tick val x at position pos'        
         self.verify_intervals()
         d = abs(self.viewInterval.span())
@@ -258,7 +258,7 @@ class ScalarFormatter(Formatter):
         self.orderOfMagnitude = 0
         self.format = ''
         
-    def __call__(self, x, pos=0):
+    def __call__(self, x, pos=None):
         'Return the format for tick val x at position pos'  
         if len(self.locs)==0:
             return ''
@@ -384,7 +384,7 @@ class LogFormatter(Formatter):
         self.labelOnlyBase=labelOnlyBase
 
         
-    def __call__(self, x, pos=0):
+    def __call__(self, x, pos=None):
         'Return the format for tick val x at position pos'        
         self.verify_intervals()
         d = abs(self.viewInterval.span())
@@ -441,7 +441,7 @@ class LogFormatterExponent(LogFormatter):
     Format values for log axis; using exponent = log_base(value)
     """
         
-    def __call__(self, x, pos=0):
+    def __call__(self, x, pos=None):
         'Return the format for tick val x at position pos'        
         self.verify_intervals()
         d = abs(self.viewInterval.span())
@@ -464,7 +464,7 @@ class LogFormatterMathtext(LogFormatter):
     Format values for log axis; using exponent = log_base(value)
     """
         
-    def __call__(self, x, pos=0):
+    def __call__(self, x, pos=None):
         'Return the format for tick val x at position pos'        
         self.verify_intervals()
 

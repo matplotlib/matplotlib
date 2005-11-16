@@ -33,8 +33,8 @@ plot([1,2,3])
 
 # the axes attributes need to be set before the call to subplot
 rc('font', weight='bold')
-rc('tick.major', size=5, pad=7)
-rc('tick', labelsize=15)
+rc('xtick.major', size=5, pad=7)
+rc('xtick', labelsize=15)
 
 # using aliases for color, linestyle and linewith; gray, solid, thick
 rc('grid', c=0.5, ls='-', lw=5)

@@ -465,6 +465,23 @@ def popd(d, *args):
     return val
 
 
+class maxdict(dict):
+    """
+    A dictionary with a maximum size; this doesn't override all the
+    relevant methods to contrain size, just setitem, so use with
+    caution
+    """
+    def __init__(self, maxsize):
+        dict.__init__(self)
+        self.maxsize = maxsize
+        self._killkeys = []
+    def __setitem__(self, k, v):
+        if len(self)>=self.maxsize:
+            del self[self._killkeys[0]]
+            del self._killkeys[0]
+        dict.__setitem__(self, k, v)
+        self._killkeys.append(k)        
+
 
 
 class Stack:

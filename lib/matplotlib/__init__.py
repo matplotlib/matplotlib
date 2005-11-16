@@ -667,13 +667,21 @@ defaultParams = {
     'polaraxes.grid'         : [True, validate_bool],   # display polar grid or not
 
     # tick properties
-    'tick.major.size'   : [5, validate_float],      # major tick size in points
-    'tick.minor.size'   : [2, validate_float],      # minor tick size in points
-    'tick.major.pad'   : [3, validate_float],      # distance to label in points
-    'tick.minor.pad'   : [3, validate_float],      # distance to label in points
-    'tick.color'        : ['k', validate_color],    # color of the tick labels
-    'tick.labelsize'    : ['small', validate_fontsize], # fontsize of the tick labels
-    'tick.direction'    : ['in', str],            # direction of ticks
+    'xtick.major.size'   : [5, validate_float],      # major xtick size in points
+    'xtick.minor.size'   : [2, validate_float],      # minor xtick size in points
+    'xtick.major.pad'   : [3, validate_float],      # distance to label in points
+    'xtick.minor.pad'   : [3, validate_float],      # distance to label in points
+    'xtick.color'        : ['k', validate_color],    # color of the xtick labels
+    'xtick.labelsize'    : ['small', validate_fontsize], # fontsize of the xtick labels
+    'xtick.direction'    : ['in', str],            # direction of xticks
+
+    'ytick.major.size'   : [5, validate_float],      # major ytick size in points
+    'ytick.minor.size'   : [2, validate_float],      # minor ytick size in points
+    'ytick.major.pad'   : [3, validate_float],      # distance to label in points
+    'ytick.minor.pad'   : [3, validate_float],      # distance to label in points
+    'ytick.color'        : ['k', validate_color],    # color of the ytick labels
+    'ytick.labelsize'    : ['small', validate_fontsize], # fontsize of the ytick labels
+    'ytick.direction'    : ['in', str],            # direction of yticks
 
     'grid.color'       :   ['k', validate_color],       # grid color
     'grid.linestyle'   :   [':', str],       # dotted

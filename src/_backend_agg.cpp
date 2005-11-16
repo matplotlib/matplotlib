@@ -1311,15 +1311,24 @@ RendererAgg::draw_markers(const Py::Tuple& args) {
   _VERBOSE("RendererAgg::_draw_markers_cache");
   args.verify_length(6);  
   
+  _VERBOSE("RendererAgg::_draw_markers_cache setting gc");
   GCAgg gc = GCAgg(args[0], dpi);
 
+
   agg::path_storage *ppath;
+  _VERBOSE("RendererAgg::_draw_markers_cache get path storage");
   swig_type_info * descr = SWIG_TypeQuery("agg::path_storage *");  
+  _VERBOSE("RendererAgg::_draw_markers_cache got path storage");
   assert(descr);
-  if (SWIG_ConvertPtr(args[1].ptr(),(void **)(&ppath), descr, 0) == -1) 
+  _VERBOSE("RendererAgg::_draw_markers_cache asserted");
+  if (SWIG_ConvertPtr(args[1].ptr(),(void **)(&ppath), descr, 0) == -1) {
+    _VERBOSE("RendererAgg::_draw_markers_cache throwing");
     throw Py::TypeError("Could not convert path_storage");
+  }
+  _VERBOSE("RendererAgg::_draw_markers_cache getface");
   facepair_t face = _get_rgba_face(args[2], gc.alpha);
 
+  _VERBOSE("RendererAgg::_draw_markers_cache 1");
   Py::Object xo = args[3];
   Py::Object yo = args[4];
   
@@ -1331,6 +1340,7 @@ RendererAgg::draw_markers(const Py::Tuple& args) {
   
   PyArrayObject *ya = (PyArrayObject *) PyArray_ContiguousFromObject(yo.ptr(), PyArray_DOUBLE, 1, 1); 
   
+  _VERBOSE("RendererAgg::_draw_markers_cache 2");
   if (ya==NULL) 
     throw Py::TypeError("RendererAgg::_draw_markers_cache expected numerix array");
   
@@ -1346,6 +1356,7 @@ RendererAgg::draw_markers(const Py::Tuple& args) {
   
   agg::trans_affine xytrans = agg::trans_affine(a,b,c,d,tx,ty);  
   
+  _VERBOSE("RendererAgg::_draw_markers_cache 3");
   size_t Nx = xa->dimensions[0];
   size_t Ny = ya->dimensions[0];
   
@@ -1361,6 +1372,7 @@ RendererAgg::draw_markers(const Py::Tuple& args) {
   typedef agg::conv_curve<agg::path_storage> curve_t;
   curve_t curve(*ppath);
 
+  _VERBOSE("RendererAgg::_draw_markers_cache 4");
   //maxim's suggestions for cached scanlines
   agg::scanline_storage_aa8 scanlines;  
   theRasterizer->reset();
@@ -1374,6 +1386,8 @@ RendererAgg::draw_markers(const Py::Tuple& args) {
     fillCache = new agg::int8u[fillSize]; // or any container
     scanlines.serialize(fillCache);
   }
+
+  _VERBOSE("RendererAgg::_draw_markers_cache 5");
   
 
   agg::conv_stroke<curve_t> stroke(curve);
@@ -1401,6 +1415,8 @@ RendererAgg::draw_markers(const Py::Tuple& args) {
     rendererBase->clip_box(l, height-(b+h),l+w, height-b);
   }
 
+
+  _VERBOSE("RendererAgg::_draw_markers_cache 6");
   double thisx, thisy;
   for (size_t i=0; i<Nx; i++) {
     thisx = *(double *)(xa->data + i*xa->strides[0]);
@@ -1424,6 +1440,7 @@ RendererAgg::draw_markers(const Py::Tuple& args) {
     agg::serialized_scanlines_adaptor_aa8 sa;
     agg::serialized_scanlines_adaptor_aa8::embedded_scanline sl;
     
+    _VERBOSE("RendererAgg::_draw_markers_cache 7");
     if (face.first) {
       //render the fill
       sa.init(fillCache, fillSize, thisx, thisy);
@@ -1438,12 +1455,15 @@ RendererAgg::draw_markers(const Py::Tuple& args) {
     
   } //for each marker 
 
+  _VERBOSE("RendererAgg::_draw_markers_cache 8");
   Py_XDECREF(xa);
   Py_XDECREF(ya);
   
   if (face.first) 
     delete [] fillCache;
   delete [] strokeCache;
+
+  _VERBOSE("RendererAgg::_draw_markers_cache done");
   return Py::Object();
    
 }

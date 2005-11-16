@@ -5,7 +5,7 @@ import os, sys
 wrap = (
     'agg',
     )
-SWIG = '/usr/local/bin/swig'
+SWIG = 'swig'
 AGGINCLUDE = 'agg23/include'
 
 swigit = '%(SWIG)s -python -c++ -outdir lib/matplotlib -o src/%(SWIGFILE)s.cxx -I%(AGGINCLUDE)s swig/%(SWIGFILE)s.i '

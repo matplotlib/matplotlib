@@ -3,7 +3,8 @@
 show how to add a matplotlib FigureCanvasGTK or FigureCanvasGTKAgg widget and
 a toolbar to a gtk.Window
 """
-
+import pygtk
+pygtk.require('2.4')
 import gtk
 
 from matplotlib.axes import Subplot
@@ -11,13 +12,13 @@ from matplotlib.figure import Figure
 from matplotlib.numerix import arange, sin, pi
 
 # uncomment to select /GTK/GTKAgg/GTKCairo
-#from matplotlib.backends.backend_gtk import FigureCanvasGTK as FigureCanvas
-from matplotlib.backends.backend_gtkagg import FigureCanvasGTKAgg as FigureCanvas
+from matplotlib.backends.backend_gtk import FigureCanvasGTK as FigureCanvas
+#from matplotlib.backends.backend_gtkagg import FigureCanvasGTKAgg as FigureCanvas
 #from matplotlib.backends.backend_gtkcairo import FigureCanvasGTKCairo as FigureCanvas
 
 # or NavigationToolbar for classic
-#from matplotlib.backends.backend_gtk import NavigationToolbar2GTK as NavigationToolbar
-from matplotlib.backends.backend_gtkagg import NavigationToolbar2GTKAgg as NavigationToolbar
+from matplotlib.backends.backend_gtk import NavigationToolbar2GTK as NavigationToolbar
+#from matplotlib.backends.backend_gtkagg import NavigationToolbar2GTKAgg as NavigationToolbar
 
 
 win = gtk.Window()
@@ -38,8 +39,6 @@ ax.plot(t,s)
 
 canvas = FigureCanvas(fig)  # a gtk.DrawingArea
 vbox.pack_start(canvas)
-
-
 toolbar = NavigationToolbar(canvas, win)
 vbox.pack_start(toolbar, False, False)
 

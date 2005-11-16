@@ -181,7 +181,7 @@ Interval::update(const Py::Tuple &args) {
   return Py::Object();
 }
 
-Bbox::Bbox(Point* ll, Point* ur) : _ll(ll), _ur(ur) {
+Bbox::Bbox(Point* ll, Point* ur) : _ll(ll), _ur(ur), _ignore(1) {
   _VERBOSE("Bbox::Bbox");
   
   Py_INCREF(ll);
@@ -326,6 +326,14 @@ Bbox::overlaps(const Py::Tuple &args) {
 }
 
 Py::Object 
+Bbox::ignore(const Py::Tuple &args) {
+  _VERBOSE("Bbox::ignore");
+  args.verify_length(1);
+  _ignore = Py::Int(args[1]); 
+  return Py::Object();
+}
+
+Py::Object 
 Bbox::overlapsx(const Py::Tuple &args) {
   _VERBOSE("Bbox::overlapsx");
   args.verify_length(1);
@@ -354,7 +362,7 @@ Bbox::overlapsy(const Py::Tuple &args) {
 
   if (! check(args[0]))
     throw Py::TypeError("Expected a bbox");
-
+  
   Bbox* other = static_cast<Bbox*>(args[0].ptr());
   
   double miny = _ll->yval();
@@ -379,10 +387,16 @@ Bbox::update(const Py::Tuple &args) {
 
   Py::SeqBase<Py::Object> xys = args[0];
 
-  //don't use current bounds when updating box if ignore==1
+  //don't use current bounds on first update
   int ignore = Py::Int(args[1]);  
+  if (ignore==-1) {
+    ignore = _ignore;
+    _ignore = 0; // don't ignore future updates
+  }
+
   size_t Nx = xys.length();
   if (Nx==0) return Py::Object();
+      
 
   double minx = _ll->xval();
   double maxx = _ur->xval();
@@ -1853,6 +1867,7 @@ Bbox::init_type()
   add_varargs_method("xmin", 	&Bbox::xmin, "xmin()\n");
   add_varargs_method("ymin", 	&Bbox::ymin, "ymin()\n");
 
+  add_varargs_method("ignore", 	 &Bbox::ignore, "ignore(int)");
   add_varargs_method("scale", 	 &Bbox::scale, "scale(sx,sy)");
   add_varargs_method("deepcopy", &Bbox::deepcopy, "deepcopy()\n");
 }  
