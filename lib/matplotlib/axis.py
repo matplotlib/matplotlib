@@ -72,15 +72,16 @@ class Tick(Artist):
         self.set_figure(axes.figure)
         self.axes = axes
 
+        name = self.__name__.lower()
         if size is None:
             if major:
-                size = rcParams['tick.major.size']
-                pad = rcParams['tick.major.pad']
+                size = rcParams['%s.major.size'%name]
+                pad = rcParams['%s.major.pad'%name]
             else:
-                size = rcParams['tick.minor.size']
-                pad = rcParams['tick.minor.pad']
+                size = rcParams['%s.minor.size'%name]
+                pad = rcParams['%s.minor.pad'%name]
 
-        self._tickdir = rcParams['tick.direction']
+        self._tickdir = rcParams['%s.direction'%name]
         if self._tickdir == 'in':
             self._xtickmarkers = (TICKUP, TICKDOWN)
             self._ytickmarkers = (TICKRIGHT, TICKLEFT)
@@ -218,8 +219,8 @@ class XTick(Tick):
         #t =  Text(
         t =  TextWithDash(
             x=loc, y=0,
-            fontproperties=FontProperties(size=rcParams['tick.labelsize']),
-            color=rcParams['tick.color'],
+            fontproperties=FontProperties(size=rcParams['xtick.labelsize']),
+            color=rcParams['xtick.color'],
             verticalalignment='top',
             horizontalalignment='center',
             dashdirection=0,
@@ -246,8 +247,8 @@ class XTick(Tick):
         #t =  Text(
         t =  TextWithDash(
             x=loc, y=1,
-            fontproperties=FontProperties(size=rcParams['tick.labelsize']),
-            color=rcParams['tick.color'],
+            fontproperties=FontProperties(size=rcParams['xtick.labelsize']),
+            color=rcParams['xtick.color'],
             verticalalignment='bottom',
             dashdirection=1,
             xaxis=True,
@@ -347,8 +348,8 @@ class YTick(Tick):
         #t =  Text(
         t =  TextWithDash(
             x=0, y=loc,
-            fontproperties=FontProperties(size=rcParams['tick.labelsize']),
-            color=rcParams['tick.color'],
+            fontproperties=FontProperties(size=rcParams['ytick.labelsize']),
+            color=rcParams['ytick.color'],
             verticalalignment='center',
             horizontalalignment='right',
             dashdirection=0,
@@ -372,8 +373,8 @@ class YTick(Tick):
         #t =  Text(
         t =  TextWithDash(
             x=1, y=loc,
-            fontproperties=FontProperties(size=rcParams['tick.labelsize']),
-            color=rcParams['tick.color'],
+            fontproperties=FontProperties(size=rcParams['ytick.labelsize']),
+            color=rcParams['ytick.color'],
             verticalalignment='center',
             dashdirection=1,
             xaxis=False,
@@ -574,7 +575,7 @@ class Axis(Artist):
         for tick, loc, label in zip(minorTicks, minorLocs, minorLabels):
             if tick is None: continue
             if not interval.contains(loc): continue
-            if seen.has_key(loc): continue
+            #if seen.has_key(loc): continue
             tick.update_position(loc)
             tick.set_label1(label)
             tick.set_label2(label)
@@ -851,8 +852,8 @@ class XAxis(Axis):
     def _get_offset_text(self):
         # x in axes coords, y in display coords (to be updated at draw time)
         offsetText = Text(x=1, y=0,
-            fontproperties = FontProperties(size=rcParams['tick.labelsize']),
-            color = rcParams['tick.color'],
+            fontproperties = FontProperties(size=rcParams['xtick.labelsize']),
+            color = rcParams['xtick.color'],
             verticalalignment='top',
             horizontalalignment='right',
             )
@@ -1025,8 +1026,8 @@ class YAxis(Axis):
     def _get_offset_text(self):
         # x in display coords, y in axes coords (to be updated at draw time)
         offsetText = Text(x=0, y=0.5,
-            fontproperties = FontProperties(size=rcParams['tick.labelsize']),
-            color = rcParams['tick.color'],
+            fontproperties = FontProperties(size=rcParams['ytick.labelsize']),
+            color = rcParams['ytick.color'],
             verticalalignment='bottom',
             horizontalalignment='left',
             )

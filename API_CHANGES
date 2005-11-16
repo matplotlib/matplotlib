@@ -1,4 +1,15 @@
+
 API Changes in matplotlib-0.85
+
+    Made xtick and ytick separate props in rc
+
+    made pos=None the default for tick formatters rather than 0 to
+    indicate "not supplied"
+
+    Removed "feature" of minor ticks which prevents them from
+    overlapping major ticks.  Often you want major and minor ticks at
+    the same place, and can offset the major ticks with the pad.  This
+    could be made configurable
 
     Changed the internal structure of contour.py to a more OO style.
     Calls to contour or contourf in axes.py or pylab.py now return

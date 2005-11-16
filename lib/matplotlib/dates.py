@@ -369,7 +369,9 @@ class RRuleLocator(DateLocator):
     def __call__(self):
         self.verify_intervals()
 
-        dmin, dmax = self.viewlim_to_dt()
+        # if no data have been set, this will tank with a ValueError
+        try: dmin, dmax = self.viewlim_to_dt()
+        except ValueError: return []
         delta = relativedelta(dmax, dmin)
         self.rule.set(dtstart=dmin-delta, until=dmax+delta)
         dates = self.rule.between(dmin, dmax, True)
@@ -746,6 +748,25 @@ def date_ticker_factory(span, tz=None, numticks=5):
     formatter = DateFormatter(fmt, tz=tz)
     return locator, formatter
 
+
+def seconds(s):
+    'return seconds as days'
+    return float(s)/SEC_PER_DAY
+
+def minutes(m):
+    'return minutes as days'
+    return float(m)/MINUTES_PER_DAY
+
+def hours(h):
+    'return hours as days'
+    return h/24.
+
+def weeks(w):
+    'return weeks as days'
+    return w*7.
+
+
+
 __all__ = ( 'date2num', 'num2date', 'drange', 'epoch2num',
             'num2epoch', 'mx2num', 'DateFormatter',
             'IndexDateFormatter', 'DateLocator', 'RRuleLocator',
@@ -753,5 +774,6 @@ __all__ = ( 'date2num', 'num2date', 'drange', 'epoch2num',
             'DayLocator', 'HourLocator', 'MinuteLocator',
             'SecondLocator', 'rrule', 'MO', 'TU', 'WE', 'TH', 'FR',
             'SA', 'SU', 'YEARLY', 'MONTHLY', 'WEEKLY', 'DAILY',
-            'HOURLY', 'MINUTELY', 'SECONDLY', 'relativedelta')
+            'HOURLY', 'MINUTELY', 'SECONDLY', 'relativedelta',
+            'seconds', 'minutes', 'hours', 'weeks')
 

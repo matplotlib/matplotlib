@@ -41,11 +41,12 @@ def new_figure_manager(num, *args, **kwargs):
     thisFig = Figure(*args, **kwargs)
     canvas = FigureCanvasGTKAgg(thisFig)
     return FigureManagerGTKAgg(canvas, num)
-
+    if DEBUG: print 'backend_gtkagg.new_figure_manager done'
 
 class FigureCanvasGTKAgg(FigureCanvasGTK, FigureCanvasAgg):
 
     def configure_event(self, widget, event=None):
+
         if DEBUG: print 'FigureCanvasGTKAgg.configure_event'
         if widget.window is None:
             return 
@@ -67,14 +68,32 @@ class FigureCanvasGTKAgg(FigureCanvasGTK, FigureCanvasAgg):
         return True
     
     def _render_figure(self, pixmap, width, height):
+        if DEBUG: print 'FigureCanvasGTKAgg.render_figure'
         FigureCanvasAgg.draw(self)
-        agg_to_gtk_drawable(pixmap, self.renderer._renderer, None)
+        if DEBUG: print 'FigureCanvasGTKAgg.render_figure pixmap', pixmap
+        #agg_to_gtk_drawable(pixmap, self.renderer._renderer, None)
+
+        buf = self.buffer_rgba(0,0)
+        ren = self.get_renderer()
+        w = int(ren.width)
+        h = int(ren.height)
+        pixbuf = gtk.gdk.pixbuf_new_from_data(
+            buf, gtk.gdk.COLORSPACE_RGB,  True, 8, w, h, w*4)
+        #except ValueError:
+        #    return # todo fixme, how can this fail
+        pixbuf.render_to_drawable(pixmap, pixmap.new_gc(), 0, 0, 0, 0, w, h, gtk.gdk.RGB_DITHER_NONE, 0, 0)
+        if DEBUG: print 'FigureCanvasGTKAgg.render_figure done'
 
     def blit(self, bbox=None):
+        if DEBUG: print 'FigureCanvasGTKAgg.blit'
+        if DEBUG: print 'FigureCanvasGTKAgg.blit', self._pixmap
         agg_to_gtk_drawable(self._pixmap, self.renderer._renderer, bbox)
+
         x, y, w, h = self.allocation
+
         self.window.draw_drawable (self.style.fg_gc[self.state], self._pixmap,
                                    0, 0, 0, 0, w, h)
+        if DEBUG: print 'FigureCanvasGTKAgg.done'
 
     def print_figure(self, filename, dpi=150,
                      facecolor='w', edgecolor='w',
@@ -90,8 +109,21 @@ class FigureCanvasGTKAgg(FigureCanvasGTK, FigureCanvasAgg):
             
         else:
             agg = self.switch_backends(FigureCanvasAgg)
-            try: agg.print_figure(filename, dpi, facecolor, edgecolor, orientation)
+            try:
+                agg.print_figure(filename, dpi, facecolor, edgecolor, orientation)
             except IOError, msg:
                 error_msg_gtk('Failed to save\nError message: %s'%(msg,), self)
 
         self.figure.set_canvas(self)
+        if DEBUG: print 'FigureCanvasGTKAgg.print_figure done'
+
+
+
+"""\
+Traceback (most recent call last):
+  File "/home/titan/johnh/local/lib/python2.3/site-packages/matplotlib/backends/backend_gtk.py", line 304, in expose_event
+    self._render_figure(self._pixmap, w, h)
+  File "/home/titan/johnh/local/lib/python2.3/site-packages/matplotlib/backends/backend_gtkagg.py", line 77, in _render_figure
+    pixbuf = gtk.gdk.pixbuf_new_from_data(
+ValueError: data length (3156672) is less then required by the other parameters (3160608)
+"""

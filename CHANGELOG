@@ -11,6 +11,17 @@
            new SpanSelector supports horizontal and vertical span
            selection, and the appropriate min/max is returned. - CM
 
+2005-11-16 Added a maxdict item to cbook to prevent caches from
+           growing w/o bounds
+
+2005-11-09 added axisbelow attr for Axes to determine whether ticks and such
+	 are above or below the actors
+
+2005-11-08 Added lineprops dialog for gtk
+
+2005-11-03 Added FIFOBuffer class to mlab to support real time feeds
+           and examples/fifo_buffer.py
+
 2005-11-01 Contributed Nickolas Young's patch for afm mathtext to
            support mathtext based upon the standard postscript Symbol
            font when ps.usetex = True.

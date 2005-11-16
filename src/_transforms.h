@@ -175,7 +175,6 @@ public:
     return  ( (val>=val1) && (val<=val2) || (val>=val2) && (val<=val1) );
 
   }
-
   //update the interval to contain all points in seq of floats
   Py::Object update( const Py::Tuple &args);
 
@@ -354,6 +353,9 @@ public:
   //return true if the x extent overlaps
   Py::Object overlapsy(const Py::Tuple &args); 
 
+  //set the ignore attr
+  Py::Object ignore(const Py::Tuple &args); 
+
   
 
   Point* ll_api() {return _ll;}
@@ -363,7 +365,7 @@ private:
   Point *_ll;
   Point *_ur;
   MinPositive _posx, _posy;
-
+  int _ignore; // ignore the past when updating datalim
 };
 
 

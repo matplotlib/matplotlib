@@ -22,7 +22,6 @@ from matplotlib.backend_bases import RendererBase, GraphicsContextBase, \
      FigureManagerBase, FigureCanvasBase
 from matplotlib.cbook import is_string_like, enumerate
 from matplotlib.figure import Figure
-from matplotlib.font_manager import fontManager
 from matplotlib.mathtext import math_parse_s_ft2font
 import matplotlib.numerix as numerix
 from matplotlib.numerix import asarray, fromstring, UInt8, zeros, \

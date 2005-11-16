@@ -1,4 +1,4 @@
-import os, sys, time
+import os, sys, time, gc
 
 from matplotlib.numerix import array, asarray, alltrue
 from matplotlib.numerix.mlab import rand
@@ -15,7 +15,11 @@ from matplotlib.transforms import copy_bbox_transform, blend_xy_sep_transform
 
 def report_memory(i):
     pid = os.getpid()
-    a2 = os.popen('ps -p %d -o rss,sz' % pid).readlines()
+    if sys.platform=='sunos5':
+        command = 'ps -p %d -o rss,osz' % pid
+    else:
+        'ps -p %d -o rss,sz' % pid
+    a2 = os.popen(command).readlines()
     print i, '  ', a2[1],
     return int(a2[1].split()[1])
 
@@ -44,14 +48,22 @@ class Line:
 
     def set_transform(self, t):
         self._transform = t
-        
-indStart, indEnd = 30, 250
+
+x, y = rand(2,10000)
+indStart, indEnd = 30, 350
 for i in range(indEnd):
-    l = Line()
-    t1 = rand_transform()
-    t2 = rand_transform()
-    l.set_transform(blend_xy_sep_transform( t1, t2))
-    
+    for j in range(20):
+        l = Line()
+        t1 = rand_transform()
+        t2 = rand_transform()
+        trans = blend_xy_sep_transform( t1, t2)
+        l.set_transform(trans)
+        xt, yt = trans.numerix_x_y(x, y)
+        xytup = tuple(rand(2))
+        txytup = trans.xy_tup(xytup)
+        ixytup = trans.inverse_xy_tup(xytup)
+        seqt = trans.seq_xy_tups(zip(x,y))
+    gc.collect()
     val = report_memory(i)
     if i==indStart: start = val # wait a few cycles for memory usage to stabilize
 
