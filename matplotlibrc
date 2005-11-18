@@ -40,7 +40,7 @@ timezone     : UTC        # a pytz timezone string, eg US/Central or Europe/Pari
 ### LINES
 # See http://matplotlib.sourceforge.net/matplotlib.lines.html for more
 # information on line properties.
-lines.linewidth   : 0.5     # line width in points
+lines.linewidth   : 1.0     # line width in points
 lines.linestyle   : -       # solid line
 lines.color       : blue
 lines.marker      : None    # the default marker

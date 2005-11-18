@@ -38,7 +38,7 @@ class GladeHandlers:
 
 class WidgetsWrapper:
     def __init__(self):
-        self.widgets = gtk.glade.XML('test.glade')
+        self.widgets = gtk.glade.XML('mpl_with_glade.glade')
         self.widgets.signal_autoconnect(GladeHandlers.__dict__)
 
         self['windowMain'].connect('destroy', lambda x: gtk.main_quit())
@@ -55,12 +55,27 @@ class WidgetsWrapper:
         self.canvas = FigureCanvas(self.figure) # a gtk.DrawingArea
         self.canvas.show()
         self.canvas.set_size_request(600, 400)
+        self.canvas.set_events(
+            gtk.gdk.BUTTON_PRESS_MASK      |            
+            gtk.gdk.KEY_PRESS_MASK      |
+            gtk.gdk.KEY_RELEASE_MASK    
+            )
+        self.canvas.set_flags(gtk.HAS_FOCUS|gtk.CAN_FOCUS)
+        self.canvas.grab_focus()
+
+        def keypress(widget, event):
+            print 'key press'
+        def buttonpress(widget, event):
+            print 'button press'
+
+        self.canvas.connect('key_press_event', keypress)
+        self.canvas.connect('button_press_event', buttonpress)      
 
         def onselect(xmin, xmax):
             print xmin, xmax
 
-        span = HorizontalSpanSelector(self.axis, onselect, useblit=False,
-                                          rectprops=dict(alpha=0.5, facecolor='red') )
+        #span = HorizontalSpanSelector(self.axis, onselect, useblit=False,
+        #                                  rectprops=dict(alpha=0.5, facecolor='red') )
 
 
         self['vboxMain'].pack_start(self.canvas, True, True)

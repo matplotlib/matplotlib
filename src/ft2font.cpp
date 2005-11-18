@@ -669,7 +669,7 @@ FT2Font::set_text(const Py::Tuple & args) {
   
 
   Py::String text( args[0] );
-  std::string stdtext;
+  std::string stdtext="";
   Py_UNICODE* pcode=NULL;
   size_t N = 0;
   if (PyUnicode_Check(text.ptr())) {

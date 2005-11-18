@@ -1,25 +1,29 @@
+2005-11-16 Changed the default default linewidth in rc to 1.0
+
 2005-11-16 Replaced agg_to_gtk_drawable with pure pygtk pixbuf code in
            backend_gtkagg.  When the equivalent is doe for blit, the
            agg extension code will no longer be needed
 
+2005-11-16 Added a maxdict item to cbook to prevent caches from
+           growing w/o bounds
+
 2005-11-15 Fixed a colorup/colordown reversal bug in finance.py --
            Thanks Gilles
 
-2005-11-15 New entries should be added at the top 2005-08-14 Applied
-           Jouni K Steppanen's boxplot patch SF patch#1349997 - JDH
+2005-11-15 Applied Jouni K Steppanen's boxplot patch SF patch#1349997
+           - JDH
+
+
+2005-11-09 added axisbelow attr for Axes to determine whether ticks and such
+  	   are above or below the actors
 
 2005-11-08 Added Nicolas' irregularly spaced image patch
+
 
 2005-11-08 Deprecated HorizontalSpanSelector and replaced with
            SpanSelection that takes a third arg, direction.  The
            new SpanSelector supports horizontal and vertical span
            selection, and the appropriate min/max is returned. - CM
-
-2005-11-16 Added a maxdict item to cbook to prevent caches from
-           growing w/o bounds
-
-2005-11-09 added axisbelow attr for Axes to determine whether ticks and such
-	 are above or below the actors
 
 2005-11-08 Added lineprops dialog for gtk
 
@@ -33,10 +37,9 @@
 2005-10-26 Added support for scatter legends - thanks John Gill
 
 2005-10-20 Fixed image clipping bug that made some tex labels
-           disappear.  Closes bug - JDH
+           disappear.   JDH
 
-2005-10-14 Removed aqrt from dvipng 1.6 alpha channel mask.  Where did
-           that come from?
+2005-10-14 Removed sqrt from dvipng 1.6 alpha channel mask.
 
 2005-10-14 Added width kwarg to hist function
 
@@ -53,6 +56,9 @@
            if the ContourSet has lines rather than polygons, the
            colorbar will follow suit. Fixed a bug introduced in
            0.84, in which contourf(...,colors=...) was broken - EF
+
+=======================================================================
+2005-09-19 Released 0.84
 
 2005-09-14 Added a new 'resize_event' which triggers a callback with a
            backend_bases.ResizeEvent object - JDH
@@ -89,7 +95,7 @@
            Added two new keyword args (cspacing and clabels) that are
            only relevant for ContourMappable images - JSWHIT
 
-2005-08-24 Fixes a PS image bug reported by Darren - JDH
+2005-08-24 Fixed a PS image bug reported by Darren - JDH
 
 2005-08-23 colors.py: change hex2color() to accept unicode strings as well as
            normal strings. Use isinstance() instead of types.IntType etc - SC
@@ -118,7 +124,7 @@
 
 2005-07-03 Fixed a bug related to TeX commands in backend_ps
 
-2005-08-03 Fixed SVG images to respect uppoer and lower origins.
+2005-08-03 Fixed SVG images to respect upper and lower origins.
 
 2005-08-03 Added flipud method to image and removed it from to_str.
 
