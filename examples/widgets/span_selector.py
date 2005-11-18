@@ -25,7 +25,9 @@ def onselect(vmin, vmax):
 span = SpanSelector(ax, onselect, 'horizontal', useblit=False,
                     rectprops=dict(alpha=0.5, facecolor='red') )
 
-
 ax2 = fig.add_subplot(212)
 ax2.plot([1,2,3])
+
+span2 = SpanSelector(ax2, onselect, 'vertical')
+
 pylab.show()
