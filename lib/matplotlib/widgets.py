@@ -686,7 +686,7 @@ class SpanSelector:
 
       def onselect(vmin, vmax):
           print vmin, vmax
-      span = HorizontalSpanSelector(ax, onselect)
+      span = SpanSelector(ax, onselect, 'horizontal')
 
     """
     def __init__(self, ax, onselect, direction, minspan=None, useblit=False, rectprops=None):
