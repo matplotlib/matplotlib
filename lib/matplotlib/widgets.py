@@ -732,6 +732,10 @@ class SpanSelector:
         self.useblit = useblit
         self.minspan = minspan
 
+        # Needed when dragging out of axes
+        self.buttonDown = False
+        self.prev = (0, 0)
+
         if self.direction == 'horizontal':
             trans = blend_xy_sep_transform(self.ax.transData, self.ax.transAxes)
             w,h = 0,1
@@ -760,6 +764,7 @@ class SpanSelector:
     def press(self, event):
         'on button press event'
         if self.ignore(event): return
+        self.buttonDown = True
         
         self.rect.set_visible(self.visible)
         if self.direction == 'horizontal':
@@ -771,15 +776,17 @@ class SpanSelector:
 
     def release(self, event):
         'on button release event'
-        if self.pressv is None or self.ignore(event): return
+        if self.pressv is None or (self.ignore(event) and not self.buttonDown): return
+        self.buttonDown = False
 
         self.rect.set_visible(False)
         self.canvas.draw()
         vmin = self.pressv
         if self.direction == 'horizontal':
-            vmax = event.xdata
+            vmax = event.xdata or self.prev[0]
         else:
-            vmax = event.ydata
+            vmax = event.ydata or self.prev[1]
+
         if vmin>vmax: vmin, vmax = vmax, vmin
         span = vmax - vmin
         if self.minspan is not None and span<self.minspan: return
@@ -802,7 +809,8 @@ class SpanSelector:
     def onmove(self, event):
         'on motion notify event'
         if self.pressv is None or self.ignore(event): return
-        x,y = event.xdata, event.ydata
+        x, y = event.xdata, event.ydata
+        self.prev = x, y
         if self.direction == 'horizontal':
             v = x
         else:
