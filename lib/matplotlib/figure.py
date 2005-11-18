@@ -102,7 +102,7 @@ class Figure(Artist):
                  facecolor = None,  # defaults to rc figure.facecolor
                  edgecolor = None,  # defaults to rc figure.edgecolor
                  linewidth = 1.0,   # the default linewidth of the frame
-                 frameon = True,
+                 frameon = True,    # whether or not to draw the figure frame
                  subplotpars = None, # default to rc
                  ):
         """

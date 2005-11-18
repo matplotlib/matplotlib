@@ -734,3 +734,5 @@ ZeroDivisionError: SeparableTransformation::eval_scalars yin interval is zero; c
 
 -- Fix latex texmanager caching bug that is preventing the cache from
    recognizing a font change
+
+-- handle lineprops.glade install file
