@@ -1,0 +1,15 @@
+{
+    IBClasses = (
+        {CLASS = FirstResponder; LANGUAGE = ObjC; SUPERCLASS = NSObject; }, 
+        {
+            ACTIONS = {printFigure = id; quit = id; saveFigure = id; }; 
+            CLASS = MatplotlibController; 
+            LANGUAGE = ObjC; 
+            OUTLETS = {plotView = PlotView; plotWindow = NSWindow; }; 
+            SUPERCLASS = NSObject; 
+        }, 
+        {CLASS = PlotView; LANGUAGE = ObjC; SUPERCLASS = NSImageView; }, 
+        {CLASS = PlotWindow; LANGUAGE = ObjC; SUPERCLASS = NSWindow; }
+    ); 
+    IBVersion = 1; 
+}
