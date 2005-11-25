@@ -114,7 +114,7 @@ class Text(Artist):
         if color is None: color = rcParams['text.color']
         if fontproperties is None: fontproperties=FontProperties()
 
-        self._color = color
+        self.set_color(color)
         self.set_text(text)
         self._verticalalignment = verticalalignment
         self._horizontalalignment = horizontalalignment
@@ -165,7 +165,6 @@ class Text(Artist):
         #return _unit_box
         key = self.get_prop_tup()
         if self.cached.has_key(key): return self.cached[key]
-
         horizLayout = []
         pad =2
         thisx, thisy = self._transform.xy_tup( (self._x, self._y) )
@@ -280,7 +279,7 @@ class Text(Artist):
         self._bbox = rectprops
 
     def draw(self, renderer):
-        #return 
+        #return
         if renderer is not None:
             self._renderer = renderer
         if not self.get_visible(): return
@@ -502,6 +501,11 @@ class Text(Artist):
 
         ACCEPTS: any matplotlib color - see help(colors)
         """
+        # Make sure it is hashable, or get_prop_tup will fail.
+        try:
+            hash(color)
+        except TypeError:
+            color = tuple(color)
         self._color = color
 
     def set_ha(self, align):
