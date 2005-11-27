@@ -43,7 +43,8 @@ from pylab import *
 
 # radar green, solid grid lines
 rc('grid', color='#316931', linewidth=1, linestyle='-')
-rc('tick', labelsize=15)
+rc('xtick', labelsize=15)
+rc('ytick', labelsize=15)
 # force square figure and square axes looks better for polar, IMO
 figure(figsize=(8,8))
 ax = axes([0.1, 0.1, 0.8, 0.8], polar=True, axisbg='#d5de9c')
