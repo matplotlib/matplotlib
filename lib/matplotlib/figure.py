@@ -721,15 +721,15 @@ class Figure(Artist):
         cmin = norm.vmin
         cmax = norm.vmax
         if isinstance(mappable, ContourSet):
-        # mappable image is from contourf
+        # mappable image is from contour or contourf
             clevs = mappable.levels
             clevs = minimum(clevs, cmax)
             clevs = maximum(clevs, cmin)
-            iscontourf = True
+            isContourSet = True
         elif isinstance(mappable, ScalarMappable):
         # from imshow or pcolor.
-            iscontourf = False
-            clevs = linspace(cmin, cmax, cmap.N)
+            isContourSet = False
+            clevs = linspace(cmin, cmax, cmap.N+1) # boundaries, hence N+1
         else:
             raise TypeError("don't know how to handle type %s"%type(mappable))
 
@@ -747,7 +747,7 @@ class Figure(Artist):
         else:
             args = (C, Y, X, clevs)
         kw = {'cmap':cmap}
-        if iscontourf and not mappable.filled:
+        if isContourSet and not mappable.filled:
             CS = cax.contour(*args, **kw)
             colls = mappable.collections
             for ii in range(len(colls)):
@@ -764,7 +764,7 @@ class Figure(Artist):
         mappable.set_colorbar(CS, cax)
 
 
-        if iscontourf:
+        if isContourSet:
             if cspacing == 'linear':
                 ticks = linspace(cmin, cmax, N)
             else:
@@ -785,14 +785,14 @@ class Figure(Artist):
             cax.set_xticks([])
             cax.yaxis.tick_right()
             cax.yaxis.set_label_position('right')
-            if iscontourf:
+            if isContourSet:
                 cax.set_yticks(ticks)
                 cax.set_yticklabels(labs)
             else:
                 cax.yaxis.set_major_formatter(FormatStrFormatter(tickfmt))
         else:
             cax.set_yticks([])
-            if iscontourf:
+            if isContourSet:
                 cax.set_xticks(ticks)
                 cax.set_xticklabels(labs)
             else:

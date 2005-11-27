@@ -58,6 +58,24 @@ ylabel('sentence length anomaly')
 ax_cbar = colorbar(CS, tickfmt='%1.2f')
 ax_cbar.set_ylabel('verbosity coefficient')
 
-savefig('contourf_demo')
+figure()
+
+# Now make a contour plot with the levels specified,
+# and with the colormap generated automatically from a list
+# of colors.
+levels = [-2, -1.5, -1, -0.5, 0, 0.5, 1, 1.5]
+CS3 = contourf(X, Y, Z, levels,
+                        colors = ('r', 'g', 'b'),
+                        origin=origin)
+
+CS4 = contour(X, Y, Z, levels,
+                       colors = ('k',),
+                       linewidths = (3,),
+                       origin = origin)
+title('Listed colors')
+clabel(CS4, fmt = '%2.1f', colors = 'w', fontsize=14)
+colorbar(CS3)
+
+#savefig('contourf_demo')
 show()
 
