@@ -32,8 +32,9 @@ import re
 
 from numerix import array, arange, take, put, Float, Int, where, \
      zeros, asarray, sort, searchsorted, sometrue, ravel, divide,\
-     clip
+     clip, ones
 from numerix.mlab import amin, amax
+import numerix.ma as ma
 from cbook import enumerate, is_string_like, iterable
 
 cnames = {
@@ -464,15 +465,87 @@ def makeMappingArray(N, data):
 
 
 class Colormap:
-    """Basis abstract class for all scalar to rgb mappings"""
+    """Base class for all scalar to rgb mappings"""
     def __init__(self, name, N=256):
         """Public class attributes:
             self.N:       number of rgb quantization levels
             self.name:    name of colormap
         """
-        raise NotImplementedError("Abstract class only")
+        self.name = name
+        self.N = N
+        self._rgba_bad = (0.0, 0.0, 0.0, 0.0) # If bad, don't paint anything.
+        self._rgba_under = None
+        self._rgba_over = None
+        self._i_under = N
+        self._i_over = N+1
+        self._i_bad = N+2
+        self._isinit = False
+
+
     def __call__(self, X, alpha=1.0):
+        """
+        X is either a scalar or an array (of any dimension).
+        If scalar, a tuple of rgba values is returned, otherwise
+        an array with the new shape = oldshape+(4,). If the X-values
+        are integers, then they are used as indices into the array.
+        If they are floating point, then they must be in the
+        interval (0.0, 1.0).
+        Alpha must be a scalar.
+        """
+        if not self._isinit: self._init()
+        alpha = min(alpha, 1.0) # alpha must be between 0 and 1
+        alpha = max(alpha, 0.0)
+        self._lut[:-3, -1] = alpha
+        mask_bad = None
+        if isinstance(X, (int, float)):
+            vtype = 'scalar'
+            xa = array([X])
+        else:
+            vtype = 'array'
+            xma = ma.asarray(X)
+            xa = xma.filled(0)
+            mask_bad = ma.getmask(xma)
+        if type(xa.flat[0]) is float:   #Better way to check the type?
+            xa = where(xa == 1.0, 0.9999999, xa) # Tweak so 1.0 is in range.
+            xa = (xa * self.N).astype(Int)
+        mask_under = xa < 0
+        mask_over = xa > self.N-1
+        xa = where(mask_under, self._i_under, xa)
+        xa = where(mask_over, self._i_over, xa)
+        if mask_bad:
+            xa = where(mask_bad, self._i_bad, xa)
+        rgba = take(self._lut, xa)
+        if vtype == 'scalar':
+            rgba = tuple(rgba[0,:])
+        return rgba
+
+    def set_bad(self, color = 'k', alpha = 0.0):
+        self._rgba_bad = colorConverter.to_rgba(color, alpha)
+        if self._isinit: self._set_extremes()
+
+    def set_under(self, color = 'k', alpha = 1.0):
+        self._rgba_under = colorConverter.to_rgba(color, alpha)
+        if self._isinit: self._set_extremes()
+
+    def set_over(self, color = 'k', alpha = 1.0):
+        self._rgba_over = colorConverter.to_rgba(color, alpha)
+        if self._isinit: self._set_extremes()
+
+    def _set_extremes(self):
+        if self._rgba_under:
+            self._lut[self._i_under] = self._rgba_under
+        else:
+            self._lut[self._i_under] = self._lut[0]
+        if self._rgba_over:
+            self._lut[self._i_over] = self._rgba_over
+        else:
+            self._lut[self._i_over] = self._lut[self.N-1]
+        self._lut[self._i_bad] = self._rgba_bad
+
+    def _init():
+        '''Generate the lookup table, self._lut'''
         raise NotImplementedError("Abstract class only")
+
 
 class LinearSegmentedColormap(Colormap):
     """Colormap objects based on lookup tables using linear segments.
@@ -490,96 +563,97 @@ class LinearSegmentedColormap(Colormap):
         entries. Each entry should be a list of x, y0, y1 tuples.
         See makeMappingArray for details
         """
-        self.N = N
-        self.name=name
-        self._isinit = False
+        self.monochrome = False  # True only if all colors in map are identical;
+                                 # needed for contouring.
+        Colormap.__init__(self, name, N)
         self._segmentdata = segmentdata
+
     def _init(self):
-        self._red_lut   = makeMappingArray(self.N, self._segmentdata['red'])
-        self._green_lut = makeMappingArray(self.N, self._segmentdata['green'])
-        self._blue_lut  = makeMappingArray(self.N, self._segmentdata['blue'])
+        self._lut = ones((self.N + 3, 4), Float)
+        self._lut[:-3, 0] = makeMappingArray(self.N, self._segmentdata['red'])
+        self._lut[:-3, 1] = makeMappingArray(self.N, self._segmentdata['green'])
+        self._lut[:-3, 2] = makeMappingArray(self.N, self._segmentdata['blue'])
         self._isinit = True
+        self._set_extremes()
 
-    def __call__(self, X, alpha=1.0):
+
+class ListedColormap(LinearSegmentedColormap):
+    """Colormap object generated from a list of colors.
+
+    Color boundaries are evenly spaced.  This is intended for simulating
+    indexed color selection, but may be useful for generating
+    special colormaps also.
+    """
+    def __init__(self, colors, name = 'from_list', N = None):
         """
-        X is either a scalar or an array (of any dimension).
-        If scalar, a tuple of rgba values is returned, otherwise
-        an array with the new shape = oldshape+(4,).  Any values
-        that are outside the 0,1 interval are clipped to that
-        interval before generating rgb values.
-        Alpha must be a scalar
         """
-        if not self._isinit: self._init()
-        alpha = min(alpha, 1.0) # alpha must be between 0 and 1
-        alpha = max(alpha, 0.0)
-        if isinstance(X, (int, float)):
-            vtype = 'scalar'
-            xa = array([X])
+        self.colors = colors
+        self.monochrome = False  # True only if all colors in map are identical;
+                                 # needed for contouring.
+        if N is None:
+            N = len(self.colors)
         else:
-            vtype = 'array'
-            xa = asarray(X)
+            if is_string_like(self.colors):
+                self.colors = [self.colors] * N
+                self.monochrome = True
+            elif iterable(self.colors):
+                if len(self.colors) == 1:
+                    self.monochrome = True
+                if len(self.colors) < N:
+                    self.colors = list(self.colors) * N
+                    del(self.colors[N:])
+            else:
+                try: gray = float(self.colors)
+                except TypeError: pass
+                else:  self.colors = [gray] * N
+                self.monochrome = True
+        Colormap.__init__(self, name, N)
 
-        # assume the data is properly normalized
-        #xa = where(xa>1.,1.,xa)
-        #xa = where(xa<0.,0.,xa)
 
-
-        xa = (xa *(self.N-1)).astype(Int)
-        rgba = zeros(xa.shape+(4,), Float)
-        rgba[...,0] = take(self._red_lut, xa)
-        rgba[...,1] = take(self._green_lut, xa)
-        rgba[...,2] = take(self._blue_lut, xa)
-        rgba[...,3] = alpha
-        if vtype == 'scalar':
-            rgba = tuple(rgba[0,:])
-        return rgba
+    def _init(self):
+        rgb = array([colorConverter.to_rgb(c)
+                    for c in self.colors], typecode=Float)
+        self._lut = zeros((self.N + 3, 4), Float)
+        self._lut[:-3, :-1] = rgb
+        self._isinit = True
+        self._set_extremes()
 
 
 class normalize:
-    def __init__(self, vmin=None, vmax=None):
+    def __init__(self, vmin=None, vmax=None, clip = True):
         """
         Normalize a given value to the 0-1 range
 
         If vmin or vmax is not given, they are taken from the input's
-        minimum and maximum value respectively.  If the given value
-        falls outside the range, the returned value will be 0 or 1,
-        whichever is closest. Returns 0 if vmin==vmax. Works with
-        scalars or arrays.
+        minimum and maximum value respectively.  If clip is True and
+        the given value falls outside the range, the returned value
+        will be 0 or 1, whichever is closer. Returns 0 if vmin==vmax.
+        Works with scalars or arrays, including masked arrays.  If clip
+        is True, masked values on input will be set to 1 on output; if
+        clip is False, the mask will be propagated to the output.
         """
         self.vmin = vmin
         self.vmax = vmax
+        self.clip = clip
 
     def __call__(self, value):
 
-        vmin = self.vmin
-        vmax = self.vmax
-
         if isinstance(value, (int, float)):
             vtype = 'scalar'
-            val = array([value])
+            val = ma.array([value])
         else:
             vtype = 'array'
-            val = asarray(value)
+            val = ma.asarray(value)
 
-        # if both vmin is None and vmax is None, we'll automatically
-        # norm the data to vmin/vmax of the actual data, so the
-        # clipping step won't be needed.
-        if vmin is None and vmax is None:
-            needs_clipping = False
-        else:
-            needs_clipping = True
-
-        if vmin is None or vmax is None:
-            rval = ravel(val)
-            if vmin is None: vmin = amin(rval)
-            if vmax is None: vmax = amax(rval)
+        self.autoscale(val)
+        vmin, vmax = self.vmin, self.vmax
         if vmin > vmax:
             raise ValueError("minvalue must be less than or equal to maxvalue")
         elif vmin==vmax:
             return 0.*value
         else:
-            if needs_clipping:
-                val = clip(val,vmin, vmax)
+            if self.clip:
+                val = clip(val.filled(vmax), vmin, vmax)
             result = (1.0/(vmax-vmin))*(val-vmin)
         if vtype == 'scalar':
             result = result[0]
@@ -587,13 +661,24 @@ class normalize:
 
     def autoscale(self, A):
         if not self.scaled():
-            rval = ravel(A)
-            if self.vmin is None: self.vmin = amin(rval)
-            if self.vmax is None: self.vmax = amax(rval)
+            if self.vmin is None: self.vmin = ma.minimum(A)
+            if self.vmax is None: self.vmax = ma.maximum(A)
 
     def scaled(self):
         'return true if vmin and vmax set'
         return (self.vmin is not None and self.vmax is not None)
 
-    def is_mappable(self):
-        return hasattr(self, '_A') and self._A is not None and self._A.shape<=2
+    # This method seems out of place and unused; try deleting it.
+    #def is_mappable(self):
+    #    return hasattr(self, '_A') and self._A is not None and self._A.shape<=2
+
+class no_norm(normalize):
+    '''
+    Dummy replacement for normalize, for the case where we
+    want to use indices directly in a ScalarMappable.
+    '''
+    def __call__(self, value):
+        return value
+
+
+

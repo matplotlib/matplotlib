@@ -10,14 +10,14 @@ from numerix import absolute, arange, array, asarray, ones, divide,\
      transpose, log, log10, Float, Float32, ravel, zeros, Int16,\
      Int32, Int, Float64, ceil, indices, shape, which, where, sqrt,\
      asum, resize, reshape, add, argmin, arctan2, pi, argsort, sin,\
-     cos, nonzero
+     cos, nonzero, take
 
 from mlab import linspace, meshgrid
 import _contour
 from cm import ScalarMappable
 from cbook import iterable, is_string_like, flatten, enumerate, \
      allequal, dict_delall, strip_math, popd, popall, silent_list
-from colors import colorConverter, normalize, Colormap
+from colors import colorConverter, normalize, Colormap, ListedColormap, no_norm
 from collections import  PolyCollection, LineCollection
 from font_manager import FontProperties
 from numerix.mlab import amin, amax
@@ -73,8 +73,13 @@ class ContourLabeler:
 
         if len(args) == 0:
             levels = self.levels
+            indices = range(len(self.levels))
         elif len(args) == 1:
-            levels = [lev for lev in args[0] if lev in self.levels]
+            indices, levels = [], []
+            for i, lev in enumerate(self.levels):
+                if lev in args[0]:
+                    indices.append(i)
+                    levels.append(lev)
             if len(levels) < len(args[0]):
                 msg = "Specified levels " + str(levels)
                 msg += "\n don't match available levels "
@@ -82,6 +87,8 @@ class ContourLabeler:
                 raise ValueError(msg)
         else:
             raise TypeError("Illegal arguments to clabel, see help(clabel)")
+        self.label_levels = levels
+        self.label_indices = indices
 
         self.fp = FontProperties()
         if fontsize == None:
@@ -89,33 +96,29 @@ class ContourLabeler:
         else:
             if type(fontsize) not in [int, float, str]:
                 raise TypeError("Font size must be an integer number.")
+                # Can't it be floating point, as indicated in line above?
             else:
                 if type(fontsize) == str:
                     font_size = int(self.fp.get_size_in_points())
-
                 else:
                     self.fp.set_size(fontsize)
                     font_size = fontsize
-        fslist = [font_size] * len(levels)
+        self.fslist = [font_size] * len(levels)
 
         if colors == None:
-            self.labelcolors = [c[0] for c in self.tcolors]
+            self.label_mappable = self
+            self.label_cvalues = take(self.cvalues, self.label_indices)
         else:
-            self.labelcolors = colors * len(self.collections)
+            cmap = ListedColormap(colors, N=len(self.label_levels))
+            self.label_cvalues = range(len(self.label_levels))
+            self.label_mappable = ScalarMappable(cmap = cmap,
+                                                 norm = no_norm())
 
-        self.cl = []
+        #self.cl = []   # Initialized in ContourSet.__init__
+        #self.cl_cvalues = [] # same
         self.cl_xy = []
 
-        # we have a list of contours and each contour has a list of
-        # segments.  We want changes in the contour color to be
-        # reflected in changes in the label color.  This is a good use
-        # for traits observers, but in the interim, until traits are
-        # utilized, we'll create a dict mapping i,j to text instances.
-        # i is the contour level index, j is the segment index
-        if inline:
-            self.inline_labels(levels, fslist)
-        else:
-            self.labels(levels, fslist)
+        self.labels(inline)
 
         for label in self.cl:
             self.ax.add_artist(label)
@@ -310,20 +313,21 @@ class ContourLabeler:
 
         return x,y, rotation, dind
 
-    def inline_labels(self, levels, fslist):
+    def labels(self, inline):
+        levels = self.label_levels
+        fslist = self.fslist
         trans = self.ax.transData
-        contourNum = 0
-        colors = self.labelcolors
-        contours = self.collections
+        colors = self.label_mappable.to_rgba(self.label_cvalues)
         fmt = self.fmt
-        for lev, con, color, fsize in zip(self.levels, contours, colors, fslist):
-            if lev not in levels:
-                continue
+        for icon, lev, color, cvalue, fsize in zip(self.label_indices,
+                                          self.label_levels,
+                                          colors,
+                                          self.label_cvalues, fslist):
+            con = self.collections[icon]
             toremove = []
             toadd = []
             lw = self.get_label_width(lev, fmt, fsize)
             for segNum, linecontour in enumerate(con._segments):
-                key = contourNum, segNum
                 # for closed contours add one more point to
                 # avoid division by zero
                 if linecontour[0] == linecontour[-1]:
@@ -338,51 +342,20 @@ class ContourLabeler:
                     t = Text(dx, dy, rotation = rotation,
                              horizontalalignment='center',
                              verticalalignment='center')
-                    self.labeld[key] = t
                     text = self.get_text(lev,fmt)
                     self.set_label_props(t, text, color)
                     self.cl.append(t)
-                    new  =  self.break_linecontour(linecontour, rotation,
-                                                   lw, ind)
-
-                    for c in new: toadd.append(c)
-                    toremove.append(linecontour)
+                    self.cl_cvalues.append(cvalue)
+                    if inline:
+                        new = self.break_linecontour(linecontour, rotation,
+                                                       lw, ind)
+                        toadd.extend(new)
+                        #for c in new: toadd.append(c)
+                        toremove.append(linecontour)
             for c in toremove:
                 con._segments.remove(c)
-            for c in toadd: con._segments.append(c)
-
-            contourNum += 1
-
-
-    def labels(self, levels, fslist):
-        trans = self.ax.transData
-        colors = self.labelcolors
-        contours = self.collections
-        fmt = self.fmt
-        for lev, con, color, fsize in zip(self.levels, contours, colors, fslist):
-            if lev not in levels:
-                continue
-            lw = self.get_label_width(lev, fmt, fsize)
-            for linecontour in con._segments:
-                # for closed contours add one more point
-                if linecontour[0] == linecontour[-1]:
-                    linecontour.append(linecontour[1])
-                # transfer all data points to screen coordinates
-                slc = trans.seq_xy_tups(linecontour)
-                if self.print_label(slc,lw):
-                    x,y, rotation, ind  = self.locate_label(slc, lw)
-                    # transfer the location of the label back into
-                    # data coordinates
-                    dx,dy = trans.inverse_xy_tup((x,y))
-                    t = Text(dx, dy, rotation = rotation,
-                             horizontalalignment='center',
-                             verticalalignment='center')
-                    text = self.get_text(lev, fmt)
-                    self.set_label_props(t, text, color)
-                    self.cl.append(t)
-                else:
-                    pass
-
+            for c in toadd:
+                con._segments.append(c)
 
 
 
@@ -396,6 +369,8 @@ class ContourSet(ScalarMappable, ContourLabeler):
         ax - the axes object in which the contours are drawn
         collections - a silent_list of LineCollections or PolyCollections
         levels - contour levels
+        layers - same as levels for line contours; half-way between
+                 levels for filled contours.  See _process_colors method.
     """
 
 
@@ -412,7 +387,6 @@ class ContourSet(ScalarMappable, ContourLabeler):
         self.ax = ax
         self.filled = kwargs.get('filled', False)
         self.linewidths = kwargs.get('linewidths', None)
-        #self.fmt = kwargs.get('format', '%1.3f')
 
         self.alpha = kwargs.get('alpha', 1.0)
         self.origin = kwargs.get('origin', None)
@@ -423,30 +397,35 @@ class ContourSet(ScalarMappable, ContourLabeler):
         self.antialiased = kwargs.get('antialiased', True)
         self.nchunk = kwargs.get('nchunk', 0)
 
-
-        if cmap is not None: assert(isinstance(cmap, Colormap))
         if self.origin is not None: assert(self.origin in
                                             ['lower', 'upper', 'image'])
         if self.extent is not None: assert(len(self.extent) == 4)
+        if cmap is not None: assert(isinstance(cmap, Colormap))
         if self.colors is not None and cmap is not None:
             raise ValueError('Either colors or cmap must be None')
         if self.origin == 'image': self.origin = rcParams['image.origin']
+        x, y, z = self._contour_args(*args)        # also sets self.levels,
+                                                   #  self.layers
+        if self.colors is not None:
+            cmap = ListedColormap(self.colors, N=len(self.layers))
+        if self.filled:
+            self.collections = silent_list('PolyCollection')
+        else:
+            self.collections = silent_list('LineCollection')
+        # label lists must be initialized here
+        self.cl = []
+        self.cl_cvalues = []
 
         ScalarMappable.__init__(self, cmap = cmap) # sets self.cmap;
                                                    # default norm for now
-        x, y, z = self._contour_args(*args)        # also sets self.levels
+        self._process_colors()
 
 
-
-        self.labeld = {}
-        # Note: _process_colors must follow initialization of self.collections.
         if self.filled:
             if self.linewidths is None:
                 self.linewidths = 0.05 # Good default for Postscript.
             if iterable(self.linewidths):
                 self.linewidths = self.linewidths[0]
-            self.collections = silent_list('PolyCollection')
-            self._process_colors()                     # sets self.tcolors
             C = _contour.Cntr(x, y, z.filled(), z.mask())
             lowers = self.levels[:-1]
             uppers = self.levels[1:]
@@ -461,10 +440,7 @@ class ContourSet(ScalarMappable, ContourLabeler):
                 self.collections.append(col)
 
         else:
-            self.collections = silent_list('LineCollection')
-            self._process_colors()                     # sets self.tcolors
             tlinewidths = self._process_linewidths()
-
             C = _contour.Cntr(x, y, z.filled(), z.mask())
             for level, color, width in zip(self.levels, self.tcolors, tlinewidths):
                 nlist = C.trace(level, points = 1)
@@ -488,19 +464,14 @@ class ContourSet(ScalarMappable, ContourLabeler):
 
 
     def changed(self):
-        colors = [ (tuple(rgba),) for rgba in self.to_rgba(self.levels)]
+        tcolors = [ (tuple(rgba),) for rgba in self.to_rgba(self.cvalues)]
+        self.tcolors = tcolors
         contourNum = 0
-        for color, collection in zip(colors, self.collections):
+        for color, collection in zip(tcolors, self.collections):
             collection.set_color(color)
-            Ncolor = len(color) # collections could have more than 1 in principle
-
-            segments = getattr(collection, '_segments', [])
-            for segNum, segment in enumerate(segments):
-                key = contourNum, segNum
-                t = self.labeld.get(key)
-                if t is not None: t.set_color(color[segNum%Ncolor])
-            contourNum += 1
-
+        for label, cv in zip(self.cl, self.cl_cvalues):
+            label.set_color(self.label_mappable.to_rgba(cv))
+        # add label colors
         ScalarMappable.changed(self)
 
 
@@ -612,6 +583,9 @@ class ContourSet(ScalarMappable, ContourLabeler):
         #    z = ma.masked_array(z.filled(-1e38))
         # It's not clear this is any better than the original bug.
         self.levels = lev
+        self.layers = self.levels # contour: a line is a thin layer
+        if self.filled:
+            self.layers = 0.5 * (self.levels[:-1] + self.levels[1:])
         return (x, y, z)
 
     def _process_colors(self):
@@ -622,36 +596,25 @@ class ContourSet(ScalarMappable, ContourLabeler):
         not on the actual range of the Z values.  This means we
         don't have to worry about bad values in Z, and we always have
         the full dynamic range available for the selected levels.
-        """
-        self.layers = self.levels # contour: a line is a thin layer
-        if self.filled:
-            self.layers = 0.5 * (self.levels[:-1] + self.levels[1:])
-        Nlayers = len(self.layers)
-        self.monochrome = False
-        if self.colors is not None:
-            if is_string_like(self.colors):
-                self.monochrome = True
-                self.colors = [self.colors] * Nlayers
-            elif iterable(self.colors) and len(self.colors) < Nlayers:
-                self.colors = list(self.colors) * Nlayers
-            else:
-                try: gray = float(self.colors)
-                except TypeError: pass
-                else:  self.colors = [gray] * Nlayers
 
-            tcolors = [(colorConverter.to_rgba(c, self.alpha),)
-                        for c in self.colors]
+        The color is based on the midpoint of the layer, except for
+        the end layers when clip_ends is True.
+        """
+        self.monochrome = self.cmap.monochrome
+        if self.colors is not None:
+            self.cvalues = range(len(self.layers))
+            self.set_norm(no_norm())
         else:
-            self.set_array(self.layers)
-            if self.filled and Nlayers > 2 and self.clip_ends:
-                vmin = 2 * self.levels[1] - self.levels[2]
-                vmax = 2 * self.levels[-2] - self.levels[-3]
-            else:
-                vmin = amin(self.levels)
-                vmax = amax(self.levels)
-            self.set_clim(vmin, vmax)
-            tcolors = [ (tuple(rgba),) for rgba in self.to_rgba(self.levels)]
-        self.tcolors = tcolors
+            self.cvalues = self.layers
+        if self.filled and len(self.layers) > 2 and self.clip_ends:
+            vmin = 2 * self.levels[1] - self.levels[2]
+            vmax = 2 * self.levels[-2] - self.levels[-3]
+        else:
+            vmin = amin(self.levels)  # alternative would be self.layers
+            vmax = amax(self.levels)
+        self.set_clim(vmin, vmax)
+        self.set_array(self.layers)
+        self.tcolors = [ (tuple(rgba),) for rgba in self.to_rgba(self.cvalues)]
 
     def _process_linewidths(self):
         linewidths = self.linewidths

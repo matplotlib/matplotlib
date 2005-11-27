@@ -10,6 +10,7 @@ from artist import Artist
 from colors import normalize, colorConverter
 import cm
 import numerix
+import numerix.ma as ma
 from numerix import arange, asarray, UInt8, Float32, repeat, NewAxis
 import _image
 
@@ -37,9 +38,9 @@ class AxesImage(Artist, cm.ScalarMappable):
         extent is a data xmin, xmax, ymin, ymax for making image plots
         registered with data plots.  Default is the image dimensions
         in pixels
-        
+
         """
-        Artist.__init__(self)        
+        Artist.__init__(self)
         cm.ScalarMappable.__init__(self, norm, cmap)
 
         if origin is None: origin = rcParams['image.origin']
@@ -83,15 +84,15 @@ class AxesImage(Artist, cm.ScalarMappable):
         self._aspectdr = dict([ (v,k) for k,v in self._aspectd.items()])
 
         if aspect is None: aspect = rcParams['image.aspect']
-        if interpolation is None: interpolation = rcParams['image.interpolation']        
-        
+        if interpolation is None: interpolation = rcParams['image.interpolation']
+
         self.set_interpolation(interpolation)
         self.set_aspect( aspect)
         self.axes = ax
 
 
         self._imcache = None
-        
+
     def get_size(self):
         'Get the numrows, numcols of the input image'
         if self._A is None:
@@ -101,10 +102,10 @@ class AxesImage(Artist, cm.ScalarMappable):
 
     def set_alpha(self, alpha):
         """
-Set the alpha value used for blending - not supported on
-all backends
+        Set the alpha value used for blending - not supported on
+        all backends
 
-ACCEPTS: float
+        ACCEPTS: float
         """
         Artist.set_alpha(self, alpha)
         self._imcache = None
@@ -140,8 +141,8 @@ ACCEPTS: float
         im.set_bg( *bg)
         im.is_grayscale = (self.cmap.name == "gray" and
                            len(self._A.shape) == 2)
-        
-        im.set_aspect(self._aspectd[self._aspect])        
+
+        im.set_aspect(self._aspectd[self._aspect])
         im.set_interpolation(self._interpd[self._interpolation])
 
 
@@ -150,22 +151,22 @@ ACCEPTS: float
         numrows, numcols = im.get_size()
         im.reset_matrix()
 
-        xmin, xmax, ymin, ymax = self.get_extent() 
+        xmin, xmax, ymin, ymax = self.get_extent()
         dxintv = xmax-xmin
         dyintv = ymax-ymin
 
         # the viewport scale factor
         sx = dxintv/self.axes.viewLim.width()
         sy = dyintv/self.axes.viewLim.height()
-            
+
         if im.get_interpolation()!=_image.NEAREST:
             im.apply_translation(-1, -1)
 
         # the viewport translation
         tx = (xmin-self.axes.viewLim.xmin())/dxintv * numcols
 
-        
-        #if flipy: 
+
+        #if flipy:
         #    ty = -(ymax-self.axes.viewLim.ymax())/dyintv * numrows
         #else:
         #    ty = (ymin-self.axes.viewLim.ymin())/dyintv * numrows
@@ -181,12 +182,12 @@ ACCEPTS: float
         rx = widthDisplay / numcols
         ry = heightDisplay  / numrows
 
-        
+
         if im.get_aspect()==_image.ASPECT_PRESERVE:
             if ry < rx: rx = ry
             # todo: center the image in viewport
             im.apply_scaling(rx, rx)
-            
+
         else:
             im.apply_scaling(rx, ry)
 
@@ -198,10 +199,10 @@ ACCEPTS: float
             im.flipud_in()
 
         return im
-    
+
 
     def draw(self, renderer, *args, **kwargs):
-        if not self.get_visible(): return 
+        if not self.get_visible(): return
         im = self.make_image()
         l, b, widthDisplay, heightDisplay = self.axes.bbox.get_bounds()
         renderer.draw_image(l, b, im, self.axes.bbox)
@@ -210,17 +211,17 @@ ACCEPTS: float
         """Write the image to png file with fname"""
         im = self.make_image(False)
         im.write_png(fname)
-        
+
 
     def set_data(self, A, shape=None):
         """
-Set the image array
+        Set the image array
 
-ACCEPTS: numeric/numarray/PIL Image A"""
+        ACCEPTS: numeric/numarray/PIL Image A"""
         # check if data is PIL Image without importing Image
         if hasattr(A,'getpixel'): X = pil_to_array(A)
-        else: X = asarray(A) # assume array
-        
+        else: X = ma.asarray(A) # assume array
+
         if (X.typecode() != UInt8
             or len(X.shape) != 3
             or X.shape[2] > 4
@@ -230,12 +231,12 @@ ACCEPTS: numeric/numarray/PIL Image A"""
             self._A = X
 
         self._imcache =None
-        
+
     def set_array(self, A):
         """
-retained for backwards compatibility - use set_data instead
+        retained for backwards compatibility - use set_data instead
 
-ACCEPTS: numeric/numarray/PIL Image A"""
+        ACCEPTS: numeric/numarray/PIL Image A"""
 
 
         self.set_data(A)
@@ -244,7 +245,7 @@ ACCEPTS: numeric/numarray/PIL Image A"""
         """
         Return the method used to constrain the aspoect ratio of the
         One of
-        
+
         'free'     : aspect ratio not constrained
         'preserve' : preserve aspect ratio when resizing
         """
@@ -257,7 +258,7 @@ ACCEPTS: numeric/numarray/PIL Image A"""
         Return the interpolation method the image uses when resizing.
 
         One of
-        
+
         'bicubic', 'bilinear', 'blackman100', 'blackman256', 'blackman64',
         'nearest', 'sinc144', 'sinc256', 'sinc64', 'spline16', 'spline36'
         """
@@ -265,10 +266,10 @@ ACCEPTS: numeric/numarray/PIL Image A"""
 
     def set_aspect(self, s):
         """
-Set the method used to constrain the aspoect ratio of the
-image ehen resizing,
+        Set the method used to constrain the aspoect ratio of the
+        image ehen resizing,
 
-ACCEPTS ['free' | 'preserve']"""
+        ACCEPTS ['free' | 'preserve']"""
 
         s = s.lower()
         if not self._aspectd.has_key(s):
@@ -278,20 +279,21 @@ ACCEPTS ['free' | 'preserve']"""
 
     def set_interpolation(self, s):
         """
-Set the interpolation method the image uses when resizing.
+        Set the interpolation method the image uses when resizing.
 
-ACCEPTS: ['bicubic' | 'bilinear' | 'blackman100' | 'blackman256' | 'blackman64', 'nearest' | 'sinc144' | 'sinc256' | 'sinc64' | 'spline16' | 'spline36']"""
-        
+        ACCEPTS: ['bicubic' | 'bilinear' | 'blackman100' | 'blackman256' | 'blackman64', 'nearest' | 'sinc144' | 'sinc256' | 'sinc64' | 'spline16' | 'spline36']
+        """
+
         s = s.lower()
         if not self._interpd.has_key(s):
             raise ValueError('Illegal interpolation string')
         self._interpolation = s
-        
+
     def get_extent(self):
         'get the image extent: xmin, xmax, ymin, ymax'
         if self._extent is not None:
             return self._extent
-        else:            
+        else:
             numrows, numcols = self.get_size()
             iwidth, iheight = numcols, numrows
             #return 0, width, 0, height
@@ -299,13 +301,13 @@ ACCEPTS: ['bicubic' | 'bilinear' | 'blackman100' | 'blackman256' | 'blackman64',
             sx = dwidth  / iwidth
             sy = dheight / iheight
 
-            if self.get_aspect()=='preserve' and sy<sx: sx = sy 
+            if self.get_aspect()=='preserve' and sy<sx: sx = sy
             return 0, 1.0/sx*dwidth, 0, 1.0/sy*dheight
 
     def set_filternorm(self, filternorm):
         """Set whether the resize filter norms the weights -- see help for imshow
-ACCEPTS: 0 or 1
-"""
+        ACCEPTS: 0 or 1
+        """
         if filternorm:
             self._filternorm = 1
         else:
@@ -317,10 +319,10 @@ ACCEPTS: 0 or 1
 
     def set_filterrad(self, filterrad):
         """Set the resize filter radius only applicable to some
-interpolation schemes -- see help for imshow
+        interpolation schemes -- see help for imshow
 
-ACCEPTS: positive float
-"""
+        ACCEPTS: positive float
+        """
         r = float(filterrad)
         assert(r>0)
         self._filterrad = r
@@ -341,18 +343,18 @@ class NonUniformImage(AxesImage):
                            interpolation = 'nearest',
                            origin = 'lower',
                           )
-        
+
     def make_image(self):
         if self._A is None:
             raise RuntimeError('You must first set the image array')
-        
+
         x0, y0, v_width, v_height = self.axes.viewLim.get_bounds()
         l, b, width, height = self.axes.bbox.get_bounds()
         im = _image.pcolor(self._Ax, self._Ay, self._A,
                            height, width,
                            (x0, x0+v_width, y0, y0+v_height),
                           )
-        
+
         bg = colorConverter.to_rgba(self.axes.get_frame().get_facecolor(), 0)
         im.set_bg(*bg)
         im.set_aspect(self._aspectd[self._aspect])
@@ -392,7 +394,7 @@ class NonUniformImage(AxesImage):
 
     def set_array(self, *args):
         raise NotImplementedError('Method not supported')
-    
+
     def set_interpolation(self, s):
         if s != 'nearest':
             raise NotImplementedError('Only nearest neighbor supported')
@@ -417,7 +419,7 @@ class NonUniformImage(AxesImage):
         if self._A is not None:
             raise RuntimeError('Cannot change colors after loading data')
         cm.ScalarMappable.set_cmap(self, norm)
-    
+
 
 
 class FigureImage(Artist, cm.ScalarMappable):
@@ -432,7 +434,7 @@ class FigureImage(Artist, cm.ScalarMappable):
         """
         cmap is a cm colormap instance
         norm is a colors.normalize instance to map luminance to 0-1
-        
+
         """
         Artist.__init__(self)
         cm.ScalarMappable.__init__(self, norm, cmap)
@@ -441,7 +443,7 @@ class FigureImage(Artist, cm.ScalarMappable):
         self.figure = fig
         self.ox = offsetx
         self.oy = offsety
-        
+
 
     def get_size(self):
         'Get the numrows, numcols of the input image'
@@ -450,20 +452,20 @@ class FigureImage(Artist, cm.ScalarMappable):
 
         return self._A.shape[:2]
 
-    def make_image(self):        
+    def make_image(self):
         if self._A is None:
             raise RuntimeError('You must first set the image array')
-        
+
         x = self.to_rgba(self._A, self._alpha)
 
         im = _image.fromarray(x, 1)
-        im.set_bg( *colorConverter.to_rgba(self.figure.get_facecolor(), 0) )        
+        im.set_bg( *colorConverter.to_rgba(self.figure.get_facecolor(), 0) )
         im.is_grayscale = (self.cmap.name == "gray" and
                            len(self._A.shape) == 2)
         return im
-    
+
     def draw(self, renderer, *args, **kwargs):
-        if not self.get_visible(): return 
+        if not self.get_visible(): return
         im = self.make_image()
         renderer.draw_image(self.ox, self.oy, im, self.origin, self.figure.bbox)
 
@@ -489,7 +491,7 @@ def imread(fname):
     handler = handlers[ext]
     return handler(fname)
 
-    
+
 
 def pil_to_array( pilImage ):
     if pilImage.mode in ('RGBA', 'RGBX'):
