@@ -1,3 +1,5 @@
+2005-11-28 Got TkAgg blitting working 100% (cross fingers) correctly. - CM
+
 2005-11-27 Multiple changes in cm.py, colors.py, figure.py, image.py,
            contour.py, contour_demo.py; new _cm.py, examples/image_masked.py.
            1) Separated the color table data from cm.py out into

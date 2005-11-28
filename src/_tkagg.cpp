@@ -92,7 +92,6 @@ PyAggImagePhoto(ClientData clientdata, Tcl_Interp* interp,
 
       destx = (int)l;
       desty = srcheight-(int)t;
-      //desty = (int)b;
       destwidth = (int)(r-l);
       destheight = (int)(t-b);
       deststride = 4*destwidth;
@@ -107,7 +106,7 @@ PyAggImagePhoto(ClientData clientdata, Tcl_Interp* interp,
       pixfmt destpf(destrbuf);
       renderer_base destrb(destpf);
 
-      agg::rect_base<int> region(destx, desty, (int)r, (int)t); 
+      agg::rect_base<int> region(destx, desty, (int)r, srcheight-(int)b); 
       destrb.copy_from(*aggRenderer->renderingBuffer, &region, 
 		       -destx, -desty);
     } else {

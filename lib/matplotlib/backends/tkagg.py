@@ -3,6 +3,7 @@ import Tkinter as Tk
 
 def blit(photoimage, aggimage, bbox=None, colormode=1):
     tk = photoimage.tk
+
     try:
         tk.call("PyAggImagePhoto", photoimage, id(aggimage), colormode, id(bbox))
     except Tk.TclError, v:
