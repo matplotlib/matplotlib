@@ -173,8 +173,8 @@ class FixedFormatter(Formatter):
         self.seq = seq
         
     def __call__(self, x, pos=None):
-        'Return the format for tick val x at position pos'        
-        if pos>=len(self.seq): return ''
+        'Return the format for tick val x at position pos'
+        if pos>=len(self.seq) or pos is None: return ''
         else: return self.seq[pos]
 
 class FuncFormatter(Formatter):
