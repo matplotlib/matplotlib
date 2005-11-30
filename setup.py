@@ -122,6 +122,7 @@ ext_modules = []
 BUILD_FT2FONT = 1
 BUILD_CONTOUR = 1
 
+# jdh
 packages = [
     'matplotlib',
     'matplotlib/backends',
