@@ -79,8 +79,6 @@ class FigureCanvasGTKAgg(FigureCanvasGTK, FigureCanvasAgg):
         h = int(ren.height)
         pixbuf = gtk.gdk.pixbuf_new_from_data(
             buf, gtk.gdk.COLORSPACE_RGB,  True, 8, w, h, w*4)
-        #except ValueError:
-        #    return # todo fixme, how can this fail
         pixmap.draw_pixbuf(pixmap.new_gc(), pixbuf, 0, 0, 0, 0, w, h, gtk.gdk.RGB_DITHER_NONE, 0, 0)
         if DEBUG: print 'FigureCanvasGTKAgg.render_figure done'
 

@@ -496,6 +496,7 @@ class Figure(Artist):
         if not self.get_visible(): return
         renderer.open_group('figure')
         self.transFigure.freeze()  # eval the lazy objects
+
         if self.frameon: self.figurePatch.draw(renderer)
 
         for p in self.patches: p.draw(renderer)

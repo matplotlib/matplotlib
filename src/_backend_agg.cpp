@@ -1436,7 +1436,11 @@ RendererAgg::draw_markers(const Py::Tuple& args) {
 
     thisx = (int)thisx + 0.5;
     thisy = (int)thisy + 0.5;
-    
+    if (thisx<0) continue;
+    if (thisy<0) continue;
+    if (thisx>width) continue;
+    if (thisy>height) continue;
+
     agg::serialized_scanlines_adaptor_aa8 sa;
     agg::serialized_scanlines_adaptor_aa8::embedded_scanline sl;
     
@@ -1447,7 +1451,7 @@ RendererAgg::draw_markers(const Py::Tuple& args) {
       rendererAA->color(face.second);          
       agg::render_scanlines(sa, sl, *rendererAA);
     }
-    
+
     //render the stroke
     sa.init(strokeCache, strokeSize, thisx, thisy);
     rendererAA->color(gc.color);          
