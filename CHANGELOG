@@ -1,3 +1,5 @@
+2005-11-30 Added Rob McMullen's EMF patch
+h
 2005-11-30 Added Daishi's patch for scipy
 
 2005-11-30 Fixed out of bounds draw markers segfault in agg
