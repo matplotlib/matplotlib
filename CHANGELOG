@@ -1,3 +1,5 @@
+2005-11-30 Fixed out of bounds draw markers segfault in agg
+
 2005-11-28 Got TkAgg blitting working 100% (cross fingers) correctly. - CM
 
 2005-11-27 Multiple changes in cm.py, colors.py, figure.py, image.py,
