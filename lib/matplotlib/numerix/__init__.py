@@ -26,7 +26,9 @@ which = None, None
 
 for a in sys.argv:
     if a in ["--Numeric", "--numeric", "--NUMERIC",
-             "--Numarray", "--numarray", "--NUMARRAY"]:
+             "--Numarray", "--numarray", "--NUMARRAY",
+             "--SciPy", "--scipy", "--SCIPY", "--Scipy",
+             ]:
         which = a[2:], "command line"
         break
     del a
@@ -42,8 +44,8 @@ if which[0] is None:
     which = "numeric", "defaulted"
 
 which = which[0].strip().lower(), which[1]
-if which[0] not in ["numeric", "numarray"]:
-    raise ValueError("numerix selector must be either 'Numeric' or 'numarray' but the value obtained from the %s was '%s'." % (which[1], which[0]))
+if which[0] not in ["numeric", "numarray", "scipy"]:
+    raise ValueError("numerix selector must be either 'Numeric', 'numarray', or 'scipy' but the value obtained from the %s was '%s'." % (which[1], which[0]))
 
 if which[0] == "numarray":
     #from na_imports import *
@@ -52,9 +54,7 @@ if which[0] == "numarray":
     from numarray.numeric import nonzero
     from numarray.convolve import cross_correlate, convolve
     import numarray
-    
     version = 'numarray %s'%numarray.__version__
-
 elif which[0] == "numeric":
     #from nc_imports import *
     from Numeric import *
@@ -62,8 +62,57 @@ elif which[0] == "numeric":
     from Matrix import Matrix
     import Numeric
     version = 'Numeric %s'%Numeric.__version__
+elif which[0] == "scipy":
+    import scipy
+    from scipy import *
+    from _sp_imports import nx, infinity
+    from _sp_imports import UInt8, UInt16, UInt32
+    Matrix = matrix
+    version = 'scipy' # Don't know how to get scipy version
 else:
     raise RuntimeError("invalid numerix selector")
+
+# Some changes are only applicable to the new scipy:
+if (which[0] == 'numarray' or
+    which[0] == 'numeric'):
+    def typecode(a):
+        return a.typecode()
+    def iscontiguous(a):
+        return a.iscontiguous()
+    def byteswapped(a):
+        return a.byteswapped()
+    def itemsize(a):
+        return a.itemsize()
+    def resize(a, shape):
+        return a.resize(shape)
+else:
+    # We've already checked for a valid numerix selector,
+    # so assume scipy.
+    def typecode(a):
+        return a.dtypechar
+    def iscontiguous(a):
+        return a.flags['CONTIGUOUS']
+    def byteswapped(a):
+        return a.byteswap()
+    def itemsize(a):
+        return a.itemsize
+    # resize function is already defined by scipy
+    # Fix typecode->dtype
+    def fixkwargs(kwargs):
+        if 'typecode' in kwargs:
+            val = kwargs['typecode']
+            del kwargs['typecode']
+            kwargs['dtype'] = val
+    def array(*args, **kwargs):
+        fixkwargs(kwargs)
+        return scipy.array(*args, **kwargs)
+    def zeros(*args, **kwargs):
+        fixkwargs(kwargs)
+        return scipy.zeros(*args, **kwargs)
+    def ones(*args, **kwargs):
+        fixkwargs(kwargs)
+        return scipy.ones(*args, **kwargs)
+    
 
 verbose.report('numerix %s'%version)
 # a bug fix for blas numeric suggested by Fernando Perez

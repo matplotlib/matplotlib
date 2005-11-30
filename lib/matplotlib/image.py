@@ -11,7 +11,7 @@ from colors import normalize, colorConverter
 import cm
 import numerix
 import numerix.ma as ma
-from numerix import arange, asarray, UInt8, Float32, repeat, NewAxis
+from numerix import arange, asarray, UInt8, Float32, repeat, NewAxis, typecode
 import _image
 
 
@@ -121,7 +121,7 @@ class AxesImage(Artist, cm.ScalarMappable):
     def make_image(self):
         if self._A is not None:
             if self._imcache is None:
-                if self._A.typecode() == UInt8:
+                if typecode(self._A) == UInt8:
                     im = _image.frombyte(self._A, 0)
                 else:
                     x = self.to_rgba(self._A, self._alpha)
@@ -374,13 +374,13 @@ class NonUniformImage(AxesImage):
         if len(A.shape) == 3 and A.shape[2] == 1:
              A.shape = A.shape[0:2]
         if len(A.shape) == 2:
-            if A.typecode() != UInt8:
+            if typecode(A) != UInt8:
                 A = (self.cmap(self.norm(A))*255).astype(UInt8)
             else:
                 A = repeat(A[:,:,NewAxis], 4, 2)
                 A[:,:,3] = 255
         else:
-            if A.typecode() != UInt8:
+            if typecode(A) != UInt8:
                 A = (255*A).astype(UInt8)
             if A.shape[2] == 3:
                 B = zeros(tuple(list(A.shape[0:2]) + [4]), UInt8)

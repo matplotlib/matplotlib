@@ -12,7 +12,7 @@ import agg
 from numerix import Float, alltrue, arange, array, logical_and,\
      nonzero, searchsorted, take, asarray, ones, where, less, ravel, \
      greater, logical_and, cos, sin, pi,\
-     compress, zeros, concatenate, cumsum
+     compress, zeros, concatenate, cumsum, typecode
 import numerix.ma as ma
 from matplotlib import verbose
 from artist import Artist, setp
@@ -517,9 +517,9 @@ class Line2D(Artist):
     def _draw_steps(self, renderer, gc, xt, yt):
         siz=len(xt)
         if siz<2: return
-        xt2=ones((2*siz,), xt.typecode())
+        xt2=ones((2*siz,), typecode(xt))
         xt2[0:-1:2], xt2[1:-1:2], xt2[-1]=xt, xt[1:], xt[-1]
-        yt2=ones((2*siz,), yt.typecode())
+        yt2=ones((2*siz,), typecode(yt))
         yt2[0:-1:2], yt2[1::2]=yt, yt
         gc.set_linestyle('solid')
 

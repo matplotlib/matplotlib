@@ -6,7 +6,11 @@
 #ifdef NUMARRAY
 #include "numarray/arrayobject.h"
 #else
+#ifdef NUMERIC
 #include "Numeric/arrayobject.h"
+#else
+#include "scipy/arrayobject.h"
+#endif
 #endif
 
 #include <pygtk/pygtk.h>
