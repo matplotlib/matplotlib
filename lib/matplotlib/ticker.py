@@ -174,7 +174,7 @@ class FixedFormatter(Formatter):
         
     def __call__(self, x, pos=None):
         'Return the format for tick val x at position pos'
-        if pos>=len(self.seq) or pos is None: return ''
+        if pos is None or pos>=len(self.seq): return ''
         else: return self.seq[pos]
 
 class FuncFormatter(Formatter):
