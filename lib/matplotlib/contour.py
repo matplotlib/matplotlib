@@ -619,7 +619,7 @@ class ContourSet(ScalarMappable, ContourLabeler):
     def _process_linewidths(self):
         linewidths = self.linewidths
         Nlev = len(self.levels)
-        if linewidths == None:
+        if linewidths is None:
             tlinewidths = [rcParams['lines.linewidth']] *Nlev
         else:
             if iterable(linewidths) and len(linewidths) < Nlev:

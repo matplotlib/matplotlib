@@ -5,7 +5,8 @@ import math, sys
 from numerix import absolute, arange, array, asarray, ones, divide,\
      transpose, log, log10, Float, Float32, ravel, zeros,\
      Int16, Int32, Int, Float64, ceil, indices, \
-     shape, which, where, sqrt, asum, compress, maximum, minimum
+     shape, which, where, sqrt, asum, compress, maximum, minimum, \
+     typecode
 
 import numerix.ma as ma
 
@@ -1977,9 +1978,9 @@ class Axes(Artist):
         xmax = asarray(xmax)
 
         if len(xmin)==1:
-            xmin = xmin*ones(y.shape, y.typecode())
+            xmin = xmin*ones(y.shape, typecode(y))
         if len(xmax)==1:
-            xmax = xmax*ones(y.shape, y.typecode())
+            xmax = xmax*ones(y.shape, typecode(y))
 
         if len(xmin)!=len(y):
             raise ValueError, 'xmin and y are unequal sized sequences'
@@ -3623,9 +3624,9 @@ class Axes(Artist):
         ymax = asarray(ymax)
 
         if len(ymin)==1:
-            ymin = ymin*ones(x.shape, x.typecode())
+            ymin = ymin*ones(x.shape, typecode(x))
         if len(ymax)==1:
-            ymax = ymax*ones(x.shape, x.typecode())
+            ymax = ymax*ones(x.shape, typecode(x))
 
 
         if len(ymin)!=len(x):

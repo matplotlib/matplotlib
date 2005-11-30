@@ -434,8 +434,9 @@ def validate_numerix(s):
     sl = s.lower()
     if sl=='numeric': return 'Numeric'
     elif sl=='numarray': return 'numarray'
+    elif sl=='scipy': return 'scipy'
     else:
-        raise ValueError('Numerix must be Numeric or numarray')
+        raise ValueError('Numerix must be Numeric, numarray, or scipy')
 
 def validate_toolbar(s):
     """

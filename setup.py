@@ -91,22 +91,26 @@ data_files.append(('share/matplotlib/Matplotlib.nib',
 		   glob.glob('lib/matplotlib/backends/Matplotlib.nib/*.nib')))
 
 # Figure out which array packages to provide binary support for
-# and define the NUMERIX value: Numeric, numarray, or both.
+# and append to the NUMERIX list.
+NUMERIX = []
 try:
     import Numeric
-    HAVE_NUMERIC=1
+    NUMERIX.append('Numeric')
 except ImportError:
-    HAVE_NUMERIC=0
+    pass
 try:
     import numarray
-    HAVE_NUMARRAY=1
+    NUMERIX.append('numarray')
 except ImportError:
-    HAVE_NUMARRAY=0
+    pass
+try:
+     import scipy
+     if hasattr(scipy,'__core_version__'):
+         NUMERIX.append('scipy')
+except ImportError:
+     pass
 
-NUMERIX=["neither", "Numeric","numarray","both"][HAVE_NUMARRAY*2+HAVE_NUMERIC]
-
-
-if NUMERIX == "neither":
+if not NUMERIX:
     raise RuntimeError("You must install Numeric, numarray, or both to build matplotlib")
 
 # This print interers with --version, which license depends on
