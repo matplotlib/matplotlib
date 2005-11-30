@@ -628,6 +628,9 @@ class NavigationToolbar2TkAgg(NavigationToolbar2, Tk.Frame):
             return
         else:
             bname, fext = os.path.splitext(fname)
+            if fext == '': # No extension provided
+                fext = '.png' # Assume png
+                fname += fext
             if (fext.lower()=='.png'):
                 self.canvas.print_figure(fname, dpi=300)
             elif (fext.lower()=='.eps'):
