@@ -387,6 +387,7 @@ class GraphicsContextBase:
         self._linestyle = 'solid'
         self._linewidth = 1
         self._rgb = (0.0, 0.0, 0.0)
+        self._hatch = None
 
     def copy_properties(self, gc):
         'Copy properties from gc to self'
@@ -399,6 +400,7 @@ class GraphicsContextBase:
         self._linestyle = gc._linestyle
         self._linewidth = gc._linewidth
         self._rgb = gc._rgb
+        self._hatch = gc._hatch
 
     def get_alpha(self):
         """
@@ -547,6 +549,16 @@ class GraphicsContextBase:
         self._linestyle = style
         self.set_dashes(offset, dashes)
 
+     def set_hatch(self, hatch):
+         """
+         Sets the hatch style for filling
+         """
+         self._hatch = hatch
+     def get_hatch(self):
+         """
+         Gets the current hatch style
+         """
+         return self._hatch
 
 class Event:
     """
