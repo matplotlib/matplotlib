@@ -114,33 +114,33 @@ class Patch(Artist):
         'return whether fill is set'
         return self.fill
 
-     def set_hatch(self, h):
-         """
-         Set the hatching pattern
+    def set_hatch(self, h):
+        """
+        Set the hatching pattern
  
-         hatch can be one of:
-         /   - diagonal hatching
-         \   - back diagonal
-         |   - vertical
-         -   - horizontal
-         #   - crossed
-         X   - crossed diagonal
-         letters can be combined, in which case all the specified
-         hatchings are done
-         if same letter repeats, it increases the density of hatching
-         in that direction
+        hatch can be one of:
+        /   - diagonal hatching
+        \   - back diagonal
+        |   - vertical
+        -   - horizontal
+        #   - crossed
+        X   - crossed diagonal
+        letters can be combined, in which case all the specified
+        hatchings are done
+        if same letter repeats, it increases the density of hatching
+        in that direction
 
-         CURRENT LIMITATIONS:
-         1. Hatching is supported in the PostScript
-         backend only.
+        CURRENT LIMITATIONS:
+        1. Hatching is supported in the PostScript
+        backend only.
 
-         2. Hatching is done with solid black lines of width 0.
-         """
-         self._hatch = h
+        2. Hatching is done with solid black lines of width 0.
+        """
+        self._hatch = h
  
-     def get_hatch(self):
-         'return the current hatching pattern'
-         return self._hatch
+    def get_hatch(self):
+        'return the current hatching pattern'
+        return self._hatch
 
 
     def draw(self, renderer):

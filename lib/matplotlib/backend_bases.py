@@ -549,16 +549,17 @@ class GraphicsContextBase:
         self._linestyle = style
         self.set_dashes(offset, dashes)
 
-     def set_hatch(self, hatch):
-         """
-         Sets the hatch style for filling
-         """
-         self._hatch = hatch
-     def get_hatch(self):
-         """
-         Gets the current hatch style
-         """
-         return self._hatch
+    def set_hatch(self, hatch):
+        """
+        Sets the hatch style for filling
+        """
+        self._hatch = hatch
+
+    def get_hatch(self):
+        """
+        Gets the current hatch style
+        """
+        return self._hatch
 
 class Event:
     """
