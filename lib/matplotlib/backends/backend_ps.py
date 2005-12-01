@@ -146,6 +146,7 @@ class RendererPS(RendererBase):
         self.linedash = None
         self.fontname = None
         self.fontsize = None
+        self.hatch = None
 
     def set_color(self, r, g, b, store=1):
         if (r,g,b) != self.color:
@@ -192,6 +193,57 @@ class RendererPS(RendererBase):
             self._pswriter.write(out)
             self.fontname = fontname
             self.fontsize = fontsize
+
+     def set_hatch(self, hatch):
+         """
+         hatch can be one of:
+         /   - diagonal hatching
+         \   - back diagonal
+         |   - vertical
+         -   - horizontal
+         #   - crossed
+         X   - crossed diagonal
+         letters can be combined, in which case all the specified
+         hatchings are done
+         if same letter repeats, it increases the density of hatching
+         in that direction
+         """
+         hatches = {'horiz':0, 'vert':0, 'diag1':0, 'diag2':0}
+ 
+         for letter in hatch:
+           if   (letter == '/'):    hatches['diag2'] += 1
+           elif (letter == '\\'):   hatches['diag1'] += 1
+           elif (letter == '|'):    hatches['vert']  += 1
+           elif (letter == '-'):    hatches['horiz'] += 1
+           elif (letter == '+'):
+             hatches['horiz'] += 1
+             hatches['vert'] += 1
+           elif (letter == 'x'):
+             hatches['diag1'] += 1
+             hatches['diag2'] += 1
+ 
+         def do_hatch(angle, density):
+           if (density == 0): return ""
+           return """
+  gsave
+   eoclip %s rotate 0.0 0.0 0.0 0.0 setrgbcolor 0 setlinewidth
+   /hatchgap %d def
+   pathbbox /hatchb exch def /hatchr exch def /hatcht exch def /hatchl exch def
+   hatchl cvi hatchgap idiv hatchgap mul
+   hatchgap
+   hatchr cvi hatchgap idiv hatchgap mul
+   {hatcht moveto 0 hatchb hatcht sub rlineto}
+   for
+   stroke
+  grestore
+ """ % (angle, 12/density)
+         self._pswriter.write("gsave\n")
+         self._pswriter.write(do_hatch(0, hatches['horiz']))
+         self._pswriter.write(do_hatch(90, hatches['vert']))
+         self._pswriter.write(do_hatch(45, hatches['diag1']))
+         self._pswriter.write(do_hatch(-45, hatches['diag2']))
+         self._pswriter.write("grestore\n")
+ 
 
     def get_canvas_width_height(self):
         'return the canvas width and height in display coords'
@@ -775,6 +827,10 @@ grestore
             write("gsave\n")
             self.set_color(store=0, *rgbFace)
             write("fill\ngrestore\n")
+
+        hatch = gc.get_hatch()
+        if (hatch):
+            self.set_hatch(hatch)
 
         write("stroke\n")
         if cliprect:

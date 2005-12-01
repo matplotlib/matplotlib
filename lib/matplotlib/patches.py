@@ -27,6 +27,7 @@ class Patch(Artist):
                  facecolor=None,
                  linewidth=None,
                  antialiased = None,
+                 hatch = None,
                  fill=1,
                  **kwargs
                  ):
@@ -41,8 +42,8 @@ class Patch(Artist):
         self._facecolor = facecolor
         self._linewidth = linewidth
         self._antialiased = antialiased
+        self._hatch = hatch
         self.fill = fill
-
 
         if len(kwargs): setp(self, **kwargs)
 
@@ -51,6 +52,7 @@ class Patch(Artist):
         self.set_edgecolor(other.get_edgecolor())
         self.set_facecolor(other.get_facecolor())
         self.set_fill(other.get_fill())
+        self.set_hatch(other.get_hatch())
         self.set_linewidth(other.get_linewidth())
         self.set_transform(other.get_transform())
         self.set_figure(other.get_figure())
@@ -112,6 +114,33 @@ class Patch(Artist):
         'return whether fill is set'
         return self.fill
 
+     def set_hatch(self, h):
+         """
+         Set the hatching pattern
+ 
+         hatch can be one of:
+         /   - diagonal hatching
+         \   - back diagonal
+         |   - vertical
+         -   - horizontal
+         #   - crossed
+         X   - crossed diagonal
+         letters can be combined, in which case all the specified
+         hatchings are done
+         if same letter repeats, it increases the density of hatching
+         in that direction
+
+         CURRENT LIMITATIONS:
+         1. Hatching is supported in the PostScript
+         backend only.
+
+         2. Hatching is done with solid black lines of width 0.
+         """
+         self._hatch = h
+ 
+     def get_hatch(self):
+         'return the current hatching pattern'
+         return self._hatch
 
 
     def draw(self, renderer):
@@ -128,6 +157,9 @@ class Patch(Artist):
 
         if not self.fill or self._facecolor is None: rgbFace = None
         else: rgbFace = colorConverter.to_rgb(self._facecolor)
+
+        if self._hatch:
+            gc.set_hatch(self._hatch )
 
         verts = self.get_verts()
         tverts = self._transform.seq_xy_tups(verts)
