@@ -194,37 +194,37 @@ class RendererPS(RendererBase):
             self.fontname = fontname
             self.fontsize = fontsize
 
-     def set_hatch(self, hatch):
-         """
-         hatch can be one of:
-         /   - diagonal hatching
-         \   - back diagonal
-         |   - vertical
-         -   - horizontal
-         #   - crossed
-         X   - crossed diagonal
-         letters can be combined, in which case all the specified
-         hatchings are done
-         if same letter repeats, it increases the density of hatching
-         in that direction
-         """
-         hatches = {'horiz':0, 'vert':0, 'diag1':0, 'diag2':0}
+    def set_hatch(self, hatch):
+        """
+        hatch can be one of:
+        /   - diagonal hatching
+        \   - back diagonal
+        |   - vertical
+        -   - horizontal
+        #   - crossed
+        X   - crossed diagonal
+        letters can be combined, in which case all the specified
+        hatchings are done
+        if same letter repeats, it increases the density of hatching
+        in that direction
+        """
+        hatches = {'horiz':0, 'vert':0, 'diag1':0, 'diag2':0}
  
-         for letter in hatch:
-           if   (letter == '/'):    hatches['diag2'] += 1
-           elif (letter == '\\'):   hatches['diag1'] += 1
-           elif (letter == '|'):    hatches['vert']  += 1
-           elif (letter == '-'):    hatches['horiz'] += 1
-           elif (letter == '+'):
-             hatches['horiz'] += 1
-             hatches['vert'] += 1
-           elif (letter == 'x'):
-             hatches['diag1'] += 1
-             hatches['diag2'] += 1
+        for letter in hatch:
+            if   (letter == '/'):    hatches['diag2'] += 1
+            elif (letter == '\\'):   hatches['diag1'] += 1
+            elif (letter == '|'):    hatches['vert']  += 1
+            elif (letter == '-'):    hatches['horiz'] += 1
+            elif (letter == '+'):
+                hatches['horiz'] += 1
+                hatches['vert'] += 1
+            elif (letter == 'x'):
+                hatches['diag1'] += 1
+                hatches['diag2'] += 1
  
-         def do_hatch(angle, density):
-           if (density == 0): return ""
-           return """
+    def do_hatch(angle, density):
+        if (density == 0): return ""
+        return """
   gsave
    eoclip %s rotate 0.0 0.0 0.0 0.0 setrgbcolor 0 setlinewidth
    /hatchgap %d def
@@ -237,12 +237,12 @@ class RendererPS(RendererBase):
    stroke
   grestore
  """ % (angle, 12/density)
-         self._pswriter.write("gsave\n")
-         self._pswriter.write(do_hatch(0, hatches['horiz']))
-         self._pswriter.write(do_hatch(90, hatches['vert']))
-         self._pswriter.write(do_hatch(45, hatches['diag1']))
-         self._pswriter.write(do_hatch(-45, hatches['diag2']))
-         self._pswriter.write("grestore\n")
+    self._pswriter.write("gsave\n")
+    self._pswriter.write(do_hatch(0, hatches['horiz']))
+    self._pswriter.write(do_hatch(90, hatches['vert']))
+    self._pswriter.write(do_hatch(45, hatches['diag1']))
+    self._pswriter.write(do_hatch(-45, hatches['diag2']))
+    self._pswriter.write("grestore\n")
  
 
     def get_canvas_width_height(self):
