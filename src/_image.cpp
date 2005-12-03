@@ -1277,7 +1277,8 @@ _image_module::frombuffer(const Py::Tuple& args) {
     imo->rbufIn = new agg::rendering_buffer;
     imo->rbufIn->attach(buffer, imo->colsIn, imo->rowsIn, imo->colsIn*imo->BPP);
   }
-  return Py::asObject( imo );
+
+  return Py::Object();
 }
 
 
@@ -1291,6 +1292,7 @@ char __image_module_pcolor__doc__[] =
 Py::Object
 _image_module::pcolor(const Py::Tuple& args) {
   _VERBOSE("_image_module::pcolor");
+
 
   if (args.length() != 6)
       throw Py::TypeError("Incorrect number of arguments (6 expected)");

@@ -83,8 +83,7 @@ if (which[0] == 'numarray' or
         return a.byteswapped()
     def itemsize(a):
         return a.itemsize()
-    def resize(a, shape):
-        return a.resize(shape)
+
 else:
     # We've already checked for a valid numerix selector,
     # so assume scipy.

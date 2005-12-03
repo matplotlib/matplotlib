@@ -442,7 +442,7 @@ def build_ft2font(ext_modules, packages):
 def build_gtkagg(ext_modules, packages, numerix):
     global BUILT_GTKAGG
     if BUILT_GTKAGG: return # only build it if you you haven't already
-    deps = ['src/_gtkagg.cpp', 'src/mplutils.cpp', 'src/_transforms.cpp']
+    deps = ['src/_gtkagg.cpp', 'src/mplutils.cpp']#, 'src/_transforms.cpp']
     deps.extend(glob.glob('CXX/*.cxx'))
     deps.extend(glob.glob('CXX/*.c'))
 
@@ -458,13 +458,6 @@ def build_gtkagg(ext_modules, packages, numerix):
     add_agg_flags(module)  
     add_ft2font_flags(module)
     add_pygtk_flags(module)
-    if 'numarray' in numerix: # Build for numarray
-        module.extra_compile_args.append('-DNUMARRAY=1')
-    if 'Numeric' in numerix: # Build for Numeric
-        module.extra_compile_args.append('-DNUMERIC=1')
-    if 'scipy' in numerix: # Build for scipy
-        add_scipy_flags(module)
-        module.extra_compile_args.append('-DSCIPY=1')
 
     ext_modules.append(module)    
     BUILT_GTKAGG = True
@@ -487,6 +480,7 @@ def build_tkagg(ext_modules, packages, numerix):
     add_tk_flags(module) # do this first
     add_agg_flags(module)
     add_ft2font_flags(module)    
+
     ext_modules.append(module)    
     BUILT_TKAGG = True
 
@@ -524,7 +518,7 @@ The wxPython header files could not be located in any of the standard include
 directories or include directories reported by `wx-config --cppflags'.'''
             sys.exit(1)
 
-    deps = ['src/_wxagg.cpp', 'src/mplutils.cpp', 'src/_transforms.cpp']
+    deps = ['src/_wxagg.cpp', 'src/mplutils.cpp']#, 'src/_transforms.cpp']
     deps.extend(glob.glob('CXX/*.cxx'))
     deps.extend(glob.glob('CXX/*.c'))
 
@@ -576,8 +570,7 @@ def build_agg(ext_modules, packages, numerix):
         add_agg_flags(module)
         add_ft2font_flags(module)
         ext_modules.append(module)    
-    if ('Numeric' in numerix or
-        'scipy' in numerix): # Build for Numeric/scipy
+    if 'Numeric' in numerix: # Build for Numeric
         deps = ['%s/src/%s'%(AGG_VERSION, name) for name in agg]
         deps.extend(('src/_image.cpp', 'src/ft2font.cpp', 'src/mplutils.cpp'))
         deps.extend(glob.glob('CXX/*.cxx'))
@@ -590,11 +583,27 @@ def build_agg(ext_modules, packages, numerix):
             deps,
             include_dirs=numeric_inc_dirs,
             )
-        if 'Numeric' in numerix:
-            module.extra_compile_args.append('-DNUMERIC=1')
-        else:
-            add_scipy_flags(module)
-            module.extra_compile_args.append('-DSCIPY=1')
+
+        module.extra_compile_args.append('-DNUMERIC=1')
+        add_agg_flags(module)
+        add_ft2font_flags(module)
+        ext_modules.append(module)    
+    if 'scipy' in numerix: # Build for scipy
+        deps = ['%s/src/%s'%(AGG_VERSION, name) for name in agg]
+        deps.extend(('src/_image.cpp', 'src/ft2font.cpp', 'src/mplutils.cpp'))
+        deps.extend(glob.glob('CXX/*.cxx'))
+        deps.extend(glob.glob('CXX/*.c'))
+
+        temp_copy('src/_backend_agg.cpp', 'src/_ns_backend_agg.cpp')
+        deps.append('src/_ns_backend_agg.cpp')
+        module = Extension(
+            'matplotlib.backends._ns_backend_agg',
+            deps,
+            include_dirs=numeric_inc_dirs,
+            )
+
+        add_scipy_flags(module)
+        module.extra_compile_args.append('-DSCIPY=1')
 
         add_agg_flags(module)
         add_ft2font_flags(module)
@@ -628,8 +637,7 @@ def build_image(ext_modules, packages, numerix):
         add_agg_flags(module)
         ext_modules.append(module)    
 
-    if ('Numeric' in numerix or
-        'scipy' in numerix): # Build for Numeric/scipy
+    if 'Numeric' in numerix: # Build for Numeric
         temp_copy('src/_image.cpp', 'src/_nc_image.cpp')
         deps = ['src/_nc_image.cpp', 'src/mplutils.cpp'] 
         deps.extend(['%s/src/%s'%(AGG_VERSION,name) for name in agg])
@@ -641,11 +649,26 @@ def build_image(ext_modules, packages, numerix):
             deps,
             include_dirs=numeric_inc_dirs,
             )
-        if 'Numeric' in numerix:
-            module.extra_compile_args.append('-DNUMERIC=1')
-        else:
-            add_scipy_flags(module)
-            module.extra_compile_args.append('-DSCIPY=1')
+
+        module.extra_compile_args.append('-DNUMERIC=1')
+        add_agg_flags(module)
+        ext_modules.append(module)
+
+    if 'scipy' in numerix: # Build for scipy
+        temp_copy('src/_image.cpp', 'src/_ns_image.cpp')
+        deps = ['src/_ns_image.cpp', 'src/mplutils.cpp'] 
+        deps.extend(['%s/src/%s'%(AGG_VERSION,name) for name in agg])
+        deps.extend(glob.glob('CXX/*.cxx'))
+        deps.extend(glob.glob('CXX/*.c'))
+
+        module = Extension(
+            'matplotlib._ns_image',
+            deps,
+            include_dirs=numeric_inc_dirs,
+            )
+
+        add_scipy_flags(module)
+        module.extra_compile_args.append('-DSCIPY=1')
         add_agg_flags(module)
         ext_modules.append(module)
 
@@ -691,8 +714,7 @@ def build_transforms(ext_modules, packages, numerix):
         add_base_flags(module)
         ext_modules.append(module)
         
-    if ('Numeric' in numerix or
-        'scipy' in numerix):  # Build for Numeric/scipy
+    if 'Numeric' in numerix:  # Build for Numeric
         cxx = glob.glob('CXX/*.cxx')
         cxx.extend(glob.glob('CXX/*.c'))
         temp_copy("src/_transforms.cpp","src/_nc_transforms.cpp")
@@ -702,11 +724,27 @@ def build_transforms(ext_modules, packages, numerix):
                              libraries = ['stdc++', 'm'],
                              include_dirs = ['src', '.']+numeric_inc_dirs,
                              )
-        if 'Numeric' in numerix:
-            module.extra_compile_args.append("-DNUMERIC=1")
-        else:
-            add_scipy_flags(module)
-            module.extra_compile_args.append("-DSCIPY=1")
+
+
+        
+        module.extra_compile_args.append("-DNUMERIC=1")
+        add_base_flags(module)
+        ext_modules.append(module)
+
+    if 'scipy' in numerix:  # Build for scipy
+        cxx = glob.glob('CXX/*.cxx')
+        cxx.extend(glob.glob('CXX/*.c'))
+        temp_copy("src/_transforms.cpp","src/_ns_transforms.cpp")
+        module = Extension('matplotlib._ns_transforms',
+                             ['src/_ns_transforms.cpp',
+                              'src/mplutils.cpp'] + cxx,
+                             libraries = ['stdc++', 'm'],
+                             include_dirs = ['src', '.']+numeric_inc_dirs,
+                             )
+
+
+        add_scipy_flags(module)
+        module.extra_compile_args.append("-DSCIPY=1")
         add_base_flags(module)
         ext_modules.append(module)
 
@@ -741,8 +779,7 @@ def build_contour(ext_modules, packages, numerix):
         add_base_flags(module)
         ext_modules.append(module)    
 
-    if ('Numeric' in numerix or
-        'scipy' in numerix): # Build for Numeric/scipy
+    if 'Numeric' in numerix: # Build for Numeric        
         temp_copy('src/cntr.c', 'src/_nc_cntr.c')
         module = Extension(
             'matplotlib._nc_cntr',
@@ -750,13 +787,22 @@ def build_contour(ext_modules, packages, numerix):
             #libraries = ['stdc++'],
             include_dirs=numeric_inc_dirs,
             )
-        if 'Numeric' in numerix:
-            module.extra_compile_args.append('-DNUMERIC=1')
-        else:
-            add_scipy_flags(module)
-            module.extra_compile_args.append('-DSCIPY=1')
+        module.extra_compile_args.append('-DNUMERIC=1')
         add_base_flags(module)
         ext_modules.append(module)
+    if 'scipy' in numerix: # Build for scipy
+        temp_copy('src/cntr.c', 'src/_ns_cntr.c')
+        module = Extension(
+            'matplotlib._ns_cntr',
+            [ 'src/_ns_cntr.c'],
+            #libraries = ['stdc++'],
+            include_dirs=numeric_inc_dirs,
+            )
+        add_scipy_flags(module)
+        module.extra_compile_args.append('-DSCIPY=1')
+        add_base_flags(module)
+        ext_modules.append(module)
+
 
     BUILT_CONTOUR = True
 
@@ -778,8 +824,7 @@ def build_gdk(ext_modules, packages, numerix):
         add_pygtk_flags(module)        
         ext_modules.append(module)
 
-    if ('Numeric' in numerix or
-        'scipy' in numerix): # Build for Numeric/scipy
+    if 'Numeric' in numerix:# Build for Numeric
         temp_copy('src/_backend_gdk.c', 'src/_nc_backend_gdk.c')
         module = Extension(
             'matplotlib.backends._nc_backend_gdk',
@@ -787,11 +832,23 @@ def build_gdk(ext_modules, packages, numerix):
             libraries = [],
             include_dirs=numeric_inc_dirs,            
             )
-        if 'Numeric' in numerix:
-            module.extra_compile_args.append('-DNUMERIC=1')
-        else:
-            add_scipy_flags(module)
-            module.extra_compile_args.append('-DSCIPY=1')
+
+        module.extra_compile_args.append('-DNUMERIC=1')
+        add_base_flags(module)
+        add_pygtk_flags(module)        
+        ext_modules.append(module)
+
+    if 'scipy' in numerix:# Build for scipy
+        temp_copy('src/_backend_gdk.c', 'src/_ns_backend_gdk.c')
+        module = Extension(
+            'matplotlib.backends._ns_backend_gdk',
+            ['src/_ns_backend_gdk.c', ],
+            libraries = [],
+            include_dirs=numeric_inc_dirs,            
+            )
+
+        add_scipy_flags(module)
+        module.extra_compile_args.append('-DSCIPY=1')
         add_base_flags(module)
         add_pygtk_flags(module)        
         ext_modules.append(module)

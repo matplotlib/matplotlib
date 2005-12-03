@@ -329,16 +329,18 @@ class AxesImage(Artist, cm.ScalarMappable):
 
     def get_filterrad(self):
         'return the filterrad setting'
-        return self._filterrad
+
 
 class NonUniformImage(AxesImage):
     def __init__(self, ax,
                  cmap = None,
                  norm = None,
+                 extent=None,
                 ):
         AxesImage.__init__(self, ax,
                            cmap = cmap,
                            norm = norm,
+                           extent=extent,
                            aspect = 'free',
                            interpolation = 'nearest',
                            origin = 'lower',
@@ -419,6 +421,7 @@ class NonUniformImage(AxesImage):
         if self._A is not None:
             raise RuntimeError('Cannot change colors after loading data')
         cm.ScalarMappable.set_cmap(self, norm)
+
 
 
 
