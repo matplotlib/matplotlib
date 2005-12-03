@@ -14,6 +14,9 @@ The GTKAgg and TkAgg will try to build if they detect pygtk or Tkinter
 respectively; set them to 0 if you do not want to build them
 """
 
+
+rc = dict(backend='PS', numerix='Numeric')
+
 # build the image support module - requires agg and Numeric or
 # numarray.  You can build the image module with either Numeric or
 # numarray or both.  By default, matplotlib will build support for
@@ -93,9 +96,11 @@ data_files.append(('share/matplotlib/Matplotlib.nib',
 # Figure out which array packages to provide binary support for
 # and append to the NUMERIX list.
 NUMERIX = []
+
 try:
     import Numeric
     NUMERIX.append('Numeric')
+
 except ImportError:
     pass
 try:
@@ -111,7 +116,10 @@ except ImportError:
      pass
 
 if not NUMERIX:
-    raise RuntimeError("You must install Numeric, numarray, or both to build matplotlib")
+    raise RuntimeError("You must install the new scipy, Numeric, numarray, or both to build matplotlib")
+
+
+rc['numerix'] = NUMERIX[-1]
 
 # This print interers with --version, which license depends on
 #print "Compiling matplotlib for:", NUMERIX
@@ -181,18 +189,7 @@ if BUILD_GTK:
 
 if BUILD_GTK:
         build_gdk(ext_modules, packages, NUMERIX)
-
-if BUILD_GTKAGG:
-    try:
-        import gtk
-    except ImportError:
-        print 'GTKAgg requires pygtk'
-        BUILD_GTKAGG=0
-    except RuntimeError:
-        print 'pygtk present but import failed'
-if BUILD_GTKAGG:
-    BUILD_AGG = 1
-    build_gtkagg(ext_modules, packages, NUMERIX)
+        rc['backend'] = 'GTK'
 
 if BUILD_TKAGG:
     try: import Tkinter
@@ -200,7 +197,8 @@ if BUILD_TKAGG:
     else:
         BUILD_AGG = 1
         build_tkagg(ext_modules, packages, NUMERIX)
-
+        rc['backend'] = 'TkAgg'
+        
 if BUILD_WXAGG:
     try: import wxPython
     except ImportError:
@@ -212,9 +210,27 @@ if BUILD_WXAGG:
         build_wxagg(ext_modules, packages, NUMERIX,
             not (isinstance(BUILD_WXAGG, str) # don't about if BUILD_WXAGG
                  and BUILD_WXAGG.lower() == 'auto')) # is "auto"
+        rc['backend'] = 'WXAgg'
+
+if BUILD_GTKAGG:
+    try:
+        import gtk
+    except ImportError:
+        print 'GTKAgg requires pygtk'
+        BUILD_GTKAGG=0
+    except RuntimeError:
+        print 'pygtk present but import failed'
+
+if BUILD_GTKAGG:
+    BUILD_AGG = 1
+    build_gtkagg(ext_modules, packages, NUMERIX)
+    rc['backend'] = 'GTKAgg'
 
 if BUILD_AGG:
     build_agg(ext_modules, packages, NUMERIX)
+    if rc['backend'] == 'PS': rc['backend'] = 'Agg'
+
+
 
 if BUILD_FT2FONT:
     build_ft2font(ext_modules, packages)
@@ -231,6 +247,17 @@ if 1:  # I don't think we need to make these optional
 for mod in ext_modules:
     if VERBOSE:
         mod.extra_compile_args.append('-DVERBOSE')
+
+
+
+# packagers: set rc['numerix'] and rc['backend'] here to override the auto
+# defaults, eg
+#rc['numerix'] = scipy
+#rc['backend'] = GTKAgg
+template = file('matplotlibrc.template').read()
+file('matplotlibrc', 'w').write(template%rc)
+
+
 
 setup(name="matplotlib",
       version= __version__,
