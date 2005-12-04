@@ -5,7 +5,6 @@ if which[0] == "numarray":
 elif which[0] == "numeric":
     from RandomArray import *
 elif which[0] == "scipy":
-    from scipy.stats import *
-    from scipy.basic.random import normal
+    from scipy.basic.random import *
 else:
     raise RuntimeError("invalid numerix selector")

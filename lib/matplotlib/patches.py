@@ -159,7 +159,7 @@ class Patch(Artist):
         else: rgbFace = colorConverter.to_rgb(self._facecolor)
 
         if self._hatch:
-            gc.set_hatch(self._hatch )
+            gc.set_hatch(self._hatchh )
 
         verts = self.get_verts()
         tverts = self._transform.seq_xy_tups(verts)
