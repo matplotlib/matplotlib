@@ -222,9 +222,9 @@ class RendererPS(RendererBase):
                 hatches['diag1'] += 1
                 hatches['diag2'] += 1
  
-    def do_hatch(angle, density):
-        if (density == 0): return ""
-        return """
+        def do_hatch(angle, density):
+            if (density == 0): return ""
+            return """\
   gsave
    eoclip %s rotate 0.0 0.0 0.0 0.0 setrgbcolor 0 setlinewidth
    /hatchgap %d def
@@ -237,12 +237,12 @@ class RendererPS(RendererBase):
    stroke
   grestore
  """ % (angle, 12/density)
-    self._pswriter.write("gsave\n")
-    self._pswriter.write(do_hatch(0, hatches['horiz']))
-    self._pswriter.write(do_hatch(90, hatches['vert']))
-    self._pswriter.write(do_hatch(45, hatches['diag1']))
-    self._pswriter.write(do_hatch(-45, hatches['diag2']))
-    self._pswriter.write("grestore\n")
+        self._pswriter.write("gsave\n")
+        self._pswriter.write(do_hatch(0, hatches['horiz']))
+        self._pswriter.write(do_hatch(90, hatches['vert']))
+        self._pswriter.write(do_hatch(45, hatches['diag1']))
+        self._pswriter.write(do_hatch(-45, hatches['diag2']))
+        self._pswriter.write("grestore\n")
  
 
     def get_canvas_width_height(self):
