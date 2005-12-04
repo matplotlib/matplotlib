@@ -11,6 +11,6 @@ ylabel('voltage (mV)')
 title('About as simple as it gets, folks')
 grid(True)
 #savefig('simple_plot.png')
-#savefig('simple_plot.ps')
+savefig('simple_plot')
 
 show()

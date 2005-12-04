@@ -263,7 +263,9 @@ from numerix import Int8, UInt8, Int16, UInt16, Int32, UInt32, Float32, Float64,
 from matplotlib.numerix.fft import fft
 from matplotlib.numerix.linear_algebra import inverse, eigenvectors
 
-from matplotlib.numerix.mlab import rand,randn,eye,tri,diag,fliplr,flipud,rot90,tril,triu,ptp,mean,msort,median,std,cumsum,prod,cumprod,trapz,diff,cov,corrcoef,squeeze,kaiser,blackman,bartlett,hanning,hamming,sinc,eig,svd,angle,roots,amin,  amax
+#from matplotlib.numerix.mlab import rand,randn,eye,tri,diag,fliplr,flipud,rot90,tril,triu,ptp,mean,msort,median,std,cumsum,prod,cumprod,trapz,diff,cov,corrcoef,squeeze,kaiser,blackman,bartlett,hanning,hamming,sinc,eig,svd,angle,roots,amin,  amax
+
+from matplotlib.numerix.mlab import *
 
 from matplotlib.mlab import linspace, window_hanning, window_none, conv, detrend, detrend_mean, detrend_none, detrend_linear, corrcoef, polyfit, polyval, vander, entropy, normpdf, levypdf, find, trapz, prepca, fix, rem, norm, orth, rank, sqrtm, prctile, center_matrix, meshgrid, rk4, exp_safe, amap, sum_flat, mean_flat, rms_flat, l1norm, l2norm, norm, frange, diagonal_matrix, base_repr, binary_repr, log2, ispower2, bivariate_normal
 

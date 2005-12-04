@@ -5,7 +5,6 @@ if which[0] == "numarray":
 elif which[0] == "numeric":
     from FFT import *
 elif which[0] == "scipy":
-    from scipy.fftpack import *
-    inverse_fft = ifft
+    from scipy.basic.fft import *
 else:
     raise RuntimeError("invalid numerix selector")

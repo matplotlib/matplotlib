@@ -222,7 +222,7 @@ class AxesImage(Artist, cm.ScalarMappable):
         if hasattr(A,'getpixel'): X = pil_to_array(A)
         else: X = ma.asarray(A) # assume array
 
-        if (X.typecode() != UInt8
+        if (typecode(X) != UInt8
             or len(X.shape) != 3
             or X.shape[2] > 4
             or X.shape[2] < 3):

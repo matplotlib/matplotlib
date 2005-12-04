@@ -70,7 +70,7 @@ from numerix import array, asarray, arange, divide, exp, arctan2, \
      conjugate, typecode, iscontiguous
 
 
-from numerix.mlab import hanning, cov, diff, svd, rand, std
+from numerix.mlab import diff, svd, rand, std
 from numerix.fft import fft, inverse_fft
 
 from cbook import iterable
@@ -94,6 +94,7 @@ def _norm(x):
 
 def window_hanning(x):
     "return x times the hanning window of len(x)"
+    from numerix.mlab import hanning
     return hanning(len(x))*x
 
 def window_none(x):
@@ -124,6 +125,7 @@ def detrend_linear(x):
     # I'm going to regress x on xx=range(len(x)) and return x -
     # (b*xx+a).  Now that I have polyfit working, I could convert the
     # code here, but if it ain't broke, don't fix it!
+    from numerix.mlab import cov
     xx = arange(float(len(x)))
     X = transpose(array([xx]+[x]))
     C = cov(X)
@@ -976,6 +978,7 @@ def center_matrix(M, dim=0):
     """
     # todo: implement this w/o loop.  Allow optional arg to specify
     # dimension to remove the mean from
+
     if dim==1: M = transpose(M)
     M = array(M, Float)
     if len(M.shape)==1 or M.shape[0]==1 or M.shape[1]==1:
