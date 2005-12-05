@@ -32,7 +32,7 @@ import re
 
 from numerix import array, arange, take, put, Float, Int, where, \
      zeros, asarray, sort, searchsorted, sometrue, ravel, divide,\
-     clip, ones, typecode
+     clip, ones, typecode, typecodes
 from numerix.mlab import amin, amax
 import numerix.ma as ma
 from cbook import enumerate, is_string_like, iterable
@@ -505,19 +505,20 @@ class Colormap:
             xma = ma.asarray(X)
             xa = xma.filled(0)
             mask_bad = ma.getmask(xma)
-        if type(xa.flat[0]) is float:   #Better way to check the type?
+        if typecode(xa) in typecodes['Float']:
             xa = where(xa == 1.0, 0.9999999, xa) # Tweak so 1.0 is in range.
             xa = (xa * self.N).astype(Int)
         mask_under = xa < 0
         mask_over = xa > self.N-1
         xa = where(mask_under, self._i_under, xa)
         xa = where(mask_over, self._i_over, xa)
-        if mask_bad:
+        if mask_bad is not None: # and sometrue(mask_bad):
             xa = where(mask_bad, self._i_bad, xa)
         #print 'types', typecode(self._lut), typecode(xa), xa.shape
         rgba = take(self._lut, xa)
         if vtype == 'scalar':
             rgba = tuple(rgba[0,:])
+        #print rgba[0,1:10,:]       # Now the same for scipy, numeric...
         return rgba
 
     def set_bad(self, color = 'k', alpha = 0.0):
