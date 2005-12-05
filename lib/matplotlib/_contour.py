@@ -6,9 +6,18 @@ if numerix.which[0] == "numarray":
     except ImportError:
         numerix._import_fail_message("_contour", "_na")
         raise
-else:
+elif numerix.which[0] == "numeric":
     try:
         from matplotlib._nc_cntr import *
     except ImportError:
         numerix._import_fail_message("_contour", "_nc")
         raise
+else:                 # Must be scipy
+    try:
+        from matplotlib._ns_cntr import *
+    except ImportError:
+        numerix._import_fail_message("_contour", "_ns")
+        raise
+
+
+
