@@ -75,13 +75,14 @@ class ContourLabeler:
             levels = self.levels
             indices = range(len(self.levels))
         elif len(args) == 1:
+            levlabs = list(args[0])
             indices, levels = [], []
             for i, lev in enumerate(self.levels):
-                if lev in args[0]:
+                if lev in levlabs:
                     indices.append(i)
                     levels.append(lev)
-            if len(levels) < len(args[0]):
-                msg = "Specified levels " + str(levels)
+            if len(levels) < len(levlabs):
+                msg = "Specified levels " + str(levlabs)
                 msg += "\n don't match available levels "
                 msg += str(self.levels)
                 raise ValueError(msg)
@@ -426,7 +427,8 @@ class ContourSet(ScalarMappable, ContourLabeler):
                 self.linewidths = 0.05 # Good default for Postscript.
             if iterable(self.linewidths):
                 self.linewidths = self.linewidths[0]
-            C = _contour.Cntr(x, y, z.filled(), z.mask())
+            #C = _contour.Cntr(x, y, z.filled(), z.mask())
+            C = _contour.Cntr(x, y, z.filled(), ma.getmask(z))
             lowers = self.levels[:-1]
             uppers = self.levels[1:]
             for level, level_upper, color in zip(lowers, uppers, self.tcolors):
@@ -441,7 +443,8 @@ class ContourSet(ScalarMappable, ContourLabeler):
 
         else:
             tlinewidths = self._process_linewidths()
-            C = _contour.Cntr(x, y, z.filled(), z.mask())
+            #C = _contour.Cntr(x, y, z.filled(), z.mask())
+            C = _contour.Cntr(x, y, z.filled(), ma.getmask(z))
             for level, color, width in zip(self.levels, self.tcolors, tlinewidths):
                 nlist = C.trace(level, points = 1)
                 col = LineCollection(nlist)

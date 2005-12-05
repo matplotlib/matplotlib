@@ -50,14 +50,16 @@ def unmasked_index_ranges(mask, compressed = True):
     Example:
 
     y = ma.array(arange(5), mask = [0,0,1,0,0])
-    ii = unmasked_index_ranges(y.mask())
+    #ii = unmasked_index_ranges(y.mask())
+    ii = unmasked_index_ranges(ma.getmask(y))
         # returns [[0,2,] [2,4,]]
 
     y.compressed().filled()[ii[1,0]:ii[1,1]]
         # returns array [3,4,]
         # (The 'filled()' method converts the masked array to a numerix array.)
 
-    i0, i1 = unmasked_index_ranges(y.mask(), compressed=False)
+    #i0, i1 = unmasked_index_ranges(y.mask(), compressed=False)
+    i0, i1 = unmasked_index_ranges(ma.getmask(y), compressed=False)
         # returns [[0,3,] [2,5,]]
 
     y.filled()[ii[1,0]:ii[1,1]]
