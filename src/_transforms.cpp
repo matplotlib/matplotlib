@@ -3,14 +3,14 @@
 #include "mplutils.h"
 
 #ifdef NUMARRAY
-#include "numarray/arrayobject.h" 
+#   include "numarray/arrayobject.h"
 #else
-#ifdef NUMERIC
-#include "Numeric/arrayobject.h" 
-#else
-#include "scipy/arrayobject.h"
+#   ifdef NUMERIC
+#       include "Numeric/arrayobject.h"
+#   else
+#       include "scipy/arrayobject.h"
+#   endif
 #endif
-#endif   
 
 Value::~Value() {
   _VERBOSE("Value::~Value");
@@ -22,7 +22,7 @@ Value::set(const Py::Tuple & args) {
   _VERBOSE("Value::set");
   args.verify_length(1);
 
-  _val = Py::Float( args[0] ); 
+  _val = Py::Float( args[0] );
   return Py::Object();
 }
 
@@ -30,8 +30,8 @@ Py::Object
 Value::get(const Py::Tuple & args) {
   _VERBOSE("Value::get");
   args.verify_length(0);
-  
-  return Py::Float( _val ); 
+
+  return Py::Float( _val );
 }
 
 int
@@ -41,66 +41,66 @@ LazyValue::compare(const Py::Object &other) {
   LazyValue* pother = static_cast<LazyValue*>(other.ptr());
   double valself = val();
   double valother = pother->val();
-  
+
   int ret;
   if (valself<valother) ret=-1;
   else if (valself==valother) ret=0;
   else ret=1;
   return ret;
 }
- 
-Py::Object 
+
+Py::Object
 LazyValue::number_add( const Py::Object &o ) {
   _VERBOSE("LazyValue::number");
-  
-  
-  if (!LazyValue::check(o)) 
-    throw Py::TypeError("Can only add LazyValues with other LazyValues");
-  
-  LazyValue* rhs = static_cast<LazyValue*>(o.ptr());
- 
-  return Py::asObject(new BinOp(this, rhs, BinOp::ADD));
-} 
 
-Py::Object 
+
+  if (!LazyValue::check(o))
+    throw Py::TypeError("Can only add LazyValues with other LazyValues");
+
+  LazyValue* rhs = static_cast<LazyValue*>(o.ptr());
+
+  return Py::asObject(new BinOp(this, rhs, BinOp::ADD));
+}
+
+Py::Object
 LazyValue::number_divide( const Py::Object &o ) {
   _VERBOSE("LazyValue::number");
-  
+
   //std::cout << "initing divide" << std::endl;
-  if (!LazyValue::check(o)) 
+  if (!LazyValue::check(o))
     throw Py::TypeError("Can only divide LazyValues with other LazyValues");
-      
+
   LazyValue* rhs = static_cast<LazyValue*>(o.ptr());
   BinOp* op = new BinOp(this, rhs, BinOp::DIVIDE);
   //std::cout << "initing divide done" << std::endl;
   return Py::asObject(op);
-} 
+}
 
-Py::Object 
+Py::Object
 LazyValue::number_multiply( const Py::Object &o ) {
   _VERBOSE("LazyValue::number");
-  
-  
-  if (!LazyValue::check(o)) 
+
+
+  if (!LazyValue::check(o))
     throw Py::TypeError("Can only multiply LazyValues with other LazyValues");
-  
+
   LazyValue* rhs = static_cast<LazyValue*>(o.ptr());
   return Py::asObject(new BinOp(this, rhs, BinOp::MULTIPLY));
-} 
+}
 
-Py::Object 
+Py::Object
 LazyValue::number_subtract( const Py::Object &o ) {
   _VERBOSE("LazyValue::number");
-  
-  
-  if (!LazyValue::check(o)) 
+
+
+  if (!LazyValue::check(o))
     throw Py::TypeError("Can only subtract LazyValues with other LazyValues");
-  
+
   LazyValue* rhs = static_cast<LazyValue*>(o.ptr());
   return Py::asObject(new BinOp(this, rhs, BinOp::SUBTRACT));
-} 
+}
 
-BinOp::BinOp(LazyValue* lhs, LazyValue* rhs, int opcode) : 
+BinOp::BinOp(LazyValue* lhs, LazyValue* rhs, int opcode) :
   _lhs(lhs), _rhs(rhs), _opcode(opcode) {
   _VERBOSE("BinOp::BinOp");
   Py_INCREF(lhs);
@@ -118,11 +118,11 @@ BinOp::get(const Py::Tuple & args) {
   _VERBOSE("BinOp::get");
   args.verify_length(0);
   double x = val();
-  return Py::Float( x ); 
+  return Py::Float( x );
 }
 
 Point::Point(LazyValue* x, LazyValue*  y) : _x(x), _y(y) {
-  _VERBOSE("Point::Point"); 
+  _VERBOSE("Point::Point");
   Py_INCREF(x);
   Py_INCREF(y);
 }
@@ -135,7 +135,7 @@ Point::~Point()
 
 }
 
-Interval::Interval(LazyValue* val1, LazyValue* val2) : 
+Interval::Interval(LazyValue* val1, LazyValue* val2) :
   _val1(val1), _val2(val2), _minpos(NULL) {
   _VERBOSE("Interval::Interval");
   Py_INCREF(val1);
@@ -149,7 +149,7 @@ Interval::~Interval() {
 
 }
 
-Py::Object 
+Py::Object
 Interval::update(const Py::Tuple &args) {
   _VERBOSE("Interval::update");
   args.verify_length(2);
@@ -157,7 +157,7 @@ Interval::update(const Py::Tuple &args) {
   Py::SeqBase<Py::Object> vals = args[0];
 
   //don't use current bounds when updating box if ignore==1
-  int ignore = Py::Int(args[1]);  
+  int ignore = Py::Int(args[1]);
   size_t Nval = vals.length();
   if (Nval==0) return Py::Object();
 
@@ -177,7 +177,7 @@ Interval::update(const Py::Tuple &args) {
     if (thisval<minx) minx = thisval;
     if (thisval>maxx) maxx = thisval;
     _minpos->update(thisval);
-  }  
+  }
 
 
   _val1->set_api(minx);
@@ -187,11 +187,11 @@ Interval::update(const Py::Tuple &args) {
 
 Bbox::Bbox(Point* ll, Point* ur) : _ll(ll), _ur(ur), _ignore(1) {
   _VERBOSE("Bbox::Bbox");
-  
+
   Py_INCREF(ll);
   Py_INCREF(ur);
 };
-  
+
 
 Bbox::~Bbox() {
   _VERBOSE("Bbox::~Bbox");
@@ -199,26 +199,26 @@ Bbox::~Bbox() {
   Py_DECREF(_ur);
 }
 
-Py::Object 
+Py::Object
 Bbox::_deepcopy() {
-  
+
   double minx = _ll->xval();
   double miny = _ll->yval();
-  
+
   double maxx = _ur->xval();
   double maxy = _ur->yval();
-  
+
   return Py::asObject( new Bbox( new Point(new Value(minx), new Value(miny) ),
 				 new Point(new Value(maxx), new Value(maxy) )));
 }
-Py::Object 
+Py::Object
 Bbox::deepcopy(const Py::Tuple &args) {
   _VERBOSE("Bbox::deepcopy");
   args.verify_length(0);
   return _deepcopy();
 }
 
-Py::Object 
+Py::Object
 Bbox::scale(const Py::Tuple &args) {
   _VERBOSE("Bbox::scale");
   args.verify_length(2);
@@ -226,7 +226,7 @@ Bbox::scale(const Py::Tuple &args) {
   double sy = Py::Float(args[1]);
 
   double minx = _ll->xval();
-  double miny = _ll->yval();  
+  double miny = _ll->yval();
   double maxx = _ur->xval();
   double maxy = _ur->yval();
 
@@ -250,18 +250,18 @@ Py::Object
 Bbox::get_bounds(const Py::Tuple & args) {
   _VERBOSE("Bbox::get_bounds");
   args.verify_length(0);
-  
-  
-  
+
+
+
   double minx = _ll->xval();
-  double miny = _ll->yval();  
+  double miny = _ll->yval();
   double maxx = _ur->xval();
   double maxy = _ur->yval();
-  
+
   double width  = maxx - minx;
   double height = maxy - miny;
-  
-  Py::Tuple ret(4);  
+
+  Py::Tuple ret(4);
   ret[0] = Py::Float(minx);
   ret[1] = Py::Float(miny);
   ret[2] = Py::Float(width);
@@ -279,7 +279,7 @@ Bbox::count_contains(const Py::Tuple &args) {
   long count = 0;
 
   double minx = _ll->xval();
-  double miny = _ll->yval();  
+  double miny = _ll->yval();
   double maxx = _ur->xval();
   double maxy = _ur->yval();
 
@@ -297,16 +297,16 @@ Bbox::count_contains(const Py::Tuple &args) {
   return Py::Int(count);
 }
 
-Py::Object 
+Py::Object
 Bbox::contains(const Py::Tuple &args) {
   _VERBOSE("Bbox::contains");
   args.verify_length(2);
 
   double x = Py::Float(args[0]);
-  double y = Py::Float(args[1]); 
+  double y = Py::Float(args[1]);
 
   double minx = _ll->xval();
-  double miny = _ll->yval();  
+  double miny = _ll->yval();
   double maxx = _ur->xval();
   double maxy = _ur->yval();
 
@@ -316,7 +316,7 @@ Bbox::contains(const Py::Tuple &args) {
   return Py::Int(iny);
 }
 
-Py::Object 
+Py::Object
 Bbox::overlaps(const Py::Tuple &args) {
   _VERBOSE("Bbox::overlaps");
   args.verify_length(1);
@@ -329,15 +329,15 @@ Bbox::overlaps(const Py::Tuple &args) {
   return Py::Int(x&&y);
 }
 
-Py::Object 
+Py::Object
 Bbox::ignore(const Py::Tuple &args) {
   _VERBOSE("Bbox::ignore");
   args.verify_length(1);
-  _ignore = Py::Int(args[1]); 
+  _ignore = Py::Int(args[1]);
   return Py::Object();
 }
 
-Py::Object 
+Py::Object
 Bbox::overlapsx(const Py::Tuple &args) {
   _VERBOSE("Bbox::overlapsx");
   args.verify_length(1);
@@ -346,7 +346,7 @@ Bbox::overlapsx(const Py::Tuple &args) {
     throw Py::TypeError("Expected a bbox");
 
   Bbox* other = static_cast<Bbox*>(args[0].ptr());
-  
+
   double minx = _ll->xval();
   double maxx = _ur->xval();
 
@@ -356,19 +356,19 @@ Bbox::overlapsx(const Py::Tuple &args) {
   int b =  ( ( (ominx>=minx) && (ominx<=maxx)) ||
 	     ( (minx>=ominx) && (minx<=omaxx)) );
   return Py::Int(b);
-    
+
 }
 
-Py::Object 
+Py::Object
 Bbox::overlapsy(const Py::Tuple &args) {
   _VERBOSE("Bbox::overlapsy");
   args.verify_length(1);
 
   if (! check(args[0]))
     throw Py::TypeError("Expected a bbox");
-  
+
   Bbox* other = static_cast<Bbox*>(args[0].ptr());
-  
+
   double miny = _ll->yval();
   double maxy = _ur->yval();
 
@@ -380,11 +380,11 @@ Bbox::overlapsy(const Py::Tuple &args) {
   int b =  ( ( (ominy>=miny) && (ominy<=maxy)) ||
 	     ( (miny>=ominy) && (miny<=omaxy)) );
   return Py::Int(b);
-    
-}
- 
 
-Py::Object 
+}
+
+
+Py::Object
 Bbox::update(const Py::Tuple &args) {
   _VERBOSE("Bbox::update");
   args.verify_length(2);
@@ -392,7 +392,7 @@ Bbox::update(const Py::Tuple &args) {
   Py::SeqBase<Py::Object> xys = args[0];
 
   //don't use current bounds on first update
-  int ignore = Py::Int(args[1]);  
+  int ignore = Py::Int(args[1]);
   if (ignore==-1) {
     ignore = _ignore;
     _ignore = 0; // don't ignore future updates
@@ -400,7 +400,7 @@ Bbox::update(const Py::Tuple &args) {
 
   size_t Nx = xys.length();
   if (Nx==0) return Py::Object();
-      
+
 
   double minx = _ll->xval();
   double maxx = _ur->xval();
@@ -430,8 +430,8 @@ Bbox::update(const Py::Tuple &args) {
     if (x>maxx) maxx=x;
     if (y<miny) miny=y;
     if (y>maxy) maxy=y;
-    
-  } 
+
+  }
 
 
   _ll->x_api()->set_api(minx);
@@ -441,7 +441,7 @@ Bbox::update(const Py::Tuple &args) {
   return Py::Object();
 }
 
-Py::Object 
+Py::Object
 Bbox::update_numerix(const Py::Tuple &args) {
   //update the boox from the numerix arrays x and y
   _VERBOSE("Bbox::update_numerix");
@@ -451,22 +451,22 @@ Bbox::update_numerix(const Py::Tuple &args) {
   Py::Object xo = args[0];
   Py::Object yo = args[1];
 
-  PyArrayObject *x = (PyArrayObject *) PyArray_ContiguousFromObject(xo.ptr(), PyArray_DOUBLE, 1, 1); 
-  
-  if (x==NULL) 
+  PyArrayObject *x = (PyArrayObject *) PyArray_ContiguousFromObject(xo.ptr(), PyArray_DOUBLE, 1, 1);
+
+  if (x==NULL)
     throw Py::TypeError("Bbox::update_numerix expected numerix array");
 
-  
-  PyArrayObject *y = (PyArrayObject *) PyArray_ContiguousFromObject(yo.ptr(), PyArray_DOUBLE, 1, 1); 
 
-  if (y==NULL) 
+  PyArrayObject *y = (PyArrayObject *) PyArray_ContiguousFromObject(yo.ptr(), PyArray_DOUBLE, 1, 1);
+
+  if (y==NULL)
     throw Py::TypeError("Bbox::update_numerix expected numerix array");
 
-  
+
   size_t Nx = x->dimensions[0];
   size_t Ny = y->dimensions[0];
-  
-  if (Nx!=Ny) 
+
+  if (Nx!=Ny)
     throw Py::ValueError("x and y must be equal length sequences");
 
   //don't use current bounds when updating box if ignore==1
@@ -480,7 +480,7 @@ Bbox::update_numerix(const Py::Tuple &args) {
   double maxy = _ur->yval();
 
   double thisx, thisy;
-  int ignore = Py::Int(args[2]);  
+  int ignore = Py::Int(args[2]);
   if (ignore) {
     thisx = *(double *)(x->data);
     thisy = *(double *)(y->data);
@@ -506,7 +506,7 @@ Bbox::update_numerix(const Py::Tuple &args) {
 
   Py_XDECREF(x);
   Py_XDECREF(y);
- 
+
 
   _ll->x_api()->set_api(minx);
   _ll->y_api()->set_api(miny);
@@ -520,51 +520,51 @@ Func::~Func() {
 }
 
 
-Py::Object 
+Py::Object
 Func::map(const Py::Tuple &args) {
   _VERBOSE("Func::map");
-  
+
   args.verify_length(1);
   double xin = Py::Float(args[0]);
-  
+
   double xout;
   try {
     xout = this->operator()(xin);
   }
   catch(...) {
-    throw Py::ValueError("Domain error on Func::map");  
+    throw Py::ValueError("Domain error on Func::map");
   }
 
   return Py::Float(xout);
 
 };
 
-Py::Object 
+Py::Object
 Func::inverse(const Py::Tuple &args) {
   _VERBOSE("Func::inverse");
-  
+
   args.verify_length(1);
   double xin = Py::Float(args[0]);
-  
+
   double xout = this->inverse_api(xin);
   return Py::Float(xout);
 };
 
 
-Py::Object 
+Py::Object
 FuncXY::map(const Py::Tuple &args) {
   _VERBOSE("FuncXY::map");
-  
+
   args.verify_length(2);
   double xin = Py::Float(args[0]);
   double yin = Py::Float(args[1]);
-  
+
   std::pair<double, double> xy;
   try {
     xy = this->operator()(xin, yin);
   }
   catch(...) {
-    throw Py::ValueError("Domain error on FuncXY nonlinear transform");  
+    throw Py::ValueError("Domain error on FuncXY nonlinear transform");
   }
 
   Py::Tuple ret(2);
@@ -573,18 +573,18 @@ FuncXY::map(const Py::Tuple &args) {
   ret[0] = Py::Float(xout);
   ret[1] = Py::Float(yout);
   return ret;
-  
+
   //return Py::Object();
 };
 
-Py::Object 
+Py::Object
 FuncXY::inverse(const Py::Tuple &args) {
   _VERBOSE("FuncXY::inverse");
-  
+
   args.verify_length(2);
   double xin = Py::Float(args[0]);
   double yin = Py::Float(args[1]);
-  
+
   std::pair<double, double> xy = this->inverse_api(xin, yin);
 
   Py::Tuple ret(2);
@@ -662,14 +662,14 @@ Transformation::set_funcxy(const Py::Tuple & args) {
 Py::Object
 Transformation::get_bbox1(const Py::Tuple & args) {
   _VERBOSE("Transformation::get_bbox1");
-  throw Py::RuntimeError("This transformation does not support get_bbox1"); 
+  throw Py::RuntimeError("This transformation does not support get_bbox1");
   return Py::Object();
 }
 
 Py::Object
 Transformation::get_bbox2(const Py::Tuple & args) {
   _VERBOSE("Transformation::get_bbox2");
-  throw Py::RuntimeError("This transformation does not support get_bbox2"); 
+  throw Py::RuntimeError("This transformation does not support get_bbox2");
   return Py::Object();
 }
 
@@ -677,14 +677,14 @@ Transformation::get_bbox2(const Py::Tuple & args) {
 Py::Object
 Transformation::set_bbox1(const Py::Tuple & args) {
   _VERBOSE("Transformation::set_bbox1");
-  throw Py::RuntimeError("This transformation does not support set_bbox1"); 
+  throw Py::RuntimeError("This transformation does not support set_bbox1");
   return Py::Object();
 }
 
 Py::Object
 Transformation::set_bbox2(const Py::Tuple & args) {
   _VERBOSE("Transformation::set_bbox2");
-  throw Py::RuntimeError("This transformation does not support set_bbox1"); 
+  throw Py::RuntimeError("This transformation does not support set_bbox1");
   return Py::Object();
 }
 
@@ -698,16 +698,16 @@ Transformation::set_offset(const Py::Tuple & args) {
   if (!check(args[1]))
     throw Py::TypeError("Transformation::set_offset(xy,trans) requires trans to be a Transformation instance");
 
-  //std::cout << "getting x,y" << std::endl;  
+  //std::cout << "getting x,y" << std::endl;
 
   _usingOffset = 1;
   _xo = Py::Float(xy[0]);
   _yo = Py::Float(xy[1]);
-  //std::cout << "casting" << std::endl;  
+  //std::cout << "casting" << std::endl;
   _transOffset = static_cast<Transformation*>(args[1].ptr());
-  //std::cout << "increffing" << std::endl;  
+  //std::cout << "increffing" << std::endl;
   Py_INCREF(_transOffset);
-  //std::cout << "returning" << std::endl;  
+  //std::cout << "returning" << std::endl;
   return Py::Object();
 }
 
@@ -726,16 +726,16 @@ Transformation::inverse_xy_tup(const Py::Tuple & args) {
     if (!_frozen) eval_scalars();
   }
   catch(...) {
-    throw Py::ValueError("Domain error on invser_xy_tup");  
+    throw Py::ValueError("Domain error on invser_xy_tup");
   }
 
-  
+
   inverse_api(xin, yin);
   Py::Tuple ret(2);
   ret[0] = Py::Float(xy.first);
   ret[1] = Py::Float(xy.second);
   return ret;
-  
+
 }
 
 Py::Object
@@ -747,25 +747,25 @@ Transformation::xy_tup(const Py::Tuple & args) {
     if (!_frozen) eval_scalars();
   }
   catch(...) {
-    throw Py::ValueError("Domain error on nonlinear transform");  
+    throw Py::ValueError("Domain error on nonlinear transform");
   }
 
 
   Py::SeqBase<Py::Object> xytup = args[0];
   double x = Py::Float(xytup[0]);
   double y = Py::Float(xytup[1]);
-  
+
 
   Py::Tuple out(2);
   try {
     this->operator()(x, y);
   }
   catch(...) {
-    throw Py::ValueError("Domain error on nTransformation::xy_tup operator()(x,y)");  
+    throw Py::ValueError("Domain error on nTransformation::xy_tup operator()(x,y)");
   }
 
-  out[0] = Py::Float( xy.first ); 
-  out[1] = Py::Float( xy.second ); 
+  out[0] = Py::Float( xy.first );
+  out[1] = Py::Float( xy.second );
   return out;
 }
 
@@ -773,29 +773,29 @@ Py::Object
 Transformation::seq_x_y(const Py::Tuple & args) {
   _VERBOSE("Transformation::seq_x_y");
   args.verify_length(2);
-  
+
   Py::SeqBase<Py::Object> x = args[0];
   Py::SeqBase<Py::Object> y = args[1];
-  
+
   size_t Nx = x.length();
   size_t Ny = y.length();
-  
-  if (Nx!=Ny) 
+
+  if (Nx!=Ny)
     throw Py::ValueError("x and y must be equal length sequences");
 
-  // evaluate the lazy objects  
+  // evaluate the lazy objects
   try {
     if (!_frozen) eval_scalars();
   }
   catch(...) {
-    throw Py::ValueError("Domain error on Transformation::seq_x_y");  
+    throw Py::ValueError("Domain error on Transformation::seq_x_y");
   }
 
 
   Py::Tuple xo(Nx);
   Py::Tuple yo(Nx);
-  
- 
+
+
   for (size_t i=0; i< Nx; ++i) {
     double thisx = Py::Float(x[i]);
     double thisy = Py::Float(y[i]);
@@ -803,13 +803,13 @@ Transformation::seq_x_y(const Py::Tuple & args) {
       this->operator()(thisx, thisy);
     }
     catch(...) {
-      throw Py::ValueError("Domain error on Transformation::seq_x_y operator()(thisx, thisy)");  
+      throw Py::ValueError("Domain error on Transformation::seq_x_y operator()(thisx, thisy)");
     }
 
     xo[i] = Py::Float( xy.first );
     yo[i] = Py::Float( xy.second );
   }
-  
+
   Py::Tuple ret(2);
   ret[0] = xo;
   ret[1] = yo;
@@ -825,37 +825,37 @@ Transformation::numerix_x_y(const Py::Tuple & args, const Py::Dict &kwargs) {
   Py::Object xo = args[0];
   Py::Object yo = args[1];
 
-  PyArrayObject *x = (PyArrayObject *) PyArray_ContiguousFromObject(xo.ptr(), PyArray_DOUBLE, 1, 1); 
-  
-  if (x==NULL) 
+  PyArrayObject *x = (PyArrayObject *) PyArray_ContiguousFromObject(xo.ptr(), PyArray_DOUBLE, 1, 1);
+
+  if (x==NULL)
     throw Py::TypeError("Transformation::numerix_x_y expected numerix array");
 
-  
-  PyArrayObject *y = (PyArrayObject *) PyArray_ContiguousFromObject(yo.ptr(), PyArray_DOUBLE, 1, 1); 
-  
-  if (y==NULL) 
+
+  PyArrayObject *y = (PyArrayObject *) PyArray_ContiguousFromObject(yo.ptr(), PyArray_DOUBLE, 1, 1);
+
+  if (y==NULL)
     throw Py::TypeError("Transformation::numerix_x_y expected numerix array");
 
-  
+
   size_t Nx = x->dimensions[0];
   size_t Ny = y->dimensions[0];
-  
-  if (Nx!=Ny) 
+
+  if (Nx!=Ny)
     throw Py::ValueError("x and y must be equal length sequences");
 
-  // evaluate the lazy objects  
+  // evaluate the lazy objects
   try {
     if (!_frozen) eval_scalars();
   }
   catch(...) {
-    throw Py::ValueError("Domain error on Transformation::numerix_x_y");  
+    throw Py::ValueError("Domain error on Transformation::numerix_x_y");
   }
 
 
   int dimensions[1];
   dimensions[0] = Nx;
 
-  
+
   PyArrayObject *retx = (PyArrayObject *)PyArray_FromDims(1,dimensions,PyArray_DOUBLE);
   if (retx==NULL) {
     Py_XDECREF(x);
@@ -879,13 +879,13 @@ Transformation::numerix_x_y(const Py::Tuple & args, const Py::Dict &kwargs) {
       this->operator()(thisx, thisy);
     }
     catch(...) {
-      throw Py::ValueError("Domain error on Transformation::numerix_x_y");  
+      throw Py::ValueError("Domain error on Transformation::numerix_x_y");
     }
 
     *(double *)(retx->data + i*retx->strides[0]) = xy.first;
     *(double *)(rety->data + i*rety->strides[0]) = xy.second;
   }
-  
+
   Py_XDECREF(x);
   Py_XDECREF(y);
 
@@ -910,28 +910,28 @@ Transformation::nonlinear_only_numerix(const Py::Tuple & args, const Py::Dict &k
   Py::Object xo = args[0];
   Py::Object yo = args[1];
 
-  PyArrayObject *x = (PyArrayObject *) PyArray_ContiguousFromObject(xo.ptr(), PyArray_DOUBLE, 1, 1); 
-  
-  if (x==NULL) 
+  PyArrayObject *x = (PyArrayObject *) PyArray_ContiguousFromObject(xo.ptr(), PyArray_DOUBLE, 1, 1);
+
+  if (x==NULL)
     throw Py::TypeError("Transformation::nonlinear_only_numerix expected numerix array");
 
-  
-  PyArrayObject *y = (PyArrayObject *) PyArray_ContiguousFromObject(yo.ptr(), PyArray_DOUBLE, 1, 1); 
-  
-  if (y==NULL) 
+
+  PyArrayObject *y = (PyArrayObject *) PyArray_ContiguousFromObject(yo.ptr(), PyArray_DOUBLE, 1, 1);
+
+  if (y==NULL)
     throw Py::TypeError("Transformation::nonlinear_only_numerix expected numerix array");
 
-  
+
   size_t Nx = x->dimensions[0];
   size_t Ny = y->dimensions[0];
-  
-  if (Nx!=Ny) 
+
+  if (Nx!=Ny)
     throw Py::ValueError("x and y must be equal length sequences");
 
   int dimensions[1];
   dimensions[0] = Nx;
 
-  
+
   PyArrayObject *retx = (PyArrayObject *)PyArray_FromDims(1,dimensions,PyArray_DOUBLE);
   if (retx==NULL) {
     Py_XDECREF(x);
@@ -948,7 +948,7 @@ Transformation::nonlinear_only_numerix(const Py::Tuple & args, const Py::Dict &k
   }
 
   PyArrayObject *retmask = NULL;
-  
+
   if (returnMask) {
     retmask = (PyArrayObject *)PyArray_FromDims(1,dimensions,PyArray_UBYTE);
     if (retmask==NULL) {
@@ -978,7 +978,7 @@ Transformation::nonlinear_only_numerix(const Py::Tuple & args, const Py::Dict &k
 	continue;
       }
       else {
-	throw Py::ValueError("Domain error on this->nonlinear_only_api(&thisx, &thisy) in Transformation::nonlinear_only_numerix");  
+	throw Py::ValueError("Domain error on this->nonlinear_only_api(&thisx, &thisy) in Transformation::nonlinear_only_numerix");
       }
     }
 
@@ -989,10 +989,10 @@ Transformation::nonlinear_only_numerix(const Py::Tuple & args, const Py::Dict &k
     }
 
   }
-  
+
   Py_XDECREF(x);
   Py_XDECREF(y);
-  
+
   if (returnMask) {
     Py::Tuple ret(3);
     ret[0] = Py::Object((PyObject*)retx);
@@ -1020,9 +1020,9 @@ Py::Object
 Transformation::seq_xy_tups(const Py::Tuple & args) {
   _VERBOSE("Transformation::seq_xy_tups");
   args.verify_length(1);
-  
+
   Py::SeqBase<Py::Object> xytups = args[0];
-  
+
 
   size_t Nx = xytups.length();
 
@@ -1030,14 +1030,14 @@ Transformation::seq_xy_tups(const Py::Tuple & args) {
     if (!_frozen) eval_scalars();
   }
   catch(...) {
-    throw Py::ValueError("Domain error on Transformation::seq_xy_tups");  
+    throw Py::ValueError("Domain error on Transformation::seq_xy_tups");
   }
-  
+
   Py::Tuple ret(Nx);
   Py::SeqBase<Py::Object> xytup;
-  
-  
-  
+
+
+
   for (size_t i=0; i< Nx; ++i) {
     xytup = Py::SeqBase<Py::Object>( xytups[i] );
 
@@ -1048,7 +1048,7 @@ Transformation::seq_xy_tups(const Py::Tuple & args) {
       this->operator()(thisx, thisy);
     }
     catch(...) {
-      throw Py::ValueError("Domain error on nonlinear Transformation::seq_xy_tups operator()(thisx, thisy)");  
+      throw Py::ValueError("Domain error on nonlinear Transformation::seq_xy_tups operator()(thisx, thisy)");
     }
 
 
@@ -1057,18 +1057,18 @@ Transformation::seq_xy_tups(const Py::Tuple & args) {
     out[1] = Py::Float( xy.second );
     ret[i] = out;
   }
-  
+
   return ret;
 }
 
 
-BBoxTransformation::BBoxTransformation(Bbox *b1, Bbox *b2) : 
-    Transformation(), 
+BBoxTransformation::BBoxTransformation(Bbox *b1, Bbox *b2) :
+    Transformation(),
     _b1(b1), _b2(b2)  {
   _VERBOSE("BBoxTransformation::BBoxTransformation");
   Py_INCREF(b1);
   Py_INCREF(b2);
-  
+
 }
 
 BBoxTransformation::~BBoxTransformation() {
@@ -1096,7 +1096,7 @@ Py::Object
 BBoxTransformation::set_bbox1(const Py::Tuple & args) {
   _VERBOSE("BBoxTransformation::set_bbox1");
   args.verify_length(1);
-  if (!Bbox::check(args[0])) 
+  if (!Bbox::check(args[0]))
     throw Py::TypeError("set_bbox1(func) expected a func instance");
   _b1 = static_cast<Bbox*>(args[0].ptr());
   Py_INCREF(_b1);
@@ -1107,7 +1107,7 @@ Py::Object
 BBoxTransformation::set_bbox2(const Py::Tuple & args) {
   _VERBOSE("BBoxTransformation::set_bbox2");
   args.verify_length(1);
-  if (!Bbox::check(args[0])) 
+  if (!Bbox::check(args[0]))
     throw Py::TypeError("set_bbox2(func) expected a func instance");
   _b2 = static_cast<Bbox*>(args[0].ptr());
   Py_INCREF(_b2);
@@ -1123,7 +1123,7 @@ BBoxTransformation::affine_params_api(double* a, double* b, double* c, double* d
     *b = 0.0;
     *c = 0.0;
     *d = _sy;
-    
+
     *tx = _tx;
     *ty = _ty;
 
@@ -1134,13 +1134,13 @@ BBoxTransformation::affine_params_api(double* a, double* b, double* c, double* d
 
 }
 
-SeparableTransformation::SeparableTransformation(Bbox *b1, Bbox *b2, Func *funcx, Func *funcy) : 
-    BBoxTransformation(b1, b2), 
+SeparableTransformation::SeparableTransformation(Bbox *b1, Bbox *b2, Func *funcx, Func *funcy) :
+    BBoxTransformation(b1, b2),
     _funcx(funcx), _funcy(funcy)  {
   _VERBOSE("SeparableTransformation::SeparableTransformation");
   Py_INCREF(funcx);
   Py_INCREF(funcy);
-  
+
 }
 
 
@@ -1169,7 +1169,7 @@ Py::Object
 SeparableTransformation::set_funcx(const Py::Tuple & args) {
   _VERBOSE("SeparableTransformation::set_funcx");
   args.verify_length(1);
-  if (!Func::check(args[0])) 
+  if (!Func::check(args[0]))
     throw Py::TypeError("set_funcx(func) expected a func instance");
   _funcx = static_cast<Func*>(args[0].ptr());
   Py_INCREF(_funcx);
@@ -1180,7 +1180,7 @@ Py::Object
 SeparableTransformation::set_funcy(const Py::Tuple & args) {
   _VERBOSE("SeparableTransformation::set_funcy");
   args.verify_length(1);
-  if (!Func::check(args[0])) 
+  if (!Func::check(args[0]))
     throw Py::TypeError("set_funcy(func) expected a func instance");
   _funcy = static_cast<Func*>(args[0].ptr());
   Py_INCREF(_funcy);
@@ -1190,7 +1190,7 @@ SeparableTransformation::set_funcy(const Py::Tuple & args) {
 
 
 
-void 
+void
 SeparableTransformation::nonlinear_only_api(double *x, double *y) {
 
   double thisx = _funcx->operator()(*x);
@@ -1204,10 +1204,10 @@ SeparableTransformation::operator()(const double& x, const double& y) {
   _VERBOSE("SeparableTransformation::operator");
 
   // calling function must first call eval_scalars
-  
+
   double fx = _funcx->operator()(x);
   double fy = _funcy->operator()(y);
-  
+
 
   xy.first  = _sx * fx  +  _tx ;
   xy.second = _sy * fy  +  _ty;
@@ -1216,7 +1216,7 @@ SeparableTransformation::operator()(const double& x, const double& y) {
     xy.first  += _xot;
     xy.second += _yot;
   }
-  
+
 
   return xy;
 }
@@ -1243,20 +1243,20 @@ SeparableTransformation::inverse_api(const double &x, const double &y) {
 
   xy.first  = _funcx->inverse_api( _isx * xin  +  _itx );
   xy.second = _funcy->inverse_api( _isy * yin  +  _ity );
-     
+
   return xy;
 }
 
 
 
-void 
+void
 SeparableTransformation::eval_scalars(void) {
   _VERBOSE("SeparableTransformation::eval_scalars");
   double xminIn;
   double xmaxIn;
   double yminIn;
   double ymaxIn;
-  
+
   xminIn  = _funcx->operator()( _b1->ll_api()->xval() );
   xmaxIn  = _funcx->operator()( _b1->ur_api()->xval() );
   yminIn  = _funcy->operator()( _b1->ll_api()->yval() );
@@ -1273,12 +1273,12 @@ SeparableTransformation::eval_scalars(void) {
   double heightIn  = ymaxIn  - yminIn;
   double heightOut = ymaxOut - yminOut;
   //std::cout <<"heightout, heightin = "  << heightOut << " " << heightIn << std::endl;
-  if (widthIn==0) 
+  if (widthIn==0)
     throw Py::ZeroDivisionError("SeparableTransformation::eval_scalars xin interval is zero; cannot transform");
 
   if (heightIn==0)
     throw Py::ZeroDivisionError("SeparableTransformation::eval_scalars yin interval is zero; cannot transform");
- 
+
 
 
   _sx = widthOut/widthIn;
@@ -1295,13 +1295,13 @@ SeparableTransformation::eval_scalars(void) {
   else {
     _isx = widthIn/widthOut;
     _isy = heightIn/heightOut;
-  
+
     _itx = -xminOut*_isx + xminIn;
     _ity = -yminOut*_isy + yminIn;
   }
 
   if (_usingOffset) {
-    
+
       _transOffset->eval_scalars();
       _transOffset->operator()(_xo, _yo);
       _xot = _transOffset->xy.first;
@@ -1310,15 +1310,15 @@ SeparableTransformation::eval_scalars(void) {
 }
 
 
-Py::Object 
+Py::Object
 SeparableTransformation::deepcopy(const Py::Tuple &args) {
   _VERBOSE("SeparableTransformation::deepcopy");
   args.verify_length(0);
   return Py::asObject( new SeparableTransformation( static_cast<Bbox*>((_b1->_deepcopy()).ptr()),static_cast<Bbox*>((_b2->_deepcopy()).ptr()), _funcx,_funcy ));
 }
 
-NonseparableTransformation::NonseparableTransformation(Bbox *b1, Bbox *b2, FuncXY *funcxy) : 
-    BBoxTransformation(b1, b2), 
+NonseparableTransformation::NonseparableTransformation(Bbox *b1, Bbox *b2, FuncXY *funcxy) :
+    BBoxTransformation(b1, b2),
     _funcxy(funcxy)  {
   _VERBOSE("NonseparableTransformation::NonseparableTransformation");
   Py_INCREF(funcxy);
@@ -1336,20 +1336,20 @@ NonseparableTransformation::get_funcxy(const Py::Tuple & args) {
   args.verify_length(0);
   return Py::Object(_funcxy);
 }
- 
+
 
 Py::Object
 NonseparableTransformation::set_funcxy(const Py::Tuple & args) {
   _VERBOSE("NonseparableTransformation::set_funcx");
   args.verify_length(1);
-  if (!FuncXY::check(args[0])) 
+  if (!FuncXY::check(args[0]))
     throw Py::TypeError("set_funcxy(func) expected a func instance");
   _funcxy = static_cast<FuncXY*>(args[0].ptr());
   Py_INCREF(_funcxy);
   return Py::Object();
 }
 
-void 
+void
 NonseparableTransformation::nonlinear_only_api(double *x, double *y) {
 
   xy = _funcxy->operator()(*x,*y);
@@ -1361,10 +1361,10 @@ NonseparableTransformation::nonlinear_only_api(double *x, double *y) {
 std::pair<double, double>&
 NonseparableTransformation::operator()(const double& x, const double& y) {
   _VERBOSE("NonseparableTransformation::operator");
- 
+
   // calling function must first call eval_scalars
   xy = _funcxy->operator()(x,y);
-  
+
   //std::cout << "operator(x,y) In: " << x << " " << y << " " << xy.first << " " << xy.second << std::endl;
   xy.first  = _sx * xy.first  +  _tx ;
   xy.second = _sy * xy.second +  _ty;
@@ -1373,7 +1373,7 @@ NonseparableTransformation::operator()(const double& x, const double& y) {
     xy.first  += _xot;
     xy.second += _yot;
   }
-  
+
 
   return xy;
 }
@@ -1398,14 +1398,14 @@ NonseparableTransformation::inverse_api(const double &x, const double &y) {
     yin  -= _yot;
   }
 
-  xy  = _funcxy->inverse_api( _isx * xin  +  _itx, 
+  xy  = _funcxy->inverse_api( _isx * xin  +  _itx,
 			      _isy * yin  +  _ity );
-     
+
   return xy;
 }
 
 
-void 
+void
 NonseparableTransformation::eval_scalars(void) {
   _VERBOSE("NonseparableTransformation::eval_scalars");
   std::pair<double, double> xyminIn = _funcxy->
@@ -1418,7 +1418,7 @@ NonseparableTransformation::eval_scalars(void) {
 
   std::pair<double, double> xymaxOut( _b2->ur_api()->xval(), _b2->ur_api()->yval() );
 
-	       
+
 
   double widthIn  = xymaxIn.first  - xyminIn.first;
   double widthOut = xymaxOut.first - xyminOut.first;
@@ -1426,12 +1426,12 @@ NonseparableTransformation::eval_scalars(void) {
   double heightIn  = xymaxIn.second  - xyminIn.second;
   double heightOut = xymaxOut.second - xyminOut.second;
 
-  if (widthIn==0) 
+  if (widthIn==0)
     throw Py::ZeroDivisionError("NonseparableTransformation::eval_scalars xin interval is zero; cannot transform");
 
   if (heightIn==0)
     throw Py::ZeroDivisionError("NonseparableTransformation::eval_scalars yin interval is zero; cannot transform");
- 
+
 
 
   _sx = widthOut/widthIn;
@@ -1441,13 +1441,13 @@ NonseparableTransformation::eval_scalars(void) {
   _ty = -xyminIn.second*_sy + xyminOut.second;
 
   /*
- std::cout <<"corners in "  
-	   << xyminIn.first << " " << xyminIn.second <<  " " 
+ std::cout <<"corners in "
+	   << xyminIn.first << " " << xyminIn.second <<  " "
 	   << xymaxIn.first << " " << xymaxIn.second <<  std::endl;
  std::cout <<"w,h in "  << widthIn << " " << heightIn <<  std::endl;
  std::cout <<"heightout, heightin = "  << heightOut << " " << heightIn << std::endl;
  std::cout <<"sx,sy,tx,ty = "  << _sx << " " << _sy <<  " " << _tx << " " << _ty << std::endl;
-  */ 
+  */
   //now do the inverse mapping
   if ( (widthOut==0) || (widthOut==0) ) {
     _invertible = false;
@@ -1455,7 +1455,7 @@ NonseparableTransformation::eval_scalars(void) {
   else {
     _isx = widthIn/widthOut;
     _isy = heightIn/heightOut;
-  
+
     _itx = -xyminOut.first*_isx + xyminIn.first;
     _ity = -xyminOut.second*_isy + xyminIn.second;
   }
@@ -1469,15 +1469,15 @@ NonseparableTransformation::eval_scalars(void) {
 }
 
 
-Py::Object 
+Py::Object
 NonseparableTransformation::deepcopy(const Py::Tuple &args) {
   _VERBOSE("NonseparableTransformation::deepcopy");
   args.verify_length(0);
   return Py::asObject( new NonseparableTransformation( static_cast<Bbox*>((_b1->_deepcopy()).ptr()),static_cast<Bbox*>((_b2->_deepcopy()).ptr()), _funcxy ));
 }
 
-Affine::Affine(LazyValue *a, LazyValue *b,  LazyValue *c, 
-	       LazyValue *d, LazyValue *tx, LazyValue *ty) : 
+Affine::Affine(LazyValue *a, LazyValue *b,  LazyValue *c,
+	       LazyValue *d, LazyValue *tx, LazyValue *ty) :
   _a(a), _b(b), _c(c), _d(d), _tx(tx), _ty(ty) {
   _VERBOSE("Affine::Affine");
   Py_INCREF(a);
@@ -1510,8 +1510,8 @@ Affine::affine_params_api(double* a, double* b, double* c, double*d, double* tx,
   *tx = _tx->val();
   *ty = _ty->val();
 
-}  
-Py::Object 
+}
+Py::Object
 Affine::as_vec6(const Py::Tuple &args) {
   _VERBOSE("Affine::as_vec6");
   //return the affine as length 6 list
@@ -1529,7 +1529,7 @@ Affine::as_vec6(const Py::Tuple &args) {
 
 
 
-std::pair<double, double> & 
+std::pair<double, double> &
 Affine::operator()(const double &x, const double &y) {
   _VERBOSE("Affine::operator");
   xy.first  = _aval*x + _cval*y + _txval;
@@ -1544,7 +1544,7 @@ Affine::operator()(const double &x, const double &y) {
 }
 
 
-std::pair<double, double> & 
+std::pair<double, double> &
 Affine::inverse_api(const double &x, const double &y) {
   _VERBOSE("Affine::inverse_api");
 
@@ -1558,7 +1558,7 @@ Affine::inverse_api(const double &x, const double &y) {
     xin  -= _xot;
     yin  -= _yot;
   }
-  
+
   xin -= _txval;
   yin -= _tyval;
 
@@ -1568,7 +1568,7 @@ Affine::inverse_api(const double &x, const double &y) {
 
 }
 
-void 
+void
 Affine::eval_scalars(void) {
   _VERBOSE("Affine::eval_scalars");
   _aval  = _a->val();
@@ -1578,7 +1578,7 @@ Affine::eval_scalars(void) {
   _txval = _tx->val();
   _tyval = _ty->val();
 
-  
+
   double det = _aval*_dval - _bval*_cval;
   if (det==0) {
     _invertible = false;
@@ -1590,7 +1590,7 @@ Affine::eval_scalars(void) {
     _icval = -scale*_bval;
     _idval = scale*_aval;
   }
-  
+
   if (_usingOffset) {
     _transOffset->eval_scalars();
     _transOffset->operator()(_xo, _yo);
@@ -1601,7 +1601,7 @@ Affine::eval_scalars(void) {
   _VERBOSE("Affine::eval_scalars DONE");
 }
 
-Py::Object 
+Py::Object
 Affine::deepcopy(const Py::Tuple &args) {
   _VERBOSE("Affine::deepcopy");
   args.verify_length(0);
@@ -1609,134 +1609,134 @@ Affine::deepcopy(const Py::Tuple &args) {
     eval_scalars();
   }
   catch(...) {
-    throw Py::ValueError("Domain error on Affine deepcopy");  
+    throw Py::ValueError("Domain error on Affine deepcopy");
   }
 
   return Py::asObject( new Affine( new Value(_aval),new Value(_bval), new Value(_cval),
                                    new Value(_dval),new Value(_txval),new Value(_tyval) ));
 }
 
- 
+
 
 /* ------------ module methods ------------- */
-Py::Object 
+Py::Object
 _transforms_module::new_value (const Py::Tuple &args)
 {
   _VERBOSE("_transforms_module::new_value ");
   args.verify_length(1);
   double val = Py::Float(args[0]);
   return Py::asObject( new Value(val) );
-}   
+}
 
 
-Py::Object 
+Py::Object
 _transforms_module::new_point (const Py::Tuple &args)
 {
   _VERBOSE("_transforms_module::new_point ");
   args.verify_length(2);
-  
+
   LazyValue *x, *y;
-  
-  if (BinOp::check(args[0])) 
+
+  if (BinOp::check(args[0]))
     x = static_cast<BinOp*>(args[0].ptr());
-  else if (Value::check(args[0])) 
+  else if (Value::check(args[0]))
     x = static_cast<Value*>(args[0].ptr());
-  else 
+  else
     throw Py::TypeError("Can only create points from LazyValues");
-  
-  if (BinOp::check(args[1])) 
+
+  if (BinOp::check(args[1]))
     y = static_cast<BinOp*>(args[1].ptr());
-  else if (Value::check(args[1])) 
+  else if (Value::check(args[1]))
     y = static_cast<Value*>(args[1].ptr());
-  else 
+  else
     throw Py::TypeError("Can only create points from LazyValues");
 
   return Py::asObject(new Point(x, y));
-  
-}    
+
+}
 
 
-Py::Object 
+Py::Object
 _transforms_module::new_interval (const Py::Tuple &args)
 {
   _VERBOSE("_transforms_module::new_interval ");
-  
+
   args.verify_length(2);
-  
-  if (!LazyValue::check(args[0])) 
+
+  if (!LazyValue::check(args[0]))
     throw Py::TypeError("Interval(val1, val2) expected a LazyValue for val1");
-  if (!LazyValue::check(args[1])) 
+  if (!LazyValue::check(args[1]))
     throw Py::TypeError("Interval(val1, val2) expected a LazyValue for val2");
-  
-  
+
+
   LazyValue* v1 = static_cast<LazyValue*>(args[0].ptr());
   LazyValue* v2 = static_cast<LazyValue*>(args[1].ptr());
-  return Py::asObject(new Interval(v1, v2) );  
+  return Py::asObject(new Interval(v1, v2) );
 }
 
-Py::Object 
+Py::Object
 _transforms_module::new_bbox (const Py::Tuple &args)
 {
   _VERBOSE("_transforms_module::new_bbox ");
-  
+
   args.verify_length(2);
-  
-  if (!Point::check(args[0])) 
+
+  if (!Point::check(args[0]))
     throw Py::TypeError("Point(p1,p2) expected a Point for p1");
-  if (!Point::check(args[1])) 
+  if (!Point::check(args[1]))
     throw Py::TypeError("Point(p1,p2) expected a Point for p2");
-  
+
   Point* ll = static_cast<Point*>(args[0].ptr());
   Point* ur = static_cast<Point*>(args[1].ptr());
-  return Py::asObject(new Bbox(ll, ur) );  
+  return Py::asObject(new Bbox(ll, ur) );
 }
 
-Py::Object 
+Py::Object
 _transforms_module::new_affine (const Py::Tuple &args) {
   _VERBOSE("_transforms_module::new_affine ");
 
   args.verify_length(6);
-  
+
   LazyValue::check(args[0]);
   LazyValue::check(args[1]);
   LazyValue::check(args[2]);
   LazyValue::check(args[3]);
   LazyValue::check(args[4]);
   LazyValue::check(args[5]);
-  
+
   LazyValue* a  = static_cast<LazyValue*>(args[0].ptr());
-  LazyValue* b  = static_cast<LazyValue*>(args[1].ptr()); 
+  LazyValue* b  = static_cast<LazyValue*>(args[1].ptr());
   LazyValue* c  = static_cast<LazyValue*>(args[2].ptr());
-  LazyValue* d  = static_cast<LazyValue*>(args[3].ptr()); 
+  LazyValue* d  = static_cast<LazyValue*>(args[3].ptr());
   LazyValue* tx = static_cast<LazyValue*>(args[4].ptr());
-  LazyValue* ty = static_cast<LazyValue*>(args[5].ptr()); 
+  LazyValue* ty = static_cast<LazyValue*>(args[5].ptr());
   return Py::asObject(new Affine(a, b, c, d, tx, ty));
-  
-}    
 
- 
+}
 
-Py::Object 
+
+
+Py::Object
 _transforms_module::new_func (const Py::Tuple &args)
 {
   _VERBOSE("_transforms_module::new_func ");
   args.verify_length(1);
   int typecode = Py::Int(args[0]);
   return Py::asObject(new Func(typecode));
-}   
+}
 
-Py::Object 
+Py::Object
 _transforms_module::new_funcxy (const Py::Tuple &args)
 {
   _VERBOSE("_transforms_module::new_funcxy ");
   args.verify_length(1);
   int typecode = Py::Int(args[0]);
   return Py::asObject(new FuncXY(typecode));
-}   
+}
 
 
 
-Py::Object 
+Py::Object
 _transforms_module::new_separable_transformation (const Py::Tuple &args)
 {
   _VERBOSE("_transforms_module::new_separable_transformation ");
@@ -1753,13 +1753,13 @@ _transforms_module::new_separable_transformation (const Py::Tuple &args)
 
   Bbox* box1  = static_cast<Bbox*>(args[0].ptr());
   Bbox* box2  = static_cast<Bbox*>(args[1].ptr());
-  Func* funcx  = static_cast<Func*>(args[2].ptr()); 
-  Func* funcy  = static_cast<Func*>(args[3].ptr()); 
-  
-  return Py::asObject( new SeparableTransformation(box1, box2, funcx, funcy) );
-}     
+  Func* funcx  = static_cast<Func*>(args[2].ptr());
+  Func* funcy  = static_cast<Func*>(args[3].ptr());
 
-Py::Object 
+  return Py::asObject( new SeparableTransformation(box1, box2, funcx, funcy) );
+}
+
+Py::Object
 _transforms_module::new_nonseparable_transformation (const Py::Tuple &args)
 {
   _VERBOSE("_transforms_module::new_nonseparable_transformation ");
@@ -1774,12 +1774,12 @@ _transforms_module::new_nonseparable_transformation (const Py::Tuple &args)
 
   Bbox* box1  = static_cast<Bbox*>(args[0].ptr());
   Bbox* box2  = static_cast<Bbox*>(args[1].ptr());
-  FuncXY* funcxy  = static_cast<FuncXY*>(args[2].ptr()); 
-  
-  return Py::asObject( new NonseparableTransformation(box1, box2, funcxy) );
-}     
+  FuncXY* funcxy  = static_cast<FuncXY*>(args[2].ptr());
 
-void 
+  return Py::asObject( new NonseparableTransformation(box1, box2, funcxy) );
+}
+
+void
 LazyValue::init_type()
 {
   _VERBOSE("LazyValue::init_type");
@@ -1791,7 +1791,7 @@ LazyValue::init_type()
   add_varargs_method("set",    &LazyValue::set,     "set(val)\n");
 }
 
-void 
+void
 Value::init_type()
 {
   _VERBOSE("Value::init_type");
@@ -1800,34 +1800,34 @@ Value::init_type()
   behaviors().supportNumberType();}
 
 
-void 
+void
 BinOp::init_type()
 {
   _VERBOSE("BinOp::init_type");
   behaviors().name("BinOp");
   behaviors().doc("A binary operation on lazy values");
   behaviors().supportNumberType();
-} 
+}
 
-void 
+void
 Point::init_type()
 {
   _VERBOSE("Point::init_type");
   behaviors().name("Point");
   behaviors().doc("A point x, y");
-    
+
   add_varargs_method("x",    &Point::x,     "x()\n");
   add_varargs_method("y",    &Point::y,     "y()\n");
   add_varargs_method("reference_count", &Point::reference_count);
 }
 
-void 
+void
 Interval::init_type()
 {
   _VERBOSE("Interval::init_type");
   behaviors().name("Interval");
   behaviors().doc("A 1D interval");
-  
+
   add_varargs_method("contains", &Interval::contains, "contains(x)\n");
   add_varargs_method("update", &Interval::update, "update(vals)\n");
   add_varargs_method("contains_open", &Interval::contains_open, "contains_open(x)\n");
@@ -1841,7 +1841,7 @@ Interval::init_type()
 
 }
 
-void 
+void
 Bbox::init_type()
 {
   _VERBOSE("Bbox::init_type");
@@ -1850,7 +1850,7 @@ Bbox::init_type()
   //behaviors().supportRepr();
   //behaviors().supportGetattr();
   //behaviors().supportStr();
-   
+
   add_varargs_method("ll", 	&Bbox::ll, "ll()\n");
   add_varargs_method("ur", 	&Bbox::ur, "ur()\n");
   add_varargs_method("contains" , &Bbox::contains, "contains(x,y)\n");
@@ -1874,25 +1874,25 @@ Bbox::init_type()
   add_varargs_method("ignore", 	 &Bbox::ignore, "ignore(int)");
   add_varargs_method("scale", 	 &Bbox::scale, "scale(sx,sy)");
   add_varargs_method("deepcopy", &Bbox::deepcopy, "deepcopy()\n");
-}  
+}
 
 
 
-void 
+void
 Func::init_type()
 {
   _VERBOSE("Func::init_type");
   behaviors().name("Func");
   behaviors().doc("Map double -> double");
-  behaviors().supportRepr();  
+  behaviors().supportRepr();
   behaviors().supportGetattr();
   add_varargs_method("map",     &Func::map, "map(x)\n");
   add_varargs_method("inverse", &Func::inverse, "inverse(y)\n");
   add_varargs_method("set_type", &Func::set_type, "set_type(TYPE)\n");
   add_varargs_method("get_type", &Func::get_type, "get_type()\n");
-} 
+}
 
-void 
+void
 FuncXY::init_type()
 {
   _VERBOSE("FuncXY::init_type");
@@ -1902,9 +1902,9 @@ FuncXY::init_type()
   add_varargs_method("inverse", &FuncXY::inverse, "inverse(x,y)\n");
   add_varargs_method("set_type", &FuncXY::set_type, "set_type(TYPE)\n");
   add_varargs_method("get_type", &FuncXY::get_type, "get_type()\n");
-} 
- 
-void 
+}
+
+void
 Transformation::init_type()
 {
   _VERBOSE("Transformation::init_type");
@@ -1913,7 +1913,7 @@ Transformation::init_type()
 
 
   add_varargs_method("freeze",   &Transformation::freeze,  "freeze(); eval and freeze the lazy objects\n");
-  add_varargs_method("thaw",   &Transformation::thaw,  "thaw(); release the laszy objects\n"); 
+  add_varargs_method("thaw",   &Transformation::thaw,  "thaw(); release the laszy objects\n");
 
   add_varargs_method("get_bbox1",   &Transformation::get_bbox1,  "get_bbox1(); return the input bbox\n");
   add_varargs_method("get_bbox2",   &Transformation::get_bbox2,  "get_bbox2(); return the output bbox\n");
@@ -1923,10 +1923,10 @@ Transformation::init_type()
 
   add_varargs_method("get_funcx",   &Transformation::get_funcx,  "get_funcx(); return the Func instance on x\n");
   add_varargs_method("get_funcy",   &Transformation::get_funcy,  "get_funcy(); return the Func instance on y\n");
- 
+
   add_varargs_method("set_funcx",   &Transformation::set_funcx,  "set_funcx(); set the Func instance on x\n");
   add_varargs_method("set_funcy",   &Transformation::set_funcy,  "set_funcy(); set the Func instance on y\n");
- 
+
 
   add_varargs_method("get_funcxy",   &Transformation::get_funcxy,  "get_funcxy(); return the FuncXY instance\n");
   add_varargs_method("set_funcxy",   &Transformation::set_funcxy,  "set_funcxy(); set the FuncXY instance\n");
@@ -1936,7 +1936,7 @@ Transformation::init_type()
   add_keyword_method("numerix_x_y",  &Transformation::numerix_x_y, "numerix_x_y(x, y)\n");
   add_keyword_method("nonlinear_only_numerix",  &Transformation::nonlinear_only_numerix, "nonlinear_only_numerix\n");
   add_varargs_method("need_nonlinear",  &Transformation::need_nonlinear, "need_nonlinear\n");
-  add_varargs_method("seq_xy_tups", &Transformation::seq_xy_tups, "seq_xy_tups(seq)\n");  
+  add_varargs_method("seq_xy_tups", &Transformation::seq_xy_tups, "seq_xy_tups(seq)\n");
   add_varargs_method("inverse_xy_tup",   &Transformation::inverse_xy_tup,  "inverse_xy_tup(xy)\n");
 
   add_varargs_method("set_offset",   &Transformation::set_offset,  "set_offset(xy, trans)\n");
@@ -1947,7 +1947,7 @@ Transformation::init_type()
 
 }
 
-void 
+void
 Affine::init_type()
 {
   _VERBOSE("Affine::init_type");
@@ -1956,7 +1956,7 @@ Affine::init_type()
 }
 
 
-void 
+void
 SeparableTransformation::init_type()
 {
   _VERBOSE("SeparableTransformation::init_type");
@@ -1965,7 +1965,7 @@ SeparableTransformation::init_type()
 
 }
 
-void 
+void
 NonseparableTransformation::init_type()
 {
   _VERBOSE("NonseparableTransformation::init_type");
@@ -1974,31 +1974,39 @@ NonseparableTransformation::init_type()
 
 }
 
- 
+
 
 
 
 extern "C"
 DL_EXPORT(void)
-#if defined(NUMARRAY)
+#ifdef NUMARRAY
   init_na_transforms(void)
 #else
+#   ifdef NUMERIC
   init_nc_transforms(void)
+#   else
+  init_ns_transforms(void)
+#   endif
 #endif
 {
   static _transforms_module* _transforms = new _transforms_module;
 
-#if defined(NUMARRAY)
+#ifdef NUMARRAY
   _VERBOSE("init_na_transforms");
 #else
+#   ifdef NUMERIC
   _VERBOSE("init_nc_transforms");
+#   else
+  _VERBOSE("init_ns_transforms");
+#   endif
 #endif
 
-  import_array();  
+  import_array();
 
   Py::Dict d = _transforms->moduleDictionary();
   d["LOG10"] = Py::Int((int)Func::LOG10);
   d["IDENTITY"] = Py::Int((int)Func::IDENTITY);
   d["POLAR"] = Py::Int((int)FuncXY::POLAR);;
 };
- 
+

@@ -6,9 +6,16 @@ if numerix.which[0] == "numarray":
     except ImportError:
         numerix._import_fail_message("_image", "_na")
         raise
-else:
+elif numerix.which[0] == "numeric":
     try:
         from matplotlib._nc_image import *
     except ImportError:
         numerix._import_fail_message("_image", "_nc")
         raise
+else:                 # Must be scipy
+    try:
+        from matplotlib._ns_image import *
+    except ImportError:
+        numerix._import_fail_message("_image", "_ns")
+        raise
+

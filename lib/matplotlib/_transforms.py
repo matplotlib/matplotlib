@@ -6,9 +6,18 @@ if numerix.which[0] == "numarray":
     except ImportError:
         numerix._import_fail_message("_transforms", "_na")
         raise
-else:
+elif numerix.which[0] == "numeric":
     try:
         from matplotlib._nc_transforms import *
     except ImportError:
         numerix._import_fail_message("_transforms", "_nc")
         raise
+else:                 # Must be scipy
+    try:
+        from matplotlib._ns_transforms import *
+    except ImportError:
+        numerix._import_fail_message("_transforms", "_ns")
+        raise
+
+
+
