@@ -32,7 +32,7 @@ import re
 
 from numerix import array, arange, take, put, Float, Int, where, \
      zeros, asarray, sort, searchsorted, sometrue, ravel, divide,\
-     clip, ones
+     clip, ones, typecode
 from numerix.mlab import amin, amax
 import numerix.ma as ma
 from cbook import enumerate, is_string_like, iterable
@@ -514,6 +514,7 @@ class Colormap:
         xa = where(mask_over, self._i_over, xa)
         if mask_bad:
             xa = where(mask_bad, self._i_bad, xa)
+        #print 'types', typecode(self._lut), typecode(xa), xa.shape
         rgba = take(self._lut, xa)
         if vtype == 'scalar':
             rgba = tuple(rgba[0,:])
