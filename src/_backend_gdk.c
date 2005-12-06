@@ -1,4 +1,4 @@
-/* -*- mode: C; c-basic-offset: 4 -*- 
+/* -*- mode: C; c-basic-offset: 4 -*-
  * C extensions for backend_gdk
  */
 
@@ -23,7 +23,7 @@ static PyTypeObject *_PyGdkPixbuf_Type;
  * To solve these problems with the pygtk version:
  * 1) It works for Numeric, but not numarray
  * 2) Its only available if pygtk is compiled with Numeric support
- * Fedora 1,2,3 has PyGTK, but not Numeric and so does not have 
+ * Fedora 1,2,3 has PyGTK, but not Numeric and so does not have
  * Pixbuf.get_pixels_array().
  * Fedora 4 does have PyGTK, Numeric and Pixbuf.get_pixels_array()
  */
@@ -72,16 +72,26 @@ static PyMethodDef _backend_gdk_functions[] = {
 DL_EXPORT(void)
 #ifdef NUMARRAY
 init_na_backend_gdk(void)
-{
-    PyObject *mod;
-    mod = Py_InitModule("matplotlib.backends._na_backend_gdk", 
-			_backend_gdk_functions);
 #else
+#   ifdef NUMERIC
 init_nc_backend_gdk(void)
+#   else
+init_ns_backend_gdk(void)
+#   endif
+#endif
 {
     PyObject *mod;
-    mod = Py_InitModule("matplotlib.backends._nc_backend_gdk", 
-			_backend_gdk_functions);
+#ifdef NUMARRAY
+    mod = Py_InitModule("matplotlib.backends._na_backend_gdk",
+                                        _backend_gdk_functions);
+#else
+#   ifdef NUMERIC
+    mod = Py_InitModule("matplotlib.backends._nc_backend_gdk",
+                                        _backend_gdk_functions);
+#   else
+    mod = Py_InitModule("matplotlib.backends._ns_backend_gdk",
+                                        _backend_gdk_functions);
+#   endif
 #endif
 
     import_array();

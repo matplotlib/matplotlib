@@ -25,8 +25,10 @@ import matplotlib.numerix
 
 if matplotlib.numerix.which[0] == "numarray":
     from _na_backend_agg import RendererAgg as _RendererAgg
-else:
+elif matplotlib.numerix.which[0] == "numeric":
     from _nc_backend_agg import RendererAgg as _RendererAgg
+else:
+    from _ns_backend_agg import RendererAgg as _RendererAgg
 
 backend_version = 'v2.2'
 _fontd = {}     # a map from fname to font instances
@@ -37,7 +39,7 @@ class RendererAgg(RendererBase):
     The renderer handles all the drawing primitives using a graphics
     context instance that controls the colors/styles
     """
-    
+
     debug=1
     def __init__(self, width, height, dpi):
         if __debug__: verbose.report('RendererAgg.__init__', 'debug-annoying')
@@ -76,21 +78,21 @@ class RendererAgg(RendererBase):
         stroke.width(1.0)
         r,g,b = [int(255*val) for val in gc.get_rgb()]
         a = int(255*gc.get_alpha())
-        
+
         color = agg.rgba8(r,g,b,a)
         self.renderer.color(  color )
         self.rasterizer.add_path(stroke)
         agg.render_scanlines(self.rasterizer, self.scanline, self.renderer);
-        
+
     def draw_markers(self, gc, path, rgbFace, xt, yt, trans):
         pass
-    
+
     def draw_arc(self, gcEdge, rgbFace, x, y, width, height, angle1, angle2):
         pass
-    
+
     def draw_image(self, x, y, im, origin, bbox):
         pass
-    
+
     def draw_line(self, gc, x1, y1, x2, y2):
         pass
 
@@ -103,18 +105,18 @@ class RendererAgg(RendererBase):
     def draw_rectangle(self, gcEdge, rgbFace, x, y, width, height):
         pass
 
-    def draw_text(self, gc, x, y, s, prop, angle, ismath=False):    
+    def draw_text(self, gc, x, y, s, prop, angle, ismath=False):
         pass
-         
+
     def flipy(self):
         return True
-    
+
     def get_canvas_width_height(self):
         return 100, 100
 
     def get_text_width_height(self, s, prop, ismath):
         return 1, 1
-                              
+
     def new_gc(self):
         return GraphicsContextBase()
 
@@ -127,10 +129,10 @@ class RendererAgg(RendererBase):
         if __debug__: verbose.report('RendererAgg.points_to_pixels', 'debug-annoying')
         return points*self.dpi.get()/72.0
 
-        
 
 
-    
+
+
 def new_figure_manager(num, *args, **kwargs):
     """
     Create a new figure manager instance
@@ -153,7 +155,7 @@ class FigureCanvasAgg(FigureCanvasBase):
       figure - A Figure instance
     """
 
-    
+
 
     def draw(self):
         """
@@ -164,7 +166,7 @@ class FigureCanvasAgg(FigureCanvasBase):
         renderer = self.get_renderer()
         self.figure.draw(renderer)
         return renderer
-        
+
     def get_renderer(self):
         l,b,w,h = self.figure.bbox.get_bounds()
         key = w, h, self.figure.dpi.get()
@@ -176,7 +178,7 @@ class FigureCanvasAgg(FigureCanvasBase):
             self.renderer = RendererAgg(w, h, self.figure.dpi)
             self._lastKey = key
         return self.renderer
-    
+
     def tostring_rgb(self):
         if __debug__: verbose.report('FigureCanvasAgg.tostring_rgb', 'debug-annoying')
         return self.renderer.tostring_rgb()
@@ -184,11 +186,11 @@ class FigureCanvasAgg(FigureCanvasBase):
     def tostring_argb(self):
         if __debug__: verbose.report('FigureCanvasAgg.tostring_argb', 'debug-annoying')
         return self.renderer.tostring_argb()
-        
+
     def buffer_rgba(self,x,y):
         if __debug__: verbose.report('FigureCanvasAgg.buffer_rgba', 'debug-annoying')
         return self.renderer.buffer_rgba(x,y)
-    
+
 
     def print_figure(self, filename, dpi=150,
                      facecolor='w', edgecolor='w',

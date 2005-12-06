@@ -17,7 +17,7 @@ _SetForegroundWindow(PyObject *module, PyObject *args)
 	if (!PyArg_ParseTuple(args, "l:SetForegroundWindow", &handle))
 		return NULL;
 	if (!SetForegroundWindow(handle))
-		return PyErr_Format(PyExc_RuntimeError, 
+		return PyErr_Format(PyExc_RuntimeError,
 				    "Error setting window");
 	Py_INCREF(Py_None);
 	return Py_None;
