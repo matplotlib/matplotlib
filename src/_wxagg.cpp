@@ -158,9 +158,9 @@ static wxImage *convert_agg2image(RendererAgg *aggRenderer, Bbox *clipbox)
         srcStride = (int) aggRenderer->get_width()*4;
     } else {
         // Convert a region: rgba => clipped rgba => rgb -> image
-        double l = clipbox->ll_api()->x_api()->val() ; 
+        double l = clipbox->ll_api()->x_api()->val() ;
         double b = clipbox->ll_api()->y_api()->val();
-        double r = clipbox->ur_api()->x_api()->val() ; 
+        double r = clipbox->ur_api()->x_api()->val() ;
         double t = clipbox->ur_api()->y_api()->val() ;
 
         srcWidth = (int) (r-l);
@@ -259,6 +259,6 @@ DL_EXPORT(void)
 {
   wxPyCoreAPI_IMPORT();
   //suppress unused warning by creating in two lines
-  static _wxagg_module* _wxagg = NULL; 
+  static _wxagg_module* _wxagg = NULL;
   _wxagg = new _wxagg_module;
 };

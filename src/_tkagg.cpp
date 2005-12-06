@@ -1,6 +1,6 @@
 /*
  * The Python Imaging Library.
- * $Id$ 
+ * $Id$
  *
  */
 
@@ -22,10 +22,10 @@ extern "C" {
 #     include <Tcl/tcl.h>
 #     include <Tk/tk.h>
 #  else
-#     include <tk.h> 
+#     include <tk.h>
 #  endif
 #else
-#  include <tk.h> 
+#  include <tk.h>
 #endif
 };
 
@@ -43,7 +43,7 @@ PyAggImagePhoto(ClientData clientdata, Tcl_Interp* interp,
     Tk_PhotoHandle photo;
     Tk_PhotoImageBlock block;
     PyObject* aggo;
-    
+
     // vars for blitting
     PyObject* bboxo;
     Bbox* bbox;
@@ -106,8 +106,8 @@ PyAggImagePhoto(ClientData clientdata, Tcl_Interp* interp,
       pixfmt destpf(destrbuf);
       renderer_base destrb(destpf);
 
-      agg::rect_base<int> region(destx, desty, (int)r, srcheight-(int)b); 
-      destrb.copy_from(*aggRenderer->renderingBuffer, &region, 
+      agg::rect_base<int> region(destx, desty, (int)r, srcheight-(int)b);
+      destrb.copy_from(*aggRenderer->renderingBuffer, &region,
 		       -destx, -desty);
     } else {
       bbox = NULL;
@@ -136,7 +136,7 @@ PyAggImagePhoto(ClientData clientdata, Tcl_Interp* interp,
     }
 
     if (bbox) {
-      
+
       block.width  = destwidth;
       block.height = destheight;
       block.pitch = deststride;
@@ -147,7 +147,7 @@ PyAggImagePhoto(ClientData clientdata, Tcl_Interp* interp,
 
     } else {
       block.width  = aggRenderer->get_width();
-      block.height = aggRenderer->get_height();      
+      block.height = aggRenderer->get_height();
       block.pitch = block.width * nval;
       block.pixelPtr =  aggRenderer->pixBuffer;
 
@@ -170,7 +170,7 @@ _pyobj_addr(PyObject* self, PyObject* args)
   return Py_BuildValue("l", (long) pyobj);
 }
 
-static PyObject* 
+static PyObject*
 _tkinit(PyObject* self, PyObject* args)
 {
     Tcl_Interp* interp;
@@ -192,7 +192,7 @@ _tkinit(PyObject* self, PyObject* args)
 
     /* This will bomb if interp is invalid... */
 
-    Tcl_CreateCommand(interp, "PyAggImagePhoto", 
+    Tcl_CreateCommand(interp, "PyAggImagePhoto",
 		      (Tcl_CmdProc *) PyAggImagePhoto,
                       (ClientData) 0, (Tcl_CmdDeleteProc*) NULL);
 

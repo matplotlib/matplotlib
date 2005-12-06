@@ -9,7 +9,7 @@ void _VERBOSE(const std::string& s) {
 }
 
 
-Printf::Printf(const char *fmt, ...) 
+Printf::Printf(const char *fmt, ...)
   : buffer(new char[1024]) // some reasonably large number
 {
   va_list ap;
@@ -21,7 +21,7 @@ Printf::Printf(const char *fmt, ...)
 Printf::~Printf()
 {
   delete [] buffer;
-} 
+}
 
 
 std::ostream &operator<<(std::ostream &o, const Printf &p)

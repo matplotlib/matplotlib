@@ -5,13 +5,13 @@ Features that are implemented
 
  * capstyles and join styles
  * dashes
- * linewidth 
+ * linewidth
  * lines, rectangles, ellipses
  * clipping to a rectangle
  * output to RGBA and PNG
  * alpha blending
  * DPI scaling properly - everything scales properly (dashes, linewidths, etc)
- * draw polygon 
+ * draw polygon
  * freetype2 w/ ft2font
 
 TODO:
@@ -21,8 +21,8 @@ TODO:
   * allow load from png
 
   * integrate screen dpi w/ ppi and text
-  
-INSTALLING 
+
+INSTALLING
 
   REQUIREMENTs
 
@@ -32,7 +32,7 @@ INSTALLING
     freetype 2
     libpng
     libz
-    
+
   Install AGG2 (cut and paste below into xterm should work)
 
     wget http://www.antigrain.com/agg2.tar.gz
@@ -46,7 +46,7 @@ INSTALLING
 
   Installing backend_agg
 
-     
+
    Edit setup.py: change aggsrc to point to the agg2 src tree and
    replace if 0: with if 1: in the backend_agg section
 
@@ -59,13 +59,13 @@ INSTALLING
 
   Using agg backend
 
-    python somefile.py -dAgg   
+    python somefile.py -dAgg
 
   or
 
     import matplotlib
     matplotlib.use('Agg')
-    
+
 
 """
 from __future__ import division
@@ -90,8 +90,10 @@ import matplotlib.numerix
 
 if matplotlib.numerix.which[0] == "numarray":
     from _na_backend_agg import RendererAgg as _RendererAgg
-else:
+elif matplotlib.numerix.which[0] == "numeric":
     from _nc_backend_agg import RendererAgg as _RendererAgg
+else:
+    from _ns_backend_agg import RendererAgg as _RendererAgg
 
 backend_version = 'v2.2'
 _fontd = {}     # a map from fname to font instances
@@ -102,7 +104,7 @@ class RendererAgg(RendererBase):
     The renderer handles all the drawing primitives using a graphics
     context instance that controls the colors/styles
     """
-    
+
     debug=1
     texd = {}  # a cache of tex image rasters
     def __init__(self, width, height, dpi):
@@ -123,8 +125,8 @@ class RendererAgg(RendererBase):
         self.draw_regpoly_collection = self._renderer.draw_regpoly_collection
 
         self.copy_from_bbox = self._renderer.copy_from_bbox
-        self.restore_region = self._renderer.restore_region        
-        
+        self.restore_region = self._renderer.restore_region
+
 
         self.texmanager = TexManager()
 
@@ -144,7 +146,7 @@ class RendererAgg(RendererBase):
         if __debug__: verbose.report('RendererAgg.draw_arc', 'debug-annoying')
         self._renderer.draw_ellipse(
             gcEdge, rgbFace, x, y, width/2, height/2)  # ellipse takes radius
-        
+
 
     def _draw_image(self, x, y, im):
         """
@@ -153,7 +155,7 @@ class RendererAgg(RendererBase):
         """
         if __debug__: verbose.report('RendererAgg.draw_image', 'debug-annoying')
         #self._renderer.draw_image(int(x), int(self.height-y), im)
-        self._renderer.draw_image(int(x), int(y), im)        
+        self._renderer.draw_image(int(x), int(y), im)
 
     def draw_line(self, gc, x1, y1, x2, y2):
         """
@@ -173,9 +175,9 @@ class RendererAgg(RendererBase):
         if __debug__: verbose.report('RendererAgg.draw_point', 'debug-annoying')
         rgbFace = gc.get_rgb()
         self._renderer.draw_ellipse(
-            gc, rgbFace, x, y, 0.5, 0.5)        
+            gc, rgbFace, x, y, 0.5, 0.5)
 
-    def draw_mathtext(self, gc, x, y, s, prop, angle):    
+    def draw_mathtext(self, gc, x, y, s, prop, angle):
         """
         Draw the math text using matplotlib.mathtext
         """
@@ -183,15 +185,15 @@ class RendererAgg(RendererBase):
         size = prop.get_size_in_points()
         width, height, fonts = math_parse_s_ft2font(
             s, self.dpi.get(), size, angle)
-        
+
         if angle == 90:
             width, height = height, width
         for font in fonts:
-            if angle == 90:             
+            if angle == 90:
                 font.horiz_image_to_vert_image() # <-- Rotate
                 self._renderer.draw_text( font, int(x)-width, int(y)-height, gc)
             else:
-                self._renderer.draw_text( font, int(x), int(y)-height, gc)                
+                self._renderer.draw_text( font, int(x), int(y)-height, gc)
         if 0:
             self._renderer.draw_rectangle(gc, None,
                                           int(x),
@@ -199,7 +201,7 @@ class RendererAgg(RendererBase):
                                           width, height)
 
 
-    
+
     def draw_text(self, gc, x, y, s, prop, angle, ismath):
         """
         Render the text
@@ -219,9 +221,9 @@ class RendererAgg(RendererBase):
         font.draw_glyphs_to_bitmap()
 
         #print x, y, int(x), int(y)
-        
+
         self._renderer.draw_text(font, int(x), int(y), gc)
-        
+
 
     def get_text_width_height(self, s, prop, ismath, rgb=(0,0,0)):
         """
@@ -240,7 +242,7 @@ class RendererAgg(RendererBase):
             Z = self.texmanager.get_rgba(s, size, dpi, rgb)
             m,n,tmp = Z.shape
             return n,m
-         
+
         if ismath:
             width, height, fonts = math_parse_s_ft2font(
                 s, self.dpi.get(), prop.get_size_in_points())
@@ -285,13 +287,13 @@ class RendererAgg(RendererBase):
                 Z[:,:,3] = func(a)
             im = fromarray(Z, 1)
             im.flipud_out()
-            self.texd[key] = im            
+            self.texd[key] = im
 
         cliprect = gc.get_clip_rectangle()
         if cliprect is None: bbox = None
         else: bbox = lbwh_to_bbox(*cliprect)
         self.draw_image(x, self.height-y, im, bbox)
-        
+
     def get_canvas_width_height(self):
         'return the canvas width and height in display coords'
         return self.width, self.height
@@ -305,7 +307,7 @@ class RendererAgg(RendererBase):
 
         key = hash(prop)
         font = _fontd.get(key)
-        
+
         if font is None:
             fname = fontManager.findfont(prop)
             font = FT2Font(str(fname))
@@ -333,16 +335,16 @@ class RendererAgg(RendererBase):
     def tostring_argb(self):
         if __debug__: verbose.report('RendererAgg.tostring_argb', 'debug-annoying')
         return self._renderer.tostring_argb()
-        
+
     def buffer_rgba(self,x,y):
         if __debug__: verbose.report('RendererAgg.buffer_rgba', 'debug-annoying')
         return self._renderer.buffer_rgba(x,y)
-        
+
     def clear(self):
         self._renderer.clear()
-        
 
-    
+
+
 def new_figure_manager(num, *args, **kwargs):
     """
     Create a new figure manager instance
@@ -363,7 +365,7 @@ class FigureCanvasAgg(FigureCanvasBase):
     Public attribute
 
       figure - A Figure instance
-    """    
+    """
 
     def copy_from_bbox(self, bbox):
         renderer = self.get_renderer()
@@ -372,7 +374,7 @@ class FigureCanvasAgg(FigureCanvasBase):
     def restore_region(self, region):
         renderer = self.get_renderer()
         return renderer.restore_region(region)
-        
+
     def draw(self):
         """
         Draw the figure using the renderer
@@ -393,7 +395,7 @@ class FigureCanvasAgg(FigureCanvasBase):
             self.renderer = RendererAgg(w, h, self.figure.dpi)
             self._lastKey = key
         return self.renderer
-    
+
     def tostring_rgb(self):
         if __debug__: verbose.report('FigureCanvasAgg.tostring_rgb', 'debug-annoying')
         return self.renderer.tostring_rgb()
@@ -401,11 +403,11 @@ class FigureCanvasAgg(FigureCanvasBase):
     def tostring_argb(self):
         if __debug__: verbose.report('FigureCanvasAgg.tostring_argb', 'debug-annoying')
         return self.renderer.tostring_argb()
-        
+
     def buffer_rgba(self,x,y):
         if __debug__: verbose.report('FigureCanvasAgg.buffer_rgba', 'debug-annoying')
         return self.renderer.buffer_rgba(x,y)
-    
+
     def print_figure(self, filename, dpi=150,
                      facecolor='w', edgecolor='w',
                      orientation='portrait'):
@@ -424,7 +426,7 @@ class FigureCanvasAgg(FigureCanvasBase):
         """
         if __debug__: verbose.report('FigureCanvasAgg.print_figure', 'debug-annoying')
 
-            
+
 
         # store the orig figure dpi, color and size information so we
         # can restore them later.  For image creation alone, this is
@@ -455,7 +457,7 @@ class FigureCanvasAgg(FigureCanvasBase):
             if not len(ext):
                 ext = '.png'
                 filename += ext
- 
+
             ext = ext.lower()
             if (ext.find('rgb')>=0 or
                 ext.find('raw')>=0 or
