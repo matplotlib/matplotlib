@@ -26,14 +26,11 @@
 
 #ifdef NUMARRAY
 #include "numarray/arrayobject.h"
-#define NUMSTRING na
 #else
 #ifdef NUMERIC
 #include "Numeric/arrayobject.h"
-#define NUMSTRING nc
 #else
 #include "scipy/arrayobject.h"
-#define NUMSTRING ns
 #endif
 #endif
 
