@@ -64,12 +64,11 @@ elif which[0] == "scipy":
 
     def msort(a):
         return sort(a, axis=0)
-    # Make min/max = scipy.amin/max
-    min = amin
-    max = amax
 else:
     raise RuntimeError("invalid numerix selector")
 
-# for easy access to these functions w/o clobbering builtins
-amin = min
-amax = max
+if which[0] != "scipy":
+    # for easy access to these functions w/o clobbering builtins;
+    # scipy already has amin, amax
+    amin = min
+    amax = max
