@@ -636,21 +636,28 @@ class LocationEvent(Event):
             # cannot check if event was in axes if no x,y info
             return
 
-        self.inaxes = None
+        self.inaxes = [] # Need to correctly handle overlapping axes
         for a in self.canvas.figure.get_axes():
             if self.x is not None and self.y is not None and a.in_axes(self.x, self.y):
-                self.inaxes = a
-                #self.x, self.y, a.transData.get_funcx().get_type(), a.transData.get_funcy().get_type()
+                self.inaxes.append(a)
+        
+        if len(self.inaxes) == 0: # None found
+            self.inaxes = None
+            return
+        elif (len(self.inaxes) > 1): # Overlap, get the highest zorder
+            axCmp = lambda x,y: cmp(x.zorder, y.zorder)
+            self.inaxes.sort(axCmp)
+            self.inaxes = self.inaxes[-1] # Use the highest zorder
+        else: # Just found one hit
+            self.inaxes = self.inaxes[0]
 
-                try: xdata, ydata = a.transData.inverse_xy_tup((self.x, self.y))
-                except ValueError:
-                    self.xdata  = None
-                    self.ydata  = None
-                else:
-                    self.xdata  = xdata
-                    self.ydata  = ydata
-
-                break
+        try: xdata, ydata = self.inaxes.transData.inverse_xy_tup((self.x, self.y))
+        except ValueError:
+            self.xdata  = None
+            self.ydata  = None
+        else:
+            self.xdata  = xdata
+            self.ydata  = ydata
 
 class MouseEvent(LocationEvent):
     """
