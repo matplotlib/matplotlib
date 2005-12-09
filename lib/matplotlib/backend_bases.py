@@ -889,7 +889,7 @@ class FigureCanvasBase:
         return value is a connection id that can be used with
         mpl_disconnect """
 
-        assert s in  (
+        legit = (
         'resize_event',
         'draw_event',
         'key_press_event',
@@ -899,6 +899,7 @@ class FigureCanvasBase:
         'motion_notify_event',
         )
 
+        if s not in legit: raise ValueError('Unrecognized event "%s"'%s)
         self.cid += 1
         self.callbacks.setdefault(s, {})[self.cid] = func
         return self.cid

@@ -257,7 +257,7 @@ class ArtistInspector:
         sequence (all Artists are of the same type) and it is your
         responsibility to make sure this is so.
         """
-        if iterable(o): o = o[0]
+        if iterable(o) and len(o): o = o[0]
         self.o = o
         self.aliasd = self.get_aliases()
 

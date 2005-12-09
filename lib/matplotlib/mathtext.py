@@ -636,6 +636,8 @@ class StandardPSFonts(Fonts):
         if tup is not None:
             return tup
 
+        if sym in "0123456789()" and font == 'it':
+            font = 'rm'
         basename = self.fontmap[font]
 
         if latex_to_standard.has_key(sym):

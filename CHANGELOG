@@ -1,4 +1,4 @@
-2005-12-03 Modified setup to build matplotlibrc based on compile time
+h2005-12-03 Modified setup to build matplotlibrc based on compile time
            findings.  It will set numerix in the order of scipy,
            numarray, Numeric depending on which are founds, and
            backend as in preference order GTKAgg, WXAgg, TkAgg, GTK,
