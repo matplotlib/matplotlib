@@ -67,10 +67,10 @@ from numerix import array, asarray, arange, divide, exp, arctan2, \
      absolute, matrixmultiply, power, take, where, Float, Int, asum,\
      dot, convolve, pi, Complex, ones, zeros, diagonal, Matrix, nonzero, \
      log, searchsorted, concatenate, sort, ArrayType, clip, size, indices,\
-     conjugate, typecode, iscontiguous
+     conjugate
 
 
-from numerix.mlab import diff, svd, rand, std
+from numerix.mlab import hanning, cov, diff, svd, rand, std
 from numerix.fft import fft, inverse_fft
 
 from cbook import iterable
@@ -94,7 +94,6 @@ def _norm(x):
 
 def window_hanning(x):
     "return x times the hanning window of len(x)"
-    from numerix.mlab import hanning
     return hanning(len(x))*x
 
 def window_none(x):
@@ -125,7 +124,6 @@ def detrend_linear(x):
     # I'm going to regress x on xx=range(len(x)) and return x -
     # (b*xx+a).  Now that I have polyfit working, I could convert the
     # code here, but if it ain't broke, don't fix it!
-    from numerix.mlab import cov
     xx = arange(float(len(x)))
     X = transpose(array([xx]+[x]))
     C = cov(X)
@@ -169,10 +167,10 @@ def psd(x, NFFT=256, Fs=2, detrend=detrend_none,
     
 
     # for real x, ignore the negative frequencies
-    if typecode(x)==Complex: numFreqs = NFFT
+    if x.typecode()==Complex: numFreqs = NFFT
     else: numFreqs = NFFT//2+1
         
-    windowVals = window(ones((NFFT,),typecode(x)))
+    windowVals = window(ones((NFFT,),x.typecode()))
     step = NFFT-noverlap
     ind = range(0,len(x)-NFFT+1,step)
     n = len(ind)
@@ -232,10 +230,10 @@ def csd(x, y, NFFT=256, Fs=2, detrend=detrend_none,
         y[n:] = 0
 
     # for real x, ignore the negative frequencies
-    if typecode(x)==Complex: numFreqs = NFFT
+    if x.typecode()==Complex: numFreqs = NFFT
     else: numFreqs = NFFT//2+1
         
-    windowVals = window(ones((NFFT,),typecode(x)))
+    windowVals = window(ones((NFFT,),x.typecode()))
     step = NFFT-noverlap
     ind = range(0,len(x)-NFFT+1,step)
     n = len(ind)
@@ -414,7 +412,7 @@ def vander(x,N=None):
 
     """
     if N is None: N=len(x)
-    X = ones( (len(x),N), typecode(x))
+    X = ones( (len(x),N), x.typecode())
     for i in range(N-1):
         X[:,i] = x**(N-i-1)
     return X
@@ -497,7 +495,7 @@ def cohere_pairs( X, ij, NFFT=256, Fs=2, detrend=detrend_none,
     # zero pad if X is too short
     if numRows < NFFT:
         tmp = X
-        X = zeros( (NFFT, numCols), typecode(X))
+        X = zeros( (NFFT, numCols), X.typecode())
         X[:numRows,:] = tmp
         del tmp
 
@@ -512,13 +510,13 @@ def cohere_pairs( X, ij, NFFT=256, Fs=2, detrend=detrend_none,
     del seen
     
     # for real X, ignore the negative frequencies
-    if typecode(X)==Complex: numFreqs = NFFT
+    if X.typecode()==Complex: numFreqs = NFFT
     else: numFreqs = NFFT//2+1
 
     # cache the FFT of every windowed, detrended NFFT length segement
     # of every channel.  If preferSpeedOverMemory, cache the conjugate
     # as well
-    windowVals = window(ones((NFFT,), typecode(X)))
+    windowVals = window(ones((NFFT,), X.typecode()))
     ind = range(0, numRows-NFFT+1, NFFT-noverlap)
     numSlices = len(ind)
     FFTSlices = {}
@@ -694,7 +692,7 @@ def longest_contiguous_ones(x):
     if len(ind)==0:  return arange(len(x))
     if len(ind)==len(x): return array([])
 
-    y = zeros( (len(x)+2,),  typecode(x))
+    y = zeros( (len(x)+2,),  x.typecode())
     y[1:-1] = x
     dif = diff(y)
     up = find(dif ==  1);
@@ -978,7 +976,6 @@ def center_matrix(M, dim=0):
     """
     # todo: implement this w/o loop.  Allow optional arg to specify
     # dimension to remove the mean from
-
     if dim==1: M = transpose(M)
     M = array(M, Float)
     if len(M.shape)==1 or M.shape[0]==1 or M.shape[1]==1:
@@ -1107,7 +1104,7 @@ def specgram(x, NFFT=256, Fs=2, detrend=detrend_none,
     The returned times are the midpoints of the intervals over which
     the ffts are calculated
     """
-
+    x = asarray(x)
     assert(NFFT>noverlap)
     if log(NFFT)/log(2) != int(log(NFFT)/log(2)):
        raise ValueError, 'NFFT must be a power of 2'
@@ -1120,10 +1117,10 @@ def specgram(x, NFFT=256, Fs=2, detrend=detrend_none,
     
 
     # for real x, ignore the negative frequencies
-    if typecode(x)==Complex: numFreqs = NFFT
+    if x.typecode()==Complex: numFreqs = NFFT
     else: numFreqs = NFFT//2+1
         
-    windowVals = window(ones((NFFT,),typecode(x)))
+    windowVals = window(ones((NFFT,),x.typecode()))
     step = NFFT-noverlap
     ind = arange(0,len(x)-NFFT+1,step)
     n = len(ind)
@@ -1349,6 +1346,17 @@ class FIFOBuffer:
         x, y = self.asarrays()
         self.dataLim.update_numerix(x, y, True)
 
+def movavg(x,n):
+    'compute the len(n) moving average of x'
+    n = int(n)
+    N = len(x)
+    assert(N>n)
+    y = zeros(N-(n-1),Float)
+    for i in range(n):
+       y += x[i:N-(n-1)+i]
+    y /= float(n)
+    return y
+
 ### the following code was written and submitted by Fernando Perez
 ### from the ipython numutils package under a BSD license
 """
@@ -1424,14 +1432,14 @@ def amap(fn,*args):
 def zeros_like(a):
     """Return an array of zeros of the shape and typecode of a."""
 
-    return zeros(a.shape,typecode(a))
+    return zeros(a.shape,a.typecode())
 
 def sum_flat(a):
     """Return the sum of all the elements of a, flattened out.
 
     It uses a.flat, and if a is not contiguous, a call to ravel(a) is made."""
 
-    if iscontiguous(a):
+    if a.iscontiguous():
         return asum(a.flat)
     else:
         return asum(ravel(a))
@@ -1538,7 +1546,7 @@ def diagonal_matrix(diag):
 
     return diag*identity(len(diag))
 
-def identity(n,rank=2,typecode=Int):
+def identity(n,rank=2,typecode='l'):
     """identity(n,r) returns the identity matrix of shape (n,n,...,n) (rank r).
 
     For ranks higher than 2, this object is simply a multi-index Kronecker
