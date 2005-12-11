@@ -1,4 +1,8 @@
-h2005-12-03 Modified setup to build matplotlibrc based on compile time
+2005-12-11 Support for setuptools/pkg_resources to build and use
+           matplotlib as an egg. Still allows matplotlib to exist
+           using a traditional distutils install. - ADS
+
+2005-12-03 Modified setup to build matplotlibrc based on compile time
            findings.  It will set numerix in the order of scipy,
            numarray, Numeric depending on which are founds, and
            backend as in preference order GTKAgg, WXAgg, TkAgg, GTK,
@@ -11,12 +15,12 @@ h2005-12-03 Modified setup to build matplotlibrc based on compile time
 	   than from scipy.fftpack import *
 
 2005-12-03 Applied some fixes to Nicholas Young's nonuniform image
-patch
+           patch
 
- 2005-12-01 Applied Alex Gontmakher hatch patch - PS only for now
+2005-12-01 Applied Alex Gontmakher hatch patch - PS only for now
 
 2005-11-30 Added Rob McMullen's EMF patch
-h
+
 2005-11-30 Added Daishi's patch for scipy
 
 2005-11-30 Fixed out of bounds draw markers segfault in agg
