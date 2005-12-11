@@ -181,6 +181,11 @@ try:
 except ImportError: _havedate = False
 else: _havedate = True
 
+try:
+    import pkg_resources # pkg_resources is part of setuptools
+except ImportError: _have_pkg_resources = False
+else: _have_pkg_resources = True
+
 if not _python23:
     def enumerate(seq):
          for i in range(len(seq)):
@@ -362,6 +367,20 @@ get_configdir = verbose.wrap('CONFIGDIR=%s', _get_configdir, always=False)
 
 def _get_data_path():
     'get the path to matplotlib data'
+
+    if _have_pkg_resources:
+        try:
+            dist = pkg_resources.get_distribution('matplotlib')
+        except pkg_resources.DistributionNotFound:
+            # pkg_resources is installed, but setuptools wasn't used into install matplotlib.
+            used_setuptools_to_install_MPL = False
+        else:
+            used_setuptools_to_install_MPL = True
+
+        if used_setuptools_to_install_MPL:
+            req = pkg_resources.Requirement.parse('matplotlib')
+            path = pkg_resources.resource_filename(req, 'share/matplotlib')
+            return path
 
     if os.environ.has_key('MATPLOTLIBDATA'):
         path = os.environ['MATPLOTLIBDATA']

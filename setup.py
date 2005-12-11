@@ -58,6 +58,12 @@ import os
 if os.path.exists('MANIFEST'): os.remove('MANIFEST')
 
 from distutils.core import setup
+
+try:
+    from setuptools import setup # use setuptools if possible
+except ImportError:
+    pass
+    
 import sys,os
 import glob
 from distutils.core import Extension
