@@ -367,55 +367,63 @@ get_configdir = verbose.wrap('CONFIGDIR=%s', _get_configdir, always=False)
 
 def _get_data_path():
     'get the path to matplotlib data'
-
-    if _have_pkg_resources:
-        try:
-            dist = pkg_resources.get_distribution('matplotlib')
-        except pkg_resources.DistributionNotFound:
-            # pkg_resources is installed, but setuptools wasn't used into install matplotlib.
-            used_setuptools_to_install_MPL = False
-        else:
-            used_setuptools_to_install_MPL = True
-
-        if used_setuptools_to_install_MPL:
-            req = pkg_resources.Requirement.parse('matplotlib')
-            path = pkg_resources.resource_filename(req, 'share/matplotlib')
-            return path
-
+    
     if os.environ.has_key('MATPLOTLIBDATA'):
         path = os.environ['MATPLOTLIBDATA']
         if os.path.isdir(path): return path
+    
+    else:
+        path = os.sep.join([os.path.dirname(__file__), 'mpl-data'])
+        if os.path.isdir(path): return path
 
-    path = os.path.join(distutils.sysconfig.PREFIX, 'share', 'matplotlib')
-    if os.path.isdir(path): return path
-
-    path = '/usr/local/share/matplotlib'
-    if os.path.isdir(path): return path
-
-    path = '/usr/share/matplotlib'
-    if os.path.isdir(path): return path
-
-    path = os.path.join(os.sep.join(__file__.split(os.sep)[:-1]),
-                        'share','matplotlib')
-    if os.path.isdir(path): return path
-
-    path = os.path.join(os.sep.join(__file__.split(os.sep)[:-5]),
-                        'share','matplotlib')
-    if os.path.isdir(path): return path
-
-    # CODE ADDED TO SUPPORT PY2EXE - you will need to copy
-    # C:\Python23\share\matplotlib into your dist dir.  See
-    # http://starship.python.net/crew/theller/moin.cgi/MatPlotLib
-    # for more info
-
-    if sys.platform=='win32' and sys.frozen:
-        path = os.path.join(os.path.split(sys.path[0])[0], 'matplotlibdata')
-        if os.path.isdir(path):  return path
-        else:
-            # Try again assuming sys.path[0] is a dir not a exe
-            path = os.path.join(sys.path[0], 'matplotlibdata')
-            if os.path.isdir(path): return path
-
+#    if _have_pkg_resources:
+#        try:
+#            dist = pkg_resources.get_distribution('matplotlib')
+#        except pkg_resources.DistributionNotFound:
+#            # pkg_resources is installed, but setuptools wasn't used into install matplotlib.
+#            used_setuptools_to_install_MPL = False
+#        else:
+#            used_setuptools_to_install_MPL = True
+#
+#        if used_setuptools_to_install_MPL:
+#            req = pkg_resources.Requirement.parse('matplotlib')
+#            path = pkg_resources.resource_filename(req, 'share/matplotlib')
+#            return path
+#
+#    if os.environ.has_key('MATPLOTLIBDATA'):
+#        path = os.environ['MATPLOTLIBDATA']
+#        if os.path.isdir(path): return path
+#
+#    path = os.path.join(distutils.sysconfig.PREFIX, 'share', 'matplotlib')
+#    if os.path.isdir(path): return path
+#
+#    path = '/usr/local/share/matplotlib'
+#    if os.path.isdir(path): return path
+#
+#    path = '/usr/share/matplotlib'
+#    if os.path.isdir(path): return path
+#
+#    path = os.path.join(os.sep.join(__file__.split(os.sep)[:-1]),
+#                        'share','matplotlib')
+#    if os.path.isdir(path): return path
+#
+#    path = os.path.join(os.sep.join(__file__.split(os.sep)[:-5]),
+#                        'share','matplotlib')
+#    if os.path.isdir(path): return path
+#
+#    # CODE ADDED TO SUPPORT PY2EXE - you will need to copy
+#    # C:\Python23\share\matplotlib into your dist dir.  See
+#    # http://starship.python.net/crew/theller/moin.cgi/MatPlotLib
+#    # for more info
+#
+#    if sys.platform=='win32' and sys.frozen:
+#        path = os.path.join(os.path.split(sys.path[0])[0], 'matplotlibdata')
+#        if os.path.isdir(path):  return path
+#        else:
+#            # Try again assuming sys.path[0] is a dir not a exe
+#            path = os.path.join(sys.path[0], 'matplotlibdata')
+#            if os.path.isdir(path): return path
+#
     raise RuntimeError('Could not find the matplotlib data files')
 
 get_data_path = verbose.wrap('matplotlib data path %s', _get_data_path, always=False)

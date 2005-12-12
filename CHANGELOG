@@ -1,3 +1,7 @@
+2005-12-12 Matplotlib data is now installed as package_data in
+           the matplotlib module.  This gets rid of checking the
+           many possibilities in matplotlib._get_data_path() - CM
+
 2005-12-11 Support for setuptools/pkg_resources to build and use
            matplotlib as an egg. Still allows matplotlib to exist
            using a traditional distutils install. - ADS
