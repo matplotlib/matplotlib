@@ -57,12 +57,12 @@ VERBOSE = False # insert lots of diagnostic prints in extension code
 import os
 if os.path.exists('MANIFEST'): os.remove('MANIFEST')
 
-from distutils.core import setup
-
 try:
     from setuptools import setup # use setuptools if possible
+    has_setuptools = True
 except ImportError:
-    pass
+    from distutils.core import setup
+    has_setuptools = False
     
 import sys,os
 import glob
@@ -81,9 +81,25 @@ for line in file('lib/matplotlib/__init__.py').readlines():
     if line[:11] == '__version__':
         exec(line)
         break
+    
+# Find the plat-lib dir where mpl will be installed.
+# This is where the mpl-data will be installed.
+from distutils.command.install import INSTALL_SCHEMES
 
+if has_setuptools: # EGG's make it simple
+    datapath = os.path.curdir
+# logic from distutils.command.install.finalize_options
+elif os.name == 'posix':
+    py_version_short = sys.version[0:3]
+    datapath = INSTALL_SCHEMES['unix_prefix']['platlib']
+    datapath = datapath.replace('$platbase/', '').replace('$py_version_short', py_version_short)
+else:
+    datapath = INSTALL_SCHEMES[os.name]['platlib'].replace('$base/', '')
+
+datapath = os.sep.join([datapath, 'matplotlib', 'mpl-data']) # This is where mpl data will be installed
+
+# Specify all the required mpl data
 data = []
-
 data.extend(glob.glob('gui/*.glade'))
 data.extend(glob.glob('fonts/afm/*.afm'))
 data.extend(glob.glob('fonts/ttf/*.ttf'))
@@ -93,10 +109,10 @@ data.extend(glob.glob('images/*.png'))
 data.extend(glob.glob('images/*.ppm'))
 data.append('matplotlibrc')
 
-data_files=[('share/matplotlib', data),]
+data_files=[(datapath, data),]
 
 # Needed for CocoaAgg
-data_files.append(('share/matplotlib/Matplotlib.nib',
+data_files.append((os.sep.join([datapath, 'Matplotlib.nib']),
 		   glob.glob('lib/matplotlib/backends/Matplotlib.nib/*.nib')))
 
 # Figure out which array packages to provide binary support for
@@ -265,7 +281,7 @@ file('matplotlibrc', 'w').write(template%rc)
 
 
 
-setup(name="matplotlib",
+distrib = setup(name="matplotlib",
       version= __version__,
       description = "Matlab(TM) style python plotting package",
       author = "John D. Hunter",
