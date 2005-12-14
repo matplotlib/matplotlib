@@ -1,3 +1,6 @@
+2005-12-12 Updated pyparsing (mathtext now a bit faster) and minor
+           fixes to scipy numerix and setuptools
+
 2005-12-12 Matplotlib data is now installed as package_data in
            the matplotlib module.  This gets rid of checking the
            many possibilities in matplotlib._get_data_path() - CM
