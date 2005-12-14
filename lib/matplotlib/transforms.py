@@ -225,7 +225,7 @@ def translation_transform(tx, ty):
     return a pure tranlational transformation tx and ty are LazyValue
     instances (Values or binary opertations on values)
     """
-    return Affine(zero(), zero(), zero(), zero(), tx, ty)
+    return Affine(one(), zero(), zero(), one(), tx, ty)
 
 def scale_transform(sx, sy):
     """

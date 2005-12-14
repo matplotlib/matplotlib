@@ -85,9 +85,10 @@ def quotes_historical_yahoo(ticker, date1, date2, asobject=False, adjusted=True)
     if asobject is True, the return val is an object with attrs date,
     open, close, high, low, volume, which are equal length arrays
 
+    if adjust=True, use adjusted prices
 
     Ex:
-    sp = f.quotes_historical_yahoo('^GSPC', d1, d2, asobject=True)
+    sp = f.quotes_historical_yahoo('^GSPC', d1, d2, asobject=True, adjusted=True)
     returns = (sp.open[1:] - sp.open[:-1])/sp.open[1:]
     [n,bins,patches] = hist(returns, 100)
     mu = mean(returns)

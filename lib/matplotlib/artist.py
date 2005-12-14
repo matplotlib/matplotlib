@@ -397,7 +397,7 @@ def getp(o, *args):
 
       o.get_somename()
 
-    get can be used to query all the gettable properties with get(o)
+    getp can be used to query all the gettable properties with getp(o)
     Many properties have aliases for shorter typing, eg 'lw' is an
     alias for 'linewidth'.  In the output, aliases and full property
     names will be listed as
@@ -426,27 +426,27 @@ get.__doc__ = getp.__doc__
 
 def setp(h, *args, **kwargs):
     """
-    matlab(TM) and pylab allow you to use set and get to set and get
-    object properties, as well as to do introspection on the object
-    For example, to set the linestyle of a line to be dashed, you can do
+    matplotlib supports the use of setp ("set property") and getp to set and get object properties, as well as to do
+    introspection on the object For example, to set the linestyle of a
+    line to be dashed, you can do
 
       >>> line, = plot([1,2,3])
-      >>> set(line, linestyle='--')
+      >>> setp(line, linestyle='--')
 
     If you want to know the valid types of arguments, you can provide the
     name of the property you want to set without a value
 
-      >>> set(line, 'linestyle')
+      >>> setp(line, 'linestyle')
           linestyle: [ '-' | '--' | '-.' | ':' | 'steps' | 'None' ]
 
     If you want to see all the properties that can be set, and their
     possible values, you can do
 
 
-      >>> set(line)
+      >>> setp(line)
           ... long output listing omitted'
 
-    set operates on a single instance or a list of instances.  If you are
+    setp operates on a single instance or a list of instances.  If you are
     in quey mode introspecting the possible values, only the first
     instance in the sequnce is used.  When actually setting values, all
     the instances will be set.  Eg, suppose you have a list of two lines,
@@ -456,13 +456,13 @@ def setp(h, *args, **kwargs):
         >>> y1 = sin(2*pi*x)
         >>> y2 = sin(4*pi*x)
         >>> lines = plot(x, y1, x, y2)
-        >>> set(lines, linewidth=2, color='r')
+        >>> setp(lines, linewidth=2, color='r')
 
-    Set works with the matlab(TM) style string/value pairs or with python
-    kwargs.  For example, the following are equivalent
+    Set works with the matlab(TM) style string/value pairs or with
+    python kwargs.  For example, the following are equivalent
 
-        >>> set(lines, 'linewidth', 2, 'color', r')  # matlab style
-        >>> set(lines, linewidth=2, color='r')       # python style
+        >>> setp(lines, 'linewidth', 2, 'color', r')  # matlab style
+        >>> setp(lines, linewidth=2, color='r')       # python style
     """
 
     insp = ArtistInspector(h)
