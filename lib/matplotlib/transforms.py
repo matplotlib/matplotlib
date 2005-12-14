@@ -223,7 +223,7 @@ def identity_transform():
 def translation_transform(tx, ty):
     """
     return a pure tranlational transformation tx and ty are LazyValue
-    instances (Values or binary opertations on values)
+    instances (Values or binary operations on values)
     """
     return Affine(one(), zero(), zero(), one(), tx, ty)
 

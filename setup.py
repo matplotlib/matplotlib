@@ -58,7 +58,8 @@ import os
 if os.path.exists('MANIFEST'): os.remove('MANIFEST')
 
 try:
-    from setuptools import setup # use setuptools if possible
+    from setuptools.command import bdist_egg    
+    #from setuptools import setup # use setuptools if possible
     has_setuptools = True
 except ImportError:
     from distutils.core import setup
@@ -97,6 +98,8 @@ else:
     datapath = INSTALL_SCHEMES[os.name]['platlib'].replace('$base/', '')
 
 datapath = os.sep.join([datapath, 'matplotlib', 'mpl-data']) # This is where mpl data will be installed
+
+print 'installing data to', datapath
 
 # Specify all the required mpl data
 data = []

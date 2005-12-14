@@ -38,6 +38,46 @@ elif which[0] == "scipy":
         x = x - mx
         return sqrt(add.reduce(x*x,axis)/(n-1.0))
 
+    def cov(m,y=None, rowvar=0, bias=0):
+        """Estimate the covariance matrix.
+
+        If m is a vector, return the variance.  For matrices where each row
+        is an observation, and each column a variable, return the covariance
+        matrix.  Note that in this case diag(cov(m)) is a vector of
+        variances for each column.
+
+        cov(m) is the same as cov(m, m)
+
+        Normalization is by (N-1) where N is the number of observations
+        (unbiased estimate).  If bias is 1 then normalization is by N.
+
+        If rowvar is zero, then each row is a variable with
+        observations in the columns.
+        """
+        if y is None:
+            y = m
+        else:
+            y = y
+        if rowvar:
+            m = transpose(m)
+            y = transpose(y)
+        if (m.shape[0] == 1):
+            m = transpose(m)
+        if (y.shape[0] == 1):
+            y = transpose(y)
+        N = m.shape[0]
+        if (y.shape[0] != N):
+            raise ValueError, "x and y must have the same number of observations."
+        m = m - mean(m,axis=0)
+        y = y - mean(y,axis=0)
+        if bias:
+            fact = N*1.0
+        else:
+            fact = N-1.0
+        #
+        val = squeeze(dot(transpose(m),conjugate(y)) / fact)
+        return val
+
     def bartlett(M):
         """bartlett(M) returns the M-point Bartlett window.
         """
