@@ -58,12 +58,15 @@ import os
 if os.path.exists('MANIFEST'): os.remove('MANIFEST')
 
 try:
-    from setuptools.command import bdist_egg    
-    #from setuptools import setup # use setuptools if possible
+    # check if we have a reasonably recent copy of setuptools
+    from setuptools.command import bdist_egg 
     has_setuptools = True
 except ImportError:
     from distutils.core import setup
     has_setuptools = False
+
+if has_setuptools:
+    from setuptools import setup
     
 import sys,os
 import glob
