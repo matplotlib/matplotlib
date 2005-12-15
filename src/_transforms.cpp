@@ -482,18 +482,37 @@ Bbox::update_numerix(const Py::Tuple &args) {
   double thisx, thisy;
   int ignore = Py::Int(args[2]);
   if (ignore) {
-    thisx = *(double *)(x->data);
-    thisy = *(double *)(y->data);
-    minx=thisx;
-    maxx=thisx;
-    miny=thisy;
-    maxy=thisy;
+    int xok=0;
+    int yok=0;
+    // loop through values until we find some nans...
+    for (size_t i=0; i< Nx; ++i) {
+      thisx = *(double *)(x->data + i*x->strides[0]);
+      thisy = *(double *)(y->data + i*y->strides[0]);
+
+      if (!xok) {
+	if (!isnan(thisx)) {
+	  minx=thisx;
+	  maxx=thisx;
+	  xok=1;
+	}
+      }
+
+      if (!yok) {
+	if (!isnan(thisy)) {
+	  miny=thisy;
+	  maxy=thisx;
+	  yok=1;
+	}
+      }
+      
+      if (xok && yok) break;
+    }
   }
 
   for (size_t i=0; i< Nx; ++i) {
-
     thisx = *(double *)(x->data + i*x->strides[0]);
     thisy = *(double *)(y->data + i*y->strides[0]);
+
     _posx.update(thisx);
     _posy.update(thisy);
     if (thisx<minx) minx=thisx;
