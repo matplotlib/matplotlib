@@ -1,6 +1,7 @@
 #include <functional>
 #include "_transforms.h"
 #include "mplutils.h"
+#include "MPL_isnan.h"
 
 #ifdef NUMARRAY
 #   include "numarray/arrayobject.h"
@@ -444,7 +445,6 @@ Bbox::update(const Py::Tuple &args) {
 Py::Object
 Bbox::update_numerix(const Py::Tuple &args) {
   //update the box from the numerix arrays x and y
-  using std::isnan;
   _VERBOSE("Bbox::update_numerix");
 
   args.verify_length(3);
@@ -491,7 +491,7 @@ Bbox::update_numerix(const Py::Tuple &args) {
       thisy = *(double *)(y->data + i*y->strides[0]);
 
       if (!xok) {
-	if (!isnan(thisx)) {
+	if (!MPL_isnan64(thisx)) {
 	  minx=thisx;
 	  maxx=thisx;
 	  xok=1;
@@ -499,7 +499,7 @@ Bbox::update_numerix(const Py::Tuple &args) {
       }
 
       if (!yok) {
-	if (!isnan(thisy)) {
+	if (!MPL_isnan64(thisy)) {
 	  miny=thisy;
 	  maxy=thisx;
 	  yok=1;
