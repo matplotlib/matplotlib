@@ -1,6 +1,6 @@
 #from __future__ import division
 
-from matplotlib.numerix import array, asarray, alltrue
+from matplotlib.numerix import array, asarray, alltrue, arange
 from matplotlib.numerix.mlab import rand
 from matplotlib.transforms import Point, Bbox, Value, Affine
 from matplotlib.transforms import multiply_affines
@@ -271,4 +271,35 @@ import math
 polar = FuncXY(POLAR)
 assert( closeto_seq( polar.map(math.pi,1), (-1,0)) )
 assert( closeto_seq( polar.inverse(1,1), ( (math.pi/4), math.sqrt(2))) )
+
+
+
+# This unit test requires "nan", which numarray.ieeespecial
+# exports.  (But we can keep using the numerix module.)
+try:
+    from numarray.ieeespecial import nan
+    have_nan = True
+except ImportError:
+    have_nan = False
+
+if have_nan:
+    y1=array([  2,nan,1,2,3,4])
+    y2=array([nan,nan,1,2,3,4])
+
+    x1=arange(len(y1))
+    x2=arange(len(y2))
+
+    bbox1 = Bbox(Point(Value(0),Value(0)),
+                 Point(Value(1),Value(1)))
+
+    bbox2 = Bbox(Point(Value(0),Value(0)),
+                 Point(Value(1),Value(1)))
+
+    bbox1.update_numerix(x1,y1,1)
+    bbox2.update_numerix(x2,y2,1)
+
+    assert( closeto_seq( bbox1.get_bounds(), bbox2.get_bounds() ) )
+else:
+    print 'nan could not be imported from numarray.ieeespecial, test skipped'
+ 
 print 'all tests passed'
