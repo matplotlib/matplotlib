@@ -934,7 +934,7 @@ class XAxis(Axis):
         """
         assert position == 'top' or position == 'bottom' or position == 'both' or position == 'default'
 
-        ticks = self.majorTicks
+        ticks = list(self.majorTicks)  # a copy
         ticks.extend( self.minorTicks )
 
         if position == 'top':
@@ -1104,7 +1104,7 @@ class YAxis(Axis):
         """
         assert position == 'left' or position == 'right' or position == 'both' or position == 'default'
 
-        ticks = self.majorTicks
+        ticks = list(self.majorTicks) # a copy
         ticks.extend( self.minorTicks )
 
         if position == 'right':
