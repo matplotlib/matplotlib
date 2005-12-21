@@ -1,3 +1,6 @@
+"""
+Figure class -- add docstring here!
+"""
 import sys
 from artist import Artist
 from axes import Axes, Subplot, PolarSubplot, PolarAxes
