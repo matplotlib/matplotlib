@@ -501,7 +501,7 @@ Bbox::update_numerix(const Py::Tuple &args) {
       if (!yok) {
 	if (!MPL_isnan64(thisy)) {
 	  miny=thisy;
-	  maxy=thisx;
+	  maxy=thisy;
 	  yok=1;
 	}
       }
