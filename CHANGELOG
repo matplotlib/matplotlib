@@ -3,8 +3,9 @@
 2005-12-20 Added Jouni's rc patch to support lists of keys to set on -
            JDH
 
-2005-12-12 Updated pyparsing (mathtext now a bit faster) and minor
-           fixes to scipy numerix and setuptools
+2005-12-12 Updated pyparsing and mathtext for some speed enhancements
+           (Thanks Paul McGuire) and minor fixes to scipy numerix and
+           setuptools
 
 2005-12-12 Matplotlib data is now installed as package_data in
            the matplotlib module.  This gets rid of checking the

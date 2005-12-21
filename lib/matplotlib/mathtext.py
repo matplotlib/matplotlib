@@ -1257,7 +1257,7 @@ char = Word(alphanums + ' ', exact=1).leaveWhitespace()
 
 space = FollowedBy(bslash) + (Literal(r'\ ') | Literal(r'\/') | Group(Literal(r'\hspace{') + number + Literal('}'))).setParseAction(handler.space).setName('space')
 
-_symbol = Regex("("+")|(".join(
+symbol = Regex("("+")|(".join(
     [
     r"\\[a-zA-Z0-9]+(?!{)",
     r"[a-zA-Z0-9 ]",
@@ -1267,10 +1267,10 @@ _symbol = Regex("("+")|(".join(
     r"[!@%&]",
     r"[[\]()]",
     ])+")"
-               )
+               ).setParseAction(handler.symbol).leaveWhitespace()
 
 #~ symbol = (texsym ^ char ^ binop ^ relation ^ punctuation ^ misc ^ grouping  ).setParseAction(handler.symbol).leaveWhitespace()
-symbol = (texsym | char | binop | relation | punctuation | misc | grouping  ).setParseAction(handler.symbol).leaveWhitespace()
+_symbol = (texsym | char | binop | relation | punctuation | misc | grouping  ).setParseAction(handler.symbol).leaveWhitespace()
 
 subscript = Forward().setParseAction(handler.subscript).setName("subscript")
 superscript = Forward().setParseAction(handler.superscript).setName("superscript")
