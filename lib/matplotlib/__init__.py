@@ -902,8 +902,9 @@ def rc(group, **kwargs):
     """
     Set the current rc params.  Group is the grouping for the rc, eg
     for lines.linewidth the group is 'lines', for axes.facecolor, the
-    group is 'axes', and so on.  kwargs is a list of attribute
-    name/value pairs, eg
+    group is 'axes', and so on.  Group may also be a list or tuple
+    of group names, eg ('xtick','ytick').  kwargs is a list of
+    attribute name/value pairs, eg
 
       rc('lines', linewidth=2, color='r')
 
@@ -956,14 +957,17 @@ def rc(group, **kwargs):
         'aa'  : 'antialiased',
         }
 
-    for k,v in kwargs.items():
-        name = aliases.get(k) or k
-        key = '%s.%s' % (group, name)
-        if not rcParams.has_key(key):
-            raise KeyError('Unrecognized key "%s" for group "%s" and name "%s"' %
-                           (key, group, name))
+    if is_string_like(group):
+        group = (group,)
+    for g in group:
+        for k,v in kwargs.items():
+            name = aliases.get(k) or k
+            key = '%s.%s' % (g, name)
+            if not rcParams.has_key(key):
+                raise KeyError('Unrecognized key "%s" for group "%s" and name "%s"' %
+                               (key, g, name))
 
-        rcParams[key] = v
+            rcParams[key] = v
 
 
 def rcdefaults():
@@ -1025,6 +1029,13 @@ def interactive(b):
     If b is True, then draw after every plotting command, eg, after xlabel
     """
     rcParams['interactive'] = b
+
+def is_string_like(obj):
+    if hasattr(obj, 'shape'): return 0 # this is a workaround
+                                       # for a bug in numeric<23.1
+    try: obj + ''
+    except (TypeError, ValueError): return 0
+    return 1
 
 def is_interactive():
     'Return true if plot mode is interactive'
