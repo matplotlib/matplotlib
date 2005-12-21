@@ -135,7 +135,7 @@ from cStringIO import StringIO
 from matplotlib import verbose
 from matplotlib.pyparsing import Literal, Word, OneOrMore, ZeroOrMore, \
      Combine, Group, Optional, Forward, NotAny, alphas, nums, alphanums, \
-     StringStart, StringEnd, ParseException, FollowedBy
+     StringStart, StringEnd, ParseException, FollowedBy, Regex
 
 from matplotlib.afm import AFM
 from matplotlib.cbook import enumerate, iterable, Bunch
@@ -1256,6 +1256,18 @@ texsym = Combine(bslash + Word(alphanums) + NotAny("{"))
 char = Word(alphanums + ' ', exact=1).leaveWhitespace()
 
 space = FollowedBy(bslash) + (Literal(r'\ ') | Literal(r'\/') | Group(Literal(r'\hspace{') + number + Literal('}'))).setParseAction(handler.space).setName('space')
+
+_symbol = Regex("("+")|(".join(
+    [
+    r"\\[a-zA-Z0-9]+(?!{)",
+    r"[a-zA-Z0-9 ]",
+    r"[+\-*/]",
+    r"[<>=]",
+    r"[:,.;!]",
+    r"[!@%&]",
+    r"[[\]()]",
+    ])+")"
+               )
 
 #~ symbol = (texsym ^ char ^ binop ^ relation ^ punctuation ^ misc ^ grouping  ).setParseAction(handler.symbol).leaveWhitespace()
 symbol = (texsym | char | binop | relation | punctuation | misc | grouping  ).setParseAction(handler.symbol).leaveWhitespace()
