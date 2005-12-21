@@ -1,4 +1,7 @@
-2005-12-20 Added Jouni's rc patch to support lists of keys to set on
+2005-12-20 Fixed Jame's Boyles date tick reversal problem - JDH
+
+2005-12-20 Added Jouni's rc patch to support lists of keys to set on -
+           JDH
 
 2005-12-12 Updated pyparsing (mathtext now a bit faster) and minor
            fixes to scipy numerix and setuptools

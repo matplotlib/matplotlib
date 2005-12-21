@@ -372,6 +372,9 @@ class RRuleLocator(DateLocator):
         # if no data have been set, this will tank with a ValueError
         try: dmin, dmax = self.viewlim_to_dt()
         except ValueError: return []
+        
+        if dmin>dmax:
+            dmax, dmin = dmin, dmax
         delta = relativedelta(dmax, dmin)
         self.rule.set(dtstart=dmin-delta, until=dmax+delta)
         dates = self.rule.between(dmin, dmax, True)
@@ -383,6 +386,9 @@ class RRuleLocator(DateLocator):
         """
         self.verify_intervals()
         dmin, dmax = self.datalim_to_dt()
+        if dmin>dmax:
+            dmax, dmin = dmin, dmax
+
         delta = relativedelta(dmax, dmin)
         self.rule.set(dtstart=dmin-delta, until=dmax+delta)
         dmin, dmax = self.datalim_to_dt()
