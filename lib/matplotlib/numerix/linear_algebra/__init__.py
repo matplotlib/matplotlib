@@ -5,6 +5,6 @@ if which[0] == "numarray":
 elif which[0] == "numeric":
     from LinearAlgebra import *
 elif which[0] == "scipy":
-    from scipy.basic.linalg import *
+    from scipy.corelinalg import *
 else:
     raise RuntimeError("invalid numerix selector")
