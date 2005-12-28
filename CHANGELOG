@@ -1,3 +1,6 @@
+2005-12-27 Altered numerix/scipy to support new scipy package
+           structure - TEO
+
 2005-12-20 Fixed Jame's Boyles date tick reversal problem - JDH
 
 2005-12-20 Added Jouni's rc patch to support lists of keys to set on -
