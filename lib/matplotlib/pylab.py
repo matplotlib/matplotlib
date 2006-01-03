@@ -565,12 +565,12 @@ def axis(*v, **kwargs):
 
         axis('scaled') makes scale equal, changes lengths of axes while
           keeping limits of x and y axes fixed. Keeps lower left hand corner
-          in original position
+          in original position. Fixes axis limits.
 
         axis('tight') changes limits x and y axis such that all data is
           shown. If all data is already shown, it will move it to the center
           of the figure without modifying (xmax-xmin) or (ymax-ymin). Note
-          this is slightly different than in matlab.
+          this is slightly different than in matlab. Fixes axis limits.
 
         axis('normal') sets the axis to normal, i.e. turns equal scale off
 
@@ -591,13 +591,14 @@ def axis(*v, **kwargs):
             draw_if_interactive()
         elif s.lower()=='tight':
             ax.autoscale_view()
-            if ax.get_aspect() == 'equal':
-                ax.set_aspect('equal',True)
+            ax.set_autoscale_on(False)
             draw_if_interactive()
         elif s.lower()=='scaled':
-            ax.set_aspect('equal',True,'lowerleft')
+            ax.set_autoscale_on(False)
+            ax.set_aspect('scaled',True)
             draw_if_interactive()
         elif s.lower()=='normal':
+            ax.set_autoscale_on(True)
             ax.set_aspect('normal')
         else:
             raise ValueError('Unrecognized string %s to axis; try on or off' % s)

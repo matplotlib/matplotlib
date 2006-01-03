@@ -3780,7 +3780,7 @@ class Axes(Artist):
         ds.sort()
         return ds[0][1]
 
-    def set_aspect(self,aspect='normal',fixLimits=False,alignment='center'):
+    def set_aspect(self,aspect='normal',fixLimits=False):
         """
         Set aspect to 'normal' or 'equal'
             'normal' means matplotlib determines aspect ratio
@@ -3791,15 +3791,13 @@ class Axes(Artist):
         fixLimits: False means data limits will be changed, but height and widths of axes preserved.
                    True means height or width will be changed, but data limits preserved
 
-        alignment is 'center' or 'lowerleft', only used when fixLimits is True
-
-        ACCEPTS: str, boolean, str
+        ACCEPTS: str, boolean
         """
 
         self._aspect = aspect
         if self._aspect == 'normal':
             self.set_position( self._originalPosition )
-        elif self._aspect == 'equal':
+        elif self._aspect == 'equal' or self._aspect == 'scaled':
             figW,figH = self.get_figure().get_size_inches()
             xmin,xmax = self.get_xlim()
             ymin,ymax = self.get_ylim()
@@ -3808,17 +3806,17 @@ class Axes(Artist):
                 axW = w * figW; axH = h * figH
                 if (xmax-xmin) / axW > (ymax-ymin) / axH:  # y axis too long
                     axH = axW * (ymax-ymin) / (xmax-xmin)
-                    if alignment == 'center':
+                    if self._aspect == 'equal':
                         axc = b + 0.5 * h
                         h = axH / figH; b = axc - 0.5 * h
-                    elif alignment == 'lowerleft':
+                    elif self._aspect == 'scaled':
                         h = axH / figH
                 else:  # x axis too long
                     axW = axH * (xmax-xmin) / (ymax-ymin)
-                    if alignment == 'center':
+                    if self._aspect == 'equal':
                         axc = l + 0.5 * w
                         w = axW / figW; l = axc - 0.5 * w
-                    elif alignment == 'lowerleft':
+                    elif self._aspect == 'scaled':
                         w = axW / figW
                 self.set_position( (l,b,w,h) )
             else:  # Change limits on axes
