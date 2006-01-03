@@ -486,55 +486,59 @@ def build_tkagg(ext_modules, packages, numerix):
 
 
 def build_wxagg(ext_modules, packages, numerix, abortOnFailure):
-    global BUILT_WXAGG
-    if BUILT_WXAGG:
-        return
+     global BUILT_WXAGG
+     if BUILT_WXAGG:
+         return
 
-    wxconfig = find_wx_config()
+     wxconfig = find_wx_config()
 
-    # Avoid aborting the whole build process if `wx-config' can't be found and
-    # BUILD_WXAGG in setup.py is set to "auto"
-    if wxconfig is None:
-        print 'WXAgg\'s accelerator requires `wx-config\'.'
+     # Avoid aborting the whole build process if `wx-config' can't be found and
+     # BUILD_WXAGG in setup.py is set to "auto"
+     if wxconfig is None:
+         print """
+WXAgg's accelerator requires `wx-config'.
 
-        if not abortOnFailure:
-            BUILT_WXAGG = True
-            return
-        else:
-            print '''\n\
-The `wx-config\' executable could not be located in any directory of the PATH
-environment variable.  If it is in some other location or has some other name,
-set the WX_CONFIG environment variable to the full path of the execuatable.'''
-            sys.exit(1)
-    elif not check_wxpython_headers(wxconfig):
-        print 'WXAgg\'s accelerator requires the wxPython headers.'
+The `wx-config\' executable could not be located in any directory of the
+PATH environment variable. If you want to build WXAgg, and wx-config is
+in some other location or has some other name, set the WX_CONFIG
+environment variable to the full path of the executable like so:
 
-        if not abortOnFailure:
-            BUILT_WXAGG = True
-            return
-        else:
-            print '''\n\
-The wxPython header files could not be located in any of the standard include
-directories or include directories reported by `wx-config --cppflags'.'''
-            sys.exit(1)
+export WX_CONFIG=/usr/lib/wxPython-2.6.1.0-gtk2-unicode/bin/wx-config
+"""
+         if not abortOnFailure:
+             print """Building MPL without wxAgg"""
+             BUILT_WXAGG = True
+             return
+         else:
+             sys.exit(1)
+     elif not check_wxpython_headers(wxconfig):
+         print 'WXAgg\'s accelerator requires the wxPython headers.'
 
-    deps = ['src/_wxagg.cpp', 'src/mplutils.cpp']#, 'src/_transforms.cpp']
-    deps.extend(glob.glob('CXX/*.cxx'))
-    deps.extend(glob.glob('CXX/*.c'))
+         if not abortOnFailure:
+             BUILT_WXAGG = True
+             return
+         else:
+             print """
+The wxPython header files could not be located in any of the standard
+include
+directories or include directories reported by `wx-config --cppflags'."""
+             sys.exit(1)
 
-    module = Extension('matplotlib.backends._wxagg', deps)
 
-    # wxagg implicitly needs the scipy flags when targetting
-    # scipy because of src/_transforms.c
-    if 'scipy' in numerix:
-        add_scipy_flags(module)
+     deps = ['src/_wxagg.cpp', 'src/mplutils.cpp']
+     deps.extend(glob.glob('CXX/*.cxx'))
+     deps.extend(glob.glob('CXX/*.c'))
 
-    add_agg_flags(module)  
-    add_ft2font_flags(module)
-    add_wx_flags(module, wxconfig)
+     module = Extension('matplotlib.backends._wxagg', deps)
 
-    ext_modules.append(module)    
-    BUILT_WXAGG = True
+     add_agg_flags(module)
+     add_ft2font_flags(module)
+     add_wx_flags(module, wxconfig)
+
+     ext_modules.append(module)
+     BUILT_WXAGG = True
+
+
 
 
 def build_agg(ext_modules, packages, numerix):
