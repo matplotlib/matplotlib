@@ -1,3 +1,5 @@
+2006-1-4 Changed to support numpy (new name for scipy_core) - TEO
+
 2006-1-4 Added Mark's scaled axes patch for shared axis
 
 2005-12-28 Added Chris Barker's build_wxagg patch - JDH

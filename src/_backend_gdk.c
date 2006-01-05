@@ -9,7 +9,7 @@
 #ifdef NUMERIC
 #include "Numeric/arrayobject.h"
 #else
-#include "scipy/arrayobject.h"
+#include "numpy/arrayobject.h"
 #endif
 #endif
 

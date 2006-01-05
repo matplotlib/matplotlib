@@ -27,7 +27,7 @@ which = None, None
 for a in sys.argv:
     if a in ["--Numeric", "--numeric", "--NUMERIC",
              "--Numarray", "--numarray", "--NUMARRAY",
-             "--SciPy", "--scipy", "--SCIPY", "--Scipy",
+             "--NumPy", "--numpy", "--NUMPY", "--Numpy",
              ]:
         which = a[2:], "command line"
         break
@@ -44,8 +44,8 @@ if which[0] is None:
     which = "numeric", "defaulted"
 
 which = which[0].strip().lower(), which[1]
-if which[0] not in ["numeric", "numarray", "scipy"]:
-    raise ValueError("numerix selector must be either 'Numeric', 'numarray', or 'scipy' but the value obtained from the %s was '%s'." % (which[1], which[0]))
+if which[0] not in ["numeric", "numarray", "numpy"]:
+    raise ValueError("numerix selector must be either 'Numeric', 'numarray', or 'numpy' but the value obtained from the %s was '%s'." % (which[1], which[0]))
 
 if which[0] == "numarray":
     #from na_imports import *
@@ -62,17 +62,17 @@ elif which[0] == "numeric":
     from Matrix import Matrix
     import Numeric
     version = 'Numeric %s'%Numeric.__version__
-elif which[0] == "scipy":
-    import scipy
-    from scipy import *
+elif which[0] == "numpy":
+    import numpy
+    from numpy import *
     from _sp_imports import nx, infinity
     from _sp_imports import UInt8, UInt16, UInt32
     Matrix = matrix
-    version = 'scipy' # Don't know how to get scipy version
+    version = 'numpy %s' % numpy.__version__
 else:
     raise RuntimeError("invalid numerix selector")
 
-# Some changes are only applicable to the new scipy:
+# Some changes are only applicable to the new numpy:
 if (which[0] == 'numarray' or
     which[0] == 'numeric'):
     def typecode(a):
@@ -86,16 +86,16 @@ if (which[0] == 'numarray' or
 
 else:
     # We've already checked for a valid numerix selector,
-    # so assume scipy.
+    # so assume numpy.
     def typecode(a):
         return a.dtypechar
     def iscontiguous(a):
-        return a.flags['CONTIGUOUS']
+        return a.flags.contiguous
     def byteswapped(a):
         return a.byteswap()
     def itemsize(a):
         return a.itemsize
-    # resize function is already defined by scipy
+    # resize function is already defined by numpy 
     # Fix typecode->dtype
     def fixkwargs(kwargs):
         if 'typecode' in kwargs:
@@ -104,13 +104,13 @@ else:
             kwargs['dtype'] = val
     def array(*args, **kwargs):
         fixkwargs(kwargs)
-        return scipy.array(*args, **kwargs)
+        return numpy.array(*args, **kwargs)
     def zeros(*args, **kwargs):
         fixkwargs(kwargs)
-        return scipy.zeros(*args, **kwargs)
+        return numpy.zeros(*args, **kwargs)
     def ones(*args, **kwargs):
         fixkwargs(kwargs)
-        return scipy.ones(*args, **kwargs)
+        return numpy.ones(*args, **kwargs)
     
 
 verbose.report('numerix %s'%version)
