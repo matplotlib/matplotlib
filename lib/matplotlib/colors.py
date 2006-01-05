@@ -518,7 +518,7 @@ class Colormap:
         rgba = take(self._lut, xa)
         if vtype == 'scalar':
             rgba = tuple(rgba[0,:])
-        #print rgba[0,1:10,:]       # Now the same for scipy, numeric...
+        #print rgba[0,1:10,:]       # Now the same for numpy, numeric...
         return rgba
 
     def set_bad(self, color = 'k', alpha = 0.0):

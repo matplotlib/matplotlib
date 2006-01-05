@@ -12,7 +12,7 @@ elif numerix.which[0] == "numeric":
     except ImportError:
         numerix._import_fail_message("_contour", "_nc")
         raise
-else:                 # Must be scipy
+else:                 # Must be numpy
     try:
         from matplotlib._ns_cntr import *
     except ImportError:

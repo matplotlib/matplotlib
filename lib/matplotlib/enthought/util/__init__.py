@@ -34,6 +34,6 @@ def test(level=1,verbosity=1):
     
 # returns a test suite for use elsewhere 
 def test_suite(level=1):
-    import scipy_test.testing
+    import numpy.testing
     import matplotlib.enthought.util    
-    return scipy_test.testing.harvest_test_suites(enthought.util,level=level)
+    return numpy.testing.harvest_test_suites(enthought.util,level=level)

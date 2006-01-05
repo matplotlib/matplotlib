@@ -137,14 +137,13 @@ try:
 except ImportError:
     pass
 try:
-     import scipy
-     if hasattr(scipy,'__core_version__'):
-         NUMERIX.append('scipy')
+     import numpy
+     NUMERIX.append('numpy')
 except ImportError:
      pass
 
 if not NUMERIX:
-    raise RuntimeError("You must install the new scipy, Numeric, numarray, or both to build matplotlib")
+    raise RuntimeError("You must install one or more of numpy, Numeric, and numarray to build matplotlib")
 
 
 rc['numerix'] = NUMERIX[-1]
@@ -280,7 +279,7 @@ for mod in ext_modules:
 
 # packagers: set rc['numerix'] and rc['backend'] here to override the auto
 # defaults, eg
-#rc['numerix'] = scipy
+#rc['numerix'] = numpy
 #rc['backend'] = GTKAgg
 template = file('matplotlibrc.template').read()
 file('matplotlibrc', 'w').write(template%rc)

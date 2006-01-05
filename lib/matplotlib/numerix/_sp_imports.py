@@ -1,5 +1,4 @@
-# Not sure why all the equivalences don't exist ...
-from scipy import Int8, UInt8, \
+from numpy import Int8, UInt8, \
      Int16, UInt16, \
      Int32, UInt32, \
      Float32, Float64, \
@@ -21,5 +20,5 @@ class _TypeNamespace:
 
 nx = _TypeNamespace()
 
-from scipy import inf, infty, Infinity
+from numpy import inf, infty, Infinity
 infinity = Infinity

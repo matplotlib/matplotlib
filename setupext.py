@@ -115,10 +115,10 @@ def getoutput(s):
     ret =  os.popen(s).read().strip()
     return ret
 
-def add_scipy_flags(module):
-    "Add the modules flags to build extensions which use scipy"
-    import scipy
-    module.include_dirs.append(scipy.get_scipy_include())
+def add_numpy_flags(module):
+    "Add the modules flags to build extensions which use numpy"
+    import numpy 
+    module.include_dirs.append(numpy.get_numpy_include())
 
 def add_agg_flags(module):
     'Add the module flags to build extensions which use agg'
@@ -592,7 +592,7 @@ def build_agg(ext_modules, packages, numerix):
         add_agg_flags(module)
         add_ft2font_flags(module)
         ext_modules.append(module)    
-    if 'scipy' in numerix: # Build for scipy
+    if 'numpy' in numerix: # Build for numpy
         deps = ['%s/src/%s'%(AGG_VERSION, name) for name in agg]
         deps.extend(('src/_image.cpp', 'src/ft2font.cpp', 'src/mplutils.cpp'))
         deps.extend(glob.glob('CXX/*.cxx'))
@@ -606,7 +606,7 @@ def build_agg(ext_modules, packages, numerix):
             include_dirs=numeric_inc_dirs,
             )
 
-        add_scipy_flags(module)
+        add_numpy_flags(module)
         module.extra_compile_args.append('-DSCIPY=1')
 
         add_agg_flags(module)
@@ -658,7 +658,7 @@ def build_image(ext_modules, packages, numerix):
         add_agg_flags(module)
         ext_modules.append(module)
 
-    if 'scipy' in numerix: # Build for scipy
+    if 'numpy' in numerix: # Build for numpy
         temp_copy('src/_image.cpp', 'src/_ns_image.cpp')
         deps = ['src/_ns_image.cpp', 'src/mplutils.cpp'] 
         deps.extend(['%s/src/%s'%(AGG_VERSION,name) for name in agg])
@@ -671,7 +671,7 @@ def build_image(ext_modules, packages, numerix):
             include_dirs=numeric_inc_dirs,
             )
 
-        add_scipy_flags(module)
+        add_numpy_flags(module)
         module.extra_compile_args.append('-DSCIPY=1')
         add_agg_flags(module)
         ext_modules.append(module)
@@ -735,7 +735,7 @@ def build_transforms(ext_modules, packages, numerix):
         add_base_flags(module)
         ext_modules.append(module)
 
-    if 'scipy' in numerix:  # Build for scipy
+    if 'numpy' in numerix:  # Build for numpy
         cxx = glob.glob('CXX/*.cxx')
         cxx.extend(glob.glob('CXX/*.c'))
         temp_copy("src/_transforms.cpp","src/_ns_transforms.cpp")
@@ -747,7 +747,7 @@ def build_transforms(ext_modules, packages, numerix):
                              )
 
 
-        add_scipy_flags(module)
+        add_numpy_flags(module)
         module.extra_compile_args.append("-DSCIPY=1")
         add_base_flags(module)
         ext_modules.append(module)
@@ -794,7 +794,7 @@ def build_contour(ext_modules, packages, numerix):
         module.extra_compile_args.append('-DNUMERIC=1')
         add_base_flags(module)
         ext_modules.append(module)
-    if 'scipy' in numerix: # Build for scipy
+    if 'numpy' in numerix: # Build for numpy
         temp_copy('src/cntr.c', 'src/_ns_cntr.c')
         module = Extension(
             'matplotlib._ns_cntr',
@@ -802,7 +802,7 @@ def build_contour(ext_modules, packages, numerix):
             #libraries = ['stdc++'],
             include_dirs=numeric_inc_dirs,
             )
-        add_scipy_flags(module)
+        add_numpy_flags(module)
         module.extra_compile_args.append('-DSCIPY=1')
         add_base_flags(module)
         ext_modules.append(module)
@@ -842,7 +842,7 @@ def build_gdk(ext_modules, packages, numerix):
         add_pygtk_flags(module)        
         ext_modules.append(module)
 
-    if 'scipy' in numerix:# Build for scipy
+    if 'numpy' in numerix:# Build for numpy 
         temp_copy('src/_backend_gdk.c', 'src/_ns_backend_gdk.c')
         module = Extension(
             'matplotlib.backends._ns_backend_gdk',
@@ -851,7 +851,7 @@ def build_gdk(ext_modules, packages, numerix):
             include_dirs=numeric_inc_dirs,            
             )
 
-        add_scipy_flags(module)
+        add_numpy_flags(module)
         module.extra_compile_args.append('-DSCIPY=1')
         add_base_flags(module)
         add_pygtk_flags(module)        
