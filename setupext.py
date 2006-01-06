@@ -38,8 +38,6 @@ basedir = {
     'linux2' : ['/usr/local', '/usr',],
     'linux'  : ['/usr/local', '/usr',],
     'cygwin' : ['/usr/local', '/usr',],
-    # Charles Moad recommends not putting in /usr/X11R6 for darwin
-    # because freetype in this dir is too old for mpl
     'darwin' : ['/sw/lib/freetype2', '/sw/lib/freetype219', '/usr/local',
                 '/usr', '/sw'], 
     'freebsd4' : ['/usr/local', '/usr'],
@@ -253,6 +251,10 @@ def add_wx_flags(module, wxconfig):
     """
     Add the module flags to build extensions which use wxPython.
     """
+    
+    if sys.platform == 'win32': # just added manually
+        module.libraries.extend(['wxmsw26', 'wxpng', 'wxregex', 'wxzlib', 'wxexpat', 'wxjpeg', 'wxtiff'])
+        return
 
     def getWX(fmt, *args):
         return getoutput(wxconfig + ' ' + (fmt % args)).split()
@@ -494,7 +496,10 @@ def build_wxagg(ext_modules, packages, numerix, abortOnFailure):
 
      # Avoid aborting the whole build process if `wx-config' can't be found and
      # BUILD_WXAGG in setup.py is set to "auto"
-     if wxconfig is None:
+     if sys.platform == 'win32':
+         pass # don't need config
+     
+     elif wxconfig is None:
          print """
 WXAgg's accelerator requires `wx-config'.
 
