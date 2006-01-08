@@ -148,9 +148,6 @@ if not NUMERIX:
 
 rc['numerix'] = NUMERIX[-1]
 
-# This print interers with --version, which license depends on
-#print "Compiling matplotlib for:", NUMERIX
-
 ext_modules = []
 
 # these are not optional
