@@ -27,7 +27,7 @@
 # the default backend; one of GTK GTKAgg GTKCairo FltkAgg QtAgg TkAgg 
 #     Agg Cairo GD GDK Paint PS SVG Template
 backend      : %(backend)s     
-numerix      : %(numerix)s  # Numeric or numarray
+numerix      : %(numerix)s  # numpy, Numeric or numarray
 interactive  : False      # see http://matplotlib.sourceforge.net/interactive.html
 toolbar      : toolbar2   # None | classic | toolbar2
 timezone     : UTC        # a pytz timezone string, eg US/Central or Europe/Paris

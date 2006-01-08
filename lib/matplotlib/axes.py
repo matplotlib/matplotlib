@@ -1279,7 +1279,7 @@ class Axes(Artist):
                window=window_hanning, noverlap=0, **kwargs):
         """
         COHERE(x, y, NFFT=256, Fs=2, detrend=detrend_none,
-              window=window_hanning, noverlap=0)
+              window=window_hanning, noverlap=0, **kwargs)
 
         cohere the coherence between x and y.  Coherence is the normalized
         cross spectral density
@@ -1310,10 +1310,10 @@ class Axes(Artist):
 
 
     def csd(self, x, y, NFFT=256, Fs=2, detrend=detrend_none,
-            window=window_hanning, noverlap=0):
+            window=window_hanning, noverlap=0, **kwargs):
         """
         CSD(x, y, NFFT=256, Fs=2, detrend=detrend_none,
-            window=window_hanning, noverlap=0)
+            window=window_hanning, noverlap=0, **kwargs)
 
         The cross spectral density Pxy by Welches average periodogram method.
         The vectors x and y are divided into NFFT length segments.  Each
@@ -1337,7 +1337,7 @@ class Axes(Artist):
         pxy.shape = len(freqs),
         # pxy is complex
 
-        self.plot(freqs, 10*log10(absolute(pxy)))
+        self.plot(freqs, 10*log10(absolute(pxy)), **kwargs)
         self.set_xlabel('Frequency')
         self.set_ylabel('Cross Spectrum Magnitude (dB)')
         self.grid(True)
@@ -2683,10 +2683,10 @@ class Axes(Artist):
         return ret
 
     def psd(self, x, NFFT=256, Fs=2, detrend=detrend_none,
-            window=window_hanning, noverlap=0):
+            window=window_hanning, noverlap=0, **kwargs):
         """
         PSD(x, NFFT=256, Fs=2, detrend=detrend_none,
-            window=window_hanning, noverlap=0)
+            window=window_hanning, noverlap=0, **kwargs)
 
         The power spectral density by Welches average periodogram method.  The
         vector x is divided into NFFT length segments.  Each segment is
@@ -2713,6 +2713,7 @@ class Axes(Artist):
 
             noverlap gives the length of the overlap between segments.
 
+            kwargs are passed to plot to control line props
         Returns the tuple Pxx, freqs
 
         For plotting, the power is plotted as 10*log10(pxx)) for decibels,
@@ -2728,7 +2729,7 @@ class Axes(Artist):
         pxx, freqs = matplotlib.mlab.psd(x, NFFT, Fs, detrend, window, noverlap)
         pxx.shape = len(freqs),
 
-        self.plot(freqs, 10*log10(pxx))
+        self.plot(freqs, 10*log10(pxx), **kwargs)
         self.set_xlabel('Frequency')
         self.set_ylabel('Power Spectrum (dB)')
         self.grid(True)
@@ -3011,7 +3012,6 @@ class Axes(Artist):
             which depend on the number of decades in the plot
 
         """
-        # hi fernando
         if not self._hold: self.cla()
         d = {'basex': kwargs.get('basex', 10),
              'subsx': kwargs.get('subsx', None),
@@ -3043,7 +3043,6 @@ class Axes(Artist):
             which depend on the number of decades in the plot
 
         """
-        # hi fernando
         if not self._hold: self.cla()
 
         d = {'basey': kwargs.get('basey', 10),
@@ -3587,7 +3586,9 @@ class Axes(Artist):
         t.update(kwargs)
         self.texts.append(t)
 
-        if t.get_clip_on():  t.set_clip_box(self.bbox)
+        
+        #if t.get_clip_on():  t.set_clip_box(self.bbox)
+        if kwargs.has_key('clip_on'):  t.set_clip_box(self.bbox)
         return t
 
 
