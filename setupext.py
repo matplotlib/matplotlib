@@ -501,7 +501,8 @@ def build_wxagg(ext_modules, packages, numerix, abortOnFailure):
      # Avoid aborting the whole build process if `wx-config' can't be found and
      # BUILD_WXAGG in setup.py is set to "auto"
      if sys.platform == 'win32':
-         pass # don't need config
+         #pass # don't need config
+         return # TODO: Fix _wxagg build on windows (linking issues)
      
      elif wxconfig is None:
          print """
