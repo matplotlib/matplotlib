@@ -1,3 +1,7 @@
+
+
+API Changes in matplotlib-0.86
+
 	Matplotlib data is installed into the matplotlib module.
 	This is similar to package_data.  This should get rid of
 	having to check for many possibilties in _get_data_path().
