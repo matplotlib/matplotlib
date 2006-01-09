@@ -253,7 +253,11 @@ def add_wx_flags(module, wxconfig):
     """
     
     if sys.platform == 'win32': # just added manually
-        module.libraries.extend(['wxmsw26', 'wxpng', 'wxregex', 'wxzlib', 'wxexpat', 'wxjpeg', 'wxtiff'])
+        wxlibs = ['wxexpath', 'wxjpegh', 'wxmsw26uh',
+                  'wxmsw26uh_animate', 'wxmsw26uh_gizmos', 'wxmsw26uh_gizmos_xrc',
+                  'wxmsw26uh_gl', 'wxmsw26uh_stc', 'wxpngh', 'wxregexuh', 'wxtiffh', 'wxzlibh']
+        module.libraries.extend(wxlibs)
+        module.libraries.extend(wxlibs)
         return
 
     def getWX(fmt, *args):
