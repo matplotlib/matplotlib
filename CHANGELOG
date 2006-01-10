@@ -87,6 +87,9 @@
 
 2005-11-25 Changed text.py to ensure color is hashable. EF
 
+=======================================================================
+2005-11-16 Released 0.85
+
 2005-11-16 Changed the default default linewidth in rc to 1.0
 
 2005-11-16 Replaced agg_to_gtk_drawable with pure pygtk pixbuf code in
