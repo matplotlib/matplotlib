@@ -1,3 +1,13 @@
+2006-1-10 Added xpdf distiller option. matplotlibrc ps.usedistiller can now be
+            none, false, ghostscript, or xpdf. Validation checks for
+            dependencies. This needs testing, but the xpdf option should produce
+            the highest-quality output and small file sizes - DSD
+
+2006-01-10 For the usetex option, backend_ps now does all the LaTeX work in the 
+            os's temp directory - DSD
+
+2006-1-10 Added checks for usetex dependencies. - DSD
+
 =======================================================================
 2006-1-9 Released 0.86
 

@@ -147,7 +147,7 @@ __version__  = '0.86'
 __revision__ = '$Revision$'
 __date__     = '$Date$'
 
-import sys, os, warnings, shutil
+import sys, os, warnings, shutil, md5
 import distutils.sysconfig
 
 if not hasattr(sys, 'argv'):  # for modpython
@@ -429,6 +429,50 @@ def _get_data_path():
 get_data_path = verbose.wrap('matplotlib data path %s', _get_data_path, always=False)
 
 
+def checkdep_dvipng():
+    stdin, stdout = os.popen4('dvipng -v')
+    if 'dvipng' in stdout.read(): return True
+    else:
+        verbose.report('dvipng not found!', 'helpful')
+        return False
+
+def checkdep_ghostscript():
+    flag = False
+    if sys.platform == 'win32':
+        stdin, stdout = os.popen4('gswin32c -v')
+        if 'Ghostscript' in stdout.read(): flag = True
+    else:
+        stdin, stdout = os.popen4('gs -v')
+        if 'Ghostscript' in stdout.read(): flag = True
+    if flag: return True
+    else:
+        verbose.report('Ghostscript not found!\n\
+Please install a recent version of ghostscript \n\
+(gnu-ghostscript-8.16 or later suggested)\n', 'helpful')
+        return False
+
+def checkdep_ps2eps():
+    stdin, stdout = os.popen4('ps2eps -v')
+    if 'ps2eps' in stdout.read(): return True
+    else:
+        verbose.report('ps2eps not found!', 'helpful')
+        return False
+
+def checkdep_tex():
+    stdin, stdout = os.popen4('tex -v')
+    if 'TeX' in stdout.read(): return True
+    else:
+        verbose.report('latex not found!\
+Please install the appropriate package for your platform.\n', 'helpful')
+        return False
+
+def checkdep_xpdf():
+    stdin, stdout = os.popen4('xpdf -v')
+    if 'xpdf' in stdout.read(): return True
+    else:
+        verbose.report('xpdf not found!', 'helpful')
+        return False
+
 
 def validate_path_exists(s):
     'If s is a path, return s, else False'
@@ -581,7 +625,36 @@ validate_ps_papersize = ValidateInStrings([
         'c0', 'c1', 'c2', 'c3', 'c4', 'c5', 'c6'
         ], ignorecase=True)
 
+def validate_ps_distiller(s):
+    s = s.lower()
+    if s == 'none':
+        return None
+    elif s == 'false':
+        return False
+    elif s == 'ghostscript':
+        if checkdep_ghostscript(): return s.lower()
+        else: raise 'DependencyError', 'matplotlibrc ps.usedistiller can not \
+be set to ghostscript unless ghostscript is available on your system'
+    elif s == 'xpdf':
+        if checkdep_ghostscript() and checkdep_xpdf() and checkdep_ps2eps():
+            return s.lower()
+        else: 
+            raise 'DependencyError', 'matplotlibrc ps.usedistiller can not \
+be set to xpdf unless ghostscript, xpdf and ps2eps are available on your system'
+    else: 
+        raise ValueError('matplotlibrc ps.usedistiller must either be none, ghostscript or xpdf')
+
 validate_tex_engine = ValidateInStrings(['tex', 'latex'], ignorecase=True)
+
+def validate_usetex(s):
+    bl = validate_bool(s)
+    if bl:
+        if checkdep_tex() and checkdep_dvipng() and checkdep_ghostscript():
+            return bl
+        else:
+            raise 'DependencyError', 'matplotlibrc tex.usetex can not be set to \
+True unless LaTeX, dvipng and ghostscript are available on your system.'
+    else: return bl
 
 validate_joinstyle = ValidateInStrings(['miter', 'round', 'bevel'], ignorecase=True)
 
@@ -612,7 +685,6 @@ class ValidateInterval:
         elif not self.cmax and s>=self.vmax:
             raise RuntimeError('Value must be < %f; found "%f"'%(self.vmax, s))
         return s
-
 
 
 
@@ -667,7 +739,7 @@ defaultParams = {
 
     # text props
     'text.color'        : ['k', validate_color],     # black
-    'text.usetex'       : [False, validate_bool],
+    'text.usetex'       : [False, validate_usetex],
     'text.tex.engine'   : ['tex', validate_tex_engine], # TeX or LaTeX
     'text.fontstyle'    : ['normal', str],
     'text.fontangle'    : ['normal', str],
@@ -740,7 +812,7 @@ defaultParams = {
     'tk.pythoninspect'   : [ False, validate_bool],  # Set PYTHONINSPECT
     'ps.papersize'      : [ 'letter', validate_ps_papersize], # Set the papersize/type
     'ps.useafm'   : [ False, validate_bool],  # Set PYTHONINSPECT
-    'ps.usedistiller'   : [ False, validate_bool],  # use ghostscript to distill ps output
+    'ps.usedistiller'   : [ False, validate_ps_distiller],  # use ghostscript or xpdf to distill ps output
     'ps.distiller.res'  : [6000, validate_int],       # dpi
     'plugins.directory' : ['.matplotlib_plugins', str], # where plugin directory is locate
 
