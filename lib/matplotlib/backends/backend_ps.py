@@ -6,7 +6,8 @@ A PostScript backend, which can produce both PostScript .ps and
 from __future__ import division
 import glob, math, md5, os, shutil, sys, time
 def _fn_name(): return sys._getframe(1).f_code.co_name
-    
+
+from tempfile import gettempdir
 from cStringIO import StringIO
 from matplotlib import verbose, __version__, rcParams, get_data_path
 from matplotlib._pylab_helpers import Gcf
@@ -993,8 +994,9 @@ class FigureCanvasPS(FigureCanvasBase):
                 # need to make some temporary files so latex can run without
                 # writing over something important.
                 m = md5.md5(outfile)
-                tmpname = m.hexdigest()
-                
+                tempdir = gettempdir()
+                os.environ['TEXMFOUTPUT'] = tempdir
+                tmpname = os.path.join(tempdir, m.hexdigest())
                 epsfile = tmpname + '.eps'
                 psfile = tmpname + '.ps'
                 texfile = tmpname + '.tex'
@@ -1140,42 +1142,64 @@ class FigureCanvasPS(FigureCanvasBase):
 """% (fontpackage, pw, ph, pw-2, ph-2, pw, ph, '\n'.join(renderer.psfrag), epsfile)
 
             latexh.close()
-
+            curdir = os.getcwd()
+            os.chdir(tempdir)
             command = 'latex -interaction=nonstopmode "%s"' % texfile
-
             verbose.report(command, 'debug-annoying')
             stdin, stdout, stderr = os.popen3(command)
             verbose.report(stdout.read(), 'debug-annoying')
             verbose.report(stderr.read(), 'helpful')
+            os.chdir(curdir)
             command = 'dvips -R -T %fin,%fin -o "%s" "%s"' % (pw, ph, psfile, dvifile)
             verbose.report(command, 'debug-annoying')
             stdin, stdout, stderr = os.popen3(command)
             verbose.report(stdout.read(), 'debug-annoying')
             verbose.report(stderr.read(), 'helpful')
             os.remove(epsfile)
-            if ext.startswith('.ep'):
-                dpi = rcParams['ps.distiller.res']
-
-                if sys.platform == 'win32':
-                    command = 'gswin32c -dBATCH -dNOPAUSE -dSAFER -r%d \
-                      -sDEVICE=epswrite -dLanguageLevel=2 -dEPSFitPage \
-                      -sOutputFile="%s" "%s"'% (dpi, epsfile, psfile)
+            
+            if rcParams['ps.usedistiller'] == 'xpdf':
+                pdffile = tmpname + '.pdf'
+                if ext.startswith('.ep'):
+                    command = 'ps2pdf "%s" "%s"'% (psfile, pdffile)
+                    os.system(command)
+                    command = 'pdftops -level2 "%s" "%s"'% (pdffile, psfile)
+                    os.system(command)
+                    os.remove(pdffile)
+                    command = '/usr/local/bin/ps2eps -l "%s"'% psfile
+                    stdin, stderr = os.popen4(command)
+                    verbose.report(stderr.read(), 'helpful')
+                    shutil.move(epsfile, outfile)
                 else:
-                    command = 'gs -dBATCH -dNOPAUSE -dSAFER -r%d \
-                    -sDEVICE=epswrite -dLanguageLevel=2 -dEPSFitPage \
-                    -sOutputFile="%s" "%s"'% (dpi, epsfile, psfile)
-
-                verbose.report(command, 'debug-annoying')
-                stdin, stdout, stderr = os.popen3(command)
-                verbose.report(stdout.read(), 'debug-annoying')
-                verbose.report(stderr.read(), 'helpful')
-                shutil.move(epsfile, outfile)
-            else: shutil.move(psfile, outfile)
+                    command = 'ps2pdf "%s" "%s"'% (psfile, pdffile)
+                    stdin, stderr = os.popen4(command)
+                    verbose.report(stderr.read(), 'helpful')
+                    os.remove(psfile)
+                    command = 'pdftops -paperw %d -paperh %d -level2 "%s" "%s"'% \
+                                (int(pw*72), int(ph*72), pdffile, psfile)
+                    os.system(command)
+                    shutil.move(psfile, outfile)
+            else:
+                if ext.startswith('.ep'):
+                    dpi = rcParams['ps.distiller.res']
+                    if sys.platform == 'win32':
+                        command = 'gswin32c -dBATCH -dNOPAUSE -dSAFER -r%d \
+                          -sDEVICE=epswrite -dLanguageLevel=2 -dEPSFitPage \
+                          -sOutputFile="%s" "%s"'% (dpi, epsfile, psfile)
+                    else:
+                        command = 'gs -dBATCH -dNOPAUSE -dSAFER -r%d \
+                        -sDEVICE=epswrite -dLanguageLevel=2 -dEPSFitPage \
+                        -sOutputFile="%s" "%s"'% (dpi, epsfile, psfile)
+                    verbose.report(command, 'debug-annoying')
+                    stdin, stdout, stderr = os.popen3(command)
+                    verbose.report(stdout.read(), 'debug-annoying')
+                    verbose.report(stderr.read(), 'helpful')
+                    shutil.move(epsfile, outfile)
+                else: shutil.move(psfile, outfile)
 
             for fname in glob.glob(tmpname+'.*'):
                 os.remove(fname)
                 
-        if rcParams['ps.usedistiller']:
+        if rcParams['ps.usedistiller'] == 'ghostscript':
             dpi = rcParams['ps.distiller.res']
             m = md5.md5(outfile)
             tmpfile = m.hexdigest()
@@ -1188,6 +1212,7 @@ class FigureCanvasPS(FigureCanvasBase):
             verbose.report(stdout.read(), 'debug-annoying')
             verbose.report(stderr.read(), 'helpful')
             shutil.move(tmpfile, outfile)
+
 
 class FigureManagerPS(FigureManagerBase):
     pass

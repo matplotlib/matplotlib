@@ -204,7 +204,10 @@ tk.pythoninspect  : False    # tk sets PYTHONINSEPCT
 # ps backend params
 ps.papersize      : letter   # executive, letter, legal, ledger, A0-A10, B0-B6, C0-C6
 ps.useafm         : False    # use of afm fonts -- breaks mathtext but results in small files
-ps.usedistiller   : False    # Experimental: use ghostscript to distill ps output - may yield smaller files
+ps.usedistiller   : False    # can be: None, ghostscript or xpdf
+                                          # Experimental: may produce smaller files.
+                                          # xpdf intended for production of publication quality files,
+                                          # but requires ghostscript, xpdf and ps2eps
 ps.distiller.res  : 6000      # dpi
 
 # Set the verbose flags.  This controls how much information
