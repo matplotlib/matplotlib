@@ -1,3 +1,5 @@
+2006-1-11 Fixed setup.py for win32 build and added rc template to the MANIFEST.in
+
 2006-1-10 Added xpdf distiller option. matplotlibrc ps.usedistiller can now be
             none, false, ghostscript, or xpdf. Validation checks for
             dependencies. This needs testing, but the xpdf option should produce
