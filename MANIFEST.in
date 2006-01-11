@@ -1,7 +1,7 @@
 include API_CHANGES CHANGELOG KNOWN_BUGS INSTALL NUMARRAY_ISSUES
 include INTERACTIVE TODO
 include Makefile  MANIFEST.in MANIFEST
-include matplotlibrc
+include matplotlibrc.template matplotlibrc
 include __init__.py setupext.py setup.py makeswig.py
 include examples/data/*
 include images/*
