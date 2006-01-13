@@ -1165,7 +1165,7 @@ class FigureCanvasPS(FigureCanvasBase):
                     command = 'pdftops -level2 "%s" "%s"'% (pdffile, psfile)
                     os.system(command)
                     os.remove(pdffile)
-                    command = '/usr/local/bin/ps2eps -l "%s"'% psfile
+                    command = 'ps2eps -l "%s"'% psfile
                     stdin, stderr = os.popen4(command)
                     verbose.report(stderr.read(), 'helpful')
                     shutil.move(epsfile, outfile)
