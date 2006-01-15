@@ -88,7 +88,7 @@ else:
     # We've already checked for a valid numerix selector,
     # so assume numpy.
     def typecode(a):
-        return a.dtypechar
+        return a.dtype.char
     def iscontiguous(a):
         return a.flags.contiguous
     def byteswapped(a):
