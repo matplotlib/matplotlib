@@ -1,3 +1,5 @@
+2006-1-12 Fixed numpy / numeric to use .dtype.char to keep in SYNC with numpy SVN
+
 2006-1-11 Fixed setup.py for win32 build and added rc template to the MANIFEST.in
 
 2006-1-10 Added xpdf distiller option. matplotlibrc ps.usedistiller can now be
