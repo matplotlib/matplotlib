@@ -430,49 +430,80 @@ get_data_path = verbose.wrap('matplotlib data path %s', _get_data_path, always=F
 
 
 def checkdep_dvipng():
-    stdin, stdout = os.popen4('dvipng -v')
-    if 'This is dvipng' in stdout.read(): return True
-    else:
-        verbose.report('dvipng not found!', 'helpful')
+    try:
+        stdin, stdout = os.popen4('dvipng -version')
+        line = stdout.readlines()[1]
+        v = line.split()[-1]
+        float(v)
+        if v >= '1.5': return True
+        else:
+            verbose.report(line+'\ndvipng-1.5 or later not found!', 'helpful')
+            return False
+    except IndexError, ValueError:
+        verbose.report(line+'\ndvipng-1.5 or later not found!', 'helpful')
         return False
 
 def checkdep_ghostscript():
-    flag = False
-    if sys.platform == 'win32':
-        stdin, stdout = os.popen4('gswin32c -v')
-        if 'Ghostscript' in stdout.read(): flag = True
-    else:
-        stdin, stdout = os.popen4('gs -v')
-        if 'Ghostscript' in stdout.read(): flag = True
-    if flag: return True
-    else:
-        verbose.report('Ghostscript not found!\n\
-Please install a recent version of ghostscript \n\
-(gnu-ghostscript-8.16 or later suggested)\n', 'helpful')
+    try:
+        if sys.platform == 'win32':
+            command = 'gswin32c -v'
+        else:
+            command = 'gs -v'
+        stdin, stdout = os.popen4(command)
+        line = stdout.readlines()[0]
+        v = line.split()[2]
+        float(v)
+        if v >= '8.16': return True
+        else:
+            verbose.report(line+'\nGhostscript-8.16 or later not found!\n', 'helpful')
+            return False
+    except IndexError, ValueError:
+        verbose.report(line+'\nGhostscript-8.16 or later not found!\n', 'helpful')
         return False
 
 def checkdep_ps2eps():
-    stdin, stdout = os.popen4('ps2eps -v')
-    if 'ps2eps - convert PostScript to EPS' in stdout.read(): return True
-    else:
-        verbose.report('ps2eps not found!', 'helpful')
+    try:
+        stdin, stdout = os.popen4('ps2eps -v')
+        line = stdout.readlines()[-1]
+        v = line.split()[-1]
+        float(v)
+        if v >= '1.58': return True
+        else:
+            verbose.report(line+'\nps2eps-1.58 or later not found!', 'helpful')
+            return False
+    except IndexError, ValueError:
+        verbose.report(line+'\nps2eps-1.58 or later not found!', 'helpful')
         return False
 
 def checkdep_tex():
-    stdin, stdout = os.popen4('tex -v')
-    if 'TeX' in stdout.read(): return True
-    else:
-        verbose.report('latex not found!\
+    try:
+        stdin, stdout = os.popen4('tex -v')
+        line = stdout.readlines()[0]
+        v = line.split()[1]
+        float(v)
+        if v >= '3.1415': return True
+        else:
+            verbose.report(line+'\nTeX not found!\
+Please install the appropriate package for your platform.\n', 'helpful')
+            return False
+    except IndexError, ValueError:
+        verbose.report(line+'\nTeX not found!\
 Please install the appropriate package for your platform.\n', 'helpful')
         return False
 
 def checkdep_xpdf():
-    stdin, stdout = os.popen4('xpdf -v')
-    if 'xpdf version' in stdout.read(): return True
-    else:
-        verbose.report('xpdf not found!', 'helpful')
+    try:
+        stdin, stdout = os.popen4('xpdf -v')
+        line = stdout.readlines()[0]
+        v = line.split()[-1]
+        float(v)
+        if v >= 3.0: return True
+        else:
+            verbose.report(line+'\nxpdf-3.0 or later not found!', 'helpful')
+            return False
+    except IndexError, ValueError:
+        verbose.report(line+'\nxpdf-3.0 or later not found!', 'helpful')
         return False
-
 
 def validate_path_exists(s):
     'If s is a path, return s, else False'
@@ -611,8 +642,6 @@ def validate_verbose_fileo(s):
         try: fileo = file(s, 'w')
         except IOError:
             raise ValueError('Verbose object could not open log file "%s" for writing.\nCheck your matplotlibrc verbose.fileo setting'%s)
-
-
         else:
             verbose.fileo = fileo
     return verbose.fileo
@@ -633,27 +662,38 @@ def validate_ps_distiller(s):
         return False
     elif s == 'ghostscript':
         if checkdep_ghostscript(): return s.lower()
-        else: raise 'DependencyError', 'matplotlibrc ps.usedistiller can not \
-be set to ghostscript unless ghostscript is available on your system'
-    elif s == 'xpdf':
-        if checkdep_ghostscript() and checkdep_xpdf() and checkdep_ps2eps():
-            return s.lower()
         else: 
+            raise 'DependencyError', 'matplotlibrc ps.usedistiller can not be \
+set to ghostscript unless ghostscript-8.16 or later is available on your system'
+    elif s == 'xpdf':
+        if not checkdep_ghostscript():
             raise 'DependencyError', 'matplotlibrc ps.usedistiller can not \
-be set to xpdf unless ghostscript, xpdf and ps2eps are available on your system'
+be set to xpdf unless ghostscript-8.16 or later is available on your system'
+        if not checkdep_xpdf():
+            raise 'DependencyError', 'matplotlibrc ps.usedistiller can not \
+be set to xpdf unless xpdf-3.0 or later is available on your system'
+        if not checkdep_ps2eps():
+            raise 'DependencyError', 'matplotlibrc ps.usedistiller can not \
+be set to xpdf unless ps2eps-1.58 or later is available on your system'
+        return s.lower()
     else: 
-        raise ValueError('matplotlibrc ps.usedistiller must either be none, ghostscript or xpdf')
+        raise ValueError('matplotlibrc ps.usedistiller must either be none,ghostscript or xpdf')
 
 validate_tex_engine = ValidateInStrings(['tex', 'latex'], ignorecase=True)
 
 def validate_usetex(s):
     bl = validate_bool(s)
     if bl:
-        if checkdep_tex() and checkdep_dvipng() and checkdep_ghostscript():
-            return bl
-        else:
-            raise 'DependencyError', 'matplotlibrc tex.usetex can not be set to \
-True unless LaTeX, dvipng and ghostscript are available on your system.'
+        if not checkdep_tex():
+            raise 'DependencyError', 'matplotlibrc text.usetex can not \
+be set to True unless TeX/LaTeX is available on your system'
+        if not checkdep_dvipng():
+            raise 'DependencyError', 'matplotlibrc text.usetex can not \
+be set to True unless dvipng-1.5 or later is available on your system'
+        if not checkdep_ghostscript():
+            raise 'DependencyError', 'matplotlibrc text.usetex can not \
+be set to True unless ghostscript-8.16 or later is available on your system'
+        return bl
     else: return bl
 
 validate_joinstyle = ValidateInStrings(['miter', 'round', 'bevel'], ignorecase=True)

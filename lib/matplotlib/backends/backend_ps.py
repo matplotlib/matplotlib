@@ -1139,8 +1139,8 @@ class FigureCanvasPS(FigureCanvasBase):
 \end{center}
 \end{figure}
 \end{document}
-"""% (fontpackage, pw, ph, pw-2, ph-2, pw, ph, '\n'.join(renderer.psfrag), epsfile)
-
+"""% (fontpackage, pw, ph, pw-2, ph-2, pw, ph, '\n'.join(renderer.psfrag),
+                os.path.split(epsfile)[-1])
             latexh.close()
             curdir = os.getcwd()
             os.chdir(tempdir)
@@ -1149,13 +1149,13 @@ class FigureCanvasPS(FigureCanvasBase):
             stdin, stdout, stderr = os.popen3(command)
             verbose.report(stdout.read(), 'debug-annoying')
             verbose.report(stderr.read(), 'helpful')
-            os.chdir(curdir)
             command = 'dvips -R -T %fin,%fin -o "%s" "%s"' % (pw, ph, psfile, dvifile)
             verbose.report(command, 'debug-annoying')
             stdin, stdout, stderr = os.popen3(command)
             verbose.report(stdout.read(), 'debug-annoying')
             verbose.report(stderr.read(), 'helpful')
             os.remove(epsfile)
+            os.chdir(curdir)
             
             if rcParams['ps.usedistiller'] == 'xpdf':
                 pdffile = tmpname + '.pdf'
@@ -1194,24 +1194,33 @@ class FigureCanvasPS(FigureCanvasBase):
                     verbose.report(stdout.read(), 'debug-annoying')
                     verbose.report(stderr.read(), 'helpful')
                     shutil.move(epsfile, outfile)
-                else: shutil.move(psfile, outfile)
+                else: # for standard postscript:
+                    if rcParams['ps.usedistiller'] == 'ghostscript':
+                        command = 'ps2ps -dSAFER -r%d "%s" "%s"'% (dpi, psfile, outfile)
+                        verbose.report(command, 'debug-annoying')
+                        stdin, stdout, stderr = os.popen3(command)
+                        verbose.report(stdout.read(), 'debug-annoying')
+                        verbose.report(stderr.read(), 'helpful')
+                    else:
+                        shutil.move(psfile, outfile)
 
             for fname in glob.glob(tmpname+'.*'):
                 os.remove(fname)
                 
-        if rcParams['ps.usedistiller'] == 'ghostscript':
-            dpi = rcParams['ps.distiller.res']
-            m = md5.md5(outfile)
-            tmpfile = m.hexdigest()
-            if ext.startswith('ep'):
-                command = 'eps2eps -dSAFER -r%d "%s" "%s"'% (dpi, outfile, tmpfile)
-            else:
-                command = 'ps2ps -dSAFER -r%d "%s" "%s"'% (dpi, outfile, tmpfile)
-            verbose.report(command, 'debug-annoying')
-            stdin, stdout, stderr = os.popen3(command)
-            verbose.report(stdout.read(), 'debug-annoying')
-            verbose.report(stderr.read(), 'helpful')
-            shutil.move(tmpfile, outfile)
+        elif not rcParams['text.usetex']:
+            if rcParams['ps.usedistiller'] == 'ghostscript':
+                dpi = rcParams['ps.distiller.res']
+                m = md5.md5(outfile)
+                tmpfile = m.hexdigest()
+                if ext.startswith('ep'):
+                    command = 'eps2eps -dSAFER -r%d "%s" "%s"'% (dpi, outfile, tmpfile)
+                else:
+                    command = 'ps2ps -dSAFER -r%d "%s" "%s"'% (dpi, outfile, tmpfile)
+                verbose.report(command, 'debug-annoying')
+                stdin, stdout, stderr = os.popen3(command)
+                verbose.report(stdout.read(), 'debug-annoying')
+                verbose.report(stderr.read(), 'helpful')
+                shutil.move(tmpfile, outfile)
 
 
 class FigureManagerPS(FigureManagerBase):
