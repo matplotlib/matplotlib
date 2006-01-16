@@ -394,6 +394,7 @@ class ContourSet(ScalarMappable, ContourLabeler):
         self.extent = kwargs.get('extent', None)
         cmap = kwargs.get('cmap', None)
         self.colors = kwargs.get('colors', None)
+        norm = kwargs.get('norm', None)
         self.clip_ends = kwargs.get('clip_ends', True)
         self.antialiased = kwargs.get('antialiased', True)
         self.nchunk = kwargs.get('nchunk', 0)
@@ -417,10 +418,11 @@ class ContourSet(ScalarMappable, ContourLabeler):
         self.cl = []
         self.cl_cvalues = []
 
-        ScalarMappable.__init__(self, cmap = cmap) # sets self.cmap;
-                                                   # default norm for now
+        kw = {'cmap': cmap}
+        if norm is not None:
+            kw['norm'] = norm
+        ScalarMappable.__init__(self, **kw) # sets self.cmap;
         self._process_colors()
-
 
         if self.filled:
             if self.linewidths is None:
@@ -453,7 +455,6 @@ class ContourSet(ScalarMappable, ContourLabeler):
 
                 if level < 0.0 and self.monochrome:
                     col.set_linestyle((0, (6.,6.)),)
-                    #print "setting dashed"
                 col.set_label(str(level))         # only for self-documentation
                 self.ax.add_collection(col)
                 self.collections.append(col)
@@ -686,6 +687,11 @@ class ContourSet(ScalarMappable, ContourLabeler):
 
             * cmap = None: a cm Colormap instance from matplotlib.cm.
               - if cmap == None and colors == None, a default Colormap is used.
+
+            * norm = None: a matplotlib.colors.normalize instance for
+              scaling data values to colors.
+              - if norm == None, and colors == None, the default
+                linear scaling is used.
 
             * origin = None: 'upper'|'lower'|'image'|None.
               If 'image', the rc value for image.origin will be used.
