@@ -656,8 +656,8 @@ class Figure(Artist):
         """
         Create a colorbar for mappable image
 
-        mappable is the cm.ScalarMappable instance that you want to
-        colorbar to apply to, eg an Image as returned by imshow or a
+        mappable is the cm.ScalarMappable instance that you want the
+        colorbar to apply to, e.g. an Image as returned by imshow or a
         PatchCollection as returned by scatter or pcolor.
 
         tickfmt is a format string to format the colorbar ticks
@@ -750,7 +750,13 @@ class Figure(Artist):
             args = (transpose(Y), transpose(C), transpose(X), clevs)
         else:
             args = (C, Y, X, clevs)
-        kw = {'cmap':cmap}
+        #If colors were listed in the original mappable, then
+        # let contour handle them the same way.
+        colors = getattr(mappable, 'colors', None)
+        if colors is not None:
+            kw = {'colors': colors}
+        else:
+            kw = {'cmap':cmap, 'norm':norm}
         if isContourSet and not mappable.filled:
             CS = cax.contour(*args, **kw)
             colls = mappable.collections
@@ -826,7 +832,7 @@ def figaspect(arg):
     Create a figure with specified aspect ratio.  If arg is a number,
     use that aspect ratio.  If arg is an array, figaspect will
     determine the width and height for a figure that would fit array
-    preserving aspcect ratio.  The figure width, height in inches are
+    preserving aspect ratio.  The figure width, height in inches are
     returned.  Be sure to create an axes with equal with and height,
     eg
 
