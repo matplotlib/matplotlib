@@ -452,7 +452,8 @@ def checkdep_ghostscript():
         stdin, stdout = os.popen4(command)
         line = stdout.readlines()[0]
         v = line.split()[2]
-        float(v)
+        vtest = '.'.join(v.split('.')[:2]) # deal with version numbers like '7.07.1'
+        float(vtest)
         if v >= '8.16': return True
         else:
             verbose.report(line+'\nGhostscript-8.16 or later not found!\n', 'helpful')
@@ -479,9 +480,12 @@ def checkdep_tex():
     try:
         stdin, stdout = os.popen4('tex -v')
         line = stdout.readlines()[0]
-        v = line.split()[1]
-        float(v)
-        if v >= '3.1415': return True
+        v = 0.0 # no version installed until we find one...
+        for potential_version_numstr in line.split():
+            if potential_version_numstr.startswith('3.1'):
+                v=float(potential_version_numstr)
+                break # found version number
+        if v >= 3.1415: return True
         else:
             verbose.report(line+'\nTeX not found!\
 Please install the appropriate package for your platform.\n', 'helpful')
@@ -688,13 +692,14 @@ def validate_usetex(s):
             raise 'DependencyError', 'matplotlibrc text.usetex can not \
 be set to True unless TeX/LaTeX is available on your system'
         if not checkdep_dvipng():
-            raise 'DependencyError', 'matplotlibrc text.usetex can not \
-be set to True unless dvipng-1.5 or later is available on your system'
+            warnings.warn( 'matplotlibrc text.usetex can not \
+be be used with *Agg backend unless dvipng-1.5 or later is available on your system' )
         if not checkdep_ghostscript():
-            raise 'DependencyError', 'matplotlibrc text.usetex can not \
-be set to True unless ghostscript-8.16 or later is available on your system'
+            warnings.warn('matplotlibrc text.usetex can not \
+be be used with ps backend unless ghostscript-8.16 or later is available on your system')
         return bl
-    else: return bl
+    else:
+        return bl
 
 validate_joinstyle = ValidateInStrings(['miter', 'round', 'bevel'], ignorecase=True)
 
@@ -942,7 +947,7 @@ WARNING: Old rc filename "%s" found and renamed to
 
 
 
-def rc_params():
+def rc_params(fail_on_error=False):
     'Return the default params updated from the values in the rc file'
 
     deprecated_map = {
@@ -990,13 +995,18 @@ def rc_params():
         ind = val.find('#')
         if ind>=0: val = val[:ind]   # ignore trailing comments
         val = val.strip()
-        try: cval = converter(val)   # try to convert to proper type or raise
-        except Exception, msg:
-            warnings.warn('Bad val "%s" on line #%d\n\t"%s"\n\tin file "%s"\n\t%s' % (val, cnt, line, fname, msg))
-            continue
-        else:
-            # Alles Klar, update dict
+        if fail_on_error:
+            cval = converter(val)   # try to convert to proper type or raise
             defaultParams[key][0] = cval
+        else:
+            try: cval = converter(val)   # try to convert to proper type or raise
+            except Exception, msg:
+                warnings.warn('Bad val "%s" on line #%d\n\t"%s"\n\tin file "%s"\n\t%s' % (
+                    val, cnt, line, fname, msg))
+                continue
+            else:
+                # Alles Klar, update dict
+                defaultParams[key][0] = cval
 
     # strip the conveter funcs and return
     ret =  dict([ (key, tup[0]) for key, tup in defaultParams.items()])
