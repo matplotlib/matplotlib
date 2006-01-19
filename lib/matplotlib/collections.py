@@ -15,7 +15,7 @@ from backend_bases import GraphicsContextBase
 from cbook import is_string_like, iterable
 from colors import colorConverter, looks_like_color
 from cm import ScalarMappable
-from numerix import arange, sin, cos, pi, asarray, sqrt
+from numerix import arange, sin, cos, pi, asarray, sqrt, array
 from transforms import identity_transform
 
 class Collection(Artist):
@@ -58,8 +58,6 @@ class Collection(Artist):
                 else: return val
 
         raise TypeError('val must be a float or nonzero sequence of floats')
-
-
 
 class PatchCollection(Collection, ScalarMappable):
     """
@@ -169,18 +167,45 @@ class PatchCollection(Collection, ScalarMappable):
         if self._A is None: return
         if len(self._A.shape)>1:
             raise ValueError('PatchCollections can only map rank 1 arrays')
-        R = self.to_rgba(self._A, self._alpha)
+        self._facecolors = self.to_rgba(self._A, self._alpha)
         #print self._A.shape, type(R), R.shape
-        self._facecolors = [(r,g,b,a) for r,g,b,a in R]
+        #self._facecolors = [(r,g,b,a) for r,g,b,a in R]
 
+class QuadMesh(PatchCollection):
+	"""
+	Class for the efficient drawing of a quadrilateral mesh.
+	A quadrilateral mesh consists of a grid of vertices. The dimensions of this array are (meshWidth+1, meshHeight+1). Each vertex in the mesh has a different set of "mesh coordinates" representing its position in the topology of the mesh. For any values (m, n) such that 0 <= m <= meshWidth and 0 <= n <= meshHeight, the vertices at mesh coordinates (m, n), (m, n+1), (m+1, n+1), and (m+1, n) form one of the quadrilaterals in the mesh. There are thus (meshWidth * meshHeight) quadrilaterals in the mesh.
+	The mesh need not be regular and the polygons need not be convex.
+	A quadrilateral mesh is represented by a (2 x ((meshWidth + 1) * (meshHeight + 1))) Numeric array 'coordinates' where each row is the X and Y coordinates of one of the vertices.
+	To define the function that maps from a data point to its corresponding color, use the set_cmap() function.
+Each of these arrays is indexed in row-major order by the mesh coordinates of the vertex (or the mesh coordinates of the lower left vertex, in the case of the colors). For example, the first entry in coordinates is the coordinates of the vertex at mesh coordinates (0, 0), then the one at (0, 1), then at (0, 2) .. (0, meshWidth), (1, 0), (1, 1), and so on.
+	"""	
+	def __init__(self, norm = None, cmap = None):
+		PatchCollection.__init__(self)
+
+	def __init__(self, meshWidth, meshHeight, coordinates, **kwargs):
+		PatchCollection.__init__(self, )
+		self._meshWidth = meshWidth
+		self._meshHeight = meshHeight
+		self._coordinates = coordinates
+
+	def get_verts(self):
+		return self._coordinates;
+
+	def draw(self, renderer):
+		# does not call update_scalarmappable, need to update it when creating/changing
+		if not self.get_visible(): return
+		self._transform.freeze()
+        	self._transOffset.freeze()
+		renderer.draw_quad_mesh(self._meshWidth, self._meshHeight, self._facecolors, self._coordinates[:, 0], self._coordinates[:, 1], self.clipbox, self._transform, self._offsets, self._transOffset)
+		self._transform.thaw()
+		self._transOffset.thaw()
 
 class PolyCollection(PatchCollection):
     def __init__(self, verts, **kwargs):
         """
         verts is a sequence of ( verts0, verts1, ...) where verts_i is
         a sequence of xy tuples of vertices.
-
-
 
         Optional kwargs from Patch collection include
 

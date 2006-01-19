@@ -1225,12 +1225,8 @@ SeparableTransformation::operator()(const double& x, const double& y) {
 
   // calling function must first call eval_scalars
 
-  double fx = _funcx->operator()(x);
-  double fy = _funcy->operator()(y);
-
-
-  xy.first  = _sx * fx  +  _tx ;
-  xy.second = _sy * fy  +  _ty;
+  xy.first  = _sx * _funcx->operator()(x) + _tx ;
+  xy.second = _sy * _funcy->operator()(y) + _ty ;
 
   if (_usingOffset) {
     xy.first  += _xot;
@@ -1239,6 +1235,31 @@ SeparableTransformation::operator()(const double& x, const double& y) {
 
 
   return xy;
+}
+
+void
+SeparableTransformation::arrayOperator(const int length, const double x[], const double y[], double newx[], double newy[]) {
+  _VERBOSE("SeparableTransformation::arrayOperator");
+  
+  _funcx->arrayOperator(length, x, newx);
+  _funcy->arrayOperator(length, y, newy);
+
+  // calling function must first call eval_scalars
+  if (_usingOffset) {
+	for(int i=0; i < length; i++)
+	{
+		newx[i] = (_sx * newx[i]) + _tx + _xot ;
+		newy[i] = (_sy * newy[i]) + _ty + _yot ;
+	}
+  }
+  else {
+	for(int i=0; i < length; i++)
+	{
+		newx[i] = (_sx * newx[i]) + _tx ;
+		newy[i] = (_sy * newy[i]) + _ty ;
+	}
+  }
+
 }
 
 
@@ -1398,6 +1419,28 @@ NonseparableTransformation::operator()(const double& x, const double& y) {
   return xy;
 }
 
+void
+NonseparableTransformation::arrayOperator(const int length, const double x[], const double y[], double newx[], double newy[]) {
+  _VERBOSE("NonseparableTransformation::operator");
+  
+  _funcxy->arrayOperator(length, x, y, newx, newy);
+  if (_usingOffset) {
+	for(int i=0; i < length; i++)
+	{
+		newx[i] = (_sx * newx[i]) + _tx + _xot ;
+		newy[i] = (_sy * newy[i]) + _ty + _yot ;
+	}
+  }
+  else {
+	for(int i=0; i < length; i++)
+	{
+		xy = _funcxy->operator()(x[i], y[i]);
+		newx[i] = (_sx * newx[i]) + _tx ;
+		newy[i] = (_sy * newy[i]) + _ty ;
+	}
+  }
+  return;
+}
 
 std::pair<double, double> &
 NonseparableTransformation::inverse_api(const double &x, const double &y) {

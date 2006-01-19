@@ -108,6 +108,7 @@ public:
   Py::Object draw_ellipse(const Py::Tuple & args);
   Py::Object draw_polygon(const Py::Tuple & args);
   Py::Object draw_line_collection(const Py::Tuple& args);
+  Py::Object draw_quad_mesh(const Py::Tuple& args);
   Py::Object draw_poly_collection(const Py::Tuple& args);
   Py::Object draw_regpoly_collection(const Py::Tuple& args);
   Py::Object draw_lines(const Py::Tuple & args);
@@ -160,7 +161,9 @@ protected:
   agg::rect bbox_to_rect( const Py::Object& o);
   double points_to_pixels( const Py::Object& points);
   double points_to_pixels_snapto( const Py::Object& points);
-
+  void DrawQuadMesh(int, int, const Py::SeqBase<Py::Object>&, double[], double[]);
+  int intersectCheck(double, double, double, double, double, int*);
+  int inPolygon(int, double, double, double, double, double, double, double, double, int*);
   void set_clip_from_bbox(const Py::Object& o);
   agg::rgba rgb_to_color(const Py::SeqBase<Py::Object>& rgb, double alpha);
   facepair_t _get_rgba_face(const Py::Object& rgbFace, double alpha);

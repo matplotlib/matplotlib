@@ -685,7 +685,212 @@ RendererAgg::set_clip_from_bbox(const Py::Object& o) {
 
 }
 
+/****************************/
 
+int RendererAgg::intersectCheck(double yCoord, double x1, double y1, double x2, double y2, int* intersectPoint)
+{
+	/* Returns 0 if no intersection or 1 if yes */
+	/* If yes, changes intersectPoint to the x coordinate of the point of intersection */
+	if ((y1>=yCoord) != (y2>=yCoord)) {
+		/* Don't need to check for y1==y2 because the above condition rejects it automatically */
+		*intersectPoint = (int)( ( x1 * (y2 - yCoord) + x2 * (yCoord - y1) ) / (y2 - y1) + 0.5);
+		return 1;
+	}
+	return 0;
+}
+
+int RendererAgg::inPolygon(int row, double xAA, double yAA, double xAB, double yAB, double xBA, double yBA, double xBB, double yBB, int col[4])
+{
+	int numIntersect = 0;
+	/* Determines the boundaries of the row of pixels that is in the polygon */
+	/* A pixel (x, y) is in the polygon if its center (x+0.5, y+0.5) is */
+	/* This currently only works properly for convex polygons */
+	double ycoord = (double(row) + 0.5);
+	/* check AA-AB line */
+	numIntersect += intersectCheck(ycoord, xAA, yAA, xAB, yAB, col+numIntersect);
+	/* check AB-BB line */
+	numIntersect += intersectCheck(ycoord, xAB, yAB, xBB, yBB, col+numIntersect);
+	/* check BB-BA line */
+	numIntersect += intersectCheck(ycoord, xBB, yBB, xBA, yBA, col+numIntersect);
+	/* check BA-AA line */
+	numIntersect += intersectCheck(ycoord, xBA, yBA, xAA, yAA, col+numIntersect);
+
+	/* reorder if necessary */
+	if (numIntersect == 2 && col[0] > col[1]) std::swap(col[0],col[1]);
+	if (numIntersect == 4) {
+		// Inline bubble sort on array of size 4
+		if (col[0] > col[1]) std::swap(col[0],col[1]);
+	        if (col[1] > col[2]) std::swap(col[1],col[2]);
+		if (col[2] > col[3]) std::swap(col[2],col[3]);
+		if (col[0] > col[1]) std::swap(col[0],col[1]);
+		if (col[1] > col[2]) std::swap(col[1],col[2]);
+		if (col[0] > col[1]) std::swap(col[0],col[1]);
+	}
+	// numIntersect must be 0, 2 or 4
+	return numIntersect;
+}
+
+void RendererAgg::DrawQuadMesh(int meshWidth, int meshHeight, const Py::SeqBase<Py::Object> &colors, double xCoords[], double yCoords[])
+{
+	/* draw each quadrilateral */
+	agg::rgba8 c;
+	int i = 0;
+	int j = 0;
+	int k = 0;
+	double xAA;
+	double yAA;
+	double xAB;
+	double yAB;
+	double xBA;
+	double yBA;
+	double xBB;
+	double yBB;
+	double ymin;
+	int firstRow;
+	double ymax;
+	int lastRow;
+	for(i=0; i < meshHeight; i++)
+	{
+		for(j=0; j < meshWidth; j++)
+		{
+			xAA = xCoords[(i * (meshWidth + 1)) + j];
+			yAA = yCoords[(i * (meshWidth + 1)) + j];
+			xAB = xCoords[(i * (meshWidth + 1)) + j+1];
+			yAB = yCoords[(i * (meshWidth + 1)) + j+1];
+			xBA = xCoords[((i+1) * (meshWidth + 1)) + j];
+			yBA = yCoords[((i+1) * (meshWidth + 1)) + j];
+			xBB = xCoords[((i+1) * (meshWidth + 1)) + j+1];
+			yBB = yCoords[((i+1) * (meshWidth + 1)) + j+1];
+		 	ymin = yAA;
+			ymin = (yAB < ymin ? yAB : ymin);
+			ymin = (yBA < ymin ? yBA : ymin);
+			ymin = (yBB < ymin ? yBB : ymin);
+			firstRow = (int)(ymin);
+			ymax = yAA;
+			ymax = (yAB > ymax ? yAB : ymax);
+			ymax = (yBA > ymax ? yBA : ymax);
+			ymax = (yBB > ymax ? yBB : ymax);
+			lastRow = (int)(ymax);
+			Py::SeqBase<Py::Object> rgba = Py::SeqBase<Py::Object>(colors[(i * meshWidth) + j]);
+			double r = Py::Float(rgba[0]);
+    			double g = Py::Float(rgba[1]);
+    			double b = Py::Float(rgba[2]);
+    			double a = Py::Float(rgba[3]);
+			agg::rgba8 c((int)(255.0*r), (int)(255.0*g), (int)(255.0*b), (int)(255.0*a));
+			for(k = firstRow; k <= lastRow; k++)
+			{
+				int col[4];
+				int numCol = inPolygon(k, xAA, yAA, xAB, yAB, xBA, yBA, xBB, yBB, col);
+				if (numCol >= 2) rendererBase->copy_hline(col[0], k, col[1] - 1, c);
+				if (numCol == 4) rendererBase->copy_hline(col[2], k, col[3] - 1, c);
+			}
+		}
+	}
+	return;
+}
+
+Py::Object
+RendererAgg::draw_quad_mesh(const Py::Tuple& args){
+	
+	/*printf("Drawing Mesh\n");*/	
+
+	Py::SeqBase<Py::Object> colors = args[2];
+	Py::Object xCoordsi = args[3];
+	Py::Object yCoordsi = args[4];
+	
+	int meshWidth = Py::Int(args[0]);
+	int meshHeight = Py::Int(args[1]);
+
+	/*PyArrayObject *colors = (PyArrayObject *) PyArray_ContiguousFromObject(colorsi.ptr(), PyArray_DOUBLE, 1, 1);*/
+	PyArrayObject *xCoords = (PyArrayObject *) PyArray_ContiguousFromObject(xCoordsi.ptr(), PyArray_DOUBLE, 1, 1);
+	PyArrayObject *yCoords = (PyArrayObject *) PyArray_ContiguousFromObject(yCoordsi.ptr(), PyArray_DOUBLE, 1, 1);
+
+
+/*****copied part****/
+	/* do transformations */
+	  //todo: fix transformation check
+	  Transformation* transform = static_cast<Transformation*>(args[6].ptr());
+
+  	try {	
+    	transform->eval_scalars();
+  	}
+  	catch(...) {
+    	throw Py::ValueError("Domain error on eval_scalars in RendererAgg::draw_quad_mesh");
+  	}
+
+  	set_clip_from_bbox(args[5]);
+
+	  Py::SeqBase<Py::Object> offsets;
+	  Transformation* transOffset = NULL;
+	  bool usingOffsets = args[7].ptr() != Py_None;
+	  if (usingOffsets) {
+	    offsets = args[7];
+	    //todo: fix transformation check
+	    transOffset = static_cast<Transformation*>(args[8].ptr());
+	    try {
+	      transOffset->eval_scalars();
+	    }
+	    catch(...) {
+ 	      throw Py::ValueError("Domain error on transOffset eval_scalars in RendererAgg::draw_quad_mesh");
+    	}
+
+  }	
+
+  size_t Noffsets = offsets.length();
+  size_t Nverts = xCoords->dimensions[0];
+ /*  size_t N = (Noffsets>Nverts) ? Noffsets : Nverts; */
+
+  std::pair<double, double> xyo, xy;
+	
+  //do non-offset transformations
+  double* xCoordsa = new double[Nverts];
+  double* yCoordsa = new double[Nverts];
+  double* newXCoords = new double[Nverts];
+  double* newYCoords = new double[Nverts];
+  for(size_t k=0; k < Nverts; k++)
+  {
+	xCoordsa[k] = *(double *)(xCoords -> data + k*(xCoords -> strides[0]));
+	yCoordsa[k] = *(double *)(yCoords -> data + k*(yCoords -> strides[0]));
+  }
+  transform->arrayOperator(Nverts, xCoordsa, yCoordsa, newXCoords, newYCoords);
+  delete xCoordsa;
+  delete yCoordsa;
+  if(usingOffsets)
+  {
+	double* xOffsets = new double[Noffsets];
+	double* yOffsets = new double[Noffsets];
+	double* newXOffsets = new double[Noffsets];
+	double* newYOffsets = new double[Noffsets];
+	for(size_t k=0; k < Noffsets; k++)
+	{
+      		Py::SeqBase<Py::Object> pos = Py::SeqBase<Py::Object>(offsets[k]);
+      		xOffsets[k] = Py::Float(pos[0]);
+      		yOffsets[k] = Py::Float(pos[1]);
+	}
+	transOffset->arrayOperator(Noffsets, xOffsets, yOffsets, newXOffsets, newYOffsets);
+	for(size_t k=0; k < Nverts; k++)
+	{
+		newXCoords[k] += newXOffsets[k];
+		newYCoords[k] += newYOffsets[k];
+	}
+  	delete xOffsets;
+	delete yOffsets;
+  }
+
+  for(size_t k=0; k < Nverts; k++)
+  {
+	newYCoords[k] = height - newYCoords[k];
+  }
+
+/**** End of copied part ****/
+
+	DrawQuadMesh(meshWidth, meshHeight, colors, &(newXCoords[0]), &(newYCoords[0]));
+	delete newXCoords;
+	delete newYCoords;
+	return Py::Object();
+}
+
+/****************************/
 Py::Object
 RendererAgg::draw_poly_collection(const Py::Tuple& args) {
   theRasterizer->reset_clipping();
@@ -1971,6 +2176,9 @@ void RendererAgg::init_type()
   add_varargs_method("draw_regpoly_collection",
 		     &RendererAgg::draw_regpoly_collection,
 		     "draw_regpoly_collection()\n");
+  add_varargs_method("draw_quad_mesh",
+		     &RendererAgg::draw_quad_mesh,
+		     "draw_quad_mesh()\n");
   add_varargs_method("draw_lines", &RendererAgg::draw_lines,
 		     "draw_lines(gc, x, y,)\n");
   add_varargs_method("draw_markers", &RendererAgg::draw_markers,

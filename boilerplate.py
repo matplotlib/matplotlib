@@ -66,6 +66,7 @@ _plotcommands = (
     'imshow',
     'loglog',
     'pcolor',
+    'pcolormesh',
     'pcolor_classic',
     'pie',
     'plot',

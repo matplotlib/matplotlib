@@ -121,6 +121,7 @@ class RendererAgg(RendererBase):
         self.draw_markers = self._renderer.draw_markers
         self.draw_image = self._renderer.draw_image
         self.draw_line_collection = self._renderer.draw_line_collection
+        self.draw_quad_mesh = self._renderer.draw_quad_mesh
         self.draw_poly_collection = self._renderer.draw_poly_collection
         self.draw_regpoly_collection = self._renderer.draw_regpoly_collection
 
