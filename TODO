@@ -738,3 +738,5 @@ ZeroDivisionError: SeparableTransformation::eval_scalars yin interval is zero; c
 -- handle lineprops.glade install file
 
 -- support zoom to rect in x or y only
+
+-- add Ryan's patch

@@ -811,6 +811,20 @@ defaultParams = {
 
     'polaraxes.grid'         : [True, validate_bool],   # display polar grid or not
 
+    #legend properties
+    'legend.isaxes'	:	[True,validate_bool],
+    'legend.numpoints' 	:	[ 4,validate_int],      # the number of points in the legend line
+    'legend.fontsize' : ["small",validate_fontsize],
+    'legend.pad' 	:	[ 0.2, validate_float],         # the fractional whitespace inside the legend border
+    'legend.markerscale' 	:	[ 0.6, validate_float],    # the relative size of legend markers vs. original
+    # the following dimensions are in axes coords
+    'legend.labelsep' 	:	[ 0.005, validate_float],    # the vertical space between the legend entries
+    'legend.handlelen' 	:	[ 0.05, validate_float],  # the length of the legend lines
+    'legend.handletextsep' 	:	[ 0.02, validate_float], # the space between the legend line and legend text
+    'legend.axespad' 	:	[ 0.02, validate_float], # the border between the axes and legend edge
+    'legend.shadow' : [ False, validate_bool ],
+
+
     # tick properties
     'xtick.major.size'   : [5, validate_float],      # major xtick size in points
     'xtick.minor.size'   : [2, validate_float],      # minor xtick size in points
@@ -1179,3 +1193,30 @@ verbose.report('verbose.level %s'%verbose.level)
 verbose.report('interactive is %s'%rcParams['interactive'])
 verbose.report('platform is %s'%sys.platform)
 verbose.report('loaded modules: %s'%sys.modules.keys(), 'debug')
+
+class ExampleInfo:
+    pass
+
+class ExampleManager:
+    baseurl = 'http://matplotlib.sf.net'
+    urls = ['%s/%s'%(baseurl, subdir) for subdir in
+            ( 'examples', 'examples/widgets')]
+
+    def get_examples(self):
+        import urllib, re
+        rgx = re.compile('.*<A HREF="([^.]+\.py)">.*')
+        examples = []
+        for url in urls:
+            lines = urllib.urlopen(url).readlines()
+            for line in lines:
+                m = rgx.match(line)
+                if m is not None:
+                    examples.append('%s/%s'%(url, m.group(1)))
+        return examples
+            
+    def get_info(self, s):
+        """
+        return an ExampleInfo instance from s, the string content of
+        an example
+        """
+        pass

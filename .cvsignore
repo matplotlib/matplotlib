@@ -3,4 +3,3 @@ dist
 docs
 *.pyc
 .project
-matplotlibrc

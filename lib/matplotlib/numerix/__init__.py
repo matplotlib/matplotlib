@@ -1,7 +1,7 @@
 """
 numerix  imports either Numeric or numarray based on various selectors.
 
-0.  If the value "--numarray" or "--Numeric" is specified on the
+0.  If the value "--numpy","--numarray" or "--Numeric" is specified on the
     command line, then numerix imports the specified
     array package.
 

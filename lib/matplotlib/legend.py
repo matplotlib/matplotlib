@@ -25,7 +25,7 @@ import sys, warnings
 from numerix import array, ones, Float
 
 
-from matplotlib import verbose
+from matplotlib import verbose, rcParams
 from artist import Artist
 from cbook import enumerate, is_string_like, iterable, silent_list
 from font_manager import FontProperties
@@ -110,18 +110,18 @@ class Legend(Artist):
 
 
     def __init__(self, parent, handles, labels, loc,
-                 isaxes=True,
-                 numpoints = 4,      # the number of points in the legend line
-                 prop = FontProperties(size='smaller'),
-                 pad = 0.2,          # the fractional whitespace inside the legend border
-                 markerscale = 0.6,    # the relative size of legend markers vs. original
+                 isaxes= None,
+                 numpoints = None,      # the number of points in the legend line
+                 prop = None,
+                 pad = None,          # the fractional whitespace inside the legend border
+                 markerscale = None,    # the relative size of legend markers vs. original
                  # the following dimensions are in axes coords
-                 labelsep = 0.005,     # the vertical space between the legend entries
-                 handlelen = 0.05,     # the length of the legend lines
-                 handletextsep = 0.02, # the space between the legend line and legend text
-                 axespad = 0.02,       # the border between the axes and legend edge
+                 labelsep = None,     # the vertical space between the legend entries
+                 handlelen = None,     # the length of the legend lines
+                 handletextsep = None, # the space between the legend line and legend text
+                 axespad = None,       # the border between the axes and legend edge
 
-                 shadow=False,
+                 shadow= None,
                  ):
         """
   parent                # the artist that contains the legend
@@ -146,19 +146,19 @@ The following dimensions are in axes coords
             warnings.warn('Unrecognized location %s. Falling back on upper right; valid locations are\n%s\t' %(loc, '\n\t'.join(self.codes.keys())))
         if is_string_like(loc): loc = self.codes.get(loc, 1)
 
-        self.numpoints = numpoints
-        self.prop = prop
-        self.fontsize = prop.get_size_in_points()
-        self.pad = pad
-        self.markerscale = markerscale
-        self.labelsep = labelsep
-        self.handlelen = handlelen
-        self.handletextsep = handletextsep
-        self.axespad = axespad
-        self.shadow = shadow
+        proplist=[numpoints, pad, markerscale, labelsep, handlelen, handletextsep, axespad, shadow, isaxes]
+        propnames=['numpoints', 'pad', 'markerscale', 'labelsep', 'handlelen', 'handletextsep', 'axespad', 'shadow', 'isaxes']
+        for name, value in zip(propnames,proplist):
+            if value is None:
+                value=rcParams["legend."+name]
+            setattr(self,name,value)
+        if prop is None:
+            self.prop=FontProperties(size=rcParams["legend.fontsize"])
+        else:
+            self.prop=prop
+        self.fontsize = self.prop.get_size_in_points()
 
-        self.isaxes = isaxes
-        if isaxes:  # parent is an Axes
+        if self.isaxes:  # parent is an Axes
             self.set_figure(parent.figure)
         else:        # parent is a Figure
             self.set_figure(parent)

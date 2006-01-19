@@ -1,4 +1,14 @@
+
+2006-01-18 Added comma delimiter for pylab save
+
+2006-01-12 Added Ryan's legend patch - JDH
+
+
 2006-1-12 Fixed numpy / numeric to use .dtype.char to keep in SYNC with numpy SVN
+
+
+===============================================================
+2006-1-11 0.86.1 released
 
 2006-1-11 Fixed setup.py for win32 build and added rc template to the MANIFEST.in
 
