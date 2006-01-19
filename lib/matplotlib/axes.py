@@ -15,7 +15,7 @@ from artist import Artist, setp
 from axis import XAxis, YAxis
 from cbook import iterable, is_string_like, flatten, enumerate, \
      allequal, dict_delall, popd, popall, silent_list
-from collections import RegularPolyCollection, PolyCollection, LineCollection
+from collections import RegularPolyCollection, PolyCollection, LineCollection, QuadMesh
 from colors import colorConverter, normalize, Colormap, LinearSegmentedColormap, looks_like_color
 import cm
 #from cm import ColormapJet, Grayscale, ScalarMappable
@@ -2301,6 +2301,131 @@ class Axes(Artist):
         corners = (minx, miny), (maxx, maxy)
         self.update_datalim( corners)
         self.autoscale_view()
+
+        # add the collection last
+        self.add_collection(collection)
+
+        return collection
+
+    def pcolormesh(self, *args, **kwargs):
+        """
+        PCOLORMESH(*args, **kwargs)
+
+        Function signatures
+
+          PCOLORMESH(C) - make a pseudocolor plot of matrix C
+
+          PCOLORMESH(X, Y, C) - a pseudo color plot of C on the matrices X and Y
+
+          PCOLORMESH(C, **kwargs) - Use keywork args to control colormapping and
+                                scaling; see below
+
+        X,Y and C may not be masked arrays, unlike with pcolor().
+
+        Optional keywork args are shown with their defaults below (you must
+        use kwargs for these):
+
+          * cmap = cm.jet : a cm Colormap instance from matplotlib.cm.
+            defaults to cm.jet
+
+          * norm = normalize() : matplotlib.colors.normalize is used to scale
+            luminance data to 0,1.
+
+          * vmin=None and vmax=None : vmin and vmax are used in conjunction
+            with norm to normalize luminance data.  If either are None, the
+            min and max of the color array C is used.  If you pass a norm
+            instance, vmin and vmax will be None
+
+          * shading = 'flat' : or 'faceted'.  If 'faceted', a black grid is
+            drawn around each rectangle; if 'flat', edge colors are same as
+            face colors
+
+          * alpha=1.0 : the alpha blending value
+
+        Return value is a matplotlib.collections.PatchCollection
+        object
+
+        Grid Orientation
+
+            The behavior of meshgrid in matlab(TM) is a bit counterintuitive for
+            x and y arrays.  For example,
+
+                x = arange(7)
+                y = arange(5)
+                X, Y = meshgrid(x,y)
+
+                Z = rand( len(x), len(y))
+                pcolor(X, Y, Z)
+
+            will fail in matlab and pylab.  You will probably be
+            happy with
+
+                pcolor(X, Y, transpose(Z))
+
+            Likewise, for nonsquare Z,
+
+                pcolor(transpose(Z))
+
+            will make the x and y axes in the plot agree with the numrows and
+            numcols of Z
+        """
+        if not self._hold: self.cla()
+
+        alpha = kwargs.get('alpha', 1.0)
+        norm = kwargs.get('norm', None)
+        cmap = kwargs.get('cmap', None)
+        vmin = kwargs.get('vmin', None)
+        vmax = kwargs.get('vmax', None)
+        shading = kwargs.get('shading', 'faceted')
+
+        if len(args)==1:
+            C = args[0]
+            numRows, numCols = C.shape
+            X, Y = meshgrid(arange(numCols+1), arange(numRows+1) )
+        elif len(args)==3:
+            X, Y, C = args
+        else:
+            raise TypeError, 'Illegal arguments to pcolor; see help(pcolor)'
+
+        Nx, Ny = X.shape
+
+        # convert to one dimensional arrays	
+        C = ravel(C[0:-1, 0:-1]) # data point in each cell is value at lower left corner
+        X = ravel(X)
+        Y = ravel(Y)
+
+	coords = zeros(((Nx * Ny), 2),"Float32")
+	coords[:, 0] = X;
+	coords[:, 1] = Y;
+	#print coords
+        
+	if shading == 'faceted':
+            edgecolors =  (0,0,0,1),
+        else:
+            edgecolors = 'None'
+
+        collection = QuadMesh(Ny - 1, Nx - 1, coords)
+        collection.set_alpha(alpha)
+	collection.set_array(C)
+        if norm is not None: assert(isinstance(norm, normalize))
+        if cmap is not None: assert(isinstance(cmap, Colormap))
+        collection.set_cmap(cmap)
+        collection.set_norm(norm)
+
+        if norm is not None:
+            collection.set_clim(vmin, vmax)
+
+        self.grid(False)
+
+        minx = amin(X)
+        maxx = amax(X)
+        miny = amin(Y)
+        maxy = amax(Y)
+
+        corners = (minx, miny), (maxx, maxy)
+        self.update_datalim( corners)
+        self.autoscale_view()
+	collection.update_scalarmappable()
 
         # add the collection last
         self.add_collection(collection)

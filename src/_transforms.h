@@ -424,7 +424,35 @@ public:
     if   (_type==IDENTITY) return x;
     else if (_type==LOG10) return pow(10.0, x);
     else throw Py::ValueError("Unrecognized function type");
+	}
+  // the api array operator functions
 
+  void arrayOperator(const int length, const double x[], double newx[]) {
+    if (_type==IDENTITY){
+	for(int i=0; i < length; i++)
+		newx[i] = x[i];
+	}
+    else if (_type==LOG10) {
+	for(int i=0; i < length; i++)
+	{
+		if (x<=0) { throw std::domain_error("Cannot take log of nonpositive value"); }
+		else newx[i] = log10(x[i]);
+	}
+      }
+    else 
+      throw Py::ValueError("Unrecognized function type");
+  }
+  void arrayInverse(const int length, const double x[], double newx[]) {
+    if (_type==IDENTITY){
+	for(int i=0; i < length; i++)
+		newx[i] = x[i];
+	}
+    else if (_type==LOG10) {
+	for(int i=0; i < length; i++)
+		newx[i] = pow(10.0, x[i]);
+      }
+    else 
+      throw Py::ValueError("Unrecognized function type");   
   }
   
   enum {IDENTITY, LOG10};
@@ -469,6 +497,34 @@ public:
     }
     else throw Py::ValueError("Unrecognized function type");
   }
+
+  void arrayOperator(const int length, const double x[], const double y[], double newx[], double newy[]) {
+    if   (_type==POLAR) {
+      //x,y are theta, r
+	for(int i=0; i < length; i++)
+	{
+		newx[i] = y[i] * cos(x[i]);
+		newy[i] = y[i] * sin(x[i]);
+	}
+    }
+    else throw Py::ValueError("Unrecognized function type");
+  }
+  void arrayInverse(const int length, const double x[], const double y[], double newx[], double newy[]) {
+    if   (_type==POLAR) {
+	for(int i=0; i < length; i++)
+	{
+      		double r = sqrt( x[i]*x[i] + y[i]*y[i]);
+      		if (r==0)
+			throw Py::ValueError("Cannot invert zero radius polar");
+      		double theta = acos(x[i]/r);
+      		if (y<0) theta = 2*3.1415926535897931-theta;
+      		newx[i] = theta;
+		newy[i] = r;
+	}
+    }
+    else throw Py::ValueError("Unrecognized function type");
+  }
+
 enum {POLAR};
 private:
   unsigned int _type;
@@ -589,7 +645,8 @@ public:
   
   virtual std::pair<double, double> & operator()(const double &x, const double &y)=0;
   virtual std::pair<double, double> & inverse_api(const double &x, const double &y)=0;
-
+  virtual void arrayOperator(const int length, const double x[], const double y[], double newx[], double newy[])
+	{throw Py::ValueError("Function arrayOperator not implemented for this class");}
 
   virtual void eval_scalars(void)=0;
   std::pair<double, double> xy;
@@ -649,9 +706,9 @@ public:
   void nonlinear_only_api(double *x, double *y);
   std::pair<double, double> & operator()(const double &x, const double &y);
   std::pair<double, double> & inverse_api(const double &x, const double &y);
+  void arrayOperator(const int length, const double x[], const double y[], double newx[], double newy[]);
   
   Py::Object deepcopy(const Py::Tuple &args) ;
-
 
 protected:
   Func *_funcx, *_funcy;
@@ -670,7 +727,7 @@ public:
   Py::Object set_offset(const Py::Tuple &args);  
   std::pair<double, double> & operator()(const double &x, const double &y);
   std::pair<double, double> & inverse_api(const double &x, const double &y);
-  
+  void arrayOperator(const int length, const double x[], const double y[], double newx[], double newy[]);
   Py::Object deepcopy(const Py::Tuple &args) ;
 
   void nonlinear_only_api(double *x, double *y);

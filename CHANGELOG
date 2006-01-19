@@ -1,6 +1,10 @@
-2006-01-18 Added Jouni's boxplot patch
+2006-01-18 Added quadrilateral pcolormesh patch 1409190 by Alex Mont
+           and Paul Kienzle -- this is *Agg only for now.  See
+           examples/quadmesh_demo.py - JDH
 
-2006-01-18 Added comma delimiter for pylab save
+2006-01-18 Added Jouni's boxplot patch - JDH
+
+2006-01-18 Added comma delimiter for pylab save - JDH
 
 2006-01-12 Added Ryan's legend patch - JDH
 
