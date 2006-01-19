@@ -165,6 +165,19 @@ grid.color       :   black   # grid color
 grid.linestyle   :   :       # dotted
 grid.linewidth   :   0.5     # in points
 
+### Legend
+legend.isaxes	:	True
+legend.numpoints 	:	4  # the number of points in the legend line
+legend.fontsize : 14
+legend.pad 	:	0.2 # the fractional whitespace inside the legend border
+legend.markerscale 	:	1.0    # the relative size of legend markers vs. original
+# the following dimensions are in axes coords
+legend.labelsep 	:	0.010 # the vertical space between the legend entries
+legend.handlelen 	:	0.05  # the length of the legend lines
+legend.handletextsep 	:	0.02 # the space between the legend line and legend text
+legend.axespad 	:	0.02       # the border between the axes and legend edge
+legend.shadow	:	False
+
 ### FIGURE
 # See http://matplotlib.sourceforge.net/matplotlib.figure.html#Figure
 figure.figsize   : 8, 6    # figure size in inches

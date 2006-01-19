@@ -1025,7 +1025,7 @@ def rcdefaults():
 if matplotlib.rcdefaults.__doc__ is not None:
     rcdefaults.__doc__ =   _shift_string(matplotlib.rcdefaults.__doc__)
 
-def save(fname, X, fmt='%.18e'):
+def save(fname, X, fmt='%.18e',delimiter=' '):
     """
     Save the data in X to file fname using fmt string to convert the
     data to strings
@@ -1041,6 +1041,8 @@ def save(fname, X, fmt='%.18e'):
     save('test2.out', x)        # x is 1D
     save('test3.out', x, fmt='%1.4e')  # use exponential notation
 
+    delimiter is used to separate the fields, eg delimiter ',' for
+    comma-separated values
     """
 
     if is_string_like(fname):
@@ -1061,7 +1063,7 @@ def save(fname, X, fmt='%.18e'):
         origShape = X.shape
         X.shape = len(X), 1
     for row in X:
-        fh.write(' '.join([fmt%val for val in row]) + '\n')
+        fh.write(delimiter.join([fmt%val for val in row]) + '\n')
 
     if origShape is not None:
         X.shape = origShape

@@ -1278,7 +1278,7 @@ _image_module::frombuffer(const Py::Tuple& args) {
     imo->rbufIn->attach(buffer, imo->colsIn, imo->rowsIn, imo->colsIn*imo->BPP);
   }
 
-  return Py::Object();
+  return Py::asObject(imo); 
 }
 
 
