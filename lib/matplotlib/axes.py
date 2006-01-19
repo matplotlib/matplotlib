@@ -1043,8 +1043,8 @@ class Axes(Artist):
         """
         if not self._hold: self.cla()
         holdStatus = self._hold
-        lines = []
         x = asarray(x)
+        whiskers, caps, boxes, medians, fliers = [], [], [], [], []
 
         # if we've got a vector, reshape it
         rank = len(x.shape)
@@ -1058,7 +1058,7 @@ class Axes(Artist):
             positions = range(1, col + 1)
         if widths is None:
             distance = max(positions) - min(positions)
-            widths = distance * min(0.15, 0.5/distance)
+            widths = min(0.15*max(distance,1.0), 0.5)
         if isinstance(widths, float) or isinstance(widths, int):
             widths = ones((col,), 'd') * widths
 
@@ -1129,29 +1129,25 @@ class Axes(Artist):
                 med_x = [cap_x_min, cap_x_max]
                 med_y = [med, med]
 
-            # make a vertical plot . . .
-            if 1 == vert:
-                l = self.plot(wisk_x, [q1, wisk_lo], 'b--',
-                              wisk_x, [q3, wisk_hi], 'b--',
-                              cap_x, [wisk_hi, wisk_hi], 'k-',
-                              cap_x, [wisk_lo, wisk_lo], 'k-',
-                              box_x, box_y, 'b-',
-                              med_x, med_y, 'r-',
-                              flier_hi_x, flier_hi, sym,
-                              flier_lo_x, flier_lo, sym )
-                lines.extend(l)
-            # or perhaps a horizontal plot
+            # vertical or horizontal plot?
+            if vert:
+                def doplot(*args):
+                    return self.plot(*args)
             else:
-                l = self.plot([q1, wisk_lo], wisk_x, 'b--',
-                              [q3, wisk_hi], wisk_x, 'b--',
-                              [wisk_hi, wisk_hi], cap_x, 'k-',
-                              [wisk_lo, wisk_lo], cap_x, 'k-',
-                              box_y, box_x, 'b-',
-                              med_y, med_x, 'r-',
-                              flier_hi, flier_hi_x, sym,
-                              flier_lo, flier_lo_x, sym )
-                lines.extend(l)
+                def doplot(*args):
+                    shuffled = []
+                    for i in range(0, len(args), 3):
+                        shuffled.extend([args[i+1], args[i], args[i+2]])
+                    return self.plot(*shuffled)
 
+            whiskers.extend(doplot(wisk_x, [q1, wisk_lo], 'b--',
+                                   wisk_x, [q3, wisk_hi], 'b--'))
+            caps.extend(doplot(cap_x, [wisk_hi, wisk_hi], 'k-',
+                               cap_x, [wisk_lo, wisk_lo], 'k-'))
+            boxes.extend(doplot(box_x, box_y, 'b-'))
+            medians.extend(doplot(med_x, med_y, 'r-'))
+            fliers.extend(doplot(flier_hi_x, flier_hi, sym,
+                                 flier_lo_x, flier_lo, sym))
 
         # fix our axes/ticks up a little
         if 1 == vert:
@@ -1166,7 +1162,8 @@ class Axes(Artist):
         # reset hold status
         self.hold(holdStatus)
 
-        return lines
+        return dict(whiskers=whiskers, caps=caps, boxes=boxes,
+                    medians=medians, fliers=fliers)
 
     def barh(self, x, y, height=0.8, left=0,
             color='b', yerr=None, xerr=None, ecolor='k', capsize=3
