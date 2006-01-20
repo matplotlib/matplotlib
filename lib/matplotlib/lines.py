@@ -276,7 +276,7 @@ class Line2D(Artist):
         mx = ma.getmask(x)
         my = ma.getmask(y)
         mask = ma.mask_or(mx, my)
-        if mask is not None:
+        if mask is not ma.nomask:
             x = ma.masked_array(x, mask=mask).compressed()
             y = ma.masked_array(y, mask=mask).compressed()
             self._segments = unmasked_index_ranges(mask)
