@@ -74,8 +74,8 @@ class WidgetsWrapper:
         def onselect(xmin, xmax):
             print xmin, xmax
 
-        #span = HorizontalSpanSelector(self.axis, onselect, useblit=False,
-        #                                  rectprops=dict(alpha=0.5, facecolor='red') )
+        span = HorizontalSpanSelector(self.axis, onselect, useblit=False,
+                                          rectprops=dict(alpha=0.5, facecolor='red') )
 
 
         self['vboxMain'].pack_start(self.canvas, True, True)

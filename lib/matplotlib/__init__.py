@@ -150,6 +150,14 @@ __date__     = '$Date$'
 import sys, os, warnings, shutil, md5
 import distutils.sysconfig
 
+# Needed for toolkit setuptools support
+try:
+    __import__('pkg_resources').declare_namespace(__name__)
+    print __name__, __file__
+except ImportError:
+    pass # must not have setuptools
+
+
 if not hasattr(sys, 'argv'):  # for modpython
     sys.argv = ['modpython']
 
@@ -181,10 +189,16 @@ try:
 except ImportError: _havedate = False
 else: _havedate = True
 
+#try:
+#    import pkg_resources # pkg_resources is part of setuptools
+#except ImportError: _have_pkg_resources = False
+#else: _have_pkg_resources = True
+
 try:
-    import pkg_resources # pkg_resources is part of setuptools
-except ImportError: _have_pkg_resources = False
-else: _have_pkg_resources = True
+    __import__('pkg_resources').declare_namespace(__name__)
+    print __name__, __file__
+except ImportError:
+    pass # must not have setuptools
 
 if not _python23:
     def enumerate(seq):
