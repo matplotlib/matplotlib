@@ -430,7 +430,7 @@ class ContourSet(ScalarMappable, ContourLabeler):
             if iterable(self.linewidths):
                 self.linewidths = self.linewidths[0]
             #C = _contour.Cntr(x, y, z.filled(), z.mask())
-            C = _contour.Cntr(x, y, z.filled(), ma.getmask(z))
+            C = _contour.Cntr(x, y, z.filled(), ma.getmaskorNone(z))
             lowers = self.levels[:-1]
             uppers = self.levels[1:]
             for level, level_upper, color in zip(lowers, uppers, self.tcolors):
@@ -446,7 +446,7 @@ class ContourSet(ScalarMappable, ContourLabeler):
         else:
             tlinewidths = self._process_linewidths()
             #C = _contour.Cntr(x, y, z.filled(), z.mask())
-            C = _contour.Cntr(x, y, z.filled(), ma.getmask(z))
+            C = _contour.Cntr(x, y, z.filled(), ma.getmaskorNone(z))
             for level, color, width in zip(self.levels, self.tcolors, tlinewidths):
                 nlist = C.trace(level, points = 1)
                 col = LineCollection(nlist)
