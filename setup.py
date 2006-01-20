@@ -15,7 +15,7 @@ respectively; set them to 0 if you do not want to build them
 """
 
 
-rc = dict(backend='PS', numerix='Numeric')
+rc = dict({'backend':'PS', 'numerix':'Numeric'})
 
 # build the image support module - requires agg and Numeric or
 # numarray.  You can build the image module with either Numeric or
@@ -60,13 +60,11 @@ if os.path.exists('MANIFEST'): os.remove('MANIFEST')
 try:
     # check if we have a reasonably recent copy of setuptools
     from setuptools.command import bdist_egg 
+    from setuptools import setup
     has_setuptools = True
 except ImportError:
     from distutils.core import setup
     has_setuptools = False
-
-if has_setuptools:
-    from setuptools import setup
     
 import sys,os
 import glob
@@ -157,13 +155,14 @@ BUILD_CONTOUR = 1
 # jdh
 packages = [
     'matplotlib',
-    'matplotlib/backends',
-    'matplotlib/numerix',
-    'matplotlib/numerix/mlab',
-    'matplotlib/numerix/ma',
-    'matplotlib/numerix/linear_algebra',
-    'matplotlib/numerix/random_array',
-    'matplotlib/numerix/fft',
+    'matplotlib.backends',
+    'matplotlib.toolkits',
+    'matplotlib.numerix',
+    'matplotlib.numerix.mlab',
+    'matplotlib.numerix.ma',
+    'matplotlib.numerix.linear_algebra',
+    'matplotlib.numerix.random_array',
+    'matplotlib.numerix.fft',
     ]
 
 
@@ -283,7 +282,9 @@ if sys.platform=='win32':
 template = file('matplotlibrc.template').read()
 file('matplotlibrc', 'w').write(template%rc)
 
-
+additional_params = {}
+if has_setuptools:
+    additional_params['namespace_packages'] = ['matplotlib.toolkits']
 
 distrib = setup(name="matplotlib",
       version= __version__,
@@ -303,4 +304,6 @@ distrib = setup(name="matplotlib",
       ext_modules = ext_modules,
       data_files = data_files,
       package_dir = {'': 'lib'},
+      **additional_params
       )
+
