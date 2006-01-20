@@ -193,12 +193,6 @@ else: _havedate = True
 #except ImportError: _have_pkg_resources = False
 #else: _have_pkg_resources = True
 
-try:
-    __import__('pkg_resources').declare_namespace(__name__)
-    print __name__, __file__
-except ImportError:
-    pass # must not have setuptools
-
 if not _python23:
     def enumerate(seq):
          for i in range(len(seq)):
