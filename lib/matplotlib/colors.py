@@ -504,7 +504,7 @@ class Colormap:
             vtype = 'array'
             xma = ma.asarray(X)
             xa = xma.filled(0)
-            mask_bad = ma.getmask(xma)
+            mask_bad = ma.getmaskorNone(xma)
         if typecode(xa) in typecodes['Float']:
             xa = where(xa == 1.0, 0.9999999, xa) # Tweak so 1.0 is in range.
             xa = (xa * self.N).astype(Int)
