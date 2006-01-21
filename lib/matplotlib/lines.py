@@ -12,7 +12,7 @@ import agg
 from numerix import Float, alltrue, arange, array, logical_and,\
      nonzero, searchsorted, take, asarray, ones, where, less, ravel, \
      greater, logical_and, cos, sin, pi,\
-     compress, zeros, concatenate, cumsum, typecode
+     compress, zeros, concatenate, cumsum, typecode, NewAxis
 import numerix.ma as ma
 from matplotlib import verbose
 from artist import Artist, setp
@@ -74,17 +74,14 @@ def unmasked_index_ranges(mask, compressed = True):
     assert len(i0) == len(i1)
     if not compressed:
         if len(i1):
-            return concatenate((i0[:, ma.NewAxis], i1[:, ma.NewAxis]), axis=1)
+            return concatenate((i0[:, NewAxis], i1[:, NewAxis]), axis=1)
         else:
             return zeros((0,0), 'i')
     seglengths = i1 - i0
     breakpoints = cumsum(seglengths)
-    try:
-        ic0 = concatenate(((0,), breakpoints[:-1]))
-        ic1 = breakpoints
-        return concatenate((ic0[:, ma.NewAxis], ic1[:, ma.NewAxis]), axis=1)
-    except:
-        return zeros((0,0), 'i')
+    ic0 = concatenate(((0,), breakpoints[:-1]))
+    ic1 = breakpoints
+    return concatenate((ic0[:, NewAxis], ic1[:, NewAxis]), axis=1)
 
 
 
