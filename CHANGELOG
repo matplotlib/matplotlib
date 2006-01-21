@@ -1,3 +1,10 @@
+2006-01-20 Added a converters dict to pylab load to convert selected
+           coloumns to float -- especially useful for files with date
+           strings, uses a datestr2num converter - JDH
+
+2006-01-20 Added datestr2num to matplotlib dates to convert a string
+           or sequence of strings to a matplotlib datenum
+
 2006-01-18 Added quadrilateral pcolormesh patch 1409190 by Alex Mont
            and Paul Kienzle -- this is *Agg only for now.  See
            examples/quadmesh_demo.py - JDH

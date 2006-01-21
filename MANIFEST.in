@@ -4,6 +4,7 @@ include Makefile  MANIFEST.in MANIFEST
 include matplotlibrc.template matplotlibrc
 include __init__.py setupext.py setup.py makeswig.py
 include examples/data/*
+include lib/matplotlib/toolkits
 include images/*
 recursive-include fonts *
 recursive-include license LICENSE*
