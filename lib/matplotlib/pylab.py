@@ -232,7 +232,7 @@ import numerix as nx
 # eg a bad pytz install.  I don't want to break all of matplotlib for
 # date support
 try:
-    from dates import date2num, num2date, drange, epoch2num, num2epoch, mx2num,\
+    from dates import date2num, num2date, datestr2num, drange, epoch2num, num2epoch, mx2num,\
             DateFormatter, IndexDateFormatter, DateLocator,\
             RRuleLocator, YearLocator, MonthLocator, WeekdayLocator,\
             DayLocator, HourLocator, MinuteLocator, SecondLocator,\
@@ -951,7 +951,7 @@ if _imread.__doc__ is not None:
     imread.__doc__ = _shift_string(_imread.__doc__)
 
 
-def load(fname,comments='%',delimiter=None):
+def load(fname,comments='%',delimiter=None, converters=None,skiprows=0):
     """
     Load ASCII data from fname into an array and return the array.
 
@@ -985,8 +985,14 @@ def load(fname,comments='%',delimiter=None):
     file. If delimiter is unspecified or none, any whitespace string is
     a separator.
 
+    converters, if not None, is a dictionary mapping column number to
+    a function that will convert that column to a float.  Eg, if
+    column 0 is a date string: converters={0:datestr2num}
+
+    skiprows is the number of rows from the top to skip
     """
 
+    if converters is None: converters = {}
     if is_string_like(fname):
         if fname.endswith('.gz'):
             import gzip
@@ -999,10 +1005,11 @@ def load(fname,comments='%',delimiter=None):
         raise ValueError('fname must be a string or file handle')
     X = []
     numCols = None
-    for line in fh:
+    for i,line in enumerate(fh):
+        if i<skiprows: continue
         line = line[:line.find(comments)].strip()
         if not len(line): continue
-        row = [float(val) for val in line.split(delimiter)]
+        row = [converters.get(i,float)(val) for i,val in enumerate(line.split(delimiter))]
         thisLen = len(row)
         if numCols is not None and thisLen != numCols:
             raise ValueError('All rows must have the same number of columns')

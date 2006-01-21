@@ -84,13 +84,14 @@ try: import datetime
 except ImportError:
     raise ValueError('matplotlib %s date handling requires python2.3' % matplotlib.__version__)
 
-from cbook import iterable
+from cbook import iterable, is_string_like
 from pytz import timezone
 from numerix import arange, asarray
 from ticker import Formatter, Locator, Base
 from dateutil.rrule import rrule, MO, TU, WE, TH, FR, SA, SU, YEARLY,\
      MONTHLY, WEEKLY, DAILY, HOURLY, MINUTELY, SECONDLY
 from dateutil.relativedelta import relativedelta
+import dateutil.parser
 
 UTC = timezone('UTC')
 
@@ -163,6 +164,18 @@ def _from_ordinalf(x, tz=None):
 
     return dt
 
+def datestr2num(d):
+    """
+    Convert a date string to a datenum using dateutil.parser.parse
+    d can be a single string or a sequence of strings
+    """
+    if is_string_like(d):
+        dt = dateutil.parser.parse(d)
+        return date2num(dt)
+    else:
+        return date2num([dateutil.parser.parse(s) for s in d])
+    
+    
 def date2num(d):
     """
     d is either a datetime instance or a sequence of datetimes
