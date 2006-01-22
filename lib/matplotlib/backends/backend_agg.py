@@ -267,7 +267,7 @@ class RendererAgg(RendererBase):
             w,h = h,w
             x -= w
 
-        key = s, size, dpi, rgb, angle, rcParams['font.latex'], rcParams['text.tex.engine']
+        key = s, size, dpi, rgb, angle, rcParams['font.latex.package'], rcParams['text.tex.engine']
         im = self.texd.get(key)
         if im is None:
             Z = self.texmanager.get_rgba(s, size, dpi, rgb)
