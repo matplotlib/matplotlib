@@ -71,7 +71,7 @@ INSTALLING
 from __future__ import division
 
 import os, sys
-from matplotlib import verbose
+from matplotlib import verbose, rcParams
 from matplotlib.numerix import array, Float, zeros, transpose
 from matplotlib._image import fromarray
 from matplotlib._pylab_helpers import Gcf
@@ -267,7 +267,7 @@ class RendererAgg(RendererBase):
             w,h = h,w
             x -= w
 
-        key = s, size, dpi, rgb, angle
+        key = s, size, dpi, rgb, angle, rcParams['font.latex'], rcParams['text.tex.engine']
         im = self.texd.get(key)
         if im is None:
             Z = self.texmanager.get_rgba(s, size, dpi, rgb)

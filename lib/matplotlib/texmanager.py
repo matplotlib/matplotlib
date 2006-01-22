@@ -316,10 +316,6 @@ WARNING: found a TeX cache dir in the deprecated location "%s".
                 # hack the alpha channel as described in comment above
                 alpha = sqrt(1-X[:,:,0])
             else:
-                # dvipng 1.6 and above handles the alpha channel
-                # properly [JDH: for some reason I had square root in
-                # here which isn't correct
-                #alpha = sqrt(X[:,:,-1])
                 alpha = X[:,:,-1]
             
 
