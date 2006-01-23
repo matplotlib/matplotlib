@@ -442,13 +442,9 @@ def checkdep_dvipng():
         line = stdout.readlines()[1]
         v = line.split()[-1]
         float(v)
-        if v >= '1.5': return True
-        else:
-            verbose.report(line+'\ndvipng-1.5 or later not found!', 'helpful')
-            return False
+        return v
     except IndexError, ValueError:
-        verbose.report(line+'\ndvipng-1.5 or later not found!', 'helpful')
-        return False
+        return None
 
 def checkdep_ghostscript():
     try:
@@ -461,13 +457,9 @@ def checkdep_ghostscript():
         v = line.split()[2]
         vtest = '.'.join(v.split('.')[:2]) # deal with version numbers like '7.07.1'
         float(vtest)
-        if v >= '8.16': return True
-        else:
-            verbose.report(line+'\nGhostscript-8.16 or later not found!\n', 'helpful')
-            return False
+        return vtest
     except IndexError, ValueError:
-        verbose.report(line+'\nGhostscript-8.16 or later not found!\n', 'helpful')
-        return False
+        return None
 
 def checkdep_ps2eps():
     try:
@@ -475,13 +467,9 @@ def checkdep_ps2eps():
         line = stdout.readlines()[-1]
         v = line.split()[-1]
         float(v)
-        if v >= '1.58': return True
-        else:
-            verbose.report(line+'\nps2eps-1.58 or later not found!', 'helpful')
-            return False
+        return v
     except IndexError, ValueError:
-        verbose.report(line+'\nps2eps-1.58 or later not found!', 'helpful')
-        return False
+        return None
 
 def checkdep_tex():
     try:
@@ -490,17 +478,12 @@ def checkdep_tex():
         v = 0.0 # no version installed until we find one...
         for potential_version_numstr in line.split():
             if potential_version_numstr.startswith('3.1'):
-                v=float(potential_version_numstr)
+                v = potential_version_numstr
+                float(v)
                 break # found version number
-        if v >= 3.1415: return True
-        else:
-            verbose.report(line+'\nTeX not found!\
-Please install the appropriate package for your platform.\n', 'helpful')
-            return False
+        return v
     except IndexError, ValueError:
-        verbose.report(line+'\nTeX not found!\
-Please install the appropriate package for your platform.\n', 'helpful')
-        return False
+        return None
 
 def checkdep_xpdf():
     try:
@@ -508,13 +491,19 @@ def checkdep_xpdf():
         line = stdout.readlines()[0]
         v = line.split()[-1]
         float(v)
-        if v >= 3.0: return True
-        else:
-            verbose.report(line+'\nxpdf-3.0 or later not found!', 'helpful')
-            return False
+        return v
     except IndexError, ValueError:
-        verbose.report(line+'\nxpdf-3.0 or later not found!', 'helpful')
-        return False
+        return None
+
+def compare_versions(a, b):
+    "return True if a is greater than b"
+    if a:
+        a = [int(i) for i in a.split('.')]
+        b = [int(i) for i in b.split('.')]
+        if a[0]>b[0]: return True
+        elif (a[0]==b[0]) and (a[1]>=b[1]): return True
+        else: return False
+    else: return False
 
 def validate_path_exists(s):
     'If s is a path, return s, else False'
@@ -667,44 +656,87 @@ validate_ps_papersize = ValidateInStrings([
 
 def validate_ps_distiller(s):
     s = s.lower()
+    
     if s == 'none':
         return None
     elif s == 'false':
         return False
-    elif s == 'ghostscript':
-        if checkdep_ghostscript(): return s.lower()
-        else: 
-            raise 'DependencyError', 'matplotlibrc ps.usedistiller can not be \
-set to ghostscript unless ghostscript-8.16 or later is available on your system'
-    elif s == 'xpdf':
-        if not checkdep_ghostscript():
-            raise 'DependencyError', 'matplotlibrc ps.usedistiller can not \
-be set to xpdf unless ghostscript-8.16 or later is available on your system'
-        if not checkdep_xpdf():
-            raise 'DependencyError', 'matplotlibrc ps.usedistiller can not \
-be set to xpdf unless xpdf-3.0 or later is available on your system'
-        if not checkdep_ps2eps():
-            raise 'DependencyError', 'matplotlibrc ps.usedistiller can not \
-be set to xpdf unless ps2eps-1.58 or later is available on your system'
-        return s.lower()
+    
+    flag = True
+    
+    if (s == 'ghostscript') or (s == 'xpdf'):
+        gs_req = '7.07'
+        gs_sugg = '8.16'
+        gs_v = checkdep_ghostscript()
+        if compare_versions(gs_v, gs_sugg): pass
+        elif compare_versions(gs_v, gs_req):
+            warnings.warn( 'ghostscript-%s.%s found. ghostscript-%s.%s or later is \
+recommended to use the ps.usedistiller option.' % (gs_v, gs_sugg), 'helpful')
+        else:
+            flag = False
+            warnings.warn('matplotlibrc ps.usedistiller option can not be used \
+unless ghostscript-%s or later is installed on your system'% gs_req)
+    
+    if s == 'xpdf':
+        xpdf_req = '3.0'
+        ps2eps_req = '1.58'
+        xpdf_v = checkdep_xpdf()
+        if compare_versions(xpdf_v, xpdf_req): pass
+        else:
+            flag = False
+            warnings.warn('matplotlibrc ps.usedistiller can not be set to xpdf \
+unless xpdf-%s or later is installed on your system' % xpdf_req)
+        
+        ps2eps_v = checkdep_ps2eps()
+        if compare_versions(ps2eps_v, ps2eps_req): pass
+        else:
+            flag = False
+            warnings.warn('matplotlibrc ps.usedistiller can not be set to xpdf \
+unless ps2eps-%s or later is installed on your system' % ps2eps_req)
+        
+        if flag: return s.lower()
+        else: return None
     else: 
-        raise ValueError('matplotlibrc ps.usedistiller must either be none,ghostscript or xpdf')
+        raise ValueError('matplotlibrc ps.usedistiller must either be none, \
+ghostscript or xpdf')
 
 validate_tex_engine = ValidateInStrings(['tex', 'latex'], ignorecase=True)
 
 def validate_usetex(s):
     bl = validate_bool(s)
     if bl:
-        if not checkdep_tex():
-            raise 'DependencyError', 'matplotlibrc text.usetex can not \
-be set to True unless TeX/LaTeX is available on your system'
-        if not checkdep_dvipng():
-            warnings.warn( 'matplotlibrc text.usetex can not \
-be be used with *Agg backend unless dvipng-1.5 or later is available on your system' )
-        if not checkdep_ghostscript():
-            warnings.warn('matplotlibrc text.usetex can not \
-be be used with ps backend unless ghostscript-8.16 or later is available on your system')
-        return bl
+        tex_req = '3.1415'
+        gs_req = '7.07'
+        gs_sugg = '8.16'
+        dvipng_req = '1.5'
+        flag = True
+        
+        tex_v = checkdep_tex()
+        if compare_versions(tex_v, tex_req): pass
+        else:
+            flag = False
+            warnings.warn('matplotlibrc text.usetex option can not be used \
+unless TeX-%s or later is installed on your system' % tex_req)
+        
+        dvipng_v = checkdep_dvipng()
+        if compare_versions(dvipng_v, dvipng_req): pass
+        else:
+            flag = False
+            warnings.warn( 'matplotlibrc text.usetex can not be used with *Agg \
+backend unless dvipng-1.5 or later is installed on your system')
+        
+        gs_v = checkdep_ghostscript()
+        if compare_versions(gs_v, gs_sugg): pass
+        elif compare_versions(gs_v, gs_req):
+            warnings.warn( 'ghostscript-%s found. ghostscript-%s or later is \
+recommended for use with the text.usetex option.' % (gs_v, gs_sugg))
+        else:
+            flag = False
+            warnings.warn('matplotlibrc text.usetex can not be used \
+unless ghostscript-%s or later is installed on your system'% gs_req)
+        
+        if flag: return True
+        else: return False
     else:
         return bl
 
