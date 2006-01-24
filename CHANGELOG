@@ -1,3 +1,6 @@
+2006-01-24 Fixed some bugs in usetex's and ps.usedistiller's dependency 
+checking - DSD
+
 ===============================================================
 2006-01-24 Released 0.86.2
 
