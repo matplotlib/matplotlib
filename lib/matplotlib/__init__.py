@@ -661,40 +661,35 @@ def validate_ps_distiller(s):
         return None
     elif s == 'false':
         return False
-    
-    flag = True
-    
-    if (s == 'ghostscript') or (s == 'xpdf'):
+    elif s in ('ghostscript', 'xpdf'):
+        flag = True
         gs_req = '7.07'
         gs_sugg = '8.16'
         gs_v = checkdep_ghostscript()
         if compare_versions(gs_v, gs_sugg): pass
         elif compare_versions(gs_v, gs_req):
-            warnings.warn( 'ghostscript-%s.%s found. ghostscript-%s.%s or later is \
-recommended to use the ps.usedistiller option.' % (gs_v, gs_sugg), 'helpful')
+            warnings.warn( 'ghostscript-%s found. ghostscript-%s or later \
+is recommended to use the ps.usedistiller option.' % (gs_v, gs_sugg))
         else:
             flag = False
             warnings.warn('matplotlibrc ps.usedistiller option can not be used \
 unless ghostscript-%s or later is installed on your system'% gs_req)
-    
-    if s == 'xpdf':
-        xpdf_req = '3.0'
-        ps2eps_req = '1.58'
-        xpdf_v = checkdep_xpdf()
-        if compare_versions(xpdf_v, xpdf_req): pass
-        else:
-            flag = False
-            warnings.warn('matplotlibrc ps.usedistiller can not be set to xpdf \
-unless xpdf-%s or later is installed on your system' % xpdf_req)
-        
+        if s == 'xpdf':
+            xpdf_req = '3.0'
+            ps2eps_req = '1.58'
+            xpdf_v = checkdep_xpdf()
+            if compare_versions(xpdf_v, xpdf_req): pass
+            else:
+                flag = False
+                warnings.warn('matplotlibrc ps.usedistiller can not be set to \
+xpdf unless xpdf-%s or later is installed on your system' % xpdf_req)
         ps2eps_v = checkdep_ps2eps()
         if compare_versions(ps2eps_v, ps2eps_req): pass
         else:
             flag = False
             warnings.warn('matplotlibrc ps.usedistiller can not be set to xpdf \
 unless ps2eps-%s or later is installed on your system' % ps2eps_req)
-        
-        if flag: return s.lower()
+        if flag: return s
         else: return None
     else: 
         raise ValueError('matplotlibrc ps.usedistiller must either be none, \
