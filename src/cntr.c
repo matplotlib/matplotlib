@@ -1348,8 +1348,8 @@ build_cntr_list_v(long *np, double *xp, double *yp, int nparts, long ntotal)
     for (i = 0; i < nparts; i++)
     {
         dims[0] = np[i];
-        xv = (PyArrayObject *) PyArray_FromDims(1, dims, 'd');
-        yv = (PyArrayObject *) PyArray_FromDims(1, dims, 'd');
+        xv = (PyArrayObject *) PyArray_FromDims(1, dims, PyArray_DOUBLE);
+        yv = (PyArrayObject *) PyArray_FromDims(1, dims, PyArray_DOUBLE);
         if (xv == NULL || yv == NULL)  goto error;
         for (j = 0; j < dims[0]; j++)
         {
@@ -1570,11 +1570,17 @@ Cntr_init(Cntr *self, PyObject *args, PyObject *kwds)
         return -1;
     }
 
-    xpa = (PyArrayObject *) PyArray_ContiguousFromObject(xarg, 'd', 2, 2);
-    ypa = (PyArrayObject *) PyArray_ContiguousFromObject(yarg, 'd', 2, 2);
-    zpa = (PyArrayObject *) PyArray_ContiguousFromObject(zarg, 'd', 2, 2);
+    xpa = (PyArrayObject *) PyArray_ContiguousFromObject(xarg, 
+							 PyArray_DOUBLE, 2, 2);
+    ypa = (PyArrayObject *) PyArray_ContiguousFromObject(yarg, 
+							 PyArray_DOUBLE,
+							 2, 2);
+    zpa = (PyArrayObject *) PyArray_ContiguousFromObject(zarg, PyArray_DOUBLE,
+							 2, 2);
     if (marg)
-        mpa = (PyArrayObject *) PyArray_ContiguousFromObject(marg, '1', 2, 2);
+        mpa = (PyArrayObject *) PyArray_ContiguousFromObject(marg, 
+							     PyArray_SBYTE, 
+							     2, 2);
     else
         mpa = NULL;
 
