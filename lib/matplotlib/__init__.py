@@ -443,7 +443,7 @@ def checkdep_dvipng():
         v = line.split()[-1]
         float(v)
         return v
-    except IndexError, ValueError:
+    except (IndexError, ValueError):
         return None
 
 def checkdep_ghostscript():
@@ -458,7 +458,7 @@ def checkdep_ghostscript():
         vtest = '.'.join(v.split('.')[:2]) # deal with version numbers like '7.07.1'
         float(vtest)
         return vtest
-    except IndexError, ValueError:
+    except (IndexError, ValueError):
         return None
 
 def checkdep_ps2eps():
@@ -468,7 +468,7 @@ def checkdep_ps2eps():
         v = line.split()[-1]
         float(v)
         return v
-    except IndexError, ValueError:
+    except (IndexError, ValueError):
         return None
 
 def checkdep_tex():
@@ -482,7 +482,7 @@ def checkdep_tex():
                 float(v)
                 break # found version number
         return v
-    except IndexError, ValueError:
+    except (IndexError, ValueError):
         return None
 
 def checkdep_xpdf():
@@ -492,7 +492,7 @@ def checkdep_xpdf():
         v = line.split()[-1]
         float(v)
         return v
-    except IndexError, ValueError:
+    except (IndexError, ValueError):
         return None
 
 def compare_versions(a, b):
