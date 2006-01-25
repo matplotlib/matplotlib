@@ -1,7 +1,12 @@
+2006-01-24 Don't use character typecodes in cntr.c --- changed to use 
+           defined typenumbers instead. - TEO
+
+2006-01-24 Fixed some bugs in usetex's and ps.usedistiller's dependency 
+
 2006-01-24 Added masked array support to scatter - EF
 
 2006-01-24 Fixed some bugs in usetex's and ps.usedistiller's dependency
-checking - DSD
+           checking - DSD
 
 ===============================================================
 2006-01-24 Released 0.86.2
