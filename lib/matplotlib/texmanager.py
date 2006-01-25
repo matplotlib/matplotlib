@@ -81,12 +81,12 @@ WARNING: found a TeX cache dir in the deprecated location "%s".
         
     def get_tex_command(self, tex, fname):
 
-        fontcmd = {'sans-serif' : r'{\sffamily %s}',
-                   'monospace'  : r'{\ttfamily %s}'}.get(
-            rcParams['font.family'], r'{\rmfamily %s}')
-        tex = fontcmd % tex
         fh = file(fname, 'w')
         if rcParams['text.tex.engine'] == 'latex':
+            fontcmd = {'sans-serif' : r'{\sffamily %s}',
+                   'monospace'  : r'{\ttfamily %s}'}.get(
+                    rcParams['font.family'], r'{\rmfamily %s}')
+            tex = fontcmd % tex
             s = r"""\documentclass{article}
 \usepackage{%s}
 \setlength{\paperwidth}{72in}
