@@ -48,6 +48,34 @@ import matplotlib
 if matplotlib._havedate:
     from dates import date_ticker_factory
 
+def delete_masked_points(*args):
+    """
+    Find all masked points in a set of arguments, and return
+    the arguments with only the unmasked points remaining.
+
+    The overall mask is calculated from any masks that are present.
+    If a mask is found, any argument that does not have the same
+    dimensions is left unchanged; therefore the argument list may
+    include arguments that can take string or array values, for
+    example.
+
+    Array arguments must all have the same shape, and must
+    be one-dimensional.
+
+    Written as a helper for scatter, but may be more generally
+    useful.
+    """
+    masks = [ma.getmaskarray(x) for x in args if hasattr(x, 'mask')]
+    if len(masks) == 0:
+        return args
+    mask = reduce(ma.mask_or, masks)
+    margs = []
+    for x in args:
+        if shape(x) == shape(mask):
+            margs.append(ma.masked_array(x, mask=mask).compressed())
+        else:
+            margs.append(x)
+    return margs
 
 def _process_plot_format(fmt):
     """
@@ -608,7 +636,7 @@ class Axes(Artist):
 
     def format_coord(self, x, y):
         'return a format string formatting the x, y coord'
-        
+
         xs = self.format_xdata(x)
         ys = self.format_ydata(y)
         return  'x=%s, y=%s'%(xs,ys)
@@ -666,7 +694,7 @@ class Axes(Artist):
             horizontalalignment='center',
             )
         self.title.set_transform(self.transAxes)
-        self.title.set_clip_box(None)        
+        self.title.set_clip_box(None)
 
         self._set_artist_props(self.title)
 
@@ -1158,7 +1186,7 @@ class Axes(Artist):
         newlimits = min(positions)-0.5, max(positions)+0.5
         setlim(newlimits)
         setticks(positions)
-            
+
         # reset hold status
         self.hold(holdStatus)
 
@@ -1383,7 +1411,7 @@ class Axes(Artist):
         except ValueError:
             print >> sys.stderr, 'data freeze value error', self.get_position(), self.dataLim.get_bounds(), self.viewLim.get_bounds()
             raise
-        
+
         self.transAxes.freeze()  # eval the lazy objects
         if self.axison:
             if self._frameon: self.axesPatch.draw(renderer)
@@ -2322,7 +2350,7 @@ class Axes(Artist):
 
         X,Y and C may not be masked arrays, unlike with pcolor().
 
-        Optional keywork args are shown with their defaults below (you must
+        Optional keyword args are shown with their defaults below (you must
         use kwargs for these):
 
           * cmap = cm.jet : a cm Colormap instance from matplotlib.cm.
@@ -2389,24 +2417,24 @@ class Axes(Artist):
 
         Nx, Ny = X.shape
 
-        # convert to one dimensional arrays	
+        # convert to one dimensional arrays
         C = ravel(C[0:-1, 0:-1]) # data point in each cell is value at lower left corner
         X = ravel(X)
         Y = ravel(Y)
 
-	coords = zeros(((Nx * Ny), 2),"Float32")
-	coords[:, 0] = X;
-	coords[:, 1] = Y;
-	#print coords
-        
-	if shading == 'faceted':
+        coords = zeros(((Nx * Ny), 2),"Float32")
+        coords[:, 0] = X;
+        coords[:, 1] = Y;
+        #print coords
+
+        if shading == 'faceted':
             edgecolors =  (0,0,0,1),
         else:
             edgecolors = 'None'
 
         collection = QuadMesh(Ny - 1, Nx - 1, coords)
         collection.set_alpha(alpha)
-	collection.set_array(C)
+        collection.set_array(C)
         if norm is not None: assert(isinstance(norm, normalize))
         if cmap is not None: assert(isinstance(cmap, Colormap))
         collection.set_cmap(cmap)
@@ -2425,7 +2453,7 @@ class Axes(Artist):
         corners = (minx, miny), (maxx, maxy)
         self.update_datalim( corners)
         self.autoscale_view()
-	collection.update_scalarmappable()
+        collection.update_scalarmappable()
 
         # add the collection last
         self.add_collection(collection)
@@ -2799,7 +2827,7 @@ class Axes(Artist):
             self.xaxis_date(tz)
         if ydate:
             self.yaxis_date(tz)
-            
+
         self.autoscale_view()
 
         return ret
@@ -2965,6 +2993,10 @@ class Axes(Artist):
 
         s is a size argument in points squared.
 
+        Any or all of x, y, s, and c may be masked arrays, in which
+        case all masks will be combined and only unmasked points
+        will be plotted.
+
         Other keyword args; the color mapping and normalization arguments will
         on be used if c is an array of floats
 
@@ -3015,6 +3047,7 @@ class Axes(Artist):
 
         numsides, rotation = syms[marker]
 
+        x, y, s, c = delete_masked_points(x, y, s, c)
 
         if not is_string_like(c) and iterable(c) and len(c)==len(x):
             colors = None
@@ -3708,7 +3741,7 @@ class Axes(Artist):
         t.update(kwargs)
         self.texts.append(t)
 
-        
+
         #if t.get_clip_on():  t.set_clip_box(self.bbox)
         if kwargs.has_key('clip_on'):  t.set_clip_box(self.bbox)
         return t
@@ -3771,7 +3804,7 @@ class Axes(Artist):
 
     def xaxis_date(self, tz=None):
         """Sets up x-axis ticks and labels that treat the x data as dates.
-        
+
         tz is the time zone to use in labeling dates.  Defaults to rc value.
         """
 
@@ -3782,10 +3815,10 @@ class Axes(Artist):
 
     def yaxis_date(self, tz=None):
         """Sets up y-axis ticks and labels that treat the y data as dates.
-        
+
         tz is the time zone to use in labeling dates.  Defaults to rc value.
         """
-        
+
         span  = self.dataLim.intervaly().span()
         locator, formatter = date_ticker_factory(span, tz)
         self.yaxis.set_major_locator(locator)
@@ -4013,7 +4046,7 @@ class SubplotBase:
         self._cols = cols
         self._num = num
         self.update_params()
-        
+
     def update_params(self):
         'update the subplot position from fig.subplotpars'
 
