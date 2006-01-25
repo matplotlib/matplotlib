@@ -1,4 +1,6 @@
-2006-01-24 Fixed some bugs in usetex's and ps.usedistiller's dependency 
+2006-01-24 Added masked array support to scatter - EF
+
+2006-01-24 Fixed some bugs in usetex's and ps.usedistiller's dependency
 checking - DSD
 
 ===============================================================
@@ -34,7 +36,7 @@ checking - DSD
             dependencies. This needs testing, but the xpdf option should produce
             the highest-quality output and small file sizes - DSD
 
-2006-01-10 For the usetex option, backend_ps now does all the LaTeX work in the 
+2006-01-10 For the usetex option, backend_ps now does all the LaTeX work in the
             os's temp directory - DSD
 
 2006-1-10 Added checks for usetex dependencies. - DSD
