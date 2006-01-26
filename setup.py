@@ -83,24 +83,6 @@ for line in file('lib/matplotlib/__init__.py').readlines():
     if line[:11] == '__version__':
         exec(line)
         break
-    
-# Find the plat-lib dir where mpl will be installed.
-# This is where the mpl-data will be installed.
-from distutils.command.install import INSTALL_SCHEMES
-
-if has_setuptools: # EGG's make it simple
-    datapath = os.path.curdir
-# logic from distutils.command.install.finalize_options
-elif os.name == 'posix':
-    py_version_short = sys.version[0:3]
-    datapath = INSTALL_SCHEMES['unix_prefix']['platlib']
-    datapath = datapath.replace('$platbase/', '').replace('$py_version_short', py_version_short)
-else:
-    datapath = INSTALL_SCHEMES[os.name]['platlib'].replace('$base/', '')
-
-datapath = os.sep.join([datapath, 'matplotlib', 'mpl-data']) # This is where mpl data will be installed
-
-print 'installing data to', datapath
 
 # Specify all the required mpl data
 data = []
@@ -111,13 +93,19 @@ data.extend(glob.glob('images/*.xpm'))
 data.extend(glob.glob('images/*.svg'))
 data.extend(glob.glob('images/*.png'))
 data.extend(glob.glob('images/*.ppm'))
+data.extend(glob.glob('lib/matplotlib/backends/*.nib/*.nib'))
 data.append('matplotlibrc')
 
-data_files=[(datapath, data),]
+data_files=[('matplotlib/mpl-data', data),]
 
-# Needed for CocoaAgg
-data_files.append((os.sep.join([datapath, 'Matplotlib.nib']),
-		   glob.glob('lib/matplotlib/backends/Matplotlib.nib/*.nib')))
+# data_files fix from http://wiki.python.org/moin/DistutilsInstallDataScattered
+from distutils.command.install_data import install_data
+class smart_install_data(install_data):
+    def run(self):
+        #need to change self.install_dir to the library dir
+        install_cmd = self.get_finalized_command('install')
+        self.install_dir = getattr(install_cmd, 'install_lib')
+        return install_data.run(self)
 
 # Figure out which array packages to provide binary support for
 # and append to the NUMERIX list.
@@ -304,6 +292,7 @@ distrib = setup(name="matplotlib",
       ext_modules = ext_modules,
       data_files = data_files,
       package_dir = {'': 'lib'},
+      cmdclass = {'install_data':smart_install_data},
       **additional_params
       )
 
