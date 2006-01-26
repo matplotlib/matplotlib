@@ -1,3 +1,7 @@
+2006-01-26 Replaced the ugly datapath logic with a cleaner approach from
+           http://wiki.python.org/moin/DistutilsInstallDataScattered.
+           Overrides the install_data command.
+
 2006-01-24 Don't use character typecodes in cntr.c --- changed to use 
            defined typenumbers instead. - TEO
 
