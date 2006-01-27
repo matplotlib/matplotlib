@@ -262,7 +262,7 @@ if sys.platform=='win32':
 template = file('matplotlibrc.template').read()
 file('matplotlibrc', 'w').write(template%rc)
 
-try: additional_params
+try: additional_params # has setupegg.py provided
 except NameError: additional_params = {}
 
 distrib = setup(name="matplotlib",
