@@ -673,7 +673,7 @@ def validate_ps_distiller(s):
         gs_v = checkdep_ghostscript()
         if compare_versions(gs_v, gs_sugg): pass
         elif compare_versions(gs_v, gs_req):
-            warnings.warn( 'ghostscript-%s found. ghostscript-%s or later \
+            verbose.report( 'ghostscript-%s found. ghostscript-%s or later \
 is recommended to use the ps.usedistiller option.' % (gs_v, gs_sugg))
         else:
             flag = False
@@ -731,7 +731,7 @@ backend unless dvipng-1.5 or later is installed on your system')
         gs_v = checkdep_ghostscript()
         if compare_versions(gs_v, gs_sugg): pass
         elif compare_versions(gs_v, gs_req):
-            warnings.warn( 'ghostscript-%s found. ghostscript-%s or later is \
+            verbose.report( 'ghostscript-%s found. ghostscript-%s or later is \
 recommended for use with the text.usetex option.' % (gs_v, gs_sugg))
         else:
             flag = False
@@ -1021,20 +1021,34 @@ def rc_params(fail_on_error=False):
         ret =  dict([ (key, tup[0]) for key, tup in defaultParams.items()])
         warnings.warn(message)
         return ret
-
+    
+    lines = [line.strip() for line in file(fname)]
     cnt = 0
-    for line in file(fname):
-        cnt +=1
-        line = line.strip()
+    rc_temp = {}
+    for line in lines:
+        cnt += 1
         if not len(line): continue
         if line.startswith('#'): continue
         tup = line.split(':',1)
         if len(tup) !=2:
             warnings.warn('Illegal line #%d\n\t%s\n\tin file "%s"' % (cnt, line, fname))
             continue
-
         key, val = tup
         key = key.strip()
+        rc_temp[key] = (val, line, cnt)
+    
+    i = 0
+    while len(rc_temp) > 0:
+        i += 1
+        if i == 1:
+            key = 'verbose.level'
+            val, line, cnt = rc_temp.pop(key)
+        elif i == 2:
+            key = 'verbose.fileo'
+            val, line, cnt = rc_temp.pop(key)
+        else:
+            key, (val, line, cnt) = rc_temp.popitem()
+        
         if key in deprecated_map.keys():
             alt = deprecated_map[key]
             warnings.warn('%s is deprecated in matplotlibrc - use %s instead.' % (key, alt))
@@ -1044,9 +1058,7 @@ def rc_params(fail_on_error=False):
             warnings.warn('Bad key "%s" on line %d in %s' % (key, cnt, fname))
             continue
 
-
         default, converter =  defaultParams[key]
-
 
         ind = val.find('#')
         if ind>=0: val = val[:ind]   # ignore trailing comments
