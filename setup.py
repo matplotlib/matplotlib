@@ -56,19 +56,10 @@ VERBOSE = False # insert lots of diagnostic prints in extension code
 # update it when the contents of directories change.
 import os
 if os.path.exists('MANIFEST'): os.remove('MANIFEST')
-
-try:
-    # check if we have a reasonably recent copy of setuptools
-    from setuptools.command import bdist_egg 
-    from setuptools import setup
-    has_setuptools = True
-except ImportError:
-    from distutils.core import setup
-    has_setuptools = False
     
 import sys,os
 import glob
-from distutils.core import Extension
+from distutils.core import Extension, setup
 from setupext import build_agg, build_gtkagg, build_tkagg, build_wxagg,\
      build_ft2font, build_image, build_windowing, build_transforms, \
      build_contour, build_enthought, build_swigagg, build_gdk
@@ -271,9 +262,8 @@ if sys.platform=='win32':
 template = file('matplotlibrc.template').read()
 file('matplotlibrc', 'w').write(template%rc)
 
-additional_params = {}
-if has_setuptools:
-    additional_params['namespace_packages'] = ['matplotlib.toolkits']
+try: additional_params
+except NameError: additional_params = {}
 
 distrib = setup(name="matplotlib",
       version= __version__,
@@ -296,4 +286,3 @@ distrib = setup(name="matplotlib",
       cmdclass = {'install_data':smart_install_data},
       **additional_params
       )
-
