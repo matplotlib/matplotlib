@@ -1,6 +1,9 @@
+2006-01-27 Removed setuptools support from setup.py and created a
+		   separate setupegg.py file to replace it. - CM
+
 2006-01-26 Replaced the ugly datapath logic with a cleaner approach from
            http://wiki.python.org/moin/DistutilsInstallDataScattered.
-           Overrides the install_data command.
+           Overrides the install_data command. - CM
 
 2006-01-24 Don't use character typecodes in cntr.c --- changed to use 
            defined typenumbers instead. - TEO

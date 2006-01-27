@@ -379,9 +379,14 @@ def _get_data_path():
         path = os.environ['MATPLOTLIBDATA']
         if os.path.isdir(path): return path
     
-    else:
-        path = os.sep.join([os.path.dirname(__file__), 'mpl-data'])
-        if os.path.isdir(path): return path
+    path = os.sep.join([os.path.dirname(__file__), 'mpl-data'])
+    if os.path.isdir(path): return path
+    
+    # setuptools' namespace_packages may highjack this init file
+    # so need to try something known to be in matplotlib, not basemap
+    import matplotlib.artist
+    path = os.sep.join([os.path.dirname(matplotlib.artist.__file__), 'mpl-data'])
+    if os.path.isdir(path): return path
 
 #    if _have_pkg_resources:
 #        try:
