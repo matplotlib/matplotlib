@@ -638,6 +638,11 @@ grestore
         thetext = 'psmarker%d' % self.textcnt
         scale = float(fontsize/10.0)
         color = '%1.3f,%1.3f,%1.3f'% gc.get_rgb()
+        if rcParams['text.tex.engine'] == 'latex':
+            fontcmd = {'sans-serif' : r'{\sffamily %s}',
+                   'monospace'  : r'{\ttfamily %s}'}.get(
+                    rcParams['font.family'], r'{\rmfamily %s}')
+            s = fontcmd % s
         tex = r'\color[rgb]{%s} %s' % (color, s)
         self.psfrag.append(r'\psfrag{%s}[bl][bl][%f][%f]{%s}'%(thetext, scale, angle, tex))
         ps = """\
