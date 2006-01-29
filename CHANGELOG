@@ -1,5 +1,10 @@
+2006-01-29 Fixed tex's caching to include font.family rc information - DSD
+
 2006-01-29 Fixed subpixel rendering bug in *Agg that was causing
            uneven gridlines - JDH
+
+2006-01-28 Added fontcmd to backend_ps's RendererPS.draw_tex, to support other 
+           font families in eps output - DSD
 
 2006-01-28 Added MaxNLocator to ticker.py, and changed contour.py to
            use it by default. - EF
