@@ -13,7 +13,8 @@ xlabel('time (s)')
 ylabel('voltage (mV)')
 title('About as simple as it gets, folks')
 grid(True)
+
 #savefig('simple_plot.png')
-savefig('simple_plot')
+#savefig('simple_plot')
 
 show()

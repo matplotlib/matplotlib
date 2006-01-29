@@ -241,6 +241,8 @@ class Figure(Artist):
 
     def set_figsize_inches(self, *args, **kwargs):
         """
+        set_figsize_inches(w,h, forward=False)
+
         Set the figure size in inches
 
         Usage: set_figsize_inches(self, w,h)  OR
@@ -249,6 +251,8 @@ class Figure(Artist):
         optional kwarg forward=True will cause the canvas size to be
         automatically updated; eg you can resize the figure window
         from the shell
+
+        WARNING: forward=True is broken on all backends except GTK*
 
         ACCEPTS: a w,h tuple with w,h in inches
         """
