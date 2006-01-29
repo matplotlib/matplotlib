@@ -246,8 +246,6 @@ class ScalarFormatter(Formatter):
     such that the tick labels are meaningful. Scientific notation is used for
     data < 1e-3 or data >= 1e4.
     """
-    # To use, rename ScalarFormatter to OldScalarFormatter,
-    # and rename NewScalarFormatter to ScalarFormatter.
     def __init__(self, useOffset=True, useMathText=False):
         # useOffset allows plotting small data ranges with large offsets:
         # for example: [1+1e-9,1+2e-9,1+3e-9]
@@ -310,7 +308,7 @@ class ScalarFormatter(Formatter):
                 if ave_loc < 0:
                     self.offset = math.ceil(amax(locs)/10**range_oom)*10**range_oom
                 else:
-                    self.offset = math.floor(amin(locs)/10**range_oom)*10**range_oom
+                    self.offset = math.floor(amin(locs)/10**(range_oom))*10**(range_oom)
             else: self.offset = 0
 
     def _set_orderOfMagnitude(self,range):
@@ -729,6 +727,25 @@ class MultipleLocator(Locator):
 
         return self.nonsingular(vmin, vmax)
 
+def scale_range(vmin, vmax, n = 1, threshold=100):
+    dv = abs(vmax - vmin)
+    if dv == 0:
+        return 1.0, 0.0
+    meanv = 0.5*(vmax+vmin)
+    if abs(meanv)/dv < threshold:
+        offset = 0
+    elif meanv > 0:
+        ex = divmod(math.log10(meanv), 1)[0]
+        offset = 10**ex
+    else:
+        ex = divmod(math.log10(-meanv), 1)[0]
+        offset = -10**ex
+    ex = divmod(math.log10(dv/n), 1)[0]
+    scale = 10**ex
+    return scale, offset
+
+
+
 class MaxNLocator(Locator):
     """
     Select no more than N intervals at nice locations.
@@ -747,9 +764,10 @@ class MaxNLocator(Locator):
 
     def bin_boundaries(self, vmin, vmax):
         nbins = self._nbins
-        raw_step = float(vmax-vmin)/nbins
-        exponent = divmod(math.log10(raw_step), 1)[0]
-        scale = 10**(exponent)
+        scale, offset = scale_range(vmin, vmax, nbins)
+        vmin -= offset
+        vmax -= offset
+        raw_step = (vmax-vmin)/nbins
         scaled_raw_step = raw_step/scale
 
         for step in self._steps:
@@ -760,11 +778,10 @@ class MaxNLocator(Locator):
             best_vmax = best_vmin + step*nbins
             if (best_vmax >= vmax):
                 break
-
         if self._trim:
             extra_bins = int(divmod((best_vmax - vmax), step)[0])
             nbins -= extra_bins
-        return (arange(nbins+1) * step + best_vmin)
+        return (arange(nbins+1) * step + best_vmin + offset)
 
 
     def __call__(self):
@@ -777,7 +794,7 @@ class MaxNLocator(Locator):
         self.verify_intervals()
         dmin, dmax = self.dataInterval.get_bounds()
         dmin, dmax = self.nonsingular(dmin, dmax, expander = 0.05)
-        return self.bin_boundaries(dmin, dmax)[0,-1]
+        return take(self.bin_boundaries(dmin, dmax), [0,-1])
 
 
 def decade_down(x, base=10):
@@ -882,7 +899,11 @@ class LogLocator(Locator):
             vmax = decade_up(vmax,self._base)
         return self.nonsingular(vmin, vmax)
 
-class AutoLocator(Locator):
+class AutoLocator(MaxNLocator):
+    def __init__(self):
+        MaxNLocator.__init__(self, nbins=9, steps=[1, 2, 5, 10])
+
+class OldAutoLocator(Locator):
     """
     On autoscale this class picks the best MultipleLocator to set the
     view limits and the tick locs.
