@@ -232,7 +232,8 @@ import numerix as nx
 # eg a bad pytz install.  I don't want to break all of matplotlib for
 # date support
 try:
-    from dates import date2num, num2date, datestr2num, drange, epoch2num, num2epoch, mx2num,\
+    from dates import date2num, num2date, datestr2num, drange,\
+            epoch2num, num2epoch, mx2num,\
             DateFormatter, IndexDateFormatter, DateLocator,\
             RRuleLocator, YearLocator, MonthLocator, WeekdayLocator,\
             DayLocator, HourLocator, MinuteLocator, SecondLocator,\
@@ -249,17 +250,32 @@ from ticker import TickHelper, Formatter, FixedFormatter, NullFormatter,\
            FuncFormatter, FormatStrFormatter, ScalarFormatter,\
            LogFormatter, LogFormatterExponent, LogFormatterMathtext,\
            Locator, IndexLocator, FixedLocator, NullLocator,\
-           LinearLocator, LogLocator, AutoLocator, MultipleLocator
+           LinearLocator, LogLocator, AutoLocator, MultipleLocator,\
+           MaxNLocator
 import ticker
 import matplotlib
 
 # bring all the  symbols in so folks can import them from
 # pylab in one fell swoop
 
-from numerix import array, zeros, shape, rank, size, fromstring, take, put, putmask, reshape, repeat, choose, searchsorted, asum, cumsum, product, cumproduct, alltrue, sometrue, allclose, arrayrange, arange, asarray, convolve, swapaxes, concatenate, transpose, sort, argsort, argmax, argmin, innerproduct, dot, outerproduct, resize, indices, fromfunction, diagonal, trace, ravel, nonzero, shape, where, compress, clip, zeros, ones, identity, add, logical_or, exp, subtract, logical_xor, log, multiply, logical_not, log10, divide, maximum, sin, minimum, sinh, conjugate, bitwise_and, sqrt, power, bitwise_or, tan, absolute, bitwise_xor, tanh, negative, ceil, greater, fabs, greater_equal, floor, less, arccos, arctan2, less_equal, arcsin, fmod, equal, arctan, hypot, not_equal, cos, around, logical_and, cosh, arccosh, arcsinh, arctanh, cross_correlate, \
-     pi, ArrayType, matrixmultiply
+from numerix import array, zeros, shape, rank, size, fromstring,\
+        take, put, putmask, reshape, repeat, choose, searchsorted,\
+        asum, cumsum, product, cumproduct, alltrue, sometrue, allclose,\
+        arrayrange, arange, asarray, convolve, swapaxes, concatenate,\
+        transpose, sort, argsort, argmax, argmin, innerproduct, dot,\
+        outerproduct, resize, indices, fromfunction, diagonal, trace,\
+        ravel, nonzero, shape, where, compress, clip, zeros, ones,\
+        identity, add, logical_or, exp, subtract, logical_xor,\
+        log, multiply, logical_not, log10, divide, maximum, sin,\
+        minimum, sinh, conjugate, bitwise_and, sqrt, power, bitwise_or,\
+        tan, absolute, bitwise_xor, tanh, negative, ceil, greater, fabs,\
+        greater_equal, floor, less, arccos, arctan2, less_equal, arcsin,\
+        fmod, equal, arctan, hypot, not_equal, cos, around, logical_and,\
+        cosh, arccosh, arcsinh, arctanh, cross_correlate,\
+        pi, ArrayType, matrixmultiply
 
-from numerix import Int8, UInt8, Int16, UInt16, Int32, UInt32, Float32, Float64, Complex32, Complex64, Float, Int, Complex
+from numerix import Int8, UInt8, Int16, UInt16, Int32, UInt32, Float32,\
+        Float64, Complex32, Complex64, Float, Int, Complex
 
 from matplotlib.numerix.fft import fft
 from matplotlib.numerix.linear_algebra import inverse, eigenvectors
@@ -270,7 +286,14 @@ pymin, pymax = min, max
 from matplotlib.numerix.mlab import *
 min, max = pymin, pymax
 
-from matplotlib.mlab import linspace, window_hanning, window_none, conv, detrend, detrend_mean, detrend_none, detrend_linear, corrcoef, polyfit, polyval, vander, entropy, normpdf, levypdf, find, trapz, prepca, fix, rem, norm, orth, rank, sqrtm, prctile, center_matrix, meshgrid, rk4, exp_safe, amap, sum_flat, mean_flat, rms_flat, l1norm, l2norm, norm, frange, diagonal_matrix, base_repr, binary_repr, log2, ispower2, bivariate_normal
+from matplotlib.mlab import linspace, window_hanning, window_none,\
+        conv, detrend, detrend_mean, detrend_none, detrend_linear,\
+        corrcoef, polyfit, polyval, vander, entropy, normpdf,\
+        levypdf, find, trapz, prepca, fix, rem, norm, orth, rank,\
+        sqrtm, prctile, center_matrix, meshgrid, rk4, exp_safe, amap,\
+        sum_flat, mean_flat, rms_flat, l1norm, l2norm, norm, frange,\
+        diagonal_matrix, base_repr, binary_repr, log2, ispower2,\
+        bivariate_normal
 
 
 """

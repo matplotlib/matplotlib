@@ -31,7 +31,7 @@ as
 The bounding box class Bbox is also heavily used, and is defined by a
 lower left point ll and an upper right point ur.  The points ll and ur
 are given by Point(x, y) instances, where x and y are LazyValues.  So
-you can represent a point such as 
+you can represent a point such as
 
   ll = Point( Value(0), Value(0)  )  # the origin
   ur = Point( width, height )        # the upper right of the figure
@@ -67,7 +67,7 @@ The bbox methods are
   ymin()              - return the y coord of lower left
   scale(sx,sy)        - scale the bbox by sx, sy
   deepcopy()          - return a deep copy of self (pointers are lost)
-  
+
 
 The basic transformation maps one bbox to another, with an optional
 nonlinear transformation of one of coordinates (eg log scaling).
@@ -100,7 +100,7 @@ For more general transformations including rotation, the Affine class
 is provided, which is constructed with 6 LazyValue instances:
 a, b, c, d, tx, ty.  These give the values of the matrix transformation
 
-  [xo  =  |a  c| [xi  + [tx      
+  [xo  =  |a  c| [xi  + [tx
    yo]    |b  d|  yi]    ty]
 
 where if sx, sy are the scaling components, tx, y are the translation
@@ -122,7 +122,7 @@ All transformations
   seq_x_y(x, y)         - transform the python sequences x and y
   numerix_x_y(x, y)     - x and y are numerix 1D arrays
   seq_xy_tups(seq)      - seq is a sequence of xy tuples
-  inverse_xy_tup(xy)    - apply the inverse transformation to tuple xy 
+  inverse_xy_tup(xy)    - apply the inverse transformation to tuple xy
 
   set_offset(xy, trans) - xy is an x,y tuple and trans is a
     Transformation instance.  This will apply a post transformational
@@ -209,7 +209,7 @@ def identity_affine():
     """
     Get an affine transformation that maps x,y -> x,y
     """
-    
+
     return Affine(one(), zero(), zero(), one(), zero(), zero())
 
 def identity_transform():
@@ -248,12 +248,12 @@ def scale_sep_transform(sx, sy):
     return SeparableTransformation(
         bboxin, bboxout,
         Func(IDENTITY), Func(IDENTITY))
-                                    
 
-    
+
+
 def bound_vertices(verts):
     """
-    Return the Bbox of the sequence of x,y tuples in verts    
+    Return the Bbox of the sequence of x,y tuples in verts
     """
     # this is a good candidate to move to _transforms
     bbox = unit_bbox()
@@ -266,7 +266,7 @@ def bbox_all(bboxes):
     """
     # this is a good candidate to move to _transforms
     assert(len(bboxes))
-        
+
     if len(bboxes)==1: return bboxes[0]
 
     bbox = bboxes[0]
@@ -293,7 +293,7 @@ def bbox_all(bboxes):
 def lbwh_to_bbox(l,b,w,h):
     return Bbox( Point( Value(l), Value(b)),
                  Point( Value(l+w), Value(b + h) ) )
-                 
+
 
 def invert_vec6(v):
     """
@@ -308,7 +308,7 @@ def invert_vec6(v):
     Mi = inverse(M)
     a, b = M[0,0:2]
     c, d = M[1,0:2]
-    tx, ty = M[2,0:2]        
+    tx, ty = M[2,0:2]
     return a,b,c,d,tx,ty
 
 def multiply_affines( v1, v2):
@@ -318,11 +318,11 @@ def multiply_affines( v1, v2):
 
     a1, b1, c1, d1, tx1, ty1 = v1.as_vec6()
     a2, b2, c2, d2, tx2, ty2 = v2.as_vec6()
-    
+
     a  = a1 * a2  + c1 * b2
-    b  = b1 * a2  + d1 * b2  
-    c  = a1 * c2  + c1 * d2  
-    d  = b1 * c2  + d1 * d2  
+    b  = b1 * a2  + d1 * b2
+    c  = a1 * c2  + c1 * d2
+    d  = b1 * c2  + d1 * d2
     tx = a1 * tx2 + c1 * ty2 + tx1
     ty = b1 * tx2 + d1 * ty2 + ty1
     return Affine(a,b,c,d,tx,ty)
@@ -355,7 +355,7 @@ def blend_xy_sep_transform(trans1, trans2):
     outboxy = trans2.get_bbox2()
 
     xminIn  =  inboxx.ll().x()
-    xmaxIn  =  inboxx.ur().x()    
+    xmaxIn  =  inboxx.ur().x()
     xminOut = outboxx.ll().x()
     xmaxOut = outboxx.ur().x()
 
@@ -384,9 +384,9 @@ def transform_bbox(trans, bbox):
     return Bbox(Point(Value(xmin), Value(ymin)),
                 Point(Value(xmax), Value(ymax)))
 
-    
-    
-    
+
+
+
 def inverse_transform_bbox(trans, bbox):
     'inverse transform the bbox'
     xmin, xmax = bbox.intervalx().get_bounds()
@@ -412,14 +412,14 @@ def copy_bbox_transform(trans):
     ymin, ymax  =  outbox.intervaly().get_bounds()
     newOutbox  = Bbox( Point(Value(xmin),  Value(ymin)),
                        Point(Value(xmax),  Value(ymax))  )
-    
+
     typex = trans.get_funcx().get_type()
     typey = trans.get_funcy().get_type()
 
 
     newtrans = get_bbox_transform(newInbox, newOutbox)
     newtrans.get_funcx().set_type(typex)
-    newtrans.get_funcy().set_type(typey)    
+    newtrans.get_funcy().set_type(typey)
     return newtrans
 
 def get_vec6_scales(v):

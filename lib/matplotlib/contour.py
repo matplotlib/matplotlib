@@ -6,6 +6,8 @@ from __future__ import division
 from matplotlib import rcParams
 import numerix.ma as ma
 
+from ticker import MaxNLocator
+from transforms import Interval, Value
 from numerix import absolute, arange, array, asarray, ones, divide,\
      transpose, log, log10, Float, Float32, ravel, zeros, Int16,\
      Int32, Int, Float64, ceil, indices, shape, which, where, sqrt,\
@@ -398,6 +400,7 @@ class ContourSet(ScalarMappable, ContourLabeler):
         self.clip_ends = kwargs.get('clip_ends', True)
         self.antialiased = kwargs.get('antialiased', True)
         self.nchunk = kwargs.get('nchunk', 0)
+        self.locator = kwargs.get('locator', None)
 
         if self.origin is not None: assert(self.origin in
                                             ['lower', 'upper', 'image'])
@@ -493,11 +496,16 @@ class ContourSet(ScalarMappable, ContourLabeler):
         zmax = ma.maximum(z)
         zmin = ma.minimum(z)
         zmargin = (zmax - zmin) * 0.001 # so z < (zmax + zmargin)
+        zmax += zmargin
+        intv = Interval(Value(zmin), Value(zmax))
+        if self.locator is None:
+            self.locator = MaxNLocator(N+1)
+        self.locator.set_view_interval(intv)
+        self.locator.set_data_interval(intv)
+        lev = self.locator()
         if self.filled:
-            lev = linspace(zmin, zmax + zmargin, N+2)
-        else:
-            lev = linspace(zmin, zmax + zmargin, N+2)[1:-1]
-        return lev
+            return lev
+        return lev[1:-1]
 
     def _initialize_x_y(self, z):
         '''
@@ -703,6 +711,11 @@ class ContourSet(ScalarMappable, ContourLabeler):
 
             * extent = None: (x0,x1,y0,y1); also active only if X and Y
               are not specified.
+
+            * locator = None: an instance of a ticker.Locator subclass;
+              default is MaxNLocator.  It is used to determine the
+              contour levels if they are not given explicitly via the
+              V argument.
 
             contour only:
             * linewidths = None: or one of these:

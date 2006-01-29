@@ -374,14 +374,13 @@ get_configdir = verbose.wrap('CONFIGDIR=%s', _get_configdir, always=False)
 
 def _get_data_path():
     'get the path to matplotlib data'
-    
+
     if os.environ.has_key('MATPLOTLIBDATA'):
         path = os.environ['MATPLOTLIBDATA']
         if os.path.isdir(path): return path
-    
     path = os.sep.join([os.path.dirname(__file__), 'mpl-data'])
     if os.path.isdir(path): return path
-    
+
     # setuptools' namespace_packages may highjack this init file
     # so need to try something known to be in matplotlib, not basemap
     import matplotlib.artist
@@ -661,7 +660,7 @@ validate_ps_papersize = ValidateInStrings([
 
 def validate_ps_distiller(s):
     s = s.lower()
-    
+
     if s == 'none':
         return None
     elif s == 'false':
@@ -679,7 +678,7 @@ is recommended to use the ps.usedistiller option.' % (gs_v, gs_sugg))
             flag = False
             warnings.warn('matplotlibrc ps.usedistiller option can not be used \
 unless ghostscript-%s or later is installed on your system'% gs_req)
-        
+
         if s == 'xpdf':
             xpdf_req = '3.0'
             ps2eps_req = '1.58'
@@ -689,17 +688,17 @@ unless ghostscript-%s or later is installed on your system'% gs_req)
                 flag = False
                 warnings.warn('matplotlibrc ps.usedistiller can not be set to \
 xpdf unless xpdf-%s or later is installed on your system' % xpdf_req)
-            
+
             ps2eps_v = checkdep_ps2eps()
             if compare_versions(ps2eps_v, ps2eps_req): pass
             else:
                 flag = False
                 warnings.warn('matplotlibrc ps.usedistiller can not be set to xpdf \
 unless ps2eps-%s or later is installed on your system' % ps2eps_req)
-        
+
         if flag: return s
         else: return None
-    else: 
+    else:
         raise ValueError('matplotlibrc ps.usedistiller must either be none, \
 ghostscript or xpdf')
 
@@ -713,21 +712,21 @@ def validate_usetex(s):
         gs_sugg = '8.16'
         dvipng_req = '1.5'
         flag = True
-        
+
         tex_v = checkdep_tex()
         if compare_versions(tex_v, tex_req): pass
         else:
             flag = False
             warnings.warn('matplotlibrc text.usetex option can not be used \
 unless TeX-%s or later is installed on your system' % tex_req)
-        
+
         dvipng_v = checkdep_dvipng()
         if compare_versions(dvipng_v, dvipng_req): pass
         else:
             flag = False
             warnings.warn( 'matplotlibrc text.usetex can not be used with *Agg \
 backend unless dvipng-1.5 or later is installed on your system')
-        
+
         gs_v = checkdep_ghostscript()
         if compare_versions(gs_v, gs_sugg): pass
         elif compare_versions(gs_v, gs_req):
@@ -737,7 +736,7 @@ recommended for use with the text.usetex option.' % (gs_v, gs_sugg))
             flag = False
             warnings.warn('matplotlibrc text.usetex can not be used \
 unless ghostscript-%s or later is installed on your system'% gs_req)
-        
+
         if flag: return True
         else: return False
     else:
@@ -1021,7 +1020,7 @@ def rc_params(fail_on_error=False):
         ret =  dict([ (key, tup[0]) for key, tup in defaultParams.items()])
         warnings.warn(message)
         return ret
-    
+
     lines = [line.strip() for line in file(fname)]
     cnt = 0
     rc_temp = {}
@@ -1036,7 +1035,7 @@ def rc_params(fail_on_error=False):
         key, val = tup
         key = key.strip()
         rc_temp[key] = (val, line, cnt)
-    
+
     i = 0
     while len(rc_temp) > 0:
         i += 1
@@ -1048,7 +1047,7 @@ def rc_params(fail_on_error=False):
             val, line, cnt = rc_temp.pop(key)
         else:
             key, (val, line, cnt) = rc_temp.popitem()
-        
+
         if key in deprecated_map.keys():
             alt = deprecated_map[key]
             warnings.warn('%s is deprecated in matplotlibrc - use %s instead.' % (key, alt))
@@ -1076,7 +1075,7 @@ def rc_params(fail_on_error=False):
                 # Alles Klar, update dict
                 defaultParams[key][0] = cval
 
-    # strip the conveter funcs and return
+    # strip the converter funcs and return
     ret =  dict([ (key, tup[0]) for key, tup in defaultParams.items()])
     verbose.report('loaded rc file %s'%fname)
 
@@ -1267,7 +1266,7 @@ class ExampleManager:
                 if m is not None:
                     examples.append('%s/%s'%(url, m.group(1)))
         return examples
-            
+
     def get_info(self, s):
         """
         return an ExampleInfo instance from s, the string content of
