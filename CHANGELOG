@@ -1,3 +1,6 @@
+2006-01-28 Added fontcmd to backend_ps's RendererPS.draw_tex, to support other 
+	font families in eps output - DSD
+
 2006-01-27 Buffered reading of matplotlibrc parameters in order to allow 
 	'verbose' settings to be processed first (allows verbose.report 
 	during rc validation process) - DSD
