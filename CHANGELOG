@@ -1,21 +1,24 @@
-2006-01-28 Added fontcmd to backend_ps's RendererPS.draw_tex, to support other 
-	font families in eps output - DSD
+2006-01-28 Added MaxNLocator to ticker.py, and changed contour.py to
+           use it by default. - EF
 
-2006-01-27 Buffered reading of matplotlibrc parameters in order to allow 
-	'verbose' settings to be processed first (allows verbose.report 
-	during rc validation process) - DSD
+2006-01-28 Added fontcmd to backend_ps's RendererPS.draw_tex, to support other
+           font families in eps output - DSD
+
+2006-01-27 Buffered reading of matplotlibrc parameters in order to allow
+           'verbose' settings to be processed first (allows verbose.report
+           during rc validation process) - DSD
 
 2006-01-27 Removed setuptools support from setup.py and created a
-		   separate setupegg.py file to replace it. - CM
+           separate setupegg.py file to replace it. - CM
 
 2006-01-26 Replaced the ugly datapath logic with a cleaner approach from
            http://wiki.python.org/moin/DistutilsInstallDataScattered.
            Overrides the install_data command. - CM
 
-2006-01-24 Don't use character typecodes in cntr.c --- changed to use 
+2006-01-24 Don't use character typecodes in cntr.c --- changed to use
            defined typenumbers instead. - TEO
 
-2006-01-24 Fixed some bugs in usetex's and ps.usedistiller's dependency 
+2006-01-24 Fixed some bugs in usetex's and ps.usedistiller's dependency
 
 2006-01-24 Added masked array support to scatter - EF
 
