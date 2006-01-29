@@ -1,3 +1,6 @@
+2006-01-29 Fixed subpixel rendering bug in *Agg that was causing
+           uneven gridlines - JDH
+
 2006-01-28 Added MaxNLocator to ticker.py, and changed contour.py to
            use it by default. - EF
 

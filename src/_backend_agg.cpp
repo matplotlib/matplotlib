@@ -37,8 +37,9 @@
 /* ------------ RendererAgg methods ------------- */
 
 
-GCAgg::GCAgg(const Py::Object &gc, double dpi) :
-  dpi(dpi), isaa(true), linewidth(1.0), alpha(1.0), cliprect(NULL),
+GCAgg::GCAgg(const Py::Object &gc, double dpi, bool snapto) :
+  dpi(dpi), snapto(snapto), isaa(true), linewidth(1.0), alpha(1.0), 
+  cliprect(NULL),
   Ndash(0), dashOffset(0.0), dasha(NULL)
 {
 
@@ -142,10 +143,12 @@ GCAgg::_set_dashes(const Py::Object& gc) {
     throw Py::ValueError(Printf("dash sequence must be an even length sequence; found %d", Ndash).str());
 
   dasha = new double[Ndash];
-
-  for (size_t i=0; i<Ndash; i++)
-    dasha[i] = points_to_pixels(dashSeq[i]);
-
+  double val;
+  for (size_t i=0; i<Ndash; i++) {
+    val = points_to_pixels(dashSeq[i]);
+    if (this->snapto) val = (int)val +0.5;
+    dasha[i] = val;
+  }
 }
 
 
@@ -1221,9 +1224,6 @@ RendererAgg::draw_lines(const Py::Tuple& args) {
 
   _VERBOSE("RendererAgg::draw_lines");
   args.verify_length(4);
-  GCAgg gc = GCAgg(args[0], dpi);
-
-  set_clipbox_rasterizer(gc.cliprect);
 
   Py::Object xo = args[1];
   Py::Object yo = args[2];
@@ -1246,6 +1246,22 @@ RendererAgg::draw_lines(const Py::Tuple& args) {
   if (Nx!=Ny)
     throw Py::ValueError(Printf("x and y must be equal length arrays; found %d and %d", Nx, Ny).str());
 
+  // call gc with snapto==True if line len is 2 to fix grid line
+  // problem
+  bool snapto = false;
+  if (Nx==2) {
+    // disable subpiel rendering for len(2) horizontal or vertical
+    // lines
+    double x0 = *(double *)(xa->data + 0*xa->strides[0]);
+    double x1 = *(double *)(xa->data + 1*xa->strides[0]);
+    double y0 = *(double *)(ya->data + 0*ya->strides[0]);
+    double y1 = *(double *)(ya->data + 1*ya->strides[0]);
+    snapto = (x0==x1) || (y0==y1);
+    
+  }
+  GCAgg gc = GCAgg(args[0], dpi, snapto);
+
+  set_clipbox_rasterizer(gc.cliprect);
 
   Transformation* mpltransform = static_cast<Transformation*>(args[3].ptr());
 
@@ -1271,8 +1287,6 @@ RendererAgg::draw_lines(const Py::Tuple& args) {
 
   double lastx(-2.0), lasty(-2.0);
 
-  bool snapto = Nx==2;
-
   for (size_t i=0; i<Nx; i++) {
     thisx = *(double *)(xa->data + i*xa->strides[0]);
     thisy = *(double *)(ya->data + i*ya->strides[0]);
@@ -1296,11 +1310,16 @@ RendererAgg::draw_lines(const Py::Tuple& args) {
       continue;
     }
 
+
     lastx = thisx;
     lasty = thisy;
     if (snapto) {
+      //disable subpixel rendering for horizontal or vertical lines
+      //because it causes irregular line widths for grids and ticks
+
       thisx = (int)thisx + 0.5;
       thisy = (int)thisy + 0.5;
+      //std::cout << "snapto "<<thisx<<" "<<thisy<<std::endl;
     }
 
     if (moveto)

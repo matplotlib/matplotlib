@@ -59,7 +59,7 @@ public:
 
 class GCAgg {
 public:
-  GCAgg(const Py::Object& gc, double dpi);
+  GCAgg(const Py::Object& gc, double dpi, bool snapto=false);
 
   ~GCAgg() {
     delete [] dasha;
@@ -67,6 +67,7 @@ public:
   }
 
   double dpi;
+  bool snapto;
   bool isaa;
   
   agg::line_cap_e cap; 
