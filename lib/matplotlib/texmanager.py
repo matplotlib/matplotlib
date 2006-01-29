@@ -76,7 +76,8 @@ WARNING: found a TeX cache dir in the deprecated location "%s".
     def get_prefix(self, tex):
         s = tex
         if rcParams['text.tex.engine'] == 'latex':
-            s+='latex font: %s'%rcParams['font.latex.package']
+            s+='latex font: %s %s'% (rcParams['font.latex.package'], 
+                rcParams['font.family'])
         return md5.md5(s).hexdigest()
         
     def get_tex_command(self, tex, fname):
