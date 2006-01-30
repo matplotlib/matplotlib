@@ -111,12 +111,10 @@ font.stretch        : normal
 # settings for axes and ticks
 font.size           : medium
 font.serif          : New Century Schoolbook, Century Schoolbook L, Utopia, ITC Bookman, Bookman, Bitstream Vera Serif, Nimbus Roman No9 L, Times New Roman, Times, Palatino, Charter, serif
-font.sans-serif     : Lucida Grande, Verdana, Geneva, Lucida, Bitstream Vera Sans, Arial, Helvetica, sans-serif
+font.sans-serif     : Lucida Grande, Verdana, Geneva, Lucida, Bitstream Vera Sans, Arial, Helvetica, Avant Garde, sans-serif
 font.cursive        : Apple Chancery, Textile, Zapf Chancery, Sand, cursive
 font.fantasy        : Comic Sans MS, Chicago, Charcoal, Impact, Western, fantasy
 font.monospace      : Andale Mono, Bitstream Vera Sans Mono, Nimbus Mono L, Courier New, Courier, Fixed, Terminal, monospace
-font.latex.package  : type1cm  # This must be an available LaTeX font
-#package, like 'times' or 'pslatex' ; only applies if text.usetex is set
 
 ### TEXT
 # text properties used by text.Text.  See

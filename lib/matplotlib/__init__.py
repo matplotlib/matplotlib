@@ -733,7 +733,6 @@ defaultParams = {
     'font.cursive'      : ['cursive', validate_comma_sep_str],
     'font.fantasy'      : ['fantasy', validate_comma_sep_str],
     'font.monospace'    : ['monospace', validate_comma_sep_str],
-    'font.latex.package': ['type1cm', str],          # LaTeX font package: txfonts, pslatex, ...
 
     # text props
     'text.color'        : ['k', validate_color],     # black

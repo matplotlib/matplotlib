@@ -953,6 +953,7 @@ FontName currentdict end definefont pop""" % locals())
     return ''.join(data)
 
 
+
 class FigureCanvasPS(FigureCanvasBase):
     basepath = get_data_path()
 
@@ -1119,14 +1120,10 @@ class FigureCanvasPS(FigureCanvasBase):
         if needsClose: fh.close()
             
         if rcParams['text.usetex']:
-            if rcParams['text.tex.engine'] == 'latex': 
-                fontpackage = rcParams['font.latex.package']
-            else: 
-                fontpackage = 'type1cm'
             pw, ph = defaultPaperSize
             if width>pw-2 or height>ph-2: pw,ph = _get_papersize(width,height)
             print >>latexh, r"""\documentclass{scrartcl}
-\usepackage{%s}
+%s
 \usepackage{psfrag}
 \usepackage[dvips]{graphicx}
 \usepackage{color}
@@ -1144,7 +1141,7 @@ class FigureCanvasPS(FigureCanvasBase):
 \end{center}
 \end{figure}
 \end{document}
-"""% (fontpackage, pw, ph, pw-2, ph-2, pw, ph, '\n'.join(renderer.psfrag),
+"""% (renderer.texmanager.get_font_preamble(), pw, ph, pw-2, ph-2, pw, ph, '\n'.join(renderer.psfrag),
                 os.path.split(epsfile)[-1])
             latexh.close()
             curdir = os.getcwd()
