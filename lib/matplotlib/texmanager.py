@@ -135,10 +135,8 @@ WARNING: found a TeX cache dir in the deprecated location "%s".
         cmd = '\n'.join(cmd)
         self._font_preamble = '\n'.join([r'\usepackage{type1cm}',
                              cmd,
-                             r'\usepackage{fix-cm}',
                              r'\usepackage[T1]{fontenc}',
-                             r'\usepackage{textcomp}',
-                             r'\usepackage{scalefnt}'])
+                             r'\usepackage{textcomp}'])
         
     def get_prefix(self, tex):
         s = tex
