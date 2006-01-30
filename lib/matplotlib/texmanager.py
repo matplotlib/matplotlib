@@ -33,7 +33,7 @@ rc('text', usetex=True)
 
 """
 
-import glob, os, sys, md5, shutil
+import glob, os, sys, md5, shutil, warnings
 from matplotlib import get_configdir, get_home, get_data_path, \
      rcParams, verbose
 from matplotlib._image import readpng
@@ -67,36 +67,110 @@ WARNING: found a TeX cache dir in the deprecated location "%s".
     arrayd = {}
     postscriptd = {}
     pscnt = 0
+    
+    serif = ('cmr', '')
+    sans_serif = ('cmss', '')
+    monospace = ('cmtt', '')
+    cursive = ('pzc', r'\usepackage{chancery}')
+    font_family = 'serif'
+    
+    font_info = {'new century schoolbook': ('pnc', r'\renewcommand{\rmdefault}{pnc}'),
+               'bookman': ('pbk', r'\renewcommand{\rmdefault}{pbk}'),
+               'times': ('ptm', r'\usepackage{mathptmx}'),
+               'palatino': ('ppl', r'\usepackage{mathpazo}'),
+               'zapf chancery': ('pzc', r'\usepackage{chancery}'),
+               'charter': ('pch', r'\usepackage{charter}'),
+               'serif': ('cmr', ''),
+               'sans-serif': ('cmss', ''),
+               'helvetica': ('phv', r'\usepackage{helvet}'),
+               'avant garde': ('pag', r'\usepackage{avant}'),
+               'courier': ('pcr', r'\usepackage{courier}'),
+               'monospace': ('cmtt', '')}
 
     def __init__(self):
         if not os.path.isdir(self.texcache):
             os.mkdir(self.texcache)
-
+        if rcParams['font.family'].lower() in ('serif', 'sans-serif', 'cursive', 'monospace'):
+            self.font_family = rcParams['font.family'].lower()
+        else:
+            warnings.warn('The %s font family is not compatible with \
+                LaTeX. serif will bne used by default.' % ff)
+            self.font_family = 'serif'
+        self._fontconfig = self.font_family
+        for font in rcParams['font.serif']:
+            try:
+                self.serif = self.font_info[font.lower()]
+                break
+            except KeyError:
+                continue
+        self._fontconfig += self.serif[0]
+        for font in rcParams['font.sans-serif']:
+            try:
+                self.sans_serif = self.font_info[font.lower()]
+                break
+            except KeyError:
+                continue
+        self._fontconfig += self.sans_serif[0]
+        for font in rcParams['font.monospace']:
+            try:
+                self.monospace = self.font_info[font.lower()]
+                break
+            except KeyError:
+                continue
+        self._fontconfig += self.monospace[0]
+        for font in rcParams['font.cursive']:
+            try:
+                self.cursive = self.font_info[font.lower()]
+                break
+            except KeyError:
+                continue
+        self._fontconfig += self.cursive[0]
+        
+        # The following packages and commands need to be included in the latex 
+        # file's preamble:
+        cmd = [self.serif[1], self.sans_serif[1], self.monospace[1]]
+        if self.font_family == 'cursive': cmd.append(self.cursive[1])
+        while r'\usepackage{type1cm}' in cmd:
+            cmd.remove(r'\usepackage{type1cm}')
+        cmd = '\n'.join(cmd)
+        self._font_preamble = '\n'.join([r'\usepackage{type1cm}',
+                             cmd,
+                             r'\usepackage{fix-cm}',
+                             r'\usepackage[T1]{fontenc}',
+                             r'\usepackage{textcomp}',
+                             r'\usepackage{scalefnt}'])
         
     def get_prefix(self, tex):
         s = tex
         if rcParams['text.tex.engine'] == 'latex':
-            s+='latex font: %s %s'% (rcParams['font.latex.package'], 
-                rcParams['font.family'])
+            s+='%s'% self._fontconfig
         return md5.md5(s).hexdigest()
         
+    def get_font_config(self):
+        return self._fontconfig
+        
+    def get_font_preamble(self):
+        return self._font_preamble
+        
     def get_tex_command(self, tex, fname):
-
+        
         fh = file(fname, 'w')
         if rcParams['text.tex.engine'] == 'latex':
+
             fontcmd = {'sans-serif' : r'{\sffamily %s}',
-                   'monospace'  : r'{\ttfamily %s}'}.get(
-                    rcParams['font.family'], r'{\rmfamily %s}')
+                'monospace'  : r'{\ttfamily %s}'}.get(self.font_family, 
+                    r'{\rmfamily %s}')
             tex = fontcmd % tex
-            s = r"""\documentclass{article}
-\usepackage{%s}
+            
+            s = r"""\documentclass[10pt]{article}
+%s
 \setlength{\paperwidth}{72in}
 \setlength{\paperheight}{72in}
 \pagestyle{empty}
 \begin{document}
 %s
 \end{document}
-""" % (rcParams['font.latex.package'], tex)
+""" % (self._font_preamble, tex)
             fh.write(s)
             fh.close()
             command = 'latex -interaction=nonstopmode "%s"'%fname
