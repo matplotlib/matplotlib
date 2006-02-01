@@ -75,17 +75,20 @@ WARNING: found a TeX cache dir in the deprecated location "%s".
     font_family = 'serif'
     
     font_info = {'new century schoolbook': ('pnc', r'\renewcommand{\rmdefault}{pnc}'),
-               'bookman': ('pbk', r'\renewcommand{\rmdefault}{pbk}'),
-               'times': ('ptm', r'\usepackage{mathptmx}'),
-               'palatino': ('ppl', r'\usepackage{mathpazo}'),
-               'zapf chancery': ('pzc', r'\usepackage{chancery}'),
-               'charter': ('pch', r'\usepackage{charter}'),
-               'serif': ('cmr', ''),
-               'sans-serif': ('cmss', ''),
-               'helvetica': ('phv', r'\usepackage{helvet}'),
-               'avant garde': ('pag', r'\usepackage{avant}'),
-               'courier': ('pcr', r'\usepackage{courier}'),
-               'monospace': ('cmtt', '')}
+                'bookman': ('pbk', r'\renewcommand{\rmdefault}{pbk}'),
+                'times': ('ptm', r'\usepackage{mathptmx}'),
+                'palatino': ('ppl', r'\usepackage{mathpazo}'),
+                'zapf chancery': ('pzc', r'\usepackage{chancery}'),
+                'charter': ('pch', r'\usepackage{charter}'),
+                'serif': ('cmr', ''),
+                'sans-serif': ('cmss', ''),
+                'helvetica': ('phv', r'\usepackage{helvet}'),
+                'avant garde': ('pag', r'\usepackage{avant}'),
+                'courier': ('pcr', r'\usepackage{courier}'),
+                'monospace': ('cmtt', ''),
+                'computer modern roman': ('cmr', ''),
+                'computer modern sans serif': ('cmss', ''),
+                'computer modern typewriter': ('cmtt', '')}
 
     def __init__(self):
         if not os.path.isdir(self.texcache):
