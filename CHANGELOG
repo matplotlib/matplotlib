@@ -1,3 +1,5 @@
+2006-02-01 Dropped TeX engine support in usetex to focus on LaTeX. - DSD
+
 2006-01-29 Improved usetex option to respect the serif, sans-serif, monospace, 
            and cursive rc settings. Removed the font.latex.package rc setting, 
            it is no longer required - DSD

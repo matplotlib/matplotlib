@@ -139,9 +139,7 @@ WARNING: found a TeX cache dir in the deprecated location "%s".
                              r'\usepackage{textcomp}'])
         
     def get_prefix(self, tex):
-        s = tex
-        if rcParams['text.tex.engine'] == 'latex':
-            s+='%s'% self._fontconfig
+        s = tex + self._fontconfig
         return md5.md5(s).hexdigest()
         
     def get_font_config(self):
@@ -153,14 +151,11 @@ WARNING: found a TeX cache dir in the deprecated location "%s".
     def get_tex_command(self, tex, fname):
         
         fh = file(fname, 'w')
-        if rcParams['text.tex.engine'] == 'latex':
-
-            fontcmd = {'sans-serif' : r'{\sffamily %s}',
-                'monospace'  : r'{\ttfamily %s}'}.get(self.font_family, 
-                    r'{\rmfamily %s}')
-            tex = fontcmd % tex
-            
-            s = r"""\documentclass[10pt]{article}
+        fontcmd = {'sans-serif' : r'{\sffamily %s}',
+            'monospace'  : r'{\ttfamily %s}'}.get(self.font_family, 
+                r'{\rmfamily %s}')
+        tex = fontcmd % tex
+        s = r"""\documentclass[10pt]{article}
 %s
 \setlength{\paperwidth}{72in}
 \setlength{\paperheight}{72in}
@@ -169,20 +164,9 @@ WARNING: found a TeX cache dir in the deprecated location "%s".
 %s
 \end{document}
 """ % (self._font_preamble, tex)
-            fh.write(s)
-            fh.close()
-            command = 'latex -interaction=nonstopmode "%s"'%fname
-        else:
-            s = r"""\def\frac#1#2{ {#1 \over #2} }
-\nopagenumbers
-\hsize=72in
-\vsize=72in
-%s
-\bye
-""" % tex
-            fh.write(s)
-            fh.close()
-            command = 'tex "%s"'%fname
+        fh.write(s)
+        fh.close()
+        command = 'latex -interaction=nonstopmode "%s"'%fname
         return command
         
     def make_dvi(self, tex, force=0):

@@ -614,8 +614,6 @@ unless ps2eps-%s or later is installed on your system' % ps2eps_req)
         raise ValueError('matplotlibrc ps.usedistiller must either be none, \
 ghostscript or xpdf')
 
-validate_tex_engine = ValidateInStrings(['tex', 'latex'], ignorecase=True)
-
 def validate_usetex(s):
     bl = validate_bool(s)
     if bl:
@@ -737,7 +735,6 @@ defaultParams = {
     # text props
     'text.color'        : ['k', validate_color],     # black
     'text.usetex'       : [False, validate_usetex],
-    'text.tex.engine'   : ['tex', validate_tex_engine], # TeX or LaTeX
     'text.fontstyle'    : ['normal', str],
     'text.fontangle'    : ['normal', str],
     'text.fontvariant'  : ['normal', str],
