@@ -295,45 +295,45 @@ class FoundTclTk:
 def find_tcltk():
     """Finds Tcl/Tk includes/libraries/version by interrogating Tkinter."""
     try:
-	import Tkinter
+        import Tkinter
     except:
-	print "Tkinter not properly installed\n"
-	sys.exit(1)
+        print "Tkinter not properly installed\n"
+        sys.exit(1)
     if Tkinter.TkVersion < 8.3:
-	print "Tcl/Tk v8.3 or later required\n"
-	sys.exit(1)
+        print "Tcl/Tk v8.3 or later required\n"
+        sys.exit(1)
     o = FoundTclTk()
     try:
-	tk=Tkinter.Tk()	
+        tk=Tkinter.Tk()	
     except Tkinter.TclError:
-	print "Using default library and include directories for Tcl and Tk because a"
-	print "Tk window failed to open.  You may need to define DISPLAY for Tk to work"
-	print "so that setup can determine where your libraries are located."
-	o.tcl_lib = "/usr/local/lib"
-	o.tcl_inc = "/usr/local/include"
-	o.tk_lib = "/usr/local/lib"
+        print "Using default library and include directories for Tcl and Tk because a"
+        print "Tk window failed to open.  You may need to define DISPLAY for Tk to work"
+        print "so that setup can determine where your libraries are located."
+        o.tcl_lib = "/usr/local/lib"
+        o.tcl_inc = "/usr/local/include"
+        o.tk_lib = "/usr/local/lib"
         o.tk_inc = "/usr/local/include"
-	o.tkv = ""
+        o.tkv = ""
     else:
-	tk.withdraw()
-	o.tcl_lib = os.path.join((tk.getvar('tcl_library')), '../')
-	o.tk_lib = os.path.join((tk.getvar('tk_library')), '../')
-	o.tkv = str(Tkinter.TkVersion)[:3]
-	o.tcl_inc = os.path.join((tk.getvar('tcl_library')), 
-				 '../../include/tcl'+o.tkv)        
+        tk.withdraw()
+        o.tcl_lib = os.path.join((tk.getvar('tcl_library')), '../')
+        o.tk_lib = os.path.join(str(tk.getvar('tk_library')), '../')
+        o.tkv = str(Tkinter.TkVersion)[:3]
+        o.tcl_inc = os.path.join((tk.getvar('tcl_library')), 
+                    '../../include/tcl'+o.tkv)
         if not os.path.exists(o.tcl_inc):
-	    o.tcl_inc = os.path.join((tk.getvar('tcl_library')), 
-				     '../../include')
-	o.tk_inc = os.path.join((tk.getvar('tk_library')), 
-				 '../../include/tk'+o.tkv)        
+            o.tcl_inc = os.path.join((tk.getvar('tcl_library')), 
+                        '../../include')
+        o.tk_inc = os.path.join((tk.getvar('tk_library')), 
+                    '../../include/tk'+o.tkv)        
         if not os.path.exists(o.tk_inc):
-	    o.tk_inc = os.path.join((tk.getvar('tk_library')), 
-				     '../../include')
+            o.tk_inc = os.path.join((tk.getvar('tk_library')), 
+                        '../../include')
         if not os.path.exists(o.tcl_inc):
             print 'cannot find tcl/tk headers. giving up.'
             sys.exit()
     return o
-	
+
 
 def add_tk_flags(module):
     'Add the module flags to build extensions which use tk'
@@ -374,7 +374,7 @@ def add_tk_flags(module):
         # Find the directory that contains the Tcl.framwork and Tk.framework
         # bundles.
         # XXX distutils should support -F!
-	tk_framework_found = 0
+        tk_framework_found = 0
         for F in framework_dirs:
             # both Tcl.framework and Tk.framework should be present
             for fw in 'Tcl', 'Tk':
