@@ -882,7 +882,7 @@ WARNING: Old rc filename "%s" found and renamed to
     return fname
 
 
-def validate_key(key, val, line, cnt, fail_on_error):
+def validate_key(key, val, line, cnt, fname, fail_on_error):
     if key in _deprecated_map.keys():
         alt = _deprecated_map[key]
         warnings.warn('%s is deprecated in matplotlibrc - use %s instead.' % (key, alt))
@@ -946,12 +946,12 @@ def rc_params(fail_on_error=False):
         try: val, line, cnt = rc_temp.pop(key)
         except KeyError: continue
         else:
-            cval = validate_key(key, val, line, cnt, fail_on_error)
+            cval = validate_key(key, val, line, cnt, fname, fail_on_error)
             if cval: defaultParams[key][0] = cval
     while len(rc_temp) > 0:
         key, (val, line, cnt) = rc_temp.popitem()
         
-        cval = validate_key(key, val, line, cnt, fail_on_error)
+        cval = validate_key(key, val, line, cnt, fname, fail_on_error)
         if cval: defaultParams[key][0] = cval
         else: continue
 
