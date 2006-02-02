@@ -663,7 +663,7 @@ class Axes(Artist):
         self.xaxis.cla()
         self.yaxis.cla()
 
-
+        self.dataLim.ignore(1)
         if self._sharex is not None:
             self.xaxis.major = self._sharex.xaxis.major
             self.xaxis.minor = self._sharex.xaxis.minor

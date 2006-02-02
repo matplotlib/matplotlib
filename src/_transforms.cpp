@@ -385,6 +385,33 @@ Bbox::overlapsy(const Py::Tuple &args) {
 }
 
 
+/*
+As for how the datalim handling works, the syntax is
+
+  self.dataLim.update(xys, ignore)
+
+Note this is different than the ax.update_datalim method, which calls
+it.  datalim is a bbox which has an ignore state variable (boolean).
+
+The ignore argument to update datalim can take on three values
+
+  0: do not ignore the current limits and update them with the xys
+  1: ignore the current datalim limits and override with xys
+ -1: use the datalim ignore state to determine the ignore settings
+
+This seems a bit complex but arose from experience.  Basically a lot
+of different objects want to add their data to the datalim.  In most
+use cases, you want the first object to add data to ignore the current
+limits (which are just default values) and subsequent objects to add
+to the datalim taking into account the previous limits.  The default
+behavior of datalim is to set ignore to 1, and after the first call
+with -1 set ignore to 0.  Thus everyone can call with -1 and have the
+desired default behavior .  I hope you are all confused now.
+
+One can manually set the ignore state var with
+
+  datalim.ignore(1)
+*/
 Py::Object
 Bbox::update(const Py::Tuple &args) {
   _VERBOSE("Bbox::update");
