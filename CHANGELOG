@@ -1,3 +1,6 @@
+2006-02-02 Fixed a problem in setupext.py, tk library formatted in unicode 
+           caused build problems - DSD
+
 2006-02-01 Dropped TeX engine support in usetex to focus on LaTeX. - DSD
 
 2006-01-29 Improved usetex option to respect the serif, sans-serif, monospace, 
