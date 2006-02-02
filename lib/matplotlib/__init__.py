@@ -882,18 +882,43 @@ WARNING: Old rc filename "%s" found and renamed to
     return fname
 
 
+def validate_key(key, val, line, cnt, fail_on_error):
+    if key in _deprecated_map.keys():
+        alt = _deprecated_map[key]
+        warnings.warn('%s is deprecated in matplotlibrc - use %s instead.' % (key, alt))
+        key = alt
+
+    if not defaultParams.has_key(key):
+        warnings.warn('Bad key "%s" on line %d in %s' % (key, cnt, fname))
+        return None
+
+    default, converter =  defaultParams[key]
+
+    ind = val.find('#')
+    if ind>=0: val = val[:ind]   # ignore trailing comments
+    val = val.strip()
+    if fail_on_error:
+        return converter(val)   # try to convert to proper type or raise
+    else:
+        try: cval = converter(val)   # try to convert to proper type or raise
+        except Exception, msg:
+            warnings.warn('Bad val "%s" on line #%d\n\t"%s"\n\tin file "%s"\n\t%s' % (
+                val, cnt, line, fname, msg))
+            return None
+        else:
+            return cval
+
+_deprecated_map = {
+    'text.fontstyle':   'font.style',
+    'text.fontangle':   'font.style',
+    'text.fontvariant': 'font.variant',
+    'text.fontweight':  'font.weight',
+    'text.fontsize':    'font.size',
+    'tick.size' :       'tick.major.size',
+    }
 
 def rc_params(fail_on_error=False):
     'Return the default params updated from the values in the rc file'
-
-    deprecated_map = {
-        'text.fontstyle':   'font.style',
-        'text.fontangle':   'font.style',
-        'text.fontvariant': 'font.variant',
-        'text.fontweight':  'font.weight',
-        'text.fontsize':    'font.size',
-        'tick.size' :       'tick.major.size',
-        }
 
     fname = matplotlib_fname()
     if not os.path.exists(fname):
@@ -917,44 +942,18 @@ def rc_params(fail_on_error=False):
         key = key.strip()
         rc_temp[key] = (val, line, cnt)
 
-    i = 0
+    for key in ('verbose.level', 'verbose.fileo'):
+        try: val, line, cnt = rc_temp.pop(key)
+        except KeyError: continue
+        else:
+            cval = validate_key(key, val, line, cnt, fail_on_error)
+            if cval: defaultParams[key][0] = cval
     while len(rc_temp) > 0:
-        i += 1
-        if i == 1:
-            key = 'verbose.level'
-            val, line, cnt = rc_temp.pop(key)
-        elif i == 2:
-            key = 'verbose.fileo'
-            val, line, cnt = rc_temp.pop(key)
-        else:
-            key, (val, line, cnt) = rc_temp.popitem()
-
-        if key in deprecated_map.keys():
-            alt = deprecated_map[key]
-            warnings.warn('%s is deprecated in matplotlibrc - use %s instead.' % (key, alt))
-            key = alt
-
-        if not defaultParams.has_key(key):
-            warnings.warn('Bad key "%s" on line %d in %s' % (key, cnt, fname))
-            continue
-
-        default, converter =  defaultParams[key]
-
-        ind = val.find('#')
-        if ind>=0: val = val[:ind]   # ignore trailing comments
-        val = val.strip()
-        if fail_on_error:
-            cval = converter(val)   # try to convert to proper type or raise
-            defaultParams[key][0] = cval
-        else:
-            try: cval = converter(val)   # try to convert to proper type or raise
-            except Exception, msg:
-                warnings.warn('Bad val "%s" on line #%d\n\t"%s"\n\tin file "%s"\n\t%s' % (
-                    val, cnt, line, fname, msg))
-                continue
-            else:
-                # Alles Klar, update dict
-                defaultParams[key][0] = cval
+        key, (val, line, cnt) = rc_temp.popitem()
+        
+        cval = validate_key(key, val, line, cnt, fail_on_error)
+        if cval: defaultParams[key][0] = cval
+        else: continue
 
     # strip the converter funcs and return
     ret =  dict([ (key, tup[0]) for key, tup in defaultParams.items()])
