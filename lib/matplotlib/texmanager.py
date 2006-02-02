@@ -96,37 +96,40 @@ WARNING: found a TeX cache dir in the deprecated location "%s".
         if rcParams['font.family'].lower() in ('serif', 'sans-serif', 'cursive', 'monospace'):
             self.font_family = rcParams['font.family'].lower()
         else:
-            warnings.warn('The %s font family is not compatible with \
-                LaTeX. serif will bne used by default.' % ff)
+            warnings.warn('The %s font family is not compatible with LaTeX. serif will be used by default.' % ff)
             self.font_family = 'serif'
         self._fontconfig = self.font_family
         for font in rcParams['font.serif']:
             try:
                 self.serif = self.font_info[font.lower()]
-                break
             except KeyError:
                 continue
+            else:
+                break
         self._fontconfig += self.serif[0]
         for font in rcParams['font.sans-serif']:
             try:
                 self.sans_serif = self.font_info[font.lower()]
-                break
             except KeyError:
                 continue
+            else:
+                break
         self._fontconfig += self.sans_serif[0]
         for font in rcParams['font.monospace']:
             try:
                 self.monospace = self.font_info[font.lower()]
-                break
             except KeyError:
                 continue
+            else:
+                break                
         self._fontconfig += self.monospace[0]
         for font in rcParams['font.cursive']:
             try:
                 self.cursive = self.font_info[font.lower()]
-                break
             except KeyError:
                 continue
+            else:
+                break                
         self._fontconfig += self.cursive[0]
         
         # The following packages and commands need to be included in the latex 
