@@ -1,3 +1,5 @@
+2006-02-02 Added box function to pylab
+
 2006-02-02 Fixed a problem in setupext.py, tk library formatted in unicode 
            caused build problems - DSD
 
