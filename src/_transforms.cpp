@@ -334,7 +334,7 @@ Py::Object
 Bbox::ignore(const Py::Tuple &args) {
   _VERBOSE("Bbox::ignore");
   args.verify_length(1);
-  _ignore = Py::Int(args[1]);
+  _ignore = Py::Int(args[0]);
   return Py::Object();
 }
 
