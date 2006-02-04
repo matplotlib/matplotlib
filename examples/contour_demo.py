@@ -7,7 +7,8 @@ See also contour_image.py.
 '''
 from pylab import *
 
-rcParams['tick.direction'] = 'out'
+rcParams['xtick.direction'] = 'out'
+rcParams['ytick.direction'] = 'out'
 
 delta = 0.025
 x = arange(-3.0, 3.0, delta)
