@@ -508,7 +508,12 @@ Bbox::update_numerix(const Py::Tuple &args) {
   double maxy = _ur->yval();
 
   double thisx, thisy;
+  //don't use current bounds on first update
   int ignore = Py::Int(args[2]);
+  if (ignore==-1) {
+    ignore = _ignore;
+    _ignore = 0; // don't ignore future updates
+  }
   if (ignore) {
     int xok=0;
     int yok=0;
@@ -532,7 +537,7 @@ Bbox::update_numerix(const Py::Tuple &args) {
 	  yok=1;
 	}
       }
-      
+
       if (xok && yok) break;
     }
   }
@@ -1267,7 +1272,7 @@ SeparableTransformation::operator()(const double& x, const double& y) {
 void
 SeparableTransformation::arrayOperator(const int length, const double x[], const double y[], double newx[], double newy[]) {
   _VERBOSE("SeparableTransformation::arrayOperator");
-  
+
   _funcx->arrayOperator(length, x, newx);
   _funcy->arrayOperator(length, y, newy);
 
@@ -1449,7 +1454,7 @@ NonseparableTransformation::operator()(const double& x, const double& y) {
 void
 NonseparableTransformation::arrayOperator(const int length, const double x[], const double y[], double newx[], double newy[]) {
   _VERBOSE("NonseparableTransformation::operator");
-  
+
   _funcxy->arrayOperator(length, x, y, newx, newy);
   if (_usingOffset) {
 	for(int i=0; i < length; i++)

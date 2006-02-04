@@ -642,7 +642,12 @@ class Axes(Artist):
         return  'x=%s, y=%s'%(xs,ys)
 
     def has_data(self):
-        'return true if any artists have been added to axes'
+        '''Return true if any artists have been added to axes.
+
+        This should not be used to determine whether the dataLim
+        need to be updated, and may not actually be useful for
+        anything.
+        '''
         return (
             len(self.collections) +
             len(self.images) +
@@ -737,7 +742,7 @@ class Axes(Artist):
         # limits and set the bound to be the bounds of the xydata.
         # Otherwise, it will compute the bounds of it's current data
         # and the data in xydata
-        self.dataLim.update(xys, not self.has_data())
+        self.dataLim.update(xys, -1)
 
 
     def update_datalim_numerix(self, x, y):
@@ -747,7 +752,7 @@ class Axes(Artist):
         # Otherwise, it will compute the bounds of it's current data
         # and the data in xydata
         #print type(x), type(y)
-        self.dataLim.update_numerix(x, y, not self.has_data())
+        self.dataLim.update_numerix(x, y, -1)
 
     def add_line(self, l):
         'Add a line to the list of plot lines'
@@ -763,7 +768,6 @@ class Axes(Artist):
             ydata = array([y for x,y in xys])
 
         self.update_datalim_numerix( xdata, ydata )
-        #self.update_datalim(zip(xdata, ydata))
         label = l.get_label()
         if not label: l.set_label('line%d'%len(self.lines))
         self.lines.append(l)
