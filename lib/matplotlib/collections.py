@@ -213,7 +213,7 @@ class QuadMesh(PatchCollection):
         # when creating/changing
         if not self.get_visible(): return
         self._transform.freeze()
-            self._transOffset.freeze()
+        self._transOffset.freeze()
         renderer.draw_quad_mesh(self._meshWidth, self._meshHeight,
                                 self._facecolors,
                                 self._coordinates[:, 0],
