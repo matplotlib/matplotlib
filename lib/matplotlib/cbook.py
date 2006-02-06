@@ -487,7 +487,7 @@ class maxdict(dict):
 class Stack:
     """
     Implement a stack where elements can be pushed on and you can move
-    back and forth.  But no pop.  Should mimib home / back / forward
+    back and forth.  But no pop.  Should mimic home / back / forward
     in a browser
     """
 
@@ -536,9 +536,13 @@ class Stack:
         self._elements = []
 
     def bubble(self, o):
-        'raise o to the top of the stack and return o.  o must b in the stack'
+        """
+        raise o to the top of the stack and return o.  o must be in
+        the stack
+        """
 
-        if o not in self._elements: raise ValueError('Unknown element o')
+        if o not in self._elements:
+            raise ValueError('Unknown element o')
         old = self._elements[:]
         self.clear()
         bubbles = []
@@ -551,7 +555,8 @@ class Stack:
 
     def remove(self, o):
         'remove element o from the stack'
-        if o not in self._elements: raise ValueError('Unknown element o')
+        if o not in self._elements:
+            raise ValueError('Unknown element o')
         old = self._elements[:]
         self.clear()
         for thiso in old:
