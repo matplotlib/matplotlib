@@ -61,12 +61,26 @@ class Collection(Artist):
 
 class PatchCollection(Collection, ScalarMappable):
     """
-    and transOffset are used to translate the patch after
+    Base class for filled regions such as PolyCollection etc.
+    It must be subclassed to be usable.
+
+    kwargs are:
+
+          edgecolors=None,
+          facecolors=None,
+          linewidths=None,
+          antialiaseds = None,
+          offsets = None,
+          transOffset = identity_transform(),
+          norm = None,  # optional for ScalarMappable
+          cmap = None,  # ditto
+
+    offsets and transOffset are used to translate the patch after
     rendering (default no offsets)
 
     If any of edgecolors, facecolors, linewidths, antialiaseds are
     None, they default to their patch.* rc params setting, in sequence
-    form
+    form.
 
     The use of ScalarMappable is optional.  If the ScalarMappable
     matrix _A is not None (ie a call to set_array has been made), at
@@ -228,15 +242,7 @@ class PolyCollection(PatchCollection):
         """
         verts is a sequence of ( verts0, verts1, ...) where verts_i is
         a sequence of xy tuples of vertices.
-
-        Optional kwargs from Patch collection include
-
-          edgecolors    = ( (0,0,0,1), ),
-          facecolors    = ( (1,1,1,0), ),
-          linewidths    = ( 1.0, ),
-          antialiaseds  = (1,),
-          offsets       = None
-          transOffset   = None
+        See PatchCollection for kwargs.
         """
         PatchCollection.__init__(self,**kwargs)
         self._verts = verts
@@ -355,7 +361,7 @@ class LineCollection(Collection):
                  antialiaseds  = None,
                  linestyle = 'solid',
                  offsets = None,
-                 transOffset = None,
+                 transOffset = identity_transform(),
                  ):
         """
         segments is a sequence of ( line0, line1, line2), where
