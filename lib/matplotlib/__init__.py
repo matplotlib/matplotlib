@@ -346,11 +346,28 @@ def _get_data_path():
     import matplotlib.artist
     path = os.sep.join([os.path.dirname(matplotlib.artist.__file__), 'mpl-data'])
     if os.path.isdir(path): return path
+    
+    # py2exe zips pure python, so still need special check
+    if sys.platform=='win32' and sys.frozen:
+        path = os.path.join(os.path.split(sys.path[0])[0], 'matplotlibdata')
+        if os.path.isdir(path):  return path
+        else:
+            # Try again assuming sys.path[0] is a dir not a exe
+            path = os.path.join(sys.path[0], 'matplotlibdata')
+            if os.path.isdir(path): return path
 
     raise RuntimeError('Could not find the matplotlib data files')
 
 get_data_path = verbose.wrap('matplotlib data path %s', _get_data_path, always=False)
 
+def get_py2exe_datafiles():
+    import glob
+    
+    mplfiles = glob.glob(os.sep.join([matplotlib.get_data_path(), '*']))
+    # Need to explicitly remove cocoa_agg files or py2exe complains
+    mplfiles.remove(os.sep.join([matplotlib.get_data_path(), 'Matplotlib.nib']))
+    
+    return ('matplotlibdata', mplfiles)
 
 def checkdep_dvipng():
     try:

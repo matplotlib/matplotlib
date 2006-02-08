@@ -1,3 +1,7 @@
+2006-02-08 Added py2exe specific datapath check again.  Also added new
+		   py2exe helper function get_py2exe_datafiles for use in py2exe
+		   setup.py scripts. - CM
+
 2006-02-02 Added box function to pylab
 
 2006-02-02 Fixed a problem in setupext.py, tk library formatted in unicode 
