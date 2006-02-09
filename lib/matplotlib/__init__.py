@@ -743,7 +743,7 @@ defaultParams = {
     'font.variant'      : ['normal', str],           #
     'font.stretch'      : ['normal', str],           #
     'font.weight'       : ['normal', str],           #
-    'font.size'         : ['medium', validate_float], #
+    'font.size'         : [12.0, validate_float], #
     'font.serif'        : ['serif', validate_comma_sep_str],
     'font.sans-serif'   : ['sans-serif', validate_comma_sep_str],
     'font.cursive'      : ['cursive', validate_comma_sep_str],
