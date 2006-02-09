@@ -771,8 +771,8 @@ updating the dictionary with the properties of the found font, the
 font dictionary can act like a font cache.
 """
 
-    def __init__(self, size=12.0, weight='normal'):
-
+    def __init__(self, size=None, weight='normal'):
+        if not size : size = rcParams['font.size']
         self.__default_size = size
         self.__default_weight = weight
 
@@ -866,7 +866,7 @@ Delete this file to have matplotlib rebuild the cache."""
         self.__default_weight = weight
 
     def set_default_size(self, size):
-        "Set the default font size in points.  The initial value is 12pt."
+        "Set the default font size in points.  The initial value is set by font.size in rc."
         self.__default_size = size
 
     def update_fonts(self, filenames):

@@ -1,3 +1,7 @@
+2006-02-09 Modified behavior of font.size rc setting. font.size now defines the 
+	   "medium" or default fontsize, and any relative font sizes like large, x-large,
+	   scale accordingly. - DSD
+
 2006-02-08 Added py2exe specific datapath check again.  Also added new
 		   py2exe helper function get_py2exe_datafiles for use in py2exe
 		   setup.py scripts. - CM
