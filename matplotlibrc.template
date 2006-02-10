@@ -96,10 +96,8 @@ patch.antialiased 	: True    # render patches in antialised (no jaggies)
 # expanded, extra-expanded, ultra-expanded, wider, and narrower.  This
 # property is not currently implemented.
 #
-# The font.size property has 11 values: xx-small, x-small, small,
-# medium, large, x-large, xx-large, larger, smaller, length (such as
-# 12pt), and percentage.  larger and smaller are relative values.
-# percentage is not yet implemented.
+# The font.size property is the default font size for text, given in pts. 
+# 12pt is the standard value.
 #
 font.family         : sans-serif
 font.style          : normal
@@ -108,7 +106,9 @@ font.weight         : medium
 font.stretch        : normal
 # note that font.size controls default text sizes.  To configure
 # special text sizes tick labels, axes, labels, title, etc, see the rc
-# settings for axes and ticks
+# settings for axes and ticks. Special text sizes can be defined 
+# relative to font.size, using the following values: xx-small, x-small, 
+# small, medium, large, x-large, xx-large, larger, or smaller
 font.size           : 12.0
 font.serif          : New Century Schoolbook, Century Schoolbook L, Utopia, ITC Bookman, Bookman, Bitstream Vera Serif, Nimbus Roman No9 L, Times New Roman, Times, Palatino, Charter, serif
 font.sans-serif     : Lucida Grande, Verdana, Geneva, Lucida, Bitstream Vera Sans, Arial, Helvetica, Avant Garde, sans-serif
