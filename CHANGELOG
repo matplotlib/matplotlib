@@ -1,3 +1,6 @@
+2006-02-09 added a temporary rc parameter text.dvipnghack, to allow Mac users to get nice
+           results with the usetex option. - DSD
+
 2006-02-09 Fixed a bug related to setting font sizes with the usetex option. - DSD
 
 2006-02-09 Fixed a bug related to usetex's latex code. - DSD

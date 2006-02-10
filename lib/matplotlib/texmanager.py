@@ -371,7 +371,7 @@ WARNING: found a TeX cache dir in the deprecated location "%s".
             X = readpng(pngfile)
             vers = self.get_dvipng_version()
             #print 'dvipng version', vers
-            if vers<'1.6':
+            if vers<'1.6' or rcParams['text.dvipnghack']:
                 # hack the alpha channel as described in comment above
                 alpha = sqrt(1-X[:,:,0])
             else:

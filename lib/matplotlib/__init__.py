@@ -753,6 +753,7 @@ defaultParams = {
     # text props
     'text.color'        : ['k', validate_color],     # black
     'text.usetex'       : [False, validate_usetex],
+    'text.dvipnghack'    : [False, validate_bool],
     'text.fontstyle'    : ['normal', str],
     'text.fontangle'    : ['normal', str],
     'text.fontvariant'  : ['normal', str],
