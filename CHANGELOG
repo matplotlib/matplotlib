@@ -1,3 +1,7 @@
+2006-02-09 Fixed a bug related to setting font sizes with the usetex option. - DSD
+
+2006-02-09 Fixed a bug related to usetex's latex code. - DSD
+
 2006-02-09 Modified behavior of font.size rc setting. font.size now defines the 
 	   "medium" or default fontsize, and any relative font sizes like large, x-large,
 	   scale accordingly. - DSD

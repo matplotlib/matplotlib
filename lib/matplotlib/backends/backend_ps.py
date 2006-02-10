@@ -258,9 +258,9 @@ class RendererPS(RendererBase):
         """
         if rcParams['text.usetex']:
             fontsize = prop.get_size_in_points()
-            l,b,r,t = self.texmanager.get_ps_bbox(s)
-            w = (r-l)*fontsize/10.
-            h = (t-b)*fontsize/10.
+            l,b,r,t = self.texmanager.get_ps_bbox(s, fontsize)
+            w = (r-l)
+            h = (t-b)
             #print s, w, h
             return w, h
 
@@ -636,14 +636,13 @@ grestore
         corr = 0#w/2*(fontsize-10)/10
         pos = _nums_to_str(x-corr, y)
         thetext = 'psmarker%d' % self.textcnt
-        scale = float(fontsize/10.0)
         color = '%1.3f,%1.3f,%1.3f'% gc.get_rgb()
         fontcmd = {'sans-serif' : r'{\sffamily %s}',
                'monospace'  : r'{\ttfamily %s}'}.get(
                 rcParams['font.family'], r'{\rmfamily %s}')
         s = fontcmd % s
         tex = r'\color[rgb]{%s} %s' % (color, s)
-        self.psfrag.append(r'\psfrag{%s}[bl][bl][%f][%f]{%s}'%(thetext, scale, angle, tex))
+        self.psfrag.append(r'\psfrag{%s}[bl][bl][1][%f]{\fontsize{%f}{%f}%s}'%(thetext, angle, fontsize, fontsize*1.25, tex))
         ps = """\
 gsave
 %(pos)s moveto
