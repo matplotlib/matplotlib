@@ -239,8 +239,7 @@ class RendererAgg(RendererBase):
         if ismath=='TeX':
             # todo: handle props
             size = prop.get_size_in_points()
-            dpi = self.dpi.get()
-            Z = self.texmanager.get_rgba(s, size, dpi, rgb)
+            Z = self.texmanager.get_rgba(s, size, rgb)
             m,n,tmp = Z.shape
             return n,m
 
@@ -259,7 +258,6 @@ class RendererAgg(RendererBase):
         # todo, handle props, angle, origins
         rgb = gc.get_rgb()
         size = prop.get_size_in_points()
-        dpi = self.dpi.get()
 
         flip = angle==90
         w,h = self.get_text_width_height(s, prop, 'TeX', rgb)
@@ -267,10 +265,10 @@ class RendererAgg(RendererBase):
             w,h = h,w
             x -= w
 
-        key = s, size, dpi, rgb, angle, self.texmanager.get_font_config()
+        key = s, size, rgb, angle, self.texmanager.get_font_config()
         im = self.texd.get(key)
         if im is None:
-            Z = self.texmanager.get_rgba(s, size, dpi, rgb)
+            Z = self.texmanager.get_rgba(s, size, rgb)
             if flip:
                 r = Z[:,:,0]
                 g = Z[:,:,1]

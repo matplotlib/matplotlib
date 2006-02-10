@@ -141,11 +141,10 @@ WARNING: found a TeX cache dir in the deprecated location "%s".
         cmd = '\n'.join(cmd)
         self._font_preamble = '\n'.join([r'\usepackage{type1cm}',
                              cmd,
-                             r'\usepackage[T1]{fontenc}',
                              r'\usepackage{textcomp}'])
         
-    def get_prefix(self, tex):
-        s = tex + self._fontconfig
+    def get_prefix(self, tex, fontsize):
+        s = tex + self._fontconfig + '%f'% fontsize
         return md5.md5(s).hexdigest()
         
     def get_font_config(self):
@@ -154,7 +153,7 @@ WARNING: found a TeX cache dir in the deprecated location "%s".
     def get_font_preamble(self):
         return self._font_preamble
         
-    def get_tex_command(self, tex, fname):
+    def get_tex_command(self, tex, fname, fontsize):
         
         fh = file(fname, 'w')
         fontcmd = {'sans-serif' : r'{\sffamily %s}',
@@ -167,24 +166,24 @@ WARNING: found a TeX cache dir in the deprecated location "%s".
 \setlength{\paperheight}{72in}
 \pagestyle{empty}
 \begin{document}
-%s
+\fontsize{%f}{%f}%s
 \end{document}
-""" % (self._font_preamble, tex)
+""" % (self._font_preamble, fontsize, fontsize*1.25, tex)
         fh.write(s)
         fh.close()
         command = 'latex -interaction=nonstopmode "%s"'%fname
         return command
         
-    def make_dvi(self, tex, force=0):
+    def make_dvi(self, tex, fontsize, force=0):
         if debug: force = True
         
-        prefix = self.get_prefix(tex)
+        prefix = self.get_prefix(tex, fontsize)
         fname = os.path.join(self.texcache, prefix+ '.tex')
         dvibase = prefix + '.dvi'
         dvifile = os.path.join(self.texcache, dvibase)        
 
         if force or not os.path.exists(dvifile):
-            command = self.get_tex_command(tex, fname)
+            command = self.get_tex_command(tex, fname, fontsize)
             verbose.report(command, 'debug-annoying')            
             stdin, stdout, stderr = os.popen3(command)
             verbose.report(stdout.read(), 'debug-annoying')
@@ -200,17 +199,17 @@ WARNING: found a TeX cache dir in the deprecated location "%s".
                 os.remove(fname)
         return dvifile
         
-    def make_png(self, tex, dpi, force=0):
+    def make_png(self, tex, fontsize, force=0):
         if debug: force = True
         
-        dvifile = self.make_dvi(tex)
-        prefix = self.get_prefix(tex)
-        pngfile = os.path.join(self.texcache, '%s_%d.png'% (prefix, dpi))
+        dvifile = self.make_dvi(tex, fontsize)
+        prefix = self.get_prefix(tex, fontsize)
+        pngfile = os.path.join(self.texcache, '%s.png'% prefix)
 
         self.get_dvipng_version()  # raises if dvipng is not up-to-date
         #print 'makepng', prefix, dvifile, pngfile
         #command = 'dvipng -bg Transparent -fg "rgb 0.0 0.0 0.0" -D %d -T tight -o "%s" "%s"'% (dpi, pngfile, dvifile)
-        command = 'dvipng -bg Transparent -D %d -T tight -o "%s" "%s"'% (dpi, pngfile, dvifile)        
+        command = 'dvipng -bg Transparent -D 80 -T tight -o "%s" "%s"'% (pngfile, dvifile)        
 
         #assume white bg
         #command = "dvipng -bg 'rgb 1.0 1.0 1.0' -fg 'rgb 0.0 0.0 0.0' -D %d -T tight -o %s %s"% (dpi, pngfile, dvifile)
@@ -226,15 +225,15 @@ WARNING: found a TeX cache dir in the deprecated location "%s".
             if err: verbose.report(err, 'helpful')
         return pngfile
 
-    def make_ps(self, tex, dpi, force=0):
+    def make_ps(self, tex, fontsize, force=0):
         if debug: force = True
         
-        dvifile = self.make_dvi(tex)
-        prefix = self.get_prefix(tex)
-        psfile = os.path.join(self.texcache, '%s_%d.epsf'% (prefix, dpi))
+        dvifile = self.make_dvi(tex, fontsize)
+        prefix = self.get_prefix(tex, fontsize)
+        psfile = os.path.join(self.texcache, '%s.epsf'% prefix)
 
         if not os.path.exists(psfile):
-            command = 'dvips -q -E -D %d -o "%s" "%s"'% (dpi, psfile, dvifile)
+            command = 'dvips -q -E -o "%s" "%s"'% (psfile, dvifile)
             verbose.report(command, 'debug-annoying')
             stdin, stdout, stderr = os.popen3(command)
             verbose.report(stdout.read(), 'debug-annoying')
@@ -243,11 +242,11 @@ WARNING: found a TeX cache dir in the deprecated location "%s".
 
         return psfile
 
-    def get_ps_bbox(self, tex):
+    def get_ps_bbox(self, tex, fontsize):
         key = tex
         val = self.postscriptd.get(key)
         if val is not None: return val
-        psfile = self.make_ps(tex, dpi=72.27)
+        psfile = self.make_ps(tex, fontsize)
         ps = file(psfile).read()
         for line in ps.split('\n'):
             if line.startswith('%%BoundingBox:'):
@@ -255,7 +254,7 @@ WARNING: found a TeX cache dir in the deprecated location "%s".
         raise RuntimeError('Could not parse %s'%psfile)
         
         
-    def __get_ps(self, tex, fontsize=10, dpi=80, rgb=(0,0,0)):
+    def __get_ps(self, tex, fontsize=10, rgb=(0,0,0)):
         """
         Return bbox, header, texps for tex string via make_ps    
         """
@@ -264,7 +263,7 @@ WARNING: found a TeX cache dir in the deprecated location "%s".
         key = tex, fontsize, dpi, rgb
         val = self.postscriptd.get(key)
         if val is not None: return val
-        psfile = self.make_ps(tex, dpi)
+        psfile = self.make_ps(tex, fontsize)
         ps = file(psfile).read()
         
         # parse the ps
@@ -336,7 +335,7 @@ WARNING: found a TeX cache dir in the deprecated location "%s".
         self.pscnt += 1
         return val
         
-    def get_rgba(self, tex, fontsize=10, dpi=80, rgb=(0,0,0)):
+    def get_rgba(self, tex, fontsize=None, rgb=(0,0,0)):
         """
         Return tex string as an rgba array
         """
@@ -361,17 +360,14 @@ WARNING: found a TeX cache dir in the deprecated location "%s".
 
         # Since the foreground is black (0) and the background is
         # white (1) this reduces to red = 1-alpha or alpha = 1-red
-        
-        # assuming standard 10pt design size space
-        dpi = fontsize/10.0 * dpi
-        
+        if not fontsize: fontsize = rcParams['font.size']
         r,g,b = rgb
-        key = tex, dpi, tuple(rgb)
+        key = tex, fontsize, tuple(rgb)
         Z = self.arrayd.get(key)
         
         if Z is None:
             # force=True to skip cacheing while debugging
-            pngfile = self.make_png(tex, dpi, force=False) 
+            pngfile = self.make_png(tex, fontsize, force=False)
             X = readpng(pngfile)
             vers = self.get_dvipng_version()
             #print 'dvipng version', vers
