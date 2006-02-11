@@ -718,11 +718,13 @@ class Axes(Artist):
         self.artists.append(a)
         self._set_artist_props(a)
 
-    def add_collection(self, collection):
+    def add_collection(self, collection, autolim=False):
         'add a Collection instance to Axes'
         self.collections.append(collection)
         self._set_artist_props(collection)
         collection.set_clip_box(self.bbox)
+        if autolim:
+            self.update_datalim(collection.get_verts(self.transData))
 
     def get_images(self):
         'return a list of Axes images contained by the Axes'
@@ -2349,7 +2351,7 @@ class Axes(Artist):
 
           PCOLORMESH(X, Y, C) - a pseudo color plot of C on the matrices X and Y
 
-          PCOLORMESH(C, **kwargs) - Use keywork args to control colormapping and
+          PCOLORMESH(C, **kwargs) - Use keyword args to control colormapping and
                                 scaling; see below
 
         X,Y and C may not be masked arrays, unlike with pcolor().
@@ -3231,7 +3233,7 @@ class Axes(Artist):
         """
         SET_TITLE(label, fontdict=None, **kwargs):
 
-        Set the title for the xaxis.  See the text docstring for information
+        Set the title for the axes.  See the text docstring for information
         of how override and the optional args work
 
         ACCEPTS: str

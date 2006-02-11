@@ -219,7 +219,7 @@ class QuadMesh(PatchCollection):
         self._meshHeight = meshHeight
         self._coordinates = coordinates
 
-    def get_verts(self):
+    def get_verts(self, dataTrans=None):
         return self._coordinates;
 
     def draw(self, renderer):
@@ -265,23 +265,22 @@ class PolyCollection(PatchCollection):
         renderer.close_group('polycollection')
 
 
-
-    def get_verts(self):
-        'return seq of (x,y) in collection'
+    def get_verts(self, dataTrans=None):
+        '''Return vertices in data coordinates.
+        The calculation is incomplete in general; it is based
+        on the vertices or the offsets, whichever is using
+        dataTrans as its transformation, so it does not take
+        into account the combined effect of segments and offsets.
+        '''
+        verts = []
         if self._offsets is None:
-            offsets = [(0,0)]
-        else:
-            offsets = self._offsets
-        Noffsets = len(offsets)
-        Nverts = len(self._verts)
-        N = max(Noffsets, Nverts)
-        vertsall = []
-        for i in range(N):
-            ox, oy = offsets[i%Noffsets]
-            verts = self._verts[i%Nverts]
-            vertsall.extend([(x+ox, y+oy) for x,y in verts])
-        return vertsall
-
+            for seg in self._verts:
+                verts.extend(seg)
+            return [tuple(xy) for xy in verts]
+        if self._transOffset == dataTrans:
+            return [tuple(xy) for xy in self._offsets]
+        raise NotImplementedError('Vertices in data coordinates are calculated\n'
+                + 'with offsets only if _transOffset == dataTrans.')
 
 
 class RegularPolyCollection(PatchCollection):
@@ -338,15 +337,15 @@ class RegularPolyCollection(PatchCollection):
         renderer.close_group('regpolycollection')
 
 
-
-    def get_verts(self):
-        'return seq of (x,y) in collection'
-        if self._offsets is None:
-            offsets = [(0,0)]
-        else:
-            offsets = self._offsets
-        return [ (x+ox, y+oy) for x,y in self._verts for ox,oy in offsets]
-
+    def get_verts(self, dataTrans=None):
+        '''Return vertices in data coordinates.
+        The calculation is incomplete; it uses only
+        the offsets, and only if _transOffset is dataTrans.
+        '''
+        if self._transOffset == dataTrans:
+            return [tuple(xy) for xy in self._offsets]
+        raise NotImplementedError('Vertices in data coordinates are calculated\n'
+                + 'only with offsets and only if _transOffset == dataTrans.')
 
 class LineCollection(Collection):
     """
@@ -377,8 +376,11 @@ class LineCollection(Collection):
           solid|dashed|dashdot|dotted.  The dash tuple is (offset, onoffseq)
           where onoffseq is an even length tuple of on and off ink in points.
 
-        if linewidths, colors, or antialiaseds is None, they default to
-        their rc params setting, in sequence form
+        If linewidths, colors, or antialiaseds is None, they default to
+        their rc params setting, in sequence form.
+
+        offsets are transformed by transOffset and applied after
+        the segments have been transformed to display coordinates.
         """
 
         Collection.__init__(self)
@@ -487,34 +489,20 @@ class LineCollection(Collection):
     def get_colors(self):
         return self._colors
 
-
-    def get_verts(self):
-        'return seq of (x,y) in collection'
+    def get_verts(self, dataTrans=None):
+        '''Return vertices in data coordinates.
+        The calculation is incomplete in general; it is based
+        on the segments or the offsets, whichever is using
+        dataTrans as its transformation, so it does not take
+        into account the combined effect of segments and offsets.
+        '''
+        verts = []
         if self._offsets is None:
-            offsets = [(0,0)]
-        else:
-            offsets = self._offsets
-        Noffsets = len(offsets)
-        Nsegments = len(self._segments)
-        vertsall = []
-        for i in range(max(Noffsets, Nsegments)):
-            #print i, N, i%N, len(offsets)
-            ox, oy = offsets[i%Noffsets]
-            verts = self._segments[i%Nsegments]
-            vertsall.extend([(x+ox, y+oy) for x,y in verts])
-        return vertsall
+            for seg in self._segments:
+                verts.extend(seg)
+            return [tuple(xy) for xy in verts]
+        if self._transOffset == dataTrans:
+            return [tuple(xy) for xy in self._offsets]
+        raise NotImplementedError('Vertices in data coordinates are calculated\n'
+                + 'with offsets only if _transOffset == dataTrans.')
 
-    def get_lines(self):
-        'return seq of lines in collection'
-        if self._offsets is None:
-            offsets = [(0,0)]
-        else:
-            offsets = self._offsets
-        Noffsets = len(offsets)
-        Nsegments = len(self._segments)
-        lines = []
-        for i in range(max(Noffsets, Nsegments)):
-            ox, oy = offsets[i%Noffsets]
-            segment = self._segments[i%Nsegments]
-            lines.append([(x+ox, y+oy) for x,y in segment])
-        return lines
