@@ -1109,11 +1109,7 @@ class FigureCanvasPS(FigureCanvasBase):
         elif rcParams['ps.usedistiller'] == 'xpdf': 
             xpdf_distill(tmpfile, ext=='.eps')
         elif rcParams['text.usetex']: 
-            verbose.report('\nThe usetex option produces postscript files that \
-may not embed properly, in a latex document for example.This problem \
-can be solved by setting ps.usedistiller to "ghostscript" or "xpdf" in \
-your rc settings. See http://www.scipy.org/Wiki/Cookbook/Matplotlib/UsingTex \
-for more information.\n', 'helpful')
+            gs_distill(tmpfile, ext=='.eps')
         
         if  isinstance(outfile, file):
             fh = file(tmpfile)
