@@ -1,3 +1,6 @@
+2006-02-11 Added autolim kwarg to axes.add_collection.  Changed
+           collection get_verts() methods accordingly. - EF
+
 2006-02-09 added a temporary rc parameter text.dvipnghack, to allow Mac users to get nice
            results with the usetex option. - DSD
 
@@ -5,24 +8,24 @@
 
 2006-02-09 Fixed a bug related to usetex's latex code. - DSD
 
-2006-02-09 Modified behavior of font.size rc setting. You should define font.size in pts, 
-           which will set the "medium" or default fontsize. Special text sizes like axis 
-           labels or tick labels can be given relative font sizes like small, large, 
+2006-02-09 Modified behavior of font.size rc setting. You should define font.size in pts,
+           which will set the "medium" or default fontsize. Special text sizes like axis
+           labels or tick labels can be given relative font sizes like small, large,
            x-large, etc. and will scale accordingly. - DSD
 
 2006-02-08 Added py2exe specific datapath check again.  Also added new
-		   py2exe helper function get_py2exe_datafiles for use in py2exe
-		   setup.py scripts. - CM
+           py2exe helper function get_py2exe_datafiles for use in py2exe
+           setup.py scripts. - CM
 
 2006-02-02 Added box function to pylab
 
-2006-02-02 Fixed a problem in setupext.py, tk library formatted in unicode 
+2006-02-02 Fixed a problem in setupext.py, tk library formatted in unicode
            caused build problems - DSD
 
 2006-02-01 Dropped TeX engine support in usetex to focus on LaTeX. - DSD
 
-2006-01-29 Improved usetex option to respect the serif, sans-serif, monospace, 
-           and cursive rc settings. Removed the font.latex.package rc setting, 
+2006-01-29 Improved usetex option to respect the serif, sans-serif, monospace,
+           and cursive rc settings. Removed the font.latex.package rc setting,
            it is no longer required - DSD
 
 2006-01-29 Fixed tex's caching to include font.family rc information - DSD
@@ -30,7 +33,7 @@
 2006-01-29 Fixed subpixel rendering bug in *Agg that was causing
            uneven gridlines - JDH
 
-2006-01-28 Added fontcmd to backend_ps's RendererPS.draw_tex, to support other 
+2006-01-28 Added fontcmd to backend_ps's RendererPS.draw_tex, to support other
            font families in eps output - DSD
 
 2006-01-28 Added MaxNLocator to ticker.py, and changed contour.py to
