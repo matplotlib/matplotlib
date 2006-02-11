@@ -981,38 +981,20 @@ class FigureCanvasPS(FigureCanvasBase):
 
         if  isinstance(outfile, file):
             # assume plain PostScript and write to fileobject
-            isEPSF = False
-            fh = outfile
-            needsClose = False
+            basename = outfile.name
+            ext = '.ps'
             title = None
         else:
             basename, ext = os.path.splitext(outfile)
             if not ext: 
-                if rcParams['text.usetex']: 
-                    ext = '.eps'
-                    outfile += ext
-                else:
-                    ext = '.ps'
-                    outfile += ext
-            if rcParams['text.usetex']:
-                # need to make some temporary files so latex can run without
-                # writing over something important.
-                m = md5.md5(outfile)
-                tempdir = gettempdir()
-                os.environ['TEXMFOUTPUT'] = tempdir
-                tmpname = os.path.join(tempdir, m.hexdigest())
-                epsfile = tmpname + '.eps'
-                psfile = tmpname + '.ps'
-                texfile = tmpname + '.tex'
-                dvifile = tmpname + '.dvi'
-                latexh = file(texfile, 'w')
-                fh = file(epsfile, 'w')
-            else:
-                fh = file(outfile, 'w')
+                ext = '.ps'
+                outfile += ext
+        isEPSF = ext.lower().startswith('.ep') or rcParams['text.usetex']
+        title = outfile
             
-            isEPSF = ext.lower().startswith('.ep') or rcParams['text.usetex']
-            needsClose = True
-            title = outfile
+        # write to a temp file, we'll move it to outfile when done
+        tmpfile = os.path.join(gettempdir(), md5.md5(outfile).hexdigest())
+        fh = file(tmpfile, 'w')
         
         # center the figure on the paper
         self.figure.dpi.set(72)        # ignore the passsed dpi setting for PS
@@ -1115,12 +1097,48 @@ class FigureCanvasPS(FigureCanvasBase):
         print >>fh, "showpage"
 
         if not isEPSF: print >>fh, "%%EOF"
-        if needsClose: fh.close()
+        fh.close()
             
         if rcParams['text.usetex']:
-            pw, ph = defaultPaperSize
-            if width>pw-2 or height>ph-2: pw,ph = _get_papersize(width,height)
-            print >>latexh, r"""\documentclass{scrartcl}
+            convert_psfrags(tmpfile, renderer.psfrag,
+                renderer.texmanager.get_font_preamble(), width, height)
+            if ext == '.eps': pstoeps(tmpfile)
+        
+        if rcParams['ps.usedistiller'] == 'ghostscript': 
+            gs_distill(tmpfile, ext=='.eps')
+        elif rcParams['ps.usedistiller'] == 'xpdf': 
+            xpdf_distill(tmpfile, ext=='.eps')
+        elif rcParams['text.usetex']: 
+            verbose.report('\nThe usetex option produces postscript files that \
+may not embed properly, in a latex document for example.This problem \
+can be solved by setting ps.usedistiller to "ghostscript" or "xpdf" in \
+your rc settings. See http://www.scipy.org/Wiki/Cookbook/Matplotlib/UsingTex \
+for more information.\n', 'helpful')
+        
+        if  isinstance(outfile, file):
+            fh = file(tmpfile)
+            print >>outfile, fh.read()
+        else: shutil.move(tmpfile, outfile)
+
+
+def convert_psfrags(tmpfile, psfrags, font_preamble, width, height):
+    """
+    When we want to use the LaTeX backend with postscript, we write PSFrag tags 
+    to a temporary postscript file, each one marking a position for LaTeX to 
+    render some text. convert_psfrags generates a LaTeX document containing the 
+    commands to convert those tags to text. LaTeX/dvips produces the postscript 
+    file that includes the actual text.
+    """
+    epsfile = tmpfile+'.eps'
+    shutil.move(tmpfile, epsfile)
+    latexfile = tmpfile+'.tex'
+    latexh = file(latexfile, 'w')
+    dvifile = tmpfile+'.dvi'
+    psfile = tmpfile+'.ps'
+    
+    pw, ph = defaultPaperSize
+    if (width>pw-2) or (height>ph-2): pw,ph = _get_papersize(width,height)
+    print >>latexh, r"""\documentclass{scrartcl}
 %s
 \usepackage{psfrag}
 \usepackage[dvips]{graphicx}
@@ -1132,95 +1150,109 @@ class FigureCanvasPS(FigureCanvasBase):
 \setlength{\textheight}{%fin}
 \special{papersize=%fin,%fin}
 \begin{document}
-\begin{figure}[th!]
-\begin{center}
+\begin{figure}
+\centering
 %s
 \includegraphics{%s}
-\end{center}
 \end{figure}
 \end{document}
-"""% (renderer.texmanager.get_font_preamble(), pw, ph, pw-2, ph-2, pw, ph, '\n'.join(renderer.psfrag),
-                os.path.split(epsfile)[-1])
-            latexh.close()
-            curdir = os.getcwd()
-            os.chdir(tempdir)
-            command = 'latex -interaction=nonstopmode "%s"' % texfile
-            verbose.report(command, 'debug-annoying')
-            stdin, stdout, stderr = os.popen3(command)
-            verbose.report(stdout.read(), 'debug-annoying')
-            verbose.report(stderr.read(), 'helpful')
-            command = 'dvips -R -T %fin,%fin -o "%s" "%s"' % (pw, ph, psfile, dvifile)
-            verbose.report(command, 'debug-annoying')
-            stdin, stdout, stderr = os.popen3(command)
-            verbose.report(stdout.read(), 'debug-annoying')
-            verbose.report(stderr.read(), 'helpful')
-            os.remove(epsfile)
-            os.chdir(curdir)
-            
-            if rcParams['ps.usedistiller'] == 'xpdf':
-                pdffile = tmpname + '.pdf'
-                if ext.startswith('.ep'):
-                    command = 'ps2pdf "%s" "%s"'% (psfile, pdffile)
-                    os.system(command)
-                    command = 'pdftops -level2 "%s" "%s"'% (pdffile, psfile)
-                    os.system(command)
-                    os.remove(pdffile)
-                    command = 'ps2eps -l "%s"'% psfile
-                    stdin, stderr = os.popen4(command)
-                    verbose.report(stderr.read(), 'helpful')
-                    shutil.move(epsfile, outfile)
-                else:
-                    command = 'ps2pdf "%s" "%s"'% (psfile, pdffile)
-                    stdin, stderr = os.popen4(command)
-                    verbose.report(stderr.read(), 'helpful')
-                    os.remove(psfile)
-                    command = 'pdftops -paperw %d -paperh %d -level2 "%s" "%s"'% \
-                                (int(pw*72), int(ph*72), pdffile, psfile)
-                    os.system(command)
-                    shutil.move(psfile, outfile)
-            else:
-                if ext.startswith('.ep'):
-                    dpi = rcParams['ps.distiller.res']
-                    if sys.platform == 'win32':
-                        command = 'gswin32c -dBATCH -dNOPAUSE -dSAFER -r%d \
-                          -sDEVICE=epswrite -dLanguageLevel=2 -dEPSFitPage \
-                          -sOutputFile="%s" "%s"'% (dpi, epsfile, psfile)
-                    else:
-                        command = 'gs -dBATCH -dNOPAUSE -dSAFER -r%d \
-                        -sDEVICE=epswrite -dLanguageLevel=2 -dEPSFitPage \
-                        -sOutputFile="%s" "%s"'% (dpi, epsfile, psfile)
-                    verbose.report(command, 'debug-annoying')
-                    stdin, stdout, stderr = os.popen3(command)
-                    verbose.report(stdout.read(), 'debug-annoying')
-                    verbose.report(stderr.read(), 'helpful')
-                    shutil.move(epsfile, outfile)
-                else: # for standard postscript:
-                    if rcParams['ps.usedistiller'] == 'ghostscript':
-                        command = 'ps2ps -dSAFER -r%d "%s" "%s"'% (dpi, psfile, outfile)
-                        verbose.report(command, 'debug-annoying')
-                        stdin, stdout, stderr = os.popen3(command)
-                        verbose.report(stdout.read(), 'debug-annoying')
-                        verbose.report(stderr.read(), 'helpful')
-                    else:
-                        shutil.move(psfile, outfile)
+"""% (font_preamble, pw, ph, pw-2, ph-2, pw, ph, '\n'.join(psfrags), os.path.split(epsfile)[-1])
+    latexh.close()
+    
+    curdir = os.getcwd()
+    os.chdir(gettempdir())
+    command = 'latex -interaction=nonstopmode "%s"' % latexfile
+    verbose.report(command, 'debug-annoying')
+    stdin, stdout, stderr = os.popen3(command)
+    verbose.report(stdout.read(), 'debug-annoying')
+    verbose.report(stderr.read(), 'helpful')
+    command = 'dvips -R -T %fin,%fin -o "%s" "%s"' % \
+        (pw, ph, psfile, dvifile)
+    verbose.report(command, 'debug-annoying')
+    stdin, stdout, stderr = os.popen3(command)
+    verbose.report(stdout.read(), 'debug-annoying')
+    verbose.report(stderr.read(), 'helpful')
+    shutil.move(psfile, tmpfile)
+    for fname in glob.glob(tmpfile+'.*'):
+        os.remove(fname)
+    os.chdir(curdir)
 
-            for fname in glob.glob(tmpname+'.*'):
-                os.remove(fname)
-                
-        elif not rcParams['text.usetex']:
-            if rcParams['ps.usedistiller'] == 'ghostscript':
-                dpi = rcParams['ps.distiller.res']
-                m = md5.md5(outfile)
-                tmpfile = m.hexdigest()
-                if ext.startswith('ep'):
-                    command = 'eps2eps -dSAFER -r%d "%s" "%s"'% (dpi, outfile, tmpfile)
-                else:
-                    command = 'ps2ps -dSAFER -r%d "%s" "%s"'% (dpi, outfile, tmpfile)
-                verbose.report(command, 'debug-annoying')
-                stdin, stdout, stderr = os.popen3(command)
-                verbose.report(stdout.read(), 'debug-annoying')
-                verbose.report(stderr.read(), 'helpful')
-                shutil.move(tmpfile, outfile)
+
+def gs_distill(tmpfile, eps=False):
+    """
+    Use ghostscript's pswrite or epswrite device to distill a file.
+    This yields smaller files without illegal encapsulated postscript
+    operators. The output is low-level, converting text to outlines.
+    """
+    if eps: 
+        device = 'epswrite'
+        outputfile = tmpfile + '.eps'
+    else: 
+        device = 'pswrite'
+        outputfile = tmpfile + '.ps'
+    dpi = rcParams['ps.distiller.res']
+    if sys.platform == 'win32': gs_exe = 'gswin32c'
+    else: gs_exe = 'gs'
+    command = '%s -dBATCH -dNOPAUSE -r%d -sDEVICE=%s -sOutputFile="%s" "%s"'% \
+                                (gs_exe, dpi, device, outputfile, tmpfile)
+    verbose.report(command, 'debug-annoying')
+    stdin, stdout, stderr = os.popen3(command)
+    verbose.report(stdout.read(), 'debug-annoying')
+    verbose.report(stderr.read(), 'helpful')
+    os.remove(tmpfile)
+    shutil.move(outputfile, tmpfile)
+
+
+def xpdf_distill(tmpfile, eps=False):
+    """
+    Use ghostscript's ps2pdf and xpdf's/poppler's pdftops to distill a file.
+    This yields smaller files without illegal encapsulated postscript
+    operators. This distiller is preferred, generating high-level postscript
+    output that treats text as text.
+    """
+    pdffile = tmpfile + '.pdf'
+    psfile = tmpfile + '.ps'
+    shutil.move(tmpfile, psfile)
+    command = 'ps2pdf "%s" "%s"'% (psfile, pdffile)
+    stdin, stderr = os.popen4(command)
+    verbose.report(stderr.read(), 'helpful')
+    command = 'pdftops -level2 "%s" "%s"'% (pdffile, psfile)
+    stdin, stderr = os.popen4(command)
+    verbose.report(stderr.read(), 'helpful')
+    shutil.move(psfile, tmpfile)
+    if eps: pstoeps(tmpfile)
+    for fname in glob.glob(tmpfile+'.*'): 
+        os.remove(fname)
+
+
+def pstoeps(tmpfile):
+    """
+    Use ghostscript's bbox device to determine the bounding box, then convert
+    the postscript to encapsulated postscript.
+    """
+    epsfile = tmpfile + '.eps'
+    epsh = file(epsfile, 'w')
+    command = 'gs -dBATCH -dNOPAUSE -sDEVICE=bbox "%s"' % tmpfile
+    verbose.report(command, 'debug-annoying')
+    stdin, stdout, stderr = os.popen3(command)
+    bbox_info = stderr.read()
+    verbose.report(stdout.read(), 'debug-annoying')
+    verbose.report(bbox_info, 'helpful')
+
+    tmph = file(tmpfile)
+    line = tmph.readline()
+    print >>epsh, "%!PS-Adobe-3.0 EPSF-3.0"
+    epsh.write(bbox_info)
+    while line:
+        line = tmph.readline()
+        if line.startswith('%%Bound') or line.startswith('%%HiResBound'): pass
+        else: epsh.write(line)
+        if not line.startswith('%%'): break
+    print >>epsh, tmph.read()
+    tmph.close()
+    epsh.close()
+    os.remove(tmpfile)
+    shutil.move(epsfile, tmpfile)
 
 
 class FigureManagerPS(FigureManagerBase):
