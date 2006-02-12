@@ -2429,8 +2429,10 @@ class Axes(Artist):
         Y = ravel(Y)
 
         coords = zeros(((Nx * Ny), 2),"Float32")
-        coords[:, 0] = X;
-        coords[:, 1] = Y;
+        # Numeric and numpy refuse to cast the Float64 arrays
+        # to Float32 with simple assignment, so we do it explicitly.
+        coords[:, 0] = X.astype(Float32)
+        coords[:, 1] = Y.astype(Float32)
         #print coords
 
         if shading == 'faceted':
