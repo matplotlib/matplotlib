@@ -2,11 +2,11 @@
 
 API Changes in matplotlib-0.86
 
-	Matplotlib data is installed into the matplotlib module.
-	This is similar to package_data.  This should get rid of
-	having to check for many possibilties in _get_data_path().
-	The MATPLOTLIBDATA env key is still checked first to allow
-	for flexibility.
+     Matplotlib data is installed into the matplotlib module.
+     This is similar to package_data.  This should get rid of
+     having to check for many possibilities in _get_data_path().
+     The MATPLOTLIBDATA env key is still checked first to allow
+     for flexibility.
 
      1) Separated the color table data from cm.py out into
      a new file, _cm.py, to make it easier to find the actual

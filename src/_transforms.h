@@ -1,4 +1,4 @@
-/* transforms.h	-- 
+/* transforms.h	--
    The transformation classes and functions
  */
 
@@ -40,12 +40,12 @@ public:
   virtual void set_api(const double&) {
     throw Py::RuntimeError("set not supported on this lazy value");
   }
-  
+
   static void init_type(void);
-  Py::Object number_add( const Py::Object & );  
-  Py::Object number_divide( const Py::Object & );  
-  Py::Object number_multiply( const Py::Object & );  
-  Py::Object number_subtract( const Py::Object & );  
+  Py::Object number_add( const Py::Object & );
+  Py::Object number_divide( const Py::Object & );
+  Py::Object number_multiply( const Py::Object & );
+  Py::Object number_subtract( const Py::Object & );
   virtual double val()=0;
 };
 
@@ -88,12 +88,12 @@ public:
     else if (_opcode==MULTIPLY) ret =  lhs * rhs;
     else if (_opcode==DIVIDE) {
       //std::cout << "divide: " << lhs << " " << rhs << std::endl;
-      if (rhs==0.0) 
+      if (rhs==0.0)
 	throw Py::ZeroDivisionError("Attempted divide by zero in BinOp::val()");
       ret = lhs / rhs;
     }
     else if (_opcode==SUBTRACT) ret = lhs-rhs;
-    else 
+    else
       throw Py::ValueError("Unrecognized op code");
 
 
@@ -101,7 +101,7 @@ public:
     return ret;
   }
 
-  enum {ADD, MULTIPLY, SUBTRACT, DIVIDE};  
+  enum {ADD, MULTIPLY, SUBTRACT, DIVIDE};
 private:
   LazyValue* _lhs;
   LazyValue* _rhs;
@@ -117,7 +117,7 @@ public:
   // get the x Value instance
   Py::Object x(const Py::Tuple &args) { return Py::Object(_x); }
 
-  // get the y Value instance 
+  // get the y Value instance
   Py::Object y(const Py::Tuple &args) { return Py::Object(_y); }
 
   LazyValue* x_api() { return _x;}
@@ -127,7 +127,7 @@ public:
   double  xval() {return _x->val();}
   double  yval() {return _y->val();}
 
-  Py::Object reference_count (const Py::Tuple& args) 
+  Py::Object reference_count (const Py::Tuple& args)
   {
     return Py::Int(this->ob_refcnt);
   }
@@ -142,11 +142,11 @@ class MinPositive {
 public:
   MinPositive() : val(std::numeric_limits<double>::max()) {};
   ~MinPositive() {};
-  
+
 
   //update the minimum positive value with float
   void update( double x) {
-    if (x>0 && x<val) val = x; 
+    if (x>0 && x<val) val = x;
   }
 
   double val;
@@ -157,7 +157,7 @@ class Interval: public Py::PythonExtension<Interval> {
 public:
   Interval(LazyValue* val1, LazyValue* val2);
   ~Interval();
-  
+
   static void init_type(void);
 
   Py::Object contains( const Py::Tuple &args) {
@@ -202,7 +202,7 @@ public:
     Py::Tuple tup(2);
     double v1 = _val1->val();
     double v2 = _val2->val();
-    
+
     tup[0] = Py::Float(v1);
     tup[1] = Py::Float(v2);
     return tup;
@@ -236,11 +236,11 @@ public:
   Py::Object val1( const Py::Tuple &args) {return Py::Object(_val1);}
   Py::Object val2( const Py::Tuple &args) {return Py::Object(_val2);}
   Py::Object minpos( const Py::Tuple &args) {
-    
+
     double valpos = std::numeric_limits<double>::max();
-    if (_minpos!=NULL) 
+    if (_minpos!=NULL)
       valpos = _minpos->val;
-    
+
 
     double val1 = _val1->val();
     double val2 = _val2->val();
@@ -255,9 +255,9 @@ public:
     return Py::Float(valpos);
 
   }
-  
+
   void set_minpos(MinPositive* p) {_minpos = p;}
-  
+
 private:
   LazyValue* _val1;
   LazyValue* _val2;
@@ -321,42 +321,42 @@ public:
     return Py::Float(w);
   }
 
-  Py::Object height(const Py::Tuple &args) { 
+  Py::Object height(const Py::Tuple &args) {
     double h = _ur->yval() - _ll->yval();
     return Py::Float(h);
   }
 
-  Py::Object xmax(const Py::Tuple &args) { 
+  Py::Object xmax(const Py::Tuple &args) {
     double x = _ur->xval();
     return Py::Float(x);
   }
 
-  Py::Object ymax(const Py::Tuple &args) { 
+  Py::Object ymax(const Py::Tuple &args) {
     double y = _ur->yval();
     return Py::Float(y);
   }
 
-  Py::Object xmin(const Py::Tuple &args) { 
+  Py::Object xmin(const Py::Tuple &args) {
     double x =  _ll->xval();
     return Py::Float(x);
   }
 
-  Py::Object ymin(const Py::Tuple &args) { 
+  Py::Object ymin(const Py::Tuple &args) {
     double y =  _ll->yval();
     return Py::Float(y);
   }
 
   //return true if bboxes overlap
-  Py::Object overlaps(const Py::Tuple &args); 
+  Py::Object overlaps(const Py::Tuple &args);
   //return true if the x extent overlaps
-  Py::Object overlapsx(const Py::Tuple &args); 
+  Py::Object overlapsx(const Py::Tuple &args);
   //return true if the x extent overlaps
-  Py::Object overlapsy(const Py::Tuple &args); 
+  Py::Object overlapsy(const Py::Tuple &args);
 
   //set the ignore attr
-  Py::Object ignore(const Py::Tuple &args); 
+  Py::Object ignore(const Py::Tuple &args);
 
-  
+
 
   Point* ll_api() {return _ll;}
   Point* ur_api() {return _ur;}
@@ -373,13 +373,13 @@ private:
 
 //abstract base class for a function that takes maps a double to a
 //double.  Also can serve as a lazy value evaluator
-class Func : public Py::PythonExtension<Func> { 
+class Func : public Py::PythonExtension<Func> {
 public:
   Func( unsigned int type=IDENTITY ) : _type(type) {};
   ~Func();
-  
+
   static void init_type(void);
-  
+
   Py::Object str() { return Py::String(as_string());}
   Py::Object repr() { return Py::String(as_string());}
   std::string as_string() {
@@ -411,13 +411,13 @@ public:
     if (_type==IDENTITY) return x;
     else if (_type==LOG10) {
       if (x<=0) {
-	//throw Py::ValueError("test throw");  
+	//throw Py::ValueError("test throw");
 	throw std::domain_error("Cannot take log of nonpositive value");
-	
+
       }
       return log10(x);
     }
-    else 
+    else
       throw Py::ValueError("Unrecognized function type");
   }
   double  inverse_api(const double& x) {
@@ -439,7 +439,7 @@ public:
 		else newx[i] = log10(x[i]);
 	}
       }
-    else 
+    else
       throw Py::ValueError("Unrecognized function type");
   }
   void arrayInverse(const int length, const double x[], double newx[]) {
@@ -451,16 +451,16 @@ public:
 	for(int i=0; i < length; i++)
 		newx[i] = pow(10.0, x[i]);
       }
-    else 
-      throw Py::ValueError("Unrecognized function type");   
+    else
+      throw Py::ValueError("Unrecognized function type");
   }
-  
+
   enum {IDENTITY, LOG10};
-private: 
+private:
   unsigned int _type;
 };
 
-class FuncXY : public Py::PythonExtension<FuncXY> { 
+class FuncXY : public Py::PythonExtension<FuncXY> {
 public:
   FuncXY( unsigned int type=POLAR ) : _type(type) {};
   ~FuncXY() {};
@@ -532,15 +532,15 @@ private:
 
 class Transformation: public Py::PythonExtension<Transformation> {
 public:
-  Transformation() : _usingOffset(0), _transOffset(NULL), 
-		     _xo(0), _yo(0), 
+  Transformation() : _usingOffset(0), _transOffset(NULL),
+		     _xo(0), _yo(0),
 		     _invertible(true), _frozen(false) {}
   ~Transformation();
 
   static void init_type(void);
 
   //return whether a nonlinear transform is needed
-  virtual bool need_nonlinear_api() {return true;}; 
+  virtual bool need_nonlinear_api() {return true;};
   Py::Object need_nonlinear(const Py::Tuple& args) {
     return Py::Int(need_nonlinear_api());
   }
@@ -554,12 +554,12 @@ public:
 
   Py::Object as_vec6_val(const Py::Tuple &args) {
     double a,b,c,d,tx,ty;
-    
-    try { 
+
+    try {
       affine_params_api(&a, &b, &c, &d, &tx, &ty);
     }
   catch(...) {
-    throw Py::ValueError("Domain error on as_vec6_val in Transformation::as_vec6_val");  
+    throw Py::ValueError("Domain error on as_vec6_val in Transformation::as_vec6_val");
   }
 
     Py::Tuple ret(6);
@@ -570,7 +570,7 @@ public:
     ret[4] = Py::Float(tx);
     ret[5] = Py::Float(ty);
     return ret;
-    
+
   }
 
 
@@ -583,20 +583,20 @@ public:
   virtual Py::Object set_bbox1(const Py::Tuple &args);
   virtual Py::Object set_bbox2(const Py::Tuple &args);
 
-  // for separable transforms 
+  // for separable transforms
   virtual Py::Object get_funcx(const Py::Tuple &args);
   virtual Py::Object get_funcy(const Py::Tuple &args);
   virtual Py::Object set_funcx(const Py::Tuple &args);
   virtual Py::Object set_funcy(const Py::Tuple &args);
 
-  // for nonseparable transforms 
+  // for nonseparable transforms
   virtual Py::Object get_funcxy(const Py::Tuple &args);
   virtual Py::Object set_funcxy(const Py::Tuple &args);
 
 
-  // for affine transforms 
+  // for affine transforms
   virtual Py::Object as_vec6(const Py::Tuple &args);
-  
+
 
   // for all children
   Py::Object xy_tup(const Py::Tuple &args);
@@ -609,13 +609,13 @@ public:
 
   //freeze the lazy values and don't relax until thawed
   Py::Object freeze(const Py::Tuple &args) {
-      // evaluate the lazy objects  
+      // evaluate the lazy objects
     if (!_frozen) {
       try {
 	eval_scalars();
       }
       catch(...) {
-	throw Py::ValueError("Domain error on eval_scalars in Transformation::freeze");  
+	throw Py::ValueError("Domain error on eval_scalars in Transformation::freeze");
       }
 
       if (_usingOffset) {
@@ -623,11 +623,11 @@ public:
 	  _transOffset->eval_scalars();
 	}
 	catch(...) {
-	  throw Py::ValueError("Domain error on eval_scalars in transoffset Transformation::eval_scalars");  
+	  throw Py::ValueError("Domain error on eval_scalars in transoffset Transformation::eval_scalars");
 	}
 
       }
-      
+
       _frozen = true;
     }
     return Py::Object();
@@ -642,7 +642,7 @@ public:
   //transformation, if the offset is set, the transformed points will
   //be translated by transOffset(xy)
   Py::Object set_offset(const Py::Tuple &args);
-  
+
   virtual std::pair<double, double> & operator()(const double &x, const double &y)=0;
   virtual std::pair<double, double> & inverse_api(const double &x, const double &y)=0;
   virtual void arrayOperator(const int length, const double x[], const double y[], double newx[], double newy[])
@@ -701,13 +701,13 @@ public:
   Py::Object get_funcy(const Py::Tuple &args);
   Py::Object set_funcx(const Py::Tuple &args);
   Py::Object set_funcy(const Py::Tuple &args);
-  Py::Object set_offset(const Py::Tuple &args);  
+  Py::Object set_offset(const Py::Tuple &args);
 
   void nonlinear_only_api(double *x, double *y);
   std::pair<double, double> & operator()(const double &x, const double &y);
   std::pair<double, double> & inverse_api(const double &x, const double &y);
   void arrayOperator(const int length, const double x[], const double y[], double newx[], double newy[]);
-  
+
   Py::Object deepcopy(const Py::Tuple &args) ;
 
 protected:
@@ -724,7 +724,7 @@ public:
 
   Py::Object get_funcxy(const Py::Tuple &args);
   Py::Object set_funcxy(const Py::Tuple &args);
-  Py::Object set_offset(const Py::Tuple &args);  
+  Py::Object set_offset(const Py::Tuple &args);
   std::pair<double, double> & operator()(const double &x, const double &y);
   std::pair<double, double> & inverse_api(const double &x, const double &y);
   void arrayOperator(const int length, const double x[], const double y[], double newx[], double newy[]);
@@ -740,7 +740,7 @@ protected:
 
 class Affine: public Transformation {
 public:
-  Affine(LazyValue *a, LazyValue *b,  LazyValue *c, 
+  Affine(LazyValue *a, LazyValue *b,  LazyValue *c,
 	 LazyValue *d, LazyValue *tx, LazyValue *ty);
 
   ~Affine();
@@ -758,7 +758,7 @@ public:
   void eval_scalars(void);
   Py::Object deepcopy(const Py::Tuple &args);
 
-  void affine_params_api(double* a, double* b, double* c, double*d, double* tx, double* ty);  
+  void affine_params_api(double* a, double* b, double* c, double*d, double* tx, double* ty);
 private:
   LazyValue *_a;
   LazyValue *_b;
@@ -799,41 +799,41 @@ public:
     Bbox::init_type();
     Func::init_type();
     FuncXY::init_type();
-    Transformation::init_type();     
-    SeparableTransformation::init_type();     
-    NonseparableTransformation::init_type();     
+    Transformation::init_type();
+    SeparableTransformation::init_type();
+    NonseparableTransformation::init_type();
     Affine::init_type();
 
-    add_varargs_method("Value", &_transforms_module::new_value, 
+    add_varargs_method("Value", &_transforms_module::new_value,
 		       "Value(x)");
-    add_varargs_method("Point", &_transforms_module::new_point, 
+    add_varargs_method("Point", &_transforms_module::new_point,
 		       "Point(x, y)");
 
-    add_varargs_method("Bbox", &_transforms_module::new_bbox, 
+    add_varargs_method("Bbox", &_transforms_module::new_bbox,
 		       "Bbox(ll, ur)");
-    add_varargs_method("Interval", &_transforms_module::new_interval, 
+    add_varargs_method("Interval", &_transforms_module::new_interval,
 		       "Interval(val1, val2)");
 
-    add_varargs_method("Func", &_transforms_module::new_func, 
+    add_varargs_method("Func", &_transforms_module::new_func,
 		       "Func(typecode)");
-    add_varargs_method("FuncXY", &_transforms_module::new_funcxy, 
+    add_varargs_method("FuncXY", &_transforms_module::new_funcxy,
 		       "FuncXY(funcx, funcy)");
 
-    add_varargs_method("SeparableTransformation", 
-		       &_transforms_module::new_separable_transformation, 
+    add_varargs_method("SeparableTransformation",
+		       &_transforms_module::new_separable_transformation,
 		       "SeparableTransformation(box1, box2, funcx, funcy))");
-    add_varargs_method("NonseparableTransformation", 
-		       &_transforms_module::new_nonseparable_transformation, 
+    add_varargs_method("NonseparableTransformation",
+		       &_transforms_module::new_nonseparable_transformation,
 		       "NonseparableTransformation(box1, box2, funcxy))");
-    add_varargs_method("Affine", &_transforms_module::new_affine, 
+    add_varargs_method("Affine", &_transforms_module::new_affine,
 		       "Affine(a,b,c,d,tx,ty)");
     initialize( "The _transforms module" );
   }
-  
+
   virtual ~_transforms_module() {}
-  
+
 private:
-  
+
   Py::Object new_value (const Py::Tuple &args);
   Py::Object new_point (const Py::Tuple &args);
   Py::Object new_bbox (const Py::Tuple &args);

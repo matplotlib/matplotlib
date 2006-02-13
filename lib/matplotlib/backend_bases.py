@@ -660,7 +660,7 @@ class LocationEvent(Event):
         for a in self.canvas.figure.get_axes():
             if self.x is not None and self.y is not None and a.in_axes(self.x, self.y):
                 self.inaxes.append(a)
-        
+
         if len(self.inaxes) == 0: # None found
             self.inaxes = None
             return
@@ -779,7 +779,7 @@ class FigureCanvasBase:
         set the canvas size in pixels
         """
         pass
-    
+
     def draw_event(self, renderer):
         event = DrawEvent('draw_event', self, renderer)
         for func in self.callbacks.get('draw_event', {}).values():
@@ -1125,7 +1125,7 @@ class NavigationToolbar2:
 
             try: s = event.inaxes.format_coord(event.xdata, event.ydata)
             except ValueError: pass
-            except OverflowError: pass            
+            except OverflowError: pass
             else:
                 if len(self.mode):
                     self.set_message('%s : %s' % (self.mode, s))
@@ -1398,14 +1398,14 @@ class NavigationToolbar2:
 
         # Zoom with fixed aspect; modified for shared x-axes
         aspect = a.get_aspect()
-        if aspect == 'equal' or aspect == 'scaled': 
+        if aspect == 'equal' or aspect == 'scaled':
             self.fix_aspect_after_zoom(a)
         else:
             aspect_shared = ''
             if a._sharex != None: aspect_shared = a._sharex.get_aspect()
             if aspect_shared == 'equal' or aspect_shared == 'scaled':
                 self.fix_aspect_after_zoom(a._sharex)
-                
+
         self.draw()
         self._xypress = None
         self._button_pressed == None
