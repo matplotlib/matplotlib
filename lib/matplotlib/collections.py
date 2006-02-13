@@ -360,7 +360,7 @@ class LineCollection(Collection):
                  antialiaseds  = None,
                  linestyle = 'solid',
                  offsets = None,
-                 transOffset = identity_transform(),
+                 transOffset = None,#identity_transform(),
                  ):
         """
         segments is a sequence of ( line0, line1, line2), where
@@ -379,8 +379,16 @@ class LineCollection(Collection):
         If linewidths, colors, or antialiaseds is None, they default to
         their rc params setting, in sequence form.
 
+        If offsets and transOffset are not None, then
         offsets are transformed by transOffset and applied after
         the segments have been transformed to display coordinates.
+
+        If offsets is not None but transOffset is None, then the
+        offsets are added to the segments before any transformation.
+        In this case, a single offset can be specified as offsets=(xo,yo),
+        and this value will be
+        added cumulatively to each successive segment, so as
+        to produce a set of successively offset curves.
         """
 
         Collection.__init__(self)
@@ -393,13 +401,32 @@ class LineCollection(Collection):
         if antialiaseds is None :
             antialiaseds = (rcParams['lines.antialiased'], )
 
-        self._segments = segments
+        self._segments = list(segments)
         self._colors = colors
         self._aa = antialiaseds
         self._lw = linewidths
         self.set_linestyle(linestyle)
+        if transOffset is None:
+            if offsets is not None:
+                self._add_offsets(offsets)
+                offsets = None
+            transOffset = identity_transform()
         self._offsets = offsets
         self._transOffset = transOffset
+
+    def _add_offsets(self, offsets):
+        segs = self._segments
+        Nsegs = len(segs)
+        Noffs = len(offsets)
+        if not iterable(offsets[0]):  # i.e., not a tuple but an x-offset
+            xo, yo = offsets
+            for i in range(Nsegs):
+                segs[i] = [(x+xo*i, y+yo*i) for x,y in segs[i]]
+        else:
+            for i in range(Nsegs):
+                xo, yo = offsets[i%Noffsets]
+                segs[i] = [(x+xo, y+yo) for x,y in segs[i]]
+
 
     def draw(self, renderer):
         if not self.get_visible(): return

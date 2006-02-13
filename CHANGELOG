@@ -1,5 +1,8 @@
-2006-02-11 Massive cleanup of the usetex code in the postscript backend. Possibly 
-           fixed the clipping issue users were reporting with older versions of 
+2006-02-12 Added stagger or waterfall plot capability to LineCollection;
+           illustrated in examples/collections.py. - EF
+
+2006-02-11 Massive cleanup of the usetex code in the postscript backend. Possibly
+           fixed the clipping issue users were reporting with older versions of
            ghostscript - DSD
 
 2006-02-11 Added autolim kwarg to axes.add_collection.  Changed
@@ -140,10 +143,10 @@
            Agg, PS
 
 2005-12-03 Modified scipy patch to support Numeric, scipy and numarray
-	   Some work remains to be done because some of the scipy
-	   imports are broken if only the core is installed.  Eg
-	   apparently we need from scipy.basic.fftpack import * rather
-	   than from scipy.fftpack import *
+           Some work remains to be done because some of the scipy
+           imports are broken if only the core is installed.  Eg
+           apparently we need from scipy.basic.fftpack import * rather
+           than from scipy.fftpack import *
 
 2005-12-03 Applied some fixes to Nicholas Young's nonuniform image
            patch
