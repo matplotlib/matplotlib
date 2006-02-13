@@ -424,7 +424,7 @@ class LineCollection(Collection):
                 segs[i] = [(x+xo*i, y+yo*i) for x,y in segs[i]]
         else:
             for i in range(Nsegs):
-                xo, yo = offsets[i%Noffsets]
+                xo, yo = offsets[i%Noffs]
                 segs[i] = [(x+xo, y+yo) for x,y in segs[i]]
 
 
