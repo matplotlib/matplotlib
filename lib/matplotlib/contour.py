@@ -710,7 +710,7 @@ class ContourSet(ScalarMappable, ContourLabeler):
               specifying X and Y.
 
             * extent = None: (x0,x1,y0,y1); also active only if X and Y
-              are not specified.
+              are not specified, and only if origin is not None.
 
             * locator = None: an instance of a ticker.Locator subclass;
               default is MaxNLocator.  It is used to determine the
