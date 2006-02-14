@@ -73,6 +73,9 @@ if major==2 and minor1==2:
 for line in file('lib/matplotlib/__init__.py').readlines():
     if line[:11] == '__version__':
         exec(line)
+        # Append cvs tag if working from cvs tree
+        if os.path.isdir('CVS'):
+            __version__ += '-cvs'
         break
 
 # Specify all the required mpl data
