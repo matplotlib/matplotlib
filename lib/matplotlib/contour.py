@@ -517,14 +517,22 @@ class ContourSet(ScalarMappable, ContourLabeler):
         if origin is 'upper', x = j + 0.5, y = Nrows - i - 0.5
         If extent is not None, x and y will be scaled to match,
         as in imshow.
+        If origin is None and extent is not None, then extent
+        will give the minimum and maximum values of x and y.
         '''
         if len(shape(z)) != 2:
             raise TypeError("Input must be a 2D array.")
         else:
             Ny, Nx = shape(z)
-        if self.origin is None:
-            return meshgrid(arange(Nx), arange(Ny))
-
+        if self.origin is None:  # Not for image-matching.
+            if self.extent is None:
+                return meshgrid(arange(Nx), arange(Ny))
+            else:
+                x0,x1,y0,y1 = self.extent
+                x = linspace(x0, x1, Nx)
+                y = linspace(y0, y1, Ny)
+                return meshgrid(x, y)
+        # Match image behavior:
         if self.extent is None:
             x0,x1,y0,y1 = (0, Nx, 0, Ny)
         else:
@@ -710,7 +718,12 @@ class ContourSet(ScalarMappable, ContourLabeler):
               specifying X and Y.
 
             * extent = None: (x0,x1,y0,y1); also active only if X and Y
-              are not specified, and only if origin is not None.
+              are not specified.  If origin is not None, then extent is
+              interpreted as in imshow: it gives the outer pixel boundaries.
+              In this case, the position of Z[0,0] is the center of the
+              pixel, not a corner.
+              If origin is None, then (x0,y0) is the position of Z[0,0],
+              and (x1,y1) is the position of Z[-1,-1].
 
             * locator = None: an instance of a ticker.Locator subclass;
               default is MaxNLocator.  It is used to determine the
