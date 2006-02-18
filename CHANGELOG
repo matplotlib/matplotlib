@@ -1,3 +1,6 @@
+2006-02-18 backend_gtk.py FigureCanvasGTK.draw(): simplify to use (rather than
+           duplicate) the expose_event() drawing code - SC
+
 2006-02-12 Added stagger or waterfall plot capability to LineCollection;
            illustrated in examples/collections.py. - EF
 

@@ -138,14 +138,6 @@ class FigureCanvasGTK (gtk.DrawingArea, FigureCanvasBase):
         self._renderer_init()
 
 
-    #def resize(self, w, h):
-    #    'set the drawing area size in pixels'
-    #    winw, winh = self.parent.parent.get_size()
-    #    tmp, tmp, myw, myh = self.allocation
-    #    padw = winw-myw
-    #    padh = winh-myh
-    #    self.parent.parent.resize(w+padw, h+padh)
-
     def button_press_event(self, widget, event):
         if _debug: print 'FigureCanvasGTK.%s' % fn_name()
         x = event.x
@@ -206,7 +198,7 @@ class FigureCanvasGTK (gtk.DrawingArea, FigureCanvasBase):
         if widget.window is None:
             return
         w, h = event.width, event.height
-        if w<3 or h<3:
+        if w < 3 or h < 3:
             return # empty fig
 
         # resize the figure (in inches)
@@ -214,29 +206,27 @@ class FigureCanvasGTK (gtk.DrawingArea, FigureCanvasBase):
         self.figure.set_figsize_inches (w/dpi, h/dpi)
         self._need_redraw = True
 
-        #self.resize_event()
         return False  # finish event propagation?
 
 
     def draw(self):
-        # synchronous window redraw (like GTK+ 1.2 used to do)
-        # Note: this does not follow the usual way that GTK redraws,
-        # which is asynchronous redraw using calls to gtk_widget_queue_draw(),
-        # which triggers an expose-event
+        # Note: FigureCanvasBase.draw() is inconveniently named as it clashes
+        # with the deprecated gtk.Widget.draw()
 
-        # GTK+ 2.x style draw()
-        #self._need_redraw = True
-        #self.queue_draw()
+        self._need_redraw = True
+        self.queue_draw()
+        # do a synchronous draw (its less efficient than an async draw, but is
+        # required if/when animation is used)
+        self.window.process_updates (False)
 
-        # synchronous draw (needed for animation)
-        x, y, w, h = self.allocation
-        if w<3 or h<3: return # empty fig
-
-        self._pixmap_prepare (w, h)
-        self._render_figure(self._pixmap, w, h)
-        self._need_redraw = False
-        self.window.draw_drawable (self.style.fg_gc[self.state],
-                                   self._pixmap, 0, 0, 0, 0, w, h)
+        ## synchronous draw (needed for animation)
+        #x, y, w, h = self.allocation
+        #if w<3 or h<3: return # empty fig
+        #self._pixmap_prepare (w, h)
+        #self._render_figure(self._pixmap, w, h)
+        #self._need_redraw = False
+        #self.window.draw_drawable (self.style.fg_gc[self.state],
+        #                           self._pixmap, 0, 0, 0, 0, w, h)
 
 
     def draw_idle(self):
@@ -1059,12 +1049,12 @@ class DialogLineprops:
     """
     signals = (
         'on_combobox_lineprops_changed',
-        'on_combobox_linestyle_changed',                        
+        'on_combobox_linestyle_changed',
         'on_combobox_marker_changed',
         'on_colorbutton_linestyle_color_set',
         'on_colorbutton_markerface_color_set',
         'on_dialog_lineprops_okbutton_clicked',
-        'on_dialog_lineprops_cancelbutton_clicked',            
+        'on_dialog_lineprops_cancelbutton_clicked',
         )
 
     linestyles = (
@@ -1080,28 +1070,28 @@ class DialogLineprops:
 
 
     markers =  (
-        'None', 
-        '.'  , 
-        ','  , 
-        'o'  , 
-        'v'  , 
-        '^'  , 
-        '<'  , 
-        '>'  , 
-        '1'  , 
-        '2'  , 
-        '3'  , 
-        '4'  , 
-        's'  , 
-        'p'  , 
-        'h'  , 
-        'H'  , 
-        '+'  , 
-        'x'  , 
-        'D'  , 
-        'd'  , 
-        '|'  , 
-        '_'  , 
+        'None',
+        '.'  ,
+        ','  ,
+        'o'  ,
+        'v'  ,
+        '^'  ,
+        '<'  ,
+        '>'  ,
+        '1'  ,
+        '2'  ,
+        '3'  ,
+        '4'  ,
+        's'  ,
+        'p'  ,
+        'h'  ,
+        'H'  ,
+        '+'  ,
+        'x'  ,
+        'D'  ,
+        'd'  ,
+        '|'  ,
+        '_'  ,
         )
 
     markerd = dict([(s,i) for i,s in enumerate(markers)])
@@ -1112,13 +1102,13 @@ class DialogLineprops:
         gladefile = os.path.join(datadir, 'lineprops.glade')
         if not os.path.exists(gladefile):
             raise IOError('Could not find gladefile lineprops.glade in %s'%datadir)
-        
+
         self._inited = False
         self._updateson = True # suppress updates when setting widgets manually
-        self.wtree = gtk.glade.XML(gladefile, 'dialog_lineprops')        
+        self.wtree = gtk.glade.XML(gladefile, 'dialog_lineprops')
         self.wtree.signal_autoconnect(dict([(s, getattr(self, s)) for s in self.signals]))
 
-        self.dlg = self.wtree.get_widget('dialog_lineprops') 
+        self.dlg = self.wtree.get_widget('dialog_lineprops')
 
         self.lines = lines
 
@@ -1179,7 +1169,7 @@ class DialogLineprops:
 
     def _update(self):
         'update the active line props from the widgets'
-        if not self._inited or not self._updateson: return 
+        if not self._inited or not self._updateson: return
         line = self.get_active_line()
         ls = self.get_active_linestyle()
         marker = self.get_active_marker()
@@ -1202,7 +1192,7 @@ class DialogLineprops:
 
     def on_combobox_lineprops_changed(self, item):
         'update the widgets from the active line'
-        if not self._inited: return 
+        if not self._inited: return
         self._updateson = False
         line = self.get_active_line()
 
