@@ -349,7 +349,7 @@ def _get_data_path():
     if os.path.isdir(path): return path
     
     # py2exe zips pure python, so still need special check
-    if sys.platform=='win32' and sys.frozen:
+    if (sys.platform=='win32' or sys.platform=='darwin') and sys.frozen:
         path = os.path.join(os.path.split(sys.path[0])[0], 'matplotlibdata')
         if os.path.isdir(path):  return path
         else:
