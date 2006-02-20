@@ -213,20 +213,21 @@ class FigureCanvasGTK (gtk.DrawingArea, FigureCanvasBase):
         # Note: FigureCanvasBase.draw() is inconveniently named as it clashes
         # with the deprecated gtk.Widget.draw()
 
-        self._need_redraw = True
-        self.queue_draw()
-        # do a synchronous draw (its less efficient than an async draw, but is
-        # required if/when animation is used)
-        self.window.process_updates (False)
+        if GTK_WIDGET_DRAWABLE(self):
+            self._need_redraw = True
+            self.queue_draw()
+            # do a synchronous draw (its less efficient than an async draw,
+            # but is required if/when animation is used)
+            self.window.process_updates (False)
 
-        ## synchronous draw (needed for animation)
-        #x, y, w, h = self.allocation
-        #if w<3 or h<3: return # empty fig
-        #self._pixmap_prepare (w, h)
-        #self._render_figure(self._pixmap, w, h)
-        #self._need_redraw = False
-        #self.window.draw_drawable (self.style.fg_gc[self.state],
-        #                           self._pixmap, 0, 0, 0, 0, w, h)
+            ## synchronous draw (needed for animation)
+            #x, y, w, h = self.allocation
+            #if w<3 or h<3: return # empty fig
+            #self._pixmap_prepare (w, h)
+            #self._render_figure(self._pixmap, w, h)
+            #self._need_redraw = False
+            #self.window.draw_drawable (self.style.fg_gc[self.state],
+            #                           self._pixmap, 0, 0, 0, 0, w, h)
 
 
     def draw_idle(self):
