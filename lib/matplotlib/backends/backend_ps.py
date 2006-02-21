@@ -65,19 +65,20 @@ papersize = {'executive': (7.5,11),
              'c4': (9.01,12.75),
              'c5': (6.38,9.01),
              'c6': (4.49,6.38)}
-defaultPaperType = rcParams['ps.papersize']
-defaultPaperSize = papersize[defaultPaperType]
 
-def _get_papersize(w,h):
+def _get_papersize(w,h,isLandscape=False):
     keys = papersize.keys()
     keys.sort()
     keys.reverse()
     for key in keys:
         if key.startswith('l'): continue
-        val = papersize[key]
-        # will the image fit within latex margins?
-        if w+2 < val[0] and h+2 < val[1]: return val
-    else: return papersize['a0']
+        pw, ph = papersize[key]
+        if isLandscape: ph, pw = pw, ph
+        # Assume 1in margins
+        if (w < pw-2) and (h < ph-2): return (pw, ph, key)
+    else:
+        pw, ph = papersize['a0']
+        return (pw, ph, 'a0')
 
 def _num_to_str(val):
     if is_string_like(val): return val
@@ -999,13 +1000,16 @@ class FigureCanvasPS(FigureCanvasBase):
         # center the figure on the paper
         self.figure.dpi.set(72)        # ignore the passsed dpi setting for PS
         width, height = self.figure.get_size_inches()
-
+        
+        papertype = rcParams['ps.papersize']
+        paperWidth, paperHeight = papersize[papertype]
         if orientation=='landscape':
             isLandscape = True
-            paperHeight, paperWidth = defaultPaperSize
+            paperHeight, paperWidth = paperWidth, paperHeight
         else:
             isLandscape = False
-            paperWidth, paperHeight = defaultPaperSize
+        if (width>paperWidth-2) or (height>paperHeight-2): 
+            paperWidth, paperHeight, papertype = _get_papersize(width,height,isLandscape)
 
         xo = 72*0.5*(paperWidth - width)
         yo = 72*0.5*(paperHeight - height)
@@ -1015,7 +1019,7 @@ class FigureCanvasPS(FigureCanvasBase):
         lly = yo
         urx = llx + w
         ury = lly + h
-
+        
         if isLandscape:
             xo, yo = 72*paperHeight - yo, xo
             llx, lly, urx, ury = lly, llx, ury, urx
@@ -1045,14 +1049,10 @@ class FigureCanvasPS(FigureCanvasBase):
         print >>fh, ("%%Creator: matplotlib version "
                      +__version__+", http://matplotlib.sourceforge.net/")
         print >>fh, "%%CreationDate: "+time.ctime(time.time())
+        print >>fh, "%%Orientation: " + orientation
         if not isEPSF:
-            if paperWidth > paperHeight:
-                ostr="Landscape"
-            else:
-                ostr="Portrait"
-            print >>fh, "%%Orientation: "+ostr
-            print >>fh, "%%DocumentPaperSizes: "+defaultPaperType
-        print >>fh, "%%%%BoundingBox: %d %d %d %d" % (llx, lly, urx, ury)
+            print >>fh, "%%DocumentPaperSizes: "+papertype
+        if isEPSF: print >>fh, "%%%%BoundingBox: %d %d %d %d" % (llx, lly, urx, ury)
         if not isEPSF: print >>fh, "%%Pages: 1"
         print >>fh, "%%EndComments"
         
@@ -1101,15 +1101,15 @@ class FigureCanvasPS(FigureCanvasBase):
             
         if rcParams['text.usetex']:
             convert_psfrags(tmpfile, renderer.psfrag,
-                renderer.texmanager.get_font_preamble(), width, height)
+                renderer.texmanager.get_font_preamble(), paperWidth, paperHeight)
             if ext == '.eps': pstoeps(tmpfile)
         
         if rcParams['ps.usedistiller'] == 'ghostscript': 
-            gs_distill(tmpfile, ext=='.eps')
+            gs_distill(tmpfile, ext=='.eps', ptype=papertype)
         elif rcParams['ps.usedistiller'] == 'xpdf': 
-            xpdf_distill(tmpfile, ext=='.eps')
+            xpdf_distill(tmpfile, ext=='.eps', ptype=papertype)
         elif rcParams['text.usetex']: 
-            gs_distill(tmpfile, ext=='.eps')
+            gs_distill(tmpfile, ext=='.eps', ptype=papertype)
         
         if  isinstance(outfile, file):
             fh = file(tmpfile)
@@ -1117,7 +1117,7 @@ class FigureCanvasPS(FigureCanvasBase):
         else: shutil.move(tmpfile, outfile)
 
 
-def convert_psfrags(tmpfile, psfrags, font_preamble, width, height):
+def convert_psfrags(tmpfile, psfrags, font_preamble, pw, ph):
     """
     When we want to use the LaTeX backend with postscript, we write PSFrag tags 
     to a temporary postscript file, each one marking a position for LaTeX to 
@@ -1132,16 +1132,20 @@ def convert_psfrags(tmpfile, psfrags, font_preamble, width, height):
     dvifile = tmpfile+'.dvi'
     psfile = tmpfile+'.ps'
     
-    pw, ph = defaultPaperSize
-    if (width>pw-2) or (height>ph-2): pw,ph = _get_papersize(width,height)
     print >>latexh, r"""\documentclass{scrartcl}
 %s
 \usepackage{psfrag}
 \usepackage[dvips]{graphicx}
 \usepackage{color}
 \pagestyle{empty}
-\setlength{\paperheight}{%fin}
+\setlength{\oddsidemargin}{0in}
+\setlength{\evensidemargin}{0in}
+\setlength{\topmargin}{0in}
+\setlength{\headheight}{0in}
+\setlength{\headsep}{0in}
+\setlength{\parindent}{0in}
 \setlength{\paperwidth}{%fin}
+\setlength{\paperheight}{%fin}
 \setlength{\textwidth}{%fin}
 \setlength{\textheight}{%fin}
 \special{papersize=%fin,%fin}
@@ -1174,17 +1178,17 @@ def convert_psfrags(tmpfile, psfrags, font_preamble, width, height):
     os.chdir(curdir)
 
 
-def gs_distill(tmpfile, eps=False):
+def gs_distill(tmpfile, eps=False, ptype='letter'):
     """
     Use ghostscript's pswrite or epswrite device to distill a file.
     This yields smaller files without illegal encapsulated postscript
     operators. The output is low-level, converting text to outlines.
     """
     if eps: 
-        device = 'epswrite'
+        device = 'epswrite -sPAPERSIZE=%s'% ptype
         outputfile = tmpfile + '.eps'
     else: 
-        device = 'pswrite'
+        device = 'pswrite -sPAPERSIZE=%s'% ptype
         outputfile = tmpfile + '.ps'
     dpi = rcParams['ps.distiller.res']
     if sys.platform == 'win32': gs_exe = 'gswin32c'
@@ -1199,7 +1203,7 @@ def gs_distill(tmpfile, eps=False):
     shutil.move(outputfile, tmpfile)
 
 
-def xpdf_distill(tmpfile, eps=False):
+def xpdf_distill(tmpfile, eps=False, ptype='letter'):
     """
     Use ghostscript's ps2pdf and xpdf's/poppler's pdftops to distill a file.
     This yields smaller files without illegal encapsulated postscript
@@ -1209,10 +1213,10 @@ def xpdf_distill(tmpfile, eps=False):
     pdffile = tmpfile + '.pdf'
     psfile = tmpfile + '.ps'
     shutil.move(tmpfile, psfile)
-    command = 'ps2pdf "%s" "%s"'% (psfile, pdffile)
+    command = 'ps2pdf -sPAPERSIZE=%s "%s" "%s"'% (ptype, psfile, pdffile)
     stdin, stderr = os.popen4(command)
     verbose.report(stderr.read(), 'helpful')
-    command = 'pdftops -level2 "%s" "%s"'% (pdffile, psfile)
+    command = 'pdftops -paper=%s -level2 "%s" "%s"'% (ptype, pdffile, psfile)
     stdin, stderr = os.popen4(command)
     verbose.report(stderr.read(), 'helpful')
     shutil.move(psfile, tmpfile)
@@ -1231,7 +1235,11 @@ def pstoeps(tmpfile):
     command = 'gs -dBATCH -dNOPAUSE -sDEVICE=bbox "%s"' % tmpfile
     verbose.report(command, 'debug-annoying')
     stdin, stdout, stderr = os.popen3(command)
-    bbox_info = stderr.read()
+    l, b, r, t = [float(i) for i in stderr.read().split()[-4:]]
+    bbox_info = '%%%%BoundingBox: %d %d %d %d\n\
+        %%%%HiResBoundingBox: %.6f %.6f %.6f %.6f\n' % \
+        (l-1, b-1, r+1, t+1, l-1, b-1, r+1, t+1)
+    
     verbose.report(stdout.read(), 'debug-annoying')
     verbose.report(bbox_info, 'helpful')
 

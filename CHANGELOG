@@ -1,3 +1,5 @@
+2006-02-21 Fixed portrait/landscape orientation in postscript backend - DSD
+
 2006-02-21 fix bug introduced in yesterday's bug fix - SC
 
 2006-02-20 backend_gtk.py FigureCanvasGTK.draw(): fix bug reported by
