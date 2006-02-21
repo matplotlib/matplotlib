@@ -213,8 +213,8 @@ class FigureCanvasGTK (gtk.DrawingArea, FigureCanvasBase):
         # Note: FigureCanvasBase.draw() is inconveniently named as it clashes
         # with the deprecated gtk.Widget.draw()
 
+        self._need_redraw = True
         if GTK_WIDGET_DRAWABLE(self):
-            self._need_redraw = True
             self.queue_draw()
             # do a synchronous draw (its less efficient than an async draw,
             # but is required if/when animation is used)
