@@ -48,8 +48,10 @@ class ScalarMappable:
         self.colorbar = im, ax
 
     def to_rgba(self, x, alpha=1.0):
-        # assume normalized rgb, rgba
-        if len(x.shape)>2: return x
+        '''Return a normalized rgba array corresponding to x.
+        If x is already an rgb or rgba array, return it unchanged.
+        '''
+        if hasattr(x, 'shape') and len(x.shape)>2: return x
         x = ma.asarray(x)
         x = self.norm(x)
         x = self.cmap(x, alpha)

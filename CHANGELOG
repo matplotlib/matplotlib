@@ -1,3 +1,7 @@
+2006-02-22 Fixed bug in ScalarMappable.to_rgba() reported by
+           Ray Jones, and fixed incorrect fix found by Jeff
+           Whitaker - EF
+
 ===============================================================
 2006-02-22 Released 0.87
 
