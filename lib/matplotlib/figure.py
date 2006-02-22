@@ -383,11 +383,12 @@ class Figure(Artist):
         """
         Add an a axes with axes rect [left, bottom, width, height] where all
         quantities are in fractions of figure width and height.  kwargs are
-        legal Axes kwargs plus"polar" which sets whether to create a polar axes
+        legal Axes kwargs plus "polar" which sets whether to create a polar axes
 
-            add_axes((l,b,w,h))
-            add_axes((l,b,w,h), frameon=False, axisbg='g')
-            add_axes((l,b,w,h), polar=True)
+            rect = l,b,w,h
+            add_axes(rect)
+            add_axes(rect, frameon=False, axisbg='g')
+            add_axes(rect, polar=True)
             add_axes(ax)   # add an Axes instance
 
 
@@ -396,11 +397,11 @@ class Figure(Artist):
         behavior, eg you want to force the creation of a new axes, you must
         use a unique set of args and kwargs.  The artist "label" attribute has
         been exposed for this purpose.  Eg, if you want two axes that are
-        otherwise identical to be added to the axes, make sure you give them
+        otherwise identical to be added to the figure, make sure you give them
         unique labels:
 
-            add_axes((l,b,w,h), label='1')
-            add_axes((l,b,w,h), label='2')
+            add_axes(rect, label='axes1')
+            add_axes(rect, label='axes2')
 
         The Axes instance will be returned
         """
@@ -496,7 +497,7 @@ class Figure(Artist):
 
     def draw(self, renderer):
         """
-        Render the figure using RendererGD instance renderer
+        Render the figure using Renderer instance renderer
         """
         # draw the figure bounding box, perhaps none for white figure
         #print 'figure draw'

@@ -315,9 +315,9 @@ class _process_plot_var_args:
             #yield self._plot_2_args(remaining[:2])
             #remaining=args[2:]
 
-BinOpType=type(zero())
+ValueType=type(zero())
 def makeValue(v):
-    if type(v) == BinOpType:
+    if type(v) == ValueType:
         return v
     else:
         return Value(v)
@@ -325,15 +325,8 @@ def makeValue(v):
 
 class Axes(Artist):
     """
-    Emulate matlab's (TM) axes command, creating axes with
-
-       Axes(position=[left, bottom, width, height])
-
-    where all the arguments are fractions in [0,1] which specify the
-    fraction of the total figure window.
-
-    axisbg is the color of the axis background
-
+    The Axes contains most of the figure elements: Axis, Tick, Line2D,
+    Text, Polygon etc, and sets the coordinate system
     """
 
     scaled = {IDENTITY : 'linear',
@@ -682,7 +675,7 @@ class Axes(Artist):
         self._gridOn = rcParams['axes.grid']
         self.lines = []
         self.patches = []
-        self.texts = []     # text in axis coords
+        self.texts = []     
         self.tables = []
         self.artists = []
         self.images = []
