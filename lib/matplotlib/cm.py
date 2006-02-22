@@ -49,10 +49,8 @@ class ScalarMappable:
 
     def to_rgba(self, x, alpha=1.0):
         # assume normalized rgb, rgba
-        #print '0', type(x), x.shape
-        x = ma.asarray(x)
-        #print '1', type(x), x.shape
         if len(x.shape)>2: return x
+        x = ma.asarray(x)
         x = self.norm(x)
         x = self.cmap(x, alpha)
         return x
