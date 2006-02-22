@@ -1,3 +1,6 @@
+2006-02-22 Small change to colors.py to workaround apparent 
+           bug in numpy masked array module - JW
+
 2006-02-22 Fixed bug in ScalarMappable.to_rgba() reported by
            Ray Jones, and fixed incorrect fix found by Jeff
            Whitaker - EF
