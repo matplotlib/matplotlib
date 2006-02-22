@@ -122,7 +122,9 @@ font.monospace      : Andale Mono, Bitstream Vera Sans Mono, Nimbus Mono L, Cour
 # information on text properties
 text.color          : black
 text.usetex         : False  # use latex for all text handling.  See http://matplotlib.sf.net/matplotlib.texmanager.html
-text.dvipnghack     : False
+text.dvipnghack     : False  # some versions of dvipng don't handle
+                             # alpha channel properly.  Use True to correct and flush
+                             # ~/.matplotlib/tex.cache before testing
 
 ### AXES
 # default face and edge color, default tick sizes,
