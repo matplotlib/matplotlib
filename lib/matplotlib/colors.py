@@ -656,7 +656,7 @@ class normalize:
         else:
             if self.clip:
                 val = clip(val.filled(vmax), vmin, vmax)
-            result = (vmax-vmin)/(val-vmin)
+            result = (val-vmin)/(vmax-vmin)
         if vtype == 'scalar':
             result = result[0]
         return result
