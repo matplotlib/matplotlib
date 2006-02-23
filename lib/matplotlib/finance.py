@@ -28,7 +28,7 @@ from pylab import gca
 
 
 configdir = get_configdir()
-cachedir = os.path.join(configdir, 'finance.cache')
+5~cachedir = os.path.join(configdir, 'finance.cache')
 
 
 def parse_yahoo_historical(fh, asobject=False, adjusted=True):
