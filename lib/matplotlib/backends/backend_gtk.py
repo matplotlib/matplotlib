@@ -1019,14 +1019,13 @@ if gtk.pygtk_version >= (2,4,0):
 
 
         def get_filename_from_user (self):
-            filename = None
             while True:
-                if self.run() is not gtk.RESPONSE_OK:
-                    filename = None
+                filename = None
+                if self.run() != gtk.RESPONSE_OK:
                     break
                 filename = self.get_filename()
                 menu_ext  = IMAGE_FORMAT[self.cbox.get_active()]
-                root, ext = os.path.splitext(filename)
+                root, ext = os.path.splitext (filename)
                 ext = ext[1:]
                 if ext == '':
                     ext = menu_ext
@@ -1036,9 +1035,10 @@ if gtk.pygtk_version >= (2,4,0):
                     self.path = filename
                     break
                 else:
-                    error_msg_gtk('Image format "%s" is not supported' % ext,
-                              parent=self)
-                    self.set_current_name(os.path.split(root)[1] + '.' + menu_ext)
+                    error_msg_gtk ('Image format "%s" is not supported' % ext,
+                                   parent=self)
+                    self.set_current_name (os.path.split(root)[1] + '.' +
+                                           menu_ext)
 
             self.hide()
             return filename
