@@ -77,7 +77,8 @@ def show(mainloop=True):
 
     if mainloop and gtk.main_level() == 0:
         gtk.main()
-
+        show._mainloop = True
+show._mainloop = False
 
 def new_figure_manager(num, *args, **kwargs):
     """
@@ -452,8 +453,9 @@ class FigureManagerGTK(FigureManagerBase):
     def destroy(self, *args):
         if _debug: print 'FigureManagerGTK.%s' % fn_name()
         self.window.destroy()
-        if Gcf.get_num_fig_managers() == 0 and not matplotlib.is_interactive():
-            gtk.main_quit()
+
+        if Gcf.get_num_fig_managers()==0 and not matplotlib.is_interactive():
+            if show._mainloop: gtk.main_quit()
 
 
     def full_screen_toggle (self):

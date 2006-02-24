@@ -1,3 +1,6 @@
+2006-02-22 Fixed gtk main quit bug when quit was called befoer
+           mainloop. - JDH
+
 2006-02-22 Small change to colors.py to workaround apparent 
            bug in numpy masked array module - JW
 
