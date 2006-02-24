@@ -55,7 +55,7 @@ cursord = {
 # ref gtk+/gtk/gtkwidget.h
 def GTK_WIDGET_DRAWABLE(w):
     flags = w.flags();
-    return flags & gtk.VISIBLE !=0 and flags & gtk.MAPPED != 0
+    return flags & gtk.VISIBLE != 0 and flags & gtk.MAPPED != 0
 
 
 def draw_if_interactive():
@@ -64,7 +64,7 @@ def draw_if_interactive():
     """
     if matplotlib.is_interactive():
         figManager =  Gcf.get_active()
-        if figManager != None:
+        if figManager is not None:
             figManager.canvas.draw()
 
 def show(mainloop=True):
@@ -235,7 +235,7 @@ class FigureCanvasGTK (gtk.DrawingArea, FigureCanvasBase):
             self.draw()
             self._idleID = 0
             return False
-        if self._idleID==0:
+        if self._idleID == 0:
             self._idleID = gobject.idle_add(idle_draw)
 
 
@@ -427,7 +427,7 @@ class FigureManagerGTK(FigureManagerBase):
         w = int (self.canvas.figure.bbox.width())
         h = int (self.canvas.figure.bbox.height())
 
-        if self.toolbar != None:
+        if self.toolbar is not None:
             self.toolbar.show()
             self.vbox.pack_end(self.toolbar, False, False)
 
@@ -444,7 +444,7 @@ class FigureManagerGTK(FigureManagerBase):
 
         def notify_axes_change(fig):
             'this will be called whenever the current axes is changed'
-            if self.toolbar != None: self.toolbar.update()
+            if self.toolbar is not None: self.toolbar.update()
         self.canvas.figure.add_axobserver(notify_axes_change)
 
         self.canvas.grab_focus()
@@ -452,7 +452,7 @@ class FigureManagerGTK(FigureManagerBase):
     def destroy(self, *args):
         if _debug: print 'FigureManagerGTK.%s' % fn_name()
         self.window.destroy()
-        if Gcf.get_num_fig_managers()==0 and not matplotlib.is_interactive():
+        if Gcf.get_num_fig_managers() == 0 and not matplotlib.is_interactive():
             gtk.main_quit()
 
 
@@ -469,9 +469,9 @@ class FigureManagerGTK(FigureManagerBase):
     def _get_toolbar(self, canvas):
         # must be inited after the window, drawingArea and figure
         # attrs are set
-        if matplotlib.rcParams['toolbar']=='classic':
+        if matplotlib.rcParams['toolbar'] == 'classic':
             toolbar = NavigationToolbar (canvas, self.window)
-        elif matplotlib.rcParams['toolbar']=='toolbar2':
+        elif matplotlib.rcParams['toolbar'] == 'toolbar2':
             toolbar = NavigationToolbar2GTK (canvas, self.window)
         else:
             toolbar = None
@@ -506,8 +506,8 @@ class NavigationToolbar2GTK(NavigationToolbar2, gtk.Toolbar):
         self._idleId = 0
 
     def set_message(self, s):
-        if self._idleId==0: self.message.set_label(s)
-
+        if self._idleId == 0:
+            self.message.set_label(s)
 
     def set_cursor(self, cursor):
         self.canvas.window.set_cursor(cursord[cursor])
@@ -556,7 +556,7 @@ class NavigationToolbar2GTK(NavigationToolbar2, gtk.Toolbar):
                 drawable.draw_rectangle(gc, False, *rect)
                 self._idleId = 0
                 return False
-            if self._idleId==0:
+            if self._idleId == 0:
                 self._idleId = gobject.idle_add(idle_draw)
 
 
@@ -1021,7 +1021,7 @@ if gtk.pygtk_version >= (2,4,0):
         def get_filename_from_user (self):
             filename = None
             while True:
-                if self.run() != gtk.RESPONSE_OK:
+                if self.run() is not gtk.RESPONSE_OK:
                     filename = None
                     break
                 filename = self.get_filename()
@@ -1246,10 +1246,9 @@ except:
 
 
 def error_msg_gtk(msg, parent=None):
-
-    if parent: # find the toplevel gtk.Window
+    if parent is not None: # find the toplevel gtk.Window
         parent = parent.get_toplevel()
-        if not parent.flags() & gtk.TOPLEVEL:
+        if parent.flags() & gtk.TOPLEVEL == 0:
             parent = None
 
     if not is_string_like(msg):
