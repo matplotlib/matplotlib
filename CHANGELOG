@@ -1,7 +1,9 @@
-2006-02-22 Fixed gtk main quit bug when quit was called befoer
+2006-02-24 Implemented alpha support in contour and contourf - EF
+
+2006-02-22 Fixed gtk main quit bug when quit was called before
            mainloop. - JDH
 
-2006-02-22 Small change to colors.py to workaround apparent 
+2006-02-22 Small change to colors.py to workaround apparent
            bug in numpy masked array module - JW
 
 2006-02-22 Fixed bug in ScalarMappable.to_rgba() reported by
