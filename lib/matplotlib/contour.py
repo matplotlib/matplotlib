@@ -471,7 +471,8 @@ class ContourSet(ScalarMappable, ContourLabeler):
 
 
     def changed(self):
-        tcolors = [ (tuple(rgba),) for rgba in self.to_rgba(self.cvalues)]
+        tcolors = [ (tuple(rgba),) for rgba in
+                                self.to_rgba(self.cvalues, alpha=self.alpha)]
         self.tcolors = tcolors
         contourNum = 0
         for color, collection in zip(tcolors, self.collections):
