@@ -1,3 +1,6 @@
+2006-02-26 Update the previous gtk.main_quit() bug fix to use gtk.main_level()
+           - SC
+
 2006-02-24 Implemented alpha support in contour and contourf - EF
 
 2006-02-22 Fixed gtk main quit bug when quit was called before
@@ -15,7 +18,7 @@
 
 2006-02-21 Fixed portrait/landscape orientation in postscript backend - DSD
 
-2006-02-21 fix bug introduced in yesterday's bug fix - SC
+2006-02-21 Fix bug introduced in yesterday's bug fix - SC
 
 2006-02-20 backend_gtk.py FigureCanvasGTK.draw(): fix bug reported by
            David Tremouilles - SC
