@@ -121,7 +121,8 @@ font.monospace      : Andale Mono, Bitstream Vera Sans Mono, Nimbus Mono L, Cour
 # http://matplotlib.sourceforge.net/matplotlib.text.html for more
 # information on text properties
 text.color          : black
-text.usetex         : False  # use latex for all text handling.  See http://matplotlib.sf.net/matplotlib.texmanager.html
+text.usetex         : False  # use latex for all text handling.  For more information, see
+                             # http://www.scipy.org/Wiki/Cookbook/Matplotlib/UsingTex
 text.dvipnghack     : False  # some versions of dvipng don't handle
                              # alpha channel properly.  Use True to correct and flush
                              # ~/.matplotlib/tex.cache before testing
