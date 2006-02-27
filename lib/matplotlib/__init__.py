@@ -908,7 +908,12 @@ def validate_key(key, val, line, cnt, fname, fail_on_error):
         key = alt
 
     if not defaultParams.has_key(key):
-        warnings.warn('Bad key "%s" on line %d in %s' % (key, cnt, fname))
+        print >> sys.stderr, """\
+Bad key "%s" on line %d in
+%s.
+You probably need to get an updated matplotlibrc file from
+http://matplotlib.sf.net/matplotlibrc or from the matplotlib src
+distribution""" % (key, cnt, fname)
         return None
 
     default, converter =  defaultParams[key]

@@ -8,6 +8,7 @@ from __future__ import division
 try:
     import pyemf
 except ImportError:
+    import sys
     print >>sys.stderr, 'You must first install pyemf from http://pyemf.sf.net'
     sys.exit()
 

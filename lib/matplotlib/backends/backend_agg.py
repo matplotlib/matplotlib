@@ -112,8 +112,10 @@ class RendererAgg(RendererBase):
         self.dpi = dpi
         self.width = width
         self.height = height
+        if __debug__: verbose.report('RendererAgg.__init__ width=%s, height=%s'%(width, height), 'debug-annoying')
         self._renderer = _RendererAgg(int(width), int(height), dpi.get(),
                                     debug=False)
+        if __debug__: verbose.report('RendererAgg.__init__ _RendererAgg done', 'debug-annoying')
         self.draw_polygon = self._renderer.draw_polygon
         self.draw_rectangle = self._renderer.draw_rectangle
         self.draw_path = self._renderer.draw_path
@@ -132,9 +134,10 @@ class RendererAgg(RendererBase):
         self.texmanager = TexManager()
 
         self.bbox = lbwh_to_bbox(0,0, self.width, self.height)
+        if __debug__: verbose.report('RendererAgg.__init__ done', 'debug-annoying')
 
     def draw_arc(self, gcEdge, rgbFace, x, y, width, height, angle1, angle2):
-        """
+        """        
         Draw an arc centered at x,y with width and height and angles
         from 0.0 to 360.0
 

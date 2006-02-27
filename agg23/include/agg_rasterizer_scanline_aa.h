@@ -28,7 +28,6 @@
 //----------------------------------------------------------------------------
 #ifndef AGG_RASTERIZER_SCANLINE_AA_INCLUDED
 #define AGG_RASTERIZER_SCANLINE_AA_INCLUDED
-
 #include <string.h>
 #include <math.h>
 #include "agg_basics.h"
@@ -460,12 +459,12 @@ namespace agg
         {
             double x;
             double y;
-
             unsigned cmd;
             vs.rewind(path_id);
+	    //boyle freeze appears to be in !is_stop(cmd = vs.vertex(&x, &y))
             while(!is_stop(cmd = vs.vertex(&x, &y)))
             {
-                add_vertex(x, y, cmd);
+	      add_vertex(x, y, cmd);
             }
         }
 
