@@ -1,3 +1,6 @@
+2006-02-27 Fixed two dependency checking bugs related to usetex
+           on Windows - DSD
+
 2006-02-27 Made the rc deprecation warnings a little more human
            readable.
 
