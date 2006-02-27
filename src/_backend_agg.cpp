@@ -1328,7 +1328,7 @@ RendererAgg::draw_lines(const Py::Tuple& args) {
       path.line_to(thisx, thisy);
 
     moveto = false;
-
+    //std::cout << "draw lines " << thisx << " " << thisy << std::endl;
   }
 
   Py_XDECREF(xa);
@@ -1336,6 +1336,7 @@ RendererAgg::draw_lines(const Py::Tuple& args) {
 
   //typedef agg::conv_transform<agg::path_storage, agg::trans_affine> path_t;
   //path_t transpath(path, xytrans);
+  _VERBOSE("RendererAgg::draw_lines rendering lines path");
   _render_lines_path(path, gc);
 
   _VERBOSE("RendererAgg::draw_lines DONE");
@@ -1346,7 +1347,7 @@ RendererAgg::draw_lines(const Py::Tuple& args) {
 template<class PathSource>
 void
 RendererAgg::_render_lines_path(PathSource &path, const GCAgg& gc) {
-
+  _VERBOSE("RendererAgg::_render_lines_path");
   typedef PathSource path_t;
   //typedef agg::conv_transform<agg::path_storage, agg::trans_affine> path_t;
   typedef agg::conv_stroke<path_t> stroke_t;
@@ -1354,7 +1355,7 @@ RendererAgg::_render_lines_path(PathSource &path, const GCAgg& gc) {
 
   //path_t transpath(path, xytrans);
 
-  if (gc.dasha==NULL ) { //no dashes
+  if (gc.dasha==NULL ) { //no dashes    
     stroke_t stroke(path);
     stroke.width(gc.linewidth);
     stroke.line_cap(gc.cap);
@@ -1374,8 +1375,7 @@ RendererAgg::_render_lines_path(PathSource &path, const GCAgg& gc) {
     stroke.line_cap(gc.cap);
     stroke.line_join(gc.join);
     stroke.width(gc.linewidth);
-    theRasterizer->add_path(stroke);
-
+    theRasterizer->add_path(stroke); //boyle freeze is herre
   }
 
   if ( gc.isaa ) {
@@ -1386,7 +1386,6 @@ RendererAgg::_render_lines_path(PathSource &path, const GCAgg& gc) {
     rendererBin->color(gc.color);
     agg::render_scanlines(*theRasterizer, *slineBin, *rendererBin);
   }
-
 }
 
 /*

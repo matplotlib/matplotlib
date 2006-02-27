@@ -1,3 +1,6 @@
+2006-02-27 Made the rc deprecation warnings a little more human
+           readable.
+
 2006-02-26 Update the previous gtk.main_quit() bug fix to use gtk.main_level()
            - SC
 
