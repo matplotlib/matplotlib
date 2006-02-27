@@ -147,7 +147,7 @@ __version__  = '0.87.1cvs'
 __revision__ = '$Revision$'
 __date__     = '$Date$'
 
-import sys, os, warnings, shutil, md5
+import md5, os, re, shutil, sys, warnings
 import distutils.sysconfig
 
 # Needed for toolkit setuptools support
@@ -407,14 +407,12 @@ def checkdep_ps2eps():
 
 def checkdep_tex():
     try:
-        stdin, stdout = os.popen4('tex -v')
+        stdin, stdout = os.popen4('tex -version')
         line = stdout.readlines()[0]
-        v = 0.0 # no version installed until we find one...
-        for potential_version_numstr in line.split():
-            if potential_version_numstr.startswith('3.1'):
-                v = potential_version_numstr
-                float(v)
-                break # found version number
+        pattern = '3\.1\d+'
+        match = re.search(pattern, line)
+        v = match.group(0)
+        float(v)
         return v
     except (IndexError, ValueError):
         return None
@@ -422,8 +420,9 @@ def checkdep_tex():
 def checkdep_xpdf():
     try:
         stdin, stdout = os.popen4('xpdf -v')
-        line = stdout.readlines()[0]
-        v = line.split()[-1]
+        for line in stdout.readlines():
+            if 'version' in line:
+                v = line.split()[-1]
         float(v)
         return v
     except (IndexError, ValueError):
