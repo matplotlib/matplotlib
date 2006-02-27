@@ -92,7 +92,9 @@ class MatplotlibController(NibClassBuilder.AutoBaseClass):
         return objc.YES
 
     def saveFigure_(self, sender):
-        print >>sys.stderr, 'Not Implented Yet'
+        p = NSSavePanel.savePanel()
+        if(p.runModal() == NSFileHandlingPanelOKButton):
+            self.canvas.print_figure(p.filename())
 
     def printFigure_(self, sender):
         op = NSPrintOperation.printOperationWithView_(self.plotView)
