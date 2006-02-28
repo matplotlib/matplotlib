@@ -161,7 +161,8 @@ if havedate: # dates require python23 datetime
         packages.append('pytz')
         # install pytz subdirs
         for dirpath, dirname, filenames in os.walk(os.path.join('lib', 'pytz','zoneinfo')):
-            packages.append('/'.join(dirpath.split(os.sep)[1:]))
+            if '.svn' not in dirpath:
+                packages.append('/'.join(dirpath.split(os.sep)[1:]))
 
     def add_dateutil():
         packages.append('dateutil')
