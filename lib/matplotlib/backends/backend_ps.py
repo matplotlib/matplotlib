@@ -27,14 +27,14 @@ from matplotlib.texmanager import TexManager
 
 from matplotlib.transforms import get_vec6_scales
 
-from matplotlib.numerix import fromstring, UInt8, Float32, equal, alltrue, \
-     nonzero, take, where, ones, put
+from matplotlib.numerix import UInt8, Float32, alltrue, ceil, equal, \
+    fromstring, nonzero, ones, put, take, where
 import binascii
 import re
 
 backend_version = 'Level II'
 
-debugPS = 1
+debugPS = 0
 
 papersize = {'executive': (7.5,11),
              'letter': (8.5,11),
@@ -1020,12 +1020,12 @@ class FigureCanvasPS(FigureCanvasBase):
         urx = llx + w
         ury = lly + h
         
+        rotation = 0
         if isLandscape:
             xo, yo = 72*paperHeight - yo, xo
             llx, lly, urx, ury = lly, llx, ury, urx
             rotation = 90
-        else:
-            rotation = 0
+        bbox = (llx, lly, urx, ury)
 
         # generate PostScript code for the figure and store it in a string
         origfacecolor = self.figure.get_facecolor()
@@ -1052,7 +1052,7 @@ class FigureCanvasPS(FigureCanvasBase):
         print >>fh, "%%Orientation: " + orientation
         if not isEPSF:
             print >>fh, "%%DocumentPaperSizes: "+papertype
-        if isEPSF: print >>fh, "%%%%BoundingBox: %d %d %d %d" % (llx, lly, urx, ury)
+        if isEPSF: print >>fh, "%%%%BoundingBox: %d %d %d %d" % bbox
         if not isEPSF: print >>fh, "%%Pages: 1"
         print >>fh, "%%EndComments"
         
@@ -1101,15 +1101,15 @@ class FigureCanvasPS(FigureCanvasBase):
             
         if rcParams['text.usetex']:
             convert_psfrags(tmpfile, renderer.psfrag,
-                renderer.texmanager.get_font_preamble(), paperWidth, paperHeight)
-            if ext == '.eps': pstoeps(tmpfile)
+                renderer.texmanager.get_font_preamble(), paperWidth, 
+                paperHeight, isLandscape)
         
-        if rcParams['ps.usedistiller'] == 'ghostscript': 
-            gs_distill(tmpfile, ext=='.eps', ptype=papertype)
-        elif rcParams['ps.usedistiller'] == 'xpdf': 
-            xpdf_distill(tmpfile, ext=='.eps', ptype=papertype)
-        elif rcParams['text.usetex']: 
-            gs_distill(tmpfile, ext=='.eps', ptype=papertype)
+        if rcParams['ps.usedistiller'] == 'ghostscript':
+            gs_distill(tmpfile, ext=='.eps', ptype=papertype, bbox=bbox)
+        elif rcParams['ps.usedistiller'] == 'xpdf':
+            xpdf_distill(tmpfile, ext=='.eps', ptype=papertype, bbox=bbox)
+        elif rcParams['text.usetex']:
+            gs_distill(tmpfile, ext=='.eps', ptype=papertype, bbox=bbox)
         
         if  isinstance(outfile, file):
             fh = file(tmpfile)
@@ -1117,7 +1117,7 @@ class FigureCanvasPS(FigureCanvasBase):
         else: shutil.move(tmpfile, outfile)
 
 
-def convert_psfrags(tmpfile, psfrags, font_preamble, pw, ph):
+def convert_psfrags(tmpfile, psfrags, font_preamble, pw, ph, isLandscape):
     """
     When we want to use the LaTeX backend with postscript, we write PSFrag tags 
     to a temporary postscript file, each one marking a position for LaTeX to 
@@ -1131,7 +1131,8 @@ def convert_psfrags(tmpfile, psfrags, font_preamble, pw, ph):
     latexh = file(latexfile, 'w')
     dvifile = tmpfile+'.dvi'
     psfile = tmpfile+'.ps'
-    
+    if isLandscape: angle = 90
+    else: angle=0
     print >>latexh, r"""\documentclass{scrartcl}
 %s
 \usepackage{psfrag}
@@ -1153,10 +1154,11 @@ def convert_psfrags(tmpfile, psfrags, font_preamble, pw, ph):
 \begin{figure}
 \centering
 %s
-\includegraphics{%s}
+\includegraphics[angle=%s]{%s}
 \end{figure}
 \end{document}
-"""% (font_preamble, pw, ph, pw-2, ph-2, pw, ph, '\n'.join(psfrags), os.path.split(epsfile)[-1])
+"""% (font_preamble, pw, ph, pw-2, ph-2, pw, ph, '\n'.join(psfrags), 
+        angle, os.path.split(epsfile)[-1])
     latexh.close()
     
     curdir = os.getcwd()
@@ -1178,18 +1180,14 @@ def convert_psfrags(tmpfile, psfrags, font_preamble, pw, ph):
     os.chdir(curdir)
 
 
-def gs_distill(tmpfile, eps=False, ptype='letter'):
+def gs_distill(tmpfile, eps=False, ptype='letter', bbox=None):
     """
     Use ghostscript's pswrite or epswrite device to distill a file.
     This yields smaller files without illegal encapsulated postscript
     operators. The output is low-level, converting text to outlines.
     """
-    if eps: 
-        device = 'epswrite -sPAPERSIZE=%s'% ptype
-        outputfile = tmpfile + '.eps'
-    else: 
-        device = 'pswrite -sPAPERSIZE=%s'% ptype
-        outputfile = tmpfile + '.ps'
+    device = 'pswrite -q -sPAPERSIZE=%s'% ptype
+    outputfile = tmpfile + '.ps'
     dpi = rcParams['ps.distiller.res']
     if sys.platform == 'win32': gs_exe = 'gswin32c'
     else: gs_exe = 'gs'
@@ -1201,9 +1199,11 @@ def gs_distill(tmpfile, eps=False, ptype='letter'):
     verbose.report(stderr.read(), 'helpful')
     os.remove(tmpfile)
     shutil.move(outputfile, tmpfile)
+    if eps:
+        pstoeps(tmpfile, bbox)
 
 
-def xpdf_distill(tmpfile, eps=False, ptype='letter'):
+def xpdf_distill(tmpfile, eps=False, ptype='letter', bbox=None):
     """
     Use ghostscript's ps2pdf and xpdf's/poppler's pdftops to distill a file.
     This yields smaller files without illegal encapsulated postscript
@@ -1212,47 +1212,97 @@ def xpdf_distill(tmpfile, eps=False, ptype='letter'):
     """
     pdffile = tmpfile + '.pdf'
     psfile = tmpfile + '.ps'
-    shutil.move(tmpfile, psfile)
-    command = 'ps2pdf -sPAPERSIZE=%s "%s" "%s"'% (ptype, psfile, pdffile)
+    command = 'ps2pdf -sPAPERSIZE=%s "%s" "%s"'% (ptype, tmpfile, pdffile)
     stdin, stderr = os.popen4(command)
     verbose.report(stderr.read(), 'helpful')
-    command = 'pdftops -paper=%s -level2 "%s" "%s"'% (ptype, pdffile, psfile)
+    command = 'pdftops -paper match -level2 "%s" "%s"'% (pdffile, psfile)
     stdin, stderr = os.popen4(command)
     verbose.report(stderr.read(), 'helpful')
+    os.remove(tmpfile)
     shutil.move(psfile, tmpfile)
-    if eps: pstoeps(tmpfile)
+    if eps: 
+        pstoeps(tmpfile, bbox)
     for fname in glob.glob(tmpfile+'.*'): 
         os.remove(fname)
 
 
-def pstoeps(tmpfile):
+def pstoeps(tmpfile, bbox):
     """
     Use ghostscript's bbox device to determine the bounding box, then convert
-    the postscript to encapsulated postscript.
+    the postscript to encapsulated postscript. This function is only needed for
+    the usetex option.
     """
     epsfile = tmpfile + '.eps'
     epsh = file(epsfile, 'w')
     command = 'gs -dBATCH -dNOPAUSE -sDEVICE=bbox "%s"' % tmpfile
     verbose.report(command, 'debug-annoying')
     stdin, stdout, stderr = os.popen3(command)
-    l, b, r, t = [float(i) for i in stderr.read().split()[-4:]]
-    bbox_info = '%%%%BoundingBox: %d %d %d %d\n\
-        %%%%HiResBoundingBox: %.6f %.6f %.6f %.6f\n' % \
-        (l-1, b-1, r+1, t+1, l-1, b-1, r+1, t+1)
-    
     verbose.report(stdout.read(), 'debug-annoying')
+    bbox_info = stderr.read()
     verbose.report(bbox_info, 'helpful')
+    l, b, r, t = [float(i) for i in bbox_info.split()[-4:]]
+    
+    # this is a hack to deal with the fact that ghostscript does not return the 
+    # intended bbox, but a tight bbox. For now, we just center the ink in the 
+    # intended bbox. This is not ideal, users may intend the ink to not be 
+    # centered.
+    if bbox is None:
+        l, b, r, t = (l-1, b-1, r+1, t+1)
+    else:
+        x = (l+r)/2
+        y = (b+t)/2
+        dx = (bbox[2]-bbox[0])/2
+        dy = (bbox[3]-bbox[1])/2
+        l, b, r, t = (x-dx, y-dy, x+dx, y+dy)
+    
+    bbox_info = '%%%%BoundingBox: %d %d %d %d' % (l, b, ceil(r), ceil(t))
+    hires_bbox_info = '%%%%HiResBoundingBox: %.6f %.6f %.6f %.6f' % (l, b, r, t)
 
     tmph = file(tmpfile)
     line = tmph.readline()
-    print >>epsh, "%!PS-Adobe-3.0 EPSF-3.0"
-    epsh.write(bbox_info)
+    # Modify the header:
     while line:
+        if line.startswith('%!PS'):
+            print >>epsh, "%!PS-Adobe-3.0 EPSF-3.0"
+            print >>epsh, bbox_info
+            print >>epsh, hires_bbox_info
+        elif line.startswith('%%EndComments'):
+            epsh.write(line)
+            print >>epsh, '%%BeginProlog'
+            print >>epsh, 'save'
+            print >>epsh, 'countdictstack'
+            print >>epsh, 'mark'
+            print >>epsh, 'newpath'
+            print >>epsh, '/showpage {} def'
+            print >>epsh, '/setpagedevice {pop} def'
+            print >>epsh, '%%EndProlog'
+            print >>epsh, '%%Page 1 1'
+            break
+        elif line.startswith('%%Bound') \
+            or line.startswith('%%HiResBound') \
+            or line.startswith('%%Pages'):
+            pass
+        else:
+            epsh.write(line)
         line = tmph.readline()
-        if line.startswith('%%Bound') or line.startswith('%%HiResBound'): pass
-        else: epsh.write(line)
-        if not line.startswith('%%'): break
-    print >>epsh, tmph.read()
+    # Now rewrite the rest of the file, and modify the trailer.
+    # This is done in a second loop such that the header of the embedded
+    # eps file is not modified.
+    line = tmph.readline()
+    while line:
+        if line.startswith('%%Trailer'):
+            print >>epsh, '%%Trailer'
+            print >>epsh, 'cleartomark'
+            print >>epsh, 'countdictstack'
+            print >>epsh, 'exch sub { end } repeat'
+            print >>epsh, 'restore'
+            if rcParams['ps.usedistiller'] == 'xpdf':
+                # remove extraneous "end" operator:
+                line = tmph.readline()
+        else:
+            epsh.write(line)
+        line = tmph.readline()
+    
     tmph.close()
     epsh.close()
     os.remove(tmpfile)
