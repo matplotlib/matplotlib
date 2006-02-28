@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE Project SYSTEM "Project-3.8.dtd">
+<!-- Project file for project matplotlib -->
+<!-- Saved: 2006-02-28, 11:42:21 -->
+<!-- Copyright (C) 2006 ,  -->
+<Project version="3.8">
+  <ProgLanguage mixed="1">Python</ProgLanguage>
+  <UIType>Qt</UIType>
+  <Description></Description>
+  <Version>0.87</Version>
+  <Author></Author>
+  <Email></Email>
+  <Sources>
+  </Sources>
+  <Forms>
+  </Forms>
+  <Translations>
+  </Translations>
+  <Interfaces>
+  </Interfaces>
+  <Others>
+  </Others>
+  <Vcs>
+    <VcsType>Subversion</VcsType>
+    <VcsOptions>{'status': [], 'log': [], 'global': [u'--username=dsdale'], 'update': [], 'remove': [], 'add': [], 'tag': [], 'export': [], 'diff': [], 'commit': [], 'checkout': [], 'history': []}</VcsOptions>
+    <VcsOtherData>{'standardLayout': True}</VcsOtherData>
+  </Vcs>
+  <FiletypeAssociations>
+    <FiletypeAssociation pattern="*.rb" type="SOURCES" />
+    <FiletypeAssociation pattern="*.ui" type="FORMS" />
+    <FiletypeAssociation pattern="*.idl" type="INTERFACES" />
+    <FiletypeAssociation pattern="*.ptl" type="SOURCES" />
+    <FiletypeAssociation pattern="*.ui.h" type="FORMS" />
+    <FiletypeAssociation pattern="*.py" type="SOURCES" />
+  </FiletypeAssociations>
+</Project>
