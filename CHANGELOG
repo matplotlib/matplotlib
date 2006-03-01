@@ -1,3 +1,5 @@
+2006-03-01 Added reversed colormaps (with '_r' appended to name) - JSWHIT
+
 2006-02-27 Improved eps bounding boxes with usetex - DSD
 
 2006-02-27 Test svn commit, again!
