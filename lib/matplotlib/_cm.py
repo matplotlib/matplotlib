@@ -549,3 +549,23 @@ datad['YlGnBu']=_YlGnBu_data
 datad['YlOrBr']=_YlOrBr_data
 datad['YlOrRd']=_YlOrRd_data
 
+# reverse all the colormaps.
+# reversed colormaps have '_r' appended to the name.
+
+def revcmap(data):
+    data_r = {}
+    for key,val in data.iteritems():
+        val = list(val)
+        valrev = val[::-1]
+        valnew = []
+        for a,b,c in valrev:
+            valnew.append((1.-a,b,c))
+        data_r[key]=valnew
+    return data_r
+
+cmapnames = datad.keys()
+for cmapname in cmapnames:
+    cmapname_r = cmapname+'_r'
+    cmapdat_r = revcmap(datad[cmapname])
+    datad[cmapname_r] = cmapdat_r
+    locals()[cmapname_r] = colors.LinearSegmentedColormap(cmapname_r, cmapdat_r, LUTSIZE)
