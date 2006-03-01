@@ -3957,19 +3957,21 @@ class Axes(Artist):
         elif self._aspect == 'equal' or self._aspect == 'scaled':
             figW,figH = self.get_figure().get_size_inches()
             xmin,xmax = self.get_xlim()
+            xsize = math.fabs(xmax-xmin)
             ymin,ymax = self.get_ylim()
+            ysize = math.fabs(ymax-ymin)
             if fixLimits:  # Change size of axes
                 l,b,w,h = self._originalPosition  # Always start from original position
                 axW = w * figW; axH = h * figH
-                if (xmax-xmin) / axW > (ymax-ymin) / axH:  # y axis too long
-                    axH = axW * (ymax-ymin) / (xmax-xmin)
+                if xsize / axW > ysize / axH:  # y axis too long
+                    axH = axW * ysize / xsize
                     if self._aspect == 'equal':
                         axc = b + 0.5 * h
                         h = axH / figH; b = axc - 0.5 * h
                     elif self._aspect == 'scaled':
                         h = axH / figH
                 else:  # x axis too long
-                    axW = axH * (xmax-xmin) / (ymax-ymin)
+                    axW = axH * xsize / ysize
                     if self._aspect == 'equal':
                         axc = l + 0.5 * w
                         w = axW / figW; l = axc - 0.5 * w
@@ -3979,13 +3981,13 @@ class Axes(Artist):
             else:  # Change limits on axes
                 l,b,w,h = self.get_position()  # Keep size of subplot
                 axW = w * figW; axH = h * figH
-                if (xmax-xmin) / axW > (ymax-ymin) / axH:  # y limits too narrow
-                    dely = axH * (xmax-xmin) / axW
+                if xsize / axW > ysize / axH:  # y limits too narrow
+                    dely = axH * xsize / axW
                     yc = 0.5 * ( ymin + ymax )
                     ymin = yc - 0.5*dely; ymax = yc + 0.5*dely
                     self.set_ylim( ymin, ymax )
                 else:
-                    delx = axW * (ymax-ymin) / axH
+                    delx = axW * ysize / axH
                     xc = 0.5 * ( xmin + xmax )
                     xmin = xc - 0.5*delx; xmax = xc + 0.5*delx
                     self.set_xlim( xmin, xmax )
