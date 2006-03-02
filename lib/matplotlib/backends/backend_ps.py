@@ -1133,23 +1133,13 @@ def convert_psfrags(tmpfile, psfrags, font_preamble, pw, ph, isLandscape):
     psfile = tmpfile+'.ps'
     if isLandscape: angle = 90
     else: angle=0
-    print >>latexh, r"""\documentclass{scrartcl}
+    print >>latexh, r"""\documentclass{article}
 %s
+\usepackage[paperwidth=%fin,paperheight=%fin]{geometry}
 \usepackage{psfrag}
 \usepackage[dvips]{graphicx}
 \usepackage{color}
 \pagestyle{empty}
-\setlength{\oddsidemargin}{0in}
-\setlength{\evensidemargin}{0in}
-\setlength{\topmargin}{0in}
-\setlength{\headheight}{0in}
-\setlength{\headsep}{0in}
-\setlength{\parindent}{0in}
-\setlength{\paperwidth}{%fin}
-\setlength{\paperheight}{%fin}
-\setlength{\textwidth}{%fin}
-\setlength{\textheight}{%fin}
-\special{papersize=%fin,%fin}
 \begin{document}
 \begin{figure}
 \centering
@@ -1157,8 +1147,8 @@ def convert_psfrags(tmpfile, psfrags, font_preamble, pw, ph, isLandscape):
 \includegraphics[angle=%s]{%s}
 \end{figure}
 \end{document}
-"""% (font_preamble, pw, ph, pw-2, ph-2, pw, ph, '\n'.join(psfrags), 
-        angle, os.path.split(epsfile)[-1])
+"""% (font_preamble, pw, ph, '\n'.join(psfrags), angle, 
+        os.path.split(epsfile)[-1])
     latexh.close()
     
     curdir = os.getcwd()
