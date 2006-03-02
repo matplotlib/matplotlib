@@ -1,3 +1,9 @@
+2006-03-02 improve page sizing with usetex with the latex 
+           geometry package. Closes bug # 1441629 - DSD 
+
+2006-03-02 Fixed dpi problem with usetex png output. Accepted a
+           modified version of patch # 1441809 - DSD
+
 2006-03-01 Fixed axis('scaled') to deal with case xmax < xmin - JSWHIT
 
 2006-03-01 Added reversed colormaps (with '_r' appended to name) - JSWHIT

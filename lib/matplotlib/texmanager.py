@@ -143,8 +143,9 @@ WARNING: found a TeX cache dir in the deprecated location "%s".
                              cmd,
                              r'\usepackage{textcomp}'])
         
-    def get_prefix(self, tex, fontsize):
-        s = tex + self._fontconfig + '%f'% fontsize
+    def get_prefix(self, tex, fontsize, dpi=None):
+        s = tex + self._fontconfig + ('%f'%fontsize)
+        if dpi: s += ('%s'%dpi)
         return md5.md5(s).hexdigest()
         
     def get_font_config(self):
@@ -162,8 +163,7 @@ WARNING: found a TeX cache dir in the deprecated location "%s".
         tex = fontcmd % tex
         s = r"""\documentclass[10pt]{article}
 %s
-\setlength{\paperwidth}{72in}
-\setlength{\paperheight}{72in}
+\usepackage[paperwidth=72in,paperheight=72in]{geometry}
 \pagestyle{empty}
 \begin{document}
 \fontsize{%f}{%f}%s
@@ -199,17 +199,17 @@ WARNING: found a TeX cache dir in the deprecated location "%s".
                 os.remove(fname)
         return dvifile
         
-    def make_png(self, tex, fontsize, force=0):
+    def make_png(self, tex, fontsize, dpi, force=0):
         if debug: force = True
         
         dvifile = self.make_dvi(tex, fontsize)
-        prefix = self.get_prefix(tex, fontsize)
+        prefix = self.get_prefix(tex, fontsize, dpi)
         pngfile = os.path.join(self.texcache, '%s.png'% prefix)
 
         self.get_dvipng_version()  # raises if dvipng is not up-to-date
         #print 'makepng', prefix, dvifile, pngfile
         #command = 'dvipng -bg Transparent -fg "rgb 0.0 0.0 0.0" -D %d -T tight -o "%s" "%s"'% (dpi, pngfile, dvifile)
-        command = 'dvipng -bg Transparent -D 80 -T tight -o "%s" "%s"'% (pngfile, dvifile)        
+        command = 'dvipng -bg Transparent -D "%s" -T tight -o "%s" "%s"'% (dpi, pngfile, dvifile)
 
         #assume white bg
         #command = "dvipng -bg 'rgb 1.0 1.0 1.0' -fg 'rgb 0.0 0.0 0.0' -D %d -T tight -o %s %s"% (dpi, pngfile, dvifile)
@@ -335,7 +335,7 @@ WARNING: found a TeX cache dir in the deprecated location "%s".
         self.pscnt += 1
         return val
         
-    def get_rgba(self, tex, fontsize=None, rgb=(0,0,0)):
+    def get_rgba(self, tex, fontsize=None, dpi=None, rgb=(0,0,0)):
         """
         Return tex string as an rgba array
         """
@@ -361,13 +361,14 @@ WARNING: found a TeX cache dir in the deprecated location "%s".
         # Since the foreground is black (0) and the background is
         # white (1) this reduces to red = 1-alpha or alpha = 1-red
         if not fontsize: fontsize = rcParams['font.size']
+        if not dpi: dpi = rcParams['savefig.dpi']
         r,g,b = rgb
-        key = tex, fontsize, tuple(rgb)
+        key = tex, fontsize, dpi, tuple(rgb)
         Z = self.arrayd.get(key)
         
         if Z is None:
             # force=True to skip cacheing while debugging
-            pngfile = self.make_png(tex, fontsize, force=False)
+            pngfile = self.make_png(tex, fontsize, dpi, force=False)
             X = readpng(pngfile)
             vers = self.get_dvipng_version()
             #print 'dvipng version', vers
