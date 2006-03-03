@@ -675,7 +675,7 @@ class Axes(Artist):
         self._gridOn = rcParams['axes.grid']
         self.lines = []
         self.patches = []
-        self.texts = []     
+        self.texts = []
         self.tables = []
         self.artists = []
         self.images = []
@@ -2312,9 +2312,7 @@ class Axes(Artist):
         if cmap is not None: assert(isinstance(cmap, Colormap))
         collection.set_cmap(cmap)
         collection.set_norm(norm)
-
-        if norm is not None:
-            collection.set_clim(vmin, vmax)
+        collection.set_clim(vmin, vmax)
 
         self.grid(False)
 
