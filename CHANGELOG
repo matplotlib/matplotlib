@@ -1,5 +1,7 @@
-2006-03-02 improve page sizing with usetex with the latex 
-           geometry package. Closes bug # 1441629 - DSD 
+2006-03-03 Fixed pcolor handling of vmin, vmax - EF
+
+2006-03-02 improve page sizing with usetex with the latex
+           geometry package. Closes bug # 1441629 - DSD
 
 2006-03-02 Fixed dpi problem with usetex png output. Accepted a
            modified version of patch # 1441809 - DSD
