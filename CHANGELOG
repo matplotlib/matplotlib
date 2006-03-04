@@ -1,3 +1,8 @@
+2006-03-04 backend_cairo.py:
+           fix get_rgb() bug reported by Keith Briggs.
+           Require pycairo 1.0.2.
+           Support saving png to file-like objects. - SC
+
 2006-03-03 Fixed pcolor handling of vmin, vmax - EF
 
 2006-03-02 improve page sizing with usetex with the latex
