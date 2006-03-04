@@ -25,7 +25,7 @@ import warnings
 def _fn_name(): return sys._getframe(1).f_code.co_name
 
 import cairo
-_version_required = (0,9,0)
+_version_required = (1,0,2)
 if cairo.version_info < _version_required:
    raise SystemExit ("Pycairo %d.%d.%d is installed\n"
                      "Pycairo %d.%d.%d or later is required"
@@ -254,7 +254,7 @@ class RendererCairo(RendererBase):
         ctx = gc.ctx
         ctx.new_path()
         ctx.arc (x, self.height - y, 0.5, 0, 2*numx.pi)
-        self._fill_and_stroke (ctx, _.get_rgb())
+        self._fill_and_stroke (ctx, gc.get_rgb())
 
 
     def draw_polygon(self, gc, rgbFace, points):
@@ -525,10 +525,9 @@ class FigureCanvasCairo (FigureCanvasBase):
         self.figure.set_facecolor(facecolor)
         self.figure.set_edgecolor(edgecolor)
 
-        # if isinstance(filename, file):   # eg when do savefig(sys.stdout)
-        #    _save_png (self.figure, filename) # assume PNG format
-        # else:
-        if True:
+        if isinstance (filename, file):  # eg when do savefig(sys.stdout)
+           self._save_png (filename)     # assume PNG format
+        else:
             root, ext = os.path.splitext(filename)
             ext = ext[1:]
             if ext == '':
@@ -543,11 +542,13 @@ class FigureCanvasCairo (FigureCanvasBase):
                 #    warnings.warn("%s: %s" % (exc.filename, exc.strerror))
                 # else:
 
-                # if ext == 'png': _save_png (fileObject)
-                if ext == 'png': self._save_png (filename)
-                # else:            _save_ps_pdf (self.figure, fileObject, ext,
-                #                               orientation)
-                else:    self._save_ps_pdf (self.figure, filename, ext, orientation)
+                if ext == 'png':
+                   self._save_png (filename)
+                   # _save_png (fileObject)
+                else:
+                   self._save_ps_pdf (self.figure, filename, ext, orientation)
+                   # self._save_ps_pdf (self.figure, fileObject, ext,
+                   #                    orientation)
                 # fileObject.close()
 
             elif ext in ('eps', 'svg'): # backend_svg/ps
@@ -556,16 +557,15 @@ class FigureCanvasCairo (FigureCanvasBase):
                 else:
                     from backend_ps import FigureCanvasPS  as FigureCanvas
                 fc = FigureCanvas(self.figure)
-                fc.print_figure(filename, dpi, facecolor, edgecolor,
-                                orientation)
-
+                fc.print_figure (filename, dpi, facecolor, edgecolor,
+                                 orientation)
             else:
                 warnings.warn('Format "%s" is not supported.\n'
                               'Supported formats: '
                               '%s.' % (ext, ', '.join(IMAGE_FORMAT)))
 
 
-    def _save_png (self, filename):
+    def _save_png (self, fobj):
         width, height = self.get_width_height()
 
         renderer = RendererCairo (self.figure.dpi)
@@ -574,13 +574,10 @@ class FigureCanvasCairo (FigureCanvasBase):
         renderer.set_ctx_from_surface (surface)
 
         self.figure.draw (renderer)
-        surface.write_to_png (filename)
+        surface.write_to_png (fobj)
 
 
     def _save_ps_pdf (self, figure, filename, ext, orientation):
-        # Cairo produces PostScript Level 3
-        # 'ggv' can't read cairo ps files, but 'gv' can
-
         dpi = 72
         figure.dpi.set (dpi)
         w_in, h_in = figure.get_size_inches()
