@@ -58,13 +58,10 @@ papersize = {'executive': (7.5,11),
              'b4': (10.11,14.33),
              'b5': (7.16,10.11),
              'b6': (5.04,7.16),
-             'c0': (36.10,51.06),
-             'c1': (25.51,36.10),
-             'c2': (18.03,25.51),
-             'c3': (12.75,18.03),
-             'c4': (9.01,12.75),
-             'c5': (6.38,9.01),
-             'c6': (4.49,6.38)}
+             'b7': (3.58,5.04),
+             'b8': (2.51,3.58),
+             'b9': (1.76,2.51),
+             'b10': (1.26,1.76)}
 
 def _get_papersize(w,h,isLandscape=False):
     keys = papersize.keys()
@@ -1052,7 +1049,7 @@ class FigureCanvasPS(FigureCanvasBase):
         print >>fh, "%%Orientation: " + orientation
         if not isEPSF:
             print >>fh, "%%DocumentPaperSizes: "+papertype
-        if isEPSF: print >>fh, "%%%%BoundingBox: %d %d %d %d" % bbox
+        print >>fh, "%%%%BoundingBox: %d %d %d %d" % bbox
         if not isEPSF: print >>fh, "%%Pages: 1"
         print >>fh, "%%EndComments"
         
