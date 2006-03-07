@@ -862,7 +862,10 @@ def figure(num=None, # autoincrement if None, else integer from 1-N
 
       figure(1)
 
-
+    If you are creating many figures, make sure you explicitly call "close"
+    on the figures you are not using, because this will enable pylab
+    to properly clean up the memory.
+    
     kwargs:
 
       figsize - width x height in inches; defaults to rc figure.figsize
