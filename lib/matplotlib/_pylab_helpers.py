@@ -4,7 +4,6 @@ def error_msg(msg):
     print >>sys.stderr, msgs
 
 class Gcf(object):
-    __shared_state = {}
     _activeQue = []
     figs = {}
 
