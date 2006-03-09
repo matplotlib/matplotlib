@@ -4,16 +4,15 @@ import matplotlib
 __all__ = ['backend','show','draw_if_interactive',
            'new_figure_manager', 'backend_version']
 
-interactive_bk     = ['GTK','GTKAgg','GTKCairo','FltkAgg','QtAgg','TkAgg',
-                      'WX','WXAgg','CocoaAgg']
-non_interactive_bk = ['Agg2', 'Agg','Cairo','GD','GDK','Paint','PS', 'LaTeX', 'SVG','EMF','Template']
-all_backends       = interactive_bk + non_interactive_bk
-
+interactive_bk = ['GTK', 'GTKAgg', 'GTKCairo', 'FltkAgg', 'QtAgg', 'TkAgg', 
+                  'WX', 'WXAgg', 'CocoaAgg']
+non_interactive_bk = ['Agg2', 'Agg', 'Cairo', 'GD', 'GDK', 'Paint', 'PS', 'SVG',
+                      'EMF', 'Template']
+all_backends = interactive_bk + non_interactive_bk
 
 backend = matplotlib.get_backend()
 if backend not in all_backends:
     raise ValueError, 'Unrecognized backend %s' % backend
-
 
 def pylab_setup():
     'return new_figure_manager, draw_if_interactive and show for pylab'
@@ -34,7 +33,7 @@ def pylab_setup():
 
     # Now define the public API according to the kind of backend in use
     if backend in interactive_bk:
-        show       = backend_mod.show
+        show = backend_mod.show
         draw_if_interactive = backend_mod.draw_if_interactive
     else:  # non-interactive backends
         def draw_if_interactive():  pass

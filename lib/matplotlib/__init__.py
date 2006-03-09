@@ -464,8 +464,19 @@ def validate_int(s):
     except ValueError:
         raise ValueError('Could not convert "%s" to int' % s)
 
+def validate_backend(s, fail_on_err = True):
+    s=s.lower()
+    backends = ['Agg2', 'Agg', 'Cairo', 'CocoaAgg', 'EMF', 'GD', 'GDK', 'GTK',
+                'GTKAgg', 'GTKCairo', 'FltkAgg', 'Paint', 'PS', 'QtAgg', 'SVG',
+                'Template', 'TkAgg', 'WX', 'WXAgg', ]
+    for i in backends:
+        if s == i.lower(): return i
+    if fail_on_err: raise ValueError('Backend must be %s, or %s'% \
+                        (', '.join(backends[:-1], backends[-1])),)
+    else: return None
+
 def validate_numerix(s):
-    'return "Numeric" or "Numarray" or raise'
+    'return "Numeric" or "numarray" or "numpy" or raise'
     sl = s.lower()
     if sl=='numeric': return 'Numeric'
     elif sl=='numarray': return 'numarray'
@@ -702,7 +713,7 @@ class ValidateInterval:
 
 # a map from key -> value, converter
 defaultParams = {
-    'backend'           : ['GTK', str],
+    'backend'           : ['GTK', validate_backend],
     'numerix'           : ['Numeric', validate_numerix],
     'toolbar'           : ['toolbar2', validate_toolbar],
     'datapath'          : [get_data_path(), validate_path_exists],
@@ -1060,7 +1071,6 @@ def rc(group, **kwargs):
 
             rcParams[key] = v
 
-
 def rcdefaults():
     """
     Restore the default rc params - the ones that were created at
@@ -1068,47 +1078,24 @@ def rcdefaults():
     """
     rcParams.update(rcParamsDefault)
 
-
-
-
-
-
-
-
-
 # Now allow command line to override
 
 # Allow command line access to the backend with -d (matlab compatible
 # flag)
 
-_knownBackends = {
-    'Agg2':1, 'Agg':1, 'Cairo':1, 'CocoaAgg':1, 'FltkAgg':1, 'GD':1, 'GDK':1,
-    'GTK':1, 'GTKAgg':1, 'GTKCairo':1, 'Paint':1, 'PS':1, 'LaTeX':1, 'QtAgg':1,
-    'SVG':1, 'EMF':1, 'Template':1, 'TkAgg':1, 'WX':1, 'WXAgg':1, 'WXGLAgg':1,}
-
-
-known = _knownBackends.keys()
 for s in sys.argv[1:]:
     if s.startswith('-d'):  # look for a -d flag
-        name = s[2:].strip()
+        name = validate_backend(s[2:].strip(), fail_on_err = False)
         # we don't want to assume all -d flags are backends, eg -debug
-        if name in  known:
+        if name:
             rcParams['backend'] = name
             break
-
-
 
 def use(arg):
     """
     Set the matplotlib backend to one of the _knownBackends
     """
-
-    if not _knownBackends.has_key(arg):
-        raise ValueError('unrecognized backend %s.\n' % arg +\
-              'Use one of %s' % ', '.join( _knownBackends.keys() ))
-
-
-    rcParams['backend'] = arg
+    rcParams['backend'] = validate_backend(arg)
 
 def get_backend():
     return rcParams['backend']

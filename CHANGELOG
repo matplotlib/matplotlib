@@ -1,3 +1,5 @@
+2006-03-09 Make backend rc paramter case-insensitive - DSD
+
 2006-03-07 Fixed bug in backend_ps related to C0-C6 papersizes,
            which were causing problems with postscript viewers.
            Supported page sizes include letter, legal, ledger, 
