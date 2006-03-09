@@ -1221,7 +1221,9 @@ def pstoeps(tmpfile, bbox):
     """
     epsfile = tmpfile + '.eps'
     epsh = file(epsfile, 'w')
-    command = 'gs -dBATCH -dNOPAUSE -sDEVICE=bbox "%s"' % tmpfile
+    if sys.platform == 'win32': gs_exe = 'gswin32c'
+    else: gs_exe = 'gs'
+    command = '%s -dBATCH -dNOPAUSE -sDEVICE=bbox "%s"' % (gs_exe, tmpfile)
     verbose.report(command, 'debug-annoying')
     stdin, stdout, stderr = os.popen3(command)
     verbose.report(stdout.read(), 'debug-annoying')

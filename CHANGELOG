@@ -1,3 +1,6 @@
+2006-03-09 Apply P-J's patch to make pstoeps work on windows
+           patch report # 1445612 - DSD
+
 2006-03-09 Make backend rc paramter case-insensitive - DSD
 
 2006-03-07 Fixed bug in backend_ps related to C0-C6 papersizes,
