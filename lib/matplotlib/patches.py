@@ -124,7 +124,7 @@ class Patch(Artist):
         |   - vertical
         -   - horizontal
         #   - crossed
-        X   - crossed diagonal
+        x   - crossed diagonal
         letters can be combined, in which case all the specified
         hatchings are done
         if same letter repeats, it increases the density of hatching

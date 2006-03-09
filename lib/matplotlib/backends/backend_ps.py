@@ -242,7 +242,6 @@ class RendererPS(RendererBase):
         self._pswriter.write(do_hatch(45, hatches['diag1']))
         self._pswriter.write(do_hatch(-45, hatches['diag2']))
         self._pswriter.write("grestore\n")
- 
 
     def get_canvas_width_height(self):
         'return the canvas width and height in display coords'
