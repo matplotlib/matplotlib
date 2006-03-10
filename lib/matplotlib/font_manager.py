@@ -453,7 +453,8 @@ dictionary can optionally be created.
                 warnings.warn("Could not open font file %s"%fpath)
                 continue
             except UnicodeError:
-                warnings.warn("Cannot handle unicode filenames %s"%fpath)
+                warnings.warn("Cannot handle unicode filenames")
+                print >> sys.stderr, 'Bad file is', fpath
                 continue
             try: prop = ttfFontProperty(font)
             except: continue
