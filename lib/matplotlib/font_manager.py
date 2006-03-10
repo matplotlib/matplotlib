@@ -454,7 +454,7 @@ dictionary can optionally be created.
                 continue
             except UnicodeError:
                 warnings.warn("Cannot handle unicode filenames")
-                print >> sys.stderr, 'Bad file is', fpath
+                #print >> sys.stderr, 'Bad file is', fpath
                 continue
             try: prop = ttfFontProperty(font)
             except: continue
