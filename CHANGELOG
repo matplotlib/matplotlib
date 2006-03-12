@@ -1,3 +1,15 @@
+2006-03-11 Added subprocess module from python-2.4 - DSD
+
+2006-03-11 Fixed landscape orientation support with the usetex
+           option. The backend_ps print_figure method was 
+           getting complicated, I added a _print_figure_tex
+           method to maintain some degree of sanity - DSD
+
+2006-03-11 Added "papertype" savefig kwarg for setting 
+           postscript papersizes. papertype and ps.papersize
+           rc setting can also be set to "auto" to autoscale
+           pagesizes - DSD
+
 2006-03-09 Apply P-J's patch to make pstoeps work on windows
            patch report # 1445612 - DSD
 

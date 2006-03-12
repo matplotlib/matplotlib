@@ -263,9 +263,8 @@ class RendererSVG(RendererBase):
 
 class FigureCanvasSVG(FigureCanvasBase):
 
-    def print_figure(self, filename, dpi=80,
-                     facecolor='w', edgecolor='w',
-                     orientation='portrait'):
+    def print_figure(self, filename, dpi, facecolor='w', edgecolor='w',
+                     orientation='portrait', **kwargs):
         # save figure settings
         origDPI       = self.figure.dpi.get()
         origfacecolor = self.figure.get_facecolor()

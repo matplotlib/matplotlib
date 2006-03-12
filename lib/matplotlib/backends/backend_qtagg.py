@@ -115,9 +115,10 @@ class FigureCanvasQTAgg( FigureCanvasQT, FigureCanvasAgg ):
         self.repaint( False )
 
     def print_figure( self, filename, dpi=150, facecolor='w', edgecolor='w',
-                      orientation='portrait' ):
+                      orientation='portrait', **kwargs ):
         if DEBUG: print 'FigureCanvasQTAgg.print_figure'
         agg = self.switch_backends( FigureCanvasAgg )
-        agg.print_figure( filename, dpi, facecolor, edgecolor, orientation )
+        agg.print_figure( filename, dpi, facecolor, edgecolor, orientation,
+                          **kwargs )
 
         

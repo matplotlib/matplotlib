@@ -601,7 +601,7 @@ class FigureCanvasEMF(FigureCanvasBase):
         pass
         
     def print_figure(self, filename, dpi=300, facecolor='w', edgecolor='w',
-                     orientation='portrait'):
+                     orientation='portrait', **kwargs):
         """
         Render the figure to hardcopy. Set the figure patch face and edge
         colors.  This is useful because some of the GUIs have a gray figure
