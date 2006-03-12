@@ -969,7 +969,8 @@ class FigureCanvasPS(FigureCanvasBase):
         """
         if not papertype: papertype = rcParams['ps.papersize']
         papertype = papertype.lower()
-        if not papersize.has_key(papertype):
+        if papertype == 'auto': pass
+        elif not papersize.has_key(papertype):
             raise RuntimeError( '%s is not a valid papertype. Use one \
                     of %s'% (papertype, ', '.join( papersize.keys() )) )
         
