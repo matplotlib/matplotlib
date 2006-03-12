@@ -216,7 +216,7 @@ tk.window_focus   : False    # Maintain shell focus for TkAgg
 tk.pythoninspect  : False    # tk sets PYTHONINSEPCT
 
 # ps backend params
-ps.papersize      : letter   # executive, letter, legal, ledger, A0-A10, B0-B10
+ps.papersize      : letter   # auto, letter, legal, ledger, A0-A10, B0-B10
 ps.useafm         : False    # use of afm fonts, results in small files
 ps.usedistiller   : False    # can be: None, ghostscript or xpdf
                                           # Experimental: may produce smaller files.
