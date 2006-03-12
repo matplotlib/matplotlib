@@ -1548,13 +1548,13 @@ Cntr_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 static int
 Cntr_init(Cntr *self, PyObject *args, PyObject *kwds)
 {
+    static char *kwlist[] = {"x", "y", "z", "mask", NULL};
     PyObject *xarg, *yarg, *zarg, *marg;
     PyArrayObject *xpa, *ypa, *zpa, *mpa;
     long iMax, jMax;
     char *mask;
 
     marg = NULL;
-    static char *kwlist[] = {"x", "y", "z", "mask", NULL};
 
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "OOO|O", kwlist,
                                       &xarg, &yarg, &zarg, &marg))

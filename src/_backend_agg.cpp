@@ -379,10 +379,10 @@ RendererAgg::draw_polygon(const Py::Tuple& args) {
     return Py::Object();
 
 
-  // dump the x.y vertices into a double array for faster look ahread
+  // dump the x.y vertices into a double array for faster look ahead
   // and behind access
-  double xs[Npoints];
-  double ys[Npoints];
+  double *xs = new double[Npoints];
+  double *ys = new double[Npoints];
 
   for (size_t i=0; i<Npoints; i++) {
     Py::SeqBase<Py::Object> xy(points[i]);
@@ -406,6 +406,10 @@ RendererAgg::draw_polygon(const Py::Tuple& args) {
   path.close_polygon();
 
   _fill_and_stroke(path, gc, face, false);
+
+  delete [] xs;
+  delete [] ys;
+
   _VERBOSE("RendererAgg::draw_polygon DONE");
   return Py::Object();
 
@@ -960,10 +964,10 @@ RendererAgg::draw_poly_collection(const Py::Tuple& args) {
       double xo = Py::Float(pos[0]);
       double yo = Py::Float(pos[1]);
       try {
-	xyo = transOffset->operator()(xo, yo);
+         xyo = transOffset->operator()(xo, yo);
       }
       catch (...) {
-	throw Py::ValueError("Domain error on transOffset->operator in draw_line_collection");
+         throw Py::ValueError("Domain error on transOffset->operator in draw_line_collection");
       }
 
     }
@@ -976,22 +980,25 @@ RendererAgg::draw_poly_collection(const Py::Tuple& args) {
 
     // dump the verts to double arrays so we can do more efficient
     // look aheads and behinds when doing snapto pixels
-    double xs[Nverts], ys[Nverts];
+    double *xs = new double[Nverts];
+    double *ys = new double[Nverts];
     for (size_t j=0; j<Nverts; j++) {
       thisvert = thisverts[j];
       double x = Py::Float(thisvert[0]);
       double y = Py::Float(thisvert[1]);
       try {
-	xy = transform->operator()(x, y);
+         xy = transform->operator()(x, y);
       }
       catch(...) {
-	throw Py::ValueError("Domain error on eval_scalars in RendererAgg::draw_poly_collection");
+         delete [] xs;
+         delete [] ys;
+         throw Py::ValueError("Domain error on eval_scalars in RendererAgg::draw_poly_collection");
       }
 
 
       if (usingOffsets) {
-	xy.first  += xyo.first;
-	xy.second += xyo.second;
+         xy.first  += xyo.first;
+         xy.second += xyo.second;
       }
 
       xy.second = height - xy.second;
@@ -1006,21 +1013,21 @@ RendererAgg::draw_poly_collection(const Py::Tuple& args) {
       double y = ys[j];
 
       if (j==0) {
-	if (xs[j] == xs[Nverts-1]) x = (int)xs[j] + 0.5;
-	if (ys[j] == ys[Nverts-1]) y = (int)ys[j] + 0.5;
+         if (xs[j] == xs[Nverts-1]) x = (int)xs[j] + 0.5;
+         if (ys[j] == ys[Nverts-1]) y = (int)ys[j] + 0.5;
       }
       else if (j==Nverts-1) {
-	if (xs[j] == xs[0]) x = (int)xs[j] + 0.5;
-	if (ys[j] == ys[0]) y = (int)ys[j] + 0.5;
+         if (xs[j] == xs[0]) x = (int)xs[j] + 0.5;
+         if (ys[j] == ys[0]) y = (int)ys[j] + 0.5;
       }
 
       if (j < Nverts-1) {
-	if (xs[j] == xs[j+1]) x = (int)xs[j] + 0.5;
-	if (ys[j] == ys[j+1]) y = (int)ys[j] + 0.5;
+         if (xs[j] == xs[j+1]) x = (int)xs[j] + 0.5;
+         if (ys[j] == ys[j+1]) y = (int)ys[j] + 0.5;
       }
       if (j>0) {
-	if (xs[j] == xs[j-1]) x = (int)xs[j] + 0.5;
-	if (ys[j] == ys[j-1]) y = (int)ys[j] + 0.5;
+         if (xs[j] == xs[j-1]) x = (int)xs[j] + 0.5;
+         if (ys[j] == ys[j-1]) y = (int)ys[j] + 0.5;
       }
 
       if (j==0) path.move_to(x,y);
@@ -1041,12 +1048,12 @@ RendererAgg::draw_poly_collection(const Py::Tuple& args) {
       theRasterizer->add_path(path);
 
       if (isaa) {
-	rendererAA->color(facecolor);
-	agg::render_scanlines(*theRasterizer, *slineP8, *rendererAA);
+         rendererAA->color(facecolor);
+         agg::render_scanlines(*theRasterizer, *slineP8, *rendererAA);
       }
       else {
-	rendererBin->color(facecolor);
-	agg::render_scanlines(*theRasterizer, *slineBin, *rendererBin);
+         rendererBin->color(facecolor);
+         agg::render_scanlines(*theRasterizer, *slineBin, *rendererBin);
       }
     } //renderer face
 
@@ -1069,14 +1076,17 @@ RendererAgg::draw_poly_collection(const Py::Tuple& args) {
 
       // render antialiased or not
       if ( isaa ) {
-	rendererAA->color(edgecolor);
-	agg::render_scanlines(*theRasterizer, *slineP8, *rendererAA);
+         rendererAA->color(edgecolor);
+         agg::render_scanlines(*theRasterizer, *slineP8, *rendererAA);
       }
       else {
-	rendererBin->color(edgecolor);
-	agg::render_scanlines(*theRasterizer, *slineBin, *rendererBin);
+         rendererBin->color(edgecolor);
+         agg::render_scanlines(*theRasterizer, *slineBin, *rendererBin);
       }
     } //rendered edge
+
+    delete [] xs;
+    delete [] ys;
 
   } // for every poly
   return Py::Object();
@@ -1127,8 +1137,8 @@ RendererAgg::draw_regpoly_collection(const Py::Tuple& args) {
   double thisx, thisy;
 
   // dump the x.y vertices into a double array for faster access
-  double xverts[Nverts];
-  double yverts[Nverts];
+  double *xverts = new double[Nverts];
+  double *yverts = new double[Nverts];
   Py::SeqBase<Py::Object> xy;
   for (size_t i=0; i<Nverts; i++) {
     xy = Py::SeqBase<Py::Object>(verts[i]);
@@ -1145,6 +1155,8 @@ RendererAgg::draw_regpoly_collection(const Py::Tuple& args) {
       offsetPair = transOffset->operator()(xo, yo);
     }
     catch(...) {
+      delete [] xverts;
+      delete [] yverts;
       throw Py::ValueError("Domain error on eval_scalars in RendererAgg::draw_regpoly_collection");
     }
 
@@ -1178,12 +1190,12 @@ RendererAgg::draw_regpoly_collection(const Py::Tuple& args) {
       theRasterizer->add_path(path);
 
       if (isaa) {
-	rendererAA->color(facecolor);
-	agg::render_scanlines(*theRasterizer, *slineP8, *rendererAA);
+         rendererAA->color(facecolor);
+         agg::render_scanlines(*theRasterizer, *slineP8, *rendererAA);
       }
       else {
-	rendererBin->color(facecolor);
-	agg::render_scanlines(*theRasterizer, *slineBin, *rendererBin);
+         rendererBin->color(facecolor);
+         agg::render_scanlines(*theRasterizer, *slineBin, *rendererBin);
       }
     } //renderer face
 
@@ -1205,16 +1217,18 @@ RendererAgg::draw_regpoly_collection(const Py::Tuple& args) {
 
       // render antialiased or not
       if ( isaa ) {
-	rendererAA->color(edgecolor);
-	agg::render_scanlines(*theRasterizer, *slineP8, *rendererAA);
+         rendererAA->color(edgecolor);
+         agg::render_scanlines(*theRasterizer, *slineP8, *rendererAA);
       }
       else {
-	rendererBin->color(edgecolor);
-	agg::render_scanlines(*theRasterizer, *slineBin, *rendererBin);
+         rendererBin->color(edgecolor);
+         agg::render_scanlines(*theRasterizer, *slineBin, *rendererBin);
       }
     } //rendered edge
 
   } // for every poly
+  delete [] xverts;
+  delete [] yverts;
   return Py::Object();
 }
 
@@ -1355,7 +1369,7 @@ RendererAgg::_render_lines_path(PathSource &path, const GCAgg& gc) {
 
   //path_t transpath(path, xytrans);
 
-  if (gc.dasha==NULL ) { //no dashes    
+  if (gc.dasha==NULL ) { //no dashes
     stroke_t stroke(path);
     stroke.width(gc.linewidth);
     stroke.line_cap(gc.cap);
@@ -1920,19 +1934,22 @@ RendererAgg::write_png(const Py::Tuple& args)
   struct        png_color_8_struct sig_bit;
   png_uint_32 row;
 
-  png_bytep row_pointers[height];
+  png_bytep *row_pointers = new png_bytep[height];
   for (row = 0; row < height; ++row) {
     row_pointers[row] = pixBuffer + row * width * 4;
   }
 
 
-  if (fp == NULL)
+  if (fp == NULL) {
+    delete [] row_pointers;
     throw Py::RuntimeError("Could not open file");
+  }
 
 
   png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
   if (png_ptr == NULL) {
     if (fpclose) fclose(fp);
+    delete [] row_pointers;
     throw Py::RuntimeError("Could not create write struct");
   }
 
@@ -1940,12 +1957,14 @@ RendererAgg::write_png(const Py::Tuple& args)
   if (info_ptr == NULL) {
     if (fpclose) fclose(fp);
     png_destroy_write_struct(&png_ptr, &info_ptr);
+    delete [] row_pointers;
     throw Py::RuntimeError("Could not create info struct");
   }
 
   if (setjmp(png_ptr->jmpbuf)) {
     if (fpclose) fclose(fp);
     png_destroy_write_struct(&png_ptr, &info_ptr);
+    delete [] row_pointers;
     throw Py::RuntimeError("Error building image");
   }
 
@@ -1975,6 +1994,7 @@ RendererAgg::write_png(const Py::Tuple& args)
 
   png_destroy_write_struct(&png_ptr, &info_ptr);
 
+  delete [] row_pointers;
 
   if (fpclose) fclose(fp);
 

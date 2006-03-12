@@ -629,13 +629,15 @@ Image::write_png(const Py::Tuple& args)
   png_uint_32 row=0;
 
   //todo: allocate on heap
-  png_bytep row_pointers[rowsOut];
+  png_bytep *row_pointers = new png_bytep[rowsOut];
+
   for (row = 0; row < rowsOut; ++row)
     row_pointers[row] = bufpair.first + row * colsOut * 4;
 
   fp = fopen(file_name, "wb");
   if (fp == NULL) {
     if (bufpair.second) delete [] bufpair.first;
+    delete [] row_pointers;
     throw Py::RuntimeError(Printf("Could not open file %s", file_name).str());
   }
 
@@ -644,6 +646,7 @@ Image::write_png(const Py::Tuple& args)
   if (png_ptr == NULL) {
     if (bufpair.second) delete [] bufpair.first;
     fclose(fp);
+    delete [] row_pointers;
     throw Py::RuntimeError("Could not create write struct");
   }
 
@@ -652,6 +655,7 @@ Image::write_png(const Py::Tuple& args)
     if (bufpair.second) delete [] bufpair.first;
     fclose(fp);
     png_destroy_write_struct(&png_ptr, &info_ptr);
+    delete [] row_pointers;
     throw Py::RuntimeError("Could not create info struct");
   }
 
@@ -659,6 +663,7 @@ Image::write_png(const Py::Tuple& args)
     if (bufpair.second) delete [] bufpair.first;
     fclose(fp);
     png_destroy_write_struct(&png_ptr, &info_ptr);
+    delete [] row_pointers;
     throw Py::RuntimeError("Error building image");
   }
 
@@ -682,6 +687,8 @@ Image::write_png(const Py::Tuple& args)
   png_write_end(png_ptr, info_ptr);
   png_destroy_write_struct(&png_ptr, &info_ptr);
   fclose(fp);
+
+  delete [] row_pointers;
 
   if (bufpair.second) delete [] bufpair.first;
   return Py::Object();
@@ -886,7 +893,7 @@ _image_module::readpng(const Py::Tuple& args) {
   if (setjmp(png_jmpbuf(png_ptr)))
     throw Py::RuntimeError("_image_module::readpng: error during read_image");
 
-  png_bytep row_pointers[height];
+  png_bytep *row_pointers = new png_bytep[height];
 
   for (png_uint_32 row = 0; row < height; row++)
     row_pointers[row] = new png_byte[png_get_rowbytes(png_ptr,info_ptr)];
@@ -923,6 +930,7 @@ _image_module::readpng(const Py::Tuple& args) {
   fclose(fp);
   for (png_uint_32 row = 0; row < height; row++)
     delete [] row_pointers[row];
+  delete [] row_pointers;
   return Py::asObject((PyObject*)A);
 }
 
