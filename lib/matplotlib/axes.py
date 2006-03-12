@@ -46,7 +46,7 @@ from font_manager import FontProperties
 import matplotlib
 
 if matplotlib._havedate:
-    from dates import date_ticker_factory
+    from dates import AutoDateFormatter, AutoDateLocator
 
 def delete_masked_points(*args):
     """
@@ -3807,8 +3807,8 @@ class Axes(Artist):
         tz is the time zone to use in labeling dates.  Defaults to rc value.
         """
 
-        span  = self.dataLim.intervalx().span()
-        locator, formatter = date_ticker_factory(span, tz)
+        locator = AutoDateLocator(tz)
+        formatter = AutoDateFormatter(locator)
         self.xaxis.set_major_locator(locator)
         self.xaxis.set_major_formatter(formatter)
 
@@ -3818,8 +3818,8 @@ class Axes(Artist):
         tz is the time zone to use in labeling dates.  Defaults to rc value.
         """
 
-        span  = self.dataLim.intervaly().span()
-        locator, formatter = date_ticker_factory(span, tz)
+        locator = AutoDateLocator(tz)
+        formatter = AutoDateFormatter(locator)
         self.yaxis.set_major_locator(locator)
         self.yaxis.set_major_formatter(formatter)
 

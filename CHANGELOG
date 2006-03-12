@@ -1,3 +1,7 @@
+2006-03-12 Added AutoDateFormatter and AutoDateLocator submitted
+           by James Evans. Try the load_converter.py example for a
+           demo. - ADS
+
 2006-03-11 Added subprocess module from python-2.4 - DSD
 
 2006-03-11 Fixed landscape orientation support with the usetex

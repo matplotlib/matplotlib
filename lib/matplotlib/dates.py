@@ -82,13 +82,14 @@ import matplotlib
 
 try: import datetime
 except ImportError:
-    raise ValueError('matplotlib %s date handling requires python2.3' % matplotlib.__version__)
+    raise ValueError('matplotlib %s date handling requires python2.3'
+                     % matplotlib.__version__)
 
 from cbook import iterable, is_string_like
 from pytz import timezone
 from numerix import arange, asarray
 from ticker import Formatter, Locator, Base
-from dateutil.rrule import rrule, MO, TU, WE, TH, FR, SA, SU, YEARLY,\
+from dateutil.rrule import rrule, MO, TU, WE, TH, FR, SA, SU, YEARLY, \
      MONTHLY, WEEKLY, DAILY, HOURLY, MINUTELY, SECONDLY
 from dateutil.relativedelta import relativedelta
 import dateutil.parser
@@ -108,7 +109,8 @@ SEC_PER_MIN = 60
 SEC_PER_HOUR = 3600
 SEC_PER_DAY = SEC_PER_HOUR * 24
 SEC_PER_WEEK = SEC_PER_DAY * 7
-MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, SUNDAY = MO, TU, WE, TH, FR, SA, SU
+MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, SUNDAY = (
+    MO, TU, WE, TH, FR, SA, SU)
 WEEKDAYS = (MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, SUNDAY)
 
 __all__ = ['date2num', 'num2date', 'drange', 'HOURS_PER_DAY',
@@ -156,8 +158,9 @@ def _from_ordinalf(x, tz=None):
     second, remainder = divmod(60*remainder, 1)
     microsecond = int(1e6*remainder)
     if microsecond<10: microsecond=0 # compensate for rounding errors
-    dt = datetime.datetime(dt.year, dt.month, dt.day, int(hour), int(minute), int(second), microsecond, tzinfo=UTC).astimezone(tz)
-
+    dt = datetime.datetime(
+        dt.year, dt.month, dt.day, int(hour), int(minute), int(second),
+        microsecond, tzinfo=UTC).astimezone(tz)
 
     if microsecond>999990:  # compensate for rounding errors
         dt += datetime.timedelta(microseconds=1e6-microsecond)
@@ -207,7 +210,8 @@ def drange(dstart, dend, delta):
     Return a date range as float gregorian ordinals.  dstart and dend
     are datetime instances.  delta is a datetime.timedelta instance
     """
-    step = delta.days + delta.seconds/SECONDS_PER_DAY + delta.microseconds/MUSECONDS_PER_DAY
+    step = (delta.days + delta.seconds/SECONDS_PER_DAY +
+            delta.microseconds/MUSECONDS_PER_DAY)
     f1 = _to_ordinalf(dstart)
     f2 = _to_ordinalf(dend)
     return arange(f1, f2, step)
@@ -321,6 +325,50 @@ class IndexDateFormatter(Formatter):
         
         return unicode(dt.strftime(self.fmt), locale.getpreferredencoding())
 
+
+class AutoDateFormatter(Formatter):
+    """
+    This class attempt to figure out the best format to use.  This is
+    most useful when used with the AutoDateLocator.
+    """
+    
+    # This can be improved by providing some user-level direction on
+    # how to choose the best format (precedence, etc...)
+    
+    # Perhaps a 'struct' that has a field for each time-type where a
+    # zero would indicate "don't show" and a number would indicate
+    # "show" with some sort of priority.  Same priorities could mean
+    # show all with the same priority.
+
+    # Or more simply, perhaps just a format string for each
+    # possibility...
+    
+    def __init__(self, locator, tz=None):
+        self._locator = locator
+        self._formatter = DateFormatter("%b %d %Y %H:%M:%S %Z", tz)
+        self._tz = tz
+        
+    def __call__(self, x, pos=0):
+        scale = float( self._locator._get_unit() )
+        
+        if ( scale == 365.0 ):
+            self._formatter = DateFormatter("%Y", self._tz)
+        elif ( scale == 30.0 ):
+            self._formatter = DateFormatter("%b %Y", self._tz)
+        elif ( (scale == 1.0) or (scale == 7.0) ):
+            self._formatter = DateFormatter("%b %d %Y", self._tz)
+        elif ( scale == (1.0/24.0) ):
+            self._formatter = DateFormatter("%H:%M:%S %Z", self._tz)
+        elif ( scale == (1.0/(24*60)) ):
+            self._formatter = DateFormatter("%H:%M:%S %Z", self._tz)
+        elif ( scale == (1.0/(24*3600)) ):
+            self._formatter = DateFormatter("%H:%M:%S %Z", self._tz)
+        else:
+            self._formatter = DateFormatter("%b %d %Y %H:%M:%S %Z", self._tz)
+
+        return self._formatter(x, pos)
+
+
 class rrulewrapper:
 
     def __init__(self, freq, **kwargs):
@@ -393,6 +441,30 @@ class RRuleLocator(DateLocator):
         dates = self.rule.between(dmin, dmax, True)
         return date2num(dates)
 
+    def _get_unit(self):
+        """
+        Return how many days a unit of the locator is; use for
+        intelligent autoscaling
+        """
+        freq = self.rule._rrule._freq
+        if ( freq == YEARLY ):
+            return 365
+        elif ( freq == MONTHLY ):
+            return 30
+        elif ( freq == WEEKLY ):
+            return 7
+        elif ( freq == DAILY ):
+            return 1
+        elif ( freq == HOURLY ):
+            return (1.0/24.0)
+        elif ( freq == MINUTELY ):
+            return (1.0/(24*60))
+        elif ( freq == SECONDLY ):
+            return (1.0/(24*3600))
+        else:
+            # error
+            return -1   #or should this just return '1'?
+
     def autoscale(self):
         """
         Set the view limits to include the data range
@@ -418,6 +490,152 @@ class RRuleLocator(DateLocator):
         
         return self.nonsingular(vmin, vmax)
 
+
+class AutoDateLocator(DateLocator):
+    """
+    On autoscale this class picks the best MultipleDateLocator to set the
+    view limits and the tick locs.  
+    """
+    def __init__(self, tz=None):
+        DateLocator.__init__(self, tz)
+        self._locator = YearLocator()
+        self._freq = YEARLY
+ 
+    def __call__(self):
+        'Return the locations of the ticks'
+        self.refresh()
+        return self._locator()
+
+    def refresh(self):
+        'refresh internal information based on current lim'
+        dmin, dmax = self.viewlim_to_dt()
+        self._locator = self.get_locator(dmin, dmax)
+
+    def _get_unit(self):
+        if ( self._freq == YEARLY ):
+            return 365.0
+        elif ( self._freq == MONTHLY ):
+            return 30.0
+        elif ( self._freq == WEEKLY ):
+            return 7.0
+        elif ( self._freq == DAILY ):
+            return 1.0
+        elif ( self._freq == HOURLY ):
+            return 1.0/24
+        elif ( self._freq == MINUTELY ):
+            return 1.0/(24*60)
+        elif ( self._freq == SECONDLY ):
+            return 1.0/(24*3600)
+        else:
+            # error
+            return -1
+
+    def autoscale(self):
+        'Try to choose the view limits intelligently'
+
+        self.verify_intervals()
+        dmin, dmax = self.datalim_to_dt()
+        self._locator = self.get_locator(dmin, dmax)
+        return self._locator.autoscale()
+
+    def get_locator(self, dmin, dmax):
+        'pick the best locator based on a distance'
+
+        delta = relativedelta(dmax, dmin)
+
+        numYears = (delta.years * 1.0)
+        numMonths = (numYears * 12.0) + delta.months
+        numDays = (numMonths * 31.0) + delta.days
+        numHours = (numDays * 24.0) + delta.hours
+        numMinutes = (numHours * 60.0) + delta.minutes
+        numSeconds = (numMinutes * 60.0) + delta.seconds
+
+        numticks = 5
+
+        # self._freq = YEARLY
+        interval = 1
+        bymonth = 1
+        bymonthday = 1
+        byhour = 0
+        byminute = 0
+        bysecond = 0
+
+        if ( numYears >= numticks ):
+            self._freq = YEARLY
+        elif ( numMonths >= numticks ):
+            self._freq = MONTHLY
+            bymonth = range(1, 13)
+            if ( (0 <= numMonths) and (numMonths <= 14) ):
+                interval = 1      # show every month
+            elif ( (15 <= numMonths) and (numMonths <= 29) ):
+                interval = 3      # show every 3 months
+            elif ( (30 <= numMonths) and (numMonths <= 44) ):
+                interval = 4      # show every 4 months
+            else:   # 45 <= numMonths <= 59
+                interval = 6      # show every 6 months
+        elif ( numDays >= numticks ):
+            self._freq = DAILY
+            bymonth = None
+            bymonthday = range(1, 32)
+            if ( (0 <= numDays) and (numDays <= 49) ):
+                interval = 1      # show every day
+            elif ( (50 <= numDays) and (numDays <= 99) ):
+                interval = 7      # show every 1 week
+            else:   # 100 <= numDays <= ~150
+                interval = 14     # show every 2 weeks
+        elif ( numHours >= numticks ):
+            self._freq = HOURLY
+            bymonth = None
+            bymonthday = None
+            byhour = range(0, 24)      # show every hour
+            if ( (0 <= numHours) and (numHours <= 14) ):
+                interval = 1      # show every hour
+            elif ( (15 <= numHours) and (numHours <= 30) ):
+                interval = 2      # show every 2 hours
+            elif ( (30 <= numHours) and (numHours <= 45) ):
+                interval = 3      # show every 3 hours
+            elif ( (45 <= numHours) and (numHours <= 68) ):
+                interval = 4      # show every 4 hours
+            elif ( (68 <= numHours) and (numHours <= 90) ):
+                interval = 6      # show every 6 hours
+            else:   # 90 <= numHours <= 120
+                interval = 12     # show every 12 hours
+        elif ( numMinutes >= numticks ):
+            self._freq = MINUTELY
+            bymonth = None
+            bymonthday = None
+            byhour = None
+            byminute = range(0, 60)
+            if ( numMinutes > (10.0 * numticks) ):
+                interval = 10
+            # end if
+        elif ( numSeconds >= numticks ):
+            self._freq = SECONDLY
+            bymonth = None
+            bymonthday = None
+            byhour = None
+            byminute = None
+            bysecond = range(0, 60)
+            if ( numSeconds > (10.0 * numticks) ):
+                interval = 10
+            # end if
+        else:
+            # do what?
+            #   microseconds as floats, but floats from what reference point?
+            pass
+
+
+        rrule = rrulewrapper( self._freq, interval=interval,          \
+                              dtstart=dmin, until=dmax,               \
+                              bymonth=bymonth, bymonthday=bymonthday, \
+                              byhour=byhour, byminute = byminute,     \
+                              bysecond=bysecond )
+
+        locator = RRuleLocator(rrule, self.tz)
+
+        locator.set_view_interval(self.viewInterval)
+        locator.set_data_interval(self.dataInterval)
+        return locator
 
 
 class YearLocator(DateLocator):
@@ -529,7 +747,8 @@ class WeekdayLocator(RRuleLocator):
         plots every second week
 
         """
-        o = rrulewrapper(DAILY, byweekday=byweekday, interval=interval, **self.hms0d)
+        o = rrulewrapper(DAILY, byweekday=byweekday,
+                         interval=interval, **self.hms0d)
         RRuleLocator.__init__(self, o, tz)
 
     def _get_unit(self):
@@ -551,7 +770,8 @@ class DayLocator(RRuleLocator):
         Default is to tick every day of the month - bymonthday=range(1,32)
         """
         if bymonthday is None: bymonthday=range(1,32)
-        o = rrulewrapper(DAILY, bymonthday=bymonthday, interval=interval, **self.hms0d)
+        o = rrulewrapper(DAILY, bymonthday=bymonthday,
+                         interval=interval, **self.hms0d)
         RRuleLocator.__init__(self, o, tz)
 
     def _get_unit(self):
@@ -639,7 +859,8 @@ class SecondLocator(RRuleLocator):
 def _close_to_dt(d1, d2, epsilon=5):
     'assert that datetimes d1 and d2 are within epsilon microseconds'
     delta = d2-d1
-    mus = abs(delta.days*MUSECONDS_PER_DAY + delta.seconds*1e6 + delta.microseconds)
+    mus = abs(delta.days*MUSECONDS_PER_DAY + delta.seconds*1e6 +
+              delta.microseconds)
     assert(mus<epsilon)
 
 def _close_to_num(o1, o2, epsilon=5):
