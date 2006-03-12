@@ -329,9 +329,8 @@ def new_figure_manager(num, *args, **kwargs):
 
 class FigureCanvasGD(FigureCanvasBase):
     
-    def print_figure(self, filename, dpi=150,
-                     facecolor='w', edgecolor='w',
-                     orientation='portrait'):
+    def print_figure(self, filename, dpi=150, facecolor='w', edgecolor='w',
+                     orientation='portrait', **kwargs):
 
         """
         Render the figure to hardcopy using self.renderer as the

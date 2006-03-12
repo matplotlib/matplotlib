@@ -476,7 +476,7 @@ class FigureCanvasGDK (FigureCanvasBase):
         self.figure.draw (self._renderer)
 
     def print_figure(self, filename, dpi=150, facecolor='w', edgecolor='w',
-                     orientation='portrait'):
+                     orientation='portrait', **kwargs):
         root, ext = os.path.splitext(filename)
         ext = ext[1:]
         if ext == '':
@@ -513,12 +513,14 @@ class FigureCanvasGDK (FigureCanvasBase):
 
 
             fc = self.switch_backends(FigureCanvas)
-            fc.print_figure(filename, dpi, facecolor, edgecolor, orientation)
+            fc.print_figure(filename, dpi, facecolor, edgecolor, orientation, 
+                            **kwargs)
         elif ext in ('bmp', 'raw', 'rgb',):
 
             from backend_agg import FigureCanvasAgg  as FigureCanvas
             fc = self.switch_backends(FigureCanvas)
-            fc.print_figure(filename, dpi, facecolor, edgecolor, orientation)
+            fc.print_figure(filename, dpi, facecolor, edgecolor, orientation,
+                            **kwargs)
 
         else:
             raise ValueError('Format "%s" is not supported.\nSupported formats are %s.' %

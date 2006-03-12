@@ -7,7 +7,8 @@ from __future__ import division
  Jeremy O'Donoghue (jeremy@o-donoghue.com) and the Agg backend by John
  Hunter (jdhunter@ace.bsd.uchicago.edu)
 
- Copyright (C) 2003-5 Jeremy O'Donoghue, John Hunter, Illinois Institute of Technology
+ Copyright (C) 2003-5 Jeremy O'Donoghue, John Hunter, Illinois Institute of 
+ Technology
 
   
  License: This work is licensed under the matplotlib license( PSF
@@ -94,14 +95,14 @@ class FigureCanvasWxAgg(FigureCanvasWx,FigureCanvasAgg):
         srcDC.SelectObject(wx.NullBitmap)
         self.gui_repaint()
 
-    def print_figure(self, filename, dpi=150, facecolor='w',
-                     edgecolor='w', orientation='portrait'):
-
+    def print_figure(self, filename, dpi=150, facecolor='w', edgecolor='w',
+                     orientation='portrait', **kwargs):
         """
         Render the figure to hardcopy
         """
         agg = self.switch_backends(FigureCanvasAgg)
-        agg.print_figure(filename, dpi, facecolor, edgecolor, orientation)
+        agg.print_figure(filename, dpi, facecolor, edgecolor, orientation,
+                         **kwargs)
         self.figure.set_canvas(self)
 
     def _get_imagesave_wildcards(self):

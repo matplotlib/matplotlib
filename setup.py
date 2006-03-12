@@ -154,7 +154,11 @@ packages = [
     ]
 
 
+try: import subprocess
+except ImportError: havesubprocess = False
+else: havesubprocess = True
 
+if not havesubprocess: packages.append('subprocess')
 
 try: import datetime
 except ImportError: havedate = False

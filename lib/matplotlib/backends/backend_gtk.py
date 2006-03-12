@@ -299,8 +299,8 @@ class FigureCanvasGTK (gtk.DrawingArea, FigureCanvasBase):
         return False  # finish event propagation?
 
 
-    def print_figure(self, filename, dpi=150, facecolor='w', edgecolor='w',
-                     orientation='portrait'):
+    def print_figure(self, filename, dpi=150, facecolor='w', edgecolor='w', 
+                     orientation='portrait', **kwargs):
         # TODO - use gdk/cairo/agg print_figure?
         root, ext = os.path.splitext(filename)
         ext = ext[1:]
@@ -352,7 +352,7 @@ class FigureCanvasGTK (gtk.DrawingArea, FigureCanvasBase):
             try:
                 fc = self.switch_backends(FigureCanvas)
                 fc.print_figure(filename, dpi, facecolor, edgecolor,
-                                orientation)
+                                orientation, **kwargs)
             except IOError, exc:
                 error_msg_gtk("Save figure failure:\n%s: %s" %
                           (exc.filename, exc.strerror), parent=self)
@@ -369,7 +369,7 @@ class FigureCanvasGTK (gtk.DrawingArea, FigureCanvasBase):
             else:
                 fc = self.switch_backends(FigureCanvas)
                 fc.print_figure(filename, dpi, facecolor, edgecolor,
-                                orientation)
+                                orientation, **kwargs)
 
         elif ext in ('pdf',):
             try:
@@ -381,7 +381,7 @@ class FigureCanvasGTK (gtk.DrawingArea, FigureCanvasBase):
             else:
                 fc = self.switch_backends(FigureCanvas)
                 fc.print_figure(filename, dpi, facecolor, edgecolor,
-                                orientation)
+                                orientation, **kwargs)
 
         else:
             error_msg_gtk('Format "%s" is not supported.\nSupported formats are %s.' %

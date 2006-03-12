@@ -926,10 +926,8 @@ The current aspect ration will be kept."""
         drawDC.DrawBitmap(self.bitmap, 0, 0)
         drawDC.EndDrawing()
 
-    def print_figure(self, filename, dpi=150,
-                     facecolor='w', edgecolor='w',
-                     orientation='portrait'):
-
+    def print_figure(self, filename, dpi=150, facecolor='w', edgecolor='w',
+                     orientation='portrait', **kwargs):
         """
         Render the figure to hardcopy
         """
@@ -949,7 +947,8 @@ The current aspect ration will be kept."""
             ps = self.switch_backends(FigureCanvasPS)
             ps.figure.dpi.set(72)
 
-            ps.print_figure(filename, 72, facecolor, edgecolor)
+            ps.print_figure(filename, 72, facecolor, edgecolor, orientation, 
+                            **kwargs)
             self.figure.dpi.set(origDPI)
             self.figure.set_canvas(self)
             return
@@ -962,7 +961,8 @@ The current aspect ration will be kept."""
             origDPI = self.figure.dpi.get()
             svg = self.switch_backends(FigureCanvasSVG)
             svg.figure.dpi.set(72)
-            svg.print_figure(filename, 72, facecolor, edgecolor)
+            svg.print_figure(filename, 72, facecolor, edgecolor, orientation,
+                             **kwargs)
             self.figure.dpi.set(origDPI)
             self.figure.set_canvas(self)
             return

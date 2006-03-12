@@ -518,7 +518,7 @@ def new_figure_manager(num, *args, **kwargs): # called by backends/__init__.py
 
 class FigureCanvasCairo (FigureCanvasBase):
     def print_figure(self, filename, dpi=150, facecolor='w', edgecolor='w',
-                     orientation='portrait'):
+                     orientation='portrait', **kwargs):
         if _debug: print '%s.%s()' % (self.__class__.__name__, _fn_name())
         # settings for printing
         self.figure.dpi.set(dpi)
@@ -531,7 +531,7 @@ class FigureCanvasCairo (FigureCanvasBase):
             root, ext = os.path.splitext(filename)
             ext = ext[1:]
             if ext == '':
-                ext      = IMAGE_FORMAT_DEFAULT
+                ext = IMAGE_FORMAT_DEFAULT
                 filename = filename + '.' + ext
 
             ext = ext.lower()
@@ -546,7 +546,8 @@ class FigureCanvasCairo (FigureCanvasBase):
                    self._save_png (filename)
                    # _save_png (fileObject)
                 else:
-                   self._save_ps_pdf (self.figure, filename, ext, orientation)
+                   self._save_ps_pdf (self.figure, filename, ext, orientation,
+                                      **kwargs)
                    # self._save_ps_pdf (self.figure, fileObject, ext,
                    #                    orientation)
                 # fileObject.close()
@@ -558,7 +559,7 @@ class FigureCanvasCairo (FigureCanvasBase):
                     from backend_ps import FigureCanvasPS  as FigureCanvas
                 fc = FigureCanvas(self.figure)
                 fc.print_figure (filename, dpi, facecolor, edgecolor,
-                                 orientation)
+                                 orientation, **kwargs)
             else:
                 warnings.warn('Format "%s" is not supported.\n'
                               'Supported formats: '
@@ -577,7 +578,9 @@ class FigureCanvasCairo (FigureCanvasBase):
         surface.write_to_png (fobj)
 
 
-    def _save_ps_pdf (self, figure, filename, ext, orientation):
+    def _save_ps_pdf (self, figure, filename, ext, orientation, **kwargs):
+        orientation = kwargs.get('orientation', 'portrait')
+        
         dpi = 72
         figure.dpi.set (dpi)
         w_in, h_in = figure.get_size_inches()

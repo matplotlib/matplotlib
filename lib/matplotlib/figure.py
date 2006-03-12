@@ -633,7 +633,7 @@ class Figure(Artist):
     def savefig(self, *args, **kwargs):
         """
         SAVEFIG(fname, dpi=150, facecolor='w', edgecolor='w',
-        orientation='portrait'):
+        orientation='portrait', papertype=None):
 
         Save the current figure to filename fname.  dpi is the resolution
         in dots per inch.
@@ -644,7 +644,11 @@ class Figure(Artist):
         facecolor and edgecolor are the colors os the figure rectangle
 
         orientation is either 'landscape' or 'portrait' - not supported on
-        all backends; currently only on postscript output.
+        all backends; currently only on postscript output
+
+        papertype is is one of 'letter', 'legal', 'executive', 'ledger', 'a0'
+        through 'a10', or 'b0' through 'b10' - only supported for postscript
+        output
         """
 
         for key in ('dpi', 'facecolor', 'edgecolor'):

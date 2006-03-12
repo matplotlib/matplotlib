@@ -245,12 +245,12 @@ class FigureCanvasFltkAgg(FigureCanvasAgg):
 
     show = draw
 
-    def print_figure(self, filename, dpi=150,
-                     facecolor='w', edgecolor='w',
-                     orientation='portrait'):
+    def print_figure(self, filename, dpi=150, facecolor='w', edgecolor='w',
+                     orientation='portrait', **kwargs):
 
         agg = self.switch_backends(FigureCanvasAgg)
-        agg.print_figure(filename, dpi, facecolor, edgecolor, orientation)
+        agg.print_figure(filename, dpi, facecolor, edgecolor, orientation,
+                         **kwargs)
         self.figure.set_canvas(self)
         
     def widget(self):
