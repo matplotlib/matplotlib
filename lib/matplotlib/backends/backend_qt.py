@@ -120,6 +120,13 @@ class FigureCanvasQT( qt.QWidget, FigureCanvasBase ):
         FigureCanvasBase.key_release_event( self, key )
         if DEBUG: print 'key release', key
 
+    def resizeEvent( self, event ):
+        if DEBUG: print 'resize (%d x %d)' % (event.size().width(), event.size().height())
+        qt.QWidget.resizeEvent( self, event )
+
+    def resize( self, w, h ):
+        qt.QWidget.resize( self, w, h )
+
     def _get_key( self, event ):
         if event.key() < 256:
             key = event.text().latin1()
