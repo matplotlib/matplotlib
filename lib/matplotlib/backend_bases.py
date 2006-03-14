@@ -871,6 +871,7 @@ class FigureCanvasBase:
         filename    - can also be a file object on image backends
         orientation - only currently applies to PostScript printing.
         """
+        pass
 
     def switch_backends(self, FigureCanvasClass):
         """

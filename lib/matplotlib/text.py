@@ -148,7 +148,7 @@ class Text(Artist):
         return get_rotation(self._rotation)
 
     def update_from(self, other):
-        'Copy properties from t to self'
+        'Copy properties from other to self'
         Artist.update_from(self, other)
         self._color = other._color
         self._multialignment = other._multialignment
