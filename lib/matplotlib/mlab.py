@@ -1357,6 +1357,52 @@ def movavg(x,n):
     y /= float(n)
     return y
 
+def save(fname, X, fmt='%.18e',delimiter=' '):
+    """
+    Save the data in X to file fname using fmt string to convert the
+    data to strings
+
+    fname can be a filename or a file handle.  If the filename ends in .gz,
+    the file is automatically saved in compressed gzip format.  The load()
+    command understands gzipped files transparently.
+
+    Example usage:
+
+    save('test.out', X)         # X is an array
+    save('test1.out', (x,y,z))  # x,y,z equal sized 1D arrays
+    save('test2.out', x)        # x is 1D
+    save('test3.out', x, fmt='%1.4e')  # use exponential notation
+
+    delimiter is used to separate the fields, eg delimiter ',' for
+    comma-separated values
+    """
+
+    if is_string_like(fname):
+        if fname.endswith('.gz'):
+            import gzip
+            fh = gzip.open(fname,'wb')
+        else:
+            fh = file(fname,'w')
+    elif hasattr(fname, 'seek'):
+        fh = fname
+    else:
+        raise ValueError('fname must be a string or file handle')
+
+
+    X = asarray(X)
+    origShape = None
+    if len(X.shape)==1:
+        origShape = X.shape
+        X.shape = len(X), 1
+    for row in X:
+        fh.write(delimiter.join([fmt%val for val in row]) + '\n')
+
+    if origShape is not None:
+        X.shape = origShape
+
+
+
+
 def load(fname,comments='%',delimiter=None, converters=None,skiprows=0,
          usecols=None, unpack=False):
     """

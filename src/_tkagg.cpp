@@ -68,8 +68,6 @@ PyAggImagePhoto(ClientData clientdata, Tcl_Interp* interp,
     /* get array (or object that can be converted to array) pointer */
     aggo = (PyObject*)atol(argv[2]);
     RendererAgg *aggRenderer = (RendererAgg *)aggo;
-    int srcstride = aggRenderer->get_width()*4;
-    int srcwidth = (int)aggRenderer->get_width();
     int srcheight = (int)aggRenderer->get_height();
 
     /* XXX insert aggRenderer type check */
