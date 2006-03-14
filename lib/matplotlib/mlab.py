@@ -73,7 +73,7 @@ from numerix import array, asarray, arange, divide, exp, arctan2, \
 from numerix.mlab import hanning, cov, diff, svd, rand, std
 from numerix.fft import fft, inverse_fft
 
-from cbook import iterable
+from cbook import iterable, is_string_like
 
 
 def mean(x, dim=None):
@@ -1356,6 +1356,88 @@ def movavg(x,n):
        y += x[i:N-(n-1)+i]
     y /= float(n)
     return y
+
+def load(fname,comments='%',delimiter=None, converters=None,skiprows=0,
+         usecols=None, unpack=False):
+    """
+    Load ASCII data from fname into an array and return the array.
+
+    The data must be regular, same number of values in every row
+
+    fname can be a filename or a file handle.  Support for gzipped files is
+    automatic, if the filename ends in .gz
+
+    matfile data is not currently supported, but see
+    Nigel Wade's matfile ftp://ion.le.ac.uk/matfile/matfile.tar.gz
+
+    Example usage:
+
+      X = load('test.dat')  # data in two columns
+      t = X[:,0]
+      y = X[:,1]
+
+    Alternatively, you can do the same with "unpack"; see below
+
+      X = load('test.dat')    # a matrix of data
+      x = load('test.dat')    # a single column of data
+
+    comments - the character used to indicate the start of a comment
+    in the file
+
+    delimiter is a string-like character used to seperate values in the
+    file. If delimiter is unspecified or none, any whitespace string is
+    a separator.
+
+    converters, if not None, is a dictionary mapping column number to
+    a function that will convert that column to a float.  Eg, if
+    column 0 is a date string: converters={0:datestr2num}
+
+    skiprows is the number of rows from the top to skip
+
+    usecols, if not None, is a sequence of integer column indexes to
+    extract where 0 is the first column, eg usecols=(1,4,5) to extract
+    just the 2nd, 5th and 6th columns
+
+    unpack, if True, will transpose the matrix allowing you to unpack
+    into named arguments on the left hand side
+
+        t,y = load('test.dat', unpack=True) # for  two column data
+        x,y,z = load('somefile.dat', usecols=(3,5,7), unpack=True)
+
+    See examples/load_demo.py which exeercises many of these options.
+    """
+
+    if converters is None: converters = {}
+    if is_string_like(fname):
+        if fname.endswith('.gz'):
+            import gzip
+            fh = gzip.open(fname)
+        else:
+            fh = file(fname)
+    elif hasattr(fname, 'seek'):
+        fh = fname
+    else:
+        raise ValueError('fname must be a string or file handle')
+    X = []
+
+    for i,line in enumerate(fh):
+        if i<skiprows: continue
+        line = line[:line.find(comments)].strip()
+        if not len(line): continue
+        if usecols is not None:
+            vals = line.split(delimiter)
+            row = [converters.get(i,float)(vals[i]) for i in usecols]
+        else:
+            row = [converters.get(i,float)(val) for i,val in enumerate(line.split(delimiter))]
+        thisLen = len(row)
+        X.append(row)
+
+    X = array(X)
+    r,c = X.shape
+    if r==1 or c==1:
+        X.shape = max([r,c]),
+    if unpack: return transpose(X)
+    else:  return X
 
 ### the following code was written and submitted by Fernando Perez
 ### from the ipython numutils package under a BSD license

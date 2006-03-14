@@ -294,7 +294,7 @@ from matplotlib.mlab import linspace, window_hanning, window_none,\
         sqrtm, prctile, center_matrix, meshgrid, rk4, exp_safe, amap,\
         sum_flat, mean_flat, rms_flat, l1norm, l2norm, norm, frange,\
         diagonal_matrix, base_repr, binary_repr, log2, ispower2,\
-        bivariate_normal
+        bivariate_normal, load
 
 
 """
@@ -978,75 +978,6 @@ if _imread.__doc__ is not None:
     imread.__doc__ = _shift_string(_imread.__doc__)
 
 
-def load(fname,comments='%',delimiter=None, converters=None,skiprows=0):
-    """
-    Load ASCII data from fname into an array and return the array.
-
-    The data must be regular, same number of values in every row
-
-    fname can be a filename or a file handle.  Support for gzipped files is
-    automatic, if the filename ends in .gz
-
-    matfile data is not currently supported, but see
-    Nigel Wade's matfile ftp://ion.le.ac.uk/matfile/matfile.tar.gz
-
-    Example usage:
-
-    X = load('test.dat')  # data in two columns
-    t = X[:,0]
-    y = X[:,1]
-
-    Alternatively, you can do
-
-    t,y = transpose(load('test.dat')) # for  two column data
-
-
-    X = load('test.dat')    # a matrix of data
-
-    x = load('test.dat')    # a single column of data
-
-    comments is the character used to indicate the start of a comment
-    in the file
-
-    delimiter is a string-like character used to seperate values in the
-    file. If delimiter is unspecified or none, any whitespace string is
-    a separator.
-
-    converters, if not None, is a dictionary mapping column number to
-    a function that will convert that column to a float.  Eg, if
-    column 0 is a date string: converters={0:datestr2num}
-
-    skiprows is the number of rows from the top to skip
-    """
-
-    if converters is None: converters = {}
-    if is_string_like(fname):
-        if fname.endswith('.gz'):
-            import gzip
-            fh = gzip.open(fname)
-        else:
-            fh = file(fname)
-    elif hasattr(fname, 'seek'):
-        fh = fname
-    else:
-        raise ValueError('fname must be a string or file handle')
-    X = []
-    numCols = None
-    for i,line in enumerate(fh):
-        if i<skiprows: continue
-        line = line[:line.find(comments)].strip()
-        if not len(line): continue
-        row = [converters.get(i,float)(val) for i,val in enumerate(line.split(delimiter))]
-        thisLen = len(row)
-        if numCols is not None and thisLen != numCols:
-            raise ValueError('All rows must have the same number of columns')
-        X.append(row)
-
-    X = array(X)
-    r,c = X.shape
-    if r==1 or c==1:
-        X.shape = max([r,c]),
-    return X
 
 
 def rc(*args, **kwargs):
