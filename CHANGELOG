@@ -1,6 +1,7 @@
-2006-03-12 Extended pylab "load" function to support individual columns
-	   and moved it into matplotlib.mlab so it can be used outside
-	   of pylab -- see examples/load_converter.py - JDH
+2006-03-12 Extended "load" function to support individual columns and
+	   moved "load" and "save" into matplotlib.mlab so they can be
+	   used outside of pylab -- see examples/load_converter.py -
+	   JDH
 
 2006-03-12 Added AutoDateFormatter and AutoDateLocator submitted
            by James Evans. Try the load_converter.py example for a

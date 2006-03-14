@@ -1442,7 +1442,7 @@ _image_module::pcolor(const Py::Tuple& args) {
   size_t rowsize(cols*4);
   rowstart = rowstarts;
   agg::int8u * position = buffer;
-  agg::int8u * oldposition;
+  agg::int8u * oldposition = NULL;
   start = reinterpret_cast<unsigned char*>(d->data);
   for(i=0;i<rows;i++,rowstart++)
   {

@@ -294,7 +294,7 @@ from matplotlib.mlab import linspace, window_hanning, window_none,\
         sqrtm, prctile, center_matrix, meshgrid, rk4, exp_safe, amap,\
         sum_flat, mean_flat, rms_flat, l1norm, l2norm, norm, frange,\
         diagonal_matrix, base_repr, binary_repr, log2, ispower2,\
-        bivariate_normal, load
+        bivariate_normal, load, save
 
 
 """
@@ -990,51 +990,6 @@ def rcdefaults():
     draw_if_interactive()
 if matplotlib.rcdefaults.__doc__ is not None:
     rcdefaults.__doc__ =   _shift_string(matplotlib.rcdefaults.__doc__)
-
-def save(fname, X, fmt='%.18e',delimiter=' '):
-    """
-    Save the data in X to file fname using fmt string to convert the
-    data to strings
-
-    fname can be a filename or a file handle.  If the filename ends in .gz,
-    the file is automatically saved in compressed gzip format.  The load()
-    command understands gzipped files transparently.
-
-    Example usage:
-
-    save('test.out', X)         # X is an array
-    save('test1.out', (x,y,z))  # x,y,z equal sized 1D arrays
-    save('test2.out', x)        # x is 1D
-    save('test3.out', x, fmt='%1.4e')  # use exponential notation
-
-    delimiter is used to separate the fields, eg delimiter ',' for
-    comma-separated values
-    """
-
-    if is_string_like(fname):
-        if fname.endswith('.gz'):
-            import gzip
-            fh = gzip.open(fname,'wb')
-        else:
-            fh = file(fname,'w')
-    elif hasattr(fname, 'seek'):
-        fh = fname
-    else:
-        raise ValueError('fname must be a string or file handle')
-
-
-    X = asarray(X)
-    origShape = None
-    if len(X.shape)==1:
-        origShape = X.shape
-        X.shape = len(X), 1
-    for row in X:
-        fh.write(delimiter.join([fmt%val for val in row]) + '\n')
-
-    if origShape is not None:
-        X.shape = origShape
-
-
 
 
 def subplot(*args, **kwargs):
