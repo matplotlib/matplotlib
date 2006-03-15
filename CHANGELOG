@@ -1,3 +1,6 @@
+2006-03-14 Added import of compatibility library for newer numpy 
+           linear_algebra - TEO
+
 2006-03-12 Extended "load" function to support individual columns and
 	   moved "load" and "save" into matplotlib.mlab so they can be
 	   used outside of pylab -- see examples/load_converter.py -
