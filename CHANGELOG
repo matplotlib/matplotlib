@@ -1,10 +1,16 @@
-2006-03-14 Added import of compatibility library for newer numpy 
+2006-03-15 Fixed bug in MaxNLocator revealed by daigos@infinito.it.
+           The main change is that Locator.nonsingular now adjusts
+           vmin and vmax if they are nearly the same, not just if
+           they are equal.  A new kwarg, "tiny", sets the threshold. -
+           EF
+
+2006-03-14 Added import of compatibility library for newer numpy
            linear_algebra - TEO
 
 2006-03-12 Extended "load" function to support individual columns and
-	   moved "load" and "save" into matplotlib.mlab so they can be
-	   used outside of pylab -- see examples/load_converter.py -
-	   JDH
+           moved "load" and "save" into matplotlib.mlab so they can be
+           used outside of pylab -- see examples/load_converter.py -
+           JDH
 
 2006-03-12 Added AutoDateFormatter and AutoDateLocator submitted
            by James Evans. Try the load_converter.py example for a
@@ -13,11 +19,11 @@
 2006-03-11 Added subprocess module from python-2.4 - DSD
 
 2006-03-11 Fixed landscape orientation support with the usetex
-           option. The backend_ps print_figure method was 
+           option. The backend_ps print_figure method was
            getting complicated, I added a _print_figure_tex
            method to maintain some degree of sanity - DSD
 
-2006-03-11 Added "papertype" savefig kwarg for setting 
+2006-03-11 Added "papertype" savefig kwarg for setting
            postscript papersizes. papertype and ps.papersize
            rc setting can also be set to "auto" to autoscale
            pagesizes - DSD
@@ -29,7 +35,7 @@
 
 2006-03-07 Fixed bug in backend_ps related to C0-C6 papersizes,
            which were causing problems with postscript viewers.
-           Supported page sizes include letter, legal, ledger, 
+           Supported page sizes include letter, legal, ledger,
            A0-A10, and B0-B10 - DSD
 
 ===============================================================
