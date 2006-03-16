@@ -518,10 +518,10 @@ class Locator(TickHelper):
         step = 0.1*interval*direction
         self.viewInterval.set_bounds(vmin + step, vmax - step)
 
-    def nonsingular(self, vmin, vmax, expander = 0.001):
+    def nonsingular(self, vmin, vmax, expander=0.001, tiny=1e-6):
         if vmax < vmin:
             vmin, vmax = vmax, vmin
-        if vmin==vmax:
+        if vmax - vmin < max(abs(vmin), abs(vmax)) * tiny:
             if vmin==0.0:
                 vmin -= 1
                 vmax += 1
@@ -729,9 +729,10 @@ class MultipleLocator(Locator):
 
 def scale_range(vmin, vmax, n = 1, threshold=100):
     dv = abs(vmax - vmin)
-    if dv == 0:
-        return 1.0, 0.0
     meanv = 0.5*(vmax+vmin)
+    var = dv/max(abs(vmin), abs(vmax))
+    if var < 1e-12:
+        return 1.0, 0.0
     if abs(meanv)/dv < threshold:
         offset = 0
     elif meanv > 0:
