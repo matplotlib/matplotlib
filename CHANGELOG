@@ -1,3 +1,6 @@
+===============================================================
+2006-03-16 Released 0.87.2
+
 2006-03-15 Fixed bug in MaxNLocator revealed by daigos@infinito.it.
            The main change is that Locator.nonsingular now adjusts
            vmin and vmax if they are nearly the same, not just if
