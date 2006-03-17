@@ -159,6 +159,14 @@ try: import subprocess
 except ImportError: havesubprocess = False
 else: havesubprocess = True
 
+if havesubprocess and sys.version < '2.4':
+    # Python didn't come with subprocess, so let's make sure it's
+    # not in some Python egg (e.g. an older version of matplotlib)
+    # that may get removed.
+    subprocess_dir = os.path.dirname(subprocess.__file__)
+    if subprocess_dir.endswith('.egg/subprocess'):
+        havesubprocess = False
+    
 if not havesubprocess:
     packages.append('subprocess')
     if sys.platform == 'win32':

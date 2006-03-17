@@ -1,3 +1,6 @@
+2006-03-17 subprocess module built if Python <2.4 even if subprocess
+           can be imported from an egg - ADS
+
 2006-03-17 Added _subprocess.c from Python upstream and hopefully
            enabled building (without breaking) on Windows, although
            not tested. - ADS
