@@ -628,12 +628,12 @@ unless ghostscript-%s or later is installed on your system'% gs_req)
                 warnings.warn('matplotlibrc ps.usedistiller can not be set to \
 xpdf unless xpdf-%s or later is installed on your system' % xpdf_req)
 
-            ps2eps_v = checkdep_ps2eps()
-            if compare_versions(ps2eps_v, ps2eps_req): pass
-            else:
-                flag = False
-                warnings.warn('matplotlibrc ps.usedistiller can not be set to xpdf \
-unless ps2eps-%s or later is installed on your system' % ps2eps_req)
+##            ps2eps_v = checkdep_ps2eps()
+##            if compare_versions(ps2eps_v, ps2eps_req): pass
+##            else:
+##                flag = False
+##                warnings.warn('matplotlibrc ps.usedistiller can not be set to xpdf \
+##unless ps2eps-%s or later is installed on your system' % ps2eps_req)
 
         if flag: return s
         else: return None
