@@ -868,3 +868,11 @@ def build_gdk(ext_modules, packages, numerix):
         ext_modules.append(module)
 
     BUILT_GDK = True
+
+def build_subprocess(ext_modules, packages):
+    module = Extension(
+        'subprocess._subprocess',
+        ['src/_subprocess.c', ],
+        )
+    add_base_flags(module)
+    ext_modules.append(module)
