@@ -1,3 +1,6 @@
+2006-03-17 Updated subprocess.py to latest Python upstream and
+           reverted name back to subprocess.py - ADS
+
 ===============================================================
 2006-03-16 Released 0.87.2
 
