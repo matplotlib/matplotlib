@@ -1,3 +1,5 @@
+2006-03-17 Center postscript output on page when using usetex - DSD
+
 2006-03-17 subprocess module built if Python <2.4 even if subprocess
            can be imported from an egg - ADS
 

@@ -1199,9 +1199,15 @@ class FigureCanvasPS(FigureCanvasBase):
         temp_papertype = _get_papertype(width, height)
         if papertype=='auto':
             papertype = temp_papertype
-        paperWidth, paperHeight = papersize[papertype]
+            paperWidth, paperHeight = papersize[temp_papertype]
+        else:
+            paperWidth, paperHeight = papersize[papertype]
+            if (width>paperWidth or height>paperHeight) and ext=='.eps':
+                paperWidth, paperHeight = papersize[temp_papertype]
+                verbose.report('Your figure is too big to fit on %s paper. %s \
+paper will be used to prevent clipping.'%(papertype, temp_papertype), 'helpful')
         convert_psfrags(tmpfile, renderer.psfrag,
-            renderer.texmanager.get_font_preamble(), width+2, height+2,
+            renderer.texmanager.get_font_preamble(), paperWidth, paperHeight,
             orientation)
         
         if rcParams['ps.usedistiller'] == 'ghostscript':
@@ -1244,12 +1250,13 @@ def convert_psfrags(tmpfile, psfrags, font_preamble, paperWidth, paperHeight,
 \begin{document}
 \begin{figure}
 \centering
+\leavevmode
 %s
-\includegraphics[angle=%s]{%s}
+\includegraphics*[angle=%s]{%s}
 \end{figure}
 \end{document}
-"""% (font_preamble, paperWidth, paperHeight, paperWidth, paperHeight, '\n'.join(psfrags), angle,
-        os.path.split(epsfile)[-1])
+"""% (font_preamble, paperWidth, paperHeight, paperWidth, paperHeight,
+        '\n'.join(psfrags), angle, os.path.split(epsfile)[-1])
     latexh.close()
     
     curdir = os.getcwd()
@@ -1291,8 +1298,7 @@ def gs_distill(tmpfile, eps=False, ptype='letter', bbox=None):
     This yields smaller files without illegal encapsulated postscript
     operators. The output is low-level, converting text to outlines.
     """
-    if eps: paper = '-sPAPERSIZE=%s'% ptype
-    else: paper = '-sPAPERSIZE=%s'% ptype
+    paper = '-sPAPERSIZE=%s'% ptype
     outputfile = tmpfile + '.ps'
     dpi = rcParams['ps.distiller.res']
     if sys.platform == 'win32': gs_exe = 'gswin32c'
