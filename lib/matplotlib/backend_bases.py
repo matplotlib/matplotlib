@@ -658,7 +658,7 @@ class LocationEvent(Event):
 
         self.inaxes = [] # Need to correctly handle overlapping axes
         for a in self.canvas.figure.get_axes():
-            if self.x is not None and self.y is not None and a.in_axes(self.x, self.y):
+            if self.x is not None and self.y is not None and a.in_axes(self.x, self.y) and a.get_navigate():
                 self.inaxes.append(a)
 
         if len(self.inaxes) == 0: # None found
@@ -955,7 +955,6 @@ class FigureManagerBase:
 
     def full_screen_toggle (self):
         pass
-
     def key_press(self, event):
 
         # these bindings happen whether you are over an axes or not
@@ -976,6 +975,16 @@ class FigureManagerBase:
         elif event.key == 'l':
             event.inaxes.toggle_log_lineary()
             self.canvas.draw()
+        elif (event.key.isdigit() and event.key!='0') or event.key=='a':
+            # 'a' enables all axes
+            if event.key!='a':
+                n=int(event.key)-1
+            for i, a in enumerate(self.canvas.figure.get_axes()):
+                if event.x is not None and event.y is not None and a.in_axes(event.x, event.y):
+                    if event.key=='a':
+                        a.set_navigate(True)
+                    else:
+                        a.set_navigate(i==n)
 
 
     def show_popup(self, msg):
@@ -1112,9 +1121,9 @@ class NavigationToolbar2:
                 if self._lastCursor != cursors.SELECT_REGION:
                     self.set_cursor(cursors.SELECT_REGION)
                     self._lastCursor = cursors.SELECT_REGION
-                if self._xypress is not None:
+                if self._xypress:
                     x, y = event.x, event.y
-                    lastx, lasty, a, ind, lim, trans= self._xypress
+                    lastx, lasty, a, ind, lim, trans= self._xypress[0]
                     self.draw_rubberband(event, x, y, lastx, lasty)
             elif (self._active=='PAN' and
                   self._lastCursor != cursors.MOVE):
@@ -1143,7 +1152,6 @@ class NavigationToolbar2:
             self._active = None
         else:
             self._active = 'PAN'
-
         if self._idPress is not None:
             self._idPress = self.canvas.mpl_disconnect(self._idPress)
             self.mode = ''
@@ -1181,16 +1189,15 @@ class NavigationToolbar2:
         # push the current view to define home if stack is empty
         if self._views.empty(): self.push_current()
 
-
+        self._xypress=[]
         for i, a in enumerate(self.canvas.figure.get_axes()):
-            if event.inaxes == a and event.inaxes.get_navigate():
+            if x is not None and y is not None and a.in_axes(x, y) and a.get_navigate():
                 xmin, xmax = a.get_xlim()
                 ymin, ymax = a.get_ylim()
                 lim = xmin, xmax, ymin, ymax
-                self._xypress = x, y, a, i, lim,a.transData.deepcopy()
+                self._xypress.append((x, y, a, i, lim,a.transData.deepcopy()))
                 self.canvas.mpl_disconnect(self._idDrag)
                 self._idDrag=self.canvas.mpl_connect('motion_notify_event', self.drag_pan)
-                break
 
         self.press(event)
 
@@ -1209,14 +1216,14 @@ class NavigationToolbar2:
         # push the current view to define home if stack is empty
         if self._views.empty(): self.push_current()
 
+        self._xypress=[]
         for i, a in enumerate(self.canvas.figure.get_axes()):
-            if event.inaxes==a and event.inaxes.get_navigate():
+            if x is not None and y is not None and a.in_axes(x, y) and a.get_navigate():
                 xmin, xmax = a.get_xlim()
                 ymin, ymax = a.get_ylim()
                 lim = xmin, xmax, ymin, ymax
-                self._xypress = x, y, a, i, lim, a.transData.deepcopy()
+                self._xypress.append(( x, y, a, i, lim, a.transData.deepcopy() ))
 
-                break
         self.press(event)
 
     def push_current(self):
@@ -1241,7 +1248,7 @@ class NavigationToolbar2:
         'the release mouse button callback in pan/zoom mode'
         self.canvas.mpl_disconnect(self._idDrag)
         self._idDrag=self.canvas.mpl_connect('motion_notify_event', self.mouse_move)
-        if self._xypress is None: return
+        if not self._xypress: return
         self._xypress = None
         self._button_pressed=None
         self.push_current()
@@ -1272,59 +1279,59 @@ class NavigationToolbar2:
                     dx=dx/abs(dx)*abs(dy)
             return (dx,dy)
 
-        if self._xypress is None: return
-        x, y = event.x, event.y
+        for cur_xypress in self._xypress:
+            lastx, lasty, a, ind, lim, trans = cur_xypress
+            xmin, xmax, ymin, ymax = lim
+            #safer to use the recorded buttin at the press than current button:
+            #multiple button can get pressed during motion...
+            if self._button_pressed==1:
+                lastx, lasty = trans.inverse_xy_tup( (lastx, lasty) )
+                x, y = trans.inverse_xy_tup( (event.x, event.y) )
+                if a.get_xscale()=='log':
+                    dx=1-lastx/x
+                else:
+                    dx=x-lastx
+                if a.get_yscale()=='log':
+                    dy=1-lasty/y
+                else:
+                    dy=y-lasty
 
-        lastx, lasty, a, ind, lim, trans = self._xypress
-        xmin, xmax, ymin, ymax = lim
-        #safer to use the recorded buttin at the press than current button:
-        #multiple button can get pressed during motion...
-        if self._button_pressed==1:
-            lastx, lasty = trans.inverse_xy_tup( (lastx, lasty) )
-            x, y = trans.inverse_xy_tup( (x, y) )
-            if a.get_xscale()=='log':
-                dx=1-lastx/x
-            else:
-                dx=x-lastx
-            if a.get_yscale()=='log':
-                dy=1-lasty/y
-            else:
-                dy=y-lasty
-            dx,dy=format_deltas(event,dx,dy)
-            if a.get_xscale()=='log':
-                xmin *= 1-dx
-                xmax *= 1-dx
-            else:
-                xmin -= dx
-                xmax -= dx
-            if a.get_yscale()=='log':
-                ymin *= 1-dy
-                ymax *= 1-dy
-            else:
-                ymin -= dy
-                ymax -= dy
-        elif self._button_pressed==3:
-            dx=(lastx-x)/float(a.bbox.width())
-            dy=(lasty-y)/float(a.bbox.height())
-            dx,dy=format_deltas(event,dx,dy)
-            alphax = pow(10.0,dx)
-            alphay = pow(10.0,dy)#use logscaling, avoid singularities and smother scaling...
-            lastx, lasty = trans.inverse_xy_tup( (lastx, lasty) )
-            if a.get_xscale()=='log':
-                xmin = lastx*(xmin/lastx)**alphax
-                xmax = lastx*(xmax/lastx)**alphax
-            else:
-                xmin = lastx+alphax*(xmin-lastx)
-                xmax = lastx+alphax*(xmax-lastx)
-            if a.get_yscale()=='log':
-                ymin = lasty*(ymin/lasty)**alphay
-                ymax = lasty*(ymax/lasty)**alphay
-            else:
-                ymin = lasty+alphay*(ymin-lasty)
-                ymax = lasty+alphay*(ymax-lasty)
+                dx,dy=format_deltas(event,dx,dy)
 
-        a.set_xlim((xmin, xmax))
-        a.set_ylim((ymin, ymax))
+                if a.get_xscale()=='log':
+                    xmin *= 1-dx
+                    xmax *= 1-dx
+                else:
+                    xmin -= dx
+                    xmax -= dx
+                if a.get_yscale()=='log':
+                    ymin *= 1-dy
+                    ymax *= 1-dy
+                else:
+                    ymin -= dy
+                    ymax -= dy
+            elif self._button_pressed==3:
+                dx=(lastx-event.x)/float(a.bbox.width())
+                dy=(lasty-event.y)/float(a.bbox.height())
+                dx,dy=format_deltas(event,dx,dy)
+                alphax = pow(10.0,dx)
+                alphay = pow(10.0,dy)#use logscaling, avoid singularities and smother scaling...
+                lastx, lasty = trans.inverse_xy_tup( (lastx, lasty) )
+                if a.get_xscale()=='log':
+                    xmin = lastx*(xmin/lastx)**alphax
+                    xmax = lastx*(xmax/lastx)**alphax
+                else:
+                    xmin = lastx+alphax*(xmin-lastx)
+                    xmax = lastx+alphax*(xmax-lastx)
+                if a.get_yscale()=='log':
+                    ymin = lasty*(ymin/lasty)**alphay
+                    ymax = lasty*(ymax/lasty)**alphay
+                else:
+                    ymin = lasty+alphay*(ymin-lasty)
+                    ymax = lasty+alphay*(ymax-lasty)
+    
+            a.set_xlim((xmin, xmax))
+            a.set_ylim((ymin, ymax))
 
         self.dynamic_update()
 
@@ -1332,70 +1339,70 @@ class NavigationToolbar2:
 
     def release_zoom(self, event):
         'the release mouse button callback in zoom to rect mode'
-        if self._xypress is None: return
-        x, y = event.x, event.y
+        if not self._xypress: return
 
-
-        lastx, lasty, a, ind, lim, trans = self._xypress
-        # ignore singular clicks - 5 pixels is a threshold
-        if abs(x-lastx)<5 or abs(y-lasty)<5:
-            self._xypress = None
-            self.release(event)
-            self.draw()
-            return
-
-        xmin, ymin, xmax, ymax = lim
-
-        # zoom to rect
-        lastx, lasty = a.transData.inverse_xy_tup( (lastx, lasty) )
-        x, y = a.transData.inverse_xy_tup( (x, y) )
-        Xmin,Xmax=a.get_xlim()
-        Ymin,Ymax=a.get_ylim()
-
-        if Xmin < Xmax:
-            if x<lastx:  xmin, xmax = x, lastx
-            else: xmin, xmax = lastx, x
-            if xmin < Xmin: xmin=Xmin
-            if xmax > Xmax: xmax=Xmax
-        else:
-            if x>lastx:  xmin, xmax = x, lastx
-            else: xmin, xmax = lastx, x
-            if xmin > Xmin: xmin=Xmin
-            if xmax < Xmax: xmax=Xmax
-
-        if Ymin < Ymax:
-            if y<lasty:  ymin, ymax = y, lasty
-            else: ymin, ymax = lasty, y
-            if ymin < Ymin: ymin=Ymin
-            if ymax > Ymax: ymax=Ymax
-        else:
-            if y>lasty:  ymin, ymax = y, lasty
-            else: ymin, ymax = lasty, y
-            if ymin > Ymin: ymin=Ymin
-            if ymax < Ymax: ymax=Ymax
-
-        if self._button_pressed == 1:
-            a.set_xlim((xmin, xmax))
-            a.set_ylim((ymin, ymax))
-        elif self._button_pressed == 3:
-            if a.get_xscale()=='log':
-                alpha=log(Xmax/Xmin)/log(xmax/xmin)
-                x1=pow(Xmin/xmin,alpha)*Xmin
-                x2=pow(Xmax/xmin,alpha)*Xmin
+        for cur_xypress in self._xypress:
+            x, y = event.x, event.y
+            lastx, lasty, a, ind, lim, trans = cur_xypress
+            # ignore singular clicks - 5 pixels is a threshold
+            if abs(x-lastx)<5 or abs(y-lasty)<5:
+                self._xypress = None
+                self.release(event)
+                self.draw()
+                return
+    
+            xmin, ymin, xmax, ymax = lim
+    
+            # zoom to rect
+            lastx, lasty = a.transData.inverse_xy_tup( (lastx, lasty) )
+            x, y = a.transData.inverse_xy_tup( (x, y) )
+            Xmin,Xmax=a.get_xlim()
+            Ymin,Ymax=a.get_ylim()
+    
+            if Xmin < Xmax:
+                if x<lastx:  xmin, xmax = x, lastx
+                else: xmin, xmax = lastx, x
+                if xmin < Xmin: xmin=Xmin
+                if xmax > Xmax: xmax=Xmax
             else:
-                alpha=(Xmax-Xmin)/(xmax-xmin)
-                x1=alpha*(Xmin-xmin)+Xmin
-                x2=alpha*(Xmax-xmin)+Xmin
-            if a.get_yscale()=='log':
-                alpha=log(Ymax/Ymin)/log(ymax/ymin)
-                y1=pow(Ymin/ymin,alpha)*Ymin
-                y2=pow(Ymax/ymin,alpha)*Ymin
+                if x>lastx:  xmin, xmax = x, lastx
+                else: xmin, xmax = lastx, x
+                if xmin > Xmin: xmin=Xmin
+                if xmax < Xmax: xmax=Xmax
+    
+            if Ymin < Ymax:
+                if y<lasty:  ymin, ymax = y, lasty
+                else: ymin, ymax = lasty, y
+                if ymin < Ymin: ymin=Ymin
+                if ymax > Ymax: ymax=Ymax
             else:
-                alpha=(Ymax-Ymin)/(ymax-ymin)
-                y1=alpha*(Ymin-ymin)+Ymin
-                y2=alpha*(Ymax-ymin)+Ymin
-            a.set_xlim((x1, x2))
-            a.set_ylim((y1, y2))
+                if y>lasty:  ymin, ymax = y, lasty
+                else: ymin, ymax = lasty, y
+                if ymin > Ymin: ymin=Ymin
+                if ymax < Ymax: ymax=Ymax
+    
+            if self._button_pressed == 1:
+                a.set_xlim((xmin, xmax))
+                a.set_ylim((ymin, ymax))
+            elif self._button_pressed == 3:
+                if a.get_xscale()=='log':
+                    alpha=log(Xmax/Xmin)/log(xmax/xmin)
+                    x1=pow(Xmin/xmin,alpha)*Xmin
+                    x2=pow(Xmax/xmin,alpha)*Xmin
+                else:
+                    alpha=(Xmax-Xmin)/(xmax-xmin)
+                    x1=alpha*(Xmin-xmin)+Xmin
+                    x2=alpha*(Xmax-xmin)+Xmin
+                if a.get_yscale()=='log':
+                    alpha=log(Ymax/Ymin)/log(ymax/ymin)
+                    y1=pow(Ymin/ymin,alpha)*Ymin
+                    y2=pow(Ymax/ymin,alpha)*Ymin
+                else:
+                    alpha=(Ymax-Ymin)/(ymax-ymin)
+                    y1=alpha*(Ymin-ymin)+Ymin
+                    y2=alpha*(Ymax-ymin)+Ymin
+                a.set_xlim((x1, x2))
+                a.set_ylim((y1, y2))
 
         # Zoom with fixed aspect; modified for shared x-axes
         aspect = a.get_aspect()
