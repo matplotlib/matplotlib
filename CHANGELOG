@@ -1,3 +1,8 @@
+ 2006-03-17 Applied  Jordan Dawe's patch to support kwarg properties
+           for grid lines in the grid command.  Closes sf patch
+           1451661
+
+
 2006-03-17 Center postscript output on page when using usetex - DSD
 
 2006-03-17 subprocess module built if Python <2.4 even if subprocess
@@ -10,8 +15,11 @@
 2006-03-17 Updated subprocess.py to latest Python upstream and
            reverted name back to subprocess.py - ADS
 
+2006-03-16 Added John Porter's 3D handling code
+
+
 ===============================================================
-2006-03-16 Released 0.87.2
+2006-03-16 Released 0.87.2 at revision 2150
 
 2006-03-15 Fixed bug in MaxNLocator revealed by daigos@infinito.it.
            The main change is that Locator.nonsingular now adjusts

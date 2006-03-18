@@ -6,21 +6,20 @@ Various transforms used for by the 3D code
 
 """
 
-import pylab
-import pylab as nx
-import matplotlib
-from matplotlib import patches
-import math
+from collections import LineCollection
+from patches import Circle
+import numerix as nx
 from math import sqrt
-import time
 
-def dot(a,b):
+dot = nx.dot
+def _hide_dot(a,b):
     """
     Dot product of two vectors
     """
     return a[0]*b[0]+a[1]*b[1]+a[2]*b[2]
 
-def cross(a,b):
+cross = nx.cross
+def _hide_cross(a,b):
     """
     Cross product of two vectors
     A x B = <Ay*Bz - Az*By, Az*Bx - Ax*Bz, Ax*By - Ay*Bx>
@@ -139,7 +138,7 @@ def test_lines_dists():
     dist = line2d_seg_dist(p0,p1,(xs[0],ys[0]))
     dist = line2d_seg_dist(p0,p1,nx.array((xs,ys)))
     for x,y,d in zip(xs,ys,dist):
-        c = patches.Circle((x,y),d,fill=0)
+        c = Circle((x,y),d,fill=0)
         ax.add_patch(c)
     #
     pylab.xlim(-200,200)
@@ -216,7 +215,7 @@ def proj_transform_vec_clip(vec, M):
     return txs,tys,tzs,tis
 
 def inv_transform(xs,ys,zs,M):
-    iM = nx.inverse(M)
+    iM = nx.linalg.inv(M)
     vec = vec_pad_ones(xs,ys,zs)
     vecr = nx.matrixmultiply(iM,vec)
     try:
@@ -272,7 +271,7 @@ def test_proj_draw_axes(M, s=1):
     lines = [(o,ax),(o,ay),(o,az)]
     #
     ax = pylab.gca()
-    linec = matplotlib.collections.LineCollection(lines)
+    linec = LineCollection(lines)
     ax.add_collection(linec)
     for x,y,t in zip(txs,tys,['o','x','y','z']):
         pylab.text(x,y,t)

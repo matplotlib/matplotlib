@@ -12,15 +12,15 @@ AXes3D
 
 """
 
-import pylab
 import random
 
 import matplotlib
-from matplotlib.axes import Axes
-from matplotlib import cbook
-from matplotlib.transforms import unit_bbox
-import matplotlib.numerix as nx
-from matplotlib.colors import normalize
+from axes import Axes
+import cbook
+from transforms import unit_bbox
+
+import numerix as nx
+from colors import normalize
 
 
 import art3d
@@ -530,14 +530,14 @@ class Axes3DI(Axes):
         had_data = self.has_data()
         
         rows,cols = Z.shape
-        tX,tY,tZ = pylab.transpose(X),pylab.transpose(Y),pylab.transpose(Z)
+        tX,tY,tZ = nx.transpose(X), nx.transpose(Y), nx.transpose(Z)
         rstride = cbook.popd(kwargs, 'rstride', 10)
         cstride = cbook.popd(kwargs, 'cstride', 10)
         #
         polys = []
         boxes = []
-        for rs in pylab.arange(0,rows,rstride):
-            for cs in pylab.arange(0,cols,cstride):
+        for rs in nx.arange(0,rows,rstride):
+            for cs in nx.arange(0,cols,cstride):
                 ps = []
                 corners = []
                 for a,ta in [(X,tX),(Y,tY),(Z,tZ)]:
@@ -548,7 +548,7 @@ class Axes3DI(Axes):
                     zright = ta[cs][rs:min(rows-1,rs+rstride):]
                     zright = zright[::-1]
                     corners.append([ztop[0],ztop[-1],zbase[0],zbase[-1]])
-                    z = pylab.concatenate((ztop,zleft,zbase,zright))
+                    z = nx.concatenate((ztop,zleft,zbase,zright))
                     ps.append(z)
                 boxes.append(map(nx.array,zip(*corners)))
                 polys.append(zip(*ps))
@@ -580,7 +580,7 @@ class Axes3DI(Axes):
         had_data = self.has_data()
         rows,cols = Z.shape
         
-        tX,tY,tZ = pylab.transpose(X),pylab.transpose(Y),pylab.transpose(Z)
+        tX,tY,tZ = nx.transpose(X), nx.transpose(Y), nx.transpose(Z)
         
         rii = [i for i in range(0,rows,rstride)]+[rows-1]
         cii = [i for i in range(0,cols,cstride)]+[cols-1]
@@ -746,14 +746,13 @@ def test_scatter():
     ax.set_ylabel('------------ Y Label --------------------')
     ax.set_zlabel('------------ Z Label --------------------')
     
-    pylab.show()
-
 def get_test_data(delta=0.05):
-    x = y = pylab.arange(-3.0, 3.0, delta)
-    X, Y = pylab.meshgrid(x,y)
+    from mlab import meshgrid, bivariate_normal    
+    x = y = nx.arange(-3.0, 3.0, delta)
+    X, Y = meshgrid(x,y)
     
-    Z1 = pylab.bivariate_normal(X, Y, 1.0, 1.0, 0.0, 0.0)
-    Z2 = pylab.bivariate_normal(X, Y, 1.5, 0.5, 1, 1)
+    Z1 = bivariate_normal(X, Y, 1.0, 1.0, 0.0, 0.0)
+    Z2 = bivariate_normal(X, Y, 1.5, 0.5, 1, 1)
     Z = Z2-Z1
 
     X = X * 10
@@ -770,7 +769,6 @@ def test_wire():
     ax.set_xlabel('X')
     ax.set_ylabel('Y')
     ax.set_zlabel('Z')
-    pylab.show()
 
 def test_surface():
     ax = Axes3D()
@@ -781,7 +779,6 @@ def test_surface():
     ax.set_xlabel('X')
     ax.set_ylabel('Y')
     ax.set_zlabel('Z')
-    pylab.show()
 
 
 def test_contour():
@@ -794,12 +791,11 @@ def test_contour():
     ax.set_xlabel('X')
     ax.set_ylabel('Y')
     ax.set_zlabel('Z')
-    pylab.show()
 
 def test_plot():
     ax = Axes3D()
-    xs = pylab.arange(0,4*nx.pi+0.1,0.1)
-    ys = pylab.sin(xs)
+    xs = nx.arange(0,4*nx.pi+0.1,0.1)
+    ys = nx.sin(xs)
     ax.plot(xs,ys, label='zl')
     ax.plot(xs,ys+max(xs),label='zh')
     ax.plot(xs,ys,dir='x', label='xl')
@@ -810,7 +806,6 @@ def test_plot():
     ax.set_ylabel('Y')
     ax.set_zlabel('Z')
     ax.legend()
-    pylab.show()
 
 
 def test_polys():
@@ -820,7 +815,7 @@ def test_polys():
     cc = lambda arg: colorConverter.to_rgba(arg, alpha=0.6)
     
     ax = Axes3D()
-    xs = pylab.arange(0,10,0.4)
+    xs = nx.arange(0,10,0.4)
     verts = []
     zs = [0.0,1.0,2.0,3.0]
     for z in zs:
@@ -839,7 +834,6 @@ def test_polys():
     ax.set_xlim(0,10)
     ax.set_ylim(-1,4)
     ax.set_zlim(0,1)
-    pylab.show()
 
 def test_scatter2D():
     xs = [random.random() for i in range(20)]
@@ -848,7 +842,6 @@ def test_scatter2D():
     ax.scatter(xs,ys)
     ax.scatter(xs,ys, dir='y', c='r')
     ax.scatter(xs,ys, dir='x', c='g')
-    pylab.show()
 
 def test_bar2D():
     ax = Axes3D()
@@ -858,10 +851,9 @@ def test_bar2D():
         ys = [random.random() for x in xs]
         ax.bar(xs,ys,z=z,dir='y',color=c)
     #ax.plot(xs,ys)
-    pylab.show()
-
 
 if __name__ == "__main__":
+    imoprt pylab
     #test_scatter()
     #test_wire()
     #test_surface()
@@ -870,3 +862,4 @@ if __name__ == "__main__":
     test_polys()
     #test_scatter2D()
     test_bar2D()
+    pylab.show()

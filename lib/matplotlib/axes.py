@@ -1749,13 +1749,13 @@ class Axes(Artist):
         """
         return self._autoscaleon
 
-    def grid(self, b=None):
+    def grid(self, b=None, **kwargs):
         """
         Set the axes grids on or off; b is a boolean
         if b is None, toggle the grid state
         """
-        self.xaxis.grid(b)
-        self.yaxis.grid(b)
+        self.xaxis.grid(b, **kwargs)
+        self.yaxis.grid(b, **kwargs)
 
 
     def hist(self, x, bins=10, normed=0, bottom=0,

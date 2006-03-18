@@ -5,14 +5,14 @@
 Wrap 2D artists so that they can pretend to be 3D
 """
 
-from matplotlib import lines
-from matplotlib.collections import LineCollection, PolyCollection
-from matplotlib import text
+import lines
+from collections import LineCollection, PolyCollection
+import text
 
-from matplotlib.colors import normalize
-from matplotlib.cm import jet
+from colors import normalize
+from cm import jet
 
-import matplotlib.numerix as nx
+import numerix as nx
 
 import proj3d
 
