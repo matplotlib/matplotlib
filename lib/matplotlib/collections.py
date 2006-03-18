@@ -213,11 +213,12 @@ class QuadMesh(PatchCollection):
     def __init__(self, norm = None, cmap = None):
         PatchCollection.__init__(self)
 
-    def __init__(self, meshWidth, meshHeight, coordinates, **kwargs):
+    def __init__(self, meshWidth, meshHeight, coordinates, showedges, **kwargs):
         PatchCollection.__init__(self, )
         self._meshWidth = meshWidth
         self._meshHeight = meshHeight
         self._coordinates = coordinates
+        self._showedges = showedges
 
     def get_verts(self, dataTrans=None):
         return self._coordinates;
@@ -228,12 +229,11 @@ class QuadMesh(PatchCollection):
         if not self.get_visible(): return
         self._transform.freeze()
         self._transOffset.freeze()
-        renderer.draw_quad_mesh(self._meshWidth, self._meshHeight,
-                                self._facecolors,
-                                self._coordinates[:, 0],
-                                self._coordinates[:, 1],
-                                self.clipbox, self._transform,
-                                self._offsets, self._transOffset)
+
+        renderer.draw_quad_mesh( self._meshWidth, self._meshHeight,
+            self._facecolors, self._coordinates[:,0],
+            self._coordinates[:, 1], self.clipbox, self._transform,
+            self._offsets, self._transOffset, self._showedges)
         self._transform.thaw()
         self._transOffset.thaw()
 

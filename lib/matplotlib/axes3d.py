@@ -853,7 +853,7 @@ def test_bar2D():
     #ax.plot(xs,ys)
 
 if __name__ == "__main__":
-    imoprt pylab
+    import pylab
     #test_scatter()
     #test_wire()
     #test_surface()

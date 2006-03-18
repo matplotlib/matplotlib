@@ -167,7 +167,7 @@ class RendererBase:
         """
         raise NotImplementedError
 
-    def draw_quad_mesh(self, meshWidth, meshHeight, colors, xCoords, yCoords, clipbox, transform, offsets, transOffset):
+    def draw_quad_mesh(self, meshWidth, meshHeight, colors, xCoords, yCoords, clipbox, transform, offsets, transOffset, showedges):
 	"""
 	Draw a quadrilateral mesh
 	See documentation in QuadMesh class in collections.py for details
@@ -185,7 +185,11 @@ class RendererBase:
 	verts[:, 2, 1] = take(yCoords, (indices + meshWidth + 1))
 	verts[:, 3, 0] = take(xCoords, (indices + meshWidth + 2))
 	verts[:, 3, 1] = take(yCoords, (indices + meshWidth + 2))
-	draw_poly_collection(self, verts, transform, clipbox, colors, colors, (0.25,), (0,), offsets, transOffset)
+	if (showedges):
+		edgecolors = colors
+	else:
+		edgecolors = (0, 0, 0, 1),
+	draw_poly_collection(self, verts, transform, clipbox, colors, edgecolors, (0.25,), (0,), offsets, transOffset)
 
     def draw_poly_collection(
         self, verts, transform, clipbox, facecolors, edgecolors,
