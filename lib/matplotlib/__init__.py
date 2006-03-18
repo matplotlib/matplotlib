@@ -364,9 +364,9 @@ get_data_path = verbose.wrap('matplotlib data path %s', _get_data_path, always=F
 def get_py2exe_datafiles():
     import glob
     
-    mplfiles = glob.glob(os.sep.join([matplotlib.get_data_path(), '*']))
+    mplfiles = glob.glob(os.sep.join([get_data_path(), '*']))
     # Need to explicitly remove cocoa_agg files or py2exe complains
-    mplfiles.remove(os.sep.join([matplotlib.get_data_path(), 'Matplotlib.nib']))
+    mplfiles.remove(os.sep.join([get_data_path(), 'Matplotlib.nib']))
     
     return ('matplotlibdata', mplfiles)
 
