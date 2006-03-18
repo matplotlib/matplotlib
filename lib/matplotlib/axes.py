@@ -2576,7 +2576,7 @@ class Axes(Artist):
 
 
     def pie(self, x, explode=None, labels=None,
-            colors=('b', 'g', 'r', 'c', 'm', 'y', 'k', 'w'),
+            colors=None,
             autopct=None,
             shadow=False
             ):
@@ -2631,6 +2631,7 @@ class Axes(Artist):
         if explode is None: explode = [0]*len(x)
         assert(len(x)==len(labels))
         assert(len(x)==len(explode))
+        if colors is None: colors = ('b', 'g', 'r', 'c', 'm', 'y', 'k', 'w')
 
 
         center = 0,0
