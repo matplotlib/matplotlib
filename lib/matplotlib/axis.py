@@ -11,7 +11,7 @@ from numerix import arange, array, asarray, ones, zeros, \
      nonzero, take, Float, log10, logical_and, \
      dot, sin, cos, tan, pi, sqrt
 
-from artist import Artist
+from artist import Artist, setp
 from cbook import enumerate, silent_list, popall
 from lines import Line2D, TICKLEFT, TICKRIGHT, TICKUP, TICKDOWN
 from mlab import linspace
@@ -712,7 +712,7 @@ class Axis(Artist):
         return ticks
 
 
-    def grid(self, b=None, which='major'):
+    def grid(self, b=None, which='major', **kwargs):
         """
         Set the axis grid on or off; b is a boolean use which =
         'major' | 'minor' to set the grid for major or minor ticks
@@ -725,12 +725,14 @@ class Axis(Artist):
             for tick in self.minorTicks:  # don't use get_ticks here!
                 if tick is None: continue
                 tick.gridOn = self._gridOnMinor
+                if len(kwargs): setp(tick.gridline,**kwargs)
         else:
             if b is None: self._gridOnMajor = not self._gridOnMajor
             else: self._gridOnMajor = b
             for tick in self.majorTicks:  # don't use get_ticks here!
                 if tick is None: continue
                 tick.gridOn = self._gridOnMajor
+                if len(kwargs): setp(tick.gridline,**kwargs)
 
 
     def set_major_formatter(self, formatter):

@@ -5,13 +5,16 @@
 
 import math
 
-from matplotlib import lines
-from matplotlib import axis
-from matplotlib import patches
-from matplotlib import text
+import lines
+import axis
+import patches
+import text
 
 import art3d
 import proj3d
+
+from numerix import sin, cos, pi, cumsum, dot, asarray, array, \
+     where, nonzero, equal, sqrt
 
 def norm_angle(a):
     """Return angle between -180 and +180"""
@@ -29,8 +32,6 @@ def text_update_coords(self, renderer):
     inconsistent
     """
     
-    from matplotlib.numerix import sin, cos, pi, cumsum, dot, asarray, array, \
-         where, nonzero, equal, sqrt
     
     (x, y) = self.get_position()
     dashlength = self.get_dashlength()
