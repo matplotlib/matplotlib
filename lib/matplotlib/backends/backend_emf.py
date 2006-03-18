@@ -82,7 +82,8 @@ class EMFPen:
         else:
             styles={'solid':pyemf.PS_SOLID, 'dashed':pyemf.PS_DASH,
                     'dashdot':pyemf.PS_DASHDOT, 'dotted':pyemf.PS_DOT}
-            style=styles.get(self.gc.get_linestyle('solid'))
+            #style=styles.get(self.gc.get_linestyle('solid'))
+            style=self.gc.get_linestyle('solid')
             if debugHandle: print "EMFPen: style=%d" % style
             if style in styles:
                 self.style=styles[style]
