@@ -1,7 +1,9 @@
- 2006-03-17 Applied  Jordan Dawe's patch to support kwarg properties
-           for grid lines in the grid command.  Closes sf patch
-           1451661
+2006-03-17 Applied Aarre's linestyle patch for backend EMF; closes sf
+           patch 1449279 - JDH
 
+2006-03-17 Applied  Jordan Dawe's patch to support kwarg properties
+           for grid lines in the grid command.  Closes sf patch
+           1451661 - JDH
 
 2006-03-17 Center postscript output on page when using usetex - DSD
 
