@@ -1752,8 +1752,19 @@ class Axes(Artist):
     def grid(self, b=None, **kwargs):
         """
         Set the axes grids on or off; b is a boolean
-        if b is None, toggle the grid state
+
+        if b is None and len(kwargs)==0, toggle the grid state.  if
+        kwargs are supplied, it is assumed that you want a grid and b
+        is thus set to True
+
+        kawrgs are used to set the grid line properties, eg
+
+          ax.grid(color='r', linestyle='-', linewidth=2)
+
+        See getp(line) for more information on valid keywords for line
+        properties.
         """
+        if len(kwargs): b = True
         self.xaxis.grid(b, **kwargs)
         self.yaxis.grid(b, **kwargs)
 

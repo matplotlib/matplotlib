@@ -717,8 +717,15 @@ class Axis(Artist):
         Set the axis grid on or off; b is a boolean use which =
         'major' | 'minor' to set the grid for major or minor ticks
 
-        if b is None, toggle the grid state
+        if b is None and len(kwargs)==0, toggle the grid state.  If
+        kwargs are supplied, it is assumed you want the grid on and b
+        will be set to True
+
+        kwargs are used to set the line properties of the grids, eg,
+
+          xax.grid(color='r', linestyle='-', linewidth=2)
         """
+        if len(kwargs): b = True
         if which.lower().find('minor')>=0:
             if b is None: self._gridOnMinor = not self._gridOnMinor
             else: self._gridOnMinor = b
