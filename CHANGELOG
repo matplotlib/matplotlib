@@ -1,3 +1,7 @@
+2006-03-17 Applied sophana's patch to support overlapping axes with
+           toolbar navigation by toggling activation with the 'a' key.
+           Closes sf patch 1432252 - JDH
+
 2006-03-17 Applied Aarre's linestyle patch for backend EMF; closes sf
            patch 1449279 - JDH
 
