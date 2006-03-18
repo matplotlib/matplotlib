@@ -1,3 +1,6 @@
+2006-03-17 Added Paul and Alex's support for faceting with quadmesh
+           in sf patch 1411223 - JDH
+
 2006-03-17 Added Charle Twardy's pie patch to support colors=None.
            Closes sf patch 1387861 - JDH
 

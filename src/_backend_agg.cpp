@@ -7,12 +7,15 @@
 #include <cstdio>
 #include <stdexcept>
 #include <png.h>
+#include <time.h>
+#include <algorithm>
 
 
 #include "agg_conv_transform.h"
 #include "agg_conv_curve.h"
 #include "agg_scanline_storage_aa.h"
 #include "agg_scanline_storage_bin.h"
+#include "agg_renderer_primitives.h"
 #include "util/agg_color_conv_rgb8.h"
 
 #include "ft2font.h"
@@ -22,7 +25,6 @@
 #include "mplutils.h"
 
 #include "swig_runtime.h"
-
 
 #ifdef NUMARRAY
 #include "numarray/arrayobject.h"
@@ -706,21 +708,14 @@ int RendererAgg::intersectCheck(double yCoord, double x1, double y1, double x2, 
 	return 0;
 }
 
-int RendererAgg::inPolygon(int row, double xAA, double yAA, double xAB, double yAB, double xBA, double yBA, double xBB, double yBB, int col[4])
+int RendererAgg::inPolygon(int row, const double xs[4], const double ys[4], int col[4])
 {
 	int numIntersect = 0;
 	/* Determines the boundaries of the row of pixels that is in the polygon */
 	/* A pixel (x, y) is in the polygon if its center (x+0.5, y+0.5) is */
-	/* This currently only works properly for convex polygons */
 	double ycoord = (double(row) + 0.5);
-	/* check AA-AB line */
-	numIntersect += intersectCheck(ycoord, xAA, yAA, xAB, yAB, col+numIntersect);
-	/* check AB-BB line */
-	numIntersect += intersectCheck(ycoord, xAB, yAB, xBB, yBB, col+numIntersect);
-	/* check BB-BA line */
-	numIntersect += intersectCheck(ycoord, xBB, yBB, xBA, yBA, col+numIntersect);
-	/* check BA-AA line */
-	numIntersect += intersectCheck(ycoord, xBA, yBA, xAA, yAA, col+numIntersect);
+	for(int i=0; i<=3; i++)
+		numIntersect += intersectCheck(ycoord, xs[i], ys[i], xs[(i+1)%4], ys[(i+1)%4], col+numIntersect);
 
 	/* reorder if necessary */
 	if (numIntersect == 2 && col[0] > col[1]) std::swap(col[0],col[1]);
@@ -737,21 +732,17 @@ int RendererAgg::inPolygon(int row, double xAA, double yAA, double xAB, double y
 	return numIntersect;
 }
 
-void RendererAgg::DrawQuadMesh(int meshWidth, int meshHeight, const Py::SeqBase<Py::Object> &colors, double xCoords[], double yCoords[])
+void RendererAgg::DrawQuadMesh(int meshWidth, int meshHeight, const agg::rgba8 colorArray[], const double xCoords[], const double yCoords[])
 {
 	/* draw each quadrilateral */
-	agg::rgba8 c;
+	agg::renderer_primitives<agg::renderer_base<agg::pixfmt_rgba32> > lineRen(*rendererBase);
 	int i = 0;
 	int j = 0;
 	int k = 0;
-	double xAA;
-	double yAA;
-	double xAB;
-	double yAB;
-	double xBA;
-	double yBA;
-	double xBB;
-	double yBB;
+	double xs[4];
+	double ys[4];
+	int col[4];
+	int numCol;
 	double ymin;
 	int firstRow;
 	double ymax;
@@ -760,60 +751,70 @@ void RendererAgg::DrawQuadMesh(int meshWidth, int meshHeight, const Py::SeqBase<
 	{
 		for(j=0; j < meshWidth; j++)
 		{
-			xAA = xCoords[(i * (meshWidth + 1)) + j];
-			yAA = yCoords[(i * (meshWidth + 1)) + j];
-			xAB = xCoords[(i * (meshWidth + 1)) + j+1];
-			yAB = yCoords[(i * (meshWidth + 1)) + j+1];
-			xBA = xCoords[((i+1) * (meshWidth + 1)) + j];
-			yBA = yCoords[((i+1) * (meshWidth + 1)) + j];
-			xBB = xCoords[((i+1) * (meshWidth + 1)) + j+1];
-			yBB = yCoords[((i+1) * (meshWidth + 1)) + j+1];
-		 	ymin = yAA;
-			ymin = (yAB < ymin ? yAB : ymin);
-			ymin = (yBA < ymin ? yBA : ymin);
-			ymin = (yBB < ymin ? yBB : ymin);
+			//currTime = clock();
+			xs[0] = xCoords[(i * (meshWidth + 1)) + j];
+			ys[0] = yCoords[(i * (meshWidth + 1)) + j];
+			xs[1] = xCoords[(i * (meshWidth + 1)) + j+1];
+			ys[1] = yCoords[(i * (meshWidth + 1)) + j+1];
+			xs[3] = xCoords[((i+1) * (meshWidth + 1)) + j];
+			ys[3] = yCoords[((i+1) * (meshWidth + 1)) + j];
+			xs[2] = xCoords[((i+1) * (meshWidth + 1)) + j+1];
+			ys[2] = yCoords[((i+1) * (meshWidth + 1)) + j+1];
+		 	ymin = std::min(std::min(std::min(ys[0], ys[1]), ys[2]), ys[3]);
+			ymax = std::max(std::max(std::max(ys[0], ys[1]), ys[2]), ys[3]);
 			firstRow = (int)(ymin);
-			ymax = yAA;
-			ymax = (yAB > ymax ? yAB : ymax);
-			ymax = (yBA > ymax ? yBA : ymax);
-			ymax = (yBB > ymax ? yBB : ymax);
 			lastRow = (int)(ymax);
-			Py::SeqBase<Py::Object> rgba = Py::SeqBase<Py::Object>(colors[(i * meshWidth) + j]);
-			double r = Py::Float(rgba[0]);
-    			double g = Py::Float(rgba[1]);
-    			double b = Py::Float(rgba[2]);
-    			double a = Py::Float(rgba[3]);
-			agg::rgba8 c((int)(255.0*r), (int)(255.0*g), (int)(255.0*b), (int)(255.0*a));
+			//timer1 += (clock() - currTime);
+			//currTime = clock();
+			//timer2 += (clock() - currTime);
+			//currTime = clock();
 			for(k = firstRow; k <= lastRow; k++)
 			{
-				int col[4];
-				int numCol = inPolygon(k, xAA, yAA, xAB, yAB, xBA, yBA, xBB, yBB, col);
-				if (numCol >= 2) rendererBase->copy_hline(col[0], k, col[1] - 1, c);
-				if (numCol == 4) rendererBase->copy_hline(col[2], k, col[3] - 1, c);
+				numCol = inPolygon(k, xs, ys, col);
+				if (numCol >= 2) rendererBase->copy_hline(col[0], k, col[1] - 1, colorArray[(i * meshWidth) + j]);
+				if (numCol == 4) rendererBase->copy_hline(col[2], k, col[3] - 1, colorArray[(i * meshWidth) + j]);
 			}
 		}
 	}
 	return;
 }
 
+void RendererAgg::DrawQuadMeshEdges(int meshWidth, int meshHeight, const agg::rgba8 colorArray[], const double xCoords[], const double yCoords[])
+{
+	agg::renderer_primitives<agg::renderer_base<agg::pixfmt_rgba32> > lineRen(*rendererBase);
+	agg::rgba8 lc(0, 0, 0, 32);
+	lineRen.line_color(lc);
+	/* show the vertical edges */
+	for(int i=0; i <= meshWidth; i++)
+	{
+		lineRen.move_to((int)(256.0 * (xCoords[i])), (int)(256.0 * (yCoords[i])));
+		for(int j=1; j <= meshHeight; j++)
+			lineRen.line_to((int)(256.0 *(xCoords[(j * (meshWidth + 1))+i])), (int)(256.0 * (yCoords[(j * (meshWidth + 1))+i])));
+	}
+	/* show the horizontal edges */
+	for(int i=0; i <= meshHeight; i++)
+	{
+		lineRen.move_to((int)(256.0 * (xCoords[i * (meshWidth + 1)])), (int)(256.0 * (yCoords[i * (meshWidth + 1)])));
+		for(int j=1; j <= meshWidth; j++)
+			lineRen.line_to((int)(256.0 * (xCoords[(i * (meshWidth + 1))+j])), (int)(256.0 * (yCoords[(i * (meshWidth + 1))+j])));
+	}
+}
+
 Py::Object
 RendererAgg::draw_quad_mesh(const Py::Tuple& args){
 	
-	/*printf("Drawing Mesh\n");*/	
-
-	Py::SeqBase<Py::Object> colors = args[2];
+	//printf("#1: %d\n", clock());
+	Py::Object colorsi = args[2];
 	Py::Object xCoordsi = args[3];
 	Py::Object yCoordsi = args[4];
-	
 	int meshWidth = Py::Int(args[0]);
 	int meshHeight = Py::Int(args[1]);
-
-	/*PyArrayObject *colors = (PyArrayObject *) PyArray_ContiguousFromObject(colorsi.ptr(), PyArray_DOUBLE, 1, 1);*/
+	int showedges = Py::Int(args[9]);
+	int numQuads = (meshWidth * meshHeight);
+	PyArrayObject *colors = (PyArrayObject *) PyArray_ContiguousFromObject(colorsi.ptr(), PyArray_DOUBLE, 2, 2);
 	PyArrayObject *xCoords = (PyArrayObject *) PyArray_ContiguousFromObject(xCoordsi.ptr(), PyArray_DOUBLE, 1, 1);
 	PyArrayObject *yCoords = (PyArrayObject *) PyArray_ContiguousFromObject(yCoordsi.ptr(), PyArray_DOUBLE, 1, 1);
-
-
-/*****copied part****/
+/*****transformations****/
 	/* do transformations */
 	  //todo: fix transformation check
 	  Transformation* transform = static_cast<Transformation*>(args[6].ptr());
@@ -842,8 +843,11 @@ RendererAgg::draw_quad_mesh(const Py::Tuple& args){
     	}
 
   }	
-
-  size_t Noffsets = offsets.length();
+  size_t Noffsets;
+  if(usingOffsets)
+	Noffsets = offsets.length();
+  else
+	Noffsets = 0;
   size_t Nverts = xCoords->dimensions[0];
  /*  size_t N = (Noffsets>Nverts) ? Noffsets : Nverts; */
 
@@ -882,18 +886,41 @@ RendererAgg::draw_quad_mesh(const Py::Tuple& args){
 	}
   	delete xOffsets;
 	delete yOffsets;
+	delete newXOffsets;
+	delete newYOffsets;
   }
 
-  for(size_t k=0; k < Nverts; k++)
+  for(size_t q=0; q < Nverts; q++)
   {
-	newYCoords[k] = height - newYCoords[k];
+	newYCoords[q] = height - newYCoords[q];
   }
 
-/**** End of copied part ****/
+/**** End of transformations ****/
 
-	DrawQuadMesh(meshWidth, meshHeight, colors, &(newXCoords[0]), &(newYCoords[0]));
+/* convert colors */
+	double r;
+	double g;
+	double b;
+	double a;
+	agg::rgba8* colorArray = new agg::rgba8[numQuads];
+	for(int i=0; i < numQuads; i++)
+	{
+		r = *(double *)(colors -> data + i*(colors -> strides[0]));
+		g = *(double *)(colors -> data + i*(colors -> strides[0]) + (colors -> strides[1]));
+		b = *(double *)(colors -> data + i*(colors -> strides[0]) + 2*(colors -> strides[1]));
+		a = *(double *)(colors -> data + i*(colors -> strides[0]) + 3*(colors -> strides[1]));
+		colorArray[i] = agg::rgba8((int)(255.0 * r), (int)(255.0 * g), (int)(255.0 * b), (int)(255.0 * a));
+	}
+	DrawQuadMesh(meshWidth, meshHeight, colorArray, &(newXCoords[0]), &(newYCoords[0]));
+	if(showedges)
+		DrawQuadMeshEdges(meshWidth, meshHeight, colorArray, &(newXCoords[0]), &(newYCoords[0]));
+	Py_XDECREF(xCoords);
+	Py_XDECREF(yCoords);
+	Py_XDECREF(colors);
 	delete newXCoords;
 	delete newYCoords;
+	delete colorArray;
+	//printf("#2: %d\n", clock());
 	return Py::Object();
 }
 

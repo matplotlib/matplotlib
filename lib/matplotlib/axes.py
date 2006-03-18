@@ -2294,6 +2294,7 @@ class Axes(Artist):
 
         C = compress(ravel(mask==0),ravel(ma.filled(C[0:Nx-1,0:Ny-1])))
 
+
         if shading == 'faceted':
             edgecolors =  (0,0,0,1),
         else:
@@ -2426,12 +2427,12 @@ class Axes(Artist):
         coords[:, 1] = Y.astype(Float32)
         #print coords
 
-        if shading == 'faceted':
-            edgecolors =  (0,0,0,1),
+ 	if shading == 'faceted':
+            showedges = 1
         else:
-            edgecolors = 'None'
-
-        collection = QuadMesh(Ny - 1, Nx - 1, coords)
+            showedges = 0
+  
+        collection = QuadMesh(Ny - 1, Nx - 1, coords, showedges)
         collection.set_alpha(alpha)
         collection.set_array(C)
         if norm is not None: assert(isinstance(norm, normalize))
