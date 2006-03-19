@@ -29,7 +29,7 @@ from matplotlib.texmanager import TexManager
 from matplotlib.transforms import get_vec6_scales
 
 from matplotlib.numerix import UInt8, Float32, alltrue, ceil, equal, \
-    fromstring, nonzero, ones, put, take, where
+    fromstring, nonzero, ones, put, take, where, isnan
 import binascii
 import re
 
@@ -403,15 +403,17 @@ grestore
         ps = '%1.3f %1.3f m %1.3f %1.3f l'%(x0, y0, x1, y1)
         self._draw_ps(ps, gc, None, "line")
         
-    def _draw_markers(self, gc, path, rgbFace, x, y, transform):
+    def _draw_markers_old(self, gc, path, rgbFace, x, y, transform):
         """
         Draw the markers defined by path at each of the positions in x
         and y.  path coordinates are points, x and y coords will be
         transformed by the transform
         """
         if debugPS: self._pswriter.write('% draw_markers \n')
-        
-##        return 
+        if True:
+            self.__draw_markers(gc, path, rgbFace, x, y, transform)
+            return
+
         if rgbFace:
             if rgbFace[0]==rgbFace[0] and rgbFace[0]==rgbFace[2]:
                 ps_color = '%1.3f setgray' % rgbFace[0]
@@ -421,21 +423,13 @@ grestore
         print x,y
         if transform.need_nonlinear():
             x,y,mask = transform.nonlinear_only_numerix(x, y, returnMask=1)
-            print x,y
+            print x,y, mask
         else:
-            mask = ones(x.shape)
+            mask = where(isnan(x) + isnan(y) + isinf(x) + isinf(y), 0, 1) #ones(x.shape)
         
+        print mask
         x, y = transform.numerix_x_y(x, y)
         print x, y
-
-        # the a,b,c,d,tx,ty affine which transforms x and y
-        #vec6 = transform.as_vec6_val()
-        #theta = (180 / pi) * math.atan2 (vec6[1], src[0])
-        # this defines a single vertex.  We need to define this as ps
-        # function, properly stroked and filled with linewidth etc,
-        # and then simply iterate over the x and y and call this
-        # function at each position.  Eg, this is the path that is
-        # relative to each x and y offset.
         
         # construct the generic marker command:
         ps_cmd = ['gsave']
@@ -462,18 +456,19 @@ grestore
             else:
                 pass
                 #print code
-                
+
         if rgbFace:
             ps_cmd.append('gsave')
             ps_cmd.append(ps_color)
             ps_cmd.append('fill')
             ps_cmd.append('grestore')
+            
         ps_cmd.append('stroke')
         ps_cmd.append('grestore') # undo translate()
         ps_cmd = '\n'.join(ps_cmd)
         
+        self._pswriter.write('gsave\n')
         self._pswriter.write(' '.join(['/marker {', ps_cmd, '} bind def\n']))
-        #self._pswriter.write('[%s]' % ';'.join([float(val) for val in vec6]))        
         # Now evaluate the marker command at each marker location:
         start  = 0
         end    = 1000
@@ -481,10 +476,95 @@ grestore
 
             to_draw = izip(x[start:end],y[start:end],mask[start:end])
             ps = ['%1.3f %1.3f marker' % (xp, yp) for xp, yp, m in to_draw if m]
-            print ps
             self._draw_ps("\n".join(ps), gc, None)
             start = end
             end   += 1000
+        
+        self._pswriter.write('\ngrestore')
+        
+    def _draw_markers(self, gc, path, rgbFace, x, y, transform):
+        """
+        Draw the markers defined by path at each of the positions in x
+        and y.  path coordinates are points, x and y coords will be
+        transformed by the transform
+        """
+        if debugPS: self._pswriter.write('% draw_markers \n')
+        
+        if rgbFace:
+            if rgbFace[0]==rgbFace[0] and rgbFace[0]==rgbFace[2]:
+                ps_color = '%1.3f setgray' % rgbFace[0]
+            else:
+                ps_color = '%1.3f %1.3f %1.3f setrgbcolor' % rgbFace
+        
+        mask = where(isnan(x) + isnan(y), 0, 1)
+        if transform.need_nonlinear():
+            x,y,mask = transform.nonlinear_only_numerix(x, y, returnMask=1)
+        
+        vec6 = transform.as_vec6_val()
+        sx, sy = get_vec6_scales(vec6)
+
+        # the a,b,c,d,tx,ty affine which transforms x and y
+        #vec6 = transform.as_vec6_val()
+        #theta = (180 / pi) * math.atan2 (vec6[1], src[0])
+        # this defines a single vertex.  We need to define this as ps
+        # function, properly stroked and filled with linewidth etc,
+        # and then simply iterate over the x and y and call this
+        # function at each position.  Eg, this is the path that is
+        # relative to each x and y offset.
+        
+        # construct the generic marker command:
+        ps_cmd = ['gsave']
+        ps_cmd.append('newpath')
+        ps_cmd.append('translate')
+        ps_cmd.append('%f %f scale'%(1./sx,1./sy))
+        while 1:
+            code, xp, yp = path.vertex()
+            if code == agg.path_cmd_stop:
+                ps_cmd.append('closepath') # Hack, path_cmd_end_poly not found
+                break
+            elif code == agg.path_cmd_move_to:
+                ps_cmd.append('%1.3f %1.3f m' % (xp,yp))
+            elif code == agg.path_cmd_line_to:
+                ps_cmd.append('%1.3f %1.3f l' % (xp,yp))
+            elif code == agg.path_cmd_curve3:
+                pass
+            elif code == agg.path_cmd_curve4:
+                pass
+            elif code == agg.path_cmd_end_poly:
+                pass
+                ps_cmd.append('closepath')
+            elif code == agg.path_cmd_mask:
+                pass
+            else:
+                pass
+                #print code
+
+        if rgbFace:
+            ps_cmd.append('gsave')
+            ps_cmd.append(ps_color)
+            ps_cmd.append('fill')
+            ps_cmd.append('grestore')
+
+        ps_cmd.append('stroke')
+        ps_cmd.append('grestore') # undo translate()
+        ps_cmd = '\n'.join(ps_cmd)
+        
+        self._pswriter.write('gsave\n')
+        self.push_gc(gc)
+        self._pswriter.write('[%f %f %f %f %f %f] concat\n'% vec6)
+        self._pswriter.write(' '.join(['/marker {', ps_cmd, '} bind def\n']))
+        # Now evaluate the marker command at each marker location:
+        start  = 0
+        end    = 1000
+        while start < len(x):
+
+            to_draw = izip(x[start:end],y[start:end],mask[start:end])
+            ps = ['%1.3f %1.3f marker' % (xp, yp) for xp, yp, m in to_draw if m]
+            self._pswriter.write("\n".join(ps))
+            start = end
+            end   += 1000
+        
+        self._pswriter.write('\ngrestore\n')
             
     def draw_path(self,gc,rgbFace,path,trans):
         pass
@@ -499,7 +579,7 @@ grestore
         self._draw_ps("\n".join(ps), gc, None)
 
 
-    def draw_lines(self, gc, x, y, transform=None):
+    def __draw_lines(self, gc, x, y, transform=None):
         """
         x and y are equal length arrays, draw lines connecting each
         point in x, y
@@ -522,54 +602,55 @@ grestore
             start = end
             end   += 1000
         
-    def __draw_lines_hide(self, gc, x, y, transform=None):
+    def draw_lines(self, gc, x, y, transform=None):
         """
         x and y are equal length arrays, draw lines connecting each
         point in x, y
         """
         if debugPS: self._pswriter.write('% draw_lines \n')
     
-    
-        if transform:
+        write = self._pswriter.write
+        write('gsave\n')
+        
+        mask = where(isnan(x) + isnan(y), 0, 1)
+        if transform: # this won't be called if draw_markers is hidden
             if transform.need_nonlinear():
                 x, y, mask = transform.nonlinear_only_numerix(x, y, returnMask=1)
-            else:
-                mask = ones(x.shape)
-
-        vec6 = transform.as_vec6_val()
-        a,b,c,d,tx,ty = vec6
-        sx, sy = get_vec6_scales(vec6)
+            
+            vec6 = transform.as_vec6_val()
+            sx, sy = get_vec6_scales(vec6)
+            self.push_gc(gc)
+            write('[%f %f %f %f %f %f] concat\n'% vec6)   
 
         start  = 0
         end    = 1000
-        points = zip(x,y)
-
-        write = self._pswriter.write
-        write('gsave\n')
-        self.push_gc(gc)
-        write('[%f %f %f %f %f %f] concat\n'%(a,b,c,d,tx,ty))                
+        points = zip(x,y)             
         
         while start < len(x):
             # put moveto on all the bad data and on the first good
             # point after the bad data
             codes = where(mask[start:end+1], 'l', 'm')
             ind = nonzero(mask[start:end+1]==0)+1
-            if ind[-1]>=len(codes):
-                ind = ind[:-1]
-            put(codes, ind, 'm')
+            if ind:
+                if ind[-1]>=len(codes):
+                    ind = ind[:-1]
+                put(codes, ind, 'm')
             
             thisx = x[start:end+1]
             thisy = y[start:end+1]
-            to_draw = izip(thisx, thisy, codes)
+            to_draw = izip(thisx, thisy, codes, mask)
             if not to_draw:
                 break
 
             ps = ['%1.3f %1.3f m' % to_draw.next()[:2]]
-            ps.extend(["%1.3f %1.3f %c" % tup for tup in to_draw])
+            ps.extend(["%1.3f %1.3f %c" % (xp, yp, c) for xp, yp, c, m in to_draw if m])
             # we don't want to scale the line width, etc so invert the
             # scale for the stroke
-            ps.append('\ngsave %f %f scale stroke grestore\n'%(1./sx,1./sy))
-            write('\n'.join(ps))
+            if transform:
+                ps.append('gsave %f %f scale stroke grestore\n'%(1./sx,1./sy))
+                write('\n'.join(ps))
+            else:
+                self._draw_ps("\n".join(ps), gc, None)
             start = end
             end   += 1000
         write("grestore\n")
@@ -858,7 +939,7 @@ grestore
         if cliprect:
             x,y,w,h=cliprect
             write('%1.3f %1.3f %1.3f %1.3f clipbox\n' % (w,h,x,y))
-        write("\n")        
+##        write("\n")        
 
 
 class GraphicsContextPS(GraphicsContextBase):
