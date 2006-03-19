@@ -1018,26 +1018,40 @@ Transformation::nonlinear_only_numerix(const Py::Tuple & args, const Py::Dict &k
 
     double thisx = *(double *)(x->data + i*x->strides[0]);
     double thisy = *(double *)(y->data + i*y->strides[0]);
-    try {
-      this->nonlinear_only_api(&thisx, &thisy);
-    }
-    catch(...) {
-
+    if (MPL_isnan64(thisx) || MPL_isnan64(thisy)) {
       if (returnMask) {
 	*(unsigned char *)(retmask->data + i*retmask->strides[0]) = 0;
-	*(double *)(retx->data + i*retx->strides[0]) = 0.0;
-	*(double *)(rety->data + i*rety->strides[0]) = 0.0;
-	continue;
       }
-      else {
-	throw Py::ValueError("Domain error on this->nonlinear_only_api(&thisx, &thisy) in Transformation::nonlinear_only_numerix");
+      double MPLnan; // don't require C99 math features - find our own nan
+      if (MPL_isnan64(thisx)) { 
+	MPLnan=thisx;
+      } else {
+	MPLnan=thisy;
       }
-    }
+      *(double *)(retx->data + i*retx->strides[0]) = MPLnan;
+      *(double *)(rety->data + i*rety->strides[0]) = MPLnan;
+    } else {
+      try {
+	this->nonlinear_only_api(&thisx, &thisy);
+      }
+      catch(...) {
+	
+	if (returnMask) {
+	  *(unsigned char *)(retmask->data + i*retmask->strides[0]) = 0;
+	  *(double *)(retx->data + i*retx->strides[0]) = 0.0;
+	  *(double *)(rety->data + i*rety->strides[0]) = 0.0;
+	  continue;
+	}
+	else {
+	  throw Py::ValueError("Domain error on this->nonlinear_only_api(&thisx, &thisy) in Transformation::nonlinear_only_numerix");
+	}
+      }
 
-    *(double *)(retx->data + i*retx->strides[0]) = thisx;
-    *(double *)(rety->data + i*rety->strides[0]) = thisy;
-    if (returnMask) {
-      *(unsigned char *)(retmask->data + i*retmask->strides[0]) = 1;
+      *(double *)(retx->data + i*retx->strides[0]) = thisx;
+      *(double *)(rety->data + i*rety->strides[0]) = thisy;
+      if (returnMask) {
+	*(unsigned char *)(retmask->data + i*retmask->strides[0]) = 1;
+      }
     }
 
   }
