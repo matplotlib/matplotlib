@@ -411,19 +411,22 @@ grestore
         """
         if debugPS: self._pswriter.write('% draw_markers \n')
         
-        return 
+##        return 
         if rgbFace:
             if rgbFace[0]==rgbFace[0] and rgbFace[0]==rgbFace[2]:
                 ps_color = '%1.3f setgray' % rgbFace[0]
             else:
                 ps_color = '%1.3f %1.3f %1.3f setrgbcolor' % rgbFace
-
-        #if transform.need_nonlinear():
-        #    x,y,mask = transform.nonlinear_only_numerix(x, y, returnMask=1)
-        #else:
-        #    mask = ones(x.shape)
-            
+        
+        print x,y
+        if transform.need_nonlinear():
+            x,y,mask = transform.nonlinear_only_numerix(x, y, returnMask=1)
+            print x,y
+        else:
+            mask = ones(x.shape)
+        
         x, y = transform.numerix_x_y(x, y)
+        print x, y
 
         # the a,b,c,d,tx,ty affine which transforms x and y
         #vec6 = transform.as_vec6_val()
@@ -469,15 +472,16 @@ grestore
         ps_cmd.append('grestore') # undo translate()
         ps_cmd = '\n'.join(ps_cmd)
         
-        #self._pswriter.write(' '.join(['/marker {', ps_cmd, '} bind def\n']))
+        self._pswriter.write(' '.join(['/marker {', ps_cmd, '} bind def\n']))
         #self._pswriter.write('[%s]' % ';'.join([float(val) for val in vec6]))        
         # Now evaluate the marker command at each marker location:
         start  = 0
         end    = 1000
         while start < len(x):
 
-            to_draw = izip(x[start:end],y[start:end])
-            ps = ['%1.3f %1.3f marker' % point for point in to_draw] 
+            to_draw = izip(x[start:end],y[start:end],mask[start:end])
+            ps = ['%1.3f %1.3f marker' % (xp, yp) for xp, yp, m in to_draw if m]
+            print ps
             self._draw_ps("\n".join(ps), gc, None)
             start = end
             end   += 1000
