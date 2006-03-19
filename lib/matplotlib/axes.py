@@ -18,7 +18,6 @@ from cbook import iterable, is_string_like, flatten, enumerate, \
 from collections import RegularPolyCollection, PolyCollection, LineCollection, QuadMesh
 from colors import colorConverter, normalize, Colormap, LinearSegmentedColormap, looks_like_color
 import cm
-#from cm import ColormapJet, Grayscale, ScalarMappable
 from cm import ScalarMappable
 from contour import ContourSet
 import _image
@@ -370,8 +369,9 @@ class Axes(Artist):
         self._cachedRenderer = None
         self.set_navigate(True)
 
-        # aspect ration atribute, and original position
-        self._aspect = 'normal'
+        # aspect ratio atribute, and original position
+        self.set_aspect('auto')
+        self.set_aspect_adjusts('position')
         self._originalPosition = self.get_position()
 
         if len(kwargs): setp(self, **kwargs)
@@ -815,8 +815,6 @@ class Axes(Artist):
         self.set_xlim(locator.autoscale())
         locator = self.yaxis.get_major_locator()
         self.set_ylim(locator.autoscale())
-
-        if self._aspect == 'equal': self.set_aspect('equal')
 
     def quiver(self, U, V, *args, **kwargs ):
         """
@@ -1406,6 +1404,7 @@ class Axes(Artist):
         if not self.get_visible(): return
         renderer.open_group('axes')
 
+        self.apply_aspect()
         try: self.transData.freeze()  # eval the lazy objects
         except ValueError:
             print >> sys.stderr, 'data freeze value error', self.get_position(), self.dataLim.get_bounds(), self.viewLim.get_bounds()
@@ -2442,7 +2441,7 @@ class Axes(Artist):
             showedges = 1
         else:
             showedges = 0
-  
+
         collection = QuadMesh(Ny - 1, Nx - 1, coords, showedges)
         collection.set_alpha(alpha)
         collection.set_array(C)
@@ -2969,7 +2968,7 @@ class Axes(Artist):
                     faceted=True,
                     **kwargs):
         """
-    SCATTER(x, y, s=20, c='b', marker='o', cmap=None, norm=None,
+        SCATTER(x, y, s=20, c='b', marker='o', cmap=None, norm=None,
             vmin=None, vmax=None, alpha=1.0, linewidths=None,
             faceted=True, **kwargs)
         Supported function signatures:
@@ -3344,7 +3343,7 @@ class Axes(Artist):
             * subsx: the location of the minor ticks; None defaults to autosubs,
             which depend on the number of decades in the plot
 
-        ACCEPTS: str
+        ACCEPTS: ['log' | 'linear' ]
         """
 
         #if subsx is None: subsx = range(2, basex)
@@ -3466,7 +3465,7 @@ class Axes(Artist):
             * subsy: the location of the minor ticks; None are the default
               is to autosub
 
-        ACCEPTS: str
+        ACCEPTS: ['log' | 'linear']
         """
 
         #if subsy is None: subsy = range(2, basey)
@@ -3942,71 +3941,124 @@ class Axes(Artist):
         elif among is None:
             pass
         else:
-            raise ValueError('among mut be callable or iterable')
+            raise ValueError('among must be callable or iterable')
         if not len(artists): return None
         ds = [ (dist(a),a) for a in artists]
         ds.sort()
         return ds[0][1]
 
-    def set_aspect(self,aspect='normal',fixLimits=False):
+    def set_aspect(self, aspect='auto', fixLimits=None,
+                            aspect_adjusts='position'):
         """
-        Set aspect to 'normal' or 'equal'
-            'normal' means matplotlib determines aspect ratio
-            'equal' means scale on x and y axes will be set equal such that circle looks like circle
-            In future we may want to add a number as input to have a certain aspect ratio,
-            such as vertical scale exagerrated by 2.
+        aspect:
+            'auto'   -  automatic; fill position rectangle with data
+            'normal' -  same as 'auto'; deprecated
+            'equal'  -  same scaling from data to plot units for x and y
+             A       -  a circle will be stretched such that the height
+                        is A times the width. aspect=1 is the same as
+                        aspect='equal'.
 
-        fixLimits: False means data limits will be changed, but height and widths of axes preserved.
-                   True means height or width will be changed, but data limits preserved
+        aspect_adjusts:
+             'position' - change width or height of bounding rectangle;
+                          keep it centered.
+             'box_size' - as above, but anchored to lower left
+             'datalim'  - change xlim or ylim
 
-        ACCEPTS: str, boolean
+        fixLimits: deprecated; False is aspect_adjusts='datalim';
+                   True is aspect_adjusts='position'
+
+        ACCEPTS: ['auto' | 'equal' | aspect_ratio]
         """
+        if aspect in ('normal', 'auto'):
+            self._aspect = 'auto'
+        elif aspect == 'equal':
+            self._aspect = 'equal'
+        else:
+            self._aspect = float(aspect) # raise ValueError if necessary
 
-        self._aspect = aspect
-        if self._aspect == 'normal':
+        if fixLimits is not None:
+            if not fixLimits: aspect_adjusts = 'datalim'
+        if aspect_adjusts in ('position', 'box_size', 'datalim'):
+            self._aspect_adjusts = aspect_adjusts
+        else:
+            raise ValueError(
+                'aspect_adjusts must be "position", "box_size", or "datalim"')
+
+    def set_aspect_adjusts(self, aspect_adjusts = 'position'):
+        """
+        Must be called after set_aspect.
+
+        ACCEPTS: ['position' | 'box_size' | 'datalim']
+        """
+        if aspect_adjusts in ('position', 'box_size', 'datalim'):
+            self._aspect_adjusts = aspect_adjusts
+        else:
+            raise ValueError(
+                'argument must be "position", "box_size", or "datalim"')
+
+
+    def apply_aspect(self):
+        '''
+        Use self._aspect and self._aspect_adjusts to modify the
+        axes box or the view limits.
+        '''
+
+        if self._aspect == 'auto':
             self.set_position( self._originalPosition )
-        elif self._aspect == 'equal' or self._aspect == 'scaled':
-            figW,figH = self.get_figure().get_size_inches()
-            xmin,xmax = self.get_xlim()
-            xsize = math.fabs(xmax-xmin)
-            ymin,ymax = self.get_ylim()
-            ysize = math.fabs(ymax-ymin)
-            if fixLimits:  # Change size of axes
-                l,b,w,h = self._originalPosition  # Always start from original position
-                axW = w * figW; axH = h * figH
-                if xsize / axW > ysize / axH:  # y axis too long
-                    axH = axW * ysize / xsize
-                    if self._aspect == 'equal':
-                        axc = b + 0.5 * h
-                        h = axH / figH; b = axc - 0.5 * h
-                    elif self._aspect == 'scaled':
-                        h = axH / figH
-                else:  # x axis too long
-                    axW = axH * xsize / ysize
-                    if self._aspect == 'equal':
-                        axc = l + 0.5 * w
-                        w = axW / figW; l = axc - 0.5 * w
-                    elif self._aspect == 'scaled':
-                        w = axW / figW
-                self.set_position( (l,b,w,h) )
-            else:  # Change limits on axes
-                l,b,w,h = self.get_position()  # Keep size of subplot
-                axW = w * figW; axH = h * figH
-                if xsize / axW > ysize / axH:  # y limits too narrow
-                    dely = axH * xsize / axW
-                    yc = 0.5 * ( ymin + ymax )
-                    ymin = yc - 0.5*dely; ymax = yc + 0.5*dely
-                    self.set_ylim( ymin, ymax )
-                else:
-                    delx = axW * ysize / axH
-                    xc = 0.5 * ( xmin + xmax )
-                    xmin = xc - 0.5*delx; xmax = xc + 0.5*delx
-                    self.set_xlim( xmin, xmax )
+            return
+
+        if self._aspect == 'equal':
+            A = 1
+        else:
+            A = self._aspect
+
+        figW,figH = self.get_figure().get_size_inches()
+        fig_aspect = figH/figW
+        xmin,xmax = self.get_xlim()
+        xsize = math.fabs(xmax-xmin)
+        ymin,ymax = self.get_ylim()
+        ysize = math.fabs(ymax-ymin)
+        l,b,w,h = self._originalPosition
+        if self._aspect_adjusts in ('position', 'box_size'):
+            data_ratio = ysize/xsize
+            box_aspect = A * data_ratio
+            H = w * box_aspect/fig_aspect
+            if H <= h:
+                W = w
+            else:
+                W = h * fig_aspect/box_aspect
+                H = h
+            if self._aspect_adjusts == 'position':
+                L = l + 0.5 * (w-W)
+                B = b + 0.5 * (h-H)
+            else:
+                L,B = l,b
+            self.set_position((L,B,W,H))
+            return
+
+        self.autoscale_view()
+        xmin,xmax = self.get_xlim()
+        xsize = math.fabs(xmax-xmin)
+        ymin,ymax = self.get_ylim()
+        ysize = math.fabs(ymax-ymin)
+        box_aspect = fig_aspect * (h/w)
+        data_ratio = box_aspect / A
+        Ysize = data_ratio * xsize
+        if Ysize > ysize:
+            dy = 0.5 * (Ysize - ysize)
+            self.set_ylim((ymin-dy, ymax+dy))
+            return
+
+        Xsize = ysize / data_ratio
+        if Xsize > xsize:
+            dx = 0.5 * (Xsize - xsize)
+            self.set_xlim((xmin-dx, xmax+dx))
 
     def get_aspect(self):
-        """Get the aspect 'normal' or 'equal' """
         return self._aspect
 
+    def get_aspect_adjusts(self):
+        return self._aspect_adjusts
 
 class SubplotBase:
     """
