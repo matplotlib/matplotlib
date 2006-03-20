@@ -10,8 +10,6 @@ A.shape = w, h
 extent = (0, 25, 0, 25)
 im = imshow(A, cmap=cm.jet, origin='upper', extent=extent)
 
-# plot some data with the image; currently broken with aspect preserve
-
 markers = [(15.9, 14.5), (16.8, 15)]
 x,y = zip(*markers)
 plot(x, y, 'o')
