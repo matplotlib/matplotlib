@@ -1,3 +1,5 @@
+2006-03-20 Added contour.negative_linestyle rcParam - ADS
+
 2006-03-20 Added _isnan extension module to test for nan with Numeric 
 	   - ADS
 

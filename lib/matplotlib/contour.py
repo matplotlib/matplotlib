@@ -457,7 +457,7 @@ class ContourSet(ScalarMappable, ContourLabeler):
                 col.set_linewidth(width)
 
                 if level < 0.0 and self.monochrome:
-                    col.set_linestyle((0, (6.,6.)),)
+                    col.set_linestyle((0, rcParams['contour.negative_linestyle']))
                 col.set_label(str(level))         # only for self-documentation
                 self.ax.add_collection(col)
                 self.collections.append(col)
