@@ -865,7 +865,7 @@ def figure(num=None, # autoincrement if None, else integer from 1-N
     If you are creating many figures, make sure you explicitly call "close"
     on the figures you are not using, because this will enable pylab
     to properly clean up the memory.
-    
+
     kwargs:
 
       figsize - width x height in inches; defaults to rc figure.figsize
@@ -1449,14 +1449,9 @@ def matshow(*args,**kw):
 
     ax.xaxis.tick_top()
     ax.title.set_y(1.05) # raise it up a bit for tick top
-
+    kw['aspect'] = 'auto'
     # imshow call: use 'lower' origin (we'll flip axes later)
     kw['origin'] = 'lower'
-    # Also set a 'free' aspect ratio b/c we've already done our best to fix
-    # it, while preserving the dimension sanity checks.  At this point, if a
-    # bit of rescaling is needed, so be it.  Otherwise, we'd get the nasty
-    # white bands we're working so hard to prevent.
-    kw['aspect'] = 'free'
     # Unless overridden, don't interpolate
     kw.setdefault('interpolation','nearest')
     # All other keywords go through to imshow.

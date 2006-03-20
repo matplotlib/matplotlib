@@ -338,7 +338,7 @@ def _get_data_path():
     if os.environ.has_key('MATPLOTLIBDATA'):
         path = os.environ['MATPLOTLIBDATA']
         if os.path.isdir(path): return path
-    
+
     path = os.sep.join([os.path.dirname(__file__), 'mpl-data'])
     if os.path.isdir(path): return path
 
@@ -347,7 +347,7 @@ def _get_data_path():
     import matplotlib.afm
     path = os.sep.join([os.path.dirname(matplotlib.afm.__file__), 'mpl-data'])
     if os.path.isdir(path): return path
-    
+
     # py2exe zips pure python, so still need special check
     if getattr(sys,'frozen',None):
         path = os.path.join(os.path.split(sys.path[0])[0], 'matplotlibdata')
@@ -363,11 +363,11 @@ get_data_path = verbose.wrap('matplotlib data path %s', _get_data_path, always=F
 
 def get_py2exe_datafiles():
     import glob
-    
+
     mplfiles = glob.glob(os.sep.join([get_data_path(), '*']))
     # Need to explicitly remove cocoa_agg files or py2exe complains
     mplfiles.remove(os.sep.join([get_data_path(), 'Matplotlib.nib']))
-    
+
     return ('matplotlibdata', mplfiles)
 
 def checkdep_dvipng():
@@ -561,6 +561,14 @@ class ValidateInStrings:
 
 
 validate_orientation = ValidateInStrings(['landscape', 'portrait'])
+
+def validate_aspect(s):
+    if s in ('auto', 'equal'):
+        return s
+    try:
+        return float(s)
+    except ValueError:
+        raise ValueError('not a valid aspect specification')
 
 def validate_fontsize(s):
     if s.lower() in ['xx-small', 'x-small', 'small', 'medium', 'large', 'x-large',
@@ -770,7 +778,7 @@ defaultParams = {
     'text.fontsize'     : ['medium', validate_fontsize],
 
 
-    'image.aspect' : ['free', str],  # free| preserve
+    'image.aspect' : ['equal', validate_aspect],  # equal, auto, a number
     'image.interpolation'  : ['bilinear', str],
     'image.cmap'   : ['gray', str],        # one of gray, jet, etc
     'image.lut'    : [256, validate_int],  # lookup table
@@ -983,7 +991,7 @@ def rc_params(fail_on_error=False):
             if cval: defaultParams[key][0] = cval
     while len(rc_temp) > 0:
         key, (val, line, cnt) = rc_temp.popitem()
-        
+
         cval = validate_key(key, val, line, cnt, fname, fail_on_error)
         if cval: defaultParams[key][0] = cval
         else: continue

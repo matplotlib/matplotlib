@@ -21,7 +21,6 @@ class AxesImage(Artist, cm.ScalarMappable):
     def __init__(self, ax,
                  cmap = None,
                  norm = None,
-                 aspect=None,
                  interpolation=None,
                  origin=None,
                  extent=None,
@@ -30,7 +29,7 @@ class AxesImage(Artist, cm.ScalarMappable):
                  ):
 
         """
-        aspect, interpolation and cmap default to their rc setting
+        interpolation and cmap default to their rc settings
 
         cmap is a cm colormap instance
         norm is a colors.normalize instance to map luminance to 0-1
@@ -71,23 +70,12 @@ class AxesImage(Artist, cm.ScalarMappable):
             'blackman' : _image.BLACKMAN,
         }
 
-        # map aspect ratio strings to module constants
-        self._aspectd = {
-            'free'     : _image.ASPECT_FREE,
-            'preserve' : _image.ASPECT_PRESERVE,
-        }
-
         # reverse interp dict
         self._interpdr = dict([ (v,k) for k,v in self._interpd.items()])
 
-        # reverse aspect dict
-        self._aspectdr = dict([ (v,k) for k,v in self._aspectd.items()])
-
-        if aspect is None: aspect = rcParams['image.aspect']
         if interpolation is None: interpolation = rcParams['image.interpolation']
 
         self.set_interpolation(interpolation)
-        self.set_aspect( aspect)
         self.axes = ax
 
 
@@ -142,7 +130,6 @@ class AxesImage(Artist, cm.ScalarMappable):
         im.is_grayscale = (self.cmap.name == "gray" and
                            len(self._A.shape) == 2)
 
-        im.set_aspect(self._aspectd[self._aspect])
         im.set_interpolation(self._interpd[self._interpolation])
 
 
@@ -174,22 +161,13 @@ class AxesImage(Artist, cm.ScalarMappable):
 
         l, b, widthDisplay, heightDisplay = self.axes.bbox.get_bounds()
 
-
         im.apply_translation(tx, ty)
         im.apply_scaling(sx, sy)
 
         # resize viewport to display
         rx = widthDisplay / numcols
         ry = heightDisplay  / numrows
-
-
-        if im.get_aspect()==_image.ASPECT_PRESERVE:
-            if ry < rx: rx = ry
-            # todo: center the image in viewport
-            im.apply_scaling(rx, rx)
-
-        else:
-            im.apply_scaling(rx, ry)
+        im.apply_scaling(rx, ry)
 
         #print tx, ty, sx, sy, rx, ry, widthDisplay, heightDisplay
         im.resize(int(widthDisplay+0.5), int(heightDisplay+0.5),
@@ -241,18 +219,6 @@ class AxesImage(Artist, cm.ScalarMappable):
 
         self.set_data(A)
 
-    def get_aspect(self):
-        """
-        Return the method used to constrain the aspoect ratio of the
-        One of
-
-        'free'     : aspect ratio not constrained
-        'preserve' : preserve aspect ratio when resizing
-        """
-        return self._aspect
-
-
-
     def get_interpolation(self):
         """
         Return the interpolation method the image uses when resizing.
@@ -263,19 +229,6 @@ class AxesImage(Artist, cm.ScalarMappable):
         'nearest', 'sinc144', 'sinc256', 'sinc64', 'spline16', 'spline36'
         """
         return self._interpolation
-
-    def set_aspect(self, s):
-        """
-        Set the method used to constrain the aspoect ratio of the
-        image ehen resizing,
-
-        ACCEPTS ['free' | 'preserve']"""
-
-        s = s.lower()
-        if not self._aspectd.has_key(s):
-            raise ValueError('Illegal aspect string')
-        self._aspect = s
-
 
     def set_interpolation(self, s):
         """
@@ -301,11 +254,12 @@ class AxesImage(Artist, cm.ScalarMappable):
             sx = dwidth  / iwidth
             sy = dheight / iheight
 
-            if self.get_aspect()=='preserve' and sy<sx: sx = sy
             return 0, 1.0/sx*dwidth, 0, 1.0/sy*dheight
 
     def set_filternorm(self, filternorm):
-        """Set whether the resize filter norms the weights -- see help for imshow
+        """Set whether the resize filter norms the weights -- see
+        help for imshow
+
         ACCEPTS: 0 or 1
         """
         if filternorm:
@@ -341,7 +295,6 @@ class NonUniformImage(AxesImage):
                            cmap = cmap,
                            norm = norm,
                            extent=extent,
-                           aspect = 'free',
                            interpolation = 'nearest',
                            origin = 'lower',
                           )
@@ -359,7 +312,6 @@ class NonUniformImage(AxesImage):
 
         bg = colorConverter.to_rgba(self.axes.get_frame().get_facecolor(), 0)
         im.set_bg(*bg)
-        im.set_aspect(self._aspectd[self._aspect])
         return im
 
     def set_data(self, x, y, A):
