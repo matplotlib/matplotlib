@@ -615,7 +615,7 @@ def validate_ps_distiller(s):
     elif s in ('ghostscript', 'xpdf'):
         flag = True
         gs_req = '7.07'
-        gs_sugg = '8.16'
+        gs_sugg = '7.07'
         gs_v = checkdep_ghostscript()
         if compare_versions(gs_v, gs_sugg): pass
         elif compare_versions(gs_v, gs_req):
@@ -654,7 +654,7 @@ def validate_usetex(s):
     if bl:
         tex_req = '3.1415'
         gs_req = '7.07'
-        gs_sugg = '8.16'
+        gs_sugg = '7.07'
         dvipng_req = '1.5'
         flag = True
 
