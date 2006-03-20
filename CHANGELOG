@@ -1,3 +1,6 @@
+2006-03-20 Added _isnan extension module to test for nan with Numeric 
+	   - ADS
+
 2006-03-17 Added Paul and Alex's support for faceting with quadmesh
            in sf patch 1411223 - JDH
 
