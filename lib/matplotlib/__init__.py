@@ -472,7 +472,7 @@ def validate_backend(s, fail_on_err = True):
     for i in backends:
         if s == i.lower(): return i
     if fail_on_err: raise ValueError('Backend must be %s, or %s'% \
-                        (', '.join(backends[:-1], backends[-1])),)
+                        ', '.join((backends[:-1], backends[-1])))
     else: return None
 
 def validate_numerix(s):
