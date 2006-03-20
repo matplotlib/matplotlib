@@ -490,6 +490,8 @@ grestore
         """
         if debugPS: self._pswriter.write('% draw_markers \n')
         
+        write = self._pswriter.write
+        
         if rgbFace:
             if rgbFace[0]==rgbFace[0] and rgbFace[0]==rgbFace[2]:
                 ps_color = '%1.3f setgray' % rgbFace[0]
@@ -549,10 +551,10 @@ grestore
         ps_cmd.append('grestore') # undo translate()
         ps_cmd = '\n'.join(ps_cmd)
         
-        self._pswriter.write('gsave\n')
+        write('gsave\n')
         self.push_gc(gc)
-        self._pswriter.write('[%f %f %f %f %f %f] concat\n'% vec6)
-        self._pswriter.write(' '.join(['/marker {', ps_cmd, '} bind def\n']))
+        write('[%f %f %f %f %f %f] concat\n'% vec6)
+        write(' '.join(['/marker {', ps_cmd, '} bind def\n']))
         # Now evaluate the marker command at each marker location:
         start  = 0
         end    = 1000
@@ -560,11 +562,11 @@ grestore
 
             to_draw = izip(x[start:end],y[start:end],mask[start:end])
             ps = ['%1.3f %1.3f marker' % (xp, yp) for xp, yp, m in to_draw if m]
-            self._pswriter.write("\n".join(ps)+'\n')
+            write("\n".join(ps)+'\n')
             start = end
             end   += 1000
         
-        self._pswriter.write('grestore\n')
+        write('grestore\n')
             
     def draw_path(self,gc,rgbFace,path,trans):
         pass
