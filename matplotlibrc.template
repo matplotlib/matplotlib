@@ -203,6 +203,10 @@ image.cmap   : jet               # gray | jet
 image.lut    : 256               # the size of the colormap lookup table
 image.origin : upper             # lower | upper
 
+
+### CONTOUR PLOTS
+contour.negative_linestyle :  6.0, 6.0 # negative contour linestyle (size in points)
+
 ### SAVING FIGURES
 # the default savefig params can be different for the GUI backends.
 # Eg, you may want a higher resolution, or to make the figure

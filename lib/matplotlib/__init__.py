@@ -784,6 +784,8 @@ defaultParams = {
     'image.lut'    : [256, validate_int],  # lookup table
     'image.origin'    : ['upper', str],  # lookup table
 
+    'contour.negative_linestyle' : [(6.0,6.0), validate_nseq_float(2)],
+
     # axes props
     'axes.hold'         : [True, validate_bool],
     'axes.facecolor'    : ['w', validate_color],    # background color; white
