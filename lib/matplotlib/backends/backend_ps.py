@@ -560,11 +560,11 @@ grestore
 
             to_draw = izip(x[start:end],y[start:end],mask[start:end])
             ps = ['%1.3f %1.3f marker' % (xp, yp) for xp, yp, m in to_draw if m]
-            self._pswriter.write("\n".join(ps))
+            self._pswriter.write("\n".join(ps)+'\n')
             start = end
             end   += 1000
         
-        self._pswriter.write('\ngrestore\n')
+        self._pswriter.write('grestore\n')
             
     def draw_path(self,gc,rgbFace,path,trans):
         pass
@@ -648,9 +648,9 @@ grestore
             # scale for the stroke
             if transform:
                 ps.append('gsave %f %f scale stroke grestore\n'%(1./sx,1./sy))
-                write('\n'.join(ps))
+                write('\n'.join(ps)+'\n')
             else:
-                self._draw_ps("\n".join(ps), gc, None)
+                self._draw_ps("\n".join(ps)+'\n', gc, None)
             start = end
             end   += 1000
         write("grestore\n")
