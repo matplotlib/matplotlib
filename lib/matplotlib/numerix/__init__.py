@@ -58,7 +58,7 @@ if which[0] == "numarray":
 elif which[0] == "numeric":
     #from nc_imports import *
     from Numeric import *
-    from _nc_imports import nx, inf, infinity, Infinity
+    from _nc_imports import nx, inf, infinity, Infinity, isnan
     from Matrix import Matrix
     import Numeric
     version = 'Numeric %s'%Numeric.__version__
