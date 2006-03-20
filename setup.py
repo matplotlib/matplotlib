@@ -63,7 +63,7 @@ from distutils.core import Extension, setup
 from setupext import build_agg, build_gtkagg, build_tkagg, build_wxagg,\
      build_ft2font, build_image, build_windowing, build_transforms, \
      build_contour, build_enthought, build_swigagg, build_gdk, \
-     build_subprocess
+     build_subprocess, build_isnan
 import distutils.sysconfig
 
 major, minor1, minor2, s, tmp = sys.version_info
@@ -171,6 +171,8 @@ if not havesubprocess:
     packages.append('subprocess')
     if sys.platform == 'win32':
         build_subprocess(ext_modules, packages)
+
+build_isnan(ext_modules, packages)
 
 try: import datetime
 except ImportError: havedate = False
