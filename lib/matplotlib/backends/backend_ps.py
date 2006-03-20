@@ -631,7 +631,7 @@ grestore
             # point after the bad data
             codes = where(mask[start:end+1], 'l', 'm')
             ind = nonzero(mask[start:end+1]==0)+1
-            if ind:
+            if len(ind):
                 if ind[-1]>=len(codes):
                     ind = ind[:-1]
                 put(codes, ind, 'm')
