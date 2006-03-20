@@ -1906,15 +1906,15 @@ class Axes(Artist):
           * cmap is a cm colormap instance, eg cm.jet.  If None, default to rc
             image.cmap value (Ignored when X has RGB(A) information)
 
-          * aspect is one of: free or preserve.  if None, default to rc
+          * aspect is one of: auto, equal, or a number.  If None, default to rc
             image.aspect value
 
           * interpolation is one of:
 
             'nearest', 'bilinear', 'bicubic', 'spline16', 'spline36',
-	    'hanning', 'hamming', 'hermite', 'kaiser', 'quadric',
-	    'catrom', 'gaussian', 'bessel', 'mitchell', 'sinc',
-	    'lanczos', 'blackman'
+            'hanning', 'hamming', 'hermite', 'kaiser', 'quadric',
+            'catrom', 'gaussian', 'bessel', 'mitchell', 'sinc',
+            'lanczos', 'blackman'
 
             if interpolation is None, default to rc
             image.interpolation.  See also th the filternorm and
@@ -1961,8 +1961,9 @@ class Axes(Artist):
 
         if norm is not None: assert(isinstance(norm, normalize))
         if cmap is not None: assert(isinstance(cmap, Colormap))
-
-        im = AxesImage(self, cmap, norm, aspect, interpolation, origin, extent,
+        if aspect is None: aspect = rcParams['image.aspect']
+        self.set_aspect(aspect)
+        im = AxesImage(self, cmap, norm, interpolation, origin, extent,
                        filternorm=filternorm,
                        filterrad=filterrad)
         if norm is None and shape is None:
