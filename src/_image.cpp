@@ -1,10 +1,10 @@
+#include "Python.h"
 #include <iostream>
 #include <fstream>
 #include <cmath>
 #include <cstdio>
 #include <png.h>
 #include <string>
-#include "Python.h"
 
 #ifdef NUMARRAY
 #include "numarray/arrayobject.h"
