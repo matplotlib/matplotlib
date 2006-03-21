@@ -824,6 +824,7 @@ class LogLocator(Locator):
         """
         self.base(base)
         self.subs(subs)
+        self.numticks = 15
 
     def base(self,base):
         """
@@ -840,7 +841,8 @@ class LogLocator(Locator):
         else:
             self._subs = array(subs)+0.0
 
-
+    def _set_numticks(self):
+        self.numticks = 15  # todo; be smart here; this is just for dev
 
     def __call__(self):
         'Return the locations of the ticks'
@@ -856,28 +858,22 @@ class LogLocator(Locator):
         ticklocs = []
 
         numdec = math.floor(vmax)-math.ceil(vmin)
+        
         if self._subs is None: # autosub
             if numdec>10: subs = array([1.0])
             elif numdec>6: subs = arange(2.0, b, 2.0)
             else: subs = arange(2.0, b)
         else:
             subs = self._subs
-        for decadeStart in b**arange(math.floor(vmin),math.ceil(vmax)):
+        
+        stride = 1
+        while numdec/stride+1 > self.numticks:
+            stride += 1
+        
+        for decadeStart in b**arange(math.floor(vmin),math.ceil(vmax)+stride, stride):
             ticklocs.extend( subs*decadeStart )
-
-        if(len(subs) and subs[0]==1.0):
-            ticklocs.append(b**math.ceil(vmax))
-
-
-        ticklocs = array(ticklocs)
-        ind = nonzero(logical_and(ticklocs>=b**vmin ,
-                                  ticklocs<=b**vmax))
-
-
-        ticklocs = take(ticklocs,ind)
-        return ticklocs
-
-
+        
+        return array(ticklocs)
 
     def autoscale(self):
         'Try to choose the view limits intelligently'

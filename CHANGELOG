@@ -1,3 +1,6 @@
+2006-03-21 Fixed tickmarks for logscale plots over very large ranges.
+           Closes bug # 1232920 - DSD
+
 2006-03-21 Added Rob Knight's arrow code; see examples/arrow_demo.py - JDH
 
 2006-03-20 Added support for masking values with nan's, using ADS's
