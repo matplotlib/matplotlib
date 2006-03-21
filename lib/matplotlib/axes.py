@@ -33,7 +33,7 @@ from matplotlib.mlab import meshgrid, detrend_none, detrend_linear, \
 from matplotlib.numerix.mlab import flipud, amin, amax
 
 from matplotlib import rcParams
-from patches import Patch, Rectangle, Circle, Polygon, Arrow, Wedge, Shadow, bbox_artist
+from patches import Patch, Rectangle, Circle, Polygon, Arrow, Wedge, Shadow, FancyArrow, bbox_artist
 from table import Table
 from text import Text, TextWithDash, _process_text_args
 from transforms import Bbox, Point, Value, Affine, NonseparableTransformation
@@ -462,6 +462,12 @@ class Axes(Artist):
 
         if self._sharey:
             self.transData.set_funcy(self._sharey.transData.get_funcy())
+
+    def arrow(self, x, y, dx, dy, **kwargs):
+        """Draws arrow on specified axis from (x,y) to (x+dx,y+dy)."""
+        a = FancyArrow(x, y, dx, dy, **kwargs)
+        self.add_artist(a)
+        return a
 
     def axhline(self, y=0, xmin=0, xmax=1, **kwargs):
         """
