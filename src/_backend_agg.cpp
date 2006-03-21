@@ -23,6 +23,7 @@
 #include "_backend_agg.h"
 #include "_transforms.h"
 #include "mplutils.h"
+#include "MPL_isnan.h"
 
 #include "swig_runtime.h"
 
@@ -1341,7 +1342,12 @@ RendererAgg::draw_lines(const Py::Tuple& args) {
 	moveto = true;
 	continue;
       }
-
+    else
+      if (MPL_isnan64(thisx) || MPL_isnan64(thisy)) {
+        moveto = true;
+        continue;
+      }
+    
     //use agg's transformer?
     xytrans.transform(&thisx, &thisy);
     thisy = heightd - thisy; //flipy
@@ -1367,7 +1373,7 @@ RendererAgg::draw_lines(const Py::Tuple& args) {
       path.move_to(thisx, thisy);
     else
       path.line_to(thisx, thisy);
-
+    
     moveto = false;
     //std::cout << "draw lines " << thisx << " " << thisy << std::endl;
   }
