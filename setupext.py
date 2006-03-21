@@ -99,10 +99,13 @@ def temp_copy(_from, _to):
     globals()["_cleanup_"+_to] = CleanUpFile(_to)
 
 def add_base_flags(module):
-    incdirs = [os.path.join(p, 'include') for p in basedir[sys.platform]
-               if os.path.exists(p)]
-    libdirs = [os.path.join(p, 'lib')     for p in basedir[sys.platform]
-               if os.path.exists(p)]
+
+    incdirs = filter(os.path.exists,
+                     [os.path.join(p, 'include') for p in basedir[sys.platform] ])
+    libdirs = filter(os.path.exists,
+                     [os.path.join(p, 'lib')     for p in basedir[sys.platform] ]+ 
+                     [os.path.join(p, 'lib64')     for p in basedir[sys.platform] ] )
+
     module.include_dirs.extend(incdirs)
     module.include_dirs.append('.')    
     module.library_dirs.extend(libdirs)
