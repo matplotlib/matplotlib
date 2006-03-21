@@ -631,7 +631,7 @@ grestore
         while start < len(x):
             # put moveto on all the bad data and on the first good
             # point after the bad data
-            codes = where(mask[start:end+1], 'l', 'm')
+            codes = [('m','l')[i] for i in mask]
             ind = nonzero(mask[start:end+1]==0)+1
             if len(ind):
                 if ind[-1]>=len(codes):
