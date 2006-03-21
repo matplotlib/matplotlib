@@ -1333,7 +1333,7 @@ class NavigationToolbar2:
                 else:
                     ymin = lasty+alphay*(ymin-lasty)
                     ymax = lasty+alphay*(ymax-lasty)
-    
+
             a.set_xlim((xmin, xmax))
             a.set_ylim((ymin, ymax))
 
@@ -1354,15 +1354,15 @@ class NavigationToolbar2:
                 self.release(event)
                 self.draw()
                 return
-    
+
             xmin, ymin, xmax, ymax = lim
-    
+
             # zoom to rect
             lastx, lasty = a.transData.inverse_xy_tup( (lastx, lasty) )
             x, y = a.transData.inverse_xy_tup( (x, y) )
             Xmin,Xmax=a.get_xlim()
             Ymin,Ymax=a.get_ylim()
-    
+
             if Xmin < Xmax:
                 if x<lastx:  xmin, xmax = x, lastx
                 else: xmin, xmax = lastx, x
@@ -1373,7 +1373,7 @@ class NavigationToolbar2:
                 else: xmin, xmax = lastx, x
                 if xmin > Xmin: xmin=Xmin
                 if xmax < Xmax: xmax=Xmax
-    
+
             if Ymin < Ymax:
                 if y<lasty:  ymin, ymax = y, lasty
                 else: ymin, ymax = lasty, y
@@ -1384,7 +1384,7 @@ class NavigationToolbar2:
                 else: ymin, ymax = lasty, y
                 if ymin > Ymin: ymin=Ymin
                 if ymax < Ymax: ymax=Ymax
-    
+
             if self._button_pressed == 1:
                 a.set_xlim((xmin, xmax))
                 a.set_ylim((ymin, ymax))
@@ -1409,14 +1409,15 @@ class NavigationToolbar2:
                 a.set_ylim((y1, y2))
 
         # Zoom with fixed aspect; modified for shared x-axes
-        aspect = a.get_aspect()
-        if aspect == 'equal' or aspect == 'scaled':
-            self.fix_aspect_after_zoom(a)
-        else:
-            aspect_shared = ''
-            if a._sharex != None: aspect_shared = a._sharex.get_aspect()
-            if aspect_shared == 'equal' or aspect_shared == 'scaled':
-                self.fix_aspect_after_zoom(a._sharex)
+        if 0:
+            aspect = a.get_aspect()
+            if aspect == 'equal' or aspect == 'scaled':
+                self.fix_aspect_after_zoom(a)
+            else:
+                aspect_shared = ''
+                if a._sharex != None: aspect_shared = a._sharex.get_aspect()
+                if aspect_shared == 'equal' or aspect_shared == 'scaled':
+                    self.fix_aspect_after_zoom(a._sharex)
 
         self.draw()
         self._xypress = None
@@ -1429,7 +1430,7 @@ class NavigationToolbar2:
         'Fix the aspect ratio after zooming in case of aspect equal or scaled'
         lold,bold,wold,hold = a.get_position()
         aspect = a.get_aspect()
-        a.set_aspect(aspect,True)
+        a.set_aspect_adjusts('datalim')
         l,b,w,h = a.get_position()
         if w != wold:  # width of axes was changed
             ratio = w / wold
@@ -1461,7 +1462,9 @@ class NavigationToolbar2:
 
 
     def _update_view(self):
-        'update the viewlim and position from the view and position stack for each axes'
+        '''update the viewlim and position from the view and
+        position stack for each axes
+        '''
 
         lims = self._views()
         if lims is None:  return

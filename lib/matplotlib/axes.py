@@ -341,6 +341,7 @@ class Axes(Artist):
                  ):
         Artist.__init__(self)
         self._position = map(makeValue, rect)
+        self._originalPosition = rect
         # must be set before set_figure
         self._sharex = sharex
         self._sharey = sharey
@@ -372,7 +373,6 @@ class Axes(Artist):
         # aspect ratio atribute, and original position
         self.set_aspect('auto')
         self.set_aspect_adjusts('position')
-        self._originalPosition = self.get_position()
 
         if len(kwargs): setp(self, **kwargs)
 
@@ -1403,8 +1403,8 @@ class Axes(Artist):
             raise RuntimeError('No renderer defined')
         if not self.get_visible(): return
         renderer.open_group('axes')
-
         self.apply_aspect()
+
         try: self.transData.freeze()  # eval the lazy objects
         except ValueError:
             print >> sys.stderr, 'data freeze value error', self.get_position(), self.dataLim.get_bounds(), self.viewLim.get_bounds()
@@ -1476,7 +1476,6 @@ class Axes(Artist):
         renderer.close_group('axes')
 
         self._cachedRenderer = renderer
-
 
     def __draw_animate(self):
         # ignore for now; broken
@@ -2438,7 +2437,7 @@ class Axes(Artist):
         coords[:, 1] = Y.astype(Float32)
         #print coords
 
- 	if shading == 'faceted':
+        if shading == 'faceted':
             showedges = 1
         else:
             showedges = 0
@@ -2910,15 +2909,27 @@ class Axes(Artist):
         'Return the axes rectangle left, bottom, width, height'
         return [val.get() for val in self._position]
 
-    def set_position(self, pos):
+    def set_position(self, pos, which='both'):
         """
         Set the axes position with pos = [left, bottom, width, height]
         in relative 0,1 coords
 
+        There are two position variables: one which is ultimately
+        used, but which may be modified by apply_aspect, and a second
+        which is the starting point for apply_aspect.
+
+        which = 'active' to change the first;
+                'original' to change the second;
+                'both' to change both
+
         ACCEPTS: len(4) sequence of floats
         """
-        for num,val in zip(pos, self._position):
-            val.set(num)
+        if which in ('both', 'active'):
+            # Change values within self._position--don't replace it.
+            for num,val in zip(pos, self._position):
+                val.set(num)
+        if which in ('both', 'original'):
+            self._originalPosition = pos
 
     def stem(self, x, y, linefmt='b-', markerfmt='bo', basefmt='r-'):
         """
@@ -3948,25 +3959,24 @@ class Axes(Artist):
         ds.sort()
         return ds[0][1]
 
-    def set_aspect(self, aspect='auto', fixLimits=None,
-                            aspect_adjusts='position'):
+    def set_aspect(self, aspect='auto', adjusts='position'):
         """
         aspect:
             'auto'   -  automatic; fill position rectangle with data
             'normal' -  same as 'auto'; deprecated
             'equal'  -  same scaling from data to plot units for x and y
-             A       -  a circle will be stretched such that the height
-                        is A times the width. aspect=1 is the same as
+             num     -  a circle will be stretched such that the height
+                        is num times the width. aspect=1 is the same as
                         aspect='equal'.
 
-        aspect_adjusts:
+        adjusts:
              'position' - change width or height of bounding rectangle;
                           keep it centered.
              'box_size' - as above, but anchored to lower left
              'datalim'  - change xlim or ylim
 
-        fixLimits: deprecated; False is aspect_adjusts='datalim';
-                   True is aspect_adjusts='position'
+        Note: the 'adjusts' argument is a convenience; it can be set
+        independently by set_aspect_adjusts.
 
         ACCEPTS: ['auto' | 'equal' | aspect_ratio]
         """
@@ -3977,22 +3987,20 @@ class Axes(Artist):
         else:
             self._aspect = float(aspect) # raise ValueError if necessary
 
-        if fixLimits is not None:
-            if not fixLimits: aspect_adjusts = 'datalim'
-        if aspect_adjusts in ('position', 'box_size', 'datalim'):
-            self._aspect_adjusts = aspect_adjusts
+        if adjusts in ('position', 'box_size', 'datalim'):
+            self._aspect_adjusts = adjusts
         else:
             raise ValueError(
-                'aspect_adjusts must be "position", "box_size", or "datalim"')
+                'adjusts must be "position", "box_size", or "datalim"')
 
-    def set_aspect_adjusts(self, aspect_adjusts = 'position'):
+    def set_aspect_adjusts(self, adjusts = 'position'):
         """
         Must be called after set_aspect.
 
         ACCEPTS: ['position' | 'box_size' | 'datalim']
         """
-        if aspect_adjusts in ('position', 'box_size', 'datalim'):
-            self._aspect_adjusts = aspect_adjusts
+        if adjusts in ('position', 'box_size', 'datalim'):
+            self._aspect_adjusts = adjusts
         else:
             raise ValueError(
                 'argument must be "position", "box_size", or "datalim"')
@@ -4005,7 +4013,7 @@ class Axes(Artist):
         '''
 
         if self._aspect == 'auto':
-            self.set_position( self._originalPosition )
+            self.set_position( self._originalPosition , 'active')
             return
 
         if self._aspect == 'equal':
@@ -4034,10 +4042,9 @@ class Axes(Artist):
                 B = b + 0.5 * (h-H)
             else:
                 L,B = l,b
-            self.set_position((L,B,W,H))
+            self.set_position((L,B,W,H), 'active')
             return
 
-        self.autoscale_view()
         xmin,xmax = self.get_xlim()
         xsize = math.fabs(xmax-xmin)
         ymin,ymax = self.get_ylim()
