@@ -717,11 +717,11 @@ class Figure(Artist):
             l,b,w,h = ax.get_position()
             if orientation=='vertical':
                 neww = 0.8*w
-                ax.set_position((l,b,neww,h))
+                ax.set_position((l,b,neww,h), 'both')
                 cax = self.add_axes([l + 0.9*w, b, 0.1*w, h])
             else:
                 newh = 0.8*h
-                ax.set_position((l,b+0.2*h,w,newh))
+                ax.set_position((l,b+0.2*h,w,newh), 'both')
                 cax = self.add_axes([l, b, w, 0.1*h])
 
         else:
