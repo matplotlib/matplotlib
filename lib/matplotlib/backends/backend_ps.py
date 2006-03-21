@@ -28,7 +28,7 @@ from matplotlib.texmanager import TexManager
 
 from matplotlib.transforms import get_vec6_scales
 
-from matplotlib.numerix import UInt8, Float32, alltrue, ceil, equal, \
+from matplotlib.numerix import UInt8, Float32, alltrue, array, ceil, equal, \
     fromstring, nonzero, ones, put, take, where, isnan
 import binascii
 import re
@@ -631,7 +631,7 @@ grestore
         while start < len(x):
             # put moveto on all the bad data and on the first good
             # point after the bad data
-            codes = [('m','l')[i] for i in mask]
+            codes = array([('m','l')[int(i)] for i in mask])
             ind = nonzero(mask[start:end+1]==0)+1
             if len(ind):
                 if ind[-1]>=len(codes):
