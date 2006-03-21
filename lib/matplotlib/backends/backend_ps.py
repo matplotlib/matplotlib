@@ -610,9 +610,8 @@ grestore
         point in x, y
         """
         if debugPS: self._pswriter.write('% draw_lines \n')
-    
+        
         write = self._pswriter.write
-        write('gsave\n')
         
         mask = where(isnan(x) + isnan(y), 0, 1)
         if transform: # this won't be called if draw_markers is hidden
@@ -621,9 +620,10 @@ grestore
             
             vec6 = transform.as_vec6_val()
             sx, sy = get_vec6_scales(vec6)
+            write('gsave\n')
             self.push_gc(gc)
             write('[%f %f %f %f %f %f] concat\n'% vec6)   
-
+        
         start  = 0
         end    = 1000
         points = zip(x,y)
@@ -631,12 +631,13 @@ grestore
         while start < len(x):
             # put moveto on all the bad data and on the first good
             # point after the bad data
-            codes = array([('m','l')[int(i)] for i in mask])
+            codes = [('m','l')[int(i)] for i in mask]
             ind = nonzero(mask[start:end+1]==0)+1
             if len(ind):
                 if ind[-1]>=len(codes):
                     ind = ind[:-1]
-                put(codes, ind, 'm')
+            for i in ind:
+                codes[i] = 'm'
             
             thisx = x[start:end+1]
             thisy = y[start:end+1]
@@ -659,7 +660,7 @@ grestore
                 self._draw_ps("\n".join(ps)+'\n', gc, None)
             start = end
             end   += 1000
-        write("grestore\n")
+        if transform: write("grestore\n")
         
     def draw_lines_old(self, gc, x, y):
         """
