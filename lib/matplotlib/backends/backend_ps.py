@@ -626,7 +626,7 @@ grestore
 
         start  = 0
         end    = 1000
-        points = zip(x,y)             
+        points = zip(x,y)
         
         while start < len(x):
             # put moveto on all the bad data and on the first good
@@ -643,8 +643,12 @@ grestore
             to_draw = izip(thisx, thisy, codes, mask)
             if not to_draw:
                 break
-
-            ps = ['%1.3f %1.3f m' % to_draw.next()[:2]]
+            
+            while 1:
+                xp, yp, c, m = to_draw.next()
+                if m:
+                    ps = ['%1.3f %1.3f m' % (xp, yp)]
+                    break
             ps.extend(["%1.3f %1.3f %c" % (xp, yp, c) for xp, yp, c, m in to_draw if m])
             # we don't want to scale the line width, etc so invert the
             # scale for the stroke
