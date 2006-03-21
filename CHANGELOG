@@ -1,3 +1,7 @@
+2006-03-20 Added support for masking values with nan's, using ADS's
+           isnan module and the new API. Works for *Agg backends and
+           the postscript backend- DSD
+
 2006-03-20 Added contour.negative_linestyle rcParam - ADS
 
 2006-03-20 Added _isnan extension module to test for nan with Numeric 
