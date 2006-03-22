@@ -142,13 +142,13 @@ class RendererBase:
             seg = segments[i % Nsegments]
             if not len(seg): continue
             x, y = zip(*seg)
-            
+
             x, y = transform.numerix_x_y(array(x), array(y))
             if usingOffsets:
                 xo, yo = transOffset.xy_tup(offsets[i % Noffsets])
                 x += xo
                 y += yo
-            
+
             if newstyle: self.draw_lines(gc, x, y, identity)
             else: self.draw_lines(gc, x, y)
 
@@ -1413,39 +1413,12 @@ class NavigationToolbar2:
                 a.set_xlim((x1, x2))
                 a.set_ylim((y1, y2))
 
-        # Zoom with fixed aspect; modified for shared x-axes
-        if 0:
-            aspect = a.get_aspect()
-            if aspect == 'equal' or aspect == 'scaled':
-                self.fix_aspect_after_zoom(a)
-            else:
-                aspect_shared = ''
-                if a._sharex != None: aspect_shared = a._sharex.get_aspect()
-                if aspect_shared == 'equal' or aspect_shared == 'scaled':
-                    self.fix_aspect_after_zoom(a._sharex)
-
         self.draw()
         self._xypress = None
         self._button_pressed == None
 
         self.push_current()
         self.release(event)
-
-    def fix_aspect_after_zoom(self,a):
-        'Fix the aspect ratio after zooming in case of aspect equal or scaled'
-        lold,bold,wold,hold = a.get_position()
-        aspect = a.get_aspect()
-        a.set_aspect_adjusts('datalim')
-        l,b,w,h = a.get_position()
-        if w != wold:  # width of axes was changed
-            ratio = w / wold
-            for ax in a.get_figure().axes:  # see if any subplot shares this axis
-                if ax._sharex == a:
-                    lax,bax,wax,hax = ax.get_position()
-                    wnew = ratio * wax
-                    lnew = lax
-                    if aspect == 'equal': lnew = lax - 0.5 * ( wnew - wax )
-                    ax.set_position( [lnew, bax, wnew, hax] )
 
     def draw(self):
         'redraw the canvases, update the locators'

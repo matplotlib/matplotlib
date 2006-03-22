@@ -345,6 +345,11 @@ class Axes(Artist):
         # must be set before set_figure
         self._sharex = sharex
         self._sharey = sharey
+        # Flag: True if some other Axes instance is sharing our x or y axis
+        self._masterx = False
+        self._mastery = False
+        if sharex: sharex._masterx = True
+        if sharey: sharey._mastery = True
         self.set_label(label)
         self.set_figure(fig)
 
@@ -380,6 +385,124 @@ class Axes(Artist):
         "move this out of __init__ because non-separable axes don't use it"
         self.xaxis = XAxis(self)
         self.yaxis = YAxis(self)
+
+    def set_aspect(self, aspect='auto', adjusts='position'):
+        """
+        aspect:
+            'auto'   -  automatic; fill position rectangle with data
+            'normal' -  same as 'auto'; deprecated
+            'equal'  -  same scaling from data to plot units for x and y
+             num     -  a circle will be stretched such that the height
+                        is num times the width. aspect=1 is the same as
+                        aspect='equal'.
+
+        adjusts:
+             'position' - change width or height of bounding rectangle;
+                          keep it centered.
+             'box_size' - as above, but anchored to lower left
+             'datalim'  - change xlim or ylim
+
+        Note: the 'adjusts' argument is a convenience; it can be set
+        independently by set_aspect_adjusts.
+
+        ACCEPTS: ['auto' | 'equal' | aspect_ratio]
+        """
+        if aspect in ('normal', 'auto'):
+            self._aspect = 'auto'
+        elif aspect == 'equal':
+            self._aspect = 'equal'
+        else:
+            self._aspect = float(aspect) # raise ValueError if necessary
+
+        if adjusts in ('position', 'box_size', 'datalim'):
+            self._aspect_adjusts = adjusts
+        else:
+            raise ValueError(
+                'adjusts must be "position", "box_size", or "datalim"')
+
+    def set_aspect_adjusts(self, adjusts = 'position'):
+        """
+        Must be called after set_aspect.
+
+        ACCEPTS: ['position' | 'box_size' | 'datalim']
+        """
+        if adjusts in ('position', 'box_size', 'datalim'):
+            self._aspect_adjusts = adjusts
+        else:
+            raise ValueError(
+                'argument must be "position", "box_size", or "datalim"')
+
+
+    def apply_aspect(self):
+        '''
+        Use self._aspect and self._aspect_adjusts to modify the
+        axes box or the view limits.
+        '''
+
+        if self._aspect == 'auto':
+            self.set_position( self._originalPosition , 'active')
+            return
+
+        if self._aspect == 'equal':
+            A = 1
+        else:
+            A = self._aspect
+
+        #Ensure at drawing time that any Axes involved in axis-sharing
+        # does not have its position changed.
+        if self._masterx or self._mastery or self._sharex or self._sharey:
+            self._aspect_adjusts = 'datalim'
+
+        figW,figH = self.get_figure().get_size_inches()
+        fig_aspect = figH/figW
+        xmin,xmax = self.get_xlim()
+        xsize = math.fabs(xmax-xmin)
+        ymin,ymax = self.get_ylim()
+        ysize = math.fabs(ymax-ymin)
+        l,b,w,h = self._originalPosition
+        if self._aspect_adjusts in ('position', 'box_size'):
+            data_ratio = ysize/xsize
+            box_aspect = A * data_ratio
+            H = w * box_aspect/fig_aspect
+            if H <= h:
+                W = w
+            else:
+                W = h * fig_aspect/box_aspect
+                H = h
+            if self._aspect_adjusts == 'position':
+                L = l + 0.5 * (w-W)
+                B = b + 0.5 * (h-H)
+            else:
+                L,B = l,b
+            self.set_position((L,B,W,H), 'active')
+            return
+
+        changex = ((self._sharey or self._mastery) and not
+                            (self._sharex or self._masterx))
+        changey = ((self._sharex or self._masterx) and not
+                            (self._sharey or self._mastery))
+        xmin,xmax = self.get_xlim()
+        xsize = math.fabs(xmax-xmin)
+        ymin,ymax = self.get_ylim()
+        ysize = math.fabs(ymax-ymin)
+        box_aspect = fig_aspect * (h/w)
+        data_ratio = box_aspect / A
+        Ysize = data_ratio * xsize
+        if Ysize > ysize or changey:
+            dy = 0.5 * (Ysize - ysize)
+            self.set_ylim((ymin-dy, ymax+dy))
+            return
+
+        Xsize = ysize / data_ratio
+        if Xsize > xsize or changex:
+            dx = 0.5 * (Xsize - xsize)
+            self.set_xlim((xmin-dx, xmax+dx))
+
+    def get_aspect(self):
+        return self._aspect
+
+    def get_aspect_adjusts(self):
+        return self._aspect_adjusts
 
     def set_cursor_props(self, *args):
         """
@@ -1410,7 +1533,6 @@ class Axes(Artist):
         if not self.get_visible(): return
         renderer.open_group('axes')
         self.apply_aspect()
-
         try: self.transData.freeze()  # eval the lazy objects
         except ValueError:
             print >> sys.stderr, 'data freeze value error', self.get_position(), self.dataLim.get_bounds(), self.viewLim.get_bounds()
@@ -3965,115 +4087,6 @@ class Axes(Artist):
         ds = [ (dist(a),a) for a in artists]
         ds.sort()
         return ds[0][1]
-
-    def set_aspect(self, aspect='auto', adjusts='position'):
-        """
-        aspect:
-            'auto'   -  automatic; fill position rectangle with data
-            'normal' -  same as 'auto'; deprecated
-            'equal'  -  same scaling from data to plot units for x and y
-             num     -  a circle will be stretched such that the height
-                        is num times the width. aspect=1 is the same as
-                        aspect='equal'.
-
-        adjusts:
-             'position' - change width or height of bounding rectangle;
-                          keep it centered.
-             'box_size' - as above, but anchored to lower left
-             'datalim'  - change xlim or ylim
-
-        Note: the 'adjusts' argument is a convenience; it can be set
-        independently by set_aspect_adjusts.
-
-        ACCEPTS: ['auto' | 'equal' | aspect_ratio]
-        """
-        if aspect in ('normal', 'auto'):
-            self._aspect = 'auto'
-        elif aspect == 'equal':
-            self._aspect = 'equal'
-        else:
-            self._aspect = float(aspect) # raise ValueError if necessary
-
-        if adjusts in ('position', 'box_size', 'datalim'):
-            self._aspect_adjusts = adjusts
-        else:
-            raise ValueError(
-                'adjusts must be "position", "box_size", or "datalim"')
-
-    def set_aspect_adjusts(self, adjusts = 'position'):
-        """
-        Must be called after set_aspect.
-
-        ACCEPTS: ['position' | 'box_size' | 'datalim']
-        """
-        if adjusts in ('position', 'box_size', 'datalim'):
-            self._aspect_adjusts = adjusts
-        else:
-            raise ValueError(
-                'argument must be "position", "box_size", or "datalim"')
-
-
-    def apply_aspect(self):
-        '''
-        Use self._aspect and self._aspect_adjusts to modify the
-        axes box or the view limits.
-        '''
-
-        if self._aspect == 'auto':
-            self.set_position( self._originalPosition , 'active')
-            return
-
-        if self._aspect == 'equal':
-            A = 1
-        else:
-            A = self._aspect
-
-        figW,figH = self.get_figure().get_size_inches()
-        fig_aspect = figH/figW
-        xmin,xmax = self.get_xlim()
-        xsize = math.fabs(xmax-xmin)
-        ymin,ymax = self.get_ylim()
-        ysize = math.fabs(ymax-ymin)
-        l,b,w,h = self._originalPosition
-        if self._aspect_adjusts in ('position', 'box_size'):
-            data_ratio = ysize/xsize
-            box_aspect = A * data_ratio
-            H = w * box_aspect/fig_aspect
-            if H <= h:
-                W = w
-            else:
-                W = h * fig_aspect/box_aspect
-                H = h
-            if self._aspect_adjusts == 'position':
-                L = l + 0.5 * (w-W)
-                B = b + 0.5 * (h-H)
-            else:
-                L,B = l,b
-            self.set_position((L,B,W,H), 'active')
-            return
-
-        xmin,xmax = self.get_xlim()
-        xsize = math.fabs(xmax-xmin)
-        ymin,ymax = self.get_ylim()
-        ysize = math.fabs(ymax-ymin)
-        box_aspect = fig_aspect * (h/w)
-        data_ratio = box_aspect / A
-        Ysize = data_ratio * xsize
-        if Ysize > ysize:
-            dy = 0.5 * (Ysize - ysize)
-            self.set_ylim((ymin-dy, ymax+dy))
-            return
-
-        Xsize = ysize / data_ratio
-        if Xsize > xsize:
-            dx = 0.5 * (Xsize - xsize)
-            self.set_xlim((xmin-dx, xmax+dx))
-
-    def get_aspect(self):
-        return self._aspect
-
-    def get_aspect_adjusts(self):
-        return self._aspect_adjusts
 
 class SubplotBase:
     """
