@@ -1,3 +1,5 @@
+2006-03-22 Refactored TextWithDash, closes bug # 1357969 - DSD
+
 2006-03-21 Added another colorbrewer colormap (RdYlBu) - JSWHIT
 
 2006-03-21 Fixed tickmarks for logscale plots over very large ranges.

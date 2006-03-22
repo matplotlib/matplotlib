@@ -739,7 +739,7 @@ class Text(Artist):
 
         return val
 
-class TextWithDash(Artist):
+class _TextWithDash(Artist):
     """
     This is basically a Text with a dash (drawn with a Line2D)
     before/after it. It is intended to be a drop-in replacement
@@ -1066,4 +1066,381 @@ class TextWithDash(Artist):
         """
         self.figure = fig
         self._mytext.set_figure(fig)
+        self.dashline.set_figure(fig)
+
+
+class TextWithDash(Text):
+    """
+    This is basically a Text with a dash (drawn with a Line2D)
+    before/after it. It is intended to be a drop-in replacement
+    for Text, and should behave identically to Text when
+    dashlength=0.0.
+
+    The dash always comes between the point specified by
+    set_position() and the text. When a dash exists, the
+    text alignment arguments (horizontalalignment,
+    verticalalignment) are ignored.
+
+    dashlength is the length of the dash in canvas units.
+    (default=0.0).
+
+    dashdirection is one of 0 or 1, where 0 draws the dash
+    after the text and 1 before.
+    (default=0).
+
+    dashrotation specifies the rotation of the dash, and
+    should generally stay None. In this case
+    self.get_dashrotation() returns self.get_rotation().
+    (I.e., the dash takes its rotation from the text's
+    rotation). Because the text center is projected onto
+    the dash, major deviations in the rotation cause
+    what may be considered visually unappealing results.
+    (default=None).
+
+    dashpad is a padding length to add (or subtract) space
+    between the text and the dash, in canvas units.
+    (default=3).
+
+    dashpush "pushes" the dash and text away from the point
+    specified by set_position() by the amount in canvas units.
+    (default=0)
+
+    NOTE: The alignment of the two objects is based on the
+    bbox of the Text, as obtained by get_window_extent().
+    This, in turn, appears to depend on the font metrics
+    as given by the rendering backend. Hence the quality
+    of the "centering" of the label text with respect to
+    the dash varies depending on the backend used.
+
+    NOTE2: I'm not sure that I got the get_window_extent()
+    right, or whether that's sufficient for providing the
+    object bbox.
+    """
+    __name__ = 'textwithdash'
+
+    def __init__(self,
+                 x=0, y=0, text='',
+                 color=None,          # defaults to rc params
+                 verticalalignment='center',
+                 horizontalalignment='center',
+                 multialignment=None,
+                 fontproperties=None, # defaults to FontProperties()
+                 rotation=None,
+                 dashlength=0.0,
+                 dashdirection=0,
+                 dashrotation=None,
+                 dashpad=3,
+                 dashpush=0,
+                 xaxis=True,
+                 ):
+        Artist.__init__(self)
+        # The position (x,y) values for _mytext and dashline
+        # are bogus as given in the instantiation; they will
+        # be set correctly by update_coords() in draw()
+        if not is_string_like(text):
+            raise TypeError('text must be a string type')
+        self.cached = maxdict(5)
+        if color is None: color = rcParams['text.color']
+        if fontproperties is None: fontproperties = FontProperties()
+        
+        self.set_color(color)
+        self.set_text(text)
+        self._verticalalignment = verticalalignment
+        self._horizontalalignment = horizontalalignment
+        self._multialignment = multialignment
+        self._rotation = rotation
+        self._fontproperties = fontproperties
+        self._bbox = None
+        self._renderer = None
+
+        #self.set_bbox(dict(pad=0))
+        
+        self.dashline = Line2D(xdata=(x, x),
+                               ydata=(y, y),
+                               color='k',
+                               linestyle='-')
+        self._x = x
+        self._y = y
+        self._dashlength = dashlength
+        self._dashdirection = dashdirection
+        self._dashrotation = dashrotation
+        self._dashpad = dashpad
+        self._dashpush = dashpush
+
+    def draw(self, renderer):
+        if renderer is not None: self._renderer = renderer
+        if not self.get_visible(): return
+        self.update_coords(renderer)
+        
+        if not self.get_visible(): return
+        
+        if self.get_dashlength() > 0.0:
+            self.dashline.draw(renderer)
+        
+        if self._text=='': return
+        
+        gc = renderer.new_gc()
+        gc.set_foreground(self._color)
+        gc.set_alpha(self._alpha)
+        if self.get_clip_on():
+            gc.set_clip_rectangle(self.clipbox.get_bounds())
+        
+        if self._bbox:
+            bbox_artist(self, renderer, self._bbox)
+        angle = self.get_rotation()
+        
+        ismath = self.is_math_text()
+        
+        if angle==0:
+            if ismath=='TeX': m = None
+            else: m = self._rgxsuper.match(self._text)
+            if m is not None:
+                bbox, info = self._get_layout_super(self._renderer, m)
+                base, xt, yt = info[0]
+                renderer.draw_text(gc, xt, yt, base,
+                                   self._fontproperties, angle,
+                                   ismath=False)
+                
+                exponent, xt, yt, fp = info[1]
+                renderer.draw_text(gc, xt, yt, exponent,
+                                   fp, angle,
+                                   ismath=False)
+                return
+        
+        if len(self._substrings)>1:
+            # embedded mathtext
+            thisx, thisy = self._transform.xy_tup((self._x, self._y))
+            for s,ismath in self._substrings:
+                w, h = renderer.get_text_width_height(
+                    s, self._fontproperties, ismath)
+                
+                renderx, rendery = thisx, thisy
+                if renderer.flipy():
+                    canvasw, canvash = renderer.get_canvas_width_height()
+                    rendery = canvash-rendery
+                
+                renderer.draw_text(gc, renderx, rendery, s,
+                                   self._fontproperties, angle,
+                                   ismath)
+                thisx += w
+            
+            return
+        bbox, info = self._get_layout(renderer)
+        
+        if ismath=='TeX':
+            canvasw, canvash = renderer.get_canvas_width_height()
+            for line, wh, x, y in info:
+                x, y = self._transform.xy_tup((x, y))
+                if renderer.flipy():
+                    y = canvash-y
+                
+                renderer.draw_tex(gc, x, y, line,
+                                  self._fontproperties, angle)
+            return
+        
+        #print 'xy', self._x, self._y, info
+        for line, wh, x, y in info:
+            x, y = self._transform.xy_tup((x, y))
+            #renderer.draw_arc(gc, (1,0,0),
+            #                  x, y, 2, 2, 0.0, 360.0)
+            
+            if renderer.flipy():
+                canvasw, canvash = renderer.get_canvas_width_height()
+                y = canvash-y
+            
+            renderer.draw_text(gc, x, y, line,
+                               self._fontproperties, angle,
+                               ismath=self.is_math_text())
+        #bbox_artist(self._mytext, renderer, props={'pad':0}, fill=False)
+
+    def update_coords(self, renderer):
+        """Computes the actual x,y coordinates for
+        self._mytext based on the input x,y and the
+        dashlength. Since the rotation is with respect
+        to the actual canvas's coordinates we need to
+        map back and forth.
+        """
+        (x, y) = self.get_position()
+        dashlength = self.get_dashlength()
+
+        # Shortcircuit this process if we don't have a dash
+        if dashlength == 0.0:
+            self.set_position((x, y))
+            return
+
+        dashrotation = self.get_dashrotation()
+        dashdirection = self.get_dashdirection()
+        dashpad = self.get_dashpad()
+        dashpush = self.get_dashpush()
+        transform = self.get_transform()
+
+        angle = get_rotation(dashrotation)
+        theta = pi*(angle/180.0+dashdirection-1)
+        cos_theta, sin_theta = cos(theta), sin(theta)
+
+        # Compute the dash end points
+        # The 'c' prefix is for canvas coordinates
+        cxy = array(transform.xy_tup((x, y)))
+        cd = array([cos_theta, sin_theta])
+        c1 = cxy+dashpush*cd
+        c2 = cxy+(dashpush+dashlength)*cd
+        (x1, y1) = transform.inverse_xy_tup(tuple(c1))
+        (x2, y2) = transform.inverse_xy_tup(tuple(c2))
+        self.dashline.set_data((x1, x2), (y1, y2))
+
+        # We now need to extend this vector out to
+        # the center of the text area.
+        # The basic problem here is that we're "rotating"
+        # two separate objects but want it to appear as
+        # if they're rotated together.
+        # This is made non-trivial because of the
+        # interaction between text rotation and alignment -
+        # text alignment is based on the bbox after rotation.
+        # We reset/force both alignments to 'center'
+        # so we can do something relatively reasonable.
+        # There's probably a better way to do this by
+        # embedding all this in the object's transformations,
+        # but I don't grok the transformation stuff
+        # well enough yet.
+        we = self.get_window_extent(renderer=renderer)
+        w, h = we.width(), we.height()
+        # Watch for zeros
+        if sin_theta == 0.0:
+            dx = w
+            dy = 0.0
+        elif cos_theta == 0.0:
+            dx = 0.0
+            dy = h
+        else:
+            tan_theta = sin_theta/cos_theta
+            dx = w
+            dy = w*tan_theta
+            if dy > h or dy < -h:
+                dy = h
+                dx = h/tan_theta
+        cwd = array([dx, dy])/2
+        cwd *= 1+dashpad/sqrt(dot(cwd,cwd))
+        cw = c2+(dashdirection*2-1)*cwd
+        self.set_position(transform.inverse_xy_tup(tuple(cw)))
+
+        # Now set the window extent
+        # I'm not at all sure this is the right way to do this.
+        we = self.get_window_extent(renderer=renderer)
+        self._window_extent = we.deepcopy()
+        self._window_extent.update(((c1[0], c1[1]),), False)
+
+        # Finally, make text align center
+        self.set_horizontalalignment('center')
+        self.set_verticalalignment('center')
+
+    def get_window_extent(self, renderer=None):
+        if self.get_dashlength() == 0.0:
+            if not self.get_visible(): return _unit_box
+            if self._text == '':
+                tx, ty = self._transform.xy_tup( (self._x, self._y) )
+                return lbwh_to_bbox(tx,ty,0,0)
+    
+            if renderer is not None:
+                self._renderer = renderer
+            if self._renderer is None:
+                raise RuntimeError('Cannot get window extent w/o renderer')
+    
+            angle = self.get_rotation()
+            if angle==0:
+                m = self._rgxsuper.match(self._text)
+                if m is not None:
+                    bbox, tmp = self._get_layout_super(self._renderer, m)
+                    return bbox
+            bbox, info = self._get_layout(self._renderer)
+            return bbox
+        else:
+            self.update_coords(renderer)
+            return self._window_extent
+
+    def get_dashlength(self):
+        return self._dashlength
+
+    def set_dashlength(self, dl):
+        """
+        Set the length of the dash.
+
+        ACCEPTS: float
+        """
+        self._dashlength = dl
+
+    def get_dashdirection(self):
+        return self._dashdirection
+
+    def set_dashdirection(self, dd):
+        """
+        Set the direction of the dash following the text.
+        1 is before the text and 0 is after. The default
+        is 0, which is what you'd want for the typical
+        case of ticks below and on the left of the figure.
+
+        ACCEPTS: int
+        """
+        self._dashdirection = dd
+
+    def get_dashrotation(self):
+        if self._dashrotation == None:
+            return self.get_rotation()
+        else:
+            return self._dashrotation
+
+    def set_dashrotation(self, dr):
+        """
+        Set the rotation of the dash.
+
+        ACCEPTS: float
+        """
+        self._dashrotation = dr
+
+    def get_dashpad(self):
+        return self._dashpad
+
+    def set_dashpad(self, dp):
+        """
+        Set the "pad" of the TextWithDash, which
+        is the extra spacing between the dash and
+        the text, in canvas units.
+
+        ACCEPTS: float
+        """
+        self._dashpad = dp
+
+    def get_dashpush(self):
+        return self._dashpush
+
+    def set_dashpush(self, dp):
+        """
+        Set the "push" of the TextWithDash, which
+        is the extra spacing between the beginning
+        of the dash and the specified position.
+
+        ACCEPTS: float
+        """
+        self._dashpush = dp
+
+    def set_transform(self, t):
+        """
+        Set the Transformation instance used by this artist.
+
+        ACCEPTS: a matplotlib.transform transformation instance
+        """
+        self._transform = t
+        self._transformSet = True
+        self.dashline.set_transform(t)
+
+    def get_figure(self):
+        'return the figure instance'
+        return self.figure
+
+    def set_figure(self, fig):
+        """
+        Set the figure instance the artist belong to.
+
+        ACCEPTS: a matplotlib.figure.Figure instance
+        """
+        self.figure = fig
         self.dashline.set_figure(fig)
