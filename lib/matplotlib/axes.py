@@ -1623,7 +1623,7 @@ class Axes(Artist):
         plot filled polygons.  *args is a variable length argument, allowing
         for multiple x,y pairs with an optional color format string; see plot
         for details on the argument parsing.  For example, all of the
-        following are legal, assuming a is the Axis instance:
+        following are legal, assuming ax is an Axes instance:
 
           ax.fill(x,y)            # plot polygon with vertices at x,y
           ax.fill(x,y, 'b' )      # plot polygon with vertices at x,y in blue
@@ -1755,6 +1755,7 @@ class Axes(Artist):
 
     def grid(self, b=None, **kwargs):
         """
+        GRID(self, b=None, **kwargs)
         Set the axes grids on or off; b is a boolean
 
         if b is None and len(kwargs)==0, toggle the grid state.  if

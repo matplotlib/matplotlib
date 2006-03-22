@@ -1,9 +1,11 @@
-#include "Python.h"
+
 #include <iostream>
 #include <fstream>
 #include <cmath>
 #include <cstdio>
 #include <png.h>
+
+#include "Python.h" //after png.h due to setjmp bug
 #include <string>
 
 #ifdef NUMARRAY
