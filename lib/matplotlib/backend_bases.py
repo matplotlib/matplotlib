@@ -134,7 +134,7 @@ class RendererBase:
             color = colors[i % Nc]
             rgb   = color[0], color[1], color[2]
             alpha = color[-1]
-
+            
             gc.set_foreground(rgb, isRGB=True)
             gc.set_alpha( alpha )
             gc.set_linewidth( linewidths[i % Nlw] )

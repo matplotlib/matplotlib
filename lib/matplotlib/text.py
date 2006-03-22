@@ -888,9 +888,14 @@ class TextWithDash(Artist):
         # Compute the dash end points
         # The 'c' prefix is for canvas coordinates
         cxy = array(transform.xy_tup((x, y)))
+        print cxy
         cd = array([cos_theta, sin_theta])
+        print cd
         c1 = cxy+dashpush*cd
+        print c1
         c2 = cxy+(dashpush+dashlength)*cd
+        print c2
+        print
         (x1, y1) = transform.inverse_xy_tup(tuple(c1))
         (x2, y2) = transform.inverse_xy_tup(tuple(c2))
         self.dashline.set_data((x1, x2), (y1, y2))
@@ -1133,68 +1138,75 @@ class _TextWithDash(Text):
                  dashpush=0,
                  xaxis=True,
                  ):
+
+        Text.__init__(self, x=x, y=y, text=text, color=color,
+                      verticalalignment=verticalalignment,
+                      horizontalalignment=horizontalalignment,
+                      multialignment=multialignment,
+                      fontproperties=fontproperties, rotation=rotation)
         
-        Text.__init__(self, x, y, text, color, verticalalignment,
-                 horizontalalignment, multialignment, fontproperties,
-                 rotation)
         # The position (x,y) values for text and dashline
         # are bogus as given in the instantiation; they will
         # be set correctly by update_coords() in draw()
 
-        #self.set_bbox(dict(pad=0))
-        
         self.dashline = Line2D(xdata=(x, x),
                                ydata=(y, y),
                                color='k',
                                linestyle='-')
-
+        
+        self._dashx = x
+        self._dashy = y
         self._dashlength = dashlength
         self._dashdirection = dashdirection
         self._dashrotation = dashrotation
         self._dashpad = dashpad
         self._dashpush = dashpush
 
+        self.set_bbox(dict(pad=0))
+
     def draw(self, renderer):
-        Text.draw(self, renderer)
-        
         self.update_coords(renderer)
-        
+        Text.draw(self, renderer)
         if self.get_dashlength() > 0.0:
             self.dashline.draw(renderer)
 
     def update_coords(self, renderer):
         """Computes the actual x,y coordinates for
-        self._mytext based on the input x,y and the
+        text based on the input x,y and the
         dashlength. Since the rotation is with respect
         to the actual canvas's coordinates we need to
         map back and forth.
         """
-        (x, y) = self.get_position()
+        dashx, dashy = self.get_position()
+##        print dashx, dashy
         dashlength = self.get_dashlength()
-
         # Shortcircuit this process if we don't have a dash
         if dashlength == 0.0:
-            self.set_position((x, y))
+            Text.set_position(self, (dashx, dashy))
             return
-
+        
         dashrotation = self.get_dashrotation()
         dashdirection = self.get_dashdirection()
         dashpad = self.get_dashpad()
         dashpush = self.get_dashpush()
-        transform = self.get_transform()
 
         angle = get_rotation(dashrotation)
         theta = pi*(angle/180.0+dashdirection-1)
         cos_theta, sin_theta = cos(theta), sin(theta)
 
+        transform = self.get_transform()
+
         # Compute the dash end points
         # The 'c' prefix is for canvas coordinates
-        cxy = array(transform.xy_tup((x, y)))
+        cxy = array(transform.xy_tup((dashx, dashy)))
         cd = array([cos_theta, sin_theta])
         c1 = cxy+dashpush*cd
         c2 = cxy+(dashpush+dashlength)*cd
+        
         (x1, y1) = transform.inverse_xy_tup(tuple(c1))
         (x2, y2) = transform.inverse_xy_tup(tuple(c2))
+        print x1, y1
+        print x2, y2
         self.dashline.set_data((x1, x2), (y1, y2))
 
         # We now need to extend this vector out to
@@ -1230,7 +1242,7 @@ class _TextWithDash(Text):
         cwd = array([dx, dy])/2
         cwd *= 1+dashpad/sqrt(dot(cwd,cwd))
         cw = c2+(dashdirection*2-1)*cwd
-        self.set_position(transform.inverse_xy_tup(tuple(cw)))
+        Text.set_position(self, transform.inverse_xy_tup(tuple(cw)))
 
         # Now set the window extent
         # I'm not at all sure this is the right way to do this.
@@ -1239,14 +1251,14 @@ class _TextWithDash(Text):
         self._window_extent.update(((c1[0], c1[1]),), False)
 
         # Finally, make text align center
-        self.set_horizontalalignment('center')
-        self.set_verticalalignment('center')
+        Text.set_horizontalalignment(self, 'center')
+        Text.set_verticalalignment(self, 'center')
 
     def get_window_extent(self, renderer=None):
+        self.update_coords(renderer)
         if self.get_dashlength() == 0.0:
             return Text.get_window_extent(self, renderer=renderer)
         else:
-            self.update_coords(renderer)
             return self._window_extent
 
     def get_dashlength(self):
@@ -1314,6 +1326,35 @@ class _TextWithDash(Text):
         """
         self._dashpush = dp
 
+    def get_position(self):
+        "Return x, y as tuple"
+        return self._dashx, self._dashy
+
+    def set_position(self, xy):
+        """
+        Set the xy position of the TextWithDash.
+
+        ACCEPTS: (x,y)
+        """
+        self.set_x(xy[0])
+        self.set_y(xy[1])
+
+    def set_x(self, x):
+        """
+        Set the x position of the TextWithDash.
+
+        ACCEPTS: float
+        """
+        self._dashx = float(x)
+
+    def set_y(self, y):
+        """
+        Set the y position of the TextWithDash.
+
+        ACCEPTS: float
+        """
+        self._dashy = float(y)
+
     def set_transform(self, t):
         """
         Set the Transformation instance used by this artist.
@@ -1322,6 +1363,7 @@ class _TextWithDash(Text):
         """
         self._transform = t
         self._transformSet = True
+        Text.set_transform(self, t)
         self.dashline.set_transform(t)
 
     def get_figure(self):
@@ -1335,4 +1377,5 @@ class _TextWithDash(Text):
         ACCEPTS: a matplotlib.figure.Figure instance
         """
         self.figure = fig
+        Text.set_figure(self, fig)
         self.dashline.set_figure(fig)

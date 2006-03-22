@@ -1,5 +1,3 @@
-2006-03-22 Refactored TextWithDash, closes bug # 1357969 - DSD
-
 2006-03-21 Added another colorbrewer colormap (RdYlBu) - JSWHIT
 
 2006-03-21 Fixed tickmarks for logscale plots over very large ranges.
@@ -8,8 +6,7 @@
 2006-03-21 Added Rob Knight's arrow code; see examples/arrow_demo.py - JDH
 
 2006-03-20 Added support for masking values with nan's, using ADS's
-           isnan module and the new API. Works for *Agg backends and
-           the postscript backend- DSD
+           isnan module and the new API. Works for *Agg backends - DSD
 
 2006-03-20 Added contour.negative_linestyle rcParam - ADS
 
