@@ -113,7 +113,7 @@ class RendererBase:
         by itself.
         """
 
-        newstyle = getattr(self, 'draw_markers') is not None
+        newstyle = getattr(self, 'draw_markers', None) is not None
         identity = identity_transform()
         gc = self.new_gc()
         if clipbox is not None:

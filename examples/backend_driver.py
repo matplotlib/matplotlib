@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """
-This is used to drive many of the examples across the image backends,
-for regression testing, and comparing backend efficiency
+This is used to drive many of the examples across the backends, for
+regression testing, and comparing backend efficiency
 """
 
 from __future__ import division
