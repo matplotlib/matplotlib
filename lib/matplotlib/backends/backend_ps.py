@@ -135,6 +135,7 @@ class RendererPS(RendererBase):
             self.texmanager = TexManager()
 
         # current renderer state (None=uninitialised)
+        self._vec6 = [72,0,0,72,0,0]
         self.color = None
         self.linewidth = None
         self.linejoin = None
@@ -143,6 +144,11 @@ class RendererPS(RendererBase):
         self.fontname = None
         self.fontsize = None
         self.hatch = None
+
+    def set_vec6(self, vec6):
+        if vec6 != self._vec6:
+            self._vec6 = vec6
+            self._pswriter.write('[%f %f %f %f %f %f] concat\n'% tuple(vec6))
 
     def set_color(self, r, g, b, store=1):
         if (r,g,b) != self.color:
@@ -167,7 +173,7 @@ class RendererPS(RendererBase):
             self._pswriter.write("%d setlinecap\n"%linecap)
             self.linecap = linecap
 
-    def set_linedash(self, offset, seq):        
+    def set_linedash(self, offset, seq):
         if self.linedash is not None:
             oldo, oldseq = self.linedash
             if seq_allequal(seq, oldseq): return
@@ -482,7 +488,7 @@ grestore
         
         self._pswriter.write('\ngrestore')
         
-    def draw_markers(self, gc, path, rgbFace, x, y, transform):
+    def _draw_markers(self, gc, path, rgbFace, x, y, transform):
         """
         Draw the markers defined by path at each of the positions in x
         and y.  path coordinates are points, x and y coords will be
@@ -604,13 +610,13 @@ grestore
             start = end
             end   += 1000
         
-    def draw_lines(self, gc, x, y, transform):
+    def draw_lines(self, gc, x, y, transform=None):
         """
         x and y are equal length arrays, draw lines connecting each
         point in x, y
         """
         if debugPS: self._pswriter.write('% draw_lines \n')
-        
+
         write = self._pswriter.write
         
         mask = where(isnan(x) + isnan(y), 0, 1)
@@ -619,10 +625,11 @@ grestore
                 x, y, mask = transform.nonlinear_only_numerix(x, y, returnMask=1)
             
             vec6 = transform.as_vec6_val()
+##            gc.set_vec6(vec6)
             sx, sy = get_vec6_scales(vec6)
             write('gsave\n')
             self.push_gc(gc)
-            write('[%f %f %f %f %f %f] concat\n'% vec6)   
+            write('[%f %f %f %f %f %f] concat\n'% vec6)
         
         start  = 0
         end    = 1000
@@ -654,13 +661,16 @@ grestore
             # we don't want to scale the line width, etc so invert the
             # scale for the stroke
             if transform:
-                ps.append('gsave %f %f scale stroke grestore\n'%(1./sx,1./sy))
+                ps.append('gsave %f %f scale stroke grestore'%(1./sx,1./sy))
+##                self._draw_ps("\n".join(ps)+'\n', gc, None)
                 write('\n'.join(ps)+'\n')
             else:
                 self._draw_ps("\n".join(ps)+'\n', gc, None)
             start = end
             end   += 1000
-        if transform: write("grestore\n")
+        if transform:
+##            gc.set_vec6([1/72.0,0,0,1/72.0,0,0])
+            write("grestore\n")
         
     def draw_lines_old(self, gc, x, y):
         """
@@ -745,12 +755,14 @@ grestore
         draw a Text instance
         """
         # local to avoid repeated attribute lookups
-
+        
         
         write = self._pswriter.write
         if debugPS:
             write("% text\n")
-
+        
+##        self.set_vec6(gc.get_vec6())
+        
         if ismath=='TeX':
             return self.tex(gc, x, y, s, prop, angle)
 
@@ -896,6 +908,7 @@ grestore
             write("% "+command+"\n")
 
         cliprect = gc.get_clip_rectangle()
+##        self.set_vec6(gc.get_vec6())
         self.set_color(*gc.get_rgb())
         self.set_linewidth(gc.get_linewidth())
         # TODO: move the lookup into GraphicsContextPS
@@ -934,6 +947,7 @@ grestore
         write = self._pswriter.write
         
         cliprect = gc.get_clip_rectangle()
+##        self.set_vec6(gc.get_vec6())
         self.set_color(*gc.get_rgb())
         self.set_linewidth(gc.get_linewidth())
         # TODO: move the lookup into GraphicsContextPS
@@ -950,7 +964,14 @@ grestore
 
 
 class GraphicsContextPS(GraphicsContextBase):
-    pass
+    
+    _vec6 = [72,0,0,72,0,0]
+    
+    def get_vec6(self):
+        return self._vec6
+    
+    def set_vec6(self, vec6=[72,0,0,72,0,0]):
+        self._vec6 = vec6
 
 
 def new_figure_manager(num, *args, **kwargs):
