@@ -939,7 +939,6 @@ class Axes(Artist):
             self.set_ylim(self.dataLim.intervaly().get_bounds())
             return
 
-
         locator = self.xaxis.get_major_locator()
         self.set_xlim(locator.autoscale())
         locator = self.yaxis.get_major_locator()
