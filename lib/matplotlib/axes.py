@@ -925,14 +925,14 @@ class Axes(Artist):
         self.tables.append(tab)
 
 
-    def autoscale_view(self):
+    def autoscale_view(self, tight=False):
         'autoscale the view limits using the data limits'
         # if image data only just use the datalim
 
         if not self._autoscaleon: return
-        if (len(self.images)>0 and
-            len(self.lines)==0 and
-            len(self.patches)==0):
+        if (tight or (len(self.images)>0 and
+                      len(self.lines)==0 and
+                      len(self.patches)==0)):
 
             self.set_xlim(self.dataLim.intervalx().get_bounds())
 

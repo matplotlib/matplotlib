@@ -597,7 +597,8 @@ def axis(*v, **kwargs):
           of the figure without modifying (xmax-xmin) or (ymax-ymin). Note
           this is slightly different than in matlab. Fixes axis limits.
 
-        axis('normal') sets the axis to normal, i.e. turns equal scale off
+        axis('normal') or 'auto' sets the axis to normal, i.e.
+          turns equal scale off
 
        if len(*v)==0, you can pass in xmin, xmax, ymin, ymax as kwargs
        selectively to alter just those limits w/o changing the others.
@@ -608,23 +609,21 @@ def axis(*v, **kwargs):
     """
     ax = gca()
     if len(v)==1 and is_string_like(v[0]):
-        s = v[0]
-        if s.lower()=='on': ax.set_axis_on()
-        elif s.lower()=='off': ax.set_axis_off()
-        elif s.lower()=='equal':
-            ax.set_aspect('equal')
-            draw_if_interactive()
-        elif s.lower()=='tight':
-            ax.autoscale_view()
-            ax.set_autoscale_on(False)
-            draw_if_interactive()
-        elif s.lower()=='scaled':
-            ax.set_autoscale_on(False)
-            ax.set_aspect('scaled',True)
-            draw_if_interactive()
-        elif s.lower()=='normal':
+        s = v[0].lower()
+        if s=='on': ax.set_axis_on()
+        elif s=='off': ax.set_axis_off()
+        elif s in ('equal', 'tight', 'scaled', 'normal', 'auto'):
             ax.set_autoscale_on(True)
-            ax.set_aspect('normal')
+            ax.set_aspect('auto')
+            ax.autoscale_view()
+            ax.apply_aspect()
+            if s=='equal':
+                ax.set_aspect('equal', adjusts='datalim')
+            elif s=='tight':
+                ax.autoscale_view(tight=True)
+                ax.set_autoscale_on(False)
+            elif s=='scaled':
+                ax.set_aspect('equal', adjusts='box_size')
         else:
             raise ValueError('Unrecognized string %s to axis; try on or off' % s)
         xmin, xmax = ax.get_xlim()
@@ -646,8 +645,8 @@ def axis(*v, **kwargs):
 
     ax.set_xlim([v[0], v[1]])
     ax.set_ylim([v[2], v[3]])
-    if ax.get_aspect() == 'equal':
-        ax.set_aspect( 'equal', True )
+    #if ax.get_aspect() == 'equal':
+    #    ax.set_aspect_adjusts('datalim')
 
     draw_if_interactive()
     return v
@@ -1553,7 +1552,7 @@ def arrow(*args, **kwargs):
     except:
         hold(b)
         raise
-    
+
     hold(b)
     return ret
 if Axes.arrow.__doc__ is not None:
@@ -1574,7 +1573,7 @@ def axhline(*args, **kwargs):
     except:
         hold(b)
         raise
-    
+
     hold(b)
     return ret
 if Axes.axhline.__doc__ is not None:
@@ -1595,7 +1594,7 @@ def axhspan(*args, **kwargs):
     except:
         hold(b)
         raise
-    
+
     hold(b)
     return ret
 if Axes.axhspan.__doc__ is not None:
@@ -1616,7 +1615,7 @@ def axvline(*args, **kwargs):
     except:
         hold(b)
         raise
-    
+
     hold(b)
     return ret
 if Axes.axvline.__doc__ is not None:
@@ -1637,7 +1636,7 @@ def axvspan(*args, **kwargs):
     except:
         hold(b)
         raise
-    
+
     hold(b)
     return ret
 if Axes.axvspan.__doc__ is not None:
@@ -1658,7 +1657,7 @@ def bar(*args, **kwargs):
     except:
         hold(b)
         raise
-    
+
     hold(b)
     return ret
 if Axes.bar.__doc__ is not None:
@@ -1679,7 +1678,7 @@ def barh(*args, **kwargs):
     except:
         hold(b)
         raise
-    
+
     hold(b)
     return ret
 if Axes.barh.__doc__ is not None:
@@ -1700,7 +1699,7 @@ def boxplot(*args, **kwargs):
     except:
         hold(b)
         raise
-    
+
     hold(b)
     return ret
 if Axes.boxplot.__doc__ is not None:
@@ -1721,7 +1720,7 @@ def cohere(*args, **kwargs):
     except:
         hold(b)
         raise
-    
+
     hold(b)
     return ret
 if Axes.cohere.__doc__ is not None:
@@ -1742,7 +1741,7 @@ def clabel(*args, **kwargs):
     except:
         hold(b)
         raise
-    
+
     hold(b)
     return ret
 if Axes.clabel.__doc__ is not None:
@@ -1805,7 +1804,7 @@ def csd(*args, **kwargs):
     except:
         hold(b)
         raise
-    
+
     hold(b)
     return ret
 if Axes.csd.__doc__ is not None:
@@ -1826,7 +1825,7 @@ def errorbar(*args, **kwargs):
     except:
         hold(b)
         raise
-    
+
     hold(b)
     return ret
 if Axes.errorbar.__doc__ is not None:
@@ -1847,7 +1846,7 @@ def fill(*args, **kwargs):
     except:
         hold(b)
         raise
-    
+
     hold(b)
     return ret
 if Axes.fill.__doc__ is not None:
@@ -1868,7 +1867,7 @@ def hist(*args, **kwargs):
     except:
         hold(b)
         raise
-    
+
     hold(b)
     return ret
 if Axes.hist.__doc__ is not None:
@@ -1889,7 +1888,7 @@ def hlines(*args, **kwargs):
     except:
         hold(b)
         raise
-    
+
     hold(b)
     return ret
 if Axes.hlines.__doc__ is not None:
@@ -1931,7 +1930,7 @@ def loglog(*args, **kwargs):
     except:
         hold(b)
         raise
-    
+
     hold(b)
     return ret
 if Axes.loglog.__doc__ is not None:
@@ -1973,7 +1972,7 @@ def pcolormesh(*args, **kwargs):
     except:
         hold(b)
         raise
-    
+
     hold(b)
     return ret
 if Axes.pcolormesh.__doc__ is not None:
@@ -1994,7 +1993,7 @@ def pcolor_classic(*args, **kwargs):
     except:
         hold(b)
         raise
-    
+
     hold(b)
     return ret
 if Axes.pcolor_classic.__doc__ is not None:
@@ -2015,7 +2014,7 @@ def pie(*args, **kwargs):
     except:
         hold(b)
         raise
-    
+
     hold(b)
     return ret
 if Axes.pie.__doc__ is not None:
@@ -2036,7 +2035,7 @@ def plot(*args, **kwargs):
     except:
         hold(b)
         raise
-    
+
     hold(b)
     return ret
 if Axes.plot.__doc__ is not None:
@@ -2057,7 +2056,7 @@ def plot_date(*args, **kwargs):
     except:
         hold(b)
         raise
-    
+
     hold(b)
     return ret
 if Axes.plot_date.__doc__ is not None:
@@ -2078,7 +2077,7 @@ def psd(*args, **kwargs):
     except:
         hold(b)
         raise
-    
+
     hold(b)
     return ret
 if Axes.psd.__doc__ is not None:
@@ -2120,7 +2119,7 @@ def scatter_classic(*args, **kwargs):
     except:
         hold(b)
         raise
-    
+
     hold(b)
     return ret
 if Axes.scatter_classic.__doc__ is not None:
@@ -2141,7 +2140,7 @@ def semilogx(*args, **kwargs):
     except:
         hold(b)
         raise
-    
+
     hold(b)
     return ret
 if Axes.semilogx.__doc__ is not None:
@@ -2162,7 +2161,7 @@ def semilogy(*args, **kwargs):
     except:
         hold(b)
         raise
-    
+
     hold(b)
     return ret
 if Axes.semilogy.__doc__ is not None:
@@ -2204,7 +2203,7 @@ def spy(*args, **kwargs):
     except:
         hold(b)
         raise
-    
+
     hold(b)
     return ret
 if Axes.spy.__doc__ is not None:
@@ -2246,7 +2245,7 @@ def stem(*args, **kwargs):
     except:
         hold(b)
         raise
-    
+
     hold(b)
     return ret
 if Axes.stem.__doc__ is not None:
@@ -2267,7 +2266,7 @@ def vlines(*args, **kwargs):
     except:
         hold(b)
         raise
-    
+
     hold(b)
     return ret
 if Axes.vlines.__doc__ is not None:
@@ -2288,7 +2287,7 @@ def quiver(*args, **kwargs):
     except:
         hold(b)
         raise
-    
+
     hold(b)
     return ret
 if Axes.quiver.__doc__ is not None:
