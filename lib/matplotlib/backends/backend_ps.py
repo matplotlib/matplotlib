@@ -482,7 +482,7 @@ grestore
         
         self._pswriter.write('\ngrestore')
         
-    def draw_markers(self, gc, path, rgbFace, x, y, transform):
+    def _draw_markers(self, gc, path, rgbFace, x, y, transform):
         """
         Draw the markers defined by path at each of the positions in x
         and y.  path coordinates are points, x and y coords will be
