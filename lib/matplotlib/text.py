@@ -1133,25 +1133,13 @@ class TextWithDash(Text):
                  dashpush=0,
                  xaxis=True,
                  ):
-        Artist.__init__(self)
-        # The position (x,y) values for _mytext and dashline
+        
+        Text.__init__(self, x, y, text, color, verticalalignment,
+                 horizontalalignment, multialignment, fontproperties,
+                 rotation)
+        # The position (x,y) values for text and dashline
         # are bogus as given in the instantiation; they will
         # be set correctly by update_coords() in draw()
-        if not is_string_like(text):
-            raise TypeError('text must be a string type')
-        self.cached = maxdict(5)
-        if color is None: color = rcParams['text.color']
-        if fontproperties is None: fontproperties = FontProperties()
-        
-        self.set_color(color)
-        self.set_text(text)
-        self._verticalalignment = verticalalignment
-        self._horizontalalignment = horizontalalignment
-        self._multialignment = multialignment
-        self._rotation = rotation
-        self._fontproperties = fontproperties
-        self._bbox = None
-        self._renderer = None
 
         #self.set_bbox(dict(pad=0))
         
@@ -1159,8 +1147,7 @@ class TextWithDash(Text):
                                ydata=(y, y),
                                color='k',
                                linestyle='-')
-        self._x = x
-        self._y = y
+
         self._dashlength = dashlength
         self._dashdirection = dashdirection
         self._dashrotation = dashrotation
@@ -1168,90 +1155,12 @@ class TextWithDash(Text):
         self._dashpush = dashpush
 
     def draw(self, renderer):
-        if renderer is not None: self._renderer = renderer
-        if not self.get_visible(): return
-        self.update_coords(renderer)
+        Text.draw(self, renderer)
         
-        if not self.get_visible(): return
+        self.update_coords(renderer)
         
         if self.get_dashlength() > 0.0:
             self.dashline.draw(renderer)
-        
-        if self._text=='': return
-        
-        gc = renderer.new_gc()
-        gc.set_foreground(self._color)
-        gc.set_alpha(self._alpha)
-        if self.get_clip_on():
-            gc.set_clip_rectangle(self.clipbox.get_bounds())
-        
-        if self._bbox:
-            bbox_artist(self, renderer, self._bbox)
-        angle = self.get_rotation()
-        
-        ismath = self.is_math_text()
-        
-        if angle==0:
-            if ismath=='TeX': m = None
-            else: m = self._rgxsuper.match(self._text)
-            if m is not None:
-                bbox, info = self._get_layout_super(self._renderer, m)
-                base, xt, yt = info[0]
-                renderer.draw_text(gc, xt, yt, base,
-                                   self._fontproperties, angle,
-                                   ismath=False)
-                
-                exponent, xt, yt, fp = info[1]
-                renderer.draw_text(gc, xt, yt, exponent,
-                                   fp, angle,
-                                   ismath=False)
-                return
-        
-        if len(self._substrings)>1:
-            # embedded mathtext
-            thisx, thisy = self._transform.xy_tup((self._x, self._y))
-            for s,ismath in self._substrings:
-                w, h = renderer.get_text_width_height(
-                    s, self._fontproperties, ismath)
-                
-                renderx, rendery = thisx, thisy
-                if renderer.flipy():
-                    canvasw, canvash = renderer.get_canvas_width_height()
-                    rendery = canvash-rendery
-                
-                renderer.draw_text(gc, renderx, rendery, s,
-                                   self._fontproperties, angle,
-                                   ismath)
-                thisx += w
-            
-            return
-        bbox, info = self._get_layout(renderer)
-        
-        if ismath=='TeX':
-            canvasw, canvash = renderer.get_canvas_width_height()
-            for line, wh, x, y in info:
-                x, y = self._transform.xy_tup((x, y))
-                if renderer.flipy():
-                    y = canvash-y
-                
-                renderer.draw_tex(gc, x, y, line,
-                                  self._fontproperties, angle)
-            return
-        
-        #print 'xy', self._x, self._y, info
-        for line, wh, x, y in info:
-            x, y = self._transform.xy_tup((x, y))
-            #renderer.draw_arc(gc, (1,0,0),
-            #                  x, y, 2, 2, 0.0, 360.0)
-            
-            if renderer.flipy():
-                canvasw, canvash = renderer.get_canvas_width_height()
-                y = canvash-y
-            
-            renderer.draw_text(gc, x, y, line,
-                               self._fontproperties, angle,
-                               ismath=self.is_math_text())
-        #bbox_artist(self._mytext, renderer, props={'pad':0}, fill=False)
 
     def update_coords(self, renderer):
         """Computes the actual x,y coordinates for
@@ -1335,24 +1244,7 @@ class TextWithDash(Text):
 
     def get_window_extent(self, renderer=None):
         if self.get_dashlength() == 0.0:
-            if not self.get_visible(): return _unit_box
-            if self._text == '':
-                tx, ty = self._transform.xy_tup( (self._x, self._y) )
-                return lbwh_to_bbox(tx,ty,0,0)
-    
-            if renderer is not None:
-                self._renderer = renderer
-            if self._renderer is None:
-                raise RuntimeError('Cannot get window extent w/o renderer')
-    
-            angle = self.get_rotation()
-            if angle==0:
-                m = self._rgxsuper.match(self._text)
-                if m is not None:
-                    bbox, tmp = self._get_layout_super(self._renderer, m)
-                    return bbox
-            bbox, info = self._get_layout(self._renderer)
-            return bbox
+            return Text.get_window_extent(self, renderer=renderer)
         else:
             self.update_coords(renderer)
             return self._window_extent
