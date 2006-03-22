@@ -604,7 +604,7 @@ grestore
             start = end
             end   += 1000
         
-    def draw_lines(self, gc, x, y, transform=None):
+    def draw_lines(self, gc, x, y, transform):
         """
         x and y are equal length arrays, draw lines connecting each
         point in x, y
