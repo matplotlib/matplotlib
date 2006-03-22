@@ -739,7 +739,7 @@ class Text(Artist):
 
         return val
 
-class _TextWithDash(Artist):
+class TextWithDash(Artist):
     """
     This is basically a Text with a dash (drawn with a Line2D)
     before/after it. It is intended to be a drop-in replacement
@@ -1069,7 +1069,7 @@ class _TextWithDash(Artist):
         self.dashline.set_figure(fig)
 
 
-class TextWithDash(Text):
+class _TextWithDash(Text):
     """
     This is basically a Text with a dash (drawn with a Line2D)
     before/after it. It is intended to be a drop-in replacement
@@ -1211,7 +1211,7 @@ class TextWithDash(Text):
         # embedding all this in the object's transformations,
         # but I don't grok the transformation stuff
         # well enough yet.
-        we = self.get_window_extent(renderer=renderer)
+        we = Text.get_window_extent(self, renderer=renderer)
         w, h = we.width(), we.height()
         # Watch for zeros
         if sin_theta == 0.0:
@@ -1234,7 +1234,7 @@ class TextWithDash(Text):
 
         # Now set the window extent
         # I'm not at all sure this is the right way to do this.
-        we = self.get_window_extent(renderer=renderer)
+        we = Text.get_window_extent(self, renderer=renderer)
         self._window_extent = we.deepcopy()
         self._window_extent.update(((c1[0], c1[1]),), False)
 
