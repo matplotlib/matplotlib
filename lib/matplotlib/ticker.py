@@ -521,7 +521,7 @@ class Locator(TickHelper):
     def nonsingular(self, vmin, vmax, expander=0.001, tiny=1e-6):
         if vmax < vmin:
             vmin, vmax = vmax, vmin
-        if vmax - vmin < max(abs(vmin), abs(vmax)) * tiny:
+        if vmax - vmin <= max(abs(vmin), abs(vmax)) * tiny:
             if vmin==0.0:
                 vmin -= 1
                 vmax += 1
@@ -729,10 +729,11 @@ class MultipleLocator(Locator):
 
 def scale_range(vmin, vmax, n = 1, threshold=100):
     dv = abs(vmax - vmin)
-    meanv = 0.5*(vmax+vmin)
-    var = dv/max(abs(vmin), abs(vmax))
-    if var < 1e-12:
+    maxabsv = max(abs(vmin), abs(vmax))
+    if maxabsv == 0 or dv/maxabsv < 1e-12:
         return 1.0, 0.0
+
+    meanv = 0.5*(vmax+vmin)
     if abs(meanv)/dv < threshold:
         offset = 0
     elif meanv > 0:
@@ -858,21 +859,21 @@ class LogLocator(Locator):
         ticklocs = []
 
         numdec = math.floor(vmax)-math.ceil(vmin)
-        
+
         if self._subs is None: # autosub
             if numdec>10: subs = array([1.0])
             elif numdec>6: subs = arange(2.0, b, 2.0)
             else: subs = arange(2.0, b)
         else:
             subs = self._subs
-        
+
         stride = 1
         while numdec/stride+1 > self.numticks:
             stride += 1
-        
+
         for decadeStart in b**arange(math.floor(vmin),math.ceil(vmax)+stride, stride):
             ticklocs.extend( subs*decadeStart )
-        
+
         return array(ticklocs)
 
     def autoscale(self):
