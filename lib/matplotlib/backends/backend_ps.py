@@ -135,7 +135,6 @@ class RendererPS(RendererBase):
             self.texmanager = TexManager()
 
         # current renderer state (None=uninitialised)
-        self._vec6 = [72,0,0,72,0,0]
         self.color = None
         self.linewidth = None
         self.linejoin = None
@@ -145,11 +144,6 @@ class RendererPS(RendererBase):
         self.fontsize = None
         self.hatch = None
 
-    def set_vec6(self, vec6):
-        if vec6 != self._vec6:
-            self._vec6 = vec6
-            self._pswriter.write('[%f %f %f %f %f %f] concat\n'% tuple(vec6))
-
     def set_color(self, r, g, b, store=1):
         if (r,g,b) != self.color:
             if r==g and r==b:
@@ -158,22 +152,22 @@ class RendererPS(RendererBase):
                 self._pswriter.write("%1.3f %1.3f %1.3f setrgbcolor\n"%(r,g,b))
             if store: self.color = (r,g,b)
 
-    def set_linewidth(self, linewidth):
+    def set_linewidth(self, linewidth, store=1):
         if linewidth != self.linewidth:
             self._pswriter.write("%1.3f setlinewidth\n"%linewidth)
-            self.linewidth = linewidth
+            if store: self.linewidth = linewidth
 
-    def set_linejoin(self, linejoin):
+    def set_linejoin(self, linejoin, store=1):
         if linejoin != self.linejoin:
             self._pswriter.write("%d setlinejoin\n"%linejoin)
-            self.linejoin = linejoin
+            if store: self.linejoin = linejoin
 
-    def set_linecap(self, linecap):
+    def set_linecap(self, linecap, store=1):
         if linecap != self.linecap:
             self._pswriter.write("%d setlinecap\n"%linecap)
-            self.linecap = linecap
+            if store: self.linecap = linecap
 
-    def set_linedash(self, offset, seq):
+    def set_linedash(self, offset, seq, store=1):
         if self.linedash is not None:
             oldo, oldseq = self.linedash
             if seq_allequal(seq, oldseq): return
@@ -183,9 +177,9 @@ class RendererPS(RendererBase):
             self._pswriter.write(s)
         else:
             self._pswriter.write("[] 0 setdash\n")
-        self.linedash = (offset,seq)
+        if store: self.linedash = (offset,seq)
 
-    def set_font(self, fontname, fontsize):
+    def set_font(self, fontname, fontsize, store=1):
         if rcParams['ps.useafm']: return
         if (fontname,fontsize) != (self.fontname,self.fontsize):
             out = ("/%s findfont\n"
@@ -193,8 +187,8 @@ class RendererPS(RendererBase):
                    "setfont\n" % (fontname,fontsize))
 
             self._pswriter.write(out)
-            self.fontname = fontname
-            self.fontsize = fontsize
+            if store: self.fontname = fontname
+            if store: self.fontsize = fontsize
 
     def set_hatch(self, hatch):
         """
@@ -488,7 +482,7 @@ grestore
         
         self._pswriter.write('\ngrestore')
         
-    def _draw_markers(self, gc, path, rgbFace, x, y, transform):
+    def draw_markers(self, gc, path, rgbFace, x, y, transform):
         """
         Draw the markers defined by path at each of the positions in x
         and y.  path coordinates are points, x and y coords will be
@@ -558,7 +552,7 @@ grestore
         ps_cmd = '\n'.join(ps_cmd)
         
         write('gsave\n')
-        self.push_gc(gc)
+        self.push_gc(gc, store=0)
         write('[%f %f %f %f %f %f] concat\n'% vec6)
         write(' '.join(['/marker {', ps_cmd, '} bind def\n']))
         # Now evaluate the marker command at each marker location:
@@ -625,10 +619,9 @@ grestore
                 x, y, mask = transform.nonlinear_only_numerix(x, y, returnMask=1)
             
             vec6 = transform.as_vec6_val()
-##            gc.set_vec6(vec6)
             sx, sy = get_vec6_scales(vec6)
             write('gsave\n')
-            self.push_gc(gc)
+            self.push_gc(gc, store=0)
             write('[%f %f %f %f %f %f] concat\n'% vec6)
         
         start  = 0
@@ -662,14 +655,12 @@ grestore
             # scale for the stroke
             if transform:
                 ps.append('gsave %f %f scale stroke grestore'%(1./sx,1./sy))
-##                self._draw_ps("\n".join(ps)+'\n', gc, None)
                 write('\n'.join(ps)+'\n')
             else:
                 self._draw_ps("\n".join(ps)+'\n', gc, None)
             start = end
             end   += 1000
         if transform:
-##            gc.set_vec6([1/72.0,0,0,1/72.0,0,0])
             write("grestore\n")
         
     def draw_lines_old(self, gc, x, y):
@@ -761,8 +752,6 @@ grestore
         if debugPS:
             write("% text\n")
         
-##        self.set_vec6(gc.get_vec6())
-        
         if ismath=='TeX':
             return self.tex(gc, x, y, s, prop, angle)
 
@@ -809,8 +798,7 @@ grestore
         else:
             font = self._get_font_ttf(prop)
             font.set_text(s,0)
-
-
+            
             self.set_color(*gc.get_rgb())
             self.set_font(font.get_sfnt()[(1,0,0,6)], prop.get_size_in_points())
             write("%s m\n"%_nums_to_str(x,y))
@@ -832,9 +820,8 @@ grestore
         we have to do this the hard way
         """
 
-
-        font = self._get_font_ttf(prop)        
-
+        font = self._get_font_ttf(prop)
+        
         self.set_color(*gc.get_rgb())
         self.set_font(font.get_sfnt()[(1,0,0,6)], prop.get_size_in_points())
 
@@ -908,14 +895,11 @@ grestore
             write("% "+command+"\n")
 
         cliprect = gc.get_clip_rectangle()
-##        self.set_vec6(gc.get_vec6())
         self.set_color(*gc.get_rgb())
         self.set_linewidth(gc.get_linewidth())
-        # TODO: move the lookup into GraphicsContextPS
-        jint = {'miter':0, 'round':1, 'bevel':2}[gc.get_joinstyle()]
+        jint = gc.get_joinstyle()
         self.set_linejoin(jint)
-        # TODO: move the lookup into GraphicsContextPS
-        cint = {'butt':0, 'round':1, 'projecting':2}[gc.get_capstyle()]
+        cint = gc.get_capstyle()
         self.set_linecap(cint)
         self.set_linedash(*gc.get_dashes())
 
@@ -923,8 +907,8 @@ grestore
             x,y,w,h=cliprect
             write('gsave\n%1.3f %1.3f %1.3f %1.3f clipbox\n' % (w,h,x,y))
         # Jochen, is the strip necessary? - this could be a honking big string
-        write(ps.strip())  
-        write("\n")        
+        write(ps.strip())
+        write("\n")
         if rgbFace:
             #print 'rgbface', rgbFace
             write("gsave\n")
@@ -939,39 +923,38 @@ grestore
         if cliprect:
             write("grestore\n")
 
-    def push_gc(self, gc):
+    def push_gc(self, gc, store=0):
         """
-        Push the current onto stack
+        Push the current onto stack. Should only be used inside a 
+        gsave/grestore pair
         """
         # local variable eliminates all repeated attribute lookups
         write = self._pswriter.write
         
         cliprect = gc.get_clip_rectangle()
-##        self.set_vec6(gc.get_vec6())
-        self.set_color(*gc.get_rgb())
-        self.set_linewidth(gc.get_linewidth())
-        # TODO: move the lookup into GraphicsContextPS
-        jint = {'miter':0, 'round':1, 'bevel':2}[gc.get_joinstyle()]
-        self.set_linejoin(jint)
-        # TODO: move the lookup into GraphicsContextPS
-        cint = {'butt':0, 'round':1, 'projecting':2}[gc.get_capstyle()]
-        self.set_linecap(cint)
-        self.set_linedash(*gc.get_dashes())
+        
+        self.set_color(store=store, *gc.get_rgb())
+        self.set_linewidth(gc.get_linewidth(), store=store)
+        self.set_linejoin(gc.get_joinstyle(), store=store)
+        self.set_linecap(gc.get_capstyle(), store=store)
+        self.set_linedash(store=store, *gc.get_dashes())
         if cliprect:
             x,y,w,h=cliprect
             write('%1.3f %1.3f %1.3f %1.3f clipbox\n' % (w,h,x,y))
-##        write("\n")        
+
+##        write("\n")
 
 
 class GraphicsContextPS(GraphicsContextBase):
+    def get_capstyle(self):
+        return {'butt':0,
+                'round':1,
+                'projecting':2}[GraphicsContextBase.get_capstyle(self)]
     
-    _vec6 = [72,0,0,72,0,0]
-    
-    def get_vec6(self):
-        return self._vec6
-    
-    def set_vec6(self, vec6=[72,0,0,72,0,0]):
-        self._vec6 = vec6
+    def get_joinstyle(self):
+        return {'miter':0,
+                'round':1,
+                'bevel':2}[GraphicsContextBase.get_joinstyle(self)]
 
 
 def new_figure_manager(num, *args, **kwargs):
