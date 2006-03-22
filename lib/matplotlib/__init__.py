@@ -931,7 +931,7 @@ def validate_key(key, val, line, cnt, fname, fail_on_error):
 Bad key "%s" on line %d in
 %s.
 You probably need to get an updated matplotlibrc file from
-http://matplotlib.sf.net/matplotlibrc or from the matplotlib src
+http://matplotlib.sf.net/matplotlibrc or from the matplotlib source
 distribution""" % (key, cnt, fname)
         return None
 

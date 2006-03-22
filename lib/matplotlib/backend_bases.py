@@ -10,7 +10,7 @@ from cbook import is_string_like, enumerate, strip_math, Stack
 from colors import colorConverter
 from numerix import array, sqrt, pi, log, asarray, ones, Float
 from patches import Rectangle
-from transforms import lbwh_to_bbox
+from transforms import lbwh_to_bbox, identity_transform
 
 class RendererBase:
     """An abstract base class to handle drawing/rendering operations
@@ -113,6 +113,8 @@ class RendererBase:
         by itself.
         """
 
+        newstyle = getattr(self, 'draw_markers') is not None
+        identity = identity_transform()
         gc = self.new_gc()
         if clipbox is not None:
             gc.set_clip_rectangle(clipbox.get_bounds())
@@ -140,12 +142,15 @@ class RendererBase:
             seg = segments[i % Nsegments]
             if not len(seg): continue
             x, y = zip(*seg)
+            
             x, y = transform.numerix_x_y(array(x), array(y))
             if usingOffsets:
                 xo, yo = transOffset.xy_tup(offsets[i % Noffsets])
                 x += xo
                 y += yo
-            self.draw_lines(gc, x, y)
+            
+            if newstyle: self.draw_lines(gc, x, y, identity)
+            else: self.draw_lines(gc, x, y)
 
     def draw_line(self, gc, x1, y1, x2, y2):
         """
