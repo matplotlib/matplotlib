@@ -1,3 +1,7 @@
+2006-03-23 Refactored TextWithDash class to inherit from, rather than
+           delegate to, the Text class. Improves object inspection
+           and closes bug # 1357969 - DSD
+
 2006-03-22 Improved aspect ratio handling, including pylab interface.
            Interactive resizing, pan, zoom of images and plots
            (including panels with a shared axis) should work.
