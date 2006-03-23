@@ -482,7 +482,7 @@ grestore
         
         self._pswriter.write('\ngrestore')
         
-    def _draw_markers(self, gc, path, rgbFace, x, y, transform):
+    def draw_markers(self, gc, path, rgbFace, x, y, transform):
         """
         Draw the markers defined by path at each of the positions in x
         and y.  path coordinates are points, x and y coords will be
@@ -551,9 +551,16 @@ grestore
         ps_cmd.append('grestore') # undo translate()
         ps_cmd = '\n'.join(ps_cmd)
         
+        self.push_gc(gc, store=1)
         write('gsave\n')
-        self.push_gc(gc, store=0)
-        write('[%f %f %f %f %f %f] concat\n'% vec6)
+        cliprect = gc.get_clip_rectangle()
+        if cliprect:
+            xc,yc,wc,hc=cliprect
+            write('%1.3f %1.3f %1.3f %1.3f clipbox\n' % (wc,hc,xc,yc))
+        write('[%f %f %f %f %f %f] concat\n'% vec6)        
+##        write('gsave\n')
+##        self.push_gc(gc, store=0)
+##        write('[%f %f %f %f %f %f] concat\n'% vec6)
         write(' '.join(['/marker {', ps_cmd, '} bind def\n']))
         # Now evaluate the marker command at each marker location:
         start  = 0
@@ -620,8 +627,13 @@ grestore
             
             vec6 = transform.as_vec6_val()
             sx, sy = get_vec6_scales(vec6)
+            
+            self.push_gc(gc, store=1)
             write('gsave\n')
-            self.push_gc(gc, store=0)
+            cliprect = gc.get_clip_rectangle()
+            if cliprect:
+                xc,yc,wc,hc=cliprect
+                write('%1.3f %1.3f %1.3f %1.3f clipbox\n' % (wc,hc,xc,yc))
             write('[%f %f %f %f %f %f] concat\n'% vec6)
         
         start  = 0
@@ -923,24 +935,24 @@ grestore
         if cliprect:
             write("grestore\n")
 
-    def push_gc(self, gc, store=0):
+    def push_gc(self, gc, store=1):
         """
-        Push the current onto stack. Should only be used inside a 
-        gsave/grestore pair
+        Push the current onto stack, with the exception of the clip box, which
+        must be isolated in a gsave/grestore pair.
         """
         # local variable eliminates all repeated attribute lookups
         write = self._pswriter.write
-        
-        cliprect = gc.get_clip_rectangle()
         
         self.set_color(store=store, *gc.get_rgb())
         self.set_linewidth(gc.get_linewidth(), store=store)
         self.set_linejoin(gc.get_joinstyle(), store=store)
         self.set_linecap(gc.get_capstyle(), store=store)
         self.set_linedash(store=store, *gc.get_dashes())
-        if cliprect:
-            x,y,w,h=cliprect
-            write('%1.3f %1.3f %1.3f %1.3f clipbox\n' % (w,h,x,y))
+        
+##        cliprect = gc.get_clip_rectangle()
+##        if cliprect:
+##            x,y,w,h=cliprect
+##            write('%1.3f %1.3f %1.3f %1.3f clipbox\n' % (w,h,x,y))
 
 ##        write("\n")
 
