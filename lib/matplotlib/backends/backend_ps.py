@@ -650,6 +650,8 @@ grestore
                     ind = ind[:-1]
             for i in ind:
                 codes[i] = 'm'
+            # put a moveto on the first point, regardless
+            codes[0] = 'm'
             
             thisx = x[start:end+1]
             thisy = y[start:end+1]
@@ -657,12 +659,7 @@ grestore
             if not to_draw:
                 break
             
-            while 1:
-                xp, yp, c, m = to_draw.next()
-                if m:
-                    ps = ['%1.3f %1.3f m' % (xp, yp)]
-                    break
-            ps.extend(["%1.3f %1.3f %c" % (xp, yp, c) for xp, yp, c, m in to_draw if m])
+            ps = ["%1.3f %1.3f %c" % (xp, yp, c) for xp, yp, c, m in to_draw if m]
             # we don't want to scale the line width, etc so invert the
             # scale for the stroke
             if transform:
