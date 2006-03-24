@@ -493,7 +493,7 @@ grestore
         write = self._pswriter.write
         
         if rgbFace:
-            if rgbFace[0]==rgbFace[0] and rgbFace[0]==rgbFace[2]:
+            if rgbFace[0]==rgbFace[1] and rgbFace[0]==rgbFace[2]:
                 ps_color = '%1.3f setgray' % rgbFace[0]
             else:
                 ps_color = '%1.3f %1.3f %1.3f setrgbcolor' % rgbFace
