@@ -170,7 +170,7 @@ class PatchCollection(Collection, ScalarMappable):
         else:
             Artist.set_alpha(self, alpha)
             self._facecolors = [(r,g,b,alpha) for r,g,b,a in self._facecolors]
-            if isinstance(self._edgecolors, str) and self._edgecolors != 'None':
+            if is_string_like(self._edgecolors) and self._edgecolors != 'None':
                 self._edgecolors = [(r,g,b,alpha) for r,g,b,a in self._edgecolors]
 
     def update_scalarmappable(self):
@@ -253,7 +253,7 @@ class PolyCollection(PatchCollection):
         self._transform.freeze()
         self._transOffset.freeze()
         self.update_scalarmappable()
-        if isinstance(self._edgecolors, str) and self._edgecolors == 'None':
+        if is_string_like(self._edgecolors) and self._edgecolors == 'None':
             self._edgecolors = self._facecolors
         renderer.draw_poly_collection(
             self._verts, self._transform, self.clipbox,
@@ -322,7 +322,7 @@ class RegularPolyCollection(PatchCollection):
         self.update_scalarmappable()
         scales = sqrt(self._sizes*self._dpi.get()/72.0)
 
-        if isinstance(self._edgecolors, str) and self._edgecolors == 'None':
+        if is_string_like(self._edgecolors) and self._edgecolors == 'None':
             self._edgecolors = self._facecolors
 
         renderer.draw_regpoly_collection(
