@@ -10,7 +10,6 @@ y2 = sin(4*pi*x1) + 2
 x = concatenate( (x1,x1[::-1]) )
 y = concatenate( (y1,y2[::-1]) )
                  
-p = fill(x, y, facecolor='g')
-setp(p, alpha=0.5)
+p = fill(x, y, facecolor='g', alpha=0.5)
 show()
                  
