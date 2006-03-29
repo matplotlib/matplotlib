@@ -41,11 +41,13 @@ from transforms import  FuncXY, Func, LOG10, IDENTITY, POLAR
 from transforms import get_bbox_transform, unit_bbox, one, origin, zero
 from transforms import blend_xy_sep_transform, Interval
 from font_manager import FontProperties
+from pbox import PBox
 
 import matplotlib
 
 if matplotlib._havedate:
     from dates import AutoDateFormatter, AutoDateLocator
+
 
 def delete_masked_points(*args):
     """
@@ -342,6 +344,10 @@ class Axes(Artist):
         Artist.__init__(self)
         self._position = map(makeValue, rect)
         self._originalPosition = rect
+        self.set_aspect('auto')
+        self.set_adjustable('box')
+        self.set_anchor('C')
+
         # must be set before set_figure
         self._sharex = sharex
         self._sharey = sharey
@@ -375,10 +381,6 @@ class Axes(Artist):
         self._cachedRenderer = None
         self.set_navigate(True)
 
-        # aspect ratio atribute, and original position
-        self.set_aspect('auto')
-        self.set_aspect_adjusts('position')
-
         if len(kwargs): setp(self, **kwargs)
 
     def _init_axis(self):
@@ -386,24 +388,26 @@ class Axes(Artist):
         self.xaxis = XAxis(self)
         self.yaxis = YAxis(self)
 
-    def set_aspect(self, aspect='auto', adjusts='position'):
+    def set_aspect(self, aspect, adjustable=None, anchor=None):
         """
         aspect:
-            'auto'   -  automatic; fill position rectangle with data
-            'normal' -  same as 'auto'; deprecated
-            'equal'  -  same scaling from data to plot units for x and y
-             num     -  a circle will be stretched such that the height
-                        is num times the width. aspect=1 is the same as
-                        aspect='equal'.
+           'auto'   -  automatic; fill position rectangle with data
+           'normal' -  same as 'auto'; deprecated
+           'equal'  -  same scaling from data to plot units for x and y
+            num     -  a circle will be stretched such that the height
+                       is num times the width. aspect=1 is the same as
+                       aspect='equal'.
 
-        adjusts:
-             'position' - change width or height of bounding rectangle;
-                          keep it centered.
-             'box_size' - as above, but anchored to lower left
-             'datalim'  - change xlim or ylim
+        adjustable:
+            'box'      - change physical size of axes
+            'datalim'  - change xlim or ylim
 
-        Note: the 'adjusts' argument is a convenience; it can be set
-        independently by set_aspect_adjusts.
+        anchor:
+            'C'     - centered
+            'SW'    - lower left corner
+            'S'     - middle of bottom edge
+            'SE'    - lower right corner
+                 etc.
 
         ACCEPTS: ['auto' | 'equal' | aspect_ratio]
         """
@@ -414,26 +418,32 @@ class Axes(Artist):
         else:
             self._aspect = float(aspect) # raise ValueError if necessary
 
-        if adjusts in ('position', 'box_size', 'datalim'):
-            self._aspect_adjusts = adjusts
-        else:
-            raise ValueError(
-                'adjusts must be "position", "box_size", or "datalim"')
+        if adjustable is not None:
+            self.set_adjustable(adjustable)
+        if anchor is not None:
+            self.set_anchor(anchor)
 
-    def set_aspect_adjusts(self, adjusts = 'position'):
+    def set_adjustable(self, adjustable):
         """
-        Must be called after set_aspect.
-
-        ACCEPTS: ['position' | 'box_size' | 'datalim']
+        ACCEPTS: ['box' | 'datalim']
         """
-        if adjusts in ('position', 'box_size', 'datalim'):
-            self._aspect_adjusts = adjusts
+        if adjustable in ('box', 'datalim'):
+            self._adjustable = adjustable
         else:
-            raise ValueError(
-                'argument must be "position", "box_size", or "datalim"')
+            raise ValueError('argument must be "box", or "datalim"')
+
+    def set_anchor(self, anchor):
+        """
+        ACCEPTS: ['C', 'SW', 'S', 'SE', 'E', 'NE', 'N', 'NW', 'W']
+        """
+        if anchor in PBox.coefs.keys():
+            self._anchor = anchor
+        else:
+            raise ValueError('argument must be among %s' %
+                                ', '.join(PBox.coefs.keys()))
 
 
-    def apply_aspect(self):
+    def apply_aspect(self, data_ratio = None):
         '''
         Use self._aspect and self._aspect_adjusts to modify the
         axes box or the view limits.
@@ -451,7 +461,7 @@ class Axes(Artist):
         #Ensure at drawing time that any Axes involved in axis-sharing
         # does not have its position changed.
         if self._masterx or self._mastery or self._sharex or self._sharey:
-            self._aspect_adjusts = 'datalim'
+            self._adjustable = 'datalim'
 
         figW,figH = self.get_figure().get_size_inches()
         fig_aspect = figH/figW
@@ -459,22 +469,17 @@ class Axes(Artist):
         xsize = math.fabs(xmax-xmin)
         ymin,ymax = self.get_ylim()
         ysize = math.fabs(ymax-ymin)
-        l,b,w,h = self._originalPosition
-        if self._aspect_adjusts in ('position', 'box_size'):
-            data_ratio = ysize/xsize
+        if self._adjustable == 'box':
+            if data_ratio is None:
+                data_ratio = ysize/xsize
             box_aspect = A * data_ratio
-            H = w * box_aspect/fig_aspect
-            if H <= h:
-                W = w
-            else:
-                W = h * fig_aspect/box_aspect
-                H = h
-            if self._aspect_adjusts == 'position':
-                L = l + 0.5 * (w-W)
-                B = b + 0.5 * (h-H)
-            else:
-                L,B = l,b
-            self.set_position((L,B,W,H), 'active')
+            pb = PBox(self._originalPosition)
+            #print xmin, xmax, ymin, ymax
+            #print pb
+            #print figH, figW
+            #print box_aspect, fig_aspect
+            pb1 = pb.shrink_to_aspect(box_aspect, fig_aspect)
+            self.set_position(pb1.anchor(self._anchor), 'active')
             return
 
         changex = ((self._sharey or self._mastery) and not
@@ -485,6 +490,7 @@ class Axes(Artist):
         xsize = math.fabs(xmax-xmin)
         ymin,ymax = self.get_ylim()
         ysize = math.fabs(ymax-ymin)
+        l,b,w,h = self._originalPosition
         box_aspect = fig_aspect * (h/w)
         data_ratio = box_aspect / A
         Ysize = data_ratio * xsize
@@ -4249,6 +4255,7 @@ class PolarAxes(Axes):
 
     def __init__(self, *args, **kwarg):
         Axes.__init__(self, *args, **kwarg)
+        self.set_aspect('equal', adjustable='box', anchor='C')
         self.cla()
 
     def _init_axis(self):
@@ -4494,6 +4501,7 @@ class PolarAxes(Axes):
     def draw(self, renderer):
         if not self.get_visible(): return
         renderer.open_group('polar_axes')
+        self.apply_aspect(1)
         self.transData.freeze()  # eval the lazy objects
         self.transAxes.freeze()  # eval the lazy objects
         #self._update_axes()

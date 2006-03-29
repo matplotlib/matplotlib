@@ -109,8 +109,8 @@ class Figure(Artist):
                  subplotpars = None, # default to rc
                  ):
         """
-        paper size is a w,h tuple in inches
-        DPI is dots per inch
+        figsize is a w,h tuple in inches
+        dpi is dots per inch
         subplotpars is a SubplotParams instance, defaults to rc
         """
         Artist.__init__(self)

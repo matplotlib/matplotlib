@@ -618,12 +618,12 @@ def axis(*v, **kwargs):
             ax.autoscale_view()
             ax.apply_aspect()
             if s=='equal':
-                ax.set_aspect('equal', adjusts='datalim')
+                ax.set_aspect('equal', adjustable='datalim')
             elif s=='tight':
                 ax.autoscale_view(tight=True)
                 ax.set_autoscale_on(False)
             elif s=='scaled':
-                ax.set_aspect('equal', adjusts='box_size')
+                ax.set_aspect('equal', adjustable='box')
         else:
             raise ValueError('Unrecognized string %s to axis; try on or off' % s)
         xmin, xmax = ax.get_xlim()
@@ -646,7 +646,7 @@ def axis(*v, **kwargs):
     ax.set_xlim([v[0], v[1]])
     ax.set_ylim([v[2], v[3]])
     #if ax.get_aspect() == 'equal':
-    #    ax.set_aspect_adjusts('datalim')
+    #    ax.set_adjustable('datalim')
 
     draw_if_interactive()
     return v
