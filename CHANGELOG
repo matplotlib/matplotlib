@@ -1,3 +1,7 @@
+2006-03-28 More changes to aspect ratio handling; new PBox class
+           in new file pbox.py to facilitate resizing and repositioning
+           axes; made PolarAxes maintain unit aspect ratio. - EF
+
 2006-03-23 Refactored TextWithDash class to inherit from, rather than
            delegate to, the Text class. Improves object inspection
            and closes bug # 1357969 - DSD
