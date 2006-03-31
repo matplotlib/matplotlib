@@ -1,3 +1,5 @@
+2006-03-31 Applied Vasily Sulatskov's Qt Navigation Toolbar enhancement. -JRE
+
 2006-03-31 Ported Norbert's rewriting of Halldor's stineman_interp
            algorithm to make it numerix compatible and added code to
            matplotlib.mlab.  See examples/interp_demo.py - JDH
