@@ -445,7 +445,7 @@ class Axes(Artist):
 
     def apply_aspect(self, data_ratio = None):
         '''
-        Use self._aspect and self._aspect_adjusts to modify the
+        Use self._aspect and self._adjustable to modify the
         axes box or the view limits.
         '''
 
@@ -466,18 +466,14 @@ class Axes(Artist):
         figW,figH = self.get_figure().get_size_inches()
         fig_aspect = figH/figW
         xmin,xmax = self.get_xlim()
-        xsize = math.fabs(xmax-xmin)
+        xsize = max(math.fabs(xmax-xmin), 1e-30)
         ymin,ymax = self.get_ylim()
-        ysize = math.fabs(ymax-ymin)
+        ysize = max(math.fabs(ymax-ymin), 1e-30)
         if self._adjustable == 'box':
             if data_ratio is None:
                 data_ratio = ysize/xsize
             box_aspect = A * data_ratio
             pb = PBox(self._originalPosition)
-            #print xmin, xmax, ymin, ymax
-            #print pb
-            #print figH, figW
-            #print box_aspect, fig_aspect
             pb1 = pb.shrink_to_aspect(box_aspect, fig_aspect)
             self.set_position(pb1.anchor(self._anchor), 'active')
             return
@@ -486,21 +482,26 @@ class Axes(Artist):
                             (self._sharex or self._masterx))
         changey = ((self._sharex or self._masterx) and not
                             (self._sharey or self._mastery))
-        xmin,xmax = self.get_xlim()
-        xsize = math.fabs(xmax-xmin)
-        ymin,ymax = self.get_ylim()
-        ysize = math.fabs(ymax-ymin)
-        l,b,w,h = self._originalPosition
+        if changex and changey:
+            warnings.warn("adjustable='datalim' cannot work with shared x and y axes")
+            return
+        dx0, dx1 = self.dataLim.intervalx().get_bounds()
+        dy0, dy1 = self.dataLim.intervaly().get_bounds()
+        xr = abs(dx1 - dx0)
+        yr = abs(dy1 - dy0)
+        l,b,w,h = self.get_position()
         box_aspect = fig_aspect * (h/w)
         data_ratio = box_aspect / A
         Ysize = data_ratio * xsize
-        if Ysize > ysize or changey:
+        Xsize = ysize / data_ratio
+        if changex:
+            adjust_y = False
+        else:
+            adjust_y = changey or ((Ysize > ysize) and (ysize <= yr))
+        if adjust_y:
             dy = 0.5 * (Ysize - ysize)
             self.set_ylim((ymin-dy, ymax+dy))
-            return
-
-        Xsize = ysize / data_ratio
-        if Xsize > xsize or changex:
+        else:
             dx = 0.5 * (Xsize - xsize)
             self.set_xlim((xmin-dx, xmax+dx))
 

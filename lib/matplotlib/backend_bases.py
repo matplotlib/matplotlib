@@ -4,7 +4,7 @@ graphics contexts must implement to serve as a matplotlib backend
 """
 
 from __future__ import division
-import sys
+import sys, warnings
 
 from cbook import is_string_like, enumerate, strip_math, Stack
 from colors import colorConverter
@@ -134,7 +134,7 @@ class RendererBase:
             color = colors[i % Nc]
             rgb   = color[0], color[1], color[2]
             alpha = color[-1]
-            
+
             gc.set_foreground(rgb, isRGB=True)
             gc.set_alpha( alpha )
             gc.set_linewidth( linewidths[i % Nlw] )
@@ -1320,30 +1320,45 @@ class NavigationToolbar2:
                     ymin -= dy
                     ymax -= dy
             elif self._button_pressed==3:
-                dx=(lastx-event.x)/float(a.bbox.width())
-                dy=(lasty-event.y)/float(a.bbox.height())
-                dx,dy=format_deltas(event,dx,dy)
-                alphax = pow(10.0,dx)
-                alphay = pow(10.0,dy)#use logscaling, avoid singularities and smother scaling...
-                lastx, lasty = trans.inverse_xy_tup( (lastx, lasty) )
-                if a.get_xscale()=='log':
-                    xmin = lastx*(xmin/lastx)**alphax
-                    xmax = lastx*(xmax/lastx)**alphax
-                else:
-                    xmin = lastx+alphax*(xmin-lastx)
-                    xmax = lastx+alphax*(xmax-lastx)
-                if a.get_yscale()=='log':
-                    ymin = lasty*(ymin/lasty)**alphay
-                    ymax = lasty*(ymax/lasty)**alphay
-                else:
-                    ymin = lasty+alphay*(ymin-lasty)
-                    ymax = lasty+alphay*(ymax-lasty)
-
-            a.set_xlim((xmin, xmax))
-            a.set_ylim((ymin, ymax))
+                try:
+                    dx=(lastx-event.x)/float(a.bbox.width())
+                    dy=(lasty-event.y)/float(a.bbox.height())
+                    dx,dy=format_deltas(event,dx,dy)
+                    alphax = pow(10.0,dx)
+                    alphay = pow(10.0,dy)#use logscaling, avoid singularities and smother scaling...
+                    lastx, lasty = trans.inverse_xy_tup( (lastx, lasty) )
+                    if a.get_xscale()=='log':
+                        xmin = lastx*(xmin/lastx)**alphax
+                        xmax = lastx*(xmax/lastx)**alphax
+                    else:
+                        xmin = lastx+alphax*(xmin-lastx)
+                        xmax = lastx+alphax*(xmax-lastx)
+                    if a.get_yscale()=='log':
+                        ymin = lasty*(ymin/lasty)**alphay
+                        ymax = lasty*(ymax/lasty)**alphay
+                    else:
+                        ymin = lasty+alphay*(ymin-lasty)
+                        ymax = lasty+alphay*(ymax-lasty)
+                except OverflowError:
+                    warnings.warn('Overflow while panning')
+                    return
+            a.set_xlim(self.nonsingular(xmin, xmax))
+            a.set_ylim(self.nonsingular(ymin, ymax))
 
         self.dynamic_update()
 
+    def nonsingular(self, x0, x1):
+        '''Desperate hack to prevent crashes when button-3 panning with
+        axis('image') in effect.
+        '''
+        d = x1 - x0
+        # much smaller thresholds seem to cause Value Error
+        # later in Transformation::freeze in axes.draw()
+        if abs(d) < 1e-10:
+            warnings.warn('Axis data limit is too small for panning')
+            x1 += 1e-10
+            x0 -= 1e-10
+        return (x0, x1)
 
 
     def release_zoom(self, event):

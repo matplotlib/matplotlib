@@ -1,3 +1,7 @@
+2006-03-30 Fixed a bug in aspect ratio handling; blocked potential
+           crashes when panning with button 3; added axis('image')
+           support. - EF
+
 2006-03-28 More changes to aspect ratio handling; new PBox class
            in new file pbox.py to facilitate resizing and repositioning
            axes; made PolarAxes maintain unit aspect ratio. - EF

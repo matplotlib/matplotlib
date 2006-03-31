@@ -575,30 +575,32 @@ def axis(*v, **kwargs):
     """
     Set/Get the axis properties::
 
-        axis()  returns the current axis as a length a length 4 vector
+        v = axis()  returns the current axes as v = [xmin, xmax, ymin, ymax]
 
-        axis(v) where v = [xmin, xmax, ymin, ymax] sets the min and max of the x
-            and y axis limits
+        axis(v) where v = [xmin, xmax, ymin, ymax] sets the min and max
+          of the x and y axes
 
         axis('off') turns off the axis lines and labels
 
-        axis('equal') changes limits of x or y axis such that equal
-          tick mark increments are equal in size. This makes a
-          circle look like a circle, for example. This is persistent.
-          For example, when axis limits are changed after this command,
-          the scale remains equal
+        axis('equal') changes limits of x or y axis so that equal
+          increments of x and y have the same length; a circle
+          is circular.
 
-        axis('scaled') makes scale equal, changes lengths of axes while
-          keeping limits of x and y axes fixed. Keeps lower left hand corner
-          in original position. Fixes axis limits.
+        axis('scaled') achieves the same result by changing the
+          dimensions of the plot box instead of the axis data
+          limits.
 
-        axis('tight') changes limits x and y axis such that all data is
+        axis('tight') changes x and y axis limits such that all data is
           shown. If all data is already shown, it will move it to the center
           of the figure without modifying (xmax-xmin) or (ymax-ymin). Note
-          this is slightly different than in matlab. Fixes axis limits.
+          this is slightly different than in matlab.
 
-        axis('normal') or 'auto' sets the axis to normal, i.e.
-          turns equal scale off
+        axis('image') is 'scaled' with the axis limits equal to the
+          data limits.
+
+        axis('auto') or 'normal' (deprecated) restores default behavior;
+          axis limits are automatically scaled to make the data fit
+          comfortably within the plot box.
 
        if len(*v)==0, you can pass in xmin, xmax, ymin, ymax as kwargs
        selectively to alter just those limits w/o changing the others.
@@ -612,18 +614,23 @@ def axis(*v, **kwargs):
         s = v[0].lower()
         if s=='on': ax.set_axis_on()
         elif s=='off': ax.set_axis_off()
-        elif s in ('equal', 'tight', 'scaled', 'normal', 'auto'):
+        elif s in ('equal', 'tight', 'scaled', 'normal', 'auto', 'image'):
             ax.set_autoscale_on(True)
             ax.set_aspect('auto')
             ax.autoscale_view()
             ax.apply_aspect()
             if s=='equal':
                 ax.set_aspect('equal', adjustable='datalim')
+            elif s == 'scaled':
+                ax.set_aspect('equal', adjustable='box', anchor='C')
             elif s=='tight':
                 ax.autoscale_view(tight=True)
                 ax.set_autoscale_on(False)
-            elif s=='scaled':
-                ax.set_aspect('equal', adjustable='box')
+            elif s == 'image':
+                ax.autoscale_view(tight=True)
+                ax.set_autoscale_on(False)
+                ax.set_aspect('equal', adjustable='box', anchor='C')
+
         else:
             raise ValueError('Unrecognized string %s to axis; try on or off' % s)
         xmin, xmax = ax.get_xlim()
