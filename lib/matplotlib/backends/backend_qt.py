@@ -231,6 +231,7 @@ class NavigationToolbar2QT( NavigationToolbar2, qt.QWidget ):
         
     def __init__( self, parent, canvas ):
         self.canvas = canvas
+        self.buttons = {}
         qt.QWidget.__init__( self, parent )
 
         # Layout toolbar buttons horizontally.
@@ -254,6 +255,8 @@ class NavigationToolbar2QT( NavigationToolbar2, qt.QWidget ):
             button = qt.QPushButton( qt.QIconSet( image ), "", self )
             qt.QToolTip.add( button, tooltip_text )
 
+            self.buttons[ text ] = button
+
             # The automatic layout doesn't look that good - it's too close
             # to the images so add a margin around it.
             margin = 4
@@ -263,12 +266,23 @@ class NavigationToolbar2QT( NavigationToolbar2, qt.QWidget ):
                                 getattr( self, callback ) )
             self.layout.addWidget( button )
 
+        self.buttons[ 'Pan' ].setToggleButton( True )
+        self.buttons[ 'Zoom' ].setToggleButton( True )
+
         # Add the x,y location widget at the right side of the toolbar
         # The stretch factor is 1 which means any resizing of the toolbar
         # will resize this label instead of the buttons.
         self.locLabel = qt.QLabel( "", self )
         self.locLabel.setAlignment( qt.Qt.AlignRight | qt.Qt.AlignVCenter )
         self.layout.addWidget( self.locLabel, 1 )
+
+    def pan( self, *args ):
+        self.buttons[ 'Zoom' ].setOn( False )
+        NavigationToolbar2.pan( self, *args )
+
+    def zoom( self, *args ):
+        self.buttons[ 'Pan' ].setOn( False )
+        NavigationToolbar2.zoom( self, *args )
 
     def dynamic_update( self ):
         self.canvas.draw()
@@ -296,6 +310,12 @@ class NavigationToolbar2QT( NavigationToolbar2, qt.QWidget ):
         fname = qt.QFileDialog.getSaveFileName()
         if fname:
             self.canvas.print_figure( fname.latin1() )
+
+    def set_history_buttons( self ):
+        canBackward = ( self._views._pos > 0 )
+        canForward = ( self._views._pos < len( self._views._elements ) - 1 )
+        self.buttons[ 'Back' ].setEnabled( canBackward )
+        self.buttons[ 'Forward' ].setEnabled( canForward )
 
 # set icon used when windows are minimized
 try:
