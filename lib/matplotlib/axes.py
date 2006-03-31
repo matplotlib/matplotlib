@@ -3487,8 +3487,9 @@ class Axes(Artist):
 
             * basex: base of the logarithm
 
-            * subsx: the location of the minor ticks; None defaults to autosubs,
-            which depend on the number of decades in the plot
+            * subsx: the location of the minor ticks; None defaults to
+            autosubs, which depend on the number of decades in the
+            plot. 
 
         ACCEPTS: ['log' | 'linear' ]
         """
