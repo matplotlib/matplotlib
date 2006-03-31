@@ -1,4 +1,11 @@
-
+    Modified aspect-ratio handling:
+        Removed aspect kwarg from imshow
+        Axes methods:
+            set_aspect(self, aspect, adjustable=None, anchor=None)
+            set_adjustable(self, adjustable)
+            set_anchor(self, anchor)
+        Pylab interface:
+            axis('image')
 
 API Changes in matplotlib-0.86
 
