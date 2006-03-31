@@ -294,7 +294,7 @@ from matplotlib.mlab import linspace, window_hanning, window_none,\
         sqrtm, prctile, center_matrix, meshgrid, rk4, exp_safe, amap,\
         sum_flat, mean_flat, rms_flat, l1norm, l2norm, norm, frange,\
         diagonal_matrix, base_repr, binary_repr, log2, ispower2,\
-        bivariate_normal, load, save
+        bivariate_normal, load, save, stineman_interp
 
 
 """

@@ -1,3 +1,7 @@
+2006-03-31 Ported Norbert's rewriting of Halldor's stineman_interp
+           algorithm to make it numerix compatible and added code to
+           matplotlib.mlab.  See examples/interp_demo.py - JDH
+
 2006-03-30 Fixed a bug in aspect ratio handling; blocked potential
            crashes when panning with button 3; added axis('image')
            support. - EF

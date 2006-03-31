@@ -6,8 +6,6 @@ elif which[0] == "numeric":
     from LinearAlgebra import *
 elif which[0] == "numpy":
     from numpy.linalg import *
-    inverse = inv
-    eigenvectors = eig
     try:
         from numpy.linalg.old import *
     except:
