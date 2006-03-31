@@ -152,6 +152,7 @@ class FigureManagerQT( FigureManagerBase ):
         FigureManagerBase.__init__( self, canvas, num )
         self.canvas = canvas
         self.window = qt.QMainWindow( None, None, qt.Qt.WDestructiveClose )
+        self.window.closeEvent = self._widgetCloseEvent
 
         centralWidget = qt.QWidget( self.window )
         self.canvas.reparent( centralWidget, qt.QPoint( 0, 0 ) )
@@ -161,8 +162,6 @@ class FigureManagerQT( FigureManagerBase ):
         self.canvas.setFocus()
         self.window.setCaption( "Figure %d" % num )
 
-        qt.QObject.connect( self.window, qt.SIGNAL( 'destroyed()' ),
-                            self._widgetclosed )
         self.window._destroying = False
 
         if matplotlib.rcParams['toolbar'] == 'classic':
@@ -209,6 +208,10 @@ class FigureManagerQT( FigureManagerBase ):
         self.window._destroying = True
         Gcf.destroy(self.num)
 
+    def _widgetCloseEvent( self, event ):
+        self._widgetclosed()
+        qt.QWidget.closeEvent( self.window, event )
+
     def destroy( self, *args ):
         if self.window._destroying: return
         self.window._destroying = True
@@ -232,6 +235,7 @@ class NavigationToolbar2QT( NavigationToolbar2, qt.QWidget ):
     def __init__( self, parent, canvas ):
         self.canvas = canvas
         self.buttons = {}
+
         qt.QWidget.__init__( self, parent )
 
         # Layout toolbar buttons horizontally.
