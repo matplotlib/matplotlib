@@ -667,7 +667,7 @@ class LocationEvent(Event):
 
         self.inaxes = [] # Need to correctly handle overlapping axes
         for a in self.canvas.figure.get_axes():
-            if self.x is not None and self.y is not None and a.in_axes(self.x, self.y) and a.get_navigate():
+            if self.x is not None and self.y is not None and a.in_axes(self.x, self.y):
                 self.inaxes.append(a)
 
         if len(self.inaxes) == 0: # None found
