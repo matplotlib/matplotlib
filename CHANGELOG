@@ -1,3 +1,8 @@
+2006-04-03 Fixed the bug in which widgets would not respond to
+           events.  This regressed the twinx functionality, so I
+           also updated subplots_adjust to update axes that share
+           an x or y with a subplot instance. - CM
+
 2006-04-02 Moved PBox class to transforms and deleted pbox.py;
            made pylab axis command a thin wrapper for Axes.axis;
            more tweaks to aspect-ratio handling; fixed Axes.specgram
