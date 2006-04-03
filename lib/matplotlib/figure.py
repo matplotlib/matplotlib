@@ -830,9 +830,17 @@ class Figure(Artist):
         self.subplotpars.update(*args, **kwargs)
         import matplotlib.axes
         for ax in self.axes:
-            if not isinstance(ax, matplotlib.axes.Subplot): continue
-            ax.update_params()
-            ax.set_position([ax.figLeft, ax.figBottom, ax.figW, ax.figH])
+            if not isinstance(ax, matplotlib.axes.Subplot):
+                # Check if sharing a subplots axis
+                if ax._sharex is not None and isinstance(ax._sharex, matplotlib.axes.Subplot):
+                    ax._sharex.update_params()
+                    ax.set_position([ax._sharex.figLeft, ax._sharex.figBottom, ax._sharex.figW, ax._sharex.figH])
+                elif ax._sharey is not None and isinstance(ax._sharey, matplotlib.axes.Subplot):
+                    ax._sharey.update_params()         
+                    ax.set_position([ax._sharey.figLeft, ax._sharey.figBottom, ax._sharey.figW, ax._sharey.figH])
+            else:
+                ax.update_params()
+                ax.set_position([ax.figLeft, ax.figBottom, ax.figW, ax.figH])
 
 
 
