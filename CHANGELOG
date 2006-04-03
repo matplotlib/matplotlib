@@ -1,3 +1,9 @@
+2006-04-02 Moved PBox class to transforms and deleted pbox.py;
+           made pylab axis command a thin wrapper for Axes.axis;
+           more tweaks to aspect-ratio handling; fixed Axes.specgram
+           to account for the new imshow default of unit aspect
+           ratio; made contour set the Axes.dataLim. - EF
+
 2006-03-31 Fixed the Qt "Underlying C/C++ object deleted" bug. - JRE
 
 2006-03-31 Applied Vasily Sulatskov's Qt Navigation Toolbar enhancement. - JRE

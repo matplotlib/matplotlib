@@ -40,8 +40,8 @@ from transforms import Bbox, Point, Value, Affine, NonseparableTransformation
 from transforms import  FuncXY, Func, LOG10, IDENTITY, POLAR
 from transforms import get_bbox_transform, unit_bbox, one, origin, zero
 from transforms import blend_xy_sep_transform, Interval
+from transforms import PBox
 from font_manager import FontProperties
-from pbox import PBox
 
 import matplotlib
 
@@ -478,6 +478,22 @@ class Axes(Artist):
             self.set_position(pb1.anchor(self._anchor), 'active')
             return
 
+
+        l,b,w,h = self.get_position()
+        box_aspect = fig_aspect * (h/w)
+        data_ratio = box_aspect / A
+        dL = self.dataLim
+        xr = dL.width()
+        yr = dL.height()
+        xmarg = xsize - xr
+        ymarg = ysize - yr
+        Ysize = data_ratio * xsize
+        Xsize = ysize / data_ratio
+        # If it is very nearly correct, don't do any more;
+        # we are probably just panning.
+        if abs(xsize-Xsize) < 0.001*xsize or abs(ysize-Ysize) < 0.001*ysize:
+            return
+
         changex = ((self._sharey or self._mastery) and not
                             (self._sharex or self._masterx))
         changey = ((self._sharex or self._masterx) and not
@@ -485,31 +501,94 @@ class Axes(Artist):
         if changex and changey:
             warnings.warn("adjustable='datalim' cannot work with shared x and y axes")
             return
-        dx0, dx1 = self.dataLim.intervalx().get_bounds()
-        dy0, dy1 = self.dataLim.intervaly().get_bounds()
-        xr = abs(dx1 - dx0)
-        yr = abs(dy1 - dy0)
-        l,b,w,h = self.get_position()
-        box_aspect = fig_aspect * (h/w)
-        data_ratio = box_aspect / A
-        Ysize = data_ratio * xsize
-        Xsize = ysize / data_ratio
         if changex:
             adjust_y = False
         else:
-            adjust_y = changey or ((Ysize > ysize) and (ysize <= yr))
+            adjust_y = changey or (Xsize < min(xsize, xr))
+            adjust_y = adjust_y or (A*ymarg > xmarg)
         if adjust_y:
-            dy = 0.5 * (Ysize - ysize)
-            self.set_ylim((ymin-dy, ymax+dy))
+            dy = Ysize - ysize
+            if ymarg < 0.01 * dy:
+                y0 = ymin - dy/2.0
+                y1 = ymax + dy/2.0
+            else:
+                yc = (dL.ymax() + dL.ymin())/2.0
+                y0 = yc - Ysize/2.0
+                y1 = yc + Ysize/2.0
+            self.set_ylim((y0, y1))
         else:
-            dx = 0.5 * (Xsize - xsize)
-            self.set_xlim((xmin-dx, xmax+dx))
+            dx = Xsize - xsize
+            if xmarg < 0.01 * dx:
+                x0 = xmin - dx/2.0
+                x1 = xmax + dx/2.0
+            else:
+                xc = (dL.xmax() + dL.xmin())/2.0
+                x0 = xc - Xsize/2.0
+                x1 = xc + Xsize/2.0
+            self.set_xlim((x0, x1))
 
     def get_aspect(self):
         return self._aspect
 
-    def get_aspect_adjusts(self):
-        return self._aspect_adjusts
+    def get_adjustable(self):
+        return self._adjustable
+
+    def get_anchor(self):
+        return self._anchor
+
+    def axis(self, *v, **kwargs):
+        '''
+        Convenience method for manipulating the x and y view limits
+        and the aspect ratio of the plot.
+
+        See docstring for pylab.axis.
+        '''
+        if len(v)==1 and is_string_like(v[0]):
+            s = v[0].lower()
+            if s=='on': self.set_axis_on()
+            elif s=='off': self.set_axis_off()
+            elif s in ('equal', 'tight', 'scaled', 'normal', 'auto', 'image'):
+                self.set_autoscale_on(True)
+                self.set_aspect('auto')
+                self.autoscale_view()
+                self.apply_aspect()
+                if s=='equal':
+                    self.set_aspect('equal', adjustable='datalim')
+                elif s == 'scaled':
+                    self.set_aspect('equal', adjustable='box', anchor='C')
+                elif s=='tight':
+                    self.autoscale_view(tight=True)
+                    self.set_autoscale_on(False)
+                elif s == 'image':
+                    self.autoscale_view(tight=True)
+                    self.set_autoscale_on(False)
+                    self.set_aspect('equal', adjustable='box', anchor='C')
+
+            else:
+                raise ValueError('Unrecognized string %s to axis; try on or off' % s)
+            xmin, xmax = self.get_xlim()
+            ymin, ymax = self.get_ylim()
+            #draw_if_interactive()
+            return xmin, xmax, ymin, ymax
+
+        try: v[0]
+        except IndexError:
+            xmin, xmax = self.set_xlim(**kwargs)
+            ymin, ymax = self.set_ylim(**kwargs)
+            #draw_if_interactive()
+            return xmin, xmax, ymin, ymax
+
+        v = v[0]
+        if len(v) != 4:
+            raise ValueError('v must contain [xmin xmax ymin ymax]')
+
+
+        self.set_xlim([v[0], v[1]])
+        self.set_ylim([v[2], v[3]])
+
+        #draw_if_interactive()
+        return v
+
 
     def set_cursor_props(self, *args):
         """
@@ -869,7 +948,7 @@ class Axes(Artist):
 
     def update_datalim(self, xys):
         'Update the data lim bbox with seq of xy tups'
-        # if no data is set currently, the bbox will ignore it's
+        # if no data is set currently, the bbox will ignore its
         # limits and set the bound to be the bounds of the xydata.
         # Otherwise, it will compute the bounds of it's current data
         # and the data in xydata
@@ -3489,7 +3568,7 @@ class Axes(Artist):
 
             * subsx: the location of the minor ticks; None defaults to
             autosubs, which depend on the number of decades in the
-            plot. 
+            plot.
 
         ACCEPTS: ['log' | 'linear' ]
         """
@@ -3699,6 +3778,7 @@ class Axes(Artist):
         xmin, xmax = xextent
         extent = xmin, xmax, 0, amax(freqs)
         im = self.imshow(Z, cmap, extent=extent)
+        self.axis('auto')
 
         return Pxx, freqs, bins, im
 
