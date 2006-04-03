@@ -400,7 +400,7 @@ grestore
         """
         Draw a single line from x0,y0 to x1,y1
         """
-        ps = '%1.3f %1.3f m %1.3f %1.3f l'%(x0, y0, x1, y1)
+        ps = '%1.4g %1.4g m %1.4g %1.4g l'%(x0, y0, x1, y1)
         self._draw_ps(ps, gc, None, "line")
         
     def _draw_markers_old(self, gc, path, rgbFace, x, y, transform):
@@ -518,16 +518,16 @@ grestore
         ps_cmd = ['gsave']
         ps_cmd.append('newpath')
         ps_cmd.append('translate')
-        ps_cmd.append('%f %f scale'%(1./sx,1./sy))
+        ps_cmd.append('%g %g scale'%(1./sx,1./sy))
         while 1:
             code, xp, yp = path.vertex()
             if code == agg.path_cmd_stop:
                 ps_cmd.append('closepath') # Hack, path_cmd_end_poly not found
                 break
             elif code == agg.path_cmd_move_to:
-                ps_cmd.append('%1.3f %1.3f m' % (xp,yp))
+                ps_cmd.append('%1.4g %1.4g m' % (xp,yp))
             elif code == agg.path_cmd_line_to:
-                ps_cmd.append('%1.3f %1.3f l' % (xp,yp))
+                ps_cmd.append('%1.4g %1.4g l' % (xp,yp))
             elif code == agg.path_cmd_curve3:
                 pass
             elif code == agg.path_cmd_curve4:
@@ -556,8 +556,8 @@ grestore
         cliprect = gc.get_clip_rectangle()
         if cliprect:
             xc,yc,wc,hc=cliprect
-            write('%1.3f %1.3f %1.3f %1.3f clipbox\n' % (wc,hc,xc,yc))
-        write('[%f %f %f %f %f %f] concat\n'% vec6)        
+            write('%1.4g %1.4g %1.4g %1.4g clipbox\n' % (wc,hc,xc,yc))
+        write('[%g %g %g %g %g %g] concat\n'% vec6)        
 ##        write('gsave\n')
 ##        self.push_gc(gc, store=0)
 ##        write('[%f %f %f %f %f %f] concat\n'% vec6)
@@ -568,7 +568,7 @@ grestore
         while start < len(x):
 
             to_draw = izip(x[start:end],y[start:end],mask[start:end])
-            ps = ['%1.3f %1.3f marker' % (xp, yp) for xp, yp, m in to_draw if m]
+            ps = ['%1.4g %1.4g marker' % (xp, yp) for xp, yp, m in to_draw if m]
             write("\n".join(ps)+'\n')
             start = end
             end   += 1000
@@ -605,8 +605,8 @@ grestore
         points = zip(x,y)
         while start < len(x):
             to_draw = izip(x[start:end],y[start:end])
-            ps = ["%1.3f %1.3f m" % to_draw.next()] 
-            ps.extend(["%1.3f %1.3f l" % point for point in to_draw])
+            ps = ["%1.4g %1.4g m" % to_draw.next()] 
+            ps.extend(["%1.4g %1.4g l" % point for point in to_draw])
             self._draw_ps("\n".join(ps), gc, None)
             start = end
             end   += 1000
@@ -633,8 +633,8 @@ grestore
             cliprect = gc.get_clip_rectangle()
             if cliprect:
                 xc,yc,wc,hc=cliprect
-                write('%1.3f %1.3f %1.3f %1.3f clipbox\n' % (wc,hc,xc,yc))
-            write('[%f %f %f %f %f %f] concat\n'% vec6)
+                write('%1.4g %1.4g %1.4g %1.4g clipbox\n' % (wc,hc,xc,yc))
+            write('[%g %g %g %g %g %g] concat\n'% vec6)
         
         start  = 0
         end    = 1000
@@ -659,11 +659,11 @@ grestore
             if not to_draw:
                 break
             
-            ps = ["%1.3f %1.3f %c" % (xp, yp, c) for xp, yp, c, m in to_draw if m]
+            ps = ["%1.4g %1.4g %c" % (xp, yp, c) for xp, yp, c, m in to_draw if m]
             # we don't want to scale the line width, etc so invert the
             # scale for the stroke
             if transform:
-                ps.append('gsave %f %f scale stroke grestore'%(1./sx,1./sy))
+                ps.append('gsave %g %g scale stroke grestore'%(1./sx,1./sy))
                 write('\n'.join(ps)+'\n')
             else:
                 self._draw_ps("\n".join(ps)+'\n', gc, None)
@@ -914,7 +914,7 @@ grestore
 
         if cliprect:
             x,y,w,h=cliprect
-            write('gsave\n%1.3f %1.3f %1.3f %1.3f clipbox\n' % (w,h,x,y))
+            write('gsave\n%1.4g %1.4g %1.4g %1.4g clipbox\n' % (w,h,x,y))
         # Jochen, is the strip necessary? - this could be a honking big string
         write(ps.strip())
         write("\n")
