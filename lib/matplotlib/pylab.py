@@ -610,53 +610,10 @@ def axis(*v, **kwargs):
 
     """
     ax = gca()
-    if len(v)==1 and is_string_like(v[0]):
-        s = v[0].lower()
-        if s=='on': ax.set_axis_on()
-        elif s=='off': ax.set_axis_off()
-        elif s in ('equal', 'tight', 'scaled', 'normal', 'auto', 'image'):
-            ax.set_autoscale_on(True)
-            ax.set_aspect('auto')
-            ax.autoscale_view()
-            ax.apply_aspect()
-            if s=='equal':
-                ax.set_aspect('equal', adjustable='datalim')
-            elif s == 'scaled':
-                ax.set_aspect('equal', adjustable='box', anchor='C')
-            elif s=='tight':
-                ax.autoscale_view(tight=True)
-                ax.set_autoscale_on(False)
-            elif s == 'image':
-                ax.autoscale_view(tight=True)
-                ax.set_autoscale_on(False)
-                ax.set_aspect('equal', adjustable='box', anchor='C')
-
-        else:
-            raise ValueError('Unrecognized string %s to axis; try on or off' % s)
-        xmin, xmax = ax.get_xlim()
-        ymin, ymax = ax.get_ylim()
-        draw_if_interactive()
-        return xmin, xmax, ymin, ymax
-
-    try: v[0]
-    except IndexError:
-        xmin, xmax = ax.set_xlim(**kwargs)
-        ymin, ymax = ax.set_ylim(**kwargs)
-        draw_if_interactive()
-        return [xmin, xmax, ymin, ymax]
-
-    v = v[0]
-    if len(v) != 4:
-        raise ValueError('v must contain [xmin xmax ymin ymax]')
-
-
-    ax.set_xlim([v[0], v[1]])
-    ax.set_ylim([v[2], v[3]])
-    #if ax.get_aspect() == 'equal':
-    #    ax.set_adjustable('datalim')
-
+    v = ax.axis(*v, **kwargs)
     draw_if_interactive()
     return v
+
 
 def axes(*args, **kwargs):
     """

@@ -463,12 +463,17 @@ class ContourSet(ScalarMappable, ContourLabeler):
                 self.collections.append(col)
 
         ## check: seems like set_xlim should also be inside
-        if not self.ax.ishold():
-            self.ax.cla()
-        self.ax.set_xlim((ma.minimum(x), ma.maximum(x)))
-        self.ax.set_ylim((ma.minimum(y), ma.maximum(y)))
-
-
+        #if not self.ax.ishold():
+        #    self.ax.cla()
+        #self.ax.set_xlim((ma.minimum(x), ma.maximum(x)))
+        #self.ax.set_ylim((ma.minimum(y), ma.maximum(y)))
+        x0 = ma.minimum(x)
+        x1 = ma.maximum(x)
+        y0 = ma.minimum(y)
+        y1 = ma.maximum(y)
+        self.ax.update_datalim([(x0,y0), (x1,y1)])
+        self.ax.set_xlim((x0, x1))
+        self.ax.set_ylim((y0, y1))
 
     def changed(self):
         tcolors = [ (tuple(rgba),) for rgba in
