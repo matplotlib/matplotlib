@@ -403,85 +403,6 @@ grestore
         ps = '%1.4g %1.4g m %1.4g %1.4g l'%(x0, y0, x1, y1)
         self._draw_ps(ps, gc, None, "line")
         
-    def _draw_markers_old(self, gc, path, rgbFace, x, y, transform):
-        """
-        Draw the markers defined by path at each of the positions in x
-        and y.  path coordinates are points, x and y coords will be
-        transformed by the transform
-        """
-        if debugPS: self._pswriter.write('% draw_markers \n')
-        if True:
-            self.__draw_markers(gc, path, rgbFace, x, y, transform)
-            return
-
-        if rgbFace:
-            if rgbFace[0]==rgbFace[0] and rgbFace[0]==rgbFace[2]:
-                ps_color = '%1.3f setgray' % rgbFace[0]
-            else:
-                ps_color = '%1.3f %1.3f %1.3f setrgbcolor' % rgbFace
-        
-        print x,y
-        if transform.need_nonlinear():
-            x,y,mask = transform.nonlinear_only_numerix(x, y, returnMask=1)
-            print x,y, mask
-        else:
-            mask = where(isnan(x) + isnan(y) + isinf(x) + isinf(y), 0, 1) #ones(x.shape)
-        
-        print mask
-        x, y = transform.numerix_x_y(x, y)
-        print x, y
-        
-        # construct the generic marker command:
-        ps_cmd = ['gsave']
-        ps_cmd.append('newpath')
-        ps_cmd.append('translate')
-        while 1:
-            code, xp, yp = path.vertex()
-            if code == agg.path_cmd_stop:
-                ps_cmd.append('closepath') # Hack, path_cmd_end_poly not found
-                break
-            elif code == agg.path_cmd_move_to:
-                ps_cmd.append('%1.3f %1.3f m' % (xp,yp))
-            elif code == agg.path_cmd_line_to:
-                ps_cmd.append('%1.3f %1.3f l' % (xp,yp))
-            elif code == agg.path_cmd_curve3:
-                pass
-            elif code == agg.path_cmd_curve4:
-                pass
-            elif code == agg.path_cmd_end_poly:
-                pass
-                ps_cmd.append('closepath')
-            elif code == agg.path_cmd_mask:
-                pass
-            else:
-                pass
-                #print code
-
-        if rgbFace:
-            ps_cmd.append('gsave')
-            ps_cmd.append(ps_color)
-            ps_cmd.append('fill')
-            ps_cmd.append('grestore')
-            
-        ps_cmd.append('stroke')
-        ps_cmd.append('grestore') # undo translate()
-        ps_cmd = '\n'.join(ps_cmd)
-        
-        self._pswriter.write('gsave\n')
-        self._pswriter.write(' '.join(['/marker {', ps_cmd, '} bind def\n']))
-        # Now evaluate the marker command at each marker location:
-        start  = 0
-        end    = 1000
-        while start < len(x):
-
-            to_draw = izip(x[start:end],y[start:end],mask[start:end])
-            ps = ['%1.3f %1.3f marker' % (xp, yp) for xp, yp, m in to_draw if m]
-            self._draw_ps("\n".join(ps), gc, None)
-            start = end
-            end   += 1000
-        
-        self._pswriter.write('\ngrestore')
-        
     def draw_markers(self, gc, path, rgbFace, x, y, transform):
         """
         Draw the markers defined by path at each of the positions in x
@@ -498,36 +419,19 @@ grestore
             else:
                 ps_color = '%1.3f %1.3f %1.3f setrgbcolor' % rgbFace
         
-        mask = where(isnan(x) + isnan(y), 0, 1)
-        if transform.need_nonlinear():
-            x,y,mask = transform.nonlinear_only_numerix(x, y, returnMask=1)
-        
-        vec6 = transform.as_vec6_val()
-        sx, sy = get_vec6_scales(vec6)
-
-        # the a,b,c,d,tx,ty affine which transforms x and y
-        #vec6 = transform.as_vec6_val()
-        #theta = (180 / pi) * math.atan2 (vec6[1], src[0])
-        # this defines a single vertex.  We need to define this as ps
-        # function, properly stroked and filled with linewidth etc,
-        # and then simply iterate over the x and y and call this
-        # function at each position.  Eg, this is the path that is
-        # relative to each x and y offset.
-        
         # construct the generic marker command:
-        ps_cmd = ['gsave']
+        ps_cmd = ['gsave'] # dont want the translate to be global
         ps_cmd.append('newpath')
         ps_cmd.append('translate')
-        ps_cmd.append('%g %g scale'%(1./sx,1./sy))
         while 1:
             code, xp, yp = path.vertex()
             if code == agg.path_cmd_stop:
                 ps_cmd.append('closepath') # Hack, path_cmd_end_poly not found
                 break
             elif code == agg.path_cmd_move_to:
-                ps_cmd.append('%1.4g %1.4g m' % (xp,yp))
+                ps_cmd.append('%g %g m' % (xp,yp))
             elif code == agg.path_cmd_line_to:
-                ps_cmd.append('%1.4g %1.4g l' % (xp,yp))
+                ps_cmd.append('%g %g l' % (xp,yp))
             elif code == agg.path_cmd_curve3:
                 pass
             elif code == agg.path_cmd_curve4:
@@ -552,94 +456,83 @@ grestore
         ps_cmd = '\n'.join(ps_cmd)
         
         self.push_gc(gc, store=1)
-        write('gsave\n')
+        
+        def drawone(x, y):
+            try:
+                xt, yt = transform.xy_tup((x, y))
+                ret = '%g %g marker' % (xt, yt)
+            except ValueError:
+                pass
+            else:
+                return ret
+        
+        step = 500
+        start = 0
+        end = step
+        mask = where(isnan(x) + isnan(y), 0, 1)
+        
         cliprect = gc.get_clip_rectangle()
         if cliprect:
+            write('gsave\n')
             xc,yc,wc,hc=cliprect
-            write('%1.4g %1.4g %1.4g %1.4g clipbox\n' % (wc,hc,xc,yc))
-        write('[%g %g %g %g %g %g] concat\n'% vec6)        
-##        write('gsave\n')
-##        self.push_gc(gc, store=0)
-##        write('[%f %f %f %f %f %f] concat\n'% vec6)
+            write('%g %g %g %g clipbox\n' % (wc,hc,xc,yc))
         write(' '.join(['/marker {', ps_cmd, '} bind def\n']))
         # Now evaluate the marker command at each marker location:
-        start  = 0
-        end    = 1000
         while start < len(x):
-
-            to_draw = izip(x[start:end],y[start:end],mask[start:end])
-            ps = ['%1.4g %1.4g marker' % (xp, yp) for xp, yp, m in to_draw if m]
-            write("\n".join(ps)+'\n')
+            todraw = izip(x[start:end+1], y[start:end+1], mask[start:end+1])
+            ps = [i for i in [drawone(xi,yi) for xi,yi,mi in todraw if mi] if i]
+            write('\n'.join(ps)+'\n')
             start = end
-            end   += 1000
-        
-        write('grestore\n')
+            end += step
+        if cliprect: write('grestore\n')
             
     def draw_path(self,gc,rgbFace,path,trans):
         pass
 
-    def _draw_lines(self, gc, points):
-        """
-        Draw many lines.  'points' is a list of point coordinates.
-        """
-        # inline this for performance
-        ps = ["%1.3f %1.3f m" % points[0]] 
-        ps.extend(["%1.3f %1.3f l" % point for point in points[1:] ])
-        self._draw_ps("\n".join(ps), gc, None)
-
-
-    def __draw_lines(self, gc, x, y, transform=None):
+    def draw_lines(self, gc, x, y, transform):
         """
         x and y are equal length arrays, draw lines connecting each
         point in x, y
         """
         if debugPS: self._pswriter.write('% draw_lines \n')
- 
-        if transform:  # this won't be called if draw_markers is hidden
-            #if transform.need_nonlinear():
-            #    x, y = transform.nonlinear_only_numerix(x, y)
-            x, y = transform.numerix_x_y(x, y)
         
-        start  = 0
-        end    = 1000
-        points = zip(x,y)
-        while start < len(x):
-            to_draw = izip(x[start:end],y[start:end])
-            ps = ["%1.4g %1.4g m" % to_draw.next()] 
-            ps.extend(["%1.4g %1.4g l" % point for point in to_draw])
-            self._draw_ps("\n".join(ps), gc, None)
-            start = end
-            end   += 1000
-
-    def draw_lines_testing(self, gc, x, y, transform):
-        """
-        x and y are equal length arrays, draw lines connecting each
-        point in x, y
-        """
-        if debugPS: self._pswriter.write('% draw_lines \n')
-
-
-        def drawone(x,y):
+        write = self._pswriter.write
+        
+        def drawone(x, y, skip):
             try:
+                if skip: raise(ValueError)
                 xt, yt = transform.xy_tup((x, y))
+                ret = '%g %g %c' % (xt, yt, drawone.state)
             except ValueError:
-                ret = '%1.4g %1.4g %c\n' % (xt, yt, drawone.state)
                 drawone.state = 'm'
             else:
-                ret = '%1.4g %1.4g %c\n' % (xt, yt, drawone.state)
                 drawone.state = 'l'
                 return ret
-        drawone.state = 'm'
         
-        #write = self._pswriter.write
-        #self.push_gc(gc, store=1)
-        lines = ['gsave\n']
+        step = 50
+        start = 0
+        end = step
+        skip = where(isnan(x) + isnan(y), 1, 0)
+        points = zip(x,y,skip)
+        
+        self.push_gc(gc, store=1)
+        cliprect = gc.get_clip_rectangle()
+        if cliprect:
+            write('gsave\n')
+            xc,yc,wc,hc=cliprect
+            write('%g %g %g %g clipbox\n' % (wc,hc,xc,yc))
+        while start < len(points):
+            drawone.state = 'm'
+            ps = [i for i in [drawone(x,y,s) for x,y,s in points[start:end+1]]\
+                  if i]
+            ps.append('stroke')
+            write('\n'.join(ps)+'\n')
+            start = end
+            end += step
+        if cliprect: write('grestore\n')
 
-        for i in xrange(len(x)):
-            lines.append(drawone(x[i], y[i]))
-        self._draw_ps("\n".join(lines), gc, None)
-        
-    def draw_lines(self, gc, x, y, transform=None):
+
+    def draw_lines_less_old(self, gc, x, y, transform=None):
         """
         x and y are equal length arrays, draw lines connecting each
         point in x, y
@@ -651,21 +544,26 @@ grestore
         mask = where(isnan(x) + isnan(y), 0, 1)
         if transform: # this won't be called if draw_markers is hidden
             if transform.need_nonlinear():
-                x, y, mask = transform.nonlinear_only_numerix(x, y, returnMask=1)
+                x,y,mask = transform.nonlinear_only_numerix(x, y, returnMask=1)
             
-            vec6 = transform.as_vec6_val()
-            sx, sy = get_vec6_scales(vec6)
+            # a,b,c,d,tx,ty affine which transforms x and y into ps coordinates
+            a,b,c,d,tx,ty = transform.as_vec6_val()
+            
+            xo = a*x+c*y+tx
+            yo = b*x+d*y+ty
+            x,y = xo,yo
             
             self.push_gc(gc, store=1)
-            write('gsave\n')
+            
             cliprect = gc.get_clip_rectangle()
             if cliprect:
+                write('gsave\n')
                 xc,yc,wc,hc=cliprect
-                write('%1.4g %1.4g %1.4g %1.4g clipbox\n' % (wc,hc,xc,yc))
-            write('[%g %g %g %g %g %g] concat\n'% vec6)
+                write('%g %g %g %g clipbox\n' % (wc,hc,xc,yc))
         
+        steps  = 50
         start  = 0
-        end    = 1000
+        end    = steps
         points = zip(x,y)
         
         while start < len(x):
@@ -687,37 +585,16 @@ grestore
             if not to_draw:
                 break
             
-            ps = ["%1.4g %1.4g %c" % (xp, yp, c) for xp, yp, c, m in to_draw if m]
-            # we don't want to scale the line width, etc so invert the
-            # scale for the stroke
+            ps = ["%g %g %c" % (xp, yp, c) for xp, yp, c, m in to_draw if m]
             if transform:
-                ps.append('gsave %g %g scale stroke grestore'%(1./sx,1./sy))
+                ps.append('stroke')
                 write('\n'.join(ps)+'\n')
             else:
                 self._draw_ps("\n".join(ps)+'\n', gc, None)
             start = end
-            end   += 1000
+            end   += steps
         if transform:
-            write("grestore\n")
-        
-    def draw_lines_old(self, gc, x, y):
-        """
-        x and y are equal length arrays, draw lines connecting each
-        point in x, y
-        """
-        if debugPS:
-            self._pswriter.write("% lines\n")
-        start  = 0
-        end    = 1000
-        points = zip(x,y)
-        
-        while 1:
-            to_draw = points[start:end]
-            if not to_draw:
-                break
-            self._draw_lines(gc,to_draw)
-            start = end
-            end   += 1000
+            if cliprect: write("grestore\n")
 
     def draw_point(self, gc, x, y):
         """
