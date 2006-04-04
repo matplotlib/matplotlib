@@ -65,13 +65,15 @@ def parse_yahoo_historical(fh, asobject=False, adjusted=True):
         results.append((d, open, close, high, low, volume))
     results.reverse()
     if asobject:
-        date, open, close, high, low, volume = map(nx.asarray, zip(*results))
+        if len(results)==0: return None        
+        else:
+            date, open, close, high, low, volume = map(nx.asarray, zip(*results))
         return Bunch(date=date, open=open, close=close, high=high, low=low, volume=volume)
     else:
 
         return results
-    
-def quotes_historical_yahoo(ticker, date1, date2, asobject=False, adjusted=True):
+
+def fetch_historical_yahoo(ticker, date1, date2, cachename=None):
     """
     Get historical data for ticker between date1 and date2.  date1 and
     date2 are datetime instances
@@ -512,9 +514,102 @@ def volume_overlay(ax, opens, closes, volumes,
     # add these last
     return barCollection
 
+
+def volume_overlay2(ax, closes, volumes,
+                   colorup='k', colordown='r',
+                   width=4, alpha=1.0):
+    """
+    Add a volume overlay to the current axes.  The closes are used to
+    determine the color of the bar.  -1 is missing.  If a value is
+    missing on one it must be missing on all
+
+    ax          : an Axes instance to plot to
+    width       : the bar width in points
+    colorup     : the color of the lines where close >= open
+    colordown   : the color of the lines where close <  open
+    alpha       : bar transparency
+
+    nb: first point is not displayed - it is used only for choosing the
+    right color
+
+    """
+
+    return volume_overlay(ax,closes[:-1],closes[1:],volumes[1:],colorup,colordown,width,alpha)
+
+
+def volume_overlay3(ax, quotes,
+                   colorup='k', colordown='r',
+                   width=4, alpha=1.0):
+    """
+    Add a volume overlay to the current axes.  quotes is a list of (d,
+    open, close, high, low, volume) and close-open is used to
+    determine the color of the bar
+
+    kwarg
+    width       : the bar width in points
+    colorup     : the color of the lines where close1 >= close0
+    colordown   : the color of the lines where close1 <  close0    
+    alpha       : bar transparency
+
+
+    """
+
+    r,g,b = colorConverter.to_rgb(colorup)
+    colorup = r,g,b,alpha
+    r,g,b = colorConverter.to_rgb(colordown)
+    colordown = r,g,b,alpha
+    colord = { True : colorup,
+               False : colordown,
+               }
+
+    dates, opens, closes, highs, lows, volumes = zip(*quotes)
+    colors = [colord[close1>=close0] for close0, close1 in zip(closes[:-1], closes[1:]) if close0!=-1 and close1 !=-1]
+    colors.insert(0,colord[closes[0]>=opens[0]])
+
+    right = width/2.0
+    left = -width/2.0
+
+    
+    bars = [ ( (left, 0), (left, volume), (right, volume), (right, 0)) for d, open, close, high, low, volume in quotes]
+
+    sx = ax.figure.dpi * Value(1/72.0)  # scale for points
+    sy = (ax.bbox.ur().y() - ax.bbox.ll().y()) / (ax.viewLim.ur().y() - ax.viewLim.ll().y()) 
+
+    barTransform = scale_sep_transform(sx,sy)
+
+    dates = [d for d, open, close, high, low, volume in quotes]
+    offsetsBars = [(d, 0) for d in dates]
+
+    useAA = 0,  # use tuple here
+    lw = 0.5,   # and here
+    barCollection = PolyCollection(bars,
+                                   facecolors   = colors,
+                                   edgecolors   = ( (0,0,0,1), ),
+                                   antialiaseds = useAA,
+                                   linewidths   = lw,
+                                   offsets      = offsetsBars,
+                                   transOffset  = ax.transData,
+                                   )
+    barCollection.set_transform(barTransform)
+
+
+
     
 
 
+    minx, maxx = (min(dates), max(dates))
+    miny = 0
+    maxy = max([volume for d, open, close, high, low, volume in quotes])
+    corners = (minx, miny), (maxx, maxy)
+    ax.update_datalim(corners)
+    #print 'datalim', ax.dataLim.get_bounds()
+    #print 'viewlim', ax.viewLim.get_bounds()    
+    
+    ax.add_collection(barCollection)
+    ax.autoscale_view()
+
+    return barCollection
+    
 def index_bar(ax, vals,
               facecolor='b', edgecolor='l',
               width=4, alpha=1.0, ):
