@@ -611,66 +611,33 @@ grestore
             start = end
             end   += 1000
         
-    def draw_lines(self, gc, x, y, transform=None):
+    def draw_lines(self, gc, x, y, transform):
         """
         x and y are equal length arrays, draw lines connecting each
         point in x, y
         """
         if debugPS: self._pswriter.write('% draw_lines \n')
 
-        write = self._pswriter.write
-        
-        mask = where(isnan(x) + isnan(y), 0, 1)
-        if transform: # this won't be called if draw_markers is hidden
-            if transform.need_nonlinear():
-                x, y, mask = transform.nonlinear_only_numerix(x, y, returnMask=1)
-            
-            vec6 = transform.as_vec6_val()
-            sx, sy = get_vec6_scales(vec6)
-            
-            self.push_gc(gc, store=1)
-            write('gsave\n')
-            cliprect = gc.get_clip_rectangle()
-            if cliprect:
-                xc,yc,wc,hc=cliprect
-                write('%1.4g %1.4g %1.4g %1.4g clipbox\n' % (wc,hc,xc,yc))
-            write('[%g %g %g %g %g %g] concat\n'% vec6)
-        
-        start  = 0
-        end    = 1000
-        points = zip(x,y)
-        
-        while start < len(x):
-            # put moveto on all the bad data and on the first good
-            # point after the bad data
-            codes = [('m','l')[int(i)] for i in mask]
-            ind = nonzero(mask[start:end+1]==0)+1
-            if len(ind):
-                if ind[-1]>=len(codes):
-                    ind = ind[:-1]
-            for i in ind:
-                codes[i] = 'm'
-            # put a moveto on the first point, regardless
-            codes[0] = 'm'
-            
-            thisx = x[start:end+1]
-            thisy = y[start:end+1]
-            to_draw = izip(thisx, thisy, codes, mask)
-            if not to_draw:
-                break
-            
-            ps = ["%1.4g %1.4g %c" % (xp, yp, c) for xp, yp, c, m in to_draw if m]
-            # we don't want to scale the line width, etc so invert the
-            # scale for the stroke
-            if transform:
-                ps.append('gsave %g %g scale stroke grestore'%(1./sx,1./sy))
-                write('\n'.join(ps)+'\n')
+
+        def drawone(x,y):
+            try:
+                xt, yt = transform.xy_tup((x, y))
+            except ValueError:
+                ret = '%1.4g %1.4g %c\n' % (xt, yt, drawone.state)
+                drawone.state = 'm'
             else:
-                self._draw_ps("\n".join(ps)+'\n', gc, None)
-            start = end
-            end   += 1000
-        if transform:
-            write("grestore\n")
+                ret = '%1.4g %1.4g %c\n' % (xt, yt, drawone.state)
+                drawone.state = 'l'
+                return ret
+        drawone.state = 'm'
+        
+        #write = self._pswriter.write
+        #self.push_gc(gc, store=1)
+        lines = ['gsave\n']
+
+        for i in xrange(len(x)):
+            lines.append(drawone(x[i], y[i]))
+        self._draw_ps("\n".join(lines), gc, None)
         
     def draw_lines_old(self, gc, x, y):
         """

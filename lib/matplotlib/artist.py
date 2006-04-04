@@ -4,9 +4,8 @@ from cbook import iterable, flatten
 from transforms import identity_transform
 import warnings
 ## Note, matplotlib artists use the doc strings for set and get
-# methods to enable the introspection methods of set and get in the
-# matlab interface Every set_ to be controlled by the set function
-# method should have a docstring containing the line
+# methods to enable the introspection methods of setp and getp.  Every
+# set_* method should have a docstring containing the line
 #
 # ACCEPTS: [ legal | values ]
 #
@@ -446,11 +445,11 @@ def setp(h, *args, **kwargs):
       >>> setp(line)
           ... long output listing omitted'
 
-    setp operates on a single instance or a list of instances.  If you are
-    in quey mode introspecting the possible values, only the first
-    instance in the sequnce is used.  When actually setting values, all
-    the instances will be set.  Eg, suppose you have a list of two lines,
-    the following will make both lines thicker and red
+    setp operates on a single instance or a list of instances.  If you
+    are in query mode introspecting the possible values, only the first
+    instance in the sequence is used.  When actually setting values,
+    all the instances will be set.  Eg, suppose you have a list of two
+    lines, the following will make both lines thicker and red
 
         >>> x = arange(0,1.0,0.01)
         >>> y1 = sin(2*pi*x)
@@ -458,7 +457,7 @@ def setp(h, *args, **kwargs):
         >>> lines = plot(x, y1, x, y2)
         >>> setp(lines, linewidth=2, color='r')
 
-    Set works with the matlab(TM) style string/value pairs or with
+    setp works with the matlab(TM) style string/value pairs or with
     python kwargs.  For example, the following are equivalent
 
         >>> setp(lines, 'linewidth', 2, 'color', r')  # matlab style

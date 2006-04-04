@@ -1530,7 +1530,7 @@ def stineman_interp(xi,x,y,yp=None):
     """
     STINEMAN_INTERP Well behaved data interpolation.  Given data
     vectors X and Y, the slope vector YP and a new abscissa vector XI
-    the function stineman_interp(X,Y,YP,XI) uses Stineman
+    the function stineman_interp(xi,x,y,yp) uses Stineman
     interpolation to calculate a vector YI corresponding to XI.
 
     Here's an example that generates a coarse sine curve, then
@@ -1538,7 +1538,7 @@ def stineman_interp(xi,x,y,yp=None):
 
       x = linspace(0,2*pi,20);  y = sin(x); yp = cos(x)
       xi = linspace(0,2*pi,40);
-      yi = stineman_interp(x,y,yp,xi);
+      yi = stineman_interp(xi,x,y,yp);
       plot(x,y,'o',xi,yi)
 
     The interpolation method is described in the article A

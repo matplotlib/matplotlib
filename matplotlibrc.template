@@ -167,17 +167,17 @@ grid.linestyle   :   :       # dotted
 grid.linewidth   :   0.5     # in points
 
 ### Legend
-legend.isaxes	:	True
-legend.numpoints 	:	4  # the number of points in the legend line
-legend.fontsize : 14
-legend.pad 	:	0.2 # the fractional whitespace inside the legend border
-legend.markerscale 	:	1.0    # the relative size of legend markers vs. original
+legend.isaxes        : True
+legend.numpoints     : 4      # the number of points in the legend line
+legend.fontsize      : 14
+legend.pad           : 0.2    # the fractional whitespace inside the legend border
+legend.markerscale   : 1.0    # the relative size of legend markers vs. original
 # the following dimensions are in axes coords
-legend.labelsep 	:	0.010 # the vertical space between the legend entries
-legend.handlelen 	:	0.05  # the length of the legend lines
-legend.handletextsep 	:	0.02 # the space between the legend line and legend text
-legend.axespad 	:	0.02       # the border between the axes and legend edge
-legend.shadow	:	False
+legend.labelsep      : 0.010  # the vertical space between the legend entries
+legend.handlelen     : 0.05   # the length of the legend lines
+legend.handletextsep : 0.02   # the space between the legend line and legend text
+legend.axespad       : 0.02   # the border between the axes and legend edge
+legend.shadow        : False
 
 ### FIGURE
 # See http://matplotlib.sourceforge.net/matplotlib.figure.html#Figure
@@ -199,13 +199,13 @@ figure.subplot.hspace : 0.2   # the amount of height reserved for white space be
 ### IMAGES
 image.aspect : equal             # equal | auto | a number
 image.interpolation  : bilinear  # see help(imshow) for options
-image.cmap   : jet               # gray | jet
+image.cmap   : jet               # gray | jet etc...
 image.lut    : 256               # the size of the colormap lookup table
 image.origin : upper             # lower | upper
 
 
 ### CONTOUR PLOTS
-contour.negative_linestyle :  6.0, 6.0 # negative contour linestyle (size in points)
+contour.negative_linestyle :  6.0, 6.0 # negative contour dashstyle (size in points)
 
 ### SAVING FIGURES
 # the default savefig params can be different for the GUI backends.
@@ -245,5 +245,5 @@ ps.distiller.res  : 6000      # dpi
 #
 # You can access the verbose instance in your code
 #   from matplotlib import verbose.
-verbose.level  : silent     # one of silent, helpful, debug, debug-annoying
+verbose.level  : silent      # one of silent, helpful, debug, debug-annoying
 verbose.fileo  : sys.stdout  # a log filename, sys.stdout or sys.stderr
