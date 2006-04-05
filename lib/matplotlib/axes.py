@@ -4603,7 +4603,7 @@ class PolarAxes(Axes):
         artists.extend(self.lines)
         artists.extend(self.texts)
         artists.extend(self.collections)
-
+        artists.extend(self.patches)
         dsu = [ (a.zorder, a) for a in artists]
         dsu.sort()
 
