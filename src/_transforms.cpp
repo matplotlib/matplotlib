@@ -778,7 +778,7 @@ Transformation::inverse_xy_tup(const Py::Tuple & args) {
     if (!_frozen) eval_scalars();
   }
   catch(...) {
-    throw Py::ValueError("Domain error on invser_xy_tup");
+    throw Py::ValueError("Domain error on inverse_xy_tup");
   }
 
 

@@ -88,7 +88,7 @@ class FigureCanvasWxAgg(FigureCanvasWx,FigureCanvasAgg):
         destDC.SelectObject(self.bitmap)
 
         destDC.BeginDrawing()
-        destDC.Blit(x, y, w, h, srcDC, 0, 0)
+        destDC.Blit(x, y, int(w), int(h), srcDC, 0, 0)
         destDC.EndDrawing()
 
         destDC.SelectObject(wx.NullBitmap)
@@ -153,9 +153,7 @@ def _py_convert_agg_to_wx_image(agg, bbox):
 
     Note: agg must be a backend_agg.RendererAgg instance.
     """
-    wPx = agg.width
-    hPx = agg.height
-    image = wx.EmptyImage(wPx, hPx)
+    image = wx.EmptyImage(int(agg.width), int(agg.height))
     image.SetData(agg.tostring_rgb())
 
     if bbox is None:
@@ -195,14 +193,14 @@ def _clipped_image_as_bitmap(image, bbox):
     srcDC = wx.MemoryDC()
     srcDC.SelectObject(srcBmp)
 
-    destBmp = wx.EmptyBitmap(width, height)
+    destBmp = wx.EmptyBitmap(int(width), int(height))
     destDC = wx.MemoryDC()
     destDC.SelectObject(destBmp)
  
     destDC.BeginDrawing()
     x = int(l)
     y = int(image.GetHeight() - t)
-    destDC.Blit(0, 0, width, height, srcDC, x, y)
+    destDC.Blit(0, 0, int(width), int(height), srcDC, x, y)
     destDC.EndDrawing()
 
     srcDC.SelectObject(wx.NullBitmap)
