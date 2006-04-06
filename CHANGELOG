@@ -1,4 +1,8 @@
-2006-04005 Use python's subprocess module for usetex calls to 
+2006-04-05 Added support for the new API in the postscript backend.
+           Allows values to be masked using nan's, and faster file 
+           creation - DSD
+
+2006-04-05 Use python's subprocess module for usetex calls to 
            external programs. subprocess catches when they exit
            abnormally so an error can be raised. - DSD
 
