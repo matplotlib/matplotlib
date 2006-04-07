@@ -5,6 +5,7 @@ from numarray import Int8, UInt8, Int16, UInt16, Int32, UInt32, \
      Float32, Float64, Complex32, Complex64, Float, Int, Complex,\
      typecode
 import numarray.ieeespecial as _ieee
+from matplotlib._isnan import isnan64 as _isnan
 inf = infinity = infty = Infinity = _ieee.inf
 
 
@@ -67,6 +68,10 @@ def Matrix(data, typecode=None, copy=1, savespace=0):
     a.__class__ = _Matrix
     return a
 
+
+def isnan(a):
+    """y = isnan(x) returns True where x is Not-A-Number"""
+    return reshape(array([_isnan(i) for i in ravel(a)],'b'), shape(a))
 
 
 
