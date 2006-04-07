@@ -50,7 +50,7 @@ if which[0] not in ["numeric", "numarray", "numpy"]:
 if which[0] == "numarray":
     #from na_imports import *
     from numarray import *
-    from _na_imports import nx, inf, infinity, Infinity, Matrix
+    from _na_imports import nx, inf, infinity, Infinity, Matrix, isnan
     from numarray.numeric import nonzero
     from numarray.convolve import cross_correlate, convolve
     import numarray

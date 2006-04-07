@@ -26,7 +26,6 @@ from matplotlib.transforms import scale_transform, Value, zero, one, \
 
 from pylab import gca
 
-
 configdir = get_configdir()
 cachedir = os.path.join(configdir, 'finance.cache')
 
@@ -48,6 +47,7 @@ def parse_yahoo_historical(fh, asobject=False, adjusted=True):
     for line in lines[1:]:
 
         vals = line.split(',')
+
         if len(vals)!=7: continue
         datestr = vals[0]
         dt = datetime.date(*time.strptime(datestr, '%d-%b-%y')[:3])
@@ -75,6 +75,51 @@ def parse_yahoo_historical(fh, asobject=False, adjusted=True):
 
 def fetch_historical_yahoo(ticker, date1, date2, cachename=None):
     """
+    Fetch historical data for ticker between date1 and date2.  date1 and
+    date2 are datetime instances
+
+    Ex:
+    fh = fetch_historical_yahoo('^GSPC', d1, d2)
+
+    cachename is the name of the local file cache.  If None, will
+    default to the md5 hash or the url (which incorporates the ticker
+    and date range)
+
+    a file handle is returned
+    """
+
+    ticker = ticker.upper()
+
+    
+    d1 = (date1.month-1, date1.day, date1.year)
+    d2 = (date2.month-1, date2.day, date2.year)    
+
+
+    urlFmt = 'http://table.finance.yahoo.com/table.csv?a=%d&b=%d&c=%d&d=%d&e=%d&f=%d&s=%s&y=0&g=d&ignore=.csv'
+        
+    
+    url =  urlFmt % (d1[0], d1[1], d1[2],
+                     d2[0], d2[1], d2[2], ticker)
+
+
+    if cachename is None:
+        cachename = os.path.join(cachedir, md5.md5(url).hexdigest())
+    if os.path.exists(cachename):
+        fh = file(cachename)
+        verbose.report('Using cachefile %s for %s'%(cachename, ticker))
+    else:
+        if not os.path.isdir(cachedir): os.mkdir(cachedir)
+        fh = file(cachename, 'w')
+        fh.write(urlopen(url).read())
+        fh.close()
+        verbose.report('Saved %s data to cache file %s'%(ticker, cachename))
+        fh = file(cachename, 'r')
+        
+    return fh
+
+
+def quotes_historical_yahoo(ticker, date1, date2, asobject=False, adjusted=True, cachename=None):
+    """
     Get historical data for ticker between date1 and date2.  date1 and
     date2 are datetime instances
     
@@ -97,45 +142,20 @@ def fetch_historical_yahoo(ticker, date1, date2, cachename=None):
     sigma = std(returns)
     x = normpdf(bins, mu, sigma)
     plot(bins, x, color='red', lw=2)
+
+    cachename is the name of the local file cache.  If None, will
+    default to the md5 hash or the url (which incorporates the ticker
+    and date range)
     """
 
-
-    
-    d1 = (date1.month-1, date1.day, date1.year)
-    d2 = (date2.month-1, date2.day, date2.year)    
-
-
-    urlFmt = 'http://table.finance.yahoo.com/table.csv?a=%d&b=%d&c=%d&d=%d&e=%d&f=%d&s=%s&y=0&g=d&ignore=.csv'
-        
-    
-    url =  urlFmt % (d1[0], d1[1], d1[2],
-                     d2[0], d2[1], d2[2], ticker)
-
-
-    cachename = os.path.join(cachedir, md5.md5(url).hexdigest())
-    if os.path.exists(cachename):
-        fh = file(cachename)
-        verbose.report('Using cachefile %s for %s'%(cachename, ticker))
-    else:
-        if not os.path.isdir(cachedir): os.mkdir(cachedir)
-        fh = file(cachename, 'w')
-        fh.write(urlopen(url).read())
-        fh.close()
-        verbose.report('Saved %s data to cache file %s'%(ticker, cachename))
-        fh = file(cachename, 'r')
-        
-
-        
-        
-    ticker = ticker.upper()
-
+    fh = fetch_historical_yahoo(ticker, date1, date2, cachename)
+                
     try: ret = parse_yahoo_historical(fh, asobject, adjusted)
     except IOError, exc:
         warnings.warn('urlopen() failure\n' + url + '\n' + exc.strerror[1])
         return None
 
     return ret
-
         
 def plot_day_summary(ax, quotes, ticksize=3,
                      colorup='k', colordown='r',

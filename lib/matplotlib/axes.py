@@ -4572,13 +4572,10 @@ class PolarAxes(Axes):
             self.thetagridlabels.append(t)
         return self.thetagridlines, self.thetagridlabels
 
-
-
-
     def get_rmax(self):
         'get the maximum radius in the view limits dimension'
         vmin, vmax = self.dataLim.intervaly().get_bounds()
-        print 'get rmax', vmin, vmax
+        #print 'get rmax', vmin, vmax
         return max(vmin, vmax)
 
     def draw(self, renderer):
