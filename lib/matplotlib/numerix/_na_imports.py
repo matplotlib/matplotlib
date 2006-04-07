@@ -7,7 +7,7 @@ from numarray import Int8, UInt8, Int16, UInt16, Int32, UInt32, \
 import numarray.ieeespecial as _ieee
 from matplotlib._isnan import isnan64 as _isnan
 inf = infinity = infty = Infinity = _ieee.inf
-
+isnan = _ieee.isnan
 
 class _TypeNamespace:
     """Numeric compatible type aliases for use with extension functions."""
@@ -67,11 +67,3 @@ def Matrix(data, typecode=None, copy=1, savespace=0):
         a.shape = (1,) + a.shape
     a.__class__ = _Matrix
     return a
-
-
-def isnan(a):
-    """y = isnan(x) returns True where x is Not-A-Number"""
-    return reshape(array([_isnan(i) for i in ravel(a)],'b'), shape(a))
-
-
-
