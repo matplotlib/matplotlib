@@ -1,3 +1,7 @@
+2006-05-06 Usetex makes temporary latex and dvi files in a temporary 
+           directory, rather than in the user's current working 
+           directory - DSD
+
 2006-04-05 Apllied Ken's wx deprecation warning patch closing sf patch
            #1465371 - JDH
 
