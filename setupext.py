@@ -34,7 +34,7 @@ WIN32 - VISUAL STUDIO 7.1 (2003)
 
   This build is similar to the mingw.  Download the visual studio static
   dependencies from
-  matplotlib.sourceforge.net/win32_static_vs.tar.gz and
+  http://matplotlib.sourceforge.net/win32_static_vs.tar.gz and
   see the README in that dir
   
   > python setup.py build bdist_wininst
