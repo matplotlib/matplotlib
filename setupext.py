@@ -18,7 +18,7 @@ DARWIN
   addition to the packages listed there, You will also need libpng,
   libjpeg, and libtiff if you want output to these formats from GTK.
 
-WIN32
+WIN32 - MINGW
 
   If you are sufficiently masochistic that you want to build this
   yourself, download the win32_static dir from
@@ -29,6 +29,16 @@ WIN32
 
   NOTE, if you are building on python24 on win32, see
   http://mail.python.org/pipermail/python-list/2004-December/254826.html
+
+WIN32 - VISUAL STUDIO 7.1 (2003)
+
+  This build is similar to the mingw.  Download the visual studio static
+  dependencies from
+  matplotlib.sourceforge.net/win32_static_vs.tar.gz and
+  see the README in that dir
+  
+  > python setup.py build bdist_wininst
+  
 """
 
 import os
@@ -97,6 +107,19 @@ def temp_copy(_from, _to):
     os.utime(_to, (stats.st_atime, stats.st_mtime))
     # Make an object to eliminate the temporary file at exit time.
     globals()["_cleanup_"+_to] = CleanUpFile(_to)
+    
+def get_win32_compiler():
+    # Used to determine mingw32 or msvc
+    # This is pretty bad logic, someone know a better way?
+    for v in sys.argv:
+        if 'mingw32' in v:
+            return 'mingw32'
+    return 'msvc'
+win32_compiler = get_win32_compiler()
+if win32_compiler == 'msvc':
+    std_libs = []
+else:
+    std_libs = ['stdc++', 'm']
 
 def add_base_flags(module):
 
@@ -133,7 +156,7 @@ def add_agg_flags(module):
 
 
     # put these later for correct link order
-    module.libraries.extend(['stdc++', 'm'])
+    module.libraries.extend(std_libs)
 
 def add_gd_flags(module):
     'Add the module flags to build extensions which use gd'
@@ -158,11 +181,11 @@ def add_ft2font_flags(module):
         p = os.path.join(d, 'freetype2/lib')
         if os.path.exists(p): module.library_dirs.append(p)
             
-    if sys.platform == 'win32':
+    if sys.platform == 'win32' and win32_compiler == 'mingw32':
         module.libraries.append('gw32c')
 
-    # put this last for library link order     
-    module.libraries.extend(['stdc++', 'm'])
+    # put this last for library link order
+    module.libraries.extend(std_libs)
 
     
 
@@ -190,6 +213,10 @@ def add_pygtk_flags(module):
              ])
 
     add_base_flags(module)
+    
+    # set for msvc compiler if not present
+    if not os.environ.has_key('PKG_CONFIG_PATH'):
+        os.environ['PKG_CONFIG_PATH'] = 'C:\GTK\lib\pkgconfig'
 
     pygtkIncludes = getoutput('pkg-config --cflags-only-I pygtk-2.0').split()
     gtkIncludes = getoutput('pkg-config --cflags-only-I gtk+-2.0').split()
@@ -504,8 +531,12 @@ def build_wxagg(ext_modules, packages, numerix, abortOnFailure):
      # Avoid aborting the whole build process if `wx-config' can't be found and
      # BUILD_WXAGG in setup.py is set to "auto"
      if sys.platform == 'win32':
-         #pass # don't need config
-         return # TODO: Fix _wxagg build on windows (linking issues)
+         # mingw32 cannot link against distributed wx libs
+         # since they are built with VisualStudio
+         if win32_compiler == 'mingw32':
+             return
+         else:
+             pass
      
      elif wxconfig is None:
          print """
@@ -712,7 +743,7 @@ def build_swigagg(ext_modules, packages):
                     )
 
     agg.include_dirs.extend(['%s/include'%AGG_VERSION, 'src', 'swig'])
-    agg.libraries.extend(['stdc++', 'm'])
+    agg.libraries.extend(std_libs)
     ext_modules.append(agg)
 
 def build_transforms(ext_modules, packages, numerix):
@@ -723,7 +754,7 @@ def build_transforms(ext_modules, packages, numerix):
         module = Extension('matplotlib._na_transforms',
                              ['src/_na_transforms.cpp',
                               'src/mplutils.cpp'] + cxx,
-                             libraries = ['stdc++', 'm'],
+                             libraries = std_libs,
                              include_dirs = ['src', '.']+numarray_inc_dirs,
                              )
         
@@ -738,7 +769,7 @@ def build_transforms(ext_modules, packages, numerix):
         module = Extension('matplotlib._nc_transforms',
                              ['src/_nc_transforms.cpp',
                               'src/mplutils.cpp'] + cxx,
-                             libraries = ['stdc++', 'm'],
+                             libraries = std_libs,
                              include_dirs = ['src', '.']+numeric_inc_dirs,
                              )
 
@@ -755,7 +786,7 @@ def build_transforms(ext_modules, packages, numerix):
         module = Extension('matplotlib._ns_transforms',
                              ['src/_ns_transforms.cpp',
                               'src/mplutils.cpp'] + cxx,
-                             libraries = ['stdc++', 'm'],
+                             libraries = std_libs,
                              include_dirs = ['src', '.']+numeric_inc_dirs,
                              )
 
@@ -789,7 +820,6 @@ def build_contour(ext_modules, packages, numerix):
         module = Extension(
             'matplotlib._na_cntr',
             [  'src/_na_cntr.c',],
-            #libraries = ['stdc++'],
             include_dirs=numarray_inc_dirs,
             )
         module.extra_compile_args.append('-DNUMARRAY=1')
@@ -801,7 +831,6 @@ def build_contour(ext_modules, packages, numerix):
         module = Extension(
             'matplotlib._nc_cntr',
             [ 'src/_nc_cntr.c'],
-            #libraries = ['stdc++'],
             include_dirs=numeric_inc_dirs,
             )
         module.extra_compile_args.append('-DNUMERIC=1')
@@ -812,7 +841,6 @@ def build_contour(ext_modules, packages, numerix):
         module = Extension(
             'matplotlib._ns_cntr',
             [ 'src/_ns_cntr.c'],
-            #libraries = ['stdc++'],
             include_dirs=numeric_inc_dirs,
             )
         add_numpy_flags(module)

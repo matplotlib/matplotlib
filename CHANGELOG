@@ -1,3 +1,7 @@
+2006-04-10 Committed changes required for building mpl on win32
+		   platforms with visual studio.  This allows wxpython
+		   blitting for fast animations. - CM
+
 2006-04-10 Fixed an off-by-one bug in Axes.change_geometry.
 
 2006-04-10 Fixed bug in pie charts where wedge wouldn't have label in
