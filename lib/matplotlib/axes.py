@@ -4225,7 +4225,7 @@ class SubplotBase:
         'change subplot geometry, eg from 1,1,1 to 2,2,3'
         self._rows = numrows
         self._cols = numcols
-        self._num = num
+        self._num = num-1
         self.update_params()
 
     def update_params(self):
