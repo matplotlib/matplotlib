@@ -2877,7 +2877,7 @@ class Axes(Artist):
                       facecolor=colors[i%len(colors)])
             slices.append(w)
             self.add_patch(w)
-            self.set_label(label)
+            w.set_label(label)
 
             if shadow:
                 # make sure to add a shadow after the call to
