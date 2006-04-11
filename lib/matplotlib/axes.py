@@ -4221,12 +4221,18 @@ class SubplotBase:
 
         self.update_params()
 
+    def get_geometry(self):
+        'get the subplot geometry, eg 2,2,3'
+        return self._rows, self._cols, self._num+1
+
     def change_geometry(self, numrows, numcols, num):
         'change subplot geometry, eg from 1,1,1 to 2,2,3'
         self._rows = numrows
         self._cols = numcols
         self._num = num-1
         self.update_params()
+        self.set_position([self.figLeft, self.figBottom,  self.figW, self.figH])
+
 
     def update_params(self):
         'update the subplot position from fig.subplotpars'
