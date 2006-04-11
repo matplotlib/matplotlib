@@ -83,7 +83,6 @@ from matplotlib.figure import Figure
 from matplotlib.font_manager import fontManager
 from matplotlib.ft2font import FT2Font
 from matplotlib.mathtext import math_parse_s_ft2font
-from matplotlib.texmanager import TexManager
 from matplotlib.transforms import lbwh_to_bbox
 from matplotlib.numerix.mlab import fliplr
 import matplotlib.numerix
@@ -133,7 +132,7 @@ class RendererAgg(RendererBase):
         self.restore_region = self._renderer.restore_region
 
 
-        self.texmanager = TexManager()
+        self._texmanager = None
 
         self.bbox = lbwh_to_bbox(0,0, self.width, self.height)
         if __debug__: verbose.report('RendererAgg.__init__ done',
@@ -246,7 +245,8 @@ class RendererAgg(RendererBase):
         if ismath=='TeX':
             # todo: handle props
             size = prop.get_size_in_points()
-            Z = self.texmanager.get_rgba(s, size, self.dpi.get(), rgb)
+            texmanager = self.get_texmanager()
+            Z = texmanager.get_rgba(s, size, self.dpi.get(), rgb)
             m,n,tmp = Z.shape
             return n,m
 
@@ -272,11 +272,12 @@ class RendererAgg(RendererBase):
         if flip:
             w,h = h,w
             x -= w
-
-        key = s, size, dpi, rgb, angle, self.texmanager.get_font_config()
+        
+        texmanager = self.get_texmanager()
+        key = s, size, dpi, rgb, angle, texmanager.get_font_config()
         im = self.texd.get(key)
         if im is None:
-            Z = self.texmanager.get_rgba(s, size, dpi, rgb)
+            Z = texmanager.get_rgba(s, size, dpi, rgb)
             if flip:
                 r = Z[:,:,0]
                 g = Z[:,:,1]

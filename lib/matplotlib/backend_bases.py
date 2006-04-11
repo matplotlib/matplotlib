@@ -16,6 +16,9 @@ class RendererBase:
     """An abstract base class to handle drawing/rendering operations
     """
 
+    def __init__(self):
+        self._texmanager = None
+
     def open_group(self, s):
         """open a grouping element with label s
         Is only currently used by backend_svg
@@ -357,6 +360,12 @@ class RendererBase:
     def get_canvas_width_height(self):
         'return the canvas width and height in display coords'
         return 1, 1
+
+    def get_texmanager(self):
+        if self._texmanager is None:
+            from matplotlib.texmanager import TexManager
+            self._texmanager = TexManager()
+        return self._texmanager
 
     def get_text_extent(self, text): # is not used, can be removed?
         """
