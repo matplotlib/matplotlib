@@ -128,7 +128,6 @@ class RendererPS(RendererBase):
         self.width = width
         self.height = height
         self._pswriter = pswriter
-        self._texmanager = None
         if rcParams['text.usetex']:
             self.textcnt = 0
             self.psfrag = []
