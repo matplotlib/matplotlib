@@ -132,8 +132,6 @@ class RendererAgg(RendererBase):
         self.restore_region = self._renderer.restore_region
 
 
-        self._texmanager = None
-
         self.bbox = lbwh_to_bbox(0,0, self.width, self.height)
         if __debug__: verbose.report('RendererAgg.__init__ done',
                                      'debug-annoying')
