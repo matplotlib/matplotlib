@@ -24,7 +24,6 @@ from matplotlib.font_manager import fontManager
 from matplotlib.ft2font import FT2Font, KERNING_UNFITTED, KERNING_DEFAULT, KERNING_UNSCALED
 from matplotlib.mathtext import math_parse_s_ps, bakoma_fonts
 from matplotlib.text import Text
-from matplotlib.texmanager import TexManager
 
 from matplotlib.transforms import get_vec6_scales
 
@@ -129,10 +128,10 @@ class RendererPS(RendererBase):
         self.width = width
         self.height = height
         self._pswriter = pswriter
+        self._texmanager = None
         if rcParams['text.usetex']:
             self.textcnt = 0
             self.psfrag = []
-            self.texmanager = TexManager()
 
         # current renderer state (None=uninitialised)
         self.color = None
@@ -251,8 +250,9 @@ class RendererPS(RendererBase):
 
         """
         if rcParams['text.usetex']:
+            texmanager = self.get_texmanager()
             fontsize = prop.get_size_in_points()
-            l,b,r,t = self.texmanager.get_ps_bbox(s, fontsize)
+            l,b,r,t = texmanager.get_ps_bbox(s, fontsize)
             w = (r-l)
             h = (t-b)
             #print s, w, h
@@ -1128,6 +1128,7 @@ class FigureCanvasPS(FigureCanvasBase):
         are created to allow tex to manage the text layout via the PSFrags 
         package. These files are processed to yield the final ps or eps file.
         """
+        
         if  isinstance(outfile, file):
             # assume plain PostScript and write to fileobject
             basename = outfile.name
@@ -1216,9 +1217,9 @@ class FigureCanvasPS(FigureCanvasBase):
                 paperWidth, paperHeight = papersize[temp_papertype]
                 verbose.report('Your figure is too big to fit on %s paper. %s \
 paper will be used to prevent clipping.'%(papertype, temp_papertype), 'helpful')
-        convert_psfrags(tmpfile, renderer.psfrag,
-            renderer.texmanager.get_font_preamble(), paperWidth, paperHeight,
-            orientation)
+        texmanager = renderer.get_texmanager()
+        convert_psfrags(tmpfile, renderer.psfrag,texmanager.get_font_preamble(),
+                        paperWidth, paperHeight, orientation)
         
         if rcParams['ps.usedistiller'] == 'ghostscript':
             gs_distill(tmpfile, ext=='.eps', ptype=papertype, bbox=bbox)

@@ -1,3 +1,7 @@
+2006-04-11 Refactored backend_ps and backend_agg to prevent module-level
+           texmanager imports. Now these imports only occur if text.usetex
+           rc setting is true - DSD
+
 2006-04-10 Committed changes required for building mpl on win32
 		   platforms with visual studio.  This allows wxpython
 		   blitting for fast animations. - CM
