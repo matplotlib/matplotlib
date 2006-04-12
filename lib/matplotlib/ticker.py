@@ -473,8 +473,10 @@ class LogFormatterMathtext(LogFormatter):
 
 
         if not isDecade and self.labelOnlyBase: s = ''
-        elif not isDecade: s = '$%d^{%.2f}$'% (b, fx)
-        else: s = '$%d^{%d}$'% (b, self.nearest_long(fx))
+        elif not isDecade:
+            s = '$%d^{%.2f}$'% (b, fx)
+        else:
+            s = '$%d^{%d}$'% (b, self.nearest_long(fx))
 
         return s
 
