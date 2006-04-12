@@ -210,7 +210,7 @@ static wxImage *convert_agg2image(RendererAgg *aggRenderer, Bbox *clipbox)
     agg::rendering_buffer rbDest;
     rbDest.attach(destBuffer, srcWidth, srcHeight, srcWidth*3);
 
-    color_conv(&rbDest, &rbSource, agg::color_conv_rgba32_to_rgb24());
+    agg::color_conv(&rbDest, &rbSource, agg::color_conv_rgba32_to_rgb24());
 
     // Create a wxImage using the RGB data
     wxImage *image = new wxImage(srcWidth, srcHeight, destBuffer);
