@@ -125,6 +125,7 @@ class RendererPS(RendererBase):
     """
 
     def __init__(self, width, height, pswriter):
+        RendererBase.__init__(self)
         self.width = width
         self.height = height
         self._pswriter = pswriter

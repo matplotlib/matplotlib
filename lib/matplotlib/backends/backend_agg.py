@@ -108,6 +108,7 @@ class RendererAgg(RendererBase):
     texd = {}  # a cache of tex image rasters
     def __init__(self, width, height, dpi):
         if __debug__: verbose.report('RendererAgg.__init__', 'debug-annoying')
+        RendererBase.__init__(self)
         self.dpi = dpi
         self.width = width
         self.height = height
