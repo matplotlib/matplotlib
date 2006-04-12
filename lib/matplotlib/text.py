@@ -456,7 +456,9 @@ class Text(Artist):
 
         angle = self.get_rotation()
         if angle==0:
-            m = self._rgxsuper.match(self._text)
+            ismath = self.is_math_text()
+            if ismath=='TeX': m = None
+            else: m = self._rgxsuper.match(self._text)
             if m is not None:
                 bbox, tmp = self._get_layout_super(self._renderer, m)
                 return bbox
