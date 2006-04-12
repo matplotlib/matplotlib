@@ -1103,7 +1103,7 @@ for s in sys.argv[1:]:
 
 def use(arg):
     """
-    Set the matplotlib backend to one of the _knownBackends
+    Set the matplotlib backend to one of the known backends
     """
     rcParams['backend'] = validate_backend(arg)
 
