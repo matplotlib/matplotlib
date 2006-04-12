@@ -712,10 +712,11 @@ int RendererAgg::intersectCheck(double yCoord, double x1, double y1, double x2, 
 int RendererAgg::inPolygon(int row, const double xs[4], const double ys[4], int col[4])
 {
 	int numIntersect = 0;
+	int i;
 	/* Determines the boundaries of the row of pixels that is in the polygon */
 	/* A pixel (x, y) is in the polygon if its center (x+0.5, y+0.5) is */
 	double ycoord = (double(row) + 0.5);
-	for(int i=0; i<=3; i++)
+	for(i=0; i<=3; i++)
 		numIntersect += intersectCheck(ycoord, xs[i], ys[i], xs[(i+1)%4], ys[(i+1)%4], col+numIntersect);
 
 	/* reorder if necessary */
@@ -761,8 +762,8 @@ void RendererAgg::DrawQuadMesh(int meshWidth, int meshHeight, const agg::rgba8 c
 			ys[3] = yCoords[((i+1) * (meshWidth + 1)) + j];
 			xs[2] = xCoords[((i+1) * (meshWidth + 1)) + j+1];
 			ys[2] = yCoords[((i+1) * (meshWidth + 1)) + j+1];
-		 	ymin = std::min(std::min(std::min(ys[0], ys[1]), ys[2]), ys[3]);
-			ymax = std::max(std::max(std::max(ys[0], ys[1]), ys[2]), ys[3]);
+		 	ymin = min(min(min(ys[0], ys[1]), ys[2]), ys[3]);
+			ymax = max(max(max(ys[0], ys[1]), ys[2]), ys[3]);
 			firstRow = (int)(ymin);
 			lastRow = (int)(ymax);
 			//timer1 += (clock() - currTime);
@@ -782,21 +783,22 @@ void RendererAgg::DrawQuadMesh(int meshWidth, int meshHeight, const agg::rgba8 c
 
 void RendererAgg::DrawQuadMeshEdges(int meshWidth, int meshHeight, const agg::rgba8 colorArray[], const double xCoords[], const double yCoords[])
 {
+	int i, j;
 	agg::renderer_primitives<agg::renderer_base<agg::pixfmt_rgba32> > lineRen(*rendererBase);
 	agg::rgba8 lc(0, 0, 0, 32);
 	lineRen.line_color(lc);
 	/* show the vertical edges */
-	for(int i=0; i <= meshWidth; i++)
+	for(i=0; i <= meshWidth; i++)
 	{
 		lineRen.move_to((int)(256.0 * (xCoords[i])), (int)(256.0 * (yCoords[i])));
-		for(int j=1; j <= meshHeight; j++)
+		for(j=1; j <= meshHeight; j++)
 			lineRen.line_to((int)(256.0 *(xCoords[(j * (meshWidth + 1))+i])), (int)(256.0 * (yCoords[(j * (meshWidth + 1))+i])));
 	}
 	/* show the horizontal edges */
-	for(int i=0; i <= meshHeight; i++)
+	for(i=0; i <= meshHeight; i++)
 	{
 		lineRen.move_to((int)(256.0 * (xCoords[i * (meshWidth + 1)])), (int)(256.0 * (yCoords[i * (meshWidth + 1)])));
-		for(int j=1; j <= meshWidth; j++)
+		for(j=1; j <= meshWidth; j++)
 			lineRen.line_to((int)(256.0 * (xCoords[(i * (meshWidth + 1))+j])), (int)(256.0 * (yCoords[(i * (meshWidth + 1))+j])));
 	}
 }
@@ -859,7 +861,8 @@ RendererAgg::draw_quad_mesh(const Py::Tuple& args){
   double* yCoordsa = new double[Nverts];
   double* newXCoords = new double[Nverts];
   double* newYCoords = new double[Nverts];
-  for(size_t k=0; k < Nverts; k++)
+  size_t k, q;
+  for(k=0; k < Nverts; k++)
   {
 	xCoordsa[k] = *(double *)(xCoords -> data + k*(xCoords -> strides[0]));
 	yCoordsa[k] = *(double *)(yCoords -> data + k*(yCoords -> strides[0]));
@@ -873,14 +876,14 @@ RendererAgg::draw_quad_mesh(const Py::Tuple& args){
 	double* yOffsets = new double[Noffsets];
 	double* newXOffsets = new double[Noffsets];
 	double* newYOffsets = new double[Noffsets];
-	for(size_t k=0; k < Noffsets; k++)
+	for(k=0; k < Noffsets; k++)
 	{
       		Py::SeqBase<Py::Object> pos = Py::SeqBase<Py::Object>(offsets[k]);
       		xOffsets[k] = Py::Float(pos[0]);
       		yOffsets[k] = Py::Float(pos[1]);
 	}
 	transOffset->arrayOperator(Noffsets, xOffsets, yOffsets, newXOffsets, newYOffsets);
-	for(size_t k=0; k < Nverts; k++)
+	for(k=0; k < Nverts; k++)
 	{
 		newXCoords[k] += newXOffsets[k];
 		newYCoords[k] += newYOffsets[k];
@@ -891,7 +894,7 @@ RendererAgg::draw_quad_mesh(const Py::Tuple& args){
 	delete newYOffsets;
   }
 
-  for(size_t q=0; q < Nverts; q++)
+  for(q=0; q < Nverts; q++)
   {
 	newYCoords[q] = height - newYCoords[q];
   }
@@ -903,8 +906,9 @@ RendererAgg::draw_quad_mesh(const Py::Tuple& args){
 	double g;
 	double b;
 	double a;
+	int i;
 	agg::rgba8* colorArray = new agg::rgba8[numQuads];
-	for(int i=0; i < numQuads; i++)
+	for(i=0; i < numQuads; i++)
 	{
 		r = *(double *)(colors -> data + i*(colors -> strides[0]));
 		g = *(double *)(colors -> data + i*(colors -> strides[0]) + (colors -> strides[1]));
@@ -983,7 +987,8 @@ RendererAgg::draw_poly_collection(const Py::Tuple& args) {
 
   std::pair<double, double> xyo, xy;
   Py::SeqBase<Py::Object> thisverts;
-  for (size_t i=0; i<N; i++) {
+  size_t i, j;
+  for (i=0; i<N; i++) {
 
     thisverts = verts[i % Nverts];
 
@@ -1010,7 +1015,7 @@ RendererAgg::draw_poly_collection(const Py::Tuple& args) {
     // look aheads and behinds when doing snapto pixels
     double *xs = new double[Nverts];
     double *ys = new double[Nverts];
-    for (size_t j=0; j<Nverts; j++) {
+    for (j=0; j<Nverts; j++) {
       thisvert = thisverts[j];
       double x = Py::Float(thisvert[0]);
       double y = Py::Float(thisvert[1]);
@@ -1035,7 +1040,7 @@ RendererAgg::draw_poly_collection(const Py::Tuple& args) {
 
     }
 
-    for (size_t j=0; j<Nverts; j++) {
+    for (j=0; j<Nverts; j++) {
 
       double x = xs[j];
       double y = ys[j];
@@ -1168,14 +1173,15 @@ RendererAgg::draw_regpoly_collection(const Py::Tuple& args) {
   double *xverts = new double[Nverts];
   double *yverts = new double[Nverts];
   Py::SeqBase<Py::Object> xy;
-  for (size_t i=0; i<Nverts; i++) {
+  size_t i, j;
+  for (i=0; i<Nverts; i++) {
     xy = Py::SeqBase<Py::Object>(verts[i]);
     xverts[i] = Py::Float(xy[0]);
     yverts[i] = Py::Float(xy[1]);
   }
 
   std::pair<double, double> offsetPair;
-  for (size_t i=0; i<Noffsets; i++) {
+  for (i=0; i<Noffsets; i++) {
     Py::SeqBase<Py::Object> pos = Py::SeqBase<Py::Object>(offsets[i]);
     double xo = Py::Float(pos[0]);
     double yo = Py::Float(pos[1]);
@@ -1195,7 +1201,7 @@ RendererAgg::draw_regpoly_collection(const Py::Tuple& args) {
 
     agg::path_storage path;
 
-    for (size_t j=0; j<Nverts; j++) {
+    for (j=0; j<Nverts; j++) {
       thisx = scale*xverts[j] + offsetPair.first;
       thisy = scale*yverts[j] + offsetPair.second;
       thisy = height - thisy;
@@ -2054,7 +2060,7 @@ RendererAgg::tostring_rgb(const Py::Tuple& args) {
 			    height,
 			    row_len);
 
-  color_conv(&renderingBufferTmp, renderingBuffer, agg::color_conv_rgba32_to_rgb24());
+  agg::color_conv(&renderingBufferTmp, renderingBuffer, agg::color_conv_rgba32_to_rgb24());
 
 
   //todo: how to do this with native CXX
@@ -2085,7 +2091,7 @@ RendererAgg::tostring_argb(const Py::Tuple& args) {
 			    height,
 			    row_len);
 
-  color_conv(&renderingBufferTmp, renderingBuffer, agg::color_conv_rgba32_to_argb32());
+  agg::color_conv(&renderingBufferTmp, renderingBuffer, agg::color_conv_rgba32_to_argb32());
 
 
   //todo: how to do this with native CXX
@@ -2115,7 +2121,7 @@ RendererAgg::tostring_bgra(const Py::Tuple& args) {
 			    height,
 			    row_len);
 
-  color_conv(&renderingBufferTmp, renderingBuffer, agg::color_conv_rgba32_to_bgra32());
+  agg::color_conv(&renderingBufferTmp, renderingBuffer, agg::color_conv_rgba32_to_bgra32());
 
 
   //todo: how to do this with native CXX

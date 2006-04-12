@@ -239,7 +239,7 @@ Image::buffer_argb32(const Py::Tuple& args) {
   agg::rendering_buffer rtmp;
   rtmp.attach(buf_tmp, colsOut, rowsOut, row_len);
 
-  color_conv(&rtmp, rbufOut, agg::color_conv_rgba32_to_argb32());
+  agg::color_conv(&rtmp, rbufOut, agg::color_conv_rgba32_to_argb32());
 
   //todo: how to do this with native CXX
   //PyObject* o = Py_BuildValue("s#", buf_tmp, row_len * rowsOut);
@@ -896,8 +896,9 @@ _image_module::readpng(const Py::Tuple& args) {
     throw Py::RuntimeError("_image_module::readpng: error during read_image");
 
   png_bytep *row_pointers = new png_bytep[height];
+  png_uint_32 row;
 
-  for (png_uint_32 row = 0; row < height; row++)
+  for (row = 0; row < height; row++)
     row_pointers[row] = new png_byte[png_get_rowbytes(png_ptr,info_ptr)];
 
   png_read_image(png_ptr, row_pointers);
@@ -1194,10 +1195,10 @@ _image_module::frombyte(const Py::Tuple& args) {
   const size_t N = imo->rowsIn * imo->colsIn * imo->BPP;
   size_t i = 0;
   if (A->dimensions[2] == 4) {
-      std::memmove(buffer, arrbuf, N);
+      memmove(buffer, arrbuf, N);
   } else {
       while (i < N) {
-          std::memmove(buffer, arrbuf, 3);
+          memmove(buffer, arrbuf, 3);
           buffer += 3;
           arrbuf += 3;
           *buffer++ = 255;
@@ -1269,7 +1270,7 @@ _image_module::frombuffer(const Py::Tuple& args) {
   agg::int8u* buffer = new agg::int8u[NUMBYTES];
   if (buffer==NULL) //todo: also handle allocation throw
     throw Py::MemoryError("_image_module::frombuffer could not allocate memory");
-  std::memmove(buffer, rawbuf, NUMBYTES);
+  memmove(buffer, rawbuf, NUMBYTES);
 
   if (isoutput) {
     // make the output buffer point to the input buffer
