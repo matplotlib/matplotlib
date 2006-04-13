@@ -251,7 +251,8 @@ class ScalarFormatter(Formatter):
         # for example: [1+1e-9,1+2e-9,1+3e-9]
         # useMathText will render the offset an scientific notation in mathtext
         self._useOffset = useOffset
-        self._useMathText = useMathText or rcParams['text.usetex']
+        self._usetex = rcParams['text.usetex']
+        self._useMathText = useMathText
         self.offset = 0
         self.orderOfMagnitude = 0
         self.format = ''
@@ -263,10 +264,11 @@ class ScalarFormatter(Formatter):
         else:
             return self.pprint_val(x)
 
-    def format_data(self,value):
+    def format_data(self,value,sign=False,mathtext=False):
         'return a formatted string representation of a number'
-        s = '%1.4e'% value
-        return self._formatSciNotation(s)
+        if sign: s = '%+1.10e'% value
+        else: s = '%1.10e'% value
+        return self._formatSciNotation(s,mathtext=mathtext)
 
     def get_offset(self):
         """Return scientific notation, plus offset"""
@@ -275,12 +277,13 @@ class ScalarFormatter(Formatter):
             offsetStr = ''
             sciNotStr = ''
             if self.offset:
-                p = ('+%1.10e'% self.offset).replace('+-','-')
-                offsetStr = self._formatSciNotation(p,mathtext=self._useMathText)
+                offsetStr = self.format_data(self.offset, sign=True, mathtext=True)
             if self.orderOfMagnitude:
-                if self._useMathText: sciNotStr = r'{\times}10^{%d}'% self.orderOfMagnitude
-                else: sciNotStr = 'x1e%d'% self.orderOfMagnitude
-            if self._useMathText: return ''.join(('$',sciNotStr,offsetStr,'$'))
+                if self._usetex or self._useMathText:
+                    sciNotStr = r'\times'+self.format_data(10**self.orderOfMagnitude, mathtext=True)
+                else:
+                    sciNotStr = 'x1e%+d'% self.orderOfMagnitude
+            if self._useMathText or self._usetex: return ''.join(('$',sciNotStr,offsetStr,'$'))
             else: return ''.join((sciNotStr,offsetStr))
         else: return ''
 
@@ -297,13 +300,14 @@ class ScalarFormatter(Formatter):
     def _set_offset(self, range):
         # offset of 20,001 is 20,000, for example
         locs = self.locs
-
+        
         if locs is None or not len(locs):
             self.offset = 0
         ave_loc = mean(locs)
         if ave_loc: # dont want to take log10(0)
             ave_oom = math.floor(math.log10(mean(absolute(locs))))
             range_oom = math.floor(math.log10(range))
+            
             if absolute(ave_oom-range_oom) >= 3: # four sig-figs
                 if ave_loc < 0:
                     self.offset = math.ceil(amax(locs)/10**range_oom)*10**range_oom
@@ -341,7 +345,7 @@ class ScalarFormatter(Formatter):
         if absolute(xp) < 1e-8: xp = 0
         return self.format % xp
 
-    def _formatSciNotation(self,s,mathtext=False):
+    def _formatSciNotation(self,s, mathtext=False):
         # transform 1e+004 into 1e4, for example
         tup = s.split('e')
         try:
@@ -349,8 +353,20 @@ class ScalarFormatter(Formatter):
             sign = tup[1][0].replace('+', '')
             exponent = tup[1][1:].lstrip('0')
             if mathtext:
-                res = '%se{%s%s}' %(mantissa, sign, exponent)
-                return res.replace('e{}','').replace('e',r'{\times}10^')
+                if self._usetex:
+                    family = rcParams['font.family']
+                    fontcmd = {'sans-serif' : r'\textsf',
+                               'monospace' : r'\texttt'}.get(family, r'\textrm')
+                    if mantissa=='1':
+                        return r'%s{10}^%s{%s%s}'%(fontcmd, fontcmd, sign, exponent)
+                    else:
+                        return r'%s{%s}{\times}%s{10}^%s{%s%s}'%(fontcmd, mantissa,
+                                                fontcmd, fontcmd, sign, exponent)
+                else:
+                    if mantissa=='1':
+                        return r'10^{%s%s}'%(sign, exponent)
+                    else:
+                        return r'%s{\times}10^{%s%s}'%(mantissa, sign, exponent)
             else:
                 return ('%se%s%s' %(mantissa, sign, exponent)).rstrip('e')
         except IndexError,msg:
@@ -471,12 +487,19 @@ class LogFormatterMathtext(LogFormatter):
         fx = math.log(x)/math.log(b)
         isDecade = self.is_decade(fx)
 
-
+        usetex = rcParams['text.usetex']
+        if usetex:
+            family = rcParams['font.family']
+            fontcmd = {'sans-serif' : r'\textsf',
+                       'monospace' : r'\texttt'}.get(family, r'\textrm')
+        
         if not isDecade and self.labelOnlyBase: s = ''
         elif not isDecade:
-            s = '$%d^{%.2f}$'% (b, fx)
+            if usetex: s = r'%d$^%s{%.2f}$'% (b, fontcmd, fx)
+            else: s = '$%d^{%.2f}$'% (b, fx)
         else:
-            s = '$%d^{%d}$'% (b, self.nearest_long(fx))
+            if usetex: s = r'%d$^%s{%d}$'% (b, fontcmd, self.nearest_long(fx))
+            else: s = r'$%d^{%d}$'% (b, self.nearest_long(fx))
 
         return s
 
