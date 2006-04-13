@@ -1,3 +1,6 @@
+2006-04-13 Fixed a bug Ryan found using usetex with sans-serif fonts and
+           exponential tick labels - DSD
+
 2006-04-11 Refactored backend_ps and backend_agg to prevent module-level
            texmanager imports. Now these imports only occur if text.usetex
            rc setting is true - DSD
