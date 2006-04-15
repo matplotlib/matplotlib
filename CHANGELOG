@@ -1,3 +1,6 @@
+
+2006-04-14 Reorganized axes.py - EF
+
 2006-04-13 Fixed a bug Ryan found using usetex with sans-serif fonts and
            exponential tick labels - DSD
 
@@ -6,26 +9,26 @@
            rc setting is true - DSD
 
 2006-04-10 Committed changes required for building mpl on win32
-		   platforms with visual studio.  This allows wxpython
-		   blitting for fast animations. - CM
+           platforms with visual studio.  This allows wxpython
+           blitting for fast animations. - CM
 
 2006-04-10 Fixed an off-by-one bug in Axes.change_geometry.
 
 2006-04-10 Fixed bug in pie charts where wedge wouldn't have label in
            legend. Submitted by Simon Hildebrandt. - ADS
 
-2006-05-06 Usetex makes temporary latex and dvi files in a temporary 
-           directory, rather than in the user's current working 
+2006-05-06 Usetex makes temporary latex and dvi files in a temporary
+           directory, rather than in the user's current working
            directory - DSD
 
 2006-04-05 Apllied Ken's wx deprecation warning patch closing sf patch
            #1465371 - JDH
 
 2006-04-05 Added support for the new API in the postscript backend.
-           Allows values to be masked using nan's, and faster file 
+           Allows values to be masked using nan's, and faster file
            creation - DSD
 
-2006-04-05 Use python's subprocess module for usetex calls to 
+2006-04-05 Use python's subprocess module for usetex calls to
            external programs. subprocess catches when they exit
            abnormally so an error can be raised. - DSD
 
