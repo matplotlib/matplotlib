@@ -42,7 +42,7 @@ class Cell(Rectangle):
     PAD = 0.1  # padding between text and rectangle
 
     def __init__(self, xy, width, height,
-                 edgecolor='k', facecolor='w',                
+                 edgecolor='k', facecolor='w',
                  fill=True,
                  text='',
                  loc=None,
@@ -50,10 +50,10 @@ class Cell(Rectangle):
 
         # Call base
         Rectangle.__init__(self, xy, width=width, height=height,
-                 edgecolor=edgecolor, facecolor=facecolor,                
+                 edgecolor=edgecolor, facecolor=facecolor,
                  )
         self.set_clip_on(False)
-        
+
         # Create text object
         if loc is None: loc = 'right'
         self._loc = loc
@@ -64,13 +64,13 @@ class Cell(Rectangle):
     def set_transform(self, trans):
         Rectangle.set_transform(self, trans)
         # the text does not get the transform!
-        
+
     def set_figure(self, fig):
         Rectangle.set_figure(self, fig)
         self._text.set_figure(fig)
-        
+
     def get_text(self):
-        'Return the cell Text intance' 
+        'Return the cell Text intance'
         return self._text
 
     def set_fontsize(self, size):
@@ -93,7 +93,7 @@ class Cell(Rectangle):
         return fontsize
 
     def draw(self, renderer):
-        if not self.get_visible(): return 
+        if not self.get_visible(): return
         # draw the rectangle
         Rectangle.draw(self, renderer)
 
@@ -136,7 +136,7 @@ class Cell(Rectangle):
         """ Get width required for this cell. """
         l,b,w,h = self.get_text_bounds(renderer)
         return w * (1.0 + (2.0 * self.PAD))
-        
+
 
     def set_text_props(self, **kwargs):
         'update the text properties with kwargs'
@@ -214,9 +214,9 @@ class Table(Artist):
 
     def _approx_text_height(self):
         return self.FONTSIZE/72.0*self.figure.dpi.get()/self._axes.bbox.height() * 1.2
-            
+
     def draw(self, renderer):
-        if not self.get_visible(): return 
+        if not self.get_visible(): return
         renderer.open_group('table')
         self._update_positions(renderer)
 
@@ -242,7 +242,7 @@ class Table(Artist):
     def get_child_artists(self):
         'Return the Artists cintained by the table'
         return self._cells.values()
-            
+
     def get_window_extent(self, renderer):
         'Return the bounding box of the table in window coords'
         boxes = [c.get_window_extent(renderer) for c in self._cells]
@@ -320,17 +320,17 @@ class Table(Artist):
             size = cell.auto_set_font_size(renderer)
             fontsize = min(fontsize, size)
             cells.append(cell)
-        
+
         # now set all fontsizes equal
         for cell in self._cells.itervalues():
-            cell.set_fontsize(fontsize)        
-        
+            cell.set_fontsize(fontsize)
+
     def scale(self, xscale, yscale):
         """ Scale column widths by xscale and row heights by yscale. """
         for c in self._cells.itervalues():
             c.set_width(c.get_width() * xscale)
             c.set_height(c.get_height() * yscale)
-            
+
     def set_fontsize(self, size):
         """
 Set the fontsize of the cell text
@@ -358,7 +358,7 @@ ACCEPTS: a float in points"""
 
         if self._autoFontsize:
             self._auto_set_font_size(renderer)
-        
+
         # Align all the cells
         self._do_cell_alignment()
 
@@ -407,4 +407,106 @@ ACCEPTS: a float in points"""
     def get_celld(self):
         'return a dict of cells in the table'
         return self._cells
+
+def table(ax,
+    cellText=None, cellColours=None,
+    cellLoc='right', colWidths=None,
+    rowLabels=None, rowColours=None, rowLoc='left',
+    colLabels=None, colColours=None, colLoc='center',
+    loc='bottom', bbox=None):
+    """
+    TABLE(cellText=None, cellColours=None,
+          cellLoc='right', colWidths=None,
+          rowLabels=None, rowColours=None, rowLoc='left',
+          colLabels=None, colColours=None, colLoc='center',
+          loc='bottom', bbox=None)
+
+    Factory function to generate a Table instance.
+
+    Thanks to John Gill for providing the class and table.
+    """
+    # Check we have some cellText
+    if cellText is None:
+        # assume just colours are needed
+        rows = len(cellColours)
+        cols = len(cellColours[0])
+        cellText = [[''] * rows] * cols
+
+    rows = len(cellText)
+    cols = len(cellText[0])
+    for row in cellText:
+        assert len(row) == cols
+
+    if cellColours is not None:
+        assert len(cellColours) == rows
+        for row in cellColours:
+            assert len(row) == cols
+    else:
+        cellColours = ['w' * cols] * rows
+
+    # Set colwidths if not given
+    if colWidths is None:
+        colWidths = [1.0/cols] * cols
+
+    # Check row and column labels
+    rowLabelWidth = 0
+    if rowLabels is None:
+        if rowColours is not None:
+            rowLabels = [''] * cols
+            rowLabelWidth = colWidths[0]
+    elif rowColours is None:
+        rowColours = 'w' * rows
+
+    if rowLabels is not None:
+        assert len(rowLabels) == rows
+
+    offset = 0
+    if colLabels is None:
+        if colColours is not None:
+            colLabels = [''] * rows
+            offset = 1
+    elif colColours is None:
+        colColours = 'w' * cols
+        offset = 1
+
+    if rowLabels is not None:
+        assert len(rowLabels) == rows
+
+    # Set up cell colours if not given
+    if cellColours is None:
+        cellColours = ['w' * cols] * rows
+
+    # Now create the table
+    table = Table(ax, loc, bbox)
+    height = table._approx_text_height()
+
+    # Add the cells
+    for row in xrange(rows):
+        for col in xrange(cols):
+            table.add_cell(row+offset, col,
+                           width=colWidths[col], height=height,
+                           text=cellText[row][col],
+                           facecolor=cellColours[row][col],
+                           loc=cellLoc)
+    # Do column labels
+    if colLabels is not None:
+        for col in xrange(cols):
+            table.add_cell(0, col,
+                           width=colWidths[col], height=height,
+                           text=colLabels[col], facecolor=colColours[col],
+                           loc=colLoc)
+
+    # Do row labels
+    if rowLabels is not None:
+        for row in xrange(rows):
+            table.add_cell(row+offset, -1,
+                           width=rowLabelWidth, height=height,
+                           text=rowLabels[row], facecolor=rowColours[row],
+                           loc=rowLoc)
+        if rowLabelWidth == 0:
+            table.auto_set_column_width(-1)
+
+    ax.add_table(table)
+    return table
+
 
