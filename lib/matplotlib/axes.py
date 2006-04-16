@@ -3443,14 +3443,14 @@ class Axes(Artist):
 
           PCOLOR(X, Y, C) - a pseudo color plot of C on the matrices X and Y
 
-          PCOLOR(C, **kwargs) - Use keywork args to control colormapping and
+          PCOLOR(C, **kwargs) - Use keyword args to control colormapping and
                                 scaling; see below
 
         X,Y and C may be masked arrays.  If either C[i,j], or one
         of the vertices surrounding C[i,j] (X or Y at [i,j],[i+1,j],
         [i,j+1],[i=1,j+1]) is masked, nothing is plotted.
 
-        Optional keywork args are shown with their defaults below (you must
+        Optional keyword args are shown with their defaults below (you must
         use kwargs for these):
 
           * cmap = cm.jet : a cm Colormap instance from matplotlib.cm.
@@ -3475,27 +3475,43 @@ class Axes(Artist):
 
         Grid Orientation
 
-            The behavior of meshgrid in matlab(TM) is a bit counterintuitive for
-            x and y arrays.  For example,
+            The orientation follows the Matlab(TM) convention: an
+            array C with shape (nrows, ncolumns) is plotted with
+            the column number as X and the row number as Y, increasing
+            up; hence it is plotted the way the array would be printed,
+            except that the Y axis is reversed.  That is, C is taken
+            as C(y,x).
 
-                x = arange(7)
-                y = arange(5)
+            Similarly for meshgrid:
+
+                x = arange(5)
+                y = arange(3)
                 X, Y = meshgrid(x,y)
 
-                Z = rand( len(x), len(y))
-                pcolor(X, Y, Z)
+            is equivalent to
 
-            will fail in matlab and pylab.  You will probably be
-            happy with
+                X = array([[0, 1, 2, 3, 4],
+                          [0, 1, 2, 3, 4],
+                          [0, 1, 2, 3, 4]])
 
-                pcolor(X, Y, transpose(Z))
+                Y = array([[0, 0, 0, 0, 0],
+                          [1, 1, 1, 1, 1],
+                          [2, 2, 2, 2, 2]])
 
-            Likewise, for nonsquare Z,
+            so if you have
+                C = rand( len(x), len(y))
+            then you need
+                pcolor(X, Y, transpose(C))
+            or
+                pcolor(transpose(C))
 
-                pcolor(transpose(Z))
+        Dimensions
 
-            will make the x and y axes in the plot agree with the numrows and
-            numcols of Z
+            pcolor differs from Matlab in that Matlab always discards
+            the last row and column of C, but matplotlib displays
+            the last row and column if X and Y are not specified, or
+            if X and Y have one more row and column than C.
+
         """
         if not self._hold: self.cla()
 
@@ -3590,7 +3606,9 @@ class Axes(Artist):
           PCOLORMESH(C, **kwargs) - Use keyword args to control colormapping and
                                 scaling; see below
 
-        X,Y and C may not be masked arrays, unlike with pcolor().
+        C may be a masked array, but X and Y may not.  Masked array support
+        is implemented via cmap and norm; in contrast, pcolor simply does
+        not draw quadrilaterals with masked colors or vertices.
 
         Optional keyword args are shown with their defaults below (you must
         use kwargs for these):
@@ -3599,7 +3617,8 @@ class Axes(Artist):
             defaults to cm.jet
 
           * norm = normalize() : matplotlib.colors.normalize is used to scale
-            luminance data to 0,1.
+            luminance data to 0,1.  Specify it with clip=False if
+            C is a masked array.
 
           * vmin=None and vmax=None : vmin and vmax are used in conjunction
             with norm to normalize luminance data.  If either are None, the
@@ -3615,29 +3634,8 @@ class Axes(Artist):
         Return value is a matplotlib.collections.PatchCollection
         object
 
-        Grid Orientation
+        See pcolor for an explantion of the grid orientation.
 
-            The behavior of meshgrid in matlab(TM) is a bit counterintuitive for
-            x and y arrays.  For example,
-
-                x = arange(7)
-                y = arange(5)
-                X, Y = meshgrid(x,y)
-
-                Z = rand( len(x), len(y))
-                pcolor(X, Y, Z)
-
-            will fail in matlab and pylab.  You will probably be
-            happy with
-
-                pcolor(X, Y, transpose(Z))
-
-            Likewise, for nonsquare Z,
-
-                pcolor(transpose(Z))
-
-            will make the x and y axes in the plot agree with the numrows and
-            numcols of Z
         """
         if not self._hold: self.cla()
 
@@ -3646,7 +3644,7 @@ class Axes(Artist):
         cmap = kwargs.get('cmap', None)
         vmin = kwargs.get('vmin', None)
         vmax = kwargs.get('vmax', None)
-        shading = kwargs.get('shading', 'faceted')
+        shading = kwargs.get('shading', 'flat')
 
         if len(args)==1:
             C = args[0]
@@ -3655,12 +3653,12 @@ class Axes(Artist):
         elif len(args)==3:
             X, Y, C = args
         else:
-            raise TypeError, 'Illegal arguments to pcolor; see help(pcolor)'
+            raise TypeError, 'Illegal arguments to pcolormesh; see help(pcolormesh)'
 
         Nx, Ny = X.shape
 
         # convert to one dimensional arrays
-        C = ravel(C[0:-1, 0:-1]) # data point in each cell is value at lower left corner
+        C = ma.ravel(C[0:Nx-1, 0:Ny-1]) # data point in each cell is value at lower left corner
         X = ravel(X)
         Y = ravel(Y)
 

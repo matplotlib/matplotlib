@@ -1,4 +1,10 @@
 
+2006-04-16 Masked array support for pcolormesh; changed default to
+           "flat" (don't show edges); made pcolormesh support the
+           same combinations of X,Y,C dimensions as pcolor does;
+           improved (I hope) description of grid used in pcolor,
+           pcolormesh. - EF
+
 2006-04-14 Reorganized axes.py - EF
 
 2006-04-13 Fixed a bug Ryan found using usetex with sans-serif fonts and
