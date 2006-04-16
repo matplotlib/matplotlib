@@ -836,7 +836,7 @@ class Figure(Artist):
                     ax._sharex.update_params()
                     ax.set_position([ax._sharex.figLeft, ax._sharex.figBottom, ax._sharex.figW, ax._sharex.figH])
                 elif ax._sharey is not None and isinstance(ax._sharey, matplotlib.axes.Subplot):
-                    ax._sharey.update_params()         
+                    ax._sharey.update_params()
                     ax.set_position([ax._sharey.figLeft, ax._sharey.figBottom, ax._sharey.figW, ax._sharey.figH])
             else:
                 ax.update_params()

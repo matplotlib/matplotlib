@@ -210,11 +210,8 @@ class QuadMesh(PatchCollection):
     at mesh coordinates (0, 0), then the one at (0, 1), then at
     (0, 2) .. (0, meshWidth), (1, 0), (1, 1), and so on.
     """
-    def __init__(self, norm = None, cmap = None):
+    def __init__(self, meshWidth, meshHeight, coordinates, showedges):
         PatchCollection.__init__(self)
-
-    def __init__(self, meshWidth, meshHeight, coordinates, showedges, **kwargs):
-        PatchCollection.__init__(self, )
         self._meshWidth = meshWidth
         self._meshHeight = meshHeight
         self._coordinates = coordinates
