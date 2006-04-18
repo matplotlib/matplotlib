@@ -288,28 +288,57 @@ class RegularPolyCollection(PatchCollection):
                  sizes = (1,),
                  **kwargs):
         """
-        Draw a regular polygon with numsides.  sizes gives the area of
-        the circle circumscribing the regular polygon and rotation is
-        the rotation of the polygon in radians.
+        Draw a regular polygon with numsides.
 
-        offsets are a sequence of x,y tuples that give the centers of
-        the polygon in data coordinates, and transOffset is the
-        Transformation instance used to transform the centers onto the
-        canvas.
+        * dpi is the figure dpi instance, and is required to do the
+          area scaling.
 
-        dpi is the figure dpi instance, and is required to do the area
-        scaling.
+        * numsides: the number of sides of the  polygon
+        
+        * sizes gives the area of the circle circumscribing the
+          regular polygon in points^2
+
+        * rotation is the rotation of the polygon in radians
+
+        kwargs: See PatchCollection for more details
+        
+          * offsets are a sequence of x,y tuples that give the centers of
+            the polygon in data coordinates
+
+          * transOffset is the Transformation instance used to
+            transform the centers onto the canvas.
+
+        Example: see examples/dynamic_collection.py for complete example
+
+        offsets = nx.mlab.rand(20,2)
+        facecolors = [cm.jet(x) for x in nx.mlab.rand(20)]
+        black = (0,0,0,1)
+        
+        collection = RegularPolyCollection(
+            fig.dpi,
+            numsides=5, # a pentagon
+            rotation=0,
+            sizes=(50,), 
+            facecolors = facecolors,
+            edgecolors = (black,),
+            linewidths = (1,),
+            offsets = offsets,
+            transOffset = ax.transData,
+            )
+
+
         """
         PatchCollection.__init__(self,**kwargs)
-        self._sizes = asarray(sizes)
+        self._sizes = sizes
         self._dpi = dpi
+        self.numsides = numsides
+        self.rotation = rotation
+        self._update_verts()
 
+    def _update_verts(self):
         r = 1.0/math.sqrt(math.pi)  # unit area
-
-        theta = (2*math.pi/numsides)*arange(numsides) + rotation
+        theta = (2*math.pi/self.numsides)*arange(self.numsides) + self.rotation
         self._verts = zip( r*sin(theta), r*cos(theta) )
-
-
 
     def draw(self, renderer):
         if not self.get_visible(): return
@@ -317,7 +346,8 @@ class RegularPolyCollection(PatchCollection):
         self._transform.freeze()
         self._transOffset.freeze()
         self.update_scalarmappable()
-        scales = sqrt(self._sizes*self._dpi.get()/72.0)
+        self._update_verts()        
+        scales = sqrt(asarray(self._sizes)*self._dpi.get()/72.0)
 
         if is_string_like(self._edgecolors) and self._edgecolors == 'None':
             self._edgecolors = self._facecolors

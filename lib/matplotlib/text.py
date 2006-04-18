@@ -300,6 +300,7 @@ class Text(Artist):
         ismath = self.is_math_text()
 
         if angle==0:
+            #print 'text', self._text
             if ismath=='TeX': m = None
             else: m = self._rgxsuper.match(self._text)
             if m is not None:
@@ -890,14 +891,9 @@ class _TextWithDash(Artist):
         # Compute the dash end points
         # The 'c' prefix is for canvas coordinates
         cxy = array(transform.xy_tup((x, y)))
-        print cxy
         cd = array([cos_theta, sin_theta])
-        print cd
         c1 = cxy+dashpush*cd
-        print c1
         c2 = cxy+(dashpush+dashlength)*cd
-        print c2
-        print
         (x1, y1) = transform.inverse_xy_tup(tuple(c1))
         (x2, y2) = transform.inverse_xy_tup(tuple(c2))
         self.dashline.set_data((x1, x2), (y1, y2))

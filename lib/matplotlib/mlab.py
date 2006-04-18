@@ -757,199 +757,6 @@ def prepca(P, frac=0):
     Pcomponents = matrixmultiply(Trans,P)
     return Pcomponents, Trans, fracVar[:ind]
 
-
-# From MLab2: http://pdilib.sourceforge.net/MLab2.py
-readme = \
-       """
-MLab2.py, release 1
-
-Created on February 2003 by Thomas Wendler as part of the Emotionis Project.
-This script is supposed to implement Matlab functions that were left out in
-numerix.mlab.py (part of Numeric Python).
-For further information on the Emotionis Project or on this script, please
-contact their authors:
-Rodrigo Benenson, rodrigob at elo dot utfsm dot cl
-Thomas Wendler,   thomasw at elo dot utfsm dot cl
-Look at: http://pdilib.sf.net for new releases.
-"""
-
-_eps_approx = 1e-13
-
-def fix(x):
-
-    """
-    Rounds towards zero.
-    x_rounded = fix(x) rounds the elements of x to the nearest integers
-    towards zero.
-    For negative numbers is equivalent to ceil and for positive to floor.
-    """
-    
-    dim = numerix.shape(x)
-    if numerix.mlab.rank(x)==2:
-        y = reshape(x,(1,dim[0]*dim[1]))[0]
-        y = y.tolist()
-    elif numerix.mlab.rank(x)==1:
-        y = x
-    else:
-        y = [x]
-    for i in range(len(y)):
-	if y[i]>0:
-		y[i] = floor(y[i])
-	else:
-		y[i] = ceil(y[i])
-    if numerix.mlab.rank(x)==2:
-        x = reshape(y,dim)
-    elif numerix.mlab.rank(x)==0:
-        x = y[0]
-    return x
-
-def rem(x,y):
-    """
-    Remainder after division.
-    rem(x,y) is equivalent to x - y.*fix(x./y) in case y is not zero.
-    By convention, rem(x,0) returns None.
-    We keep the convention by Matlab:
-    "The input x and y must be real arrays of the same size, or real scalars."
-    """
-    
-    x,y = asarray(x),asarray(y)
-    if numerix.shape(x) == numerix.shape(y) or numerix.shape(y) == ():
-        try:
-            return x - y * fix(x/y)
-        except OverflowError:
-            return None
-    raise RuntimeError('Dimension error')
-
-
-def norm(x,y=2):
-    """
-    Norm of a matrix or a vector according to Matlab.
-    The description is taken from Matlab:
-    
-        For matrices...
-          NORM(X) is the largest singular value of X, max(svd(X)).
-          NORM(X,2) is the same as NORM(X).
-          NORM(X,1) is the 1-norm of X, the largest column sum,
-                          = max(sum(abs((X)))).
-          NORM(X,inf) is the infinity norm of X, the largest row sum,
-                          = max(sum(abs((X')))).
-          NORM(X,'fro') is the Frobenius norm, sqrt(sum(diag(X'*X))).
-          NORM(X,P) is available for matrix X only if P is 1, 2, inf or 'fro'.
-     
-        For vectors...
-          NORM(V,P) = sum(abs(V).^P)^(1/P).
-          NORM(V) = norm(V,2).
-          NORM(V,inf) = max(abs(V)).
-          NORM(V,-inf) = min(abs(V)).
-    """
-
-    x = asarray(x)
-    if numerix.mlab.rank(x)==2:
-        if y==2:
-            return numerix.mlab.max(numerix.mlab.svd(x)[1])
-        elif y==1:
-            return numerix.mlab.max(asum(absolute((x))))
-        elif y=='inf':
-            return numerix.mlab.max(asum(absolute((transpose(x)))))
-        elif y=='fro':
-            return numerix.mlab.sqrt(asum(numerix.mlab.diag(matrixmultiply(transpose(x),x))))
-        else:
-            raise RuntimeError('Second argument not permitted for matrices')
-        
-    else:
-        if y == 'inf':
-            return numerix.mlab.max(absolute(x))
-        elif y == '-inf':
-            return numerix.mlab.min(absolute(x))
-        else:
-            return power(asum(power(absolute(x),y)),1/float(y))
-
-
-def orth(A):
-    """
-    Orthogonalization procedure by Matlab.
-    The description is taken from its help:
-    
-        Q = ORTH(A) is an orthonormal basis for the range of A.
-        That is, Q'*Q = I, the columns of Q span the same space as 
-        the columns of A, and the number of columns of Q is the 
-        rank of A.
-    """
-
-    A     = array(A)
-    U,S,V = numerix.mlab.svd(A)
-
-    m,n = numerix.shape(A)
-    if m > 1:
-        s = S
-    elif m == 1:
-        s = S[0]
-    else:
-        s = 0
-
-    tol = numerix.mlab.max((m,n)) * numerix.mlab.max(s) * _eps_approx
-    r = asum(s > tol)
-    Q = take(U,range(r),1)
-
-    return Q
-
-def rank(x):
-        """
-        Returns the rank of a matrix.
-        The rank is understood here as the an estimation of the number of
-        linearly independent rows or columns (depending on the size of the
-        matrix).
-        Note that numerix.mlab.rank() is not equivalent to Matlab's rank.
-        This function is!
-        """
-        
-	x      = asarray(x)
-	u,s,v  = numerix.mlab.svd(x)
-	# maxabs = numerix.mlab.max(numerix.absolute(s)) is also possible.
-	maxabs = norm(x)	
-	maxdim = numerix.mlab.max(numerix.shape(x))
-	tol    = maxabs*maxdim*_eps_approx
-	r      = s>tol
-	return asum(r)
-
-def sqrtm(x):
-    	"""
-	Returns the square root of a square matrix.
-	This means that s=sqrtm(x) implies s*s = x.
-	Note that s and x are matrices.
-	"""
-	return mfuncC(numerix.mlab.sqrt, x)
-
-def mfuncC(f, x):
-	"""
-	mfuncC(f, x) : matrix function with possibly complex eigenvalues.
-	Note: Numeric defines (v,u) = eig(x) => x*u.T = u.T * Diag(v)
-	This function is needed by sqrtm and allows further functions.
-	"""
-	
-	x      = array(x) 
-	(v, u) = numerix.mlab.eig(x)
-	uT     = transpose(u)
-	V      = numerix.mlab.diag(f(v+0j))
-	y      = matrixmultiply(
-           uT, matrixmultiply(
-           V, linear_algebra.inverse(uT)))
-	return approx_real(y)
-
-def approx_real(x):
-
-	"""
-	approx_real(x) : returns x.real if |x.imag| < |x.real| * _eps_approx.
-	This function is needed by sqrtm and allows further functions.
-	"""
-
-	if numerix.mlab.max(numerix.mlab.max(absolute(x.imag))) <= numerix.mlab.max(numerix.mlab.max(absolute(x.real))) * _eps_approx:
-		return x.real
-	else:
-		return x
-
-
-
 def prctile(x, p = (0.0, 25.0, 50.0, 75.0, 100.0)):
     """
     Return the percentiles of x.  p can either be a sequence of
@@ -1263,9 +1070,9 @@ def fftsurr(x, detrend=detrend_none, window=window_none):
 
 def liaupunov(x, fprime):
    """
-   x is a very long trajectory from a map, and derivs is the analytic
-   derivative of the map.  Return lambda = 1/n\sum ln|fprime(x_i)|.
-   See Sec 10.5 Strogatz (1994) "Nonlinear Dynamics and Chaos".   
+   x is a very long trajectory from a map, and fprime returns the
+   derivative of x.  Return lambda = 1/n\sum ln|fprime(x_i)|.  See Sec
+   10.5 Strogatz (1994)"Nonlinear Dynamics and Chaos".   
    """
    return mean(log(fprime(x)))
 
@@ -1620,6 +1427,7 @@ def stineman_interp(xi,x,y,yp=None):
 
 ### the following code was written and submitted by Fernando Perez
 ### from the ipython numutils package under a BSD license
+# begin fperez functions
 """
 A set of convenient utilities for numerical work.
 
@@ -1897,4 +1705,197 @@ def fromfunction_kw(function, dimensions, **kwargs):
 
     return function(tuple(indices(dimensions)),**kwargs)
 
-### end Perez numutils code
+### end fperez numutils code
+
+### begin mlab2 functions
+# From MLab2: http://pdilib.sourceforge.net/MLab2.py
+readme = \
+       """
+MLab2.py, release 1
+
+Created on February 2003 by Thomas Wendler as part of the Emotionis Project.
+This script is supposed to implement Matlab functions that were left out in
+numerix.mlab.py (part of Numeric Python).
+For further information on the Emotionis Project or on this script, please
+contact their authors:
+Rodrigo Benenson, rodrigob at elo dot utfsm dot cl
+Thomas Wendler,   thomasw at elo dot utfsm dot cl
+Look at: http://pdilib.sf.net for new releases.
+"""
+
+_eps_approx = 1e-13
+
+def fix(x):
+
+    """
+    Rounds towards zero.
+    x_rounded = fix(x) rounds the elements of x to the nearest integers
+    towards zero.
+    For negative numbers is equivalent to ceil and for positive to floor.
+    """
+    
+    dim = numerix.shape(x)
+    if numerix.mlab.rank(x)==2:
+        y = reshape(x,(1,dim[0]*dim[1]))[0]
+        y = y.tolist()
+    elif numerix.mlab.rank(x)==1:
+        y = x
+    else:
+        y = [x]
+    for i in range(len(y)):
+	if y[i]>0:
+		y[i] = floor(y[i])
+	else:
+		y[i] = ceil(y[i])
+    if numerix.mlab.rank(x)==2:
+        x = reshape(y,dim)
+    elif numerix.mlab.rank(x)==0:
+        x = y[0]
+    return x
+
+def rem(x,y):
+    """
+    Remainder after division.
+    rem(x,y) is equivalent to x - y.*fix(x./y) in case y is not zero.
+    By convention, rem(x,0) returns None.
+    We keep the convention by Matlab:
+    "The input x and y must be real arrays of the same size, or real scalars."
+    """
+    
+    x,y = asarray(x),asarray(y)
+    if numerix.shape(x) == numerix.shape(y) or numerix.shape(y) == ():
+        try:
+            return x - y * fix(x/y)
+        except OverflowError:
+            return None
+    raise RuntimeError('Dimension error')
+
+
+def norm(x,y=2):
+    """
+    Norm of a matrix or a vector according to Matlab.
+    The description is taken from Matlab:
+    
+        For matrices...
+          NORM(X) is the largest singular value of X, max(svd(X)).
+          NORM(X,2) is the same as NORM(X).
+          NORM(X,1) is the 1-norm of X, the largest column sum,
+                          = max(sum(abs((X)))).
+          NORM(X,inf) is the infinity norm of X, the largest row sum,
+                          = max(sum(abs((X')))).
+          NORM(X,'fro') is the Frobenius norm, sqrt(sum(diag(X'*X))).
+          NORM(X,P) is available for matrix X only if P is 1, 2, inf or 'fro'.
+     
+        For vectors...
+          NORM(V,P) = sum(abs(V).^P)^(1/P).
+          NORM(V) = norm(V,2).
+          NORM(V,inf) = max(abs(V)).
+          NORM(V,-inf) = min(abs(V)).
+    """
+
+    x = asarray(x)
+    if numerix.mlab.rank(x)==2:
+        if y==2:
+            return numerix.mlab.max(numerix.mlab.svd(x)[1])
+        elif y==1:
+            return numerix.mlab.max(asum(absolute((x))))
+        elif y=='inf':
+            return numerix.mlab.max(asum(absolute((transpose(x)))))
+        elif y=='fro':
+            return numerix.mlab.sqrt(asum(numerix.mlab.diag(matrixmultiply(transpose(x),x))))
+        else:
+            raise RuntimeError('Second argument not permitted for matrices')
+        
+    else:
+        if y == 'inf':
+            return numerix.mlab.max(absolute(x))
+        elif y == '-inf':
+            return numerix.mlab.min(absolute(x))
+        else:
+            return power(asum(power(absolute(x),y)),1/float(y))
+
+
+def orth(A):
+    """
+    Orthogonalization procedure by Matlab.
+    The description is taken from its help:
+    
+        Q = ORTH(A) is an orthonormal basis for the range of A.
+        That is, Q'*Q = I, the columns of Q span the same space as 
+        the columns of A, and the number of columns of Q is the 
+        rank of A.
+    """
+
+    A     = array(A)
+    U,S,V = numerix.mlab.svd(A)
+
+    m,n = numerix.shape(A)
+    if m > 1:
+        s = S
+    elif m == 1:
+        s = S[0]
+    else:
+        s = 0
+
+    tol = numerix.mlab.max((m,n)) * numerix.mlab.max(s) * _eps_approx
+    r = asum(s > tol)
+    Q = take(U,range(r),1)
+
+    return Q
+
+def rank(x):
+        """
+        Returns the rank of a matrix.
+        The rank is understood here as the an estimation of the number of
+        linearly independent rows or columns (depending on the size of the
+        matrix).
+        Note that numerix.mlab.rank() is not equivalent to Matlab's rank.
+        This function is!
+        """
+        
+	x      = asarray(x)
+	u,s,v  = numerix.mlab.svd(x)
+	# maxabs = numerix.mlab.max(numerix.absolute(s)) is also possible.
+	maxabs = norm(x)	
+	maxdim = numerix.mlab.max(numerix.shape(x))
+	tol    = maxabs*maxdim*_eps_approx
+	r      = s>tol
+	return asum(r)
+
+def sqrtm(x):
+    	"""
+	Returns the square root of a square matrix.
+	This means that s=sqrtm(x) implies s*s = x.
+	Note that s and x are matrices.
+	"""
+	return mfuncC(numerix.mlab.sqrt, x)
+
+def mfuncC(f, x):
+	"""
+	mfuncC(f, x) : matrix function with possibly complex eigenvalues.
+	Note: Numeric defines (v,u) = eig(x) => x*u.T = u.T * Diag(v)
+	This function is needed by sqrtm and allows further functions.
+	"""
+	
+	x      = array(x) 
+	(v, u) = numerix.mlab.eig(x)
+	uT     = transpose(u)
+	V      = numerix.mlab.diag(f(v+0j))
+	y      = matrixmultiply(
+           uT, matrixmultiply(
+           V, linear_algebra.inverse(uT)))
+	return approx_real(y)
+
+def approx_real(x):
+
+	"""
+	approx_real(x) : returns x.real if |x.imag| < |x.real| * _eps_approx.
+	This function is needed by sqrtm and allows further functions.
+	"""
+
+	if numerix.mlab.max(numerix.mlab.max(absolute(x.imag))) <= numerix.mlab.max(numerix.mlab.max(absolute(x.real))) * _eps_approx:
+		return x.real
+	else:
+		return x
+
+### end mlab2 functions
