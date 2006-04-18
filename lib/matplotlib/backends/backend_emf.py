@@ -179,15 +179,13 @@ class RendererEMF(RendererBase):
             self.emf.Arc(int(x-hw),int(self.height-(y-hh)),int(x+hw),int(self.height-(y+hh)),int(x+math.cos(angle1*math.pi/180.0)*hw),int(self.height-(y+math.sin(angle1*math.pi/180.0)*hh)),int(x+math.cos(angle2*math.pi/180.0)*hw),int(self.height-(y+math.sin(angle2*math.pi/180.0)*hh)))
 
     
-    def draw_image(self, x, y, im, origin, bbox):
+    def draw_image(self, x, y, im, bbox):
         """
         Draw the Image instance into the current axes; x is the
         distance in pixels from the left hand side of the canvas. y is
         the distance from the origin.  That is, if origin is upper, y
         is the distance from top.  If origin is lower, y is the
         distance from bottom
-
-        origin is 'upper' or 'lower'
 
         bbox is a matplotlib.transforms.BBox instance for clipping, or
         None
