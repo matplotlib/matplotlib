@@ -277,10 +277,13 @@ class ScalarFormatter(Formatter):
             offsetStr = ''
             sciNotStr = ''
             if self.offset:
-                offsetStr = self.format_data(self.offset, sign=True, mathtext=True)
+                if self._usetex or self._useMathText:
+                    offsetStr = self.format_data(self.offset, sign=True, mathtext=True)
+                else:
+                    offsetStr = self.format_data(self.offset, sign=True, mathtext=False)
             if self.orderOfMagnitude:
                 if self._usetex or self._useMathText:
-                    sciNotStr = r'\times'+self.format_data(10**self.orderOfMagnitude, mathtext=True)
+                    sciNotStr = r'{\times}'+self.format_data(10**self.orderOfMagnitude, mathtext=True)
                 else:
                     sciNotStr = 'x1e%+d'% self.orderOfMagnitude
             if self._useMathText or self._usetex: return ''.join(('$',sciNotStr,offsetStr,'$'))
