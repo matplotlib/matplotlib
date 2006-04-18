@@ -63,7 +63,9 @@ def show():
     """
     Show all the figures and enter the gtk mainloop
 
-    This should be the last line of your script
+    This should be the last line of your script.  This function sets
+    interactive mode to True, as detailed on
+    http://matplotlib.sf.net/interactive.html
     """
     for manager in Gcf.get_all_fig_managers():
         manager.show()

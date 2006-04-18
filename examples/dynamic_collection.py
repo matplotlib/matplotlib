@@ -1,0 +1,48 @@
+import random
+from matplotlib.colors import colorConverter
+from matplotlib.collections import RegularPolyCollection 
+import matplotlib.cm as cm
+from pylab import figure, show, nx
+
+fig = figure()
+ax = fig.add_subplot(111, xlim=(0,1), ylim=(0,1), autoscale_on=False)
+ax.set_title("Press 'a' to add a point, 'd' to delete one")
+# a single point
+offsets = [(0.5,0.5)]
+facecolors = [cm.jet(0.5)]
+
+collection = RegularPolyCollection(
+    fig.dpi,
+    numsides=5, # a pentagon
+    rotation=0,
+    sizes=(50,), 
+    facecolors = facecolors,
+    edgecolors = (colorConverter.to_rgba('black'),),
+    linewidths = (1,),
+    offsets = offsets,
+    transOffset = ax.transData,
+    )
+
+ax.add_collection(collection)
+
+def onpress(event):
+    """
+    press 'a' to add a random point from the collection, 'd' to delete one
+    """
+    if event.key=='a':
+        x,y = nx.mlab.rand(2)
+        color = cm.jet(nx.mlab.rand())
+        offsets.append((x,y))
+        facecolors.append(color)
+        fig.canvas.draw()
+    elif event.key=='d':
+        N = len(offsets)
+        if N>0:
+            ind = random.randint(0,N-1)
+            offsets.pop(ind)
+            facecolors.pop(ind)
+            fig.canvas.draw()
+
+fig.canvas.mpl_connect('key_press_event', onpress)
+
+show()
