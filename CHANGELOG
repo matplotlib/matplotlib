@@ -1,3 +1,4 @@
+2006-04-18 Fixed a bug that caused agg to not render long lines
 
 2006-04-16 Masked array support for pcolormesh; changed default to
            "flat" (don't show edges); made pcolormesh support the

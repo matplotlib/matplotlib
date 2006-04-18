@@ -62,8 +62,21 @@ http://matplotlib.sourceforge.net
   ncftp> cd incoming
   ncftp> put tar.gz, zip exe
 
-5) go to https://sourceforge.net/project/admin/?group_id=80706 and do a
-#  file release
+5) go to https://sourceforge.net/project/admin/?group_id=80706 and do
+   a file release.  Click on the "Admin" tab to log in as an admin,
+   and then the "File Releases" tab.  Go to the bottom and click "add
+   release" and enter the package name but not the version number in
+   the "Package Name" box.  You will then be prompted for the "New
+   release name" at which point you can add the version number, eg
+   somepackage-0.1 and click "Create this release".
+
+   You will then be taken to a fairly self explanatory page where you
+   can enter the Change notes, the release notes, and select which
+   packages from the incoming ftp archive you want to include in this
+   release.  For each binary, you will need to select the platform and
+   file type, and when you are done you click on the "notify users who
+   are monitoring this package link"
+
 
 Standard reminders for numarray build
 

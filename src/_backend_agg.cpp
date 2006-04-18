@@ -1336,6 +1336,7 @@ RendererAgg::draw_lines(const Py::Tuple& args) {
   double lastx(-2.0), lasty(-2.0);
 
   for (size_t i=0; i<Nx; i++) {
+
     thisx = *(double *)(xa->data + i*xa->strides[0]);
     thisy = *(double *)(ya->data + i*ya->strides[0]);
 
@@ -1375,12 +1376,21 @@ RendererAgg::draw_lines(const Py::Tuple& args) {
       //std::cout << "snapto "<<thisx<<" "<<thisy<<std::endl;
     }
 
+
     if (moveto)
       path.move_to(thisx, thisy);
     else
       path.line_to(thisx, thisy);
-    
+  
     moveto = false;
+    if ((i%10000)==0) {
+      //draw the path in chunks
+      _render_lines_path(path, gc);
+      path.remove_all();
+      path.move_to(thisx, thisy);      
+    }
+
+  
     //std::cout << "draw lines " << thisx << " " << thisy << std::endl;
   }
 
