@@ -20,6 +20,8 @@ gca().xaxis.set_major_formatter(OldScalarFormatter())
 gca().yaxis.set_major_formatter(OldScalarFormatter())
 subplot(224)
 plot(-x*1e5,-x*1e-4)
+gca().xaxis.set_major_formatter(OldScalarFormatter())
+gca().yaxis.set_major_formatter(OldScalarFormatter())
 
 x=frange(0,1,.01)
 f=figure(figsize=(6,6))
