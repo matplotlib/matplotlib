@@ -153,15 +153,6 @@ class RendererAgg(RendererBase):
             gcEdge, rgbFace, x, y, width/2, height/2)  # ellipse takes radius
 
 
-    def _draw_image(self, x, y, im):
-        """
-        Draw the Image instance into the current axes; x, y is the
-        upper left hand corner of the image
-        """
-        if __debug__: verbose.report('RendererAgg.draw_image', 'debug-annoying')
-        #self._renderer.draw_image(int(x), int(self.height-y), im)
-        self._renderer.draw_image(int(x), int(y), im)
-
     def draw_line(self, gc, x1, y1, x2, y2):
         """
         x and y are equal length arrays, draw lines connecting each

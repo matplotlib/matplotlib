@@ -417,12 +417,15 @@ class FigureImage(Artist, cm.ScalarMappable):
         im.set_bg( *colorConverter.to_rgba(self.figure.get_facecolor(), 0) )
         im.is_grayscale = (self.cmap.name == "gray" and
                            len(self._A.shape) == 2)
+        if self.origin=='upper':
+            im.flipud_out()
+
         return im
 
     def draw(self, renderer, *args, **kwargs):
         if not self.get_visible(): return
         im = self.make_image()
-        renderer.draw_image(self.ox, self.oy, im, self.origin, self.figure.bbox)
+        renderer.draw_image(self.ox, self.oy, im, self.figure.bbox)
 
     def write_png(self, fname):
         """Write the image to png file with fname"""
