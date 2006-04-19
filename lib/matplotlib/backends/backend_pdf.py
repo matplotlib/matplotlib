@@ -8,7 +8,6 @@ import re
 import sys
 import time
 
-from cStringIO import StringIO
 from matplotlib._pylab_helpers import Gcf
 from matplotlib.backend_bases import RendererBase, GraphicsContextBase,\
      FigureManagerBase, FigureCanvasBase
