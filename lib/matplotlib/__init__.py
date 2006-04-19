@@ -467,7 +467,7 @@ def validate_int(s):
 def validate_backend(s, fail_on_err = True):
     s=s.lower()
     backends = ['Agg2', 'Agg', 'Cairo', 'CocoaAgg', 'EMF', 'GD', 'GDK', 'GTK',
-                'GTKAgg', 'GTKCairo', 'FltkAgg', 'Paint', 'PS', 'QtAgg', 'SVG',
+                'GTKAgg', 'GTKCairo', 'FltkAgg', 'Paint', 'Pdf', 'PS', 'QtAgg', 'SVG',
                 'Template', 'TkAgg', 'WX', 'WXAgg', ]
     for i in backends:
         if s == i.lower(): return i
