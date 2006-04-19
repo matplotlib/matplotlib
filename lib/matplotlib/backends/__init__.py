@@ -6,8 +6,8 @@ __all__ = ['backend','show','draw_if_interactive',
 
 interactive_bk = ['GTK', 'GTKAgg', 'GTKCairo', 'FltkAgg', 'QtAgg', 'TkAgg', 
                   'WX', 'WXAgg', 'CocoaAgg']
-non_interactive_bk = ['Agg2', 'Agg', 'Cairo', 'GD', 'GDK', 'Paint', 'PS', 'SVG',
-                      'EMF', 'Template']
+non_interactive_bk = ['Agg2', 'Agg', 'Cairo', 'EMF', 'GD', 'GDK', 'Paint', 
+		      'Pdf', 'PS', 'SVG', 'Template']
 all_backends = interactive_bk + non_interactive_bk
 
 backend = matplotlib.get_backend()
