@@ -931,7 +931,7 @@ _image_module::readpng(const Py::Tuple& args) {
   png_read_end(png_ptr, info_ptr);
   png_destroy_read_struct(&png_ptr, &info_ptr, png_infopp_NULL);
   fclose(fp);
-  for (png_uint_32 row = 0; row < height; row++)
+  for (row = 0; row < height; row++)
     delete [] row_pointers[row];
   delete [] row_pointers;
   return Py::asObject((PyObject*)A);
