@@ -228,6 +228,10 @@ ps.usedistiller   : False    # can be: None, ghostscript or xpdf
                                           # but requires ghostscript, xpdf and ps2eps
 ps.distiller.res  : 6000      # dpi
 
+# pdf backend params
+pdf.compression   : 6 # integer from 0 to 9
+		      # 0 disables compression (good for debugging)
+
 # Set the verbose flags.  This controls how much information
 # matplotlib gives you at runtime and where it goes.  Ther verbosity
 # levels are: silent, helpful, debug, debug-annoying.  Any level is

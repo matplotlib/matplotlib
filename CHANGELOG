@@ -1,3 +1,6 @@
+2006-04-19 Added compression support to PDF backend, controlled by
+           new pdf.compression rc setting. - JKS
+
 2006-04-19 Added Jouni's PDF backend
 
 2006-04-18 Fixed a bug that caused agg to not render long lines
