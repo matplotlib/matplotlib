@@ -860,6 +860,7 @@ defaultParams = {
     'ps.useafm'   : [ False, validate_bool],  # Set PYTHONINSPECT
     'ps.usedistiller'   : [ False, validate_ps_distiller],  # use ghostscript or xpdf to distill ps output
     'ps.distiller.res'  : [6000, validate_int],       # dpi
+    'pdf.compression'   : [6, validate_int],            # compression level from 0 to 9; 0 to disable
     'plugins.directory' : ['.matplotlib_plugins', str], # where plugin directory is locate
 
     }
@@ -990,12 +991,12 @@ def rc_params(fail_on_error=False):
         except KeyError: continue
         else:
             cval = validate_key(key, val, line, cnt, fname, fail_on_error)
-            if cval: defaultParams[key][0] = cval
+            if cval is not None: defaultParams[key][0] = cval
     while len(rc_temp) > 0:
         key, (val, line, cnt) = rc_temp.popitem()
 
         cval = validate_key(key, val, line, cnt, fname, fail_on_error)
-        if cval: defaultParams[key][0] = cval
+        if cval is not None: defaultParams[key][0] = cval
         else: continue
 
     # strip the converter funcs and return

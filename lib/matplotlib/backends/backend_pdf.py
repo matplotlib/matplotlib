@@ -1,5 +1,10 @@
+# -*- coding: iso-8859-1 -*-
 """
 A PDF matplotlib backend
+Author: Jouni K Seppänen <jks@iki.fi>
+
+As of yet, this implements a small subset of the backend protocol, but
+enough to get some output from simple plots. Alpha is supported.
 """
 from __future__ import division
 
@@ -7,7 +12,9 @@ import md5
 import re
 import sys
 import time
+import zlib
 
+from matplotlib import __version__, rcParams
 from matplotlib._pylab_helpers import Gcf
 from matplotlib.backend_bases import RendererBase, GraphicsContextBase,\
      FigureManagerBase, FigureCanvasBase
@@ -89,8 +96,7 @@ class Reference:
 	return "%d 0 R" % self.id
 
     def write(self, contents, file):
-	file.recordXref(self.id)
-	write = file.fh.write
+	write = file.write
 	write("%d 0 obj\n" % self.id)
 	write(pdfRepr(contents))
 	write("\nendobj\n")
@@ -113,43 +119,75 @@ class Stream:
     """PDF stream object.
 
     This has no pdfRepr method. Instead, call begin(), then output the
-    contents of the stream, and finally call end().
+    contents of the stream by calling write(), and finally call end().
     """
-
-    # TODO: compression
 
     def __init__(self, id, len, file):
 	"""id: object id of stream; len: an unused Reference object
 	for the length of the stream; file: a PdfFile
 	"""
-	self.id = id
-	self.len = len
-	self.file = file
+	self.id = id		# object id
+	self.len = len		# id of length object
+	self.file = file	# file to which the stream is written
+	self.compressobj = None	# compression object
 
     def begin(self):
-	write = self.file.write
+	"""Initialize stream."""
+
+	write = self.file.fh.write
 	self.file.recordXref(self.id)
 	write("%d 0 obj\n" % self.id)
-	write(pdfRepr({ 'Length': self.len }))
+	dict = { 'Length': self.len }
+	if rcParams['pdf.compression']:
+	    dict['Filter'] = Name('FlateDecode')
+	write(pdfRepr(dict))
 	write("\nstream\n")
 	self.pos = self.file.fh.tell()
+	if rcParams['pdf.compression']:
+	    self.compressobj = zlib.compressobj(rcParams['pdf.compression'])
 
     def end(self):
+	"""Finalize stream."""
+
+	self._flush()
 	length = self.file.fh.tell() - self.pos
 	self.file.write("\nendstream\nendobj\n")
-	self.len.write(length, self.file)
+	self.file.writeObject(self.len, length)
+
+    def write(self, data):
+	"""Write some data on the stream."""
+
+	if self.compressobj is None:
+	    self.file.fh.write(data)
+	else:
+	    compressed = self.compressobj.compress(data)
+	    self.file.fh.write(compressed)
+
+    def _flush(self):
+	"""Flush the compression object."""
+
+	if self.compressobj is not None:
+	    compressed = self.compressobj.flush()
+	    self.file.fh.write(compressed)
+	    self.compressobj = None
 
 class PdfFile:
     """PDF file with one page."""
 
     def __init__(self, width, height, filename):
-	self.nextObject = 1
+	self.nextObject = 1	# next free object id
 	self.xrefTable = [ [0, 65535, 'the zero object'] ]
 	fh = file(filename, 'w')
 	self.fh = fh
-	fh.write("%PDF-1.4\n")
+	self.currentstream = None # stream object to write to, if any
+	fh.write("%PDF-1.4\n")	  # 1.4 is the first version to have alpha
+	# Output some binary chars as a comment so various utilities
+	# recognize the file as binary by looking at the first few
+	# lines (see note in section 3.4.1 of the PDF reference).
+	fh.write("%\254\334 \253\272\n")
 
 	self.rootObject = self.reserveObject('root')
+	self.infoObject = self.reserveObject('info')
 	pagesObject = self.reserveObject('pages')
 	thePageObject = self.reserveObject('page 0')
 	contentObject = self.reserveObject('contents of page 0')
@@ -160,6 +198,11 @@ class PdfFile:
 	root = { 'Type': Name('Catalog'), 
 		 'Pages': pagesObject }
 	self.writeObject(self.rootObject, root)
+
+	info = { 'Producer': 'matplotlib version ' + __version__ \
+		 + ', http://matplotlib.sourceforge.net', }
+	# Possible TODO: Title, Author, Subject, Keywords, CreationDate
+	self.writeObject(self.infoObject, info)
 
 	pages = { 'Type': Name('Pages'), 
 		  'Kids': [ thePageObject ],
@@ -173,26 +216,37 @@ class PdfFile:
 		    'Contents': contentObject }
 	self.writeObject(thePageObject, thePage)
 
+	# self.fonts has font objects keyed by internal font names (/F1 etc)
+	# self.fontnames maps external to internal names
 	self.fonts, self.fontNames = {}, {}
-	self.nextFont = 1
-	self.alphaStates = {}
+	self.nextFont = 1	# next free internal font name
+
+	self.alphaStates = {}	# maps alpha values to graphics state objects
 	self.nextAlphaState = 1
+
+	# The PDF spec recommends to include every procset
 	procsets = [ Name(x)
 		     for x in "PDF Text ImageB ImageC ImageI".split() ]
+
+	# Write resource dictionary.
+	# Possibly TODO: more general ExtGState (graphics state dictionaries)
+	#                ColorSpace Pattern Shading XObject Properties
 	resources = { 'Font': self.fontObject,
 		      'ExtGState': self.alphaStateObject,
 		      'ProcSet': procsets }
-	# Other resources: more general ExtGState (graphics state dictionaries)
-	# ColorSpace Pattern Shading XObject Properties
 	self.writeObject(resourceObject, resources)
 
+	# Start the content stream of the page
 	self.contents = \
 	    Stream(contentObject.id, 
 		   self.reserveObject('length of content stream'),
 		   self)
 	self.contents.begin()
+	self.currentstream = self.contents
 
     def close(self):
+	# End the content stream and write out the various deferred
+	# objects
 	self.contents.end()
 	self.writeObject(self.fontObject, self.fonts)
 	self.writeObject(self.alphaStateObject, 
@@ -203,7 +257,10 @@ class PdfFile:
 	self.fh.close()
 
     def write(self, data):
-	self.fh.write(data)
+	if self.currentstream is None:
+	    self.fh.write(data)
+	else:
+	    self.currentstream.write(data)
 
     def fontName(self, font):
 	# TODO: the hard parts (i.e., this only does the Base 14 fonts)
@@ -258,7 +315,7 @@ class PdfFile:
 	"""Write out the xref table."""
 
 	self.startxref = self.fh.tell()
-	self.fh.write("xref\n0 %d\n" % self.nextObject)
+	self.write("xref\n0 %d\n" % self.nextObject)
 	i = 0
 	borken = False
 	for offset, generation, name in self.xrefTable:
@@ -267,7 +324,7 @@ class PdfFile:
 		    'No offset for object %d (%s)' % (i, name)
 		borken = True
 	    else:
-		self.fh.write("%010d %05d n \n" % (offset, generation))
+		self.write("%010d %05d n \n" % (offset, generation))
 	    i += 1
 	if borken:
 	    raise AssertionError, 'Indirect object does not exist'
@@ -275,12 +332,13 @@ class PdfFile:
     def writeTrailer(self):
 	"""Write out the PDF trailer."""
 
-	self.fh.write("trailer\n")
-	self.fh.write(pdfRepr(
+	self.write("trailer\n")
+	self.write(pdfRepr(
 		{'Size': self.nextObject,
-		 'Root': self.rootObject }))
+		 'Root': self.rootObject, 
+		 'Info': self.infoObject }))
 	# Could add 'Info' and 'ID'
-	self.fh.write("\nstartxref\n%d\n%%%%EOF\n" % self.startxref)
+	self.write("\nstartxref\n%d\n%%%%EOF\n" % self.startxref)
 
 
 
