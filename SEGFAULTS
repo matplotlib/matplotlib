@@ -1,0 +1,30 @@
+# How to diagnose where a segfault is occurring
+
+First thing to try is simply rm -rf the site-packages/matplotlib and
+build subdirs and get a clean install.  Installing a new version over
+a pretty old version has been known to cause trouble, segfault, etc.
+
+Try importing these packages individually
+
+  import matplotlib._image
+  import matplotlib._transforms
+
+  #one of these three depending on which numerix package you are using
+  import matplotlib.backends._na_backend_agg # for numarray
+  import matplotlib.backends._nc_backend_agg # for Numeric
+  import matplotlib.backends._ns_backend_agg # for numpy
+
+  import matplotlib.backends._tkagg
+  import matplotlib._agg
+
+
+If the last two work and the others don't, it is likely you need to
+upgrade your gcc, because on some platforms (OS X for sure) old
+versions of gcc cannot compile new versions of pycxx, which matplotlib
+uses for building some but not all of it's extensions.  Report back
+which if any work or segfault or raise tracebacks,
+
+If that shed additional light, again flush the build and install dirs,
+and try setting VERBOSE=True in setup.py before doing a clean install.
+The VERBOSE setting will generate lots of extra output and may help
+indicate where the segfault is occurring 
