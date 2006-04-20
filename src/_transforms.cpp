@@ -1,4 +1,6 @@
 #include <functional>
+#include <limits>
+
 #include "_transforms.h"
 #include "mplutils.h"
 #include "MPL_isnan.h"
@@ -922,6 +924,8 @@ Transformation::numerix_x_y(const Py::Tuple & args, const Py::Dict &kwargs) {
     throw Py::RuntimeError("Could not create return x array");
   }
 
+  double nan = std::numeric_limits<float>::quiet_NaN();
+
   for (size_t i=0; i< Nx; ++i) {
 
     double thisx = *(double *)(x->data + i*x->strides[0]);
@@ -931,7 +935,9 @@ Transformation::numerix_x_y(const Py::Tuple & args, const Py::Dict &kwargs) {
       this->operator()(thisx, thisy);
     }
     catch(...) {
-      throw Py::ValueError("Domain error on Transformation::numerix_x_y");
+      xy.first = nan;
+      xy.second = nan;
+      //throw Py::ValueError("Domain error on Transformation::numerix_x_y");
     }
 
     *(double *)(retx->data + i*retx->strides[0]) = xy.first;
