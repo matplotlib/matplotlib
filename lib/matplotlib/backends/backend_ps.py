@@ -1176,7 +1176,7 @@ class FigureCanvasPS(FigureCanvasBase):
         print >>fh, ("%%Creator: matplotlib version "
                      +__version__+", http://matplotlib.sourceforge.net/")
         print >>fh, "%%CreationDate: "+time.ctime(time.time())
-        print >>fh, "%%%%BoundingBox: %d %d %d %d" % bbox
+        if ext=='.eps': print >>fh, "%%%%BoundingBox: %d %d %d %d" % bbox
         print >>fh, "%%EndComments"
         
         Ndict = len(psDefs)
@@ -1392,6 +1392,7 @@ ghostscript: \n\n' + process.stdout.read())
 ##    verbose.report(stdout.read(), 'debug-annoying')
 ##    bbox_info = stderr.read()
     verbose.report(bbox_info, 'helpful')
+    bbox_info = re.search('%%HiResBoundingBox: .*', bbox_info).group()
     l, b, r, t = [float(i) for i in bbox_info.split()[-4:]]
     
     # this is a hack to deal with the fact that ghostscript does not return the 
