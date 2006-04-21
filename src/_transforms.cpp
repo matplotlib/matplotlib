@@ -1701,8 +1701,8 @@ Affine::eval_scalars(void) {
   else {
     double scale = 1.0/det;
     _iaval = scale*_dval;
-    _ibval = scale*_cval;
-    _icval = -scale*_bval;
+    _ibval = -scale*_bval;
+    _icval = -scale*_cval;
     _idval = scale*_aval;
   }
 
