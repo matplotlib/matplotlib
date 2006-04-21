@@ -1176,7 +1176,7 @@ class FigureCanvasPS(FigureCanvasBase):
         print >>fh, ("%%Creator: matplotlib version "
                      +__version__+", http://matplotlib.sourceforge.net/")
         print >>fh, "%%CreationDate: "+time.ctime(time.time())
-        if ext=='.eps': print >>fh, "%%%%BoundingBox: %d %d %d %d" % bbox
+        print >>fh, "%%%%BoundingBox: %d %d %d %d" % bbox
         print >>fh, "%%EndComments"
         
         Ndict = len(psDefs)
