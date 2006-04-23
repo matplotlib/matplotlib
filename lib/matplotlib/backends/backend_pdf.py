@@ -14,12 +14,16 @@ import sys
 import time
 import zlib
 
+from math import cos, pi, sin
+
 from matplotlib import __version__, rcParams
 from matplotlib._pylab_helpers import Gcf
 from matplotlib.backend_bases import RendererBase, GraphicsContextBase,\
      FigureManagerBase, FigureCanvasBase
 from matplotlib.cbook import enumerate, is_string_like
 from matplotlib.figure import Figure
+from matplotlib.font_manager import fontManager
+from matplotlib.ft2font import FT2Font, FIXED_WIDTH, ITALIC
 from matplotlib.transforms import Bbox
 
 
@@ -42,7 +46,7 @@ def pdfRepr(obj):
 	return r.rstrip('0').rstrip('.')
 
     # Integers are written as such.
-    elif isinstance(obj, int) or isinstance(obj, long):
+    elif isinstance(obj, (int, long)):
 	return "%d" % obj
 
     # Strings are written in parentheses, with backslashes and parens
@@ -65,7 +69,7 @@ def pdfRepr(obj):
 	return '\n'.join(r)
 
     # Lists.
-    elif isinstance(obj, list):
+    elif isinstance(obj, (list, tuple)):
 	r = ["["]
 	r.extend([pdfRepr(val) for val in obj])
 	r.append("]")
@@ -177,7 +181,7 @@ class PdfFile:
     def __init__(self, width, height, filename):
 	self.nextObject = 1	# next free object id
 	self.xrefTable = [ [0, 65535, 'the zero object'] ]
-	fh = file(filename, 'w')
+	fh = file(filename, 'wb')
 	self.fh = fh
 	self.currentstream = None # stream object to write to, if any
 	fh.write("%PDF-1.4\n")	  # 1.4 is the first version to have alpha
@@ -216,9 +220,8 @@ class PdfFile:
 		    'Contents': contentObject }
 	self.writeObject(thePageObject, thePage)
 
-	# self.fonts has font objects keyed by internal font names (/F1 etc)
-	# self.fontnames maps external to internal names
-	self.fonts, self.fontNames = {}, {}
+	# self.fontNames maps filenames to internal font names
+	self.fontNames = {}
 	self.nextFont = 1	# next free internal font name
 
 	self.alphaStates = {}	# maps alpha values to graphics state objects
@@ -248,7 +251,7 @@ class PdfFile:
 	# End the content stream and write out the various deferred
 	# objects
 	self.contents.end()
-	self.writeObject(self.fontObject, self.fonts)
+	self.writeFonts()
 	self.writeObject(self.alphaStateObject, 
 			 dict([(val[0], val[1]) 
 			       for val in self.alphaStates.values()]))
@@ -262,22 +265,122 @@ class PdfFile:
 	else:
 	    self.currentstream.write(data)
 
-    def fontName(self, font):
-	# TODO: the hard parts (i.e., this only does the Base 14 fonts)
+    # These fonts do not need to be embedded; every PDF viewing
+    # application is required to have them.
+    base14 = [ 'Times-Roman', 'Times-Bold', 'Times-Italic',
+	       'Times-BoldItalic', 'Symbol', 'ZapfDingbats' ] + \
+	     [ prefix + postfix 
+	       for prefix in 'Helvetica', 'Courier'
+	       for postfix in '', '-Bold', '-Oblique', '-BoldOblique' ]
 
-	dict = self.fontNames.get(font, None)
-	if dict is not None:
-	    return dict['Name']
-	name = Name('F%d' % self.nextFont)
-	self.nextFont += 1
-	
-	dict = { 'Type': Name('Font'),
-		 'Subtype': Name('Type1'),
-		 'Name': name,
-		 'BaseFont': Name(font) }
-	self.fontNames[font] = dict
-	self.fonts[name] = dict
-	return name
+    def fontName(self, fontprop):
+	filename = fontManager.findfont(fontprop)
+	Fx = self.fontNames.get(filename, None)
+	if Fx is None:
+	    Fx = Name('F%d' % self.nextFont)
+	    self.fontNames[filename] = Fx
+	    self.nextFont += 1
+	return Fx
+
+    def writeFonts(self):
+	fonts = {}
+	for filename, Fx in self.fontNames.items():
+	    # TODO: The following test is wrong, since findfont really
+	    # returns a file name. Think about how to allow users to
+	    # specify the base14 fonts (does fontManager know anything
+	    # about them?).
+	    if filename in self.base14:
+		fontdict = { 'Subtype': Name('Type1'),
+			     'BaseFont': Name(filename) }
+		# etc...
+	    else:
+		fontdictObject = self.embedTTF(filename, )
+	    fonts[Fx] = fontdictObject
+	    #print >>sys.stderr, filename
+
+	self.writeObject(self.fontObject, fonts)
+
+    def embedTTF(self, filename):
+	"""Embed the TTF font from the named file into the document."""
+
+	font = FT2Font(filename)
+
+	def convert(length, upe=font.units_per_EM):
+	    "Convert font coordinates to PDF glyph coordinates"
+	    return round(length / upe * 1000)
+
+	# You are lost in a maze of TrueType tables, all different...
+	ps_name = Name(font.get_sfnt()[(1,0,0,6)])
+	pclt = font.get_sfnt_table('pclt') \
+	    or { 'capHeight': 0, 'xHeight': 0 }
+	post = font.get_sfnt_table('post') \
+	    or { 'italicAngle': (0,0) }
+	ff = font.face_flags
+	sf = font.style_flags
+	charmap = font.get_charmap()
+	chars = sorted(charmap.keys())
+	# TODO: the widths are wrong (Adobe Reader complains)
+	widths = [ convert(font.load_char(i).horiAdvance)
+		   for i in range(chars[0], chars[-1]+1) ]
+
+ 	fontdict = { 'Type': Name('Font'),
+		     'Subtype': Name('TrueType'),
+		     'BaseFont': ps_name,
+		     'FirstChar': chars[0],
+		     'LastChar': chars[-1],
+		     'Widths': self.reserveObject('font widths'),
+		     'FontDescriptor': 
+		       self.reserveObject('font descriptor') }
+	# TODO: Encoding?
+
+	flags = 0
+	if ff & FIXED_WIDTH: flags |= 1 << 0
+	if 0: flags |= 1 << 1 # TODO: serif
+	if 0: flags |= 1 << 2 # TODO: symbolic
+	else: flags |= 1 << 5 # TODO: nonsymbolic
+	if sf & ITALIC: flags |= 1 << 6
+	if 0: flags |= 1 << 16 # TODO: all caps
+	if 0: flags |= 1 << 17 # TODO: small caps
+	if 0: flags |= 1 << 18 # TODO: force bold
+
+	descriptor = { 
+	    'Type': Name('FontDescriptor'),
+	    'FontName': ps_name,
+	    'Flags': flags,
+	    'FontBBox': [ convert(x) for x in font.bbox ],
+	    'Ascent': convert(font.ascender),
+	    'Descent': convert(font.descender),
+	    'CapHeight': convert(pclt['capHeight']),
+	    'XHeight': convert(pclt['xHeight']),
+	    'ItalicAngle': post['italicAngle'][1], # ???
+	    'FontFile2': self.reserveObject('font file'),
+	    'StemV': 0 # ???
+	    }
+
+	# Other FontDescriptor keys include:
+	# /FontFamily /Times (optional)
+	# /FontStretch /Normal (optional)
+	# /FontFile (stream for type 1 font)
+	# /CharSet (used when subsetting type1 fonts)
+
+	fontdictObject = self.reserveObject('font dictionary')
+	self.writeObject(fontdictObject, fontdict)
+	self.writeObject(fontdict['Widths'], widths)
+	self.writeObject(fontdict['FontDescriptor'], descriptor)
+	self.currentstream = \
+	    Stream(descriptor['FontFile2'].id,
+		   self.reserveObject('length of font stream'),
+		   self)
+	self.currentstream.begin()
+	fontfile = open(filename, 'rb')
+	while True:
+	    data = fontfile.read(4096)
+	    if not data: break
+	    self.currentstream.write(data)
+	self.currentstream.end()
+	self.currentstream = None
+
+	return fontdictObject
 
     def alphaState(self, alpha):
 	"""Return name of an ExtGState that sets alpha to the given value"""
@@ -394,12 +497,24 @@ class RendererPdf(RendererBase):
         pass
 
     def draw_text(self, gc, x, y, s, prop, angle, ismath=False):
-	# TODO: this always uses 12-pt Helvetica and starts the
-	# string at x,y. But at least you get some text output.
+	# TODO: fix positioning
+	#       combine consecutive texts into one BT/ET delimited section
+	#       mathtext
 	self.check_gc(gc)
-	fontName = self.file.fontName('Helvetica')
-	self.file.write('BT\n%s 12 Tf\n' % pdfRepr(fontName))
-	self.file.write('%s %s Td\n' % tmap(pdfRepr, (x,y)))
+	fontName = self.file.fontName(prop)
+	self.file.write('BT\n%s %s Tf\n' % 
+			(pdfRepr(fontName), 
+			 pdfRepr(prop.get_size_in_points())))
+	if angle == 0:
+	    self.file.write('%s %s Td\n' % tmap(pdfRepr, (x,y)))
+	else:
+	    angle = angle / 180.0 * pi
+	    self.file.write('%s %s %s %s %s %s Tm\n' % 
+			    tmap(pdfRepr, 
+				 ( cos(angle), sin(angle),
+				  -sin(angle), cos(angle),
+				   x,          y         )))
+					    
 	self.file.write('%s Tj\nET\n' % pdfRepr(s))
          
     def flipy(self):
