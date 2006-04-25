@@ -792,9 +792,10 @@ FT2Font::get_num_glyphs(const Py::Tuple & args){
 }
 
 char FT2Font::load_char__doc__[] =
-"load_char(charcode)\n"
+"load_char(charcode, flags=LOAD_DEFAULT)\n"
 "\n"
 "Load character with charcode in current fontfile and set glyph.\n"
+"The flags argument can be a bitwise-or of the LOAD_XXX constants.\n"
 "Return value is a Glyph object, with attributes\n"
 "  width          # glyph width\n"
 "  height         # glyph height\n"
@@ -807,15 +808,17 @@ char FT2Font::load_char__doc__[] =
 "  vertAdvance    # advance height for vertical layout\n"
 ;
 Py::Object
-FT2Font::load_char(const Py::Tuple & args) {
+FT2Font::load_char(const Py::Tuple & args, const Py::Dict & kws) {
   _VERBOSE("FT2Font::load_char");
   //load a char using the unsigned long charcode
-  args.verify_length(1);
-  long charcode = Py::Int(args[0]);
 
-  int error = FT_Load_Char( face, (unsigned long)charcode, FT_LOAD_DEFAULT);
-  //int error = FT_Load_Char( face, (unsigned long)charcode, FT_LOAD_LINEAR_DESIGN);
-  //int error = FT_Load_Char( face, (unsigned long)charcode, FT_LOAD_RENDER);
+  long charcode, flags = FT_LOAD_DEFAULT;
+  static char *keywords[] = { "charcode", "flags", 0 };
+  if (!PyArg_ParseTupleAndKeywords(args.ptr(), kws.ptr(), "l|l:load_char",
+				   keywords, &charcode, &flags)) 
+    return Py::Object(0);
+  
+  int error = FT_Load_Char( face, (unsigned long)charcode, flags);
 
   if (error)
     throw Py::RuntimeError(Printf("Could not load charcode %d", charcode).str());
@@ -1573,7 +1576,7 @@ FT2Font::init_type() {
 		     FT2Font::get_num_glyphs__doc__);
   add_varargs_method("image_as_str", &FT2Font::image_as_str,
 		     FT2Font::image_as_str__doc__);
-  add_varargs_method("load_char", &FT2Font::load_char,
+  add_keyword_method("load_char", &FT2Font::load_char,
 		     FT2Font::load_char__doc__);
   add_varargs_method("set_text", &FT2Font::set_text,
 		     FT2Font::set_text__doc__);
@@ -1688,6 +1691,30 @@ initft2font(void)
   d["KERNING_DEFAULT"]  = Py::Int(FT_KERNING_DEFAULT);
   d["KERNING_UNFITTED"]  = Py::Int(FT_KERNING_UNFITTED);
   d["KERNING_UNSCALED"]  = Py::Int(FT_KERNING_UNSCALED);
+  
+  d["LOAD_DEFAULT"]    	     = Py::Long(FT_LOAD_DEFAULT);
+  d["LOAD_NO_SCALE"]   	     = Py::Long(FT_LOAD_NO_SCALE);
+  d["LOAD_NO_HINTING"] 	     = Py::Long(FT_LOAD_NO_HINTING);
+  d["LOAD_RENDER"]     	     = Py::Long(FT_LOAD_RENDER);
+  d["LOAD_NO_BITMAP"]  	     = Py::Long(FT_LOAD_NO_BITMAP);
+  d["LOAD_VERTICAL_LAYOUT"]  = Py::Long(FT_LOAD_VERTICAL_LAYOUT);
+  d["LOAD_FORCE_AUTOHINT"]   = Py::Long(FT_LOAD_FORCE_AUTOHINT);
+  d["LOAD_CROP_BITMAP"]      = Py::Long(FT_LOAD_CROP_BITMAP);
+  d["LOAD_PEDANTIC"]         = Py::Long(FT_LOAD_PEDANTIC);
+  d["LOAD_IGNORE_GLOBAL_ADVANCE_WIDTH"] = 
+    Py::Long(FT_LOAD_IGNORE_GLOBAL_ADVANCE_WIDTH);
+  d["LOAD_NO_RECURSE"]       = Py::Long(FT_LOAD_NO_RECURSE);
+  d["LOAD_IGNORE_TRANSFORM"] = Py::Long(FT_LOAD_IGNORE_TRANSFORM);
+  d["LOAD_MONOCHROME"]       = Py::Long(FT_LOAD_MONOCHROME);
+  d["LOAD_LINEAR_DESIGN"]    = Py::Long(FT_LOAD_LINEAR_DESIGN);
+  // These need casting because large-valued numeric literals could
+  // be either longs or unsigned longs:
+  d["LOAD_NO_AUTOHINT"]      = Py::Long((unsigned long)FT_LOAD_NO_AUTOHINT);
+  d["LOAD_TARGET_NORMAL"]    = Py::Long((unsigned long)FT_LOAD_TARGET_NORMAL);
+  d["LOAD_TARGET_LIGHT"]     = Py::Long((unsigned long)FT_LOAD_TARGET_LIGHT);
+  d["LOAD_TARGET_MONO"]      = Py::Long((unsigned long)FT_LOAD_TARGET_MONO);
+  d["LOAD_TARGET_LCD"]       = Py::Long((unsigned long)FT_LOAD_TARGET_LCD);
+  d["LOAD_TARGET_LCD_V"]     = Py::Long((unsigned long)FT_LOAD_TARGET_LCD_V);
 
   //initialize library
   int error = FT_Init_FreeType( &_ft2Library );

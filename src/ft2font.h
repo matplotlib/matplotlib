@@ -60,7 +60,7 @@ public:
   Py::Object get_glyph(const Py::Tuple & args);
   Py::Object get_kerning(const Py::Tuple & args);
   Py::Object get_num_glyphs(const Py::Tuple & args);
-  Py::Object load_char(const Py::Tuple & args);
+  Py::Object load_char(const Py::Tuple & args, const Py::Dict & kws);
   Py::Object get_width_height(const Py::Tuple & args);
   Py::Object get_descent(const Py::Tuple & args);
   Py::Object write_bitmap(const Py::Tuple & args);

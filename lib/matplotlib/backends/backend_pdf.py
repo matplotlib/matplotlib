@@ -14,7 +14,7 @@ import sys
 import time
 import zlib
 
-from math import cos, pi, sin
+from math import ceil, cos, floor, pi, sin
 
 from matplotlib import __version__, rcParams
 from matplotlib._pylab_helpers import Gcf
@@ -23,13 +23,27 @@ from matplotlib.backend_bases import RendererBase, GraphicsContextBase,\
 from matplotlib.cbook import enumerate, is_string_like
 from matplotlib.figure import Figure
 from matplotlib.font_manager import fontManager
-from matplotlib.ft2font import FT2Font, FIXED_WIDTH, ITALIC
+from matplotlib.ft2font import FT2Font, FIXED_WIDTH, ITALIC, LOAD_NO_SCALE
 from matplotlib.transforms import Bbox
 
 
 def tmap(*args):
     """Call map() and convert result to a tuple."""
     return tuple(map(*args))
+
+def fill(strings, line=75):
+    """Make one string from sequence of strings, breaking lines 
+    to form lines of at most 72 characters, if possible."""
+
+    s, strings = [strings[0]], strings[1:]
+    while strings:
+	if len(s[-1]) + len(strings[0]) < 72:
+	    s[-1] += ' ' + strings[0]
+	else:
+	    s.append(strings[0])
+	strings = strings[1:]
+    return '\n'.join(s)
+    
 
 def pdfRepr(obj):
     """Map Python objects to PDF syntax."""
@@ -66,14 +80,14 @@ def pdfRepr(obj):
 			     pdfRepr(val))
 		  for key, val in obj.items()])
 	r.append(">>")
-	return '\n'.join(r)
+	return fill(r)
 
     # Lists.
     elif isinstance(obj, (list, tuple)):
 	r = ["["]
 	r.extend([pdfRepr(val) for val in obj])
 	r.append("]")
-	return '\n'.join(r)
+	return fill(r)
 
     # Booleans.
     elif isinstance(obj, bool):
@@ -305,9 +319,14 @@ class PdfFile:
 
 	font = FT2Font(filename)
 
-	def convert(length, upe=font.units_per_EM):
+	def convert(length, upe=font.units_per_EM, nearest=True):
 	    "Convert font coordinates to PDF glyph coordinates"
-	    return round(length / upe * 1000)
+	    value = length / upe * 1000
+	    if nearest: return round(value)
+	    # Perhaps best to round away from zero for bounding
+	    # boxes and the like
+	    if value < 0: return floor(value)
+	    else: return ceil(value)
 
 	# You are lost in a maze of TrueType tables, all different...
 	ps_name = Name(font.get_sfnt()[(1,0,0,6)])
@@ -320,7 +339,8 @@ class PdfFile:
 	charmap = font.get_charmap()
 	chars = sorted(charmap.keys())
 	# TODO: the widths are wrong (Adobe Reader complains)
-	widths = [ convert(font.load_char(i).horiAdvance)
+	widths = [ convert(font.load_char(i, flags=LOAD_NO_SCALE)
+			   .horiAdvance)
 		   for i in range(chars[0], chars[-1]+1) ]
 
  	fontdict = { 'Type': Name('Font'),
@@ -347,10 +367,10 @@ class PdfFile:
 	    'Type': Name('FontDescriptor'),
 	    'FontName': ps_name,
 	    'Flags': flags,
-	    'FontBBox': [ convert(x) for x in font.bbox ],
-	    'Ascent': convert(font.ascender),
-	    'Descent': convert(font.descender),
-	    'CapHeight': convert(pclt['capHeight']),
+	    'FontBBox': [ convert(x, nearest=False) for x in font.bbox ],
+	    'Ascent': convert(font.ascender, nearest=False),
+	    'Descent': convert(font.descender, nearest=False),
+	    'CapHeight': convert(pclt['capHeight'], nearest=False),
 	    'XHeight': convert(pclt['xHeight']),
 	    'ItalicAngle': post['italicAngle'][1], # ???
 	    'FontFile2': self.reserveObject('font file'),
