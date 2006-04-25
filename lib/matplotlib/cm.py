@@ -71,7 +71,7 @@ class ScalarMappable:
         self.norm.vmax = vmax
         if self.colorbar is not None:
             im, ax = self.colorbar
-            ax.set_ylim((vmin, vmax))
+            ax.set_ylim((vmin, vmax))  ############# FIXME
         self.changed()
 
     def set_cmap(self, cmap):

@@ -294,14 +294,14 @@ class RegularPolyCollection(PatchCollection):
           area scaling.
 
         * numsides: the number of sides of the  polygon
-        
+
         * sizes gives the area of the circle circumscribing the
           regular polygon in points^2
 
         * rotation is the rotation of the polygon in radians
 
         kwargs: See PatchCollection for more details
-        
+
           * offsets are a sequence of x,y tuples that give the centers of
             the polygon in data coordinates
 
@@ -313,12 +313,12 @@ class RegularPolyCollection(PatchCollection):
         offsets = nx.mlab.rand(20,2)
         facecolors = [cm.jet(x) for x in nx.mlab.rand(20)]
         black = (0,0,0,1)
-        
+
         collection = RegularPolyCollection(
             fig.dpi,
             numsides=5, # a pentagon
             rotation=0,
-            sizes=(50,), 
+            sizes=(50,),
             facecolors = facecolors,
             edgecolors = (black,),
             linewidths = (1,),
@@ -346,7 +346,7 @@ class RegularPolyCollection(PatchCollection):
         self._transform.freeze()
         self._transOffset.freeze()
         self.update_scalarmappable()
-        self._update_verts()        
+        self._update_verts()
         scales = sqrt(asarray(self._sizes)*self._dpi.get()/72.0)
 
         if is_string_like(self._edgecolors) and self._edgecolors == 'None':
