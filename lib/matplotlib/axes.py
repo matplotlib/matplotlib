@@ -3622,8 +3622,7 @@ class Axes(Artist):
 
           * vmin=None and vmax=None : vmin and vmax are used in conjunction
             with norm to normalize luminance data.  If either are None, the
-            min and max of the color array C is used.  If you pass a norm
-            instance, vmin and vmax will be None
+            min and max of the color array C is used.
 
           * shading = 'flat' : or 'faceted'.  If 'faceted', a black grid is
             drawn around each rectangle; if 'flat', edge colors are same as
@@ -3644,7 +3643,7 @@ class Axes(Artist):
         cmap = kwargs.get('cmap', None)
         vmin = kwargs.get('vmin', None)
         vmax = kwargs.get('vmax', None)
-        shading = kwargs.get('shading', 'flat')
+        shading = kwargs.get('shading', 'faceted')
 
         if len(args)==1:
             C = args[0]
@@ -3662,7 +3661,7 @@ class Axes(Artist):
         X = ravel(X)
         Y = ravel(Y)
 
-        coords = zeros(((Nx * Ny), 2),"Float32")
+        coords = zeros(((Nx * Ny), 2), Float32)
         # Numeric and numpy refuse to cast the Float64 arrays
         # to Float32 with simple assignment, so we do it explicitly.
         coords[:, 0] = X.astype(Float32)
@@ -3681,9 +3680,7 @@ class Axes(Artist):
         if cmap is not None: assert(isinstance(cmap, Colormap))
         collection.set_cmap(cmap)
         collection.set_norm(norm)
-
-        if norm is not None:
-            collection.set_clim(vmin, vmax)
+        collection.set_clim(vmin, vmax)
 
         self.grid(False)
 
