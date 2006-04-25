@@ -7,6 +7,10 @@
         Pylab interface:
             axis('image')
 
+     Backend developers: ft2font's load_char now takes a flags
+     argument, which you can OR together from the LOAD_XXX
+     constants.
+
 API Changes in matplotlib-0.86
 
      Matplotlib data is installed into the matplotlib module.
