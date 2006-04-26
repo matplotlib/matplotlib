@@ -14,6 +14,7 @@ import sys
 import time
 import zlib
 
+from datetime import datetime
 from math import ceil, cos, floor, pi, sin
 
 from matplotlib import __version__, rcParams
@@ -96,6 +97,16 @@ def pdfRepr(obj):
     # The null keyword.
     elif obj is None:
 	return 'null'
+
+    # A date.
+    elif isinstance(obj, datetime):
+	r = obj.strftime('D:%Y%m%d%H%M%S')
+	if time.daylight: z = time.altzone
+	else: z = time.timezone
+	if z == 0: r += 'Z'
+	elif z < 0: r += "+%02d'%02d'" % ((-z)//3600, (-z)%3600)
+	else: r += "-%02d'%02d'" % (z//3600, z%3600)
+	return pdfRepr(r)
 
     else:
 	raise TypeError, \
@@ -222,8 +233,11 @@ class PdfFile:
 		 'Pages': pagesObject }
 	self.writeObject(self.rootObject, root)
 
-	info = { 'Producer': 'matplotlib version ' + __version__ \
-		 + ', http://matplotlib.sourceforge.net', }
+	info = { 'Creator': 'matplotlib ' + __version__ \
+		 + ', http://matplotlib.sf.net', 
+		 'Producer': 'matplotlib pdf backend',
+		 'CreationDate': datetime.today() }
+
 	# Possible TODO: Title, Author, Subject, Keywords, CreationDate
 	self.writeObject(self.infoObject, info)
 
