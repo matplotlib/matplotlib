@@ -808,15 +808,14 @@ char FT2Font::load_char__doc__[] =
 "  vertAdvance    # advance height for vertical layout\n"
 ;
 Py::Object
-FT2Font::load_char(const Py::Tuple & args, const Py::Dict & kws) {
+FT2Font::load_char(const Py::Tuple & args, const Py::Dict & kwargs) {
   _VERBOSE("FT2Font::load_char");
   //load a char using the unsigned long charcode
 
-  long charcode, flags = FT_LOAD_DEFAULT;
-  static char *keywords[] = { "charcode", "flags", 0 };
-  if (!PyArg_ParseTupleAndKeywords(args.ptr(), kws.ptr(), "l|l:load_char",
-				   keywords, &charcode, &flags)) 
-    return Py::Object(0);
+  args.verify_length(1);
+  long charcode = Py::Long(args[0]), flags = Py::Long(FT_LOAD_DEFAULT);
+  if (kwargs.hasKey("flags"))
+    flags = Py::Long(kwargs["flags"]);
   
   int error = FT_Load_Char( face, (unsigned long)charcode, flags);
 
