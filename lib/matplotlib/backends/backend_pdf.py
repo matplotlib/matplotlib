@@ -493,6 +493,7 @@ class RendererPdf(RendererBase):
     def __init__(self, file):
 	self.file = file
 	self.gc = self.new_gc()
+	self.fonts = {}
 
     def check_gc(self, gc):
 	delta = self.gc.delta(gc)
@@ -544,10 +545,15 @@ class RendererPdf(RendererBase):
 	#       combine consecutive texts into one BT/ET delimited section
 	#       mathtext
 	self.check_gc(gc)
-	fontName = self.file.fontName(prop)
+
+	font = self._get_font_ttf(prop)
+	font.set_text(s, 0.0)
+	y += font.get_descent() / 64.0
+
 	self.file.write('BT\n%s %s Tf\n' % 
-			(pdfRepr(fontName), 
+			(pdfRepr(self.file.fontName(prop)), 
 			 pdfRepr(prop.get_size_in_points())))
+	
 	if angle == 0:
 	    self.file.write('%s %s Td\n' % tmap(pdfRepr, (x,y)))
 	else:
@@ -560,15 +566,29 @@ class RendererPdf(RendererBase):
 					    
 	self.file.write('%s Tj\nET\n' % pdfRepr(s))
          
+    def get_text_width_height(self, s, prop, ismath):
+	# TODO: mathtext
+
+	font = self._get_font_ttf(prop)
+	font.set_text(s, 0.0)
+	w, h = font.get_width_height()
+	return w/64.0, h/64.0
+
+    def _get_font_ttf(self, prop):
+	font = self.fonts.get(prop)
+	if font is None:
+	    font = FT2Font(fontManager.findfont(prop))
+	    self.fonts[prop] = font
+	font.clear()
+	font.set_size(prop.get_size_in_points(), 72.0)
+	return font
+                              
     def flipy(self):
         return False
     
     def get_canvas_width_height(self):
-        return 100, 100
+        return 72*self.file.width, 72*self.file.height
 
-    def get_text_width_height(self, s, prop, ismath):
-        return 1, 1
-                              
     def new_gc(self):
         return GraphicsContextPdf(self.file)
 
