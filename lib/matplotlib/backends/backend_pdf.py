@@ -140,14 +140,18 @@ class Stream:
     contents of the stream by calling write(), and finally call end().
     """
 
-    def __init__(self, id, len, file):
+    def __init__(self, id, len, file, extra=None):
 	"""id: object id of stream; len: an unused Reference object
-	for the length of the stream; file: a PdfFile
+	for the length of the stream; file: a PdfFile; extra:
+	a dictionary of extra key-value pairs to include in the
+	stream header
 	"""
 	self.id = id		# object id
 	self.len = len		# id of length object
 	self.file = file	# file to which the stream is written
 	self.compressobj = None	# compression object
+	if extra is None: self.extra = dict()
+	else: self.extra = extra
 
     def begin(self):
 	"""Initialize stream."""
@@ -155,7 +159,8 @@ class Stream:
 	write = self.file.fh.write
 	self.file.recordXref(self.id)
 	write("%d 0 obj\n" % self.id)
-	dict = { 'Length': self.len }
+	dict = self.extra
+	dict['Length'] = self.len
 	if rcParams['pdf.compression']:
 	    dict['Filter'] = Name('FlateDecode')
 	write(pdfRepr(dict))
@@ -374,6 +379,7 @@ class PdfFile:
 	    'XHeight': convert(pclt['xHeight']),
 	    'ItalicAngle': post['italicAngle'][1], # ???
 	    'FontFile2': self.reserveObject('font file'),
+	    'MaxWidth': max(widths),
 	    'StemV': 0 # ???
 	    }
 
@@ -384,21 +390,25 @@ class PdfFile:
 	# /CharSet (used when subsetting type1 fonts)
 
 	fontdictObject = self.reserveObject('font dictionary')
+	length1Object = self.reserveObject('decoded length of a font')
 	self.writeObject(fontdictObject, fontdict)
 	self.writeObject(fontdict['Widths'], widths)
 	self.writeObject(fontdict['FontDescriptor'], descriptor)
 	self.currentstream = \
 	    Stream(descriptor['FontFile2'].id,
 		   self.reserveObject('length of font stream'),
-		   self)
+		   self, {'Length1': length1Object})
 	self.currentstream.begin()
 	fontfile = open(filename, 'rb')
+	length1 = 0
 	while True:
 	    data = fontfile.read(4096)
 	    if not data: break
+	    length1 += len(data)
 	    self.currentstream.write(data)
 	self.currentstream.end()
 	self.currentstream = None
+	self.writeObject(length1Object, length1)
 
 	return fontdictObject
 
