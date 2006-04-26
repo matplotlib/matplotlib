@@ -343,16 +343,28 @@ class PdfFile:
 	sf = font.style_flags
 	charmap = font.get_charmap()
 	chars = sorted(charmap.keys())
-	# TODO: the widths are wrong (Adobe Reader complains)
+	firstchar, lastchar = chars[0], chars[-1]
+
+	# Get widths
 	widths = [ convert(font.load_char(i, flags=LOAD_NO_SCALE)
 			   .horiAdvance)
-		   for i in range(chars[0], chars[-1]+1) ]
+		   for i in range(firstchar, lastchar+1) ]
+	# Remove redundant widths from end and beginning; doing the
+	# end first helps reduce LastChar, which apparently needs to
+	# be less than 256 or acroread complains.
+	missingwidth = widths[-1]
+	while widths and widths[-1] == missingwidth:
+	    lastchar -= 1
+	    widths.pop()
+	while widths and widths[0] == missingwidth:
+	    firstchar += 1
+	    widths.pop(0)
 
  	fontdict = { 'Type': Name('Font'),
 		     'Subtype': Name('TrueType'),
 		     'BaseFont': ps_name,
-		     'FirstChar': chars[0],
-		     'LastChar': chars[-1],
+		     'FirstChar': firstchar,
+		     'LastChar': lastchar,
 		     'Widths': self.reserveObject('font widths'),
 		     'FontDescriptor': 
 		       self.reserveObject('font descriptor') }
@@ -380,6 +392,7 @@ class PdfFile:
 	    'ItalicAngle': post['italicAngle'][1], # ???
 	    'FontFile2': self.reserveObject('font file'),
 	    'MaxWidth': max(widths),
+	    'MissingWidth': missingwidth,
 	    'StemV': 0 # ???
 	    }
 
