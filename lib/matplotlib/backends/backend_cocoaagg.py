@@ -7,8 +7,11 @@ from __future__ import division
  Author: Charles Moad (cmoad@users.sourceforge.net)
 
  Notes:
-  - THIS IS STILL IN DEVELOPMENT!
   - Requires PyObjC (currently testing v1.3.7)
+  - The Tk backend works nicely on OSX.  This code
+    primarily serves as an example of embedding a
+    matplotlib rendering context into a cocoa app
+    using a NSImageView.
 """
 
 import os, sys
