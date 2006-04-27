@@ -548,11 +548,15 @@ class RendererPdf(RendererBase):
 			     pr(points[0][1])))
 	for x,y in points[1:]:
 	    write('%s %s l\n' % (pr(x), pr(y)))
-	write('q\n%s %s %s rg\nb\nQ\n' % tmap(pr, rgbFace))
+	write('q %s %s %s rg b Q\n' % tmap(pr, rgbFace))
 
     def draw_rectangle(self, gcEdge, rgbFace, x, y, width, height):
-        print >>sys.stderr, "draw_rectangle called"
-        pass
+	# TODO: be smarter about gc (include rgbFace in it?) 
+	#       to avoid q/Q pair
+	self.check_gc(gcEdge)
+	self.file.write('%s %s %s %s re\n' % 
+			tmap(pdfRepr, (x, y, width, height)))
+	self.file.write('q %s %s %s rg b Q\n' % tmap(pdfRepr, rgbFace))
 
     def draw_text(self, gc, x, y, s, prop, angle, ismath=False):
 	# TODO: fix positioning
