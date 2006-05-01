@@ -62,7 +62,7 @@ class PlotFigure(wxFrame):
         # you don't need this under Linux
         tw, th = self.toolbar.GetSizeTuple()
         fw, fh = self.canvas.GetSizeTuple()
-        self.toolbar.SetSize(wxSize(fw, th))
+       self.toolbar.SetSize(wxSize(fw, th))
 
         # Create a figure manager to manage things
         self.figmgr = FigureManager(self.canvas, 1, self)
