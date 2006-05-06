@@ -1936,7 +1936,7 @@ def pcolormesh(*args, **kwargs):
     except:
         hold(b)
         raise
-
+    gci._current = ret
     hold(b)
     return ret
 if Axes.pcolormesh.__doc__ is not None:

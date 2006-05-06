@@ -29,12 +29,12 @@ ax.pcolormesh(Qx,Qz,Z)
 ax.set_title('Without masked values')
 
 ax = fig.add_subplot(122)
-cmap = cm.jet
-cmap.set_bad('w', 1.0)
-# We need to specify the norm so we can set clip to False;
-# probably this should be fixed so it would not be necessary.
-norm = colors.normalize(clip = False)
-ax.pcolormesh(Qx,Qz,Zm, cmap=cmap, norm=norm)
+#  You can control the color of the masked region:
+#cmap = cm.jet
+#cmap.set_bad('r', 1.0)
+#ax.pcolormesh(Qx,Qz,Zm, cmap=cmap)
+#  Or use the default, which is transparent:
+ax.pcolormesh(Qx,Qz,Zm)
 ax.set_title('With masked values')
 show()
 

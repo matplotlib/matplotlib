@@ -630,9 +630,7 @@ class normalize:
         minimum and maximum value respectively.  If clip is True and
         the given value falls outside the range, the returned value
         will be 0 or 1, whichever is closer. Returns 0 if vmin==vmax.
-        Works with scalars or arrays, including masked arrays.  If clip
-        is True, masked values on input will be set to 1 on output; if
-        clip is False, the mask will be propagated to the output.
+        Works with scalars or arrays, including masked arrays.
         """
         self.vmin = vmin
         self.vmax = vmax
@@ -655,7 +653,8 @@ class normalize:
             return 0.*value
         else:
             if self.clip:
-                val = clip(val.filled(vmax), vmin, vmax)
+                val = ma.array(clip(val.filled(vmax), vmin, vmax),
+                                mask=val.mask)
             result = (val-vmin)/float(vmax-vmin)
         if vtype == 'scalar':
             result = result[0]
