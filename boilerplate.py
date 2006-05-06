@@ -47,7 +47,7 @@ if Axes.%(func)s.__doc__ is not None:
 # these methods are all simple wrappers of Axes methods by the same
 # name.
 _plotcommands = (
-    'arrow', 
+    'arrow',
     'axhline',
     'axhspan',
     'axvline',
@@ -94,13 +94,13 @@ _misccommands = (
     )
 
 cmappable = {
-    #'clabel' : 'if ret.mappable is not None: gci._current = ret.mappable',
     'contour' : 'if ret._A is not None: gci._current = ret',
     'contourf': 'if ret._A is not None: gci._current = ret',
     'scatter' : 'gci._current = ret',
     'pcolor'  : 'gci._current = ret',
+    'pcolormesh'  : 'gci._current = ret',
     'imshow'  : 'gci._current = ret',
-    'spy2'  : 'gci._current = ret',
+    'spy2'    : 'gci._current = ret',
     'specgram'  : 'gci._current = ret[-1]',
 
 }
