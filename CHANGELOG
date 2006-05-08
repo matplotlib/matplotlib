@@ -1,3 +1,5 @@
+2006-05-08 Added axisbelow to rc - JDH
+
 2006-05-08 If using PyGTK require version 2.2+ - SC
 
 2006-04-19 Added compression support to PDF backend, controlled by

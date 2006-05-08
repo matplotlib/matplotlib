@@ -139,6 +139,9 @@ axes.grid           : False   # display grid or not
 axes.titlesize      : 14      # fontsize of the axes title
 axes.labelsize      : 12      # fontsize of the x any y labels
 axes.labelcolor     : black
+axes.axisbelow      : False   # whether axis gridlines and ticks are below
+                              # the axes elements (lines, text, etc)  
+                      
 
 polaraxes.grid      : True    # display grid on polar axes
 

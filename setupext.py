@@ -359,6 +359,15 @@ def find_tcltk():
         if not os.path.exists(o.tk_inc):
             o.tk_inc = os.path.join((tk.getvar('tk_library')), 
                         '../../include')
+
+        if not os.path.exists(o.tcl_inc):            
+            # this is a hack for suse linux, which is broken
+            if (sys.platform.startswith('linux') and
+                os.path.exists('/usr/include/tcl.h') and
+                os.path.exists('/usr/include/tk.h')):
+                o.tcl_inc = '/usr/include/'
+                o.tk_inc = '/usr/include/'
+                
         if not os.path.exists(o.tcl_inc):
             print 'cannot find tcl/tk headers. giving up.'
             sys.exit()
