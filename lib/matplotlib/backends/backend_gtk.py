@@ -6,7 +6,7 @@ def fn_name(): return sys._getframe(1).f_code.co_name
 import gobject
 import gtk; gdk = gtk.gdk
 import pango
-pygtk_version_required = (2,0,0)
+pygtk_version_required = (2,2,0)
 if gtk.pygtk_version < pygtk_version_required:
     raise SystemExit ("PyGTK %d.%d.%d is installed\n"
                       "PyGTK %d.%d.%d or later is required"
@@ -218,16 +218,6 @@ class FigureCanvasGTK (gtk.DrawingArea, FigureCanvasBase):
             # do a synchronous draw (its less efficient than an async draw,
             # but is required if/when animation is used)
             self.window.process_updates (False)
-
-            ## synchronous draw (needed for animation)
-            #x, y, w, h = self.allocation
-            #if w<3 or h<3: return # empty fig
-            #self._pixmap_prepare (w, h)
-            #self._render_figure(self._pixmap, w, h)
-            #self._need_redraw = False
-            #self.window.draw_drawable (self.style.fg_gc[self.state],
-            #                           self._pixmap, 0, 0, 0, 0, w, h)
-
 
     def draw_idle(self):
         def idle_draw(*args):
@@ -459,12 +449,11 @@ class FigureManagerGTK(FigureManagerBase):
 
 
     def full_screen_toggle (self):
-        if gtk.pygtk_version >= (2,2,0):
-            self._full_screen_flag = not self._full_screen_flag
-            if self._full_screen_flag:
-                self.window.fullscreen()
-            else:
-                self.window.unfullscreen()
+        self._full_screen_flag = not self._full_screen_flag
+        if self._full_screen_flag:
+            self.window.fullscreen()
+        else:
+            self.window.unfullscreen()
     _full_screen_flag = False
 
 

@@ -9,7 +9,7 @@ def fn_name(): return sys._getframe(1).f_code.co_name
 import gobject
 import gtk; gdk = gtk.gdk
 import pango
-pygtk_version_required = (2,0,0)
+pygtk_version_required = (2,2,0)
 if gtk.pygtk_version < pygtk_version_required:
     raise SystemExit ("PyGTK %d.%d.%d is installed\n"
                       "PyGTK %d.%d.%d or later is required"
