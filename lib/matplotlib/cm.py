@@ -65,14 +65,15 @@ class ScalarMappable:
         'Return the array'
         return self._A
 
-    def set_clim(self, vmin=None, vmax=None):
+    def set_clim(self, vmin=None, vmax=None, force=True):
         'set the norm limits for image scaling'
-        self.norm.vmin = vmin
-        self.norm.vmax = vmax
-        if self.colorbar is not None:
-            im, ax = self.colorbar
-            ax.set_ylim((vmin, vmax))  ############# FIXME
-        self.changed()
+        if force or not self.norm.scaled():
+            self.norm.vmin = vmin
+            self.norm.vmax = vmax
+            if self.colorbar is not None:
+                im, ax = self.colorbar
+                ax.set_ylim((vmin, vmax))  ############# FIXME
+            self.changed()
 
     def set_cmap(self, cmap):
         'set the colormap for luminance data'

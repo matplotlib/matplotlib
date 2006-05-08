@@ -742,14 +742,12 @@ class Axes(Artist):
                 raise ValueError('Unrecognized string %s to axis; try on or off' % s)
             xmin, xmax = self.get_xlim()
             ymin, ymax = self.get_ylim()
-            #draw_if_interactive()
             return xmin, xmax, ymin, ymax
 
         try: v[0]
         except IndexError:
             xmin, xmax = self.set_xlim(**kwargs)
             ymin, ymax = self.set_ylim(**kwargs)
-            #draw_if_interactive()
             return xmin, xmax, ymin, ymax
 
         v = v[0]
@@ -760,7 +758,6 @@ class Axes(Artist):
         self.set_xlim([v[0], v[1]])
         self.set_ylim([v[2], v[3]])
 
-        #draw_if_interactive()
         return v
 
 
@@ -3692,7 +3689,7 @@ class Axes(Artist):
         corners = (minx, miny), (maxx, maxy)
         self.update_datalim( corners)
         self.autoscale_view()
-        collection.update_scalarmappable()
+        ##################collection.update_scalarmappable()
 
         # add the collection last
         self.add_collection(collection)

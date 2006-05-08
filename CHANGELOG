@@ -1,3 +1,7 @@
+2006-05-08 Changed handling of end ranges in contourf: replaced
+           "clip-ends" kwarg with "extend".  See docstring for
+           details. -EF
+
 2006-05-08 Added axisbelow to rc - JDH
 
 2006-05-08 If using PyGTK require version 2.2+ - SC
@@ -9,8 +13,7 @@
 
 2006-04-18 Fixed a bug that caused agg to not render long lines
 
-2006-04-16 Masked array support for pcolormesh; changed default to
-           "flat" (don't show edges); made pcolormesh support the
+2006-04-16 Masked array support for pcolormesh; made pcolormesh support the
            same combinations of X,Y,C dimensions as pcolor does;
            improved (I hope) description of grid used in pcolor,
            pcolormesh. - EF

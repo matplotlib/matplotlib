@@ -1,3 +1,6 @@
+    Contourf: "extend" kwarg replaces "clip_ends"; see docstring.
+    Masked array support added to pcolormesh.
+
     Modified aspect-ratio handling:
         Removed aspect kwarg from imshow
         Axes methods:

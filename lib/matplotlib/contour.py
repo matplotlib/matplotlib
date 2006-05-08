@@ -24,7 +24,7 @@ from collections import  PolyCollection, LineCollection
 from font_manager import FontProperties
 from numerix.mlab import amin, amax
 from text import Text
-
+import warnings
 
 # We can't use a single line collection for contour because a line
 # collection can have only a single line style, and we want to be able to have
@@ -388,6 +388,7 @@ class ContourSet(ScalarMappable, ContourLabeler):
 
         """
         self.ax = ax
+        self.levels = kwargs.get('levels', None)
         self.filled = kwargs.get('filled', False)
         self.linewidths = kwargs.get('linewidths', None)
 
@@ -397,7 +398,12 @@ class ContourSet(ScalarMappable, ContourLabeler):
         cmap = kwargs.get('cmap', None)
         self.colors = kwargs.get('colors', None)
         norm = kwargs.get('norm', None)
-        self.clip_ends = kwargs.get('clip_ends', True)
+        self.clip_ends = kwargs.get('clip_ends', None)      ########
+        self.extend = kwargs.get('extend', 'neither')
+        if self.clip_ends is not None:
+            warnings.warn("'clip_ends' has been replaced by 'extend'")
+            self.levels = self.levels[1:-1] # discard specified end levels
+            self.extend = 'both'            # regenerate end levels
         self.antialiased = kwargs.get('antialiased', True)
         self.nchunk = kwargs.get('nchunk', 0)
         self.locator = kwargs.get('locator', None)
@@ -434,8 +440,8 @@ class ContourSet(ScalarMappable, ContourLabeler):
                 self.linewidths = self.linewidths[0]
             #C = _contour.Cntr(x, y, z.filled(), z.mask())
             C = _contour.Cntr(x, y, z.filled(), ma.getmaskorNone(z))
-            lowers = self.levels[:-1]
-            uppers = self.levels[1:]
+            lowers = self._levels[:-1]
+            uppers = self._levels[1:]
             for level, level_upper, color in zip(lowers, uppers, self.tcolors):
                 nlist = C.trace(level, level_upper, points = 1,
                         nchunk = self.nchunk)
@@ -499,8 +505,8 @@ class ContourSet(ScalarMappable, ContourLabeler):
         one contour line, but two filled regions, and therefore
         three levels to provide boundaries for both regions.
         '''
-        zmax = ma.maximum(z)
-        zmin = ma.minimum(z)
+        zmax = self.zmax
+        zmin = self.zmin
         zmargin = (zmax - zmin) * 0.001 # so z < (zmax + zmargin)
         zmax += zmargin
         intv = Interval(Value(zmin), Value(zmax))
@@ -509,6 +515,7 @@ class ContourSet(ScalarMappable, ContourLabeler):
         self.locator.set_view_interval(intv)
         self.locator.set_data_interval(intv)
         lev = self.locator()
+        self._auto = True
         if self.filled:
             return lev
         return lev[1:-1]
@@ -592,26 +599,39 @@ class ContourSet(ScalarMappable, ContourLabeler):
         else:
             raise TypeError("Too many arguments to %s; see help(%s)" % (fn,fn))
         z = ma.asarray(z)  # Convert to native masked array format if necessary.
-        if Nargs == 1 or Nargs == 3:
-            lev = self._autolev(z, 7)
-        else:   # 2 or 4 args
-            level_arg = args[-1]
-            if type(level_arg) == int:
-                lev = self._autolev(z, level_arg)
-            elif iterable(level_arg) and len(shape(level_arg)) == 1:
-                lev = array([float(fl) for fl in level_arg])
-            else:
-                raise TypeError("Last %s arg must give levels; see help(%s)" % (fn,fn))
-        if self.filled and len(lev) < 2:
-            raise ValueError("Filled contours require at least 2 levels.")
-        # Workaround for cntr.c bug wrt masked interior regions:
-        #if filled:
-        #    z = ma.masked_array(z.filled(-1e38))
-        # It's not clear this is any better than the original bug.
-        self.levels = lev
-        self.layers = self.levels # contour: a line is a thin layer
+        self.zmax = ma.maximum(z)
+        self.zmin = ma.minimum(z)
+        self._auto = False
+        if self.levels is None:
+            if Nargs == 1 or Nargs == 3:
+                lev = self._autolev(z, 7)
+            else:   # 2 or 4 args
+                level_arg = args[-1]
+                if type(level_arg) == int:
+                    lev = self._autolev(z, level_arg)
+                elif iterable(level_arg) and len(shape(level_arg)) == 1:
+                    lev = array([float(fl) for fl in level_arg])
+                else:
+                    raise TypeError("Last %s arg must give levels; see help(%s)" % (fn,fn))
+            if self.filled and len(lev) < 2:
+                raise ValueError("Filled contours require at least 2 levels.")
+            # Workaround for cntr.c bug wrt masked interior regions:
+            #if filled:
+            #    z = ma.masked_array(z.filled(-1e38))
+            # It's not clear this is any better than the original bug.
+            self.levels = lev
+        if self._auto and self.extend in ('both', 'min', 'max'):
+            raise TypeError("Auto level selection is inconsistent "
+                                     + "with use of 'extend' kwarg")
+        self._levels = list(self.levels)
+        if self.extend in ('both', 'min'):
+            self._levels.insert(0, self.zmin - 1)
+        if self.extend in ('both', 'max'):
+            self._levels.append(self.zmax + 1)
+        self._levels = asarray(self._levels)
+        self.layers = self._levels # contour: a line is a thin layer
         if self.filled:
-            self.layers = 0.5 * (self.levels[:-1] + self.levels[1:])
+            self.layers = 0.5 * (self._levels[:-1] + self._levels[1:])
         return (x, y, z)
 
     def _process_colors(self):
@@ -624,21 +644,28 @@ class ContourSet(ScalarMappable, ContourLabeler):
         the full dynamic range available for the selected levels.
 
         The color is based on the midpoint of the layer, except for
-        the end layers when clip_ends is True.
+        an extended end layers.
         """
         self.monochrome = self.cmap.monochrome
         if self.colors is not None:
-            self.cvalues = range(len(self.layers))
+            i0, i1 = 0, len(self.layers)
+            if self.extend in ('both', 'min'):
+                i0 = -1
+            if self.extend in ('both', 'max'):
+                i1 = i1 + 1
+            self.cvalues = range(i0, i1)
             self.set_norm(no_norm())
         else:
             self.cvalues = self.layers
-        if self.filled and len(self.layers) > 2 and self.clip_ends:
+        vmin = amin(self.levels)  # alternative would be self.layers
+        vmax = amax(self.levels)
+        if self.extend in ('both', 'min') or self.clip_ends:
             vmin = 2 * self.levels[1] - self.levels[2]
+        if self.extend in ('both', 'max') or self.clip_ends:
             vmax = 2 * self.levels[-2] - self.levels[-3]
-        else:
-            vmin = amin(self.levels)  # alternative would be self.layers
-            vmax = amax(self.levels)
-        self.set_clim(vmin, vmax)
+        self.set_clim(vmin, vmax, force=False) # allow norm settings to stick
+        if self.extend in ('both', 'max', 'min'):
+            self.norm.clip = False
         self.set_array(self.layers)
         self.tcolors = [ (tuple(rgba),) for rgba in self.to_rgba(self.cvalues)]
 
@@ -749,6 +776,7 @@ class ContourSet(ScalarMappable, ContourLabeler):
                 .matplotlibrc is used
 
             contourf only:
+            ***** Obsolete: ****
             * clip_ends = True
               If False, the limits for color scaling are set to the
               minimum and maximum contour levels.
@@ -756,6 +784,19 @@ class ContourSet(ScalarMappable, ContourLabeler):
               if the contour boundaries are V = [-100, 2, 1, 0, 1, 2, 100],
               then the scaling limits will be [-100, 100] if clip_ends
               is False, and [-3, 3] if clip_ends is True.
+            ***** New: *****
+            * extend = 'neither', 'both', 'min', 'max'
+              Unless this is 'neither' (default), contour levels are
+              automatically added to one or both ends of the range so that
+              all data are included.  These added ranges are then
+              mapped to the special colormap values which default to
+              the ends of the colormap range, but can be set via
+              Colormap.set_under() and Colormap.set_over() methods.
+              To replace clip_ends=True and V = [-100, 2, 1, 0, 1, 2, 100],
+              use extend='both' and V = [2, 1, 0, 1, 2].
+              Colorbar modifications to take advantage of this are
+              coming soon...
+            ****************
             * linewidths = None or a number; default of 0.05 works for
               Postscript; a value of about 0.5 seems better for Agg.
             * antialiased = True (default) or False; if False, there is
