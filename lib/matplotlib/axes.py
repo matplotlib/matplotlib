@@ -366,7 +366,7 @@ class Axes(Artist):
         if axisbg is None: axisbg = rcParams['axes.facecolor']
         self._axisbg = axisbg
         self._frameon = frameon
-        self._axisbelow = False  # todo make me an rcparam
+        self._axisbelow = rcParams['axes.axisbelow']
 
         self._hold = rcParams['axes.hold']
         self._connected = {} # a dict from events to (id, func)
@@ -4080,7 +4080,13 @@ class Axes(Artist):
 
         The line handles are returned
         """
-        x,y,z = matplotlib.mlab.get_xyz_where(Z, Z>0)
+        if hasattr(Z, 'tocoo'):
+            c = Z.tocoo()
+            x = c.row
+            y = c.col
+            z = c.data
+        else:            
+            x,y,z = matplotlib.mlab.get_xyz_where(Z, Z>0)
         return self.plot(x+0.5,y+0.5, linestyle='None',
                          marker=marker,markersize=markersize, **kwargs)
 

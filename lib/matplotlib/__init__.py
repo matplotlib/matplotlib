@@ -787,6 +787,7 @@ defaultParams = {
     'contour.negative_linestyle' : [(6.0,6.0), validate_nseq_float(2)],
 
     # axes props
+    'axes.axisbelow'         : [False, validate_bool],
     'axes.hold'         : [True, validate_bool],
     'axes.facecolor'    : ['w', validate_color],    # background color; white
     'axes.edgecolor'    : ['k', validate_color],    # edge color; black
