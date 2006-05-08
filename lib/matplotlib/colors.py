@@ -497,7 +497,7 @@ class Colormap:
         alpha = max(alpha, 0.0)
         self._lut[:-3, -1] = alpha
         mask_bad = None
-        if isinstance(X, (int, float)):
+        if not iterable(X):
             vtype = 'scalar'
             xa = array([X])
         else:

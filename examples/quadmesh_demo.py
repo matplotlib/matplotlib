@@ -34,7 +34,7 @@ ax = fig.add_subplot(122)
 #cmap.set_bad('r', 1.0)
 #ax.pcolormesh(Qx,Qz,Zm, cmap=cmap)
 #  Or use the default, which is transparent:
-ax.pcolormesh(Qx,Qz,Zm)
+col = ax.pcolormesh(Qx,Qz,Zm)
 ax.set_title('With masked values')
 show()
 

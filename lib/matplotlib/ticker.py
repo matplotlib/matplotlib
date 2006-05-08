@@ -303,14 +303,14 @@ class ScalarFormatter(Formatter):
     def _set_offset(self, range):
         # offset of 20,001 is 20,000, for example
         locs = self.locs
-        
+
         if locs is None or not len(locs):
             self.offset = 0
         ave_loc = mean(locs)
         if ave_loc: # dont want to take log10(0)
             ave_oom = math.floor(math.log10(mean(absolute(locs))))
             range_oom = math.floor(math.log10(range))
-            
+
             if absolute(ave_oom-range_oom) >= 3: # four sig-figs
                 if ave_loc < 0:
                     self.offset = math.ceil(amax(locs)/10**range_oom)*10**range_oom
@@ -495,7 +495,7 @@ class LogFormatterMathtext(LogFormatter):
             family = rcParams['font.family']
             fontcmd = {'sans-serif' : r'\textsf',
                        'monospace' : r'\texttt'}.get(family, r'\textrm')
-        
+
         if not isDecade and self.labelOnlyBase: s = ''
         elif not isDecade:
             if usetex: s = r'%d$^%s{%.2f}$'% (b, fontcmd, fx)
@@ -583,15 +583,25 @@ class IndexLocator(Locator):
 
 class FixedLocator(Locator):
     """
-    Tick locations are fixed
+    Tick locations are fixed.  If nbins is not None,
+    the array of possible positions will be subsampled to
+    keep the number of ticks <= nbins +1.
     """
 
-    def __init__(self, locs):
+    def __init__(self, locs, nbins=None):
         self.locs = locs
+        self.nbins = nbins
+        if self.nbins is not None:
+            self.nbins = max(self.nbins, 2)
 
     def __call__(self):
         'Return the locations of the ticks'
-        return self.locs
+        if self.nbins is None:
+            return self.locs
+        step = max(int(0.99 + len(self.locs) / float(self.nbins)), 1)
+        return self.locs[::step]
+
+
 
 
 class NullLocator(Locator):

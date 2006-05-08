@@ -222,10 +222,11 @@ class QuadMesh(PatchCollection):
 
     def draw(self, renderer):
         # does not call update_scalarmappable, need to update it
-        # when creating/changing
+        # when creating/changing              ****** Why not?
         if not self.get_visible(): return
         self._transform.freeze()
         self._transOffset.freeze()
+        self.update_scalarmappable()  #######################
 
         renderer.draw_quad_mesh( self._meshWidth, self._meshHeight,
             self._facecolors, self._coordinates[:,0],
