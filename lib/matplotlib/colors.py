@@ -653,8 +653,9 @@ class normalize:
             return 0.*value
         else:
             if self.clip:
+                mask = ma.getmaskorNone(val)
                 val = ma.array(clip(val.filled(vmax), vmin, vmax),
-                                mask=val.mask)
+                                mask=mask)
             result = (val-vmin)/float(vmax-vmin)
         if vtype == 'scalar':
             result = result[0]
