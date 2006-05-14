@@ -8,7 +8,8 @@ import sys, warnings
 
 from cbook import is_string_like, enumerate, strip_math, Stack
 from colors import colorConverter
-from numerix import array, sqrt, pi, log, asarray, ones, Float
+from numerix import array, sqrt, pi, log, asarray, ones, zeros, Float, Float32
+from numerix import arange, compress, take
 from patches import Rectangle
 from transforms import lbwh_to_bbox, identity_transform
 
@@ -175,7 +176,9 @@ class RendererBase:
         """
         raise NotImplementedError
 
-    def draw_quad_mesh(self, meshWidth, meshHeight, colors, xCoords, yCoords, clipbox, transform, offsets, transOffset, showedges):
+    def draw_quad_mesh(self, meshWidth, meshHeight, colors,
+                        xCoords, yCoords, clipbox,
+                        transform, offsets, transOffset, showedges):
         """
         Draw a quadrilateral mesh
         See documentation in QuadMesh class in collections.py for details
@@ -197,7 +200,9 @@ class RendererBase:
             edgecolors = colors
         else:
             edgecolors = (0, 0, 0, 1),
-        draw_poly_collection(self, verts, transform, clipbox, colors, edgecolors, (0.25,), (0,), offsets, transOffset)
+        self.draw_poly_collection(verts, transform,
+                                clipbox, colors, edgecolors,
+                                (0.25,), (0,), offsets, transOffset)
 
     def draw_poly_collection(
         self, verts, transform, clipbox, facecolors, edgecolors,
