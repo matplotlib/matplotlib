@@ -197,8 +197,7 @@ At present, the differences between Bbox and PBox include:
     manipulations for which the PBox class was made.
 
     Bbox uses LazyValues grouped in pairs as 'll' and 'ur' Point objects;
-    PBox uses a 4-element list; it is subclassed from the python list, so
-    it could be used directly in place of a list as an Axes._position.
+    PBox uses a 4-element list, subclassed from the python list.
 
     Bbox and PBox methods are mostly quite different, reflecting their
     different original purposes.  Similarly, the CXX implementation of
