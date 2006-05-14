@@ -55,8 +55,8 @@ xlabel('word length anomaly')
 ylabel('sentence length anomaly')
 
 # Make a colorbar for the ContourSet returned by the contourf call.
-ax_cbar = colorbar(CS, tickfmt='%1.2f')
-ax_cbar.set_ylabel('verbosity coefficient')
+cbar = colorbar(CS)
+cbar.ax.set_ylabel('verbosity coefficient')
 
 figure()
 

@@ -6,6 +6,7 @@ from artist import Artist
 from axes import Axes, Subplot, PolarSubplot, PolarAxes
 from cbook import flatten, allequal, popd, Stack, iterable
 import _image
+import colorbar
 from colors import normalize, rgb2hex
 from image import FigureImage
 from matplotlib import rcParams
@@ -362,7 +363,7 @@ class Figure(Artist):
 
         def fixitems(items):
             #items may have arrays and lists in them, so convert them
-            # to tuples for the kyey
+            # to tuples for the key
             ret = []
             for k, v in items:
                 if iterable(v): v = tuple(v)
@@ -657,7 +658,23 @@ class Figure(Artist):
 
         self.canvas.print_figure(*args, **kwargs)
 
-    def colorbar(self, mappable,  cax=None,
+    def colorbar(self, mappable, cax=None, **kw):
+        '''
+        Add a colorbar to the current figure.
+
+        Documentation for the pylab thin wrapper: %s
+        ''' % colorbar.__doc__
+        orientation = kw.get('orientation', 'vertical')
+        ax = self.gca()
+        if cax is None:
+            cax, kw = colorbar.make_axes(ax, **kw)
+        cbar = colorbar.Colorbar(cax, mappable, **kw)
+        mappable.add_observer(cbar)
+        mappable.set_colorbar(cbar, cax)
+        self.sca(ax)
+        return cbar
+
+    def colorbar_classic(self, mappable,  cax=None,
                     orientation='vertical', tickfmt='%1.1f',
                     cspacing='proportional',
                     clabels=None, drawedges=False, edgewidth=0.5,

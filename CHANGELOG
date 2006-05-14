@@ -1,3 +1,9 @@
+2006-05-14 New colorbar; old one is renamed to colorbar_classic.
+           New colorbar code is in colorbar.py, with wrappers in
+           figure.py and pylab.py.
+           Fixed aspect-handling bug reported by Michael Mossey.
+           Made backend_bases.draw_quad_mesh() run.- EF
+
 2006-05-08 Changed handling of end ranges in contourf: replaced
            "clip-ends" kwarg with "extend".  See docstring for
            details. -EF

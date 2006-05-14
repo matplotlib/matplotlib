@@ -334,8 +334,17 @@ def _shift_string(s):
         lines[i] = line[min(nshift, nwhite):]
     return ''.join(lines)
 
+from colorbar import colorbar_doc
+def colorbar(mappable = None, cax=None,**kw):
+    if mappable is None:
+        mappable = gci()
+    ret = gcf().colorbar(mappable, cax = cax, **kw)
+    draw_if_interactive()
+    return ret
+colorbar.__doc__ = colorbar_doc
 
-def colorbar(mappable = None,
+
+def colorbar_classic(mappable = None,
              cax=None,
              orientation='vertical',
              tickfmt='%1.1f',
@@ -382,7 +391,7 @@ def colorbar(mappable = None,
     """
     if mappable is None:
         mappable = gci()
-    ret = gcf().colorbar(mappable, cax = cax,
+    ret = gcf().colorbar_classic(mappable, cax = cax,
                          orientation = orientation,
                          tickfmt = tickfmt,
                          cspacing=cspacing,

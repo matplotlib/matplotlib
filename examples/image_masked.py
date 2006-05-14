@@ -36,6 +36,6 @@ im = imshow(Zm, interpolation='bilinear',
     norm = colors.normalize(vmin = -1.0, vmax = 1.0, clip = False),
     origin='lower', extent=[-3,3,-3,3])
 title('Green=low, Red=high, Blue=bad')
-# colorbar(im) # colorbar does not yet show the under and over colors.
+colorbar(im, extend='both')
 show()
 

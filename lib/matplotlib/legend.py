@@ -51,8 +51,8 @@ def line_cuts_bbox(line, bbox):
         return False
 
     if n == 1:
-        return bbox.contains(line[0][0], line[0][1])        
-    
+        return bbox.contains(line[0][0], line[0][1])
+
     p1 = line[0]
     for p2 in line[1:]:
         segment = (p1, p2)
@@ -361,7 +361,7 @@ The following dimensions are in axes coords
                     tline = trans.seq_xy_tups(line)
                     aline = [inv(v) for v in tline]
                     lines.extend(line)
-                    
+
         return [vertices, bboxes, lines]
 
     def draw_frame(self, b):
