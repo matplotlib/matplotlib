@@ -275,7 +275,6 @@ class XTick(Tick):
                     marker = self._xtickmarkers[0],
                     markersize=self._size,
                     )
-
         l.set_transform( blend_xy_sep_transform( self.axes.transData,
                                        self.axes.transAxes) )
         self._set_artist_props(l)

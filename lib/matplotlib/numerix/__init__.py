@@ -13,7 +13,7 @@ numerix  imports either Numeric or numarray based on various selectors.
    likely never used.
 
 To summarize: the  commandline is examined first, the  rc file second,
-and the default array package is Numeric.  
+and the default array package is Numeric.
 """
 
 import sys, os
@@ -33,7 +33,7 @@ for a in sys.argv:
         break
     del a
 
-if which[0] is None:     
+if which[0] is None:
     try:  # In theory, rcParams always has *some* value for numerix.
         which = rcParams['numerix'], "rc"
     except KeyError:
@@ -95,7 +95,7 @@ else:
         return a.byteswap()
     def itemsize(a):
         return a.itemsize
-    # resize function is already defined by numpy 
+    # resize function is already defined by numpy
     # Fix typecode->dtype
     def fixkwargs(kwargs):
         if 'typecode' in kwargs:
@@ -111,7 +111,7 @@ else:
     def ones(*args, **kwargs):
         fixkwargs(kwargs)
         return numpy.ones(*args, **kwargs)
-    
+
 
 verbose.report('numerix %s'%version)
 # a bug fix for blas numeric suggested by Fernando Perez
@@ -127,7 +127,7 @@ def _import_fail_message(module, version):
               "module" : module,
               "specific" : version + module
               }
-    print """ 
+    print """
 The import of the %(which)s version of the %(module)s module,
 %(specific)s, failed.  This is is either because %(which)s was
 unavailable when matplotlib was compiled, because a dependency of

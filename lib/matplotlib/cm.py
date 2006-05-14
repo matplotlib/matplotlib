@@ -59,21 +59,21 @@ class ScalarMappable:
 
     def set_array(self, A):
         'Set the image array from numeric/numarray A'
-        self._A = A.astype(nx.Float32)
+        from numerix import typecode, typecodes
+        if typecode(A) in typecodes['Float']:
+            self._A = A.astype(nx.Float32)
+        else:
+            self._A = A.astype(nx.Int16)
 
     def get_array(self):
         'Return the array'
         return self._A
 
-    def set_clim(self, vmin=None, vmax=None, force=True):
+    def set_clim(self, vmin=None, vmax=None):
         'set the norm limits for image scaling'
-        if force or not self.norm.scaled():
-            self.norm.vmin = vmin
-            self.norm.vmax = vmax
-            if self.colorbar is not None:
-                im, ax = self.colorbar
-                ax.set_ylim((vmin, vmax))  ############# FIXME
-            self.changed()
+        if vmin is not None: self.norm.vmin = vmin
+        if vmax is not None: self.norm.vmax = vmax
+        self.changed()
 
     def set_cmap(self, cmap):
         'set the colormap for luminance data'

@@ -618,7 +618,7 @@ class Axes(Artist):
         """
         ACCEPTS: ['C', 'SW', 'S', 'SE', 'E', 'NE', 'N', 'NW', 'W']
         """
-        if anchor in PBox.coefs.keys():
+        if anchor in PBox.coefs.keys() or len(anchor) == 2:
             self._anchor = anchor
         else:
             raise ValueError('argument must be among %s' %
@@ -667,10 +667,14 @@ class Axes(Artist):
         dL = self.dataLim
         xr = dL.width()
         yr = dL.height()
+        xsize = min(xsize, 1.1*xr)
+        ysize = min(ysize, 1.1*yr)
         xmarg = xsize - xr
         ymarg = ysize - yr
         Ysize = data_ratio * xsize
         Xsize = ysize / data_ratio
+        Xmarg = Xsize - xr
+        Ymarg = Ysize - xr
         # If it is very nearly correct, don't do any more;
         # we are probably just panning.
         if abs(xsize-Xsize) < 0.001*xsize or abs(ysize-Ysize) < 0.001*ysize:
@@ -686,8 +690,7 @@ class Axes(Artist):
         if changex:
             adjust_y = False
         else:
-            adjust_y = changey or (Xsize < min(xsize, xr))
-            adjust_y = adjust_y or (A*ymarg > xmarg)
+            adjust_y = changey or (Ymarg > xmarg)
         if adjust_y:
             dy = Ysize - ysize
             if ymarg < 0.01 * dy:
@@ -945,7 +948,6 @@ class Axes(Artist):
         self.set_xlim(locator.autoscale())
         locator = self.yaxis.get_major_locator()
         self.set_ylim(locator.autoscale())
-
     #### Drawing
 
     def draw(self, renderer=None, inframe=False):
@@ -997,6 +999,7 @@ class Axes(Artist):
         artists.extend(self.patches)
         artists.extend(self.lines)
         artists.extend(self.texts)
+        artists.extend(self.artists)
 
         # keep track of i to guarantee stable sort for python 2.2
         dsu = [ (a.zorder, i, a) for i, a in enumerate(artists)
@@ -1008,9 +1011,6 @@ class Axes(Artist):
 
         self.title.draw(renderer)
         if 0: bbox_artist(self.title, renderer)
-        # optional artists
-        for a in self.artists:
-            a.draw(renderer)
 
         if not self._axisbelow:
             if self.axison and not inframe:
@@ -1027,7 +1027,6 @@ class Axes(Artist):
         self.transData.thaw()  # release the lazy objects
         self.transAxes.thaw()  # release the lazy objects
         renderer.close_group('axes')
-
         self._cachedRenderer = renderer
 
     def draw_artist(self, a):
@@ -3068,8 +3067,10 @@ class Axes(Artist):
             collection.set_cmap(cmap)
             collection.set_norm(norm)
 
-            if norm is None:
+            if vmin is not None or vmax is not None:
                 collection.set_clim(vmin, vmax)
+            else:
+                collection.autoscale()
 
         minx = amin(x)
         maxx = amax(x)
@@ -3411,11 +3412,15 @@ class Axes(Artist):
         im = AxesImage(self, cmap, norm, interpolation, origin, extent,
                        filternorm=filternorm,
                        filterrad=filterrad)
-        if norm is None and shape is None:
-            im.set_clim(vmin, vmax)
 
         im.set_data(X)
         im.set_alpha(alpha)
+        #if norm is None and shape is None:
+        #    im.set_clim(vmin, vmax)
+        if vmin is not None or vmax is not None:
+            im.set_clim(vmin, vmax)
+        else:
+            im.autoscale()
 
         xmin, xmax, ymin, ymax = im.get_extent()
 
@@ -3570,8 +3575,10 @@ class Axes(Artist):
         if cmap is not None: assert(isinstance(cmap, Colormap))
         collection.set_cmap(cmap)
         collection.set_norm(norm)
-        collection.set_clim(vmin, vmax)
-
+        if vmin is not None or vmax is not None:
+            collection.set_clim(vmin, vmax)
+        else:
+            collection.autoscale()
         self.grid(False)
 
         x = X.compressed()
@@ -3677,7 +3684,10 @@ class Axes(Artist):
         if cmap is not None: assert(isinstance(cmap, Colormap))
         collection.set_cmap(cmap)
         collection.set_norm(norm)
-        collection.set_clim(vmin, vmax)
+        if vmin is not None or vmax is not None:
+            collection.set_clim(vmin, vmax)
+        else:
+            collection.autoscale()
 
         self.grid(False)
 
@@ -4082,7 +4092,7 @@ class Axes(Artist):
             x = c.row
             y = c.col
             z = c.data
-        else:            
+        else:
             x,y,z = matplotlib.mlab.get_xyz_where(Z, Z>0)
         return self.plot(x+0.5,y+0.5, linestyle='None',
                          marker=marker,markersize=markersize, **kwargs)

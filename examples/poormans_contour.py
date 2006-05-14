@@ -22,7 +22,7 @@ cmap = cm.get_cmap('jet', 10)    # 10 discrete colors
 
 im = imshow(Z, cmap=cmap, interpolation='bilinear')
 axis('off')
-colorbar(tickfmt='%1.2f')
+colorbar()
 #savefig('test')
 show()
 

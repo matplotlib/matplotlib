@@ -72,13 +72,15 @@ clabel(CS, levels[1::2],  # label every second level
        fmt='%1.1f',
        fontsize=14)
 
-colorbar(CS)  # make a colorbar for the contour lines
+# make a colorbar for the contour lines
+CB = colorbar(CS, shrink=0.8, extend='both')
+
 title('Lines with colorbar')
 hot()  # Now change the colormap for the contour lines and colorbar
 flag()
 
 # We can still add a colorbar for the image, too.
-colorbar(im, orientation='horizontal')
+CBI = colorbar(im, orientation='horizontal', shrink=0.8)
 # We could manipulate the colorbar axes sizes for better
 # appearance, but we'll leave that for a later demo.
 

@@ -36,6 +36,7 @@ from numerix import array, arange, take, put, Float, Int, where, \
 from numerix.mlab import amin, amax
 import numerix.ma as ma
 from cbook import enumerate, is_string_like, iterable
+from matplotlib import rcParams
 
 cnames = {
     'aliceblue'            : '#F0F8FF',
@@ -465,15 +466,25 @@ def makeMappingArray(N, data):
 
 
 class Colormap:
-    """Base class for all scalar to rgb mappings"""
+    """Base class for all scalar to rgb mappings
+
+        Important methods:
+            set_bad()
+            set_under()
+            set_over()
+    """
     def __init__(self, name, N=256):
         """Public class attributes:
             self.N:       number of rgb quantization levels
             self.name:    name of colormap
+
         """
         self.name = name
         self.N = N
-        self._rgba_bad = (0.0, 0.0, 0.0, 0.0) # If bad, don't paint anything.
+        #self._rgba_bad = (0.0, 0.0, 0.0, 0.0) # If bad, don't paint anything.
+        # 2006/05/12: pcolormesh does not work with the above, so
+        # we will use a different default for now.
+        self._rgba_bad = colorConverter.to_rgba(rcParams['axes.facecolor'])
         self._rgba_under = None
         self._rgba_over = None
         self._i_under = N
@@ -521,15 +532,23 @@ class Colormap:
         #print rgba[0,1:10,:]       # Now the same for numpy, numeric...
         return rgba
 
-    def set_bad(self, color = 'k', alpha = 0.0):
+    def set_bad(self, color = 'k', alpha = 1.0):
+        '''Set color to be used for masked values.
+        '''
         self._rgba_bad = colorConverter.to_rgba(color, alpha)
         if self._isinit: self._set_extremes()
 
     def set_under(self, color = 'k', alpha = 1.0):
+        '''Set color to be used for low out-of-range values.
+           Requires norm.clip = False
+        '''
         self._rgba_under = colorConverter.to_rgba(color, alpha)
         if self._isinit: self._set_extremes()
 
     def set_over(self, color = 'k', alpha = 1.0):
+        '''Set color to be used for high out-of-range values.
+           Requires norm.clip = False
+        '''
         self._rgba_over = colorConverter.to_rgba(color, alpha)
         if self._isinit: self._set_extremes()
 
@@ -617,6 +636,7 @@ class ListedColormap(LinearSegmentedColormap):
                     for c in self.colors], typecode=Float)
         self._lut = zeros((self.N + 3, 4), Float)
         self._lut[:-3, :-1] = rgb
+        self._lut[:-3, -1] = 1
         self._isinit = True
         self._set_extremes()
 
@@ -630,7 +650,9 @@ class normalize:
         minimum and maximum value respectively.  If clip is True and
         the given value falls outside the range, the returned value
         will be 0 or 1, whichever is closer. Returns 0 if vmin==vmax.
-        Works with scalars or arrays, including masked arrays.
+        Works with scalars or arrays, including masked arrays.  If
+        clip is True, masked values are set to 1; otherwise they
+        remain masked.
         """
         self.vmin = vmin
         self.vmax = vmax

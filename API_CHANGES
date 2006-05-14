@@ -1,3 +1,5 @@
+    Colorbar: completely new version and api; see docstring.
+
     Contourf: "extend" kwarg replaces "clip_ends"; see docstring.
     Masked array support added to pcolormesh.
 

@@ -5,7 +5,7 @@ regression testing, and comparing backend efficiency
 """
 
 from __future__ import division
-import os, time
+import os, time, sys
 files = (
     'alignment_test.py',
     'arctest.py',
@@ -19,7 +19,7 @@ files = (
     'custom_ticker1.py',
     'customize_rc.py',
     'date_demo1.py',
-    'date_demo2.py',    
+    'date_demo2.py',
     'figimage_demo.py',
     'figlegend_demo.py',
     'figtext.py',
@@ -40,7 +40,7 @@ files = (
     'log_demo.py',
     'log_test.py',
     'major_minor_demo1.py',
-    'major_minor_demo2.py',     
+    'major_minor_demo2.py',
     'mathtext_demo.py',
     'mri_with_eeg.py',
     'multiple_figs_demo.py',
@@ -57,12 +57,12 @@ files = (
     'specgram_demo.py',
     'stock_demo.py',
     'subplot_demo.py',
-#    'set_and_get.py',    
+#    'set_and_get.py',
     'table_demo.py',
     'text_handles.py',
     'text_rotation.py',
     'text_themes.py',
-#    'tex_demo.py',    
+#    'tex_demo.py',
     'two_scales.py',
     'unicode_demo.py',
     'vline_demo.py',
@@ -73,7 +73,7 @@ files = (
 #tests known to fail on python22 (require datetime)
 fail22  = (
     'date_demo1.py',
-    'date_demo2.py',    
+    'date_demo2.py',
     'finance_demo.py',
     )
 
@@ -87,12 +87,12 @@ failbackend = dict(
 def drive(backend, python='python2.4'):
 
     exclude = failbackend.get(backend, [])
-    
+
     for fname in files:
         if fname in exclude:
             print '\tSkipping %s, known to fail on backend: %s'%backend
             continue
-            
+
         if python=='python2.2' and fname in fail22:
             print '\tSkipping %s, known to fail on python2.2'%fname
             continue
@@ -130,9 +130,13 @@ if __name__ == '__main__':
     # backends = ['Agg', 'Cairo', 'GDK', 'PS', 'SVG', 'Template']
     #backends = ['Agg', 'PS', 'SVG', 'Template']
     # backends = [ 'GTK', 'WX', 'TkAgg']
-    backends = ['Agg', 'PS', 'SVG', 'Template']
+    default_backends = ['Agg', 'PS', 'SVG', 'Template']
     #backends = ['Agg']
     python = 'python2.4'
+    if sys.argv[1:]:
+        backends = [b for b in sys.argv[1:] if b in default_backends]
+    else:
+        backends = default_backends
     for backend in backends:
         print 'testing %s' % backend
         t0 = time.time()
