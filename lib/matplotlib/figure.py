@@ -6,7 +6,7 @@ from artist import Artist
 from axes import Axes, Subplot, PolarSubplot, PolarAxes
 from cbook import flatten, allequal, popd, Stack, iterable
 import _image
-import colorbar
+import colorbar as cbar
 from colors import normalize, rgb2hex
 from image import FigureImage
 from matplotlib import rcParams
@@ -20,6 +20,7 @@ from mlab import linspace, meshgrid
 from ticker import FormatStrFormatter
 from cm import ScalarMappable
 from contour import ContourSet
+import warnings
 
 class SubplotParams:
     """
@@ -659,20 +660,29 @@ class Figure(Artist):
         self.canvas.print_figure(*args, **kwargs)
 
     def colorbar(self, mappable, cax=None, **kw):
-        '''
-        Add a colorbar to the current figure.
-
-        Documentation for the pylab thin wrapper: %s
-        ''' % colorbar.__doc__
+        # Temporary compatibility code:
+        old = ('tickfmt', 'cspacing', 'clabels', 'edgewidth', 'edgecolor')
+        oldkw = [k for k in old if kw.has_key(k)]
+        if oldkw:
+            msg = 'Old colorbar kwargs (%s) found; using colorbar_classic.' % (','.join(oldkw),)
+            warnings.warn(msg, DeprecationWarning)
+            self.colorbar_classic(mappable, cax, **kw)
+            return cax
+        # End of compatibility code block.
         orientation = kw.get('orientation', 'vertical')
         ax = self.gca()
         if cax is None:
-            cax, kw = colorbar.make_axes(ax, **kw)
-        cbar = colorbar.Colorbar(cax, mappable, **kw)
-        mappable.add_observer(cbar)
-        mappable.set_colorbar(cbar, cax)
+            cax, kw = cbar.make_axes(ax, **kw)
+        cb = cbar.Colorbar(cax, mappable, **kw)
+        mappable.add_observer(cb)
+        mappable.set_colorbar(cb, cax)
         self.sca(ax)
-        return cbar
+        return cb
+    colorbar.__doc__ =  '''
+        Create a colorbar for a ScalarMappable instance.
+
+        Documentation for the pylab thin wrapper: %s
+        '''% cbar.colorbar_doc
 
     def colorbar_classic(self, mappable,  cax=None,
                     orientation='vertical', tickfmt='%1.1f',

@@ -105,8 +105,6 @@ class ColorbarBase(cm.ScalarMappable):
         if cmap is None: cmap = cm.get_cmap()
         if norm is None: norm = colors.normalize()
         cm.ScalarMappable.__init__(self, cmap=cmap, norm=norm)
-        #self.cmap = cmap
-        #self.norm = norm
         self.values = values
         self.boundaries = boundaries
         self.extend = extend
@@ -114,6 +112,7 @@ class ColorbarBase(cm.ScalarMappable):
         self.spacing = spacing
         self.orientation = orientation
         self.drawedges = drawedges
+        self.filled = filled
         self.solids = None
         self.lines = None
         if iterable(ticks):
@@ -126,13 +125,20 @@ class ColorbarBase(cm.ScalarMappable):
             self.formatter = ticker.FormatStringFormatter(format)
         else:
             self.formatter = format  # Assume it is a Formatter
-        # Maybe split here, so we can recalculate when clim changes.
+        # The rest is in a method so we can recalculate when clim changes.
+        self.draw_all()
+
+    def draw_all(self):
+        '''
+        Calculate any free parameters based on the current cmap and norm,
+        and do all the drawing.
+        '''
         self._process_values()
         self._find_range()
         X, Y = self._mesh()
         C = self._values[:,nx.NewAxis]
         self._config_axes(X, Y)
-        if filled:
+        if self.filled:
             self._add_solids(X, Y, C)
 
     def _config_axes(self, X, Y):
@@ -435,6 +441,9 @@ class Colorbar(ColorbarBase):
         is changed.
         '''
         cm.ScalarMappable.notify(self, mappable)
+        if self.vmin != self.norm.vmin or self.vmax != self.norm.vmax:
+            self.ax.cla()
+            self.draw_all()
         if isinstance(self.mappable, ContourSet):
             CS = self.mappable
             if self.lines is not None:
@@ -444,19 +453,6 @@ class Colorbar(ColorbarBase):
 
 
 def make_axes(parent, **kw):
-    '''
-    Resize and reposition a parent axes, and return a child
-    axes suitable for a colorbar.
-
-    cax, kw = make_axes(parent, **kw)
-
-    Keyword arguments may include the following (with defaults):
-        orientation = 'vertical'  or 'horizontal'
-
-    All but the first of these are stripped from the input kw set.
-
-    Returns (cax, kw), the child axes and the reduced kw dictionary.
-    '''
     orientation = kw.setdefault('orientation', 'vertical')
     fraction = kw.pop('fraction', 0.15)
     shrink = kw.pop('shrink', 1.0)
@@ -479,7 +475,20 @@ def make_axes(parent, **kw):
     cax = fig.add_axes(pbcb)
     cax.set_aspect(aspect, anchor=anchor, adjustable='box')
     return cax, kw
+make_axes.__doc__ ='''
+    Resize and reposition a parent axes, and return a child
+    axes suitable for a colorbar.
 
+    cax, kw = make_axes(parent, **kw)
+
+    Keyword arguments may include the following (with defaults):
+        orientation = 'vertical'  or 'horizontal'
+    %s
+
+    All but the first of these are stripped from the input kw set.
+
+    Returns (cax, kw), the child axes and the reduced kw dictionary.
+    '''  % make_axes_kw_doc
 
 
 '''
