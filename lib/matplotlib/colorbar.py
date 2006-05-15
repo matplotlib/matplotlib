@@ -414,7 +414,8 @@ class Colorbar(ColorbarBase):
             kw['boundaries'] = CS._levels
             kw['values'] = CS.cvalues
             kw['extend'] = CS.extend
-            kw['ticks'] = CS._levels
+            #kw['ticks'] = CS._levels
+            kw.setdefault('ticks', CS._levels)
             kw['filled'] = CS.filled
             ColorbarBase.__init__(self, ax, **kw)
             if not CS.filled:
