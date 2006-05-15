@@ -122,7 +122,7 @@ class ColorbarBase(cm.ScalarMappable):
         if format is None:
             self.formatter = ticker.ScalarFormatter()
         elif is_string_like(format):
-            self.formatter = ticker.FormatStringFormatter(format)
+            self.formatter = ticker.FormatStrFormatter(format)
         else:
             self.formatter = format  # Assume it is a Formatter
         # The rest is in a method so we can recalculate when clim changes.
