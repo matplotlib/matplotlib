@@ -9,7 +9,6 @@ verts = zip(rx/area*nx.cos(theta), ry/area*nx.sin(theta))
 x,y,s,c = nx.mlab.rand(4, 30)
 s*= 10**2. 
 
-
 fig = figure()
 ax = fig.add_subplot(111)
 ax.scatter(x,y,s,c,marker=None,verts =verts)
