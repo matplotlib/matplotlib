@@ -3075,15 +3075,15 @@ class Axes(Artist):
             else:
                 # todo -- make this nx friendly
                 verts = [verts*s for s in scales]
-                collection = PolyCollection(
-                    verts,
-                    facecolors = colors,
-                    edgecolors = edgecolors,
-                    linewidths = linewidths,
-                    offsets = zip(x,y),
-                    transOffset = self.transData,
-                    )
-                collection.set_transform(identity_transform())
+            collection = PolyCollection(
+                verts,
+                facecolors = colors,
+                edgecolors = edgecolors,
+                linewidths = linewidths,
+                offsets = zip(x,y),
+                transOffset = self.transData,
+                )
+            collection.set_transform(identity_transform())
         collection.set_alpha(alpha)
         collection.update(kwargs)
 
