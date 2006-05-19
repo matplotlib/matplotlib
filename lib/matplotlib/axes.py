@@ -3071,7 +3071,7 @@ class Axes(Artist):
             scales = asarray(scales)
             #scales = sqrt(scales * self.figure.dpi.get() / 72.)
             if len(scales)==1:
-                verts = [s[0]*verts]
+                verts = [scales[0]*verts]
             else:
                 # todo -- make this nx friendly
                 verts = [verts*s for s in scales]
