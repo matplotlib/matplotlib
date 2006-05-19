@@ -211,7 +211,7 @@ class Fonts:
         pass
 
 
-class DummyFonts:
+class DummyFonts(Fonts):
     'dummy class for debugging parser'
     def get_metrics(self, font, sym, fontsize, dpi):
 
