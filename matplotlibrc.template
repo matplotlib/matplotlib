@@ -25,7 +25,7 @@
 
 #### CONFIGURATION BEGINS HERE
 # the default backend; one of GTK GTKAgg GTKCairo FltkAgg QtAgg TkAgg
-#     Agg Cairo GD GDK Paint PS SVG Template
+#     Agg Cairo GD GDK Paint PS PDF SVG Template
 backend      : %(backend)s
 numerix      : %(numerix)s  # numpy, Numeric or numarray
 interactive  : False      # see http://matplotlib.sourceforge.net/interactive.html

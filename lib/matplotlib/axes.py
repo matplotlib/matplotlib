@@ -2735,11 +2735,11 @@ class Axes(Artist):
                 left  = x-xerr[0]
                 right = x+xerr[1]
 
-            barlines.extend( self.hlines(y, x, left) )
-            barlines.extend( self.hlines(y, x, right) )
-            caplines.extend( self.plot(left, y, '|', ms=2*capsize) )
-            caplines.extend( self.plot(right, y, '|', ms=2*capsize) )
-
+            barlines.extend( self.hlines(y, x, left, label='_nolegend_' ))
+            barlines.extend( self.hlines(y, x, right, label='_nolegend_') )
+            caplines.extend( self.plot(left, y, '|', ms=2*capsize, label='_nolegend_') )
+            caplines.extend( self.plot(right, y, '|', ms=2*capsize, label='_nolegend_') )
+            
         if yerr is not None:
             if len(yerr.shape) == 1:
                 lower = y-yerr
@@ -2748,10 +2748,10 @@ class Axes(Artist):
                 lower = y-yerr[0]
                 upper = y+yerr[1]
 
-            barlines.extend( self.vlines(x, y, upper ) )
-            barlines.extend( self.vlines(x, y, lower ) )
-            caplines.extend( self.plot(x, lower, '_', ms=2*capsize) )
-            caplines.extend( self.plot(x, upper, '_', ms=2*capsize) )
+            barlines.extend( self.vlines(x, y, upper, label='_nolegend_' ) )
+            barlines.extend( self.vlines(x, y, lower, label='_nolegend_' ) )
+            caplines.extend( self.plot(x, lower, '_', ms=2*capsize, label='_nolegend_') )
+            caplines.extend( self.plot(x, upper, '_', ms=2*capsize, label='_nolegend_') )
 
         if not barsabove and fmt is not None:
             l0, = self.plot(x,y,fmt,**kwargs)

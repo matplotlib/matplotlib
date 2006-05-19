@@ -293,7 +293,6 @@ RendererAgg::_fill_and_stroke(VS& path,
     stroke.width(gc.linewidth);
     stroke.line_cap(gc.cap);
     stroke.line_join(gc.join);
-    rendererAA->color(gc.color);
     theRasterizer->add_path(stroke);
   }
   else {
@@ -301,9 +300,18 @@ RendererAgg::_fill_and_stroke(VS& path,
     stroke.width(gc.linewidth);
     stroke.line_cap(gc.cap);
     stroke.line_join(gc.join);
-    rendererAA->color(gc.color);
     theRasterizer->add_path(stroke);
   }
+
+  if ( gc.isaa ) {
+    rendererAA->color(gc.color);
+    agg::render_scanlines(*theRasterizer, *slineP8, *rendererAA);
+  }
+  else {
+    rendererBin->color(gc.color);
+    agg::render_scanlines(*theRasterizer, *slineBin, *rendererBin);
+  }
+
   agg::render_scanlines(*theRasterizer, *slineP8, *rendererAA);
 
 }
