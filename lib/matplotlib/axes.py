@@ -39,7 +39,7 @@ from text import Text, TextWithDash, _process_text_args
 from transforms import Bbox, Point, Value, Affine, NonseparableTransformation
 from transforms import  FuncXY, Func, LOG10, IDENTITY, POLAR
 from transforms import get_bbox_transform, unit_bbox, one, origin, zero
-from transforms import blend_xy_sep_transform, Interval
+from transforms import blend_xy_sep_transform, Interval, identity_transform
 from transforms import PBox
 from font_manager import FontProperties
 
@@ -2939,7 +2939,7 @@ class Axes(Artist):
 
     def scatter(self, x, y, s=20, c='b', marker='o', cmap=None, norm=None,
                     vmin=None, vmax=None, alpha=1.0, linewidths=None,
-                    faceted=True,
+                    faceted=True, verts=None,
                     **kwargs):
         """
         SCATTER(x, y, s=20, c='b', marker='o', cmap=None, norm=None,
@@ -2976,6 +2976,10 @@ class Axes(Artist):
             'h' : hexagon
             '8' : octagon
 
+
+        if marker is None and verts is not None, verts is a sequence
+        of (x,y) vertices for a custom scatter symbol.  The 
+        
         s is a size argument in points squared.
 
         Any or all of x, y, s, and c may be masked arrays, in which
@@ -3001,8 +3005,8 @@ class Axes(Artist):
           * linewidths, if None, defaults to (lines.linewidth,).  Note
             that this is a tuple, and if you set the linewidths
             argument you must set it as a sequence of floats, as
-            required by PolyCollection -- see
-            matplotlib.collections.PolyCollection for details
+            required by RegularPolyCollection -- see
+            matplotlib.collections.RegularPolyCollection for details
 
          * faceted: if True, will use the default edgecolor for the
            markers.  If False, will set the edgecolors to be the same
@@ -3026,11 +3030,9 @@ class Axes(Artist):
 
 
 
-        if not syms.has_key(marker):
-            raise ValueError('Unknown marker symbol to scatter')
 
 
-        numsides, rotation = syms[marker]
+
 
         x, y, s, c = delete_masked_points(x, y, s, c)
 
@@ -3048,15 +3050,40 @@ class Axes(Artist):
         if faceted: edgecolors = None
         else: edgecolors = 'None'
 
-        collection = RegularPolyCollection(
-            self.figure.dpi,
-            numsides, rotation, scales,
-            facecolors = colors,
-            edgecolors = edgecolors,
-            linewidths = linewidths,
-            offsets = zip(x,y),
-            transOffset = self.transData,
-            )
+        sym = syms.get(marker)
+        if sym is None and verts is None:
+            raise ValueError('Unknown marker symbol to scatter')
+
+        if sym is not None:
+            numsides, rotation = syms[marker]
+            collection = RegularPolyCollection(
+                self.figure.dpi,
+                numsides, rotation, scales,
+                facecolors = colors,
+                edgecolors = edgecolors,
+                linewidths = linewidths,
+                offsets = zip(x,y),
+                transOffset = self.transData,
+                )
+        else:
+            verts = asarray(verts)
+            # hmm, the scaling is whacked -- how do we want to scale with custom verts?
+            scales = asarray(scales)
+            #scales = sqrt(scales * self.figure.dpi.get() / 72.)
+            if len(scales)==1:
+                verts = [s[0]*verts]
+            else:
+                # todo -- make this nx friendly
+                verts = [verts*s for s in scales]
+                collection = PolyCollection(
+                    verts,
+                    facecolors = colors,
+                    edgecolors = edgecolors,
+                    linewidths = linewidths,
+                    offsets = zip(x,y),
+                    transOffset = self.transData,
+                    )
+                collection.set_transform(identity_transform())
         collection.set_alpha(alpha)
         collection.update(kwargs)
 
