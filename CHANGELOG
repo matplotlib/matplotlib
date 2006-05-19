@@ -1,3 +1,5 @@
+2006-05-19 Fixed bug: plot failed if all points were masked - EF
+
 2006-05-19 Added custom symbol option to scatter - JDH
 
 2006-05-18 New example, multi_image.py; colorbar fixed to show

@@ -44,8 +44,7 @@ def unmasked_index_ranges(mask, compressed = True):
     If optional argument compressed is False, it returns the
     start and stop indices into the original array, not the
     compressed array.
-    In either case, an empty array is returned if there are no
-    unmasked values.
+    Returns None if there are no unmasked values.
 
     Example:
 
@@ -72,11 +71,10 @@ def unmasked_index_ranges(mask, compressed = True):
     i0 = compress(mdif == -1, indices)
     i1 = compress(mdif == 1, indices)
     assert len(i0) == len(i1)
+    if len(i1) == 0:
+        return None
     if not compressed:
-        if len(i1):
-            return concatenate((i0[:, NewAxis], i1[:, NewAxis]), axis=1)
-        else:
-            return zeros((0,0), 'i')
+        return concatenate((i0[:, NewAxis], i1[:, NewAxis]), axis=1)
     seglengths = i1 - i0
     breakpoints = cumsum(seglengths)
     ic0 = concatenate(((0,), breakpoints[:-1]))
