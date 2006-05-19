@@ -171,11 +171,18 @@ class FixedFormatter(Formatter):
         seq[i] regardless of x.  Otherwise return ''
         """
         self.seq = seq
+        self.offset_string = ''
 
     def __call__(self, x, pos=None):
         'Return the format for tick val x at position pos'
         if pos is None or pos>=len(self.seq): return ''
         else: return self.seq[pos]
+
+    def get_offset(self):
+        return self.offset_string
+
+    def set_offset_string(self, ofs):
+        self.offset_string = ofs
 
 class FuncFormatter(Formatter):
     """
@@ -199,7 +206,6 @@ class FormatStrFormatter(Formatter):
     def __call__(self, x, pos=None):
         'Return the format for tick val x at position pos'
         return self.fmt % x
-
 
 class OldScalarFormatter(Formatter):
     """

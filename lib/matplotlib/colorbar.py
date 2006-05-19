@@ -161,19 +161,22 @@ class ColorbarBase(cm.ScalarMappable):
                  linewidth=0.01,
                  zorder=-1)
         ax.add_artist(self.patch)
-        ticks, ticklabels = self._ticker()
+        ticks, ticklabels, offset_string = self._ticker()
         if self.orientation == 'vertical':
             ax.set_xticks([])
             ax.yaxis.set_label_position('right')
             ax.yaxis.set_ticks_position('right')
             ax.set_yticks(ticks)
             ax.set_yticklabels(ticklabels)
+            ax.yaxis.get_major_formatter().set_offset_string(offset_string)
 
         else:
             ax.set_yticks([])
             ax.xaxis.set_label_position('bottom')
             ax.set_xticks(ticks)
             ax.set_xticklabels(ticklabels)
+            ax.xaxis.get_major_formatter().set_offset_string(offset_string)
+
 
     def _outline(self, X, Y):
         '''
@@ -260,7 +263,8 @@ class ColorbarBase(cm.ScalarMappable):
         ticks = self._locate(b)
         formatter.set_locs(b)
         ticklabels = [formatter(t) for t in b]
-        return ticks, ticklabels
+        offset_string = formatter.get_offset()
+        return ticks, ticklabels, offset_string
 
     def _process_values(self, b=None):
         '''
