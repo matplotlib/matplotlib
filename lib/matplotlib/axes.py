@@ -2509,7 +2509,10 @@ class Axes(Artist):
         http://www.mathworks.com/access/helpdesk/help/techdoc/ref/stem.html
         for details and examples/stem_plot.py for a demo.
         """
+        remember_hold=self._hold
         if not self._hold: self.cla()
+        self.hold(True)
+
         markerline, = self.plot(x, y, markerfmt)
 
         stemlines = []
@@ -2518,6 +2521,9 @@ class Axes(Artist):
             stemlines.append(l)
 
         baseline, = self.plot([amin(x), amax(x)], [0,0], basefmt)
+
+        self.hold(remember_hold)
+
         return markerline, stemlines, baseline
 
 
@@ -2739,7 +2745,7 @@ class Axes(Artist):
             barlines.extend( self.hlines(y, x, right, label='_nolegend_') )
             caplines.extend( self.plot(left, y, '|', ms=2*capsize, label='_nolegend_') )
             caplines.extend( self.plot(right, y, '|', ms=2*capsize, label='_nolegend_') )
-            
+
         if yerr is not None:
             if len(yerr.shape) == 1:
                 lower = y-yerr
@@ -2978,8 +2984,8 @@ class Axes(Artist):
 
 
         if marker is None and verts is not None, verts is a sequence
-        of (x,y) vertices for a custom scatter symbol.  The 
-        
+        of (x,y) vertices for a custom scatter symbol.  The
+
         s is a size argument in points squared.
 
         Any or all of x, y, s, and c may be masked arrays, in which
