@@ -73,7 +73,9 @@ def is_file_like(obj):
     return 1
 
 def is_scalar(obj):
-    return is_string_like(obj) or not iterable(obj)
+    try: obj+1
+    except TypeError: return False
+    else: return True
 
 def flatten(seq, scalarp=is_scalar):
     """
