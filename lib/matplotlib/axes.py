@@ -986,8 +986,6 @@ class Axes(Artist):
             l, b, w, h = self.bbox.get_bounds()
             renderer.draw_image(l, b, im, self.bbox)
 
-        # axis drawing was here, where contourf etc clobbered them
-
         # draw axes here, so they are on top of most things
         if self._axisbelow:
             if self.axison and not inframe:
@@ -1824,7 +1822,7 @@ class Axes(Artist):
 
             #draws a gray rectangle from y=0.25-0.75 that spans the horizontal
             #extent of the axes
-            axhspan(0.25, 0.75, facecolor=0.5, alpha=0.5)
+            axhspan(0.25, 0.75, facecolor='0.5', alpha=0.5)
         """
         trans = blend_xy_sep_transform( self.transAxes, self.transData  )
         verts = (xmin, ymin), (xmin, ymax), (xmax, ymax), (xmax, ymin)

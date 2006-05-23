@@ -1,4 +1,14 @@
-    Colorbar: completely new version and api; see docstring.
+
+    Specifying a grayscale color as a float is deprecated; use
+    a string instead, e.g., 0.75 -> '0.75'.
+
+    Collections: initializers now accept any mpl color arg, or
+    sequence of such args; previously only a sequence of rgba
+    tuples was accepted.
+
+    Colorbar: completely new version and api; see docstring.  The
+    original version is still accessible as colorbar_classic, but
+    is deprecated.
 
     Contourf: "extend" kwarg replaces "clip_ends"; see docstring.
     Masked array support added to pcolormesh.

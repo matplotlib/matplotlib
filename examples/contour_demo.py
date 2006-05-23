@@ -46,7 +46,7 @@ title('Single color')
 figure()
 CS = contour(X, Y, Z, 6,
              linewidths=arange(.5, 4, .5),
-             colors=('r', 'green', 'blue', (1,1,0), '#afeeee', 0.5)
+             colors=('r', 'green', 'blue', (1,1,0), '#afeeee', '0.5')
              )
 clabel(CS, fontsize=9, inline=1)
 title('Crazy lines')

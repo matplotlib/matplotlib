@@ -1,6 +1,5 @@
 import random
-from matplotlib.colors import colorConverter
-from matplotlib.collections import RegularPolyCollection 
+from matplotlib.collections import RegularPolyCollection
 import matplotlib.cm as cm
 from pylab import figure, show, nx
 
@@ -15,9 +14,9 @@ collection = RegularPolyCollection(
     fig.dpi,
     numsides=5, # a pentagon
     rotation=0,
-    sizes=(50,), 
+    sizes=(50,),
     facecolors = facecolors,
-    edgecolors = (colorConverter.to_rgba('black'),),
+    edgecolors = 'black',
     linewidths = (1,),
     offsets = offsets,
     transOffset = ax.transData,

@@ -447,8 +447,9 @@ class ContourSet(ScalarMappable, ContourLabeler):
                         nchunk = self.nchunk)
                 col = PolyCollection(nlist,
                                      linewidths = (self.linewidths,),
-                                     antialiaseds = (self.antialiased,))
-                col.set_color(color) # sets both facecolor and edgecolor
+                                     antialiaseds = (self.antialiased,),
+                                     facecolors= color,
+                                     edgecolors= 'None')
                 self.ax.add_collection(col)
                 self.collections.append(col)
 
@@ -459,21 +460,15 @@ class ContourSet(ScalarMappable, ContourLabeler):
             C = _contour.Cntr(x, y, z.filled(), ma.getmaskorNone(z))
             for level, color, width in zip(self.levels, self.tcolors, tlinewidths):
                 nlist = C.trace(level, points = 1)
-                col = LineCollection(nlist)
-                col.set_color(color)
-                col.set_linewidth(width)
+                col = LineCollection(nlist,
+                                     colors = color,
+                                     linewidths = width)
 
                 if level < 0.0 and self.monochrome:
                     col.set_linestyle((0, rcParams['contour.negative_linestyle']))
                 col.set_label(str(level))         # only for self-documentation
                 self.ax.add_collection(col)
                 self.collections.append(col)
-
-        ## check: seems like set_xlim should also be inside
-        #if not self.ax.ishold():
-        #    self.ax.cla()
-        #self.ax.set_xlim((ma.minimum(x), ma.maximum(x)))
-        #self.ax.set_ylim((ma.minimum(y), ma.maximum(y)))
         x0 = ma.minimum(x)
         x1 = ma.maximum(x)
         y0 = ma.minimum(y)

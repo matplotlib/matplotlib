@@ -522,11 +522,8 @@ def validate_color(s):
         except ValueError:
             raise ValueError('Could not convert all entries "%s" to floats'%s)
 
-    if s.replace('.', '').isdigit(): # looks like scalar
-        try: return float(s)
-        except ValueError:
-            raise ValueError('Could not convert "%s" to float' % s)
-
+    if s.replace('.', '').isdigit(): # looks like scalar (grayscale)
+        return s
 
     if len(s)==6 and s.isalnum(): # looks like hex
         return '#' + s
@@ -839,7 +836,7 @@ defaultParams = {
     # figure size in inches: width by height
     'figure.figsize'    : [ (8,6), validate_nseq_float(2)],
     'figure.dpi'        : [ 80, validate_float],   # DPI
-    'figure.facecolor'  : [ 0.75, validate_color], # facecolor; scalar gray
+    'figure.facecolor'  : [ '0.75', validate_color], # facecolor; scalar gray
     'figure.edgecolor'  : [ 'w', validate_color],  # edgecolor; white
 
     'figure.subplot.left'   : [0.125, ValidateInterval(0, 1, closedmin=False, closedmax=False)],

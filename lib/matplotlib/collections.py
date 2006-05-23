@@ -40,14 +40,22 @@ class Collection(Artist):
         'return seq of (x,y) in collection'
         raise NotImplementedError('Derived must override')
 
-    def _get_color(self, c, N=1):
-        if looks_like_color(c):
-            return  [colorConverter.to_rgba(c)]*N
-        elif iterable(c) and len(c) and iterable(c[0]) and len(c[0])==4:
-            # looks like a tuple of rgba
+    def _get_color(self, c):
+        try:
+            #Keep the original list so we can append to it later.
+            #This is needed for examples/dynamic_collections.py.
+            for cc in c:
+                cc = colorConverter.to_rgba(cc)
             return c
-        else:
-            raise TypeError('c must be a matplotlib color arg or nonzero length sequence of rgba tuples')
+        except (ValueError, TypeError):
+            try:
+                return [colorConverter.to_rgba(c)]
+            except (ValueError, TypeError):
+                print 'c is', c
+                raise TypeError('c must be a matplotlib color arg or a sequence of them')
+
+
+
 
     def _get_value(self, val):
         try: return (float(val), )
@@ -101,15 +109,17 @@ class PatchCollection(Collection, ScalarMappable):
         Collection.__init__(self)
         ScalarMappable.__init__(self, norm, cmap)
 
-        if edgecolors is None: edgecolors =\
-           self._get_color(rcParams['patch.edgecolor'])
-        if facecolors is None: facecolors = \
-           self._get_color(rcParams['patch.facecolor'])
-        if linewidths is None: linewidths = ( rcParams['patch.linewidth'],)
-        if antialiaseds is None: antialiaseds = ( rcParams['patch.antialiased'],)
+        if facecolors is None: facecolors = rcParams['patch.facecolor']
+        if edgecolors is None: edgecolors = rcParams['patch.edgecolor']
+        if linewidths is None: linewidths = (rcParams['patch.linewidth'],)
+        if antialiaseds is None: antialiaseds = (rcParams['patch.antialiased'],)
 
-        self._edgecolors = edgecolors
-        self._facecolors  = facecolors
+        self._facecolors  = self._get_color(facecolors)
+        if edgecolors == 'None':
+            self._edgecolors = self._facecolors
+            linewidths = (0,)
+        else:
+            self._edgecolors = self._get_color(edgecolors)
         self._linewidths  = linewidths
         self._antialiaseds = antialiaseds
         self._offsets = offsets
@@ -145,7 +155,7 @@ class PatchCollection(Collection, ScalarMappable):
 
         ACCEPTS: matplotlib color arg or sequence of rgba tuples
         """
-        self._facecolors = self._get_color(c, len(self._facecolors))
+        self._facecolors = self._get_color(c)
 
     def set_edgecolor(self, c):
         """
@@ -155,15 +165,14 @@ class PatchCollection(Collection, ScalarMappable):
 
         ACCEPTS: matplotlib color arg or sequence of rgba tuples
         """
-        self._edgecolors = self._get_color(c, len(self._edgecolors))
+        self._edgecolors = self._get_color(c)
 
     def set_alpha(self, alpha):
         """
-        Set the alpha tranpancies of the collection.  Alpha can be a
-        float, in which case it is applied to the entire collection,
-        or a sequence of floats
+        Set the alpha tranpancies of the collection.  Alpha must be
+        a float.
 
-        ACCEPTS: float or sequence of floats
+        ACCEPTS: float
         """
         try: float(alpha)
         except TypeError: raise TypeError('alpha must be a float')
@@ -425,12 +434,12 @@ class LineCollection(Collection):
             linewidths   = (rcParams['lines.linewidth'], )
 
         if colors is None       :
-            colors       = self._get_color(rcParams['lines.color'])
+            colors       = (rcParams['lines.color'],)
         if antialiaseds is None :
             antialiaseds = (rcParams['lines.antialiased'], )
 
         self._segments = list(segments)
-        self._colors = colors
+        self._colors = self._get_color(colors)
         self._aa = antialiaseds
         self._lw = linewidths
         self.set_linestyle(linestyle)
@@ -503,7 +512,7 @@ class LineCollection(Collection):
 
         ACCEPTS: matplotlib color arg or sequence of rgba tuples
         """
-        self._colors = self._get_color(c, len(self._colors))
+        self._colors = self._get_color(c)
 
     def color(self, c):
         """
