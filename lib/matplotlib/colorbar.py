@@ -215,10 +215,9 @@ class ColorbarBase(cm.ScalarMappable):
         self.solids = col
         if self.drawedges:
             self.dividers = LineCollection(self._edges(X,Y),
-                                           #colors=(rcParams['axes.edgecolor'],),
+                                           colors=(rcParams['axes.edgecolor'],),
                                            linewidths=(0.5*rcParams['axes.linewidth'],)
                                            )
-            self.dividers.set_color(rcParams['axes.edgecolor'])
             self.ax.add_collection(self.dividers)
 
     def add_lines(self, levels, colors, linewidths):

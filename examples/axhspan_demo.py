@@ -30,7 +30,7 @@ l = axvline(x=0, ymin=0.75, linewidth=4, color='b')
 # the axes
 l = axhline(y=.5, xmin=0.25, xmax=0.75)
 
-p = axhspan(0.25, 0.75, facecolor=0.5, alpha=0.5)
+p = axhspan(0.25, 0.75, facecolor='0.5', alpha=0.5)
 
 p = axvspan(1.25, 1.55, facecolor='g', alpha=0.5)
 

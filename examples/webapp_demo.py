@@ -25,7 +25,7 @@ import matplotlib.numerix as nx
 
 # set some global properties that affect the defaults of all figures
 rc('lines', linewidth=2)              # thicker plot lines
-rc('grid', color=0.75, linestyle='-') # solid gray grid lines
+rc('grid', color='0.75', linestyle='-') # solid gray grid lines
 rc('axes', hold=True,                 # hold state is on
    grid=True, facecolor='y')          # yellow background, grid on
 rc('tick', color='r', labelsize=20)   # big red ticks
@@ -60,16 +60,16 @@ def make_fig():
 
     line,  = ax.plot([1,2,3], 'ro--', markersize=12, markerfacecolor='g')
 
-    # make a translucent scatter collection 
+    # make a translucent scatter collection
     x = nx.mlab.rand(100)
     y = nx.mlab.rand(100)
     area = nx.pi*(10 * nx.mlab.rand(100))**2 # 0 to 10 point radiuses
     c = ax.scatter(x,y,area)
-    c.set_alpha(0.5)  
+    c.set_alpha(0.5)
 
     # add some text decoration
     ax.set_title('My first image')
-    ax.set_ylabel('Some numbers')    
+    ax.set_ylabel('Some numbers')
     ax.set_xticks( (.2,.4,.6,.8) )
     labels = ax.set_xticklabels(('Bill', 'Fred', 'Ted', 'Ed'))
 
@@ -80,7 +80,7 @@ def make_fig():
     for l in labels:
         l.set_rotation(45)
         l.set_fontsize(12)
-    
+
     canvas = FigureCanvasAgg(fig)
     canvas.print_figure('webapp.png', dpi=150)
 

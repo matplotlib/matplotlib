@@ -26,7 +26,7 @@ def addtext(props):
     grid(True)
 
 # the text bounding box
-bbox = {'fc':0.8, 'pad':0} 
+bbox = {'fc':'0.8', 'pad':0}
 
 subplot(211)
 addtext({'ha':'center', 'va':'center', 'bbox':bbox})

@@ -9,14 +9,14 @@ set for interactive exploration), you may want to define some
 functions in a custom module that set the defaults, eg
 
 def set_pub():
-    rc('font', weight='bold')    # bold fonts are easier to see 
+    rc('font', weight='bold')    # bold fonts are easier to see
     rc('tick', labelsize=15)     # tick labels bigger
     rc('lines', lw=1, color='k') # thicker black lines (no budget for color!)
-    rc('grid', c=0.5, ls='-', lw=0.5)  # solid gray grid lines
+    rc('grid', c='0.5', ls='-', lw=0.5)  # solid gray grid lines
     rc('#savefig', dpi=300)       # higher res outputs
 
 
-    
+
 Then as you are working interactively, you just need to do
 
 >>> set_pub()
@@ -37,7 +37,7 @@ rc('xtick.major', size=5, pad=7)
 rc('xtick', labelsize=15)
 
 # using aliases for color, linestyle and linewith; gray, solid, thick
-rc('grid', c=0.5, ls='-', lw=5)
+rc('grid', c='0.5', ls='-', lw=5)
 rc('lines', lw=2, color='g')
 subplot(312)
 

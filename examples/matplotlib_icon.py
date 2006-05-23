@@ -17,5 +17,5 @@ axis([-.2, 2.2, -1.2, 1.2])
 
 grid(True)
 setp(gca(), xticklabels=[], yticklabels=[])
-#savefig('../images/matplotlib.svg', facecolor=0.75)
+#savefig('../images/matplotlib.svg', facecolor='0.75')
 

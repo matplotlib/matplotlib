@@ -37,6 +37,7 @@ from numerix.mlab import amin, amax
 import numerix.ma as ma
 from cbook import enumerate, is_string_like, iterable
 from matplotlib import rcParams
+import warnings
 
 cnames = {
     'aliceblue'            : '#F0F8FF',
@@ -320,6 +321,7 @@ cnames = {
     }
 
 def looks_like_color(c):
+    warnings.warn(DeprecationWarning('Use is_color_like instead!'))
     if is_string_like(c):
         if cnames.has_key(c): return True
         elif len(c)==1: return True
@@ -333,6 +335,14 @@ def looks_like_color(c):
             return False
     else:
         return False
+
+def is_color_like(c):
+    try:
+        colorConverter.to_rgb(c)
+        return True
+    except ValueError:
+        return False
+
 
 def rgb2hex(rgb):
     'Given a len 3 rgb tuple of 0-1 floats, return the hex string'
@@ -366,9 +376,13 @@ class ColorConverter:
     cache = {}
     def to_rgb(self, arg):
         """
-        returns a tuple of three floats from 0-1.  arg can be a matlab
-        format string, a html hex color string, an rgb tuple, or a
-        float between 0 and 1.  In the latter case, grayscale is used
+        Returns an RGB tuple of three floats from 0-1.
+
+        arg can be an RGB sequence or a string in any of several forms:
+            1) a letter from the set 'rgbcmykw'
+            2) a hex color string, like '#00FFFF'
+            3) a standard name, like 'aqua'
+            4) a float, like '0.4', indicating gray on a 0-1 scale
         """
         try: return self.cache[arg]
         except KeyError: pass
@@ -383,17 +397,27 @@ class ColorConverter:
                 if str1.startswith('#'):
                     color = hex2color(str1)
                 else:
-                    color = self.colors[arg]
+                    try:
+                        color = self.colors[arg]
+                    except KeyError:
+                        color = tuple([float(arg)]*3)
+            elif iterable(arg):   # streamline this after removing float case
+                color = tuple(arg[:3])
+                if [x for x in color if (x < 0) or  (x > 1)]:
+                    raise ValueError('to_rgb: Invalid rgb arg "%s"' % (str(arg)))
             elif isinstance(arg, (float,int)):
-                if 0<=arg<=1:
+                #raise (ValueError, 'number is %f' % arg)
+                warnings.warn(DeprecationWarning(
+                    "For gray use a string, '%s', not a float, %s" %
+                                                (str(arg), str(arg))))
+                if 0 <= arg <= 1:
                     color = (arg,arg,arg)
                 else:
                     raise ValueError('Floating point color arg must be between 0 and 1')
-            else: # assume tuple (or list)
-                assert isinstance(arg[2], (float,int))
-                color = tuple(arg[:3])
+            else:
+                raise ValueError('to_rgb: Invalid rgb arg "%s"' % (str(arg)))
 
-            self.cache[arg] = color # raise exception if color not set
+            self.cache[arg] = color
 
         except KeyError:
             raise ValueError('to_rgb: Invalid rgb arg "%s"' % (str(arg)))
@@ -404,9 +428,9 @@ class ColorConverter:
 
     def to_rgba(self, arg, alpha=1.0):
         """
-        returns a tuple of four floats from 0-1.  arg can be a matlab
-        format string, a html hex color string, an rgb tuple, or a
-        float between 0 and 1.  In the latter case, grayscale is used
+        Returns an RGBA tuple of four floats from 0-1.
+
+        For acceptable values of arg, see to_rgb.
         """
         r,g,b = self.to_rgb(arg)
         return r,g,b,alpha
