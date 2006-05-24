@@ -5,18 +5,19 @@ X,Y = meshgrid( arange(0,2*pi,.2),arange(0,2*pi,.2) )
 U = cos(X)
 V = sin(Y)
 
-quiver( X, Y, U, V, 0.2, color=True )
-show()
+figure()
+quiver( X, Y, U, V, 0.2, color='length')
 
-quiver( U, V, 0.3 )
-show()
+figure()
+quiver( U, V, 0.8, color='r' )
 
-quiver( U, V, color=True )
-show()
+figure()
+quiver( U, V)
 
+figure()
 quiver( U, V, color=U+V )
-show()
 
+figure()
 quiver( X, Y, U, V )
 show()
 

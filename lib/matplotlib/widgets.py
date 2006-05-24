@@ -19,11 +19,11 @@ class Widget:
     """
     OK, I couldn't resist; abstract base class for mpl GUI neutral
     widgets
-    """    
+    """
     drawon = True
     eventson = True
-        
-        
+
+
 
 
 class Button(Widget):
@@ -68,16 +68,16 @@ class Button(Widget):
         self.observers = {}
         self.ax = ax
 
-        
+
         ax.figure.canvas.mpl_connect('button_press_event', self._click)
         ax.figure.canvas.mpl_connect('motion_notify_event', self._motion)
         ax.set_navigate(False)
         ax.set_axis_bgcolor(color)
         ax.set_xticks([])
-        ax.set_yticks([])        
+        ax.set_yticks([])
         self.color = color
-        self.hovercolor = hovercolor        
-        
+        self.hovercolor = hovercolor
+
         self._lastcolor = color
 
     def _click(self, event):
@@ -95,7 +95,7 @@ class Button(Widget):
             self.ax.set_axis_bgcolor(c)
             self._lastcolor = c
             if self.drawon: self.ax.figure.canvas.draw()
-        
+
     def on_clicked(self, func):
         """
         When the button is clicked, call this func with event
@@ -104,33 +104,33 @@ class Button(Widget):
         """
         cid = self.cnt
         self.observers[cid] = func
-        self.cnt += 1        
+        self.cnt += 1
         return cid
 
     def disconnect(self, cid):
         'remove the observer with connection id cid'
         try: del self.observers[cid]
         except KeyError: pass
-        
-        
+
+
 
 class Slider(Widget):
     """
     A slider representing a floating point range
 
-    The following attributes are defined 
+    The following attributes are defined
       ax     : the slider axes.Axes instance
       val    : the current slider value
       vline  : a Line2D instance representing the initial value
       poly   : A patch.Polygon instance which is the slider
       valfmt : the format string for formatting the slider text
       label  : a text.Text instance, the slider label
-      closedmin : whether the slider is closed on the minimum 
+      closedmin : whether the slider is closed on the minimum
       closedmax : whether the slider is closed on the maximum
       slidermin : another slider - if not None, this slider must be > slidermin
       slidermax : another slider - if not None, this slider must be < slidermax
       dragging : allow for mouse dragging on slider
-      
+
     Call on_changed to connect to the slider event
     """
     def __init__(self, ax, label, valmin, valmax, valinit=0.5, valfmt='%1.2f',
@@ -141,7 +141,7 @@ class Slider(Widget):
 
         valinit -  the slider initial position
 
-        label - the slider label 
+        label - the slider label
 
         valfmt - used to format the slider value
 
@@ -157,16 +157,16 @@ class Slider(Widget):
         self.val = valinit
         self.valinit = valinit
         self.poly = ax.axvspan(valmin,valinit,0,1)
-        
+
         self.vline = ax.axvline(valinit,0,1, color='r', lw=1)
 
-        
+
         self.valfmt=valfmt
         ax.set_yticks([])
         ax.set_xlim((valmin, valmax))
         ax.set_xticks([])
         ax.set_navigate(False)
-        
+
         ax.figure.canvas.mpl_connect('button_press_event', self._update)
         if dragging:
             ax.figure.canvas.mpl_connect('motion_notify_event', self._update)
@@ -193,26 +193,26 @@ class Slider(Widget):
         if event.inaxes != self.ax: return
         val = event.xdata
         if not self.closedmin and val<=self.valmin: return
-        if not self.closedmax and val>=self.valmax: return        
-        
+        if not self.closedmax and val>=self.valmax: return
+
         if self.slidermin is not None:
             if val<=self.slidermin.val: return
 
         if self.slidermax is not None:
             if val>=self.slidermax.val: return
-            
+
         self.set_val(val)
 
     def set_val(self, val):
         self.poly.xy[-1] = val, 0
-        self.poly.xy[-2] = val, 1        
+        self.poly.xy[-2] = val, 1
         self.valtext.set_text(self.valfmt%val)
         if self.drawon: self.ax.figure.canvas.draw()
         self.val = val
         if not self.eventson: return
         for cid, func in self.observers.items():
             func(val)
-        
+
     def on_changed(self, func):
         """
         When the slider valud is changed, call this func with the new
@@ -222,7 +222,7 @@ class Slider(Widget):
         """
         cid = self.cnt
         self.observers[cid] = func
-        self.cnt += 1        
+        self.cnt += 1
         return cid
 
     def disconnect(self, cid):
@@ -233,7 +233,7 @@ class Slider(Widget):
     def reset(self):
         "reset the slider to the initial value if needed"
         if (self.val != self.valinit):
-            self.set_val(self.valinit)     
+            self.set_val(self.valinit)
 
 
 
@@ -265,7 +265,7 @@ class CheckButtons(Widget):
 
         ax.set_xticks([])
         ax.set_yticks([])
-        ax.set_navigate(False)        
+        ax.set_navigate(False)
 
         if len(labels)>1:
             dy = 1./(len(labels)+1)
@@ -273,7 +273,7 @@ class CheckButtons(Widget):
         else:
             dy = 0.25
             ys = [0.5]
-            
+
         cnt = 0
         axcolor = ax.get_axis_bgcolor()
 
@@ -306,7 +306,7 @@ class CheckButtons(Widget):
             self.lines.append((l1,l2))
             ax.add_patch(p)
             ax.add_line(l1)
-            ax.add_line(l2)            
+            ax.add_line(l2)
             cnt += 1
 
         ax.figure.canvas.mpl_connect('button_press_event', self._clicked)
@@ -325,14 +325,14 @@ class CheckButtons(Widget):
                 p.get_window_extent().contains(event.x, event.y) ):
                 l1, l2 = lines
                 l1.set_visible(not l1.get_visible())
-                l2.set_visible(not l2.get_visible())            
+                l2.set_visible(not l2.get_visible())
                 thist = t
                 break
         else:
             return
-            
 
-        if self.drawon: self.ax.figure.canvas.draw() 
+
+        if self.drawon: self.ax.figure.canvas.draw()
 
         if not self.eventson: return
         for cid, func in self.observers.items():
@@ -347,7 +347,7 @@ class CheckButtons(Widget):
         """
         cid = self.cnt
         self.observers[cid] = func
-        self.cnt += 1        
+        self.cnt += 1
         return cid
 
     def disconnect(self, cid):
@@ -380,11 +380,11 @@ class RadioButtons(Widget):
         activecolor is the color of the button when clicked
         """
         self.activecolor = activecolor
-        
+
 
         ax.set_xticks([])
         ax.set_yticks([])
-        ax.set_navigate(False)        
+        ax.set_navigate(False)
         dy = 1./(len(labels)+1)
         ys = linspace(1-dy, dy, len(labels))
         cnt = 0
@@ -401,11 +401,11 @@ class RadioButtons(Widget):
                 facecolor = activecolor
             else:
                 facecolor = axcolor
-                
+
             p = Circle(xy=(0.15, y), radius=0.05, facecolor=facecolor,
                        transform=ax.transAxes)
 
-            
+
             self.labels.append(t)
             self.circles.append(p)
             ax.add_patch(p)
@@ -417,7 +417,7 @@ class RadioButtons(Widget):
 
         self.cnt = 0
         self.observers = {}
-        
+
     def _clicked(self, event):
         if event.button !=1 : return
         if event.inaxes != self.ax: return
@@ -441,7 +441,7 @@ class RadioButtons(Widget):
 
 
 
-        if self.drawon: self.ax.figure.canvas.draw() 
+        if self.drawon: self.ax.figure.canvas.draw()
 
         if not self.eventson: return
         for cid, func in self.observers.items():
@@ -456,7 +456,7 @@ class RadioButtons(Widget):
         """
         cid = self.cnt
         self.observers[cid] = func
-        self.cnt += 1        
+        self.cnt += 1
         return cid
 
     def disconnect(self, cid):
@@ -465,7 +465,7 @@ class RadioButtons(Widget):
         except KeyError: pass
 
 
-                
+
 class SubplotTool(Widget):
     """
     A tool to adjust to subplot params of fig
@@ -484,7 +484,7 @@ class SubplotTool(Widget):
         class toolbarfmt:
             def __init__(self, slider):
                 self.slider = slider
-                
+
             def __call__(self, x, y):
                 fmt = '%s=%s'%(self.slider.label.get_text(), self.slider.valfmt)
                 return fmt%x
@@ -492,7 +492,7 @@ class SubplotTool(Widget):
         self.axleft = toolfig.add_subplot(711)
         self.axleft.set_title('Click on slider to adjust subplot param')
         self.axleft.set_navigate(False)
-        
+
         self.sliderleft = Slider(self.axleft, 'left', 0, 1, targetfig.subplotpars.left, closedmax=False)
         self.sliderleft.on_changed(self.funcleft)
 
@@ -501,23 +501,23 @@ class SubplotTool(Widget):
         self.axbottom.set_navigate(False)
         self.sliderbottom = Slider(self.axbottom, 'bottom', 0, 1, targetfig.subplotpars.bottom, closedmax=False)
         self.sliderbottom.on_changed(self.funcbottom)
-        
+
         self.axright = toolfig.add_subplot(713)
         self.axright.set_navigate(False)
         self.sliderright = Slider(self.axright, 'right', 0, 1, targetfig.subplotpars.right, closedmin=False)
         self.sliderright.on_changed(self.funcright)
-        
+
         self.axtop = toolfig.add_subplot(714)
         self.axtop.set_navigate(False)
         self.slidertop = Slider(self.axtop, 'top', 0, 1, targetfig.subplotpars.top, closedmin=False)
         self.slidertop.on_changed(self.functop)
 
-        
+
         self.axwspace = toolfig.add_subplot(715)
         self.axwspace.set_navigate(False)
         self.sliderwspace = Slider(self.axwspace, 'wspace', 0, 1, targetfig.subplotpars.wspace, closedmax=False)
         self.sliderwspace.on_changed(self.funcwspace)
-        
+
         self.axhspace = toolfig.add_subplot(716)
         self.axhspace.set_navigate(False)
         self.sliderhspace = Slider(self.axhspace, 'hspace', 0, 1, targetfig.subplotpars.hspace, closedmax=False)
@@ -529,7 +529,7 @@ class SubplotTool(Widget):
         self.sliderright.slidermin = self.sliderleft
         self.sliderbottom.slidermax = self.slidertop
         self.slidertop.slidermin = self.sliderbottom
-        
+
 
         bax = toolfig.add_axes([0.8, 0.05, 0.15, 0.075])
         self.buttonreset = Button(bax, 'Reset')
@@ -544,7 +544,7 @@ class SubplotTool(Widget):
             self.drawon = False
 
             # store the drawon state of each slider
-            bs = [] 
+            bs = []
             for slider in sliders:
                 bs.append(slider.drawon)
                 slider.drawon = False
@@ -604,7 +604,7 @@ class Cursor:
     the attributes
 
       horizOn =True|False: controls visibility of the horizontal line
-      vertOn =True|False: controls visibility of the horizontal line      
+      vertOn =True|False: controls visibility of the horizontal line
 
     And the visibility of the cursor itself with visible attribute
     """
@@ -631,43 +631,43 @@ class Cursor:
 
         self.background = None
         self.needclear = False
-        
-        
+
+
     def clear(self, event):
         'clear the cursor'
         if self.useblit:
             self.background = self.canvas.copy_from_bbox(self.ax.bbox)
         self.linev.set_visible(False)
-        self.lineh.set_visible(False)        
+        self.lineh.set_visible(False)
 
     def onmove(self, event):
         'on mouse motion draw the cursor if visible'
         if event.inaxes != self.ax:
             self.linev.set_visible(False)
-            self.lineh.set_visible(False)        
+            self.lineh.set_visible(False)
 
-            if self.needclear:            
+            if self.needclear:
                 self.canvas.draw()
                 self.needclear = False
-            return 
+            return
         self.needclear = True
-        if not self.visible: return 
+        if not self.visible: return
         self.linev.set_xdata((event.xdata, event.xdata))
 
         self.lineh.set_ydata((event.ydata, event.ydata))
         self.linev.set_visible(self.visible and self.vertOn)
-        self.lineh.set_visible(self.visible and self.horizOn)        
+        self.lineh.set_visible(self.visible and self.horizOn)
 
         self._update()
-        
+
 
     def _update(self):
-        
+
         if self.useblit:
             if self.background is not None:
                 self.canvas.restore_region(self.background)
             self.ax.draw_artist(self.linev)
-            self.ax.draw_artist(self.lineh)            
+            self.ax.draw_artist(self.lineh)
             self.canvas.blit(self.ax.bbox)
         else:
 
@@ -697,7 +697,7 @@ class SpanSelector:
           onselect(vmin, vmax)
 
         and clear the span.
-        
+
         direction must be 'horizontal' or 'vertical'
 
         If minspan is not None, ignore events smaller than minspan
@@ -712,10 +712,10 @@ class SpanSelector:
         """
         if rectprops is None:
             rectprops = dict(facecolor='red', alpha=0.5)
-            
+
         assert direction in ['horizontal', 'vertical'], 'Must choose horizontal or vertical for direction'
         self.direction = direction
-            
+
         self.ax = ax
         self.visible = True
         self.canvas = ax.figure.canvas
@@ -747,25 +747,25 @@ class SpanSelector:
                                visible=False,
                                **self.rectprops
                                )
-        
+
         if not self.useblit: self.ax.add_patch(self.rect)
         self.pressv = None
-        
+
     def update_background(self, event):
         'force an update of the background'
         if self.useblit:
             self.background = self.canvas.copy_from_bbox(self.ax.bbox)
 
-        
+
     def ignore(self, event):
         'return True if event should be ignored'
-        return  event.inaxes!=self.ax or not self.visible or event.button !=1 
+        return  event.inaxes!=self.ax or not self.visible or event.button !=1
 
     def press(self, event):
         'on button press event'
         if self.ignore(event): return
         self.buttonDown = True
-        
+
         self.rect.set_visible(self.visible)
         if self.direction == 'horizontal':
             self.pressv = event.xdata
@@ -831,7 +831,7 @@ class SpanSelector:
 class HorizontalSpanSelector(SpanSelector):
     def __init__(self, ax, onselect, **kwargs):
         import warnings
-        warnings.warn(DeprecationWarning('Use SpanSelector instead!'))
+        warnings.warn('Use SpanSelector instead!', DeprecationWarning)
         SpanSelector.__init__(self, ax, onselect, 'horizontal', **kwargs)
 
 class RectangleSelector:
@@ -853,7 +853,7 @@ class RectangleSelector:
       show()
 
     """
-    def __init__(self, ax, onselect, drawtype='box', 
+    def __init__(self, ax, onselect, drawtype='box',
                  minspanx=None, minspany=None, useblit=False,
                  lineprops=None, rectprops=None):
 
@@ -895,7 +895,7 @@ class RectangleSelector:
         self.background = None
 
         if drawtype == 'none':
-            drawtype = 'line'                        # draw a line but make it 
+            drawtype = 'line'                        # draw a line but make it
             self.visible = False                     # invisible
 
         if drawtype == 'box':
@@ -919,38 +919,38 @@ class RectangleSelector:
         self.minspany = minspany
         self.drawtype = drawtype
         # will save the data (position at mouseclick)
-        self.eventpress = None            
+        self.eventpress = None
         # will save the data (pos. at mouserelease)
-        self.eventrelease = None          
+        self.eventrelease = None
 
     def update_background(self, event):
         'force an update of the background'
         if self.useblit:
             self.background = self.canvas.copy_from_bbox(self.ax.bbox)
 
-        
+
     def ignore(self, event):
         'return True if event should be ignored'
         # If no button was pressed yet ignore the event if it was out
         # of the axes
         if self.eventpress == None:
-            return event.inaxes!= self.ax       
+            return event.inaxes!= self.ax
 
         # If a button was pressed, check if the release-button is the
         # same.
         return  (event.inaxes!=self.ax or
                  event.button != self.eventpress.button)
-      
+
     def press(self, event):
         'on button press event'
         # Is the correct button pressed within the correct axes?
-        if self.ignore(event): return         
+        if self.ignore(event): return
 
 
         # make the drawed box/line visible get the click-coordinates,
         # button, ...
         self.to_draw.set_visible(self.visible)
-        self.eventpress = event               
+        self.eventpress = event
         return False
 
 
@@ -958,20 +958,20 @@ class RectangleSelector:
         'on button release event'
         if self.eventpress is None or self.ignore(event): return
         # make the box/line invisible again
-        self.to_draw.set_visible(False)       
+        self.to_draw.set_visible(False)
         self.canvas.draw()
         # release coordinates, button, ...
-        self.eventrelease = event             
+        self.eventrelease = event
         xmin, ymin = self.eventpress.xdata, self.eventpress.ydata
         xmax, ymax = self.eventrelease.xdata, self.eventrelease.ydata
         # calculate dimensions of box or line get values in the right
         # order
-        if xmin>xmax: xmin, xmax = xmax, xmin        
+        if xmin>xmax: xmin, xmax = xmax, xmin
         if ymin>ymax: ymin, ymax = ymax, ymin
 
 
 
-        spanx = xmax - xmin                  
+        spanx = xmax - xmin
         spany = ymax - ymin
         xproblems = self.minspanx is not None and spanx<self.minspanx
         yproblems = self.minspany is not None and spany<self.minspany
