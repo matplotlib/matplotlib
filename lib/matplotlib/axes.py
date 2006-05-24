@@ -1,6 +1,6 @@
 from __future__ import division, generators
 
-import math, sys
+import math, sys, warnings
 
 from numerix import absolute, arange, array, asarray, ones, divide,\
      transpose, log, log10, Float, Float32, ravel, zeros,\
@@ -3189,8 +3189,8 @@ class Axes(Artist):
         of the arrow. color can be an array of colors in which case the arrows can be
         colored according to another dataset.
 
-        If cm is specied and color is None, the colormap is used to give a color
-        according to the vector's length.
+        If cmap is specified and color is 'length', the colormap is
+        used to give a color according to the vector's length.
 
         If color is a scalar field, the colormap is used to map the scalar to a color
         If a colormap is specified and color is an array of color triplets, then the
@@ -3247,7 +3247,7 @@ class Axes(Artist):
             N = N*Nmax
 
         alpha = kwargs.get('alpha', 1.0)
-        width = kwargs.get('width', 0.25)
+        width = kwargs.get('width', .5)
         norm = kwargs.get('norm', None)
         cmap = kwargs.get('cmap', None)
         vmin = kwargs.get('vmin', None)
@@ -3257,45 +3257,41 @@ class Axes(Artist):
 
         C = None
         I,J = U.shape
-        if color is not None and not looks_like_color(color):
-            clr = asarray(color)
-            if clr.shape==U.shape:
-                C = array([ clr[i,j] for i in xrange(I)  for j in xrange(J)])
-            elif clr.shape == () and color:
-                # a scalar (1, True,...)
-                C = array([ N[i,j] for i in xrange(I)  for j in xrange(J)])
-            else:
-                color = (0.,0.,0.,1.)
+        if color == 'length' or color is True:
+            if color is True:
+                warnings.warn('''Use "color='length'",
+                not "color=True"''', DeprecationWarning)
+            C = N
         elif color is None:
-            color = (0.,0.,0.,1.)
+            color = (0,0,0,1)
         else:
-            color = colorConverter.to_rgba( color, alpha )
-
+            clr = asarray(color)
+            if clr.shape == U.shape:
+                C = clr
 
         arrows = [ Arrow(X[i,j],Y[i,j],U[i,j],V[i,j],0.1*S ).get_verts()
                    for i in xrange(I) for j in xrange(J) ]
         collection = PolyCollection(
             arrows,
             edgecolors = 'None',
-            facecolors = (color,),
             antialiaseds = (1,),
             linewidths = (width,),
             )
         if C is not None:
-            collection.set_array( C )
+            collection.set_array( ravel(C) )
+            collection.set_cmap(cmap)
+            collection.set_norm(norm)
+            if norm is not None:
+                collection.set_clim( vmin, vmax )
         else:
-            collection.set_facecolor( (color,) )
-        collection.set_cmap(cmap)
-        collection.set_norm(norm)
-        if norm is not None:
-            collection.set_clim( vmin, vmax )
+            collection.set_facecolor(color)
         self.add_collection( collection )
         lims = asarray(arrows)
         _max = maximum.reduce( maximum.reduce( lims ))
         _min = minimum.reduce( minimum.reduce( lims ))
         self.update_datalim( [ tuple(_min), tuple(_max) ] )
         self.autoscale_view()
-        return arrows
+        return collection
 
 
 

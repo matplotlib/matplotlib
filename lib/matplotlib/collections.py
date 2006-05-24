@@ -13,7 +13,7 @@ from matplotlib import rcParams, verbose
 from artist import Artist
 from backend_bases import GraphicsContextBase
 from cbook import is_string_like, iterable
-from colors import colorConverter, looks_like_color
+from colors import colorConverter
 from cm import ScalarMappable
 from numerix import arange, sin, cos, pi, asarray, sqrt, array
 from transforms import identity_transform
@@ -39,23 +39,6 @@ class Collection(Artist):
     def get_verts(self):
         'return seq of (x,y) in collection'
         raise NotImplementedError('Derived must override')
-
-    def _get_color(self, c):
-        try:
-            #Keep the original list so we can append to it later.
-            #This is needed for examples/dynamic_collections.py.
-            for cc in c:
-                cc = colorConverter.to_rgba(cc)
-            return c
-        except (ValueError, TypeError):
-            try:
-                return [colorConverter.to_rgba(c)]
-            except (ValueError, TypeError):
-                print 'c is', c
-                raise TypeError('c must be a matplotlib color arg or a sequence of them')
-
-
-
 
     def _get_value(self, val):
         try: return (float(val), )
@@ -114,12 +97,12 @@ class PatchCollection(Collection, ScalarMappable):
         if linewidths is None: linewidths = (rcParams['patch.linewidth'],)
         if antialiaseds is None: antialiaseds = (rcParams['patch.antialiased'],)
 
-        self._facecolors  = self._get_color(facecolors)
+        self._facecolors  = colorConverter.to_rgba_list(facecolors)
         if edgecolors == 'None':
             self._edgecolors = self._facecolors
             linewidths = (0,)
         else:
-            self._edgecolors = self._get_color(edgecolors)
+            self._edgecolors = colorConverter.to_rgba_list(edgecolors)
         self._linewidths  = linewidths
         self._antialiaseds = antialiaseds
         self._offsets = offsets
@@ -155,7 +138,7 @@ class PatchCollection(Collection, ScalarMappable):
 
         ACCEPTS: matplotlib color arg or sequence of rgba tuples
         """
-        self._facecolors = self._get_color(c)
+        self._facecolors = colorConverter.to_rgba_list(c)
 
     def set_edgecolor(self, c):
         """
@@ -165,7 +148,7 @@ class PatchCollection(Collection, ScalarMappable):
 
         ACCEPTS: matplotlib color arg or sequence of rgba tuples
         """
-        self._edgecolors = self._get_color(c)
+        self._edgecolors = colorConverter.to_rgba_list(c)
 
     def set_alpha(self, alpha):
         """
@@ -439,7 +422,7 @@ class LineCollection(Collection):
             antialiaseds = (rcParams['lines.antialiased'], )
 
         self._segments = list(segments)
-        self._colors = self._get_color(colors)
+        self._colors = colorConverter.to_rgba_list(colors)
         self._aa = antialiaseds
         self._lw = linewidths
         self.set_linestyle(linestyle)
@@ -512,7 +495,7 @@ class LineCollection(Collection):
 
         ACCEPTS: matplotlib color arg or sequence of rgba tuples
         """
-        self._colors = self._get_color(c)
+        self._colors = colorConverter.to_rgba_list(c)
 
     def color(self, c):
         """

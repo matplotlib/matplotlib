@@ -321,7 +321,7 @@ cnames = {
     }
 
 def looks_like_color(c):
-    warnings.warn(DeprecationWarning('Use is_color_like instead!'))
+    warnings.warn('Use is_color_like instead!', DeprecationWarning)
     if is_string_like(c):
         if cnames.has_key(c): return True
         elif len(c)==1: return True
@@ -374,7 +374,7 @@ class ColorConverter:
         }
 
     cache = {}
-    def to_rgb(self, arg):
+    def to_rgb(self, arg, warn=True):
         """
         Returns an RGB tuple of three floats from 0-1.
 
@@ -384,6 +384,7 @@ class ColorConverter:
             3) a standard name, like 'aqua'
             4) a float, like '0.4', indicating gray on a 0-1 scale
         """
+        # warn kwarg will go away when float-as-grayscale does
         try: return self.cache[arg]
         except KeyError: pass
         except TypeError: # could be unhashable rgb seq
@@ -406,10 +407,12 @@ class ColorConverter:
                 if [x for x in color if (x < 0) or  (x > 1)]:
                     raise ValueError('to_rgb: Invalid rgb arg "%s"' % (str(arg)))
             elif isinstance(arg, (float,int)):
-                #raise (ValueError, 'number is %f' % arg)
-                warnings.warn(DeprecationWarning(
+                #raise Exception('number is %s' % str(arg))
+                if warn: warnings.warn(
                     "For gray use a string, '%s', not a float, %s" %
-                                                (str(arg), str(arg))))
+                                                (str(arg), str(arg)),
+                                                DeprecationWarning)
+                else: self._gray = True
                 if 0 <= arg <= 1:
                     color = (arg,arg,arg)
                 else:
@@ -419,21 +422,57 @@ class ColorConverter:
 
             self.cache[arg] = color
 
-        except KeyError:
-            raise ValueError('to_rgb: Invalid rgb arg "%s"' % (str(arg)))
-        except Exception, exc:
+        except (KeyError, ValueError, TypeError), exc:
             raise ValueError('to_rgb: Invalid rgb arg "%s"\n%s' % (str(arg), exc))
 
         return color
 
-    def to_rgba(self, arg, alpha=1.0):
+    def to_rgba(self, arg, alpha=1.0, warn=True):
         """
         Returns an RGBA tuple of four floats from 0-1.
 
         For acceptable values of arg, see to_rgb.
         """
-        r,g,b = self.to_rgb(arg)
+        r,g,b = self.to_rgb(arg, warn)
         return r,g,b,alpha
+
+    def to_rgba_list(self, c):
+        """
+        Returns a list of rgba tuples.
+
+        Accepts a single mpl color spec or a sequence of specs.
+        If the sequence is a list, the list items are changed in place.
+        """
+        # This can be improved after removing float-as-grayscale.
+        if not is_string_like(c):
+            try:
+                N = len(c) # raises TypeError if it is not a sequence
+                # Temporary hack: keep single rgb or rgba from being
+                # treated as grayscale.
+                if N==3 or N==4:
+                    L = [x for x in c if x>=0 and x<=1]
+                    if len(L) == N:
+                        raise ValueError
+                # If c is a list, we need to return the same list but
+                # with modified items so that items can be appended to
+                # it. This is needed for examples/dynamic_collections.py.
+                if not isinstance(c, list): # specific; don't need duck-typing
+                    c = list(c)
+                self._gray = False
+                for i, cc in enumerate(c):
+                    c[i] = self.to_rgba(cc, warn=False)  # change in place
+                if self._gray:
+                    msg = "In argument %s: use string, not float, for grayscale" % str(c)
+                    warnings.warn(msg, DeprecationWarning)
+                return c
+            except (ValueError, TypeError):
+                pass
+        try:
+            return [self.to_rgba(c)]
+        except (ValueError, TypeError):
+            raise TypeError('c must be a matplotlib color arg or a sequence of them')
+
+
 
 colorConverter = ColorConverter()
 
