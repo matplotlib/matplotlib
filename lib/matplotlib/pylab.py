@@ -911,6 +911,11 @@ def gci():
 gci._current = None
 
 
+def sci(im):
+    """
+    Set the current image (the target of colormap commands like jet, hot or clim)
+    """
+    gci._current = im
 
 
 def hold(b=None):
