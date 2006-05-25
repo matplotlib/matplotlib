@@ -533,6 +533,11 @@ class Axes(Artist):
         self.axesPatch.set_figure(self.figure)
         self.axesPatch.set_transform(self.transAxes)
         self.axesPatch.set_linewidth(rcParams['axes.linewidth'])
+        self.axesFrame = Line2D((0,1,1,0,0), (0,0,1,1,0),
+                            linewidth=rcParams['axes.linewidth'],
+                            color=rcParams['axes.edgecolor'])
+        self.axesFrame.set_transform(self.transAxes)
+        self.axesFrame.set_zorder(2.5)
         self.axison = True
 
     def clear(self):
@@ -969,8 +974,7 @@ class Axes(Artist):
             raise
 
         self.transAxes.freeze()  # eval the lazy objects
-        if self.axison:
-            if self._frameon: self.axesPatch.draw(renderer)
+        if self.axison and self._frameon: self.axesPatch.draw(renderer)
 
         if len(self.images)==1:
             im = self.images[0]
@@ -989,11 +993,6 @@ class Axes(Artist):
             l, b, w, h = self.bbox.get_bounds()
             renderer.draw_image(l, b, im, self.bbox)
 
-        # draw axes here, so they are on top of most things
-        if self._axisbelow:
-            if self.axison and not inframe:
-                self.xaxis.draw(renderer)
-                self.yaxis.draw(renderer)
 
         artists = []
         artists.extend(self.collections)
@@ -1001,6 +1000,20 @@ class Axes(Artist):
         artists.extend(self.lines)
         artists.extend(self.texts)
         artists.extend(self.artists)
+        if self.axison and not inframe:
+            if self._axisbelow:
+                self.xaxis.set_zorder(0.5)
+                self.yaxis.set_zorder(0.5)
+            else:
+                self.xaxis.set_zorder(2.5)
+                self.yaxis.set_zorder(2.5)
+            artists.extend([self.xaxis, self.yaxis])
+        if not inframe: artists.append(self.title)
+        artists.extend(self.tables)
+        if self.legend_ is not None:
+            artists.append(self.legend_)
+        if self.axison and self._frameon:
+            artists.append(self.axesFrame)
 
         # keep track of i to guarantee stable sort for python 2.2
         dsu = [ (a.zorder, i, a) for i, a in enumerate(artists)
@@ -1009,21 +1022,6 @@ class Axes(Artist):
 
         for zorder, i, a in dsu:
             a.draw(renderer)
-
-        self.title.draw(renderer)
-        if 0: bbox_artist(self.title, renderer)
-
-        if not self._axisbelow:
-            if self.axison and not inframe:
-                self.xaxis.draw(renderer)
-                self.yaxis.draw(renderer)
-
-        if self.legend_ is not None:
-            self.legend_.draw(renderer)
-
-
-        for table in self.tables:
-            table.draw(renderer)
 
         self.transData.thaw()  # release the lazy objects
         self.transAxes.thaw()  # release the lazy objects
