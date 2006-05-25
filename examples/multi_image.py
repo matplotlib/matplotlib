@@ -60,7 +60,7 @@ fig.colorbar(images[0], cax, orientation='horizontal')
 
 # We need the following only if we want to run this
 # script interactively and be able to change the colormap.
-pylab.gci._current = images[0]
+pylab.sci(images[0])
 
 pylab.show()
 
