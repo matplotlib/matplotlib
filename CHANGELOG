@@ -1,3 +1,8 @@
+2006-05-24 Fixed colorbar positioning bug identified by Helge
+           Avlesen, and improved the algorithm; added a 'pad'
+           kwarg to control the spacing between colorbar and
+           parent axes. - EF
+
 2006-05-23 Changed color handling so that collection initializers
            can take any mpl color arg or sequence of args; deprecated
            float as grayscale, replaced by string representation of
