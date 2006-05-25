@@ -448,9 +448,12 @@ class Axes(Artist):
         if self._sharey:
             self.transData.set_funcy(self._sharey.transData.get_funcy())
 
-    def get_position(self):
+    def get_position(self, original=False):
         'Return the axes rectangle left, bottom, width, height'
-        return [val.get() for val in self._position]
+        if original:
+            return self._originalPosition[:]
+        else:
+            return [val.get() for val in self._position]
 
     def set_position(self, pos, which='both'):
         """
