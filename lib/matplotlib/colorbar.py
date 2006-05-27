@@ -213,7 +213,7 @@ class ColorbarBase(cm.ScalarMappable):
         else:
             args = (nx.transpose(Y), nx.transpose(X), nx.transpose(C))
         kw = {'cmap':self.cmap, 'norm':self.norm, 'shading':'flat'}
-        col = self.ax.pcolormesh(*args, **kw)
+        col = self.ax.pcolor(*args, **kw)
         self.add_observer(col)
         self.solids = col
         if self.drawedges:
