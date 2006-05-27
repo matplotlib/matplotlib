@@ -1,3 +1,6 @@
+2006-05-27 Committed a patch to prevent stroking zero-width lines in
+           the svg backend - DSD
+
 2006-05-24 Fixed colorbar positioning bug identified by Helge
            Avlesen, and improved the algorithm; added a 'pad'
            kwarg to control the spacing between colorbar and
