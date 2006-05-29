@@ -14,6 +14,7 @@
 #ifdef NUMERIC
 #include "Numeric/arrayobject.h"
 #else
+#define PY_ARRAY_TYPES_PREFIX NumPy
 #include "numpy/arrayobject.h"
 #endif
 #endif
