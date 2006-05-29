@@ -380,6 +380,7 @@ class Axes(Artist):
 
         self._cachedRenderer = None
         self.set_navigate(True)
+        self.set_navigate_mode(None)
 
         if len(kwargs): setp(self, **kwargs)
 
@@ -637,6 +638,8 @@ class Axes(Artist):
         '''
         Use self._aspect and self._adjustable to modify the
         axes box or the view limits.
+        The data_ratio kwarg is set to 1 for polar axes.  It is
+        used only when _adjustable is 'box'.
         '''
 
         if self._aspect == 'auto':
@@ -655,6 +658,7 @@ class Axes(Artist):
 
         figW,figH = self.get_figure().get_size_inches()
         fig_aspect = figH/figW
+        #print 'figW, figH, fig_aspect', figW, figH, fig_aspect
         xmin,xmax = self.get_xlim()
         xsize = max(math.fabs(xmax-xmin), 1e-30)
         ymin,ymax = self.get_ylim()
@@ -672,21 +676,26 @@ class Axes(Artist):
         l,b,w,h = self.get_position()
         box_aspect = fig_aspect * (h/w)
         data_ratio = box_aspect / A
+        #print 'box_aspect, data_ratio, ysize/xsize', box_aspect, data_ratio, ysize/xsize
+        y_expander = (data_ratio*xsize/ysize - 1.0)
+        #print 'y_expander', y_expander
+        # If y_expander > 0, the dy/dx viewLim ratio needs to increase
+        if abs(y_expander) < 0.005:
+            #print 'good enough already'
+            return
         dL = self.dataLim
-        xr = dL.width()
-        yr = dL.height()
-        xsize = min(xsize, 1.1*xr)
-        ysize = min(ysize, 1.1*yr)
+        xr = 1.05 * dL.width()
+        yr = 1.05 * dL.height()
         xmarg = xsize - xr
         ymarg = ysize - yr
         Ysize = data_ratio * xsize
         Xsize = ysize / data_ratio
         Xmarg = Xsize - xr
-        Ymarg = Ysize - xr
-        # If it is very nearly correct, don't do any more;
-        # we are probably just panning.
-        if abs(xsize-Xsize) < 0.001*xsize or abs(ysize-Ysize) < 0.001*ysize:
-            return
+        Ymarg = Ysize - yr
+        xm = 0  # Setting these targets to, e.g., 0.05*xr does not seem to help.
+        ym = 0
+        #print 'xmin, xmax, ymin, ymax', xmin, xmax, ymin, ymax
+        #print 'xsize, Xsize, ysize, Ysize', xsize, Xsize, ysize, Ysize
 
         changex = ((self._sharey or self._mastery) and not
                             (self._sharex or self._masterx))
@@ -698,27 +707,28 @@ class Axes(Artist):
         if changex:
             adjust_y = False
         else:
-            adjust_y = changey or (Ymarg > xmarg)
+            #print 'xmarg, ymarg, Xmarg, Ymarg', xmarg, ymarg, Xmarg, Ymarg
+            if xmarg > xm and ymarg > ym:
+                adjy = Ymarg > 0 and y_expander < 0
+            else:
+                adjy = y_expander > 0
+            #print 'y_expander, adjy', y_expander, adjy
+            adjust_y = changey or adjy  #(Ymarg > xmarg)
         if adjust_y:
-            dy = Ysize - ysize
-            if ymarg < 0.01 * dy:
-                y0 = ymin - dy/2.0
-                y1 = ymax + dy/2.0
-            else:
-                yc = (dL.ymax() + dL.ymin())/2.0
-                y0 = yc - Ysize/2.0
-                y1 = yc + Ysize/2.0
+            yc = 0.5*(ymin+ymax)
+            y0 = yc - Ysize/2.0
+            y1 = yc + Ysize/2.0
             self.set_ylim((y0, y1))
+            #print 'New y0, y1:', y0, y1
+            #print 'New ysize, ysize/xsize', y1-y0, (y1-y0)/xsize
         else:
-            dx = Xsize - xsize
-            if xmarg < 0.01 * dx:
-                x0 = xmin - dx/2.0
-                x1 = xmax + dx/2.0
-            else:
-                xc = (dL.xmax() + dL.xmin())/2.0
-                x0 = xc - Xsize/2.0
-                x1 = xc + Xsize/2.0
+            xc = 0.5*(xmin+xmax)
+            x0 = xc - Xsize/2.0
+            x1 = xc + Xsize/2.0
             self.set_xlim((x0, x1))
+            #print 'New x0, x1:', x0, x1
+            #print 'New xsize, ysize/xsize', x1-x0, ysize/(x1-x0)
+
 
 
     def axis(self, *v, **kwargs):
@@ -1453,6 +1463,20 @@ class Axes(Artist):
         ACCEPTS: True|False
         """
         self._navigate = b
+
+    def get_navigate_mode(self):
+        """
+        Get the navigation toolbar button status: 'PAN', 'ZOOM', or None
+        """
+        return self._navigate_mode
+
+    def set_navigate_mode(self, b):
+        """
+        Set the navigation toolbar button status;
+        this is not a user-API function.
+
+        """
+        self._navigate_mode = b
 
     def get_cursor_props(self):
         """return the cursor props as a linewidth, color tuple where
