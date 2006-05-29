@@ -238,18 +238,26 @@ class RendererBase:
 
             rf,gf,bf,af = facecolors[i % Nface]
             re,ge,be,ae = edgecolors[i % Nedge]
-            if af==0: rgbFace = None
-            else: rgbFace = rf,gf,bf
-            # the draw_poly interface can't handle separate alphas for
-            # edge and face so we'll just use the maximum
-            alpha = max(af,ae)
+            if af==0:
+                if ae==0:
+                    return
+                rgbFace = None
+                alpha = ae
+            else:
+                rgbFace = rf,gf,bf
+            if ae==0:
+                alpha = af
+            else:
+                # the draw_poly interface can't handle separate alphas for
+                # edge and face so we'll just use the maximum
+                alpha = max(af,ae)
 
-            gc.set_foreground( (re,ge,be), isRGB=True)
+                gc.set_foreground( (re,ge,be), isRGB=True)
+                gc.set_linewidth( linewidths[i % Nlw] )
+                gc.set_antialiased( antialiaseds[i % Naa] )
+                #print 'verts', zip(thisxverts, thisyverts)
+
             gc.set_alpha( alpha )
-            gc.set_linewidth( linewidths[i % Nlw] )
-            gc.set_antialiased( antialiaseds[i % Naa] )
-            #print 'verts', zip(thisxverts, thisyverts)
-
             tverts = transform.seq_xy_tups(verts[i % Nverts])
             if usingOffsets:
                 xo,yo = transOffset.xy_tup(offsets[i % Noffsets])
@@ -1190,6 +1198,9 @@ class NavigationToolbar2:
                 'button_release_event', self.release_pan)
             self.mode = 'pan/zoom mode'
 
+        for a in self.canvas.figure.get_axes():
+            a.set_navigate_mode(self._active)
+
         self.set_message(self.mode)
 
     def press(self, event):
@@ -1305,7 +1316,7 @@ class NavigationToolbar2:
         for cur_xypress in self._xypress:
             lastx, lasty, a, ind, lim, trans = cur_xypress
             xmin, xmax, ymin, ymax = lim
-            #safer to use the recorded buttin at the press than current button:
+            #safer to use the recorded button at the press than current button:
             #multiple button can get pressed during motion...
             if self._button_pressed==1:
                 lastx, lasty = trans.inverse_xy_tup( (lastx, lasty) )
@@ -1338,6 +1349,9 @@ class NavigationToolbar2:
                     dx=(lastx-event.x)/float(a.bbox.width())
                     dy=(lasty-event.y)/float(a.bbox.height())
                     dx,dy=format_deltas(event,dx,dy)
+                    if a.get_aspect() != 'auto':
+                        dx = 0.5*(dx + dy)
+                        dy = dx
                     alphax = pow(10.0,dx)
                     alphay = pow(10.0,dy)#use logscaling, avoid singularities and smother scaling...
                     lastx, lasty = trans.inverse_xy_tup( (lastx, lasty) )
@@ -1522,6 +1536,9 @@ class NavigationToolbar2:
             self._idPress = self.canvas.mpl_connect('button_press_event', self.press_zoom)
             self._idRelease = self.canvas.mpl_connect('button_release_event', self.release_zoom)
             self.mode = 'Zoom to rect mode'
+
+        for a in self.canvas.figure.get_axes():
+            a.set_navigate_mode(self._active)
 
         self.set_message(self.mode)
 
