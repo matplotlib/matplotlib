@@ -32,7 +32,7 @@ import re
 
 from numerix import array, arange, take, put, Float, Int, where, \
      zeros, asarray, sort, searchsorted, sometrue, ravel, divide,\
-     clip, ones, typecode, typecodes
+     clip, ones, typecode, typecodes, alltrue
 from numerix.mlab import amin, amax
 import numerix.ma as ma
 from cbook import enumerate, is_string_like, iterable
@@ -629,6 +629,10 @@ class Colormap:
     def _init():
         '''Generate the lookup table, self._lut'''
         raise NotImplementedError("Abstract class only")
+
+    def is_gray(self):
+        return (alltrue(self._lut[:,0] == self._lut[:,1])
+                    and alltrue(self._lut[:,0] == self._lut[:,2]))
 
 
 class LinearSegmentedColormap(Colormap):
