@@ -180,6 +180,11 @@ class ColorbarBase(cm.ScalarMappable):
             ax.set_xticklabels(ticklabels)
             ax.xaxis.get_major_formatter().set_offset_string(offset_string)
 
+    def set_label(self, label):
+        if self.orientation == 'vertical':
+            self.ax.set_ylabel(label)
+        else:
+            self.ax.set_xlabel(label)
 
     def _outline(self, X, Y):
         '''
@@ -412,6 +417,11 @@ class ColorbarBase(cm.ScalarMappable):
 
 class Colorbar(ColorbarBase):
     def __init__(self, ax, mappable, **kw):
+        mappable.autoscale() # Ensure mappable.norm.vmin, vmax
+                             # are set when colorbar is called,
+                             # even if mappable.draw has not yet
+                             # been called.  This will not change
+                             # vmin, vmax if they are already set.
         self.mappable = mappable
         if isinstance(mappable, ContourSet):
             CS = mappable

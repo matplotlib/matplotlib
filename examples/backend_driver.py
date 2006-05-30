@@ -36,6 +36,7 @@ files = (
     'legend_demo.py',
     'legend_demo2.py',
     'line_collection.py',
+    'line_collection2.py',
     'line_styles.py',
     'log_demo.py',
     'log_test.py',

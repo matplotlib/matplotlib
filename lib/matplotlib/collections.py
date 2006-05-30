@@ -368,7 +368,7 @@ class RegularPolyCollection(PatchCollection):
         raise NotImplementedError('Vertices in data coordinates are calculated\n'
                 + 'only with offsets and only if _transOffset == dataTrans.')
 
-class LineCollection(Collection):
+class LineCollection(Collection, ScalarMappable):
     """
     All parameters must be sequences.  The property of the ith line
     segment is the prop[i % len(props)], ie the properties cycle if
@@ -382,6 +382,8 @@ class LineCollection(Collection):
                  linestyle = 'solid',
                  offsets = None,
                  transOffset = None,#identity_transform(),
+                 norm = None,
+                 cmap = None,
                  ):
         """
         segments is a sequence of ( line0, line1, line2), where
@@ -410,9 +412,17 @@ class LineCollection(Collection):
         and this value will be
         added cumulatively to each successive segment, so as
         to produce a set of successively offset curves.
+
+        norm = None,  # optional for ScalarMappable
+        cmap = None,  # ditto
+
+        The use of ScalarMappable is optional.  If the ScalarMappable
+        matrix _A is not None (ie a call to set_array has been made), at
+        draw time a call to scalar mappable will be made to set the colors.
         """
 
         Collection.__init__(self)
+        ScalarMappable.__init__(self, norm, cmap)
 
         if linewidths is None   :
             linewidths   = (rcParams['lines.linewidth'], )
@@ -454,6 +464,7 @@ class LineCollection(Collection):
         renderer.open_group('linecollection')
         self._transform.freeze()
         if self._transOffset is not None: self._transOffset.freeze()
+        self.update_scalarmappable()
         renderer.draw_line_collection(
             self._segments, self._transform, self.clipbox,
             self._colors, self._lw, self._ls, self._aa, self._offsets,
@@ -553,4 +564,16 @@ class LineCollection(Collection):
             return [tuple(xy) for xy in self._offsets]
         raise NotImplementedError('Vertices in data coordinates are calculated\n'
                 + 'with offsets only if _transOffset == dataTrans.')
+
+    def update_scalarmappable(self):
+        """
+        If the scalar mappable array is not none, update colors
+        from scalar data
+        """
+        if self._A is None: return
+        if len(self._A.shape)>1:
+            raise ValueError('LineCollections can only map rank 1 arrays')
+        self._colors = self.to_rgba(self._A, self._alpha)
+
+
 
