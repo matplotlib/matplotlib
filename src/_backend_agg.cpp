@@ -33,7 +33,6 @@
 #ifdef NUMERIC
 #include "Numeric/arrayobject.h"
 #else
-#define PY_ARRAY_TYPES_PREFIX NumPy
 #include "numpy/arrayobject.h"
 #endif
 #endif
@@ -42,7 +41,7 @@
 
 
 GCAgg::GCAgg(const Py::Object &gc, double dpi, bool snapto) :
-  dpi(dpi), snapto(snapto), isaa(true), linewidth(1.0), alpha(1.0), 
+  dpi(dpi), snapto(snapto), isaa(true), linewidth(1.0), alpha(1.0),
   cliprect(NULL),
   Ndash(0), dashOffset(0.0), dasha(NULL)
 {
@@ -288,32 +287,34 @@ RendererAgg::_fill_and_stroke(VS& path,
   }
 
   //now stroke the edge
-  if (curvy) {
-    curve_t curve(path);
-    agg::conv_stroke<curve_t> stroke(curve);
-    stroke.width(gc.linewidth);
-    stroke.line_cap(gc.cap);
-    stroke.line_join(gc.join);
-    theRasterizer->add_path(stroke);
-  }
-  else {
-    agg::conv_stroke<VS> stroke(path);
-    stroke.width(gc.linewidth);
-    stroke.line_cap(gc.cap);
-    stroke.line_join(gc.join);
-    theRasterizer->add_path(stroke);
+  if (gc.linewidth) {
+    if (curvy) {
+      curve_t curve(path);
+      agg::conv_stroke<curve_t> stroke(curve);
+      stroke.width(gc.linewidth);
+      stroke.line_cap(gc.cap);
+      stroke.line_join(gc.join);
+      theRasterizer->add_path(stroke);
+    }
+    else {
+      agg::conv_stroke<VS> stroke(path);
+      stroke.width(gc.linewidth);
+      stroke.line_cap(gc.cap);
+      stroke.line_join(gc.join);
+      theRasterizer->add_path(stroke);
+    }
+
+    if ( gc.isaa ) {
+      rendererAA->color(gc.color);
+      agg::render_scanlines(*theRasterizer, *slineP8, *rendererAA);
+    }
+    else {
+      rendererBin->color(gc.color);
+      agg::render_scanlines(*theRasterizer, *slineBin, *rendererBin);
+    }
   }
 
-  if ( gc.isaa ) {
-    rendererAA->color(gc.color);
-    agg::render_scanlines(*theRasterizer, *slineP8, *rendererAA);
-  }
-  else {
-    rendererBin->color(gc.color);
-    agg::render_scanlines(*theRasterizer, *slineBin, *rendererBin);
-  }
-
-  agg::render_scanlines(*theRasterizer, *slineP8, *rendererAA);
+  //agg::render_scanlines(*theRasterizer, *slineP8, *rendererAA);
 
 }
 
@@ -814,7 +815,7 @@ void RendererAgg::DrawQuadMeshEdges(int meshWidth, int meshHeight, const agg::rg
 
 Py::Object
 RendererAgg::draw_quad_mesh(const Py::Tuple& args){
-	
+
 	//printf("#1: %d\n", clock());
 	Py::Object colorsi = args[2];
 	Py::Object xCoordsi = args[3];
@@ -831,7 +832,7 @@ RendererAgg::draw_quad_mesh(const Py::Tuple& args){
 	  //todo: fix transformation check
 	  Transformation* transform = static_cast<Transformation*>(args[6].ptr());
 
-  	try {	
+  	try {
     	transform->eval_scalars();
   	}
   	catch(...) {
@@ -854,7 +855,7 @@ RendererAgg::draw_quad_mesh(const Py::Tuple& args){
  	      throw Py::ValueError("Domain error on transOffset eval_scalars in RendererAgg::draw_quad_mesh");
     	}
 
-  }	
+  }
   size_t Noffsets;
   if(usingOffsets)
 	Noffsets = offsets.length();
@@ -864,7 +865,7 @@ RendererAgg::draw_quad_mesh(const Py::Tuple& args){
  /*  size_t N = (Noffsets>Nverts) ? Noffsets : Nverts; */
 
   std::pair<double, double> xyo, xy;
-	
+
   //do non-offset transformations
   double* xCoordsa = new double[Nverts];
   double* yCoordsa = new double[Nverts];
@@ -1106,13 +1107,13 @@ RendererAgg::draw_poly_collection(const Py::Tuple& args) {
     b = Py::Float(rgba[2]);
     a = Py::Float(rgba[3]);
 
-    if (a>0) { //only render if alpha>0
+    double lw = points_to_pixels ( Py::Float( linewidths[i%Nlw] ) );
+    if ((a>0) && lw) { //only render if alpha>0 and linewidth !=0
       agg::rgba edgecolor(r, g, b, a);
 
       agg::conv_stroke<agg::path_storage> stroke(path);
       //stroke.line_cap(cap);
       //stroke.line_join(join);
-      double lw = points_to_pixels ( Py::Float( linewidths[i%Nlw] ) );
       stroke.width(lw);
       theRasterizer->add_path(stroke);
 
@@ -1248,13 +1249,13 @@ RendererAgg::draw_regpoly_collection(const Py::Tuple& args) {
     g = Py::Float(rgba[1]);
     b = Py::Float(rgba[2]);
     a = Py::Float(rgba[3]);
-    if (a>0) { //only render if alpha>0
+    double lw = points_to_pixels ( Py::Float( linewidths[i%Nlw] ) );
+    if ((a>0) && lw) { //only render if alpha>0
       agg::rgba edgecolor(r, g, b, a);
 
       agg::conv_stroke<agg::path_storage> stroke(path);
       //stroke.line_cap(cap);
       //stroke.line_join(join);
-      double lw = points_to_pixels ( Py::Float( linewidths[i%Nlw] ) );
       stroke.width(lw);
       theRasterizer->add_path(stroke);
 
@@ -1314,7 +1315,7 @@ RendererAgg::draw_lines(const Py::Tuple& args) {
     double y0 = *(double *)(ya->data + 0*ya->strides[0]);
     double y1 = *(double *)(ya->data + 1*ya->strides[0]);
     snapto = (x0==x1) || (y0==y1);
-    
+
   }
   GCAgg gc = GCAgg(args[0], dpi, snapto);
 
@@ -1363,7 +1364,7 @@ RendererAgg::draw_lines(const Py::Tuple& args) {
         moveto = true;
         continue;
       }
-    
+
     //use agg's transformer?
     xytrans.transform(&thisx, &thisy);
     thisy = heightd - thisy; //flipy
@@ -1390,16 +1391,16 @@ RendererAgg::draw_lines(const Py::Tuple& args) {
       path.move_to(thisx, thisy);
     else
       path.line_to(thisx, thisy);
-  
+
     moveto = false;
     if ((i%10000)==0) {
       //draw the path in chunks
       _render_lines_path(path, gc);
       path.remove_all();
-      path.move_to(thisx, thisy);      
+      path.move_to(thisx, thisy);
     }
 
-  
+
     //std::cout << "draw lines " << thisx << " " << thisy << std::endl;
   }
 

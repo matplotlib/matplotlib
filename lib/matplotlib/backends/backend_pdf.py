@@ -33,7 +33,7 @@ def tmap(*args):
     return tuple(map(*args))
 
 def fill(strings, line=75):
-    """Make one string from sequence of strings, breaking lines 
+    """Make one string from sequence of strings, breaking lines
     to form lines of at most 72 characters, if possible."""
 
     s, strings = [strings[0]], strings[1:]
@@ -44,7 +44,7 @@ def fill(strings, line=75):
 	    s.append(strings[0])
 	strings = strings[1:]
     return '\n'.join(s)
-    
+
 
 def pdfRepr(obj):
     """Map Python objects to PDF syntax."""
@@ -77,7 +77,7 @@ def pdfRepr(obj):
     # represented as Name objects.
     elif isinstance(obj, dict):
 	r = ["<<"]
-	r.extend(["%s %s" % (Name(key).pdfRepr(), 
+	r.extend(["%s %s" % (Name(key).pdfRepr(),
 			     pdfRepr(val))
 		  for key, val in obj.items()])
 	r.append(">>")
@@ -114,7 +114,7 @@ def pdfRepr(obj):
 	    % type(obj)
 
 class Reference:
-    """PDF reference object. 
+    """PDF reference object.
     Use PdfFile.reserveObject() to create References.
     """
 
@@ -229,19 +229,19 @@ class PdfFile:
 	self.alphaStateObject = self.reserveObject('alpha states')
 	resourceObject = self.reserveObject('resources')
 
-	root = { 'Type': Name('Catalog'), 
+	root = { 'Type': Name('Catalog'),
 		 'Pages': pagesObject }
 	self.writeObject(self.rootObject, root)
 
 	info = { 'Creator': 'matplotlib ' + __version__ \
-		 + ', http://matplotlib.sf.net', 
+		 + ', http://matplotlib.sf.net',
 		 'Producer': 'matplotlib pdf backend',
 		 'CreationDate': datetime.today() }
 
 	# Possible TODO: Title, Author, Subject, Keywords, CreationDate
 	self.writeObject(self.infoObject, info)
 
-	pages = { 'Type': Name('Pages'), 
+	pages = { 'Type': Name('Pages'),
 		  'Kids': [ thePageObject ],
 		  'Count': 1 }
 	self.writeObject(pagesObject, pages)
@@ -274,7 +274,7 @@ class PdfFile:
 
 	# Start the content stream of the page
 	self.contents = \
-	    Stream(contentObject.id, 
+	    Stream(contentObject.id,
 		   self.reserveObject('length of content stream'),
 		   self)
 	self.contents.begin()
@@ -285,8 +285,8 @@ class PdfFile:
 	# objects
 	self.contents.end()
 	self.writeFonts()
-	self.writeObject(self.alphaStateObject, 
-			 dict([(val[0], val[1]) 
+	self.writeObject(self.alphaStateObject,
+			 dict([(val[0], val[1])
 			       for val in self.alphaStates.values()]))
 	self.writeXref()
 	self.writeTrailer()
@@ -302,7 +302,7 @@ class PdfFile:
     # application is required to have them.
     base14 = [ 'Times-Roman', 'Times-Bold', 'Times-Italic',
 	       'Times-BoldItalic', 'Symbol', 'ZapfDingbats' ] + \
-	     [ prefix + postfix 
+	     [ prefix + postfix
 	       for prefix in 'Helvetica', 'Courier'
 	       for postfix in '', '-Bold', '-Oblique', '-BoldOblique' ]
 
@@ -380,7 +380,7 @@ class PdfFile:
 		     'FirstChar': firstchar,
 		     'LastChar': lastchar,
 		     'Widths': self.reserveObject('font widths'),
-		     'FontDescriptor': 
+		     'FontDescriptor':
 		       self.reserveObject('font descriptor') }
 	# TODO: Encoding?
 
@@ -394,7 +394,7 @@ class PdfFile:
 	if 0: flags |= 1 << 17 # TODO: small caps
 	if 0: flags |= 1 << 18 # TODO: force bold
 
-	descriptor = { 
+	descriptor = {
 	    'Type': Name('FontDescriptor'),
 	    'FontName': ps_name,
 	    'Flags': flags,
@@ -441,11 +441,11 @@ class PdfFile:
 
     def alphaState(self, alpha):
 	"""Return name of an ExtGState that sets alpha to the given value"""
-	
+
 	state = self.alphaStates.get(alpha, None)
 	if state is not None:
 	    return state[0]
-	
+
 	name = Name('A%d' % self.nextAlphaState)
 	self.nextAlphaState += 1
 	self.alphaStates[alpha] = \
@@ -495,7 +495,7 @@ class PdfFile:
 	self.write("trailer\n")
 	self.write(pdfRepr(
 		{'Size': self.nextObject,
-		 'Root': self.rootObject, 
+		 'Root': self.rootObject,
 		 'Info': self.infoObject }))
 	# Could add 'Info' and 'ID'
 	self.write("\nstartxref\n%d\n%%%%EOF\n" % self.startxref)
@@ -517,15 +517,15 @@ class RendererPdf(RendererBase):
 
     def draw_arc(self, gcEdge, rgbFace, x, y, width, height, angle1, angle2):
         print >>sys.stderr, "draw_arc called"
-    
+
     def draw_image(self, x, y, im, bbox):
         print >>sys.stderr, "draw_image called"
-    
+
     def draw_line(self, gc, x1, y1, x2, y2):
 	self.check_gc(gc)
-        self.file.write('%s %s m %s %s l S\n' % 
+        self.file.write('%s %s m %s %s l S\n' %
 			tmap(pdfRepr, (x1, y1, x2, y2)))
-    
+
     def draw_lines(self, gc, x, y):
 	write = self.file.write
 	pr = pdfRepr
@@ -551,10 +551,10 @@ class RendererPdf(RendererBase):
 	write('q %s %s %s rg b Q\n' % tmap(pr, rgbFace))
 
     def draw_rectangle(self, gcEdge, rgbFace, x, y, width, height):
-	# TODO: be smarter about gc (include rgbFace in it?) 
+	# TODO: be smarter about gc (include rgbFace in it?)
 	#       to avoid q/Q pair
 	self.check_gc(gcEdge)
-	self.file.write('%s %s %s %s re\n' % 
+	self.file.write('%s %s %s %s re\n' %
 			tmap(pdfRepr, (x, y, width, height)))
 	self.file.write('q %s %s %s rg b Q\n' % tmap(pdfRepr, rgbFace))
 
@@ -568,22 +568,22 @@ class RendererPdf(RendererBase):
 	font.set_text(s, 0.0)
 	y += font.get_descent() / 64.0
 
-	self.file.write('BT\n%s %s Tf\n' % 
-			(pdfRepr(self.file.fontName(prop)), 
+	self.file.write('BT\n%s %s Tf\n' %
+			(pdfRepr(self.file.fontName(prop)),
 			 pdfRepr(prop.get_size_in_points())))
-	
+
 	if angle == 0:
 	    self.file.write('%s %s Td\n' % tmap(pdfRepr, (x,y)))
 	else:
 	    angle = angle / 180.0 * pi
-	    self.file.write('%s %s %s %s %s %s Tm\n' % 
-			    tmap(pdfRepr, 
+	    self.file.write('%s %s %s %s %s %s Tm\n' %
+			    tmap(pdfRepr,
 				 ( cos(angle), sin(angle),
 				  -sin(angle), cos(angle),
 				   x,          y         )))
-					    
+
 	self.file.write('%s Tj\nET\n' % pdfRepr(s))
-         
+
     def get_text_width_height(self, s, prop, ismath):
 	# TODO: mathtext
 
@@ -600,10 +600,10 @@ class RendererPdf(RendererBase):
 	font.clear()
 	font.set_size(prop.get_size_in_points(), 72.0)
 	return font
-                              
+
     def flipy(self):
         return False
-    
+
     def get_canvas_width_height(self):
         return 72*self.file.width, 72*self.file.height
 
@@ -645,7 +645,7 @@ class GraphicsContextPdf(GraphicsContextBase):
 	rgb = tmap(pdfRepr, rgb)
 	return ('%s %s %s RG ' % rgb) + ('%s %s %s rg' % rgb)
 
-    commands = { 
+    commands = {
 	'_alpha': alpha_cmd,
 	'_capstyle': capstyle_cmd,
 	'_joinstyle': joinstyle_cmd,
@@ -657,7 +657,7 @@ class GraphicsContextPdf(GraphicsContextBase):
     # TODO: _cliprect, _linestyle, _hatch
     # _cliprect needs pushing/popping the graphics state,
     # probably needs to be done in RendererPdf
-    
+
     def delta(self, other):
 	"""What PDF commands are needed to transform self into other?
 	"""
@@ -667,10 +667,10 @@ class GraphicsContextPdf(GraphicsContextBase):
 		cmd = self.commands[param]
 		cmds.append(cmd(self, getattr(other, param)))
 	return '\n'.join(cmds)
-		      
-        
+
+
 ########################################################################
-#    
+#
 # The following functions and classes are for pylab and implement
 # window/figure managers, etc...
 #
@@ -707,7 +707,7 @@ class FigureCanvasPdf(FigureCanvasBase):
 
     def draw(self):
 	pass
-        
+
     def print_figure(self, filename, dpi=72, facecolor='w', edgecolor='w',
                      orientation='portrait', **kwargs):
         """
@@ -722,7 +722,7 @@ class FigureCanvasPdf(FigureCanvasBase):
         """
         self.figure.dpi.set(72)
         self.figure.set_facecolor(facecolor)
-        self.figure.set_edgecolor(edgecolor)        
+        self.figure.set_edgecolor(edgecolor)
 	width, height = self.figure.get_size_inches()
 
 	file = PdfFile(width, height, filename)

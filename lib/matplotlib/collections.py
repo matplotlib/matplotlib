@@ -243,8 +243,9 @@ class PolyCollection(PatchCollection):
         self._transform.freeze()
         self._transOffset.freeze()
         self.update_scalarmappable()
-        if is_string_like(self._edgecolors) and self._edgecolors == 'None':
-            self._edgecolors = self._facecolors
+        if is_string_like(self._edgecolors) and self._edgecolors[:2] == 'No':
+            self._linewidths = (0,)
+            #self._edgecolors = self._facecolors
         renderer.draw_poly_collection(
             self._verts, self._transform, self.clipbox,
             self._facecolors, self._edgecolors,
@@ -342,9 +343,9 @@ class RegularPolyCollection(PatchCollection):
         self._update_verts()
         scales = sqrt(asarray(self._sizes)*self._dpi.get()/72.0)
 
-        if is_string_like(self._edgecolors) and self._edgecolors == 'None':
-            self._edgecolors = self._facecolors
-
+        if is_string_like(self._edgecolors) and self._edgecolors[:2] == 'No':
+            #self._edgecolors = self._facecolors
+            self._linewidths = (0,)
         renderer.draw_regpoly_collection(
             self.clipbox,
             self._offsets, self._transOffset,

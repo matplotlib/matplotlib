@@ -127,7 +127,7 @@ class AxesImage(Artist, cm.ScalarMappable):
             im.flipud_in()
 
         im.set_bg( *bg)
-        im.is_grayscale = (self.cmap.name == "gray" and
+        im.is_grayscale = (self.cmap.is_gray() and
                            len(self._A.shape) == 2)
 
         im.set_interpolation(self._interpd[self._interpolation])

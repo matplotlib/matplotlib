@@ -199,7 +199,7 @@ class RendererBase:
         if (showedges):
             edgecolors = colors
         else:
-            edgecolors = (0, 0, 0, 1),
+            edgecolors = (0, 0, 0, 0),
         self.draw_poly_collection(verts, transform,
                                 clipbox, colors, edgecolors,
                                 (0.25,), (0,), offsets, transOffset)
@@ -216,7 +216,12 @@ class RendererBase:
         facecolors and edgecolors are a sequence of RGBA tuples
         linewidths are a sequence of linewidths
         antialiaseds are a sequence of 0,1 integers whether to use aa
+
+        If a linewidth is zero or an edgecolor alpha is zero, the
+        line will be omitted; similarly, the fill will be omitted
+        if the facecolor alpha is zero.
         """
+        ## line and/or fill OK
         Nface = len(facecolors)
         Nedge = len(edgecolors)
         Nlw = len(linewidths)
@@ -236,27 +241,28 @@ class RendererBase:
 
         for i in xrange(N):
 
+            linewidth = linewidths[i % Nlw]
             rf,gf,bf,af = facecolors[i % Nface]
             re,ge,be,ae = edgecolors[i % Nedge]
             if af==0:
-                if ae==0:
-                    return
+                if ae==0 or linewidth == 0:
+                    continue
                 rgbFace = None
                 alpha = ae
             else:
                 rgbFace = rf,gf,bf
             if ae==0:
                 alpha = af
+                gc.set_linewidth(0)
             else:
                 # the draw_poly interface can't handle separate alphas for
                 # edge and face so we'll just use the maximum
                 alpha = max(af,ae)
-
                 gc.set_foreground( (re,ge,be), isRGB=True)
                 gc.set_linewidth( linewidths[i % Nlw] )
-                gc.set_antialiased( antialiaseds[i % Naa] )
                 #print 'verts', zip(thisxverts, thisyverts)
 
+            gc.set_antialiased( antialiaseds[i % Naa] )  # Used for fill only?
             gc.set_alpha( alpha )
             tverts = transform.seq_xy_tups(verts[i % Nverts])
             if usingOffsets:
@@ -302,6 +308,7 @@ class RendererBase:
         linewidths are a sequence of linewidths
         antialiaseds are a sequence of 0,1 integers whether to use aa
         """
+        ## line and/or fill OK
         gc = self.new_gc()
         if clipbox is not None:
             gc.set_clip_rectangle(clipbox.get_bounds())
@@ -324,21 +331,30 @@ class RendererBase:
             thisxverts = scale*xverts + xo
             thisyverts = scale*yverts + yo
             #print 'xverts', xverts
+
+            linewidth = linewidths[i % Nlw]
             rf,gf,bf,af = facecolors[i % Nface]
             re,ge,be,ae = edgecolors[i % Nedge]
             if af==0:
+                if ae==0 or linewidth == 0:
+                    continue
                 rgbFace = None
+                alpha = ae
             else:
                 rgbFace = rf,gf,bf
-            # the draw_poly interface can't handle separate alphas for
-            # edge and face so we'll just use
-            alpha = max(af,ae)
+            if ae==0:
+                alpha = af
+                gc.set_linewidth(0)
+            else:
+                # the draw_poly interface can't handle separate alphas for
+                # edge and face so we'll just use the maximum
+                alpha = max(af,ae)
+                gc.set_foreground( (re,ge,be), isRGB=True)
+                gc.set_linewidth( linewidths[i % Nlw] )
+                #print 'verts', zip(thisxverts, thisyverts)
 
-            gc.set_foreground( (re,ge,be), isRGB=True)
+            gc.set_antialiased( antialiaseds[i % Naa] )  # Used for fill only?
             gc.set_alpha( alpha )
-            gc.set_linewidth( linewidths[i % Nlw] )
-            gc.set_antialiased( antialiaseds[i % Naa] )
-
             #print 'verts', zip(thisxverts, thisyverts)
             self.draw_polygon(gc, rgbFace, zip(thisxverts, thisyverts))
 
