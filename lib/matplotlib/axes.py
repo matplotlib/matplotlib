@@ -3206,16 +3206,16 @@ class Axes(Artist):
         QUIVER( U, V )
         QUIVER( X, Y, U, V, S)
         QUIVER( U, V, S )
-        QUIVER( ..., color=None, width=1.0, cmap=None,norm=None )
+        QUIVER( ..., color=None, width=1.0, cmap=None, norm=None )
 
         Make a vector plot (U, V) with arrows on a grid (X, Y)
 
-        The optional arguments color and width are used to specify the color and width
-        of the arrow. color can be an array of colors in which case the arrows can be
-        colored according to another dataset.
+        If X and Y are not specified, U and V must be 2D arrays.  Equally spaced
+        X and Y grids are then generated using the meshgrid command.
 
-        If cmap is specified and color is 'length', the colormap is
-        used to give a color according to the vector's length.
+        color can be a color value or an array of colors, so that the arrows can be
+        colored according to another dataset.  If cmap is specified and color is 'length',
+        the colormap is used to give a color according to the vector's length.
 
         If color is a scalar field, the colormap is used to map the scalar to a color
         If a colormap is specified and color is an array of color triplets, then the
@@ -3263,10 +3263,15 @@ class Axes(Artist):
         assert X.shape == Y.shape
         assert U.shape == X.shape
 
+        U = ravel(U)
+        V = ravel(V)
+        X = ravel(X)
+        Y = ravel(Y)
+
         arrows = []
         N = sqrt( U**2+V**2 )
         if do_scale:
-            Nmax = maximum.reduce(maximum.reduce(N)) or 1 # account for div by zero
+            Nmax = maximum.reduce(N) or 1 # account for div by zero
             U = U*(S/Nmax)
             V = V*(S/Nmax)
             N = N*Nmax
@@ -3281,7 +3286,6 @@ class Axes(Artist):
         shading = kwargs.get('shading', 'faceted')
 
         C = None
-        I,J = U.shape
         if color == 'length' or color is True:
             if color is True:
                 warnings.warn('''Use "color='length'",
@@ -3290,12 +3294,17 @@ class Axes(Artist):
         elif color is None:
             color = (0,0,0,1)
         else:
-            clr = asarray(color)
+            clr = ravel(asarray(color))
             if clr.shape == U.shape:
                 C = clr
 
-        arrows = [ Arrow(X[i,j],Y[i,j],U[i,j],V[i,j],0.1*S ).get_verts()
-                   for i in xrange(I) for j in xrange(J) ]
+        I = U.shape[0]
+        #arrows = []
+        #for i in xrange(I):
+        #    arrows.append( FancyArrow(X[i],Y[i],U[i],V[i],0.1*S ).get_verts() )
+        arrows = [FancyArrow(X[i],Y[i],U[i],V[i],0.1*S ).get_verts()
+                                                    for i in xrange(I)]
+
         collection = PolyCollection(
             arrows,
             edgecolors = 'None',
@@ -3311,6 +3320,7 @@ class Axes(Artist):
         else:
             collection.set_facecolor(color)
         self.add_collection( collection )
+
         lims = asarray(arrows)
         _max = maximum.reduce( maximum.reduce( lims ))
         _min = minimum.reduce( minimum.reduce( lims ))
