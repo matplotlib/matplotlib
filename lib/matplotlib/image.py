@@ -111,9 +111,14 @@ class AxesImage(Artist, cm.ScalarMappable):
             if self._imcache is None:
                 if typecode(self._A) == UInt8:
                     im = _image.frombyte(self._A, 0)
+                    im.is_grayscale = False
                 else:
                     x = self.to_rgba(self._A, self._alpha)
                     im = _image.fromarray(x, 0)
+                    if len(self._A.shape) == 2:
+                        im.is_grayscale = self.cmap.is_gray()
+                    else:
+                        im.is_grayscale = False
                 self._imcache = im
             else:
                 im = self._imcache
@@ -127,8 +132,6 @@ class AxesImage(Artist, cm.ScalarMappable):
             im.flipud_in()
 
         im.set_bg( *bg)
-        im.is_grayscale = (self.cmap.is_gray() and
-                           len(self._A.shape) == 2)
 
         im.set_interpolation(self._interpd[self._interpolation])
 
