@@ -81,8 +81,14 @@ flag()
 
 # We can still add a colorbar for the image, too.
 CBI = colorbar(im, orientation='horizontal', shrink=0.8)
-# We could manipulate the colorbar axes sizes for better
-# appearance, but we'll leave that for a later demo.
+
+# This makes the original colorbar look a bit out of place,
+# so let's improve its position.
+
+l,b,w,h = gca().get_position()
+ll,bb,ww,hh = CB.ax.get_position()
+CB.ax.set_position([ll, b+0.1*h, ww, h*0.8])
+
 
 savefig('contour_demo')
 show()
