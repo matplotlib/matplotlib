@@ -1,3 +1,6 @@
+===============================================================
+2006-06-06 Released 0.87.3 at revision 2431
+
 2006-05-30 More partial support for polygons with outline or fill,
            but not both.  Made LineCollection inherit from
            ScalarMappable. - EF
