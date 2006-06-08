@@ -78,9 +78,9 @@ for line in file('lib/matplotlib/__init__.py').readlines():
         if os.path.isdir('.svn') and os.path.isfile(os.sep.join(['.svn', 'entries'])):
             import re
             revision = 0
-            revre = re.compile('committed-rev="(\d+)"')
+            revre = re.compile(r'(committed-rev|revision)="(\d+)"')
             for match in revre.finditer(open(os.sep.join(['.svn', 'entries'])).read()):
-                revision = max(revision, int(match.group(1)))
+                revision = max(revision, int(match.group(2)))
             __version__ += 'dev_r%i' % revision
         break
 
