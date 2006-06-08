@@ -1,3 +1,6 @@
+2006-06-08 Minor bug fix to make ticker.py draw proper minus signs
+           with usetex - DSD
+
 ===============================================================
 2006-06-06 Released 0.87.3 at revision 2432
 
