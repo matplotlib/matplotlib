@@ -349,6 +349,7 @@ class ScalarFormatter(Formatter):
                    for loc in locs]
         sigfigs.sort()
         self.format = '%1.' + str(sigfigs[-1]) + 'f'
+        if self._usetex or self._useMathText: self.format = '$%s$'%self.format
 
     def pprint_val(self, x):
         xp = (x-self.offset)/10**self.orderOfMagnitude
@@ -368,10 +369,14 @@ class ScalarFormatter(Formatter):
                     fontcmd = {'sans-serif' : r'\textsf',
                                'monospace' : r'\texttt'}.get(family, r'\textrm')
                     if mantissa=='1':
-                        return r'%s{10}^%s{%s%s}'%(fontcmd, fontcmd, sign, exponent)
+                        return r'%s{10}^{%s%s{%s}}'%(fontcmd, sign, fontcmd, exponent)
                     else:
-                        return r'%s{%s}{\times}%s{10}^%s{%s%s}'%(fontcmd, mantissa,
-                                                fontcmd, fontcmd, sign, exponent)
+                        mant_sign = ''
+                        if mantissa[0] == '-':
+                            mant_sign = '-'
+                            mantissa = mantissa[1:]
+                        return r'%s%s{%s}{\times}%s{10}^{%s%s{%s}}'%(mant_sign, fontcmd, mantissa,
+                                                fontcmd, sign, fontcmd, exponent)
                 else:
                     if mantissa=='1':
                         return r'10^{%s%s}'%(sign, exponent)
@@ -505,10 +510,17 @@ class LogFormatterMathtext(LogFormatter):
 
         if not isDecade and self.labelOnlyBase: s = ''
         elif not isDecade:
-            if usetex: s = r'%d$^%s{%.2f}$'% (b, fontcmd, fx)
+            if usetex:
+                sign = ''
+                if fx < 0: sign = '-'
+                s = r'%d$^{%s%s{%.2f}}$'% (b, sign, fontcmd, absolute(fx))
             else: s = '$%d^{%.2f}$'% (b, fx)
         else:
-            if usetex: s = r'%d$^%s{%d}$'% (b, fontcmd, self.nearest_long(fx))
+            if usetex:
+                fx = self.nearest_long(fx)
+                sign = ''
+                if fx<0: sign = '-'
+                s = r'%d$^{%s%s{%d}}$'% (b, sign, fontcmd, absolute(fx))
             else: s = r'$%d^{%d}$'% (b, self.nearest_long(fx))
 
         return s
