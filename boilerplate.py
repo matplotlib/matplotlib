@@ -83,6 +83,7 @@ _plotcommands = (
     'stem',
     'vlines',
     'quiver',
+    'quiver2',
     )
 
 _misccommands = (
@@ -101,6 +102,7 @@ cmappable = {
     'pcolormesh'  : 'gci._current = ret',
     'imshow'  : 'gci._current = ret',
     'spy2'    : 'gci._current = ret',
+    'quiver2' : 'gci._current = ret',
     'specgram'  : 'gci._current = ret[-1]',
 
 }
