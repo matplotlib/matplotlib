@@ -43,6 +43,8 @@ from transforms import blend_xy_sep_transform, Interval, identity_transform
 from transforms import PBox
 from font_manager import FontProperties
 
+from quiver import Quiver
+
 import matplotlib
 
 if matplotlib._havedate:
@@ -3199,6 +3201,13 @@ class Axes(Artist):
         self.add_artist(a)
         return a
 
+    def quiver2(self, *args, **kw):
+        q = Quiver(self, *args, **kw)
+        self.add_collection(q)
+        self.update_datalim_numerix(q.X, q.Y)
+        self.autoscale_view()
+        return q
+    quiver2.__doc__ = Quiver.quiver_doc
 
     def quiver(self, U, V, *args, **kwargs ):
         """

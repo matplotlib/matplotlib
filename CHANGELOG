@@ -1,3 +1,11 @@
+
+2006-06-09 Added quiver2 function to pylab and method to axes,
+           with implementation via a Quiver class in quiver.py.
+           quiver2 will replace quiver before the next release;
+           it is placed alongside it initially to facilitate
+           testing and transition. See also
+           examples/quiver2_demo.py. - EF
+
 2006-06-08 Minor bug fix to make ticker.py draw proper minus signs
            with usetex - DSD
 

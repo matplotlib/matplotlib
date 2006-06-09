@@ -237,6 +237,10 @@ class PolyCollection(PatchCollection):
         PatchCollection.__init__(self,**kwargs)
         self._verts = verts
 
+    def set_verts(self, verts):
+        '''This allows one to delay initialization of the vertices.'''
+        self._verts = verts
+
     def draw(self, renderer):
         if not self.get_visible(): return
         renderer.open_group('polycollection')
