@@ -234,7 +234,7 @@ class Quiver(PolyCollection):
         uv = U+V*1j
         a = nx.absolute(uv)
         if self.scale is None:
-            scale = nx.amax(a) * math.sqrt(len(a)) # crude auto-scaling
+            scale = nx.mlab.amax(a) * math.sqrt(len(a)) # crude auto-scaling
             scale = scale/self.span
             self.scale = scale # So we can see what autoscaling does.
         else:
@@ -244,7 +244,7 @@ class Quiver(PolyCollection):
         length = a/(scale*self.width)
         #print 'scaled length', length
         X, Y = self._h_arrows(length)
-        xy = (X+Y*1j) * nx.exp(1j*nx.angle(uv[...,nx.newaxis]))*self.width
+        xy = (X+Y*1j) * nx.exp(1j*nx.angle(uv[...,nx.NewAxis]))*self.width
         return [zip(xyrow.real, xyrow.imag) for xyrow in xy]
 
 
@@ -283,7 +283,7 @@ class Quiver(PolyCollection):
                                          # by a float first, as with 'mid'.
         tooshort = length < self.minlength
         if nx.any(tooshort):
-            th = nx.arange(7, dtype=nx.Float32) * (nx.pi/3.0)
+            th = nx.arange(0,7,1, nx.Float32) * (nx.pi/3.0)
             x1 = nx.cos(th) * self.minlength * 0.5
             y1 = nx.sin(th) * self.minlength * 0.5
             X1 = nx.repeat(x1[nx.NewAxis, :], N, 0)

@@ -72,9 +72,15 @@ elif which[0] == "numpy":
 else:
     raise RuntimeError("invalid numerix selector")
 
+if (which[0] == 'numeric'):
+    def any(a):
+        return sometrue(ravel(a))
+
 # Some changes are only applicable to the new numpy:
 if (which[0] == 'numarray' or
     which[0] == 'numeric'):
+    from mlab import amin, amax
+    newaxis = NewAxis
     def typecode(a):
         return a.typecode()
     def iscontiguous(a):
@@ -83,6 +89,9 @@ if (which[0] == 'numarray' or
         return a.byteswapped()
     def itemsize(a):
         return a.itemsize()
+    def angle(a):
+        return arctan2(a.imag, a.real)
+
 
 else:
     # We've already checked for a valid numerix selector,
