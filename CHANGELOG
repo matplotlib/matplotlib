@@ -1,3 +1,5 @@
+2006-06-09 Made additions to numerix, changes to quiver to make it
+           work with all numeric flavors. - EF
 
 2006-06-09 Added quiver2 function to pylab and method to axes,
            with implementation via a Quiver class in quiver.py.
