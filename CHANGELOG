@@ -1,3 +1,6 @@
+2006-06-11 Fixed a usetex bug for windows, running latex on files 
+           with spaces in their names or paths was failing - DSD
+
 2006-06-09 Made additions to numerix, changes to quiver to make it
            work with all numeric flavors. - EF
 

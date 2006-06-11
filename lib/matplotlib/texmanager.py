@@ -188,7 +188,7 @@ WARNING: found a TeX cache dir in the deprecated location "%s".
         if force or not os.path.exists(dvifile):
             tempdir = gettempdir()
             texbase = os.path.split(self.make_tex(tex, prefix, fontsize))[-1]
-            command = 'cd %s; latex -interaction=nonstopmode "%s"'\
+            command = 'cd "%s"; latex -interaction=nonstopmode "%s"'\
                         %(tempdir, texbase)
             verbose.report(command, 'debug')
             process = Popen([command], shell=True, stdin=PIPE, stdout=PIPE,\
