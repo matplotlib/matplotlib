@@ -379,7 +379,7 @@ class LineCollection(Collection, ScalarMappable):
     the len of props is less than the number of sements
     """
     zorder = 2
-    def __init__(self, segments,
+    def __init__(self, segments,     # Can be None.
                  linewidths    = None,
                  colors        = None,
                  antialiaseds  = None,
@@ -436,21 +436,31 @@ class LineCollection(Collection, ScalarMappable):
         if antialiaseds is None :
             antialiaseds = (rcParams['lines.antialiased'], )
 
-        self._segments = list(segments)
         self._colors = colorConverter.to_rgba_list(colors)
         self._aa = antialiaseds
         self._lw = linewidths
         self.set_linestyle(linestyle)
+        self._uniform_offsets = None
         if transOffset is None:
             if offsets is not None:
-                self._add_offsets(offsets)
+                self._uniform_offsets = offsets
                 offsets = None
             transOffset = identity_transform()
         self._offsets = offsets
         self._transOffset = transOffset
+        self.set_segments(segments)
 
-    def _add_offsets(self, offsets):
+    def set_segments(self, segments):
+        if segments is None: return
+        self._segments = list(segments)
+        if self._uniform_offsets is not None:
+            self._add_offsets()
+
+    set_verts = set_segments # for compatibility with PolyCollection
+
+    def _add_offsets(self):
         segs = self._segments
+        offsets = self._uniform_offsets
         Nsegs = len(segs)
         Noffs = len(offsets)
         if not iterable(offsets[0]):  # i.e., not a tuple but an x-offset

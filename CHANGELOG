@@ -1,4 +1,12 @@
-2006-06-11 Fixed a usetex bug for windows, running latex on files 
+2006-06-11 Added quiverkey command to pylab and Axes, using
+           QuiverKey class in quiver.py.  Changed pylab and Axes
+           to use quiver2 if possible, but drop back to the
+           newly-renamed quiver_classic if necessary.  Modified
+           examples/quiver_demo.py to illustrate the new quiver
+           and quiverkey.  Changed LineCollection implementation
+           slightly to improve compatibility with PolyCollection. - EF
+
+2006-06-11 Fixed a usetex bug for windows, running latex on files
            with spaces in their names or paths was failing - DSD
 
 2006-06-09 Made additions to numerix, changes to quiver to make it

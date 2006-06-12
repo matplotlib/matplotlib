@@ -1142,7 +1142,7 @@ class TextWithDash(Text):
                       horizontalalignment=horizontalalignment,
                       multialignment=multialignment,
                       fontproperties=fontproperties, rotation=rotation)
-        
+
         # The position (x,y) values for text and dashline
         # are bogus as given in the instantiation; they will
         # be set correctly by update_coords() in draw()
@@ -1151,7 +1151,7 @@ class TextWithDash(Text):
                                ydata=(y, y),
                                color='k',
                                linestyle='-')
-        
+
         self._dashx = float(x)
         self._dashy = float(y)
         self._dashlength = dashlength
@@ -1181,7 +1181,7 @@ class TextWithDash(Text):
         if dashlength == 0.0:
             self._x, self._y = dashx, dashy
             return
-        
+
         dashrotation = self.get_dashrotation()
         dashdirection = self.get_dashdirection()
         dashpad = self.get_dashpad()
@@ -1192,14 +1192,14 @@ class TextWithDash(Text):
         cos_theta, sin_theta = cos(theta), sin(theta)
 
         transform = self.get_transform()
-        
+
         # Compute the dash end points
         # The 'c' prefix is for canvas coordinates
         cxy = array(transform.xy_tup((dashx, dashy)))
         cd = array([cos_theta, sin_theta])
         c1 = cxy+dashpush*cd
         c2 = cxy+(dashpush+dashlength)*cd
-        
+
         (x1, y1) = transform.inverse_xy_tup(tuple(c1))
         (x2, y2) = transform.inverse_xy_tup(tuple(c2))
         self.dashline.set_data((x1, x2), (y1, y2))
@@ -1237,7 +1237,7 @@ class TextWithDash(Text):
         cwd = array([dx, dy])/2
         cwd *= 1+dashpad/sqrt(dot(cwd,cwd))
         cw = c2+(dashdirection*2-1)*cwd
-        
+
         self._x, self._y = transform.inverse_xy_tup(tuple(cw))
 
         # Now set the window extent

@@ -391,6 +391,8 @@ class ColorConverter:
             arg = tuple(arg)
             try: self.cache[arg]
             except KeyError: pass
+            except TypeError:
+                raise ValueError('to_rgb: unhashable even inside a tuple')
 
         try:
             if is_string_like(arg):
