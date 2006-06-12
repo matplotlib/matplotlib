@@ -63,8 +63,8 @@ elif which[0] == "numeric":
     import Numeric
     version = 'Numeric %s'%Numeric.__version__
 elif which[0] == "numpy":
-    import numpy
-    from numpy import *
+    import numpy.oldnumeric as numpy
+    from numpy.oldnumeric import *
     from _sp_imports import nx, infinity
     from _sp_imports import UInt8, UInt16, UInt32
     Matrix = matrix
