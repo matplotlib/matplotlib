@@ -504,7 +504,7 @@ class ContourSet(ScalarMappable, ContourLabeler):
         zmax = self.zmax
         zmin = self.zmin
         zmargin = (zmax - zmin) * 0.001 # so z < (zmax + zmargin)
-        zmax += zmargin
+        zmax = zmax + zmargin
         intv = Interval(Value(zmin), Value(zmax))
         if self.locator is None:
             self.locator = MaxNLocator(N+1)
