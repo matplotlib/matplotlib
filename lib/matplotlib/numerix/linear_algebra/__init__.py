@@ -8,7 +8,7 @@ elif which[0] == "numpy":
     from numpy.linalg import *
     try:
         from numpy.linalg.old import *
-    except:
+    except ImportError:
         pass
 else:
     raise RuntimeError("invalid numerix selector")
