@@ -84,6 +84,7 @@ _plotcommands = (
     'vlines',
     'quiver',
     'quiver2',
+    'quiverkey',
     )
 
 _misccommands = (
@@ -103,6 +104,7 @@ cmappable = {
     'imshow'  : 'gci._current = ret',
     'spy2'    : 'gci._current = ret',
     'quiver2' : 'gci._current = ret',
+    'quiver' : 'gci._current = ret',
     'specgram'  : 'gci._current = ret[-1]',
 
 }

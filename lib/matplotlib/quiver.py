@@ -15,10 +15,10 @@ Plot a 2-D field of arrows.
 
 Function signatures:
 
-    quiver(U, V, *kw)
-    quiver(U, V, C, *kw)
-    quiver(X, Y, U, V, *kw)
-    quiver(X, Y, U, V, C, *kw)
+    quiver(U, V, **kw)
+    quiver(U, V, C, **kw)
+    quiver(X, Y, U, V, **kw)
+    quiver(X, Y, U, V, C, **kw)
 
 Arguments:
 
@@ -95,18 +95,148 @@ Keyword arguments (default given first):
 
 
 '''
-# leave out?
-#  * C = None | array, the same size as U, V.  Setting this is the
-#        same as using one of the signatures including C.
 
+_quiverkey_doc = '''
+Add a key to a quiver plot.
+
+Function signature:
+    quiverkey(Q, X, Y, U, label, **kw)
+
+Arguments:
+    Q is the Quiver instance returned by a call to quiver.
+    X, Y give the location of the key; additional explanation follows.
+    U is the length of the key
+    label is a string with the length and units of the key
+
+Keyword arguments (default given first):
+  * coordinates = 'axes' | 'figure' | 'data' | 'inches'
+        Coordinate system and units for X, Y: 'axes' and 'figure'
+        are normalized coordinate systems with 0,0 in the lower
+        left and 1,1 in the upper right; 'data' are the axes
+        data coordinates (used for the locations of the vectors
+        in the quiver plot itself); 'inches' is position in the
+        figure in inches, with 0,0 at the lower left corner.
+  * color overrides face and edge colors from Q.
+  * labelpos = 'N' | 'S' | 'E' | 'W'
+        Position the label above, below, to the right, to the left
+        of the arrow, respectively.
+  * labelsep = 0.1 inches distance between the arrow and the label
+  * labelcolor (defaults to default Text color)
+  * fontproperties is a dictionary with keyword arguments accepted
+        by the FontProperties initializer: family, style, variant,
+        size, weight
+
+    Any additional keyword arguments are used to override vector
+    properties taken from Q.
+
+    The positioning of the key depends on X, Y, coordinates, and
+    labelpos.  If labelpos is 'N' or 'S', X,Y give the position
+    of the middle of the key arrow.  If labelpos is 'E', X,Y
+    positions the head, and if labelpos is 'W', X,Y positions the
+    tail; in either of these two cases, X,Y is somewhere in the middle
+    of the arrow+label key object.
+'''
 
 from matplotlib.collections import PolyCollection
 from matplotlib.mlab import meshgrid
 from matplotlib import numerix as nx
 from matplotlib import transforms as T
+from matplotlib.text import Text
+from matplotlib.artist import Artist
+from matplotlib.font_manager import FontProperties
 import math
 
 
+class QuiverKey(Artist):
+    ''' Labelled arrow for use as a quiver plot scale key.
+    '''
+    halign = {'N': 'center', 'S': 'center', 'E': 'left',   'W': 'right'}
+    valign = {'N': 'bottom', 'S': 'top',    'E': 'center', 'W': 'center'}
+    pivot  = {'N': 'mid',    'S': 'mid',    'E': 'tip',    'W': 'tail'}
+
+    def __init__(self, Q, X, Y, U, label, **kw):
+        Artist.__init__(self)
+        self.Q = Q
+        self.X = X
+        self.Y = Y
+        self.U = U
+        self.coord = kw.pop('coordinates', 'axes')
+        self.color = kw.pop('color', None)
+        self.label = label
+        self.labelsep = T.Value(kw.pop('labelsep', 0.1)) * Q.ax.figure.dpi
+        self.labelpos = kw.pop('labelpos', 'N')
+        self.labelcolor = kw.pop('labelcolor', None)
+        self.fontproperties = kw.pop('fontproperties', dict())
+        self.kw = kw
+        self.text = Text(text=label,
+                         horizontalalignment=self.halign[self.labelpos],
+                         verticalalignment=self.valign[self.labelpos],
+                         fontproperties=FontProperties(**self.fontproperties))
+        if self.labelcolor is not None:
+            self.text.set_color(self.labelcolor)
+        self._initialized = False
+        self.zorder = Q.zorder + 0.1
+
+    __init__.__doc__ = _quiverkey_doc
+
+    def _init(self):
+        if not self._initialized:
+            self._set_transform()
+            _pivot = self.Q.pivot
+            self.Q.pivot = self.pivot[self.labelpos]
+            self.verts = self.Q._make_verts(nx.array([self.U]), nx.zeros((1,)))
+            self.Q.pivot = _pivot
+            kw = self.Q.polykw
+            kw.update(self.kw)
+            self.vector = PolyCollection(self.verts,
+                                         offsets=[(self.X,self.Y)],
+                                         transOffset=self.get_transform(),
+                                         **kw)
+            if self.color is not None:
+                self.vector.set_color(self.color)
+            self.vector.set_transform(self.Q.get_transform())
+            self._initialized = True
+
+    def _text_x(self, x):
+        if self.labelpos == 'E':
+            return x + self.labelsep.get()
+        elif self.labelpos == 'W':
+            return x - self.labelsep.get()
+        else:
+            return x
+
+    def _text_y(self, y):
+        if self.labelpos == 'N':
+            return y + self.labelsep.get()
+        elif self.labelpos == 'S':
+            return y - self.labelsep.get()
+        else:
+            return y
+
+    def draw(self, renderer):
+        self._init()
+        self.vector.draw(renderer)
+        x, y = self.get_transform().xy_tup((self.X, self.Y))
+        self.text.set_x(self._text_x(x))
+        self.text.set_y(self._text_y(y))
+        self.text.draw(renderer)
+
+
+    def _set_transform(self):
+        if self.coord == 'data':
+            self.set_transform(self.Q.ax.transData)
+        elif self.coord == 'axes':
+            self.set_transform(self.Q.ax.transAxes)
+        elif self.coord == 'figure':
+            self.set_transform(self.Q.ax.figure.transFigure)
+        elif self.coord == 'inches':
+            dx = ax.figure.dpi
+            bb = T.Bbox(T.origin(), T.Point(dx, dx))
+            trans = T.get_bbox_transform(T.unit_bbox(), bb)
+            self.set_transform(trans)
+        else:
+            raise ValueError('unrecognized coordinates')
+    quiverkey_doc = _quiverkey_doc
 
 class Quiver(PolyCollection):
     '''
@@ -136,7 +266,6 @@ class Quiver(PolyCollection):
         self.headaxislength = kw.pop('headaxislength', 4.5)
         self.minshaft = kw.pop('minshaft', 1)
         self.minlength = kw.pop('minlength', 1)
-        #self.colorarray = kw.pop('C', None)
         self.units = kw.pop('units', 'width')
         self.width = kw.pop('width', None)
         self.color = kw.pop('color', 'k')
@@ -145,11 +274,12 @@ class Quiver(PolyCollection):
         kw.setdefault('linewidths', (0,))
         PolyCollection.__init__(self, None, offsets=zip(X, Y),
                                        transOffset=ax.transData, **kw)
+        self.polykw = kw
         self.set_UVC(U, V, C)
-        #if self.colorarray is not None:
-        #    self.set_array(nx.ravel(self.colorarray))
-            #print 'set_array called in __init__'
         self._initialized = False
+
+        self.keyvec = None
+        self.keytext = None
 
     __init__.__doc__ = '''
         The constructor takes one required argument, an Axes

@@ -16,7 +16,8 @@ from axis import XAxis, YAxis
 from cbook import iterable, is_string_like, flatten, enumerate, \
      allequal, dict_delall, popd, popall, silent_list
 from collections import RegularPolyCollection, PolyCollection, LineCollection, QuadMesh
-from colors import colorConverter, normalize, Colormap, LinearSegmentedColormap, looks_like_color
+from colors import colorConverter, normalize, Colormap, \
+        LinearSegmentedColormap, looks_like_color, is_color_like
 import cm
 from cm import ScalarMappable
 from contour import ContourSet
@@ -43,7 +44,7 @@ from transforms import blend_xy_sep_transform, Interval, identity_transform
 from transforms import PBox
 from font_manager import FontProperties
 
-from quiver import Quiver
+from quiver import Quiver, QuiverKey
 
 import matplotlib
 
@@ -3201,6 +3202,12 @@ class Axes(Artist):
         self.add_artist(a)
         return a
 
+    def quiverkey(self, *args, **kw):
+        qk = QuiverKey(*args, **kw)
+        self.add_artist(qk)
+        return qk
+    quiverkey.__doc__ = QuiverKey.quiverkey_doc
+
     def quiver2(self, *args, **kw):
         q = Quiver(self, *args, **kw)
         self.add_collection(q)
@@ -3209,7 +3216,21 @@ class Axes(Artist):
         return q
     quiver2.__doc__ = Quiver.quiver_doc
 
-    def quiver(self, U, V, *args, **kwargs ):
+    def quiver(self, *args, **kw):
+        if (len(args) == 3 or len(args) == 5) and not iterable(args[-1]):
+            return self.quiver_classic(*args, **kw)
+        c = kw.get('color', None)
+        if c is not None:
+            try:
+                if not is_color_like(c):
+                    assert shape(asarray(c)) == shape(asarray(args[-1]))
+                    return self.quiver_classic(*args, **kw)
+            except:
+                pass
+        return self.quiver2(*args, **kw)
+    quiver.__doc__ = Quiver.quiver_doc
+
+    def quiver_classic(self, U, V, *args, **kwargs ):
         """
         QUIVER( X, Y, U, V )
         QUIVER( U, V )
@@ -3238,6 +3259,10 @@ class Axes(Artist):
 
 
         """
+        msg = '''This version of quiver is obsolete and will be
+        phased out; please use the new quiver.
+        '''
+        warnings.warn(msg, DeprecationWarning)
         if not self._hold: self.cla()
         do_scale = True
         S = 1.0
