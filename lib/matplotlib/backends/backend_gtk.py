@@ -289,7 +289,7 @@ class FigureCanvasGTK (gtk.DrawingArea, FigureCanvasBase):
         return False  # finish event propagation?
 
 
-    def print_figure(self, filename, dpi=150, facecolor='w', edgecolor='w', 
+    def print_figure(self, filename, dpi=150, facecolor='w', edgecolor='w',
                      orientation='portrait', **kwargs):
         # TODO - use gdk/cairo/agg print_figure?
         root, ext = os.path.splitext(filename)
