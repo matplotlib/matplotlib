@@ -1,3 +1,6 @@
+2006-06-12 Updated numerix to handle numpy restructuring of
+           oldnumeric - TEO
+
 2006-06-12 Updated numerix.fft to handle numpy restructuring
            Added ImportError to numerix.linear_algebra for numpy -TEO
 
