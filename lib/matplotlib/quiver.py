@@ -40,6 +40,8 @@ Keyword arguments (default given first):
   * scale = None | float
             data units per arrow unit, e.g. m/s per plot width;
             a smaller scale parameter makes the arrow longer.
+            If None, a simple autoscaling algorithm is used, based
+            on the average vector length and the number of vectors.
 
     Arrow dimensions and scales can be in any of several units:
 
@@ -58,8 +60,9 @@ Keyword arguments (default given first):
     for 'dots' or 'inches', resizing does not change the arrows.
 
 
-  * width = 0.005    shaft width in arrow units; default depends on
-                        choice of units, above, but is equivalent to
+  * width = ?       shaft width in arrow units; default depends on
+                        choice of units, above, and number of vectors;
+                        a typical starting value is about
                         0.005 times the width of the plot.
   * headwidth = 3    head width as multiple of shaft width
   * headlength = 5   head length as multiple of shaft width
@@ -92,7 +95,6 @@ Keyword arguments (default given first):
         In particular, one might want to use, for example:
             linewidths = (1,), edgecolors = ('g')
         to make the arrows have green outlines of unit width.
-
 
 '''
 
@@ -260,6 +262,7 @@ class Quiver(PolyCollection):
         X, Y, U, V, C = self._parse_args(*args)
         self.X = X
         self.Y = Y
+        self.N = len(X)
         self.scale = kw.pop('scale', None)
         self.headwidth = kw.pop('headwidth', 3)
         self.headlength = float(kw.pop('headlength', 5))
@@ -313,9 +316,13 @@ class Quiver(PolyCollection):
         allow time for axes setup.
         '''
         if not self._initialized:
-            self._set_transform()
+            trans = self._set_transform()
+            ax = self.ax
+            sx, sy = trans.inverse_xy_tup((ax.bbox.width(), ax.bbox.height()))
+            self.span = sx
+            sn = max(8, min(25, math.sqrt(self.N)))
             if self.width is None:
-                self.width = 0.005 * self.span
+                self.width = 0.06 * self.span / sn
 
     def draw(self, renderer):
         self._init()
@@ -356,23 +363,17 @@ class Quiver(PolyCollection):
         bb = T.Bbox(T.origin(), T.Point(dx, dx))
         trans = T.get_bbox_transform(T.unit_bbox(), bb)
         self.set_transform(trans)
-        sx, sy = trans.inverse_xy_tup((ax.bbox.width(), ax.bbox.height()))
-        #print 'sx, sy', sx, sy
-        self.span = sx
+        return trans
 
     def _make_verts(self, U, V):
         uv = U+V*1j
         a = nx.absolute(uv)
         if self.scale is None:
-            scale = nx.mlab.amax(a) * math.sqrt(len(a)) # crude auto-scaling
+            sn = max(10, math.sqrt(self.N))
+            scale = 1.8 * nx.average(a) * sn # crude auto-scaling
             scale = scale/self.span
-            self.scale = scale # So we can see what autoscaling does.
-        else:
-            scale = self.scale
-        #print 'scale, self.width', scale, self.width
-        #print 'original length', a
-        length = a/(scale*self.width)
-        #print 'scaled length', length
+            self.scale = scale
+        length = a/(self.scale*self.width)
         X, Y = self._h_arrows(length)
         xy = (X+Y*1j) * nx.exp(1j*nx.angle(uv[...,nx.NewAxis]))*self.width
         return [zip(xyrow.real, xyrow.imag) for xyrow in xy]
