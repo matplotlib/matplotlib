@@ -1,10 +1,18 @@
-from numpy.oldnumeric import Int8, UInt8, \
-     Int16, UInt16, \
-     Int32, UInt32, \
-     Float32, Float64, \
-     Complex32, Complex64, \
-     Float, Int, Complex
-
+try:
+    from numpy.oldnumeric import Int8, UInt8, \
+         Int16, UInt16, \
+         Int32, UInt32, \
+         Float32, Float64, \
+         Complex32, Complex64, \
+         Float, Int, Complex
+except ImportError:
+    from numpy import Int8, UInt8, \
+         Int16, UInt16, \
+         Int32, UInt32, \
+         Float32, Float64, \
+         Complex32, Complex64, \
+         Float, Int, Complex
+    
 class _TypeNamespace:
     """Numeric compatible type aliases for use with extension functions."""
     Int8          = Int8

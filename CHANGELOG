@@ -1,3 +1,5 @@
+2006-06-13 Fix so numpy updates are backward compatible - TEO
+
 2006-06-12 Updated numerix to handle numpy restructuring of
            oldnumeric - TEO
 
