@@ -346,20 +346,24 @@ def find_tcltk():
         o.tkv = ""
     else:
         tk.withdraw()
-        o.tcl_lib = os.path.join((tk.getvar('tcl_library')), '../')
-        o.tk_lib = os.path.join(str(tk.getvar('tk_library')), '../')
+        o.tcl_lib = os.path.normpath(os.path.join((tk.getvar('tcl_library')), '../'))
+        o.tk_lib = os.path.normpath(os.path.join(str(tk.getvar('tk_library')), '../'))
         o.tkv = str(Tkinter.TkVersion)[:3]
-        o.tcl_inc = os.path.join((tk.getvar('tcl_library')), 
-                    '../../include/tcl'+o.tkv)
+        o.tcl_inc = os.path.normpath(os.path.join((tk.getvar('tcl_library')), 
+                    '../../include/tcl'+o.tkv))
         if not os.path.exists(o.tcl_inc):
-            o.tcl_inc = os.path.join((tk.getvar('tcl_library')), 
-                        '../../include')
-        o.tk_inc = os.path.join((tk.getvar('tk_library')), 
-                    '../../include/tk'+o.tkv)        
+            o.tcl_inc = os.path.normpath(os.path.join((tk.getvar('tcl_library')), 
+                        '../../include'))
+        o.tk_inc = os.path.normpath(os.path.join((tk.getvar('tk_library')), 
+                    '../../include/tk'+o.tkv))
         if not os.path.exists(o.tk_inc):
-            o.tk_inc = os.path.join((tk.getvar('tk_library')), 
-                        '../../include')
-
+            o.tk_inc = os.path.normpath(os.path.join((tk.getvar('tk_library')), 
+                        '../../include'))
+            
+        if ((not os.path.exists(os.path.join(o.tk_inc,'tk.h'))) and
+            os.path.exists(os.path.join(o.tcl_inc,'tk.h'))):
+            o.tk_inc = o.tcl_inc
+            
         if not os.path.exists(o.tcl_inc):            
             # this is a hack for suse linux, which is broken
             if (sys.platform.startswith('linux') and
