@@ -951,8 +951,12 @@ class Axes(Artist):
         self._autoscaleon = b
 
 
-    def autoscale_view(self, tight=False):
-        'autoscale the view limits using the data limits'
+    def autoscale_view(self, tight=False, scalex=True, scaley=True):
+        """
+        autoscale the view limits using the data limits. You can
+        selectively autoscale only a single axis, eg, the xaxis by
+        setting scaley to False.
+        """
         # if image data only just use the datalim
 
         if not self._autoscaleon: return
@@ -960,15 +964,15 @@ class Axes(Artist):
                       len(self.lines)==0 and
                       len(self.patches)==0)):
 
-            self.set_xlim(self.dataLim.intervalx().get_bounds())
+            if scalex: self.set_xlim(self.dataLim.intervalx().get_bounds())
 
-            self.set_ylim(self.dataLim.intervaly().get_bounds())
+            if scaley: self.set_ylim(self.dataLim.intervaly().get_bounds())
             return
 
         locator = self.xaxis.get_major_locator()
-        self.set_xlim(locator.autoscale())
+        if scalex: self.set_xlim(locator.autoscale())
         locator = self.yaxis.get_major_locator()
-        self.set_ylim(locator.autoscale())
+        if scaley: self.set_ylim(locator.autoscale())
     #### Drawing
 
     def draw(self, renderer=None, inframe=False):
@@ -1786,7 +1790,7 @@ class Axes(Artist):
           axhline(y=.5, xmin=0.25, xmax=0.75)
         """
         trans = blend_xy_sep_transform( self.transAxes, self.transData)
-        l, = self.plot([xmin,xmax], [y,y], transform=trans, **kwargs)
+        l, = self.plot([xmin,xmax], [y,y], transform=trans, scalex=False, **kwargs)
         return l
 
 
@@ -1819,7 +1823,7 @@ class Axes(Artist):
         """
 
         trans = blend_xy_sep_transform( self.transData, self.transAxes )
-        l, = self.plot([x,x], [ymin,ymax] , transform=trans, **kwargs)
+        l, = self.plot([x,x], [ymin,ymax] , transform=trans, scaley=False, **kwargs)
         return l
 
 
@@ -2076,15 +2080,24 @@ class Axes(Artist):
             plot(x1, y1, x2, y2, antialised=False)
 
         Neither line will be antialiased.
+
+        Additional kwargs scalex and scaley, if defined, are passed on
+        to autoscale_view to determine whether the x and y axes are
+        autoscaled; default True.  See Axes.autoscale_view for more
+        information
         """
 
+        d = kwargs.copy()
+        scalex = d.pop('scalex', True)
+        scaley = d.pop('scaley', True)        
         if not self._hold: self.cla()
         lines = []
-        for line in self._get_lines(*args, **kwargs):
+        for line in self._get_lines(*args, **d):
             self.add_line(line)
             lines.append(line)
         lines = [line for line in lines] # consume the generator
-        self.autoscale_view()
+
+        self.autoscale_view(scalex=scalex, scaley=scaley)
         return lines
 
     def plot_date(self, x, y, fmt='bo', tz=None, xdate=True, ydate=False,
