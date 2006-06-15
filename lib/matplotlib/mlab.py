@@ -88,6 +88,9 @@ def linspace(xmin, xmax, N):
    dx = (xmax-xmin)/(N-1)
    return xmin + dx*arange(N)
 
+def logspace(xmin,xmax,N):
+    return exp(linspace(log(xmin), log(xmax),Nh))
+
 def _norm(x):
     "return sqrt(x dot x)"
     return numerix.mlab.sqrt(dot(x,x))

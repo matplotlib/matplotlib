@@ -334,14 +334,25 @@ RendererAgg::draw_rectangle(const Py::Tuple & args) {
   double w = Py::Float( args[4] );
   double h = Py::Float( args[5] );
 
+  b = height - (b+h);  
+  double r = l + w;
+  double t = b + h;
+
+  //snapto pixel centers
+  l = (int)l + 0.5;
+  b = (int)b + 0.5;
+  r = (int)r + 0.5;
+  t = (int)t + 0.5;
+
+  
   set_clipbox_rasterizer(gc.cliprect);
 
   agg::path_storage path;
 
-  b = height - (b+h);
-  path.move_to(l, b+h);
-  path.line_to(l+w, b+h);
-  path.line_to(l+w, b);
+
+  path.move_to(l, t);
+  path.line_to(r, t);
+  path.line_to(r, b);
   path.line_to(l, b);
   path.close_polygon();
 
@@ -404,15 +415,19 @@ RendererAgg::draw_polygon(const Py::Tuple& args) {
     xs[i] = Py::Float(xy[0]);
     ys[i] = Py::Float(xy[1]);
     ys[i] = height - ys[i];
-
   }
 
+  
 
   agg::path_storage path;
   for (size_t j=0; j<Npoints; j++) {
 
     double x = xs[j];
     double y = ys[j];
+
+    //snapto pixel centers
+    x = (int)x + 0.5;
+    y = (int)y + 0.5;
 
     if (j==0) path.move_to(x,y);
     else path.line_to(x,y);

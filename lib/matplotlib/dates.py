@@ -188,7 +188,7 @@ def date2num(d):
     minutes, seconds) since 0001-01-01 00:00:00 UTC
     """
     if not iterable(d): return _to_ordinalf(d)
-    else: return [_to_ordinalf(val) for val in d]
+    else: return asarray([_to_ordinalf(val) for val in d])
 
 
 def num2date(x, tz=None):
