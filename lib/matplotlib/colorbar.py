@@ -53,6 +53,18 @@ colormap_kw_doc = '''
                 An alternative Formatter object may be given instead.
         drawedges=False, True
                 If true, draw lines at color boundaries.
+
+        The following will probably be useful only in the context of
+        indexed colors (that is, when the mappable has norm=no_norm()),
+        or other unusual circumstances.
+
+        boundaries=None or a sequence
+        values=None or a sequence which must be of length 1 less than the
+                sequence of boundaries.
+                For each region delimited by adjacent entries in
+                boundaries, the color mapped to the corresponding
+                value in values will be used.
+
 '''
 
 colorbar_doc = '''
@@ -60,11 +72,11 @@ Add a colorbar to a plot.
 
 Function signatures:
 
-    contour(**kwargs)
+    colorbar(**kwargs)
 
-    contour(mappable, **kwargs)
+    colorbar(mappable, **kwargs)
 
-    contour(mappable, cax, **kwargs)
+    colorbar(mappable, cax, **kwargs)
 
 The optional arguments mappable and cax may be included in the kwargs;
 they are image, ContourSet, etc. to which the colorbar applies, and
@@ -255,11 +267,19 @@ class ColorbarBase(cm.ScalarMappable):
         formatter = self.formatter
         if locator is None:
             if self.boundaries is None:
-                locator = ticker.MaxNLocator()
+                if isinstance(self.norm, colors.no_norm):
+                    nv = len(self._values)
+                    base = 1 + int(nv/10)
+                    locator = ticker.IndexLocator(base=base, offset=0)
+                else:
+                    locator = ticker.MaxNLocator()
             else:
                 b = self._boundaries[self._inside]
                 locator = ticker.FixedLocator(b, nbins=10)
-        intv = Interval(Value(self.vmin), Value(self.vmax))
+        if isinstance(self.norm, colors.no_norm):
+            intv = Interval(Value(self._values[0]), Value(self._values[-1]))
+        else:
+            intv = Interval(Value(self.vmin), Value(self.vmax))
         locator.set_view_interval(intv)
         locator.set_data_interval(intv)
         formatter.set_view_interval(intv)
@@ -286,6 +306,8 @@ class ColorbarBase(cm.ScalarMappable):
             if self.values is None:
                 self._values = 0.5*(self._boundaries[:-1]
                                         + self._boundaries[1:])
+                if isinstance(self.norm, colors.no_norm):
+                    self._values = (self._values + 0.00001).astype(nx.Int16)
                 return
             self._values = nx.array(self.values)
             return
@@ -300,8 +322,11 @@ class ColorbarBase(cm.ScalarMappable):
                 return
             self._boundaries = nx.array(self.boundaries)
             return
-        dv = self.norm.vmax - self.norm.vmin
-        b = self.norm.vmin + dv * self._uniform_y(self.cmap.N+1)
+        if isinstance(self.norm, colors.no_norm):
+            b = nx.arange(self.norm.vmin, self.norm.vmax + 2) - 0.5
+        else:
+            dv = self.norm.vmax - self.norm.vmin
+            b = self.norm.vmin + dv * self._uniform_y(self.cmap.N+1)
         self._process_values(b)
 
     def _find_range(self):

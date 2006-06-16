@@ -1,3 +1,7 @@
+2006-06-16 Fixed colorbar.py to handle indexed colors (i.e.,
+           norm = no_norm()) by centering each colored region
+           on its index. - EF
+
 2006-06-15 Added scalex and scaley to Axes.autoscale_view to support
            selective autoscaling just the x or y axis, and supported
            these command in plot so you can say plot(something,
