@@ -992,10 +992,12 @@ class Axes(Artist):
 
         self.transAxes.freeze()  # eval the lazy objects
         if self.axison and self._frameon: self.axesPatch.draw(renderer)
+        artists = []
 
         if len(self.images)==1:
             im = self.images[0]
-            im.draw(renderer)
+            artists.append(im)
+
         elif len(self.images)>1:
 
             # make a composite image blending alpha
@@ -1008,10 +1010,12 @@ class Axes(Artist):
             im = _image.from_images(self.bbox.height(), self.bbox.width(), ims)
             im.is_grayscale = False
             l, b, w, h = self.bbox.get_bounds()
+            # composite images need special args so they will not
+            # respect z-order for now
             renderer.draw_image(l, b, im, self.bbox)
 
 
-        artists = []
+
         artists.extend(self.collections)
         artists.extend(self.patches)
         artists.extend(self.lines)

@@ -1,3 +1,9 @@
+2006-06-16 Added a pointer to parent in figure canvas so you can
+           access the container with fig.canvas.manager.  Useful if
+           you want to set the window title, eg in gtk
+           fig.canvas.manager.window.set_title, though a GUI neutral
+           method would be preferable JDH
+
 2006-06-16 Fixed colorbar.py to handle indexed colors (i.e.,
            norm = no_norm()) by centering each colored region
            on its index. - EF
