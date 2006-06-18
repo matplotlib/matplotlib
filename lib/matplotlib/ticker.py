@@ -365,18 +365,10 @@ class ScalarFormatter(Formatter):
             exponent = tup[1][1:].lstrip('0')
             if mathtext:
                 if self._usetex:
-                    family = rcParams['font.family']
-                    fontcmd = {'sans-serif' : r'\textsf',
-                               'monospace' : r'\texttt'}.get(family, r'\textrm')
                     if mantissa=='1':
-                        return r'%s{10}^{%s%s{%s}}'%(fontcmd, sign, fontcmd, exponent)
+                        return r'10^{%s%s}'%(sign, exponent)
                     else:
-                        mant_sign = ''
-                        if mantissa[0] == '-':
-                            mant_sign = '-'
-                            mantissa = mantissa[1:]
-                        return r'%s%s{%s}{\times}%s{10}^{%s%s{%s}}'%(mant_sign, fontcmd, mantissa,
-                                                fontcmd, sign, fontcmd, exponent)
+                        return r'%s{\times}10^{%s%s}'%(mantissa, sign, exponent)
                 else:
                     if mantissa=='1':
                         return r'10^{%s%s}'%(sign, exponent)
@@ -503,24 +495,15 @@ class LogFormatterMathtext(LogFormatter):
         isDecade = self.is_decade(fx)
 
         usetex = rcParams['text.usetex']
-        if usetex:
-            family = rcParams['font.family']
-            fontcmd = {'sans-serif' : r'\textsf',
-                       'monospace' : r'\texttt'}.get(family, r'\textrm')
 
         if not isDecade and self.labelOnlyBase: s = ''
         elif not isDecade:
             if usetex:
-                sign = ''
-                if fx < 0: sign = '-'
-                s = r'%d$^{%s%s{%.2f}}$'% (b, sign, fontcmd, absolute(fx))
+                s = r'$%d^{%.2f}$'% (b, fx)
             else: s = '$%d^{%.2f}$'% (b, fx)
         else:
             if usetex:
-                fx = self.nearest_long(fx)
-                sign = ''
-                if fx<0: sign = '-'
-                s = r'%d$^{%s%s{%d}}$'% (b, sign, fontcmd, absolute(fx))
+                s = r'$%d^{%d}$'% (b, self.nearest_long(fx))
             else: s = r'$%d^{%d}$'% (b, self.nearest_long(fx))
 
         return s
