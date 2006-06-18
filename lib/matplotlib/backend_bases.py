@@ -993,6 +993,7 @@ class FigureManagerBase:
     """
     def __init__(self, canvas, num):
         self.canvas = canvas
+        canvas.manager = self  # store a pointer to parent
         self.num = num
 
         self.canvas.mpl_connect('key_press_event', self.key_press)
