@@ -1475,7 +1475,7 @@ class NavigationToolbar2:
 
         self.draw()
         self._xypress = None
-        self._button_pressed == None
+        self._button_pressed = None
 
         self.push_current()
         self.release(event)
