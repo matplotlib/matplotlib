@@ -1,3 +1,6 @@
+2006-06-20 Added custom FigureClass hook to pylab interface - see
+           examples/custom_figure_class.py
+
 2006-06-16 Added colormaps from gist (gist_earth, gist_stern, 
            gist_rainbow, gist_gray, gist_yarg, gist_heat, gist_ncar) - JW
 

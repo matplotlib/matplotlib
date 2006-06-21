@@ -1210,7 +1210,8 @@ def new_figure_manager(num, *args, **kwargs):
         wxapp = wx.PySimpleApp()
         wxapp.SetExitOnFrameDelete(True)
 
-    fig = Figure(*args, **kwargs)
+    FigureClass = kwargs.pop('FigureClass', Figure)
+    fig = FigureClass(*args, **kwargs)
     frame = FigureFrameWx(num, fig)
     figmgr = frame.get_figure_manager()
     if matplotlib.is_interactive():

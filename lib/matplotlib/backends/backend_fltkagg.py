@@ -111,7 +111,8 @@ def new_figure_manager(num, *args, **kwargs):
     """
     Create a new figure manager instance
     """
-    figure = Figure(*args, **kwargs)
+    FigureClass = kwargs.pop('FigureClass', Figure)
+    figure = FigureClass(*args, **kwargs)
     window = Fltk.Fl_Double_Window(10,10,30,30)
     canvas = FigureCanvasFltkAgg(figure)   
     window.end()    

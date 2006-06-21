@@ -279,7 +279,8 @@ def new_figure_manager_paint(num, *args, **kwargs):
     backends, you'll need to instantiate a new window and embed
     the figure in it.
     """
-    thisFig = Figure(*args, **kwargs)
+    FigureClass = kwargs.pop('FigureClass', Figure)
+    thisFig = FigureClass(*args, **kwargs)
     canvas = FigureCanvasPaint(thisFig)
     manager = FigureManagerBase(canvas, num)
     return manager

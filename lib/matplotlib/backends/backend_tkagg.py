@@ -83,7 +83,8 @@ def new_figure_manager(num, *args, **kwargs):
     Create a new figure manager instance
     """
     _focus = windowing.FocusManager()
-    figure = Figure(*args, **kwargs)
+    FigureClass = kwargs.pop('FigureClass', Figure)
+    figure = FigureClass(*args, **kwargs)
     window = Tk.Tk()
     canvas = FigureCanvasTkAgg(figure, master=window)    
     figManager = FigureManagerTkAgg(canvas, num, window)

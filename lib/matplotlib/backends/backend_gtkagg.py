@@ -38,7 +38,8 @@ def new_figure_manager(num, *args, **kwargs):
     Create a new figure manager instance
     """
     if DEBUG: print 'backend_gtkagg.new_figure_manager'
-    thisFig = Figure(*args, **kwargs)
+    FigureClass = kwargs.pop('FigureClass', Figure)
+    thisFig = FigureClass(*args, **kwargs)
     canvas = FigureCanvasGTKAgg(thisFig)
     return FigureManagerGTKAgg(canvas, num)
     if DEBUG: print 'backend_gtkagg.new_figure_manager done'

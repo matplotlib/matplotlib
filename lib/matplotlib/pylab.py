@@ -819,6 +819,8 @@ def figure(num=None, # autoincrement if None, else integer from 1-N
            facecolor = None, # defaults to rc figure.facecolor
            edgecolor = None, # defaults to rc figure.edgecolor
            frameon = True,
+           FigureClass = Figure,
+           **kwargs
            ):
     """
     figure(num = None, figsize=(8, 6), dpi=80, facecolor='w', edgecolor='k')
@@ -846,6 +848,11 @@ def figure(num=None, # autoincrement if None, else integer from 1-N
       edgecolor - the border color; defaults to rc figure.edgecolor
 
     rcParams gives the default values from the .matplotlibrc file
+
+    FigureClass is a Figure or derived class that will be passed on to
+    new_figure_manager in the backends which allows you to hook custom
+    Figureclasses into the pylab interface.  Additional kwargs will be
+    passed on to your figure init function
     """
 
     if figsize is None   : figsize   = rcParams['figure.figsize']
@@ -863,7 +870,8 @@ def figure(num=None, # autoincrement if None, else integer from 1-N
     figManager = _pylab_helpers.Gcf.get_fig_manager(num)
     if figManager is None:
         if get_backend()=='PS':  dpi = 72
-        figManager = new_figure_manager(num, figsize, dpi, facecolor, edgecolor, frameon)
+        
+        figManager = new_figure_manager(num, figsize, dpi, facecolor, edgecolor, frameon, FigureClass=FigureClass, **kwargs)
         _pylab_helpers.Gcf.set_active(figManager)
         figManager.canvas.figure.number = num
 
