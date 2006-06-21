@@ -153,7 +153,7 @@ class Axis(axis.XAxis):
             def update_coords(renderer,self=t.label1):
                 return text_update_coords(self, renderer)
             # Text overrides setattr so need this to force new method
-            t.label1.__dict__['update_coords'] = update_coords
+            #t.label1.__dict__['update_coords'] = update_coords
             t.tick1line.set_transform(self.axes.transData)
             t.tick2line.set_transform(self.axes.transData)
             t.gridline.set_transform(self.axes.transData)
