@@ -20,7 +20,8 @@ def new_figure_manager( num, *args, **kwargs ):
     Create a new figure manager instance
     """
     if DEBUG: print 'backend_qtagg.new_figure_manager'
-    thisFig = Figure( *args, **kwargs )
+    FigureClass = kwargs.pop('FigureClass', Figure)
+    thisFig = FigureClass( *args, **kwargs )
     canvas = FigureCanvasQTAgg( thisFig )
     return FigureManagerQT( canvas, num )
 

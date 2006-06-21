@@ -873,7 +873,8 @@ class GraphicsContextPS(GraphicsContextBase):
 
 
 def new_figure_manager(num, *args, **kwargs):
-    thisFig = Figure(*args, **kwargs)
+    FigureClass = kwargs.pop('FigureClass', Figure)
+    thisFig = FigureClass(*args, **kwargs)
     canvas = FigureCanvasPS(thisFig)
     manager = FigureManagerPS(canvas, num)
     return manager

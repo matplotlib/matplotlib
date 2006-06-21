@@ -132,8 +132,9 @@ def new_figure_manager(num, *args, **kwargs):
         if backend_wx.wxapp is None:
             backend_wx.wxapp = wx.PySimpleApp()
             backend_wx.wxapp.SetExitOnFrameDelete(True)
-    
-    fig = Figure(*args, **kwargs)
+
+    FigureClass = kwargs.pop('FigureClass', Figure)    
+    fig = FigureClass(*args, **kwargs)
     frame = FigureFrameWxAgg(num, fig)
     figmgr = frame.get_figure_manager()
     if matplotlib.is_interactive():

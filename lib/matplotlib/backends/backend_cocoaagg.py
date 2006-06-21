@@ -36,7 +36,8 @@ from matplotlib._pylab_helpers import Gcf
 mplBundle = NSBundle.bundleWithPath_(matplotlib.get_data_path())
 
 def new_figure_manager(num, *args, **kwargs):
-    thisFig = Figure( *args, **kwargs )
+    FigureClass = kwargs.pop('FigureClass', Figure)
+    thisFig = FigureClass( *args, **kwargs )
     canvas = FigureCanvasCocoaAgg(thisFig)
     return FigureManagerCocoaAgg(canvas, num)
 

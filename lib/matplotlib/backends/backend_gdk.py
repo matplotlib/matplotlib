@@ -460,7 +460,8 @@ def new_figure_manager(num, *args, **kwargs):
     """
     Create a new figure manager instance
     """
-    thisFig = Figure(*args, **kwargs)
+    FigureClass = kwargs.pop('FigureClass', Figure)
+    thisFig = FigureClass(*args, **kwargs)
     canvas  = FigureCanvasGDK(thisFig)
     manager = FigureManagerBase(canvas, num)
     # equals:

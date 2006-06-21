@@ -14,7 +14,8 @@ from matplotlib.mathtext import math_parse_s_ft2font_svg
 backend_version = __version__
 
 def new_figure_manager(num, *args):
-    thisFig = Figure(*args)
+    FigureClass = kwargs.pop('FigureClass', Figure)
+    thisFig = FigureClass(*args)
     canvas  = FigureCanvasSVG(thisFig)
     manager = FigureManagerSVG(canvas, num)
     return manager

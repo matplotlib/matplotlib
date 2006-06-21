@@ -355,7 +355,9 @@ def new_figure_manager(num, *args, **kwargs):
     if __debug__: verbose.report('backend_agg.new_figure_manager',
                                  'debug-annoying')
 
-    thisFig = Figure(*args, **kwargs)
+
+    FigureClass = kwargs.pop('FigureClass', Figure)
+    thisFig = FigureClass(*args, **kwargs)
     canvas = FigureCanvasAgg(thisFig)
     manager = FigureManagerBase(canvas, num)
     return manager
