@@ -19,6 +19,7 @@ from axes import Axes
 import cbook
 from transforms import unit_bbox
 
+import figure
 import numerix as nx
 from colors import normalize
 
@@ -56,8 +57,8 @@ class Axes3DI(Axes):
     """
     def __init__(self, fig=None, rect=[0.0, 0.0, 1.0, 1.0], *args, **kwargs):
         #
-        fig = fig or pylab.gcf()
-
+        self.fig = fig or figure.Figure()
+        
         azim = cbook.popd(kwargs, 'azim', -60)
         elev = cbook.popd(kwargs, 'elev', 30)
 
@@ -70,12 +71,12 @@ class Axes3DI(Axes):
         # inihibit autoscale_view until the axises are defined
         # they can't be defined until Axes.__init__ has been called
         self._ready = 0
-        Axes.__init__(self, fig, rect,
+        Axes.__init__(self, self.fig, rect,
                       frameon=True, 
                       xticks=[], yticks=[], *args, **kwargs)
         #
-        figmanager = pylab.get_current_fig_manager()
-        self.toolbar = figmanager.toolbar
+#        figmanager = pylab.get_current_fig_manager()
+#        self.toolbar = figmanager.toolbar
         #
         # 
         # self.toolbar._active is current zoom/pan mode
@@ -85,14 +86,14 @@ class Axes3DI(Axes):
         self._ready = 1
 
         self.view_init(elev, azim)
-        self.mouse_init()
+        #self.mouse_init()
         self.create_axes()
         self.set_top_view()
 
         #self.axesPatch.set_edgecolor((1,0,0,0))
         self.axesPatch.set_linewidth(0)
         #self.axesPatch.set_facecolor((0,0,0,0))
-        fig.add_axes(self)
+        self.fig.add_axes(self)
 
 
     def set_top_view(self):
@@ -148,7 +149,8 @@ class Axes3DI(Axes):
         return zip(xs,ys,zs)
 
     def tunit_cube(self,vals=None,M=None):
-        M = M or self.M
+        if M is None:
+            M = self.M
         xyzs = self.unit_cube(vals)
         tcube = proj3d.proj_points(xyzs,M)
         return tcube

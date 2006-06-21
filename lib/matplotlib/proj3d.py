@@ -9,6 +9,7 @@ Various transforms used for by the 3D code
 from collections import LineCollection
 from patches import Circle
 import numerix as nx
+from numerix import linear_algebra
 from math import sqrt
 
 dot = nx.dot
@@ -18,7 +19,7 @@ def _hide_dot(a,b):
     """
     return a[0]*b[0]+a[1]*b[1]+a[2]*b[2]
 
-cross = nx.cross
+#cross = nx.cross
 def _hide_cross(a,b):
     """
     Cross product of two vectors
@@ -26,6 +27,7 @@ def _hide_cross(a,b):
     a x b = [a2b3 - a3b2, a3b1 - a1b3, a1b2 - a2b1]
     """
     return nx.array([a[1]*b[2]-a[2]*b[1],a[2]*b[0]-a[0]*b[2],a[0]*b[1] - a[1]*b[0]])
+cross = _hide_cross
 
 
 def test_dot():
@@ -215,7 +217,7 @@ def proj_transform_vec_clip(vec, M):
     return txs,tys,tzs,tis
 
 def inv_transform(xs,ys,zs,M):
-    iM = nx.linalg.inv(M)
+    iM = linear_algebra.inverse(M)
     vec = vec_pad_ones(xs,ys,zs)
     vecr = nx.matrixmultiply(iM,vec)
     try:
