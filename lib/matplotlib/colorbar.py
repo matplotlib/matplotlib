@@ -216,14 +216,12 @@ class ColorbarBase(cm.ScalarMappable):
         Return the separator line segments; helper for _add_solids.
         '''
         N = nx.shape(X)[0]
+        # Using the non-array form of these line segments is much
+        # simpler than making them into arrays.
         if self.orientation == 'vertical':
-            return nx.concatenate((X[1:N-1, nx.newaxis],
-                                   Y[1:N-1, nx.newaxis]), axis=1)
-            #return [zip(X[i], Y[i]) for i in range(1, N-1)]
+            return [zip(X[i], Y[i]) for i in range(1, N-1)]
         else:
-            return nx.concatenate((Y[1:N-1, nx.newaxis],
-                                   X[1:N-1, nx.newaxis]), axis=1)
-            #return [zip(Y[i], X[i]) for i in range(1, N-1)]
+            return [zip(Y[i], X[i]) for i in range(1, N-1)]
 
     def _add_solids(self, X, Y, C):
         '''
