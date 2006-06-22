@@ -22,7 +22,6 @@ def norm_angle(a):
     if a > 180: a = a-360
     return a
 
-
 def text_update_coords(self, renderer):
     """Modified method update_coords from TextWithDash
 
@@ -31,7 +30,6 @@ def text_update_coords(self, renderer):
     better, although the text bounding boxes look a little
     inconsistent
     """
-    
     
     (x, y) = self.get_position()
     dashlength = self.get_dashlength()
@@ -94,7 +92,6 @@ def text_update_coords(self, renderer):
     self._mytext.set_horizontalalignment('center')
     self._mytext.set_verticalalignment('center')
 
-    
 def tick_update_position(tick, x,y,z, angle):
     #
     tick.tick1On = False
@@ -107,7 +104,6 @@ def tick_update_position(tick, x,y,z, angle):
     tick.label1.set_dashrotation(angle)
     tick.label1.set_position((x,y))
     tick.label2.set_position((x,y))
-
 
 class Axis(axis.XAxis):
     def __init__(self, adir, v_intervalx, d_intervalx, axes, *args, **kwargs):
@@ -139,7 +135,6 @@ class Axis(axis.XAxis):
         self.axes._set_artist_props(self.label)
         self.label._transform = self.axes.transData
 
-        
     def get_tick_positions(self):
         majorTicks = self.get_major_ticks()
         majorLocs = self.major.locator()
@@ -244,6 +239,7 @@ class Axis(axis.XAxis):
                 
                 ly = miny - dy
                 lz = minz - dz
+                
         elif self.adir == 'y':
             # cube 3 is minx,maxy,minz
             # cube 2 is maxx,maxy,minz
@@ -388,7 +384,6 @@ class Axis(axis.XAxis):
                     ticklabelBoxes2.append(extent)
         #
         renderer.close_group('axis3d')
-        
     
     def get_view_interval(self):
         """return the Interval instance for this axis view limits

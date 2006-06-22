@@ -13,9 +13,7 @@ from colors import normalize
 from cm import jet
 
 import numerix as nx
-
 import proj3d
-
 
 class Wrap2D:
     """Wrapper which wraps a 2D object and makes it 3D
@@ -85,7 +83,6 @@ class Text3D(Text3DW):
     def __init__(self, x=0,y=0,z=0,text='', dir='z'):
         inst = text.Text(x,y,text,*args, **kwargs)
         Text3DW.__init__(self, z,dir, inst)
-    
 
 class oText3D(text.Text):
     def __init__(self, x=0,y=0,z=0,text='', dir='z', *args, **kwargs):
@@ -115,7 +112,6 @@ class Line3D(lines.Line2D):
         
         lines.Line2D.draw(self, renderer)
 
-        
 class Line3DCollectionW(Wrap2D):
     def __init__(self, inst, segments):
         Wrap2D.__init__(self, inst)
@@ -133,7 +129,6 @@ class Line3DCollection(Line3DCollectionW):
     def __init__(self, segments, *args, **kwargs):
         inst = LineCollection(segments, *args, **kwargs)
         Line3DCollectionW.__init__(self, inst, segments)
-
 
 class Line2DCollectionW(Wrap2D):
     def __init__(self, inst, z=0, dir='z'):
@@ -177,9 +172,7 @@ class Patch3D(Wrap2D):
         
         self.get_verts = get_verts
         self.draw2d(renderer)
-        
-        
-        
+
 class Patch3DCollectionW(Wrap2D):
     def __init__(self, inst, zs, dir='z'):
         Wrap2D.__init__(self, inst)
@@ -202,7 +195,6 @@ class Patch3DCollectionW(Wrap2D):
         self._edgecolors = zalpha(self._edgecolors,vzs)
         self._offsets = zip(vxs,vys)
         self.draw2d(renderer)
-        
 
 class Poly3DCollectionW(Wrap2D):
     def __init__(self, inst, zs=None, dir='z'):
@@ -225,8 +217,6 @@ class Poly3DCollectionW(Wrap2D):
         # mess with colors
         self._verts = [verts for (z,verts) in vverts]
         self.draw2d(renderer)
-        
-        
 
 class oLine3DCollection(LineCollection):
     def __init__(self, segments, *args, **kwargs):
@@ -242,7 +232,6 @@ class oLine3DCollection(LineCollection):
         self._segments = segments_2d
         LineCollection.draw(self, renderer)
         self._segments = orig_segments
-
 
 class Poly3DCollection(Wrap2D):
     def __init__(self, segments, *args, **kwargs):
@@ -290,7 +279,6 @@ class Poly3DCollection(Wrap2D):
 
         self.draw2d(renderer)
 
-
 def juggle_axes(xs,ys,zs, dir):
     """Depending on the direction of the plot re-order the axis
 
@@ -314,8 +302,6 @@ class Line2DW(Wrap2D):
         self._x = xs
         self._y = ys
         self.draw2d(renderer)
-
-
     
 def line_draw(self, renderer):
     """Draw a 2D line as a 3D line"""
@@ -359,8 +345,6 @@ def set_line_data(line, xs,ys,zs):
     except: pass
     line.set_data(xs,ys)
     line.zs = zs
-
-
 
 def iscolor(c):
     try:
@@ -409,7 +393,6 @@ def patch_draw(self, renderer):
 def wrap_patch(patch, zs, dir='z'):
     return Patch3DCollectionW(patch, zs, dir)
 
-
 def draw_linec(self, renderer):
     orig_segments = self._segments
     segments_3d = [[(x,y,z) for (x,y),z in zip(points,zs)]
@@ -436,8 +419,7 @@ def draw_polyc(self, renderer):
     self._verts = segments_2d
     PolyCollection.draw(self, renderer)
     self._verts = orig_segments
-    
-    
+
 def text_draw(self, renderer):
     x,y = self.get_position()
     xs,ys,zs = juggle_axes(x,y,self._z,self.dir)
@@ -459,7 +441,6 @@ def wrap_text(text, zs, dir='z'):
 def set_text_data(text, x,y,z):
     text._x,text._y,text._z = x,y,z
 
-
 def draw(text, renderer):
     print 'call draw text', text
     print text.get_visible()
@@ -474,7 +455,6 @@ def owrap(text):
         draw(text,renderer)
     text.draw = draw_text
 
-
 def wrap_2d_fn(patch, zs,dir='z',fn=patch_draw):
     patch.zs = zs
     patch.dir = dir
@@ -483,7 +463,3 @@ def wrap_2d_fn(patch, zs,dir='z',fn=patch_draw):
         return fn(patch,renderer)
     patch.draw = wrapped_draw
     return patch
-
-
-
-    

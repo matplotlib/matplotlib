@@ -6,10 +6,7 @@
 """
 3D projection glued onto 2D Axes.
 
-AXes3D
-
-
-
+Axes3D
 """
 
 import random
@@ -23,7 +20,6 @@ import figure
 import numerix as nx
 from colors import normalize
 
-
 import art3d
 import proj3d
 import axis3d
@@ -35,7 +31,6 @@ def sensible_format_data(self, value):
         return self._formatSciNotation(s)
     else:
         return '%4.3f' % value
-
 
 class Axes3DI(Axes):
     """Wrap an Axes object
@@ -52,18 +47,13 @@ class Axes3DI(Axes):
     The axes representing the x,y,z world dimensions are self.w_xaxis,
     self.w_yaxis and self.w_zaxis. They can probably be controlled in
     more or less the normal ways.
-    
-
     """
-    def __init__(self, fig=None, rect=[0.0, 0.0, 1.0, 1.0], *args, **kwargs):
-        #
-        self.fig = fig or figure.Figure()
+    def __init__(self, fig, rect=[0.0, 0.0, 1.0, 1.0], *args, **kwargs):
+        self.fig = fig
         
         azim = cbook.popd(kwargs, 'azim', -60)
         elev = cbook.popd(kwargs, 'elev', 30)
 
-        #
-        
         self.xy_viewLim = unit_bbox()
         self.zz_viewLim = unit_bbox()
         self.xy_dataLim = unit_bbox()
@@ -74,19 +64,12 @@ class Axes3DI(Axes):
         Axes.__init__(self, self.fig, rect,
                       frameon=True, 
                       xticks=[], yticks=[], *args, **kwargs)
-        #
-#        figmanager = pylab.get_current_fig_manager()
-#        self.toolbar = figmanager.toolbar
-        #
-        # 
-        # self.toolbar._active is current zoom/pan mode
-        # 
-        #
+
         self.M = None
         self._ready = 1
 
         self.view_init(elev, azim)
-        #self.mouse_init()
+        self.mouse_init()
         self.create_axes()
         self.set_top_view()
 
@@ -94,7 +77,6 @@ class Axes3DI(Axes):
         self.axesPatch.set_linewidth(0)
         #self.axesPatch.set_facecolor((0,0,0,0))
         self.fig.add_axes(self)
-
 
     def set_top_view(self):
         # this happens to be the right view for the viewing coordinates
@@ -131,7 +113,6 @@ class Axes3DI(Axes):
         vmin,vmax = self.vlim_argument(self.get_ylim)
         print 'ylim', vmin,vmax
         
-
     def create_axes(self):
         self.w_xaxis = axis3d.Axis('x',self.xy_viewLim.intervalx,
                             self.xy_dataLim.intervalx, self)
@@ -140,7 +121,6 @@ class Axes3DI(Axes):
         self.w_zaxis = axis3d.Axis('z',self.zz_viewLim.intervalx,
                             self.zz_dataLim.intervalx, self)
         
-
     def unit_cube(self,vals=None):
         minx,maxx,miny,maxy,minz,maxz = vals or self.get_w_lims()
         xs,ys,zs = ([minx,maxx,maxx,minx,minx,maxx,maxx,minx],
@@ -174,8 +154,6 @@ class Axes3DI(Axes):
         return edges
         
     def draw(self, renderer):
-        #print 'elev', self.elev, 'azim', self.azim
-        
         # draw the background patch
         self.axesPatch.draw(renderer)
         self._frameon = False
@@ -273,7 +251,6 @@ class Axes3DI(Axes):
     def get_w_ylim(self):
         return self.xy_viewLim.intervaly().get_bounds()
 
-
     def pany(self, numsteps):
         print 'numsteps', numsteps
 
@@ -336,7 +313,6 @@ class Axes3DI(Axes):
     def mouse_init(self):
         self.button_pressed = None
         self.figure.canvas.mpl_connect('motion_notify_event', self.on_move)
-        
         self.figure.canvas.mpl_connect('button_press_event', self.button_press)
         self.figure.canvas.mpl_connect('button_release_event', self.button_release)
         
@@ -380,7 +356,6 @@ class Axes3DI(Axes):
             fmt = self.w_zaxis.get_major_formatter()
             return sensible_format_data(fmt,z)
 
-
     def format_coord(self, xd, yd):
         """Given the 2D view coordinates attempt to guess a 3D coordinate
 
@@ -418,7 +393,6 @@ class Axes3DI(Axes):
 
         button-1 rotates
         button-3 zooms
-        
         """
         #NOTE - this shouldn't be called before the graph has been drawn for the first time!
         if event.inaxes != self or not self.M:
@@ -440,7 +414,7 @@ class Axes3DI(Axes):
         w = (x1-x0)
         h = (y1-y0)
         self.sx,self.sy = x,y
-        #
+
         if self.button_pressed == 1:
             # rotate viewing point
             # get the x and y pixel coords
@@ -472,7 +446,6 @@ class Axes3DI(Axes):
             self.get_proj()
             self.figure.canvas.draw()
 
-
     def set_xlabel(self, xlabel, fontdict=None, **kwargs):
         #par = cbook.popd(kwargs, 'par',None)
         #label.set_par(par)
@@ -497,7 +470,6 @@ class Axes3DI(Axes):
         label.update(kwargs)
         return label
 
-    
     def plot(self, *args, **kwargs):
         had_data = self.has_data()
         
@@ -561,7 +533,7 @@ class Axes3DI(Axes):
             n = proj3d.cross(box[0]-box[1],
                          box[0]-box[2])
             n = n/proj3d.mod(n)*5
-            shade.append(proj3d.dot(n,[-1,-1,0.5]))
+            shade.append(nx.dot(n,[-1,-1,0.5]))
             lines.append((box[0],n+box[0]))
         #
         color = nx.array([0,0,1,1])
@@ -676,11 +648,9 @@ class Axes3D:
     to their 3D approximations.
 
     This should probably be the case for plot etc...
-
-
     """
-    def __init__(self, *args, **kwargs):
-        self.__dict__['wrapped'] = Axes3DI(*args, **kwargs)
+    def __init__(self, fig, *args, **kwargs):
+        self.__dict__['wrapped'] = Axes3DI(fig, *args, **kwargs)
 
     def set_xlim(self, *args, **kwargs):
         self.wrapped.set_w_xlim(*args, **kwargs)
@@ -713,7 +683,6 @@ class Axes3D:
         patches = art3d.wrap_patch(patches, zs=[0]*len(xs),dir=dir)
         return patches
     
-
     def bar(self, left, height, z=0, dir='z', *args, **kwargs):
         had_data = self.has_data()
         patches = self.wrapped.bar(left, height, *args, **kwargs)
@@ -729,7 +698,6 @@ class Axes3D:
         xs,ys,zs=art3d.juggle_axes(xs,ys,zs,dir)
         self.wrapped.auto_scale_xyz(xs,ys,zs, had_data)
 
-    
 def test_scatter():
     
     ax = Axes3D()

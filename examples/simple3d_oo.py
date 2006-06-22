@@ -39,14 +39,16 @@ class PlotFigure(wxFrame):
         plt = self.fig.axes.append(ax3d)
         
         delta = nx.pi / 100.0
-        u = nx.arange(0, 2*nx.pi + delta, delta)
-        v = nx.arange(0, nx.pi + delta, delta)
+        u = nx.arange(0, 2*nx.pi, delta)
+        v = nx.arange(0, nx.pi, delta)
         
         x=10*nx.outerproduct(nx.cos(u),nx.sin(v))
         y=10*nx.outerproduct(nx.sin(u),nx.sin(v))
         z=10*nx.outerproduct(nx.ones(nx.size(u)),nx.cos(v))
         
         ax3d.plot_wireframe(x,y,z)
+        ax3d.plot_surface(x+10,y,z)
+        
         ax3d.set_xlabel('X')
         ax3d.set_ylabel('Y')
         ax3d.set_zlabel('Z')
