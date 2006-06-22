@@ -50,7 +50,7 @@ if which[0] not in ["numeric", "numarray", "numpy"]:
 if which[0] == "numarray":
     #from na_imports import *
     from numarray import *
-    from _na_imports import nx, inf, infinity, Infinity, Matrix, isnan
+    from _na_imports import nx, inf, infinity, Infinity, Matrix, isnan, all
     from numarray.numeric import nonzero
     from numarray.convolve import cross_correlate, convolve
     import numarray
@@ -58,14 +58,14 @@ if which[0] == "numarray":
 elif which[0] == "numeric":
     #from nc_imports import *
     from Numeric import *
-    from _nc_imports import nx, inf, infinity, Infinity, isnan
+    from _nc_imports import nx, inf, infinity, Infinity, isnan, all
     from Matrix import Matrix
     import Numeric
     version = 'Numeric %s'%Numeric.__version__
 elif which[0] == "numpy":
     try:
         import numpy.oldnumeric as numpy
-        from numpy.oldnumeric import * 
+        from numpy.oldnumeric import *
     except ImportError:
         import numpy
         from numpy import *

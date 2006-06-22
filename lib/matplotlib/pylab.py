@@ -870,7 +870,7 @@ def figure(num=None, # autoincrement if None, else integer from 1-N
     figManager = _pylab_helpers.Gcf.get_fig_manager(num)
     if figManager is None:
         if get_backend()=='PS':  dpi = 72
-        
+
         figManager = new_figure_manager(num, figsize, dpi, facecolor, edgecolor, frameon, FigureClass=FigureClass, **kwargs)
         _pylab_helpers.Gcf.set_active(figManager)
         figManager.canvas.figure.number = num

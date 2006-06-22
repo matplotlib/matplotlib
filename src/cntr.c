@@ -1369,6 +1369,41 @@ build_cntr_list_v(long *np, double *xp, double *yp, int nparts, long ntotal)
     return NULL;
 }
 
+/* Build a list of XY 2-D arrays, shape (N,2) */
+static PyObject *
+build_cntr_list_v2(long *np, double *xp, double *yp, int nparts, long ntotal)
+{
+    PyObject *point, *all_contours;
+    PyArrayObject *xyv;
+    int dims[2];
+    int i;
+    long j, k;
+
+    all_contours = PyList_New(nparts);
+
+    k = 0;
+    for (i = 0; i < nparts; i++)
+    {
+        dims[0] = np[i];
+        dims[1] = 2;
+        xyv = (PyArrayObject *) PyArray_FromDims(2, dims, PyArray_DOUBLE);
+        if (xyv == NULL)  goto error;
+        for (j = 0; j < dims[0]; j++)
+        {
+            ((double *)xyv->data)[2*j] = xp[k];
+            ((double *)xyv->data)[2*j+1] = yp[k];
+            k++;
+        }
+        if (PyList_SetItem(all_contours, i, (PyObject *)xyv)) goto error;
+    }
+    return all_contours;
+
+    error:
+    Py_XDECREF(all_contours);
+    return NULL;
+}
+
+
 
 /* cntr_trace is called once per contour level or level pair.
    If nlevels is 1, a set of contour lines will be returned; if nlevels
@@ -1463,7 +1498,7 @@ cntr_trace(Csite *site, double levels[], int nlevels, int points, long nchunk)
     }
     else
     {
-        c_list = build_cntr_list_v(nseg0, xp0, yp0, nparts, ntotal);
+        c_list = build_cntr_list_v2(nseg0, xp0, yp0, nparts, ntotal);
     }
     PyMem_Free(xp0); PyMem_Free(yp0); PyMem_Free(nseg0);
     site->xcp = NULL; site->ycp = NULL;
@@ -1571,16 +1606,16 @@ Cntr_init(Cntr *self, PyObject *args, PyObject *kwds)
         return -1;
     }
 
-    xpa = (PyArrayObject *) PyArray_ContiguousFromObject(xarg, 
+    xpa = (PyArrayObject *) PyArray_ContiguousFromObject(xarg,
 							 PyArray_DOUBLE, 2, 2);
-    ypa = (PyArrayObject *) PyArray_ContiguousFromObject(yarg, 
+    ypa = (PyArrayObject *) PyArray_ContiguousFromObject(yarg,
 							 PyArray_DOUBLE,
 							 2, 2);
     zpa = (PyArrayObject *) PyArray_ContiguousFromObject(zarg, PyArray_DOUBLE,
 							 2, 2);
     if (marg)
-        mpa = (PyArrayObject *) PyArray_ContiguousFromObject(marg, 
-							     PyArray_SBYTE, 
+        mpa = (PyArrayObject *) PyArray_ContiguousFromObject(marg,
+							     PyArray_SBYTE,
 							     2, 2);
     else
         mpa = NULL;

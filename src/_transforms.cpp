@@ -1,6 +1,7 @@
 #include <functional>
 #include <limits>
 
+
 #include "_transforms.h"
 #include "mplutils.h"
 #include "MPL_isnan.h"
@@ -420,6 +421,9 @@ Bbox::update(const Py::Tuple &args) {
   _VERBOSE("Bbox::update");
   args.verify_length(2);
 
+  Py::Object test = args[0];
+  if (test.hasAttr("shape")) return Bbox::update_numerix_xy(args);
+
   Py::SeqBase<Py::Object> xys = args[0];
 
   //don't use current bounds on first update
@@ -471,6 +475,75 @@ Bbox::update(const Py::Tuple &args) {
   _ur->y_api()->set_api(maxy);
   return Py::Object();
 }
+
+// Replace update with the following?
+Py::Object
+Bbox::update_numerix_xy(const Py::Tuple &args) {
+  //update the box from the numerix array xy
+  _VERBOSE("Bbox::update_numerix_xy");
+
+  args.verify_length(2);
+
+  Py::Object xyo = args[0];
+
+  PyArrayObject *xyin = (PyArrayObject *) PyArray_FromObject(xyo.ptr(),
+                                                      PyArray_DOUBLE, 2, 2);
+
+  if (xyin==NULL)
+    throw Py::TypeError("Bbox::update_numerix_xy expected numerix array");
+
+  size_t Nxy = xyin->dimensions[0];
+  size_t N2 = xyin->dimensions[1];
+
+  if (N2 != 2)
+    throw Py::ValueError("xy array must have shape (N, 2)");
+
+  //don't use current bounds when updating box if ignore==1
+
+
+  if (Nxy==0) return Py::Object();
+
+  double minx = _ll->xval();
+  double maxx = _ur->xval();
+  double miny = _ll->yval();
+  double maxy = _ur->yval();
+
+  double thisx, thisy;
+  //don't use current bounds on first update
+  int ignore = Py::Int(args[1]);
+  if (ignore==-1) {
+    ignore = _ignore;
+    _ignore = 0; // don't ignore future updates
+  }
+  if (ignore) {
+    minx = miny = std::numeric_limits<double>::max();
+    maxx = maxy = -std::numeric_limits<double>::max();
+  }
+
+  int ngood = 0;
+  for (size_t i=0; i< Nxy; ++i) {
+    thisx = *(double *)(xyin->data + i*xyin->strides[0]);
+    thisy = *(double *)(xyin->data + i*xyin->strides[0] + xyin->strides[1]);
+    if (MPL_isnan64(thisx) || MPL_isnan64(thisy)) continue;
+    _posx.update(thisx);
+    _posy.update(thisy);
+    if (thisx<minx) minx=thisx;
+    if (thisx>maxx) maxx=thisx;
+    if (thisy<miny) miny=thisy;
+    if (thisy>maxy) maxy=thisy;
+    ngood++;
+  }
+
+  Py_XDECREF(xyin);
+  if (ngood) {
+    _ll->x_api()->set_api(minx);
+    _ll->y_api()->set_api(miny);
+    _ur->x_api()->set_api(maxx);
+    _ur->y_api()->set_api(maxy);
+  }
+  return Py::Object();
+}
+
 
 Py::Object
 Bbox::update_numerix(const Py::Tuple &args) {
@@ -829,6 +902,7 @@ Transformation::seq_x_y(const Py::Tuple & args) {
   _VERBOSE("Transformation::seq_x_y");
   args.verify_length(2);
 
+
   Py::SeqBase<Py::Object> x = args[0];
   Py::SeqBase<Py::Object> y = args[1];
 
@@ -870,6 +944,67 @@ Transformation::seq_x_y(const Py::Tuple & args) {
   ret[1] = yo;
   return ret;
 }
+
+Py::Object
+Transformation::numerix_xy(const Py::Tuple & args) {
+  _VERBOSE("Transformation::numerix_xy");
+  args.verify_length(1);
+
+  Py::Object xyo = args[0];
+
+  PyArrayObject *xyin = (PyArrayObject *) PyArray_FromObject(xyo.ptr(),
+                                                   PyArray_DOUBLE, 2, 2);
+
+  if (xyin==NULL)
+    throw Py::TypeError("Transformation::numerix_xy expected numerix array");
+
+  size_t Nxy = xyin->dimensions[0];
+  size_t N2 = xyin->dimensions[1];
+
+  if (N2!=2)
+    throw Py::ValueError("xy must have shape (N,2)");
+
+  // evaluate the lazy objects
+  try {
+    if (!_frozen) eval_scalars();
+  }
+  catch(...) {
+    throw Py::ValueError("Domain error on Transformation::numerix_xy");
+  }
+
+  int dimensions[2];
+  dimensions[0] = Nxy;
+  dimensions[1] = 2;
+
+  PyArrayObject *retxy = (PyArrayObject *)PyArray_FromDims(2,dimensions,
+                                                            PyArray_DOUBLE);
+  if (retxy==NULL) {
+    Py_XDECREF(xyin);
+    throw Py::RuntimeError("Could not create return xy array");
+  }
+
+  double nan = std::numeric_limits<float>::quiet_NaN();
+  for (size_t i=0; i< Nxy; ++i) {
+    double thisx = *(double *)(xyin->data + i*xyin->strides[0]);
+    double thisy = *(double *)(xyin->data + i*xyin->strides[0] +
+                                                xyin->strides[1]);
+    try {
+      this->operator()(thisx, thisy);
+    }
+    catch(...) {
+      xy.first = nan;
+      xy.second = nan;
+      //throw Py::ValueError("Domain error on Transformation::numerix_xy");
+    }
+    *(double *)(retxy->data + i*retxy->strides[0]) = xy.first;
+    *(double *)(retxy->data + i*retxy->strides[0] +
+                                    retxy->strides[1]) = xy.second;
+  }
+
+  Py_XDECREF(xyin);
+  return Py::asObject((PyObject *)retxy);
+}
+
 
 Py::Object
 Transformation::numerix_x_y(const Py::Tuple & args, const Py::Dict &kwargs) {
@@ -1030,7 +1165,7 @@ Transformation::nonlinear_only_numerix(const Py::Tuple & args, const Py::Dict &k
 	*(unsigned char *)(retmask->data + i*retmask->strides[0]) = 0;
       }
       double MPLnan; // don't require C99 math features - find our own nan
-      if (MPL_isnan64(thisx)) { 
+      if (MPL_isnan64(thisx)) {
 	MPLnan=thisx;
       } else {
 	MPLnan=thisy;
@@ -1042,7 +1177,7 @@ Transformation::nonlinear_only_numerix(const Py::Tuple & args, const Py::Dict &k
 	this->nonlinear_only_api(&thisx, &thisy);
       }
       catch(...) {
-	
+
 	if (returnMask) {
 	  *(unsigned char *)(retmask->data + i*retmask->strides[0]) = 0;
 	  *(double *)(retx->data + i*retx->strides[0]) = 0.0;
@@ -1093,6 +1228,9 @@ Py::Object
 Transformation::seq_xy_tups(const Py::Tuple & args) {
   _VERBOSE("Transformation::seq_xy_tups");
   args.verify_length(1);
+
+  Py::Object test = args[0];
+  if (test.hasAttr("shape")) return Transformation::numerix_xy(args);
 
   Py::SeqBase<Py::Object> xytups = args[0];
 
@@ -1980,6 +2118,7 @@ Bbox::init_type()
   add_varargs_method("get_bounds", &Bbox::get_bounds, "get_bounds()\n");
   add_varargs_method("update" , &Bbox::update, "update(xys, ignore)\n");
   add_varargs_method("update_numerix" , &Bbox::update_numerix, "update_numerix(x, u, ignore)\n");
+  add_varargs_method("update_numerix_xy" , &Bbox::update_numerix_xy, "update_numerix_xy(xy, ignore)\n");
   add_varargs_method("width", 	&Bbox::width, "width()\n");
   add_varargs_method("height", 	&Bbox::height, "height()\n");
   add_varargs_method("xmax", 	&Bbox::xmax, "xmax()\n");
@@ -2053,6 +2192,7 @@ Transformation::init_type()
   add_keyword_method("nonlinear_only_numerix",  &Transformation::nonlinear_only_numerix, "nonlinear_only_numerix\n");
   add_varargs_method("need_nonlinear",  &Transformation::need_nonlinear, "need_nonlinear\n");
   add_varargs_method("seq_xy_tups", &Transformation::seq_xy_tups, "seq_xy_tups(seq)\n");
+  add_varargs_method("numerix_xy", &Transformation::numerix_xy, "numerix_xy(XY)\n");
   add_varargs_method("inverse_xy_tup",   &Transformation::inverse_xy_tup,  "inverse_xy_tup(xy)\n");
 
   add_varargs_method("set_offset",   &Transformation::set_offset,  "set_offset(xy, trans)\n");

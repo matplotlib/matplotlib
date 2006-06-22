@@ -6,7 +6,7 @@ from numerix import absolute, arange, array, asarray, ones, divide,\
      transpose, log, log10, Float, Float32, ravel, zeros,\
      Int16, Int32, Int, Float64, ceil, indices, \
      shape, which, where, sqrt, asum, compress, maximum, minimum, \
-     typecode
+     typecode, concatenate, newaxis, reshape
 
 import numerix.ma as ma
 
@@ -2093,7 +2093,7 @@ class Axes(Artist):
 
         d = kwargs.copy()
         scalex = d.pop('scalex', True)
-        scaley = d.pop('scaley', True)        
+        scaley = d.pop('scaley', True)
         if not self._hold: self.cla()
         lines = []
         for line in self._get_lines(*args, **d):
@@ -3665,7 +3665,15 @@ class Axes(Artist):
         Y3 = compress(ravel(mask==0),ravel(ma.filled(Y[1:,1:])))
         X4 = compress(ravel(mask==0),ravel(ma.filled(X[0:-1,1:])))
         Y4 = compress(ravel(mask==0),ravel(ma.filled(Y[0:-1,1:])))
-        verts = zip(zip(X1,Y1),zip(X2,Y2),zip(X3,Y3),zip(X4,Y4))
+        npoly = len(X1)
+        xy = concatenate((X1[:,newaxis], Y1[:,newaxis],
+                             X2[:,newaxis], Y2[:,newaxis],
+                             X3[:,newaxis], Y3[:,newaxis],
+                             X4[:,newaxis], Y4[:,newaxis]),
+                             axis=1)
+        verts = reshape(xy, (npoly, 4, 2))
+
+        #verts = zip(zip(X1,Y1),zip(X2,Y2),zip(X3,Y3),zip(X4,Y4))
 
         C = compress(ravel(mask==0),ravel(ma.filled(C[0:Nx-1,0:Ny-1])))
 
@@ -4486,7 +4494,7 @@ class PolarAxes(Axes):
         'Set the axes grids on or off; b is a boolean'
         self._gridOn = b
 
-    def autoscale_view(self):
+    def autoscale_view(self, scalex=True, scaley=True):
         'set the view limits to include all the data in the axes'
         self.rintd.set_bounds(0, self.get_rmax())
         rmin, rmax = self.rlocator.autoscale()

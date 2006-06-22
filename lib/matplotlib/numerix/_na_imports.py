@@ -24,7 +24,15 @@ class _TypeNamespace:
 
 nx = _TypeNamespace()
 
-from numarray import asarray, dot, fromlist, NumArray, shape
+from numarray import asarray, dot, fromlist, NumArray, shape, alltrue
+from numarray import all as _all
+
+def all(a, axis=None):
+    '''Numpy-compatible version of all()'''
+    if axis is None:
+        return _all(a)
+    return alltrue(a, axis)
+
 class _Matrix(NumArray):
     """_Matrix is a ported, stripped down version of the Numeric Matrix
     class which supplies only matrix multiplication.
@@ -34,7 +42,7 @@ class _Matrix(NumArray):
             return a
         else:
             return Matrix(a)
-            
+
     def __mul__(self, other):
         aother = asarray(other)
         #if len(aother.shape) == 0:

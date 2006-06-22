@@ -1,3 +1,10 @@
+    Collections: PolyCollection and LineCollection now accept
+    vertices or segments either in the original form [(x,y),
+    (x,y), ...] or as a 2D numerix array, with X as the first column
+    and Y as the second. Contour and quiver output the numerix
+    form.  The transforms methods Bbox.update() and
+    Transformation.seq_xy_tups() now accept either form.
+
     Collections: LineCollection is now a ScalarMappable like
     PolyCollection, etc.
 

@@ -217,9 +217,13 @@ class ColorbarBase(cm.ScalarMappable):
         '''
         N = nx.shape(X)[0]
         if self.orientation == 'vertical':
-            return [zip(X[i], Y[i]) for i in range(1, N-1)]
+            return nx.concatenate((X[1:N-1, nx.newaxis],
+                                   Y[1:N-1, nx.newaxis]), axis=1)
+            #return [zip(X[i], Y[i]) for i in range(1, N-1)]
         else:
-            return [zip(Y[i], X[i]) for i in range(1, N-1)]
+            return nx.concatenate((Y[1:N-1, nx.newaxis],
+                                   X[1:N-1, nx.newaxis]), axis=1)
+            #return [zip(Y[i], X[i]) for i in range(1, N-1)]
 
     def _add_solids(self, X, Y, C):
         '''
@@ -456,7 +460,7 @@ class Colorbar(ColorbarBase):
             kw['values'] = CS.cvalues
             kw['extend'] = CS.extend
             #kw['ticks'] = CS._levels
-            kw.setdefault('ticks', CS._levels)
+            kw.setdefault('ticks', CS.levels)
             kw['filled'] = CS.filled
             ColorbarBase.__init__(self, ax, **kw)
             if not CS.filled:
