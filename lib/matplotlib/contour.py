@@ -12,7 +12,7 @@ from numerix import absolute, arange, array, asarray, ones, divide,\
      transpose, log, log10, Float, Float32, ravel, zeros, Int16,\
      Int32, Int, Float64, ceil, indices, shape, which, where, sqrt,\
      asum, resize, reshape, add, argmin, arctan2, pi, argsort, sin,\
-     cos, nonzero, take
+     cos, nonzero, take, concatenate, all, newaxis
 
 from mlab import linspace, meshgrid
 import _contour
@@ -221,8 +221,8 @@ class ContourLabeler:
 
         slc = trans.seq_xy_tups(linecontour)
         x,y = slc[ind]
-        xx= array(slc)[:,0].copy()
-        yy=array(slc)[:,1].copy()
+        xx= asarray(slc)[:,0].copy()
+        yy=asarray(slc)[:,1].copy()
 
         #indices which are under the label
         inds=nonzero(((xx < x+xlabel) & (xx > x-xlabel)) &
@@ -258,19 +258,30 @@ class ContourLabeler:
 
         new_x1d, new_y1d = trans.inverse_xy_tup((new_x1, new_y1))
         new_x2d, new_y2d = trans.inverse_xy_tup((new_x2, new_y2))
+        new_xy1 = array(((new_x1d, new_y1d),))
+        new_xy2 = array(((new_x2d, new_y2d),))
+
 
         if rot > 0:
-            if len(lc1) > 0 and (lc1[-1][0] <= new_x1d) and (lc1[-1][1] <= new_y1d):
-                lc1.append((new_x1d, new_y1d))
+            if (len(lc1) > 0 and (lc1[-1][0] <= new_x1d)
+                             and (lc1[-1][1] <= new_y1d)):
+                lc1 = concatenate((lc1, new_xy1))
+                #lc1.append((new_x1d, new_y1d))
 
-            if len(lc2) > 0 and (lc2[0][0] >= new_x2d) and (lc2[0][1] >= new_y2d):
-                lc2.insert(0, (new_x2d, new_y2d))
+            if (len(lc2) > 0 and (lc2[0][0] >= new_x2d)
+                             and (lc2[0][1] >= new_y2d)):
+                lc2 = concatenate((new_xy2, lc2))
+                #lc2.insert(0, (new_x2d, new_y2d))
         else:
-            if len(lc1) > 0 and ((lc1[-1][0] <= new_x1d) and (lc1[-1][1] >= new_y1d)):
-                lc1.append((new_x1d, new_y1d))
+            if (len(lc1) > 0 and ((lc1[-1][0] <= new_x1d)
+                             and (lc1[-1][1] >= new_y1d))):
+                lc1 = concatenate((lc1, new_xy1))
+                #lc1.append((new_x1d, new_y1d))
 
-            if len(lc2) > 0 and ((lc2[0][0] >= new_x2d) and (lc2[0][1] <= new_y2d)):
-                lc2.insert(0, (new_x2d, new_y2d))
+            if (len(lc2) > 0 and ((lc2[0][0] >= new_x2d)
+                             and (lc2[0][1] <= new_y2d))):
+                lc2 = concatenate((new_xy2, lc2))
+                #lc2.insert(0, (new_x2d, new_y2d))
 
         return [lc1,lc2]
 
@@ -291,8 +302,8 @@ class ContourLabeler:
         else:
             ysize = labelwidth
 
-        XX = resize(array(linecontour)[:,0],(xsize, ysize))
-        YY = resize(array(linecontour)[:,1],(xsize,ysize))
+        XX = resize(asarray(linecontour)[:,0],(xsize, ysize))
+        YY = resize(asarray(linecontour)[:,1],(xsize,ysize))
 
         yfirst = YY[:,0]
         ylast = YY[:,-1]
@@ -305,6 +316,7 @@ class ContourLabeler:
         L=sqrt((xlast-xfirst)**2+(ylast-yfirst)**2)
         dist = add.reduce(([(abs(s)[i]/L[i]) for i in range(xsize)]),-1)
         x,y,ind = self.get_label_coords(dist, XX, YY, ysize, labelwidth)
+        #print 'ind, x, y', ind, x, y
         angle = arctan2(ylast - yfirst, xlast - xfirst)
         rotation = angle[ind]*180/pi
         if rotation > 90:
@@ -312,7 +324,11 @@ class ContourLabeler:
         if rotation < -90:
             rotation = 180 + rotation
 
-        dind = list(linecontour).index((x,y))
+        # There must be a more efficient way...
+        lc = [tuple(l) for l in linecontour]
+        dind = lc.index((x,y))
+        #print 'dind', dind
+        #dind = list(linecontour).index((x,y))
 
         return x,y, rotation, dind
 
@@ -327,14 +343,15 @@ class ContourLabeler:
                                           colors,
                                           self.label_cvalues, fslist):
             con = self.collections[icon]
-            toremove = []
-            toadd = []
             lw = self.get_label_width(lev, fmt, fsize)
+            additions = []
             for segNum, linecontour in enumerate(con._segments):
                 # for closed contours add one more point to
                 # avoid division by zero
-                if linecontour[0] == linecontour[-1]:
-                    linecontour.append(linecontour[1])
+                if all(linecontour[0] == linecontour[-1]):
+                    linecontour = concatenate((linecontour,
+                                               linecontour[1][newaxis,:]))
+                    #linecontour.append(linecontour[1])
                 # transfer all data points to screen coordinates
                 slc = trans.seq_xy_tups(linecontour)
                 if self.print_label(slc,lw):
@@ -352,15 +369,9 @@ class ContourLabeler:
                     if inline:
                         new = self.break_linecontour(linecontour, rotation,
                                                        lw, ind)
-                        toadd.extend(new)
-                        #for c in new: toadd.append(c)
-                        toremove.append(linecontour)
-            for c in toremove:
-                con._segments.remove(c)
-            for c in toadd:
-                con._segments.append(c)
-
-
+                        con._segments[segNum] = new[0]
+                        additions.append(new[1])
+            con._segments.extend(additions)
 
 class ContourSet(ScalarMappable, ContourLabeler):
     """
@@ -443,7 +454,7 @@ class ContourSet(ScalarMappable, ContourLabeler):
             lowers = self._levels[:-1]
             uppers = self._levels[1:]
             for level, level_upper, color in zip(lowers, uppers, self.tcolors):
-                nlist = C.trace(level, level_upper, points = 1,
+                nlist = C.trace(level, level_upper, points = 0,
                         nchunk = self.nchunk)
                 col = PolyCollection(nlist,
                                      linewidths = (self.linewidths,),
@@ -459,7 +470,7 @@ class ContourSet(ScalarMappable, ContourLabeler):
             #C = _contour.Cntr(x, y, z.filled(), z.mask())
             C = _contour.Cntr(x, y, z.filled(), ma.getmaskorNone(z))
             for level, color, width in zip(self.levels, self.tcolors, tlinewidths):
-                nlist = C.trace(level, points = 1)
+                nlist = C.trace(level, points = 0)
                 col = LineCollection(nlist,
                                      colors = color,
                                      linewidths = width)
@@ -625,9 +636,20 @@ class ContourSet(ScalarMappable, ContourLabeler):
         if self.extend in ('both', 'max'):
             self._levels.append(self.zmax + 1)
         self._levels = asarray(self._levels)
+        self.vmin = amin(self.levels)  # alternative would be self.layers
+        self.vmax = amax(self.levels)
+        if self.extend in ('both', 'min') or self.clip_ends:
+            self.vmin = 2 * self.levels[0] - self.levels[1]
+        if self.extend in ('both', 'max') or self.clip_ends:
+            self.vmax = 2 * self.levels[-1] - self.levels[-2]
         self.layers = self._levels # contour: a line is a thin layer
         if self.filled:
             self.layers = 0.5 * (self._levels[:-1] + self._levels[1:])
+            if self.extend in ('both', 'min') or self.clip_ends:
+                self.layers[0] = 0.5 * (self.vmin + self._levels[1])
+            if self.extend in ('both', 'max') or self.clip_ends:
+                self.layers[-1] = 0.5 * (self.vmax + self._levels[-2])
+
         return (x, y, z)
 
     def _process_colors(self):
@@ -654,13 +676,7 @@ class ContourSet(ScalarMappable, ContourLabeler):
         else:
             self.cvalues = self.layers
         if not self.norm.scaled():
-            vmin = amin(self.levels)  # alternative would be self.layers
-            vmax = amax(self.levels)
-            if self.extend in ('both', 'min') or self.clip_ends:
-                vmin = 2 * self.levels[0] - self.levels[1]
-            if self.extend in ('both', 'max') or self.clip_ends:
-                vmax = 2 * self.levels[-1] - self.levels[-2]
-            self.set_clim(vmin, vmax)
+            self.set_clim(self.vmin, self.vmax)
         if self.extend in ('both', 'max', 'min'):
             self.norm.clip = False
         self.set_array(self.layers)

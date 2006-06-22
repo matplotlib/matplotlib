@@ -93,7 +93,7 @@ Keyword arguments (default given first):
    * All PolyCollection kwargs are valid, in the sense that they
         will be passed on to the PolyCollection constructor.
         In particular, one might want to use, for example:
-            linewidths = (1,), edgecolors = ('g')
+            linewidths = (1,), edgecolors = ('g',)
         to make the arrows have green outlines of unit width.
 
 '''
@@ -375,8 +375,11 @@ class Quiver(PolyCollection):
             self.scale = scale
         length = a/(self.scale*self.width)
         X, Y = self._h_arrows(length)
-        xy = (X+Y*1j) * nx.exp(1j*nx.angle(uv[...,nx.NewAxis]))*self.width
-        return [zip(xyrow.real, xyrow.imag) for xyrow in xy]
+        xy = (X+Y*1j) * nx.exp(1j*nx.angle(uv[...,nx.newaxis]))*self.width
+        xy = xy[:,:,nx.newaxis]
+        XY = nx.concatenate((xy.real, xy.imag), axis=2)
+        return XY
+        #return [zip(xyrow.real, xyrow.imag) for xyrow in xy]
 
 
     def _h_arrows(self, length):
@@ -385,13 +388,13 @@ class Quiver(PolyCollection):
         N = len(length)
         length = nx.reshape(length, (N,1))
         x = nx.array([0, -self.headaxislength,
-                        -self.headlength, 0], nx.Float32)
+                        -self.headlength, 0], nx.Float64)
         x = x + nx.array([0,1,1,1]) * length
-        y = 0.5 * nx.array([1, 1, self.headwidth, 0], nx.Float32)
-        y = nx.repeat(y[nx.NewAxis,:], N)
+        y = 0.5 * nx.array([1, 1, self.headwidth, 0], nx.Float64)
+        y = nx.repeat(y[nx.newaxis,:], N)
         x0 = nx.array([0, minsh-self.headaxislength,
-                        minsh-self.headlength, minsh], nx.Float32)
-        y0 = 0.5 * nx.array([1, 1, self.headwidth, 0], nx.Float32)
+                        minsh-self.headlength, minsh], nx.Float64)
+        y0 = 0.5 * nx.array([1, 1, self.headwidth, 0], nx.Float64)
         ii = [0,1,2,3,2,1,0]
         X = nx.take(x, ii, 1)
         Y = nx.take(y, ii, 1)
@@ -400,25 +403,25 @@ class Quiver(PolyCollection):
         Y0 = nx.take(y0, ii)
         Y0[3:] *= -1
         shrink = length/minsh
-        X0 = shrink * X0[nx.NewAxis,:]
-        Y0 = shrink * Y0[nx.NewAxis,:]
+        X0 = shrink * X0[nx.newaxis,:]
+        Y0 = shrink * Y0[nx.newaxis,:]
         short = nx.repeat(length < minsh, 7, 1)
         #print 'short', length < minsh
         X = nx.where(short, X0, X)
         Y = nx.where(short, Y0, Y)
         if self.pivot[:3] == 'mid':
-            X -= 0.5 * X[:,3, nx.NewAxis]
+            X -= 0.5 * X[:,3, nx.newaxis]
         elif self.pivot[:3] == 'tip':
-            X = X - X[:,3, nx.NewAxis]   #numpy bug? using -= does not
+            X = X - X[:,3, nx.newaxis]   #numpy bug? using -= does not
                                          # work here unless we multiply
                                          # by a float first, as with 'mid'.
         tooshort = length < self.minlength
         if nx.any(tooshort):
-            th = nx.arange(0,7,1, nx.Float32) * (nx.pi/3.0)
+            th = nx.arange(0,7,1, nx.Float64) * (nx.pi/3.0)
             x1 = nx.cos(th) * self.minlength * 0.5
             y1 = nx.sin(th) * self.minlength * 0.5
-            X1 = nx.repeat(x1[nx.NewAxis, :], N, 0)
-            Y1 = nx.repeat(y1[nx.NewAxis, :], N, 0)
+            X1 = nx.repeat(x1[nx.newaxis, :], N, 0)
+            Y1 = nx.repeat(y1[nx.newaxis, :], N, 0)
             tooshort = nx.repeat(tooshort, 7, 1)
             X = nx.where(tooshort, X1, X)
             Y = nx.where(tooshort, Y1, Y)

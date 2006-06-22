@@ -231,7 +231,8 @@ class PolyCollection(PatchCollection):
     def __init__(self, verts, **kwargs):
         """
         verts is a sequence of ( verts0, verts1, ...) where verts_i is
-        a sequence of xy tuples of vertices.
+        a sequence of xy tuples of vertices, or an equivalent
+        numerix array of shape (nv,2).
         See PatchCollection for kwargs.
         """
         PatchCollection.__init__(self,**kwargs)

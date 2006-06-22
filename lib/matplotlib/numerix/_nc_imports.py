@@ -1,4 +1,4 @@
-from Numeric import array, ravel, reshape, shape
+from Numeric import array, ravel, reshape, shape, alltrue
 from Numeric import Int8, UInt8, Int16, UInt16, Int32, UInt32, \
      Float32, Float64, Complex32, Complex64, Float, Int, Complex
 from matplotlib._isnan import isnan64 as _isnan
@@ -22,6 +22,12 @@ def isnan(a):
     """y = isnan(x) returns True where x is Not-A-Number"""
     return reshape(array([_isnan(i) for i in ravel(a)],'b'), shape(a))
 
+def all(a, axis=None):
+    '''Numpy-compatible version of all()'''
+    if axis is None:
+        return alltrue(ravel(a))
+    else:
+        return alltrue(a, axis)
 
 # inf is useful for testing infinities in results of array divisions
 # (which don't raise exceptions)
