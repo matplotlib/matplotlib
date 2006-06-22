@@ -3,7 +3,6 @@
 #
 """
 Various transforms used for by the 3D code
-
 """
 
 from collections import LineCollection
@@ -12,14 +11,6 @@ import numerix as nx
 from numerix import linear_algebra
 from math import sqrt
 
-dot = nx.dot
-def _hide_dot(a,b):
-    """
-    Dot product of two vectors
-    """
-    return a[0]*b[0]+a[1]*b[1]+a[2]*b[2]
-
-#cross = nx.cross
 def _hide_cross(a,b):
     """
     Cross product of two vectors
@@ -28,25 +19,6 @@ def _hide_cross(a,b):
     """
     return nx.array([a[1]*b[2]-a[2]*b[1],a[2]*b[0]-a[0]*b[2],a[0]*b[1] - a[1]*b[0]])
 cross = _hide_cross
-
-
-def test_dot():
-    a = nx.array([1,0,0])
-    b = nx.array([0,1,0])
-    print a,b,dot(a,b)
-    
-    a = nx.array([0,-1,0])
-    b = nx.array([0,1,0])
-    print a,b,dot(a,b)
-
-def test_cross():
-    a = nx.array([2,0,0])
-    b = nx.array([0,1,0])
-    print a,b,cross(a,b)
-    
-    a = nx.array([1,0,0])
-    b = nx.array([0,1,0])
-    print a,b,cross(a,b)
 
 def line2d(p0,p1):
     """
@@ -146,13 +118,10 @@ def test_lines_dists():
     pylab.xlim(-200,200)
     pylab.ylim(-200,200)
     pylab.show()
-    
-    
 
 def mod(v):
     """3d vector length"""
     return nx.sqrt(v[0]**2+v[1]**2+v[2]**2)
-
 
 def world_transformation(xmin,xmax,
                          ymin,ymax,
@@ -163,7 +132,6 @@ def world_transformation(xmin,xmax,
         [0,1.0/dy,0,-ymin/dy],
         [0,0,1.0/dz,-zmin/dz],
         [0,0,0,1.0]])
-
 
 def test_world():
     xmin,xmax = 100,120
@@ -213,7 +181,7 @@ def proj_transform_vec_clip(vec, M):
     w = vecw[3]
     # clip here..
     txs,tys,tzs = vecw[0]/w,vecw[1]/w,vecw[2]/w
-    tis = vecw[0] > 0 and vecw[0] < 1 and vecw[1] > 0 and vecw[1] < 1
+    tis = (vecw[0] > 0) * (vecw[0] < 1) * (vecw[1] > 0) * (vecw[1] < 1)
     return txs,tys,tzs,tis
 
 def inv_transform(xs,ys,zs,M):
@@ -251,7 +219,6 @@ def proj_transform_clip(xs,ys,zs, M):
     """
     vec = vec_pad_ones(xs,ys,zs)
     return proj_transform_vec_clip(vec,M)
-
 transform = proj_transform
 
 def proj_points(points, M):
@@ -265,7 +232,6 @@ def proj_trans_clip_points(points, M):
     xs,ys,zs = zip(*points)
     return proj_transform_clip(xs,ys,zs,M)
 
-
 def test_proj_draw_axes(M, s=1):
     xs,ys,zs = [0,s,0,0],[0,0,s,0],[0,0,0,s]
     txs,tys,tzs = proj_transform(xs,ys,zs,M)
@@ -277,7 +243,6 @@ def test_proj_draw_axes(M, s=1):
     ax.add_collection(linec)
     for x,y,t in zip(txs,tys,['o','x','y','z']):
         pylab.text(x,y,t)
-
 
 def test_proj_make_M(E=None):
     # eye point
@@ -320,19 +285,6 @@ def rot_x(V,alpha):
                    [0,0,0,0]])
     #
     return nx.matrixmultiply(M1,V)
-    
-def test_mul():
-    
-    M1 = nx.array([[1,0,0,-4],
-                   [0,1,0, 0],
-                   [0,0,1, 0],
-                   [0,0,0, 1],
-                   ])
-    #
-    V = nx.array([0,1,2,1])
-
-    print nx.matrixmultiply(M1,V)
-
 
 def test_rot():
     V = [1,0,0,1]
@@ -342,9 +294,4 @@ def test_rot():
     
     
 if __name__ == "__main__":
-    #test_lines_dists()
-    #test_mul()
-    #test_rot()
-    #test_cross()
-    #test_dot()
     test_proj()
