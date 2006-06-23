@@ -1,3 +1,18 @@
+    barh: x and y args have been renamed to width and bottom
+    respectively, and their order has been swapped to maintain
+    a (position, value) order.
+
+    bar and barh: now accept kwarg 'edgecolor'.
+
+    bar and barh: The left, height, width and bottom args can
+    now all be scalars or sequences; see docstring.
+
+    barh: now defaults to edge aligned instead of center
+    aligned bars
+
+    bar, barh and hist: Added a keyword arg 'align' that
+    controls between edge or center bar alignment.
+
     Collections: PolyCollection and LineCollection now accept
     vertices or segments either in the original form [(x,y),
     (x,y), ...] or as a 2D numerix array, with X as the first column
