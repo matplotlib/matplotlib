@@ -2364,113 +2364,39 @@ class Axes(Artist):
 
 
     def bar(self, left, height, width=0.8, bottom=0,
-            color='b', yerr=None, xerr=None, ecolor='k', capsize=3
+            color=None, edgecolor=None, yerr=None, xerr=None, ecolor=None, capsize=3,
+            align='edge', orientation='vertical'
             ):
         """
         BAR(left, height, width=0.8, bottom=0,
-            color='b', yerr=None, xerr=None, ecolor='k', capsize=3)
+            color=None, edgecolor=None, yerr=None, xerr=None, ecolor=None, capsize=3,
+            align='edge', orientation='vertical')
 
-        Make a bar plot with rectangles at
+        Make a bar plot with rectangles bounded by
 
-          left, left+width, 0, height
+          left, left+width, bottom, bottom+height  (left, right, bottom and top edges)
 
-        left and height are Numeric arrays.
+        left, height, width, and bottom can be either scalars or sequences
 
         Return value is a list of Rectangle patch instances
 
         BAR(left, height, width, bottom,
-            color, yerr, xerr, capsize, yoff)
+            color, edgecolor, yerr, xerr, ecolor, capsize,
+            align, orientation)
 
-            xerr and yerr, if not None, will be used to generate errorbars
-              on the bar chart
+            left - the x coordinates of the left sides of the bars
 
-            color specifies the color of the bar
-
-            ecolor specifies the color of any errorbar
-
-            capsize determines the length in points of the error bar caps
-
-
-        The optional arguments color, width and bottom can be either
-        scalars or len(x) sequences
-
-        This enables you to use bar as the basis for stacked bar
-        charts, or candlestick plots
-        """
-        if not self._hold: self.cla()
-
-        # left = asarray(left) - width/2
-        left = asarray(left)
-        height = asarray(height)
-
-        patches = []
-
-
-        # if color looks like a color string, an RGB tuple or a
-        # scalar, then repeat it by len(x)
-        if (is_string_like(color) or
-            (iterable(color) and len(color)==3 and len(left)!=3) or
-            not iterable(color)):
-            color = [color]*len(left)
-
-
-        if not iterable(bottom):
-            bottom = array([bottom]*len(left), Float)
-        else:
-            bottom = asarray(bottom)
-        if not iterable(width):
-            width = array([width]*len(left), Float)
-        else:
-            width = asarray(width)
-
-        N = len(left)
-        assert len(bottom)==N, 'bar arg bottom must be len(left)'
-        assert len(width)==N, 'bar arg width must be len(left) or scalar'
-        assert len(height)==N, 'bar arg height must be len(left) or scalar'
-        assert len(color)==N, 'bar arg color must be len(left) or scalar'
-
-        args = zip(left, bottom, width, height, color)
-        for l, b, w, h, c in args:
-            if h<0:
-                b += h
-                h = abs(h)
-            r = Rectangle(
-                xy=(l, b), width=w, height=h,
-                facecolor=c,
-                )
-            self.add_patch(r)
-            patches.append(r)
-
-
-        if xerr is not None or yerr is not None:
-            self.errorbar(
-                left+0.5*width, bottom+height,
-                yerr=yerr, xerr=xerr,
-                fmt=None, ecolor=ecolor, capsize=capsize)
-        self.autoscale_view()
-        return patches
-
-    def barh(self, x, y, height=0.8, left=0,
-            color='b', yerr=None, xerr=None, ecolor='k', capsize=3
-            ):
-        """
-        BARH(x, y, height=0.8, left=0,
-             color='b', yerr=None, xerr=None, ecolor='k', capsize=3)
-
-            BARH(x, y)
-
-            The y values give the heights of the center of the bars.  The
-            x values give the length of the bars.
-
-            Return value is a list of Rectangle patch instances
+            height - the heights of the bars
 
         Optional arguments
 
-            height - the height (thickness)  of the bar
+            width - the widths of the bars
 
-            left  - the x coordinate of the left side of the bar
+            bottom - the y coordinates of the bottom edges of the bars
 
-            color specifies the color of the bar
+            color specifies the colors of the bars
+
+            edgecolor specifies the colors of the bar edges
 
             xerr and yerr, if not None, will be used to generate errorbars
             on the bar chart
@@ -2479,64 +2405,196 @@ class Axes(Artist):
 
             capsize determines the length in points of the error bar caps
 
-        The optional arguments color, height and left can be either
-        scalars or len(x) sequences
+            align = 'edge' | 'center'
+
+            orientation = 'vertical' | 'horizontal'
+
+            For vertical bars, 'edge' aligns bars by their left edges in left,
+            while 'center' interprets these values as the x coordinates of the bar centers.
+            For horizontal bars, 'edge' aligns bars by their bottom edges in bottom,
+            while 'center' interprets these values as the y coordinates of the bar centers.
+
+        The optional arguments color, edgecolor, yerr, and xerr can be either
+        scalars or sequences of length equal to the number of bars
+
+        This enables you to use bar as the basis for stacked bar
+        charts, or candlestick plots
         """
         if not self._hold: self.cla()
 
-        # left = asarray(left) - width/2
-        x = asarray(x)
-        y = asarray(y)
+        def make_iterable(x):
+            if not iterable(x):
+                return [x]
+            else:
+                return x
+
+        # make them safe to take len() of
+        left = make_iterable(left)
+        height = make_iterable(height)
+        width = make_iterable(width)
+        bottom = make_iterable(bottom)
+
+        if orientation == 'vertical':
+            # size width and bottom according to length of left
+            nbars = len(left)
+            if len(width) == 1:
+                width *= nbars
+            if len(bottom) == 1:
+                bottom *= nbars
+        elif orientation == 'horizontal':
+            # size left and height according to length of bottom
+            nbars = len(bottom)
+            if len(left) == 1:
+                left *= nbars
+            if len(height) == 1:
+                height *= nbars
+        else:
+            raise ValueError, 'invalid orientation: %s' % orientation
+
+        left = asarray(left)
+        height = asarray(height)
+        width = asarray(width)
+        bottom = asarray(bottom)
+
+        # if color looks like a color string, an RGB tuple or a
+        # scalar, then repeat it by nbars
+        if (is_string_like(color) or
+            (iterable(color) and len(color)==3 and nbars!=3) or
+            not iterable(color)):
+            color = [color]*nbars
+
+        # if edgecolor looks like a color string, an RGB tuple or a
+        # scalar, then repeat it by nbars
+        if (is_string_like(edgecolor) or
+            (iterable(edgecolor) and len(edgecolor)==3 and nbars!=3) or
+            not iterable(edgecolor)):
+            edgecolor = [edgecolor]*nbars
+
+        if not iterable(yerr):
+            yerr = asarray([yerr]*nbars, Float) # Float converts Nones to NANs
+        else:
+            yerr = asarray(yerr)
+        if not iterable(xerr):
+            xerr = asarray([xerr]*nbars, Float)
+        else:
+            xerr = asarray(xerr)
+
+        if orientation == 'vertical':
+            lenarg = 'left'
+        elif orientation == 'horizontal':
+            lenarg = 'bottom'
+        assert len(left)==nbars, 'bar() argument \'left\' must be len(%s) or scalar' % lenarg
+        assert len(height)==nbars, 'bar() argument \'height\' must be len(%s) or scalar' % lenarg
+        assert len(width)==nbars, 'bar() argument \'width\' must be len(%s) or scalar' % lenarg
+        assert len(bottom)==nbars, 'bar() argument \'bottom\' must be len(%s) or scalar' % lenarg
+        assert len(color)==nbars, 'bar() argument \'color\' must be len(%s) or scalar' % lenarg
+        assert len(edgecolor)==nbars, 'bar() argument \'edgecolor\' must be len(%s) or scalar' % lenarg
+        assert len(yerr)==nbars, 'bar() argument \'yerr\' must be len(%s) or scalar' % lenarg
+        assert len(xerr)==nbars, 'bar() argument \'xerr\' must be len(%s) or scalar' % lenarg
 
         patches = []
 
-
-        # if color looks like a color string, and RGB tuple or a
-        # scalar, then repeat it by len(x)
-        if (is_string_like(color) or
-                    (iterable(color) and len(color)==3 and
-                     iterable(left) and len(left)!=3) or not iterable(color)):
-            color = [color]*len(x)
-
-
-        if not iterable(left):
-            left = array([left]*len(x), Float)
+        if align == 'edge':
+            pass
+        elif align == 'center':
+            if orientation == 'vertical':
+                left = left - width/2.
+            elif orientation == 'horizontal':
+                bottom = bottom - height/2.
         else:
-            left = asarray(left)
-        if not iterable(height):
-            height = array([height]*len(x), Float)
-        else:
-            height = asarray(height)
+            raise ValueError, 'invalid alignment: %s' % align
 
-        N = len(x)
-        assert len(left)==N, 'bar arg left must be len(x)'
-        assert len(height)==N, 'bar arg height must be len(x) or scalar'
-        assert len(y)==N, 'bar arg y must be len(x) or scalar'
-        assert len(color)==N, 'bar arg color must be len(x) or scalar'
-
-        width = x
-        right = left+x
-        bottom = y - height/2.
-
-        args = zip(left, bottom, width, height, color)
-        for l, b, w, h, c in args:
+        args = zip(left, bottom, width, height, color, edgecolor)
+        for l, b, w, h, c, e in args:
             if h<0:
                 b += h
                 h = abs(h)
             r = Rectangle(
                 xy=(l, b), width=w, height=h,
                 facecolor=c,
+                edgecolor=e,
                 )
             self.add_patch(r)
             patches.append(r)
 
+        holdstate = self._hold
+        self.hold(True) # ensure hold is on before plotting errorbars
+
         if xerr is not None or yerr is not None:
+            if orientation == 'vertical':
+                x, y = left+0.5*width, bottom+height
+            elif orientation == 'horizontal':
+                x, y = left+width, bottom+0.5*height
             self.errorbar(
-                right, y,
+                x, y,
                 yerr=yerr, xerr=xerr,
                 fmt=None, ecolor=ecolor, capsize=capsize)
+
+        self.hold(holdstate) # restore previous hold state
+
         self.autoscale_view()
         return patches
+
+
+    def barh(self, bottom, width, height=0.8, left=0,
+             color=None, edgecolor=None, xerr=None, yerr=None, ecolor=None, capsize=3,
+             align='edge'
+             ):
+        """
+        BARH(bottom, width, height=0.8, left=0,
+             color=None, edgecolor=None, xerr=None, yerr=None, ecolor=None, capsize=3,
+             align='edge')
+
+        Make a horizontal bar plot with rectangles bounded by
+
+          left, left+width, bottom, bottom+height  (left, right, bottom and top edges)
+
+        bottom, width, height, and left can be either scalars or sequences
+
+        Return value is a list of Rectangle patch instances
+
+        BARH(bottom, width, height, left,
+             color, edgecolor, xerr, yerr, ecolor, capsize,
+             align)
+
+            bottom - the vertical positions of the bottom edges of the bars
+
+            width - the lengths of the bars
+
+        Optional arguments
+
+            height - the heights (thicknesses) of the bars
+
+            left - the x coordinates of the left edges of the bars
+
+            color specifies the colors of the bars
+
+            edgecolor specifies the colors of the bar edges
+
+            xerr and yerr, if not None, will be used to generate errorbars
+            on the bar chart
+
+            ecolor specifies the color of any errorbar
+
+            capsize determines the length in points of the error bar caps
+
+            align = 'edge' | 'center'
+            'edge' aligns the horizontal bars by their bottom edges in bottom, while
+            'center' interprets these values as the y coordinates of the bar centers.
+
+        The optional arguments color, edgecolor, xerr, and yerr can be either
+        scalars or sequences of length equal to the number of bars
+
+        This enables you to use barh as the basis for stacked bar
+        charts, or candlestick plots
+        """
+
+        patches = self.bar(left=left, height=height, width=width, bottom=bottom,
+                           color=color, edgecolor=edgecolor, yerr=yerr, xerr=xerr, ecolor=ecolor, capsize=capsize,
+                           align=align, orientation='horizontal'
+                           )
+        return patches
+
 
     def stem(self, x, y, linefmt='b-', markerfmt='bo', basefmt='r-'):
         """
@@ -3978,9 +4036,10 @@ class Axes(Artist):
     #### Data analysis
 
     def hist(self, x, bins=10, normed=0, bottom=0,
-             orientation='vertical', width=None, **kwargs):
+             align='edge', orientation='vertical', width=None, **kwargs):
         """
-        HIST(x, bins=10, normed=0, bottom=0, orientiation='vertical', **kwargs)
+        HIST(x, bins=10, normed=0, bottom=0,
+             align='edge', orientation='vertical', width=None, **kwargs)
 
         Compute the histogram of x.  bins is either an integer number of
         bins or a sequence giving the bins.  x are the data to be binned.
@@ -3991,9 +4050,11 @@ class Axes(Artist):
         be the counts normalized to form a probability density, ie,
         n/(len(x)*dbin)
 
+        align = 'edge' | 'center'.  Interprets bins either as edge
+        or center values
 
         orientation = 'horizontal' | 'vertical'.  If horizontal, barh
-        will be used and the "bottom" kwarg will be the left.
+        will be used and the "bottom" kwarg will be the left edges.
 
         width: the width of the bars.  If None, automatically compute
         the width.
@@ -4002,12 +4063,14 @@ class Axes(Artist):
         hist bars
         """
         if not self._hold: self.cla()
-        n,bins = matplotlib.mlab.hist(x, bins, normed)
+        n, bins = matplotlib.mlab.hist(x, bins, normed)
         if width is None: width = 0.9*(bins[1]-bins[0])
-        if orientation=='horizontal':
-            patches = self.barh(n, bins, height=width, left=bottom)
+        if orientation == 'horizontal':
+            patches = self.barh(bins, n, height=width, left=bottom, align=align)
+        elif orientation == 'vertical':
+            patches = self.bar(bins, n, width=width, bottom=bottom, align=align)
         else:
-            patches = self.bar(bins, n, width=width, bottom=bottom)
+            raise ValueError, 'invalid orientation: %s' % orientation
         for p in patches:
             p.update(kwargs)
         return n, bins, silent_list('Patch', patches)

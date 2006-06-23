@@ -15,6 +15,44 @@ from transforms import blend_xy_sep_transform
 
 import thread
 
+
+class LockDraw:
+    """
+    some widgets, like the cursor, draw onto the canvas, and this is not
+    desirable under all circumstaces, like when the toolbar is in
+    zoom-to-rect mode and drawing a rectangle.  The module level "lock"
+    allows someone to grab the lock and prevent other widgets from
+    drawing.  Use matplotlib.widgets.lock(someobj) to pr
+    """
+    def __init__(self):
+        self._owner = None
+
+    def __call__(self, o):
+        'reserve the lock for o'
+        if not self.available(o):
+            raise ValueError('already locked')
+        self._owner = o
+
+    def release(self, o):
+        'release the lock'
+        if not self.available(o):
+            raise ValueError('you do not own this lock')
+        self._owner = None
+
+    def available(self, o):
+        'drawing is available to o'
+        return not self.locked() or self.isowner(o)
+
+    def isowner(self, o):
+        'o owns the lock'
+        return self._owner is o
+
+    def locked(self):
+        'the lock is held'
+        return self._owner is not None
+    
+lock = LockDraw()
+
 class Widget:
     """
     OK, I couldn't resist; abstract base class for mpl GUI neutral
@@ -718,7 +756,7 @@ class MultiCursor:
 
 
     def onmove(self, event):
-
+        if not lock.available(self): return 
         if event.inaxes is None: return
         self.needclear = True
         if not self.visible: return 
@@ -730,6 +768,7 @@ class MultiCursor:
 
 
     def _update(self):
+        
         if self.useblit:
             if self.background is not None:
                 self.canvas.restore_region(self.background)

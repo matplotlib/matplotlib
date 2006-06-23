@@ -1,6 +1,6 @@
 # For detailed comments on animation and the techniqes used here, see
-# the wiki entry
-# http://www.scipy.org/wikis/topical_software/MatplotlibAnimation
+# the wiki entry http://www.scipy.org/Cookbook/Matplotlib/Animations
+
 import matplotlib
 matplotlib.use('TkAgg')
 
