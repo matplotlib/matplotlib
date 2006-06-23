@@ -13,7 +13,7 @@ from matplotlib.mathtext import math_parse_s_ft2font_svg
 
 backend_version = __version__
 
-def new_figure_manager(num, *args):
+def new_figure_manager(num, *args, **kwargs):
     FigureClass = kwargs.pop('FigureClass', Figure)
     thisFig = FigureClass(*args)
     canvas  = FigureCanvasSVG(thisFig)
@@ -72,7 +72,7 @@ class RendererSVG(RendererBase):
         else:
             dashes = 'stroke-dasharray: %s; stroke-dashoffset: %f;' % (
                 ' '.join(['%f'%val for val in seq]), offset)
-        
+
         linewidth = gc.get_linewidth()
         if linewidth:
             return 'style="fill: %s; stroke: %s; stroke-width: %f; ' \

@@ -52,6 +52,7 @@ files = (
     'polar_demo.py',
     'polar_scatter.py',
     'psd_demo.py',
+    'quiver_demo.py',
     'scatter_demo.py',
     'scatter_demo2.py',
     'simple_plot.py',
