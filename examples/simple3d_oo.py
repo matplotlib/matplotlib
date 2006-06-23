@@ -2,7 +2,7 @@
 
 import matplotlib
 matplotlib.use('WXAgg')
-matplotlib.rcParams['numerix'] = 'numarray'
+matplotlib.rcParams['numerix'] = 'numpy'
 
 from wxPython.wx import *
 import matplotlib.axes3d
