@@ -1,3 +1,19 @@
+2006-06-22 Various changes to bar(), barh(), and hist().
+           Added 'edgecolor' keyword arg to bar() and barh().
+           The x and y args in barh() have been renamed to width
+           and bottom respectively, and their order has been swapped
+           to maintain a (position, value) order ala matlab. left,
+           height, width and bottom args can now all be scalars or
+           sequences. barh() now defaults to edge alignment instead
+           of center alignment. Added a keyword arg 'align' to bar(),
+           barh() and hist() that controls between edge or center bar
+           alignment. Fixed ignoring the rcParams['patch.facecolor']
+           for bar color in bar() and barh(). Fixed ignoring the
+           rcParams['lines.color'] for error bar color in bar()
+           and barh(). Fixed a bug where patches would be cleared
+           when error bars were plotted if rcParams['axes.hold']
+           was False. - MAS
+
 2006-06-22 Added support for numerix 2-D arrays as alternatives to
            a sequence of (x,y) tuples for specifying paths in
            collections, quiver, contour, pcolor, transforms.

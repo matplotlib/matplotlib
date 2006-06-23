@@ -2,19 +2,19 @@
 # make a horizontal bar chart
 
 from pylab import *
-x = 3+10*rand(5)    # the bar lengths
-y = arange(5)+.5    # the bar centers on the y axis
+val = 3+10*rand(5)    # the bar lengths
+pos = arange(5)+.5    # the bar centers on the y axis
 
 figure(1)
-barh(x,y)
-yticks(y, ('Tom', 'Dick', 'Harry', 'Slim', 'Jim'))
+barh(pos,val, align='center')
+yticks(pos, ('Tom', 'Dick', 'Harry', 'Slim', 'Jim'))
 xlabel('Perfomance')
 title('How fast do you want to go today?')
 grid(True)
 
 figure(2)
-barh(x,y, xerr=rand(5))
-yticks(y, ('Tom', 'Dick', 'Harry', 'Slim', 'Jim'))
+barh(pos,val, xerr=rand(5), align='center')
+yticks(pos, ('Tom', 'Dick', 'Harry', 'Slim', 'Jim'))
 xlabel('Perfomance')
 
 show()
