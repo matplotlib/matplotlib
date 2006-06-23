@@ -530,7 +530,7 @@ class Axes3DI(Axes):
         lines = []
         shade = []
         for box in boxes:
-            n = proj3d.cross(box[0]-box[1],
+            n = nx.crossbox[0]-box[1],
                          box[0]-box[2])
             n = n/proj3d.mod(n)*5
             shade.append(nx.dot(n,[-1,-1,0.5]))

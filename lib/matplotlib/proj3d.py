@@ -11,15 +11,6 @@ import numerix as nx
 from numerix import linear_algebra
 from math import sqrt
 
-def _hide_cross(a,b):
-    """
-    Cross product of two vectors
-    A x B = <Ay*Bz - Az*By, Az*Bx - Ax*Bz, Ax*By - Ay*Bx>
-    a x b = [a2b3 - a3b2, a3b1 - a1b3, a1b2 - a2b1]
-    """
-    return nx.array([a[1]*b[2]-a[2]*b[1],a[2]*b[0]-a[0]*b[2],a[0]*b[1] - a[1]*b[0]])
-cross = _hide_cross
-
 def line2d(p0,p1):
     """
     Return 2D equation of line in the form ax+by+c = 0
@@ -142,21 +133,14 @@ def test_world():
     
 def view_transformation(E, R, V):
     n = (E - R)
-    n = n / mod(n)
-    u = cross(V,n)
-    u = u / mod(u)
-    v = cross(n,u)
-    Mr = [[u[0],u[1],u[2],0],
-          [v[0],v[1],v[2],0],
-          [n[0],n[1],n[2],0],
-          [0,   0,   0,   1],
-          ]
-    #
-    Mt = [[1, 0, 0, -E[0]],
-          [0, 1, 0, -E[1]],
-          [0, 0, 1, -E[2]],
-          [0, 0, 0, 1]]
-
+    n /= mod(n)
+    u = nx.cross(V,n)
+    u /= mod(u)
+    v = nx.cross(n,u)
+    Mr = nx.diag([1.]*4)
+    Mt = nx.diag([1.]*4)
+    Mr[:3,:3] = u,v,n
+    Mt[:3,-1] = -E
     return nx.matrixmultiply(Mr,Mt)
 
 def persp_transformation(zfront,zback):
@@ -173,7 +157,6 @@ def proj_transform_vec(vec, M):
     w = vecw[3]
     # clip here..
     txs,tys,tzs = vecw[0]/w,vecw[1]/w,vecw[2]/w
-    #tis = vecw[0] > 0 and vecw[0] < 1 and vecw[1] > 0 and vecw[1] < 1
     return txs,tys,tzs
 
 def proj_transform_vec_clip(vec, M):
