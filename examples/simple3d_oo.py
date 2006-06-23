@@ -54,6 +54,7 @@ class PlotFigure(wxFrame):
         ax3d.set_xlabel('X')
         ax3d.set_ylabel('Y')
         ax3d.set_zlabel('Z')
+        self.fig.savefig('globe')
         
 if __name__ == '__main__':
     app = wxPySimpleApp(0)
