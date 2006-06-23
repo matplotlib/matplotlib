@@ -2,7 +2,7 @@
 
 import matplotlib
 matplotlib.use('WXAgg')
-matplotlib.rcParams['numerix'] = 'numarray'
+matplotlib.rcParams['numerix'] = 'numpy'
 
 from wxPython.wx import *
 import matplotlib.axes3d
@@ -38,16 +38,18 @@ class PlotFigure(wxFrame):
         ax3d = matplotlib.axes3d.Axes3D(self.fig)
         plt = self.fig.axes.append(ax3d)
         
-        delta = nx.pi / 100.0
-        u = nx.arange(0, 2*nx.pi, delta)
-        v = nx.arange(0, nx.pi, delta)
+        delta = nx.pi / 99.0
+        u = nx.arange(0, 2*nx.pi+(delta*2), delta*2)
+        v = nx.arange(0, nx.pi+delta, delta)
         
-        x=10*nx.outerproduct(nx.cos(u),nx.sin(v))
-        y=10*nx.outerproduct(nx.sin(u),nx.sin(v))
-        z=10*nx.outerproduct(nx.ones(nx.size(u)),nx.cos(v))
+        x=nx.outerproduct(nx.cos(u),nx.sin(v))
+        y=nx.outerproduct(nx.sin(u),nx.sin(v))
+        z=nx.outerproduct(nx.ones(nx.size(u)), nx.cos(v))
+        print x.shape, y.shape, z.shape
         
-        ax3d.plot_wireframe(x,y,z)
-        ax3d.plot_surface(x+10,y,z)
+        #ax3d.plot_wireframe(x,y,z)
+        surf = ax3d.plot_surface(x, y, z)
+        surf.set_array(nx.arange(0, 1.0, 1/100.0))
         
         ax3d.set_xlabel('X')
         ax3d.set_ylabel('Y')
