@@ -334,7 +334,7 @@ RendererAgg::draw_rectangle(const Py::Tuple & args) {
   double w = Py::Float( args[4] );
   double h = Py::Float( args[5] );
 
-  b = height - (b+h);  
+  b = height - (b+h);
   double r = l + w;
   double t = b + h;
 
@@ -344,7 +344,7 @@ RendererAgg::draw_rectangle(const Py::Tuple & args) {
   r = (int)r + 0.5;
   t = (int)t + 0.5;
 
-  
+
   set_clipbox_rasterizer(gc.cliprect);
 
   agg::path_storage path;
@@ -417,7 +417,7 @@ RendererAgg::draw_polygon(const Py::Tuple& args) {
     ys[i] = height - ys[i];
   }
 
-  
+
 
   agg::path_storage path;
   for (size_t j=0; j<Npoints; j++) {
@@ -763,7 +763,7 @@ int RendererAgg::inPolygon(int row, const double xs[4], const double ys[4], int 
 void RendererAgg::DrawQuadMesh(int meshWidth, int meshHeight, const agg::rgba8 colorArray[], const double xCoords[], const double yCoords[])
 {
 	/* draw each quadrilateral */
-	agg::renderer_primitives<agg::renderer_base<agg::pixfmt_rgba32> > lineRen(*rendererBase);
+//	agg::renderer_primitives<agg::renderer_base<agg::pixfmt_rgba32> > lineRen(*rendererBase);
 	int i = 0;
 	int j = 0;
 	int k = 0;

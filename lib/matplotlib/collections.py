@@ -170,12 +170,12 @@ class PatchCollection(Collection, ScalarMappable):
         If the scalar mappable array is not none, update facecolors
         from scalar data
         """
+        #print 'update_scalarmappable: self._A', self._A
         if self._A is None: return
         if len(self._A.shape)>1:
             raise ValueError('PatchCollections can only map rank 1 arrays')
         self._facecolors = self.to_rgba(self._A, self._alpha)
-        #print self._A.shape, type(R), R.shape
-        #self._facecolors = [(r,g,b,a) for r,g,b,a in R]
+        #print self._facecolors
 
 class QuadMesh(PatchCollection):
     """
@@ -214,10 +214,11 @@ class QuadMesh(PatchCollection):
 
     def draw(self, renderer):
         # does not call update_scalarmappable, need to update it
-        # when creating/changing              ****** Why not?
+        # when creating/changing              ****** Why not?  speed?
         if not self.get_visible(): return
         self._transform.freeze()
         self._transOffset.freeze()
+        #print 'QuadMesh draw'
         self.update_scalarmappable()  #######################
 
         renderer.draw_quad_mesh( self._meshWidth, self._meshHeight,

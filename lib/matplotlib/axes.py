@@ -1212,6 +1212,10 @@ class Axes(Artist):
         if self.transData.get_funcx().get_type()==LOG10 and min(vmin, vmax)<=0:
             raise ValueError('Cannot set nonpositive limits with log transform')
 
+        if abs(vmax - vmin) < 1e-38:
+            warnings.warn("vmax too close to vmin; adjusting")
+            vmin -= 1e-38
+            vmax += 1e-38
         self.viewLim.intervalx().set_bounds(vmin, vmax)
         if emit: self._send_xlim_event()
         return vmin, vmax
@@ -1328,7 +1332,10 @@ class Axes(Artist):
 
         if self.transData.get_funcy().get_type()==LOG10 and min(vmin, vmax)<=0:
             raise ValueError('Cannot set nonpositive limits with log transform')
-
+        if abs(vmax - vmin) < 1e-38:
+            warnings.warn("vmax too close to vmin; adjusting")
+            vmin -= 1e-38
+            vmax += 1e-38
         self.viewLim.intervaly().set_bounds(vmin, vmax)
         if emit: self._send_ylim_event()
         return vmin, vmax
