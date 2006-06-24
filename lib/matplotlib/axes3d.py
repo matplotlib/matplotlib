@@ -50,7 +50,7 @@ class Axes3DI(Axes):
     """
     def __init__(self, fig, rect=[0.0, 0.0, 1.0, 1.0], *args, **kwargs):
         self.fig = fig
-        
+
         azim = cbook.popd(kwargs, 'azim', -60)
         elev = cbook.popd(kwargs, 'elev', 30)
 
@@ -62,7 +62,7 @@ class Axes3DI(Axes):
         # they can't be defined until Axes.__init__ has been called
         self._ready = 0
         Axes.__init__(self, self.fig, rect,
-                      frameon=True, 
+                      frameon=True,
                       xticks=[], yticks=[], *args, **kwargs)
 
         self.M = None
@@ -88,10 +88,10 @@ class Axes3DI(Axes):
         #
         self.set_xlim(-xdwl,xdw)
         self.set_ylim(-ydwl,ydw)
-        
+
     def really_set_xlim(self, vmin, vmax):
         self.viewLim.intervalx().set_bounds(vmin, vmax)
-        
+
     def really_set_ylim(self, vmin, vmax):
         self.viewLim.intervaly().set_bounds(vmin, vmax)
 
@@ -103,16 +103,16 @@ class Axes3DI(Axes):
         elif len(args)==1:
             vmin,vmax = args[0]
         return vmin,vmax
-        
+
     def nset_xlim(self, *args):
         raise
         vmin,vmax = self.vlim_argument(self.get_xlim)
         print 'xlim', vmin,vmax
-        
+
     def nset_ylim(self, *args):
         vmin,vmax = self.vlim_argument(self.get_ylim)
         print 'ylim', vmin,vmax
-        
+
     def create_axes(self):
         self.w_xaxis = axis3d.Axis('x',self.xy_viewLim.intervalx,
                             self.xy_dataLim.intervalx, self)
@@ -120,7 +120,7 @@ class Axes3DI(Axes):
                             self.xy_dataLim.intervaly, self)
         self.w_zaxis = axis3d.Axis('z',self.zz_viewLim.intervalx,
                             self.zz_dataLim.intervalx, self)
-        
+
     def unit_cube(self,vals=None):
         minx,maxx,miny,maxy,minz,maxz = vals or self.get_w_lims()
         xs,ys,zs = ([minx,maxx,maxx,minx,minx,maxx,maxx,minx],
@@ -141,18 +141,18 @@ class Axes3DI(Axes):
                  (tc[1],tc[2]),
                  (tc[2],tc[3]),
                  (tc[3],tc[0]),
-                 
+
                  (tc[0],tc[4]),
                  (tc[1],tc[5]),
                  (tc[2],tc[6]),
                  (tc[3],tc[7]),
-                 
+
                  (tc[4],tc[5]),
                  (tc[5],tc[6]),
                  (tc[6],tc[7]),
                  (tc[7],tc[4])]
         return edges
-        
+
     def draw(self, renderer):
         # draw the background patch
         self.axesPatch.draw(renderer)
@@ -164,7 +164,7 @@ class Axes3DI(Axes):
         renderer.vvec = self.vvec
         renderer.eye = self.eye
         renderer.get_axis_position = self.get_axis_position
-        
+
         #self.set_top_view()
         self.w_xaxis.draw(renderer)
         self.w_yaxis.draw(renderer)
@@ -181,7 +181,7 @@ class Axes3DI(Axes):
 
     def update_datalim(self, xys):
         pass
-    
+
     def update_datalim_numerix(self, x, y):
         pass
 
@@ -193,16 +193,16 @@ class Axes3DI(Axes):
                 z = Z.flat
         except AttributeError:
             pass
-        
+
         self.xy_dataLim.update_numerix(x, y, not had_data)
         if z is not None:
             self.zz_dataLim.update_numerix(z, z, not had_data)
         self.autoscale_view()
-        
+
     def autoscale_view(self):
         self.set_top_view()
         if not self._ready: return
-        
+
         if not self._autoscaleon: return
         locator = self.w_xaxis.get_major_locator()
         #print 'auto', locator.autoscale()
@@ -217,7 +217,7 @@ class Axes3DI(Axes):
         miny,maxy = self.get_w_ylim()
         minz,maxz = self.get_w_zlim()
         return minx,maxx,miny,maxy,minz,maxz
-    
+
     def set_w_zlim(self, *args, **kwargs):
         gl,self.get_xlim = self.get_xlim,self.get_w_zlim
         vl,self.viewLim = self.viewLim,self.zz_viewLim
@@ -225,7 +225,7 @@ class Axes3DI(Axes):
         self.get_xlim = gl
         self.viewLim = vl
         return vmin,vmax
-        
+
     def set_w_xlim(self, *args, **kwargs):
         gl,self.get_xlim = self.get_xlim,self.get_w_xlim
         vl,self.viewLim = self.viewLim,self.xy_viewLim
@@ -233,7 +233,7 @@ class Axes3DI(Axes):
         self.get_xlim = gl
         self.viewLim = vl
         return vmin,vmax
-    
+
     def set_w_ylim(self, *args, **kwargs):
         gl,self.get_ylim = self.get_ylim,self.get_w_ylim
         vl,self.viewLim = self.viewLim,self.xy_viewLim
@@ -247,7 +247,7 @@ class Axes3DI(Axes):
 
     def get_w_xlim(self):
         return self.xy_viewLim.intervalx().get_bounds()
-    
+
     def get_w_ylim(self):
         return self.xy_viewLim.intervaly().get_bounds()
 
@@ -261,7 +261,7 @@ class Axes3DI(Axes):
         self.dist = 10
         self.elev = elev
         self.azim = azim
-        
+
     def get_proj(self):
         """Create the projection matrix from the current viewing
         position.
@@ -271,10 +271,10 @@ class Axes3DI(Axes):
 
         dist is the distance of the eye viewing point from the object
         point.
-        
+
         """
         relev,razim = nx.pi * self.elev/180, nx.pi * self.azim/180
-        
+
         xmin,xmax = self.get_w_xlim()
         ymin,ymax = self.get_w_ylim()
         zmin,zmax = self.get_w_zlim()
@@ -283,7 +283,7 @@ class Axes3DI(Axes):
         worldM = proj3d.world_transformation(xmin,xmax,
                                              ymin,ymax,
                                              zmin,zmax)
-        
+
         # look into the middle of the new coordinates
         R = nx.array([0.5,0.5,0.5])
         #
@@ -296,33 +296,33 @@ class Axes3DI(Axes):
         self.eye = E
         self.vvec = R - E
         self.vvec = self.vvec / proj3d.mod(self.vvec)
-        
+
         if abs(relev) > nx.pi/2:
             # upside down
             V = nx.array((0,0,-1))
         else:
             V = nx.array((0,0,1))
         zfront,zback = -self.dist,self.dist
-        
+
         viewM = proj3d.view_transformation(E,R,V)
         perspM = proj3d.persp_transformation(zfront,zback)
         M0 = nx.matrixmultiply(viewM,worldM)
         M = nx.matrixmultiply(perspM,M0)
         return M
-    
+
     def mouse_init(self):
         self.button_pressed = None
         self.figure.canvas.mpl_connect('motion_notify_event', self.on_move)
         self.figure.canvas.mpl_connect('button_press_event', self.button_press)
         self.figure.canvas.mpl_connect('button_release_event', self.button_release)
-        
+
     def button_press(self, event):
         self.button_pressed = event.button
         self.sx,self.sy = event.xdata,event.ydata
-            
+
     def button_release(self, event):
         self.button_pressed = None
-        
+
     def format_xdata(self, x):
         """
         Return x string formatted.  This function will use the attribute
@@ -371,8 +371,8 @@ class Axes3DI(Axes):
         edgei = ldists[0][1]
         #
         p0,p1 = edges[edgei]
-        
-        # scale the z value to match 
+
+        # scale the z value to match
         x0,y0,z0 = p0
         x1,y1,z1 = p1
         d0 = nx.hypot(x0-xd,y0-yd)
@@ -387,7 +387,7 @@ class Axes3DI(Axes):
         ys = self.format_ydata(y)
         zs = self.format_ydata(z)
         return  'x=%s, y=%s z=%s'%(xs,ys,zs)
-        
+
     def on_move(self, event):
         """Mouse moving
 
@@ -406,7 +406,7 @@ class Axes3DI(Axes):
         #
         if self.toolbar._active is not None:
             return
-        
+
         x, y = event.xdata, event.ydata
         dx,dy = x-self.sx,y-self.sy
         x0,x1 = self.get_xlim()
@@ -429,7 +429,7 @@ class Axes3DI(Axes):
         elif self.button_pressed == 2:
             # pan view
             # project xv,yv,zv -> xw,yw,zw
-            # pan 
+            # pan
             #
             pass
         elif self.button_pressed == 3:
@@ -455,7 +455,7 @@ class Axes3DI(Axes):
         if fontdict is not None: label.update(fontdict)
         label.update(kwargs)
         return label
-    
+
     def set_ylabel(self, ylabel, fontdict=None, **kwargs):
         label = self.w_yaxis.get_label()
         label.set_text(ylabel)
@@ -472,7 +472,7 @@ class Axes3DI(Axes):
 
     def plot(self, *args, **kwargs):
         had_data = self.has_data()
-        
+
         zval = cbook.popd(kwargs, 'z', 0)
         zdir = cbook.popd(kwargs, 'dir', 'z')
         lines = Axes.plot(self, *args, **kwargs)
@@ -487,7 +487,7 @@ class Axes3DI(Axes):
         self.auto_scale_xyz(xs,ys,zs, had_data)
         #
         return linecs
-        
+
     def plot3D(self, xs, ys, zs, *args, **kwargs):
         had_data = self.has_data()
         lines = Axes.plot(self, xs,ys, *args, **kwargs)
@@ -502,7 +502,7 @@ class Axes3DI(Axes):
 
     def plot_surface(self, X, Y, Z, *args, **kwargs):
         had_data = self.has_data()
-        
+
         rows,cols = Z.shape
         tX,tY,tZ = nx.transpose(X), nx.transpose(Y), nx.transpose(Z)
         rstride = cbook.popd(kwargs, 'rstride', 10)
@@ -530,7 +530,7 @@ class Axes3DI(Axes):
         lines = []
         shade = []
         for box in boxes:
-            n = nx.crossbox[0]-box[1],
+            n = nx.cross(box[0]-box[1],
                          box[0]-box[2])
             n = n/proj3d.mod(n)*5
             shade.append(nx.dot(n,[-1,-1,0.5]))
@@ -550,12 +550,12 @@ class Axes3DI(Axes):
     def plot_wireframe(self, X, Y, Z, *args, **kwargs):
         rstride = cbook.popd(kwargs, "rstride", 1)
         cstride = cbook.popd(kwargs, "cstride", 1)
-        
+
         had_data = self.has_data()
         rows,cols = Z.shape
-        
+
         tX,tY,tZ = nx.transpose(X), nx.transpose(Y), nx.transpose(Z)
-        
+
         rii = [i for i in range(0,rows,rstride)]+[rows-1]
         cii = [i for i in range(0,cols,cstride)]+[cols-1]
         xlines = [X[i] for i in rii]
@@ -569,7 +569,7 @@ class Axes3DI(Axes):
         lines = [zip(xl,yl,zl) for xl,yl,zl in zip(xlines,ylines,zlines)]
         lines += [zip(xl,yl,zl) for xl,yl,zl in zip(txlines,tylines,tzlines)]
         linec = self.add_lines(lines, *args, **kwargs)
-        
+
         self.auto_scale_xyz(X,Y,Z, had_data)
         return linec
 
@@ -588,10 +588,10 @@ class Axes3DI(Axes):
     def clabel(self, *args, **kwargs):
         r = Axes.clabel(self, *args, **kwargs)
         return r
-        
+
     def contourf3D(self, X, Y, Z, *args, **kwargs):
         had_data = self.has_data()
-        
+
         levels, colls = self.contourf(X, Y, Z, 20)
         print len(levels),len(colls)
         for z1,z2,linec in zip(levels,levels[1:],colls):
@@ -609,7 +609,7 @@ class Axes3DI(Axes):
         self.auto_scale_xyz(xs,ys,zs, had_data)
         return patches
     scatter3d = scatter3D
-        
+
     def add_lines(self, lines, *args, **kwargs):
         linec = art3d.Line3DCollection(lines, *args, **kwargs)
         self.add_collection(linec)
@@ -622,18 +622,18 @@ class Axes3DI(Axes):
 
     def ahvline(self, x,y):
         pass
-    
+
     def ahvxplane(self, x):
         pass
-    
+
     def ahvyplane(self, y):
         pass
-    
+
 class Scaler:
     def __init__(self, points):
         self.inpoints = points
         self.drawpoints = None
-        
+
     def update(self, lims):
         for x,y,z in self.points:
             pass
@@ -654,23 +654,23 @@ class Axes3D:
 
     def set_xlim(self, *args, **kwargs):
         self.wrapped.set_w_xlim(*args, **kwargs)
-        
+
     def set_ylim(self, *args, **kwargs):
         self.wrapped.set_w_ylim(*args, **kwargs)
-        
+
     def set_zlim(self, *args, **kwargs):
         self.wrapped.set_w_zlim(*args, **kwargs)
-        
+
     def __getattr__(self, k):
         return getattr(self.wrapped,k)
-    
+
     def __setattr__(self, k,v):
         return setattr(self.wrapped,k,v)
-    
+
     def add_collection(self, polys, zs=None, dir='z'):
         patches = art3d.Poly3DCollectionW(polys, zs=zs,dir=dir)
         self.add_3DCollection(patches)
-        
+
     def add_3DCollection(self, patches):
         self.wrapped.add_collection(patches)
 
@@ -682,7 +682,7 @@ class Axes3D:
         zs = zs or [0]*len(xs)
         patches = art3d.wrap_patch(patches, zs=[0]*len(xs),dir=dir)
         return patches
-    
+
     def bar(self, left, height, z=0, dir='z', *args, **kwargs):
         had_data = self.has_data()
         patches = self.wrapped.bar(left, height, *args, **kwargs)
@@ -699,7 +699,7 @@ class Axes3D:
         self.wrapped.auto_scale_xyz(xs,ys,zs, had_data)
 
 def test_scatter():
-    
+
     ax = Axes3D()
     #
     #
@@ -715,12 +715,12 @@ def test_scatter():
     ax.set_xlabel('------------ X Label --------------------')
     ax.set_ylabel('------------ Y Label --------------------')
     ax.set_zlabel('------------ Z Label --------------------')
-    
+
 def get_test_data(delta=0.05):
-    from mlab import meshgrid, bivariate_normal    
+    from mlab import meshgrid, bivariate_normal
     x = y = nx.arange(-3.0, 3.0, delta)
     X, Y = meshgrid(x,y)
-    
+
     Z1 = bivariate_normal(X, Y, 1.0, 1.0, 0.0, 0.0)
     Z2 = bivariate_normal(X, Y, 1.5, 0.5, 1, 1)
     Z = Z2-Z1
@@ -729,7 +729,7 @@ def get_test_data(delta=0.05):
     Y = Y * 10
     Z = Z * 500
     return X,Y,Z
-    
+
 def test_wire():
     ax = Axes3D()
 
@@ -783,7 +783,7 @@ def test_polys():
     from matplotlib.colors import colorConverter
 
     cc = lambda arg: colorConverter.to_rgba(arg, alpha=0.6)
-    
+
     ax = Axes3D()
     xs = nx.arange(0,10,0.4)
     verts = []
@@ -792,14 +792,14 @@ def test_polys():
         ys = [random.random() for x in xs]
         ys[0],ys[-1] = 0,0
         verts.append(zip(xs,ys))
-    
+
     poly = PolyCollection(verts, facecolors = [cc('r'),cc('g'),cc('b'),
                                                cc('y')])
     #patches = art3d.Poly3DCollectionW(poly, zs=zs, dir='y')
     #poly = PolyCollection(verts)
     ax.add_collection(poly,zs=zs,dir='y')
     #ax.wrapped.add_collection(poly)
-    # 
+    #
     ax.plot(xs,ys, z=z, dir='y', c='r')
     ax.set_xlim(0,10)
     ax.set_ylim(-1,4)
@@ -815,7 +815,7 @@ def test_scatter2D():
 
 def test_bar2D():
     ax = Axes3D()
-    
+
     for c,z in zip(['r','g','b','y'],[30,20,10,0]):
         xs = nx.arange(20)
         ys = [random.random() for x in xs]
