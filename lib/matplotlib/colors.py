@@ -546,10 +546,7 @@ class Colormap:
         """
         self.name = name
         self.N = N
-        #self._rgba_bad = (0.0, 0.0, 0.0, 0.0) # If bad, don't paint anything.
-        # 2006/05/12: pcolormesh does not work with the above, so
-        # we will use a different default for now.
-        self._rgba_bad = colorConverter.to_rgba(rcParams['axes.facecolor'])
+        self._rgba_bad = (0.0, 0.0, 0.0, 0.0) # If bad, don't paint anything.
         self._rgba_under = None
         self._rgba_over = None
         self._i_under = N
@@ -590,11 +587,9 @@ class Colormap:
         xa = where(mask_over, self._i_over, xa)
         if mask_bad is not None: # and sometrue(mask_bad):
             xa = where(mask_bad, self._i_bad, xa)
-        #print 'types', typecode(self._lut), typecode(xa), xa.shape
         rgba = take(self._lut, xa)
         if vtype == 'scalar':
             rgba = tuple(rgba[0,:])
-        #print rgba[0,1:10,:]       # Now the same for numpy, numeric...
         return rgba
 
     def set_bad(self, color = 'k', alpha = 1.0):

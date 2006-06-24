@@ -12,7 +12,7 @@ from numerix import array, sqrt, pi, log, asarray, ones, zeros, Float, Float32
 from numerix import arange, compress, take
 from patches import Rectangle
 from transforms import lbwh_to_bbox, identity_transform
-import widgets 
+import widgets
 
 class RendererBase:
     """An abstract base class to handle drawing/rendering operations
@@ -193,10 +193,10 @@ class RendererBase:
         verts[:, 0, 1] = take(yCoords, indices)
         verts[:, 1, 0] = take(xCoords, (indices + 1))
         verts[:, 1, 1] = take(yCoords, (indices + 1))
-        verts[:, 2, 0] = take(xCoords, (indices + meshWidth + 1))
-        verts[:, 2, 1] = take(yCoords, (indices + meshWidth + 1))
-        verts[:, 3, 0] = take(xCoords, (indices + meshWidth + 2))
-        verts[:, 3, 1] = take(yCoords, (indices + meshWidth + 2))
+        verts[:, 2, 0] = take(xCoords, (indices + meshWidth + 2))
+        verts[:, 2, 1] = take(yCoords, (indices + meshWidth + 2))
+        verts[:, 3, 0] = take(xCoords, (indices + meshWidth + 1))
+        verts[:, 3, 1] = take(yCoords, (indices + meshWidth + 1))
         if (showedges):
             edgecolors = colors
         else:
