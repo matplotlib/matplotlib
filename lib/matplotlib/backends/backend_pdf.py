@@ -600,7 +600,10 @@ class RendererPdf(RendererBase):
 			     pr(points[0][1])))
 	for x,y in points[1:]:
 	    write('%s %s l\n' % (pr(x), pr(y)))
-	write('q %s %s %s rg b Q\n' % tmap(pr, rgbFace))
+	if rgbFace is None:
+	    write('s\n')
+	else:
+	    write('q %s %s %s rg b Q\n' % tmap(pr, rgbFace))
 
     def draw_rectangle(self, gcEdge, rgbFace, x, y, width, height):
 	# TODO: be smarter about gc (include rgbFace in it?)
@@ -686,7 +689,8 @@ class GraphicsContextPdf(GraphicsContextBase):
 	return '%s w' % pdfRepr(width)
 
     def dash_cmd(self, dashes):
-	offset, dash = GraphicsContextPdf.dashd[style]
+	offset, dash = dashes
+	if dash is None: dash = []
 	return '%s %s d' % (pdfRepr(list(dash)), offset)
 
     def alpha_cmd(self, alpha):
