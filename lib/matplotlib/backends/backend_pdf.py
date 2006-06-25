@@ -32,13 +32,14 @@ def tmap(*args):
     """Call map() and convert result to a tuple."""
     return tuple(map(*args))
 
-def fill(strings, line=75):
-    """Make one string from sequence of strings, breaking lines
-    to form lines of at most 72 characters, if possible."""
+def fill(strings, linelen=75):
+    """Make one string from sequence of strings, with whitespace
+    in between. The whitespace is chosen to form lines of at most
+    linelen characters, if possible."""
 
     s, strings = [strings[0]], strings[1:]
     while strings:
-	if len(s[-1]) + len(strings[0]) < 72:
+	if len(s[-1]) + len(strings[0]) < linelen:
 	    s[-1] += ' ' + strings[0]
 	else:
 	    s.append(strings[0])
@@ -516,7 +517,55 @@ class RendererPdf(RendererBase):
 	    self.gc.copy_properties(gc)
 
     def draw_arc(self, gcEdge, rgbFace, x, y, width, height, angle1, angle2):
-        print >>sys.stderr, "draw_arc called"
+        """
+        Draw an arc using GraphicsContext instance gcEdge, centered at x,y,
+        with width and height and angles from 0.0 to 360.0
+        0 degrees is at 3-o'clock
+        positive angles are anti-clockwise
+
+        If the color rgbFace is not None, fill the arc with it.
+        """
+	#print >>sys.stderr, "draw_arc", rgbFace, x, y, width, height, angle1, angle2
+	# source: agg_bezier_arc.cpp
+	
+	def arc_to_bezier(cx, cy, rx, ry, angle1, sweep):
+	    halfsweep = sweep / 2.0
+	    x0, y0 = cos(halfsweep), sin(halfsweep)
+	    tx = (1.0 - x0) * 4.0/3.0;
+	    ty = y0 - tx * x0 / y0;
+	    px =  x0, x0+tx, x0+tx, x0
+	    py = -y0,   -ty,    ty, y0
+	    sn, cs = sin(angle1 + halfsweep), cos(angle1 + halfsweep)
+	    result = [ (cx + rx * (pxi * cs - pyi * sn),
+			cy + ry * (pxi * sn + pyi * cs))
+		       for pxi, pyi in zip(px, py) ]
+	    return reduce(lambda x, y: x + y, result)
+
+	epsilon = 0.01
+	angle1 *= pi/180.0
+	angle2 *= pi/180.0
+	sweep = angle2 - angle1
+	angle1 = angle1 % (2*pi)
+	sweep = min(max(-2*pi, sweep), 2*pi)
+
+	if sweep < 0.0:
+	    sweep, angle1, angle2 = -sweep, angle2, angle1
+	bp = [ pi/2.0 * i for i in range(4) if pi/2.0 * i < sweep ]
+	bp.append(sweep)
+	subarcs = [ arc_to_bezier(x, y, width/2.0, height/2.0,
+				  bp[i], bp[i+1]-bp[i]) 
+		    for i in range(len(bp)-1) ]
+
+	self.check_gc(gcEdge)
+	self.file.write('%s %s m\n' % tmap(pdfRepr, subarcs[0][0:2]))
+	for arc in subarcs:
+	    self.file.write(' %s %s %s %s %s %s c\n' %
+			    tmap(pdfRepr, arc[2:]))
+	if rgbFace is not None:
+	    self.file.write(' q %s %s %s rg b Q\n' %
+			    tmap(pdfRepr, rgbFace))
+	else:
+	    self.file.write('S\n')
 
     def draw_image(self, x, y, im, bbox):
         print >>sys.stderr, "draw_image called"
