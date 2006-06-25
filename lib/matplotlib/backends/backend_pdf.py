@@ -510,6 +510,9 @@ class RendererPdf(RendererBase):
 	self.gc = self.new_gc()
 	self.fonts = {}
 
+    def finalize(self):
+	self.gc.finalize()
+
     def check_gc(self, gc):
 	delta = self.gc.delta(gc)
 	if delta:
@@ -550,7 +553,7 @@ class RendererPdf(RendererBase):
 
 	if sweep < 0.0:
 	    sweep, angle1, angle2 = -sweep, angle2, angle1
-	bp = [ pi/2.0 * i for i in range(4) if pi/2.0 * i < sweep ]
+	bp = [ pi/2.0 * i for i in range(4) if pi/2.0 * i < sweep-epsilon ]
 	bp.append(sweep)
 	subarcs = [ arc_to_bezier(x, y, width/2.0, height/2.0,
 				  bp[i], bp[i+1]-bp[i]) 
@@ -668,6 +671,7 @@ class GraphicsContextPdf(GraphicsContextBase):
     def __init__(self, file):
 	GraphicsContextBase.__init__(self)
 	self.file = file
+	self.parent = None
 
     capstyles = { 'butt': 0, 'round': 1, 'projecting': 2 }
     joinstyles = { 'miter': 0, 'round': 1, 'bevel': 2 }
@@ -694,6 +698,24 @@ class GraphicsContextPdf(GraphicsContextBase):
 	rgb = tmap(pdfRepr, rgb)
 	return ('%s %s %s RG ' % rgb) + ('%s %s %s rg' % rgb)
 
+    def push(self):
+	parent = GraphicsContextPdf(self.file)
+	parent.copy_properties(self)
+	parent.parent = self.parent
+	self.parent = parent
+	return 'q'
+
+    def pop(self):
+	assert self.parent is not None
+	self.copy_properties(self.parent)
+	self.parent = self.parent.parent
+	return 'Q'
+
+    def cliprect_cmd(self, cliprect):
+	"""Set clip rectangle. Can only be undone by popping the graphics
+	state; thus needs to be enclosed in a push/pop pair."""
+	return "%s %s %s %s re W n" % tmap(pdfRepr, cliprect)
+
     commands = {
 	'_alpha': alpha_cmd,
 	'_capstyle': capstyle_cmd,
@@ -703,20 +725,30 @@ class GraphicsContextPdf(GraphicsContextBase):
 	'_rgb': rgb_cmd,
 	}
 
-    # TODO: _cliprect, _linestyle, _hatch
-    # _cliprect needs pushing/popping the graphics state,
-    # probably needs to be done in RendererPdf
+    # TODO: _linestyle, _hatch
 
     def delta(self, other):
 	"""What PDF commands are needed to transform self into other?
 	"""
 	cmds = []
+	if self._cliprect != other._cliprect and self.parent is not None:
+		cmds.append(self.pop())
+	if self._cliprect != other._cliprect:
+	    cmds.append(self.push())
+	    cmds.append(self.cliprect_cmd(other._cliprect))
+
 	for param in self.commands.keys():
 	    if getattr(self, param) != getattr(other, param):
 		cmd = self.commands[param]
 		cmds.append(cmd(self, getattr(other, param)))
 	return '\n'.join(cmds)
 
+    def finalize(self):
+	"""Make sure every pushed graphics state is popped."""
+	cmds = []
+	while self.parent is not None:
+	    cmds.append(self.pop())
+	return '\n'.join(cmds)
 
 ########################################################################
 #
@@ -777,6 +809,7 @@ class FigureCanvasPdf(FigureCanvasBase):
 	file = PdfFile(width, height, filename)
         renderer = RendererPdf(file)
 	self.figure.draw(renderer)
+	renderer.finalize()
 	file.close()
 
 class FigureManagerPdf(FigureManagerBase):
