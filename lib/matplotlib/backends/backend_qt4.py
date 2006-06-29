@@ -151,14 +151,12 @@ class FigureManagerQT( FigureManagerBase ):
         if DEBUG: print 'FigureManagerQT.%s' % fn_name()
         FigureManagerBase.__init__( self, canvas, num )
         self.canvas = canvas
-        self.window = QtGui.QMainWindow()# None, None, QtCore.Qt.WDestructiveClose )
+        self.window = QtGui.QMainWindow()
         self.window.setAttribute(QtCore.Qt.WA_DeleteOnClose)
         
-        # TODO: add the mpl icon to the window
-        #self.window.setWindowIcon(
-        #    QtGui.QIcon(os.path.join( matplotlib.rcParams['datapath'],
-        #                'matplotlib.svg'))
-        #                         )
+        self.window.setWindowTitle("Figure %d" % num)
+        image = os.path.join( matplotlib.rcParams['datapath'],'matplotlib.png' )
+        self.window.setWindowIcon(QtGui.QIcon( image ))
 
         centralWidget = QtGui.QWidget( self.window )
         self.canvas.setParent( centralWidget )
@@ -166,8 +164,6 @@ class FigureManagerQT( FigureManagerBase ):
         # Give the keyboard focus to the figure instead of the manager
         self.canvas.setFocusPolicy( QtCore.Qt.ClickFocus )
         self.canvas.setFocus()
-        
-        self.window.setWindowTitle("Figure %d" % num)
 
         QtCore.QObject.connect( self.window, QtCore.SIGNAL( 'destroyed()' ),
                             self._widgetclosed )
@@ -185,6 +181,7 @@ class FigureManagerQT( FigureManagerBase ):
         # Use a vertical layout for the plot and the toolbar.  Set the
         # stretch to all be in the plot so the toolbar doesn't resize.
         layout = QtGui.QVBoxLayout( centralWidget )
+        layout.setMargin( 0 )
         layout.addWidget( self.canvas, 1 )
         if self.toolbar:
            layout.addWidget( self.toolbar, 0 )
