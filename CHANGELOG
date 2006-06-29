@@ -1,3 +1,5 @@
+2006-06-29 Added a Qt4Agg backend. Thank you James Amundson - DSD
+
 2006-06-26 Fixed a usetex bug. On windows, usetex will prcess
            postscript output in the current directory rather than
            in a temp directory. This is due to the use of spaces 

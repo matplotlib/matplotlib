@@ -466,9 +466,9 @@ def validate_int(s):
 
 def validate_backend(s, fail_on_err = True):
     s=s.lower()
-    backends = ['Agg2', 'Agg', 'Aqt', 'Cairo', 'CocoaAgg', 'EMF', 'GD', 'GDK', 'GTK',
-                'GTKAgg', 'GTKCairo', 'FltkAgg', 'Paint', 'Pdf', 'PS', 'QtAgg', 'SVG',
-                'Template', 'TkAgg', 'WX', 'WXAgg', ]
+    backends = ['Agg2', 'Agg', 'Aqt', 'Cairo', 'CocoaAgg', 'EMF', 'GD', 'GDK',
+                'GTK', 'GTKAgg', 'GTKCairo', 'FltkAgg', 'Paint', 'Pdf', 'PS',
+                'QtAgg', 'Qt4Agg', 'SVG', 'Template', 'TkAgg', 'WX', 'WXAgg']
     for i in backends:
         if s == i.lower(): return i
     if fail_on_err: raise ValueError('Backend must be %s, or %s'% \
@@ -797,16 +797,19 @@ defaultParams = {
     'polaraxes.grid'         : [True, validate_bool],   # display polar grid or not
 
     #legend properties
-    'legend.isaxes'	:	[True,validate_bool],
-    'legend.numpoints' 	:	[ 4,validate_int],      # the number of points in the legend line
+    'legend.isaxes'    :       [True,validate_bool],
+    'legend.numpoints'         :       [ 4,validate_int],      # the number of points in the legend line
     'legend.fontsize' : ["small",validate_fontsize],
-    'legend.pad' 	:	[ 0.2, validate_float],         # the fractional whitespace inside the legend border
-    'legend.markerscale' 	:	[ 0.6, validate_float],    # the relative size of legend markers vs. original
+    'legend.pad'       :       [ 0.2, validate_float],         # the fractional whitespace inside the legend border
+    'legend.markerscale'       :       [ 0.6, validate_float],    # the relative size of legend markers vs. original
+
+
     # the following dimensions are in axes coords
-    'legend.labelsep' 	:	[ 0.005, validate_float],    # the vertical space between the legend entries
-    'legend.handlelen' 	:	[ 0.05, validate_float],  # the length of the legend lines
-    'legend.handletextsep' 	:	[ 0.02, validate_float], # the space between the legend line and legend text
-    'legend.axespad' 	:	[ 0.02, validate_float], # the border between the axes and legend edge
+    'legend.labelsep'  :       [ 0.005, validate_float],    # the vertical space between the legend entries
+    'legend.handlelen'         :       [ 0.05, validate_float],  # the length of the legend lines
+    'legend.handletextsep'     :       [ 0.02, validate_float], # the space between the legend line and legend text
+    'legend.axespad'   :       [ 0.02, validate_float], # the border between the axes and legend edge
+
     'legend.shadow' : [ False, validate_bool ],
 
 

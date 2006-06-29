@@ -15,7 +15,7 @@ from matplotlib.backend_bases import RendererBase, GraphicsContextBase, \
 from matplotlib._pylab_helpers import Gcf
 from matplotlib.figure import Figure
 from matplotlib.mathtext import math_parse_s_ft2font
-import qt
+from PyQt4 import QtCore, QtGui
 
 backend_version = "0.9.1"
 def fn_name(): return sys._getframe(1).f_code.co_name
@@ -23,10 +23,10 @@ def fn_name(): return sys._getframe(1).f_code.co_name
 DEBUG = False
 
 cursord = {
-    cursors.MOVE          : qt.Qt.PointingHandCursor,
-    cursors.HAND          : qt.Qt.WaitCursor,
-    cursors.POINTER       : qt.Qt.ArrowCursor,
-    cursors.SELECT_REGION : qt.Qt.CrossCursor,
+    cursors.MOVE          : QtCore.Qt.PointingHandCursor,
+    cursors.HAND          : QtCore.Qt.WaitCursor,
+    cursors.POINTER       : QtCore.Qt.ArrowCursor,
+    cursors.SELECT_REGION : QtCore.Qt.CrossCursor,
     }
 
 def draw_if_interactive():
@@ -54,33 +54,32 @@ def show( mainloop=True ):
         #   qtapplication.setMainWidget( figManager.canvas )
 
     if mainloop and createQApp:
-        qt.QObject.connect( qtapplication, qt.SIGNAL( "lastWindowClosed()" ),
-                            qtapplication, qt.SLOT( "quit()" ) )
-        qtapplication.exec_loop()    
+        QtCore.QObject.connect( qtapplication, QtCore.SIGNAL( "lastWindowClosed()" ),
+                            qtapplication, QtCore.SLOT( "quit()" ) )
+        qtapplication.exec_()    
 
 
 def new_figure_manager( num, *args, **kwargs ):
     """
     Create a new figure manager instance
     """
-    FigureClass = kwargs.pop('FigureClass', Figure)    
-    thisFig = FigureClass( *args, **kwargs )
+    thisFig = Figure( *args, **kwargs )
     canvas = FigureCanvasQT( thisFig )
     manager = FigureManagerQT( canvas, num )
     return manager
 
 
-class FigureCanvasQT( qt.QWidget, FigureCanvasBase ):
-    keyvald = { qt.Qt.Key_Control : 'control',
-                qt.Qt.Key_Shift : 'shift',
-                qt.Qt.Key_Alt : 'alt',
+class FigureCanvasQT( QtGui.QWidget, FigureCanvasBase ):
+    keyvald = { QtCore.Qt.Key_Control : 'control',
+                QtCore.Qt.Key_Shift : 'shift',
+                QtCore.Qt.Key_Alt : 'alt',
                }
     # left 1, middle 2, right 3
     buttond = {1:1, 2:3, 4:2}
     def __init__( self, figure ):
         if DEBUG: print 'FigureCanvasQt: ', figure
         FigureCanvasBase.__init__( self, figure )
-        qt.QWidget.__init__( self, None, "QWidget figure" )
+        QtGui.QWidget.__init__( self )
         self.figure = figure
         self.setMouseTracking( True )
 
@@ -123,10 +122,10 @@ class FigureCanvasQT( qt.QWidget, FigureCanvasBase ):
 
     def resizeEvent( self, event ):
         if DEBUG: print 'resize (%d x %d)' % (event.size().width(), event.size().height())
-        qt.QWidget.resizeEvent( self, event )
+        QtGui.QWidget.resizeEvent( self, event )
 
     def resize( self, w, h ):
-        qt.QWidget.resize( self, w, h )
+        QtGui.QWidget.resize( self, w, h )
 
     def _get_key( self, event ):
         if event.key() < 256:
@@ -152,17 +151,26 @@ class FigureManagerQT( FigureManagerBase ):
         if DEBUG: print 'FigureManagerQT.%s' % fn_name()
         FigureManagerBase.__init__( self, canvas, num )
         self.canvas = canvas
-        self.window = qt.QMainWindow( None, None, qt.Qt.WDestructiveClose )
-        self.window.closeEvent = self._widgetCloseEvent
+        self.window = QtGui.QMainWindow()# None, None, QtCore.Qt.WDestructiveClose )
+        self.window.setAttribute(QtCore.Qt.WA_DeleteOnClose)
+        
+        # TODO: add the mpl icon to the window
+        #self.window.setWindowIcon(
+        #    QtGui.QIcon(os.path.join( matplotlib.rcParams['datapath'],
+        #                'matplotlib.svg'))
+        #                         )
 
-        centralWidget = qt.QWidget( self.window )
-        self.canvas.reparent( centralWidget, qt.QPoint( 0, 0 ) )
+        centralWidget = QtGui.QWidget( self.window )
+        self.canvas.setParent( centralWidget )
         
         # Give the keyboard focus to the figure instead of the manager
-        self.canvas.setFocusPolicy( qt.QWidget.ClickFocus )
+        self.canvas.setFocusPolicy( QtCore.Qt.ClickFocus )
         self.canvas.setFocus()
-        self.window.setCaption( "Figure %d" % num )
+        
+        self.window.setWindowTitle("Figure %d" % num)
 
+        QtCore.QObject.connect( self.window, QtCore.SIGNAL( 'destroyed()' ),
+                            self._widgetclosed )
         self.window._destroying = False
 
         if matplotlib.rcParams['toolbar'] == 'classic':
@@ -176,7 +184,7 @@ class FigureManagerQT( FigureManagerBase ):
 
         # Use a vertical layout for the plot and the toolbar.  Set the
         # stretch to all be in the plot so the toolbar doesn't resize.
-        layout = qt.QVBoxLayout( centralWidget )
+        layout = QtGui.QVBoxLayout( centralWidget )
         layout.addWidget( self.canvas, 1 )
         if self.toolbar:
            layout.addWidget( self.toolbar, 0 )
@@ -209,17 +217,13 @@ class FigureManagerQT( FigureManagerBase ):
         self.window._destroying = True
         Gcf.destroy(self.num)
 
-    def _widgetCloseEvent( self, event ):
-        self._widgetclosed()
-        qt.QWidget.closeEvent( self.window, event )
-
     def destroy( self, *args ):
         if self.window._destroying: return
         self.window._destroying = True
         if DEBUG: print "destroy figure manager"
         self.window.close(True)
 
-class NavigationToolbar2QT( NavigationToolbar2, qt.QWidget ):
+class NavigationToolbar2QT( NavigationToolbar2, QtGui.QWidget ):
     # list of toolitems to add to the toolbar, format is:
     # text, tooltip_text, image_file, callback(str)
     toolitems = (
@@ -235,12 +239,10 @@ class NavigationToolbar2QT( NavigationToolbar2, qt.QWidget ):
         
     def __init__( self, parent, canvas ):
         self.canvas = canvas
-        self.buttons = {}
-
-        qt.QWidget.__init__( self, parent )
+        QtGui.QWidget.__init__( self, parent )
 
         # Layout toolbar buttons horizontally.
-        self.layout = qt.QHBoxLayout( self )
+        self.layout = QtGui.QHBoxLayout( self )
         self.layout.setMargin( 2 )
         
         NavigationToolbar2.__init__( self, canvas )
@@ -254,40 +256,27 @@ class NavigationToolbar2QT( NavigationToolbar2, qt.QWidget ):
                 continue
             
             fname = os.path.join( basedir, image_file )
-            image = qt.QPixmap()
+            image = QtGui.QPixmap()
             image.load( fname )
 
-            button = qt.QPushButton( qt.QIconSet( image ), "", self )
-            qt.QToolTip.add( button, tooltip_text )
-
-            self.buttons[ text ] = button
+            button = QtGui.QPushButton( QtGui.QIcon( image ), "", self )
+            button.setToolTip(tooltip_text)
 
             # The automatic layout doesn't look that good - it's too close
             # to the images so add a margin around it.
             margin = 4
             button.setFixedSize( image.width()+margin, image.height()+margin )
 
-            qt.QObject.connect( button, qt.SIGNAL( 'clicked()' ),
+            QtCore.QObject.connect( button, QtCore.SIGNAL( 'clicked()' ),
                                 getattr( self, callback ) )
             self.layout.addWidget( button )
-
-        self.buttons[ 'Pan' ].setToggleButton( True )
-        self.buttons[ 'Zoom' ].setToggleButton( True )
 
         # Add the x,y location widget at the right side of the toolbar
         # The stretch factor is 1 which means any resizing of the toolbar
         # will resize this label instead of the buttons.
-        self.locLabel = qt.QLabel( "", self )
-        self.locLabel.setAlignment( qt.Qt.AlignRight | qt.Qt.AlignVCenter )
+        self.locLabel = QtGui.QLabel( "", self )
+        self.locLabel.setAlignment( QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter )
         self.layout.addWidget( self.locLabel, 1 )
-
-    def pan( self, *args ):
-        self.buttons[ 'Zoom' ].setOn( False )
-        NavigationToolbar2.pan( self, *args )
-
-    def zoom( self, *args ):
-        self.buttons[ 'Pan' ].setOn( False )
-        NavigationToolbar2.zoom( self, *args )
 
     def dynamic_update( self ):
         self.canvas.draw()
@@ -297,8 +286,8 @@ class NavigationToolbar2QT( NavigationToolbar2, qt.QWidget ):
 
     def set_cursor( self, cursor ):
         if DEBUG: print 'Set cursor' , cursor
-        qt.QApplication.restoreOverrideCursor()
-        qt.QApplication.setOverrideCursor( qt.QCursor( cursord[cursor] ) )
+        QtGui.QApplication.restoreOverrideCursor()
+        QtGui.QApplication.setOverrideCursor( QtGui.QCursor( cursord[cursor] ) )
                 
     def draw_rubberband( self, event, x0, y0, x1, y1 ):
         height = self.canvas.figure.bbox.height()
@@ -312,20 +301,14 @@ class NavigationToolbar2QT( NavigationToolbar2, qt.QWidget ):
         self.canvas.drawRectangle( rect )
     
     def save_figure( self ):     
-        fname = qt.QFileDialog.getSaveFileName()
+        fname = QtGui.QFileDialog.getSaveFileName()
         if fname:
             self.canvas.print_figure( fname.latin1() )
-
-    def set_history_buttons( self ):
-        canBackward = ( self._views._pos > 0 )
-        canForward = ( self._views._pos < len( self._views._elements ) - 1 )
-        self.buttons[ 'Back' ].setEnabled( canBackward )
-        self.buttons[ 'Forward' ].setEnabled( canForward )
 
 # set icon used when windows are minimized
 try:
     # TODO: This is badly broken
-    qt.window_set_default_icon_from_file (
+    QtGui.QIcon.addFile (
         os.path.join( matplotlib.rcParams['datapath'], 'matplotlib.svg' ) )
 except:
     verbose.report( 'Could not load matplotlib icon: %s' % sys.exc_info()[1] )
@@ -335,7 +318,7 @@ def error_msg_qt( msg, parent=None ):
     if not is_string_like( msg ):
         msg = ','.join( map( str,msg ) )
                          
-    qt.QMessageBox.warning( None, "Matplotlib", msg, qt.QMessageBox.Ok )
+    QtGui.QMessageBox.warning( None, "Matplotlib", msg, QtGui.QMessageBox.Ok )
 
 def exception_handler( type, value, tb ):
     """Handle uncaught exceptions
@@ -357,7 +340,7 @@ FigureManager = FigureManagerQT
 
 # We need one and only one QApplication before we can build any Qt widgets
 # Detect if a QApplication exists.
-createQApp = qt.QApplication.startingUp()
+createQApp = QtGui.QApplication.startingUp()
 if createQApp:
     if DEBUG: print "Starting up QApplication"
-    qtapplication = qt.QApplication( [" "] )
+    qtapplication = QtGui.QApplication( [" "] )
