@@ -244,6 +244,7 @@ class NavigationToolbar2QT( NavigationToolbar2, QtGui.QWidget ):
         # Layout toolbar buttons horizontally.
         self.layout = QtGui.QHBoxLayout( self )
         self.layout.setMargin( 2 )
+        self.layout.setSpacing( 0 )
         
         NavigationToolbar2.__init__( self, canvas )
         
@@ -303,7 +304,7 @@ class NavigationToolbar2QT( NavigationToolbar2, QtGui.QWidget ):
     def save_figure( self ):     
         fname = QtGui.QFileDialog.getSaveFileName()
         if fname:
-            self.canvas.print_figure( fname.latin1() )
+            self.canvas.print_figure( str(fname.toLatin1()) )
 
 # set icon used when windows are minimized
 try:
