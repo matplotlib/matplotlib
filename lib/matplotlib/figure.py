@@ -133,6 +133,7 @@ class Figure(Artist):
         self.ur = Point( self.figwidth*self.dpi,
                          self.figheight*self.dpi )
         self.bbox = Bbox(self.ll, self.ur)
+
         self.frameon = frameon
 
         self.transFigure = get_bbox_transform( unit_bbox(), self.bbox)
