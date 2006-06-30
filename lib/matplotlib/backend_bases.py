@@ -1215,9 +1215,9 @@ class NavigationToolbar2:
             self._idRelease = self.canvas.mpl_connect(
                 'button_release_event', self.release_pan)
             self.mode = 'pan/zoom mode'
-            widgets.lock(self)
+            #widgets.lock(self)
         else:
-            widgets.release(self)
+            #widgets.release(self)
 
         for a in self.canvas.figure.get_axes():
             a.set_navigate_mode(self._active)
@@ -1557,9 +1557,9 @@ class NavigationToolbar2:
             self._idPress = self.canvas.mpl_connect('button_press_event', self.press_zoom)
             self._idRelease = self.canvas.mpl_connect('button_release_event', self.release_zoom)
             self.mode = 'Zoom to rect mode'
-            widgets.lock(self)
+            #widgets.lock(self)
         else:
-            widgets.release(self)
+            #widgets.release(self)
 
         for a in self.canvas.figure.get_axes():
             a.set_navigate_mode(self._active)
