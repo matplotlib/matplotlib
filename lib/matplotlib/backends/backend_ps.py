@@ -1081,8 +1081,7 @@ class FigureCanvasPS(FigureCanvasBase):
 
             Ndict = len(psDefs)
             print >>fh, "%%BeginProlog"
-            type42 = _type42 + [os.path.join(self.basepath, name) + '.ttf' \
-                                for name in bakoma_fonts]
+            type42 = _type42 + bakoma_fonts
             if not rcParams['ps.useafm']:
                 Ndict += len(type42)
             print >>fh, "/mpldict %d dict def"%Ndict

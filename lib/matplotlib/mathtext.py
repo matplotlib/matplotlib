@@ -140,12 +140,11 @@ from matplotlib.pyparsing import Literal, Word, OneOrMore, ZeroOrMore, \
 from matplotlib.afm import AFM
 from matplotlib.cbook import enumerate, iterable, Bunch
 from matplotlib.ft2font import FT2Font
-from matplotlib.font_manager import fontManager
+from matplotlib.font_manager import fontManager, FontProperties
 from matplotlib._mathtext_data import latex_to_bakoma, cmkern, \
-        latex_to_standard
+        latex_to_standard, tex2uni, type12uni, tex2type1, uni2type1
 from matplotlib.numerix import absolute
 from matplotlib import get_data_path, rcParams
-
 
 bakoma_fonts = []
 
@@ -163,6 +162,63 @@ charOverChars = {
     r'\angstrom' : (  ('rm', 'A', 1.0), (None, '\circ', 0.5), 0.0 ),
     }
 
+
+def font_open(filename):
+    ext = filename.rsplit('.',1)[1]
+    if ext == 'afm':
+        return AFM(str(filename))
+    else:
+        return FT2Font(str(filename))
+
+
+def get_unicode_index(symbol):
+    """get_unicode_index(symbol) -> integer
+
+Return the integer index (from the Unicode table) of symbol.
+symbol can be a single unicode character, a TeX command (i.e. r'\pi'),
+or a Type1 symbol name (i.e. 'phi').
+
+"""
+    try:# This will succeed if symbol is a single unicode char
+        return ord(symbol)
+    except TypeError:
+        pass
+    try:# Is symbol a TeX symbol (i.e. \alpha)
+        return tex2uni[symbol]
+    except KeyError:
+        pass
+    try:# Is symbol a Type1 name (i.e. degree)? If not raise error
+        return type12uni[symbol]
+    except KeyError:
+        message = """'%(symbol)s' is not a valid Unicode character or
+TeX/Type1 symbol"""%locals()
+        raise ValueError, message
+
+
+#Not used, but might turn useful
+def get_type1_name(symbol):
+    """get_type1_name(symbol) -> string
+
+Returns the the Type1 name of symbol.
+symbol can be a single unicode character, or a TeX command (i.e. r'\pi').
+
+"""
+    try:# This will succeed if symbol is a single unicode char
+        return uni2type1[ord(symbol)]
+    except TypeError:
+        pass
+    try:# Is symbol a TeX symbol (i.e. \alpha)
+        return tex2type1[symbol]
+    except KeyError:
+        pass
+    # The symbol is already a Type1 name so return it
+    if isinstance(symbol, str):
+        return symbol
+    else:
+        # The user did not suply a valid symbol, show usage
+        raise ValueError, get_type1_name.__doc__
+
+
 class Fonts:
     """
     An abstract base class for fonts that want to render mathtext
@@ -171,11 +227,11 @@ class Fonts:
     return the character metrics as well as do the drawing
     """
 
-    def get_kern(self, font, symleft, symright, fontsize, dpi):
+    def get_kern(self, facename, symleft, symright, fontsize, dpi):
         """
         Get the kerning distance for font between symleft and symright.
 
-        font is one of tt, it, rm, cal or None
+        facename is one of tt, it, rm, cal or None
 
         sym is a single symbol(alphanum, punct) or a special symbol
         like \sigma.
@@ -183,9 +239,9 @@ class Fonts:
         """
         return 0
     
-    def get_metrics(self, font, sym, fontsize, dpi):
+    def get_metrics(self, facename, sym, fontsize, dpi):
         """
-        font is one of tt, it, rm, cal or None
+        facename is one of tt, it, rm, cal or None
 
         sym is a single symbol(alphanum, punct) or a special symbol
         like \sigma.
@@ -207,7 +263,7 @@ class Fonts:
         'Dimension the drawing canvas; may be a noop'
         self.width, self.height = w, h
 
-    def render(self, ox, oy, font, sym, fontsize, dpi):
+    def render(self, ox, oy, facename, sym, fontsize, dpi):
         pass
 
 
@@ -226,66 +282,156 @@ class DummyFonts(Fonts):
             )
         return metrics
 
-class TrueTypeFonts(Fonts):
-    def __init__(self):
 
-        # inspect all the fonts in the current path and make a dict
-        # from font type (tt, rm, it, cal) -> unicode chars that it
-        # provides
+class UnicodeFonts(Fonts):
+    """An abstract base class for handling Unicode fonts.
+
+Specific terminology:
+ * fontface: an FT2Font object, corresponding to a facename
+ * facename: a string that defines the (type)face's name - 'rm', 'it' etc.
+ * filename: a string that is used for generating a fontface object
+ * symbol*: a single Unicode character or a TeX command,
+    or to be precise, a TeX symbol command like \alpha (but not \frac) or
+    even a Type1/PS name
+ * filenamesd: a dict that maps the face's name to the filename:
+    filenamesd = { 'cal' : 'fontnamecal.ext',
+                  'rm'  : 'fontnamerm.ext',
+                  'tt'  : 'fontnamett.ext',
+                  'it'  : 'fontnameit.ext',
+                  None  : 'fontnamesmth.ext'}
+    filenamesd should be declared as a class atribute
+ * glyphdict: a dict used for caching of glyph specific data
+ * fonts: a dict of facename -> fontface pairs
+ * charmaps: a dict of facename -> charmap pairs
+ * glyphmaps: a dict of facename -> glyphmap pairs. A glyphmap is an
+    inverted charmap
+ * output: a string in ['BMP','SVG','PS'], coresponding to the backends
+ * index: Fontfile specific index of a glyph/char. Taken from a charmap.
+
+"""
+
+    # The path to the dir with the fontfiles
+    def __init__(self, output='BMP'):
+        self.facenames = self.filenamesd.keys()
+        # Set the filenames to full path
+        for facename in self.filenamesd:
+            self.filenamesd[facename] = self.filenamesd[facename]
+        if output:
+            self.output = output
+        # self.glyphdict[key] = facename, metrics, glyph, offset
+        self.glyphdict = {}
         
-        self.glyphd = {}
         self.fonts = dict(
-            [ (name, FT2Font(os.path.join(self.basepath, name) + '.ttf'))
-              for name in self.fnames])
-
+            [ (facename, font_open(self.filenamesd[facename])) for
+                    facename in self.facenames])
+        # a dict of glyphindex -> charcode pairs
         self.charmaps = dict(
-            [ (name, self.fonts[name].get_charmap()) for name in self.fnames])
-        # glyphmaps is a dict names to a dict of charcode -> glyphindex
+            [ (facename, self.fonts[facename].get_charmap())
+                for facename in self.facenames])
+        # a dict of charcode -> glyphindex pairs
         self.glyphmaps = {}
-        for name in self.fnames:
-            cmap = self.charmaps[name]
-            self.glyphmaps[name] = dict([(ccode, glyphind) for glyphind, ccode in cmap.items()])
-        
-        for font in self.fonts.values():
-            font.clear()
-        if useSVG:
-            self.svg_glyphs=[]  # a list of "glyphs" we need to render this thing in SVG
-        else: pass
-        self.usingSVG = useSVG
+        for facename in self.facenames:
+            charmap = self.charmaps[facename]
+            self.glyphmaps[facename] = dict([(charcode, glyphind)
+                for glyphind, charcode in charmap.items()])
+        for fontface in self.fonts.values():
+            fontface.clear()
+        if self.output == 'SVG':
+            # a list of "glyphs" we need to render this thing in SVG
+            self.svg_glyphs=[]
+
+    def set_canvas_size(self, w, h, pswriter=None):
+        'Dimension the drawing canvas; may be a noop'
+        # self.width = int(w)
+        # self.height = int(h)
+        # I don't know why this was different than the PS version
+        self.width = w
+        self.height = h
+        if pswriter:
+            self.pswriter = pswriter
+        else:
+            for fontface in self.fonts.values():
+                fontface.set_bitmap_size(int(w), int(h))
+
+    def render(self, ox, oy, facename, symbol, fontsize, dpi):
+        filename = self.filenamesd[facename]
+        uniindex, metrics, glyph, offset = self._get_info(facename,
+                                                    symbol, fontsize, dpi)
+        if self.output == 'SVG':
+            oy += offset - 512/2048.*10.
+            # TO-DO - make a method for it
+            # This gets the name of the font.
+            familyname = self.fonts[facename].get_sfnt()[(1,0,0,1)]
+            self.svg_glyphs.append((familyname, fontsize, uniindex, ox, oy,
+                                                            metrics))
+        elif self.output == 'PS':
+            # This should be changed to check for math mode or smth.
+            #if filename == 'cmex10.ttf':
+            #    oy += offset - 512/2048.*10.
             
-    def get_metrics(self, font, sym, fontsize, dpi):
-        cmfont, metrics, glyph, offset  = \
-                self._get_info(font, sym, fontsize, dpi) 
+            # Get the PS name of a glyph (his unicode integer code)
+            # from the font object
+            symbolname = self._get_glyph_name(uniindex, facename)
+            psfontname = self.fonts[facename].postscript_name
+            ps = """/%(psfontname)s findfont
+%(fontsize)s scalefont
+setfont
+%(ox)f %(oy)f moveto
+/%(symbolname)s glyphshow
+""" % locals()
+            self.pswriter.write(ps)
+        else: # BMP
+            fontface = self.fonts[facename]
+            fontface.draw_glyph_to_bitmap(
+            int(ox),  int(self.height - oy - metrics.ymax), glyph)
+
+    def get_metrics(self, facename, symbol, fontsize, dpi):
+        uniindex, metrics, glyph, offset  = \
+                self._get_info(facename, symbol, fontsize, dpi) 
         return metrics
 
-    def _get_info (self, font, sym, fontsize, dpi):
-        'load the cmfont, metrics and glyph with caching'
-        key = font, sym, fontsize, dpi
-        tup = self.glyphd.get(key)
+    # Methods that must be overridden for fonts that are not unicode aware
 
-        if tup is not None: return tup
+    def _get_unicode_index(self, symbol):
+        return get_unicode_index(symbol)
 
-        basename = self.fontmap[font]
+    def _get_glyph_name(self, uniindex, facename):
+        """get_glyph_name(self, uniindex, facename) -> string
 
-        if latex_to_bakoma.has_key(sym):
-            basename, num = latex_to_bakoma[sym]
-            num = self.charmaps[basename][num]
-        elif len(sym) == 1:
-            num = ord(sym)
-        else:
-            num = 0
-            raise ValueError('unrecognized symbol "%s"' % sym)
+Returns the name of the glyph directly from the font object.
 
-        #print sym, basename, num
-        cmfont = self.fonts[basename]
-        cmfont.set_size(fontsize, dpi)
-        head  = cmfont.get_sfnt_table('head')
-        glyph = cmfont.load_char(num)
-
+"""
+        font = self.fonts[facename]
+        glyphindex = self.glyphmaps[facename][uniindex]
+        return font.get_glyph_name(glyphindex)
+        
+    def _get_info(self, facename, symbol, fontsize, dpi):
+        'load the facename, metrics and glyph'
+        #print hex(index), symbol, filename, facename
+        key = facename, symbol, fontsize, dpi
+        tup = self.glyphdict.get(key)
+        if tup is not None:
+            return tup
+        filename = self.filenamesd[facename]
+        # This is used only by the PS backend --- to integrate the fonts
+        # into the resulting PS. TO-DO: fix the PS backend so it doesn't do
+        # these dirty tricks
+        if self.output == 'PS':
+            if filename not in bakoma_fonts:
+                bakoma_fonts.append(filename)
+        fontface = self.fonts[facename]
+        fontface.set_size(fontsize, dpi)
+        head  = fontface.get_sfnt_table('head')
+        uniindex = self._get_unicode_index(symbol)
+        glyphindex = self.glyphmaps[facename][uniindex]
+        glyph = fontface.load_char(uniindex)
         xmin, ymin, xmax, ymax = [val/64.0 for val in glyph.bbox]
-        if basename == 'cmex10':
-            offset =  glyph.height/64.0/2 + 256.0/64.0*dpi/72.0
-            #offset = -(head['yMin']+512)/head['unitsPerEm']*10.
+        # This is black magic to me (Edin)
+        if filename == 'cmex10.ttf':
+            if self.output == 'PS':
+                offset = -(head['yMin']+512)/head['unitsPerEm']*10.
+            else:
+                offset =  glyph.height/64.0/2 + 256.0/64.0*dpi/72.0
         else:
             offset = 0.
         metrics = Bunch(
@@ -297,70 +443,115 @@ class TrueTypeFonts(Fonts):
             ymin = ymin+offset,
             ymax = ymax+offset,
             )
-        
-        self.glyphd[key] = cmfont, metrics, glyph, offset
-        return self.glyphd[key]
+        self.glyphdict[key] = uniindex, metrics, glyph, offset
+        return self.glyphdict[key]
 
-    def set_canvas_size(self, w, h):
-        'Dimension the drawing canvas; may be a noop'
-        self.width = int(w)
-        self.height = int(h)
-        for font in self.fonts.values():
-            font.set_bitmap_size(int(w), int(h)) 
 
-    def render(self, ox, oy, font, sym, fontsize, dpi):
-        cmfont, metrics, glyph, offset = \
-                self._get_info(font, sym, fontsize, dpi)
+class MyUnicodeFonts(UnicodeFonts):
+    _initialized = False
+    def __init__(self):
+        if not MyUnicodeFonts._initialized:
+            prop = FontProperties()
+            prop.set_family('serif')
+            self.rmfile = fontManager.findfont(prop)
 
-        if not self.usingSVG:
-            cmfont.draw_glyph_to_bitmap(
-                int(ox),  int(self.height - oy - metrics.ymax), glyph)
-        else:
-            oy += offset - 512/2048.*10.
-            basename = self.fontmap[font]
-            if latex_to_bakoma.has_key(sym):
-                basename, num = latex_to_bakoma[sym]
-                num = self.charmaps[basename][num]
-            elif len(sym) == 1:
-                num = ord(sym)
+            prop.set_family('fantasy')
+            self.calfile = fontManager.findfont(prop)
+
+            prop.set_family('monospace')
+            self.ttfile = fontManager.findfont(prop)
+
+            prop.set_family('serif')
+            prop.set_style('italic')
+            self.itfile = fontManager.findfont(prop)
+            self.filenamesd = { 'rm'  : self.rmfile,
+                                'it'  : self.itfile,
+                                'cal' : self.calfile,
+                                'tt'  : self.ttfile,
+                                }
+            MyUnicodeFonts._initialized = True
+
+
+# TO-DO: pretty much everything
+class BakomaUnicodeFonts(UnicodeFonts):
+    """A class that simulates Unicode support in the BaKoMa fonts"""
+
+    filenamesd = { 'cal' : 'cmsy10.ttf',
+                'rm'  : 'cmr10.ttf',
+                'tt'  : 'cmtt10.ttf',
+                'it'  : 'cmmi10.ttf',
+                None  : 'cmmi10.ttf',
+                }
+
+    # We override the UnicodeFonts methods, that depend on Unicode support
+    def _get_unicode_index(self, symbol):
+        uniindex = get_unicode_index(symbol)
+
+    # Should be deleted
+    def _get_glyph_name(self, uniindex, facename):
+        """get_glyph_name(self, uniindex, facename) -> string
+
+Returns the name of the glyph directly from the font object.
+Because BaKoma fonts don't support Unicode, 'uniindex' is misleading
+
+"""
+        font = self.fonts[facename]
+        glyphindex = self.glyphmaps[facename][uniindex]
+        return font.get_glyph_name(glyphindex)
+
+    def _get_info(self, facename, symbol, fontsize, dpi):
+        'load the facename, metrics and glyph'
+        #print hex(index), symbol, filename, facename
+        key = facename, symbol, fontsize, dpi
+        tup = self.glyphdict.get(key)
+        if tup is not None:
+            return tup
+        filename = self.filenamesd[facename]
+        # This is used only by the PS backend --- to integrate the fonts
+        # into the resulting PS.
+        if self.output == 'PS':
+            if filename not in bakoma_fonts:
+                bakoma_fonts.append(filename)
+        fontface = self.fonts[facename]
+        fontface.set_size(fontsize, dpi)
+        head  = fontface.get_sfnt_table('head')
+        uniindex = self._get_unicode_index(symbol)
+        glyphindex = self.glyphmaps[facename][uniindex]
+        glyph = fontface.load_char(uniindex)
+        xmin, ymin, xmax, ymax = [val/64.0 for val in glyph.bbox]
+        # This is black magic to me (Edin)
+        if filename == 'cmex10.ttf':
+            if self.output == 'PS':
+                offset = -(head['yMin']+512)/head['unitsPerEm']*10.
             else:
-                num = 0
-                print >>sys.stderr, 'unrecognized symbol "%s"' % sym
-            self.svg_glyphs.append((basename, fontsize, num, ox, oy, metrics))
-        
-
-    def _old_get_kern(self, font, symleft, symright, fontsize, dpi):
-        """
-        Get the kerning distance for font between symleft and symright.
-
-        font is one of tt, it, rm, cal or None
-
-        sym is a single symbol(alphanum, punct) or a special symbol
-        like \sigma.
-
-        """
-        basename = self.fontmap[font]
-        cmfont = self.fonts[basename]
-        cmfont.set_size(fontsize, dpi)
-        kernd = cmkern[basename]
-        key = symleft, symright
-        kern = kernd.get(key,0)
-        #print basename, symleft, symright, key, kern
-        return kern
-
-    def _get_num(self, font, sym):
-        'get charcode for sym'
-        basename = self.fontmap[font]
-        if latex_to_bakoma.has_key(sym):
-            basename, num = latex_to_bakoma[sym]
-            num = self.charmaps[basename][num]
-        elif len(sym) == 1:
-            num = ord(sym)
+                offset =  glyph.height/64.0/2 + 256.0/64.0*dpi/72.0
         else:
-            num = 0
-        return num
+            offset = 0.
+        metrics = Bunch(
+            advance  = glyph.linearHoriAdvance/65536.0,
+            height   = glyph.height/64.0,
+            width    = glyph.width/64.0,
+            xmin = xmin,
+            xmax = xmax,
+            ymin = ymin+offset,
+            ymax = ymax+offset,
+            )
+        self.glyphdict[key] = uniindex, metrics, glyph, offset
+        return self.glyphdict[key]
 
-    
+
+# TO-DO: Implement all methods
+class CMUUnicodeFonts(UnicodeFonts):
+    """A class representing Computer Modern Unicode Fonts, made by
+Andrey V. Panov
+panov /at/ canopus. iacp. dvo. ru
+They are distributed under the X11 License.
+
+"""
+
+
+# Old classes
+
 class BakomaTrueTypeFonts(Fonts):
     """
     Use the Bakoma true type fonts for rendering
@@ -553,9 +744,9 @@ class BakomaPSFonts(Fonts):
             num = 0
             sym = '.notdef'
             raise ValueError('unrecognized symbol "%s, %d"' % (sym, num))
-
-        if basename not in bakoma_fonts:
-            bakoma_fonts.append(basename)
+        filename = os.path.join(self.basepath, basename) + '.ttf'
+        if filename not in bakoma_fonts:
+            bakoma_fonts.append(filename)
         cmfont = self.fonts[basename]
         cmfont.set_size(fontsize, dpi)
         head = cmfont.get_sfnt_table('head')
@@ -1312,7 +1503,7 @@ expression = OneOrMore(
 
 
 
-def math_parse_s_ft2font(s, dpi, fontsize, angle=0):
+class math_parse_s_ft2font_common:
     """
     Parse the math expression s, return the (bbox, fonts) tuple needed
     to render it.
@@ -1321,151 +1512,82 @@ def math_parse_s_ft2font(s, dpi, fontsize, angle=0):
 
     return is width, height, fonts
     """
-
     major, minor1, minor2, tmp, tmp = sys.version_info
     if major==2 and minor1==2:
         raise SystemExit('mathtext broken on python2.2.  We hope to get this fixed soon')
 
-    cacheKey = (s, dpi, fontsize, angle)
-    s = s[1:-1]  # strip the $ from front and back
-    if math_parse_s_ft2font.cache.has_key(cacheKey):
-        w, h, bfonts = math_parse_s_ft2font.cache[cacheKey]
-        return w, h, bfonts.fonts.values()
+    def __init__(self, output):
+        self.output = output
+        self.cache = {}
+        
+    def __call__(self, s, dpi, fontsize, angle=0):
+        cacheKey = (s, dpi, fontsize, angle)
+        s = s[1:-1]  # strip the $ from front and back
+        if self.cache.has_key(cacheKey):
+            w, h, fontlike = self.cache[cacheKey]
+            return w, h, fontlike
+        if self.output == 'SVG':
+            self.font_object = BakomaTrueTypeFonts(useSVG=True)
+            #self.font_object = MyUnicodeFonts(output='SVG')
+            Element.fonts = self.font_object
+        elif self.output == 'BMP':
+            self.font_object = BakomaTrueTypeFonts()
+            #self.font_object = MyUnicodeFonts()
+            Element.fonts = self.font_object
+        elif self.output == 'PS':
+            if rcParams['ps.useafm']:
+                self.font_object = StandardPSFonts()
+                Element.fonts = self.font_object
+            else:
+                self.font_object = BakomaPSFonts()
+                #self.font_object = MyUnicodeFonts(output='PS')
+                Element.fonts = self.font_object
+        
+        handler.clear()
+        expression.parseString( s )
 
-    bakomaFonts = BakomaTrueTypeFonts()
-    Element.fonts = bakomaFonts
-    handler.clear()
-    expression.parseString( s )
+        handler.expr.set_size_info(fontsize, dpi)
 
-    handler.expr.set_size_info(fontsize, dpi)
+        # set the origin once to allow w, h compution
+        handler.expr.set_origin(0, 0)
+        xmin = min([e.xmin() for e in handler.symbols])
+        xmax = max([e.xmax() for e in handler.symbols])
+        ymin = min([e.ymin() for e in handler.symbols])
+        ymax = max([e.ymax() for e in handler.symbols])
 
-    # set the origin once to allow w, h compution
-    handler.expr.set_origin(0, 0)
-    xmin = min([e.xmin() for e in handler.symbols])
-    xmax = max([e.xmax() for e in handler.symbols])
-    ymin = min([e.ymin() for e in handler.symbols])
-    ymax = max([e.ymax() for e in handler.symbols])
+        # now set the true origin - doesn't affect with and height
+        w, h =  xmax-xmin, ymax-ymin
+        # a small pad for the canvas size
+        w += 2
+        h += 2
 
-    # now set the true origin - doesn't affect with and height
-    w, h =  xmax-xmin, ymax-ymin
-    # a small pad for the canvas size
-    w += 2
-    h += 2
+        handler.expr.set_origin(0, h-ymax)
 
-    handler.expr.set_origin(0, h-ymax)
+        if self.output == 'SVG':
+            Element.fonts.set_canvas_size(w,h)
+        elif self.output == 'BMP':
+            Element.fonts.set_canvas_size(w,h)
+        elif self.output == 'PS':
+            pswriter = StringIO()
+            Element.fonts.set_canvas_size(w, h, pswriter)
+        
+        handler.expr.render()
+        handler.clear()
 
-    Element.fonts.set_canvas_size(w,h)
-    handler.expr.render()
-    handler.clear()
+        if self.output == 'SVG':
+            self.cache[cacheKey] = w, h, self.font_object.svg_glyphs
+            return w, h, self.font_object.svg_glyphs
+        elif self.output == 'BMP':
+            self.cache[cacheKey] = w, h, self.font_object.fonts.values()
+            return w, h, self.font_object.fonts.values()
+        elif self.output == 'PS':
+            self.cache[cacheKey] = w, h, pswriter
+            return w, h, pswriter
 
-    math_parse_s_ft2font.cache[cacheKey] = w, h, bakomaFonts
-    return w, h, bakomaFonts.fonts.values()
+math_parse_s_ft2font = math_parse_s_ft2font_common('BMP')
+math_parse_s_ft2font_svg = math_parse_s_ft2font_common('SVG')
+math_parse_s_ps = math_parse_s_ft2font_common('PS')
 
-math_parse_s_ft2font.cache = {}
-
-def math_parse_s_ft2font_svg(s, dpi, fontsize, angle=0):
-    """
-    Parse the math expression s, return the (bbox, fonts) tuple needed
-    to render it.
-
-    fontsize must be in points
-
-    return is width, height, fonts
-    """
-
-    major, minor1, minor2, tmp, tmp = sys.version_info
-    if major==2 and minor1==2:
-        print >> sys.stderr, 'mathtext broken on python2.2.  We hope to get this fixed soon'
-        sys.exit()
-    cacheKey = (s, dpi, fontsize, angle)
-    s = s[1:-1]  # strip the $ from front and back
-    if math_parse_s_ft2font_svg.cache.has_key(cacheKey):
-        w, h, svg_glyphs = math_parse_s_ft2font_svg.cache[cacheKey]
-        return w, h, svg_glyphs
-
-    bakomaFonts = BakomaTrueTypeFonts(useSVG=True)
-    Element.fonts = bakomaFonts
-    handler.clear()
-    expression.parseString( s )
-
-    handler.expr.set_size_info(fontsize, dpi)
-
-    # set the origin once to allow w, h compution
-    handler.expr.set_origin(0, 0)
-    xmin = min([e.xmin() for e in handler.symbols])
-    xmax = max([e.xmax() for e in handler.symbols])
-    ymin = min([e.ymin() for e in handler.symbols])
-    ymax = max([e.ymax() for e in handler.symbols])
-
-    # now set the true origin - doesn't affect with and height
-    w, h =  xmax-xmin, ymax-ymin
-    # a small pad for the canvas size
-    w += 2
-    h += 2
-
-    handler.expr.set_origin(0, h-ymax)
-
-    Element.fonts.set_canvas_size(w,h)
-    handler.expr.render()
-    handler.clear()
-
-    math_parse_s_ft2font_svg.cache[cacheKey] = w, h, bakomaFonts.svg_glyphs
-    return w, h, bakomaFonts.svg_glyphs
-
-math_parse_s_ft2font_svg.cache = {}
-
-
-def math_parse_s_ps(s, dpi, fontsize):
-    """
-    Parse the math expression s, return the (bbox, fonts) tuple needed
-    to render it.
-
-    fontsize must be in points
-
-    return is width, height, fonts
-
-    """
-    cacheKey = (s, dpi, fontsize)
-    s = s[1:-1]  # strip the $ from front and back
-    if math_parse_s_ps.cache.has_key(cacheKey):
-        w, h, pswriter = math_parse_s_ps.cache[cacheKey]
-        return w, h, pswriter
-
-    if rcParams['ps.useafm']:
-        standardFonts = StandardPSFonts()
-        Element.fonts = standardFonts
-    else:
-        bakomaFonts = BakomaPSFonts()
-        Element.fonts = bakomaFonts
-    handler.clear()
-    expression.parseString( s )
-
-    handler.expr.set_size_info(fontsize, dpi)
-
-    # set the origin once to allow w, h compution
-    handler.expr.set_origin(0, 0)
-    xmin = min([e.xmin() for e in handler.symbols])
-    xmax = max([e.xmax() for e in handler.symbols])
-    ymin = min([e.ymin() for e in handler.symbols])
-    ymax = max([e.ymax() for e in handler.symbols])
-
-    # now set the true origin - doesn't affect with and height
-    w, h =  xmax-xmin, ymax-ymin
-    # a small pad for the canvas size
-    w += 2
-    h += 2
-
-    handler.expr.set_origin(0, h-ymax)
-
-    pswriter = StringIO()
-    Element.fonts.set_canvas_size(w, h, pswriter)
-    handler.expr.render()
-    handler.clear()
-
-    math_parse_s_ps.cache[cacheKey] = w, h, pswriter
-    return w, h, pswriter
-
-math_parse_s_ps.cache = {}
 
 if 0: #__name__=='___main__':
     
