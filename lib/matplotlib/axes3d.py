@@ -503,7 +503,7 @@ class Axes3DI(Axes):
     def plot_surface(self, X, Y, Z, *args, **kwargs):
         had_data = self.has_data()
 
-        rows,cols = Z.shape
+        rows, cols = Z.shape
         tX,tY,tZ = nx.transpose(X), nx.transpose(Y), nx.transpose(Z)
         rstride = cbook.popd(kwargs, 'rstride', 10)
         cstride = cbook.popd(kwargs, 'cstride', 10)
@@ -530,7 +530,7 @@ class Axes3DI(Axes):
         lines = []
         shade = []
         for box in boxes:
-            n = nx.cross(box[0]-box[1],
+            n = proj3d.cross(box[0]-box[1],
                          box[0]-box[2])
             n = n/proj3d.mod(n)*5
             shade.append(nx.dot(n,[-1,-1,0.5]))
