@@ -238,6 +238,10 @@ def add_pygtk_flags(module):
     module.extra_link_args.extend(
         [flag for flag in linkerFlags if not
          (flag.startswith('-l') or flag.startswith('-L'))])
+    
+    # visual studio doesn't need the math library
+    if sys.platform=='win32' and win32_compiler != 'mingw32' and 'm' in module.libraries:
+		module.libraries.remove('m')
 
 
 def find_wx_config():
