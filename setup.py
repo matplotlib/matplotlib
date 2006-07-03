@@ -74,15 +74,6 @@ if major==2 and minor1==2:
 for line in file('lib/matplotlib/__init__.py').readlines():
     if line[:11] == '__version__':
         exec(line)
-        # Append cvs tag if working from cvs tree
-        if os.path.isdir('.svn') and os.path.isfile(os.sep.join(['.svn', 'entries'])):
-            import re
-            revision = 0
-            revre = re.compile(r'(committed-rev|revision)="(\d+)"')
-            for match in revre.finditer(open(os.sep.join(['.svn', 'entries'])).read()):
-                revision = max(revision, int(match.group(2)))
-            __version__ += 'dev_r%i' % revision
-        break
 
 # Specify all the required mpl data
 data = []
