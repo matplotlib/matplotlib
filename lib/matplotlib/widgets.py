@@ -50,7 +50,7 @@ class LockDraw:
     def locked(self):
         'the lock is held'
         return self._owner is not None
-    
+
 lock = LockDraw()
 
 class Widget:
@@ -79,7 +79,7 @@ class Button(Widget):
     """
 
     def __init__(self, ax, label, image=None,
-                 color=0.85, hovercolor=0.95):
+                 color='0.85', hovercolor='0.95'):
         """
         ax is the Axes instance the button will be placed into
 
@@ -756,10 +756,10 @@ class MultiCursor:
 
 
     def onmove(self, event):
-        if not lock.available(self): return 
+        if not lock.available(self): return
         if event.inaxes is None: return
         self.needclear = True
-        if not self.visible: return 
+        if not self.visible: return
 
         for line in self.lines:
             line.set_xdata((event.xdata, event.xdata))
@@ -768,7 +768,7 @@ class MultiCursor:
 
 
     def _update(self):
-        
+
         if self.useblit:
             if self.background is not None:
                 self.canvas.restore_region(self.background)
