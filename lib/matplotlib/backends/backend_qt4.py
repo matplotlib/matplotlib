@@ -303,15 +303,6 @@ class NavigationToolbar2QT( NavigationToolbar2, QtGui.QWidget ):
         if fname:
             self.canvas.print_figure( str(fname.toLatin1()) )
 
-# set icon used when windows are minimized
-try:
-    # TODO: This is badly broken
-    QtGui.QIcon.addFile (
-        os.path.join( matplotlib.rcParams['datapath'], 'matplotlib.svg' ) )
-except:
-    verbose.report( 'Could not load matplotlib icon: %s' % sys.exc_info()[1] )
-
-
 def error_msg_qt( msg, parent=None ):
     if not is_string_like( msg ):
         msg = ','.join( map( str,msg ) )

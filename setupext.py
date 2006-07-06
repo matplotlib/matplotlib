@@ -142,7 +142,7 @@ def getoutput(s):
 def add_numpy_flags(module):
     "Add the modules flags to build extensions which use numpy"
     import numpy 
-    module.include_dirs.append(numpy.get_numpy_include())
+    module.include_dirs.append(numpy.get_include())
 
 def add_agg_flags(module):
     'Add the module flags to build extensions which use agg'
@@ -241,7 +241,7 @@ def add_pygtk_flags(module):
     
     # visual studio doesn't need the math library
     if sys.platform=='win32' and win32_compiler != 'mingw32' and 'm' in module.libraries:
-		module.libraries.remove('m')
+        module.libraries.remove('m')
 
 
 def find_wx_config():
@@ -338,7 +338,7 @@ def find_tcltk():
         sys.exit(1)
     o = FoundTclTk()
     try:
-        tk=Tkinter.Tk()	
+        tk=Tkinter.Tk() 
     except Tkinter.TclError:
         print "Using default library and include directories for Tcl and Tk because a"
         print "Tk window failed to open.  You may need to define DISPLAY for Tk to work"
