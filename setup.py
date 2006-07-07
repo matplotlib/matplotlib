@@ -276,7 +276,7 @@ for mod in ext_modules:
 #rc['numerix'] = numpy
 #rc['backend'] = GTKAgg
 if sys.platform=='win32':
-    rc = dict(backend='TkAgg', numerix='Numeric')
+    rc = dict(backend='TkAgg', numerix='numpy')
 template = file('matplotlibrc.template').read()
 file('matplotlibrc', 'w').write(template%rc)
 
