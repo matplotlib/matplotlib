@@ -1145,10 +1145,7 @@ class FigureCanvasPS(FigureCanvasBase):
         title = outfile
 
         # write to a temp file, we'll move it to outfile when done
-        if sys.platform == 'win32':
-            tmpfile = md5.md5(basename).hexdigest()
-        else:
-            tmpfile = os.path.join(gettempdir(), md5.md5(basename).hexdigest())
+        tmpfile = os.path.join(gettempdir(), md5.md5(basename).hexdigest())
         fh = file(tmpfile, 'w')
 
         self.figure.dpi.set(72) # ignore the dpi kwarg
@@ -1223,7 +1220,9 @@ class FigureCanvasPS(FigureCanvasBase):
                 paperWidth, paperHeight = papersize[temp_papertype]
                 verbose.report('Your figure is too big to fit on %s paper. %s \
 paper will be used to prevent clipping.'%(papertype, temp_papertype), 'helpful')
+
         texmanager = renderer.get_texmanager()
+
         convert_psfrags(tmpfile, renderer.psfrag,texmanager.get_font_preamble(),
                         paperWidth, paperHeight, orientation)
 
@@ -1249,6 +1248,7 @@ def convert_psfrags(tmpfile, psfrags, font_preamble, paperWidth, paperHeight,
     commands to convert those tags to text. LaTeX/dvips produces the postscript
     file that includes the actual text.
     """
+    tmpdir = os.path.split(tmpfile)[0]
     epsfile = tmpfile+'.eps'
     shutil.move(tmpfile, epsfile)
     latexfile = tmpfile+'.tex'
@@ -1256,8 +1256,10 @@ def convert_psfrags(tmpfile, psfrags, font_preamble, paperWidth, paperHeight,
     latexh = file(latexfile, 'w')
     dvifile = tmpfile+'.dvi'
     psfile = tmpfile+'.ps'
+
     if orientation=='landscape': angle = 90
     else: angle = 0
+
     print >>latexh, r"""\documentclass{article}
 %s
 \usepackage[dvips, papersize={%sin,%sin}, body={%sin,%sin}, margin={0in,0in}]{geometry}
@@ -1274,12 +1276,13 @@ def convert_psfrags(tmpfile, psfrags, font_preamble, paperWidth, paperHeight,
 \end{figure}
 \end{document}
 """% (font_preamble, paperWidth, paperHeight, paperWidth, paperHeight,
-'\n'.join(psfrags), angle, epsfile)
+'\n'.join(psfrags), angle, os.path.split(epsfile)[-1])
     latexh.close()
-    if sys.platform == 'win32': outputdir = '.'
-    else: outputdir = gettempdir()
-    command = 'latex -interaction=nonstopmode -output-directory="%s" "%s"\
-               > "%s"'%(outputdir, latexfile, outfile)
+
+    # the split drive part of the command is necessary for windows users with 
+    # multiple
+    command = '%s cd "%s" && latex -interaction=nonstopmode "%s" > "%s"'\
+                %(os.path.splitdrive(tmpdir)[0], tmpdir, latexfile, outfile)
     verbose.report(command, 'debug')
     exit_status = os.system(command)
     fh = file(outfile)
