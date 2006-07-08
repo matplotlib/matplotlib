@@ -1281,8 +1281,10 @@ def convert_psfrags(tmpfile, psfrags, font_preamble, paperWidth, paperHeight,
 
     # the split drive part of the command is necessary for windows users with 
     # multiple
+    if sys.platform == 'win32': precmd = '%s &&'% os.path.splitdrive(tmpdir)[0]
+    else: precmd = ''
     command = '%s cd "%s" && latex -interaction=nonstopmode "%s" > "%s"'\
-                %(os.path.splitdrive(tmpdir)[0], tmpdir, latexfile, outfile)
+                %(precmd, tmpdir, latexfile, outfile)
     verbose.report(command, 'debug')
     exit_status = os.system(command)
     fh = file(outfile)
@@ -1293,8 +1295,8 @@ def convert_psfrags(tmpfile, psfrags, font_preamble, paperWidth, paperHeight,
     fh.close()
     os.remove(outfile)
 
-    command = 'dvips -q -R0 -o "%s" "%s" > "%s"'%\
-              (psfile, dvifile, outfile)
+    command = '%s cd "%s" && dvips -q -R0 -o "%s" "%s" > "%s"'%(precmd, tmpdir,
+                os.path.split(psfile)[-1], os.path.split(dvifile)[-1], outfile)
     verbose.report(command, 'debug')
     exit_status = os.system(command)
     fh = file(outfile)
