@@ -36,7 +36,7 @@ else: cmd_split = ';'
 
 backend_version = 'Level II'
 
-debugPS = 1
+debugPS = 0
 
 papersize = {'letter': (8.5,11),
              'legal': (8.5,14),
@@ -462,7 +462,7 @@ grestore
         def drawone(x, y):
             try:
                 xt, yt = transform.xy_tup((x, y))
-                ret = '%g %g marker' % (xt, yt)
+                ret = '%g %g o' % (xt, yt)
             except ValueError:
                 pass
             else:
@@ -478,7 +478,7 @@ grestore
             write('gsave\n')
             xc,yc,wc,hc=cliprect
             write('%g %g %g %g clipbox\n' % (wc,hc,xc,yc))
-        write(' '.join(['/marker {', ps_cmd, '} bind def\n']))
+        write(' '.join(['/o {', ps_cmd, '} bind def\n']))
         # Now evaluate the marker command at each marker location:
         while start < len(x):
             todraw = izip(x[start:end+1], y[start:end+1], mask[start:end+1])
