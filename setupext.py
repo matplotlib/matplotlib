@@ -141,8 +141,12 @@ def getoutput(s):
 
 def add_numpy_flags(module):
     "Add the modules flags to build extensions which use numpy"
-    import numpy 
-    module.include_dirs.append(numpy.get_include())
+    import numpy
+    # TODO: Remove this try statement when it is no longer needed
+    try:
+        module.include_dirs.append(numpy.get_include())
+    except AttributeError:
+        module.include_dirs.append(numpy.get_numpy_include())
 
 def add_agg_flags(module):
     'Add the module flags to build extensions which use agg'
