@@ -178,7 +178,7 @@ class FigureCanvasTkAgg(FigureCanvasAgg):
         """
         return self._tkcanvas
 
-    def print_figure(self, filename, dpi=150, facecolor='w', edgecolor='w',
+    def _print_figure(self, filename, dpi=150, facecolor='w', edgecolor='w',
                      orientation='portrait', **kwargs):
 
         agg = self.switch_backends(FigureCanvasAgg)
