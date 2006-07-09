@@ -14,6 +14,7 @@ class Gcf(object):
     get_fig_manager = staticmethod(get_fig_manager)
 
     def destroy(num):
+        
         if not Gcf.has_fignum(num): return
         figManager = Gcf.figs[num]
 
