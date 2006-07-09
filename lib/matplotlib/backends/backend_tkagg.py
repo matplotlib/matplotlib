@@ -178,13 +178,13 @@ class FigureCanvasTkAgg(FigureCanvasAgg):
         """
         return self._tkcanvas
 
-    def _print_figure(self, filename, dpi=150, facecolor='w', edgecolor='w',
+    def print_figure(self, filename, dpi=150, facecolor='w', edgecolor='w',
                      orientation='portrait', **kwargs):
 
-        agg = self.switch_backends(FigureCanvasAgg)
-        agg.print_figure(filename, dpi, facecolor, edgecolor, orientation,
+
+        FigureCanvasAgg.print_figure(self, filename, dpi, facecolor, edgecolor, orientation,
                          **kwargs)
-        self.figure.set_canvas(self)
+        self.draw_idle()
 
     def motion_notify_event(self, event):
         x = event.x
