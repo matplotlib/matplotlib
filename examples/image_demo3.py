@@ -11,7 +11,7 @@ figsize = lena.size[0]/dpi, lena.size[1]/dpi
 
 figure(figsize=figsize)
 
-im = imshow(lena, origin='lower', aspect='preserve')
+im = imshow(lena, origin='lower')
 
 #savefig('image_demo3')
 show()
