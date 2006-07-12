@@ -1036,8 +1036,8 @@ class YAxis(Axis):
         offsetText = Text(x=0, y=0.5,
             fontproperties = FontProperties(size=rcParams['ytick.labelsize']),
             color = rcParams['ytick.color'],
-            verticalalignment='bottom',
-            horizontalalignment='left',
+            verticalalignment = 'bottom',
+            horizontalalignment = 'left',
             )
         offsetText.set_transform(blend_xy_sep_transform(self.axes.transAxes,
                                                         identity_transform()) )
@@ -1099,6 +1099,16 @@ class YAxis(Axis):
         x,y = self.offsetText.get_position()
         top = self.axes.bbox.ymax()
         self.offsetText.set_position((x, top+self.OFFSETTEXTPAD*self.figure.dpi.get()/72.0))
+    
+    def set_offset_position(self, position):
+        assert position == 'left' or position == 'right'
+        
+        x,y = self.offsetText.get_position()
+        if position == 'left': x = 0
+        else: x = 1
+        
+        self.offsetText.set_ha(position)
+        self.offsetText.set_position((x,y))
 
     def set_ticks_position(self, position):
         """
@@ -1116,24 +1126,28 @@ class YAxis(Axis):
         ticks.extend( self.minorTicks )
 
         if position == 'right':
+            self.set_offset_position('right')
             for t in ticks:
                 t.tick1On = False
                 t.tick2On = True
                 t.label1On = False
                 t.label2On = True
         elif position == 'left':
+            self.set_offset_position('left')
             for t in ticks:
                 t.tick1On = True
                 t.tick2On = False
                 t.label1On = True
                 t.label2On = False
         elif position == 'default':
+            self.set_offset_position('left')
             for t in ticks:
                 t.tick1On = True
                 t.tick2On = True
                 t.label1On = True
                 t.label2On = False
         else:
+            self.set_offset_position('left')
             for t in ticks:
                 t.tick1On = True
                 t.tick2On = True
