@@ -1,3 +1,6 @@
+===============================================================
+2006-07-11 Released 0.87.4 at revision 2558
+
 2006-07-07 Fixed a usetex bug with older versions of latex - DSD 
 
 2006-07-07 Add compatibility for NumPy 1.0 - TEO
