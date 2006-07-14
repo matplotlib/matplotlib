@@ -1234,9 +1234,11 @@ class Axes(Artist):
 
             * basex: base of the logarithm
 
-            * subsx: the location of the minor ticks; None defaults to
-            autosubs, which depend on the number of decades in the
-            plot.
+            * subsx: a sequence of the location of the minor ticks;
+              None defaults to autosubs, which depend on the number of
+              decades in the plot.  Eg for base 10, subsx=(1,2,5) will
+              put minor ticks on 1,2,5,11,12,15,21, ....To turn off
+              minor ticking, set subsx=[]
 
         ACCEPTS: ['log' | 'linear' ]
         """
@@ -1354,8 +1356,11 @@ class Axes(Artist):
 
             * basey: base of the logarithm
 
-            * subsy: the location of the minor ticks; None are the default
-              is to autosub
+            * subsy: a sequence of the location of the minor ticks;
+              None defaults to autosubs, which depend on the number of
+              decades in the plot.  Eg for base 10, subsy=(1,2,5) will
+              put minor ticks on 1,2,5,11,12,15, 21, ....To turn off
+              minor ticking, set subsy=[]
 
         ACCEPTS: ['log' | 'linear']
         """
@@ -2166,13 +2171,15 @@ class Axes(Artist):
 
           * basex: base of the x logarithm
 
-          * subsx: the location of the minor ticks; None defaults to autosubs,
-            which depend on the number of decades in the plot
+          * subsx: the location of the minor ticks; None defaults to
+            autosubs, which depend on the number of decades in the
+            plot; see set_xscale for details
 
           * basey: base of the y logarithm
 
-          * subsy: the location of the minor yticks; None defaults to autosubs,
-            which depend on the number of decades in the plot
+          * subsy: the location of the minor yticks; None defaults to
+            autosubs, which depend on the number of decades in the
+            plot; see set_yscale for details
         """
         if not self._hold: self.cla()
 
@@ -2207,8 +2214,9 @@ class Axes(Artist):
 
             * basex: base of the logarithm
 
-            * subsx: the location of the minor ticks; None defaults to autosubs,
-            which depend on the number of decades in the plot
+            * subsx: the location of the minor ticks; None defaults to
+              autosubs, which depend on the number of decades in the
+              plot; see set_xscale for details
 
         """
         if not self._hold: self.cla()
@@ -2238,8 +2246,9 @@ class Axes(Artist):
 
             * basey: base of the logarithm
 
-            * subsy: the location of the minor ticks; None defaults to autosubs,
-            which depend on the number of decades in the plot
+            * subsy: a sequence of the location of the minor ticks;
+              None defaults to autosubs, which depend on the number of
+              decades in the plot; see set_yscale for details
 
         """
         if not self._hold: self.cla()
