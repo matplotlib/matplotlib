@@ -484,6 +484,11 @@ class FigureCanvasAgg(FigureCanvasBase):
                 ps = self.switch_backends(FigureCanvasPS)
                 ps.print_figure(filename, dpi, facecolor, edgecolor,
                                 orientation, **kwargs)
+	    elif ext.find('pdf')>=0:
+		from backend_pdf import FigureCanvasPdf
+		pdf = self.switch_backends(FigureCanvasPdf)
+		pdf.print_figure(filename, dpi, facecolor, edgecolor,
+				 orientation, **kwargs)
             else:
                 raise IOError('Do not know know to handle extension *%s' % ext)
 
