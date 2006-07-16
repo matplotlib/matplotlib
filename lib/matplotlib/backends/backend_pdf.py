@@ -23,6 +23,7 @@ from matplotlib.cbook import Bunch, enumerate, is_string_like
 from matplotlib.figure import Figure
 from matplotlib.font_manager import fontManager
 from matplotlib.ft2font import FT2Font, FIXED_WIDTH, ITALIC, LOAD_NO_SCALE
+from matplotlib.mathtext import math_parse_s_pdf
 from matplotlib.numerix import Float32, UInt8, fromstring
 from matplotlib.transforms import Bbox
 
@@ -796,10 +797,32 @@ class RendererPdf(RendererBase):
 			     -sin(angle), cos(angle),
 			      d*x,        d*y,         Op.textmatrix)
 
+    def draw_mathtext(self, gc, x, y, s, prop, angle):
+	# TODO: fix positioning and encoding
+	fontsize = prop.get_size_in_points()
+	width, height, pswriter = math_parse_s_pdf(s, self.file.dpi, fontsize)
+
+	self.check_gc(gc, gc._rgb)
+	self.file.output(Op.begin_text)
+	prev_font = None, None
+	oldx, oldy = 0, 0
+	for ox, oy, fontname, fontsize, glyph in pswriter:
+	    print ox, oy, glyph
+	    fontname = fontname.lower()
+	    self._setup_textpos(x+ox, y+oy, angle, oldx, oldy)
+	    oldx, oldy = x+ox, y+oy
+	    if (fontname, fontsize) != prev_font:
+		self.file.output(self.file.fontName(fontname), fontsize, 
+				 Op.selectfont)
+		prev_font = fontname, fontsize
+	    self.file.output(chr(glyph), Op.show)
+	self.file.output(Op.end_text)
+
     def draw_text(self, gc, x, y, s, prop, angle, ismath=False):
 	# TODO: combine consecutive texts into one BT/ET delimited section
 	#       mathtext
 	#       unicode
+	if ismath: return self.draw_mathtext(gc, x, y, s, prop, angle)
 	self.check_gc(gc, gc._rgb)
 
 	font = self._get_font_ttf(prop)
