@@ -1,14 +1,12 @@
 # -*- coding: iso-8859-1 -*-
 """
-A PDF matplotlib backend
+A PDF matplotlib backend (not yet complete)
 Author: Jouni K Seppänen <jks@iki.fi>
-
-As of yet, this implements a small subset of the backend protocol, but
-enough to get some output from simple plots. Alpha is supported.
 """
 from __future__ import division
 
 import md5
+import os
 import re
 import sys
 import time
@@ -21,16 +19,44 @@ from matplotlib import __version__, rcParams
 from matplotlib._pylab_helpers import Gcf
 from matplotlib.backend_bases import RendererBase, GraphicsContextBase,\
      FigureManagerBase, FigureCanvasBase
-from matplotlib.cbook import enumerate, is_string_like
+from matplotlib.cbook import Bunch, enumerate, is_string_like
 from matplotlib.figure import Figure
 from matplotlib.font_manager import fontManager
 from matplotlib.ft2font import FT2Font, FIXED_WIDTH, ITALIC, LOAD_NO_SCALE
+from matplotlib.numerix import Float32, UInt8, fromstring
 from matplotlib.transforms import Bbox
 
+# Overview
+#
+# The low-level knowledge about pdf syntax lies mainly in the pdfRepr
+# function and the classes Reference, Name, Operator, and Stream.  The
+# PdfFile class knows about the overall structure of pdf documents.
+# It provides a "write" method for writing arbitrary strings in the
+# file, and an "output" method that passes objects through the pdfRepr
+# function before writing them in the file.  The output method is
+# called by the RendererPdf class, which contains the various draw_foo
+# methods.  RendererPdf contains a GraphicsContextPdf instance, and
+# each draw_foo calls self.check_gc before outputting commands.  This
+# method checks whether the pdf graphics state needs to be modified
+# and outputs the necessary commands.  GraphicsContextPdf represents
+# the graphics state, and its "delta" method returns the commands that
+# modify the state.
+#
+# Some tricky points: 
+#
+# 1. The clip rectangle (which could in pdf be an arbitrary path, not
+# necessarily a rectangle) can only be widened by popping from the
+# state stack.  Thus the state must be pushed onto the stack before
+# narrowing the rectangle.  This is taken care of by
+# GraphicsContextPdf.
+#
+# 2. Sometimes it is necessary to refer to something (e.g. font,
+# image, or extended graphics state, which contains the alpha value)
+# in the page stream by a name that needs to be defined outside the
+# stream.  PdfFile provides the methods fontName, imageObject, and
+# alphaState for this purpose.  The implementations of these methods
+# should perhaps be generalized.
 
-def tmap(*args):
-    """Call map() and convert result to a tuple."""
-    return tuple(map(*args))
 
 def fill(strings, linelen=75):
     """Make one string from sequence of strings, with whitespace
@@ -138,12 +164,44 @@ class Name:
 	if isinstance(name, Name):
 	    self.name = name.name
 	else:
-	    def hexify(match):
-		return '#%02x' % ord(match.group())
-	    self.name = re.sub(r'[^!-~]', hexify, name)
+	    self.name = re.sub(r'[^!-~]', Name.hexify, name)
+
+    def hexify(match):
+	return '#%02x' % ord(match.group())
+    hexify = staticmethod(hexify)
 
     def pdfRepr(self):
 	return '/' + self.name
+
+class Operator:
+    """PDF operator object."""
+
+    def __init__(self, op):
+	self.op = op
+
+    def __repr__(self):
+	return '<Operator %s>' % self.op
+
+    def pdfRepr(self):
+	return self.op
+
+# PDF operators (not an exhaustive list)
+_pdfops = dict(close_fill_stroke='b', fill_stroke='B', fill='f',
+	       closepath='h', close_stroke='s', stroke='S', endpath='n',
+	       begin_text='BT', end_text='ET',
+	       curveto='c', rectangle='re', lineto='l', moveto='m',
+	       concat_matrix='cm',
+	       use_xobject='Do',
+	       setgray_stroke='G', setgray_nonstroke='g',
+	       setrgb_stroke='RG', setrgb_nonstroke='rg',
+	       setdash='d', setlinejoin='j', setlinecap='J', setgstate='gs',
+	       gsave='q', grestore='Q',
+	       textpos='Td', selectfont='Tf', textmatrix='Tm',
+	       show='Tj', showkern='TJ',
+	       setlinewidth='w', clip='W')
+
+Op = Bunch(**dict([(name, Operator(value)) 
+		   for name, value in _pdfops.items()]))
 
 class Stream:
     """PDF stream object.
@@ -209,14 +267,15 @@ class Stream:
 class PdfFile:
     """PDF file with one page."""
 
-    def __init__(self, width, height, filename):
+    def __init__(self, width, height, dpi, filename):
 	self.nextObject = 1	# next free object id
 	self.xrefTable = [ [0, 65535, 'the zero object'] ]
+	self.dpi = dpi
 	fh = file(filename, 'wb')
 	self.fh = fh
 	self.currentstream = None # stream object to write to, if any
 	fh.write("%PDF-1.4\n")	  # 1.4 is the first version to have alpha
-	# Output some binary chars as a comment so various utilities
+	# Output some eight-bit chars as a comment so various utilities
 	# recognize the file as binary by looking at the first few
 	# lines (see note in section 3.4.1 of the PDF reference).
 	fh.write("%\254\334 \253\272\n")
@@ -228,6 +287,7 @@ class PdfFile:
 	contentObject = self.reserveObject('contents of page 0')
 	self.fontObject = self.reserveObject('fonts')
 	self.alphaStateObject = self.reserveObject('alpha states')
+	self.imageDictionaryObject = self.reserveObject('images')
 	resourceObject = self.reserveObject('resources')
 
 	root = { 'Type': Name('Catalog'),
@@ -261,14 +321,18 @@ class PdfFile:
 	self.alphaStates = {}	# maps alpha values to graphics state objects
 	self.nextAlphaState = 1
 
+	self.images = {}
+	self.nextImage = 1
+
 	# The PDF spec recommends to include every procset
 	procsets = [ Name(x)
 		     for x in "PDF Text ImageB ImageC ImageI".split() ]
 
 	# Write resource dictionary.
 	# Possibly TODO: more general ExtGState (graphics state dictionaries)
-	#                ColorSpace Pattern Shading XObject Properties
+	#                ColorSpace Pattern Shading Properties
 	resources = { 'Font': self.fontObject,
+		      'XObject': self.imageDictionaryObject,
 		      'ExtGState': self.alphaStateObject,
 		      'ProcSet': procsets }
 	self.writeObject(resourceObject, resources)
@@ -289,6 +353,7 @@ class PdfFile:
 	self.writeObject(self.alphaStateObject,
 			 dict([(val[0], val[1])
 			       for val in self.alphaStates.values()]))
+	self.writeImages()
 	self.writeXref()
 	self.writeTrailer()
 	self.fh.close()
@@ -299,6 +364,10 @@ class PdfFile:
 	else:
 	    self.currentstream.write(data)
 
+    def output(self, *data):
+	self.write(fill(map(pdfRepr, data)))
+	self.write('\n')
+
     # These fonts do not need to be embedded; every PDF viewing
     # application is required to have them.
     base14 = [ 'Times-Roman', 'Times-Bold', 'Times-Italic',
@@ -308,7 +377,10 @@ class PdfFile:
 	       for postfix in '', '-Bold', '-Oblique', '-BoldOblique' ]
 
     def fontName(self, fontprop):
-	filename = fontManager.findfont(fontprop)
+	if is_string_like(fontprop):
+	    filename = fontprop
+	else:
+	    filename = fontManager.findfont(fontprop)
 	Fx = self.fontNames.get(filename, None)
 	if Fx is None:
 	    Fx = Name('F%d' % self.nextFont)
@@ -328,7 +400,7 @@ class PdfFile:
 			     'BaseFont': Name(filename) }
 		# etc...
 	    else:
-		fontdictObject = self.embedTTF(filename, )
+		fontdictObject = self.embedTTF(filename)
 	    fonts[Fx] = fontdictObject
 	    #print >>sys.stderr, filename
 
@@ -406,7 +478,7 @@ class PdfFile:
 	    'XHeight': convert(pclt['xHeight']),
 	    'ItalicAngle': post['italicAngle'][1], # ???
 	    'FontFile2': self.reserveObject('font file'),
-	    'MaxWidth': max(widths),
+	    'MaxWidth': max(widths+[missingwidth]),
 	    'MissingWidth': missingwidth,
 	    'StemV': 0 # ???
 	    }
@@ -454,6 +526,67 @@ class PdfFile:
 		     'CA': alpha, 'ca': alpha })
 	return name
 
+    def imageObject(self, image):
+	"""Return name of an image XObject representing the given image."""
+
+	pair = self.images.get(image, None)
+	if pair is not None:
+	    return pair[0]
+
+	name = Name('I%d' % self.nextImage)
+	ob = self.reserveObject('image %d' % self.nextImage)
+	self.nextImage += 1
+	self.images[image] = (name, ob)
+	return name
+
+    ## These two from backend_ps.py
+    ## TODO: alpha (SMask, p. 518 of pdf spec)
+
+    def _rgb(self, im):
+        h,w,s = im.as_rgba_str()
+
+        rgba = fromstring(s, UInt8)
+        rgba.shape = (h, w, 4)
+        rgb = rgba[:,:,:3]
+        return h, w, rgb.tostring()
+
+    def _gray(self, im, rc=0.3, gc=0.59, bc=0.11):
+        rgbat = im.as_rgba_str()
+        rgba = fromstring(rgbat[2], UInt8)
+        rgba.shape = (rgbat[0], rgbat[1], 4)
+        rgba_f = rgba.astype(Float32)
+        r = rgba_f[:,:,0]
+        g = rgba_f[:,:,1]
+        b = rgba_f[:,:,2]
+        gray = (r*rc + g*gc + b*bc).astype(UInt8)
+        return rgbat[0], rgbat[1], gray.tostring()
+
+    def writeImages(self):
+	self.writeObject(self.imageDictionaryObject,
+			 dict(self.images.values()))
+
+	for img, pair in self.images.items():
+	    img.flipud_out()
+	    if img.is_grayscale:
+		height, width, data = self._gray(img)
+		colorspace = Name('DeviceGray')
+	    else:
+		height, width, data = self._rgb(img)
+		colorspace = Name('DeviceRGB')
+
+	    self.currentstream = \
+		Stream(pair[1].id,
+		       self.reserveObject('length of image stream'), self, 
+		       {'Type': Name('XObject'), 'Subtype': Name('Image'),
+			'Width': width, 'Height': height,
+			'ColorSpace': colorspace, 'BitsPerComponent': 8 })
+	    self.currentstream.begin()
+	    self.currentstream.write(data) # TODO: predictors (i.e., output png)
+	    self.currentstream.end()
+	    self.currentstream = None
+
+	    img.flipud_out()
+
     def reserveObject(self, name=''):
 	"""Reserve an ID for an indirect object.
 	The name is used for debugging in case we forget to print out
@@ -498,10 +631,8 @@ class PdfFile:
 		{'Size': self.nextObject,
 		 'Root': self.rootObject,
 		 'Info': self.infoObject }))
-	# Could add 'Info' and 'ID'
+	# Could add 'ID'
 	self.write("\nstartxref\n%d\n%%%%EOF\n" % self.startxref)
-
-
 
 class RendererPdf(RendererBase):
 
@@ -509,15 +640,27 @@ class RendererPdf(RendererBase):
 	self.file = file
 	self.gc = self.new_gc()
 	self.fonts = {}
+	self.dpi_factor = 72.0/file.dpi
 
     def finalize(self):
 	self.gc.finalize()
 
-    def check_gc(self, gc):
+    def check_gc(self, gc, fillcolor=None):
+	orig_fill = gc._fillcolor
+	if fillcolor is None:
+	    # We're not going to fill, so don't change the color
+	    gc._fillcolor = self.gc._fillcolor
+	else:
+	    # We are going to fill
+	    gc._fillcolor = fillcolor
+
 	delta = self.gc.delta(gc)
 	if delta:
-	    self.file.write('%s\n' % delta)
+	    self.file.output(*delta)
 	    self.gc.copy_properties(gc)
+
+	# Restore gc to avoid unwanted side effects
+	gc._fillcolor = orig_fill
 
     def draw_arc(self, gcEdge, rgbFace, x, y, width, height, angle1, angle2):
         """
@@ -528,8 +671,12 @@ class RendererPdf(RendererBase):
 
         If the color rgbFace is not None, fill the arc with it.
         """
-	#print >>sys.stderr, "draw_arc", rgbFace, x, y, width, height, angle1, angle2
-	# source: agg_bezier_arc.cpp
+	# source: agg_bezier_arc.cpp in agg23
+
+	x *= self.dpi_factor
+	y *= self.dpi_factor
+	width *= self.dpi_factor
+	height *= self.dpi_factor
 	
 	def arc_to_bezier(cx, cy, rx, ry, angle1, sweep):
 	    halfsweep = sweep / 2.0
@@ -559,85 +706,113 @@ class RendererPdf(RendererBase):
 				  bp[i], bp[i+1]-bp[i]) 
 		    for i in range(len(bp)-1) ]
 
-	self.check_gc(gcEdge)
-	self.file.write('%s %s m\n' % tmap(pdfRepr, subarcs[0][0:2]))
+	self.check_gc(gcEdge, rgbFace)
+	self.file.output(subarcs[0][0], subarcs[0][1], Op.moveto)
 	for arc in subarcs:
-	    self.file.write(' %s %s %s %s %s %s c\n' %
-			    tmap(pdfRepr, arc[2:]))
-	if rgbFace is not None:
-	    self.file.write(' q %s %s %s rg b Q\n' %
-			    tmap(pdfRepr, rgbFace))
+	    self.file.output(*(arc[2:] + (Op.curveto,)))
+	if rgbFace is None:
+	    self.file.output(gcEdge.stroke())
 	else:
-	    self.file.write('S\n')
+	    self.file.output(gcEdge.close_fill_stroke())
 
     def draw_image(self, x, y, im, bbox):
-        print >>sys.stderr, "draw_image called"
+        #print >>sys.stderr, "draw_image called"
+
+	gc = self.new_gc()
+	gc.set_clip_rectangle(bbox.get_bounds())
+	self.check_gc(gc)
+
+	h, w = im.get_size_out()
+	d = self.dpi_factor
+	imob = self.file.imageObject(im)
+	self.file.output(Op.gsave, d*w, 0, 0, d*h, d*x, d*y, Op.concat_matrix,
+			 imob, Op.use_xobject, Op.grestore)
 
     def draw_line(self, gc, x1, y1, x2, y2):
+	d = self.dpi_factor
 	self.check_gc(gc)
-        self.file.write('%s %s m %s %s l S\n' %
-			tmap(pdfRepr, (x1, y1, x2, y2)))
+	self.file.output(d*x1, d*y1, Op.moveto,
+			 d*x2, d*y2, Op.lineto, gc.stroke())
 
     def draw_lines(self, gc, x, y):
-	write = self.file.write
-	pr = pdfRepr
-
+	d = self.dpi_factor
 	self.check_gc(gc)
-	write('%s %s m\n' % (pr(x[0]), pr(y[0])))
+	self.file.output(d*x[0], d*y[0], Op.moveto)
 	for i in range(1,len(x)):
-	    write('%s %s l\n' % (pr(x[i]), pr(y[i])))
-	write('S\n')
+	    self.file.output(d*x[i], d*y[i], Op.lineto)
+	self.file.output(gc.stroke())
 
     def draw_point(self, gc, x, y):
         print >>sys.stderr, "draw_point called"
 
-    def draw_polygon(self, gcEdge, rgbFace, points):
-	write = self.file.write
-	pr = pdfRepr
+	d = self.dpi_factor
+	self.check_gc(gc, gc._rgb)
+	self.file.output(d*x, d*y, d, d,
+			 Op.rectangle, Op.fill_stroke)
 
-	self.check_gc(gcEdge)
-	write('%s %s m\n' % (pr(points[0][0]),
-			     pr(points[0][1])))
+    def draw_polygon(self, gcEdge, rgbFace, points):
+	# Optimization for axis-aligned rectangles
+	if len(points) == 4:
+	    if points[0][0] == points[1][0] and points[1][1] == points[2][1] and \
+	       points[2][0] == points[3][0] and points[3][1] == points[0][1]:
+		self.draw_rectangle(gcEdge, rgbFace, 
+				    min(points[0][0], points[2][0]),
+				    min(points[1][1], points[3][1]),
+				    abs(points[2][0] - points[0][0]),
+				    abs(points[3][1] - points[1][1]))
+		return
+	    elif points[0][1] == points[1][1] and points[1][0] == points[2][0] and \
+	         points[2][1] == points[3][1] and points[3][0] == points[0][0]:
+		self.draw_rectangle(gcEdge, rgbFace, 
+				    min(points[1][0], points[3][0]),
+				    min(points[2][1], points[0][1]),
+				    abs(points[1][0] - points[3][0]),
+				    abs(points[2][1] - points[0][1]))
+		return
+
+	self.check_gc(gcEdge, rgbFace)
+	d = self.dpi_factor
+	self.file.output(d*points[0][0], d*points[0][1], Op.moveto)
 	for x,y in points[1:]:
-	    write('%s %s l\n' % (pr(x), pr(y)))
+	    self.file.output(d*x, d*y, Op.lineto)
 	if rgbFace is None:
-	    write('s\n')
+	    self.file.output(gcEdge.close_stroke())
 	else:
-	    write('q %s %s %s rg b Q\n' % tmap(pr, rgbFace))
+	    self.file.output(gcEdge.close_fill_stroke())
 
     def draw_rectangle(self, gcEdge, rgbFace, x, y, width, height):
-	# TODO: be smarter about gc (include rgbFace in it?)
-	#       to avoid q/Q pair
-	self.check_gc(gcEdge)
-	self.file.write('%s %s %s %s re\n' %
-			tmap(pdfRepr, (x, y, width, height)))
-	self.file.write('q %s %s %s rg b Q\n' % tmap(pdfRepr, rgbFace))
+	self.check_gc(gcEdge, rgbFace)
+	d = self.dpi_factor
+	self.file.output(d*x, d*y, d*width, d*height, Op.rectangle)
+	self.file.output(gcEdge.fill_stroke())
+
+    def _setup_textpos(self, x, y, angle, oldx=0, oldy=0, oldangle=0):
+	d = self.dpi_factor
+	if angle == oldangle == 0:
+	    self.file.output(d*(x-oldx), d*(y-oldy), Op.textpos)
+	else:
+	    angle = angle / 180.0 * pi
+	    self.file.output( cos(angle), sin(angle),
+			     -sin(angle), cos(angle),
+			      d*x,        d*y,         Op.textmatrix)
 
     def draw_text(self, gc, x, y, s, prop, angle, ismath=False):
-	# TODO: fix positioning
-	#       combine consecutive texts into one BT/ET delimited section
+	# TODO: combine consecutive texts into one BT/ET delimited section
 	#       mathtext
-	self.check_gc(gc)
+	#       unicode
+	self.check_gc(gc, gc._rgb)
 
 	font = self._get_font_ttf(prop)
 	font.set_text(s, 0.0)
 	y += font.get_descent() / 64.0
 
-	self.file.write('BT\n%s %s Tf\n' %
-			(pdfRepr(self.file.fontName(prop)),
-			 pdfRepr(prop.get_size_in_points())))
+	self.file.output(Op.begin_text, 
+			 self.file.fontName(prop),
+			 prop.get_size_in_points(),
+			 Op.selectfont)
 
-	if angle == 0:
-	    self.file.write('%s %s Td\n' % tmap(pdfRepr, (x,y)))
-	else:
-	    angle = angle / 180.0 * pi
-	    self.file.write('%s %s %s %s %s %s Tm\n' %
-			    tmap(pdfRepr,
-				 ( cos(angle), sin(angle),
-				  -sin(angle), cos(angle),
-				   x,          y         )))
-
-	self.file.write('%s Tj\nET\n' % pdfRepr(s))
+	self._setup_textpos(x, y, angle)
+	self.file.output(s, Op.show, Op.end_text)
 
     def get_text_width_height(self, s, prop, ismath):
 	# TODO: mathtext
@@ -645,7 +820,8 @@ class RendererPdf(RendererBase):
 	font = self._get_font_ttf(prop)
 	font.set_text(s, 0.0)
 	w, h = font.get_width_height()
-	return w/64.0, h/64.0
+	factor = 1.0/(self.dpi_factor*64.0)
+	return factor*w, factor*h
 
     def _get_font_ttf(self, prop):
 	font = self.fonts.get(prop)
@@ -660,7 +836,8 @@ class RendererPdf(RendererBase):
         return False
 
     def get_canvas_width_height(self):
-        return 72*self.file.width, 72*self.file.height
+	d = self.dpi_factor/72.0
+        return d*self.file.width, d*self.file.height
 
     def new_gc(self):
         return GraphicsContextPdf(self.file)
@@ -673,56 +850,90 @@ class GraphicsContextPdf(GraphicsContextBase):
 
     def __init__(self, file):
 	GraphicsContextBase.__init__(self)
+	self._fillcolor = (0.0, 0.0, 0.0)
 	self.file = file
 	self.parent = None
+
+    def __repr__(self):
+	d = dict(self.__dict__)
+	del d['file']
+	del d['parent']
+	return `d`
+
+    def copy_properties(self, other):
+	GraphicsContextBase.copy_properties(self, other)
+	self._fillcolor = other._fillcolor
+
+    def strokep(self):
+	return self._linewidth > 0 and self._alpha > 0
+
+    def close_fill_stroke(self):
+	if self.strokep(): return Op.close_fill_stroke
+	else: return Op.fill
+
+    def fill_stroke(self):
+	if self.strokep(): return Op.fill_stroke
+	else: return Op.fill
+
+    def stroke(self):
+	if self.strokep(): return Op.stroke
+	else: return Op.endpath
+
+    def close_stroke(self):
+	if self.strokep(): return Op.close_stroke
+	else: return Op.endpath
 
     capstyles = { 'butt': 0, 'round': 1, 'projecting': 2 }
     joinstyles = { 'miter': 0, 'round': 1, 'bevel': 2 }
 
     def capstyle_cmd(self, style):
-	return '%s J' % pdfRepr(self.capstyles[style])
+	return [self.capstyles[style], Op.setlinecap]
 
     def joinstyle_cmd(self, style):
-	return '%s j' % pdfRepr(self.joinstyles[style])
+	return [self.joinstyles[style], Op.setlinejoin]
 
     def linewidth_cmd(self, width):
-	return '%s w' % pdfRepr(width)
+	return [width, Op.setlinewidth]
 
     def dash_cmd(self, dashes):
 	offset, dash = dashes
 	if dash is None: dash = []
-	return '%s %s d' % (pdfRepr(list(dash)), offset)
+	return [list(dash), offset, Op.setdash]
 
     def alpha_cmd(self, alpha):
 	name = self.file.alphaState(alpha)
-	return '%s gs' % pdfRepr(name)
+	return [self.file.alphaState(alpha), Op.setgstate]
 
     def rgb_cmd(self, rgb):
-	# setting both fill and stroke colors, is that right?
-	rgb = tmap(pdfRepr, rgb)
-	return ('%s %s %s RG ' % rgb) + ('%s %s %s rg' % rgb)
+	return list(rgb) + [Op.setrgb_stroke] 
+
+    def fillcolor_cmd(self, rgb):
+	return list(rgb) + [Op.setrgb_nonstroke] 
 
     def push(self):
 	parent = GraphicsContextPdf(self.file)
 	parent.copy_properties(self)
 	parent.parent = self.parent
 	self.parent = parent
-	return 'q'
+	return [Op.gsave]
 
     def pop(self):
 	assert self.parent is not None
 	self.copy_properties(self.parent)
 	self.parent = self.parent.parent
-	return 'Q'
+	return [Op.grestore]
 
     def cliprect_cmd(self, cliprect):
 	"""Set clip rectangle. Can only be undone by popping the graphics
 	state; thus needs to be enclosed in a push/pop pair."""
-	return "%s %s %s %s re W n" % tmap(pdfRepr, cliprect)
+	d = 72.0/self.file.dpi
+	return [d*t for t in cliprect] + \
+	       [Op.rectangle, Op.clip, Op.endpath]
 
     commands = {
 	'_alpha': alpha_cmd,
 	'_capstyle': capstyle_cmd,
+	'_fillcolor': fillcolor_cmd,
 	'_joinstyle': joinstyle_cmd,
 	'_linewidth': linewidth_cmd,
 	'_dashes': dash_cmd,
@@ -735,24 +946,23 @@ class GraphicsContextPdf(GraphicsContextBase):
 	"""What PDF commands are needed to transform self into other?
 	"""
 	cmds = []
-	if self._cliprect != other._cliprect and self.parent is not None:
-		cmds.append(self.pop())
+	while self._cliprect != other._cliprect and self.parent is not None:
+		cmds.extend(self.pop())
 	if self._cliprect != other._cliprect:
-	    cmds.append(self.push())
-	    cmds.append(self.cliprect_cmd(other._cliprect))
+	    cmds.extend(self.push())
+	    cmds.extend(self.cliprect_cmd(other._cliprect))
 
 	for param in self.commands.keys():
 	    if getattr(self, param) != getattr(other, param):
-		cmd = self.commands[param]
-		cmds.append(cmd(self, getattr(other, param)))
-	return '\n'.join(cmds)
+		cmds.extend(self.commands[param](self, getattr(other, param)))
+	return cmds
 
     def finalize(self):
 	"""Make sure every pushed graphics state is popped."""
 	cmds = []
 	while self.parent is not None:
-	    cmds.append(self.pop())
-	return '\n'.join(cmds)
+	    cmds.extend(self.pop())
+	return cmds
 
 ########################################################################
 #
@@ -793,7 +1003,7 @@ class FigureCanvasPdf(FigureCanvasBase):
     def draw(self):
 	pass
 
-    def print_figure(self, filename, dpi=72, facecolor='w', edgecolor='w',
+    def print_figure(self, filename, dpi=300, facecolor='w', edgecolor='w',
                      orientation='portrait', **kwargs):
         """
         Render the figure to hardcopy. Set the figure patch face and edge
@@ -803,14 +1013,19 @@ class FigureCanvasPdf(FigureCanvasBase):
 
         orientation - only currently applies to PostScript printing.
 
-	dpi - ignored
+	dpi - used for images
         """
-        self.figure.dpi.set(72)
+        self.figure.dpi.set(dpi)
+	#print >> sys.stderr, 'dpi', dpi
         self.figure.set_facecolor(facecolor)
         self.figure.set_edgecolor(edgecolor)
 	width, height = self.figure.get_size_inches()
 
-	file = PdfFile(width, height, filename)
+	basename, ext = os.path.splitext(filename)
+	if ext == '': 
+	    filename += '.pdf'
+
+	file = PdfFile(width, height, dpi, filename)
         renderer = RendererPdf(file)
 	self.figure.draw(renderer)
 	renderer.finalize()
