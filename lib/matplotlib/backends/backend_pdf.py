@@ -300,7 +300,7 @@ class PdfFile:
 		 'Producer': 'matplotlib pdf backend',
 		 'CreationDate': datetime.today() }
 
-	# Possible TODO: Title, Author, Subject, Keywords, CreationDate
+	# Possible TODO: Title, Author, Subject, Keywords
 	self.writeObject(self.infoObject, info)
 
 	pages = { 'Type': Name('Pages'),
@@ -807,7 +807,7 @@ class RendererPdf(RendererBase):
 	prev_font = None, None
 	oldx, oldy = 0, 0
 	for ox, oy, fontname, fontsize, glyph in pswriter:
-	    print ox, oy, glyph
+	    #print ox, oy, glyph
 	    fontname = fontname.lower()
 	    self._setup_textpos(x+ox, y+oy, angle, oldx, oldy)
 	    oldx, oldy = x+ox, y+oy
