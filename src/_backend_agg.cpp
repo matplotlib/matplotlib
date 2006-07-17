@@ -1375,11 +1375,10 @@ RendererAgg::draw_lines(const Py::Tuple& args) {
 	moveto = true;
 	continue;
       }
-    else
-      if (MPL_isnan64(thisx) || MPL_isnan64(thisy)) {
-        moveto = true;
-        continue;
-      }
+    if (MPL_isnan64(thisx) || MPL_isnan64(thisy)) {
+      moveto = true;
+      continue;
+    }
 
     //use agg's transformer?
     xytrans.transform(&thisx, &thisy);
