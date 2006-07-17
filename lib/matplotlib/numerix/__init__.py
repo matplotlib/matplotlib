@@ -69,7 +69,7 @@ elif which[0] == "numpy":
     except ImportError:
         import numpy
         from numpy import *
-    from _sp_imports import nx, infinity
+    from _sp_imports import nx, infinity, rand, randn
     from _sp_imports import UInt8, UInt16, UInt32
     Matrix = matrix
     version = 'numpy %s' % numpy.__version__
