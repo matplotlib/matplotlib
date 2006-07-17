@@ -116,7 +116,7 @@ def get_win32_compiler():
             return 'mingw32'
     return 'msvc'
 win32_compiler = get_win32_compiler()
-if win32_compiler == 'msvc':
+if sys.platform == 'win32' and win32_compiler == 'msvc':
     std_libs = []
 else:
     std_libs = ['stdc++', 'm']
@@ -244,7 +244,7 @@ def add_pygtk_flags(module):
          (flag.startswith('-l') or flag.startswith('-L'))])
     
     # visual studio doesn't need the math library
-    if sys.platform=='win32' and win32_compiler != 'mingw32' and 'm' in module.libraries:
+    if sys.platform == 'win32' and win32_compiler == 'msvc' and 'm' in module.libraries:
         module.libraries.remove('m')
 
 
