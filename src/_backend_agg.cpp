@@ -187,6 +187,11 @@ GCAgg::_set_clip_rectangle( const Py::Object& gc) {
 }
 
 
+Py::Object BufferRegion::to_string(const Py::Tuple &args) {
+  return Py::asObject(PyString_FromStringAndSize((const char*)aggbuf.data,aggbuf.height*aggbuf.stride));
+}
+		      
+
 
 
 
@@ -2267,6 +2272,17 @@ Py::Object _backend_agg_module::new_renderer (const Py::Tuple &args,
   double dpi = Py::Float(args[2]);
   return Py::asObject(new RendererAgg(width, height, dpi, debug));
 }
+
+
+void BufferRegion::init_type() {
+    behaviors().name("BufferRegion");
+    behaviors().doc("A wrapper to pass agg buffer objects to and from the python level");
+
+    add_varargs_method("to_string", &BufferRegion::to_string,
+		       "to_string()");
+
+  }
+
 
 void RendererAgg::init_type()
 {
