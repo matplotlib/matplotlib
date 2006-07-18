@@ -52,7 +52,11 @@ public:
   Py::Object to_string(const Py::Tuple &args);
 
   static void init_type(void);
-  virtual ~BufferRegion() {};
+  virtual ~BufferRegion() {
+    //std::cout << "buffer region bye bye" << std::endl;
+    delete [] aggbuf.data;
+    aggbuf.data = NULL;
+  };
 };
 
 class GCAgg {
