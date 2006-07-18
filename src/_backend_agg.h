@@ -49,11 +49,9 @@ public:
   BufferRegion( agg::buffer& aggbuf, const agg::rect &r) : aggbuf(aggbuf), rect(r) {}
   agg::buffer aggbuf;
   agg::rect rect;
-  static void init_type(void) {
-    behaviors().name("BufferRegion");
-    behaviors().doc("A wrapper to pass agg buffer objects to and from the python level");
-  }
+  Py::Object to_string(const Py::Tuple &args);
 
+  static void init_type(void);
   virtual ~BufferRegion() {};
 };
 
