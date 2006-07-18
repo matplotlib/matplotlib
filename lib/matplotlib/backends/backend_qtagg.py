@@ -73,34 +73,42 @@ class FigureCanvasQTAgg( FigureCanvasQT, FigureCanvasAgg ):
            self.get_width_height()
 
         p = qt.QPainter( self )
-        FigureCanvasAgg.draw( self )
-
+        
         # only replot data when needed
-        if ( self.replot ):
-            stringBuffer = str( self.buffer_rgba(0,0) )
-            
-
-            # matplotlib is in rgba byte order.
-            # qImage wants to put the bytes into argb format and
-            # is in a 4 byte unsigned int.  little endian system is LSB first
-            # and expects the bytes in reverse order (bgra).
-            if ( qt.QImage.systemByteOrder() == qt.QImage.LittleEndian ):
-                stringBuffer = self.renderer._renderer.tostring_bgra()
-            else:
-                stringBuffer = self.renderer._renderer.tostring_argb()
-               
-            qImage = qt.QImage( stringBuffer, self.renderer.width,
-                                self.renderer.height, 32, None, 0,
-                                qt.QImage.IgnoreEndian )
-                
-            self.pixmap.convertFromImage( qImage, qt.QPixmap.Color )
+        if type(self.replot) is bool:
+            if self.replot:
+                FigureCanvasAgg.draw( self )
+                stringBuffer = str( self.buffer_rgba(0,0) )
     
-        p.drawPixmap( qt.QPoint( 0, 0 ), self.pixmap )
+                # matplotlib is in rgba byte order.
+                # qImage wants to put the bytes into argb format and
+                # is in a 4 byte unsigned int.  little endian system is LSB first
+                # and expects the bytes in reverse order (bgra).
+                if ( qt.QImage.systemByteOrder() == qt.QImage.LittleEndian ):
+                    stringBuffer = self.renderer._renderer.tostring_bgra()
+                else:
+                    stringBuffer = self.renderer._renderer.tostring_argb()
+                   
+                qImage = qt.QImage( stringBuffer, self.renderer.width,
+                                    self.renderer.height, 32, None, 0,
+                                    qt.QImage.IgnoreEndian )
+                    
+                self.pixmap.convertFromImage( qImage, qt.QPixmap.Color )
+    
+            p.drawPixmap( qt.QPoint( 0, 0 ), self.pixmap )
 
-        # draw the zoom rectangle to the QPainter
-        if ( self.drawRect ):
-            p.setPen( qt.QPen( qt.Qt.black, 1, qt.Qt.DotLine ) )
-            p.drawRect( self.rect[0], self.rect[1], self.rect[2], self.rect[3] )
+            # draw the zoom rectangle to the QPainter
+            if ( self.drawRect ):
+                p.setPen( qt.QPen( qt.Qt.black, 1, qt.Qt.DotLine ) )
+                p.drawRect( self.rect[0], self.rect[1], self.rect[2], self.rect[3] )
+                
+        # we are blitting here
+        else:
+            bbox = self.replot
+            self.restore_region(self.copy_from_bbox(bbox))
+            p.drawPixmap(qt.QPoint(bbox.ll().x().get(),
+                                   bbox.ll().y().get()),
+                         self.pixmap)
            
         p.end()
         self.replot = False
@@ -114,6 +122,14 @@ class FigureCanvasQTAgg( FigureCanvasQT, FigureCanvasAgg ):
         if DEBUG: print "FigureCanvasQtAgg.draw"
         self.replot = True
         self.repaint( False )
+        
+    def blit(self, bbox=None):
+        """
+        Blit the region in bbox
+        """
+        
+        self.replot = bbox
+        self.repaint(False)
 
     def print_figure( self, filename, dpi=150, facecolor='w', edgecolor='w',
                       orientation='portrait', **kwargs ):
