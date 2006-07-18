@@ -559,10 +559,10 @@ class Axis(Artist):
             tick.set_label1(label)
             tick.set_label2(label)
             tick.draw(renderer)
-            if tick.label1On:
+            if tick.label1On and tick.label1.get_visible():
                 extent = tick.label1.get_window_extent(renderer)
                 ticklabelBoxes.append(extent)
-            if tick.label2On:
+            if tick.label2On and tick.label2.get_visible():
                 extent = tick.label2.get_window_extent(renderer)
                 ticklabelBoxes2.append(extent)
 
