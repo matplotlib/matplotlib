@@ -46,16 +46,19 @@ typedef agg::scanline_bin scanline_bin;
 // a class in the swig wrapper
 class BufferRegion : public Py::PythonExtension<BufferRegion> {
 public:
-  BufferRegion( agg::buffer& aggbuf, const agg::rect &r) : aggbuf(aggbuf), rect(r) {}
+  BufferRegion( agg::buffer& aggbuf, const agg::rect &r, bool freemem=true) : aggbuf(aggbuf), rect(r), freemem(freemem) {}
   agg::buffer aggbuf;
   agg::rect rect;
+  bool freemem;
   Py::Object to_string(const Py::Tuple &args);
 
   static void init_type(void);
   virtual ~BufferRegion() {
     //std::cout << "buffer region bye bye" << std::endl;
-    delete [] aggbuf.data;
-    aggbuf.data = NULL;
+    if (freemem) {
+      delete [] aggbuf.data;
+      aggbuf.data = NULL;
+    }
   };
 };
 

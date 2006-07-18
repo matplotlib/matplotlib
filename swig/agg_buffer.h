@@ -24,9 +24,11 @@ namespace agg {
       
     }
     ~buffer() {
-      //std::cout << "bye bye" << std::endl;
-      if (freemem) delete [] data;
-      data = NULL;      
+      //std::cout << "bye bye " << freemem << std::endl;
+      if (freemem) {
+	delete [] data;
+	data = NULL;      
+      }
     }
     
 
