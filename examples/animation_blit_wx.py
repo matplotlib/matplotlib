@@ -45,7 +45,7 @@ def update_line(*args):
     # just redraw the axes rectangle
 
     t = time.time()
-    canvas.blit(ax.bbox) 
+    canvas.blit(ax.bbox)
     blit_time += time.time() - t
 
     if update_line.cnt==200:

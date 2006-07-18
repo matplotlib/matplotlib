@@ -75,7 +75,7 @@ class FigureCanvasQTAgg( FigureCanvasQT, FigureCanvasAgg ):
         p = qt.QPainter( self )
         
         # only replot data when needed
-        if type(self.replot) is bool:
+        if type(self.replot) is bool: # might be a bbox for blitting
             if self.replot:
                 FigureCanvasAgg.draw( self )
                 stringBuffer = str( self.buffer_rgba(0,0) )
@@ -103,13 +103,16 @@ class FigureCanvasQTAgg( FigureCanvasQT, FigureCanvasAgg ):
                 p.drawRect( self.rect[0], self.rect[1], self.rect[2], self.rect[3] )
                 
         # we are blitting here
-        else:
+        else: # TODO: Fix memory leak
             bbox = self.replot
-            self.restore_region(self.copy_from_bbox(bbox))
-            p.drawPixmap(qt.QPoint(bbox.ll().x().get(),
-                                   bbox.ll().y().get()),
-                         self.pixmap)
-           
+            w, h = int(bbox.width()), int(bbox.height())
+            l, t = bbox.ll().x().get(), bbox.ur().y().get()
+            reg = self.copy_from_bbox(bbox)
+            stringBuffer = reg.to_string()
+            qImage = qt.QImage(stringBuffer, w, h, 32, None, 0, qt.QImage.IgnoreEndian)
+            self.pixmap.convertFromImage(qImage, qt.QPixmap.Color)
+            p.drawPixmap(qt.QPoint(l, self.renderer.height-t), self.pixmap)
+
         p.end()
         self.replot = False
         self.drawRect = False

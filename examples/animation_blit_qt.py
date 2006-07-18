@@ -29,9 +29,12 @@ class BlitQT(QObject):
         self.x = nx.arange(0,2*nx.pi,0.01)
         self.line, = p.plot(self.x, nx.sin(self.x), animated=True, lw=2)
         
-        self.background = self.canvas.copy_from_bbox(self.ax.bbox)
+        self.background = None
     
     def timerEvent(self, evt):
+        if self.background is None:
+            self.background = self.canvas.copy_from_bbox(self.ax.bbox)
+        
         # restore the clean slate background
         self.canvas.restore_region(self.background)
         # update the data
@@ -48,6 +51,9 @@ class BlitQT(QObject):
 
         else:
             self.cnt += 1
+            
+p.subplots_adjust(left=0.3, bottom=0.3) # check for flipy bugs
+p.grid()
 
 app = BlitQT()
 # for profiling
