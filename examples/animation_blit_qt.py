@@ -53,7 +53,7 @@ class BlitQT(QObject):
             self.cnt += 1
             
 p.subplots_adjust(left=0.3, bottom=0.3) # check for flipy bugs
-p.grid()
+p.grid() # to ensure proper background restore
 
 app = BlitQT()
 # for profiling
