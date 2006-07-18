@@ -639,7 +639,7 @@ RendererAgg::copy_from_bbox(const Py::Tuple& args) {
   */
   int boxwidth = r.x2-r.x1;
   int boxheight = r.y2-r.y1;
-  int boxstride = boxwidth*4;
+  int boxstride = boxwidth*4; 
   agg::buffer buf(boxwidth, boxheight, boxstride, false);
   if (buf.data ==NULL) {
     throw Py::MemoryError("RendererAgg::copy_from_bbox could not allocate memory for buffer");
@@ -652,8 +652,8 @@ RendererAgg::copy_from_bbox(const Py::Tuple& args) {
   renderer_base rb(pf);
   //rb.clear(agg::rgba(1, 0, 0)); //todo remove me
   rb.copy_from(*renderingBuffer, &r, -r.x1, -r.y1);
-  BufferRegion* reg = new BufferRegion(buf, r);
-
+  BufferRegion* reg = new BufferRegion(buf, r, true);
+ 
   return Py::asObject(reg);
 
 
