@@ -188,9 +188,10 @@ GCAgg::_set_clip_rectangle( const Py::Object& gc) {
 
 
 Py::Object BufferRegion::to_string(const Py::Tuple &args) {
-  return Py::asObject(PyString_FromStringAndSize((const char*)aggbuf.data,aggbuf.height*aggbuf.stride));
-}
-		      
+  
+  return Py::String(PyString_FromStringAndSize((const char*)aggbuf.data,aggbuf.height*aggbuf.stride));
+} 
+	 	      
 
 
 
@@ -2184,7 +2185,7 @@ RendererAgg::buffer_rgba(const Py::Tuple& args) {
   int row_len = width*4;
   int start=row_len*starth+startw*4;
   return Py::asObject(PyBuffer_FromMemory( pixBuffer+start, row_len*height-start));
-}
+} 
 
 
 
