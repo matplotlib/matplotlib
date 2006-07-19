@@ -1428,6 +1428,47 @@ def stineman_interp(xi,x,y,yp=None):
         
     return yi
 
+def inside_poly(points, verts):
+    """
+    points is a sequence of x,y points
+    verts is a sequence of x,y vertices of a poygon
+
+    return value is a sequence on indices into points for the points
+    that are inside the polygon
+    """
+    xys = nx.asarray(points)
+    Nxy = xys.shape[0]
+    Nv = len(verts)
+    
+
+    def angle(x1, y1, x2, y2):
+        twopi = 2*nx.pi
+        theta1 = nx.arctan2(y1, x1)
+        theta2 = nx.arctan2(y2, x2)
+        dtheta = theta2-theta1
+        d = dtheta%twopi
+        d = nx.where(nx.less(d, 0), twopi + d, d)
+        return nx.where(nx.greater(d,nx.pi), d-twopi, d)
+
+    angles = nx.zeros((Nxy,), nx.Float)
+    x1 = nx.zeros((Nxy,), nx.Float)
+    y1 = nx.zeros((Nxy,), nx.Float)
+    x2 = nx.zeros((Nxy,), nx.Float)
+    y2 = nx.zeros((Nxy,), nx.Float)    
+    x = xys[:,0]
+    y = xys[:,1]
+    for i in range(Nv):
+        thisx, thisy = verts[i]
+        x1 = thisx - x
+        y1 = thisy - y
+        thisx, thisy = verts[(i+1)%Nv]
+        x2 = thisx - x
+        y2 = thisy - y
+
+        a = angle(x1, y1, x2, y2)
+        angles += a
+    return nx.nonzero(nx.greater_equal(nx.absolute(angles), nx.pi))
+
 ### the following code was written and submitted by Fernando Perez
 ### from the ipython numutils package under a BSD license
 # begin fperez functions
