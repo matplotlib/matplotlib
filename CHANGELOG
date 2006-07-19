@@ -1,3 +1,5 @@
+2006-07-19 Added lasso widget and example - JDH
+
 2006-07-18 Added blitting for QtAgg backend - CM
 
 2006-07-17 Fixed bug #1523585: skip nans in semilog plots - DSD
