@@ -12,6 +12,7 @@ QApplication.setColorSpec(QApplication.NormalColor)
 
 TRUE  = 1
 FALSE = 0
+ITERS = 200
 
 import pylab as p
 import matplotlib.numerix as nx
@@ -44,9 +45,9 @@ class BlitQT(QObject):
         # just redraw the axes rectangle
         self.canvas.blit(self.ax.bbox) 
     
-        if self.cnt==200:
+        if self.cnt==ITERS:
             # print the timing info and quit
-            print 'FPS:' , 200/(time.time()-self.tstart)
+            print 'FPS:' , ITERS/(time.time()-self.tstart)
             sys.exit()
 
         else:

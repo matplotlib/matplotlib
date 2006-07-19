@@ -103,7 +103,7 @@ class FigureCanvasQTAgg( FigureCanvasQT, FigureCanvasAgg ):
                 p.drawRect( self.rect[0], self.rect[1], self.rect[2], self.rect[3] )
                 
         # we are blitting here
-        else: # TODO: Fix memory leak
+        else:
             bbox = self.replot
             w, h = int(bbox.width()), int(bbox.height())
             l, t = bbox.ll().x().get(), bbox.ur().y().get()
