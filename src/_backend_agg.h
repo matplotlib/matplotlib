@@ -46,7 +46,9 @@ typedef agg::scanline_bin scanline_bin;
 // a class in the swig wrapper
 class BufferRegion : public Py::PythonExtension<BufferRegion> {
 public:
-  BufferRegion( agg::buffer& aggbuf, const agg::rect &r, bool freemem=true) : aggbuf(aggbuf), rect(r), freemem(freemem) {}
+  BufferRegion( agg::buffer& aggbuf, const agg::rect &r, bool freemem=true) : aggbuf(aggbuf), rect(r), freemem(freemem) {
+    //std::cout << "buffer region" << std::endl;
+  }
   agg::buffer aggbuf;
   agg::rect rect;
   bool freemem;
