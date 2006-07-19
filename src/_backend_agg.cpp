@@ -653,7 +653,7 @@ RendererAgg::copy_from_bbox(const Py::Tuple& args) {
   //rb.clear(agg::rgba(1, 0, 0)); //todo remove me
   rb.copy_from(*renderingBuffer, &r, -r.x1, -r.y1);
   BufferRegion* reg = new BufferRegion(buf, r, true);
- 
+  //std::cout << "copy from bbox" << std::endl;
   return Py::asObject(reg);
 
 
