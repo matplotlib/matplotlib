@@ -189,7 +189,8 @@ GCAgg::_set_clip_rectangle( const Py::Object& gc) {
 
 Py::Object BufferRegion::to_string(const Py::Tuple &args) {
   
-  return Py::String(PyString_FromStringAndSize((const char*)aggbuf.data,aggbuf.height*aggbuf.stride));
+  // owned=true to prevent memory leak
+  return Py::String(PyString_FromStringAndSize((const char*)aggbuf.data,aggbuf.height*aggbuf.stride), true);
 } 
 	 	      
 
