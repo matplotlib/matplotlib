@@ -25,7 +25,7 @@ import warnings
 def _fn_name(): return sys._getframe(1).f_code.co_name
 
 import cairo
-_version_required = (1,0,2)
+_version_required = (1,2,0)
 if cairo.version_info < _version_required:
    raise SystemExit ("Pycairo %d.%d.%d is installed\n"
                      "Pycairo %d.%d.%d or later is required"
@@ -518,7 +518,7 @@ def new_figure_manager(num, *args, **kwargs): # called by backends/__init__.py
 
 
 class FigureCanvasCairo (FigureCanvasBase):
-    def print_figure(self, filename, dpi=150, facecolor='w', edgecolor='w',
+    def print_figure(self, fo, dpi=150, facecolor='w', edgecolor='w',
                      orientation='portrait', **kwargs):
         if _debug: print '%s.%s()' % (self.__class__.__name__, _fn_name())
         # settings for printing
@@ -526,45 +526,31 @@ class FigureCanvasCairo (FigureCanvasBase):
         self.figure.set_facecolor(facecolor)
         self.figure.set_edgecolor(edgecolor)
 
-        if isinstance (filename, file):  # eg when do savefig(sys.stdout)
-           self._save_png (filename)     # assume PNG format
+        if isinstance (fo, file):  # eg when do savefig(sys.stdout)
+           ext = 'png'             # assume PNG format
+           # should be able to save fileobject to other formats too,
+           # print_figure() needs a 'format' argument
         else:
-            root, ext = os.path.splitext(filename)
+            root, ext = os.path.splitext(fo)
             ext = ext[1:]
             if ext == '':
+                fo = fo + '.' + ext
                 ext = IMAGE_FORMAT_DEFAULT
-                filename = filename + '.' + ext
 
-            ext = ext.lower()
-            if ext in ('pdf', 'png', 'ps'):  # native formats
-                # try:
-                #    fileObject = file(filename,'wb')
-                # except IOError, exc:
-                #    warnings.warn("%s: %s" % (exc.filename, exc.strerror))
-                # else:
-
-                if ext == 'png':
-                   self._save_png (filename)
-                   # _save_png (fileObject)
-                else:
-                   self._save_ps_pdf (self.figure, filename, ext, orientation,
-                                      **kwargs)
-                   # self._save_ps_pdf (self.figure, fileObject, ext,
-                   #                    orientation)
-                # fileObject.close()
-
-            elif ext in ('eps', 'svg'): # backend_svg/ps
-                if ext == 'svg':
-                    from backend_svg import FigureCanvasSVG as FigureCanvas
-                else:
-                    from backend_ps import FigureCanvasPS  as FigureCanvas
-                fc = FigureCanvas(self.figure)
-                fc.print_figure (filename, dpi, facecolor, edgecolor,
-                                 orientation, **kwargs)
-            else:
-                warnings.warn('Format "%s" is not supported.\n'
-                              'Supported formats: '
-                              '%s.' % (ext, ', '.join(IMAGE_FORMAT)))
+        ext = ext.lower()
+        if ext == 'png':
+           self._save_png (fo)
+        elif ext in ('pdf', 'ps', 'svg'):
+           self._save (self.figure, fo, ext, orientation, **kwargs)
+        elif ext == 'eps': # backend_ps for eps
+            from backend_ps import FigureCanvasPS  as FigureCanvas
+            fc = FigureCanvas(self.figure)
+            fc.print_figure (filename, dpi, facecolor, edgecolor,
+                             orientation, **kwargs)
+        else:
+            warnings.warn('Format "%s" is not supported.\n'
+                          'Supported formats: '
+                          '%s.' % (ext, ', '.join(IMAGE_FORMAT)))
 
 
     def _save_png (self, fobj):
@@ -579,9 +565,10 @@ class FigureCanvasCairo (FigureCanvasBase):
         surface.write_to_png (fobj)
 
 
-    def _save_ps_pdf (self, figure, filename, ext, orientation, **kwargs):
+    def _save (self, figure, fo, ext, orientation, **kwargs):
+        # save PDF/PS/SVG
         orientation = kwargs.get('orientation', 'portrait')
-        
+
         dpi = 72
         figure.dpi.set (dpi)
         w_in, h_in = figure.get_size_inches()
@@ -595,14 +582,21 @@ class FigureCanvasCairo (FigureCanvasBase):
             if not cairo.HAS_PS_SURFACE:
                 raise RuntimeError ('cairo has not been compiled with PS '
                                     'support enabled')
-            surface = cairo.PSSurface (filename, width_in_points,
-                                       height_in_points)
-        else: # pdf
+            surface = cairo.PSSurface (fo, width_in_points, height_in_points)
+        elif ext == 'pdf':
             if not cairo.HAS_PDF_SURFACE:
                 raise RuntimeError ('cairo has not been compiled with PDF '
                                     'support enabled')
-            surface = cairo.PDFSurface (filename, width_in_points,
-                                        height_in_points)
+            surface = cairo.PDFSurface (fo, width_in_points, height_in_points)
+        elif ext == 'svg':
+            if not cairo.HAS_SVG_SURFACE:
+                raise RuntimeError ('cairo has not been compiled with SVG '
+                                    'support enabled')
+            surface = cairo.SVGSurface (fo, width_in_points, height_in_points)
+        else:
+           warnings.warn ("unknown extension: %s" % ext)
+           return
+
         # surface.set_dpi() can be used
         renderer = RendererCairo (figure.dpi)
         renderer.set_width_height (width_in_points, height_in_points)
@@ -634,3 +628,4 @@ class FigureCanvasCairo (FigureCanvasBase):
             ctx.show_text('Origin corner')
 
         ctx.show_page()
+        surface.finish()
