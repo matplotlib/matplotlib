@@ -78,7 +78,7 @@ class FigureCanvasQTAgg( FigureCanvasQT, FigureCanvasAgg ):
         if type(self.replot) is bool: # might be a bbox for blitting
             if self.replot:
                 FigureCanvasAgg.draw( self )
-                stringBuffer = str( self.buffer_rgba(0,0) )
+                #stringBuffer = str( self.buffer_rgba(0,0) )
     
                 # matplotlib is in rgba byte order.
                 # qImage wants to put the bytes into argb format and

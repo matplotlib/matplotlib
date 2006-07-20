@@ -1,3 +1,5 @@
+2006-07-19 Added blitting for Qt4Agg - CM
+
 2006-07-19 Added lasso widget and example examples/lasso_demo.py - JDH
 
 2006-07-18 Added blitting for QtAgg backend - CM
