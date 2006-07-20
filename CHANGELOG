@@ -1,3 +1,6 @@
+2006-07-20 backend_cairo.py: require pycairo 1.2.0.
+           print_figure() update to output SVG using cairo.
+
 2006-07-19 Added blitting for Qt4Agg - CM
 
 2006-07-19 Added lasso widget and example examples/lasso_demo.py - JDH
