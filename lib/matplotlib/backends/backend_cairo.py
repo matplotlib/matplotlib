@@ -541,7 +541,7 @@ class FigureCanvasCairo (FigureCanvasBase):
         if ext == 'png':
            self._save_png (fo)
         elif ext in ('pdf', 'ps', 'svg'):
-           self._save (self.figure, fo, ext, orientation, **kwargs)
+           self._save (fo, ext, orientation, **kwargs)
         elif ext == 'eps': # backend_ps for eps
             from backend_ps import FigureCanvasPS  as FigureCanvas
             fc = FigureCanvas(self.figure)
@@ -565,13 +565,13 @@ class FigureCanvasCairo (FigureCanvasBase):
         surface.write_to_png (fobj)
 
 
-    def _save (self, figure, fo, ext, orientation, **kwargs):
+    def _save (self, fo, ext, orientation, **kwargs):
         # save PDF/PS/SVG
         orientation = kwargs.get('orientation', 'portrait')
 
         dpi = 72
-        figure.dpi.set (dpi)
-        w_in, h_in = figure.get_size_inches()
+        self.figure.dpi.set (dpi)
+        w_in, h_in = self.figure.get_size_inches()
         width_in_points, height_in_points = w_in * dpi, h_in * dpi
 
         if orientation == 'landscape':
@@ -598,7 +598,7 @@ class FigureCanvasCairo (FigureCanvasBase):
            return
 
         # surface.set_dpi() can be used
-        renderer = RendererCairo (figure.dpi)
+        renderer = RendererCairo (self.figure.dpi)
         renderer.set_width_height (width_in_points, height_in_points)
         renderer.set_ctx_from_surface (surface)
         ctx = renderer.ctx
@@ -613,7 +613,7 @@ class FigureCanvasCairo (FigureCanvasBase):
             # TODO:
             # add portrait/landscape checkbox to FileChooser
 
-        figure.draw (renderer)
+        self.figure.draw (renderer)
 
         show_fig_border = False  # for testing figure orientation and scaling
         if show_fig_border:
