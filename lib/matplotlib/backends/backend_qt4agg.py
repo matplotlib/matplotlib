@@ -67,36 +67,47 @@ class FigureCanvasQTAgg( FigureCanvasQT, FigureCanvasAgg ):
         shown onscreen.
         """
         
-        FigureCanvasQT.paintEvent( self, e )
+        #FigureCanvasQT.paintEvent( self, e )
         if DEBUG: print 'FigureCanvasQtAgg.paintEvent: ', \
            self.get_width_height()
 
         p = QtGui.QPainter( self )
-        FigureCanvasAgg.draw( self )
 
         # only replot data when needed
-        if ( self.replot ):
-            stringBuffer = str( self.buffer_rgba(0,0) )
-            
-
-            # matplotlib is in rgba byte order.
-            # qImage wants to put the bytes into argb format and
-            # is in a 4 byte unsigned int.  little endian system is LSB first
-            # and expects the bytes in reverse order (bgra).
-            if ( QtCore.QSysInfo.ByteOrder == QtCore.QSysInfo.LittleEndian ):
-                stringBuffer = self.renderer._renderer.tostring_bgra()
-            else:
-                stringBuffer = self.renderer._renderer.tostring_argb()
-            qImage = QtGui.QImage( stringBuffer, self.renderer.width,
-                                   self.renderer.height,
-                                   QtGui.QImage.Format_ARGB32)
+        if type(self.replot) is bool: # might be a bbox for blitting
+            if ( self.replot ):
+                #stringBuffer = str( self.buffer_rgba(0,0) )
+                FigureCanvasAgg.draw( self )
+    
+                # matplotlib is in rgba byte order.
+                # qImage wants to put the bytes into argb format and
+                # is in a 4 byte unsigned int.  little endian system is LSB first
+                # and expects the bytes in reverse order (bgra).
+                if ( QtCore.QSysInfo.ByteOrder == QtCore.QSysInfo.LittleEndian ):
+                    stringBuffer = self.renderer._renderer.tostring_bgra()
+                else:
+                    stringBuffer = self.renderer._renderer.tostring_argb()
+                qImage = QtGui.QImage( stringBuffer, self.renderer.width,
+                                       self.renderer.height,
+                                       QtGui.QImage.Format_ARGB32)
+                self.pixmap = self.pixmap.fromImage( qImage )
+            p.drawPixmap( QtCore.QPoint( 0, 0 ), self.pixmap )
+    
+            # draw the zoom rectangle to the QPainter
+            if ( self.drawRect ):
+                p.setPen( QtGui.QPen( QtCore.Qt.black, 1, QtCore.Qt.DotLine ) )
+                p.drawRect( self.rect[0], self.rect[1], self.rect[2], self.rect[3] )
+                
+        # we are blitting here
+        else:
+            bbox = self.replot
+            w, h = int(bbox.width()), int(bbox.height())
+            l, t = bbox.ll().x().get(), bbox.ur().y().get()
+            reg = self.copy_from_bbox(bbox)
+            stringBuffer = reg.to_string()
+            qImage = QtGui.QImage(stringBuffer, w, h, QtGui.QImage.Format_ARGB32)
             self.pixmap = self.pixmap.fromImage( qImage )
-        p.drawPixmap( QtCore.QPoint( 0, 0 ), self.pixmap )
-
-        # draw the zoom rectangle to the QPainter
-        if ( self.drawRect ):
-            p.setPen( QtGui.QPen( QtCore.Qt.black, 1, QtCore.Qt.DotLine ) )
-            p.drawRect( self.rect[0], self.rect[1], self.rect[2], self.rect[3] )
+            p.drawPixmap(QtCore.QPoint(l, self.renderer.height-t), self.pixmap)
            
         p.end()
         self.replot = False
@@ -109,7 +120,17 @@ class FigureCanvasQTAgg( FigureCanvasQT, FigureCanvasAgg ):
         
         if DEBUG: print "FigureCanvasQtAgg.draw"
         self.replot = True
-        self.repaint( )
+        self.update( )
+        
+    def blit(self, bbox=None):
+        """
+        Blit the region in bbox
+        """
+        
+        self.replot = bbox
+        w, h = int(bbox.width()), int(bbox.height())
+        l, t = bbox.ll().x().get(), bbox.ur().y().get()
+        self.update(l, self.renderer.height-t, w, h)
 
     def print_figure( self, filename, dpi=150, facecolor='w', edgecolor='w',
                       orientation='portrait', **kwargs ):
