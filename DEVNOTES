@@ -37,6 +37,12 @@ http://matplotlib.sourceforge.net
 
 0) Remove MANIFEST so it will be rebuilt by MANIFEST.in
 
+0) Make sure sdist builds setuptools-compatible release: Remove
+   setup.cfg (or, if more than the [egg_info] section is in
+   this file, remove the [egg_info] section). See
+   http://mail.python.org/pipermail/distutils-sig/2006-July/006561.html
+   for more info.
+
 1) Comment out all the savefig commands in the examples dir
   > rfr -f savefig -r '#savefig' *.py
   > rfr -f '##savefig' -r '#savefig' *.py
