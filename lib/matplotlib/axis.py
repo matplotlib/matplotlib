@@ -626,8 +626,8 @@ class Axis(Artist):
 
     def get_ticklabels(self):
         'Return a list of Text instances for ticklabels'
-        labels1 = [tick.label1 for tick in self.get_major_ticks() if tick.label1On]
-        labels2 = [tick.label2 for tick in self.get_major_ticks() if tick.label2On]
+        labels1 = [tick.label1 for tick in self.majorTicks if tick.label1On]
+        labels2 = [tick.label2 for tick in self.majorTicks if tick.label2On]
         return silent_list('Text ticklabel', labels1+labels2)
 
     def get_ticklines(self):
