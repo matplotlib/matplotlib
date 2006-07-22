@@ -425,9 +425,10 @@ get.__doc__ = getp.__doc__
 
 def setp(h, *args, **kwargs):
     """
-    matplotlib supports the use of setp ("set property") and getp to set and get object properties, as well as to do
-    introspection on the object For example, to set the linestyle of a
-    line to be dashed, you can do
+    matplotlib supports the use of setp ("set property") and getp to set 
+    and get object properties, as well as to do introspection on the 
+    object For example, to set the linestyle of a line to be dashed, you 
+    can do
 
       >>> line, = plot([1,2,3])
       >>> setp(line, linestyle='--')
