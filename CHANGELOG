@@ -1,3 +1,6 @@
+2006-07-22 make scatter() work with the kwarg "color". Closes bug 
+           1285750 - DSD 
+
 2006-07-20 backend_cairo.py: require pycairo 1.2.0.
            print_figure() update to output SVG using cairo.
 

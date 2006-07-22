@@ -3151,14 +3151,11 @@ class Axes(Artist):
             '8' : (8,0),             # octagon
             }
 
-
-
-
-
-
-
         x, y, s, c = delete_masked_points(x, y, s, c)
 
+        if kwargs.has_key('color'): 
+            c = kwargs['color']
+            kwargs.pop('color')
         if not is_string_like(c) and iterable(c) and len(c)==len(x):
             colors = None
         else:
