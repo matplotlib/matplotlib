@@ -58,6 +58,17 @@ from matplotlib.transforms import Bbox
 # alphaState for this purpose.  The implementations of these methods
 # should perhaps be generalized.
 
+# TODOs:
+#
+# * the alpha channel of images
+# * image compression could be improved (PDF supports png-like compression) 
+# * encoding of fonts, including mathtext fonts and unicode support
+# * Type 1 and Base-14 font support (i.e., "pdf.use_afm") 
+# * TTF support has lots of small TODOs, e.g. how do you know if a font  
+#   is serif/sans-serif, or symbolic/non-symbolic? 
+# * draw_markers, draw_line_collection, etc. 
+# * use_tex 
+# * hatches
 
 def fill(strings, linelen=75):
     """Make one string from sequence of strings, with whitespace
