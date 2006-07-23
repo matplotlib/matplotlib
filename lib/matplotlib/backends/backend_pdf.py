@@ -149,6 +149,9 @@ class Reference:
     def __init__(self, id):
 	self.id = id
 
+    def __repr__(self):
+	return "<Reference %d>" % self.id
+
     def pdfRepr(self):
 	return "%d 0 R" % self.id
 
@@ -166,6 +169,9 @@ class Name:
 	    self.name = name.name
 	else:
 	    self.name = re.sub(r'[^!-~]', Name.hexify, name)
+
+    def __repr__(self):
+	return "<Name %s>" % self.name
 
     def hexify(match):
 	return '#%02x' % ord(match.group())
@@ -412,7 +418,8 @@ class PdfFile:
 
 	font = FT2Font(filename)
 
-	def convert(length, upe=font.units_per_EM, nearest=True):
+
+	def cvt(length, upe=font.units_per_EM, nearest=True):
 	    "Convert font coordinates to PDF glyph coordinates"
 	    value = length / upe * 1000
 	    if nearest: return round(value)
@@ -434,8 +441,7 @@ class PdfFile:
 	firstchar, lastchar = chars[0], chars[-1]
 
 	# Get widths
-	widths = [ convert(font.load_char(i, flags=LOAD_NO_SCALE)
-			   .horiAdvance)
+	widths = [ cvt(font.load_char(i, flags=LOAD_NO_SCALE).horiAdvance)
 		   for i in range(firstchar, lastchar+1) ]
 	# Remove redundant widths from end and beginning; doing the
 	# end first helps reduce LastChar, which apparently needs to
@@ -448,21 +454,24 @@ class PdfFile:
 	    firstchar += 1
 	    widths.pop(0)
 
+	widthsObject = self.reserveObject('font widths')
+	fontdescObject = self.reserveObject('font descriptor')
  	fontdict = { 'Type': Name('Font'),
 		     'Subtype': Name('TrueType'),
+		     'Encoding': Name('WinAnsiEncoding'), # ???
 		     'BaseFont': ps_name,
 		     'FirstChar': firstchar,
 		     'LastChar': lastchar,
-		     'Widths': self.reserveObject('font widths'),
-		     'FontDescriptor':
-		       self.reserveObject('font descriptor') }
+		     'Widths': widthsObject,
+		     'FontDescriptor': fontdescObject }
 	# TODO: Encoding?
 
 	flags = 0
+	symbolic = False #ps_name.name in ('Cmsy10', 'Cmmi10', 'Cmex10')
 	if ff & FIXED_WIDTH: flags |= 1 << 0
 	if 0: flags |= 1 << 1 # TODO: serif
-	if 0: flags |= 1 << 2 # TODO: symbolic
-	else: flags |= 1 << 5 # TODO: nonsymbolic
+	if symbolic: flags |= 1 << 2
+	else: flags |= 1 << 5
 	if sf & ITALIC: flags |= 1 << 6
 	if 0: flags |= 1 << 16 # TODO: all caps
 	if 0: flags |= 1 << 17 # TODO: small caps
@@ -472,11 +481,11 @@ class PdfFile:
 	    'Type': Name('FontDescriptor'),
 	    'FontName': ps_name,
 	    'Flags': flags,
-	    'FontBBox': [ convert(x, nearest=False) for x in font.bbox ],
-	    'Ascent': convert(font.ascender, nearest=False),
-	    'Descent': convert(font.descender, nearest=False),
-	    'CapHeight': convert(pclt['capHeight'], nearest=False),
-	    'XHeight': convert(pclt['xHeight']),
+	    'FontBBox': [ cvt(x, nearest=False) for x in font.bbox ],
+	    'Ascent': cvt(font.ascender, nearest=False),
+	    'Descent': cvt(font.descender, nearest=False),
+	    'CapHeight': cvt(pclt['capHeight'], nearest=False),
+	    'XHeight': cvt(pclt['xHeight']),
 	    'ItalicAngle': post['italicAngle'][1], # ???
 	    'FontFile2': self.reserveObject('font file'),
 	    'MaxWidth': max(widths+[missingwidth]),
@@ -490,11 +499,34 @@ class PdfFile:
 	# /FontFile (stream for type 1 font)
 	# /CharSet (used when subsetting type1 fonts)
 
+	# Make an Identity-H encoded CID font for CM fonts? (Doesn't quite work)
+	if False:
+	    del fontdict['Widths'], fontdict['FontDescriptor'], \
+		fontdict['LastChar'], fontdict['FirstChar']
+
+	    fontdict['Subtype'] = Name('Type0')
+	    fontdict['Encoding'] = Name('Identity-H')
+	    fontdict2Object = self.reserveObject('descendant font')
+	    fontdict['DescendantFonts'] = [ fontdict2Object ]
+	    # TODO: fontdict['ToUnicode']
+	    fontdict2 = { 'Type': Name('Font'),
+			  'Subtype': Name('CIDFontType2'),
+			  'BaseFont': ps_name,
+			  'W': widthsObject,
+			  'DW': missingwidth,
+			  'CIDSystemInfo': { 'Registry': 'Adobe', 
+					     'Ordering': 'Identity', 
+					     'Supplement': 0 },
+			  'FontDescriptor': fontdescObject }
+	    self.writeObject(fontdict2Object, fontdict2)
+
+	    widths = [ firstchar, widths ]
+
 	fontdictObject = self.reserveObject('font dictionary')
 	length1Object = self.reserveObject('decoded length of a font')
 	self.writeObject(fontdictObject, fontdict)
-	self.writeObject(fontdict['Widths'], widths)
-	self.writeObject(fontdict['FontDescriptor'], descriptor)
+	self.writeObject(widthsObject, widths)
+	self.writeObject(fontdescObject, descriptor)
 	self.currentstream = \
 	    Stream(descriptor['FontFile2'].id,
 		   self.reserveObject('length of font stream'),
@@ -809,18 +841,27 @@ class RendererPdf(RendererBase):
 	for ox, oy, fontname, fontsize, glyph in pswriter:
 	    #print ox, oy, glyph
 	    fontname = fontname.lower()
-	    self._setup_textpos(x+ox, y+oy, angle, oldx, oldy)
-	    oldx, oldy = x+ox, y+oy
+	    a = angle / 180.0 * pi
+	    newx = x + cos(a)*ox - sin(a)*oy
+	    newy = y + sin(a)*ox + cos(a)*oy
+	    self._setup_textpos(newx, newy, angle, oldx, oldy)
+	    oldx, oldy = newx, newy
 	    if (fontname, fontsize) != prev_font:
 		self.file.output(self.file.fontName(fontname), fontsize, 
 				 Op.selectfont)
 		prev_font = fontname, fontsize
-	    self.file.output(chr(glyph), Op.show)
+
+	    #if fontname.endswith('cmsy10.ttf') or \
+	    #fontname.endswith('cmmi10.ttf') or \
+	    #fontname.endswith('cmex10.ttf'):
+	    #	string = '\0' + chr(glyph)
+
+	    string = chr(glyph)
+	    self.file.output(string, Op.show)
 	self.file.output(Op.end_text)
 
     def draw_text(self, gc, x, y, s, prop, angle, ismath=False):
 	# TODO: combine consecutive texts into one BT/ET delimited section
-	#       mathtext
 	#       unicode
 	if ismath: return self.draw_mathtext(gc, x, y, s, prop, angle)
 	self.check_gc(gc, gc._rgb)
@@ -838,13 +879,18 @@ class RendererPdf(RendererBase):
 	self.file.output(s, Op.show, Op.end_text)
 
     def get_text_width_height(self, s, prop, ismath):
-	# TODO: mathtext
 
-	font = self._get_font_ttf(prop)
-	font.set_text(s, 0.0)
-	w, h = font.get_width_height()
-	factor = 1.0/(self.dpi_factor*64.0)
-	return factor*w, factor*h
+	if ismath:
+	    fontsize = prop.get_size_in_points()
+	    w, h, pswriter = math_parse_s_pdf(s, self.file.dpi, fontsize)
+	else:
+	    font = self._get_font_ttf(prop)
+	    font.set_text(s, 0.0)
+	    w, h = font.get_width_height()
+	    factor = 1.0/(self.dpi_factor*64.0)
+	    w *= factor
+	    h *= factor
+	return w, h
 
     def _get_font_ttf(self, prop):
 	font = self.fonts.get(prop)
