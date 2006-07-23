@@ -813,19 +813,18 @@ class BakomaPDFFonts(BakomaPSFonts):
             num = ord(sym)
         else:
             num = 0
-            sym = '.notdef'
-            raise ValueError('unrecognized symbol "%s, %d"' % (sym, num))
+            raise ValueError('unrecognized symbol "%s"' % (sym,))
 
         return os.path.join(self.basepath, basename) + '.ttf', num
 
     def render(self, ox, oy, font, sym, fontsize, dpi):
         fontname, metrics, glyphname, offset = \
                 self._get_info(font, sym, fontsize, dpi)
-	filename, num = self._get_filename_and_num(font, sym, fontsize, dpi)
+        filename, num = self._get_filename_and_num(font, sym, fontsize, dpi)
         if fontname.lower() == 'cmex10':
             oy += offset - 512/2048.*10.
 
-	self.pswriter.append((ox, oy, filename, fontsize, num))
+        self.pswriter.append((ox, oy, filename, fontsize, num))
 
 
 class StandardPSFonts(Fonts):
@@ -1570,9 +1569,9 @@ class math_parse_s_ft2font_common:
                 self.font_object = BakomaPSFonts()
                 #self.font_object = MyUnicodeFonts(output='PS')
                 Element.fonts = self.font_object
-	elif self.output == 'PDF':
-	    self.font_object = BakomaPDFFonts()
-	    Element.fonts = self.font_object
+        elif self.output == 'PDF':
+            self.font_object = BakomaPDFFonts()
+            Element.fonts = self.font_object
         
         handler.clear()
         expression.parseString( s )
@@ -1594,14 +1593,14 @@ class math_parse_s_ft2font_common:
 
         handler.expr.set_origin(0, h-ymax)
 
-	if self.output in ('SVG', 'BMP'):
-	    Element.fonts.set_canvas_size(w,h)
+        if self.output in ('SVG', 'BMP'):
+            Element.fonts.set_canvas_size(w,h)
         elif self.output == 'PS':
             pswriter = StringIO()
             Element.fonts.set_canvas_size(w, h, pswriter)
-	elif self.output == 'PDF':
-	    pswriter = list()
-	    Element.fonts.set_canvas_size(w, h, pswriter)
+        elif self.output == 'PDF':
+            pswriter = list()
+            Element.fonts.set_canvas_size(w, h, pswriter)
         
         handler.expr.render()
         handler.clear()
