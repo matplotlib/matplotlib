@@ -279,6 +279,8 @@ class NavigationToolbar2QT( NavigationToolbar2, qt.QWidget ):
         # will resize this label instead of the buttons.
         self.locLabel = qt.QLabel( "", self )
         self.locLabel.setAlignment( qt.Qt.AlignRight | qt.Qt.AlignVCenter )
+        self.locLabel.setSizePolicy(qt.QSizePolicy(qt.QSizePolicy.Ignored,
+                                                      qt.QSizePolicy.Ignored))
         self.layout.addWidget( self.locLabel, 1 )
 
     def pan( self, *args ):
