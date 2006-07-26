@@ -15,7 +15,7 @@ from backend_bases import GraphicsContextBase
 from cbook import is_string_like, iterable
 from colors import colorConverter
 from cm import ScalarMappable
-from numerix import arange, sin, cos, pi, asarray, sqrt, array
+from numerix import arange, sin, cos, pi, asarray, sqrt, array, newaxis
 from transforms import identity_transform
 
 class Collection(Artist):
@@ -393,7 +393,8 @@ class LineCollection(Collection, ScalarMappable):
                  ):
         """
         segments is a sequence of ( line0, line1, line2), where
-        linen = (x0, y0), (x1, y1), ... (xm, ym).
+        linen = (x0, y0), (x1, y1), ... (xm, ym), or the
+        equivalent numerix array with two columns.
         Each line can be a different length.
 
         colors must be a tuple of RGBA tuples (eg arbitrary color
@@ -443,6 +444,10 @@ class LineCollection(Collection, ScalarMappable):
         self._lw = linewidths
         self.set_linestyle(linestyle)
         self._uniform_offsets = None
+        if offsets is not None:
+            offsets = asarray(offsets)
+            if len(offsets.shape) == 1:
+                offsets = offsets[newaxis,:]  # Make it Nx2.
         if transOffset is None:
             if offsets is not None:
                 self._uniform_offsets = offsets
@@ -454,7 +459,7 @@ class LineCollection(Collection, ScalarMappable):
 
     def set_segments(self, segments):
         if segments is None: return
-        self._segments = list(segments)
+        self._segments = [asarray(seg) for seg in segments]
         if self._uniform_offsets is not None:
             self._add_offsets()
 
@@ -464,15 +469,14 @@ class LineCollection(Collection, ScalarMappable):
         segs = self._segments
         offsets = self._uniform_offsets
         Nsegs = len(segs)
-        Noffs = len(offsets)
-        if not iterable(offsets[0]):  # i.e., not a tuple but an x-offset
-            xo, yo = offsets
+        Noffs = offsets.shape[0]
+        if Noffs == 1:
             for i in range(Nsegs):
-                segs[i] = [(x+xo*i, y+yo*i) for x,y in segs[i]]
+                segs[i] = segs[i] + i * offsets
         else:
             for i in range(Nsegs):
-                xo, yo = offsets[i%Noffs]
-                segs[i] = [(x+xo, y+yo) for x,y in segs[i]]
+                io = i%Noffs
+                segs[i] = segs[i] + offsets[io:io+1]
 
 
     def draw(self, renderer):

@@ -9,7 +9,7 @@ import sys, warnings
 from cbook import is_string_like, enumerate, strip_math, Stack
 from colors import colorConverter
 from numerix import array, sqrt, pi, log, asarray, ones, zeros, Float, Float32
-from numerix import arange, compress, take
+from numerix import arange, compress, take, isnan, any
 from patches import Rectangle
 from transforms import lbwh_to_bbox, identity_transform
 import widgets
@@ -92,7 +92,7 @@ class RendererBase:
         matplotlib.collections for more details.
 
         segments is a sequence of ( line0, line1, line2), where linen =
-        (x0, y0), (x1, y1), ... (xm, ym).  Each line can be a
+        is an Mx2 array with columns x, y.  Each line can be a
         different length
 
         transform is used to Transform the lines
@@ -110,8 +110,9 @@ class RendererBase:
         antialiseds is a tuple of ones or zeros indicating whether the
         segment should be aa or not
 
-        offsets, if not None, is a list of x,y offsets to translate the lines
-        by after transform is used to transform the offset coords
+        offsets, if not None, is an Nx2 array of x,y offsets to
+        translate the lines by after transform is used to transform
+        the offset coords
 
         This function could be overridden in the backend to possibly implement
         faster drawing, but it is already much faster than using draw_lines()
@@ -133,7 +134,8 @@ class RendererBase:
         usingOffsets = offsets is not None
         Noffsets  = 0
         if usingOffsets:
-            Noffsets = len(offsets)
+            Noffsets = offsets.shape[0]
+            offsets = transOffset.numerix_xy(offsets)
 
         for i in xrange(max(Noffsets, Nsegments)):
             color = colors[i % Nc]
@@ -146,16 +148,12 @@ class RendererBase:
             gc.set_antialiased( antialiaseds[i % Naa] )
             seg = segments[i % Nsegments]
             if not len(seg): continue
-            x, y = zip(*seg)
-
-            x, y = transform.numerix_x_y(array(x), array(y))
+            xy = transform.numerix_xy(seg)
             if usingOffsets:
-                xo, yo = transOffset.xy_tup(offsets[i % Noffsets])
-                x += xo
-                y += yo
+                xy = xy + offsets[i % Noffsets]
 
-            if newstyle: self.draw_lines(gc, x, y, identity)
-            else: self.draw_lines(gc, x, y)
+            if newstyle: self.draw_lines(gc, xy[:,0], xy[:,1], identity)
+            else: self.draw_lines(gc, xy[:,0], xy[:,1])
 
     def draw_line(self, gc, x1, y1, x2, y2):
         """
@@ -241,7 +239,9 @@ class RendererBase:
             gc.set_clip_rectangle(clipbox.get_bounds())
 
         for i in xrange(N):
-
+            polyverts = verts[i % Nverts]
+            if any(isnan(polyverts)):
+                continue
             linewidth = linewidths[i % Nlw]
             rf,gf,bf,af = facecolors[i % Nface]
             re,ge,be,ae = edgecolors[i % Nedge]
@@ -265,7 +265,7 @@ class RendererBase:
 
             gc.set_antialiased( antialiaseds[i % Naa] )  # Used for fill only?
             gc.set_alpha( alpha )
-            tverts = transform.seq_xy_tups(verts[i % Nverts])
+            tverts = transform.seq_xy_tups(polyverts)
             if usingOffsets:
                 xo,yo = transOffset.xy_tup(offsets[i % Noffsets])
                 tverts = [(x+xo,y+yo) for x,y in tverts]
