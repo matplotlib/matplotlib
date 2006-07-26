@@ -296,8 +296,8 @@ class Quiver(PolyCollection):
         if len(args) == 3 or len(args) == 5:
             C = nx.ravel(args.pop(-1))
             #print 'in parse_args, C:', C
-        V = nx.asarray(args.pop(-1))
-        U = nx.asarray(args.pop(-1))
+        V = nx.ma.asarray(args.pop(-1))
+        U = nx.ma.asarray(args.pop(-1))
         nn = nx.shape(U)
         nc = nn[0]
         nr = 1
@@ -333,8 +333,8 @@ class Quiver(PolyCollection):
         PolyCollection.draw(self, renderer)
 
     def set_UVC(self, U, V, C=None):
-        self.U = nx.ravel(U)
-        self.V = nx.ravel(V)
+        self.U = nx.ma.ravel(U)
+        self.V = nx.ma.ravel(V)
         if C is not None:
             self.set_array(nx.ravel(C))
         self._new_UV = True
@@ -367,6 +367,7 @@ class Quiver(PolyCollection):
 
     def _make_verts(self, U, V):
         uv = U+V*1j
+        uv = nx.ravel(nx.ma.filled(uv, nx.nan))
         a = nx.absolute(uv)
         if self.scale is None:
             sn = max(10, math.sqrt(self.N))
@@ -379,7 +380,6 @@ class Quiver(PolyCollection):
         xy = xy[:,:,nx.newaxis]
         XY = nx.concatenate((xy.real, xy.imag), axis=2)
         return XY
-        #return [zip(xyrow.real, xyrow.imag) for xyrow in xy]
 
 
     def _h_arrows(self, length):

@@ -961,14 +961,17 @@ Transformation::numerix_xy(const Py::Tuple & args) {
   size_t Nxy = xyin->dimensions[0];
   size_t N2 = xyin->dimensions[1];
 
-  if (N2!=2)
+  if (N2!=2) {
+    Py_XDECREF(xyin);
     throw Py::ValueError("xy must have shape (N,2)");
+  }
 
   // evaluate the lazy objects
   try {
     if (!_frozen) eval_scalars();
   }
   catch(...) {
+    Py_XDECREF(xyin);
     throw Py::ValueError("Domain error on Transformation::numerix_xy");
   }
 
