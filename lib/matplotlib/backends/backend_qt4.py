@@ -274,13 +274,15 @@ class NavigationToolbar2QT( NavigationToolbar2, QtGui.QWidget ):
         # will resize this label instead of the buttons.
         self.locLabel = QtGui.QLabel( "", self )
         self.locLabel.setAlignment( QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter )
+        self.locLabel.setSizePolicy(QtGui.QSizePolicy(QtGui.QSizePolicy.Ignored,
+                                                      QtGui.QSizePolicy.Ignored))
         self.layout.addWidget( self.locLabel, 1 )
 
     def dynamic_update( self ):
         self.canvas.draw()
 
     def set_message( self, s ):
-        self.locLabel.setText( s )
+        self.locLabel.setText( s.replace(', ', '\n') )
 
     def set_cursor( self, cursor ):
         if DEBUG: print 'Set cursor' , cursor
