@@ -81,8 +81,8 @@ class FigureCanvasQT( qt.QWidget, FigureCanvasBase ):
     buttond = {1:1, 2:3, 4:2}
     def __init__( self, figure ):
         if DEBUG: print 'FigureCanvasQt: ', figure
-        FigureCanvasBase.__init__( self, figure )
         qt.QWidget.__init__( self, None, "QWidget figure" )
+        FigureCanvasBase.__init__( self, figure )
         self.figure = figure
         self.setMouseTracking( True )
 
@@ -220,7 +220,7 @@ class FigureManagerQT( FigureManagerBase ):
             toolbar = None
         return toolbar
     
-    def set_canvas_size(self, width, height):
+    def resize(self, width, height):
         'set the canvas size in pixels'
         self.window.resize(width, height)
 
@@ -329,7 +329,7 @@ class NavigationToolbar2QT( NavigationToolbar2, qt.QWidget ):
         self.canvas.drawRectangle( rect )
         
     def configure_subplots(self):
-        self.adj_window = qt.QMainWindow()
+        self.adj_window = qt.QMainWindow(None, None, qt.Qt.WDestructiveClose)
         win = self.adj_window
         win.setCaption("Subplot Configuration Tool")
         
@@ -339,6 +339,7 @@ class NavigationToolbar2QT( NavigationToolbar2, qt.QWidget ):
         h = int (toolfig.bbox.height())
         
         canvas = self._get_canvas(toolfig)
+        self.canvas.figure.canvas = self.canvas # Weirdness but needed
         tool = SubplotTool(self.canvas.figure, toolfig)
         centralWidget = qt.QWidget(win)
         canvas.reparent(centralWidget, qt.QPoint(0, 0))

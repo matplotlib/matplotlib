@@ -470,11 +470,12 @@ class FigureManagerGTK(FigureManagerBase):
         return toolbar
 
 
-    def set_canvas_size(self, width, height):
+    def resize(self, width, height):
         'set the canvas size in pixels'
-        _, _, cw, ch = self.canvas.allocation
-        _, _, ww, wh = self.window.allocation
-        self.window.resize (width-cw+ww, height-ch+wh)
+        #_, _, cw, ch = self.canvas.allocation
+        #_, _, ww, wh = self.window.allocation
+        #self.window.resize (width-cw+ww, height-ch+wh)
+        self.window.resize(width, height)
 
 
 class NavigationToolbar2GTK(NavigationToolbar2, gtk.Toolbar):

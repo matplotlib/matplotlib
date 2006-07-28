@@ -1004,6 +1004,11 @@ class FigureManagerBase:
 
     def full_screen_toggle (self):
         pass
+    
+    def resize(self, w, h):
+        'For gui backends: resize window in pixels'
+        pass
+    
     def key_press(self, event):
 
         # these bindings happen whether you are over an axes or not
