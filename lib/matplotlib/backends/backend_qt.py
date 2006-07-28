@@ -339,7 +339,6 @@ class NavigationToolbar2QT( NavigationToolbar2, qt.QWidget ):
         h = int (toolfig.bbox.height())
         
         canvas = self._get_canvas(toolfig)
-        self.canvas.figure.canvas = self.canvas # Weirdness but needed
         tool = SubplotTool(self.canvas.figure, toolfig)
         centralWidget = qt.QWidget(win)
         canvas.reparent(centralWidget, qt.QPoint(0, 0))

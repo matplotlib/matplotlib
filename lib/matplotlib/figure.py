@@ -272,7 +272,9 @@ class Figure(Artist):
             dpival = self.dpi.get()
             canvasw = w*dpival
             canvash = h*dpival
-            self.canvas.resize(int(canvasw), int(canvash))
+            manager = getattr(self.canvas, 'manager', None)
+            if manager is not None:
+                manager.resize(int(canvasw), int(canvash))
 
     def get_size_inches(self):
         return self.figwidth.get(), self.figheight.get()

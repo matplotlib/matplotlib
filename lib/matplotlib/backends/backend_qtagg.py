@@ -158,5 +158,6 @@ class FigureCanvasQTAgg( FigureCanvasQT, FigureCanvasAgg ):
         agg = self.switch_backends( FigureCanvasAgg )
         agg.print_figure( filename, dpi, facecolor, edgecolor, orientation,
                           **kwargs )
+        self.figure.set_canvas(self)
 
         
