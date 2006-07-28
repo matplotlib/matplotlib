@@ -1,3 +1,8 @@
+2006-07-28 Added resize method to FigureManager class
+		   for Qt and Gtk backend - CM
+
+2006-07-28 Added subplots_adjust button to Qt backend - CM
+
 2006-07-22 Fixed bug #1209354 - DSD
 
 2006-07-22 make scatter() work with the kwarg "color". Closes bug 

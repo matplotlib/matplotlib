@@ -87,7 +87,7 @@ class FigureCanvasQTAgg( FigureCanvasQT, FigureCanvasAgg ):
         """
         
         FigureCanvasQT.paintEvent( self, e )
-        if DEBUG: print 'FigureCanvasQtAgg.paintEvent: ', \
+        if DEBUG: print 'FigureCanvasQtAgg.paintEvent: ', self, \
            self.get_width_height()
 
         p = qt.QPainter( self )
@@ -140,10 +140,10 @@ class FigureCanvasQTAgg( FigureCanvasQT, FigureCanvasAgg ):
         Draw the figure when xwindows is ready for the update
         """
         
-        if DEBUG: print "FigureCanvasQtAgg.draw"
+        if DEBUG: print "FigureCanvasQtAgg.draw", self
         self.replot = True
         self.repaint( False )
-        
+                
     def blit(self, bbox=None):
         """
         Blit the region in bbox
