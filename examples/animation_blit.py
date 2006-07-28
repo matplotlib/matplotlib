@@ -17,6 +17,9 @@ import pylab as p
 ax = p.subplot(111)
 canvas = ax.figure.canvas
 
+p.subplots_adjust(left=0.3, bottom=0.3) # check for flipy bugs
+p.grid() # to ensure proper background restore
+
 # create the initial line
 x = nx.arange(0,2*nx.pi,0.01)
 line, = p.plot(x, nx.sin(x), animated=True, lw=2)
@@ -33,17 +36,21 @@ def update_line(*args):
     # update the data
     line.set_ydata(nx.sin(x+update_line.cnt/10.0))
     # just draw the animated artist
-    ax.draw_artist(line)
+    try:
+        ax.draw_artist(line)
+    except AssertionError:
+        return
     # just redraw the axes rectangle
     canvas.blit(ax.bbox)
 
-    if update_line.cnt==200:
+    if update_line.cnt==1000:
         # print the timing info and quit
-        print 'FPS:' , 200/(time.time()-tstart)
+        print 'FPS:' , 1000/(time.time()-tstart)
         sys.exit()
 
     update_line.cnt += 1
     return True
+
 update_line.cnt = 0
 update_line.background = None
 gobject.idle_add(update_line)

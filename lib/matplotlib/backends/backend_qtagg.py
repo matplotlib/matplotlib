@@ -4,13 +4,15 @@ Render to qt from agg
 from __future__ import division
 
 import os, sys
+import matplotlib
 from matplotlib import verbose
 from matplotlib.cbook import enumerate
 from matplotlib.figure import Figure
 
 from backend_agg import FigureCanvasAgg
 from backend_qt import qt, FigureManagerQT, FigureCanvasQT,\
-     show, draw_if_interactive, backend_version
+     show, draw_if_interactive, backend_version, \
+     NavigationToolbar2QT
 
 DEBUG = False
 
@@ -23,7 +25,23 @@ def new_figure_manager( num, *args, **kwargs ):
     FigureClass = kwargs.pop('FigureClass', Figure)
     thisFig = FigureClass( *args, **kwargs )
     canvas = FigureCanvasQTAgg( thisFig )
-    return FigureManagerQT( canvas, num )
+    return FigureManagerQTAgg( canvas, num )
+
+class NavigationToolbar2QTAgg(NavigationToolbar2QT):
+    def _get_canvas(self, fig):
+        return FigureCanvasQTAgg(fig)
+    
+class FigureManagerQTAgg(FigureManagerQT):
+    def _get_toolbar(self, canvas, parent):
+        # must be inited after the window, drawingArea and figure
+        # attrs are set
+        if matplotlib.rcParams['toolbar']=='classic':
+            print "Classic toolbar is not yet supported"
+        elif matplotlib.rcParams['toolbar']=='toolbar2':
+            toolbar = NavigationToolbar2QTAgg(canvas, parent)
+        else:
+            toolbar = None
+        return toolbar
 
 class FigureCanvasQTAgg( FigureCanvasQT, FigureCanvasAgg ):
     """

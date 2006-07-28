@@ -15,6 +15,8 @@ from matplotlib.backend_bases import RendererBase, GraphicsContextBase, \
 from matplotlib._pylab_helpers import Gcf
 from matplotlib.figure import Figure
 from matplotlib.mathtext import math_parse_s_ft2font
+from matplotlib.widgets import SubplotTool
+
 import qt
 
 backend_version = "0.9.1"
@@ -164,22 +166,16 @@ class FigureManagerQT( FigureManagerBase ):
         self.window.setCaption( "Figure %d" % num )
 
         self.window._destroying = False
-
-        if matplotlib.rcParams['toolbar'] == 'classic':
-            print "Classic toolbar is not yet supported"
-            #self.toolbar = NavigationToolbarQT( centralWidget, canvas )
-            self.toolbar = None
-        elif matplotlib.rcParams['toolbar'] == 'toolbar2':
-            self.toolbar = NavigationToolbar2QT( centralWidget, canvas )
-        else:
-            self.toolbar = None
+        
+        self.toolbar = self._get_toolbar(self.canvas, centralWidget)
 
         # Use a vertical layout for the plot and the toolbar.  Set the
         # stretch to all be in the plot so the toolbar doesn't resize.
-        layout = qt.QVBoxLayout( centralWidget )
-        layout.addWidget( self.canvas, 1 )
+        self.layout = qt.QVBoxLayout( centralWidget )
+        self.layout.addWidget( self.canvas, 1 )
+        
         if self.toolbar:
-           layout.addWidget( self.toolbar, 0 )
+           self.layout.addWidget( self.toolbar, 0 )
 
         self.window.setCentralWidget( centralWidget )
 
@@ -212,6 +208,21 @@ class FigureManagerQT( FigureManagerBase ):
     def _widgetCloseEvent( self, event ):
         self._widgetclosed()
         qt.QWidget.closeEvent( self.window, event )
+        
+    def _get_toolbar(self, canvas, parent):
+        # must be inited after the window, drawingArea and figure
+        # attrs are set
+        if matplotlib.rcParams['toolbar'] == 'classic':
+            print "Classic toolbar is not yet supported"
+        elif matplotlib.rcParams['toolbar'] == 'toolbar2':
+            toolbar = NavigationToolbar2QT(canvas, parent)
+        else:
+            toolbar = None
+        return toolbar
+    
+    def set_canvas_size(self, width, height):
+        'set the canvas size in pixels'
+        self.window.resize(width, height)
 
     def destroy( self, *args ):
         if self.window._destroying: return
@@ -230,10 +241,11 @@ class NavigationToolbar2QT( NavigationToolbar2, qt.QWidget ):
         ('Pan', 'Pan axes with left mouse, zoom with right', 'move.ppm', 'pan'),
         ('Zoom', 'Zoom to rectangle','zoom_to_rect.ppm', 'zoom'),
         (None, None, None, None),
+        ('Subplots', 'Configure subplots','subplots.png', 'configure_subplots'),
         ('Save', 'Save the figure','filesave.ppm', 'save_figure'),
         )
         
-    def __init__( self, parent, canvas ):
+    def __init__( self, canvas, parent ):
         self.canvas = canvas
         self.buttons = {}
 
@@ -282,6 +294,9 @@ class NavigationToolbar2QT( NavigationToolbar2, qt.QWidget ):
         self.locLabel.setSizePolicy(qt.QSizePolicy(qt.QSizePolicy.Ignored,
                                                       qt.QSizePolicy.Ignored))
         self.layout.addWidget( self.locLabel, 1 )
+        
+        # reference holder for subplots_adjust window
+        self.adj_window = None
 
     def pan( self, *args ):
         self.buttons[ 'Zoom' ].setOn( False )
@@ -312,6 +327,32 @@ class NavigationToolbar2QT( NavigationToolbar2, qt.QWidget ):
 
         rect = [ int(val)for val in min(x0,x1), min(y0, y1), w, h ]
         self.canvas.drawRectangle( rect )
+        
+    def configure_subplots(self):
+        self.adj_window = qt.QMainWindow()
+        win = self.adj_window
+        win.setCaption("Subplot Configuration Tool")
+        
+        toolfig = Figure(figsize=(6,3))
+        toolfig.subplots_adjust(top=0.9)        
+        w = int (toolfig.bbox.width())
+        h = int (toolfig.bbox.height())
+        
+        canvas = self._get_canvas(toolfig)
+        tool = SubplotTool(self.canvas.figure, toolfig)
+        centralWidget = qt.QWidget(win)
+        canvas.reparent(centralWidget, qt.QPoint(0, 0))
+        win.setCentralWidget(centralWidget)
+        
+        layout = qt.QVBoxLayout(centralWidget)
+        layout.addWidget(canvas, 1)
+        
+        win.resize(w, h)
+        canvas.setFocus()
+        win.show()
+    
+    def _get_canvas(self, fig):
+        return FigureCanvasQT(fig)
     
     def save_figure( self ):     
         fname = qt.QFileDialog.getSaveFileName()

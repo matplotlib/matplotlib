@@ -12,7 +12,7 @@ QApplication.setColorSpec(QApplication.NormalColor)
 
 TRUE  = 1
 FALSE = 0
-ITERS = 200
+ITERS = 1000
 
 import pylab as p
 import matplotlib.numerix as nx

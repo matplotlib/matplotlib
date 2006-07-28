@@ -22,6 +22,9 @@ ax = p.subplot(111)
 canvas = ax.figure.canvas
 
 
+p.subplots_adjust(left=0.3, bottom=0.3) # check for flipy bugs
+p.grid() # to ensure proper background restore
+
 # create the initial line
 x = nx.arange(0,2*nx.pi,0.01)
 line, = p.plot(x, nx.sin(x), animated=True, lw=2)
@@ -48,18 +51,20 @@ def update_line(*args):
     canvas.blit(ax.bbox)
     blit_time += time.time() - t
 
-    if update_line.cnt==200:
+    if update_line.cnt==1000:
         # print the timing info and quit
         frame_time = time.time() - tstart
         print '200 frames: %.2f seconds' % frame_time
         print '200 blits:  %.2f seconds' % blit_time
         print
-        print 'FPS: %.2f' % (200/frame_time)
-        print 'BPS: %.2f' % (200/blit_time)
+        print 'FPS: %.2f' % (1000/frame_time)
+        print 'BPS: %.2f' % (1000/blit_time)
         sys.exit()
 
     update_line.cnt += 1
     wx.WakeUpIdle()
+    
+
 
 update_line.cnt = 0
 update_line.background = None
