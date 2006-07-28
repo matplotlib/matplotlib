@@ -436,6 +436,7 @@ def copy_bbox_transform(trans):
     outbox = trans.get_bbox2()
     xmin, xmax  =  outbox.intervalx().get_bounds()
     ymin, ymax  =  outbox.intervaly().get_bounds()
+    
     newOutbox  = Bbox( Point(Value(xmin),  Value(ymin)),
                        Point(Value(xmax),  Value(ymax))  )
 
@@ -444,6 +445,27 @@ def copy_bbox_transform(trans):
 
 
     newtrans = get_bbox_transform(newInbox, newOutbox)
+    newtrans.get_funcx().set_type(typex)
+    newtrans.get_funcy().set_type(typey)
+    return newtrans
+
+
+def copy_bbox_transform_shallow(trans):
+    """
+    return a shallow copy of the bbox transform -- the Values are
+    retained by reference but the transform is copied.  This allows
+    you to copy a transform, set a new offset to it, but not lose the
+    value reference semantics
+    """
+
+    inbox = trans.get_bbox1()
+    outbox = trans.get_bbox2()
+
+    typex = trans.get_funcx().get_type()
+    typey = trans.get_funcy().get_type()
+
+
+    newtrans = get_bbox_transform(inbox, outbox)
     newtrans.get_funcx().set_type(typex)
     newtrans.get_funcy().set_type(typey)
     return newtrans
