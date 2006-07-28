@@ -32,15 +32,17 @@ def run(*args):
         # just redraw the axes rectangle
         canvas.blit(ax.bbox) 
 
-        if run.cnt==200:
+        if run.cnt==1000:
             # print the timing info and quit
-            print 'FPS:' , 200/(time.time()-tstart)
+            print 'FPS:' , 1000/(time.time()-tstart)
             sys.exit()
 
         run.cnt += 1
 run.cnt = 0        
 
 
+p.subplots_adjust(left=0.3, bottom=0.3) # check for flipy bugs
+p.grid() # to ensure proper background restore
 manager = p.get_current_fig_manager()
 manager.window.after(100, run)
 

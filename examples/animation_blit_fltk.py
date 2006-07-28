@@ -35,13 +35,15 @@ class animator:
         # just redraw the axes rectangle
         self.canvas.blit(ax.bbox) 
         self.cnt+=1
-        if self.cnt==200:
+        if self.cnt==1000:
             # print the timing info and quit
-            print 'FPS:' , 200/(time.time()-self.tstart)
+            print 'FPS:' , 1000/(time.time()-self.tstart)
             sys.exit()
         return True
 
 ax = p.subplot(111)
+p.subplots_adjust(left=0.3, bottom=0.3) # check for flipy bugs
+p.grid() # to ensure proper background restore
 # create the initial line
 x = nx.arange(0,2*nx.pi,0.01)
 line, = p.plot(x, nx.sin(x), animated=True)
