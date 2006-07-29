@@ -1,3 +1,6 @@
+2006-07-28 Added shallow bboc copy routine for transforms -- mainly
+           useful for copying transforms to apply offset to. - JDH
+
 2006-07-28 Added resize method to FigureManager class
 		   for Qt and Gtk backend - CM
 
