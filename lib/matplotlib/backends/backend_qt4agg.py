@@ -13,7 +13,7 @@ from backend_qt4 import QtCore, QtGui, FigureManagerQT, FigureCanvasQT,\
      show, draw_if_interactive, backend_version, \
      NavigationToolbar2QT
 
-DEBUG = True
+DEBUG = False
 
 
 def new_figure_manager( num, *args, **kwargs ):
