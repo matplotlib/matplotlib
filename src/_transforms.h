@@ -603,8 +603,9 @@ public:
   Py::Object xy_tup(const Py::Tuple &args);
   Py::Object seq_xy_tups(const Py::Tuple &args);
   Py::Object seq_x_y(const Py::Tuple &args);
-  Py::Object numerix_x_y(const Py::Tuple &args, const Py::Dict &kwargs);
+  Py::Object numerix_x_y(const Py::Tuple &args);
   Py::Object numerix_xy(const Py::Tuple &args);
+  Py::Object inverse_numerix_xy(const Py::Tuple &args);
   Py::Object nonlinear_only_numerix(const Py::Tuple &args, const Py::Dict &kwargs);
   Py::Object inverse_xy_tup(const Py::Tuple &args);
   virtual Py::Object deepcopy(const Py::Tuple &args) =0;

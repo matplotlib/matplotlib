@@ -897,7 +897,6 @@ class Axes(Artist):
         p.set_clip_box(self.bbox)
         xys = self._get_verts_in_data_coords(
             p.get_transform(), p.get_verts())
-        #for x,y in xys: print x,y
         self.update_datalim(xys)
         self.patches.append(p)
 
@@ -907,12 +906,13 @@ class Axes(Artist):
         self.tables.append(tab)
 
     def update_datalim(self, xys):
-        'Update the data lim bbox with seq of xy tups'
+        'Update the data lim bbox with seq of xy tups or equiv. 2-D array'
         # if no data is set currently, the bbox will ignore its
         # limits and set the bound to be the bounds of the xydata.
         # Otherwise, it will compute the bounds of it's current data
         # and the data in xydata
-        self.dataLim.update(xys, -1)
+        xys = asarray(xys)
+        self.dataLim.update_numerix_xy(xys, -1)
 
 
     def update_datalim_numerix(self, x, y):
@@ -929,8 +929,11 @@ class Axes(Artist):
             return xys
         # data is not in axis data units.  We must transform it to
         # display and then back to data to get it in data units
-        xys = trans.seq_xy_tups(xys)
-        return [ self.transData.inverse_xy_tup(xy) for xy in xys]
+        #xys = trans.seq_xy_tups(xys)
+        #return [ self.transData.inverse_xy_tup(xy) for xy in xys]
+        xys = trans.numerix_xy(asarray(xys))
+        return self.transData.inverse_numerix_xy(xys)
+
 
     def in_axes(self, xwin, ywin):
         'return True is the point xwin, ywin (display coords) are in the Axes'
@@ -3153,7 +3156,7 @@ class Axes(Artist):
 
         x, y, s, c = delete_masked_points(x, y, s, c)
 
-        if kwargs.has_key('color'): 
+        if kwargs.has_key('color'):
             c = kwargs['color']
             kwargs.pop('color')
         if not is_string_like(c) and iterable(c) and len(c)==len(x):
