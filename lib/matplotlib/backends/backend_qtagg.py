@@ -143,7 +143,7 @@ class FigureCanvasQTAgg( FigureCanvasQT, FigureCanvasAgg ):
         if DEBUG: print "FigureCanvasQtAgg.draw", self
         self.replot = True
         self.repaint( False )
-                
+
     def blit(self, bbox=None):
         """
         Blit the region in bbox

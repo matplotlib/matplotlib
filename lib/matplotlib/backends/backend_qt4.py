@@ -15,12 +15,14 @@ from matplotlib.backend_bases import RendererBase, GraphicsContextBase, \
 from matplotlib._pylab_helpers import Gcf
 from matplotlib.figure import Figure
 from matplotlib.mathtext import math_parse_s_ft2font
+from matplotlib.widgets import SubplotTool
+
 from PyQt4 import QtCore, QtGui
 
 backend_version = "0.9.1"
 def fn_name(): return sys._getframe(1).f_code.co_name
 
-DEBUG = False
+DEBUG = True
 
 cursord = {
     cursors.MOVE          : QtCore.Qt.PointingHandCursor,
@@ -78,8 +80,8 @@ class FigureCanvasQT( QtGui.QWidget, FigureCanvasBase ):
     buttond = {1:1, 2:3, 4:2}
     def __init__( self, figure ):
         if DEBUG: print 'FigureCanvasQt: ', figure
-        FigureCanvasBase.__init__( self, figure )
         QtGui.QWidget.__init__( self )
+        FigureCanvasBase.__init__( self, figure )
         self.figure = figure
         self.setMouseTracking( True )
 
@@ -99,7 +101,7 @@ class FigureCanvasQT( QtGui.QWidget, FigureCanvasBase ):
         # flipy so y=0 is bottom of canvas
         y = self.figure.bbox.height() - event.y()
         FigureCanvasBase.motion_notify_event( self, x, y )
-        if DEBUG: print 'mouse move'
+        #if DEBUG: print 'mouse move'
 
     def mouseReleaseEvent( self, event ):
         x = event.x()
@@ -169,15 +171,8 @@ class FigureManagerQT( FigureManagerBase ):
                             self._widgetclosed )
         self.window._destroying = False
 
-        if matplotlib.rcParams['toolbar'] == 'classic':
-            print "Classic toolbar is not yet supported"
-            #self.toolbar = NavigationToolbarQT( centralWidget, canvas )
-            self.toolbar = None
-        elif matplotlib.rcParams['toolbar'] == 'toolbar2':
-            self.toolbar = NavigationToolbar2QT( centralWidget, canvas )
-        else:
-            self.toolbar = None
-
+        self.toolbar = self._get_toolbar(self.canvas, centralWidget)
+        
         # Use a vertical layout for the plot and the toolbar.  Set the
         # stretch to all be in the plot so the toolbar doesn't resize.
         layout = QtGui.QVBoxLayout( centralWidget )
@@ -213,6 +208,21 @@ class FigureManagerQT( FigureManagerBase ):
         if self.window._destroying: return
         self.window._destroying = True
         Gcf.destroy(self.num)
+        
+    def _get_toolbar(self, canvas, parent):
+        # must be inited after the window, drawingArea and figure
+        # attrs are set
+        if matplotlib.rcParams['toolbar'] == 'classic':
+            print "Classic toolbar is not yet supported"
+        elif matplotlib.rcParams['toolbar'] == 'toolbar2':
+            toolbar = NavigationToolbar2QT(canvas, parent)
+        else:
+            toolbar = None
+        return toolbar
+    
+    def resize(self, width, height):
+        'set the canvas size in pixels'
+        self.window.resize(width, height)
 
     def destroy( self, *args ):
         if self.window._destroying: return
@@ -231,10 +241,11 @@ class NavigationToolbar2QT( NavigationToolbar2, QtGui.QWidget ):
         ('Pan', 'Pan axes with left mouse, zoom with right', 'move.ppm', 'pan'),
         ('Zoom', 'Zoom to rectangle','zoom_to_rect.ppm', 'zoom'),
         (None, None, None, None),
+        ('Subplots', 'Configure subplots','subplots.png', 'configure_subplots'),
         ('Save', 'Save the figure','filesave.ppm', 'save_figure'),
         )
         
-    def __init__( self, parent, canvas ):
+    def __init__(self, canvas, parent):
         self.canvas = canvas
         QtGui.QWidget.__init__( self, parent )
 
@@ -277,6 +288,9 @@ class NavigationToolbar2QT( NavigationToolbar2, QtGui.QWidget ):
         self.locLabel.setSizePolicy(QtGui.QSizePolicy(QtGui.QSizePolicy.Ignored,
                                                       QtGui.QSizePolicy.Ignored))
         self.layout.addWidget( self.locLabel, 1 )
+        
+        # reference holder for subplots_adjust window
+        self.adj_window = None
 
     def dynamic_update( self ):
         self.canvas.draw()
@@ -299,6 +313,35 @@ class NavigationToolbar2QT( NavigationToolbar2, QtGui.QWidget ):
 
         rect = [ int(val)for val in min(x0,x1), min(y0, y1), w, h ]
         self.canvas.drawRectangle( rect )
+        
+    def configure_subplots(self):
+        self.adj_window = QtGui.QMainWindow()
+        win = self.adj_window
+        win.setAttribute(QtCore.Qt.WA_DeleteOnClose)
+        win.setWindowTitle("Subplot Configuration Tool")
+        
+        toolfig = Figure(figsize=(6,3))
+        toolfig.subplots_adjust(top=0.9)        
+        w = int (toolfig.bbox.width())
+        h = int (toolfig.bbox.height())
+        
+        canvas = self._get_canvas(toolfig)
+        tool = SubplotTool(self.canvas.figure, toolfig)
+        centralWidget = QtGui.QWidget(win)
+        canvas.setParent(centralWidget)
+        win.setCentralWidget(centralWidget)
+        
+        layout = QtGui.QVBoxLayout(centralWidget)
+        layout.setMargin(0)
+        layout.addWidget(canvas, 1)
+        
+        win.resize(w, h)
+        canvas.setFocusPolicy(QtCore.Qt.ClickFocus)
+        canvas.setFocus()
+        win.show()
+    
+    def _get_canvas(self, fig):
+        return FigureCanvasQT(fig)
     
     def save_figure( self ):     
         fname = QtGui.QFileDialog.getSaveFileName()

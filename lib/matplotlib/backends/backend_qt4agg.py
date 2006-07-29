@@ -10,9 +10,10 @@ from matplotlib.figure import Figure
 
 from backend_agg import FigureCanvasAgg
 from backend_qt4 import QtCore, QtGui, FigureManagerQT, FigureCanvasQT,\
-     show, draw_if_interactive, backend_version
+     show, draw_if_interactive, backend_version, \
+     NavigationToolbar2QT
 
-DEBUG = False
+DEBUG = True
 
 
 def new_figure_manager( num, *args, **kwargs ):
@@ -24,6 +25,22 @@ def new_figure_manager( num, *args, **kwargs ):
     thisFig = FigureClass( *args, **kwargs )
     canvas = FigureCanvasQTAgg( thisFig )
     return FigureManagerQT( canvas, num )
+   
+class NavigationToolbar2QTAgg(NavigationToolbar2QT):
+    def _get_canvas(self, fig):
+        return FigureCanvasQTAgg(fig)
+       
+class FigureManagerQTAgg(FigureManagerQT):
+    def _get_toolbar(self, canvas, parent):
+        # must be inited after the window, drawingArea and figure
+        # attrs are set
+        if matplotlib.rcParams['toolbar']=='classic':
+            print "Classic toolbar is not yet supported"
+        elif matplotlib.rcParams['toolbar']=='toolbar2':
+            toolbar = NavigationToolbar2QTAgg(canvas, parent)
+        else:
+            toolbar = None
+        return toolbar
 
 class FigureCanvasQTAgg( FigureCanvasQT, FigureCanvasAgg ):
     """
@@ -68,7 +85,7 @@ class FigureCanvasQTAgg( FigureCanvasQT, FigureCanvasAgg ):
         """
         
         #FigureCanvasQT.paintEvent( self, e )
-        if DEBUG: print 'FigureCanvasQtAgg.paintEvent: ', \
+        if DEBUG: print 'FigureCanvasQtAgg.paintEvent: ', self, \
            self.get_width_height()
 
         p = QtGui.QPainter( self )
@@ -118,7 +135,7 @@ class FigureCanvasQTAgg( FigureCanvasQT, FigureCanvasAgg ):
         Draw the figure when xwindows is ready for the update
         """
         
-        if DEBUG: print "FigureCanvasQtAgg.draw"
+        if DEBUG: print "FigureCanvasQtAgg.draw", self
         self.replot = True
         self.update( )
         
@@ -138,5 +155,4 @@ class FigureCanvasQTAgg( FigureCanvasQT, FigureCanvasAgg ):
         agg = self.switch_backends( FigureCanvasAgg )
         agg.print_figure( filename, dpi, facecolor, edgecolor, orientation,
                           **kwargs )
-
-        
+        self.figure.set_canvas(self)
