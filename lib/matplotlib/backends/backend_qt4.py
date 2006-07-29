@@ -22,7 +22,7 @@ from PyQt4 import QtCore, QtGui
 backend_version = "0.9.1"
 def fn_name(): return sys._getframe(1).f_code.co_name
 
-DEBUG = True
+DEBUG = False
 
 cursord = {
     cursors.MOVE          : QtCore.Qt.PointingHandCursor,
