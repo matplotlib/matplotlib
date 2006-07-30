@@ -958,7 +958,8 @@ class Axes(Artist):
         """
         autoscale the view limits using the data limits. You can
         selectively autoscale only a single axis, eg, the xaxis by
-        setting scaley to False.
+        setting scaley to False.  The autoscaling preserves any
+        axis direction reversal that has already been done.
         """
         # if image data only just use the datalim
 
@@ -972,10 +973,18 @@ class Axes(Artist):
             if scaley: self.set_ylim(self.dataLim.intervaly().get_bounds())
             return
 
-        locator = self.xaxis.get_major_locator()
-        if scalex: self.set_xlim(locator.autoscale())
-        locator = self.yaxis.get_major_locator()
-        if scaley: self.set_ylim(locator.autoscale())
+        if scalex:
+            xl = self.get_xlim()
+            XL = self.xaxis.get_major_locator().autoscale()
+            if xl[1] < xl[0]:
+                XL = XL[::-1]
+            self.set_xlim(XL)
+        if scaley:
+            yl = self.get_ylim()
+            YL = self.yaxis.get_major_locator().autoscale()
+            if yl[1] < yl[0]:
+                YL = YL[::-1]
+            self.set_ylim(YL)
     #### Drawing
 
     def draw(self, renderer=None, inframe=False):
