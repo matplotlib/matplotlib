@@ -315,30 +315,26 @@ class NavigationToolbar2QT( NavigationToolbar2, QtGui.QWidget ):
         self.canvas.drawRectangle( rect )
         
     def configure_subplots(self):
-        self.adj_window = QtGui.QMainWindow()
-        win = self.adj_window
-        win.setAttribute(QtCore.Qt.WA_DeleteOnClose)
-        win.setWindowTitle("Subplot Configuration Tool")
-        
-        toolfig = Figure(figsize=(6,3))
-        toolfig.subplots_adjust(top=0.9)        
-        w = int (toolfig.bbox.width())
-        h = int (toolfig.bbox.height())
-        
-        canvas = self._get_canvas(toolfig)
-        tool = SubplotTool(self.canvas.figure, toolfig)
-        centralWidget = QtGui.QWidget(win)
-        canvas.setParent(centralWidget)
-        win.setCentralWidget(centralWidget)
-        
-        layout = QtGui.QVBoxLayout(centralWidget)
-        layout.setMargin(0)
-        layout.addWidget(canvas, 1)
-        
-        win.resize(w, h)
-        canvas.setFocusPolicy(QtCore.Qt.ClickFocus)
-        canvas.setFocus()
-        win.show()
+		self.adj_window = QtGui.QDialog()
+		win = self.adj_window
+		win.setAttribute(QtCore.Qt.WA_DeleteOnClose)
+		win.setWindowTitle("Subplot Configuration Tool")
+		image = os.path.join( matplotlib.rcParams['datapath'],'matplotlib.png' )
+		win.setWindowIcon(QtGui.QIcon( image ))
+
+		toolfig = Figure(figsize=(6,3))
+		toolfig.subplots_adjust(top=0.9)
+		canvas = self._get_canvas(toolfig)
+		tool = SubplotTool(self.canvas.figure, toolfig)
+
+		canvas.setParent(win)
+		w = int (toolfig.bbox.width())
+		h = int (toolfig.bbox.height())
+
+		win.resize(w, h)
+		canvas.setFocus()
+		
+		win.show()
     
     def _get_canvas(self, fig):
         return FigureCanvasQT(fig)
