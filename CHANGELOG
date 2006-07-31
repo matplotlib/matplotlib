@@ -1,3 +1,5 @@
+2006-07-31 Don't let postscript's xpdf distiller compress images - DSD 
+
 2006-07-28 Added shallow bboc copy routine for transforms -- mainly
            useful for copying transforms to apply offset to. - JDH
 
