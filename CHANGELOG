@@ -1,17 +1,30 @@
-2006-07-31 Don't let postscript's xpdf distiller compress images - DSD 
+2006-07-31 Added shallowcopy() methods to all Transformations;
+           added offset_copy() function to transforms.py to
+           facilitate positioning artists with offsets.
+           See examples/transoffset.py. - EF
+
+2006-07-31 Don't let postscript's xpdf distiller compress images - DSD
+
+2006-07-29 Fixed numerix polygon bug reported by Nick Fotopoulos.
+           Added inverse_numerix_xy() transform method.
+           Made autoscale_view() preserve axis direction
+           (e.g., increasing down).- EF
 
 2006-07-28 Added shallow bboc copy routine for transforms -- mainly
            useful for copying transforms to apply offset to. - JDH
 
 2006-07-28 Added resize method to FigureManager class
-		   for Qt and Gtk backend - CM
+           for Qt and Gtk backend - CM
 
 2006-07-28 Added subplots_adjust button to Qt backend - CM
 
+2006-07-26 Use numerix more in collections.
+           Quiver now handles masked arrays. - EF
+
 2006-07-22 Fixed bug #1209354 - DSD
 
-2006-07-22 make scatter() work with the kwarg "color". Closes bug 
-           1285750 - DSD 
+2006-07-22 make scatter() work with the kwarg "color". Closes bug
+           1285750 - DSD
 
 2006-07-20 backend_cairo.py: require pycairo 1.2.0.
            print_figure() update to output SVG using cairo.
@@ -30,7 +43,7 @@
 ===============================================================
 2006-07-11 Released 0.87.4 at revision 2558
 
-2006-07-07 Fixed a usetex bug with older versions of latex - DSD 
+2006-07-07 Fixed a usetex bug with older versions of latex - DSD
 
 2006-07-07 Add compatibility for NumPy 1.0 - TEO
 
@@ -38,8 +51,8 @@
 
 2006-06-26 Fixed a usetex bug. On windows, usetex will prcess
            postscript output in the current directory rather than
-           in a temp directory. This is due to the use of spaces 
-           and tildes in windows paths, which cause problems with 
+           in a temp directory. This is due to the use of spaces
+           and tildes in windows paths, which cause problems with
            latex. The subprocess module is no longer used. - DSD
 
 2006-06-22 Various changes to bar(), barh(), and hist().
