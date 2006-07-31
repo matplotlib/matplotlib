@@ -1,4 +1,6 @@
 2006-07-31 Added shallowcopy() methods to all Transformations;
+           removed copy_bbox_transform and copy_bbox_transform_shallow
+           from transforms.py;
            added offset_copy() function to transforms.py to
            facilitate positioning artists with offsets.
            See examples/transoffset.py. - EF
@@ -10,7 +12,7 @@
            Made autoscale_view() preserve axis direction
            (e.g., increasing down).- EF
 
-2006-07-28 Added shallow bboc copy routine for transforms -- mainly
+2006-07-28 Added shallow bbox copy routine for transforms -- mainly
            useful for copying transforms to apply offset to. - JDH
 
 2006-07-28 Added resize method to FigureManager class

@@ -172,20 +172,21 @@ but should use the helper functions defined in this module.
                                 left, bottom, width, height tuple
 
   multiply_affines            - return the affine that is the matrix product of
-    the two affines
+                                the two affines
 
   get_bbox_transform          - return a SeparableTransformation instance that
-    transforms one bbox to another
+                                transforms one bbox to another
 
   blend_xy_sep_transform      - mix the x and y components of two separable
-    transformations into a new transformation.  This allows you to
-    specify x and y in different coordinate systems
+                                transformations into a new transformation.
+                                This allows you to specify x and y in
+                                different coordinate systems
 
   transform_bbox              - apply a transformation to a bbox and return the
-    transformed bbox
+                                transformed bbox
 
   inverse_transform_bbox      - apply the inverse transformation of a bbox
-    and return the inverse transformed bbox
+                                and return the inverse transformed bbox
 
   offset_copy                 - make a copy with an offset
 
@@ -417,9 +418,6 @@ def transform_bbox(trans, bbox):
     return Bbox(Point(Value(xmin), Value(ymin)),
                 Point(Value(xmax), Value(ymax)))
 
-
-
-
 def inverse_transform_bbox(trans, bbox):
     'inverse transform the bbox'
     xmin, xmax = bbox.intervalx().get_bounds()
@@ -430,63 +428,6 @@ def inverse_transform_bbox(trans, bbox):
     return Bbox(Point(Value(xmin), Value(ymin)),
                 Point(Value(xmax), Value(ymax)))
 
-## begin possibly deleted block; all transforms have deepcopy
-## and shallowcopy methods, we may not need any of the following
-
-def copy_separable_transform(trans):
-    'return a deep copy of the separable transform'
-
-    inbox = trans.get_bbox1()
-    xmin, xmax  =  inbox.intervalx().get_bounds()
-    ymin, ymax  =  inbox.intervaly().get_bounds()
-    newInbox  = Bbox( Point(Value(xmin),  Value(ymin)),
-                      Point(Value(xmax),  Value(ymax))  )
-
-    outbox = trans.get_bbox2()
-    xmin, xmax  =  outbox.intervalx().get_bounds()
-    ymin, ymax  =  outbox.intervaly().get_bounds()
-
-    newOutbox  = Bbox( Point(Value(xmin),  Value(ymin)),
-                       Point(Value(xmax),  Value(ymax))  )
-
-    typex = trans.get_funcx().get_type()
-    typey = trans.get_funcy().get_type()
-
-
-    newtrans = get_bbox_transform(newInbox, newOutbox)
-    newtrans.get_funcx().set_type(typex)
-    newtrans.get_funcy().set_type(typey)
-    return newtrans
-
-copy_bbox_transform = copy_separable_transform
-
-
-def copy_separable_transform_shallow(trans):
-    """
-    return a shallow copy of the separable transform -- the Values are
-    retained by reference but the transform is copied.  This allows
-    you to copy a transform, set a new offset to it, but not lose the
-    value reference semantics
-    """
-
-    inbox = trans.get_bbox1()
-    outbox = trans.get_bbox2()
-
-    typex = trans.get_funcx().get_type()
-    typey = trans.get_funcy().get_type()
-
-
-    newtrans = get_bbox_transform(inbox, outbox)
-    newtrans.get_funcx().set_type(typex)
-    newtrans.get_funcy().set_type(typey)
-    return newtrans
-
-copy_bbox_transform_shallow = copy_separable_transform_shallow
-
-def copy_transform_shallow(trans):
-    return trans.shallowcopy()
-
-## end possibly deleted block
 
 def offset_copy(trans, fig=None, x=0, y=0, units='inches'):
     '''
