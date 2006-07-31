@@ -609,6 +609,7 @@ public:
   Py::Object nonlinear_only_numerix(const Py::Tuple &args, const Py::Dict &kwargs);
   Py::Object inverse_xy_tup(const Py::Tuple &args);
   virtual Py::Object deepcopy(const Py::Tuple &args) =0;
+  virtual Py::Object shallowcopy(const Py::Tuple &args) =0;
 
   //freeze the lazy values and don't relax until thawed
   Py::Object freeze(const Py::Tuple &args) {
@@ -712,6 +713,7 @@ public:
   void arrayOperator(const int length, const double x[], const double y[], double newx[], double newy[]);
 
   Py::Object deepcopy(const Py::Tuple &args) ;
+  Py::Object shallowcopy(const Py::Tuple &args) ;
 
 protected:
   Func *_funcx, *_funcy;
@@ -732,6 +734,7 @@ public:
   std::pair<double, double> & inverse_api(const double &x, const double &y);
   void arrayOperator(const int length, const double x[], const double y[], double newx[], double newy[]);
   Py::Object deepcopy(const Py::Tuple &args) ;
+  Py::Object shallowcopy(const Py::Tuple &args) ;
 
   void nonlinear_only_api(double *x, double *y);
 
@@ -760,6 +763,7 @@ public:
   std::pair<double, double> & inverse_api(const double &x, const double &y);
   void eval_scalars(void);
   Py::Object deepcopy(const Py::Tuple &args);
+  Py::Object shallowcopy(const Py::Tuple &args);
 
   void affine_params_api(double* a, double* b, double* c, double*d, double* tx, double* ty);
 private:

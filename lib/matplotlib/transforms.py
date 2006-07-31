@@ -121,7 +121,9 @@ All transformations
   xy_tup(xy)            - transform the tuple (x,y)
   seq_x_y(x, y)         - transform the python sequences x and y
   numerix_x_y(x, y)     - x and y are numerix 1D arrays
-  seq_xy_tups(seq)      - seq is a sequence of xy tuples
+  numerix_xy(xy)        - xy is a numerix array of shape (N,2)
+  inverse_numerix_xy(xy)- inverse of the above
+  seq_xy_tups(seq)      - seq is a sequence of xy tuples or a (N,2) array
   inverse_xy_tup(xy)    - apply the inverse transformation to tuple xy
 
   set_offset(xy, trans) - xy is an x,y tuple and trans is a
@@ -140,6 +142,7 @@ Separable transformations
   get_funcy() - return the Func instance on y
   set_funcx() - set the Func instance on x
   set_funcy() - set the Func instance on y
+
 
 Affine transformations
 ----------------------
@@ -423,9 +426,11 @@ def inverse_transform_bbox(trans, bbox):
     return Bbox(Point(Value(xmin), Value(ymin)),
                 Point(Value(xmax), Value(ymax)))
 
+## begin possibly deleted block; all transforms have deepcopy
+## and shallowcopy methods, we may not need any of the following
 
-def copy_bbox_transform(trans):
-    'return a deep copy of the bbox transform'
+def copy_separable_transform(trans):
+    'return a deep copy of the separable transform'
 
     inbox = trans.get_bbox1()
     xmin, xmax  =  inbox.intervalx().get_bounds()
@@ -436,7 +441,7 @@ def copy_bbox_transform(trans):
     outbox = trans.get_bbox2()
     xmin, xmax  =  outbox.intervalx().get_bounds()
     ymin, ymax  =  outbox.intervaly().get_bounds()
-    
+
     newOutbox  = Bbox( Point(Value(xmin),  Value(ymin)),
                        Point(Value(xmax),  Value(ymax))  )
 
@@ -449,10 +454,12 @@ def copy_bbox_transform(trans):
     newtrans.get_funcy().set_type(typey)
     return newtrans
 
+copy_bbox_transform = copy_separable_transform
 
-def copy_bbox_transform_shallow(trans):
+
+def copy_separable_transform_shallow(trans):
     """
-    return a shallow copy of the bbox transform -- the Values are
+    return a shallow copy of the separable transform -- the Values are
     retained by reference but the transform is copied.  This allows
     you to copy a transform, set a new offset to it, but not lose the
     value reference semantics
@@ -469,6 +476,37 @@ def copy_bbox_transform_shallow(trans):
     newtrans.get_funcx().set_type(typex)
     newtrans.get_funcy().set_type(typey)
     return newtrans
+
+copy_bbox_transform_shallow = copy_separable_transform_shallow
+
+def copy_transform_shallow(trans):
+    return trans.shallowcopy()
+
+## end possibly deleted block
+
+def offset_copy(trans, fig=None, x=0, y=0, units='inches'):
+    '''
+    Return a shallow copy of a transform with an added offset.
+      args:
+        trans is any transform
+      kwargs:
+        fig is the current figure; it can be None if units are 'dots'
+        x, y give the offset in units of 'inches' or 'dots'
+        units is 'inches' or 'dots'
+    '''
+    newtrans = trans.shallowcopy()
+    if units == 'dots':
+        newtrans.set_offset((x,y), identity_transform())
+        return newtrans
+    if not units == 'inches':
+        raise ValueError('units must be dots or inches')
+    if fig is None:
+        raise ValueError('For units of inches a fig kwarg is needed')
+    tx = Value(x) * fig.dpi
+    ty = Value(y) * fig.dpi
+    newtrans.set_offset((0,0), translation_transform(tx, ty))
+    return newtrans
+
 
 def get_vec6_scales(v):
     'v is an affine vec6 a,b,c,d,tx,ty; return sx, sy'
