@@ -1352,8 +1352,9 @@ def xpdf_distill(tmpfile, eps=False, ptype='letter', bbox=None):
     pdffile = tmpfile + '.pdf'
     psfile = tmpfile + '.ps'
     outfile = tmpfile + '.output'
-    command = 'ps2pdf -sPAPERSIZE=%s "%s" "%s" > "%s"'% \
-                (ptype, tmpfile, pdffile, outfile)
+    command = 'ps2pdf -dAutoFilterColorImages=false \
+-sColorImageFilter=FlateEncode -sPAPERSIZE=%s "%s" "%s" > "%s"'% \
+(ptype, tmpfile, pdffile, outfile)
     verbose.report(command, 'debug')
     exit_status = os.system(command)
     fh = file(outfile)
