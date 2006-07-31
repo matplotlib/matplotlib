@@ -130,6 +130,8 @@ All transformations
     Transformation instance.  This will apply a post transformational
     offset of all future transformations by xt,yt = trans.xy_tup(xy[0], xy[1])
 
+  deepcopy()            - returns a deep copy; references are lost
+  shallowcopy()         - returns a shallow copy excluding the offset
 
 Separable transformations
 -------------------------
@@ -184,6 +186,8 @@ but should use the helper functions defined in this module.
 
   inverse_transform_bbox      - apply the inverse transformation of a bbox
     and return the inverse transformed bbox
+
+  offset_copy                 - make a copy with an offset
 
 
 The units/transform_unit.py code has many examples.
@@ -491,17 +495,20 @@ def offset_copy(trans, fig=None, x=0, y=0, units='inches'):
         trans is any transform
       kwargs:
         fig is the current figure; it can be None if units are 'dots'
-        x, y give the offset in units of 'inches' or 'dots'
-        units is 'inches' or 'dots'
+        x, y give the offset
+        units is 'inches', 'points' or 'dots'
     '''
     newtrans = trans.shallowcopy()
     if units == 'dots':
         newtrans.set_offset((x,y), identity_transform())
         return newtrans
-    if not units == 'inches':
-        raise ValueError('units must be dots or inches')
     if fig is None:
-        raise ValueError('For units of inches a fig kwarg is needed')
+        raise ValueError('For units of inches or points a fig kwarg is needed')
+    if units == 'points':
+        x /= 72.0
+        y /= 72.0
+    elif not units == 'inches':
+        raise ValueError('units must be dots, points, or inches')
     tx = Value(x) * fig.dpi
     ty = Value(y) * fig.dpi
     newtrans.set_offset((0,0), translation_transform(tx, ty))
