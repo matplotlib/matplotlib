@@ -21,37 +21,33 @@ import pylab as P
 from matplotlib.transforms import offset_copy
 
 X = P.arange(7)
-Y = P.rand(7)
+Y = X**2
 
-ax = P.subplot(1,1,1)
+fig = P.figure(figsize=(5,10))
+ax = P.subplot(2,1,1)
 
 # If we want the same offset for each text instance,
 # we only need to make one transform.  To get the
 # transform argument to offset_copy, we need to make the axes
 # first; the subplot command above is one way to do this.
-transOffset = offset_copy(ax.transData, fig=P.gcf(),
+
+transOffset = offset_copy(ax.transData, fig=fig,
                             x = 0.05, y=0.10, units='inches')
 
 for x, y in zip(X, Y):
     P.plot((x,),(y,), 'ro')
-    P.text(x, y, '%0.2f, %0.2f' % (x,y), transform=transOffset)
-
-P.figure()
+    P.text(x, y, '%d, %d' % (int(x),int(y)), transform=transOffset)
 
 
-# offset_copy works for polar plots also, but one can't simply
-# make an axes with subplot and then use the polar command to plot
-# in it.  (This is a bug.)  One way to get around this while
-# sticking with the pylab interface is to grab the transform
-# after the first polar() command.
-first = True
+# offset_copy works for polar plots also.
+
+ax = P.subplot(2,1,2, polar=True)
+
+transOffset = offset_copy(ax.transData, fig=fig, y = 6, units='dots')
+
 for x, y in zip(X, Y):
-    L = P.polar((x,),(y,), 'ro')
-    if first:
-        transOffset = offset_copy(P.gca().transData, fig=P.gcf(),
-                                y = 6, units='dots')
-        first = False
-    P.text(x, y, '%0.2f, %0.2f' % (x,y),
+    P.polar((x,),(y,), 'ro')
+    P.text(x, y, '%d, %d' % (int(x),int(y)),
                 transform=transOffset,
                 horizontalalignment='center',
                 verticalalignment='bottom')
