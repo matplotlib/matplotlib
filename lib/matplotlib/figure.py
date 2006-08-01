@@ -638,15 +638,19 @@ class Figure(Artist):
     def savefig(self, *args, **kwargs):
         """
         SAVEFIG(fname, dpi=150, facecolor='w', edgecolor='w',
-        orientation='portrait', papertype=None):
+        orientation='portrait', papertype=None, format=None):
 
-        Save the current figure to filename fname.  dpi is the resolution
-        in dots per inch.
+        Save the current figure.
 
-        Output file types currently supported are jpeg and png and will be
-        deduced by the extension to fname
+        fname - the filename to save the current figure to.
+                The output formats supported depend on the backend being used.
+                and are deduced by the extension to fname.
+                Possibilities are eps, jpeg, pdf, png, ps, svg.
+                fname can also be a file or file-like object - cairo backend
+                only.
+        dpi - is the resolution in dots per inch.
 
-        facecolor and edgecolor are the colors os the figure rectangle
+        facecolor and edgecolor are the colors of the figure rectangle
 
         orientation is either 'landscape' or 'portrait' - not supported on
         all backends; currently only on postscript output
@@ -654,6 +658,10 @@ class Figure(Artist):
         papertype is is one of 'letter', 'legal', 'executive', 'ledger', 'a0'
         through 'a10', or 'b0' through 'b10' - only supported for postscript
         output
+
+        format - one of 'pdf', 'png', 'ps', 'svg'. It is used to specify the
+                 output when fname is a file or file-like object - cairo
+                 backend only.
         """
 
         for key in ('dpi', 'facecolor', 'edgecolor'):

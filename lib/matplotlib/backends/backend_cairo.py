@@ -52,8 +52,7 @@ _debug = False
 #_debug = True
 
 # Image formats that this backend supports - for print_figure()
-IMAGE_FORMAT          = ['eps', 'png', 'ps', 'svg']
-#IMAGE_FORMAT          = ['eps', 'pdf', 'png', 'ps', 'svg'] # pdf not ready yet
+IMAGE_FORMAT          = ['eps', 'pdf', 'png', 'ps', 'svg']
 IMAGE_FORMAT_DEFAULT  = 'png'
 
 
@@ -519,30 +518,25 @@ def new_figure_manager(num, *args, **kwargs): # called by backends/__init__.py
 
 class FigureCanvasCairo (FigureCanvasBase):
     def print_figure(self, fo, dpi=150, facecolor='w', edgecolor='w',
-                     orientation='portrait', **kwargs):
+                     orientation='portrait', format=None, **kwargs):
         if _debug: print '%s.%s()' % (self.__class__.__name__, _fn_name())
         # settings for printing
         self.figure.dpi.set(dpi)
         self.figure.set_facecolor(facecolor)
         self.figure.set_edgecolor(edgecolor)
 
-        if isinstance (fo, file):  # eg when do savefig(sys.stdout)
-           ext = 'png'             # assume PNG format
-           # should be able to save fileobject to other formats too,
-           # print_figure() needs a 'format' argument
-        else:
-            root, ext = os.path.splitext(fo)
-            ext = ext[1:]
-            if ext == '':
-                fo = fo + '.' + ext
-                ext = IMAGE_FORMAT_DEFAULT
+        if format is None and isinstance (fo, basestring):
+            # get format from filename extension
+            format = os.path.splitext(fo)[1][1:]
 
-        ext = ext.lower()
-        if ext == 'png':
-           self._save_png (fo)
-        elif ext in ('pdf', 'ps', 'svg'):
-           self._save (fo, ext, orientation, **kwargs)
-        elif ext == 'eps': # backend_ps for eps
+        if format is not None:
+            format = format.lower()
+
+        if format == 'png':
+            self._save_png (fo)
+        elif format in ('pdf', 'ps', 'svg'):
+            self._save (fo, format, orientation, **kwargs)
+        elif format == 'eps': # backend_ps for eps
             from backend_ps import FigureCanvasPS  as FigureCanvas
             fc = FigureCanvas(self.figure)
             fc.print_figure (filename, dpi, facecolor, edgecolor,
@@ -550,7 +544,7 @@ class FigureCanvasCairo (FigureCanvasBase):
         else:
             warnings.warn('Format "%s" is not supported.\n'
                           'Supported formats: '
-                          '%s.' % (ext, ', '.join(IMAGE_FORMAT)))
+                          '%s.' % (format, ', '.join(IMAGE_FORMAT)))
 
 
     def _save_png (self, fobj):
@@ -565,7 +559,7 @@ class FigureCanvasCairo (FigureCanvasBase):
         surface.write_to_png (fobj)
 
 
-    def _save (self, fo, ext, orientation, **kwargs):
+    def _save (self, fo, format, orientation, **kwargs):
         # save PDF/PS/SVG
         orientation = kwargs.get('orientation', 'portrait')
 
@@ -578,23 +572,23 @@ class FigureCanvasCairo (FigureCanvasBase):
             width_in_points, height_in_points = (height_in_points,
                                                  width_in_points)
 
-        if ext == 'ps':
+        if format == 'ps':
             if not cairo.HAS_PS_SURFACE:
                 raise RuntimeError ('cairo has not been compiled with PS '
                                     'support enabled')
             surface = cairo.PSSurface (fo, width_in_points, height_in_points)
-        elif ext == 'pdf':
+        elif format == 'pdf':
             if not cairo.HAS_PDF_SURFACE:
                 raise RuntimeError ('cairo has not been compiled with PDF '
                                     'support enabled')
             surface = cairo.PDFSurface (fo, width_in_points, height_in_points)
-        elif ext == 'svg':
+        elif format == 'svg':
             if not cairo.HAS_SVG_SURFACE:
                 raise RuntimeError ('cairo has not been compiled with SVG '
                                     'support enabled')
             surface = cairo.SVGSurface (fo, width_in_points, height_in_points)
         else:
-           warnings.warn ("unknown extension: %s" % ext)
+           warnings.warn ("unknown format: %s" % format)
            return
 
         # surface.set_dpi() can be used
