@@ -511,7 +511,7 @@ grestore
                 drawone.state = 'l'
                 return ret
 
-        step = 50
+        step = 100000
         start = 0
         end = step
         skip = where(isnan(x) + isnan(y), 1, 0)
@@ -527,6 +527,7 @@ grestore
             drawone.state = 'm'
             ps = [i for i in [drawone(x,y,s) for x,y,s in points[start:end+1]]\
                   if i]
+##            ps.append('currentdash setdash')
             ps.append('stroke')
             write('\n'.join(ps)+'\n')
             start = end
@@ -534,7 +535,7 @@ grestore
         if cliprect: write('grestore\n')
 
 
-    def draw_lines_less_old(self, gc, x, y, transform=None):
+    def draw_lines_old(self, gc, x, y, transform=None):
         """
         x and y are equal length arrays, draw lines connecting each
         point in x, y
