@@ -527,7 +527,6 @@ grestore
             drawone.state = 'm'
             ps = [i for i in [drawone(x,y,s) for x,y,s in points[start:end+1]]\
                   if i]
-##            ps.append('currentdash setdash')
             ps.append('stroke')
             write('\n'.join(ps)+'\n')
             start = end
