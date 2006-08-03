@@ -198,7 +198,7 @@ class RendererPS(RendererBase):
         \   - back diagonal
         |   - vertical
         -   - horizontal
-        #   - crossed
+        +   - crossed
         X   - crossed diagonal
         letters can be combined, in which case all the specified
         hatchings are done
@@ -215,7 +215,7 @@ class RendererPS(RendererBase):
             elif (letter == '+'):
                 hatches['horiz'] += 1
                 hatches['vert'] += 1
-            elif (letter == 'x'):
+            elif (letter.lower() == 'x'):
                 hatches['diag1'] += 1
                 hatches['diag2'] += 1
 
