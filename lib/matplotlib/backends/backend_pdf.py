@@ -24,7 +24,7 @@ from matplotlib.figure import Figure
 from matplotlib.font_manager import fontManager
 from matplotlib.ft2font import FT2Font, FIXED_WIDTH, ITALIC, LOAD_NO_SCALE
 from matplotlib.mathtext import math_parse_s_pdf
-from matplotlib.numerix import Float32, UInt8, fromstring
+from matplotlib.numerix import Float32, UInt8, fromstring, arange
 from matplotlib.transforms import Bbox
 
 # Overview
@@ -212,6 +212,8 @@ _pdfops = dict(close_fill_stroke='b', fill_stroke='B', fill='f',
 	       use_xobject='Do',
 	       setgray_stroke='G', setgray_nonstroke='g',
 	       setrgb_stroke='RG', setrgb_nonstroke='rg',
+	       setcolorspace_stroke='CS', setcolorspace_nonstroke='cs',
+	       setcolor_stroke='SCN', setcolor_nonstroke='scn',
 	       setdash='d', setlinejoin='j', setlinecap='J', setgstate='gs',
 	       gsave='q', grestore='Q',
 	       textpos='Td', selectfont='Tf', textmatrix='Tm',
@@ -304,7 +306,8 @@ class PdfFile:
 	thePageObject = self.reserveObject('page 0')
 	contentObject = self.reserveObject('contents of page 0')
 	self.fontObject = self.reserveObject('fonts')
-	self.alphaStateObject = self.reserveObject('alpha states')
+	self.alphaStateObject = self.reserveObject('extended graphics states')
+	self.hatchObject = self.reserveObject('tiling patterns')
 	self.imageDictionaryObject = self.reserveObject('images')
 	resourceObject = self.reserveObject('resources')
 
@@ -338,6 +341,8 @@ class PdfFile:
 
 	self.alphaStates = {}	# maps alpha values to graphics state objects
 	self.nextAlphaState = 1
+	self.hatchPatterns = {}
+	self.nextHatch = 1
 
 	self.images = {}
 	self.nextImage = 1
@@ -352,6 +357,7 @@ class PdfFile:
 	resources = { 'Font': self.fontObject,
 		      'XObject': self.imageDictionaryObject,
 		      'ExtGState': self.alphaStateObject,
+		      'Pattern': self.hatchObject,
 		      'ProcSet': procsets }
 	self.writeObject(resourceObject, resources)
 
@@ -371,6 +377,7 @@ class PdfFile:
 	self.writeObject(self.alphaStateObject,
 			 dict([(val[0], val[1])
 			       for val in self.alphaStates.values()]))
+	self.writeHatches()
 	self.writeImages()
 	self.writeXref()
 	self.writeTrailer()
@@ -570,6 +577,69 @@ class PdfFile:
 		     'CA': alpha, 'ca': alpha })
 	return name
 
+    def hatchPattern(self, lst):
+	pattern = self.hatchPatterns.get(lst, None)
+	if pattern is not None:
+	    return pattern[0]
+
+	name = Name('H%d' % self.nextHatch)
+	self.nextHatch += 1
+	self.hatchPatterns[lst] = name
+	return name
+
+    def writeHatches(self):
+	hatchDict = dict()
+	sidelen = 144.0
+	density = 24.0
+	for lst, name in self.hatchPatterns.items():
+	    ob = self.reserveObject('hatch pattern')
+	    hatchDict[name] = ob
+	    self.currentstream = \
+		Stream(ob.id, self.reserveObject('length of hatch pattern'), 
+		       self,
+		        { 'Type': Name('Pattern'),
+			  'PatternType': 1, 'PaintType': 1, 'TilingType': 1,
+			  'BBox': [0, 0, sidelen, sidelen],
+			  'XStep': sidelen, 'YStep': sidelen,
+			  'Resources': {} })
+	    self.currentstream.begin()
+
+	    # lst is a tuple of stroke color, fill color, 
+	    # number of - lines, number of / lines, 
+	    # number of | lines, number of \ lines
+	    rgb = lst[0]
+	    self.output(rgb[0], rgb[1], rgb[2], Op.setrgb_stroke)
+	    if lst[1] is not None:
+		rgb = lst[1]
+		self.output(rgb[0], rgb[1], rgb[2], Op.setrgb_nonstroke,
+			    0, 0, sidelen, sidelen, Op.rectangle,
+			    Op.fill)
+	    if lst[2]:		# -
+		for j in arange(0.0, sidelen, density/lst[2]):
+		    self.output(0, j, Op.moveto,
+				sidelen, j, Op.lineto)
+	    if lst[3]:		# /
+		for j in arange(0.0, sidelen, density/lst[3]):
+		    self.output(0, j, Op.moveto,
+				sidelen-j, sidelen, Op.lineto,
+				sidelen-j, 0, Op.moveto,
+				sidelen, j, Op.lineto)
+	    if lst[4]:		# |
+		for j in arange(0.0, sidelen, density/lst[4]):
+		    self.output(j, 0, Op.moveto,
+				j, sidelen, Op.lineto)
+	    if lst[5]:		# \
+		for j in arange(sidelen, 0.0, -density/lst[5]):
+		    self.output(sidelen, j, Op.moveto,
+				j, sidelen, Op.lineto,
+				j, 0, Op.moveto,
+				0, j, Op.lineto)
+	    self.output(Op.stroke)
+
+	    self.currentstream.end()
+	    self.currentstream = None
+	self.writeObject(self.hatchObject, hatchDict)
+
     def imageObject(self, image):
 	"""Return name of an image XObject representing the given image."""
 
@@ -691,17 +761,10 @@ class RendererPdf(RendererBase):
 
     def check_gc(self, gc, fillcolor=None):
 	orig_fill = gc._fillcolor
-	if fillcolor is None:
-	    # We're not going to fill, so don't change the color
-	    gc._fillcolor = self.gc._fillcolor
-	else:
-	    # We are going to fill
-	    gc._fillcolor = fillcolor
+	gc._fillcolor = fillcolor
 
 	delta = self.gc.delta(gc)
-	if delta:
-	    self.file.output(*delta)
-	    self.gc.copy_properties(gc)
+	if delta: self.file.output(*delta)
 
 	# Restore gc to avoid unwanted side effects
 	gc._fillcolor = orig_fill
@@ -754,10 +817,8 @@ class RendererPdf(RendererBase):
 	self.file.output(subarcs[0][0], subarcs[0][1], Op.moveto)
 	for arc in subarcs:
 	    self.file.output(*(arc[2:] + (Op.curveto,)))
-	if rgbFace is None:
-	    self.file.output(gcEdge.stroke())
-	else:
-	    self.file.output(gcEdge.close_fill_stroke())
+
+	self.file.output(self.gc.close_and_paint())
 
     def draw_image(self, x, y, im, bbox):
         #print >>sys.stderr, "draw_image called"
@@ -776,7 +837,7 @@ class RendererPdf(RendererBase):
 	d = self.dpi_factor
 	self.check_gc(gc)
 	self.file.output(d*x1, d*y1, Op.moveto,
-			 d*x2, d*y2, Op.lineto, gc.stroke())
+			 d*x2, d*y2, Op.lineto, self.gc.paint())
 
     def draw_lines(self, gc, x, y):
 	d = self.dpi_factor
@@ -784,7 +845,7 @@ class RendererPdf(RendererBase):
 	self.file.output(d*x[0], d*y[0], Op.moveto)
 	for i in range(1,len(x)):
 	    self.file.output(d*x[i], d*y[i], Op.lineto)
-	self.file.output(gc.stroke())
+	self.file.output(self.gc.paint())
 
     def draw_point(self, gc, x, y):
         print >>sys.stderr, "draw_point called"
@@ -819,16 +880,13 @@ class RendererPdf(RendererBase):
 	self.file.output(d*points[0][0], d*points[0][1], Op.moveto)
 	for x,y in points[1:]:
 	    self.file.output(d*x, d*y, Op.lineto)
-	if rgbFace is None:
-	    self.file.output(gcEdge.close_stroke())
-	else:
-	    self.file.output(gcEdge.close_fill_stroke())
+	self.file.output(self.gc.close_and_paint())
 
     def draw_rectangle(self, gcEdge, rgbFace, x, y, width, height):
 	self.check_gc(gcEdge, rgbFace)
 	d = self.dpi_factor
 	self.file.output(d*x, d*y, d*width, d*height, Op.rectangle)
-	self.file.output(gcEdge.fill_stroke())
+	self.file.output(self.gc.paint())
 
     def _setup_textpos(self, x, y, angle, oldx=0, oldy=0, oldangle=0):
 	d = self.dpi_factor
@@ -940,28 +998,35 @@ class GraphicsContextPdf(GraphicsContextBase):
 	del d['parent']
 	return `d`
 
-    def copy_properties(self, other):
-	GraphicsContextBase.copy_properties(self, other)
-	self._fillcolor = other._fillcolor
-
-    def strokep(self):
+    def _strokep(self):
 	return self._linewidth > 0 and self._alpha > 0
 
-    def close_fill_stroke(self):
-	if self.strokep(): return Op.close_fill_stroke
-	else: return Op.fill
+    def _fillp(self):
+	return self._fillcolor is not None and self._hatch
 
-    def fill_stroke(self):
-	if self.strokep(): return Op.fill_stroke
-	else: return Op.fill
+    def close_and_paint(self):
+	if self._strokep():
+	    if self._fillp(): 
+		return Op.close_fill_stroke
+	    else:
+		return Op.close_stroke
+	else:
+	    if self._fillp():
+		return Op.fill
+	    else:
+		return Op.endpath
 
-    def stroke(self):
-	if self.strokep(): return Op.stroke
-	else: return Op.endpath
-
-    def close_stroke(self):
-	if self.strokep(): return Op.close_stroke
-	else: return Op.endpath
+    def paint(self):
+	if self._strokep():
+	    if self._fillp(): 
+		return Op.fill_stroke
+	    else:
+		return Op.stroke
+	else:
+	    if self._fillp():
+		return Op.fill
+	    else:
+		return Op.endpath
 
     capstyles = { 'butt': 0, 'round': 1, 'projecting': 2 }
     joinstyles = { 'miter': 0, 'round': 1, 'bevel': 2 }
@@ -982,13 +1047,33 @@ class GraphicsContextPdf(GraphicsContextBase):
 
     def alpha_cmd(self, alpha):
 	name = self.file.alphaState(alpha)
-	return [self.file.alphaState(alpha), Op.setgstate]
+	return [name, Op.setgstate]
+
+    def hatch_cmd(self, hatch):
+	if not hatch:
+	    if self._fillcolor:
+		return list(self._fillcolor) + [Op.setrgb_nonstroke]
+	    else:
+		return [Name('DeviceRGB'), Op.setcolorspace_nonstroke]
+	else:
+	    lst = ( self._rgb,
+		    self._fillcolor,
+		    hatch.count('-') + hatch.count('+'),
+		    hatch.count('/') + hatch.count('x'),
+		    hatch.count('|') + hatch.count('+'),
+		    hatch.count('\\') + hatch.count('x') )
+	    name = self.file.hatchPattern(lst)
+	    return [Name('Pattern'), Op.setcolorspace_nonstroke,
+		    name, Op.setcolor_nonstroke]
 
     def rgb_cmd(self, rgb):
 	return list(rgb) + [Op.setrgb_stroke] 
 
     def fillcolor_cmd(self, rgb):
-	return list(rgb) + [Op.setrgb_nonstroke] 
+	if rgb is None:
+	    return []
+	else:
+	    return list(rgb) + [Op.setrgb_nonstroke] 
 
     def push(self):
 	parent = GraphicsContextPdf(self.file)
@@ -1004,37 +1089,46 @@ class GraphicsContextPdf(GraphicsContextBase):
 	return [Op.grestore]
 
     def cliprect_cmd(self, cliprect):
-	"""Set clip rectangle. Can only be undone by popping the graphics
-	state; thus needs to be enclosed in a push/pop pair."""
+	"""Set clip rectangle. Calls self.pop() and self.push()."""
 	d = 72.0/self.file.dpi
-	return [d*t for t in cliprect] + \
-	       [Op.rectangle, Op.clip, Op.endpath]
 
-    commands = {
-	'_alpha': alpha_cmd,
-	'_capstyle': capstyle_cmd,
-	'_fillcolor': fillcolor_cmd,
-	'_joinstyle': joinstyle_cmd,
-	'_linewidth': linewidth_cmd,
-	'_dashes': dash_cmd,
-	'_rgb': rgb_cmd,
-	}
+	cmds = []
+	while self._cliprect != cliprect and self.parent is not None:
+	    cmds.extend(self.pop())
+	if self._cliprect != cliprect:
+	    cmds.extend(self.push() + 
+			[d*t for t in cliprect] + 
+			[Op.rectangle, Op.clip, Op.endpath])
+	return cmds
 
-    # TODO: _linestyle, _hatch
+    commands = (
+	('_cliprect', cliprect_cmd), # must come first since may pop
+	('_alpha', alpha_cmd),
+	('_capstyle', capstyle_cmd),
+	('_fillcolor', fillcolor_cmd),
+	('_joinstyle', joinstyle_cmd),
+	('_linewidth', linewidth_cmd),
+	('_dashes', dash_cmd),
+	('_rgb', rgb_cmd),
+	('_hatch', hatch_cmd),	# must come after fillcolor and rgb
+	)
+
+    # TODO: _linestyle
+
+    def copy_properties(self, other):
+	"""Copy properties of other into self."""
+	GraphicsContextBase.copy_properties(self, other)
+	self._fillcolor = other._fillcolor
 
     def delta(self, other):
-	"""What PDF commands are needed to transform self into other?
+	"""Copy properties of other into self and return PDF commands 
+	needed to transform self into other.
 	"""
 	cmds = []
-	while self._cliprect != other._cliprect and self.parent is not None:
-		cmds.extend(self.pop())
-	if self._cliprect != other._cliprect:
-	    cmds.extend(self.push())
-	    cmds.extend(self.cliprect_cmd(other._cliprect))
-
-	for param in self.commands.keys():
+	for param, cmd in self.commands:
 	    if getattr(self, param) != getattr(other, param):
-		cmds.extend(self.commands[param](self, getattr(other, param)))
+		cmds.extend(cmd(self, getattr(other, param)))
+		setattr(self, param, getattr(other, param))
 	return cmds
 
     def finalize(self):
