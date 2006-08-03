@@ -1011,7 +1011,7 @@ class GraphicsContextPdf(GraphicsContextBase):
 	return self._linewidth > 0 and self._alpha > 0
 
     def _fillp(self):
-	return self._fillcolor is not None and self._hatch
+	return self._fillcolor is not None or self._hatch
 
     def close_and_paint(self):
 	if self._strokep():
