@@ -68,7 +68,6 @@ from matplotlib.transforms import Bbox
 #   is serif/sans-serif, or symbolic/non-symbolic? 
 # * draw_markers, draw_line_collection, etc. 
 # * use_tex 
-# * hatches
 
 def fill(strings, linelen=75):
     """Make one string from sequence of strings, with whitespace
@@ -1056,6 +1055,7 @@ class GraphicsContextPdf(GraphicsContextBase):
 	    else:
 		return [Name('DeviceRGB'), Op.setcolorspace_nonstroke]
 	else:
+	    hatch = hatch.lower()
 	    lst = ( self._rgb,
 		    self._fillcolor,
 		    hatch.count('-') + hatch.count('+'),
