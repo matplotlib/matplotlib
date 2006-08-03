@@ -15,7 +15,7 @@ import zlib
 from datetime import datetime
 from math import ceil, cos, floor, pi, sin
 
-from matplotlib import __version__, rcParams
+from matplotlib import __version__, rcParams, agg
 from matplotlib._pylab_helpers import Gcf
 from matplotlib.backend_bases import RendererBase, GraphicsContextBase,\
      FigureManagerBase, FigureCanvasBase
@@ -309,7 +309,7 @@ class PdfFile:
 	self.fontObject = self.reserveObject('fonts')
 	self.alphaStateObject = self.reserveObject('extended graphics states')
 	self.hatchObject = self.reserveObject('tiling patterns')
-	self.imageDictionaryObject = self.reserveObject('images')
+	self.XObjectObject = self.reserveObject('external objects')
 	resourceObject = self.reserveObject('resources')
 
 	root = { 'Type': Name('Catalog'),
@@ -348,6 +348,9 @@ class PdfFile:
 	self.images = {}
 	self.nextImage = 1
 
+	self.markers = {}
+	self.nextMarker = 1
+
 	# The PDF spec recommends to include every procset
 	procsets = [ Name(x)
 		     for x in "PDF Text ImageB ImageC ImageI".split() ]
@@ -356,7 +359,7 @@ class PdfFile:
 	# Possibly TODO: more general ExtGState (graphics state dictionaries)
 	#                ColorSpace Pattern Shading Properties
 	resources = { 'Font': self.fontObject,
-		      'XObject': self.imageDictionaryObject,
+		      'XObject': self.XObjectObject,
 		      'ExtGState': self.alphaStateObject,
 		      'Pattern': self.hatchObject,
 		      'ProcSet': procsets }
@@ -379,7 +382,11 @@ class PdfFile:
 			 dict([(val[0], val[1])
 			       for val in self.alphaStates.values()]))
 	self.writeHatches()
+	xobjects = dict(self.images.values())
+	xobjects.update([(name, value[0]) for (name, value) in self.markers.items()])
+	self.writeObject(self.XObjectObject, xobjects)
 	self.writeImages()
+	self.writeMarkers()
 	self.writeXref()
 	self.writeTrailer()
 	self.fh.close()
@@ -595,6 +602,8 @@ class PdfFile:
 	for lst, name in self.hatchPatterns.items():
 	    ob = self.reserveObject('hatch pattern')
 	    hatchDict[name] = ob
+	    res = { 'Procsets': 
+		    [ Name(x) for x in "PDF Text ImageB ImageC ImageI".split() ] }
 	    self.currentstream = \
 		Stream(ob.id, self.reserveObject('length of hatch pattern'), 
 		       self,
@@ -602,7 +611,7 @@ class PdfFile:
 			  'PatternType': 1, 'PaintType': 1, 'TilingType': 1,
 			  'BBox': [0, 0, sidelen, sidelen],
 			  'XStep': sidelen, 'YStep': sidelen,
-			  'Resources': {} })
+			  'Resources': res })
 	    self.currentstream.begin()
 
 	    # lst is a tuple of stroke color, fill color, 
@@ -677,9 +686,6 @@ class PdfFile:
         return rgbat[0], rgbat[1], gray.tostring()
 
     def writeImages(self):
-	self.writeObject(self.imageDictionaryObject,
-			 dict(self.images.values()))
-
 	for img, pair in self.images.items():
 	    img.flipud_out()
 	    if img.is_grayscale:
@@ -701,6 +707,66 @@ class PdfFile:
 	    self.currentstream = None
 
 	    img.flipud_out()
+
+    def markerObject(self, path, fillp, lw):
+	"""Return name of a marker XObject representing the given path."""
+
+	name = Name('M%d' % self.nextMarker)
+	ob = self.reserveObject('marker %d' % self.nextMarker)
+	self.nextMarker += 1
+	self.markers[name] = (ob, path, fillp, lw)
+	return name
+
+    def writeMarkers(self):
+	for name, tuple in self.markers.items():
+	    object, path, fillp, lw = tuple
+	    self.currentstream = \
+		Stream(object.id,
+		       self.reserveObject('length of marker stream'), self,
+		       {'Type': Name('XObject'), 'Subtype': Name('Form'),
+			'BBox': self.pathBbox(path, lw) })
+	    self.currentstream.begin()
+	    self.writePath(path, fillp)
+	    self.currentstream.end()
+	    self.currentstream = None
+
+    def pathBbox(path, lw):
+	path.rewind(0)
+	x, y = [], []
+	while True:
+	    code, xp, yp = path.vertex()
+	    if code in (agg.path_cmd_move_to, agg.path_cmd_line_to):
+		x.append(xp)
+		y.append(yp)
+	    elif code == agg.path_cmd_stop:
+		break
+	return min(x)-lw, min(y)-lw, max(x)+lw, max(y)+lw
+    pathBbox = staticmethod(pathBbox)
+
+    def writePath(self, path, fillp):
+	path.rewind(0)
+	while True:
+	    code, xp, yp = path.vertex()
+	    if code == agg.path_cmd_stop:
+                break
+            elif code == agg.path_cmd_move_to:
+		self.output(xp, yp, Op.moveto)
+            elif code == agg.path_cmd_line_to:
+		self.output(xp, yp, Op.lineto)
+            elif code == agg.path_cmd_curve3:
+                pass
+            elif code == agg.path_cmd_curve4:
+                pass
+            elif code == agg.path_cmd_end_poly:
+		self.output(Op.closepath)
+            elif code == agg.path_cmd_mask:
+                pass
+            else:
+                print >>sys.stderr, "writePath", code, xp, yp
+	if fillp:
+	    self.output(Op.fill_stroke)
+	else:
+	    self.output(Op.stroke)
 
     def reserveObject(self, name=''):
 	"""Reserve an ID for an indirect object.
@@ -756,6 +822,9 @@ class RendererPdf(RendererBase):
 	self.gc = self.new_gc()
 	self.fonts = {}
 	self.dpi_factor = 72.0/file.dpi
+
+    def points_to_pixels(self, points):
+	return points / self.dpi_factor
 
     def finalize(self):
 	self.gc.finalize()
@@ -843,9 +912,11 @@ class RendererPdf(RendererBase):
 	self.file.output(d*x1, d*y1, Op.moveto,
 			 d*x2, d*y2, Op.lineto, self.gc.paint())
 
-    def draw_lines(self, gc, x, y):
+    def draw_lines(self, gc, x, y, transform=None):
 	d = self.dpi_factor
 	self.check_gc(gc)
+	if transform is not None:
+	    x, y = transform.seq_x_y(x, y)
 	good = isfinite(x) & isfinite(y)
 	next_op = Op.moveto
 	for i in range(len(x)):
@@ -896,6 +967,19 @@ class RendererPdf(RendererBase):
 	d = self.dpi_factor
 	self.file.output(d*x, d*y, d*width, d*height, Op.rectangle)
 	self.file.output(self.gc.paint())
+
+    def draw_markers(self, gc, path, rgbFace, x, y, trans):
+	self.check_gc(gc, rgbFace)
+	fillp = rgbFace is not None
+	marker = self.file.markerObject(path, fillp, self.gc._linewidth)
+	x, y = trans.seq_x_y(x, y)
+	self.file.output(Op.gsave)
+	ox, oy = 0, 0
+	for i in range(len(x)):
+	    dx, dy, ox, oy = x[i]-ox, y[i]-oy, x[i], y[i]
+	    self.file.output(1, 0, 0, 1, dx, dy, Op.concat_matrix,
+			     marker, Op.use_xobject)
+	self.file.output(Op.grestore)
 
     def _setup_textpos(self, x, y, angle, oldx=0, oldy=0, oldangle=0):
 	d = self.dpi_factor
