@@ -24,7 +24,7 @@ from matplotlib.figure import Figure
 from matplotlib.font_manager import fontManager
 from matplotlib.ft2font import FT2Font, FIXED_WIDTH, ITALIC, LOAD_NO_SCALE
 from matplotlib.mathtext import math_parse_s_pdf
-from matplotlib.numerix import Float32, UInt8, fromstring, arange
+from matplotlib.numerix import Float32, UInt8, fromstring, arange, isfinite
 from matplotlib.transforms import Bbox
 
 # Overview
@@ -95,6 +95,8 @@ def pdfRepr(obj):
     # need to use %f with some precision.  Perhaps the precision
     # should adapt to the magnitude of the number?
     elif isinstance(obj, float):
+	if not isfinite(obj):
+	    raise ValueError, "Can only output finite numbers in PDF"
 	r = "%.10f" % obj
 	return r.rstrip('0').rstrip('.')
 
@@ -833,6 +835,9 @@ class RendererPdf(RendererBase):
 			 imob, Op.use_xobject, Op.grestore)
 
     def draw_line(self, gc, x1, y1, x2, y2):
+	if not (isfinite(x1) and isfinite(y1) and
+		isfinite(x2) and isfinite(y2)):
+	    return
 	d = self.dpi_factor
 	self.check_gc(gc)
 	self.file.output(d*x1, d*y1, Op.moveto,
@@ -841,9 +846,14 @@ class RendererPdf(RendererBase):
     def draw_lines(self, gc, x, y):
 	d = self.dpi_factor
 	self.check_gc(gc)
-	self.file.output(d*x[0], d*y[0], Op.moveto)
-	for i in range(1,len(x)):
-	    self.file.output(d*x[i], d*y[i], Op.lineto)
+	good = isfinite(x) & isfinite(y)
+	next_op = Op.moveto
+	for i in range(len(x)):
+	    if good[i]:
+		self.file.output(d*x[i], d*y[i], next_op)
+		next_op = Op.lineto
+	    else:
+		next_op = Op.moveto
 	self.file.output(self.gc.paint())
 
     def draw_point(self, gc, x, y):
