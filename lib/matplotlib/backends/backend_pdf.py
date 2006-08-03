@@ -968,17 +968,19 @@ class RendererPdf(RendererBase):
 	self.file.output(d*x, d*y, d*width, d*height, Op.rectangle)
 	self.file.output(self.gc.paint())
 
-    def draw_markers(self, gc, path, rgbFace, x, y, trans):
+    def _draw_markers(self, gc, path, rgbFace, x, y, trans):
 	self.check_gc(gc, rgbFace)
 	fillp = rgbFace is not None
 	marker = self.file.markerObject(path, fillp, self.gc._linewidth)
 	x, y = trans.seq_x_y(x, y)
+	good = isfinite(x) & isfinite(y) 
 	self.file.output(Op.gsave)
 	ox, oy = 0, 0
 	for i in range(len(x)):
-	    dx, dy, ox, oy = x[i]-ox, y[i]-oy, x[i], y[i]
-	    self.file.output(1, 0, 0, 1, dx, dy, Op.concat_matrix,
-			     marker, Op.use_xobject)
+	    if good[i]:
+		dx, dy, ox, oy = x[i]-ox, y[i]-oy, x[i], y[i]
+		self.file.output(1, 0, 0, 1, dx, dy, Op.concat_matrix,
+				 marker, Op.use_xobject)
 	self.file.output(Op.grestore)
 
     def _setup_textpos(self, x, y, angle, oldx=0, oldy=0, oldangle=0):
