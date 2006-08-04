@@ -12,6 +12,7 @@ import sys
 import time
 import zlib
 
+from cStringIO import StringIO
 from datetime import datetime
 from math import ceil, cos, floor, pi, sin
 
@@ -232,57 +233,69 @@ class Stream:
     """
 
     def __init__(self, id, len, file, extra=None):
-	"""id: object id of stream; len: an unused Reference object
-	for the length of the stream; file: a PdfFile; extra:
-	a dictionary of extra key-value pairs to include in the
-	stream header
-	"""
+	"""id: object id of stream; len: an unused Reference object for the
+	length of the stream, or None (to use a memory buffer); file:
+	a PdfFile; extra: a dictionary of extra key-value pairs to
+	include in the stream header """
 	self.id = id		# object id
 	self.len = len		# id of length object
-	self.file = file	# file to which the stream is written
+	self.pdfFile = file
+	self.file = file.fh	# file to which the stream is written
 	self.compressobj = None	# compression object
 	if extra is None: self.extra = dict()
 	else: self.extra = extra
 
-    def begin(self):
-	"""Initialize stream."""
+	self.pdfFile.recordXref(self.id)
+	if rcParams['pdf.compression']:
+	    self.compressobj = zlib.compressobj(rcParams['pdf.compression'])
+	if self.len is None:
+	    self.file = StringIO()
+	else: 
+	    self._writeHeader()
+	    self.pos = self.file.tell()
 
-	write = self.file.fh.write
-	self.file.recordXref(self.id)
+    def _writeHeader(self):
+	write = self.file.write
 	write("%d 0 obj\n" % self.id)
 	dict = self.extra
 	dict['Length'] = self.len
 	if rcParams['pdf.compression']:
 	    dict['Filter'] = Name('FlateDecode')
+
 	write(pdfRepr(dict))
 	write("\nstream\n")
-	self.pos = self.file.fh.tell()
-	if rcParams['pdf.compression']:
-	    self.compressobj = zlib.compressobj(rcParams['pdf.compression'])
 
     def end(self):
 	"""Finalize stream."""
 
 	self._flush()
-	length = self.file.fh.tell() - self.pos
-	self.file.write("\nendstream\nendobj\n")
-	self.file.writeObject(self.len, length)
+	if self.len is None:
+	    contents = self.file.getvalue()
+	    self.len = len(contents)
+	    self.file = self.pdfFile.fh
+	    self._writeHeader()
+	    self.file.write(contents)
+	    self.file.write("\nendstream\nendobj\n")
+	else:
+	    length = self.file.tell() - self.pos
+	    self.file.write("\nendstream\nendobj\n")
+	    self.pdfFile.writeObject(self.len, length)
 
     def write(self, data):
 	"""Write some data on the stream."""
 
 	if self.compressobj is None:
-	    self.file.fh.write(data)
+	    self.file.write(data)
 	else:
 	    compressed = self.compressobj.compress(data)
-	    self.file.fh.write(compressed)
+	    self.file.write(compressed)
 
     def _flush(self):
 	"""Flush the compression object."""
 
 	if self.compressobj is not None:
 	    compressed = self.compressobj.flush()
-	    self.file.fh.write(compressed)
+	    self.file.write(compressed)
 	    self.compressobj = None
 
 class PdfFile:
@@ -366,17 +379,13 @@ class PdfFile:
 	self.writeObject(resourceObject, resources)
 
 	# Start the content stream of the page
-	self.contents = \
-	    Stream(contentObject.id,
-		   self.reserveObject('length of content stream'),
-		   self)
-	self.contents.begin()
-	self.currentstream = self.contents
+	self.beginStream(contentObject.id,
+			 self.reserveObject('length of content stream'))
 
     def close(self):
 	# End the content stream and write out the various deferred
 	# objects
-	self.contents.end()
+	self.endStream()
 	self.writeFonts()
 	self.writeObject(self.alphaStateObject,
 			 dict([(val[0], val[1])
@@ -400,6 +409,14 @@ class PdfFile:
     def output(self, *data):
 	self.write(fill(map(pdfRepr, data)))
 	self.write('\n')
+
+    def beginStream(self, id, len, extra=None):
+	assert self.currentstream is None
+	self.currentstream = Stream(id, len, self, extra)
+
+    def endStream(self):
+	self.currentstream.end()
+	self.currentstream = None
 
     # These fonts do not need to be embedded; every PDF viewing
     # application is required to have them.
@@ -444,7 +461,6 @@ class PdfFile:
 
 	font = FT2Font(filename)
 
-
 	def cvt(length, upe=font.units_per_EM, nearest=True):
 	    "Convert font coordinates to PDF glyph coordinates"
 	    value = length / upe * 1000
@@ -473,10 +489,10 @@ class PdfFile:
 	# end first helps reduce LastChar, which apparently needs to
 	# be less than 256 or acroread complains.
 	missingwidth = widths[-1]
-	while widths and widths[-1] == missingwidth:
+	while len(widths)>1 and widths[-1] == missingwidth:
 	    lastchar -= 1
 	    widths.pop()
-	while widths and widths[0] == missingwidth:
+	while len(widths)>1 and widths[0] == missingwidth:
 	    firstchar += 1
 	    widths.pop(0)
 
@@ -553,11 +569,9 @@ class PdfFile:
 	self.writeObject(fontdictObject, fontdict)
 	self.writeObject(widthsObject, widths)
 	self.writeObject(fontdescObject, descriptor)
-	self.currentstream = \
-	    Stream(descriptor['FontFile2'].id,
-		   self.reserveObject('length of font stream'),
-		   self, {'Length1': length1Object})
-	self.currentstream.begin()
+	self.beginStream(descriptor['FontFile2'].id,
+			 self.reserveObject('length of font stream'),
+			 {'Length1': length1Object})
 	fontfile = open(filename, 'rb')
 	length1 = 0
 	while True:
@@ -565,8 +579,7 @@ class PdfFile:
 	    if not data: break
 	    length1 += len(data)
 	    self.currentstream.write(data)
-	self.currentstream.end()
-	self.currentstream = None
+	self.endStream()
 	self.writeObject(length1Object, length1)
 
 	return fontdictObject
@@ -604,15 +617,13 @@ class PdfFile:
 	    hatchDict[name] = ob
 	    res = { 'Procsets': 
 		    [ Name(x) for x in "PDF Text ImageB ImageC ImageI".split() ] }
-	    self.currentstream = \
-		Stream(ob.id, self.reserveObject('length of hatch pattern'), 
-		       self,
-		        { 'Type': Name('Pattern'),
-			  'PatternType': 1, 'PaintType': 1, 'TilingType': 1,
-			  'BBox': [0, 0, sidelen, sidelen],
-			  'XStep': sidelen, 'YStep': sidelen,
-			  'Resources': res })
-	    self.currentstream.begin()
+	    self.beginStream(
+		ob.id, None, 
+		{ 'Type': Name('Pattern'),
+		  'PatternType': 1, 'PaintType': 1, 'TilingType': 1,
+		  'BBox': [0, 0, sidelen, sidelen],
+		  'XStep': sidelen, 'YStep': sidelen,
+		  'Resources': res })
 
 	    # lst is a tuple of stroke color, fill color, 
 	    # number of - lines, number of / lines, 
@@ -646,8 +657,7 @@ class PdfFile:
 				0, j, Op.lineto)
 	    self.output(Op.stroke)
 
-	    self.currentstream.end()
-	    self.currentstream = None
+	    self.endStream()
 	self.writeObject(self.hatchObject, hatchDict)
 
     def imageObject(self, image):
@@ -695,16 +705,14 @@ class PdfFile:
 		height, width, data = self._rgb(img)
 		colorspace = Name('DeviceRGB')
 
-	    self.currentstream = \
-		Stream(pair[1].id,
-		       self.reserveObject('length of image stream'), self, 
-		       {'Type': Name('XObject'), 'Subtype': Name('Image'),
-			'Width': width, 'Height': height,
-			'ColorSpace': colorspace, 'BitsPerComponent': 8 })
-	    self.currentstream.begin()
+	    self.beginStream(
+		pair[1].id,
+		self.reserveObject('length of image stream'), 
+		{'Type': Name('XObject'), 'Subtype': Name('Image'),
+		 'Width': width, 'Height': height,
+		 'ColorSpace': colorspace, 'BitsPerComponent': 8 })
 	    self.currentstream.write(data) # TODO: predictors (i.e., output png)
-	    self.currentstream.end()
-	    self.currentstream = None
+	    self.endStream()
 
 	    img.flipud_out()
 
@@ -720,22 +728,20 @@ class PdfFile:
     def writeMarkers(self):
 	for name, tuple in self.markers.items():
 	    object, path, fillp, lw = tuple
-	    self.currentstream = \
-		Stream(object.id,
-		       self.reserveObject('length of marker stream'), self,
-		       {'Type': Name('XObject'), 'Subtype': Name('Form'),
-			'BBox': self.pathBbox(path, lw) })
-	    self.currentstream.begin()
+	    self.beginStream(
+		object.id, None, 
+		{'Type': Name('XObject'), 'Subtype': Name('Form'),
+		 'BBox': self.pathBbox(path, lw) })
 	    self.writePath(path, fillp)
-	    self.currentstream.end()
-	    self.currentstream = None
+	    self.endStream()
 
     def pathBbox(path, lw):
 	path.rewind(0)
 	x, y = [], []
 	while True:
 	    code, xp, yp = path.vertex()
-	    if code in (agg.path_cmd_move_to, agg.path_cmd_line_to):
+	    if code & agg.path_cmd_mask in \
+		    (agg.path_cmd_move_to, agg.path_cmd_line_to):
 		x.append(xp)
 		y.append(yp)
 	    elif code == agg.path_cmd_stop:
