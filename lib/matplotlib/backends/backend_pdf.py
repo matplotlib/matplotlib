@@ -24,7 +24,7 @@ from matplotlib.figure import Figure
 from matplotlib.font_manager import fontManager
 from matplotlib.ft2font import FT2Font, FIXED_WIDTH, ITALIC, LOAD_NO_SCALE
 from matplotlib.mathtext import math_parse_s_pdf
-from matplotlib.numerix import Float32, UInt8, fromstring, arange, isfinite
+from matplotlib.numerix import Float32, UInt8, fromstring, arange, isfinite, asarray
 from matplotlib.transforms import Bbox
 
 # Overview
@@ -747,6 +747,7 @@ class PdfFile:
 	path.rewind(0)
 	while True:
 	    code, xp, yp = path.vertex()
+	    code = code & agg.path_cmd_mask
 	    if code == agg.path_cmd_stop:
                 break
             elif code == agg.path_cmd_move_to:
@@ -759,8 +760,6 @@ class PdfFile:
                 pass
             elif code == agg.path_cmd_end_poly:
 		self.output(Op.closepath)
-            elif code == agg.path_cmd_mask:
-                pass
             else:
                 print >>sys.stderr, "writePath", code, xp, yp
 	if fillp:
@@ -968,19 +967,22 @@ class RendererPdf(RendererBase):
 	self.file.output(d*x, d*y, d*width, d*height, Op.rectangle)
 	self.file.output(self.gc.paint())
 
-    def _draw_markers(self, gc, path, rgbFace, x, y, trans):
+    def draw_markers(self, gc, path, rgbFace, x, y, trans):
 	self.check_gc(gc, rgbFace)
 	fillp = rgbFace is not None
 	marker = self.file.markerObject(path, fillp, self.gc._linewidth)
-	x, y = trans.seq_x_y(x, y)
+	x, y = trans.numerix_x_y(asarray(x), asarray(y))
+	x, y = self.dpi_factor * x, self.dpi_factor * y
 	good = isfinite(x) & isfinite(y) 
+
 	self.file.output(Op.gsave)
 	ox, oy = 0, 0
 	for i in range(len(x)):
-	    if good[i]:
-		dx, dy, ox, oy = x[i]-ox, y[i]-oy, x[i], y[i]
-		self.file.output(1, 0, 0, 1, dx, dy, Op.concat_matrix,
-				 marker, Op.use_xobject)
+	    if not good[i]: continue
+	    dx, dy, ox, oy = x[i]-ox, y[i]-oy, x[i], y[i]
+	    self.file.output(1, 0, 0, 1, dx, dy, 
+			     Op.concat_matrix,
+			     marker, Op.use_xobject)
 	self.file.output(Op.grestore)
 
     def _setup_textpos(self, x, y, angle, oldx=0, oldy=0, oldangle=0):
@@ -1027,6 +1029,8 @@ class RendererPdf(RendererBase):
     def draw_text(self, gc, x, y, s, prop, angle, ismath=False):
 	# TODO: combine consecutive texts into one BT/ET delimited section
 	#       unicode
+	if isinstance(s, unicode):
+	    s = s.encode('ascii', 'replace')
 	if ismath: return self.draw_mathtext(gc, x, y, s, prop, angle)
 	self.check_gc(gc, gc._rgb)
 
@@ -1137,7 +1141,9 @@ class GraphicsContextPdf(GraphicsContextBase):
 
     def dash_cmd(self, dashes):
 	offset, dash = dashes
-	if dash is None: dash = []
+	if dash is None: 
+	    dash = []
+	    offset = 0
 	return [list(dash), offset, Op.setdash]
 
     def alpha_cmd(self, alpha):
