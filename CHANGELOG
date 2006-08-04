@@ -1,3 +1,5 @@
+2006-08-04 Added draw_markers to PDF backend. - JKS
+
 2006-08-01 Fixed a bug in postscript's rendering of dashed lines - DSD
 
 2006-08-01 figure.py: savefig() update docstring to add support for 'format'
