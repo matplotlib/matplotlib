@@ -58,7 +58,7 @@ if which[0] == "numarray":
 elif which[0] == "numeric":
     #from nc_imports import *
     from Numeric import *
-    from _nc_imports import nx, inf, infinity, Infinity, isnan, all
+    from _nc_imports import nx, inf, infinity, Infinity, isnan, all, any
     from Matrix import Matrix
     import Numeric
     version = 'Numeric %s'%Numeric.__version__
@@ -69,16 +69,17 @@ elif which[0] == "numpy":
     except ImportError:
         import numpy
         from numpy import *
-    from _sp_imports import nx, infinity, rand, randn
-    from _sp_imports import UInt8, UInt16, UInt32
-    Matrix = matrix
+    from _sp_imports import nx, infinity, rand, randn, isnan, all, any
+    from _sp_imports import UInt8, UInt16, UInt32, Infinity
+    try:
+        from numpy.oldnumeric.matrix import Matrix
+    except ImportError:
+        Matrix = matrix
     version = 'numpy %s' % numpy.__version__
+    from numpy import nan
 else:
     raise RuntimeError("invalid numerix selector")
 
-if (which[0] == 'numeric'):
-    def any(a):
-        return sometrue(ravel(a))
 
 # Some changes are only applicable to the new numpy:
 if (which[0] == 'numarray' or
@@ -96,10 +97,12 @@ if (which[0] == 'numarray' or
     def angle(a):
         return arctan2(a.imag, a.real)
 
-
 else:
     # We've already checked for a valid numerix selector,
     # so assume numpy.
+    from mlab import amin, amax
+    newaxis = NewAxis
+    from numpy import angle
     def typecode(a):
         return a.dtype.char
     def iscontiguous(a):
@@ -108,23 +111,6 @@ else:
         return a.byteswap()
     def itemsize(a):
         return a.itemsize
-    # resize function is already defined by numpy
-    # Fix typecode->dtype
-    def fixkwargs(kwargs):
-        if 'typecode' in kwargs:
-            val = kwargs['typecode']
-            del kwargs['typecode']
-            kwargs['dtype'] = val
-    def array(*args, **kwargs):
-        fixkwargs(kwargs)
-        return numpy.array(*args, **kwargs)
-    def zeros(*args, **kwargs):
-        fixkwargs(kwargs)
-        return numpy.zeros(*args, **kwargs)
-    def ones(*args, **kwargs):
-        fixkwargs(kwargs)
-        return numpy.ones(*args, **kwargs)
-
 
 verbose.report('numerix %s'%version)
 # a bug fix for blas numeric suggested by Fernando Perez

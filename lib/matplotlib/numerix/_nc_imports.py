@@ -29,6 +29,13 @@ def all(a, axis=None):
     else:
         return alltrue(a, axis)
 
+def any(a, axis=None):
+    if axis is None:
+        return sometrue(ravel(a))
+    else:
+        return sometrue(a, axis)
+
+
 # inf is useful for testing infinities in results of array divisions
 # (which don't raise exceptions)
 

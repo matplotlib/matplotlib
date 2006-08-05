@@ -5,10 +5,9 @@ if which[0] == "numarray":
 elif which[0] == "numeric":
     from LinearAlgebra import *
 elif which[0] == "numpy":
-    from numpy.linalg import *
     try:
-        from numpy.linalg.old import *
+        from numpy.oldnumeric.linear_algebra import *
     except ImportError:
-        pass
+        from numpy.linalg.old import *
 else:
     raise RuntimeError("invalid numerix selector")

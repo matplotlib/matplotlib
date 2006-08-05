@@ -12,7 +12,7 @@ elif which[0] == "numpy":
     from numpy.core.ma import *
     def getmaskorNone(obj):
         _msk = getmask(obj)
-	if _msk is nomask:
+        if _msk is nomask:
             return None
         return _msk
 else:

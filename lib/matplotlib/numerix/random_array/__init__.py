@@ -5,6 +5,9 @@ if which[0] == "numarray":
 elif which[0] == "numeric":
     from RandomArray import *
 elif which[0] == "numpy":
-    from numpy.random import *
+    try:
+        from numpy.oldnumeric.random_array import *
+    except ImportError:
+        from numpy.random import *
 else:
     raise RuntimeError("invalid numerix selector")
