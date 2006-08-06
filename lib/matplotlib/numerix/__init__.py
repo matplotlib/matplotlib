@@ -55,6 +55,7 @@ if which[0] == "numarray":
     from numarray.convolve import cross_correlate, convolve
     import numarray
     version = 'numarray %s'%numarray.__version__
+    nan = float('nan')
 elif which[0] == "numeric":
     #from nc_imports import *
     from Numeric import *
@@ -62,6 +63,7 @@ elif which[0] == "numeric":
     from Matrix import Matrix
     import Numeric
     version = 'Numeric %s'%Numeric.__version__
+    nan = float('nan')
 elif which[0] == "numpy":
     try:
         import numpy.oldnumeric as numpy
