@@ -533,10 +533,10 @@ class Ellipse(Patch):
         self.width, self.height = width, height
         
         x,y = self.center
-        l,r = x-width, x+width
-        b,t = y-height, y+height
+        l,r = x-width/2.0, x+width/2.0
+        b,t = y-height/2.0, y+height/2.0
         
-        self.verts = array(((l,y),(x,t),(r,y),(x,b)), Float)
+        self.verts = array(((x,y),(l,y),(x,t),(r,y),(x,b)), Float)
         
     def get_verts(self):
         """
@@ -563,9 +563,11 @@ class Ellipse(Patch):
         if self._hatch:
             gc.set_hatch(self._hatch )
 
-        xs,ys = self._transform.seq_x_y((self.center[0],), (self.center[1],))
+        tverts = self._transform.seq_xy_tups(self.verts) # center is first vert
+        width = tverts[3,0] - tverts[1,0]
+        height = tverts[2,1] - tverts[4,1]
 
-        renderer.draw_arc(gc, rgbFace, xs[0], ys[0], self.width, self.height, 0.0, 360.0)
+        renderer.draw_arc(gc, rgbFace, tverts[0,0], tverts[0,1], width, height, 0.0, 360.0)
 
 class PolygonInteractor:
     """
