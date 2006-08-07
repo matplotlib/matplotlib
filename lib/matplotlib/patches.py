@@ -521,6 +521,51 @@ class Circle(RegularPolygon):
                                 radius,
                                 orientation=0,
                                 **kwargs)
+        
+class Ellipse(Patch):
+    """
+    A scale-free ellipse
+    """
+    def __init__(self, xy, width, height, **kwargs):
+        Patch.__init__(self, **kwargs)
+
+        self.center  = array(xy, Float)
+        self.width, self.height = width, height
+        
+        x,y = self.center
+        l,r = x-width, x+width
+        b,t = y-height, y+height
+        
+        self.verts = array(((l,y),(x,t),(r,y),(x,b)), Float)
+        
+    def get_verts(self):
+        """
+        Not actually used for rendering.  Provided to conform to
+        Patch super class.
+        """
+        return self.verts
+        
+    def draw(self, renderer):
+        if not self.get_visible(): return
+        #renderer.open_group('patch')
+        gc = renderer.new_gc()
+        gc.set_foreground(self._edgecolor)
+        gc.set_linewidth(self._linewidth)
+        gc.set_alpha(self._alpha)
+        gc.set_antialiased(self._antialiased)
+        if self.get_clip_on(): gc.set_clip_rectangle(
+            self.clipbox.get_bounds())
+        gc.set_capstyle('projecting')
+
+        if not self.fill or self._facecolor is None: rgbFace = None
+        else: rgbFace = colorConverter.to_rgb(self._facecolor)
+
+        if self._hatch:
+            gc.set_hatch(self._hatch )
+
+        xs,ys = self._transform.seq_x_y((self.center[0],), (self.center[1],))
+
+        renderer.draw_arc(gc, rgbFace, xs[0], ys[0], self.width, self.height, 0.0, 360.0)
 
 class PolygonInteractor:
     """
