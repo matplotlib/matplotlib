@@ -1,3 +1,6 @@
+2006-08-08 Fixed widget locking so multiple widgets could share the
+           event handling - JDH
+
 2006-08-07 Added scale free Ellipse patch
 
 2006-08-05 Re-organized imports in numerix for numpy 1.0b2 -- TEO

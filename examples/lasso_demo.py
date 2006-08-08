@@ -7,7 +7,7 @@ This is currently a proof-of-concept implementation (though it is
 usable as is).  There will be some refinement of the API and the
 inside polygon detection routine.
 """
-from matplotlib.widgets import Lasso
+from matplotlib.widgets import Lasso, lock
 from matplotlib.mlab import inside_poly
 from matplotlib.colors import colorConverter
 from matplotlib.collections import RegularPolyCollection
@@ -56,10 +56,14 @@ class LassoManager:
                 self.facecolors[i] = Datum.colorout             
 
         self.canvas.draw_idle()
-
+        lock.release(self.lasso)
+        del self.lasso
     def onpress(self, event):        
+        if lock.locked(): return 
         if event.inaxes is None: return 
         self.lasso = Lasso(event.inaxes, (event.xdata, event.ydata), self.callback)
+        # acquire a lock on the widget drawing
+        lock(self.lasso)
 
 data = [Datum(*xy) for xy in nx.mlab.rand(100, 2)]
 
