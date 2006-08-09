@@ -697,7 +697,7 @@ class ListedColormap(LinearSegmentedColormap):
 
     def _init(self):
         rgb = array([colorConverter.to_rgb(c)
-                    for c in self.colors], typecode=Float)
+                    for c in self.colors], Float)
         self._lut = zeros((self.N + 3, 4), Float)
         self._lut[:-3, :-1] = rgb
         self._lut[:-3, -1] = 1
