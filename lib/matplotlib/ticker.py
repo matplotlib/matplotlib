@@ -151,6 +151,9 @@ class Formatter(TickHelper):
     def format_data(self,value):
         return self.__call__(value)
 
+    def format_data_short(self,value):
+        return format_data(self,value)
+    
     def get_offset(self):
         return ''
 
@@ -269,6 +272,10 @@ class ScalarFormatter(Formatter):
             return ''
         else:
             return self.pprint_val(x)
+
+    def format_data_short(self,value):
+        'return a short formatted string representation of a number'
+        return '%1.3g'%value
 
     def format_data(self,value,sign=False,mathtext=False):
         'return a formatted string representation of a number'
