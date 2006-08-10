@@ -1,3 +1,6 @@
+2006-08-10 Added converters to and from julian dates to matplotlib.dates
+           (num2julian and julian2num) - JDH
+
 2006-08-08 Fixed widget locking so multiple widgets could share the
            event handling - JDH
 
