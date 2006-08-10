@@ -2498,14 +2498,16 @@ class Axes(Artist):
             not iterable(edgecolor)):
             edgecolor = [edgecolor]*nbars
 
-        if not iterable(yerr):
-            yerr = asarray([yerr]*nbars, Float) # Float converts Nones to NANs
-        else:
-            yerr = asarray(yerr)
-        if not iterable(xerr):
-            xerr = asarray([xerr]*nbars, Float)
-        else:
-            xerr = asarray(xerr)
+        if yerr is not None:
+            if not iterable(yerr):
+                yerr = asarray([yerr]*nbars, Float) 
+            else:
+                yerr = asarray(yerr)
+        if xerr is not None:
+            if not iterable(xerr):
+                xerr = asarray([xerr]*nbars, Float)
+            else:
+                xerr = asarray(xerr)
 
         if orientation == 'vertical':
             lenarg = 'left'
@@ -2517,8 +2519,9 @@ class Axes(Artist):
         assert len(bottom)==nbars, 'bar() argument \'bottom\' must be len(%s) or scalar' % lenarg
         assert len(color)==nbars, 'bar() argument \'color\' must be len(%s) or scalar' % lenarg
         assert len(edgecolor)==nbars, 'bar() argument \'edgecolor\' must be len(%s) or scalar' % lenarg
-        assert len(yerr)==nbars, 'bar() argument \'yerr\' must be len(%s) or scalar' % lenarg
-        assert len(xerr)==nbars, 'bar() argument \'xerr\' must be len(%s) or scalar' % lenarg
+
+        if yerr is not None: assert len(yerr)==nbars, 'bar() argument \'yerr\' must be len(%s) or scalar' % lenarg
+        if xerr is not None: assert len(xerr)==nbars, 'bar() argument \'xerr\' must be len(%s) or scalar' % lenarg
 
         patches = []
 
