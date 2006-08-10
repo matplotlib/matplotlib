@@ -191,6 +191,16 @@ def date2num(d):
     else: return asarray([_to_ordinalf(val) for val in d])
 
 
+def julian2num(j):
+    'convert a Julian date (or sequence) to a matplotlib date (or sequence)'
+    if iterable(j): j = asarray(j)
+    return j + 1721425.5
+
+def num2julian(n):
+    'convert a matplotlib date (or seguence) to a Julian date (or sequence)'
+    if iterable(n): n = asarray(n)
+    return n - 1721425.5
+
 def num2date(x, tz=None):
     """
     x is a float value which gives number of days (fraction part
