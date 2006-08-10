@@ -1459,7 +1459,7 @@ class Axes(Artist):
         """
         try: return self.fmt_xdata(x)
         except TypeError:
-            func = self.xaxis.get_major_formatter().format_data
+            func = self.xaxis.get_major_formatter().format_data_short
             val = func(x)
             return val
 
@@ -1471,7 +1471,7 @@ class Axes(Artist):
         """
         try: return self.fmt_ydata(y)
         except TypeError:
-            func = self.yaxis.get_major_formatter().format_data
+            func = self.yaxis.get_major_formatter().format_data_short
             val =  func(y)
             return val
 

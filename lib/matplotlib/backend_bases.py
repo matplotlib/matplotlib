@@ -1222,6 +1222,7 @@ class NavigationToolbar2:
             self.mode = 'pan/zoom mode'
             widgets.lock(self)
         else:
+            #pass
             widgets.lock.release(self)
 
         for a in self.canvas.figure.get_axes():
@@ -1564,6 +1565,7 @@ class NavigationToolbar2:
             self.mode = 'Zoom to rect mode'
             widgets.lock(self)
         else:
+            #pass
             widgets.lock.release(self)
 
         for a in self.canvas.figure.get_axes():
