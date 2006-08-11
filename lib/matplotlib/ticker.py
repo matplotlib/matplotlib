@@ -152,7 +152,8 @@ class Formatter(TickHelper):
         return self.__call__(value)
 
     def format_data_short(self,value):
-        return format_data(self,value)
+        'return a short string version'
+        return self.format_data(value)
     
     def get_offset(self):
         return ''
@@ -273,7 +274,6 @@ class ScalarFormatter(Formatter):
         else:
             return self.pprint_val(x)
 
-    # TODO: Is it necessary to have two format_data functions?
     def format_data_short(self,value):
         'return a short formatted string representation of a number'
         return '%1.3g'%value
@@ -371,7 +371,6 @@ class ScalarFormatter(Formatter):
             mantissa = tup[0].rstrip('0').rstrip('.')
             sign = tup[1][0].replace('+', '')
             exponent = tup[1][1:].lstrip('0')
-            if exponent == '': exponent = '0'
             if mathtext:
                 if self._usetex:
                     if mantissa=='1':
