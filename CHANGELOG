@@ -1,10 +1,12 @@
+2006-08-11 Added scale free Ellipse patch for Agg - CM
+
 2006-08-10 Added converters to and from julian dates to matplotlib.dates
            (num2julian and julian2num) - JDH
 
 2006-08-08 Fixed widget locking so multiple widgets could share the
            event handling - JDH
 
-2006-08-07 Added scale free Ellipse patch
+2006-08-07 Added scale free Ellipse patch to SVG and PS - CM
 
 2006-08-05 Re-organized imports in numerix for numpy 1.0b2 -- TEO
 

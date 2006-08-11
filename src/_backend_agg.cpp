@@ -188,11 +188,11 @@ GCAgg::_set_clip_rectangle( const Py::Object& gc) {
 
 
 Py::Object BufferRegion::to_string(const Py::Tuple &args) {
-  
+
   // owned=true to prevent memory leak
   return Py::String(PyString_FromStringAndSize((const char*)aggbuf.data,aggbuf.height*aggbuf.stride), true);
-} 
-	 	      
+}
+
 
 
 
@@ -385,8 +385,14 @@ RendererAgg::draw_ellipse(const Py::Tuple& args) {
 
   set_clipbox_rasterizer(gc.cliprect);
 
-  //last arg is num steps
-  agg::ellipse path(x, height-y, w, h, 100);
+  // Approximate the ellipse with 4 bezier paths
+  agg::path_storage path;
+  path.move_to(x, height-(y+h));
+  path.arc_to(w, h, 0.0, false, true, x+w, height-y);
+  path.arc_to(w, h, 0.0, false, true, x, height-(y-h));
+  path.arc_to(w, h, 0.0, false, true, x-w, height-y);
+  path.arc_to(w, h, 0.0, false, true, x, height-(y+h));
+  path.close_polygon();
 
   _fill_and_stroke(path, gc, face);
   return Py::Object();
@@ -640,7 +646,7 @@ RendererAgg::copy_from_bbox(const Py::Tuple& args) {
   */
   int boxwidth = r.x2-r.x1;
   int boxheight = r.y2-r.y1;
-  int boxstride = boxwidth*4; 
+  int boxstride = boxwidth*4;
   agg::buffer buf(boxwidth, boxheight, boxstride, false);
   if (buf.data ==NULL) {
     throw Py::MemoryError("RendererAgg::copy_from_bbox could not allocate memory for buffer");
@@ -2186,7 +2192,7 @@ RendererAgg::buffer_rgba(const Py::Tuple& args) {
   int row_len = width*4;
   int start=row_len*starth+startw*4;
   return Py::asObject(PyBuffer_FromMemory( pixBuffer+start, row_len*height-start));
-} 
+}
 
 
 
