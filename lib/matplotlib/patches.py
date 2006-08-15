@@ -393,8 +393,6 @@ class Polygon(Patch):
         return self.xy
 
 
-
-
 class Wedge(Polygon):
     def __init__(self, center, r, theta1, theta2,
                  dtheta=0.1, **kwargs):
@@ -506,14 +504,13 @@ class FancyArrow(Polygon):
         Polygon.__init__(self, map(tuple, verts), **kwargs)
 
 
-class Circle(RegularPolygon):
+class CirclePolygon(RegularPolygon):
     """
     A circle patch
     """
     def __init__(self, xy, radius=5,
                  resolution=20,  # the number of vertices
-                 **kwargs
-                 ):
+                 **kwargs):
         self.center = xy
         self.radius = radius
         RegularPolygon.__init__(self, xy,
@@ -521,7 +518,8 @@ class Circle(RegularPolygon):
                                 radius,
                                 orientation=0,
                                 **kwargs)
-        
+
+
 class Ellipse(Patch):
     """
     A scale-free ellipse
@@ -568,6 +566,21 @@ class Ellipse(Patch):
         height = tverts[2,1] - tverts[4,1]
 
         renderer.draw_arc(gc, rgbFace, tverts[0,0], tverts[0,1], width, height, 0.0, 360.0)
+        
+class Circle(Ellipse):
+    """
+    A circle patch
+    """
+    def __init__(self, xy, radius=5,
+                 **kwargs):
+        if kwargs.has_key('resolution'):
+            import warnings
+            warnings.warn('Circle is now scale free.  Use CirclePolygon instead!', DeprecationWarning)
+            popd(kwargs, 'resolution')
+
+        self.radius = radius
+        Ellipse.__init__(self, xy, radius*2, radius*2, **kwargs)
+
 
 class PolygonInteractor:
     """
