@@ -810,7 +810,7 @@ class FigureCanvasBase:
         self.cid = 0
         # a dictionary from event name to a dictionary that maps cid->func
         self.callbacks = {}
-
+        self.widgetlock = widgets.LockDraw()
         self._button     = None  # the button pressed
         self._key        = None  # the key pressed
         self._lastx, self._lasty = None, None
@@ -1220,10 +1220,9 @@ class NavigationToolbar2:
             self._idRelease = self.canvas.mpl_connect(
                 'button_release_event', self.release_pan)
             self.mode = 'pan/zoom mode'
-            #widgets.lock(self)
+            self.canvas.widgetlock(self)
         else:
-            pass
-            #widgets.lock.release(self)
+            self.canvas.widgetlock.release(self)
 
         for a in self.canvas.figure.get_axes():
             a.set_navigate_mode(self._active)
@@ -1563,10 +1562,9 @@ class NavigationToolbar2:
             self._idPress = self.canvas.mpl_connect('button_press_event', self.press_zoom)
             self._idRelease = self.canvas.mpl_connect('button_release_event', self.release_zoom)
             self.mode = 'Zoom to rect mode'
-            #widgets.lock(self)
+            self.canvas.widgetlock(self)
         else:
-            pass
-            #widgets.lock.release(self)
+            self.canvas.widgetlock.release(self)
 
         for a in self.canvas.figure.get_axes():
             a.set_navigate_mode(self._active)
