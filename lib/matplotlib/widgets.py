@@ -51,7 +51,7 @@ class LockDraw:
         'the lock is held'
         return self._owner is not None
 
-lock = LockDraw()
+
 
 class Widget:
     """
@@ -756,8 +756,8 @@ class MultiCursor:
 
 
     def onmove(self, event):
-        if not lock.available(self): return
         if event.inaxes is None: return
+        if not self.canvas.widgetlock.available(self): return
         self.needclear = True
         if not self.visible: return
 
