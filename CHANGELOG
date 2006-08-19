@@ -1,3 +1,5 @@
+2006-08-19 Added embedding_in_qt4.py example - DSD
+
 2006-08-11 Added scale free Ellipse patch for Agg - CM
 
 2006-08-10 Added converters to and from julian dates to matplotlib.dates
