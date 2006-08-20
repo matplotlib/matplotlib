@@ -1,3 +1,9 @@
+2006-08-20 Added mathtext2.py: Replacement for mathtext.py. Supports _ ^,
+           \rm, \cal etc., \sin, \cos etc., unicode, recursive nestings,
+           inline math mode. The only backend currently supported is Agg
+           __init__.py: added new rc params for mathtext2
+           added mathtext2_demo.py example - ES
+
 2006-08-19 Added embedding_in_qt4.py example - DSD
 
 2006-08-11 Added scale free Ellipse patch for Agg - CM

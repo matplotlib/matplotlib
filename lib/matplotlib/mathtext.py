@@ -305,13 +305,13 @@ Specific terminology:
  * charmaps: a dict of facename -> charmap pairs
  * glyphmaps: a dict of facename -> glyphmap pairs. A glyphmap is an
     inverted charmap
- * output: a string in ['BMP','SVG','PS'], coresponding to the backends
+ * output: a string in ['Agg','SVG','PS'], coresponding to the backends
  * index: Fontfile specific index of a glyph/char. Taken from a charmap.
 
 """
 
     # The path to the dir with the fontfiles
-    def __init__(self, output='BMP'):
+    def __init__(self, output='Agg'):
         self.facenames = self.filenamesd.keys()
         # Set the filenames to full path
         for facename in self.filenamesd:
@@ -380,7 +380,7 @@ setfont
 /%(symbolname)s glyphshow
 """ % locals()
             self.pswriter.write(ps)
-        else: # BMP
+        else: # Agg
             fontface = self.fonts[facename]
             fontface.draw_glyph_to_bitmap(
             int(ox),  int(self.height - oy - metrics.ymax), glyph)
@@ -1557,7 +1557,7 @@ class math_parse_s_ft2font_common:
             self.font_object = BakomaTrueTypeFonts(useSVG=True)
             #self.font_object = MyUnicodeFonts(output='SVG')
             Element.fonts = self.font_object
-        elif self.output == 'BMP':
+        elif self.output == 'Agg':
             self.font_object = BakomaTrueTypeFonts()
             #self.font_object = MyUnicodeFonts()
             Element.fonts = self.font_object
@@ -1593,7 +1593,7 @@ class math_parse_s_ft2font_common:
 
         handler.expr.set_origin(0, h-ymax)
 
-        if self.output in ('SVG', 'BMP'):
+        if self.output in ('SVG', 'Agg'):
             Element.fonts.set_canvas_size(w,h)
         elif self.output == 'PS':
             pswriter = StringIO()
@@ -1608,18 +1608,20 @@ class math_parse_s_ft2font_common:
         if self.output == 'SVG':
             self.cache[cacheKey] = w, h, self.font_object.svg_glyphs
             return w, h, self.font_object.svg_glyphs
-        elif self.output == 'BMP':
+        elif self.output == 'Agg':
             self.cache[cacheKey] = w, h, self.font_object.fonts.values()
             return w, h, self.font_object.fonts.values()
         elif self.output in ('PS', 'PDF'):
             self.cache[cacheKey] = w, h, pswriter
             return w, h, pswriter
 
-math_parse_s_ft2font = math_parse_s_ft2font_common('BMP')
+if "mathtext2" in rcParams and rcParams["mathtext2"]:
+    from matplotlib.mathtext2 import math_parse_s_ft2font
+else:
+    math_parse_s_ft2font = math_parse_s_ft2font_common('Agg')
 math_parse_s_ft2font_svg = math_parse_s_ft2font_common('SVG')
 math_parse_s_ps = math_parse_s_ft2font_common('PS')
 math_parse_s_pdf = math_parse_s_ft2font_common('PDF')
-
 
 if 0: #__name__=='___main__':
     
