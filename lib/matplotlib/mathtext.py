@@ -184,7 +184,7 @@ or a Type1 symbol name (i.e. 'phi').
     except TypeError:
         pass
     try:# Is symbol a TeX symbol (i.e. \alpha)
-        return tex2uni[symbol]
+        return tex2uni[symbol.strip("\\")]
     except KeyError:
         pass
     try:# Is symbol a Type1 name (i.e. degree)? If not raise error
@@ -208,7 +208,7 @@ symbol can be a single unicode character, or a TeX command (i.e. r'\pi').
     except TypeError:
         pass
     try:# Is symbol a TeX symbol (i.e. \alpha)
-        return tex2type1[symbol]
+        return tex2type1[symbol.strip("\\")]
     except KeyError:
         pass
     # The symbol is already a Type1 name so return it
