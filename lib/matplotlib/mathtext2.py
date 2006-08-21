@@ -462,7 +462,7 @@ sub=%s, sup=%s)"%tmp
         self.sup._init_renderer()
         nuc, sub, sup = self.nuc, self.sub, self.sup
 
-        # Heruistics for figuring out how much the subscripts origin has to be
+        # Heuristics for figuring out how much the subscripts origin has to be
         # below the origin of the nucleus (the descent of the letter "j").
         # TO-DO: Change with a better alternative. Not working: F_1^1y_1
         c = TexCharClass("j")
@@ -551,11 +551,12 @@ class Fraction:
         #self.xmax = self.bar.advance
         self.xmax = self.bar.width# + 2*pad
 
-        self.ymin = -(2*pad + num.height)
-        self.ymax = 2*pad + den.height
+        self.ymin = -(2*pad + den.height)
+        self.ymax = 2*pad + num.height
 
         self.width = self.xmax - self.xmin
         self.height = self.ymax - self.ymin
+        #print self.width, self.height
         
         #self.bearingx = pad
         self.bearingx = 0
@@ -800,6 +801,7 @@ def handle_scripts(scripttype, texgroup, env, prevtype=None,
     elif is_command(script):
         command = script.strip(esc_char)
         texgroup = handle_command(command, texgroup, env)
+        texgroup = handle_tokens(texgroup, env)
         script = texgroup.pop(0)
     else:
         #print repr(script), type(script)
@@ -816,10 +818,9 @@ def handle_scripts(scripttype, texgroup, env, prevtype=None,
         scripted.sup = script
         scripted.sub.env = _env
     # Check if the next item is also a command for scripting
-    print type(texgroup)
     try:
         next = texgroup[0]
-    except:
+    except IndexError:
         next = None
     if next in scripts:
         next = texgroup.pop(0)
@@ -847,7 +848,7 @@ def math_parse_s_ft2font(s, dpi, fontsize, angle=0):
     parsed._init_renderer()
     #print "\n".join(str(parsed.__dict__).split(","))
     width, height = parsed.width + 2, parsed.height + 2
-    print width, height
+    #print width, height
     for key in fonts:
         fonts[key].set_bitmap_size(width, height)
     parsed.render(-parsed.bearingx, height + parsed.ymin - 1)
@@ -868,7 +869,7 @@ def math_parse_s_ft2font1(s, dpi, fontsize, angle=0):
     #print "\n".join(str(parsed.__dict__).split(","))
     width, height = parsed.width + 10, parsed.height + 10
     width, height = 300, 300
-    print width, height
+    #print width, height
     for key in fonts:
         fonts[key].set_bitmap_size(width, height)
     parsed.render(width/2., height/2.)
