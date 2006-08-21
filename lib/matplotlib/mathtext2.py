@@ -45,10 +45,11 @@ begin_group_char = '{'
 end_group_char = '}'
 dec_delim = '.'
 word_delim = ' '
-scripts = ("sup", "sub")
+scripts = ("_", "^")
 functions = ("sin", "tan", "cos", "exp", "arctan", "arccos", "arcsin", "cot")
 mathstyles = ["display", "text", "script", "scriptscript"]
 modes = ["mathmode", "displaymathmode"]
+setters = faces
 # Maximum number of nestings (groups within groups)
 max_depth = 10
 
@@ -106,9 +107,6 @@ def parse_tex(texstring):
     _parsed = to_list(texstring)
     #_parsed = Group(_parsed)
     return _parsed
-
-def is_command(tok):
-    pass
 
 def remove_comments(texstring):
     # TO-DO
@@ -256,36 +254,44 @@ def normalize_tex(texstring):
     texstring = texstring.replace(esc_char + word_delim, esc_char + 'space'
                                     + word_delim)
 
-    # Dealing with "syntactic sugar" goes here (i.e. '_', '^' etc.)
-    texstring = texstring.replace(esc_char + '_', esc_char + 'underscore' + word_delim)
-    i = texstring.find('_' + word_delim)
-    if i != -1:
-        raise TexParseError('Subscripting with space not allowed')
-    texstring = texstring.replace('_', esc_char + 'sub' + word_delim)
+    #~ # Dealing with "syntactic sugar" goes here (i.e. '_', '^' etc.)
+    #~ texstring = texstring.replace(esc_char + '_', esc_char + 'underscore' + word_delim)
+    #~ i = texstring.find('_' + word_delim)
+    #~ if i != -1:
+        #~ raise TexParseError('Subscripting with space not allowed')
+    #~ texstring = texstring.replace('_', esc_char + 'sub' + word_delim)
 
-    texstring = texstring.replace(esc_char + '^', esc_char + 'circumflex' + word_delim)
-    i = texstring.find('^' + word_delim)
-    if i != -1:
-        raise TexParseError('Superscripting with space not allowed')
-    texstring = texstring.replace('^', esc_char + 'sup' + word_delim)
+    #~ texstring = texstring.replace(esc_char + '^', esc_char + 'circumflex' + word_delim)
+    #~ i = texstring.find('^' + word_delim)
+    #~ if i != -1:
+        #~ raise TexParseError('Superscripting with space not allowed')
+    #~ texstring = texstring.replace('^', esc_char + 'sup' + word_delim)
 
     # Removing unnecessary white space
     texstring = word_delim.join(texstring.split())
 
     return texstring
 
-def check_valid(parsed):
-    # First we check if sub/superscripts are properly ordered
-    for i in xrange(0, len(parsed)/4*4, 4):
-        four = parsed[i:i+4]
-        if four.count(esc_char + "sup") > 1:
-            raise TexParseError("Double superscript %s"%four)
-        if four.count(esc_char + "sub") > 1:
-            raise TexParseError("Double subscript %s"%four)
+#~ def check_valid(parsed):
+    #~ # First we check if sub/superscripts are properly ordered
+    #~ for i in xrange(0, len(parsed)/4*4, 4):
+        #~ four = parsed[i:i+4]
+        #~ if four.count(esc_char + "sup") > 1:
+            #~ raise TexParseError("Double superscript %s"%four)
+        #~ if four.count(esc_char + "sub") > 1:
+            #~ raise TexParseError("Double subscript %s"%four)
 
 def is_command(item):
     try:
-        return item.startswith(esc_char)
+        return (item.startswith(esc_char) and
+                (item.strip(esc_char) not in setters))
+    except AttributeError:
+        return False
+
+def is_setter(item):
+    try:
+        return (item.startswith(esc_char) and
+                (item.strip(esc_char) in setters))
     except AttributeError:
         return False
 
@@ -339,7 +345,7 @@ def get_space(env):
     space = TexCharClass(" ")
     space.env = env.copy()
     if not space.env["face"]:
-        space.env["face"] = "mit"
+        space.env["face"] = "rm"
     space._init_renderer()
     return space
 
@@ -530,40 +536,45 @@ class Fraction:
         self.numer._init_renderer()
         self.denom._init_renderer()
         num, den = self.numer, self.denom
-        self.width = max(num.width, den.width)
-
+        
         # TO-DO: Find a better way to implement the fraction bar
         self.pad = get_frac_bar_height(self.env)
         pad = self.pad
+        self.width = max(num.width, den.width)
         self.bar = Line(self.width + 2*pad, pad)
         self.bar.env = self.env.copy()
-        self.bar.bearingx = pad
-        self.bar.advance = self.bar.width + 2*pad
-        self.bar.bearingy = pad + pad
+        #~ self.bar.bearingx = pad
+        #~ self.bar.advance = self.bar.width + 2*pad
+        #~ self.bar.bearingy = pad + pad
 
         self.xmin = 0
-        self.xmax = self.bar.advance
+        #self.xmax = self.bar.advance
+        self.xmax = self.bar.width# + 2*pad
 
-        self.ymin = 2*pad + num.height
+        self.ymin = -(2*pad + num.height)
         self.ymax = 2*pad + den.height
 
         self.width = self.xmax - self.xmin
         self.height = self.ymax - self.ymin
         
-        self.bearingx = pad
+        #self.bearingx = pad
+        self.bearingx = 0
         self.bearingy = self.ymax
-        self.advance = self.bar.advance
+        #self.advance = self.bar.advance
+        self.advance = self.xmax
 
     def render(self, x, y):
         pad = self.pad
+        #print self.bar.xmax, self.bar.xmin, self.bar.ymin, self.bar.ymax
         self.bar.render(x, y)
-        nx = x + (self.width - self.numer.width)/2.
+
+        nx = x - self.numer.bearingx + (self.width - self.numer.width)/2.
         ny = y - 2*pad + (self.numer.height - self.numer.ymax)
-        #self.numer.render(nx, ny)
+        self.numer.render(nx, ny)
         
-        dx = x + (self.width - self.denom.width)/2.
-        dy = y + 2*pad - self.denom.bearingy
-        #self.denom.render(dx, dy)
+        dx = x - self.denom.bearingx+ (self.width - self.denom.width)/2.
+        dy = y + 2*pad + self.denom.bearingy
+        self.denom.render(dx, dy)
 
 
 # Primitives
@@ -670,49 +681,30 @@ def handle_tokens(texgroup, env):
     result.env = env
     # So we're sure that nothing changes the result's environment
     env = env.copy()
-    check_valid(texgroup)
+    #check_valid(texgroup)
     texgroup = Group(texgroup)
     #texgroup.env = env
     while texgroup:
+        #print texgroup, type(texgroup)
         item = texgroup.pop(0)
         #print env["face"], type(item), repr(item)
         #print "Current item", item
         if isinstance(item, list):
             item = handle_tokens(item, env.copy())
             appendix = item
+        # First we deal with scripts
+        if item in scripts:
+            scripted, texgroup = handle_scripts(item, texgroup, env.copy())
+            scripted.nuc = result.pop()
+            appendix = scripted
+        elif is_setter(item):
+            setter = item.strip(esc_char)
+            env = handle_setter(setter, env)
+            continue
         elif is_command(item):
             command = item.strip(esc_char)
-            # First we deal with setters - commands that change the
-            # environment of the current group (scope)
-            if command in faces:
-                env["face"] = command
-                continue
-
-            # Then, we deal with commands that change the element(s) before
-            # them
-            # First we deal with scripts
-            if command in scripts:
-                scripttype = command
-                prev = result.pop()
-                if isinstance(prev, Scripted):
-                    scripted = prev
-                else:
-                    scripted = Scripted(nuc=prev)
-                    scripted.env = env.copy()
-                script = texgroup.pop(0)
-                _env = env.copy()
-                _env['scriptdepth'] += 1
-                # This should allow other commands to override the
-                # incrementing of scriptdepth
-                script = handle_tokens([script], _env)[0]
-                setattr(scripted, scripttype, script)
-                appendix = scripted
-
-            # Now, we deal with normal commands - commands that change only
-            # the elements after them.
-            else:
-                texgroup = handle_command(command, texgroup, env)
-                continue
+            texgroup = handle_command(command, texgroup, env)
+            continue
         elif isinstance(item, _textclass):
             #print item
             # Handling of characters
@@ -738,6 +730,8 @@ def handle_command(command, texgroup, env):
     aren't setting anything in the environment.
     
     """
+    # Now, we deal with normal commands - commands that change only
+    # the elements after them.
     env = env.copy()
     if command == "frac":
         texgroup = handle_tokens(texgroup, env)
@@ -746,10 +740,12 @@ def handle_command(command, texgroup, env):
         texgroup = handle_tokens(texgroup, env)
         den = texgroup.pop(0)
         #print den
-        appendix = Fraction(num, den)
-        appendix.env = env
+        frac = Fraction(num, den)
+        frac.env = env
+        space = esc_char + "thinspace"
+        appendix = [space, frac, space]
     elif command in functions:
-        _tex = esc_char + "rm " + esc_char + "thinspace " + command
+        _tex = "%srm %sthinspace %s"%(esc_char, esc_char, command)
         appendix = parse_tex(_tex)
     elif command in ("space", " "):
         space = get_space(env)
@@ -770,7 +766,74 @@ def handle_command(command, texgroup, env):
         raise TexParseError("Unknown command: " + esc_char + command)
     appendix = [appendix]
     appendix.extend(texgroup) 
+    #print "App",appendix
     return appendix
+
+def handle_setter(setter, env):
+    # First we deal with setters - commands that change the
+    # environment of the current group (scope)
+    if setter in faces:
+        env["face"] = setter
+        return env
+    else:
+        raise TexParseError("Unknown setter: %s%s"%(esc_char, setter))
+    return env
+
+def handle_scripts(scripttype, texgroup, env, prevtype=None,
+                            prevscripted=None):
+    # If prevscripted is the same type raise an error
+    if prevtype == scripttype:
+        raise TexParseError("Double script: " + scripttype)
+    env = env.copy()
+    # The environment for the script elements
+    _env = env.copy()
+    _env['scriptdepth'] += 1
+    script = texgroup.pop(0)
+    if script in scripts:
+        # A "_" or "^", immediately folowed by another "_" or "^"
+        raise TexParseError("Missing { inserted. " + scripttype + script)
+    elif is_setter(script):
+        # TeX doesn't allow setters (macros with \let in them) after
+        # "_" or "^" (Try $1^1_\rm1^1_1$ in TeX)
+        raise TexParseError("Missing { inserted. %s%s%s"%(
+                                scripttype,esc_char,script))
+    elif is_command(script):
+        command = script.strip(esc_char)
+        texgroup = handle_command(command, texgroup, env)
+        script = texgroup.pop(0)
+    else:
+        #print repr(script), type(script)
+        _tmp = handle_tokens([script], _env)
+        script = _tmp.pop(0)
+    if not prevtype:
+        scripted = Scripted()
+    else:
+        scripted = prevscripted
+    if scripttype == "_":
+        scripted.sub = script
+        scripted.sub.env = _env
+    else:
+        scripted.sup = script
+        scripted.sub.env = _env
+    # Check if the next item is also a command for scripting
+    print type(texgroup)
+    try:
+        next = texgroup[0]
+    except:
+        next = None
+    if next in scripts:
+        next = texgroup.pop(0)
+        if prevtype:
+            # Three scripts in a row
+            raise TexParseError("Too many scripts: %s,%s,%s"%(
+                                    prevtype, scripttype, next))
+        else:
+            # The second script
+            scripted, texgroup = handle_scripts(next, texgroup, env,
+                                prevtype=scripttype, prevscripted=scripted)
+    scripted.env = env
+    return scripted, texgroup
+
 
 # Functions exported to backends
 def math_parse_s_ft2font(s, dpi, fontsize, angle=0):
@@ -783,11 +846,13 @@ def math_parse_s_ft2font(s, dpi, fontsize, angle=0):
     parsed = handle_tokens(parsed, env)
     parsed._init_renderer()
     #print "\n".join(str(parsed.__dict__).split(","))
-    width, height = parsed.width, parsed.height + 2
+    width, height = parsed.width + 2, parsed.height + 2
+    print width, height
     for key in fonts:
         fonts[key].set_bitmap_size(width, height)
-    parsed.render(-parsed.bearingx, height - 1 - (
-                        parsed.height - parsed.bearingy))
+    parsed.render(-parsed.bearingx, height + parsed.ymin - 1)
+    #~ parsed.render(-parsed.bearingx, height - 1 - (
+                        #~ parsed.height - parsed.bearingy))
     _fonts = fonts.values()
     return width, height, _fonts
 
@@ -802,8 +867,8 @@ def math_parse_s_ft2font1(s, dpi, fontsize, angle=0):
     parsed._init_renderer()
     #print "\n".join(str(parsed.__dict__).split(","))
     width, height = parsed.width + 10, parsed.height + 10
-    #width, height = 300, 300
-    #print width, height
+    width, height = 300, 300
+    print width, height
     for key in fonts:
         fonts[key].set_bitmap_size(width, height)
     parsed.render(width/2., height/2.)

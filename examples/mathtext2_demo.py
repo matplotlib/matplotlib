@@ -27,9 +27,9 @@ grid(True)
 #tex = ur"$Tutinjac\ fff\sin\exp$"
 #tex = ur"$\sin\exp{\rm sin\ exp}$"
 #tex = ur"$a^{\sin x}\sin b\sin(x/x), {\rm sin}(x/x){\rm sin\ }(x/x)$"
-#tex = ur"$\frac 3 2$"
-#tex = ur"$3 2$"
-#text(0.5, 2., tex, fontsize=50)
+#tex = ur"$\frac {\int_{-\infty}^\infty} 2$"
+tex = ur"$\frac3 2$"
+text(0.5, 2., tex, fontsize=20)
 tex = r'${\cal R}\prod_{i=\alpha_{i+1}}^\infty a_i\sin\exp(2 \pi f x_i)$'
 text(1, 1.9, tex, fontsize=20)
 tex = ur"$F_1^1y_{1_{2_{3_2\sum_1^2{4}^6}}3}1_23$"
