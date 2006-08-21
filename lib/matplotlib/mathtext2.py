@@ -331,6 +331,8 @@ def infer_face(env, item):
             face = "rm"
         else:
             face = "nonascii"
+    else:
+        face = "nonascii"
     return face
 
 def get_space(env):
