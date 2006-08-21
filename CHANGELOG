@@ -1,5 +1,7 @@
 2006-08-21 mathtext2.py: Initial support for fractions
-           Updated the mathtext2_demo.py - ES
+           Updated the mathtext2_demo.py
+           _mathtext_data.py: removed "\" from the unicode dicts
+           mathtext.py: Minor modification (because of _mathtext_data.py)- ES
 
 2006-08-20 Added mathtext2.py: Replacement for mathtext.py. Supports _ ^,
            \rm, \cal etc., \sin, \cos etc., unicode, recursive nestings,
