@@ -865,7 +865,7 @@ defaultParams = {
     'plugins.directory' : ['.matplotlib_plugins', str], # where plugin directory is locate
 
     # mathtext settings
-    'mathtext2'  :   [False, validate_bool], # Needed to enable Unicode
+    'mathtext.mathtext2'  :   [False, validate_bool], # Needed to enable Unicode
     # fonts used by mathtext. These ship with matplotlib
     'mathtext.rm'       :   ['cmr10.ttf', str], # Roman (normal)
     'mathtext.it'       :   ['cmmi10.ttf', str], # Italic

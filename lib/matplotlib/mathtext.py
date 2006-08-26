@@ -1615,7 +1615,7 @@ class math_parse_s_ft2font_common:
             self.cache[cacheKey] = w, h, pswriter
             return w, h, pswriter
 
-if "mathtext2" in rcParams and rcParams["mathtext2"]:
+if rcParams["mathtext.mathtext2"]:
     from matplotlib.mathtext2 import math_parse_s_ft2font
 else:
     math_parse_s_ft2font = math_parse_s_ft2font_common('Agg')

@@ -1,14 +1,51 @@
 #!/usr/bin/env python
 """
 
-In order to use mathtext, you must build matplotlib.ft2font.  This is
+In order to use mathtext2, you must build matplotlib.ft2font.  This is
 built by default in the windows installer.
 
 For other platforms, edit setup.py and set
 
 BUILD_FT2FONT = True
 
+You have to put the following lines in your matplotlibrc file
+
+mathtext.mathtext2: True            # Needed to enable the new mathtext
+mathtext.rm     :   FreeSerif.ttf
+mathtext.it     :   FreeSerifItalic.ttf     # Text italic
+mathtext.tt     :   FreeMono.ttf    # Typewriter (monospaced)
+mathtext.mit    :   FreeSerifItalic.ttf     # Math italic
+mathtext.cal    :   FreeSansOblique.ttf # Caligraphic
+mathtext.nonascii:  FreeSerif.ttf # Used for \sum, \infty etc.
+
+Note that "FreeSerif.ttf" etc. may be replaced by any font. Also, for now
+the font files must me in the mpl-data dir.
+
+Only the first parameter must be set (mathtext2 uses BaKoMa fonts by
+default, and they come packaged with matplotlib, so the above lines
+override them) because mathtext2 is disabled by default.
+
+This demo assumes that you have FreeSerif.ttf in the mpl-data dir.
+You can get FreeSerif.ttf (and other files) from:
+http://download.savannah.gnu.org/releases/freefont/
+
+FreeFonts are distributed under GPL
+
 """
+# We override the default params
+from matplotlib import rcParams
+rcParams['mathtext.mathtext2'] = True
+
+# You can put other fonts to override the default ones
+#rcParams['mathtext.rm'] = 'FreeSerif.ttf'
+#rcParams['mathtext.it'] = 'FreeSerifItalic.ttf'
+#rcParams['mathtext.tt'] = 'FreeMono.ttf'
+#rcParams['mathtext.mit'] = 'FreeSerifItalic.ttf'
+#rcParams['mathtext.cal'] = 'FreeSansOblique.ttf'
+
+# This is used by mathtext2 to find chars with ord > 255 (Unicode characters)
+rcParams['mathtext.nonascii'] = 'FreeSerif.ttf'
+
 from pylab import *
 subplot(111, axisbg='y')
 plot([1,2,3], 'r')
