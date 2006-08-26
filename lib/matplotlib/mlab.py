@@ -84,7 +84,7 @@ def mean(x, dim=None):
    
 
 def linspace(xmin, xmax, N):
-   if N==1: return xmax
+   if N==1: return array([xmax])
    dx = (xmax-xmin)/(N-1)
    return xmin + dx*arange(N)
 
