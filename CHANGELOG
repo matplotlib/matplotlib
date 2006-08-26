@@ -1,3 +1,6 @@
+2006-08-26 minor changes to __init__.py, mathtex2_demo.py. Added matplotlibrc
+           key "mathtext.mathtext2" (removed the key "mathtext2") - ES
+
 2006-08-21 mathtext2.py: Initial support for fractions
            Updated the mathtext2_demo.py
            _mathtext_data.py: removed "\" from the unicode dicts
