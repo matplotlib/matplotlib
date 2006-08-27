@@ -13,21 +13,8 @@ import sys, os, random
 from PyQt4 import QtGui, QtCore
 
 from matplotlib.numerix import arange, sin, pi
-
-# The QApplication has to be created before backend_qt is imported, otherwise
-# it will create one itself.
-# Note: color-intensive applications may require a different color allocation
-# strategy.
-QtGui.QApplication.setColorSpec(QtGui.QApplication.NormalColor)
-qApp = QtGui.QApplication(sys.argv)
-
 from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
-
-# This seems to be what PyQt expects, according to the examples shipped in
-# its distribution.
-TRUE  = 1
-FALSE = 0
 
 progname = os.path.basename(sys.argv[0])
 progversion = "0.1"
@@ -44,7 +31,7 @@ class MyMplCanvas(FigureCanvas):
         self.compute_initial_figure()
         
         FigureCanvas.__init__(self, self.fig)
-        self.setParent(parent)#, QtCore.QPoint(0, 0))
+        self.setParent(parent)
 
         FigureCanvas.setSizePolicy(self,
                                    QtGui.QSizePolicy.Expanding,
@@ -117,7 +104,7 @@ class ApplicationWindow(QtGui.QMainWindow):
         self.statusBar().showMessage("All hail matplotlib!", 2000)
 
     def fileQuit(self):
-        qApp.exit(0)
+        self.close()
 
     def closeEvent(self, ce):
         self.fileQuit()
@@ -132,13 +119,17 @@ canvases.
 
 It may be used and modified with no restriction; raw copies as well as
 modified versions may be distributed without limitation."""
-                          % {"prog": progname, "version": progversion})
+% {"prog": progname, "version": progversion})
 
 
 def main():
+    # Note: color-intensive applications may require a different color
+    # allocation strategy.
+    QtGui.QApplication.setColorSpec(QtGui.QApplication.NormalColor)
+    qApp = QtGui.QApplication(sys.argv)
+    
     aw = ApplicationWindow()
     aw.setWindowTitle("%s" % progname)
-##    qApp.setMainWidget(aw)
     aw.show()
     sys.exit(qApp.exec_())
 
