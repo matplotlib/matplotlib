@@ -28,16 +28,33 @@ from math import fabs
 from matplotlib import get_data_path, rcParams
 from matplotlib._mathtext_data import tex2uni
 from matplotlib.ft2font import FT2Font, KERNING_DEFAULT
+from matplotlib.font_manager import findSystemFonts
+from copy import deepcopy
 
 _path = get_data_path()
 faces = ('mit', 'rm', 'tt', 'cal', 'nonascii')
-filenamesd = dict(
-                [(face, os.path.join(_path, rcParams['mathtext.'
-                    + face])) for face in faces])
-fonts = dict(
-            [ (face, FT2Font(filenamesd[face])) for
-                face in faces]
-            )
+
+filenamesd = {}
+fonts = {}
+
+# Filling the above dicts
+for face in faces:
+    # The filename without the path
+    barefname = rcParams['mathtext.' + face]
+    base, ext = os.path.splitext(barefname)
+    if not ext:
+        ext = '.ttf'
+        barefname = base + ext
+    # First, we search for the font in the system font dir
+    for fname in findSystemFonts(fontext=ext[1:]):
+        if fname.endswith(barefname):
+            filenamesd[face] = fname
+            break
+    # We check if the for loop above had success. If it failed, we try to
+    # find the font in the mpl-data dir
+    if not face in filenamesd:
+        filenamesd[face] = os.path.join(_path, barefname)
+    fonts[face] = FT2Font(filenamesd[face])
 
 esc_char = '\\'
 # Grouping delimiters
@@ -45,26 +62,30 @@ begin_group_char = '{'
 end_group_char = '}'
 dec_delim = '.'
 word_delim = ' '
-scripts = ("_", "^")
-functions = ("sin", "tan", "cos", "exp", "arctan", "arccos", "arcsin", "cot")
 mathstyles = ["display", "text", "script", "scriptscript"]
 modes = ["mathmode", "displaymathmode"]
+
+# Commands
+scripts = ("_", "^")
+functions = ("sin", "tan", "cos", "exp", "arctan", "arccos", "arcsin", "cot")
+
+# Commands that change the environment (in the current scope)
 setters = faces
 # Maximum number of nestings (groups within groups)
 max_depth = 10
 
-# The topmost environment
-environment = {
-"mode": "mathmode",
-"mathstyle" : "display",
-"cramped" : False,
-# We start with zero scriptdepth (should be incremented by a Scripted
-# instance)
-"scriptdepth" : 0, 
-"face" : None,
-"fontsize" : 12,
-"dpi" : 100,
-}
+#~ environment = {
+#~ "mode": "mathmode",
+#~ "mathstyle" : "display",
+#~ "cramped" : False,
+#~ # We start with zero scriptdepth (should be incremented by a Scripted
+#~ # instance)
+#~ "scriptdepth" : 0, 
+#~ "face" : None,
+#~ "fontsize" : 12,
+#~ "dpi" : 100,
+#~ }
+
 
 # _textclass can be unicode or str. Subclassed by TexCharClass
 _textclass = unicode
@@ -99,6 +120,26 @@ class Scriptfactors(dict):
             return self._scriptfactors[2]
 
 scriptfactors = Scriptfactors()
+
+
+class Environment:
+    """Class used for representing the TeX environment variables"""
+    def __init__(self):
+        self.mode = "mathmode"
+        self.mathstyle = "display"
+        self.cramped = False
+        # We start with zero scriptdepth (should be incremented by a Scripted
+        # instance)
+        self.scriptdepth = 0
+        self.face = None
+        self.fontsize = 12
+        self.dpi = 100
+
+    def copy(self):
+        return deepcopy(self)
+
+# The topmost environment
+environment = Environment()
 
 
 # Helper functions used by the parser
@@ -308,12 +349,12 @@ def get_frac_bar_height(env):
     return c.height
 
 def get_font(env, item):
-    face = env['face']
+    face = env.face
     if not face:
         face = infer_face(env, item)
     #print face, repr(item)
-    fontsize = env['fontsize'] * scriptfactors[env['scriptdepth']]
-    dpi = env['dpi']
+    fontsize = env.fontsize * scriptfactors[env.scriptdepth]
+    dpi = env.dpi
     font = fonts[face]
 
     font.set_size(fontsize, dpi)
@@ -326,7 +367,7 @@ def get_font(env, item):
 def infer_face(env, item):
     if isinstance(item, _textclass):
         if item.isalpha():
-            if env["mode"] == "mathmode" and item < "z":
+            if env.mode == "mathmode" and item < "z":
                 face = "mit"
             else:
                 # TO-DO: Perhapsh change to 'rm'
@@ -344,8 +385,8 @@ def infer_face(env, item):
 def get_space(env):
     space = TexCharClass(" ")
     space.env = env.copy()
-    if not space.env["face"]:
-        space.env["face"] = "rm"
+    if not space.env.face:
+        space.env.face = "rm"
     space._init_renderer()
     return space
 
@@ -515,7 +556,7 @@ sub=%s, sup=%s)"%tmp
         ny = y
 
         subx = x + nuc.advance# + sub.bearingx
-        suby = y + self.subpad# - subfactor*self.env["fontsize"]
+        suby = y + self.subpad# - subfactor*self.env.fontsize
 
         supx = x + nuc.advance# + sup.bearingx
         supy = y - self.suppad# + 10#subfactor*self.env.fontsize
@@ -688,7 +729,7 @@ def handle_tokens(texgroup, env):
     while texgroup:
         #print texgroup, type(texgroup)
         item = texgroup.pop(0)
-        #print env["face"], type(item), repr(item)
+        #print env.face, type(item), repr(item)
         #print "Current item", item
         if isinstance(item, list):
             item = handle_tokens(item, env.copy())
@@ -709,7 +750,7 @@ def handle_tokens(texgroup, env):
         elif isinstance(item, _textclass):
             #print item
             # Handling of characters
-            if item == word_delim and env["mode"] == "mathmode":
+            if item == word_delim and env.mode == "mathmode":
                 # Disregard space in mathmode
                 continue
             item = TexCharClass(item)
@@ -774,7 +815,7 @@ def handle_setter(setter, env):
     # First we deal with setters - commands that change the
     # environment of the current group (scope)
     if setter in faces:
-        env["face"] = setter
+        env.face = setter
         return env
     else:
         raise TexParseError("Unknown setter: %s%s"%(esc_char, setter))
@@ -788,7 +829,7 @@ def handle_scripts(scripttype, texgroup, env, prevtype=None,
     env = env.copy()
     # The environment for the script elements
     _env = env.copy()
-    _env['scriptdepth'] += 1
+    _env.scriptdepth += 1
     script = texgroup.pop(0)
     if script in scripts:
         # A "_" or "^", immediately folowed by another "_" or "^"
@@ -842,8 +883,8 @@ def math_parse_s_ft2font(s, dpi, fontsize, angle=0):
     s = s[1:-1]
     parsed = parse_tex(_textclass(s))
     env = environment.copy()
-    env["dpi"] = dpi
-    env["fontsize"] = fontsize
+    env.dpi = dpi
+    env.fontsize = fontsize
     parsed = handle_tokens(parsed, env)
     parsed._init_renderer()
     #print "\n".join(str(parsed.__dict__).split(","))
@@ -862,8 +903,8 @@ def math_parse_s_ft2font1(s, dpi, fontsize, angle=0):
     s = s[1:-1]
     parsed = parse_tex(_textclass(s))
     env = environment.copy()
-    env["dpi"] = dpi
-    env["fontsize"] = fontsize
+    env.dpi = dpi
+    env.fontsize = fontsize
     parsed = handle_tokens(parsed, env)
     parsed._init_renderer()
     #print "\n".join(str(parsed.__dict__).split(","))
