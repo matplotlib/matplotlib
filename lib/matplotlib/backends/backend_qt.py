@@ -40,6 +40,17 @@ def draw_if_interactive():
         if figManager != None:
             figManager.canvas.draw()
 
+def _create_qApp():
+    """
+    Only one qApp can exist at a time, so check before creating one
+    """
+    if qt.QApplication.startingUp():
+        if DEBUG: print "Starting up QApplication"
+        global qApp
+        qApp = qt.QApplication( [" "] )
+        qt.QObject.connect( qApp, qt.SIGNAL( "lastWindowClosed()" ),
+                            qApp, qt.SLOT( "quit()" ) )
+
 def show( mainloop=True ):
     """
     Show all the figures and enter the qt main loop
@@ -50,30 +61,21 @@ def show( mainloop=True ):
         
     if DEBUG: print 'Inside show'
 
-    # We need one and only one QApplication before we can build any Qt widgets
-    # Detect if a QApplication exists.
-    createQApp = qt.QApplication.startingUp()
-    if createQApp:
-        if DEBUG: print "Starting up QApplication"
-        qtapplication = qt.QApplication( [" "] )
-
     figManager =  Gcf.get_active()
     if figManager != None:
         figManager.canvas.draw()
         #if ( createQApp ):
-        #   qtapplication.setMainWidget( figManager.canvas )
+        #   qApp.setMainWidget( figManager.canvas )
 
-    if mainloop and createQApp:
-        qt.QObject.connect( qtapplication, qt.SIGNAL( "lastWindowClosed()" ),
-                            qtapplication, qt.SLOT( "quit()" ) )
-        qtapplication.exec_loop()    
+    if mainloop:
+        qt.qApp.exec_loop()
 
 
 def new_figure_manager( num, *args, **kwargs ):
     """
     Create a new figure manager instance
     """
-    FigureClass = kwargs.pop('FigureClass', Figure)    
+    FigureClass = kwargs.pop('FigureClass', Figure)
     thisFig = FigureClass( *args, **kwargs )
     canvas = FigureCanvasQT( thisFig )
     manager = FigureManagerQT( canvas, num )
@@ -89,6 +91,8 @@ class FigureCanvasQT( qt.QWidget, FigureCanvasBase ):
     buttond = {1:1, 2:3, 4:2}
     def __init__( self, figure ):
         if DEBUG: print 'FigureCanvasQt: ', figure
+        _create_qApp()
+        
         qt.QWidget.__init__( self, None, "QWidget figure" )
         FigureCanvasBase.__init__( self, figure )
         self.figure = figure

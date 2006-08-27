@@ -1,6 +1,7 @@
 2006-08-27 qt backends: don't create a QApplication when backend is 
-           imported, do it in show(). Simplifies embedding mpl in qt 
-           applications. Updated embedding_in_qt* examples - DSD
+           imported, do it when the FigureCanvasQt is created. Simplifies 
+           applications where mpl is embedded in qt. Updated 
+           embedding_in_qt* examples - DSD
 
 2006-08-27 mahtext2.py: Now the fonts are searched in the OS font dir and
            in the mpl-data dir. Also env is not a dict anymore. - ES

@@ -131,7 +131,8 @@ def main():
     aw = ApplicationWindow()
     aw.setWindowTitle("%s" % progname)
     aw.show()
-    sys.exit(qApp.exec_())
+#    sys.exit(qApp.exec_())
+    qApp.exec_()
 
 
 if __name__ == "__main__": main()
