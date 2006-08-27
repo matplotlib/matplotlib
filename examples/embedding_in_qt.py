@@ -12,14 +12,6 @@ import sys, os, random
 from qt import *
 
 from matplotlib.numerix import arange, sin, pi
-
-# The QApplication has to be created before backend_qt is imported, otherwise
-# it will create one itself.
-# Note: color-intensive applications may require a different color allocation
-# strategy.
-QApplication.setColorSpec(QApplication.NormalColor)
-app = QApplication(sys.argv)
-
 from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
 
@@ -31,6 +23,10 @@ FALSE = 0
 progname = os.path.basename(sys.argv[0])
 progversion = "0.1"
 
+# Note: color-intensive applications may require a different color allocation
+# strategy.
+QApplication.setColorSpec(QApplication.NormalColor)
+app = QApplication(sys.argv)
 
 class MyMplCanvas(FigureCanvas):
     """Ultimately, this is a QWidget (as well as a FigureCanvasAgg, etc.)."""

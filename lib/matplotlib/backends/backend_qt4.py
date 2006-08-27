@@ -49,6 +49,14 @@ def show( mainloop=True ):
         manager.window.show()
         
     if DEBUG: print 'Inside show'
+
+    # We need one and only one QApplication before we can build any Qt widgets
+    # Detect if a QApplication exists.
+    createQApp = QtGui.QApplication.startingUp()
+    if createQApp:
+        if DEBUG: print "Starting up QApplication"
+        qtapplication = QtGui.QApplication( [" "] )
+
     figManager =  Gcf.get_active()
     if figManager != None:
         figManager.canvas.draw()
@@ -367,10 +375,3 @@ def exception_handler( type, value, tb ):
 
 
 FigureManager = FigureManagerQT
-
-# We need one and only one QApplication before we can build any Qt widgets
-# Detect if a QApplication exists.
-createQApp = QtGui.QApplication.startingUp()
-if createQApp:
-    if DEBUG: print "Starting up QApplication"
-    qtapplication = QtGui.QApplication( [" "] )
