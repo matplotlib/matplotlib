@@ -40,6 +40,17 @@ def draw_if_interactive():
         if figManager != None:
             figManager.canvas.draw()
 
+def _create_qApp():
+    """
+    Only one qApp can exist at a time, so check before creating one.
+    """
+    if QtGui.QApplication.startingUp():
+        if DEBUG: print "Starting up QApplication"
+        global qApp
+        qApp = QtGui.QApplication( [" "] )
+        QtCore.QObject.connect( qApp, QtCore.SIGNAL( "lastWindowClosed()" ),
+                            qApp, QtCore.SLOT( "quit()" ) )
+
 def show( mainloop=True ):
     """
     Show all the figures and enter the qt main loop
@@ -50,23 +61,14 @@ def show( mainloop=True ):
         
     if DEBUG: print 'Inside show'
 
-    # We need one and only one QApplication before we can build any Qt widgets
-    # Detect if a QApplication exists.
-    createQApp = QtGui.QApplication.startingUp()
-    if createQApp:
-        if DEBUG: print "Starting up QApplication"
-        qtapplication = QtGui.QApplication( [" "] )
-
     figManager =  Gcf.get_active()
     if figManager != None:
         figManager.canvas.draw()
         #if ( createQApp ):
         #   qtapplication.setMainWidget( figManager.canvas )
 
-    if mainloop and createQApp:
-        QtCore.QObject.connect( qtapplication, QtCore.SIGNAL( "lastWindowClosed()" ),
-                            qtapplication, QtCore.SLOT( "quit()" ) )
-        qtapplication.exec_()
+    if mainloop:
+        qApp.exec_()
 
 
 def new_figure_manager( num, *args, **kwargs ):
@@ -88,6 +90,8 @@ class FigureCanvasQT( QtGui.QWidget, FigureCanvasBase ):
     buttond = {1:1, 2:3, 4:2}
     def __init__( self, figure ):
         if DEBUG: print 'FigureCanvasQt: ', figure
+        _create_qApp()
+
         QtGui.QWidget.__init__( self )
         FigureCanvasBase.__init__( self, figure )
         self.figure = figure
