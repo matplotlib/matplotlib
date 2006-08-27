@@ -1,3 +1,6 @@
+2006-08-27 mahtext2.py: Now the fonts are searched in the OS font dir and
+           in the mpl-data dir. Also env is not a dict anymore. - ES
+
 2006-08-26 minor changes to __init__.py, mathtex2_demo.py. Added matplotlibrc
            key "mathtext.mathtext2" (removed the key "mathtext2") - ES
 
