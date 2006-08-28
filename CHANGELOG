@@ -1,3 +1,8 @@
+2006-08-28 mahtext2.py: Initial support for complex fractions. Also,
+           rendering is now completely separated from parsing. The
+           sub/superscripts now work better.
+           Updated the mathtext2_demo.py - ES
+
 2006-08-27 qt backends: don't create a QApplication when backend is 
            imported, do it when the FigureCanvasQt is created. Simplifies 
            applications where mpl is embedded in qt. Updated 
