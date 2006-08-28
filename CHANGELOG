@@ -1,3 +1,6 @@
+2006-08-28 font_manager.py: Added /usr/local/share/fonts to list of
+           X11 font directories - DSD 
+
 2006-08-28 mahtext2.py: Initial support for complex fractions. Also,
            rendering is now completely separated from parsing. The
            sub/superscripts now work better.

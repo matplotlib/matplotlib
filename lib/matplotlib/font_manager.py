@@ -60,10 +60,12 @@ MSFontDirectories   = [
     r'SOFTWARE\Microsoft\Windows\CurrentVersion\Fonts']
 
 X11FontDirectories  = [
-    # what seems to be the standard installation point
+    # an old standard installation point
     "/usr/X11R6/lib/X11/fonts/TTF/",
-    # documented as a good place to install new fonts...
+    # here is the new standard location for fonts
     "/usr/share/fonts/",
+    # documented as a good place to install new fonts
+    "/usr/local/share/fonts/",
     # common application, not really useful
     "/usr/lib/openoffice/share/fonts/truetype/",
     ]
