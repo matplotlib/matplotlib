@@ -1,3 +1,6 @@
+2006-08-28 mathtext2.py: Sub/superscripts can now be complex (i.e.
+           fractions etc.). The demo is also updated - ES
+
 2006-08-28 font_manager.py: Added /usr/local/share/fonts to list of
            X11 font directories - DSD 
 

@@ -5,6 +5,7 @@ Supported commands:
  * commands for typesetting functions (\sin, \cos etc.),
  * commands for changing the current font (\rm, \cal etc.),
  * Space/kern commands "\ ", \thinspace
+ * \frac
 
 Small TO-DO's:
 --------------
@@ -16,9 +17,7 @@ Small TO-DO's:
 
 TO-DO's:
 --------
- * \frac, \over, \above, \choose etc.
- * Implement classes for Line, Fraction etc
- * Change env to be a new class, not a dict.
+ * \over, \above, \choose etc.
  * Add support for other backends
 
 """
@@ -425,12 +424,19 @@ class Scripted(Renderer):
         # below the origin of the nucleus (the descent of the letter "j").
         # TO-DO: Change with a better alternative. Not working: F_1^1y_1
         c = TexCharClass(env, "j")
+        C = TexCharClass(env, "M")
+
         self.subpad = c.height - c.bearingy
+        # If subscript is complex (i.e. a large Hbox - fraction etc.)
+        # we have to aditionaly lower the subscript
+        if sub.ymax > (C.height/2.1 + self.subpad):
+            self.subpad = sub.ymax - C.height/2.1
+            
         #self.subpad = max(self.subpad)
         #self.subpad = 0.5*sub.height
         # Similar for the superscript
-        C = TexCharClass(env, "M")
-        self.suppad = max(nuc.height/2., C.ymax/2.)# - C.bearingy
+        self.suppad = max(nuc.height/1.9, C.ymax/1.9) - sup.ymin# - C.bearingy
+
 
         #self.advance = nuc.advance + max((sub.advance, sup.advance))
 
