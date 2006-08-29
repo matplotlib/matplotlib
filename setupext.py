@@ -354,18 +354,18 @@ def find_tcltk():
         o.tkv = ""
     else:
         tk.withdraw()
-        o.tcl_lib = os.path.normpath(os.path.join((tk.getvar('tcl_library')), '../'))
+        o.tcl_lib = os.path.normpath(os.path.join(str(tk.getvar('tcl_library')), '../'))
         o.tk_lib = os.path.normpath(os.path.join(str(tk.getvar('tk_library')), '../'))
         o.tkv = str(Tkinter.TkVersion)[:3]
-        o.tcl_inc = os.path.normpath(os.path.join((tk.getvar('tcl_library')), 
+        o.tcl_inc = os.path.normpath(os.path.join(str(tk.getvar('tcl_library')), 
                     '../../include/tcl'+o.tkv))
         if not os.path.exists(o.tcl_inc):
-            o.tcl_inc = os.path.normpath(os.path.join((tk.getvar('tcl_library')), 
+            o.tcl_inc = os.path.normpath(os.path.join(str(tk.getvar('tcl_library')), 
                         '../../include'))
-        o.tk_inc = os.path.normpath(os.path.join((tk.getvar('tk_library')), 
+        o.tk_inc = os.path.normpath(os.path.join(str(tk.getvar('tk_library')), 
                     '../../include/tk'+o.tkv))
         if not os.path.exists(o.tk_inc):
-            o.tk_inc = os.path.normpath(os.path.join((tk.getvar('tk_library')), 
+            o.tk_inc = os.path.normpath(os.path.join(str(tk.getvar('tk_library')), 
                         '../../include'))
             
         if ((not os.path.exists(os.path.join(o.tk_inc,'tk.h'))) and
