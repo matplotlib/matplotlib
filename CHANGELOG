@@ -1,3 +1,6 @@
+2006-08-29 setupext.py: wrap calls to tk.getvar() with str(). On some 
+           systems, getvar returns a Tcl_Obj instead of a string - DSD
+
 2006-08-28 mathtext2.py: Sub/superscripts can now be complex (i.e.
            fractions etc.). The demo is also updated - ES
 
