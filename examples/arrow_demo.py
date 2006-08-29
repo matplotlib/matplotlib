@@ -45,7 +45,7 @@ def make_arrow_plot(data, size=4, display='length', shape='right', \
     
     xlim(-0.5,1.5)
     ylim(-0.5,1.5)
-    gcf().set_figsize_inches(size,size)
+    gcf().set_size_inches(size,size)
     xticks([])
     yticks([])
     max_text_size = size*12

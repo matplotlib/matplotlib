@@ -241,15 +241,19 @@ class Figure(Artist):
         self.images.append(im)
         return im
 
-
     def set_figsize_inches(self, *args, **kwargs):
+        import warnings
+        warnings.warn('Use set_size_inches instead!', DeprecationWarning)
+        self.set_size_inches(*args, **kwargs)
+
+    def set_size_inches(self, *args, **kwargs):
         """
-        set_figsize_inches(w,h, forward=False)
+        set_size_inches(w,h, forward=False)
 
         Set the figure size in inches
 
-        Usage: set_figsize_inches(self, w,h)  OR
-               set_figsize_inches(self, (w,h) )
+        Usage: set_size_inches(self, w,h)  OR
+               set_size_inches(self, (w,h) )
 
         optional kwarg forward=True will cause the canvas size to be
         automatically updated; eg you can resize the figure window
