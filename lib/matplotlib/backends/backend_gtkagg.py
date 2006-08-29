@@ -62,7 +62,7 @@ class FigureCanvasGTKAgg(FigureCanvasGTK, FigureCanvasAgg):
         dpival = self.figure.dpi.get()
         winch = w/dpival
         hinch = h/dpival
-        self.figure.set_figsize_inches(winch, hinch)
+        self.figure.set_size_inches(winch, hinch)
         self._need_redraw = True
         self.resize_event()
         if DEBUG: print 'FigureCanvasGTKAgg.configure_event end'        

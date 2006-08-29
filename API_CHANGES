@@ -1,3 +1,6 @@
+	Renamed Figure.set_figsize_inches to Figure.set_size_inches to
+	better match the get method, Figure.get_size_inches.
+
     Removed the copy_bbox_transform from transforms.py; added
     shallowcopy methods to all transforms.  All transforms already
     had deepcopy methods.

@@ -1072,7 +1072,7 @@ The current aspect ration will be kept."""
         dpival = self.figure.dpi.get()
         winch = self._width/dpival
         hinch = self._height/dpival
-        self.figure.set_figsize_inches(winch, hinch)
+        self.figure.set_size_inches(winch, hinch)
 
         if self._isRealized:
             self.draw()
