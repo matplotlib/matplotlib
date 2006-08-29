@@ -1,27 +1,22 @@
-#!/usr/bin/env python
 """
-Show how to have wx draw a cursor over an axes that moves with the
-mouse and reports the data coords
+Example to draw a cursor and report the data coords in wx
 """
-
-from matplotlib.numerix import arange, sin, pi
 
 import matplotlib
-matplotlib.use('WXAgg')
 from matplotlib.backends.backend_wxagg import FigureCanvasWxAgg as FigureCanvas
 from matplotlib.backends.backend_wx import NavigationToolbar2Wx
-
 from matplotlib.figure import Figure
+from matplotlib.numerix import arange, sin, pi
 
-from wxPython.wx import *
+import wx
 
-class CanvasFrame(wxFrame):
+class CanvasFrame(wx.Frame):
     
-    def __init__(self):
-        wxFrame.__init__(self,None,-1,
+    def __init__(self, ):
+        wx.Frame.__init__(self,None,-1,
                          'CanvasFrame',size=(550,350))
 
-        self.SetBackgroundColour(wxNamedColor("WHITE"))
+        self.SetBackgroundColour(wx.NamedColor("WHITE"))
 
         self.figure = Figure()
         self.axes = self.figure.add_subplot(111)
@@ -29,100 +24,47 @@ class CanvasFrame(wxFrame):
         s = sin(2*pi*t)
         
         self.axes.plot(t,s)
-        self.axes.set_xlabel('Time (s)')
-        self.axes.set_ylabel('Price ($)')                
-        self.canvas = FigureCanvas(self, -1, self.figure)
-        self.canvas.mpl_connect('motion_notify_event', self.mouse_move)
-        self.sizer = wxBoxSizer(wxVERTICAL)
-        self.sizer.Add(self.canvas, 1, wxLEFT | wxTOP | wxGROW)
+        self.axes.set_xlabel('t')
+        self.axes.set_ylabel('sin(t)')                
+        self.figure_canvas = FigureCanvas(self, -1, self.figure)
+        
+        # Note that event is a MplEvent
+        self.figure_canvas.mpl_connect('motion_notify_event', self.UpdateStatusBar)
+        self.figure_canvas.Bind(wx.EVT_ENTER_WINDOW, self.ChangeCursor)
+
+        self.sizer = wx.BoxSizer(wx.VERTICAL)
+        self.sizer.Add(self.figure_canvas, 1, wx.LEFT | wx.TOP | wx.GROW)
         self.SetSizer(self.sizer)
         self.Fit()
 
-        self.statusBar =         wxStatusBar(self, -1)
+        self.statusBar = wx.StatusBar(self, -1)
         self.statusBar.SetFieldsCount(1)
         self.SetStatusBar(self.statusBar)
 
-        self.add_toolbar()  # comment this out for no toolbar
+        self.toolbar = NavigationToolbar2Wx(self.figure_canvas)
+        self.sizer.Add(self.toolbar, 0, wx.LEFT | wx.EXPAND)
+        self.toolbar.Show()
 
-        EVT_PAINT(self, self.OnPaint)
+    def ChangeCursor(self, event):
+        self.figure_canvas.SetCursor(wx.StockCursor(wx.CURSOR_BULLSEYE))
 
+    def UpdateStatusBar(self, event):
+        if event.inaxes:
+            x, y = event.xdata, event.ydata
+            self.statusBar.SetStatusText(( "x= " + str(x) + 
+                                           "  y=" +str(y) ),
+                                           0)
 
-    def mouse_move(self, event):
-        self.draw_cursor(event)
-
-    def add_toolbar(self):
-        self.toolbar = NavigationToolbar2Wx(self.canvas)
-        self.toolbar.Realize()
-        tw, th = self.toolbar.GetSizeTuple()
-        fw, fh = self.canvas.GetSizeTuple()
-        self.toolbar.SetSize(wxSize(fw, th))
-        self.sizer.Add(self.toolbar, 0, wxLEFT | wxEXPAND)
-        # update the axes menu on the toolbar
-        self.toolbar.update()  
-
-    def OnPaint(self, event):
-        self.erase_cursor()
-        try: del self.lastInfo
-        except AttributeError: pass
-        self.canvas.draw()
-        event.Skip()
-
-    def draw_cursor(self, event):
-        'event is a MplEvent.  Draw a cursor over the axes'
-        if event.inaxes is None:
-            self.erase_cursor()
-            try: del self.lastInfo
-            except AttributeError: pass
-            return
-        canvas = self.canvas
-        figheight = canvas.figure.bbox.height()
-        ax = event.inaxes
-        left,bottom,width,height = ax.bbox.get_bounds()
-        bottom = figheight-bottom
-        top = bottom - height
-        right = left + width
-        x, y = event.x, event.y
-        y = figheight-y
-
-        dc = wxClientDC(canvas)
-        dc.SetLogicalFunction(wxXOR)            
-        wbrush = wxBrush(wxColour(255,255,255), wxTRANSPARENT)
-        wpen = wxPen(wxColour(200, 200, 200), 1, wxSOLID)
-        dc.SetBrush(wbrush)
-        dc.SetPen(wpen)
-            
-        dc.ResetBoundingBox()
-        dc.BeginDrawing()
-
-        x, y, left, right, bottom, top = [int(val) for val in x, y, left, right, bottom, top]
-
-        self.erase_cursor()
-        line1 = (x, bottom, x, top)
-        line2 = (left, y, right, y)
-        self.lastInfo = line1, line2, ax, dc
-        dc.DrawLine(*line1) # draw new
-        dc.DrawLine(*line2) # draw new        
-        dc.EndDrawing()
-
-        time, price = event.xdata, event.ydata
-        self.statusBar.SetStatusText("Time=%f  Price=%f"% (time, price), 0)
-
-    def erase_cursor(self):
-        try: lastline1, lastline2, lastax, lastdc = self.lastInfo
-        except AttributeError: pass
-        else:
-            lastdc.DrawLine(*lastline1) # erase old
-            lastdc.DrawLine(*lastline2) # erase old            
-        
-class App(wxApp):
+class App(wx.App):
     
     def OnInit(self):
         'Create the main window and insert the custom frame'
         frame = CanvasFrame()
-        frame.Show(true)
+        self.SetTopWindow(frame)
+        frame.Show(True)
+        return True
 
-        return true
-
-app = App(0)
-app.MainLoop()
-
+if __name__=='__main__':
+    matplotlib.use('WXAgg')
+    app = App(0)
+    app.MainLoop()
