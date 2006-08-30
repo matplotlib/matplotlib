@@ -615,7 +615,7 @@ class Line(Renderer):
                                                         y + self.ymax)
         #print coords
         #print "\n".join(repr(self.__dict__).split(","))
-        font.draw_rect(*coords)
+        font.draw_rect_filled(*coords)
 
 
 # Main parser functions

@@ -1,3 +1,6 @@
+2006-08-30 ft2font.cpp: Added draw_rect_filled method (now used by mathtext2
+           to draw the fraction bar) to FT2Font - ES
+
 2006-08-29 setupext.py: wrap calls to tk.getvar() with str(). On some 
            systems, getvar returns a Tcl_Obj instead of a string - DSD
 
