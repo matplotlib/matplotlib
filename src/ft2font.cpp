@@ -926,7 +926,7 @@ FT2Font::write_bitmap(const Py::Tuple & args) {
 }
 
 char FT2Font::draw_rect__doc__[] =
-"draw_bbox(x0, y0, x1, y1)\n"
+"draw_rect(x0, y0, x1, y1)\n"
 "\n"
 "Draw a rect to the image.  It is your responsibility to set the dimensions\n"
 "of the image, eg, with set_bitmap_size\n"
@@ -951,14 +951,48 @@ FT2Font::draw_rect(const Py::Tuple & args) {
        y0>iheight || y1>iheight )
     throw Py::ValueError("Rect coords outside image bounds");
 
-  for (long i=x0; i<x1; ++i) {
+  for (long i=x0; i<x1+1; ++i) {
     image.buffer[i + y0*iwidth] = 255;
     image.buffer[i + y1*iwidth] = 255;
   }
 
-  for (long j=y0; j<y1; ++j) {
+  for (long j=y0+1; j<y1; ++j) {
     image.buffer[x0 + j*iwidth] = 255;
     image.buffer[x1 + j*iwidth] = 255;
+  }
+  return Py::Object();
+}
+
+char FT2Font::draw_rect_filled__doc__[] =
+"draw_rect_filled(x0, y0, x1, y1)\n"
+"\n"
+"Draw a filled rect to the image.  It is your responsibility to set the\n"
+"dimensions of the image, eg, with set_bitmap_size\n"
+"\n"
+;
+Py::Object
+FT2Font::draw_rect_filled(const Py::Tuple & args) {
+  _VERBOSE("FT2Font::draw_rect_filled");
+
+  args.verify_length(4);
+
+  long x0 = Py::Int(args[0]);
+  long y0 = Py::Int(args[1]);
+  long x1 = Py::Int(args[2]);
+  long y1 = Py::Int(args[3]);
+
+  FT_Int iwidth = (FT_Int)image.width;
+  FT_Int iheight = (FT_Int)image.height;
+
+  if ( x0<0 || y0<0 || x1<0 || y1<0 ||
+       x0>iwidth || x1>iwidth ||
+       y0>iheight || y1>iheight )
+    throw Py::ValueError("Rect coords outside image bounds");
+
+  for (long j=y0; j<y1; ++j) {
+      for (long i=x0; i<x1+1; ++i) {
+        image.buffer[i + j*iwidth] = 255;
+      }
   }
   return Py::Object();
 }
@@ -1562,6 +1596,8 @@ FT2Font::init_type() {
 		     FT2Font::load_char__doc__);
   add_varargs_method("draw_rect",&FT2Font::draw_rect,
 		     FT2Font::draw_rect__doc__);
+    add_varargs_method("draw_rect_filled",&FT2Font::draw_rect_filled,
+		     FT2Font::draw_rect_filled__doc__);
   add_varargs_method("draw_glyph_to_bitmap", &FT2Font::draw_glyph_to_bitmap,
 		     FT2Font::draw_glyph_to_bitmap__doc__);
   add_varargs_method("draw_glyphs_to_bitmap", &FT2Font::draw_glyphs_to_bitmap,

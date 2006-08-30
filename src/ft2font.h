@@ -65,6 +65,7 @@ public:
   Py::Object get_descent(const Py::Tuple & args);
   Py::Object write_bitmap(const Py::Tuple & args);
   Py::Object draw_rect(const Py::Tuple & args);
+  Py::Object draw_rect_filled(const Py::Tuple & args);
   Py::Object image_as_str(const Py::Tuple & args);
   Py::Object get_xys(const Py::Tuple & args);
   Py::Object draw_glyphs_to_bitmap(const Py::Tuple & args);
@@ -110,6 +111,7 @@ private:
   static char get_kerning__doc__ [];
   static char write_bitmap__doc__ [];
   static char draw_rect__doc__ [];
+  static char draw_rect_filled__doc__ [];
   static char image_as_str__doc__ [];
   static char draw_glyphs_to_bitmap__doc__ [];
   static char get_xys__doc__ [];
