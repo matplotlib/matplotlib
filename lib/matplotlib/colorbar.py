@@ -192,11 +192,11 @@ class ColorbarBase(cm.ScalarMappable):
             ax.set_xticklabels(ticklabels)
             ax.xaxis.get_major_formatter().set_offset_string(offset_string)
 
-    def set_label(self, label):
+    def set_label(self, label, **kw):
         if self.orientation == 'vertical':
-            self.ax.set_ylabel(label)
+            self.ax.set_ylabel(label, **kw)
         else:
-            self.ax.set_xlabel(label)
+            self.ax.set_xlabel(label, **kw)
 
     def _outline(self, X, Y):
         '''
