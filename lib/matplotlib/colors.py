@@ -429,12 +429,16 @@ class ColorConverter:
 
         return color
 
-    def to_rgba(self, arg, alpha=1.0, warn=True):
+    def to_rgba(self, arg, alpha=None, warn=True):
         """
         Returns an RGBA tuple of four floats from 0-1.
 
         For acceptable values of arg, see to_rgb.
         """
+        if not is_string_like(arg) and iterable(arg) and len(arg) == 4:
+            alpha = float(arg[3])
+        elif alpha is None:
+            alpha = 1.0
         r,g,b = self.to_rgb(arg, warn)
         return r,g,b,alpha
 

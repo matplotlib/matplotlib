@@ -680,7 +680,7 @@ class ContourSet(ScalarMappable, ContourLabeler):
         if self.extend in ('both', 'max', 'min'):
             self.norm.clip = False
         self.set_array(self.layers)
-        self.tcolors = [ (tuple(rgba),) for rgba in self.to_rgba(self.cvalues)]
+        # self.tcolors will be set by the "changed" method
 
     def _process_linewidths(self):
         linewidths = self.linewidths
