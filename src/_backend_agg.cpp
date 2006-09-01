@@ -372,7 +372,7 @@ RendererAgg::draw_rectangle(const Py::Tuple & args) {
 Py::Object
 RendererAgg::draw_ellipse(const Py::Tuple& args) {
   _VERBOSE("RendererAgg::draw_ellipse");
-  args.verify_length(6);
+  args.verify_length(7);
 
   GCAgg gc = GCAgg(args[0], dpi);
   facepair_t face = _get_rgba_face(args[1], gc.alpha);
@@ -382,6 +382,7 @@ RendererAgg::draw_ellipse(const Py::Tuple& args) {
   double y = Py::Float( args[3] );
   double w = Py::Float( args[4] );
   double h = Py::Float( args[5] );
+  double rot = Py::Float( args[6] );
 
   set_clipbox_rasterizer(gc.cliprect);
 

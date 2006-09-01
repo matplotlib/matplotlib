@@ -615,7 +615,7 @@ class Line2D(Artist):
         else:
             for (x,y) in zip(xt, yt):
                 renderer.draw_arc(gc, rgbFace,
-                                  x, y, w, w, 0.0, 360.0)
+                                  x, y, w, w, 0.0, 360.0, 0.0)
 
 
 

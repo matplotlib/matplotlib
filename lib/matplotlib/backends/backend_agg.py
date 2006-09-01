@@ -137,7 +137,7 @@ class RendererAgg(RendererBase):
         if __debug__: verbose.report('RendererAgg.__init__ done',
                                      'debug-annoying')
 
-    def draw_arc(self, gcEdge, rgbFace, x, y, width, height, angle1, angle2):
+    def draw_arc(self, gcEdge, rgbFace, x, y, width, height, angle1, angle2, rotation):
         """        
         Draw an arc centered at x,y with width and height and angles
         from 0.0 to 360.0
@@ -150,7 +150,7 @@ class RendererAgg(RendererBase):
         """
         if __debug__: verbose.report('RendererAgg.draw_arc', 'debug-annoying')
         self._renderer.draw_ellipse(
-            gcEdge, rgbFace, x, y, width/2, height/2)  # ellipse takes radius
+            gcEdge, rgbFace, x, y, width/2, height/2, rotation)  # ellipse takes radius
 
 
     def draw_line(self, gc, x1, y1, x2, y2):

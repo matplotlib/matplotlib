@@ -122,11 +122,12 @@ class RendererSVG(RendererBase):
     def close_group(self, s):
         self._svgwriter.write('</g>\n')
 
-    def draw_arc(self, gc, rgbFace, x, y, width, height, angle1, angle2):
+    def draw_arc(self, gc, rgbFace, x, y, width, height, angle1, angle2, rotation):
         """
         Ignores angles for now
         """
-        details = 'cx="%f" cy="%f" rx="%f" ry="%f"' % (x,self.height-y,width/2,height/2)
+        details = 'cx="%f" cy="%f" rx="%f" ry="%f" transform="rotate(%f %f %f)"' % \
+            (x,  self.height-y, width/2.0, height/2.0, -rotation, x, self.height-y)
         self._draw_svg_element('ellipse', details, gc, rgbFace)
 
     def draw_image(self, x, y, im, bbox):
