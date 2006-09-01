@@ -1,23 +1,26 @@
+2006-08-31 Fixed alpha-handling bug in ColorConverter, affecting
+           collections in general and contour/contourf in particular. - EF
+
 2006-08-30 ft2font.cpp: Added draw_rect_filled method (now used by mathtext2
            to draw the fraction bar) to FT2Font - ES
 
-2006-08-29 setupext.py: wrap calls to tk.getvar() with str(). On some 
+2006-08-29 setupext.py: wrap calls to tk.getvar() with str(). On some
            systems, getvar returns a Tcl_Obj instead of a string - DSD
 
 2006-08-28 mathtext2.py: Sub/superscripts can now be complex (i.e.
            fractions etc.). The demo is also updated - ES
 
 2006-08-28 font_manager.py: Added /usr/local/share/fonts to list of
-           X11 font directories - DSD 
+           X11 font directories - DSD
 
 2006-08-28 mahtext2.py: Initial support for complex fractions. Also,
            rendering is now completely separated from parsing. The
            sub/superscripts now work better.
            Updated the mathtext2_demo.py - ES
 
-2006-08-27 qt backends: don't create a QApplication when backend is 
-           imported, do it when the FigureCanvasQt is created. Simplifies 
-           applications where mpl is embedded in qt. Updated 
+2006-08-27 qt backends: don't create a QApplication when backend is
+           imported, do it when the FigureCanvasQt is created. Simplifies
+           applications where mpl is embedded in qt. Updated
            embedding_in_qt* examples - DSD
 
 2006-08-27 mahtext2.py: Now the fonts are searched in the OS font dir and
