@@ -22,7 +22,8 @@ Function signatures:
 
 Arguments:
 
-    X, Y give the x and y coordinates of the arrow origins
+    X, Y give the x and y coordinates of the arrow locations
+        (default is tail of arrow; see 'pivot' kwarg)
     U, V give the x and y components of the arrow vectors
     C is an optional array used to map colors to the arrows
 
@@ -88,7 +89,7 @@ Keyword arguments (default given first):
 
   * color = 'k' | any matplotlib color spec or sequence of color specs.
         This is a synonym for the PolyCollection facecolor kwarg.
-        If C has been set, either via arg or kwarg, it has no effect.
+        If C has been set, 'color' has no effect.
 
    * All PolyCollection kwargs are valid, in the sense that they
         will be passed on to the PolyCollection constructor.
