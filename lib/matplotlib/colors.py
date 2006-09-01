@@ -433,13 +433,19 @@ class ColorConverter:
         """
         Returns an RGBA tuple of four floats from 0-1.
 
-        For acceptable values of arg, see to_rgb.
+        For acceptable values of arg, see to_rgb.  In
+        addition, arg may already be an rgba sequence, in which
+        case it is returned unchanged if the alpha kwarg is None,
+        or takes on the specified alpha.
         """
-        if not is_string_like(arg) and iterable(arg) and len(arg) == 4:
-            alpha = float(arg[3])
-        elif alpha is None:
+        if not is_string_like(arg) and iterable(arg):
+            if len(arg) == 4 and alpha is None:
+                return tuple(arg)
+            r,g,b = arg[:3]
+        else:
+            r,g,b = self.to_rgb(arg, warn)
+        if alpha is None:
             alpha = 1.0
-        r,g,b = self.to_rgb(arg, warn)
         return r,g,b,alpha
 
     def to_rgba_list(self, c):
