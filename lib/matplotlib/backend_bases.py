@@ -33,12 +33,13 @@ class RendererBase:
         """
         pass
 
-    def draw_arc(self, gcEdge, rgbFace, x, y, width, height, angle1, angle2):
+    def draw_arc(self, gcEdge, rgbFace, x, y, width, height, angle1, angle2, rotation):
         """
         Draw an arc using GraphicsContext instance gcEdge, centered at x,y,
         with width and height and angles from 0.0 to 360.0
         0 degrees is at 3-o'clock
         positive angles are anti-clockwise
+        draw rotated 'rotation' degrees anti-clockwise about x,y
 
         If the color rgbFace is not None, fill the arc with it.
         """

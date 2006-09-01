@@ -524,11 +524,12 @@ class Ellipse(Patch):
     """
     A scale-free ellipse
     """
-    def __init__(self, xy, width, height, **kwargs):
+    def __init__(self, xy, width, height, angle=0.0, **kwargs):
         Patch.__init__(self, **kwargs)
 
         self.center  = array(xy, Float)
         self.width, self.height = width, height
+        self.angle = angle
         
         x,y = self.center
         l,r = x-width/2.0, x+width/2.0
@@ -565,7 +566,7 @@ class Ellipse(Patch):
         width = tverts[3,0] - tverts[1,0]
         height = tverts[2,1] - tverts[4,1]
 
-        renderer.draw_arc(gc, rgbFace, tverts[0,0], tverts[0,1], width, height, 0.0, 360.0)
+        renderer.draw_arc(gc, rgbFace, tverts[0,0], tverts[0,1], width, height, 0.0, 360.0, self.angle)
         
 class Circle(Ellipse):
     """

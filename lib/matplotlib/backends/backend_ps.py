@@ -309,7 +309,7 @@ class RendererPS(RendererBase):
         font.set_size(size, 72.0)
         return font
 
-    def draw_arc(self, gc, rgbFace, x, y, width, height, angle1, angle2):
+    def draw_arc(self, gc, rgbFace, x, y, width, height, angle1, angle2, rotation):
         """
         Draw an arc centered at x,y with width and height and angles
         from 0.0 to 360.0
@@ -317,8 +317,8 @@ class RendererPS(RendererBase):
         If gcFace is not None, fill the arc slice with it.  gcEdge
         is a GraphicsContext instance
         """
-        ps = '%s ellipse' % _nums_to_str(angle1, angle2,
-                                         0.5*width, 0.5*height, x, y)
+        ps = '%f %f translate\n%f rotate\n%f %f translate\n%s ellipse' % \
+            (x, y, rotation, -x, -y, _nums_to_str(angle1, angle2, 0.5*width, 0.5*height, x, y))
         self._draw_ps(ps, gc, rgbFace, "arc")
 
     def _rgba(self, im):
