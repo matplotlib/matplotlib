@@ -523,6 +523,11 @@ class CirclePolygon(RegularPolygon):
 class Ellipse(Patch):
     """
     A scale-free ellipse
+    
+    xy - center of ellipse
+    width - length of horizontal axis
+    height - length of vertical axis
+    angle - rotation in degrees (anti-clockwise)
     """
     def __init__(self, xy, width, height, angle=0.0, **kwargs):
         Patch.__init__(self, **kwargs)
