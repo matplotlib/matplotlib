@@ -38,6 +38,10 @@
 #endif
 #endif
 
+#define M_PI       3.14159265358979323846
+#define M_PI_4     0.785398163397448309616
+#define M_PI_2     1.57079632679489661923
+
 /* ------------ RendererAgg methods ------------- */
 
 
@@ -377,23 +381,38 @@ RendererAgg::draw_ellipse(const Py::Tuple& args) {
   GCAgg gc = GCAgg(args[0], dpi);
   facepair_t face = _get_rgba_face(args[1], gc.alpha);
 
-
   double x = Py::Float( args[2] );
   double y = Py::Float( args[3] );
   double w = Py::Float( args[4] );
   double h = Py::Float( args[5] );
   double rot = Py::Float( args[6] );
+  
+  double r; // rot in radians
 
   set_clipbox_rasterizer(gc.cliprect);
 
   // Approximate the ellipse with 4 bezier paths
   agg::path_storage path;
-  path.move_to(x, height-(y+h));
-  path.arc_to(w, h, 0.0, false, true, x+w, height-y);
-  path.arc_to(w, h, 0.0, false, true, x, height-(y-h));
-  path.arc_to(w, h, 0.0, false, true, x-w, height-y);
-  path.arc_to(w, h, 0.0, false, true, x, height-(y+h));
-  path.close_polygon();
+  if (rot == 0.0) // simple case
+  {
+  	path.move_to(x, height-(y+h));
+	path.arc_to(w, h, 0.0, false, true, x+w, height-y);
+  	path.arc_to(w, h, 0.0, false, true, x,   height-(y-h));
+  	path.arc_to(w, h, 0.0, false, true, x-w, height-y);
+  	path.arc_to(w, h, 0.0, false, true, x,   height-(y+h));
+  	path.close_polygon();
+  }
+  else // rotate by hand :(
+  {
+  	// deg to rad
+  	r = rot * (M_PI/180.0);
+  	path.move_to(                      x+(cos(r)*w),          height-(y+(sin(r)*w)));
+  	path.arc_to(w, h, -r, false, true, x+(cos(r+M_PI_2*3)*h), height-(y+(sin(r+M_PI_2*3)*h)));
+  	path.arc_to(w, h, -r, false, true, x+(cos(r+M_PI)*w),     height-(y+(sin(r+M_PI)*w)));
+  	path.arc_to(w, h, -r, false, true, x+(cos(r+M_PI_2)*h),   height-(y+(sin(r+M_PI_2)*h)));
+	path.arc_to(w, h, -r, false, true, x+(cos(r)*w),          height-(y+(sin(r)*w)));
+  	path.close_polygon();
+  }
 
   _fill_and_stroke(path, gc, face);
   return Py::Object();
