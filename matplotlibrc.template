@@ -110,11 +110,11 @@ font.stretch        : normal
 # relative to font.size, using the following values: xx-small, x-small,
 # small, medium, large, x-large, xx-large, larger, or smaller
 font.size           : 12.0
-font.serif          : New Century Schoolbook, Century Schoolbook L, Utopia, ITC Bookman, Bookman, Bitstream Vera Serif, Nimbus Roman No9 L, Times New Roman, Times, Palatino, Charter, serif
-font.sans-serif     : Lucida Grande, Verdana, Geneva, Lucida, Bitstream Vera Sans, Arial, Helvetica, Avant Garde, sans-serif
+font.serif          : Bitstream Vera Serif, New Century Schoolbook, Century Schoolbook L, Utopia, ITC Bookman, Bookman, Nimbus Roman No9 L, Times New Roman, Times, Palatino, Charter, serif
+font.sans-serif     : Bitstream Vera Sans, Lucida Grande, Verdana, Geneva, Lucid, Arial, Helvetica, Avant Garde, sans-serif
 font.cursive        : Apple Chancery, Textile, Zapf Chancery, Sand, cursive
 font.fantasy        : Comic Sans MS, Chicago, Charcoal, Impact, Western, fantasy
-font.monospace      : Andale Mono, Bitstream Vera Sans Mono, Nimbus Mono L, Courier New, Courier, Fixed, Terminal, monospace
+font.monospace      : Bitstream Vera Sans Mono, Andale Mono, Nimbus Mono L, Courier New, Courier, Fixed, Terminal, monospace
 
 ### TEXT
 # text properties used by text.Text.  See
