@@ -21,8 +21,8 @@ tex = r'$\cal{R}\prod_{i=\alpha_{i+1}}^\infty a_i\rm{sin}(2 \pi f x_i)$'
 text(1, 1.6, tex, fontsize=20)
 
 #title(r'$\Delta_i^j \hspace{0.4} \rm{versus} \hspace{0.4} \Delta_{i+1}^j$', fontsize=20)
-savefig('mathtext_demo.png')
-savefig('mathtext_demo.ps')
+savefig('mathtext_demo')
+
 
 
 show()
