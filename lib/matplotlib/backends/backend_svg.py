@@ -151,7 +151,7 @@ class RendererSVG(RendererBase):
         im.write_png(filename)
 
         imfile = file (filename, 'r')
-        image64 = base64.b64encode (imfile.read())
+        image64 = base64.encodestring (imfile.read())
         imfile.close()
         os.remove(filename)
         lines = [image64[i:i+76] for i in range(0, len(image64), 76)]
