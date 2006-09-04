@@ -475,8 +475,8 @@ class Scripted(Renderer):
         self.sup.render(supx, supy)
 
     def __repr__(self):
-        tmp = (repr(i) for i in [self.env, self.nuc, self.type,
-            self.sub, self.sup])
+        tmp = [repr(i) for i in [self.env, self.nuc, self.type,
+            self.sub, self.sup]]
         tmp = tuple(tmp)
         return "Scripted(env=%s,nuc=%s, type=%s, \
 sub=%s, sup=%s)"%tmp
