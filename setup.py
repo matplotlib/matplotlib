@@ -62,7 +62,7 @@ import glob
 from distutils.core import Extension, setup
 from setupext import build_agg, build_gtkagg, build_tkagg, build_wxagg,\
      build_ft2font, build_image, build_windowing, build_transforms, \
-     build_contour, build_enthought, build_swigagg, build_gdk, \
+     build_contour, build_nxutils, build_enthought, build_swigagg, build_gdk, \
      build_subprocess, build_isnan
 import distutils.sysconfig
 
@@ -131,6 +131,7 @@ ext_modules = []
 # these are not optional
 BUILD_FT2FONT = 1
 BUILD_CONTOUR = 1
+BUILD_NXUTILS = 1
 
 # jdh
 packages = [
@@ -264,6 +265,7 @@ if BUILD_IMAGE:
 
 if 1:  # I don't think we need to make these optional
     build_contour(ext_modules, packages, NUMERIX)
+    build_nxutils(ext_modules, packages, NUMERIX)
 
 for mod in ext_modules:
     if VERBOSE:
