@@ -792,8 +792,12 @@ class SpanSelector:
           print vmin, vmax
       span = SpanSelector(ax, onselect, 'horizontal')
 
+      onmove_callback is an optional callback that will be called on mouse move
+      with the span range
+
     """
-    def __init__(self, ax, onselect, direction, minspan=None, useblit=False, rectprops=None):
+
+    def __init__(self, ax, onselect, direction, minspan=None, useblit=False, rectprops=None, onmove_callback=None):
         """
         Create a span selector in ax.  When a selection is made, clear
         the span and call onselect with
@@ -833,6 +837,7 @@ class SpanSelector:
 
         self.rectprops = rectprops
         self.onselect = onselect
+        self.onmove_callback = onmove_callback
         self.useblit = useblit
         self.minspan = minspan
 
@@ -928,6 +933,17 @@ class SpanSelector:
         else:
             self.rect.xy[1] = minv
             self.rect.set_height(maxv-minv)
+
+        if self.onmove_callback is not None:
+            vmin = self.pressv
+            if self.direction == 'horizontal':
+                vmax = event.xdata or self.prev[0]
+            else:
+                vmax = event.ydata or self.prev[1]
+
+            if vmin>vmax: vmin, vmax = vmax, vmin
+            self.onmove_callback(vmin, vmax)
+            
         self.update()
         return False
 

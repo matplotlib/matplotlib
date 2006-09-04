@@ -4,7 +4,7 @@ matplotlib event handling to interact with objects on the canvas
 
 """
 from matplotlib.artist import Artist
-from matplotlib.patches import Polygon
+from matplotlib.patches import Polygon, CirclePolygon
 from matplotlib.numerix import sqrt, nonzero, equal, asarray, dot, Float
 from matplotlib.numerix.mlab import amin
 from matplotlib.mlab import dist_point_to_segment
@@ -31,19 +31,21 @@ class PolygonInteractor:
     showverts = True
     epsilon = 5  # max pixel distance to count as a vertex hit
 
-    def __init__(self, poly):
+    def __init__(self, ax, poly):
         if poly.figure is None:
             raise RuntimeError('You must first add the polygon to a figure or canvas before defining the interactor')
+        self.ax = ax
         canvas = poly.figure.canvas
         self.poly = poly
         self.poly.verts = list(self.poly.verts)
         x, y = zip(*self.poly.verts)
-        self.line = Line2D(x,y,marker='o', markerfacecolor='r')
+        self.line = Line2D(x,y,marker='o', markerfacecolor='r', animated=True)
         #self._update_line(poly)
         
         cid = self.poly.add_callback(self.poly_changed)
         self._ind = None # the active vert
 
+        canvas.mpl_connect('draw_event', self.draw_callback)
         canvas.mpl_connect('button_press_event', self.button_press_callback)
         canvas.mpl_connect('key_press_event', self.key_press_callback)        
         canvas.mpl_connect('button_release_event', self.button_release_callback)
@@ -51,6 +53,12 @@ class PolygonInteractor:
         self.canvas = canvas
         
 
+    def draw_callback(self, event):
+        self.background = self.canvas.copy_from_bbox(self.ax.bbox)
+        self.ax.draw_artist(self.poly)
+        self.ax.draw_artist(self.line)
+        self.canvas.blit(self.ax.bbox)
+        
     def poly_changed(self, poly):
         'this method is called whenever the polygon object is called'
         # only copy the artist props to the line (except visibility)
@@ -123,7 +131,12 @@ class PolygonInteractor:
         x,y = event.xdata, event.ydata
         self.poly.verts[self._ind] = x,y
         self.line.set_data(zip(*self.poly.verts))
-        self.canvas.draw_idle()
+
+        self.canvas.restore_region(self.background)
+        self.ax.draw_artist(self.poly)
+        self.ax.draw_artist(self.line)
+        self.canvas.blit(self.ax.bbox)
+
 
 
 from pylab import *
@@ -133,14 +146,14 @@ from pylab import *
 
 
 fig = figure()
-circ = Circle((.5,.5),.5)
+circ = CirclePolygon((.5,.5),.5, animated=True)
 
 
 
 
 ax = subplot(111)
 ax.add_patch(circ)
-p = PolygonInteractor( circ)
+p = PolygonInteractor( ax, circ)
 
 ax.add_line(p.line)
 ax.set_title('Click and drag a point to move it')
