@@ -1,5 +1,8 @@
+2006-09-04 Made bitstream fonts the rc default - JDH
+
 2006-08-31 Fixed alpha-handling bug in ColorConverter, affecting
-           collections in general and contour/contourf in particular. - EF
+           collections in general and contour/contourf in
+           particular. - EF
 
 2006-08-30 ft2font.cpp: Added draw_rect_filled method (now used by mathtext2
            to draw the fraction bar) to FT2Font - ES
