@@ -109,7 +109,7 @@ points_inside_poly(PyObject *self, PyObject *args)
   PyArrayObject *xypoints, *verts;
   PyArrayObject *mask;
   int dimensions[1];
-
+  
   if (! PyArg_ParseTuple(args, "OO", &xypointsarg, &vertsarg))
     return NULL;
   
@@ -157,7 +157,7 @@ points_inside_poly(PyObject *self, PyObject *args)
     yv[i] = *(double *)(verts->data +  i*verts->strides[0] + verts->strides[1]);
     //printf("adding vert: %1.3f, %1.3f\n", xv[i], yv[i]);
   }
-
+  
   xypoints = (PyArrayObject *) PyArray_FromObject(xypointsarg,PyArray_DOUBLE, 2, 2);
   
   if (xypoints == NULL)
@@ -186,46 +186,42 @@ points_inside_poly(PyObject *self, PyObject *args)
   
   npoints = xypoints->dimensions[0];
   dimensions[0] = npoints;
-
+  
   mask = (PyArrayObject *)PyArray_FromDims(1,dimensions,PyArray_INT);
   if (mask==NULL) {
-      Py_XDECREF(verts);
-      Py_XDECREF(xypoints);
-      PyMem_Free(xv);
-      PyMem_Free(yv);
-      return NULL;  }
-
+    Py_XDECREF(verts);
+    Py_XDECREF(xypoints);
+    PyMem_Free(xv);
+    PyMem_Free(yv);
+    return NULL;  }
+  
   for (i=0; i<npoints; ++i) {
     x = *(double *)(xypoints->data + i*xypoints->strides[0]);
     y = *(double *)(xypoints->data +  i*xypoints->strides[0] + xypoints->strides[1]);
     b = pnpoly_api(npol, xv, yv, x, y);
     //printf("checking %d, %d, %1.3f, %1.3f, %d\n", npol, npoints, x, y, b);
     *(int *)(mask->data+i*mask->strides[0]) = b;
-
+    
   }
   
   
   Py_XDECREF(verts);
   Py_XDECREF(xypoints);
-
+  
   PyMem_Free(xv);
   PyMem_Free(yv);
   PyObject* ret =  Py_BuildValue("O", mask);
   Py_XDECREF(mask);
   return ret;
-
+  
   
 }
-
-
-
 
 static PyMethodDef module_methods[] = {
   {"pnpoly",  pnpoly, METH_VARARGS, "inside = pnpoly(x, y, xyverts)\nreturn 1 if x,y is inside the polygon defined by the sequence of x,y vertices in xyverts"},
   {"points_inside_poly",  points_inside_poly, METH_VARARGS, "mask = points_inside_poly(xypoints, xyverts)\nreturn a mask of length xypoints indicating whether each x,y point is inside the polygon defined by the sequence of x,y vertices in xyverts"},
   {NULL}  /* Sentinel */
 }
-
 
 #ifdef NUMARRAY
 #if PY_MINOR_VERSION > 2
