@@ -780,7 +780,7 @@ def scale_range(vmin, vmax, n = 1, threshold=100):
     maxabsv = max(abs(vmin), abs(vmax))
     if maxabsv == 0 or dv/maxabsv < 1e-12:
         return 1.0, 0.0
-    print vmin, vmax
+    #print vmin, vmax
     meanv = 0.5*(vmax+vmin)
     if abs(meanv)/dv < threshold:
         offset = 0
