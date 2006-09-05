@@ -1,6 +1,9 @@
+===============================================================
+2006-09-05 Released 0.87.5 at revision 2761
+
 2006-09-04 Added nxutils for some numeric add-on extension code --
-  specifically a better/more efficient inside polygon tester (see
-  unit/inside_poly_*.py) - JDH
+		   specifically a better/more efficient inside polygon tester (see
+		   unit/inside_poly_*.py) - JDH
 
 2006-09-04 Made bitstream fonts the rc default - JDH
 
