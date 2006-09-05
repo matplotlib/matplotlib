@@ -105,7 +105,7 @@ points_inside_poly(PyObject *self, PyObject *args)
   int npol, npoints, i;
   double *xv, *yv, x, y;
   int b;
-  PyObject *xypointsarg, *vertsarg;
+  PyObject *xypointsarg, *vertsarg, *ret;
   PyArrayObject *xypoints, *verts;
   PyArrayObject *mask;
   int dimensions[1];
@@ -210,7 +210,7 @@ points_inside_poly(PyObject *self, PyObject *args)
   
   PyMem_Free(xv);
   PyMem_Free(yv);
-  PyObject* ret =  Py_BuildValue("O", mask);
+  ret =  Py_BuildValue("O", mask);
   Py_XDECREF(mask);
   return ret;
   
