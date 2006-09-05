@@ -61,6 +61,7 @@ import numerix
 import numerix.mlab 
 from numerix import linear_algebra
 import numerix as nx
+import nxutils
 
 from numerix import array, asarray, arange, divide, exp, arctan2, \
      multiply, transpose, ravel, repeat, resize, reshape, floor, ceil,\
@@ -1428,8 +1429,9 @@ def stineman_interp(xi,x,y,yp=None):
         
     return yi
 
-def inside_poly(points, verts):
+def _inside_poly_deprecated(points, verts):
     """
+    # use nxutils.points_inside_poly instead
     points is a sequence of x,y points
     verts is a sequence of x,y vertices of a poygon
 
@@ -1439,7 +1441,6 @@ def inside_poly(points, verts):
     xys = nx.asarray(points)
     Nxy = xys.shape[0]
     Nv = len(verts)
-    
 
     def angle(x1, y1, x2, y2):
         twopi = 2*nx.pi
@@ -1468,6 +1469,16 @@ def inside_poly(points, verts):
         a = angle(x1, y1, x2, y2)
         angles += a
     return nx.nonzero(nx.greater_equal(nx.absolute(angles), nx.pi))
+
+def inside_poly(points, verts):
+    """"
+    points is a sequence of x,y points
+    verts is a sequence of x,y vertices of a poygon
+
+    return value is a sequence on indices into points for the points
+    that are inside the polygon
+    """
+    return nx.nonzero(nxutils.points_inside_poly(points, verts))
 
 ### the following code was written and submitted by Fernando Perez
 ### from the ipython numutils package under a BSD license

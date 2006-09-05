@@ -8,7 +8,8 @@ usable as is).  There will be some refinement of the API and the
 inside polygon detection routine.
 """
 from matplotlib.widgets import Lasso
-from matplotlib.mlab import inside_poly
+import matplotlib.mlab 
+from matplotlib.nxutils import points_inside_poly
 from matplotlib.colors import colorConverter
 from matplotlib.collections import RegularPolyCollection
 
@@ -47,8 +48,8 @@ class LassoManager:
         
     def callback(self, verts):
         #print 'all done', verts
-        ind = inside_poly(self.xys, verts)
-        
+        #ind = matplotlib.mlab._inside_poly_deprecated(self.xys, verts)
+        ind = nx.nonzero(points_inside_poly(self.xys, verts))
         for i in range(self.Nxy):
             if i in ind:
                 self.facecolors[i] = Datum.colorin
