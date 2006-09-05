@@ -221,7 +221,7 @@ static PyMethodDef module_methods[] = {
   {"pnpoly",  pnpoly, METH_VARARGS, "inside = pnpoly(x, y, xyverts)\nreturn 1 if x,y is inside the polygon defined by the sequence of x,y vertices in xyverts"},
   {"points_inside_poly",  points_inside_poly, METH_VARARGS, "mask = points_inside_poly(xypoints, xyverts)\nreturn a mask of length xypoints indicating whether each x,y point is inside the polygon defined by the sequence of x,y vertices in xyverts"},
   {NULL}  /* Sentinel */
-}
+};
 
 #ifdef NUMARRAY
 #if PY_MINOR_VERSION > 2
