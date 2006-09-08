@@ -25,7 +25,7 @@ from matplotlib.figure import Figure
 from matplotlib.font_manager import fontManager
 from matplotlib.ft2font import FT2Font, FIXED_WIDTH, ITALIC, LOAD_NO_SCALE
 from matplotlib.mathtext import math_parse_s_pdf
-from matplotlib.numerix import Float32, UInt8, fromstring, arange, isfinite, asarray
+from matplotlib.numerix import Float32, UInt8, fromstring, arange, infinity, isnan, asarray
 from matplotlib.transforms import Bbox
 
 # Overview
@@ -96,7 +96,7 @@ def pdfRepr(obj):
     # need to use %f with some precision.  Perhaps the precision
     # should adapt to the magnitude of the number?
     elif isinstance(obj, float):
-	if not isfinite(obj):
+	if isnan(obj) or obj in (-infinity, infinity):
 	    raise ValueError, "Can only output finite numbers in PDF"
 	r = "%.10f" % obj
 	return r.rstrip('0').rstrip('.')
@@ -844,11 +844,12 @@ class RendererPdf(RendererBase):
 	# Restore gc to avoid unwanted side effects
 	gc._fillcolor = orig_fill
 
-    def draw_arc(self, gcEdge, rgbFace, x, y, width, height, angle1, angle2):
+    def draw_arc(self, gcEdge, rgbFace, x, y, width, height, 
+		 angle1, angle2, rotation):
         """
         Draw an arc using GraphicsContext instance gcEdge, centered at x,y,
         with width and height and angles from 0.0 to 360.0
-        0 degrees is at 3-o'clock
+        0 degrees is at 3-o'clock, rotated by `rotation` degrees
         positive angles are anti-clockwise
 
         If the color rgbFace is not None, fill the arc with it.
@@ -876,14 +877,16 @@ class RendererPdf(RendererBase):
 	epsilon = 0.01
 	angle1 *= pi/180.0
 	angle2 *= pi/180.0
+	rotation *= pi/180.0
 	sweep = angle2 - angle1
 	angle1 = angle1 % (2*pi)
 	sweep = min(max(-2*pi, sweep), 2*pi)
 
 	if sweep < 0.0:
 	    sweep, angle1, angle2 = -sweep, angle2, angle1
-	bp = [ pi/2.0 * i for i in range(4) if pi/2.0 * i < sweep-epsilon ]
-	bp.append(sweep)
+	bp = [ rotation + pi/2.0 * i 
+	       for i in range(4) if pi/2.0 * i < sweep-epsilon ]
+	bp.append(rotation + sweep)
 	subarcs = [ arc_to_bezier(x, y, width/2.0, height/2.0,
 				  bp[i], bp[i+1]-bp[i]) 
 		    for i in range(len(bp)-1) ]
@@ -909,8 +912,7 @@ class RendererPdf(RendererBase):
 			 imob, Op.use_xobject, Op.grestore)
 
     def draw_line(self, gc, x1, y1, x2, y2):
-	if not (isfinite(x1) and isfinite(y1) and
-		isfinite(x2) and isfinite(y2)):
+	if isnan(x1) or isnan(x2) or isnan(y1) or isnan(y2):
 	    return
 	d = self.dpi_factor
 	self.check_gc(gc)
@@ -922,14 +924,14 @@ class RendererPdf(RendererBase):
 	self.check_gc(gc)
 	if transform is not None:
 	    x, y = transform.seq_x_y(x, y)
-	good = isfinite(x) & isfinite(y)
+	nan_at = isnan(x) | isnan(y)
 	next_op = Op.moveto
 	for i in range(len(x)):
-	    if good[i]:
+	    if nan_at[i]:
+		next_op = Op.moveto
+	    else:
 		self.file.output(d*x[i], d*y[i], next_op)
 		next_op = Op.lineto
-	    else:
-		next_op = Op.moveto
 	self.file.output(self.gc.paint())
 
     def draw_point(self, gc, x, y):
@@ -979,12 +981,12 @@ class RendererPdf(RendererBase):
 	marker = self.file.markerObject(path, fillp, self.gc._linewidth)
 	x, y = trans.numerix_x_y(asarray(x), asarray(y))
 	x, y = self.dpi_factor * x, self.dpi_factor * y
-	good = isfinite(x) & isfinite(y) 
+	nan_at = isnan(x) | isnan(y)
 
 	self.file.output(Op.gsave)
 	ox, oy = 0, 0
 	for i in range(len(x)):
-	    if not good[i]: continue
+	    if nan_at[i]: continue
 	    dx, dy, ox, oy = x[i]-ox, y[i]-oy, x[i], y[i]
 	    self.file.output(1, 0, 0, 1, dx, dy, 
 			     Op.concat_matrix,
@@ -1159,7 +1161,7 @@ class GraphicsContextPdf(GraphicsContextBase):
     def hatch_cmd(self, hatch):
 	if not hatch:
 	    if self._fillcolor:
-		return list(self._fillcolor) + [Op.setrgb_nonstroke]
+		return self.fillcolor_cmd(self._fillcolor)
 	    else:
 		return [Name('DeviceRGB'), Op.setcolorspace_nonstroke]
 	else:
@@ -1175,11 +1177,16 @@ class GraphicsContextPdf(GraphicsContextBase):
 		    name, Op.setcolor_nonstroke]
 
     def rgb_cmd(self, rgb):
-	return list(rgb) + [Op.setrgb_stroke] 
+	if rgb[0] == rgb[1] == rgb[2]:
+	    return [rgb[0], Op.setgray_stroke]
+	else:
+	    return list(rgb) + [Op.setrgb_stroke] 
 
     def fillcolor_cmd(self, rgb):
 	if rgb is None:
 	    return []
+	elif rgb[0] == rgb[1] == rgb[2]:
+	    return [rgb[0], Op.setgray_nonstroke]
 	else:
 	    return list(rgb) + [Op.setrgb_nonstroke] 
 
