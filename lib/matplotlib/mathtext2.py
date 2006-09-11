@@ -67,7 +67,7 @@ modes = ["mathmode", "displaymathmode"]
 # Commands
 scripts = ("_", "^")
 functions = ("sin", "tan", "cos", "exp", "arctan", "arccos", "arcsin", "cot")
-
+reserved = ("{", "}", "%", "$", "#")
 # Commands that change the environment (in the current scope)
 setters = faces
 # Maximum number of nestings (groups within groups)
@@ -277,13 +277,13 @@ def normalize_tex(texstring):
     parsing)"""
     texstring = remove_comments(texstring)
     # Removing the escaped escape character (replacing it)
-    texstring = texstring.replace(esc_char + esc_char, esc_char + 'backslash')
+    texstring = texstring.replace(esc_char + esc_char, esc_char + 'backslash ')
     
     # Removing the escaped scope/grouping characters
-    texstring = texstring.replace(esc_char + begin_group_char, esc_char + 'lbrace')
-    texstring = texstring.replace(esc_char + end_group_char, esc_char + 'rbrace')
+    texstring = texstring.replace(esc_char + begin_group_char, esc_char + 'lbrace ')
+    texstring = texstring.replace(esc_char + end_group_char, esc_char + 'rbrace ')
 
-    # Now we should have a clean expression, so we check if all the grouping
+    # Now we should have a clean expression, so we check if all the groupings
     # are OK (every begin_group_char should have a matching end_group_char)
     # TO-DO
 
@@ -307,7 +307,7 @@ def get_frac_bar_height(env):
     c = TexCharClass(env, ".")
     return c.height
 
-def get_font(env, item):
+def get_font(env):
     env = env.copy()
     # TO-DO: Perhaps this should be done somewhere else
     if not env.face:
@@ -323,6 +323,7 @@ def get_font(env, item):
         #~ fonts[max(fonts.keys()) + 1] = font
     #~ else:
         #~ fonts[1] = font
+
 def infer_face(env, item):
     if item.isalpha():
         if env.mode == "mathmode" and item < "z":
@@ -349,7 +350,7 @@ def get_kern(env, first, second):
     try:
         if first.env == second.env and\
             isinstance(first,TexCharClass) and isinstance(first, TexCharClass):
-            font = get_font(first.env, first)
+            font = get_font(first.env)
             advance = -font.get_kerning(first.uniindex, second.uniindex,
                                         KERNING_DEFAULT)/64.0
             return Kern(env, advance)
@@ -365,8 +366,8 @@ class Renderer:
     def __init__(self, env):
         # We initialize all the values to 0.0
         self.xmin, self.ymin, self.xmax, self.ymax = (0.0,)*4
-        (self.width, self.height, self.advance, self.bearingx,
-            self.bearingy)= (0.0,)*5
+        (self.width, self.height, self.hadvance, self.hbearingx,
+            self.hbearingy)= (0.0,)*5
         self.env = env
 
     def __render__(self):
@@ -381,28 +382,25 @@ class Hbox(Renderer):
             # empty group
             return
         for item in self.items:
-            # The xmin remains the xmin of the first item
-            self.xmax += item.advance
-
-            self.bearingy = max((item.bearingy, self.bearingy))
+            self.hbearingy = max((item.hbearingy, self.hbearingy))
             self.ymax = max((item.ymax, self.ymax))
             self.ymin = min((item.ymin, self.ymin))
-            self.advance += item.advance
+            self.hadvance += item.hadvance
             previous = item
-        # The bearingx of the whole group is the bearingx of the first item.
         first = self.items[0]
-        self.bearingx = first.bearingx
-        self.xmin = first.xmin
+        self.hbearingx = 0#first.hbearingx
+        self.xmin = 0#first.xmin
 
         last = self.items[-1]
-        self.xmax = self.advance + fabs(last.advance - last.xmax)
+        self.xmax = self.hadvance + fabs(last.hadvance - last.xmax)
+        self.xmax -= first.hbearingx
         self.width = self.xmax - self.xmin
         self.height = self.ymax - self.ymin
 
     def render(self, x, y):
         for item in self.items:
             item.render(x, y)
-            x += item.advance
+            x += item.hadvance
 
 
 class Scripted(Renderer):
@@ -426,7 +424,7 @@ class Scripted(Renderer):
         c = TexCharClass(env, "j")
         C = TexCharClass(env, "M")
 
-        self.subpad = c.height - c.bearingy
+        self.subpad = c.height - c.hbearingy
         # If subscript is complex (i.e. a large Hbox - fraction etc.)
         # we have to aditionaly lower the subscript
         if sub.ymax > (C.height/2.1 + self.subpad):
@@ -435,26 +433,26 @@ class Scripted(Renderer):
         #self.subpad = max(self.subpad)
         #self.subpad = 0.5*sub.height
         # Similar for the superscript
-        self.suppad = max(nuc.height/1.9, C.ymax/1.9) - sup.ymin# - C.bearingy
+        self.suppad = max(nuc.height/1.9, C.ymax/1.9) - sup.ymin# - C.hbearingy
 
 
-        #self.advance = nuc.advance + max((sub.advance, sup.advance))
+        #self.hadvance = nuc.hadvance + max((sub.hadvance, sup.hadvance))
 
         self.xmin = nuc.xmin
 
-        self.xmax = max(nuc.advance, nuc.bearingx + nuc.width) +\
-        max((sub.advance, sub.bearingx + sub.width,
-            sup.advance, sup.bearingx + sup.width))# - corr
+        self.xmax = max(nuc.hadvance, nuc.hbearingx + nuc.width) +\
+        max((sub.hadvance, sub.hbearingx + sub.width,
+            sup.hadvance, sup.hbearingx + sup.width))# - corr
 
         self.ymin = min(nuc.ymin, -self.subpad + sub.ymin)
 
-        self.ymax = max((nuc.ymax, self.suppad + sup.bearingy))
+        self.ymax = max((nuc.ymax, self.suppad + sup.hbearingy))
 
         # The bearing of the whole element is the bearing of the nucleus
-        self.bearingx = nuc.bearingx
-        self.advance = self.xmax
+        self.hbearingx = nuc.hbearingx
+        self.hadvance = self.xmax
         # Heruistics. Feel free to change
-        self.bearingy = self.ymax
+        self.hbearingy = self.ymax
 
         self.width = self.xmax - self.xmin
         self.height = self.ymax - self.ymin
@@ -464,10 +462,10 @@ class Scripted(Renderer):
         nx = x
         ny = y
 
-        subx = x + max(nuc.advance, nuc.bearingx + nuc.width)# + sub.bearingx
+        subx = x + max(nuc.hadvance, nuc.hbearingx + nuc.width)# + sub.hbearingx
         suby = y + self.subpad# - subfactor*self.env.fontsize
 
-        supx = x + max(nuc.advance, nuc.bearingx + nuc.width)# + sup.bearingx
+        supx = x + max(nuc.hadvance, nuc.hbearingx + nuc.width)# + sup.hbearingx
         supy = y - self.suppad# + 10#subfactor*self.env.fontsize
 
         self.nuc.render(nx, ny)
@@ -494,12 +492,12 @@ class Fraction(Renderer):
         self.pad = get_frac_bar_height(self.env)
         pad = self.pad
         self.bar = Line(env.copy(), max(num.width, den.width) + 2*pad, pad)
-        #~ self.bar.bearingx = pad
-        #~ self.bar.advance = self.bar.width + 2*pad
-        #~ self.bar.bearingy = pad + pad
+        #~ self.bar.hbearingx = pad
+        #~ self.bar.hadvance = self.bar.width + 2*pad
+        #~ self.bar.hbearingy = pad + pad
 
         self.xmin = 0
-        #self.xmax = self.bar.advance
+        #self.xmax = self.bar.hadvance
         self.xmax = self.bar.width# + 2*pad
 
         self.ymin = -(2*pad + den.height)
@@ -518,11 +516,11 @@ class Fraction(Renderer):
         self.height = self.ymax - self.ymin
         #print self.width, self.height
         
-        #self.bearingx = pad
-        self.bearingx = 0
-        self.bearingy = self.ymax
-        #self.advance = self.bar.advance
-        self.advance = self.xmax
+        #self.hbearingx = pad
+        self.hbearingx = 0
+        self.hbearingy = self.ymax
+        #self.hadvance = self.bar.hadvance
+        self.hadvance = self.xmax
 
     def render(self, x, y):
         y -= self.barpad
@@ -530,12 +528,12 @@ class Fraction(Renderer):
         #print self.bar.xmax, self.bar.xmin, self.bar.ymin, self.bar.ymax
         self.bar.render(x, y)
 
-        nx = x - self.numer.bearingx + (self.width - self.numer.width)/2.
+        nx = x - self.numer.hbearingx + (self.width - self.numer.width)/2.
         ny = y - 2*pad - (self.numer.height - self.numer.ymax)
         self.numer.render(nx, ny)
         
-        dx = x - self.denom.bearingx+ (self.width - self.denom.width)/2.
-        dy = y + 2*pad + self.denom.bearingy
+        dx = x - self.denom.hbearingx+ (self.width - self.denom.width)/2.
+        dy = y + 2*pad + self.denom.hbearingy
         self.denom.render(dx, dy)
 
 
@@ -559,25 +557,42 @@ class TexCharClass(Renderer):
                 self.uniindex = uniindex
             else:
                 raise ValueError("uniindex must be an int")
-        font = get_font(self.env, self)
-        glyph = font.load_char(self.uniindex)
+        #print self.env.face, filenamesd
+        # TO-DO: This code is needed for BaKoMa fonts. To be removed when
+        # mathtext migrates to completely unicode fonts
+        if self.env.face == "rm" and filenamesd["rm"].endswith("cmr10.ttf"):
+            _env = self.env.copy()
+            if self.char in ("{", "}"):
+                _env.face = "cal"
+                font = get_font(_env)
+                if self.char == "{":
+                    index = 118
+                elif self.char == "}":
+                    index = 119
+                glyph = font.load_char(index)
+            else:
+                font = get_font(self.env)
+                glyph = font.load_char(self.uniindex)
+        else:
+            font = get_font(self.env)
+            glyph = font.load_char(self.uniindex)
         self.glyph = glyph
         self.xmin, self.ymin, self.xmax, self.ymax = [
             val/64.0 for val in self.glyph.bbox]
 
         self.width = glyph.width/64.0
         self.height = glyph.height/64.0
-        self.advance = glyph.horiAdvance/64.0
-        self.bearingx = glyph.horiBearingX/64.0
-        self.bearingy = glyph.horiBearingY/64.0
+        self.hadvance = glyph.horiAdvance/64.0
+        self.hbearingx = glyph.horiBearingX/64.0
+        self.hbearingy = glyph.horiBearingY/64.0
 
     def render(self, x, y):
-        x += self.bearingx
-        #y -= self.bearingy
-        y -= self.ymax
-        #y -= (self.height - self.bearingy)
+        x += self.hbearingx
+        y -= self.hbearingy
+        #y -= self.ymax
+        #y -= (self.height - self.hbearingy)
         #print x, y
-        font = get_font(self.env, self)
+        font = get_font(self.env)
         font.draw_glyph_to_bitmap(x, y, self.glyph)
 
 
@@ -587,13 +602,13 @@ class Kern(Renderer):
     def __init__(self, env, advance):
         Renderer.__init__(self, env)
         self.width = advance
-        self.advance = advance
+        self.hadvance = advance
 
     def render(self, x, y):
         pass
 
     def __repr__(self):
-        return "Kern(%s, %s)"%(self.env, self.advance)
+        return "Kern(%s, %s)"%(self.env, self.hadvance)
 
 class Line(Renderer):
     """Class that implements the rendering of a line."""
@@ -606,11 +621,11 @@ class Line(Renderer):
 
         self.width = width
         self.height = height
-        self.advance = width
-        self.bearingy = self.ymax
+        self.hadvance = width
+        self.hbearingy = self.ymax
 
     def render(self, x, y):
-        font = get_font(self.env, self)
+        font = get_font(self.env)
         coords = (x + self.xmin, y + self.ymin, x + self.xmax,
                                                         y + self.ymax)
         #print coords
@@ -657,7 +672,7 @@ def handle_tokens(texgroup, env):
         # Checking if we should append a kern
         try:
             kern = get_kern(env, result[-1], appendix)
-            if kern.advance != 0.0:
+            if kern.hadvance != 0.0:
                 result.append(kern)
         except IndexError:
             pass
@@ -689,11 +704,14 @@ def handle_command(command, texgroup, env, allowsetters=False):
         appendix = handle_tokens(parse_tex(_tex), env.copy())
     elif command in (" "):
         space = get_space(env)
-        appendix = Kern(env, space.advance)
+        appendix = Kern(env, space.hadvance)
     elif command == "thinspace":
         #print command
         space = get_space(env)
-        appendix = Kern(env, 1/2.*space.advance)
+        appendix = Kern(env, 1/2. * space.hadvance)
+    elif command in reserved:
+        uniindex = ord(command)
+        appendix = handle_char(uniindex, env.copy())
     elif command in tex2uni:
         uniindex = tex2uni[command]
         appendix = handle_char(uniindex, env.copy())
@@ -808,9 +826,9 @@ def math_parse_s_ft2font(s, dpi, fontsize, angle=0):
     #print width, height
     for key in fonts:
         fonts[key].set_bitmap_size(width, height)
-    parsed.render(-parsed.bearingx, height + parsed.ymin - 1)
-    #~ parsed.render(-parsed.bearingx, height - 1 - (
-                        #~ parsed.height - parsed.bearingy))
+    parsed.render(-parsed.hbearingx, height + parsed.ymin - 1)
+    #~ parsed.render(-parsed.hbearingx, height - 1 - (
+                        #~ parsed.height - parsed.hbearingy))
     _fonts = fonts.values()
     return width, height, _fonts
 
@@ -832,8 +850,8 @@ def math_parse_s_ft2font1(s, dpi, fontsize, angle=0):
     #fonts["mit"].draw_rect(0, 0, 40, 0)
     #fonts["mit"].draw_rect(0, 1, 40, 0)
     #parsed.render(20, 20)
-    #~ parsed.render(-parsed.bearingx, height - 1 - (
-                        #~ parsed.height - parsed.bearingy))
+    #~ parsed.render(-parsed.hbearingx, height - 1 - (
+                        #~ parsed.height - parsed.hbearingy))
     _fonts = fonts.values()
     return width, height, _fonts
 
