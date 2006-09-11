@@ -1,0 +1,5 @@
+Prototype code for basic unit handing.  We will get this into a proper
+branch shortly
+
+> make install  (modifies local mpl install dir)
+> python unit_test.py
