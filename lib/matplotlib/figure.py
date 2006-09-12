@@ -425,7 +425,7 @@ class Figure(Artist):
         if not len(args): return
         if isinstance(args[0], Axes):
             a = args[0]
-            a.set_figure(self)
+            assert(a.get_figure() is self)            
         else:
             rect = args[0]
             ispolar = popd(kwargs, 'polar', False)
@@ -459,7 +459,6 @@ class Figure(Artist):
         """
 
         key = self._make_key(*args, **kwargs)
-
         if self._seen.has_key(key):
             ax = self._seen[key]
             self.sca(ax)
@@ -468,9 +467,9 @@ class Figure(Artist):
 
         if not len(args): return
 
-        if isinstance(args[0], Subplot) or isinstance(args, PolarSubplot):
+        if isinstance(args[0], Subplot) or isinstance(args[0], PolarSubplot):
             a = args[0]
-            a.set_figure(self)
+            assert(a.get_figure() is self)
         else:
             ispolar = popd(kwargs, 'polar', False)
             if ispolar:

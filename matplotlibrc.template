@@ -171,7 +171,7 @@ grid.linewidth   :   0.5     # in points
 
 ### Legend
 legend.isaxes        : True
-legend.numpoints     : 4      # the number of points in the legend line
+legend.numpoints     : 2      # the number of points in the legend line
 legend.fontsize      : 14
 legend.pad           : 0.2    # the fractional whitespace inside the legend border
 legend.markerscale   : 1.0    # the relative size of legend markers vs. original
