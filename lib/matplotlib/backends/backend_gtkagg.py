@@ -95,11 +95,12 @@ class FigureCanvasGTKAgg(FigureCanvasGTK, FigureCanvasAgg):
                                    0, 0, 0, 0, w, h)
         if DEBUG: print 'FigureCanvasGTKAgg.done'
 
-    def print_figure(self, filename, dpi=150, facecolor='w', edgecolor='w',
+    def print_figure(self, filename, dpi=None, facecolor='w', edgecolor='w',
                      orientation='portrait', **kwargs):
         if DEBUG: print 'FigureCanvasGTKAgg.print_figure'
         # delete the renderer to prevent improper blitting after print
 
+        if dpi is None: dpi = matplotlib.rcParams['savefig.dpi']
         root, ext = os.path.splitext(filename)       
         ext = ext.lower()[1:]
         if ext == 'jpg':

@@ -246,9 +246,9 @@ class FigureCanvasFltkAgg(FigureCanvasAgg):
 
     show = draw
 
-    def print_figure(self, filename, dpi=150, facecolor='w', edgecolor='w',
+    def print_figure(self, filename, dpi=None, facecolor='w', edgecolor='w',
                      orientation='portrait', **kwargs):
-
+        if dpi is None: dpi = matplotlib.rcParams['savefig.dpi']
         agg = self.switch_backends(FigureCanvasAgg)
         agg.print_figure(filename, dpi, facecolor, edgecolor, orientation,
                          **kwargs)

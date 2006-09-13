@@ -95,11 +95,12 @@ class FigureCanvasWxAgg(FigureCanvasWx,FigureCanvasAgg):
         srcDC.SelectObject(wx.NullBitmap)
         self.gui_repaint()
 
-    def print_figure(self, filename, dpi=150, facecolor='w', edgecolor='w',
+    def print_figure(self, filename, dpi=None, facecolor='w', edgecolor='w',
                      orientation='portrait', **kwargs):
         """
         Render the figure to hardcopy
         """
+        if dpi is None: dpi = matplotlib.rcParams['savefig.dpi']
         agg = self.switch_backends(FigureCanvasAgg)
         agg.print_figure(filename, dpi, facecolor, edgecolor, orientation,
                          **kwargs)
