@@ -1292,7 +1292,7 @@ class FigureCanvasPdf(FigureCanvasBase):
     def draw(self):
 	pass
 
-    def print_figure(self, filename, dpi=300, facecolor='w', edgecolor='w',
+    def print_figure(self, filename, dpi=None, facecolor='w', edgecolor='w',
                      orientation='portrait', **kwargs):
         """
         Render the figure to hardcopy. Set the figure patch face and edge
@@ -1304,8 +1304,9 @@ class FigureCanvasPdf(FigureCanvasBase):
 
 	dpi - used for images
         """
+        if dpi is None:
+            dpi = rcParams['savefig.dpi']
         self.figure.dpi.set(dpi)
-	#print >> sys.stderr, 'dpi', dpi
         self.figure.set_facecolor(facecolor)
         self.figure.set_edgecolor(edgecolor)
 	width, height = self.figure.get_size_inches()
