@@ -71,6 +71,7 @@ INSTALLING
 from __future__ import division
 
 import os, sys
+import matplotlib
 from matplotlib import verbose, rcParams
 from matplotlib.numerix import array, Float, zeros, transpose
 from matplotlib._image import fromarray
@@ -417,7 +418,7 @@ class FigureCanvasAgg(FigureCanvasBase):
                                      'debug-annoying')
         return self.renderer.buffer_rgba(x,y)
 
-    def print_figure(self, filename, dpi=150, facecolor='w', edgecolor='w',
+    def print_figure(self, filename, dpi=None, facecolor='w', edgecolor='w',
                      orientation='portrait', **kwargs):
         """
         Render the figure to hardcopy.  Set the figure patch face and
@@ -434,6 +435,7 @@ class FigureCanvasAgg(FigureCanvasBase):
         """
         if __debug__: verbose.report('FigureCanvasAgg.print_figure',
                                      'debug-annoying')
+        if dpi is None: dpi = matplotlib.rcParams['savefig.dpi']
 
         # store the orig figure dpi, color and size information so we
         # can restore them later.  For image creation alone, this is

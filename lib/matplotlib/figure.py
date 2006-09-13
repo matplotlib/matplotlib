@@ -640,18 +640,19 @@ class Figure(Artist):
 
     def savefig(self, *args, **kwargs):
         """
-        SAVEFIG(fname, dpi=150, facecolor='w', edgecolor='w',
+        SAVEFIG(fname, dpi=None, facecolor='w', edgecolor='w',
         orientation='portrait', papertype=None, format=None):
 
         Save the current figure.
 
-        fname - the filename to save the current figure to.
-                The output formats supported depend on the backend being used.
-                and are deduced by the extension to fname.
-                Possibilities are eps, jpeg, pdf, png, ps, svg.
-                fname can also be a file or file-like object - cairo backend
-                only.
-        dpi - is the resolution in dots per inch.
+        fname - the filename to save the current figure to.  The
+                output formats supported depend on the backend being
+                used.  and are deduced by the extension to fname.
+                Possibilities are eps, jpeg, pdf, png, ps, svg.  fname
+                can also be a file or file-like object - cairo backend
+                only.  dpi - is the resolution in dots per inch.  If
+                None it will default to the value savefig.dpi in the
+                matplotlibrc file
 
         facecolor and edgecolor are the colors of the figure rectangle
 

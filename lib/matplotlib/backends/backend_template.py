@@ -45,6 +45,7 @@ Naming Conventions
 
 from __future__ import division
 
+import matplotlib
 from matplotlib._pylab_helpers import Gcf
 from matplotlib.backend_bases import RendererBase, GraphicsContextBase,\
      FigureManagerBase, FigureCanvasBase
@@ -196,7 +197,7 @@ class FigureCanvasTemplate(FigureCanvasBase):
         renderer = RendererTemplate()
         self.figure.draw(renderer)
         
-    def print_figure(self, filename, dpi=150, facecolor='w', edgecolor='w',
+    def print_figure(self, filename, dpi=None, facecolor='w', edgecolor='w',
                      orientation='portrait', **kwargs):
         """
         Render the figure to hardcopy. Set the figure patch face and edge
@@ -210,6 +211,8 @@ class FigureCanvasTemplate(FigureCanvasBase):
         An image backend does not need to do this since after the print the
         figure is done
         """
+
+        if dpi is None: dpi = rcParams['savefig.dpi']
         # save the figure settings, GUI backends only
         #origDPI = self.figure.dpi.get()
         #origfacecolor = self.figure.get_facecolor()

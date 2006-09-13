@@ -290,9 +290,10 @@ class FigureCanvasGTK (gtk.DrawingArea, FigureCanvasBase):
         return False  # finish event propagation?
 
 
-    def print_figure(self, filename, dpi=150, facecolor='w', edgecolor='w',
+    def print_figure(self, filename, dpi=None, facecolor='w', edgecolor='w',
                      orientation='portrait', **kwargs):
         # TODO - use gdk/cairo/agg print_figure?
+        if dpi is None: dpi = matplotlib.rcParams['savefig.dpi']
         root, ext = os.path.splitext(filename)
         ext = ext[1:]
         if ext == '':
