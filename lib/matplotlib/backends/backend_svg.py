@@ -230,9 +230,7 @@ class RendererSVG(RendererBase):
 
         svg = ""
         self.open_group("mathtext")
-        for fontname, fontsize, num, ox, oy, metrics in svg_glyphs:
-            thetext=unichr(num)
-            thetext.encode('utf-8')
+        for fontname, fontsize, thetext, ox, oy, metrics in svg_glyphs:
             style = 'font-size: %f; font-family: %s; fill: %s;'%(fontsize, fontname, color)
             if angle!=0:
                 transform = 'transform="translate(%f,%f) rotate(%1.1f) translate(%f,%f)"' % (x,y,-angle,-x,-y) # Inkscape doesn't support rotate(angle x y)

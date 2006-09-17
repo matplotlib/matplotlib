@@ -29,6 +29,7 @@ from matplotlib._mathtext_data import tex2uni
 from matplotlib.ft2font import FT2Font, KERNING_DEFAULT
 from matplotlib.font_manager import findSystemFonts
 from copy import deepcopy
+#from matplotlib.cbook import Bunch
 
 _path = get_data_path()
 faces = ('mit', 'rm', 'tt', 'cal', 'nonascii')
@@ -55,6 +56,8 @@ for face in faces:
         filenamesd[face] = os.path.join(_path, barefname)
     fonts[face] = FT2Font(filenamesd[face])
 
+svg_glyphs = []
+
 esc_char = '\\'
 # Grouping delimiters
 begin_group_char = '{'
@@ -66,7 +69,8 @@ modes = ["mathmode", "displaymathmode"]
 
 # Commands
 scripts = ("_", "^")
-functions = ("sin", "tan", "cos", "exp", "arctan", "arccos", "arcsin", "cot")
+functions = ("sin", "tan", "cos", "exp", "arctan", "arccos", "arcsin", "cot",
+    "lim")
 reserved = ("{", "}", "%", "$", "#")
 # Commands that change the environment (in the current scope)
 setters = faces
@@ -133,6 +137,7 @@ class Environment:
         self.face = None
         self.fontsize = 12
         self.dpi = 100
+        self.output = "AGG"
 
     def copy(self):
         return deepcopy(self)
@@ -346,18 +351,19 @@ def get_space(env):
     space = TexCharClass(_env, " ")
     return space
 
-def get_kern(env, first, second):
-    try:
-        if first.env == second.env and\
-            isinstance(first,TexCharClass) and isinstance(first, TexCharClass):
+def get_kern(first, second):
+    # TO-DO: Something's wrong
+    if isinstance(first,TexCharClass) and isinstance(second, TexCharClass):
+        if first.env.__dict__ == second.env.__dict__:
             font = get_font(first.env)
             advance = -font.get_kerning(first.uniindex, second.uniindex,
                                         KERNING_DEFAULT)/64.0
-            return Kern(env, advance)
+            #print first.char, second.char, advance
+            return Kern(first.env, advance)
         else:
-            return Kern(env, 0)
-    except AttributeError:
-        return Kern(env, 0)
+            return Kern(first.env, 0)
+    else:
+        return Kern(first.env, 0)
 
 
 # Classes used for renderering
@@ -381,7 +387,12 @@ class Hbox(Renderer):
         if not self.items:
             # empty group
             return
+        previous = None
         for item in self.items:
+            # Checking for kerning
+            if previous:
+                kern = get_kern(previous, item)
+                item.hadvance += kern.hadvance
             self.hbearingy = max((item.hbearingy, self.hbearingy))
             self.ymax = max((item.ymax, self.ymax))
             self.ymin = min((item.ymin, self.ymin))
@@ -587,13 +598,21 @@ class TexCharClass(Renderer):
         self.hbearingy = glyph.horiBearingY/64.0
 
     def render(self, x, y):
-        x += self.hbearingx
-        y -= self.hbearingy
         #y -= self.ymax
         #y -= (self.height - self.hbearingy)
         #print x, y
         font = get_font(self.env)
-        font.draw_glyph_to_bitmap(x, y, self.glyph)
+        output = self.env.output
+        if output == "AGG":
+            x += self.hbearingx
+            y -= self.hbearingy
+            font.draw_glyph_to_bitmap(x, y, self.glyph)
+        elif output == "SVG":
+            familyname = font.get_sfnt()[(1,0,0,1)]
+            thetext = unichr(self.uniindex)
+            thetext.encode('utf-8')
+            svg_glyphs.append((familyname, self.env.fontsize,thetext, x,
+                y, None)) # None was originaly metrics (in old mathtext)
 
 
 class Kern(Renderer):
@@ -630,7 +649,12 @@ class Line(Renderer):
                                                         y + self.ymax)
         #print coords
         #print "\n".join(repr(self.__dict__).split(","))
-        font.draw_rect_filled(*coords)
+        if self.env.output == "AGG":
+            font.draw_rect_filled(*coords)
+        else:
+            familyname = font.get_sfnt()[(1,0,0,1)]
+            svg_glyphs.append((familyname, self.env.fontsize,"---", x,
+                y, None)) 
 
 
 # Main parser functions
@@ -668,14 +692,6 @@ def handle_tokens(texgroup, env):
             appendix = handle_char(uniindex, env.copy())
         else:
             appendix = item
-
-        # Checking if we should append a kern
-        try:
-            kern = get_kern(env, result[-1], appendix)
-            if kern.hadvance != 0.0:
-                result.append(kern)
-        except IndexError:
-            pass
         result.append(appendix)
     return Hbox(env.copy(),result)
 
@@ -813,24 +829,31 @@ def get_args(command, texgroup, env, num_args):
 
 
 # Functions exported to backends
-def math_parse_s_ft2font(s, dpi, fontsize, angle=0):
+def math_parse_s_ft2font(s, dpi, fontsize, angle=0, output="AGG"):
     """This function is called by the Agg backend"""
     s = s[1:-1]
     parsed = parse_tex(_textclass(s))
     env = environment.copy()
     env.dpi = dpi
     env.fontsize = fontsize
+    env.output = output
     parsed = handle_tokens(parsed, env)
     #print "\n".join(str(parsed.__dict__).split(","))
     width, height = parsed.width + 2, parsed.height + 2
     #print width, height
-    for key in fonts:
-        fonts[key].set_bitmap_size(width, height)
+    if output == "AGG":
+        for key in fonts:
+            fonts[key].set_bitmap_size(width, height)
     parsed.render(-parsed.hbearingx, height + parsed.ymin - 1)
     #~ parsed.render(-parsed.hbearingx, height - 1 - (
                         #~ parsed.height - parsed.hbearingy))
-    _fonts = fonts.values()
-    return width, height, _fonts
+    if output == "AGG":
+        return width, height, fonts.values()
+    elif output == "SVG":
+        return width, height, svg_glyphs
+
+def math_parse_s_ft2font_svg(s, dpi, fontsize, angle=0):
+    return math_parse_s_ft2font(s, dpi, fontsize, angle, "SVG")
 
 def math_parse_s_ft2font1(s, dpi, fontsize, angle=0):
     "Used only for testing"
