@@ -1,3 +1,9 @@
+2006-09-17 Added an Annotation class to facilitate annotating objects
+           and an examples file examples/annotation_demo.py.  I want
+           to add dash support as in TextWithDash, but haven't decided
+           yet whether inheriting from TextWithDash is the right base
+           class or if another approach is needed - JDH
+
 ===============================================================
 2006-09-05 Released 0.87.5 at revision 2761
 

@@ -387,6 +387,10 @@ class Axes(Artist):
 
         if len(kwargs): setp(self, **kwargs)
 
+    def get_window_extent(self, *args, **kwargs):
+        'get the axes bounding box in display space'
+        return self.bbox
+    
     def _init_axis(self):
         "move this out of __init__ because non-separable axes don't use it"
         self.xaxis = XAxis(self)
