@@ -362,7 +362,9 @@ Specific terminology:
             # TO-DO - make a method for it
             # This gets the name of the font.
             familyname = self.fonts[facename].get_sfnt()[(1,0,0,1)]
-            self.svg_glyphs.append((familyname, fontsize, uniindex, ox, oy,
+            thetext = unichr(uniindex)
+            thetext.encode('utf-8')
+            self.svg_glyphs.append((familyname, fontsize, thetext, ox, oy,
                                                             metrics))
         elif self.output == 'PS':
             # This should be changed to check for math mode or smth.
@@ -662,7 +664,9 @@ class BakomaTrueTypeFonts(Fonts):
             else:
                 num = 0
                 print >>sys.stderr, 'unrecognized symbol "%s"' % sym
-            self.svg_glyphs.append((basename, fontsize, num, ox, oy, metrics))
+            thetext = unichr(num)
+            thetext.encode('utf-8')
+            self.svg_glyphs.append((basename, fontsize, thetext, ox, oy, metrics))
         
 
     def _old_get_kern(self, font, symleft, symright, fontsize, dpi):
@@ -1617,9 +1621,10 @@ class math_parse_s_ft2font_common:
 
 if rcParams["mathtext.mathtext2"]:
     from matplotlib.mathtext2 import math_parse_s_ft2font
+    from matplotlib.mathtext2 import math_parse_s_ft2font_svg
 else:
     math_parse_s_ft2font = math_parse_s_ft2font_common('Agg')
-math_parse_s_ft2font_svg = math_parse_s_ft2font_common('SVG')
+    math_parse_s_ft2font_svg = math_parse_s_ft2font_common('SVG')
 math_parse_s_ps = math_parse_s_ft2font_common('PS')
 math_parse_s_pdf = math_parse_s_ft2font_common('PDF')
 
