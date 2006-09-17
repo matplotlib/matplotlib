@@ -159,6 +159,10 @@ class Figure(Artist):
 
         self._cachedRenderer = None
 
+    def get_window_extent(self, *args, **kwargs):
+        'get the figure bounding box in display space'
+        return self.bbox
+
     def set_canvas(self, canvas):
         """
         Set the canvas the contains the figure
