@@ -861,6 +861,7 @@ class Axes(Artist):
 
     def add_artist(self, a):
         'Add any artist to the axes'
+        a.axes = self  # refer to parent
         self.artists.append(a)
         self._set_artist_props(a)
 

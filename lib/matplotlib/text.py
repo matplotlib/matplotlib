@@ -1106,7 +1106,7 @@ class Annotation(Text):
         self.set_zorder(zorder)
         self.set_transform(identity_transform())
         self._loc = tuple(loc)
-        self.padx, self.pady, self.autopad = padx, pady, autopad
+        self._padx, self._pady, self._autopad = padx, pady, autopad
         self._annotateArtist = artist
         # funcx and funcy  are used to place the x, y coords for
         # artists who define get_window_extent
@@ -1118,7 +1118,45 @@ class Annotation(Text):
             self._funcx = None
             self._funcy = None
 
-            
+        self._renderer = None
+        
+    def set_padx(self, padx):
+        """
+        Set the c padding in points
+        ACCEPTS: float value in points or the string 'auto'
+        """
+        self._padx = padx
+        self._process_xloc(self._loc[0])
+
+    def get_padx(self):
+        'get the x padding in points'
+        return self._padx
+
+    def set_pady(self, pady):
+        """
+        Set the y padding in points
+        ACCEPTS: float value in points or the string 'auto'
+        """
+        self._pady = pady
+        self._process_yloc(self._loc[1])
+
+    def get_pady(self):
+        'get the y padding in points'
+        return self._pady
+
+    def set_autopad(self, autopad):
+        """
+        Set the y padding in points
+        ACCEPTS: float value in points        
+        """
+        self._autopad = autopad
+        self._process_xloc(self._loc[0])        
+        self._process_yloc(self._loc[1])
+
+    def get_autopad(self):
+        'get the y padding in points'
+        return self._autopad
+    
     def _process_xloc(self, xloc):
         """
         This function will set the horiz and vertical alignment
@@ -1138,8 +1176,8 @@ class Annotation(Text):
             props['horizontalalignment'] = 'center'
             def funcx(left, right):
                 return 0.5*(left + right)
-            if self.padx=='auto':
-                self.padx = 0.
+            if self._padx=='auto':
+                self._padx = 0.
         else:
             tup = xloc.split(' ')
             if len(tup)!=2:
@@ -1155,26 +1193,26 @@ class Annotation(Text):
                 props['horizontalalignment'] = 'left'
                 def funcx(left, right):
                     return left
-                if self.padx=='auto':
-                    self.padx = self.autopad
+                if self._padx=='auto':
+                    self._padx = self._autopad
             elif inout=='inside' and leftright=='right':
                 props['horizontalalignment'] = 'right'
                 def funcx(left, right):
                     return right
-                if self.padx=='auto':
-                    self.padx = -self.autopad
+                if self._padx=='auto':
+                    self._padx = -self._autopad
             elif inout=='outside' and leftright=='left':
                 props['horizontalalignment'] = 'right'
                 def funcx(left, right):
                     return left
-                if self.padx=='auto':
-                    self.padx = -self.autopad
+                if self._padx=='auto':
+                    self._padx = -self._autopad
             elif inout=='outside' and leftright=='right':
                 props['horizontalalignment'] = 'left'
                 def funcx(left, right):
                     return right
-                if self.padx=='auto':
-                    self.padx = self.autopad
+                if self._padx=='auto':
+                    self._padx = self._autopad
 
         self.update(props)
         self._funcx = funcx
@@ -1197,8 +1235,8 @@ class Annotation(Text):
             props['verticalalignment'] = 'center'
             def funcy(bottom, top):
                 return 0.5*(bottom + top)
-            if self.pady=='auto':
-                self.pady = 0.
+            if self._pady=='auto':
+                self._pady = 0.
             
         else:
             tup = yloc.split(' ')
@@ -1215,31 +1253,35 @@ class Annotation(Text):
                 props['verticalalignment'] = 'bottom'
                 def funcy(bottom, top):
                     return bottom
-                if self.pady=='auto':
-                    self.pady = self.autopad
+                if self._pady=='auto':
+                    self._pady = self._autopad
             elif inout=='inside' and bottomtop=='top':
                 props['verticalalignment'] = 'top'
                 def funcy(bottom, top):
                     return top
-                if self.pady=='auto':
-                    self.pady = -self.autopad
+                if self._pady=='auto':
+                    self._pady = -self._autopad
             elif inout=='outside' and bottomtop=='bottom':
                 props['verticalalignment'] = 'top'
                 def funcy(bottom, top):
                     return bottom
-                if self.pady=='auto':
-                    self.pady = -self.autopad
+                if self._pady=='auto':
+                    self._pady = -self._autopad
             elif inout=='outside' and bottomtop=='top':
                 props['verticalalignment'] = 'bottom'
                 def funcy(bottom, top):
                     return top
-                if self.pady=='auto':
-                    self.pady = self.autopad
+                if self._pady=='auto':
+                    self._pady = self._autopad
                 
         self.update(props)
         self._funcy = funcy
 
-    def draw(self, renderer):
+    def update_positions(self, renderer=None):
+        if renderer is None and self._renderer is None:
+            raise RuntimeError('renderer not set')
+        if renderer is None:
+            renderer = self._renderer
         if self._funcx is not None and self._funcy is not None:
             extent = getattr(self._annotateArtist, 'get_window_extent')
             bbox = extent(renderer)
@@ -1253,11 +1295,15 @@ class Annotation(Text):
             self._x, self._y = trans.xy_tup(self._loc)
 
         dpi = self.figure.dpi.get()
-        dx = self.padx * dpi/72.
-        dy = self.pady * dpi/72.
+        dx = self._padx * dpi/72.
+        dy = self._pady * dpi/72.
         self._x += dx
         self._y += dy
         
+    def draw(self, renderer):
+        if renderer is not None:
+            self._renderer = renderer
+        self.update_positions()
         Text.draw(self, renderer)
 
 

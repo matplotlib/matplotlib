@@ -587,8 +587,12 @@ class AutoDateLocator(DateLocator):
             self._freq = DAILY
             bymonth = None
             bymonthday = range(1, 32)
-            if ( (0 <= numDays) and (numDays <= 49) ):
+            if ( (0 <= numDays) and (numDays <= 9) ):
                 interval = 1      # show every day
+            elif ( (10 <= numDays) and (numDays <= 19) ):
+                interval = 2      # show every 2 days
+            elif ( (20 <= numDays) and (numDays <= 49) ):
+                interval = 3      # show every 3 days
             elif ( (50 <= numDays) and (numDays <= 99) ):
                 interval = 7      # show every 1 week
             else:   # 100 <= numDays <= ~150
