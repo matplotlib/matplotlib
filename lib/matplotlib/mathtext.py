@@ -1614,7 +1614,7 @@ class math_parse_s_ft2font_common:
             svg_elements = Bunch(svg_glyphs=self.font_object.svg_glyphs,
                     svg_lines=[])
             self.cache[cacheKey] = w, h, svg_elements
-            return w, h, 
+            return w, h, svg_elements
         elif self.output == 'Agg':
             self.cache[cacheKey] = w, h, self.font_object.fonts.values()
             return w, h, self.font_object.fonts.values()
