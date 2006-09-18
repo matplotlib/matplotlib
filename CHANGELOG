@@ -1,3 +1,8 @@
+2006-09-18 mathtext2.py: The SVG backend now supports the same things that
+           the AGG backend does. Fixed some bugs with rendering, and out of
+           bounds errors in the AGG backend - ES. Changed the return values
+           of math_parse_s_ft2font_svg to support lines (fractions etc.)
+
 2006-09-17 Added an Annotation class to facilitate annotating objects
            and an examples file examples/annotation_demo.py.  I want
            to add dash support as in TextWithDash, but haven't decided

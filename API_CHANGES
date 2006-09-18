@@ -1,9 +1,14 @@
-	Renderer.draw_arc now takes an additional parameter, rotation.
-	It specifies to draw the artist rotated in degrees anti-
-	clockwise.  It was added for rotated ellipses.
+    math_parse_s_ft2font_svg from mathtext.py & mathtext2.py now returns
+    width, height, svg_elements. svg_elements is an instance of Bunch (
+    cmbook.py) and has the attributes svg_glyphs and svg_lines, which are both
+    lists.
 
-	Renamed Figure.set_figsize_inches to Figure.set_size_inches to
-	better match the get method, Figure.get_size_inches.
+    Renderer.draw_arc now takes an additional parameter, rotation.
+    It specifies to draw the artist rotated in degrees anti-
+    clockwise.  It was added for rotated ellipses.
+
+    Renamed Figure.set_figsize_inches to Figure.set_size_inches to
+    better match the get method, Figure.get_size_inches.
 
     Removed the copy_bbox_transform from transforms.py; added
     shallowcopy methods to all transforms.  All transforms already

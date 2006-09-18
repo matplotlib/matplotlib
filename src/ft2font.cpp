@@ -989,8 +989,13 @@ FT2Font::draw_rect_filled(const Py::Tuple & args) {
        y0>iheight || y1>iheight )
     throw Py::ValueError("Rect coords outside image bounds");
 
-  for (long j=y0; j<y1; ++j) {
-      for (long i=x0; i<x1+1; ++i) {
+  //~ for (long j=y0; j<y1; ++j) {
+      //~ for (long i=x0; i<x1+1; ++i) {
+        //~ image.buffer[i + j*iwidth] = 255;
+      //~ }
+  //~ }
+  for (long j=y0; j<y1+1; j++) {
+      for (long i=x0; i<x1+1; i++) {
         image.buffer[i + j*iwidth] = 255;
       }
   }
