@@ -225,22 +225,33 @@ class RendererSVG(RendererBase):
         Draw math text using matplotlib.mathtext
         """
         fontsize = prop.get_size_in_points()
-        width, height, svg_glyphs = math_parse_s_ft2font_svg(s, 72, fontsize)
+        width, height, svg_elements = math_parse_s_ft2font_svg(s,
+                                                                72, fontsize)
+        svg_glyphs = svg_elements.svg_glyphs
+        svg_lines = svg_elements.svg_lines
         color = rgb2hex(gc.get_rgb())
 
         svg = ""
         self.open_group("mathtext")
         for fontname, fontsize, thetext, ox, oy, metrics in svg_glyphs:
-            style = 'font-size: %f; font-family: %s; fill: %s;'%(fontsize, fontname, color)
+            style = 'font-size: %f; font-family: %s; fill: %s;'%(fontsize,
+                                                            fontname, color)
             if angle!=0:
                 transform = 'transform="translate(%f,%f) rotate(%1.1f) translate(%f,%f)"' % (x,y,-angle,-x,-y) # Inkscape doesn't support rotate(angle x y)
             else: transform = ''
-            newx, newy = x+ox, y-oy
+            #newx, newy = x+ox, y-oy
+            newx, newy = x+ox, y+oy-height
             svg += """\
 <text style="%(style)s" x="%(newx)f" y="%(newy)f" %(transform)s>%(thetext)s</text>
 """ % locals()
 
         self._svgwriter.write (svg)
+        rgbFace = gc.get_rgb()
+        for xmin, ymin, xmax, ymax in svg_lines:
+            newx, newy = x + xmin, y + height - ymax#-(ymax-ymin)/2#-height
+            self.draw_rectangle(gc, rgbFace, newx, newy, xmax-xmin, ymax-ymin)
+            #~ self.draw_line(gc, x + xmin, y + ymin,# - height,
+                                     #~ x + xmax, y + ymax)# - height)
         self.close_group("mathtext")
 
     def finish(self):
@@ -254,7 +265,7 @@ class RendererSVG(RendererBase):
 
     def get_text_width_height(self, s, prop, ismath):
         if ismath:
-            width, height, glyphs = math_parse_s_ft2font_svg(
+            width, height, trash = math_parse_s_ft2font_svg(
                 s, 72, prop.get_size_in_points())
             return width, height
         font = self._get_font(prop)

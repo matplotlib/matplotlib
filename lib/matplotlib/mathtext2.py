@@ -22,14 +22,14 @@ TO-DO's:
 
 """
 import os
-from math import fabs
+from math import fabs, floor, ceil
 
 from matplotlib import get_data_path, rcParams
 from matplotlib._mathtext_data import tex2uni
 from matplotlib.ft2font import FT2Font, KERNING_DEFAULT
 from matplotlib.font_manager import findSystemFonts
 from copy import deepcopy
-#from matplotlib.cbook import Bunch
+from matplotlib.cbook import Bunch
 
 _path = get_data_path()
 faces = ('mit', 'rm', 'tt', 'cal', 'nonascii')
@@ -56,7 +56,7 @@ for face in faces:
         filenamesd[face] = os.path.join(_path, barefname)
     fonts[face] = FT2Font(filenamesd[face])
 
-svg_glyphs = []
+svg_elements = Bunch(svg_glyphs=[], svg_lines=[])
 
 esc_char = '\\'
 # Grouping delimiters
@@ -70,8 +70,8 @@ modes = ["mathmode", "displaymathmode"]
 # Commands
 scripts = ("_", "^")
 functions = ("sin", "tan", "cos", "exp", "arctan", "arccos", "arcsin", "cot",
-    "lim")
-reserved = ("{", "}", "%", "$", "#")
+    "lim", "log")
+reserved = ("{", "}", "%", "$", "#", "~")
 # Commands that change the environment (in the current scope)
 setters = faces
 # Maximum number of nestings (groups within groups)
@@ -310,15 +310,15 @@ def is_command(item):
 def get_frac_bar_height(env):
     # TO-DO: Find a better way to calculate the height of the rule
     c = TexCharClass(env, ".")
-    return c.height
+    return (c.ymax - c.ymin)/2
 
 def get_font(env):
     env = env.copy()
     # TO-DO: Perhaps this should be done somewhere else
-    if not env.face:
-        env.face = "rm"
     fontsize = env.fontsize * scriptfactors[env.scriptdepth]
     dpi = env.dpi
+    if not env.face:
+        env.face = "rm"
     font = fonts[env.face]
 
     font.set_size(fontsize, dpi)
@@ -372,8 +372,10 @@ class Renderer:
     def __init__(self, env):
         # We initialize all the values to 0.0
         self.xmin, self.ymin, self.xmax, self.ymax = (0.0,)*4
-        (self.width, self.height, self.hadvance, self.hbearingx,
-            self.hbearingy)= (0.0,)*5
+        self.width, self.height = (0.0,)*2
+        (self.hadvance, self.hbearingx, self.hbearingy,
+            self.hdescent)= (0.0,)*4
+        (self.vadvance, self.vbearingx, self.vbearingy)= (0.0,)*3
         self.env = env
 
     def __render__(self):
@@ -403,7 +405,7 @@ class Hbox(Renderer):
         self.xmin = 0#first.xmin
 
         last = self.items[-1]
-        self.xmax = self.hadvance + fabs(last.hadvance - last.xmax)
+        self.xmax = self.hadvance# + fabs(last.hadvance - last.xmax)
         self.xmax -= first.hbearingx
         self.width = self.xmax - self.xmin
         self.height = self.ymax - self.ymin
@@ -518,8 +520,8 @@ class Fraction(Renderer):
         # TO-DO: Find a better way to implement it
         _env = env.copy()
         _env.face = "rm"
-        c = TexCharClass(_env, "1")
-        self.barpad = 1./3.*c.height
+        c = TexCharClass(_env, "+")
+        self.barpad = 1./2.*(c.ymax-c.ymin) + c.ymin
         self.ymin += self.barpad
         self.ymax += self.barpad
         
@@ -591,8 +593,8 @@ class TexCharClass(Renderer):
         self.xmin, self.ymin, self.xmax, self.ymax = [
             val/64.0 for val in self.glyph.bbox]
 
-        self.width = glyph.width/64.0
-        self.height = glyph.height/64.0
+        self.width = self.xmax - self.xmin#glyph.width/64.0
+        self.height = self.ymax - self.ymin#glyph.height/64.0
         self.hadvance = glyph.horiAdvance/64.0
         self.hbearingx = glyph.horiBearingX/64.0
         self.hbearingy = glyph.horiBearingY/64.0
@@ -611,7 +613,8 @@ class TexCharClass(Renderer):
             familyname = font.get_sfnt()[(1,0,0,1)]
             thetext = unichr(self.uniindex)
             thetext.encode('utf-8')
-            svg_glyphs.append((familyname, self.env.fontsize,thetext, x,
+            fontsize = self.env.fontsize * scriptfactors[self.env.scriptdepth]
+            svg_elements.svg_glyphs.append((familyname, fontsize,thetext, x,
                 y, None)) # None was originaly metrics (in old mathtext)
 
 
@@ -650,11 +653,15 @@ class Line(Renderer):
         #print coords
         #print "\n".join(repr(self.__dict__).split(","))
         if self.env.output == "AGG":
+            coords = (coords[0]+2, coords[1]-1, coords[2]-2,
+                        coords[3]-1)
+            #print coords
             font.draw_rect_filled(*coords)
         else:
-            familyname = font.get_sfnt()[(1,0,0,1)]
-            svg_glyphs.append((familyname, self.env.fontsize,"---", x,
-                y, None)) 
+            svg_elements.svg_lines.append(coords)
+            #~ familyname = font.get_sfnt()[(1,0,0,1)]
+            #~ svg_elements.svg_glyphs.append((familyname, self.env.fontsize,
+            #~   "---", x,y, None)) 
 
 
 # Main parser functions
@@ -830,7 +837,13 @@ def get_args(command, texgroup, env, num_args):
 
 # Functions exported to backends
 def math_parse_s_ft2font(s, dpi, fontsize, angle=0, output="AGG"):
-    """This function is called by the Agg backend"""
+    """This function is called by the backends"""
+    # Reseting the variables used for rendering
+    for font in fonts.values():
+            font.clear()
+    svg_elements.svg_glyphs = []
+    svg_elements.svg_lines = []
+
     s = s[1:-1]
     parsed = parse_tex(_textclass(s))
     env = environment.copy()
@@ -844,13 +857,13 @@ def math_parse_s_ft2font(s, dpi, fontsize, angle=0, output="AGG"):
     if output == "AGG":
         for key in fonts:
             fonts[key].set_bitmap_size(width, height)
-    parsed.render(-parsed.hbearingx, height + parsed.ymin - 1)
+    parsed.render(-parsed.items[0].hbearingx, height + parsed.ymin - 1)
     #~ parsed.render(-parsed.hbearingx, height - 1 - (
                         #~ parsed.height - parsed.hbearingy))
     if output == "AGG":
         return width, height, fonts.values()
     elif output == "SVG":
-        return width, height, svg_glyphs
+        return width, height, svg_elements
 
 def math_parse_s_ft2font_svg(s, dpi, fontsize, angle=0):
     return math_parse_s_ft2font(s, dpi, fontsize, angle, "SVG")
