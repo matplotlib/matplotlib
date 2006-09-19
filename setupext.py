@@ -402,6 +402,11 @@ def add_tk_flags(module):
             module.include_dirs.extend(['win32_static/include/tcl84'])
             module.library_dirs.extend(['C:/Python24/dlls'])        
             module.libraries.extend(['tk84', 'tcl84'])
+        elif major==2 and minor1==5:
+            print '\tBuilding for python25'
+            module.include_dirs.extend(['win32_static/include/tcl84'])
+            module.library_dirs.extend(['C:/Python25/dlls'])        
+            module.libraries.extend(['tk84', 'tcl84'])
         elif major==2 and minor1==2:
             print '\tBuilding for python22'
             module.include_dirs.extend(['win32_static/include/tcl83'])
