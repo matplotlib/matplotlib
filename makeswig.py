@@ -5,7 +5,8 @@ import os, sys
 wrap = (
     'agg',
     )
-SWIG = 'swig'
+#SWIG = 'swig'
+SWIG = '/home/jdhunter/local/bin/swig'
 AGGINCLUDE = 'agg23/include'
 
 swigit = '%(SWIG)s -python -c++ -outdir lib/matplotlib -o src/%(SWIGFILE)s.cxx -I%(AGGINCLUDE)s swig/%(SWIGFILE)s.i '
