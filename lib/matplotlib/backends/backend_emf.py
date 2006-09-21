@@ -151,7 +151,7 @@ class RendererEMF(RendererBase):
     def save(self):
         self.emf.save(self.outfile)
     
-    def draw_arc(self, gcEdge, rgbFace, x, y, width, height, angle1, angle2):
+    def draw_arc(self, gcEdge, rgbFace, x, y, width, height, angle1, angle2, rotation):
         """
         Draw an arc using GraphicsContext instance gcEdge, centered at x,y,
         with width and height and angles from 0.0 to 360.0

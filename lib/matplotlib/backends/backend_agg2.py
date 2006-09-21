@@ -87,7 +87,7 @@ class RendererAgg(RendererBase):
     def draw_markers(self, gc, path, rgbFace, xt, yt, trans):
         pass
 
-    def draw_arc(self, gcEdge, rgbFace, x, y, width, height, angle1, angle2):
+    def draw_arc(self, gcEdge, rgbFace, x, y, width, height, angle1, angle2, rotation):
         pass
 
     def draw_image(self, x, y, im, origin, bbox):

@@ -86,7 +86,7 @@ class RendererGDK(RendererBase):
         """
         self.width, self.height = width, height
 
-    def draw_arc(self, gc, rgbFace, x, y, width, height, angle1, angle2):
+    def draw_arc(self, gc, rgbFace, x, y, width, height, angle1, angle2, rotation):
         x, y = int(x-0.5*width), self.height-int(y+0.5*height)
         w, h = int(width)+1, int(height)+1
         a1, a2 = int(angle1*64), int(angle2*64)
@@ -94,10 +94,10 @@ class RendererGDK(RendererBase):
         if rgbFace:
             saveColor = gc.gdkGC.foreground
             gc.gdkGC.foreground = gc.rgb_to_gdk_color(rgbFace)
-            self.gdkDrawable.draw_arc(gc.gdkGC, True, x, y, w, h, a1, a2)
+            self.gdkDrawable.draw_arc(gc.gdkGC, True, x, y, w, h, a1, a2, rotation)
             gc.gdkGC.foreground = saveColor
         if gc.gdkGC.line_width > 0:
-            self.gdkDrawable.draw_arc(gc.gdkGC, False, x, y, w, h, a1, a2)
+            self.gdkDrawable.draw_arc(gc.gdkGC, False, x, y, w, h, a1, a2, rotation)
 
 
     def draw_image(self, x, y, im, bbox):
