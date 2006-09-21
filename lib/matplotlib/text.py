@@ -353,8 +353,6 @@ class Text(Artist):
         #print 'xy', self._x, self._y, info
         for line, wh, x, y in info:
             x, y = self._transform.xy_tup((x, y))
-            #renderer.draw_arc(gc, (1,0,0),
-            #                  x, y, 2, 2, 0.0, 360.0)
 
             if renderer.flipy():
                 canvasw, canvash = renderer.get_canvas_width_height()

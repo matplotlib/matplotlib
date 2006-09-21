@@ -185,7 +185,7 @@ class RendererSVG(RendererBase):
 
     def draw_point(self, gc, x, y):
         # result seems to have a hole in it...
-        self.draw_arc(gc, gc.get_rgb(), x, y, 1, 0, 0, 0)
+        self.draw_arc(gc, gc.get_rgb(), x, y, 1, 0, 0, 0, 0)
 
     def draw_polygon(self, gc, rgbFace, points):
         details = 'points = "%s"' % ' '.join(['%f,%f'%(x,self.height-y)
