@@ -430,9 +430,9 @@ namespace Py
 		virtual Object number_power( const Object &, const Object & );
 		
 		// Buffer
-		virtual int buffer_getreadbuffer( int, void** );
-		virtual int buffer_getwritebuffer( int, void** );
-		virtual int buffer_getsegcount( int* );
+		virtual Py_ssize_t buffer_getreadbuffer( Py_ssize_t, void** );
+		virtual Py_ssize_t buffer_getwritebuffer( Py_ssize_t, void** );
+		virtual Py_ssize_t buffer_getsegcount( Py_ssize_t* );
 		
 	private:
 		void missing_method( void );

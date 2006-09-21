@@ -19,6 +19,12 @@
 #include <utility>
 #include <typeinfo>
 
+#if PY_VERSION_HEX < 0x02050000
+typedef int Py_ssize_t;
+#    define PY_SSIZE_T_MAX INT_MAX
+#    define PY_SSIZE_T_MIN INT_MIN
+#endif
+
 namespace Py
 	{
 	typedef int sequence_index_type;	// type of an index into a sequence
