@@ -1256,7 +1256,7 @@ _image_module::frombuffer(const Py::Tuple& args) {
 
   imo->rowsIn = y;
   imo->colsIn = x;
-  ssize_t NUMBYTES(imo->colsIn * imo->rowsIn * imo->BPP);
+  Py_ssize_t NUMBYTES(imo->colsIn * imo->rowsIn * imo->BPP);
 
   Py_ssize_t buflen;
   const agg::int8u *rawbuf;
