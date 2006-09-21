@@ -149,15 +149,17 @@ extern "C"
         static PyObject* iternext_handler (PyObject*);
 
 	// Sequence methods
-	static int sequence_length_handler(PyObject*);
+	static Py_ssize_t sequence_length_handler(PyObject*);
 	static PyObject* sequence_concat_handler(PyObject*,PyObject*);
-	static PyObject* sequence_repeat_handler(PyObject*, int);
-	static PyObject* sequence_item_handler(PyObject*, int);
-	static PyObject* sequence_slice_handler(PyObject*, int, int);
-	static int sequence_ass_item_handler(PyObject*, int, PyObject*);
-	static int sequence_ass_slice_handler(PyObject*, int, int, PyObject*);
+	static PyObject* sequence_repeat_handler(PyObject*, Py_ssize_t);
+	static PyObject* sequence_item_handler(PyObject*, Py_ssize_t);
+	static PyObject* sequence_slice_handler(PyObject*, Py_ssize_t,
+                                                Py_ssize_t);
+	static int sequence_ass_item_handler(PyObject*, Py_ssize_t, PyObject*);
+	static int sequence_ass_slice_handler(PyObject*, Py_ssize_t,
+                                              Py_ssize_t, PyObject*);
 	// Mapping
-	static int mapping_length_handler(PyObject*);
+	static Py_ssize_t mapping_length_handler(PyObject*);
 	static PyObject* mapping_subscript_handler(PyObject*, PyObject*);
 	static int mapping_ass_subscript_handler(PyObject*, PyObject*, PyObject*);
 
@@ -186,9 +188,9 @@ extern "C"
 	static PyObject* number_power_handler(PyObject*, PyObject*, PyObject*);
 
 	// Buffer
-	static int buffer_getreadbuffer_handler (PyObject*, int, void**);
-	static int buffer_getwritebuffer_handler (PyObject*, int, void**);
-	static int buffer_getsegcount_handler (PyObject*, int*);
+	static Py_ssize_t buffer_getreadbuffer_handler (PyObject*, Py_ssize_t, void**);
+	static Py_ssize_t buffer_getwritebuffer_handler (PyObject*, Py_ssize_t, void**);
+	static Py_ssize_t buffer_getsegcount_handler (PyObject*, Py_ssize_t*);
 	};
 
 
@@ -599,7 +601,7 @@ extern "C" PyObject* iternext_handler( PyObject *self )
 
 
 // Sequence methods
-extern "C" int sequence_length_handler( PyObject *self )
+extern "C" Py_ssize_t sequence_length_handler( PyObject *self )
 	{
 	try
 		{
@@ -625,7 +627,7 @@ extern "C" PyObject* sequence_concat_handler( PyObject *self, PyObject *other )
 		}
 	}
 
-extern "C" PyObject* sequence_repeat_handler( PyObject *self, int count )
+extern "C" PyObject* sequence_repeat_handler( PyObject *self, Py_ssize_t count )
 	{
 	try
 		{
@@ -638,7 +640,7 @@ extern "C" PyObject* sequence_repeat_handler( PyObject *self, int count )
 		}
 	}
 
-extern "C" PyObject* sequence_item_handler( PyObject *self, int index )
+extern "C" PyObject* sequence_item_handler( PyObject *self, Py_ssize_t index )
 	{
 	try
 		{
@@ -651,7 +653,8 @@ extern "C" PyObject* sequence_item_handler( PyObject *self, int index )
 		}
 	}
 
-extern "C" PyObject* sequence_slice_handler( PyObject *self, int first, int last )
+extern "C" PyObject* sequence_slice_handler( PyObject *self, Py_ssize_t first,
+                                             Py_ssize_t last )
 	{
 	try
 		{
@@ -664,7 +667,7 @@ extern "C" PyObject* sequence_slice_handler( PyObject *self, int first, int last
 		}
 	}
 
-extern "C" int sequence_ass_item_handler( PyObject *self, int index, PyObject *value )
+extern "C" int sequence_ass_item_handler( PyObject *self, Py_ssize_t index, PyObject *value )
 	{
 	try
 		{
@@ -677,7 +680,7 @@ extern "C" int sequence_ass_item_handler( PyObject *self, int index, PyObject *v
 		}
 	}
 
-extern "C" int sequence_ass_slice_handler( PyObject *self, int first, int last, PyObject *value )
+extern "C" int sequence_ass_slice_handler( PyObject *self, Py_ssize_t first, Py_ssize_t last, PyObject *value )
 	{
 	try
 		{
@@ -691,7 +694,7 @@ extern "C" int sequence_ass_slice_handler( PyObject *self, int first, int last, 
 	}
 
 // Mapping
-extern "C" int mapping_length_handler( PyObject *self )
+extern "C" Py_ssize_t mapping_length_handler( PyObject *self )
 	{
 	try
 		{
@@ -1018,7 +1021,7 @@ extern "C" PyObject* number_power_handler( PyObject *self, PyObject *x1, PyObjec
 	}
 
 // Buffer
-extern "C" int buffer_getreadbuffer_handler( PyObject *self, int index, void **pp )
+extern "C" Py_ssize_t buffer_getreadbuffer_handler( PyObject *self, Py_ssize_t index, void **pp )
 	{
 	try
 		{
@@ -1031,7 +1034,7 @@ extern "C" int buffer_getreadbuffer_handler( PyObject *self, int index, void **p
 		}
 	}
 
-extern "C" int buffer_getwritebuffer_handler( PyObject *self, int index, void **pp )
+extern "C" Py_ssize_t buffer_getwritebuffer_handler( PyObject *self, Py_ssize_t index, void **pp )
 	{
 	try
 		{
@@ -1044,7 +1047,7 @@ extern "C" int buffer_getwritebuffer_handler( PyObject *self, int index, void **
 		}
 	}
 
-extern "C" int buffer_getsegcount_handler( PyObject *self, int *count )
+extern "C" Py_ssize_t buffer_getsegcount_handler( PyObject *self, Py_ssize_t *count )
 	{
 	try
 		{
@@ -1212,13 +1215,13 @@ Py::Object PythonExtensionBase::number_power( const Py::Object &, const Py::Obje
 
 
 // Buffer
-int PythonExtensionBase::buffer_getreadbuffer( int, void** )
+Py_ssize_t PythonExtensionBase::buffer_getreadbuffer( Py_ssize_t, void** )
 	{ missing_method( buffer_getreadbuffer ); return -1; }
 
-int PythonExtensionBase::buffer_getwritebuffer( int, void** )
+Py_ssize_t PythonExtensionBase::buffer_getwritebuffer( Py_ssize_t, void** )
 	{ missing_method( buffer_getwritebuffer ); return -1; }
 
-int PythonExtensionBase::buffer_getsegcount( int* )
+Py_ssize_t PythonExtensionBase::buffer_getsegcount( Py_ssize_t* )
 	{ missing_method( buffer_getsegcount ); return -1; }
 
 //--------------------------------------------------------------------------------

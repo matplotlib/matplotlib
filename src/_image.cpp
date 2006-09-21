@@ -1256,15 +1256,15 @@ _image_module::frombuffer(const Py::Tuple& args) {
 
   imo->rowsIn = y;
   imo->colsIn = x;
-  size_t NUMBYTES(imo->colsIn * imo->rowsIn * imo->BPP);
+  ssize_t NUMBYTES(imo->colsIn * imo->rowsIn * imo->BPP);
 
-  int buflen;
+  Py_ssize_t buflen;
   const agg::int8u *rawbuf;
   if (PyObject_AsReadBuffer(bufin, reinterpret_cast<const void**>(&rawbuf), &buflen) != 0)
     throw Py::ValueError("Cannot get buffer from object.");
 
   // Check buffer is required size.
-  if ((size_t)buflen != NUMBYTES)
+  if (buflen != NUMBYTES)
     throw Py::ValueError("Buffer length must be width * height * 4.");
 
   // Copy from input buffer to new buffer for agg.
