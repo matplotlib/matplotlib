@@ -126,7 +126,7 @@ class RendererPS(RendererBase):
     context instance that controls the colors/styles.
     """
 
-    def __init__(self, width, height, pswriter):
+    def __init__(self, width, height, pswriter, dpi=72):
         RendererBase.__init__(self)
         self.width = width
         self.height = height
@@ -144,6 +144,7 @@ class RendererPS(RendererBase):
         self.fontname = None
         self.fontsize = None
         self.hatch = None
+        self.image_magnification = dpi/72.0
 
     def set_color(self, r, g, b, store=1):
         if (r,g,b) != self.color:
@@ -352,6 +353,14 @@ class RendererPS(RendererBase):
             lines.append(s[i:limit])
         return lines
 
+    def get_image_magnification(self):
+        """
+        Get the factor by which to magnify images passed to draw_image.  
+        Allows a backend to have images at a different resolution to other
+        artists.
+        """
+        return self.image_magnification
+
     def draw_image(self, x, y, im, bbox):
         """
         Draw the Image instance into the current axes; x is the
@@ -372,7 +381,8 @@ class RendererPS(RendererBase):
             imagecmd = "false 3 colorimage"
         hexlines = '\n'.join(self._hex_lines(bits))
 
-        xscale, yscale = w, h
+        xscale, yscale = (
+            w/self.image_magnification, h/self.image_magnification)
 
         figh = self.height*72
         #print 'values', origin, flipud, figh, h, y
@@ -1060,7 +1070,7 @@ class FigureCanvasPS(FigureCanvasBase):
             self.figure.set_edgecolor(edgecolor)
 
             self._pswriter = StringIO()
-            renderer = RendererPS(width, height, self._pswriter)
+            renderer = RendererPS(width, height, self._pswriter, dpi=dpi)
             self.figure.draw(renderer)
 
             self.figure.set_facecolor(origfacecolor)
@@ -1167,7 +1177,7 @@ class FigureCanvasPS(FigureCanvasBase):
         self.figure.set_edgecolor(edgecolor)
 
         self._pswriter = StringIO()
-        renderer = RendererPS(width, height, self._pswriter)
+        renderer = RendererPS(width, height, self._pswriter, dpi=dpi)
         self.figure.draw(renderer)
 
         self.figure.set_facecolor(origfacecolor)

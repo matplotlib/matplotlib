@@ -106,7 +106,7 @@ class AxesImage(Artist, cm.ScalarMappable):
         self._imcache = None
         cm.ScalarMappable.changed(self)
 
-    def make_image(self):
+    def make_image(self, magnification=1.0):
         if self._A is not None:
             if self._imcache is None:
                 if typecode(self._A) == UInt8:
@@ -163,6 +163,8 @@ class AxesImage(Artist, cm.ScalarMappable):
         ty = (ymin-self.axes.viewLim.ymin())/dyintv * numrows
 
         l, b, widthDisplay, heightDisplay = self.axes.bbox.get_bounds()
+        widthDisplay *= magnification
+        heightDisplay *= magnification
 
         im.apply_translation(tx, ty)
         im.apply_scaling(sx, sy)
@@ -184,13 +186,13 @@ class AxesImage(Artist, cm.ScalarMappable):
 
     def draw(self, renderer, *args, **kwargs):
         if not self.get_visible(): return
-        im = self.make_image()
+        im = self.make_image(renderer.get_image_magnification())
         l, b, widthDisplay, heightDisplay = self.axes.bbox.get_bounds()
         renderer.draw_image(l, b, im, self.axes.bbox)
 
     def write_png(self, fname):
         """Write the image to png file with fname"""
-        im = self.make_image(False)
+        im = self.make_image()
         im.write_png(fname)
 
 

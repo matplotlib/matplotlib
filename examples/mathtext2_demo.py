@@ -34,7 +34,7 @@ FreeFonts are distributed under GPL
 """
 # We override the default params
 from matplotlib import rcParams
-rcParams['mathtext.mathtext2'] = True
+#rcParams['mathtext.mathtext2'] = True
 
 # You can put other fonts to override the default ones
 #rcParams['mathtext.rm'] = 'FreeSerif.ttf'
@@ -44,13 +44,16 @@ rcParams['mathtext.mathtext2'] = True
 #rcParams['mathtext.cal'] = 'FreeSansOblique.ttf'
 
 # This is used by mathtext2 to find chars with ord > 255 (Unicode characters)
-rcParams['mathtext.nonascii'] = 'FreeSerif.ttf'
+#rcParams['mathtext.nonascii'] = 'FreeSerif.ttf'
 
 from pylab import *
 subplot(111, axisbg='y')
 plot([1,2,3], 'r')
 x = arange(0.0, 3.0, 0.1)
 
+tex = r'$u_{x^2_1}^{y_{-q_u}}$'
+text(0.5, 2., tex, fontsize=20)
+show()
 grid(True)
 #xlabel(r'$\Delta_i^j$', fontsize=20)
 #ylabel(r'$\Delta_{i+1}^j$', fontsize=20)

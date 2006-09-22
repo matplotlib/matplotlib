@@ -530,8 +530,12 @@ class Figure(Artist):
             # list of (_image.Image, ox, oy)
             if not allequal([im.origin for im in self.images]):
                 raise ValueError('Composite images with different origins not supported')
-            ims = [(im.make_image(), im.ox, im.oy) for im in self.images]
-            im = _image.from_images(self.bbox.height(), self.bbox.width(), ims)
+            mag = renderer.get_image_magnification()
+            ims = [(im.make_image(mag), im.ox*mag, im.oy*mag)
+                   for im in self.images]
+            im = _image.from_images(self.bbox.height()*mag,
+                                    self.bbox.width()*mag,
+                                    ims)
             im.is_grayscale = False
             l, b, w, h = self.bbox.get_bounds()
             renderer.draw_image(0, 0, im, self.bbox)
