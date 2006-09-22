@@ -1021,10 +1021,14 @@ class Axes(Artist):
             # list of (_image.Image, ox, oy)
 
 
-            ims = [(im.make_image(),0,0) for im in self.images if im.get_visible()]
+            mag = renderer.get_image_magnification()
+            ims = [(im.make_image(mag),0,0)
+                   for im in self.images if im.get_visible()]
 
 
-            im = _image.from_images(self.bbox.height(), self.bbox.width(), ims)
+            im = _image.from_images(self.bbox.height()*mag,
+                                    self.bbox.width()*mag,
+                                    ims)
             im.is_grayscale = False
             l, b, w, h = self.bbox.get_bounds()
             # composite images need special args so they will not
