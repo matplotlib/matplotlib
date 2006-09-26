@@ -44,8 +44,6 @@ class Artist:
         self._oid = 0  # an observer id
         self._propobservers = {} # a dict from oids to funcs
 
-
-
     def add_callback(self, func):
         oid = self._oid
         self._propobservers[oid] = func
