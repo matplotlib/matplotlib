@@ -387,6 +387,7 @@ class Axes(Artist):
 
         if len(kwargs): setp(self, **kwargs)
 
+
     def get_window_extent(self, *args, **kwargs):
         'get the axes bounding box in display space'
         return self.bbox

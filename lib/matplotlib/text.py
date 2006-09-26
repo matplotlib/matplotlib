@@ -1050,7 +1050,9 @@ class Annotation(Text):
     Axes, Point, Rectangle, etc... easier
     """
     def __init__(self, artist, s, loc=None,
-                 padx='auto', pady='auto', autopad=3, **props):
+                 padx='auto', pady='auto', autopad=3,
+                 lineprops=None,
+                 **props):
         """
         Annotate the matplotlib.Artist artist with string s.  kwargs
         props are passed on to the Text base class and are text
@@ -1097,10 +1099,42 @@ class Annotation(Text):
         autopad points in the appropriate direction given the
         inside/outside left/right/center bottom/top/center location
         codes
+
+        lineprops, if not None, is a dictionary of line properties
+        used to draw a line between the annotation and the point being
+        annotated (if lineprops is None, no line is drawn).  The keys
+        of the dictionary are line properties (eg linewidth, color,
+        linestyle -- see matplotlib.lines for more information).  In
+        addition, the following dictionary key/value pairs are
+        supported for the lineprops
+
+            shrink : the value in points that will be used to shorten
+                     the line on each end
+            xalign : left | right | center | auto - where to align the line on the text
+            yalign : bottom | top | center | auto - where to align the line on the text
+            
+        Here is an example with xalign='center' and yalign='bottom'
+
+            ------------------------
+            |                      |
+            |  the text annotation | 
+            |______________________|
+                                              <---shrink shortens the line here
+                       / 
+                      /  
+                     /     
+                    /       
+                                               <---and here
+                  loc
+    
         """
         # we'll draw ourself after the artist we annotate by default
         zorder = props.get('zorder', artist.get_zorder() + 1)
         Text.__init__(self, text=s, **props)
+
+        self.line = Line2D([0], [0])
+        self._shrink = 0.
+        self.set_lineprops(lineprops)
         self.set_zorder(zorder)
         self.set_transform(identity_transform())
         self._loc = tuple(loc)
@@ -1117,7 +1151,24 @@ class Annotation(Text):
             self._funcy = None
 
         self._renderer = None
-        
+
+    def set_lineprops(self, lineprops):
+        """
+        Set the c padding in points
+        ACCEPTS: float value in points or the string 'auto'
+        """
+        self._lineprops = lineprops
+        if lineprops is not None:
+            lineprops = lineprops.copy() 
+            self._shrink = lineprops.pop('shrink', 0.)
+            self._xalign = lineprops.pop('xalign', 'auto')
+            self._yalign = lineprops.pop('yalign', 'auto')
+            self.line.update(lineprops)
+            
+    def get_lineprops(self):
+        'get the x padding in points'
+        return self._lineprops
+
     def set_padx(self, padx):
         """
         Set the c padding in points
@@ -1303,7 +1354,49 @@ class Annotation(Text):
             self._renderer = renderer
         self.update_positions()
         Text.draw(self, renderer)
+        if self._lineprops is not None:
+            l,b,w,h = self.get_window_extent(renderer).get_bounds()
+            dpi = self.figure.dpi.get()
+            dx = self._padx * dpi/72.
+            dy = self._pady * dpi/72.
+            x0, y0 = self._x - dx, self._y - dy
+            r = l+w
+            t = b+h
+            xc = 0.5*(l+r)
+            yc = 0.5*(b+t)
+            # pick the x,y corner of the text bbox closest to point
+            # annotated
+            if self._xalign=='left': x = l
+            elif self._xalign=='right': x = r
+            elif self._xalign=='center': x = xc
+            else:
+                dsu = [(abs(val-x0), val) for val in l, r, xc]
+                dsu.sort()
+                d, x = dsu[0]
+                
+            if self._yalign=='bottom': y = b
+            elif self._yalign=='top': y = t
+            elif self._yalign=='center': y = yc
+            else:
+                dsu = [(abs(val-y0), val) for val in b, t, yc]
+                dsu.sort()
+                d, y = dsu[0]
 
+            
+
+            if self._shrink:
+                r = math.sqrt((x-x0)**2 + (y-y0)**2)
+                theta = math.atan2(y-y0,x-x0)
+                dx = self._shrink*dpi/72.*math.cos(theta)
+                dy = self._shrink*dpi/72.*math.sin(theta)
+                x0 += dx
+                x -= dx
+                y0 += dy
+                y -= dy
+                
+            self.line.set_data([x0, x], [y0, y])
+            self.line.draw(renderer)
+            
 
                              
                              

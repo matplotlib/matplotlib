@@ -1,3 +1,8 @@
+2006-09-24 Added line pointers to the Annotation code, and a pylab
+           interface.  See matplotlib.text.Annotation,
+           examples/annotation_demo.py and
+           examples/annotation_demo_pylab.py - JDH
+
 2006-09-18 mathtext2.py: The SVG backend now supports the same things that
            the AGG backend does. Fixed some bugs with rendering, and out of
            bounds errors in the AGG backend - ES. Changed the return values
