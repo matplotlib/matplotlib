@@ -1,3 +1,5 @@
+===============================================================                                                             2006-09-27 Released 0.87.6 at revision 2783
+
 2006-09-24 Added line pointers to the Annotation code, and a pylab
            interface.  See matplotlib.text.Annotation,
            examples/annotation_demo.py and
