@@ -56,7 +56,7 @@ VERBOSE = False # insert lots of diagnostic prints in extension code
 # update it when the contents of directories change.
 import os
 if os.path.exists('MANIFEST'): os.remove('MANIFEST')
-    
+
 import sys,os
 import glob
 from distutils.core import Extension, setup
@@ -158,7 +158,7 @@ if havesubprocess and sys.version < '2.4':
     subprocess_dir = os.path.dirname(subprocess.__file__)
     if subprocess_dir.endswith('.egg/subprocess'):
         havesubprocess = False
-    
+
 if not havesubprocess:
     packages.append('subprocess')
     if sys.platform == 'win32':
@@ -203,6 +203,12 @@ build_enthought(ext_modules, packages)
 if BUILD_GTK:
     try:
         import gtk
+        version = (2,2,0)
+        if gtk.pygtk_version < version:
+            print "Error: GTK backend requires PyGTK %d.%d.%d (or later), " \
+                  "%d.%d.%d was detected." % (
+                version + gtk.pygtk_version)
+            BUILD_GTK=0
     except ImportError:
         print 'GTK requires pygtk'
         BUILD_GTK=0
@@ -213,6 +219,26 @@ if BUILD_GTK:
         build_gdk(ext_modules, packages, NUMERIX)
         rc['backend'] = 'GTK'
 
+if BUILD_GTKAGG:
+    try:
+        import gtk
+        version = (2,2,0)
+        if gtk.pygtk_version < version:
+            print "Error: GTKAgg backend requires PyGTK %d.%d.%d " \
+                  "(or later), %d.%d.%d was detected." % (
+                version + gtk.pygtk_version)
+            BUILD_GTKAGG=0
+    except ImportError:
+        print 'GTKAgg requires pygtk'
+        BUILD_GTKAGG=0
+    except RuntimeError:
+        print 'pygtk present but import failed'
+
+if BUILD_GTKAGG:
+    BUILD_AGG = 1
+    build_gtkagg(ext_modules, packages, NUMERIX)
+    rc['backend'] = 'GTKAgg'
+
 if BUILD_TKAGG:
     try: import Tkinter
     except ImportError: print 'TKAgg requires TkInter'
@@ -220,7 +246,7 @@ if BUILD_TKAGG:
         BUILD_AGG = 1
         build_tkagg(ext_modules, packages, NUMERIX)
         rc['backend'] = 'TkAgg'
-        
+
 if BUILD_WXAGG:
     try: import wxPython
     except ImportError:
@@ -233,20 +259,6 @@ if BUILD_WXAGG:
             not (isinstance(BUILD_WXAGG, str) # don't about if BUILD_WXAGG
                  and BUILD_WXAGG.lower() == 'auto')) # is "auto"
         rc['backend'] = 'WXAgg'
-
-if BUILD_GTKAGG:
-    try:
-        import gtk
-    except ImportError:
-        print 'GTKAgg requires pygtk'
-        BUILD_GTKAGG=0
-    except RuntimeError:
-        print 'pygtk present but import failed'
-
-if BUILD_GTKAGG:
-    BUILD_AGG = 1
-    build_gtkagg(ext_modules, packages, NUMERIX)
-    rc['backend'] = 'GTKAgg'
 
 if BUILD_AGG:
     build_agg(ext_modules, packages, NUMERIX)
