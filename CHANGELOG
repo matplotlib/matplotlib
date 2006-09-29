@@ -1,3 +1,5 @@
+2006-09-29 setup.py: cleaned up setup logic - NN
+
 2006-09-29 setup.py: check for required pygtk versions, fixes bug #1460783 - SC
 
 ===============================================================

@@ -203,52 +203,68 @@ build_enthought(ext_modules, packages)
 if BUILD_GTK:
     try:
         import gtk
+    except ImportError:
+        print 'GTK requires pygtk'
+        BUILD_GTK = 0
+    except RuntimeError:
+        print 'pygtk present but import failed'
+        BUILD_GTK = 0
+    else:
         version = (2,2,0)
         if gtk.pygtk_version < version:
             print "Error: GTK backend requires PyGTK %d.%d.%d (or later), " \
                   "%d.%d.%d was detected." % (
                 version + gtk.pygtk_version)
-            BUILD_GTK=0
-    except ImportError:
-        print 'GTK requires pygtk'
-        BUILD_GTK=0
-    except RuntimeError:
-        print 'pygtk present but import failed'
-
-if BUILD_GTK:
-        build_gdk(ext_modules, packages, NUMERIX)
-        rc['backend'] = 'GTK'
+            BUILD_GTK = 0
+        else:
+            build_gdk(ext_modules, packages, NUMERIX)
+            rc['backend'] = 'GTK'
 
 if BUILD_GTKAGG:
     try:
         import gtk
+    except ImportError:
+        print 'GTKAgg requires pygtk'
+        BUILD_GTKAGG=0
+    except RuntimeError:
+        print 'pygtk present but import failed'
+        BUILD_GTKAGG = 0
+    else:
         version = (2,2,0)
         if gtk.pygtk_version < version:
             print "Error: GTKAgg backend requires PyGTK %d.%d.%d " \
                   "(or later), %d.%d.%d was detected." % (
                 version + gtk.pygtk_version)
             BUILD_GTKAGG=0
-    except ImportError:
-        print 'GTKAgg requires pygtk'
-        BUILD_GTKAGG=0
-    except RuntimeError:
-        print 'pygtk present but import failed'
-
-if BUILD_GTKAGG:
-    BUILD_AGG = 1
-    build_gtkagg(ext_modules, packages, NUMERIX)
-    rc['backend'] = 'GTKAgg'
+        else:
+            BUILD_AGG = 1
+            build_gtkagg(ext_modules, packages, NUMERIX)
+            rc['backend'] = 'GTKAgg'
 
 if BUILD_TKAGG:
-    try: import Tkinter
-    except ImportError: print 'TKAgg requires TkInter'
+    try:
+        import Tkinter
+    except ImportError:
+        print 'TKAgg requires TkInter'
+        BUILD_TKAGG = 0
+    except RuntimeError:
+        print 'Tkinter present but import failed'
+        BUILD_TKAGG = 0
     else:
-        BUILD_AGG = 1
-        build_tkagg(ext_modules, packages, NUMERIX)
-        rc['backend'] = 'TkAgg'
+        try:
+            tk = Tkinter.Tk()
+            tk.withdraw()
+        except Tkinter.TclError:
+            print 'Tkinter present, but window failed to open'
+            BUILD_TKAGG = 0
+        else:
+            BUILD_AGG = 1
+            build_tkagg(ext_modules, packages, NUMERIX)
+            rc['backend'] = 'TkAgg'
 
 if BUILD_WXAGG:
-    try: import wxPython
+    try:
+        import wxPython
     except ImportError:
         if BUILD_WXAGG != 'auto':
             print 'WXAgg\'s accelerator requires wxPython'
