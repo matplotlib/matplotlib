@@ -292,6 +292,29 @@ Image::reset_matrix(const Py::Tuple& args) {
 
 }
 
+char Image::get_matrix__doc__[] =
+"(m11,m21,m12,m22,m13,m23) = get_matrix()\n"
+"\n"
+"Get the affine transformation matrix\n"
+"  /m11,m12,m13\\\n"
+"  /m21,m22,m23|\n"
+"  \\ 0 , 0 , 1 /"
+;
+
+Py::Object
+Image::get_matrix(const Py::Tuple& args) {
+  _VERBOSE("Image::get_size");
+
+  args.verify_length(0);
+
+  double m[6];
+  srcMatrix.store_to(m);
+  Py::Tuple ret(6);
+  for(int i=0;i<6;i++)
+    ret[i] = Py::Float(m[i]);
+  return ret;
+}
+
 char Image::resize__doc__[] =
 "resize(width, height, norm=1, radius=4.0)\n"
 "\n"
@@ -736,6 +759,7 @@ Image::init_type() {
   add_varargs_method( "get_size", &Image::get_size, Image::get_size__doc__);
   add_varargs_method( "get_size_out", &Image::get_size_out, Image::get_size_out__doc__);
   add_varargs_method( "reset_matrix", &Image::reset_matrix, Image::reset_matrix__doc__);
+  add_varargs_method( "get_matrix", &Image::get_matrix, Image::get_matrix__doc__);
   add_keyword_method( "resize", &Image::resize, Image::resize__doc__);
   add_varargs_method( "set_interpolation", &Image::set_interpolation, Image::set_interpolation__doc__);
   add_varargs_method( "set_aspect", &Image::set_aspect, Image::set_aspect__doc__);

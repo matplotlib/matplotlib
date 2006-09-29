@@ -30,6 +30,7 @@ public:
   Py::Object buffer_argb32(const Py::Tuple& args);
   Py::Object buffer_rgba(const Py::Tuple& args);
   Py::Object reset_matrix(const Py::Tuple& args);
+  Py::Object get_matrix(const Py::Tuple& args);
   Py::Object resize(const Py::Tuple& args, const Py::Dict& kwargs);
   Py::Object get_aspect(const Py::Tuple& args);
   Py::Object get_size(const Py::Tuple& args);
@@ -88,6 +89,7 @@ private:
   static char buffer_argb32__doc__[];
   static char buffer_rgba__doc__[];
   static char reset_matrix__doc__[];
+  static char get_matrix__doc__[];
   static char resize__doc__[];
   static char get_aspect__doc__[];
   static char get_size__doc__[];

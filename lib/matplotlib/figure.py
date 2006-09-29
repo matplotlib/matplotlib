@@ -522,14 +522,13 @@ class Figure(Artist):
         for p in self.patches: p.draw(renderer)
         for l in self.lines: l.draw(renderer)
 
-        if len(self.images)==1:
-            im = self.images[0]
-            im.draw(renderer)
-        elif len(self.images)>1:
+        if len(self.images)<=1 or renderer.option_image_nocomposite() or not allequal([im.origin for im in self.images]):
+            for im in self.images:
+                im.draw(renderer)
+        else:
             # make a composite image blending alpha
             # list of (_image.Image, ox, oy)
-            if not allequal([im.origin for im in self.images]):
-                raise ValueError('Composite images with different origins not supported')
+
             mag = renderer.get_image_magnification()
             ims = [(im.make_image(mag), im.ox*mag, im.oy*mag)
                    for im in self.images]
@@ -538,7 +537,7 @@ class Figure(Artist):
                                     ims)
             im.is_grayscale = False
             l, b, w, h = self.bbox.get_bounds()
-            renderer.draw_image(0, 0, im, self.bbox)
+            renderer.draw_image(l, b, im, self.bbox)
 
 
         # render the axes

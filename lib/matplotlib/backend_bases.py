@@ -67,6 +67,13 @@ class RendererBase:
         """
         raise NotImplementedError
 
+    def option_image_nocomposite(self):
+        """
+        overwrite this method for renderers that do not necessarily
+        want to rescale and composite raster images. (like SVG)
+        """
+        return False
+
     def _draw_markers(self, bgc, path, rgbFace, x, y, trans):
         """
         This method is currently underscore hidden because the

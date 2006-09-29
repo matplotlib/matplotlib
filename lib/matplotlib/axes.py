@@ -1012,12 +1012,10 @@ class Axes(Artist):
         if self.axison and self._frameon: self.axesPatch.draw(renderer)
         artists = []
 
-        if len(self.images)==1:
-            im = self.images[0]
-            artists.append(im)
-
-        elif len(self.images)>1:
-
+        if len(self.images)<=1 or renderer.option_image_nocomposite():
+            for im in self.images:
+                im.draw(renderer)
+        else:
             # make a composite image blending alpha
             # list of (_image.Image, ox, oy)
 

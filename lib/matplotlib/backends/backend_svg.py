@@ -2,7 +2,7 @@ from __future__ import division
 
 import os, codecs, base64, tempfile
 
-from matplotlib import verbose, __version__
+from matplotlib import verbose, __version__, rcParams
 from matplotlib.backend_bases import RendererBase, GraphicsContextBase,\
      FigureManagerBase, FigureCanvasBase
 from matplotlib.colors import rgb2hex
@@ -24,12 +24,16 @@ def new_figure_manager(num, *args, **kwargs):
 _fontd = {}
 _capstyle_d = {'projecting' : 'square', 'butt' : 'butt', 'round': 'round',}
 class RendererSVG(RendererBase):
-    def __init__(self, width, height, svgwriter):
+    def __init__(self, width, height, svgwriter, basename=None):
         self.width=width
         self.height=height
         self._svgwriter = svgwriter
 
         self._groupd = {}
+        if not rcParams['svg.image_inline']:
+            assert basename is not None
+            self.basename = basename
+            self._imaged = {}
         self._clipd = {}
         svgwriter.write(svgProlog%(width,height,width,height))
 
@@ -130,40 +134,69 @@ class RendererSVG(RendererBase):
             (x,  self.height-y, width/2.0, height/2.0, -rotation, x, self.height-y)
         self._draw_svg_element('ellipse', details, gc, rgbFace)
 
+    def option_image_nocomposite(self):
+        """
+        if svg.image_noscale is True, compositing multiple images into one is prohibited
+        """
+        return rcParams['svg.image_noscale']
+
     def draw_image(self, x, y, im, bbox):
-        filename = os.path.join (tempfile.gettempdir(),
-                                 tempfile.gettempprefix() + '.png'
-                                 )
-
-        verbose.report ('Writing image file for include: %s' % filename)
-        # im.write_png() accepts a filename, not file object, would be
-        # good to avoid using files and write to mem with StringIO
-
-        # JDH: it *would* be good, but I don't know how to do this
-        # since libpng seems to want a FILE* and StringIO doesn't seem
-        # to provide one.  I suspect there is a way, but I don't know
-        # it
-
-        im.flipud_out()
+        trans = [1,0,0,1,0,0]
+        transstr = ''
+        if rcParams['svg.image_noscale']:
+            trans = list(im.get_matrix())
+            if im.get_interpolation() != 0:
+                trans[4] += trans[0]
+                trans[5] += trans[3]
+            trans[5] = -trans[5]
+            transstr = 'transform="matrix(%f %f %f %f %f %f)" '%tuple(trans)
+            assert trans[1] == 0
+            assert trans[2] == 0
+            numrows,numcols = im.get_size()
+            im.reset_matrix()
+            im.set_interpolation(0)
+            im.resize(numcols, numrows)
 
         h,w = im.get_size_out()
-        y = self.height-y-h
-        im.write_png(filename)
 
-        imfile = file (filename, 'r')
-        image64 = base64.encodestring (imfile.read())
-        imfile.close()
-        os.remove(filename)
-        lines = [image64[i:i+76] for i in range(0, len(image64), 76)]
+        if rcParams['svg.image_inline']:
+            filename = os.path.join (tempfile.gettempdir(),
+                                    tempfile.gettempprefix() + '.png'
+                                    )
+
+            verbose.report ('Writing temporary image file for inlining: %s' % filename)
+            # im.write_png() accepts a filename, not file object, would be
+            # good to avoid using files and write to mem with StringIO
+
+            # JDH: it *would* be good, but I don't know how to do this
+            # since libpng seems to want a FILE* and StringIO doesn't seem
+            # to provide one.  I suspect there is a way, but I don't know
+            # it
+
+            im.flipud_out()
+            im.write_png(filename)
+            im.flipud_out()
+
+            imfile = file (filename, 'r')
+            image64 = base64.encodestring (imfile.read())
+            imfile.close()
+            os.remove(filename)
+            lines = [image64[i:i+76] for i in range(0, len(image64), 76)]
+            hrefstr = 'data:image/png;base64,\n' + '\n'.join(lines)
+
+        else:
+            self._imaged[self.basename] = self._imaged.get(self.basename,0) + 1
+            filename = '%s.image%d.png'%(self.basename, self._imaged[self.basename])
+            verbose.report( 'Writing image file for inclusion: %s' % filename)
+            im.flipud_out()
+            im.write_png(filename)
+            im.flipud_out()
+            hrefstr = filename
 
         self._svgwriter.write (
             '<image x="%f" y="%f" width="%f" height="%f" '
-            'xlink:href="data:image/png;base64,\n%s" />\n'
-            % (x, y, w+1, h+1, '\n'.join(lines))
+            'xlink:href="%s" %s/>\n'%(x/trans[0], (self.height-y)/trans[3]-h, w, h, hrefstr, transstr)
             )
-
-         # unflip
-        im.flipud_out()
 
     def draw_line(self, gc, x1, y1, x2, y2):
         details = 'd="M %f,%f L %f,%f"' % (x1, self.height-y1,
@@ -294,7 +327,7 @@ class FigureCanvasSVG(FigureCanvasBase):
         basename, ext = os.path.splitext(filename)
         if not len(ext): filename += '.svg'
         svgwriter = codecs.open( filename, 'w', 'utf-8' )
-        renderer = RendererSVG(w, h, svgwriter)
+        renderer = RendererSVG(w, h, svgwriter, basename)
         self.figure.draw(renderer)
         renderer.finish()
 
