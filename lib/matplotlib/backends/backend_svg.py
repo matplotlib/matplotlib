@@ -42,11 +42,11 @@ class RendererSVG(RendererBase):
         if clipid is None:
             clippath = ''
         else:
-            clippath = 'clip-path:url(#%s);' % clipid
+            clippath = 'clip-path="url(#%s)"' % clipid
 
-        self._svgwriter.write ('%s<%s %s %s/>\n' % (
+        self._svgwriter.write ('%s<%s %s %s %s/>\n' % (
             cliprect,
-            element, self._get_style(gc, rgbFace, clippath), details))
+            element, self._get_style(gc, rgbFace), clippath, details))
 
     def _get_font(self, prop):
         key = hash(prop)
@@ -60,7 +60,7 @@ class RendererSVG(RendererBase):
         font.set_size(size, 72.0)
         return font
 
-    def _get_style(self, gc, rgbFace, clippath):
+    def _get_style(self, gc, rgbFace):
         """
         return the style string.
         style is generated from the GraphicsContext, rgbFace and clippath
@@ -80,20 +80,20 @@ class RendererSVG(RendererBase):
         linewidth = gc.get_linewidth()
         if linewidth:
             return 'style="fill: %s; stroke: %s; stroke-width: %f; ' \
-                'stroke-linejoin: %s; stroke-linecap: %s; %s opacity: %f; ' \
-                '%s"' % (fill,
+                'stroke-linejoin: %s; stroke-linecap: %s; %s opacity: %f"' % (
+                         fill,
                          rgb2hex(gc.get_rgb()),
                          linewidth,
                          gc.get_joinstyle(),
                          _capstyle_d[gc.get_capstyle()],
                          dashes,
                          gc.get_alpha(),
-                         clippath,)
+                )
         else:
-            return 'style="fill: %s; opacity: %f; ' \
-                '%s"' % (fill,
+            return 'style="fill: %s; opacity: %f"' % (\
+                         fill,
                          gc.get_alpha(),
-                         clippath,)
+                )
 
     def _get_gc_clip_svg(self, gc):
         cliprect = gc.get_clip_rectangle()
