@@ -1,3 +1,5 @@
+2006-09-29 fix line-breaking for SVG-inline images (purely cosmetic)
+
 2006-09-29 reworked set_linestyle and set_marker
 	   markeredgecolor and markerfacecolor now default to
 	   a special value "auto" that keeps the color in sync with
