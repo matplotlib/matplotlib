@@ -1190,7 +1190,7 @@ class Axes(Artist):
         return self.viewLim.intervalx().get_bounds()
 
 
-    def set_xlim(self, *args, **kwargs):
+    def set_xlim(self, xmin=None, xmax=None, emit=False):
         """
         set_xlim(self, *args, **kwargs):
 
@@ -1213,34 +1213,24 @@ class Axes(Artist):
         ACCEPTS: len(2) sequence of floats
         """
 
-        vmin, vmax = self.get_xlim()
+        if xmax is None and hasattr(xmin,'__len__'):
+            xmin,xmax = xmin
 
-        xmin = popd(kwargs, 'xmin', None)
-        xmax = popd(kwargs, 'xmax', None)
-        emit = popd(kwargs, 'emit', False)
-        if len(args)!=0 and (xmin is not None or xmax is not None):
-            raise TypeError('You cannot pass args and xmin/xmax kwargs')
+	old_xmin,old_xmax = self.get_xlim()
+        if xmin is None: xmin = old_xmin
+        if xmax is None: xmax = old_xmax
 
-        if len(args)==0:
-            if xmin is not None: vmin = xmin
-            if xmax is not None: vmax = xmax
-        elif len(args)==1:
-            vmin, vmax = args[0]
-        elif len(args)==2:
-            vmin, vmax = args
-        else:
-            raise ValueError('args must be length 0, 1 or 2')
-
-        if self.transData.get_funcx().get_type()==LOG10 and min(vmin, vmax)<=0:
+        if self.transData.get_funcx().get_type()==LOG10 and min(xmin, xmax)<=0:
             raise ValueError('Cannot set nonpositive limits with log transform')
 
-        if abs(vmax - vmin) < 1e-38:
-            warnings.warn("vmax too close to vmin; adjusting")
-            vmin -= 1e-38
-            vmax += 1e-38
-        self.viewLim.intervalx().set_bounds(vmin, vmax)
+        if abs(xmax - xmin) < 1e-38:
+            warnings.warn("xmax too close to xmin; adjusting")
+            xmin -= 1e-38
+            xmax += 1e-38
+
+	self.viewLim.intervalx().set_bounds(xmin, xmax)
         if emit: self._send_xlim_event()
-        return vmin, vmax
+        return xmin, xmax
 
     def get_xscale(self):
         'return the xaxis scale string: log or linear'
@@ -1313,7 +1303,7 @@ class Axes(Artist):
         'Get the y axis range [ymin, ymax]'
         return self.viewLim.intervaly().get_bounds()
 
-    def set_ylim(self, *args, **kwargs):
+    def set_ylim(self, ymin=None, ymax=None, emit=False):
         """
         set_ylim(self, *args, **kwargs):
 
@@ -1336,33 +1326,23 @@ class Axes(Artist):
         ACCEPTS: len(2) sequence of floats
         """
 
-        vmin, vmax = self.get_ylim()
+        if ymax is None and hasattr(ymin,'__len__'):
+            ymin,ymax = ymin
 
-        ymin = popd(kwargs, 'ymin', None)
-        ymax = popd(kwargs, 'ymax', None)
-        emit = popd(kwargs, 'emit', False)
-        if len(args)!=0 and (ymin is not None or ymax is not None):
-            raise TypeError('You cannot pass args and ymin/ymax kwargs')
+	old_ymin,old_ymax = self.get_ylim()
+        if ymin is None: ymin = old_ymin
+        if ymax is None: ymax = old_ymax
 
-        if len(args)==0:
-            if ymin is not None: vmin = ymin
-            if ymax is not None: vmax = ymax
-        elif len(args)==1:
-            vmin, vmax = args[0]
-        elif len(args)==2:
-            vmin, vmax = args
-        else:
-            raise ValueError('args must be length 0, 1 or 2')
-
-        if self.transData.get_funcy().get_type()==LOG10 and min(vmin, vmax)<=0:
+        if self.transData.get_funcy().get_type()==LOG10 and min(ymin, ymax)<=0:
             raise ValueError('Cannot set nonpositive limits with log transform')
-        if abs(vmax - vmin) < 1e-38:
-            warnings.warn("vmax too close to vmin; adjusting")
-            vmin -= 1e-38
-            vmax += 1e-38
-        self.viewLim.intervaly().set_bounds(vmin, vmax)
+        if abs(ymax - ymin) < 1e-38:
+            warnings.warn("ymax too close to ymin; adjusting")
+            ymin -= 1e-38
+            ymax += 1e-38
+
+        self.viewLim.intervaly().set_bounds(ymin, ymax)
         if emit: self._send_ylim_event()
-        return vmin, vmax
+        return ymin, ymax
 
     def get_yscale(self):
         'return the yaxis scale string: log or linear'
@@ -2125,12 +2105,11 @@ class Axes(Artist):
         information
         """
 
-        d = kwargs.copy()
-        scalex = d.pop('scalex', True)
-        scaley = d.pop('scaley', True)
+        scalex = popd(kwargs, 'scalex', True)
+        scaley = popd(kwargs, 'scaley', True)
         if not self._hold: self.cla()
         lines = []
-        for line in self._get_lines(*args, **d):
+        for line in self._get_lines(*args, **kwargs):
             self.add_line(line)
             lines.append(line)
         lines = [line for line in lines] # consume the generator
@@ -2205,16 +2184,15 @@ class Axes(Artist):
         """
         if not self._hold: self.cla()
 
-        dx = {'basex': kwargs.get('basex', 10),
-              'subsx': kwargs.get('subsx', None),
+        dx = {'basex': popd(kwargs,'basex', 10),
+              'subsx': popd(kwargs,'subsx', None),
               }
-        dy = {'basey': kwargs.get('basey', 10),
-              'subsy': kwargs.get('subsy', None),
+        dy = {'basey': popd(kwargs,'basey', 10),
+              'subsy': popd(kwargs,'subsy', None),
               }
 
         self.set_xscale('log', **dx)
         self.set_yscale('log', **dy)
-        dict_delall( kwargs, ('basex', 'basey', 'subsx', 'subsy'))
 
         b =  self._hold
         self._hold = True # we've already processed the hold
@@ -2242,12 +2220,11 @@ class Axes(Artist):
 
         """
         if not self._hold: self.cla()
-        d = {'basex': kwargs.get('basex', 10),
-             'subsx': kwargs.get('subsx', None),
+        d = {'basex': popd(kwargs, 'basex', 10),
+             'subsx': popd(kwargs, 'subsx', None),
              }
 
         self.set_xscale('log', **d)
-        dict_delall( kwargs, ('basex', 'subsx'))
         b =  self._hold
         self._hold = True # we've already processed the hold
         l = self.plot(*args, **kwargs)
@@ -2275,11 +2252,10 @@ class Axes(Artist):
         """
         if not self._hold: self.cla()
 
-        d = {'basey': kwargs.get('basey', 10),
-             'subsy': kwargs.get('subsy', None),
+        d = {'basey': popd(kwargs,'basey', 10),
+             'subsy': popd(kwargs,'subsy', None),
              }
         self.set_yscale('log', **d)
-        dict_delall( kwargs, ('basey', 'subsy'))
         b =  self._hold
         self._hold = True # we've already processed the hold
         l = self.plot(*args, **kwargs)
@@ -3333,7 +3309,6 @@ class Axes(Artist):
         self.autoscale_view()
         return q
     quiver2.__doc__ = Quiver.quiver_doc
-
     def quiver(self, *args, **kw):
         if (len(args) == 3 or len(args) == 5) and not iterable(args[-1]):
             return self.quiver_classic(*args, **kw)
@@ -3428,14 +3403,17 @@ class Axes(Artist):
             V = V*(S/Nmax)
             N = N*Nmax
 
-        alpha = kwargs.get('alpha', 1.0)
-        width = kwargs.get('width', .5)
-        norm = kwargs.get('norm', None)
-        cmap = kwargs.get('cmap', None)
-        vmin = kwargs.get('vmin', None)
-        vmax = kwargs.get('vmax', None)
-        color = kwargs.get('color', None)
-        shading = kwargs.get('shading', 'faceted')
+        alpha = popd(kwargs,'alpha', 1.0)
+        width = popd(kwargs,'width', .5)
+        norm = popd(kwargs,'norm', None)
+        cmap = popd(kwargs,'cmap', None)
+        vmin = popd(kwargs,'vmin', None)
+        vmax = popd(kwargs,'vmax', None)
+        color = popd(kwargs,'color', None)
+        shading = popd(kwargs,'shading', 'faceted')
+
+        if len(kwargs):
+            raise TypeError, "quiver() got an unexpected keyword argument '%s'"%kwargs.keys()[0]
 
         C = None
         if color == 'length' or color is True:
@@ -3731,12 +3709,15 @@ class Axes(Artist):
         """
         if not self._hold: self.cla()
 
-        alpha = kwargs.get('alpha', 1.0)
-        norm = kwargs.get('norm', None)
-        cmap = kwargs.get('cmap', None)
-        vmin = kwargs.get('vmin', None)
-        vmax = kwargs.get('vmax', None)
-        shading = kwargs.get('shading', 'faceted')
+        alpha = popd(kwargs,'alpha', 1.0)
+        norm = popd(kwargs,'norm', None)
+        cmap = popd(kwargs,'cmap', None)
+        vmin = popd(kwargs,'vmin', None)
+        vmax = popd(kwargs,'vmax', None)
+        shading = popd(kwargs,'shading', 'faceted')
+
+	if len(kwargs):
+            raise TypeError, "pcolor() got an unexpected keyword argument '%s'"%kwargs.keys()[0]
 
         if len(args)==1:
             C = args[0]
@@ -3982,10 +3963,13 @@ class Axes(Artist):
         """
 
         if not self._hold: self.cla()
-        shading = kwargs.get('shading', 'faceted')
-        cmap = kwargs.get('cmap', cm.get_cmap())
-        norm = kwargs.get('norm', normalize())
-        alpha = kwargs.get('alpha', 1.0)
+        shading = popd(kwargs,'shading', 'faceted')
+        cmap = popd(kwargs,'cmap', cm.get_cmap())
+        norm = popd(kwargs,'norm', normalize())
+        alpha = popd(kwargs,'alpha', 1.0)
+
+	if len(kwargs):
+            raise TypeError, "pcolor_classic() got an unexpected keyword argument '%s'"%kwargs.keys()[0]
 
         if len(args)==1:
             C = args[0]
@@ -4357,7 +4341,7 @@ class SubplotBase:
       Subplot(211)    # 2 rows, 1 column, first (upper) plot
     """
 
-    def __init__(self, fig, *args, **kwargs):
+    def __init__(self, fig, *args):
         """
         fig is a figure instance
 
