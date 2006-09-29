@@ -181,8 +181,7 @@ class RendererSVG(RendererBase):
             image64 = base64.encodestring (imfile.read())
             imfile.close()
             os.remove(filename)
-            lines = [image64[i:i+76] for i in range(0, len(image64), 76)]
-            hrefstr = 'data:image/png;base64,\n' + '\n'.join(lines)
+            hrefstr = 'data:image/png;base64,\n' + image64
 
         else:
             self._imaged[self.basename] = self._imaged.get(self.basename,0) + 1
