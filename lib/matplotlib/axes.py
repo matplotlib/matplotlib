@@ -108,9 +108,9 @@ def _process_plot_format(fmt):
         }
 
 
-    linestyle = 'None'
-    marker = 'None'
-    color = rcParams['lines.color']
+    linestyle = None
+    marker = None
+    color = None
 
     # handle the multi char special cases and strip them from the
     # string
@@ -120,27 +120,35 @@ def _process_plot_format(fmt):
     if fmt.find('-.')>=0:
         linestyle = '-.'
         fmt = fmt.replace('-.', '')
+    if fmt.find(' ')>=0:
+        linestyle = 'None'
+        fmt = fmt.replace(' ', '')
 
     chars = [c for c in fmt]
 
     for c in chars:
         if lineStyles.has_key(c):
-            if linestyle != 'None':
+            if linestyle is not None:
                 raise ValueError, 'Illegal format string "%s"; two linestyle symbols' % fmt
-
             linestyle = c
         elif lineMarkers.has_key(c):
-            if marker != 'None':
+            if marker is not None:
                 raise ValueError, 'Illegal format string "%s"; two marker symbols' % fmt
             marker = c
         elif colors.has_key(c):
+            if color is not None:
+                raise ValueError, 'Illegal format string "%s"; two color symbols' % fmt
             color = c
         else:
             err = 'Unrecognized character %c in format string' % c
             raise ValueError, err
 
-    if linestyle == 'None' and marker == 'None':
+    if linestyle is None and marker is None:
         linestyle = rcParams['lines.linestyle']
+    if linestyle is None:
+        linestyle = 'None'
+    if marker is None:
+        marker = 'None'
 
     return linestyle, marker, color
 
@@ -177,6 +185,14 @@ class _process_plot_var_args:
 
         self.count = 0
 
+    def _get_next_cycle_color(self):
+        if self.count==0:
+            color = self.firstColor
+        else:
+            color = self.colors[int(self.count % self.Ncolors)]
+        self.count += 1
+        return color
+
     def __call__(self, *args, **kwargs):
         ret =  self._grab_next_args(*args, **kwargs)
         return ret
@@ -199,30 +215,17 @@ class _process_plot_var_args:
             func = getattr(fill_poly,funcName)
             func(val)
 
-
-    def is_filled(self, marker):
-        filled = ('o', '^', 'v', '<', '>', 's',
-                  'd', 'D', 'h', 'H',
-                  'p')
-        return marker in filled
-
-
     def _plot_1_arg(self, y, **kwargs):
         assert self.command == 'plot', 'fill needs at least 2 arguments'
-        if self.count==0:
-            color = self.firstColor
-        else:
-            color = self.colors[int(self.count % self.Ncolors)]
+        color = self._get_next_cycle_color()
 
         assert(iterable(y))
         try: N=max(y.shape)
         except AttributeError: N = len(y)
         ret =  Line2D(arange(N), y,
                       color = color,
-                      markerfacecolor=color,
                       )
         self.set_lineprops(ret, **kwargs)
-        self.count += 1
         return ret
 
     def _plot_2_args(self, tup2, **kwargs):
@@ -232,16 +235,14 @@ class _process_plot_var_args:
             y, fmt = tup2
             assert(iterable(y))
             linestyle, marker, color = _process_plot_format(fmt)
+            if color is None:
+                color = self._get_next_cycle_color()
 
-            if self.is_filled(marker): mec = None # use default
-            else: mec = color                     # use current color
             try: N=max(y.shape)
             except AttributeError: N = len(y)
 
             ret =  Line2D(xdata=arange(N), ydata=y,
                           color=color, linestyle=linestyle, marker=marker,
-                          markerfacecolor=color,
-                          markeredgecolor=mec,
                           )
             self.set_lineprops(ret, **kwargs)
             return ret
@@ -252,13 +253,11 @@ class _process_plot_var_args:
             assert(iterable(x))
             assert(iterable(y))
             if self.command == 'plot':
-                c = self.colors[self.count % self.Ncolors]
+                color = self._get_next_cycle_color()
                 ret =  Line2D(x, y,
-                              color = c,
-                              markerfacecolor = c,
+                              color = color,
                               )
                 self.set_lineprops(ret, **kwargs)
-                self.count += 1
             elif self.command == 'fill':
                 ret = Polygon( zip(x,y), fill=True, )
                 self.set_patchprops(ret, **kwargs)
@@ -272,13 +271,11 @@ class _process_plot_var_args:
             assert(iterable(y))
 
             linestyle, marker, color = _process_plot_format(fmt)
-            if self.is_filled(marker): mec = None # use default
-            else: mec = color                     # use current color
+            if color is None:
+                color = self._get_next_cycle_color()
 
-            ret = Line2D(x, y, color=color,
-                         linestyle=linestyle, marker=marker,
-                         markerfacecolor=color,
-                         markeredgecolor=mec,
+            ret = Line2D(x, y,
+                         color=color, linestyle=linestyle, marker=marker,
                          )
             self.set_lineprops(ret, **kwargs)
         if self.command == 'fill':
@@ -1935,7 +1932,8 @@ class Axes(Artist):
         Returns a list of line instances that were added
         """
         linestyle, marker, color = _process_plot_format(fmt)
-
+        if color is None:
+            color = 'k'
 
         if not iterable(y): y = [y]
         if not iterable(xmin): xmin = [xmin]
@@ -1982,7 +1980,8 @@ class Axes(Artist):
         Returns a list of lines that were added
         """
         linestyle, marker, color = _process_plot_format(fmt)
-
+        if color is None:
+            color = 'k'
 
         if not iterable(x): x = [x]
         if not iterable(ymin): ymin = [ymin]
