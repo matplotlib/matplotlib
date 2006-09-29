@@ -107,39 +107,35 @@ class AxesImage(Artist, cm.ScalarMappable):
         cm.ScalarMappable.changed(self)
 
     def make_image(self, magnification=1.0):
-        if self._A is not None:
-            if self._imcache is None:
-                if typecode(self._A) == UInt8:
-                    im = _image.frombyte(self._A, 0)
-                    im.is_grayscale = False
-                else:
-                    x = self.to_rgba(self._A, self._alpha)
-                    im = _image.fromarray(x, 0)
-                    if len(self._A.shape) == 2:
-                        im.is_grayscale = self.cmap.is_gray()
-                    else:
-                        im.is_grayscale = False
-                self._imcache = im
-            else:
-                im = self._imcache
-        else:
+        if self._A is None:
             raise RuntimeError('You must first set the image array or the image attribute')
 
+        if self._imcache is None:
+            if typecode(self._A) == UInt8:
+                im = _image.frombyte(self._A, 0)
+                im.is_grayscale = False
+            else:
+                x = self.to_rgba(self._A, self._alpha)
+                im = _image.fromarray(x, 0)
+                if len(self._A.shape) == 2:
+                    im.is_grayscale = self.cmap.is_gray()
+                else:
+                    im.is_grayscale = False
+            self._imcache = im
+
+            if self.origin=='upper':
+                im.flipud_in()
+        else:
+            im = self._imcache
 
         bg = colorConverter.to_rgba(self.axes.get_frame().get_facecolor(), 0)
-
-        if self.origin=='upper':
-            im.flipud_in()
-
         im.set_bg( *bg)
 
-        im.set_interpolation(self._interpd[self._interpolation])
-
-
-
         # image input dimensions
-        numrows, numcols = im.get_size()
         im.reset_matrix()
+        numrows, numcols = im.get_size()
+
+        im.set_interpolation(self._interpd[self._interpolation])
 
         xmin, xmax, ymin, ymax = self.get_extent()
         dxintv = xmax-xmin
@@ -154,12 +150,6 @@ class AxesImage(Artist, cm.ScalarMappable):
 
         # the viewport translation
         tx = (xmin-self.axes.viewLim.xmin())/dxintv * numcols
-
-
-        #if flipy:
-        #    ty = -(ymax-self.axes.viewLim.ymax())/dyintv * numrows
-        #else:
-        #    ty = (ymin-self.axes.viewLim.ymin())/dyintv * numrows
         ty = (ymin-self.axes.viewLim.ymin())/dyintv * numrows
 
         l, b, widthDisplay, heightDisplay = self.axes.bbox.get_bounds()
@@ -174,12 +164,8 @@ class AxesImage(Artist, cm.ScalarMappable):
         ry = heightDisplay  / numrows
         im.apply_scaling(rx, ry)
 
-        #print tx, ty, sx, sy, rx, ry, widthDisplay, heightDisplay
         im.resize(int(widthDisplay+0.5), int(heightDisplay+0.5),
                   norm=self._filternorm, radius=self._filterrad)
-
-        if self.origin=='upper':
-            im.flipud_in()
 
         return im
 
@@ -190,11 +176,16 @@ class AxesImage(Artist, cm.ScalarMappable):
         l, b, widthDisplay, heightDisplay = self.axes.bbox.get_bounds()
         renderer.draw_image(l, b, im, self.axes.bbox)
 
-    def write_png(self, fname):
+    def write_png(self, fname, noscale=False):
         """Write the image to png file with fname"""
         im = self.make_image()
+        if noscale:
+            numrows,numcols = im.get_size()
+            im.reset_matrix()
+            im.set_interpolation(0)
+            im.resize(numcols, numrows)
+        im.flipud_out()
         im.write_png(fname)
-
 
     def set_data(self, A, shape=None):
         """
