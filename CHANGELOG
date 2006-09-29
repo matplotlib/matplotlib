@@ -1,3 +1,12 @@
+2006-09-29 reworked set_linestyle and set_marker
+	   markeredgecolor and markerfacecolor now default to
+	   a special value "auto" that keeps the color in sync with
+	   the line color
+	   further, the intelligence of axes.plot is cleaned up,
+	   improved and simplified. Complete compatibility cannot be
+	   guaranteed, but the new behavior should be much more predictable
+	   (see patch #1104615 for details)
+
 2006-09-29 changed implementation of clip-path in SVG to work around a
            limitation in inkscape
 

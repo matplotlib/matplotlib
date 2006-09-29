@@ -23,16 +23,6 @@ from transforms import lbwh_to_bbox, LOG10
 from matplotlib import rcParams
 
 TICKLEFT, TICKRIGHT, TICKUP, TICKDOWN = range(4)
-lineStyles  = {'-':1, '--':1, '-.':1, ':':1, 'steps':1, 'None':1}
-lineMarkers =    {'.':1, ',':1, 'o':1, '^':1, 'v':1, '<':1, '>':1, 's':1,
-                  '+':1, 'x':1, 'd':1, 'D':1, '|':1, '_':1, 'h':1, 'H':1,
-                  'p':1, '1':1, '2':1, '3':1, '4':1,
-                  TICKLEFT:1,
-                  TICKRIGHT:1,
-                  TICKUP:1,
-                  TICKDOWN:1,
-                  'None':1
-                  }
 
 def unmasked_index_ranges(mask, compressed = True):
     '''
@@ -90,7 +80,10 @@ class Line2D(Artist):
         '-.'   : '_draw_dash_dot',
         ':'    : '_draw_dotted',
         'steps': '_draw_steps',
-        'None' : '_draw_nothing'}
+        'None' : '_draw_nothing',
+        ' '    : '_draw_nothing',
+        ''     : '_draw_nothing',
+    }
 
     _markers =  {
         '.'  : '_draw_point',
@@ -118,8 +111,12 @@ class Line2D(Artist):
         TICKRIGHT   : '_draw_tickright',
         TICKUP      : '_draw_tickup',
         TICKDOWN    : '_draw_tickdown',
-        'None' : '_draw_nothing'
-        }
+        'None' : '_draw_nothing',
+        ' ' : '_draw_nothing',
+        '' : '_draw_nothing',
+    }
+
+    filled_markers = ('o', '^', 'v', '<', '>', 's', 'd', 'D', 'h', 'H', 'p')
 
     zorder = 2
     validCap = ('butt', 'round', 'projecting')
@@ -188,29 +185,23 @@ class Line2D(Artist):
         self.set_solid_joinstyle(solid_joinstyle)
 
 
-        self._linestyle = linestyle
-        self._linewidth = linewidth
-        self._color = color
-        self._antialiased = antialiased
-        self._markersize = markersize
+        self.set_linestyle(linestyle)
+        self.set_linewidth(linewidth)
+        self.set_color(color)
+        self.set_marker(marker)
+        self.set_antialiased(antialiased)
+        self.set_markersize(markersize)
         self._dashSeq = None
 
 
-        self._markerfacecolor = markerfacecolor
-        self._markeredgecolor = markeredgecolor
-        self._markeredgewidth = markeredgewidth
+        self.set_markerfacecolor(markerfacecolor)
+        self.set_markeredgecolor(markeredgecolor)
+        self.set_markeredgewidth(markeredgewidth)
         self._point_size_reduction = 0.5
 
         self.verticalOffset = None
 
         self.set_data(xdata, ydata)
-
-        if not self._lineStyles.has_key(linestyle):
-            raise ValueError('Unrecognized line style %s, %s' %( linestyle, type(linestyle)))
-        if not self._markers.has_key(marker):
-            raise ValueError('Unrecognized marker style %s, %s'%( marker, type(marker)))
-
-        self.set_marker(marker)
 
         self._logcache = None
 
@@ -370,7 +361,14 @@ class Line2D(Artist):
 
         if self._marker is not None:
             gc = renderer.new_gc()
-            gc.set_foreground(self._markeredgecolor)
+            if (is_string_like(self._markeredgecolor) and
+                self._markeredgecolor == 'auto'):
+                if self._marker in self.filled_markers:
+                    gc.set_foreground('k')
+                else:
+                    gc.set_foreground(self._color)
+            else:
+                gc.set_foreground(self._markeredgecolor)
             gc.set_linewidth(self._markeredgewidth)
             if self.get_clip_on():
                 gc.set_clip_rectangle(self.clipbox.get_bounds())
@@ -425,23 +423,36 @@ class Line2D(Artist):
         """
         self._linewidth = w
 
-    def set_linestyle(self, s):
+    def set_linestyle(self, linestyle):
         """
         Set the linestyle of the line
 
-        ACCEPTS: [ '-' | '--' | '-.' | ':' | 'steps' | 'None' ]
+        ACCEPTS: [ '-' | '--' | '-.' | ':' | 'steps' | 'None' | ' ' | '' ]
         """
-        self._linestyle = s
-
+        if linestyle not in self._lineStyles:
+            verbose.report_error('Unrecognized line style %s,%s'%(linestyle, type(linestyle)))
+        if linestyle in [' ','']:
+            linestyle = 'None'
+        self._linestyle = linestyle
+        self._lineFunc = self._lineStyles[linestyle]
 
     def set_marker(self, marker):
         """
         Set the line marker
 
-        ACCEPTS: [ '+' | ',' | '.' | '1' | '2' | '3' | '4' | '<' | '>' | 'D' | 'H' | '^' | '_' | 'd' | 'h' | 'o' | 'p' | 's' | 'v' | 'x' | '|' ]
+        ACCEPTS: [ '+' | ',' | '.' | '1' | '2' | '3' | '4'
+                 | '<' | '>' | 'D' | 'H' | '^' | '_' | 'd'
+                 | 'h' | 'o' | 'p' | 's' | 'v' | 'x' | '|'
+                 | TICKUP | TICKDOWN | TICKLEFT | TICKRIGHT
+                 | 'None' | ' ' | '' ]
 
         """
+        if marker not in self._markers:
+            verbose.report_error('Unrecognized marker style %s, %s'%( marker, type(marker)))
+        if marker in [' ','']:
+            marker = 'None'
         self._marker = marker
+        self._markerFunc = self._markers[marker]
 
     def set_markeredgecolor(self, ec):
         """
@@ -1038,8 +1049,13 @@ class Line2D(Artist):
     def _get_rgb_face(self):
         if (self._markerfacecolor is None or
             (is_string_like(self._markerfacecolor) and
-             self._markerfacecolor.lower()=='none') ): rgbFace = None
-        else: rgbFace = colorConverter.to_rgb(self._markerfacecolor)
+             self._markerfacecolor.lower()=='none') ):
+            rgbFace = None
+        elif (is_string_like(self._markerfacecolor) and
+              self._markerfacecolor.lower() == 'auto'):
+            rgbFace = colorConverter.to_rgb(self._color)
+        else:
+            rgbFace = colorConverter.to_rgb(self._markerfacecolor)
         return rgbFace
 
     # some aliases....
@@ -1192,3 +1208,6 @@ class Line2D(Artist):
         'return True if line is dashstyle'
         return self._linestyle in ('--', '-.', ':')
 
+
+lineStyles = Line2D._lineStyles
+lineMarkers = Line2D._markers
