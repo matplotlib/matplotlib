@@ -1,3 +1,6 @@
+2006-09-29 changed implementation of clip-path in SVG to work around a
+           limitation in inkscape
+
 2006-09-29 added two options to matplotlibrc:
 	   svg.image_inline
 	   svg.image_noscale
