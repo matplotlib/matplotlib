@@ -1,4 +1,4 @@
-2006-09-29 fix line-breaking for SVG-inline images (purely cosmetic)
+2006-09-29 fix line-breaking for SVG-inline images (purely cosmetic) - NN
 
 2006-09-29 reworked set_linestyle and set_marker
 	   markeredgecolor and markerfacecolor now default to
@@ -7,17 +7,17 @@
 	   further, the intelligence of axes.plot is cleaned up,
 	   improved and simplified. Complete compatibility cannot be
 	   guaranteed, but the new behavior should be much more predictable
-	   (see patch #1104615 for details)
+	   (see patch #1104615 for details) - NN
 
 2006-09-29 changed implementation of clip-path in SVG to work around a
-           limitation in inkscape
+           limitation in inkscape - NN
 
 2006-09-29 added two options to matplotlibrc:
 	   svg.image_inline
 	   svg.image_noscale
-	   see patch #1533010 for details
+	   see patch #1533010 for details - NN
 
-2006-09-29 axes.py: cleaned up kwargs checking
+2006-09-29 axes.py: cleaned up kwargs checking - NN
 
 2006-09-29 setup.py: cleaned up setup logic - NN
 
