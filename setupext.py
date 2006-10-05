@@ -10,7 +10,7 @@ DARWIN
 
   Tk: If you want to install TkAgg, I recommend the "batteries included"
   binary build of Tcl/Tk at
-  http://www.apple.com/downloads/macosx/unix_open_source/tcltkaqua.html 
+  http://www.apple.com/downloads/macosx/unix_open_source/tcltkaqua.html
 
   GTK: I installed GTK from src as described at
   http://www.macgimp.org/index.php?topic=gtk.  There are several
@@ -36,9 +36,9 @@ WIN32 - VISUAL STUDIO 7.1 (2003)
   dependencies from
   http://matplotlib.sourceforge.net/win32_static_vs.tar.gz and
   see the README in that dir
-  
+
   > python setup.py build bdist_wininst
-  
+
 """
 
 import os
@@ -49,14 +49,14 @@ basedir = {
     'linux'  : ['/usr/local', '/usr',],
     'cygwin' : ['/usr/local', '/usr',],
     'darwin' : ['/sw/lib/freetype2', '/sw/lib/freetype219', '/usr/local',
-                '/usr', '/sw'], 
+                '/usr', '/sw'],
     'freebsd4' : ['/usr/local', '/usr'],
     'freebsd5' : ['/usr/local', '/usr'],
-    'freebsd6' : ['/usr/local', '/usr'],    
+    'freebsd6' : ['/usr/local', '/usr'],
     'sunos5' : [os.getenv('MPLIB_BASE') or '/usr/local',],
     'gnukfreebsd5' : ['/usr/local', '/usr'],
     'gnukfreebsd6' : ['/usr/local', '/usr'],
-    'aix5' : [/usr/local],
+    'aix5' : ['/usr/local'],
 }
 
 import sys, os, stat
@@ -109,7 +109,7 @@ def temp_copy(_from, _to):
     os.utime(_to, (stats.st_atime, stats.st_mtime))
     # Make an object to eliminate the temporary file at exit time.
     globals()["_cleanup_"+_to] = CleanUpFile(_to)
-    
+
 def get_win32_compiler():
     # Used to determine mingw32 or msvc
     # This is pretty bad logic, someone know a better way?
@@ -128,11 +128,11 @@ def add_base_flags(module):
     incdirs = filter(os.path.exists,
                      [os.path.join(p, 'include') for p in basedir[sys.platform] ])
     libdirs = filter(os.path.exists,
-                     [os.path.join(p, 'lib')     for p in basedir[sys.platform] ]+ 
+                     [os.path.join(p, 'lib')     for p in basedir[sys.platform] ]+
                      [os.path.join(p, 'lib64')     for p in basedir[sys.platform] ] )
 
     module.include_dirs.extend(incdirs)
-    module.include_dirs.append('.')    
+    module.include_dirs.append('.')
     module.library_dirs.extend(libdirs)
 
 def getoutput(s):
@@ -158,7 +158,7 @@ def add_agg_flags(module):
     module.libraries.append('z')
     add_base_flags(module)
     module.include_dirs.extend(['src','swig', '%s/include'%AGG_VERSION, '.'])
-    
+
 
 
     # put these later for correct link order
@@ -186,14 +186,14 @@ def add_ft2font_flags(module):
     for d in basedirs:
         p = os.path.join(d, 'freetype2/lib')
         if os.path.exists(p): module.library_dirs.append(p)
-            
+
     if sys.platform == 'win32' and win32_compiler == 'mingw32':
         module.libraries.append('gw32c')
 
     # put this last for library link order
     module.libraries.extend(std_libs)
 
-    
+
 
 def add_pygtk_flags(module):
     'Add the module flags to build extensions which use gtk'
@@ -207,19 +207,19 @@ def add_pygtk_flags(module):
             ['win32_static/include/pygtk-2.0',
              'C:/GTK/include',
              'C:/GTK/include/gobject',
-             'C:/GTK/include/gmodule',                          
+             'C:/GTK/include/gmodule',
              'C:/GTK/include/glib',
-             'C:/GTK/include/pango',                          
+             'C:/GTK/include/pango',
              'C:/GTK/include/atk',
-             'C:/GTK/include/X11',                          
-             'C:/GTK/include/cairo',             
+             'C:/GTK/include/X11',
+             'C:/GTK/include/cairo',
              'C:/GTK/include/gdk',
              'C:/GTK/include/gdk-pixbuf',
-             'C:/GTK/include/gtk',                          
+             'C:/GTK/include/gtk',
              ])
 
     add_base_flags(module)
-    
+
     # set for msvc compiler if not present
     if not os.environ.has_key('PKG_CONFIG_PATH'):
         os.environ['PKG_CONFIG_PATH'] = 'C:\GTK\lib\pkgconfig'
@@ -231,12 +231,12 @@ def add_pygtk_flags(module):
 
     pygtkLinker = getoutput('pkg-config --libs pygtk-2.0').split()
     gtkLinker =  getoutput('pkg-config --libs gtk+-2.0').split()
-    linkerFlags = pygtkLinker + gtkLinker 
+    linkerFlags = pygtkLinker + gtkLinker
 
     module.libraries.extend(
         [flag[2:] for flag in linkerFlags if flag.startswith('-l')])
 
-    
+
     module.library_dirs.extend(
         [flag[2:] for flag in linkerFlags if flag.startswith('-L')])
 
@@ -244,7 +244,7 @@ def add_pygtk_flags(module):
     module.extra_link_args.extend(
         [flag for flag in linkerFlags if not
          (flag.startswith('-l') or flag.startswith('-L'))])
-    
+
     # visual studio doesn't need the math library
     if sys.platform == 'win32' and win32_compiler == 'msvc' and 'm' in module.libraries:
         module.libraries.remove('m')
@@ -291,7 +291,7 @@ def add_wx_flags(module, wxconfig):
     """
     Add the module flags to build extensions which use wxPython.
     """
-    
+
     if sys.platform == 'win32': # just added manually
         wxlibs = ['wxexpath', 'wxjpegh', 'wxmsw26uh',
                   'wxmsw26uh_animate', 'wxmsw26uh_gizmos', 'wxmsw26uh_gizmos_xrc',
@@ -344,7 +344,7 @@ def find_tcltk():
         sys.exit(1)
     o = FoundTclTk()
     try:
-        tk=Tkinter.Tk() 
+        tk=Tkinter.Tk()
     except Tkinter.TclError:
         print "Using default library and include directories for Tcl and Tk because a"
         print "Tk window failed to open.  You may need to define DISPLAY for Tk to work"
@@ -359,29 +359,29 @@ def find_tcltk():
         o.tcl_lib = os.path.normpath(os.path.join(str(tk.getvar('tcl_library')), '../'))
         o.tk_lib = os.path.normpath(os.path.join(str(tk.getvar('tk_library')), '../'))
         o.tkv = str(Tkinter.TkVersion)[:3]
-        o.tcl_inc = os.path.normpath(os.path.join(str(tk.getvar('tcl_library')), 
+        o.tcl_inc = os.path.normpath(os.path.join(str(tk.getvar('tcl_library')),
                     '../../include/tcl'+o.tkv))
         if not os.path.exists(o.tcl_inc):
-            o.tcl_inc = os.path.normpath(os.path.join(str(tk.getvar('tcl_library')), 
+            o.tcl_inc = os.path.normpath(os.path.join(str(tk.getvar('tcl_library')),
                         '../../include'))
-        o.tk_inc = os.path.normpath(os.path.join(str(tk.getvar('tk_library')), 
+        o.tk_inc = os.path.normpath(os.path.join(str(tk.getvar('tk_library')),
                     '../../include/tk'+o.tkv))
         if not os.path.exists(o.tk_inc):
-            o.tk_inc = os.path.normpath(os.path.join(str(tk.getvar('tk_library')), 
+            o.tk_inc = os.path.normpath(os.path.join(str(tk.getvar('tk_library')),
                         '../../include'))
-            
+
         if ((not os.path.exists(os.path.join(o.tk_inc,'tk.h'))) and
             os.path.exists(os.path.join(o.tcl_inc,'tk.h'))):
             o.tk_inc = o.tcl_inc
-            
-        if not os.path.exists(o.tcl_inc):            
+
+        if not os.path.exists(o.tcl_inc):
             # this is a hack for suse linux, which is broken
             if (sys.platform.startswith('linux') and
                 os.path.exists('/usr/include/tcl.h') and
                 os.path.exists('/usr/include/tk.h')):
                 o.tcl_inc = '/usr/include/'
                 o.tk_inc = '/usr/include/'
-                
+
         if not os.path.exists(o.tcl_inc):
             print 'cannot find tcl/tk headers. giving up.'
             sys.exit()
@@ -396,22 +396,22 @@ def add_tk_flags(module):
         if major==2 and minor1==3:
             print '\tBuilding for python23'
             module.include_dirs.extend(['win32_static/include/tcl84'])
-            module.library_dirs.extend(['C:/Python23/dlls'])        
+            module.library_dirs.extend(['C:/Python23/dlls'])
             module.libraries.extend(['tk84', 'tcl84'])
         elif major==2 and minor1==4:
             print '\tBuilding for python24'
             module.include_dirs.extend(['win32_static/include/tcl84'])
-            module.library_dirs.extend(['C:/Python24/dlls'])        
+            module.library_dirs.extend(['C:/Python24/dlls'])
             module.libraries.extend(['tk84', 'tcl84'])
         elif major==2 and minor1==5:
             print '\tBuilding for python25'
             module.include_dirs.extend(['win32_static/include/tcl84'])
-            module.library_dirs.extend(['C:/Python25/dlls'])        
+            module.library_dirs.extend(['C:/Python25/dlls'])
             module.libraries.extend(['tk84', 'tcl84'])
         elif major==2 and minor1==2:
             print '\tBuilding for python22'
             module.include_dirs.extend(['win32_static/include/tcl83'])
-            module.library_dirs.extend(['C:/Python22/dlls'])        
+            module.library_dirs.extend(['C:/Python22/dlls'])
             module.libraries.extend(['tk83', 'tcl83'])
         else:
             raise RuntimeError('No tk/win32 support for this python version yet')
@@ -462,7 +462,7 @@ def add_tk_flags(module):
             module.include_dirs.extend(tk_include_dirs)
             module.extra_link_args.extend(frameworks)
             module.extra_compile_args.extend(frameworks)
-            return 
+            return
 
     # you're still here? ok we'll try it this way
     o = find_tcltk() # todo: try/except
@@ -479,7 +479,7 @@ def add_windowing_flags(module):
     module.extra_link_args.append("-mwindows")
 
 def build_windowing(ext_modules, packages):
-    """windowing is optional and provides functions for managing 
+    """windowing is optional and provides functions for managing
        windows better, .e.g.  maintaining focus on win32"""
     global BUILT_WINDOWING
     if BUILT_WINDOWING: return # only build it if you you haven't already
@@ -488,7 +488,7 @@ def build_windowing(ext_modules, packages):
                         ],
                        )
     add_windowing_flags(module)
-    ext_modules.append(module)    
+    ext_modules.append(module)
     BUILT_WINDOWING = True
 
 def build_ft2font(ext_modules, packages):
@@ -500,7 +500,7 @@ def build_ft2font(ext_modules, packages):
 
     module = Extension('matplotlib.ft2font', deps)
     add_ft2font_flags(module)
-    ext_modules.append(module)    
+    ext_modules.append(module)
     BUILT_FT2FONT = True
 
 def build_gtkagg(ext_modules, packages, numerix):
@@ -519,11 +519,11 @@ def build_gtkagg(ext_modules, packages, numerix):
     # and pygtk includes freetype2.  This is a bit fragile.
 
 
-    add_agg_flags(module)  
+    add_agg_flags(module)
     add_ft2font_flags(module)
     add_pygtk_flags(module)
 
-    ext_modules.append(module)    
+    ext_modules.append(module)
     BUILT_GTKAGG = True
 
 def build_tkagg(ext_modules, packages, numerix):
@@ -533,7 +533,7 @@ def build_tkagg(ext_modules, packages, numerix):
     deps = ['src/_tkagg.cpp']
     deps.extend(glob.glob('CXX/*.cxx'))
     deps.extend(glob.glob('CXX/*.c'))
-    
+
     module = Extension('matplotlib.backends._tkagg',
                        deps,
                        )
@@ -543,9 +543,9 @@ def build_tkagg(ext_modules, packages, numerix):
 
     add_tk_flags(module) # do this first
     add_agg_flags(module)
-    add_ft2font_flags(module)    
+    add_ft2font_flags(module)
 
-    ext_modules.append(module)    
+    ext_modules.append(module)
     BUILT_TKAGG = True
 
 
@@ -565,7 +565,7 @@ def build_wxagg(ext_modules, packages, numerix, abortOnFailure):
              return
          else:
              pass
-     
+
      elif wxconfig is None:
          print """
 WXAgg's accelerator requires `wx-config'.
@@ -618,7 +618,7 @@ def build_agg(ext_modules, packages, numerix):
     if BUILT_AGG: return # only build it if you you haven't already
 
 
-    agg = (           
+    agg = (
            'agg_trans_affine.cpp',
            'agg_path_storage.cpp',
            'agg_bezier_arc.cpp',
@@ -641,11 +641,11 @@ def build_agg(ext_modules, packages, numerix):
             'matplotlib.backends._na_backend_agg',
             deps,
             include_dirs=numarray_inc_dirs,
-            )    
+            )
         module.extra_compile_args.append('-DNUMARRAY=1')
         add_agg_flags(module)
         add_ft2font_flags(module)
-        ext_modules.append(module)    
+        ext_modules.append(module)
     if 'Numeric' in numerix: # Build for Numeric
         deps = ['%s/src/%s'%(AGG_VERSION, name) for name in agg]
         deps.extend(('src/_image.cpp', 'src/ft2font.cpp', 'src/mplutils.cpp'))
@@ -663,7 +663,7 @@ def build_agg(ext_modules, packages, numerix):
         module.extra_compile_args.append('-DNUMERIC=1')
         add_agg_flags(module)
         add_ft2font_flags(module)
-        ext_modules.append(module)    
+        ext_modules.append(module)
     if 'numpy' in numerix: # Build for numpy
         deps = ['%s/src/%s'%(AGG_VERSION, name) for name in agg]
         deps.extend(('src/_image.cpp', 'src/ft2font.cpp', 'src/mplutils.cpp'))
@@ -683,7 +683,7 @@ def build_agg(ext_modules, packages, numerix):
 
         add_agg_flags(module)
         add_ft2font_flags(module)
-        ext_modules.append(module)    
+        ext_modules.append(module)
 
     BUILT_AGG = True
 
@@ -700,7 +700,7 @@ def build_image(ext_modules, packages, numerix):
 
     if 'numarray' in numerix: # Build for numarray
         temp_copy('src/_image.cpp', 'src/_na_image.cpp')
-        deps = ['src/_na_image.cpp', 'src/mplutils.cpp'] 
+        deps = ['src/_na_image.cpp', 'src/mplutils.cpp']
         deps.extend(['%s/src/%s'%(AGG_VERSION, name) for name in agg])
         deps.extend(glob.glob('CXX/*.cxx'))
         deps.extend(glob.glob('CXX/*.c'))
@@ -708,14 +708,14 @@ def build_image(ext_modules, packages, numerix):
             'matplotlib._na_image',
             deps,
             include_dirs=numarray_inc_dirs,
-            )    
+            )
         module.extra_compile_args.append('-DNUMARRAY=1')
         add_agg_flags(module)
-        ext_modules.append(module)    
+        ext_modules.append(module)
 
     if 'Numeric' in numerix: # Build for Numeric
         temp_copy('src/_image.cpp', 'src/_nc_image.cpp')
-        deps = ['src/_nc_image.cpp', 'src/mplutils.cpp'] 
+        deps = ['src/_nc_image.cpp', 'src/mplutils.cpp']
         deps.extend(['%s/src/%s'%(AGG_VERSION,name) for name in agg])
         deps.extend(glob.glob('CXX/*.cxx'))
         deps.extend(glob.glob('CXX/*.c'))
@@ -732,7 +732,7 @@ def build_image(ext_modules, packages, numerix):
 
     if 'numpy' in numerix: # Build for numpy
         temp_copy('src/_image.cpp', 'src/_ns_image.cpp')
-        deps = ['src/_ns_image.cpp', 'src/mplutils.cpp'] 
+        deps = ['src/_ns_image.cpp', 'src/mplutils.cpp']
         deps.extend(['%s/src/%s'%(AGG_VERSION,name) for name in agg])
         deps.extend(glob.glob('CXX/*.cxx'))
         deps.extend(glob.glob('CXX/*.c'))
@@ -764,8 +764,8 @@ def build_swigagg(ext_modules, packages):
         'agg_curves.cpp',
         )
                  ])
-                 
-            
+
+
     agg = Extension('matplotlib._agg',
                     deps,
                     )
@@ -785,11 +785,11 @@ def build_transforms(ext_modules, packages, numerix):
                              libraries = std_libs,
                              include_dirs = ['src', '.']+numarray_inc_dirs,
                              )
-        
+
         module.extra_compile_args.append("-DNUMARRAY=1")
         add_base_flags(module)
         ext_modules.append(module)
-        
+
     if 'Numeric' in numerix:  # Build for Numeric
         cxx = glob.glob('CXX/*.cxx')
         cxx.extend(glob.glob('CXX/*.c'))
@@ -802,7 +802,7 @@ def build_transforms(ext_modules, packages, numerix):
                              )
 
 
-        
+
         module.extra_compile_args.append("-DNUMERIC=1")
         add_base_flags(module)
         ext_modules.append(module)
@@ -837,7 +837,7 @@ def build_enthought(ext_modules, packages):
                      'matplotlib/enthought/resource',
                      'matplotlib/enthought/util',
                      ])
-    BUILT_ENTHOUGHT = True    
+    BUILT_ENTHOUGHT = True
 
 def build_contour(ext_modules, packages, numerix):
     global BUILT_CONTOUR
@@ -852,9 +852,9 @@ def build_contour(ext_modules, packages, numerix):
             )
         module.extra_compile_args.append('-DNUMARRAY=1')
         add_base_flags(module)
-        ext_modules.append(module)    
+        ext_modules.append(module)
 
-    if 'Numeric' in numerix: # Build for Numeric        
+    if 'Numeric' in numerix: # Build for Numeric
         temp_copy('src/cntr.c', 'src/_nc_cntr.c')
         module = Extension(
             'matplotlib._nc_cntr',
@@ -893,9 +893,9 @@ def build_nxutils(ext_modules, packages, numerix):
             )
         module.extra_compile_args.append('-DNUMARRAY=1')
         add_base_flags(module)
-        ext_modules.append(module)    
+        ext_modules.append(module)
 
-    if 'Numeric' in numerix: # Build for Numeric        
+    if 'Numeric' in numerix: # Build for Numeric
         temp_copy('src/nxutils.c', 'src/_nc_nxutils.c')
         module = Extension(
             'matplotlib._nc_nxutils',
@@ -935,7 +935,7 @@ def build_gdk(ext_modules, packages, numerix):
             )
         module.extra_compile_args.append('-DNUMARRAY=1')
         add_base_flags(module)
-        add_pygtk_flags(module)        
+        add_pygtk_flags(module)
         ext_modules.append(module)
 
     if 'Numeric' in numerix:# Build for Numeric
@@ -944,27 +944,27 @@ def build_gdk(ext_modules, packages, numerix):
             'matplotlib.backends._nc_backend_gdk',
             ['src/_nc_backend_gdk.c', ],
             libraries = [],
-            include_dirs=numeric_inc_dirs,            
+            include_dirs=numeric_inc_dirs,
             )
 
         module.extra_compile_args.append('-DNUMERIC=1')
         add_base_flags(module)
-        add_pygtk_flags(module)        
+        add_pygtk_flags(module)
         ext_modules.append(module)
 
-    if 'numpy' in numerix:# Build for numpy 
+    if 'numpy' in numerix:# Build for numpy
         temp_copy('src/_backend_gdk.c', 'src/_ns_backend_gdk.c')
         module = Extension(
             'matplotlib.backends._ns_backend_gdk',
             ['src/_ns_backend_gdk.c', ],
             libraries = [],
-            include_dirs=numeric_inc_dirs,            
+            include_dirs=numeric_inc_dirs,
             )
 
         add_numpy_flags(module)
         module.extra_compile_args.append('-DSCIPY=1')
         add_base_flags(module)
-        add_pygtk_flags(module)        
+        add_pygtk_flags(module)
         ext_modules.append(module)
 
     BUILT_GDK = True
