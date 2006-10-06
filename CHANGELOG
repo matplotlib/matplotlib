@@ -1,3 +1,5 @@
+2006-10-06 add backend-agnostic example: simple3d.py - NN
+
 2006-09-29 fix line-breaking for SVG-inline images (purely cosmetic) - NN
 
 2006-09-29 reworked set_linestyle and set_marker
