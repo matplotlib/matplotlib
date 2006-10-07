@@ -295,12 +295,14 @@ class NonUniformImage(AxesImage):
                            origin = 'lower',
                           )
 
-    def make_image(self):
+    def make_image(self, magnification=1.0):
         if self._A is None:
             raise RuntimeError('You must first set the image array')
 
         x0, y0, v_width, v_height = self.axes.viewLim.get_bounds()
         l, b, width, height = self.axes.bbox.get_bounds()
+	width *= magnification
+	height *= magnification
         im = _image.pcolor(self._Ax, self._Ay, self._A,
                            height, width,
                            (x0, x0+v_width, y0, y0+v_height),
@@ -403,7 +405,13 @@ class FigureImage(Artist, cm.ScalarMappable):
 
         return self._A.shape[:2]
 
-    def make_image(self):
+    def make_image(self, magnification=1.0):
+	# had to introduce argument magnification to satisfy the unit test
+	# figimage_demo.py. I have no idea, how magnification should be used
+	# within the function. It should be !=1.0 only for non-default DPI
+	# settings in the PS backend, as introduced by patch #1562394
+	# Probably Nicholas Young should look over this code and see, how
+	# magnification should be handled correctly.
         if self._A is None:
             raise RuntimeError('You must first set the image array')
 
