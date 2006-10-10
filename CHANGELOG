@@ -1,3 +1,8 @@
+2006-10-10 deactivated rcfile-configurability of markerfacecolor
+           and markeredgecolor. Both are now hardcoded to the special value
+	   'auto' to follow the line color. Configurability at run-time
+	   (using function arguments) remains functional. - NN
+
 2006-10-07 introduced dummy argument magnification=1.0 to
            FigImage.make_image to satisfy unit test figimage_demo.py
            The argument is not yet handled correctly, which should only

@@ -739,8 +739,8 @@ defaultParams = {
     'lines.linestyle'   : ['-', str],                # solid line
     'lines.color'       : ['b', validate_color],     # blue
     'lines.marker'       : ['None', str],     # black
-    'lines.markeredgecolor'       : ['auto', validate_auto_color],
-    'lines.markerfacecolor'       : ['auto', validate_auto_color],
+#     'lines.markeredgecolor'       : ['auto', validate_auto_color],
+#     'lines.markerfacecolor'       : ['auto', validate_auto_color],
     'lines.markeredgewidth'       : [0.5, validate_float],
     'lines.markersize'  : [6, validate_float],       # markersize, in points
     'lines.antialiased' : [True, validate_bool],     # antialised (no jaggies)
