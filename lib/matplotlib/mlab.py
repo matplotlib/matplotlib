@@ -1214,7 +1214,7 @@ def save(fname, X, fmt='%.18e',delimiter=' '):
 
 
 
-def load(fname,comments='%',delimiter=None, converters=None,skiprows=0,
+def load(fname,comments='#',delimiter=None, converters=None,skiprows=0,
          usecols=None, unpack=False):
     """
     Load ASCII data from fname into an array and return the array.

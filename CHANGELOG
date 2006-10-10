@@ -1,3 +1,5 @@
+2006-10-10 Changed default comment character for load to '#' - JDH
+
 2006-10-10 deactivated rcfile-configurability of markerfacecolor
            and markeredgecolor. Both are now hardcoded to the special value
 	   'auto' to follow the line color. Configurability at run-time
