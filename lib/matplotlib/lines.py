@@ -166,9 +166,9 @@ class Line2D(Artist):
         if marker is None      : marker=rcParams['lines.marker']
         if color is None       : color=rcParams['lines.color']
         if markeredgecolor is None :
-            markeredgecolor=rcParams['lines.markeredgecolor']
+            markeredgecolor='auto' # rcParams['lines.markeredgecolor']
         if markerfacecolor is None :
-            markerfacecolor=rcParams['lines.markerfacecolor']
+            markerfacecolor='auto' # rcParams['lines.markerfacecolor']
         if markeredgewidth is None :
             markeredgewidth=rcParams['lines.markeredgewidth']
 
