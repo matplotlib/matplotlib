@@ -1,3 +1,9 @@
+2006-10-11 commented out all default values in matplotlibrc.template
+           Default values should generally be taken from defaultParam in
+	   __init__.py - the file matplotlib should only contain those values
+	   that the user wants to explicitely change from the default.
+           (see thread "marker color handling" on matplotlib-devel)
+
 2006-10-10 Changed default comment character for load to '#' - JDH
 
 2006-10-10 deactivated rcfile-configurability of markerfacecolor
