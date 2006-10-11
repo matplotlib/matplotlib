@@ -2891,8 +2891,6 @@ class Axes(Artist):
             l.set_color(ecolor)
         for l in caplines:
             l.set_color(ecolor)
-            l.set_markerfacecolor(ecolor)
-            l.set_markeredgecolor(ecolor)
 
         self.autoscale_view()
 
