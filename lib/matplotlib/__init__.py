@@ -534,11 +534,6 @@ def validate_color(s):
 
     raise ValueError('"s" does not look like color arg')
 
-def validate_auto_color(s):
-    "markers may have 'auto' colors"
-    if s.lower() == 'auto': return 'auto'
-    return validate_color(s)
-
 def validate_comma_sep_str(s):
     'return a list'
     ss = s.split(',')
@@ -739,8 +734,6 @@ defaultParams = {
     'lines.linestyle'   : ['-', str],                # solid line
     'lines.color'       : ['b', validate_color],     # blue
     'lines.marker'       : ['None', str],     # black
-#     'lines.markeredgecolor'       : ['auto', validate_auto_color],
-#     'lines.markerfacecolor'       : ['auto', validate_auto_color],
     'lines.markeredgewidth'       : [0.5, validate_float],
     'lines.markersize'  : [6, validate_float],       # markersize, in points
     'lines.antialiased' : [True, validate_bool],     # antialised (no jaggies)
@@ -1051,8 +1044,6 @@ def rc(group, **kwargs):
         'c'   : 'color'
         'fc'  : 'facecolor'
         'ec'  : 'edgecolor'
-        'mfc' : 'markerfacecolor'
-        'mec' : 'markeredgecolor'
         'mew' : 'markeredgewidth'
         'aa'  : 'antialiased'
 
@@ -1082,8 +1073,6 @@ def rc(group, **kwargs):
         'c'   : 'color',
         'fc'  : 'facecolor',
         'ec'  : 'edgecolor',
-        'mfc' : 'markerfacecolor',
-        'mec' : 'markeredgecolor',
         'mew' : 'markeredgewidth',
         'aa'  : 'antialiased',
         }
