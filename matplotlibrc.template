@@ -228,7 +228,7 @@ polaraxes.grid      : True    # display grid on polar axes
                                           # Experimental: may produce smaller files.
                                           # xpdf intended for production of publication quality files,
                                           # but requires ghostscript, xpdf and ps2eps
-ps.distiller.res  : 6000      # dpi
+#ps.distiller.res  : 6000      # dpi
 
 # pdf backend params
 #pdf.compression   : 6 # integer from 0 to 9
