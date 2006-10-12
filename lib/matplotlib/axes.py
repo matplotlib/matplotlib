@@ -14,8 +14,9 @@ import matplotlib.mlab
 from artist import Artist, setp
 from axis import XAxis, YAxis
 from cbook import iterable, is_string_like, flatten, enumerate, \
-     allequal, dict_delall, popd, popall, silent_list
-from collections import RegularPolyCollection, PolyCollection, LineCollection, QuadMesh
+     allequal, dict_delall, popd, popall, silent_list, is_numlike
+from collections import RegularPolyCollection, PolyCollection, LineCollection, QuadMesh, \
+     StarPolygonCollection
 from colors import colorConverter, normalize, Colormap, \
         LinearSegmentedColormap, looks_like_color, is_color_like
 import cm
@@ -1211,7 +1212,7 @@ class Axes(Artist):
         if xmax is None and hasattr(xmin,'__len__'):
             xmin,xmax = xmin
 
-	old_xmin,old_xmax = self.get_xlim()
+        old_xmin,old_xmax = self.get_xlim()
         if xmin is None: xmin = old_xmin
         if xmax is None: xmax = old_xmax
 
@@ -1223,7 +1224,7 @@ class Axes(Artist):
             xmin -= 1e-38
             xmax += 1e-38
 
-	self.viewLim.intervalx().set_bounds(xmin, xmax)
+        self.viewLim.intervalx().set_bounds(xmin, xmax)
         if emit: self._send_xlim_event()
         return xmin, xmax
 
@@ -1324,7 +1325,7 @@ class Axes(Artist):
         if ymax is None and hasattr(ymin,'__len__'):
             ymin,ymax = ymin
 
-	old_ymin,old_ymax = self.get_ylim()
+        old_ymin,old_ymax = self.get_ylim()
         if ymin is None: ymin = old_ymin
         if ymax is None: ymax = old_ymax
 
@@ -3100,9 +3101,8 @@ class Axes(Artist):
             'h' : hexagon
             '8' : octagon
 
-
-        if marker is None and verts is not None, verts is a sequence
-        of (x,y) vertices for a custom scatter symbol.  The
+        If marker is None and verts is not None, verts is a sequence
+        of (x,y) vertices for a custom scatter symbol.
 
         s is a size argument in points squared.
 
@@ -3171,26 +3171,74 @@ class Axes(Artist):
         if faceted: edgecolors = None
         else: edgecolors = 'None'
 
-        sym = syms.get(marker)
-        if sym is None and verts is None:
-            raise ValueError('Unknown marker symbol to scatter')
-
-        if sym is not None:
+        sym = None
+        starlike = False
+        
+        # to be API compatible
+        if sym is None and not (verts is None):
+            marker = (verts, 0)
+            verts = None
+        
+        if is_string_like(marker):
+            # the standard way to define symbols using a string character
+            sym = syms.get(marker)
+            if sym is None and verts is None:
+                raise ValueError('Unknown marker symbol to scatter')
             numsides, rotation = syms[marker]
-            collection = RegularPolyCollection(
-                self.figure.dpi,
-                numsides, rotation, scales,
-                facecolors = colors,
-                edgecolors = edgecolors,
-                linewidths = linewidths,
-                offsets = zip(x,y),
-                transOffset = self.transData,
-                )
+        
+        elif iterable(marker):
+            # accept marker to be:
+            #    (numsides, style, [angle])
+            # or
+            #    (verts[], style, [angle])
+            
+            if len(marker)<2 or len(marker)>3:
+                raise ValueError('Cannot create markersymbol from marker')
+            
+            if is_numlike(marker[0]):
+                # (numsides, style, [angle])
+                
+                if len(marker)==2:
+                    numsides, rotation = marker[0], math.pi/4.
+                elif len(marker)==3:
+                    numsides, rotation = marker[0], marker[2]
+                sym = True
+                
+                if marker[1]==1:
+                    # starlike symbol, everthing else is interpreted as solid symbol
+                    starlike = True
+            
+            else:
+                verts = asarray(marker[0])
+                
+        if sym is not None:
+            if not starlike:
+                collection = RegularPolyCollection(
+                    self.figure.dpi,
+                    numsides, rotation, scales,
+                    facecolors = colors,
+                    edgecolors = edgecolors,
+                    linewidths = linewidths,
+                    offsets = zip(x,y),
+                    transOffset = self.transData,
+                    )
+            else:
+                collection = StarPolygonCollection(
+                    self.figure.dpi,
+                    numsides, rotation, scales,
+                    facecolors = colors,
+                    edgecolors = edgecolors,
+                    linewidths = linewidths,
+                    offsets = zip(x,y),
+                    transOffset = self.transData,
+                    )
         else:
-            verts = asarray(verts)
-            # hmm, the scaling is whacked -- how do we want to scale with custom verts?
+            # rescale verts
+            rescale = sqrt(max(verts[:,0]**2+verts[:,1]**2))
+            verts /= rescale
+            
             scales = asarray(scales)
-            #scales = sqrt(scales * self.figure.dpi.get() / 72.)
+            scales = sqrt(scales * self.figure.dpi.get() / 72.)
             if len(scales)==1:
                 verts = [scales[0]*verts]
             else:

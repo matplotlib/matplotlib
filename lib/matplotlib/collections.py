@@ -15,7 +15,7 @@ from backend_bases import GraphicsContextBase
 from cbook import is_string_like, iterable
 from colors import colorConverter
 from cm import ScalarMappable
-from numerix import arange, sin, cos, pi, asarray, sqrt, array, newaxis
+from numerix import arange, sin, cos, pi, asarray, sqrt, array, newaxis, ones
 from transforms import identity_transform
 
 class Collection(Artist):
@@ -293,7 +293,7 @@ class RegularPolyCollection(PatchCollection):
         * dpi is the figure dpi instance, and is required to do the
           area scaling.
 
-        * numsides: the number of sides of the  polygon
+        * numsides: the number of sides of the polygon
 
         * sizes gives the area of the circle circumscribing the
           regular polygon in points^2
@@ -373,6 +373,43 @@ class RegularPolyCollection(PatchCollection):
             return [tuple(xy) for xy in self._offsets]
         raise NotImplementedError('Vertices in data coordinates are calculated\n'
                 + 'only with offsets and only if _transOffset == dataTrans.')
+
+class StarPolygonCollection(RegularPolyCollection):
+    def __init__(self,
+                 dpi,
+                 numsides,
+                 rotation = 0 ,
+                 sizes = (1,),
+                 **kwargs):
+        """
+        Draw a regular star like Polygone with numsides.
+        
+        * dpi is the figure dpi instance, and is required to do the
+          area scaling.
+
+        * numsides: the number of sides of the polygon
+
+        * sizes gives the area of the circle circumscribing the
+          regular polygon in points^2
+
+        * rotation is the rotation of the polygon in radians
+
+        kwargs: See PatchCollection for more details
+
+          * offsets are a sequence of x,y tuples that give the centers of
+            the polygon in data coordinates
+
+          * transOffset is the Transformation instance used to
+            transform the centers onto the canvas.
+        """
+        RegularPolyCollection.__init__(self, dpi, numsides, rotation, sizes, **kwargs)
+    
+    def _update_verts(self):
+        scale = 1.0/math.sqrt(math.pi)
+        r = scale*ones(self.numsides*2)
+        r[1::2] *= 0.5
+        theta  = (2.*math.pi/(2*self.numsides))*arange(2*self.numsides) + self.rotation
+        self._verts = zip( r*sin(theta), r*cos(theta) )
 
 class LineCollection(Collection, ScalarMappable):
     """
