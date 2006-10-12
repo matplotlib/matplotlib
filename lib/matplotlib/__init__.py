@@ -775,7 +775,7 @@ defaultParams = {
 
     'image.aspect' : ['equal', validate_aspect],  # equal, auto, a number
     'image.interpolation'  : ['bilinear', str],
-    'image.cmap'   : ['gray', str],        # one of gray, jet, etc
+    'image.cmap'   : ['jet', str],        # one of gray, jet, etc
     'image.lut'    : [256, validate_int],  # lookup table
     'image.origin'    : ['upper', str],  # lookup table
 
