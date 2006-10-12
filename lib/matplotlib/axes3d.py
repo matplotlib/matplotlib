@@ -362,6 +362,11 @@ class Axes3DI(Axes):
         Looks for the nearest edge to the point and then assumes that the point is
         at the same z location as the nearest point on the edge.
         """
+
+	if self.button_pressed == 1:
+            return 'azimuth=%d deg, elevation=%d deg ' % (self.azim, self.elev)
+	    # ignore xd and yd and display angles instead
+	    
         p = (xd,yd)
         edges = self.tunit_edges()
         #lines = [proj3d.line2d(p0,p1) for (p0,p1) in edges]
@@ -386,7 +391,7 @@ class Axes3DI(Axes):
         xs = self.format_xdata(x)
         ys = self.format_ydata(y)
         zs = self.format_ydata(z)
-        return  'x=%s, y=%s z=%s'%(xs,ys,zs)
+        return  'x=%s, y=%s, z=%s'%(xs,ys,zs)
 
     def on_move(self, event):
         """Mouse moving
@@ -394,18 +399,12 @@ class Axes3DI(Axes):
         button-1 rotates
         button-3 zooms
         """
-        #NOTE - this shouldn't be called before the graph has been drawn for the first time!
-        if event.inaxes != self or not self.M:
-            return
-        #
         if not self.button_pressed:
-            s = event.inaxes.format_coord(event.xdata, event.ydata)
-            self.toolbar.set_message(s)
             return
-
-        #
-        if self.toolbar._active is not None:
+            
+        if self.M is None:
             return
+            # this shouldn't be called before the graph has been drawn for the first time!
 
         x, y = event.xdata, event.ydata
         dx,dy = x-self.sx,y-self.sy
@@ -420,10 +419,8 @@ class Axes3DI(Axes):
             # get the x and y pixel coords
             if dx == 0 and dy == 0: return
             #
-            #
             self.elev = axis3d.norm_angle(self.elev - (dy/h)*180)
             self.azim = axis3d.norm_angle(self.azim - (dx/w)*180)
-            self.toolbar.set_message('azimuth=%d deg, elevation=%d deg ' % (self.azim, self.elev))
             self.get_proj()
             self.figure.canvas.draw()
         elif self.button_pressed == 2:
