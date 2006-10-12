@@ -1,3 +1,7 @@
+2006-10-12 Committed Manuel Metz's StarPolygon code and
+           examples/scatter_star_poly.py - JDH
+
+
 2006-10-11 commented out all default values in matplotlibrc.template
            Default values should generally be taken from defaultParam in
 	   __init__.py - the file matplotlib should only contain those values
