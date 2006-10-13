@@ -3175,7 +3175,7 @@ class Axes(Artist):
         starlike = False
         
         # to be API compatible
-        if sym is None and not (verts is None):
+        if marker is None and not (verts is None):
             marker = (verts, 0)
             verts = None
         
