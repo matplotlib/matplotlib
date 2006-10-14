@@ -1135,8 +1135,8 @@ class Annotation(Text):
 
            'figure points'   : points from the lower left corner of the figure
            'figure pixels'   : pixels from the lower left corner of the figure                           'figure fraction' : 0,0 is lower left of figure and 1,1 is upper, right
-           'axes points'     : points from lower left corneer of axes
-           'axes pixels'     : pixels from lower left corneer of axes
+           'axes points'     : points from lower left corner of axes
+           'axes pixels'     : pixels from lower left corner of axes
            'axes fraction'   : 0,1 is lower left of axes and 1,1 is upper right
            'data'            : use the coordinate system of the object being annotated (default)
 
