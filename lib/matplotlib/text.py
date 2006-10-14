@@ -1052,6 +1052,7 @@ class Annotation(Text):
     def __init__(self, artist, s, loc=None,
                  padx='auto', pady='auto', autopad=3,
                  lineprops=None,
+                 coords=None,
                  **props):
         """
         Annotate the matplotlib.Artist artist with string s.  kwargs
@@ -1062,13 +1063,14 @@ class Annotation(Text):
         the artist supports the
         "get_window_extent method" (eg matplotlib.patches.Patch and
         children, Text, Axes, Figure, Line2D) the location code can be
-        a pair of strings
+        a pair of strings.  Here are a few examples
 
           A: 'inside left', 'inside upper'
           B: 'outside right', 'outside lower'
           C: 'center', 'center'
           D: 'inside left', 'outside bottom'
           E: 'center', 'outside top'
+          
           inside and outside cannot be used with 'center'.  With
           upper, lower, left and right, inside will be assumed if
           inside|outside is not provided
@@ -1127,7 +1129,28 @@ class Annotation(Text):
                                                <---and here
                   loc
     
+
+         coords, if not None, is a string that will specify the
+         coordinate system of the x,y location.  Possible choices are
+
+           'figure points'   : points from the lower left corner of the figure
+           'figure pixels'   : pixels from the lower left corner of the figure                           'figure fraction' : 0,0 is lower left of figure and 1,1 is upper, right
+           'axes points'     : points from lower left corneer of axes
+           'axes pixels'     : pixels from lower left corneer of axes
+           'axes fraction'   : 0,1 is lower left of axes and 1,1 is upper right
+           'data'            : use the coordinate system of the object being annotated (default)
+
+        If a points or pixels option is specified, values will be
+        added to the left, bottom and if negative, values will be
+        subtracted from the top, right.  Eg,
+
+          # 10 points to the right of the left border of the axes and
+          # 5 points below the top border
+          loc=(10,-5), coords='axes points' 
+
+
         """
+        
         # we'll draw ourself after the artist we annotate by default
         zorder = props.get('zorder', artist.get_zorder() + 1)
         Text.__init__(self, text=s, **props)
@@ -1138,17 +1161,15 @@ class Annotation(Text):
         self.set_zorder(zorder)
         self.set_transform(identity_transform())
         self._loc = tuple(loc)
+        self._coords = coords
         self._padx, self._pady, self._autopad = padx, pady, autopad
         self._annotateArtist = artist
         # funcx and funcy  are used to place the x, y coords for
         # artists who define get_window_extent
-        if is_string_like(self._loc[0]) and is_string_like(self._loc[1]) and hasattr(self._annotateArtist, 'get_window_extent'):
-            xloc, yloc = self._loc
-            self._process_xloc(xloc)
-            self._process_yloc(yloc)
-        else:
-            self._funcx = None
-            self._funcy = None
+
+        xloc, yloc = self._loc
+        self._process_xloc(xloc)
+        self._process_yloc(yloc)
 
         self._renderer = None
 
@@ -1215,8 +1236,10 @@ class Annotation(Text):
 
         props = dict()
         if is_numlike(xloc):
-            return # nothing to do
-
+            if self._padx=='auto':
+                self._padx = 0.
+            self._funcx = None
+            return 
         if not is_string_like(xloc):
             raise ValueError('x location code must be a number or string')
         xloc = xloc.lower().strip()
@@ -1274,6 +1297,9 @@ class Annotation(Text):
         """
         props = dict()
         if is_numlike(yloc):
+            if self._pady=='auto':
+                self._pady = 0.
+            self._funcy = None                
             return # nothing to do
 
         if not is_string_like(yloc):
@@ -1340,9 +1366,81 @@ class Annotation(Text):
             self._x = self._funcx(l,r)
             self._y = self._funcy(b,t)
         else:
-            trans = self._annotateArtist.get_transform()
-            self._x, self._y = trans.xy_tup(self._loc)
+            if self._coords is None or self._coords=='data':
+                trans = self._annotateArtist.get_transform()
+                self._x, self._y = trans.xy_tup(self._loc)
+            elif self._coords=='figure points':
+                #points from the lower left corner of the figure
+                dpi = self.figure.dpi.get()
+                l,b,w,h = self.figure.bbox.get_bounds()
+                r = l+w
+                t = b+h
 
+                x, y = self._loc
+                x *= dpi/72.
+                y *= dpi/72.
+                if x<0:
+                    self._x = r + x
+                else:
+                    self._x = x
+                if y<0:
+                    self._y = t + y
+                else:
+                    self._y = y
+
+
+            elif self._coords=='figure pixels':
+                #pixels from the lower left corner of the figure
+                l,b,w,h = self.figure.bbox.get_bounds()
+                r = l+w
+                t = b+h
+                x, y = self._loc
+                if x<0:
+                    self._x = r + x
+                else:
+                    self._x = x
+                if y<0:
+                    self._y = t + y
+                else:
+                    self._y = y
+            elif self._coords=='figure fraction':
+                #(0,0) is lower left, (1,1) is upper right of figure
+                trans = self.figure.transFigure
+                self._x, self._y = trans.xy_tup(self._loc)
+            elif self._coords=='axes points':
+                #points from the lower left corner of the axes
+                dpi = self.figure.dpi.get()
+                x, y = self._loc
+                l,b,w,h = self._annotateArtist.axes.bbox.get_bounds()
+                r = l+w
+                t = b+h
+                if x<0:
+                    self._x = r + x*dpi/72.
+                else:
+                    self._x = l + x*dpi/72.
+                if y<0:
+                    self._y = t + y*dpi/72.
+                else:
+                    self._y = b + y*dpi/72.            
+            elif self._coords=='axes pixels':
+                #pixels from the lower left corner of the axes
+                x, y = self._loc
+                l,b,w,h = self._annotateArtist.axes.bbox.get_bounds()
+                r = l+w
+                t = b+h
+                if x<0:
+                    self._x = r + x
+                else:
+                    self._x = l + x
+                if y<0:
+                    self._y = t + y
+                else:
+                    self._y = b + y                
+            elif self._coords=='axes fraction':
+                #(0,0) is lower left, (1,1) is upper right of axes
+                trans = self._annotateArtist.transAxes
+                self._x, self._y = trans.xy_tup(self._loc)
+            
         dpi = self.figure.dpi.get()
         dx = self._padx * dpi/72.
         dy = self._pady * dpi/72.
