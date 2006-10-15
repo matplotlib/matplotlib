@@ -1451,6 +1451,7 @@ class Annotation(Text):
         if renderer is not None:
             self._renderer = renderer
         self.update_positions()
+        #print 'drawing annotation', self._x, self._y, self._text        
         Text.draw(self, renderer)
         if self._lineprops is not None:
             l,b,w,h = self.get_window_extent(renderer).get_bounds()
