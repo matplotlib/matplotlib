@@ -1139,6 +1139,11 @@ class Annotation(Text):
            'axes pixels'     : pixels from lower left corner of axes
            'axes fraction'   : 0,1 is lower left of axes and 1,1 is upper right
            'data'            : use the coordinate system of the object being annotated (default)
+           'polar'           : you can specify theta, r for the annotation, even
+                               in cartesian plots.  Note that if you
+                               are using a polar axes, you do not need
+                               to specify polar for the coordinate
+                               system since that is the native"data" coordinate system.
 
         If a points or pixels option is specified, values will be
         added to the left, bottom and if negative, values will be
@@ -1369,6 +1374,12 @@ class Annotation(Text):
             if self._coords is None or self._coords=='data':
                 trans = self._annotateArtist.get_transform()
                 self._x, self._y = trans.xy_tup(self._loc)
+            elif self._coords=='polar':
+                theta, r = self._loc
+                x = r*cos(theta)
+                y = r*sin(theta)
+                trans = self._annotateArtist.get_transform()
+                self._x, self._y = trans.xy_tup((x,y))
             elif self._coords=='figure points':
                 #points from the lower left corner of the figure
                 dpi = self.figure.dpi.get()

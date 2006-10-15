@@ -116,4 +116,24 @@ if 1:
     ax.add_artist(a)
     fig.savefig('annotation_polar')
 
+if 1:
+    from matplotlib.patches import Ellipse
+
+    el = Ellipse((0,0), 10, 20, facecolor='r', alpha=0.5)
+
+    fig = figure()
+    ax = fig.add_subplot(111, aspect='equal')
+    ax.add_artist(el)
+    el.set_clip_box(ax.bbox)
+    ax.plot([0], [10], 'o')
+    a = Annotation(el, 'the top', loc=(nx.pi/2., 10), coords='polar',
+                   padx=30, pady=30,           
+                   lineprops=dict(lw=2, color='k', shrink=4.))                   
+    ax.add_artist(a)
+    fig.savefig('annotation_ellipse')
+    
+    ax.set_xlim(-20, 20)
+    ax.set_ylim(-20, 20)
+
+
 show()
