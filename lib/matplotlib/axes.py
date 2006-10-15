@@ -4578,6 +4578,7 @@ class PolarAxes(Axes):
         self.lines = []
         self.images = []
         self.patches = []
+        self.artists = []
         self.collections = []
         self.texts = []     # text in axis coords
 
@@ -4782,6 +4783,7 @@ class PolarAxes(Axes):
         artists.extend(self.texts)
         artists.extend(self.collections)
         artists.extend(self.patches)
+        artists.extend(self.artists)        
         dsu = [ (a.zorder, a) for a in artists]
         dsu.sort()
 
