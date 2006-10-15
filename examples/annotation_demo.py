@@ -100,9 +100,7 @@ if 1:
     # annotations work on polar axes too.  The annotation coords below
     # are in polar coordinates, and the pads are in physical display
     # cartesian coordinates
-    
     fig = figure()
-
     ax = fig.add_subplot(111, polar=True)
     r = nx.arange(0,1,0.001)
     theta = 2*2*nx.pi*r
