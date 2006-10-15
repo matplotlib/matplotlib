@@ -8,7 +8,7 @@ from pylab import figure, show, nx
 from matplotlib.patches import Rectangle, CirclePolygon, Ellipse
 from matplotlib.text import Annotation
 
-if 0:
+if 1:
     fig = figure()
     ax = fig.add_subplot(111, autoscale_on=False, xlim=(-1,5), ylim=(-3,5))
 
@@ -50,7 +50,7 @@ if 0:
     fig.savefig('annotation_demo')
 
 
-if 0:
+if 1:
     # here are some annotations using various coordinate systems.  If you
     # pass in loc=(x,y) where x,y are scalars, then you can specify the
     # following strings for the coordinate system
@@ -97,6 +97,10 @@ if 0:
     fig.savefig('annotation_demo2')
 
 if 1:
+    # annotations work on polar axes too.  The annotation coords below
+    # are in polar coordinates, and the pads are in physical display
+    # cartesian coordinates
+    
     fig = figure()
 
     ax = fig.add_subplot(111, polar=True)
