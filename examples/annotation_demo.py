@@ -94,7 +94,7 @@ if 1:
                    fontsize=20)
     ax.add_artist(f)
 
-    fig.savefig('annotation_demo2')
+    fig.savefig('annotation_coords')
 
 if 1:
     # annotations work on polar axes too.  The annotation coords below
