@@ -93,6 +93,7 @@ _misccommands = (
     'legend',
     'table',
     'text',
+    'annotate',    
     )
 
 cmappable = {

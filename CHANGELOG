@@ -1,3 +1,10 @@
+2006-10-17 Closed sf bug 1562496 update line props dash/solid/cap/join
+           styles - JDH
+
+2006-10-17 Complete overhaul of the annotations API and example code -
+           See matplotlib.text.Annotation and
+           examples/annotation_demo.py JDH
+
 2006-10-12 Committed Manuel Metz's StarPolygon code and
            examples/scatter_star_poly.py - JDH
 
