@@ -1,105 +1,81 @@
 """
-Some examples of how to annotate various artists.  
+Some examples of how to annotate points in figures.  You specify an
+annotation point xy=(x,y) and a text point xytext=(x,y) for the
+annotated points and text location, respectively.  Optionally, you can specify the coordinate system of xy and xytext with one of the following strings for xycoords and textcoords (default is 'data')
 
 
-See matplotlib.text.Annotation for details
+  'figure points'   : points from the lower left corner of the figure
+  'figure pixels'   : pixels from the lower left corner of the figure
+  'figure fraction' : 0,0 is lower left of figure and 1,1 is upper, right
+  'axes points'     : points from lower left corner of axes
+  'axes pixels'     : pixels from lower left corner of axes
+  'axes fraction'   : 0,1 is lower left of axes and 1,1 is upper right
+  'data'            : use the axes data coordinate system
+
+Optionally, you can specify a line which connects the text to the
+annotated point by giving a dictionary of line properties lineprops
+(see matplotlib.lines.Line2D for line properties) and a marker
+properties markerprops
+
+For physical coordinate systems (points or pixels) the origin is the
+(bottom, left) of the figure or axes.  If the value is negative,
+however, the origin is from the (right, top) of the figure or axes,
+analogous to negative indexing of sequences.
 """
+
+
 from pylab import figure, show, nx
-from matplotlib.patches import Rectangle, CirclePolygon, Ellipse
-from matplotlib.text import Annotation
+from matplotlib.patches import Ellipse
 
 if 1:
-    fig = figure()
-    ax = fig.add_subplot(111, autoscale_on=False, xlim=(-1,5), ylim=(-3,5))
-
-    rect = Rectangle((0.5, 0.5), 1, 3, alpha=0.3)
-    ax.add_patch(rect)
-
-    t = nx.arange(0.0, 5.0, 0.01)
-    s = nx.sin(2*nx.pi*t)
-    line, = ax.plot(t, s, lw=3, color='purple')
-
-    a = Annotation(rect, 'A: rect', loc=('outside right', 'outside top'),
-                   color='blue')
-    ax.add_artist(a)
-
-    b = Annotation(rect, 'B: rect', loc=('inside left', 'inside top'),
-                   autopad=8, color='blue')
-    ax.add_artist(b)
-
-    c = Annotation(rect, 'C: rect', loc=('center', 'center'), color='blue')
-    ax.add_artist(c)
-
-    d = Annotation(ax, 'bottom corner', loc=('inside right', 'inside bottom'),
-                   color='red', autopad=40, lineprops=dict(lw=2, color='red', shrink=4))
-    ax.add_artist(d)
-
-    e = Annotation(ax, 'E: an axes title', loc=('center', 'outside top'),
-                   color='red')
-    ax.add_artist(e)
-
-    f = Annotation(fig, 'F: a figure title', loc=('center', 'inside top'),
-                   autopad=10, size=16, color='green')
-    ax.add_artist(f)
-
-    g = Annotation(line, 'localmax', loc=(2.25, 1), padx=20, pady=80, 
-                   color='black', size=18,
-                   lineprops=dict(lw=2, color='k', shrink=5., xalign='center'))
-    ax.add_artist(g)
-
-    fig.savefig('annotation_demo')
-
-
-if 1:
-    # here are some annotations using various coordinate systems.  If you
-    # pass in loc=(x,y) where x,y are scalars, then you can specify the
-    # following strings for the coordinate system
-    #  'figure points'   : points from the lower left corner of the figure
-    #  'figure pixels'   : pixels from the lower left corner of the figure
-    #  'figure fraction' : 0,0 is lower left of figure and 1,1 is upper, right
-    #  'axes points'     : points from lower left corner of axes
-    #  'axes pixels'     : pixels from lower left corner of axes
-    #  'axes fraction'   : 0,1 is lower left of axes and 1,1 is upper right
-    #  'data'            : use the coordinate system of the object being annotated (default)
-
-
+    # if only one location is given, the text and xypoint being
+    # annotated are assumed to be the same
     fig = figure()
     ax = fig.add_subplot(111, autoscale_on=False, xlim=(-1,5), ylim=(-3,5))
 
     t = nx.arange(0.0, 5.0, 0.01)
-    s = nx.sin(2*nx.pi*t)
+    s = nx.cos(2*nx.pi*t)
     line, = ax.plot(t, s, lw=3, color='purple')
 
-    a = Annotation(ax, 'A: center', loc=(.5, .5),  coords='axes fraction')
-    ax.add_artist(a)
+    ax.annotate('axes center', xy=(.5, .5),  xycoords='axes fraction',
+                horizontalalignment='center', verticalalignment='center')
 
-    b = Annotation(fig, 'B: pixels', loc=(20, 20),  coords='figure pixels')
-    ax.add_artist(b)
+    ax.annotate('pixels', xy=(20, 20),  xycoords='figure pixels')
 
-    c = Annotation(fig, 'C: points', loc=(100, 300),  coords='figure points')
-    ax.add_artist(c)
+    ax.annotate('points', xy=(100, 300),  xycoords='figure points')
 
-    d = Annotation(line, 'D: data', loc=(1, 2),  coords='data')
-    ax.add_artist(d)
+    ax.annotate('local max', xy=(3, 1),  xycoords='data',
+                xytext=(0.9, 0.9), textcoords='axes fraction',
+                lineprops=dict(lw=2, color='black'),
+                markerprops=dict(marker='o', markerfacecolor='b'),
+                horizontalalignment='right', verticalalignment='top',
+                )
 
-    # use positive points or pixels to specify from left, bottom
-    e = Annotation(fig, 'E: a figure title (fraction)', loc=(.05, .95),  coords='figure fraction',
-                   horizontalalignment='left', verticalalignment='top',
-                   fontsize=20)
-    ax.add_artist(e)
+    ax.annotate('a fractional title', xy=(.025, .975),
+                xycoords='figure fraction',
+                horizontalalignment='left', verticalalignment='top',
+                fontsize=20)
 
-    # use negative points or pixels to specify from right, top
-    f = Annotation(fig, 'F: a figure title (points)', loc=(-10, -10),  coords='figure points',
-                   horizontalalignment='right', verticalalignment='top',
-                   fontsize=20)
-    ax.add_artist(f)
+    # use negative points or pixels to specify from right, top -10, 10
+    # is 10 points to the left of the right side of the axes and 10
+    # points above the bottom
+    ax.annotate('bottom right (points)', xy=(-10, 10),
+                xycoords='axes points',
+                horizontalalignment='right', verticalalignment='bottom',
+                fontsize=20)
 
     fig.savefig('annotation_coords')
 
 if 1:
-    # annotations work on polar axes too.  The annotation coords below
-    # are in polar coordinates, and the pads are in physical display
-    # cartesian coordinates
+    # you can specify the xypoint and the xytext in different
+    # positions and coordinate systems, and optionally turn on a
+    # connecting line and mark the point with a marker.  Annotations
+    # work on polar axes too.  In the example below, the xy point is
+    # in native coordinates (xycoords defaults to 'data').  For a
+    # polar axes, this is in (theta, radius) space.  The text in this
+    # example is placed in the fractional figure coordinate system.
+    # Text keyword args like horizontal and vertical alignment are
+    # respected
     fig = figure()
     ax = fig.add_subplot(111, polar=True)
     r = nx.arange(0,1,0.001)
@@ -109,15 +85,22 @@ if 1:
     ind = 800
     thisr, thistheta = r[ind], theta[ind]
     ax.plot([thistheta], [thisr], 'o')
-    a = Annotation(line, 'a polar annotation', loc=(thistheta, thisr),
-                   padx=60, pady=-30, 
-                   lineprops=dict(lw=2, color='k', shrink=5.))
-
-    ax.add_artist(a)
-    fig.savefig('annotation_polar')
+    ax.annotate('a polar annotation',
+                xy=(thistheta, thisr),  # theta, radius
+                xytext=(0.05, 0.05),    # fraction, fraction
+                textcoords='figure fraction',
+                lineprops=dict(lw=2, color='k'),
+                markerprops=dict(marker='o', markersize=6),
+                horizontalalignment='left',
+                verticalalignment='bottom',
+                )
+    #fig.savefig('annotation_polar')
 
 if 1:
-    from matplotlib.patches import Ellipse
+    # You can also use polar notation on a catesian axes.  Here the
+    # native coordinate system ('data') is cartesian, so you need to
+    # specify the xycoords and textcoords as 'polar' if you want to
+    # use (theta, radius)
 
     el = Ellipse((0,0), 10, 20, facecolor='r', alpha=0.5)
 
@@ -125,15 +108,21 @@ if 1:
     ax = fig.add_subplot(111, aspect='equal')
     ax.add_artist(el)
     el.set_clip_box(ax.bbox)
-    ax.plot([0], [10], 'o')
-    a = Annotation(el, 'the top', loc=(nx.pi/2., 10), coords='polar',
-                   padx=30, pady=30,           
-                   lineprops=dict(lw=2, color='k', shrink=4.))                   
-    ax.add_artist(a)
-    fig.savefig('annotation_ellipse')
-    
+    ax.annotate('the top',
+                xy=(nx.pi/2., 10.),      # theta, radius
+                xytext=(nx.pi/4, 20.),   # theta, radius
+                xycoords='polar',
+                textcoords='polar',
+                lineprops=dict(lw=2, color='k'),
+                markerprops=dict(marker='o', color='red'),
+                horizontalalignment='left',
+                verticalalignment='bottom',
+                )
+                   
     ax.set_xlim(-20, 20)
     ax.set_ylim(-20, 20)
+    #fig.savefig('annotation_ellipse')
+    
 
 
 show()

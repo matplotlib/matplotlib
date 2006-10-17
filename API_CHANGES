@@ -1,3 +1,7 @@
+    Completely reworked the annotations API because I found the old
+    API cumbersome.  The new design is much more legible and easy to
+    read.  See matplotlib.text.Annotation and
+    examples/annotation_demo.py
 
     markeredgecolor and markerfacecolor cannot be configured in
     matplotlibrc any more. Instead, markers are generally colored

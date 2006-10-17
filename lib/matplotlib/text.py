@@ -1044,7 +1044,7 @@ class TextWithDash(Text):
         Text.set_figure(self, fig)
         self.dashline.set_figure(fig)
 
-class Annotation(Text):
+class _Annotation(Text):
     """
     A Text class to make annotating things in the figure: Figure,
     Axes, Point, Rectangle, etc... easier
@@ -1507,13 +1507,191 @@ class Annotation(Text):
             self.line.set_data([x0, x], [y0, y])
             self.line.draw(renderer)
             
+class Annotation(Text):
+    """
+    A Text class to make annotating things in the figure: Figure,
+    Axes, Point, Rectangle, etc... easier
+    """
+    def __init__(self, s, xy,
+                 xycoords='data',
+                 xytext=None,
+                 textcoords=None,
+                 lineprops=None,
+                 markerprops=None,
+                 **kwargs):
+        """
+        Annotate the x,y point xy with text s at x,y location xytext
+        (xytext if None defaults to xy and textcoords if None defaults
+        to xycoords).
 
-                             
-                             
+        lineprops, if not None, is a dictionary of line properties
+        (see matplotlib.lines.Line2D) for a line that connects the
+        annotation to the point.
+
+        markerprops, if not None, is a ductionaly of line marker
+        properties for marking the point at xy.
+
+        xycoords and textcoords are a string that indicates the
+        coordinates of xy and xytext.
+
+           'figure points'   : points from the lower left corner of the figure
+           'figure pixels'   : pixels from the lower left corner of the figure                           'figure fraction' : 0,0 is lower left of figure and 1,1 is upper, right
+           'axes points'     : points from lower left corner of axes
+           'axes pixels'     : pixels from lower left corner of axes
+           'axes fraction'   : 0,1 is lower left of axes and 1,1 is upper right
+           'data'            : use the coordinate system of the object being annotated (default)
+           'polar'           : you can specify theta, r for the annotation, even
+                               in cartesian plots.  Note that if you
+                               are using a polar axes, you do not need
+                               to specify polar for the coordinate
+                               system since that is the native"data" coordinate system.
+
+        If a points or pixels option is specified, values will be
+        added to the left, bottom and if negative, values will be
+        subtracted from the top, right.  Eg,
+
+          # 10 points to the right of the left border of the axes and
+          # 5 points below the top border
+          xy=(10,-5), xycoords='axes points' 
+
+
+        """
+        if xytext is None:
+            xytext = xy
+        if textcoords is None:
+            textcoords = xycoords
+        # we'll draw ourself after the artist we annotate by default
+        x,y = self.xytext = xytext
+        Text.__init__(self, x, y, s, **kwargs)
+        
+        x,y = self.xy = xy
+        if lineprops is None:
+            self.line = None
+        else:
+            self.line   = Line2D([0], [0], **lineprops)
+        if markerprops is None:
+            self.marker = None
+        else:
+            self.marker = Line2D([x], [y], **markerprops)        
+
+        self.xycoords = xycoords
+        self.textcoords = textcoords        
+
+    def _get_xy(self, x, y, s):
+        if s=='data':
+            trans = self.axes.transData
+            return trans.xy_tup((x,y))
+        elif s=='polar':
+            theta, r = x, y
+            x = r*cos(theta)
+            y = r*sin(theta)
+            trans = self.axes.transData
+            return trans.xy_tup((x,y))
+        elif s=='figure points':
+            #points from the lower left corner of the figure
+            dpi = self.figure.dpi.get()
+            l,b,w,h = self.figure.bbox.get_bounds()
+            r = l+w
+            t = b+h
+
+            x *= dpi/72.
+            y *= dpi/72.
+            if x<0:
+                x = r + x
+            if y<0:
+                y = t + y
+            return x,y
+        elif s=='figure pixels':
+            #pixels from the lower left corner of the figure
+            l,b,w,h = self.figure.bbox.get_bounds()
+            r = l+w
+            t = b+h
+            if x<0:
+                x = r + x
+            if y<0:
+                y = t + y
+            return x, y
+        elif s=='figure fraction':
+            #(0,0) is lower left, (1,1) is upper right of figure
+            trans = self.figure.transFigure
+            return trans.xy_tup((x,y))
+        elif s=='axes points':
+            #points from the lower left corner of the axes
+            dpi = self.figure.dpi.get()
+            l,b,w,h = self.axes.bbox.get_bounds()
+            r = l+w
+            t = b+h
+            if x<0:
+                x = r + x*dpi/72.
+            else:
+                x = l + x*dpi/72.
+            if y<0:
+                y = t + y*dpi/72.
+            else:
+                y = b + y*dpi/72.
+            return x, y
+        elif s=='axes pixels':
+            #pixels from the lower left corner of the axes
+
+            l,b,w,h = self.axes.bbox.get_bounds()
+            r = l+w
+            t = b+h
+            if x<0:
+                x = r + x
+            else:
+                x = l + x
+            if y<0:
+                y = t + y
+            else:
+                y = b + y
+            return x, y
+        elif s=='axes fraction':
+            #(0,0) is lower left, (1,1) is upper right of axes
+            trans = self.axes.transAxes
+            return trans.xy_tup((x,y))
             
-    
+
+    def update_positions(self, renderer):
+
+        x, y = self.xytext
+        self._x, self._y = self._get_xy(x, y, self.textcoords)
         
-        
+
+        x, y = self.xy
+        x, y = self._get_xy(x, y, self.xycoords)
+        if self.marker is not None:
+            self.marker.set_data([x], [y])
+            
+
+        if self.line is not None:
+            x0, y0 = x, y
+            l,b,w,h = self.get_window_extent(renderer).get_bounds()
+            dpi = self.figure.dpi.get()
+            r = l+w
+            t = b+h
+            xc = 0.5*(l+r)
+            yc = 0.5*(b+t)
+            # pick the x,y corner of the text bbox closest to point
+            # annotated
+            dsu = [(abs(val-x0), val) for val in l, r, xc]
+            dsu.sort()
+            d, x = dsu[0]
+                
+            dsu = [(abs(val-y0), val) for val in b, t, yc]
+            dsu.sort()
+            d, y = dsu[0]
+            self.line.set_data([x0, x], [y0, y])
+
+                                                            
+    def draw(self, renderer):
+        self.update_positions(renderer)
+
+        if self.line is not None:
+            self.line.draw(renderer)
+        if self.marker is not None:
+            self.marker.draw(renderer)
+            
+        Text.draw(self, renderer)
 
                              
                              

@@ -1041,6 +1041,10 @@ class Line2D(Artist):
         self._markeredgecolor = other._markeredgecolor
         self._markeredgewidth = other._markeredgewidth
         self._dashSeq = other._dashSeq
+        self._dashcapstyle = other._dashcapstyle
+        self._dashjoinstyle = other._dashjoinstyle
+        self._solidcapstyle = other._solidcapstyle
+        self._solidjoinstyle = other._solidjoinstyle
 
         self._linestyle = other._linestyle
         self._marker = other._marker

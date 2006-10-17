@@ -37,12 +37,12 @@ from matplotlib.numerix.mlab import flipud, amin, amax
 from matplotlib import rcParams
 from patches import Patch, Rectangle, Circle, Polygon, Arrow, Wedge, Shadow, FancyArrow, bbox_artist
 import table
-from text import Text, TextWithDash, _process_text_args
+from text import Text, TextWithDash, Annotation, _process_text_args
 from transforms import Bbox, Point, Value, Affine, NonseparableTransformation
 from transforms import  FuncXY, Func, LOG10, IDENTITY, POLAR
 from transforms import get_bbox_transform, unit_bbox, one, origin, zero
 from transforms import blend_xy_sep_transform, Interval, identity_transform
-from transforms import PBox
+from transforms import PBox, identity_transform
 from font_manager import FontProperties
 
 from quiver import Quiver, QuiverKey
@@ -1774,6 +1774,22 @@ class Axes(Artist):
         if kwargs.has_key('clip_on'):  t.set_clip_box(self.bbox)
         return t
 
+    def annotate(self, *args, **kwargs):
+        """
+        annotate(self, s, xyloc, textloc,
+                 xycoords='data', textcoords='data',
+                 lineprops=None,
+                 markerprops=None
+                 **props)
+
+%s
+        """%Annotation.__doc__
+        a = Annotation(*args, **kwargs)
+        a.set_transform(identity_transform())
+        self._set_artist_props(a)
+        self.texts.append(a)
+        return a
+        
 
     #### Lines and spans
 
