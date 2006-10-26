@@ -1,3 +1,6 @@
+===============================================================
+2006-10-26 Released 0.87.7 at revision 2835
+
 2006-10-25 Made "tiny" kwarg in Locator.nonsingular much smaller - EF
 
 2006-10-17 Closed sf bug 1562496 update line props dash/solid/cap/join
