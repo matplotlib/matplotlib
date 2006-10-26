@@ -1,3 +1,5 @@
+2006-10-25 Made "tiny" kwarg in Locator.nonsingular much smaller - EF
+
 2006-10-17 Closed sf bug 1562496 update line props dash/solid/cap/join
            styles - JDH
 
@@ -11,8 +13,8 @@
 
 2006-10-11 commented out all default values in matplotlibrc.template
            Default values should generally be taken from defaultParam in
-	   __init__.py - the file matplotlib should only contain those values
-	   that the user wants to explicitely change from the default.
+           __init__.py - the file matplotlib should only contain those values
+           that the user wants to explicitly change from the default.
            (see thread "marker color handling" on matplotlib-devel)
 
 2006-10-10 Changed default comment character for load to '#' - JDH
