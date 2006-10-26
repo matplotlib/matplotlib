@@ -154,7 +154,7 @@ class Formatter(TickHelper):
     def format_data_short(self,value):
         'return a short string version'
         return self.format_data(value)
-    
+
     def get_offset(self):
         return ''
 
@@ -556,7 +556,7 @@ class Locator(TickHelper):
         step = 0.1*interval*direction
         self.viewInterval.set_bounds(vmin + step, vmax - step)
 
-    def nonsingular(self, vmin, vmax, expander=0.001, tiny=1e-6):
+    def nonsingular(self, vmin, vmax, expander=0.001, tiny=1e-15):
         if vmax < vmin:
             vmin, vmax = vmax, vmin
         if vmax - vmin <= max(abs(vmin), abs(vmax)) * tiny:
