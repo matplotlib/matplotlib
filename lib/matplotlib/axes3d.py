@@ -199,18 +199,21 @@ class Axes3DI(Axes):
             self.zz_dataLim.update_numerix(z, z, not had_data)
         self.autoscale_view()
 
-    def autoscale_view(self):
+    def autoscale_view(self, scalex=True, scaley=True, scalez=True):
         self.set_top_view()
         if not self._ready: return
 
         if not self._autoscaleon: return
-        locator = self.w_xaxis.get_major_locator()
-        #print 'auto', locator.autoscale()
-        self.set_w_xlim(locator.autoscale())
-        locator = self.w_yaxis.get_major_locator()
-        self.set_w_ylim(locator.autoscale())
-        locator = self.w_zaxis.get_major_locator()
-        self.set_w_zlim(locator.autoscale())
+
+        if scalex:
+            locator = self.w_xaxis.get_major_locator()
+            self.set_w_xlim(locator.autoscale())
+        if scaley:
+            locator = self.w_yaxis.get_major_locator()
+            self.set_w_ylim(locator.autoscale())
+        if scalez:
+            locator = self.w_zaxis.get_major_locator()
+            self.set_w_zlim(locator.autoscale())
 
     def get_w_lims(self):
         minx,maxx = self.get_w_xlim()
