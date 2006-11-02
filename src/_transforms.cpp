@@ -322,15 +322,17 @@ Bbox::contains(const Py::Tuple &args) {
 }
 
 Py::Object
-Bbox::overlaps(const Py::Tuple &args) {
+Bbox::overlaps(const Py::Tuple &args, const Py::Dict &kwargs) {
   _VERBOSE("Bbox::overlaps");
   args.verify_length(1);
 
   if (! check(args[0]))
     throw Py::TypeError("Expected a bbox");
 
-  int x = Py::Int( overlapsx(args) );
-  int y = Py::Int( overlapsy(args) );
+
+
+  int x = Py::Int( overlapsx(args, kwargs) );
+  int y = Py::Int( overlapsy(args, kwargs) );
   return Py::Int(x&&y);
 }
 
@@ -343,12 +345,17 @@ Bbox::ignore(const Py::Tuple &args) {
 }
 
 Py::Object
-Bbox::overlapsx(const Py::Tuple &args) {
+Bbox::overlapsx(const Py::Tuple &args, const Py::Dict &kwargs) {
   _VERBOSE("Bbox::overlapsx");
   args.verify_length(1);
 
   if (! check(args[0]))
     throw Py::TypeError("Expected a bbox");
+
+  int ignoreend = false;
+  if (kwargs.hasKey("ignoreend")) {
+    ignoreend = Py::Int(kwargs["ignoreend"]);
+  }
 
   Bbox* other = static_cast<Bbox*>(args[0].ptr());
 
@@ -358,19 +365,33 @@ Bbox::overlapsx(const Py::Tuple &args) {
   double ominx = other->_ll->xval();
   double omaxx = other->_ur->xval();
 
-  int b =  ( ( (ominx>=minx) && (ominx<=maxx)) ||
-	     ( (minx>=ominx) && (minx<=omaxx)) );
+  int b=0;
+  if (ignoreend) {
+    b =  ( ( (ominx>minx) && (ominx<maxx)) ||
+	   ( (minx>ominx) && (minx<omaxx)) );
+  }
+  else{
+    b =  ( ( (ominx>=minx) && (ominx<=maxx)) ||
+	   ( (minx>=ominx) && (minx<=omaxx)) );
+
+  }  
   return Py::Int(b);
 
 }
 
 Py::Object
-Bbox::overlapsy(const Py::Tuple &args) {
+Bbox::overlapsy(const Py::Tuple &args, const Py::Dict &kwargs) {
   _VERBOSE("Bbox::overlapsy");
   args.verify_length(1);
 
   if (! check(args[0]))
     throw Py::TypeError("Expected a bbox");
+
+
+  int ignoreend = false;
+  if (kwargs.hasKey("ignoreend")) {
+    ignoreend = Py::Int(kwargs["ignoreend"]);
+  }
 
   Bbox* other = static_cast<Bbox*>(args[0].ptr());
 
@@ -381,9 +402,16 @@ Bbox::overlapsy(const Py::Tuple &args) {
   double omaxy = other->_ur->yval();
 
 
+  int b=0;
+  if (ignoreend) {
+    b =  ( ( (ominy>miny) && (ominy<maxy)) ||
+	       ( (miny>ominy) && (miny<omaxy)) );
+  }
+  else {
+    b =  ( ( (ominy>=miny) && (ominy<=maxy)) ||
+	       ( (miny>=ominy) && (miny<=omaxy)) );
 
-  int b =  ( ( (ominy>=miny) && (ominy<=maxy)) ||
-	     ( (miny>=ominy) && (miny<=omaxy)) );
+  }
   return Py::Int(b);
 
 }
@@ -2203,9 +2231,9 @@ Bbox::init_type()
   add_varargs_method("ur", 	&Bbox::ur, "ur()\n");
   add_varargs_method("contains" , &Bbox::contains, "contains(x,y)\n");
   add_varargs_method("count_contains", &Bbox::count_contains, "count_contains(xys)\n");
-  add_varargs_method("overlaps" , &Bbox::overlaps, "overlaps(bbox)\n");
-  add_varargs_method("overlapsx" , &Bbox::overlapsx, "overlapsx(bbox)\n");
-  add_varargs_method("overlapsy" , &Bbox::overlapsy, "overlapsy(bbox)\n");
+  add_keyword_method("overlaps" , &Bbox::overlaps, "overlaps(bbox)\n");
+  add_keyword_method("overlapsx" , &Bbox::overlapsx, "overlapsx(bbox)\n");
+  add_keyword_method("overlapsy" , &Bbox::overlapsy, "overlapsy(bbox)\n");
   add_varargs_method("intervalx" , &Bbox::intervalx, "intervalx()\n");
   add_varargs_method("intervaly" , &Bbox::intervaly, "intervaly()\n");
 
