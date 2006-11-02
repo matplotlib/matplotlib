@@ -348,11 +348,11 @@ public:
   }
 
   //return true if bboxes overlap
-  Py::Object overlaps(const Py::Tuple &args);
+  Py::Object overlaps(const Py::Tuple &args, const Py::Dict &kwargs);
   //return true if the x extent overlaps
-  Py::Object overlapsx(const Py::Tuple &args);
+  Py::Object overlapsx(const Py::Tuple &args, const Py::Dict &kwargs);
   //return true if the x extent overlaps
-  Py::Object overlapsy(const Py::Tuple &args);
+  Py::Object overlapsy(const Py::Tuple &args, const Py::Dict &kwargs);
 
   //set the ignore attr
   Py::Object ignore(const Py::Tuple &args);
