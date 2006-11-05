@@ -54,6 +54,7 @@ _plotcommands = (
     'axvspan',
     'bar',
     'barh',
+    'broken_barh',
     'boxplot',
     'cohere',
     'clabel',
