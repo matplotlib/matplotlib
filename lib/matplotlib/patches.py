@@ -503,6 +503,73 @@ class FancyArrow(Polygon):
 
         Polygon.__init__(self, map(tuple, verts), **kwargs)
 
+class YAArrow(Polygon):
+    """
+    Yet another arrow class
+
+    This is an arrow that is defined in display space and has a tip at
+    x1,y1 and a base at x2, y2.  
+    """
+    def __init__(self, dpi, xytip, xybase, width=4, frac=0.1, headwidth=12, **kwargs):
+        """
+        xytip : (x,y) location of arrow tip
+        xybase : (x,y) location the arrow base mid point
+        dpi : the figure dpi instance (fig.dpi)
+        width : the width of the arrow in points
+        frac  : the fraction of the arrow length occupied by the head
+        headwidth : the width of the base of the arrow head in points
+        
+        """
+        self.dpi = dpi
+        self.xytip = xytip
+        self.xybase = xybase
+        self.width = width
+        self.frac = frac
+        self.headwidth = headwidth
+        verts = self.get_verts()
+        Polygon.__init__(self, verts, **kwargs)
+
+    def get_verts(self):
+        # the base vertices
+        x1, y1 = self.xytip
+        x2, y2 = self.xybase
+        k1 = self.width*self.dpi.get()/72./2.
+        k2 = self.headwidth*self.dpi.get()/72./2.
+        xb1, yb1, xb2, yb2 = self.getpoints(x1, y1, x2, y2, k1)
+
+        # a point on the segment 20% of the distance from the tip to the base
+        theta = math.atan2(y2-y1, x2-x1)
+        r = math.sqrt((y2-y1)**2. + (x2-x1)*2.)
+        xm = x1 + self.frac * r * math.cos(theta)
+        ym = y1 + self.frac * r * math.sin(theta)
+        xc1, yc1, xc2, yc2 = self.getpoints(x1, y1, xm, ym, k1)
+        xd1, yd1, xd2, yd2 = self.getpoints(x1, y1, xm, ym, k2)
+
+
+        verts = [(xb1,yb1), (xb2,yb2), (xc2, yc2), (xd2, yd2), (x1, y1), (xd1, yd1), (xc1, yc1)]
+        return verts
+        
+        
+    def getpoints(self, x1,y1,x2,y2, k):
+        """
+        for line segment defined by x1,y1 and x2,y2, return the points on
+        the line that is perpendicular to the line and intersects x2,y2
+        and the distance from x2,y2 ot the returned points is k
+        """
+        x1,y1,x2,y2,k = map(float, (x1,y1,x2,y2,k))
+        m = (y2-y1)/(x2-x1)
+        pm = -1./m
+        a = 1
+        b = -2*y2
+        c = y2**2. - k**2.*pm**2./(1. + pm**2.)
+
+        y3a = (-b + math.sqrt(b**2.-4*a*c))/(2.*a)
+        x3a = (y3a - y2)/pm + x2
+
+        y3b = (-b - math.sqrt(b**2.-4*a*c))/(2.*a)
+        x3b = (y3b - y2)/pm + x2
+        return x3a, y3a, x3b, y3b
+
 
 class CirclePolygon(RegularPolygon):
     """
