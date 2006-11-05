@@ -10,7 +10,7 @@ from artist import Artist
 from cbook import enumerate, popd, is_string_like, maxdict, is_numlike
 from font_manager import FontProperties
 from matplotlib import rcParams
-from patches import bbox_artist
+from patches import bbox_artist, YAArrow
 from numerix import sin, cos, pi, cumsum, dot, asarray, array, \
      where, nonzero, equal, sqrt
 from transforms import lbwh_to_bbox, bbox_all, identity_transform
@@ -1516,21 +1516,28 @@ class Annotation(Text):
                  xycoords='data',
                  xytext=None,
                  textcoords=None,
-                 lineprops=None,
-                 markerprops=None,
+                 arrowprops=None,
                  **kwargs):
         """
         Annotate the x,y point xy with text s at x,y location xytext
         (xytext if None defaults to xy and textcoords if None defaults
         to xycoords).
 
-        lineprops, if not None, is a dictionary of line properties
-        (see matplotlib.lines.Line2D) for a line that connects the
-        annotation to the point.
+        arrowprops, if not None, is a dictionary of line properties
+        (see matplotlib.lines.Line2D) for the arrow that connects
+        annotation to the point.   Valid keys are
 
-        markerprops, if not None, is a ductionaly of line marker
-        properties for marking the point at xy.
-
+          - width : the width of the arrow in points
+          - frac  : the fraction of the arrow length occupied by the head
+          - headwidth : the width of the base of the arrow head in points
+          - shrink: often times it is convenient to have the arrowtip
+            and base a bit away from the text and point being
+            annotated.  If d is the distance between the text and
+            annotated point, shrink will shorten the arrow so the tip
+            and base are shink percent of the distance d away from the
+            endpoints.  ie, shrink=0.05 is 5%
+          - any key for matplotlib.patches.polygon
+          
         xycoords and textcoords are a string that indicates the
         coordinates of xy and xytext.
 
@@ -1563,17 +1570,9 @@ class Annotation(Text):
         # we'll draw ourself after the artist we annotate by default
         x,y = self.xytext = xytext
         Text.__init__(self, x, y, s, **kwargs)
-        
-        x,y = self.xy = xy
-        if lineprops is None:
-            self.line = None
-        else:
-            self.line   = Line2D([0], [0], **lineprops)
-        if markerprops is None:
-            self.marker = None
-        else:
-            self.marker = Line2D([x], [y], **markerprops)        
-
+        self.xy = xy
+        self.arrowprops = arrowprops
+        self.arrow = None
         self.xycoords = xycoords
         self.textcoords = textcoords        
 
@@ -1659,11 +1658,8 @@ class Annotation(Text):
 
         x, y = self.xy
         x, y = self._get_xy(x, y, self.xycoords)
-        if self.marker is not None:
-            self.marker.set_data([x], [y])
-            
 
-        if self.line is not None:
+        if self.arrowprops:
             x0, y0 = x, y
             l,b,w,h = self.get_window_extent(renderer).get_bounds()
             dpi = self.figure.dpi.get()
@@ -1680,16 +1676,32 @@ class Annotation(Text):
             dsu = [(abs(val-y0), val) for val in b, t, yc]
             dsu.sort()
             d, y = dsu[0]
-            self.line.set_data([x0, x], [y0, y])
+
+
+            d = self.arrowprops.copy()
+            width = popd(d, 'width', 4)
+            headwidth = popd(d, 'headwidth', 12)
+            frac = popd(d, 'frac', 0.1)
+            shrink = popd(d, 'shrink', 0.0)
+
+
+            theta = math.atan2(y-y0, x-x0)
+            r = math.sqrt((y-y0)**2. + (x-x0)**2.)
+            dx = shrink*r*math.cos(theta)
+            dy = shrink*r*math.sin(theta)
+                
+            self.arrow = YAArrow(self.figure.dpi, (x0+dx,y0+dy), (x-dx, y-dy),
+                            width=width, headwidth=headwidth, frac=frac,
+                            **d)
+
+
 
                                                             
     def draw(self, renderer):
         self.update_positions(renderer)
 
-        if self.line is not None:
-            self.line.draw(renderer)
-        if self.marker is not None:
-            self.marker.draw(renderer)
+        if self.arrow is not None:
+            self.arrow.draw(renderer)
             
         Text.draw(self, renderer)
 

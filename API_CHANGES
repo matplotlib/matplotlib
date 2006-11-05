@@ -1,3 +1,9 @@
+    Removed lineprops and markerprops from the Annotation code and
+    replaced them with an arrow configurable with kwarg arrowprops.
+    See examples/annotation_demo.py - JDH
+
+0.87.7 released
+
     Completely reworked the annotations API because I found the old
     API cumbersome.  The new design is much more legible and easy to
     read.  See matplotlib.text.Annotation and

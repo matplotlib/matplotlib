@@ -12,10 +12,16 @@ annotated points and text location, respectively.  Optionally, you can specify t
   'axes fraction'   : 0,1 is lower left of axes and 1,1 is upper right
   'data'            : use the axes data coordinate system
 
-Optionally, you can specify a line which connects the text to the
-annotated point by giving a dictionary of line properties lineprops
-(see matplotlib.lines.Line2D for line properties) and a marker
-properties markerprops
+Optionally, you can specify arrow properties which draws and arrow
+from the text to the annotated point by giving a dictionary of arrow
+properties
+
+Valid keys are
+
+          width : the width of the arrow in points
+          frac  : the fraction of the arrow length occupied by the head
+          headwidth : the width of the base of the arrow head in points
+          any key for matplotlib.patches.polygon  (eg facecolor)
 
 For physical coordinate systems (points or pixels) the origin is the
 (bottom, left) of the figure or axes.  If the value is negative,
@@ -45,9 +51,8 @@ if 1:
     ax.annotate('points', xy=(100, 300),  xycoords='figure points')
 
     ax.annotate('local max', xy=(3, 1),  xycoords='data',
-                xytext=(0.9, 0.9), textcoords='axes fraction',
-                lineprops=dict(lw=2, color='black'),
-                markerprops=dict(marker='o', markerfacecolor='b'),
+                xytext=(0.8, 0.95), textcoords='axes fraction',
+                arrowprops=dict(facecolor='black', shrink=0.05),
                 horizontalalignment='right', verticalalignment='top',
                 )
 
@@ -89,8 +94,7 @@ if 1:
                 xy=(thistheta, thisr),  # theta, radius
                 xytext=(0.05, 0.05),    # fraction, fraction
                 textcoords='figure fraction',
-                lineprops=dict(lw=2, color='k'),
-                markerprops=dict(marker='o', markersize=6),
+                arrowprops=dict(facecolor='black', shrink=0.05),
                 horizontalalignment='left',
                 verticalalignment='bottom',
                 )
@@ -110,11 +114,10 @@ if 1:
     el.set_clip_box(ax.bbox)
     ax.annotate('the top',
                 xy=(nx.pi/2., 10.),      # theta, radius
-                xytext=(nx.pi/4, 20.),   # theta, radius
+                xytext=(nx.pi/3, 20.),   # theta, radius
                 xycoords='polar',
                 textcoords='polar',
-                lineprops=dict(lw=2, color='k'),
-                markerprops=dict(marker='o', color='red'),
+                arrowprops=dict(facecolor='black', shrink=0.05),
                 horizontalalignment='left',
                 verticalalignment='bottom',
                 )
@@ -125,4 +128,5 @@ if 1:
     
 
 
+fig.savefig('annotation_demo.png')
 show()
