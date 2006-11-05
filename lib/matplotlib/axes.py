@@ -15,8 +15,8 @@ from artist import Artist, setp
 from axis import XAxis, YAxis
 from cbook import iterable, is_string_like, flatten, enumerate, \
      allequal, dict_delall, popd, popall, silent_list, is_numlike
-from collections import RegularPolyCollection, PolyCollection, LineCollection, QuadMesh, \
-     StarPolygonCollection
+from collections import RegularPolyCollection, PolyCollection, LineCollection, \
+     QuadMesh, StarPolygonCollection, BrokenBarHCollection
 from colors import colorConverter, normalize, Colormap, \
         LinearSegmentedColormap, looks_like_color, is_color_like
 import cm
@@ -432,19 +432,27 @@ class Axes(Artist):
         if self._sharex is not None:
             left=self._sharex.viewLim.ll().x()
             right=self._sharex.viewLim.ur().x()
+            #dleft=self._sharex.dataLim.ll().x()
+            #dright=self._sharex.dataLim.ur().x()
         else:
             left=zero()
             right=one()
+            #dleft=zero()
+            #dright=one()
         if self._sharey is not None:
             bottom=self._sharey.viewLim.ll().y()
             top=self._sharey.viewLim.ur().y()
+            #dbottom=self._sharey.dataLim.ll().y()
+            #dtop=self._sharey.dataLim.ur().y()
         else:
             bottom=zero()
             top=one()
+            #dbottom=zero()
+            #dtop=one()
 
         self.viewLim = Bbox(Point(left, bottom), Point(right, top))
+        #self.dataLim = Bbox(Point(dleft, dbottom), Point(dright, dtop))
         self.dataLim = unit_bbox()
-
 
         self.transData = get_bbox_transform(self.viewLim, self.bbox)
         self.transAxes = get_bbox_transform(unit_bbox(), self.bbox)
@@ -2626,7 +2634,32 @@ class Axes(Artist):
                            )
         return patches
 
+    def broken_barh(self, xranges, yrange, **kwargs):
+        """
+        A colleciton of horizontal bars spanning yrange with a sequence of
+        xranges
 
+        xranges : sequence of (xmin, xwidth)
+        yrange  : (ymin, ywidth)
+        
+        optional kwargs:
+          edgecolors
+          facecolors
+          linewidths
+          antialiaseds
+
+        these can either be a single argument, ie facecolors='black'
+        or a sequence of arguments for the various bars, ie
+        facecolors='black', 'red', 'green'
+
+        """
+        col = BrokenBarHCollection(xranges, yrange, **kwargs)
+        self.add_collection(col, autolim=True)
+        self.autoscale_view()
+
+        return col
+
+                    
     def stem(self, x, y, linefmt='b-', markerfmt='bo', basefmt='r-'):
         """
         STEM(x, y, linefmt='b-', markerfmt='bo', basefmt='r-')

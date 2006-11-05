@@ -278,8 +278,22 @@ class PolyCollection(PatchCollection):
             return [tuple(xy) for xy in self._offsets]
         raise NotImplementedError('Vertices in data coordinates are calculated\n'
                 + 'with offsets only if _transOffset == dataTrans.')
-
-
+ 
+class BrokenBarHCollection(PolyCollection):
+    """
+    A colleciton of horizontal bars spanning yrange with a sequence of
+    xranges
+    """
+    def __init__(self, xranges, yrange, **kwargs):
+        """
+        xranges : sequence of (xmin, xwidth)
+        yrange  : ymin, ywidth
+        """
+        ymin, ywidth = yrange
+        ymax = ymin + ywidth
+        verts = [ [(xmin, ymin), (xmin, ymax), (xmin+xwidth, ymax), (xmin+xwidth, ymin)] for xmin, xwidth in xranges]
+        PolyCollection.__init__(self, verts, **kwargs)
+         
 class RegularPolyCollection(PatchCollection):
     def __init__(self,
                  dpi,
