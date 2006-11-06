@@ -20,4 +20,5 @@ ax.annotate('race interrupted', (61, 25),
             fontsize=16,
             horizontalalignment='right', verticalalignment='top')
 
+fig.savefig('broken_barh')
 show()
