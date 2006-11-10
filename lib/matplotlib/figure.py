@@ -872,6 +872,8 @@ class Figure(Artist):
 
     def subplots_adjust(self, *args, **kwargs):
         """
+        subplots_adjust(self, left=None, bottom=None, right=None, top=None,
+                        wspace=None, hspace=None)
         fig.subplots_adjust(left=None, bottom=None, right=None, wspace=None, hspace=None):
         Update the SubplotParams with kwargs (defaulting to rc where
         None) and update the subplot locations
