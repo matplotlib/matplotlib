@@ -1468,7 +1468,8 @@ if _setp.__doc__ is not None:
 
 def subplots_adjust(*args, **kwargs):
     """
-    subplots_adjust(left=None, right=None, bottom=None, top=None, wspace=0.2, hspace=0.2)
+    subplots_adjust(left=None, bottom=None, right=None, top=None,
+                    wspace=None, hspace=None)
 
     Tune the subplot layout via the figure.SubplotParams mechanism.
     The parameter meanings (and suggested defaults) are
