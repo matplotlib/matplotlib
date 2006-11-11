@@ -374,7 +374,7 @@ Bbox::overlapsx(const Py::Tuple &args, const Py::Dict &kwargs) {
     b =  ( ( (ominx>=minx) && (ominx<=maxx)) ||
 	   ( (minx>=ominx) && (minx<=omaxx)) );
 
-  }  
+  }
   return Py::Int(b);
 
 }

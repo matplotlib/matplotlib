@@ -389,7 +389,7 @@ class Axes(Artist):
     def get_window_extent(self, *args, **kwargs):
         'get the axes bounding box in display space'
         return self.bbox
-    
+
     def _init_axis(self):
         "move this out of __init__ because non-separable axes don't use it"
         self.xaxis = XAxis(self)
@@ -1217,7 +1217,7 @@ class Axes(Artist):
         ACCEPTS: len(2) sequence of floats
         """
 
-        if xmax is None and hasattr(xmin,'__len__'):
+        if xmax is None and iterable(xmin):
             xmin,xmax = xmin
 
         old_xmin,old_xmax = self.get_xlim()
@@ -1330,7 +1330,7 @@ class Axes(Artist):
         ACCEPTS: len(2) sequence of floats
         """
 
-        if ymax is None and hasattr(ymin,'__len__'):
+        if ymax is None and iterable(ymin):
             ymin,ymax = ymin
 
         old_ymin,old_ymax = self.get_ylim()
@@ -1797,7 +1797,7 @@ class Axes(Artist):
         self._set_artist_props(a)
         self.texts.append(a)
         return a
-        
+
 
     #### Lines and spans
 
@@ -2508,7 +2508,7 @@ class Axes(Artist):
 
         if yerr is not None:
             if not iterable(yerr):
-                yerr = asarray([yerr]*nbars, Float) 
+                yerr = asarray([yerr]*nbars, Float)
             else:
                 yerr = asarray(yerr)
         if xerr is not None:
@@ -2641,7 +2641,7 @@ class Axes(Artist):
 
         xranges : sequence of (xmin, xwidth)
         yrange  : (ymin, ywidth)
-        
+
         optional kwargs:
           edgecolors
           facecolors
@@ -2659,7 +2659,7 @@ class Axes(Artist):
 
         return col
 
-                    
+
     def stem(self, x, y, linefmt='b-', markerfmt='bo', basefmt='r-'):
         """
         STEM(x, y, linefmt='b-', markerfmt='bo', basefmt='r-')
@@ -3222,44 +3222,44 @@ class Axes(Artist):
 
         sym = None
         starlike = False
-        
+
         # to be API compatible
         if marker is None and not (verts is None):
             marker = (verts, 0)
             verts = None
-        
+
         if is_string_like(marker):
             # the standard way to define symbols using a string character
             sym = syms.get(marker)
             if sym is None and verts is None:
                 raise ValueError('Unknown marker symbol to scatter')
             numsides, rotation = syms[marker]
-        
+
         elif iterable(marker):
             # accept marker to be:
             #    (numsides, style, [angle])
             # or
             #    (verts[], style, [angle])
-            
+
             if len(marker)<2 or len(marker)>3:
                 raise ValueError('Cannot create markersymbol from marker')
-            
+
             if is_numlike(marker[0]):
                 # (numsides, style, [angle])
-                
+
                 if len(marker)==2:
                     numsides, rotation = marker[0], math.pi/4.
                 elif len(marker)==3:
                     numsides, rotation = marker[0], marker[2]
                 sym = True
-                
+
                 if marker[1]==1:
                     # starlike symbol, everthing else is interpreted as solid symbol
                     starlike = True
-            
+
             else:
                 verts = asarray(marker[0])
-                
+
         if sym is not None:
             if not starlike:
                 collection = RegularPolyCollection(
@@ -3285,7 +3285,7 @@ class Axes(Artist):
             # rescale verts
             rescale = sqrt(max(verts[:,0]**2+verts[:,1]**2))
             verts /= rescale
-            
+
             scales = asarray(scales)
             scales = sqrt(scales * self.figure.dpi.get() / 72.)
             if len(scales)==1:
@@ -4832,7 +4832,7 @@ class PolarAxes(Axes):
         artists.extend(self.texts)
         artists.extend(self.collections)
         artists.extend(self.patches)
-        artists.extend(self.artists)        
+        artists.extend(self.artists)
         dsu = [ (a.zorder, a) for a in artists]
         dsu.sort()
 
