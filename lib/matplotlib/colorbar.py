@@ -106,6 +106,7 @@ class ColorbarBase(cm.ScalarMappable):
 
     def __init__(self, ax, cmap=None,
                            norm=None,
+                           alpha=1.0,
                            values=None,
                            boundaries=None,
                            orientation='vertical',
@@ -119,6 +120,7 @@ class ColorbarBase(cm.ScalarMappable):
         self.ax = ax
         if cmap is None: cmap = cm.get_cmap()
         if norm is None: norm = colors.normalize()
+        self.alpha = alpha
         cm.ScalarMappable.__init__(self, cmap=cmap, norm=norm)
         self.values = values
         self.boundaries = boundaries
@@ -231,7 +233,8 @@ class ColorbarBase(cm.ScalarMappable):
             args = (X, Y, C)
         else:
             args = (nx.transpose(Y), nx.transpose(X), nx.transpose(C))
-        kw = {'cmap':self.cmap, 'norm':self.norm, 'shading':'flat'}
+        kw = {'cmap':self.cmap, 'norm':self.norm,
+                    'shading':'flat', 'alpha':self.alpha}
         col = self.ax.pcolor(*args, **kw)
         self.add_observer(col)
         self.solids = col
@@ -460,12 +463,14 @@ class Colorbar(ColorbarBase):
             #kw['ticks'] = CS._levels
             kw.setdefault('ticks', CS.levels)
             kw['filled'] = CS.filled
+            kw['alpha'] = CS.alpha
             ColorbarBase.__init__(self, ax, **kw)
             if not CS.filled:
                 self.add_lines(CS)
         else:
             kw['cmap'] = mappable.cmap
             kw['norm'] = mappable.norm
+            kw['alpha'] = mappable.get_alpha()
             ColorbarBase.__init__(self, ax, **kw)
 
 
