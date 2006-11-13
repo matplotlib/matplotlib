@@ -3808,7 +3808,7 @@ class Axes(Artist):
         vmax = popd(kwargs,'vmax', None)
         shading = popd(kwargs,'shading', 'faceted')
 
-	if len(kwargs):
+        if len(kwargs):
             raise TypeError, "pcolor() got an unexpected keyword argument '%s'"%kwargs.keys()[0]
 
         if len(args)==1:
@@ -4060,7 +4060,7 @@ class Axes(Artist):
         norm = popd(kwargs,'norm', normalize())
         alpha = popd(kwargs,'alpha', 1.0)
 
-	if len(kwargs):
+        if len(kwargs):
             raise TypeError, "pcolor_classic() got an unexpected keyword argument '%s'"%kwargs.keys()[0]
 
         if len(args)==1:
