@@ -430,7 +430,7 @@ class Line2D(Artist):
         ACCEPTS: [ '-' | '--' | '-.' | ':' | 'steps' | 'None' | ' ' | '' ]
         """
         if linestyle not in self._lineStyles:
-            verbose.report_error('Unrecognized line style %s,%s'%(linestyle, type(linestyle)))
+            verbose.report('Unrecognized line style %s,%s'%(linestyle, type(linestyle)))
         if linestyle in [' ','']:
             linestyle = 'None'
         self._linestyle = linestyle
@@ -448,7 +448,7 @@ class Line2D(Artist):
 
         """
         if marker not in self._markers:
-            verbose.report_error('Unrecognized marker style %s, %s'%( marker, type(marker)))
+            verbose.report('Unrecognized marker style %s, %s'%( marker, type(marker)))
         if marker in [' ','']:
             marker = 'None'
         self._marker = marker
