@@ -110,14 +110,22 @@ class ScalarMappable:
         cmap of another image
         """
         self.observers.append(mappable)
+        try:
+            self.add_callback(mappable.notify)
+        except AttributeError:
+            pass
 
     def notify(self, mappable):
         """
         If this is called then we are pegged to another mappable.
-        Update the cmap, norm accordingly
+        Update our cmap, norm, alpha from the other mappable.
         """
         self.set_cmap(mappable.cmap)
         self.set_norm(mappable.norm)
+        try:
+            self.set_alpha(mappable.get_alpha())
+        except AttributeError:
+            pass
 
     def changed(self):
         """

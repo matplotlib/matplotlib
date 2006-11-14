@@ -227,8 +227,10 @@ class ColorbarBase(cm.ScalarMappable):
 
     def _add_solids(self, X, Y, C):
         '''
-        Draw the colors using pcolormesh; optionally add separators.
+        Draw the colors using pcolor; optionally add separators.
         '''
+        ## Change to pcolormesh if/when it is fixed to handle alpha
+        ## correctly.
         if self.orientation == 'vertical':
             args = (X, Y, C)
         else:
@@ -236,7 +238,7 @@ class ColorbarBase(cm.ScalarMappable):
         kw = {'cmap':self.cmap, 'norm':self.norm,
                     'shading':'flat', 'alpha':self.alpha}
         col = self.ax.pcolor(*args, **kw)
-        self.add_observer(col)
+        #self.add_observer(col) # We should observe, not be observed...
         self.solids = col
         if self.drawedges:
             self.dividers = LineCollection(self._edges(X,Y),
@@ -445,6 +447,9 @@ class ColorbarBase(cm.ScalarMappable):
             z = z[0]
         return z
 
+    def set_alpha(self, alpha):
+        self.alpha = alpha
+
 class Colorbar(ColorbarBase):
     def __init__(self, ax, mappable, **kw):
         mappable.autoscale() # Ensure mappable.norm.vmin, vmax
@@ -453,24 +458,21 @@ class Colorbar(ColorbarBase):
                              # been called.  This will not change
                              # vmin, vmax if they are already set.
         self.mappable = mappable
+        kw['cmap'] = mappable.cmap
+        kw['norm'] = mappable.norm
+        kw['alpha'] = mappable.get_alpha()
         if isinstance(mappable, ContourSet):
             CS = mappable
-            kw['cmap'] = CS.cmap
-            kw['norm'] = CS.norm
             kw['boundaries'] = CS._levels
             kw['values'] = CS.cvalues
             kw['extend'] = CS.extend
             #kw['ticks'] = CS._levels
             kw.setdefault('ticks', CS.levels)
             kw['filled'] = CS.filled
-            kw['alpha'] = CS.alpha
             ColorbarBase.__init__(self, ax, **kw)
             if not CS.filled:
                 self.add_lines(CS)
         else:
-            kw['cmap'] = mappable.cmap
-            kw['norm'] = mappable.norm
-            kw['alpha'] = mappable.get_alpha()
             ColorbarBase.__init__(self, ax, **kw)
 
 
@@ -482,6 +484,14 @@ class Colorbar(ColorbarBase):
             raise ValueError('add_lines is only for a ContourSet of lines')
         tcolors = [c[0] for c in CS.tcolors]
         tlinewidths = [t[0] for t in CS.tlinewidths]
+        # The following was an attempt to get the colorbar lines
+        # to follow subsequent changes in the contour lines,
+        # but more work is needed: specifically, a careful
+        # look at event sequences, and at how
+        # to make one object track another automatically.
+        #tcolors = [col.get_colors()[0] for col in CS.collections]
+        #tlinewidths = [col.get_linewidth()[0] for lw in CS.collections]
+        #print 'tlinewidths:', tlinewidths
         ColorbarBase.add_lines(self, CS.levels, tcolors, tlinewidths)
 
     def notify(self, mappable):
@@ -490,16 +500,22 @@ class Colorbar(ColorbarBase):
         is changed.
         '''
         cm.ScalarMappable.notify(self, mappable)
-        if self.vmin != self.norm.vmin or self.vmax != self.norm.vmax:
-            self.ax.cla()
-            self.draw_all()
+        self.ax.cla()
+        self.draw_all()
+        #if self.vmin != self.norm.vmin or self.vmax != self.norm.vmax:
+        #    self.ax.cla()
+        #    self.draw_all()
         if isinstance(self.mappable, ContourSet):
             CS = self.mappable
-            if self.lines is not None:
-                tcolors = [c[0] for c in CS.tcolors]
-                self.lines.set_color(tcolors)
+            if not CS.filled:
+                self.add_lines(CS)
+            #if self.lines is not None:
+            #    tcolors = [c[0] for c in CS.tcolors]
+            #    self.lines.set_color(tcolors)
         #Fixme? Recalculate boundaries, ticks if vmin, vmax have changed.
-
+        #Fixme: Some refactoring may be needed; we should not
+        # be recalculating everything if there was a simple alpha
+        # change.
 
 def make_axes(parent, **kw):
     orientation = kw.setdefault('orientation', 'vertical')

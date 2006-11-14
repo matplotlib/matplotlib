@@ -429,7 +429,7 @@ class Figure(Artist):
         if not len(args): return
         if isinstance(args[0], Axes):
             a = args[0]
-            assert(a.get_figure() is self)            
+            assert(a.get_figure() is self)
         else:
             rect = args[0]
             ispolar = popd(kwargs, 'polar', False)

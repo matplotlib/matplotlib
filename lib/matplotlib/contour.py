@@ -695,6 +695,15 @@ class ContourSet(ScalarMappable, ContourLabeler):
             tlinewidths = [(w,) for w in linewidths]
         return tlinewidths
 
+    def get_alpha(self):
+        '''For compatibility with artists, return self.alpha'''
+        return self.alpha
+
+    def set_alpha(self, alpha):
+        '''For compatibility with artists, set self.alpha'''
+        self.alpha = alpha
+        self.changed()
+
     contour_doc = """
         contour and contourf draw contour lines and filled contours,
         respectively.  Except as noted, function signatures and return
