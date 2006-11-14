@@ -1,14 +1,18 @@
+2006-11-14 Improved the ability of the colorbar to track
+           changes in corresponding image, pcolor, or
+           contourf. - EF
+
 2006-11-11 Fixed bug that broke Numeric compatibility;
            added support for alpha to colorbar.  The
            alpha information is taken from the mappable
            object, not specified as a kwarg. - EF
 
 2006-11-05 Added broken_barh function for makring a sequence of
-horizontal bars broken by gaps -- see examples/broken_barh.py
+           horizontal bars broken by gaps -- see examples/broken_barh.py
 
 2006-11-05 Removed lineprops and markerprops from the Annotation code
-    and replaced them with an arrow configurable with kwarg
-    arrowprops.  See examples/annotation_demo.py - JDH
+           and replaced them with an arrow configurable with kwarg
+           arrowprops.  See examples/annotation_demo.py - JDH
 
 2006-11-02 Fixed a pylab subplot bug that was causing axes to be
            deleted with hspace or wspace equals zero in

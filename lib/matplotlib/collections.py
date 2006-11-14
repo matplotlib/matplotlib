@@ -278,7 +278,7 @@ class PolyCollection(PatchCollection):
             return [tuple(xy) for xy in self._offsets]
         raise NotImplementedError('Vertices in data coordinates are calculated\n'
                 + 'with offsets only if _transOffset == dataTrans.')
- 
+
 class BrokenBarHCollection(PolyCollection):
     """
     A colleciton of horizontal bars spanning yrange with a sequence of
@@ -293,7 +293,7 @@ class BrokenBarHCollection(PolyCollection):
         ymax = ymin + ywidth
         verts = [ [(xmin, ymin), (xmin, ymax), (xmin+xwidth, ymax), (xmin+xwidth, ymin)] for xmin, xwidth in xranges]
         PolyCollection.__init__(self, verts, **kwargs)
-         
+
 class RegularPolyCollection(PatchCollection):
     def __init__(self,
                  dpi,
@@ -397,7 +397,7 @@ class StarPolygonCollection(RegularPolyCollection):
                  **kwargs):
         """
         Draw a regular star like Polygone with numsides.
-        
+
         * dpi is the figure dpi instance, and is required to do the
           area scaling.
 
@@ -417,7 +417,7 @@ class StarPolygonCollection(RegularPolyCollection):
             transform the centers onto the canvas.
         """
         RegularPolyCollection.__init__(self, dpi, numsides, rotation, sizes, **kwargs)
-    
+
     def _update_verts(self):
         scale = 1.0/math.sqrt(math.pi)
         r = scale*ones(self.numsides*2)
