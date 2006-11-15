@@ -4363,7 +4363,11 @@ class Axes(Artist):
             Pxx is a len(times) x len(freqs) array of power
 
             im is a matplotlib.image.AxesImage.
-    """
+
+        Note: If x is real (i.e. non-complex) only the positive spectrum is
+        shown.  If x is complex both positive and negative parts of the
+        spectrum are shown.
+        """
         if not self._hold: self.cla()
 
         Pxx, freqs, bins = matplotlib.mlab.specgram(x, NFFT, Fs, detrend,
@@ -4375,7 +4379,7 @@ class Axes(Artist):
 
         if xextent is None: xextent = 0, amax(bins)
         xmin, xmax = xextent
-        extent = xmin, xmax, 0, amax(freqs)
+        extent = xmin, xmax, amin(freqs), amax(freqs)
         im = self.imshow(Z, cmap, extent=extent)
         self.axis('auto')
 
