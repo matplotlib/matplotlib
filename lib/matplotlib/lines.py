@@ -1148,8 +1148,8 @@ class Line2D(Artist):
         """
         s = s.lower()
         if s not in self.validJoin:
-            raise ValueError('set_dash_joinstyle passed "%s";\n' % s
-                  + 'valid joinstyles are %s' % ', '.join(self.validJoin))
+            raise ValueError('set_dash_joinstyle passed "%s";\n' % (s,)
+                  + 'valid joinstyles are %s' % (self.validJoin,))
         self._dashjoinstyle = s
 
     def set_solid_joinstyle(self, s):
@@ -1159,8 +1159,8 @@ class Line2D(Artist):
         """
         s = s.lower()
         if s not in self.validJoin:
-            raise ValueError('set_solid_joinstyle passed "%s";\n' % s
-                  + 'valid joinstyles are %s' % ', '.join(self.validJoin))
+            raise ValueError('set_solid_joinstyle passed "%s";\n' % (s,)
+                  + 'valid joinstyles are %s' % (self.validJoin,))
         self._solidjoinstyle = s
 
 
@@ -1183,8 +1183,8 @@ class Line2D(Artist):
         """
         s = s.lower()
         if s not in self.validCap:
-            raise ValueError('set_dash_capstyle passed "%s";\n' % s
-                  + 'valid capstyles are %s' % ', '.join(self.validCap))
+            raise ValueError('set_dash_capstyle passed "%s";\n' % (s,)
+                  + 'valid capstyles are %s' % (self.validCap,))
 
         self._dashcapstyle = s
 
@@ -1196,8 +1196,8 @@ class Line2D(Artist):
         """
         s = s.lower()
         if s not in self.validCap:
-            raise ValueError('set_solid_capstyle passed "%s";\n' % s
-                  + 'valid capstyles are %s' % ', '.join(self.validCap))
+            raise ValueError('set_solid_capstyle passed "%s";\n' % (s,)
+                  + 'valid capstyles are %s' % (self.validCap,))
 
         self._solidcapstyle = s
 
