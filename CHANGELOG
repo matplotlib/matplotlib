@@ -1,3 +1,6 @@
+2006-11-14 Applied patch by Ulf Larssen to fix a bug in
+           apply_aspect. - EF
+
 2006-11-14 Improved the ability of the colorbar to track
            changes in corresponding image, pcolor, or
            contourf. - EF
