@@ -1,7 +1,9 @@
 2006-11-14 Applied patch 1591716 by Ulf Larssen to fix a bug in
            apply_aspect.  Modified and applied patch
            1594894 by mdehoon to fix bugs and improve
-           formatting in lines.py. - EF
+           formatting in lines.py. Applied patch 1573008
+           by Greg Willden to make psd etc. plot full frequency
+           range for complex inputs. - EF
 
 2006-11-14 Improved the ability of the colorbar to track
            changes in corresponding image, pcolor, or

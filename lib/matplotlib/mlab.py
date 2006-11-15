@@ -147,8 +147,10 @@ def psd(x, NFFT=256, Fs=2, detrend=detrend_none,
     the sampling frequency.
 
     -- NFFT must be a power of 2
-    -- detrend and window are functions, unlike in matlab where they are
-       vectors.
+    -- detrend is a functions, unlike in matlab where it is a vector.
+    -- window can be a function or a vector of length NFFT. To create window
+       vectors see numpy.blackman, numpy.hamming, numpy.bartlett,
+       scipy.signal, scipy.signal.get_window etc.
     -- if length x < NFFT, it will be zero padded to NFFT
     
 
@@ -174,7 +176,11 @@ def psd(x, NFFT=256, Fs=2, detrend=detrend_none,
     if typecode(x)==Complex: numFreqs = NFFT
     else: numFreqs = NFFT//2+1
         
-    windowVals = window(ones((NFFT,),typecode(x)))
+    if iterable(window):
+       assert(len(window) == NFFT)
+       windowVals = window
+    else:
+       windowVals = window(ones((NFFT,),typecode(x)))
     step = NFFT-noverlap
     ind = range(0,len(x)-NFFT+1,step)
     n = len(ind)
@@ -210,6 +216,10 @@ def csd(x, y, NFFT=256, Fs=2, detrend=detrend_none,
 
     NFFT must be a power of 2
 
+    window can be a function or a vector of length NFFT. To create 
+    window vectors see numpy.blackman, numpy.hamming, numpy.bartlett,
+    scipy.signal, scipy.signal.get_window etc.
+
     Returns the tuple Pxy, freqs
 
     
@@ -237,7 +247,11 @@ def csd(x, y, NFFT=256, Fs=2, detrend=detrend_none,
     if typecode(x)==Complex: numFreqs = NFFT
     else: numFreqs = NFFT//2+1
         
-    windowVals = window(ones((NFFT,),typecode(x)))
+    if iterable(window):
+       assert(len(window) == NFFT)
+       windowVals = window
+    else:
+       windowVals = window(ones((NFFT,),typecode(x)))
     step = NFFT-noverlap
     ind = range(0,len(x)-NFFT+1,step)
     n = len(ind)
@@ -273,7 +287,7 @@ def cohere(x, y, NFFT=256, Fs=2, detrend=detrend_none,
 
     The return value is (Cxy, f), where f are the frequencies of the
     coherence vector.  See the docs for psd and csd for information
-    about the function arguments NFFT, detrend, windowm noverlap, as
+    about the function arguments NFFT, detrend, window, noverlap, as
     well as the methods used to compute Pxy, Pxx and Pyy.
 
     Returns the tuple Cxy, freqs
@@ -520,7 +534,11 @@ def cohere_pairs( X, ij, NFFT=256, Fs=2, detrend=detrend_none,
     # cache the FFT of every windowed, detrended NFFT length segement
     # of every channel.  If preferSpeedOverMemory, cache the conjugate
     # as well
-    windowVals = window(ones((NFFT,), typecode(X)))
+    if iterable(window):
+       assert(len(window) == NFFT)
+       windowVals = window
+    else:
+       windowVals = window(ones((NFFT,), typecode(X)))
     ind = range(0, numRows-NFFT+1, NFFT-noverlap)
     numSlices = len(ind)
     FFTSlices = {}
@@ -908,9 +926,17 @@ def specgram(x, NFFT=256, Fs=2, detrend=detrend_none,
     Compute a spectrogram of data in x.  Data are split into NFFT
     length segements and the PSD of each section is computed.  The
     windowing function window is applied to each segment, and the
-    amount of overlap of each segment is specified with noverlap
+    amount of overlap of each segment is specified with noverlap.
+
+    window can be a function or a vector of length NFFT. To create
+    window vectors see numpy.blackman, numpy.hamming, numpy.bartlett,
+    scipy.signal, scipy.signal.get_window etc.
+
 
     See pdf for more info.
+
+    If x is real (i.e. non-Complex) only the positive spectrum is
+    given.  If x is Complex then the complete spectrum is given.
 
     The returned times are the midpoints of the intervals over which
     the ffts are calculated
@@ -930,8 +956,12 @@ def specgram(x, NFFT=256, Fs=2, detrend=detrend_none,
     # for real x, ignore the negative frequencies
     if typecode(x)==Complex: numFreqs=NFFT
     else: numFreqs = NFFT//2+1
-        
-    windowVals = window(ones((NFFT,),typecode(x)))
+
+    if iterable(window):
+       assert(len(window) == NFFT)
+       windowVals = window
+    else:
+       windowVals = window(ones((NFFT,),typecode(x)))
     step = NFFT-noverlap
     ind = arange(0,len(x)-NFFT+1,step)
     n = len(ind)
@@ -947,6 +977,10 @@ def specgram(x, NFFT=256, Fs=2, detrend=detrend_none,
         Pxx[:,i] = divide(fx[:numFreqs], norm(windowVals)**2)
     t = 1/Fs*(ind+NFFT/2)
     freqs = Fs/NFFT*arange(numFreqs)
+
+    if typecode(x) == Complex:
+       freqs = concatenate((freqs[NFFT/2:]-Fs,freqs[:NFFT/2]))
+       Pxx   = concatenate((Pxx[NFFT/2:,:],Pxx[:NFFT/2,:]),0)
 
     return Pxx, freqs, t
 
@@ -1064,7 +1098,10 @@ def fftsurr(x, detrend=detrend_none, window=window_none):
     """
     Compute an FFT phase randomized surrogate of x
     """
-    x = window(detrend(x))
+    if iterable(window):
+       x=window*detrend(x)
+    else:
+       x = window(detrend(x))
     z = fft(x)
     a = 2.*pi*1j
     phase = a*rand(len(x))
