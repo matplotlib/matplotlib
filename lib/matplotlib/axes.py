@@ -723,7 +723,8 @@ class Axes(Artist):
         else:
             #print 'xmarg, ymarg, Xmarg, Ymarg', xmarg, ymarg, Xmarg, Ymarg
             if xmarg > xm and ymarg > ym:
-                adjy = Ymarg > 0 and y_expander < 0
+                adjy = ((Ymarg > 0 and y_expander < 0)
+                        or (Xmarg < 0 and y_expander > 0))
             else:
                 adjy = y_expander > 0
             #print 'y_expander, adjy', y_expander, adjy
