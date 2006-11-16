@@ -1,3 +1,5 @@
+    Removed obsolete pcolor_classic command and method.
+
     Removed lineprops and markerprops from the Annotation code and
     replaced them with an arrow configurable with kwarg arrowprops.
     See examples/annotation_demo.py - JDH

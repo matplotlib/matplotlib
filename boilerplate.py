@@ -69,7 +69,6 @@ _plotcommands = (
     'loglog',
     'pcolor',
     'pcolormesh',
-    'pcolor_classic',
     'pie',
     'plot',
     'plot_date',
@@ -94,7 +93,7 @@ _misccommands = (
     'legend',
     'table',
     'text',
-    'annotate',    
+    'annotate',
     )
 
 cmappable = {

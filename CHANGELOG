@@ -1,3 +1,5 @@
+2006-11-15 Removed obsolete pcolor_classic - EF
+
 2006-11-15 Fixed 1588908 reported by Russel Owen; factored
            nonsingular method out of ticker.py, put it into
            transforms.py as a function, and used it in
