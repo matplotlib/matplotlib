@@ -226,6 +226,32 @@ from _transforms import SeparableTransformation, NonseparableTransformation
 from matplotlib.numerix import array, Float
 from matplotlib.numerix.linear_algebra import inverse
 
+def nonsingular(vmin, vmax, expander=0.001, tiny=1e-15, increasing=True):
+    '''
+    Ensure the endpoints of a range are not too close together.
+
+    "too close" means the interval is smaller than 'tiny' times
+            the maximum absolute value.
+
+    If they are too close, each will be moved by the 'expander'.
+    If 'increasing' is True and vmin > vmax, they will be swapped.
+    '''
+    swapped = False
+    if vmax < vmin:
+        vmin, vmax = vmax, vmin
+        swapped = True
+    if vmax - vmin <= max(abs(vmin), abs(vmax)) * tiny:
+        if vmin==0.0:
+            vmin = expander
+            vmax = -expander
+        else:
+            vmin -= expander*abs(vmin)
+            vmax += expander*abs(vmax)
+    if swapped and not increasing:
+        vmin, vmax = vmax, vmin
+    return vmin, vmax
+
+
 def zero(): return Value(0)
 
 def one() : return Value(1)

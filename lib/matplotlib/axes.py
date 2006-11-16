@@ -42,7 +42,7 @@ from transforms import Bbox, Point, Value, Affine, NonseparableTransformation
 from transforms import  FuncXY, Func, LOG10, IDENTITY, POLAR
 from transforms import get_bbox_transform, unit_bbox, one, origin, zero
 from transforms import blend_xy_sep_transform, Interval, identity_transform
-from transforms import PBox, identity_transform
+from transforms import PBox, identity_transform, nonsingular
 from font_manager import FontProperties
 
 from quiver import Quiver, QuiverKey
@@ -1228,11 +1228,7 @@ class Axes(Artist):
         if self.transData.get_funcx().get_type()==LOG10 and min(xmin, xmax)<=0:
             raise ValueError('Cannot set nonpositive limits with log transform')
 
-        if abs(xmax - xmin) < 1e-38:
-            warnings.warn("xmax too close to xmin; adjusting")
-            xmin -= 1e-38
-            xmax += 1e-38
-
+        xmin, xmax = nonsingular(xmin, xmax)
         self.viewLim.intervalx().set_bounds(xmin, xmax)
         if emit: self._send_xlim_event()
         return xmin, xmax
@@ -1340,11 +1336,8 @@ class Axes(Artist):
 
         if self.transData.get_funcy().get_type()==LOG10 and min(ymin, ymax)<=0:
             raise ValueError('Cannot set nonpositive limits with log transform')
-        if abs(ymax - ymin) < 1e-38:
-            warnings.warn("ymax too close to ymin; adjusting")
-            ymin -= 1e-38
-            ymax += 1e-38
 
+        ymin, ymax = nonsingular(ymin, ymax)
         self.viewLim.intervaly().set_bounds(ymin, ymax)
         if emit: self._send_ylim_event()
         return ymin, ymax

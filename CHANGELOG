@@ -1,3 +1,8 @@
+2006-11-15 Fixed 1588908 reported by Russel Owen; factored
+           nonsingular method out of ticker.py, put it into
+           transforms.py as a function, and used it in
+           set_xlim and set_ylim. - EF
+
 2006-11-14 Applied patch 1591716 by Ulf Larssen to fix a bug in
            apply_aspect.  Modified and applied patch
            1594894 by mdehoon to fix bugs and improve

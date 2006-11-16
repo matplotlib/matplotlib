@@ -12,7 +12,7 @@
     markeredgecolor and markerfacecolor cannot be configured in
     matplotlibrc any more. Instead, markers are generally colored
     automatically based on the color of the line, unless marker colors
-    are explicitely set as kwargs - NN    
+    are explicitely set as kwargs - NN
 
     Changed default comment character for load to '#' - JDH
 

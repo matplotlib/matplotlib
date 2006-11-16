@@ -48,7 +48,7 @@ class RendererBase:
 
     def get_image_magnification(self):
         """
-        Get the factor by which to magnify images passed to draw_image.  
+        Get the factor by which to magnify images passed to draw_image.
         Allows a backend to have images at a different resolution to other
         artists.
         """
@@ -1022,11 +1022,11 @@ class FigureManagerBase:
 
     def full_screen_toggle (self):
         pass
-    
+
     def resize(self, w, h):
         'For gui backends: resize window in pixels'
         pass
-    
+
     def key_press(self, event):
 
         # these bindings happen whether you are over an axes or not
@@ -1414,24 +1414,10 @@ class NavigationToolbar2:
                 except OverflowError:
                     warnings.warn('Overflow while panning')
                     return
-            a.set_xlim(self.nonsingular(xmin, xmax))
-            a.set_ylim(self.nonsingular(ymin, ymax))
+            a.set_xlim(xmin, xmax)
+            a.set_ylim(ymin, ymax)
 
         self.dynamic_update()
-
-    def nonsingular(self, x0, x1):
-        '''Desperate hack to prevent crashes when button-3 panning with
-        axis('image') in effect.
-        '''
-        d = x1 - x0
-        # much smaller thresholds seem to cause Value Error
-        # later in Transformation::freeze in axes.draw()
-        if abs(d) < 1e-10:
-            warnings.warn('Axis data limit is too small for panning')
-            x1 += 1e-10
-            x0 -= 1e-10
-        return (x0, x1)
-
 
     def release_zoom(self, event):
         'the release mouse button callback in zoom to rect mode'
