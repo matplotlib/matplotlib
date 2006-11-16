@@ -116,6 +116,7 @@ from numerix import absolute, arange, array, asarray, Float, floor, log, \
 from matplotlib.numerix.mlab import amin, amax, std, mean
 from matplotlib.mlab import frange
 from cbook import strip_math
+from transforms import nonsingular
 
 class TickHelper:
 
@@ -535,7 +536,7 @@ class Locator(TickHelper):
     def autoscale(self):
         'autoscale the view limits'
         self.verify_intervals()
-        return  self.nonsingular(*self.dataInterval.get_bounds())
+        return nonsingular(*self.dataInterval.get_bounds())
 
     def pan(self, numsteps):
         'Pan numticks (can be positive or negative)'
@@ -555,18 +556,6 @@ class Locator(TickHelper):
         interval = self.viewInterval.span()
         step = 0.1*interval*direction
         self.viewInterval.set_bounds(vmin + step, vmax - step)
-
-    def nonsingular(self, vmin, vmax, expander=0.001, tiny=1e-15):
-        if vmax < vmin:
-            vmin, vmax = vmax, vmin
-        if vmax - vmin <= max(abs(vmin), abs(vmax)) * tiny:
-            if vmin==0.0:
-                vmin -= 1
-                vmax += 1
-            else:
-                vmin -= expander*abs(vmin)
-                vmax += expander*abs(vmax)
-        return vmin, vmax
 
     def refresh(self):
         'refresh internal information based on current lim'
@@ -689,7 +678,7 @@ class LinearLocator(Locator):
         vmin = math.floor(scale*vmin)/scale
         vmax = math.ceil(scale*vmax)/scale
 
-        return self.nonsingular(vmin, vmax)
+        return nonsingular(vmin, vmax)
 
 
 def closeto(x,y):
@@ -773,7 +762,7 @@ class MultipleLocator(Locator):
             vmin -=1
             vmax +=1
 
-        return self.nonsingular(vmin, vmax)
+        return nonsingular(vmin, vmax)
 
 def scale_range(vmin, vmax, n = 1, threshold=100):
     dv = abs(vmax - vmin)
@@ -837,13 +826,13 @@ class MaxNLocator(Locator):
     def __call__(self):
         self.verify_intervals()
         vmin, vmax = self.viewInterval.get_bounds()
-        vmin, vmax = self.nonsingular(vmin, vmax, expander = 0.05)
+        vmin, vmax = nonsingular(vmin, vmax, expander = 0.05)
         return self.bin_boundaries(vmin, vmax)
 
     def autoscale(self):
         self.verify_intervals()
         dmin, dmax = self.dataInterval.get_bounds()
-        dmin, dmax = self.nonsingular(dmin, dmax, expander = 0.05)
+        dmin, dmax = nonsingular(dmin, dmax, expander = 0.05)
         return take(self.bin_boundaries(dmin, dmax), [0,-1])
 
 
@@ -943,7 +932,7 @@ class LogLocator(Locator):
         if vmin==vmax:
             vmin = decade_down(vmin,self._base)
             vmax = decade_up(vmax,self._base)
-        return self.nonsingular(vmin, vmax)
+        return nonsingular(vmin, vmax)
 
 class AutoLocator(MaxNLocator):
     def __init__(self):
