@@ -3335,6 +3335,10 @@ class Axes(Artist):
 
     def scatter_classic(self, x, y, s=None, c='b'):
         """
+        scatter_classic is no longer available; please use scatter.
+        To help in porting, for comparison to the scatter docstring,
+        here is the scatter_classic docstring:
+
         SCATTER_CLASSIC(x, y, s=None, c='b')
 
         Make a scatter plot of x versus y.  s is a size (in data coords) and
@@ -3344,37 +3348,18 @@ class Axes(Artist):
 
         If size is None a default size will be used
         """
-        if not self._hold: self.cla()
-        if is_string_like(c):
-            c = [c]*len(x)
-        elif not iterable(c):
-            c = [c]*len(x)
-        else:
-            norm = normalize()
-            norm(c)
-            c = cm.jet(c)
+        raise NotImplementedError('scatter_classic has been removed;\n'
+                                  + 'please use scatter instead')
 
-        if s is None:
-            s = [abs(0.015*(amax(y)-amin(y)))]*len(x)
-        elif not iterable(s):
-            s = [s]*len(x)
+    def pcolor_classic(self, *args):
+        """
+        pcolor_classic is no longer available; please use pcolor,
+        which is a drop-in replacement.
+        """
+        raise NotImplementedError('pcolor_classic has been removed;\n'
+                                  + 'please use pcolor instead')
 
-        if len(c)!=len(x):
-            raise ValueError, 'c and x are not equal lengths'
-        if len(s)!=len(x):
-            raise ValueError, 's and x are not equal lengths'
 
-        patches = []
-        for thisX, thisY, thisS, thisC in zip(x,y,s,c):
-            #print thisX, thisY, thisS, thisC
-            circ = Circle( (thisX, thisY),
-                           radius=thisS,
-                           )
-            circ.set_facecolor(thisC)
-            self.add_patch(circ)
-            patches.append(circ)
-        self.autoscale_view()
-        return patches
 
     def arrow(self, x, y, dx, dy, **kwargs):
         """Draws arrow on specified axis from (x,y) to (x+dx,y+dy)."""

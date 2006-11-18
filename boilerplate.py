@@ -74,7 +74,6 @@ _plotcommands = (
     'plot_date',
     'psd',
     'scatter',
-    'scatter_classic',
     'semilogx',
     'semilogy',
     'specgram',
