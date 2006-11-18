@@ -1099,14 +1099,14 @@ class YAxis(Axis):
         x,y = self.offsetText.get_position()
         top = self.axes.bbox.ymax()
         self.offsetText.set_position((x, top+self.OFFSETTEXTPAD*self.figure.dpi.get()/72.0))
-    
+
     def set_offset_position(self, position):
         assert position == 'left' or position == 'right'
-        
+
         x,y = self.offsetText.get_position()
         if position == 'left': x = 0
         else: x = 1
-        
+
         self.offsetText.set_ha(position)
         self.offsetText.set_position((x,y))
 
