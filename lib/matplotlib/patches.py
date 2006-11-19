@@ -82,7 +82,7 @@ class Patch(Artist):
         """
         Set the patch edge color
 
-        ACCEPTS: any matplotlib color - see help(colors)
+        ACCEPTS: any matplotlib color 
         """
         self._edgecolor = color
 
@@ -90,7 +90,7 @@ class Patch(Artist):
         """
         Set the patch face color
 
-        ACCEPTS: any matplotlib color - see help(colors)
+        ACCEPTS: any matplotlib color 
         """
         self._facecolor = color
 

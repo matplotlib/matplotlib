@@ -21,7 +21,6 @@ from colors import colorConverter
 
 from transforms import lbwh_to_bbox, LOG10
 from matplotlib import rcParams
-
 TICKLEFT, TICKRIGHT, TICKUP, TICKDOWN = range(4)
 
 def unmasked_index_ranges(mask, compressed = True):
@@ -70,7 +69,6 @@ def unmasked_index_ranges(mask, compressed = True):
     ic0 = concatenate(((0,), breakpoints[:-1]))
     ic1 = breakpoints
     return concatenate((ic0[:, NewAxis], ic1[:, NewAxis]), axis=1)
-
 
 
 class Line2D(Artist):
@@ -139,18 +137,10 @@ class Line2D(Artist):
                  **kwargs
                  ):
         """
-        xdata is a sequence of x data
-        ydata is a sequence of y data
-        linewidth is the width of the line in points
-        linestyle is one of lineStyles
-        marker is one of lineMarkers or None
-        markersize is the size of the marker in points
-        markeredgecolor  and markerfacecolor can be any color arg
-        markeredgewidth is the size of the markter edge in points
-        dash_capstyle set the capstyle for dashed line
-        solid_capstyle set the capstyle for solid line
-        dash_joinstyle set the joinstyle for dashed line
-        solid_joinstyle set the joinstyle for solid line
+        Initialize the line instance
+        
+        The following line properties are customizable by kwargs
+        LINEKWARGS
         """
         Artist.__init__(self)
 
@@ -411,7 +401,7 @@ class Line2D(Artist):
         """
         Set the color of the line
 
-        ACCEPTS: any matplotlib color - see help(colors)
+        ACCEPTS: any matplotlib color 
         """
         self._color = color
 
@@ -460,7 +450,7 @@ class Line2D(Artist):
         """
         Set the marker edge color
 
-        ACCEPTS: any matplotlib color - see help(colors)
+        ACCEPTS: any matplotlib color 
         """
         self._markeredgecolor = ec
 
@@ -476,7 +466,7 @@ class Line2D(Artist):
         """
         Set the marker face color
 
-        ACCEPTS: any matplotlib color - see help(colors)
+        ACCEPTS: any matplotlib color 
         """
         self._markerfacecolor = fc
 
@@ -1221,3 +1211,4 @@ class Line2D(Artist):
 
 lineStyles = Line2D._lineStyles
 lineMarkers = Line2D._markers
+
