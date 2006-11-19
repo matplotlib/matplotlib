@@ -492,7 +492,7 @@ class Text(Artist):
         """
         Set the background color of the text
 
-        ACCEPTS: any matplotlib color - see help(colors)
+        ACCEPTS: any matplotlib color 
         """
         self._backgroundcolor = color
 
@@ -501,7 +501,7 @@ class Text(Artist):
         """
         Set the foreground color of the text
 
-        ACCEPTS: any matplotlib color - see help(colors)
+        ACCEPTS: any matplotlib color 
         """
         # Make sure it is hashable, or get_prop_tup will fail.
         try:

@@ -2115,6 +2115,9 @@ class Axes(Artist):
 
         Neither line will be antialiased.
 
+        The kwargs are Line2D properties:
+
+        
         Additional kwargs scalex and scaley, if defined, are passed on
         to autoscale_view to determine whether the x and y axes are
         autoscaled; default True.  See Axes.autoscale_view for more
