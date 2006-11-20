@@ -16,6 +16,8 @@ from numerix import sin, cos, pi, cumsum, dot, asarray, array, \
 from transforms import lbwh_to_bbox, bbox_all, identity_transform
 from lines import Line2D
 
+import artist
+
 def scanner(s):
     """
     Split a string into mathtext and non-mathtext parts.  mathtext is
@@ -1711,3 +1713,6 @@ class Annotation(Text):
     
         
         
+artist.kwdocd['Text'] = '\n'.join(artist.ArtistInspector(Text).pprint_setters(leadingspace=12))
+artist.kwdocd['TextWithDash'] = '\n'.join(artist.ArtistInspector(TextWithDash).pprint_setters(leadingspace=12))
+artist.kwdocd['Annotation'] = '\n'.join(artist.ArtistInspector(Annotation).pprint_setters(leadingspace=12))

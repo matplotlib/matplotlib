@@ -2,6 +2,7 @@
 Figure class -- add docstring here!
 """
 import sys
+import artist
 from artist import Artist
 from axes import Axes, Subplot, PolarSubplot, PolarAxes
 from cbook import flatten, allequal, popd, Stack, iterable
@@ -160,7 +161,7 @@ class Figure(Artist):
         self._cachedRenderer = None
 
     def get_window_extent(self, *args, **kwargs):
-        'get the figure bounding box in display space'
+        'get the figure bounding box in display space; kwargs are void'
         return self.bbox
 
     def set_canvas(self, canvas):
@@ -609,6 +610,9 @@ class Figure(Artist):
         """
         Add text to figure at location x,y (relative 0-1 coords) See
         the help for Axis text for the meaning of the other arguments
+
+        kwargs control the Text properties:
+%(Text)s        
         """
 
         override = _process_text_args({}, *args, **kwargs)
@@ -620,7 +624,8 @@ class Figure(Artist):
         self._set_artist_props(t)
         self.texts.append(t)
         return t
-
+    text.__doc__ = text.__doc__%artist.kwdocd
+    
     def _set_artist_props(self, a):
         if a!= self:
             a.set_figure(self)
@@ -957,3 +962,4 @@ def figaspect(arg):
     newsize = clip(newsize,figsize_min,figsize_max)
     return newsize
 
+artist.kwdocd['Figure'] = '\n'.join(artist.ArtistInspector(Axes).pprint_setters(leadingspace=12))

@@ -339,7 +339,7 @@ class ArtistInspector:
             return '%s or %s' % (s, self.aliasd[s])
         else: return s
 
-    def pprint_setters(self, prop=None):
+    def pprint_setters(self, prop=None, leadingspace=2):
         """
         if prop is None, return a list of strings of all settable properies
         and their valid values
@@ -348,9 +348,13 @@ class ArtistInspector:
         property will be returned as a string of property : valid
         values
         """
+        if leadingspace:
+            pad = ' '*leadingspace
+        else:
+            pad  = ''
         if prop is not None:
             accepts = self.get_valid_values(prop)
-            return '    %s: %s' %(prop, accepts)
+            return '%s%s: %s' %(pad, prop, accepts)
 
         attrs = self.get_setters()
         attrs.sort()
@@ -359,7 +363,8 @@ class ArtistInspector:
         for prop in attrs:
             accepts = self.get_valid_values(prop)
             name = self.aliased_name(prop)
-            lines.append('    %s: %s' %(name, accepts))
+            
+            lines.append('%s%s: %s' %(pad, name, accepts))
         return lines
 
     def pprint_getters(self):
@@ -496,4 +501,5 @@ def setp(h, *args, **kwargs):
 
 
 
-
+kwdocd = dict()
+kwdocd['Artist'] = '\n'.join(ArtistInspector(Artist).pprint_setters(leadingspace=12))

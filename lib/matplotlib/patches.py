@@ -12,6 +12,7 @@ from transforms import bound_vertices
 from numerix.mlab import amin
 from mlab import dist_point_to_segment
 
+import artist
 
 class Patch(Artist):
     """
@@ -816,3 +817,10 @@ def draw_bbox(bbox, renderer, color='k', trans=None):
     r.set_clip_on( False )
     r.draw(renderer)
 
+artist.kwdocd['Patch'] = patchdoc = '\n'.join(artist.ArtistInspector(Patch).pprint_setters(leadingspace=12))
+
+for k in ('Rectangle', 'Circle', 'RegularPolygon', 'Polygon', 'Wedge', 'Arrow',
+          'FancyArrow', 'YAArrow', 'CirclePolygon', 'Ellipse'):
+    artist.kwdocd[k] = patchdoc
+
+Circle
