@@ -15,7 +15,8 @@ from numerix import Float, alltrue, arange, array, logical_and,\
      compress, zeros, concatenate, cumsum, typecode, NewAxis
 import numerix.ma as ma
 from matplotlib import verbose
-from artist import Artist, setp
+import artist
+from artist import Artist, setp, ArtistInspector
 from cbook import iterable, is_string_like
 from colors import colorConverter
 
@@ -140,7 +141,7 @@ class Line2D(Artist):
         Initialize the line instance
         
         The following line properties are customizable by kwargs
-        LINEKWARGS
+%(line2d)s
         """
         Artist.__init__(self)
 
@@ -1212,3 +1213,4 @@ class Line2D(Artist):
 lineStyles = Line2D._lineStyles
 lineMarkers = Line2D._markers
 
+artist.kwdocd['Line2D'] = '\n'.join(artist.ArtistInspector(Line2D).pprint_setters(leadingspace=12))

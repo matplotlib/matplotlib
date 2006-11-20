@@ -10,6 +10,7 @@ line segemnts)
 import math, warnings
 from matplotlib import rcParams, verbose
 
+import artist
 from artist import Artist
 from backend_bases import GraphicsContextBase
 from cbook import is_string_like, iterable
@@ -648,3 +649,8 @@ class LineCollection(Collection, ScalarMappable):
 
 
 
+artist.kwdocd['Collection'] = '\n'.join(artist.ArtistInspector(Collection).pprint_setters(leadingspace=12))
+artist.kwdocd['PatchCollection'] = patchstr = '\n'.join(artist.ArtistInspector(PatchCollection).pprint_setters(leadingspace=12))
+for k in ('QuadMesh', 'PolyCollection', 'BrokenBarHCollection', 'RegularPolyCollection',
+          'StarPolygonCollection', 'LineCollection'):
+    artist.kwdocd[k] = patchstr

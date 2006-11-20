@@ -1,3 +1,8 @@
+2006-11-19 Added semi-automatic docstring generation detailing all the
+           kwargs that functions take using the artist introspection
+           tools; eg 'help text now details the scatter kwargs
+           that control the Text properties  - JDH
+
 2006-11-17 Removed obsolete scatter_classic, leaving a stub to
            raise NotImplementedError; same for pcolor_classic - EF
 

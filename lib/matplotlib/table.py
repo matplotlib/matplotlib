@@ -24,6 +24,7 @@ import sys, warnings
 from matplotlib import verbose
 from numerix import ones, Float, add, asarray
 
+import artist
 from artist import Artist
 from patches import Rectangle
 from cbook import enumerate, is_string_like, flatten
@@ -510,3 +511,4 @@ def table(ax,
     return table
 
 
+artist.kwdocd['Table'] = '\n'.join(artist.ArtistInspector(Table).pprint_setters(leadingspace=12))
