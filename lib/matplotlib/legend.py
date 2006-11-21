@@ -283,7 +283,6 @@ The following dimensions are in axes coords
                 ret.append(legline)
 
             elif isinstance(handle, RegularPolyCollection):
-
                 p = Rectangle(xy=(min(self._xdata), y-3/4*HEIGHT),
                               width = self.handlelen, height=HEIGHT/2,
                               )

@@ -2405,6 +2405,7 @@ class Axes(Artist):
             handles = self.lines
             handles.extend(self.patches)
             handles.extend([c for c in self.collections if isinstance(c, LineCollection)])
+            handles.extend([c for c in self.collections if isinstance(c, RegularPolyCollection)])
             return handles
 
 
@@ -3235,8 +3236,8 @@ class Axes(Artist):
            markers.  If False, will set the edgecolors to be the same
            as the facecolors
 
-           Optional kwargs control the PolygonCollection properties:
-%(PolyCollection)s           
+           Optional kwargs control the PatchCollection properties:
+%(PatchCollection)s           
            """
 
         if not self._hold: self.cla()
@@ -3256,6 +3257,7 @@ class Axes(Artist):
 
         x, y, s, c = delete_masked_points(x, y, s, c)
 
+        kwargs = kwargs.copy()
         if kwargs.has_key('color'):
             c = kwargs['color']
             kwargs.pop('color')
@@ -3315,6 +3317,7 @@ class Axes(Artist):
 
         if sym is not None:
             if not starlike:
+
                 collection = RegularPolyCollection(
                     self.figure.dpi,
                     numsides, rotation, scales,
