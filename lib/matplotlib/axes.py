@@ -4351,7 +4351,7 @@ class Axes(Artist):
             y = c.col
             z = c.data
         else:
-            x,y,z = matplotlib.mlab.get_xyz_where(Z, Z>0)
+            x,y,z = matplotlib.mlab.get_xyz_where(Z, Z!=0)
         return self.plot(x+0.5,y+0.5, linestyle='None',
                          marker=marker,markersize=markersize, **kwargs)
     spy.__doc__ = spy.__doc__%artist.kwdocd
@@ -4370,7 +4370,7 @@ class Axes(Artist):
              'blue' :  ((0., 1., 1.), (1., 0., 0.))
              }
         binary =  LinearSegmentedColormap('binary',  cmapdata, 2)
-        Z = where(Z>0,1.,0.)
+        Z = where(Z!=0,1.,0.)
         return self.imshow(transpose(Z), interpolation='nearest', cmap=binary)
 
 
