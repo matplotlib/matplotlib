@@ -1427,6 +1427,7 @@ def matshow(*args,**kw):
     # Preprocess args for our purposes
     arr = asarray(args[0])
     # Extract unique keywords we can't pass to imshow
+    kw = kw.copy()
     fignum = popd(kw,'fignum',None)
     retall = popd(kw,'returnall',False)
 
