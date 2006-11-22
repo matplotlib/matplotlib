@@ -4335,13 +4335,16 @@ class Axes(Artist):
 
         return Pxx, freqs, bins, im
 
-    def spy(self, Z,  marker='s', markersize=10, **kwargs):
+    def spy(self, Z,  marker='s', markersize=10, precision=None, **kwargs):
         """
         SPY(Z, **kwargs) plots the sparsity pattern of the matrix Z
         using plot markers.
 
         The line handles are returned
 
+        if precision is None, any non-zero value will be plotted
+        if precision is not None, values of absolute(Z)>precision will be plotted
+        
         kwargs control the Line2D properties of the markers:
 %(Line2D)s        
         """
@@ -4352,28 +4355,44 @@ class Axes(Artist):
             z = c.data
         else:
             Z = asarray(Z)
-            x,y,z = matplotlib.mlab.get_xyz_where(Z, Z!=0)
+            if precision is None: mask = Z!=0.
+            else:                 mask = absolute(Z)>precision
+            x,y,z = matplotlib.mlab.get_xyz_where(Z, mask)
         return self.plot(x+0.5,y+0.5, linestyle='None',
                          marker=marker,markersize=markersize, **kwargs)
     spy.__doc__ = spy.__doc__%artist.kwdocd
     
-    def spy2(self, Z):
+    def spy2(self, Z, precision=None, **kwargs):
         """
         SPY2(Z) plots the sparsity pattern of the matrix Z as an image
 
+        if precision is None, any non-zero value will be plotted
+        if precision is not None, values of absolute(Z)>precision will be plotted
+
+        kwargs are passed on to imshow; see help imshow for valid kwargs
+        
         The image instance is returned
         """
 
         #binary colormap min white, max black
-        cmapdata = {
-             'red'  :  ((0., 1., 1.), (1., 0., 0.)),
-             'green':  ((0., 1., 1.), (1., 0., 0.)),
-             'blue' :  ((0., 1., 1.), (1., 0., 0.))
-             }
-        binary =  LinearSegmentedColormap('binary',  cmapdata, 2)
         Z = asarray(Z)
-        Z = where(Z!=0,1.,0.)
-        return self.imshow(transpose(Z), interpolation='nearest', cmap=binary)
+
+        if precision is None: mask = Z!=0.
+        else:                 mask = absolute(Z)>precision
+
+        Z = where(mask, 1., 0.)
+
+        kwargs = kwargs.copy()        
+        if 'cmap' not in kwargs:
+            cmapdata = {
+                'red'  :  ((0., 1., 1.), (1., 0., 0.)),
+                'green':  ((0., 1., 1.), (1., 0., 0.)),
+                'blue' :  ((0., 1., 1.), (1., 0., 0.))
+                }
+            binary =  LinearSegmentedColormap('binary',  cmapdata, 2)
+            kwargs['cmap'] = binary
+            
+        return self.imshow(transpose(Z), interpolation='nearest', **kwargs)
 
 
 
