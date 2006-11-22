@@ -1153,13 +1153,13 @@ class Axes(Artist):
           ax.grid(color='r', linestyle='-', linewidth=2)
 
         Valid Line2D kwargs are
-%(Line2D)s        
+%(Line2D)s
         """
         if len(kwargs): b = True
         self.xaxis.grid(b, **kwargs)
         self.yaxis.grid(b, **kwargs)
     grid.__doc__ = grid.__doc__%artist.kwdocd
-    
+
     def set_axis_off(self):
         """
         turn off the axis
@@ -1230,7 +1230,7 @@ class Axes(Artist):
         if self.transData.get_funcx().get_type()==LOG10 and min(xmin, xmax)<=0:
             raise ValueError('Cannot set nonpositive limits with log transform')
 
-        xmin, xmax = nonsingular(xmin, xmax)
+        xmin, xmax = nonsingular(xmin, xmax, increasing=False)
         self.viewLim.intervalx().set_bounds(xmin, xmax)
         if emit: self._send_xlim_event()
         return xmin, xmax
@@ -1299,12 +1299,12 @@ class Axes(Artist):
         text instances.
 
         kwargs set the Text properties.  Valid properties are
-%(Text)s        
+%(Text)s
 
         ACCEPTS: sequence of strings
         """
         return self.xaxis.set_ticklabels(labels, fontdict, **kwargs)
-    set_xticklabels.__doc__ = set_xticklabels.__doc__%artist.kwdocd 
+    set_xticklabels.__doc__ = set_xticklabels.__doc__%artist.kwdocd
 
     def get_ylim(self):
         'Get the y axis range [ymin, ymax]'
@@ -1343,7 +1343,7 @@ class Axes(Artist):
         if self.transData.get_funcy().get_type()==LOG10 and min(ymin, ymax)<=0:
             raise ValueError('Cannot set nonpositive limits with log transform')
 
-        ymin, ymax = nonsingular(ymin, ymax)
+        ymin, ymax = nonsingular(ymin, ymax, increasing=False)
         self.viewLim.intervaly().set_bounds(ymin, ymax)
         if emit: self._send_ylim_event()
         return ymin, ymax
@@ -1414,13 +1414,13 @@ class Axes(Artist):
         Text instances.
 
         kwargs set Text properties for the labels.  Valid properties are
-%(Text)s        
+%(Text)s
 
         ACCEPTS: sequence of strings
         """
         return self.yaxis.set_ticklabels(labels, fontdict, **kwargs)
     set_yticklabels.__doc__ = set_yticklabels.__doc__%artist.kwdocd
-    
+
     def toggle_log_lineary(self):
         'toggle between log and linear on the y axis'
         funcy = self.transData.get_funcy().get_type()
@@ -1692,7 +1692,7 @@ class Axes(Artist):
         self.title.update(kwargs)
         return self.title
     set_title.__doc__ = set_title.__doc__%artist.kwdocd
-    
+
     def set_xlabel(self, xlabel, fontdict=None, **kwargs):
         """
         SET_XLABEL(xlabel, fontdict=None, **kwargs)
@@ -1701,7 +1701,7 @@ class Axes(Artist):
         of how override and the optional args work.
 
         Valid kwargs are Text properties:
-%(Text)s        
+%(Text)s
         ACCEPTS: str
         """
 
@@ -1711,7 +1711,7 @@ class Axes(Artist):
         label.update(kwargs)
         return label
     set_xlabel.__doc__ = set_xlabel.__doc__%artist.kwdocd
-    
+
     def set_ylabel(self, ylabel, fontdict=None, **kwargs):
         """
         SET_YLABEL(ylabel, fontdict=None, **kwargs)
@@ -1722,7 +1722,7 @@ class Axes(Artist):
         the optional args work
 
         Valid kwargs are Text properties:
-%(Text)s        
+%(Text)s
         ACCEPTS: str
         """
         label = self.yaxis.get_label()
@@ -1731,7 +1731,7 @@ class Axes(Artist):
         label.update(kwargs)
         return label
     set_ylabel.__doc__ = set_ylabel.__doc__%artist.kwdocd
-    
+
     def text(self, x, y, s, fontdict=None,
              withdash=False, **kwargs):
         """
@@ -1764,7 +1764,7 @@ class Axes(Artist):
 
 
        Valid kwargs are Text properties
-%(Text)s       
+%(Text)s
         """
         default = {
             'verticalalignment' : 'bottom',
@@ -1799,7 +1799,7 @@ class Axes(Artist):
         if kwargs.has_key('clip_on'):  t.set_clip_box(self.bbox)
         return t
     text.__doc__ = text.__doc__%artist.kwdocd
-    
+
     def annotate(self, *args, **kwargs):
         """
         annotate(self, s, xyloc, textloc,
@@ -1818,7 +1818,7 @@ class Axes(Artist):
 
 
     #### Lines and spans
-    
+
     def axhline(self, y=0, xmin=0, xmax=1, **kwargs):
         """
         AXHLINE(y=0, xmin=0, xmax=1, **kwargs)
@@ -1846,15 +1846,15 @@ class Axes(Artist):
           axhline(y=.5, xmin=0.25, xmax=0.75)
 
         Valid kwargs are Line2D properties
-%(Line2D)s        
+%(Line2D)s
         """
-        
+
         trans = blend_xy_sep_transform( self.transAxes, self.transData)
         l, = self.plot([xmin,xmax], [y,y], transform=trans, scalex=False, **kwargs)
         return l
 
     axhline.__doc__ = axhline.__doc__%artist.kwdocd
-    
+
     def axvline(self, x=0, ymin=0, ymax=1, **kwargs):
         """
         AXVLINE(x=0, ymin=0, ymax=1, **kwargs)
@@ -1882,7 +1882,7 @@ class Axes(Artist):
             axvline(x=.5, ymin=0.25, ymax=0.75)
 
         Valid kwargs are Line2D properties
-%(Line2D)s        
+%(Line2D)s
         """
 
         trans = blend_xy_sep_transform( self.transData, self.transAxes )
@@ -1890,7 +1890,7 @@ class Axes(Artist):
         return l
 
     axvline.__doc__ = axvline.__doc__%artist.kwdocd
-    
+
     def axhspan(self, ymin, ymax, xmin=0, xmax=1, **kwargs):
         """
         AXHSPAN(ymin, ymax, xmin=0, xmax=1, **kwargs)
@@ -1921,7 +1921,7 @@ class Axes(Artist):
             axhspan(0.25, 0.75, facecolor='0.5', alpha=0.5)
 
         Valid kwargs are Polygon properties
-%(Polygon)s        
+%(Polygon)s
         """
         trans = blend_xy_sep_transform( self.transAxes, self.transData  )
         verts = (xmin, ymin), (xmin, ymax), (xmax, ymax), (xmax, ymin)
@@ -1930,7 +1930,7 @@ class Axes(Artist):
         self.add_patch(p)
         return p
     axhspan.__doc__ = axhspan.__doc__%artist.kwdocd
-    
+
     def axvspan(self, xmin, xmax, ymin=0, ymax=1, **kwargs):
         """
         AXVSPAN(xmin, xmax, ymin=0, ymax=1, **kwargs)
@@ -1960,7 +1960,7 @@ class Axes(Artist):
             axvspan(1.25, 1.55, facecolor='g', alpha=0.5)
 
         Valid kwargs are Polygon properties
-%(Polygon)s        
+%(Polygon)s
         """
         trans = blend_xy_sep_transform( self.transData, self.transAxes   )
         verts = [(xmin, ymin), (xmin, ymax), (xmax, ymax), (xmax, ymin)]
@@ -1969,7 +1969,7 @@ class Axes(Artist):
         self.add_patch(p)
         return p
     axvspan.__doc__ = axvspan.__doc__%artist.kwdocd
-    
+
     def hlines(self, y, xmin, xmax, fmt='k-', **kwargs):
         """
         HLINES(y, xmin, xmax, fmt='k-')
@@ -1982,7 +1982,7 @@ class Axes(Artist):
         fmt is a plot format string, eg 'g--'
 
         Valid kwargs are Line2D properties:
-%(Line2D)s        
+%(Line2D)s
 
         Returns a list of line instances that were added
         """
@@ -2018,7 +2018,7 @@ class Axes(Artist):
             lines.append(line)
         return lines
     hlines.__doc__ = hlines.__doc__%artist.kwdocd
-    
+
     def vlines(self, x, ymin, ymax, fmt='k-', **kwargs):
         """
         VLINES(x, ymin, ymax, color='k')
@@ -2032,7 +2032,7 @@ class Axes(Artist):
         fmt is a plot format string, eg 'g--'
 
         Valid kwargs are Line2D properties:
-%(Line2D)s        
+%(Line2D)s
 
         Returns a list of lines that were added
         """
@@ -2154,7 +2154,7 @@ class Axes(Artist):
 
         The kwargs are Line2D properties:
 %(Line2D)s
-        
+
         kwargs scalex and scaley, if defined, are passed on
         to autoscale_view to determine whether the x and y axes are
         autoscaled; default True.  See Axes.autoscale_view for more
@@ -2174,7 +2174,7 @@ class Axes(Artist):
         return lines
 
     plot.__doc__ = plot.__doc__ % artist.kwdocd
-    
+
     def plot_date(self, x, y, fmt='bo', tz=None, xdate=True, ydate=False,
                   **kwargs):
         """
@@ -2195,8 +2195,8 @@ class Axes(Artist):
         If ydate is True, the y-axis will be labeled with dates.
 
         Valid kwargs are Line2D properties:
-%(Line2D)s        
-    
+%(Line2D)s
+
 
         See matplotlib.dates for helper functions date2num, num2date
         and drange for help on creating the required floating point dates
@@ -2218,7 +2218,7 @@ class Axes(Artist):
 
         return ret
     plot_date.__doc__ = plot_date.__doc__%artist.kwdocd
-    
+
     def loglog(self, *args, **kwargs):
         """
         LOGLOG(*args, **kwargs)
@@ -2244,7 +2244,7 @@ class Axes(Artist):
             plot; see set_yscale for details
 
         The remaining valid kwargs are Line2D properties:
-%(Line2D)s        
+%(Line2D)s
         """
         if not self._hold: self.cla()
         kwargs = kwargs.copy()
@@ -2265,7 +2265,7 @@ class Axes(Artist):
 
         return l
     loglog.__doc__ = loglog.__doc__%artist.kwdocd
-    
+
     def semilogx(self, *args, **kwargs):
         """
         SEMILOGX(*args, **kwargs)
@@ -2284,7 +2284,7 @@ class Axes(Artist):
               plot; see set_xscale for details
 
         The remaining valid kwargs are Line2D properties:
-%(Line2D)s        
+%(Line2D)s
         """
         if not self._hold: self.cla()
         kwargs = kwargs.copy()
@@ -2299,7 +2299,7 @@ class Axes(Artist):
         self._hold = b    # restore the hold
         return l
     semilogx.__doc__ = semilogx.__doc__%artist.kwdocd
-    
+
     def semilogy(self, *args, **kwargs):
         """
         SEMILOGY(*args, **kwargs):
@@ -2318,7 +2318,7 @@ class Axes(Artist):
               decades in the plot; see set_yscale for details
 
         The remaining valid kwargs are Line2D properties:
-%(Line2D)s        
+%(Line2D)s
 
         """
         if not self._hold: self.cla()
@@ -2334,7 +2334,7 @@ class Axes(Artist):
 
         return l
     semilogy.__doc__ = semilogy.__doc__%artist.kwdocd
-    
+
     def legend(self, *args, **kwargs):
         """
         LEGEND(*args, **kwargs)
@@ -2708,7 +2708,7 @@ class Axes(Artist):
         return col
 
     broken_barh.__doc__ = broken_barh.__doc__%artist.kwdocd
-    
+
     def stem(self, x, y, linefmt='b-', markerfmt='bo', basefmt='r-'):
         """
         STEM(x, y, linefmt='b-', markerfmt='bo', basefmt='r-')
@@ -2998,7 +2998,7 @@ class Axes(Artist):
         ret = silent_list('Line2D errorbar', caplines+barlines)
         return (l0, ret)
     errorbar.__doc__ = errorbar.__doc__%artist.kwdocd
-    
+
     def boxplot(self, x, notch=0, sym='b+', vert=1, whis=1.5,
                 positions=None, widths=None):
         """
@@ -3237,7 +3237,7 @@ class Axes(Artist):
            as the facecolors
 
            Optional kwargs control the PatchCollection properties:
-%(PatchCollection)s           
+%(PatchCollection)s
            """
 
         if not self._hold: self.cla()
@@ -3395,7 +3395,7 @@ class Axes(Artist):
         return collection
 
     scatter.__doc__ = scatter.__doc__%artist.kwdocd
-    
+
     def scatter_classic(self, x, y, s=None, c='b'):
         """
         scatter_classic is no longer available; please use scatter.
@@ -3429,13 +3429,13 @@ class Axes(Artist):
         Draws arrow on specified axis from (x,y) to (x+dx,y+dy).
 
         Optional kwargs control the arrow properties:
-%(Arrow)s        
+%(Arrow)s
         """
         a = FancyArrow(x, y, dx, dy, **kwargs)
         self.add_artist(a)
         return a
     arrow.__doc__ = arrow.__doc__%artist.kwdocd
-    
+
     def quiverkey(self, *args, **kw):
         qk = QuiverKey(*args, **kw)
         self.add_artist(qk)
@@ -3625,7 +3625,7 @@ class Axes(Artist):
         format string.
 
         kwargs control the Polygon properties:
-%(Polygon)s        
+%(Polygon)s
         """
         if not self._hold: self.cla()
         patches = []
@@ -3637,7 +3637,7 @@ class Axes(Artist):
     fill.__doc__ = fill.__doc__%artist.kwdocd
     #### plotting z(x,y): imshow, pcolor and relatives, contour
 
-    
+
     def imshow(self, X,
                cmap = None,
                norm = None,
@@ -3848,9 +3848,9 @@ class Axes(Artist):
 
 
         kwargs can be used to control the PolyCollection properties:
-%(PolyCollection)s        
+%(PolyCollection)s
         """
-        
+
         if not self._hold: self.cla()
 
         kwargs = kwargs.copy()
@@ -3944,7 +3944,7 @@ class Axes(Artist):
 
         return collection
     pcolor.__doc__ = pcolor.__doc__%artist.kwdocd
-    
+
     def pcolormesh(self, *args, **kwargs):
         """
         PCOLORMESH(*args, **kwargs)
@@ -3988,7 +3988,7 @@ class Axes(Artist):
         See pcolor for an explantion of the grid orientation.
 
         kwargs can be used to control the QuandMesh polygon collection properties:
-%(QuadMesh)s        
+%(QuadMesh)s
         """
         if not self._hold: self.cla()
 
@@ -4056,7 +4056,7 @@ class Axes(Artist):
         self.add_collection(collection)
         return collection
     pcolormesh.__doc__ = pcolormesh.__doc__%artist.kwdocd
-    
+
     def contour(self, *args, **kwargs):
         kwargs['filled'] = False
         return ContourSet(self, *args, **kwargs)
@@ -4087,14 +4087,14 @@ class Axes(Artist):
         Thanks to John Gill for providing the class and table.
 
         kwargs control the Table properties:
-%(Table)s        
+%(Table)s
         """
         return table.table(self, **kwargs)
     table.__doc__ = table.__doc__%artist.kwdocd
 
     #### Data analysis
 
-    
+
     def hist(self, x, bins=10, normed=0, bottom=0,
              align='edge', orientation='vertical', width=None, **kwargs):
         """
@@ -4121,7 +4121,7 @@ class Axes(Artist):
 
         kwargs are used to update the properties of the
         hist Rectangles:
-%(Rectangle)s        
+%(Rectangle)s
         """
         if not self._hold: self.cla()
         n, bins = matplotlib.mlab.hist(x, bins, normed)
@@ -4136,7 +4136,7 @@ class Axes(Artist):
             p.update(kwargs)
         return n, bins, silent_list('Patch', patches)
     hist.__doc__ = hist.__doc__%artist.kwdocd
-    
+
     def psd(self, x, NFFT=256, Fs=2, detrend=detrend_none,
             window=window_hanning, noverlap=0, **kwargs):
         """
@@ -4179,7 +4179,7 @@ class Axes(Artist):
           Procedures, John Wiley & Sons (1986)
 
         kwargs control the Line2D properties:
-%(Line2D)s        
+%(Line2D)s
         """
         if not self._hold: self.cla()
         pxx, freqs = matplotlib.mlab.psd(x, NFFT, Fs, detrend, window, noverlap)
@@ -4200,7 +4200,7 @@ class Axes(Artist):
 
         return pxx, freqs
     psd.__doc__ = psd.__doc__%artist.kwdocd
-    
+
     def csd(self, x, y, NFFT=256, Fs=2, detrend=detrend_none,
             window=window_hanning, noverlap=0, **kwargs):
         """
@@ -4224,7 +4224,7 @@ class Axes(Artist):
             Procedures, John Wiley & Sons (1986)
 
         kwargs control the Line2D properties:
-%(Line2D)s        
+%(Line2D)s
         """
         if not self._hold: self.cla()
         pxy, freqs = matplotlib.mlab.csd(x, y, NFFT, Fs, detrend, window, noverlap)
@@ -4245,7 +4245,7 @@ class Axes(Artist):
 
         return pxy, freqs
     csd.__doc__ = csd.__doc__%artist.kwdocd
-    
+
     def cohere(self, x, y, NFFT=256, Fs=2, detrend=detrend_none,
                window=window_hanning, noverlap=0, **kwargs):
         """
@@ -4270,7 +4270,7 @@ class Axes(Artist):
           Procedures, John Wiley & Sons (1986)
 
         kwargs control the Line2D properties of the coherence plot:
-%(Line2D)s        
+%(Line2D)s
         """
         if not self._hold: self.cla()
         cxy, freqs = matplotlib.mlab.cohere(x, y, NFFT, Fs, detrend, window, noverlap)
@@ -4282,7 +4282,7 @@ class Axes(Artist):
 
         return cxy, freqs
     cohere.__doc__ = cohere.__doc__%artist.kwdocd
-    
+
     def specgram(self, x, NFFT=256, Fs=2, detrend=detrend_none,
                  window=window_hanning, noverlap=128,
                  cmap = None, xextent=None):
@@ -4344,9 +4344,9 @@ class Axes(Artist):
 
         if precision is None, any non-zero value will be plotted
         if precision is not None, values of absolute(Z)>precision will be plotted
-        
+
         kwargs control the Line2D properties of the markers:
-%(Line2D)s        
+%(Line2D)s
         """
         if hasattr(Z, 'tocoo'):
             c = Z.tocoo()
@@ -4361,7 +4361,7 @@ class Axes(Artist):
         return self.plot(x+0.5,y+0.5, linestyle='None',
                          marker=marker,markersize=markersize, **kwargs)
     spy.__doc__ = spy.__doc__%artist.kwdocd
-    
+
     def spy2(self, Z, precision=None, **kwargs):
         """
         SPY2(Z) plots the sparsity pattern of the matrix Z as an image
@@ -4370,7 +4370,7 @@ class Axes(Artist):
         if precision is not None, values of absolute(Z)>precision will be plotted
 
         kwargs are passed on to imshow; see help imshow for valid kwargs
-        
+
         The image instance is returned
         """
 
@@ -4382,7 +4382,7 @@ class Axes(Artist):
 
         Z = where(mask, 1., 0.)
 
-        kwargs = kwargs.copy()        
+        kwargs = kwargs.copy()
         if 'cmap' not in kwargs:
             cmapdata = {
                 'red'  :  ((0., 1., 1.), (1., 0., 0.)),
@@ -4391,7 +4391,7 @@ class Axes(Artist):
                 }
             binary =  LinearSegmentedColormap('binary',  cmapdata, 2)
             kwargs['cmap'] = binary
-            
+
         return self.imshow(transpose(Z), interpolation='nearest', **kwargs)
 
 
@@ -4730,7 +4730,7 @@ class PolarAxes(Axes):
 
         return self.rgridlines, self.rgridlabels
     set_rgrids.__doc__ = set_rgrids.__doc__%artist.kwdocd
-    
+
     def set_thetagrids(self, angles, labels=None, fmt='%d', frac = 1.1,
                        **kwargs):
         """
@@ -4786,7 +4786,7 @@ class PolarAxes(Axes):
             self.thetagridlabels.append(t)
         return self.thetagridlines, self.thetagridlabels
     set_thetagrids.__doc__ = set_thetagrids.__doc__%artist.kwdocd
-    
+
     def get_rmax(self):
         'get the maximum radius in the view limits dimension'
         vmin, vmax = self.dataLim.intervaly().get_bounds()
