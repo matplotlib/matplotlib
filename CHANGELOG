@@ -1,3 +1,7 @@
+2006-11-22 Added examples/clippedline.py, which shows how to clip line
+           data based on view limits -- it also changes the marker
+           style when zoomed in - JDH
+
 2006-11-21 Some spy bug-fixes and added precision arg per Robert C's
            suggestion  - JDH
 
