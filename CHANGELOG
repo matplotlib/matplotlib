@@ -1,3 +1,6 @@
+2006-11-21 Some spy bug-fixes and added precision arg per Robert C's
+           suggestion  - JDH
+
 2006-11-19 Added semi-automatic docstring generation detailing all the
            kwargs that functions take using the artist introspection
            tools; eg 'help text now details the scatter kwargs
