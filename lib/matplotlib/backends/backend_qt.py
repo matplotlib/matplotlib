@@ -50,8 +50,12 @@ def _create_qApp():
         qApp = qt.QApplication( [" "] )
         qt.QObject.connect( qApp, qt.SIGNAL( "lastWindowClosed()" ),
                             qApp, qt.SLOT( "quit()" ) )
+    else:
+      # someone else aready created the qApp and
+      # we let them handle the event-loop control.
+      show._needmain = False
 
-def show( mainloop=True ):
+def show():
     """
     Show all the figures and enter the qt main loop
     This should be the last line of your script
@@ -64,11 +68,12 @@ def show( mainloop=True ):
     figManager =  Gcf.get_active()
     if figManager != None:
         figManager.canvas.draw()
-        #if ( createQApp ):
-        #   qApp.setMainWidget( figManager.canvas )
 
-    if mainloop:
-        qt.qApp.exec_loop()
+    if ( show._needmain ):
+      qt.qApp.exec_loop()
+      show._needmain = False
+
+show._needmain = True
 
 
 def new_figure_manager( num, *args, **kwargs ):
