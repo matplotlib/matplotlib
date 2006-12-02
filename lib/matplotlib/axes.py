@@ -19,7 +19,7 @@ from cbook import iterable, is_string_like, flatten, enumerate, \
 from collections import RegularPolyCollection, PolyCollection, LineCollection, \
      QuadMesh, StarPolygonCollection, BrokenBarHCollection
 from colors import colorConverter, normalize, Colormap, \
-        LinearSegmentedColormap, looks_like_color, is_color_like
+        LinearSegmentedColormap, ListedColormap, looks_like_color, is_color_like
 import cm
 from cm import ScalarMappable
 from contour import ContourSet
@@ -4394,6 +4394,81 @@ class Axes(Artist):
 
         return self.imshow(transpose(Z), interpolation='nearest', **kwargs)
 
+    def spy3(self, Z, precision=None, marker=None, markersize=None,
+                                    aspect='equal', **kwargs):
+        """
+        spy(Z) plots the sparsity pattern of the 2-D array Z
+
+        If precision is None, any non-zero value will be plotted;
+        else, values of absolute(Z)>precision will be plotted.
+
+        The array will be plotted as it would be printed, with
+        the first index (row) increasing down and the second
+        index (column) increasing to the right.
+
+        By default aspect is 'equal' so that each array element
+        occupies a square space; set the aspect kwarg to 'auto'
+        to allow the plot to fill the plot box, or to any scalar
+        number to specify the aspect ratio of an array element
+        directly.
+
+        If marker and markersize are None, an image will be
+        returned and any remaining kwargs are passed to imshow;
+        else, a Line2D object will be returned with the value
+        of marker determining the marker type, and any remaining
+        kwargs passed to the axes plot method.
+
+        If marker and markersize are None, useful kwargs include:
+            cmap
+            alpha
+        See documentation for imshow() for details.
+        For controlling colors, e.g. cyan background and red marks, use:
+            cmap = matplotlib.colors.ListedColormap(['c','r'])
+
+        If marker or markersize is not None, useful kwargs include:
+            marker
+            markersize
+            color
+        See documentation for plot() for details.
+
+        Useful values for marker include:
+            's'  square (default)
+            'o'  circle
+            '.'  point
+            ','  pixel
+
+        """
+        if marker is None and markersize is None:
+            Z = asarray(Z)
+            if precision is None: mask = Z!=0.
+            else:                 mask = absolute(Z)>precision
+
+            if 'cmap' not in kwargs:
+                kwargs['cmap'] = ListedColormap(['w', 'k'], name='binary')
+            nr, nc = Z.shape
+            extent = [-0.5, nc-0.5, nr-0.5, -0.5]
+            return self.imshow(mask, interpolation='nearest', aspect=aspect,
+                                extent=extent, origin='upper', **kwargs)
+        else:
+            if hasattr(Z, 'tocoo'):
+                c = Z.tocoo()
+                y = c.row
+                x = c.col
+                z = c.data
+            else:
+                Z = asarray(Z)
+                if precision is None: mask = Z!=0.
+                else:                 mask = absolute(Z)>precision
+                y,x,z = matplotlib.mlab.get_xyz_where(mask, mask)
+            if marker is None: marker = 's'
+            if markersize is None: markersize = 10
+            lines = self.plot(x, y, linestyle='None',
+                         marker=marker, markersize=markersize, **kwargs)
+            nr, nc = Z.shape
+            self.set_xlim(xmin=-0.5, xmax=nc-0.5)
+            self.set_ylim(ymin=nr-0.5, ymax=-0.5)
+            self.set_aspect(aspect)
+            return lines
 
 
 class SubplotBase:
