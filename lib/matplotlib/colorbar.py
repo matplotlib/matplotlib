@@ -137,7 +137,10 @@ class ColorbarBase(cm.ScalarMappable):
         else:
             self.locator = ticks    # Handle default in _ticker()
         if format is None:
-            self.formatter = ticker.ScalarFormatter()
+            if isinstance(self.norm, colors.LogNorm):
+                self.formatter = ticker.LogFormatter()
+            else:
+                self.formatter = ticker.ScalarFormatter()
         elif is_string_like(format):
             self.formatter = ticker.FormatStrFormatter(format)
         else:
@@ -252,7 +255,9 @@ class ColorbarBase(cm.ScalarMappable):
         Draw lines on the colorbar.
         '''
         N = len(levels)
-        y = self._locate(levels)
+        dummy, y = self._locate(levels)
+        if len(y) <> N:
+            raise ValueError("levels are outside colorbar range")
         x = nx.array([0.0, 1.0])
         X, Y = meshgrid(x,y)
         if self.orientation == 'vertical':
@@ -278,6 +283,8 @@ class ColorbarBase(cm.ScalarMappable):
                     nv = len(self._values)
                     base = 1 + int(nv/10)
                     locator = ticker.IndexLocator(base=base, offset=0)
+                elif isinstance(self.norm, colors.LogNorm):
+                    locator = ticker.LogLocator()
                 else:
                     locator = ticker.MaxNLocator()
             else:
@@ -292,9 +299,7 @@ class ColorbarBase(cm.ScalarMappable):
         formatter.set_view_interval(intv)
         formatter.set_data_interval(intv)
         b = nx.array(locator())
-        eps = 0.001 * (self.vmax - self.vmin)
-        b = nx.compress((b >= self.vmin-eps) & (b <= self.vmax+eps), b)
-        ticks = self._locate(b)
+        b, ticks = self._locate(b)
         formatter.set_locs(b)
         ticklabels = [formatter(t) for t in b]
         offset_string = formatter.get_offset()
@@ -332,8 +337,7 @@ class ColorbarBase(cm.ScalarMappable):
         if isinstance(self.norm, colors.NoNorm):
             b = nx.arange(self.norm.vmin, self.norm.vmax + 2) - 0.5
         else:
-            dv = self.norm.vmax - self.norm.vmin
-            b = self.norm.vmin + dv * self._uniform_y(self.cmap.N+1)
+            b = self.norm.inverse(self._uniform_y(self.cmap.N+1))
         self._process_values(b)
 
     def _find_range(self):
@@ -424,28 +428,37 @@ class ColorbarBase(cm.ScalarMappable):
 
     def _locate(self, x):
         '''
-        Return the colorbar data coordinate(s) corresponding to the color
-        value(s) in scalar or array x.
-        Used for tick positioning.
+        Given a possible set of color date values, return the ones
+        within range, together with their corresponding colorbar
+        data coordinates.
         '''
-        b = self._boundaries
+        if isinstance(self.norm, colors.NoNorm):
+            b = self._boundaries
+            xn = x
+            xout = x
+        else:
+            # Do calculations using normalized coordinates so
+            # as to make the interpolation more accurate.
+            b = self.norm(self._boundaries, clip=False).filled()
+            # We do our own clipping so that we can allow a tiny
+            # bit of slop in the end point ticks to allow for
+            # floating point errors.
+            xn = self.norm(x, clip=False).filled()
+            in_cond = (xn > -0.001) & (xn < 1.001)
+            xn = nx.compress(in_cond, xn)
+            xout = nx.compress(in_cond, x)
+        # The rest is linear interpolation with clipping.
         y = self._y
         N = len(b)
-        ii = nx.minimum(nx.searchsorted(b, x), N-1)
-        isscalar = False
-        if not iterable(ii):
-            isscalar = True
-            ii = nx.array((ii,))
+        ii = nx.minimum(nx.searchsorted(b, xn), N-1)
         i0 = nx.maximum(ii - 1, 0)
-        #db = b[ii] - b[i0]
+        #db = b[ii] - b[i0]  (does not work with Numeric)
         db = nx.take(b, ii) - nx.take(b, i0)
         db = nx.where(i0==ii, 1.0, db)
         #dy = y[ii] - y[i0]
         dy = nx.take(y, ii) - nx.take(y, i0)
-        z = nx.take(y, i0) + (x-nx.take(b,i0))*dy/db
-        if isscalar:
-            z = z[0]
-        return z
+        z = nx.take(y, i0) + (xn-nx.take(b,i0))*dy/db
+        return xout, z
 
     def set_alpha(self, alpha):
         self.alpha = alpha
