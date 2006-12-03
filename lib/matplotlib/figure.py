@@ -8,7 +8,7 @@ from axes import Axes, Subplot, PolarSubplot, PolarAxes
 from cbook import flatten, allequal, popd, Stack, iterable
 import _image
 import colorbar as cbar
-from colors import normalize, rgb2hex
+from colors import Normalize, rgb2hex
 from image import FigureImage
 from matplotlib import rcParams
 from patches import Rectangle, Polygon
@@ -215,7 +215,7 @@ class Figure(Artist):
           * cmap is a cm colormap instance, eg cm.jet.  If None, default to
             the rc image.cmap valuex
 
-          * norm is a matplotlib.colors.normalize instance; default is
+          * norm is a matplotlib.colors.Normalize instance; default is
             normalization().  This scales luminance -> 0-1
 
           * vmin and vmax are used to scale a luminance image to 0-1.  If
@@ -612,7 +612,7 @@ class Figure(Artist):
         the help for Axis text for the meaning of the other arguments
 
         kwargs control the Text properties:
-%(Text)s        
+%(Text)s
         """
 
         override = _process_text_args({}, *args, **kwargs)
@@ -625,7 +625,7 @@ class Figure(Artist):
         self.texts.append(t)
         return t
     text.__doc__ = text.__doc__%artist.kwdocd
-    
+
     def _set_artist_props(self, a):
         if a!= self:
             a.set_figure(self)

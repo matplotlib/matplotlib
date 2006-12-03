@@ -203,7 +203,7 @@ from axes import Axes, PolarAxes
 import backends
 from cbook import flatten, is_string_like, exception_to_str, popd, \
      silent_list, iterable, enumerate
-from colors import normalize
+from colors import Normalize, normalize # latter for backwards compat.
 from cm import get_cmap
 from figure import Figure, figaspect
 import image

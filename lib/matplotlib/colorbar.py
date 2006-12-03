@@ -55,7 +55,7 @@ colormap_kw_doc = '''
                 If true, draw lines at color boundaries.
 
         The following will probably be useful only in the context of
-        indexed colors (that is, when the mappable has norm=no_norm()),
+        indexed colors (that is, when the mappable has norm=NoNorm()),
         or other unusual circumstances.
 
         boundaries=None or a sequence
@@ -119,7 +119,7 @@ class ColorbarBase(cm.ScalarMappable):
                            ):
         self.ax = ax
         if cmap is None: cmap = cm.get_cmap()
-        if norm is None: norm = colors.normalize()
+        if norm is None: norm = colors.Normalize()
         self.alpha = alpha
         cm.ScalarMappable.__init__(self, cmap=cmap, norm=norm)
         self.values = values
@@ -274,7 +274,7 @@ class ColorbarBase(cm.ScalarMappable):
         formatter = self.formatter
         if locator is None:
             if self.boundaries is None:
-                if isinstance(self.norm, colors.no_norm):
+                if isinstance(self.norm, colors.NoNorm):
                     nv = len(self._values)
                     base = 1 + int(nv/10)
                     locator = ticker.IndexLocator(base=base, offset=0)
@@ -283,7 +283,7 @@ class ColorbarBase(cm.ScalarMappable):
             else:
                 b = self._boundaries[self._inside]
                 locator = ticker.FixedLocator(b, nbins=10)
-        if isinstance(self.norm, colors.no_norm):
+        if isinstance(self.norm, colors.NoNorm):
             intv = Interval(Value(self._values[0]), Value(self._values[-1]))
         else:
             intv = Interval(Value(self.vmin), Value(self.vmax))
@@ -313,7 +313,7 @@ class ColorbarBase(cm.ScalarMappable):
             if self.values is None:
                 self._values = 0.5*(self._boundaries[:-1]
                                         + self._boundaries[1:])
-                if isinstance(self.norm, colors.no_norm):
+                if isinstance(self.norm, colors.NoNorm):
                     self._values = (self._values + 0.00001).astype(nx.Int16)
                 return
             self._values = nx.array(self.values)
@@ -329,7 +329,7 @@ class ColorbarBase(cm.ScalarMappable):
                 return
             self._boundaries = nx.array(self.boundaries)
             return
-        if isinstance(self.norm, colors.no_norm):
+        if isinstance(self.norm, colors.NoNorm):
             b = nx.arange(self.norm.vmin, self.norm.vmax + 2) - 0.5
         else:
             dv = self.norm.vmax - self.norm.vmin
@@ -398,7 +398,7 @@ class ColorbarBase(cm.ScalarMappable):
         if self.extend in ('both', 'max'):
             y[-1] = 1.05
         yi = y[self._inside]
-        norm = colors.normalize(yi[0], yi[-1])
+        norm = colors.Normalize(yi[0], yi[-1])
         y[self._inside] = norm(yi)
         return y
 

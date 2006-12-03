@@ -49,7 +49,7 @@ for i in range(Nr):
 
 # Set the first image as the master, with all the others
 # observing it for changes in cmap or norm.
-norm = colors.normalize(vmin=vmin, vmax=vmax)
+norm = colors.Normalize(vmin=vmin, vmax=vmax)
 for i, im in enumerate(images):
     im.set_norm(norm)
     if i > 0:

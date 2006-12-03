@@ -715,7 +715,7 @@ class ListedColormap(LinearSegmentedColormap):
         self._set_extremes()
 
 
-class normalize:
+class Normalize:
     def __init__(self, vmin=None, vmax=None, clip = True):
         """
         Normalize a given value to the 0-1 range
@@ -766,17 +766,15 @@ class normalize:
         'return true if vmin and vmax set'
         return (self.vmin is not None and self.vmax is not None)
 
-    # This method seems out of place and unused; try deleting it.
-    #def is_mappable(self):
-    #    return hasattr(self, '_A') and self._A is not None and self._A.shape<=2
-
-class no_norm(normalize):
+class NoNorm(Normalize):
     '''
-    Dummy replacement for normalize, for the case where we
+    Dummy replacement for Normalize, for the case where we
     want to use indices directly in a ScalarMappable.
     '''
     def __call__(self, value):
         return value
 
-
+# compatibility with earlier class names that violated convention:
+normalize = Normalize
+no_norm = NoNorm
 

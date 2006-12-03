@@ -18,7 +18,7 @@ from cbook import iterable, is_string_like, flatten, enumerate, \
      allequal, dict_delall, popd, popall, silent_list, is_numlike
 from collections import RegularPolyCollection, PolyCollection, LineCollection, \
      QuadMesh, StarPolygonCollection, BrokenBarHCollection
-from colors import colorConverter, normalize, Colormap, \
+from colors import colorConverter, Normalize, Colormap, \
         LinearSegmentedColormap, ListedColormap, looks_like_color, is_color_like
 import cm
 from cm import ScalarMappable
@@ -3213,11 +3213,11 @@ class Axes(Artist):
         Other keyword args; the color mapping and normalization arguments will
         on be used if c is an array of floats
 
-          * cmap = cm.jet : a cm Colormap instance from matplotlib.cm.
+          * cmap = cm.jet : a colors.Colormap instance from matplotlib.cm.
             defaults to rc image.cmap
 
-          * norm = normalize() : matplotlib.colors.normalize is used to
-            scale luminance data to 0,1.
+          * norm = Normalize() : matplotlib.colors.Normalize instance
+            is used to scale luminance data to 0,1.
 
           * vmin=None and vmax=None : vmin and vmax are used in conjunction
             with norm to normalize luminance data.  If either are None, the
@@ -3362,7 +3362,7 @@ class Axes(Artist):
         collection.update(kwargs)
 
         if colors is None:
-            if norm is not None: assert(isinstance(norm, normalize))
+            if norm is not None: assert(isinstance(norm, Normalize))
             if cmap is not None: assert(isinstance(cmap, Colormap))
             collection.set_array(asarray(c))
             collection.set_cmap(cmap)
@@ -3698,7 +3698,7 @@ class Axes(Artist):
             image.interpolation.  See also th the filternorm and
             filterrad parameters
 
-          * norm is a matplotlib.colors.normalize instance; default is
+          * norm is a matplotlib.colors.Normalize instance; default is
             normalization().  This scales luminance -> 0-1 (only used for an
             MxN float array).
 
@@ -3737,7 +3737,7 @@ class Axes(Artist):
 
         if not self._hold: self.cla()
 
-        if norm is not None: assert(isinstance(norm, normalize))
+        if norm is not None: assert(isinstance(norm, Normalize))
         if cmap is not None: assert(isinstance(cmap, Colormap))
         if aspect is None: aspect = rcParams['image.aspect']
         self.set_aspect(aspect)
@@ -3790,8 +3790,8 @@ class Axes(Artist):
           * cmap = cm.jet : a cm Colormap instance from matplotlib.cm.
             defaults to cm.jet
 
-          * norm = normalize() : matplotlib.colors.normalize is used to scale
-            luminance data to 0,1.
+          * norm = Normalize() : matplotlib.colors.Normalize instance
+            is used to scale luminance data to 0,1.
 
           * vmin=None and vmax=None : vmin and vmax are used in conjunction
             with norm to normalize luminance data.  If either are None, the
@@ -3918,7 +3918,7 @@ class Axes(Artist):
 
         collection.set_alpha(alpha)
         collection.set_array(C)
-        if norm is not None: assert(isinstance(norm, normalize))
+        if norm is not None: assert(isinstance(norm, Normalize))
         if cmap is not None: assert(isinstance(cmap, Colormap))
         collection.set_cmap(cmap)
         collection.set_norm(norm)
@@ -3968,9 +3968,9 @@ class Axes(Artist):
           * cmap = cm.jet : a cm Colormap instance from matplotlib.cm.
             defaults to cm.jet
 
-          * norm = normalize() : matplotlib.colors.normalize is used to scale
-            luminance data to 0,1.  Specify it with clip=False if
-            C is a masked array.
+          * norm = Normalize() : matplotlib.colors.Normalize instance
+            is used to scale luminance data to 0,1.  Instantiate it
+            with clip=False if C is a masked array.
 
           * vmin=None and vmax=None : vmin and vmax are used in conjunction
             with norm to normalize luminance data.  If either are None, the
@@ -4031,7 +4031,7 @@ class Axes(Artist):
         collection = QuadMesh(Ny - 1, Nx - 1, coords, showedges, **kwargs)
         collection.set_alpha(alpha)
         collection.set_array(C)
-        if norm is not None: assert(isinstance(norm, normalize))
+        if norm is not None: assert(isinstance(norm, Normalize))
         if cmap is not None: assert(isinstance(cmap, Colormap))
         collection.set_cmap(cmap)
         collection.set_norm(norm)

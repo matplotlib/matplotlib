@@ -19,7 +19,7 @@ import _contour
 from cm import ScalarMappable
 from cbook import iterable, is_string_like, flatten, enumerate, \
      allequal, dict_delall, strip_math, popd, popall, silent_list
-from colors import colorConverter, normalize, Colormap, ListedColormap, no_norm
+from colors import colorConverter, Normalize, Colormap, ListedColormap, NoNorm
 from collections import  PolyCollection, LineCollection
 from font_manager import FontProperties
 from numerix.mlab import amin, amax
@@ -115,7 +115,7 @@ class ContourLabeler:
             cmap = ListedColormap(colors, N=len(self.label_levels))
             self.label_cvalues = range(len(self.label_levels))
             self.label_mappable = ScalarMappable(cmap = cmap,
-                                                 norm = no_norm())
+                                                 norm = NoNorm())
 
         #self.cl = []   # Initialized in ContourSet.__init__
         #self.cl_cvalues = [] # same
@@ -668,7 +668,7 @@ class ContourSet(ScalarMappable, ContourLabeler):
             if self.extend in ('both', 'max'):
                 i1 = i1 + 1
             self.cvalues = range(i0, i1)
-            self.set_norm(no_norm())
+            self.set_norm(NoNorm())
         else:
             self.cvalues = self.layers
         if not self.norm.scaled():
@@ -755,7 +755,7 @@ class ContourSet(ScalarMappable, ContourLabeler):
             * cmap = None: a cm Colormap instance from matplotlib.cm.
               - if cmap == None and colors == None, a default Colormap is used.
 
-            * norm = None: a matplotlib.colors.normalize instance for
+            * norm = None: a matplotlib.colors.Normalize instance for
               scaling data values to colors.
               - if norm == None, and colors == None, the default
                 linear scaling is used.

@@ -35,7 +35,7 @@ class ScalarMappable:
         """
 
         if cmap is None: cmap = get_cmap()
-        if norm is None: norm = colors.normalize()
+        if norm is None: norm = colors.Normalize()
 
         self._A = None
         self.norm = norm
@@ -87,7 +87,7 @@ class ScalarMappable:
 
     def set_norm(self, norm):
         'set the normalization instance'
-        if norm is None: norm = colors.normalize()
+        if norm is None: norm = colors.Normalize()
         self.norm = norm
         self.changed()
 

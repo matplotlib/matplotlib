@@ -18,7 +18,7 @@ from transforms import unit_bbox
 
 import figure
 import numerix as nx
-from colors import normalize
+from colors import Normalize
 
 import art3d
 import proj3d
@@ -369,7 +369,7 @@ class Axes3DI(Axes):
 	if self.button_pressed == 1:
             return 'azimuth=%d deg, elevation=%d deg ' % (self.azim, self.elev)
 	    # ignore xd and yd and display angles instead
-	    
+
         p = (xd,yd)
         edges = self.tunit_edges()
         #lines = [proj3d.line2d(p0,p1) for (p0,p1) in edges]
@@ -404,7 +404,7 @@ class Axes3DI(Axes):
         """
         if not self.button_pressed:
             return
-            
+
         if self.M is None:
             return
             # this shouldn't be called before the graph has been drawn for the first time!
@@ -537,7 +537,7 @@ class Axes3DI(Axes):
             lines.append((box[0],n+box[0]))
         #
         color = nx.array([0,0,1,1])
-        norm = normalize(min(shade),max(shade))
+        norm = Normalize(min(shade),max(shade))
         colors = [color * (0.5+norm(v)*0.5) for v in shade]
         for c in colors: c[3] = 1
         polyc = art3d.Poly3DCollection(polys, facecolors=colors, *args, **kwargs)
