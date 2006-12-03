@@ -9,7 +9,7 @@ import lines
 from collections import LineCollection, PolyCollection
 import text
 
-from colors import normalize
+from colors import Normalize
 from cm import jet
 
 import numerix as nx
@@ -19,11 +19,11 @@ class Wrap2D:
     """Wrapper which wraps a 2D object and makes it 3D
 
     Artists are normally rendered by calling the draw method, this class
-    causes call_draw3d to be called instead. 
+    causes call_draw3d to be called instead.
     This in turn calls
     draw3d which should play with the 2D coordinates and eventually
     call the original self.draw method through self.orig_draw.
-    
+
     overrides the draw method with draw3d
     remembers the original draw method of the wrapped 2d instance
     """
@@ -45,7 +45,7 @@ class Wrap2D:
 
     def __getattr__(self, k):
         return getattr(self.__dict__['_wrapped'], k)
-    
+
     def __setattr__(self, k, v):
         setattr(self.__dict__['_wrapped'], k, v)
 
@@ -57,7 +57,7 @@ class Wrap2D:
         #
         for k in self.remembered.keys():
             setattr(self, k, self.remembered[k])
-            
+
     def draw3d(self, renderer):
         raise ValueError, "draw3d should be overridden"
 
@@ -89,7 +89,7 @@ class oText3D(text.Text):
         text.Text.__init__(self, x,y,text,*args,**kwargs)
         self.dir = dir
         self._z = _z
-        
+
     def draw(self, renderer):
         x,y = self.get_position()
         xs,ys,zs = juggle_axes(x,y,self._z,self.dir)
@@ -109,14 +109,14 @@ class Line3D(lines.Line2D):
     def draw(self, renderer):
         xs,ys,zs = proj3d.proj_transform(self.xs,self.ys,self.zs, renderer.M)
         self._x,self._y = xs,ys
-        
+
         lines.Line2D.draw(self, renderer)
 
 class Line3DCollectionW(Wrap2D):
     def __init__(self, inst, segments):
         Wrap2D.__init__(self, inst)
         self.segments_3d = segments
-        
+
     def draw3d(self, renderer):
         xyslist = [
             proj3d.proj_trans_points(points, renderer.M) for points in
@@ -124,7 +124,7 @@ class Line3DCollectionW(Wrap2D):
         segments_2d = [zip(xs,ys) for (xs,ys,zs) in xyslist]
         self._segments = segments_2d
         self.draw2d(renderer)
-        
+
 class Line3DCollection(Line3DCollectionW):
     def __init__(self, segments, *args, **kwargs):
         inst = LineCollection(segments, *args, **kwargs)
@@ -136,7 +136,7 @@ class Line2DCollectionW(Wrap2D):
         self.z = z
         self.dir = dir
         self.remember('_segments')
-        
+
     def draw3d(self, renderer):
         #
         segments_3d = [[juggle_axes(x,y,self.z,self.dir) for (x,y) in points]
@@ -149,7 +149,7 @@ class Line2DCollectionW(Wrap2D):
         self._segments = segments_2d
         self.draw2d(renderer)
         #self._segments = orig_segments
-        
+
 class Line3DCollection(Line3DCollectionW):
     def __init__(self, segments, *args, **kwargs):
         inst = LineCollection(segments, *args, **kwargs)
@@ -169,7 +169,7 @@ class Patch3D(Wrap2D):
         def get_verts(*args):
             verts = zip(vxs,vys)
             return verts
-        
+
         self.get_verts = get_verts
         self.draw2d(renderer)
 
@@ -257,7 +257,7 @@ class Poly3DCollection(Wrap2D):
         ones = nx.ones(len(xs))
         self.vec = nx.array([xs,ys,zs,ones])
         self.segis = segis
-        
+
     def draw3d(self, renderer):
         #
         txs,tys,tzs,tis = proj3d.proj_transform_vec_clip(self.vec,renderer.M)
@@ -302,7 +302,7 @@ class Line2DW(Wrap2D):
         self._x = xs
         self._y = ys
         self.draw2d(renderer)
-    
+
 def line_draw(self, renderer):
     """Draw a 2D line as a 3D line"""
     oxs,oys = self.get_xdata(),self.get_ydata()
@@ -331,15 +331,15 @@ def image_draw(image,renderer):
     tX,tY,tZ = proj3d.transform(X.flat,Y.flat,Z.flat,M)
     tX = reshape(tX,(w,h))
     tY = reshape(tY,(w,h))
-    
+
 def wrap_image(image, extent):
     image.extent3D = extent
     image.old_draw = image.draw
     def wrapped_draw(renderer,image=image):
         return image_draw(image,renderer)
     image.draw = wrapped_draw
-    
-    
+
+
 def set_line_data(line, xs,ys,zs):
     try: line = line[0]
     except: pass
@@ -351,7 +351,7 @@ def iscolor(c):
         return (len(c)==4 or len(c)==3) and (type(c[0])==float)
     except (IndexError):
         return None
-    
+
 def get_colors(c, num):
     """Stretch the color argument to provide the required number num"""
     if type(c)==type("string"):
@@ -368,11 +368,11 @@ def get_colors(c, num):
 def zalpha(colors, zs):
     """Modify the alphas of the color list according to depth"""
     colors = get_colors(colors,len(zs))
-    norm = normalize(min(zs),max(zs))
+    norm = Normalize(min(zs),max(zs))
     sats = nx.array([1-norm(z)*0.7 for z in zs])
     colors = [(c[0],c[1],c[2],c[3]*s) for c,s in zip(colors,sats)]
     return colors
-    
+
 def patch_draw(self, renderer):
     orig_offsets = self._offsets
     xs,ys = zip(*self._offsets)
@@ -383,7 +383,7 @@ def patch_draw(self, renderer):
     orig_ecolors = self._edgecolors
     self._facecolors = zalpha(orig_fcolors,zs)
     self._edgecolors = zalpha(orig_ecolors,zs)
-    
+
     self._offsets = zip(xs,ys)
     self.old_draw(renderer)
     self._offsets = orig_offsets
@@ -404,11 +404,11 @@ def draw_linec(self, renderer):
     self._segments = segments_2d
     LineCollection.draw(self, renderer)
     self._segments = orig_segments
-    
+
 def draw_polyc(self, renderer):
     orig_segments = self._verts
     # process the list of lists of 2D points held in _verts to generate
-    # a list of lists of 3D points 
+    # a list of lists of 3D points
     segments_3d = [[(x,y,z) for (x,y),z in zip(points,self.zs)]
                    for points in self._verts]
     #

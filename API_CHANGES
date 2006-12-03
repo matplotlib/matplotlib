@@ -1,3 +1,7 @@
+    Changed class names in colors.py to match convention:
+    normalize -> Normalize, no_norm -> NoNorm.  Old names
+    are still available for now.
+
     Removed obsolete pcolor_classic command and method.
 
     Removed lineprops and markerprops from the Annotation code and

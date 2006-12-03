@@ -7,7 +7,7 @@ from __future__ import division
 import sys, os
 from matplotlib import rcParams
 from artist import Artist
-from colors import normalize, colorConverter
+from colors import colorConverter
 import cm
 import numerix
 import numerix.ma as ma
@@ -31,8 +31,8 @@ class AxesImage(Artist, cm.ScalarMappable):
         """
         interpolation and cmap default to their rc settings
 
-        cmap is a cm colormap instance
-        norm is a colors.normalize instance to map luminance to 0-1
+        cmap is a colors.Colormap instance
+        norm is a colors.Normalize instance to map luminance to 0-1
 
         extent is a data xmin, xmax, ymin, ymax for making image plots
         registered with data plots.  Default is the image dimensions
@@ -385,8 +385,8 @@ class FigureImage(Artist, cm.ScalarMappable):
                  ):
 
         """
-        cmap is a cm colormap instance
-        norm is a colors.normalize instance to map luminance to 0-1
+        cmap is a colors.Colormap instance
+        norm is a colors.Normalize instance to map luminance to 0-1
 
         """
         Artist.__init__(self)
@@ -406,12 +406,12 @@ class FigureImage(Artist, cm.ScalarMappable):
         return self._A.shape[:2]
 
     def make_image(self, magnification=1.0):
-	# had to introduce argument magnification to satisfy the unit test
-	# figimage_demo.py. I have no idea, how magnification should be used
-	# within the function. It should be !=1.0 only for non-default DPI
-	# settings in the PS backend, as introduced by patch #1562394
-	# Probably Nicholas Young should look over this code and see, how
-	# magnification should be handled correctly.
+        # had to introduce argument magnification to satisfy the unit test
+        # figimage_demo.py. I have no idea, how magnification should be used
+        # within the function. It should be !=1.0 only for non-default DPI
+        # settings in the PS backend, as introduced by patch #1562394
+        # Probably Nicholas Young should look over this code and see, how
+        # magnification should be handled correctly.
         if self._A is None:
             raise RuntimeError('You must first set the image array')
 
