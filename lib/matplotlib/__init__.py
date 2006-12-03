@@ -718,8 +718,8 @@ class ValidateInterval:
 
 # a map from key -> value, converter
 defaultParams = {
-    'backend'           : ['GTK', validate_backend],
-    'numerix'           : ['Numeric', validate_numerix],
+    'backend'           : ['WXAgg', validate_backend],
+    'numerix'           : ['numpy', validate_numerix],
     'toolbar'           : ['toolbar2', validate_toolbar],
     'datapath'          : [get_data_path(), validate_path_exists],
     'interactive'       : [False, validate_bool],
@@ -730,7 +730,7 @@ defaultParams = {
     'verbose.fileo'           : ['sys.stdout', validate_verbose_fileo],
 
     # line props
-    'lines.linewidth'   : [0.5, validate_float],     # line width in points
+    'lines.linewidth'   : [1.0, validate_float],     # line width in points
     'lines.linestyle'   : ['-', str],                # solid line
     'lines.color'       : ['b', validate_color],     # blue
     'lines.marker'       : ['None', str],     # black
@@ -743,7 +743,7 @@ defaultParams = {
     'lines.solid_capstyle' : ['projecting', validate_capstyle],
 
     # patch props
-    'patch.linewidth'   : [0.5, validate_float], # line width in points
+    'patch.linewidth'   : [1.0, validate_float], # line width in points
     'patch.edgecolor'   : ['k', validate_color], # black
     'patch.facecolor'   : ['b', validate_color], # blue
     'patch.antialiased' : [True, validate_bool], # antialised (no jaggies)
@@ -787,45 +787,43 @@ defaultParams = {
     'axes.facecolor'    : ['w', validate_color],    # background color; white
     'axes.edgecolor'    : ['k', validate_color],    # edge color; black
     'axes.linewidth'    : [1.0, validate_float],    # edge linewidth
-    'axes.titlesize'    : ['large', validate_fontsize], # fontsize of the axes title
+    'axes.titlesize'    : [14, validate_fontsize], # fontsize of the axes title
     'axes.grid'         : [False, validate_bool],   # display grid or not
-    'axes.labelsize'    : ['medium', validate_fontsize], # fontsize of the x any y labels
+    'axes.labelsize'    : [12, validate_fontsize], # fontsize of the x any y labels
     'axes.labelcolor'   : ['k', validate_color],    # color of axis label
 
     'polaraxes.grid'         : [True, validate_bool],   # display polar grid or not
 
     #legend properties
     'legend.isaxes'    :       [True,validate_bool],
-    'legend.numpoints'         :       [ 4,validate_int],      # the number of points in the legend line
-    'legend.fontsize' : ["small",validate_fontsize],
+    'legend.numpoints' :       [ 2,validate_int],      # the number of points in the legend line
+    'legend.fontsize'  :       [14,validate_fontsize],
     'legend.pad'       :       [ 0.2, validate_float],         # the fractional whitespace inside the legend border
-    'legend.markerscale'       :       [ 0.6, validate_float],    # the relative size of legend markers vs. original
-
+    'legend.markerscale' :     [ 1.0, validate_float],    # the relative size of legend markers vs. original
 
     # the following dimensions are in axes coords
-    'legend.labelsep'  :       [ 0.005, validate_float],    # the vertical space between the legend entries
-    'legend.handlelen'         :       [ 0.05, validate_float],  # the length of the legend lines
-    'legend.handletextsep'     :       [ 0.02, validate_float], # the space between the legend line and legend text
+    'legend.labelsep'  :       [ 0.010, validate_float],    # the vertical space between the legend entries
+    'legend.handlelen'     :   [ 0.05, validate_float],  # the length of the legend lines
+    'legend.handletextsep' :   [ 0.02, validate_float], # the space between the legend line and legend text
     'legend.axespad'   :       [ 0.02, validate_float], # the border between the axes and legend edge
-
-    'legend.shadow' : [ False, validate_bool ],
+    'legend.shadow' :          [ False, validate_bool ],
 
 
     # tick properties
-    'xtick.major.size'   : [5, validate_float],      # major xtick size in points
+    'xtick.major.size'   : [4, validate_float],      # major xtick size in points
     'xtick.minor.size'   : [2, validate_float],      # minor xtick size in points
-    'xtick.major.pad'   : [3, validate_float],      # distance to label in points
-    'xtick.minor.pad'   : [3, validate_float],      # distance to label in points
+    'xtick.major.pad'    : [4, validate_float],      # distance to label in points
+    'xtick.minor.pad'    : [4, validate_float],      # distance to label in points
     'xtick.color'        : ['k', validate_color],    # color of the xtick labels
-    'xtick.labelsize'    : ['small', validate_fontsize], # fontsize of the xtick labels
+    'xtick.labelsize'    : [12, validate_fontsize], # fontsize of the xtick labels
     'xtick.direction'    : ['in', str],            # direction of xticks
 
-    'ytick.major.size'   : [5, validate_float],      # major ytick size in points
+    'ytick.major.size'   : [4, validate_float],      # major ytick size in points
     'ytick.minor.size'   : [2, validate_float],      # minor ytick size in points
-    'ytick.major.pad'   : [3, validate_float],      # distance to label in points
-    'ytick.minor.pad'   : [3, validate_float],      # distance to label in points
+    'ytick.major.pad'    : [4, validate_float],      # distance to label in points
+    'ytick.minor.pad'    : [4, validate_float],      # distance to label in points
     'ytick.color'        : ['k', validate_color],    # color of the ytick labels
-    'ytick.labelsize'    : ['small', validate_fontsize], # fontsize of the ytick labels
+    'ytick.labelsize'    : [12, validate_fontsize], # fontsize of the ytick labels
     'ytick.direction'    : ['in', str],            # direction of yticks
 
     'grid.color'       :   ['k', validate_color],       # grid color
@@ -848,15 +846,15 @@ defaultParams = {
     'figure.subplot.hspace' : [0.2, ValidateInterval(0, 1, closedmin=False, closedmax=True)],
 
 
-    'savefig.dpi'       : [ 150, validate_float],   # DPI
+    'savefig.dpi'       : [ 100, validate_float],   # DPI
     'savefig.facecolor' : [ 'w', validate_color],  # facecolor; white
     'savefig.edgecolor' : [ 'w', validate_color],  # edgecolor; white
     'savefig.orientation' : [ 'portait', validate_orientation],  # edgecolor; white
 
     'tk.window_focus'   : [ False, validate_bool],  # Maintain shell focus for TkAgg
-    'tk.pythoninspect'   : [ False, validate_bool],  # Set PYTHONINSPECT
+    'tk.pythoninspect'  : [ False, validate_bool],  # Set PYTHONINSPECT
     'ps.papersize'      : [ 'letter', validate_ps_papersize], # Set the papersize/type
-    'ps.useafm'   : [ False, validate_bool],  # Set PYTHONINSPECT
+    'ps.useafm'         : [ False, validate_bool],  # Set PYTHONINSPECT
     'ps.usedistiller'   : [ False, validate_ps_distiller],  # use ghostscript or xpdf to distill ps output
     'ps.distiller.res'  : [6000, validate_int],       # dpi
     'pdf.compression'   : [6, validate_int],            # compression level from 0 to 9; 0 to disable
