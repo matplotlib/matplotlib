@@ -1,3 +1,7 @@
+    New LogNorm subclass of Normalize added to colors.py.
+    All Normalize subclasses have new inverse() method, and
+    the __call__() method has a new clip kwarg.
+
     Changed class names in colors.py to match convention:
     normalize -> Normalize, no_norm -> NoNorm.  Old names
     are still available for now.

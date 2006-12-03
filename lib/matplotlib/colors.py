@@ -32,9 +32,10 @@ import re
 
 from numerix import array, arange, take, put, Float, Int, where, \
      zeros, asarray, sort, searchsorted, sometrue, ravel, divide,\
-     clip, ones, typecode, typecodes, alltrue
+     ones, typecode, typecodes, alltrue
 from numerix.mlab import amin, amax
 import numerix.ma as ma
+import numerix as nx
 from cbook import enumerate, is_string_like, iterable
 from matplotlib import rcParams
 import warnings
@@ -716,10 +717,11 @@ class ListedColormap(LinearSegmentedColormap):
 
 
 class Normalize:
+    """
+    Normalize a given value to the 0-1 range
+    """
     def __init__(self, vmin=None, vmax=None, clip = True):
         """
-        Normalize a given value to the 0-1 range
-
         If vmin or vmax is not given, they are taken from the input's
         minimum and maximum value respectively.  If clip is True and
         the given value falls outside the range, the returned value
@@ -732,8 +734,9 @@ class Normalize:
         self.vmax = vmax
         self.clip = clip
 
-    def __call__(self, value):
-
+    def __call__(self, value, clip=None):
+        if clip is None:
+            clip = self.clip
         if isinstance(value, (int, float)):
             vtype = 'scalar'
             val = ma.array([value])
@@ -748,14 +751,26 @@ class Normalize:
         elif vmin==vmax:
             return 0.*value
         else:
-            if self.clip:
+            if clip:
                 mask = ma.getmaskorNone(val)
-                val = ma.array(clip(val.filled(vmax), vmin, vmax),
+                val = ma.array(nx.clip(val.filled(vmax), vmin, vmax),
                                 mask=mask)
             result = (val-vmin)/float(vmax-vmin)
         if vtype == 'scalar':
             result = result[0]
         return result
+
+    def inverse(self, value):
+        if not self.scaled():
+            raise ValueError("Not invertible until scaled")
+        vmin, vmax = self.vmin, self.vmax
+
+        if isinstance(value, (int, float)):
+            return vmin + value * (vmax - vmin)
+        else:
+            val = ma.asarray(value)
+            return vmin + val * (vmax - vmin)
+
 
     def autoscale(self, A):
         if not self.scaled():
@@ -766,12 +781,59 @@ class Normalize:
         'return true if vmin and vmax set'
         return (self.vmin is not None and self.vmax is not None)
 
+class LogNorm(Normalize):
+    """
+    Normalize a given value to the 0-1 range on a log scale
+    """
+    def __call__(self, value, clip=None):
+        if clip is None:
+            clip = self.clip
+        if isinstance(value, (int, float)):
+            vtype = 'scalar'
+            val = ma.array([value])
+        else:
+            vtype = 'array'
+            val = ma.asarray(value)
+        self.autoscale(val)
+        vmin, vmax = self.vmin, self.vmax
+        if vmin > vmax:
+            raise ValueError("minvalue must be less than or equal to maxvalue")
+        elif vmin<=0:
+            raise ValueError("values must all be positive")
+        elif vmin==vmax:
+            return 0.*value
+        else:
+            if clip:
+                mask = ma.getmaskorNone(val)
+                val = ma.array(nx.clip(val.filled(vmax), vmin, vmax),
+                                mask=mask)
+            result = (ma.log(val)-nx.log(vmin))/(nx.log(vmax)-nx.log(vmin))
+        if vtype == 'scalar':
+            result = result[0]
+        return result
+
+    def inverse(self, value):
+        if not self.scaled():
+            raise ValueError("Not invertible until scaled")
+        vmin, vmax = self.vmin, self.vmax
+
+        if isinstance(value, (int, float)):
+            return vmin * pow((vmax/vmin), value)
+        else:
+            val = ma.asarray(value)
+            return vmin * ma.power((vmax/vmin), val)
+
+
+
 class NoNorm(Normalize):
     '''
     Dummy replacement for Normalize, for the case where we
     want to use indices directly in a ScalarMappable.
     '''
-    def __call__(self, value):
+    def __call__(self, value, clip=None):
+        return value
+
+    def inverse(self, value):
         return value
 
 # compatibility with earlier class names that violated convention:
