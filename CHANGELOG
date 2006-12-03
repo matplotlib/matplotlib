@@ -1,6 +1,8 @@
 2006-12-02 Changed class names in colors.py to match convention:
            normalize -> Normalize, no_norm -> NoNorm.  Old names
            are still available.
+           Changed __init__.py rc defaults to match those in
+           matplotlibrc - EF
 
 2006-11-22 Fixed bug in set_*lim that I had introduced on 11-15 - EF
 
