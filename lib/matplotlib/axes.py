@@ -2168,7 +2168,6 @@ class Axes(Artist):
         for line in self._get_lines(*args, **kwargs):
             self.add_line(line)
             lines.append(line)
-        lines = [line for line in lines] # consume the generator
 
         self.autoscale_view(scalex=scalex, scaley=scaley)
         return lines
