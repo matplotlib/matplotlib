@@ -1,3 +1,9 @@
+    Made the default Artist._transform None (rather than invoking
+    identity_transform for each artist only to have it overridden
+    later).  Use artist.get_transform() rather than artist._transform,
+    even in derived classes, so that the default transform will be
+    created lazily as needed
+
     New LogNorm subclass of Normalize added to colors.py.
     All Normalize subclasses have new inverse() method, and
     the __call__() method has a new clip kwarg.

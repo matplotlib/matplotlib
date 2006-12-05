@@ -1,3 +1,9 @@
+2006-12-05 Made the default Artist._transform None (rather than
+           invoking identity_transform for each artist only to have it
+           overridden later).  Use artist.get_transform() rather than
+           artist._transform, even in derived classes, so that the
+           default transform will be created lazily as needed - JDH
+
 2006-12-03 Added LogNorm to colors.py as illustrated by
            examples/pcolor_log.py, based on suggestion by
            Jim McDonald.  Colorbar modified to handle LogNorm.

@@ -30,7 +30,7 @@ class Artist:
     def __init__(self):
         self.figure = None
 
-        self._transform = identity_transform()
+        self._transform = None
         self._transformSet = False
         self._visible = True
         self._animated = False
@@ -75,6 +75,8 @@ class Artist:
 
     def get_transform(self):
         'return the Transformation instance used by this artist'
+        if self._transform is None:
+            self._transform = identity_transform()
         return self._transform
 
     def is_figure_set(self):
