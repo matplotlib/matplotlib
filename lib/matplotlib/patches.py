@@ -182,7 +182,7 @@ class Patch(Artist):
             gc.set_hatch(self._hatch )
 
         verts = self.get_verts()
-        tverts = self._transform.seq_xy_tups(verts)
+        tverts = self.get_transform().seq_xy_tups(verts)
 
         renderer.draw_polygon(gc, rgbFace, tverts)
 
@@ -197,7 +197,7 @@ class Patch(Artist):
 
     def get_window_extent(self, renderer=None):
         verts = self.get_verts()
-        tverts = self._transform.seq_xy_tups(verts)
+        tverts = self.get_transform().seq_xy_tups(verts)
         return bound_vertices(tverts)
 
 
@@ -669,7 +669,7 @@ class Ellipse(Patch):
         if self._hatch:
             gc.set_hatch(self._hatch )
 
-        tverts = self._transform.seq_xy_tups(self.verts) # center is first vert
+        tverts = self.get_transform().seq_xy_tups(self.verts) # center is first vert
         width = tverts[3,0] - tverts[1,0]
         height = tverts[2,1] - tverts[4,1]
 

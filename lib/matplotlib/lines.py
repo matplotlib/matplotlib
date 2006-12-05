@@ -233,8 +233,8 @@ class Line2D(Artist):
             x, y = self._get_plottable()
 
 
-        x, y = self._transform.numerix_x_y(x, y)
-        #x, y = self._transform.seq_x_y(x, y)
+        x, y = self.get_transform().numerix_x_y(x, y)
+        #x, y = self.get_transform().seq_x_y(x, y)
 
         left = min(x)
         bottom = min(y)
@@ -303,10 +303,10 @@ class Line2D(Artist):
 
         x, y = self._x, self._y
 
-        try: logx = self._transform.get_funcx().get_type()==LOG10
+        try: logx = self.get_transform().get_funcx().get_type()==LOG10
         except RuntimeError: logx = False  # non-separable
 
-        try: logy = self._transform.get_funcy().get_type()==LOG10
+        try: logy = self.get_transform().get_funcy().get_type()==LOG10
         except RuntimeError: logy = False  # non-separable
 
         if not logx and not logy:
@@ -362,7 +362,7 @@ class Line2D(Artist):
         else:
             x, y = self._get_plottable()
             if len(x)==0: return
-            xt, yt = self._transform.numerix_x_y(x, y)
+            xt, yt = self.get_transform().numerix_x_y(x, y)
 
 
 
@@ -551,7 +551,7 @@ class Line2D(Artist):
         gc.set_linestyle('solid')
 
         if self._newstyle:
-            renderer.draw_lines(gc, xt2, yt2, self._transform)
+            renderer.draw_lines(gc, xt2, yt2, self.get_transform())
         else:
             renderer.draw_lines(gc, xt2, yt2)
 
@@ -559,7 +559,7 @@ class Line2D(Artist):
         if len(xt)<2: return
         gc.set_linestyle('solid')
         if self._newstyle:
-            renderer.draw_lines(gc, xt, yt, self._transform)
+            renderer.draw_lines(gc, xt, yt, self.get_transform())
         else:
             renderer.draw_lines(gc, xt, yt)
 
@@ -571,7 +571,7 @@ class Line2D(Artist):
             gc.set_dashes(0, self._dashSeq)
 
         if self._newstyle:
-            renderer.draw_lines(gc, xt, yt, self._transform)
+            renderer.draw_lines(gc, xt, yt, self.get_transform())
         else:
             renderer.draw_lines(gc, xt, yt)
 
@@ -580,7 +580,7 @@ class Line2D(Artist):
         if len(xt)<2: return
         gc.set_linestyle('dashdot')
         if self._newstyle:
-            renderer.draw_lines(gc, xt, yt, self._transform)
+            renderer.draw_lines(gc, xt, yt, self.get_transform())
         else:
             renderer.draw_lines(gc, xt, yt)
 
@@ -589,7 +589,7 @@ class Line2D(Artist):
         if len(xt)<2: return
         gc.set_linestyle('dotted')
         if self._newstyle:
-            renderer.draw_lines(gc, xt, yt, self._transform)
+            renderer.draw_lines(gc, xt, yt, self.get_transform())
         else:
             renderer.draw_lines(gc, xt, yt)
 
@@ -613,7 +613,7 @@ class Line2D(Artist):
             path.line_to(-0.5, 0.5)
             path.line_to(0.5, 0.5)
             path.line_to(0.5, -0.5)
-            renderer.draw_markers(gc, path, rgbFace, xt, yt, self._transform)
+            renderer.draw_markers(gc, path, rgbFace, xt, yt, self.get_transform())
         else:
             for (x,y) in zip(xt, yt):
                 renderer.draw_point(gc, x, y)
@@ -641,7 +641,7 @@ class Line2D(Artist):
                 path.line_to(x, y)
 
             path.end_poly()
-            renderer.draw_markers(gc, path, rgbFace, xt, yt, self._transform)
+            renderer.draw_markers(gc, path, rgbFace, xt, yt, self.get_transform())
         else:
             for (x,y) in zip(xt, yt):
                 renderer.draw_arc(gc, rgbFace,
@@ -661,7 +661,7 @@ class Line2D(Artist):
             path.line_to(-offset, -offset)
             path.line_to(offset, -offset)
             path.end_poly()
-            renderer.draw_markers(gc, path, rgbFace, xt, yt, self._transform)
+            renderer.draw_markers(gc, path, rgbFace, xt, yt, self.get_transform())
         else:
             for (x,y) in zip(xt, yt):
                 verts = ( (x, y+offset),
@@ -682,7 +682,7 @@ class Line2D(Artist):
             path.line_to(0, -offset)
             path.end_poly()
 
-            renderer.draw_markers(gc, path, rgbFace, xt, yt, self._transform)
+            renderer.draw_markers(gc, path, rgbFace, xt, yt, self.get_transform())
         else:
             for (x,y) in zip(xt, yt):
                 verts = ( (x-offset, y+offset),
@@ -702,7 +702,7 @@ class Line2D(Artist):
             path.line_to(offset, offset)
             path.end_poly()
 
-            renderer.draw_markers(gc, path, rgbFace, xt, yt, self._transform)
+            renderer.draw_markers(gc, path, rgbFace, xt, yt, self.get_transform())
         else:
             for (x,y) in zip(xt, yt):
                 verts = ( (x-offset, y),
@@ -720,7 +720,7 @@ class Line2D(Artist):
             path.line_to(-offset, -offset)
             path.line_to(-offset, offset)
             path.end_poly()
-            renderer.draw_markers(gc, path, rgbFace, xt, yt, self._transform)
+            renderer.draw_markers(gc, path, rgbFace, xt, yt, self.get_transform())
         else:
             for (x,y) in zip(xt, yt):
                 verts = ( (x+offset, y),
@@ -744,7 +744,7 @@ class Line2D(Artist):
             path.line_to(offset, -offset)
             path.end_poly()
 
-            renderer.draw_markers(gc, path, rgbFace, xt, yt, self._transform)
+            renderer.draw_markers(gc, path, rgbFace, xt, yt, self.get_transform())
         else:
 
             for (x,y) in zip(xt, yt):
@@ -763,7 +763,7 @@ class Line2D(Artist):
             path.line_to(0, offset)
             path.end_poly()
 
-            renderer.draw_markers(gc, path, rgbFace, xt, yt, self._transform)
+            renderer.draw_markers(gc, path, rgbFace, xt, yt, self.get_transform())
         else:
 
 
@@ -786,7 +786,7 @@ class Line2D(Artist):
             path.line_to(-xoffset, 0)
             path.line_to(0, offset)
             path.end_poly()
-            renderer.draw_markers(gc, path, rgbFace, xt, yt, self._transform)
+            renderer.draw_markers(gc, path, rgbFace, xt, yt, self.get_transform())
         else:
             for (x,y) in zip(xt, yt):
                 verts = ( (x+xoffset, y),
@@ -812,7 +812,7 @@ class Line2D(Artist):
             path.line_to(+offsetX1, offsetY1)
             path.end_poly()
 
-            renderer.draw_markers(gc, path, rgbFace, xt, yt, self._transform)
+            renderer.draw_markers(gc, path, rgbFace, xt, yt, self.get_transform())
         else:
             for (x,y) in zip(xt, yt):
                 verts = ( (x, y+offset),
@@ -839,7 +839,7 @@ class Line2D(Artist):
             path.line_to(offsetX1, -offsetY1)
             path.line_to(offsetX1, offsetY1)
             path.end_poly()
-            renderer.draw_markers(gc, path, rgbFace, xt, yt, self._transform)
+            renderer.draw_markers(gc, path, rgbFace, xt, yt, self.get_transform())
         else:
             for (x,y) in zip(xt, yt):
                 verts = ( (x, y+offset),
@@ -865,7 +865,7 @@ class Line2D(Artist):
             path.line_to(offsetX1, -offsetY1)
             path.end_poly()
 
-            renderer.draw_markers(gc, path, rgbFace, xt, yt, self._transform)
+            renderer.draw_markers(gc, path, rgbFace, xt, yt, self.get_transform())
         else:
             for (x,y) in zip(xt, yt):
                 verts = ( (x+offset, y),
@@ -882,7 +882,7 @@ class Line2D(Artist):
             path = agg.path_storage()
             path.move_to(0, -offset)
             path.line_to(0, offset)
-            renderer.draw_markers(gc, path, None, xt, yt, self._transform)
+            renderer.draw_markers(gc, path, None, xt, yt, self.get_transform())
         else:
             for (x,y) in zip(xt, yt):
                 renderer.draw_line(gc, x, y-offset, x, y+offset)
@@ -893,7 +893,7 @@ class Line2D(Artist):
             path = agg.path_storage()
             path.move_to(-offset, 0)
             path.line_to(offset, 0)
-            renderer.draw_markers(gc, path, None, xt, yt, self._transform)
+            renderer.draw_markers(gc, path, None, xt, yt, self.get_transform())
         else:
             for (x,y) in zip(xt, yt):
                 renderer.draw_line(gc, x-offset, y, x+offset, y)
@@ -904,7 +904,7 @@ class Line2D(Artist):
             path = agg.path_storage()
             path.move_to(-offset, 0.5)
             path.line_to(0, 0.5)
-            renderer.draw_markers(gc, path, None, xt, yt, self._transform)
+            renderer.draw_markers(gc, path, None, xt, yt, self.get_transform())
         else:
             for (x,y) in zip(xt, yt):
                 renderer.draw_line(gc, x-offset, y, x, y)
@@ -916,7 +916,7 @@ class Line2D(Artist):
             path = agg.path_storage()
             path.move_to(0, 0.5)
             path.line_to(offset, 0.5)
-            renderer.draw_markers(gc, path, None, xt, yt, self._transform)
+            renderer.draw_markers(gc, path, None, xt, yt, self.get_transform())
         else:
             for (x,y) in zip(xt, yt):
                 renderer.draw_line(gc, x, y, x+offset, y)
@@ -927,7 +927,7 @@ class Line2D(Artist):
             path = agg.path_storage()
             path.move_to(-0.5, 0)
             path.line_to(-0.5, offset)
-            renderer.draw_markers(gc, path, None, xt, yt, self._transform)
+            renderer.draw_markers(gc, path, None, xt, yt, self.get_transform())
         else:
             for (x,y) in zip(xt, yt):
                 renderer.draw_line(gc, x, y, x, y+offset)
@@ -938,7 +938,7 @@ class Line2D(Artist):
             path = agg.path_storage()
             path.move_to(-0.5, -offset)
             path.line_to(-0.5, 0)
-            renderer.draw_markers(gc, path, None, xt, yt, self._transform)
+            renderer.draw_markers(gc, path, None, xt, yt, self.get_transform())
         else:
             for (x,y) in zip(xt, yt):
                 renderer.draw_line(gc, x, y-offset, x, y)
@@ -952,7 +952,7 @@ class Line2D(Artist):
             path.line_to( offset, 0)
             path.move_to( 0, -offset)
             path.line_to( 0, offset)
-            renderer.draw_markers(gc, path, None, xt, yt, self._transform)
+            renderer.draw_markers(gc, path, None, xt, yt, self.get_transform())
         else:
             for (x,y) in zip(xt, yt):
                 renderer.draw_line(gc, x-offset, y, x+offset, y)
@@ -970,7 +970,7 @@ class Line2D(Artist):
             path.line_to(offset1, offset2)
             path.move_to(0, 0)
             path.line_to(-offset1, offset2)
-            renderer.draw_markers(gc, path, None, xt, yt, self._transform)
+            renderer.draw_markers(gc, path, None, xt, yt, self.get_transform())
         else:
             for (x,y) in zip(xt, yt):
                 renderer.draw_line(gc, x, y, x, y-offset)
@@ -989,7 +989,7 @@ class Line2D(Artist):
             path.line_to(offset1, -offset2)
             path.move_to(0, 0)
             path.line_to(-offset1, -offset2)
-            renderer.draw_markers(gc, path, None, xt, yt, self._transform)
+            renderer.draw_markers(gc, path, None, xt, yt, self.get_transform())
         else:
             for (x,y) in zip(xt, yt):
                 renderer.draw_line(gc, x, y, x, y+offset)
@@ -1008,7 +1008,7 @@ class Line2D(Artist):
             path.line_to(offset2, offset1)
             path.move_to(0, 0)
             path.line_to(offset2, -offset1)
-            renderer.draw_markers(gc, path, None, xt, yt, self._transform)
+            renderer.draw_markers(gc, path, None, xt, yt, self.get_transform())
         else:
             for (x,y) in zip(xt, yt):
                 renderer.draw_line(gc, x, y, x-offset, y)
@@ -1027,7 +1027,7 @@ class Line2D(Artist):
             path.line_to(-offset2, offset1)
             path.move_to(0, 0)
             path.line_to(-offset2, -offset1)
-            renderer.draw_markers(gc, path, None, xt, yt, self._transform)
+            renderer.draw_markers(gc, path, None, xt, yt, self.get_transform())
         else:
             for (x,y) in zip(xt, yt):
                 renderer.draw_line(gc, x, y, x+offset, y)
@@ -1043,7 +1043,7 @@ class Line2D(Artist):
             path.line_to(offset, offset)
             path.move_to(-offset, offset)
             path.line_to(offset, -offset)
-            renderer.draw_markers(gc, path, None, xt, yt, self._transform)
+            renderer.draw_markers(gc, path, None, xt, yt, self.get_transform())
         else:
             for (x,y) in zip(xt, yt):
                 renderer.draw_line(gc, x-offset, y-offset, x+offset, y+offset)

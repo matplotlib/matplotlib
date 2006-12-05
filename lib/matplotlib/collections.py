@@ -86,7 +86,7 @@ class PatchCollection(Collection, ScalarMappable):
                  linewidths=None,
                  antialiaseds = None,
                  offsets = None,
-                 transOffset = identity_transform(),
+                 transOffset = None,
                  norm = None,  # optional for ScalarMappable
                  cmap = None,  # ditto
                  ):
@@ -109,7 +109,12 @@ class PatchCollection(Collection, ScalarMappable):
         self._offsets = offsets
         self._transOffset = transOffset
 
-
+    def get_transoffset(self):
+        if self._transOffset is None:
+            self._transOffset = identity_transform()
+        return self._transOffset
+    
+    
     def set_linewidth(self, lw):
         """
         Set the linewidth(s) for the collection.  lw can be a scalar or a
@@ -217,17 +222,19 @@ class QuadMesh(PatchCollection):
         # does not call update_scalarmappable, need to update it
         # when creating/changing              ****** Why not?  speed?
         if not self.get_visible(): return
-        self._transform.freeze()
-        self._transOffset.freeze()
+        transform = self.get_transform()
+        transoffset = self.get_transoffset()
+        transform.freeze()
+        transoffset.freeze()
         #print 'QuadMesh draw'
         self.update_scalarmappable()  #######################
 
         renderer.draw_quad_mesh( self._meshWidth, self._meshHeight,
             self._facecolors, self._coordinates[:,0],
-            self._coordinates[:, 1], self.clipbox, self._transform,
-            self._offsets, self._transOffset, self._showedges)
-        self._transform.thaw()
-        self._transOffset.thaw()
+            self._coordinates[:, 1], self.clipbox, transform,
+            self._offsets, transoffset, self._showedges)
+        transform.thaw()
+        transoffset.thaw()
 
 class PolyCollection(PatchCollection):
     def __init__(self, verts, **kwargs):
@@ -247,19 +254,22 @@ class PolyCollection(PatchCollection):
     def draw(self, renderer):
         if not self.get_visible(): return
         renderer.open_group('polycollection')
-        self._transform.freeze()
-        self._transOffset.freeze()
+        transform = self.get_transform()
+        transoffset = self.get_transoffset()
+
+        transform.freeze()
+        transoffset.freeze()
         self.update_scalarmappable()
         if is_string_like(self._edgecolors) and self._edgecolors[:2] == 'No':
             self._linewidths = (0,)
             #self._edgecolors = self._facecolors
         renderer.draw_poly_collection(
-            self._verts, self._transform, self.clipbox,
+            self._verts, transform, self.clipbox,
             self._facecolors, self._edgecolors,
             self._linewidths, self._antialiaseds,
-            self._offsets,  self._transOffset)
-        self._transform.thaw()
-        self._transOffset.thaw()
+            self._offsets,  transoffset)
+        transform.thaw()
+        transoffset.thaw()
         renderer.close_group('polycollection')
 
 
@@ -275,7 +285,7 @@ class PolyCollection(PatchCollection):
             for seg in self._verts:
                 verts.extend(seg)
             return [tuple(xy) for xy in verts]
-        if self._transOffset == dataTrans:
+        if self.get_transoffset() == dataTrans:
             return [tuple(xy) for xy in self._offsets]
         raise NotImplementedError('Vertices in data coordinates are calculated\n'
                 + 'with offsets only if _transOffset == dataTrans.')
@@ -358,8 +368,11 @@ class RegularPolyCollection(PatchCollection):
     def draw(self, renderer):
         if not self.get_visible(): return
         renderer.open_group('regpolycollection')
-        self._transform.freeze()
-        self._transOffset.freeze()
+        transform = self.get_transform()
+        transoffset = self.get_transoffset()
+
+        transform.freeze()
+        transoffset.freeze()
         self.update_scalarmappable()
         self._update_verts()
         scales = sqrt(asarray(self._sizes)*self._dpi.get()/72.0)
@@ -369,13 +382,13 @@ class RegularPolyCollection(PatchCollection):
             self._linewidths = (0,)
         renderer.draw_regpoly_collection(
             self.clipbox,
-            self._offsets, self._transOffset,
+            self._offsets, transoffset,
             self._verts, scales,
             self._facecolors, self._edgecolors,
             self._linewidths, self._antialiaseds)
 
-        self._transform.thaw()
-        self._transOffset.thaw()
+        transform.thaw()
+        transoffset.thaw()
         renderer.close_group('regpolycollection')
 
 
@@ -384,7 +397,7 @@ class RegularPolyCollection(PatchCollection):
         The calculation is incomplete; it uses only
         the offsets, and only if _transOffset is dataTrans.
         '''
-        if self._transOffset == dataTrans:
+        if self.get_transoffset() == dataTrans:
             return [tuple(xy) for xy in self._offsets]
         raise NotImplementedError('Vertices in data coordinates are calculated\n'
                 + 'only with offsets and only if _transOffset == dataTrans.')
@@ -509,6 +522,11 @@ class LineCollection(Collection, ScalarMappable):
         self._transOffset = transOffset
         self.set_segments(segments)
 
+    def get_transoffset(self):
+        if self._transOffset is None:
+            self._transOffset = identity_transform()
+        return self._transOffset
+
     def set_segments(self, segments):
         if segments is None: return
         self._segments = [asarray(seg) for seg in segments]
@@ -534,15 +552,20 @@ class LineCollection(Collection, ScalarMappable):
     def draw(self, renderer):
         if not self.get_visible(): return
         renderer.open_group('linecollection')
-        self._transform.freeze()
-        if self._transOffset is not None: self._transOffset.freeze()
+        transform = self.get_transform()
+        transoffset = self.get_transoffset()
+
+        transform.freeze()
+        transoffset.freeze()
+
         self.update_scalarmappable()
         renderer.draw_line_collection(
-            self._segments, self._transform, self.clipbox,
+            self._segments, transform, self.clipbox,
             self._colors, self._lw, self._ls, self._aa, self._offsets,
-            self._transOffset)
-        self._transform.thaw()
-        if self._transOffset is not None: self._transOffset.thaw()
+            transoffset)
+        transform.thaw()
+        transoffset.thaw()
+
         renderer.close_group('linecollection')
 
     def set_linewidth(self, lw):
@@ -632,7 +655,7 @@ class LineCollection(Collection, ScalarMappable):
             for seg in self._segments:
                 verts.extend(seg)
             return [tuple(xy) for xy in verts]
-        if self._transOffset == dataTrans:
+        if self.get_transoffset() == dataTrans:
             return [tuple(xy) for xy in self._offsets]
         raise NotImplementedError('Vertices in data coordinates are calculated\n'
                 + 'with offsets only if _transOffset == dataTrans.')

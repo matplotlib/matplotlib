@@ -130,7 +130,7 @@ class Cell(Rectangle):
     def get_text_bounds(self, renderer):
         """ Get text bounds in axes co-ordinates. """
         bbox = self._text.get_window_extent(renderer)
-        bboxa = inverse_transform_bbox(self._transform, bbox)
+        bboxa = inverse_transform_bbox(self.get_transform(), bbox)
         return bboxa.get_bounds()
 
     def get_required_width(self, renderer):
@@ -208,7 +208,7 @@ class Table(Artist):
 
         cell = Cell(xy, *args, **kwargs)
         cell.set_figure(self.figure)
-        cell.set_transform(self._transform)
+        cell.set_transform(self.get_transform())
 
         cell.set_clip_on(False)
         self._cells[(row, col)] = cell
@@ -238,7 +238,7 @@ class Table(Artist):
                  if pos[0] >= 0 and pos[1] >= 0]
 
         bbox = bbox_all(boxes)
-        return inverse_transform_bbox(self._transform, bbox)
+        return inverse_transform_bbox(self.get_transform(), bbox)
 
     def get_child_artists(self):
         'Return the Artists cintained by the table'

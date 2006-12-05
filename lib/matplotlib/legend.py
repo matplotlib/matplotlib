@@ -196,7 +196,7 @@ The following dimensions are in axes coords
 
     def _set_artist_props(self, a):
         a.set_figure(self.figure)
-        a.set_transform(self._transform)
+        a.set_transform(self.get_transform())
 
     def _approx_text_height(self):
         return self.fontsize/72.0*self.figure.dpi.get()/self.parent.bbox.height()
@@ -224,7 +224,7 @@ The following dimensions are in axes coords
             t.draw(renderer)
         renderer.close_group('legend')
         #draw_bbox(self.save, renderer, 'g')
-        #draw_bbox(self.ibox, renderer, 'r', self._transform)
+        #draw_bbox(self.ibox, renderer, 'r', self.get_transform())
 
     def _get_handle_text_bbox(self, renderer):
         'Get a bbox for the text and lines in axes coords'
@@ -238,7 +238,7 @@ The following dimensions are in axes coords
         bbox = bbox_all(bboxesAll)
         self.save = bbox
 
-        ibox =  inverse_transform_bbox(self._transform, bbox)
+        ibox =  inverse_transform_bbox(self.get_transform(), bbox)
         self.ibox = ibox
 
         return ibox
@@ -520,7 +520,7 @@ The following dimensions are in axes coords
         if not len(self.legendHandles) and not len(self.texts): return
         def get_tbounds(text):  #get text bounds in axes coords
             bbox = text.get_window_extent(renderer)
-            bboxa = inverse_transform_bbox(self._transform, bbox)
+            bboxa = inverse_transform_bbox(self.get_transform(), bbox)
             return bboxa.get_bounds()
 
         hpos = []

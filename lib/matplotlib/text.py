@@ -170,7 +170,7 @@ class Text(Artist):
         if self.cached.has_key(key): return self.cached[key]
         horizLayout = []
         pad =2
-        thisx, thisy = self._transform.xy_tup( (self._x, self._y) )
+        thisx, thisy = self.get_transform().xy_tup( (self._x, self._y) )
         width = 0
         height = 0
 
@@ -237,7 +237,7 @@ class Text(Artist):
 
         # compute the text location in display coords and the offsets
         # necessary to align the bbox with that location
-        tx, ty = self._transform.xy_tup( (self._x, self._y) )
+        tx, ty = self.get_transform().xy_tup( (self._x, self._y) )
 
         if halign=='center':  offsetx = tx - (xmin + width/2.0)
         elif halign=='right': offsetx = tx - (xmin + width)
@@ -263,7 +263,7 @@ class Text(Artist):
         ty = [float(v[1][0])+offsety for v in xys]
 
         # now inverse transform back to data coords
-        xys = [self._transform.inverse_xy_tup( xy ) for xy in zip(tx, ty)]
+        xys = [self.get_transform().inverse_xy_tup( xy ) for xy in zip(tx, ty)]
 
         xs, ys = zip(*xys)
 
@@ -322,7 +322,7 @@ class Text(Artist):
 
         if len(self._substrings)>1:
             # embedded mathtext
-            thisx, thisy = self._transform.xy_tup((self._x, self._y))
+            thisx, thisy = self.get_transform().xy_tup((self._x, self._y))
             for s,ismath in self._substrings:
                 w, h = renderer.get_text_width_height(
                     s, self._fontproperties, ismath)
@@ -340,11 +340,11 @@ class Text(Artist):
 
             return
         bbox, info = self._get_layout(renderer)
-
+        trans = self.get_transform()
         if ismath=='TeX':
             canvasw, canvash = renderer.get_canvas_width_height()
             for line, wh, x, y in info:
-                x, y = self._transform.xy_tup((x, y))
+                x, y = trans.xy_tup((x, y))
                 if renderer.flipy():
                     y = canvash-y
 
@@ -354,7 +354,7 @@ class Text(Artist):
 
         #print 'xy', self._x, self._y, info
         for line, wh, x, y in info:
-            x, y = self._transform.xy_tup((x, y))
+            x, y = trans.xy_tup((x, y))
 
             if renderer.flipy():
                 canvasw, canvash = renderer.get_canvas_width_height()
@@ -429,7 +429,7 @@ class Text(Artist):
         return (self._x, self._y, self._text, self._color,
                 self._verticalalignment, self._horizontalalignment,
                 hash(self._fontproperties), self._rotation,
-                self._transform.as_vec6_val(),
+                self.get_transform().as_vec6_val(),
                 )
 
     def get_text(self):
@@ -448,7 +448,7 @@ class Text(Artist):
         #return _unit_box
         if not self.get_visible(): return _unit_box
         if self._text == '':
-            tx, ty = self._transform.xy_tup( (self._x, self._y) )
+            tx, ty = self.get_transform().xy_tup( (self._x, self._y) )
             return lbwh_to_bbox(tx,ty,0,0)
 
         if renderer is not None:
@@ -711,7 +711,7 @@ class Text(Artist):
 
         w = wb+we
 
-        xb, yb = self._transform.xy_tup((self._x, self._y))
+        xb, yb = self.get_transform().xy_tup((self._x, self._y))
         xe = xb+1.1*wb
         ye = yb+0.5*hb
         h = ye+he-yb
