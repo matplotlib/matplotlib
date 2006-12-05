@@ -32,6 +32,25 @@ class Patch(Artist):
                  fill=1,
                  **kwargs
                  ):
+        """
+        The following kwarg properties are supported
+          alpha: float
+          animated: [True | False]
+          antialiased or aa: [True | False]
+          clip_box: a matplotlib.transform.Bbox instance
+          clip_on: [True | False]
+          edgecolor or ec: any matplotlib color
+          facecolor or fc: any matplotlib color
+          figure: a matplotlib.figure.Figure instance
+          fill: [True | False]
+          hatch: unknown
+          label: any string
+          linewidth or lw: float
+          lod: [True | False]
+          transform: a matplotlib.transform transformation instance
+          visible: [True | False]
+          zorder: any number
+        """
         Artist.__init__(self)
 
         if edgecolor is None: edgecolor = rcParams['patch.edgecolor']
@@ -223,6 +242,8 @@ class Shadow(Patch):
         Create a shadow of the patch offset by ox, oy.  props, if not None is
         a patch property update dictionary.  If None, the shadow will have
         have the same color as the face, but darkened
+
+        See Patch documentation for kwargs
         """
         Patch.__init__(self)
         self.ox, self.oy = ox, oy
@@ -259,7 +280,7 @@ class Rectangle(Patch):
     """
     Draw a rectangle with lower left at xy=(x,y) with specified
     width and height
-
+    
     """
 
     def __init__(self, xy, width, height,
@@ -271,6 +292,7 @@ class Rectangle(Patch):
 
         fill is a boolean indicating whether to fill the rectangle
 
+        See Patch documentation for additional kwargs
         """
 
         Patch.__init__(self, **kwargs)
@@ -357,7 +379,7 @@ class RegularPolygon(Patch):
     from the center to each of the vertices.  Orientation is in
     radians and rotates the polygon.
 
-
+    See Patch documentation for kwargs
     """
     def __init__(self, xy, numVertices, radius=5, orientation=0,
                  **kwargs):
@@ -385,6 +407,10 @@ class Polygon(Patch):
     A general polygon patch.  xy is a sequence of x,y 2 tuples tuples
     """
     def __init__(self, xy, **kwargs):
+        """
+        See Patch documentation for additional kwargs        
+        """
+    
         Patch.__init__(self, **kwargs)
         if not isinstance(xy, list):
             xy = list(xy)
@@ -401,11 +427,8 @@ class Wedge(Polygon):
         Draw a wedge centered at x,y tuple center with radius r that
         sweeps theta1 to theta2 (angles)
 
-
-        kwargs are Polygon keyword args
-
         dtheta is the resolution in degrees
-
+        See Patch documentation for additional kwargs
         """
         xc, yc = center
         rads = (math.pi/180.)*arange(theta1, theta2+0.1*dtheta, dtheta)
@@ -424,7 +447,9 @@ class Arrow(Polygon):
     def __init__( self, x, y, dx, dy, width=1.0, **kwargs ):
         """Draws an arrow, starting at (x,y), direction and length
         given by (dx,dy) the width of the arrow is scaled by width
-        """
+
+        See Patch documentation for additional kwargs
+          """
         arrow = array( [
             [ 0.0,  0.1 ], [ 0.0, -0.1],
             [ 0.8, -0.1 ], [ 0.8, -0.3],
@@ -457,6 +482,8 @@ class FancyArrow(Polygon):
 
         head_starts_at_zero: if True, the head starts being drawn at coordinate
         0 instead of ending at coordinate 0.
+
+        See Patch documentation for additional kwargs
         """
         if head_width is None:
             head_width = 3 * width
@@ -520,6 +547,7 @@ class YAArrow(Polygon):
         frac  : the fraction of the arrow length occupied by the head
         headwidth : the width of the base of the arrow head in points
         
+        See Patch documentation for additional kwargs
         """
         self.dpi = dpi
         self.xytip = xytip
@@ -579,6 +607,9 @@ class CirclePolygon(RegularPolygon):
     def __init__(self, xy, radius=5,
                  resolution=20,  # the number of vertices
                  **kwargs):
+        """
+        See Patch documentation for additional kwargs
+        """
         self.center = xy
         self.radius = radius
         RegularPolygon.__init__(self, xy,
@@ -598,6 +629,9 @@ class Ellipse(Patch):
     angle - rotation in degrees (anti-clockwise)
     """
     def __init__(self, xy, width, height, angle=0.0, **kwargs):
+        """
+        See Patch documentation for allowed kwargs
+        """
         Patch.__init__(self, **kwargs)
 
         self.center  = array(xy, Float)
@@ -647,6 +681,9 @@ class Circle(Ellipse):
     """
     def __init__(self, xy, radius=5,
                  **kwargs):
+        """
+        See Patch documentation for allowed kwargs
+        """
         if kwargs.has_key('resolution'):
             import warnings
             warnings.warn('Circle is now scale free.  Use CirclePolygon instead!', DeprecationWarning)
