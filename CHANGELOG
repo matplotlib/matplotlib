@@ -1,3 +1,6 @@
+2006-12-06 Made pcolor support vector X and/or Y instead of
+           requiring 2-D arrays - EF
+
 2006-12-05 Made the default Artist._transform None (rather than
            invoking identity_transform for each artist only to have it
            overridden later).  Use artist.get_transform() rather than
