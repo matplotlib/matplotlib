@@ -6,7 +6,7 @@ from numerix import absolute, arange, array, asarray, ones, divide,\
      transpose, log, log10, Float, Float32, ravel, zeros,\
      Int16, Int32, Int, Float64, ceil, indices, \
      shape, which, where, sqrt, asum, compress, maximum, minimum, \
-     typecode, concatenate, newaxis, reshape
+     typecode, concatenate, newaxis, reshape, resize
 
 import numerix.ma as ma
 
@@ -3768,16 +3768,29 @@ class Axes(Artist):
 
     def pcolor(self, *args, **kwargs):
         """
-        PCOLOR(*args, **kwargs)
+        pcolor(*args, **kwargs): pseudocolor plot of a 2-D array
 
         Function signatures
 
-          PCOLOR(C) - make a pseudocolor plot of matrix C
+          pcolor(C, **kwargs)
+          pcolor(X, Y, C, **kwargs)
 
-          PCOLOR(X, Y, C) - a pseudo color plot of C on the matrices X and Y
+        C is the array of color values
 
-          PCOLOR(C, **kwargs) - Use keyword args to control colormapping and
-                                scaling; see below
+        X and Y, if given, specify the (x,y) coordinates of the colored
+        quadrilaterals; the quadrilateral for C[i,j] has corners at
+        (X[i,j],Y[i,j]), (X[i,j+1],Y[i,j+1]), (X[i+1,j],Y[i+1,j]),
+        (X[i+1,j+1],Y[i+1,j+1]).  Ideally the dimensions of X and Y
+        should be one greater than those of C; if the dimensions are the
+        same, then the last row and column of C will be ignored.
+
+        Note that the the column index corresponds to the x-coordinate,
+        and the row index corresponds to y; for details, see
+        the "Grid Orientation" section below.
+
+        If either or both of X and Y are 1-D arrays or column vectors,
+        they will be expanded as needed into the appropriate 2-D arrays,
+        making a rectangular grid.
 
         X,Y and C may be masked arrays.  If either C[i,j], or one
         of the vertices surrounding C[i,j] (X or Y at [i,j],[i+1,j],
@@ -3798,8 +3811,7 @@ class Axes(Artist):
             instance, vmin and vmax will be None
 
           * shading = 'flat' : or 'faceted'.  If 'faceted', a black grid is
-            drawn around each rectangle; if 'flat', edge colors are same as
-            face colors
+            drawn around each rectangle; if 'flat', edges are not drawn
 
           * alpha=1.0 : the alpha blending value
 
@@ -3840,7 +3852,7 @@ class Axes(Artist):
 
         Dimensions
 
-            pcolor differs from Matlab in that Matlab always discards
+            Matlab pcolor always discards
             the last row and column of C, but matplotlib displays
             the last row and column if X and Y are not specified, or
             if X and Y have one more row and column than C.
@@ -3867,10 +3879,16 @@ class Axes(Artist):
             X, Y = meshgrid(arange(numCols+1), arange(numRows+1) )
         elif len(args)==3:
             X, Y, C = args
+            numRows, numCols = C.shape
         else:
             raise TypeError, 'Illegal arguments to pcolor; see help(pcolor)'
 
-        Nx, Ny = X.shape
+        Nx = X.shape[-1]
+        Ny = Y.shape[0]
+        if len(X.shape) <> 2 or X.shape[0] == 1:
+            X = resize(ravel(X), (Ny, Nx))
+        if len(Y.shape) <> 2 or Y.shape[1] == 1:
+            Y = transpose(resize(ravel(Y), (Nx, Ny)))
 
         # convert to MA, if necessary.
         C = ma.asarray(C)
@@ -3879,7 +3897,7 @@ class Axes(Artist):
         mask = ma.getmaskarray(X)+ma.getmaskarray(Y)
         xymask = mask[0:-1,0:-1]+mask[1:,1:]+mask[0:-1,1:]+mask[1:,0:-1]
         # don't plot if C or any of the surrounding vertices are masked.
-        mask = ma.getmaskarray(C)[0:Nx-1,0:Ny-1]+xymask
+        mask = ma.getmaskarray(C)[0:Ny-1,0:Nx-1]+xymask
 
         X1 = compress(ravel(mask==0),ravel(ma.filled(X[0:-1,0:-1])))
         Y1 = compress(ravel(mask==0),ravel(ma.filled(Y[0:-1,0:-1])))
@@ -3899,7 +3917,7 @@ class Axes(Artist):
 
         #verts = zip(zip(X1,Y1),zip(X2,Y2),zip(X3,Y3),zip(X4,Y4))
 
-        C = compress(ravel(mask==0),ravel(ma.filled(C[0:Nx-1,0:Ny-1])))
+        C = compress(ravel(mask==0),ravel(ma.filled(C[0:Ny-1,0:Nx-1])))
 
 
         if shading == 'faceted':
