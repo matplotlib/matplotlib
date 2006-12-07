@@ -3864,14 +3864,12 @@ class Axes(Artist):
 
         if not self._hold: self.cla()
 
-        kwargs = kwargs.copy()
-        alpha = popd(kwargs,'alpha', 1.0)
-        norm = popd(kwargs,'norm', None)
-        cmap = popd(kwargs,'cmap', None)
-        vmin = popd(kwargs,'vmin', None)
-        vmax = popd(kwargs,'vmax', None)
-        shading = popd(kwargs,'shading', 'faceted')
-
+        alpha = kwargs.pop('alpha', 1.0)
+        norm = kwargs.pop('norm', None)
+        cmap = kwargs.pop('cmap', None)
+        vmin = kwargs.pop('vmin', None)
+        vmax = kwargs.pop('vmax', None)
+        shading = kwargs.pop('shading', 'faceted')
 
         if len(args)==1:
             C = args[0]
@@ -3955,10 +3953,7 @@ class Axes(Artist):
         corners = (minx, miny), (maxx, maxy)
         self.update_datalim( corners)
         self.autoscale_view()
-
-        # add the collection last
         self.add_collection(collection)
-
         return collection
     pcolor.__doc__ = pcolor.__doc__%artist.kwdocd
 
@@ -4002,20 +3997,20 @@ class Axes(Artist):
         Return value is a matplotlib.collections.PatchCollection
         object
 
-        See pcolor for an explantion of the grid orientation.
+        See pcolor for an explantion of the grid orientation and the
+        expansion of 1-D X and/or Y to 2-D arrays.
 
-        kwargs can be used to control the QuandMesh polygon collection properties:
+        kwargs can be used to control the QuadMesh polygon collection properties:
 %(QuadMesh)s
         """
         if not self._hold: self.cla()
 
-        kwargs = kwargs.copy()
-        alpha = kwargs.get('alpha', 1.0)
-        norm = kwargs.get('norm', None)
-        cmap = kwargs.get('cmap', None)
-        vmin = kwargs.get('vmin', None)
-        vmax = kwargs.get('vmax', None)
-        shading = kwargs.get('shading', 'faceted')
+        alpha = kwargs.pop('alpha', 1.0)
+        norm = kwargs.pop('norm', None)
+        cmap = kwargs.pop('cmap', None)
+        vmin = kwargs.pop('vmin', None)
+        vmax = kwargs.pop('vmax', None)
+        shading = kwargs.pop('shading', 'faceted')
 
         if len(args)==1:
             C = args[0]
@@ -4023,10 +4018,16 @@ class Axes(Artist):
             X, Y = meshgrid(arange(numCols+1), arange(numRows+1) )
         elif len(args)==3:
             X, Y, C = args
+            numRows, numCols = C.shape
         else:
             raise TypeError, 'Illegal arguments to pcolormesh; see help(pcolormesh)'
 
-        Nx, Ny = X.shape
+        Nx = X.shape[-1]
+        Ny = Y.shape[0]
+        if len(X.shape) <> 2 or X.shape[0] == 1:
+            X = resize(ravel(X), (Ny, Nx))
+        if len(Y.shape) <> 2 or Y.shape[1] == 1:
+            Y = transpose(resize(ravel(Y), (Nx, Ny)))
 
         # convert to one dimensional arrays
         C = ma.ravel(C[0:Nx-1, 0:Ny-1]) # data point in each cell is value at lower left corner
@@ -4067,9 +4068,6 @@ class Axes(Artist):
         corners = (minx, miny), (maxx, maxy)
         self.update_datalim( corners)
         self.autoscale_view()
-        ##################collection.update_scalarmappable()
-
-        # add the collection last
         self.add_collection(collection)
         return collection
     pcolormesh.__doc__ = pcolormesh.__doc__%artist.kwdocd
