@@ -40,12 +40,11 @@ CS = contourf(X, Y, Z, 10, # [-1, -0.1, 0, 0.1],
                         cmap=cm.bone,
                         origin=origin)
 
-# Note that in the following, we explicitly pass in
-# the contour levels used for the filled contours, so that
-# the regions have outlines.  We could also pass in additional
-# levels to provide extra resolution.
+# Note that in the following, we explicitly pass in a subset of
+# the contour levels used for the filled contours.  Alternatively,
+# We could pass in additional levels to provide extra resolution.
 
-CS2 = contour(X, Y, Z, CS.levels,
+CS2 = contour(X, Y, Z, CS.levels[::2],
                         colors = 'r',
                         origin=origin,
                         hold='on')
@@ -57,6 +56,8 @@ ylabel('sentence length anomaly')
 # Make a colorbar for the ContourSet returned by the contourf call.
 cbar = colorbar(CS)
 cbar.ax.set_ylabel('verbosity coefficient')
+# Add the contour line levels to the colorbar
+cbar.add_lines(CS2)
 
 figure()
 
