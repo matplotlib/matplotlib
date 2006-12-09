@@ -13,7 +13,7 @@ title('How fast do you want to go today?')
 grid(True)
 
 figure(2)
-barh(pos,val, xerr=rand(5), align='center')
+barh(pos,val, xerr=rand(5), ecolor='r', align='center')
 yticks(pos, ('Tom', 'Dick', 'Harry', 'Slim', 'Jim'))
 xlabel('Perfomance')
 

@@ -1,3 +1,5 @@
+    Added linewidth kwarg to bar and barh.
+
     Made the default Artist._transform None (rather than invoking
     identity_transform for each artist only to have it overridden
     later).  Use artist.get_transform() rather than artist._transform,
