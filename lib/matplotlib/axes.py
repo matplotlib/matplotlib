@@ -2450,25 +2450,24 @@ class Axes(Artist):
 
 
     def bar(self, left, height, width=0.8, bottom=0,
-            color=None, edgecolor=None, yerr=None, xerr=None, ecolor=None, capsize=3,
+            color=None, edgecolor=None, linewidth=None,
+            yerr=None, xerr=None, ecolor=None, capsize=3,
             align='edge', orientation='vertical'
             ):
         """
         BAR(left, height, width=0.8, bottom=0,
-            color=None, edgecolor=None, yerr=None, xerr=None, ecolor=None, capsize=3,
+            color=None, edgecolor=None, linewidth=None,
+            yerr=None, xerr=None, ecolor=None, capsize=3,
             align='edge', orientation='vertical')
 
         Make a bar plot with rectangles bounded by
 
-          left, left+width, bottom, bottom+height  (left, right, bottom and top edges)
+          left, left+width, bottom, bottom+height
+                (left, right, bottom and top edges)
 
         left, height, width, and bottom can be either scalars or sequences
 
         Return value is a list of Rectangle patch instances
-
-        BAR(left, height, width, bottom,
-            color, edgecolor, yerr, xerr, ecolor, capsize,
-            align, orientation)
 
             left - the x coordinates of the left sides of the bars
 
@@ -2480,9 +2479,12 @@ class Axes(Artist):
 
             bottom - the y coordinates of the bottom edges of the bars
 
-            color specifies the colors of the bars
+            color - the colors of the bars
 
-            edgecolor specifies the colors of the bar edges
+            edgecolor - the colors of the bar edges
+
+            linewidth - width of bar edges; None means use default
+                linewidth; 0 means don't draw edges.
 
             xerr and yerr, if not None, will be used to generate errorbars
             on the bar chart
@@ -2496,9 +2498,12 @@ class Axes(Artist):
             orientation = 'vertical' | 'horizontal'
 
             For vertical bars, 'edge' aligns bars by their left edges in left,
-            while 'center' interprets these values as the x coordinates of the bar centers.
-            For horizontal bars, 'edge' aligns bars by their bottom edges in bottom,
-            while 'center' interprets these values as the y coordinates of the bar centers.
+            while 'center' interprets these values as the x coordinates
+            of the bar centers.
+            For horizontal bars, 'edge' aligns bars by their bottom edges
+            in bottom,
+            while 'center' interprets these values as the y coordinates
+            of the bar centers.
 
         The optional arguments color, edgecolor, yerr, and xerr can be either
         scalars or sequences of length equal to the number of bars
@@ -2519,6 +2524,7 @@ class Axes(Artist):
         height = make_iterable(height)
         width = make_iterable(width)
         bottom = make_iterable(bottom)
+        linewidth = make_iterable(linewidth)
 
         if orientation == 'vertical':
             # size width and bottom according to length of left
@@ -2541,6 +2547,7 @@ class Axes(Artist):
         height = asarray(height)
         width = asarray(width)
         bottom = asarray(bottom)
+        if len(linewidth) == 1: linewidth = linewidth * nbars
 
         # if color looks like a color string, an RGB tuple or a
         # scalar, then repeat it by nbars
@@ -2567,19 +2574,16 @@ class Axes(Artist):
             else:
                 xerr = asarray(xerr)
 
-        if orientation == 'vertical':
-            lenarg = 'left'
-        elif orientation == 'horizontal':
-            lenarg = 'bottom'
-        assert len(left)==nbars, 'bar() argument \'left\' must be len(%s) or scalar' % lenarg
-        assert len(height)==nbars, 'bar() argument \'height\' must be len(%s) or scalar' % lenarg
-        assert len(width)==nbars, 'bar() argument \'width\' must be len(%s) or scalar' % lenarg
-        assert len(bottom)==nbars, 'bar() argument \'bottom\' must be len(%s) or scalar' % lenarg
-        assert len(color)==nbars, 'bar() argument \'color\' must be len(%s) or scalar' % lenarg
-        assert len(edgecolor)==nbars, 'bar() argument \'edgecolor\' must be len(%s) or scalar' % lenarg
+        assert len(left)==nbars, "argument 'left' must be %d or scalar" % nbars
+        assert len(height)==nbars, "argument 'height' must be %d or scalar" % nbars
+        assert len(width)==nbars, "argument 'width' must be %d or scalar" % nbars
+        assert len(bottom)==nbars, "argument 'bottom' must be %d or scalar" % nbars
+        assert len(color)==nbars, "argument 'color' must be %d or scalar" % nbars
+        assert len(edgecolor)==nbars, "argument 'edgecolor' must be %d or scalar" % nbars
+        assert len(linewidth)==nbars, "argument 'linewidth' must be %d or scalar" % nbars
 
-        if yerr is not None: assert len(yerr)==nbars, 'bar() argument \'yerr\' must be len(%s) or scalar' % lenarg
-        if xerr is not None: assert len(xerr)==nbars, 'bar() argument \'xerr\' must be len(%s) or scalar' % lenarg
+        if yerr is not None: assert len(yerr)==nbars, "bar() argument 'yerr' must be len(%s) or scalar" % nbars
+        if xerr is not None: assert len(xerr)==nbars, "bar() argument 'xerr' must be len(%s) or scalar" % nbars
 
         patches = []
 
@@ -2593,8 +2597,8 @@ class Axes(Artist):
         else:
             raise ValueError, 'invalid alignment: %s' % align
 
-        args = zip(left, bottom, width, height, color, edgecolor)
-        for l, b, w, h, c, e in args:
+        args = zip(left, bottom, width, height, color, edgecolor, linewidth)
+        for l, b, w, h, c, e, lw in args:
             if h<0:
                 b += h
                 h = abs(h)
@@ -2602,6 +2606,7 @@ class Axes(Artist):
                 xy=(l, b), width=w, height=h,
                 facecolor=c,
                 edgecolor=e,
+                linewidth=lw,
                 )
             self.add_patch(r)
             patches.append(r)
@@ -2626,12 +2631,14 @@ class Axes(Artist):
 
 
     def barh(self, bottom, width, height=0.8, left=0,
-             color=None, edgecolor=None, xerr=None, yerr=None, ecolor=None, capsize=3,
+             color=None, edgecolor=None, linewidth=None,
+             xerr=None, yerr=None, ecolor=None, capsize=3,
              align='edge'
              ):
         """
         BARH(bottom, width, height=0.8, left=0,
-             color=None, edgecolor=None, xerr=None, yerr=None, ecolor=None, capsize=3,
+             color=None, edgecolor=None, linewidth=None,
+             xerr=None, yerr=None, ecolor=None, capsize=3,
              align='edge')
 
         Make a horizontal bar plot with rectangles bounded by
@@ -2641,10 +2648,6 @@ class Axes(Artist):
         bottom, width, height, and left can be either scalars or sequences
 
         Return value is a list of Rectangle patch instances
-
-        BARH(bottom, width, height, left,
-             color, edgecolor, xerr, yerr, ecolor, capsize,
-             align)
 
             bottom - the vertical positions of the bottom edges of the bars
 
@@ -2671,7 +2674,8 @@ class Axes(Artist):
             'edge' aligns the horizontal bars by their bottom edges in bottom, while
             'center' interprets these values as the y coordinates of the bar centers.
 
-        The optional arguments color, edgecolor, xerr, and yerr can be either
+        The optional arguments color, edgecolor, linewidth,
+        xerr, and yerr can be either
         scalars or sequences of length equal to the number of bars
 
         This enables you to use barh as the basis for stacked bar
@@ -2679,14 +2683,15 @@ class Axes(Artist):
         """
 
         patches = self.bar(left=left, height=height, width=width, bottom=bottom,
-                           color=color, edgecolor=edgecolor, yerr=yerr, xerr=xerr, ecolor=ecolor, capsize=capsize,
+                           color=color, edgecolor=edgecolor, linewidth=linewidth,
+                           yerr=yerr, xerr=xerr, ecolor=ecolor, capsize=capsize,
                            align=align, orientation='horizontal'
                            )
         return patches
 
     def broken_barh(self, xranges, yrange, **kwargs):
         """
-        A colleciton of horizontal bars spanning yrange with a sequence of
+        A collection of horizontal bars spanning yrange with a sequence of
         xranges
 
         xranges : sequence of (xmin, xwidth)
