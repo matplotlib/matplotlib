@@ -6,7 +6,7 @@ from numerix import absolute, arange, array, asarray, ones, divide,\
      transpose, log, log10, Float, Float32, ravel, zeros,\
      Int16, Int32, Int, Float64, ceil, indices, \
      shape, which, where, sqrt, asum, compress, maximum, minimum, \
-     typecode, concatenate, newaxis, reshape, resize
+     typecode, concatenate, newaxis, reshape, resize, repeat
 
 import numerix.ma as ma
 
@@ -217,17 +217,45 @@ class _process_plot_var_args:
             func = getattr(fill_poly,funcName)
             func(val)
 
+    def _xy_from_y(self, y):
+        y = ma.asarray(y)
+        if len(y.shape) == 1:
+            y = y[:,newaxis]
+        nr, nc = y.shape
+        x = arange(nr)
+        return x,y
+
+    def _xy_from_xy(self, x, y):
+        x = ma.asarray(x)
+        y = ma.asarray(y)
+        if len(x.shape) == 1:
+            x = x[:,newaxis]
+        if len(y.shape) == 1:
+            y = y[:,newaxis]
+        nrx, ncx = x.shape
+        nry, ncy = y.shape
+        assert nrx == nry, 'Dimensions of x and y are incompatible'
+        if ncx == ncy:
+            return x, y
+        if ncx == 1:
+            x = repeat(x, ncy, axis=1)
+        if ncy == 1:
+            y = repeat(y, ncx, axis=1)
+        assert x.shape == y.shape, 'Dimensions of x and y are incompatible'
+        return x, y
+
+
     def _plot_1_arg(self, y, **kwargs):
         assert self.command == 'plot', 'fill needs at least 2 arguments'
-        color = self._get_next_cycle_color()
-
-        assert(iterable(y))
-        try: N=max(y.shape)
-        except AttributeError: N = len(y)
-        ret =  Line2D(arange(N), y,
+        ret = []
+        x, y = self._xy_from_y(y)
+        for j in range(y.shape[1]):
+            color = self._get_next_cycle_color()
+            seg = Line2D(x, y[:,j],
                       color = color,
                       )
-        self.set_lineprops(ret, **kwargs)
+            self.set_lineprops(seg, **kwargs)
+            ret.append(seg)
         return ret
 
     def _plot_2_args(self, tup2, **kwargs):
@@ -235,58 +263,66 @@ class _process_plot_var_args:
 
             assert self.command == 'plot', 'fill needs at least 2 non-string arguments'
             y, fmt = tup2
-            assert(iterable(y))
             linestyle, marker, color = _process_plot_format(fmt)
-            if color is None:
-                color = self._get_next_cycle_color()
-
-            try: N=max(y.shape)
-            except AttributeError: N = len(y)
-
-            ret =  Line2D(xdata=arange(N), ydata=y,
-                          color=color, linestyle=linestyle, marker=marker,
+            ret = []
+            x, y = self._xy_from_y(y)
+            for j in range(y.shape[1]):
+                _color = color
+                if color is None:
+                    _color = self._get_next_cycle_color()
+                seg = Line2D(x, y[:,j],
+                          color = _color,
+                          linestyle=linestyle, marker=marker,
                           )
-            self.set_lineprops(ret, **kwargs)
+                self.set_lineprops(seg, **kwargs)
+                ret.append(seg)
             return ret
         else:
 
-            x,y = tup2
-            #print self.count, self.Ncolors, self.count % self.Ncolors
-            assert(iterable(x))
-            assert(iterable(y))
+            x, y = self._xy_from_xy(*tup2)
             if self.command == 'plot':
-                color = self._get_next_cycle_color()
-                ret =  Line2D(x, y,
+                ret = []
+                for j in range(y.shape[1]):
+                    color = self._get_next_cycle_color()
+                    seg =  Line2D(x[:,j], y[:,j],
                               color = color,
                               )
-                self.set_lineprops(ret, **kwargs)
+                    self.set_lineprops(seg, **kwargs)
+                    ret.append(seg)
             elif self.command == 'fill':
-                ret = Polygon( zip(x,y), fill=True, )
-                self.set_patchprops(ret, **kwargs)
-
+                ret = []
+                for j in range(y.shape[1]):
+                    seg = Polygon( zip(x,y), fill=True, )
+                    self.set_patchprops(seg, **kwargs)
+                    ret.append(seg)
             return ret
 
     def _plot_3_args(self, tup3, **kwargs):
+        x, y = self._xy_from_xy(tup3[0], tup3[1])
         if self.command == 'plot':
-            x, y, fmt = tup3
-            assert(iterable(x))
-            assert(iterable(y))
-
+            fmt = tup3[2]
             linestyle, marker, color = _process_plot_format(fmt)
-            if color is None:
-                color = self._get_next_cycle_color()
-
-            ret = Line2D(x, y,
-                         color=color, linestyle=linestyle, marker=marker,
-                         )
-            self.set_lineprops(ret, **kwargs)
+            ret = []
+            for j in range(y.shape[1]):
+                color_ = color
+                if color is None:
+                    color_ = self._get_next_cycle_color()
+                seg = Line2D(x[:,j], y[:,j],
+                             color=_color,
+                             linestyle=linestyle, marker=marker,
+                             )
+                self.set_lineprops(seg, **kwargs)
+                ret.append(seg)
         if self.command == 'fill':
-            x, y, facecolor = tup3
-            ret = Polygon(zip(x,y),
-                          facecolor = facecolor,
-                          fill=True,
-                          )
-            self.set_patchprops(ret, **kwargs)
+            facecolor = tup3[2]
+            ret = []
+            for j in range(y.shape[1]):
+                seg = Polygon(zip(x[:j],y[:,j]),
+                              facecolor = facecolor,
+                              fill=True,
+                              )
+                self.set_patchprops(seg, **kwargs)
+                ret.append(seg)
         return ret
 
     def _grab_next_args(self, *args, **kwargs):
@@ -296,27 +332,30 @@ class _process_plot_var_args:
 
             if len(remaining)==0: return
             if len(remaining)==1:
-                yield self._plot_1_arg(remaining[0], **kwargs)
+                for seg in self._plot_1_arg(remaining[0], **kwargs):
+                    yield seg
                 remaining = []
                 continue
             if len(remaining)==2:
-                yield self._plot_2_args(remaining, **kwargs)
+                for seg in self._plot_2_args(remaining, **kwargs):
+                    yield seg
                 remaining = []
                 continue
             if len(remaining)==3:
                 if not is_string_like(remaining[2]):
                     raise ValueError, 'third arg must be a format string'
-                yield self._plot_3_args(remaining, **kwargs)
+                for seg in self._plot_3_args(remaining, **kwargs):
+                    yield seg
                 remaining=[]
                 continue
             if is_string_like(remaining[2]):
-                yield self._plot_3_args(remaining[:3], **kwargs)
+                for seg in self._plot_3_args(remaining[:3], **kwargs):
+                    yield seg
                 remaining=remaining[3:]
             else:
-                yield self._plot_2_args(remaining[:2], **kwargs)
+                for seg in self._plot_2_args(remaining[:2], **kwargs):
+                    yield seg
                 remaining=remaining[2:]
-            #yield self._plot_2_args(remaining[:2])
-            #remaining=args[2:]
 
 ValueType=type(zero())
 def makeValue(v):
@@ -2085,6 +2124,9 @@ class Axes(Artist):
             plot(x,y, 'bo')      # plot x and y using blue circle markers
             plot(y)              # plot y using x as index array 0..N-1
             plot(y, 'r+')        # ditto, but with red plusses
+
+        If x and/or y is 2-Dimensional, then the corresponding columns
+        will be plotted.
 
         An arbitrary number of x, y, fmt groups can be specified, as in
 

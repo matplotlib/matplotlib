@@ -1,3 +1,5 @@
+    Plot can handle 2-D x and/or y; it plots the columns.
+
     Added linewidth kwarg to bar and barh.
 
     Made the default Artist._transform None (rather than invoking
