@@ -428,7 +428,7 @@ class Line2D(Artist):
         """
         Set the color of the line
 
-        ACCEPTS: any matplotlib color 
+        ACCEPTS: any matplotlib color
         """
         self._color = color
 
@@ -477,7 +477,7 @@ class Line2D(Artist):
         """
         Set the marker edge color
 
-        ACCEPTS: any matplotlib color 
+        ACCEPTS: any matplotlib color
         """
         self._markeredgecolor = ec
 
@@ -493,7 +493,7 @@ class Line2D(Artist):
         """
         Set the marker face color
 
-        ACCEPTS: any matplotlib color 
+        ACCEPTS: any matplotlib color
         """
         self._markerfacecolor = fc
 
