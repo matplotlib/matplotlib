@@ -17,7 +17,7 @@ x[:,12] = 0.
 ax1.spy(x, markersize=5)
 ax2.spy(x, precision=0.1, markersize=5)
 
-ax3.spy2(x, aspect='auto', origin='lower')
-ax4.spy2(x, precision=0.1, aspect='auto', origin='lower')
+ax3.spy(x)
+ax4.spy(x, precision=0.1)
 
 show()
