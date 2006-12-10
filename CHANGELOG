@@ -1,3 +1,6 @@
+2006-12-09 Replaced spy and spy2 with the new spy that combines
+           marker and image capabilities - EF
+
 2006-12-09 Added support for plotting 2-D arrays with plot:
            columns are plotted as in Matlab - EF
 
