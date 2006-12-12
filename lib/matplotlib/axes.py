@@ -304,9 +304,9 @@ class _process_plot_var_args:
             linestyle, marker, color = _process_plot_format(fmt)
             ret = []
             for j in range(y.shape[1]):
-                color_ = color
+                _color = color
                 if color is None:
-                    color_ = self._get_next_cycle_color()
+                    _color = self._get_next_cycle_color()
                 seg = Line2D(x[:,j], y[:,j],
                              color=_color,
                              linestyle=linestyle, marker=marker,
