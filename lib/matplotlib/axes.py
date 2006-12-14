@@ -292,7 +292,7 @@ class _process_plot_var_args:
             elif self.command == 'fill':
                 ret = []
                 for j in range(y.shape[1]):
-                    seg = Polygon( zip(x,y), fill=True, )
+                    seg = Polygon( zip(x[:,j],y[:,j]), fill=True, )
                     self.set_patchprops(seg, **kwargs)
                     ret.append(seg)
             return ret
@@ -317,7 +317,7 @@ class _process_plot_var_args:
             facecolor = tup3[2]
             ret = []
             for j in range(y.shape[1]):
-                seg = Polygon(zip(x[:j],y[:,j]),
+                seg = Polygon(zip(x[:,j],y[:,j]),
                               facecolor = facecolor,
                               fill=True,
                               )

@@ -38,4 +38,3 @@ im = imshow(Zm, interpolation='bilinear',
 title('Green=low, Red=high, Blue=bad')
 colorbar(im, extend='both', shrink=0.8)
 show()
-
