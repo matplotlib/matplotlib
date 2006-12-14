@@ -1,3 +1,10 @@
+2006-12-13 Replaced calls to where() in colors.py with much faster
+           clip() and putmask() calls; removed inappropriate
+           uses of getmaskorNone (which should be needed only
+           very rarely); all in response to profiling by
+           David Cournapeau.  Also fixed bugs in my 2-D
+           array support from 12-09. - EF
+
 2006-12-09 Replaced spy and spy2 with the new spy that combines
            marker and image capabilities - EF
 
