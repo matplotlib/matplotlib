@@ -4415,6 +4415,10 @@ class Axes(Artist):
         number to specify the aspect ratio of an array element
         directly.
 
+        Two plotting styles are available: image or marker. Both
+        are available for full arrays, but only the marker style
+        works for scipy.sparse.spmatrix instances.
+
         If marker and markersize are None, an image will be
         returned and any remaining kwargs are passed to imshow;
         else, a Line2D object will be returned with the value
@@ -4442,6 +4446,8 @@ class Axes(Artist):
 
         """
         if marker is None and markersize is None:
+            if hasattr(Z, 'tocoo'):
+                raise TypeError, "Image mode does not support scipy.sparse arrays"
             Z = asarray(Z)
             if precision is None: mask = Z!=0.
             else:                 mask = absolute(Z)>precision
