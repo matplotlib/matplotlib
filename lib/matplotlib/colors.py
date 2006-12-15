@@ -756,7 +756,7 @@ class Normalize:
                 mask = ma.getmask(val)
                 val = ma.array(nx.clip(val.filled(vmax), vmin, vmax),
                                 mask=mask)
-            result = (val-vmin)/float(vmax-vmin)
+            result = (val-vmin) * (1.0/(vmax-vmin))
         if vtype == 'scalar':
             result = result[0]
         return result
