@@ -1612,7 +1612,8 @@ Cntr_init(Cntr *self, PyObject *args, PyObject *kwds)
     if (xpa == NULL || ypa == NULL || zpa == NULL || (marg && mpa == NULL))
     {
         PyErr_SetString(PyExc_ValueError,
-            "Arguments x, y, z, mask (if present) must be 2D arrays.");
+            "Arguments x, y, z, mask (if present) must be 2D arrays.\n"
+            "x, y, z must be castable to double.");
         goto error;
     }
     iMax = zpa->dimensions[1];
