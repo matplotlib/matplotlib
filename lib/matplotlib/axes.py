@@ -3051,7 +3051,8 @@ class Axes(Artist):
         boxplot(x, notch=0, sym='+', vert=1, whis=1.5,
                 positions=None, widths=None)
 
-        Make a box and whisker plot for each column of x.
+        Make a box and whisker plot for each column of x or
+        each vector in sequence x.
         The box extends from the lower to upper quartile values
         of the data, with a line at the median.  The whiskers
         extend from the box to show the range of the data.  Flier
@@ -3079,22 +3080,35 @@ class Axes(Artist):
         each box. The default is 0.5, or 0.15*(distance between extreme
         positions) if that is smaller.
 
-        x is a Numeric array
+        x is an array or a sequence of vectors.
 
-        Returns a list of the lines added
+        Returns a list of the lines added.
 
         """
         if not self._hold: self.cla()
         holdStatus = self._hold
-        x = asarray(x)
         whiskers, caps, boxes, medians, fliers = [], [], [], [], []
 
-        # if we've got a vector, reshape it
-        rank = len(x.shape)
-        if 1 == rank:
-            x.shape = -1, 1
-
-        row, col = x.shape
+        # convert x to a list of vectors
+        if hasattr(x, 'shape'):
+            if len(x.shape) == 1:
+                if hasattr(x[0], 'shape'):
+                    x = list(x)
+                else:
+                    x = [x,]
+            elif len(x.shape) == 2:
+                nr, nc = x.shape
+                if nr == 1:
+                    x = [x]
+                elif nc == 1:
+                    x = [ravel(x)]
+                else:
+                    x = [x[:,i] for i in range(nc)]
+            else:
+                raise ValueError, "input x can have no more than 2 dimensions"
+        if not hasattr(x[0], '__len__'):
+            x = [x]
+        col = len(x)
 
         # get some plot info
         if positions is None:
@@ -3108,7 +3122,8 @@ class Axes(Artist):
         # loop through columns, adding each to plot
         self.hold(True)
         for i,pos in enumerate(positions):
-            d = x[:,i]
+            d = ravel(x[i])
+            row = len(d)
             # get median and quartiles
             q1, med, q3 = prctile(d,[25,50,75])
             # get high extreme
