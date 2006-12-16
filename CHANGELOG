@@ -1,3 +1,5 @@
+2006-12-16 Enhanced boxplot to handle more flexible inputs - EF
+
 2006-12-13 Replaced calls to where() in colors.py with much faster
            clip() and putmask() calls; removed inappropriate
            uses of getmaskorNone (which should be needed only
