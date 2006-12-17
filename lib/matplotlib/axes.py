@@ -4203,7 +4203,14 @@ class Axes(Artist):
 
         If normed is true, the first element of the return tuple will
         be the counts normalized to form a probability density, ie,
-        n/(len(x)*dbin)
+        n/(len(x)*dbin).  In a probability density, the integral of
+        the histogram should be one (we assume equally spaced bins);
+        you can verify that with
+
+          # trapezoidal integration of the probability density function
+          from matplotlib.mlab import trapz
+          pdf, bins, patches = ax.hist(...)
+          print trapz(bins, pdf)
 
         align = 'edge' | 'center'.  Interprets bins either as edge
         or center values
