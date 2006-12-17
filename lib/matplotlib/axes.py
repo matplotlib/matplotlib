@@ -2245,6 +2245,11 @@ class Axes(Artist):
 
         If ydate is True, the y-axis will be labeled with dates.
 
+        Note if you are using, custom date tickers and formatters, it
+        may be necessary to set the formatters/locators after the call
+        to plot_date
+
+        
         Valid kwargs are Line2D properties:
 %(Line2D)s
 
