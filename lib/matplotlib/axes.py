@@ -2245,10 +2245,13 @@ class Axes(Artist):
 
         If ydate is True, the y-axis will be labeled with dates.
 
-        Note if you are using, custom date tickers and formatters, it
+        Note if you are using custom date tickers and formatters, it
         may be necessary to set the formatters/locators after the call
-        to plot_date
-
+        to plot_date since plot_date will set the default tick locator
+        to AutoDateLocator (if the tick locator is not already set to
+        a DateLocator instance) and the default tick formatter to
+        AutoDateFormatter (if the tick formatter is not already set to
+        a DateFormatter instance).
         
         Valid kwargs are Line2D properties:
 %(Line2D)s
