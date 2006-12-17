@@ -34,7 +34,7 @@ dates = [q[0] for q in quotes]
 opens = [q[1] for q in quotes]
 
 ax = subplot(111)
-plot_date(dates, opens, '-')
+ax.plot_date(dates, opens, '-')
 
 # format the ticks
 ax.xaxis.set_major_locator(years)
@@ -47,5 +47,6 @@ def price(x): return '$%1.2f'%x
 ax.fmt_xdata = DateFormatter('%Y-%m-%d')
 ax.fmt_ydata = price
 
+savefig('test')
 grid(True)
 show()

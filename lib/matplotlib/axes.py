@@ -51,7 +51,7 @@ from quiver import Quiver, QuiverKey
 import matplotlib
 
 if matplotlib._havedate:
-    from dates import AutoDateFormatter, AutoDateLocator
+    from dates import AutoDateFormatter, AutoDateLocator, DateLocator, DateFormatter
 
 
 def delete_masked_points(*args):
@@ -1472,10 +1472,15 @@ class Axes(Artist):
         tz is the time zone to use in labeling dates.  Defaults to rc value.
         """
 
-        locator = AutoDateLocator(tz)
-        formatter = AutoDateFormatter(locator)
-        self.xaxis.set_major_locator(locator)
-        self.xaxis.set_major_formatter(formatter)
+        thislocator = self.xaxis.get_major_locator()
+        if not isinstance(thislocator, DateLocator):
+            locator = AutoDateLocator(tz)
+            self.xaxis.set_major_locator(locator)
+
+        thisformatter = self.xaxis.get_major_formatter()
+        if not isinstance(thisformatter, DateFormatter):
+            formatter = AutoDateFormatter(locator)
+            self.xaxis.set_major_formatter(formatter)
 
     def yaxis_date(self, tz=None):
         """Sets up y-axis ticks and labels that treat the y data as dates.
@@ -1483,10 +1488,15 @@ class Axes(Artist):
         tz is the time zone to use in labeling dates.  Defaults to rc value.
         """
 
-        locator = AutoDateLocator(tz)
-        formatter = AutoDateFormatter(locator)
-        self.yaxis.set_major_locator(locator)
-        self.yaxis.set_major_formatter(formatter)
+        thislocator = self.yaxis.get_major_locator()
+        if not isinstance(thislocator, DateLocator):
+            locator = AutoDateLocator(tz)
+            self.yaxis.set_major_locator(locator)
+
+        thisformatter = self.xaxis.get_major_formatter()
+        if not isinstance(thisformatter, DateFormatter):
+            formatter = AutoDateFormatter(locator)
+            self.yaxis.set_major_formatter(formatter)
 
     def format_xdata(self, x):
         """
