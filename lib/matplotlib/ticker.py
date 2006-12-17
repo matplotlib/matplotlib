@@ -267,6 +267,8 @@ class ScalarFormatter(Formatter):
         self.offset = 0
         self.orderOfMagnitude = 0
         self.format = ''
+        self._scientific = True
+        self._powerlimits = (-3,4)
 
     def __call__(self, x, pos=None):
         'Return the format for tick val x at position pos'
@@ -274,6 +276,22 @@ class ScalarFormatter(Formatter):
             return ''
         else:
             return self.pprint_val(x)
+
+    def set_scientific(self, b):
+        'True or False to turn scientific notation on or off; see also set_powerlimits()'
+        self._scientific = bool(b)
+
+    def set_powerlimits(self, lims):
+        '''
+        Sets size thresholds for scientific notation.
+
+        e.g. xaxis.set_powerlimits((-3, 4)) sets the default in
+        which scientific notation is used for numbers less than
+        1e-3 or greater than 1e4.
+        See also set_scientific().
+        '''
+        assert len(lims) == 2, "argument must be a sequence of length 2"
+        self._powerlimits = lims
 
     def format_data_short(self,value):
         'return a short formatted string representation of a number'
@@ -337,6 +355,9 @@ class ScalarFormatter(Formatter):
     def _set_orderOfMagnitude(self,range):
         # if scientific notation is to be used, find the appropriate exponent
         # if using an numerical offset, find the exponent after applying the offset
+        if not self._scientific:
+            self.orderOfMagnitude = 0
+            return
         locs = absolute(self.locs)
         if self.offset: oom = math.floor(math.log10(range))
         else:
@@ -344,9 +365,9 @@ class ScalarFormatter(Formatter):
             else: val = locs[-1]
             if val == 0: oom = 0
             else: oom = math.floor(math.log10(val))
-        if oom <= -3:
+        if oom <= self._powerlimits[0]:
             self.orderOfMagnitude = oom
-        elif oom >= 4:
+        elif oom >= self._powerlimits[1]:
             self.orderOfMagnitude = oom
         else:
             self.orderOfMagnitude = 0
