@@ -139,8 +139,10 @@ numerix      : %(numerix)s  # numpy, Numeric or numarray
 #axes.labelsize      : 12      # fontsize of the x any y labels
 #axes.labelcolor     : black
 #axes.axisbelow      : False   # whether axis gridlines and ticks are below
-                              # the axes elements (lines, text, etc)  
-                      
+                              # the axes elements (lines, text, etc)
+#axes.formatter.limits : -7, 7 # use scientific notation if log10
+                               # of the axis range is smaller than the
+                               # first or larger than the second
 
 polaraxes.grid      : True    # display grid on polar axes
 

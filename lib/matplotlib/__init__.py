@@ -459,7 +459,7 @@ def validate_float(s):
         raise ValueError('Could not convert "%s" to float' % s)
 
 def validate_int(s):
-    'convert s to float or raise'
+    'convert s to int or raise'
     try: return int(s)
     except ValueError:
         raise ValueError('Could not convert "%s" to int' % s)
@@ -506,6 +506,19 @@ class validate_nseq_float:
         try: return [float(val) for val in ss]
         except ValueError:
             raise ValueError('Could not convert all entries to floats')
+
+class validate_nseq_int:
+    def __init__(self, n):
+        self.n = n
+    def __call__(self, s):
+        'return a seq of n ints or raise'
+        ss = s.split(',')
+        if len(ss) != self.n:
+            raise ValueError('You must use exactly %d comma separated values'%self.n)
+        try: return [int(val) for val in ss]
+        except ValueError:
+            raise ValueError('Could not convert all entries to ints')
+
 
 def validate_color(s):
     'return a valid color arg'
@@ -791,6 +804,11 @@ defaultParams = {
     'axes.grid'         : [False, validate_bool],   # display grid or not
     'axes.labelsize'    : [12, validate_fontsize], # fontsize of the x any y labels
     'axes.labelcolor'   : ['k', validate_color],    # color of axis label
+    'axes.formatter.limits' : [(-7, 7), validate_nseq_int(2)],
+                               # use scientific notation if log10
+                               # of the axis range is smaller than the
+                               # first or larger than the second
+
 
     'polaraxes.grid'         : [True, validate_bool],   # display polar grid or not
 

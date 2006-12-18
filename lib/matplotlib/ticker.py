@@ -268,7 +268,7 @@ class ScalarFormatter(Formatter):
         self.orderOfMagnitude = 0
         self.format = ''
         self._scientific = True
-        self._powerlimits = (-3,4)
+        self._powerlimits = rcParams['axes.formatter.limits']
 
     def __call__(self, x, pos=None):
         'Return the format for tick val x at position pos'
@@ -285,7 +285,7 @@ class ScalarFormatter(Formatter):
         '''
         Sets size thresholds for scientific notation.
 
-        e.g. xaxis.set_powerlimits((-3, 4)) sets the default in
+        e.g. xaxis.set_powerlimits((-3, 4)) sets the pre-2007 default in
         which scientific notation is used for numbers less than
         1e-3 or greater than 1e4.
         See also set_scientific().

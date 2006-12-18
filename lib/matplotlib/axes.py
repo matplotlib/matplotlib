@@ -1199,6 +1199,45 @@ class Axes(Artist):
         self.yaxis.grid(b, **kwargs)
     grid.__doc__ = grid.__doc__%artist.kwdocd
 
+    def ticklabel_format(self, **kwargs):
+        """
+        Convenience method for manipulating the ScalarFormatter
+        used by default for linear axes.
+
+        kwargs:
+            style = 'sci' (or 'scientific') or 'plain';
+                        plain turns off scientific notation
+            axis = 'x', 'y', or 'both'
+
+        Only the major ticks are affected.
+        If the method is called when the ScalarFormatter is not
+        the one being used, an AttributeError will be raised with
+        no additional error message.
+
+        Additional capabilities and/or friendlier error checking may be added.
+
+        """
+        style = kwargs.pop('style', '').lower()
+        axis = kwargs.pop('axis', 'both').lower()
+        if style[:3] == 'sci':
+            sb = True
+        elif style in ['plain', 'comma']:
+            sb = False
+            if style == 'plain':
+                cb = False
+            else:
+                cb = True
+                raise NotImplementedError, "comma style remains to be added"
+        elif style == '':
+            sb = None
+        else:
+            raise ValueError, "%s is not a valid style value"
+        if sb is not None:
+            if axis == 'both' or axis == 'x':
+                self.xaxis.major.formatter.set_scientific(sb)
+            if axis == 'both' or axis == 'y':
+                self.yaxis.major.formatter.set_scientific(sb)
+
     def set_axis_off(self):
         """
         turn off the axis
@@ -2252,7 +2291,7 @@ class Axes(Artist):
         a DateLocator instance) and the default tick formatter to
         AutoDateFormatter (if the tick formatter is not already set to
         a DateFormatter instance).
-        
+
         Valid kwargs are Line2D properties:
 %(Line2D)s
 
