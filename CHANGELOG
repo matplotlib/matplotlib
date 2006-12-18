@@ -1,3 +1,9 @@
+2006-12-17 Added rc param 'axes.formatter.limits' to control
+           the default threshold for switching to scientific
+           notation. Added convenience method
+           Axes.ticklabel_format() for turning scientific notation
+           on or off on either or both axes. - EF
+
 2006-12-16 Added ability to turn control scientific notation
            in ScalarFormatter - EF
 
