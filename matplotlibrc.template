@@ -144,7 +144,7 @@ numerix      : %(numerix)s  # numpy, Numeric or numarray
                                # of the axis range is smaller than the
                                # first or larger than the second
 
-polaraxes.grid      : True    # display grid on polar axes
+#polaraxes.grid      : True    # display grid on polar axes
 
 ### TICKS
 # see http://matplotlib.sourceforge.net/matplotlib.axis.html#Ticks
