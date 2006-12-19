@@ -849,7 +849,7 @@ def figure(num=None, # autoincrement if None, else integer from 1-N
       facecolor - the background color; defaults to rc figure.facecolor
       edgecolor - the border color; defaults to rc figure.edgecolor
 
-    rcParams gives the default values from the .matplotlibrc file
+    rcParams gives the default values from the matplotlibrc file
 
     FigureClass is a Figure or derived class that will be passed on to
     new_figure_manager in the backends which allows you to hook custom

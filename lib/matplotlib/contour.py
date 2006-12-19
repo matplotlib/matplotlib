@@ -803,7 +803,7 @@ class ContourSet(ScalarMappable, ContourLabeler):
                 specified
 
               - if linewidths == None, the default width in lines.linewidth in
-                .matplotlibrc is used
+                matplotlibrc is used
 
             contourf only:
             ***** Obsolete: ****

@@ -6,7 +6,7 @@
 #
 # The rc command is used to create per-script default figure
 # customizations of the rc parameters; see
-# http://matplotlib.sf.net/.matplotlibrc .  You may prefer to set the
+# http://matplotlib.sf.net/matplotlibrc .  You may prefer to set the
 # rc parameters in the rc file itself.  Note that you can keep
 # directory level default configurations by placing different rc files
 # in the directory that the script runs in.
