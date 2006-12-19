@@ -73,15 +73,7 @@ WINDOWS
   out of the box: agg, wx, wxagg, tkagg, ps and svg.
 
   For standard python installations, you will also need to install
-  either Numeric or numarray in addition to the matplotlib installer.
-  matplotlib provides installers for Numeric and numarray users.  It
-  is important that you pick the matplotlib installer that corresponds
-  to your array package.  Ie, if you mostly work with numarray arrays,
-  use the matplotlib numarray installer.  matplotlib has a 'numerix'
-  setting in the matplotlib rc file (which by default resides in
-  c:\python23\share\matplotlitb\.matplotlibrc) and you should make
-  sure this setting corresponds to your preferred array package.  
-
+  either numpy, Numeric or numarray in addition to the matplotlib installer.
   With a standard python + Numeric/numarray + matplotlib, the
   following backends should work on windows: agg, tkagg, ps, svg.  If
   you want others, eg a wx, wxagg, gtk or gtkagg, you'll need to
