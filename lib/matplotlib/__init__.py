@@ -395,16 +395,6 @@ def checkdep_ghostscript():
     except (IndexError, ValueError):
         return None
 
-def checkdep_ps2eps():
-    try:
-        stdin, stdout = os.popen4('ps2eps -v')
-        line = stdout.readlines()[-1]
-        v = line.split()[-1]
-        float(v)
-        return v
-    except (IndexError, ValueError):
-        return None
-
 def checkdep_tex():
     try:
         stdin, stdout = os.popen4('tex -version')
@@ -417,9 +407,9 @@ def checkdep_tex():
     except (IndexError, ValueError):
         return None
 
-def checkdep_xpdf():
+def checkdep_pdftops():
     try:
-        stdin, stdout = os.popen4('xpdf -v')
+        stdin, stdout = os.popen4('pdftops -v')
         for line in stdout.readlines():
             if 'version' in line:
                 v = line.split()[-1]
@@ -637,21 +627,13 @@ is recommended to use the ps.usedistiller option.' % (gs_v, gs_sugg))
 unless ghostscript-%s or later is installed on your system'% gs_req)
 
         if s == 'xpdf':
-            xpdf_req = '3.0'
-            ps2eps_req = '1.58'
-            xpdf_v = checkdep_xpdf()
-            if compare_versions(xpdf_v, xpdf_req): pass
+            pdftops_req = '3.0'
+            pdftops_v = checkdep_pdftops()
+            if compare_versions(pdftops_v, pdftops_req): pass
             else:
                 flag = False
                 warnings.warn('matplotlibrc ps.usedistiller can not be set to \
-xpdf unless xpdf-%s or later is installed on your system' % xpdf_req)
-
-##            ps2eps_v = checkdep_ps2eps()
-##            if compare_versions(ps2eps_v, ps2eps_req): pass
-##            else:
-##                flag = False
-##                warnings.warn('matplotlibrc ps.usedistiller can not be set to xpdf \
-##unless ps2eps-%s or later is installed on your system' % ps2eps_req)
+xpdf unless xpdf-%s or later is installed on your system' % pdftops_req)
 
         if flag: return s
         else: return None
