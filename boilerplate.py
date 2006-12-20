@@ -153,6 +153,7 @@ cmaps = (
     'spring',
     'summer',
     'winter',
+    'spectral'
 )
 # add all the colormaps (autumn, hsv, ....)
 for name in cmaps:

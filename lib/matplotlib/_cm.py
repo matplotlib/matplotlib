@@ -14,6 +14,7 @@ LUTSIZE = rcParams['image.lut']
 
 
 
+
 _bone_data = {'red':   ((0., 0., 0.),(1.0, 1.0, 1.0)),
               'green': ((0., 0., 0.),(1.0, 1.0, 1.0)),
               'blue':  ((0., 0., 0.),(1.0, 1.0, 1.0))}
@@ -338,6 +339,41 @@ _winter_data = {'red':   ((0., 0., 0.),(1.0, 0.0, 0.0)),
                 'green': ((0., 0., 0.),(1.0, 1.0, 1.0)),
                 'blue':  ((0., 1., 1.),(1.0, 0.5, 0.5))}
 
+_spectral_data = {'red': [(0.0, 0.0, 0.0), (0.05, 0.4667, 0.4667),
+                          (0.10, 0.5333, 0.5333), (0.15, 0.0, 0.0),
+                          (0.20, 0.0, 0.0), (0.25, 0.0, 0.0),
+                          (0.30, 0.0, 0.0), (0.35, 0.0, 0.0),
+                          (0.40, 0.0, 0.0), (0.45, 0.0, 0.0),
+                          (0.50, 0.0, 0.0), (0.55, 0.0, 0.0),
+                          (0.60, 0.0, 0.0), (0.65, 0.7333, 0.7333),
+                          (0.70, 0.9333, 0.9333), (0.75, 1.0, 1.0),
+                          (0.80, 1.0, 1.0), (0.85, 1.0, 1.0),
+                          (0.90, 0.8667, 0.8667), (0.95, 0.80, 0.80),
+                          (1.0, 0.80, 0.80)],
+                  'green': [(0.0, 0.0, 0.0), (0.05, 0.0, 0.0),
+                            (0.10, 0.0, 0.0), (0.15, 0.0, 0.0),
+                            (0.20, 0.0, 0.0), (0.25, 0.4667, 0.4667),
+                            (0.30, 0.6000, 0.6000), (0.35, 0.6667, 0.6667),
+                            (0.40, 0.6667, 0.6667), (0.45, 0.6000, 0.6000),
+                            (0.50, 0.7333, 0.7333), (0.55, 0.8667, 0.8667),
+                            (0.60, 1.0, 1.0), (0.65, 1.0, 1.0),
+                            (0.70, 0.9333, 0.9333), (0.75, 0.8000, 0.8000),
+                            (0.80, 0.6000, 0.6000), (0.85, 0.0, 0.0),
+                            (0.90, 0.0, 0.0), (0.95, 0.0, 0.0),
+                            (1.0, 0.80, 0.80)],
+                  'blue': [(0.0, 0.0, 0.0), (0.05, 0.5333, 0.5333),
+                           (0.10, 0.6000, 0.6000), (0.15, 0.6667, 0.6667),
+                           (0.20, 0.8667, 0.8667), (0.25, 0.8667, 0.8667),
+                           (0.30, 0.8667, 0.8667), (0.35, 0.6667, 0.6667),
+                           (0.40, 0.5333, 0.5333), (0.45, 0.0, 0.0),
+                           (0.5, 0.0, 0.0), (0.55, 0.0, 0.0),
+                           (0.60, 0.0, 0.0), (0.65, 0.0, 0.0),
+                           (0.70, 0.0, 0.0), (0.75, 0.0, 0.0),
+                           (0.80, 0.0, 0.0), (0.85, 0.0, 0.0),
+                           (0.90, 0.0, 0.0), (0.95, 0.0, 0.0),
+                           (1.0, 0.80, 0.80)]}
+
+
 autumn = colors.LinearSegmentedColormap('autumn', _autumn_data, LUTSIZE)
 bone   = colors.LinearSegmentedColormap('bone  ', _bone_data, LUTSIZE)
 cool   = colors.LinearSegmentedColormap('cool',   _cool_data, LUTSIZE)
@@ -352,7 +388,7 @@ prism  = colors.LinearSegmentedColormap('prism',  _prism_data, LUTSIZE)
 spring = colors.LinearSegmentedColormap('spring', _spring_data, LUTSIZE)
 summer = colors.LinearSegmentedColormap('summer', _summer_data, LUTSIZE)
 winter = colors.LinearSegmentedColormap('winter', _winter_data, LUTSIZE)
-
+spectral = colors.LinearSegmentedColormap('spectral', _spectral_data, LUTSIZE)
 
 
 
@@ -370,7 +406,8 @@ datad = {
     'prism':  _prism_data,
     'spring': _spring_data,
     'summer': _summer_data,
-    'winter': _winter_data
+    'winter': _winter_data,
+    'spectral': _spectral_data
     }
 
 # 34 colormaps based on color specifications and designs
