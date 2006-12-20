@@ -577,6 +577,7 @@ class Colormap:
         interval (0.0, 1.0).
         Alpha must be a scalar.
         """
+
         if not self._isinit: self._init()
         alpha = min(alpha, 1.0) # alpha must be between 0 and 1
         alpha = max(alpha, 0.0)
