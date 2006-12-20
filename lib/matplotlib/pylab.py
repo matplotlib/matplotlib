@@ -102,6 +102,7 @@ _Plotting commands
   spring - set the default colormap to spring
   summer - set the default colormap to summer
   winter - set the default colormap to winter
+  spectral - set the default colormap to spectral
 
 _Event handling
 
@@ -513,6 +514,7 @@ def plotting():
     spring - set the default colormap to spring
     summer - set the default colormap to summer
     winter - set the default colormap to winter
+    spectral - set the default colormap to spectral
 
     """
     pass
@@ -522,7 +524,7 @@ def colormaps():
     matplotlib provides the following colormaps.
 
       autumn bone cool copper flag gray hot hsv jet pink prism
-      spring summer winter
+      spring summer winter spectral
 
     You can set the colormap for an image, pcolor, scatter, etc,
     either as a keyword argumentdef con
@@ -1558,7 +1560,7 @@ def arrow(*args, **kwargs):
     except:
         hold(b)
         raise
-
+    
     hold(b)
     return ret
 if Axes.arrow.__doc__ is not None:
@@ -1579,7 +1581,7 @@ def axhline(*args, **kwargs):
     except:
         hold(b)
         raise
-
+    
     hold(b)
     return ret
 if Axes.axhline.__doc__ is not None:
@@ -1600,7 +1602,7 @@ def axhspan(*args, **kwargs):
     except:
         hold(b)
         raise
-
+    
     hold(b)
     return ret
 if Axes.axhspan.__doc__ is not None:
@@ -1621,7 +1623,7 @@ def axvline(*args, **kwargs):
     except:
         hold(b)
         raise
-
+    
     hold(b)
     return ret
 if Axes.axvline.__doc__ is not None:
@@ -1642,7 +1644,7 @@ def axvspan(*args, **kwargs):
     except:
         hold(b)
         raise
-
+    
     hold(b)
     return ret
 if Axes.axvspan.__doc__ is not None:
@@ -1663,7 +1665,7 @@ def bar(*args, **kwargs):
     except:
         hold(b)
         raise
-
+    
     hold(b)
     return ret
 if Axes.bar.__doc__ is not None:
@@ -1684,7 +1686,7 @@ def barh(*args, **kwargs):
     except:
         hold(b)
         raise
-
+    
     hold(b)
     return ret
 if Axes.barh.__doc__ is not None:
@@ -1705,7 +1707,7 @@ def broken_barh(*args, **kwargs):
     except:
         hold(b)
         raise
-
+    
     hold(b)
     return ret
 if Axes.broken_barh.__doc__ is not None:
@@ -1726,7 +1728,7 @@ def boxplot(*args, **kwargs):
     except:
         hold(b)
         raise
-
+    
     hold(b)
     return ret
 if Axes.boxplot.__doc__ is not None:
@@ -1747,7 +1749,7 @@ def cohere(*args, **kwargs):
     except:
         hold(b)
         raise
-
+    
     hold(b)
     return ret
 if Axes.cohere.__doc__ is not None:
@@ -1768,7 +1770,7 @@ def clabel(*args, **kwargs):
     except:
         hold(b)
         raise
-
+    
     hold(b)
     return ret
 if Axes.clabel.__doc__ is not None:
@@ -1831,7 +1833,7 @@ def csd(*args, **kwargs):
     except:
         hold(b)
         raise
-
+    
     hold(b)
     return ret
 if Axes.csd.__doc__ is not None:
@@ -1852,7 +1854,7 @@ def errorbar(*args, **kwargs):
     except:
         hold(b)
         raise
-
+    
     hold(b)
     return ret
 if Axes.errorbar.__doc__ is not None:
@@ -1873,7 +1875,7 @@ def fill(*args, **kwargs):
     except:
         hold(b)
         raise
-
+    
     hold(b)
     return ret
 if Axes.fill.__doc__ is not None:
@@ -1894,7 +1896,7 @@ def hist(*args, **kwargs):
     except:
         hold(b)
         raise
-
+    
     hold(b)
     return ret
 if Axes.hist.__doc__ is not None:
@@ -1915,7 +1917,7 @@ def hlines(*args, **kwargs):
     except:
         hold(b)
         raise
-
+    
     hold(b)
     return ret
 if Axes.hlines.__doc__ is not None:
@@ -1957,7 +1959,7 @@ def loglog(*args, **kwargs):
     except:
         hold(b)
         raise
-
+    
     hold(b)
     return ret
 if Axes.loglog.__doc__ is not None:
@@ -2020,7 +2022,7 @@ def pie(*args, **kwargs):
     except:
         hold(b)
         raise
-
+    
     hold(b)
     return ret
 if Axes.pie.__doc__ is not None:
@@ -2041,7 +2043,7 @@ def plot(*args, **kwargs):
     except:
         hold(b)
         raise
-
+    
     hold(b)
     return ret
 if Axes.plot.__doc__ is not None:
@@ -2062,7 +2064,7 @@ def plot_date(*args, **kwargs):
     except:
         hold(b)
         raise
-
+    
     hold(b)
     return ret
 if Axes.plot_date.__doc__ is not None:
@@ -2083,7 +2085,7 @@ def psd(*args, **kwargs):
     except:
         hold(b)
         raise
-
+    
     hold(b)
     return ret
 if Axes.psd.__doc__ is not None:
@@ -2125,7 +2127,7 @@ def semilogx(*args, **kwargs):
     except:
         hold(b)
         raise
-
+    
     hold(b)
     return ret
 if Axes.semilogx.__doc__ is not None:
@@ -2146,7 +2148,7 @@ def semilogy(*args, **kwargs):
     except:
         hold(b)
         raise
-
+    
     hold(b)
     return ret
 if Axes.semilogy.__doc__ is not None:
@@ -2209,7 +2211,7 @@ def stem(*args, **kwargs):
     except:
         hold(b)
         raise
-
+    
     hold(b)
     return ret
 if Axes.stem.__doc__ is not None:
@@ -2230,7 +2232,7 @@ def vlines(*args, **kwargs):
     except:
         hold(b)
         raise
-
+    
     hold(b)
     return ret
 if Axes.vlines.__doc__ is not None:
@@ -2293,7 +2295,7 @@ def quiverkey(*args, **kwargs):
     except:
         hold(b)
         raise
-
+    
     hold(b)
     return ret
 if Axes.quiverkey.__doc__ is not None:
@@ -2541,5 +2543,17 @@ def winter():
         im.set_cmap(cm.winter)
     draw_if_interactive()
 
+
+# This function was autogenerated by boilerplate.py.  Do not edit as
+# changes will be lost
+def spectral():
+    'set the default colormap to spectral and apply to current image if any.  See help(colormaps) for more information'
+    rc('image', cmap='spectral')
+    im = gci()
+
+
+    if im is not None:
+        im.set_cmap(cm.spectral)
+    draw_if_interactive()
 
 

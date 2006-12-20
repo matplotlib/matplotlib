@@ -1,6 +1,5 @@
 """
-A PostScript backend, which can produce both PostScript .ps and
-
+A PostScript backend, which can produce both PostScript .ps and .eps
 """
 
 from __future__ import division
