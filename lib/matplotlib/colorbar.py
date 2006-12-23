@@ -428,7 +428,7 @@ class ColorbarBase(cm.ScalarMappable):
 
     def _locate(self, x):
         '''
-        Given a possible set of color date values, return the ones
+        Given a possible set of color data values, return the ones
         within range, together with their corresponding colorbar
         data coordinates.
         '''
