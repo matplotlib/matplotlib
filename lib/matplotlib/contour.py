@@ -628,9 +628,9 @@ class ContourSet(ScalarMappable, ContourLabeler):
         #                             + "with use of 'extend' kwarg")
         self._levels = list(self.levels)
         if self.extend in ('both', 'min'):
-            self._levels.insert(0, self.zmin - 1)
+            self._levels.insert(0, min(self.levels[0],self.zmin) - 1)
         if self.extend in ('both', 'max'):
-            self._levels.append(self.zmax + 1)
+            self._levels.append(max(self.levels[-1],self.zmax) + 1)
         self._levels = asarray(self._levels)
         self.vmin = amin(self.levels)  # alternative would be self.layers
         self.vmax = amax(self.levels)
