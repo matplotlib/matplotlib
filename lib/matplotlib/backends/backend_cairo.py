@@ -42,10 +42,10 @@ import matplotlib.numerix as numx
 from matplotlib.transforms import Bbox
 
 
-if hasattr (cairo.ImageSurface, 'create_for_array'):
-   HAVE_CAIRO_NUMPY = True
-else:
-   HAVE_CAIRO_NUMPY = False
+#if hasattr (cairo.ImageSurface, 'create_for_array'):
+#   HAVE_CAIRO_NUMPY = True
+#else:
+#   HAVE_CAIRO_NUMPY = False
 
 
 _debug = False
@@ -134,7 +134,7 @@ class RendererCairo(RendererBase):
         # FIXME
         # to get a proper arc of width/height you can use translate() and
         # scale(), see draw_arc() manual page
-        
+
         #radius = (height + width) / 4
         ctx = gc.ctx
         ctx.save()
@@ -142,7 +142,7 @@ class RendererCairo(RendererBase):
         ctx.scale(width / 2.0, height / 2.0)
         ctx.arc(0.0, 0.0, 1.0, 0.0, 2*numx.pi)
         ctx.restore()
-        
+
         #ctx.new_path()
         #ctx.arc (x, self.height - y, radius,
         #         angle1 * numx.pi/180.0, angle2 * numx.pi/180.0)
@@ -153,15 +153,15 @@ class RendererCairo(RendererBase):
         # bbox - not currently used
         if _debug: print '%s.%s()' % (self.__class__.__name__, _fn_name())
 
-        if numx.which[0] == "numarray":
-            warnings.warn("draw_image() currently works for numpy, but not "
-                          "numarray")
-            return
+        #if numx.which[0] == "numarray":
+        #    warnings.warn("draw_image() currently works for numpy, but not "
+        #                  "numarray")
+        #    return
 
-        if not HAVE_CAIRO_NUMPY:
-            warnings.warn("cairo with Numeric support is required for "
-                          "draw_image()")
-            return
+        #if not HAVE_CAIRO_NUMPY:
+        #    warnings.warn("cairo with Numeric support is required for "
+        #                  "draw_image()")
+        #    return
 
         im.flipud_out()
 
@@ -171,7 +171,9 @@ class RendererCairo(RendererBase):
 
         # function does not pass a 'gc' so use renderer.ctx
         ctx = self.ctx
-        surface = cairo.ImageSurface.create_for_array (X)
+        #surface = cairo.ImageSurface.create_for_array (X)
+        surface = cairo.ImageSurface.create_for_data (X, cairo.FORMAT_ARGB32,
+                                                      rows, cols, rows*4)
         ctx.set_source_surface (surface, x, y)
         ctx.paint()
 
@@ -318,17 +320,17 @@ class RendererCairo(RendererBase):
 
     def _draw_mathtext(self, gc, x, y, s, prop, angle):
         if _debug: print '%s.%s()' % (self.__class__.__name__, _fn_name())
-       # mathtext using the gtk/gdk method
+        # mathtext using the gtk/gdk method
 
-        if numx.which[0] == "numarray":
-            warnings.warn("_draw_mathtext() currently works for numpy, but "
-                          "not numarray")
-            return
+        #if numx.which[0] == "numarray":
+        #   warnings.warn("_draw_mathtext() currently works for numpy, but "
+        #                 "not numarray")
+        #   return
 
-        if not HAVE_CAIRO_NUMPY:
-            warnings.warn("cairo with Numeric support is required for "
-                          "_draw_mathtext()")
-            return
+        #if not HAVE_CAIRO_NUMPY:
+        #    warnings.warn("cairo with Numeric support is required for "
+        #                  "_draw_mathtext()")
+        #    return
 
         size = prop.get_size_in_points()
         width, height, fonts = math_parse_s_ft2font(
@@ -364,8 +366,10 @@ class RendererCairo(RendererBase):
         pa[:,:,2] = int(rgb[2]*255)
         pa[:,:,3] = Xs
 
-        # works for numpy pa, not a numarray pa
-        surface = cairo.ImageSurface.create_for_array (pa)
+        ## works for numpy pa, not a numarray pa
+        #surface = cairo.ImageSurface.create_for_array (pa)
+        surface = cairo.ImageSurface.create_for_data (pa, cairo.FORMAT_ARGB32,
+                                                      imw, imh, imw*4)
         gc.ctx.set_source_surface (surface, x, y)
         gc.ctx.paint()
         #gc.ctx.show_surface (surface, imw, imh)
