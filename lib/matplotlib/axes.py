@@ -2548,16 +2548,16 @@ class Axes(Artist):
     #### Specialized plotting
 
 
-    def bar(self, left, height, width=0.8, bottom=0,
+    def bar(self, left, height, width=0.8, bottom=None,
             color=None, edgecolor=None, linewidth=None,
             yerr=None, xerr=None, ecolor=None, capsize=3,
-            align='edge', orientation='vertical'
+            align='edge', orientation='vertical', log=False
             ):
         """
         BAR(left, height, width=0.8, bottom=0,
             color=None, edgecolor=None, linewidth=None,
             yerr=None, xerr=None, ecolor=None, capsize=3,
-            align='edge', orientation='vertical')
+            align='edge', orientation='vertical', log=False)
 
         Make a bar plot with rectangles bounded by
 
@@ -2596,6 +2596,9 @@ class Axes(Artist):
 
             orientation = 'vertical' | 'horizontal'
 
+            log = False | True - False (default) leaves the orientation
+                    axis as-is; True sets it to log scale
+
             For vertical bars, 'edge' aligns bars by their left edges in left,
             while 'center' interprets these values as the x coordinates
             of the bar centers.
@@ -2619,21 +2622,41 @@ class Axes(Artist):
                 return x
 
         # make them safe to take len() of
+        _left = left
         left = make_iterable(left)
         height = make_iterable(height)
         width = make_iterable(width)
+        _bottom = bottom
         bottom = make_iterable(bottom)
         linewidth = make_iterable(linewidth)
 
+        adjust_ylim = False
+        adjust_xlim = False
         if orientation == 'vertical':
+            if log:
+                self.set_yscale('log')
             # size width and bottom according to length of left
+            if _bottom is None:
+                if self.get_yscale() == 'log':
+                    bottom = [1e-100]
+                    adjust_ylim = True
+                else:
+                    bottom = [0]
             nbars = len(left)
             if len(width) == 1:
                 width *= nbars
             if len(bottom) == 1:
                 bottom *= nbars
         elif orientation == 'horizontal':
+            if log:
+                self.set_xscale('log')
             # size left and height according to length of bottom
+            if _left is None:
+                if self.get_xscale() == 'log':
+                    left = [1e-100]
+                    adjust_xlim = True
+                else:
+                    left = [0]
             nbars = len(bottom)
             if len(left) == 1:
                 left *= nbars
@@ -2725,11 +2748,25 @@ class Axes(Artist):
 
         self.hold(holdstate) # restore previous hold state
 
+        if adjust_xlim:
+            xmin, xmax = self.dataLim.intervalx().get_bounds()
+            xmin = amin(w)
+            if xerr is not None:
+                xmin = xmin - amax(xerr)
+            xmin = min(xmin, 1e-100)
+            self.dataLim.intervalx().set_bounds(xmin, xmax)
+        if adjust_ylim:
+            ymin, ymax = self.dataLim.intervaly().get_bounds()
+            ymin = amin(h)
+            if yerr is not None:
+                ymin = ymin - amax(yerr)
+            ymin = max(ymin, 1e-100)
+            self.dataLim.intervaly().set_bounds(ymin, ymax)
         self.autoscale_view()
         return patches
 
 
-    def barh(self, bottom, width, height=0.8, left=0,
+    def barh(self, bottom, width, height=0.8, left=None,
              color=None, edgecolor=None, linewidth=None,
              xerr=None, yerr=None, ecolor=None, capsize=3,
              align='edge'
@@ -4229,11 +4266,13 @@ class Axes(Artist):
     #### Data analysis
 
 
-    def hist(self, x, bins=10, normed=0, bottom=0,
-             align='edge', orientation='vertical', width=None, **kwargs):
+    def hist(self, x, bins=10, normed=0, bottom=None,
+             align='edge', orientation='vertical', width=None,
+             log=False, **kwargs):
         """
-        HIST(x, bins=10, normed=0, bottom=0,
-             align='edge', orientation='vertical', width=None, **kwargs)
+        HIST(x, bins=10, normed=0, bottom=None,
+             align='edge', orientation='vertical', width=None,
+             log=False, **kwargs)
 
         Compute the histogram of x.  bins is either an integer number of
         bins or a sequence giving the bins.  x are the data to be binned.
@@ -4260,6 +4299,8 @@ class Axes(Artist):
         width: the width of the bars.  If None, automatically compute
         the width.
 
+        log: if True, the histogram axis will be set to a log scale
+
         kwargs are used to update the properties of the
         hist Rectangles:
 %(Rectangle)s
@@ -4268,9 +4309,11 @@ class Axes(Artist):
         n, bins = matplotlib.mlab.hist(x, bins, normed)
         if width is None: width = 0.9*(bins[1]-bins[0])
         if orientation == 'horizontal':
-            patches = self.barh(bins, n, height=width, left=bottom, align=align)
+            patches = self.barh(bins, n, height=width, left=bottom,
+                                align=align, log=log)
         elif orientation == 'vertical':
-            patches = self.bar(bins, n, width=width, bottom=bottom, align=align)
+            patches = self.bar(bins, n, width=width, bottom=bottom,
+                                align=align, log=log)
         else:
             raise ValueError, 'invalid orientation: %s' % orientation
         for p in patches:

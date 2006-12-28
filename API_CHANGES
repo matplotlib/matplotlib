@@ -1,3 +1,6 @@
+    Bar, barh, and hist have "log" binary kwarg: log=True
+    sets the ordinate to a log scale.
+
     Boxplot can handle a list of vectors instead of just
     an array, so vectors can have different lengths.
 
