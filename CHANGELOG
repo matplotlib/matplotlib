@@ -1,3 +1,10 @@
+2006-12-28 Improved error message for nonpositive input to log
+           transform; added log kwarg to bar, barh, and hist,
+           and modified bar method to behave sensibly by default
+           when the ordinate has a log scale.  (This only works
+           if the log scale is set before or by the call to bar,
+           hence the utility of the log kwarg.) - EF
+
 2006-12-27 backend_cairo.py: update draw_image() and _draw_mathtext() to work
            with numpy - SC
 
