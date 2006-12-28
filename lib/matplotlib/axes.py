@@ -2753,14 +2753,14 @@ class Axes(Artist):
             xmin = amin(w)
             if xerr is not None:
                 xmin = xmin - amax(xerr)
-            xmin = min(xmin, 1e-100)
+            xmin = max(xmin*0.9, 1e-100)
             self.dataLim.intervalx().set_bounds(xmin, xmax)
         if adjust_ylim:
             ymin, ymax = self.dataLim.intervaly().get_bounds()
             ymin = amin(h)
             if yerr is not None:
                 ymin = ymin - amax(yerr)
-            ymin = max(ymin, 1e-100)
+            ymin = max(ymin*0.9, 1e-100)
             self.dataLim.intervaly().set_bounds(ymin, ymax)
         self.autoscale_view()
         return patches
