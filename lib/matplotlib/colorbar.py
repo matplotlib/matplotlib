@@ -35,6 +35,7 @@ make_axes_kw_doc = '''
                               new image axes
         shrink      = 1.0; fraction by which to shrink the colorbar
         aspect      = 20; ratio of long to short dimensions
+
 '''
 
 colormap_kw_doc = '''
@@ -92,6 +93,17 @@ kwargs are in two groups:
 
 If mappable is a ContourSet, its extend kwarg is included automatically.
 
+Note that the shrink kwarg provides a simple way to keep
+a vertical colorbar, for example, from being taller than
+the axes of the mappable to which the colorbar is attached;
+but it is a manual method requiring some trial and error.
+If the colorbar is too tall (or a horizontal colorbar is
+too wide) use a smaller value of shrink.
+
+For more precise control, you can manually specify the
+positions of the axes objects in which the mappable and
+the colorbar are drawn.  In this case, do not use any of the
+axes properties kwargs.
 ''' % (make_axes_kw_doc, colormap_kw_doc)
 
 
