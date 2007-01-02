@@ -3,7 +3,7 @@ import math
 from matplotlib import rcParams
 from numerix import array, arange, sin, cos, pi, Float, sqrt, \
      matrixmultiply, sqrt, nonzero, equal, asarray, dot, concatenate
-from artist import Artist, setp
+from artist import Artist, setp, kwdocd
 from cbook import enumerate, popd
 from colors import colorConverter
 from lines import Line2D
@@ -13,6 +13,30 @@ from numerix.mlab import amin
 from mlab import dist_point_to_segment
 
 import artist
+
+
+
+# these are not available for the object inspector until after the
+# class is build so we define an initial set here for the init
+# function and they will be overridden after object defn
+kwdocd['Patch'] = """\
+          alpha: float
+          animated: [True | False]
+          antialiased or aa: [True | False]
+          clip_box: a matplotlib.transform.Bbox instance
+          clip_on: [True | False]
+          edgecolor or ec: any matplotlib color
+          facecolor or fc: any matplotlib color
+          figure: a matplotlib.figure.Figure instance
+          fill: [True | False]
+          hatch: unknown
+          label: any string
+          linewidth or lw: float
+          lod: [True | False]
+          transform: a matplotlib.transform transformation instance
+          visible: [True | False]
+          zorder: any number
+          """
 
 class Patch(Artist):
     """
@@ -34,22 +58,7 @@ class Patch(Artist):
                  ):
         """
         The following kwarg properties are supported
-          alpha: float
-          animated: [True | False]
-          antialiased or aa: [True | False]
-          clip_box: a matplotlib.transform.Bbox instance
-          clip_on: [True | False]
-          edgecolor or ec: any matplotlib color
-          facecolor or fc: any matplotlib color
-          figure: a matplotlib.figure.Figure instance
-          fill: [True | False]
-          hatch: unknown
-          label: any string
-          linewidth or lw: float
-          lod: [True | False]
-          transform: a matplotlib.transform transformation instance
-          visible: [True | False]
-          zorder: any number
+%(Patch)s
         """
         Artist.__init__(self)
 
@@ -66,7 +75,7 @@ class Patch(Artist):
         self.fill = fill
 
         if len(kwargs): setp(self, **kwargs)
-
+    __init__.__doc__ = __init__.__doc__%kwdocd
     def update_from(self, other):
         Artist.update_from(self, other)
         self.set_edgecolor(other.get_edgecolor())
@@ -237,19 +246,21 @@ class Patch(Artist):
         return self.get_facecolor()
 
 class Shadow(Patch):
-    def __init__(self, patch, ox, oy, props=None):
+    def __init__(self, patch, ox, oy, props=None, **kwargs):
         """
         Create a shadow of the patch offset by ox, oy.  props, if not None is
         a patch property update dictionary.  If None, the shadow will have
         have the same color as the face, but darkened
 
-        See Patch documentation for kwargs
+        kwargs are
+%(Patch)s
         """
         Patch.__init__(self)
         self.ox, self.oy = ox, oy
         self.patch = patch
         self.props = props
         self._update()
+    __init__.__doc__ = __init__.__doc__%kwdocd
 
     def _update(self):
         self.update_from(self.patch)
@@ -292,13 +303,15 @@ class Rectangle(Patch):
 
         fill is a boolean indicating whether to fill the rectangle
 
-        See Patch documentation for additional kwargs
+        Valid kwargs are:
+%(Patch)s
         """
 
         Patch.__init__(self, **kwargs)
 
         self.xy  = array(xy, Float)
         self.width, self.height = width, height
+    __init__.__doc__ = __init__.__doc__%kwdocd
 
     def get_verts(self):
         """
@@ -374,16 +387,19 @@ class Rectangle(Patch):
 
 class RegularPolygon(Patch):
     """
-    A regular polygon patch.  xy is a length 2 tuple (the center)
-    numVertices is the number of vertices.  Radius is the distance
-    from the center to each of the vertices.  Orientation is in
-    radians and rotates the polygon.
-
-    See Patch documentation for kwargs
+    A regular polygon patch.  
     """
     def __init__(self, xy, numVertices, radius=5, orientation=0,
                  **kwargs):
+        """
+        xy is a length 2 tuple (the center)
+        numVertices is the number of vertices.
+        radius is the distance from the center to each of the vertices.
+        orientation is in radians and rotates the polygon.
 
+        Valid kwargs are:
+%(Patch)s
+        """
         Patch.__init__(self, **kwargs)
 
         self.xy = xy
@@ -398,16 +414,20 @@ class RegularPolygon(Patch):
         ys = self.xy[1] + r*sin(theta)
 
         self.verts = zip(xs, ys)
-
+    __init__.__doc__ = __init__.__doc__%kwdocd
     def get_verts(self):
         return self.verts
 
 class Polygon(Patch):
     """
-    A general polygon patch.  xy is a sequence of x,y 2 tuples tuples
+    A general polygon patch.  
     """
     def __init__(self, xy, **kwargs):
         """
+        xy is a sequence of x,y 2 tuples tuples
+
+        Valid kwargs are:
+%(Patch)s
         See Patch documentation for additional kwargs        
         """
     
@@ -415,6 +435,7 @@ class Polygon(Patch):
         if not isinstance(xy, list):
             xy = list(xy)
         self.xy = xy
+    __init__.__doc__ = __init__.__doc__%kwdocd
 
     def get_verts(self):
         return self.xy
@@ -428,7 +449,10 @@ class Wedge(Polygon):
         sweeps theta1 to theta2 (angles)
 
         dtheta is the resolution in degrees
-        See Patch documentation for additional kwargs
+
+        Valid kwargs are:
+%(Patch)s
+
         """
         xc, yc = center
         rads = (math.pi/180.)*arange(theta1, theta2+0.1*dtheta, dtheta)
@@ -438,7 +462,7 @@ class Wedge(Polygon):
         verts.extend([(x,y) for x,y in zip(xs,ys)])
 
         Polygon.__init__(self, verts, **kwargs)
-
+    __init__.__doc__ = __init__.__doc__%kwdocd
 
 class Arrow(Polygon):
     """
@@ -448,7 +472,8 @@ class Arrow(Polygon):
         """Draws an arrow, starting at (x,y), direction and length
         given by (dx,dy) the width of the arrow is scaled by width
 
-        See Patch documentation for additional kwargs
+        Valid kwargs are:
+%(Patch)s
           """
         arrow = array( [
             [ 0.0,  0.1 ], [ 0.0, -0.1],
@@ -463,7 +488,7 @@ class Arrow(Polygon):
         M = array( [ [ cx, sx],[ -sx, cx ] ] )
         verts = matrixmultiply( arrow, M )+ [x,y]
         Polygon.__init__( self, [ tuple(t) for t in verts ], **kwargs )
-
+    __init__.__doc__ = __init__.__doc__%kwdocd
 
 class FancyArrow(Polygon):
     """Like Arrow, but lets you set head width and head height independently."""
@@ -483,7 +508,9 @@ class FancyArrow(Polygon):
         head_starts_at_zero: if True, the head starts being drawn at coordinate
         0 instead of ending at coordinate 0.
 
-        See Patch documentation for additional kwargs
+        Valid kwargs are:
+%(Patch)s
+
         """
         if head_width is None:
             head_width = 3 * width
@@ -530,6 +557,7 @@ class FancyArrow(Polygon):
             verts = matrixmultiply(coords, M) + (x+dx, y+dy)
 
         Polygon.__init__(self, map(tuple, verts), **kwargs)
+    __init__.__doc__ = __init__.__doc__%kwdocd
 
 class YAArrow(Polygon):
     """
@@ -547,7 +575,9 @@ class YAArrow(Polygon):
         frac  : the fraction of the arrow length occupied by the head
         headwidth : the width of the base of the arrow head in points
         
-        See Patch documentation for additional kwargs
+        Valid kwargs are:
+%(Patch)s
+
         """
         self.dpi = dpi
         self.xytip = xytip
@@ -557,6 +587,7 @@ class YAArrow(Polygon):
         self.headwidth = headwidth
         verts = self.get_verts()
         Polygon.__init__(self, verts, **kwargs)
+    __init__.__doc__ = __init__.__doc__%kwdocd
 
     def get_verts(self):
         # the base vertices
@@ -608,7 +639,11 @@ class CirclePolygon(RegularPolygon):
                  resolution=20,  # the number of vertices
                  **kwargs):
         """
-        See Patch documentation for additional kwargs
+        Create a circle at xy=(x,y) with radius given by 'radius'
+
+        Valid kwargs are:
+%(Patch)s
+
         """
         self.center = xy
         self.radius = radius
@@ -617,20 +652,22 @@ class CirclePolygon(RegularPolygon):
                                 radius,
                                 orientation=0,
                                 **kwargs)
+    __init__.__doc__ = __init__.__doc__%kwdocd
 
 
 class Ellipse(Patch):
     """
     A scale-free ellipse
-    
-    xy - center of ellipse
-    width - length of horizontal axis
-    height - length of vertical axis
-    angle - rotation in degrees (anti-clockwise)
-    """
+        """
     def __init__(self, xy, width, height, angle=0.0, **kwargs):
         """
-        See Patch documentation for allowed kwargs
+        xy - center of ellipse
+        width - length of horizontal axis
+        height - length of vertical axis
+        angle - rotation in degrees (anti-clockwise)
+
+        Valid kwargs are:
+%(Patch)s
         """
         Patch.__init__(self, **kwargs)
 
@@ -643,7 +680,8 @@ class Ellipse(Patch):
         b,t = y-height/2.0, y+height/2.0
         
         self.verts = array(((x,y),(l,y),(x,t),(r,y),(x,b)), Float)
-        
+    __init__.__doc__ = __init__.__doc__%kwdocd        
+
     def get_verts(self):
         """
         Not actually used for rendering.  Provided to conform to
@@ -682,7 +720,13 @@ class Circle(Ellipse):
     def __init__(self, xy, radius=5,
                  **kwargs):
         """
-        See Patch documentation for allowed kwargs
+        Create true circle at center xy=(x,y) with given radius;
+        unlike circle polygon which is a polygonal approcimation, this
+        uses splines and is much closer to a scale free circle
+
+        Valid kwargs are:
+%(Patch)s
+        
         """
         if kwargs.has_key('resolution'):
             import warnings
@@ -691,6 +735,7 @@ class Circle(Ellipse):
 
         self.radius = radius
         Ellipse.__init__(self, xy, radius*2, radius*2, **kwargs)
+    __init__.__doc__ = __init__.__doc__%kwdocd
 
 
 class PolygonInteractor:
@@ -860,4 +905,4 @@ for k in ('Rectangle', 'Circle', 'RegularPolygon', 'Polygon', 'Wedge', 'Arrow',
           'FancyArrow', 'YAArrow', 'CirclePolygon', 'Ellipse'):
     artist.kwdocd[k] = patchdoc
 
-Circle
+

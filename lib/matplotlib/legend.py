@@ -581,3 +581,6 @@ The following dimensions are in axes coords
             if self._loc in (CL, CR, C):            # center y
                 oy = (0.5-h/2)-b
             self._offset(ox, oy)
+
+
+#artist.kwdocd['Legend'] = '\n'.join(artist.ArtistInspector(Legend).pprint_setters(leadingspace=12))
