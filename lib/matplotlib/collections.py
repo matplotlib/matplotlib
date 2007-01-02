@@ -11,13 +11,15 @@ import math, warnings
 from matplotlib import rcParams, verbose
 
 import artist
-from artist import Artist
+from artist import Artist, kwdocd
 from backend_bases import GraphicsContextBase
 from cbook import is_string_like, iterable
 from colors import colorConverter
 from cm import ScalarMappable
 from numerix import arange, sin, cos, pi, asarray, sqrt, array, newaxis, ones
 from transforms import identity_transform
+
+
 
 class Collection(Artist):
     """
@@ -50,6 +52,30 @@ class Collection(Artist):
                 else: return val
 
         raise TypeError('val must be a float or nonzero sequence of floats')
+
+
+# these are not available for the object inspector until after the
+# class is build so we define an initial set here for the init
+# function and they will be overridden after object defn
+kwdocd['PatchCollection'] = """\
+    Valid PatchCollection kwargs are:
+    
+      edgecolors=None,
+      facecolors=None,
+      linewidths=None,
+      antialiaseds = None,
+      offsets = None,
+      transOffset = identity_transform(),
+      norm = None,  # optional for ScalarMappable
+      cmap = None,  # ditto
+
+    offsets and transOffset are used to translate the patch after
+    rendering (default no offsets)
+
+    If any of edgecolors, facecolors, linewidths, antialiaseds are
+    None, they default to their patch.* rc params setting, in sequence
+    form.
+"""
 
 class PatchCollection(Collection, ScalarMappable):
     """
@@ -90,6 +116,11 @@ class PatchCollection(Collection, ScalarMappable):
                  norm = None,  # optional for ScalarMappable
                  cmap = None,  # ditto
                  ):
+        """
+        Create a PatchCollection
+
+%(PatchCollection)s
+        """
         Collection.__init__(self)
         ScalarMappable.__init__(self, norm, cmap)
 
@@ -108,6 +139,7 @@ class PatchCollection(Collection, ScalarMappable):
         self._antialiaseds = antialiaseds
         self._offsets = offsets
         self._transOffset = transOffset
+    __init__.__doc__ = __init__.__doc__%kwdocd
 
     def get_transoffset(self):
         if self._transOffset is None:
@@ -242,10 +274,12 @@ class PolyCollection(PatchCollection):
         verts is a sequence of ( verts0, verts1, ...) where verts_i is
         a sequence of xy tuples of vertices, or an equivalent
         numerix array of shape (nv,2).
-        See PatchCollection for kwargs.
+
+%(PatchCollection)s
         """
         PatchCollection.__init__(self,**kwargs)
         self._verts = verts
+    __init__.__doc__ = __init__.__doc__%kwdocd
 
     def set_verts(self, verts):
         '''This allows one to delay initialization of the vertices.'''
@@ -299,11 +333,14 @@ class BrokenBarHCollection(PolyCollection):
         """
         xranges : sequence of (xmin, xwidth)
         yrange  : ymin, ywidth
+
+%(PatchCollection)s
         """
         ymin, ywidth = yrange
         ymax = ymin + ywidth
         verts = [ [(xmin, ymin), (xmin, ymax), (xmin+xwidth, ymax), (xmin+xwidth, ymin)] for xmin, xwidth in xranges]
         PolyCollection.__init__(self, verts, **kwargs)
+    __init__.__doc__ = __init__.__doc__%kwdocd
 
 class RegularPolyCollection(PatchCollection):
     def __init__(self,
@@ -325,13 +362,7 @@ class RegularPolyCollection(PatchCollection):
 
         * rotation is the rotation of the polygon in radians
 
-        kwargs: See PatchCollection for more details
-
-          * offsets are a sequence of x,y tuples that give the centers of
-            the polygon in data coordinates
-
-          * transOffset is the Transformation instance used to
-            transform the centers onto the canvas.
+%(PatchCollection)s
 
         Example: see examples/dynamic_collection.py for complete example
 
@@ -359,6 +390,7 @@ class RegularPolyCollection(PatchCollection):
         self.numsides = numsides
         self.rotation = rotation
         self._update_verts()
+    __init__.__doc__ = __init__.__doc__%kwdocd
 
     def _update_verts(self):
         r = 1.0/math.sqrt(math.pi)  # unit area
@@ -422,15 +454,10 @@ class StarPolygonCollection(RegularPolyCollection):
 
         * rotation is the rotation of the polygon in radians
 
-        kwargs: See PatchCollection for more details
-
-          * offsets are a sequence of x,y tuples that give the centers of
-            the polygon in data coordinates
-
-          * transOffset is the Transformation instance used to
-            transform the centers onto the canvas.
-        """
+%(PatchCollection)s
+"""
         RegularPolyCollection.__init__(self, dpi, numsides, rotation, sizes, **kwargs)
+    __init__.__doc__ = __init__.__doc__%kwdocd
 
     def _update_verts(self):
         scale = 1.0/math.sqrt(math.pi)

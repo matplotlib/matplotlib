@@ -138,7 +138,8 @@ class Line2D(Artist):
                  **kwargs
                  ):
         """
-        Initialize the line instance
+        Create a Line2D instance with x and y data in sequences xdata,
+        ydata
 
         The kwargs are Line2D properties:
           alpha: float

@@ -936,6 +936,9 @@ class FigureCanvasBase:
         filename    - can also be a file object on image backends
         orientation - only currently applies to PostScript printing.
         dpi - the dots per inch to save the figure in; if None, use savefig.dpi
+        facecolor - the facecolor of the figure
+        edgecolor - the edgecolor of the figure
+        orientation - 'landscape' | 'portrait' (not supported on all backends)
         """
         pass
 

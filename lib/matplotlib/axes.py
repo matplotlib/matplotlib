@@ -382,6 +382,41 @@ class Axes(Artist):
                  label='',
                  **kwargs
                  ):
+        """
+
+        Build an Axes instance in Figure with
+        rect=[left, bottom, width,height in Figure coords
+
+        adjustable: ['box' | 'datalim']
+        alpha: the alpha transparency
+        anchor: ['C', 'SW', 'S', 'SE', 'E', 'NE', 'N', 'NW', 'W']
+        aspect: ['auto' | 'equal' | aspect_ratio]
+        autoscale_on: boolean - whether or not to autoscale the viewlim
+        axis_bgcolor: any matplotlib color - see help(colors)
+        axisbelow: draw the grids and ticks below the other artists
+        cursor_props: a (float, color) tuple
+        figure: a Figure instance
+        frame_on: a boolean - draw the axes frame
+        label: the axes label
+        navigate: True|False
+        navigate_mode: the navigation toolbar button status: 'PAN', 'ZOOM', or None
+        position: [left, bottom, width,height in Figure coords
+        sharex : an Axes instance to share the x-axis with
+        sharey : an Axes instance to share the y-axis with        
+        title: the title string
+        visible: a boolean - whether the axes is visible
+        xlabel: the xlabel
+        xlim: (xmin, xmax) view limits
+        xscale: ['log' | 'linear' ]
+        xticklabels: sequence of strings
+        xticks: sequence of floats
+        ylabel: the ylabel strings
+        ylim: (ymin, ymax) view limits
+        yscale: ['log' | 'linear']
+        yticklabels: sequence of strings
+        yticks: sequence of floats
+        
+        """
         Artist.__init__(self)
         self._position = map(makeValue, rect)
         self._originalPosition = rect
@@ -4738,6 +4773,9 @@ class Subplot(SubplotBase, Axes):
       Subplot(211)    # 2 rows, 1 column, first (upper) plot
     """
     def __init__(self, fig, *args, **kwargs):
+        """
+        See Axes base class documentation for args and kwargs
+        """
         SubplotBase.__init__(self, fig, *args)
         Axes.__init__(self, fig, [self.figLeft, self.figBottom,
                                   self.figW, self.figH], **kwargs)
@@ -4768,6 +4806,9 @@ class PolarAxes(Axes):
     RESOLUTION = 200
 
     def __init__(self, *args, **kwarg):
+        """
+        See Axes base class for args and kwargs documentation
+        """
         Axes.__init__(self, *args, **kwarg)
         self.set_aspect('equal', adjustable='box', anchor='C')
         self.cla()
@@ -5120,6 +5161,7 @@ class PolarSubplot(SubplotBase, PolarAxes):
         PolarAxes.__init__(self, fig, [self.figLeft, self.figBottom, self.figW, self.figH], **kwargs)
 
 
+        
 artist.kwdocd['Axes'] = artist.kwdocd['Subplot'] = '\n'.join(artist.ArtistInspector(Axes).pprint_setters(leadingspace=12))
 """
 # this is some discarded code I was using to find the minimum positive

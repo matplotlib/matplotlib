@@ -1,3 +1,5 @@
+2007-01-02 Added additional kwarg documentation - JDH
+
 2006-12-28 Improved error message for nonpositive input to log
            transform; added log kwarg to bar, barh, and hist,
            and modified bar method to behave sensibly by default

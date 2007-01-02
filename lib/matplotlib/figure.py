@@ -418,6 +418,9 @@ class Figure(Artist):
             add_axes(rect, label='axes2')
 
         The Axes instance will be returned
+
+        The following kwargs are supported:
+%(Axes)s
         """
 
         key = self._make_key(*args, **kwargs)
@@ -447,6 +450,8 @@ class Figure(Artist):
         self._seen[key] = a
         return a
 
+    add_axes.__doc__ = add_axes.__doc__%artist.kwdocd
+
     def add_subplot(self, *args, **kwargs):
         """
         Add a subplot.  Examples
@@ -461,6 +466,9 @@ class Figure(Artist):
 
         If the figure already has a subplot with key *args, *kwargs then it will
         simply make that subplot current and return it
+
+        The following kwargs are supported:
+%(Axes)s        
         """
 
         key = self._make_key(*args, **kwargs)
@@ -488,7 +496,8 @@ class Figure(Artist):
         self.sca(a)
         self._seen[key] = a
         return a
-
+    add_subplot.__doc__ = add_subplot.__doc__%artist.kwdocd
+    
     def clf(self):
         """
         Clear the figure
@@ -596,7 +605,19 @@ class Figure(Artist):
         (0,0) is the left, bottom of the figure and 1,1 is the right,
         top.
 
-        The legend instance is returned
+        The legend instance is returned.  The following kwargs are supported:
+
+        isaxes=True           # whether this is an axes legend
+        numpoints = 4         # the number of points in the legend line
+        prop = FontProperties(size='smaller')  # the font property
+        pad = 0.2             # the fractional whitespace inside the legend border
+        markerscale = 0.6     # the relative size of legend markers vs. original
+        shadow                # if True, draw a shadow behind legend
+        labelsep = 0.005     # the vertical space between the legend entries
+        handlelen = 0.05     # the length of the legend lines
+        handletextsep = 0.02 # the space between the legend line and legend text
+        axespad = 0.02       # the border between the axes and legend edge
+
         """
 
 
@@ -634,10 +655,14 @@ class Figure(Artist):
     def gca(self, **kwargs):
         """
         Return the current axes, creating one if necessary
+
+        The following kwargs are supported
+%(Axes)s        
         """
         ax = self._axstack()
         if ax is not None: return ax
         return self.add_subplot(111, **kwargs)
+    gca.__doc__ = gca.__doc__%artist.kwdocd
 
     def sca(self, a):
         'Set the current axes to be a and return a'
