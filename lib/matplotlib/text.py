@@ -308,7 +308,9 @@ class Text(Artist):
     def set_bbox(self, rectprops):
         """
         Draw a bounding box around self.  rect props are any settable
-        properties for a rectangle, eg color='r', alpha=0.5
+        properties for a rectangle, eg facecolor='red', alpha=0.5.
+
+          t.set_bbox(dict(facecolor='red', alpha=0.5))
 
         ACCEPTS: rectangle prop dict plus key 'pad' which is a pad in points
         """
@@ -525,11 +527,15 @@ class Text(Artist):
 
     def set_backgroundcolor(self, color):
         """
-        Set the background color of the text
+        Set the background color of the text by updating the bbox (see set_bbox for more info)
 
         ACCEPTS: any matplotlib color 
         """
-        self._backgroundcolor = color
+        if self._bbox is None:
+            self._bbox = dict(facecolor=color, edgecolor=color)
+        else:
+            self._bbox.update(dict(facecolor=color))
+       
 
 
     def set_color(self, color):
