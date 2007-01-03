@@ -28,7 +28,7 @@ def %(func)s(*args, **kwargs):
     hold(b)
     return ret
 if Axes.%(func)s.__doc__ is not None:
-    %(func)s.__doc__ = _shift_string(Axes.%(func)s.__doc__) + \"\"\"
+    %(func)s.__doc__ = dedent(Axes.%(func)s.__doc__) + \"\"\"
 Addition kwargs: hold = [True|False] overrides default hold state\"\"\"
 """
 
@@ -41,7 +41,7 @@ def %(func)s(*args, **kwargs):
     draw_if_interactive()
     return ret
 if Axes.%(func)s.__doc__ is not None:
-    %(func)s.__doc__ = _shift_string(Axes.%(func)s.__doc__)
+    %(func)s.__doc__ = dedent(Axes.%(func)s.__doc__)
 """
 
 # these methods are all simple wrappers of Axes methods by the same
