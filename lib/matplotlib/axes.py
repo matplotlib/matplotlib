@@ -1886,6 +1886,13 @@ class Axes(Artist):
             )
 
 
+       You can put a rectangular box around the text instance (eg to
+       set a background color) by using the keyword bbox.  bbox is a
+       dictionary of matplotlib.patches.Rectangle properties (see help
+       for Rectangle for a list of these).  For example
+
+         text(x, y, s, bbox=dict(facecolor='red', alpha=0.5))
+       
        Valid kwargs are Text properties
 %(Text)s
         """
