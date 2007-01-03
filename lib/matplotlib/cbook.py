@@ -17,7 +17,7 @@ class silent_list(list):
     def __init__(self, type, seq=None):
         self.type = type
         if seq is not None: self.extend(seq)
-        
+
     def __repr__(self):
         return '<a list of %d %s objects>' % (len(self), self.type)
 
@@ -55,7 +55,7 @@ def iterable(obj):
     try: len(obj)
     except: return 0
     return 1
-      
+
 
 def is_string_like(obj):
     if hasattr(obj, 'shape'): return 0 # this is a workaround
@@ -119,7 +119,7 @@ class Sorter:
    sort(list)       # default sort
    sort(list, 1)    # sort by index 1
    sort(dict, 'a')  # sort a list of dicts by key 'a'
-   
+
    """
 
    def _helper(self, data, aux, inplace):
@@ -233,8 +233,8 @@ class Null:
 def mkdirs(newdir, mode=0777):
    try: os.makedirs(newdir, mode)
    except OSError, err:
-      # Reraise the error unless it's about an already existing directory 
-      if err.errno != errno.EEXIST or not os.path.isdir(newdir): 
+      # Reraise the error unless it's about an already existing directory
+      if err.errno != errno.EEXIST or not os.path.isdir(newdir):
          raise
 
 
@@ -243,7 +243,7 @@ def dict_delall(d, keys):
     for key in keys:
         try: del d[key]
         except KeyError: pass
-        
+
 
 class RingBuffer:
     """ class that implements a not-yet-full buffer """
@@ -277,7 +277,7 @@ class RingBuffer:
        return self.data[i % len(self.data)]
 
 
-# use enumerate builtin if available, else use python version 
+# use enumerate builtin if available, else use python version
 try:
     import __builtin__
     enumerate = __builtin__.enumerate
@@ -290,7 +290,7 @@ except:
             yield i, seq[i]
 
 
-# use itertools.izip if available, else use python version 
+# use itertools.izip if available, else use python version
 try:
     import itertools
     izip = itertools.izip
@@ -303,21 +303,21 @@ except:
         while iterables:
             result = [i.next() for i in iterables]
             yield tuple(result)
-             
+
 
 def get_split_ind(seq, N):
    """seq is a list of words.  Return the index into seq such that
    len(' '.join(seq[:ind])<=N
    """
-  
+
    sLen = 0
    # todo: use Alex's xrange pattern from the cbook for efficiency
    for (word, ind) in zip(seq, range(len(seq))):
       sLen += len(word) + 1  # +1 to account for the len(' ')
       if sLen>=N: return ind
    return len(seq)
-     
-  
+
+
 def wrap(prefix, text, cols):
     'wrap text with prefix at length cols'
     pad = ' '*len(prefix.expandtabs())
@@ -338,6 +338,27 @@ def wrap(prefix, text, cols):
         ret += pad + ' '.join(line) + '\n'
     return ret
 
+def dedent(s):
+    """
+    Remove excess indentation from docstrings.
+
+    Discards any leading blank lines, then removes up to
+    n whitespace characters from each line, where n is
+    the number of leading whitespace characters in the
+    first line. It differs from textwrap.dedent in its
+    deletion of leading blank lines and its use of the
+    first non-blank line to determine the indentation.
+    """
+    lines = s.splitlines(True)
+    ii = 0
+    while lines[ii].strip() == '':
+        ii += 1
+    lines = lines[ii:]
+    nshift = len(lines[0]) - len(lines[0].lstrip())
+    for i, line in enumerate(lines):
+        nwhite = len(line) - len(line.lstrip())
+        lines[i] = line[min(nshift, nwhite):]
+    return ''.join(lines)
 
 
 
@@ -377,7 +398,7 @@ def get_recursive_filelist(args):
     return the files as a list of strings
     """
     files = []
-    
+
     for arg in args:
         if os.path.isfile(arg):
             files.append(arg)
@@ -438,11 +459,11 @@ def allpairs(x):
     return all possible pairs in sequence x
 
     Condensed by Alex Martelli from this thread on c.l.python
-    http://groups.google.com/groups?q=all+pairs+group:*python*&hl=en&lr=&ie=UTF-8&selm=mailman.4028.1096403649.5135.python-list%40python.org&rnum=1    
+    http://groups.google.com/groups?q=all+pairs+group:*python*&hl=en&lr=&ie=UTF-8&selm=mailman.4028.1096403649.5135.python-list%40python.org&rnum=1
     """
     return [ (s, f) for i, f in enumerate(x) for s in x[i+1:] ]
 
-        
+
 
 
 # python 2.2 dicts don't have pop
@@ -456,7 +477,7 @@ def popd(d, *args):
 
     # returns value for key if key exists, else default.  Delete key,
     # val item if it exists.  Will not raise a KeyError
-    val = popd(d, key, default)      
+    val = popd(d, key, default)
     """
     if len(args)==1:
         key = args[0]
@@ -485,7 +506,7 @@ class maxdict(dict):
             del self[self._killkeys[0]]
             del self._killkeys[0]
         dict.__setitem__(self, k, v)
-        self._killkeys.append(k)        
+        self._killkeys.append(k)
 
 
 
@@ -499,7 +520,7 @@ class Stack:
     def __init__(self, default=None):
         self.clear()
         self._default = default
-    
+
     def __call__(self):
         'return the current element, or None'
         if not len(self._elements): return self._default
@@ -525,7 +546,7 @@ class Stack:
         self._elements.append(o)
         self._pos = len(self._elements)-1
         return self()
-    
+
     def home(self):
         'push the first element onto the top of the stack'
         if not len(self._elements): return
@@ -567,7 +588,7 @@ class Stack:
         for thiso in old:
             if thiso==o: continue
             else: self.push(thiso)
-        
+
 def popall(seq):
     'empty a list'
     for i in xrange(len(seq)): seq.pop()
@@ -575,7 +596,7 @@ def popall(seq):
 def finddir(o, match, case=False):
     """
     return all attributes of o which match string in match.  if case
-    is True require an exact case match.  
+    is True require an exact case match.
     """
     if case:
         names = [(name,name) for name in dir(o) if is_string_like(name)]
@@ -594,4 +615,4 @@ if __name__=='__main__':
     assert(not  allequal([1,1,0]) )
     assert( allequal([]) )
     assert( allequal(('a', 'a')))
-    assert( not allequal(('a', 'b')))    
+    assert( not allequal(('a', 'b')))
