@@ -1,17 +1,18 @@
-Devs, feel free to edit this document.  This is meant to be a guide to
-developers on the mpl coding practices and standards
+= The matplotlib developer's guide = 
 
+This is meant to be a guide to developers on the mpl coding practices
+and standards.  Please edit and extend this document.
 
-== Committing Changes ==
+== Committing changes ==
 
 When committing changes to matplotlib, there are a few things to bear
 in mind.  
 
-  * if your changes are nontrivial, please make an entry in the
+  * if your changes are non-trivial, please make an entry in the
     CHANGELOG
 
   * if you change the API, please document it in API_CHANGES, and
-    consider posing to mpl-devel
+    consider posting to mpl-devel
 
   * Are your changes python2.3 compatible?  We are still trying to
     support 2.3, so avoid 2.4 only features like decorators until we
@@ -30,7 +31,7 @@ in mind.
     unit/memleak_hawaii.py?
 
 
-== Naming conventions ==
+== Naming and spacing conventions ==
 
   functions and class methods  : lower or lower_underscore_separated
 
@@ -40,28 +41,72 @@ in mind.
 
 Personally, I prefer the shortest names that are still readable.
 
-== kwargs processing == 
+Also, use an editor that does not put tabs in files.  Four spaces
+should be used for indentation everywhere and if there is a file with
+tabs or more or less spaces it is a bug -- please fix it.
+
+== Licenses == 
+
+matplotlib only uses BSD compatible code.  If you bring in code from
+another project make sure it has a PSF, BSD, MIT or compatible
+license.  If not, you may consider contacting the author and asking
+them to relicense it.  GPL and LGPL code are not acceptible in the
+main code base, though we are considering an alternative way of
+distributing L/GPL code through an separate channel, possibly a
+toolkit.  If you include code, make sure you include a copy of that
+code's license in the license directory if the code's license requires
+you to distribute the license with it.
+
+
+== Keyword argument processing == 
 
 Matplotlib makes extensive use of **kwargs for pass through
-customizations from one function to another, eg the pylab plot ->
-Axes.plot pass through.  As a general rule, the use of **kwargs should
-be reserved for pass-through keyword arguments, eg
+customizations from one function to another.  A typical example is in
+pylab.text,  The definition of the pylab text function is a simple
+pass-through to axes.Axes.text
 
-  def somefunc(x, k1='something', **kwargs):
-      # do some thing with x, k1
-      return some_other_func(..., **kwargs)
+    # in pylab.py
+    def text(*args, **kwargs):
+        ret =  gca().text(*args, **kwargs)
+        draw_if_interactive()
+        return ret
 
-If I intend for all the keyword args to be used in somefunc alone, I
-just use the key/value keyword args in the function definition rather
-than the **kwargs idiom.  In some cases I want to consume some keys
-and pass through the others, in which case I pop the ones I want to
-use locally and pass on the rest, eg I pop scalex and scaley in
-Axes.plot and assume the rest are Line2D keyword arguments.  Whenever
-you mutate a kwargs dictionary (eg by popping it), you must first copy
-it since the user may be explitly passing in a dictionary which is
-used across many function calls.  As an example of a copy, pop,
-passthrough usage, see Axes.plot:
 
+axes.Axes.text in simplified form looks like this, ie it just passes
+them on to text.Text.__init__
+    # in axes.py
+    def text(self, x, y, s, fontdict=None, withdash=False, **kwargs):
+        t = Text(x=x, y=y, text=s, **kwargs)
+
+
+and Text.__init__ (again with liberties for illustration) just passes
+them on to the artist.Artist.update method 
+
+    # in text.py
+    def __init__(self, x=0, y=0, text='', **kwargs):
+        Artist.__init__(self)
+        self.update(kwargs)
+
+'update' does the work looking for methods named like 'set_property'
+if 'property' is a keyword argument.  Ie, noone looks at the keywords,
+they just get passed through the API to the artist constructor which
+looks for suitably named methods and calls them with the value.
+
+As a general rule, the use of **kwargs should be reserved for
+pass-through keyword arguments, as in the exmaple above.  If I intend
+for all the keyword args to be used in some function and not passed
+on, I just use the key/value keyword args in the function definition
+rather than the **kwargs idiom.  
+
+In some cases I want to consume some keys and pass through the others,
+in which case I pop the ones I want to use locally and pass on the
+rest, eg I pop scalex and scaley in Axes.plot and assume the rest are
+Line2D keyword arguments.  Whenever you mutate a kwargs dictionary (eg
+by popping it), you must first copy it since the user may be explitly
+passing in a dictionary which is used across many function calls.  As
+an example of a copy, pop, passthrough usage, see Axes.plot:
+
+    # in axes.py
     def plot(self, *args, **kwargs):
         kwargs = kwargs.copy()
         scalex = popd(kwargs, 'scalex', True)
@@ -82,6 +127,7 @@ non-keyword args.  In this case, python will not allow you to use
 named keyword args after the *args usage, so you will be forced to use
 **kwargs.  An example is matplotlib.contour.ContourLabeler.clabel
 
+    # in contour.py
     def clabel(self, *args, **kwargs):
         fontsize = kwargs.get('fontsize', None)
         inline = kwargs.get('inline', 1)
@@ -93,18 +139,17 @@ named keyword args after the *args usage, so you will be forced to use
         elif len(args) == 1:
 	   ...etc...
 
-
-
-== class documentation ==
+== Class documentation ==
 
 matplotlib uses artist instrospection of docstrings to support
 properties.  All properties that you want to support through setp and
 getp should have a set_property and get_property method in the Artist
-class.  Yes this is not ideal given python properties or enthought
+class.  Yes, this is not ideal given python properties or enthought
 traits, but it is a historical legacy for now.  The setter methods use
 the docstring with the ACCEPTS token to indicate the type of argument
 the method accepts.  Eg in matplotlib.lines.Line2D
 
+    # in lines.py
     def set_linestyle(self, linestyle):
         """
         Set the linestyle of the line
@@ -130,13 +175,15 @@ I have added a matplotlib.artist.kwdocd to faciliate this.  This
 combines python string interpolation in the docstring with the
 matplotlib artist introspection facility that underlies setp and getp.
 The kwdocd is a single dictionary that maps class name to a docstring
-of kwargs.  Here is an example at the bottom of matplotlib.lines
+of kwargs.  Here is an example from matplotlib.lines
 
-artist.kwdocd['Line2D'] = '\n'.join(artist.ArtistInspector(Line2D).pprint_setters(leadingspace=12))
+    # in lines.py
+    artist.kwdocd['Line2D'] = '\n'.join(artist.ArtistInspector(Line2D).pprint_setters(leadingspace=12))
 
 Then in any function accepting Line2D passthrough kwargs, eg
 matplotlib.axes.Axes.plot
 
+    # in axes.py
     def plot(self, *args, **kwargs):
         """
 	Some stuff omitted
@@ -152,9 +199,9 @@ matplotlib.axes.Axes.plot
 	pass
     plot.__doc__ = plot.__doc__ % artist.kwdocd
 
-Note there is a problem for Artist __init__ methods, eg
-Patch.__init__ which supports Patch kwargs, since the artist inspector
-cannot work until the class is fully defined and we can't modify the
+Note there is a problem for Artist __init__ methods, eg Patch.__init__
+which supports Patch kwargs, since the artist inspector cannot work
+until the class is fully defined and we can't modify the
 Patch.__init__.__doc__ docstring outside the class definition.  I have
 made some manual hacks in this case which violates the "single entry
 point" requirement above; hopefully we'll find a more elegant solution
