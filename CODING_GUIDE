@@ -21,18 +21,18 @@ in mind.
     running simple_plot.py or image_demo.py with --Numeric, --numarray
     and --numpy (Note, someone should add examples to
     backend_driver.py which explicitly require numpy, numarray and
-    Numeric so we can automatically catch these
+    Numeric so we can automatically catch these)
 
-  * Can you pass examples/backend_driver.py . This is our poor man's
-    unit test
+  * Can you pass examples/backend_driver.py?  This is our poor man's
+    unit test.
 
   * If you have altered extension code, do you pass
-    unit/memleak_hawaii.py
+    unit/memleak_hawaii.py?
 
 
 == Naming conventions ==
 
-  functions and class methods  : undercase_separated_lower
+  functions and class methods  : lower or lower_underscore_separated
 
   attributes and variables     : lower or lowerUpper
 
@@ -42,7 +42,7 @@ Personally, I prefer the shortest names that are still readable.
 
 == kwargs processing == 
 
-Matplotlib makes extensive use of kwargs so pass through
+Matplotlib makes extensive use of **kwargs for pass through
 customizations from one function to another, eg the pylab plot ->
 Axes.plot pass through.  As a general rule, the use of **kwargs should
 be reserved for pass-through keyword arguments, eg
@@ -51,16 +51,18 @@ be reserved for pass-through keyword arguments, eg
       # do some thing with x, k1
       return some_other_func(..., **kwargs)
 
-If I intend for all the kwargs to be used in somefunc alone, I just
-use the key/value keyword args in the function definition rather than
-the **kwargs idiom.  In some cases I want to consume some keys and
-pass through the others, in which case I pop the ones I want to use
-locally and pass on the rest, eg I pop scalex and scaley in Axes.plot
-and assume the rest are Line2D args.  Whenever you mutate a kwargs
-dictionary, you must first copy it since the user may be explitly
-passing in a dictionary which is used across many function calls, eg,
-in Axes.plot
+If I intend for all the keyword args to be used in somefunc alone, I
+just use the key/value keyword args in the function definition rather
+than the **kwargs idiom.  In some cases I want to consume some keys
+and pass through the others, in which case I pop the ones I want to
+use locally and pass on the rest, eg I pop scalex and scaley in
+Axes.plot and assume the rest are Line2D keyword arguments.  Whenever
+you mutate a kwargs dictionary (eg by popping it), you must first copy
+it since the user may be explitly passing in a dictionary which is
+used across many function calls.  As an example of a copy, pop,
+passthrough usage, see Axes.plot:
 
+    def plot(self, *args, **kwargs):
         kwargs = kwargs.copy()
         scalex = popd(kwargs, 'scalex', True)
         scaley = popd(kwargs, 'scaley', True)
@@ -70,14 +72,15 @@ in Axes.plot
             self.add_line(line)
             lines.append(line)
 
-popd is a matplotlib.cbook function.
+popd is a matplotlib.cbook function to pop an item from a dictionary
+with a default value if the item doesn't exist
 
 Note there is a use case when kwargs are meant to be used locally in
-the function, but you still need the **kwargs idiom.  That is when you
-want to use *args to allow variable numbers of non keyword args.  In
-this case, python will not allow you to use named keyword args after
-the *args usage, so you will be forces to use kwargs.  An example is
-matplotlib.contour.ContourLabeler.clabel
+the function (not passed on), but you still need the **kwargs idiom.
+That is when you want to use *args to allow variable numbers of
+non-keyword args.  In this case, python will not allow you to use
+named keyword args after the *args usage, so you will be forced to use
+**kwargs.  An example is matplotlib.contour.ContourLabeler.clabel
 
     def clabel(self, *args, **kwargs):
         fontsize = kwargs.get('fontsize', None)
@@ -98,7 +101,7 @@ matplotlib uses artist instrospection of docstrings to support
 properties.  All properties that you want to support through setp and
 getp should have a set_property and get_property method in the Artist
 class.  Yes this is not ideal given python properties or enthought
-traits but it is a historical legacy for now.  The setter methods use
+traits, but it is a historical legacy for now.  The setter methods use
 the docstring with the ACCEPTS token to indicate the type of argument
 the method accepts.  Eg in matplotlib.lines.Line2D
 
@@ -120,8 +123,8 @@ requirements are:
   1) single point of configuration so changes to the properties don't
      require multiple docstring edits
 
-  2) as automated as possible so that as setters and getters change
-     the docs are updated automagically.
+  2) as automated as possible so that as properties change the docs
+     are updated automagically.
 
 I have added a matplotlib.artist.kwdocd to faciliate this.  This
 combines python string interpolation in the docstring with the
@@ -149,4 +152,11 @@ matplotlib.axes.Axes.plot
 	pass
     plot.__doc__ = plot.__doc__ % artist.kwdocd
 
+Note there is a problem for Artist __init__ methods, eg
+Patch.__init__ which supports Patch kwargs, since the artist inspector
+cannot work until the class is fully defined and we can't modify the
+Patch.__init__.__doc__ docstring outside the class definition.  I have
+made some manual hacks in this case which violates the "single entry
+point" requirement above; hopefully we'll find a more elegant solution
+before too long
 
