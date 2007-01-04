@@ -5,7 +5,7 @@ import sys
 import artist
 from artist import Artist
 from axes import Axes, Subplot, PolarSubplot, PolarAxes
-from cbook import flatten, allequal, popd, Stack, iterable
+from cbook import flatten, allequal, popd, Stack, iterable, dedent
 import _image
 import colorbar as cbar
 from colors import Normalize, rgb2hex
@@ -420,7 +420,7 @@ class Figure(Artist):
         The Axes instance will be returned
 
         The following kwargs are supported:
-%(Axes)s
+        %(Axes)s
         """
 
         key = self._make_key(*args, **kwargs)
@@ -450,7 +450,7 @@ class Figure(Artist):
         self._seen[key] = a
         return a
 
-    add_axes.__doc__ = add_axes.__doc__%artist.kwdocd
+    add_axes.__doc__ = dedent(add_axes.__doc__) % artist.kwdocd
 
     def add_subplot(self, *args, **kwargs):
         """
@@ -468,7 +468,7 @@ class Figure(Artist):
         simply make that subplot current and return it
 
         The following kwargs are supported:
-%(Axes)s        
+        %(Axes)s
         """
 
         key = self._make_key(*args, **kwargs)
@@ -496,8 +496,8 @@ class Figure(Artist):
         self.sca(a)
         self._seen[key] = a
         return a
-    add_subplot.__doc__ = add_subplot.__doc__%artist.kwdocd
-    
+    add_subplot.__doc__ = dedent(add_subplot.__doc__) % artist.kwdocd
+
     def clf(self):
         """
         Clear the figure
@@ -633,7 +633,7 @@ class Figure(Artist):
         the help for Axis text for the meaning of the other arguments
 
         kwargs control the Text properties:
-%(Text)s
+        %(Text)s
         """
 
         override = _process_text_args({}, *args, **kwargs)
@@ -645,7 +645,7 @@ class Figure(Artist):
         self._set_artist_props(t)
         self.texts.append(t)
         return t
-    text.__doc__ = text.__doc__%artist.kwdocd
+    text.__doc__ = dedent(text.__doc__) % artist.kwdocd
 
     def _set_artist_props(self, a):
         if a!= self:
@@ -657,12 +657,12 @@ class Figure(Artist):
         Return the current axes, creating one if necessary
 
         The following kwargs are supported
-%(Axes)s        
+        %(Axes)s
         """
         ax = self._axstack()
         if ax is not None: return ax
         return self.add_subplot(111, **kwargs)
-    gca.__doc__ = gca.__doc__%artist.kwdocd
+    gca.__doc__ = dedent(gca.__doc__) % artist.kwdocd
 
     def sca(self, a):
         'Set the current axes to be a and return a'
@@ -987,4 +987,4 @@ def figaspect(arg):
     newsize = clip(newsize,figsize_min,figsize_max)
     return newsize
 
-artist.kwdocd['Figure'] = '\n'.join(artist.ArtistInspector(Axes).pprint_setters(leadingspace=12))
+artist.kwdocd['Figure'] = artist.kwdoc(Figure)

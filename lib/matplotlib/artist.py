@@ -365,7 +365,7 @@ class ArtistInspector:
         for prop in attrs:
             accepts = self.get_valid_values(prop)
             name = self.aliased_name(prop)
-            
+
             lines.append('%s%s: %s' %(pad, name, accepts))
         return lines
 
@@ -501,7 +501,8 @@ def setp(h, *args, **kwargs):
             ret.extend( [func(val)] )
     return [x for x in flatten(ret)]
 
-
+def kwdoc(a):
+    return '\n'.join(ArtistInspector(a).pprint_setters(leadingspace=8))
 
 kwdocd = dict()
-kwdocd['Artist'] = '\n'.join(ArtistInspector(Artist).pprint_setters(leadingspace=12))
+kwdocd['Artist'] = kwdoc(Artist)

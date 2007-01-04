@@ -16,7 +16,7 @@ from numerix import Float, alltrue, arange, array, logical_and,\
 import numerix.ma as ma
 from matplotlib import verbose
 import artist
-from artist import Artist, setp, ArtistInspector
+from artist import Artist, setp
 from cbook import iterable, is_string_like
 from colors import colorConverter
 
@@ -1242,4 +1242,4 @@ class Line2D(Artist):
 lineStyles = Line2D._lineStyles
 lineMarkers = Line2D._markers
 
-artist.kwdocd['Line2D'] = '\n'.join(artist.ArtistInspector(Line2D).pprint_setters(leadingspace=12))
+artist.kwdocd['Line2D'] = artist.kwdoc(Line2D)

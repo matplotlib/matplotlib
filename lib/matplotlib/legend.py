@@ -216,8 +216,8 @@ The following dimensions are in axes coords
         if not len(self.legendHandles) and not len(self.texts): return
         for h in self.legendHandles:
             if h is not None:
-		h.draw(renderer)
-        	if 0: bbox_artist(h, renderer)
+                h.draw(renderer)
+                if 0: bbox_artist(h, renderer)
 
         for t in self.texts:
             if 0: bbox_artist(t, renderer)
@@ -293,8 +293,8 @@ The following dimensions are in axes coords
                 p.set_clip_box(None)
                 ret.append(p)
 
-	    else:
-		ret.append(None)
+            else:
+                ret.append(None)
 
         return ret
 
@@ -583,4 +583,4 @@ The following dimensions are in axes coords
             self._offset(ox, oy)
 
 
-#artist.kwdocd['Legend'] = '\n'.join(artist.ArtistInspector(Legend).pprint_setters(leadingspace=12))
+#artist.kwdocd['Legend'] = kwdoc(Legend)

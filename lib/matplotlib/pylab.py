@@ -209,7 +209,7 @@ from figure import Figure, figaspect
 import image
 from matplotlib import rcParams, rcParamsDefault, get_backend
 from backend_bases import FigureCanvasBase
-from artist import ArtistInspector, getp, get
+from artist import getp, get
 from artist import setp as _setp
 
 # a hack to keep old versions of ipython working with mpl after bug

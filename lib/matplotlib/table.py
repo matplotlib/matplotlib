@@ -334,9 +334,10 @@ class Table(Artist):
 
     def set_fontsize(self, size):
         """
-Set the fontsize of the cell text
+        Set the fontsize of the cell text
 
-ACCEPTS: a float in points"""
+        ACCEPTS: a float in points
+        """
 
         for cell in self._cells.itervalues():
             cell.set_fontsize(size)
@@ -511,4 +512,4 @@ def table(ax,
     return table
 
 
-artist.kwdocd['Table'] = '\n'.join(artist.ArtistInspector(Table).pprint_setters(leadingspace=12))
+artist.kwdocd['Table'] = artist.kwdoc(Table)
