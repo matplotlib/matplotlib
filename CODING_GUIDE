@@ -1,4 +1,4 @@
-= The matplotlib developer's guide = 
+= The matplotlib developer's guide =
 
 This is meant to be a guide to developers on the mpl coding practices
 and standards.  Please edit and extend this document.
@@ -6,7 +6,7 @@ and standards.  Please edit and extend this document.
 == Committing changes ==
 
 When committing changes to matplotlib, there are a few things to bear
-in mind.  
+in mind.
 
   * if your changes are non-trivial, please make an entry in the
     CHANGELOG
@@ -45,7 +45,7 @@ Also, use an editor that does not put tabs in files.  Four spaces
 should be used for indentation everywhere and if there is a file with
 tabs or more or less spaces it is a bug -- please fix it.
 
-== Licenses == 
+== Licenses ==
 
 matplotlib only uses BSD compatible code.  If you bring in code from
 another project make sure it has a PSF, BSD, MIT or compatible
@@ -58,7 +58,7 @@ code's license in the license directory if the code's license requires
 you to distribute the license with it.
 
 
-== Keyword argument processing == 
+== Keyword argument processing ==
 
 Matplotlib makes extensive use of **kwargs for pass through
 customizations from one function to another.  A typical example is in
@@ -80,7 +80,7 @@ them on to text.Text.__init__
 
 
 and Text.__init__ (again with liberties for illustration) just passes
-them on to the artist.Artist.update method 
+them on to the artist.Artist.update method
 
     # in text.py
     def __init__(self, x=0, y=0, text='', **kwargs):
@@ -96,7 +96,7 @@ As a general rule, the use of **kwargs should be reserved for
 pass-through keyword arguments, as in the exmaple above.  If I intend
 for all the keyword args to be used in some function and not passed
 on, I just use the key/value keyword args in the function definition
-rather than the **kwargs idiom.  
+rather than the **kwargs idiom.
 
 In some cases I want to consume some keys and pass through the others,
 in which case I pop the ones I want to use locally and pass on the
@@ -137,7 +137,7 @@ named keyword args after the *args usage, so you will be forced to use
             levels = self.levels
             indices = range(len(self.levels))
         elif len(args) == 1:
-	   ...etc...
+           ...etc...
 
 == Class documentation ==
 
@@ -171,33 +171,35 @@ requirements are:
   2) as automated as possible so that as properties change the docs
      are updated automagically.
 
-I have added a matplotlib.artist.kwdocd to faciliate this.  This
-combines python string interpolation in the docstring with the
+I have added a matplotlib.artist.kwdocd and kwdoc() to faciliate this.
+They combines python string interpolation in the docstring with the
 matplotlib artist introspection facility that underlies setp and getp.
 The kwdocd is a single dictionary that maps class name to a docstring
 of kwargs.  Here is an example from matplotlib.lines
 
     # in lines.py
-    artist.kwdocd['Line2D'] = '\n'.join(artist.ArtistInspector(Line2D).pprint_setters(leadingspace=12))
+    artist.kwdocd['Line2D'] = artist.kwdoc(Line2D)
 
 Then in any function accepting Line2D passthrough kwargs, eg
 matplotlib.axes.Axes.plot
 
     # in axes.py
+from cbook import dedent
+...
     def plot(self, *args, **kwargs):
         """
-	Some stuff omitted
+        Some stuff omitted
 
         The kwargs are Line2D properties:
-%(Line2D)s
+        %(Line2D)s
 
         kwargs scalex and scaley, if defined, are passed on
         to autoscale_view to determine whether the x and y axes are
         autoscaled; default True.  See Axes.autoscale_view for more
         information
         """
-	pass
-    plot.__doc__ = plot.__doc__ % artist.kwdocd
+        pass
+    plot.__doc__ = dedent(plot.__doc__) % artist.kwdocd
 
 Note there is a problem for Artist __init__ methods, eg Patch.__init__
 which supports Patch kwargs, since the artist inspector cannot work
@@ -206,4 +208,19 @@ Patch.__init__.__doc__ docstring outside the class definition.  I have
 made some manual hacks in this case which violates the "single entry
 point" requirement above; hopefully we'll find a more elegant solution
 before too long
+
+== Formatting (editor setup) ==
+
+Indentation is in units of 4 spaces.
+
+Please avoid hard tabs--use only spaces.
+
+Please avoid spurious invisible spaces at the ends of lines.
+(Tell your editor to strip whitespace from line ends when saving
+a file.)
+
+Keep docstrings uniformly indented as in the example above, with
+nothing to the left of the triple quotes.  The dedent() function
+is needed to remove excess indentation only if something will be
+interpolated into the docstring, again as in the example above.
 
