@@ -762,7 +762,7 @@ class Axes(Artist):
             return
 
 
-        l,b,w,h = self.get_position()
+        l,b,w,h = self.get_position(original=True)
         box_aspect = fig_aspect * (h/w)
         data_ratio = box_aspect / A
         #print 'box_aspect, data_ratio, ysize/xsize', box_aspect, data_ratio, ysize/xsize
@@ -841,6 +841,7 @@ class Axes(Artist):
                     self.set_aspect('equal', adjustable='datalim')
                 elif s == 'scaled':
                     self.set_aspect('equal', adjustable='box', anchor='C')
+                    self.set_autoscale_on(False) # Req. by Mark Bakker
                 elif s=='tight':
                     self.autoscale_view(tight=True)
                     self.set_autoscale_on(False)
