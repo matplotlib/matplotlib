@@ -858,8 +858,14 @@ class Axes(Artist):
 
         try: v[0]
         except IndexError:
-            xmin, xmax = self.set_xlim(**kwargs)
-            ymin, ymax = self.set_ylim(**kwargs)
+            emit = kwargs.get('emit', False)
+            xmin = kwargs.get('xmin', None)
+            xmax = kwargs.get('xmax', None)
+
+            xmin, xmax = self.set_xlim(xmin, xmax, emit)
+            ymin = kwargs.get('ymin', None)
+            ymax = kwargs.get('ymax', None)
+            ymin, ymax = self.set_ylim(ymin, ymax, emit)
             return xmin, xmax, ymin, ymax
 
         v = v[0]
