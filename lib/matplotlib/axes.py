@@ -4233,7 +4233,7 @@ class Axes(Artist):
             Y = transpose(resize(ravel(Y), (Nx, Ny)))
 
         # convert to one dimensional arrays
-        C = ma.ravel(C[0:Nx-1, 0:Ny-1]) # data point in each cell is value at lower left corner
+        C = ma.ravel(C[0:Ny-1, 0:Nx-1]) # data point in each cell is value at lower left corner
         X = ravel(X)
         Y = ravel(Y)
 
@@ -4242,14 +4242,13 @@ class Axes(Artist):
         # to Float32 with simple assignment, so we do it explicitly.
         coords[:, 0] = X.astype(Float32)
         coords[:, 1] = Y.astype(Float32)
-        #print coords
 
         if shading == 'faceted':
             showedges = 1
         else:
             showedges = 0
 
-        collection = QuadMesh(Ny - 1, Nx - 1, coords, showedges, **kwargs)
+        collection = QuadMesh(Nx - 1, Ny - 1, coords, showedges, **kwargs)
         collection.set_alpha(alpha)
         collection.set_array(C)
         if norm is not None: assert(isinstance(norm, Normalize))
