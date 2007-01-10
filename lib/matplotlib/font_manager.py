@@ -33,7 +33,7 @@ License   : matplotlib license (PSF compatible)
             see license/LICENSE_TTFQUERY.
 """
 
-import os, sys, glob, warnings, shutil
+import os, sys, glob, shutil
 import matplotlib
 from matplotlib import afm
 from matplotlib import ft2font
@@ -445,17 +445,17 @@ dictionary can optionally be created.
             try:
                 font = afm.AFM(file(fpath))
             except RuntimeError:
-                warnings.warn("Could not open font file %s"%fpath)
+                verbose.report("Could not open font file %s"%fpath)
                 continue
             prop = afmFontProperty(font)
         else:
             try:
                 font = ft2font.FT2Font(str(fpath))
             except RuntimeError:
-                warnings.warn("Could not open font file %s"%fpath)
+                verbose.report("Could not open font file %s"%fpath)
                 continue
             except UnicodeError:
-                warnings.warn("Cannot handle unicode filenames")
+                verbose.report("Cannot handle unicode filenames")
                 #print >> sys.stderr, 'Bad file is', fpath
                 continue
             try: prop = ttfFontProperty(font)
@@ -690,7 +690,7 @@ set_family() method.
         #  Remove family names from list of font names.
         for name in names[:]:
             if name.lower() in font_family:
-                warnings.warn( msg % name)
+                verbose.report( msg % name)
                 while name in names:
                     names.remove(name.lower())
 
@@ -986,7 +986,7 @@ Delete this file to have matplotlib rebuild the cache."""
 
         fontkey = FontKey(name, style, variant, weight, stretch, size)
         add_filename(fontdict, fontkey, self.defaultFont)
-        warnings.warn('Could not match %s, %s, %s.  Returning %s' % (name, style, variant, self.defaultFont))
+        verbose.report('Could not match %s, %s, %s.  Returning %s' % (name, style, variant, self.defaultFont))
 
         return self.defaultFont
 
