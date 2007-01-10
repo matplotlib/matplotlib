@@ -33,6 +33,11 @@ in mind.
 
 == Naming and spacing conventions ==
 
+In general, we want to hew as closely as possible to the standard
+coding guidelines for python written by Guido in
+http://www.python.org/dev/peps/pep-0008, though we do not do this
+throughout. 
+
   functions and class methods  : lower or lower_underscore_separated
 
   attributes and variables     : lower or lowerUpper
