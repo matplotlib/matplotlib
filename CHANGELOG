@@ -1,3 +1,6 @@
+2007-01-11 Added Axes.xcorr to plot the cross correlation of x vs y -
+           JDH
+
 2007-01-10 Added "Subplot.label_outer" method.  It will set the
            visibility of the ticklabels so that yticklabels are only
            visible in the first column and xticklabels are only
