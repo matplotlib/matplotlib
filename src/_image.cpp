@@ -252,6 +252,40 @@ Image::buffer_argb32(const Py::Tuple& args) {
 }
 
 
+char Image::buffer_bgra32__doc__[] =
+"buffer = buffer_bgra32()"
+"\n"
+"Return the image buffer as agbr32\n"
+;
+Py::Object
+Image::buffer_bgra32(const Py::Tuple& args) {
+  //"Return the image object as bgra32";
+
+  _VERBOSE("RendererAgg::buffer_bgra32");
+
+  args.verify_length(0);
+
+  int row_len = colsOut * 4;
+
+  unsigned char* buf_tmp = new unsigned char[row_len * rowsOut];
+  if (buf_tmp ==NULL)
+    throw Py::MemoryError("RendererAgg::buffer_bgra32 could not allocate memory");
+
+  agg::rendering_buffer rtmp;
+  rtmp.attach(buf_tmp, colsOut, rowsOut, row_len);
+
+  agg::color_conv(&rtmp, rbufOut, agg::color_conv_rgba32_to_bgra32());
+
+  //todo: how to do this with native CXX
+  //PyObject* o = Py_BuildValue("s#", buf_tmp, row_len * rowsOut);
+  PyObject* o = Py_BuildValue("lls#", rowsOut, colsOut,
+			      buf_tmp, row_len * rowsOut);
+  delete [] buf_tmp;
+  return Py::asObject(o);
+
+
+}
+
 char Image::buffer_rgba__doc__[] =
 "buffer = buffer_rgba()"
 "\n"
@@ -752,6 +786,7 @@ Image::init_type() {
   add_varargs_method( "apply_translation", &Image::apply_translation, Image::apply_translation__doc__);
   add_keyword_method( "as_rgba_str", &Image::as_rgba_str, Image::as_rgba_str__doc__);
   add_varargs_method( "buffer_argb32", &Image::buffer_argb32, Image::buffer_argb32__doc__);
+  add_varargs_method( "buffer_bgra32", &Image::buffer_bgra32, Image::buffer_bgra32__doc__);
   add_varargs_method( "buffer_rgba", &Image::buffer_rgba, Image::buffer_rgba__doc__);
   add_varargs_method( "get_aspect", &Image::get_aspect, Image::get_aspect__doc__);
   add_varargs_method( "get_interpolation", &Image::get_interpolation, Image::get_interpolation__doc__);
