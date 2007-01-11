@@ -47,6 +47,7 @@ if Axes.%(func)s.__doc__ is not None:
 # these methods are all simple wrappers of Axes methods by the same
 # name.
 _plotcommands = (
+    'acorr',
     'arrow',
     'axhline',
     'axhspan',
@@ -83,6 +84,7 @@ _plotcommands = (
     'quiver',
     'quiver2',
     'quiverkey',
+    'xcorr',
     )
 
 _misccommands = (
