@@ -1,5 +1,6 @@
 import sys
 import matplotlib
+import time
 
 __all__ = ['backend','show','draw_if_interactive',
            'new_figure_manager', 'backend_version']
@@ -49,8 +50,7 @@ def pylab_setup():
 
     return new_figure_manager, draw_if_interactive, show
 
-# a hack to keep old versions of ipython working with mpl after bug
-# fix #1209354
+# a hack to keep old versions of ipython working with mpl
 if 'IPython.Shell' in  sys.modules:
     new_figure_manager, draw_if_interactive, show = pylab_setup()
 

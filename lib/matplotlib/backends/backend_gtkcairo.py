@@ -6,11 +6,11 @@ import gtk
 if gtk.pygtk_version < (2,7,0):
     import cairo.gtk
 
-import matplotlib.backends.backend_cairo as be_cairo
+from matplotlib.backends import backend_cairo
 from   matplotlib.backends.backend_gtk import *
 
 backend_version = 'PyGTK(%d.%d.%d) ' % gtk.pygtk_version + \
-                  'Pycairo(%s)' % be_cairo.backend_version
+                  'Pycairo(%s)' % backend_cairo.backend_version
 
 
 _debug = False
@@ -28,7 +28,7 @@ def new_figure_manager(num, *args, **kwargs):
     return FigureManagerGTK(canvas, num)
 
 
-class RendererGTKCairo (be_cairo.RendererCairo):
+class RendererGTKCairo (backend_cairo.RendererCairo):
     def set_pixmap (self, pixmap):
         if gtk.pygtk_version >= (2,7,0):
             self.ctx = pixmap.cairo_create()
