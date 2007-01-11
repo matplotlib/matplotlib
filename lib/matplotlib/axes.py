@@ -6,7 +6,7 @@ from numerix import absolute, arange, array, asarray, ones, divide,\
      transpose, log, log10, Float, Float32, ravel, zeros,\
      Int16, Int32, Int, Float64, ceil, indices, \
      shape, which, where, sqrt, asum, compress, maximum, minimum, \
-     typecode, concatenate, newaxis, reshape, resize, repeat
+     typecode, concatenate, newaxis, reshape, resize, repeat, cross_correlate, nonzero
 
 import numerix.ma as ma
 
@@ -2208,7 +2208,7 @@ class Axes(Artist):
         return lines
     vlines.__doc__ = dedent(vlines.__doc__) % artist.kwdocd
 
-
+    
     #### Basic plotting
     def plot(self, *args, **kwargs):
         """
@@ -2366,6 +2366,7 @@ class Axes(Artist):
         return ret
     plot_date.__doc__ = dedent(plot_date.__doc__) % artist.kwdocd
 
+    
     def loglog(self, *args, **kwargs):
         """
         LOGLOG(*args, **kwargs)
@@ -2481,6 +2482,45 @@ class Axes(Artist):
 
         return l
     semilogy.__doc__ = dedent(semilogy.__doc__) % artist.kwdocd
+
+    def xcorr(self, x, y, normed=False, detrend=detrend_none, **kwargs):
+        """
+        Plot the cross correlation between x and y.  If normed=True,
+        normalize the data but the cross correlation at 0-th lag.  x
+        and y are deterned by the detrend callable (default no
+        normalization.  x and y must be equal length
+
+        data are plotted as plot(lags, c, **kwargs)
+
+        return value is lags, c, line where lags are a length
+        2*len(x)+1 lag vector, c is the 2*len(x)+1 cross correlation
+        vector, and line is a Line2D instance returned by plot.  The
+        default linestyle is None and the default marker is 'o',
+        though these can be overridden with keyword args.  The cross
+        correlation is performed with numerix cross_correlate with
+        mode=2.
+
+        The valid kwargs are Line2D properties:
+        %(Line2D)s
+        """
+        kwargs = kwargs.copy()
+        kwargs.setdefault('marker', 'o')
+        kwargs.setdefault('linestyle', 'None')        
+        
+        Nx = len(x)
+        assert(Nx==len(y))
+        x = detrend(asarray(x))
+        y = detrend(asarray(y))
+
+        c = cross_correlate(x, y, mode=2)
+
+        if normed: c/=c[Nx-1]
+
+        
+        lags = arange(-Nx+1,Nx)
+        line, = self.plot(lags, c, **kwargs)
+        return lags, c, line
+    xcorr.__doc__ = dedent(xcorr.__doc__) % artist.kwdocd    
 
     def legend(self, *args, **kwargs):
         """
