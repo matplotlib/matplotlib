@@ -1,3 +1,8 @@
+2007-01-10 Added "Subplot.label_outer" method.  It will set the
+           visibility of the ticklabels so that yticklabels are only
+           visible in the first column and xticklabels are only
+           visible in the last row - JDH
+
 2007-01-02 Added additional kwarg documentation - JDH
 
 2006-12-28 Improved error message for nonpositive input to log

@@ -4769,6 +4769,20 @@ class SubplotBase:
     def is_last_col(self):
         return self.colNum==self.numCols-1
 
+    def label_outer(self):
+        """
+        set the visible property on ticklabels so xticklabels are
+        visible only if the subplot is in the last row and yticklabels
+        are visible only if the subplot is in the first column
+        """
+        lastrow = self.is_last_row()
+        firstcol = self.is_first_col()
+        for label in self.get_xticklabels():
+            label.set_visible(lastrow)
+            
+        for label in self.get_yticklabels():
+            label.set_visible(firstcol)
+        
 class Subplot(SubplotBase, Axes):
     """
     Emulate matlab's(TM) subplot command, creating axes with
