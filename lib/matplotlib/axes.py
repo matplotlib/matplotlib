@@ -2483,11 +2483,33 @@ class Axes(Artist):
         return l
     semilogy.__doc__ = dedent(semilogy.__doc__) % artist.kwdocd
 
+    def acorr(self, x, normed=False, detrend=detrend_none, **kwargs):
+        """
+        Plot the autocorrelation of x.  If normed=True, normalize the
+        data but the autocorrelation at 0-th lag.  x is detrended by
+        the detrend callable (default no normalization. 
+
+        data are plotted as plot(lags, c, **kwargs)
+
+        return value is lags, c, line where lags are a length
+        2*len(x)+1 lag vector, c is the 2*len(x)+1 auto correlation
+        vector, and line is a Line2D instance returned by plot.  The
+        default linestyle is None and the default marker is 'o',
+        though these can be overridden with keyword args.  The cross
+        correlation is performed with numerix cross_correlate with
+        mode=2.
+
+        The valid kwargs are Line2D properties:
+        %(Line2D)s
+        """
+        return self.xcorr(x, x, normed, detrend, **kwargs)
+    acorr.__doc__ = dedent(acorr.__doc__) % artist.kwdocd    
+
     def xcorr(self, x, y, normed=False, detrend=detrend_none, **kwargs):
         """
         Plot the cross correlation between x and y.  If normed=True,
         normalize the data but the cross correlation at 0-th lag.  x
-        and y are deterned by the detrend callable (default no
+        and y are detrended by the detrend callable (default no
         normalization.  x and y must be equal length
 
         data are plotted as plot(lags, c, **kwargs)
