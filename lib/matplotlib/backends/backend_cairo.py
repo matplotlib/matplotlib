@@ -153,27 +153,23 @@ class RendererCairo(RendererBase):
         # bbox - not currently used
         if _debug: print '%s.%s()' % (self.__class__.__name__, _fn_name())
 
-        #if numx.which[0] == "numarray":
-        #    warnings.warn("draw_image() currently works for numpy, but not "
-        #                  "numarray")
-        #    return
-
-        #if not HAVE_CAIRO_NUMPY:
-        #    warnings.warn("cairo with Numeric support is required for "
-        #                  "draw_image()")
-        #    return
-
         im.flipud_out()
 
-        rows, cols, buf = im.buffer_argb32()  # ARGB32, but colors still wrong
-        X = numx.fromstring (buf, numx.UInt8)
-        X.shape = rows, cols, 4
+        if sys.byteorder == 'little':
+           rows, cols, str_ = im.buffer_bgra32()
+        else:
+           rows, cols, str_ = im.buffer_argb32()
+
+        X = numx.fromstring (str_, numx.UInt8)
+        surface = cairo.ImageSurface.create_for_data (X, cairo.FORMAT_ARGB32,
+                                                      rows, cols, rows*4)
+        # It would be simpler if im.buffer_*() returned a writeable buffer
+        # instead of a string, we could then bypass numx completely:
+        #surface = cairo.ImageSurface.create_for_data (
+        #              str_, cairo.FORMAT_ARGB32, rows, cols, rows*4)
 
         # function does not pass a 'gc' so use renderer.ctx
         ctx = self.ctx
-        #surface = cairo.ImageSurface.create_for_array (X)
-        surface = cairo.ImageSurface.create_for_data (X, cairo.FORMAT_ARGB32,
-                                                      rows, cols, rows*4)
         ctx.set_source_surface (surface, x, y)
         ctx.paint()
 
