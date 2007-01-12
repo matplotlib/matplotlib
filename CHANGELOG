@@ -1,3 +1,6 @@
+2007-01-12 backend_cairo.py: enable clipping. Update draw_image() so that
+           examples/contour_demo.py looks correct - SC
+
 2007-01-12 backend_cairo.py: fix draw_image() so that examples/image_demo.py
            now looks correct - SC
 
