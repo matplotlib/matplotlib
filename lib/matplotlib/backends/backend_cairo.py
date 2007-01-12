@@ -170,6 +170,7 @@ class RendererCairo(RendererBase):
 
         # function does not pass a 'gc' so use renderer.ctx
         ctx = self.ctx
+        y = self.height - y - rows
         ctx.set_source_surface (surface, x, y)
         ctx.paint()
 
@@ -472,11 +473,9 @@ class GraphicsContextCairo(GraphicsContextBase):
         ctx = self.ctx
         ctx.new_path()
         ctx.rectangle (x, self.renderer.height - h - y, w, h)
-
-        # enabline ctx.clip() causes problems:
-        # line_styles.py - only see first axes
-        # simple_plot.py - lose text
-        #ctx.clip ()
+        ctx.clip ()
+        # Alternative: just set _cliprect here and actually set cairo clip rect
+        # in fill_and_stroke() inside ctx.save() ... ctx.restore()
 
 
     def set_dashes(self, offset, dashes):
