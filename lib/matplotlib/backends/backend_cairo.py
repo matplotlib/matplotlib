@@ -128,24 +128,22 @@ class RendererCairo(RendererBase):
         #_.ctx.restore() # revert to the default attributes
 
 
-    def draw_arc(self, gc, rgbFace, x, y, width, height, angle1, angle2, rotation):
+    def draw_arc(self, gc, rgbFace, x, y, width, height, angle1, angle2,
+                 rotation):
         if _debug: print '%s.%s()' % (self.__class__.__name__, _fn_name())
-        # draws circular arcs where width=height
+        # this implementation draws circular arcs where width=height
         # FIXME
         # to get a proper arc of width/height you can use translate() and
-        # scale(), see draw_arc() manual page
+        # scale(), see cairo_arc() manual page
 
-        #radius = (height + width) / 4
         ctx = gc.ctx
         ctx.save()
+        ctx.new_path()  # prevent cairo_arc() adding to current path
         ctx.rotate(rotation)
-        ctx.scale(width / 2.0, height / 2.0)
-        ctx.arc(0.0, 0.0, 1.0, 0.0, 2*numx.pi)
+        radius = (height + width) / 4
+        ctx.arc (x, self.height - y, radius,
+                 angle1 * numx.pi/180.0, angle2 * numx.pi/180.0)
         ctx.restore()
-
-        #ctx.new_path()
-        #ctx.arc (x, self.height - y, radius,
-        #         angle1 * numx.pi/180.0, angle2 * numx.pi/180.0)
         self._fill_and_stroke (ctx, rgbFace)
 
 

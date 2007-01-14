@@ -32,7 +32,7 @@ The files that are most relevant to backend_writers are
   matplotlib/backends/__init__.py
   matplotlib/__init__.py
   matplotlib/_pylab_helpers.py
-  
+
 Naming Conventions
 
   * classes Upper or MixedUpperCase
@@ -62,15 +62,16 @@ class RendererTemplate(RendererBase):
     writing a new backend. Refer to backend_bases.RendererBase for
     documentation of the classes methods.
     """
-    def draw_arc(self, gc, rgbFace, x, y, width, height, angle1, angle2, rotation):
+    def draw_arc(self, gc, rgbFace, x, y, width, height, angle1, angle2,
+                 rotation):
         pass
-    
+
     def draw_image(self, x, y, im, bbox):
         pass
-    
+
     def draw_line(self, gc, x1, y1, x2, y2):
         pass
-    
+
     def draw_lines(self, gc, x, y):
         pass
 
@@ -83,18 +84,18 @@ class RendererTemplate(RendererBase):
     def draw_rectangle(self, gcEdge, rgbFace, x, y, width, height):
         pass
 
-    def draw_text(self, gc, x, y, s, prop, angle, ismath=False):    
+    def draw_text(self, gc, x, y, s, prop, angle, ismath=False):
         pass
-         
+
     def flipy(self):
         return True
-    
+
     def get_canvas_width_height(self):
         return 100, 100
 
     def get_text_width_height(self, s, prop, ismath):
         return 1, 1
-                              
+
     def new_gc(self):
         return GraphicsContextTemplate()
 
@@ -129,10 +130,10 @@ class GraphicsContextTemplate(GraphicsContextBase):
     """
     pass
 
-        
-        
+
+
 ########################################################################
-#    
+#
 # The following functions and classes are for pylab and implement
 # window/figure managers, etc...
 #
@@ -196,7 +197,7 @@ class FigureCanvasTemplate(FigureCanvasBase):
         """
         renderer = RendererTemplate()
         self.figure.draw(renderer)
-        
+
     def print_figure(self, filename, dpi=None, facecolor='w', edgecolor='w',
                      orientation='portrait', **kwargs):
         """
@@ -221,7 +222,7 @@ class FigureCanvasTemplate(FigureCanvasBase):
         # set the new parameters
         self.figure.dpi.set(dpi)
         self.figure.set_facecolor(facecolor)
-        self.figure.set_edgecolor(edgecolor)        
+        self.figure.set_edgecolor(edgecolor)
 
         renderer = RendererTemplate()
         self.figure.draw(renderer)
@@ -233,8 +234,8 @@ class FigureCanvasTemplate(FigureCanvasBase):
         #self.figure.set_edgecolor(origedgecolor)
         # redraw the screen if necessary
         #self.draw()
-        
-    
+
+
 class FigureManagerTemplate(FigureManagerBase):
     """
     Wrap everything up into a window for the pylab interface
@@ -244,9 +245,9 @@ class FigureManagerTemplate(FigureManagerBase):
     pass
 
 ########################################################################
-#    
+#
 # Now just provide the standard names that backend.__init__ is expecting
-# 
+#
 ########################################################################
 
 
