@@ -1,3 +1,6 @@
+2007-01-14 backend_cairo.py: update draw_arc() so that
+           examples/arctest.py looks correct - SC
+
 2007-01-12 backend_cairo.py: enable clipping. Update draw_image() so that
            examples/contour_demo.py looks correct - SC
 
