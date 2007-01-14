@@ -2,13 +2,16 @@
 """
 An animated image
 """
-import sys, time, os, gc
+import time
+
+import gobject
+import gtk
+
 import matplotlib
 matplotlib.use('GTKAgg')
 from matplotlib import rcParams
 
 from pylab import *
-import gobject, gtk
 
 fig = figure(1)
 a = subplot(111)
@@ -33,9 +36,8 @@ def updatefig(*args):
     cnt += 1
     if cnt==50:
         print 'FPS', cnt/(time.time() - tstart)
-        return gtk.FALSE
+        return False
     return True
-
 
 cnt = 0
 
