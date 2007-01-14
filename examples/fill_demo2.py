@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 from pylab import subplot, sin, pi, arange, setp, show
 ax = subplot(111)
 t = arange(0.0,3.0,0.01)
