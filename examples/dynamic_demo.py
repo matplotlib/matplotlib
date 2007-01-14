@@ -1,6 +1,6 @@
 #!/usr/bin/env python
-import pygtk
-pygtk.require('2.0')
+
+import gobject
 import gtk
 
 from pylab import *
@@ -16,13 +16,12 @@ def updatefig(*args):
     lines[0].set_data(ind, X[:,updatefig.count])
     manager.canvas.draw()
     updatefig.count += 1
-    if updatefig.count<10: return gtk.TRUE
-    else: return gtk.FALSE
+    if updatefig.count<10:
+        return True
+    else:
+        return False
 
 updatefig.count = 0
 
-gtk.timeout_add(300, updatefig)
+gobject.timeout_add(300, updatefig)
 show()
-    
-
-
