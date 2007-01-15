@@ -212,78 +212,47 @@ Image::as_rgba_str(const Py::Tuple& args, const Py::Dict& kwargs) {
 
   if (bufpair.second) delete [] bufpair.first;
   return ret;
-
-
 }
 
 
-char Image::buffer_argb32__doc__[] =
-"buffer = buffer_argb32()"
+char Image::color_conv__doc__[] =
+"numrows, numcols, buffer = color_conv(format)"
 "\n"
-"Return the image buffer as agbr32\n"
+"format 0(BGRA) or 1(ARGB)\n"
+"Convert image to format and return in a writable buffer\n"
 ;
 Py::Object
-Image::buffer_argb32(const Py::Tuple& args) {
-  //"Return the image object as argb32";
+Image::color_conv(const Py::Tuple& args) {
+  _VERBOSE("Image::color_conv");
 
-  _VERBOSE("RendererAgg::buffer_argb32");
-
-  args.verify_length(0);
-
-  int row_len = colsOut * 4;
-
-  unsigned char* buf_tmp = new unsigned char[row_len * rowsOut];
-  if (buf_tmp ==NULL)
-    throw Py::MemoryError("RendererAgg::buffer_argb32 could not allocate memory");
-
-  agg::rendering_buffer rtmp;
-  rtmp.attach(buf_tmp, colsOut, rowsOut, row_len);
-
-  agg::color_conv(&rtmp, rbufOut, agg::color_conv_rgba32_to_argb32());
-
-  //todo: how to do this with native CXX
-  //PyObject* o = Py_BuildValue("s#", buf_tmp, row_len * rowsOut);
-  PyObject* o = Py_BuildValue("lls#", rowsOut, colsOut,
-			      buf_tmp, row_len * rowsOut);
-  delete [] buf_tmp;
-  return Py::asObject(o);
-
-
-}
-
-
-char Image::buffer_bgra32__doc__[] =
-"buffer = buffer_bgra32()"
-"\n"
-"Return the image buffer as agbr32\n"
-;
-Py::Object
-Image::buffer_bgra32(const Py::Tuple& args) {
-  //"Return the image object as bgra32";
-
-  _VERBOSE("RendererAgg::buffer_bgra32");
-
-  args.verify_length(0);
+  args.verify_length(1);
+  int format = Py::Int(args[0]);
 
   int row_len = colsOut * 4;
-
-  unsigned char* buf_tmp = new unsigned char[row_len * rowsOut];
-  if (buf_tmp ==NULL)
-    throw Py::MemoryError("RendererAgg::buffer_bgra32 could not allocate memory");
+  PyObject* py_buffer = PyBuffer_New(row_len * rowsOut);
+  if (py_buffer ==NULL)
+    throw Py::MemoryError("Image::color_conv could not allocate memory");
+  unsigned char* buf;
+  int buffer_len;
+  int ret = PyObject_AsWriteBuffer(py_buffer, (void **)&buf, &buffer_len);
+  if (ret !=0)
+    throw Py::MemoryError("Image::color_conv could not allocate memory");
 
   agg::rendering_buffer rtmp;
-  rtmp.attach(buf_tmp, colsOut, rowsOut, row_len);
+  rtmp.attach(buf, colsOut, rowsOut, row_len);
 
-  agg::color_conv(&rtmp, rbufOut, agg::color_conv_rgba32_to_bgra32());
-
-  //todo: how to do this with native CXX
-  //PyObject* o = Py_BuildValue("s#", buf_tmp, row_len * rowsOut);
-  PyObject* o = Py_BuildValue("lls#", rowsOut, colsOut,
-			      buf_tmp, row_len * rowsOut);
-  delete [] buf_tmp;
+  switch (format) {
+  case 0:
+    agg::color_conv(&rtmp, rbufOut, agg::color_conv_rgba32_to_bgra32());
+    break;
+  case 1:
+    agg::color_conv(&rtmp, rbufOut, agg::color_conv_rgba32_to_argb32());
+    break;
+  default:
+    throw Py::ValueError("Image::color_conv unknown format");
+  }
+  PyObject* o = Py_BuildValue("llN", rowsOut, colsOut, py_buffer);
   return Py::asObject(o);
-
-
 }
 
 char Image::buffer_rgba__doc__[] =
@@ -302,8 +271,6 @@ Image::buffer_rgba(const Py::Tuple& args) {
   PyObject* o = Py_BuildValue("lls#", rowsOut, colsOut,
 			      rbufOut, row_len * rowsOut);
   return Py::asObject(o);
-
-
 }
 
 char Image::reset_matrix__doc__[] =
@@ -785,8 +752,7 @@ Image::init_type() {
   add_varargs_method( "apply_scaling",	&Image::apply_scaling, Image::apply_scaling__doc__);
   add_varargs_method( "apply_translation", &Image::apply_translation, Image::apply_translation__doc__);
   add_keyword_method( "as_rgba_str", &Image::as_rgba_str, Image::as_rgba_str__doc__);
-  add_varargs_method( "buffer_argb32", &Image::buffer_argb32, Image::buffer_argb32__doc__);
-  add_varargs_method( "buffer_bgra32", &Image::buffer_bgra32, Image::buffer_bgra32__doc__);
+  add_varargs_method( "color_conv", &Image::color_conv, Image::color_conv__doc__);
   add_varargs_method( "buffer_rgba", &Image::buffer_rgba, Image::buffer_rgba__doc__);
   add_varargs_method( "get_aspect", &Image::get_aspect, Image::get_aspect__doc__);
   add_varargs_method( "get_interpolation", &Image::get_interpolation, Image::get_interpolation__doc__);
