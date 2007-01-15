@@ -1,4 +1,4 @@
-/* image.h	
+/* image.h
  *
  */
 
@@ -27,8 +27,7 @@ public:
   Py::Object apply_scaling(const Py::Tuple& args);
   Py::Object apply_translation(const Py::Tuple& args);
   Py::Object as_rgba_str(const Py::Tuple& args, const Py::Dict& kwargs);
-  Py::Object buffer_argb32(const Py::Tuple& args);
-  Py::Object buffer_bgra32(const Py::Tuple& args);
+  Py::Object color_conv(const Py::Tuple& args);
   Py::Object buffer_rgba(const Py::Tuple& args);
   Py::Object reset_matrix(const Py::Tuple& args);
   Py::Object get_matrix(const Py::Tuple& args);
@@ -54,31 +53,31 @@ public:
         HANNING,
         HAMMING,
         HERMITE,
-        KAISER,  
-        QUADRIC,  
-        CATROM, 
-        GAUSSIAN, 
-        BESSEL, 
-        MITCHELL, 
-        SINC, 
-        LANCZOS, 
+        KAISER,
+        QUADRIC,
+        CATROM,
+        GAUSSIAN,
+        BESSEL,
+        MITCHELL,
+        SINC,
+        LANCZOS,
         BLACKMAN,};
 
-  //enum { BICUBIC=0, BILINEAR, BLACKMAN100, BLACKMAN256, BLACKMAN64, 
+  //enum { BICUBIC=0, BILINEAR, BLACKMAN100, BLACKMAN256, BLACKMAN64,
   //	 NEAREST, SINC144, SINC256, SINC64, SPLINE16, SPLINE36};
   enum { ASPECT_PRESERVE=0, ASPECT_FREE};
 
   agg::int8u *bufferIn;
   agg::rendering_buffer *rbufIn;
-  size_t colsIn, rowsIn;             
+  size_t colsIn, rowsIn;
 
   agg::int8u *bufferOut;
   agg::rendering_buffer *rbufOut;
-  size_t colsOut, rowsOut;             
+  size_t colsOut, rowsOut;
   unsigned BPP;
 
   unsigned interpolation, aspect;
-  agg::rgba bg;  
+  agg::rgba bg;
 private:
   Py::Dict __dict__;
   agg::trans_affine srcMatrix, imageMatrix;
@@ -87,8 +86,7 @@ private:
   static char apply_scaling__doc__[];
   static char apply_translation__doc__[];
   static char as_rgba_str__doc__[];
-  static char buffer_argb32__doc__[];
-  static char buffer_bgra32__doc__[];
+  static char color_conv__doc__[];
   static char buffer_rgba__doc__[];
   static char reset_matrix__doc__[];
   static char get_matrix__doc__[];
@@ -122,25 +120,25 @@ public:
   {
     Image::init_type();
 
-    add_varargs_method("fromarray", &_image_module::fromarray, 
+    add_varargs_method("fromarray", &_image_module::fromarray,
 		       "fromarray");
-    add_varargs_method("fromarray2", &_image_module::fromarray2, 
+    add_varargs_method("fromarray2", &_image_module::fromarray2,
 		       "fromarray2");
-    add_varargs_method("frombyte", &_image_module::frombyte, 
+    add_varargs_method("frombyte", &_image_module::frombyte,
 		       "frombyte");
-    add_varargs_method("frombuffer", &_image_module::frombuffer, 
+    add_varargs_method("frombuffer", &_image_module::frombuffer,
 		       "frombuffer");
-    add_varargs_method("readpng", &_image_module::readpng, 
+    add_varargs_method("readpng", &_image_module::readpng,
 		       "readpng");
-    add_varargs_method("from_images", &_image_module::from_images, 
+    add_varargs_method("from_images", &_image_module::from_images,
 		       "from_images");
     add_varargs_method("pcolor", &_image_module::pcolor,
                "pcolor");
     initialize( "The _image module" );
   }
-  
-  ~_image_module() {} 
-  
+
+  ~_image_module() {}
+
 private:
   Py::Object frombyte (const Py::Tuple &args);
   Py::Object frombuffer (const Py::Tuple &args);

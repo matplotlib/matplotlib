@@ -42,18 +42,18 @@ import matplotlib.numerix as numx
 from matplotlib.transforms import Bbox
 
 
-#if hasattr (cairo.ImageSurface, 'create_for_array'):
-#   HAVE_CAIRO_NUMPY = True
-#else:
-#   HAVE_CAIRO_NUMPY = False
-
-
 _debug = False
 #_debug = True
 
 # Image formats that this backend supports - for print_figure()
 IMAGE_FORMAT          = ['eps', 'pdf', 'png', 'ps', 'svg']
 IMAGE_FORMAT_DEFAULT  = 'png'
+
+# Image::color_conv(format) for draw_image()
+if sys.byteorder == 'little':
+   BYTE_FORMAT = 0 # BGRA
+else:
+   BYTE_FORMAT = 1 # ARGB
 
 
 class RendererCairo(RendererBase):
@@ -153,18 +153,9 @@ class RendererCairo(RendererBase):
 
         im.flipud_out()
 
-        if sys.byteorder == 'little':
-           rows, cols, str_ = im.buffer_bgra32()
-        else:
-           rows, cols, str_ = im.buffer_argb32()
-
-        X = numx.fromstring (str_, numx.UInt8)
-        surface = cairo.ImageSurface.create_for_data (X, cairo.FORMAT_ARGB32,
-                                                      rows, cols, rows*4)
-        # It would be simpler if im.buffer_*() returned a writeable buffer
-        # instead of a string, we could then bypass numx completely:
-        #surface = cairo.ImageSurface.create_for_data (
-        #              str_, cairo.FORMAT_ARGB32, rows, cols, rows*4)
+        rows, cols, buf = im.color_conv (BYTE_FORMAT)
+        surface = cairo.ImageSurface.create_for_data (
+                      buf, cairo.FORMAT_ARGB32, rows, cols, rows*4)
 
         # function does not pass a 'gc' so use renderer.ctx
         ctx = self.ctx
