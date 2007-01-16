@@ -1729,7 +1729,41 @@ class Axes(Artist):
                     self._connected[key].remove(item)
                     return
 
-    def pick(self, x, y, trans=None, among=None):
+    def get_children(self):
+        'return a list of child artists'
+        children = []
+        children.append(self.xaxis)
+        children.append(self.yaxis)
+        children.extend(self.lines)
+        children.extend(self.patches)
+        children.extend(self.texts)
+        children.extend(self.tables)
+        children.extend(self.artists)
+        children.extend(self.images)
+        if self.legend_ is not None:
+            children.extend(self.legend_)
+        children.extend(self.collections)
+        children.append(self.title)
+        children.append(self.axesPatch)
+        children.append(self.axesFrame)
+        return children
+    
+    def pick(self, *args):
+        """
+        pick(mouseevent)
+
+        each child artist will fire a pick event if mouseevent is over
+        the artist and the artist has pickeps set
+        """
+        if len(args)>1:
+            raise DeprecationWarning('New pick API implemented -- see API_CHANGES in the src distribution')
+        mouseevent = args[0]
+        for a in self.get_children():
+            a.pick(mouseevent)
+        
+            
+
+    def __pick(self, x, y, trans=None, among=None):
         """
         Return the artist under point that is closest to the x, y.  if trans
         is None, x, and y are in window coords, 0,0 = lower left.  Otherwise,

@@ -11,7 +11,7 @@ import sys, math, warnings
 import agg
 from numerix import Float, alltrue, arange, array, logical_and,\
      nonzero, searchsorted, take, asarray, ones, where, less, ravel, \
-     greater, logical_and, cos, sin, pi,\
+     greater, logical_and, cos, sin, pi, sqrt, less_equal, \
      compress, zeros, concatenate, cumsum, typecode, NewAxis
 import numerix.ma as ma
 from matplotlib import verbose
@@ -225,6 +225,31 @@ class Line2D(Artist):
 
         if len(kwargs): setp(self, **kwargs)
 
+    def pick(self, mouseevent):
+        if not self.pickable(): return 
+
+        if self._newstyle:
+            # transform in backend
+            x = self._x
+            y = self._y
+        else:
+            x, y = self._get_plottable()
+
+        if len(x)==0: return
+        xt, yt = self.get_transform().numerix_x_y(x, y)
+
+        d = sqrt((xt-mouseevent.x)**2. + (yt-mouseevent.y)**2.)
+        pixels = self.figure.dpi.get()/72. * self.get_pickeps()
+        ind = nonzero(less_equal(d, pixels))
+        if 0:
+            print 'xt', xt, mouseevent.x
+            print 'yt', yt, mouseevent.y
+            print 'd', (xt-mouseevent.x)**2., (yt-mouseevent.y)**2.
+            print d, pixels, ind
+        if len(ind):
+            self.figure.canvas.pick_event(mouseevent, self, ind=ind)
+        
+
     def get_window_extent(self, renderer):
         self._newstyle = hasattr(renderer, 'draw_markers')
         if self._newstyle:
@@ -333,6 +358,7 @@ class Line2D(Artist):
 
         self._logcache = logx, logy, x, y
         return x, y
+
 
     def draw(self, renderer):
         #renderer.open_group('line2d')

@@ -1,3 +1,9 @@
+    All artists now implement a "pick" method which users should not
+    call.  Rather, set the "pickeps" property of any artist you want
+    to pick on (the epsilon distance in points for a hit test) and
+    register with the "pick_event" callback.  See
+    examples/pick_event_demo.py
+
     Bar, barh, and hist have "log" binary kwarg: log=True
     sets the ordinate to a log scale.
 
