@@ -1,4 +1,7 @@
-2007-01-15 src/_image.cpp combine buffer_argb32() and buffer_bgra32() into
+2007-01-16 src/_image.cpp: update to use Py_ssize_t (for 64-bit systems).
+           Use return value of fread() to prevent warning messages - SC.
+
+2007-01-15 src/_image.cpp: combine buffer_argb32() and buffer_bgra32() into
            a new method color_conv(format) - SC
 
 2007-01-14 backend_cairo.py: update draw_arc() so that
