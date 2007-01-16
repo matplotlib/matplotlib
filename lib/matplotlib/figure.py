@@ -160,6 +160,21 @@ class Figure(Artist):
 
         self._cachedRenderer = None
 
+    def get_children(self):
+        'get a list of artists contained in the figure'
+        children = [self.figurePatch]
+        children.extend(self.axes)
+        children.extend(self.lines)
+        children.extend(self.patches)
+        children.extend(self.texts)
+        children.extend(self.images)
+        children.extend(self.legends)
+        return children
+    
+    def pick(self, mouseevent):
+        for a in self.get_children():
+            a.pick(mouseevent)
+    
     def get_window_extent(self, *args, **kwargs):
         'get the figure bounding box in display space; kwargs are void'
         return self.bbox

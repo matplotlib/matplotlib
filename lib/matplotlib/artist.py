@@ -39,6 +39,7 @@ class Artist:
         self._clipon = False
         self._lod = False
         self._label = ''
+        self._pickeps = None
 
         self.eventson = False  # fire events only if eventson
         self._oid = 0  # an observer id
@@ -78,6 +79,33 @@ class Artist:
         if self._transform is None:
             self._transform = identity_transform()
         return self._transform
+
+
+    def pickable(self):
+        'return True if self is pickable'
+        return (self.figure is not None and
+                self.figure.canvas is not None and
+                self._pickeps is not None)
+
+    def pick(self, mouseevent):
+        """
+        the user picked location x,y; if this Artist is within pickeps
+        "pick epsilon" of x,y fire off a pick event
+        """
+        # if mouseevent x, y are within pickeps call self.figure.canvas.pick_event(self, mouseevent)
+        pass
+    
+    def set_pickeps(self, eps):
+        """
+        set the epsilon for picking used by this artist in points
+
+        ACCEPTS: a floating point number in points or None
+        """
+        self._pickeps = eps
+
+    def get_pickeps(self):
+        'return the Pickepsation instance used by this artist'
+        return self._pickeps
 
     def is_figure_set(self):
         return self.figure is not None

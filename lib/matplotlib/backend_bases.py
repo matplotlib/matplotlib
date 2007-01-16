@@ -661,6 +661,7 @@ class Event:
         self.canvas = canvas
         self.guiEvent = guiEvent
 
+    
 class DrawEvent(Event):
     """
     An event triggered by a draw operation on the canvas
@@ -779,6 +780,25 @@ class MouseEvent(LocationEvent):
         self.button = button
         self.key = key
 
+class PickEvent(Event):
+    """
+    a pick event, fired when the user picks a location on the canvas
+    sufficiently close to an artist.
+
+    Attrs: all the Event attrs plus
+    mouseevent : the MouseEvent that generated the pick
+    artist    : the artist picked
+
+    extra class dependent attrs -- eg a Line2D pick may define
+    different extra attributes than a PatchCollection pick event
+    """
+    def __init__(self, name, canvas, mouseevent, artist, guiEvent=None, **kwargs):
+        Event.__init__(self, name, canvas, guiEvent)
+        self.mouseevent = mouseevent
+        self.artist = artist
+        self.__dict__.update(kwargs)
+        
+
 class KeyEvent(LocationEvent):
     """
     A key event (key press, key release).
@@ -820,6 +840,7 @@ class FigureCanvasBase:
         'button_press_event',
         'button_release_event',
         'motion_notify_event',
+        'pick_event', 
               )
 
     def __init__(self, figure):
@@ -868,6 +889,15 @@ class FigureCanvasBase:
             func(event)
         self._key = None
 
+    def pick_event(self, mouseevent, artist, **kwargs):
+        """
+        This method will be called by artists who are picked and will
+        fire off PickEvent callbacks registered listeners
+        """
+        event = PickEvent('pick_event', self, mouseevent, artist, **kwargs)
+        for func in self.callbacks.get('pick_event', {}).values():
+            func(event)
+            
     def button_press_event(self, x, y, button, guiEvent=None):
         """
         Backend derived classes should call this function on any mouse
@@ -875,10 +905,13 @@ class FigureCanvasBase:
         button and key are as defined in MouseEvent
         """
         self._button = button
-        event = MouseEvent('button_press_event', self, x, y, button, self._key, guiEvent=guiEvent)
+        mouseevent = MouseEvent('button_press_event', self, x, y, button, self._key, guiEvent=guiEvent)
         for func in self.callbacks.get('button_press_event', {}).values():
-            func(event)
+            func(mouseevent)
 
+        if not self.widgetlock.locked():
+            self.figure.pick(mouseevent)
+        
     def button_release_event(self, x, y, button, guiEvent=None):
         """
         Backend derived classes should call this function on any mouse
@@ -988,6 +1021,7 @@ class FigureCanvasBase:
         'button_press_event',
         'button_release_event',
         'motion_notify_event',
+        'pick_event', 
         )
 
         if s not in legit: raise ValueError('Unrecognized event "%s"'%s)

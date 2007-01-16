@@ -13,9 +13,6 @@ from lines import Line2D
 from numerix import array
 from transforms import blend_xy_sep_transform
 
-import thread
-
-
 class LockDraw:
     """
     some widgets, like the cursor, draw onto the canvas, and this is not
