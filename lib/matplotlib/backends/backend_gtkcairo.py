@@ -7,7 +7,7 @@ if gtk.pygtk_version < (2,7,0):
     import cairo.gtk
 
 from matplotlib.backends import backend_cairo
-from   matplotlib.backends.backend_gtk import *
+from matplotlib.backends.backend_gtk import *
 
 backend_version = 'PyGTK(%d.%d.%d) ' % gtk.pygtk_version + \
                   'Pycairo(%s)' % backend_cairo.backend_version

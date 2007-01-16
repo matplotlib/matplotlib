@@ -232,14 +232,16 @@ Image::color_conv(const Py::Tuple& args) {
   PyObject* py_buffer = PyBuffer_New(row_len * rowsOut);
   if (py_buffer ==NULL)
     throw Py::MemoryError("Image::color_conv could not allocate memory");
-  unsigned char* buf;
-  int buffer_len;
-  int ret = PyObject_AsWriteBuffer(py_buffer, (void **)&buf, &buffer_len);
+
+  void* buf;
+  Py_ssize_t buffer_len;
+  int ret = PyObject_AsWriteBuffer(py_buffer, &buf, &buffer_len);
   if (ret !=0)
     throw Py::MemoryError("Image::color_conv could not allocate memory");
 
   agg::rendering_buffer rtmp;
-  rtmp.attach(buf, colsOut, rowsOut, row_len);
+  rtmp.attach(reinterpret_cast<unsigned char*>(buf), colsOut, rowsOut,
+	      row_len);
 
   switch (format) {
   case 0:
@@ -869,7 +871,8 @@ _image_module::readpng(const Py::Tuple& args) {
   if (!fp)
     throw Py::RuntimeError(Printf("_image_module::readpng could not open PNG file %s for reading", fname.c_str()).str());
 
-  fread(header, 1, 8, fp);
+  if (fread(header, 1, 8, fp) != 8)
+    throw Py::RuntimeError("_image_module::readpng: error reading PNG header");
   if (png_sig_cmp(header, 0, 8))
     throw Py::RuntimeError("_image_module::readpng: file not recognized as a PNG file");
 
