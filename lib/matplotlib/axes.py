@@ -1741,7 +1741,7 @@ class Axes(Artist):
         children.extend(self.artists)
         children.extend(self.images)
         if self.legend_ is not None:
-            children.extend(self.legend_)
+            children.append(self.legend_)
         children.extend(self.collections)
         children.append(self.title)
         children.append(self.axesPatch)
