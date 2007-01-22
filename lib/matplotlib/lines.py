@@ -17,7 +17,7 @@ import numerix.ma as ma
 from matplotlib import verbose
 import artist
 from artist import Artist, setp
-from cbook import iterable, is_string_like
+from cbook import iterable, is_string_like, is_numlike
 from colors import colorConverter
 
 from transforms import lbwh_to_bbox, LOG10
@@ -226,6 +226,12 @@ class Line2D(Artist):
         if len(kwargs): setp(self, **kwargs)
 
     def pick(self, mouseevent):
+        """
+        If mouseevent is over data within the pickeps spsilon
+        tolerance, fire off a backend_bases.PickEvent with the
+        additional attribute"ind" which is a sequence of indices
+        into the data that meet the epsilon criteria
+        """
         if not self.pickable(): return 
 
         if self._newstyle:
@@ -235,20 +241,27 @@ class Line2D(Artist):
         else:
             x, y = self._get_plottable()
 
-        if len(x)==0: return
-        xt, yt = self.get_transform().numerix_x_y(x, y)
+        pickeps = self.get_pickeps()
+        if is_numlike(pickeps):
+            if len(x)==0: return
+            xt, yt = self.get_transform().numerix_x_y(x, y)
 
-        d = sqrt((xt-mouseevent.x)**2. + (yt-mouseevent.y)**2.)
-        pixels = self.figure.dpi.get()/72. * self.get_pickeps()
-        ind = nonzero(less_equal(d, pixels))
-        if 0:
-            print 'xt', xt, mouseevent.x
-            print 'yt', yt, mouseevent.y
-            print 'd', (xt-mouseevent.x)**2., (yt-mouseevent.y)**2.
-            print d, pixels, ind
-        if len(ind):
-            self.figure.canvas.pick_event(mouseevent, self, ind=ind)
-        
+            d = sqrt((xt-mouseevent.x)**2. + (yt-mouseevent.y)**2.)
+            pixels = self.figure.dpi.get()/72. * pickeps
+            ind = nonzero(less_equal(d, pixels))
+            if 0:
+                print 'xt', xt, mouseevent.x
+                print 'yt', yt, mouseevent.y
+                print 'd', (xt-mouseevent.x)**2., (yt-mouseevent.y)**2.
+                print d, pixels, ind
+            if len(ind):
+                self.figure.canvas.pick_event(mouseevent, self, ind=ind)
+        elif callable(pickeps):
+            hit, props = pickeps(self, mouseevent)
+            if hit:
+                self.figure.canvas.pick_event(mouseevent, self, **props)
+                
+            
 
     def get_window_extent(self, renderer):
         self._newstyle = hasattr(renderer, 'draw_markers')

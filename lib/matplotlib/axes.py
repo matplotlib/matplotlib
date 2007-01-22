@@ -2696,7 +2696,8 @@ class Axes(Artist):
     def bar(self, left, height, width=0.8, bottom=None,
             color=None, edgecolor=None, linewidth=None,
             yerr=None, xerr=None, ecolor=None, capsize=3,
-            align='edge', orientation='vertical', log=False
+            align='edge', orientation='vertical', log=False, 
+            **kwargs
             ):
         """
         BAR(left, height, width=0.8, bottom=0,
@@ -2757,6 +2758,9 @@ class Axes(Artist):
 
         This enables you to use bar as the basis for stacked bar
         charts, or candlestick plots
+
+        Optional kwargs:
+        %(Rectangle)s
         """
         if not self._hold: self.cla()
 
@@ -2875,6 +2879,7 @@ class Axes(Artist):
                 edgecolor=e,
                 linewidth=lw,
                 )
+            r.update(kwargs)
             self.add_patch(r)
             patches.append(r)
 
@@ -2909,7 +2914,7 @@ class Axes(Artist):
             self.dataLim.intervaly().set_bounds(ymin, ymax)
         self.autoscale_view()
         return patches
-
+    bar.__doc__ = dedent(bar.__doc__) % artist.kwdocd
 
     def barh(self, bottom, width, height=0.8, left=None,
              color=None, edgecolor=None, linewidth=None,
