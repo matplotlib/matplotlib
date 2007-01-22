@@ -8,6 +8,7 @@ from cbook import enumerate, popd, dedent
 from colors import colorConverter
 from lines import Line2D
 from transforms import bound_vertices
+import matplotlib.nxutils as nxutils
 
 from numerix.mlab import amin
 from mlab import dist_point_to_segment
@@ -77,6 +78,24 @@ class Patch(Artist):
         if len(kwargs): setp(self, **kwargs)
     __init__.__doc__ = dedent(__init__.__doc__) % kwdocd
 
+    def pick(self, mouseevent):
+        """
+        if the mouse click is inside the vertices defining the patch, fire off a backend_bases.PickEvent
+        """
+        if not self.pickable(): return
+        pickeps = self.get_pickeps()
+        if is_numlike(pickeps):
+            x, y = mouseevent.xdata, mouseevent.ydata
+            xyverts = self.get_verts()
+            inside = nxutils.pnpoly(x, y, xyverts)
+            if inside:
+                self.figure.canvas.pick_event(mouseevent, self)
+        elif callable(pickeps):
+            hit, props = pickeps(self, mouseevent)
+            if hit:
+                self.figure.canvas.pick_event(mouseevent, self, **props)
+        
+        
     def update_from(self, other):
         Artist.update_from(self, other)
         self.set_edgecolor(other.get_edgecolor())

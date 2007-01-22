@@ -97,7 +97,19 @@ class Artist:
     
     def set_pickeps(self, eps):
         """
-        set the epsilon for picking used by this artist in points
+        set the epsilon for picking used by this artist; typically
+        this will be in points but different derived classes of
+        Artists may interpret it differently.  For example, for
+        polygons, we want to detect a hit if the pick is inside the
+        polygon so setting eps=True will suffice to enable picking for
+        that artist.  if eps is a callable, the artist will use it with the signature
+
+          hit, props = eps(artist, mouseevent)
+
+        to determine the hit test.  if the mouse event is over the
+        artist, return hit=True and props is a dictionary of
+        properties you want added to the PickEvent attributes
+        
 
         ACCEPTS: a floating point number in points or None
         """
