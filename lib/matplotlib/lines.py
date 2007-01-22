@@ -227,10 +227,9 @@ class Line2D(Artist):
 
     def pick(self, mouseevent):
         """
-        If mouseevent is over data within the pickeps spsilon
-        tolerance, fire off a backend_bases.PickEvent with the
-        additional attribute"ind" which is a sequence of indices
-        into the data that meet the epsilon criteria
+        If mouseevent is over data that satisifies the picker, fire
+        off a backend_bases.PickEvent with the additional attribute"ind"
+        which is a sequence of indices into the data that meet the criteria
         """
         if not self.pickable(): return 
 
@@ -241,13 +240,14 @@ class Line2D(Artist):
         else:
             x, y = self._get_plottable()
 
-        pickeps = self.get_pickeps()
-        if is_numlike(pickeps):
+        picker = self.get_picker()
+        if is_numlike(picker):
+            eps = picker # epsilon tolerance in points
             if len(x)==0: return
             xt, yt = self.get_transform().numerix_x_y(x, y)
 
             d = sqrt((xt-mouseevent.x)**2. + (yt-mouseevent.y)**2.)
-            pixels = self.figure.dpi.get()/72. * pickeps
+            pixels = self.figure.dpi.get()/72. * eps
             ind = nonzero(less_equal(d, pixels))
             if 0:
                 print 'xt', xt, mouseevent.x
@@ -256,8 +256,8 @@ class Line2D(Artist):
                 print d, pixels, ind
             if len(ind):
                 self.figure.canvas.pick_event(mouseevent, self, ind=ind)
-        elif callable(pickeps):
-            hit, props = pickeps(self, mouseevent)
+        elif callable(picker):
+            hit, props = picker(self, mouseevent)
             if hit:
                 self.figure.canvas.pick_event(mouseevent, self, **props)
                 

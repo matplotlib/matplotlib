@@ -120,7 +120,7 @@ class Tick(Artist):
         pick(mouseevent)
 
         each child artist will fire a pick event if mouseevent is over
-        the artist and the artist has pickeps set
+        the artist and the artist has picker set
         """
         for a in self.get_children():
             a.pick(mouseevent)
@@ -524,7 +524,7 @@ class Axis(Artist):
         pick(mouseevent)
 
         each child artist will fire a pick event if mouseevent is over
-        the artist and the artist has pickeps set
+        the artist and the artist has picker set
         """
         for a in self.get_children():
             a.pick(mouseevent)
