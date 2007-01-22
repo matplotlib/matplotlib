@@ -26,6 +26,7 @@ class AxesImage(Artist, cm.ScalarMappable):
                  extent=None,
                  filternorm=1,
                  filterrad=4.0,
+                 **kwargs
                  ):
 
         """
@@ -37,6 +38,8 @@ class AxesImage(Artist, cm.ScalarMappable):
         extent is a data xmin, xmax, ymin, ymax for making image plots
         registered with data plots.  Default is the image dimensions
         in pixels
+
+        Additional kwargs are matplotlib.artist properties
 
         """
         Artist.__init__(self)
@@ -81,6 +84,8 @@ class AxesImage(Artist, cm.ScalarMappable):
 
         self._imcache = None
 
+        self.update(kwargs)
+        
     def get_size(self):
         'Get the numrows, numcols of the input image'
         if self._A is None:
@@ -106,6 +111,7 @@ class AxesImage(Artist, cm.ScalarMappable):
         self._imcache = None
         cm.ScalarMappable.changed(self)
 
+        
     def make_image(self, magnification=1.0):
         if self._A is None:
             raise RuntimeError('You must first set the image array or the image attribute')
@@ -176,6 +182,23 @@ class AxesImage(Artist, cm.ScalarMappable):
         l, b, widthDisplay, heightDisplay = self.axes.bbox.get_bounds()
         renderer.draw_image(l, b, im, self.axes.bbox)
 
+    def pick(self, mouseevent):
+        'return true if the data coords of mouse click are within the extent of the image'
+        if not self.pickable(): return 
+        picker = self.get_picker()
+        if callable(picker):
+            hit, props = picker(self, mouseevent)
+            if hit:
+                self.figure.canvas.pick_event(mouseevent, self, **props)
+        elif picker:
+            xmin, xmax, ymin, ymax = self.get_extent()
+            xdata, ydata = mouseevent.xdata, mouseevent.ydata
+            #print xdata, ydata, xmin, xmax, ymin, ymax
+            if (xdata is not None and ydata is not None and
+                xdata>=xmin and xdata<=xmax and ydata>=ymin and ydata<=ymax):
+                self.figure.canvas.pick_event(mouseevent, self)
+            
+        
     def write_png(self, fname, noscale=False):
         """Write the image to png file with fname"""
         im = self.make_image()

@@ -888,6 +888,7 @@ class Axes(Artist):
         artists.extend(self.patches)
         artists.extend(self.texts)
         artists.extend(self.collections)
+        artists.extend(self.images)        
         if self.legend_ is not None:
             artists.append(self.legend_)
         return silent_list('Artist', artists)
@@ -3956,7 +3957,8 @@ class Axes(Artist):
                shape=None,
                filternorm=1,
                filterrad=4.0,
-               imlim=None):
+               imlim=None,
+               **kwargs):
         """
 
         IMSHOW(X, cmap=None, norm=None, aspect=None, interpolation=None,
@@ -4036,6 +4038,8 @@ class Axes(Artist):
          * filterrad: the filter radius for filters that have a radius
            parameter, ie when interpolation is one of: 'sinc',
            'lanczos' or 'blackman'
+
+        Additional kwargs are matplotlib.artist properties
         """
 
         if not self._hold: self.cla()
@@ -4046,10 +4050,11 @@ class Axes(Artist):
         self.set_aspect(aspect)
         im = AxesImage(self, cmap, norm, interpolation, origin, extent,
                        filternorm=filternorm,
-                       filterrad=filterrad)
+                       filterrad=filterrad, **kwargs)
 
         im.set_data(X)
         im.set_alpha(alpha)
+        self._set_artist_props(im)
         #if norm is None and shape is None:
         #    im.set_clim(vmin, vmax)
         if vmin is not None or vmax is not None:
