@@ -84,16 +84,17 @@ class Patch(Artist):
         """
         if not self.pickable(): return
         pickeps = self.get_pickeps()
-        if is_numlike(pickeps):
-            x, y = mouseevent.xdata, mouseevent.ydata
-            xyverts = self.get_verts()
-            inside = nxutils.pnpoly(x, y, xyverts)
-            if inside:
-                self.figure.canvas.pick_event(mouseevent, self)
-        elif callable(pickeps):
+        if callable(pickeps):
             hit, props = pickeps(self, mouseevent)
             if hit:
                 self.figure.canvas.pick_event(mouseevent, self, **props)
+        else:
+            x, y = mouseevent.xdata, mouseevent.ydata
+            if x is not None and y is not None:
+                xyverts = self.get_verts()
+                inside = nxutils.pnpoly(x, y, xyverts)
+                if inside:
+                    self.figure.canvas.pick_event(mouseevent, self)
         
         
     def update_from(self, other):

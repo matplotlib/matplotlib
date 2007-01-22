@@ -111,6 +111,20 @@ class Tick(Artist):
         self.label1On = label1On
         self.label2On = label2On
 
+    def get_children(self):
+        children = [self.tick1line, self.tick2line, self.gridline, self.label1, self.label2]
+        return children
+    
+    def pick(self, mouseevent):
+        """
+        pick(mouseevent)
+
+        each child artist will fire a pick event if mouseevent is over
+        the artist and the artist has pickeps set
+        """
+        for a in self.get_children():
+            a.pick(mouseevent)
+
     def set_pad(self, val):
         """
         Set the tick label pad in points
@@ -498,6 +512,22 @@ class Axis(Artist):
         self.minorTicks = []
 
         self.cla()
+
+    def get_children(self):
+        children = [self.label]
+        children.extend(self.majorTicks)
+        children.extend(self.minorTicks)
+        return children
+    
+    def pick(self, mouseevent):
+        """
+        pick(mouseevent)
+
+        each child artist will fire a pick event if mouseevent is over
+        the artist and the artist has pickeps set
+        """
+        for a in self.get_children():
+            a.pick(mouseevent)
 
     def cla(self):
         'clear the current axis'
