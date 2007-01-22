@@ -16,6 +16,7 @@ from numerix import sin, cos, pi, cumsum, dot, asarray, array, \
 from transforms import lbwh_to_bbox, bbox_all, identity_transform
 from lines import Line2D
 
+import matplotlib.nxutils as nxutils
 import artist
 
 def scanner(s):
@@ -162,6 +163,28 @@ class Text(Artist):
         self.update(kwargs)
         #self.set_bbox(dict(pad=0))
 
+
+    def pick(self, mouseevent):
+        """
+        if the mouse click is inside the vertices defining the
+        bounding box of the text, fire off a backend_bases.PickEvent
+        """
+        if not self.pickable(): return
+        pickeps = self.get_pickeps()
+        if callable(pickeps):
+            hit, props = pickeps(self, mouseevent)
+            if hit:
+                self.figure.canvas.pick_event(mouseevent, self, **props)
+        else:
+            l,b,w,h = self.get_window_extent().get_bounds()
+            r = l+w
+            t = b+h
+            xyverts = (l,b), (l, t), (r, t), (r, b)
+            x, y = mouseevent.x, mouseevent.y
+            inside = nxutils.pnpoly(x, y, xyverts)
+            if inside:
+                self.figure.canvas.pick_event(mouseevent, self)
+
     def _get_multialignment(self):
         if self._multialignment is not None: return self._multialignment
         else: return self._horizontalalignment
@@ -192,7 +215,7 @@ class Text(Artist):
         self._horizontalalignment = other._horizontalalignment
         self._fontproperties = other._fontproperties.copy()
         self._rotation = other._rotation
-
+        self._pickeps = other._pickeps
 
     def _get_layout(self, renderer):
 
