@@ -69,13 +69,12 @@ from matplotlib.patches import Patch, Rectangle
 from matplotlib.text import Text
 from matplotlib.image import AxesImage
 
-if 0:
-    # pick the points on a line with a 5 point tolerance
+if 1: # simple picking, lines, rectangles and text
     fig = figure()
     ax1 = fig.add_subplot(211)
     ax1.set_title('click on points, rectangles or text', picker=True)
     ax1.set_ylabel('ylabel', picker=True, bbox=dict(facecolor='red'))
-    line, = ax1.plot(nx.mlab.rand(100), 'o', picker=5)
+    line, = ax1.plot(nx.mlab.rand(100), 'o', picker=5)  # 5 points tolerance
 
     # pick the rectangle
     ax2 = fig.add_subplot(212)
@@ -103,7 +102,7 @@ if 0:
 
     fig.canvas.mpl_connect('pick_event', onpick1)
 
-if 0:
+if 1: # picking with a custom hit test function
     # you can define custom pickers by setting picker to a callable
     # function.  The function has the signature
     #
@@ -144,7 +143,8 @@ if 0:
     fig.canvas.mpl_connect('pick_event', onpick2)
 
 
-if 0:
+if 1: # picking on a scatter plot (matplotlib.collections.RegularPolyCollection)
+    
     x, y, c, s = nx.mlab.rand(4, 100)
     def onpick3(event):
         ind = event.ind
@@ -156,7 +156,7 @@ if 0:
     #fig.savefig('pscoll.eps')
     fig.canvas.mpl_connect('pick_event', onpick3)
 
-if 1: # picking images
+if 1: # picking images (matplotlib.image.AxesImage)
     fig = figure()
     ax1 = fig.add_subplot(111)
     im1 = ax1.imshow(nx.rand(10,5), extent=(1,2,1,2), picker=True)
