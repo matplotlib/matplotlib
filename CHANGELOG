@@ -1,3 +1,8 @@
+2007-01-22 Extended the new picker API to text, patches and patch
+           collections.  Added support for user customizable pick hit
+           testing and attribute tagging of the PickEvent - Details
+           and examples in examples/pick_event_demo.py - JDH
+
 2007-01-16 Begun work on a new pick API using the mpl event handling
            frameowrk.  Artists will define their own pick method with
            a configurable epsilon tolerance and return pick attrs.
