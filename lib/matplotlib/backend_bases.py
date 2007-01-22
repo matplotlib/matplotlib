@@ -256,6 +256,7 @@ class RendererBase:
         if clipbox is not None:
             gc.set_clip_rectangle(clipbox.get_bounds())
 
+
         for i in xrange(N):
             polyverts = verts[i % Nverts]
             if any(isnan(polyverts)):

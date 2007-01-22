@@ -39,7 +39,7 @@ class Artist:
         self._clipon = False
         self._lod = False
         self._label = ''
-        self._pickeps = None
+        self._picker = None
 
         self.eventson = False  # fire events only if eventson
         self._oid = 0  # an observer id
@@ -85,39 +85,53 @@ class Artist:
         'return True if self is pickable'
         return (self.figure is not None and
                 self.figure.canvas is not None and
-                self._pickeps is not None)
+                self._picker is not None)
 
     def pick(self, mouseevent):
         """
-        the user picked location x,y; if this Artist is within pickeps
+        the user picked location x,y; if this Artist is within picker
         "pick epsilon" of x,y fire off a pick event
         """
-        # if mouseevent x, y are within pickeps call self.figure.canvas.pick_event(self, mouseevent)
+        # if mouseevent x, y are within picker call self.figure.canvas.pick_event(self, mouseevent)
         pass
     
-    def set_pickeps(self, eps):
+    def set_picker(self, picker):
         """
-        set the epsilon for picking used by this artist; typically
-        this will be in points but different derived classes of
-        Artists may interpret it differently.  For example, for
-        polygons, we want to detect a hit if the pick is inside the
-        polygon so setting eps=True will suffice to enable picking for
-        that artist.  if eps is a callable, the artist will use it with the signature
+        set the epsilon for picking used by this artist
 
-          hit, props = eps(artist, mouseevent)
+        picker can be one of the following:
 
-        to determine the hit test.  if the mouse event is over the
-        artist, return hit=True and props is a dictionary of
-        properties you want added to the PickEvent attributes
+          None -  picking is disabled for this artist (default)
+
+          boolean - if True then picking will be enabled and the
+            artist will fire a pick event if the mouse event is over
+            the artist
         
+          float - if picker is a number it is interpreted as an
+            epsilon tolerance in points and the the artist will fire
+            off an event if it's data is within epsilon of the mouse
+            event.  For some artists like lines and patch collections,
+            the artist may provide additional data to the pick event
+            that is generated, eg the indices of the data within
+            epsilon of the pick event
 
-        ACCEPTS: a floating point number in points or None
+          function - if picker is callable, it is a user supplied
+            function which determines whether the artist is hit by the
+            mouse event.
+
+              hit, props = picker(artist, mouseevent)
+
+            to determine the hit test.  if the mouse event is over the
+            artist, return hit=True and props is a dictionary of
+            properties you want added to the PickEvent attributes
+
+        ACCEPTS: [None|float|boolean|callable]
         """
-        self._pickeps = eps
+        self._picker = picker
 
-    def get_pickeps(self):
-        'return the Pickepsation instance used by this artist'
-        return self._pickeps
+    def get_picker(self):
+        'return the Pickeration instance used by this artist'
+        return self._picker
 
     def is_figure_set(self):
         return self.figure is not None

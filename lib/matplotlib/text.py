@@ -170,12 +170,12 @@ class Text(Artist):
         bounding box of the text, fire off a backend_bases.PickEvent
         """
         if not self.pickable(): return
-        pickeps = self.get_pickeps()
-        if callable(pickeps):
-            hit, props = pickeps(self, mouseevent)
+        picker = self.get_picker()
+        if callable(picker):
+            hit, props = picker(self, mouseevent)
             if hit:
                 self.figure.canvas.pick_event(mouseevent, self, **props)
-        else:
+        elif picker:
             l,b,w,h = self.get_window_extent().get_bounds()
             r = l+w
             t = b+h
@@ -215,7 +215,7 @@ class Text(Artist):
         self._horizontalalignment = other._horizontalalignment
         self._fontproperties = other._fontproperties.copy()
         self._rotation = other._rotation
-        self._pickeps = other._pickeps
+        self._picker = other._picker
 
     def _get_layout(self, renderer):
 

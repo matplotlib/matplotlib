@@ -1753,7 +1753,7 @@ class Axes(Artist):
         pick(mouseevent)
 
         each child artist will fire a pick event if mouseevent is over
-        the artist and the artist has pickeps set
+        the artist and the artist has picker set
         """
         if len(args)>1:
             raise DeprecationWarning('New pick API implemented -- see API_CHANGES in the src distribution')

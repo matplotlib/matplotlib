@@ -17,9 +17,10 @@ from cbook import is_string_like, iterable, dedent
 from colors import colorConverter
 from cm import ScalarMappable
 from numerix import arange, sin, cos, pi, asarray, sqrt, array, newaxis, ones
+from numerix import isnan, any
 from transforms import identity_transform
 
-
+import matplotlib.nxutils as nxutils
 
 class Collection(Artist):
     """
@@ -139,7 +140,62 @@ class PatchCollection(Collection, ScalarMappable):
         self._antialiaseds = antialiaseds
         self._offsets = offsets
         self._transOffset = transOffset
+        self._verts = []        
     __init__.__doc__ = dedent(__init__.__doc__) % kwdocd
+
+
+    def pick(self, mouseevent):
+        """
+        fire a pick event with the index into the data if the mouse
+        click is within the patch
+        """
+        if not self.pickable(): return
+        ind = []
+        x, y = mouseevent.x, mouseevent.y
+        for i, thispoly in enumerate(self.get_transformed_patches()):            
+            inside = nxutils.pnpoly(x, y, thispoly)
+            if inside: ind.append(i)
+        if len(ind):
+            self.figure.canvas.pick_event(mouseevent, self, ind=ind)
+        
+        
+    def get_transformed_patches(self):
+        """
+        get a sequence of the polygons in the collection in display (transformed) space
+
+        The ith element in the returned sequence is a list of x,y
+        vertices defining the ith polygon
+        """
+
+        verts = self._verts
+        offsets = self._offsets
+        usingOffsets = offsets is not None
+        transform = self.get_transform()
+        transOffset = self.get_transoffset()
+        Noffsets = 0
+        Nverts = len(verts)
+        if usingOffsets:
+            Noffsets = len(offsets)
+
+        N = max(Noffsets, Nverts)
+
+        data = []
+        print 'verts N=%d, Nverts=%d'%(N, Nverts), verts
+        print 'offsets; Noffsets=%d'%Noffsets
+        for i in xrange(N):
+            print 'i%%Nverts=%d'%(i%Nverts)
+            polyverts = verts[i % Nverts]
+            if any(isnan(polyverts)):
+                continue
+            print 'thisvert', i, polyverts
+            tverts = transform.seq_xy_tups(polyverts)
+            if usingOffsets:
+                print 'using offsets'
+                xo,yo = transOffset.xy_tup(offsets[i % Noffsets])
+                tverts = [(x+xo,y+yo) for x,y in tverts]
+
+            data.append(tverts)
+        return data
 
     def get_transoffset(self):
         if self._transOffset is None:
@@ -306,14 +362,14 @@ class PolyCollection(PatchCollection):
         transoffset.thaw()
         renderer.close_group('polycollection')
 
-
+        
     def get_verts(self, dataTrans=None):
         '''Return vertices in data coordinates.
         The calculation is incomplete in general; it is based
         on the vertices or the offsets, whichever is using
         dataTrans as its transformation, so it does not take
         into account the combined effect of segments and offsets.
-        '''
+        '''        
         verts = []
         if self._offsets is None:
             for seg in self._verts:
@@ -391,6 +447,25 @@ class RegularPolyCollection(PatchCollection):
         self.rotation = rotation
         self._update_verts()
     __init__.__doc__ = dedent(__init__.__doc__) % kwdocd
+
+    def get_transformed_patches(self):
+        
+        xverts, yverts = zip(*self._verts)
+        xverts = asarray(xverts)
+        yverts = asarray(yverts)
+        sizes = sqrt(asarray(self._sizes)*self._dpi.get()/72.0)
+        Nsizes = len(sizes)
+        transOffset = self.get_transoffset()
+        polys = []
+        for i, loc in enumerate(self._offsets):
+            xo,yo = transOffset.xy_tup(loc)
+            #print 'xo, yo', loc, (xo, yo)
+            scale = sizes[i % Nsizes]
+
+            thisxverts = scale*xverts + xo
+            thisyverts = scale*yverts + yo
+            polys.append(zip(thisxverts, thisyverts))
+        return polys
 
     def _update_verts(self):
         r = 1.0/math.sqrt(math.pi)  # unit area

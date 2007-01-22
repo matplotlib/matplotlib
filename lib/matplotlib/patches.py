@@ -83,12 +83,12 @@ class Patch(Artist):
         if the mouse click is inside the vertices defining the patch, fire off a backend_bases.PickEvent
         """
         if not self.pickable(): return
-        pickeps = self.get_pickeps()
-        if callable(pickeps):
-            hit, props = pickeps(self, mouseevent)
+        picker = self.get_picker()
+        if callable(picker):
+            hit, props = picker(self, mouseevent)
             if hit:
                 self.figure.canvas.pick_event(mouseevent, self, **props)
-        else:
+        elif picker:
             x, y = mouseevent.xdata, mouseevent.ydata
             if x is not None and y is not None:
                 xyverts = self.get_verts()
