@@ -74,13 +74,26 @@ class ScalarMappable:
         return self.norm.vmin, self.norm.vmax
 
     def set_clim(self, vmin=None, vmax=None):
-        'set the norm limits for image scaling'
+        """
+        set the norm limits for image scaling; if vmin is a length2
+        sequence, interpret it as (vmin, vmax) which is used to
+        support setp
+
+        ACCEPTS: a length 2 sequence of floats
+        """
+        if vmin is not None and vmax is None and iterable(vmin) and len(vmin)==2:
+            vmin, vmax = vmin
+            
         if vmin is not None: self.norm.vmin = vmin
         if vmax is not None: self.norm.vmax = vmax
         self.changed()
 
     def set_cmap(self, cmap):
-        'set the colormap for luminance data'
+        """
+        set the colormap for luminance data
+
+        ACCEPTS: a colormap
+        """
         if cmap is None: cmap = get_cmap()
         self.cmap = cmap
         self.changed()
