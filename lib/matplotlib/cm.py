@@ -8,6 +8,7 @@ from matplotlib import rcParams
 from matplotlib.numerix import asarray
 from numerix import nx
 import numerix.ma as ma
+from cbook import iterable
 from _cm import *
 
 
