@@ -393,28 +393,17 @@ def add_tk_flags(module):
     if sys.platform=='win32':
         major, minor1, minor2, s, tmp = sys.version_info
         print 'building tkagg', major, minor1
-        if major==2 and minor1==3:
-            print '\tBuilding for python23'
+        if major==2 and minor1 in [3, 4, 5]:
+            print '\tBuilding for python2%d'%minor1
             module.include_dirs.extend(['win32_static/include/tcl84'])
-            module.library_dirs.extend(['C:/Python23/dlls'])
-            module.libraries.extend(['tk84', 'tcl84'])
-        elif major==2 and minor1==4:
-            print '\tBuilding for python24'
-            module.include_dirs.extend(['win32_static/include/tcl84'])
-            module.library_dirs.extend(['C:/Python24/dlls'])
-            module.libraries.extend(['tk84', 'tcl84'])
-        elif major==2 and minor1==5:
-            print '\tBuilding for python25'
-            module.include_dirs.extend(['win32_static/include/tcl84'])
-            module.library_dirs.extend(['C:/Python25/dlls'])
             module.libraries.extend(['tk84', 'tcl84'])
         elif major==2 and minor1==2:
             print '\tBuilding for python22'
             module.include_dirs.extend(['win32_static/include/tcl83'])
-            module.library_dirs.extend(['C:/Python22/dlls'])
             module.libraries.extend(['tk83', 'tcl83'])
         else:
             raise RuntimeError('No tk/win32 support for this python version yet')
+        module.library_dirs.extend([os.path.join(sys.prefix, 'dlls')])
         return
 
     elif sys.platform == 'darwin' :
