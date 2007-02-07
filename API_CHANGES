@@ -1,3 +1,5 @@
+0.90.0 released
+
     All artists now implement a "pick" method which users should not
     call.  Rather, set the "picker" property of any artist you want to
     pick on (the epsilon distance in points for a hit test) and
