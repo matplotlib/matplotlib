@@ -148,7 +148,7 @@ class FigureCanvasQT( QtGui.QWidget, FigureCanvasBase ):
 
     def _get_key( self, event ):
         if event.key() < 256:
-            key = event.text().latin1()
+            key = str(event.text())
         elif self.keyvald.has_key( event.key() ):
             key = self.keyvald[ event.key() ]
         else:
@@ -202,15 +202,15 @@ class FigureManagerQT( FigureManagerBase ):
 
         # Reset the window height so the canvas will be the right
         # size.  This ALMOST works right.  The first issue is that the
-        # height w/ a toolbar seems to be off by just a little bit (so
-        # we add 4 pixels).  The second is that the total width/height
+        # reported toolbar height does not include the margin (so
+        # we add the margin).  The second is that the total width/height
         # is slightly smaller that we actually want.  It seems like
         # the border of the window is being included in the size but
         # AFAIK there is no way to get that size.  
         w = self.canvas.width()
         h = self.canvas.height()
         if self.toolbar:
-           h += self.toolbar.height() + 4
+           h += self.toolbar.height() + NavigationToolbar2QT.margin
         self.window.resize( w, h )
         
         if matplotlib.is_interactive():
@@ -261,7 +261,9 @@ class NavigationToolbar2QT( NavigationToolbar2, QtGui.QWidget ):
         ('Subplots', 'Configure subplots','subplots.png', 'configure_subplots'),
         ('Save', 'Save the figure','filesave.ppm', 'save_figure'),
         )
-        
+    
+    margin = 12 # extra margin for the toolbar
+    
     def __init__(self, canvas, parent):
         self.canvas = canvas
         QtGui.QWidget.__init__( self, parent )
@@ -290,7 +292,7 @@ class NavigationToolbar2QT( NavigationToolbar2, QtGui.QWidget ):
 
             # The automatic layout doesn't look that good - it's too close
             # to the images so add a margin around it.
-            margin = 4
+            margin = self.margin
             button.setFixedSize( image.width()+margin, image.height()+margin )
 
             QtCore.QObject.connect( button, QtCore.SIGNAL( 'clicked()' ),
@@ -301,7 +303,7 @@ class NavigationToolbar2QT( NavigationToolbar2, QtGui.QWidget ):
         # The stretch factor is 1 which means any resizing of the toolbar
         # will resize this label instead of the buttons.
         self.locLabel = QtGui.QLabel( "", self )
-        self.locLabel.setAlignment( QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter )
+        self.locLabel.setAlignment( QtCore.Qt.AlignRight | QtCore.Qt.AlignTop )
         self.locLabel.setSizePolicy(QtGui.QSizePolicy(QtGui.QSizePolicy.Ignored,
                                                       QtGui.QSizePolicy.Ignored))
         self.layout.addWidget( self.locLabel, 1 )
