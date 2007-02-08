@@ -575,14 +575,11 @@ class Axes3DI(Axes):
 
     def contour3D(self, X, Y, Z, *args, **kwargs):
         had_data = self.has_data()
-        # old version ?
-        #levels, colls = self.contour(X, Y, Z, *args, **kwargs)
         cset = self.contour(X, Y, Z, *args, **kwargs)
         for z,linec in zip(cset.levels,cset.collections):
             zl = []
             linew = art3d.Line2DCollectionW(linec, z)
         self.auto_scale_xyz(X,Y,Z, had_data)
-        #return levels,colls
         return cset
 
     def clabel(self, *args, **kwargs):
@@ -590,16 +587,19 @@ class Axes3DI(Axes):
         return r
 
     def contourf3D(self, X, Y, Z, *args, **kwargs):
+        raise NotImplementedError("contourf3D is broken")
         had_data = self.has_data()
 
-        levels, colls = self.contourf(X, Y, Z, 20)
-        print len(levels),len(colls)
+        cset = self.contourf(X, Y, Z, *args, **kwargs)
+        levels = cset.levels
+        colls = cset.collections
         for z1,z2,linec in zip(levels,levels[1:],colls):
             zs = [z1] * (len(linec._verts[0])/2)
             zs += [z2] * (len(linec._verts[0])/2)
-            art3d.wrap_patch(linec, zs, fn=draw_polyc)
+            # The following is clearly wrong.
+            art3d.wrap_patch(linec, zs, fn=art3d.draw_polyc)
         self.auto_scale_xyz(X,Y,Z, had_data)
-        return levels,colls
+        return cset
 
     def scatter3D(self, xs, ys, zs, *args, **kwargs):
         had_data = self.has_data()
