@@ -200,46 +200,38 @@ build_swigagg(ext_modules, packages)
 build_transforms(ext_modules, packages, NUMERIX)
 build_enthought(ext_modules, packages)
 
-if BUILD_GTK:
+def havegtk():
+    'check for the presence of pygtk'
+    if havegtk.gotit is not None: return havegtk.gotit
     try:
         import gtk
     except ImportError:
-        print 'GTK requires pygtk'
-        BUILD_GTK = 0
+        print 'building for GTK requires pygtk; you must be able to "import gtk" in your build/install environment'
+        havegtk.gotit = False
     except RuntimeError:
         print 'pygtk present but import failed'
-        BUILD_GTK = 0
+        havegtk.gotit = False
     else:
         version = (2,2,0)
         if gtk.pygtk_version < version:
             print "Error: GTK backend requires PyGTK %d.%d.%d (or later), " \
                   "%d.%d.%d was detected." % (
                 version + gtk.pygtk_version)
-            BUILD_GTK = 0
+            havegtk.gotit = False
         else:
-            build_gdk(ext_modules, packages, NUMERIX)
-            rc['backend'] = 'GTK'
+            havegtk.gotit = True
+    return havegtk.gotit
 
-if BUILD_GTKAGG:
-    try:
-        import gtk
-    except ImportError:
-        print 'GTKAgg requires pygtk'
-        BUILD_GTKAGG=0
-    except RuntimeError:
-        print 'pygtk present but import failed'
-        BUILD_GTKAGG = 0
-    else:
-        version = (2,2,0)
-        if gtk.pygtk_version < version:
-            print "Error: GTKAgg backend requires PyGTK %d.%d.%d " \
-                  "(or later), %d.%d.%d was detected." % (
-                version + gtk.pygtk_version)
-            BUILD_GTKAGG=0
-        else:
-            BUILD_AGG = 1
-            build_gtkagg(ext_modules, packages, NUMERIX)
-            rc['backend'] = 'GTKAgg'
+havegtk.gotit = None
+
+if BUILD_GTK and havegtk():
+    build_gdk(ext_modules, packages, NUMERIX)
+    rc['backend'] = 'GTK'
+
+if BUILD_GTKAGG and havegtk():
+    BUILD_AGG = 1
+    build_gtkagg(ext_modules, packages, NUMERIX)
+    rc['backend'] = 'GTKAgg'
 
 if BUILD_TKAGG:
     try:
