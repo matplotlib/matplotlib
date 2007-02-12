@@ -387,7 +387,7 @@ class NavigationToolbar(Tk.Frame):
 
     """
     def _Button(self, text, file, command):
-        file = os.path.join(rcParams['datapath'], file)
+        file = os.path.join(rcParams['datapath'], 'images', file)
         im = Tk.PhotoImage(master=self, file=file)
         b = Tk.Button(
             master=self, text=text, padx=2, pady=2, image=im, command=command)
@@ -562,7 +562,7 @@ class NavigationToolbar2TkAgg(NavigationToolbar2, Tk.Frame):
         self.window.configure(cursor=cursord[cursor])
     
     def _Button(self, text, file, command):
-        file = os.path.join(rcParams['datapath'], file)
+        file = os.path.join(rcParams['datapath'], 'images', file)
         im = Tk.PhotoImage(master=self, file=file)
         b = Tk.Button(
             master=self, text=text, padx=2, pady=2, image=im, command=command)

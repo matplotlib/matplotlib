@@ -1372,7 +1372,7 @@ def _load_bitmap(filename):
     Returns a wx.Bitmap object
     """
 
-    basedir = rcParams['datapath']
+    basedir = os.path.join(rcParams['datapath'],'images')
 
     bmpFilename = os.path.normpath(os.path.join(basedir, filename))
     if not os.path.exists(bmpFilename):

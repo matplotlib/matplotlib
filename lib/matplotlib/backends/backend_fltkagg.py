@@ -367,7 +367,7 @@ def select_all(ptr,amenu):
 
 class FLTKButton:
     def __init__(self, text, file, command,argument,type="classic"):
-        file = os.path.join(rcParams['datapath'], file)
+        file = os.path.join(rcParams['datapath'], 'images', file)
         self.im = Fltk.Fl_PNM_Image(file)
         size=26
         if type=="repeat":

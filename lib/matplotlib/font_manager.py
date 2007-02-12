@@ -779,7 +779,8 @@ font dictionary can act like a font cache.
         self.__default_size = size
         self.__default_weight = weight
 
-        paths = [rcParams['datapath']]
+        paths = [os.path.join(rcParams['datapath'],'fonts','ttf'),
+                 os.path.join(rcParams['datapath'],'fonts','afm')]
 
         #  Create list of font paths
 

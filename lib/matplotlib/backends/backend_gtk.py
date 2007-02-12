@@ -564,7 +564,7 @@ class NavigationToolbar2GTK(NavigationToolbar2, gtk.Toolbar):
 
 
     def _init_toolbar2_2(self):
-        basedir = matplotlib.rcParams['datapath']
+        basedir = os.path.join(matplotlib.rcParams['datapath'],'images')
 
         for text, tooltip_text, image_file, callback in self.toolitems:
             if text is None:
@@ -593,7 +593,7 @@ class NavigationToolbar2GTK(NavigationToolbar2, gtk.Toolbar):
 
 
     def _init_toolbar2_4(self):
-        basedir = matplotlib.rcParams['datapath']
+        basedir = os.path.join(matplotlib.rcParams['datapath'],'images')
         self.tooltips = gtk.Tooltips()
 
         for text, tooltip_text, image_file, callback in self.toolitems:
@@ -1234,7 +1234,7 @@ class DialogLineprops:
 # gtk.pygtk_version >= (2,2,0) with a GDK pixbuf loader for SVG installed
 try:
     gtk.window_set_default_icon_from_file (
-        os.path.join (matplotlib.rcParams['datapath'], 'matplotlib.svg'))
+        os.path.join (matplotlib.rcParams['datapath'], 'images', 'matplotlib.svg'))
 except:
     verbose.report('Could not load matplotlib icon: %s' % sys.exc_info()[1])
 

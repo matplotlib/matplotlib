@@ -561,7 +561,7 @@ class BakomaTrueTypeFonts(Fonts):
     fnames = ('cmmi10', 'cmsy10', 'cmex10',
               'cmtt10', 'cmr10')
     # allocate a new set of fonts
-    basepath = get_data_path()
+    basepath = os.path.join( get_data_path(), 'fonts', 'ttf' )
     
     fontmap = { 'cal' : 'cmsy10',
                 'rm'  : 'cmr10',
@@ -708,7 +708,7 @@ class BakomaPSFonts(Fonts):
     fnames = ('cmmi10', 'cmsy10', 'cmex10',
               'cmtt10', 'cmr10')
     # allocate a new set of fonts
-    basepath = get_data_path()
+    basepath = os.path.join( get_data_path(), 'fonts', 'ttf' )
     
     fontmap = { 'cal' : 'cmsy10',
                 'rm'  : 'cmr10',
@@ -837,7 +837,7 @@ class StandardPSFonts(Fonts):
     """
     fnames = ('psyr', 'pncri8a', 'pcrr8a', 'pncr8a', 'pzcmi8a')
     # allocate a new set of fonts
-    basepath = get_data_path()
+    basepath = os.path.join( get_data_path(), 'fonts', 'afm' )
     
     fontmap = { 'cal' : 'pzcmi8a',
                 'rm'  : 'pncr8a',
