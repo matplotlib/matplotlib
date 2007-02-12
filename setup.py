@@ -76,28 +76,15 @@ for line in file('lib/matplotlib/__init__.py').readlines():
         exec(line)
 
 # Specify all the required mpl data
-data = []
-data.extend(glob.glob('gui/*.glade'))
-data.extend(glob.glob('fonts/afm/*.afm'))
-data.extend(glob.glob('fonts/ttf/*.ttf'))
-data.extend(glob.glob('images/*.xpm'))
-data.extend(glob.glob('images/*.svg'))
-data.extend(glob.glob('images/*.png'))
-data.extend(glob.glob('images/*.ppm'))
-data.append('matplotlibrc')
-
-data_files=[('matplotlib/mpl-data', data),
-            ('matplotlib/mpl-data/Matplotlib.nib',
-             glob.glob('lib/matplotlib/backends/Matplotlib.nib/*.nib'))]
-
-# data_files fix from http://wiki.python.org/moin/DistutilsInstallDataScattered
-from distutils.command.install_data import install_data
-class smart_install_data(install_data):
-    def run(self):
-        #need to change self.install_dir to the library dir
-        install_cmd = self.get_finalized_command('install')
-        self.install_dir = getattr(install_cmd, 'install_lib')
-        return install_data.run(self)
+package_data = {'matplotlib':['mpl-data/fonts/afm/*.afm',
+                              'mpl-data/fonts/ttf/*.ttf',
+                              'mpl-data/images/*.xpm',
+                              'mpl-data/images/*.svg',
+                              'mpl-data/images/*.png',
+                              'mpl-data/images/*.ppm',
+                              'mpl-data/matplotlibrc',
+                              'backends/Matplotlib.nib/*',
+                              ]}
 
 # Figure out which array packages to provide binary support for
 # and append to the NUMERIX list.
@@ -300,7 +287,7 @@ for mod in ext_modules:
 if sys.platform=='win32':
     rc = dict(backend='TkAgg', numerix='numpy')
 template = file('matplotlibrc.template').read()
-file('matplotlibrc', 'w').write(template%rc)
+file('lib/matplotlib/mpl-data/matplotlibrc', 'w').write(template%rc)
 
 try: additional_params # has setupegg.py provided
 except NameError: additional_params = {}
@@ -321,8 +308,7 @@ distrib = setup(name="matplotlib",
       platforms='any',
       py_modules = ['pylab'],
       ext_modules = ext_modules,
-      data_files = data_files,
       package_dir = {'': 'lib'},
-      cmdclass = {'install_data':smart_install_data},
+      package_data = package_data,
       **additional_params
       )

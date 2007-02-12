@@ -275,7 +275,7 @@ class NavigationToolbar2QT( NavigationToolbar2, qt.QWidget ):
         NavigationToolbar2.__init__( self, canvas )
         
     def _init_toolbar( self ):
-        basedir = matplotlib.rcParams[ 'datapath' ]
+        basedir = os.path.join(matplotlib.rcParams[ 'datapath' ],'images')
         
         for text, tooltip_text, image_file, callback in self.toolitems:
             if text == None:
@@ -386,7 +386,7 @@ class NavigationToolbar2QT( NavigationToolbar2, qt.QWidget ):
 try:
     # TODO: This is badly broken
     qt.window_set_default_icon_from_file (
-        os.path.join( matplotlib.rcParams['datapath'], 'matplotlib.svg' ) )
+        os.path.join( matplotlib.rcParams['datapath'], 'images', 'matplotlib.svg' ) )
 except:
     verbose.report( 'Could not load matplotlib icon: %s' % sys.exc_info()[1] )
 

@@ -5,10 +5,11 @@ include matplotlibrc.template matplotlibrc
 include __init__.py setupext.py setup.py setupegg.py makeswig.py
 include examples/data/*
 include lib/matplotlib/toolkits
-include images/*
-recursive-include fonts *
+include lib/matplotlib/mpl-data/images/*
+include lib/matplotlib/mpl-data/fonts/ttf/*
+include lib/matplotlib/mpl-data/fonts/afm/*
 recursive-include license LICENSE*
-recursive-include examples README *.py *.glade
+recursive-include examples README *.py
 prune examples/_tmp_*
 recursive-include src  *.cpp *.c *.h
 recursive-include CXX  *.cxx *.hxx *.c

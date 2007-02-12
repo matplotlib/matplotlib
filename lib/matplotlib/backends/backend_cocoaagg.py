@@ -33,7 +33,7 @@ from matplotlib.backend_bases import FigureManagerBase
 from backend_agg import FigureCanvasAgg
 from matplotlib._pylab_helpers import Gcf
 
-mplBundle = NSBundle.bundleWithPath_(matplotlib.get_data_path())
+mplBundle = NSBundle.bundleWithPath_(os.path.dirname(__file__))
 
 def new_figure_manager(num, *args, **kwargs):
     FigureClass = kwargs.pop('FigureClass', Figure)

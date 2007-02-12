@@ -53,7 +53,13 @@ for face in faces:
     # We check if the for loop above had success. If it failed, we try to
     # find the font in the mpl-data dir
     if not face in filenamesd:
-        filenamesd[face] = os.path.join(_path, barefname)
+        fontdirs = [os.path.join(_path,'fonts','afm'),
+                    os.path.join(_path,'fonts','ttf')]
+        for fontdir in fontdirs:
+            fname = os.path.join(fontdir,barefname)
+            if os.path.exists( fname ):
+                filenamesd[face] = os.path.join(_path, barefname)
+                break
     fonts[face] = FT2Font(filenamesd[face])
 
 svg_elements = Bunch(svg_glyphs=[], svg_lines=[])

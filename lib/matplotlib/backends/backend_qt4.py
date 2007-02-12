@@ -174,7 +174,7 @@ class FigureManagerQT( FigureManagerBase ):
         self.window.setAttribute(QtCore.Qt.WA_DeleteOnClose)
         
         self.window.setWindowTitle("Figure %d" % num)
-        image = os.path.join( matplotlib.rcParams['datapath'],'matplotlib.png' )
+        image = os.path.join( matplotlib.rcParams['datapath'],'images','matplotlib.png' )
         self.window.setWindowIcon(QtGui.QIcon( image ))
 
         centralWidget = QtGui.QWidget( self.window )
@@ -276,7 +276,7 @@ class NavigationToolbar2QT( NavigationToolbar2, QtGui.QWidget ):
         NavigationToolbar2.__init__( self, canvas )
         
     def _init_toolbar( self ):
-        basedir = matplotlib.rcParams[ 'datapath' ]
+        basedir = os.path.join(matplotlib.rcParams[ 'datapath' ],'images')
         
         for text, tooltip_text, image_file, callback in self.toolitems:
             if text == None:
@@ -338,7 +338,7 @@ class NavigationToolbar2QT( NavigationToolbar2, QtGui.QWidget ):
         win = self.adj_window
         win.setAttribute(QtCore.Qt.WA_DeleteOnClose)
         win.setWindowTitle("Subplot Configuration Tool")
-        image = os.path.join( matplotlib.rcParams['datapath'],'matplotlib.png' )
+        image = os.path.join( matplotlib.rcParams['datapath'],'images','matplotlib.png' )
         win.setWindowIcon(QtGui.QIcon( image ))
 
         toolfig = Figure(figsize=(6,3))
