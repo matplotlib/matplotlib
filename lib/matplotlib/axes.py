@@ -2296,7 +2296,7 @@ class Axes(Artist):
             _     : horizontal line symbols
             steps : use gnuplot style 'steps' # kwarg only
 
-        The following color strings are supported
+        The following color abbreviations are supported
 
             b  : blue
             g  : green
@@ -2306,6 +2306,11 @@ class Axes(Artist):
             y  : yellow
             k  : black
             w  : white
+
+        In addition, you can specify colors in many weird and
+        wonderful ways, including full names 'green', hex strings
+        '#008000', RGB or RGBA tuples (0,1,0,1) or grayscale
+        intensities as a string '0.8'.
 
         Line styles and colors are combined in a single format string, as in
         'bo' for blue circles.
