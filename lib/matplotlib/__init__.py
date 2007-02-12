@@ -156,7 +156,6 @@ try:
 except ImportError:
     pass # must not have setuptools
 
-
 if not hasattr(sys, 'argv'):  # for modpython
     sys.argv = ['modpython']
 
