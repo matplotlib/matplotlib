@@ -8,7 +8,7 @@ def _fn_name(): return sys._getframe(1).f_code.co_name
 
 from tempfile import gettempdir
 from cStringIO import StringIO
-from matplotlib import verbose, __version__, rcParams, get_data_path
+from matplotlib import verbose, __version__, rcParams
 from matplotlib._pylab_helpers import Gcf
 import matplotlib.agg as agg
 from matplotlib.afm import AFM
@@ -972,8 +972,6 @@ FontName currentdict end definefont pop""" % locals())
 
 
 class FigureCanvasPS(FigureCanvasBase):
-    basepath = get_data_path()
-
     def draw(self):
         pass
 
