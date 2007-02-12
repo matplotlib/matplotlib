@@ -37,7 +37,7 @@ import os, sys, glob, shutil
 import matplotlib
 from matplotlib import afm
 from matplotlib import ft2font
-from matplotlib import rcParams, get_data_path, get_home, get_configdir
+from matplotlib import rcParams, get_home, get_configdir
 
 
 verbose = matplotlib.verbose
