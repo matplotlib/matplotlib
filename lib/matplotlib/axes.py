@@ -2554,7 +2554,7 @@ class Axes(Artist):
 
         data are plotted as plot(lags, c, **kwargs)
 
-        return value is lags, c, line where lags are a length
+        Return value is (lags, c, line) where lags are a length
         2*len(x)+1 lag vector, c is the 2*len(x)+1 cross correlation
         vector, and line is a Line2D instance returned by plot.  The
         default linestyle is None and the default marker is 'o',

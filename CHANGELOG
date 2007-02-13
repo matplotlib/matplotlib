@@ -1,3 +1,7 @@
+2007-02-13 Added barcode demo- JDH
+
+2007-02-13 Added binary colormap to cm - JDH
+
 2007-02-13 Added twiny to pylab - JDH
 
 2007-02-12 Moved data files into lib/matplotlib so that setuptools'
