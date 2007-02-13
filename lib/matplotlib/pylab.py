@@ -1029,6 +1029,23 @@ def twinx(ax=None):
     return ax2
 
 
+def twiny(ax=None):
+    """
+    Make a second axes overlay ax (or the current axes if ax is None)
+    sharing the yaxis.  The ticks for ax2 will be placed on the top,
+    and the ax2 instance is returned.  
+    """
+    if ax is None:
+        ax=gca()
+
+
+    ax2 = gcf().add_axes(ax.get_position(), sharey=ax, frameon=False)
+    ax2.xaxis.tick_top()
+    ax2.xaxis.set_label_position('top')
+    ax.xaxis.tick_bottom()
+    draw_if_interactive()
+    return ax2
+
 def title(s, *args, **kwargs):
     """
     Set the title of the current axis to s
