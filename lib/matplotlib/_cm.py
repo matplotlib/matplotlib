@@ -12,7 +12,11 @@ etc.) and a dictionary, 'datad', including all of these objects.
 from matplotlib import rcParams, colors
 LUTSIZE = rcParams['image.lut']
 
-
+_binary_data = {
+    'red'  :  ((0., 1., 1.), (1., 0., 0.)),
+    'green':  ((0., 1., 1.), (1., 0., 0.)),
+    'blue' :  ((0., 1., 1.), (1., 0., 0.))
+    }
 
 
 _bone_data = {'red':   ((0., 0., 0.),(1.0, 1.0, 1.0)),
@@ -376,6 +380,7 @@ _spectral_data = {'red': [(0.0, 0.0, 0.0), (0.05, 0.4667, 0.4667),
 
 autumn = colors.LinearSegmentedColormap('autumn', _autumn_data, LUTSIZE)
 bone   = colors.LinearSegmentedColormap('bone  ', _bone_data, LUTSIZE)
+binary   = colors.LinearSegmentedColormap('binary  ', _binary_data, LUTSIZE)
 cool   = colors.LinearSegmentedColormap('cool',   _cool_data, LUTSIZE)
 copper = colors.LinearSegmentedColormap('copper', _copper_data, LUTSIZE)
 flag   = colors.LinearSegmentedColormap('flag',   _flag_data, LUTSIZE)
@@ -395,6 +400,7 @@ spectral = colors.LinearSegmentedColormap('spectral', _spectral_data, LUTSIZE)
 datad = {
     'autumn': _autumn_data,
     'bone':   _bone_data,
+    'binary':   _binary_data,
     'cool':   _cool_data,
     'copper': _copper_data,
     'flag':   _flag_data,
