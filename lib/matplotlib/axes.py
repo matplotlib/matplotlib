@@ -1554,13 +1554,13 @@ class Axes(Artist):
         tz is the time zone to use in labeling dates.  Defaults to rc value.
         """
 
-        thislocator = self.xaxis.get_major_locator()
-        if not isinstance(thislocator, DateLocator):
+        locator = self.xaxis.get_major_locator()
+        if not isinstance(locator, DateLocator):
             locator = AutoDateLocator(tz)
             self.xaxis.set_major_locator(locator)
 
-        thisformatter = self.xaxis.get_major_formatter()
-        if not isinstance(thisformatter, DateFormatter):
+        formatter = self.xaxis.get_major_formatter()
+        if not isinstance(formatter, DateFormatter):
             formatter = AutoDateFormatter(locator)
             self.xaxis.set_major_formatter(formatter)
 
@@ -1570,13 +1570,13 @@ class Axes(Artist):
         tz is the time zone to use in labeling dates.  Defaults to rc value.
         """
 
-        thislocator = self.yaxis.get_major_locator()
-        if not isinstance(thislocator, DateLocator):
+        locator = self.yaxis.get_major_locator()
+        if not isinstance(locator, DateLocator):
             locator = AutoDateLocator(tz)
             self.yaxis.set_major_locator(locator)
 
-        thisformatter = self.xaxis.get_major_formatter()
-        if not isinstance(thisformatter, DateFormatter):
+        formatter = self.xaxis.get_major_formatter()
+        if not isinstance(formatter, DateFormatter):
             formatter = AutoDateFormatter(locator)
             self.yaxis.set_major_formatter(formatter)
 
