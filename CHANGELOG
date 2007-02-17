@@ -1,3 +1,6 @@
+2007-02-17 Changed ft2font.get_charmap, and updated all the files where
+           get_charmap is mentioned - ES
+
 2007-02-13 Added barcode demo- JDH
 
 2007-02-13 Added binary colormap to cm - JDH

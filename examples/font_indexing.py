@@ -14,8 +14,8 @@ font = FT2Font(fname)
 font.set_charmap(0)
 
 codes = font.get_charmap().items()
-dsu = [(ccode, glyphind) for glyphind, ccode in codes]
-dsu.sort()
+#dsu = [(ccode, glyphind) for ccode, glyphind in codes]
+#dsu.sort()
 #for ccode, glyphind in dsu: 
 #    try: name = font.get_glyph_name(glyphind)
 #    except RuntimeError: pass
@@ -26,7 +26,7 @@ dsu.sort()
 # make a charname to charcode and glyphind dictionary
 coded = {}
 glyphd = {}
-for glyphind, ccode in codes:
+for ccode, glyphind in codes:
     name = font.get_glyph_name(glyphind)
     coded[name] = ccode
     glyphd[name] = glyphind

@@ -302,11 +302,12 @@ Specific terminology:
     filenamesd should be declared as a class atribute
  * glyphdict: a dict used for caching of glyph specific data
  * fonts: a dict of facename -> fontface pairs
- * charmaps: a dict of facename -> charmap pairs
+ * charmaps: a dict of facename -> charmap pairs. Charmap maps character
+   codes to glyph indices
  * glyphmaps: a dict of facename -> glyphmap pairs. A glyphmap is an
     inverted charmap
  * output: a string in ['Agg','SVG','PS'], coresponding to the backends
- * index: Fontfile specific index of a glyph/char. Taken from a charmap.
+ * index: Fontfile specific index of a glyph.
 
 """
 
@@ -324,16 +325,16 @@ Specific terminology:
         self.fonts = dict(
             [ (facename, font_open(self.filenamesd[facename])) for
                     facename in self.facenames])
-        # a dict of glyphindex -> charcode pairs
+        # a dict of charcode -> glyphindex pairs
         self.charmaps = dict(
             [ (facename, self.fonts[facename].get_charmap())
                 for facename in self.facenames])
-        # a dict of charcode -> glyphindex pairs
+        # a dict of glyphindex -> charcode pairs
         self.glyphmaps = {}
         for facename in self.facenames:
             charmap = self.charmaps[facename]
-            self.glyphmaps[facename] = dict([(charcode, glyphind)
-                for glyphind, charcode in charmap.items()])
+            self.glyphmaps[facename] = dict([(glyphind, charcode)
+                for charcode, glyphind in charmap.items()])
         for fontface in self.fonts.values():
             fontface.clear()
         if self.output == 'SVG':
@@ -578,11 +579,11 @@ class BakomaTrueTypeFonts(Fonts):
 
         self.charmaps = dict(
             [ (name, self.fonts[name].get_charmap()) for name in self.fnames])
-        # glyphmaps is a dict names to a dict of charcode -> glyphindex
+        # glyphmaps is a dict names to a dict of glyphindex -> charcode
         self.glyphmaps = {}
         for name in self.fnames:
             cmap = self.charmaps[name]
-            self.glyphmaps[name] = dict([(ccode, glyphind) for glyphind, ccode in cmap.items()])
+            self.glyphmaps[name] = dict([(glyphind, ccode) for ccode, glyphind in cmap.items()])
         
         for font in self.fonts.values():
             font.clear()
@@ -607,7 +608,7 @@ class BakomaTrueTypeFonts(Fonts):
 
         if latex_to_bakoma.has_key(sym):
             basename, num = latex_to_bakoma[sym]
-            num = self.charmaps[basename][num]
+            num = self.glyphmaps[basename][num]
         elif len(sym) == 1:
             num = ord(sym)
         else:
@@ -658,7 +659,7 @@ class BakomaTrueTypeFonts(Fonts):
             basename = self.fontmap[font]
             if latex_to_bakoma.has_key(sym):
                 basename, num = latex_to_bakoma[sym]
-                num = self.charmaps[basename][num]
+                num = self.glyphmaps[basename][num]
             elif len(sym) == 1:
                 num = ord(sym)
             else:
@@ -693,7 +694,7 @@ class BakomaTrueTypeFonts(Fonts):
         basename = self.fontmap[font]
         if latex_to_bakoma.has_key(sym):
             basename, num = latex_to_bakoma[sym]
-            num = self.charmaps[basename][num]
+            num = self.glyphmaps[basename][num]
         elif len(sym) == 1:
             num = ord(sym)
         else:
@@ -705,7 +706,7 @@ class BakomaPSFonts(Fonts):
     """
     Use the Bakoma postscript fonts for rendering to backend_ps
     """
-    fnames = ('cmmi10', 'cmsy10', 'cmex10',
+    facenames = ('cmmi10', 'cmsy10', 'cmex10',
               'cmtt10', 'cmr10')
     # allocate a new set of fonts
     basepath = os.path.join( get_data_path(), 'fonts', 'ttf' )
@@ -721,10 +722,13 @@ class BakomaPSFonts(Fonts):
         self.glyphd = {}
         self.fonts = dict(
             [ (name, FT2Font(os.path.join(self.basepath, name) + '.ttf'))
-              for name in self.fnames])
+              for name in self.facenames])
 
-        self.charmaps = dict(
-            [ (name, self.fonts[name].get_charmap()) for name in self.fnames])
+        self.glyphmaps = {}
+        for facename in self.facenames:
+            charmap = self.fonts[facename].get_charmap()
+            self.glyphmaps[facename] = dict([(glyphind, charcode)
+                for charcode, glyphind in charmap.items()])
         for font in self.fonts.values():
             font.clear()
 
@@ -741,7 +745,7 @@ class BakomaPSFonts(Fonts):
         if latex_to_bakoma.has_key(sym):
             basename, num = latex_to_bakoma[sym]
             sym = self.fonts[basename].get_glyph_name(num)
-            num = self.charmaps[basename][num]
+            num = self.glyphmaps[basename][num]
         elif len(sym) == 1:
             num = ord(sym)
         else:
@@ -812,7 +816,7 @@ class BakomaPDFFonts(BakomaPSFonts):
         if latex_to_bakoma.has_key(sym):
             basename, num = latex_to_bakoma[sym]
             sym = self.fonts[basename].get_glyph_name(num)
-            num = self.charmaps[basename][num]
+            num = self.glyphmaps[basename][num]
         elif len(sym) == 1:
             num = ord(sym)
         else:

@@ -1,3 +1,6 @@
+    ft2font.get_charmap() now returns a dict that maps character codes
+    to glyph indices (until now it was reversed)
+    
     Moved data files into lib/matplotlib so that setuptools' develop
     mode works. Re-organized the mpl-data layout so that this source
     structure is maintained in the installation. (I.e. the 'fonts' and

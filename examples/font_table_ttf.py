@@ -28,7 +28,7 @@ chars = [ ['' for c in range(16)] for r in range(16)]
 colors = [ [0.95 for c in range(16)] for r in range(16)]
 
 figure(figsize=(8,4),dpi=120)
-for glyphind, ccode in codes:
+for ccode, glyphind in codes:
     if ccode>=256: continue
     r,c = divmod(ccode,16)
     s = chr(ccode)
