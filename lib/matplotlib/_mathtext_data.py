@@ -3,14 +3,11 @@ font data tables for truetype and afm computer modern fonts
 """
 
 # this dict maps symbol names to fontnames, glyphindex.  To get the
-# glyph index from the character code, you have to use a reverse
-# dictionary grom font.get_charmaps, eg,
+# glyph index from the character code, you have to use get_charmap
 """
 from matplotlib.ft2font import FT2Font
 font = FT2Font('/usr/local/share/matplotlib/cmr10.ttf')
-codes = font.get_charmap().items()
-rd = dict([(charcode, glyphind) for glyphind,charcode in codes])
-items = rd.items()
+items = font.get_charmap().items()
 items.sort()
 
 for charcode, glyphind in items:

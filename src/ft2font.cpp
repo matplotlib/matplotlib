@@ -1202,8 +1202,8 @@ FT2Font::get_glyph_name(const Py::Tuple & args) {
 char FT2Font::get_charmap__doc__[] =
 "get_charmap()\n"
 "\n"
-"This function returns a dictionary that maps the glyph index to its"
-"corresponding character code.\n"
+"Returns a dictionary that maps the character codes of the selected charmap\n"
+"(Unicode by default) to their corresponding glyph indices.\n"
 ;
 Py::Object
 FT2Font::get_charmap(const Py::Tuple & args) {
@@ -1215,7 +1215,7 @@ FT2Font::get_charmap(const Py::Tuple & args) {
 
   FT_ULong code = FT_Get_First_Char(face, &index);
   while (index != 0) {
-    charmap[Py::Int((int) index)] = Py::Long((long) code);
+    charmap[Py::Long((long) code)] = Py::Int((int) index);
     code = FT_Get_Next_Char(face, code, &index);
   }
   return charmap;

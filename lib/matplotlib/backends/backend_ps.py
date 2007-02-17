@@ -15,7 +15,7 @@ from matplotlib.afm import AFM
 from matplotlib.backend_bases import RendererBase, GraphicsContextBase,\
      FigureManagerBase, FigureCanvasBase
 
-from matplotlib.cbook import is_string_like, izip, reverse_dict
+from matplotlib.cbook import is_string_like, izip
 from matplotlib.figure import Figure
 
 from matplotlib.font_manager import fontManager
@@ -753,14 +753,13 @@ grestore
         self.set_font(font.get_sfnt()[(1,0,0,6)], prop.get_size_in_points())
 
         cmap = font.get_charmap()
-        glyphd = reverse_dict(cmap)
         lastgind = None
         #print 'text', s
         lines = []
         thisx, thisy = 0,0
         for c in s:
             ccode = ord(c)
-            gind = glyphd.get(ccode)
+            gind = cmap.get(ccode)
             if gind is None:
                 ccode = ord('?')
                 name = '.notdef'

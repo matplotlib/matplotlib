@@ -48,7 +48,7 @@ for face in faces:
     # First, we search for the font in the system font dir
     for fname in findSystemFonts(fontext=ext[1:]):
         if fname.endswith(barefname):
-            filenamesd[face] = fname
+            filenamesd[face] = str(fname)
             break
     # We check if the for loop above had success. If it failed, we try to
     # find the font in the mpl-data dir
@@ -150,6 +150,473 @@ class Environment:
 
 # The topmost environment
 environment = Environment()
+
+
+# Helper functions used by the renderer
+def get_frac_bar_height(env):
+    # TO-DO: Find a better way to calculate the height of the rule
+    c = Char(env, ".")
+    return (c.ymax - c.ymin)/2
+
+def get_font(env):
+    env = env.copy()
+    # TO-DO: Perhaps this should be done somewhere else
+    fontsize = env.fontsize * scriptfactors[env.scriptdepth]
+    dpi = env.dpi
+    if not env.face:
+        env.face = "rm"
+    font = fonts[env.face]
+
+    font.set_size(fontsize, dpi)
+    return font
+    #~ font = FT2Font(filenamesd[face])
+    #~ if fonts:
+        #~ fonts[max(fonts.keys()) + 1] = font
+    #~ else:
+        #~ fonts[1] = font
+
+def infer_face(env, item):
+    if item.isalpha():
+        if env.mode == "mathmode" and item < "z":
+            face = "mit"
+        else:
+            # TO-DO: Perhaps change to 'rm'
+            face = "nonascii"
+    elif item.isdigit():
+        face = "rm"
+    elif ord(item) < 256:
+        face = "rm"
+    else:
+        face = "nonascii"
+    return face
+
+def get_space(env):
+    _env = env.copy()
+    if not _env.face:
+        _env.face = "rm"
+    space = Char(_env, " ")
+    return space
+
+def get_kern(first, second):
+    # TO-DO: Something's wrong
+    if isinstance(first,Char) and isinstance(second, Char):
+        if first.env.__dict__ == second.env.__dict__:
+            font = get_font(first.env)
+            advance = -font.get_kerning(first.uniindex, second.uniindex,
+                                        KERNING_DEFAULT)/64.0
+            #print first.char, second.char, advance
+            return Kern(first.env, advance)
+        else:
+            return Kern(first.env, 0)
+    else:
+        return Kern(first.env, 0)
+
+
+# Classes used for renderering
+
+# Base rendering class
+class Renderer:
+    """Abstract class that implements the rendering methods"""
+    def __init__(self, env):
+        # We initialize all the values to 0.0
+        self.xmin, self.ymin, self.xmax, self.ymax = (0.0,)*4
+        self.width, self.height = (0.0,)*2
+        (self.hadvance, self.hbearingx, self.hbearingy,
+            self.hdescent)= (0.0,)*4
+        (self.vadvance, self.vbearingx, self.vbearingy)= (0.0,)*3
+        self.env = env
+
+    def hrender(self, x, y):
+        pass
+
+    def vrender(self, x, y):
+        # We reuse hrender. This can be used by all subclasses of Renderer
+        y += self.vbearingy + self.hbearingy
+        x -= -self.vbearingx + self.hbearingx
+        self.hrender(x, y)
+
+# Primitive rendering classes
+class Char(Renderer):
+    """A class that implements rendering of a single character."""
+    def __init__(self, env, char, uniindex=None):
+        #Renderer.__init__(self, env)
+        self.env = env
+        # uniindex is used to override ord(char) (needed on platforms where
+        # there is only BMP support for unicode, i.e. windows)
+        msg = "A char (string with length == 1) is needed"
+        if isinstance(_textclass(char), _textclass) and len(char) == 1:
+            self.char = char
+        else:
+            raise ValueError(msg)
+        if not uniindex:
+            self.uniindex = ord(char)
+        else:
+            if isinstance(uniindex, int):
+                self.uniindex = uniindex
+            else:
+                raise ValueError("uniindex must be an int")
+        #print self.env.face, filenamesd
+        # TO-DO: This code is needed for BaKoMa fonts. To be removed when
+        # mathtext migrates to completely unicode fonts
+        if self.env.face == "rm" and filenamesd["rm"].endswith("cmr10.ttf"):
+            _env = self.env.copy()
+            if self.char in ("{", "}"):
+                _env.face = "cal"
+                font = get_font(_env)
+                if self.char == "{":
+                    index = 118
+                elif self.char == "}":
+                    index = 119
+                glyph = font.load_char(index)
+            else:
+                font = get_font(self.env)
+                glyph = font.load_char(self.uniindex)
+        else:
+            font = get_font(self.env)
+            glyph = font.load_char(self.uniindex)
+        self.glyph = glyph
+        self.xmin, self.ymin, self.xmax, self.ymax = [
+            val/64.0 for val in self.glyph.bbox]
+
+        self.width = self.xmax - self.xmin#glyph.width/64.0
+        self.height = self.ymax - self.ymin#glyph.height/64.0
+        # Horizontal values
+        self.hadvance = glyph.horiAdvance/64.0
+        self.hbearingx = glyph.horiBearingX/64.0
+        self.hbearingy = glyph.horiBearingY/64.0
+        # Vertical values
+        self.vadvance = glyph.vertAdvance/64.0
+        self.vbearingx = glyph.vertBearingX/64.0
+        self.vbearingy = glyph.vertBearingY/64.0
+
+    def hrender(self, x, y):
+        #y -= self.ymax
+        #y -= (self.height - self.hbearingy)
+        #print x, y
+        font = get_font(self.env)
+        output = self.env.output
+        if output == "AGG":
+            x += self.hbearingx
+            y -= self.hbearingy
+            font.draw_glyph_to_bitmap(x, y, self.glyph)
+        elif output == "SVG":
+            familyname = font.get_sfnt()[(1,0,0,1)]
+            thetext = unichr(self.uniindex)
+            thetext.encode('utf-8')
+            fontsize = self.env.fontsize * scriptfactors[self.env.scriptdepth]
+            svg_elements.svg_glyphs.append((familyname, fontsize,thetext, x,
+                y, None)) # None was originaly metrics (in old mathtext)
+
+
+class Kern(Renderer):
+    """Class that implements the rendering of a Kern."""
+
+    def __init__(self, env, hadvance):
+        Renderer.__init__(self, env)
+        self.width = hadvance
+        self.hadvance = hadvance
+
+    def __repr__(self):
+        return "Kern(%s, %s)"%(self.env, self.hadvance)
+
+class Line(Renderer):
+    """Class that implements the rendering of a line."""
+
+    def __init__(self, env, width, height):
+        Renderer.__init__(self, env)
+        self.ymin = -height/2.
+        self.xmax = width
+        self.ymax = height/2.
+
+        self.width = width
+        self.height = height
+        self.hadvance = width
+        self.hbearingy = self.ymax
+        # vertical
+        self.vadvance = height
+        self.vbearingx = - width/2.0
+
+    def hrender(self, x, y):
+        font = get_font(self.env)
+        coords = (x + self.xmin, y + self.ymin, x + self.xmax,
+                                                        y + self.ymax)
+        #print coords
+        #print "\n".join(repr(self.__dict__).split(","))
+        if self.env.output == "AGG":
+            coords = (coords[0]+2, coords[1]-1, coords[2]-2,
+                        coords[3]-1)
+            #print coords
+            font.draw_rect_filled(*coords)
+        elif self.env.output == "SVG":
+            svg_elements.svg_lines.append(coords)
+            #~ familyname = font.get_sfnt()[(1,0,0,1)]
+            #~ svg_elements.svg_glyphs.append((familyname, self.env.fontsize,
+            #~   "---", x,y, None))
+
+
+# Complex rendering classes
+class Hbox(Renderer):
+    """A class that corresponds to a TeX hbox."""
+    def __init__(self, env, texlist=[]):
+        Renderer.__init__(self, env)
+        self.items = texlist
+        if not self.items:
+            # empty group
+            return
+        previous = None
+        for item in self.items:
+            # Checking for kerning
+            if previous:
+                kern = get_kern(previous, item)
+                item.hadvance += kern.hadvance
+            self.hbearingy = max((item.hbearingy, self.hbearingy))
+            self.ymax = max((item.ymax, self.ymax))
+            if self.ymin == 0:
+                self.ymin = item.ymin
+            else:
+                self.ymin = min((item.ymin, self.ymin))
+            self.hadvance += item.hadvance
+            # vertical
+            self.vadvance = max((item.vadvance, self.vadvance))
+            if self.vbearingy == 0:
+                self.vbearingy = item.vbearingy
+            else:
+                self.vbearingy = min(item.vbearingy, self.vbearingy)
+            previous = item
+        first = self.items[0]
+        self.hbearingx = 0#first.hbearingx
+        self.xmin = 0#first.xmin
+
+        last = self.items[-1]
+        self.xmax = self.hadvance# + fabs(last.hadvance - last.xmax)
+        self.xmax -= first.hbearingx
+        self.width = self.xmax - self.xmin
+        self.height = self.ymax - self.ymin
+        # vertical
+        self.vbearingx = - self.width/2.0
+        
+    def hrender(self, x, y):
+        for item in self.items:
+            item.hrender(x, y)
+            x += item.hadvance
+
+# TO-DO
+class Vbox(Renderer):
+    """A class representing a vertical box. ref is the index of the texlist
+    element whose origin will be used as the vbox origin. The default is
+    ref=-1. If ref is None, then ref is set to be the middle index (if the
+    number of items in the list is even, a new list element is inserted (as
+    Kern(0)) to make the list odd).
+    The box is rendered top down - the last element of the list is rendered
+    at the bottom.
+    
+    """
+    def __init__(self, env, texlist=[], ref=None):
+        if ref == None:
+            if not len(texlist)%2:
+                texlist = texlist.insert(len(texlist)/2,Kern(env, 0))
+            ref = len(texlist)/2
+        if ref < 0:
+            ref = len(texlist) + ref
+        Renderer.__init__(self, env)
+
+        self.items = texlist
+        if not self.items:
+            return
+
+        for i, item in enumerate(self.items):
+            if i == 0:
+                self.vbearingy = item.vbearingy
+            if i == ref:
+                # ymax is determined by the reference item
+                if self.vadvance == 0:
+                    #self.ymax = item.ymax
+                    self.hbearingy = item.hbearingy
+                else:
+                    #self.ymax = self.vadvance + item.ymax + item.vbearingy
+                    self.hbearingy = self.vadvance + item.hbearingy +\
+                                    item.vbearingy
+            self.width = max(self.width, item.width)
+            if self.width < item.width:
+                self.width = item.width
+                self.hbearingx = item.hbearingx
+            self.hadvance = max(self.hadvance, item.hadvance)
+            self.vbearingx = min(self.vbearingx, item.vbearingx)
+            self.vadvance += item.vadvance
+            if i == len(self.items) - 1:
+                # last item
+                if i == 0:
+                    self.ymin = item.ymin
+                else:
+                    _overlap = item.vadvance - item.height -item.vbearingy
+                    self.ymin = -(self.vadvance - _overlap - self.hbearingy)
+        self.xmin = self.hbearingx
+        self.xmax = self.xmin + self.width
+        
+        self.ymax = self.hbearingy
+        self.height = self.ymax - self.ymin
+
+    def hrender(self, x, y):
+        # We reuse vrender.
+        print "H"
+        y -= self.vbearingy + self.hbearingy
+        x += -self.vbearingx + self.hbearingx
+        self.vrender(x, y)
+
+    def vrender(self, x, y):
+        print "V"
+        #print "\n".join(repr(self.__dict__).split(","))
+        for item in self.items:
+            for key in item.__dict__:
+                try:
+                    print key, getattr(self, key), getattr(item, key)
+                except AttributeError:
+                    pass
+            #print "\n".join(repr(item.__dict__).split(","))
+            item.vrender(x, y)
+            y += item.vadvance
+
+class Scripted(Renderer):
+    """Used for creating elements that have sub/superscripts"""
+    def __init__(self, env, nuc=None, type="ord", sub=None,
+                sup=None):
+        Renderer.__init__(self, env)
+        if not nuc:
+            nuc = Hbox([])
+        if not sub:
+            sub = Hbox([])
+        if not sup:
+            sup = Hbox([])
+        self.nuc = nuc
+        self.sub = sub
+        self.sup = sup
+        self.type = type
+        # Heuristics for figuring out how much the subscripts origin has to be
+        # below the origin of the nucleus (the descent of the letter "j").
+        # TO-DO: Change with a better alternative. Not working: F_1^1y_1
+        c = Char(env, "j")
+        C = Char(env, "M")
+
+        self.subpad = c.height - c.hbearingy
+        # If subscript is complex (i.e. a large Hbox - fraction etc.)
+        # we have to aditionaly lower the subscript
+        if sub.ymax > (C.height/2.1 + self.subpad):
+            self.subpad = sub.ymax - C.height/2.1
+            
+        #self.subpad = max(self.subpad)
+        #self.subpad = 0.5*sub.height
+        # Similar for the superscript
+        self.suppad = max(nuc.height/1.9, C.ymax/1.9) - sup.ymin# - C.hbearingy
+
+
+        #self.hadvance = nuc.hadvance + max((sub.hadvance, sup.hadvance))
+
+        self.xmin = nuc.xmin
+
+        self.xmax = max(nuc.hadvance, nuc.hbearingx + nuc.width) +\
+        max((sub.hadvance, sub.hbearingx + sub.width,
+            sup.hadvance, sup.hbearingx + sup.width))# - corr
+
+        self.ymin = min(nuc.ymin, -self.subpad + sub.ymin)
+
+        self.ymax = max((nuc.ymax, self.suppad + sup.hbearingy))
+
+        # The bearing of the whole element is the bearing of the nucleus
+        self.hbearingx = nuc.hbearingx
+        self.hadvance = self.xmax
+        # Heruistics. Feel free to change
+        self.hbearingy = self.ymax
+
+        self.width = self.xmax - self.xmin
+        self.height = self.ymax - self.ymin
+        # vertical
+        self.vadvance = self.height
+        self.vbearingx = - self.width/2.0
+
+    def hrender(self, x, y):
+        nuc, sub, sup = self.nuc, self.sub, self.sup
+        nx = x
+        ny = y
+
+        subx = x + max(nuc.hadvance, nuc.hbearingx + nuc.width)# + sub.hbearingx
+        suby = y + self.subpad# - subfactor*self.env.fontsize
+
+        supx = x + max(nuc.hadvance, nuc.hbearingx + nuc.width)# + sup.hbearingx
+        supy = y - self.suppad# + 10#subfactor*self.env.fontsize
+
+        self.nuc.hrender(nx, ny)
+        self.sub.hrender(subx, suby)
+        self.sup.hrender(supx, supy)
+
+    def __repr__(self):
+        tmp = [repr(i) for i in [self.env, self.nuc, self.type,
+            self.sub, self.sup]]
+        tmp = tuple(tmp)
+        return "Scripted(env=%s,nuc=%s, type=%s, \
+sub=%s, sup=%s)"%tmp
+
+
+class Fraction(Renderer):
+    """A class for rendering a fraction."""
+
+    def __init__(self, env, num, den):
+        Renderer.__init__(self, env)
+        self.numer = num
+        self.denom = den
+
+        # TO-DO: Find a better way to implement the fraction bar
+        self.pad = get_frac_bar_height(self.env)
+        pad = self.pad
+        self.bar = Line(env.copy(), max(num.width, den.width) + 2*pad, pad)
+        #~ self.bar.hbearingx = pad
+        #~ self.bar.hadvance = self.bar.width + 2*pad
+        #~ self.bar.hbearingy = pad + pad
+
+        self.xmin = 0
+        #self.xmax = self.bar.hadvance
+        self.xmax = self.bar.width# + 2*pad
+
+        self.ymin = -(2*pad + den.height)
+        self.ymax = 2*pad + num.height
+        # The amount by which we raise the bar (the whole fraction)
+        # of the bottom (origin)
+        # TO-DO: Find a better way to implement it
+        _env = env.copy()
+        _env.face = "rm"
+        c = Char(_env, "+")
+        self.barpad = 1./2.*(c.ymax-c.ymin) + c.ymin
+        self.ymin += self.barpad
+        self.ymax += self.barpad
+        
+        self.width = self.xmax - self.xmin
+        self.height = self.ymax - self.ymin
+        #print self.width, self.height
+        
+        #self.hbearingx = pad
+        self.hbearingx = 0
+        self.hbearingy = self.ymax
+        #self.hadvance = self.bar.hadvance
+        self.hadvance = self.xmax
+        # vertical
+        self.vbearingx = - self.width/2.0
+        self.vbearingy = num.vbearingy
+        self.vadvance = self.height + num.vbearingy + (den.vadvance + den.ymin) 
+
+    def hrender(self, x, y):
+        y -= self.barpad
+        pad = self.pad
+        #print self.bar.xmax, self.bar.xmin, self.bar.ymin, self.bar.ymax
+        self.bar.hrender(x, y)
+
+        nx = x - self.numer.hbearingx + (self.width - self.numer.width)/2.
+        ny = y - 2*pad - (self.numer.height - self.numer.ymax)
+        self.numer.hrender(nx, ny)
+        
+        dx = x - self.denom.hbearingx+ (self.width - self.denom.width)/2.
+        dy = y + 2*pad + self.denom.hbearingy
+        self.denom.hrender(dx, dy)
+
+
 
 
 # Helper functions used by the parser
@@ -312,366 +779,10 @@ def is_command(item):
         return False
 
 
-# Helper functions used by the renderer
-def get_frac_bar_height(env):
-    # TO-DO: Find a better way to calculate the height of the rule
-    c = TexCharClass(env, ".")
-    return (c.ymax - c.ymin)/2
-
-def get_font(env):
-    env = env.copy()
-    # TO-DO: Perhaps this should be done somewhere else
-    fontsize = env.fontsize * scriptfactors[env.scriptdepth]
-    dpi = env.dpi
-    if not env.face:
-        env.face = "rm"
-    font = fonts[env.face]
-
-    font.set_size(fontsize, dpi)
-    return font
-    #~ font = FT2Font(filenamesd[face])
-    #~ if fonts:
-        #~ fonts[max(fonts.keys()) + 1] = font
-    #~ else:
-        #~ fonts[1] = font
-
-def infer_face(env, item):
-    if item.isalpha():
-        if env.mode == "mathmode" and item < "z":
-            face = "mit"
-        else:
-            # TO-DO: Perhaps change to 'rm'
-            face = "nonascii"
-    elif item.isdigit():
-        face = "rm"
-    elif ord(item) < 256:
-        face = "rm"
-    else:
-        face = "nonascii"
-    return face
-
-def get_space(env):
-    _env = env.copy()
-    if not _env.face:
-        _env.face = "rm"
-    space = TexCharClass(_env, " ")
-    return space
-
-def get_kern(first, second):
-    # TO-DO: Something's wrong
-    if isinstance(first,TexCharClass) and isinstance(second, TexCharClass):
-        if first.env.__dict__ == second.env.__dict__:
-            font = get_font(first.env)
-            advance = -font.get_kerning(first.uniindex, second.uniindex,
-                                        KERNING_DEFAULT)/64.0
-            #print first.char, second.char, advance
-            return Kern(first.env, advance)
-        else:
-            return Kern(first.env, 0)
-    else:
-        return Kern(first.env, 0)
-
-
-# Classes used for renderering
-class Renderer:
-    """Abstract class that implements the rendering methods"""
-    def __init__(self, env):
-        # We initialize all the values to 0.0
-        self.xmin, self.ymin, self.xmax, self.ymax = (0.0,)*4
-        self.width, self.height = (0.0,)*2
-        (self.hadvance, self.hbearingx, self.hbearingy,
-            self.hdescent)= (0.0,)*4
-        (self.vadvance, self.vbearingx, self.vbearingy)= (0.0,)*3
-        self.env = env
-
-    def __render__(self):
-        raise NotImplementedError("Derived must override")
-
-class Hbox(Renderer):
-    """A class that corresponds to a TeX hbox."""
-    def __init__(self, env, texlist=[]):
-        Renderer.__init__(self, env)
-        self.items = texlist
-        if not self.items:
-            # empty group
-            return
-        previous = None
-        for item in self.items:
-            # Checking for kerning
-            if previous:
-                kern = get_kern(previous, item)
-                item.hadvance += kern.hadvance
-            self.hbearingy = max((item.hbearingy, self.hbearingy))
-            self.ymax = max((item.ymax, self.ymax))
-            self.ymin = min((item.ymin, self.ymin))
-            self.hadvance += item.hadvance
-            previous = item
-        first = self.items[0]
-        self.hbearingx = 0#first.hbearingx
-        self.xmin = 0#first.xmin
-
-        last = self.items[-1]
-        self.xmax = self.hadvance# + fabs(last.hadvance - last.xmax)
-        self.xmax -= first.hbearingx
-        self.width = self.xmax - self.xmin
-        self.height = self.ymax - self.ymin
-
-    def render(self, x, y):
-        for item in self.items:
-            item.render(x, y)
-            x += item.hadvance
-
-
-class Scripted(Renderer):
-    """Used for creating elements that have sub/superscripts"""
-    def __init__(self, env, nuc=None, type="ord", sub=None,
-                sup=None):
-        Renderer.__init__(self, env)
-        if not nuc:
-            nuc = Hbox([])
-        if not sub:
-            sub = Hbox([])
-        if not sup:
-            sup = Hbox([])
-        self.nuc = nuc
-        self.sub = sub
-        self.sup = sup
-        self.type = type
-        # Heuristics for figuring out how much the subscripts origin has to be
-        # below the origin of the nucleus (the descent of the letter "j").
-        # TO-DO: Change with a better alternative. Not working: F_1^1y_1
-        c = TexCharClass(env, "j")
-        C = TexCharClass(env, "M")
-
-        self.subpad = c.height - c.hbearingy
-        # If subscript is complex (i.e. a large Hbox - fraction etc.)
-        # we have to aditionaly lower the subscript
-        if sub.ymax > (C.height/2.1 + self.subpad):
-            self.subpad = sub.ymax - C.height/2.1
-            
-        #self.subpad = max(self.subpad)
-        #self.subpad = 0.5*sub.height
-        # Similar for the superscript
-        self.suppad = max(nuc.height/1.9, C.ymax/1.9) - sup.ymin# - C.hbearingy
-
-
-        #self.hadvance = nuc.hadvance + max((sub.hadvance, sup.hadvance))
-
-        self.xmin = nuc.xmin
-
-        self.xmax = max(nuc.hadvance, nuc.hbearingx + nuc.width) +\
-        max((sub.hadvance, sub.hbearingx + sub.width,
-            sup.hadvance, sup.hbearingx + sup.width))# - corr
-
-        self.ymin = min(nuc.ymin, -self.subpad + sub.ymin)
-
-        self.ymax = max((nuc.ymax, self.suppad + sup.hbearingy))
-
-        # The bearing of the whole element is the bearing of the nucleus
-        self.hbearingx = nuc.hbearingx
-        self.hadvance = self.xmax
-        # Heruistics. Feel free to change
-        self.hbearingy = self.ymax
-
-        self.width = self.xmax - self.xmin
-        self.height = self.ymax - self.ymin
-
-    def render(self, x, y):
-        nuc, sub, sup = self.nuc, self.sub, self.sup
-        nx = x
-        ny = y
-
-        subx = x + max(nuc.hadvance, nuc.hbearingx + nuc.width)# + sub.hbearingx
-        suby = y + self.subpad# - subfactor*self.env.fontsize
-
-        supx = x + max(nuc.hadvance, nuc.hbearingx + nuc.width)# + sup.hbearingx
-        supy = y - self.suppad# + 10#subfactor*self.env.fontsize
-
-        self.nuc.render(nx, ny)
-        self.sub.render(subx, suby)
-        self.sup.render(supx, supy)
-
-    def __repr__(self):
-        tmp = [repr(i) for i in [self.env, self.nuc, self.type,
-            self.sub, self.sup]]
-        tmp = tuple(tmp)
-        return "Scripted(env=%s,nuc=%s, type=%s, \
-sub=%s, sup=%s)"%tmp
-
-
-class Fraction(Renderer):
-    """A class for rendering a fraction."""
-
-    def __init__(self, env, num, den):
-        Renderer.__init__(self, env)
-        self.numer = num
-        self.denom = den
-
-        # TO-DO: Find a better way to implement the fraction bar
-        self.pad = get_frac_bar_height(self.env)
-        pad = self.pad
-        self.bar = Line(env.copy(), max(num.width, den.width) + 2*pad, pad)
-        #~ self.bar.hbearingx = pad
-        #~ self.bar.hadvance = self.bar.width + 2*pad
-        #~ self.bar.hbearingy = pad + pad
-
-        self.xmin = 0
-        #self.xmax = self.bar.hadvance
-        self.xmax = self.bar.width# + 2*pad
-
-        self.ymin = -(2*pad + den.height)
-        self.ymax = 2*pad + num.height
-        # The amount by which we raise the bar (the whole fraction)
-        # of the bottom (origin)
-        # TO-DO: Find a better way to implement it
-        _env = env.copy()
-        _env.face = "rm"
-        c = TexCharClass(_env, "+")
-        self.barpad = 1./2.*(c.ymax-c.ymin) + c.ymin
-        self.ymin += self.barpad
-        self.ymax += self.barpad
-        
-        self.width = self.xmax - self.xmin
-        self.height = self.ymax - self.ymin
-        #print self.width, self.height
-        
-        #self.hbearingx = pad
-        self.hbearingx = 0
-        self.hbearingy = self.ymax
-        #self.hadvance = self.bar.hadvance
-        self.hadvance = self.xmax
-
-    def render(self, x, y):
-        y -= self.barpad
-        pad = self.pad
-        #print self.bar.xmax, self.bar.xmin, self.bar.ymin, self.bar.ymax
-        self.bar.render(x, y)
-
-        nx = x - self.numer.hbearingx + (self.width - self.numer.width)/2.
-        ny = y - 2*pad - (self.numer.height - self.numer.ymax)
-        self.numer.render(nx, ny)
-        
-        dx = x - self.denom.hbearingx+ (self.width - self.denom.width)/2.
-        dy = y + 2*pad + self.denom.hbearingy
-        self.denom.render(dx, dy)
-
-
-# Primitives
-class TexCharClass(Renderer):
-    """A class that implements rendering of a single character."""
-    def __init__(self, env, char, uniindex=None):
-        #Renderer.__init__(self, env)
-        self.env = env
-        # uniindex is used to override ord(char) (needed on platforms where
-        # there is only BMP support for unicode, i.e. windows)
-        msg = "A char (string with length == 1) is needed"
-        if isinstance(_textclass(char), _textclass) and len(char) == 1:
-            self.char = char
-        else:
-            raise ValueError(msg)
-        if not uniindex:
-            self.uniindex = ord(char)
-        else:
-            if isinstance(uniindex, int):
-                self.uniindex = uniindex
-            else:
-                raise ValueError("uniindex must be an int")
-        #print self.env.face, filenamesd
-        # TO-DO: This code is needed for BaKoMa fonts. To be removed when
-        # mathtext migrates to completely unicode fonts
-        if self.env.face == "rm" and filenamesd["rm"].endswith("cmr10.ttf"):
-            _env = self.env.copy()
-            if self.char in ("{", "}"):
-                _env.face = "cal"
-                font = get_font(_env)
-                if self.char == "{":
-                    index = 118
-                elif self.char == "}":
-                    index = 119
-                glyph = font.load_char(index)
-            else:
-                font = get_font(self.env)
-                glyph = font.load_char(self.uniindex)
-        else:
-            font = get_font(self.env)
-            glyph = font.load_char(self.uniindex)
-        self.glyph = glyph
-        self.xmin, self.ymin, self.xmax, self.ymax = [
-            val/64.0 for val in self.glyph.bbox]
-
-        self.width = self.xmax - self.xmin#glyph.width/64.0
-        self.height = self.ymax - self.ymin#glyph.height/64.0
-        self.hadvance = glyph.horiAdvance/64.0
-        self.hbearingx = glyph.horiBearingX/64.0
-        self.hbearingy = glyph.horiBearingY/64.0
-
-    def render(self, x, y):
-        #y -= self.ymax
-        #y -= (self.height - self.hbearingy)
-        #print x, y
-        font = get_font(self.env)
-        output = self.env.output
-        if output == "AGG":
-            x += self.hbearingx
-            y -= self.hbearingy
-            font.draw_glyph_to_bitmap(x, y, self.glyph)
-        elif output == "SVG":
-            familyname = font.get_sfnt()[(1,0,0,1)]
-            thetext = unichr(self.uniindex)
-            thetext.encode('utf-8')
-            fontsize = self.env.fontsize * scriptfactors[self.env.scriptdepth]
-            svg_elements.svg_glyphs.append((familyname, fontsize,thetext, x,
-                y, None)) # None was originaly metrics (in old mathtext)
-
-
-class Kern(Renderer):
-    """Class that implements the rendering of a Kern."""
-
-    def __init__(self, env, advance):
-        Renderer.__init__(self, env)
-        self.width = advance
-        self.hadvance = advance
-
-    def render(self, x, y):
-        pass
-
-    def __repr__(self):
-        return "Kern(%s, %s)"%(self.env, self.hadvance)
-
-class Line(Renderer):
-    """Class that implements the rendering of a line."""
-
-    def __init__(self, env, width, height):
-        Renderer.__init__(self, env)
-        self.ymin = -height/2.
-        self.xmax = width
-        self.ymax = height/2.
-
-        self.width = width
-        self.height = height
-        self.hadvance = width
-        self.hbearingy = self.ymax
-
-    def render(self, x, y):
-        font = get_font(self.env)
-        coords = (x + self.xmin, y + self.ymin, x + self.xmax,
-                                                        y + self.ymax)
-        #print coords
-        #print "\n".join(repr(self.__dict__).split(","))
-        if self.env.output == "AGG":
-            coords = (coords[0]+2, coords[1]-1, coords[2]-2,
-                        coords[3]-1)
-            #print coords
-            font.draw_rect_filled(*coords)
-        else:
-            svg_elements.svg_lines.append(coords)
-            #~ familyname = font.get_sfnt()[(1,0,0,1)]
-            #~ svg_elements.svg_glyphs.append((familyname, self.env.fontsize,
-            #~   "---", x,y, None)) 
 
 
 # Main parser functions
-def handle_tokens(texgroup, env):
+def handle_tokens(texgroup, env, box=Hbox):
     """Scans the entire (tex)group to handle tokens. Tokens are other groups,
     commands, characters, kerns etc. Used recursively.
     
@@ -698,15 +809,19 @@ def handle_tokens(texgroup, env):
                                             allowsetters=True)
             continue
         elif isinstance(item, _textclass):
-            if item == word_delim and env.mode == "mathmode":
-                # Disregard space in mathmode
-                continue
+            if env.mode == "mathmode":
+                if item == word_delim:
+                    # Disregard space in mathmode
+                    continue
+                elif item == "-":
+                    # load the math minus sign
+                    item = u"\u2212"
             uniindex = ord(item)
             appendix = handle_char(uniindex, env.copy())
         else:
             appendix = item
         result.append(appendix)
-    return Hbox(env.copy(),result)
+    return box(env.copy(),result)
 
 def handle_command(command, texgroup, env, allowsetters=False):
     """Handles TeX commands that don't have backward propagation, and
@@ -741,6 +856,9 @@ def handle_command(command, texgroup, env, allowsetters=False):
     elif command in reserved:
         uniindex = ord(command)
         appendix = handle_char(uniindex, env.copy())
+    elif command == "vtext":
+        _vlist = texgroup.pop(0)
+        appendix = handle_tokens(_vlist, env.copy(), box=Vbox)
     elif command in tex2uni:
         uniindex = tex2uni[command]
         appendix = handle_char(uniindex, env.copy())
@@ -819,7 +937,7 @@ def handle_char(uniindex, env):
     char = unichr(uniindex)
     if not env.face:
         env.face = infer_face(env, char)
-    return TexCharClass(env, char, uniindex=uniindex)
+    return Char(env, char, uniindex=uniindex)
 
 def get_args(command, texgroup, env, num_args):
     """Returns the arguments needed by a TeX command"""
@@ -863,8 +981,8 @@ def math_parse_s_ft2font(s, dpi, fontsize, angle=0, output="AGG"):
     if output == "AGG":
         for key in fonts:
             fonts[key].set_bitmap_size(width, height)
-    parsed.render(-parsed.items[0].hbearingx, height + parsed.ymin - 1)
-    #~ parsed.render(-parsed.hbearingx, height - 1 - (
+    parsed.hrender(-parsed.items[0].hbearingx, height + parsed.ymin - 1)
+    #~ parsed.hrender(-parsed.hbearingx, height - 1 - (
                         #~ parsed.height - parsed.hbearingy))
     if output == "AGG":
         return width, height, fonts.values()
@@ -888,17 +1006,18 @@ def math_parse_s_ft2font1(s, dpi, fontsize, angle=0):
     #print width, height
     for key in fonts:
         fonts[key].set_bitmap_size(width, height)
-    parsed.render(width/2., height/2.)
+    parsed.hrender(width/2., height/2.)
     #fonts["mit"].draw_rect(0, 0, 40, 0)
     #fonts["mit"].draw_rect(0, 1, 40, 0)
-    #parsed.render(20, 20)
-    #~ parsed.render(-parsed.hbearingx, height - 1 - (
+    #parsed.hrender(20, 20)
+    #~ parsed.hrender(-parsed.hbearingx, height - 1 - (
                         #~ parsed.height - parsed.hbearingy))
     _fonts = fonts.values()
     return width, height, _fonts
 
 
 if __name__ == '__main__':
+    pass
     #texstring = r"\\{ \horse\   Hello\^ ^ a^b_c}"
     #texstring = r"  asdf { \horse{}tralala1234\ \zztop{} \ Hello\^^a^{b_c}}"
     #texstring = r"{}{} { }"
@@ -907,7 +1026,7 @@ if __name__ == '__main__':
     #texstring = r"\horse;,.?)_)(*(*^*%&$$%{} Haha! Kako je frajeru?"
     #texstring = r"a_2\trav 32"
     #texstring = r"a_24{\sum_4^5} _3"
-    texstring = _textclass(r"1_2^{4^5}32 5")
-    parsed = parse_tex(texstring)
+    #texstring = _textclass(r"1_2^{4^5}32 5")
+    #parsed = parse_tex(texstring)
     #~ print bool(a)
     #print is_scriptcommand('\\subscript')

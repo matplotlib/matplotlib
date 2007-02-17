@@ -73,7 +73,7 @@ if major==2 and minor1==2:
 
 for line in file('lib/matplotlib/__init__.py').readlines():
     if line[:11] == '__version__':
-        exec(line)
+        exec(line.strip())
 
 # Specify all the required mpl data
 package_data = {'matplotlib':['mpl-data/fonts/afm/*.afm',
