@@ -87,7 +87,10 @@ def _parse_header(fh):
         'XHeight': _to_float,
         'Ascender': _to_float,
         'Descender': _to_float,
+        'StdHW': _to_float,
+        'StdVW': _to_float,
         'StartCharMetrics': _to_int,
+        'CharacterSet': _to_str,
         'Characters': _to_int,
         'Capheight': _to_int,
         }
@@ -111,7 +114,7 @@ def _parse_header(fh):
             print >>sys.stderr, 'Value error parsing header in AFM:', key, val
             continue
         except KeyError: 
-            print >>sys.stderr, 'Key error converting in AFM'
+            print >>sys.stderr, 'Found an unknown keyword in AFM header (was %s)' % key
             continue
         if key=='StartCharMetrics': return d
     raise RuntimeError('Bad parse')
@@ -136,13 +139,17 @@ def _parse_char_metrics(fh):
         line = line.rstrip()
         if line.startswith('EndCharMetrics'): return d
         vals = line.split(';')[:4]
-        if len(vals)!=4: raise RuntimeError('Bad char metrics line: %s'%line)
+        if len(vals) !=4 : raise RuntimeError('Bad char metrics line: %s' % line)
         num = _to_int(vals[0].split()[1])
-        if num==-1: continue
         wx = _to_float(vals[1].split()[1])
         name = vals[2].split()[1]
         bbox = _to_list_of_ints(vals[3][2:])
-        d[num] = (wx, name, bbox)
+        # Workaround: If the character name is 'Euro', give it the corresponding 
+        # character code, according to WinAnsiEncoding (see PDF Reference).
+        if name == 'Euro':
+            num = 128
+        if num != -1:
+            d[num] = (wx, name, bbox)
     raise RuntimeError('Bad parse')
 
 def _parse_kern_pairs(fh):

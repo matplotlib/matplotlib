@@ -77,6 +77,8 @@ for line in file('lib/matplotlib/__init__.py').readlines():
 
 # Specify all the required mpl data
 package_data = {'matplotlib':['mpl-data/fonts/afm/*.afm',
+                              'mpl-data/fonts/pdfcorefonts/*.afm',
+                              'mpl-data/fonts/pdfcorefonts/*.txt',
                               'mpl-data/fonts/ttf/*.ttf',
                               'mpl-data/images/*.xpm',
                               'mpl-data/images/*.svg',

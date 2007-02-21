@@ -20,9 +20,10 @@ from matplotlib import __version__, rcParams, agg
 from matplotlib._pylab_helpers import Gcf
 from matplotlib.backend_bases import RendererBase, GraphicsContextBase,\
      FigureManagerBase, FigureCanvasBase
-from matplotlib.cbook import Bunch, enumerate, is_string_like
+from matplotlib.cbook import Bunch, enumerate, is_string_like, reverse_dict
 from matplotlib.figure import Figure
 from matplotlib.font_manager import fontManager
+from matplotlib.afm import AFM
 from matplotlib.ft2font import FT2Font, FIXED_WIDTH, ITALIC, LOAD_NO_SCALE
 from matplotlib.mathtext import math_parse_s_pdf
 from matplotlib.numerix import Float32, UInt8, fromstring, arange, infinity, isnan, asarray
@@ -43,6 +44,17 @@ from matplotlib.transforms import Bbox
 # and outputs the necessary commands.  GraphicsContextPdf represents
 # the graphics state, and its "delta" method returns the commands that
 # modify the state.
+
+# Add "pdf.use14corefonts: True" in your configuration file to use only
+# the 14 PDF core fonts. These fonts do not need to be embedded; every 
+# PDF viewing application is required to have them. This results in very
+# light PDF files you can use directly in LaTeX or ConTeXt documents
+# generated with pdfTeX, without any conversion.
+
+# These fonts are: Helvetica, Helvetica-Bold, Helvetica-Oblique, 
+# Helvetica-BoldOblique, Courier, Courier-Bold, Courier-Oblique, 
+# Courier-BoldOblique, Times-Roman, Times-Bold, Times-Italic, 
+# Times-BoldItalic, Symbol, ZapfDingbats.
 #
 # Some tricky points: 
 #
@@ -64,7 +76,7 @@ from matplotlib.transforms import Bbox
 # * the alpha channel of images
 # * image compression could be improved (PDF supports png-like compression) 
 # * encoding of fonts, including mathtext fonts and unicode support
-# * Type 1 and Base-14 font support (i.e., "pdf.use_afm") 
+# * Type 1 font support (i.e., "pdf.use_afm") 
 # * TTF support has lots of small TODOs, e.g. how do you know if a font  
 #   is serif/sans-serif, or symbolic/non-symbolic? 
 # * draw_markers, draw_line_collection, etc. 
@@ -118,8 +130,7 @@ def pdfRepr(obj):
     # represented as Name objects.
     elif isinstance(obj, dict):
         r = ["<<"]
-        r.extend(["%s %s" % (Name(key).pdfRepr(),
-                             pdfRepr(val))
+        r.extend(["%s %s" % (Name(key).pdfRepr(), pdfRepr(val))
                   for key, val in obj.items()])
         r.append(">>")
         return fill(r)
@@ -301,10 +312,9 @@ class Stream:
 class PdfFile:
     """PDF file with one page."""
 
-    def __init__(self, width, height, dpi, filename):
+    def __init__(self, width, height, filename):
         self.nextObject = 1     # next free object id
         self.xrefTable = [ [0, 65535, 'the zero object'] ]
-        self.dpi = dpi
         fh = file(filename, 'wb')
         self.fh = fh
         self.currentstream = None # stream object to write to, if any
@@ -418,49 +428,49 @@ class PdfFile:
         self.currentstream.end()
         self.currentstream = None
 
-    # These fonts do not need to be embedded; every PDF viewing
-    # application is required to have them.
-    base14 = [ 'Times-Roman', 'Times-Bold', 'Times-Italic',
-               'Times-BoldItalic', 'Symbol', 'ZapfDingbats' ] + \
-             [ prefix + postfix
-               for prefix in 'Helvetica', 'Courier'
-               for postfix in '', '-Bold', '-Oblique', '-BoldOblique' ]
-
     def fontName(self, fontprop):
         if is_string_like(fontprop):
             filename = fontprop
+        elif rcParams['pdf.use14corefonts']:
+            filename = fontManager.findfont(fontprop, fontext='afm')
         else:
             filename = fontManager.findfont(fontprop)
-        Fx = self.fontNames.get(filename, None)
+        
+        Fx = self.fontNames.get(filename)
         if Fx is None:
             Fx = Name('F%d' % self.nextFont)
             self.fontNames[filename] = Fx
             self.nextFont += 1
+        
         return Fx
 
     def writeFonts(self):
         fonts = {}
         for filename, Fx in self.fontNames.items():
-            # TODO: The following test is wrong, since findfont really
-            # returns a file name. Think about how to allow users to
-            # specify the base14 fonts (does fontManager know anything
-            # about them?).
-            if filename in self.base14:
-                fontdict = { 'Subtype': Name('Type1'),
-                             'BaseFont': Name(filename) }
-                # etc...
+            if filename.endswith('.afm'):
+                fontdictObject = self._write_afm_font(filename)
             else:
                 fontdictObject = self.embedTTF(filename)
             fonts[Fx] = fontdictObject
             #print >>sys.stderr, filename
-
         self.writeObject(self.fontObject, fonts)
-
+    
+    def _write_afm_font(self, filename):
+        font = AFM(file(filename))
+        fontname = font.get_fontname()
+        fontdict = { 'Type': Name('Font'),
+                     'Subtype': Name('Type1'),
+                     'BaseFont': Name(fontname),
+                     'Encoding': Name('WinAnsiEncoding') }
+        fontdictObject = self.reserveObject('font dictionary')
+        self.writeObject(fontdictObject, fontdict)
+        return fontdictObject
+    
     def embedTTF(self, filename):
         """Embed the TTF font from the named file into the document."""
-
-        font = FT2Font(filename)
-
+        
+        font = FT2Font(str(filename))
+        
         def cvt(length, upe=font.units_per_EM, nearest=True):
             "Convert font coordinates to PDF glyph coordinates"
             value = length / upe * 1000
@@ -469,7 +479,7 @@ class PdfFile:
             # boxes and the like
             if value < 0: return floor(value)
             else: return ceil(value)
-
+        
         # You are lost in a maze of TrueType tables, all different...
         ps_name = Name(font.get_sfnt()[(1,0,0,6)])
         pclt = font.get_sfnt_table('pclt') \
@@ -478,35 +488,33 @@ class PdfFile:
             or { 'italicAngle': (0,0) }
         ff = font.face_flags
         sf = font.style_flags
-        charmap = font.get_charmap()
-        chars = sorted(charmap.keys())
-        firstchar, lastchar = chars[0], chars[-1]
-
-        # Get widths
-        widths = [ cvt(font.load_char(i, flags=LOAD_NO_SCALE).horiAdvance)
-                   for i in range(firstchar, lastchar+1) ]
-        # Remove redundant widths from end and beginning; doing the
-        # end first helps reduce LastChar, which apparently needs to
-        # be less than 256 or acroread complains.
-        missingwidth = widths[-1]
-        while len(widths)>1 and widths[-1] == missingwidth:
-            lastchar -= 1
-            widths.pop()
-        while len(widths)>1 and widths[0] == missingwidth:
-            firstchar += 1
-            widths.pop(0)
-
+        
+        # Get widths for the 256 characters of PDF encoding "WinAnsiEncoding" (similar to
+        # Python encoding "cp1252"). According to the PDF Reference, a simple font, based on
+        # single-byte characters, can't manage more than 256 characters, contrary to a
+        # composite font, based on multi-byte characters.
+        
+        from encodings import cp1252
+        firstchar, lastchar = 0, 255
+        def get_char_width(charcode):
+            unicode = cp1252.decoding_map[charcode] or 0
+            width = font.load_char(unicode, flags=LOAD_NO_SCALE).horiAdvance
+            return cvt(width)
+        widths = [ get_char_width(charcode) for charcode in range(firstchar, lastchar+1) ]
+        
         widthsObject = self.reserveObject('font widths')
         fontdescObject = self.reserveObject('font descriptor')
+        # TODO: "WinAnsiEncoding" could become a parameter of PdfFile. The PDF encoding 
+        # "WinAnsiEncoding" matches the Python enconding "cp1252" used in method 
+        # RendererPdf.draw_text and RendererPdf.get_text_width_height to encode Unicode strings.
         fontdict = { 'Type': Name('Font'),
                      'Subtype': Name('TrueType'),
-                     'Encoding': Name('WinAnsiEncoding'), # ???
+                     'Encoding': Name('WinAnsiEncoding'),
                      'BaseFont': ps_name,
                      'FirstChar': firstchar,
                      'LastChar': lastchar,
                      'Widths': widthsObject,
                      'FontDescriptor': fontdescObject }
-        # TODO: Encoding?
 
         flags = 0
         symbolic = False #ps_name.name in ('Cmsy10', 'Cmmi10', 'Cmex10')
@@ -518,7 +526,7 @@ class PdfFile:
         if 0: flags |= 1 << 16 # TODO: all caps
         if 0: flags |= 1 << 17 # TODO: small caps
         if 0: flags |= 1 << 18 # TODO: force bold
-
+            
         descriptor = {
             'Type': Name('FontDescriptor'),
             'FontName': ps_name,
@@ -530,22 +538,21 @@ class PdfFile:
             'XHeight': cvt(pclt['xHeight']),
             'ItalicAngle': post['italicAngle'][1], # ???
             'FontFile2': self.reserveObject('font file'),
-            'MaxWidth': max(widths+[missingwidth]),
-            'MissingWidth': missingwidth,
+            'MaxWidth': max(widths),
             'StemV': 0 # ???
-            }
-
+        }
+        
         # Other FontDescriptor keys include:
         # /FontFamily /Times (optional)
         # /FontStretch /Normal (optional)
         # /FontFile (stream for type 1 font)
         # /CharSet (used when subsetting type1 fonts)
-
+        
         # Make an Identity-H encoded CID font for CM fonts? (Doesn't quite work)
         if False:
             del fontdict['Widths'], fontdict['FontDescriptor'], \
                 fontdict['LastChar'], fontdict['FirstChar']
-
+            
             fontdict['Subtype'] = Name('Type0')
             fontdict['Encoding'] = Name('Identity-H')
             fontdict2Object = self.reserveObject('descendant font')
@@ -555,15 +562,14 @@ class PdfFile:
                           'Subtype': Name('CIDFontType2'),
                           'BaseFont': ps_name,
                           'W': widthsObject,
-                          'DW': missingwidth,
                           'CIDSystemInfo': { 'Registry': 'Adobe', 
                                              'Ordering': 'Identity', 
                                              'Supplement': 0 },
                           'FontDescriptor': fontdescObject }
             self.writeObject(fontdict2Object, fontdict2)
-
+            
             widths = [ firstchar, widths ]
-
+        
         fontdictObject = self.reserveObject('font dictionary')
         length1Object = self.reserveObject('decoded length of a font')
         self.writeObject(fontdictObject, fontdict)
@@ -581,7 +587,7 @@ class PdfFile:
             self.currentstream.write(data)
         self.endStream()
         self.writeObject(length1Object, length1)
-
+        
         return fontdictObject
 
     def alphaState(self, alpha):
@@ -635,21 +641,21 @@ class PdfFile:
                 self.output(rgb[0], rgb[1], rgb[2], Op.setrgb_nonstroke,
                             0, 0, sidelen, sidelen, Op.rectangle,
                             Op.fill)
-            if lst[2]:          # -
+            if lst[2]:                # -
                 for j in arange(0.0, sidelen, density/lst[2]):
                     self.output(0, j, Op.moveto,
                                 sidelen, j, Op.lineto)
-            if lst[3]:          # /
+            if lst[3]:                # /
                 for j in arange(0.0, sidelen, density/lst[3]):
                     self.output(0, j, Op.moveto,
                                 sidelen-j, sidelen, Op.lineto,
                                 sidelen-j, 0, Op.moveto,
                                 sidelen, j, Op.lineto)
-            if lst[4]:          # |
+            if lst[4]:                # |
                 for j in arange(0.0, sidelen, density/lst[4]):
                     self.output(j, 0, Op.moveto,
                                 j, sidelen, Op.lineto)
-            if lst[5]:          # \
+            if lst[5]:                # \
                 for j in arange(sidelen, 0.0, -density/lst[5]):
                     self.output(sidelen, j, Op.moveto,
                                 j, sidelen, Op.lineto,
@@ -825,11 +831,8 @@ class RendererPdf(RendererBase):
     def __init__(self, file):
         self.file = file
         self.gc = self.new_gc()
-        self.fonts = {}
-        self.dpi_factor = 72.0/file.dpi
-
-    def points_to_pixels(self, points):
-        return points / self.dpi_factor
+        self.truetype_font_cache = {}
+        self.afm_font_cache = {}
 
     def finalize(self):
         self.gc.finalize()
@@ -855,11 +858,6 @@ class RendererPdf(RendererBase):
         If the color rgbFace is not None, fill the arc with it.
         """
         # source: agg_bezier_arc.cpp in agg23
-
-        x *= self.dpi_factor
-        y *= self.dpi_factor
-        width *= self.dpi_factor
-        height *= self.dpi_factor
         
         def arc_to_bezier(cx, cy, rx, ry, angle1, sweep):
             halfsweep = sweep / 2.0
@@ -873,7 +871,7 @@ class RendererPdf(RendererBase):
                         cy + ry * (pxi * sn + pyi * cs))
                        for pxi, pyi in zip(px, py) ]
             return reduce(lambda x, y: x + y, result)
-
+        
         epsilon = 0.01
         angle1 *= pi/180.0
         angle2 *= pi/180.0
@@ -906,21 +904,18 @@ class RendererPdf(RendererBase):
         self.check_gc(gc)
 
         h, w = im.get_size_out()
-        d = self.dpi_factor
         imob = self.file.imageObject(im)
-        self.file.output(Op.gsave, d*w, 0, 0, d*h, d*x, d*y, Op.concat_matrix,
+        self.file.output(Op.gsave, w, 0, 0, h, x, y, Op.concat_matrix,
                          imob, Op.use_xobject, Op.grestore)
 
     def draw_line(self, gc, x1, y1, x2, y2):
         if isnan(x1) or isnan(x2) or isnan(y1) or isnan(y2):
             return
-        d = self.dpi_factor
         self.check_gc(gc)
-        self.file.output(d*x1, d*y1, Op.moveto,
-                         d*x2, d*y2, Op.lineto, self.gc.paint())
+        self.file.output(x1, y1, Op.moveto,
+                         x2, y2, Op.lineto, self.gc.paint())
 
     def draw_lines(self, gc, x, y, transform=None):
-        d = self.dpi_factor
         self.check_gc(gc)
         if transform is not None:
             x, y = transform.seq_x_y(x, y)
@@ -930,16 +925,15 @@ class RendererPdf(RendererBase):
             if nan_at[i]:
                 next_op = Op.moveto
             else:
-                self.file.output(d*x[i], d*y[i], next_op)
+                self.file.output(x[i], y[i], next_op)
                 next_op = Op.lineto
         self.file.output(self.gc.paint())
 
     def draw_point(self, gc, x, y):
         print >>sys.stderr, "draw_point called"
 
-        d = self.dpi_factor
         self.check_gc(gc, gc._rgb)
-        self.file.output(d*x, d*y, d, d,
+        self.file.output(x, y, 1, 1,
                          Op.rectangle, Op.fill_stroke)
 
     def draw_polygon(self, gcEdge, rgbFace, points):
@@ -963,16 +957,14 @@ class RendererPdf(RendererBase):
                 return
 
         self.check_gc(gcEdge, rgbFace)
-        d = self.dpi_factor
-        self.file.output(d*points[0][0], d*points[0][1], Op.moveto)
+        self.file.output(points[0][0], points[0][1], Op.moveto)
         for x,y in points[1:]:
-            self.file.output(d*x, d*y, Op.lineto)
+            self.file.output(x, y, Op.lineto)
         self.file.output(self.gc.close_and_paint())
 
     def draw_rectangle(self, gcEdge, rgbFace, x, y, width, height):
         self.check_gc(gcEdge, rgbFace)
-        d = self.dpi_factor
-        self.file.output(d*x, d*y, d*width, d*height, Op.rectangle)
+        self.file.output(x, y, width, height, Op.rectangle)
         self.file.output(self.gc.paint())
 
     def draw_markers(self, gc, path, rgbFace, x, y, trans):
@@ -980,7 +972,6 @@ class RendererPdf(RendererBase):
         fillp = rgbFace is not None
         marker = self.file.markerObject(path, fillp, self.gc._linewidth)
         x, y = trans.numerix_x_y(asarray(x), asarray(y))
-        x, y = self.dpi_factor * x, self.dpi_factor * y
         nan_at = isnan(x) | isnan(y)
 
         self.file.output(Op.gsave)
@@ -994,19 +985,18 @@ class RendererPdf(RendererBase):
         self.file.output(Op.grestore)
 
     def _setup_textpos(self, x, y, angle, oldx=0, oldy=0, oldangle=0):
-        d = self.dpi_factor
         if angle == oldangle == 0:
-            self.file.output(d*(x-oldx), d*(y-oldy), Op.textpos)
+            self.file.output(x - oldx, y - oldy, Op.textpos)
         else:
             angle = angle / 180.0 * pi
             self.file.output( cos(angle), sin(angle),
                              -sin(angle), cos(angle),
-                              d*x,        d*y,         Op.textmatrix)
+                              x,        y,         Op.textmatrix)
 
     def draw_mathtext(self, gc, x, y, s, prop, angle):
         # TODO: fix positioning and encoding
         fontsize = prop.get_size_in_points()
-        width, height, pswriter = math_parse_s_pdf(s, self.file.dpi, fontsize)
+        width, height, pswriter = math_parse_s_pdf(s, 72, fontsize)
 
         self.check_gc(gc, gc._rgb)
         self.file.output(Op.begin_text)
@@ -1028,7 +1018,7 @@ class RendererPdf(RendererBase):
             #if fontname.endswith('cmsy10.ttf') or \
             #fontname.endswith('cmmi10.ttf') or \
             #fontname.endswith('cmex10.ttf'):
-            #   string = '\0' + chr(glyph)
+            #        string = '\0' + chr(glyph)
 
             string = chr(glyph)
             self.file.output(string, Op.show)
@@ -1036,43 +1026,71 @@ class RendererPdf(RendererBase):
 
     def draw_text(self, gc, x, y, s, prop, angle, ismath=False):
         # TODO: combine consecutive texts into one BT/ET delimited section
-        #       unicode
+        
         if isinstance(s, unicode):
-            s = s.encode('ascii', 'replace')
+            s = s.encode('cp1252', 'replace')
+        
         if ismath: return self.draw_mathtext(gc, x, y, s, prop, angle)
         self.check_gc(gc, gc._rgb)
-
-        font = self._get_font_ttf(prop)
-        font.set_text(s, 0.0)
-        y += font.get_descent() / 64.0
-
+        
+        if rcParams['pdf.use14corefonts']:
+            font = self._get_font_afm(prop)
+            l, b, w, h = font.get_str_bbox(s)
+            fontsize = prop.get_size_in_points()
+            y -= b * fontsize / 1000
+        else:
+            font = self._get_font_ttf(prop)
+            font.set_text(s, 0.0)
+            y += font.get_descent() / 64.0
+        
         self.file.output(Op.begin_text, 
                          self.file.fontName(prop),
                          prop.get_size_in_points(),
                          Op.selectfont)
-
+        
         self._setup_textpos(x, y, angle)
         self.file.output(s, Op.show, Op.end_text)
 
     def get_text_width_height(self, s, prop, ismath):
-
+        if isinstance(s, unicode):
+            s = s.encode('cp1252', 'replace')
+        
         if ismath:
             fontsize = prop.get_size_in_points()
-            w, h, pswriter = math_parse_s_pdf(s, self.file.dpi, fontsize)
+            w, h, pswriter = math_parse_s_pdf(s, 72, fontsize)
+            
+        elif rcParams['pdf.use14corefonts']:
+            font = self._get_font_afm(prop)
+            l, b, w, h = font.get_str_bbox(s)
+            fontsize = prop.get_size_in_points()
+            w *= fontsize / 1000
+            h *= fontsize / 1000
+            
         else:
             font = self._get_font_ttf(prop)
             font.set_text(s, 0.0)
             w, h = font.get_width_height()
-            factor = 1.0/(self.dpi_factor*64.0)
-            w *= factor
-            h *= factor
+            w /= 64.0
+            h /= 64.0
+            
         return w, h
 
-    def _get_font_ttf(self, prop):
-        font = self.fonts.get(prop)
+    def _get_font_afm(self, prop):
+        key = hash(prop)
+        font = self.afm_font_cache.get(key)
         if font is None:
-            font = FT2Font(fontManager.findfont(prop))
-            self.fonts[prop] = font
+            filename = fontManager.findfont(prop, fontext='afm')
+            font = AFM(file(filename))
+            self.afm_font_cache[key] = font
+        return font
+
+    def _get_font_ttf(self, prop):
+        key = hash(prop)
+        font = self.truetype_font_cache.get(key)
+        if font is None:
+            filename = fontManager.findfont(prop)
+            font = FT2Font(str(filename))
+            self.truetype_font_cache[key] = font
         font.clear()
         font.set_size(prop.get_size_in_points(), 72.0)
         return font
@@ -1081,14 +1099,10 @@ class RendererPdf(RendererBase):
         return False
 
     def get_canvas_width_height(self):
-        d = self.dpi_factor/72.0
-        return d*self.file.width, d*self.file.height
+        return self.file.width / 72.0, self.file.height / 72.0
 
     def new_gc(self):
         return GraphicsContextPdf(self.file)
-
-    def points_to_pixels(self, points):
-        return points
 
 
 class GraphicsContextPdf(GraphicsContextBase):
@@ -1205,14 +1219,12 @@ class GraphicsContextPdf(GraphicsContextBase):
 
     def cliprect_cmd(self, cliprect):
         """Set clip rectangle. Calls self.pop() and self.push()."""
-        d = 72.0/self.file.dpi
-
         cmds = []
         while self._cliprect != cliprect and self.parent is not None:
             cmds.extend(self.pop())
         if self._cliprect != cliprect:
             cmds.extend(self.push() + 
-                        [d*t for t in cliprect] + 
+                        [t for t in cliprect] + 
                         [Op.rectangle, Op.clip, Op.endpath])
         return cmds
 
@@ -1286,9 +1298,6 @@ class FigureCanvasPdf(FigureCanvasBase):
       figure - A Figure instance
     """
 
-#     def __init__(self, figure):
-#       FigureCanvasBase.__init__(self, figure)
-
     def draw(self):
         pass
 
@@ -1301,12 +1310,8 @@ class FigureCanvasPdf(FigureCanvasBase):
         hardcopy.
 
         orientation - only currently applies to PostScript printing.
-
-        dpi - used for images
         """
-        if dpi is None:
-            dpi = rcParams['savefig.dpi']
-        self.figure.dpi.set(dpi)
+        self.figure.dpi.set(72) # ignore the dpi kwarg
         self.figure.set_facecolor(facecolor)
         self.figure.set_edgecolor(edgecolor)
         width, height = self.figure.get_size_inches()
@@ -1315,7 +1320,7 @@ class FigureCanvasPdf(FigureCanvasBase):
         if ext == '': 
             filename += '.pdf'
 
-        file = PdfFile(width, height, dpi, filename)
+        file = PdfFile(width, height, filename)
         renderer = RendererPdf(file)
         self.figure.draw(renderer)
         renderer.finalize()

@@ -1,3 +1,35 @@
+2007-02-21 Applied the PDF backend patch by Nicolas Grilly. 
+           This impacts several files and directories in matplotlib:
+           
+           - Created the directory lib/matplotlib/mpl-data/fonts/pdfcorefonts,
+             holding AFM files for the 14 PDF core fonts. These fonts are
+             embedded in every PDF viewing application.
+           
+           - setup.py: Added the directory pdfcorefonts to package_data.
+           
+           - lib/matplotlib/__init__.py: Added the default parameter
+             'pdf.use14corefonts'. When True, the PDF backend uses
+             only the 14 PDF core fonts.
+           
+           - lib/matplotlib/afm.py: Added some keywords found in
+             recent AFM files. Added a little workaround to handle
+             Euro symbol.
+           
+           - lib/matplotlib/fontmanager.py: Added support for the 14
+             PDF core fonts. These fonts have a dedicated cache (file
+             pdfcorefont.cache), not the same as for other AFM files
+             (file .afmfont.cache). Also cleaned comments to conform
+             to CODING_GUIDE.
+           
+           - lib/matplotlib/backends/backend_pdf.py:
+             Added support for 14 PDF core fonts.
+             Fixed some issues with incorrect character widths and
+             encodings (works only for the most common encoding, 
+             WinAnsiEncoding, defined by the official PDF Reference).
+             Removed parameter 'dpi' because it causes alignment issues.
+
+           -JKS (patch by Nicolas Grilly)
+
 2007-02-17 Changed ft2font.get_charmap, and updated all the files where
            get_charmap is mentioned - ES
 
