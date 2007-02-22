@@ -1,6 +1,10 @@
 # For detailed comments on animation and the techniqes used here, see
 # the wiki entry
 # http://www.scipy.org/wikis/topical_software/MatplotlibAnimation
+
+# The number of blits() to make before exiting
+NBLITS = 1000
+
 import matplotlib
 matplotlib.use('WXAgg')
 matplotlib.rcParams['toolbar'] = None
@@ -51,14 +55,14 @@ def update_line(*args):
     canvas.blit(ax.bbox)
     blit_time += time.time() - t
 
-    if update_line.cnt==1000:
+    if update_line.cnt == NBLITS:
         # print the timing info and quit
         frame_time = time.time() - tstart
-        print '200 frames: %.2f seconds' % frame_time
-        print '200 blits:  %.2f seconds' % blit_time
+        print '%d frames: %.2f seconds' % (NBLITS, frame_time)
+        print '%d blits:  %.2f seconds' % (NBLITS, blit_time)
         print
-        print 'FPS: %.2f' % (1000/frame_time)
-        print 'BPS: %.2f' % (1000/blit_time)
+        print 'FPS: %.2f' % (NBLITS/frame_time)
+        print 'BPS: %.2f' % (NBLITS/blit_time)
         sys.exit()
 
     update_line.cnt += 1

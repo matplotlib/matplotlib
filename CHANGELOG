@@ -1,3 +1,18 @@
+2007-02-22 WXAgg accelerator updates - KM
+           WXAgg's C++ accelerator has been fixed to use the correct wxBitmap
+           constructor.
+           
+           The backend has been updated to use new wxPython functionality to
+           provide fast blit() animation without the C++ accelerator.  This
+           requires wxPython 2.8 or later.  Previous versions of wxPython can
+           use the C++ acclerator or the old pure Python routines.
+           
+           setup.py no longer builds the C++ accelerator when wxPython >= 2.8
+           is present.
+           
+           The blit() method is now faster regardless of which agg/wxPython
+           conversion routines are used.
+
 2007-02-21 Applied the PDF backend patch by Nicolas Grilly. 
            This impacts several files and directories in matplotlib:
            
