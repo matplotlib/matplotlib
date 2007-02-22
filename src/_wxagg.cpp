@@ -235,7 +235,7 @@ static wxBitmap *convert_agg2bitmap(RendererAgg *aggRenderer, Bbox *clipbox)
     // Convert everything: rgba => rgb -> image => bitmap
     // Convert a region:   rgba => clipped rgba => rgb -> image => bitmap
     wxImage *image = convert_agg2image(aggRenderer, clipbox);
-    wxBitmap *bitmap = new wxBitmap(image);
+    wxBitmap *bitmap = new wxBitmap(*image);
 
     image->Destroy();
     delete image;
@@ -258,7 +258,7 @@ DL_EXPORT(void)
   init_wxagg(void)
 {
   wxPyCoreAPI_IMPORT();
-  //suppress unused warning by creating in two lines
+  //suppress an unused variable warning by creating _wxagg_module in two lines
   static _wxagg_module* _wxagg = NULL;
   _wxagg = new _wxagg_module;
 };

@@ -80,7 +80,7 @@ class FigureCanvasWxAgg(FigureCanvasWx,FigureCanvasAgg):
         x = int(l)
         y = int(self.bitmap.GetHeight() - t)
 
-        srcBmp = _convert_agg_to_wx_bitmap(self.get_renderer(), bbox)
+        srcBmp = _convert_agg_to_wx_bitmap(self.get_renderer(), None)
         srcDC = wx.MemoryDC()
         srcDC.SelectObject(srcBmp)
 
@@ -88,7 +88,7 @@ class FigureCanvasWxAgg(FigureCanvasWx,FigureCanvasAgg):
         destDC.SelectObject(self.bitmap)
 
         destDC.BeginDrawing()
-        destDC.Blit(x, y, int(w), int(h), srcDC, 0, 0)
+        destDC.Blit(x, y, int(w), int(h), srcDC, x, y)
         destDC.EndDrawing()
 
         destDC.SelectObject(wx.NullBitmap)
@@ -145,7 +145,7 @@ def new_figure_manager(num, *args, **kwargs):
 
 
 #
-# agg/wxPython image conversion functions
+# agg/wxPython image conversion functions (wxPython <= 2.6)
 #
 
 def _py_convert_agg_to_wx_image(agg, bbox):
@@ -185,7 +185,7 @@ def _py_convert_agg_to_wx_bitmap(agg, bbox):
 
 def _clipped_image_as_bitmap(image, bbox):
     """
-    Convert the region of a wx.Image described by bbox to a wx.Bitmap.
+    Convert the region of a wx.Image bounded by bbox to a wx.Bitmap.
     """
     l, b, width, height = bbox.get_bounds()
     r = l + width
@@ -211,19 +211,94 @@ def _clipped_image_as_bitmap(image, bbox):
     return destBmp
 
 
+#
+# agg/wxPython image conversion functions (wxPython >= 2.8)
+#
+
+def _py_WX28_convert_agg_to_wx_image(agg, bbox):
+    """
+    Convert the region of the agg buffer bounded by bbox to a wx.Image.  If
+    bbox is None, the entire buffer is converted.
+
+    Note: agg must be a backend_agg.RendererAgg instance.
+    """
+    if bbox is None:
+        # agg => rgb -> image
+        image = wx.EmptyImage(int(agg.width), int(agg.height))
+        image.SetData(agg.tostring_rgb())
+        return image
+    else:
+        # agg => rgba buffer -> bitmap => clipped bitmap => image
+        return wx.ImageFromBitmap(_WX28_clipped_agg_as_bitmap(agg, bbox))
+
+
+def _py_WX28_convert_agg_to_wx_bitmap(agg, bbox):
+    """
+    Convert the region of the agg buffer bounded by bbox to a wx.Bitmap.  If
+    bbox is None, the entire buffer is converted.
+
+    Note: agg must be a backend_agg.RendererAgg instance.
+    """
+    if bbox is None:
+        # agg => rgba buffer -> bitmap
+        return wx.BitmapFromBufferRGBA(int(agg.width), int(agg.height),
+            agg.buffer_rgba(0, 0))
+    else:
+        # agg => rgba buffer -> bitmap => clipped bitmap
+        return _WX28_clipped_agg_as_bitmap(agg, bbox)
+
+
+def _WX28_clipped_agg_as_bitmap(agg, bbox):
+    """
+    Convert the region of a the agg buffer bounded by bbox to a wx.Bitmap.
+
+    Note: agg must be a backend_agg.RendererAgg instance.
+    """
+    l, b, width, height = bbox.get_bounds()
+    r = l + width
+    t = b + height
+
+    srcBmp = wx.BitmapFromBufferRGBA(int(agg.width), int(agg.height),
+        agg.buffer_rgba(0, 0))
+    srcDC = wx.MemoryDC()
+    srcDC.SelectObject(srcBmp)
+
+    destBmp = wx.EmptyBitmap(int(width), int(height))
+    destDC = wx.MemoryDC()
+    destDC.SelectObject(destBmp)
+ 
+    destDC.BeginDrawing()
+    x = int(l)
+    y = int(int(agg.height) - t)
+    destDC.Blit(0, 0, int(width), int(height), srcDC, x, y)
+    destDC.EndDrawing()
+
+    srcDC.SelectObject(wx.NullBitmap)
+    destDC.SelectObject(wx.NullBitmap)
+
+    return destBmp
+
+
 def _use_accelerator(state):
     """
-    Enable or disable the WXAgg accelerator, if it is present.
+    Enable or disable the WXAgg accelerator, if it is present and is also
+    compatible with whatever version of wxPython is in use.
     """
     global _convert_agg_to_wx_image
     global _convert_agg_to_wx_bitmap
 
-    if state and _wxagg is not None:
-        _convert_agg_to_wx_image  = _wxagg.convert_agg_to_wx_image
-        _convert_agg_to_wx_bitmap = _wxagg.convert_agg_to_wx_bitmap
+    if getattr(wx, '__version__', '0.0')[0:3] < '2.8':
+        # wxPython < 2.8, so use the C++ accelerator or the Python routines
+        if state and _wxagg is not None:
+            _convert_agg_to_wx_image  = _wxagg.convert_agg_to_wx_image
+            _convert_agg_to_wx_bitmap = _wxagg.convert_agg_to_wx_bitmap
+        else:
+            _convert_agg_to_wx_image  = _py_convert_agg_to_wx_image
+            _convert_agg_to_wx_bitmap = _py_convert_agg_to_wx_bitmap
     else:
-        _convert_agg_to_wx_image  = _py_convert_agg_to_wx_image
-        _convert_agg_to_wx_bitmap = _py_convert_agg_to_wx_bitmap
+        # wxPython >= 2.8, so use the accelerated Python routines
+        _convert_agg_to_wx_image  = _py_WX28_convert_agg_to_wx_image
+        _convert_agg_to_wx_bitmap = _py_WX28_convert_agg_to_wx_bitmap
 
 
 # try to load the WXAgg accelerator
@@ -234,4 +309,3 @@ except ImportError:
 
 # if it's present, use it
 _use_accelerator(True)
-
