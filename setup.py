@@ -57,7 +57,14 @@ VERBOSE = False # insert lots of diagnostic prints in extension code
 import os
 if os.path.exists('MANIFEST'): os.remove('MANIFEST')
 
-import sys,os
+import sys
+major, minor1, minor2, s, tmp = sys.version_info
+
+if major==2 and minor1==2:
+    print >> sys.stderr, "***\n\nWARNING, see build info for python2.2 in the header of setup.py\n\n***"
+if major==2 and minor1<=3:
+    import setuptools # setuptools monkeypatches distutils.core.Distribution to support package_data
+    
 import glob
 from distutils.core import Extension, setup
 from setupext import build_agg, build_gtkagg, build_tkagg, build_wxagg,\
@@ -65,11 +72,6 @@ from setupext import build_agg, build_gtkagg, build_tkagg, build_wxagg,\
      build_contour, build_nxutils, build_enthought, build_swigagg, build_gdk, \
      build_subprocess, build_isnan
 import distutils.sysconfig
-
-major, minor1, minor2, s, tmp = sys.version_info
-
-if major==2 and minor1==2:
-    print >> sys.stderr, "***\n\nWARNING, see build info for python2.2 in the header of setup.py\n\n***"
 
 for line in file('lib/matplotlib/__init__.py').readlines():
     if line[:11] == '__version__':
