@@ -286,7 +286,15 @@ def check_wxpython_headers(wxconfig):
             return True
     return False
 
-
+def check_wxpython_broken_macosx104_version(wxconfig):
+    """Determines if we're using a broken wxPython installed by Mac OS X 10.4"""
+    if sys.platform == 'darwin':
+        if wxconfig == '/usr/bin/wx-config':
+            version_full = getoutput(wxconfig + ' --version-full')
+            if version_full == '2.5.3.1':
+                return False
+    return True
+    
 def add_wx_flags(module, wxconfig):
     """
     Add the module flags to build extensions which use wxPython.
@@ -584,7 +592,15 @@ The wxPython header files could not be located in any of the standard
 include
 directories or include directories reported by `wx-config --cppflags'."""
              sys.exit(1)
-
+     elif not check_wxpython_broken_macosx104_version(wxconfig):
+         print 'WXAgg\'s accelerator not building because a broken wxPython (installed by Apple\'s Mac OS X) was found.'
+         if not abortOnFailure:
+             BUILT_WXAGG = True
+             return
+         else:
+             print """
+The wxPython installation is the broken version installed with Mac OS X 10.4."""
+             sys.exit(1)
 
      deps = ['src/_wxagg.cpp', 'src/mplutils.cpp']
      deps.extend(glob.glob('CXX/*.cxx'))
