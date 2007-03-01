@@ -315,7 +315,7 @@ The following dimensions are in axes coords
             raise Exception, 'Auto legends not available for figure legends.'
 
         def get_handles(ax):
-            handles = ax.lines
+            handles = ax.lines[:]
             handles.extend(ax.patches)
             handles.extend([c for c in ax.collections if isinstance(c, LineCollection)])
 
