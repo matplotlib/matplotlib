@@ -36,7 +36,7 @@ in mind.
 In general, we want to hew as closely as possible to the standard
 coding guidelines for python written by Guido in
 http://www.python.org/dev/peps/pep-0008, though we do not do this
-throughout. 
+throughout.
 
   functions and class methods  : lower or lower_underscore_separated
 
@@ -116,6 +116,7 @@ an example of a copy, pop, passthrough usage, see Axes.plot:
         kwargs = kwargs.copy()
         scalex = popd(kwargs, 'scalex', True)
         scaley = popd(kwargs, 'scaley', True)
+        # Now this would be:  scaley = kwargs.pop('scaley', True)
         if not self._hold: self.cla()
         lines = []
         for line in self._get_lines(*args, **kwargs):
@@ -123,7 +124,10 @@ an example of a copy, pop, passthrough usage, see Axes.plot:
             lines.append(line)
 
 popd is a matplotlib.cbook function to pop an item from a dictionary
-with a default value if the item doesn't exist
+with a default value if the item doesn't exist.  It is rendered
+obsolete by the pop() dictionary method introduced in Python 2.3,
+so it should not be used for new code.  See comment added to plot
+method above.
 
 Note there is a use case when kwargs are meant to be used locally in
 the function (not passed on), but you still need the **kwargs idiom.
