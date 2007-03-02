@@ -402,7 +402,8 @@ class PdfFile:
                                for val in self.alphaStates.values()]))
         self.writeHatches()
         xobjects = dict(self.images.values())
-        xobjects.update([(name, value[0]) for (name, value) in self.markers.items()])
+        for name, value in self.markers.items():
+            xobjects[name] = value[0]
         self.writeObject(self.XObjectObject, xobjects)
         self.writeImages()
         self.writeMarkers()
