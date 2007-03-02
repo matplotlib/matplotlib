@@ -857,6 +857,7 @@ defaultParams = {
     'ps.usedistiller'   : [ False, validate_ps_distiller],  # use ghostscript or xpdf to distill ps output
     'ps.distiller.res'  : [6000, validate_int],     # dpi
     'pdf.compression'   : [6, validate_int],        # compression level from 0 to 9; 0 to disable
+    'pdf.inheritcolor'  : [False, validate_bool],   # ignore any color-setting commands from the frontend
     'pdf.use14corefonts' : [False, validate_bool],  # use only the 14 PDF core fonts, embedded in every PDF viewing application
     'svg.image_inline'  : [True, validate_bool],    # write raster image data directly into the svg file
     'svg.image_noscale'  : [False, validate_bool],  # suppress scaling of raster data embedded in SVG
