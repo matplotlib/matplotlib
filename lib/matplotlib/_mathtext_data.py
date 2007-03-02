@@ -148,7 +148,7 @@ latex_to_bakoma = {
     r'\combiningrightarrowabove' : ('cmmi10', 110), # for \vec
     r'\combiningdotabove' : ('cmr10', 26), # for \dot
 
-    r'\leftarrow'           : ('cmsy10',  12),
+    r'\leftarrow'           : ('cmsy10',  10),
     r'\uparrow'             : ('cmsy10',  25),
     r'\downarrow'           : ('cmsy10',  28),
     r'\leftrightarrow'      : ('cmsy10',  24),
@@ -246,7 +246,7 @@ latex_to_bakoma = {
     r'\gg'                  : ('cmsy10',  40),
     r'\prec'                : ('cmsy10',  93),
     r'\succ'                : ('cmsy10',  49),
-    r'\rightarrow'          : ('cmsy10',  10),
+    r'\rightarrow'          : ('cmsy10',  12),
     r'\spadesuit'           : ('cmsy10',   7),
     }
 
