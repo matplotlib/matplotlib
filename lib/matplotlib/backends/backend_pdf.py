@@ -1192,13 +1192,15 @@ class GraphicsContextPdf(GraphicsContextBase):
                     name, Op.setcolor_nonstroke]
 
     def rgb_cmd(self, rgb):
+        if rcParams['pdf.inheritcolor']:
+            return []
         if rgb[0] == rgb[1] == rgb[2]:
             return [rgb[0], Op.setgray_stroke]
         else:
             return list(rgb) + [Op.setrgb_stroke] 
 
     def fillcolor_cmd(self, rgb):
-        if rgb is None:
+        if rgb is None or rcParams['pdf.inheritcolor']:
             return []
         elif rgb[0] == rgb[1] == rgb[2]:
             return [rgb[0], Op.setgray_nonstroke]

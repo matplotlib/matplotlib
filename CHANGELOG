@@ -1,3 +1,12 @@
+2007-03-02 Add rc parameter pdf.inheritcolor, which disables all
+           color-setting operations in the pdf backend. The idea is
+           that you include the resulting file in another program and
+           set the colors (both stroke and fill color) there, so you
+           can use the same pdf file for e.g. a paper and a
+           presentation and have them in the surrounding color. You
+           will probably not want to draw figure and axis frames in
+           that case, since they would be filled in the same color. - JKS
+
 2007-02-26 Prevent building _wxagg.so with broken Mac OS X wxPython. - ADS
 
 2007-02-23 Require setuptools for Python 2.3 - ADS
