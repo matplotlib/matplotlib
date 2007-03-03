@@ -1,12 +1,8 @@
-#!/usr/bin/env python
-
-from pylab import subplot, sin, pi, arange, setp, show
-ax = subplot(111)
-t = arange(0.0,3.0,0.01)
-s = sin(2*pi*t)
-c = sin(4*pi*t)
-
-p = ax.fill(t,s,'b',t,c,'g')
-setp(p, alpha=0.2)
-ax.vlines( [1.5], -1.0, 1.0 )
+from pylab import fig, nx, show
+fig = figure()
+ax = fig,add_subplot(111)
+t = nx.arange(0.0,3.01,0.01)
+s = nx.sin(2*nx.pi*t)
+c = nx.sin(4*nx.pi*t)
+ax.fill(t, s, 'blue', t, c, 'green', alpha=0.2)
 show()

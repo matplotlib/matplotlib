@@ -63,7 +63,9 @@ major, minor1, minor2, s, tmp = sys.version_info
 if major==2 and minor1==2:
     print >> sys.stderr, "***\n\nWARNING, see build info for python2.2 in the header of setup.py\n\n***"
 if major==2 and minor1<=3:
-    import setuptools # setuptools monkeypatches distutils.core.Distribution to support package_data
+    try: import setuptools # setuptools monkeypatches distutils.core.Distribution to support package_data
+    except ImportError:
+        raise SystemExit('matplotlib requires setup tools for installation.  Please download http://peak.telecommunity.com/dist/ez_setup.py and run it (as su if you are doing a systemwide install) to install the proper version of setuptools for your system')
     
 import glob
 from distutils.core import Extension, setup
