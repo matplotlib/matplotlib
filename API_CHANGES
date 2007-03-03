@@ -1,3 +1,8 @@
+    Barh now takes a **kwargs dict instead of most of the old
+    arguments. This helps ensure that bar and barh are kept in sync,
+    but as a side effect you can no longer pass e.g. color as a
+    positional argument.
+
     ft2font.get_charmap() now returns a dict that maps character codes
     to glyph indices (until now it was reversed)
     
