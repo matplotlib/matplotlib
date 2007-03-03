@@ -2922,16 +2922,12 @@ class Axes(Artist):
         return patches
     bar.__doc__ = dedent(bar.__doc__) % artist.kwdocd
 
-    def barh(self, bottom, width, height=0.8, left=None,
-             color=None, edgecolor=None, linewidth=None,
-             xerr=None, yerr=None, ecolor=None, capsize=3,
-             align='edge'
-             ):
+    def barh(self, bottom, width, height=0.8, left=None, **kwargs):
         """
         BARH(bottom, width, height=0.8, left=0,
              color=None, edgecolor=None, linewidth=None,
              xerr=None, yerr=None, ecolor=None, capsize=3,
-             align='edge')
+             align='edge', log=False)
 
         Make a horizontal bar plot with rectangles bounded by
 
@@ -2966,19 +2962,19 @@ class Axes(Artist):
             'edge' aligns the horizontal bars by their bottom edges in bottom, while
             'center' interprets these values as the y coordinates of the bar centers.
 
-        The optional arguments color, edgecolor, linewidth,
-        xerr, and yerr can be either
-        scalars or sequences of length equal to the number of bars
+            log = False | True - False (default) leaves the horizontal
+                    axis as-is; True sets it to log scale
+
+        The optional arguments color, edgecolor, linewidth, xerr, and
+        yerr can be either scalars or sequences of length equal to the
+        number of bars.
 
         This enables you to use barh as the basis for stacked bar
-        charts, or candlestick plots
+        charts, or candlestick plots.
         """
 
         patches = self.bar(left=left, height=height, width=width, bottom=bottom,
-                           color=color, edgecolor=edgecolor, linewidth=linewidth,
-                           yerr=yerr, xerr=xerr, ecolor=ecolor, capsize=capsize,
-                           align=align, orientation='horizontal'
-                           )
+                           orientation='horizontal', **kwargs)
         return patches
 
     def broken_barh(self, xranges, yrange, **kwargs):

@@ -1,3 +1,6 @@
+2007-03-03 Change barh to take a kwargs dict and pass it to bar. 
+           Fixes sf bug #1669506.
+
 2007-03-02 Add rc parameter pdf.inheritcolor, which disables all
            color-setting operations in the pdf backend. The idea is
            that you include the resulting file in another program and
