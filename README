@@ -26,8 +26,11 @@ INTRODUCTION:
 
 REQUIREMENTS:
 
-   python 2.2+, and Numeric-22+ or numarray.  Other requirements are backend
-   dependent.  See http://matplotlib.sourceforge.net/backends.html
+   python 2.3+, and Numeric, numarray or numpy (recommended).  Other
+   requirements are backend dependent.  See
+   http://matplotlib.sourceforge.net/backends.html.  If you are using
+   python2.3, you'll also need to install setuptools; just download
+   http://peak.telecommunity.com/dist/ez_setup.py and run it.
 
 INSTALL
 
