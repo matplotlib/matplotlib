@@ -56,9 +56,9 @@ for face in faces:
         fontdirs = [os.path.join(_path,'fonts','afm'),
                     os.path.join(_path,'fonts','ttf')]
         for fontdir in fontdirs:
-            fname = os.path.join(fontdir,barefname)
+            fname = os.path.join(fontdir, barefname)
             if os.path.exists( fname ):
-                filenamesd[face] = os.path.join(_path, barefname)
+                filenamesd[face] = fname
                 break
     fonts[face] = FT2Font(filenamesd[face])
 
@@ -856,9 +856,9 @@ def handle_command(command, texgroup, env, allowsetters=False):
     elif command in reserved:
         uniindex = ord(command)
         appendix = handle_char(uniindex, env.copy())
-    elif command == "vtext":
-        _vlist = texgroup.pop(0)
-        appendix = handle_tokens(_vlist, env.copy(), box=Vbox)
+    #elif command == "vtext":
+    #    _vlist = texgroup.pop(0)
+    #    appendix = handle_tokens(_vlist, env.copy(), box=Vbox)
     elif command in tex2uni:
         uniindex = tex2uni[command]
         appendix = handle_char(uniindex, env.copy())
