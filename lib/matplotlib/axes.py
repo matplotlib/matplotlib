@@ -2724,7 +2724,7 @@ class Axes(Artist):
 
             height - the heights of the bars
 
-        Optional arguments
+        Optional arguments:
 
             width - the widths of the bars
 
@@ -2742,28 +2742,26 @@ class Axes(Artist):
 
             ecolor specifies the color of any errorbar
 
-            capsize determines the length in points of the error bar caps
+            capsize (default 3) determines the length in points of the error
+            bar caps
 
-            align = 'edge' | 'center'
+            align = 'edge' (default) | 'center'
 
             orientation = 'vertical' | 'horizontal'
 
             log = False | True - False (default) leaves the orientation
                     axis as-is; True sets it to log scale
 
-            For vertical bars, 'edge' aligns bars by their left edges in left,
-            while 'center' interprets these values as the x coordinates
-            of the bar centers.
-            For horizontal bars, 'edge' aligns bars by their bottom edges
-            in bottom,
-            while 'center' interprets these values as the y coordinates
-            of the bar centers.
+        For vertical bars, align='edge' aligns bars by their left edges in
+        left, while 'center' interprets these values as the x coordinates of
+        the bar centers. For horizontal bars, 'edge' aligns bars by their
+        bottom edges in bottom, while 'center' interprets these values as the
+        y coordinates of the bar centers.
 
-        The optional arguments color, edgecolor, yerr, and xerr can be either
-        scalars or sequences of length equal to the number of bars
-
-        This enables you to use bar as the basis for stacked bar
-        charts, or candlestick plots
+        The optional arguments color, edgecolor, linewidth, xerr, and yerr can
+        be either scalars or sequences of length equal to the number of bars.
+        This enables you to use bar as the basis for stacked bar charts, or
+        candlestick plots.
 
         Optional kwargs:
         %(Rectangle)s
@@ -2924,14 +2922,12 @@ class Axes(Artist):
 
     def barh(self, bottom, width, height=0.8, left=None, **kwargs):
         """
-        BARH(bottom, width, height=0.8, left=0,
-             color=None, edgecolor=None, linewidth=None,
-             xerr=None, yerr=None, ecolor=None, capsize=3,
-             align='edge', log=False)
+        BARH(bottom, width, height=0.8, left=0, **kwargs)
 
         Make a horizontal bar plot with rectangles bounded by
 
-          left, left+width, bottom, bottom+height  (left, right, bottom and top edges)
+          left, left+width, bottom, bottom+height  
+                (left, right, bottom and top edges)
 
         bottom, width, height, and left can be either scalars or sequences
 
@@ -2941,41 +2937,50 @@ class Axes(Artist):
 
             width - the lengths of the bars
 
-        Optional arguments
+        Optional arguments:
 
             height - the heights (thicknesses) of the bars
 
             left - the x coordinates of the left edges of the bars
 
-            color specifies the colors of the bars
+            color - the colors of the bars
 
-            edgecolor specifies the colors of the bar edges
+            edgecolor - the colors of the bar edges
+
+            linewidth - width of bar edges; None means use default
+                linewidth; 0 means don't draw edges.
 
             xerr and yerr, if not None, will be used to generate errorbars
             on the bar chart
 
             ecolor specifies the color of any errorbar
 
-            capsize determines the length in points of the error bar caps
+            capsize (default 3) determines the length in points of the error
+            bar caps
 
-            align = 'edge' | 'center'
-            'edge' aligns the horizontal bars by their bottom edges in bottom, while
-            'center' interprets these values as the y coordinates of the bar centers.
+            align = 'edge' (default) | 'center'
 
             log = False | True - False (default) leaves the horizontal
                     axis as-is; True sets it to log scale
 
-        The optional arguments color, edgecolor, linewidth, xerr, and
-        yerr can be either scalars or sequences of length equal to the
-        number of bars.
+        Setting align='edge' aligns bars by their bottom edges in bottom,
+        while 'center' interprets these values as the y coordinates of the bar
+        centers.
 
-        This enables you to use barh as the basis for stacked bar
-        charts, or candlestick plots.
+        The optional arguments color, edgecolor, linewidth, xerr, and yerr can
+        be either scalars or sequences of length equal to the number of bars.
+        This enables you to use barh as the basis for stacked bar charts, or
+        candlestick plots.
+
+        Optional kwargs:
+        %(Rectangle)s
         """
 
         patches = self.bar(left=left, height=height, width=width, bottom=bottom,
                            orientation='horizontal', **kwargs)
         return patches
+
+    barh.__doc__ = dedent(barh.__doc__) % artist.kwdocd
 
     def broken_barh(self, xranges, yrange, **kwargs):
         """
