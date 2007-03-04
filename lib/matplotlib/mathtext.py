@@ -750,7 +750,7 @@ class BakomaPSFonts(Fonts):
             num = ord(sym)
         else:
             num = 0
-            sym = '.notdef'
+            #sym = '.notdef'
             raise ValueError('unrecognized symbol "%s, %d"' % (sym, num))
         filename = os.path.join(self.basepath, basename) + '.ttf'
         if filename not in bakoma_fonts:

@@ -39,10 +39,10 @@ rcParams['mathtext.mathtext2'] = True
 
 # You can put other fonts to override the default ones
 rcParams['mathtext.rm'] = 'FreeSerif.ttf'
-#rcParams['mathtext.it'] = 'FreeSerifItalic.ttf'
-#rcParams['mathtext.tt'] = 'FreeMono.ttf'
-#rcParams['mathtext.mit'] = 'FreeSerifItalic.ttf'
-#rcParams['mathtext.cal'] = 'FreeSansOblique.ttf'
+rcParams['mathtext.it'] = 'FreeSerifItalic.ttf'
+rcParams['mathtext.tt'] = 'FreeMono.ttf'
+rcParams['mathtext.mit'] = 'FreeSerifItalic.ttf'
+rcParams['mathtext.cal'] = 'FreeSansOblique.ttf'
 
 # This is used by mathtext2 to find chars with ord > 255 (Unicode characters)
 rcParams['mathtext.nonascii'] = 'FreeSerif.ttf'
@@ -69,7 +69,6 @@ tex = r'$1+1\ u_{x^2_1}^{y_{-q_u}}$'
 #tex = ur"$a^{\sin x}\sin b\sin(x/x), {\rm sin}(x/x){\rm sin\ }(x/x)$"
 #tex = ur"$1\frac {\int_{-\infty}^\infty} 22$"
 #tex = ur"$\rm a\vtext{Traktor}b$"
-tex = ur"$a\vtext{a}$"
 #tex = ur"$\frac{\int_{-\infty}^\infty} 2$"
 #tex = ur"$1_\frac{\sum^2_{i_{23}=0}} 2678$"
 #tex = ur"$1_{\frac{\sum^2_{i_{23}=0}}{\sum_{i=\frac94}^\infty} 345}678$"
@@ -82,9 +81,9 @@ tex = ur"$x = \sin(\sum_{i=0}^\infty y_i)$"
 #text(1, 1.5, tex, fontsize=20)
 #title(r'$\Delta_i^j \hspace{0.4} \rm{versus} \hspace{0.4} \Delta_{i+1}^j$', fontsize=20)
 
-#savefig('mathtext_demo.png')
+savefig('mathtext_demo.png')
 savefig('mathtext_demo.svg')
-#savefig('mathtext_demo.ps')
+savefig('mathtext_demo.ps')
 
 
 show()
