@@ -1081,7 +1081,9 @@ class RendererPdf(RendererBase):
         font = self.afm_font_cache.get(key)
         if font is None:
             filename = fontManager.findfont(prop, fontext='afm')
-            font = AFM(file(filename))
+            fh = file(filename)
+            font = AFM(fh)
+            fh.close()
             self.afm_font_cache[key] = font
         return font
 
