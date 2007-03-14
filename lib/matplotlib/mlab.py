@@ -1,14 +1,14 @@
 """
 
 Numerical python functions written for compatability with matlab(TM)
-commands with the same names.  
+commands with the same names.
 
   Matlab(TM) compatible functions:
 
     * cohere - Coherence (normalized cross spectral density)
 
     * conv     - convolution
-    
+
     * corrcoef - The matrix of correlation coefficients
 
     * csd - Cross spectral density uing Welch's average periodogram
@@ -16,27 +16,27 @@ commands with the same names.
     * detrend -- Remove the mean or best fit line from an array
 
     * find - Return the indices where some condition is true
-    
+
     * linspace -- Linear spaced array from min to max
 
     * hist -- Histogram
-    
+
     * polyfit - least squares best polynomial fit of x to y
 
     * polyval - evaluate a vector for a vector of polynomial coeffs
 
     * prctile - find the percentiles of a sequence
-    
+
     * prepca - Principal Component's Analysis
-    
+
     * psd - Power spectral density uing Welch's average periodogram
 
     * rk4 - A 4th order runge kutta integrator for 1D or ND systems
- 
+
     * vander - the Vandermonde matrix
 
     * trapz - trapeziodal integration
-    
+
   Functions that don't exist in matlab(TM), but are useful anyway:
 
     * cohere_pairs - Coherence over all pairs.  This is not a matlab
@@ -58,7 +58,7 @@ from __future__ import division
 import sys, random
 from matplotlib import verbose
 import numerix
-import numerix.mlab 
+import numerix.mlab
 from numerix import linear_algebra
 import numerix as nx
 import nxutils
@@ -82,7 +82,7 @@ def mean(x, dim=None):
    elif dim is None:
       return numerix.mlab.mean(x)
    else: return numerix.mlab.mean(x, dim)
-   
+
 
 def linspace(xmin, xmax, N):
    if N==1: return array([xmax])
@@ -152,7 +152,7 @@ def psd(x, NFFT=256, Fs=2, detrend=detrend_none,
        vectors see numpy.blackman, numpy.hamming, numpy.bartlett,
        scipy.signal, scipy.signal.get_window etc.
     -- if length x < NFFT, it will be zero padded to NFFT
-    
+
 
     Returns the tuple Pxx, freqs
 
@@ -170,12 +170,12 @@ def psd(x, NFFT=256, Fs=2, detrend=detrend_none,
         n = len(x)
         x = resize(x, (NFFT,))
         x[n:] = 0
-    
+
 
     # for real x, ignore the negative frequencies
     if typecode(x)==Complex: numFreqs = NFFT
     else: numFreqs = NFFT//2+1
-        
+
     if iterable(window):
        assert(len(window) == NFFT)
        windowVals = window
@@ -216,13 +216,13 @@ def csd(x, y, NFFT=256, Fs=2, detrend=detrend_none,
 
     NFFT must be a power of 2
 
-    window can be a function or a vector of length NFFT. To create 
+    window can be a function or a vector of length NFFT. To create
     window vectors see numpy.blackman, numpy.hamming, numpy.bartlett,
     scipy.signal, scipy.signal.get_window etc.
 
     Returns the tuple Pxy, freqs
 
-    
+
 
     Refs:
       Bendat & Piersol -- Random Data: Analysis and Measurement
@@ -246,7 +246,7 @@ def csd(x, y, NFFT=256, Fs=2, detrend=detrend_none,
     # for real x, ignore the negative frequencies
     if typecode(x)==Complex: numFreqs = NFFT
     else: numFreqs = NFFT//2+1
-        
+
     if iterable(window):
        assert(len(window) == NFFT)
        windowVals = window
@@ -293,7 +293,7 @@ def cohere(x, y, NFFT=256, Fs=2, detrend=detrend_none,
     Returns the tuple Cxy, freqs
 
     """
-    
+
     if len(x)<2*NFFT:
        raise RuntimeError('Coherence is calculated by averaging over NFFT length segments.  Your signal is too short for your choice of NFFT')
     Pxx, f = psd(x, NFFT, Fs, detrend, window, noverlap)
@@ -308,7 +308,7 @@ def corrcoef(*args):
     """
     corrcoef(X) where X is a matrix returns a matrix of correlation
     coefficients for each numrows observations and numcols variables.
-    
+
     corrcoef(x,y) where x and y are vectors returns the matrix or
     correlation coefficients for x and y.
 
@@ -327,7 +327,7 @@ def corrcoef(*args):
     else:
         raise RuntimeError, 'Only expecting 1 or 2 arguments'
 
-    
+
     C = cov(X)
 
     if len(args)==2:
@@ -335,11 +335,11 @@ def corrcoef(*args):
        denom = numerix.mlab.sqrt(matrixmultiply(d,transpose(d)))
     else:
        dc = diagonal(C)
-       N = len(dc)       
+       N = len(dc)
        shape = N,N
        vi = resize(dc, shape)
        denom = numerix.mlab.sqrt(vi*transpose(vi)) # element wise multiplication
-       
+
 
     r = divide(C,denom)
     try: return r.real
@@ -359,8 +359,8 @@ def polyfit(x,y,N):
       p2*x2^2 +  p1*x2 + p0 = y2
       .....
       p2*xk^2 +  p1*xk + p0 = yk
-      
-      
+
+
     Method: if X is a the Vandermonde Matrix computed from x (see
     http://mathworld.wolfram.com/VandermondeMatrix.html), then the
     polynomial least squares solution is given by the 'p' in
@@ -393,9 +393,9 @@ def polyfit(x,y,N):
     c = array(linear_algebra.inverse(Xt*X)*Xt*y)  # convert back to array
     c.shape = (N+1,)
     return c
-    
 
-    
+
+
 
 def polyval(p,x):
     """
@@ -411,7 +411,7 @@ def polyval(p,x):
       resid = y - trend
 
     See also polyfit
-    
+
     """
     x = asarray(x)+0.
     p = reshape(p, (len(p),1))
@@ -448,7 +448,7 @@ def cohere_pairs( X, ij, NFFT=256, Fs=2, detrend=detrend_none,
 
     """
     Cxy, Phase, freqs = cohere_pairs( X, ij, ...)
-    
+
     Compute the coherence for all pairs in ij.  X is a
     numSamples,numCols Numeric array.  ij is a list of tuples (i,j).
     Each tuple is a pair of indexes into the columns of X for which
@@ -468,7 +468,7 @@ def cohere_pairs( X, ij, NFFT=256, Fs=2, detrend=detrend_none,
       Cxy -- a dictionary of (i,j) tuples -> coherence vector for that
         pair.  Ie, Cxy[(i,j) = cohere(X[:,i], X[:,j]).  Number of
         dictionary keys is len(ij)
-      
+
       Phase -- a dictionary of phases of the cross spectral density at
         each frequency for each pair.  keys are (i,j).
 
@@ -480,7 +480,7 @@ def cohere_pairs( X, ij, NFFT=256, Fs=2, detrend=detrend_none,
           plot( freqs, Cxy[(12,19)])
           subplot(212)
           plot( freqs, Phase[(12,19)])
-      
+
     For a large number of pairs, cohere_pairs can be much more
     efficient than just calling cohere for each pair, because it
     caches most of the intensive computations.  If N is the number of
@@ -526,7 +526,7 @@ def cohere_pairs( X, ij, NFFT=256, Fs=2, detrend=detrend_none,
     allColumns = seen.keys()
     Ncols = len(allColumns)
     del seen
-    
+
     # for real X, ignore the negative frequencies
     if typecode(X)==Complex: numFreqs = NFFT
     else: numFreqs = NFFT//2+1
@@ -549,16 +549,16 @@ def cohere_pairs( X, ij, NFFT=256, Fs=2, detrend=detrend_none,
     for iCol in allColumns:
         progressCallback(i/Ncols, 'Cacheing FFTs')
         Slices = zeros( (numSlices,numFreqs), Complex)
-        for iSlice in slices:                    
+        for iSlice in slices:
             thisSlice = X[ind[iSlice]:ind[iSlice]+NFFT, iCol]
             thisSlice = windowVals*detrend(thisSlice)
             Slices[iSlice,:] = fft(thisSlice)[:numFreqs]
-            
+
         FFTSlices[iCol] = Slices
         if preferSpeedOverMemory:
             FFTConjSlices[iCol] = conjugate(Slices)
         Pxx[iCol] = divide(mean(absolute(Slices)**2), normVal)
-    del Slices, ind, windowVals    
+    del Slices, ind, windowVals
 
     # compute the coherences and phases for all pairs using the
     # cached FFTs
@@ -598,11 +598,11 @@ def entropy(y, bins):
 
    Compare S with analytic calculation for a Gaussian
    x = mu + sigma*randn(200000)
-   Sanalytic = 0.5  * ( 1.0 + log(2*pi*sigma**2.0) ) 
+   Sanalytic = 0.5  * ( 1.0 + log(2*pi*sigma**2.0) )
 
    """
 
-   
+
    n,bins = hist(y, bins)
    n = n.astype(Float)
 
@@ -625,23 +625,27 @@ def hist(y, bins=10, normed=0):
     return tuple.  If normed is True, return the probability density
     n/(len(y)*dbin)
 
-    If y has rank>1, it will be raveled
+    If y has rank>1, it will be raveled.  If y is masked, only
+    the unmasked values will be used.
     Credits: the Numeric 22 documentation
 
-    
+
 
     """
-    y = asarray(y)
-    if len(y.shape)>1: y = ravel(y)
+    if hasattr(y, 'compressed'):
+        y = y.compressed()
+    else:
+        y = asarray(y)
+        if len(y.shape)>1: y = ravel(y)
 
-    if not iterable(bins):       
+    if not iterable(bins):
         ymin, ymax = min(y), max(y)
         if ymin==ymax:
             ymin -= 0.5
             ymax += 0.5
 
         if bins==1: bins=ymax
-        dy = (ymax-ymin)/bins 
+        dy = (ymax-ymin)/bins
         bins = ymin + dy*arange(bins)
 
 
@@ -658,7 +662,7 @@ def normpdf(x, *args):
    "Return the normal pdf evaluated at x; args provides mu, sigma"
    mu, sigma = args
    return 1/(numerix.mlab.sqrt(2*pi)*sigma)*exp(-0.5 * (1/sigma*(x - mu))**2)
-                 
+
 
 def levypdf(x, gamma, alpha):
    "Returm the levy pdf evaluated at x for params gamma, alpha"
@@ -668,7 +672,7 @@ def levypdf(x, gamma, alpha):
    if N%2 != 0:
       raise ValueError, 'x must be an event length array; try\n' + \
             'x = linspace(minx, maxx, N), where N is even'
-   
+
 
    dx = x[1]-x[0]
 
@@ -686,7 +690,7 @@ def levypdf(x, gamma, alpha):
 
 
 
-      
+
 
 def find(condition):
    "Return the indices where condition is true"
@@ -700,8 +704,8 @@ def trapz(x, y):
    if len(x)<2:
       raise ValueError, 'x and y must have > 1 element'
    return asum(0.5*diff(x)*(y[1:]+y[:-1]))
-   
-   
+
+
 
 def longest_contiguous_ones(x):
     """
@@ -747,7 +751,7 @@ def longest_ones(x):
     up = find(d ==  1);
     dn = find(d == -1);
 
-    #print 'dn', dn, 'up', up, 
+    #print 'dn', dn, 'up', up,
     ind = find( dn-up == max(dn - up))
     # pick the first
     if iterable(ind): ind = ind[0]
@@ -793,7 +797,7 @@ def prctile(x, p = (0.0, 25.0, 50.0, 75.0, 100.0)):
 
     p = multiply(array(p), Nx/100.0)
     ind = p.astype(Int)
-    ind = where(ind>=Nx, Nx-1, ind)        
+    ind = where(ind>=Nx, Nx-1, ind)
     return take(x, ind)
 
 
@@ -814,7 +818,7 @@ def center_matrix(M, dim=0):
           M = divide(M, sigma)
        if dim==1: M=transpose(M)
        return M
-     
+
     for i in range(M.shape[0]):
         M[i] -= mean(M[i])
         sigma = std(M[i])
@@ -846,7 +850,7 @@ def meshgrid(x,y):
          6   6   6
          7   7   7
   """
-  
+
     x = array(x)
     y = array(y)
     numRows, numCols = len(y), len(x)  # yes, reversed
@@ -892,17 +896,17 @@ def rk4(derivs, y0, t):
 
 
     """
-   
+
     try: Ny = len(y0)
     except TypeError:
         yout = zeros( (len(t),), Float)
     else:
         yout = zeros( (len(t), Ny), Float)
-        
-        
+
+
     yout[0] = y0
     i = 0
-    
+
     for i in arange(len(t)-1):
 
         thist = t[i]
@@ -951,7 +955,7 @@ def specgram(x, NFFT=256, Fs=2, detrend=detrend_none,
         n = len(x)
         x = resize(x, (NFFT,))
         x[n:] = 0
-    
+
 
     # for real x, ignore the negative frequencies
     if typecode(x)==Complex: numFreqs=NFFT
@@ -1008,7 +1012,7 @@ def get_xyz_where(Z, Cond):
     where x and y are the indices into Z and z are the values of Z at
     those indices.  x,y,z are 1D arrays
     """
-    
+
     M,N = Z.shape
     z = ravel(Z)
     ind = nonzero( ravel(Cond) )
@@ -1051,7 +1055,7 @@ def dist_point_to_segment(p, s0, s1):
     """
     p = asarray(p, Float)
     s0 = asarray(s0, Float)
-    s1 = asarray(s1, Float)    
+    s1 = asarray(s1, Float)
     v = s1 - s0
     w = p - s0
 
@@ -1113,7 +1117,7 @@ def liaupunov(x, fprime):
    """
    x is a very long trajectory from a map, and fprime returns the
    derivative of x.  Return lambda = 1/n\sum ln|fprime(x_i)|.  See Sec
-   10.5 Strogatz (1994)"Nonlinear Dynamics and Chaos".   
+   10.5 Strogatz (1994)"Nonlinear Dynamics and Chaos".
    """
    return mean(log(fprime(x)))
 
@@ -1136,22 +1140,22 @@ class FIFOBuffer:
     def __init__(self, nmax):
         'buffer up to nmax points'
         self._xa = nx.zeros((nmax,), typecode=nx.Float)
-        self._ya = nx.zeros((nmax,), typecode=nx.Float)        
+        self._ya = nx.zeros((nmax,), typecode=nx.Float)
         self._xs = nx.zeros((nmax,), typecode=nx.Float)
-        self._ys = nx.zeros((nmax,), typecode=nx.Float)        
+        self._ys = nx.zeros((nmax,), typecode=nx.Float)
         self._ind = 0
         self._nmax = nmax
         self.dataLim = None
         self.callbackd = {}
-        
+
     def register(self, func, N):
         'call func everytime N events are passed; func signature is func(fifo)'
         self.callbackd.setdefault(N, []).append(func)
-        
+
     def add(self, x, y):
         'add scalar x and y to the queue'
         if self.dataLim is not None:
-           xys = ((x,y),) 
+           xys = ((x,y),)
            self.dataLim.update(xys, -1) #-1 means use the default ignore setting
         ind = self._ind % self._nmax
         #print 'adding to fifo:', ind, x, y
@@ -1162,7 +1166,7 @@ class FIFOBuffer:
            if (self._ind%N)==0:
               for func in funcs:
                  func(self)
-                 
+
         self._ind += 1
 
     def last(self):
@@ -1348,7 +1352,7 @@ def slopes(x,y):
     and y-values.  For many functions, however, the abscissa are given
     in different dimensions, so an aspect ratio is completely
     arbitrary.
-    
+
     The parabola method gives very similar results to the circle
     method for most regular cases but behaves much better in special
     cases
@@ -1398,7 +1402,7 @@ def stineman_interp(xi,x,y,yp=None):
       not an academic journal but once in a while something serious
       and original comes in adding that this was
       "apparently a real solution" to a well known problem.
-    
+
     For yp=None, the routine automatically determines the slopes using
     the "slopes" routine.
 
@@ -1446,7 +1450,7 @@ def stineman_interp(xi,x,y,yp=None):
     # the y-values that would come out from a linear interpolation:
     sidx = nx.take(s, idx)
     xidx = nx.take(x, idx)
-    yidx = nx.take(y, idx)    
+    yidx = nx.take(y, idx)
     xidxp1 = nx.take(x, idx+1)
     yo = yidx + sidx * (xi - xidx)
 
@@ -1459,11 +1463,11 @@ def stineman_interp(xi,x,y,yp=None):
     # does more calculations than necessary but exploiting the power
     # of numpy, this is far more efficient than coding a loop by hand
     # in Python
-    yi = yo + dy1dy2 * nx.choose(nx.array(nx.sign(dy1dy2), nx.Int32)+1, 
+    yi = yo + dy1dy2 * nx.choose(nx.array(nx.sign(dy1dy2), nx.Int32)+1,
                                  ((2*xi-xidx-xidxp1)/((dy1-dy2)*(xidxp1-xidx)),
                                   0.0,
                                   1/(dy1+dy2),))
-        
+
     return yi
 
 def _inside_poly_deprecated(points, verts):
@@ -1492,7 +1496,7 @@ def _inside_poly_deprecated(points, verts):
     x1 = nx.zeros((Nxy,), nx.Float)
     y1 = nx.zeros((Nxy,), nx.Float)
     x2 = nx.zeros((Nxy,), nx.Float)
-    y2 = nx.zeros((Nxy,), nx.Float)    
+    y2 = nx.zeros((Nxy,), nx.Float)
     x = xys[:,0]
     y = xys[:,1]
     for i in range(Nv):
@@ -1566,7 +1570,7 @@ import math
 # Globals
 
 #****************************************************************************
-# function definitions        
+# function definitions
 exp_safe_MIN = math.log(2.2250738585072014e-308)
 exp_safe_MAX = 1.7976931348623157e+308
 
@@ -1636,12 +1640,12 @@ def norm(a,p=2):
     matrix norm, since arrays of arbitrary rank are always flattened.
 
     p can be a number or the string 'Infinity' to get the L-infinity norm."""
-    
+
     if p=='Infinity':
         return max(absolute(a).flat)
     else:
-        return (sum_flat(absolute(a)**p))**(1.0/p)    
-    
+        return (sum_flat(absolute(a)**p))**(1.0/p)
+
 def frange(xini,xfin=None,delta=None,**kw):
     """frange([start,] stop[, step, keywords]) -> array of floats
 
@@ -1679,14 +1683,14 @@ def frange(xini,xfin=None,delta=None,**kw):
     #defaults
     kw.setdefault('closed',1)
     endpoint = kw['closed'] != 0
-        
+
     # funny logic to allow the *first* argument to be optional (like range())
     # This was modified with a simpler version from a similar frange() found
     # at http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/66472
     if xfin == None:
         xfin = xini + 0.0
         xini = 0.0
-        
+
     if delta == None:
         delta = 1.0
 
@@ -1720,7 +1724,7 @@ def identity(n,rank=2,typecode='l'):
 
     Since rank defaults to 2, this function behaves in the default case (when
     only n is given) like the Numeric identity function."""
-    
+
     iden = zeros((n,)*rank,typecode=typecode)
     for i in range(n):
         idx = (i,)*rank
@@ -1747,7 +1751,7 @@ def binary_repr(number, max_length = 1025):
     Increase the value of max_length for very large numbers. Note that on
     32-bit machines, 2**1023 is the largest integer power of 2 which can be
     converted to a Python float."""
-    
+
 
     #assert number < 2L << max_length
     shifts = map (operator.rshift, max_length * [number], \
@@ -1759,7 +1763,7 @@ def binary_repr(number, max_length = 1025):
 
 def log2(x,ln2 = math.log(2.0)):
     """Return the log(x) in base 2.
-    
+
     This is a _slow_ function but which is guaranteed to return the correct
     integer value if the input is an ineger exact power of 2."""
 
@@ -1786,7 +1790,7 @@ def ispower2(n):
 
 def fromfunction_kw(function, dimensions, **kwargs):
     """Drop-in replacement for fromfunction() from Numerical Python.
- 
+
     Allows passing keyword arguments to the desired function.
 
     Call it as (keywords are optional):
@@ -1825,7 +1829,7 @@ def fix(x):
     towards zero.
     For negative numbers is equivalent to ceil and for positive to floor.
     """
-    
+
     dim = numerix.shape(x)
     if numerix.mlab.rank(x)==2:
         y = reshape(x,(1,dim[0]*dim[1]))[0]
@@ -1853,7 +1857,7 @@ def rem(x,y):
     We keep the convention by Matlab:
     "The input x and y must be real arrays of the same size, or real scalars."
     """
-    
+
     x,y = asarray(x),asarray(y)
     if numerix.shape(x) == numerix.shape(y) or numerix.shape(y) == ():
         try:
@@ -1867,7 +1871,7 @@ def norm(x,y=2):
     """
     Norm of a matrix or a vector according to Matlab.
     The description is taken from Matlab:
-    
+
         For matrices...
           NORM(X) is the largest singular value of X, max(svd(X)).
           NORM(X,2) is the same as NORM(X).
@@ -1877,7 +1881,7 @@ def norm(x,y=2):
                           = max(sum(abs((X')))).
           NORM(X,'fro') is the Frobenius norm, sqrt(sum(diag(X'*X))).
           NORM(X,P) is available for matrix X only if P is 1, 2, inf or 'fro'.
-     
+
         For vectors...
           NORM(V,P) = sum(abs(V).^P)^(1/P).
           NORM(V) = norm(V,2).
@@ -1897,7 +1901,7 @@ def norm(x,y=2):
             return numerix.mlab.sqrt(asum(numerix.mlab.diag(matrixmultiply(transpose(x),x))))
         else:
             raise RuntimeError('Second argument not permitted for matrices')
-        
+
     else:
         if y == 'inf':
             return numerix.mlab.max(absolute(x))
@@ -1911,10 +1915,10 @@ def orth(A):
     """
     Orthogonalization procedure by Matlab.
     The description is taken from its help:
-    
+
         Q = ORTH(A) is an orthonormal basis for the range of A.
-        That is, Q'*Q = I, the columns of Q span the same space as 
-        the columns of A, and the number of columns of Q is the 
+        That is, Q'*Q = I, the columns of Q span the same space as
+        the columns of A, and the number of columns of Q is the
         rank of A.
     """
 
@@ -1944,11 +1948,11 @@ def rank(x):
         Note that numerix.mlab.rank() is not equivalent to Matlab's rank.
         This function is!
         """
-        
+
 	x      = asarray(x)
 	u,s,v  = numerix.mlab.svd(x)
 	# maxabs = numerix.mlab.max(numerix.absolute(s)) is also possible.
-	maxabs = norm(x)	
+	maxabs = norm(x)
 	maxdim = numerix.mlab.max(numerix.shape(x))
 	tol    = maxabs*maxdim*_eps_approx
 	r      = s>tol
@@ -1968,8 +1972,8 @@ def mfuncC(f, x):
 	Note: Numeric defines (v,u) = eig(x) => x*u.T = u.T * Diag(v)
 	This function is needed by sqrtm and allows further functions.
 	"""
-	
-	x      = array(x) 
+
+	x      = array(x)
 	(v, u) = numerix.mlab.eig(x)
 	uT     = transpose(u)
 	V      = numerix.mlab.diag(f(v+0j))
