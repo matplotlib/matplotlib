@@ -1,3 +1,5 @@
+2007-03-17 Text.set_text() accepts anything convertible with '%s' - EF
+
 2007-03-14 Add masked-array support to hist. - EF
 
 2007-03-03 Change barh to take a kwargs dict and pass it to bar.
