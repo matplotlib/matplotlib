@@ -143,8 +143,6 @@ class Text(Artist):
         """
 
         Artist.__init__(self)
-        if not is_string_like(text):
-            raise TypeError('text must be a string type')
         self.cached = maxdict(5)
         self._x, self._y = x, y
 
@@ -729,11 +727,9 @@ class Text(Artist):
         """
         Set the text string s
 
-        ACCEPTS: string
+        ACCEPTS: string or anything printable with '%s' conversion
         """
-        if not is_string_like(s):
-            raise TypeError("This doesn't look like a string: '%s'"%s)
-        self._text = s
+        self._text = '%s' % (s,)
         #self._substrings = scanner(s)  # support embedded mathtext
         self._substrings = []           # ignore embedded mathtext for now
 

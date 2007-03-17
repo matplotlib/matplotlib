@@ -1,3 +1,7 @@
+    Commands that pass an argument to the Text constructor or to
+    Text.set_text() now accept any object that can be converted
+    with '%s'.  This affects xlabel(), title(), etc.
+
     Barh now takes a **kwargs dict instead of most of the old
     arguments. This helps ensure that bar and barh are kept in sync,
     but as a side effect you can no longer pass e.g. color as a
@@ -5,7 +9,7 @@
 
     ft2font.get_charmap() now returns a dict that maps character codes
     to glyph indices (until now it was reversed)
-    
+
     Moved data files into lib/matplotlib so that setuptools' develop
     mode works. Re-organized the mpl-data layout so that this source
     structure is maintained in the installation. (I.e. the 'fonts' and
