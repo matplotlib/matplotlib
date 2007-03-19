@@ -151,10 +151,11 @@ import md5, os, re, shutil, sys, warnings
 import distutils.sysconfig
 
 # Needed for toolkit setuptools support
-try:
-    __import__('pkg_resources').declare_namespace(__name__)
-except ImportError:
-    pass # must not have setuptools
+if 0:
+    try:
+        __import__('pkg_resources').declare_namespace(__name__)
+    except ImportError:
+        pass # must not have setuptools
 
 if not hasattr(sys, 'argv'):  # for modpython
     sys.argv = ['modpython']

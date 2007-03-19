@@ -125,7 +125,7 @@ if not NUMERIX:
     raise RuntimeError("You must install one or more of numpy, Numeric, and numarray to build matplotlib")
 
 
-NUMERIX = ['numpy']
+#NUMERIX = ['numpy']
 rc['numerix'] = NUMERIX[-1]
 
 ext_modules = []
