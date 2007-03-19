@@ -379,13 +379,12 @@ class Line2D(Artist):
         if not self._visible: return
         self._newstyle = hasattr(renderer, 'draw_markers')
         gc = renderer.new_gc()
+        self._set_gc_clip(gc)
+        
         gc.set_foreground(self._color)
         gc.set_antialiased(self._antialiased)
         gc.set_linewidth(self._linewidth)
         gc.set_alpha(self._alpha)
-        if self.get_clip_on():
-            gc.set_clip_rectangle(self.clipbox.get_bounds())
-
         if self.is_dashed():
             cap = self._dashcapstyle
             join = self._dashjoinstyle
@@ -412,12 +411,15 @@ class Line2D(Artist):
         if self._segments is not None:
             for ii in self._segments:
                 lineFunc(renderer, gc, xt[ii[0]:ii[1]], yt[ii[0]:ii[1]])
+
         else:
             lineFunc(renderer, gc, xt, yt)
 
 
         if self._marker is not None:
+            
             gc = renderer.new_gc()
+            self._set_gc_clip(gc)
             if (is_string_like(self._markeredgecolor) and
                 self._markeredgecolor == 'auto'):
                 if self._marker in self.filled_markers:
@@ -427,8 +429,6 @@ class Line2D(Artist):
             else:
                 gc.set_foreground(self._markeredgecolor)
             gc.set_linewidth(self._markeredgewidth)
-            if self.get_clip_on():
-                gc.set_clip_rectangle(self.clipbox.get_bounds())
             funcname = self._markers.get(self._marker, '_draw_nothing')
             markerFunc = getattr(self, funcname)
             markerFunc(renderer, gc, xt, yt)

@@ -25,6 +25,9 @@
 #include "agg_path_storage.h"
 #include "agg_pixfmt_rgb.h"
 #include "agg_pixfmt_rgba.h"
+#include "agg_pixfmt_gray.h"
+#include "agg_alpha_mask_u8.h"
+#include "agg_pixfmt_amask_adaptor.h"
 #include "agg_rasterizer_outline.h"
 #include "agg_rasterizer_scanline_aa.h"
 #include "agg_renderer_outline_aa.h"
@@ -32,6 +35,7 @@
 #include "agg_renderer_scanline.h"
 #include "agg_rendering_buffer.h"
 #include "agg_scanline_bin.h"
+#include "agg_scanline_u.h"
 #include "agg_scanline_p.h"
 #include "agg_vcgen_markers_term.h"
 
@@ -40,8 +44,15 @@ typedef agg::renderer_base<pixfmt> renderer_base;
 typedef agg::renderer_scanline_aa_solid<renderer_base> renderer_aa;
 typedef agg::renderer_scanline_bin_solid<renderer_base> renderer_bin;
 typedef agg::rasterizer_scanline_aa<> rasterizer;
+
 typedef agg::scanline_p8 scanline_p8;
 typedef agg::scanline_bin scanline_bin;
+//yypedef agg::scanline_u8_am<agg::alpha_mask_gray8> scanline_alphamask;
+typedef agg::amask_no_clip_gray8 alpha_mask_type;
+
+
+typedef agg::renderer_base<agg::pixfmt_gray8> renderer_base_alpha_mask_type;
+typedef agg::renderer_scanline_aa_solid<renderer_base_alpha_mask_type> renderer_alpha_mask_type;
 
 // a helper class to pass agg::buffer objects around.  agg::buffer is
 // a class in the swig wrapper
@@ -72,6 +83,7 @@ public:
   ~GCAgg() {
     delete [] dasha;
     delete [] cliprect;
+    delete clippath;
   }
 
   double dpi;
@@ -87,12 +99,13 @@ public:
   agg::rgba color;
 
   double *cliprect;
-
+  agg::path_storage *clippath;
   //dashes
   size_t Ndash;
   double dashOffset;
   double *dasha;
 
+  
 protected:
   agg::rgba get_color(const Py::Object& gc);
   double points_to_pixels( const Py::Object& points);
@@ -100,10 +113,18 @@ protected:
   void _set_joinstyle(const Py::Object& gc) ;
   void _set_dashes(const Py::Object& gc) ;
   void _set_clip_rectangle( const Py::Object& gc);
+  void _set_clip_path( const Py::Object& gc);
   void _set_antialiased( const Py::Object& gc);
+
+
 };
 
-// th renderer
+
+//struct AMRenderer {
+//  
+//}
+
+// the renderer
 class RendererAgg: public Py::PythonExtension<RendererAgg> {
   typedef std::pair<bool, agg::rgba> facepair_t;
 public:
@@ -139,21 +160,25 @@ public:
   Py::Object copy_from_bbox(const Py::Tuple & args);
   Py::Object restore_region(const Py::Tuple & args);
 
-
-
-
-
   virtual ~RendererAgg();
 
   static const size_t PIXELS_PER_INCH;
   unsigned int width, height;
   double dpi;
   size_t NUMBYTES;  //the number of bytes in buffer
-  size_t CACHEBYTES;  //the number of bytes in cache buffer
 
   agg::int8u *pixBuffer;
-  agg::int8u *cacheBuffer;
   agg::rendering_buffer *renderingBuffer;
+
+  agg::int8u *alphaBuffer;
+  agg::rendering_buffer *alphaMaskRenderingBuffer;
+  alpha_mask_type *alphaMask;
+  agg::pixfmt_gray8 *pixfmtAlphaMask;
+  renderer_base_alpha_mask_type *rendererBaseAlphaMask;
+  renderer_alpha_mask_type *rendererAlphaMask;
+  agg::scanline_p8 *scanlineAlphaMask;
+
+
 
   scanline_p8* slineP8;
   scanline_bin* slineBin;
@@ -178,10 +203,14 @@ protected:
   agg::rgba rgb_to_color(const Py::SeqBase<Py::Object>& rgb, double alpha);
   facepair_t _get_rgba_face(const Py::Object& rgbFace, double alpha);
   void set_clipbox_rasterizer( double *cliprect);
+  bool _process_alpha_mask(const GCAgg& gc);
   template <class VS> void _fill_and_stroke(VS&, const GCAgg&, const facepair_t&, bool curvy=true);
 
   template<class PathSource>
   void _render_lines_path(PathSource &ps, const GCAgg& gc);
+
+private:
+  agg::path_storage *lastclippath;
 };
 
 

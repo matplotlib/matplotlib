@@ -112,6 +112,7 @@ namespace agg
         void curve3(double x_ctrl, double y_ctrl, 
                     double x_to,   double y_to);
 
+
         void curve3_rel(double dx_ctrl, double dy_ctrl, 
                         double dx_to,   double dy_to);
 
