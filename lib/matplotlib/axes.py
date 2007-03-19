@@ -11,6 +11,7 @@ from numerix import absolute, arange, array, asarray, ones, divide,\
 import numerix.ma as ma
 
 import matplotlib.mlab
+import matplotlib.agg as agg
 import artist
 from artist import Artist, setp
 from axis import XAxis, YAxis
@@ -883,16 +884,8 @@ class Axes(Artist):
         """
         Return a list of artists the axes contains.  Deprecated
         """
-        artists = [self.title, self.axesPatch, self.xaxis, self.yaxis]
-        artists.extend(self.lines)
-        artists.extend(self.patches)
-        artists.extend(self.texts)
-        artists.extend(self.collections)
-        artists.extend(self.images)        
-        if self.legend_ is not None:
-            artists.append(self.legend_)
-        return silent_list('Artist', artists)
-
+        raise DeprecationWarning('Use get_children instead')
+    
     def get_frame(self):
         'Return the axes Rectangle frame'
         return self.axesPatch
@@ -4967,7 +4960,7 @@ class PolarAxes(Axes):
                              Point( Value(1/4.*math.pi), Value(math.sqrt(2))))
 
         self.transData = NonseparableTransformation(self.viewLim, self.bbox,
-                                                                  FuncXY(POLAR))
+                                                    FuncXY(POLAR))
         self.transAxes = get_bbox_transform(unit_bbox(), self.bbox)
 
 
@@ -5013,6 +5006,7 @@ class PolarAxes(Axes):
             edgecolor=rcParams['axes.edgecolor'],
             )
 
+        
         self.axesPatch.set_figure(self.figure)
         self.axesPatch.set_transform(self.transData)
         self.axesPatch.set_linewidth(rcParams['axes.linewidth'])
@@ -5035,16 +5029,35 @@ class PolarAxes(Axes):
         self.set_thetagrids(angles)
         self.set_rgrids(radii)
 
+    def get_children(self):
+        'return a list of child artists'
+        children = []
+        children.extend(self.rgridlines)
+        children.extend(self.rgridlabels)
+        children.extend(self.thetagridlines)
+        children.extend(self.thetagridlabels)
+        children.extend(self.lines)
+        children.extend(self.patches)
+        children.extend(self.texts)
+        children.extend(self.artists)
+        children.extend(self.images)
+        #if self.legend_ is not None:
+        #    children.append(self.legend_)
+        children.extend(self.collections)
+        children.append(self.title)
+        children.append(self.axesPatch)
+        return children
+
+
+    def set_rmax(self, rmax):
+        self.rintv.set_bounds(0, rmax)
+        self.regrid(rmax)
+        
     def grid(self, b):
         'Set the axes grids on or off; b is a boolean'
         self._gridOn = b
 
-    def autoscale_view(self, scalex=True, scaley=True):
-        'set the view limits to include all the data in the axes'
-        self.rintd.set_bounds(0, self.get_rmax())
-        rmin, rmax = self.rlocator.autoscale()
-        self.rintv.set_bounds(rmin, rmax)
-
+    def regrid(self, rmax):
         self.axesPatch.xy = zip(self.thetas, rmax*ones(self.RESOLUTION))
         val = rmax*math.sqrt(2)
         self.viewLim.intervaly().set_bounds(val, val)
@@ -5058,7 +5071,14 @@ class PolarAxes(Axes):
         r = linspace(0, rmax, self.RESOLUTION)
         for l in self.thetagridlines:
             l.set_ydata(r)
-
+        
+    def autoscale_view(self, scalex=True, scaley=True):
+        'set the view limits to include all the data in the axes'
+        self.rintd.set_bounds(0, self.get_rmax())
+        rmin, rmax = self.rlocator.autoscale()
+        self.rintv.set_bounds(rmin, rmax)
+        self.regrid(rmax)
+        
     def set_rgrids(self, radii, labels=None, angle=22.5, **kwargs):
         """
         set the radial locations and labels of the r grids
@@ -5182,14 +5202,38 @@ class PolarAxes(Axes):
         self.apply_aspect(1)
         self.transData.freeze()  # eval the lazy objects
         self.transAxes.freeze()  # eval the lazy objects
+
+        tverts = self.transData.seq_xy_tups(self.axesPatch.get_verts())
+
+        def make_clippath():
+            clippath = agg.path_storage()
+            for i, xy in enumerate(tverts):
+                if i==0: clippath.move_to(*xy)
+                else:    clippath.line_to(*xy)
+            clippath.close_polygon()
+            return clippath
+
+        clippath = agg.path_storage()
+        for i, xy in enumerate(tverts):
+            if i==0: clippath.move_to(*xy)
+            else:    clippath.line_to(*xy)
+        clippath.close_polygon()
+
         #self._update_axes()
         if self.axison:
             if self._frameon: self.axesPatch.draw(renderer)
 
         if self._gridOn:
             for l in self.rgridlines+self.thetagridlines:
+                #l.set_clip_path(make_clippath())
+                #l.set_clip_path(clippath)
                 l.draw(renderer)
 
+        for line in self.lines:
+            #line.set_clip_path(make_clippath())
+            #line.set_clip_path(clippath)
+            pass
+        
         for t in self.thetagridlabels+self.rgridlabels:
             t.draw(renderer)
 
@@ -5230,26 +5274,35 @@ class PolarAxes(Axes):
         raise NotImplementedError('ylabel not defined for polar axes (yet)')
 
 
-    def set_xlim(self, v, emit=True):
+    def set_xlim(self, xmin=None, xmax=None, emit=True):
         """
-        SET_XLIM(v, emit=True)
-
-        A do nothing impl until we can figure out how to handle interaction
+        set the xlimits
         ACCEPTS: len(2) sequence of floats
         """
-        #warnings.warn('Navigation set_ylim not implemented for polar')
-        self.viewLim.intervalx().set_bounds(*v)
+        if xmax is None and iterable(xmin):
+            xmin,xmax = xmin        
+
+        old_xmin,old_xmax = self.get_xlim()
+        if xmin is None: xmin = old_xmin
+        if xmax is None: xmax = old_xmax
+
+        self.viewLim.intervalx().set_bounds(xmin, xmax)
         if emit: self._send_xlim_event()
 
 
-    def set_ylim(self, v, emit=True):
+    def set_ylim(self, ymin=None, ymax=None, emit=True):
         """
-        SET_YLIM(v, emit=True)
-
+        set the ylimits
         ACCEPTS: len(2) sequence of floats
         """
-        #warnings.warn('Navigation set_xlim not implemented for polar')
-        self.viewLim.intervaly().set_bounds(*v)
+        if ymax is None and iterable(ymin):
+            ymin,ymax = ymin
+
+        old_ymin,old_ymax = self.get_ylim()
+        if ymin is None: ymin = old_ymin
+        if ymax is None: ymax = old_ymax
+
+        self.viewLim.intervaly().set_bounds(ymin, ymax)
         if emit: self._send_ylim_event()
 
     def get_xscale(self):

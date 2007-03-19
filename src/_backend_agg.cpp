@@ -48,12 +48,9 @@
 #define M_PI_2     1.57079632679489661923
 #endif
 
-/* ------------ RendererAgg methods ------------- */
-
-
 GCAgg::GCAgg(const Py::Object &gc, double dpi, bool snapto) :
   dpi(dpi), snapto(snapto), isaa(true), linewidth(1.0), alpha(1.0),
-  cliprect(NULL),
+  cliprect(NULL), clippath(NULL), 
   Ndash(0), dashOffset(0.0), dasha(NULL)
 {
 
@@ -66,6 +63,7 @@ GCAgg::GCAgg(const Py::Object &gc, double dpi, bool snapto) :
   _set_joinstyle(gc);
   _set_dashes(gc);
   _set_clip_rectangle(gc);
+  _set_clip_path(gc);
 }
 
 void
@@ -175,7 +173,6 @@ GCAgg::_set_clip_rectangle( const Py::Object& gc) {
   delete [] cliprect;
   cliprect = NULL;
 
-
   Py::Object o ( gc.getAttr( "_cliprect" ) );
   if (o.ptr()==Py_None) {
     return;
@@ -196,13 +193,40 @@ GCAgg::_set_clip_rectangle( const Py::Object& gc) {
   cliprect[3] = h;
 }
 
+void
+GCAgg::_set_clip_path( const Py::Object& gc) {
+  //set the clip path from the gc
+
+  _VERBOSE("GCAgg::_set_clip_path");
+
+  delete clippath;
+  clippath = NULL;
+
+  Py::Object o  = gc.getAttr( "_clippath" );
+  if (o.ptr()==Py_None) {
+    return;
+  }
+  
+  agg::path_storage *tmppath;
+  swig_type_info * descr = SWIG_TypeQuery("agg::path_storage *");
+  assert(descr);
+  if (SWIG_ConvertPtr(o.ptr(),(void **)(&tmppath), descr, 0) == -1) {
+    throw Py::TypeError("Could not convert gc path_storage");
+  }
+
+  tmppath->rewind(0);
+  clippath = new agg::path_storage();
+  clippath->copy_from(*tmppath);
+  clippath->rewind(0);
+  tmppath->rewind(0);
+}
+
 
 Py::Object BufferRegion::to_string(const Py::Tuple &args) {
 
   // owned=true to prevent memory leak
   return Py::String(PyString_FromStringAndSize((const char*)aggbuf.data,aggbuf.height*aggbuf.stride), true);
 }
-
 
 
 
@@ -216,18 +240,28 @@ RendererAgg::RendererAgg(unsigned int width, unsigned int height, double dpi,
   height(height),
   dpi(dpi),
   NUMBYTES(width*height*4),
-  debug(debug)
+  debug(debug),
+  lastclippath(NULL)
 {
   _VERBOSE("RendererAgg::RendererAgg");
   unsigned stride(width*4);
 
 
   pixBuffer = new agg::int8u[NUMBYTES];
-  cacheBuffer = NULL;
-
-
   renderingBuffer = new agg::rendering_buffer;
   renderingBuffer->attach(pixBuffer, width, height, stride);
+
+  alphaBuffer = new agg::int8u[NUMBYTES];
+  alphaMaskRenderingBuffer = new agg::rendering_buffer;
+  alphaMaskRenderingBuffer->attach(alphaBuffer, width, height, stride);
+  alphaMask = new alpha_mask_type(*alphaMaskRenderingBuffer);
+  //jdh
+  pixfmtAlphaMask = new agg::pixfmt_gray8(*alphaMaskRenderingBuffer);
+  rendererBaseAlphaMask = new renderer_base_alpha_mask_type(*pixfmtAlphaMask);
+  rendererAlphaMask = new renderer_alpha_mask_type(*rendererBaseAlphaMask);
+  scanlineAlphaMask = new agg::scanline_p8();
+
+
   slineP8 = new scanline_p8;
   slineBin = new scanline_bin;
 
@@ -239,6 +273,7 @@ RendererAgg::RendererAgg(unsigned int width, unsigned int height, double dpi,
   rendererAA = new renderer_aa(*rendererBase);
   rendererBin = new renderer_bin(*rendererBase);
   theRasterizer = new rasterizer();
+
 
 };
 
@@ -686,7 +721,6 @@ RendererAgg::copy_from_bbox(const Py::Tuple& args) {
   //rb.clear(agg::rgba(1, 0, 0)); //todo remove me
   rb.copy_from(*renderingBuffer, &r, -r.x1, -r.y1);
   BufferRegion* reg = new BufferRegion(buf, r, true);
-  //std::cout << "copy from bbox" << std::endl;
   return Py::asObject(reg);
 
 
@@ -1372,9 +1406,13 @@ RendererAgg::draw_lines(const Py::Tuple& args) {
     snapto = (x0==x1) || (y0==y1);
 
   }
+
   GCAgg gc = GCAgg(args[0], dpi, snapto);
 
   set_clipbox_rasterizer(gc.cliprect);
+  //path_t transpath(path, xytrans);
+  _process_alpha_mask(gc);
+
 
   Transformation* mpltransform = static_cast<Transformation*>(args[3].ptr());
 
@@ -1400,7 +1438,8 @@ RendererAgg::draw_lines(const Py::Tuple& args) {
 
   double lastx(-2.0), lasty(-2.0);
 
-  for (size_t i=0; i<Nx; i++) {
+  size_t i(0);
+  for (i=0; i<Nx; i++) {
 
     thisx = *(double *)(xa->data + i*xa->strides[0]);
     thisy = *(double *)(ya->data + i*ya->strides[0]);
@@ -1437,7 +1476,6 @@ RendererAgg::draw_lines(const Py::Tuple& args) {
 
       thisx = (int)thisx + 0.5;
       thisy = (int)thisy + 0.5;
-      //std::cout << "snapto "<<thisx<<" "<<thisy<<std::endl;
     }
 
 
@@ -1447,7 +1485,7 @@ RendererAgg::draw_lines(const Py::Tuple& args) {
       path.line_to(thisx, thisy);
 
     moveto = false;
-    if ((i%10000)==0) {
+    if ((i>0) & (i%10000)==0) {
       //draw the path in chunks
       _render_lines_path(path, gc);
       path.remove_all();
@@ -1464,11 +1502,35 @@ RendererAgg::draw_lines(const Py::Tuple& args) {
   //typedef agg::conv_transform<agg::path_storage, agg::trans_affine> path_t;
   //path_t transpath(path, xytrans);
   _VERBOSE("RendererAgg::draw_lines rendering lines path");
-  _render_lines_path(path, gc);
+  if ((i>0) & ((i%10000)!=0)) {
+    //render the rest
+    _render_lines_path(path, gc);
+  }
 
   _VERBOSE("RendererAgg::draw_lines DONE");
   return Py::Object();
 
+}
+
+bool 
+RendererAgg::_process_alpha_mask(const GCAgg& gc)
+  //if gc has a clippath set, process the alpha mask and return True,
+  //else return False
+{
+  if (gc.clippath==NULL) {
+    return false;
+  }
+  if (gc.clippath==lastclippath) {
+    //std::cout << "seen it" << std::endl;
+    return true;
+  }
+  rendererBaseAlphaMask->clear(agg::gray8(0,0));
+  gc.clippath->rewind(0);
+  theRasterizer->add_path(*(gc.clippath));
+  rendererAlphaMask->color(agg::gray8(255,255));
+  agg::render_scanlines(*theRasterizer, *scanlineAlphaMask, *rendererAlphaMask);
+  lastclippath = gc.clippath;
+  return true;
 }
 
 template<class PathSource>
@@ -1480,18 +1542,16 @@ RendererAgg::_render_lines_path(PathSource &path, const GCAgg& gc) {
   typedef agg::conv_stroke<path_t> stroke_t;
   typedef agg::conv_dash<path_t> dash_t;
 
-  //path_t transpath(path, xytrans);
+  bool isclippath(gc.clippath!=NULL);
 
   if (gc.dasha==NULL ) { //no dashes
     stroke_t stroke(path);
     stroke.width(gc.linewidth);
     stroke.line_cap(gc.cap);
     stroke.line_join(gc.join);
-    rendererAA->color(gc.color);
     theRasterizer->add_path(stroke);
   }
   else {
-
     dash_t dash(path);
 
     //todo: dash.dash_start(gc.dashOffset);
@@ -1505,161 +1565,44 @@ RendererAgg::_render_lines_path(PathSource &path, const GCAgg& gc) {
     theRasterizer->add_path(stroke); //boyle freeze is herre
   }
 
+
+
   if ( gc.isaa ) {
-    rendererAA->color(gc.color);
-    agg::render_scanlines(*theRasterizer, *slineP8, *rendererAA);
+    if (isclippath) {
+      typedef agg::pixfmt_amask_adaptor<pixfmt, alpha_mask_type> pixfmt_amask_type;
+      typedef agg::renderer_base<pixfmt_amask_type>              amask_ren_type;
+      pixfmt_amask_type pfa(*pixFmt, *alphaMask);
+      amask_ren_type r(pfa);
+      typedef agg::renderer_scanline_aa_solid<amask_ren_type> renderer_type;
+      renderer_type ren(r);
+      ren.color(gc.color);
+      agg::render_scanlines(*theRasterizer, *slineP8, ren);
+    }
+    else {
+      rendererAA->color(gc.color);
+      agg::render_scanlines(*theRasterizer, *slineP8, *rendererAA);
+    }
   }
   else {
-    rendererBin->color(gc.color);
-    agg::render_scanlines(*theRasterizer, *slineBin, *rendererBin);
+    if (isclippath) {
+      typedef agg::pixfmt_amask_adaptor<pixfmt, alpha_mask_type> pixfmt_amask_type;
+      typedef agg::renderer_base<pixfmt_amask_type>              amask_ren_type;
+      pixfmt_amask_type pfa(*pixFmt, *alphaMask);
+      amask_ren_type r(pfa);
+      typedef agg::renderer_scanline_bin_solid<amask_ren_type> renderer_type;
+      renderer_type ren(r);
+      ren.color(gc.color);
+      agg::render_scanlines(*theRasterizer, *slineP8, ren);
+    }
+    else{
+      rendererBin->color(gc.color);
+      agg::render_scanlines(*theRasterizer, *slineBin, *rendererBin);
+    }
   }
 }
 
-/*
 Py::Object
 RendererAgg::draw_markers(const Py::Tuple& args) {
-  // there is a win32 specific segfault that happens when using the
-  // cacheing code.  The segfault always happens on an agg call but I
-  // can't reproduce a standalone case.  Until this gets sorted out,
-  // I'm using two different versions of draw_markers, one which uses
-  // raster caches of the markers (much faster) for non win32
-  // platforms, and the older, slower, no cache version for win32.
-#if defined(MS_WIN32)
-  return _draw_markers_nocache(args);
-#else
-  return _draw_markers_cache(args);
-#endif
-}
-
-
-Py::Object
-RendererAgg::_draw_markers_nocache(const Py::Tuple& args) {
-  //draw_markers(gc, path, rgbFace, xo, yo, transform)
-  theRasterizer->reset_clipping();
-
-  _VERBOSE("RendererAgg::_draw_markers_nocache");
-  args.verify_length(6);
-
-  GCAgg gc = GCAgg(args[0], dpi);
-
-  agg::path_storage *ppath;
-  swig_type_info * descr = SWIG_TypeQuery("agg::path_storage *");
-  assert(descr);
-  if (SWIG_ConvertPtr(args[1].ptr(),(void **)(&ppath), descr, 0) == -1)
-    throw Py::TypeError("Could not convert path_storage");
-
-
-  facepair_t face = _get_rgba_face(args[2], gc.alpha);
-  Py::Object xo = args[3];
-  Py::Object yo = args[4];
-
-  PyArrayObject *xa = (PyArrayObject *) PyArray_ContiguousFromObject(xo.ptr(), PyArray_DOUBLE, 1, 1);
-
-  if (xa==NULL)
-    throw Py::TypeError("RendererAgg::_draw_markers_nocache expected numerix array");
-
-
-  PyArrayObject *ya = (PyArrayObject *) PyArray_ContiguousFromObject(yo.ptr(), PyArray_DOUBLE, 1, 1);
-
-  if (ya==NULL)
-    throw Py::TypeError("RendererAgg::_draw_markers_nocache expected numerix array");
-
-  Transformation* mpltransform = static_cast<Transformation*>(args[5].ptr());
-
-  double a, b, c, d, tx, ty;
-  try {
-    mpltransform->affine_params_api(&a, &b, &c, &d, &tx, &ty);
-  }
-  catch(...) {
-    throw Py::ValueError("Domain error on affine_params_api in RendererAgg::_draw_markers_nocache");
-  }
-
-  agg::trans_affine xytrans = agg::trans_affine(a,b,c,d,tx,ty);
-
-
-  size_t Nx = xa->dimensions[0];
-  size_t Ny = ya->dimensions[0];
-
-  if (Nx!=Ny)
-    throw Py::ValueError(Printf("x and y must be equal length arrays; found %d and %d", Nx, Ny).str());
-
-
-  double heightd = double(height);
-
-  bool curvy = false;
-  size_t Npath = ppath->total_vertices();
-  for (size_t i=0; i<Npath; i++) {
-    double x, y;
-    unsigned code = ppath->vertex(&x, &y);
-
-    if (code==3||code==4||code==5)
-      curvy = true;
-  }
-
-
-
-
-
-  theRasterizer->reset_clipping();
-
-
-  if (gc.cliprect==NULL) {
-    rendererBase->reset_clipping(true);
-  }
-  else {
-    int l = (int)(gc.cliprect[0]) ;
-    int b = (int)(gc.cliprect[1]) ;
-    int w = (int)(gc.cliprect[2]) ;
-    int h = (int)(gc.cliprect[3]) ;
-    rendererBase->clip_box(l, height-(b+h),l+w, height-b);
-  }
-
-  double thisx, thisy;
-
-  agg::path_storage markers;
-  for (size_t i=0; i<Nx; i++) {
-    thisx = *(double *)(xa->data + i*xa->strides[0]);
-    thisy = *(double *)(ya->data + i*ya->strides[0]);
-
-
-    if (mpltransform->need_nonlinear_api())
-      try {
-	mpltransform->nonlinear_only_api(&thisx, &thisy);
-      }
-      catch(...) {
-	continue;
-      }
-
-    xytrans.transform(&thisx, &thisy);
-
-
-    thisy = heightd - thisy;  //flipy
-
-    thisx = (int)thisx + 0.5;
-    thisy = (int)thisy + 0.5;
-    markers.move_to(thisx, thisy);
-    //agg::path_storage marker;
-    double x, y;
-    unsigned cmd;
-    ppath->rewind(0);
-    while(!agg::is_stop(cmd = ppath->vertex(&x, &y)))
-      markers.add_vertex(x+thisx, thisy-y, cmd);
-
-    _fill_and_stroke(markers, gc, face, curvy);
-  } //for each marker
-
-
-  Py_XDECREF(xa);
-  Py_XDECREF(ya);
-
-  return Py::Object();
-
-}
-
-*/
-Py::Object
-RendererAgg::draw_markers(const Py::Tuple& args) {
-  //_draw_markers_cache(gc, path, rgbFace, xo, yo, transform)
   theRasterizer->reset_clipping();
 
   _VERBOSE("RendererAgg::_draw_markers_cache");
@@ -1670,19 +1613,14 @@ RendererAgg::draw_markers(const Py::Tuple& args) {
 
 
   agg::path_storage *ppath;
-  _VERBOSE("RendererAgg::_draw_markers_cache get path storage");
+
   swig_type_info * descr = SWIG_TypeQuery("agg::path_storage *");
-  _VERBOSE("RendererAgg::_draw_markers_cache got path storage");
   assert(descr);
-  _VERBOSE("RendererAgg::_draw_markers_cache asserted");
   if (SWIG_ConvertPtr(args[1].ptr(),(void **)(&ppath), descr, 0) == -1) {
-    _VERBOSE("RendererAgg::_draw_markers_cache throwing");
     throw Py::TypeError("Could not convert path_storage");
   }
-  _VERBOSE("RendererAgg::_draw_markers_cache getface");
   facepair_t face = _get_rgba_face(args[2], gc.alpha);
 
-  _VERBOSE("RendererAgg::_draw_markers_cache 1");
   Py::Object xo = args[3];
   Py::Object yo = args[4];
 
@@ -1694,7 +1632,6 @@ RendererAgg::draw_markers(const Py::Tuple& args) {
 
   PyArrayObject *ya = (PyArrayObject *) PyArray_ContiguousFromObject(yo.ptr(), PyArray_DOUBLE, 1, 1);
 
-  _VERBOSE("RendererAgg::_draw_markers_cache 2");
   if (ya==NULL)
     throw Py::TypeError("RendererAgg::_draw_markers_cache expected numerix array");
 
@@ -1710,7 +1647,6 @@ RendererAgg::draw_markers(const Py::Tuple& args) {
 
   agg::trans_affine xytrans = agg::trans_affine(a,b,c,d,tx,ty);
 
-  _VERBOSE("RendererAgg::_draw_markers_cache 3");
   size_t Nx = xa->dimensions[0];
   size_t Ny = ya->dimensions[0];
 
@@ -1726,7 +1662,6 @@ RendererAgg::draw_markers(const Py::Tuple& args) {
   typedef agg::conv_curve<agg::path_storage> curve_t;
   curve_t curve(*ppath);
 
-  _VERBOSE("RendererAgg::_draw_markers_cache 4");
   //maxim's suggestions for cached scanlines
   agg::scanline_storage_aa8 scanlines;
   theRasterizer->reset();
@@ -1740,9 +1675,6 @@ RendererAgg::draw_markers(const Py::Tuple& args) {
     fillCache = new agg::int8u[fillSize]; // or any container
     scanlines.serialize(fillCache);
   }
-
-  _VERBOSE("RendererAgg::_draw_markers_cache 5");
-
 
   agg::conv_stroke<curve_t> stroke(curve);
   stroke.width(gc.linewidth);
@@ -1770,7 +1702,6 @@ RendererAgg::draw_markers(const Py::Tuple& args) {
   }
 
 
-  _VERBOSE("RendererAgg::_draw_markers_cache 6");
   double thisx, thisy;
   for (size_t i=0; i<Nx; i++) {
     thisx = *(double *)(xa->data + i*xa->strides[0]);
@@ -1798,7 +1729,6 @@ RendererAgg::draw_markers(const Py::Tuple& args) {
     agg::serialized_scanlines_adaptor_aa8 sa;
     agg::serialized_scanlines_adaptor_aa8::embedded_scanline sl;
 
-    _VERBOSE("RendererAgg::_draw_markers_cache 7");
     if (face.first) {
       //render the fill
       sa.init(fillCache, fillSize, thisx, thisy);
@@ -1813,7 +1743,6 @@ RendererAgg::draw_markers(const Py::Tuple& args) {
 
   } //for each marker
 
-  _VERBOSE("RendererAgg::_draw_markers_cache 8");
   Py_XDECREF(xa);
   Py_XDECREF(ya);
 
@@ -2282,9 +2211,16 @@ RendererAgg::~RendererAgg() {
   delete rendererBase;
   delete pixFmt;
   delete renderingBuffer;
-  delete [] pixBuffer;
-  delete [] cacheBuffer;
 
+  delete alphaMask;
+  delete alphaMaskRenderingBuffer;
+  delete [] alphaBuffer;
+  delete [] pixBuffer;
+  delete pixfmtAlphaMask;
+  delete rendererBaseAlphaMask;
+  delete rendererAlphaMask;
+  delete scanlineAlphaMask;
+  
 }
 
 /* ------------ module methods ------------- */

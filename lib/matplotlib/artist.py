@@ -36,6 +36,7 @@ class Artist:
         self._animated = False
         self._alpha = 1.0
         self.clipbox = None
+        self._clippath = None
         self._clipon = False
         self._lod = False
         self._label = ''
@@ -156,8 +157,19 @@ class Artist:
         ACCEPTS: a matplotlib.transform.Bbox instance
         """
         self.clipbox = clipbox
-        self._clipon = clipbox is not None
+        self._clipon = clipbox is not None or self._clippath is not None
         self.pchanged()
+
+    def set_clip_path(self, path):
+        """
+        Set the artist's clip path
+
+        ACCEPTS: an agg.path_storage instance
+        """
+        self._clippath = path
+        self._clipon = self.clipbox is not None or path is not None
+        self.pchanged()
+
 
     def get_alpha(self):
         """
@@ -176,11 +188,15 @@ class Artist:
 
     def get_clip_on(self):
         'Return whether artist uses clipping'
-        return self._clipon and self.clipbox is not None
+        return self._clipon and (self.clipbox is not None or self._clippath is not None)
 
     def get_clip_box(self):
         'Return artist clipbox'
         return self.clipbox
+
+    def get_clip_path(self):
+        'Return artist clip path'
+        return self._clippath
 
     def set_clip_on(self, b):
         """
@@ -189,8 +205,16 @@ class Artist:
         ACCEPTS: [True | False]
         """
         self._clipon = b
-        if not b: self.clipbox = None
+        if not b: 
+	    self.clipbox = None
+            self._clippath = None
         self.pchanged()
+
+    def _set_gc_clip(self, gc):
+        'set the clip properly for the gc'
+        if self.clipbox is not None:
+            gc.set_clip_rectangle(self.clipbox.get_bounds())
+        gc.set_clip_path(self._clippath)
 
     def draw(self, renderer, *args, **kwargs):
         'Derived classes drawing method'

@@ -469,6 +469,7 @@ class GraphicsContextBase:
         self._antialiased = 1  # use 0,1 not True, False for extension code
         self._capstyle = 'butt'
         self._cliprect = None
+        self._clippath = None
         self._dashes = None, None
         self._joinstyle = 'miter'
         self._linestyle = 'solid'
@@ -482,6 +483,7 @@ class GraphicsContextBase:
         self._antialiased = gc._antialiased
         self._capstyle = gc._capstyle
         self._cliprect = gc._cliprect
+        self._clippath = gc._clipath
         self._dashes = gc._dashes
         self._joinstyle = gc._joinstyle
         self._linestyle = gc._linestyle
@@ -511,6 +513,12 @@ class GraphicsContextBase:
         Return the clip rectangle as (left, bottom, width, height)
         """
         return self._cliprect
+
+    def get_clip_path(self):
+        """
+        Return the clip path
+        """
+        return self._clipath
 
     def get_dashes(self):
         """
@@ -578,6 +586,12 @@ class GraphicsContextBase:
         Set the clip rectangle with sequence (left, bottom, width, height)
         """
         self._cliprect = rectangle
+
+    def set_clip_path(self, path):
+        """
+        Set the clip path
+        """
+        self._clippath = path
 
     def set_dashes(self, dash_offset, dash_list):
         """

@@ -71,7 +71,9 @@ if major==2 and minor1<=3:
 matplotlib requires setuptools for installation.  Please download
 http://peak.telecommunity.com/dist/ez_setup.py and run it (as su if
 you are doing a system wide install) to install the proper version of
-setuptools for your system""")
+setuptools for your system.  If this is your first time upgrading
+matplotlib with the new setuptools requirement, you must delete the
+old matplotlib install directory.""")
     
 import glob
 from distutils.core import Extension, setup
@@ -123,6 +125,7 @@ if not NUMERIX:
     raise RuntimeError("You must install one or more of numpy, Numeric, and numarray to build matplotlib")
 
 
+NUMERIX = ['numpy']
 rc['numerix'] = NUMERIX[-1]
 
 ext_modules = []
