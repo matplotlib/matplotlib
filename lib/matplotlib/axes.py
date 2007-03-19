@@ -25,7 +25,7 @@ import cm
 from cm import ScalarMappable
 from contour import ContourSet
 import _image
-from ticker import AutoLocator, LogLocator, NullLocator
+from ticker import AutoLocator, LogLocator, NullLocator, MaxNLocator
 from ticker import ScalarFormatter, LogFormatter, LogFormatterExponent, LogFormatterMathtext, NullFormatter
 
 from image import AxesImage
@@ -885,7 +885,7 @@ class Axes(Artist):
         Return a list of artists the axes contains.  Deprecated
         """
         raise DeprecationWarning('Use get_children instead')
-    
+
     def get_frame(self):
         'Return the axes Rectangle frame'
         return self.axesPatch
@@ -1741,7 +1741,7 @@ class Axes(Artist):
         children.append(self.axesPatch)
         children.append(self.axesFrame)
         return children
-    
+
     def pick(self, *args):
         """
         pick(mouseevent)
@@ -1754,8 +1754,8 @@ class Axes(Artist):
         mouseevent = args[0]
         for a in self.get_children():
             a.pick(mouseevent)
-        
-            
+
+
 
     def __pick(self, x, y, trans=None, among=None):
         """
@@ -2236,7 +2236,7 @@ class Axes(Artist):
         return lines
     vlines.__doc__ = dedent(vlines.__doc__) % artist.kwdocd
 
-    
+
     #### Basic plotting
     def plot(self, *args, **kwargs):
         """
@@ -2399,7 +2399,7 @@ class Axes(Artist):
         return ret
     plot_date.__doc__ = dedent(plot_date.__doc__) % artist.kwdocd
 
-    
+
     def loglog(self, *args, **kwargs):
         """
         LOGLOG(*args, **kwargs)
@@ -2520,7 +2520,7 @@ class Axes(Artist):
         """
         Plot the autocorrelation of x.  If normed=True, normalize the
         data but the autocorrelation at 0-th lag.  x is detrended by
-        the detrend callable (default no normalization. 
+        the detrend callable (default no normalization.
 
         data are plotted as plot(lags, c, **kwargs)
 
@@ -2536,7 +2536,7 @@ class Axes(Artist):
         %(Line2D)s
         """
         return self.xcorr(x, x, normed, detrend, **kwargs)
-    acorr.__doc__ = dedent(acorr.__doc__) % artist.kwdocd    
+    acorr.__doc__ = dedent(acorr.__doc__) % artist.kwdocd
 
     def xcorr(self, x, y, normed=False, detrend=detrend_none, **kwargs):
         """
@@ -2560,8 +2560,8 @@ class Axes(Artist):
         """
         kwargs = kwargs.copy()
         kwargs.setdefault('marker', 'o')
-        kwargs.setdefault('linestyle', 'None')        
-        
+        kwargs.setdefault('linestyle', 'None')
+
         Nx = len(x)
         assert(Nx==len(y))
         x = detrend(asarray(x))
@@ -2571,11 +2571,11 @@ class Axes(Artist):
 
         if normed: c/=c[Nx-1]
 
-        
+
         lags = arange(-Nx+1,Nx)
         line, = self.plot(lags, c, **kwargs)
         return lags, c, line
-    xcorr.__doc__ = dedent(xcorr.__doc__) % artist.kwdocd    
+    xcorr.__doc__ = dedent(xcorr.__doc__) % artist.kwdocd
 
     def legend(self, *args, **kwargs):
         """
@@ -2695,7 +2695,7 @@ class Axes(Artist):
     def bar(self, left, height, width=0.8, bottom=None,
             color=None, edgecolor=None, linewidth=None,
             yerr=None, xerr=None, ecolor=None, capsize=3,
-            align='edge', orientation='vertical', log=False, 
+            align='edge', orientation='vertical', log=False,
             **kwargs
             ):
         """
@@ -2919,7 +2919,7 @@ class Axes(Artist):
 
         Make a horizontal bar plot with rectangles bounded by
 
-          left, left+width, bottom, bottom+height  
+          left, left+width, bottom, bottom+height
                 (left, right, bottom and top edges)
 
         bottom, width, height, and left can be either scalars or sequences
@@ -4729,7 +4729,7 @@ class Axes(Artist):
                 kwargs['cmap'] = ListedColormap(['w', 'k'], name='binary')
             nr, nc = Z.shape
             extent = [-0.5, nc-0.5, nr-0.5, -0.5]
-            return self.imshow(mask, interpolation='nearest', aspect=aspect,
+            ret = self.imshow(mask, interpolation='nearest', aspect=aspect,
                                 extent=extent, origin='upper', **kwargs)
         else:
             if hasattr(Z, 'tocoo'):
@@ -4750,8 +4750,48 @@ class Axes(Artist):
             self.set_xlim(xmin=-0.5, xmax=nc-0.5)
             self.set_ylim(ymin=nr-0.5, ymax=-0.5)
             self.set_aspect(aspect)
-            return lines
+            ret = lines
+        self.title.set_y(1.05)
+        self.xaxis.tick_top()
+        self.xaxis.set_major_locator(MaxNLocator(integer=True))
+        self.yaxis.set_major_locator(MaxNLocator(integer=True))
+        return ret
 
+    def matshow(self, Z, **kwargs):
+        '''
+        Plot a matrix as an image.
+
+        The matrix will be shown the way it would be printed,
+        with the first row at the top.  Row and column numbering
+        is zero-based.
+
+        Argument:
+            Z   anything that can be interpreted as a 2-D array
+
+        kwargs: all are passed to imshow.  matshow sets defaults
+        for extent, origin, interpolation, and aspect; use care
+        in overriding the extent and origin kwargs, because they
+        interact.  (Also, if you want to change them, you probably
+        should be using imshow directly in your own version of
+        matshow.)
+
+        Returns: an AxesImage instance
+
+        '''
+        Z = asarray(Z)
+        nr, nc = Z.shape
+        extent = [-0.5, nc-0.5, nr-0.5, -0.5]
+        kw = {'extent': extent,
+              'origin': 'upper',
+              'interpolation': 'nearest',
+              'aspect': 'equal'}          # (already the imshow default)
+        kw.update(kwargs)
+        im = self.imshow(Z, **kw)
+        self.title.set_y(1.05)
+        self.xaxis.tick_top()
+        self.xaxis.set_major_locator(MaxNLocator(integer=True))
+        self.yaxis.set_major_locator(MaxNLocator(integer=True))
+        return im
 
 class SubplotBase:
     """
@@ -4884,10 +4924,10 @@ class SubplotBase:
         firstcol = self.is_first_col()
         for label in self.get_xticklabels():
             label.set_visible(lastrow)
-            
+
         for label in self.get_yticklabels():
             label.set_visible(firstcol)
-        
+
 class Subplot(SubplotBase, Axes):
     """
     Emulate matlab's(TM) subplot command, creating axes with
@@ -5006,7 +5046,7 @@ class PolarAxes(Axes):
             edgecolor=rcParams['axes.edgecolor'],
             )
 
-        
+
         self.axesPatch.set_figure(self.figure)
         self.axesPatch.set_transform(self.transData)
         self.axesPatch.set_linewidth(rcParams['axes.linewidth'])
@@ -5052,7 +5092,7 @@ class PolarAxes(Axes):
     def set_rmax(self, rmax):
         self.rintv.set_bounds(0, rmax)
         self.regrid(rmax)
-        
+
     def grid(self, b):
         'Set the axes grids on or off; b is a boolean'
         self._gridOn = b
@@ -5071,14 +5111,14 @@ class PolarAxes(Axes):
         r = linspace(0, rmax, self.RESOLUTION)
         for l in self.thetagridlines:
             l.set_ydata(r)
-        
+
     def autoscale_view(self, scalex=True, scaley=True):
         'set the view limits to include all the data in the axes'
         self.rintd.set_bounds(0, self.get_rmax())
         rmin, rmax = self.rlocator.autoscale()
         self.rintv.set_bounds(rmin, rmax)
         self.regrid(rmax)
-        
+
     def set_rgrids(self, radii, labels=None, angle=22.5, **kwargs):
         """
         set the radial locations and labels of the r grids
@@ -5234,7 +5274,7 @@ class PolarAxes(Axes):
         for line in self.lines:
             #line.set_clip_path(make_clippath())
             line.set_clip_path(clippath)
-        
+
         for t in self.thetagridlabels+self.rgridlabels:
             t.draw(renderer)
 
@@ -5252,7 +5292,7 @@ class PolarAxes(Axes):
 
         self.title.draw(renderer)
 
-            
+
 
         self.transData.thaw()  # release the lazy objects
         self.transAxes.thaw()  # release the lazy objects
@@ -5284,7 +5324,7 @@ class PolarAxes(Axes):
         ACCEPTS: len(2) sequence of floats
         """
         if xmax is None and iterable(xmin):
-            xmin,xmax = xmin        
+            xmin,xmax = xmin
 
         old_xmin,old_xmax = self.get_xlim()
         if xmin is None: xmin = old_xmin

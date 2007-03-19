@@ -1,4 +1,8 @@
-2007-30-17 Preliminary support for clipping to paths agg - JDH
+2007-03-18 Matshow as an Axes method; test version matshow1() in
+           pylab; added 'integer' Boolean kwarg to MaxNLocator
+           initializer to force ticks at integer locations. - EF
+
+2007-03-17 Preliminary support for clipping to paths agg - JDH
 
 2007-03-17 Text.set_text() accepts anything convertible with '%s' - EF
 

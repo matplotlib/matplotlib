@@ -1,3 +1,6 @@
+    MaxNLocator accepts a new Boolean kwarg ('integer') to force
+    ticks to integer locations.
+
     Commands that pass an argument to the Text constructor or to
     Text.set_text() now accept any object that can be converted
     with '%s'.  This affects xlabel(), title(), etc.
