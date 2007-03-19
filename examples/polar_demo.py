@@ -42,7 +42,7 @@
 from pylab import *
 
 # radar green, solid grid lines
-rc('grid', color='#316931', linewidth=1, linestyle='-')
+rc('grid', color='red', linewidth=1, linestyle='-')
 rc('xtick', labelsize=15)
 rc('ytick', labelsize=15)
 # force square figure and square axes looks better for polar, IMO
@@ -54,5 +54,5 @@ theta = 2*2*pi*r
 polar(theta, r, color='#ee8d18', lw=3)
 
 title("And there was much rejoicing!", fontsize=20)
-savefig('polar_demo')
+#savefig('polar_demo')
 show()

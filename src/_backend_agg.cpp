@@ -1439,8 +1439,9 @@ RendererAgg::draw_lines(const Py::Tuple& args) {
   double lastx(-2.0), lasty(-2.0);
 
   size_t i(0);
+  bool more(true);
   for (i=0; i<Nx; i++) {
-
+    more = true;
     thisx = *(double *)(xa->data + i*xa->strides[0]);
     thisy = *(double *)(ya->data + i*ya->strides[0]);
 
@@ -1487,9 +1488,11 @@ RendererAgg::draw_lines(const Py::Tuple& args) {
     moveto = false;
     if ((i>0) & (i%10000)==0) {
       //draw the path in chunks
+      //std::cout << "rendering chunk " << i << std::endl;
       _render_lines_path(path, gc);
       path.remove_all();
       path.move_to(thisx, thisy);
+      more = false;
     }
 
 
@@ -1502,8 +1505,9 @@ RendererAgg::draw_lines(const Py::Tuple& args) {
   //typedef agg::conv_transform<agg::path_storage, agg::trans_affine> path_t;
   //path_t transpath(path, xytrans);
   _VERBOSE("RendererAgg::draw_lines rendering lines path");
-  if ((i>0) & ((i%10000)!=0)) {
+  if (more){
     //render the rest
+    ///std::cout << "rendering the rest" << std::endl;
     _render_lines_path(path, gc);
   }
 
@@ -1520,11 +1524,11 @@ RendererAgg::_process_alpha_mask(const GCAgg& gc)
   if (gc.clippath==NULL) {
     return false;
   }
-  if (gc.clippath==lastclippath) {
+  if (0 &(gc.clippath==lastclippath)) {
     //std::cout << "seen it" << std::endl;
     return true;
   }
-  rendererBaseAlphaMask->clear(agg::gray8(0,0));
+  rendererBaseAlphaMask->clear(agg::gray8(0, 0));
   gc.clippath->rewind(0);
   theRasterizer->add_path(*(gc.clippath));
   rendererAlphaMask->color(agg::gray8(255,255));
@@ -1576,6 +1580,7 @@ RendererAgg::_render_lines_path(PathSource &path, const GCAgg& gc) {
       typedef agg::renderer_scanline_aa_solid<amask_ren_type> renderer_type;
       renderer_type ren(r);
       ren.color(gc.color);
+      //std::cout << "render clippath" << std::endl;
       agg::render_scanlines(*theRasterizer, *slineP8, ren);
     }
     else {

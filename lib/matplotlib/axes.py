@@ -9,7 +9,7 @@ from numerix import absolute, arange, array, asarray, ones, divide,\
      typecode, concatenate, newaxis, reshape, resize, repeat, cross_correlate, nonzero
 
 import numerix.ma as ma
-
+import matplotlib.numerix as nx
 import matplotlib.mlab
 import matplotlib.agg as agg
 import artist
@@ -5109,6 +5109,8 @@ class PolarAxes(Axes):
         for r in radii:
             r = ones(self.RESOLUTION)*r
             line = Line2D(theta, r, linestyle=ls, color=color, linewidth=lw)
+            #line = Line2D(nx.mlab.rand(len(theta)), nx.mlab.rand(len(theta)),
+            #              linestyle=ls, color=color, linewidth=lw)
             line.set_transform(self.transData)
             self.rgridlines.append(line)
 
@@ -5231,8 +5233,7 @@ class PolarAxes(Axes):
 
         for line in self.lines:
             #line.set_clip_path(make_clippath())
-            #line.set_clip_path(clippath)
-            pass
+            line.set_clip_path(clippath)
         
         for t in self.thetagridlabels+self.rgridlabels:
             t.draw(renderer)
@@ -5250,6 +5251,9 @@ class PolarAxes(Axes):
             a.draw(renderer)
 
         self.title.draw(renderer)
+
+            
+
         self.transData.thaw()  # release the lazy objects
         self.transAxes.thaw()  # release the lazy objects
         renderer.close_group('polar_axes')
