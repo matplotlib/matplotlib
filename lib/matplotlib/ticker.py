@@ -812,9 +812,10 @@ class MaxNLocator(Locator):
     Select no more than N intervals at nice locations.
     """
 
-    def __init__(self, nbins = 10, steps = None, trim = True):
+    def __init__(self, nbins = 10, steps = None, trim = True, integer=False):
         self._nbins = int(nbins)
         self._trim = trim
+        self._integer = integer
         if steps is None:
             self._steps = [1, 1.5, 2, 2.5, 3, 4, 5, 6, 8, 10]
         else:
@@ -822,10 +823,14 @@ class MaxNLocator(Locator):
                 steps = list(steps)
                 steps.append(10)
             self._steps = steps
+        if integer:
+            self._steps = [n for n in self._steps if divmod(n,1)[1] < 0.001]
 
     def bin_boundaries(self, vmin, vmax):
         nbins = self._nbins
         scale, offset = scale_range(vmin, vmax, nbins)
+        if self._integer:
+            scale = max(1, scale)
         vmin -= offset
         vmax -= offset
         raw_step = (vmax-vmin)/nbins
