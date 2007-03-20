@@ -1,10 +1,12 @@
+import matplotlib
+matplotlib.rcParams['units'] = True
 
-import numpy as N
-import numpy.core.ma as ma
-from matplotlib.units import *
+import matplotlib.units as units
+import matplotlib.ticker as ticker
+import matplotlib.numerix as nx
 from matplotlib.axes import Axes
-from matplotlib.ticker import AutoLocator, ScalarFormatter
-    
+from matplotlib.cbook import iterable
+
 class ProxyDelegate(object):
   def __init__(self, fn_name, proxy_type):
     self.proxy_type = proxy_type
@@ -88,7 +90,7 @@ class ConvertAllProxy(PassThroughProxy):
       return NotImplemented
     return TaggedValue(ret, ret_unit)
 
-class TaggedValue (UnitsTagInterfaceWithMA, object):
+class TaggedValue (object):
 
   __metaclass__ = TaggedValueMeta
   _proxies = {'__add__':ConvertAllProxy, 
@@ -113,7 +115,7 @@ class TaggedValue (UnitsTagInterfaceWithMA, object):
     self.proxy_target = self.value
 
   def get_compressed_copy(self, mask):
-    compressed_value = ma.masked_array(self.value, mask=mask).compressed()
+    compressed_value = nx.ma.masked_array(self.value, mask=mask).compressed()
     return TaggedValue(compressed_value, self.unit)
 
   def __getattribute__(self, name):
@@ -126,9 +128,9 @@ class TaggedValue (UnitsTagInterfaceWithMA, object):
 
   def __array__(self, t = None, context = None):
     if t:
-      return N.asarray(self.value).astype(t)
+      return nx.asarray(self.value).astype(t)
     else:
-      return N.asarray(self.value)
+      return nx.asarray(self.value)
 
   def __array_wrap__(self, array, context):
     return TaggedValue(array, self.unit)
@@ -150,7 +152,7 @@ class TaggedValue (UnitsTagInterfaceWithMA, object):
     return IteratorProxy(iter(self.value), self.unit)
 
   def get_compressed_copy(self, mask):
-    new_value = ma.masked_array(self.value, mask=mask).compressed()
+    new_value = nx.ma.masked_array(self.value, mask=mask).compressed()
     return TaggedValue(new_value, self.unit)
 
   def convert_to(self, unit):
@@ -162,36 +164,20 @@ class TaggedValue (UnitsTagInterfaceWithMA, object):
   def get_value(self):
     return self.value
 
-  def convert_to_value(self, unit):
-    return self.convert_to(unit).get_value()
-
-  def get_default_unit_tag(self):
-    return self.unit
+  
 
   def get_unit(self):
     return self.unit
 
+
 class BasicUnit(object):
-  def __init__(self, name, full_name=None, tick_locators=None, tick_formatters=None):
+  def __init__(self, name, full_name=None):
     self.name = name
     if (not full_name):
       full_name = name
     self.full_name = full_name
     self.conversions = dict()
-    self.tick_locators = tick_locators
-    self.tick_formatters = tick_formatters
 
-  def set_tick_locators(self, major_locator, minor_locator):
-    self.tick_locators = (major_locator, minor_locator)
-
-  def get_tick_locators(self):
-    return self.tick_locators
-
-  def set_tick_formatter(self, major_formatter, minor_formatter):
-    self.tick_formatters = (major_formatter, minor_formatter)
-
-  def get_tick_formatters(self):
-    return self.tick_formatters
 
   def __repr__(self):
     return 'BasicUnit(' + `self.name` + ')'
@@ -220,7 +206,7 @@ class BasicUnit(object):
     return TaggedValue(array, self)
 
   def __array__(self, t=None, context=None):
-    ret = N.array([1])
+    ret = nx.array([1])
     if (t):
       return ret.astype(t)
     else:
@@ -275,11 +261,68 @@ class UnitResolver(object):
 
 unit_resolver = UnitResolver()
 
-def locator_map(u):
-  return u.get_tick_locators()
-def formatter_map(u):
-  return u.get_tick_formatters()
 
-Axes.set_default_unit_to_locator_map(locator_map)
-Axes.set_default_unit_to_formatter_map(formatter_map)
+cm = BasicUnit('cm', 'centimeters')
+inch = BasicUnit('inch', 'inches')
+inch.add_conversion_factor(cm, 2.54)
+cm.add_conversion_factor(inch, 1/2.54)
 
+radians = BasicUnit('rad', 'radians')
+degrees = BasicUnit('deg', 'degrees')
+radians.add_conversion_factor(degrees, 180.0/nx.pi)
+degrees.add_conversion_factor(radians, nx.pi/180.0)
+
+secs = BasicUnit('s', 'seconds')
+hertz = BasicUnit('Hz', 'Hertz')
+minutes = BasicUnit('min', 'minutes')
+
+secs.add_conversion_fn(hertz, lambda x:1./x)
+secs.add_conversion_factor(minutes, 1/60.0)
+
+# radians formatting
+def rad_fn(x,pos=None):
+  n = int((x / nx.pi) * 2.0 + 0.25)
+  if n == 0:
+    return '0'
+  elif n == 1:
+    return r'$\pi/2$'
+  elif n == 2:
+    return r'$\pi$'
+  elif n % 2 == 0:
+    return r'$%s\pi$' % (n/2,)
+  else:
+    return r'$%s\pi/2$' % (n,)
+
+
+class BasicUnitConverter(units.ConversionInterface):
+
+    def tickers(x, unit=None):
+        'return major and minor tick locators and formatters'
+
+        if unit==radians:
+            return (
+              ticker.MultipleLocator(base=nx.pi/2),
+              ticker.NullLocator(),
+              ticker.FuncFormatter(rad_fn),
+              ticker.NullFormatter(),
+                )
+        elif unit==degrees:
+            return (
+              ticker.AutoLocator(),
+              ticker.NullLocator(),
+              ticker.FormatStrFormatter(r'$%i^\circ$'),
+              ticker.NullFormatter(),
+                )
+        else:
+            return None
+    tickers = staticmethod(tickers)
+
+    def convert_to_value(val, unit):
+        if iterable(val):
+          return [thisval.convert_to(unit).get_value() for thisval in val]
+        else:
+          return val.convert_to(unit).get_value()
+    convert_to_value = staticmethod(convert_to_value)
+
+
+units.manager.converters[TaggedValue] = BasicUnitConverter()

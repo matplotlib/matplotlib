@@ -32,7 +32,7 @@ from image import AxesImage
 from legend import Legend
 from lines import Line2D, lineStyles, lineMarkers
 import lines
-from units import UnitsManager
+
 import units
 
 from matplotlib.mlab import meshgrid, detrend_none, detrend_linear, \
@@ -204,8 +204,8 @@ class _process_plot_var_args:
         return color
 
     def __call__(self, *args, **kwargs):
-        kwargs_copy = kwargs.copy()
-        ret =  self._grab_next_args(*args, **kwargs_copy)
+        kwargs = kwargs.copy()
+        ret =  self._grab_next_args(*args, **kwargs)
         return ret
 
     def set_lineprops(self, line, **kwargs):
@@ -216,8 +216,6 @@ class _process_plot_var_args:
                 raise TypeError, 'There is no line property "%s"'%key
             func = getattr(line,funcName)
             func(val)
-        if 'xunits' in kwargs or 'yunits' in kwargs:
-            line.update_units()
 
     def set_patchprops(self, fill_poly, **kwargs):
         assert self.command == 'fill', 'set_patchprops only works with "fill"'
@@ -256,14 +254,12 @@ class _process_plot_var_args:
         return x, y
 
 
-    def _plot_1_arg(self, y, callback=None, **kwargs):
+    def _plot_1_arg(self, y, **kwargs):
         assert self.command == 'plot', 'fill needs at least 2 arguments'
         ret = []
 
         yorig = y
         x, y = self._xy_from_y(yorig)
-        if callback is not None:
-            callback(kwargs, ydata=yorig)
 
         multicol = y.shape[1]>1
 
@@ -286,41 +282,35 @@ class _process_plot_var_args:
             
         return ret
 
-    def _plot_2_args(self, tup2, callback=None, **kwargs):
+    def _plot_2_args(self, tup2, **kwargs):
         ret = []
         if is_string_like(tup2[1]):
 
             assert self.command == 'plot', 'fill needs at least 2 non-string arguments'
             yorig, fmt = tup2 
             x, y = self._xy_from_y(yorig)
-            if callback is not None:
-                callback(kwargs, ydata=yorig)
 
             linestyle, marker, color = _process_plot_format(fmt)
 
             multicol = y.shape[1]>1
 
-            if multicol:                
-                for j in range(y.shape[1]):
-                    _color = color
-                    if color is None:
-                        _color = self._get_next_cycle_color()
-                    seg = Line2D(x, y[:,j],
-                              color = _color,
-                              linestyle=linestyle, marker=marker,
-                              )
-                    self.set_lineprops(seg, **kwargs)
-                    ret.append(seg)
-            else:
+
+            def makeline(x, y):
                 _color = color
-                if color is None:
+                if _color is None:
                     _color = self._get_next_cycle_color()
-                seg = Line2D(x, yorig,
-                          color = _color,
-                          linestyle=linestyle, marker=marker,
-                          )
+                seg = Line2D(x, y,
+                             color=_color,
+                             linestyle=linestyle, marker=marker,                             
+                             )
                 self.set_lineprops(seg, **kwargs)
                 ret.append(seg)
+
+            if multicol:                
+                for j in range(y.shape[1]):
+                    makeline(x[:,j], y[:,j])
+            else:
+                makeline(x, yorig)
 
             return ret
         else:
@@ -329,81 +319,73 @@ class _process_plot_var_args:
             x, y = self._xy_from_xy(xorig, yorig)    
             multicol = y.shape[1]>1
 
-            if callback is not None:
-                callback(kwargs, xdata=xorig, ydata=yorig)
-
-                
-            if self.command == 'plot':
-
-                if multicol:              
-                    for j in range(y.shape[1]):
-                        color = self._get_next_cycle_color()
-                        seg =  Line2D(x[:,j], y[:,j],
-                                  color = color,
-                                  )
-                        self.set_lineprops(seg, **kwargs)
-                        ret.append(seg)
-                else:
-                    color = self._get_next_cycle_color()
-                    seg =  Line2D(xorig, yorig,
-                                  color = color,
-                                  )
-                    self.set_lineprops(seg, **kwargs)
-                    ret.append(seg)
-
-            elif self.command == 'fill':
-
-                x, y = self._xy_from_xy(xorig, yorig)    
-                for j in range(y.shape[1]):
-                    seg = Polygon( zip(x[:,j],y[:,j]), fill=True, )
-                    self.set_patchprops(seg, **kwargs)
-                    ret.append(seg)
-
-            return ret
-
-    def _plot_3_args(self, tup3, callback=None, **kwargs):
-        kwargs_copy = kwargs.copy()
-        ret = []
-
-        xorig, yorig, fmt = tup3
-        x, y = self._xy_from_xy(xorig, yorig)
-        multicol = y.shape[1]>1
-        if callback is not None:
-            callback(kwargs, xdata=xorig, ydata=yorig)
-
-        linestyle, marker, color = _process_plot_format(fmt)
-        if self.command == 'plot':
-            if multicol:
-                for j in range(y.shape[1]):
-                    _color = color
-                    if color is None:
-                        _color = self._get_next_cycle_color()
-                    seg = Line2D(x[:,j], y[:,j],
-                                 color=_color,
-                                 linestyle=linestyle, marker=marker,
-                                 )
-                    self.set_lineprops(seg, **kwargs)
-                    ret.append(seg)
-            else:
-                _color = color
-                if color is None:
-                    _color = self._get_next_cycle_color()
-                seg = Line2D(xorig, yorig,
-                             color=_color,
-                             linestyle=linestyle, marker=marker,
+            def makeline(x, y):
+                color = self._get_next_cycle_color()
+                seg = Line2D(x, y,
+                             color=color,
                              )
                 self.set_lineprops(seg, **kwargs)
                 ret.append(seg)
-                    
-        elif self.command == 'fill':
-            facecolor = color
-            for j in range(y.shape[1]):
-                seg = Polygon(zip(x[:,j],y[:,j]),
+
+            def makefill(x, y):
+                facecolor = self._get_next_cycle_color()
+                seg = Polygon(zip(x, y),
                               facecolor = facecolor,
                               fill=True,
                               )
                 self.set_patchprops(seg, **kwargs)
                 ret.append(seg)
+
+            
+            if self.command == 'plot': func = makeline
+            else:                      func = makefill
+            if multicol:              
+                for j in range(y.shape[1]):
+                    func(x[:,j], y[:,j])
+            else:
+                func(xorig, yorig)                    
+
+
+            return ret
+
+    def _plot_3_args(self, tup3, **kwargs):
+        kwargs = kwargs.copy()
+        ret = []
+
+        xorig, yorig, fmt = tup3
+        x, y = self._xy_from_xy(xorig, yorig)
+        multicol = y.shape[1]>1
+
+        linestyle, marker, color = _process_plot_format(fmt)
+
+        def makeline(x, y):
+            _color = color
+            if _color is None:
+                _color = self._get_next_cycle_color()
+            seg = Line2D(x, y,
+                         color=_color,
+                         linestyle=linestyle, marker=marker,
+                         )
+            self.set_lineprops(seg, **kwargs)
+            ret.append(seg)
+
+        def makefill(x, y):
+            facecolor = color
+            seg = Polygon(zip(x, y),
+                          facecolor = facecolor,
+                          fill=True,
+                          )
+            self.set_patchprops(seg, **kwargs)
+            ret.append(seg)
+
+        if self.command == 'plot': func = makeline
+        else:                      func = makefill
+
+        if multicol:
+            for j in range(y.shape[1]):
+                func(x[:,j], y[:,j])
+        else:
+            func(xorig, yorig)
         return ret
 
     def _grab_next_args(self, *args, **kwargs):
@@ -451,8 +433,6 @@ class Axes(Artist):
     The Axes contains most of the figure elements: Axis, Tick, Line2D,
     Text, Polygon etc, and sets the coordinate system
     """
-
-    sharedUnitsMgr = UnitsManager()
 
     scaled = {IDENTITY : 'linear',
               LOG10 : 'log',
@@ -507,13 +487,6 @@ class Axes(Artist):
         self.set_adjustable('box')
         self.set_anchor('C')
 
-        # units manager
-        self._unitsmgr = Axes.sharedUnitsMgr 
-
-        # unit locator/formatter maps
-        self._unit_locator_map_list = []
-        self._unit_formatter_map_list = []
-
         # must be set before set_figure
         self._sharex = sharex
         self._sharey = sharey
@@ -542,10 +515,6 @@ class Axes(Artist):
         self.fmt_xdata = None
         self.fmt_ydata = None
 
-        # unit information
-        self._xunits = None
-        self._yunits = None
-        self._pending_units_change = False
 
         self.set_cursor_props((1,'k')) # set the cursor properties for axes
 
@@ -565,232 +534,6 @@ class Axes(Artist):
         self.xaxis = XAxis(self)
         self.yaxis = YAxis(self)
 
-    _default_unit_locator_map = None
-    _default_unit_formatter_map = None
-
-    def _set_default_unit_to_locator_map(map_fn):
-        Axes._default_unit_locator_map = staticmethod(map_fn)
-    set_default_unit_to_locator_map = staticmethod(
-        _set_default_unit_to_locator_map) 
-
-    def _get_default_unit_to_locator_map():
-        return Axes._default_unit_locator_map
-    get_default_unit_to_locator_map = staticmethod(
-        _get_default_unit_to_locator_map)
-
-    def add_unit_to_locator_map(self, mapfn):
-        # ML XXX set lookup better for inclusion testing
-        if (mapfn and mapfn not in self._unit_locator_map_list):
-            self._unit_locator_map_list.append(mapfn)
-
-    def get_unit_to_locator_maps(self):
-        return self._unit_locator_map_list
-
-    def _set_default_unit_to_formatter_map(map_fn):
-        Axes._default_unit_formatter_map = staticmethod(map_fn)
-    set_default_unit_to_formatter_map = staticmethod(
-        _set_default_unit_to_formatter_map) 
-
-    def _get_default_unit_to_formatter_map():
-        return Axes._default_unit_formatter_map
-    get_default_unit_to_formatter_map = staticmethod(
-        _get_default_unit_to_formatter_map)
-
-    def add_unit_to_formatter_map(self, map_fn):
-        if (map_fn and map_fn not in self._unit_formatter_map_list):
-            self._unit_formatter_map_list.append(map_fn)
-
-    def get_unit_to_formatter_maps(self):
-        return self._unit_formatter_map_list
-    _use_none_as_default_unit = False
-
-    @staticmethod
-    def set_use_none_as_default_unit(def_unit):
-        """
-        Normally, the None unit implies no unit conversion.
-        Alternatively, the unit support subsystem can treat
-        xunits/yunits values of None as requests to convert to a
-        default value.  This is primarily an implementation task
-        for the conversion handlers, but the locator/formatter support
-        will not work properly in this case without calling 
-        staticmethod set_use_none_as_default_unit(True).
-        """
-        Axes._use_none_as_default_unit = def_unit
-
-    @staticmethod
-    def get_use_none_as_default_unit():
-        return Axes._use_none_as_default_unit
-
-    def _set_locators_for_units(self, units, axis):
-        set_locators = False
-        if (units or Axes.get_use_none_as_default_unit()):
-            maps = self.get_unit_to_locator_maps()
-            defaultmap = Axes.get_default_unit_to_locator_map()
-            funclist = maps + [defaultmap]
-
-            for fn in funclist:
-                if not fn: continue
-                locators = fn(units)
-                # ML XXX: I added this instead of try/except
-                if locators is None: continue 
-                axis.set_major_locator(locators[0])
-                axis.set_minor_locator(locators[1])
-                set_locators = True  
-                # ML XXX blanket exception catching forbidden
-                break
-            
-                    
-        if (not set_locators):
-            axis.set_major_locator(AutoLocator())
-            axis.set_minor_locator(NullLocator())
-
-    def _set_formatters_for_units(self, units, axis):
-        set_formatters = False
-        if (units or Axes.get_use_none_as_default_unit()):
-            fn_list = self.get_unit_to_formatter_maps()
-            fn_list = fn_list + [Axes.get_default_unit_to_formatter_map()]
-            for fn in fn_list:                
-                if not fn: continue
-                formatters = fn(units)
-                # ML XXX: I added this instead of try/except
-                if formatters is None: continue
-                axis.set_major_formatter(formatters[0])
-                axis.set_minor_formatter(formatters[1])
-                set_formatters = True                 
-                # ML XXX blanket exception catching forbidden
-                break
-            
-        if (not set_formatters):
-            axis.set_major_formatter(ScalarFormatter())
-            axis.set_minor_formatter(NullFormatter())
-    
-    def _update_locators_and_formatters(self, x, y):
-
-        # in this function we will inspect x and y and see if they
-        # expose the units interface for locators and formatters.
-        # Since either x or the first element of x may expose it if x
-        # is a sequence of units, we first inspect x ands then it's
-        # first element.  Ditto for y
-
-        # see if x exposes the unit interface and if so, use it
-        xlocatorfunc = units.getattr_nested1(x, 'get_unit_to_locator_map')
-        if callable(xlocatorfunc):
-            ret = xlocatorfunc()
-            if ret is not None:
-                majloccator, minloccator = ret
-                if majlocator is not None: self.xaxis.set_major_locator(majlocator)
-                if minlocator is not None: self.xaxis.set_minor_locator(minlocator)
-
-
-        # see if y exposes the unit interface and if so, use it
-        ylocatorfunc = units.getattr_nested1(y, 'get_unit_to_locator_map')
-        if callable(ylocatorfunc):
-            ret = ylocatorfunc()
-            if ret is not None:
-                majloccator, minloccator = ret
-                if majlocator is not None: self.yaxis.set_major_locator(majlocator)
-                if minlocator is not None: self.yaxis.set_minor_locator(minlocator)
-            
-
-        # see if x exposes the unit interface and if so, use it
-        xformatterfunc = units.getattr_nested1(x, 'get_unit_to_formatter_map')
-        if callable(xformatterfunc):
-            ret = xformatterfunc()
-            if ret is not None:
-                majloccator, minloccator = ret
-                if majformatter is not None: self.xaxis.set_major_formatter(majformatter)
-                if minformatter is not None: self.xaxis.set_minor_formatter(minformatter)
-
-
-        # see if y exposes the unit interface and if so, use it
-        yformatterfunc = units.getattr_nested1(y, 'get_unit_to_formatter_map')
-        if callable(yformatterfunc):
-            ret = yformatterfunc()
-            if ret is not None:
-                majloccator, minloccator = ret
-                if majformatter is not None: self.yaxis.set_major_formatter(majformatter)
-                if minformatter is not None: self.yaxis.set_minor_formatter(minformatter)
-
-
-    def _update_units_args(self, kwargs, xdata=None, ydata=None):
-        "update a set of args to include the default x/y unit settings"
-        kwargs['xunits'] = kwargs.get('xunits', self._xunits)
-        kwargs['yunits'] = kwargs.get('yunits', self._yunits)
-        self.set_units(kwargs['xunits'], kwargs['yunits'])
-        self._check_default_units(xdata, ydata)
-
-
-    def _check_default_units(self, xdata=None, ydata=None):
-
-        # check xunits
-        tag = units.getattr_nested1(xdata, 'get_default_unit_tag')
-        if tag is not None and callable(tag): self.set_xunits(tag(), update=False)
-            
-        # check xunits
-        tag = units.getattr_nested1(ydata, 'get_default_unit_tag')
-        if tag is not None and callable(tag): self.set_yunits(tag(), update=False)
-
-    def update_units_in_child_artists(self):
-        """update the xunits, yunits in child artists"""
-
-        if (not self._pending_units_change):
-            return
-
-        artists = [] 
-        artists.extend(self.collections)
-        artists.extend(self.patches)
-        artists.extend(self.lines)
-
-        for artist in artists:
-            artist.set_xunits(self._xunits, update=False)
-            artist.set_yunits(self._yunits, update=False)
-            artist.update_units()
-            # ML XXX; blanket except catching forbidden
-
-        self._pending_units_change = False
-
-    def set_units(self, xunits, yunits):
-        """
-        Set the Axes unit for the x axis and for the y axis
-
-        ACCEPTS: a Unit instance for the x axis and a Unit instance
-                 for the y axis
-        """
-        self.set_xunits(xunits, update=False)
-        self.set_yunits(yunits, update=False)
-        self.update_units_in_child_artists()
-
-    def set_xunits(self, xunits, update=True):
-        """
-        Set the Axes unit for the x axis
-
-        ACCEPTS: a Unit instance
-        """
-        if (self._xunits == xunits):
-            return
-
-        self._xunits = xunits
-        self._set_locators_for_units(xunits, self.xaxis)
-        self._set_formatters_for_units(xunits, self.xaxis)
-        self._pending_units_change = True
-        if not update:
-            self.update_units_in_child_artists()
-
-    def set_yunits(self, yunits, update=True):
-        """
-        Set the Axes unit for the y axis
-      
-        ACCEPTS: a Unit instance
-        """
-        if (self._yunits == yunits):
-            return
-
-        self._yunits = yunits
-        self._set_locators_for_units(yunits, self.yaxis)
-        self._set_formatters_for_units(yunits, self.yaxis)
-        self._pending_units_change = True
-        if (not update):
-            self.update_units_in_child_artists()
 
     def set_figure(self, fig):
         """
@@ -892,7 +635,6 @@ class Axes(Artist):
     def _set_artist_props(self, a):
         'set the boilerplate props for artists added to axes'
         a.set_figure(self.figure)
-        a.set_unitsmgr(self._unitsmgr)
         if not a.is_transform_set():
             a.set_transform(self.transData)
         a.axes = self
@@ -1279,10 +1021,27 @@ class Axes(Artist):
         if autolim:
             self.update_datalim(collection.get_verts(self.transData))
 
+    def _update_tickers(self, data, unit, axis):
+        tickers = units.manager.tickers(data, unit)
+        #print 'updatetickers', tickers, axis
+        if tickers is not None:
+            majloc, minloc, majfmt, minfmt = tickers
+            axis.set_major_locator(majloc)
+            axis.set_minor_locator(minloc)
+            axis.set_major_formatter(majfmt)
+            axis.set_minor_formatter(minfmt)
+            
     def add_line(self, l):
         'Add a line to the list of plot lines'
         self._set_artist_props(l)
         l.set_clip_box(self.bbox)
+
+        xorig = l.get_xdata(orig=True)
+        yorig = l.get_ydata(orig=True)
+
+        self._update_tickers(xorig, l.get_xunits(), self.xaxis)
+        self._update_tickers(yorig, l.get_yunits(), self.yaxis)
+        
         xdata = l.get_xdata(valid_only=True)
         ydata = l.get_ydata(valid_only=True)
 
@@ -1293,7 +1052,7 @@ class Axes(Artist):
             ydata = array([y for x,y in xys])
 
         self.update_datalim_numerix( xdata, ydata )
-        self._update_locators_and_formatters(l.get_xdata(), l.get_ydata())
+
         label = l.get_label()
         if not label: l.set_label('line%d'%len(self.lines))
         self.lines.append(l)
@@ -1307,6 +1066,12 @@ class Axes(Artist):
 
         self._set_artist_props(p)
         p.set_clip_box(self.bbox)
+        xorig = p.get_xdata(orig=True)
+        yorig = p.get_ydata(orig=True)
+
+        self._update_tickers(xorig, p.get_xunits(), self.xaxis)
+        self._update_tickers(yorig, p.get_yunits(), self.yaxis)
+
         xys = self._get_verts_in_data_coords(
             p.get_transform(), p.get_verts())
         self.update_datalim(xys)
@@ -1657,21 +1422,18 @@ class Axes(Artist):
 
         ACCEPTS: len(2) sequence of floats
         """
-        # convert x axis units
-        kwargs_copy = kwargs.copy()
-        self._update_units_args(kwargs_copy)
-
         if xmax is None and iterable(xmin):
             xmin,xmax = xmin
+
+        if xmin is not None:
+            xmin = units.manager.convert(xmin, self._xunits)
+        if xmax is not None:
+            xmax = units.manager.convert(xmax, self._xunits)
+
 
         old_xmin,old_xmax = self.get_xlim()
         if xmin is None: xmin = old_xmin
         if xmax is None: xmax = old_xmax
-
-        if (self.is_unitsmgr_set()):
-            mgr = self.get_unitsmgr()
-            xmin, = mgr._convert_units((xmin, self._xunits))
-            xmax, = mgr._convert_units((xmax, self._xunits))
 
         if self.transData.get_funcx().get_type()==LOG10 and min(xmin, xmax)<=0:
             raise ValueError('Cannot set nonpositive limits with log transform')
@@ -1773,19 +1535,20 @@ class Axes(Artist):
         ymax : the max of the ylim
         emit : notify observers of lim change
 
-
         Returns the current ylimits as a length 2 tuple
 
         ACCEPTS: len(2) sequence of floats
         """
         
-        # convert x axis units
-        kwargs_copy = kwargs.copy()
-        self._update_units_args(kwargs_copy)
 
         if ymax is None and iterable(ymin):
             ymin,ymax = ymin
 
+        if ymin is not None:
+            ymin = units.manager.convert(ymin, self._xunits)
+        if ymax is not None:
+            ymax = units.manager.convert(ymax, self._yunits)
+        
         old_ymin,old_ymax = self.get_ylim()
 
         if ymin is None: ymin = old_ymin
@@ -1794,10 +1557,6 @@ class Axes(Artist):
         if self.transData.get_funcy().get_type()==LOG10 and min(ymin, ymax)<=0:
             raise ValueError('Cannot set nonpositive limits with log transform')
 
-        if (self.is_unitsmgr_set()):
-            mgr = self.get_unitsmgr()
-            ymin, = mgr._convert_units((ymin, self._yunits))
-            ymax, = mgr._convert_units((ymax, self._yunits))
         ymin, ymax = nonsingular(ymin, ymax, increasing=False)
         self.viewLim.intervaly().set_bounds(ymin, ymax)
         if emit: self._send_ylim_event()
@@ -2430,15 +2189,11 @@ class Axes(Artist):
         %(Polygon)s
         """
         # convert y axis units
-        kwargs_copy = kwargs.copy()
-        self._update_units_args(kwargs_copy, ydata=y)
-        if (self.is_unitsmgr_set()):
-            mgr = self.get_unitsmgr()
-            y, = mgr._convert_units((y, self._yunits))
+        kwargs = kwargs.copy()
         
         trans = blend_xy_sep_transform( self.transAxes, self.transData  )
         verts = (xmin, ymin), (xmin, ymax), (xmax, ymax), (xmax, ymin)
-        p = Polygon(verts, **kwargs_copy)
+        p = Polygon(verts, **kwargs)
         p.set_transform(trans)
         self.add_patch(p)
         return p
@@ -2476,15 +2231,10 @@ class Axes(Artist):
         %(Polygon)s
         """
         # convert x axis units
-        kwargs_copy = kwargs.copy()
-        self._update_units_args(kwargs_copy, xdata=x)
-        if (self.is_unitsmgr_set()):
-            mgr = self.get_unitsmgr()
-            x, = mgr._convert_units((x, self._xunits))
-
+        kwargs = kwargs.copy()
         trans = blend_xy_sep_transform( self.transData, self.transAxes   )
         verts = [(xmin, ymin), (xmin, ymax), (xmax, ymax), (xmax, ymin)]
-        p = Polygon(verts, **kwargs_copy)
+        p = Polygon(verts, **kwargs)
         p.set_transform(trans)
         self.add_patch(p)
         return p
@@ -2511,13 +2261,7 @@ class Axes(Artist):
             color = 'k'
 
         # convert, if necessary
-        kwargs_copy = kwargs.copy()
-        self._update_units_args(kwargs_copy, xdata=(xmin, xmax), ydata=y)
-        if (self.is_unitsmgr_set()):
-            mgr = self.get_unitsmgr()
-            xmin, xmax = mgr._convert_units((xmin, self._xunits),
-                                            (xmax, self._xunits))
-            y,    = mgr._convert_units((y, self._yunits))
+        kwargs = kwargs.copy()
 
         if not iterable(y): y = [y]
         if not iterable(xmin): xmin = [xmin]
@@ -2570,15 +2314,10 @@ class Axes(Artist):
             color = 'k'
 
         # convert, if necessary
-        kwargs_copy = kwargs.copy()
-        self._update_units_args(kwargs_copy, xdata=x, ydata=(ymin, ymax))
-        xunits = kwargs_copy.pop('xunits', None)
-        yunits = kwargs_copy.pop('yunits', None)
-        if (self.is_unitsmgr_set()):
-            mgr = self.get_unitsmgr()
-            ymin, ymax = mgr._convert_units((ymin, self._yunits),
-                                            (ymax, self._yunits))
-            x,    = mgr._convert_units((x, self._xunits))
+        kwargs = kwargs.copy()
+
+        xunits = kwargs.pop('xunits', None)
+        yunits = kwargs.pop('yunits', None)
 
         if not iterable(x): x = [x]
         if not iterable(ymin): ymin = [ymin]
@@ -2711,21 +2450,12 @@ class Axes(Artist):
 
         kwargs = kwargs.copy()
 
-        self._update_units_args(kwargs)
         scalex = popd(kwargs, 'scalex', True)
         scaley = popd(kwargs, 'scaley', True)
 
         if not self._hold: self.cla()
-        # this mutates the xunits and yunits kwargs in place for the
-        # property update
-        #def c_fn(kwargs, xdata=None, ydata=None):
-        #    self._update_units_args
-        #    self._check_default_units(xdata, ydata)
-        #    kwargs['xunits'] = self._xunits
-        #    kwargs['yunits'] = self._yunits
-
         lines = []
-        for line in self._get_lines(callback=self._update_units_args, *args, **kwargs):
+        for line in self._get_lines(*args, **kwargs):
             self.add_line(line)
             lines.append(line)
 
@@ -3948,7 +3678,6 @@ class Axes(Artist):
             }
 
         x, y, s, c = delete_masked_points(x, y, s, c)
-        self._update_locators_and_formatters(x,y)
 
         kwargs = kwargs.copy()
         if kwargs.has_key('color'):
@@ -4320,17 +4049,12 @@ class Axes(Artist):
         kwargs control the Polygon properties:
         %(Polygon)s
         """
-        d = kwargs.copy()
-        self._update_units_args(d)
-        if not self._hold: self.cla()
+        kwargs = kwargs.copy()
 
-        #def c_fn(kwargs, xdata=None, ydata=None):
-        #    self._check_default_units(xdata=xdata, ydata=ydata)
-        #    kwargs['xunits'] = self._xunits
-        #    kwargs['yunits'] = self._yunits
+        if not self._hold: self.cla()
             
         patches = []
-        for poly in self._get_patches_for_fill(callback=self._update_units_args, *args, **d):
+        for poly in self._get_patches_for_fill(*args, **kwargs):
             self.add_patch( poly )
             patches.append( poly )
         self.autoscale_view()
@@ -5773,34 +5497,6 @@ class PolarAxes(Axes):
         """
         raise NotImplementedError('table not implemented for polar axes')
 
-    # unit support not yet available for polar
-    def _set_locators_for_units(self, units, axis):
-        pass
-
-    def _set_formatters_for_units(self, units, axis):
-        pass
-    
-    def _update_locators_and_formatters(self, *variables):
-        pass
-
-    def _update_units_args(self, kwargs, xdata=None, ydata=None):
-        "update a set of args to include the default x/y unit settings"
-        pass
-    def _check_default_units(self, xdata=None, ydata=None):
-        pass
-    
-    def update_units_in_child_artists(self):
-        """update the xunits, yunits in child artists"""
-        pass
-    
-    def set_units(self, xunits, yunits):
-        pass
-
-    def set_xunits(self, xunits, update=True):
-        pass
-
-    def set_yunits(self, yunits, update=True):
-        pass
 
         
 class PolarSubplot(SubplotBase, PolarAxes):

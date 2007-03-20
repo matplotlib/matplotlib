@@ -717,6 +717,7 @@ defaultParams = {
     'numerix'           : ['numpy', validate_numerix],
     'toolbar'           : ['toolbar2', validate_toolbar],
     'datapath'          : [get_data_path(), validate_path_exists],
+    'units'             : [False, validate_bool],
     'interactive'       : [False, validate_bool],
     'timezone'          : ['UTC', str],
 

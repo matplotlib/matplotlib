@@ -22,6 +22,9 @@ from colors import colorConverter
 
 from transforms import lbwh_to_bbox, LOG10
 from matplotlib import rcParams
+
+import matplotlib.units as units
+
 TICKLEFT, TICKRIGHT, TICKUP, TICKDOWN = range(4)
 
 def unmasked_index_ranges(mask, compressed = True):
@@ -135,8 +138,6 @@ class Line2D(Artist):
                  solid_capstyle = None,
                  dash_joinstyle = None,
                  solid_joinstyle = None,
-                 xunits          = None,
-                 yunits          = None,
                  **kwargs
                  ):
         """
@@ -168,9 +169,11 @@ class Line2D(Artist):
           solid_joinstyle: ['miter' | 'round' | 'bevel']
           transform: a matplotlib.transform transformation instance
           visible: [True | False]
+          xunits: a unit key
           xdata: array
           ydata: array
           zorder: any number
+          yunits: a unit key
         """
         Artist.__init__(self)
 
@@ -204,14 +207,9 @@ class Line2D(Artist):
         self.set_solid_capstyle(solid_capstyle)
         self.set_solid_joinstyle(solid_joinstyle)
 
-        self._cache_inputs = {'_xunits':None,
-                              '_yunits':None,
-                              'figure':None,
+        self._cache_inputs = {'figure':None,
                               '_x_orig':None,
                               '_y_orig':None}
-
-        self.set_xunits(xunits, update=False)
-        self.set_yunits(yunits, update=False)
 
         self.set_linestyle(linestyle)
         self.set_linewidth(linewidth)
@@ -299,35 +297,6 @@ class Line2D(Artist):
             height += ms
         return lbwh_to_bbox( left, bottom, width, height)
 
-    def set_xunits(self, xunits, update=True):
-        """
-        Set the desired units for the x axis
-
-        ACCEPTS: (unit xunits)
-        """
-        update = update and self._xunits != xunits
-        self._xunits = xunits
-        if (update):
-            self.update_units()
-
-    def set_yunits(self, yunits, update=True):
-        """
-        Set the desired units for the y axis
-
-        ACCEPTS: (unit yunits)
-        """
-        update = update and self._yunits != yunits
-        self._yunits = yunits
-        if (update):
-            self.update_units()
-
-    def update_units(self):
-        """
-        Update original data for to account for new desired units.
-        """
-        # ML XXX, I don't understand what this is achieving since
-        # set_data doesn't do too anything vis-a-vis units
-        self.set_data(self._x_orig, self._y_orig)
 
     def set_data(self, *args):
         """
@@ -368,13 +337,8 @@ class Line2D(Artist):
         self._cached_segments = None
         self._cached_logcache = None
 
-        if self.is_unitsmgr_set():
-
-            unitsmgr = self.get_unitsmgr() 
-            x, y = unitsmgr._convert_units((self._x_orig, self._xunits),
-                                           (self._y_orig, self._yunits))
-        else:
-            x, y = (self._x_orig, self._y_orig)
+        x = units.manager.convert(self._x_orig, self._xunits)
+        y = units.manager.convert(self._y_orig, self._yunits)
 
         x = ma.ravel(x)
         y = ma.ravel(y)
@@ -525,14 +489,23 @@ class Line2D(Artist):
     def get_markeredgewidth(self): return self._markeredgewidth
     def get_markerfacecolor(self): return self._markerfacecolor
     def get_markersize(self): return self._markersize
-    def get_xdata(self, valid_only = False):
+
+    def get_xdata(self, valid_only = False, orig=False):
         if valid_only:
             return self._x
-        return self._x_orig
-    def get_ydata(self, valid_only = False):
+
+        if orig:
+            return self._x_orig
+        else:
+            return units.manager.convert(self._x_orig, self._xunits)
+
+    def get_ydata(self, valid_only=False, orig=False):
         if valid_only:
             return self._y
-        return self._y_orig
+        if orig:
+            return self._y_orig
+        else:
+            return units.manager.convert(self._y_orig, self._yunits)
 
 
 
@@ -624,6 +597,7 @@ class Line2D(Artist):
         ACCEPTS: float
         """
         self._markersize = sz
+
 
     def set_xdata(self, x):
         """

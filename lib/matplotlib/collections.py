@@ -19,6 +19,7 @@ from cm import ScalarMappable
 from numerix import arange, sin, cos, pi, asarray, sqrt, array, newaxis, ones
 from numerix import isnan, any
 from transforms import identity_transform
+import matplotlib.units as units
 
 import matplotlib.nxutils as nxutils
 
@@ -139,50 +140,11 @@ class PatchCollection(Collection, ScalarMappable):
         self._linewidths  = linewidths
         self._antialiaseds = antialiaseds
         #self._offsets = offsets
-        self._original_offsets = offsets
-        self._cached_offsets = offsets
+        self._offsets = offsets
         self._transOffset = transOffset
         self._verts = []        
-        self._xunits = self._yunits = None
-        self._update_cache = {'_original_offsets':None,
-                              '_xunits':None,
-                              '_yunits':None}
+
     __init__.__doc__ = dedent(__init__.__doc__) % kwdocd
-
-    def _update_offsets(self):
-        recalc = False
-        for key, value in self._update_cache.iteritems():
-            if (id(getattr(self, key)) != value):
-                recalc = True
-                break
-        if recalc:
-            # convert _original_offsets
-            if (self._original_offsets is not None and self.is_unitsmgr_set()):
-                mgr = self.get_unitsmgr()
-                self._cached_offsets = [
-                    mgr._convert_units((x, self._xunits), (y, self._yunits)) 
-                    for x,y in self._original_offsets]                
-            else:
-                self._cached_offsets = self._original_offsets
-        return self._cached_offsets
-    _offsets = property(_update_offsets, None, None)
-
-    def set_xunits(self, units, update=True):
-        self._xunits = units
-        if (update):
-            self.update_units()
-
-    def set_yunits(self, units, update=True):
-        self._yunits = units
-        if (update):
-            self.update_units()
-
-    def update_units(self):
-        # convert _original_offsets
-        pass
-#        self._offsets = \
-#            [self._convert_units((x, self._xunits), (y, self._yunits)) 
-#             for x,y in self._original_offsets]
 
     def pick(self, mouseevent):
         """
@@ -387,6 +349,7 @@ class PolyCollection(PatchCollection):
         transform = self.get_transform()
         transoffset = self.get_transoffset()
 
+        
         transform.freeze()
         transoffset.freeze()
         self.update_scalarmappable()
@@ -524,12 +487,21 @@ class RegularPolyCollection(PatchCollection):
         self._update_verts()
         scales = sqrt(asarray(self._sizes)*self._dpi.get()/72.0)
 
+        
+        if self._offsets is not None:
+            xs, ys = zip(*self._offsets)
+            xs = units.manager.convert(xs, self._xunits)
+            ys = units.manager.convert(ys, self._yunits)
+            offsets = zip(xs, ys)
+        else:
+            offsets = None
+
         if is_string_like(self._edgecolors) and self._edgecolors[:2] == 'No':
             #self._edgecolors = self._facecolors
             self._linewidths = (0,)
         renderer.draw_regpoly_collection(
             self.clipbox,
-            self._offsets, transoffset,
+            offsets, transoffset,
             self._verts, scales,
             self._facecolors, self._edgecolors,
             self._linewidths, self._antialiaseds)
