@@ -17,7 +17,7 @@ date2 = datetime.datetime( 2000, 3, 6, tzinfo=tz)
 delta = datetime.timedelta(hours=6)
 dates = drange(date1, date2, delta)
     
-y = PL.arrayrange( len(dates)*1.0)
+y = PL.arange( len(dates)*1.0)
 ysq = y*y
 
 # note new constructor takes days or sequence of days you want to

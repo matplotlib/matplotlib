@@ -55,6 +55,8 @@ class Patch(Artist):
                  antialiased = None,
                  hatch = None,
                  fill=1,
+                 xunits=None,
+                 yunits=None,
                  **kwargs
                  ):
         """
@@ -74,6 +76,9 @@ class Patch(Artist):
         self._antialiased = antialiased
         self._hatch = hatch
         self.fill = fill
+        self._xunits = xunits
+        self._yunits = yunits
+        self._xunits_id, self._yunits_id = None, None
 
         if len(kwargs): setp(self, **kwargs)
     __init__.__doc__ = dedent(__init__.__doc__) % kwdocd
@@ -107,6 +112,38 @@ class Patch(Artist):
         self.set_transform(other.get_transform())
         self.set_figure(other.get_figure())
         self.set_alpha(other.get_alpha())
+        self.set_xunits(other.get_xunits())
+        self.set_yunits(other.get_yunits())
+
+    def get_xunits(self):
+        return self._xunits
+
+    def set_xunits(self, xunits):
+        """
+        Set x unit type
+
+        ACCEPTS: [unit type]
+        """
+        self._xunits = xunits
+
+    def get_yunits(self):
+        return self._yunits
+
+    def set_yunits(self, yunits):
+        """
+        Set y unit type
+
+        ACCEPTS: [unit type]
+        """
+        self._yunits = yunits
+
+    def _is_units_updated(self):
+        return (id(self._xunits) != self._xunits_id and 
+                id(self._yunits) != self._yunits_id)
+
+    def _handle_units_update(self):
+        self._xunits_id = id(self._xunits)
+        self._yunits_id = id(self._yunits)
 
     def get_antialiased(self):
         return self._antialiased
@@ -277,11 +314,27 @@ class Shadow(Patch):
         %(Patch)s
         """
         Patch.__init__(self)
-        self.ox, self.oy = ox, oy
+        self._ox, self._oy = ox, oy
         self.patch = patch
         self.props = props
         self._update()
     __init__.__doc__ = dedent(__init__.__doc__) % kwdocd
+
+    def _get_ox(self):
+        if self.is_unitsmgr_set():
+            mgr = self.get_unitsmgr()
+            ret = mgr._convert_units((self._ox, self._xunits),)[0]# ML XXX; see pie_demo
+            return ret
+        return self._ox
+
+    def _get_oy(self):
+        if self.is_unitsmgr_set():
+            mgr = self.get_unitsmgr()
+            return mgr._convert_units((self._oy, self._yunits),)[0]# ML XXX; see pie_demo
+        return self._oy
+
+    ox = property(_get_ox, None, None)
+    oy = property(_get_oy, None, None)
 
     def _update(self):
         self.update_from(self.patch)
@@ -333,6 +386,28 @@ class Rectangle(Patch):
         self.xy  = array(xy, Float)
         self.width, self.height = width, height
     __init__.__doc__ = dedent(__init__.__doc__) % kwdocd
+
+    def _convert_xy(self):
+        x, y = (self._xy[0], self._xy[1])
+
+        if (self.is_unitsmgr_set()):
+            mgr = self.get_unitsmgr()
+            x, y = mgr._convert_units((x, self._xunits),
+                                      (y, self._yunits))
+        return array((x,y), Float)
+    xy = property(_convert_xy, None, None)
+    def _convert_width(self):
+        if (self.is_unitsmgr_set()):
+            mgr = self.get_unitsmgr()
+            return mgr._convert_units((self._width, self._xunits))[0]
+        return self._width
+    width = property(_convert_width, None, None)
+    def _convert_height(self):
+        if (self.is_unitsmgr_set()):
+            mgr = self.get_unitsmgr()
+            return mgr._convert_units((self._height, self._yunits))[0]
+        return self._height
+    height = property(_convert_height, None, None)
 
     def get_verts(self):
         """
@@ -423,7 +498,7 @@ class RegularPolygon(Patch):
         """
         Patch.__init__(self, **kwargs)
 
-        self.xy = xy
+        self._xy = xy
         self.numVertices = numVertices
         self.radius = radius
         self.orientation = orientation
@@ -436,6 +511,16 @@ class RegularPolygon(Patch):
 
         self.verts = zip(xs, ys)
     __init__.__doc__ = dedent(__init__.__doc__) % kwdocd
+
+    def _convert_xy(self):
+        x, y = (self._xy[0], self._xy[1])
+
+        if (self.is_unitsmgr_set()):
+            mgr = self.get_unitsmgr()
+            x, y = mgr._convert_units((x, self._xunits),
+                                      (y, self._yunits))
+        return (x,y)
+    xy = property(_convert_xy, None, None)
 
     def get_verts(self):
         return self.verts
@@ -456,8 +541,23 @@ class Polygon(Patch):
         Patch.__init__(self, **kwargs)
         if not isinstance(xy, list):
             xy = list(xy)
-        self.xy = xy
+        self._xy = xy
+        self._cached_xy = None
     __init__.__doc__ = dedent(__init__.__doc__) % kwdocd
+
+    def _convert_xy(self):
+        if (self._is_units_updated()):
+            x, y = zip(*self._xy)
+            if (self.is_unitsmgr_set()):
+                mgr = self.get_unitsmgr()
+                x, y = mgr._convert_units((list(x), self._xunits),
+                                          (list(y), self._yunits))
+            else:
+                print 'No units manager set!'; #ML XXX should be replaced by exception or other
+            self._cached_xy = zip(x,y)
+            self._handle_units_update()
+        return self._cached_xy
+    xy = property(_convert_xy, None, None)
 
     def get_verts(self):
         return self.xy
@@ -693,7 +793,8 @@ class Ellipse(Patch):
         """
         Patch.__init__(self, **kwargs)
 
-        self.center  = array(xy, Float)
+        # self.center  = array(xy, Float)
+        self.center = xy
         self.width, self.height = width, height
         self.angle = angle
 
@@ -701,9 +802,24 @@ class Ellipse(Patch):
         l,r = x-width/2.0, x+width/2.0
         b,t = y-height/2.0, y+height/2.0
 
-        self.verts = array(((x,y),(l,y),(x,t),(r,y),(x,b)), Float)
-    __init__.__doc__ = dedent(__init__.__doc__) % kwdocd
+        # self.verts = array(((x,y),(l,y),(x,t),(r,y),(x,b)), Float)
 
+    def _get_verts(self):
+        x,y = self.center
+        l,r = x-width/2.0, x+width/2.0
+        b,t = y-height/2.0, y+height/2.0
+        if (self.is_unitsmgr_set()):
+            mgr = self.get_unitsmgr()
+            x,l,r = mgr._convert_units((x, self._xunits),
+                                       (l, self._xunits),
+                                       (r, self._xunits))
+            y,b,t = mgr._convert_units((y, self._yunits),
+                                       (b, self._yunits),
+                                       (t, self._yunits))
+        return array(((x,y),(l,y),(x,t),(r,y),(x,b)), Float)
+    verts = property(_get_verts, None, None)
+    __init__.__doc__ = dedent(__init__.__doc__) % kwdocd
+         
     def get_verts(self):
         """
         Not actually used for rendering.  Provided to conform to

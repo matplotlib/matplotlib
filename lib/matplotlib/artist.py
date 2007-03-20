@@ -3,6 +3,7 @@ import sys
 from cbook import iterable, flatten
 from transforms import identity_transform
 import warnings
+import copy
 ## Note, matplotlib artists use the doc strings for set and get
 # methods to enable the introspection methods of setp and getp.  Every
 # set_* method should have a docstring containing the line
@@ -45,6 +46,7 @@ class Artist:
         self.eventson = False  # fire events only if eventson
         self._oid = 0  # an observer id
         self._propobservers = {} # a dict from oids to funcs
+        self._unitsmgr = None
 
     def add_callback(self, func):
         oid = self._oid
@@ -134,6 +136,22 @@ class Artist:
         'return the Pickeration instance used by this artist'
         return self._picker
 
+    def is_unitsmgr_set(self):
+        return self._unitsmgr is not None
+
+    def get_unitsmgr(self):
+        'return the units manager for this artist'
+        return self._unitsmgr
+
+    def set_unitsmgr(self, mgr):
+        """
+        Set the units manager for this artist
+
+        ACCEPTS: a matplotlib.units.UnitsManager instance
+        """
+        self._unitsmgr = mgr
+        self.pchanged()
+    
     def is_figure_set(self):
         return self.figure is not None
 
