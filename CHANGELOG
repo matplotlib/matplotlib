@@ -1,3 +1,5 @@
+2007-03-19 Added Mike's units patch - JDH
+
 2007-03-18 Matshow as an Axes method; test version matshow1() in
            pylab; added 'integer' Boolean kwarg to MaxNLocator
            initializer to force ticks at integer locations. - EF

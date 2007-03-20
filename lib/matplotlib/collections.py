@@ -138,11 +138,51 @@ class PatchCollection(Collection, ScalarMappable):
             self._edgecolors = colorConverter.to_rgba_list(edgecolors)
         self._linewidths  = linewidths
         self._antialiaseds = antialiaseds
-        self._offsets = offsets
+        #self._offsets = offsets
+        self._original_offsets = offsets
+        self._cached_offsets = offsets
         self._transOffset = transOffset
         self._verts = []        
+        self._xunits = self._yunits = None
+        self._update_cache = {'_original_offsets':None,
+                              '_xunits':None,
+                              '_yunits':None}
     __init__.__doc__ = dedent(__init__.__doc__) % kwdocd
 
+    def _update_offsets(self):
+        recalc = False
+        for key, value in self._update_cache.iteritems():
+            if (id(getattr(self, key)) != value):
+                recalc = True
+                break
+        if recalc:
+            # convert _original_offsets
+            if (self._original_offsets is not None and self.is_unitsmgr_set()):
+                mgr = self.get_unitsmgr()
+                self._cached_offsets = [
+                    mgr._convert_units((x, self._xunits), (y, self._yunits)) 
+                    for x,y in self._original_offsets]                
+            else:
+                self._cached_offsets = self._original_offsets
+        return self._cached_offsets
+    _offsets = property(_update_offsets, None, None)
+
+    def set_xunits(self, units, update=True):
+        self._xunits = units
+        if (update):
+            self.update_units()
+
+    def set_yunits(self, units, update=True):
+        self._yunits = units
+        if (update):
+            self.update_units()
+
+    def update_units(self):
+        # convert _original_offsets
+        pass
+#        self._offsets = \
+#            [self._convert_units((x, self._xunits), (y, self._yunits)) 
+#             for x,y in self._original_offsets]
 
     def pick(self, mouseevent):
         """
@@ -180,17 +220,17 @@ class PatchCollection(Collection, ScalarMappable):
         N = max(Noffsets, Nverts)
 
         data = []
-        print 'verts N=%d, Nverts=%d'%(N, Nverts), verts
-        print 'offsets; Noffsets=%d'%Noffsets
+        #print 'verts N=%d, Nverts=%d'%(N, Nverts), verts
+        #print 'offsets; Noffsets=%d'%Noffsets
         for i in xrange(N):
-            print 'i%%Nverts=%d'%(i%Nverts)
+            #print 'i%%Nverts=%d'%(i%Nverts)
             polyverts = verts[i % Nverts]
             if any(isnan(polyverts)):
                 continue
-            print 'thisvert', i, polyverts
+            #print 'thisvert', i, polyverts
             tverts = transform.seq_xy_tups(polyverts)
             if usingOffsets:
-                print 'using offsets'
+                #print 'using offsets'
                 xo,yo = transOffset.xy_tup(offsets[i % Noffsets])
                 tverts = [(x+xo,y+yo) for x,y in tverts]
 

@@ -3,6 +3,10 @@
 This is meant to be a guide to developers on the mpl coding practices
 and standards.  Please edit and extend this document.
 
+== svn checkouts ==
+
+svn co https://svn.sourceforge.net/svnroot/matplotlib/trunk/matplotlib matplotlib 
+
 == Committing changes ==
 
 When committing changes to matplotlib, there are a few things to bear

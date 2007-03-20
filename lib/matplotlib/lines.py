@@ -135,6 +135,8 @@ class Line2D(Artist):
                  solid_capstyle = None,
                  dash_joinstyle = None,
                  solid_joinstyle = None,
+                 xunits          = None,
+                 yunits          = None,
                  **kwargs
                  ):
         """
@@ -202,6 +204,14 @@ class Line2D(Artist):
         self.set_solid_capstyle(solid_capstyle)
         self.set_solid_joinstyle(solid_joinstyle)
 
+        self._cache_inputs = {'_xunits':None,
+                              '_yunits':None,
+                              'figure':None,
+                              '_x_orig':None,
+                              '_y_orig':None}
+
+        self.set_xunits(xunits, update=False)
+        self.set_yunits(yunits, update=False)
 
         self.set_linestyle(linestyle)
         self.set_linewidth(linewidth)
@@ -289,6 +299,35 @@ class Line2D(Artist):
             height += ms
         return lbwh_to_bbox( left, bottom, width, height)
 
+    def set_xunits(self, xunits, update=True):
+        """
+        Set the desired units for the x axis
+
+        ACCEPTS: (unit xunits)
+        """
+        update = update and self._xunits != xunits
+        self._xunits = xunits
+        if (update):
+            self.update_units()
+
+    def set_yunits(self, yunits, update=True):
+        """
+        Set the desired units for the y axis
+
+        ACCEPTS: (unit yunits)
+        """
+        update = update and self._yunits != yunits
+        self._yunits = yunits
+        if (update):
+            self.update_units()
+
+    def update_units(self):
+        """
+        Update original data for to account for new desired units.
+        """
+        # ML XXX, I don't understand what this is achieving since
+        # set_data doesn't do too anything vis-a-vis units
+        self.set_data(self._x_orig, self._y_orig)
 
     def set_data(self, *args):
         """
@@ -304,6 +343,38 @@ class Line2D(Artist):
 
         self._x_orig = x
         self._y_orig = y
+
+    def _update_x_y_logcache(self):
+        # check cache
+        needupdate = False 
+
+        for key, var_id in self._cache_inputs.iteritems():
+            if (id(getattr(self, key)) != var_id):
+                needupdate = True
+                break
+        #except: needupdate = True  ### XXX unconditional except catching prohibited
+             
+        if not needupdate:
+            return
+
+        # update cache
+        for key in self._cache_inputs.keys():
+            self._cache_inputs[key] = id(getattr(self, key))
+
+        # make sure that result values exist and release
+        # previous values
+        self._cached_x = None
+        self._cached_y = None
+        self._cached_segments = None
+        self._cached_logcache = None
+
+        if self.is_unitsmgr_set():
+
+            unitsmgr = self.get_unitsmgr() 
+            x, y = unitsmgr._convert_units((self._x_orig, self._xunits),
+                                           (self._y_orig, self._yunits))
+        else:
+            x, y = (self._x_orig, self._y_orig)
 
         x = ma.ravel(x)
         y = ma.ravel(y)
@@ -321,16 +392,25 @@ class Line2D(Artist):
         if mask is not ma.nomask:
             x = ma.masked_array(x, mask=mask).compressed()
             y = ma.masked_array(y, mask=mask).compressed()
-            self._segments = unmasked_index_ranges(mask)
+            self._cached_segments = unmasked_index_ranges(mask)
         else:
-            self._segments = None
+            self._cached_segments = None
 
-        self._x = asarray(x, Float)
-        self._y = asarray(y, Float)
+        self._cached_x = asarray(x, Float)
+        self._cached_y = asarray(y, Float)
 
-        self._logcache = None
+        self._cached_logcache = None
 
+    def _get_cached_variable(name):
+        def _get_value(self):
+            self._update_x_y_logcache()
+            return getattr(self, '_cached' + name)
+        return _get_value
 
+    _x = property(_get_cached_variable('_x'), None, None)
+    _y = property(_get_cached_variable('_y'), None, None)
+    _segments = property(_get_cached_variable('_segments'), None, None)
+    _logcache = property(_get_cached_variable('_logcache'), None, None)
 
     def _is_sorted(self, x):
         "return true if x is sorted"
@@ -554,7 +634,7 @@ class Line2D(Artist):
         try: del self._xsorted
         except AttributeError: pass
 
-        self.set_data(x, self.get_ydata())
+        self.set_data(x, self._y_orig)
 
     def set_ydata(self, y):
         """
@@ -563,7 +643,7 @@ class Line2D(Artist):
         ACCEPTS: array
         """
 
-        self.set_data(self.get_xdata(), y)
+        self.set_data(self._x_orig, y)
 
 
     def set_dashes(self, seq):
