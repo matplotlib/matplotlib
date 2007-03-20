@@ -127,8 +127,6 @@ class Figure(Artist):
         if facecolor is None: facecolor = rcParams['figure.facecolor']
         if edgecolor is None: edgecolor = rcParams['figure.edgecolor']
 
-        self._unit_conversions = {}
-
         self.dpi = Value(dpi)
         self.figwidth = Value(figsize[0])
         self.figheight = Value(figsize[1])
@@ -188,60 +186,6 @@ class Figure(Artist):
         ACCEPTS: a FigureCanvas instance
         """
         self.canvas = canvas
-
-    def _get_unit_conversion(self, python_type):
-        """
-        Get a unit conversion corresponding to a python type
-        """
-        maps = [self._unit_conversions, Figure._default_unit_conversions]
-
-        for m in maps:
-            classes = [python_type]
-            for current in classes:
-                if (current in m):
-                    # found it!
-                    #print 'Found unit conversion for %s!' % (`python_type`)
-                    return m[current]
-        return None 
-
-    def register_unit_conversion(self, python_type, conversion):
-        """
-        Register a unit conversion class
-
-        ACCEPTS: a Unit instance
-        """
-        self._unit_conversions[python_type] = conversion
-
-    def unregister_unit_conversion(self, python_type):
-        """
-        Unregister a unit conversion class
-
-        ACCEPTS: any Python type
-        """
-        self._unit_conversions.remove(python_type)
-    
-    def _register_default_unit_conversion(python_type, conversion):
-        """
-        Register a unit conversion class
-
-        ACCEPTS: a Unit instance
-        """
-        Figure._default_unit_conversions[python_type] = conversion
-
-    _default_unit_conversions = {}
-    register_default_unit_conversion = \
-        staticmethod(_register_default_unit_conversion)
- 
-    def _unregister_default_unit_conversion(python_type):
-        """
-        Unregister a unit conversion class
-
-        ACCEPTS: any Python type
-        """
-        Figure._default_unit_conversions.remove(python_type)
-
-    unregister_default_unit_conversion = \
-        staticmethod(_unregister_default_unit_conversion)
 
     def hold(self, b=None):
         """

@@ -2,8 +2,8 @@ from __future__ import division
 import sys
 from cbook import iterable, flatten
 from transforms import identity_transform
-import warnings
-import copy
+import matplotlib.units as units
+
 ## Note, matplotlib artists use the doc strings for set and get
 # methods to enable the introspection methods of setp and getp.  Every
 # set_* method should have a docstring containing the line
@@ -46,8 +46,10 @@ class Artist:
         self.eventson = False  # fire events only if eventson
         self._oid = 0  # an observer id
         self._propobservers = {} # a dict from oids to funcs
-        self._unitsmgr = None
 
+        self._xunits = None
+        self._yunits = None
+        
     def add_callback(self, func):
         oid = self._oid
         self._propobservers[oid] = func
@@ -136,21 +138,6 @@ class Artist:
         'return the Pickeration instance used by this artist'
         return self._picker
 
-    def is_unitsmgr_set(self):
-        return self._unitsmgr is not None
-
-    def get_unitsmgr(self):
-        'return the units manager for this artist'
-        return self._unitsmgr
-
-    def set_unitsmgr(self, mgr):
-        """
-        Set the units manager for this artist
-
-        ACCEPTS: a matplotlib.units.UnitsManager instance
-        """
-        self._unitsmgr = mgr
-        self.pchanged()
     
     def is_figure_set(self):
         return self.figure is not None
@@ -304,6 +291,31 @@ class Artist:
         self._label = s
         self.pchanged()
 
+
+    def set_xunits(self, xunits):
+        """
+        set the x units
+
+        ACCEPTS: a units key
+        """              
+        self._xunits = xunits
+        
+    def get_xunits(self):
+        'return the xunits key'
+        return self._xunits
+
+    def set_yunits(self, yunits):
+        """
+        set the x units
+
+        ACCEPTS: a units key
+        """              
+        self._yunits = yunits
+        
+    def get_yunits(self):
+        'return the y units key'
+        return self._yunits
+
     def get_zorder(self): return self.zorder
 
     def set_zorder(self, level):
@@ -339,6 +351,7 @@ class Artist:
             func = getattr(self,funcName)
             ret.extend( [func(v)] )
         return ret
+
 
 class ArtistInspector:
     """

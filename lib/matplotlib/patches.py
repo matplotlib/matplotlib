@@ -9,6 +9,7 @@ from colors import colorConverter
 from lines import Line2D
 from transforms import bound_vertices
 import matplotlib.nxutils as nxutils
+import matplotlib.units as units
 
 from numerix.mlab import amin
 from mlab import dist_point_to_segment
@@ -55,8 +56,6 @@ class Patch(Artist):
                  antialiased = None,
                  hatch = None,
                  fill=1,
-                 xunits=None,
-                 yunits=None,
                  **kwargs
                  ):
         """
@@ -76,9 +75,6 @@ class Patch(Artist):
         self._antialiased = antialiased
         self._hatch = hatch
         self.fill = fill
-        self._xunits = xunits
-        self._yunits = yunits
-        self._xunits_id, self._yunits_id = None, None
 
         if len(kwargs): setp(self, **kwargs)
     __init__.__doc__ = dedent(__init__.__doc__) % kwdocd
@@ -112,38 +108,7 @@ class Patch(Artist):
         self.set_transform(other.get_transform())
         self.set_figure(other.get_figure())
         self.set_alpha(other.get_alpha())
-        self.set_xunits(other.get_xunits())
-        self.set_yunits(other.get_yunits())
 
-    def get_xunits(self):
-        return self._xunits
-
-    def set_xunits(self, xunits):
-        """
-        Set x unit type
-
-        ACCEPTS: [unit type]
-        """
-        self._xunits = xunits
-
-    def get_yunits(self):
-        return self._yunits
-
-    def set_yunits(self, yunits):
-        """
-        Set y unit type
-
-        ACCEPTS: [unit type]
-        """
-        self._yunits = yunits
-
-    def _is_units_updated(self):
-        return (id(self._xunits) != self._xunits_id and 
-                id(self._yunits) != self._yunits_id)
-
-    def _handle_units_update(self):
-        self._xunits_id = id(self._xunits)
-        self._yunits_id = id(self._yunits)
 
     def get_antialiased(self):
         return self._antialiased
@@ -262,6 +227,14 @@ class Patch(Artist):
         """
         raise NotImplementedError('Derived must override')
 
+    def get_xdata(self, orig=True):
+        'get the x data in orig or (possibly converted) format'        
+        raise NotImplementedError('Derived must override')
+        
+    def get_ydata(self, orig=True):
+        'get the y data in orig or (possibly converted) format'
+        raise NotImplementedError('Derived must override')
+
     def get_window_extent(self, renderer=None):
         verts = self.get_verts()
         tverts = self.get_transform().seq_xy_tups(verts)
@@ -303,6 +276,7 @@ class Patch(Artist):
         'alias for get_facecolor'
         return self.get_facecolor()
 
+
 class Shadow(Patch):
     def __init__(self, patch, ox, oy, props=None, **kwargs):
         """
@@ -314,27 +288,12 @@ class Shadow(Patch):
         %(Patch)s
         """
         Patch.__init__(self)
-        self._ox, self._oy = ox, oy
+        self.ox, self.oy = ox, oy
         self.patch = patch
         self.props = props
         self._update()
     __init__.__doc__ = dedent(__init__.__doc__) % kwdocd
 
-    def _get_ox(self):
-        if self.is_unitsmgr_set():
-            mgr = self.get_unitsmgr()
-            ret = mgr._convert_units((self._ox, self._xunits),)[0]# ML XXX; see pie_demo
-            return ret
-        return self._ox
-
-    def _get_oy(self):
-        if self.is_unitsmgr_set():
-            mgr = self.get_unitsmgr()
-            return mgr._convert_units((self._oy, self._yunits),)[0]# ML XXX; see pie_demo
-        return self._oy
-
-    ox = property(_get_ox, None, None)
-    oy = property(_get_oy, None, None)
 
     def _update(self):
         self.update_from(self.patch)
@@ -349,6 +308,20 @@ class Shadow(Patch):
 
             self.set_facecolor((r,g,b))
             self.set_edgecolor((r,g,b))
+
+    def get_xdata(self, orig=False):
+        'get the x data in orig or (possibly converted) format'        
+        xs = self.patch.get_xdata(orig=True)
+        xs = [x+self.ox for x in xs]
+        if orig: return xs
+        else: return units.manager.convert(xs, self._xunits)
+        
+    def get_ydata(self, orig=False):
+        'get the y data in orig or (possibly converted) format'
+        ys = self.patch.get_ydata(orig=True)
+        ys = [y+self.oy for y in ys]
+        if orig: return ys
+        else: return units.manager.convert(ys, self._yunits)
 
     def get_verts(self):
         verts = self.patch.get_verts()
@@ -383,39 +356,34 @@ class Rectangle(Patch):
 
         Patch.__init__(self, **kwargs)
 
-        self.xy  = array(xy, Float)
+        self.xy  = list(xy)
         self.width, self.height = width, height
     __init__.__doc__ = dedent(__init__.__doc__) % kwdocd
 
-    def _convert_xy(self):
-        x, y = (self._xy[0], self._xy[1])
 
-        if (self.is_unitsmgr_set()):
-            mgr = self.get_unitsmgr()
-            x, y = mgr._convert_units((x, self._xunits),
-                                      (y, self._yunits))
-        return array((x,y), Float)
-    xy = property(_convert_xy, None, None)
-    def _convert_width(self):
-        if (self.is_unitsmgr_set()):
-            mgr = self.get_unitsmgr()
-            return mgr._convert_units((self._width, self._xunits))[0]
-        return self._width
-    width = property(_convert_width, None, None)
-    def _convert_height(self):
-        if (self.is_unitsmgr_set()):
-            mgr = self.get_unitsmgr()
-            return mgr._convert_units((self._height, self._yunits))[0]
-        return self._height
-    height = property(_convert_height, None, None)
+    def get_xdata(self, orig=False):
+        'get the x data in orig or (possibly converted) format'        
+        left, bottom = self.xy
+        right = left + self.width
+
+        if orig: return left, right
+        else: return units.manager.convert((left, right), self._xunits)
+        
+    def get_ydata(self, orig=False):
+        'get the y data in orig or (possibly converted) format'
+        left, bottom = self.xy
+        top = bottom + self.height
+        if orig: return bottom, top
+        else: return units.manager.convert((bottom, top), self._yunits)
 
     def get_verts(self):
         """
         Return the vertices of the rectangle
         """
-        x, y = self.xy
-        return ( (x, y), (x, y+self.height),
-                 (x+self.width, y+self.height), (x+self.width, y),
+        left, right = self.get_xdata()
+        bottom, top = self.get_ydata()
+        return ( (left, bottom), (left, top),
+                 (right, top), (right, bottom),
                  )
 
     def get_x(self):
@@ -476,7 +444,7 @@ class Rectangle(Patch):
             l,b,w,h = args[0]
         else:
             l,b,w,h = args
-        self.xy = array([float(l),float(b)])
+        self.xy = [l,b]
         self.width = w
         self.height = h
 
@@ -498,31 +466,44 @@ class RegularPolygon(Patch):
         """
         Patch.__init__(self, **kwargs)
 
-        self._xy = xy
+        self.xy = xy
         self.numVertices = numVertices
         self.radius = radius
         self.orientation = orientation
 
+    __init__.__doc__ = dedent(__init__.__doc__) % kwdocd
+
+
+    def get_xdata(self, orig=False):
+        'get the x data in orig or (possibly converted) format'        
+        # the x vertices of the coords in unit space are not well
+        # defined but the center is
+        x, y = self.xy
+        if orig: return x
+        else: return units.manager.convert(x, self._xunits)
+        
+    def get_ydata(self, orig=False):
+        'get the y data in orig or (possibly converted) format'
+        x, y = self.xy
+
+        if orig: return y
+        else: return units.manager.convert(y, self._yunits)
+
+
+    def get_verts(self):
         theta = 2*pi/self.numVertices*arange(self.numVertices) + \
                 self.orientation
         r = self.radius
-        xs = self.xy[0] + r*cos(theta)
-        ys = self.xy[1] + r*sin(theta)
+        x, y = self.x, self.y
+
+        x = units.manager.convert(x, self._xunit)
+        y = units.manager.convert(y, self._yunit)
+
+        xs = x + r*cos(theta)
+        ys = y + r*sin(theta)
 
         self.verts = zip(xs, ys)
-    __init__.__doc__ = dedent(__init__.__doc__) % kwdocd
 
-    def _convert_xy(self):
-        x, y = (self._xy[0], self._xy[1])
-
-        if (self.is_unitsmgr_set()):
-            mgr = self.get_unitsmgr()
-            x, y = mgr._convert_units((x, self._xunits),
-                                      (y, self._yunits))
-        return (x,y)
-    xy = property(_convert_xy, None, None)
-
-    def get_verts(self):
         return self.verts
 
 class Polygon(Patch):
@@ -531,7 +512,7 @@ class Polygon(Patch):
     """
     def __init__(self, xy, **kwargs):
         """
-        xy is a sequence of x,y 2 tuples tuples
+        xy is a sequence of (x,y) 2 tuples
 
         Valid kwargs are:
         %(Patch)s
@@ -541,26 +522,29 @@ class Polygon(Patch):
         Patch.__init__(self, **kwargs)
         if not isinstance(xy, list):
             xy = list(xy)
-        self._xy = xy
-        self._cached_xy = None
+        self.xy = xy
     __init__.__doc__ = dedent(__init__.__doc__) % kwdocd
 
-    def _convert_xy(self):
-        if (self._is_units_updated()):
-            x, y = zip(*self._xy)
-            if (self.is_unitsmgr_set()):
-                mgr = self.get_unitsmgr()
-                x, y = mgr._convert_units((list(x), self._xunits),
-                                          (list(y), self._yunits))
-            else:
-                print 'No units manager set!'; #ML XXX should be replaced by exception or other
-            self._cached_xy = zip(x,y)
-            self._handle_units_update()
-        return self._cached_xy
-    xy = property(_convert_xy, None, None)
+
+
+    def get_xdata(self, orig=False):
+        'get the x data in orig or (possibly converted) format'        
+        xs, ys = zip(*self.xy)
+        if orig: return xs
+        else:
+            return units.manager.convert(xs, self._xunits)
+        
+    def get_ydata(self, orig=False):
+        'get the y data in orig or (possibly converted) format'
+        xs, ys = zip(*self.xy)
+        if orig: return xs
+        else: return units.manager.convert(ys, self._yunits)
 
     def get_verts(self):
-        return self.xy
+        xs, ys = zip(*self.xy)
+        xs = units.manager.convert(xs, self._xunits)
+        ys = units.manager.convert(ys, self._yunits)
+        return zip(xs, ys)
 
 
 class Wedge(Polygon):
@@ -711,6 +695,28 @@ class YAArrow(Polygon):
         Polygon.__init__(self, verts, **kwargs)
     __init__.__doc__ = dedent(__init__.__doc__) % kwdocd
 
+
+
+    def get_xdata(self, orig=False):
+        'get the x data in orig or (possibly converted) format'        
+        # the x vertices of the coords in unit space are not well
+        # defined but the tip and base are
+        x1, y1 = self.xytip
+        x2, y2 = self.xybase
+
+        if orig: return x1, x2
+        else: return units.manager.convert((x1, x2), self._xunits)
+        
+    def get_ydata(self, orig=False):
+        'get the y data in orig or (possibly converted) format'
+        # the x vertices of the coords in unit space are not well
+        # defined but the tip and base are
+        x1, y1 = self.xytip
+        x2, y2 = self.xybase
+
+        if orig: return y1, y2
+        else: return units.manager.convert((y1, t2), self._yunits)
+
     def get_verts(self):
         # the base vertices
         x1, y1 = self.xytip
@@ -804,28 +810,34 @@ class Ellipse(Patch):
 
         # self.verts = array(((x,y),(l,y),(x,t),(r,y),(x,b)), Float)
 
-    def _get_verts(self):
+
+    def get_xdata(self, orig=False):
+        'get the x data in orig or (possibly converted) format'        
         x,y = self.center
-        l,r = x-width/2.0, x+width/2.0
-        b,t = y-height/2.0, y+height/2.0
-        if (self.is_unitsmgr_set()):
-            mgr = self.get_unitsmgr()
-            x,l,r = mgr._convert_units((x, self._xunits),
-                                       (l, self._xunits),
-                                       (r, self._xunits))
-            y,b,t = mgr._convert_units((y, self._yunits),
-                                       (b, self._yunits),
-                                       (t, self._yunits))
-        return array(((x,y),(l,y),(x,t),(r,y),(x,b)), Float)
-    verts = property(_get_verts, None, None)
-    __init__.__doc__ = dedent(__init__.__doc__) % kwdocd
-         
+        l,r = x-self.width/2.0, x+self.width/2.0
+
+        if orig: return x, l, r
+        else: return units.manager.convert((x,l,r), self._xunits)
+        
+    def get_ydata(self, orig=False):
+        'get the y data in orig or (possibly converted) format'
+        x,y = self.center
+        b,t = y-self.height/2.0, y+self.height/2.0
+
+        if orig: return y,b,t
+        else: return units.manager.convert((y,b,t), self._xunits)
+    
     def get_verts(self):
         """
         Not actually used for rendering.  Provided to conform to
         Patch super class.
         """
-        return self.verts
+        x,y = self.center
+        l,r = x-self.width/2.0, x+self.width/2.0
+        b,t = y-self.height/2.0, y+self.height/2.0
+        x,l,r = units.manager.convert((x,l,r), self._xunit)
+        y,b,t = units.manager.convert((y,b,t), self._yunit)
+        return array(((x,y),(l,y),(x,t),(r,y),(x,b)), Float)
 
     def draw(self, renderer):
         if not self.get_visible(): return
