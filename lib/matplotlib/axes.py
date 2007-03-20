@@ -5146,8 +5146,48 @@ class Axes(Artist):
             self.set_xlim(xmin=-0.5, xmax=nc-0.5)
             self.set_ylim(ymin=nr-0.5, ymax=-0.5)
             self.set_aspect(aspect)
-            return lines
+            ret = lines
+        self.title.set_y(1.05)
+        self.xaxis.tick_top()
+        self.xaxis.set_major_locator(MaxNLocator(integer=True))
+        self.yaxis.set_major_locator(MaxNLocator(integer=True))
+        return ret
 
+    def matshow(self, Z, **kwargs):
+        '''
+        Plot a matrix as an image.
+
+        The matrix will be shown the way it would be printed,
+        with the first row at the top.  Row and column numbering
+        is zero-based.
+
+        Argument:
+            Z   anything that can be interpreted as a 2-D array
+
+        kwargs: all are passed to imshow.  matshow sets defaults
+        for extent, origin, interpolation, and aspect; use care
+        in overriding the extent and origin kwargs, because they
+        interact.  (Also, if you want to change them, you probably
+        should be using imshow directly in your own version of
+        matshow.)
+
+        Returns: an AxesImage instance
+
+        '''
+        Z = asarray(Z)
+        nr, nc = Z.shape
+        extent = [-0.5, nc-0.5, nr-0.5, -0.5]
+        kw = {'extent': extent,
+              'origin': 'upper',
+              'interpolation': 'nearest',
+              'aspect': 'equal'}          # (already the imshow default)
+        kw.update(kwargs)
+        im = self.imshow(Z, **kw)
+        self.title.set_y(1.05)
+        self.xaxis.tick_top()
+        self.xaxis.set_major_locator(MaxNLocator(integer=True))
+        self.yaxis.set_major_locator(MaxNLocator(integer=True))
+        return im
 
 class SubplotBase:
     """
