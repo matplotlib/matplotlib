@@ -86,19 +86,3 @@ if matplotlib.rcParams['units']:
 else:
     manager = DonothingManager()
     
-
-
-"""
-
-        return x
-        print 'using obj interface'
-        func = None
-        func = getattr(x, 'convert_to_value', None)
-        if func is not None: return func(x, unit)
-        if iterable(x):
-            for thisx in x:
-                func = getattr(thisx, 'convert_to_value', None)
-                break
-        if func is None: return x
-        return func(x, unit)
-"""
