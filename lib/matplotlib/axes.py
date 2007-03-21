@@ -2285,6 +2285,18 @@ class Axes(Artist):
         verts = [ ((thisxmin, thisy), (thisxmax, thisy)) for thisxmin, thisxmax, thisy in zip(xmin, xmax, y)]
         coll = LineCollection(verts, colors=colors, linestyle=linestyle)
         self.add_collection(coll)
+
+
+        minx = min(nx.amin(xmin), nx.amin(xmax))
+        maxx = max(nx.amax(xmin), nx.amax(xmax))
+        miny = nx.amin(y)
+        maxy = nx.amax(y)        
+        corners = (minx, miny), (maxx, maxy)
+        self.update_datalim(corners)
+
+        self.autoscale_view()
+
+
         return coll
     hlines.__doc__ = dedent(hlines.__doc__) 
 
@@ -2308,6 +2320,7 @@ class Axes(Artist):
         if kwargs.get('fmt') is not None:
             raise DeprecationWarning(
                 'vlines now uses a LineCollection and not a list of Line2D to draw; see API_CHANGES')
+
         
         if not iterable(x): x = [x]
         if not iterable(ymin): ymin = [ymin]
@@ -2332,6 +2345,16 @@ class Axes(Artist):
         verts = [ ((thisx, thisymin), (thisx, thisymax)) for thisx, (thisymin, thisymax) in zip(x,Y)]
         coll = LineCollection(verts, colors=colors, linestyle=linestyle)
         self.add_collection(coll)
+
+
+        minx = nx.amin(x)
+        maxx = nx.amax(x)        
+        miny = min(nx.amin(ymin), nx.amin(ymax))
+        maxy = max(nx.amax(ymax), nx.amax(ymax))
+        corners = (minx, miny), (maxx, maxy)
+        self.update_datalim(corners)
+        self.autoscale_view()
+        
         return coll
     vlines.__doc__ = dedent(vlines.__doc__) 
 
@@ -2620,6 +2643,8 @@ class Axes(Artist):
 
     def acorr(self, x, normed=False, detrend=detrend_none, usevlines=False, **kwargs):
         """
+        ACORR(x, normed=False, detrend=detrend_none, usevlines=False, **kwargs)
+        
         Plot the autocorrelation of x.  If normed=True, normalize the
         data but the autocorrelation at 0-th lag.  x is detrended by
         the detrend callable (default no normalization.
@@ -2647,8 +2672,11 @@ class Axes(Artist):
         return self.xcorr(x, x, normed, detrend, usevlines=usevlines, **kwargs)
     acorr.__doc__ = dedent(acorr.__doc__) % artist.kwdocd
 
-    def xcorr(self, x, y, normed=False, detrend=detrend_none, usevlines=False, **kwargs):
+    def xcorr(self, x, y, normed=False, detrend=detrend_none, usevlines=False,
+              **kwargs):
         """
+        XCORR(x, y, normed=False, detrend=detrend_none, usevlines=False, **kwargs):        
+
         Plot the cross correlation between x and y.  If normed=True,
         normalize the data but the cross correlation at 0-th lag.  x
         and y are detrended by the detrend callable (default no
@@ -2686,6 +2714,7 @@ class Axes(Artist):
 
 
         lags = arange(-Nx+1,Nx)
+        
         if usevlines:
             a = self.vlines(lags, [0], c, **kwargs)
         else:
