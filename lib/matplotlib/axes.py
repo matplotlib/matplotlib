@@ -279,7 +279,7 @@ class _process_plot_var_args:
                          )
             self.set_lineprops(seg, **kwargs)
             ret.append(seg)
-            
+
         return ret
 
     def _plot_2_args(self, tup2, **kwargs):
@@ -287,7 +287,7 @@ class _process_plot_var_args:
         if is_string_like(tup2[1]):
 
             assert self.command == 'plot', 'fill needs at least 2 non-string arguments'
-            yorig, fmt = tup2 
+            yorig, fmt = tup2
             x, y = self._xy_from_y(yorig)
 
             linestyle, marker, color = _process_plot_format(fmt)
@@ -301,12 +301,12 @@ class _process_plot_var_args:
                     _color = self._get_next_cycle_color()
                 seg = Line2D(x, y,
                              color=_color,
-                             linestyle=linestyle, marker=marker,                             
+                             linestyle=linestyle, marker=marker,
                              )
                 self.set_lineprops(seg, **kwargs)
                 ret.append(seg)
 
-            if multicol:                
+            if multicol:
                 for j in range(y.shape[1]):
                     makeline(x[:,j], y[:,j])
             else:
@@ -316,7 +316,7 @@ class _process_plot_var_args:
         else:
 
             xorig, yorig = tup2
-            x, y = self._xy_from_xy(xorig, yorig)    
+            x, y = self._xy_from_xy(xorig, yorig)
             multicol = y.shape[1]>1
 
             def makeline(x, y):
@@ -336,14 +336,14 @@ class _process_plot_var_args:
                 self.set_patchprops(seg, **kwargs)
                 ret.append(seg)
 
-            
+
             if self.command == 'plot': func = makeline
             else:                      func = makefill
-            if multicol:              
+            if multicol:
                 for j in range(y.shape[1]):
                     func(x[:,j], y[:,j])
             else:
-                func(xorig, yorig)                    
+                func(xorig, yorig)
 
 
             return ret
@@ -1030,7 +1030,7 @@ class Axes(Artist):
             axis.set_minor_locator(minloc)
             axis.set_major_formatter(majfmt)
             axis.set_minor_formatter(minfmt)
-            
+
     def add_line(self, l):
         'Add a line to the list of plot lines'
         self._set_artist_props(l)
@@ -1041,7 +1041,7 @@ class Axes(Artist):
 
         self._update_tickers(xorig, l.get_xunits(), self.xaxis)
         self._update_tickers(yorig, l.get_yunits(), self.yaxis)
-        
+
         xdata = l.get_xdata(valid_only=True)
         ydata = l.get_ydata(valid_only=True)
 
@@ -1539,7 +1539,7 @@ class Axes(Artist):
 
         ACCEPTS: len(2) sequence of floats
         """
-        
+
 
         if ymax is None and iterable(ymin):
             ymin,ymax = ymin
@@ -1548,7 +1548,7 @@ class Axes(Artist):
             ymin = units.manager.convert(ymin, self._xunits)
         if ymax is not None:
             ymax = units.manager.convert(ymax, self._yunits)
-        
+
         old_ymin,old_ymax = self.get_ylim()
 
         if ymin is None: ymin = old_ymin
@@ -2190,7 +2190,7 @@ class Axes(Artist):
         """
         # convert y axis units
         kwargs = kwargs.copy()
-        
+
         trans = blend_xy_sep_transform( self.transAxes, self.transData  )
         verts = (xmin, ymin), (xmin, ymax), (xmax, ymax), (xmax, ymin)
         p = Polygon(verts, **kwargs)
@@ -4052,7 +4052,7 @@ class Axes(Artist):
         kwargs = kwargs.copy()
 
         if not self._hold: self.cla()
-            
+
         patches = []
         for poly in self._get_patches_for_fill(*args, **kwargs):
             self.add_patch( poly )
@@ -4849,7 +4849,7 @@ class Axes(Artist):
                 kwargs['cmap'] = ListedColormap(['w', 'k'], name='binary')
             nr, nc = Z.shape
             extent = [-0.5, nc-0.5, nr-0.5, -0.5]
-            return self.imshow(mask, interpolation='nearest', aspect=aspect,
+            ret = self.imshow(mask, interpolation='nearest', aspect=aspect,
                                 extent=extent, origin='upper', **kwargs)
         else:
             if hasattr(Z, 'tocoo'):
@@ -5104,7 +5104,7 @@ class PolarAxes(Axes):
         self.cla()
         self.xaxis = None
         self.yaxis = None
-        
+
     def _init_axis(self):
         "nuthin to do"
         pass
@@ -5498,7 +5498,7 @@ class PolarAxes(Axes):
         raise NotImplementedError('table not implemented for polar axes')
 
 
-        
+
 class PolarSubplot(SubplotBase, PolarAxes):
     """
     Create a polar subplot with
