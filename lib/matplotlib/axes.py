@@ -2240,28 +2240,27 @@ class Axes(Artist):
         return p
     axvspan.__doc__ = dedent(axvspan.__doc__) % artist.kwdocd
 
-    def hlines(self, y, xmin, xmax, fmt='k-', **kwargs):
+
+    def hlines(self, y, xmin, xmax, colors='k', linestyle='solid', **kwargs):
         """
-        HLINES(y, xmin, xmax, fmt='k-')
+        HLINES(y, xmin, xmax, colors='k', linestyle='solid', **kwargs)
 
         plot horizontal lines at each y from xmin to xmax.  xmin or xmax can
         be scalars or len(x) numpy arrays.  If they are scalars, then the
         respective values are constant, else the widths of the lines are
         determined by xmin and xmax
 
-        fmt is a plot format string, eg 'g--'
 
-        Valid kwargs are Line2D properties:
-        %(Line2D)s
+        colors is a line collections color args, either a single color or a len(x) list of colors
 
-        Returns a list of line instances that were added
+        linestyle is one of solid|dashed|dashdot|dotted
+
+        Returns the LineCollection that was added
         """
-        linestyle, marker, color = _process_plot_format(fmt)
-        if color is None:
-            color = 'k'
+        if kwargs.get('fmt') is not None:
+            raise DeprecationWarning(
+                'hlines now uses a LineCollection and not a list of Line2D to draw; see API_CHANGES')
 
-        # convert, if necessary
-        kwargs = kwargs.copy()
 
         if not iterable(y): y = [y]
         if not iterable(xmin): xmin = [xmin]
@@ -2280,19 +2279,16 @@ class Axes(Artist):
         if len(xmax)!=len(y):
             raise ValueError, 'xmax and y are unequal sized sequences'
 
-        lines = []
-        for (thisY, thisMin, thisMax) in zip(y,xmin,xmax):
-            line = Line2D(
-                [thisMin, thisMax], [thisY, thisY],
-                color=color, linestyle=linestyle, marker=marker,
-                **kwargs
-                )
-            self.add_line( line )
-            lines.append(line)
-        return lines
-    hlines.__doc__ = dedent(hlines.__doc__) % artist.kwdocd
 
-    def vlines(self, x, ymin, ymax, fmt='k-', **kwargs):
+
+
+        verts = [ ((thisxmin, thisy), (thisxmax, thisy)) for thisxmin, thisxmax, thisy in zip(xmin, xmax, y)]
+        coll = LineCollection(verts, colors=colors, linestyle=linestyle)
+        self.add_collection(coll)
+        return coll
+    hlines.__doc__ = dedent(hlines.__doc__) 
+
+    def vlines(self, x, ymin, ymax, colors='k', linestyle='solid', **kwargs):
         """
         VLINES(x, ymin, ymax, color='k')
 
@@ -2302,23 +2298,17 @@ class Axes(Artist):
         determined by ymin and ymax
 
 
-        fmt is a plot format string, eg 'g--'
+        colors is a line collections color args, either a single color or a len(x) list of colors
 
-        Valid kwargs are Line2D properties:
-        %(Line2D)s
+        linestyle is one of solid|dashed|dashdot|dotted
 
-        Returns a list of lines that were added
+        Returns the LineCollection that was added
         """
-        linestyle, marker, color = _process_plot_format(fmt)
-        if color is None:
-            color = 'k'
 
-        # convert, if necessary
-        kwargs = kwargs.copy()
-
-        xunits = kwargs.pop('xunits', None)
-        yunits = kwargs.pop('yunits', None)
-
+        if kwargs.get('fmt') is not None:
+            raise DeprecationWarning(
+                'vlines now uses a LineCollection and not a list of Line2D to draw; see API_CHANGES')
+        
         if not iterable(x): x = [x]
         if not iterable(ymin): ymin = [ymin]
         if not iterable(ymax): ymax = [ymax]
@@ -2338,17 +2328,12 @@ class Axes(Artist):
             raise ValueError, 'ymax and x are unequal sized sequences'
 
         Y = transpose(array([ymin, ymax]))
-        lines = []
-        for thisX, thisY in zip(x,Y):
-            line = Line2D(
-                [thisX, thisX], thisY,
-                color=color, linestyle=linestyle, marker=marker,
-                **kwargs
-                )
-            self.add_line(line)
-            lines.append(line)
-        return lines
-    vlines.__doc__ = dedent(vlines.__doc__) % artist.kwdocd
+
+        verts = [ ((thisx, thisymin), (thisx, thisymax)) for thisx, (thisymin, thisymax) in zip(x,Y)]
+        coll = LineCollection(verts, colors=colors, linestyle=linestyle)
+        self.add_collection(coll)
+        return coll
+    vlines.__doc__ = dedent(vlines.__doc__) 
 
 
     #### Basic plotting
@@ -2370,7 +2355,7 @@ class Axes(Artist):
 
         An arbitrary number of x, y, fmt groups can be specified, as in
 
-            a.plot(x1, y1, 'g^', x2, y2, 'g-')
+        a.plot(x1, y1, 'g^', x2, y2, 'g-')
 
         Return value is a list of lines that were added.
 
@@ -2633,7 +2618,7 @@ class Axes(Artist):
         return l
     semilogy.__doc__ = dedent(semilogy.__doc__) % artist.kwdocd
 
-    def acorr(self, x, normed=False, detrend=detrend_none, **kwargs):
+    def acorr(self, x, normed=False, detrend=detrend_none, usevlines=False, **kwargs):
         """
         Plot the autocorrelation of x.  If normed=True, normalize the
         data but the autocorrelation at 0-th lag.  x is detrended by
@@ -2649,13 +2634,20 @@ class Axes(Artist):
         correlation is performed with numerix cross_correlate with
         mode=2.
 
-        The valid kwargs are Line2D properties:
-        %(Line2D)s
+        If usevlines is True, Axes.vlines rather than Axes.plot is used
+        to draw vertical lines from the origin to the acorr.
+        Otherwise the plotstyle is determined by the kwargs, which are
+        Line2D properties.  If usevlines, the return value is lags, c,
+        linecol where linecol is the LineCollection
+
+        if usevlines=True, kwargs are passed onto Axes.vlines
+        if usevlines=False, kwargs are passed onto Axes.plot        
+        See the respective function for documentation on valid kwargs        
         """
-        return self.xcorr(x, x, normed, detrend, **kwargs)
+        return self.xcorr(x, x, normed, detrend, usevlines=usevlines, **kwargs)
     acorr.__doc__ = dedent(acorr.__doc__) % artist.kwdocd
 
-    def xcorr(self, x, y, normed=False, detrend=detrend_none, **kwargs):
+    def xcorr(self, x, y, normed=False, detrend=detrend_none, usevlines=False, **kwargs):
         """
         Plot the cross correlation between x and y.  If normed=True,
         normalize the data but the cross correlation at 0-th lag.  x
@@ -2672,12 +2664,16 @@ class Axes(Artist):
         correlation is performed with numerix cross_correlate with
         mode=2.
 
-        The valid kwargs are Line2D properties:
-        %(Line2D)s
+        If usevlines is True, Axes.vlines rather than Axes.plot is used
+        to draw vertical lines from the origin to the acorr.
+        Otherwise the plotstyle is determined by the kwargs, which are
+        Line2D properties.  If usevlines, the return value is lags, c,
+        linecol where linecol is the LineCollection
+
+        if usevlines=True, kwargs are passed onto Axes.vlines
+        if usevlines=False, kwargs are passed onto Axes.plot        
+        See the respective function for documentation on valid kwargs        
         """
-        kwargs = kwargs.copy()
-        kwargs.setdefault('marker', 'o')
-        kwargs.setdefault('linestyle', 'None')
 
         Nx = len(x)
         assert(Nx==len(y))
@@ -2690,8 +2686,14 @@ class Axes(Artist):
 
 
         lags = arange(-Nx+1,Nx)
-        line, = self.plot(lags, c, **kwargs)
-        return lags, c, line
+        if usevlines:
+            a = self.vlines(lags, [0], c, **kwargs)
+        else:
+            kwargs = kwargs.copy()
+            kwargs.setdefault('marker', 'o')
+            kwargs.setdefault('linestyle', 'None')
+            a, = self.plot(lags, c, **kwargs)
+        return lags, c, a
     xcorr.__doc__ = dedent(xcorr.__doc__) % artist.kwdocd
 
     def legend(self, *args, **kwargs):
@@ -3333,9 +3335,10 @@ class Axes(Artist):
         valid kwargs for the marker properties are
         %(Line2D)s
 
-        Return value is a length 2 tuple.  The first element is the
+        Return value is a length 3 tuple.  The first element is the
         Line2D instance for the y symbol lines.  The second element is
-        a list of error bar lines.
+        a list of error bar cap lines, the third element is a list of
+        line collections for the horizontal and vertical error ranges
         """
         if not self._hold: self.cla()
         # make sure all the args are iterable arrays
@@ -3358,8 +3361,9 @@ class Axes(Artist):
         if barsabove and fmt is not None:
             l0, = self.plot(x,y,fmt,**kwargs)
 
+        barcols = []
         caplines = []
-        barlines = []
+
 
         if xerr is not None:
             if len(xerr.shape) == 1:
@@ -3369,8 +3373,7 @@ class Axes(Artist):
                 left  = x-xerr[0]
                 right = x+xerr[1]
 
-            barlines.extend( self.hlines(y, x, left, label='_nolegend_' ))
-            barlines.extend( self.hlines(y, x, right, label='_nolegend_') )
+            barcols.append( self.hlines(y, left, right, label='_nolegend_' ))
             caplines.extend( self.plot(left, y, '|', ms=2*capsize, label='_nolegend_') )
             caplines.extend( self.plot(right, y, '|', ms=2*capsize, label='_nolegend_') )
 
@@ -3382,8 +3385,7 @@ class Axes(Artist):
                 lower = y-yerr[0]
                 upper = y+yerr[1]
 
-            barlines.extend( self.vlines(x, y, upper, label='_nolegend_' ) )
-            barlines.extend( self.vlines(x, y, lower, label='_nolegend_' ) )
+            barcols.append( self.vlines(x, lower, upper, label='_nolegend_' ) )
             caplines.extend( self.plot(x, lower, '_', ms=2*capsize, label='_nolegend_') )
             caplines.extend( self.plot(x, upper, '_', ms=2*capsize, label='_nolegend_') )
 
@@ -3395,15 +3397,14 @@ class Axes(Artist):
         elif ecolor is None:
             ecolor = l0.get_color()
 
-        for l in barlines:
+        for l in barcols:
             l.set_color(ecolor)
         for l in caplines:
             l.set_color(ecolor)
 
         self.autoscale_view()
 
-        ret = silent_list('Line2D errorbar', caplines+barlines)
-        return (l0, ret)
+        return (l0, caplines, barcols)
     errorbar.__doc__ = dedent(errorbar.__doc__) % artist.kwdocd
 
     def boxplot(self, x, notch=0, sym='b+', vert=1, whis=1.5,

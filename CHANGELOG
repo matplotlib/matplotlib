@@ -1,3 +1,11 @@
+2007-03-21 Axes.vlines and Axes.hlines now create and returns a
+           LineCollection, not a list of lines.  This is much faster.
+           The kwarg signature has changed, so consult the docs.
+           Modified Axes.errorbar which uses vlines and hlines.  See
+           API_CHANGES; the return signature for these three functions
+           is now different
+
+
 2007-03-20 Refactored units support and added new examples - JDH
 
 2007-03-19 Added Mike's units patch - JDH
