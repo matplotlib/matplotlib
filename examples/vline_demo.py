@@ -14,7 +14,7 @@ s = f(t)
 nse = multiply(normal(0.0, 0.3, t.shape), s)
 
 plot(t, s+nse, 'b^')
-vlines(t, [0], s, fmt='k-')
+vlines(t, [0], s)
 xlabel('time (s)')
 title('Comparison of model with data')
 show()
