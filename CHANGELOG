@@ -1,3 +1,9 @@
+2007-03-22 Some more niceties for xcorr -- a maxlags option, normed
+           now works for xcorr as well as axorr, usevlines is
+           supported, and a zero correlation hline is added.  See
+           examples/xcorr_demo.py.  Thanks Sameer for the patch.  -
+           JDH
+
 2007-03-21 Axes.vlines and Axes.hlines now create and returns a
            LineCollection, not a list of lines.  This is much faster.
            The kwarg signature has changed, so consult the docs.

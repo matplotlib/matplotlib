@@ -37,7 +37,7 @@ import units
 
 from matplotlib.mlab import meshgrid, detrend_none, detrend_linear, \
      window_none, window_hanning, linspace, prctile
-from matplotlib.numerix.mlab import flipud, amin, amax
+from matplotlib.numerix.mlab import flipud, amin, amax, dot
 
 from matplotlib import rcParams
 from patches import Patch, Rectangle, Circle, Polygon, Arrow, Wedge, Shadow, FancyArrow, bbox_artist
@@ -2641,10 +2641,10 @@ class Axes(Artist):
         return l
     semilogy.__doc__ = dedent(semilogy.__doc__) % artist.kwdocd
 
-    def acorr(self, x, normed=False, detrend=detrend_none, usevlines=False, **kwargs):
+    def acorr(self, x, **kwargs):
         """
-        ACORR(x, normed=False, detrend=detrend_none, usevlines=False, **kwargs)
-        
+        ACORR(x, normed=False, detrend=detrend_none, usevlines=False, 
+              maxlags=None, **kwargs)
         Plot the autocorrelation of x.  If normed=True, normalize the
         data but the autocorrelation at 0-th lag.  x is detrended by
         the detrend callable (default no normalization.
@@ -2652,7 +2652,7 @@ class Axes(Artist):
         data are plotted as plot(lags, c, **kwargs)
 
         return value is lags, c, line where lags are a length
-        2*len(x)+1 lag vector, c is the 2*len(x)+1 auto correlation
+        2*maxlags+1 lag vector, c is the 2*maxlags+1 auto correlation
         vector, and line is a Line2D instance returned by plot.  The
         default linestyle is None and the default marker is 'o',
         though these can be overridden with keyword args.  The cross
@@ -2663,17 +2663,21 @@ class Axes(Artist):
         to draw vertical lines from the origin to the acorr.
         Otherwise the plotstyle is determined by the kwargs, which are
         Line2D properties.  If usevlines, the return value is lags, c,
-        linecol where linecol is the LineCollection
+        linecol, b where linecol is the LineCollection and b is the x-axis
 
         if usevlines=True, kwargs are passed onto Axes.vlines
         if usevlines=False, kwargs are passed onto Axes.plot        
+
+        maxlags is a positive integer detailing the number of lags to show. 
+        The default value of None will return all (2*len(x)-1) lags.
+
         See the respective function for documentation on valid kwargs        
         """
-        return self.xcorr(x, x, normed, detrend, usevlines=usevlines, **kwargs)
+        return self.xcorr(x, x, **kwargs)
     acorr.__doc__ = dedent(acorr.__doc__) % artist.kwdocd
 
     def xcorr(self, x, y, normed=False, detrend=detrend_none, usevlines=False,
-              **kwargs):
+              maxlags=None, **kwargs):
         """
         XCORR(x, y, normed=False, detrend=detrend_none, usevlines=False, **kwargs):        
 
@@ -2684,8 +2688,8 @@ class Axes(Artist):
 
         data are plotted as plot(lags, c, **kwargs)
 
-        Return value is (lags, c, line) where lags are a length
-        2*len(x)+1 lag vector, c is the 2*len(x)+1 cross correlation
+        return value is lags, c, line where lags are a length
+        2*maxlags+1 lag vector, c is the 2*maxlags+1 auto correlation
         vector, and line is a Line2D instance returned by plot.  The
         default linestyle is None and the default marker is 'o',
         though these can be overridden with keyword args.  The cross
@@ -2696,33 +2700,46 @@ class Axes(Artist):
         to draw vertical lines from the origin to the acorr.
         Otherwise the plotstyle is determined by the kwargs, which are
         Line2D properties.  If usevlines, the return value is lags, c,
-        linecol where linecol is the LineCollection
+        linecol, b where linecol is the LineCollection and b is the x-axis
 
         if usevlines=True, kwargs are passed onto Axes.vlines
         if usevlines=False, kwargs are passed onto Axes.plot        
+
+        maxlags is a positive integer detailing the number of lags to show. 
+        The default value of None will return all (2*len(x)-1) lags.
+
         See the respective function for documentation on valid kwargs        
         """
 
         Nx = len(x)
-        assert(Nx==len(y))
+        if Nx!=len(y):
+            raise ValueError('x and y must be equal length')
+
         x = detrend(asarray(x))
         y = detrend(asarray(y))
 
         c = cross_correlate(x, y, mode=2)
 
-        if normed: c/=c[Nx-1]
+        if normed: c/=sqrt(dot(x,x) * dot(y,y))
 
+        if maxlags is None: maxlags = Nx - 1
+        
+        if maxlags >= Nx or maxlags < 1:
+            raise ValueError('maglags must be None or strictly positive < %d'%Nx)
 
-        lags = arange(-Nx+1,Nx)
+        lags = arange(-maxlags,maxlags+1)
+        c = c[Nx-1-maxlags:Nx+maxlags]
+        
         
         if usevlines:
             a = self.vlines(lags, [0], c, **kwargs)
+            b = self.axhline(**kwargs)
         else:
             kwargs = kwargs.copy()
             kwargs.setdefault('marker', 'o')
             kwargs.setdefault('linestyle', 'None')
             a, = self.plot(lags, c, **kwargs)
-        return lags, c, a
+        return lags, c, a, b
     xcorr.__doc__ = dedent(xcorr.__doc__) % artist.kwdocd
 
     def legend(self, *args, **kwargs):
