@@ -227,7 +227,9 @@ class _process_plot_var_args:
             func(val)
 
     def _xy_from_y(self, y):
-        y = ma.asarray(y)
+        try: y = ma.asarray(y)
+        except TypeError: return None, None
+        except ValueError: return None, None        
         if len(y.shape) == 1:
             y = y[:,newaxis]
         nr, nc = y.shape
@@ -235,8 +237,11 @@ class _process_plot_var_args:
         return x,y
 
     def _xy_from_xy(self, x, y):
-        x = ma.asarray(x)
-        y = ma.asarray(y)
+        try:
+            x = ma.asarray(x)
+            y = ma.asarray(y)
+        except TypeError: return None, None
+        except ValueError: return None, None        
         if len(x.shape) == 1:
             x = x[:,newaxis]
         if len(y.shape) == 1:
@@ -261,7 +266,7 @@ class _process_plot_var_args:
         yorig = y
         x, y = self._xy_from_y(yorig)
 
-        multicol = y.shape[1]>1
+        multicol = x is not None and y is not None and y.shape[1]>1
 
         if multicol:
 
@@ -292,7 +297,7 @@ class _process_plot_var_args:
 
             linestyle, marker, color = _process_plot_format(fmt)
 
-            multicol = y.shape[1]>1
+            multicol = x is not None and y is not None and y.shape[1]>1
 
 
             def makeline(x, y):
@@ -317,7 +322,7 @@ class _process_plot_var_args:
 
             xorig, yorig = tup2
             x, y = self._xy_from_xy(xorig, yorig)
-            multicol = y.shape[1]>1
+            multicol = x is not None and y is not None and y.shape[1]>1
 
             def makeline(x, y):
                 color = self._get_next_cycle_color()
@@ -354,7 +359,7 @@ class _process_plot_var_args:
 
         xorig, yorig, fmt = tup3
         x, y = self._xy_from_xy(xorig, yorig)
-        multicol = y.shape[1]>1
+        multicol = x is not None and y is not None and y.shape[1]>1
 
         linestyle, marker, color = _process_plot_format(fmt)
 
