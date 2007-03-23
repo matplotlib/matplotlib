@@ -483,7 +483,7 @@ class GraphicsContextBase:
         self._antialiased = gc._antialiased
         self._capstyle = gc._capstyle
         self._cliprect = gc._cliprect
-        self._clippath = gc._clipath
+        self._clippath = gc._clippath
         self._dashes = gc._dashes
         self._joinstyle = gc._joinstyle
         self._linestyle = gc._linestyle
@@ -518,7 +518,7 @@ class GraphicsContextBase:
         """
         Return the clip path
         """
-        return self._clipath
+        return self._clippath
 
     def get_dashes(self):
         """
