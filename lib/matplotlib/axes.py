@@ -2290,7 +2290,7 @@ class Axes(Artist):
         minx = min(nx.amin(xmin), nx.amin(xmax))
         maxx = max(nx.amax(xmin), nx.amax(xmax))
         miny = nx.amin(y)
-        maxy = nx.amax(y)        
+        maxy = nx.amax(y)
         corners = (minx, miny), (maxx, maxy)
         self.update_datalim(corners)
 
@@ -2298,7 +2298,7 @@ class Axes(Artist):
 
 
         return coll
-    hlines.__doc__ = dedent(hlines.__doc__) 
+    hlines.__doc__ = dedent(hlines.__doc__)
 
     def vlines(self, x, ymin, ymax, colors='k', linestyle='solid', **kwargs):
         """
@@ -2321,7 +2321,7 @@ class Axes(Artist):
             raise DeprecationWarning(
                 'vlines now uses a LineCollection and not a list of Line2D to draw; see API_CHANGES')
 
-        
+
         if not iterable(x): x = [x]
         if not iterable(ymin): ymin = [ymin]
         if not iterable(ymax): ymax = [ymax]
@@ -2348,15 +2348,15 @@ class Axes(Artist):
 
 
         minx = nx.amin(x)
-        maxx = nx.amax(x)        
+        maxx = nx.amax(x)
         miny = min(nx.amin(ymin), nx.amin(ymax))
         maxy = max(nx.amax(ymax), nx.amax(ymax))
         corners = (minx, miny), (maxx, maxy)
         self.update_datalim(corners)
         self.autoscale_view()
-        
+
         return coll
-    vlines.__doc__ = dedent(vlines.__doc__) 
+    vlines.__doc__ = dedent(vlines.__doc__)
 
 
     #### Basic plotting
@@ -2643,7 +2643,7 @@ class Axes(Artist):
 
     def acorr(self, x, **kwargs):
         """
-        ACORR(x, normed=False, detrend=detrend_none, usevlines=False, 
+        ACORR(x, normed=False, detrend=detrend_none, usevlines=False,
               maxlags=None, **kwargs)
         Plot the autocorrelation of x.  If normed=True, normalize the
         data but the autocorrelation at 0-th lag.  x is detrended by
@@ -2666,12 +2666,12 @@ class Axes(Artist):
         linecol, b where linecol is the LineCollection and b is the x-axis
 
         if usevlines=True, kwargs are passed onto Axes.vlines
-        if usevlines=False, kwargs are passed onto Axes.plot        
+        if usevlines=False, kwargs are passed onto Axes.plot
 
-        maxlags is a positive integer detailing the number of lags to show. 
+        maxlags is a positive integer detailing the number of lags to show.
         The default value of None will return all (2*len(x)-1) lags.
 
-        See the respective function for documentation on valid kwargs        
+        See the respective function for documentation on valid kwargs
         """
         return self.xcorr(x, x, **kwargs)
     acorr.__doc__ = dedent(acorr.__doc__) % artist.kwdocd
@@ -2679,7 +2679,7 @@ class Axes(Artist):
     def xcorr(self, x, y, normed=False, detrend=detrend_none, usevlines=False,
               maxlags=None, **kwargs):
         """
-        XCORR(x, y, normed=False, detrend=detrend_none, usevlines=False, **kwargs):        
+        XCORR(x, y, normed=False, detrend=detrend_none, usevlines=False, **kwargs):
 
         Plot the cross correlation between x and y.  If normed=True,
         normalize the data but the cross correlation at 0-th lag.  x
@@ -2703,12 +2703,12 @@ class Axes(Artist):
         linecol, b where linecol is the LineCollection and b is the x-axis
 
         if usevlines=True, kwargs are passed onto Axes.vlines
-        if usevlines=False, kwargs are passed onto Axes.plot        
+        if usevlines=False, kwargs are passed onto Axes.plot
 
-        maxlags is a positive integer detailing the number of lags to show. 
+        maxlags is a positive integer detailing the number of lags to show.
         The default value of None will return all (2*len(x)-1) lags.
 
-        See the respective function for documentation on valid kwargs        
+        See the respective function for documentation on valid kwargs
         """
 
         Nx = len(x)
@@ -2723,14 +2723,14 @@ class Axes(Artist):
         if normed: c/=sqrt(dot(x,x) * dot(y,y))
 
         if maxlags is None: maxlags = Nx - 1
-        
+
         if maxlags >= Nx or maxlags < 1:
             raise ValueError('maglags must be None or strictly positive < %d'%Nx)
 
         lags = arange(-maxlags,maxlags+1)
         c = c[Nx-1-maxlags:Nx+maxlags]
-        
-        
+
+
         if usevlines:
             a = self.vlines(lags, [0], c, **kwargs)
             b = self.axhline(**kwargs)
@@ -4182,13 +4182,13 @@ class Axes(Artist):
 
           * alpha = 1.0 : the alpha blending value
 
-          * origin is either upper or lower, which indicates where the [0,0]
-            index of the array is in the upper left or lower left corner of
+          * origin is 'upper' or 'lower', to place the [0,0]
+            index of the array in the upper left or lower left corner of
             the axes.  If None, default to rc image.origin
 
-          * extent is a data xmin, xmax, ymin, ymax for making image plots
-            registered with data plots.  Default is the image dimensions
-            in pixels
+          * extent is (left, right, bottom, top) data values of the
+            axes.  The default assigns zero-based row, column indices
+            to the x, y centers of the pixels.
 
           * shape is for raw buffer images
 
