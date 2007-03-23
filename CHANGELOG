@@ -1,4 +1,7 @@
+
 2007-03-23 Made font_manager.py close opened files. - JKS
+
+2007-03-22 Made imshow default extent match matshow - EF
 
 2007-03-22 Some more niceties for xcorr -- a maxlags option, normed
            now works for xcorr as well as axorr, usevlines is
@@ -12,7 +15,6 @@
            Modified Axes.errorbar which uses vlines and hlines.  See
            API_CHANGES; the return signature for these three functions
            is now different
-
 
 2007-03-20 Refactored units support and added new examples - JDH
 

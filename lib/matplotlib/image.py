@@ -35,9 +35,9 @@ class AxesImage(Artist, cm.ScalarMappable):
         cmap is a colors.Colormap instance
         norm is a colors.Normalize instance to map luminance to 0-1
 
-        extent is a data xmin, xmax, ymin, ymax for making image plots
-        registered with data plots.  Default is the image dimensions
-        in pixels
+        extent is data axes (left, right, bottom, top) for making image plots
+        registered with data plots.  Default is to label the pixel
+        centers with the zero-based row and column indices.
 
         Additional kwargs are matplotlib.artist properties
 
@@ -85,7 +85,7 @@ class AxesImage(Artist, cm.ScalarMappable):
         self._imcache = None
 
         self.update(kwargs)
-        
+
     def get_size(self):
         'Get the numrows, numcols of the input image'
         if self._A is None:
@@ -111,7 +111,7 @@ class AxesImage(Artist, cm.ScalarMappable):
         self._imcache = None
         cm.ScalarMappable.changed(self)
 
-        
+
     def make_image(self, magnification=1.0):
         if self._A is None:
             raise RuntimeError('You must first set the image array or the image attribute')
@@ -184,7 +184,7 @@ class AxesImage(Artist, cm.ScalarMappable):
 
     def pick(self, mouseevent):
         'return true if the data coords of mouse click are within the extent of the image'
-        if not self.pickable(): return 
+        if not self.pickable(): return
         picker = self.get_picker()
         if callable(picker):
             hit, props = picker(self, mouseevent)
@@ -197,8 +197,8 @@ class AxesImage(Artist, cm.ScalarMappable):
             if (xdata is not None and ydata is not None and
                 xdata>=xmin and xdata<=xmax and ydata>=ymin and ydata<=ymax):
                 self.figure.canvas.pick_event(mouseevent, self)
-            
-        
+
+
     def write_png(self, fname, noscale=False):
         """Write the image to png file with fname"""
         im = self.make_image()
@@ -262,18 +262,15 @@ class AxesImage(Artist, cm.ScalarMappable):
         self._interpolation = s
 
     def get_extent(self):
-        'get the image extent: xmin, xmax, ymin, ymax'
+        'get the image extent: left, right, bottom, top'
         if self._extent is not None:
             return self._extent
         else:
             numrows, numcols = self.get_size()
-            iwidth, iheight = numcols, numrows
-            #return 0, width, 0, height
-            tmp, tmp, dwidth, dheight = self.axes.bbox.get_bounds()
-            sx = dwidth  / iwidth
-            sy = dheight / iheight
-
-            return 0, 1.0/sx*dwidth, 0, 1.0/sy*dheight
+            if self.origin == 'upper':
+                return (-0.5, numcols-0.5, numrows-0.5, -0.5)
+            else:
+                return (-0.5, numcols-0.5, -0.5, numrows-0.5)
 
     def set_filternorm(self, filternorm):
         """Set whether the resize filter norms the weights -- see
