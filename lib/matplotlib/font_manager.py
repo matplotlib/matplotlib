@@ -39,6 +39,10 @@ from matplotlib import afm
 from matplotlib import ft2font
 from matplotlib import rcParams, get_home, get_configdir
 
+try:
+    import cPickle as pickle
+except ImportError:
+    import pickle
 
 verbose = matplotlib.verbose
 
@@ -446,9 +450,17 @@ def createFontDict(fontfiles, fontext='ttf'):
         else: seen[fname] = 1
         if fontext == 'afm':
             try:
-                font = afm.AFM(file(fpath))
+                fh = open(fpath)
+            except:
+                verbose.report("Could not open font file %s" % fpath)
+                continue
+            try:
+                try:
+                    font = afm.AFM(fh)
+                finally:
+                    fh.close()
             except RuntimeError:
-                verbose.report("Could not open font file %s"%fpath)
+                verbose.report("Could not parse font file %s"%fpath)
                 continue
             prop = afmFontProperty(font)
         else:
@@ -765,6 +777,25 @@ def ttfdict_to_fnames(d):
                             fnames.append(fname)
     return fnames
 
+def pickle_dump(data, filename):
+    """Equivalent to pickle.dump(data, open(filename, 'w'))
+    but closes the file to prevent filehandle leakage."""
+    fh = open(filename, 'w')
+    try:
+        pickle.dump(data, fh)
+    finally:
+        fh.close()
+
+def pickle_load(filename):
+    """Equivalent to pickle.load(open(filename, 'r'))
+    but closes the file to prevent filehandle leakage."""
+    fh = open(filename, 'r')
+    try:
+        data = pickle.load(fh)
+    finally:
+        fh.close()
+    return data
+
 class FontManager:
     """
     On import, the FontManager creates a dictionary of TrueType
@@ -820,18 +851,13 @@ Delete this file to have matplotlib rebuild the cache."""
             print >> sys.stderr, 'Moving old ttfcache location "%s" to new location "%s"'%(oldcache, ttfcache)
             shutil.move(oldcache, ttfcache)
 
-        try:
-            import cPickle as pickle
-        except ImportError:
-            import pickle
-
         def rebuild():
             self.ttfdict = createFontDict(self.ttffiles)
-            pickle.dump(self.ttfdict, file(ttfcache, 'w'))
+            pickle_dump(self.ttfdict, ttfcache)
             verbose.report(cache_message % ttfcache)
 
         try:
-            self.ttfdict = pickle.load(file(ttfcache))
+            self.ttfdict = pickle_load(ttfcache)
         except:
             rebuild()
         else:
@@ -972,11 +998,6 @@ Delete this file to have matplotlib rebuild the cache."""
         return self.defaultFont
 
     def _get_afm_font_dict(self):
-        try:
-            import cPickle as pickle
-        except ImportError:
-            import pickle
-        
         cache_message = "Saving AFM font cache for PS and PDF backends to %s.\n" \
                         "Delete this file to have matplotlib rebuild the cache."
         
@@ -989,21 +1010,21 @@ Delete this file to have matplotlib rebuild the cache."""
             # ZapfDingbats.
             afmcache = os.path.join(get_configdir(), 'pdfcorefont.cache')
             try:
-                fontdict = pickle.load(file(afmcache))
+                fontdict = pickle_load(afmcache)
             except:
                 afmpath = os.path.join(rcParams['datapath'],'fonts','pdfcorefonts')
                 afmfiles = findSystemFonts(afmpath, fontext='afm')
                 fontdict = createFontDict(afmfiles, fontext='afm')
-                pickle.dump(fontdict, file(afmcache, 'w'))
+                pickle_dump(fontdict, afmcache)
                 verbose.report(cache_message % afmcache)
         else:
             # Load all available AFM fonts
             afmcache = os.path.join(get_configdir(), '.afmfont.cache')
             try:
-                fontdict = pickle.load(file(afmcache))
+                fontdict = pickle_load(afmcache)
             except:
                 fontdict = createFontDict(self.afmfiles, fontext='afm')
-                pickle.dump(fontdict, file(afmcache, 'w'))
+                pickle_dump(fontdict, afmcache)
                 verbose.report(cache_message % afmcache)
         
         return fontdict
