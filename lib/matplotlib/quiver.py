@@ -368,7 +368,7 @@ class Quiver(PolyCollection):
 
     def _make_verts(self, U, V):
         uv = U+V*1j
-        uv = nx.ravel(nx.ma.filled(uv, nx.nan))
+        uv = nx.ravel(uv)
         a = nx.absolute(uv)
         if self.scale is None:
             sn = max(10, math.sqrt(self.N))
