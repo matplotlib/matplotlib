@@ -368,11 +368,21 @@ class Quiver(PolyCollection):
 
     def _make_verts(self, U, V):
         uv = U+V*1j
-        uv = nx.ravel(uv)
+        uv = nx.ravel(nx.ma.filled(uv,nx.nan))
         a = nx.absolute(uv)
         if self.scale is None:
             sn = max(10, math.sqrt(self.N))
-            scale = 1.8 * nx.average(a) * sn # crude auto-scaling
+
+            # get valid values for average
+            # (complicated by support for 3 array packages)
+            a_valid_cond = ~nx.isnan(a)
+            a_valid_idx = nx.nonzero(a_valid_cond)
+            if isinstance(a_valid_idx,tuple):
+                # numpy.nonzero returns tuple
+                a_valid_idx = a_valid_idx[0]
+            valid_a = nx.take(a,a_valid_idx)
+            
+            scale = 1.8 * nx.average(valid_a) * sn # crude auto-scaling
             scale = scale/self.span
             self.scale = scale
         length = a/(self.scale*self.width)
