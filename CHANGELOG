@@ -1,3 +1,6 @@
+2007-03-25 Fix masked array handling in quiver.py for numpy. (Numeric
+           and numarray support for masked arrays is broken in other
+           ways when using quiver. I didn't pursue that.) - ADS
 
 2007-03-23 Made font_manager.py close opened files. - JKS
 
