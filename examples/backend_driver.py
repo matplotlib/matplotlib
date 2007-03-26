@@ -134,8 +134,8 @@ if __name__ == '__main__':
     #backends = ['Agg', 'PS', 'SVG', 'Template']
     # backends = [ 'GTK', 'WX', 'TkAgg']
     default_backends = ['Agg', 'PS', 'SVG', 'Template']
-    #default_backends = ['Agg']
-    #backends = ['Agg']
+    default_backends = ['Agg']
+    backends = ['Agg']
     if sys.platform == 'win32':
         python = r'c:\Python24\python.exe'
     else:

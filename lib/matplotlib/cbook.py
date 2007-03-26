@@ -5,9 +5,62 @@ from the Python Cookbook -- hence the name cbook
 from __future__ import generators
 import re, os, errno, sys, StringIO, traceback
 
+try: set
+except NameError:
+    from sets import Set as set
 
 major, minor1, minor2, s, tmp = sys.version_info
 
+class CallbackRegistry:
+    """
+    Handle registering and disconnecting for a set of signals and
+    callbacks
+    """
+    def __init__(self, signals):
+        'signals is a sequence of valid signals'
+        self.signals = set(signals)
+        # callbacks is a dict mapping the signal to a dictionary
+        # mapping callback id to the callback function
+        self.callbacks = dict([(s, dict()) for s in signals])
+        self._cid = 0
+
+    def _check_signal(self, s):
+        'make sure s is a valid signal or raise a ValueError'
+        if s not in self.signals:
+            signals = list(self.signals)
+            signals.sort()
+            raise ValueError('Unknown signal "%s"; valid signals are %s'%(s, signals))
+
+    def connect(self, s, func):
+        """
+        register func to be called when a signal s is generated
+        func will be called with args and kwargs
+        """
+        self._check_signal(s)
+        self.callbacks[s][self._cid] = func
+        self._cid +=1
+        return self._cid
+
+    def disconnect(self, cid):
+        """
+        disconnect the callback registered with callback id cid
+        """
+        for eventname, callbackd in self.callbacks.items():
+            try: del callbackd[cid]
+            except KeyError: continue
+            else: return 
+
+    def process(self, s, *args, **kwargs):
+        """
+        process signal s.  All of the functions registered to receive
+        callbacks on s will be called with *args and **kwargs
+        """
+        self._check_signal(s)
+        for func in self.callbacks[s].values():
+            func(*args, **kwargs)
+        
+        
+                   
 class silent_list(list):
     """
     override repr when returning a list of matplotlib artists to

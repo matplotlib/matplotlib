@@ -50,7 +50,10 @@ def parse_yahoo_historical(fh, asobject=False, adjusted=True):
 
         if len(vals)!=7: continue
         datestr = vals[0]
+        #try:
         dt = datetime.date(*time.strptime(datestr, '%Y-%m-%d')[:3])
+        #except ValueError:
+        #    dt = datetime.date(*time.strptime(datestr, '%d-%b-%y')[:3])            
         d = date2num(dt)
         open, high, low, close =  [float(val) for val in vals[1:5]]
         volume = int(vals[5])

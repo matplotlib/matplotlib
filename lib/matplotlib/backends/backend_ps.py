@@ -482,6 +482,7 @@ grestore
         step = 500
         start = 0
         end = step
+
         mask = where(isnan(x) + isnan(y), 0, 1)
 
         cliprect = gc.get_clip_rectangle()
@@ -525,6 +526,7 @@ grestore
         step = 100000
         start = 0
         end = step
+
         skip = where(isnan(x) + isnan(y), 1, 0)
         points = zip(x,y,skip)
 

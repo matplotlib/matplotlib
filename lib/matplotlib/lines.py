@@ -22,9 +22,6 @@ from colors import colorConverter
 
 from transforms import lbwh_to_bbox, LOG10
 from matplotlib import rcParams
-
-import matplotlib.units as units
-
 TICKLEFT, TICKRIGHT, TICKUP, TICKDOWN = range(4)
 
 def unmasked_index_ranges(mask, compressed = True):
@@ -169,11 +166,9 @@ class Line2D(Artist):
           solid_joinstyle: ['miter' | 'round' | 'bevel']
           transform: a matplotlib.transform transformation instance
           visible: [True | False]
-          xunits: a unit key
           xdata: array
           ydata: array
           zorder: any number
-          yunits: a unit key
         """
         Artist.__init__(self)
 
@@ -207,9 +202,6 @@ class Line2D(Artist):
         self.set_solid_capstyle(solid_capstyle)
         self.set_solid_joinstyle(solid_joinstyle)
 
-        self._cache_inputs = {'figure':None,
-                              '_x_orig':None,
-                              '_y_orig':None}
 
         self.set_linestyle(linestyle)
         self.set_linewidth(linewidth)
@@ -227,11 +219,12 @@ class Line2D(Artist):
 
         self.verticalOffset = None
 
-        self.set_data(xdata, ydata)
-
-        self._logcache = None
-
+        # update kwargs before updating data to give the caller a
+        # chance to init axes (and hence unit support) 
         if len(kwargs): setp(self, **kwargs)
+
+        self.set_data(xdata, ydata)
+        self._logcache = None
 
     def pick(self, mouseevent):
         """
@@ -298,6 +291,11 @@ class Line2D(Artist):
         return lbwh_to_bbox( left, bottom, width, height)
 
 
+    def set_axes(self, ax):
+        Artist.set_axes(self, ax)
+        self._xcid = ax.xaxis.callbacks.connect('units', self.recache)
+        self._ycid = ax.yaxis.callbacks.connect('units', self.recache)
+        
     def set_data(self, *args):
         """
         Set the x and y data
@@ -310,35 +308,13 @@ class Line2D(Artist):
         else:
             x, y = args
 
-        self._x_orig = x
-        self._y_orig = y
+        self._xorig = x
+        self._yorig = y
+        self.recache()
 
-    def _update_x_y_logcache(self):
-        # check cache
-        needupdate = False 
-
-        for key, var_id in self._cache_inputs.iteritems():
-            if (id(getattr(self, key)) != var_id):
-                needupdate = True
-                break
-        #except: needupdate = True  ### XXX unconditional except catching prohibited
-             
-        if not needupdate:
-            return
-
-        # update cache
-        for key in self._cache_inputs.keys():
-            self._cache_inputs[key] = id(getattr(self, key))
-
-        # make sure that result values exist and release
-        # previous values
-        self._cached_x = None
-        self._cached_y = None
-        self._cached_segments = None
-        self._cached_logcache = None
-
-        x = units.manager.convert(self._x_orig, self._xunits)
-        y = units.manager.convert(self._y_orig, self._yunits)
+    def recache(self):
+        x = asarray(self.convert_xunits(self._xorig), Float)
+        y = asarray(self.convert_yunits(self._yorig), Float)
 
         x = ma.ravel(x)
         y = ma.ravel(y)
@@ -356,25 +332,16 @@ class Line2D(Artist):
         if mask is not ma.nomask:
             x = ma.masked_array(x, mask=mask).compressed()
             y = ma.masked_array(y, mask=mask).compressed()
-            self._cached_segments = unmasked_index_ranges(mask)
+            self._segments = unmasked_index_ranges(mask)
         else:
-            self._cached_segments = None
+            self._segments = None
 
-        self._cached_x = asarray(x, Float)
-        self._cached_y = asarray(y, Float)
+        self._x = asarray(x, Float)
+        self._y = asarray(y, Float)
 
-        self._cached_logcache = None
+        self._logcache = None
 
-    def _get_cached_variable(name):
-        def _get_value(self):
-            self._update_x_y_logcache()
-            return getattr(self, '_cached' + name)
-        return _get_value
 
-    _x = property(_get_cached_variable('_x'), None, None)
-    _y = property(_get_cached_variable('_y'), None, None)
-    _segments = property(_get_cached_variable('_segments'), None, None)
-    _logcache = property(_get_cached_variable('_logcache'), None, None)
 
     def _is_sorted(self, x):
         "return true if x is sorted"
@@ -490,24 +457,23 @@ class Line2D(Artist):
     def get_markerfacecolor(self): return self._markerfacecolor
     def get_markersize(self): return self._markersize
 
-    def get_xdata(self, valid_only = False, orig=False):
-        if valid_only:
-            return self._x
-
+    def get_xdata(self, orig=True):
+        """
+        return the xdata; if orig is true return the original data,
+        else the processed data
+        """
         if orig:
-            return self._x_orig
-        else:
-            return units.manager.convert(self._x_orig, self._xunits)
+            return self._xorig
+        return self._x
 
-    def get_ydata(self, valid_only=False, orig=False):
-        if valid_only:
-            return self._y
+    def get_ydata(self, orig=True):
+        """
+        return the ydata; if orig is true return the original data,
+        else the processed data
+        """
         if orig:
-            return self._y_orig
-        else:
-            return units.manager.convert(self._y_orig, self._yunits)
-
-
+            return self._yorig
+        return self._y
 
     def set_antialiased(self, b):
         """
@@ -598,7 +564,6 @@ class Line2D(Artist):
         """
         self._markersize = sz
 
-
     def set_xdata(self, x):
         """
         Set the data array for x
@@ -608,7 +573,7 @@ class Line2D(Artist):
         try: del self._xsorted
         except AttributeError: pass
 
-        self.set_data(x, self._y_orig)
+        self.set_data(x, self.get_ydata())
 
     def set_ydata(self, y):
         """
@@ -617,7 +582,7 @@ class Line2D(Artist):
         ACCEPTS: array
         """
 
-        self.set_data(self._x_orig, y)
+        self.set_data(self.get_xdata(), y)
 
 
     def set_dashes(self, seq):

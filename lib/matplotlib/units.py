@@ -1,36 +1,105 @@
+"""
+The classes here provide support for using custom classes with
+matplotlib, eg those that do not expose the array interface but know
+how to converter themselves to arrays.  It also supoprts classes with
+units and units conversion.  Use cases include converters for custom
+objects, eg a list of datetime objects, as well as for objects that
+are unit aware.  We don't assume any particular units implementation,
+rather a units implementation must provide a ConversionInterface, and
+the register with the Registry converter dictionary.  For example,
+here is a complete implementation which support plotting with native
+datetime objects
+
+
+    import matplotlib.units as units
+    import matplotlib.dates as dates
+    import matplotlib.ticker as ticker
+    import datetime
+
+    class DateConverter(units.ConversionInterface):
+
+        def convert(value, unit):
+            'convert value to a scalar or array'
+            return dates.date2num(value)
+        convert = staticmethod(convert)
+
+        def axisinfo(unit):
+            'return major and minor tick locators and formatters'
+            if unit!='date': return None
+            majloc = dates.AutoDateLocator()
+            majfmt = dates.AutoDateFormatter(majloc)
+            return AxisInfo(majloc=majloc,
+                            majfmt=majfmt,
+                            label='date')
+        axisinfo = staticmethod(axisinfo)
+
+
+        def default_units(x):
+            'return the default unit for x or None'
+            return 'date'
+        default_units = staticmethod(default_units)
+
+    # finally we register our object type with a converter
+    units.registry[datetime.date] = DateConverter()
+
+"""
 import matplotlib
 from matplotlib.cbook import iterable, flatten
 
+class AxisInfo:
+    'information to support default axis labeling and tick labeling'
+    def __init__(self, majloc=None, minloc=None,
+                 majfmt=None, minfmt=None, label=None):
+        """
+        majloc and minloc: TickLocators for the major and minor ticks
+        majfmt and minfmt: TickFormatters for the major and minor ticks
+        label: the default axis label
 
+        If any of the above are None, the axis will simply use the default
+        """
+        self.majloc = majloc
+        self.minloc = minloc
+        self.majfmt = majfmt
+        self.minfmt = minfmt
+        self.label = label
+
+        
 class ConversionInterface:
-
-    def tickers(x, unit):
-        'return (majorloc, minorloc, majorfmt, minorfmt) or None to accept defaults'
+    """
+    The minimal interface for a converter to take custom instances (or
+    sequences) and convert them to values mpl can use
+    """
+    def axisinfo(unit):
+        'return an units.AxisInfo instance for unit'
         return None
-    tickers = staticmethod(tickers)
+    axisinfo = staticmethod(axisinfo)
 
-    def convert_to_value(obj, unit):
+    def default_units(x):
+        'return the default unit for x or None'
+        return None
+    default_units = staticmethod(default_units)
+
+    def convert(obj, unit):
         """
         convert obj using unit.  If obj is a sequence, return the
-        converted sequence
+        converted sequence.  The ouput must be a sequence of scalars
+        that can be used by the numerix array layer
         """
         return obj
-    convert_to_value = staticmethod(convert_to_value)
+    convert = staticmethod(convert)
     
-    
-class UnitsManager:
+class Registry(dict):
     """
-    manage unit conversion.
-
-    attribute converters is a dict mapping object class-> conversion interface
+    register types with conversion interface
     """
     def __init__(self):
-        self.converters = {}
+        dict.__init__(self)
         self._cached = {}
 
     def get_converter(self, x):
-        'get the converter interface for x, if any'
+        'get the converter interface instance for x, or None'
 
+        if not len(self): return None # nothing registered
         idx = id(x)
         cached = self._cached.get(idx)
         if cached is not None: return cached
@@ -39,50 +108,19 @@ class UnitsManager:
         classx = getattr(x, '__class__', None)
                 
         if classx is not None:            
-            converter = self.converters.get(classx)
+            converter = self.get(classx)
 
         if converter is None and iterable(x):
             for thisx in x:
                 classx = getattr(thisx, '__class__', None)
                 break
             if classx is not None:            
-                converter = self.converters.get(classx)
+                converter = self.get(classx)
 
-        if converter is not None:
-            self._cached[idx] = converter
+
+        self._cached[idx] = converter
         return converter
-        
-        
-    def convert(self, x, unit):
-        converter = self.get_converter(x)
-        if converter is not None:
-            return converter.convert_to_value(x, unit)
-        return x
+                
 
-    def tickers(self, x, unit):
-        converter = self.get_converter(x)
-        if converter is not None:
-            return converter.tickers(x, unit)
-        return None
-
-class DonothingManager:
-
-    def __init__(self):
-        self.converters = {}
-
-    def get_converter(self, x):
-        'get the converter interface for x, if any'
-        return None
-        
-    def convert(self, x, unit):
-        return x
-
-    def tickers(self, x, unit):
-        return None
-
-
-if matplotlib.rcParams['units']:
-    manager = UnitsManager()
-else:
-    manager = DonothingManager()
+registry = Registry()
     

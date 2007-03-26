@@ -1,3 +1,17 @@
+    Line2D.get_xdata and get_ydata valid_only=False kwarg is replaced
+    by orig=True.  When True, it returns the original data, otherwise
+    the processed data (masked, converted)
+    
+    Some modifications to the units interface.
+    units.ConversionInterface.tickers renamed to
+    units.ConversionInterface.axisinfo and it now returns a
+    units.AxisInfo object rather than a tuple.  This will make it
+    easier to add axis info functionality (eg I added a default label
+    on this iteration) w/o having to change the tuple length and hence
+    the API of the client code everytime new functionality is added.
+    Also, units.ConversionInterface.convert_to_value is now simply
+    named units.ConversionInterface.convert.
+     
     Axes.errorbar uses Axes.vlines and Axes.hlines to draw its error
     limits int he vertical and horizontal direction.  As you'll see
     in the changes below, these funcs now return a LineCollection

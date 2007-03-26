@@ -12,7 +12,7 @@ from numerix import arange, array, asarray, ones, zeros, \
      dot, sin, cos, tan, pi, sqrt
 
 from artist import Artist, setp
-from cbook import enumerate, silent_list, popall
+from cbook import enumerate, silent_list, popall, CallbackRegistry
 from lines import Line2D, TICKLEFT, TICKRIGHT, TICKUP, TICKDOWN
 from mlab import linspace
 from matplotlib import rcParams
@@ -26,6 +26,7 @@ from font_manager import FontProperties
 from text import Text, TextWithDash, _process_text_args
 from patches import bbox_artist
 
+import matplotlib.units as units
 #import pdb
 
 
@@ -479,12 +480,14 @@ class Ticker:
     formatter = None
 
 
+
 class Axis(Artist):
 
     """
     Public attributes
       transData - transform data coords to display coords
       transAxis - transform axis coords to display coords
+
 
     """
     LABELPAD = 5
@@ -500,6 +503,8 @@ class Axis(Artist):
         self.axes = axes
         self.major = Ticker()
         self.minor = Ticker()
+        self.callbacks = CallbackRegistry(('units',))
+        
         #class dummy:
         #    locator = None
         #    formatter = None
@@ -553,6 +558,11 @@ class Axis(Artist):
         self.majorTicks.extend([self._get_tick(major=True)  for i in range(1)])
         self.minorTicks.extend([self._get_tick(major=False) for i in range(1)])
 
+        self.converter = None
+        self.units = None
+        self.set_units(None)
+
+        
     def get_view_interval(self):
         'return the Interval instance for this axis view limits'
         raise NotImplementedError('Derived must override')
@@ -770,6 +780,71 @@ class Axis(Artist):
                 tick.gridOn = self._gridOnMajor
                 if len(kwargs): setp(tick.gridline,**kwargs)
 
+        
+    def update_units(self, data):
+        """
+        introspect data for units converter and update the
+        axis.converter instance if necessary. Return true is data is
+        registered for unit conversion
+        """
+
+        self.converter = units.registry.get_converter(data)
+        if self.converter is None: return False
+        default = self.converter.default_units(data)
+        if default is not None and self.units is None:
+            self.set_units(default)
+        self._update_axisinfo()
+        return True
+
+    def _update_axisinfo(self):
+        """
+        check the axis converter for the stored units to see if the
+        axis info needs to be updated
+        """
+        
+        if self.converter is None:
+            return
+
+        info = self.converter.axisinfo(self.units)
+        if info is None:
+            return 
+        if info.majloc is not None and self.major.locator!=info.majloc:
+            self.set_major_locator(info.majloc)
+        if info.minloc is not None and self.minor.locator!=info.minloc:
+            self.set_minor_locator(info.minloc)
+        if info.majfmt is not None and self.major.formatter!=info.majfmt:
+            self.set_major_formatter(info.majfmt)
+        if info.minfmt is not None and self.minor.formatter!=info.minfmt:
+            self.set_minor_formatter(info.minfmt)
+        if info.label is not None:
+            label = self.get_label()
+            label.set_text(info.label)
+        
+    def convert_units(self, x):
+        if self.converter is None: return x        
+        return self.converter.convert(x, self.units)
+    
+    def set_units(self, u):
+        """
+        set the units for axis
+
+        ACCEPTS: a units tag
+        """
+        pchanged = False
+        if u is None:
+            self.units = None
+            self.converter = None
+            pchanged = True
+        else:
+            if u!=self.units:
+                self.units = u
+                self._update_axisinfo()
+                pchanged = True
+        if pchanged: self.callbacks.process('units')
+        
+    def get_units(self):
+        'return the units for axis'
+        return self.units
 
     def set_major_formatter(self, formatter):
         """

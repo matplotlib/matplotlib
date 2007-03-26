@@ -9,7 +9,6 @@ from colors import colorConverter
 from lines import Line2D
 from transforms import bound_vertices
 import matplotlib.nxutils as nxutils
-import matplotlib.units as units
 
 from numerix.mlab import amin
 from mlab import dist_point_to_segment
@@ -314,14 +313,14 @@ class Shadow(Patch):
         xs = self.patch.get_xdata(orig=True)
         xs = [x+self.ox for x in xs]
         if orig: return xs
-        else: return units.manager.convert(xs, self._xunits)
+        else: return self.convert_xunits(xs)
         
     def get_ydata(self, orig=False):
         'get the y data in orig or (possibly converted) format'
         ys = self.patch.get_ydata(orig=True)
         ys = [y+self.oy for y in ys]
         if orig: return ys
-        else: return units.manager.convert(ys, self._yunits)
+        else: return self.convert_yunits(ys)
 
     def get_verts(self):
         verts = self.patch.get_verts()
@@ -367,14 +366,14 @@ class Rectangle(Patch):
         right = left + self.width
 
         if orig: return left, right
-        else: return units.manager.convert((left, right), self._xunits)
+        else: return self.convert_xunits((left, right))
         
     def get_ydata(self, orig=False):
         'get the y data in orig or (possibly converted) format'
         left, bottom = self.xy
         top = bottom + self.height
         if orig: return bottom, top
-        else: return units.manager.convert((bottom, top), self._yunits)
+        else: return self.convert_yunits((bottom, top))
 
     def get_verts(self):
         """
@@ -480,14 +479,14 @@ class RegularPolygon(Patch):
         # defined but the center is
         x, y = self.xy
         if orig: return x
-        else: return units.manager.convert(x, self._xunits)
+        else: return self.convert_xunits(x)
         
     def get_ydata(self, orig=False):
         'get the y data in orig or (possibly converted) format'
         x, y = self.xy
 
         if orig: return y
-        else: return units.manager.convert(y, self._yunits)
+        else: return self.convert_yunits(y)
 
 
     def get_verts(self):
@@ -496,8 +495,8 @@ class RegularPolygon(Patch):
         r = self.radius
         x, y = self.x, self.y
 
-        x = units.manager.convert(x, self._xunit)
-        y = units.manager.convert(y, self._yunit)
+        x = self.convert_xunits(x)
+        y = self.convert_yunits(y)
 
         xs = x + r*cos(theta)
         ys = y + r*sin(theta)
@@ -532,18 +531,18 @@ class Polygon(Patch):
         xs, ys = zip(*self.xy)
         if orig: return xs
         else:
-            return units.manager.convert(xs, self._xunits)
+            return self.convert_xunits(xs)
         
     def get_ydata(self, orig=False):
         'get the y data in orig or (possibly converted) format'
         xs, ys = zip(*self.xy)
         if orig: return xs
-        else: return units.manager.convert(ys, self._yunits)
+        else: return self.convert_yunits(ys)
 
     def get_verts(self):
         xs, ys = zip(*self.xy)
-        xs = units.manager.convert(xs, self._xunits)
-        ys = units.manager.convert(ys, self._yunits)
+        xs = self.convert_xunits(xs)
+        ys = self.convert_yunits(ys)
         return zip(xs, ys)
 
 
@@ -705,7 +704,7 @@ class YAArrow(Polygon):
         x2, y2 = self.xybase
 
         if orig: return x1, x2
-        else: return units.manager.convert((x1, x2), self._xunits)
+        else: return self.convert_xunits((x1, x2))
         
     def get_ydata(self, orig=False):
         'get the y data in orig or (possibly converted) format'
@@ -715,7 +714,7 @@ class YAArrow(Polygon):
         x2, y2 = self.xybase
 
         if orig: return y1, y2
-        else: return units.manager.convert((y1, t2), self._yunits)
+        else: return self.convert_yunits((y1, y2))
 
     def get_verts(self):
         # the base vertices
@@ -817,7 +816,7 @@ class Ellipse(Patch):
         l,r = x-self.width/2.0, x+self.width/2.0
 
         if orig: return x, l, r
-        else: return units.manager.convert((x,l,r), self._xunits)
+        else: return self.convert_xunits((x,l,r))
         
     def get_ydata(self, orig=False):
         'get the y data in orig or (possibly converted) format'
@@ -825,7 +824,7 @@ class Ellipse(Patch):
         b,t = y-self.height/2.0, y+self.height/2.0
 
         if orig: return y,b,t
-        else: return units.manager.convert((y,b,t), self._xunits)
+        else: return self.convert_yunits((y,b,t))
     
     def get_verts(self):
         """
@@ -835,8 +834,8 @@ class Ellipse(Patch):
         x,y = self.center
         l,r = x-self.width/2.0, x+self.width/2.0
         b,t = y-self.height/2.0, y+self.height/2.0
-        x,l,r = units.manager.convert((x,l,r), self._xunit)
-        y,b,t = units.manager.convert((y,b,t), self._yunit)
+        x,l,r = self.convert_xunits((x,l,r))
+        y,b,t = self.convert_yunits((y,b,t))
         return array(((x,y),(l,y),(x,t),(r,y),(x,b)), Float)
 
     def draw(self, renderer):

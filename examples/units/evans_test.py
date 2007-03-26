@@ -17,18 +17,20 @@ class Foo:
 
 class FooConverter:
 
-    def tickers(x, unit):
-        'return (majorloc, minorloc, majorfmt, minorfmt) or None to accept defaults'
+    def axisinfo(unit):
+        'return the Foo AxisInfo'
         if unit==1.0 or unit==2.0:
-            majloc = ticker.IndexLocator( 4, 0 )
-            majfmt = ticker.FormatStrFormatter("VAL: %s")
-            minloc = ticker.NullLocator()
-            minfmt = ticker.NullFormatter()
-            return majloc, minloc, majfmt, minfmt
-        else: return None
-    tickers = staticmethod(tickers)
+            return units.AxisInfo(
+                majloc = ticker.IndexLocator( 4, 0 ),
+                majfmt = ticker.FormatStrFormatter("VAL: %s"),
+                label='foo',
+                )
 
-    def convert_to_value(obj, unit):
+        else:
+            return None
+    axisinfo = staticmethod(axisinfo)
+
+    def convert(obj, unit):
         """
         convert obj using unit.  If obj is a sequence, return the
         converted sequence
@@ -38,9 +40,18 @@ class FooConverter:
             return [o.value(unit) for o in obj]
         else:
             return obj.value(unit)
-    convert_to_value = staticmethod(convert_to_value)
+    convert = staticmethod(convert)
 
-units.manager.converters[Foo] = FooConverter()
+    def default_units(x):
+        'return the default unit for x or None'
+        if iterable(x):
+            for thisx in x:
+                return thisx.unit
+        else:
+            return x.unit
+    default_units = staticmethod(default_units)
+
+units.registry[Foo] = FooConverter()
 
 # create some Foos
 x = []
@@ -62,9 +73,14 @@ for label in ax.get_xticklabels():
 
 #fig.savefig('plot1.png')
 
-# plot without specifying units; will use the None branch for tickers
+# plot without specifying units; will use the None branch for axisinfo
 fig2 = figure()
 ax = fig2.add_subplot(111)
-ax.plot( x, y )
+ax.plot( x, y ) # uses default units
 #p.savefig('plot2.png')
+
+fig3 = figure()
+ax = fig3.add_subplot(111)
+ax.plot( x, y, xunits=0.5)
+
 show()

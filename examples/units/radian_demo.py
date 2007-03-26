@@ -7,11 +7,9 @@ fig = figure()
 
 ax = fig.add_subplot(211)
 ax.plot(x, nx.cos(x), xunits=radians)
-ax.set_xlabel('radians')
 
 ax = fig.add_subplot(212)
 ax.plot(x, nx.cos(x), xunits=degrees)
-ax.set_xlabel('degrees')
 
 show()
 

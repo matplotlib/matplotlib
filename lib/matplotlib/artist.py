@@ -46,10 +46,36 @@ class Artist:
         self.eventson = False  # fire events only if eventson
         self._oid = 0  # an observer id
         self._propobservers = {} # a dict from oids to funcs
+        self.axes = None
 
-        self._xunits = None
-        self._yunits = None
+    def convert_xunits(self, x):
+        """for artists in an axes, if the xaxis as units support,
+        convert x using xaxis unit type
+        """
+        ax = self.axes
+        if ax is None or ax.xaxis is None: return x
+        return ax.xaxis.convert_units(x)
         
+    def convert_yunits(self, y):
+        """for artists in an axes, if the yaxis as units support,
+        convert y using yaxis unit type
+        """
+        ax = self.axes
+        if ax is None or ax.yaxis is None: return y
+        return ax.yaxis.convert_units(y)
+
+    def set_axes(self, axes):
+        """
+        set the axes instance the artist resides in, if any
+
+        ACCEPTS: an axes instance
+        """
+        self.axes = axes
+
+    def get_axes(self):
+        'return the axes instance the artist resides in, or None'
+        return self.axes
+    
     def add_callback(self, func):
         oid = self._oid
         self._propobservers[oid] = func
@@ -292,29 +318,6 @@ class Artist:
         self.pchanged()
 
 
-    def set_xunits(self, xunits):
-        """
-        set the x units
-
-        ACCEPTS: a units key
-        """              
-        self._xunits = xunits
-        
-    def get_xunits(self):
-        'return the xunits key'
-        return self._xunits
-
-    def set_yunits(self, yunits):
-        """
-        set the x units
-
-        ACCEPTS: a units key
-        """              
-        self._yunits = yunits
-        
-    def get_yunits(self):
-        'return the y units key'
-        return self._yunits
 
     def get_zorder(self): return self.zorder
 
