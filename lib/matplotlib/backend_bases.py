@@ -6,7 +6,7 @@ graphics contexts must implement to serve as a matplotlib backend
 from __future__ import division
 import sys, warnings
 
-from cbook import is_string_like, enumerate, strip_math, Stack
+from cbook import is_string_like, enumerate, strip_math, Stack, CallbackRegistry
 from colors import colorConverter
 from numerix import array, sqrt, pi, log, asarray, ones, zeros, Float, Float32
 from numerix import arange, compress, take, isnan, any
@@ -848,22 +848,24 @@ class FigureCanvasBase:
 
       figure - A Figure instance
 
-    """
+      """
     events = (
+        'resize_event',
+        'draw_event',
         'key_press_event',
         'key_release_event',
         'button_press_event',
         'button_release_event',
         'motion_notify_event',
         'pick_event', 
-              )
+        )
+
 
     def __init__(self, figure):
         figure.set_canvas(self)
         self.figure = figure
-        self.cid = 0
         # a dictionary from event name to a dictionary that maps cid->func
-        self.callbacks = {}
+        self.callbacks = CallbackRegistry(self.events)
         self.widgetlock = widgets.LockDraw()
         self._button     = None  # the button pressed
         self._key        = None  # the key pressed
@@ -883,25 +885,25 @@ class FigureCanvasBase:
         pass
 
     def draw_event(self, renderer):
-        event = DrawEvent('draw_event', self, renderer)
-        for func in self.callbacks.get('draw_event', {}).values():
-            func(event)
+        s = 'draw_event'
+        event = DrawEvent(s, self, renderer)
+        self.callbacks.process(s, event)
 
     def resize_event(self):
-        event = ResizeEvent('resize_event', self)
-        for func in self.callbacks.get('resize_event', {}).values():
-            func(event)
+        s = 'resize_event'
+        event = ResizeEvent(s, self)
+        self.callbacks.process(s, event)
 
     def key_press_event(self, key, guiEvent=None):
         self._key = key
-        event = KeyEvent('key_press_event', self, key, self._lastx, self._lasty, guiEvent=guiEvent)
-        for func in self.callbacks.get('key_press_event', {}).values():
-            func(event)
+        s = 'key_press_event'
+        event = KeyEvent(s, self, key, self._lastx, self._lasty, guiEvent=guiEvent)
+        self.callbacks.process(s, event)
 
     def key_release_event(self, key, guiEvent=None):
-        event = KeyEvent('key_release_event', self, key, self._lastx, self._lasty, guiEvent=guiEvent)
-        for func in self.callbacks.get('key_release_event', {}).values():
-            func(event)
+        s = 'key_release_event'
+        event = KeyEvent(s, self, key, self._lastx, self._lasty, guiEvent=guiEvent)
+        self.callbacks.process(s, event)
         self._key = None
 
     def pick_event(self, mouseevent, artist, **kwargs):
@@ -909,9 +911,9 @@ class FigureCanvasBase:
         This method will be called by artists who are picked and will
         fire off PickEvent callbacks registered listeners
         """
-        event = PickEvent('pick_event', self, mouseevent, artist, **kwargs)
-        for func in self.callbacks.get('pick_event', {}).values():
-            func(event)
+        s = 'pick_event'
+        event = PickEvent(s, self, mouseevent, artist, **kwargs)
+        self.callbacks.process(s, event)
             
     def button_press_event(self, x, y, button, guiEvent=None):
         """
@@ -920,9 +922,10 @@ class FigureCanvasBase:
         button and key are as defined in MouseEvent
         """
         self._button = button
-        mouseevent = MouseEvent('button_press_event', self, x, y, button, self._key, guiEvent=guiEvent)
-        for func in self.callbacks.get('button_press_event', {}).values():
-            func(mouseevent)
+        s = 'button_press_event'
+        mouseevent = MouseEvent(s, self, x, y, button, self._key, guiEvent=guiEvent)
+        self.callbacks.process(s, mouseevent)
+
 
         if not self.widgetlock.locked():
             self.figure.pick(mouseevent)
@@ -933,10 +936,9 @@ class FigureCanvasBase:
         button release.  x,y are the canvas coords: 0,0 is lower, left.
         button and key are as defined in MouseEvent
         """
-
-        event = MouseEvent('button_release_event', self, x, y, button, self._key, guiEvent=guiEvent)
-        for func in self.callbacks.get('button_release_event', {}).values():
-            func(event)
+        s = 'button_release_event'
+        event = MouseEvent(s, self, x, y, button, self._key, guiEvent=guiEvent)
+        self.callbacks.process(s, event)
         self._button = None
 
     def motion_notify_event(self, x, y, guiEvent=None):
@@ -946,9 +948,10 @@ class FigureCanvasBase:
         button and key are as defined in MouseEvent
         """
         self._lastx, self._lasty = x, y
-        event = MouseEvent('motion_notify_event', self, x, y, self._button, self._key, guiEvent=guiEvent)
-        for func in self.callbacks.get('motion_notify_event', {}).values():
-            func(event)
+        s = 'motion_notify_event'
+        event = MouseEvent(s, self, x, y, self._button, self._key,
+                           guiEvent=guiEvent)
+        self.callbacks.process(s, event)
 
     def draw(self, *args, **kwargs):
         """
@@ -1011,24 +1014,6 @@ class FigureCanvasBase:
 
         where event is a MplEvent.  The following events are recognized
 
-         'resize_event'
-         'draw_event'
-         'key_press_event'
-         'key_release_event'
-         'button_press_event'
-         'button_release_event'
-         'motion_notify_event'
-
-         For the three events above, if the mouse is over the axes,
-         the variable event.inaxes will be set to the axes it is over,
-         and additionally, the variables event.xdata and event.ydata
-         will be defined.  This is the mouse location in data coords.
-         See backend_bases.MplEvent.
-
-        return value is a connection id that can be used with
-        mpl_disconnect """
-
-        legit = (
         'resize_event',
         'draw_event',
         'key_press_event',
@@ -1037,22 +1022,24 @@ class FigureCanvasBase:
         'button_release_event',
         'motion_notify_event',
         'pick_event', 
-        )
+        
+        
+        For the three events above, if the mouse is over the axes,
+        the variable event.inaxes will be set to the axes it is over,
+        and additionally, the variables event.xdata and event.ydata
+        will be defined.  This is the mouse location in data coords.
+        See backend_bases.MplEvent.
+        
+        return value is a connection id that can be used with
+        mpl_disconnect """
 
-        if s not in legit: raise ValueError('Unrecognized event "%s"'%s)
-        self.cid += 1
-        self.callbacks.setdefault(s, {})[self.cid] = func
-        return self.cid
+        return self.callbacks.connect(s, func)
 
     def mpl_disconnect(self, cid):
         """
-        Connect s to func. return an id that can be used with disconnect
-        Method should return None
+        disconnect callback id cid
         """
-        for eventname, callbackd in self.callbacks.items():
-            if callbackd.has_key(cid):
-                del callbackd[cid]
-                return
+        return self.callbacks.disconnect(cid)        
 
 
 class FigureManagerBase:

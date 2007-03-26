@@ -1152,6 +1152,7 @@ def tk_window_focus():
 verbose.report('matplotlib version %s'%__version__)
 verbose.report('verbose.level %s'%verbose.level)
 verbose.report('interactive is %s'%rcParams['interactive'])
+verbose.report('units is %s'%rcParams['units'])
 verbose.report('platform is %s'%sys.platform)
 verbose.report('loaded modules: %s'%sys.modules.keys(), 'debug')
 

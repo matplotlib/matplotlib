@@ -4,24 +4,31 @@ matplotlib.rcParams['units'] = True
 import matplotlib.units as units
 import matplotlib.dates as dates
 import matplotlib.ticker as ticker
-import basic_units
 import datetime
 
 class DateConverter(units.ConversionInterface):
 
-    def tickers(x, unit=None):
-        'return major and minor tick locators and formatters'
-        majloc = dates.AutoDateLocator()
-        minloc = ticker.NullLocator()
-        majfmt = dates.AutoDateFormatter(majloc)
-        minfmt = ticker.NullFormatter()
-        return majloc, minloc, majfmt, minfmt
-    tickers = staticmethod(tickers)
+    def axisinfo(unit):
+        'return the unit AxisInfo'
+        if unit=='date':
+            majloc = dates.AutoDateLocator()
+            majfmt = dates.AutoDateFormatter(majloc)
+            return units.AxisInfo(
+                majloc = majloc,
+                majfmt = majfmt,
+                label='date',
+                )
+        else: return None
+    axisinfo = staticmethod(axisinfo)
 
-    def convert_to_value(value, unit):
+    def convert(value, unit):
         return dates.date2num(value)
-    convert_to_value = staticmethod(convert_to_value)
+    convert = staticmethod(convert)
         
+    def default_units(x):
+        'return the default unit for x or None'
+        return 'date'
+    default_units = staticmethod(default_units)
 
-units.manager.converters[datetime.date] = DateConverter()
+units.registry[datetime.date] = DateConverter()
 

@@ -33,8 +33,6 @@ from legend import Legend
 from lines import Line2D, lineStyles, lineMarkers
 import lines
 
-import units
-
 from matplotlib.mlab import meshgrid, detrend_none, detrend_linear, \
      window_none, window_hanning, linspace, prctile
 from matplotlib.numerix.mlab import flipud, amin, amax, dot
@@ -139,7 +137,7 @@ def _process_plot_format(fmt):
     for c in chars:
         if lineStyles.has_key(c):
             if linestyle is not None:
-                raise ValueError, 'Illegal format string "%s"; two linestyle symbols' % fmt
+                raise ValueError, 'Illegal format str<ing "%s"; two linestyle symbols' % fmt
             linestyle = c
         elif lineMarkers.has_key(c):
             if marker is not None:
@@ -176,7 +174,8 @@ class _process_plot_var_args:
     an arbitrary number of x, y, fmt are allowed
     """
 
-    def __init__(self, command='plot'):
+    def __init__(self, axes, command='plot'):
+        self.axes = axes
         self.command = command
         self._clear_color_cycle()
 
@@ -205,6 +204,15 @@ class _process_plot_var_args:
 
     def __call__(self, *args, **kwargs):
         kwargs = kwargs.copy()
+
+        if self.axes.xaxis is not None and self.axes.xaxis is not None:
+            xunits = popd(kwargs, 'xunits', self.axes.xaxis.units)
+            yunits = popd(kwargs, 'yunits', self.axes.yaxis.units)        
+            if xunits!=self.axes.xaxis.units:
+                self.axes.xaxis.set_units(xunits)
+            if yunits!=self.axes.yaxis.units:
+                self.axes.yaxis.set_units(yunits)
+        
         ret =  self._grab_next_args(*args, **kwargs)
         return ret
 
@@ -227,21 +235,27 @@ class _process_plot_var_args:
             func(val)
 
     def _xy_from_y(self, y):
-        try: y = ma.asarray(y)
-        except TypeError: return None, None
-        except ValueError: return None, None        
+        if self.axes.yaxis is not None:
+            b = self.axes.yaxis.update_units(y)
+            if b: return arange(len(y)), y, False
+            
+        y = ma.asarray(y)
         if len(y.shape) == 1:
             y = y[:,newaxis]
         nr, nc = y.shape
         x = arange(nr)
-        return x,y
+        return x,y, True
 
     def _xy_from_xy(self, x, y):
-        try:
-            x = ma.asarray(x)
-            y = ma.asarray(y)
-        except TypeError: return None, None
-        except ValueError: return None, None        
+        if self.axes.xaxis is not None and self.axes.yaxis is not None:        
+            bx = self.axes.xaxis.update_units(x)
+            by = self.axes.yaxis.update_units(y)
+            # right now multicol is not supported if either x or y are
+            # unit enabled but this can be fixed..
+            if bx or by: return x, y, False 
+
+        x = ma.asarray(x)
+        y = ma.asarray(y)
         if len(x.shape) == 1:
             x = x[:,newaxis]
         if len(y.shape) == 1:
@@ -250,37 +264,35 @@ class _process_plot_var_args:
         nry, ncy = y.shape
         assert nrx == nry, 'Dimensions of x and y are incompatible'
         if ncx == ncy:
-            return x, y
+            return x, y, True
         if ncx == 1:
             x = repeat(x, ncy, axis=1)
         if ncy == 1:
             y = repeat(y, ncx, axis=1)
         assert x.shape == y.shape, 'Dimensions of x and y are incompatible'
-        return x, y
+        return x, y, True
 
 
     def _plot_1_arg(self, y, **kwargs):
         assert self.command == 'plot', 'fill needs at least 2 arguments'
         ret = []
 
-        yorig = y
-        x, y = self._xy_from_y(yorig)
-
-        multicol = x is not None and y is not None and y.shape[1]>1
+        x, y, multicol = self._xy_from_y(y)
 
         if multicol:
-
             for j in range(y.shape[1]):
                 color = self._get_next_cycle_color()
                 seg = Line2D(x, y[:,j],
                              color = color,
+                             axes=self.axes,
                           )
                 self.set_lineprops(seg, **kwargs)
                 ret.append(seg)
         else:
             color = self._get_next_cycle_color()
-            seg = Line2D(x, yorig,
+            seg = Line2D(x, y,
                          color = color,
+                         axes=self.axes,
                          )
             self.set_lineprops(seg, **kwargs)
             ret.append(seg)
@@ -292,13 +304,10 @@ class _process_plot_var_args:
         if is_string_like(tup2[1]):
 
             assert self.command == 'plot', 'fill needs at least 2 non-string arguments'
-            yorig, fmt = tup2
-            x, y = self._xy_from_y(yorig)
+            y, fmt = tup2
+            x, y, multicol = self._xy_from_y(y)
 
             linestyle, marker, color = _process_plot_format(fmt)
-
-            multicol = x is not None and y is not None and y.shape[1]>1
-
 
             def makeline(x, y):
                 _color = color
@@ -307,6 +316,7 @@ class _process_plot_var_args:
                 seg = Line2D(x, y,
                              color=_color,
                              linestyle=linestyle, marker=marker,
+                             axes=self.axes,
                              )
                 self.set_lineprops(seg, **kwargs)
                 ret.append(seg)
@@ -315,19 +325,19 @@ class _process_plot_var_args:
                 for j in range(y.shape[1]):
                     makeline(x[:,j], y[:,j])
             else:
-                makeline(x, yorig)
+                makeline(x, y)
 
             return ret
         else:
 
-            xorig, yorig = tup2
-            x, y = self._xy_from_xy(xorig, yorig)
-            multicol = x is not None and y is not None and y.shape[1]>1
+            x, y = tup2
+            x, y, multicol = self._xy_from_xy(x, y)
 
             def makeline(x, y):
                 color = self._get_next_cycle_color()
                 seg = Line2D(x, y,
                              color=color,
+                             axes=self.axes,
                              )
                 self.set_lineprops(seg, **kwargs)
                 ret.append(seg)
@@ -348,7 +358,7 @@ class _process_plot_var_args:
                 for j in range(y.shape[1]):
                     func(x[:,j], y[:,j])
             else:
-                func(xorig, yorig)
+                func(x, y)
 
 
             return ret
@@ -357,9 +367,8 @@ class _process_plot_var_args:
         kwargs = kwargs.copy()
         ret = []
 
-        xorig, yorig, fmt = tup3
-        x, y = self._xy_from_xy(xorig, yorig)
-        multicol = x is not None and y is not None and y.shape[1]>1
+        x, y, fmt = tup3
+        x, y, multicol = self._xy_from_xy(x, y)
 
         linestyle, marker, color = _process_plot_format(fmt)
 
@@ -370,6 +379,7 @@ class _process_plot_var_args:
             seg = Line2D(x, y,
                          color=_color,
                          linestyle=linestyle, marker=marker,
+                         axes=self.axes,
                          )
             self.set_lineprops(seg, **kwargs)
             ret.append(seg)
@@ -390,7 +400,7 @@ class _process_plot_var_args:
             for j in range(y.shape[1]):
                 func(x[:,j], y[:,j])
         else:
-            func(xorig, yorig)
+            func(x, y)
         return ret
 
     def _grab_next_args(self, *args, **kwargs):
@@ -658,8 +668,8 @@ class Axes(Artist):
             self.yaxis.major = self._sharey.yaxis.major
             self.yaxis.minor = self._sharey.yaxis.minor
 
-        self._get_lines = _process_plot_var_args()
-        self._get_patches_for_fill = _process_plot_var_args('fill')
+        self._get_lines = _process_plot_var_args(self)
+        self._get_patches_for_fill = _process_plot_var_args(self, 'fill')
 
         self._gridOn = rcParams['axes.grid']
         self.lines = []
@@ -1014,41 +1024,27 @@ class Axes(Artist):
 
     def add_artist(self, a):
         'Add any artist to the axes'
-        a.axes = self  # refer to parent
+        a.set_axes(self)
         self.artists.append(a)
         self._set_artist_props(a)
 
     def add_collection(self, collection, autolim=False):
         'add a Collection instance to Axes'
+
         self.collections.append(collection)
         self._set_artist_props(collection)
         collection.set_clip_box(self.bbox)
         if autolim:
             self.update_datalim(collection.get_verts(self.transData))
 
-    def _update_tickers(self, data, unit, axis):
-        tickers = units.manager.tickers(data, unit)
-        #print 'updatetickers', tickers, axis
-        if tickers is not None:
-            majloc, minloc, majfmt, minfmt = tickers
-            axis.set_major_locator(majloc)
-            axis.set_minor_locator(minloc)
-            axis.set_major_formatter(majfmt)
-            axis.set_minor_formatter(minfmt)
-
+        
     def add_line(self, l):
         'Add a line to the list of plot lines'
         self._set_artist_props(l)
         l.set_clip_box(self.bbox)
 
-        xorig = l.get_xdata(orig=True)
-        yorig = l.get_ydata(orig=True)
-
-        self._update_tickers(xorig, l.get_xunits(), self.xaxis)
-        self._update_tickers(yorig, l.get_yunits(), self.yaxis)
-
-        xdata = l.get_xdata(valid_only=True)
-        ydata = l.get_ydata(valid_only=True)
+        xdata = l.get_xdata(orig=False)
+        ydata = l.get_ydata(orig=False)
 
         if l.get_transform() != self.transData:
             xys = self._get_verts_in_data_coords(
@@ -1057,7 +1053,6 @@ class Axes(Artist):
             ydata = array([y for x,y in xys])
 
         self.update_datalim_numerix( xdata, ydata )
-
         label = l.get_label()
         if not label: l.set_label('line%d'%len(self.lines))
         self.lines.append(l)
@@ -1071,11 +1066,6 @@ class Axes(Artist):
 
         self._set_artist_props(p)
         p.set_clip_box(self.bbox)
-        xorig = p.get_xdata(orig=True)
-        yorig = p.get_ydata(orig=True)
-
-        self._update_tickers(xorig, p.get_xunits(), self.xaxis)
-        self._update_tickers(yorig, p.get_yunits(), self.yaxis)
 
         xys = self._get_verts_in_data_coords(
             p.get_transform(), p.get_verts())
@@ -1115,6 +1105,25 @@ class Axes(Artist):
         #return [ self.transData.inverse_xy_tup(xy) for xy in xys]
         xys = trans.numerix_xy(asarray(xys))
         return self.transData.inverse_numerix_xy(xys)
+
+    def _process_unit_info(self, xdata=None, ydata=None, kwargs=None):
+        'look for unit kwargs and update the axis instances as necessary'
+
+        if self.xaxis is None or self.xaxis is None: return 
+        if xdata is not None:
+            self.xaxis.update_units(xdata)
+        if ydata is not None:
+            self.yaxis.update_units(ydata)        
+
+        # process kwargs 2nd since these will override default units
+        if kwargs is not None:
+            xunits = popd(kwargs, 'xunits', self.xaxis.units)
+            if xunits!=self.xaxis.units:
+                self.xaxis.set_units(xunits)
+
+            yunits = popd(kwargs, 'yunits', self.yaxis.units)
+            if yunits!=self.yaxis.units:
+                self.yaxis.set_units(yunits)
 
 
     def in_axes(self, xwin, ywin):
@@ -1431,9 +1440,9 @@ class Axes(Artist):
             xmin,xmax = xmin
 
         if xmin is not None:
-            xmin = units.manager.convert(xmin, self._xunits)
+            xmin = self.convert_xunits(xmin)
         if xmax is not None:
-            xmax = units.manager.convert(xmax, self._xunits)
+            xmax = self.convert_xunits(xmax)
 
 
         old_xmin,old_xmax = self.get_xlim()
@@ -1550,9 +1559,9 @@ class Axes(Artist):
             ymin,ymax = ymin
 
         if ymin is not None:
-            ymin = units.manager.convert(ymin, self._xunits)
+            ymin = self.convert_yunits(ymin)
         if ymax is not None:
-            ymax = units.manager.convert(ymax, self._yunits)
+            ymax = self.convert_yunits(ymax)
 
         old_ymin,old_ymax = self.get_ylim()
 
@@ -1906,8 +1915,8 @@ class Axes(Artist):
                 tverts = a.get_transform().seq_xy_tups(verts)
                 xt, yt = zip(*tverts)
             elif isinstance(a, Line2D):
-                xdata = a.get_xdata(valid_only = True)
-                ydata = a.get_ydata(valid_only = True)
+                xdata = a.get_xdata(orig=False)
+                ydata = a.get_ydata(orig=False)
                 xt, yt = a.get_transform().numerix_x_y(xdata, ydata)
 
             return dist_x_y(xywin, asarray(xt), asarray(yt))
@@ -2363,7 +2372,6 @@ class Axes(Artist):
         return coll
     vlines.__doc__ = dedent(vlines.__doc__)
 
-
     #### Basic plotting
     def plot(self, *args, **kwargs):
         """
@@ -2462,15 +2470,16 @@ class Axes(Artist):
         """
 
         kwargs = kwargs.copy()
-
         scalex = popd(kwargs, 'scalex', True)
         scaley = popd(kwargs, 'scaley', True)
 
         if not self._hold: self.cla()
         lines = []
+
         for line in self._get_lines(*args, **kwargs):
             self.add_line(line)
             lines.append(line)
+            
 
         self.autoscale_view(scalex=scalex, scaley=scaley)
         return lines
@@ -3729,9 +3738,12 @@ class Axes(Artist):
             '8' : (8,0),             # octagon
             }
 
+        kwargs = kwargs.copy()
+        self._process_unit_info(xdata=x, ydata=y, kwargs=kwargs)
+
         x, y, s, c = delete_masked_points(x, y, s, c)
 
-        kwargs = kwargs.copy()
+
         if kwargs.has_key('color'):
             c = kwargs['color']
             kwargs.pop('color')
@@ -5184,8 +5196,8 @@ class PolarAxes(Axes):
         # init these w/ some arbitrary numbers - they'll be updated as
         # data is added to the axes
 
-        self._get_lines = _process_plot_var_args()
-        self._get_patches_for_fill = _process_plot_var_args('fill')
+        self._get_lines = _process_plot_var_args(self)
+        self._get_patches_for_fill = _process_plot_var_args(self, 'fill')
 
         self._gridOn = rcParams['polaraxes.grid']
         self.thetagridlabels = []
@@ -5585,7 +5597,7 @@ artist.kwdocd['Axes'] = artist.kwdocd['Subplot'] = artist.kwdoc(Axes)
                 # find the min pos value in the data
                 xs = []
                 for line in self.lines:
-                    xs.extend(line.get_xdata(valid_only = True))
+                    xs.extend(line.get_xdata(orig=False))
                 for patch in self.patches:
                     xs.extend([x for x,y in patch.get_verts()])
                 for collection in self.collections:

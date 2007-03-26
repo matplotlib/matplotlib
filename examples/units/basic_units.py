@@ -164,18 +164,15 @@ class TaggedValue (object):
   def get_value(self):
     return self.value
 
-  
-
   def get_unit(self):
     return self.unit
 
 
 class BasicUnit(object):
-  def __init__(self, name, full_name=None):
+  def __init__(self, name, fullname=None):
     self.name = name
-    if (not full_name):
-      full_name = name
-    self.full_name = full_name
+    if fullname is None: fullname = name
+    self.fullname = fullname
     self.conversions = dict()
 
 
@@ -183,7 +180,7 @@ class BasicUnit(object):
     return 'BasicUnit(' + `self.name` + ')'
 
   def __str__(self):
-    return self.full_name
+    return self.fullname
 
   def __call__(self, value):
     return TaggedValue(value, self)
@@ -296,33 +293,36 @@ def rad_fn(x,pos=None):
 
 class BasicUnitConverter(units.ConversionInterface):
 
-    def tickers(x, unit=None):
-        'return major and minor tick locators and formatters'
+    def axisinfo(unit):
+        'return AxisInfo instance for x and unit'
 
         if unit==radians:
-            return (
-              ticker.MultipleLocator(base=nx.pi/2),
-              ticker.NullLocator(),
-              ticker.FuncFormatter(rad_fn),
-              ticker.NullFormatter(),
+            return units.AxisInfo(
+              majloc=ticker.MultipleLocator(base=nx.pi/2),
+              majfmt=ticker.FuncFormatter(rad_fn),
+              label=unit.fullname,
                 )
         elif unit==degrees:
-            return (
-              ticker.AutoLocator(),
-              ticker.NullLocator(),
-              ticker.FormatStrFormatter(r'$%i^\circ$'),
-              ticker.NullFormatter(),
+            return units.AxisInfo(
+              majloc=ticker.AutoLocator(),
+              majfmt=ticker.FormatStrFormatter(r'$%i^\circ$'),
+              label=unit.fullname,
                 )
-        else:
-            return None
-    tickers = staticmethod(tickers)
+        elif unit is not None:
+            return units.AxisInfo(label=unit.fullname)
+        return None
+    axisinfo = staticmethod(axisinfo)
 
-    def convert_to_value(val, unit):
+    def convert(val, unit):
         if iterable(val):
           return [thisval.convert_to(unit).get_value() for thisval in val]
         else:
           return val.convert_to(unit).get_value()
-    convert_to_value = staticmethod(convert_to_value)
+    convert = staticmethod(convert)
 
+    def default_units(x):
+        'return the default unit for x or None'
+        return x.unit
+    default_units = staticmethod(default_units)
 
-units.manager.converters[TaggedValue] = BasicUnitConverter()
+units.registry[TaggedValue] = BasicUnitConverter()

@@ -332,8 +332,8 @@ The following dimensions are in axes coords
 
             if isinstance(handle, Line2D):
 
-                xdata = handle.get_xdata(valid_only = True)
-                ydata = handle.get_ydata(valid_only = True)
+                xdata = handle.get_xdata(orig=False)
+                ydata = handle.get_ydata(orig=False)
                 trans = handle.get_transform()
                 xt, yt = trans.numerix_x_y(xdata, ydata)
 
@@ -418,7 +418,7 @@ The following dimensions are in axes coords
 
         for h in self.legendHandles:
             if isinstance(h, Line2D):
-                x,y = h.get_xdata(valid_only = True), h.get_ydata(valid_only = True)
+                x,y = h.get_xdata(orig=False), h.get_ydata(orig=False)
                 h.set_data( x+ox, y+oy)
             elif isinstance(h, Rectangle):
                 h.xy[0] = h.xy[0] + ox

@@ -19,7 +19,6 @@ from cm import ScalarMappable
 from numerix import arange, sin, cos, pi, asarray, sqrt, array, newaxis, ones
 from numerix import isnan, any
 from transforms import identity_transform
-import matplotlib.units as units
 
 import matplotlib.nxutils as nxutils
 
@@ -490,8 +489,8 @@ class RegularPolyCollection(PatchCollection):
         
         if self._offsets is not None:
             xs, ys = zip(*self._offsets)
-            xs = units.manager.convert(xs, self._xunits)
-            ys = units.manager.convert(ys, self._yunits)
+            xs = self.convert_xunits(xs)
+            ys = self.convert_yunits(ys)
             offsets = zip(xs, ys)
         else:
             offsets = None
