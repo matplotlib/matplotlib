@@ -117,10 +117,6 @@ class Figure(Artist):
         subplotpars is a SubplotParams instance, defaults to rc
         """
         Artist.__init__(self)
-        #self.set_figure(self)
-        self._axstack = Stack()  # maintain the current axes
-        self._axobservers = []
-        self._seen = {}          # axes args we've seen
 
         if figsize is None  : figsize   = rcParams['figure.figsize']
         if dpi is None      : dpi       = rcParams['figure.dpi']
@@ -156,6 +152,7 @@ class Figure(Artist):
 
         self.subplotpars = subplotpars
 
+        self._axstack = Stack()  # maintain the current axes
         self.clf()
 
         self._cachedRenderer = None
@@ -170,11 +167,11 @@ class Figure(Artist):
         children.extend(self.images)
         children.extend(self.legends)
         return children
-    
+
     def pick(self, mouseevent):
         for a in self.get_children():
             a.pick(mouseevent)
-    
+
     def get_window_extent(self, *args, **kwargs):
         'get the figure bounding box in display space; kwargs are void'
         return self.bbox
@@ -525,6 +522,7 @@ class Figure(Artist):
         self.texts=[]
         self.images = []
         self.legends = []
+        self._axobservers = []
 
     def clear(self):
         """
@@ -727,15 +725,6 @@ class Figure(Artist):
         self.canvas.print_figure(*args, **kwargs)
 
     def colorbar(self, mappable, cax=None, **kw):
-        # Temporary compatibility code:
-        old = ('tickfmt', 'cspacing', 'clabels', 'edgewidth', 'edgecolor')
-        oldkw = [k for k in old if kw.has_key(k)]
-        if oldkw:
-            msg = 'Old colorbar kwargs (%s) found; using colorbar_classic.' % (','.join(oldkw),)
-            warnings.warn(msg, DeprecationWarning)
-            self.colorbar_classic(mappable, cax, **kw)
-            return cax
-        # End of compatibility code block.
         orientation = kw.get('orientation', 'vertical')
         ax = self.gca()
         if cax is None:
@@ -750,170 +739,6 @@ class Figure(Artist):
 
         Documentation for the pylab thin wrapper: %s
         '''% cbar.colorbar_doc
-
-    def colorbar_classic(self, mappable,  cax=None,
-                    orientation='vertical', tickfmt='%1.1f',
-                    cspacing='proportional',
-                    clabels=None, drawedges=False, edgewidth=0.5,
-                    edgecolor='k'):
-        """
-        Create a colorbar for mappable image
-
-        mappable is the cm.ScalarMappable instance that you want the
-        colorbar to apply to, e.g. an Image as returned by imshow or a
-        PatchCollection as returned by scatter or pcolor.
-
-        tickfmt is a format string to format the colorbar ticks
-
-        cax is a colorbar axes instance in which the colorbar will be
-        placed.  If None, as default axesd will be created resizing the
-        current aqxes to make room for it.  If not None, the supplied axes
-        will be used and the other axes positions will be unchanged.
-
-        orientation is the colorbar orientation: one of 'vertical' | 'horizontal'
-
-        cspacing controls how colors are distributed on the colorbar.
-        if cspacing == 'linear', each color occupies an equal area
-        on the colorbar, regardless of the contour spacing.
-        if cspacing == 'proportional' (Default), the area each color
-        occupies on the the colorbar is proportional to the contour interval.
-        Only relevant for a Contour image.
-
-        clabels can be a sequence containing the
-        contour levels to be labelled on the colorbar, or None (Default).
-        If clabels is None, labels for all contour intervals are
-        displayed. Only relevant for a Contour image.
-
-        if drawedges == True, lines are drawn at the edges between
-        each color on the colorbar. Default False.
-
-        edgecolor is the line color delimiting the edges of the colors
-        on the colorbar (if drawedges == True). Default black ('k')
-
-        edgewidth is the width of the lines delimiting the edges of
-        the colors on the colorbar (if drawedges == True). Default 0.5
-
-        return value is the colorbar axes instance
-        """
-
-        if orientation not in ('horizontal', 'vertical'):
-            raise ValueError('Orientation must be horizontal or vertical')
-
-        if isinstance(mappable, FigureImage) and cax is None:
-            raise TypeError('Colorbars for figure images currently not supported unless you provide a colorbar axes in cax')
-
-
-        ax = self.gca()
-
-        cmap = mappable.cmap
-
-        if cax is None:
-            l,b,w,h = ax.get_position()
-            if orientation=='vertical':
-                neww = 0.8*w
-                ax.set_position((l,b,neww,h), 'both')
-                cax = self.add_axes([l + 0.9*w, b, 0.1*w, h])
-            else:
-                newh = 0.8*h
-                ax.set_position((l,b+0.2*h,w,newh), 'both')
-                cax = self.add_axes([l, b, w, 0.1*h])
-
-        else:
-            if not isinstance(cax, Axes):
-                raise TypeError('Expected an Axes instance for cax')
-
-        norm = mappable.norm
-        if norm.vmin is None or norm.vmax is None:
-            mappable.autoscale()
-        cmin = norm.vmin
-        cmax = norm.vmax
-        if isinstance(mappable, ContourSet):
-        # mappable image is from contour or contourf
-            clevs = mappable.levels
-            clevs = minimum(clevs, cmax)
-            clevs = maximum(clevs, cmin)
-            isContourSet = True
-        elif isinstance(mappable, ScalarMappable):
-        # from imshow or pcolor.
-            isContourSet = False
-            clevs = linspace(cmin, cmax, cmap.N+1) # boundaries, hence N+1
-        else:
-            raise TypeError("don't know how to handle type %s"%type(mappable))
-
-        N = len(clevs)
-        C = array([clevs, clevs])
-        if cspacing == 'linear':
-            X, Y = meshgrid(clevs, [0, 1])
-        elif cspacing == 'proportional':
-            X, Y = meshgrid(linspace(cmin, cmax, N), [0, 1])
-        else:
-            raise ValueError("cspacing must be 'linear' or 'proportional'")
-
-        if orientation=='vertical':
-            args = (transpose(Y), transpose(C), transpose(X), clevs)
-        else:
-            args = (C, Y, X, clevs)
-        #If colors were listed in the original mappable, then
-        # let contour handle them the same way.
-        colors = getattr(mappable, 'colors', None)
-        if colors is not None:
-            kw = {'colors': colors}
-        else:
-            kw = {'cmap':cmap, 'norm':norm}
-        if isContourSet and not mappable.filled:
-            CS = cax.contour(*args, **kw)
-            colls = mappable.collections
-            for ii in range(len(colls)):
-                CS.collections[ii].set_linewidth(colls[ii].get_linewidth())
-        else:
-            kw['antialiased'] = False
-            CS = cax.contourf(*args, **kw)
-        if drawedges:
-            for col in CS.collections:
-                col.set_edgecolor(edgecolor)
-                col.set_linewidth(edgewidth)
-
-        mappable.add_observer(CS)
-        mappable.set_colorbar(CS, cax)
-
-
-        if isContourSet:
-            if cspacing == 'linear':
-                ticks = linspace(cmin, cmax, N)
-            else:
-                ticks = clevs
-            if cmin == mappable.levels[0]:
-                ticklevs = clevs
-            else: # We are not showing the full ends of the range.
-                ticks = ticks[1:-1]
-                ticklevs = clevs[1:-1]
-            labs = [tickfmt % lev for lev in ticklevs]
-            if clabels is not None:
-                for i, lev in enumerate(ticklevs):
-                    if lev not in clabels:
-                        labs[i] = ''
-
-
-        if orientation=='vertical':
-            cax.set_xticks([])
-            cax.yaxis.tick_right()
-            cax.yaxis.set_label_position('right')
-            if isContourSet:
-                cax.set_yticks(ticks)
-                cax.set_yticklabels(labs)
-            else:
-                cax.yaxis.set_major_formatter(FormatStrFormatter(tickfmt))
-        else:
-            cax.set_yticks([])
-            if isContourSet:
-                cax.set_xticks(ticks)
-                cax.set_xticklabels(labs)
-            else:
-                cax.xaxis.set_major_formatter(FormatStrFormatter(tickfmt))
-
-        self.sca(ax)
-        return cax
-
 
     def subplots_adjust(self, *args, **kwargs):
         """
