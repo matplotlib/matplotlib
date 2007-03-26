@@ -1,3 +1,8 @@
+"""
+Plot with radians from the basic_units mockup example package
+This example shows how the unit class can determine the tick locating,
+formatting and axis labeling
+"""
 from basic_units import radians, degrees
 from pylab import figure, show, nx
 from matplotlib.cbook import iterable
@@ -12,17 +17,9 @@ def cos( x ):
    else:
       return math.cos( x.convert_to( radians ).get_value() )
 
-# the following command strips away the units and
-# therefore demonstrates nothing.  The valeus are
-# the same for both graphs.  In order to really
-# use the units, the list of values passed into
-# the plot function must be a unitized type.
 
-# x = nx.arange(0, 15, 0.01) * radians
+x = nx.arange(0, 15, 0.01) * radians
 
-x = []
-for i in range(0, 1500):
-   x.append( i*0.01*radians )
 
 fig = figure()
 

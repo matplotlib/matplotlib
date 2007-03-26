@@ -503,7 +503,7 @@ class Axis(Artist):
         self.axes = axes
         self.major = Ticker()
         self.minor = Ticker()
-        self.callbacks = CallbackRegistry(('units',))
+        self.callbacks = CallbackRegistry(('units', 'units finalize'))
         
         #class dummy:
         #    locator = None
@@ -788,8 +788,9 @@ class Axis(Artist):
         registered for unit conversion
         """
 
-        self.converter = units.registry.get_converter(data)
-        if self.converter is None: return False
+        converter = units.registry.get_converter(data)
+        if converter is None: return False
+        self.converter = converter
         default = self.converter.default_units(data)
         if default is not None and self.units is None:
             self.set_units(default)
@@ -821,8 +822,13 @@ class Axis(Artist):
             label.set_text(info.label)
         
     def convert_units(self, x):
-        if self.converter is None: return x        
-        return self.converter.convert(x, self.units)
+        if self.converter is None:
+            #print 'convert_units returning identity: units=%s, converter=%s'%(self.units, self.converter)
+            return x        
+
+        ret =  self.converter.convert(x, self.units)
+        #print 'convert_units converting: units=%s, converter=%s, in=%s, out=%s'%(self.units, self.converter, x, ret)
+        return ret
     
     def set_units(self, u):
         """
@@ -840,8 +846,10 @@ class Axis(Artist):
                 self.units = u
                 self._update_axisinfo()
                 pchanged = True
-        if pchanged: self.callbacks.process('units')
-        
+        if pchanged:
+            self.callbacks.process('units')
+            self.callbacks.process('units finalize')
+            
     def get_units(self):
         'return the units for axis'
         return self.units

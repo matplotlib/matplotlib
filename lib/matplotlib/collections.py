@@ -487,14 +487,19 @@ class RegularPolyCollection(PatchCollection):
         scales = sqrt(asarray(self._sizes)*self._dpi.get()/72.0)
 
         
+        offsets = self._offsets
         if self._offsets is not None:
-            xs, ys = zip(*self._offsets)
+            xs, ys = zip(*offsets)
+            #print 'converting: units=%s, converter=%s'%(self.axes.xaxis.units, self.axes.xaxis.converter)
             xs = self.convert_xunits(xs)
             ys = self.convert_yunits(ys)
             offsets = zip(xs, ys)
         else:
             offsets = None
 
+        #print 'drawing offsets', offsets
+        #print 'drawing verts', self._verts
+        #print 'drawing scales', scales
         if is_string_like(self._edgecolors) and self._edgecolors[:2] == 'No':
             #self._edgecolors = self._facecolors
             self._linewidths = (0,)

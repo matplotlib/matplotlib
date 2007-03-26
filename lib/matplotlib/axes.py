@@ -244,6 +244,8 @@ class _process_plot_var_args:
             y = y[:,newaxis]
         nr, nc = y.shape
         x = arange(nr)
+        if len(x.shape) == 1:
+            x = x[:,newaxis]
         return x,y, True
 
     def _xy_from_xy(self, x, y):
@@ -498,6 +500,7 @@ class Axes(Artist):
         Artist.__init__(self)
         self._position = map(makeValue, rect)
         self._originalPosition = rect
+        self.set_axes(self)
         self.set_aspect('auto')
         self.set_adjustable('box')
         self.set_anchor('C')
@@ -538,6 +541,12 @@ class Axes(Artist):
         self.set_navigate_mode(None)
 
         if len(kwargs): setp(self, **kwargs)
+
+        if self.xaxis is not None:
+            self._xcid = self.xaxis.callbacks.connect('units finalize', self.relim)
+
+        if self.yaxis is not None:
+            self._ycid = self.yaxis.callbacks.connect('units finalize', self.relim)
 
 
     def get_window_extent(self, *args, **kwargs):
@@ -1038,24 +1047,28 @@ class Axes(Artist):
             self.update_datalim(collection.get_verts(self.transData))
 
         
-    def add_line(self, l):
+    def add_line(self, line):
         'Add a line to the list of plot lines'
-        self._set_artist_props(l)
-        l.set_clip_box(self.bbox)
+        self._set_artist_props(line)
+        line.set_clip_box(self.bbox)
 
-        xdata = l.get_xdata(orig=False)
-        ydata = l.get_ydata(orig=False)
+        self._update_line_limits(line)
+        label = line.get_label()
+        if not label: line.set_label('line%d'%len(self.lines))
+        self.lines.append(line)
 
-        if l.get_transform() != self.transData:
+    def _update_line_limits(self, line):
+        xdata = line.get_xdata(orig=False)
+        ydata = line.get_ydata(orig=False)
+
+        if line.get_transform() != self.transData:
             xys = self._get_verts_in_data_coords(
-                l.get_transform(), zip(xdata, ydata))
+                line.get_transform(), zip(xdata, ydata))
             xdata = array([x for x,y in xys])
             ydata = array([y for x,y in xys])
 
         self.update_datalim_numerix( xdata, ydata )
-        label = l.get_label()
-        if not label: l.set_label('line%d'%len(self.lines))
-        self.lines.append(l)
+        
 
     def add_patch(self, p):
         """
@@ -1066,17 +1079,30 @@ class Axes(Artist):
 
         self._set_artist_props(p)
         p.set_clip_box(self.bbox)
-
+        self._update_patch_limits(p)
+        self.patches.append(p)
+        
+    def _update_patch_limits(self, p):
+        'update the datalimits for patch p'
         xys = self._get_verts_in_data_coords(
             p.get_transform(), p.get_verts())
         self.update_datalim(xys)
-        self.patches.append(p)
+
 
     def add_table(self, tab):
         'Add a table instance to the list of axes tables'
         self._set_artist_props(tab)
         self.tables.append(tab)
 
+    def relim(self):
+        'recompute the datalimits based on current artists'
+        self.dataLim.ignore(True)
+        for line in self.lines:
+            self._update_line_limits(line)
+
+        for p in self.patches:
+            self._update_patch_limits(patch)
+            
     def update_datalim(self, xys):
         'Update the data lim bbox with seq of xy tups or equiv. 2-D array'
         # if no data is set currently, the bbox will ignore its
@@ -1110,21 +1136,27 @@ class Axes(Artist):
         'look for unit kwargs and update the axis instances as necessary'
 
         if self.xaxis is None or self.xaxis is None: return 
+
+
         if xdata is not None:
             self.xaxis.update_units(xdata)
+            #print '_process updated xdata: units=%s, converter=%s'%(self.xaxis.units, self.xaxis.converter)
+
         if ydata is not None:
             self.yaxis.update_units(ydata)        
+            #print '_process updated ydata: units=%s, converter=%s'%(self.yaxis.units, self.yaxis.converter)            
 
         # process kwargs 2nd since these will override default units
         if kwargs is not None:
             xunits = popd(kwargs, 'xunits', self.xaxis.units)
             if xunits!=self.xaxis.units:
                 self.xaxis.set_units(xunits)
+                #print '_process updated xunits kws: units=%s, converter=%s'%(self.xaxis.units, self.xaxis.converter)
 
             yunits = popd(kwargs, 'yunits', self.yaxis.units)
             if yunits!=self.yaxis.units:
                 self.yaxis.set_units(yunits)
-
+                #print '_process updated yunits kws: units=%s, converter=%s'%(self.yaxis.units, self.yaxis.converter)
 
     def in_axes(self, xwin, ywin):
         'return True is the point xwin, ywin (display coords) are in the Axes'
@@ -1436,14 +1468,19 @@ class Axes(Artist):
 
         ACCEPTS: len(2) sequence of floats
         """
+
         if xmax is None and iterable(xmin):
             xmin,xmax = xmin
 
-        if xmin is not None:
-            xmin = self.convert_xunits(xmin)
-        if xmax is not None:
-            xmax = self.convert_xunits(xmax)
 
+        #print 'setxlim before1: units=%s, converter=%s, xmin=%s, xmax=%s'%(self.xaxis.units, self.xaxis.converter, xmin, xmax)
+        self._process_unit_info(xdata=(xmin, xmax))
+        #print 'setxlim before2: units=%s, converter=%s, xmin=%s, xmax=%s'%(self.xaxis.units, self.xaxis.converter, xmin, xmax)
+        if xmin is not None:
+            xmin = self.xaxis.convert_units(xmin)
+        if xmax is not None:
+            xmax = self.xaxis.convert_units(xmax)
+        #print 'setxlim after: units=%s, converter=%s, xmin=%s, xmax=%s'%(self.xaxis.units, self.xaxis.converter, xmin, xmax)
 
         old_xmin,old_xmax = self.get_xlim()
         if xmin is None: xmin = old_xmin
@@ -1455,6 +1492,7 @@ class Axes(Artist):
         xmin, xmax = nonsingular(xmin, xmax, increasing=False)
         self.viewLim.intervalx().set_bounds(xmin, xmax)
         if emit: self._send_xlim_event()
+
         return xmin, xmax
 
     def get_xscale(self):
@@ -5166,12 +5204,12 @@ class PolarAxes(Axes):
         Axes.__init__(self, *args, **kwarg)
         self.set_aspect('equal', adjustable='box', anchor='C')
         self.cla()
+    def _init_axis(self):
+        "nuthin to do"
         self.xaxis = None
         self.yaxis = None
 
-    def _init_axis(self):
-        "nuthin to do"
-        pass
+
     def _set_lim_and_transforms(self):
         """
         set the dataLim and viewLim BBox attributes and the

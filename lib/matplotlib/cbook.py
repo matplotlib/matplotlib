@@ -15,6 +15,28 @@ class CallbackRegistry:
     """
     Handle registering and disconnecting for a set of signals and
     callbacks
+
+       signals = 'eat', 'drink', 'be merry'
+
+       def oneat(x):
+           print 'eat', x
+
+       def ondrink(x):
+           print 'drink', x
+
+       callbacks = CallbackRegistry(signals)
+
+       ideat = callbacks.connect('eat', oneat)
+       iddrink = callbacks.connect('drink', ondrink)
+
+       #tmp = callbacks.connect('drunk', ondrink) # this will raise a ValueError
+
+       callbacks.process('drink', 123)    # will call oneat
+       callbacks.process('eat', 456)      # will call ondrink
+       callbacks.process('be merry', 456) # nothing will be called
+       callbacks.disconnect(ideat)        # disconnect oneat
+       callbacks.process('eat', 456)      # nothing will be called
+    
     """
     def __init__(self, signals):
         'signals is a sequence of valid signals'

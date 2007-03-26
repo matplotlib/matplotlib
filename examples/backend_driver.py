@@ -96,9 +96,6 @@ def drive(backend, python='python'):
             print '\tSkipping %s, known to fail on backend: %s'%backend
             continue
 
-        if python=='python2.2' and fname in fail22:
-            print '\tSkipping %s, known to fail on python2.2'%fname
-            continue
         print '\tdriving %s' % fname
         basename, ext = os.path.splitext(fname)
         outfile = basename + '_%s'%backend
@@ -109,6 +106,7 @@ def drive(backend, python='python'):
             'from __future__ import division\n',
             'import matplotlib\n',
             'matplotlib.use("%s")\n' % backend,
+            'from pylab import savefig\n',
             ))
         for line in file(fname):
             line_lstrip = line.lstrip()
@@ -134,8 +132,8 @@ if __name__ == '__main__':
     #backends = ['Agg', 'PS', 'SVG', 'Template']
     # backends = [ 'GTK', 'WX', 'TkAgg']
     default_backends = ['Agg', 'PS', 'SVG', 'Template']
-    default_backends = ['Agg']
-    backends = ['Agg']
+    #default_backends = ['Agg']
+    #backends = ['Agg']
     if sys.platform == 'win32':
         python = r'c:\Python24\python.exe'
     else:

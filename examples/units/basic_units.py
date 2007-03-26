@@ -8,87 +8,88 @@ from matplotlib.axes import Axes
 from matplotlib.cbook import iterable
 
 class ProxyDelegate(object):
-  def __init__(self, fn_name, proxy_type):
-    self.proxy_type = proxy_type
-    self.fn_name = fn_name
-  def __get__(self, obj, objtype=None):
-    return self.proxy_type(self.fn_name, obj)
+    def __init__(self, fn_name, proxy_type):
+        self.proxy_type = proxy_type
+        self.fn_name = fn_name
+    def __get__(self, obj, objtype=None):
+        return self.proxy_type(self.fn_name, obj)
 
 class TaggedValueMeta (type):
-  def __init__(cls, name, bases, dict):
-    for fn_name in cls._proxies.keys(): 
-      try:
-        dummy = getattr(cls, fn_name)
-      except AttributeError:
-        setattr(cls, fn_name, ProxyDelegate(fn_name, cls._proxies[fn_name]))
+    def __init__(cls, name, bases, dict):
+        for fn_name in cls._proxies.keys(): 
+            try:
+                dummy = getattr(cls, fn_name)
+            except AttributeError:
+                setattr(cls, fn_name, ProxyDelegate(fn_name, cls._proxies[fn_name]))
 
 class PassThroughProxy(object):
-  def __init__(self, fn_name, obj):
-    self.fn_name = fn_name
-    self.target = obj.proxy_target
-  def __call__(self, *args):
-    fn = getattr(self.target, self.fn_name)
-    ret = fn(*args)
-    return ret
+    def __init__(self, fn_name, obj):
+        self.fn_name = fn_name
+        self.target = obj.proxy_target
+    def __call__(self, *args):
+        fn = getattr(self.target, self.fn_name)
+        ret = fn(*args)
+        return ret
 
 class ConvertArgsProxy(PassThroughProxy):
-  def __init__(self, fn_name, obj):
-    PassThroughProxy.__init__(self, fn_name, obj)
-    self.unit = obj.unit
-  def __call__(self, *args):
-    converted_args = []
-    for a in args:
-      try:
-        converted_args.append(a.convert_to(self.unit))
-      except AttributeError:
-        converted_args.append(TaggedValue(a, self.unit)) 
-    converted_args = tuple([c.get_value() for c in converted_args])
-    return PassThroughProxy.__call__(self, *converted_args)
+    def __init__(self, fn_name, obj):
+        PassThroughProxy.__init__(self, fn_name, obj)
+        self.unit = obj.unit
+    def __call__(self, *args):
+        converted_args = []
+        for a in args:
+            try:
+                converted_args.append(a.convert_to(self.unit))
+            except AttributeError:
+                converted_args.append(TaggedValue(a, self.unit)) 
+        converted_args = tuple([c.get_value() for c in converted_args])
+        return PassThroughProxy.__call__(self, *converted_args)
 
 class ConvertReturnProxy(PassThroughProxy):
-  def __init__(self, fn_name, obj):
-    PassThroughProxy.__init__(self, fn_name, obj)
-    self.unit = obj.unit
-  def __call__(self, *args):
-    ret = PassThroughProxy.__call__(self, *args)
-    if (type(ret) == type(NotImplemented)):
-      return NotImplemented
-    return TaggedValue(ret, self.unit)
+    def __init__(self, fn_name, obj):
+        PassThroughProxy.__init__(self, fn_name, obj)
+        self.unit = obj.unit
+    def __call__(self, *args):
+        ret = PassThroughProxy.__call__(self, *args)
+        if (type(ret) == type(NotImplemented)):
+            return NotImplemented
+        return TaggedValue(ret, self.unit)
 
 class ConvertAllProxy(PassThroughProxy):
-  def __init__(self, fn_name, obj):
-    PassThroughProxy.__init__(self, fn_name, obj)
-    self.unit = obj.unit
-  def __call__(self, *args):
-    converted_args = []
-    arg_units = [self.unit]
-    for a in args:
-      if hasattr(a, 'get_unit') and not hasattr(a, 'convert_to'):
-        # if this arg has a unit type but no conversion ability,
-        # this operation is prohibited
-        return NotImplemented
+    def __init__(self, fn_name, obj):
+        PassThroughProxy.__init__(self, fn_name, obj)
+        self.unit = obj.unit
 
-      if hasattr(a, 'convert_to'):
-        try:
-          a = a.convert_to(self.unit)
-        except:
-          pass
-        arg_units.append(a.get_unit())
-        converted_args.append(a.get_value()) 
-      else:
-        converted_args.append(a)
-        if hasattr(a, 'get_unit'):
-          arg_units.append(a.get_unit())
-        else:
-          arg_units.append(None)
-    converted_args = tuple(converted_args)
-    ret = PassThroughProxy.__call__(self, *converted_args)
-    if (type(ret) == type(NotImplemented)):
-      return NotImplemented
-    ret_unit = unit_resolver(self.fn_name, arg_units)
-    if (ret_unit == NotImplemented):
-      return NotImplemented
-    return TaggedValue(ret, ret_unit)
+    def __call__(self, *args):
+        converted_args = []
+        arg_units = [self.unit]
+        for a in args:
+            if hasattr(a, 'get_unit') and not hasattr(a, 'convert_to'):
+                # if this arg has a unit type but no conversion ability,
+                # this operation is prohibited
+                return NotImplemented
+
+            if hasattr(a, 'convert_to'):
+                try:
+                    a = a.convert_to(self.unit)
+                except:
+                    pass
+                arg_units.append(a.get_unit())
+                converted_args.append(a.get_value()) 
+            else:
+                converted_args.append(a)
+                if hasattr(a, 'get_unit'):
+                    arg_units.append(a.get_unit())
+                else:
+                    arg_units.append(None)
+        converted_args = tuple(converted_args)
+        ret = PassThroughProxy.__call__(self, *converted_args)
+        if (type(ret) == type(NotImplemented)):
+            return NotImplemented
+        ret_unit = unit_resolver(self.fn_name, arg_units)
+        if (ret_unit == NotImplemented):
+            return NotImplemented
+        return TaggedValue(ret, ret_unit)
 
 class TaggedValue (object):
 
@@ -102,11 +103,15 @@ class TaggedValue (object):
     # generate a new subclass for value
     value_class = type(value)
     try:
-        subcls = type('TaggedValue_of_%s' % (`value_class.__name__`),
+        subcls = type('TaggedValue_of_%s' % (value_class.__name__),
                       tuple([cls, value_class]),
                       {})
+        if subcls not in units.registry:
+            units.registry[subcls] = basicConverter
         return object.__new__(subcls, value, unit)
-    except:
+    except TypeError:
+        if cls not in units.registry:
+            units.registry[cls] = basicConverter
         return object.__new__(cls, value, unit)
 
   def __init__(self, value, unit):
@@ -177,7 +182,7 @@ class BasicUnit(object):
 
 
   def __repr__(self):
-    return 'BasicUnit(' + `self.name` + ')'
+    return 'BasicUnit(%s)'%self.name
 
   def __str__(self):
     return self.fullname
@@ -314,15 +319,23 @@ class BasicUnitConverter(units.ConversionInterface):
     axisinfo = staticmethod(axisinfo)
 
     def convert(val, unit):
+        if units.ConversionInterface.is_numlike(val):
+            return val
+
         if iterable(val):
-          return [thisval.convert_to(unit).get_value() for thisval in val]
+            return [thisval.convert_to(unit).get_value() for thisval in val]
         else:
-          return val.convert_to(unit).get_value()
+            return val.convert_to(unit).get_value()
     convert = staticmethod(convert)
 
     def default_units(x):
         'return the default unit for x or None'
+        if iterable(x):
+            for thisx in x:
+                return thisx.unit
         return x.unit
     default_units = staticmethod(default_units)
 
-units.registry[TaggedValue] = BasicUnitConverter()
+
+basicConverter = BasicUnitConverter()
+units.registry[TaggedValue] = basicConverter
