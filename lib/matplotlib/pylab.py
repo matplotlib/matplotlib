@@ -895,7 +895,7 @@ def gcf():
 def gci():
     """
     get the current ScalarMappable instance (image or patch
-    collection), or None if no images or patch collecitons have been
+    collection), or None if no images or patch collections have been
     defined.  The commands imshow and figimage create images
     instances, and the commands pcolor and scatter create patch
     collection instances
@@ -1381,83 +1381,7 @@ def switch_backend(newbackend):
     reload(backends)
     from backends import new_figure_manager, draw_if_interactive, show
 
-def matshow(*args,**kw):
-    """Display an array as a matrix in a new figure window.
-
-    The origin is set at the upper left hand corner and rows (first dimension
-    of the array) are displayed horizontally.  The aspect ratio of the figure
-    window is that of the array, as long as it is possible to fit it within
-    your screen with no stretching.  If the window dimensions can't accomodate
-    this (extremely tall/wide arrays), some stretching will inevitably occur.
-
-    Tick labels for the xaxis are placed on top by default.
-
-    matshow() calls imshow() with args and **kwargs, but by default it sets
-    interpolation='nearest' (unless you override it).  All other arguments and
-    keywords are passed to imshow(), so see its docstring for further details.
-
-    Special keyword arguments which are NOT passed to imshow():
-
-      - fignum(None): by default, matshow() creates a new figure window with
-      automatic numbering.  If fignum is given as an integer, the created
-      figure will use this figure number.  Because of how matshow() tries to
-      set the figure aspect ratio to be the one of the array, if you provide
-      the number of an already existing figure, strange things may happen.
-
-      - returnall(False): by default, the return value is a figure instance.
-      With 'returnall=True', a (figure, axes, image) tuple is returned.
-
-
-    Example usage:
-
-    def samplemat(dims):
-        aa = zeros(dims)
-        for i in range(min(dims)):
-            aa[i,i] = i
-        return aa
-
-    dimlist = [(12,12),(128,64),(64,512),(2048,256)]
-
-    for d in dimlist:
-        fig, ax, im = matshow(samplemat(d))
-    show()
-    """
-
-    # Preprocess args for our purposes
-    arr = asarray(args[0])
-    # Extract unique keywords we can't pass to imshow
-    kw = kw.copy()
-    fignum = popd(kw,'fignum',None)
-    retall = popd(kw,'returnall',False)
-
-    # Extract actual aspect ratio of array and make appropriately sized figure
-    w,h = figaspect(arr)
-    fig = figure(fignum,figsize=(w,h))
-    ax  = fig.add_axes([0.15, 0.09, 0.775, 0.775])
-
-    ax.xaxis.tick_top()
-    ax.title.set_y(1.05) # raise it up a bit for tick top
-    kw['aspect'] = 'auto'
-    # imshow call: use 'lower' origin (we'll flip axes later)
-    kw['origin'] = 'lower'
-    # Unless overridden, don't interpolate
-    kw.setdefault('interpolation','nearest')
-    # All other keywords go through to imshow.
-    im = ax.imshow(*args,**kw)
-    gci._current = im
-
-    # set the x and y lim to equal the matrix dims
-    nr,nc = arr.shape[:2]
-    ax.set_xlim((0,nc))
-    ax.set_ylim((nr,0))
-
-    draw_if_interactive()
-    if retall:
-        return fig, ax, im
-    else:
-        return fig
-
-def matshow1(A, **kw):
+def matshow(A, fignum=None, **kw):
     """Display an array as a matrix in a new figure window.
 
     The origin is set at the upper left hand corner and rows (first dimension
@@ -1467,17 +1391,16 @@ def matshow1(A, **kw):
 
     Tick labels for the xaxis are placed on top.
 
-    Special keyword arguments which are NOT passed to imshow():
+    With one exception, keyword arguments are passed to
+    imshow().
+
+    Special keyword argument which is NOT passed to imshow():
 
       - fignum(None): by default, matshow() creates a new figure window with
       automatic numbering.  If fignum is given as an integer, the created
       figure will use this figure number.  Because of how matshow() tries to
       set the figure aspect ratio to be the one of the array, if you provide
       the number of an already existing figure, strange things may happen.
-
-      - returnall(False): by default, the return value is a figure instance.
-      With 'returnall=True', a (figure, axes, image) tuple is returned.
-
 
     Example usage:
 
@@ -1490,14 +1413,12 @@ def matshow1(A, **kw):
     dimlist = [(12,12),(128,64),(64,512),(2048,256)]
 
     for d in dimlist:
-        fig, ax, im = matshow(samplemat(d), returnall=True)
+        im = matshow(samplemat(d))
     show()
     """
 
-    # Extract unique keywords we can't pass to imshow
-    kw = kw.copy()
-    fignum = kw.pop('fignum', None)
-    retall = kw.pop('returnall', False)
+    #kw = kw.copy()
+    #fignum = kw.pop('fignum', None)
 
     # Extract actual aspect ratio of array and make appropriately sized figure
     fig = figure(fignum, figsize=figaspect(A))
@@ -1507,11 +1428,7 @@ def matshow1(A, **kw):
     gci._current = im
 
     draw_if_interactive()
-    if retall:
-        return fig, ax, im
-    else:
-        return fig
-
+    return im
 
 def setp(*args, **kwargs):
     ret = _setp(*args, **kwargs)
