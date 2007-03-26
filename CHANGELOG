@@ -1,3 +1,8 @@
+2007-03-26 Refactored some of the units support -- units now live in
+           the respective x and y Axis instances.  See also
+           API_CHANGES for some alterations to the conversion
+           interface.  JDH
+
 2007-03-25 Fix masked array handling in quiver.py for numpy. (Numeric
            and numarray support for masked arrays is broken in other
            ways when using quiver. I didn't pursue that.) - ADS

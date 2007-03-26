@@ -53,7 +53,9 @@ class Artist:
         convert x using xaxis unit type
         """
         ax = self.axes
-        if ax is None or ax.xaxis is None: return x
+        if ax is None or ax.xaxis is None:
+            #print 'artist.convert_xunits no conversion: ax=%s'%ax
+            return x
         return ax.xaxis.convert_units(x)
         
     def convert_yunits(self, y):

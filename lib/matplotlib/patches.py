@@ -226,13 +226,6 @@ class Patch(Artist):
         """
         raise NotImplementedError('Derived must override')
 
-    def get_xdata(self, orig=True):
-        'get the x data in orig or (possibly converted) format'        
-        raise NotImplementedError('Derived must override')
-        
-    def get_ydata(self, orig=True):
-        'get the y data in orig or (possibly converted) format'
-        raise NotImplementedError('Derived must override')
 
     def get_window_extent(self, renderer=None):
         verts = self.get_verts()
@@ -308,24 +301,10 @@ class Shadow(Patch):
             self.set_facecolor((r,g,b))
             self.set_edgecolor((r,g,b))
 
-    def get_xdata(self, orig=False):
-        'get the x data in orig or (possibly converted) format'        
-        xs = self.patch.get_xdata(orig=True)
-        xs = [x+self.ox for x in xs]
-        if orig: return xs
-        else: return self.convert_xunits(xs)
-        
-    def get_ydata(self, orig=False):
-        'get the y data in orig or (possibly converted) format'
-        ys = self.patch.get_ydata(orig=True)
-        ys = [y+self.oy for y in ys]
-        if orig: return ys
-        else: return self.convert_yunits(ys)
-
     def get_verts(self):
         verts = self.patch.get_verts()
-        xs = [x+self.ox for x,y in verts]
-        ys = [y+self.oy for x,y in verts]
+        xs = self.convert_xunits([x+self.ox for x,y in verts])
+        ys = self.convert_yunits([y+self.oy for x,y in verts])
         return zip(xs, ys)
 
     def _draw(self, renderer):
@@ -360,27 +339,15 @@ class Rectangle(Patch):
     __init__.__doc__ = dedent(__init__.__doc__) % kwdocd
 
 
-    def get_xdata(self, orig=False):
-        'get the x data in orig or (possibly converted) format'        
-        left, bottom = self.xy
-        right = left + self.width
-
-        if orig: return left, right
-        else: return self.convert_xunits((left, right))
-        
-    def get_ydata(self, orig=False):
-        'get the y data in orig or (possibly converted) format'
-        left, bottom = self.xy
-        top = bottom + self.height
-        if orig: return bottom, top
-        else: return self.convert_yunits((bottom, top))
-
     def get_verts(self):
         """
         Return the vertices of the rectangle
         """
-        left, right = self.get_xdata()
-        bottom, top = self.get_ydata()
+        x, y = self.xy
+        
+        left, right = self.convert_xunits((x, x + self.width))
+        bottom, top = self.convert_yunits((y, y + self.height))
+
         return ( (left, bottom), (left, top),
                  (right, top), (right, bottom),
                  )
@@ -473,21 +440,6 @@ class RegularPolygon(Patch):
     __init__.__doc__ = dedent(__init__.__doc__) % kwdocd
 
 
-    def get_xdata(self, orig=False):
-        'get the x data in orig or (possibly converted) format'        
-        # the x vertices of the coords in unit space are not well
-        # defined but the center is
-        x, y = self.xy
-        if orig: return x
-        else: return self.convert_xunits(x)
-        
-    def get_ydata(self, orig=False):
-        'get the y data in orig or (possibly converted) format'
-        x, y = self.xy
-
-        if orig: return y
-        else: return self.convert_yunits(y)
-
 
     def get_verts(self):
         theta = 2*pi/self.numVertices*arange(self.numVertices) + \
@@ -495,11 +447,12 @@ class RegularPolygon(Patch):
         r = self.radius
         x, y = self.x, self.y
 
-        x = self.convert_xunits(x)
-        y = self.convert_yunits(y)
-
         xs = x + r*cos(theta)
         ys = y + r*sin(theta)
+
+        xs = self.convert_xunits(xs)
+        ys = self.convert_yunits(ys)
+
 
         self.verts = zip(xs, ys)
 
@@ -525,19 +478,6 @@ class Polygon(Patch):
     __init__.__doc__ = dedent(__init__.__doc__) % kwdocd
 
 
-
-    def get_xdata(self, orig=False):
-        'get the x data in orig or (possibly converted) format'        
-        xs, ys = zip(*self.xy)
-        if orig: return xs
-        else:
-            return self.convert_xunits(xs)
-        
-    def get_ydata(self, orig=False):
-        'get the y data in orig or (possibly converted) format'
-        xs, ys = zip(*self.xy)
-        if orig: return xs
-        else: return self.convert_yunits(ys)
 
     def get_verts(self):
         xs, ys = zip(*self.xy)
@@ -696,26 +636,6 @@ class YAArrow(Polygon):
 
 
 
-    def get_xdata(self, orig=False):
-        'get the x data in orig or (possibly converted) format'        
-        # the x vertices of the coords in unit space are not well
-        # defined but the tip and base are
-        x1, y1 = self.xytip
-        x2, y2 = self.xybase
-
-        if orig: return x1, x2
-        else: return self.convert_xunits((x1, x2))
-        
-    def get_ydata(self, orig=False):
-        'get the y data in orig or (possibly converted) format'
-        # the x vertices of the coords in unit space are not well
-        # defined but the tip and base are
-        x1, y1 = self.xytip
-        x2, y2 = self.xybase
-
-        if orig: return y1, y2
-        else: return self.convert_yunits((y1, y2))
-
     def get_verts(self):
         # the base vertices
         x1, y1 = self.xytip
@@ -733,8 +653,9 @@ class YAArrow(Polygon):
         xd1, yd1, xd2, yd2 = self.getpoints(x1, y1, xm, ym, k2)
 
 
-        verts = [(xb1,yb1), (xb2,yb2), (xc2, yc2), (xd2, yd2), (x1, y1), (xd1, yd1), (xc1, yc1)]
-        return verts
+        xs = self.convert_xunits([xb1, xb2, xc2, xd2, x1, xd1, xc1])
+        ys = self.convert_yunits([yb1, yb2, yc2, yd2, y1, yd1, yc1])
+        return zip(xs, ys)
 
 
     def getpoints(self, x1,y1,x2,y2, k):
@@ -809,22 +730,6 @@ class Ellipse(Patch):
 
         # self.verts = array(((x,y),(l,y),(x,t),(r,y),(x,b)), Float)
 
-
-    def get_xdata(self, orig=False):
-        'get the x data in orig or (possibly converted) format'        
-        x,y = self.center
-        l,r = x-self.width/2.0, x+self.width/2.0
-
-        if orig: return x, l, r
-        else: return self.convert_xunits((x,l,r))
-        
-    def get_ydata(self, orig=False):
-        'get the y data in orig or (possibly converted) format'
-        x,y = self.center
-        b,t = y-self.height/2.0, y+self.height/2.0
-
-        if orig: return y,b,t
-        else: return self.convert_yunits((y,b,t))
     
     def get_verts(self):
         """

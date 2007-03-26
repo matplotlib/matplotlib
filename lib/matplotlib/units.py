@@ -44,7 +44,7 @@ datetime objects
 
 """
 import matplotlib
-from matplotlib.cbook import iterable, flatten
+from matplotlib.cbook import iterable, is_numlike
 
 class AxisInfo:
     'information to support default axis labeling and tick labeling'
@@ -87,7 +87,24 @@ class ConversionInterface:
         """
         return obj
     convert = staticmethod(convert)
-    
+
+    def is_numlike(x):
+        """
+        The matplotlib datalim, autoscaling, locators etc work with
+        scalars which are the units converted to floats given the
+        current unit.  The converter may be passed these floats, or
+        arrays of them, even when units are set.  Derived conversion
+        interfaces may opt to pass plain-ol unitless numbers through
+        the conversion interface and this is a helper function for
+        them.  
+        """
+        if iterable(x):
+            for thisx in x:                
+                return is_numlike(x)
+        else:
+            return is_numlike(x)
+    is_numlike = staticmethod(is_numlike)
+
 class Registry(dict):
     """
     register types with conversion interface

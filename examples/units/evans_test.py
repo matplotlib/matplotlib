@@ -1,3 +1,10 @@
+"""
+A mockup "Foo" units class which supports
+conversion and different tick formatting depending on the "unit".
+Here the "unit" is just a scalar conversion factor, but this example shows mpl is
+entirely agnostic to what kind of units client packages use
+"""
+
 import matplotlib
 matplotlib.rcParams['units'] = True
 
@@ -35,7 +42,9 @@ class FooConverter:
         convert obj using unit.  If obj is a sequence, return the
         converted sequence
         """
-        print 'convert to value', unit
+        if units.ConversionInterface.is_numlike(obj):
+            return obj
+
         if iterable(obj):
             return [o.value(unit) for o in obj]
         else:

@@ -13,8 +13,8 @@ from matplotlib.pylab import figure, show, nx
 
 # create masked array
 
-#xsecs = secs*nx.ma.MaskedArray((1,2,3,4,5,6,7,8), nx.Float, mask=(1,0,1,0,0,0,1,0))
-xsecs = secs*nx.arange(1,10.)
+xsecs = secs*nx.ma.MaskedArray((1,2,3,4,5,6,7,8), nx.Float, mask=(1,0,1,0,0,0,1,0))
+#xsecs = secs*nx.arange(1,10.)
 
 fig = figure()
 ax1 = fig.add_subplot(3,1,1)

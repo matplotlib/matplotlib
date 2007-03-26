@@ -1,6 +1,6 @@
 import matplotlib
 matplotlib.rcParams['units'] = True
-
+from matplotlib.cbook import iterable, is_numlike
 import matplotlib.units as units
 import matplotlib.dates as dates
 import matplotlib.ticker as ticker
@@ -22,6 +22,8 @@ class DateConverter(units.ConversionInterface):
     axisinfo = staticmethod(axisinfo)
 
     def convert(value, unit):
+        if units.ConversionInterface.is_numlike(value): return value
+        if not DateConverter.is_date(value): return value
         return dates.date2num(value)
     convert = staticmethod(convert)
         
@@ -30,5 +32,6 @@ class DateConverter(units.ConversionInterface):
         return 'date'
     default_units = staticmethod(default_units)
 
-units.registry[datetime.date] = DateConverter()
 
+units.registry[datetime.date] = DateConverter()
+units.registry[datetime.datetime] = DateConverter()
