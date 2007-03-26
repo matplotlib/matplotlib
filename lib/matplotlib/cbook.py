@@ -37,8 +37,8 @@ class CallbackRegistry:
         func will be called with args and kwargs
         """
         self._check_signal(s)
-        self.callbacks[s][self._cid] = func
         self._cid +=1
+        self.callbacks[s][self._cid] = func
         return self._cid
 
     def disconnect(self, cid):
