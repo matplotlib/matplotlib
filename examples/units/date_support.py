@@ -23,7 +23,6 @@ class DateConverter(units.ConversionInterface):
 
     def convert(value, unit):
         if units.ConversionInterface.is_numlike(value): return value
-        if not DateConverter.is_date(value): return value
         return dates.date2num(value)
     convert = staticmethod(convert)
         

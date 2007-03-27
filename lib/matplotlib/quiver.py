@@ -1,4 +1,4 @@
-'''
+"""
 Support for plotting fields of arrows.
 
 Presently this contains a single class, Quiver, but it
@@ -7,10 +7,10 @@ might make sense to consolidate other arrow plotting here.
 This will also become a home for things such as standard
 deviation ellipses, which can and will be derived very easily from
 the Quiver code.
-'''
+"""
 
 
-_quiver_doc = '''
+_quiver_doc = """
 Plot a 2-D field of arrows.
 
 Function signatures:
@@ -97,9 +97,9 @@ Keyword arguments (default given first):
             linewidths = (1,), edgecolors = ('g',)
         to make the arrows have green outlines of unit width.
 
-'''
+"""
 
-_quiverkey_doc = '''
+_quiverkey_doc = """
 Add a key to a quiver plot.
 
 Function signature:
@@ -138,7 +138,7 @@ Keyword arguments (default given first):
     positions the head, and if labelpos is 'W', X,Y positions the
     tail; in either of these two cases, X,Y is somewhere in the middle
     of the arrow+label key object.
-'''
+"""
 
 from matplotlib.collections import PolyCollection
 from matplotlib.mlab import meshgrid
@@ -151,8 +151,8 @@ import math
 
 
 class QuiverKey(Artist):
-    ''' Labelled arrow for use as a quiver plot scale key.
-    '''
+    """ Labelled arrow for use as a quiver plot scale key.
+    """
     halign = {'N': 'center', 'S': 'center', 'E': 'left',   'W': 'right'}
     valign = {'N': 'bottom', 'S': 'top',    'E': 'center', 'W': 'center'}
     pivot  = {'N': 'mid',    'S': 'mid',    'E': 'tip',    'W': 'tail'}
@@ -242,7 +242,7 @@ class QuiverKey(Artist):
     quiverkey_doc = _quiverkey_doc
 
 class Quiver(PolyCollection):
-    '''
+    """
     Specialized PolyCollection for arrows.
 
     The only API method is set_UVC(), which can be used
@@ -257,7 +257,7 @@ class Quiver(PolyCollection):
     is limited to things that might have changed, so there
     should be no performance penalty from putting the calculations
     in the draw() method.
-    '''
+    """
     def __init__(self, ax, *args, **kw):
         self.ax = ax
         X, Y, U, V, C = self._parse_args(*args)
@@ -285,11 +285,11 @@ class Quiver(PolyCollection):
         self.keyvec = None
         self.keytext = None
 
-    __init__.__doc__ = '''
+    __init__.__doc__ = """
         The constructor takes one required argument, an Axes
         instance, followed by the args and kwargs described
         by the following pylab interface documentation:
-        %s''' % _quiver_doc
+        %s""" % _quiver_doc
 
     def _parse_args(self, *args):
         X, Y, U, V, C = [None]*5
@@ -313,9 +313,9 @@ class Quiver(PolyCollection):
         return X, Y, U, V, C
 
     def _init(self):
-        '''initialization delayed until first draw;
+        """initialization delayed until first draw;
         allow time for axes setup.
-        '''
+        """
         if not self._initialized:
             trans = self._set_transform()
             ax = self.ax
@@ -394,7 +394,7 @@ class Quiver(PolyCollection):
 
 
     def _h_arrows(self, length):
-        ''' length is in arrow width units '''
+        """ length is in arrow width units """
         minsh = self.minshaft * self.headlength
         N = len(length)
         length = nx.reshape(length, (N,1))
