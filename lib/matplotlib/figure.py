@@ -5,7 +5,7 @@ import sys
 import artist
 from artist import Artist
 from axes import Axes, Subplot, PolarSubplot, PolarAxes
-from cbook import flatten, allequal, popd, Stack, iterable, dedent
+from cbook import flatten, allequal, Stack, iterable, dedent
 import _image
 import colorbar as cbar
 from colors import Normalize, rgb2hex
@@ -448,7 +448,7 @@ class Figure(Artist):
             assert(a.get_figure() is self)
         else:
             rect = args[0]
-            ispolar = popd(kwargs, 'polar', False)
+            ispolar = kwargs.pop('polar', False)
 
             if ispolar:
                 a = PolarAxes(self, rect, **kwargs)
@@ -496,7 +496,7 @@ class Figure(Artist):
             a = args[0]
             assert(a.get_figure() is self)
         else:
-            ispolar = popd(kwargs, 'polar', False)
+            ispolar = kwargs.pop('polar', False)
             if ispolar:
                 a = PolarSubplot(self, *args, **kwargs)
             else:

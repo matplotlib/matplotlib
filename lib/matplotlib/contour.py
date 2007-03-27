@@ -18,7 +18,7 @@ from mlab import linspace, meshgrid
 import _contour
 from cm import ScalarMappable
 from cbook import iterable, is_string_like, flatten, enumerate, \
-     allequal, dict_delall, strip_math, popd, popall, silent_list
+     allequal, dict_delall, strip_math, popall, silent_list
 from colors import colorConverter, Normalize, Colormap, ListedColormap, NoNorm
 from collections import  PolyCollection, LineCollection
 from font_manager import FontProperties

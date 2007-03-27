@@ -7,7 +7,7 @@ from matplotlib import verbose
 import matplotlib
 import math
 from artist import Artist
-from cbook import enumerate, popd, is_string_like, maxdict, is_numlike
+from cbook import enumerate, is_string_like, maxdict, is_numlike
 from font_manager import FontProperties
 from matplotlib import rcParams
 from patches import bbox_artist, YAArrow
@@ -1739,11 +1739,10 @@ class Annotation(Text):
 
 
             d = self.arrowprops.copy()
-            width = popd(d, 'width', 4)
-            headwidth = popd(d, 'headwidth', 12)
-            frac = popd(d, 'frac', 0.1)
-            shrink = popd(d, 'shrink', 0.0)
-
+            width = d.pop('width', 4)
+            headwidth = d.pop('headwidth', 12)
+            frac = d.pop('frac', 0.1)
+            shrink = d.pop('shrink', 0.0)
 
             theta = math.atan2(y-y0, x-x0)
             r = math.sqrt((y-y0)**2. + (x-x0)**2.)
