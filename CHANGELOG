@@ -1,6 +1,6 @@
 2007-03-26 Removed colorbar_classic from figure.py; fixed bug in
            Figure.clf() in which _axobservers was not getting
-           cleared. - EF
+           cleared.  Modernization and cleanups. - EF
 
 2007-03-26 Refactored some of the units support -- units now live in
            the respective x and y Axis instances.  See also

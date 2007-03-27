@@ -15,7 +15,7 @@ _fmtplot = """\
 def %(func)s(*args, **kwargs):
     # allow callers to override the hold state by passing hold=True|False
     b = ishold()
-    h = popd(kwargs, 'hold', None)
+    h = kwargs.pop('hold', None)
     if h is not None:
         hold(h)
     try:

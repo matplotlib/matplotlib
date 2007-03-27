@@ -4,7 +4,7 @@ from matplotlib import rcParams
 from numerix import array, arange, sin, cos, pi, Float, sqrt, \
      matrixmultiply, sqrt, nonzero, equal, asarray, dot, concatenate
 from artist import Artist, setp, kwdocd
-from cbook import enumerate, popd, dedent
+from cbook import enumerate, dedent
 from colors import colorConverter
 from lines import Line2D
 from transforms import bound_vertices
@@ -95,8 +95,8 @@ class Patch(Artist):
                 inside = nxutils.pnpoly(x, y, xyverts)
                 if inside:
                     self.figure.canvas.pick_event(mouseevent, self)
-        
-        
+
+
     def update_from(self, other):
         Artist.update_from(self, other)
         self.set_edgecolor(other.get_edgecolor())
@@ -344,7 +344,7 @@ class Rectangle(Patch):
         Return the vertices of the rectangle
         """
         x, y = self.xy
-        
+
         left, right = self.convert_xunits((x, x + self.width))
         bottom, top = self.convert_yunits((y, y + self.height))
 
@@ -730,7 +730,7 @@ class Ellipse(Patch):
 
         # self.verts = array(((x,y),(l,y),(x,t),(r,y),(x,b)), Float)
 
-    
+
     def get_verts(self):
         """
         Not actually used for rendering.  Provided to conform to
@@ -785,7 +785,7 @@ class Circle(Ellipse):
         if kwargs.has_key('resolution'):
             import warnings
             warnings.warn('Circle is now scale free.  Use CirclePolygon instead!', DeprecationWarning)
-            popd(kwargs, 'resolution')
+            kwargs.pop('resolution')
 
         self.radius = radius
         Ellipse.__init__(self, xy, radius*2, radius*2, **kwargs)
@@ -917,7 +917,7 @@ def bbox_artist(artist, renderer, props=None, fill=True):
     """
     if props is None: props = {}
     props = props.copy() # don't want to alter the pad externally
-    pad = popd(props, 'pad', 4)
+    pad = props.pop('pad', 4)
     pad = renderer.points_to_pixels(pad)
     bbox = artist.get_window_extent(renderer)
     l,b,w,h = bbox.get_bounds()

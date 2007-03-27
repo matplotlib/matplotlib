@@ -16,7 +16,7 @@ import artist
 from artist import Artist, setp
 from axis import XAxis, YAxis
 from cbook import iterable, is_string_like, flatten, enumerate, \
-     allequal, dict_delall, popd, popall, silent_list, is_numlike, dedent
+     allequal, dict_delall, popall, silent_list, is_numlike, dedent
 from collections import RegularPolyCollection, PolyCollection, LineCollection, \
      QuadMesh, StarPolygonCollection, BrokenBarHCollection
 from colors import colorConverter, Normalize, Colormap, \
@@ -203,16 +203,15 @@ class _process_plot_var_args:
         return color
 
     def __call__(self, *args, **kwargs):
-        kwargs = kwargs.copy()
 
         if self.axes.xaxis is not None and self.axes.xaxis is not None:
-            xunits = popd(kwargs, 'xunits', self.axes.xaxis.units)
-            yunits = popd(kwargs, 'yunits', self.axes.yaxis.units)        
+            xunits = kwargs.pop('xunits', self.axes.xaxis.units)
+            yunits = kwargs.pop('yunits', self.axes.yaxis.units)
             if xunits!=self.axes.xaxis.units:
                 self.axes.xaxis.set_units(xunits)
             if yunits!=self.axes.yaxis.units:
                 self.axes.yaxis.set_units(yunits)
-        
+
         ret =  self._grab_next_args(*args, **kwargs)
         return ret
 
@@ -238,7 +237,7 @@ class _process_plot_var_args:
         if self.axes.yaxis is not None:
             b = self.axes.yaxis.update_units(y)
             if b: return arange(len(y)), y, False
-            
+
         y = ma.asarray(y)
         if len(y.shape) == 1:
             y = y[:,newaxis]
@@ -249,12 +248,12 @@ class _process_plot_var_args:
         return x,y, True
 
     def _xy_from_xy(self, x, y):
-        if self.axes.xaxis is not None and self.axes.yaxis is not None:        
+        if self.axes.xaxis is not None and self.axes.yaxis is not None:
             bx = self.axes.xaxis.update_units(x)
             by = self.axes.yaxis.update_units(y)
             # right now multicol is not supported if either x or y are
             # unit enabled but this can be fixed..
-            if bx or by: return x, y, False 
+            if bx or by: return x, y, False
 
         x = ma.asarray(x)
         y = ma.asarray(y)
@@ -366,7 +365,6 @@ class _process_plot_var_args:
             return ret
 
     def _plot_3_args(self, tup3, **kwargs):
-        kwargs = kwargs.copy()
         ret = []
 
         x, y, fmt = tup3
@@ -1046,7 +1044,7 @@ class Axes(Artist):
         if autolim:
             self.update_datalim(collection.get_verts(self.transData))
 
-        
+
     def add_line(self, line):
         'Add a line to the list of plot lines'
         self._set_artist_props(line)
@@ -1068,7 +1066,7 @@ class Axes(Artist):
             ydata = array([y for x,y in xys])
 
         self.update_datalim_numerix( xdata, ydata )
-        
+
 
     def add_patch(self, p):
         """
@@ -1081,7 +1079,7 @@ class Axes(Artist):
         p.set_clip_box(self.bbox)
         self._update_patch_limits(p)
         self.patches.append(p)
-        
+
     def _update_patch_limits(self, p):
         'update the datalimits for patch p'
         xys = self._get_verts_in_data_coords(
@@ -1102,7 +1100,7 @@ class Axes(Artist):
 
         for p in self.patches:
             self._update_patch_limits(patch)
-            
+
     def update_datalim(self, xys):
         'Update the data lim bbox with seq of xy tups or equiv. 2-D array'
         # if no data is set currently, the bbox will ignore its
@@ -1135,7 +1133,7 @@ class Axes(Artist):
     def _process_unit_info(self, xdata=None, ydata=None, kwargs=None):
         'look for unit kwargs and update the axis instances as necessary'
 
-        if self.xaxis is None or self.xaxis is None: return 
+        if self.xaxis is None or self.xaxis is None: return
 
 
         if xdata is not None:
@@ -1143,17 +1141,17 @@ class Axes(Artist):
             #print '_process updated xdata: units=%s, converter=%s'%(self.xaxis.units, self.xaxis.converter)
 
         if ydata is not None:
-            self.yaxis.update_units(ydata)        
-            #print '_process updated ydata: units=%s, converter=%s'%(self.yaxis.units, self.yaxis.converter)            
+            self.yaxis.update_units(ydata)
+            #print '_process updated ydata: units=%s, converter=%s'%(self.yaxis.units, self.yaxis.converter)
 
         # process kwargs 2nd since these will override default units
         if kwargs is not None:
-            xunits = popd(kwargs, 'xunits', self.xaxis.units)
+            xunits = kwargs.pop('xunits', self.xaxis.units)
             if xunits!=self.xaxis.units:
                 self.xaxis.set_units(xunits)
                 #print '_process updated xunits kws: units=%s, converter=%s'%(self.xaxis.units, self.xaxis.converter)
 
-            yunits = popd(kwargs, 'yunits', self.yaxis.units)
+            yunits = kwargs.pop('yunits', self.yaxis.units)
             if yunits!=self.yaxis.units:
                 self.yaxis.set_units(yunits)
                 #print '_process updated yunits kws: units=%s, converter=%s'%(self.yaxis.units, self.yaxis.converter)
@@ -2241,7 +2239,6 @@ class Axes(Artist):
         %(Polygon)s
         """
         # convert y axis units
-        kwargs = kwargs.copy()
 
         trans = blend_xy_sep_transform( self.transAxes, self.transData  )
         verts = (xmin, ymin), (xmin, ymax), (xmax, ymax), (xmax, ymin)
@@ -2283,7 +2280,6 @@ class Axes(Artist):
         %(Polygon)s
         """
         # convert x axis units
-        kwargs = kwargs.copy()
         trans = blend_xy_sep_transform( self.transData, self.transAxes   )
         verts = [(xmin, ymin), (xmin, ymax), (xmax, ymax), (xmax, ymin)]
         p = Polygon(verts, **kwargs)
@@ -2507,9 +2503,8 @@ class Axes(Artist):
         information
         """
 
-        kwargs = kwargs.copy()
-        scalex = popd(kwargs, 'scalex', True)
-        scaley = popd(kwargs, 'scaley', True)
+        scalex = kwargs.pop('scalex', True)
+        scaley = kwargs.pop('scaley', True)
 
         if not self._hold: self.cla()
         lines = []
@@ -2517,7 +2512,7 @@ class Axes(Artist):
         for line in self._get_lines(*args, **kwargs):
             self.add_line(line)
             lines.append(line)
-            
+
 
         self.autoscale_view(scalex=scalex, scaley=scaley)
         return lines
@@ -2605,12 +2600,11 @@ class Axes(Artist):
         %(Line2D)s
         """
         if not self._hold: self.cla()
-        kwargs = kwargs.copy()
-        dx = {'basex': popd(kwargs,'basex', 10),
-              'subsx': popd(kwargs,'subsx', None),
+        dx = {'basex': kwargs.pop('basex', 10),
+              'subsx': kwargs.pop('subsx', None),
               }
-        dy = {'basey': popd(kwargs,'basey', 10),
-              'subsy': popd(kwargs,'subsy', None),
+        dy = {'basey': kwargs.pop('basey', 10),
+              'subsy': kwargs.pop('subsy', None),
               }
 
         self.set_xscale('log', **dx)
@@ -2645,9 +2639,8 @@ class Axes(Artist):
         %(Line2D)s
         """
         if not self._hold: self.cla()
-        kwargs = kwargs.copy()
-        d = {'basex': popd(kwargs, 'basex', 10),
-             'subsx': popd(kwargs, 'subsx', None),
+        d = {'basex': kwargs.pop('basex', 10),
+             'subsx': kwargs.pop('subsx', None),
              }
 
         self.set_xscale('log', **d)
@@ -2680,9 +2673,8 @@ class Axes(Artist):
 
         """
         if not self._hold: self.cla()
-        kwargs = kwargs.copy()
-        d = {'basey': popd(kwargs,'basey', 10),
-             'subsy': popd(kwargs,'subsy', None),
+        d = {'basey': kwargs.pop('basey', 10),
+             'subsy': kwargs.pop('subsy', None),
              }
         self.set_yscale('log', **d)
         b =  self._hold
@@ -2787,7 +2779,6 @@ class Axes(Artist):
             a = self.vlines(lags, [0], c, **kwargs)
             b = self.axhline(**kwargs)
         else:
-            kwargs = kwargs.copy()
             kwargs.setdefault('marker', 'o')
             kwargs.setdefault('linestyle', 'None')
             a, = self.plot(lags, c, **kwargs)
@@ -2859,7 +2850,6 @@ class Axes(Artist):
         handletextsep = 0.02 # the space between the legend line and legend text
         axespad = 0.02       # the border between the axes and legend edge
         """
-        kwargs = kwargs.copy()
         def get_handles():
             handles = self.lines
             handles.extend(self.patches)
@@ -2876,13 +2866,13 @@ class Axes(Artist):
                 if label != '_nolegend_':
                     handles.append(line)
                     labels.append(label)
-            loc = popd(kwargs, 'loc', 1)
+            loc = kwargs.pop('loc', 1)
 
         elif len(args)==1:
             # LABELS
             labels = args[0]
             handles = [h for h, label in zip(get_handles(), labels)]
-            loc = popd(kwargs, 'loc', 1)
+            loc = kwargs.pop('loc', 1)
 
         elif len(args)==2:
             if is_string_like(args[1]) or isinstance(args[1], int):
@@ -2892,7 +2882,7 @@ class Axes(Artist):
             else:
                 # LINES, LABELS
                 handles, labels = args
-                loc = popd(kwargs, 'loc', 1)
+                loc = kwargs.pop('loc', 1)
 
         elif len(args)==3:
             # LINES, LABELS, LOC
@@ -3776,7 +3766,6 @@ class Axes(Artist):
             '8' : (8,0),             # octagon
             }
 
-        kwargs = kwargs.copy()
         self._process_unit_info(xdata=x, ydata=y, kwargs=kwargs)
 
         x, y, s, c = delete_masked_points(x, y, s, c)
@@ -4068,15 +4057,14 @@ class Axes(Artist):
             V = V*(S/Nmax)
             N = N*Nmax
 
-        kwargs = kwargs.copy()
-        alpha = popd(kwargs,'alpha', 1.0)
-        width = popd(kwargs,'width', .5)
-        norm = popd(kwargs,'norm', None)
-        cmap = popd(kwargs,'cmap', None)
-        vmin = popd(kwargs,'vmin', None)
-        vmax = popd(kwargs,'vmax', None)
-        color = popd(kwargs,'color', None)
-        shading = popd(kwargs,'shading', 'faceted')
+        alpha = kwargs.pop('alpha', 1.0)
+        width = kwargs.pop('width', .5)
+        norm = kwargs.pop('norm', None)
+        cmap = kwargs.pop('cmap', None)
+        vmin = kwargs.pop('vmin', None)
+        vmax = kwargs.pop('vmax', None)
+        color = kwargs.pop('color', None)
+        shading = kwargs.pop('shading', 'faceted')
 
         if len(kwargs):
             raise TypeError, "quiver() got an unexpected keyword argument '%s'"%kwargs.keys()[0]
@@ -4151,8 +4139,6 @@ class Axes(Artist):
         kwargs control the Polygon properties:
         %(Polygon)s
         """
-        kwargs = kwargs.copy()
-
         if not self._hold: self.cla()
 
         patches = []
@@ -4974,7 +4960,7 @@ class Axes(Artist):
             self.set_aspect(aspect)
             ret = lines
         self.title.set_y(1.05)
-        self.xaxis.tick_top()
+        self.xaxis.set_label_position('top')
         self.xaxis.set_major_locator(MaxNLocator(integer=True))
         self.yaxis.set_major_locator(MaxNLocator(integer=True))
         return ret
@@ -5010,7 +4996,7 @@ class Axes(Artist):
         kw.update(kwargs)
         im = self.imshow(Z, **kw)
         self.title.set_y(1.05)
-        self.xaxis.tick_top()
+        self.xaxis.set_label_position('top')
         self.xaxis.set_major_locator(MaxNLocator(integer=True))
         self.yaxis.set_major_locator(MaxNLocator(integer=True))
         return im
