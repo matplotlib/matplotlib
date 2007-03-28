@@ -1,8 +1,12 @@
 #!/usr/bin/env python
 '''
 This illustrates a leak that occurs with any interactive backend.
+Run with :
 
-Run with : python memleak_gui.py -dGTKAgg   # or TkAgg, etc..
+  > python memleak_gui.py -dGTKAgg   # or TkAgg, etc..
+
+You may need to edit cbook.report_memory to support your platform
+
 '''
 import os, sys, time
 import gc
