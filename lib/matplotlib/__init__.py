@@ -752,11 +752,11 @@ defaultParams = {
     'font.stretch'      : ['normal', str],           #
     'font.weight'       : ['normal', str],           #
     'font.size'         : [12.0, validate_float], #
-    'font.serif'        : ['serif', validate_comma_sep_str],
-    'font.sans-serif'   : ['sans-serif', validate_comma_sep_str],
-    'font.cursive'      : ['cursive', validate_comma_sep_str],
-    'font.fantasy'      : ['fantasy', validate_comma_sep_str],
-    'font.monospace'    : ['monospace', validate_comma_sep_str],
+    'font.serif'        : ['Bitstream Vera Serif, New Century Schoolbook, Century Schoolbook L, Utopia, ITC Bookman, Bookman, Nimbus Roman No9 L, Times New Roman, Times, Palatino, Charter, serif', validate_comma_sep_str],
+    'font.sans-serif'   : ['Bitstream Vera Sans, Lucida Grande, Verdana, Geneva, Lucid, Arial, Helvetica, Avant Garde, sans-serif', validate_comma_sep_str],
+    'font.cursive'      : ['Apple Chancery, Textile, Zapf Chancery, Sand, cursive', validate_comma_sep_str],
+    'font.fantasy'      : ['Comic Sans MS, Chicago, Charcoal, Impact, Western, fantasy', validate_comma_sep_str],
+    'font.monospace'    : ['Bitstream Vera Sans Mono, Andale Mono, Nimbus Mono L, Courier New, Courier, Fixed, Terminal, monospace', validate_comma_sep_str],
 
     # text props
     'text.color'        : ['k', validate_color],     # black
