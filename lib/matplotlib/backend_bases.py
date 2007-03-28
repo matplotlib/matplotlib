@@ -1151,7 +1151,7 @@ class NavigationToolbar2:
 
     def __init__(self, canvas):
         self.canvas = canvas
-
+        canvas.toolbar = self
         # a dict from axes index to a list of view limits
         self._views = Stack()
         self._positions = Stack()  # stack of subplot positions

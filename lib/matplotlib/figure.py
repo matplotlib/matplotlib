@@ -153,6 +153,7 @@ class Figure(Artist):
         self.subplotpars = subplotpars
 
         self._axstack = Stack()  # maintain the current axes
+        self.axes = []
         self.clf()
 
         self._cachedRenderer = None
@@ -514,7 +515,13 @@ class Figure(Artist):
         """
         Clear the figure
         """
-        self.axes = []
+        for ax in self.axes:
+            ax.cla()
+            self.delaxes(ax)
+
+        toolbar = getattr(self.canvas, 'toolbar', None)
+        if toolbar is not None:
+            toolbar.update()
         self._axstack.clear()
         self._seen = {}
         self.lines = []

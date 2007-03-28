@@ -311,8 +311,9 @@ class FigureManagerTkAgg(FigureManagerBase):
             if self.window is not None:
                 self.window.quit()
         if self.window is not None:
-            #print 'calling window destroy'
+            #self.toolbar.destroy()
             self.window.destroy()
+
             pass
         self.window = None
 
@@ -534,7 +535,7 @@ class NavigationToolbar2TkAgg(NavigationToolbar2, Tk.Frame):
         self.canvas = canvas
         self.window = window
         self._idle = True
-        Tk.Frame.__init__(self, master=self.canvas._tkcanvas)
+        #Tk.Frame.__init__(self, master=self.canvas._tkcanvas)
         NavigationToolbar2.__init__(self, canvas)
         
     def set_message(self, s):
