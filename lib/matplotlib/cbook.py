@@ -685,6 +685,19 @@ def reverse_dict(d):
     return dict([(v,k) for k,v in d.items()])
 
 
+def report_memory(i):
+    'return the memory consumed by process'
+    pid = os.getpid()
+    if sys.platform=='sunos5':
+        a2 = os.popen('ps -p %d -o osz' % pid).readlines()
+        mem = int(a2[-1].strip())
+        #print i, '  ', int(a2[-1].strip())
+    elif sys.platform.startswith('linux'):
+        a2 = os.popen('ps -p %d -o rss,sz' % pid).readlines()
+        mem = int(a2[1].split()[1])
+
+    return mem
+ 
 if __name__=='__main__':
     assert( allequal([1,1,1]) )
     assert(not  allequal([1,1,0]) )
