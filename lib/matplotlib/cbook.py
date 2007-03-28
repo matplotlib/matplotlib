@@ -695,6 +695,9 @@ def report_memory(i):
     elif sys.platform.startswith('linux'):
         a2 = os.popen('ps -p %d -o rss,sz' % pid).readlines()
         mem = int(a2[1].split()[1])
+    elif sys.platform.startswith('darwin'):
+        a2 = os.popen('ps -p %d -o rss,vsz' % pid).readlines()
+        mem = int(a2[1].split()[0])
 
     return mem
  
