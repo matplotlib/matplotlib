@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 '''
 This illustrates a leak that occurs with any interactive backend.
+
+Run with : python memleak_gui.py -dGTKAgg   # or TkAgg, etc..
 '''
 import os, sys, time
 import gc
