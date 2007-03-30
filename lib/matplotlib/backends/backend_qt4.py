@@ -245,7 +245,7 @@ class FigureManagerQT( FigureManagerBase ):
         if self.window._destroying: return
         self.window._destroying = True
         if DEBUG: print "destroy figure manager"
-        self.window.close(True)
+        self.window.close()
 
 class NavigationToolbar2QT( NavigationToolbar2, QtGui.QWidget ):
     # list of toolitems to add to the toolbar, format is:
