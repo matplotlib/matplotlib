@@ -4,6 +4,7 @@ from the Python Cookbook -- hence the name cbook
 """
 from __future__ import generators
 import re, os, errno, sys, StringIO, traceback
+import matplotlib.numerix as nx
 
 try: set
 except NameError:
@@ -541,7 +542,7 @@ def allpairs(x):
 
 
 
-# python 2.2 dicts don't have pop
+# python 2.2 dicts don't have pop--but we don't support 2.2 any more
 def popd(d, *args):
     """
     Should behave like python2.3 pop method; d is a dict
@@ -701,19 +702,26 @@ def report_memory(i=0):  # argument may go away
     return mem
 
 class MemoryMonitor:
-    def __init__(self):
+    def __init__(self, nmax=20000):
+        self._nmax = nmax
+        self._mem = nx.zeros((self._nmax,), nx.Int32)
         self.clear()
 
     def clear(self):
-        self._mem = []
+        self._n = 0
+        self._overflow = False
 
     def __call__(self):
         mem = report_memory()
-        self._mem.append(mem)
+        if self._n < self._nmax:
+            self._mem[self._n] = mem
+            self._n += 1
+        else:
+            self._overflow = True
         return mem
 
     def report(self, segments=4):
-        n = len(self._mem)
+        n = self._n
         segments = min(n, segments)
         dn = int(n/segments)
         ii = range(0, n, dn)
@@ -728,15 +736,19 @@ class MemoryMonitor:
             dm = self._mem[ii[i]] - self._mem[ii[i-1]]
             print '%5d %5d %3d %8.3f' % (ii[i], self._mem[ii[i]],
                                             dm, dm / float(di))
+        if self._overflow:
+            print "Warning: array size was too small for the number of calls."
 
     def xy(self, i0=0, isub=1):
-        x = range(i0, len(self._mem), isub)
-        return x, self._mem[i0::isub]
+        x = nx.arange(i0, self._n, isub)
+        return x, self._mem[i0:self._n:isub]
 
     def plot(self, i0=0, isub=1):
-        import pylab
-        pylab.plot(*self.xy(i0, isub))
-        pylab.show()
+        from pylab import figure, show
+        fig = figure()
+        ax = fig.add_subplot(111)
+        ax.plot(*self.xy(i0, isub))
+        show()
 
 
 if __name__=='__main__':
