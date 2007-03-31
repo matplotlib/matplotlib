@@ -36,7 +36,7 @@ class CallbackRegistry:
        callbacks.process('be merry', 456) # nothing will be called
        callbacks.disconnect(ideat)        # disconnect oneat
        callbacks.process('eat', 456)      # nothing will be called
-    
+
     """
     def __init__(self, signals):
         'signals is a sequence of valid signals'
@@ -70,7 +70,7 @@ class CallbackRegistry:
         for eventname, callbackd in self.callbacks.items():
             try: del callbackd[cid]
             except KeyError: continue
-            else: return 
+            else: return
 
     def process(self, s, *args, **kwargs):
         """
@@ -80,9 +80,9 @@ class CallbackRegistry:
         self._check_signal(s)
         for func in self.callbacks[s].values():
             func(*args, **kwargs)
-        
-        
-                   
+
+
+
 class silent_list(list):
     """
     override repr when returning a list of matplotlib artists to
@@ -685,13 +685,12 @@ def reverse_dict(d):
     return dict([(v,k) for k,v in d.items()])
 
 
-def report_memory(i):
+def report_memory(i=0):  # argument may go away
     'return the memory consumed by process'
     pid = os.getpid()
     if sys.platform=='sunos5':
         a2 = os.popen('ps -p %d -o osz' % pid).readlines()
         mem = int(a2[-1].strip())
-        #print i, '  ', int(a2[-1].strip())
     elif sys.platform.startswith('linux'):
         a2 = os.popen('ps -p %d -o rss,sz' % pid).readlines()
         mem = int(a2[1].split()[1])
@@ -700,7 +699,46 @@ def report_memory(i):
         mem = int(a2[1].split()[0])
 
     return mem
- 
+
+class MemoryMonitor:
+    def __init__(self):
+        self.clear()
+
+    def clear(self):
+        self._mem = []
+
+    def __call__(self):
+        mem = report_memory()
+        self._mem.append(mem)
+        return mem
+
+    def report(self, segments=4):
+        n = len(self._mem)
+        segments = min(n, segments)
+        dn = int(n/segments)
+        ii = range(0, n, dn)
+        ii[-1] = n-1
+        print
+        print 'memory report: i, mem, dmem, dmem/nloops'
+        print 0, self._mem[0]
+        for i in range(1, len(ii)):
+            di = ii[i] - ii[i-1]
+            if di == 0:
+                continue
+            dm = self._mem[ii[i]] - self._mem[ii[i-1]]
+            print '%5d %5d %3d %8.3f' % (ii[i], self._mem[ii[i]],
+                                            dm, dm / float(di))
+
+    def xy(self, i0=0, isub=1):
+        x = range(i0, len(self._mem), isub)
+        return x, self._mem[i0::isub]
+
+    def plot(self, i0=0, isub=1):
+        import pylab
+        pylab.plot(*self.xy(i0, isub))
+        pylab.show()
+
+
 if __name__=='__main__':
     assert( allequal([1,1,1]) )
     assert(not  allequal([1,1,0]) )
