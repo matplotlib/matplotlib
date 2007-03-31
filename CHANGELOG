@@ -1,3 +1,5 @@
+2007-03-31 Added a qt-based subplot-adjustment dialog - DSD
+
 2007-03-30 Fixed a bug in backend_qt4, reported on mpl-dev - DSD
 
 2007-03-26 Removed colorbar_classic from figure.py; fixed bug in

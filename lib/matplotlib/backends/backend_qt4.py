@@ -334,26 +334,41 @@ class NavigationToolbar2QT( NavigationToolbar2, QtGui.QWidget ):
         self.canvas.drawRectangle( rect )
         
     def configure_subplots(self):
-        self.adj_window = QtGui.QDialog()
+        self.adj_window = QtGui.QMainWindow()
         win = self.adj_window
         win.setAttribute(QtCore.Qt.WA_DeleteOnClose)
+        
         win.setWindowTitle("Subplot Configuration Tool")
         image = os.path.join( matplotlib.rcParams['datapath'],'images','matplotlib.png' )
         win.setWindowIcon(QtGui.QIcon( image ))
-
-        toolfig = Figure(figsize=(6,3))
-        toolfig.subplots_adjust(top=0.9)
-        canvas = self._get_canvas(toolfig)
-        tool = SubplotTool(self.canvas.figure, toolfig)
-
-        canvas.setParent(win)
-        w = int (toolfig.bbox.width())
-        h = int (toolfig.bbox.height())
-
-        win.resize(w, h)
-        canvas.setFocus()
+        
+        tool = SubplotToolQt(self.canvas.figure, win)
+        win.setCentralWidget(tool)
+        win.setSizePolicy(QtGui.QSizePolicy.Preferred, QtGui.QSizePolicy.Preferred)
         
         win.show()
+        
+#        self.adj_window = QtGui.QDialog()
+#        win = self.adj_window
+#        win.setAttribute(QtCore.Qt.WA_DeleteOnClose)
+#        win.setWindowTitle("Subplot Configuration Tool")
+#        image = os.path.join( matplotlib.rcParams['datapath'],'images','matplotlib.png' )
+#        win.setWindowIcon(QtGui.QIcon( image ))
+#
+#        toolfig = Figure(figsize=(6,3))
+#        toolfig.subplots_adjust(top=0.9)
+#        canvas = self._get_canvas(toolfig)
+#        tool = SubplotTool(self.canvas.figure, toolfig)
+#
+#        canvas.setParent(win)
+#        w = int (toolfig.bbox.width())
+#        h = int (toolfig.bbox.height())
+#
+#        win.resize(w, h)
+#        canvas.setFocus()
+#        
+#        canvas.show()
+#        win.show()
     
     def _get_canvas(self, fig):
         return FigureCanvasQT(fig)
@@ -362,6 +377,125 @@ class NavigationToolbar2QT( NavigationToolbar2, QtGui.QWidget ):
         fname = QtGui.QFileDialog.getSaveFileName()
         if fname:
             self.canvas.print_figure( str(fname.toLatin1()) )
+
+
+class SubplotToolQt( SubplotTool, QtGui.QWidget ):
+    def __init__(self, targetfig, parent):
+        QtGui.QWidget.__init__(self, None)
+        
+        self.targetfig = targetfig
+        self.parent = parent
+        
+        self.sliderleft = QtGui.QSlider(QtCore.Qt.Horizontal)
+        self.sliderbottom = QtGui.QSlider(QtCore.Qt.Vertical)
+        self.sliderright = QtGui.QSlider(QtCore.Qt.Horizontal)
+        self.slidertop = QtGui.QSlider(QtCore.Qt.Vertical)
+        self.sliderwspace = QtGui.QSlider(QtCore.Qt.Horizontal)
+        self.sliderhspace = QtGui.QSlider(QtCore.Qt.Vertical)
+        
+        # constraints
+        QtCore.QObject.connect( self.sliderleft, QtCore.SIGNAL( "valueChanged(int)" ),
+                                self.sliderright.setMinimum )
+        QtCore.QObject.connect( self.sliderright, QtCore.SIGNAL( "valueChanged(int)" ),
+                                self.sliderleft.setMaximum )
+        QtCore.QObject.connect( self.sliderbottom, QtCore.SIGNAL( "valueChanged(int)" ),
+                                self.slidertop.setMinimum )
+        QtCore.QObject.connect( self.slidertop, QtCore.SIGNAL( "valueChanged(int)" ),
+                                self.sliderbottom.setMaximum )
+        
+        sliders = (self.sliderleft, self.sliderbottom, self.sliderright,
+                   self.slidertop, self.sliderwspace, self.sliderhspace, )
+        adjustments = ('left:', 'bottom:', 'right:', 'top:', 'wspace:', 'hspace:')
+        
+        for slider, adjustment in zip(sliders, adjustments):
+            slider.setMinimum(0)
+            slider.setMaximum(1000)
+            slider.setSingleStep(5)
+
+        layout = QtGui.QGridLayout()
+        
+        leftlabel = QtGui.QLabel('left')
+        layout.addWidget(leftlabel, 2, 0)
+        layout.addWidget(self.sliderleft, 2, 1)
+        
+        toplabel = QtGui.QLabel('top')
+        layout.addWidget(toplabel, 0, 2)
+        layout.addWidget(self.slidertop, 1, 2)
+        layout.setAlignment(self.slidertop, QtCore.Qt.AlignHCenter)
+        
+        bottomlabel = QtGui.QLabel('bottom')
+        layout.addWidget(QtGui.QLabel('bottom'), 4, 2)
+        layout.addWidget(self.sliderbottom, 3, 2)
+        layout.setAlignment(self.sliderbottom, QtCore.Qt.AlignHCenter)
+        
+        rightlabel = QtGui.QLabel('right')
+        layout.addWidget(rightlabel, 2, 4)
+        layout.addWidget(self.sliderright, 2, 3)
+        
+        hspacelabel = QtGui.QLabel('hspace')
+        layout.addWidget(hspacelabel, 0, 6)
+        layout.setAlignment(hspacelabel, QtCore.Qt.AlignHCenter)
+        layout.addWidget(self.sliderhspace, 1, 6)
+        layout.setAlignment(self.sliderhspace, QtCore.Qt.AlignHCenter)
+        
+        wspacelabel = QtGui.QLabel('wspace')
+        layout.addWidget(wspacelabel, 4, 6)
+        layout.setAlignment(wspacelabel, QtCore.Qt.AlignHCenter)
+        layout.addWidget(self.sliderwspace, 3, 6)
+        layout.setAlignment(self.sliderwspace, QtCore.Qt.AlignBottom)
+        
+        layout.setRowStretch(1,1)
+        layout.setRowStretch(3,1)
+        layout.setColumnStretch(1,1)
+        layout.setColumnStretch(3,1)
+        layout.setColumnStretch(6,1)
+        
+        self.setLayout(layout)
+        
+        self.sliderleft.setSliderPosition(int(targetfig.subplotpars.left*1000))
+        self.sliderbottom.setSliderPosition(int(targetfig.subplotpars.bottom*1000))
+        self.sliderright.setSliderPosition(int(targetfig.subplotpars.right*1000))
+        self.slidertop.setSliderPosition(int(targetfig.subplotpars.top*1000))
+        self.sliderwspace.setSliderPosition(int(targetfig.subplotpars.wspace*1000))
+        self.sliderhspace.setSliderPosition(int(targetfig.subplotpars.hspace*1000))
+        
+        QtCore.QObject.connect( self.sliderleft, QtCore.SIGNAL( "valueChanged(int)" ),
+                                self.funcleft )
+        QtCore.QObject.connect( self.sliderbottom, QtCore.SIGNAL( "valueChanged(int)" ),
+                                self.funcbottom )
+        QtCore.QObject.connect( self.sliderright, QtCore.SIGNAL( "valueChanged(int)" ),
+                                self.funcright )
+        QtCore.QObject.connect( self.slidertop, QtCore.SIGNAL( "valueChanged(int)" ),
+                                self.functop )
+        QtCore.QObject.connect( self.sliderwspace, QtCore.SIGNAL( "valueChanged(int)" ),
+                                self.funcwspace )
+        QtCore.QObject.connect( self.sliderhspace, QtCore.SIGNAL( "valueChanged(int)" ),
+                                self.funchspace )
+
+    def funcleft(self, val):
+        self.targetfig.subplots_adjust(left=val/1000.)
+        if self.drawon: self.targetfig.canvas.draw()
+
+    def funcright(self, val):
+        self.targetfig.subplots_adjust(right=val/1000.)
+        if self.drawon: self.targetfig.canvas.draw()
+
+    def funcbottom(self, val):
+        self.targetfig.subplots_adjust(bottom=val/1000.)
+        if self.drawon: self.targetfig.canvas.draw()
+
+    def functop(self, val):
+        self.targetfig.subplots_adjust(top=val/1000.)
+        if self.drawon: self.targetfig.canvas.draw()
+
+    def funcwspace(self, val):
+        self.targetfig.subplots_adjust(wspace=val/1000.)
+        if self.drawon: self.targetfig.canvas.draw()
+
+    def funchspace(self, val):
+        self.targetfig.subplots_adjust(hspace=val/1000.)
+        if self.drawon: self.targetfig.canvas.draw()
+        
 
 def error_msg_qt( msg, parent=None ):
     if not is_string_like( msg ):
