@@ -188,7 +188,7 @@ for k, v in cnames.items():
     if k.find('gray')>=0:
         k = k.replace('gray', 'grey')
         cnames[k] = v
-        
+
 def looks_like_color(c):
     warnings.warn('Use is_color_like instead!', DeprecationWarning)
     if is_string_like(c):
@@ -614,7 +614,7 @@ class Normalize:
             vtype = 'array'
             val = ma.asarray(value)
 
-        self.autoscale(val)
+        self.autoscale_None(val)
         vmin, vmax = self.vmin, self.vmax
         if vmin > vmax:
             raise ValueError("minvalue must be less than or equal to maxvalue")
@@ -643,9 +643,16 @@ class Normalize:
 
 
     def autoscale(self, A):
-        if not self.scaled():
-            if self.vmin is None: self.vmin = ma.minimum(A)
-            if self.vmax is None: self.vmax = ma.maximum(A)
+        '''
+        Set vmin, vmax to min, max of A.
+        '''
+        self.vmin = ma.minimum(A)
+        self.vmax = ma.maximum(A)
+
+    def autoscale_None(self, A):
+        ' autoscale only None-valued vmin or vmax'
+        if self.vmin is None: self.vmin = ma.minimum(A)
+        if self.vmax is None: self.vmax = ma.maximum(A)
 
     def scaled(self):
         'return true if vmin and vmax set'
@@ -664,7 +671,7 @@ class LogNorm(Normalize):
         else:
             vtype = 'array'
             val = ma.asarray(value)
-        self.autoscale(val)
+        self.autoscale_None(val)
         vmin, vmax = self.vmin, self.vmax
         if vmin > vmax:
             raise ValueError("minvalue must be less than or equal to maxvalue")

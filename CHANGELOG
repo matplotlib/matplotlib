@@ -1,3 +1,8 @@
+2007-04-01 Made image color autoscaling work correctly with
+           a tracking colorbar; norm.autoscale now scales
+           unconditionally, while norm.autoscale_None changes
+           only None-valued vmin, vmax. - EF
+
 2007-03-31 Added a qt-based subplot-adjustment dialog - DSD
 
 2007-03-30 Fixed a bug in backend_qt4, reported on mpl-dev - DSD
