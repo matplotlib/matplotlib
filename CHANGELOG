@@ -1,3 +1,6 @@
+2007-04-02 Fixed problem with imshow and matshow of integer arrays;
+           fixed problems with changes to color autoscaling. - EF
+
 2007-04-01 Made image color autoscaling work correctly with
            a tracking colorbar; norm.autoscale now scales
            unconditionally, while norm.autoscale_None changes

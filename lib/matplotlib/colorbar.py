@@ -477,7 +477,7 @@ class ColorbarBase(cm.ScalarMappable):
 
 class Colorbar(ColorbarBase):
     def __init__(self, ax, mappable, **kw):
-        mappable.autoscale() # Ensure mappable.norm.vmin, vmax
+        mappable.autoscale_None() # Ensure mappable.norm.vmin, vmax
                              # are set when colorbar is called,
                              # even if mappable.draw has not yet
                              # been called.  This will not change
