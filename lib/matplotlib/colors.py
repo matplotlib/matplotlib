@@ -607,12 +607,13 @@ class Normalize:
     def __call__(self, value, clip=None):
         if clip is None:
             clip = self.clip
-        if isinstance(value, (int, float)):
-            vtype = 'scalar'
-            val = ma.array([value])
-        else:
+
+        if iterable(value):
             vtype = 'array'
-            val = ma.asarray(value)
+            val = ma.asarray(value).astype(Float)
+        else:
+            vtype = 'scalar'
+            val = ma.array([value]).astype(Float)
 
         self.autoscale_None(val)
         vmin, vmax = self.vmin, self.vmax
@@ -635,11 +636,11 @@ class Normalize:
             raise ValueError("Not invertible until scaled")
         vmin, vmax = self.vmin, self.vmax
 
-        if isinstance(value, (int, float)):
-            return vmin + value * (vmax - vmin)
-        else:
+        if iterable(value):
             val = ma.asarray(value)
             return vmin + val * (vmax - vmin)
+        else:
+            return vmin + value * (vmax - vmin)
 
 
     def autoscale(self, A):
@@ -665,12 +666,14 @@ class LogNorm(Normalize):
     def __call__(self, value, clip=None):
         if clip is None:
             clip = self.clip
-        if isinstance(value, (int, float)):
-            vtype = 'scalar'
-            val = ma.array([value])
-        else:
+
+        if iterable(value):
             vtype = 'array'
-            val = ma.asarray(value)
+            val = ma.asarray(value).astype(Float)
+        else:
+            vtype = 'scalar'
+            val = ma.array([value]).astype(Float)
+
         self.autoscale_None(val)
         vmin, vmax = self.vmin, self.vmax
         if vmin > vmax:
@@ -694,12 +697,11 @@ class LogNorm(Normalize):
             raise ValueError("Not invertible until scaled")
         vmin, vmax = self.vmin, self.vmax
 
-        if isinstance(value, (int, float)):
-            return vmin * pow((vmax/vmin), value)
-        else:
+        if iterable(value):
             val = ma.asarray(value)
             return vmin * ma.power((vmax/vmin), val)
-
+        else:
+            return vmin * pow((vmax/vmin), value)
 
 
 class NoNorm(Normalize):

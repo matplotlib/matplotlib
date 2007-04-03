@@ -84,7 +84,7 @@ class ScalarMappable:
         """
         if vmin is not None and vmax is None and iterable(vmin) and len(vmin)==2:
             vmin, vmax = vmin
-            
+
         if vmin is not None: self.norm.vmin = vmin
         if vmax is not None: self.norm.vmax = vmax
         self.changed()
@@ -114,6 +114,18 @@ class ScalarMappable:
             raise TypeError('You must first set_array for mappable')
         self.norm.autoscale(self._A)
         self.changed()
+
+    def autoscale_None(self):
+        """
+        Autoscale the scalar limits on the norm instance using the
+        current array, changing only limits that are None
+        """
+        if self._A is None:
+            raise TypeError('You must first set_array for mappable')
+        self.norm.autoscale_None(self._A)
+        self.changed()
+
+
 
     def add_observer(self, mappable):
         """

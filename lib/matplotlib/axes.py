@@ -3884,7 +3884,7 @@ class Axes(Artist):
             if vmin is not None or vmax is not None:
                 collection.set_clim(vmin, vmax)
             else:
-                collection.autoscale()
+                collection.autoscale_None()
 
         temp_x = x
         temp_y = y
@@ -4267,7 +4267,7 @@ class Axes(Artist):
         if vmin is not None or vmax is not None:
             im.set_clim(vmin, vmax)
         else:
-            im.autoscale()
+            im.autoscale_None()
 
         xmin, xmax, ymin, ymax = im.get_extent()
 
@@ -4456,7 +4456,7 @@ class Axes(Artist):
         if vmin is not None or vmax is not None:
             collection.set_clim(vmin, vmax)
         else:
-            collection.autoscale()
+            collection.autoscale_None()
         self.grid(False)
 
         x = X.compressed()
@@ -4571,7 +4571,7 @@ class Axes(Artist):
         if vmin is not None or vmax is not None:
             collection.set_clim(vmin, vmax)
         else:
-            collection.autoscale()
+            collection.autoscale_None()
 
         self.grid(False)
 
