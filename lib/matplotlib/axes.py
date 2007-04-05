@@ -4962,8 +4962,12 @@ class Axes(Artist):
         self.title.set_y(1.05)
         self.xaxis.tick_top()
         self.xaxis.set_ticks_position('both')
-        self.xaxis.set_major_locator(MaxNLocator(integer=True))
-        self.yaxis.set_major_locator(MaxNLocator(integer=True))
+        self.xaxis.set_major_locator(MaxNLocator(nbins=9,
+                                                 steps=[1, 2, 5, 10],
+                                                 integer=True))
+        self.yaxis.set_major_locator(MaxNLocator(nbins=9,
+                                                 steps=[1, 2, 5, 10],
+                                                 integer=True))
         return ret
 
     def matshow(self, Z, **kwargs):
@@ -4999,8 +5003,12 @@ class Axes(Artist):
         self.title.set_y(1.05)
         self.xaxis.tick_top()
         self.xaxis.set_ticks_position('both')
-        self.xaxis.set_major_locator(MaxNLocator(integer=True))
-        self.yaxis.set_major_locator(MaxNLocator(integer=True))
+        self.xaxis.set_major_locator(MaxNLocator(nbins=9,
+                                                 steps=[1, 2, 5, 10],
+                                                 integer=True))
+        self.yaxis.set_major_locator(MaxNLocator(nbins=9,
+                                                 steps=[1, 2, 5, 10],
+                                                 integer=True))
         return im
 
 class SubplotBase:

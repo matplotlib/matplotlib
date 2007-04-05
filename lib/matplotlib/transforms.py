@@ -28,6 +28,21 @@ as
 
   middle = Value(0.5) * width
 
+Pairs of LazyValue instances can occur as instances of two classes:
+
+    pt = Point( Value(x), Value(y)) # where x, y are numbers
+         pt.x(), pt.y() return  Value(x), Value(y))
+
+    iv = Interval( Value(x), Value(y))
+         iv.contains(z) returns True if z is in the closed interval
+         iv.contains_open(z): same for open interval
+         iv.span() returns y-x as a float
+         iv.get_bounds() returns (x,y) as a tuple of floats
+         iv.set_bounds(x, y) allows input of new floats
+         iv.update(seq) updates the bounds to include all elements
+              in a sequence of floats
+         iv.shift(s) shifts the interval by s, a float
+
 The bounding box class Bbox is also heavily used, and is defined by a
 lower left point ll and an upper right point ur.  The points ll and ur
 are given by Point(x, y) instances, where x and y are LazyValues.  So
