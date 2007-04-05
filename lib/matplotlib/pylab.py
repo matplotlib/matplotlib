@@ -1344,7 +1344,9 @@ def polar(*args, **kwargs):
     with format strings, as in plot.
     """
     ax = gca(polar=True)
-    return ax.plot(*args, **kwargs)
+    ret = ax.plot(*args, **kwargs)
+    draw_if_interactive()
+    return ret
 
 def over(func, *args, **kwargs):
     """
