@@ -1,3 +1,6 @@
+    New method set_bounds(vmin, vmax) for formatters, locators sets
+    the viewInterval and dataInterval from floats.
+
     Removed deprecated colorbar_classic.
 
     Line2D.get_xdata and get_ydata valid_only=False kwarg is replaced

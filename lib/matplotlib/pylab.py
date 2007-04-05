@@ -1402,6 +1402,8 @@ def matshow(A, fignum=None, **kw):
       set the figure aspect ratio to be the one of the array, if you provide
       the number of an already existing figure, strange things may happen.
 
+      if fignum is False or 0, a new figure window will NOT be created.
+
     Example usage:
 
     def samplemat(dims):
@@ -1416,13 +1418,12 @@ def matshow(A, fignum=None, **kw):
         im = matshow(samplemat(d))
     show()
     """
-
-    #kw = kw.copy()
-    #fignum = kw.pop('fignum', None)
-
-    # Extract actual aspect ratio of array and make appropriately sized figure
-    fig = figure(fignum, figsize=figaspect(A))
-    ax  = fig.add_axes([0.15, 0.09, 0.775, 0.775])
+    if fignum is False or fignum is 0:
+        ax = gca()
+    else:
+        # Extract actual aspect ratio of array and make appropriately sized figure
+        fig = figure(fignum, figsize=figaspect(A))
+        ax  = fig.add_axes([0.15, 0.09, 0.775, 0.775])
 
     im = ax.matshow(A, **kw)
     gci._current = im

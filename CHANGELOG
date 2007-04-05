@@ -1,3 +1,6 @@
+2007-04-04 More matshow tweaks; documentation updates; new method
+           set_bounds() for formatters and locators. - EF
+
 2007-04-02 Fixed problem with imshow and matshow of integer arrays;
            fixed problems with changes to color autoscaling. - EF
 
