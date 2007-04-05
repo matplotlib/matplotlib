@@ -115,7 +115,7 @@ class Tick(Artist):
     def get_children(self):
         children = [self.tick1line, self.tick2line, self.gridline, self.label1, self.label2]
         return children
-    
+
     def pick(self, mouseevent):
         """
         pick(mouseevent)
@@ -504,7 +504,7 @@ class Axis(Artist):
         self.major = Ticker()
         self.minor = Ticker()
         self.callbacks = CallbackRegistry(('units', 'units finalize'))
-        
+
         #class dummy:
         #    locator = None
         #    formatter = None
@@ -523,7 +523,7 @@ class Axis(Artist):
         children.extend(self.majorTicks)
         children.extend(self.minorTicks)
         return children
-    
+
     def pick(self, mouseevent):
         """
         pick(mouseevent)
@@ -562,7 +562,7 @@ class Axis(Artist):
         self.units = None
         self.set_units(None)
 
-        
+
     def get_view_interval(self):
         'return the Interval instance for this axis view limits'
         raise NotImplementedError('Derived must override')
@@ -780,7 +780,7 @@ class Axis(Artist):
                 tick.gridOn = self._gridOnMajor
                 if len(kwargs): setp(tick.gridline,**kwargs)
 
-        
+
     def update_units(self, data):
         """
         introspect data for units converter and update the
@@ -802,13 +802,13 @@ class Axis(Artist):
         check the axis converter for the stored units to see if the
         axis info needs to be updated
         """
-        
+
         if self.converter is None:
             return
 
         info = self.converter.axisinfo(self.units)
         if info is None:
-            return 
+            return
         if info.majloc is not None and self.major.locator!=info.majloc:
             self.set_major_locator(info.majloc)
         if info.minloc is not None and self.minor.locator!=info.minloc:
@@ -820,16 +820,16 @@ class Axis(Artist):
         if info.label is not None:
             label = self.get_label()
             label.set_text(info.label)
-        
+
     def convert_units(self, x):
         if self.converter is None:
             #print 'convert_units returning identity: units=%s, converter=%s'%(self.units, self.converter)
-            return x        
+            return x
 
         ret =  self.converter.convert(x, self.units)
         #print 'convert_units converting: units=%s, converter=%s, in=%s, out=%s'%(self.units, self.converter, x, ret)
         return ret
-    
+
     def set_units(self, u):
         """
         set the units for axis
@@ -849,7 +849,7 @@ class Axis(Artist):
         if pchanged:
             self.callbacks.process('units')
             self.callbacks.process('units finalize')
-            
+
     def get_units(self):
         'return the units for axis'
         return self.units

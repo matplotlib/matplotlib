@@ -4960,7 +4960,8 @@ class Axes(Artist):
             self.set_aspect(aspect)
             ret = lines
         self.title.set_y(1.05)
-        self.xaxis.set_label_position('top')
+        self.xaxis.tick_top()
+        self.xaxis.set_ticks_position('both')
         self.xaxis.set_major_locator(MaxNLocator(integer=True))
         self.yaxis.set_major_locator(MaxNLocator(integer=True))
         return ret
@@ -4996,7 +4997,8 @@ class Axes(Artist):
         kw.update(kwargs)
         im = self.imshow(Z, **kw)
         self.title.set_y(1.05)
-        self.xaxis.set_label_position('top')
+        self.xaxis.tick_top()
+        self.xaxis.set_ticks_position('both')
         self.xaxis.set_major_locator(MaxNLocator(integer=True))
         self.yaxis.set_major_locator(MaxNLocator(integer=True))
         return im
