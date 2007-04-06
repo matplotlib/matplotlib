@@ -3770,16 +3770,12 @@ class Axes(Artist):
 
         x, y, s, c = delete_masked_points(x, y, s, c)
 
-        # Strange kwarg override: kwargs['color'] overrides
-        # defaulted kw 'c':
-        if kwargs.has_key('color'):
-            c = kwargs['color']
-            kwargs.pop('color')
+        # The inherent ambiguity is resolved in favor of color
+        # mapping, not interpretation as rgb or rgba.
         if not is_string_like(c) and iterable(c) and len(c)==len(x):
-            colors = None
+            colors = None  # use cmap, norm after collection is created
         else:
-            colors = ( colorConverter.to_rgba(c, alpha), )
-
+            colors = colorConverter.to_rgba_list(c, alpha)
 
         if not iterable(s):
             scales = (s,)
