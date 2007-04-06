@@ -1200,7 +1200,8 @@ _image_module::frombyte(const Py::Tuple& args) {
   int isoutput = Py::Int(args[1]);
 
   PyArrayObject *A = (PyArrayObject *) PyArray_ContiguousFromObject(x.ptr(), PyArray_UBYTE, 3, 3);
-
+  if (A == NULL)
+      throw Py::ValueError("Array must have 3 dimensions");
   if (A->dimensions[2]<3 || A->dimensions[2]>4)
       throw Py::ValueError("Array dimension 3 must have size 3 or 4");
 
@@ -1317,7 +1318,7 @@ _image_module::frombuffer(const Py::Tuple& args) {
     imo->rbufIn->attach(buffer, imo->colsIn, imo->rowsIn, imo->colsIn*imo->BPP);
   }
 
-  return Py::asObject(imo); 
+  return Py::asObject(imo);
 }
 
 
