@@ -20,7 +20,7 @@ from cbook import iterable, is_string_like, flatten, enumerate, \
 from collections import RegularPolyCollection, PolyCollection, LineCollection, \
      QuadMesh, StarPolygonCollection, BrokenBarHCollection
 from colors import colorConverter, Normalize, Colormap, \
-        LinearSegmentedColormap, ListedColormap, looks_like_color, is_color_like
+        LinearSegmentedColormap, ListedColormap, is_color_like
 import cm
 from cm import ScalarMappable
 from contour import ContourSet
@@ -3696,7 +3696,7 @@ class Axes(Artist):
 
         Make a scatter plot of x versus y.  s is a size in points^2 a scalar
         or an array of the same length as x or y.  c is a color and can be a
-        single color format string or an length(x) array of intensities which
+        single color format string or a length(x) array of intensities which
         will be mapped by the matplotlib.colors.colormap instance cmap
 
         The marker can be one of
@@ -3770,7 +3770,8 @@ class Axes(Artist):
 
         x, y, s, c = delete_masked_points(x, y, s, c)
 
-
+        # Strange kwarg override: kwargs['color'] overrides
+        # defaulted kw 'c':
         if kwargs.has_key('color'):
             c = kwargs['color']
             kwargs.pop('color')

@@ -1,5 +1,5 @@
 """
-A class for converting color arguments to RGB
+A class for converting color arguments to RGB or RGBA
 
 This class instantiates a single instance colorConverter that is used
 to convert matlab color strings to RGB.  RGB is a tuple of float RGB
@@ -16,6 +16,11 @@ the colors.  For the basic builtin colors, you can use a single letter
       y  : yellow
       k  : black
       w  : white
+
+Gray shades can be given as a string encoding a float in the 0-1
+range, e.g.,
+
+    color = '0.75'
 
 For a greater range of colors, you have two options.  You can specify
 the color using an html hex string, as in
@@ -189,22 +194,6 @@ for k, v in cnames.items():
         k = k.replace('gray', 'grey')
         cnames[k] = v
 
-def looks_like_color(c):
-    warnings.warn('Use is_color_like instead!', DeprecationWarning)
-    if is_string_like(c):
-        if cnames.has_key(c): return True
-        elif len(c)==1: return True
-        elif len(c)==7 and c.startswith('#') and len(c)==7: return True
-        else: return False
-    elif iterable(c) and len(c)==3:
-        try:
-            rgb = [float(val) for val in c]
-            return True
-        except:
-            return False
-    else:
-        return False
-
 def is_color_like(c):
     try:
         colorConverter.to_rgb(c)
@@ -243,117 +232,106 @@ class ColorConverter:
         }
 
     cache = {}
-    def to_rgb(self, arg, warn=True):
+    def to_rgb(self, arg):
         """
         Returns an RGB tuple of three floats from 0-1.
 
-        arg can be an RGB sequence or a string in any of several forms:
+        arg can be an RGB or RGBA sequence or a string in any of several forms:
             1) a letter from the set 'rgbcmykw'
             2) a hex color string, like '#00FFFF'
             3) a standard name, like 'aqua'
             4) a float, like '0.4', indicating gray on a 0-1 scale
+
+        if arg is RGBA, the A will simply be discarded.
         """
-        # warn kwarg will go away when float-as-grayscale does
         try: return self.cache[arg]
         except KeyError: pass
         except TypeError: # could be unhashable rgb seq
             arg = tuple(arg)
-            try: self.cache[arg]
+            try: return self.cache[arg]
             except KeyError: pass
             except TypeError:
-                raise ValueError('to_rgb: unhashable even inside a tuple')
+                raise ValueError(
+                      'to_rgb: arg "%s" is unhashable even inside a tuple'
+                                    % (str(arg),))
 
         try:
             if is_string_like(arg):
-                str1 = cnames.get(arg, arg)
-                if str1.startswith('#'):
-                    color = hex2color(str1)
-                else:
-                    try:
-                        color = self.colors[arg]
-                    except KeyError:
-                        color = tuple([float(arg)]*3)
-            elif iterable(arg):   # streamline this after removing float case
+                color = self.colors.get(arg, None)
+                if color is None:
+                    str1 = cnames.get(arg, arg)
+                    if str1.startswith('#'):
+                        color = hex2color(str1)
+                    else:
+                        fl = float(arg)
+                        if fl < 0 or fl > 1:
+                            raise ValueError(
+                                   'gray (string) must be in range 0-1')
+                        color = tuple([fl]*3)
+            elif iterable(arg):
+                if len(arg) > 4 or len(arg) < 3:
+                    raise ValueError(
+                           'sequence length is %d; must be 3 or 4'%len(arg))
                 color = tuple(arg[:3])
-                if [x for x in color if (x < 0) or  (x > 1)]:
-                    raise ValueError('to_rgb: Invalid rgb arg "%s"' % (str(arg)))
-            elif isinstance(arg, (float,int)):
-                #raise Exception('number is %s' % str(arg))
-                if warn: warnings.warn(
-                    "For gray use a string, '%s', not a float, %s" %
-                                                (str(arg), str(arg)),
-                                                DeprecationWarning)
-                else: self._gray = True
-                if 0 <= arg <= 1:
-                    color = (arg,arg,arg)
-                else:
-                    raise ValueError('Floating point color arg must be between 0 and 1')
+                if [x for x in color if (float(x) < 0) or  (x > 1)]:
+                    # This will raise TypeError if x is not a number.
+                    raise ValueError('number in rbg sequence outside 0-1 range')
             else:
-                raise ValueError('to_rgb: Invalid rgb arg "%s"' % (str(arg)))
+                raise ValueError('cannot convert argument to rgb sequence')
 
             self.cache[arg] = color
 
         except (KeyError, ValueError, TypeError), exc:
             raise ValueError('to_rgb: Invalid rgb arg "%s"\n%s' % (str(arg), exc))
-
+            # Error messages could be improved by handling TypeError
+            # separately; but this should be rare and not too hard
+            # for the user to figure out as-is.
         return color
 
-    def to_rgba(self, arg, alpha=None, warn=True):
+    def to_rgba(self, arg, alpha=None):
         """
         Returns an RGBA tuple of four floats from 0-1.
 
-        For acceptable values of arg, see to_rgb.  In
-        addition, arg may already be an rgba sequence, in which
-        case it is returned unchanged if the alpha kwarg is None,
-        or takes on the specified alpha.
+        For acceptable values of arg, see to_rgb.
+        If arg is an RGBA sequence and alpha is not None,
+        alpha will replace the original A.
         """
-        if not is_string_like(arg) and iterable(arg):
-            if len(arg) == 4 and alpha is None:
-                return tuple(arg)
-            r,g,b = arg[:3]
-        else:
-            r,g,b = self.to_rgb(arg, warn)
-        if alpha is None:
-            alpha = 1.0
-        return r,g,b,alpha
+        try:
+            if not is_string_like(arg) and iterable(arg):
+                if len(arg) == 4 and alpha is None:
+                    if [x for x in arg if (float(x) < 0) or  (x > 1)]:
+                        # This will raise TypeError if x is not a number.
+                        raise ValueError('number in rbga sequence outside 0-1 range')
+                    return tuple(arg)
+                r,g,b = arg[:3]
+                if [x for x in (r,g,b) if (float(x) < 0) or  (x > 1)]:
+                    raise ValueError('number in rbg sequence outside 0-1 range')
+            else:
+                r,g,b = self.to_rgb(arg)
+            if alpha is None:
+                alpha = 1.0
+            return r,g,b,alpha
+        except (TypeError, ValueError), exc:
+            raise ValueError('to_rgba: Invalid rgba arg "%s"\n%s' % (str(arg), exc))
 
-    def to_rgba_list(self, c):
+    def to_rgba_list(self, c, alpha=None):
         """
         Returns a list of rgba tuples.
 
         Accepts a single mpl color spec or a sequence of specs.
         If the sequence is a list, the list items are changed in place.
         """
-        # This can be improved after removing float-as-grayscale.
-        if not is_string_like(c):
-            try:
-                N = len(c) # raises TypeError if it is not a sequence
-                # Temporary hack: keep single rgb or rgba from being
-                # treated as grayscale.
-                if N==3 or N==4:
-                    L = [x for x in c if x>=0 and x<=1]
-                    if len(L) == N:
-                        raise ValueError
-                # If c is a list, we need to return the same list but
-                # with modified items so that items can be appended to
-                # it. This is needed for examples/dynamic_collections.py.
-                if not isinstance(c, list): # specific; don't need duck-typing
-                    c = list(c)
-                self._gray = False
-                for i, cc in enumerate(c):
-                    c[i] = self.to_rgba(cc, warn=False)  # change in place
-                if self._gray:
-                    msg = "In argument %s: use string, not float, for grayscale" % str(c)
-                    warnings.warn(msg, DeprecationWarning)
-                return c
-            except (ValueError, TypeError):
-                pass
         try:
-            return [self.to_rgba(c)]
-        except (ValueError, TypeError):
-            raise TypeError('c must be a matplotlib color arg or a sequence of them')
-
-
+            return [self.to_rgba(c, alpha)]
+        except ValueError:
+            # If c is a list it must be maintained as the same list
+            # with modified items so that items can be appended to
+            # it. This is needed for examples/dynamic_collections.py.
+            if not isinstance(c, list): # specific; don't need duck-typing
+                c = list(c)
+            for i, cc in enumerate(c):
+                c[i] = self.to_rgba(cc, alpha)  # change in place
+            return c
 
 colorConverter = ColorConverter()
 
