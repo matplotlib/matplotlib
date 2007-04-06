@@ -141,7 +141,7 @@ class PatchCollection(Collection, ScalarMappable):
         #self._offsets = offsets
         self._offsets = offsets
         self._transOffset = transOffset
-        self._verts = []        
+        self._verts = []
 
     __init__.__doc__ = dedent(__init__.__doc__) % kwdocd
 
@@ -153,13 +153,13 @@ class PatchCollection(Collection, ScalarMappable):
         if not self.pickable(): return
         ind = []
         x, y = mouseevent.x, mouseevent.y
-        for i, thispoly in enumerate(self.get_transformed_patches()):            
+        for i, thispoly in enumerate(self.get_transformed_patches()):
             inside = nxutils.pnpoly(x, y, thispoly)
             if inside: ind.append(i)
         if len(ind):
             self.figure.canvas.pick_event(mouseevent, self, ind=ind)
-        
-        
+
+
     def get_transformed_patches(self):
         """
         get a sequence of the polygons in the collection in display (transformed) space
@@ -348,7 +348,7 @@ class PolyCollection(PatchCollection):
         transform = self.get_transform()
         transoffset = self.get_transoffset()
 
-        
+
         transform.freeze()
         transoffset.freeze()
         self.update_scalarmappable()
@@ -364,14 +364,14 @@ class PolyCollection(PatchCollection):
         transoffset.thaw()
         renderer.close_group('polycollection')
 
-        
+
     def get_verts(self, dataTrans=None):
         '''Return vertices in data coordinates.
         The calculation is incomplete in general; it is based
         on the vertices or the offsets, whichever is using
         dataTrans as its transformation, so it does not take
         into account the combined effect of segments and offsets.
-        '''        
+        '''
         verts = []
         if self._offsets is None:
             for seg in self._verts:
@@ -451,7 +451,7 @@ class RegularPolyCollection(PatchCollection):
     __init__.__doc__ = dedent(__init__.__doc__) % kwdocd
 
     def get_transformed_patches(self):
-        
+
         xverts, yverts = zip(*self._verts)
         xverts = asarray(xverts)
         yverts = asarray(yverts)
@@ -486,7 +486,7 @@ class RegularPolyCollection(PatchCollection):
         self._update_verts()
         scales = sqrt(asarray(self._sizes)*self._dpi.get()/72.0)
 
-        
+
         offsets = self._offsets
         if self._offsets is not None:
             xs, ys = zip(*offsets)
