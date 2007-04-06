@@ -862,7 +862,7 @@ class RendererPdf(RendererBase):
         """
         # source: agg_bezier_arc.cpp in agg23
         
-        def arc_to_bezier(cx, cy, rx, ry, angle1, sweep):
+        def arc_to_bezier(cx, cy, rx, ry, angle1, sweep, rotation):
             halfsweep = sweep / 2.0
             x0, y0 = cos(halfsweep), sin(halfsweep)
             tx = (1.0 - x0) * 4.0/3.0;
@@ -870,11 +870,14 @@ class RendererPdf(RendererBase):
             px =  x0, x0+tx, x0+tx, x0
             py = -y0,   -ty,    ty, y0
             sn, cs = sin(angle1 + halfsweep), cos(angle1 + halfsweep)
-            result = [ (cx + rx * (pxi * cs - pyi * sn),
-                        cy + ry * (pxi * sn + pyi * cs))
+            result = [ (rx * (pxi * cs - pyi * sn),
+                        ry * (pxi * sn + pyi * cs))
                        for pxi, pyi in zip(px, py) ]
+            result = [ (cx + cos(rotation)*x - sin(rotation)*y,
+                        cy + sin(rotation)*x + cos(rotation)*y)
+                       for x, y in result ]
             return reduce(lambda x, y: x + y, result)
-        
+
         epsilon = 0.01
         angle1 *= pi/180.0
         angle2 *= pi/180.0
@@ -885,11 +888,12 @@ class RendererPdf(RendererBase):
 
         if sweep < 0.0:
             sweep, angle1, angle2 = -sweep, angle2, angle1
-        bp = [ rotation + pi/2.0 * i 
-               for i in range(4) if pi/2.0 * i < sweep-epsilon ]
-        bp.append(rotation + sweep)
+        bp = [ pi/2.0 * i 
+               for i in range(4) 
+               if pi/2.0 * i < sweep-epsilon ]
+        bp.append(sweep)
         subarcs = [ arc_to_bezier(x, y, width/2.0, height/2.0,
-                                  bp[i], bp[i+1]-bp[i]) 
+                                  bp[i], bp[i+1]-bp[i], rotation) 
                     for i in range(len(bp)-1) ]
 
         self.check_gc(gcEdge, rgbFace)

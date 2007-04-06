@@ -1,3 +1,6 @@
+2007-04-06 Fixed rotation of ellipses in pdf backend 
+           (sf bug #1690559) -JKS
+
 2007-04-04 More matshow tweaks; documentation updates; new method
            set_bounds() for formatters and locators. - EF
 
