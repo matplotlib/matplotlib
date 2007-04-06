@@ -761,7 +761,7 @@ class Ellipse(Patch):
         if self._hatch:
             gc.set_hatch(self._hatch )
 
-        tverts = self.get_transform().seq_xy_tups(self.verts) # center is first vert
+        tverts = self.get_transform().seq_xy_tups(self.get_verts()) # center is first vert
         width = tverts[3,0] - tverts[1,0]
         height = tverts[2,1] - tverts[4,1]
 
