@@ -117,7 +117,7 @@ class AxesImage(Artist, cm.ScalarMappable):
             raise RuntimeError('You must first set the image array or the image attribute')
 
         if self._imcache is None:
-            if typecode(self._A) == UInt8:
+            if typecode(self._A) == UInt8 and len(self._A.shape) == 3:
                 im = _image.frombyte(self._A, 0)
                 im.is_grayscale = False
             else:
