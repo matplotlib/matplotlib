@@ -1,3 +1,5 @@
+2007-04-07 Fixed legend/LineCollection bug. - EF
+
 2007-04-06 Removed deprecated support for a float value as a gray-scale;
            now it must be a string, like '0.5'.  Added alpha kwarg to
            ColorConverter.to_rgba_list. - EF
