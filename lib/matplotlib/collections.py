@@ -779,6 +779,24 @@ class LineCollection(Collection, ScalarMappable):
         raise NotImplementedError('Vertices in data coordinates are calculated\n'
                 + 'with offsets only if _transOffset == dataTrans.')
 
+    def get_lines(self):
+        'return seq of lines in collection'
+        # This is needed for legend, even though it is incomplete,
+        # like get_verts, and essentially wrong in general.
+        # We could add a check for validity as in get_verts.
+        if self._offsets is None:
+            offsets = [(0,0)]
+        else:
+            offsets = self._offsets
+        Noffsets = len(offsets)
+        Nsegments = len(self._segments)
+        lines = []
+        for i in range(max(Noffsets, Nsegments)):
+            ox, oy = offsets[i%Noffsets]
+            segment = self._segments[i%Nsegments]
+            lines.append([(x+ox, y+oy) for x,y in segment])
+        return lines
+
     def update_scalarmappable(self):
         """
         If the scalar mappable array is not none, update colors
