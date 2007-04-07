@@ -9,11 +9,11 @@ def get_two_stock_data():
     and 2 (intc and aapl)
     """
     ticker1, ticker2 = 'INTC', 'AAPL'
-    M1 = fromstring( file('data/%s.dat' % ticker1, 'rb').read(), 'd')
+    M1 = fromstring( file('data/%s.dat' % ticker1, 'rb').read(), '<d')
 
     M1 = resize(M1, (M1.shape[0]/2,2) )
 
-    M2 = fromstring( file('data/%s.dat' % ticker2, 'rb').read(), 'd')
+    M2 = fromstring( file('data/%s.dat' % ticker2, 'rb').read(), '<d')
     M2 = resize(M1, (M2.shape[0]/2,2) )
 
     d1, p1 = M1[:,0], M1[:,1]

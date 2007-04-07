@@ -27,6 +27,7 @@ class PassThroughProxy(object):
         self.fn_name = fn_name
         self.target = obj.proxy_target
     def __call__(self, *args):
+        #print 'passthrough', self.target, self.fn_name
         fn = getattr(self.target, self.fn_name)
         ret = fn(*args)
         return ret
@@ -161,10 +162,11 @@ class TaggedValue (object):
     return TaggedValue(new_value, self.unit)
 
   def convert_to(self, unit):
-    if (unit == self.unit or not unit):
-      return self
-    new_value = self.unit.convert_value_to(self.value, unit)
-    return TaggedValue(new_value, unit)
+      #print 'convert to', unit, self.unit
+      if (unit == self.unit or not unit):
+          return self
+      new_value = self.unit.convert_value_to(self.value, unit)
+      return TaggedValue(new_value, unit)
 
   def get_value(self):
     return self.value
@@ -226,9 +228,10 @@ class BasicUnit(object):
     return self.conversions[unit]
 
   def convert_value_to(self, value, unit):
-    conversion_fn = self.conversions[unit]
-    ret = conversion_fn(value)
-    return ret
+      #print 'convert value to: value ="%s", unit="%s"'%(value, type(unit)), self.conversions  
+      conversion_fn = self.conversions[unit]
+      ret = conversion_fn(value)
+      return ret
 
 
   def get_unit(self):
@@ -314,14 +317,18 @@ class BasicUnitConverter(units.ConversionInterface):
               label=unit.fullname,
                 )
         elif unit is not None:
-            return units.AxisInfo(label=unit.fullname)
+            if hasattr(unit, 'fullname'):
+                return units.AxisInfo(label=unit.fullname)
+            elif hasattr(unit, 'unit'):
+                return units.AxisInfo(label=unit.unit.fullname)
         return None
+    
     axisinfo = staticmethod(axisinfo)
 
     def convert(val, unit):
         if units.ConversionInterface.is_numlike(val):
             return val
-
+        #print 'convert checking iterable'
         if iterable(val):
             return [thisval.convert_to(unit).get_value() for thisval in val]
         else:
@@ -338,4 +345,6 @@ class BasicUnitConverter(units.ConversionInterface):
 
 
 basicConverter = BasicUnitConverter()
+units.registry[BasicUnit] = basicConverter
 units.registry[TaggedValue] = basicConverter
+
