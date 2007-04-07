@@ -2358,11 +2358,15 @@ class Axes(Artist):
         determined by ymin and ymax
 
 
-        colors is a line collections color args, either a single color or a len(x) list of colors
+        colors is a line collections color args, either a single color
+        or a len(x) list of colors
 
         linestyle is one of solid|dashed|dashdot|dotted
 
         Returns the LineCollection that was added
+
+        kwargs are LineCollection properties:
+        %(LineCollection)s
         """
 
         if kwargs.get('fmt') is not None:
@@ -2393,7 +2397,7 @@ class Axes(Artist):
         verts = [ ((thisx, thisymin), (thisx, thisymax)) for thisx, (thisymin, thisymax) in zip(x,Y)]
         coll = LineCollection(verts, colors=colors, linestyle=linestyle)
         self.add_collection(coll)
-
+        coll.update(kwargs)
 
         minx = nx.amin(x)
         maxx = nx.amax(x)
@@ -2404,7 +2408,7 @@ class Axes(Artist):
         self.autoscale_view()
 
         return coll
-    vlines.__doc__ = dedent(vlines.__doc__)
+    vlines.__doc__ = dedent(vlines.__doc__) % artist.kwdocd
 
     #### Basic plotting
     def plot(self, *args, **kwargs):
