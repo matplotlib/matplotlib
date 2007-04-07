@@ -79,7 +79,7 @@ def delete_masked_points(*args):
     mask = reduce(ma.mask_or, masks)
     margs = []
     for x in args:
-        if not is_string_like(x) and len(x) == len(mask):
+        if not is_string_like(x) and iterable(x) and len(x) == len(mask):
             if (hasattr(x, 'get_compressed_copy')):
                 compressed_x = x.get_compressed_copy(mask)
             else:
