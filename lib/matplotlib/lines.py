@@ -221,7 +221,7 @@ class Line2D(Artist):
 
         # update kwargs before updating data to give the caller a
         # chance to init axes (and hence unit support) 
-        if len(kwargs): setp(self, **kwargs)
+        self.update(kwargs)
 
         self.set_data(xdata, ydata)
         self._logcache = None
@@ -315,6 +315,8 @@ class Line2D(Artist):
         self.recache()
 
     def recache(self):
+        #if self.axes is None: print 'recache no axes'
+        #else: print 'recache units', self.axes.xaxis.units, self.axes.yaxis.units
         x = asarray(self.convert_xunits(self._xorig), Float)
         y = asarray(self.convert_yunits(self._yorig), Float)
 
