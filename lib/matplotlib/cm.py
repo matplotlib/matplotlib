@@ -61,11 +61,6 @@ class ScalarMappable:
     def set_array(self, A):
         'Set the image array from numeric/numarray A'
         self._A = A
-        #from numerix import typecode, typecodes
-        #if typecode(A) in typecodes['Float']:
-        #    self._A = A.astype(nx.Float32)
-        #else:
-        #    self._A = A.astype(nx.Int16)
 
     def get_array(self):
         'Return the array'

@@ -67,7 +67,7 @@ def delete_masked_points(*args):
     include arguments that can take string or array values, for
     example.
 
-    Array arguments must all have the same shape, and must
+    Array arguments must have the same length; masked arguments must
     be one-dimensional.
 
     Written as a helper for scatter, but may be more generally
@@ -79,7 +79,7 @@ def delete_masked_points(*args):
     mask = reduce(ma.mask_or, masks)
     margs = []
     for x in args:
-        if shape(x) == shape(mask):
+        if not is_string_like(x) and len(x) == len(mask):
             if (hasattr(x, 'get_compressed_copy')):
                 compressed_x = x.get_compressed_copy(mask)
             else:
@@ -3683,21 +3683,27 @@ class Axes(Artist):
             faceted=True, **kwargs)
         Supported function signatures:
 
-            SCATTER(x, y) - make a scatter plot of x vs y
+            SCATTER(x, y, **kwargs)
+            SCATTER(x, y, s, **kwargs)
+            SCATTER(x, y, s, c, **kwargs)
 
-            SCATTER(x, y, s) - make a scatter plot of x vs y with size in area
-              given by s
+        Make a scatter plot of x versus y, where x, y are 1-D sequences
+        of the same length, N.
 
-            SCATTER(x, y, s, c) - make a scatter plot of x vs y with size in area
-              given by s and colors given by c
+        Arguments s and c can also be given as kwargs; this is encouraged
+        for readability.
 
-            SCATTER(x, y, s, c, **kwargs) - control colormapping and scaling
-              with keyword args; see below
+            s is a size in points^2.  It is a scalar
+              or an array of the same length as x and y.
 
-        Make a scatter plot of x versus y.  s is a size in points^2 a scalar
-        or an array of the same length as x or y.  c is a color and can be a
-        single color format string or a length(x) array of intensities which
-        will be mapped by the matplotlib.colors.colormap instance cmap
+            c is a color and can be a single color format string,
+              or a sequence of color specifications of length N,
+              or a sequence of N numbers to be mapped to colors
+              using the cmap and norm specified via kwargs (see below).
+              Note that c should not be a single numeric RGB or RGBA
+              sequence because that is indistinguishable from an array
+              of values to be colormapped. c can be a 2-D array in which
+              the rows are RGB or RGBA, however.
 
         The marker can be one of
 
@@ -3772,8 +3778,13 @@ class Axes(Artist):
 
         # The inherent ambiguity is resolved in favor of color
         # mapping, not interpretation as rgb or rgba.
-        if not is_string_like(c) and iterable(c) and len(c)==len(x):
-            colors = None  # use cmap, norm after collection is created
+
+        if not is_string_like(c):
+            sh = shape(c)
+            if len(sh) == 1 and sh[0] == len(x):
+                colors = None  # use cmap, norm after collection is created
+            else:
+                colors = colorConverter.to_rgba_list(c, alpha)
         else:
             colors = colorConverter.to_rgba_list(c, alpha)
 
