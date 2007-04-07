@@ -328,7 +328,7 @@ The following dimensions are in axes coords
 
         inv = ax.transAxes.inverse_xy_tup
         for handle in handles:
-
+            print 'autolegend', handle, type(handle)
             if isinstance(handle, Line2D):
 
                 xdata = handle.get_xdata(orig=False)

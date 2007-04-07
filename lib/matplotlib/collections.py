@@ -647,10 +647,19 @@ class LineCollection(Collection, ScalarMappable):
         return self._transOffset
 
     def set_segments(self, segments):
+        """
+        set the line segments
+
+        ACCEPTS: a list of [(x1,y1), (x2, x2)...] segments
+        """
         if segments is None: return
         self._segments = [asarray(seg) for seg in segments]
         if self._uniform_offsets is not None:
             self._add_offsets()
+
+    def get_segments(self):
+        'get the line segments'
+        return self._segments
 
     set_verts = set_segments # for compatibility with PolyCollection
 
