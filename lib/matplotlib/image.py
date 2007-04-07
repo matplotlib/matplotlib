@@ -214,18 +214,13 @@ class AxesImage(Artist, cm.ScalarMappable):
         """
         Set the image array
 
-        ACCEPTS: numeric/numarray/PIL Image A"""
+        ACCEPTS: numpy/PIL Image A"""
         # check if data is PIL Image without importing Image
-        if hasattr(A,'getpixel'): X = pil_to_array(A)
-        else: X = ma.asarray(A) # assume array
-
-        if (typecode(X) != UInt8
-            or len(X.shape) != 3
-            or X.shape[2] > 4
-            or X.shape[2] < 3):
-            cm.ScalarMappable.set_array(self, X)
+        if hasattr(A,'getpixel'):
+            X = pil_to_array(A)
         else:
-            self._A = X
+            X = ma.asarray(A) # assume array
+        self._A = X
 
         self._imcache =None
 
@@ -234,7 +229,9 @@ class AxesImage(Artist, cm.ScalarMappable):
         retained for backwards compatibility - use set_data instead
 
         ACCEPTS: numeric/numarray/PIL Image A"""
-
+        # This also needs to be here to override the inherited
+        # cm.ScalarMappable.set_array method so it is not invoked
+        # by mistake.
 
         self.set_data(A)
 
