@@ -1099,7 +1099,7 @@ class Axes(Artist):
             self._update_line_limits(line)
 
         for p in self.patches:
-            self._update_patch_limits(patch)
+            self._update_patch_limits(p)
 
     def update_datalim(self, xys):
         'Update the data lim bbox with seq of xy tups or equiv. 2-D array'
