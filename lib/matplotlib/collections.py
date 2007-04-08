@@ -116,6 +116,7 @@ class PatchCollection(Collection, ScalarMappable):
                  transOffset = None,
                  norm = None,  # optional for ScalarMappable
                  cmap = None,  # ditto
+                 label='',
                  ):
         """
         Create a PatchCollection
@@ -142,6 +143,7 @@ class PatchCollection(Collection, ScalarMappable):
         self._offsets = offsets
         self._transOffset = transOffset
         self._verts = []
+        self.set_label(label)
 
     __init__.__doc__ = dedent(__init__.__doc__) % kwdocd
 
@@ -574,6 +576,7 @@ class LineCollection(Collection, ScalarMappable):
                  transOffset = None,#identity_transform(),
                  norm = None,
                  cmap = None,
+                 label=''
                  ):
         """
         segments is a sequence of ( line0, line1, line2), where
@@ -640,6 +643,7 @@ class LineCollection(Collection, ScalarMappable):
         self._offsets = offsets
         self._transOffset = transOffset
         self.set_segments(segments)
+        self.set_label(label)
 
     def get_transoffset(self):
         if self._transOffset is None:
