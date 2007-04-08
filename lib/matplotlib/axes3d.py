@@ -366,9 +366,9 @@ class Axes3DI(Axes):
         at the same z location as the nearest point on the edge.
         """
 
-	if self.button_pressed == 1:
+        if self.button_pressed == 1:
             return 'azimuth=%d deg, elevation=%d deg ' % (self.azim, self.elev)
-	    # ignore xd and yd and display angles instead
+            # ignore xd and yd and display angles instead
 
         p = (xd,yd)
         edges = self.tunit_edges()

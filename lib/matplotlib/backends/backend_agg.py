@@ -139,7 +139,7 @@ class RendererAgg(RendererBase):
                                      'debug-annoying')
 
     def draw_arc(self, gcEdge, rgbFace, x, y, width, height, angle1, angle2, rotation):
-        """        
+        """
         Draw an arc centered at x,y with width and height and angles
         from 0.0 to 360.0
 
@@ -257,13 +257,13 @@ class RendererAgg(RendererBase):
         rgb = gc.get_rgb()
         size = prop.get_size_in_points()
         dpi = self.dpi.get()
-        
+
         flip = angle==90
         w,h = self.get_text_width_height(s, prop, 'TeX', rgb)
         if flip:
             w,h = h,w
             x -= w
-        
+
         texmanager = self.get_texmanager()
         key = s, size, dpi, rgb, angle, texmanager.get_font_config()
         im = self.texd.get(key)
@@ -486,11 +486,11 @@ class FigureCanvasAgg(FigureCanvasBase):
                 ps = self.switch_backends(FigureCanvasPS)
                 ps.print_figure(filename, dpi, facecolor, edgecolor,
                                 orientation, **kwargs)
-	    elif ext.find('pdf')>=0:
-		from backend_pdf import FigureCanvasPdf
-		pdf = self.switch_backends(FigureCanvasPdf)
-		pdf.print_figure(filename, dpi, facecolor, edgecolor,
-				 orientation, **kwargs)
+            elif ext.find('pdf')>=0:
+                from backend_pdf import FigureCanvasPdf
+                pdf = self.switch_backends(FigureCanvasPdf)
+                pdf.print_figure(filename, dpi, facecolor, edgecolor,
+                                  orientation, **kwargs)
             else:
                 raise IOError('Do not know know to handle extension *%s' % ext)
 

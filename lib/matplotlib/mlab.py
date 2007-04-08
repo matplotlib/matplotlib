@@ -1839,10 +1839,10 @@ def fix(x):
     else:
         y = [x]
     for i in range(len(y)):
-	if y[i]>0:
-		y[i] = floor(y[i])
-	else:
-		y[i] = ceil(y[i])
+        if y[i]>0:
+            y[i] = floor(y[i])
+        else:
+            y[i] = ceil(y[i])
     if numerix.mlab.rank(x)==2:
         x = reshape(y,dim)
     elif numerix.mlab.rank(x)==0:
@@ -1940,58 +1940,58 @@ def orth(A):
     return Q
 
 def rank(x):
-        """
-        Returns the rank of a matrix.
-        The rank is understood here as the an estimation of the number of
-        linearly independent rows or columns (depending on the size of the
-        matrix).
-        Note that numerix.mlab.rank() is not equivalent to Matlab's rank.
-        This function is!
-        """
+    """
+    Returns the rank of a matrix.
+    The rank is understood here as the an estimation of the number of
+    linearly independent rows or columns (depending on the size of the
+    matrix).
+    Note that numerix.mlab.rank() is not equivalent to Matlab's rank.
+    This function is!
+    """
 
-	x      = asarray(x)
-	u,s,v  = numerix.mlab.svd(x)
-	# maxabs = numerix.mlab.max(numerix.absolute(s)) is also possible.
-	maxabs = norm(x)
-	maxdim = numerix.mlab.max(numerix.shape(x))
-	tol    = maxabs*maxdim*_eps_approx
-	r      = s>tol
-	return asum(r)
+    x      = asarray(x)
+    u,s,v  = numerix.mlab.svd(x)
+    # maxabs = numerix.mlab.max(numerix.absolute(s)) is also possible.
+    maxabs = norm(x)
+    maxdim = numerix.mlab.max(numerix.shape(x))
+    tol    = maxabs*maxdim*_eps_approx
+    r      = s>tol
+    return asum(r)
 
 def sqrtm(x):
-    	"""
-	Returns the square root of a square matrix.
-	This means that s=sqrtm(x) implies s*s = x.
-	Note that s and x are matrices.
-	"""
-	return mfuncC(numerix.mlab.sqrt, x)
+    """
+    Returns the square root of a square matrix.
+    This means that s=sqrtm(x) implies s*s = x.
+    Note that s and x are matrices.
+    """
+    return mfuncC(numerix.mlab.sqrt, x)
 
 def mfuncC(f, x):
-	"""
-	mfuncC(f, x) : matrix function with possibly complex eigenvalues.
-	Note: Numeric defines (v,u) = eig(x) => x*u.T = u.T * Diag(v)
-	This function is needed by sqrtm and allows further functions.
-	"""
+    """
+    mfuncC(f, x) : matrix function with possibly complex eigenvalues.
+    Note: Numeric defines (v,u) = eig(x) => x*u.T = u.T * Diag(v)
+    This function is needed by sqrtm and allows further functions.
+    """
 
-	x      = array(x)
-	(v, u) = numerix.mlab.eig(x)
-	uT     = transpose(u)
-	V      = numerix.mlab.diag(f(v+0j))
-	y      = matrixmultiply(
-           uT, matrixmultiply(
-           V, linear_algebra.inverse(uT)))
-	return approx_real(y)
+    x      = array(x)
+    (v, u) = numerix.mlab.eig(x)
+    uT     = transpose(u)
+    V      = numerix.mlab.diag(f(v+0j))
+    y      = matrixmultiply(
+              uT, matrixmultiply(
+              V, linear_algebra.inverse(uT)))
+    return approx_real(y)
 
 def approx_real(x):
 
-	"""
-	approx_real(x) : returns x.real if |x.imag| < |x.real| * _eps_approx.
-	This function is needed by sqrtm and allows further functions.
-	"""
+    """
+    approx_real(x) : returns x.real if |x.imag| < |x.real| * _eps_approx.
+    This function is needed by sqrtm and allows further functions.
+    """
 
-	if numerix.mlab.max(numerix.mlab.max(absolute(x.imag))) <= numerix.mlab.max(numerix.mlab.max(absolute(x.real))) * _eps_approx:
-		return x.real
-	else:
-		return x
+    if numerix.mlab.max(numerix.mlab.max(absolute(x.imag))) <= numerix.mlab.max(numerix.mlab.max(absolute(x.real))) * _eps_approx:
+    	return x.real
+    else:
+        return x
 
 ### end mlab2 functions
