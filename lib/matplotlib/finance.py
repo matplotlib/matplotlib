@@ -3,7 +3,7 @@ A collection of modules for collecting, analyzing and plotting
 financial data.   User contributions welcome!
 
 """
-#from __future__ import division  
+#from __future__ import division
 import os, time, warnings, md5
 from urllib import urlopen
 
@@ -36,7 +36,7 @@ def parse_yahoo_historical(fh, asobject=False, adjusted=True):
     results as a list of
 
     d, open, close, high, low, volume
-    
+
     where d is a floating poing representation of date, as returned by date2num
 
     if adjust=True, use adjusted prices
@@ -50,10 +50,10 @@ def parse_yahoo_historical(fh, asobject=False, adjusted=True):
 
         if len(vals)!=7: continue
         datestr = vals[0]
-        #try:
-        dt = datetime.date(*time.strptime(datestr, '%Y-%m-%d')[:3])
-        #except ValueError:
-        #    dt = datetime.date(*time.strptime(datestr, '%d-%b-%y')[:3])            
+        try:
+            dt = datetime.date(*time.strptime(datestr, '%d-%b-%y')[:3])
+        except ValueError:
+            dt = datetime.date(*time.strptime(datestr, '%Y-%m-%d')[:3])
         d = date2num(dt)
         open, high, low, close =  [float(val) for val in vals[1:5]]
         volume = int(vals[5])
@@ -68,7 +68,7 @@ def parse_yahoo_historical(fh, asobject=False, adjusted=True):
         results.append((d, open, close, high, low, volume))
     results.reverse()
     if asobject:
-        if len(results)==0: return None        
+        if len(results)==0: return None
         else:
             date, open, close, high, low, volume = map(nx.asarray, zip(*results))
         return Bunch(date=date, open=open, close=close, high=high, low=low, volume=volume)
@@ -93,14 +93,14 @@ def fetch_historical_yahoo(ticker, date1, date2, cachename=None):
 
     ticker = ticker.upper()
 
-    
+
     d1 = (date1.month-1, date1.day, date1.year)
-    d2 = (date2.month-1, date2.day, date2.year)    
+    d2 = (date2.month-1, date2.day, date2.year)
 
 
     urlFmt = 'http://table.finance.yahoo.com/table.csv?a=%d&b=%d&c=%d&d=%d&e=%d&f=%d&s=%s&y=0&g=d&ignore=.csv'
-        
-    
+
+
     url =  urlFmt % (d1[0], d1[1], d1[2],
                      d2[0], d2[1], d2[2], ticker)
 
@@ -117,7 +117,7 @@ def fetch_historical_yahoo(ticker, date1, date2, cachename=None):
         fh.close()
         verbose.report('Saved %s data to cache file %s'%(ticker, cachename))
         fh = file(cachename, 'r')
-        
+
     return fh
 
 
@@ -125,11 +125,11 @@ def quotes_historical_yahoo(ticker, date1, date2, asobject=False, adjusted=True,
     """
     Get historical data for ticker between date1 and date2.  date1 and
     date2 are datetime instances
-    
+
     results are a list of tuples
 
       (d, open, close, high, low, volume)
-    
+
     where d is a floating poing representation of date, as returned by date2num
 
     if asobject is True, the return val is an object with attrs date,
@@ -152,20 +152,20 @@ def quotes_historical_yahoo(ticker, date1, date2, asobject=False, adjusted=True,
     """
 
     fh = fetch_historical_yahoo(ticker, date1, date2, cachename)
-                
+
     try: ret = parse_yahoo_historical(fh, asobject, adjusted)
     except IOError, exc:
         warnings.warn('urlopen() failure\n' + url + '\n' + exc.strerror[1])
         return None
 
     return ret
-        
+
 def plot_day_summary(ax, quotes, ticksize=3,
                      colorup='k', colordown='r',
                      ):
     """
     quotes is a list of (time, open, close, high, low, ...) tuples
-    
+
     Represent the time, open, close, high, low as a vertical line
     ranging from low to high.  The left tick is the open and the right
     tick is the close.
@@ -175,7 +175,7 @@ def plot_day_summary(ax, quotes, ticksize=3,
     ax          : an Axes instance to plot to
     ticksize    : open/close tick marker in points
     colorup     : the color of the lines where close >= open
-    colordown   : the color of the lines where close <  open    
+    colordown   : the color of the lines where close <  open
     return value is a list of lines added
     """
 
@@ -232,7 +232,7 @@ def candlestick(ax, quotes, width=0.2, colorup='k', colordown='r',
     the tuple can be as long as you want (eg it may store volume).
 
     time must be in float days format - see date2num
-    
+
     Plot the time, open, close, high, low as a vertical line ranging
     from low to high.  Use a rectangular bar to represent the
     open-close span.  If close >= open, use colorup to color the bar,
@@ -241,16 +241,16 @@ def candlestick(ax, quotes, width=0.2, colorup='k', colordown='r',
     ax          : an Axes instance to plot to
     width       : fraction of a day for the rectangle width
     colorup     : the color of the rectangle where close >= open
-    colordown   : the color of the rectangle where close <  open    
+    colordown   : the color of the rectangle where close <  open
     alpha       : the rectangle alpha level
-    
+
     return value is lines, patches where lines is a list of lines
     added and patches is a list of the rectangle patches added
     """
 
 
     OFFSET = width/2.0
-    
+
 
     lines = []
     patches = []
@@ -270,15 +270,15 @@ def candlestick(ax, quotes, width=0.2, colorup='k', colordown='r',
             xdata=(t, t), ydata=(low, high),
             color='k',
             linewidth=0.5,
-            antialiased=True,   
-            )        
+            antialiased=True,
+            )
 
         rect = Rectangle(
             xy    = (t-OFFSET, lower),
             width = width,
-            height = height, 
+            height = height,
             facecolor = color,
-            edgecolor = color,            
+            edgecolor = color,
             )
         rect.set_alpha(alpha)
 
@@ -286,7 +286,7 @@ def candlestick(ax, quotes, width=0.2, colorup='k', colordown='r',
         lines.append(vline)
         patches.append(rect)
         ax.add_line(vline)
-        ax.add_patch(rect)        
+        ax.add_patch(rect)
     ax.autoscale_view()
 
     return lines, patches
@@ -296,7 +296,7 @@ def plot_day_summary2(ax, opens, closes, highs, lows, ticksize=4,
                       colorup='k', colordown='r',
                      ):
     """
-    
+
     Represent the time, open, close, high, low as a vertical line
     ranging from low to high.  The left tick is the open and the right
     tick is the close.
@@ -304,7 +304,7 @@ def plot_day_summary2(ax, opens, closes, highs, lows, ticksize=4,
     ax          : an Axes instance to plot to
     ticksize    : size of open and close ticks in points
     colorup     : the color of the lines where close >= open
-    colordown   : the color of the lines where close <  open    
+    colordown   : the color of the lines where close <  open
 
     return value is a list of lines added
     """
@@ -329,7 +329,7 @@ def plot_day_summary2(ax, opens, closes, highs, lows, ticksize=4,
 
 
     scale = ax.figure.dpi * Value(1/72.0)
-    
+
     tickTransform = scale_transform( scale, zero())
 
     r,g,b = colorConverter.to_rgb(colorup)
@@ -361,7 +361,7 @@ def plot_day_summary2(ax, opens, closes, highs, lows, ticksize=4,
                                     transOffset  = ax.transData,
                                    )
     openCollection.set_transform(tickTransform)
-    
+
     closeCollection = LineCollection(closeSegments,
                                      colors       = colors,
                                      antialiaseds = useAA,
@@ -390,7 +390,7 @@ def candlestick2(ax, opens, closes, highs, lows, width=4,
                  alpha=0.75,
                 ):
     """
-    
+
     Represent the open, close as a bar line and high low range as a
     vertical line.
 
@@ -398,9 +398,9 @@ def candlestick2(ax, opens, closes, highs, lows, width=4,
     ax          : an Axes instance to plot to
     width       : the bar width in points
     colorup     : the color of the lines where close >= open
-    colordown   : the color of the lines where close <  open    
+    colordown   : the color of the lines where close <  open
     alpha       : bar transparency
-    
+
     return value is lineCollection, barCollection
     """
 
@@ -408,7 +408,7 @@ def candlestick2(ax, opens, closes, highs, lows, width=4,
     # missing they all are missing
     right = width/2.0
     left = -width/2.0
-    
+
     barVerts = [ ( (left, 0), (left, close-open), (right, close-open), (right, 0) ) for open, close in zip(opens, closes) if open != -1 and close!=-1 ]
 
     rangeSegments = [ ((i, low), (i, high)) for i, low, high in zip(xrange(len(lows)), lows, highs) if low != -1 ]
@@ -418,12 +418,12 @@ def candlestick2(ax, opens, closes, highs, lows, width=4,
     offsetsBars = [ (i, open) for i,open in zip(xrange(len(opens)), opens) if open != -1 ]
 
     sx = ax.figure.dpi * Value(1/72.0)  # scale for points
-    sy = (ax.bbox.ur().y() - ax.bbox.ll().y()) / (ax.viewLim.ur().y() - ax.viewLim.ll().y()) 
+    sy = (ax.bbox.ur().y() - ax.bbox.ll().y()) / (ax.viewLim.ur().y() - ax.viewLim.ll().y())
 
     barTransform = scale_sep_transform(sx,sy)
-                                           
 
-    
+
+
     r,g,b = colorConverter.to_rgb(colorup)
     colorup = r,g,b,alpha
     r,g,b = colorConverter.to_rgb(colordown)
@@ -484,7 +484,7 @@ def volume_overlay(ax, opens, closes, volumes,
     ax          : an Axes instance to plot to
     width       : the bar width in points
     colorup     : the color of the lines where close >= open
-    colordown   : the color of the lines where close <  open    
+    colordown   : the color of the lines where close <  open
     alpha       : bar transparency
 
 
@@ -502,11 +502,11 @@ def volume_overlay(ax, opens, closes, volumes,
     right = width/2.0
     left = -width/2.0
 
-    
+
     bars = [ ( (left, 0), (left, v), (right, v), (right, 0)) for v in volumes if v != -1 ]
 
     sx = ax.figure.dpi * Value(1/72.0)  # scale for points
-    sy = (ax.bbox.ur().y() - ax.bbox.ll().y()) / (ax.viewLim.ur().y() - ax.viewLim.ll().y()) 
+    sy = (ax.bbox.ur().y() - ax.bbox.ll().y()) / (ax.viewLim.ur().y() - ax.viewLim.ll().y())
 
     barTransform = scale_sep_transform(sx,sy)
 
@@ -571,7 +571,7 @@ def volume_overlay3(ax, quotes,
     kwarg
     width       : the bar width in points
     colorup     : the color of the lines where close1 >= close0
-    colordown   : the color of the lines where close1 <  close0    
+    colordown   : the color of the lines where close1 <  close0
     alpha       : bar transparency
 
 
@@ -592,11 +592,11 @@ def volume_overlay3(ax, quotes,
     right = width/2.0
     left = -width/2.0
 
-    
+
     bars = [ ( (left, 0), (left, volume), (right, volume), (right, 0)) for d, open, close, high, low, volume in quotes]
 
     sx = ax.figure.dpi * Value(1/72.0)  # scale for points
-    sy = (ax.bbox.ur().y() - ax.bbox.ll().y()) / (ax.viewLim.ur().y() - ax.viewLim.ll().y()) 
+    sy = (ax.bbox.ur().y() - ax.bbox.ll().y()) / (ax.viewLim.ur().y() - ax.viewLim.ll().y())
 
     barTransform = scale_sep_transform(sx,sy)
 
@@ -617,7 +617,7 @@ def volume_overlay3(ax, quotes,
 
 
 
-    
+
 
 
     minx, maxx = (min(dates), max(dates))
@@ -626,13 +626,13 @@ def volume_overlay3(ax, quotes,
     corners = (minx, miny), (maxx, maxy)
     ax.update_datalim(corners)
     #print 'datalim', ax.dataLim.get_bounds()
-    #print 'viewlim', ax.viewLim.get_bounds()    
-    
+    #print 'viewlim', ax.viewLim.get_bounds()
+
     ax.add_collection(barCollection)
     ax.autoscale_view()
 
     return barCollection
-    
+
 def index_bar(ax, vals,
               facecolor='b', edgecolor='l',
               width=4, alpha=1.0, ):
@@ -652,11 +652,11 @@ def index_bar(ax, vals,
     right = width/2.0
     left = -width/2.0
 
-    
+
     bars = [ ( (left, 0), (left, v), (right, v), (right, 0)) for v in vals if v != -1 ]
 
     sx = ax.figure.dpi * Value(1/72.0)  # scale for points
-    sy = (ax.bbox.ur().y() - ax.bbox.ll().y()) / (ax.viewLim.ur().y() - ax.viewLim.ll().y()) 
+    sy = (ax.bbox.ur().y() - ax.bbox.ll().y()) / (ax.viewLim.ur().y() - ax.viewLim.ll().y())
 
     barTransform = scale_sep_transform(sx,sy)
 
@@ -688,5 +688,5 @@ def index_bar(ax, vals,
     ax.add_collection(barCollection)
     return barCollection
 
-    
+
 
