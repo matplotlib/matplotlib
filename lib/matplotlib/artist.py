@@ -57,7 +57,7 @@ class Artist:
             #print 'artist.convert_xunits no conversion: ax=%s'%ax
             return x
         return ax.xaxis.convert_units(x)
-        
+
     def convert_yunits(self, y):
         """for artists in an axes, if the yaxis as units support,
         convert y using yaxis unit type
@@ -77,7 +77,7 @@ class Artist:
     def get_axes(self):
         'return the axes instance the artist resides in, or None'
         return self.axes
-    
+
     def add_callback(self, func):
         oid = self._oid
         self._propobservers[oid] = func
@@ -127,7 +127,7 @@ class Artist:
         """
         # if mouseevent x, y are within picker call self.figure.canvas.pick_event(self, mouseevent)
         pass
-    
+
     def set_picker(self, picker):
         """
         set the epsilon for picking used by this artist
@@ -139,7 +139,7 @@ class Artist:
           boolean - if True then picking will be enabled and the
             artist will fire a pick event if the mouse event is over
             the artist
-        
+
           float - if picker is a number it is interpreted as an
             epsilon tolerance in points and the the artist will fire
             off an event if it's data is within epsilon of the mouse
@@ -166,7 +166,7 @@ class Artist:
         'return the Pickeration instance used by this artist'
         return self._picker
 
-    
+
     def is_figure_set(self):
         return self.figure is not None
 
@@ -238,7 +238,7 @@ class Artist:
         ACCEPTS: [True | False]
         """
         self._clipon = b
-        if not b: 
+        if not b:
 	    self.clipbox = None
             self._clippath = None
         self.pchanged()
