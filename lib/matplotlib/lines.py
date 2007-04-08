@@ -220,7 +220,7 @@ class Line2D(Artist):
         self.verticalOffset = None
 
         # update kwargs before updating data to give the caller a
-        # chance to init axes (and hence unit support) 
+        # chance to init axes (and hence unit support)
         self.update(kwargs)
 
         self.set_data(xdata, ydata)
@@ -232,7 +232,7 @@ class Line2D(Artist):
         off a backend_bases.PickEvent with the additional attribute"ind"
         which is a sequence of indices into the data that meet the criteria
         """
-        if not self.pickable(): return 
+        if not self.pickable(): return
 
         if self._newstyle:
             # transform in backend
@@ -261,8 +261,8 @@ class Line2D(Artist):
             hit, props = picker(self, mouseevent)
             if hit:
                 self.figure.canvas.pick_event(mouseevent, self, **props)
-                
-            
+
+
 
     def get_window_extent(self, renderer):
         self._newstyle = hasattr(renderer, 'draw_markers')
@@ -297,7 +297,7 @@ class Line2D(Artist):
             self._xcid = ax.xaxis.callbacks.connect('units', self.recache)
         if ax.yaxis is not None:
             self._ycid = ax.yaxis.callbacks.connect('units', self.recache)
-        
+
     def set_data(self, *args):
         """
         Set the x and y data
@@ -395,7 +395,7 @@ class Line2D(Artist):
         self._newstyle = hasattr(renderer, 'draw_markers')
         gc = renderer.new_gc()
         self._set_gc_clip(gc)
-        
+
         gc.set_foreground(self._color)
         gc.set_antialiased(self._antialiased)
         gc.set_linewidth(self._linewidth)
@@ -432,7 +432,7 @@ class Line2D(Artist):
 
 
         if self._marker is not None:
-            
+
             gc = renderer.new_gc()
             self._set_gc_clip(gc)
             if (is_string_like(self._markeredgecolor) and
@@ -708,7 +708,14 @@ class Line2D(Artist):
             path.end_poly()
             renderer.draw_markers(gc, path, rgbFace, xt, yt, self.get_transform())
         else:
-            for (x,y) in zip(xt, yt):
+            # Use of draw_arc is left effectively disabled (since
+            # now self._newstyle is always True) because it is
+            # much slower (for Agg) than using the polygon approx with
+            # draw_markers.  To speed it up we need a
+            # draw_arcs or draw_circles backend counterpart to draw_markers.
+            xtt, ytt = self.get_transform().numerix_x_y(xt, yt)
+            for i, x in enumerate(xtt):
+                y = ytt[i]
                 renderer.draw_arc(gc, rgbFace,
                                   x, y, w, w, 0.0, 360.0, 0.0)
 

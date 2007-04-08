@@ -93,6 +93,7 @@ class PatchCollection(Collection, ScalarMappable):
           transOffset = identity_transform(),
           norm = None,  # optional for ScalarMappable
           cmap = None,  # ditto
+          label = ''
 
     offsets and transOffset are used to translate the patch after
     rendering (default no offsets)

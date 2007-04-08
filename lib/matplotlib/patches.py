@@ -202,8 +202,8 @@ class Patch(Artist):
         gc.set_linewidth(self._linewidth)
         gc.set_alpha(self._alpha)
         gc.set_antialiased(self._antialiased)
-        if self.get_clip_on(): gc.set_clip_rectangle(
-            self.clipbox.get_bounds())
+        if self.get_clip_on():
+            gc.set_clip_rectangle(self.clipbox.get_bounds())
         gc.set_capstyle('projecting')
 
         if not self.fill or self._facecolor is None: rgbFace = None
@@ -706,7 +706,7 @@ class CirclePolygon(RegularPolygon):
 class Ellipse(Patch):
     """
     A scale-free ellipse
-        """
+    """
     def __init__(self, xy, width, height, angle=0.0, **kwargs):
         """
         xy - center of ellipse
@@ -724,18 +724,7 @@ class Ellipse(Patch):
         self.width, self.height = width, height
         self.angle = angle
 
-        x,y = self.center
-        l,r = x-width/2.0, x+width/2.0
-        b,t = y-height/2.0, y+height/2.0
-
-        # self.verts = array(((x,y),(l,y),(x,t),(r,y),(x,b)), Float)
-
-
     def get_verts(self):
-        """
-        Not actually used for rendering.  Provided to conform to
-        Patch super class.
-        """
         x,y = self.center
         l,r = x-self.width/2.0, x+self.width/2.0
         b,t = y-self.height/2.0, y+self.height/2.0
@@ -751,8 +740,8 @@ class Ellipse(Patch):
         gc.set_linewidth(self._linewidth)
         gc.set_alpha(self._alpha)
         gc.set_antialiased(self._antialiased)
-        if self.get_clip_on(): gc.set_clip_rectangle(
-            self.clipbox.get_bounds())
+        if self.get_clip_on():
+            gc.set_clip_rectangle(self.clipbox.get_bounds())
         gc.set_capstyle('projecting')
 
         if not self.fill or self._facecolor is None: rgbFace = None
@@ -761,11 +750,13 @@ class Ellipse(Patch):
         if self._hatch:
             gc.set_hatch(self._hatch )
 
-        tverts = self.get_transform().seq_xy_tups(self.get_verts()) # center is first vert
+        tverts = self.get_transform().seq_xy_tups(self.get_verts())
+        # center is first vert
         width = tverts[3,0] - tverts[1,0]
         height = tverts[2,1] - tverts[4,1]
 
-        renderer.draw_arc(gc, rgbFace, tverts[0,0], tverts[0,1], width, height, 0.0, 360.0, self.angle)
+        renderer.draw_arc(gc, rgbFace, tverts[0,0], tverts[0,1],
+                          width, height, 0.0, 360.0, self.angle)
 
 class Circle(Ellipse):
     """
