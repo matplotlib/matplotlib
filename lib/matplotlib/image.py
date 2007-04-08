@@ -318,8 +318,8 @@ class NonUniformImage(AxesImage):
 
         x0, y0, v_width, v_height = self.axes.viewLim.get_bounds()
         l, b, width, height = self.axes.bbox.get_bounds()
-	width *= magnification
-	height *= magnification
+        width *= magnification
+        height *= magnification
         im = _image.pcolor(self._Ax, self._Ay, self._A,
                            height, width,
                            (x0, x0+v_width, y0, y0+v_height),

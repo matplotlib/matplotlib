@@ -239,7 +239,7 @@ class Artist:
         """
         self._clipon = b
         if not b:
-	    self.clipbox = None
+            self.clipbox = None
             self._clippath = None
         self.pchanged()
 
