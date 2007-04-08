@@ -1037,7 +1037,9 @@ class Axes(Artist):
 
     def add_collection(self, collection, autolim=False):
         'add a Collection instance to Axes'
-
+        label = collection.get_label()
+        if not label:
+            collection.set_label('collection%d'%len(self.collections))
         self.collections.append(collection)
         self._set_artist_props(collection)
         collection.set_clip_box(self.bbox)
@@ -2289,7 +2291,8 @@ class Axes(Artist):
     axvspan.__doc__ = dedent(axvspan.__doc__) % artist.kwdocd
 
 
-    def hlines(self, y, xmin, xmax, colors='k', linestyle='solid', **kwargs):
+    def hlines(self, y, xmin, xmax, colors='k', linestyle='solid',
+                     label='', **kwargs):
         """
         HLINES(y, xmin, xmax, colors='k', linestyle='solid', **kwargs)
 
@@ -2330,8 +2333,10 @@ class Axes(Artist):
 
 
 
-        verts = [ ((thisxmin, thisy), (thisxmax, thisy)) for thisxmin, thisxmax, thisy in zip(xmin, xmax, y)]
-        coll = LineCollection(verts, colors=colors, linestyle=linestyle)
+        verts = [ ((thisxmin, thisy), (thisxmax, thisy))
+                            for thisxmin, thisxmax, thisy in zip(xmin, xmax, y)]
+        coll = LineCollection(verts, colors=colors,
+                                    linestyle=linestyle, label=label)
         self.add_collection(coll)
 
 
@@ -2348,7 +2353,8 @@ class Axes(Artist):
         return coll
     hlines.__doc__ = dedent(hlines.__doc__)
 
-    def vlines(self, x, ymin, ymax, colors='k', linestyle='solid', **kwargs):
+    def vlines(self, x, ymin, ymax, colors='k', linestyle='solid',
+                     label='', **kwargs):
         """
         VLINES(x, ymin, ymax, color='k')
 
@@ -2394,8 +2400,10 @@ class Axes(Artist):
 
         Y = transpose(array([ymin, ymax]))
 
-        verts = [ ((thisx, thisymin), (thisx, thisymax)) for thisx, (thisymin, thisymax) in zip(x,Y)]
-        coll = LineCollection(verts, colors=colors, linestyle=linestyle)
+        verts = [ ((thisx, thisymin), (thisx, thisymax))
+                                    for thisx, (thisymin, thisymax) in zip(x,Y)]
+        coll = LineCollection(verts, colors=colors,
+                                linestyle=linestyle, label=label)
         self.add_collection(coll)
         coll.update(kwargs)
 
@@ -3495,7 +3503,6 @@ class Axes(Artist):
             l.set_color(ecolor)
 
         self.autoscale_view()
-
         return (l0, caplines, barcols)
     errorbar.__doc__ = dedent(errorbar.__doc__) % artist.kwdocd
 
