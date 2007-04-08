@@ -4,6 +4,7 @@ Figure and Axes text
 from __future__ import division
 import re
 from matplotlib import verbose
+from matplotlib import cbook
 import matplotlib
 import math
 from artist import Artist
@@ -89,29 +90,10 @@ def get_rotation(rotation):
 
 _unit_box = lbwh_to_bbox(0,0,1,1)
 
-
-class Text(Artist):
-    """
-    Handle storing and drawing of text in window or data coordinates
-
-    """
-    # special case superscripting to speedup logplots
-    _rgxsuper = re.compile('\$([\-+0-9]+)\^\{(-?[0-9]+)\}\$')
-
-    zorder = 3
-    def __init__(self,
-                 x=0, y=0, text='',
-                 color=None,          # defaults to rc params
-                 verticalalignment='bottom',
-                 horizontalalignment='left',
-                 multialignment=None,
-                 fontproperties=None, # defaults to FontProperties()
-                 rotation=None,
-                 **kwargs
-                 ):
-        """
-        Create a Text instance at x,y with string text.  Valid kwargs are
-
+# these are not available for the object inspector until after the
+# class is build so we define an initial set here for the init
+# function and they will be overridden after object defn
+artist.kwdocd['Text'] =  """\
             alpha: float
             animated: [True | False]
             backgroundcolor: any matplotlib color
@@ -140,6 +122,30 @@ class Text(Artist):
             x: float
             y: float
             zorder: any number
+            """
+
+class Text(Artist):
+    """
+    Handle storing and drawing of text in window or data coordinates
+
+    """
+    # special case superscripting to speedup logplots
+    _rgxsuper = re.compile('\$([\-+0-9]+)\^\{(-?[0-9]+)\}\$')
+
+    zorder = 3
+    def __init__(self,
+                 x=0, y=0, text='',
+                 color=None,          # defaults to rc params
+                 verticalalignment='bottom',
+                 horizontalalignment='left',
+                 multialignment=None,
+                 fontproperties=None, # defaults to FontProperties()
+                 rotation=None,
+                 **kwargs
+                 ):
+        """
+        Create a Text instance at x,y with string text.  Valid kwargs are
+            %(Text)s
         """
 
         Artist.__init__(self)
@@ -160,6 +166,7 @@ class Text(Artist):
         self._renderer = None
         self.update(kwargs)
         #self.set_bbox(dict(pad=0))
+    __init__.__doc__ = cbook.dedent(__init__.__doc__) % artist.kwdocd
 
 
     def pick(self, mouseevent):
@@ -1595,7 +1602,7 @@ class Annotation(Text):
             annotated.  If d is the distance between the text and
             annotated point, shrink will shorten the arrow so the tip
             and base are shink percent of the distance d away from the
-            endpoints.  ie, shrink=0.05 is 5%
+            endpoints.  ie, shrink=0.05 is 5%%
           - any key for matplotlib.patches.polygon
 
         xycoords and textcoords are a string that indicates the
@@ -1621,6 +1628,9 @@ class Annotation(Text):
           # 5 points below the top border
           xy=(10,-5), xycoords='axes points'
 
+        Additional kwargs are Text properties:
+
+          %(Text)s
 
         """
         if xytext is None:
@@ -1635,6 +1645,7 @@ class Annotation(Text):
         self.arrow = None
         self.xycoords = xycoords
         self.textcoords = textcoords
+    __init__.__doc__ = cbook.dedent(__init__.__doc__) % artist.kwdocd
 
     def _get_xy(self, x, y, s):
         if s=='data':

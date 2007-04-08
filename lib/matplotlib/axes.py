@@ -2125,14 +2125,14 @@ class Axes(Artist):
                  markerprops=None
                  **props)
 
-        %s
+        %(Annotation)s
         """
         a = Annotation(*args, **kwargs)
         a.set_transform(identity_transform())
         self._set_artist_props(a)
         self.texts.append(a)
         return a
-    annotate.__doc__ = dedent(annotate.__doc__) % Annotation.__doc__
+    annotate.__doc__ = dedent(annotate.__doc__) % artist.kwdocd
 
     #### Lines and spans
 

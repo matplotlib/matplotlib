@@ -1500,13 +1500,6 @@ def box(on=None):
     ax.set_frame_on(on)
     draw_if_interactive()
 
-def annotate(*args, **kwargs):
-    a = Annotation(*args, **kwargs)
-    ax = gca()
-    ax.add_artist(a)
-    draw_if_interactive()
-annotate.__doc__ = "annotate(artist, s, loc=None, padx='auto', pady='auto', autopad=3, lineprops=None,**props)\n\n"+Annotation.__init__.__doc__
-
 ### Deprecated functions:
 def scatter_classic(*args, **kwargs):
     return gca().scatter_classic(*args, **kwargs)

@@ -425,6 +425,8 @@ def dedent(s):
     deletion of leading blank lines and its use of the
     first non-blank line to determine the indentation.
     """
+    if not s:      # includes case of s is None
+        return ''
     lines = s.splitlines(True)
     ii = 0
     while lines[ii].strip() == '':
