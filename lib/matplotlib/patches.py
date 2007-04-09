@@ -480,7 +480,7 @@ class Polygon(Patch):
 
 
     def get_verts(self):
-        xs, ys = zip(*self.xy)
+        xs, ys = zip(*self.xy)[:2]
         xs = self.convert_xunits(xs)
         ys = self.convert_yunits(ys)
         return zip(xs, ys)

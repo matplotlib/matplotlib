@@ -369,7 +369,7 @@ def zalpha(colors, zs):
     """Modify the alphas of the color list according to depth"""
     colors = get_colors(colors,len(zs))
     norm = Normalize(min(zs),max(zs))
-    sats = nx.array([1-norm(z)*0.7 for z in zs])
+    sats = 1 - norm(zs)*0.7 
     colors = [(c[0],c[1],c[2],c[3]*s) for c,s in zip(colors,sats)]
     return colors
 

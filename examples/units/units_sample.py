@@ -2,7 +2,9 @@
 plot using a variety of cm vs inches conversions.  The example shows
 how default unit instrospection works (ax1), how various keywords can
 be used to set the x and y units to override the defaults (ax2, ax3,
-ax4) and how one can set the xlimits
+ax4) and how one can set the xlimits using scalars (ax3, current units
+assumed) or units (conversions applied to get the numbers to current
+units)
 
 """
 from basic_units import cm, inch
