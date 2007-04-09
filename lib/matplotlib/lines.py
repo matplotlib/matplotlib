@@ -708,14 +708,7 @@ class Line2D(Artist):
             path.end_poly()
             renderer.draw_markers(gc, path, rgbFace, xt, yt, self.get_transform())
         else:
-            # Use of draw_arc is left effectively disabled (since
-            # now self._newstyle is always True) because it is
-            # much slower (for Agg) than using the polygon approx with
-            # draw_markers.  To speed it up we need a
-            # draw_arcs or draw_circles backend counterpart to draw_markers.
-            xtt, ytt = self.get_transform().numerix_x_y(xt, yt)
-            for i, x in enumerate(xtt):
-                y = ytt[i]
+            for (x,y) in zip(xt,yt):
                 renderer.draw_arc(gc, rgbFace,
                                   x, y, w, w, 0.0, 360.0, 0.0)
 
