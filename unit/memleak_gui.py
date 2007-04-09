@@ -13,8 +13,8 @@ import gc
 import matplotlib
 
 #matplotlib.use('TkAgg') # or TkAgg or WxAgg or QtAgg or Gtk
-matplotlib.rcParams['toolbar'] = 'toolbar2'   # None, classic, toolbar2
-#matplotlib.rcParams['toolbar'] = None   # None, classic, toolbar2
+#matplotlib.rcParams['toolbar'] = 'toolbar2'   # None, classic, toolbar2
+matplotlib.rcParams['toolbar'] = None   # None, classic, toolbar2
 
 import pylab
 from matplotlib import _pylab_helpers as ph
