@@ -1,3 +1,7 @@
+    The file dviread.py has a (very limited and fragile) dvi reader
+    for usetex support. The API might change in the future so don't
+    depend on it yet.
+
     Removed deprecated support for a float value as a gray-scale;
     now it must be a string, like '0.5'.  Added alpha kwarg to
     ColorConverter.to_rgba_list.

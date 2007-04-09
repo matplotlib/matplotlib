@@ -16,7 +16,7 @@ from cStringIO import StringIO
 from datetime import datetime
 from math import ceil, cos, floor, pi, sin
 
-from matplotlib import __version__, rcParams, agg
+from matplotlib import __version__, rcParams, agg, get_data_path
 from matplotlib._pylab_helpers import Gcf
 from matplotlib.backend_bases import RendererBase, GraphicsContextBase,\
      FigureManagerBase, FigureCanvasBase
@@ -24,6 +24,7 @@ from matplotlib.cbook import Bunch, enumerate, is_string_like, reverse_dict
 from matplotlib.figure import Figure
 from matplotlib.font_manager import fontManager
 from matplotlib.afm import AFM
+from matplotlib.dviread import Dvi
 from matplotlib.ft2font import FT2Font, FIXED_WIDTH, ITALIC, LOAD_NO_SCALE
 from matplotlib.mathtext import math_parse_s_pdf
 from matplotlib.numerix import Float32, UInt8, fromstring, arange, infinity, isnan, asarray
@@ -313,6 +314,7 @@ class PdfFile:
     """PDF file with one page."""
 
     def __init__(self, width, height, filename):
+        self.width, self.height = width, height
         self.nextObject = 1     # next free object id
         self.xrefTable = [ [0, 65535, 'the zero object'] ]
         fh = file(filename, 'wb')
@@ -832,6 +834,7 @@ class PdfFile:
 class RendererPdf(RendererBase):
 
     def __init__(self, file):
+        RendererBase.__init__(self)
         self.file = file
         self.gc = self.new_gc()
         self.truetype_font_cache = {}
@@ -839,6 +842,8 @@ class RendererPdf(RendererBase):
 
     def finalize(self):
         self.gc.finalize()
+        del self.truetype_font_cache
+        del self.afm_font_cache
 
     def check_gc(self, gc, fillcolor=None):
         orig_fill = gc._fillcolor
@@ -1030,6 +1035,58 @@ class RendererPdf(RendererBase):
             string = chr(glyph)
             self.file.output(string, Op.show)
         self.file.output(Op.end_text)
+
+    def _draw_tex(self, gc, x, y, s, prop, angle):
+        # Rename to draw_tex to enable, but note the following:
+        # TODO:
+        #  - font sizes other than 10pt
+        #  - fonts other than the three ttf files included with matplotlib
+        #    (will need to support Type-1 fonts and find them with kpsewhich)
+        #  - encoding issues (e.g. \alpha doesn't work now)
+        #  - overall robustness
+        #  - ...
+        texmanager = self.get_texmanager()
+        fontsize = prop.get_size_in_points()
+        dvifile = texmanager.make_dvi(s, fontsize)
+        dvi = Dvi(dvifile)
+        dvi.read()
+        text, boxes = dvi.output(72)
+        fontdir = os.path.join(get_data_path(), 'fonts', 'ttf')
+
+        if angle == 0:          # avoid rounding errors in common case
+            def mytrans(x1, y1): 
+                return x+x1, y+y1
+        else:
+            def mytrans(x1, y1, x=x, y=y, a=angle / 180.0 * pi):
+                x1 = x + cos(a)*x1 - sin(a)*y1
+                y1 = y + sin(a)*x1 + cos(a)*y1
+                return x1, y1
+
+        self.check_gc(gc, gc._rgb)
+        self.file.output(Op.begin_text)
+        oldfont, oldx, oldy = None, 0, 0
+        for x1, y1, font, glyph in text:
+            if font != oldfont:
+                fontname, fontsize = dvi.fontinfo(font)
+                fontfile = os.path.join(fontdir, fontname+'.ttf')
+                self.file.output(self.file.fontName(fontfile),
+                                 fontsize, Op.selectfont)
+                oldfont = font
+            x1, y1 = mytrans(x1, y1)
+            self._setup_textpos(x1, y1, angle, oldx, oldy)
+            self.file.output(chr(glyph), Op.show)
+            oldx, oldy = x1, y1
+        self.file.output(Op.end_text)
+
+        boxgc = self.new_gc()
+        boxgc.copy_properties(gc)
+        boxgc.set_linewidth(0)
+        for x1, y1, h, w in boxes:
+            (x1, y1), (x2, y2), (x3, y3), (x4, y4) = \
+                mytrans(x1, y1), mytrans(x1+w, y1), \
+                mytrans(x1+w, y1+h), mytrans(x1, y1+h)
+            self.draw_polygon(boxgc, gc._rgb, 
+                              ((x1,y1), (x2,y2), (x3,y3), (x4,y4)))
 
     def draw_text(self, gc, x, y, s, prop, angle, ismath=False):
         # TODO: combine consecutive texts into one BT/ET delimited section
