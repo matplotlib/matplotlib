@@ -2407,7 +2407,7 @@ class Axes(Artist):
         verts = [ ((thisx, thisymin), (thisx, thisymax))
                                     for thisx, (thisymin, thisymax) in zip(x,Y)]
         coll = LineCollection(verts, colors=colors,
-                                linestyle=linestyle, label=label)
+                              linestyle=linestyle, label=label)
         self.add_collection(coll)
         coll.update(kwargs)
 
