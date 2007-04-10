@@ -574,6 +574,7 @@ class LineCollection(Collection, ScalarMappable):
                  transOffset = None,#identity_transform(),
                  norm = None,
                  cmap = None,
+                 **kwargs
                  ):
         """
         segments is a sequence of ( line0, line1, line2), where
@@ -640,7 +641,8 @@ class LineCollection(Collection, ScalarMappable):
         self._offsets = offsets
         self._transOffset = transOffset
         self.set_segments(segments)
-
+        self.update(kwargs)
+        
     def get_transoffset(self):
         if self._transOffset is None:
             self._transOffset = identity_transform()

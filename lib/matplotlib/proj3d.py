@@ -51,52 +51,28 @@ def line2d_dist(l, p):
     x0,y0 = p
     return abs((a*x0 + b*y0 + c)/nx.sqrt(a**2+b**2))
 
-def dist2d(p0,p1):
-    """distance between two points"""
-    try:
-        p = p0-p1
-        return nx.sqrt(sum(p**2))
-    except ValueError:
-        print p0,p1
-        raise
 
-def line2d_seg_dist(p0,p1, p):
-    """distance(s) from line defined by p0 - p1 to point(s) p
+def line2d_seg_dist(p1,p2, p0):
+    """distance(s) from line defined by p1 - p2 to point(s) p0
 
-    p[0] = x(s)
-    p[1] = y(s)
+    p0[0] = x(s)
+    p0[1] = y(s)
 
-    intersection point p = p0 + u*(p1-p0)
+    intersection point p = p1 + u*(p2-p1)
     and intersection point lies within segement if u is between 0 and 1
     """
-    
-    p,p0,p1 = map(nx.asarray,(p[:2],p0[:2],p1[:2]))
-    x,y = p
-    x0,y0 = p0
-    x1,y1 = p1
-    # 
-    u = ((x-x0)*(x1-x0)+(y-y0)*(y1-y0))/(dist2d(p0,p1)*dist2d(p0,p1))
-    #
-    def dist(p,p0,p1,u):
-        if u > 0 and u < 1:
-            pi = p0 + u*(p1-p0)
-            return dist2d(p,pi)
-        else:
-            return nx.minimum(dist2d(p,p0),dist2d(p,p1))
-        
-    if not iterable(u):
-        return dist(p,p0,p1,u)
-    else:
-        # for each point calculate dist
-        pt = nx.transpose(p)
-        return nx.array([dist(pe,p0,p1,ue) for pe,ue in zip(pt,u)])
 
-def iterable(v):
-    try:
-        len(v)
-        return True
-    except TypeError:
-        return False
+    x21 = p2[0] - p1[0]
+    y21 = p2[1] - p1[1]
+    x01 = nx.asarray(p0[0]) - p1[0]
+    y01 = nx.asarray(p0[1]) - p1[1]
+
+    u = (x01*x21 + y01*y21)/float(abs(x21**2 + y21**2))
+    u = nx.clip(u, 0, 1)
+    d = nx.sqrt((x01 - u*x21)**2 + (y01 - u*y21)**2)
+
+    return d
+
         
 def test_lines_dists():
     ax = pylab.gca()
