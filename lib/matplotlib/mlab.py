@@ -1318,19 +1318,22 @@ def load(fname,comments='#',delimiter=None, converters=None,skiprows=0,
         raise ValueError('fname must be a string or file handle')
     X = []
 
+    converterseq = None
     for i,line in enumerate(fh):
         if i<skiprows: continue
         line = line[:line.find(comments)].strip()
         if not len(line): continue
+        if converterseq is None:
+           converterseq = [converters.get(j,float) for j,val in enumerate(line.split(delimiter))]
         if usecols is not None:
             vals = line.split(delimiter)
-            row = [converters.get(i,float)(vals[i]) for i in usecols]
+            row = [converterseq[j](vals[j]) for j in usecols]
         else:
-            row = [converters.get(i,float)(val) for i,val in enumerate(line.split(delimiter))]
+            row = [converterseq[j](val) for j,val in enumerate(line.split(delimiter))]
         thisLen = len(row)
         X.append(row)
 
-    X = array(X)
+    X = array(X, nx.Float)
     r,c = X.shape
     if r==1 or c==1:
         X.shape = max([r,c]),
