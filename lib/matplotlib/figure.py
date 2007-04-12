@@ -515,9 +515,9 @@ class Figure(Artist):
         """
         Clear the figure
         """
-        for ax in self.axes:
+        for ax in tuple(self.axes):  # Iterate over the copy.
             ax.cla()
-            self.delaxes(ax)
+            self.delaxes(ax)         # removes ax from self.axes
 
         toolbar = getattr(self.canvas, 'toolbar', None)
         if toolbar is not None:
