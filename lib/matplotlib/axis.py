@@ -824,6 +824,9 @@ class Axis(Artist):
 
     def convert_units(self, x):
         if self.converter is None:
+            self.converter = units.registry.get_converter(x)
+
+        if self.converter is None:
             #print 'convert_units returning identity: units=%s, converter=%s'%(self.units, self.converter)
             return x
 
@@ -840,7 +843,6 @@ class Axis(Artist):
         pchanged = False
         if u is None:
             self.units = None
-            self.converter = None
             pchanged = True
         else:
             if u!=self.units:
