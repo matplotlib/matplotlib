@@ -919,6 +919,8 @@ class Axis(Artist):
         for i, tick in enumerate(self.get_major_ticks()):
             if i<len(ticklabels): ret.append(tick.label1)
             tick.label1.update(kwargs)
+            if ( ticklabels ):
+               tick.label1.set_text(ticklabels[i])
         return ret
 
     def set_ticks(self, ticks):
