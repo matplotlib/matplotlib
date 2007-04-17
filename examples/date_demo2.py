@@ -5,7 +5,7 @@ formatters.  See major_minor_demo1.py for more information on
 controlling major and minor ticks
 """
 import datetime
-from pylab import *
+from pylab import figure, show
 from matplotlib.dates import MONDAY, SATURDAY
 from matplotlib.finance import quotes_historical_yahoo
 from matplotlib.dates import MonthLocator, WeekdayLocator, DateFormatter
@@ -26,19 +26,19 @@ if not quotes:
 
 dates = [q[0] for q in quotes]
 opens = [q[1] for q in quotes]
-    
-ax = subplot(111)
-plot_date(dates, opens, '-')
+
+fig = figure()
+ax = fig.add_subplot(111)
+ax.plot_date(dates, opens, '-')
 ax.xaxis.set_major_locator(months)
 ax.xaxis.set_major_formatter(monthsFmt)
 ax.xaxis.set_minor_locator(mondays)
 ax.autoscale_view()
 #ax.xaxis.grid(False, 'major')
 #ax.xaxis.grid(True, 'minor')
+ax.grid(True)
 
-labels = ax.get_xticklabels()
-setp(labels, rotation=45)
+fig.autofmt_xdate()
 
-grid(True)
-savefig('date_demo2')
+#fig.savefig('date_demo2')
 show()
