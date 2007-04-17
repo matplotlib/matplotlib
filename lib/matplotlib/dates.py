@@ -167,6 +167,22 @@ def _from_ordinalf(x, tz=None):
 
     return dt
 
+class strpdate2num:
+    """
+    Use this class to parse date strings to matplotlib datenums when
+    you know the date format string of the date you are parsing.  See
+    examples/load_demo.py
+    """
+    def __init__(self, fmt):
+        """ fmt: any valid strptime format is supported """
+        self.fmt = fmt
+
+    def __call__(self, s):
+        """s : string to be converted
+           return value: a date2num float
+        """
+        return date2num(datetime.datetime(*time.strptime(s, self.fmt)[:6]))
+    
 def datestr2num(d):
     """
     Convert a date string to a datenum using dateutil.parser.parse

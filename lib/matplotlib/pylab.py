@@ -236,7 +236,7 @@ import numerix as nx
 # eg a bad pytz install.  I don't want to break all of matplotlib for
 # date support
 try:
-    from dates import date2num, num2date, datestr2num, drange,\
+    from dates import date2num, num2date, datestr2num, strpdate2num, drange,\
             epoch2num, num2epoch, mx2num,\
             DateFormatter, IndexDateFormatter, DateLocator,\
             RRuleLocator, YearLocator, MonthLocator, WeekdayLocator,\
