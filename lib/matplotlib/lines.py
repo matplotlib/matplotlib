@@ -317,8 +317,8 @@ class Line2D(Artist):
     def recache(self):
         #if self.axes is None: print 'recache no axes'
         #else: print 'recache units', self.axes.xaxis.units, self.axes.yaxis.units
-        x = asarray(self.convert_xunits(self._xorig), Float)
-        y = asarray(self.convert_yunits(self._yorig), Float)
+        x = ma.asarray(self.convert_xunits(self._xorig), Float)
+        y = ma.asarray(self.convert_yunits(self._yorig), Float)
 
         x = ma.ravel(x)
         y = ma.ravel(y)
