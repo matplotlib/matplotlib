@@ -42,6 +42,7 @@ files = (
     'log_test.py',
     'major_minor_demo1.py',
     'major_minor_demo2.py',
+    'masked_demo.py',
     'mathtext_demo.py',
     'mri_with_eeg.py',
     'multiple_figs_demo.py',
