@@ -172,8 +172,8 @@ class RendererAgg(RendererBase):
         if __debug__: verbose.report('RendererAgg.draw_point', 'debug-annoying')
         rgbFace = gc.get_rgb()
         self._renderer.draw_ellipse(
-            gc, rgbFace, x, y, 0.5, 0.5)
-
+            gc, rgbFace, x, y, 0.5, 0.5, 0.0)
+            
     def draw_mathtext(self, gc, x, y, s, prop, angle):
         """
         Draw the math text using matplotlib.mathtext
