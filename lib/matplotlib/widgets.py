@@ -734,8 +734,6 @@ class MultiCursor:
     """
     def __init__(self, canvas, axes, useblit=True, **lineprops):
         self.canvas = canvas
-        self.canvas.mpl_connect('motion_notify_event', self.onmove)
-        self.canvas.mpl_connect('draw_event', self.clear)
         self.axes = axes
         self.lines = [ax.axvline(1, visible=False, **lineprops) for ax in axes]
 
@@ -743,6 +741,9 @@ class MultiCursor:
         self.useblit = useblit
         self.background = None
         self.needclear = False
+
+        self.canvas.mpl_connect('motion_notify_event', self.onmove)
+        self.canvas.mpl_connect('draw_event', self.clear)
 
 
     def clear(self, event):

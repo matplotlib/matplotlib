@@ -444,14 +444,14 @@ class RegularPolygon(Patch):
     def get_verts(self):
         theta = 2*pi/self.numVertices*arange(self.numVertices) + \
                 self.orientation
-        r = self.radius
-        x, y = self.x, self.y
+        r = float(self.radius)
+        x, y = map(float, self.xy)
 
         xs = x + r*cos(theta)
         ys = y + r*sin(theta)
 
-        xs = self.convert_xunits(xs)
-        ys = self.convert_yunits(ys)
+        #xs = self.convert_xunits(xs)
+        #ys = self.convert_yunits(ys)
 
 
         self.verts = zip(xs, ys)

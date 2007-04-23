@@ -34,11 +34,12 @@ from lines import Line2D, lineStyles, lineMarkers
 import lines
 
 from matplotlib.mlab import meshgrid, detrend_none, detrend_linear, \
-     window_none, window_hanning, linspace, prctile
+     window_none, window_hanning, prctile, linspace
 from matplotlib.numerix.mlab import flipud, amin, amax, dot
 
 from matplotlib import rcParams
-from patches import Patch, Rectangle, Circle, Polygon, Arrow, Wedge, Shadow, FancyArrow, bbox_artist
+from patches import Patch, Rectangle, Circle, Polygon, RegularPolygon,\
+     Arrow, Wedge, Shadow, FancyArrow, bbox_artist
 import table
 from text import Text, TextWithDash, Annotation, _process_text_args
 from transforms import Bbox, Point, Value, Affine, NonseparableTransformation
@@ -2803,6 +2804,7 @@ class Axes(Artist):
             kwargs.setdefault('marker', 'o')
             kwargs.setdefault('linestyle', 'None')
             a, = self.plot(lags, c, **kwargs)
+            b = None
         return lags, c, a, b
     xcorr.__doc__ = dedent(xcorr.__doc__) % artist.kwdocd
 
@@ -5224,7 +5226,7 @@ class PolarAxes(Axes):
 
     """
 
-    RESOLUTION = 200
+    RESOLUTION = 100
 
     def __init__(self, *args, **kwarg):
         """
@@ -5291,13 +5293,15 @@ class PolarAxes(Axes):
         self._set_artist_props(self.title)
 
 
-        self.thetas = linspace(0,2*math.pi, self.RESOLUTION)
+        self.thetas = linspace(0, 2*math.pi, self.RESOLUTION)
+
         verts = zip(self.thetas, ones(self.RESOLUTION))
         self.axesPatch = Polygon(
             verts,
             facecolor=self._axisbg,
             edgecolor=rcParams['axes.edgecolor'],
             )
+            
 
 
         self.axesPatch.set_figure(self.figure)
@@ -5313,9 +5317,18 @@ class PolarAxes(Axes):
         self.rformatter  = ScalarFormatter()
         self.rformatter.set_view_interval(self.rintv)
         self.rformatter.set_data_interval(self.rintd)
-        self.rlocator = AutoLocator()
+
+        class RadialLocator(AutoLocator):
+            'enforce strictly positive radial ticks'
+
+            def __call__(self):
+                ticks = AutoLocator.__call__(self)
+                return [t for t in ticks if t>0]
+            
+        self.rlocator = RadialLocator()
         self.rlocator.set_view_interval(self.rintv)
         self.rlocator.set_data_interval(self.rintd)
+
 
         angles = arange(0, 360, 45)
         radii = arange(0.2, 1.1, 0.2)
@@ -5334,8 +5347,8 @@ class PolarAxes(Axes):
         children.extend(self.texts)
         children.extend(self.artists)
         children.extend(self.images)
-        #if self.legend_ is not None:
-        #    children.append(self.legend_)
+        if self.legend_ is not None:
+            children.append(self.legend_)
         children.extend(self.collections)
         children.append(self.title)
         children.append(self.axesPatch)
@@ -5351,12 +5364,15 @@ class PolarAxes(Axes):
         self._gridOn = b
 
     def regrid(self, rmax):
+        rmax = float(rmax)
         self.axesPatch.xy = zip(self.thetas, rmax*ones(self.RESOLUTION))
+
         val = rmax*math.sqrt(2)
         self.viewLim.intervaly().set_bounds(val, val)
 
         ticks = self.rlocator()
         self.set_rgrids(ticks)
+        self.rformatter.set_locs(ticks)
 
         for t in self.thetagridlabels:
             t.set_y(1.05*rmax)
@@ -5372,7 +5388,7 @@ class PolarAxes(Axes):
         self.rintv.set_bounds(rmin, rmax)
         self.regrid(rmax)
 
-    def set_rgrids(self, radii, labels=None, angle=22.5, **kwargs):
+    def set_rgrids(self, radii, labels=None, angle=22.5, rpad=0.05, **kwargs):
         """
         set the radial locations and labels of the r grids
 
@@ -5383,6 +5399,9 @@ class PolarAxes(Axes):
 
         if labels is None, the self.rformatter will be used
 
+        rpad is a fraction of the max of radii which will pad each of
+        the radial labels in the radial direction.
+        
         Return value is a list of lines, labels where the lines are
         matplotlib.Line2D instances and the labels are matplotlib.Text
         instances
@@ -5393,12 +5412,21 @@ class PolarAxes(Axes):
         ACCEPTS: sequence of floats
         """
 
+        
+
+        rmin = nx.amin(radii)
+        if rmin<=0:
+            raise ValueError('radial grids must be strictly positive')
+
+        rpad = rpad * max(radii)
         popall(self.rgridlines)
-        theta = linspace(0,2*math.pi, self.RESOLUTION)
+        
+        theta = linspace(0., 2*math.pi, self.RESOLUTION)
         ls = rcParams['grid.linestyle']
         color = rcParams['grid.color']
         lw = rcParams['grid.linewidth']
 
+        rmax = self.get_rmax()
         for r in radii:
             r = ones(self.RESOLUTION)*r
             line = Line2D(theta, r, linestyle=ls, color=color, linewidth=lw)
@@ -5406,7 +5434,6 @@ class PolarAxes(Axes):
             #              linestyle=ls, color=color, linewidth=lw)
             line.set_transform(self.transData)
             self.rgridlines.append(line)
-
 
         popall(self.rgridlabels)
 
@@ -5418,7 +5445,7 @@ class PolarAxes(Axes):
         if labels is None:
             labels = [self.rformatter(r,0) for r in radii]
         for r,l in zip(radii, labels):
-            t = Text(angle/180.*math.pi, r, l,
+            t = Text(angle/180.*math.pi, r+rpad, l,
                      fontproperties=props, color=color,
                      horizontalalignment='center', verticalalignment='center')
             t.set_transform(self.transData)
@@ -5460,7 +5487,8 @@ class PolarAxes(Axes):
         color = rcParams['grid.color']
         lw = rcParams['grid.linewidth']
 
-        r = linspace(0, self.get_rmax(), self.RESOLUTION)
+        rmax = self.get_rmax()
+        r = linspace(0., rmax, self.RESOLUTION)
         for a in angles:
             theta = ones(self.RESOLUTION)*a/180.*math.pi
             line = Line2D(theta, r, linestyle=ls, color=color, linewidth=lw)
@@ -5472,7 +5500,7 @@ class PolarAxes(Axes):
         color = rcParams['xtick.color']
 
         props=FontProperties(size=rcParams['xtick.labelsize'])
-        r = frac*self.get_rmax()
+        r = frac*rmax
         if labels is None:
             labels = [fmt%a for a in angles]
         for a,l in zip(angles, labels):
@@ -5498,20 +5526,21 @@ class PolarAxes(Axes):
         self.transData.freeze()  # eval the lazy objects
         self.transAxes.freeze()  # eval the lazy objects
 
-        tverts = self.transData.seq_xy_tups(self.axesPatch.get_verts())
+        verts = self.axesPatch.get_verts()
+        tverts = self.transData.seq_xy_tups(verts)
 
-        def make_clippath():
-            clippath = agg.path_storage()
-            for i, xy in enumerate(tverts):
-                if i==0: clippath.move_to(*xy)
-                else:    clippath.line_to(*xy)
-            clippath.close_polygon()
-            return clippath
+        #for i,v,t in zip(range(len(verts)), verts, tverts):
+        #    print i,v,t
+        
+        
 
+        l,b,w,h = self.figure.bbox.get_bounds()
         clippath = agg.path_storage()
         for i, xy in enumerate(tverts):
-            if i==0: clippath.move_to(*xy)
-            else:    clippath.line_to(*xy)
+            x,y = xy
+            y = h-y
+            if i==0: clippath.move_to(x, y)
+            else:    clippath.line_to(x, y)
         clippath.close_polygon()
 
         #self._update_axes()
@@ -5519,17 +5548,16 @@ class PolarAxes(Axes):
             if self._frameon: self.axesPatch.draw(renderer)
 
         if self._gridOn:
-            for l in self.rgridlines+self.thetagridlines:
-                #l.set_clip_path(make_clippath())
-                #l.set_clip_path(clippath)
+            for l in self.rgridlines:                
+                l.set_clip_path(clippath)
                 l.draw(renderer)
 
-        for line in self.lines:
-            #line.set_clip_path(make_clippath())
-            line.set_clip_path(clippath)
+            for l in self.thetagridlines:
+                l.set_clip_path(clippath)
+                l.draw(renderer)            
 
-        for t in self.thetagridlabels+self.rgridlabels:
-            t.draw(renderer)
+        for line in self.lines:
+            line.set_clip_path(clippath)
 
         artists = []
         artists.extend(self.lines)
@@ -5537,11 +5565,19 @@ class PolarAxes(Axes):
         artists.extend(self.collections)
         artists.extend(self.patches)
         artists.extend(self.artists)
+
         dsu = [ (a.zorder, a) for a in artists]
         dsu.sort()
 
         for zorder, a in dsu:
             a.draw(renderer)
+
+        
+        for t in self.thetagridlabels+self.rgridlabels:
+            t.draw(renderer)
+
+        if self.legend_ is not None:
+            self.legend_.draw(renderer)
 
         self.title.draw(renderer)
 
@@ -5614,12 +5650,6 @@ class PolarAxes(Axes):
         'toggle between log and linear axes ignored for polar'
         pass
 
-    def legend(self, *args, **kwargs):
-        """
-        LEGEND(*args, **kwargs)
-        Not implemented for polar yet -- use figlegend
-        """
-        raise NotImplementedError('legend not implemented for polar yet -- use figlegend')
 
     def table(self, *args, **kwargs):
         """

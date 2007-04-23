@@ -273,7 +273,8 @@ RendererAgg::RendererAgg(unsigned int width, unsigned int height, double dpi,
   rendererAA = new renderer_aa(*rendererBase);
   rendererBin = new renderer_bin(*rendererBase);
   theRasterizer = new rasterizer();
-
+  theRasterizer->filling_rule(agg::fill_even_odd);
+  //theRasterizer->filling_rule(agg::fill_non_zero);
 
 };
 
@@ -1570,7 +1571,6 @@ RendererAgg::_render_lines_path(PathSource &path, const GCAgg& gc) {
   }
 
 
-
   if ( gc.isaa ) {
     if (isclippath) {
       typedef agg::pixfmt_amask_adaptor<pixfmt, alpha_mask_type> pixfmt_amask_type;
@@ -1581,6 +1581,7 @@ RendererAgg::_render_lines_path(PathSource &path, const GCAgg& gc) {
       renderer_type ren(r);
       ren.color(gc.color);
       //std::cout << "render clippath" << std::endl;
+
       agg::render_scanlines(*theRasterizer, *slineP8, ren);
     }
     else {
