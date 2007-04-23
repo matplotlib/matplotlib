@@ -100,7 +100,7 @@ class ConversionInterface:
         """
         if iterable(x):
             for thisx in x:                
-                return is_numlike(x)
+                return is_numlike(thisx)
         else:
             return is_numlike(x)
     is_numlike = staticmethod(is_numlike)
