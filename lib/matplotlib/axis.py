@@ -848,9 +848,6 @@ class Axis(Artist):
             if u!=self.units:
                 self.units = u
                 #print 'setting units', self.converter, u, units.registry.get_converter(u)
-                if self.converter is None:
-                    self.converter = units.registry.get_converter(u)
-                self._update_axisinfo()
                 pchanged = True
         if pchanged:
             self.callbacks.process('units')
