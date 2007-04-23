@@ -5280,7 +5280,8 @@ class PolarAxes(Axes):
         self.artists = []
         self.collections = []
         self.texts = []     # text in axis coords
-
+        self.legend_ = None
+        
         self.grid(self._gridOn)
         self.title =  Text(
             x=0.5, y=1.05, text='',
@@ -5556,8 +5557,8 @@ class PolarAxes(Axes):
                 l.set_clip_path(clippath)
                 l.draw(renderer)            
 
-        for line in self.lines:
-            line.set_clip_path(clippath)
+        for a in self.lines:
+            a.set_clip_path(clippath)
 
         artists = []
         artists.extend(self.lines)
