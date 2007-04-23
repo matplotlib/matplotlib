@@ -202,8 +202,7 @@ class Patch(Artist):
         gc.set_linewidth(self._linewidth)
         gc.set_alpha(self._alpha)
         gc.set_antialiased(self._antialiased)
-        if self.get_clip_on():
-            gc.set_clip_rectangle(self.clipbox.get_bounds())
+        self._set_gc_clip(gc)
         gc.set_capstyle('projecting')
 
         if not self.fill or self._facecolor is None: rgbFace = None
@@ -740,8 +739,8 @@ class Ellipse(Patch):
         gc.set_linewidth(self._linewidth)
         gc.set_alpha(self._alpha)
         gc.set_antialiased(self._antialiased)
-        if self.get_clip_on():
-            gc.set_clip_rectangle(self.clipbox.get_bounds())
+        self._set_gc_clip(gc)
+
         gc.set_capstyle('projecting')
 
         if not self.fill or self._facecolor is None: rgbFace = None

@@ -5557,7 +5557,7 @@ class PolarAxes(Axes):
                 l.set_clip_path(clippath)
                 l.draw(renderer)            
 
-        for a in self.lines:
+        for a in self.lines:# + self.patches:
             a.set_clip_path(clippath)
 
         artists = []
