@@ -39,20 +39,23 @@
 # See the pylab rgrids and thetagrids functions for
 # information on how to customize the grid locations and labels
 
-from pylab import *
+import matplotlib.numerix as nx
+from pylab import figure, show, rc
 
 # radar green, solid grid lines
-rc('grid', color='red', linewidth=1, linestyle='-')
+rc('grid', color='#316931', linewidth=1, linestyle='-')
 rc('xtick', labelsize=15)
 rc('ytick', labelsize=15)
+
 # force square figure and square axes looks better for polar, IMO
-figure(figsize=(8,8))
-ax = axes([0.1, 0.1, 0.8, 0.8], polar=True, axisbg='#d5de9c')
+fig = figure(figsize=(8,8))
+ax = fig.add_axes([0.1, 0.1, 0.8, 0.8], polar=True, axisbg='#d5de9c')
 
-r = arange(0,1,0.001)
-theta = 2*2*pi*r
-polar(theta, r, color='#ee8d18', lw=3)
+r = nx.arange(0, 3.0, 0.01)
+theta = 2*nx.pi*r
+ax.plot(theta, r, color='#ee8d18', lw=3)
+ax.set_rmax(2.0)
 
-title("And there was much rejoicing!", fontsize=20)
-#savefig('polar_demo')
+ax.set_title("And there was much rejoicing!", fontsize=20)
+fig.savefig('polar_demo')
 show()
