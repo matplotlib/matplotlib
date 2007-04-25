@@ -678,11 +678,26 @@ class LineCollection(Collection, ScalarMappable):
 
         transform.freeze()
         transoffset.freeze()
+        
+        segments = self._segments
+        offsets = self._offsets
 
+        if self.have_units():
+            segments = []
+            for segment in self._segments:
+                xs, ys = zip(*segment)
+                xs = self.convert_xunits(xs)
+                ys = self.convert_yunits(ys)
+                segments.append(zip(xs, ys))
+            if self._offsets is not None:
+                xs = self.convert_xunits(self._offsets[:0])
+                ys = self.convert_yunits(self._offsets[:1])
+                offsets = zip(xs, ys)
+            
         self.update_scalarmappable()
         renderer.draw_line_collection(
-            self._segments, transform, self.clipbox,
-            self._colors, self._lw, self._ls, self._aa, self._offsets,
+            segments, transform, self.clipbox,
+            self._colors, self._lw, self._ls, self._aa, offsets,
             transoffset)
         transform.thaw()
         transoffset.thaw()

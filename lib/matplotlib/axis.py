@@ -822,6 +822,10 @@ class Axis(Artist):
             label = self.get_label()
             label.set_text(info.label)
 
+
+    def have_units(self):
+        return self.converter is not None or self.units is not None
+    
     def convert_units(self, x):
         if self.converter is None:
             self.converter = units.registry.get_converter(x)
@@ -850,6 +854,7 @@ class Axis(Artist):
                 #print 'setting units', self.converter, u, units.registry.get_converter(u)
                 pchanged = True
         if pchanged:
+            self._update_axisinfo()
             self.callbacks.process('units')
             self.callbacks.process('units finalize')
 
@@ -926,8 +931,9 @@ class Axis(Artist):
 
         ACCEPTS: sequence of floats
         """
+        ### XXX if the user changes units, the information will be lost here
+        ticks = self.convert_units(ticks) 
         self.set_major_locator( FixedLocator(ticks) )
-
         self.get_view_interval().update(ticks,0)
         return self.get_major_ticks()
 

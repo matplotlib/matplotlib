@@ -27,7 +27,7 @@
 # the default backend; one of GTK GTKAgg GTKCairo FltkAgg QtAgg TkAgg
 #     Agg Cairo GD GDK Paint PS PDF SVG Template
 backend      : TkAgg
-numerix      : Numeric  # numpy, Numeric or numarray
+numerix      : numpy  # numpy, Numeric or numarray
 units        : True
 #interactive  : False      # see http://matplotlib.sourceforge.net/interactive.html
 #toolbar      : toolbar2   # None | classic | toolbar2
