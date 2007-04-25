@@ -66,12 +66,13 @@ elif which[0] == "numeric":
     version = 'Numeric %s'%Numeric.__version__
     nan = struct.unpack('d', struct.pack('Q', 0x7ff8000000000000))[0]
 elif which[0] == "numpy":
-    try:
+    try:        
         import numpy.oldnumeric as numpy
         from numpy.oldnumeric import *
     except ImportError:
         import numpy
         from numpy import *
+        print 'except asarray', asarray
     from _sp_imports import nx, infinity, rand, randn, isnan, all, any
     from _sp_imports import UInt8, UInt16, UInt32, Infinity
     try:

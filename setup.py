@@ -107,7 +107,6 @@ NUMERIX = []
 try:
     import Numeric
     NUMERIX.append('Numeric')
-
 except ImportError:
     pass
 try:
@@ -125,8 +124,8 @@ if not NUMERIX:
     raise RuntimeError("You must install one or more of numpy, Numeric, and numarray to build matplotlib")
 
 
-NUMERIX = ['numpy']
-#rc['numerix'] = NUMERIX[-1]
+#NUMERIX = ['numpy']
+rc['numerix'] = NUMERIX[-1]
 
 ext_modules = []
 

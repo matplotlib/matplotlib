@@ -1480,9 +1480,9 @@ class Axes(Artist):
         self._process_unit_info(xdata=(xmin, xmax))
         #print 'setxlim before2: units=%s, converter=%s, xmin=%s, xmax=%s'%(self.xaxis.units, self.xaxis.converter, xmin, xmax)
         if xmin is not None:
-            xmin = self.xaxis.convert_units(xmin)
+            xmin = self.convert_xunits(xmin)
         if xmax is not None:
-            xmax = self.xaxis.convert_units(xmax)
+            xmax = self.convert_yunits(xmax)
         #print 'setxlim after: units=%s, converter=%s, xmin=%s, xmax=%s'%(self.xaxis.units, self.xaxis.converter, xmin, xmax)
 
         old_xmin,old_xmax = self.get_xlim()
@@ -2318,6 +2318,7 @@ class Axes(Artist):
                 'hlines now uses a LineCollection and not a list of Line2D to draw; see API_CHANGES')
 
 
+
         if not iterable(y): y = [y]
         if not iterable(xmin): xmin = [xmin]
         if not iterable(xmax): xmax = [xmax]
@@ -2325,10 +2326,6 @@ class Axes(Artist):
         xmin = asarray(xmin)
         xmax = asarray(xmax)
 
-        if len(xmin)==1:
-            xmin = xmin*ones(y.shape, typecode(y))
-        if len(xmax)==1:
-            xmax = xmax*ones(y.shape, typecode(y))
 
         if len(xmin)!=len(y):
             raise ValueError, 'xmin and y are unequal sized sequences'
@@ -2345,13 +2342,17 @@ class Axes(Artist):
         self.add_collection(coll)
 
 
+
         minx = min(nx.amin(xmin), nx.amin(xmax))
         maxx = max(nx.amax(xmin), nx.amax(xmax))
         miny = nx.amin(y)
         maxy = nx.amax(y)
-        corners = (minx, miny), (maxx, maxy)
-        self.update_datalim(corners)
 
+        minx, maxx = self.convert_xunits((minx, maxx))
+        miny, maxy = self.convert_yunits((miny, maxy))        
+        corners = (minx, miny), (maxx, maxy)
+        
+        self.update_datalim(corners)
         self.autoscale_view()
 
 
@@ -2384,6 +2385,8 @@ class Axes(Artist):
             raise DeprecationWarning(
                 'vlines now uses a LineCollection and not a list of Line2D to draw; see API_CHANGES')
 
+        self._process_unit_info(xdata=x, ydata=ymin, kwargs=kwargs)
+
 
         if not iterable(x): x = [x]
         if not iterable(ymin): ymin = [ymin]
@@ -2396,6 +2399,7 @@ class Axes(Artist):
             ymin = ymin*ones(x.shape, typecode(x))
         if len(ymax)==1:
             ymax = ymax*ones(x.shape, typecode(x))
+
 
 
         if len(ymin)!=len(x):
@@ -2416,6 +2420,8 @@ class Axes(Artist):
         maxx = nx.amax(x)
         miny = min(nx.amin(ymin), nx.amin(ymax))
         maxy = max(nx.amax(ymax), nx.amax(ymax))
+        minx, maxx = self.convert_xunits((minx, maxx))
+        miny, maxy = self.convert_yunits((miny, maxy))        
         corners = (minx, miny), (maxx, maxy)
         self.update_datalim(corners)
         self.autoscale_view()
@@ -3007,6 +3013,8 @@ class Axes(Artist):
         bottom = make_iterable(bottom)
         linewidth = make_iterable(linewidth)
 
+        self._process_unit_info(xdata=left, ydata=height, kwargs=kwargs)
+        
         adjust_ylim = False
         adjust_xlim = False
         if orientation == 'vertical':
@@ -3046,6 +3054,7 @@ class Axes(Artist):
         height = asarray(height)
         width = asarray(width)
         bottom = asarray(bottom)
+
         if len(linewidth) == 1: linewidth = linewidth * nbars
 
         # if color looks like a color string, an RGB tuple or a
@@ -3064,14 +3073,11 @@ class Axes(Artist):
 
         if yerr is not None:
             if not iterable(yerr):
-                yerr = asarray([yerr]*nbars, Float)
-            else:
-                yerr = asarray(yerr)
+                yerr = [yerr]*nbars
+
         if xerr is not None:
             if not iterable(xerr):
-                xerr = asarray([xerr]*nbars, Float)
-            else:
-                xerr = asarray(xerr)
+                xerr = [xerr]*nbars
 
         assert len(left)==nbars, "argument 'left' must be %d or scalar" % nbars
         assert len(height)==nbars, "argument 'height' must be %d or scalar" % nbars
@@ -3081,8 +3087,10 @@ class Axes(Artist):
         assert len(edgecolor)==nbars, "argument 'edgecolor' must be %d or scalar" % nbars
         assert len(linewidth)==nbars, "argument 'linewidth' must be %d or scalar" % nbars
 
-        if yerr is not None: assert len(yerr)==nbars, "bar() argument 'yerr' must be len(%s) or scalar" % nbars
-        if xerr is not None: assert len(xerr)==nbars, "bar() argument 'xerr' must be len(%s) or scalar" % nbars
+        if yerr is not None and len(yerr)!=nbars:
+            raise ValueError("bar() argument 'yerr' must be len(%s) or scalar" % nbars)
+        if xerr is not None and len(xerr)!=nbars:
+            raise ValueError("bar() argument 'xerr' must be len(%s) or scalar" % nbars)
 
         patches = []
 
@@ -3092,7 +3100,8 @@ class Axes(Artist):
             if orientation == 'vertical':
                 left = left - width/2.
             elif orientation == 'horizontal':
-                bottom = bottom - height/2.
+                bottom = bottom-height/2.
+                
         else:
             raise ValueError, 'invalid alignment: %s' % align
 
@@ -3116,9 +3125,13 @@ class Axes(Artist):
 
         if xerr is not None or yerr is not None:
             if orientation == 'vertical':
-                x, y = left+0.5*width, bottom+height
+                x = left + 0.5*width
+                y = bottom + height
+                
             elif orientation == 'horizontal':
-                x, y = left+width, bottom+0.5*height
+                x = left + width
+                y = bottom + 0.5*height
+                
             self.errorbar(
                 x, y,
                 yerr=yerr, xerr=xerr,
@@ -3128,14 +3141,14 @@ class Axes(Artist):
 
         if adjust_xlim:
             xmin, xmax = self.dataLim.intervalx().get_bounds()
-            xmin = amin(w)
+            xmin = amin(width)
             if xerr is not None:
                 xmin = xmin - amax(xerr)
             xmin = max(xmin*0.9, 1e-100)
             self.dataLim.intervalx().set_bounds(xmin, xmax)
         if adjust_ylim:
             ymin, ymax = self.dataLim.intervaly().get_bounds()
-            ymin = amin(h)
+            ymin = amin(height)
             if yerr is not None:
                 ymin = ymin - amax(yerr)
             ymin = max(ymin*0.9, 1e-100)
@@ -3452,7 +3465,9 @@ class Axes(Artist):
         a list of error bar cap lines, the third element is a list of
         line collections for the horizontal and vertical error ranges
         """
+        self._process_unit_info(xdata=x, ydata=y, kwargs=kwargs)
         if not self._hold: self.cla()
+
         # make sure all the args are iterable arrays
         if not iterable(x): x = asarray([x])
         else: x = asarray(x)

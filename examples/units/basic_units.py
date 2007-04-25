@@ -1,5 +1,5 @@
-import matplotlib
-matplotlib.rcParams['units'] = True
+import math
+
 
 import matplotlib.units as units
 import matplotlib.ticker as ticker
@@ -95,7 +95,8 @@ class ConvertAllProxy(PassThroughProxy):
 class TaggedValue (object):
 
   __metaclass__ = TaggedValueMeta
-  _proxies = {'__add__':ConvertAllProxy, 
+  _proxies = {'__add__':ConvertAllProxy,
+              '__sub__':ConvertAllProxy,               
               '__mul__':ConvertAllProxy,
               '__rmul__':ConvertAllProxy,
               '__len__':PassThroughProxy}
@@ -124,7 +125,7 @@ class TaggedValue (object):
     compressed_value = nx.ma.masked_array(self.value, mask=mask).compressed()
     return TaggedValue(compressed_value, self.unit)
 
-  def __getattribute__(self, name):
+  def  __getattribute__(self, name):
     if (name.startswith('__')):
        return object.__getattribute__(self, name)
     variable = object.__getattribute__(self, 'value')
@@ -133,10 +134,10 @@ class TaggedValue (object):
     return object.__getattribute__(self, name)
 
   def __array__(self, t = None, context = None):
-    if t:
+    if t is not None:
       return nx.asarray(self.value).astype(t)
     else:
-      return nx.asarray(self.value)
+      return nx.asarray(self.value, 'O')
 
   def __array_wrap__(self, array, context):
     return TaggedValue(array, self.unit)
@@ -211,7 +212,7 @@ class BasicUnit(object):
 
   def __array__(self, t=None, context=None):
     ret = nx.array([1])
-    if (t):
+    if t is not None:
       return ret.astype(t)
     else:
       return ret
@@ -343,6 +344,16 @@ class BasicUnitConverter(units.ConversionInterface):
         return x.unit
     default_units = staticmethod(default_units)
 
+
+
+def cos( x ):
+   if ( iterable(x) ):
+      result = []
+      for val in x:
+         result.append( math.cos( val.convert_to( radians ).get_value() ) )
+      return result
+   else:
+      return math.cos( x.convert_to( radians ).get_value() )
 
 basicConverter = BasicUnitConverter()
 units.registry[BasicUnit] = basicConverter

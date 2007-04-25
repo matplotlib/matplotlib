@@ -48,6 +48,13 @@ class Artist:
         self._propobservers = {} # a dict from oids to funcs
         self.axes = None
 
+    def have_units(self):
+        'return True if units are set on the x or y axes'
+        ax = self.axes
+        if ax is None or ax.xaxis is None:
+            return False
+        return ax.xaxis.have_units() or ax.yaxis.have_units()
+
     def convert_xunits(self, x):
         """for artists in an axes, if the xaxis as units support,
         convert x using xaxis unit type
