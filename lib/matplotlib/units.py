@@ -117,9 +117,9 @@ class Registry(dict):
         'get the converter interface instance for x, or None'
 
         if not len(self): return None # nothing registered
-        idx = id(x)
-        cached = self._cached.get(idx)
-        if cached is not None: return cached
+        #DISABLED idx = id(x)
+        #DISABLED cached = self._cached.get(idx)
+        #DISABLED if cached is not None: return cached
 
         converter = None
         classx = getattr(x, '__class__', None)
@@ -135,7 +135,7 @@ class Registry(dict):
                 converter = self.get(classx)
 
 
-        self._cached[idx] = converter
+        #DISABLED self._cached[idx] = converter
         return converter
                 
 

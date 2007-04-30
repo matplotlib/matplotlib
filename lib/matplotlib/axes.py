@@ -2317,8 +2317,6 @@ class Axes(Artist):
             raise DeprecationWarning(
                 'hlines now uses a LineCollection and not a list of Line2D to draw; see API_CHANGES')
 
-
-
         if not iterable(y): y = [y]
         if not iterable(xmin): xmin = [xmin]
         if not iterable(xmax): xmax = [xmax]
@@ -3013,11 +3011,10 @@ class Axes(Artist):
         bottom = make_iterable(bottom)
         linewidth = make_iterable(linewidth)
 
-        self._process_unit_info(xdata=left, ydata=height, kwargs=kwargs)
-        
         adjust_ylim = False
         adjust_xlim = False
         if orientation == 'vertical':
+            self._process_unit_info(xdata=left, ydata=height, kwargs=kwargs)
             if log:
                 self.set_yscale('log')
             # size width and bottom according to length of left
@@ -3033,6 +3030,7 @@ class Axes(Artist):
             if len(bottom) == 1:
                 bottom *= nbars
         elif orientation == 'horizontal':
+            self._process_unit_info(xdata=width, ydata=bottom, kwargs=kwargs)
             if log:
                 self.set_xscale('log')
             # size left and height according to length of bottom
