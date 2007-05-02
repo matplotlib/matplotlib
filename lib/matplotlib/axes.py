@@ -3092,6 +3092,20 @@ class Axes(Artist):
 
         patches = []
 
+        # lets do some conversions now
+        xconv = self.xaxis.converter
+        if ( xconv ):
+            units = self.xaxis.get_units()
+            left = xconv.convert( left, units )
+            width = xconv.convert( width, units )
+
+        yconv = self.yaxis.converter
+        if ( yconv ):
+            units = self.yaxis.get_units()
+            bottom = yconv.convert( bottom, units )
+            height = yconv.convert( height, units )
+
+
         if align == 'edge':
             pass
         elif align == 'center':
@@ -3108,6 +3122,9 @@ class Axes(Artist):
             if h<0:
                 b += h
                 h = abs(h)
+            if w<0:
+                l += w
+                w = abs(w)
             r = Rectangle(
                 xy=(l, b), width=w, height=h,
                 facecolor=c,
