@@ -1,9 +1,10 @@
-import sys
+import sys, datetime
 
 if len(sys.argv) != 3:
     print >>sys.stderr, 'Usage: license.py version_num filename'
     
 version = sys.argv[1]
+year = datetime.date.today().year
 
 s = """\
 LICENSE AGREEMENT FOR MATPLOTLIB %(version)s
@@ -20,7 +21,7 @@ to reproduce, analyze, test, perform and/or display publicly, prepare
 derivative works, distribute, and otherwise use matplotlib %(version)s
 alone or in any derivative version, provided, however, that JDH's
 License Agreement and JDH's notice of copyright, i.e., "Copyright (c)
-2002-2005 John D. Hunter; All Rights Reserved" are retained in
+2002-%(year)d John D. Hunter; All Rights Reserved" are retained in
 matplotlib %(version)s alone or in any derivative version prepared by
 Licensee.
 

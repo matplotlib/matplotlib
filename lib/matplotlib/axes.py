@@ -2122,7 +2122,7 @@ class Axes(Artist):
 
     def annotate(self, *args, **kwargs):
         """
-        annotate(self, s, xyloc, textloc,
+        annotate(self, s, xy, xytextloc,
                  xycoords='data', textcoords='data',
                  lineprops=None,
                  markerprops=None
