@@ -1,6 +1,6 @@
 # Makefile for matplotlib
 
-PYTHON = /usr/bin/python2.4
+PYTHON = /usr/bin/python2.5
 VERSION = `${PYTHON} setup.py --version`
 
 DISTFILES = API_CHANGES KNOWN_BUGS INSTALL README TODO license	\

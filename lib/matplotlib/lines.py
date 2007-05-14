@@ -229,7 +229,7 @@ class Line2D(Artist):
     def pick(self, mouseevent):
         """
         If mouseevent is over data that satisifies the picker, fire
-        off a backend_bases.PickEvent with the additional attribute"ind"
+        off a backend_bases.PickEvent with the additional attribute "ind"
         which is a sequence of indices into the data that meet the criteria
         """
         if not self.pickable(): return
