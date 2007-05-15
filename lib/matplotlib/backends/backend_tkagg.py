@@ -183,8 +183,9 @@ class FigureCanvasTkAgg(FigureCanvasAgg):
 
         if dpi is None: dpi = rcParams['savefig.dpi']
         agg = self.switch_backends(FigureCanvasAgg)
-        try: agg.print_figure(filename, dpi, facecolor, edgecolor, orientation,
-                              **kwargs)
+        try:
+            agg.print_figure(filename, dpi, facecolor, edgecolor, orientation,
+                             **kwargs)
         except:
             self.figure.set_canvas(self)
             raise
