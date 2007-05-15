@@ -122,7 +122,8 @@ if 1:
                 arrowprops=dict(facecolor='black', shrink=0.05),
                 horizontalalignment='left',
                 verticalalignment='bottom',
-                )
+		clip_on=True, # clip to the axes bounding box
+     )
                    
     ax.set_xlim(-20, 20)
     ax.set_ylim(-20, 20)

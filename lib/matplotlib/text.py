@@ -168,7 +168,6 @@ class Text(Artist):
         #self.set_bbox(dict(pad=0))
     __init__.__doc__ = cbook.dedent(__init__.__doc__) % artist.kwdocd
 
-
     def pick(self, mouseevent):
         """
         if the mouse click is inside the vertices defining the
@@ -189,6 +188,11 @@ class Text(Artist):
             inside = nxutils.pnpoly(x, y, xyverts)
             if inside:
                 self.figure.canvas.pick_event(mouseevent, self)
+
+    def _get_xy_display(self):
+        'get the (possibly unit converted) transformed x,y in display coords'
+        x, y = self.get_position()
+        return self.get_transform().xy_tup((x,y))
 
     def _get_multialignment(self):
         if self._multialignment is not None: return self._multialignment
@@ -231,7 +235,7 @@ class Text(Artist):
         if self.cached.has_key(key): return self.cached[key]
         horizLayout = []
         pad =2
-        thisx, thisy = self.get_transform().xy_tup( (self._x, self._y) )
+        thisx, thisy = self._get_xy_display()
         width = 0
         height = 0
 
@@ -298,7 +302,7 @@ class Text(Artist):
 
         # compute the text location in display coords and the offsets
         # necessary to align the bbox with that location
-        tx, ty = self.get_transform().xy_tup( (self._x, self._y) )
+        tx, ty = self._get_xy_display()
 
         if halign=='center':  offsetx = tx - (xmin + width/2.0)
         elif halign=='right': offsetx = tx - (xmin + width)
@@ -385,7 +389,8 @@ class Text(Artist):
 
         if len(self._substrings)>1:
             # embedded mathtext
-            thisx, thisy = self.get_transform().xy_tup((self._x, self._y))
+            thisx, thisy = self._get_xy_display()
+
             for s,ismath in self._substrings:
                 w, h = renderer.get_text_width_height(
                     s, self._fontproperties, ismath)
@@ -415,7 +420,6 @@ class Text(Artist):
                                   self._fontproperties, angle)
             return
 
-        #print 'xy', self._x, self._y, info
         for line, wh, x, y in info:
             x, y = trans.xy_tup((x, y))
 
@@ -478,7 +482,9 @@ class Text(Artist):
 
     def get_position(self):
         "Return x, y as tuple"
-        return self._x, self._y
+        x = float(self.convert_xunits(self._x))
+        y = float(self.convert_yunits(self._y))
+        return x, y
 
     def get_prop_tup(self):
         """
@@ -488,8 +494,8 @@ class Text(Artist):
         want to cache derived information about text (eg layouts) and
         need to know if the text has changed
         """
-
-        return (self._x, self._y, self._text, self._color,
+        x, y = self.get_position()
+        return (x, y, self._text, self._color,
                 self._verticalalignment, self._horizontalalignment,
                 hash(self._fontproperties), self._rotation,
                 self.get_transform().as_vec6_val(),
@@ -511,7 +517,7 @@ class Text(Artist):
         #return _unit_box
         if not self.get_visible(): return _unit_box
         if self._text == '':
-            tx, ty = self.get_transform().xy_tup( (self._x, self._y) )
+            tx, ty = self._get_xy_display()
             return lbwh_to_bbox(tx,ty,0,0)
 
         if renderer is not None:
@@ -692,7 +698,7 @@ class Text(Artist):
 
         ACCEPTS: float
         """
-        self._x = float(x)
+        self._x = x
 
 
     def set_y(self, y):
@@ -701,7 +707,7 @@ class Text(Artist):
 
         ACCEPTS: float
         """
-        self._y = float(y)
+        self._y = y
 
 
     def set_rotation(self, s):
@@ -776,7 +782,7 @@ class Text(Artist):
 
         w = wb+we
 
-        xb, yb = self.get_transform().xy_tup((self._x, self._y))
+        xb, yb = self._get_xy_display()
         xe = xb+1.1*wb
         ye = yb+0.5*hb
         h = ye+he-yb
@@ -1111,468 +1117,6 @@ class TextWithDash(Text):
         Text.set_figure(self, fig)
         self.dashline.set_figure(fig)
 
-class _Annotation(Text):
-    """
-    A Text class to make annotating things in the figure: Figure,
-    Axes, Point, Rectangle, etc... easier
-    """
-    def __init__(self, artist, s, loc=None,
-                 padx='auto', pady='auto', autopad=3,
-                 lineprops=None,
-                 coords=None,
-                 **props):
-        """
-        Annotate the matplotlib.Artist artist with string s.  kwargs
-        props are passed on to the Text base class and are text
-        properties.
-
-        loc is an x, y tuple.  If the location codes are a string and
-        the artist supports the
-        "get_window_extent method" (eg matplotlib.patches.Patch and
-        children, Text, Axes, Figure, Line2D) the location code can be
-        a pair of strings.  Here are a few examples
-
-          A: 'inside left', 'inside upper'
-          B: 'outside right', 'outside lower'
-          C: 'center', 'center'
-          D: 'inside left', 'outside bottom'
-          E: 'center', 'outside top'
-
-          inside and outside cannot be used with 'center'.  With
-          upper, lower, left and right, inside will be assumed if
-          inside|outside is not provided
-
-                                  E
-             --------------------------------------------
-             | A                                        |
-             |                                          |
-             |                                          |
-             |                     C                    |
-             |                                          |
-             |                                          |
-             |                                          |
-             |__________________________________________|
-              D                                          B
-
-        These codes also work with Axes and Figure instances
-        Otherwise it must be an x,y pair which will use the artist's
-        own transformation
-
-        eg
-        Annotation(rectangle, 'some text', loc=('center', 'outside top'), color='red', size=14)
-
-        Annotation(axes, 'A', loc=('inside left', 'inside top'))
-
-        padx and pady are number of points to pad the text in the x
-        and y direction.  When used with string codes, 'auto' will pad
-        autopad points in the appropriate direction given the
-        inside/outside left/right/center bottom/top/center location
-        codes
-
-        lineprops, if not None, is a dictionary of line properties
-        used to draw a line between the annotation and the point being
-        annotated (if lineprops is None, no line is drawn).  The keys
-        of the dictionary are line properties (eg linewidth, color,
-        linestyle -- see matplotlib.lines for more information).  In
-        addition, the following dictionary key/value pairs are
-        supported for the lineprops
-
-            shrink : the value in points that will be used to shorten
-                     the line on each end
-            xalign : left | right | center | auto - where to align the line on the text
-            yalign : bottom | top | center | auto - where to align the line on the text
-
-        Here is an example with xalign='center' and yalign='bottom'
-
-            ------------------------
-            |                      |
-            |  the text annotation |
-            |______________________|
-                                              <---shrink shortens the line here
-                       /
-                      /
-                     /
-                    /
-                                               <---and here
-                  loc
-
-
-         coords, if not None, is a string that will specify the
-         coordinate system of the x,y location.  Possible choices are
-
-           'figure points'   : points from the lower left corner of the figure
-           'figure pixels'   : pixels from the lower left corner of the figure                           'figure fraction' : 0,0 is lower left of figure and 1,1 is upper, right
-           'axes points'     : points from lower left corner of axes
-           'axes pixels'     : pixels from lower left corner of axes
-           'axes fraction'   : 0,1 is lower left of axes and 1,1 is upper right
-           'data'            : use the coordinate system of the object being annotated (default)
-           'polar'           : you can specify theta, r for the annotation, even
-                               in cartesian plots.  Note that if you
-                               are using a polar axes, you do not need
-                               to specify polar for the coordinate
-                               system since that is the native"data" coordinate system.
-
-        If a points or pixels option is specified, values will be
-        added to the left, bottom and if negative, values will be
-        subtracted from the top, right.  Eg,
-
-          # 10 points to the right of the left border of the axes and
-          # 5 points below the top border
-          loc=(10,-5), coords='axes points'
-
-
-        """
-
-        # we'll draw ourself after the artist we annotate by default
-        zorder = props.get('zorder', artist.get_zorder() + 1)
-        Text.__init__(self, text=s, **props)
-
-        self.line = Line2D([0], [0])
-        self._shrink = 0.
-        self.set_lineprops(lineprops)
-        self.set_zorder(zorder)
-        self.set_transform(identity_transform())
-        self._loc = tuple(loc)
-        self._coords = coords
-        self._padx, self._pady, self._autopad = padx, pady, autopad
-        self._annotateArtist = artist
-        # funcx and funcy  are used to place the x, y coords for
-        # artists who define get_window_extent
-
-        xloc, yloc = self._loc
-        self._process_xloc(xloc)
-        self._process_yloc(yloc)
-
-        self._renderer = None
-
-    def set_lineprops(self, lineprops):
-        """
-        Set the c padding in points
-        ACCEPTS: float value in points or the string 'auto'
-        """
-        self._lineprops = lineprops
-        if lineprops is not None:
-            lineprops = lineprops.copy()
-            self._shrink = lineprops.pop('shrink', 0.)
-            self._xalign = lineprops.pop('xalign', 'auto')
-            self._yalign = lineprops.pop('yalign', 'auto')
-            self.line.update(lineprops)
-
-    def get_lineprops(self):
-        'get the x padding in points'
-        return self._lineprops
-
-    def set_padx(self, padx):
-        """
-        Set the c padding in points
-        ACCEPTS: float value in points or the string 'auto'
-        """
-        self._padx = padx
-        self._process_xloc(self._loc[0])
-
-    def get_padx(self):
-        'get the x padding in points'
-        return self._padx
-
-    def set_pady(self, pady):
-        """
-        Set the y padding in points
-        ACCEPTS: float value in points or the string 'auto'
-        """
-        self._pady = pady
-        self._process_yloc(self._loc[1])
-
-    def get_pady(self):
-        'get the y padding in points'
-        return self._pady
-
-    def set_autopad(self, autopad):
-        """
-        Set the y padding in points
-        ACCEPTS: float value in points
-        """
-        self._autopad = autopad
-        self._process_xloc(self._loc[0])
-        self._process_yloc(self._loc[1])
-
-    def get_autopad(self):
-        'get the y padding in points'
-        return self._autopad
-
-    def _process_xloc(self, xloc):
-        """
-        This function will set the horiz and vertical alignment
-        properties, and set the attr _funcx to place the x coord at
-        draw time
-        """
-
-        props = dict()
-        if is_numlike(xloc):
-            if self._padx=='auto':
-                self._padx = 0.
-            self._funcx = None
-            return
-        if not is_string_like(xloc):
-            raise ValueError('x location code must be a number or string')
-        xloc = xloc.lower().strip()
-
-        if xloc=='center':
-            props['horizontalalignment'] = 'center'
-            def funcx(left, right):
-                return 0.5*(left + right)
-            if self._padx=='auto':
-                self._padx = 0.
-        else:
-            tup = xloc.split(' ')
-            if len(tup)!=2:
-                raise ValueError('location code looks like "inside|outside left|right".  You supplied "%s"'%xloc)
-
-            inout, leftright = tup
-
-            if inout not in ('inside', 'outside'):
-                raise ValueError('x in/out: bad location code "%s"'%xloc)
-            if leftright not in ('left', 'right'):
-                raise ValueError('x left/right: bad location code "%s"'%xloc)
-            if inout=='inside' and leftright=='left':
-                props['horizontalalignment'] = 'left'
-                def funcx(left, right):
-                    return left
-                if self._padx=='auto':
-                    self._padx = self._autopad
-            elif inout=='inside' and leftright=='right':
-                props['horizontalalignment'] = 'right'
-                def funcx(left, right):
-                    return right
-                if self._padx=='auto':
-                    self._padx = -self._autopad
-            elif inout=='outside' and leftright=='left':
-                props['horizontalalignment'] = 'right'
-                def funcx(left, right):
-                    return left
-                if self._padx=='auto':
-                    self._padx = -self._autopad
-            elif inout=='outside' and leftright=='right':
-                props['horizontalalignment'] = 'left'
-                def funcx(left, right):
-                    return right
-                if self._padx=='auto':
-                    self._padx = self._autopad
-
-        self.update(props)
-        self._funcx = funcx
-
-    def _process_yloc(self, yloc):
-        """
-        This function will set the horiz and vertical alignment
-        properties, and set the attr _funcy to place the y coord at
-        draw time
-        """
-        props = dict()
-        if is_numlike(yloc):
-            if self._pady=='auto':
-                self._pady = 0.
-            self._funcy = None
-            return # nothing to do
-
-        if not is_string_like(yloc):
-            raise ValueError('y location code must be a number or string')
-        yloc = yloc.lower().strip()
-
-        if yloc=='center':
-            props['verticalalignment'] = 'center'
-            def funcy(bottom, top):
-                return 0.5*(bottom + top)
-            if self._pady=='auto':
-                self._pady = 0.
-
-        else:
-            tup = yloc.split(' ')
-            if len(tup)!=2:
-                raise ValueError('location code looks like "inside|outside bottom|top".  You supplied "%s"'%yloc)
-
-            inout, bottomtop = tup
-
-            if inout not in ('inside', 'outside'):
-                raise ValueError('y in/out: bad location code "%s"'%yloc)
-            if bottomtop not in ('bottom', 'top'):
-                raise ValueError('y bottom/top: bad location code "%s"'%yloc)
-            if inout=='inside' and bottomtop=='bottom':
-                props['verticalalignment'] = 'bottom'
-                def funcy(bottom, top):
-                    return bottom
-                if self._pady=='auto':
-                    self._pady = self._autopad
-            elif inout=='inside' and bottomtop=='top':
-                props['verticalalignment'] = 'top'
-                def funcy(bottom, top):
-                    return top
-                if self._pady=='auto':
-                    self._pady = -self._autopad
-            elif inout=='outside' and bottomtop=='bottom':
-                props['verticalalignment'] = 'top'
-                def funcy(bottom, top):
-                    return bottom
-                if self._pady=='auto':
-                    self._pady = -self._autopad
-            elif inout=='outside' and bottomtop=='top':
-                props['verticalalignment'] = 'bottom'
-                def funcy(bottom, top):
-                    return top
-                if self._pady=='auto':
-                    self._pady = self._autopad
-
-        self.update(props)
-        self._funcy = funcy
-
-    def update_positions(self, renderer=None):
-        if renderer is None and self._renderer is None:
-            raise RuntimeError('renderer not set')
-        if renderer is None:
-            renderer = self._renderer
-        if self._funcx is not None and self._funcy is not None:
-            extent = getattr(self._annotateArtist, 'get_window_extent')
-            bbox = extent(renderer)
-            l,b,w,h = bbox.get_bounds()
-            r = l+w
-            t = b+h
-            self._x = self._funcx(l,r)
-            self._y = self._funcy(b,t)
-        else:
-            if self._coords is None or self._coords=='data':
-                trans = self._annotateArtist.get_transform()
-                self._x, self._y = trans.xy_tup(self._loc)
-            elif self._coords=='polar':
-                theta, r = self._loc
-                x = r*cos(theta)
-                y = r*sin(theta)
-                trans = self._annotateArtist.get_transform()
-                self._x, self._y = trans.xy_tup((x,y))
-            elif self._coords=='figure points':
-                #points from the lower left corner of the figure
-                dpi = self.figure.dpi.get()
-                l,b,w,h = self.figure.bbox.get_bounds()
-                r = l+w
-                t = b+h
-
-                x, y = self._loc
-                x *= dpi/72.
-                y *= dpi/72.
-                if x<0:
-                    self._x = r + x
-                else:
-                    self._x = x
-                if y<0:
-                    self._y = t + y
-                else:
-                    self._y = y
-
-
-            elif self._coords=='figure pixels':
-                #pixels from the lower left corner of the figure
-                l,b,w,h = self.figure.bbox.get_bounds()
-                r = l+w
-                t = b+h
-                x, y = self._loc
-                if x<0:
-                    self._x = r + x
-                else:
-                    self._x = x
-                if y<0:
-                    self._y = t + y
-                else:
-                    self._y = y
-            elif self._coords=='figure fraction':
-                #(0,0) is lower left, (1,1) is upper right of figure
-                trans = self.figure.transFigure
-                self._x, self._y = trans.xy_tup(self._loc)
-            elif self._coords=='axes points':
-                #points from the lower left corner of the axes
-                dpi = self.figure.dpi.get()
-                x, y = self._loc
-                l,b,w,h = self._annotateArtist.axes.bbox.get_bounds()
-                r = l+w
-                t = b+h
-                if x<0:
-                    self._x = r + x*dpi/72.
-                else:
-                    self._x = l + x*dpi/72.
-                if y<0:
-                    self._y = t + y*dpi/72.
-                else:
-                    self._y = b + y*dpi/72.
-            elif self._coords=='axes pixels':
-                #pixels from the lower left corner of the axes
-                x, y = self._loc
-                l,b,w,h = self._annotateArtist.axes.bbox.get_bounds()
-                r = l+w
-                t = b+h
-                if x<0:
-                    self._x = r + x
-                else:
-                    self._x = l + x
-                if y<0:
-                    self._y = t + y
-                else:
-                    self._y = b + y
-            elif self._coords=='axes fraction':
-                #(0,0) is lower left, (1,1) is upper right of axes
-                trans = self._annotateArtist.transAxes
-                self._x, self._y = trans.xy_tup(self._loc)
-
-        dpi = self.figure.dpi.get()
-        dx = self._padx * dpi/72.
-        dy = self._pady * dpi/72.
-        self._x += dx
-        self._y += dy
-
-    def draw(self, renderer):
-        if renderer is not None:
-            self._renderer = renderer
-        self.update_positions()
-        #print 'drawing annotation', self._x, self._y, self._text
-        Text.draw(self, renderer)
-        if self._lineprops is not None:
-            l,b,w,h = self.get_window_extent(renderer).get_bounds()
-            dpi = self.figure.dpi.get()
-            dx = self._padx * dpi/72.
-            dy = self._pady * dpi/72.
-            x0, y0 = self._x - dx, self._y - dy
-            r = l+w
-            t = b+h
-            xc = 0.5*(l+r)
-            yc = 0.5*(b+t)
-            # pick the x,y corner of the text bbox closest to point
-            # annotated
-            if self._xalign=='left': x = l
-            elif self._xalign=='right': x = r
-            elif self._xalign=='center': x = xc
-            else:
-                dsu = [(abs(val-x0), val) for val in l, r, xc]
-                dsu.sort()
-                d, x = dsu[0]
-
-            if self._yalign=='bottom': y = b
-            elif self._yalign=='top': y = t
-            elif self._yalign=='center': y = yc
-            else:
-                dsu = [(abs(val-y0), val) for val in b, t, yc]
-                dsu.sort()
-                d, y = dsu[0]
-
-
-
-            if self._shrink:
-                r = math.sqrt((x-x0)**2 + (y-y0)**2)
-                theta = math.atan2(y-y0,x-x0)
-                dx = self._shrink*dpi/72.*math.cos(theta)
-                dy = self._shrink*dpi/72.*math.sin(theta)
-                x0 += dx
-                x -= dx
-                y0 += dy
-                y -= dy
-
-            self.line.set_data([x0, x], [y0, y])
-            self.line.draw(renderer)
 
 class Annotation(Text):
     """

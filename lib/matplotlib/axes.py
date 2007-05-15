@@ -2133,7 +2133,7 @@ class Axes(Artist):
         a = Annotation(*args, **kwargs)
         a.set_transform(identity_transform())
         self._set_artist_props(a)
-        if kwargs.has_key('clip_on'):  t.set_clip_box(self.bbox)
+        if kwargs.has_key('clip_on'):  a.set_clip_box(self.bbox)
         self.texts.append(a)
         return a
     annotate.__doc__ = dedent(annotate.__doc__) % artist.kwdocd
