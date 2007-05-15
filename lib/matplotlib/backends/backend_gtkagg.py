@@ -114,6 +114,9 @@ class FigureCanvasGTKAgg(FigureCanvasGTK, FigureCanvasAgg):
                                  orientation, **kwargs)
             except IOError, msg:
                 error_msg_gtk('Failed to save\nError message: %s'%(msg,), self)
+            except:
+                self.figure.set_canvas(self)
+                raise
 
         self.figure.set_canvas(self)
         if DEBUG: print 'FigureCanvasGTKAgg.print_figure done'

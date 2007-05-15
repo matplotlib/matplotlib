@@ -102,9 +102,14 @@ class FigureCanvasWxAgg(FigureCanvasWx,FigureCanvasAgg):
         """
         if dpi is None: dpi = matplotlib.rcParams['savefig.dpi']
         agg = self.switch_backends(FigureCanvasAgg)
-        agg.print_figure(filename, dpi, facecolor, edgecolor, orientation,
-                         **kwargs)
-        self.figure.set_canvas(self)
+        try:
+            agg.print_figure(filename, dpi, facecolor, edgecolor, orientation,
+                             **kwargs)
+        except:
+            self.figure.set_canvas(self)
+            raise
+        else:
+            self.figure.set_canvas(self)
 
     def _get_imagesave_wildcards(self):
         'return the wildcard string for the filesave dialog'
