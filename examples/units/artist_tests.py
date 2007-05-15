@@ -38,7 +38,11 @@ ax.add_line(line)
 rect = patches.Rectangle( (1*cm, 1*cm), width=5*cm, height=2*cm, alpha=0.2, axes=ax)
 ax.add_patch(rect)
 
+t = text.Text(3*cm, 2.5*cm, 'text label', ha='left', va='bottom', axes=ax)
+ax.add_artist(t)
+
 ax.set_xlim(-1*cm, 10*cm)
 ax.set_ylim(-1*cm, 10*cm)
-ax.xaxis.set_units(inch)
+#ax.xaxis.set_units(inch)
+ax.grid(True)
 show()
