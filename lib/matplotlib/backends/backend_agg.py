@@ -455,6 +455,7 @@ class FigureCanvasAgg(FigureCanvasBase):
         # render the printed figure
         self.draw()
 
+        printfunc = None
         if not is_string_like(filename):
             # assume png and write to fileobject
             self.renderer._renderer.write_png(filename)
@@ -479,23 +480,33 @@ class FigureCanvasAgg(FigureCanvasBase):
             elif ext.find('svg')>=0:
                 from backend_svg import FigureCanvasSVG
                 svg = self.switch_backends(FigureCanvasSVG)
-                svg.print_figure(filename, dpi, facecolor, edgecolor,
-                                 orientation, **kwargs)
+                printfunc = svg.print_figure
             elif ext.find('ps')>=0 or ext.find('ep')>=0:
                 from backend_ps import FigureCanvasPS # lazy import
                 ps = self.switch_backends(FigureCanvasPS)
-                ps.print_figure(filename, dpi, facecolor, edgecolor,
-                                orientation, **kwargs)
+                printfunc = ps.print_figure
             elif ext.find('pdf')>=0:
                 from backend_pdf import FigureCanvasPdf
                 pdf = self.switch_backends(FigureCanvasPdf)
-                pdf.print_figure(filename, dpi, facecolor, edgecolor,
-                                  orientation, **kwargs)
+                printfunc = pdf.print_figure
             else:
                 raise IOError('Do not know know to handle extension *%s' % ext)
+
+        if printfunc is not None:
+            try:
+                printfunc(filename, dpi, facecolor, edgecolor, orientation, **kwargs)
+            except:
+                # restore the original figure properties
+                self.figure.dpi.set(origDPI)
+                self.figure.set_facecolor(origfacecolor)
+                self.figure.set_edgecolor(origedgecolor)
+                self.figure.set_canvas(self)            
+                raise
 
         # restore the original figure properties
         self.figure.dpi.set(origDPI)
         self.figure.set_facecolor(origfacecolor)
         self.figure.set_edgecolor(origedgecolor)
         self.figure.set_canvas(self)
+            
+            
