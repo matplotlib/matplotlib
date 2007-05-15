@@ -116,6 +116,7 @@ class FigureCanvasGTKAgg(FigureCanvasGTK, FigureCanvasAgg):
                 error_msg_gtk('Failed to save\nError message: %s'%(msg,), self)
             except:
                 self.figure.set_canvas(self)
+                raise
 
         self.figure.set_canvas(self)
         if DEBUG: print 'FigureCanvasGTKAgg.print_figure done'

@@ -108,8 +108,8 @@ class FigureCanvasWxAgg(FigureCanvasWx,FigureCanvasAgg):
         except:
             self.figure.set_canvas(self)
             raise
-        else:
-            self.figure.set_canvas(self)
+
+        self.figure.set_canvas(self)
 
     def _get_imagesave_wildcards(self):
         'return the wildcard string for the filesave dialog'
