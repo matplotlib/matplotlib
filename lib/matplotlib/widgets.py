@@ -735,7 +735,9 @@ class MultiCursor:
     def __init__(self, canvas, axes, useblit=True, **lineprops):
         self.canvas = canvas
         self.axes = axes
-        self.lines = [ax.axvline(1, visible=False, **lineprops) for ax in axes]
+        xmin, xmax = axes[-1].get_xlim()
+        xmid = 0.5*(xmin+xmax)
+        self.lines = [ax.axvline(xmid, visible=False, **lineprops) for ax in axes]
 
         self.visible = True
         self.useblit = useblit

@@ -4,7 +4,7 @@ from pylab import figure, show, nx
 x = nx.arange(0, 15, 0.01) * radians
 
 fig = figure()
-
+fig.subplots_adjust(hspace=0.3)
 ax = fig.add_subplot(211)
 ax.plot(x, cos(x), xunits=radians)
 
