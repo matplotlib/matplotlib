@@ -662,6 +662,7 @@ class Axes(Artist):
         a.set_figure(self.figure)
         if not a.is_transform_set():
             a.set_transform(self.transData)
+        a.set_clip_box(self.bbox)
         a.axes = self
 
     def cla(self):
@@ -2116,13 +2117,13 @@ class Axes(Artist):
 
 
         #if t.get_clip_on():  t.set_clip_box(self.bbox)
-        if kwargs.has_key('clip_on'):  t.set_clip_box(self.bbox)
+
         return t
     text.__doc__ = dedent(text.__doc__) % artist.kwdocd
 
     def annotate(self, *args, **kwargs):
         """
-        annotate(self, s, xy, xytextloc,
+        annotate(self, s, xy, textloc,
                  xycoords='data', textcoords='data',
                  lineprops=None,
                  markerprops=None
@@ -2133,6 +2134,7 @@ class Axes(Artist):
         a = Annotation(*args, **kwargs)
         a.set_transform(identity_transform())
         self._set_artist_props(a)
+
         self.texts.append(a)
         return a
     annotate.__doc__ = dedent(annotate.__doc__) % artist.kwdocd

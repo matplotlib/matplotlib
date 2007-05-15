@@ -1647,6 +1647,14 @@ class Annotation(Text):
         self.textcoords = textcoords
     __init__.__doc__ = cbook.dedent(__init__.__doc__) % artist.kwdocd
 
+    def set_clip_box(self, clipbox):
+        """
+        Set the artist's clip Bbox
+
+        ACCEPTS: a matplotlib.transform.Bbox instance
+        """
+        Text.set_clip_box(self, clipbox)
+
     def _get_xy(self, x, y, s):
         if s=='data':
             trans = self.axes.transData
@@ -1763,6 +1771,7 @@ class Annotation(Text):
             self.arrow = YAArrow(self.figure.dpi, (x0+dx,y0+dy), (x-dx, y-dy),
                             width=width, headwidth=headwidth, frac=frac,
                             **d)
+            self.arrow.set_clip_box(self.get_clip_box())
 
     def draw(self, renderer):
         self.update_positions(renderer)
