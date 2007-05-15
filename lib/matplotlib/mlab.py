@@ -788,6 +788,7 @@ def prctile(x, p = (0.0, 25.0, 50.0, 75.0, 100.0)):
     Return the percentiles of x.  p can either be a sequence of
     percentil values or a scalar.  If p is a sequence the i-th element
     of the return sequence is the p(i)-th percentile of x
+
     """
     x = sort(ravel(x))
     Nx = len(x)
@@ -800,6 +801,27 @@ def prctile(x, p = (0.0, 25.0, 50.0, 75.0, 100.0)):
     ind = where(ind>=Nx, Nx-1, ind)
     return take(x, ind)
 
+def prctile_rank(x, p):
+   """
+   return the for each element in x, return the rank 0..len(p) .  Eg
+   if p=(25, 50, 75), the return value will be a len(x) array with
+   values in [0,1,2,3] where 0 indicates the value is less than the
+   25th percentile, 1 indicates the value is >= the 25th and < 50th
+   percentile, ... and 3 indicates the value is above the 75th
+   percentile cutoff
+
+   p is either an array of percentiles in [0..100] or a scalar which
+   indicates how many quantiles of data you want ranked
+   """
+
+   if not iterable(p):
+      p = nx.arange(100./p, 100., 100./p)
+
+   if max(p)<=1 or min(p)<0 or max(p)>100:
+      raise ValueError('percentiles should be in range 0..100, not 0..1')
+
+   ptiles = prctile(x, p)
+   return nx.searchsorted(ptiles, x)
 
 def center_matrix(M, dim=0):
     """
@@ -894,6 +916,9 @@ def rk4(derivs, y0, t):
         y0 = 1
         yout = rk4(derivs, y0, t)
 
+
+    If you have access to scipy, you should probably be using the
+    scipy.integrate tools rather than this function
 
     """
 
@@ -1515,7 +1540,7 @@ def _inside_poly_deprecated(points, verts):
     return nx.nonzero(nx.greater_equal(nx.absolute(angles), nx.pi))
 
 def inside_poly(points, verts):
-    """"
+    """
     points is a sequence of x,y points
     verts is a sequence of x,y vertices of a poygon
 
@@ -1527,6 +1552,7 @@ def inside_poly(points, verts):
 ### the following code was written and submitted by Fernando Perez
 ### from the ipython numutils package under a BSD license
 # begin fperez functions
+
 """
 A set of convenient utilities for numerical work.
 
@@ -1563,6 +1589,7 @@ SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
 CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
 """
 
 import operator

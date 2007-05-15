@@ -183,9 +183,14 @@ class FigureCanvasTkAgg(FigureCanvasAgg):
 
         if dpi is None: dpi = rcParams['savefig.dpi']
         agg = self.switch_backends(FigureCanvasAgg)
-        agg.print_figure(filename, dpi, facecolor, edgecolor, orientation,
-                         **kwargs)
-        self.figure.set_canvas(self)
+        try: agg.print_figure(filename, dpi, facecolor, edgecolor, orientation,
+                              **kwargs)
+        except:
+            self.figure.set_canvas(self)
+            raise
+        else:
+            self.figure.set_canvas(self)
+            
 
     def motion_notify_event(self, event):
         x = event.x
