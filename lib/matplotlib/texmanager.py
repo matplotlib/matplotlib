@@ -174,15 +174,6 @@ WARNING: found a TeX cache dir in the deprecated location "%s".
         return self._font_preamble
     
     def get_custom_preamble(self):
-        custom_preamble = '\n'.join(rcParams['text.latex.preamble'])
-        if custom_preamble is not '':
-            verbose.report("""
-***************************************************************************
-You have the following UNSUPPORTED LaTeX preamble customizations:
-%s
-Please do not ask for support with these customizations active.
-***************************************************************************
-"""%custom_preamble, 'helpful')
         return '\n'.join(rcParams['text.latex.preamble'])
         
     def get_shell_cmd(self, *args):
