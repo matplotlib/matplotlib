@@ -48,7 +48,7 @@ else: cmd_split = ';'
 
 
 def get_dvipng_version():
-    stdin, stdout = os.popen4('dvipng --version')
+    stdin, stdout = os.popen4('dvipng -version')
     for line in stdout:
         if line.startswith('dvipng '):
             version = line.split()[-1]
@@ -172,6 +172,18 @@ WARNING: found a TeX cache dir in the deprecated location "%s".
         
     def get_font_preamble(self):
         return self._font_preamble
+    
+    def get_custom_preamble(self):
+        custom_preamble = '\n'.join(rcParams['text.latex.preamble'])
+        if custom_preamble is not '':
+            verbose.report("""
+***************************************************************************
+You have the following UNSUPPORTED LaTeX preamble customizations:
+%s
+Please do not ask for support with these customizations active.
+***************************************************************************
+"""%custom_preamble, 'helpful')
+        return '\n'.join(rcParams['text.latex.preamble'])
         
     def get_shell_cmd(self, *args):
         """
@@ -189,18 +201,21 @@ WARNING: found a TeX cache dir in the deprecated location "%s".
         basefile = self.get_basefile(tex, fontsize)
         texfile = '%s.tex'%basefile
         fh = file(texfile, 'w')
+        custom_preamble = self.get_custom_preamble()
         fontcmd = {'sans-serif' : r'{\sffamily %s}',
                    'monospace'  : r'{\ttfamily %s}'}.get(self.font_family, 
                                                          r'{\rmfamily %s}')
         tex = fontcmd % tex
+        
         s = r"""\documentclass{article}
+%s
 %s
 \usepackage[papersize={72in,72in}, body={70in,70in}, margin={1in,1in}]{geometry}
 \pagestyle{empty}
 \begin{document}
 \fontsize{%f}{%f}%s
 \end{document}
-""" % (self._font_preamble, fontsize, fontsize*1.25, tex)
+""" % (self._font_preamble, custom_preamble, fontsize, fontsize*1.25, tex)
         fh.write(s)
         fh.close()
         

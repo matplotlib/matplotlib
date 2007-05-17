@@ -1232,9 +1232,11 @@ class FigureCanvasPS(FigureCanvasBase):
 paper will be used to prevent clipping.'%(papertype, temp_papertype), 'helpful')
 
         texmanager = renderer.get_texmanager()
+        font_preamble = texmanager.get_font_preamble()
+        custom_preamble = texmanager.get_custom_preamble()
 
-        convert_psfrags(tmpfile, renderer.psfrag,texmanager.get_font_preamble(),
-                        paperWidth, paperHeight, orientation)
+        convert_psfrags(tmpfile, renderer.psfrag, font_preamble, 
+                        custom_preamble, paperWidth, paperHeight, orientation)
 
         if rcParams['ps.usedistiller'] == 'ghostscript':
             gs_distill(tmpfile, ext=='.eps', ptype=papertype, bbox=bbox)
@@ -1249,8 +1251,8 @@ paper will be used to prevent clipping.'%(papertype, temp_papertype), 'helpful')
             print >>outfile, fh.read()
         else: shutil.move(tmpfile, outfile)
 
-def convert_psfrags(tmpfile, psfrags, font_preamble, paperWidth, paperHeight,
-                    orientation):
+def convert_psfrags(tmpfile, psfrags, font_preamble, custom_preamble, 
+                    paperWidth, paperHeight, orientation):
     """
     When we want to use the LaTeX backend with postscript, we write PSFrag tags
     to a temporary postscript file, each one marking a position for LaTeX to
@@ -1272,6 +1274,7 @@ def convert_psfrags(tmpfile, psfrags, font_preamble, paperWidth, paperHeight,
 
     print >>latexh, r"""\documentclass{article}
 %s
+%s
 \usepackage[dvips, papersize={%sin,%sin}, body={%sin,%sin}, margin={0in,0in}]{geometry}
 \usepackage{psfrag}
 \usepackage[dvips]{graphicx}
@@ -1285,7 +1288,7 @@ def convert_psfrags(tmpfile, psfrags, font_preamble, paperWidth, paperHeight,
 \includegraphics*[angle=%s]{%s}
 \end{figure}
 \end{document}
-"""% (font_preamble, paperWidth, paperHeight, paperWidth, paperHeight,
+"""% (font_preamble, custom_preamble, paperWidth, paperHeight, paperWidth, paperHeight,
 '\n'.join(psfrags), angle, os.path.split(epsfile)[-1])
     latexh.close()
 
