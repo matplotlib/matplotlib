@@ -761,6 +761,7 @@ defaultParams = {
     # text props
     'text.color'        : ['k', validate_color],     # black
     'text.usetex'       : [False, validate_usetex],
+    'text.latex.preamble': ['', validate_comma_sep_str],
     'text.dvipnghack'    : [False, validate_bool],
     'text.fontstyle'    : ['normal', str],
     'text.fontangle'    : ['normal', str],
