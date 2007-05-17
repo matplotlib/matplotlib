@@ -163,7 +163,7 @@ WARNING: found a TeX cache dir in the deprecated location "%s".
                              r'\usepackage{textcomp}'])
         
     def get_basefile(self, tex, fontsize, dpi=None):
-        s = tex + self._fontconfig + ('%f'%fontsize)
+        s = tex + self._fontconfig + ('%f'%fontsize) + self.get_custom_preamble()
         if dpi: s += ('%s'%dpi)
         return os.path.join(self.texcache, md5.md5(s).hexdigest())
         
