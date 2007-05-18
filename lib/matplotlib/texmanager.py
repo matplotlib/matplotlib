@@ -165,7 +165,8 @@ WARNING: found a TeX cache dir in the deprecated location "%s".
     def get_basefile(self, tex, fontsize, dpi=None):
         s = tex + self._fontconfig + ('%f'%fontsize) + self.get_custom_preamble()
         if dpi: s += ('%s'%dpi)
-        return os.path.join(self.texcache, md5.md5(s).hexdigest())
+        bytes = unicode(s).encode('utf-8') # make sure hash is consistent for all strings, regardless of encoding
+        return os.path.join(self.texcache, md5.md5(bytes).hexdigest())
         
     def get_font_config(self):
         return self._fontconfig
@@ -197,8 +198,15 @@ WARNING: found a TeX cache dir in the deprecated location "%s".
                    'monospace'  : r'{\ttfamily %s}'}.get(self.font_family, 
                                                          r'{\rmfamily %s}')
         tex = fontcmd % tex
+
+        if rcParams['text.latex.unicode']:
+            unicode_preamble = """\usepackage{ucs}
+\usepackage[utf8x]{inputenc}"""
+        else:
+            unicode_preamble = ''
         
         s = r"""\documentclass{article}
+%s
 %s
 %s
 \usepackage[papersize={72in,72in}, body={70in,70in}, margin={1in,1in}]{geometry}
@@ -206,8 +214,19 @@ WARNING: found a TeX cache dir in the deprecated location "%s".
 \begin{document}
 \fontsize{%f}{%f}%s
 \end{document}
-""" % (self._font_preamble, custom_preamble, fontsize, fontsize*1.25, tex)
-        fh.write(s)
+""" % (self._font_preamble, unicode_preamble, custom_preamble,
+       fontsize, fontsize*1.25, tex)
+        if rcParams['text.latex.unicode']:
+            fh.write(s.encode('utf8'))
+        else:
+            try:
+                fh.write(s)
+            except UnicodeEncodeError, err:
+                verbose.report("You are using unicode and latex, but have "
+                               "not enabled the matplotlib 'text.latex.unicode' "
+                               "rcParam.", 'helpful')
+                raise
+                
         fh.close()
         
         return texfile
