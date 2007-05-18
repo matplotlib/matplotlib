@@ -1,3 +1,7 @@
+2007-05-18 Added LaTeX unicode support. Enable with the
+           'text.latex.unicode' rcParam. This requires the ucs and
+           inputenc LaTeX packages. - ADS
+
 2007-04-23 Fixed some problems with polar -- dded general polygon
            clipping to clip the lines a nd grids to the polar axes.
            Added support for set_rmax to easily change the maximum

@@ -1272,7 +1272,14 @@ def convert_psfrags(tmpfile, psfrags, font_preamble, custom_preamble,
     if orientation=='landscape': angle = 90
     else: angle = 0
 
-    print >>latexh, r"""\documentclass{article}
+    if rcParams['text.latex.unicode']:
+        unicode_preamble = """\usepackage{ucs}
+\usepackage[utf8x]{inputenc}"""
+    else:
+        unicode_preamble = ''
+    
+    s = r"""\documentclass{article}
+%s
 %s
 %s
 \usepackage[dvips, papersize={%sin,%sin}, body={%sin,%sin}, margin={0in,0in}]{geometry}
@@ -1288,8 +1295,21 @@ def convert_psfrags(tmpfile, psfrags, font_preamble, custom_preamble,
 \includegraphics*[angle=%s]{%s}
 \end{figure}
 \end{document}
-"""% (font_preamble, custom_preamble, paperWidth, paperHeight, paperWidth, paperHeight,
-'\n'.join(psfrags), angle, os.path.split(epsfile)[-1])
+"""% (font_preamble, unicode_preamble, custom_preamble, paperWidth, paperHeight,
+      paperWidth, paperHeight,
+      '\n'.join(psfrags), angle, os.path.split(epsfile)[-1])
+    
+    if rcParams['text.latex.unicode']:
+        latexh.write(s.encode('utf8'))
+    else:
+        try:
+            latexh.write(s)
+        except UnicodeEncodeError, err:
+            verbose.report("You are using unicode and latex, but have "
+                           "not enabled the matplotlib 'text.latex.unicode' "
+                           "rcParam.", 'helpful')
+            raise
+        
     latexh.close()
 
     # the split drive part of the command is necessary for windows users with 
