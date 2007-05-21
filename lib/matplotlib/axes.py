@@ -3528,9 +3528,22 @@ class Axes(Artist):
                 lower = y-yerr[0]
                 upper = y+yerr[1]
 
-            barcols.append( self.vlines(x, lower, upper, label='_nolegend_' ) )
-            caplines.extend( self.plot(x, lower, '_', ms=2*capsize, label='_nolegend_') )
-            caplines.extend( self.plot(x, upper, '_', ms=2*capsize, label='_nolegend_') )
+            vlines_kw = {'label':'_nolegend_'}
+            if 'linewidth' in kwargs:
+                vlines_kw['linewidth']=kwargs['linewidth']
+            if 'lw' in kwargs:
+                vlines_kw['lw']=kwargs['lw']
+            barcols.append( self.vlines(x, lower, upper, **vlines_kw) )
+
+            plot_kw = {
+                'ms':2*capsize,
+                'label':'_nolegend_'}
+            if 'markeredgewidth' in kwargs:
+                plot_kw['markeredgewidth']=kwargs['markeredgewidth']
+            if 'mew' in kwargs:
+                plot_kw['mew']=kwargs['mew']
+            caplines.extend( self.plot(x, lower, '_', **plot_kw) )
+            caplines.extend( self.plot(x, upper, '_', **plot_kw) )
 
         if not barsabove and fmt is not None:
             l0, = self.plot(x,y,fmt,**kwargs)
