@@ -273,7 +273,7 @@ RendererAgg::RendererAgg(unsigned int width, unsigned int height, double dpi,
   rendererAA = new renderer_aa(*rendererBase);
   rendererBin = new renderer_bin(*rendererBase);
   theRasterizer = new rasterizer();
-  theRasterizer->filling_rule(agg::fill_even_odd);
+  //theRasterizer->filling_rule(agg::fill_even_odd);
   //theRasterizer->filling_rule(agg::fill_non_zero);
   
 };
