@@ -1,19 +1,24 @@
-from pylab import *
+from pylab import figure, show, nx
 from matplotlib.patches import Ellipse
+rand = nx.mlab.rand
 
 NUM = 250
 
-ells = [Ellipse(rand(2)*10, rand(), rand(), rand()*360) for i in xrange(NUM)]
+ells = [Ellipse(xy=rand(2)*10, width=rand(), height=rand(), angle=rand()*360)
+        for i in xrange(NUM)]
 
-a = subplot(111, aspect='equal')
+fig = figure()
+ax = fig.add_subplot(111, aspect='equal')
 for e in ells:
-    a.add_artist(e)
-    e.set_clip_box(a.bbox)
+    ax.add_artist(e)
+    e.set_clip_box(ax.bbox)
     e.set_alpha(rand())
     e.set_facecolor(rand(3))
 
-xlim(0, 10)
-ylim(0, 10)
+ax.set_xlim(0, 10)
+ax.set_ylim(0, 10)
 
-savefig('ellipse_demo')
+fig.savefig('../figures/ellipse_demo.eps')
+fig.savefig('../figures/ellipse_demo.png')
+
 show()
