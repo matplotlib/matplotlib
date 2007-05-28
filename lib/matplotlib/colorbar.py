@@ -145,7 +145,7 @@ class ColorbarBase(cm.ScalarMappable):
         self.solids = None
         self.lines = None
         if iterable(ticks):
-            self.locator = ticker.FixedLocator(ticks, nbins=10)
+            self.locator = ticker.FixedLocator(ticks, nbins=len(ticks))
         else:
             self.locator = ticks    # Handle default in _ticker()
         if format is None:
@@ -492,7 +492,7 @@ class Colorbar(ColorbarBase):
             kw['values'] = CS.cvalues
             kw['extend'] = CS.extend
             #kw['ticks'] = CS._levels
-            kw.setdefault('ticks', CS.levels)
+            kw.setdefault('ticks', ticker.FixedLocator(CS.levels, nbins=10))
             kw['filled'] = CS.filled
             ColorbarBase.__init__(self, ax, **kw)
             if not CS.filled:
