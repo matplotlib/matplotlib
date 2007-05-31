@@ -1,61 +1,51 @@
 #!/usr/bin/env python
 
-import os, sys, time
+import os, sys, time, gc
 import matplotlib
-#matplotlib.interactive(True)
-#matplotlib.use('Cairo')
 matplotlib.use('Agg')
-from pylab import *
 
-
-def report_memory(i):
-    pid = os.getpid()
-    a2 = os.popen('ps -p %d -o rss,sz' % pid).readlines()
-    print i, '  ', a2[1],
-    return int(a2[1].split()[1])
-
-
+from matplotlib.cbook import report_memory
+import matplotlib.numerix as nx
+from pylab import figure, show, close
 
 # take a memory snapshot on indStart and compare it with indEnd
+
+rand = nx.mlab.rand
 
 indStart, indEnd = 30, 201
 for i in range(indEnd):
 
-    figure(1); clf()
-
-    subplot(221)
-    t1 = arange(0.0, 2.0, 0.01)
-    y = sin(2*pi*t1)
-    plot(t1,y,'-')
-    plot(t1, rand(len(t1)), 's', hold=True)
+    fig = figure(1)
+    fig.clf()
 
 
-    subplot(222)
-    X = rand(50,50)
+    t1 = nx.arange(0.0, 2.0, 0.01)
+    y1 = nx.sin(2*nx.pi*t1)
+    y2 = rand(len(t1))
+    X = rand(50,50)              
 
-    imshow(X)
-    subplot(223)
-    scatter(rand(50), rand(50), s=100*rand(50), c=rand(50))
-    subplot(224)
-    pcolor(10*rand(50,50))
-    #ion()
-    #draw()
+    ax = fig.add_subplot(221)
+    ax.plot(t1, y1, '-')
+    ax.plot(t1, y2, 's')
 
-    #ioff()
 
-    #fd = file('tmp%d' % i, 'wb')
-    #savefig(fd, dpi = 75)
-    #fd.close()
-    savefig('tmp%d' % i, dpi = 75)
+    ax = fig.add_subplot(222)
+    ax.imshow(X)
+
+    ax = fig.add_subplot(223)
+    ax.scatter(rand(50), rand(50), s=100*rand(50), c=rand(50))
+
+    ax = fig.add_subplot(224)
+    ax.pcolor(10*rand(50,50))
+
+    fig.savefig('tmp%d' % i, dpi = 75)
     close(1)
-    #break
 
+    gc.collect()
     val = report_memory(i)
+    print i, val
     if i==indStart: start = val # wait a few cycles for memory usage to stabilize
 
 end = val
 print 'Average memory consumed per loop: %1.4fk bytes\n' % ((end-start)/float(indEnd-indStart))
 
-"""
-Average memory consumed per loop: 0.0053k bytes
-"""
