@@ -36,8 +36,9 @@ BUILD_GTK          = 'auto'
 # Use False or 0 if you don't want to build
 BUILD_TKAGG        = 'auto'
 
-# build wxPython GUI with Agg renderer ; requires wxPython package
-BUILD_WXAGG        = 'auto'
+# build wxPython extension code to efficiently blit agg into wx.  Only
+# needed for wxpython <2.8 if you plan on doing animations
+BUILD_WXAGG        = 0
 
 
 # build a small extension to manage the focus on win32 platforms.

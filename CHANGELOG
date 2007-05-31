@@ -2,13 +2,13 @@
            'text.latex.unicode' rcParam. This requires the ucs and
            inputenc LaTeX packages. - ADS
 
-2007-04-23 Fixed some problems with polar -- dded general polygon
+2007-04-23 Fixed some problems with polar -- added general polygon
            clipping to clip the lines a nd grids to the polar axes.
            Added support for set_rmax to easily change the maximum
            radial grid.  Added support for polar legend - JDH
 
-2007-04-16 Added autofmt_xdate to handle adjusting the bottom and
-           rotating the tick labels for date plots when the ticks
+2007-04-16 Added Figure.autofmt_xdate to handle adjusting the bottom
+           and rotating the tick labels for date plots when the ticks
            often overlap - JDH
 
 2007-04-09 Beginnings of usetex support for pdf backend. -JKS
