@@ -1,3 +1,6 @@
+===============================================================
+2007-06-02 Released 0.90.1 at revision 3352
+
 2007-06-02 Display only meaningful labels when calling legend()
            without args. - NN
 
