@@ -1,3 +1,6 @@
+2007-06-02 Display only meaningful labels when calling legend()
+           without args. - NN
+
 2007-06-02 Have errorbar follow the color cycle even if line is not plotted.
            Suppress plotting of errorbar caps for capsize=0. - NN
 
