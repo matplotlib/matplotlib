@@ -271,8 +271,10 @@ class RendererSVG(RendererBase):
             if angle!=0:
                 transform = 'transform="translate(%f,%f) rotate(%1.1f) translate(%f,%f)"' % (x,y,-angle,-x,-y) # Inkscape doesn't support rotate(angle x y)
             else: transform = ''
-            #newx, newy = x+ox, y-oy
-            newx, newy = x+ox, y+oy-height
+            if rcParams["mathtext.mathtext2"]:
+                newx, newy = x+ox, y+oy-height
+            else:
+                newx, newy = x+ox, y-oy
             svg += """\
 <text style="%(style)s" x="%(newx)f" y="%(newy)f" %(transform)s>%(thetext)s</text>
 """ % locals()
