@@ -1,3 +1,6 @@
+2007-06-02 Have errorbar follow the color cycle even if line is not plotted.
+           Suppress plotting of errorbar caps for capsize=0. - NN
+
 2007-06-02 Set markers to same alpha value as line. - NN
 
 2007-06-02 Fix mathtext position in svg backend. - NN

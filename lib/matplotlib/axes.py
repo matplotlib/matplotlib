@@ -3427,7 +3427,7 @@ class Axes(Artist):
 
 
     def errorbar(self, x, y, yerr=None, xerr=None,
-                 fmt='b-', ecolor=None, capsize=3,
+                 fmt='-', ecolor=None, capsize=3,
                  barsabove=False, **kwargs):
         """
         ERRORBAR(x, y, yerr=None, xerr=None,
@@ -3517,8 +3517,9 @@ class Axes(Artist):
                 right = x+xerr[1]
 
             barcols.append( self.hlines(y, left, right, label='_nolegend_' ))
-            caplines.extend( self.plot(left, y, '|', ms=2*capsize, label='_nolegend_') )
-            caplines.extend( self.plot(right, y, '|', ms=2*capsize, label='_nolegend_') )
+            if capsize > 0:
+                caplines.extend( self.plot(left, y, 'k|', ms=2*capsize, label='_nolegend_') )
+                caplines.extend( self.plot(right, y, 'k|', ms=2*capsize, label='_nolegend_') )
 
         if yerr is not None:
             if len(yerr.shape) == 1:
@@ -3535,23 +3536,25 @@ class Axes(Artist):
                 vlines_kw['lw']=kwargs['lw']
             barcols.append( self.vlines(x, lower, upper, **vlines_kw) )
 
-            plot_kw = {
-                'ms':2*capsize,
-                'label':'_nolegend_'}
-            if 'markeredgewidth' in kwargs:
-                plot_kw['markeredgewidth']=kwargs['markeredgewidth']
-            if 'mew' in kwargs:
-                plot_kw['mew']=kwargs['mew']
-            caplines.extend( self.plot(x, lower, '_', **plot_kw) )
-            caplines.extend( self.plot(x, upper, '_', **plot_kw) )
+            if capsize > 0:
+                plot_kw = {
+                    'ms':2*capsize,
+                    'label':'_nolegend_'}
+                if 'markeredgewidth' in kwargs:
+                    plot_kw['markeredgewidth']=kwargs['markeredgewidth']
+                if 'mew' in kwargs:
+                    plot_kw['mew']=kwargs['mew']
+                caplines.extend( self.plot(x, lower, 'k_', **plot_kw) )
+                caplines.extend( self.plot(x, upper, 'k_', **plot_kw) )
 
         if not barsabove and fmt is not None:
             l0, = self.plot(x,y,fmt,**kwargs)
 
-        if ecolor is None and l0 is None:
-            ecolor = rcParams['lines.color']
-        elif ecolor is None:
-            ecolor = l0.get_color()
+        if ecolor is None:
+            if l0 is None:
+                ecolor = self._get_lines._get_next_cycle_color()
+            else:
+                ecolor = l0.get_color()
 
         for l in barcols:
             l.set_color(ecolor)
