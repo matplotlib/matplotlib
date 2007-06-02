@@ -1,3 +1,6 @@
+2007-06-01 Deprecate Numeric and numarray for use as numerix. Props to
+           Travis -- job well done. - ADS
+
 2007-05-18 Added LaTeX unicode support. Enable with the
            'text.latex.unicode' rcParam. This requires the ucs and
            inputenc LaTeX packages. - ADS
