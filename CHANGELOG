@@ -1,4 +1,6 @@
-2007-06-01 Fix mathtext position in svg backend. - NN
+2007-06-02 Set markers to same alpha value as line. - NN
+
+2007-06-02 Fix mathtext position in svg backend. - NN
 
 2007-06-01 Deprecate Numeric and numarray for use as numerix. Props to
            Travis -- job well done. - ADS

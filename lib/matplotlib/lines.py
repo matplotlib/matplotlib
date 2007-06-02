@@ -444,6 +444,7 @@ class Line2D(Artist):
             else:
                 gc.set_foreground(self._markeredgecolor)
             gc.set_linewidth(self._markeredgewidth)
+            gc.set_alpha(self._alpha)
             funcname = self._markers.get(self._marker, '_draw_nothing')
             markerFunc = getattr(self, funcname)
             markerFunc(renderer, gc, xt, yt)
