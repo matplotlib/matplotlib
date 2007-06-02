@@ -1056,8 +1056,8 @@ class Axes(Artist):
         line.set_clip_box(self.bbox)
 
         self._update_line_limits(line)
-        label = line.get_label()
-        if not label: line.set_label('line%d'%len(self.lines))
+        if not l.get_label():
+            l.set_label('_line%d'%len(self.lines))
         self.lines.append(line)
 
     def _update_line_limits(self, line):
@@ -2890,10 +2890,10 @@ class Axes(Artist):
         if len(args)==0:
             handles = []
             labels = []
-            for line in get_handles():
-                label = line.get_label()
-                if label != '_nolegend_':
-                    handles.append(line)
+            for handle in get_handles():
+                label = handle.get_label()
+                if label is not None and label != '' and label[0] != '_':
+                    handles.append(handle)
                     labels.append(label)
             loc = popd(kwargs, 'loc', 1)
 
@@ -2917,7 +2917,7 @@ class Axes(Artist):
             # LINES, LABELS, LOC
             handles, labels, loc = args
         else:
-            raise RuntimeError('Invalid arguments to legend')
+            raise TypeError('Invalid arguments to legend')
 
 
         handles = flatten(handles)
