@@ -1056,8 +1056,8 @@ class Axes(Artist):
         line.set_clip_box(self.bbox)
 
         self._update_line_limits(line)
-        if not l.get_label():
-            l.set_label('_line%d'%len(self.lines))
+        if not line.get_label():
+            line.set_label('_line%d'%len(self.lines))
         self.lines.append(line)
 
     def _update_line_limits(self, line):
