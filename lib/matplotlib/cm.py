@@ -31,7 +31,7 @@ class ScalarMappable:
 
     def __init__(self, norm=None, cmap=None):
         """
-        norm is a colors.Norm instance to map luminance to 0-1
+        norm is a colors.normalize instance to map luminance to 0-1
         cmap is a cm colormap instance
         """
 
