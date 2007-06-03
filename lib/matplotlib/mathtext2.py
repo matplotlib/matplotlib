@@ -304,8 +304,8 @@ class Char(Renderer):
             thetext = unichr(self.uniindex)
             thetext.encode('utf-8')
             fontsize = self.env.fontsize * scriptfactors[self.env.scriptdepth]
-            svg_elements.svg_glyphs.append((familyname, fontsize,thetext, x,
-                y, None)) # None was originaly metrics (in old mathtext)
+            svg_elements.svg_glyphs.append((familyname, fontsize,thetext, x, y,
+                Bunch(advance=self.hadvance))) # last was originaly metrics (in old mathtext)
 
 
 class Kern(Renderer):

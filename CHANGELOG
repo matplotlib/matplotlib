@@ -1,3 +1,6 @@
+2007-06-03 Turned mathtext in SVG into single <text> with multiple <tspan>
+           objects (easier to edit in inkscape). - NN
+
 ===============================================================
 2007-06-02 Released 0.90.1 at revision 3352
 

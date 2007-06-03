@@ -1164,10 +1164,10 @@ class SymbolElement(Element):
 
     def render(self):
         'render to the fonts canvas'
-        Element.render(self)
         Element.fonts.render(
             self.ox, self.oy, 
             self.font, self.sym, self.fontsize, self.dpi)
+        Element.render(self)
 
     def __repr__(self):
         return self.sym
@@ -1229,8 +1229,8 @@ class GroupElement(Element):
 
     def render(self):
         'render to the fonts canvas'
-        Element.render(self)
         self.elements[0].render()
+        Element.render(self)
 
     def xmin(self):
         'get the minimum ink in x'
