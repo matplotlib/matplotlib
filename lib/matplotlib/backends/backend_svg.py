@@ -263,21 +263,42 @@ class RendererSVG(RendererBase):
         svg_lines = svg_elements.svg_lines
         color = rgb2hex(gc.get_rgb())
 
-        svg = ""
         self.open_group("mathtext")
-        for fontname, fontsize, thetext, ox, oy, metrics in svg_glyphs:
-            style = 'font-size: %f; font-family: %s; fill: %s;'%(fontsize,
-                                                            fontname, color)
-            if angle!=0:
-                transform = 'transform="translate(%f,%f) rotate(%1.1f) translate(%f,%f)"' % (x,y,-angle,-x,-y) # Inkscape doesn't support rotate(angle x y)
-            else: transform = ''
+
+        svg = '<text style="fill: %s" x="%f" y="%f"' % (color,x,y)
+
+        if angle != 0:
+            svg += ( ' transform="translate(%f,%f) rotate(%1.1f) translate(%f,%f)"'
+	             % (x,y,-angle,-x,-y) ) # Inkscape doesn't support rotate(angle x y)
+        svg += '>\n'
+
+        curr_x,curr_y = 0.0,0.0
+
+        for fontname, fontsize, thetext, new_x, new_y_mtc, metrics in svg_glyphs:
             if rcParams["mathtext.mathtext2"]:
-                newx, newy = x+ox, y+oy-height
+                new_y = new_y_mtc - height
             else:
-                newx, newy = x+ox, y-oy
-            svg += """\
-<text style="%(style)s" x="%(newx)f" y="%(newy)f" %(transform)s>%(thetext)s</text>
-""" % locals()
+                new_y = - new_y_mtc
+
+            svg += '<tspan'
+            svg += ' style="font-size: %f; font-family: %s"'%(fontsize, fontname)
+            xadvance = metrics.advance
+            svg += ' textLength="%f"' % xadvance
+
+            dx = new_x - curr_x
+            if dx != 0.0:
+                svg += ' dx="%f"' % dx
+
+            dy = new_y - curr_y
+            if dy != 0.0:
+                svg += ' dy="%f"' % dy
+
+            svg += '>%s</tspan>\n' % thetext
+
+            curr_x = new_x + xadvance
+            curr_y = new_y
+
+        svg += '</text>\n'
 
         self._svgwriter.write (svg)
         rgbFace = gc.get_rgb()
