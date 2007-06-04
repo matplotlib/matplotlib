@@ -15,7 +15,7 @@ respectively; set them to 0 if you do not want to build them
 """
 
 
-rc = dict({'backend':'PS', 'numerix':'Numeric'})
+rc = {'backend':'PS', 'numerix':'Numeric'}
 
 # build the image support module - requires agg and Numeric or
 # numarray.  You can build the image module with either Numeric or
@@ -35,6 +35,7 @@ BUILD_GTK          = 'auto'
 # and Tk includes
 # Use False or 0 if you don't want to build
 BUILD_TKAGG        = 'auto'
+
 
 # build wxPython extension code to efficiently blit agg into wx.  Only
 # needed for wxpython <2.8 if you plan on doing animations

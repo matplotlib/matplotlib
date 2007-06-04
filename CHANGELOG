@@ -1,3 +1,6 @@
+2007-06-04 Added labeldistance arg to Axes.pie to control the raidal
+           distance of the wedge labels - JDH
+
 2007-06-03 Turned mathtext in SVG into single <text> with multiple <tspan>
            objects (easier to edit in inkscape). - NN
 
