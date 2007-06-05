@@ -60,7 +60,13 @@ for face in faces:
             if os.path.exists( fname ):
                 filenamesd[face] = fname
                 break
-    fonts[face] = FT2Font(filenamesd[face])
+    # Display a useful message when the fontfile is not found.
+    # TO-DO: Maybe this should just throw a warning to the user?
+    try:
+        fonts[face] = FT2Font(filenamesd[face])
+    except KeyError:
+        msg = "Can't find the font file for the '%s' face"%face
+        raise KeyError(msg)
 
 svg_elements = Bunch(svg_glyphs=[], svg_lines=[])
 
