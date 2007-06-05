@@ -1105,6 +1105,7 @@ class FigureCanvasPS(FigureCanvasBase):
                     print >>fh, "%%BeginFont: "+FT2Font(str(font)).postscript_name
                     print >>fh, encodeTTFasPS(font)
                     print >>fh, "%%EndFont"
+            print >>fh, "end"
             print >>fh, "%%EndProlog"
 
             if not isEPSF: print >>fh, "%%Page: 1 1"
@@ -1200,6 +1201,7 @@ class FigureCanvasPS(FigureCanvasBase):
             d=d.strip()
             for l in d.split('\n'):
                 print >>fh, l.strip()
+        print >>fh, "end"
         print >>fh, "%%EndProlog"
 
         print >>fh, "mpldict begin"
