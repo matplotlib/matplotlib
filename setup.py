@@ -15,7 +15,7 @@ respectively; set them to 0 if you do not want to build them
 """
 
 
-rc = {'backend':'PS', 'numerix':'Numeric'}
+rc = {'backend':'PS', 'numerix':'numpy'}
 
 # build the image support module - requires agg and Numeric or
 # numarray.  You can build the image module with either Numeric or
@@ -102,31 +102,17 @@ package_data = {'matplotlib':['mpl-data/fonts/afm/*.afm',
                               'backends/Matplotlib.nib/*',
                               ]}
 
-# Figure out which array packages to provide binary support for
-# and append to the NUMERIX list.
-NUMERIX = []
+# The NUMERIX variable (a list) is left over from the days when it had
+# a string for each of the supported backends. Now there is only one
+# supported backend, so this approach could (should?) get changed for
+# simplicity.
 
-try:
-    import Numeric
-    NUMERIX.append('Numeric')
-except ImportError:
-    pass
-try:
-    import numarray
-    NUMERIX.append('numarray')
-except ImportError:
-    pass
 try:
      import numpy
-     NUMERIX.append('numpy')
+     NUMERIX = ['numpy']
 except ImportError:
-     pass
+    raise RuntimeError("You must install numpy to build matplotlib")
 
-if not NUMERIX:
-    raise RuntimeError("You must install one or more of numpy, Numeric, and numarray to build matplotlib")
-
-
-#NUMERIX = ['numpy']
 rc['numerix'] = NUMERIX[-1]
 
 ext_modules = []
