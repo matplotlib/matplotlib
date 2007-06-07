@@ -55,7 +55,9 @@ Credits:
 """
 
 from __future__ import division
-import sys, random
+import sys, random, datetime, csv
+
+
 from matplotlib import verbose
 import numerix
 import numerix.mlab
@@ -74,7 +76,7 @@ from numerix import array, asarray, arange, divide, exp, arctan2, \
 from numerix.mlab import hanning, cov, diff, svd, rand, std
 from numerix.fft import fft, inverse_fft
 
-from cbook import iterable, is_string_like
+from cbook import iterable, is_string_like, to_filehandle
 
 
 def mean(x, dim=None):
@@ -1278,7 +1280,7 @@ def save(fname, X, fmt='%.18e',delimiter=' '):
         X.shape = origShape
 
 
-
+ 
 
 def load(fname,comments='#',delimiter=None, converters=None,skiprows=0,
          usecols=None, unpack=False):
@@ -1331,16 +1333,7 @@ def load(fname,comments='#',delimiter=None, converters=None,skiprows=0,
     """
 
     if converters is None: converters = {}
-    if is_string_like(fname):
-        if fname.endswith('.gz'):
-            import gzip
-            fh = gzip.open(fname)
-        else:
-            fh = file(fname)
-    elif hasattr(fname, 'seek'):
-        fh = fname
-    else:
-        raise ValueError('fname must be a string or file handle')
+    fh = to_filehandle(fname)
     X = []
 
     converterseq = None
@@ -1364,6 +1357,102 @@ def load(fname,comments='#',delimiter=None, converters=None,skiprows=0,
         X.shape = max([r,c]),
     if unpack: return transpose(X)
     else:  return X
+
+def csv2rec(fname, comments='#', skiprows=0, checkrows=1):
+    """
+    Load ASCII data from fname into a numpy recarray and return the
+    numpy recarray.
+
+    The data must be regular, same number of values in every row
+    
+    A header row is required to automatically assign the recarray
+    names.  The headers will be lower cased, spaces will be converted
+    to underscores, and illegal attribute name characters removed.
+
+    fname - can be a filename or a file handle.  Support for gzipped
+    files is automatic, if the filename ends in .gz
+
+    comments - the character used to indicate the start of a comment
+    in the file
+
+    skiprows  - is the number of rows from the top to skip
+    
+    checkrows - is the number of rows to check to validate the column
+    data type.  When set to zero all rows are validated.
+
+    See examples/loadrec.py
+    """
+
+    import numpy
+    import dateutil.parser
+    parsedate = dateutil.parser.parse
+    
+    
+    fh = to_filehandle(fname)
+    reader = csv.reader(fh)
+
+    def process_skiprows(reader):
+        if skiprows:
+            for i, row in enumerate(reader):
+                if i>=(skiprows-1): break
+
+        return fh, reader
+
+    process_skiprows(reader)
+    
+    def get_func(item, func):
+        # promote functions in this order
+        funcmap = {None:int, int:float, float:parsedate, parsedate:str}
+        try: func(item)
+        except: return funcmap[func]
+        else: return func
+    
+
+
+    def get_converters(reader):
+
+        for i, row in enumerate(reader):
+            if i==0:
+                converters = [int]*len(row)
+            if checkrows and i>checkrows:
+                break
+            for j, item in enumerate(row):
+                func = converters[j]
+                converters[j] = get_func(item, func)
+        return converters
+
+
+    # Get header and remove invalid characters 
+    header = reader.next()
+    # remove these chars
+    delete = set("""~!@#$%^&*()-=+~\|]}[{';: /?.>,<""")
+    delete.add('"')
+
+    names = []
+    for i, item in enumerate(header):
+        item = item.strip().lower().replace(' ', '_')
+        item = ''.join([c for c in item if c not in delete])
+        names.append(item)
+        
+    # get the converter functions by inspecting checkrows
+    converters = get_converters(reader)
+
+    # reset the reader and start over
+    fh.seek(0)
+    process_skiprows(reader)
+    skipheader = reader.next()
+        
+    # iterate over the remaining rows and convert the data to date
+    # objects, ints, or floats as approriate
+    rows = []   
+    for i, row in enumerate(reader):
+        if not len(row): continue
+        if row[0].startswith(comments): continue
+        rows.append([func(val) for func, val in zip(converters, row)])
+    fh.close()
+    
+    r = numpy.rec.fromrecords(rows, names=names)
+    return r
 
 def slopes(x,y):
     """
