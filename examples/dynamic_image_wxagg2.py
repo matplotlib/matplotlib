@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """
 Copyright (C) 2003-2005 Jeremy O'Donoghue and others
- 
+
 License: This work is licensed under the PSF. A copy should be included
 with this source code, and is also available at
 http://www.python.org/psf/license.html
@@ -81,10 +81,10 @@ class PlotFigure(wxFrame):
         self.fig.colorbar(self.im,cax=cax,orientation='vertical')
 
     def GetToolBar(self):
-        # You will need to override GetToolBar if you are using an 
+        # You will need to override GetToolBar if you are using an
         # unmanaged toolbar in your frame
         return self.toolbar
-                
+
     def onTimer(self, evt):
         self.x += numerix.pi/15
         self.y += numerix.pi/20
@@ -92,21 +92,21 @@ class PlotFigure(wxFrame):
         self.im.set_array(z)
         self.canvas.draw()
         #self.canvas.gui_repaint()  # jdh wxagg_draw calls this already
-        
+
     def onEraseBackground(self, evt):
         # this is supposed to prevent redraw flicker on some X servers...
         pass
-        
+
 if __name__ == '__main__':
     app = wxPySimpleApp()
     frame = PlotFigure()
     frame.init_plot_data()
-    
+
     # Initialise the timer - wxPython requires this to be connected to
     # the receiving event handler
     t = wxTimer(frame, TIMER_ID)
     t.Start(200)
-    
+
     frame.Show()
     app.MainLoop()
 

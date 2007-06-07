@@ -7,7 +7,7 @@ from matplotlib.transforms import one, Point, Value, Bbox, get_bbox_transform
 def rand_val(N = 1):
     if N==1: return Value(rand())
     else: return [Value(val) for val in rand(N)]
-    
+
 def rand_point():
     return Point( rand_val(), rand_val() )
 

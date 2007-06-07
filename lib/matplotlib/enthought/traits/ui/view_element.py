@@ -35,26 +35,26 @@ label_pat2 = re.compile( r"^(.*){(.*)}(.*)$",   re.MULTILINE | re.DOTALL )
 #-------------------------------------------------------------------------------
 
 class ViewElement ( HasStrictTraits ):
-    
+
     #---------------------------------------------------------------------------
-    #  Replaces any items which have an 'id' with an Include object with the 
-    #  same 'id', and puts the object with the 'id' into the specified 
-    #  ViewElements object: 
+    #  Replaces any items which have an 'id' with an Include object with the
+    #  same 'id', and puts the object with the 'id' into the specified
+    #  ViewElements object:
     #---------------------------------------------------------------------------
-    
+
     def replace_include ( self, view_elements ):
-        """ Replaces any items which have an 'id' with an Include object with 
-            the same 'id', and puts the object with the 'id' into the specified 
+        """ Replaces any items which have an 'id' with an Include object with
+            the same 'id', and puts the object with the 'id' into the specified
             ViewElements object.
         """
         pass # Normally overridden in a subclass
-            
+
     #---------------------------------------------------------------------------
     #  Returns whether or not the object is replacable by an Include object:
     #---------------------------------------------------------------------------
-            
+
     def is_includable ( self ):
-        """ Returns whether or not the object is replacable by an Include 
+        """ Returns whether or not the object is replacable by an Include
             object.
         """
         return False # Normally overridden in a subclass
@@ -64,37 +64,37 @@ class ViewElement ( HasStrictTraits ):
 #-------------------------------------------------------------------------------
 
 class DefaultViewElement ( ViewElement ):
-    
+
     #---------------------------------------------------------------------------
     #  Trait definitions:
     #---------------------------------------------------------------------------
-    
+
     object = object_trait  # The default context object to edit
     style  = style_trait   # The default editor style to use
-                     
+
 #-------------------------------------------------------------------------------
 #  Trait definitions:
 #-------------------------------------------------------------------------------
 
 # The 'container' trait used by ViewSubElements:
 container_trait = Trait( DefaultViewElement(), ViewElement )
-    
+
 #-------------------------------------------------------------------------------
 #  'ViewSubElement' class (abstract):
 #-------------------------------------------------------------------------------
 
 class ViewSubElement ( ViewElement ):
-    
+
     #---------------------------------------------------------------------------
     #  Trait definitions:
     #---------------------------------------------------------------------------
-    
+
     container = container_trait # The object this ViewSubElement is contained in
-            
+
     #---------------------------------------------------------------------------
     #  Splits a string at a specified character:
     #---------------------------------------------------------------------------
-        
+
     def _split ( self, name, value, char, finder, assign, result ):
         """ Splits a string at a specified character.
         """
@@ -109,7 +109,7 @@ class ViewSubElement ( ViewElement ):
     #---------------------------------------------------------------------------
     #  Sets an object trait if a specified option string is found:
     #---------------------------------------------------------------------------
-        
+
     def _option ( self, string, option, name, value ):
         col = string.find( option )
         if col >= 0:
@@ -120,7 +120,7 @@ class ViewSubElement ( ViewElement ):
     #---------------------------------------------------------------------------
     #  Parses any of the one character forms of the 'style' trait:
     #---------------------------------------------------------------------------
-    
+
     def _parse_style ( self, value ):
         """ Parses any of the one character forms of the 'style' trait.
         """
@@ -130,11 +130,11 @@ class ViewSubElement ( ViewElement ):
         value = self._option( value, '~', 'style', 'readonly' )
         value = self._split( 'style',  value, ';', rfind, 1, 0 )
         return value
-        
+
     #---------------------------------------------------------------------------
     #  Parses a '[label]' value from the string definition:
     #---------------------------------------------------------------------------
-        
+
     def _parse_label ( self, value ):
         """ Parses a '[label]' value from the string definition.
         """
@@ -147,20 +147,20 @@ class ViewSubElement ( ViewElement ):
             self.label = match.group( 2 )
             value      = match.group( 1 ) + match.group( 3 )
         return value
-            
+
     #---------------------------------------------------------------------------
     #  Handles a label being found in the string definition:
     #---------------------------------------------------------------------------
-            
+
     def _parsed_label ( self ):
         """ Handles a label being found in the string definition.
         """
         pass
-        
+
     #---------------------------------------------------------------------------
     #  Returns a 'pretty print' version of a specified trait value:
     #---------------------------------------------------------------------------
-                                  
+
     def _repr_value ( self, value, prefix = '', suffix = '', ignore = '' ):
         """ Returns a 'pretty print' version of a specified Item trait value.
         """
@@ -171,19 +171,19 @@ class ViewSubElement ( ViewElement ):
     #---------------------------------------------------------------------------
     #  Returns a 'pretty print' version of a single trait:
     #---------------------------------------------------------------------------
-                     
+
     def _repr_option ( self, value, match, result ):
         """ Returns a 'pretty print' version of a single trait.
         """
         if value == match:
             return result
         return ''
-        
+
 #-------------------------------------------------------------------------------
 #  Patch the main traits module with the correct definition for the ViewElement
 #  and ViewSubElement class:
 #-------------------------------------------------------------------------------
-        
+
 import matplotlib.enthought.traits.has_traits as has_traits
 has_traits.ViewElement = ViewElement
-    
+

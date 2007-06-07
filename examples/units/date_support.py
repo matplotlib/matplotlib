@@ -25,7 +25,7 @@ class DateConverter(units.ConversionInterface):
         if units.ConversionInterface.is_numlike(value): return value
         return dates.date2num(value)
     convert = staticmethod(convert)
-        
+
     def default_units(x):
         'return the default unit for x or None'
         return 'date'

@@ -4,4 +4,4 @@ import matplotlib.agg as agg
 
 
 imMatrix = agg.trans_affine(1,0,0,1,0,0)
-interp = agg.span_interpolator_linear(imMatrix); 
+interp = agg.span_interpolator_linear(imMatrix);

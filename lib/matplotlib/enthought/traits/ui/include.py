@@ -19,35 +19,35 @@
 
 from matplotlib.enthought.traits import Str
 from view_element     import ViewSubElement
-                    
+
 #-------------------------------------------------------------------------------
 #  'Include' class:
 #-------------------------------------------------------------------------------
 
 class Include ( ViewSubElement ):
-    
+
     #---------------------------------------------------------------------------
     #  Trait definitions:
     #---------------------------------------------------------------------------
 
     id = Str # The name of the substitutable content
-    
+
     #---------------------------------------------------------------------------
     #  Initializes the object:
     #---------------------------------------------------------------------------
-    
+
     def __init__ ( self, id, **traits ):
         """ Initializes the object.
         """
         super( ViewSubElement, self ).__init__( **traits )
         self.id = id
-        
+
     #---------------------------------------------------------------------------
     #  Returns a 'pretty print' version of the Include:
     #---------------------------------------------------------------------------
-            
+
     def __repr__ ( self ):
         """ Returns a 'pretty print' version of the Group.
         """
-        return "<%s>" % self.id 
-    
+        return "<%s>" % self.id
+

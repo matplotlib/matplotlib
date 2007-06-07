@@ -2,7 +2,7 @@ import sys, datetime
 
 if len(sys.argv) != 3:
     print >>sys.stderr, 'Usage: license.py version_num filename'
-    
+
 version = sys.argv[1]
 year = datetime.date.today().year
 

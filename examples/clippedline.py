@@ -21,7 +21,7 @@ class ClippedLine(Line2D):
         Line2D.set_data(self, *args, **kwargs)
         self.xorig = nx.array(self._x)
         self.yorig = nx.array(self._y)
-        
+
     def draw(self, renderer):
         xlim = self.ax.get_xlim()
 
@@ -35,8 +35,8 @@ class ClippedLine(Line2D):
         else:
             self._marker = None
             self._linestyle = '-'
-        
-    
+
+
         Line2D.draw(self, renderer)
 
 
@@ -50,5 +50,5 @@ ax.add_line(line)
 ax.set_xlim(10,30)
 ax.set_ylim(-1.1,1.1)
 show()
-        
-        
+
+

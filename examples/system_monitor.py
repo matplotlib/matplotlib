@@ -19,7 +19,7 @@ def get_stats():
 
 # turn interactive mode on for dynamic updates.  If you aren't in
 # interactive mode, you'll need to use a GUI event handler/timer.
-ion()  
+ion()
 
 fig = figure(1)
 ax = subplot(111)
@@ -47,6 +47,6 @@ for i in range(200):  # run for a little while
     draw()
 
 
-    
+
 
 

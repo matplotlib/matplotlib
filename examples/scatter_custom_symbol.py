@@ -7,7 +7,7 @@ theta = nx.arange(0, 2*nx.pi+0.01, 0.1)
 verts = zip(rx/area*nx.cos(theta), ry/area*nx.sin(theta))
 
 x,y,s,c = nx.mlab.rand(4, 30)
-s*= 10**2. 
+s*= 10**2.
 
 fig = figure()
 ax = fig.add_subplot(111)

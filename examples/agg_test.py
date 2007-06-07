@@ -22,7 +22,7 @@ rbuf.attachb(buffer)
 
 pf = agg.pixel_format_rgba(rbuf)
 rbase = agg.renderer_base_rgba(pf)
-rbase.clear_rgba8(blue) 
+rbase.clear_rgba8(blue)
 
 renderer =  agg.renderer_scanline_aa_solid_rgba(rbase);
 renderer.color_rgba8( red )
@@ -107,7 +107,7 @@ renderer.color_rgba8( white )
 agg.render_scanlines_rgba(rasterizer, scanline, renderer);
 
 ## Copy a rectangle from the buffer the rectangle defined by
-## x0,y0->x1,y1 and paste it at xdest, ydest 
+## x0,y0->x1,y1 and paste it at xdest, ydest
 x0, y0 = 10, 50
 x1, y1 = 110, 190
 xdest, ydest = 350, 200

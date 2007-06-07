@@ -8,7 +8,7 @@ ylabel('this is vertical\ntest', multialignment='center')
 text(2, 7,'this is\nyet another test',
      rotation=45,
      horizontalalignment = 'center',
-     verticalalignment   = 'top',     
+     verticalalignment   = 'top',
      multialignment      = 'center')
 #savefig('multiline')
 grid(True)

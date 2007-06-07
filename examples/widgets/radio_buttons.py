@@ -32,5 +32,5 @@ def stylefunc(label):
     l.set_linestyle(label)
     draw()
 radio.on_clicked(stylefunc)
-    
+
 show()

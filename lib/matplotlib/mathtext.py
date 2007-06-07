@@ -1,6 +1,6 @@
 r"""
 
-OVERVIEW 
+OVERVIEW
 
   mathtext is a module for parsing TeX expressions and drawing them
   into a matplotlib.ft2font image buffer.  You can draw from this
@@ -30,7 +30,7 @@ OVERVIEW
   hspace{0.5} inserts 6 points of space
 
 
-  
+
   If you find TeX expressions that don't parse or render properly,
   please email me, but please check KNOWN ISSUES below first.
 
@@ -51,7 +51,7 @@ USAGE:
 
   See http://matplotlib.sourceforge.net/tutorial.html#mathtext for a
   tutorial introduction.
-  
+
   Any text element (xlabel, ylabel, title, text, etc) can use TeX
   markup, as in
 
@@ -60,13 +60,13 @@ USAGE:
         use raw strings
 
   The $ symbols must be the first and last symbols in the string.  Eg,
-  you cannot do 
+  you cannot do
 
-    r'My label $x_i$'.  
+    r'My label $x_i$'.
 
-  but you can change fonts, as in 
+  but you can change fonts, as in
 
-    r'$\rm{My label} x_i$' 
+    r'$\rm{My label} x_i$'
 
   to achieve the same effect.
 
@@ -103,7 +103,7 @@ USAGE:
   \uplus \upsilon \varepsilon \varphi \varphi \varrho \varsigma
   \vartheta \vdash \vee \vert \wedge \wp \wr \xi \zeta
 
-  
+
 BACKENDS
 
   mathtext currently works with GTK, Agg, GTKAgg, TkAgg and WxAgg and
@@ -126,7 +126,7 @@ KNOWN ISSUES:
 Author    : John Hunter <jdhunter@ace.bsd.uchicago.edu>
 Copyright : John Hunter (2004,2005)
 License   : matplotlib license (PSF compatible)
- 
+
 """
 from __future__ import division
 import os, sys
@@ -148,7 +148,7 @@ from matplotlib import get_data_path, rcParams
 
 bakoma_fonts = []
 
-# symbols that have the sub and superscripts over/under 
+# symbols that have the sub and superscripts over/under
 overunder = { r'\sum'    : 1,
               r'\int'    : 1,
               r'\prod'   : 1,
@@ -238,7 +238,7 @@ class Fonts:
 
         """
         return 0
-    
+
     def get_metrics(self, facename, sym, fontsize, dpi):
         """
         facename is one of tt, it, rm, cal or None
@@ -247,11 +247,11 @@ class Fonts:
         like \sigma.
 
         fontsize is in points
-        
+
         Return object has attributes - see
         http://www.freetype.org/freetype2/docs/tutorial/step2.html for
         a pictoral representation of these attributes
-        
+
           advance
           height
           width
@@ -321,7 +321,7 @@ Specific terminology:
             self.output = output
         # self.glyphdict[key] = facename, metrics, glyph, offset
         self.glyphdict = {}
-        
+
         self.fonts = dict(
             [ (facename, font_open(self.filenamesd[facename])) for
                     facename in self.facenames])
@@ -371,7 +371,7 @@ Specific terminology:
             # This should be changed to check for math mode or smth.
             #if filename == 'cmex10.ttf':
             #    oy += offset - 512/2048.*10.
-            
+
             # Get the PS name of a glyph (his unicode integer code)
             # from the font object
             symbolname = self._get_glyph_name(uniindex, facename)
@@ -390,7 +390,7 @@ setfont
 
     def get_metrics(self, facename, symbol, fontsize, dpi):
         uniindex, metrics, glyph, offset  = \
-                self._get_info(facename, symbol, fontsize, dpi) 
+                self._get_info(facename, symbol, fontsize, dpi)
         return metrics
 
     # Methods that must be overridden for fonts that are not unicode aware
@@ -407,7 +407,7 @@ Returns the name of the glyph directly from the font object.
         font = self.fonts[facename]
         glyphindex = self.glyphmaps[facename][uniindex]
         return font.get_glyph_name(glyphindex)
-        
+
     def _get_info(self, facename, symbol, fontsize, dpi):
         'load the facename, metrics and glyph'
         #print hex(index), symbol, filename, facename
@@ -563,7 +563,7 @@ class BakomaTrueTypeFonts(Fonts):
               'cmtt10', 'cmr10')
     # allocate a new set of fonts
     basepath = os.path.join( get_data_path(), 'fonts', 'ttf' )
-    
+
     fontmap = { 'cal' : 'cmsy10',
                 'rm'  : 'cmr10',
                 'tt'  : 'cmtt10',
@@ -584,17 +584,17 @@ class BakomaTrueTypeFonts(Fonts):
         for name in self.fnames:
             cmap = self.charmaps[name]
             self.glyphmaps[name] = dict([(glyphind, ccode) for ccode, glyphind in cmap.items()])
-        
+
         for font in self.fonts.values():
             font.clear()
         if useSVG:
             self.svg_glyphs=[]  # a list of "glyphs" we need to render this thing in SVG
         else: pass
         self.usingSVG = useSVG
-            
+
     def get_metrics(self, font, sym, fontsize, dpi):
         cmfont, metrics, glyph, offset  = \
-                self._get_info(font, sym, fontsize, dpi) 
+                self._get_info(font, sym, fontsize, dpi)
         return metrics
 
     def _get_info (self, font, sym, fontsize, dpi):
@@ -636,7 +636,7 @@ class BakomaTrueTypeFonts(Fonts):
             ymin = ymin+offset,
             ymax = ymax+offset,
             )
-        
+
         self.glyphd[key] = cmfont, metrics, glyph, offset
         return self.glyphd[key]
 
@@ -645,7 +645,7 @@ class BakomaTrueTypeFonts(Fonts):
         self.width = int(w)
         self.height = int(h)
         for font in self.fonts.values():
-            font.set_bitmap_size(int(w), int(h)) 
+            font.set_bitmap_size(int(w), int(h))
 
     def render(self, ox, oy, font, sym, fontsize, dpi):
         cmfont, metrics, glyph, offset = \
@@ -668,7 +668,7 @@ class BakomaTrueTypeFonts(Fonts):
             thetext = unichr(num)
             thetext.encode('utf-8')
             self.svg_glyphs.append((basename, fontsize, thetext, ox, oy, metrics))
-        
+
 
     def _old_get_kern(self, font, symleft, symright, fontsize, dpi):
         """
@@ -710,7 +710,7 @@ class BakomaPSFonts(Fonts):
               'cmtt10', 'cmr10')
     # allocate a new set of fonts
     basepath = os.path.join( get_data_path(), 'fonts', 'ttf' )
-    
+
     fontmap = { 'cal' : 'cmsy10',
                 'rm'  : 'cmr10',
                 'tt'  : 'cmtt10',
@@ -759,7 +759,7 @@ class BakomaPSFonts(Fonts):
         cmfont.set_size(fontsize, dpi)
         head = cmfont.get_sfnt_table('head')
         glyph = cmfont.load_char(num)
-        
+
         xmin, ymin, xmax, ymax = [val/64.0 for val in glyph.bbox]
         if basename == 'cmex10':
             offset = -(head['yMin']+512)/head['unitsPerEm']*10.
@@ -791,7 +791,7 @@ class BakomaPSFonts(Fonts):
         fontname = fontname.capitalize()
         if fontname == 'Cmex10':
             oy += offset - 512/2048.*10.
-        
+
         ps = """/%(fontname)s findfont
 %(fontsize)s scalefont
 setfont
@@ -803,7 +803,7 @@ setfont
 
     def get_metrics(self, font, sym, fontsize, dpi):
         basename, metrics, sym, offset  = \
-                self._get_info(font, sym, fontsize, dpi) 
+                self._get_info(font, sym, fontsize, dpi)
         return metrics
 
 class BakomaPDFFonts(BakomaPSFonts):
@@ -842,7 +842,7 @@ class StandardPSFonts(Fonts):
     fnames = ('psyr', 'pncri8a', 'pcrr8a', 'pncr8a', 'pzcmi8a')
     # allocate a new set of fonts
     basepath = os.path.join( get_data_path(), 'fonts', 'afm' )
-    
+
     fontmap = { 'cal' : 'pzcmi8a',
                 'rm'  : 'pncr8a',
                 'tt'  : 'pcrr8a',
@@ -885,7 +885,7 @@ class StandardPSFonts(Fonts):
         fontname = cmfont.get_fontname()
 
         scale = 0.001 * fontsize
-        
+
         xmin, ymin, xmax, ymax = [val * scale
                                   for val in cmfont.get_bbox_char(char)]
         metrics = Bunch(
@@ -922,9 +922,9 @@ setfont
 
     def get_metrics(self, font, sym, fontsize, dpi):
         fontname, basename, metrics, sym, offset, char  = \
-                self._get_info(font, sym, fontsize, dpi) 
+                self._get_info(font, sym, fontsize, dpi)
         return metrics
-    
+
     def get_kern(self, font, symleft, symright, fontsize, dpi):
         fontname, basename, metrics, sym, offset, char1 = \
                 self._get_info(font, symleft, fontsize, dpi)
@@ -939,44 +939,44 @@ class Element:
     font = 'it'
     _padx, _pady = 2, 2  # the x and y padding in points
     _scale = 1.0
-    
+
     def __init__(self):
         # a dict mapping the keys above, below, subscript,
         # superscript, right to Elements in that position
         self.neighbors = {}
         self.ox, self.oy = 0, 0
-        
+
     def advance(self):
         'get the horiz advance'
         raise NotImplementedError('derived must override')
 
     def height(self):
         'get the element height: ymax-ymin'
-        raise NotImplementedError('derived must override')        
+        raise NotImplementedError('derived must override')
 
     def width(self):
         'get the element width: xmax-xmin'
-        raise NotImplementedError('derived must override')        
+        raise NotImplementedError('derived must override')
 
     def xmin(self):
         'get the xmin of ink rect'
-        raise NotImplementedError('derived must override')        
+        raise NotImplementedError('derived must override')
 
     def xmax(self):
         'get the xmax of ink rect'
-        raise NotImplementedError('derived must override')        
+        raise NotImplementedError('derived must override')
 
     def ymin(self):
         'get the ymin of ink rect'
-        raise NotImplementedError('derived must override')        
+        raise NotImplementedError('derived must override')
 
     def ymax(self):
         'get the ymax of ink rect'
-        raise NotImplementedError('derived must override')        
+        raise NotImplementedError('derived must override')
 
     def set_font(self, font):
         'set the font (one of tt, it, rm , cal)'
-        raise NotImplementedError('derived must override')        
+        raise NotImplementedError('derived must override')
 
     def render(self):
         'render to the fonts canvas'
@@ -991,7 +991,7 @@ class Element:
         for loc in keys:
             element = self.neighbors.get(loc)
             if element is None: continue
-            
+
             if loc=='above':
                 nx = self.centerx() - element.width()/2.0
                 ny = self.ymax() + self.pady() + (element.oy - element.ymax() + element.height())
@@ -1000,11 +1000,11 @@ class Element:
                 nx = self.centerx() - element.width()/2.0
                 ny = self.ymin() - self.pady() - element.height()
             elif loc=='superscript':
-                nx = self.xmax() 
+                nx = self.xmax()
                 ny = self.ymax() - self.pady()
             elif loc=='subscript':
-                nx = self.xmax() 
-                ny = self.oy - 0.5*element.height() 
+                nx = self.xmax()
+                ny = self.oy - 0.5*element.height()
             elif loc=='right':
                 nx = self.ox + self.advance()
                 if self.neighbors.has_key('subscript'):
@@ -1013,7 +1013,7 @@ class Element:
                 if self.neighbors.has_key('superscript'):
                     o = self.neighbors['superscript']
                     nx = max(nx, o.ox + o.advance())
-                
+
                 ny = self.oy
             element.set_origin(nx, ny)
 
@@ -1028,7 +1028,7 @@ class Element:
 
     def pady(self):
         return self.dpi/72.0*self._pady
-        
+
     def padx(self):
         return self.dpi/72.0*self._padx
 
@@ -1043,16 +1043,16 @@ class Element:
     def set_scale(self, scale):
         'scale the element by scale'
         self._scale = scale
-        
+
     def centerx(self):
-        return 0.5 * (self.xmax() + self.xmin() ) 
+        return 0.5 * (self.xmax() + self.xmin() )
 
     def centery(self):
-        return 0.5 * (self.ymax() + self.ymin() ) 
+        return 0.5 * (self.ymax() + self.ymin() )
 
     def __repr__(self):
         return str(self.__class__) + str(self.neighbors)
-               
+
 class SpaceElement(Element):
     'blank horizontal space'
     def __init__(self, space, height=0):
@@ -1075,10 +1075,10 @@ class SpaceElement(Element):
     def width(self):
         'get the element width: xmax-xmin'
         return self.advance()
-        
+
     def xmin(self):
         'get the minimum ink in x'
-        return self.ox 
+        return self.ox
 
     def xmax(self):
         'get the max ink in x'
@@ -1086,7 +1086,7 @@ class SpaceElement(Element):
 
     def ymin(self):
         'get the minimum ink in y'
-        return self.oy 
+        return self.oy
 
     def ymax(self):
         'get the max ink in y'
@@ -1095,14 +1095,14 @@ class SpaceElement(Element):
     def set_font(self, f):
         # space doesn't care about font, only size
         pass
-    
+
 class SymbolElement(Element):
     def __init__(self, sym):
         Element.__init__(self)
         self.sym = sym
         self.kern = None
         self.widthm = 1  # the width of an m; will be resized below
-        
+
     def set_font(self, font):
         'set the font (one of tt, it, rm , cal)'
         self.font = font
@@ -1145,7 +1145,7 @@ class SymbolElement(Element):
     def width(self):
         'get the element width: xmax-xmin'
         return self.metrics.width
-        
+
     def xmin(self):
         'get the minimum ink in x'
         return self.ox + self.metrics.xmin
@@ -1165,14 +1165,14 @@ class SymbolElement(Element):
     def render(self):
         'render to the fonts canvas'
         Element.fonts.render(
-            self.ox, self.oy, 
+            self.ox, self.oy,
             self.font, self.sym, self.fontsize, self.dpi)
         Element.render(self)
 
     def __repr__(self):
         return self.sym
 
-    
+
 class GroupElement(Element):
     """
     A group is a collection of elements
@@ -1187,19 +1187,19 @@ class GroupElement(Element):
         'set the font (one of tt, it, rm , cal)'
         for element in self.elements:
             element.set_font(font)
-            
+
 
         #print 'set fonts'
         for i in range(len(self.elements)-1):
             if not isinstance(self.elements[i], SymbolElement): continue
             if not isinstance(self.elements[i+1], SymbolElement): continue
             symleft = self.elements[i].sym
-            symright = self.elements[i+1].sym            
+            symright = self.elements[i+1].sym
             self.elements[i].kern = None
             #self.elements[i].kern = Element.fonts.get_kern(font, symleft, symright, self.fontsize, self.dpi)
-        
-        
-    def set_size_info(self, fontsize, dpi):        
+
+
+    def set_size_info(self, fontsize, dpi):
         self.elements[0].set_size_info(self._scale*fontsize, dpi)
         Element.set_size_info(self, fontsize, dpi)
         #print 'set size'
@@ -1212,7 +1212,7 @@ class GroupElement(Element):
 
     def advance(self):
         'get the horiz advance'
-        return self.elements[-1].xmax() - self.elements[0].ox 
+        return self.elements[-1].xmax() - self.elements[0].ox
 
 
     def height(self):
@@ -1220,7 +1220,7 @@ class GroupElement(Element):
         ymax = max([e.ymax() for e in self.elements])
         ymin = min([e.ymin() for e in self.elements])
         return ymax-ymin
-    
+
     def width(self):
         'get the element width: xmax-xmin'
         xmax = max([e.xmax() for e in self.elements])
@@ -1238,15 +1238,15 @@ class GroupElement(Element):
 
     def xmax(self):
         'get the max ink in x'
-        return max([e.xmax() for e in self.elements])        
+        return max([e.xmax() for e in self.elements])
 
     def ymin(self):
         'get the minimum ink in y'
-        return max([e.ymin() for e in self.elements])        
+        return max([e.ymin() for e in self.elements])
 
     def ymax(self):
         'get the max ink in y'
-        return max([e.ymax() for e in self.elements])                
+        return max([e.ymax() for e in self.elements])
 
     def __repr__(self):
         return 'Group: [ %s ]' % ' '.join([str(e) for e in self.elements])
@@ -1262,7 +1262,7 @@ class ExpressionElement(GroupElement):
 
 class Handler:
     symbols = []
-    
+
     def clear(self):
         self.symbols = []
 
@@ -1273,11 +1273,11 @@ class Handler:
     def space(self, s, loc, toks):
         assert(len(toks)==1)
 
-        if toks[0]==r'\ ': num = 0.30 # 30% of fontsize        
+        if toks[0]==r'\ ': num = 0.30 # 30% of fontsize
         elif toks[0]==r'\/': num = 0.1 # 10% of fontsize
         else:  # vspace
             num = float(toks[0][1]) # get the num out of \hspace{num}
-            
+
         element = SpaceElement(num)
         self.symbols.append(element)
         return loc, [element]
@@ -1308,7 +1308,7 @@ class Handler:
         else:
             sym = SymbolElement(toks[0])
         self.symbols.append(sym)
-        
+
         return loc, [sym]
 
     def composite(self, s, loc, toks):
@@ -1320,11 +1320,11 @@ class Handler:
             sym0.neighbors['above'] = sym1
         elif where==r'\under':
             sym0.neighbors['below'] = sym1
-            
+
         self.symbols.append(sym0)
-        self.symbols.append(sym1)        
-        
-        return loc, [sym0]    
+        self.symbols.append(sym1)
+
+        return loc, [sym0]
 
     def accent(self, s, loc, toks):
 
@@ -1339,20 +1339,20 @@ class Handler:
             r'\acute' : r'\combiningacuteaccent',
             r'\ddot'  : r'\combiningdiaeresis',
             r'\tilde' : r'\combiningtilde',
-            r'\dot'   : r'\combiningdotabove',            
-            r'\vec'   : r'\combiningrightarrowabove',                        
+            r'\dot'   : r'\combiningdotabove',
+            r'\vec'   : r'\combiningrightarrowabove',
             r'\"'     : r'\combiningdiaeresis',
             r"\`"     : r'\combininggraveaccent',
             r"\'"     : r'\combiningacuteaccent',
             r'\~'     : r'\combiningtilde',
             r'\.'     : r'\combiningdotabove',
-            r'\^'   : r'\circumflexaccent',            
+            r'\^'   : r'\circumflexaccent',
              }
         above = SymbolElement(d[accent])
         sym.neighbors['above'] = above
         sym.set_pady(1)
         self.symbols.append(above)
-        return loc, [sym]    
+        return loc, [sym]
 
     def group(self, s, loc, toks):
         assert(len(toks)==1)
@@ -1375,7 +1375,7 @@ class Handler:
             under, next = toks[0]
             prev = SpaceElement(0)
         else:
-            prev, under, next = toks[0]            
+            prev, under, next = toks[0]
 
         if self.is_overunder(prev):
             prev.neighbors['below'] = next
@@ -1386,7 +1386,7 @@ class Handler:
 
     def is_overunder(self, prev):
         return isinstance(prev, SymbolElement) and overunder.has_key(prev.sym)
-    
+
     def superscript(self, s, loc, toks):
         assert(len(toks)==1)
         #print 'subsup', toks
@@ -1442,7 +1442,7 @@ period =  Literal('.')
 semicolon =  Literal(';')
 exclamation =  Literal('!')
 
-punctuation = colon | comma | period | semicolon 
+punctuation = colon | comma | period | semicolon
 
 at =  Literal('@')
 percent =  Literal('%')
@@ -1459,7 +1459,7 @@ accent = Literal('hat') | Literal('check') | Literal('dot') | \
          Literal('grave') | Literal('tilde') | Literal('bar') | \
          Literal('vec') | Literal('"') | Literal("`") | Literal("'") |\
          Literal('~') | Literal('.') | Literal('^')
-         
+
 
 
 
@@ -1519,7 +1519,7 @@ composite = Group( Combine(bslash + overUnder) + group + group).setParseAction(h
 
 
 
-symgroup = font | group | symbol 
+symgroup = font | group | symbol
 
 subscript << Group( Optional(symgroup) + Literal('_') + symgroup  )
 superscript << Group( Optional(symgroup) + Literal('^') + symgroup  )
@@ -1554,7 +1554,7 @@ class math_parse_s_ft2font_common:
     def __init__(self, output):
         self.output = output
         self.cache = {}
-        
+
     def __call__(self, s, dpi, fontsize, angle=0):
         cacheKey = (s, dpi, fontsize, angle)
         s = s[1:-1]  # strip the $ from front and back
@@ -1580,7 +1580,7 @@ class math_parse_s_ft2font_common:
         elif self.output == 'PDF':
             self.font_object = BakomaPDFFonts()
             Element.fonts = self.font_object
-        
+
         handler.clear()
         expression.parseString( s )
 
@@ -1609,7 +1609,7 @@ class math_parse_s_ft2font_common:
         elif self.output == 'PDF':
             pswriter = list()
             Element.fonts.set_canvas_size(w, h, pswriter)
-        
+
         handler.expr.render()
         handler.clear()
 
@@ -1636,8 +1636,8 @@ math_parse_s_ps = math_parse_s_ft2font_common('PS')
 math_parse_s_pdf = math_parse_s_ft2font_common('PDF')
 
 if 0: #__name__=='___main__':
-    
-    stests = [ 
+
+    stests = [
             r'$dz/dt \/ = \/ \gamma x^2 \/ + \/ \rm{sin}(2\pi y+\phi)$',
             r'$dz/dt \/ = \/ \gamma xy^2 \/ + \/ \rm{s}(2\pi y+\phi)$',
             r'$x^1 2$',

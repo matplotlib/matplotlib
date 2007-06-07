@@ -29,7 +29,7 @@ class MyMplCanvas(FigureCanvas):
         self.axes.hold(False)
 
         self.compute_initial_figure()
-        
+
         FigureCanvas.__init__(self, self.fig)
         self.setParent(parent)
 
@@ -80,7 +80,7 @@ class ApplicationWindow(QtGui.QMainWindow):
         self.setWindowTitle("application main window")
 
         self.file_menu = QtGui.QMenu('&File', self)
-        self.file_menu.addAction('&Quit', self.fileQuit, 
+        self.file_menu.addAction('&Quit', self.fileQuit,
                                  QtCore.Qt.CTRL + QtCore.Qt.Key_Q)
         self.menuBar().addMenu(self.file_menu)
 
@@ -127,7 +127,7 @@ def main():
     # allocation strategy.
     QtGui.QApplication.setColorSpec(QtGui.QApplication.NormalColor)
     qApp = QtGui.QApplication(sys.argv)
-    
+
     aw = ApplicationWindow()
     aw.setWindowTitle("%s" % progname)
     aw.show()

@@ -22,7 +22,7 @@ def get_path(path):
 
         # Get the name of the module that the class was loaded from.
         module_name = klass.__module__
-        
+
         # Look the module up.
         module = sys.modules[module_name]
 

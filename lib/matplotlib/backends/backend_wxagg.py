@@ -1,4 +1,4 @@
-from __future__ import division 
+from __future__ import division
 """
 
  backend_wxagg.py
@@ -7,10 +7,10 @@ from __future__ import division
  Jeremy O'Donoghue (jeremy@o-donoghue.com) and the Agg backend by John
  Hunter (jdhunter@ace.bsd.uchicago.edu)
 
- Copyright (C) 2003-5 Jeremy O'Donoghue, John Hunter, Illinois Institute of 
+ Copyright (C) 2003-5 Jeremy O'Donoghue, John Hunter, Illinois Institute of
  Technology
 
-  
+
  License: This work is licensed under the matplotlib license( PSF
  compatible). A copy should be included with this source code.
 
@@ -40,12 +40,12 @@ class FigureFrameWxAgg(FigureFrameWx):
             toolbar.set_status_bar(statbar)
         else:
             toolbar = None
-        return toolbar 
+        return toolbar
 
 class FigureCanvasWxAgg(FigureCanvasWx,FigureCanvasAgg):
     """
     The FigureCanvas contains the figure and does event handling.
-    
+
     In the wxPython backend, it is derived from wxPanel, and (usually)
     lives inside a frame instantiated by a FigureManagerWx. The parent
     window probably implements a wxSizer to control the displayed
@@ -139,13 +139,13 @@ def new_figure_manager(num, *args, **kwargs):
             backend_wx.wxapp = wx.PySimpleApp()
             backend_wx.wxapp.SetExitOnFrameDelete(True)
 
-    FigureClass = kwargs.pop('FigureClass', Figure)    
+    FigureClass = kwargs.pop('FigureClass', Figure)
     fig = FigureClass(*args, **kwargs)
     frame = FigureFrameWxAgg(num, fig)
     figmgr = frame.get_figure_manager()
     if matplotlib.is_interactive():
         figmgr.canvas.realize()
-        figmgr.frame.Show() 
+        figmgr.frame.Show()
     return figmgr
 
 
@@ -203,7 +203,7 @@ def _clipped_image_as_bitmap(image, bbox):
     destBmp = wx.EmptyBitmap(int(width), int(height))
     destDC = wx.MemoryDC()
     destDC.SelectObject(destBmp)
- 
+
     destDC.BeginDrawing()
     x = int(l)
     y = int(image.GetHeight() - t)
@@ -271,7 +271,7 @@ def _WX28_clipped_agg_as_bitmap(agg, bbox):
     destBmp = wx.EmptyBitmap(int(width), int(height))
     destDC = wx.MemoryDC()
     destDC.SelectObject(destBmp)
- 
+
     destDC.BeginDrawing()
     x = int(l)
     y = int(int(agg.height) - t)

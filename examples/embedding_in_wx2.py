@@ -22,7 +22,7 @@ from matplotlib.figure import Figure
 from wxPython.wx import *
 
 class CanvasFrame(wxFrame):
-    
+
     def __init__(self):
         wxFrame.__init__(self,None,-1,
                          'CanvasFrame',size=(550,350))
@@ -33,7 +33,7 @@ class CanvasFrame(wxFrame):
         self.axes = self.figure.add_subplot(111)
         t = arange(0.0,3.0,0.01)
         s = sin(2*pi*t)
-        
+
         self.axes.plot(t,s)
         self.canvas = FigureCanvas(self, -1, self.figure)
 
@@ -64,14 +64,14 @@ class CanvasFrame(wxFrame):
             self.toolbar.SetSize(wxSize(fw, th))
             self.sizer.Add(self.toolbar, 0, wxLEFT | wxEXPAND)
         # update the axes menu on the toolbar
-        self.toolbar.update()  
+        self.toolbar.update()
 
-        
+
     def OnPaint(self, event):
         self.canvas.draw()
-        
+
 class App(wxApp):
-    
+
     def OnInit(self):
         'Create the main window and insert the custom frame'
         frame = CanvasFrame()

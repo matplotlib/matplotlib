@@ -182,7 +182,7 @@ class strpdate2num:
            return value: a date2num float
         """
         return date2num(datetime.datetime(*time.strptime(s, self.fmt)[:6]))
-    
+
 def datestr2num(d):
     """
     Convert a date string to a datenum using dateutil.parser.parse
@@ -193,8 +193,8 @@ def datestr2num(d):
         return date2num(dt)
     else:
         return date2num([dateutil.parser.parse(s) for s in d])
-    
-    
+
+
 def date2num(d):
     """
     d is either a datetime instance or a sequence of datetimes
@@ -348,7 +348,7 @@ class IndexDateFormatter(Formatter):
         if ind>=len(self.t) or ind<=0: return ''
 
         dt = num2date(self.t[ind], self.tz)
-        
+
         return unicode(dt.strftime(self.fmt), locale.getpreferredencoding())
 
 
@@ -357,10 +357,10 @@ class AutoDateFormatter(Formatter):
     This class attempt to figure out the best format to use.  This is
     most useful when used with the AutoDateLocator.
     """
-    
+
     # This can be improved by providing some user-level direction on
     # how to choose the best format (precedence, etc...)
-    
+
     # Perhaps a 'struct' that has a field for each time-type where a
     # zero would indicate "don't show" and a number would indicate
     # "show" with some sort of priority.  Same priorities could mean
@@ -368,15 +368,15 @@ class AutoDateFormatter(Formatter):
 
     # Or more simply, perhaps just a format string for each
     # possibility...
-    
+
     def __init__(self, locator, tz=None):
         self._locator = locator
         self._formatter = DateFormatter("%b %d %Y %H:%M:%S %Z", tz)
         self._tz = tz
-        
+
     def __call__(self, x, pos=0):
         scale = float( self._locator._get_unit() )
-        
+
         if ( scale == 365.0 ):
             self._formatter = DateFormatter("%Y", self._tz)
         elif ( scale == 30.0 ):
@@ -439,7 +439,7 @@ class DateLocator(Locator):
         intelligent autoscaling
         """
         return 1
-        
+
     def nonsingular(self, vmin, vmax):
         unit = self._get_unit()
         vmin -= 2*unit
@@ -459,7 +459,7 @@ class RRuleLocator(DateLocator):
         # if no data have been set, this will tank with a ValueError
         try: dmin, dmax = self.viewlim_to_dt()
         except ValueError: return []
-        
+
         if dmin>dmax:
             dmax, dmin = dmin, dmax
         delta = relativedelta(dmax, dmin)
@@ -513,20 +513,20 @@ class RRuleLocator(DateLocator):
 
         vmin = date2num(vmin)
         vmax = date2num(vmax)
-        
+
         return self.nonsingular(vmin, vmax)
 
 
 class AutoDateLocator(DateLocator):
     """
     On autoscale this class picks the best MultipleDateLocator to set the
-    view limits and the tick locs.  
+    view limits and the tick locs.
     """
     def __init__(self, tz=None):
         DateLocator.__init__(self, tz)
         self._locator = YearLocator()
         self._freq = YEARLY
- 
+
     def __call__(self):
         'Return the locations of the ticks'
         self.refresh()
@@ -703,7 +703,7 @@ class YearLocator(DateLocator):
         intelligent autoscaling
         """
         return 365
-    
+
     def __call__(self):
         self.verify_intervals()
 
@@ -758,7 +758,7 @@ class MonthLocator(RRuleLocator):
         intelligent autoscaling
         """
         return 30
-    
+
 
 class WeekdayLocator(RRuleLocator):
     """
@@ -982,7 +982,7 @@ def date_ticker_factory(span, tz=None, numticks=5):
 
 
     """
-    
+
     if span==0: span = 1/24.
 
     minutes = span*24*60

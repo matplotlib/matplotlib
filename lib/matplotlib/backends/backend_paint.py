@@ -31,14 +31,14 @@ from matplotlib.font_manager import fontManager
 """
 
  * added dpi instance to renderer so drawing could scale with dpi
- 
+
  * added dash path - JDH
 
  * reversed the order of fill and stroke for rectangle, arc and
    polygon so edge color would be visible
 
  * adjusted circle centers
- 
+
 """
 
 
@@ -56,7 +56,7 @@ class RendererPaint(RendererBase):
     """
 
     fontd = {} # cache paint font instances
-    
+
     def __init__(self, width, height, dpi):
         """creates a new image"""
         w, h = int(width), int(height)
@@ -75,7 +75,7 @@ class RendererPaint(RendererBase):
         """
         font = self._get_paint_font(s, prop, 0.0)
         return font.textsize(s)
-                              
+
     def flipy(self):
         'return true if y small numbers are top for renderer'
         return True
@@ -88,9 +88,9 @@ class RendererPaint(RendererBase):
         """
         return self.dpi.get()/PIXELS_PER_INCH
 
-    
 
-    def draw_text(self, gc, x, y, s, prop, angle, ismath):            
+
+    def draw_text(self, gc, x, y, s, prop, angle, ismath):
         """
         Render the text using the RendererPaint instance
         """
@@ -136,7 +136,7 @@ class RendererPaint(RendererBase):
         self.image.stroke(arc, self.get_paint_color(gcEdge.get_rgb()),
                           self.points_to_pixels(gcEdge.get_linewidth()))
 
-    
+
     def draw_line(self, gc, x1, y1, x2, y2):
         """
         Draw a single line from x1,y1 to x2,y2
@@ -146,7 +146,7 @@ class RendererPaint(RendererBase):
         self.image.stroke(path, \
                           self.get_paint_color(gc.get_rgb()),
                           self.points_to_pixels(gc.get_linewidth()))
-        
+
 
     def dash_path(self, gc, path):
         """
@@ -155,11 +155,11 @@ class RendererPaint(RendererBase):
         offset, dashes = gc.get_dashes()
         if dashes is not None:
 
-            dashes = tuple(self.points_to_pixels(asarray(dashes)))            
+            dashes = tuple(self.points_to_pixels(asarray(dashes)))
             return path.dash(offset, dashes)
         else:
             return path
-        
+
     def draw_lines(self, gc, x, y):
         """
         x and y are equal length arrays, draw lines connecting each
@@ -175,7 +175,7 @@ class RendererPaint(RendererBase):
         self.image.stroke(path,
                           self.get_paint_color(gc.get_rgb()),
                           self.points_to_pixels(gc.get_linewidth()))
-            
+
 
     def draw_polygon(self, gcEdge, rgbFace, points):
         """
@@ -224,11 +224,11 @@ class RendererPaint(RendererBase):
 
     def points_to_pixels(self, points):
         return points*(PIXELS_PER_INCH/72.0*self.dpi.get()/72.0)
-        
 
-              
+
+
 class FigureCanvasPaint(FigureCanvasBase):
-        
+
     def draw(self):
         """
         Render the figure using RendererPaint instance renderer
@@ -237,7 +237,7 @@ class FigureCanvasPaint(FigureCanvasBase):
         renderer = RendererPaint(width,height, self.figure.dpi)
         self.figure.draw(renderer)
         return renderer
-        
+
     def print_figure(self, filename, dpi=150, facecolor='w', edgecolor='w',
                      orientation='portrait, '**kwargs):
 
@@ -257,15 +257,15 @@ class FigureCanvasPaint(FigureCanvasBase):
 
         basename, ext = os.path.splitext(filename)
         if not len(ext): filename += '.png'
-        renderer.image.write_png(filename)        
+        renderer.image.write_png(filename)
 
         # now restore the old figure params
         self.figure.set_facecolor(origfacecolor)
         self.figure.set_edgecolor(origedgecolor)
         self.figure.dpi.set(origDPI)
-        
+
 ########################################################################
-#    
+#
 # The following functions and classes are for matlab compatibility
 # mode (pylab) and implement window/figure managers,
 # etc...
@@ -287,10 +287,10 @@ def new_figure_manager_paint(num, *args, **kwargs):
 
 
 ########################################################################
-#    
+#
 # Now just provide the standard names that backend.__init__ is expecting
-# 
+#
 ########################################################################
 new_figure_manager = new_figure_manager_paint
 
-         
+

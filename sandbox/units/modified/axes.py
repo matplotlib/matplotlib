@@ -161,7 +161,7 @@ class _process_plot_var_args:
     def __init__(self, command='plot'):
         self.command = command
         self._clear_color_cycle()
- 
+
     def _clear_color_cycle(self):
         self.colors = ['b','g','r','c','m','y','k']
         # if the default line color is a color format string, move it up
@@ -249,7 +249,7 @@ class _process_plot_var_args:
 
             assert self.command == 'plot', 'fill needs at least 2 non-string arguments'
             y, fmt = tup2
-      
+
             assert(iterable(y))
 
             dummy, y = self._x_y_units_conversion(None, y)
@@ -441,7 +441,7 @@ class Axes(Artist):
     def _get_default_unit_to_locator_map():
         return Axes._default_unit_locator_map
     set_default_unit_to_locator_map = \
-        staticmethod(_set_default_unit_to_locator_map) 
+        staticmethod(_set_default_unit_to_locator_map)
     get_default_unit_to_locator_map = \
         staticmethod(_get_default_unit_to_locator_map)
 
@@ -455,7 +455,7 @@ class Axes(Artist):
     def _get_default_unit_to_formatter_map():
         return Axes._default_unit_formatter_map
     set_default_unit_to_formatter_map = \
-        staticmethod(_set_default_unit_to_formatter_map) 
+        staticmethod(_set_default_unit_to_formatter_map)
     get_default_unit_to_formatter_map = \
         staticmethod(_get_default_unit_to_formatter_map)
 
@@ -467,7 +467,7 @@ class Axes(Artist):
     def _set_locators_for_units(self, units, axis):
         fn = self.get_unit_to_locator_map()
         if (not fn):
-            fn = Axes.get_default_unit_to_locator_map() 
+            fn = Axes.get_default_unit_to_locator_map()
         set_locators = False
         if (fn):
             try:
@@ -479,14 +479,14 @@ class Axes(Artist):
         if (not set_locators):
             axis.set_major_locator(AutoLocator())
             axis.set_minor_locator(NullLocator())
-        
+
     def _set_formatters_for_units(self, units, axis):
         fn = self.get_unit_to_formatter_map()
         if (not fn):
             fn = Axes.get_default_unit_to_formatter_map()
         set_formatters = False
         if (fn):
-            try: 
+            try:
                 formatters = fn(units)
                 axis.set_major_formatter(formatters[0])
                 axis.set_minor_formatter(formatters[1])
@@ -495,13 +495,13 @@ class Axes(Artist):
         if (not set_formatters):
             axis.set_major_formatter(ScalarFormatter())
             axis.set_minor_formatter(NullFormatter())
-                 
+
     def _update_units_args(self, kwarg_set):
         "update a set of args to include the default x/y unit settings"
         kwarg_set['xunits'] = kwarg_set.get('xunits', self._xunits)
         kwarg_set['yunits'] = kwarg_set.get('yunits', self._yunits)
         self.set_units(kwarg_set['xunits'], kwarg_set['yunits'])
- 
+
     def set_units(self, xunits, yunits):
         """
         Set the Axes unit for the x axis and for the y axis
@@ -528,7 +528,7 @@ class Axes(Artist):
     def set_yunits(self, yunits):
         """
         Set the Axes unit for the y axis
-      
+
         ACCEPTS: a Unit instance
         """
         if (self._yunits == yunits):
@@ -2046,7 +2046,7 @@ class Axes(Artist):
         kwargs_copy = kwargs.copy()
         self._update_units_args(kwargs_copy)
         y = units_conversion(y, self._yunits)
-        
+
         trans = blend_xy_sep_transform( self.transAxes, self.transData  )
         verts = (xmin, ymin), (xmin, ymax), (xmax, ymax), (xmax, ymin)
         p = Polygon(verts, **kwargs_copy)

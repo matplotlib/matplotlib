@@ -1,6 +1,6 @@
 #-------------------------------------------------------------------------------
 #
-#  Define the concrete implementations of the traits Toolkit interface for the 
+#  Define the concrete implementations of the traits Toolkit interface for the
 #  'null' (do nothing) user interface toolkit. This toolkit is provided to
 #  handle situations where no recognized traits-compatible UI toolkit is
 #  installed, but users still want to use traits for non-UI related tasks.
@@ -18,7 +18,7 @@
 #-------------------------------------------------------------------------------
 #  Define the reference to the exported GUIToolkit object:
 #-------------------------------------------------------------------------------
-    
+
 import toolkit
 toolkit = toolkit.GUIToolkit()
-       
+

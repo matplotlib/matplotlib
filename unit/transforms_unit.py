@@ -27,7 +27,7 @@ def closeto_bbox(b1, b2):
 
     pairs = ( (xmin1, xmin2), (xmax1, xmax2), (ymin1, ymin2), (ymax1, ymax2))
     return alltrue([closeto(x,y) for x,y in pairs])
-    
+
 ll = Point( Value(10),  Value(10) )
 ur = Point( Value(200), Value(40) )
 
@@ -226,7 +226,7 @@ assert(div.get()==2.0)
 
 # test the inverse bbox functions
 trans = rand_transform()
-bbox1 = rand_bbox() 
+bbox1 = rand_bbox()
 ibbox = inverse_transform_bbox(trans, bbox1)
 bbox2 = transform_bbox(trans, ibbox)
 assert(closeto_bbox(bbox1, bbox2))
@@ -301,5 +301,5 @@ if have_nan:
     assert( closeto_seq( bbox1.get_bounds(), bbox2.get_bounds() ) )
 else:
     print 'nan could not be imported from numarray.ieeespecial, test skipped'
- 
+
 print 'all tests passed'

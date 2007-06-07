@@ -42,9 +42,9 @@ ax.grid(True)
 
 ticklines = ax.get_xticklines()
 ticklines.extend( ax.get_yticklines() )
-gridlines = ax.get_xgridlines() 
+gridlines = ax.get_xgridlines()
 gridlines.extend( ax.get_ygridlines() )
-ticklabels = ax.get_xticklabels() 
+ticklabels = ax.get_xticklabels()
 ticklabels.extend( ax.get_yticklabels() )
 
 for line in ticklines:

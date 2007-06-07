@@ -356,7 +356,7 @@ class LocalTestCase(unittest.TestCase):
     def testPartialMinuteOffsets(self):
         # utcoffset in Amsterdam was not a whole minute until 1937
         # However, we fudge this by rounding them, as the Python
-        # datetime library 
+        # datetime library
         tz = pytz.timezone('Europe/Amsterdam')
         utc_dt = datetime(1914, 1, 1, 13, 40, 28, tzinfo=UTC) # correct
         utc_dt = utc_dt.replace(second=0) # But we need to fudge it

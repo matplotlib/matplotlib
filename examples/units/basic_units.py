@@ -16,7 +16,7 @@ class ProxyDelegate(object):
 
 class TaggedValueMeta (type):
     def __init__(cls, name, bases, dict):
-        for fn_name in cls._proxies.keys(): 
+        for fn_name in cls._proxies.keys():
             try:
                 dummy = getattr(cls, fn_name)
             except AttributeError:
@@ -42,7 +42,7 @@ class ConvertArgsProxy(PassThroughProxy):
             try:
                 converted_args.append(a.convert_to(self.unit))
             except AttributeError:
-                converted_args.append(TaggedValue(a, self.unit)) 
+                converted_args.append(TaggedValue(a, self.unit))
         converted_args = tuple([c.get_value() for c in converted_args])
         return PassThroughProxy.__call__(self, *converted_args)
 
@@ -76,7 +76,7 @@ class ConvertAllProxy(PassThroughProxy):
                 except:
                     pass
                 arg_units.append(a.get_unit())
-                converted_args.append(a.get_value()) 
+                converted_args.append(a.get_value())
             else:
                 converted_args.append(a)
                 if hasattr(a, 'get_unit'):
@@ -96,7 +96,7 @@ class TaggedValue (object):
 
   __metaclass__ = TaggedValueMeta
   _proxies = {'__add__':ConvertAllProxy,
-              '__sub__':ConvertAllProxy,               
+              '__sub__':ConvertAllProxy,
               '__mul__':ConvertAllProxy,
               '__rmul__':ConvertAllProxy,
               '__len__':PassThroughProxy}
@@ -141,7 +141,7 @@ class TaggedValue (object):
 
   def __array_wrap__(self, array, context):
     return TaggedValue(array, self.unit)
- 
+
   def __repr__(self):
     return 'TaggedValue(' + repr(self.value) + ', ' + repr(self.unit) + ')'
 
@@ -155,7 +155,7 @@ class TaggedValue (object):
         self.unit = unit
       def next(self):
         value = self.iter.next()
-        return TaggedValue(value, self.unit) 
+        return TaggedValue(value, self.unit)
     return IteratorProxy(iter(self.value), self.unit)
 
   def get_compressed_copy(self, mask):
@@ -216,7 +216,7 @@ class BasicUnit(object):
       return ret.astype(t)
     else:
       return ret
-    
+
   def add_conversion_factor(self, unit, factor):
     def convert(x):
       return x*factor
@@ -229,7 +229,7 @@ class BasicUnit(object):
     return self.conversions[unit]
 
   def convert_value_to(self, value, unit):
-      #print 'convert value to: value ="%s", unit="%s"'%(value, type(unit)), self.conversions  
+      #print 'convert value to: value ="%s", unit="%s"'%(value, type(unit)), self.conversions
       conversion_fn = self.conversions[unit]
       ret = conversion_fn(value)
       return ret
@@ -258,7 +258,7 @@ class UnitResolver(object):
     '__sub__':addition_rule,
     '__rsub__':addition_rule,
   }
- 
+
   def __call__(self, operation, units):
     if (operation not in self.op_dict):
       return NotImplemented
@@ -323,7 +323,7 @@ class BasicUnitConverter(units.ConversionInterface):
             elif hasattr(unit, 'unit'):
                 return units.AxisInfo(label=unit.unit.fullname)
         return None
-    
+
     axisinfo = staticmethod(axisinfo)
 
     def convert(val, unit):

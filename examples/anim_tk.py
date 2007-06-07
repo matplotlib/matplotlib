@@ -42,7 +42,7 @@ def run(*args):
         cnt = updatefig()
         if cnt==100: break
     print 'elapsed', 100.0/(time.time() - tstart)
-    
+
 import Tkinter as Tk
 manager.window.after(10, run)
 manager.show()

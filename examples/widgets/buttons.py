@@ -30,9 +30,9 @@ callback = Index()
 axprev = axes([0.7, 0.05, 0.1, 0.075])
 axnext = axes([0.81, 0.05, 0.1, 0.075])
 bnext = Button(axnext, 'Next')
-bnext.on_clicked(callback.next) 
+bnext.on_clicked(callback.next)
 bprev = Button(axprev, 'Previous')
-bprev.on_clicked(callback.prev)     
+bprev.on_clicked(callback.prev)
 
 show()
 

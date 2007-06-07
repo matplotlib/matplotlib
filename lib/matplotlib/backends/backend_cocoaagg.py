@@ -64,15 +64,15 @@ class MatplotlibController(NibClassBuilder.AutoBaseClass):
     # available outlets:
     #  NSWindow plotWindow
     #  PlotView plotView
-    
+
     def awakeFromNib(self):
         # Get a reference to the active canvas
         NSApp().setDelegate_(self)
         self.app = NSApp()
-        self.canvas = Gcf.get_active().canvas 
+        self.canvas = Gcf.get_active().canvas
         self.plotView.canvas = self.canvas
         self.canvas.plotView = self.plotView
-    
+
         self.plotWindow.setAcceptsMouseMovedEvents_(True)
         self.plotWindow.makeKeyAndOrderFront_(self)
         self.plotWindow.setDelegate_(self)#.plotView)
@@ -114,7 +114,7 @@ class PlotView(NibClassBuilder.AutoBaseClass):
         # Remove all previous images
         for i in xrange(self.image.representations().count()):
             self.image.removeRepresentation_(self.image.representations().objectAtIndex_(i))
-    
+
         self.image.setSize_((w,h))
 
         brep = NSBitmapImageRep.alloc().initWithBitmapDataPlanes_pixelsWide_pixelsHigh_bitsPerSample_samplesPerPixel_hasAlpha_isPlanar_colorSpaceName_bytesPerRow_bitsPerPixel_(

@@ -1,20 +1,20 @@
 #!/usr/bin/env python
 # printing_in_wx.py
-# 
+#
 """
 This examples demonstrates Printing (ie, to a printer) with a
 matplotlib figure using a wx Frame.  This borrows the data from
 embedding_in_wx.py, but with several changes:
-  Menus for  
-     Save           export figure (png,eps,bmp) to file 
+  Menus for
+     Save           export figure (png,eps,bmp) to file
      Copy           copy bitmap of figure to the system clipboard
      Print Setup    setup size of figure for printing
      Print Preview  preview printer page
      Print          send figure to a system printer
      Exit           end application
-    
+
      where 'figure' means an image of the matplotlib canvas
- 
+
   In addition, "Ctrl-C" is bound to Copy-figure-to-clipboard
 
 
@@ -31,7 +31,7 @@ import wx
 import os
 import matplotlib
 
-# either WX or WXAgg can be used here. 
+# either WX or WXAgg can be used here.
 # matplotlib.use('WX')
 # from matplotlib.backends.backend_wxagg import FigureCanvasWx as FigCanvas
 
@@ -42,16 +42,16 @@ from matplotlib.figure import Figure
 import matplotlib.numerix as numpy
 
 class PlotFrame(wx.Frame):
-    help_msg="""  Menus for  
-     Save           export figure (png,eps,bmp) to file 
+    help_msg="""  Menus for
+     Save           export figure (png,eps,bmp) to file
      Copy           copy bitmap of figure to the system clipboard
      Print Setup    setup size of figure for printing
      Print Preview  preview printer page
      Print          send figure to a system printer
      Exit           end application
-    
+
      where 'figure' means an image of the matplotlib canvas
- 
+
   In addition, "Ctrl-C" is bound to copy-figure-to-clipboard
 """
 
@@ -66,13 +66,13 @@ class PlotFrame(wx.Frame):
         self.fig   = Figure((5.0,3.0), 100)
         self.canvas= FigCanvas(self, -1, self.fig)
         self.axes  = self.fig.add_axes([0.15,0.15,0.75,0.75])
-         
+
 
         sizer = wx.BoxSizer(wx.VERTICAL)
         sizer.Add(self.canvas, 1, wx.LEFT|wx.TOP|wx.GROW)
         sizer.Add(wx.StaticText(self,-1, self.start_msg), 0,
                   wx.ALIGN_LEFT|wx.TOP)
-        
+
         self.canvas.Bind(wx.EVT_KEY_DOWN, self.onKeyEvent)
 
         self.SetSizer(sizer)
@@ -82,7 +82,7 @@ class PlotFrame(wx.Frame):
 
     def Build_Menus(self):
         """ build menus """
-        MENU_EXIT  = wx.NewId()        
+        MENU_EXIT  = wx.NewId()
         MENU_SAVE  = wx.NewId()
         MENU_PRINT = wx.NewId()
         MENU_PSETUP= wx.NewId()
@@ -91,7 +91,7 @@ class PlotFrame(wx.Frame):
         MENU_HELP   =wx.NewId()
 
         menuBar = wx.MenuBar()
-        
+
         f0 = wx.Menu()
         f0.Append(MENU_SAVE,   "&Export",   "Save Image of Plot")
         f0.AppendSeparator()
@@ -109,7 +109,7 @@ class PlotFrame(wx.Frame):
 
         self.SetMenuBar(menuBar)
 
-        self.Bind(wx.EVT_MENU, self.onPrint,        id=MENU_PRINT)        
+        self.Bind(wx.EVT_MENU, self.onPrint,        id=MENU_PRINT)
         self.Bind(wx.EVT_MENU, self.onPrinterSetup, id=MENU_PSETUP)
         self.Bind(wx.EVT_MENU, self.onPrinterPreview, id=MENU_PREVIEW)
         self.Bind(wx.EVT_MENU, self.onClipboard,    id=MENU_CLIPB)
@@ -137,7 +137,7 @@ class PlotFrame(wx.Frame):
         if event == None: return
         key = event.KeyCode()
         if (key < wx.WXK_SPACE or  key > 255):  return
-        
+
         if (event.ControlDown() and chr(key)=='C'): # Ctrl-C
             self.onClipboard(event=event)
 
@@ -153,8 +153,8 @@ class PlotFrame(wx.Frame):
         file_choices = "PNG (*.png)|*.png|" \
                        "PS (*.ps)|*.ps|" \
                        "EPS (*.eps)|*.eps|" \
-                       "BMP (*.bmp)|*.bmp"                        
-                       
+                       "BMP (*.bmp)|*.bmp"
+
         thisdir  = os.getcwd()
 
         dlg = wx.FileDialog(self, message='Save Plot Figure as...',

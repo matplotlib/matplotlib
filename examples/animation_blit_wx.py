@@ -46,7 +46,7 @@ def update_line(*args):
     # restore the clean slate background
     canvas.restore_region(update_line.background)
     # update the data
-    line.set_ydata(nx.sin(x+update_line.cnt/10.0))  
+    line.set_ydata(nx.sin(x+update_line.cnt/10.0))
     # just draw the animated artist
     ax.draw_artist(line)
     # just redraw the axes rectangle
@@ -67,7 +67,7 @@ def update_line(*args):
 
     update_line.cnt += 1
     wx.WakeUpIdle()
-    
+
 
 
 update_line.cnt = 0

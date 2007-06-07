@@ -15,7 +15,7 @@ import matplotlib
 # comment out the following to use wx rather than wxagg
 matplotlib.use('WXAgg')
 from matplotlib.backends.backend_wxagg import FigureCanvasWxAgg as FigureCanvas
-from matplotlib.backends.backend_wxagg import NavigationToolbar2WxAgg 
+from matplotlib.backends.backend_wxagg import NavigationToolbar2WxAgg
 
 from matplotlib.backends.backend_wx import _load_bitmap
 from matplotlib.figure import Figure
@@ -57,7 +57,7 @@ class MyNavigationToolbar(NavigationToolbar2WxAgg):
 
 
 class CanvasFrame(wxFrame):
-    
+
     def __init__(self):
         wxFrame.__init__(self,None,-1,
                          'CanvasFrame',size=(550,350))
@@ -68,15 +68,15 @@ class CanvasFrame(wxFrame):
         self.axes = self.figure.add_subplot(111)
         t = arange(0.0,3.0,0.01)
         s = sin(2*pi*t)
-        
+
         self.axes.plot(t,s)
 
         self.canvas = FigureCanvas(self, -1, self.figure)
 
         self.sizer = wxBoxSizer(wxVERTICAL)
         self.sizer.Add(self.canvas, 1, wxTOP | wxLEFT | wxEXPAND)
-        # Capture the paint message        
-        EVT_PAINT(self, self.OnPaint)        
+        # Capture the paint message
+        EVT_PAINT(self, self.OnPaint)
 
         self.toolbar = MyNavigationToolbar(self.canvas, True)
         self.toolbar.Realize()
@@ -97,7 +97,7 @@ class CanvasFrame(wxFrame):
             self.sizer.Add(self.toolbar, 0, wxLEFT | wxEXPAND)
 
         # update the axes menu on the toolbar
-        self.toolbar.update()  
+        self.toolbar.update()
         self.SetSizer(self.sizer)
         self.Fit()
 
@@ -105,9 +105,9 @@ class CanvasFrame(wxFrame):
     def OnPaint(self, event):
         self.canvas.draw()
         event.Skip()
-        
+
 class App(wxApp):
-    
+
     def OnInit(self):
         'Create the main window and insert the custom frame'
         frame = CanvasFrame()

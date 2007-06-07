@@ -294,7 +294,7 @@ class GTKInterpreterConsole(gtk.ScrolledWindow):
       self.write_line("\n")
     else:
       self.write_line(line + "\n")
-      
+
 
     more = self.push(line)
 
@@ -307,7 +307,7 @@ class GTKInterpreterConsole(gtk.ScrolledWindow):
 
 
     self.current_history = 0
-    
+
     self.window.raise_()
 
     return gtk.TRUE
@@ -342,10 +342,10 @@ def main():
   console = GTKInterpreterConsole()
   console.set_size_request(640,480)
   w.add(console)
-  
+
   def destroy(arg=None):
       gtk.main_quit()
-  
+
   def key_event(widget,event):
       if gtk.gdk.keyval_name( event.keyval) == 'd' and \
              event.state & gtk.gdk.CONTROL_MASK:
@@ -359,7 +359,7 @@ def main():
   w.show_all()
 
   console.execute_line('import matplotlib')
-  console.execute_line("matplotlib.use('GTKAgg')")  
+  console.execute_line("matplotlib.use('GTKAgg')")
   console.execute_line('matplotlib.interactive(1)')
   console.execute_line('from pylab import *')
 
@@ -370,7 +370,7 @@ def main():
       print >> sys.stderr, '%s does not exist' % fname
     for line in file(fname):
       line = line.strip()
-      
+
       console.execute_line(line)
   gtk.main()
 

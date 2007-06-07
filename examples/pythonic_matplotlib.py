@@ -79,6 +79,6 @@ l = ax2.set_xlabel('Hi mom')
 l.set_color('g')
 l.set_fontsize('large')
 
-show()        
+show()
 
 

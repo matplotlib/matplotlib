@@ -294,7 +294,7 @@ def check_wxpython_broken_macosx104_version(wxconfig):
             if version_full == '2.5.3.1':
                 return False
     return True
-    
+
 def add_wx_flags(module, wxconfig):
     """
     Add the module flags to build extensions which use wxPython.

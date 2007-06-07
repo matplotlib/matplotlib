@@ -82,7 +82,7 @@ def new_figure_manager(num, *args, **kwargs):
     """
     Create a new figure manager instance
     """
-    FigureClass = kwargs.pop('FigureClass', Figure)    
+    FigureClass = kwargs.pop('FigureClass', Figure)
     thisFig = FigureClass(*args, **kwargs)
     canvas = FigureCanvasGTK(thisFig)
     manager = FigureManagerGTK(canvas, num)

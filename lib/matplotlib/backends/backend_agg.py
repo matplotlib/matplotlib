@@ -173,7 +173,7 @@ class RendererAgg(RendererBase):
         rgbFace = gc.get_rgb()
         self._renderer.draw_ellipse(
             gc, rgbFace, x, y, 0.5, 0.5, 0.0)
-            
+
     def draw_mathtext(self, gc, x, y, s, prop, angle):
         """
         Draw the math text using matplotlib.mathtext
@@ -500,7 +500,7 @@ class FigureCanvasAgg(FigureCanvasBase):
                 self.figure.dpi.set(origDPI)
                 self.figure.set_facecolor(origfacecolor)
                 self.figure.set_edgecolor(origedgecolor)
-                self.figure.set_canvas(self)            
+                self.figure.set_canvas(self)
                 raise
 
         # restore the original figure properties
@@ -508,5 +508,5 @@ class FigureCanvasAgg(FigureCanvasBase):
         self.figure.set_facecolor(origfacecolor)
         self.figure.set_edgecolor(origedgecolor)
         self.figure.set_canvas(self)
-            
-            
+
+

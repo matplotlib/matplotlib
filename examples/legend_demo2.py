@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #
-# Make a legend for specific lines.  
+# Make a legend for specific lines.
 from pylab import *
 
 t1 = arange(0.0, 2.0, 0.1)

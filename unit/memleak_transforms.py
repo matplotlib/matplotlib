@@ -70,4 +70,4 @@ for i in range(indEnd):
 
 end = val
 print 'Average memory consumed per loop: %1.4fk bytes\n' % ((end-start)/float(indEnd-indStart))
-    
+

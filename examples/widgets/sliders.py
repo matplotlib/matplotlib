@@ -30,7 +30,7 @@ def reset(event):
     sfreq.reset()
     samp.reset()
 button.on_clicked(reset)
-    
+
 
 show()
 

@@ -18,7 +18,7 @@ class ResourceReference(HasTraits):
 
     # The resource factory that will be used to load the resource.
     resource_factory = Instance(ResourceFactory) # ReadOnly
-    
+
     ###########################################################################
     # 'ResourceReference' interface.
     ###########################################################################
@@ -39,14 +39,14 @@ class ImageReference(ResourceReference):
     # was read from the zip file.
     data = Any # ReadOnly
 
-    
+
     def __init__(self, resource_factory, filename=None, data=None):
         """ Creates a new image reference. """
 
         self.resource_factory = resource_factory
         self.filename = filename
         self.data = data
-        
+
         return
 
     ###########################################################################
@@ -66,5 +66,5 @@ class ImageReference(ResourceReference):
             raise ValueError("Image reference has no filename OR data")
 
         return image
-    
+
 #### EOF ######################################################################

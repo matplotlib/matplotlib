@@ -16,7 +16,7 @@ for i in range(500):
     report_memory(i)
     verts = nx.mlab.rand(100, 2)
     b = nxutils.pnpoly(x, y, verts)
-    
+
     for i in range(500):
         report_memory(i)
         verts = nx.mlab.rand(100, 2)

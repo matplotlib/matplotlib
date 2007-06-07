@@ -94,7 +94,7 @@ class point_type(_object):
     __swig_setmethods__["y"] = _agg.point_type_y_set
     __swig_getmethods__["y"] = _agg.point_type_y_get
     if _newclass:y = property(_agg.point_type_y_get, _agg.point_type_y_set)
-    def __init__(self, *args): 
+    def __init__(self, *args):
         this = _agg.new_point_type(*args)
         try: self.this.append(this)
         except: self.this = this
@@ -120,7 +120,7 @@ class vertex_type(_object):
     __swig_setmethods__["cmd"] = _agg.vertex_type_cmd_set
     __swig_getmethods__["cmd"] = _agg.vertex_type_cmd_get
     if _newclass:cmd = property(_agg.vertex_type_cmd_get, _agg.vertex_type_cmd_set)
-    def __init__(self, *args): 
+    def __init__(self, *args):
         this = _agg.new_vertex_type(*args)
         try: self.this.append(this)
         except: self.this = this
@@ -147,7 +147,7 @@ class rect(_object):
     __swig_setmethods__["y2"] = _agg.rect_y2_set
     __swig_getmethods__["y2"] = _agg.rect_y2_get
     if _newclass:y2 = property(_agg.rect_y2_get, _agg.rect_y2_set)
-    def __init__(self, *args): 
+    def __init__(self, *args):
         this = _agg.new_rect(*args)
         try: self.this.append(this)
         except: self.this = this
@@ -177,7 +177,7 @@ class rect_d(_object):
     __swig_setmethods__["y2"] = _agg.rect_d_y2_set
     __swig_getmethods__["y2"] = _agg.rect_d_y2_get
     if _newclass:y2 = property(_agg.rect_d_y2_get, _agg.rect_d_y2_set)
-    def __init__(self, *args): 
+    def __init__(self, *args):
         this = _agg.new_rect_d(*args)
         try: self.this.append(this)
         except: self.this = this
@@ -205,7 +205,7 @@ class binary_data(_object):
     __swig_setmethods__["data"] = _agg.binary_data_data_set
     __swig_getmethods__["data"] = _agg.binary_data_data_get
     if _newclass:data = property(_agg.binary_data_data_get, _agg.binary_data_data_set)
-    def __init__(self, *args): 
+    def __init__(self, *args):
         this = _agg.new_binary_data(*args)
         try: self.this.append(this)
         except: self.this = this
@@ -220,7 +220,7 @@ class buffer(_object):
     __swig_getmethods__ = {}
     __getattr__ = lambda self, name: _swig_getattr(self, buffer, name)
     __repr__ = _swig_repr
-    def __init__(self, *args): 
+    def __init__(self, *args):
         this = _agg.new_buffer(*args)
         try: self.this.append(this)
         except: self.this = this
@@ -252,7 +252,7 @@ class order_rgb(_object):
     G = _agg.order_rgb_G
     B = _agg.order_rgb_B
     rgb_tag = _agg.order_rgb_rgb_tag
-    def __init__(self, *args): 
+    def __init__(self, *args):
         this = _agg.new_order_rgb(*args)
         try: self.this.append(this)
         except: self.this = this
@@ -271,7 +271,7 @@ class order_bgr(_object):
     G = _agg.order_bgr_G
     R = _agg.order_bgr_R
     rgb_tag = _agg.order_bgr_rgb_tag
-    def __init__(self, *args): 
+    def __init__(self, *args):
         this = _agg.new_order_bgr(*args)
         try: self.this.append(this)
         except: self.this = this
@@ -291,7 +291,7 @@ class order_rgba(_object):
     B = _agg.order_rgba_B
     A = _agg.order_rgba_A
     rgba_tag = _agg.order_rgba_rgba_tag
-    def __init__(self, *args): 
+    def __init__(self, *args):
         this = _agg.new_order_rgba(*args)
         try: self.this.append(this)
         except: self.this = this
@@ -311,7 +311,7 @@ class order_argb(_object):
     G = _agg.order_argb_G
     B = _agg.order_argb_B
     rgba_tag = _agg.order_argb_rgba_tag
-    def __init__(self, *args): 
+    def __init__(self, *args):
         this = _agg.new_order_argb(*args)
         try: self.this.append(this)
         except: self.this = this
@@ -331,7 +331,7 @@ class order_abgr(_object):
     G = _agg.order_abgr_G
     R = _agg.order_abgr_R
     rgba_tag = _agg.order_abgr_rgba_tag
-    def __init__(self, *args): 
+    def __init__(self, *args):
         this = _agg.new_order_abgr(*args)
         try: self.this.append(this)
         except: self.this = this
@@ -351,7 +351,7 @@ class order_bgra(_object):
     R = _agg.order_bgra_R
     A = _agg.order_bgra_A
     rgba_tag = _agg.order_bgra_rgba_tag
-    def __init__(self, *args): 
+    def __init__(self, *args):
         this = _agg.new_order_bgra(*args)
         try: self.this.append(this)
         except: self.this = this
@@ -388,7 +388,7 @@ class rgba(_object):
     if _newclass:no_color = staticmethod(_agg.rgba_no_color)
     __swig_getmethods__["from_wavelength"] = lambda x: _agg.rgba_from_wavelength
     if _newclass:from_wavelength = staticmethod(_agg.rgba_from_wavelength)
-    def __init__(self, *args): 
+    def __init__(self, *args):
         this = _agg.new_rgba(*args)
         try: self.this.append(this)
         except: self.this = this
@@ -420,7 +420,7 @@ class rgba8(_object):
     __swig_setmethods__["a"] = _agg.rgba8_a_set
     __swig_getmethods__["a"] = _agg.rgba8_a_get
     if _newclass:a = property(_agg.rgba8_a_get, _agg.rgba8_a_set)
-    def __init__(self, *args): 
+    def __init__(self, *args):
         this = _agg.new_rgba8(*args)
         try: self.this.append(this)
         except: self.this = this
@@ -466,7 +466,7 @@ class rgba16(_object):
     __swig_setmethods__["a"] = _agg.rgba16_a_set
     __swig_getmethods__["a"] = _agg.rgba16_a_get
     if _newclass:a = property(_agg.rgba16_a_get, _agg.rgba16_a_set)
-    def __init__(self, *args): 
+    def __init__(self, *args):
         this = _agg.new_rgba16(*args)
         try: self.this.append(this)
         except: self.this = this
@@ -494,7 +494,7 @@ class trans_affine(_object):
     __swig_getmethods__ = {}
     __getattr__ = lambda self, name: _swig_getattr(self, trans_affine, name)
     __repr__ = _swig_repr
-    def __init__(self, *args): 
+    def __init__(self, *args):
         this = _agg.new_trans_affine(*args)
         try: self.this.append(this)
         except: self.this = this
@@ -537,7 +537,7 @@ class trans_affine_rotation(trans_affine):
     for _s in [trans_affine]: __swig_getmethods__.update(_s.__swig_getmethods__)
     __getattr__ = lambda self, name: _swig_getattr(self, trans_affine_rotation, name)
     __repr__ = _swig_repr
-    def __init__(self, *args): 
+    def __init__(self, *args):
         this = _agg.new_trans_affine_rotation(*args)
         try: self.this.append(this)
         except: self.this = this
@@ -554,7 +554,7 @@ class trans_affine_scaling(trans_affine):
     for _s in [trans_affine]: __swig_getmethods__.update(_s.__swig_getmethods__)
     __getattr__ = lambda self, name: _swig_getattr(self, trans_affine_scaling, name)
     __repr__ = _swig_repr
-    def __init__(self, *args): 
+    def __init__(self, *args):
         this = _agg.new_trans_affine_scaling(*args)
         try: self.this.append(this)
         except: self.this = this
@@ -571,7 +571,7 @@ class trans_affine_translation(trans_affine):
     for _s in [trans_affine]: __swig_getmethods__.update(_s.__swig_getmethods__)
     __getattr__ = lambda self, name: _swig_getattr(self, trans_affine_translation, name)
     __repr__ = _swig_repr
-    def __init__(self, *args): 
+    def __init__(self, *args):
         this = _agg.new_trans_affine_translation(*args)
         try: self.this.append(this)
         except: self.this = this
@@ -588,7 +588,7 @@ class trans_affine_skewing(trans_affine):
     for _s in [trans_affine]: __swig_getmethods__.update(_s.__swig_getmethods__)
     __getattr__ = lambda self, name: _swig_getattr(self, trans_affine_skewing, name)
     __repr__ = _swig_repr
-    def __init__(self, *args): 
+    def __init__(self, *args):
         this = _agg.new_trans_affine_skewing(*args)
         try: self.this.append(this)
         except: self.this = this
@@ -605,7 +605,7 @@ class path_storage(_object):
     __repr__ = _swig_repr
     __swig_destroy__ = _agg.delete_path_storage
     __del__ = lambda self : None;
-    def __init__(self, *args): 
+    def __init__(self, *args):
         this = _agg.new_path_storage(*args)
         try: self.this.append(this)
         except: self.this = this
@@ -657,7 +657,7 @@ class rendering_buffer(_object):
     __repr__ = _swig_repr
     __swig_destroy__ = _agg.delete_rendering_buffer
     __del__ = lambda self : None;
-    def __init__(self, *args): 
+    def __init__(self, *args):
         this = _agg.new_rendering_buffer(*args)
         try: self.this.append(this)
         except: self.this = this
@@ -713,7 +713,7 @@ class pixel64_type(_object):
     __swig_setmethods__["c"] = _agg.pixel64_type_c_set
     __swig_getmethods__["c"] = _agg.pixel64_type_c_get
     if _newclass:c = property(_agg.pixel64_type_c_get, _agg.pixel64_type_c_set)
-    def __init__(self, *args): 
+    def __init__(self, *args):
         this = _agg.new_pixel64_type(*args)
         try: self.this.append(this)
         except: self.this = this
@@ -731,7 +731,7 @@ class pixel_format_rgba(_object):
     base_shift = _agg.pixel_format_rgba_base_shift
     base_size = _agg.pixel_format_rgba_base_size
     base_mask = _agg.pixel_format_rgba_base_mask
-    def __init__(self, *args): 
+    def __init__(self, *args):
         this = _agg.new_pixel_format_rgba(*args)
         try: self.this.append(this)
         except: self.this = this
@@ -766,7 +766,7 @@ class renderer_base_rgba(_object):
     __swig_getmethods__ = {}
     __getattr__ = lambda self, name: _swig_getattr(self, renderer_base_rgba, name)
     __repr__ = _swig_repr
-    def __init__(self, *args): 
+    def __init__(self, *args):
         this = _agg.new_renderer_base_rgba(*args)
         try: self.this.append(this)
         except: self.this = this
@@ -823,7 +823,7 @@ class conv_curve_path(_object):
     __swig_getmethods__ = {}
     __getattr__ = lambda self, name: _swig_getattr(self, conv_curve_path, name)
     __repr__ = _swig_repr
-    def __init__(self, *args): 
+    def __init__(self, *args):
         this = _agg.new_conv_curve_path(*args)
         try: self.this.append(this)
         except: self.this = this
@@ -842,7 +842,7 @@ class conv_curve_trans(_object):
     __swig_getmethods__ = {}
     __getattr__ = lambda self, name: _swig_getattr(self, conv_curve_trans, name)
     __repr__ = _swig_repr
-    def __init__(self, *args): 
+    def __init__(self, *args):
         this = _agg.new_conv_curve_trans(*args)
         try: self.this.append(this)
         except: self.this = this
@@ -861,7 +861,7 @@ class conv_transform_path(_object):
     __swig_getmethods__ = {}
     __getattr__ = lambda self, name: _swig_getattr(self, conv_transform_path, name)
     __repr__ = _swig_repr
-    def __init__(self, *args): 
+    def __init__(self, *args):
         this = _agg.new_conv_transform_path(*args)
         try: self.this.append(this)
         except: self.this = this
@@ -880,7 +880,7 @@ class conv_transform_curve(_object):
     __swig_getmethods__ = {}
     __getattr__ = lambda self, name: _swig_getattr(self, conv_transform_curve, name)
     __repr__ = _swig_repr
-    def __init__(self, *args): 
+    def __init__(self, *args):
         this = _agg.new_conv_transform_curve(*args)
         try: self.this.append(this)
         except: self.this = this
@@ -899,7 +899,7 @@ class vcgen_stroke(_object):
     __swig_getmethods__ = {}
     __getattr__ = lambda self, name: _swig_getattr(self, vcgen_stroke, name)
     __repr__ = _swig_repr
-    def __init__(self, *args): 
+    def __init__(self, *args):
         this = _agg.new_vcgen_stroke(*args)
         try: self.this.append(this)
         except: self.this = this
@@ -932,7 +932,7 @@ class null_markers(_object):
     def prepare_src(*args): return _agg.null_markers_prepare_src(*args)
     def rewind(*args): return _agg.null_markers_rewind(*args)
     def vertex(*args): return _agg.null_markers_vertex(*args)
-    def __init__(self, *args): 
+    def __init__(self, *args):
         this = _agg.new_null_markers(*args)
         try: self.this.append(this)
         except: self.this = this
@@ -947,7 +947,7 @@ class conv_adaptor_vcgen_path(_object):
     __swig_getmethods__ = {}
     __getattr__ = lambda self, name: _swig_getattr(self, conv_adaptor_vcgen_path, name)
     __repr__ = _swig_repr
-    def __init__(self, *args): 
+    def __init__(self, *args):
         this = _agg.new_conv_adaptor_vcgen_path(*args)
         try: self.this.append(this)
         except: self.this = this
@@ -967,7 +967,7 @@ class conv_adaptor_vcgen_transpath(_object):
     __swig_getmethods__ = {}
     __getattr__ = lambda self, name: _swig_getattr(self, conv_adaptor_vcgen_transpath, name)
     __repr__ = _swig_repr
-    def __init__(self, *args): 
+    def __init__(self, *args):
         this = _agg.new_conv_adaptor_vcgen_transpath(*args)
         try: self.this.append(this)
         except: self.this = this
@@ -987,7 +987,7 @@ class conv_adaptor_vcgen_curve(_object):
     __swig_getmethods__ = {}
     __getattr__ = lambda self, name: _swig_getattr(self, conv_adaptor_vcgen_curve, name)
     __repr__ = _swig_repr
-    def __init__(self, *args): 
+    def __init__(self, *args):
         this = _agg.new_conv_adaptor_vcgen_curve(*args)
         try: self.this.append(this)
         except: self.this = this
@@ -1007,7 +1007,7 @@ class conv_adaptor_vcgen_transcurve(_object):
     __swig_getmethods__ = {}
     __getattr__ = lambda self, name: _swig_getattr(self, conv_adaptor_vcgen_transcurve, name)
     __repr__ = _swig_repr
-    def __init__(self, *args): 
+    def __init__(self, *args):
         this = _agg.new_conv_adaptor_vcgen_transcurve(*args)
         try: self.this.append(this)
         except: self.this = this
@@ -1027,7 +1027,7 @@ class conv_adaptor_vcgen_curvetrans(_object):
     __swig_getmethods__ = {}
     __getattr__ = lambda self, name: _swig_getattr(self, conv_adaptor_vcgen_curvetrans, name)
     __repr__ = _swig_repr
-    def __init__(self, *args): 
+    def __init__(self, *args):
         this = _agg.new_conv_adaptor_vcgen_curvetrans(*args)
         try: self.this.append(this)
         except: self.this = this
@@ -1049,7 +1049,7 @@ class conv_stroke_path(conv_adaptor_vcgen_path):
     for _s in [conv_adaptor_vcgen_path]: __swig_getmethods__.update(_s.__swig_getmethods__)
     __getattr__ = lambda self, name: _swig_getattr(self, conv_stroke_path, name)
     __repr__ = _swig_repr
-    def __init__(self, *args): 
+    def __init__(self, *args):
         this = _agg.new_conv_stroke_path(*args)
         try: self.this.append(this)
         except: self.this = this
@@ -1075,7 +1075,7 @@ class conv_stroke_transpath(conv_adaptor_vcgen_transpath):
     for _s in [conv_adaptor_vcgen_transpath]: __swig_getmethods__.update(_s.__swig_getmethods__)
     __getattr__ = lambda self, name: _swig_getattr(self, conv_stroke_transpath, name)
     __repr__ = _swig_repr
-    def __init__(self, *args): 
+    def __init__(self, *args):
         this = _agg.new_conv_stroke_transpath(*args)
         try: self.this.append(this)
         except: self.this = this
@@ -1101,7 +1101,7 @@ class conv_stroke_curve(conv_adaptor_vcgen_curve):
     for _s in [conv_adaptor_vcgen_curve]: __swig_getmethods__.update(_s.__swig_getmethods__)
     __getattr__ = lambda self, name: _swig_getattr(self, conv_stroke_curve, name)
     __repr__ = _swig_repr
-    def __init__(self, *args): 
+    def __init__(self, *args):
         this = _agg.new_conv_stroke_curve(*args)
         try: self.this.append(this)
         except: self.this = this
@@ -1125,7 +1125,7 @@ class conv_stroke_transcurve(_object):
     __swig_getmethods__ = {}
     __getattr__ = lambda self, name: _swig_getattr(self, conv_stroke_transcurve, name)
     __repr__ = _swig_repr
-    def __init__(self, *args): 
+    def __init__(self, *args):
         this = _agg.new_conv_stroke_transcurve(*args)
         try: self.this.append(this)
         except: self.this = this
@@ -1149,7 +1149,7 @@ class conv_stroke_curvetrans(_object):
     __swig_getmethods__ = {}
     __getattr__ = lambda self, name: _swig_getattr(self, conv_stroke_curvetrans, name)
     __repr__ = _swig_repr
-    def __init__(self, *args): 
+    def __init__(self, *args):
         this = _agg.new_conv_stroke_curvetrans(*args)
         try: self.this.append(this)
         except: self.this = this
@@ -1173,7 +1173,7 @@ class rasterizer_scanline_aa(_object):
     __swig_getmethods__ = {}
     __getattr__ = lambda self, name: _swig_getattr(self, rasterizer_scanline_aa, name)
     __repr__ = _swig_repr
-    def __init__(self, *args): 
+    def __init__(self, *args):
         this = _agg.new_rasterizer_scanline_aa(*args)
         try: self.this.append(this)
         except: self.this = this
@@ -1208,7 +1208,7 @@ class renderer_scanline_aa_solid_rgba(_object):
     __swig_getmethods__ = {}
     __getattr__ = lambda self, name: _swig_getattr(self, renderer_scanline_aa_solid_rgba, name)
     __repr__ = _swig_repr
-    def __init__(self, *args): 
+    def __init__(self, *args):
         this = _agg.new_renderer_scanline_aa_solid_rgba(*args)
         try: self.this.append(this)
         except: self.this = this
@@ -1228,7 +1228,7 @@ class renderer_scanline_bin_solid_rgba(_object):
     __swig_getmethods__ = {}
     __getattr__ = lambda self, name: _swig_getattr(self, renderer_scanline_bin_solid_rgba, name)
     __repr__ = _swig_repr
-    def __init__(self, *args): 
+    def __init__(self, *args):
         this = _agg.new_renderer_scanline_bin_solid_rgba(*args)
         try: self.this.append(this)
         except: self.this = this
@@ -1250,7 +1250,7 @@ class scanline_p8(_object):
     __repr__ = _swig_repr
     __swig_destroy__ = _agg.delete_scanline_p8
     __del__ = lambda self : None;
-    def __init__(self, *args): 
+    def __init__(self, *args):
         this = _agg.new_scanline_p8(*args)
         try: self.this.append(this)
         except: self.this = this
@@ -1274,7 +1274,7 @@ class scanline_bin(_object):
     __repr__ = _swig_repr
     __swig_destroy__ = _agg.delete_scanline_bin
     __del__ = lambda self : None;
-    def __init__(self, *args): 
+    def __init__(self, *args):
         this = _agg.new_scanline_bin(*args)
         try: self.this.append(this)
         except: self.this = this
@@ -1297,7 +1297,7 @@ class scanline32_bin(_object):
     __repr__ = _swig_repr
     __swig_destroy__ = _agg.delete_scanline32_bin
     __del__ = lambda self : None;
-    def __init__(self, *args): 
+    def __init__(self, *args):
         this = _agg.new_scanline32_bin(*args)
         try: self.this.append(this)
         except: self.this = this

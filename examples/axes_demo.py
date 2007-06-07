@@ -1,5 +1,5 @@
 #!/usr/bin/env python
- 
+
 from pylab import *
 
 # create some data to use for the plot
@@ -27,7 +27,7 @@ a = axes([0.2, 0.6, .2, .2], axisbg='y')
 plot(t[:len(r)], r)
 title('Impulse response')
 setp(a, xlim=(0,.2), xticks=[], yticks=[])
-    
+
 #savefig('../figures/axes_demo.eps')
 #savefig('../figures/axes_demo.png')
 show()

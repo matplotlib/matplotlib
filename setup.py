@@ -67,7 +67,7 @@ if major==2 and minor1==2:
 if major==2 and minor1<=3:
     # setuptools monkeypatches distutils.core.Distribution to support
     # package_data
-    try: import setuptools 
+    try: import setuptools
     except ImportError:
         raise SystemExit("""\
 matplotlib requires setuptools for installation.  Visit:
@@ -76,7 +76,7 @@ for installation instructions for the proper version of setuptools for your
 system.  If this is your first time upgrading matplotlib with the new
 setuptools requirement, you must delete the old matplotlib install
 directory.""")
-    
+
 import glob
 from distutils.core import Extension, setup
 from setupext import build_agg, build_gtkagg, build_tkagg, build_wxagg,\

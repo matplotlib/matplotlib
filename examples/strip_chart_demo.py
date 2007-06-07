@@ -33,7 +33,7 @@ class Scope:
 
     def update_background(self, event):
         self.background = self.canvas.copy_from_bbox(self.ax.bbox)
-    
+
     def emitter(self, p=0.01):
         'return a random value with probability p, else 0'
         v = nx.mlab.rand(1)
@@ -44,15 +44,15 @@ class Scope:
         if self.background is None: return True
         y = self.emitter()
         lastt = self.tdata[-1]
-        if lastt>self.tdata[0]+self.maxt: # reset the arrays 
+        if lastt>self.tdata[0]+self.maxt: # reset the arrays
             self.tdata = [self.tdata[-1]]
             self.ydata = [self.ydata[-1]]
             self.ax.set_xlim(self.tdata[0], self.tdata[0]+self.maxt)
             self.ax.figure.canvas.draw()
-            
+
         self.canvas.restore_region(self.background)
-        
-        t = self.tdata[-1] + self.dt        
+
+        t = self.tdata[-1] + self.dt
         self.tdata.append(t)
         self.ydata.append(y)
         self.line.set_data(self.tdata, self.ydata)

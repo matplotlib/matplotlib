@@ -16,7 +16,7 @@ fig = figure()
 
 ax1 = fig.add_subplot(2,2,1)
 ax1.plot(cms, cms)
-    
+
 ax2 = fig.add_subplot(2,2,2)
 ax2.plot(cms, cms, xunits=cm, yunits=inch)
 

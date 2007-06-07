@@ -28,7 +28,7 @@ def get_daily_data():
       open, high, low, close, volume
 
     as numeric arrays
-    
+
     """
     class C: pass
 
@@ -37,7 +37,7 @@ def get_daily_data():
         lines = file( 'data/%s.csv' % ticker ).readlines()
         for line in lines[1:]:
             vals.append([float(val) for val in line.split(',')[1:]])
-            
+
         M = array(vals)
         c = C()
         c.open = M[:,0]

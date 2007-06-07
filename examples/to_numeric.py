@@ -14,7 +14,7 @@ canvas = get_current_fig_manager().canvas
 
 agg = canvas.switch_backends(FigureCanvasAgg)
 agg.draw()
-s = agg.tostring_rgb()  
+s = agg.tostring_rgb()
 
 # get the width and the height to resize the matrix
 l,b,w,h = agg.figure.bbox.get_bounds()

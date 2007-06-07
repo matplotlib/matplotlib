@@ -18,8 +18,8 @@ check = CheckButtons(rax, ('2 Hz', '4 Hz', '6 Hz'), (False, True, True))
 def func(label):
     if label=='2 Hz': l0.set_visible(not l0.get_visible())
     elif label=='4 Hz': l1.set_visible(not l1.get_visible())
-    elif label=='6 Hz': l2.set_visible(not l2.get_visible())    
+    elif label=='6 Hz': l2.set_visible(not l2.get_visible())
     draw()
 check.on_clicked(func)
-    
+
 show()

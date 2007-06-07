@@ -8,7 +8,7 @@ f = 0.1*abs(randn(len(s)))
 g = 2*e
 h = 2*f
 
-figure()  
+figure()
 errorbar(t, s, e, fmt='o')             # vertical symmetric
 
 figure()

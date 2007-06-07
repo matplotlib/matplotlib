@@ -943,7 +943,7 @@ class SpanSelector:
 
             if vmin>vmax: vmin, vmax = vmax, vmin
             self.onmove_callback(vmin, vmax)
-            
+
         self.update()
         return False
 
@@ -1168,11 +1168,11 @@ class Lasso(Widget):
         self.verts = None
         for cid in self.cids:
             self.canvas.mpl_disconnect(cid)
-        
+
     def onmove(self, event):
-        if self.verts is None: return 
+        if self.verts is None: return
         if event.inaxes != self.axes: return
-        if event.button!=1: return 
+        if event.button!=1: return
         self.verts.append((event.xdata, event.ydata))
 
         self.line.set_data(zip(*self.verts))

@@ -21,5 +21,5 @@ if 1:
     tnew = time.time() - t0
     print numverts, numpoints, told, tnew, told/tnew
 
-                                                                                        
+
 

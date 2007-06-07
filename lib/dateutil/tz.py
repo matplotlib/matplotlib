@@ -25,7 +25,7 @@ class tzutc(datetime.tzinfo):
 
     def utcoffset(self, dt):
         return ZERO
-     
+
     def dst(self, dt):
         return ZERO
 
@@ -95,7 +95,7 @@ class tzlocal(datetime.tzinfo):
     def _isdst(self, dt):
         # We can't use mktime here. It is unstable when deciding if
         # the hour near to a change is DST or not.
-        # 
+        #
         # timestamp = time.mktime((dt.year, dt.month, dt.day, dt.hour,
         #                         dt.minute, dt.second, dt.weekday(), 0, -1))
         # return time.localtime(timestamp).tm_isdst
@@ -168,7 +168,7 @@ class tzfile(datetime.tzinfo):
 
     # http://www.twinsun.com/tz/tz-link.htm
     # ftp://elsie.nci.nih.gov/pub/tz*.tar.gz
-    
+
     def __init__(self, fileobj):
         if isinstance(fileobj, basestring):
             self._s = fileobj
@@ -199,7 +199,7 @@ class tzfile(datetime.tzinfo):
 
          # The number of standard/wall indicators stored in the file.
          ttisstdcnt,
-         
+
          # The number of leap seconds for which data is
          # stored in the file.
          leapcnt,
@@ -237,13 +237,13 @@ class tzfile(datetime.tzinfo):
         # with the same-indexed transition time. These values
         # serve as indices into an array of ttinfo structures that
         # appears next in the file.
-        
+
         if timecnt:
             self._trans_idx = struct.unpack(">%dB" % timecnt,
                                             fileobj.read(timecnt))
         else:
             self._trans_idx = []
-        
+
         # Each ttinfo structure is written as a four-byte value
         # for tt_gmtoff  of  type long,  in  a  standard  byte
         # order, followed  by a one-byte value for tt_isdst
@@ -418,7 +418,7 @@ class tzfile(datetime.tzinfo):
         # However, this class stores historical changes in the
         # dst offset, so I belive that this wouldn't be the right
         # way to implement this.
-        
+
     def tzname(self, dt):
         if not self._ttinfo_std:
             return None
@@ -517,7 +517,7 @@ class tzrange(datetime.tzinfo):
 
 
 class tzstr(tzrange):
-    
+
     def __init__(self, s):
         global parser
         if not parser:

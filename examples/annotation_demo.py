@@ -124,11 +124,11 @@ if 1:
                 verticalalignment='bottom',
                 clip_on=True, # clip to the axes bounding box
      )
-                   
+
     ax.set_xlim(-20, 20)
     ax.set_ylim(-20, 20)
     fig.savefig('annotation_ellipse')
-    
+
 
 
 #fig.savefig('annotation_demo.png')

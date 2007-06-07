@@ -95,7 +95,7 @@ class PlotFigure(wx.Frame):
         self.im.set_array(z)
         self.canvas.draw()
         #self.canvas.gui_repaint()  # jdh wxagg_draw calls this already
-        
+
     def onClose(self, evt):
         self.t.Stop()
         evt.Skip()

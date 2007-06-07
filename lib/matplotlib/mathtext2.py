@@ -95,7 +95,7 @@ max_depth = 10
 #~ "cramped" : False,
 #~ # We start with zero scriptdepth (should be incremented by a Scripted
 #~ # instance)
-#~ "scriptdepth" : 0, 
+#~ "scriptdepth" : 0,
 #~ "face" : None,
 #~ "fontsize" : 12,
 #~ "dpi" : 100,
@@ -114,7 +114,7 @@ class TexParseError(Exception):
 class Scriptfactors(dict):
     """Used for returning the factor with wich you should multiply the
     fontsize to get the font size of the script
-    
+
     """
     _scriptfactors = {
                         0 : 1,  # Normal text
@@ -400,7 +400,7 @@ class Hbox(Renderer):
         self.height = self.ymax - self.ymin
         # vertical
         self.vbearingx = - self.width/2.0
-        
+
     def hrender(self, x, y):
         for item in self.items:
             item.hrender(x, y)
@@ -415,7 +415,7 @@ class Vbox(Renderer):
     Kern(0)) to make the list odd).
     The box is rendered top down - the last element of the list is rendered
     at the bottom.
-    
+
     """
     def __init__(self, env, texlist=[], ref=None):
         if ref == None:
@@ -458,7 +458,7 @@ class Vbox(Renderer):
                     self.ymin = -(self.vadvance - _overlap - self.hbearingy)
         self.xmin = self.hbearingx
         self.xmax = self.xmin + self.width
-        
+
         self.ymax = self.hbearingy
         self.height = self.ymax - self.ymin
 
@@ -508,7 +508,7 @@ class Scripted(Renderer):
         # we have to aditionaly lower the subscript
         if sub.ymax > (C.height/2.1 + self.subpad):
             self.subpad = sub.ymax - C.height/2.1
-            
+
         #self.subpad = max(self.subpad)
         #self.subpad = 0.5*sub.height
         # Similar for the superscript
@@ -593,11 +593,11 @@ class Fraction(Renderer):
         self.barpad = 1./2.*(c.ymax-c.ymin) + c.ymin
         self.ymin += self.barpad
         self.ymax += self.barpad
-        
+
         self.width = self.xmax - self.xmin
         self.height = self.ymax - self.ymin
         #print self.width, self.height
-        
+
         #self.hbearingx = pad
         self.hbearingx = 0
         self.hbearingy = self.ymax
@@ -606,7 +606,7 @@ class Fraction(Renderer):
         # vertical
         self.vbearingx = - self.width/2.0
         self.vbearingy = num.vbearingy
-        self.vadvance = self.height + num.vbearingy + (den.vadvance + den.ymin) 
+        self.vadvance = self.height + num.vbearingy + (den.vadvance + den.ymin)
 
     def hrender(self, x, y):
         y -= self.barpad
@@ -617,7 +617,7 @@ class Fraction(Renderer):
         nx = x - self.numer.hbearingx + (self.width - self.numer.width)/2.
         ny = y - 2*pad - (self.numer.height - self.numer.ymax)
         self.numer.hrender(nx, ny)
-        
+
         dx = x - self.denom.hbearingx+ (self.width - self.denom.width)/2.
         dy = y + 2*pad + self.denom.hbearingy
         self.denom.hrender(dx, dy)
@@ -697,7 +697,7 @@ def break_up_commands(texstring):
 
 def split_command(texstring):
     """Splits a texstring into a command part and a pure text (as a list) part
-    
+
     """
     if not texstring:
         return "", []
@@ -734,7 +734,7 @@ def get_first_word(texstring):
         while _length > i and (texstring[i].isdigit()):
             _word += texstring[i]
             i = i + 1
-        
+
     return _word, texstring[i:]
 
 def to_list(texstring):
@@ -762,7 +762,7 @@ def normalize_tex(texstring):
     texstring = remove_comments(texstring)
     # Removing the escaped escape character (replacing it)
     texstring = texstring.replace(esc_char + esc_char, esc_char + 'backslash ')
-    
+
     # Removing the escaped scope/grouping characters
     texstring = texstring.replace(esc_char + begin_group_char, esc_char + 'lbrace ')
     texstring = texstring.replace(esc_char + end_group_char, esc_char + 'rbrace ')
@@ -791,7 +791,7 @@ def is_command(item):
 def handle_tokens(texgroup, env, box=Hbox):
     """Scans the entire (tex)group to handle tokens. Tokens are other groups,
     commands, characters, kerns etc. Used recursively.
-    
+
     """
     result = []
     # So we're sure that nothing changes the outer environment
@@ -832,7 +832,7 @@ def handle_tokens(texgroup, env, box=Hbox):
 def handle_command(command, texgroup, env, allowsetters=False):
     """Handles TeX commands that don't have backward propagation, and
     aren't setting anything in the environment.
-    
+
     """
     # First we deal with setters - commands that change the
     # environment of the current group (scope)
@@ -875,10 +875,10 @@ def handle_command(command, texgroup, env, allowsetters=False):
         #print appendix
         raise TexParseError("Unknown command: " + esc_char + command)
     appendix = [appendix]
-    appendix.extend(texgroup) 
+    appendix.extend(texgroup)
     #print "App",appendix
     return appendix, env
-    
+
 def handle_scripts(firsttype, texgroup, env):
     sub = None
     sup = None

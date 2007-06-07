@@ -134,7 +134,7 @@ class Dvi(object):
             c, s, d, a, l = [ self.arg(x) for x in (4, 4, 4, 1, 1) ]
             n = self.file.read(a+l)
             self.fnt_def(k, c, s, d, a, l, n)
-        elif byte == 247: 
+        elif byte == 247:
             i, num, den, mag, k = [ self.arg(x) for x in (1, 4, 4, 4, 1) ]
             x = self.file.read(k)
             self.pre(i, num, den, mag, x)
@@ -144,9 +144,9 @@ class Dvi(object):
             raise ValueError, "unknown command: byte %d"%byte
 
     def pre(self, i, num, den, mag, comment):
-        if self.state != dvistate.pre: 
+        if self.state != dvistate.pre:
             raise ValueError, "pre command in middle of dvi file"
-        if i != 2: 
+        if i != 2:
             raise ValueError, "Unknown dvi format %d"%i
         if num != 25400000 or den != 7227 * 2**16:
             raise ValueError, "nonstandard units in dvi file"
@@ -296,7 +296,7 @@ class Tfm(object):
         widths = file.read(4*nw)
 
         file.close()
-        
+
         widths = struct.unpack('!%dI' % nw, widths)
         self.width = {}
         for i in range(ec-bc):

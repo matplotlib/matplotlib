@@ -21,7 +21,7 @@ from ui_info        import UIInfo
 from help           import on_help_call
 from include        import Include
 from item           import Item
-from editor_factory import EditorFactory 
+from editor_factory import EditorFactory
 from editor         import Editor
 from toolkit        import toolkit
 from view_element   import ViewElement, ViewSubElement
@@ -33,7 +33,7 @@ from editors        import BooleanEditor, ButtonEditor, CheckListEditor, \
      ImageEnumEditor, InstanceEditor, ListEditor, PlotEditor, RangeEditor, \
      TextEditor, TreeEditor, TupleEditor
 from editors        import ColorTrait, RGBColorTrait, RGBAColorTrait, \
-                           EnableRGBAColorEditor, FontTrait, KivaFontTrait     
+                           EnableRGBAColorEditor, FontTrait, KivaFontTrait
 
 import view_elements
 

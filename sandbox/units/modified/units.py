@@ -5,9 +5,9 @@ class UnitTaggedInterface:
        values tagged with measurement units.
 
        In addition for an implementation that represents values along with
-       an associated measurement unit, matplotlib needs a consistent 
-       mechanism for passing unit types.  To matplotlib, units are 
-       merely identifiers, and the actual objects can be of any 
+       an associated measurement unit, matplotlib needs a consistent
+       mechanism for passing unit types.  To matplotlib, units are
+       merely identifiers, and the actual objects can be of any
        Python type, as long as the implementation of convert_to()
        handles that Python type.  So, units could be unique strings
        or specialized objects, depending on the implementation of the
@@ -21,7 +21,7 @@ class UnitTaggedInterface:
            def simple_locator_map(unit_object):
                'returns (major locator, minor locator) tuple for unit'
                return (AutoLocator(), NullLocator())
-      
+
        Once defined, the function must be passed to the current Axes
        object using set_units_locator_map().
        Example:

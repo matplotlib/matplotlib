@@ -676,7 +676,7 @@ class Event:
         self.canvas = canvas
         self.guiEvent = guiEvent
 
-    
+
 class DrawEvent(Event):
     """
     An event triggered by a draw operation on the canvas
@@ -812,7 +812,7 @@ class PickEvent(Event):
         self.mouseevent = mouseevent
         self.artist = artist
         self.__dict__.update(kwargs)
-        
+
 
 class KeyEvent(LocationEvent):
     """
@@ -857,7 +857,7 @@ class FigureCanvasBase:
         'button_press_event',
         'button_release_event',
         'motion_notify_event',
-        'pick_event', 
+        'pick_event',
         )
 
 
@@ -914,7 +914,7 @@ class FigureCanvasBase:
         s = 'pick_event'
         event = PickEvent(s, self, mouseevent, artist, **kwargs)
         self.callbacks.process(s, event)
-            
+
     def button_press_event(self, x, y, button, guiEvent=None):
         """
         Backend derived classes should call this function on any mouse
@@ -929,7 +929,7 @@ class FigureCanvasBase:
 
         if not self.widgetlock.locked():
             self.figure.pick(mouseevent)
-        
+
     def button_release_event(self, x, y, button, guiEvent=None):
         """
         Backend derived classes should call this function on any mouse
@@ -1021,15 +1021,15 @@ class FigureCanvasBase:
         'button_press_event',
         'button_release_event',
         'motion_notify_event',
-        'pick_event', 
-        
-        
+        'pick_event',
+
+
         For the three events above, if the mouse is over the axes,
         the variable event.inaxes will be set to the axes it is over,
         and additionally, the variables event.xdata and event.ydata
         will be defined.  This is the mouse location in data coords.
         See backend_bases.MplEvent.
-        
+
         return value is a connection id that can be used with
         mpl_disconnect """
 
@@ -1039,7 +1039,7 @@ class FigureCanvasBase:
         """
         disconnect callback id cid
         """
-        return self.callbacks.disconnect(cid)        
+        return self.callbacks.disconnect(cid)
 
 
 class FigureManagerBase:

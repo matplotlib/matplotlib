@@ -27,11 +27,11 @@ def new_figure_manager( num, *args, **kwargs ):
     thisFig = FigureClass( *args, **kwargs )
     canvas = FigureCanvasQTAgg( thisFig )
     return FigureManagerQT( canvas, num )
-   
+
 class NavigationToolbar2QTAgg(NavigationToolbar2QT):
     def _get_canvas(self, fig):
         return FigureCanvasQTAgg(fig)
-       
+
 class FigureManagerQTAgg(FigureManagerQT):
     def _get_toolbar(self, canvas, parent):
         # must be inited after the window, drawingArea and figure
@@ -62,7 +62,7 @@ class FigureCanvasQTAgg( FigureCanvasQT, FigureCanvasAgg ):
         self.rect = []
         self.replot = True
         self.pixmap = QtGui.QPixmap()
-     
+
     def resizeEvent( self, e ):
         FigureCanvasQT.resizeEvent( self, e )
         w = e.size().width()
@@ -73,7 +73,7 @@ class FigureCanvasQTAgg( FigureCanvasQT, FigureCanvasAgg ):
         hinch = h/dpival
         self.figure.set_size_inches( winch, hinch )
         self.draw()
-        
+
     def drawRectangle( self, rect ):
         self.rect = rect
         self.drawRect = True
@@ -85,7 +85,7 @@ class FigureCanvasQTAgg( FigureCanvasQT, FigureCanvasAgg ):
         In Qt, all drawing should be done inside of here when a widget is
         shown onscreen.
         """
-        
+
         #FigureCanvasQT.paintEvent( self, e )
         if DEBUG: print 'FigureCanvasQtAgg.paintEvent: ', self, \
            self.get_width_height()
@@ -97,7 +97,7 @@ class FigureCanvasQTAgg( FigureCanvasQT, FigureCanvasAgg ):
             if ( self.replot ):
                 #stringBuffer = str( self.buffer_rgba(0,0) )
                 FigureCanvasAgg.draw( self )
-    
+
                 # matplotlib is in rgba byte order.
                 # qImage wants to put the bytes into argb format and
                 # is in a 4 byte unsigned int.  little endian system is LSB first
@@ -111,12 +111,12 @@ class FigureCanvasQTAgg( FigureCanvasQT, FigureCanvasAgg ):
                                        QtGui.QImage.Format_ARGB32)
                 self.pixmap = self.pixmap.fromImage( qImage )
             p.drawPixmap( QtCore.QPoint( 0, 0 ), self.pixmap )
-    
+
             # draw the zoom rectangle to the QPainter
             if ( self.drawRect ):
                 p.setPen( QtGui.QPen( QtCore.Qt.black, 1, QtCore.Qt.DotLine ) )
                 p.drawRect( self.rect[0], self.rect[1], self.rect[2], self.rect[3] )
-                
+
         # we are blitting here
         else:
             bbox = self.replot
@@ -127,7 +127,7 @@ class FigureCanvasQTAgg( FigureCanvasQT, FigureCanvasAgg ):
             qImage = QtGui.QImage(stringBuffer, w, h, QtGui.QImage.Format_ARGB32)
             self.pixmap = self.pixmap.fromImage( qImage )
             p.drawPixmap(QtCore.QPoint(l, self.renderer.height-t), self.pixmap)
-           
+
         p.end()
         self.replot = False
         self.drawRect = False
@@ -136,16 +136,16 @@ class FigureCanvasQTAgg( FigureCanvasQT, FigureCanvasAgg ):
         """
         Draw the figure when xwindows is ready for the update
         """
-        
+
         if DEBUG: print "FigureCanvasQtAgg.draw", self
         self.replot = True
         self.update( )
-        
+
     def blit(self, bbox=None):
         """
         Blit the region in bbox
         """
-        
+
         self.replot = bbox
         w, h = int(bbox.width()), int(bbox.height())
         l, t = bbox.ll().x().get(), bbox.ur().y().get()

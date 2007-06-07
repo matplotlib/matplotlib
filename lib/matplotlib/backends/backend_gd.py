@@ -11,8 +11,8 @@ except ImportError:
     print >>sys.stderr, 'You must first install the gd module http://newcenturycomputers.net/projects/gdmodule.html'
     sys.exit()
 
-        
-    
+
+
 from matplotlib.backend_bases import RendererBase, \
      GraphicsContextBase, FigureManagerBase, FigureCanvasBase
 from matplotlib import verbose
@@ -44,7 +44,7 @@ class RendererGD(RendererBase):
     context instance that controls the colors/styles
     """
 
-    
+
     # todo: can gd support cap and join styles?
     def __init__(self, im, dpi):
         "Initialize the renderer with a gd image instance"
@@ -75,16 +75,16 @@ class RendererGD(RendererBase):
                 font, scale*size, 0.0, (0,0), s)
         except ValueError:
             raise RuntimeError('Could not load font %s.  Try setting TTFFONTPATH to include this font' % fontname)
-            
+
         w = abs(lrx - llx)
         h = abs(lly - uly)
         return w, h
 
-                              
+
     def flipy(self):
         'return true if y small numbers are top for renderer'
         return True
-    
+
 
     def draw_arc(self, gc, rgbFace, x, y, width, height, angle1, angle2, rotation):
         """
@@ -108,7 +108,7 @@ class RendererGD(RendererBase):
         Draw a single line from x1,y1 to x2,y2
         """
         self.draw_lines(gc, array([x1, x2]), array([y1, y2]))
-        
+
     def draw_lines(self, gc, x, y):
         """
         x and y are equal length arrays, draw lines connecting each
@@ -116,7 +116,7 @@ class RendererGD(RendererBase):
         """
 
         x = x.astype(nx.Int16)
-        y = self.height*ones(y.shape, nx.Int16) - y.astype(nx.Int16)  
+        y = self.height*ones(y.shape, nx.Int16) - y.astype(nx.Int16)
         style = self._set_gd_style(gc)
         self.im.lines( zip(x,y), style)
         self.flush_clip()
@@ -130,7 +130,7 @@ class RendererGD(RendererBase):
         self.flush_clip()
 
 
-    
+
     def draw_polygon(self, gc, rgbFace, points):
         """
         Draw a polygon.  points is a len vertices tuple, each element
@@ -149,7 +149,7 @@ class RendererGD(RendererBase):
         if edgecolor != facecolor:
             self.im.polygon(points, edgecolor)
         self.flush_clip()
-        
+
     def draw_rectangle(self, gc, rgbFace, x, y, width, height):
         """
         Draw a rectangle at lower left x,y with width and height
@@ -160,7 +160,7 @@ class RendererGD(RendererBase):
         lb = int(x), self.height-int(y)
         ur = int(x+width), self.height-int((y+height))
         edgecolor = self.get_gd_color( gc.get_rgb() )
-        
+
         if rgbFace is not None:
             facecolor = self.get_gd_color( rgbFace )
             self.im.filledRectangle(ur, lb, facecolor)
@@ -170,7 +170,7 @@ class RendererGD(RendererBase):
             self.im.rectangle(ur, lb, edgecolor)
         self.flush_clip()
 
-    def draw_text(self, gc, x, y, s, prop, angle, ismath):            
+    def draw_text(self, gc, x, y, s, prop, angle, ismath):
         """
         Render the text using the RendererGD instance
         """
@@ -194,12 +194,12 @@ class RendererGD(RendererBase):
         pass
         #self.im.writePng( file('xx.png', 'w') )
 
-    
+
     def flush_clip(self):
         imw, imh = self.im.size()
         lb = 0, 0
         ur = imw, imh
-        self.im.setClip(ur, lb)        
+        self.im.setClip(ur, lb)
 
 
     def get_gd_color(self, rgb):
@@ -209,7 +209,7 @@ class RendererGD(RendererBase):
 
         r,g,b = rgb
         rgbi = (int(r*255),int(g*255),int(b*255))
-        
+
         try: return self._cached[rgbi]
         except KeyError: pass
 
@@ -231,7 +231,7 @@ class RendererGD(RendererBase):
         inch into account
         """
         return self.dpi.get()/PIXELS_PER_INCH
-    
+
     def new_gc(self):
         """
         Return an instance of a GraphicsContextGD
@@ -271,7 +271,7 @@ class RendererGD(RendererBase):
         """
         return asarray(points)*(PIXELS_PER_INCH/72.0*self.dpi.get()/72.0)
 
-        
+
 class GraphicsContextGD(GraphicsContextBase):
     """
     The graphics context provides the color, line styles, etc...  See
@@ -285,7 +285,7 @@ class GraphicsContextGD(GraphicsContextBase):
         GraphicsContextBase.__init__(self)
         self.im = im
         self.renderer = renderer
-        
+
 
     def set_clip_rectangle(self, rectangle):
         GraphicsContextBase.set_clip_rectangle(self, rectangle)
@@ -293,7 +293,7 @@ class GraphicsContextGD(GraphicsContextBase):
         imw, imh = self.im.size()
         lb = int(x), imh-int(y)
         ur = int(x+w), imh-int(y+h)
-        self.im.setClip(ur, lb)        
+        self.im.setClip(ur, lb)
 
     def set_linestyle(self, style):
         GraphicsContextBase.set_linestyle(self, style)
@@ -306,9 +306,9 @@ class GraphicsContextGD(GraphicsContextBase):
         if pixels<1: pixels = 1
         else: pixels = round(pixels)
         self.im.setThickness(pixels)
-              
+
 ########################################################################
-#    
+#
 # The following functions and classes are for matlab compatibility
 # mode (pylab) and implement figure managers, etc...
 #
@@ -329,7 +329,7 @@ def new_figure_manager(num, *args, **kwargs):
 
 
 class FigureCanvasGD(FigureCanvasBase):
-    
+
     def print_figure(self, filename, dpi=150, facecolor='w', edgecolor='w',
                      orientation='portrait', **kwargs):
 
@@ -354,7 +354,7 @@ class FigureCanvasGD(FigureCanvasBase):
         if is_string_like(filename):
             basename, ext = os.path.splitext(filename)
             if not len(ext): filename += '.png'
- 
+
         im.writePng( filename )
 
         self.figure.dpi.set(origDPI)
@@ -364,7 +364,7 @@ class FigureCanvasGD(FigureCanvasBase):
     def draw(self):
         """
         Draw to a gd image and return the image instance
-        
+
         """
 
         left, bottom, width, height = self.figure.bbox.get_bounds()
@@ -387,11 +387,11 @@ class FigureManagerGD(FigureManagerBase):
 
 
 ########################################################################
-#    
+#
 # Now just provide the standard names that backend.__init__ is expecting
-# 
+#
 ########################################################################
 
 FigureManager = FigureManagerGD
 
-         
+

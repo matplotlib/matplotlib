@@ -16,7 +16,7 @@ Requirements:
 Backends:
 
   Only supported on *Agg and PS backends currently
-  
+
 
 For raster output, you can get RGBA numerix arrays from TeX expressions
 as follows
@@ -40,7 +40,7 @@ from matplotlib import get_configdir, get_home, get_data_path, \
 from matplotlib._image import readpng
 from matplotlib.numerix import ravel, where, array, \
      zeros, Float, absolute, nonzero, sqrt
-     
+
 debug = False
 
 if sys.platform.startswith('win'): cmd_split = '&'
@@ -52,7 +52,7 @@ def get_dvipng_version():
     for line in stdout:
         if line.startswith('dvipng '):
             version = line.split()[-1]
-            verbose.report('Found dvipng version %s'% version, 
+            verbose.report('Found dvipng version %s'% version,
                 'helpful')
             return version
     raise RuntimeError('Could not obtain dvipng version')
@@ -63,14 +63,14 @@ class TexManager:
     Convert strings to dvi files using TeX, caching the results to a
     working dir
     """
-    
+
     oldpath = get_home()
     if oldpath is None: oldpath = get_data_path()
     oldcache = os.path.join(oldpath, '.tex.cache')
 
     configdir = get_configdir()
     texcache = os.path.join(configdir, 'tex.cache')
-    
+
 
     if os.path.exists(oldcache):
         print >> sys.stderr, """\
@@ -85,13 +85,13 @@ WARNING: found a TeX cache dir in the deprecated location "%s".
     arrayd = {}
     postscriptd = {}
     pscnt = 0
-    
+
     serif = ('cmr', '')
     sans_serif = ('cmss', '')
     monospace = ('cmtt', '')
     cursive = ('pzc', r'\usepackage{chancery}')
     font_family = 'serif'
-    
+
     font_info = {'new century schoolbook': ('pnc', r'\renewcommand{\rmdefault}{pnc}'),
                 'bookman': ('pbk', r'\renewcommand{\rmdefault}{pbk}'),
                 'times': ('ptm', r'\usepackage{mathptmx}'),
@@ -109,7 +109,7 @@ WARNING: found a TeX cache dir in the deprecated location "%s".
                 'computer modern typewriter': ('cmtt', '')}
 
     def __init__(self):
-        
+
         if not os.path.isdir(self.texcache):
             os.mkdir(self.texcache)
         if rcParams['font.family'].lower() in ('serif', 'sans-serif', 'cursive', 'monospace'):
@@ -140,7 +140,7 @@ WARNING: found a TeX cache dir in the deprecated location "%s".
             except KeyError:
                 continue
             else:
-                break                
+                break
         self._fontconfig += self.monospace[0]
         for font in rcParams['font.cursive']:
             try:
@@ -148,10 +148,10 @@ WARNING: found a TeX cache dir in the deprecated location "%s".
             except KeyError:
                 continue
             else:
-                break                
+                break
         self._fontconfig += self.cursive[0]
-        
-        # The following packages and commands need to be included in the latex 
+
+        # The following packages and commands need to be included in the latex
         # file's preamble:
         cmd = [self.serif[1], self.sans_serif[1], self.monospace[1]]
         if self.font_family == 'cursive': cmd.append(self.cursive[1])
@@ -161,41 +161,41 @@ WARNING: found a TeX cache dir in the deprecated location "%s".
         self._font_preamble = '\n'.join([r'\usepackage{type1cm}',
                              cmd,
                              r'\usepackage{textcomp}'])
-        
+
     def get_basefile(self, tex, fontsize, dpi=None):
         s = tex + self._fontconfig + ('%f'%fontsize) + self.get_custom_preamble()
         if dpi: s += ('%s'%dpi)
         bytes = unicode(s).encode('utf-8') # make sure hash is consistent for all strings, regardless of encoding
         return os.path.join(self.texcache, md5.md5(bytes).hexdigest())
-        
+
     def get_font_config(self):
         return self._fontconfig
-        
+
     def get_font_preamble(self):
         return self._font_preamble
-    
+
     def get_custom_preamble(self):
         return '\n'.join(rcParams['text.latex.preamble'])
-        
+
     def get_shell_cmd(self, *args):
         """
-        On windows, changing directories can be complicated by the presence of 
+        On windows, changing directories can be complicated by the presence of
         multiple drives. get_shell_cmd deals with this issue.
         """
-        if sys.platform == 'win32': 
+        if sys.platform == 'win32':
             command = ['%s'% os.path.splitdrive(self.texcache)[0]]
         else:
             command = []
         command.extend(args)
         return ' && '.join(command)
-        
+
     def make_tex(self, tex, fontsize):
         basefile = self.get_basefile(tex, fontsize)
         texfile = '%s.tex'%basefile
         fh = file(texfile, 'w')
         custom_preamble = self.get_custom_preamble()
         fontcmd = {'sans-serif' : r'{\sffamily %s}',
-                   'monospace'  : r'{\ttfamily %s}'}.get(self.font_family, 
+                   'monospace'  : r'{\ttfamily %s}'}.get(self.font_family,
                                                          r'{\rmfamily %s}')
         tex = fontcmd % tex
 
@@ -204,7 +204,7 @@ WARNING: found a TeX cache dir in the deprecated location "%s".
 \usepackage[utf8x]{inputenc}"""
         else:
             unicode_preamble = ''
-        
+
         s = r"""\documentclass{article}
 %s
 %s
@@ -226,11 +226,11 @@ WARNING: found a TeX cache dir in the deprecated location "%s".
                                "not enabled the matplotlib 'text.latex.unicode' "
                                "rcParam.", 'helpful')
                 raise
-                
+
         fh.close()
-        
+
         return texfile
-        
+
     def make_dvi(self, tex, fontsize, force=0):
         if debug: force = True
 
@@ -240,7 +240,7 @@ WARNING: found a TeX cache dir in the deprecated location "%s".
         if force or not os.path.exists(dvifile):
             texfile = self.make_tex(tex, fontsize)
             outfile = basefile+'.output'
-            command = self.get_shell_cmd('cd "%s"'% self.texcache, 
+            command = self.get_shell_cmd('cd "%s"'% self.texcache,
                             'latex -interaction=nonstopmode %s > "%s"'\
                             %(os.path.split(texfile)[-1], outfile))
             verbose.report(command, 'debug')
@@ -268,9 +268,9 @@ string:\n%s\nHere is the full report generated by LaTeX: \n\n'% repr(tex)) + fh.
         if force or not os.path.exists(pngfile):
             dvifile = self.make_dvi(tex, fontsize)
             outfile = basefile+'.output'
-            command = self.get_shell_cmd('cd "%s"' % self.texcache, 
+            command = self.get_shell_cmd('cd "%s"' % self.texcache,
                         'dvipng -bg Transparent -D %s -T tight -o \
-                        "%s" "%s" > "%s"'%(dpi, os.path.split(pngfile)[-1], 
+                        "%s" "%s" > "%s"'%(dpi, os.path.split(pngfile)[-1],
                         os.path.split(dvifile)[-1], outfile))
             verbose.report(command, 'debug')
             exit_status = os.system(command)
@@ -294,9 +294,9 @@ process the flowing file:\n%s\nHere is the full report generated by dvipng: \
         if force or not os.path.exists(psfile):
             dvifile = self.make_dvi(tex, fontsize)
             outfile = basefile+'.output'
-            command = self.get_shell_cmd('cd "%s"'% self.texcache, 
+            command = self.get_shell_cmd('cd "%s"'% self.texcache,
                         'dvips -q -E -o "%s" "%s" > "%s"'\
-                        %(os.path.split(psfile)[-1], 
+                        %(os.path.split(psfile)[-1],
                           os.path.split(dvifile)[-1], outfile))
             verbose.report(command, 'debug')
             exit_status = os.system(command)
@@ -318,7 +318,7 @@ process the flowing file:\n%s\nHere is the full report generated by dvipng: \
             if line.startswith('%%BoundingBox:'):
                 return [int(val) for val in line.split()[1:]]
         raise RuntimeError('Could not parse %s'%psfile)
-        
+
     def get_rgba(self, tex, fontsize=None, dpi=None, rgb=(0,0,0)):
         """
         Return tex string as an rgba array

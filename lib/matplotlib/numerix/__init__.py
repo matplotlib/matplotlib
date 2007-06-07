@@ -51,7 +51,7 @@ if which[0] == "numarray":
     import warnings
     warnings.warn("numarray use as a numerix backed for matplotlib is deprecated",
                   DeprecationWarning, stacklevel=1)
-    
+
     #from na_imports import *
     from numarray import *
     from _na_imports import nx, inf, infinity, Infinity, Matrix, isnan, all
@@ -60,12 +60,12 @@ if which[0] == "numarray":
     import numarray
     version = 'numarray %s'%numarray.__version__
     nan = struct.unpack('d', struct.pack('Q', 0x7ff8000000000000))[0]
-        
+
 elif which[0] == "numeric":
     import warnings
     warnings.warn("Numeric use as a numerix backed for matplotlib is deprecated",
                   DeprecationWarning, stacklevel=1)
-    
+
     #from nc_imports import *
     from Numeric import *
     from _nc_imports import nx, inf, infinity, Infinity, isnan, all, any
@@ -73,9 +73,9 @@ elif which[0] == "numeric":
     import Numeric
     version = 'Numeric %s'%Numeric.__version__
     nan = struct.unpack('d', struct.pack('Q', 0x7ff8000000000000))[0]
-    
+
 elif which[0] == "numpy":
-    try:        
+    try:
         import numpy.oldnumeric as numpy
         from numpy.oldnumeric import *
     except ImportError:
