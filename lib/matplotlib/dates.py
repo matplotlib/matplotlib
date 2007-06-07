@@ -75,17 +75,15 @@ Date formatters
   DateIndexFormatter - date plots with implicit x indexing.
 
 """
-import sys, re, time, math
+import sys, re, time, math, datetime
 import locale
 
 import matplotlib
 
-try: import datetime
-except ImportError:
-    raise ValueError('matplotlib %s date handling requires python2.3'
-                     % matplotlib.__version__)
 
-from cbook import iterable, is_string_like
+import matplotlib.units as units
+
+from cbook import iterable, is_string_like, is_numlike
 from pytz import timezone
 from numerix import arange, asarray
 from ticker import Formatter, Locator, Base
@@ -1034,6 +1032,36 @@ def hours(h):
 def weeks(w):
     'return weeks as days'
     return w*7.
+
+
+class DateConverter(units.ConversionInterface):
+
+    def axisinfo(unit):
+        'return the unit AxisInfo'
+        if unit=='date':
+            majloc = AutoDateLocator()
+            majfmt = AutoDateFormatter(majloc)
+            return units.AxisInfo(
+                majloc = majloc,
+                majfmt = majfmt,
+                label='date',
+                )
+        else: return None
+    axisinfo = staticmethod(axisinfo)
+
+    def convert(value, unit):
+        if units.ConversionInterface.is_numlike(value): return value
+        return date2num(value)
+    convert = staticmethod(convert)
+        
+    def default_units(x):
+        'return the default unit for x or None'
+        return 'date'
+    default_units = staticmethod(default_units)
+
+
+units.registry[datetime.date] = DateConverter()
+units.registry[datetime.datetime] = DateConverter()
 
 
 

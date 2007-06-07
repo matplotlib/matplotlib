@@ -157,6 +157,23 @@ def is_numlike(obj):
     except TypeError: return False
     else: return True
 
+def to_filehandle(fname):
+    """
+    fname can be a filename or a file handle.  Support for gzipped
+    files is automatic, if the filename ends in .gz
+    """
+    if is_string_like(fname):
+        if fname.endswith('.gz'):
+            import gzip
+            fh = gzip.open(fname)
+        else:
+            fh = file(fname)
+    elif hasattr(fname, 'seek'):
+        fh = fname
+    else:
+        raise ValueError('fname must be a string or file handle')
+    return fh 
+
 def flatten(seq, scalarp=is_scalar):
     """
     this generator flattens nested containers such as
