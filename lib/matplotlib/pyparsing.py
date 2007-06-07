@@ -2282,8 +2282,8 @@ sglQuotedString = Combine( _sglQuote + ZeroOrMore( CharsNotIn("\\'\n\r") | _esca
 quotedString = ( dblQuotedString | sglQuotedString ).setName("quotedString using single or double quotes")
 
 # it's easy to get these comment structures wrong - they're very common, so may as well make them available
-cStyleComment = Combine( Literal("/*") +
-                         ZeroOrMore( CharsNotIn("*") | ( "*" + ~Literal("/") ) ) +
+cStyleComment = Combine( Literal("/*")
+                         ZeroOrMore( CharsNotIn("*") | ( "*" + ~Literal("/") ) )
                          Literal("*/") ).streamline().setName("cStyleComment enclosed in /* ... */")
 htmlComment = Combine( Literal("<!--") + ZeroOrMore( CharsNotIn("-") | 
                                                    (~Literal("-->") + Literal("-").leaveWhitespace() ) ) + 

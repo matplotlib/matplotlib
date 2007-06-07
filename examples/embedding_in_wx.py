@@ -48,7 +48,7 @@ import matplotlib.numerix as numpy
 from wxPython.wx import *
 
 
-	
+        
 class PlotFigure(wxFrame):
     def __init__(self):
         wxFrame.__init__(self, None, -1, "Test embedded wxFigure")

@@ -269,7 +269,7 @@ class RendererSVG(RendererBase):
 
         if angle != 0:
             svg += ( ' transform="translate(%f,%f) rotate(%1.1f) translate(%f,%f)"'
-	             % (x,y,-angle,-x,-y) ) # Inkscape doesn't support rotate(angle x y)
+                     % (x,y,-angle,-x,-y) ) # Inkscape doesn't support rotate(angle x y)
         svg += '>\n'
 
         curr_x,curr_y = 0.0,0.0

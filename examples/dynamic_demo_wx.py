@@ -111,7 +111,7 @@ class PlotFigure(wxFrame):
         # You will need to override GetToolBar if you are using an 
         # unmanaged toolbar in your frame
         return self.toolbar
-		
+                
     def onTimer(self, evt):
         self.count += 1
         if self.count >= 60: self.count = 0

@@ -17,11 +17,11 @@ def pick(event):
         ax = event.inaxes
         a = ax.pick(event.x, event.y)
         
-	if isinstance(a, Text):
+        if isinstance(a, Text):
             a.set_color('r')
         elif isinstance(a, Line2D):
             a.set_markerfacecolor('r')
-	elif isinstance(a, Patch):
+        elif isinstance(a, Patch):
             a.set_facecolor('r')
         draw()
             
