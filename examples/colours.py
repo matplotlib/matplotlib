@@ -45,7 +45,7 @@ def get_colours(n):
     colours = []
     for start in (0, 1):
         for x in linspace(0, 1, needed[start]+2):
-            colours.append((base[start] * (1.0 - x))
+            colours.append((base[start] * (1.0 - x)) +
                            (base[start+1] * x))
 
     return [pastel(c) for c in colours[0:n]]
