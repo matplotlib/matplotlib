@@ -81,7 +81,7 @@ class PlotPanel(wxPanel):
         # You will need to override GetToolBar if you are using an 
         # unmanaged toolbar in your frame
         return self.toolbar
-		
+                
     def OnWhiz(self,evt):
         self.x += numerix.pi/15
         self.y += numerix.pi/20

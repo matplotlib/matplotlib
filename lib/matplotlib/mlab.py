@@ -2020,7 +2020,7 @@ def approx_real(x):
     """
 
     if numerix.mlab.max(numerix.mlab.max(absolute(x.imag))) <= numerix.mlab.max(numerix.mlab.max(absolute(x.real))) * _eps_approx:
-    	return x.real
+        return x.real
     else:
         return x
 

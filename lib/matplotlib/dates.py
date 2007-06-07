@@ -139,7 +139,7 @@ def _to_ordinalf(dt):
 
     base =  dt.toordinal()
     if hasattr(dt, 'hour'):
-        base += (dt.hour/HOURS_PER_DAY + dt.minute/MINUTES_PER_DAY +
+        base += (dt.hour/HOURS_PER_DAY + dt.minute/MINUTES_PER_DAY
                  dt.second/SECONDS_PER_DAY + dt.microsecond/MUSECONDS_PER_DAY
                  )
     return base
@@ -236,7 +236,7 @@ def drange(dstart, dend, delta):
     Return a date range as float gregorian ordinals.  dstart and dend
     are datetime instances.  delta is a datetime.timedelta instance
     """
-    step = (delta.days + delta.seconds/SECONDS_PER_DAY +
+    step = (delta.days + delta.seconds/SECONDS_PER_DAY
             delta.microseconds/MUSECONDS_PER_DAY)
     f1 = _to_ordinalf(dstart)
     f2 = _to_ordinalf(dend)
@@ -889,7 +889,7 @@ class SecondLocator(RRuleLocator):
 def _close_to_dt(d1, d2, epsilon=5):
     'assert that datetimes d1 and d2 are within epsilon microseconds'
     delta = d2-d1
-    mus = abs(delta.days*MUSECONDS_PER_DAY + delta.seconds*1e6 +
+    mus = abs(delta.days*MUSECONDS_PER_DAY + delta.seconds*1e6
               delta.microseconds)
     assert(mus<epsilon)
 
