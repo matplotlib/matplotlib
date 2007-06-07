@@ -1,3 +1,5 @@
+2007-06-07 Simplified internal code of _auto_legend_data - NN
+
 2007-06-04 Added labeldistance arg to Axes.pie to control the raidal
            distance of the wedge labels - JDH
 

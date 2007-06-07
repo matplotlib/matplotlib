@@ -313,46 +313,40 @@ The following dimensions are in axes coords
         if not self.isaxes:
             raise Exception, 'Auto legends not available for figure legends.'
 
-        def get_handles(ax):
-            handles = ax.lines[:]
-            handles.extend(ax.patches)
-            handles.extend([c for c in ax.collections if isinstance(c, LineCollection)])
-
-            return handles
-
         ax = self.parent
-        handles = get_handles(ax)
         vertices = []
         bboxes = []
         lines = []
 
         inv = ax.transAxes.inverse_xy_tup
-        for handle in handles:
 
-            if isinstance(handle, Line2D):
+        for handle in ax.lines:
+            assert isinstance(handle, Line2D)
 
-                xdata = handle.get_xdata(orig=False)
-                ydata = handle.get_ydata(orig=False)
-                trans = handle.get_transform()
-                xt, yt = trans.numerix_x_y(xdata, ydata)
+            xdata = handle.get_xdata(orig=False)
+            ydata = handle.get_ydata(orig=False)
+            trans = handle.get_transform()
+            xt, yt = trans.numerix_x_y(xdata, ydata)
 
-                # XXX need a special method in transform to do a list of verts
-                averts = [inv(v) for v in zip(xt, yt)]
-                lines.append(averts)
+            # XXX need a special method in transform to do a list of verts
+            averts = [inv(v) for v in zip(xt, yt)]
+            lines.append(averts)
 
-            elif isinstance(handle, Patch):
+        for handle in ax.patches:
+            assert isinstance(handle, Patch)
 
-                verts = handle.get_verts()
-                trans = handle.get_transform()
-                tverts = trans.seq_xy_tups(verts)
+            verts = handle.get_verts()
+            trans = handle.get_transform()
+            tverts = trans.seq_xy_tups(verts)
 
-                averts = [inv(v) for v in tverts]
+            averts = [inv(v) for v in tverts]
 
-                bbox = unit_bbox()
-                bbox.update(averts, True)
-                bboxes.append(bbox)
+            bbox = unit_bbox()
+            bbox.update(averts, True)
+            bboxes.append(bbox)
 
-            elif isinstance(handle, LineCollection):
+        for handle in ax.collections:
+            if isinstance(handle, LineCollection):
                 hlines = handle.get_lines()
                 trans = handle.get_transform()
                 for line in hlines:
