@@ -809,7 +809,7 @@ class NavigationToolbar(gtk.Toolbar):
             x0, y0    = self.window.get_origin()
             x1, y1, m = self.window.get_pointer()
             x2, y2    = self.menubutton.get_pointer()
-            sc_h      = self.get_screen().get_height()  # requires GTK+ 2.2
+            sc_h      = self.get_screen().get_height()  # requires GTK+ 2.2 +
             w, h      = menu.size_request()
 
             x = x0 + x1 - x2
@@ -1070,7 +1070,7 @@ if gtk.pygtk_version >= (2,4,0):
                 else:
                     error_msg_gtk ('Image format "%s" is not supported' % ext,
                                    parent=self)
-                    self.set_current_name (os.path.split(root)[1] + '.'
+                    self.set_current_name (os.path.split(root)[1] + '.' +
                                            menu_ext)
 
             self.hide()

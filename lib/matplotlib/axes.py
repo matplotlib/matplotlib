@@ -1027,9 +1027,9 @@ class Axes(Artist):
         anything.
         '''
         return (
-            len(self.collections)
-            len(self.images)
-            len(self.lines)
+            len(self.collections) +
+            len(self.images) +
+            len(self.lines) +
             len(self.patches))>0
 
     def add_artist(self, a):

@@ -583,7 +583,7 @@ class ContourSet(ScalarMappable, ContourLabeler):
         nx, = shape(x)
         ny, = shape(y)
         if nx != Nx or ny != Ny:
-            raise TypeError("Length of x must be number of columns in z,\n"
+            raise TypeError("Length of x must be number of columns in z,\n" +
                             "and length of y must be number of rows.")
         x,y = meshgrid(x,y)
         return x,y,z
