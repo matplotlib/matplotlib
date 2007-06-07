@@ -2880,7 +2880,7 @@ class Axes(Artist):
         """
         kwargs = kwargs.copy()
         def get_handles():
-            handles = self.lines
+            handles = self.lines[:]
             handles.extend(self.patches)
             handles.extend([c for c in self.collections if isinstance(c, LineCollection)])
             handles.extend([c for c in self.collections if isinstance(c, RegularPolyCollection)])
