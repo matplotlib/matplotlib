@@ -1,11 +1,11 @@
 #-------------------------------------------------------------------------------
 #
 #  Define the ViewElements class used to define a (typically class-based)
-#  hierarchical name space of related ViewElement objects. 
+#  hierarchical name space of related ViewElement objects.
 #
-#  Normally there is a ViewElements object associated with each traits-based 
-#  class that contains all of the ViewElement objects associated with the 
-#  class. The ViewElements object is also linked to the ViewElements objects of 
+#  Normally there is a ViewElements object associated with each traits-based
+#  class that contains all of the ViewElement objects associated with the
+#  class. The ViewElements object is also linked to the ViewElements objects of
 #  its associated class's parent classes.
 #
 #  Written by: David C. Morrill
@@ -39,26 +39,26 @@ content_trait = Dict( str, ViewElement )
 #-------------------------------------------------------------------------------
 
 class ViewElements ( HasStrictTraits ):
-    
+
     #---------------------------------------------------------------------------
     #  Trait definitions:
     #---------------------------------------------------------------------------
-    
+
     content = content_trait # Dictionary containing the named ViewElement items
 
     #---------------------------------------------------------------------------
-    #  Finds a specified ViewElement within the specified (optional) search 
+    #  Finds a specified ViewElement within the specified (optional) search
     #  context:
     #---------------------------------------------------------------------------
-    
+
     def find ( self, name, stack = None ):
         """ Finds a specified ViewElement within the specified (optional) search
             context.
         """
         # Assume search starts from the beginning the of the search order:
         i = 0
-        
-        # If a stack was specified, see if there is a matching entry in the 
+
+        # If a stack was specified, see if there is a matching entry in the
         # stack already:
         if stack is not None:
             for ssi in stack:
@@ -67,7 +67,7 @@ class ViewElements ( HasStrictTraits ):
                     # in the search order:
                     i = ssi.context + 1
                     break
-                    
+
         # Search for a matching name starting at the specified ViewElements
         # object in the search order:
         for j, ves in enumerate( self._get_search_order()[i:] ):
@@ -76,20 +76,20 @@ class ViewElements ( HasStrictTraits ):
                 # Match found. If there is a stack, push matching name and
                 # ViewElements context onto it:
                 if stack is not None:
-                    stack[0:0] = [ SearchStackItem( id      = name, 
+                    stack[0:0] = [ SearchStackItem( id      = name,
                                                     context = i + j ) ]
-                    
+
                 # Return the ViewElement object that matched the name:
                 return result
-                
+
         # Indicate no match was found:
         return None
-        
+
     #---------------------------------------------------------------------------
-    #  Returns a sorted list of all names accessible from the ViewElements 
+    #  Returns a sorted list of all names accessible from the ViewElements
     #  object that are of a specified (ViewElement) type:
     #---------------------------------------------------------------------------
-        
+
     def filter_by ( self, klass = None ):
         """ Returns a sorted list of all names accessible from the ViewElements
             object that are of a specified (ViewElement) type.
@@ -98,96 +98,96 @@ class ViewElements ( HasStrictTraits ):
             import view
             klass = view.View
         result = []
-        
+
         # Add each item in the search order which is of the right class and
         # which is not already in the result list:
         for ves in self._get_search_order():
             for name, ve in ves.content.items():
                 if isinstance( ve, klass ) and (name not in result):
                     result.append( name )
-                    
+
         # Sort the resulting list of names:
         result.sort()
-        
+
         # Return the result:
         return result
-        
+
     #---------------------------------------------------------------------------
     #  Handles the 'parents' list being updated:
     #---------------------------------------------------------------------------
-        
+
     def _parents__changed ( self ):
         self._search_order = None
-        
+
     def _parents_items_changed ( self ):
         self._search_order = None
-        
+
     #---------------------------------------------------------------------------
     #  Returns the current search order (computing it if necessary):
     #---------------------------------------------------------------------------
-        
+
     def _get_search_order ( self ):
         if self._search_order is None:
             self._search_order = self._mro()
         return self._search_order
-    
+
     #---------------------------------------------------------------------------
     #  Compute the Python 'C3' algorithm used to determine a class's 'mro'
     #  and apply it to the 'parents' of the ViewElements to determine the
     #  correct search order:
     #---------------------------------------------------------------------------
-            
+
     def _mro ( self ):
-        return self._merge( 
-                  [ [ self ] ] + 
-                  [ parent._get_search_order()[:] for parent in self.parents ] + 
+        return self._merge(
+                  [ [ self ] ] +
+                  [ parent._get_search_order()[:] for parent in self.parents ] +
                   [ self.parents[:] ] )
 
     def _merge ( self, seqs ):
-        result = [] 
+        result = []
         while True:
             # Remove any empty sequences from the list:
             seqs = [ seq for seq in seqs if len( seq ) > 0 ]
-            if len( seqs ) == 0: 
+            if len( seqs ) == 0:
                 return result
-                
+
             # Find merge candidates among the sequence heads:
-            for seq in seqs: 
+            for seq in seqs:
                 candidate = seq[0]
                 if len( [ s for s in seqs if candidate in s[1:] ] ) == 0:
                     break
             else:
                 raise TraitError, "Inconsistent ViewElements hierarchy"
-                
+
             # Add the candidate to the result:
             result.append( candidate )
-            
+
             # Then remove the candidate:
-            for seq in seqs: 
-                if seq[0] == candidate: 
+            for seq in seqs:
+                if seq[0] == candidate:
                     del seq[0]
-                    
+
     #---------------------------------------------------------------------------
     #  Returns a 'pretty print' version of the ViewElements object:
     #---------------------------------------------------------------------------
-                    
+
     def __repr__ ( self ):
         """ Returns a 'pretty print' version of the ViewElements object.
         """
         return self.content.__repr__()
-        
+
 #-------------------------------------------------------------------------------
 #  Define forward reference traits:
 #-------------------------------------------------------------------------------
 
 ViewElements.add_class_trait( 'parents',       List( ViewElements ) )
 ViewElements.add_class_trait( '_search_order', Any )
-        
+
 #-------------------------------------------------------------------------------
 #  Patch the main traits module with the correct definition for the ViewElements
 #  class:
 #-------------------------------------------------------------------------------
-        
+
 import matplotlib.enthought.traits.has_traits as has_traits
 has_traits.ViewElements = ViewElements
 
@@ -196,11 +196,11 @@ has_traits.ViewElements = ViewElements
 #-------------------------------------------------------------------------------
 
 class SearchStackItem ( HasStrictTraits ):
-    
+
     #---------------------------------------------------------------------------
     #  Trait definitions:
     #---------------------------------------------------------------------------
-    
+
     id      = Str  # Name that was looked up
     context = Int  # Index into 'mro' list of ViewElements it was found in
-    
+

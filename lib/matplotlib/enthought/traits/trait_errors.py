@@ -46,12 +46,12 @@ class TraitError ( exceptions.Exception ):
           if object is not None:
              self.object = object
           self.set_args()
-          
+
    def set_prefix ( self, prefix ):
        if hasattr( self, 'prefix' ):
           self.prefix = prefix
           self.set_args()
-          
+
    def set_args ( self ):
        if self.desc is None:
           extra = ''
@@ -65,9 +65,9 @@ class TraitError ( exceptions.Exception ):
                          self.info, self.value ) )
        else:
            self.args = ( "%s '%s' trait%s must be %s, but a value of %s was "
-                         "specified." % ( self.prefix, self.name, extra, 
+                         "specified." % ( self.prefix, self.name, extra,
                                           self.info, self.value ) )
-   
+
 #-------------------------------------------------------------------------------
 #  'DelegationError' class:
 #-------------------------------------------------------------------------------
@@ -76,10 +76,10 @@ class DelegationError ( TraitError ):
 
    def __init__ ( self, args ):
        self.args = args
-       
+
 #-------------------------------------------------------------------------------
 #  Export the defined exceptions to the C-base traits module:
 #-------------------------------------------------------------------------------
-       
+
 import ctraits
 ctraits._exceptions( TraitError, DelegationError )

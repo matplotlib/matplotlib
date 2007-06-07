@@ -1,6 +1,6 @@
 #-------------------------------------------------------------------------------
 #
-#  Define the Item class used to represent a single item within a traits-based 
+#  Define the Item class used to represent a single item within a traits-based
 #  user interface.
 #
 #  Written by: David C. Morrill
@@ -30,7 +30,7 @@ from editor_factory              import EditorFactory
 #  Constants:
 #-------------------------------------------------------------------------------
 
-# Pattern of all digits:    
+# Pattern of all digits:
 all_digits = re.compile( r'\d+' )
 
 #-------------------------------------------------------------------------------
@@ -48,11 +48,11 @@ Padding = Range( -15, 15, 0, desc = 'amount of padding to add around item' )
 #-------------------------------------------------------------------------------
 
 class Item ( ViewSubElement ):
-    
+
     #---------------------------------------------------------------------------
     #  Trait definitions:
     #---------------------------------------------------------------------------
-   
+
     id           = Str                # Name of the item
     label        = Str                # User interface label for the item
     name         = Str                # Name of the trait the item is editing
@@ -64,11 +64,11 @@ class Item ( ViewSubElement ):
     defined_when = Str                # Pre-condition for defining the item
     enabled_when = Str                # Pre-condition for enabling the item
     padding      = Padding            # Amount of padding to add around item
-   
+
     #---------------------------------------------------------------------------
     #  Initialize the object:
     #---------------------------------------------------------------------------
-   
+
     def __init__ ( self, value = None, **traits ):
         ViewSubElement.__init__( self, **traits )
         if value is None:
@@ -83,37 +83,37 @@ class Item ( ViewSubElement ):
         value = self._split( 'object', value, '.', find,  0, 1 )
         if value != '':
             self.name = value
-            
+
     #---------------------------------------------------------------------------
     #  Returns whether or not the object is replacable by an Include object:
     #---------------------------------------------------------------------------
-            
+
     def is_includable ( self ):
-        """ Returns whether or not the object is replacable by an Include 
+        """ Returns whether or not the object is replacable by an Include
             object.
         """
         return (self.id != '')
-        
+
     #---------------------------------------------------------------------------
     #  Returns whether or not the Item represents a spacer or separator:
     #---------------------------------------------------------------------------
-        
+
     def is_spacer ( self ):
         name = self.name.strip()
-        return ((name == '') or (name == '_') or 
+        return ((name == '') or (name == '_') or
                 (all_digits.match( name ) is not None))
-        
+
     #---------------------------------------------------------------------------
     #  Gets the help text associated with the Item in a specified UI:
     #---------------------------------------------------------------------------
-        
+
     def get_help ( self, ui ):
         """ Gets the help text associated with the Item in a specified UI.
         """
         # Return 'None' if the Item is a separator or spacer:
         if self.is_spacer():
             return None
-           
+
         # Otherwise, it must be a trait Item:
         if self.help != '':
             return self.help
@@ -122,14 +122,14 @@ class Item ( ViewSubElement ):
     #---------------------------------------------------------------------------
     #  Gets the label to use for a specified Item in a specified UI:
     #---------------------------------------------------------------------------
-        
+
     def get_label ( self, ui ):
         """ Gets the label to use for a specified Item.
         """
         # Return 'None' if the Item is a separator or spacer:
         if self.is_spacer():
             return None
-            
+
         name   = self.name
         object = ui.context[ self.object ]
         trait  = object.base_trait( name )
@@ -148,19 +148,19 @@ class Item ( ViewSubElement ):
                 return self.label
             return tlabel
         return tlabel( object, name, label )
-            
+
     #---------------------------------------------------------------------------
     #  Returns a 'pretty print' version of the Item:
     #---------------------------------------------------------------------------
-            
+
     def __repr__ ( self ):
         """ Returns a 'pretty print' version of the Item.
         """
-        return '"%s%s%s%s%s"' % ( self._repr_value( self.id, '', ':' ), 
-                                  self._repr_value( self.object, '', '.', 
-                                                    'object' ), 
+        return '"%s%s%s%s%s"' % ( self._repr_value( self.id, '', ':' ),
+                                  self._repr_value( self.object, '', '.',
+                                                    'object' ),
                                   self._repr_value( self.name ),
                                   self._repr_value( self.label,'=' ),
-                                  self._repr_value( self.style, ';', '', 
+                                  self._repr_value( self.style, ';', '',
                                                     'simple' ) )
 

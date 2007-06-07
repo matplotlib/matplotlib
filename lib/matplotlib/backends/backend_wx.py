@@ -702,7 +702,7 @@ class FigureCanvasWx(FigureCanvasBase, wx.Panel):
         wx.WXK_PRIOR           : 'pageup',
         wx.WXK_NEXT            : 'pagedown',
         wx.WXK_PAGEUP          : 'pageup',
-        wx.WXK_PAGEDOWN        : 'pagedown', 
+        wx.WXK_PAGEDOWN        : 'pagedown',
         wx.WXK_NUMPAD0         : '0',
         wx.WXK_NUMPAD1         : '1',
         wx.WXK_NUMPAD2         : '2',
@@ -720,18 +720,18 @@ class FigureCanvasWx(FigureCanvasBase, wx.Panel):
         wx.WXK_NUMPAD_DECIMAL  : 'dec',
         wx.WXK_NUMPAD_ENTER    : 'enter',
         wx.WXK_NUMPAD_UP       : 'up',
-        wx.WXK_NUMPAD_RIGHT    : 'right', 
+        wx.WXK_NUMPAD_RIGHT    : 'right',
         wx.WXK_NUMPAD_DOWN     : 'down',
         wx.WXK_NUMPAD_LEFT     : 'left',
         wx.WXK_NUMPAD_PRIOR    : 'pageup',
         wx.WXK_NUMPAD_NEXT     : 'pagedown',
         wx.WXK_NUMPAD_PAGEUP   : 'pageup',
-        wx.WXK_NUMPAD_PAGEDOWN : 'pagedown', 
+        wx.WXK_NUMPAD_PAGEDOWN : 'pagedown',
         wx.WXK_NUMPAD_HOME     : 'home',
         wx.WXK_NUMPAD_END      : 'end',
         wx.WXK_NUMPAD_INSERT   : 'insert',
         wx.WXK_NUMPAD_DELETE   : 'delete',
-        }    
+        }
 
     def __init__(self, parent, id, figure):
         """
@@ -749,7 +749,7 @@ class FigureCanvasWx(FigureCanvasBase, wx.Panel):
         l,b,w,h = figure.bbox.get_bounds()
         w = int(math.ceil(w))
         h = int(math.ceil(h))
- 
+
         wx.Panel.__init__(self, parent, id, size=wx.Size(w, h))
         # Create the drawing bitmap
         self.bitmap =wx.EmptyBitmap(w, h)
@@ -783,8 +783,8 @@ class FigureCanvasWx(FigureCanvasBase, wx.Panel):
             wx.EVT_LEFT_DOWN(self, self._onLeftButtonDown)
             wx.EVT_LEFT_UP(self, self._onLeftButtonUp)
             wx.EVT_MOTION(self, self._onMotion)
-            
-            
+
+
         self.macros = {} # dict from wx id to seq of macros
 
         self.Printer_Init()
@@ -834,10 +834,10 @@ The current aspect ration will be kept."""
         sizerAll = wx.BoxSizer(wx.VERTICAL)
         sizerAll.Add(wx.StaticText(dlg,-1,dmsg),
                     0, wx.ALL | wx.EXPAND, 5)
-        
+
         sizer = wx.FlexGridSizer(0,3)
         sizerAll.Add(sizer, 0, wx.ALL | wx.EXPAND, 5)
-        
+
         sizer.Add(wx.StaticText(dlg,-1,'Figure Width'),
                     1, wx.ALIGN_LEFT|wx.ALL, 2)
         sizer.Add(x_wid,
@@ -1000,7 +1000,7 @@ The current aspect ration will be kept."""
             ps = self.switch_backends(FigureCanvasPS)
             ps.figure.dpi.set(72)
 
-            ps.print_figure(filename, 72, facecolor, edgecolor, orientation, 
+            ps.print_figure(filename, 72, facecolor, edgecolor, orientation,
                             **kwargs)
             self.figure.dpi.set(origDPI)
             self.figure.set_canvas(self)
@@ -1258,7 +1258,7 @@ def new_figure_manager(num, *args, **kwargs):
     # in order to expose the Figure constructor to the pylab
     # interface we need to create the figure here
     DEBUG_MSG("new_figure_manager()", 3, None)
-    wxapp = wx.GetApp()  
+    wxapp = wx.GetApp()
     if wxapp is None:
         wxapp = wx.PySimpleApp()
         wxapp.SetExitOnFrameDelete(True)
@@ -1335,8 +1335,8 @@ class FigureFrameWx(wx.Frame):
             toolbar.set_status_bar(statbar)
         else:
             toolbar = None
-        return toolbar 
-        
+        return toolbar
+
     def get_canvas(self, fig):
         return FigureCanvasWx(self, -1, fig)
 
@@ -1566,7 +1566,7 @@ class SubplotToolWX(wx.Frame):
         self.SetSizer(sizer)
         self.Fit()
         tool = SubplotTool(targetfig, toolfig)
-        
+
 
 class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
 
@@ -1579,7 +1579,7 @@ class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
 
     def get_canvas(self, frame, fig):
         return FigureCanvasWx(frame, -1, fig)
-        
+
     def _init_toolbar(self):
         DEBUG_MSG("_init_toolbar", 1, self)
 
@@ -1590,7 +1590,7 @@ class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
         self._NTB2_PAN     =wx.NewId()
         self._NTB2_ZOOM    =wx.NewId()
         _NTB2_SAVE    = wx.NewId()
-        _NTB2_SUBPLOT    =wx.NewId()        
+        _NTB2_SUBPLOT    =wx.NewId()
 
         self.SetToolBitmapSize(wx.Size(24,24))
 
@@ -1602,7 +1602,7 @@ class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
                            'Forward', 'Forward navigation view')
         # todo: get new bitmap
         self.AddCheckTool(self._NTB2_PAN, _load_bitmap('move.xpm'),
-                           shortHelp='Pan', 
+                           shortHelp='Pan',
                            longHelp='Pan with left, zoom with right')
         self.AddCheckTool(self._NTB2_ZOOM, _load_bitmap('zoom_to_rect.xpm'),
                            shortHelp='Zoom', longHelp='Zoom to rectangle')
@@ -1620,7 +1620,7 @@ class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
             self.Bind(wx.EVT_TOOL, self.back, id=self._NTB2_BACK)
             self.Bind(wx.EVT_TOOL, self.zoom, id=self._NTB2_ZOOM)
             self.Bind(wx.EVT_TOOL, self.pan, id=self._NTB2_PAN)
-            self.Bind(wx.EVT_TOOL, self.configure_subplot, id=_NTB2_SUBPLOT)            
+            self.Bind(wx.EVT_TOOL, self.configure_subplot, id=_NTB2_SUBPLOT)
             self.Bind(wx.EVT_TOOL, self.save, id=_NTB2_SAVE)
         else:
             wx.EVT_TOOL(self, _NTB2_HOME, self.home)
@@ -1628,7 +1628,7 @@ class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
             wx.EVT_TOOL(self, self._NTB2_BACK, self.back)
             wx.EVT_TOOL(self, self._NTB2_ZOOM, self.zoom)
             wx.EVT_TOOL(self, self._NTB2_PAN, self.pan)
-            wx.EVT_TOOL(self, _NTB2_SUBPLOT, self.configure_subplot)            
+            wx.EVT_TOOL(self, _NTB2_SUBPLOT, self.configure_subplot)
             wx.EVT_TOOL(self, _NTB2_SAVE, self.save)
 
         self.Realize()
@@ -1660,7 +1660,7 @@ class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
         frame.Fit()
         tool = SubplotTool(self.canvas.figure, toolfig)
         frame.Show()
-        
+
     def save(self, evt):
         # Fetch the required filename and file type.
         filetypes = self.canvas._get_imagesave_wildcards()

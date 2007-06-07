@@ -1,13 +1,13 @@
 #-------------------------------------------------------------------------------
-#  
+#
 #  Trait definitions for an RGB-based color.
-#  
+#
 #  Written by: David C. Morrill
-#  
+#
 #  Data: 02/14/2005
-#  
+#
 #  (c) Copyright 2005 by Enthought, Inc.
-#  
+#
 #-------------------------------------------------------------------------------
 
 #-------------------------------------------------------------------------------
@@ -27,23 +27,23 @@ def range_check ( value ):
     if 0.0 <= value <= 1.0:
         return value
     raise TraitError
-    
+
 def convert_to_color ( object, name, value ):
     if (type( value ) in SequenceTypes) and (len( value ) == 3):
-        return ( range_check( value[0] ), 
-                 range_check( value[1] ), 
+        return ( range_check( value[0] ),
+                 range_check( value[1] ),
                  range_check( value[2] ) )
     if type( value ) is int:
         num = int( value )
         return ( (num / 0x10000)        / 255.0
-                 ((num / 0x100) & 0xFF) / 255.0, 
+                 ((num / 0x100) & 0xFF) / 255.0,
                  (num & 0xFF)           / 255.0 )
     raise TraitError
 
 convert_to_color.info = ('a tuple of the form (r,g,b), where r, g, and b '
     'are floats in the range from 0.0 to 1.0, or an integer which in hex is of '
     'the form 0xRRGGBB, where RR is red, GG is green, and BB is blue')
-             
+
 #-------------------------------------------------------------------------------
 #  Standard colors:
 #-------------------------------------------------------------------------------
@@ -123,8 +123,8 @@ rgb_standard_colors = {
 #-------------------------------------------------------------------------------
 #  Define 'null' specific color trait:
 #-------------------------------------------------------------------------------
-    
+
 # Color trait:
-RGBColor = Trait( 'white', convert_to_color, rgb_standard_colors, 
+RGBColor = Trait( 'white', convert_to_color, rgb_standard_colors,
                   editor = RGBColorEditor )
-       
+

@@ -19,11 +19,11 @@ def line_select_callback(event1, event2):
 
 current_ax=subplot(111)                    # make a new plotingrange
 N=100000                                   # If N is large one can see improvement
-x=10.0*arange(N)/(N-1)                     # by use blitting! 
+x=10.0*arange(N)/(N-1)                     # by use blitting!
 
 plot(x,sin(.2*pi*x),lw=3,c='b',alpha=.7)   # plot something
 plot(x,cos(.2*pi*x),lw=3.5,c='r',alpha=.5)
-plot(x,-sin(.2*pi*x),lw=3.5,c='g',alpha=.3)    
+plot(x,-sin(.2*pi*x),lw=3.5,c='g',alpha=.3)
 
 print "\n      click  -->  release"
 

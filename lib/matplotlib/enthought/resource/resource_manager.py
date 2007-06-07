@@ -18,7 +18,7 @@ from matplotlib.enthought.util.resource import get_path
 # Local imports.
 from resource_factory import ResourceFactory
 from resource_reference import ImageReference
-    
+
 class ResourceManager(HasTraits):
     """ The default resource manager.
 
@@ -35,7 +35,7 @@ class ResourceManager(HasTraits):
     # a images in the format that they require.
     resource_factory = Instance(ResourceFactory)
 
-    
+
     ###########################################################################
     # 'ResourceManager' interface.
     ###########################################################################
@@ -52,7 +52,7 @@ class ResourceManager(HasTraits):
                 resource_path.append(item)
             else:
                 resource_path.extend(self._get_resource_path(item))
-                
+
         return self._locate_image(image_name, resource_path)
 
     def load_image(self, image_name, path):
@@ -66,7 +66,7 @@ class ResourceManager(HasTraits):
             image = None
 
         return image
-    
+
     ###########################################################################
     # Private interface.
     ###########################################################################
@@ -85,7 +85,7 @@ class ResourceManager(HasTraits):
         if len(extension) > 0:
             extensions = [extension]
             pattern = image_name
-            
+
         # Otherwise, we will search for common image suffixes.
         else:
             extensions = self.IMAGE_EXTENSIONS
@@ -106,7 +106,7 @@ class ResourceManager(HasTraits):
                         )
 
                         return reference
-                    
+
             # Is there an 'images' zip file in the directory?
             zip_filename = join(dirname, 'images.zip')
             if os.path.isfile(zip_filename):
@@ -121,7 +121,7 @@ class ResourceManager(HasTraits):
                         )
 
                         return reference
-                    
+
                     except:
                         pass
 
@@ -129,15 +129,15 @@ class ResourceManager(HasTraits):
 
     def _get_resource_path(self, object):
         """ Returns the resource path for an object. """
-            
+
         if hasattr(object, 'resource_path'):
             resource_path = object.resource_path
-                
+
         else:
             resource_path = self._get_default_resource_path(object)
 
         return resource_path
-    
+
     def _get_default_resource_path(self, object):
         """ Returns the default resource path for an object. """
 
@@ -153,5 +153,5 @@ class ResourceManager(HasTraits):
                 break
 
         return resource_path
-    
+
 #### EOF ######################################################################

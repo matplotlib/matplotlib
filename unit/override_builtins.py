@@ -1,5 +1,5 @@
 import sys
- 
+
 def check_globals():
     for key in globals().keys():
         if key in dir(sys.modules["__builtin__"]):

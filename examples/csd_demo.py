@@ -17,7 +17,7 @@ cnse2 = convolve(nse2, r, mode=2)*dt   # colored noise 2
 cnse2 = cnse2[:len(t)]
 
 # two signals with a coherent part and a random part
-s1 = 0.01*sin(2*pi*10*t) + cnse1         
+s1 = 0.01*sin(2*pi*10*t) + cnse1
 s2 = 0.01*sin(2*pi*10*t) + cnse2
 
 subplot(211)

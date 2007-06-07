@@ -16,7 +16,7 @@ font.set_charmap(0)
 codes = font.get_charmap().items()
 #dsu = [(ccode, glyphind) for ccode, glyphind in codes]
 #dsu.sort()
-#for ccode, glyphind in dsu: 
+#for ccode, glyphind in dsu:
 #    try: name = font.get_glyph_name(glyphind)
 #    except RuntimeError: pass
 #    else: print '% 4d % 4d %s %s'%(glyphind, ccode, hex(int(ccode)), name)

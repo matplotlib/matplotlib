@@ -28,7 +28,7 @@ for i in range(indEnd):
     fig.clf()
     pylab.close(fig)
     val = cbook.report_memory(i)
-    print i, val 
+    print i, val
     gc.collect()
     if i==indStart: start = val # wait a few cycles for memory usage to stabilize
 

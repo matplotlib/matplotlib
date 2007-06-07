@@ -122,8 +122,8 @@ class Bunch:
    """
    def __init__(self, **kwds):
       self.__dict__.update(kwds)
-      
-      
+
+
 def unique(x):
    'Return a list of unique elements of x'
    return dict([ (val, 1) for val in x]).keys()

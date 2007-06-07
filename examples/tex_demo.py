@@ -25,7 +25,7 @@ plot(t, s)
 
 xlabel(r'\textbf{time (s)}')
 ylabel(r'\textit{voltage (mV)}',fontsize=16)
-title(r"\TeX\ is Number $\displaystyle\sum_{n=1}^\infty\frac{-e^{i\pi}}{2^n}$!", 
+title(r"\TeX\ is Number $\displaystyle\sum_{n=1}^\infty\frac{-e^{i\pi}}{2^n}$!",
       fontsize=16, color='r')
 grid(True)
 savefig('tex_demo')

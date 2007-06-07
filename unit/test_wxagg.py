@@ -110,13 +110,13 @@ def main():
     plot_sin(figure)
     canvas.draw()
     agg = canvas.get_renderer()
- 
+
     if 0:
         print 'll.x =', BBOX.ll().x().get()
         print 'll.y =', BBOX.ll().y().get()
         print 'ur.x =', BBOX.ur().x().get()
         print 'ur.y =', BBOX.ur().y().get()
- 
+
     # test the pure python implementation
     if TEST_PY:
         i_py   = _py_convert_agg_to_wx_image( agg, None)

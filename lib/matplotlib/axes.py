@@ -138,7 +138,7 @@ def _process_plot_format(fmt):
     for c in chars:
         if lineStyles.has_key(c):
             if linestyle is not None:
-                raise ValueError, 'Illegal format str<ing "%s"; two linestyle symbols' % fmt
+                raise ValueError, 'Illegal format string "%s"; two linestyle symbols' % fmt
             linestyle = c
         elif lineMarkers.has_key(c):
             if marker is not None:
@@ -208,12 +208,12 @@ class _process_plot_var_args:
 
         if self.axes.xaxis is not None and self.axes.xaxis is not None:
             xunits = popd(kwargs, 'xunits', self.axes.xaxis.units)
-            yunits = popd(kwargs, 'yunits', self.axes.yaxis.units)        
+            yunits = popd(kwargs, 'yunits', self.axes.yaxis.units)
             if xunits!=self.axes.xaxis.units:
                 self.axes.xaxis.set_units(xunits)
             if yunits!=self.axes.yaxis.units:
                 self.axes.yaxis.set_units(yunits)
-        
+
         ret =  self._grab_next_args(*args, **kwargs)
         return ret
 
@@ -239,7 +239,7 @@ class _process_plot_var_args:
         if self.axes.yaxis is not None:
             b = self.axes.yaxis.update_units(y)
             if b: return arange(len(y)), y, False
-            
+
         y = ma.asarray(y)
         if len(y.shape) == 1:
             y = y[:,newaxis]
@@ -250,12 +250,12 @@ class _process_plot_var_args:
         return x,y, True
 
     def _xy_from_xy(self, x, y):
-        if self.axes.xaxis is not None and self.axes.yaxis is not None:        
+        if self.axes.xaxis is not None and self.axes.yaxis is not None:
             bx = self.axes.xaxis.update_units(x)
             by = self.axes.yaxis.update_units(y)
             # right now multicol is not supported if either x or y are
             # unit enabled but this can be fixed..
-            if bx or by: return x, y, False 
+            if bx or by: return x, y, False
 
         x = ma.asarray(x)
         y = ma.asarray(y)
@@ -1049,7 +1049,7 @@ class Axes(Artist):
         if autolim:
             self.update_datalim(collection.get_verts(self.transData))
 
-        
+
     def add_line(self, line):
         'Add a line to the list of plot lines'
         self._set_artist_props(line)
@@ -1071,7 +1071,7 @@ class Axes(Artist):
             ydata = array([y for x,y in xys])
 
         self.update_datalim_numerix( xdata, ydata )
-        
+
 
     def add_patch(self, p):
         """
@@ -1084,7 +1084,7 @@ class Axes(Artist):
         p.set_clip_box(self.bbox)
         self._update_patch_limits(p)
         self.patches.append(p)
-        
+
     def _update_patch_limits(self, p):
         'update the datalimits for patch p'
         xys = self._get_verts_in_data_coords(
@@ -1105,7 +1105,7 @@ class Axes(Artist):
 
         for p in self.patches:
             self._update_patch_limits(p)
-            
+
     def update_datalim(self, xys):
         'Update the data lim bbox with seq of xy tups or equiv. 2-D array'
         # if no data is set currently, the bbox will ignore its
@@ -1138,7 +1138,7 @@ class Axes(Artist):
     def _process_unit_info(self, xdata=None, ydata=None, kwargs=None):
         'look for unit kwargs and update the axis instances as necessary'
 
-        if self.xaxis is None or self.xaxis is None: return 
+        if self.xaxis is None or self.xaxis is None: return
 
 
         if xdata is not None:
@@ -1146,8 +1146,8 @@ class Axes(Artist):
             #print '_process updated xdata: units=%s, converter=%s'%(self.xaxis.units, self.xaxis.converter)
 
         if ydata is not None:
-            self.yaxis.update_units(ydata)        
-            #print '_process updated ydata: units=%s, converter=%s'%(self.yaxis.units, self.yaxis.converter)            
+            self.yaxis.update_units(ydata)
+            #print '_process updated ydata: units=%s, converter=%s'%(self.yaxis.units, self.yaxis.converter)
 
         # process kwargs 2nd since these will override default units
         if kwargs is not None:
@@ -2348,9 +2348,9 @@ class Axes(Artist):
         maxy = nx.amax(y)
 
         minx, maxx = self.convert_xunits((minx, maxx))
-        miny, maxy = self.convert_yunits((miny, maxy))        
+        miny, maxy = self.convert_yunits((miny, maxy))
         corners = (minx, miny), (maxx, maxy)
-        
+
         self.update_datalim(corners)
         self.autoscale_view()
 
@@ -2420,7 +2420,7 @@ class Axes(Artist):
         miny = min(nx.amin(ymin), nx.amin(ymax))
         maxy = max(nx.amax(ymax), nx.amax(ymax))
         minx, maxx = self.convert_xunits((minx, maxx))
-        miny, maxy = self.convert_yunits((miny, maxy))        
+        miny, maxy = self.convert_yunits((miny, maxy))
         corners = (minx, miny), (maxx, maxy)
         self.update_datalim(corners)
         self.autoscale_view()
@@ -2535,7 +2535,7 @@ class Axes(Artist):
         for line in self._get_lines(*args, **kwargs):
             self.add_line(line)
             lines.append(line)
-            
+
 
         self.autoscale_view(scalex=scalex, scaley=scaley)
         return lines
@@ -3114,7 +3114,7 @@ class Axes(Artist):
                 left = left - width/2.
             elif orientation == 'horizontal':
                 bottom = bottom-height/2.
-                
+
         else:
             raise ValueError, 'invalid alignment: %s' % align
 
@@ -3143,11 +3143,11 @@ class Axes(Artist):
             if orientation == 'vertical':
                 x = left + 0.5*width
                 y = bottom + height
-                
+
             elif orientation == 'horizontal':
                 x = left + width
                 y = bottom + 0.5*height
-                
+
             self.errorbar(
                 x, y,
                 yerr=yerr, xerr=xerr,
@@ -3296,7 +3296,7 @@ class Axes(Artist):
             autopct=None,
             pctdistance=0.6,
             shadow=False,
-            labeldistance=1.1, 
+            labeldistance=1.1,
             ):
         """
         PIE(x, explode=None, labels=None,
@@ -3325,7 +3325,7 @@ class Axes(Artist):
             is None; default is 0.6.
 
           - labeldistance is the radial distance at which the pie labels are drawn
-          
+
           - shadow, if True, will draw a shadow beneath the pie.
 
         The pie chart will probably look best if the figure and axes are
@@ -5331,7 +5331,7 @@ class PolarAxes(Axes):
         self.collections = []
         self.texts = []     # text in axis coords
         self.legend_ = None
-        
+
         self.grid(self._gridOn)
         self.title =  Text(
             x=0.5, y=1.05, text='',
@@ -5352,7 +5352,7 @@ class PolarAxes(Axes):
             facecolor=self._axisbg,
             edgecolor=rcParams['axes.edgecolor'],
             )
-            
+
 
 
         self.axesPatch.set_figure(self.figure)
@@ -5375,7 +5375,7 @@ class PolarAxes(Axes):
             def __call__(self):
                 ticks = AutoLocator.__call__(self)
                 return [t for t in ticks if t>0]
-            
+
         self.rlocator = RadialLocator()
         self.rlocator.set_view_interval(self.rintv)
         self.rlocator.set_data_interval(self.rintd)
@@ -5452,7 +5452,7 @@ class PolarAxes(Axes):
 
         rpad is a fraction of the max of radii which will pad each of
         the radial labels in the radial direction.
-        
+
         Return value is a list of lines, labels where the lines are
         matplotlib.Line2D instances and the labels are matplotlib.Text
         instances
@@ -5463,7 +5463,7 @@ class PolarAxes(Axes):
         ACCEPTS: sequence of floats
         """
 
-        
+
 
         rmin = nx.amin(radii)
         if rmin<=0:
@@ -5471,7 +5471,7 @@ class PolarAxes(Axes):
 
         rpad = rpad * max(radii)
         popall(self.rgridlines)
-        
+
         theta = linspace(0., 2*math.pi, self.RESOLUTION)
         ls = rcParams['grid.linestyle']
         color = rcParams['grid.color']
@@ -5582,8 +5582,8 @@ class PolarAxes(Axes):
 
         #for i,v,t in zip(range(len(verts)), verts, tverts):
         #    print i,v,t
-        
-        
+
+
 
         l,b,w,h = self.figure.bbox.get_bounds()
         clippath = agg.path_storage()
@@ -5599,13 +5599,13 @@ class PolarAxes(Axes):
             if self._frameon: self.axesPatch.draw(renderer)
 
         if self._gridOn:
-            for l in self.rgridlines:                
+            for l in self.rgridlines:
                 l.set_clip_path(clippath)
                 l.draw(renderer)
 
             for l in self.thetagridlines:
                 l.set_clip_path(clippath)
-                l.draw(renderer)            
+                l.draw(renderer)
 
         for a in self.lines:# + self.patches:
             a.set_clip_path(clippath)
@@ -5623,7 +5623,7 @@ class PolarAxes(Axes):
         for zorder, a in dsu:
             a.draw(renderer)
 
-        
+
         for t in self.thetagridlabels+self.rgridlabels:
             t.draw(renderer)
 

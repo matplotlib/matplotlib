@@ -20,7 +20,7 @@ for i in range(N):
     b1 = v1 + v2
     b2 = v3 -v4
     b3 = v1*v2*b2 - b1
-    
+
 
     p1 = rand_point()
     box1 = rand_bbox()
@@ -28,7 +28,7 @@ for i in range(N):
     N = 10000
     x, y = rand(N), rand(N)
     xt, yt = t.numerix_x_y(x, y)
-    xys = t.seq_xy_tups( zip(x,y) ) 
+    xys = t.seq_xy_tups( zip(x,y) )
     val = report_memory(i)
     if i==1: start = val
 

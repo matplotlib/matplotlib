@@ -19,4 +19,4 @@ ax.plot([1,2,3])
 fig.savefig('test.png')
 fig.savefig('test.ps')
 show()
-            
+

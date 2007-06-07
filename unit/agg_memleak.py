@@ -20,7 +20,7 @@ for i in range(N):
 
     for j in range(50):
         xs = [400*int(rand()) for k in range(8)]
-        ys = [400*int(rand()) for k in range(8)]        
+        ys = [400*int(rand()) for k in range(8)]
         rgb = (1,0,0)
         pnts = zip(xs, ys)
         o.draw_polygon(gc, rgb, pnts)
@@ -28,7 +28,7 @@ for i in range(N):
 
     for j in range(50):
         x = [400*int(rand()) for k in range(4)]
-        y = [400*int(rand()) for k in range(4)]        
+        y = [400*int(rand()) for k in range(4)]
         o.draw_lines( gc, x, y)
 
     for j in range(50):

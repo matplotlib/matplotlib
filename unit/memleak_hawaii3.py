@@ -22,7 +22,7 @@ for i in range(indEnd):
     t1 = nx.arange(0.0, 2.0, 0.01)
     y1 = nx.sin(2*nx.pi*t1)
     y2 = rand(len(t1))
-    X = rand(50,50)              
+    X = rand(50,50)
 
     ax = fig.add_subplot(221)
     ax.plot(t1, y1, '-')

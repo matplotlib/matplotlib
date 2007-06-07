@@ -381,7 +381,7 @@ class Quiver(PolyCollection):
                 # numpy.nonzero returns tuple
                 a_valid_idx = a_valid_idx[0]
             valid_a = nx.take(a,a_valid_idx)
-            
+
             scale = 1.8 * nx.average(valid_a) * sn # crude auto-scaling
             scale = scale/self.span
             self.scale = scale

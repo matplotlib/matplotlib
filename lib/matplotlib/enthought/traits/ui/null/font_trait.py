@@ -47,11 +47,11 @@ font_noise = [ 'pt', 'point', 'family' ]
 #-------------------------------------------------------------------------------
 
 class TraitFont ( TraitHandler ):
-    
+
     #---------------------------------------------------------------------------
     #  Validates that the value is a valid font:
     #---------------------------------------------------------------------------
-    
+
     def validate ( self, object, name, value ):
         """ Validates that the value is a valid font.
         """
@@ -74,14 +74,14 @@ class TraitFont ( TraitHandler ):
                         point_size = lword + ' pt'
                     except:
                         facename.append( word )
-            return ('%s%s%s%s%s%s' % ( point_size, family, style, weight, 
+            return ('%s%s%s%s%s%s' % ( point_size, family, style, weight,
                     underline, ' '.join( facename ) )).strip()
         except:
             pass
         raise TraitError, ( object, name, 'a font descriptor string',
                             repr( value ) )
 
-    def info ( self ):                              
+    def info ( self ):
         return ( "a string describing a font (e.g. '12 pt bold italic "
                  "swiss family Arial' or 'default 12')" )
 
@@ -90,6 +90,6 @@ class TraitFont ( TraitHandler ):
 #-------------------------------------------------------------------------------
 
 fh       = TraitFont()
-NullFont = Trait( fh.validate( None, None, 'Arial 10' ), fh, 
+NullFont = Trait( fh.validate( None, None, 'Arial 10' ), fh,
                   editor = FontEditor )
-    
+

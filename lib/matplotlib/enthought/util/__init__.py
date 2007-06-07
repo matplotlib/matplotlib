@@ -1,7 +1,7 @@
 """
 ===========================
-Utility Functions 
-=========================== 
+Utility Functions
+===========================
 
 :Copyright: 2003 Enthought, Inc.
 
@@ -30,10 +30,10 @@ def test(level=1,verbosity=1):
     runner = unittest.TextTestRunner(verbosity=verbosity)
     runner.run(test_suite(level))
     return runner
-    
-    
-# returns a test suite for use elsewhere 
+
+
+# returns a test suite for use elsewhere
 def test_suite(level=1):
     import numpy.testing
-    import matplotlib.enthought.util    
+    import matplotlib.enthought.util
     return numpy.testing.harvest_test_suites(enthought.util,level=level)

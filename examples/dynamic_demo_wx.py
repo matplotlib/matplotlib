@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """
 Copyright (C) Jeremy O'Donoghue, 2003
- 
+
 License: This work is licensed under the PSF. A copy should be included
 with this source code, and is also available at
 http://www.python.org/psf/license.html
@@ -96,7 +96,7 @@ class PlotFigure(wxFrame):
         self.SetSizer(sizer)
         self.Fit()
         EVT_TIMER(self, TIMER_ID, self.onTimer)
-        
+
     def init_plot_data(self):
         a = self.fig.add_subplot(111)
         self.ind = numpy.arange(60)
@@ -108,26 +108,26 @@ class PlotFigure(wxFrame):
         self.count = 0
 
     def GetToolBar(self):
-        # You will need to override GetToolBar if you are using an 
+        # You will need to override GetToolBar if you are using an
         # unmanaged toolbar in your frame
         return self.toolbar
-                
+
     def onTimer(self, evt):
         self.count += 1
         if self.count >= 60: self.count = 0
         self.lines[0].set_data(self.ind, self.X[:,self.count])
         self.canvas.draw()
         self.canvas.gui_repaint()
-        
+
 if __name__ == '__main__':
     app = wxPySimpleApp()
     frame = PlotFigure()
     frame.init_plot_data()
-    
+
     # Initialise the timer - wxPython requires this to be connected to the
     # receivicng event handler
     t = wxTimer(frame, TIMER_ID)
     t.Start(100)
-    
+
     frame.Show()
     app.MainLoop()

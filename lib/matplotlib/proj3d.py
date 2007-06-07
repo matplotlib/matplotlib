@@ -45,7 +45,7 @@ def line2d(p0,p1):
 def line2d_dist(l, p):
     """
     Distance from line to point
-    line is a tuple of coefficients a,b,c 
+    line is a tuple of coefficients a,b,c
     """
     a,b,c = l
     x0,y0 = p
@@ -73,15 +73,15 @@ def line2d_seg_dist(p1,p2, p0):
 
     return d
 
-        
+
 def test_lines_dists():
     ax = pylab.gca()
-    
+
     xs,ys = (0,30),(20,150)
     pylab.plot(xs,ys)
     points = zip(xs,ys)
     p0,p1 = points
-    
+
     xs,ys = (0,0,20,30),(100,150,30,200)
     pylab.scatter(xs,ys)
     #
@@ -115,7 +115,7 @@ def test_world():
     zmin,zmax = 0.1,0.2
     M = world_transformation(xmin,xmax,ymin,ymax,zmin,zmax)
     print M
-    
+
 def view_transformation(E, R, V):
     n = (E - R)
     ## new
@@ -128,7 +128,7 @@ def view_transformation(E, R, V):
 #    Mr[:3,:3] = u,v,n
 #    Mt[:3,-1] = -E
     ## end new
-    
+
     ## old
     n = n / mod(n)
     u = cross(V,n)
@@ -145,7 +145,7 @@ def view_transformation(E, R, V):
           [0, 0, 1, -E[2]],
           [0, 0, 0, 1]]
     ## end old
-    
+
     return nx.matrixmultiply(Mr,Mt)
 
 def persp_transformation(zfront,zback):
@@ -244,10 +244,10 @@ def test_proj_make_M(E=None):
     perspM = persp_transformation(100,-100)
     M = nx.matrixmultiply(perspM,viewM)
     return M
-        
+
 def test_proj():
     M = test_proj_make_M()
-  
+
     ts = ['%d' % i for i in [0,1,2,3,0,4,5,6,7,4]]
     #xs,ys,zs = [0,1,1,0,0,1,1,0],[0,0,1,1,0,0,1,1],[0,0,0,0,1,1,1,1]
     xs,ys,zs = [0,1,1,0,0, 0,1,1,0,0],[0,0,1,1,0, 0,0,1,1,0],[0,0,0,0,0, 1,1,1,1,1]
@@ -256,7 +256,7 @@ def test_proj():
     test_proj_draw_axes(M,s=400)
     txs,tys,tzs = proj_transform(xs,ys,zs,M)
     ixs,iys,izs = inv_transform(txs,tys,tzs,M)
-    
+
     pylab.scatter(txs,tys,c=tzs)
     pylab.plot(txs,tys,c='r')
     for x,y,t in zip(txs,tys,ts):
@@ -281,7 +281,7 @@ def test_rot():
     print rot_x(V, nx.pi/6)
     V = [0,1,0,1]
     print rot_x(V, nx.pi/6)
-    
-    
+
+
 if __name__ == "__main__":
     test_proj()

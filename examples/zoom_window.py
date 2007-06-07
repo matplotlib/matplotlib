@@ -33,4 +33,4 @@ def onpress(event):
 
 figsrc.canvas.mpl_connect('button_press_event', onpress)
 show()
-    
+

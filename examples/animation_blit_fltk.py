@@ -21,19 +21,19 @@ class animator:
         self.tstart = time.time()
 
     def clear(self,event):
-        self.background = self.canvas.copy_from_bbox(self.ax.bbox)   
+        self.background = self.canvas.copy_from_bbox(self.ax.bbox)
 
     def update(self,ptr):
         # restore the clean slate background
         if self.background is None:
-            self.background = self.canvas.copy_from_bbox(self.ax.bbox)  
+            self.background = self.canvas.copy_from_bbox(self.ax.bbox)
         self.canvas.restore_region(self.background)
         # update the data
-        line.set_ydata(nx.sin(x+self.cnt/10.0))  
+        line.set_ydata(nx.sin(x+self.cnt/10.0))
         # just draw the animated artist
         self.ax.draw_artist(line)
         # just redraw the axes rectangle
-        self.canvas.blit(ax.bbox) 
+        self.canvas.blit(ax.bbox)
         self.cnt+=1
         if self.cnt==1000:
             # print the timing info and quit
@@ -48,7 +48,7 @@ p.grid() # to ensure proper background restore
 x = nx.arange(0,2*nx.pi,0.01)
 line, = p.plot(x, nx.sin(x), animated=True)
 p.draw()
-anim=animator(ax)    
+anim=animator(ax)
 
 fltk.Fl.add_idle(anim.update)
 fltk.Fl.run()

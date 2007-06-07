@@ -18,19 +18,19 @@ class ClipWindow:
         ax.add_patch(self.poly)
         self.canvas.mpl_connect('button_press_event', self.onpress)
         self.canvas.mpl_connect('button_release_event', self.onrelease)
-        self.canvas.mpl_connect('motion_notify_event', self.onmove)        
+        self.canvas.mpl_connect('motion_notify_event', self.onmove)
         self.x, self.y = None, None
 
 
     def onpress(self, event):
         self.x, self.y = event.x, event.y
-        
+
     def onrelease(self, event):
         self.x, self.y = None, None
 
     def onmove(self, event):
 
-        if self.x is None: return 
+        if self.x is None: return
         dx = event.x - self.x
         dy = event.y - self.y
         self.x, self.y = event.x, event.y
@@ -54,7 +54,7 @@ class ClipWindow:
         path.close_polygon()
         self.line.set_clip_path(path)
         self.canvas.draw_idle()
-        
+
 
 fig = figure(figsize=(8,8))
 ax = fig.add_subplot(111)

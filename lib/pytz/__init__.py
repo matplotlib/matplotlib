@@ -25,8 +25,8 @@ import sys
 from tzinfo import AmbiguousTimeError
 
 def timezone(zone):
-    ''' Return a datetime.tzinfo implementation for the given timezone 
-    
+    ''' Return a datetime.tzinfo implementation for the given timezone
+
     >>> from datetime import datetime, timedelta
     >>> utc = timezone('UTC')
     >>> eastern = timezone('US/Eastern')
@@ -61,7 +61,7 @@ def timezone(zone):
     return rv
 
 def _munge_zone(zone):
-    ''' Convert a zone into a string suitable for use as a Python identifier 
+    ''' Convert a zone into a string suitable for use as a Python identifier
     '''
     return zone.replace('+', '_plus_').replace('-', '_minus_')
 

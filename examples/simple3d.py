@@ -27,7 +27,7 @@ z = outerproduct(ones(u.shape), cos(v))
 #ax3d.plot_wireframe(x,y,z)
 surf = ax3d.plot_surface(x, y, z)
 surf.set_array(linspace(0, 1.0, len(v)))
-        
+
 ax3d.set_xlabel('X')
 ax3d.set_ylabel('Y')
 ax3d.set_zlabel('Z')

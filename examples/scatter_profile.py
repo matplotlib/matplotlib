@@ -16,7 +16,7 @@ for N in (20,100,1000,10000,50000):
     tstart = time.time()
     x = 0.9*rand(N)
     y = 0.9*rand(N)
-    s = 20*rand(N)    
+    s = 20*rand(N)
     scatter(x,y,s)
     #savefig('scatter_demo')
     print '%d symbols in %1.2f s' % (N, time.time()-tstart)

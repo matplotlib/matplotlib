@@ -5,9 +5,9 @@ import time
 __all__ = ['backend','show','draw_if_interactive',
            'new_figure_manager', 'backend_version']
 
-interactive_bk = ['GTK', 'GTKAgg', 'GTKCairo', 'FltkAgg', 'QtAgg', 'Qt4Agg', 
+interactive_bk = ['GTK', 'GTKAgg', 'GTKCairo', 'FltkAgg', 'QtAgg', 'Qt4Agg',
                   'TkAgg', 'WX', 'WXAgg', 'CocoaAgg', 'Aqt']
-non_interactive_bk = ['Agg2', 'Agg', 'Cairo', 'EMF', 'GD', 'GDK', 'Paint', 
+non_interactive_bk = ['Agg2', 'Agg', 'Cairo', 'EMF', 'GD', 'GDK', 'Paint',
                       'Pdf', 'PS', 'SVG', 'Template']
 all_backends = interactive_bk + non_interactive_bk
 

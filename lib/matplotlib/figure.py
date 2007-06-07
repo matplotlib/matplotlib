@@ -170,7 +170,7 @@ class Figure(Artist):
         rotation: the rotation of the xtick labels
         ha : the horizontal alignment of the xticklabels
 
-        
+
         """
 
         for ax in self.get_axes():
@@ -179,12 +179,12 @@ class Figure(Artist):
             if ax.is_last_row():
                 for label in ax.get_xticklabels():
                     label.set_ha(ha)
-                    label.set_rotation(rotation)                
+                    label.set_rotation(rotation)
             else:
                 for label in ax.get_xticklabels():
                     label.set_visible(False)
         self.subplots_adjust(bottom=bottom)
-        
+
     def get_children(self):
         'get a list of artists contained in the figure'
         children = [self.figurePatch]

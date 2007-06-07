@@ -21,6 +21,6 @@ for row in range(5):
             setp(gca(), 'yticklabels', [])
         if not gca().is_last_row():
             setp(gca(), 'xticklabels', [])
-        
+
 #savefig('line_styles', dpi=300)
 show()

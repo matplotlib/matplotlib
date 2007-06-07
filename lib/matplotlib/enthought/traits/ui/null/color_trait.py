@@ -1,13 +1,13 @@
 #-------------------------------------------------------------------------------
-#  
+#
 #  Trait definition for a null (i.e. no UI)-based color.
-#  
+#
 #  Written by: David C. Morrill
-#  
+#
 #  Date: 02/14/2005
-#  
+#
 #  (c) Copyright 2005 by Enthought, Inc.
-#  
+#
 #-------------------------------------------------------------------------------
 
 #-------------------------------------------------------------------------------
@@ -28,7 +28,7 @@ def convert_to_color ( object, name, value ):
 
 convert_to_color.info = ('an integer which in hex is of the form 0xRRGGBB, '
                          'where RR is red, GG is green, and BB is blue')
-             
+
 #-------------------------------------------------------------------------------
 #  Standard colors:
 #-------------------------------------------------------------------------------
@@ -108,8 +108,8 @@ standard_colors = {
 #-------------------------------------------------------------------------------
 #  Define 'null' specific color traits:
 #-------------------------------------------------------------------------------
-    
+
 # Color traits:
-NullColor = Trait( 'white', convert_to_color, standard_colors, 
+NullColor = Trait( 'white', convert_to_color, standard_colors,
                    editor = ColorEditor )
-       
+

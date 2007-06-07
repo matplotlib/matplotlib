@@ -37,7 +37,7 @@ class MyMplCanvas(FigureCanvas):
         self.axes.hold(False)
 
         self.compute_initial_figure()
-        
+
         FigureCanvas.__init__(self, self.fig)
         self.reparent(parent, QPoint(0, 0))
 

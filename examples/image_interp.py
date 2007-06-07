@@ -19,11 +19,11 @@ with identical pixels around the edge.  Eg, if you have a 5x5 array
 with colors a-y as below
 
 
-  a b c d e 
+  a b c d e
   f g h i j
   k l m n o
   p q r s t
-  u v w x y 
+  u v w x y
 
 the _image module creates the padded array,
 

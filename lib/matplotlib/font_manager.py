@@ -811,7 +811,7 @@ class FontManager:
         if not size : size = rcParams['font.size']
         self.__default_size = size
         self.__default_weight = weight
-        
+
         paths = [os.path.join(rcParams['datapath'],'fonts','ttf'),
                  os.path.join(rcParams['datapath'],'fonts','afm')]
 
@@ -1000,13 +1000,13 @@ Delete this file to have matplotlib rebuild the cache."""
     def _get_afm_font_dict(self):
         cache_message = "Saving AFM font cache for PS and PDF backends to %s.\n" \
                         "Delete this file to have matplotlib rebuild the cache."
-        
+
         if rcParams['pdf.use14corefonts']:
-            # Load only the 14 PDF core fonts. These fonts do not need to be 
+            # Load only the 14 PDF core fonts. These fonts do not need to be
             # embedded; every PDF viewing application is required to have them:
-            # Helvetica, Helvetica-Bold, Helvetica-Oblique, Helvetica-BoldOblique, 
-            # Courier, Courier-Bold, Courier-Oblique, Courier-BoldOblique, 
-            # Times-Roman, Times-Bold, Times-Italic, Times-BoldItalic, Symbol, 
+            # Helvetica, Helvetica-Bold, Helvetica-Oblique, Helvetica-BoldOblique,
+            # Courier, Courier-Bold, Courier-Oblique, Courier-BoldOblique,
+            # Times-Roman, Times-Bold, Times-Italic, Times-BoldItalic, Symbol,
             # ZapfDingbats.
             afmcache = os.path.join(get_configdir(), 'pdfcorefont.cache')
             try:
@@ -1026,7 +1026,7 @@ Delete this file to have matplotlib rebuild the cache."""
                 fontdict = createFontDict(self.afmfiles, fontext='afm')
                 pickle_dump(fontdict, afmcache)
                 verbose.report(cache_message % afmcache)
-        
+
         return fontdict
 
 

@@ -63,7 +63,7 @@ class AxisInfo:
         self.minfmt = minfmt
         self.label = label
 
-        
+
 class ConversionInterface:
     """
     The minimal interface for a converter to take custom instances (or
@@ -96,10 +96,10 @@ class ConversionInterface:
         arrays of them, even when units are set.  Derived conversion
         interfaces may opt to pass plain-ol unitless numbers through
         the conversion interface and this is a helper function for
-        them.  
+        them.
         """
         if iterable(x):
-            for thisx in x:                
+            for thisx in x:
                 return is_numlike(thisx)
         else:
             return is_numlike(x)
@@ -123,21 +123,21 @@ class Registry(dict):
 
         converter = None
         classx = getattr(x, '__class__', None)
-                
-        if classx is not None:            
+
+        if classx is not None:
             converter = self.get(classx)
 
         if converter is None and iterable(x):
             for thisx in x:
                 classx = getattr(thisx, '__class__', None)
                 break
-            if classx is not None:            
+            if classx is not None:
                 converter = self.get(classx)
 
 
         #DISABLED self._cached[idx] = converter
         return converter
-                
+
 
 registry = Registry()
-    
+

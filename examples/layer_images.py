@@ -41,4 +41,4 @@ im2 = imshow(Z2, cmap=cm.jet, alpha=.9, interpolation='bilinear',
 
 show()
 
-    
+

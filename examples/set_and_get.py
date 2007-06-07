@@ -51,7 +51,7 @@ get:
         clip_on = True
         color = b
         ... long listing skipped ...
-  
+
 Alisases:
 
   To reduce keystrokes in interactive mode, a number of properties
@@ -59,9 +59,9 @@ Alisases:
   'markeredgecolor'.  When calling set or get in introspection mode,
   these properties will be listed as 'fullname or aliasname', as in
 
-  
 
-  
+
+
 """
 
 from pylab import *
@@ -72,7 +72,7 @@ y1 = sin(2*pi*x)
 y2 = sin(4*pi*x)
 lines = plot(x, y1, x, y2)
 l1, l2 = lines
-setp(lines, linestyle='--')       # set both to dashed 
+setp(lines, linestyle='--')       # set both to dashed
 setp(l1, linewidth=2, color='r')  # line1 is thick and red
 setp(l2, linewidth=1, color='g')  # line2 is thicker and green
 

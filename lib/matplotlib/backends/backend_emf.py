@@ -46,7 +46,7 @@ class EMFFontProperties(FontProperties):
                               other.get_stretch(),
                               other.get_size())
         self.__angle=angle
-        
+
     def __hash__(self):
         return hash( (FontProperties.__hash__(self), self.__angle))
 
@@ -61,13 +61,13 @@ class EMFPen:
     def __init__(self,emf,gc):
         self.emf=emf
         self.gc=gc
-        
+
         r,g,b=gc.get_rgb()
         self.r=int(r*255)
         self.g=int(g*255)
         self.b=int(b*255)
         self.width=int(gc.get_linewidth())
-        
+
         self.style=0
         self.set_linestyle()
         if debugHandle: print "EMFPen: style=%d width=%d rgb=(%d,%d,%d)" % (self.style,self.width,self.r,self.g,self.b)
@@ -128,11 +128,11 @@ class RendererEMF(RendererBase):
 
         # dict of hashed properties to already created font handles
         self._fontHandle = {}
-        
+
         self.lastHandle = {'font':-1, 'pen':-1, 'brush':-1}
 
         self.emf=pyemf.EMF(width,height,dpi,'in')
-        
+
         self.width=int(width*dpi)
         self.height=int(height*dpi)
         self.dpi = dpi
@@ -146,11 +146,11 @@ class RendererEMF(RendererBase):
 
         if debugPrint: print "RendererEMF: (%f,%f) %s dpi=%f" % (self.width,self.height,outfile,dpi)
 
-       
+
 
     def save(self):
         self.emf.save(self.outfile)
-    
+
     def draw_arc(self, gcEdge, rgbFace, x, y, width, height, angle1, angle2, rotation):
         """
         Draw an arc using GraphicsContext instance gcEdge, centered at x,y,
@@ -178,7 +178,7 @@ class RendererEMF(RendererBase):
         else:
             self.emf.Arc(int(x-hw),int(self.height-(y-hh)),int(x+hw),int(self.height-(y+hh)),int(x+math.cos(angle1*math.pi/180.0)*hw),int(self.height-(y+math.sin(angle1*math.pi/180.0)*hh)),int(x+math.cos(angle2*math.pi/180.0)*hw),int(self.height-(y+math.sin(angle2*math.pi/180.0)*hh)))
 
-    
+
     def draw_image(self, x, y, im, bbox):
         """
         Draw the Image instance into the current axes; x is the
@@ -192,10 +192,10 @@ class RendererEMF(RendererBase):
         """
 
         # pyemf2 currently doesn't support bitmaps.
-        
+
         pass
 
-    
+
     def draw_line(self, gc, x1, y1, x2, y2):
         """
         Draw a single line from x1,y1 to x2,y2
@@ -206,7 +206,7 @@ class RendererEMF(RendererBase):
             self.emf.Polyline([(long(x1),long(self.height-y1)),(long(x2),long(self.height-y2))])
         else:
             if debugPrint: print "draw_line: optimizing away (%f,%f) - (%f,%f)" % (x1,y1,x2,y2)
-    
+
     def draw_lines(self, gc, x, y):
         """
         x and y are equal length arrays, draw lines connecting each
@@ -229,7 +229,7 @@ class RendererEMF(RendererBase):
 
         # don't cache this pen
         pen=EMFPen(self.emf,gc)
-        
+
         self.emf.SetPixel(long(x),long(self.height-y),(pen.r,pen.g,pen.b))
 
     def draw_polygon(self, gcEdge, rgbFace, points):
@@ -261,7 +261,7 @@ class RendererEMF(RendererBase):
         If rgbFace is not None, fill the rectangle with it.
         """
         if debugPrint: print "draw_rectangle: (%f,%f) w=%f,h=%f" % (x,y,width,height)
-        
+
         # optimize away anything that won't actually draw.  Either a
         # face color or edge style must be defined
         pen=self.select_pen(gcEdge)
@@ -310,10 +310,10 @@ class RendererEMF(RendererBase):
         hackoffsetper300dpi=10
         xhack=math.sin(angle*math.pi/180.0)*hackoffsetper300dpi*self.dpi/300.0
         yhack=math.cos(angle*math.pi/180.0)*hackoffsetper300dpi*self.dpi/300.0
-        
+
         self.emf.TextOut(long(x+xhack),long(y+yhack),s)
 
-         
+
     def draw_math_text(self, gc, x, y, s, prop, angle):
         """
         Draw a subset of TeX, currently handles exponents only.  Since
@@ -339,7 +339,7 @@ class RendererEMF(RendererBase):
         else:
             # if it isn't an exponent, then render the raw TeX string.
             self.draw_plain_text(gc,x,y,s,prop,angle)
-         
+
     def get_math_text_width_height(self, s, prop):
         """
         get the width and height in display coords of the string s
@@ -378,7 +378,7 @@ class RendererEMF(RendererBase):
         """
         return True
 
-    
+
     def get_canvas_width_height(self):
         """
         return the canvas width and height in display coords
@@ -396,7 +396,7 @@ class RendererEMF(RendererBase):
             self.emf.SelectObject(handle)
             self.lastHandle[type]=handle
 
-            
+
     def get_font_handle(self, prop, angle):
         """
         Look up the handle for the font based on the dict of
@@ -425,7 +425,7 @@ class RendererEMF(RendererBase):
         handle=self.get_font_handle(prop,angle)
         self.set_handle("font",handle)
 
-        
+
     def select_pen(self, gc):
         """
         Select a pen that includes the color, line width and line
@@ -480,10 +480,10 @@ class RendererEMF(RendererBase):
         font.clear()
         size = prop.get_size_in_points()
         font.set_size(size, self.dpi)
-            
+
         return font
 
-        
+
     def get_text_width_height(self, s, prop, ismath):
         """
         get the width and height in display coords of the string s
@@ -494,7 +494,7 @@ class RendererEMF(RendererBase):
             if debugText: print " MATH TEXT! = %s" % str(ismath)
             w,h = self.get_math_text_width_height(s, prop)
             return w,h
-        
+
         font = self._get_font_ttf(prop)
         font.set_text(s, 0.0)
         w, h = font.get_width_height()
@@ -538,10 +538,10 @@ class GraphicsContextEMF(GraphicsContextBase):
     """
     pass
 
-        
-        
+
+
 ########################################################################
-#    
+#
 # The following functions and classes are for pylab and implement
 # window/figure managers, etc...
 #
@@ -598,7 +598,7 @@ class FigureCanvasEMF(FigureCanvasBase):
         Draw the figure using the renderer
         """
         pass
-        
+
     def print_figure(self, filename, dpi=300, facecolor='w', edgecolor='w',
                      orientation='portrait', **kwargs):
         """
@@ -610,7 +610,7 @@ class FigureCanvasEMF(FigureCanvasBase):
         Following the style of backend_ps and backend_gd
         """
         basename, ext = os.path.splitext(filename)
-        if not ext: 
+        if not ext:
             ext = '.emf'
             filename += ext
 
@@ -627,8 +627,8 @@ class FigureCanvasEMF(FigureCanvasBase):
         renderer = RendererEMF(filename,width,height,dpi)
         self.figure.draw(renderer)
         renderer.save()
-        
-    
+
+
 class FigureManagerEMF(FigureManagerBase):
     """
     Wrap everything up into a window for the pylab interface
@@ -638,9 +638,9 @@ class FigureManagerEMF(FigureManagerBase):
     pass
 
 ########################################################################
-#    
+#
 # Now just provide the standard names that backend.__init__ is expecting
-# 
+#
 ########################################################################
 
 

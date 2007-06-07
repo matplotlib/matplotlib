@@ -59,7 +59,7 @@ class Artist:
         """for artists in an axes, if the xaxis as units support,
         convert x using xaxis unit type
         """
-        ax = getattr(self, 'axes', None)        
+        ax = getattr(self, 'axes', None)
         if ax is None or ax.xaxis is None:
             #print 'artist.convert_xunits no conversion: ax=%s'%ax
             return x
@@ -69,7 +69,7 @@ class Artist:
         """for artists in an axes, if the yaxis as units support,
         convert y using yaxis unit type
         """
-        ax = getattr(self, 'axes', None)        
+        ax = getattr(self, 'axes', None)
         if ax is None or ax.yaxis is None: return y
         return ax.yaxis.convert_units(y)
 

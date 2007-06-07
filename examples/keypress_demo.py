@@ -13,7 +13,7 @@ def press(event):
     if event.key=='g':
         grid()
         draw()
-    
+
 connect('key_press_event', press)
 
 title('press g to toggle grid')

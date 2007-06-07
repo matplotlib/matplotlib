@@ -9,7 +9,7 @@ date1 = datetime.datetime( 2000, 3, 2)
 date2 = datetime.datetime( 2000, 3, 6)
 delta = datetime.timedelta(hours=6)
 dates = drange(date1, date2, delta)
-    
+
 y = nx.arange( len(dates)*1.0)
 
 fig = figure()

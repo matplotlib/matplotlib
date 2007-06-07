@@ -12,7 +12,7 @@ except ImportError:
          Float32, Float64, \
          Complex32, Complex64, \
          Float, Int, Complex
-    
+
 class _TypeNamespace:
     """Numeric compatible type aliases for use with extension functions."""
     Int8          = Int8

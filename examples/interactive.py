@@ -54,7 +54,7 @@ class MTConsole(code.InteractiveConsole):
                 self.completer = rlcompleter.Completer(self.locals)
             except: # simpler for py2.2
                 self.completer = rlcompleter.Completer()
-                
+
             readline.set_completer(self.completer.complete)
             # Use tab for completions
             readline.parse_and_bind('tab: complete')
@@ -146,7 +146,7 @@ class GTKInterpreter(threading.Thread):
     GTK timeout callback.
     """
     TIMEOUT = 100 # Millisecond interval between timeouts.
-    
+
     def __init__(self,banner=None):
         threading.Thread.__init__(self)
         self.banner = banner
@@ -173,7 +173,7 @@ class GTKInterpreter(threading.Thread):
 
         It gets called right before interact(), but after the thread starts.
         Typically used to push initialization code into the interpreter"""
-        
+
         pass
 
 class MatplotLibInterpreter(GTKInterpreter):
@@ -188,7 +188,7 @@ class MatplotLibInterpreter(GTKInterpreter):
     help(plotting) -> help on plotting commands.
     """
         GTKInterpreter.__init__(self,banner)
-        
+
     def pre_interact(self):
         """Initialize matplotlib before user interaction begins"""
 
@@ -201,7 +201,7 @@ class MatplotLibInterpreter(GTKInterpreter):
                  "from matplotlib.pylab import *\n"]
 
         map(push,lines)
-        
+
         # Execute file if given.
         if len(sys.argv)>1:
             import matplotlib

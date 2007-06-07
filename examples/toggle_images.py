@@ -25,7 +25,7 @@ x2 = rand(150, 175)
 
 # arbitrary extent - both images must have same extent if you want
 # them to be resampled into the same axes space
-extent = (0,1,0,1) 
+extent = (0,1,0,1)
 im1 = imshow(x1, extent=extent)
 im2 = imshow(x2, extent=extent, hold=True)
 im2.set_visible(False)

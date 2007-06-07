@@ -25,7 +25,7 @@ xfit = array( [amin(x), amax(x) ] )
 
 subplot(221)
 plot(x,y1,'ks', xfit, fit(xfit), 'r-', lw=2)
-axis([2,20,2,14])       
+axis([2,20,2,14])
 setp(gca(), xticklabels=[], yticks=(4,8,12), xticks=(0,10,20))
 text(3,12, 'I', fontsize=20)
 

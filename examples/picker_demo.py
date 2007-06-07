@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """
 Hold the pointer over an object and press "p" to pick it.  When
-picked it will turn red 
+picked it will turn red
 
 Note this algorithm calculates distance to the vertices of the
 polygon, so if you want to pick a patch, click on the edge!
@@ -16,7 +16,7 @@ def pick(event):
     if event.key=='p' and event.inaxes is not None:
         ax = event.inaxes
         a = ax.pick(event.x, event.y)
-        
+
         if isinstance(a, Text):
             a.set_color('r')
         elif isinstance(a, Line2D):
@@ -24,8 +24,8 @@ def pick(event):
         elif isinstance(a, Patch):
             a.set_facecolor('r')
         draw()
-            
-    
+
+
 connect('key_press_event', pick)
 
 ax = subplot(111)
@@ -46,6 +46,6 @@ for i in range(5):
     center = x,y
     p = Circle(center, radius=.1)
     ax.add_patch(p)
-    
+
 
 show()

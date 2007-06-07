@@ -20,7 +20,7 @@ plot(t, s)
 xlabel(r'\textbf{time (s)}')
 s = unicode(r'\textit{Velocity (°/sec)}','latin-1')
 ylabel(unicode(r'\textit{Velocity (°/sec)}','latin-1'),fontsize=16)
-title(r"\TeX\ is Number $\displaystyle\sum_{n=1}^\infty\frac{-e^{i\pi}}{2^n}$!", 
+title(r"\TeX\ is Number $\displaystyle\sum_{n=1}^\infty\frac{-e^{i\pi}}{2^n}$!",
       fontsize=16, color='r')
 grid(True)
 savefig('tex_demo')

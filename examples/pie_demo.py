@@ -9,7 +9,7 @@ area percentage, offsetting a slice using "explode" and addind a shadow
 for a 3D effect
 """
 from pylab import *
-    
+
 # make a square figure and axes
 figure(1, figsize=(8,8))
 ax = axes([0.1, 0.1, 0.8, 0.8])
@@ -32,4 +32,4 @@ pie(fracs, explode=explode, labels=labels, autopct='%1.1f%%', shadow=True)
 
 savefig('pie_demo')
 show()
-    
+

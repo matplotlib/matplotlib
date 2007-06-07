@@ -78,5 +78,5 @@ if __name__ == '__main__':
         fn_name = "fig_%d" % fig
         fn = globals()[fn_name]
         fn()
-        
+
     show()

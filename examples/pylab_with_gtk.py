@@ -14,7 +14,7 @@ legend()
 
 manager = get_current_fig_manager()
 # you can also access the window or vbox attributes this way
-toolbar = manager.toolbar 
+toolbar = manager.toolbar
 
 # now let's add a button to the toolbar
 import gtk

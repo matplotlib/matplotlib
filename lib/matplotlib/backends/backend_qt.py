@@ -62,7 +62,7 @@ def show():
     """
     for manager in Gcf.get_all_fig_managers():
         manager.window.show()
-        
+
     if DEBUG: print 'Inside show'
 
     figManager =  Gcf.get_active()
@@ -97,7 +97,7 @@ class FigureCanvasQT( qt.QWidget, FigureCanvasBase ):
     def __init__( self, figure ):
         if DEBUG: print 'FigureCanvasQt: ', figure
         _create_qApp()
-        
+
         qt.QWidget.__init__( self, None, "QWidget figure" )
         FigureCanvasBase.__init__( self, figure )
         self.figure = figure
@@ -105,7 +105,7 @@ class FigureCanvasQT( qt.QWidget, FigureCanvasBase ):
 
         w,h = self.get_width_height()
         self.resize( w, h )
-        
+
     def mousePressEvent( self, event ):
         x = event.pos().x()
         # flipy so y=0 is bottom of canvas
@@ -113,7 +113,7 @@ class FigureCanvasQT( qt.QWidget, FigureCanvasBase ):
         button = self.buttond[event.button()]
         FigureCanvasBase.button_press_event( self, x, y, button )
         if DEBUG: print 'button pressed:', event.button()
-        
+
     def mouseMoveEvent( self, event ):
         x = event.x()
         # flipy so y=0 is bottom of canvas
@@ -154,7 +154,7 @@ class FigureCanvasQT( qt.QWidget, FigureCanvasBase ):
             key = self.keyvald[ event.key() ]
         else:
             key = None
-            
+
         return key
 
 class FigureManagerQT( FigureManagerBase ):
@@ -164,9 +164,9 @@ class FigureManagerQT( FigureManagerBase ):
     canvas      : The FigureCanvas instance
     num         : The Figure number
     toolbar     : The qt.QToolBar
-    window      : The qt.QMainWindow 
+    window      : The qt.QMainWindow
     """
-    
+
     def __init__( self, canvas, num ):
         if DEBUG: print 'FigureManagerQT.%s' % fn_name()
         FigureManagerBase.__init__( self, canvas, num )
@@ -176,21 +176,21 @@ class FigureManagerQT( FigureManagerBase ):
 
         centralWidget = qt.QWidget( self.window )
         self.canvas.reparent( centralWidget, qt.QPoint( 0, 0 ) )
-        
+
         # Give the keyboard focus to the figure instead of the manager
         self.canvas.setFocusPolicy( qt.QWidget.ClickFocus )
         self.canvas.setFocus()
         self.window.setCaption( "Figure %d" % num )
 
         self.window._destroying = False
-        
+
         self.toolbar = self._get_toolbar(self.canvas, centralWidget)
 
         # Use a vertical layout for the plot and the toolbar.  Set the
         # stretch to all be in the plot so the toolbar doesn't resize.
         self.layout = qt.QVBoxLayout( centralWidget )
         self.layout.addWidget( self.canvas, 1 )
-        
+
         if self.toolbar:
            self.layout.addWidget( self.toolbar, 0 )
 
@@ -202,13 +202,13 @@ class FigureManagerQT( FigureManagerBase ):
         # we add 4 pixels).  The second is that the total width/height
         # is slightly smaller that we actually want.  It seems like
         # the border of the window is being included in the size but
-        # AFAIK there is no way to get that size.  
+        # AFAIK there is no way to get that size.
         w = self.canvas.width()
         h = self.canvas.height()
         if self.toolbar:
            h += self.toolbar.height() + 4
         self.window.resize( w, h )
-        
+
         if matplotlib.is_interactive():
             self.window.show()
 
@@ -225,7 +225,7 @@ class FigureManagerQT( FigureManagerBase ):
     def _widgetCloseEvent( self, event ):
         self._widgetclosed()
         qt.QWidget.closeEvent( self.window, event )
-        
+
     def _get_toolbar(self, canvas, parent):
         # must be inited after the window, drawingArea and figure
         # attrs are set
@@ -236,7 +236,7 @@ class FigureManagerQT( FigureManagerBase ):
         else:
             toolbar = None
         return toolbar
-    
+
     def resize(self, width, height):
         'set the canvas size in pixels'
         self.window.resize(width, height)
@@ -254,14 +254,14 @@ class NavigationToolbar2QT( NavigationToolbar2, qt.QWidget ):
         ('Home', 'Reset original view', 'home.ppm', 'home'),
         ('Back', 'Back to  previous view','back.ppm', 'back'),
         ('Forward', 'Forward to next view','forward.ppm', 'forward'),
-        (None, None, None, None),        
+        (None, None, None, None),
         ('Pan', 'Pan axes with left mouse, zoom with right', 'move.ppm', 'pan'),
         ('Zoom', 'Zoom to rectangle','zoom_to_rect.ppm', 'zoom'),
         (None, None, None, None),
         ('Subplots', 'Configure subplots','subplots.png', 'configure_subplots'),
         ('Save', 'Save the figure','filesave.ppm', 'save_figure'),
         )
-        
+
     def __init__( self, canvas, parent ):
         self.canvas = canvas
         self.buttons = {}
@@ -271,17 +271,17 @@ class NavigationToolbar2QT( NavigationToolbar2, qt.QWidget ):
         # Layout toolbar buttons horizontally.
         self.layout = qt.QHBoxLayout( self )
         self.layout.setMargin( 2 )
-        
+
         NavigationToolbar2.__init__( self, canvas )
-        
+
     def _init_toolbar( self ):
         basedir = os.path.join(matplotlib.rcParams[ 'datapath' ],'images')
-        
+
         for text, tooltip_text, image_file, callback in self.toolitems:
             if text == None:
                 self.layout.addSpacing( 8 )
                 continue
-            
+
             fname = os.path.join( basedir, image_file )
             image = qt.QPixmap()
             image.load( fname )
@@ -311,7 +311,7 @@ class NavigationToolbar2QT( NavigationToolbar2, qt.QWidget ):
         self.locLabel.setSizePolicy(qt.QSizePolicy(qt.QSizePolicy.Ignored,
                                                       qt.QSizePolicy.Ignored))
         self.layout.addWidget( self.locLabel, 1 )
-        
+
         # reference holder for subplots_adjust window
         self.adj_window = None
 
@@ -333,45 +333,45 @@ class NavigationToolbar2QT( NavigationToolbar2, qt.QWidget ):
         if DEBUG: print 'Set cursor' , cursor
         qt.QApplication.restoreOverrideCursor()
         qt.QApplication.setOverrideCursor( qt.QCursor( cursord[cursor] ) )
-                
+
     def draw_rubberband( self, event, x0, y0, x1, y1 ):
         height = self.canvas.figure.bbox.height()
         y1 = height - y1
         y0 = height - y0
-        
+
         w = abs(x1 - x0)
         h = abs(y1 - y0)
 
         rect = [ int(val)for val in min(x0,x1), min(y0, y1), w, h ]
         self.canvas.drawRectangle( rect )
-        
+
     def configure_subplots(self):
         self.adj_window = qt.QMainWindow(None, None, qt.Qt.WDestructiveClose)
         win = self.adj_window
         win.setCaption("Subplot Configuration Tool")
-        
+
         toolfig = Figure(figsize=(6,3))
-        toolfig.subplots_adjust(top=0.9)        
+        toolfig.subplots_adjust(top=0.9)
         w = int (toolfig.bbox.width())
         h = int (toolfig.bbox.height())
-        
+
         canvas = self._get_canvas(toolfig)
         tool = SubplotTool(self.canvas.figure, toolfig)
         centralWidget = qt.QWidget(win)
         canvas.reparent(centralWidget, qt.QPoint(0, 0))
         win.setCentralWidget(centralWidget)
-        
+
         layout = qt.QVBoxLayout(centralWidget)
         layout.addWidget(canvas, 1)
-        
+
         win.resize(w, h)
         canvas.setFocus()
         win.show()
-    
+
     def _get_canvas(self, fig):
         return FigureCanvasQT(fig)
-    
-    def save_figure( self ):     
+
+    def save_figure( self ):
         fname = qt.QFileDialog.getSaveFileName()
         if fname:
             self.canvas.print_figure( fname.latin1() )
@@ -394,7 +394,7 @@ except:
 def error_msg_qt( msg, parent=None ):
     if not is_string_like( msg ):
         msg = ','.join( map( str,msg ) )
-                         
+
     qt.QMessageBox.warning( None, "Matplotlib", msg, qt.QMessageBox.Ok )
 
 def exception_handler( type, value, tb ):

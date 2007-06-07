@@ -19,9 +19,9 @@ class Cursor:
 
         # text location in axes coords
         self.txt = ax.text( 0.7, 0.9, '', transform=ax.transAxes)
-        
+
     def mouse_move(self, event):
-        if not event.inaxes: return 
+        if not event.inaxes: return
         ax = event.inaxes
         minx, maxx = ax.get_xlim()
         miny, maxy = ax.get_ylim()
@@ -48,10 +48,10 @@ class SnaptoCursor:
         self.y = y
         # text location in axes coords
         self.txt = ax.text( 0.7, 0.9, '', transform=ax.transAxes)
-        
+
     def mouse_move(self, event):
 
-        if not event.inaxes: return 
+        if not event.inaxes: return
         ax = event.inaxes
         minx, maxx = ax.get_xlim()
         miny, maxy = ax.get_ylim()
@@ -60,7 +60,7 @@ class SnaptoCursor:
 
         indx = searchsorted(self.x, [x])[0]
         x = self.x[indx]
-        y = self.y[indx]            
+        y = self.y[indx]
         # update the line positions
         self.lx.set_data( (minx, maxx), (y, y) )
         self.ly.set_data( (x, x), (miny, maxy) )
@@ -74,7 +74,7 @@ s = sin(2*2*pi*t)
 ax = subplot(111)
 
 cursor = Cursor(ax)
-#cursor = SnaptoCursor(ax, t, s) 
+#cursor = SnaptoCursor(ax, t, s)
 connect('motion_notify_event', cursor.mouse_move)
 
 ax.plot(t, s, 'o')

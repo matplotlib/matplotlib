@@ -6,7 +6,7 @@
 #
 #  Date: 10/14/2004
 #
-#  Symbols defined: 
+#  Symbols defined:
 #
 #  (c) Copyright 2004 by Enthought, Inc.
 #
@@ -26,11 +26,11 @@ from matplotlib.enthought.traits import Trait, TraitPrefixList, Delegate, Str
 style_trait = Trait( 'simple',
                      TraitPrefixList( 'simple', 'custom', 'text', 'readonly' ),
                      cols = 4 )
-                     
-# The default object being edited trait:                     
-object_trait = Str( 'object' )                     
 
-# Delegate a trait value to the object's 'container':                      
+# The default object being edited trait:
+object_trait = Str( 'object' )
+
+# Delegate a trait value to the object's 'container':
 container_delegate = Delegate( 'container' )
 
 #-------------------------------------------------------------------------------

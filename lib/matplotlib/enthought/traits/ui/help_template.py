@@ -86,18 +86,18 @@ class HelpTemplate ( HasStrictTraits ):
     item_help     = Str( ItemHelp )  # Single group item HTML
     group_help    = Str( GroupHelp ) # Group level help HTML
     no_group_help = Str( '' )        # Missing group level help HTML
-    
+
 #-------------------------------------------------------------------------------
-#  Gets/Sets the current HelpTemplate in use:  
+#  Gets/Sets the current HelpTemplate in use:
 #-------------------------------------------------------------------------------
- 
+
 _help_template = HelpTemplate()
 
 def help_template ( template = None ):
     """ Gets/Sets the current HelpTemplate in use.
     """
     global _help_template
-    
+
     if template is not None:
         _help_template = template
     return _help_template

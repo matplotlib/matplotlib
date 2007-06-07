@@ -8,7 +8,7 @@ usable as is).  There will be some refinement of the API and the
 inside polygon detection routine.
 """
 from matplotlib.widgets import Lasso
-import matplotlib.mlab 
+import matplotlib.mlab
 from matplotlib.nxutils import points_inside_poly
 from matplotlib.colors import colorConverter
 from matplotlib.collections import RegularPolyCollection
@@ -17,14 +17,14 @@ from pylab import figure, show, nx
 
 class Datum:
     colorin = colorConverter.to_rgba('red')
-    colorout = colorConverter.to_rgba('green')    
+    colorout = colorConverter.to_rgba('green')
     def __init__(self, x, y, include=False):
         self.x = x
         self.y = y
         if include: self.color = self.colorin
         else: self.color = self.colorout
-        
-        
+
+
 class LassoManager:
     def __init__(self, ax, data):
         self.axes = ax
@@ -45,7 +45,7 @@ class LassoManager:
         ax.add_collection(self.collection)
 
         self.cid = self.canvas.mpl_connect('button_press_event', self.onpress)
-        
+
     def callback(self, verts):
         #print 'all done', verts
         #ind = matplotlib.mlab._inside_poly_deprecated(self.xys, verts)
@@ -54,14 +54,14 @@ class LassoManager:
             if i in ind:
                 self.facecolors[i] = Datum.colorin
             else:
-                self.facecolors[i] = Datum.colorout             
+                self.facecolors[i] = Datum.colorout
 
         self.canvas.draw_idle()
         self.canvas.widgetlock.release(self.lasso)
         del self.lasso
-    def onpress(self, event):        
-        if self.canvas.widgetlock.locked(): return 
-        if event.inaxes is None: return 
+    def onpress(self, event):
+        if self.canvas.widgetlock.locked(): return
+        if event.inaxes is None: return
         self.lasso = Lasso(event.inaxes, (event.xdata, event.ydata), self.callback)
         # acquire a lock on the widget drawing
         self.canvas.widgetlock(self.lasso)
@@ -71,5 +71,5 @@ data = [Datum(*xy) for xy in nx.mlab.rand(100, 2)]
 fig = figure()
 ax = fig.add_subplot(111, xlim=(0,1), ylim=(0,1), autoscale_on=False)
 lman = LassoManager(ax, data)
-    
+
 show()

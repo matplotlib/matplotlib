@@ -548,7 +548,7 @@ def validate_comma_sep_str(s):
 def validate_latex_preamble(s):
     'return a list'
     preamble_list = validate_comma_sep_str(s)
-    if not preamble_list == ['']: 
+    if not preamble_list == ['']:
         verbose.report("""
 *****************************************************************
 You have the following UNSUPPORTED LaTeX preamble customizations:
@@ -557,7 +557,7 @@ Please do not ask for support with these customizations active.
 *****************************************************************
 """% '\n'.join(preamble_list), 'helpful')
     return preamble_list
-    
+
 
 class ValidateInStrings:
     def __init__(self, valid, ignorecase=False):

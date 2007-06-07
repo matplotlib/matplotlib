@@ -26,11 +26,11 @@ def run(*args):
         # restore the clean slate background
         canvas.restore_region(background)
         # update the data
-        line.set_ydata(nx.sin(x+run.cnt/10.0))  
+        line.set_ydata(nx.sin(x+run.cnt/10.0))
         # just draw the animated artist
         ax.draw_artist(line)
         # just redraw the axes rectangle
-        canvas.blit(ax.bbox) 
+        canvas.blit(ax.bbox)
 
         if run.cnt==1000:
             # print the timing info and quit
@@ -38,7 +38,7 @@ def run(*args):
             sys.exit()
 
         run.cnt += 1
-run.cnt = 0        
+run.cnt = 0
 
 
 p.subplots_adjust(left=0.3, bottom=0.3) # check for flipy bugs

@@ -1,13 +1,13 @@
 #-------------------------------------------------------------------------------
-#  
+#
 #  Trait definition for an RGBA-based color.
-#  
+#
 #  Written by: David C. Morrill
-#  
+#
 #  Data: 12/22/2004
-#  
+#
 #  (c) Copyright 2004 by Enthought, Inc.
-#  
+#
 #-------------------------------------------------------------------------------
 
 #-------------------------------------------------------------------------------
@@ -33,8 +33,8 @@ def convert_to_color ( object, name, value ):
         (0.0 <= value[3] <= 1.0)):
         return value
     if type( value ) is int:
-        return (  (value / 0x1000000)       / 255.0, 
-                 ((value / 0x10000) & 0xFF) / 255.0, 
+        return (  (value / 0x1000000)       / 255.0,
+                 ((value / 0x10000) & 0xFF) / 255.0,
                  ((value / 0x100)   & 0xFF) / 255.0,
                   (value & 0xFF)            / 255.0 )
     raise TraitError
@@ -44,7 +44,7 @@ convert_to_color.info = ('a tuple of the form (red,green,blue,alpha), where '
                          'an integer which in hex is of the form 0xAARRGGBB, '
                          'where AA is alpha, RR is red, GG is green, and BB is '
                          'blue')
-             
+
 #-------------------------------------------------------------------------------
 #  Standard colors:
 #-------------------------------------------------------------------------------
@@ -57,8 +57,8 @@ rgba_standard_colors[ 'clear' ] = ( 0.0, 0.0, 0.0, 0.0 )
 #-------------------------------------------------------------------------------
 #  Define Enable/Kiva specific color trait:
 #-------------------------------------------------------------------------------
-    
+
 # Color trait:
-RGBAColor = Trait( 'white', convert_to_color, rgba_standard_colors, 
+RGBAColor = Trait( 'white', convert_to_color, rgba_standard_colors,
                             editor = RGBAColorEditor )
 

@@ -2,7 +2,7 @@
 """
 
 You can enable picking by setting the"picker" property of an artist
-(eg a matplotlib Line2D, Text, Patch, Polygon, AxesImage, 
+(eg a matplotlib Line2D, Text, Patch, Polygon, AxesImage,
 etc...)
 
 There are a variety of meanings of the picker property
@@ -12,7 +12,7 @@ There are a variety of meanings of the picker property
     boolean - if True then picking will be enabled and the
       artist will fire a pick event if the mouse event is over
       the artist
-        
+
     float - if picker is a number it is interpreted as an
       epsilon tolerance in points and the the artist will fire
       off an event if it's data is within epsilon of the mouse
@@ -41,7 +41,7 @@ pick callbacks on mouse press events.  Eg,
       artist = event.artist
       # now do something with this...
 
-    
+
 The pick event (matplotlib.backend_bases.PickEvent) which is passed to
 your callback is always fired with two attributes:
 
@@ -59,7 +59,7 @@ Additionally, certain artists like Line2D and PatchCollection may
 attach additional meta data like the indices into the data that meet
 the picker criteria (eg all the points in the line that are within the
 specified epsilon tolerance)
-  
+
 The examples below illustrate each of these methods.
 """
 
@@ -80,7 +80,7 @@ if 1: # simple picking, lines, rectangles and text
     ax2 = fig.add_subplot(212)
 
     bars = ax2.bar(range(10), nx.mlab.rand(10), picker=True)
-    for label in ax2.get_xticklabels():  # make the xtick labels pickable    
+    for label in ax2.get_xticklabels():  # make the xtick labels pickable
         label.set_picker(True)
 
 
@@ -97,7 +97,7 @@ if 1: # simple picking, lines, rectangles and text
         elif isinstance(event.artist, Text):
             text = event.artist
             print 'onpick1 text:', text.get_text()
-            
+
 
 
     fig.canvas.mpl_connect('pick_event', onpick1)
@@ -144,7 +144,7 @@ if 1: # picking with a custom hit test function
 
 
 if 1: # picking on a scatter plot (matplotlib.collections.RegularPolyCollection)
-    
+
     x, y, c, s = nx.mlab.rand(4, 100)
     def onpick3(event):
         ind = event.ind
@@ -174,6 +174,6 @@ if 1: # picking images (matplotlib.image.AxesImage)
 
     fig.canvas.mpl_connect('pick_event', onpick4)
 
-        
+
 show()
-    
+

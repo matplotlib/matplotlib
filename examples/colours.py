@@ -10,7 +10,7 @@ from matplotlib.numerix import sum
 def pastel(colour, weight=2.4):
     """ Convert colour into a nice pastel shade"""
     rgb = asarray(colorConverter.to_rgb(colour))
-    # scale colour 
+    # scale colour
     maxc = max(rgb)
     if maxc < 1.0 and maxc > 0:
         # scale colour
