@@ -1600,7 +1600,7 @@ def plotfile(fname, cols=(0,), plotfuncs=None,
     if xname=='date':
         fig.autofmt_xdate()
         
-
+    draw_if_interactive()
 
 ### Deprecated functions:
 def scatter_classic(*args, **kwargs):
