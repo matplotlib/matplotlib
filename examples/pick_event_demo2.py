@@ -17,7 +17,7 @@ ax.set_title('click on point to plot time series')
 line, = ax.plot(xs, ys, 'o', picker=5)  # 5 points tolerance
 
 
-def onpick1(event):
+def onpick(event):
 
     if event.artist!=line: return True
 
@@ -36,7 +36,7 @@ def onpick1(event):
     show() # oops, we need a way to raise figures created in callbacks
     return True
 
-fig.canvas.mpl_connect('pick_event', onpick1)
+fig.canvas.mpl_connect('pick_event', onpick)
 
 show()
 
