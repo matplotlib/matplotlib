@@ -32,7 +32,7 @@ def onpick1(event):
                 transform=ax.transAxes, va='top')
         ax.set_ylim(-0.5, 1.5)
         ax.figure.canvas.draw()
-        print 'plotted'
+
     show() # oops, we need a way to raise figures created in callbacks
     return True
 
