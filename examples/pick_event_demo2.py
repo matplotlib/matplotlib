@@ -30,10 +30,8 @@ def onpick(event):
         ax.plot(X[dataind])
         ax.text(0.05, 0.9, 'mu=%1.3f\nsigma=%1.3f'%(xs[dataind], ys[dataind]),
                 transform=ax.transAxes, va='top')
-        ax.set_ylim(-0.5, 1.5)
-        ax.figure.canvas.draw()
-
-    show() # oops, we need a way to raise figures created in callbacks
+        ax.set_ylim(-0.5, 1.5)        
+    figi.show()
     return True
 
 fig.canvas.mpl_connect('pick_event', onpick)

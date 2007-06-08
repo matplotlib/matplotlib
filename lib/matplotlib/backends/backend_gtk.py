@@ -450,6 +450,10 @@ class FigureManagerGTK(FigureManagerBase):
         self.vbox.show()
 
         self.canvas.show()
+
+        # attach a show method to the figure  for pylab ease of use
+        self.canvas.figure.show = lambda *args: self.window.show()
+
         self.vbox.pack_start(self.canvas, True, True)
 
         self.toolbar = self._get_toolbar(canvas)

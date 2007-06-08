@@ -216,6 +216,9 @@ class FigureManagerQT( FigureManagerBase ):
         if matplotlib.is_interactive():
             self.window.show()
 
+        # attach a show method to the figure for pylab ease of use
+        self.canvas.figure.show = lambda *args: self.window.show()
+
         def notify_axes_change( fig ):
            # This will be called whenever the current axes is changed
            if self.toolbar != None: self.toolbar.update()
