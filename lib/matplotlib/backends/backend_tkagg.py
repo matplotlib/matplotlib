@@ -324,6 +324,11 @@ class FigureManagerTkAgg(FigureManagerBase):
         self.canvas.figure.add_axobserver(notify_axes_change)
 
 
+
+        # attach a show method to the figure for pylab ease of use
+        self.canvas.figure.show = lambda *args: self.show()
+
+
     def resize(self, event):
         width, height = event.width, event.height
         self.toolbar.configure(width=width) # , height=height)

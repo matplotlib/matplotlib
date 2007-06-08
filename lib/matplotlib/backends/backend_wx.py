@@ -1385,6 +1385,15 @@ class FigureManagerWx(FigureManagerBase):
             if self.tb != None: self.tb.update()
         self.canvas.figure.add_axobserver(notify_axes_change)
 
+        def showfig(*args):
+            figwin.frame.Show()
+            figwin.canvas.realize()
+            figwin.canvas.draw()
+
+        # attach a show method to the figure
+        self.canvas.figure.show = showfig
+
+
     def destroy(self, *args):
         DEBUG_MSG("destroy()", 1, self)
         self.frame.Destroy()
