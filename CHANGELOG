@@ -1,3 +1,6 @@
+2007-06-08 Added gnuplot file plotfile function to pylab -- see
+           examples/plotfile_demo.py - JDH
+
 2007-06-07 Disable build of numarray and Numeric extensions for
            internal MPL use and the numerix layer. - ADS
 
