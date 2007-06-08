@@ -59,6 +59,7 @@ _Plotting commands
   pie      - make a pie chart
   plot     - make a line plot
   plot_date - plot dates
+  plotfile  - plot column data from an ASCII tab/space/comma delimited file
   pie      - pie charts
   polar    - make a polar plot on a PolarAxes
   psd      - make a plot of power spectral density
@@ -1563,7 +1564,8 @@ def plotfile(fname, cols=(0,), plotfuncs=None,
         elif cbook.is_numlike(identifier):            
             name = r.dtype.names[int(identifier)]
             return name, r[name]
-
+        else:
+            raise TypeError('identifier must be a string or integer')
 
     xname, x = getname_val(cols[0])
 
