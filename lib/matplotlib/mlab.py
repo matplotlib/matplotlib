@@ -1358,7 +1358,7 @@ def load(fname,comments='#',delimiter=None, converters=None,skiprows=0,
     if unpack: return transpose(X)
     else:  return X
 
-def csv2rec(fname, comments='#', skiprows=0, checkrows=1):
+def csv2rec(fname, comments='#', skiprows=0, checkrows=5, delimiter=','):
     """
     Load ASCII data from fname into a numpy recarray and return the
     numpy recarray.
@@ -1389,7 +1389,7 @@ def csv2rec(fname, comments='#', skiprows=0, checkrows=1):
     
     
     fh = to_filehandle(fname)
-    reader = csv.reader(fh)
+    reader = csv.reader(fh, delimiter=delimiter)
 
     def process_skiprows(reader):
         if skiprows:
@@ -1399,18 +1399,23 @@ def csv2rec(fname, comments='#', skiprows=0, checkrows=1):
         return fh, reader
 
     process_skiprows(reader)
-    
+
+
+
     def get_func(item, func):
         # promote functions in this order
-        funcmap = {None:int, int:float, float:parsedate, parsedate:str}
+        funcmap = {int:float, float:dateutil.parser.parse, dateutil.parser.parse:str}
         try: func(item)
-        except: return funcmap[func]
-        else: return func
-    
+        except:
+            if func==str:
+                raise ValueError('Could not find a working conversion function')
+            else: return get_func(item, funcmap[func])    # recurse
+        else: return func     
 
 
     def get_converters(reader):
 
+        converters = None
         for i, row in enumerate(reader):
             if i==0:
                 converters = [int]*len(row)
@@ -1429,14 +1434,19 @@ def csv2rec(fname, comments='#', skiprows=0, checkrows=1):
     delete.add('"')
 
     names = []
+    
     for i, item in enumerate(header):
         item = item.strip().lower().replace(' ', '_')
         item = ''.join([c for c in item if c not in delete])
+        if not len(item):
+            item = 'column%d'%i
         names.append(item)
         
     # get the converter functions by inspecting checkrows
     converters = get_converters(reader)
-
+    if converters is None:
+        raise ValueError('Could not find any valid data in CSV file')
+    
     # reset the reader and start over
     fh.seek(0)
     process_skiprows(reader)
