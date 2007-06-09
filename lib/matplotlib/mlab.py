@@ -76,7 +76,7 @@ from numerix import array, asarray, arange, divide, exp, arctan2, \
 from numerix.mlab import hanning, cov, diff, svd, rand, std
 from numerix.fft import fft, inverse_fft
 
-from cbook import iterable, is_string_like, to_filehandle
+from cbook import iterable, is_string_like, to_filehandle, set
 
 
 def mean(x, dim=None):
