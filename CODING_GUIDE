@@ -5,7 +5,7 @@ and standards.  Please edit and extend this document.
 
 == svn checkouts ==
 
-# checking out the main src 
+# checking out the main src
 svn co https://svn.sourceforge.net/svnroot/matplotlib/trunk/matplotlib matplotlib
 
 # checking out everything (toolkits, user's guide, htdocs, etc..)
@@ -38,8 +38,29 @@ in mind.
   * If you have altered extension code, do you pass
     unit/memleak_hawaii.py?
 
+== Importing and name spaces ==
 
-== Naming and spacing conventions ==
+For numpy, use:
+
+    import numpy as npy
+    ...
+    a = npy.array([1,2,3])
+    ...
+
+For matplotlib main module, use:
+
+    import matplotlib as mpl
+    ...
+    mpl.rcParams['xtick.major.pad'] = 6
+
+For matplotlib modules, use:
+
+    import matplotlib.cbook as cbook
+    ...
+    if cbook.iterable(z):
+        ...
+
+== Naming, spacing, and formatting conventions ==
 
 In general, we want to hew as closely as possible to the standard
 coding guidelines for python written by Guido in
@@ -57,6 +78,22 @@ Personally, I prefer the shortest names that are still readable.
 Also, use an editor that does not put tabs in files.  Four spaces
 should be used for indentation everywhere and if there is a file with
 tabs or more or less spaces it is a bug -- please fix it.
+
+Please avoid spurious invisible spaces at the ends of lines.
+(Tell your editor to strip whitespace from line ends when saving
+a file.)
+
+Keep docstrings uniformly indented as in the example below, with
+nothing to the left of the triple quotes.  The dedent() function
+is needed to remove excess indentation only if something will be
+interpolated into the docstring, again as in the example above.
+
+Limit line length to 80 characters.  If a logical line needs to be
+longer, use parentheses to break it; do not use an escaped
+newline.  It may be preferable to use a temporary variable
+to replace a single long line with two shorter and more
+readable lines.
+
 
 == Licenses ==
 
@@ -195,7 +232,6 @@ Then in any function accepting Line2D passthrough kwargs, eg
 matplotlib.axes.Axes.plot
 
     # in axes.py
-from cbook import dedent
 ...
     def plot(self, *args, **kwargs):
         """
@@ -210,7 +246,7 @@ from cbook import dedent
         information
         """
         pass
-    plot.__doc__ = dedent(plot.__doc__) % artist.kwdocd
+    plot.__doc__ = cbook.dedent(plot.__doc__) % artist.kwdocd
 
 Note there is a problem for Artist __init__ methods, eg Patch.__init__
 which supports Patch kwargs, since the artist inspector cannot work
@@ -219,19 +255,4 @@ Patch.__init__.__doc__ docstring outside the class definition.  I have
 made some manual hacks in this case which violates the "single entry
 point" requirement above; hopefully we'll find a more elegant solution
 before too long
-
-== Formatting (editor setup) ==
-
-Indentation is in units of 4 spaces.
-
-Please avoid hard tabs--use only spaces.
-
-Please avoid spurious invisible spaces at the ends of lines.
-(Tell your editor to strip whitespace from line ends when saving
-a file.)
-
-Keep docstrings uniformly indented as in the example above, with
-nothing to the left of the triple quotes.  The dedent() function
-is needed to remove excess indentation only if something will be
-interpolated into the docstring, again as in the example above.
 
