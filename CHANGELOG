@@ -1,3 +1,6 @@
+2007-06-08 Allow plot and fill fmt string to be any mpl string
+            colorspec - EF
+
 2007-06-08 Added gnuplot file plotfile function to pylab -- see
            examples/plotfile_demo.py - JDH
 

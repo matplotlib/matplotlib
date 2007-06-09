@@ -121,6 +121,13 @@ def _process_plot_format(fmt):
     marker = None
     color = None
 
+    # Is fmt just a colorspec?
+    try:
+        color = colorConverter.to_rgb(fmt)
+        return linestyle, marker, color     # Yes.
+    except ValueError:
+        pass                                # No, not just a color.
+
     # handle the multi char special cases and strip them from the
     # string
     if fmt.find('--')>=0:
@@ -2494,7 +2501,9 @@ class Axes(Artist):
         In addition, you can specify colors in many weird and
         wonderful ways, including full names 'green', hex strings
         '#008000', RGB or RGBA tuples (0,1,0,1) or grayscale
-        intensities as a string '0.8'.
+        intensities as a string '0.8'.  Of these, the string
+        specifications can be used in place of a fmt group, but the
+        tuple forms can be used only as kwargs.
 
         Line styles and colors are combined in a single format string, as in
         'bo' for blue circles.
