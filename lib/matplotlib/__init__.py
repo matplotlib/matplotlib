@@ -199,6 +199,13 @@ if not _python23:
              yield i, seq[i]
 
 
+def is_string_like(obj):
+    if hasattr(obj, 'shape'): return 0 # this is a workaround
+                                       # for a bug in numeric<23.1
+    try: obj + ''
+    except (TypeError, ValueError): return 0
+    return 1
+
 
 def _is_writable_dir(p):
     """
@@ -697,6 +704,14 @@ validate_joinstyle = ValidateInStrings(['miter', 'round', 'bevel'], ignorecase=T
 
 validate_capstyle = ValidateInStrings(['butt', 'round', 'projecting'], ignorecase=True)
 
+def validate_linecol_linestyle(s):
+    try:
+        dashes = validate_nseq_float(2)(s)
+        warnings.warn("Deprecated negative_linestyle specification; use 'solid' or 'dashed'")
+        return (0, dashes)  # (offset, (solid, blank))
+    except ValueError:
+        V = ValidateInStrings(['solid', 'dashed'], ignorecase=True)
+        return(V(s))
 
 class ValidateInterval:
     """
@@ -791,10 +806,10 @@ defaultParams = {
     'image.lut'    : [256, validate_int],  # lookup table
     'image.origin'    : ['upper', str],  # lookup table
 
-    'contour.negative_linestyle' : [(6.0,6.0), validate_nseq_float(2)],
+    'contour.negative_linestyle' : ['dashed', validate_linecol_linestyle],
 
     # axes props
-    'axes.axisbelow'         : [False, validate_bool],
+    'axes.axisbelow'    : [False, validate_bool],
     'axes.hold'         : [True, validate_bool],
     'axes.facecolor'    : ['w', validate_color],    # background color; white
     'axes.edgecolor'    : ['k', validate_color],    # edge color; black
@@ -1142,13 +1157,6 @@ def interactive(b):
     If b is True, then draw after every plotting command, eg, after xlabel
     """
     rcParams['interactive'] = b
-
-def is_string_like(obj):
-    if hasattr(obj, 'shape'): return 0 # this is a workaround
-                                       # for a bug in numeric<23.1
-    try: obj + ''
-    except (TypeError, ValueError): return 0
-    return 1
 
 def is_interactive():
     'Return true if plot mode is interactive'
