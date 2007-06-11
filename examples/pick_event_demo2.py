@@ -24,6 +24,7 @@ def onpick(event):
     N = len(event.ind)
     if not N: return True
 
+
     figi = figure()
     for subplotnum, dataind in enumerate(event.ind):
         ax = figi.add_subplot(N,1,subplotnum+1)
