@@ -123,27 +123,27 @@ units        : True
 #text.color          : black
 
 ### LaTeX customizations. See http://www.scipy.org/Wiki/Cookbook/Matplotlib/UsingTex
-#text.usetex         : False  # use latex for all text handling. The following fonts 
+#text.usetex         : False  # use latex for all text handling. The following fonts
                               # are supported through the usual rc parameter settings:
                               # new century schoolbook, bookman, times, palatino,
-                              # zapf chancery, charter, serif, sans-serif, helvetica, 
-                              # avant garde, courier, monospace, computer modern roman, 
+                              # zapf chancery, charter, serif, sans-serif, helvetica,
+                              # avant garde, courier, monospace, computer modern roman,
                               # computer modern sans serif, computer modern typewriter
                               # If another font is desired which can loaded using the
-                              # LaTeX \usepackage command, please inquire at the 
+                              # LaTeX \usepackage command, please inquire at the
                               # matplotlib mailing list
 #text.latex.unicode : False # use "ucs" and "inputenc" LaTeX packages for handling
                             # unicode strings.
 #text.latex.preamble :  # IMPROPER USE OF THIS FEATURE WILL LEAD TO LATEX FAILURES
                             # AND IS THEREFORE UNSUPPORTED. PLEASE DO NOT ASK FOR HELP
                             # IF THIS FEATURE DOES NOT DO WHAT YOU EXPECT IT TO.
-                            # preamble is a comma separated list of LaTeX statements 
-                            # that are included in the LaTeX document preamble. 
+                            # preamble is a comma separated list of LaTeX statements
+                            # that are included in the LaTeX document preamble.
                             # An example:
                             # text.latex.preamble : \usepackage{bm},\usepackage{euler}
-                            # The following packages are always loaded with usetex, so 
-                            # beware of package collisions: color, geometry, graphicx, 
-                            # type1cm, textcomp. Adobe Postscript (PSSNFS) font packages 
+                            # The following packages are always loaded with usetex, so
+                            # beware of package collisions: color, geometry, graphicx,
+                            # type1cm, textcomp. Adobe Postscript (PSSNFS) font packages
                             # may also be loaded, depending on your font settings
 #text.dvipnghack     : False  # some versions of dvipng don't handle
                              # alpha channel properly.  Use True to correct and flush
@@ -232,7 +232,7 @@ units        : True
 
 
 ### CONTOUR PLOTS
-#contour.negative_linestyle :  6.0, 6.0 # negative contour dashstyle (size in points)
+#contour.negative_linestyle :  dashed # dashed | solid
 
 ### SAVING FIGURES
 # the default savefig params can be different for the GUI backends.
@@ -257,14 +257,14 @@ units        : True
 
 # pdf backend params
 #pdf.compression   : 6 # integer from 0 to 9
-		      # 0 disables compression (good for debugging)
+                       # 0 disables compression (good for debugging)
 
 # svg backend params
 #svg.image_inline : True       # write raster image data directly into the svg file
 #svg.image_noscale : False     # suppress scaling of raster data embedded in SVG
 
 # Set the verbose flags.  This controls how much information
-# matplotlib gives you at runtime and where it goes.  Ther verbosity
+# matplotlib gives you at runtime and where it goes.  The verbosity
 # levels are: silent, helpful, debug, debug-annoying.  Any level is
 # inclusive of all the levels below it.  If you setting is debug,
 # you'll get all the debug and helpful messages.  When submitting
