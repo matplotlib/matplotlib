@@ -4,6 +4,7 @@ from the Python Cookbook -- hence the name cbook
 """
 from __future__ import generators
 import re, os, errno, sys, StringIO, traceback
+import time, datetime
 import matplotlib.numerix as nx
 
 try: set
@@ -11,6 +12,67 @@ except NameError:
     from sets import Set as set
 
 major, minor1, minor2, s, tmp = sys.version_info
+
+
+class converter:
+    def __init__(self, missing='Null', missingval=None):
+        self.missing = missing
+        self.missingval = missingval
+    def __call__(self, s):
+        if s==self.missing: return self.missingval
+        return s
+
+    def is_missing(self, s):
+        return not s.strip() or s==self.missing
+
+class tostr(converter):
+    'convert to string or None'
+    def __init__(self, missing='Null', missingval=''):
+        converter.__init__(self, missing=missing, missingval=missingval)
+
+class todatetime(converter):
+    'convert to a datetime or None'
+    def __init__(self, fmt='%Y-%m-%d', missing='Null', missingval=None):
+        'use a time.strptime format string for conversion'
+        converter.__init__(self, missing, missingval)
+        self.fmt = fmt
+
+    def __call__(self, s):
+        if self.is_missing(): return self.missingval
+        tup = time.strptime(s, self.fmt)
+        return datetime.datetime(*tup[:6])
+
+
+
+class todate(converter):
+    'convert to a date or None'
+    def __init__(self, fmt='%Y-%m-%d', missing='Null', missingval=None):
+        'use a time.strptime format string for conversion'
+        converter.__init__(self, missing, missingval)
+        self.fmt = fmt
+    def __call__(self, s):
+        if self.is_missing(): return self.missingval
+        tup = time.strptime(s, self.fmt)
+        return datetime.date(*tup[:3])
+
+class tofloat(converter):
+    'convert to a float or None'
+    def __init__(self, missing='Null', missingval=None):
+        converter.__init__(self, missing)
+        self.missingval = missingval
+    def __call__(self, s):
+        if self.is_missing(): return self.missingval
+        return float(s)
+
+
+class toint(converter):
+    'convert to an int or None'
+    def __init__(self, missing='Null', missingval=None):
+        converter.__init__(self, missing)
+
+    def __call__(self, s):
+        if self.is_missing(): return self.missingval
+        return int(s)
 
 class CallbackRegistry:
     """
