@@ -172,7 +172,7 @@ def to_filehandle(fname):
         fh = fname
     else:
         raise ValueError('fname must be a string or file handle')
-    return fh 
+    return fh
 
 def flatten(seq, scalarp=is_scalar):
     """

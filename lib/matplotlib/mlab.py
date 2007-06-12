@@ -76,7 +76,12 @@ from numerix import array, asarray, arange, divide, exp, arctan2, \
 from numerix.mlab import hanning, cov, diff, svd, rand, std
 from numerix.fft import fft, inverse_fft
 
-from cbook import iterable, is_string_like, to_filehandle, set
+from cbook import iterable, is_string_like, to_filehandle
+
+try: set
+except NameError:
+    from sets import Set as set
+
 
 
 def mean(x, dim=None):
@@ -1280,7 +1285,7 @@ def save(fname, X, fmt='%.18e',delimiter=' '):
         X.shape = origShape
 
 
- 
+
 
 def load(fname,comments='#',delimiter=None, converters=None,skiprows=0,
          usecols=None, unpack=False):
@@ -1364,7 +1369,7 @@ def csv2rec(fname, comments='#', skiprows=0, checkrows=5, delimiter=','):
     numpy recarray.
 
     The data must be regular, same number of values in every row
-    
+
     A header row is required to automatically assign the recarray
     names.  The headers will be lower cased, spaces will be converted
     to underscores, and illegal attribute name characters removed.
@@ -1376,7 +1381,7 @@ def csv2rec(fname, comments='#', skiprows=0, checkrows=5, delimiter=','):
     in the file
 
     skiprows  - is the number of rows from the top to skip
-    
+
     checkrows - is the number of rows to check to validate the column
     data type.  When set to zero all rows are validated.
 
@@ -1386,8 +1391,8 @@ def csv2rec(fname, comments='#', skiprows=0, checkrows=5, delimiter=','):
     import numpy
     import dateutil.parser
     parsedate = dateutil.parser.parse
-    
-    
+
+
     fh = to_filehandle(fname)
     reader = csv.reader(fh, delimiter=delimiter)
 
@@ -1410,7 +1415,7 @@ def csv2rec(fname, comments='#', skiprows=0, checkrows=5, delimiter=','):
             if func==str:
                 raise ValueError('Could not find a working conversion function')
             else: return get_func(item, funcmap[func])    # recurse
-        else: return func     
+        else: return func
 
 
     def get_converters(reader):
@@ -1427,40 +1432,40 @@ def csv2rec(fname, comments='#', skiprows=0, checkrows=5, delimiter=','):
         return converters
 
 
-    # Get header and remove invalid characters 
+    # Get header and remove invalid characters
     header = reader.next()
     # remove these chars
     delete = set("""~!@#$%^&*()-=+~\|]}[{';: /?.>,<""")
     delete.add('"')
 
     names = []
-    
+
     for i, item in enumerate(header):
         item = item.strip().lower().replace(' ', '_')
         item = ''.join([c for c in item if c not in delete])
         if not len(item):
             item = 'column%d'%i
         names.append(item)
-        
+
     # get the converter functions by inspecting checkrows
     converters = get_converters(reader)
     if converters is None:
         raise ValueError('Could not find any valid data in CSV file')
-    
+
     # reset the reader and start over
     fh.seek(0)
     process_skiprows(reader)
     skipheader = reader.next()
-        
+
     # iterate over the remaining rows and convert the data to date
     # objects, ints, or floats as approriate
-    rows = []   
+    rows = []
     for i, row in enumerate(reader):
         if not len(row): continue
         if row[0].startswith(comments): continue
         rows.append([func(val) for func, val in zip(converters, row)])
     fh.close()
-    
+
     r = numpy.rec.fromrecords(rows, names=names)
     return r
 
