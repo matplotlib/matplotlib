@@ -1365,14 +1365,17 @@ def load(fname,comments='#',delimiter=None, converters=None,skiprows=0,
     else:  return X
 
 def csv2rec(fname, comments='#', skiprows=0, checkrows=5, delimiter=',',
-            converterd=None):
+            converterd=None, names=None):
     """
     Load data from comma/space/tab delimited file in fname into a
     numpy record array and return the record array.
 
-    A header row is required to automatically assign the recarray
-    names.  The headers will be lower cased, spaces will be converted
-    to underscores, and illegal attribute name characters removed.
+    If names is None, a header row is required to automatically assign
+    the recarray names.  The headers will be lower cased, spaces will
+    be converted to underscores, and illegal attribute name characters
+    removed.  If names is not None, it is a sequence of names to use
+    for the column names.  In this case, it is assumed there is no header row.
+
 
     fname - can be a filename or a file handle.  Support for gzipped
     files is automatic, if the filename ends in .gz
@@ -1388,9 +1391,12 @@ def csv2rec(fname, comments='#', skiprows=0, checkrows=5, delimiter=',',
     converterd, if not None, is a dictionary mapping column number or
     munged column name to a converter function
 
+    
     See examples/loadrec.py
     """
 
+
+    
     if converterd is None:
         converterd = dict()
         
@@ -1431,6 +1437,8 @@ def csv2rec(fname, comments='#', skiprows=0, checkrows=5, delimiter=',',
                 converters = [int]*len(row)
             if checkrows and i>checkrows:
                 break
+            #print i, len(names), len(row)
+            #print 'converters', zip(converters, row)
             for j, (name, item) in enumerate(zip(names, row)):
                 func = converterd.get(j)
                 if func is None:
@@ -1443,25 +1451,28 @@ def csv2rec(fname, comments='#', skiprows=0, checkrows=5, delimiter=',',
 
 
     # Get header and remove invalid characters
-    headers = reader.next()
-    # remove these chars
-    delete = set("""~!@#$%^&*()-=+~\|]}[{';: /?.>,<""")
-    delete.add('"')
 
-    names = []
-    seen = dict()
-    for i, item in enumerate(headers):
-        item = item.strip().lower().replace(' ', '_')
-        item = ''.join([c for c in item if c not in delete])
-        if not len(item):
-            item = 'column%d'%i
+    needheader = names is None
+    if needheader:
+        headers = reader.next()
+        # remove these chars
+        delete = set("""~!@#$%^&*()-=+~\|]}[{';: /?.>,<""")
+        delete.add('"')
 
-        cnt = seen.get(item, 0)
-        if cnt>0:
-            names.append(item + '%d'%cnt)
-        else:
-            names.append(item)
-        seen[item] = cnt+1
+        names = []
+        seen = dict()
+        for i, item in enumerate(headers):
+            item = item.strip().lower().replace(' ', '_')
+            item = ''.join([c for c in item if c not in delete])
+            if not len(item):
+                item = 'column%d'%i
+
+            cnt = seen.get(item, 0)
+            if cnt>0:
+                names.append(item + '%d'%cnt)
+            else:
+                names.append(item)
+            seen[item] = cnt+1
 
 
 
@@ -1473,7 +1484,8 @@ def csv2rec(fname, comments='#', skiprows=0, checkrows=5, delimiter=',',
     # reset the reader and start over
     fh.seek(0)
     process_skiprows(reader)
-    skipheader = reader.next()
+    if needheader:
+        skipheader = reader.next()
 
     # iterate over the remaining rows and convert the data to date
     # objects, ints, or floats as approriate
