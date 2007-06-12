@@ -59,6 +59,7 @@ import sys, random, datetime, csv
 
 
 from matplotlib import verbose
+import numpy as npy
 import numerix
 import numerix.mlab
 from numerix import linear_algebra
@@ -1363,12 +1364,12 @@ def load(fname,comments='#',delimiter=None, converters=None,skiprows=0,
     if unpack: return transpose(X)
     else:  return X
 
-def csv2rec(fname, comments='#', skiprows=0, checkrows=5, delimiter=','):
+def csv2rec(fname, comments='#', skiprows=0, checkrows=5, delimiter=',',
+            emptyint=None, emptyfloat=None, emptydate=None,
+            converterd=None):
     """
-    Load ASCII data from fname into a numpy recarray and return the
-    numpy recarray.
-
-    The data must be regular, same number of values in every row
+    Load data from comma/space/tab delimited file in fname into a
+    numpy record array and return the record array.
 
     A header row is required to automatically assign the recarray
     names.  The headers will be lower cased, spaces will be converted
@@ -1385,10 +1386,19 @@ def csv2rec(fname, comments='#', skiprows=0, checkrows=5, delimiter=','):
     checkrows - is the number of rows to check to validate the column
     data type.  When set to zero all rows are validated.
 
+    emptyint, emptyfloat and emptydate, if not None, are values to use
+    for converting empty strings.  If they are None, then empty
+    strings will raise.
+
+    converterd, if not None, is a dictionary mapping column number or
+    munged column name to a converter function
+
     See examples/loadrec.py
     """
 
-    import numpy
+    if converterd is None:
+        converterd = dict()
+        
     import dateutil.parser
     parsedate = dateutil.parser.parse
 
@@ -1406,6 +1416,7 @@ def csv2rec(fname, comments='#', skiprows=0, checkrows=5, delimiter=','):
     process_skiprows(reader)
 
 
+    
 
     def get_func(item, func):
         # promote functions in this order
@@ -1418,6 +1429,26 @@ def csv2rec(fname, comments='#', skiprows=0, checkrows=5, delimiter=','):
         else: return func
 
 
+
+    def wrap_float(s):
+        if s=='' and emptyfloat is not None:
+            return emptyfloat
+        else: return float(s)
+
+    def wrap_int(s):
+        if s==''  and emptyint is not None:
+            return emptyint
+        else: return int(s)
+
+    def wrap_date(s):
+        if s=='' and emptydate is not None:
+            return emptydate
+        else: return parsedate(s)
+        
+
+        
+        
+    wrap_missing = {float:wrap_float, int:wrap_int, parsedate:wrap_date}
     def get_converters(reader):
 
         converters = None
@@ -1426,26 +1457,39 @@ def csv2rec(fname, comments='#', skiprows=0, checkrows=5, delimiter=','):
                 converters = [int]*len(row)
             if checkrows and i>checkrows:
                 break
-            for j, item in enumerate(row):
-                func = converters[j]
-                converters[j] = get_func(item, func)
-        return converters
+            for j, (name, item) in enumerate(zip(names, row)):
+                func = converterd.get(j)
+                if func is None:
+                    func = converterd.get(name)
+                if func is None:
+                    func = converters[j]
+                    func = get_func(item, func)
+                converters[j] = func
+        return [wrap_missing.get(func, func) for func in converters]
 
 
     # Get header and remove invalid characters
-    header = reader.next()
+    headers = reader.next()
     # remove these chars
     delete = set("""~!@#$%^&*()-=+~\|]}[{';: /?.>,<""")
     delete.add('"')
 
     names = []
-
-    for i, item in enumerate(header):
+    seen = dict()
+    for i, item in enumerate(headers):
         item = item.strip().lower().replace(' ', '_')
         item = ''.join([c for c in item if c not in delete])
         if not len(item):
             item = 'column%d'%i
-        names.append(item)
+
+        cnt = seen.get(item, 0)
+        if cnt>0:
+            names.append(item + '%d'%cnt)
+        else:
+            names.append(item)
+        seen[item] = cnt+1
+
+
 
     # get the converter functions by inspecting checkrows
     converters = get_converters(reader)
@@ -1466,7 +1510,7 @@ def csv2rec(fname, comments='#', skiprows=0, checkrows=5, delimiter=','):
         rows.append([func(val) for func, val in zip(converters, row)])
     fh.close()
 
-    r = numpy.rec.fromrecords(rows, names=names)
+    r = npy.rec.fromrecords(rows, names=names)
     return r
 
 def slopes(x,y):
