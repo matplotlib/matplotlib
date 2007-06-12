@@ -1365,7 +1365,6 @@ def load(fname,comments='#',delimiter=None, converters=None,skiprows=0,
     else:  return X
 
 def csv2rec(fname, comments='#', skiprows=0, checkrows=5, delimiter=',',
-            emptyint=None, emptyfloat=None, emptydate=None,
             converterd=None):
     """
     Load data from comma/space/tab delimited file in fname into a
@@ -1385,10 +1384,6 @@ def csv2rec(fname, comments='#', skiprows=0, checkrows=5, delimiter=',',
 
     checkrows - is the number of rows to check to validate the column
     data type.  When set to zero all rows are validated.
-
-    emptyint, emptyfloat and emptydate, if not None, are values to use
-    for converting empty strings.  If they are None, then empty
-    strings will raise.
 
     converterd, if not None, is a dictionary mapping column number or
     munged column name to a converter function
@@ -1427,28 +1422,7 @@ def csv2rec(fname, comments='#', skiprows=0, checkrows=5, delimiter=',',
                 raise ValueError('Could not find a working conversion function')
             else: return get_func(item, funcmap[func])    # recurse
         else: return func
-
-
-
-    def wrap_float(s):
-        if s=='' and emptyfloat is not None:
-            return emptyfloat
-        else: return float(s)
-
-    def wrap_int(s):
-        if s==''  and emptyint is not None:
-            return emptyint
-        else: return int(s)
-
-    def wrap_date(s):
-        if s=='' and emptydate is not None:
-            return emptydate
-        else: return parsedate(s)
         
-
-        
-        
-    wrap_missing = {float:wrap_float, int:wrap_int, parsedate:wrap_date}
     def get_converters(reader):
 
         converters = None
@@ -1465,7 +1439,7 @@ def csv2rec(fname, comments='#', skiprows=0, checkrows=5, delimiter=',',
                     func = converters[j]
                     func = get_func(item, func)
                 converters[j] = func
-        return [wrap_missing.get(func, func) for func in converters]
+        return converters
 
 
     # Get header and remove invalid characters
