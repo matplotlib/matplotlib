@@ -579,6 +579,53 @@ RendererAgg::draw_polygon(const Py::Tuple& args) {
   
 }
 
+
+
+SnapData
+SafeSnap::snap (const float& x, const float& y) {
+  xsnap = (int)x + 0.5;
+  ysnap = (int)y + 0.5;
+
+
+  
+  if ( first || ( (xsnap!=lastxsnap) || (ysnap!=lastysnap) ) ) {
+    lastxsnap = xsnap;
+    lastysnap = ysnap;
+    lastx = x;
+    lasty = y;
+    first = false;
+    return SnapData(true, xsnap, ysnap);
+  }
+
+  // ok both are equal and we need to do an offset
+  if ( (x==lastx) && (y==lasty) ) {
+    // no choice but to return equal coords; set newpoint = false
+    lastxsnap = xsnap;
+    lastysnap = ysnap;
+    lastx = x;
+    lasty = y;
+    return SnapData(false, xsnap, ysnap);    
+  }
+
+  // ok the real points are not identical but the rounded ones, so do
+  // a one pixel offset
+  if (x>lastx) xsnap += 1.;
+  else if (x<lastx) xsnap -= 1.;
+
+  if (y>lasty) ysnap += 1.;
+  else if (y<lasty) ysnap -= 1.;
+
+  lastxsnap = xsnap;
+  lastysnap = ysnap;
+  lastx = x;
+  lasty = y;
+  return SnapData(true, xsnap, ysnap);    
+}  
+		 
+		 
+      
+
+
 Py::Object
 RendererAgg::draw_line_collection(const Py::Tuple& args) {
   
@@ -669,8 +716,14 @@ RendererAgg::draw_line_collection(const Py::Tuple& args) {
     xys = segments[i%Nsegments];
     size_t numtups = xys.length();
     if (numtups<2) continue;
+    
+
     bool snapto=numtups==2;
     agg::path_storage path;
+
+    //std::cout << "trying snapto " << numtups << " " << snapto << std::endl;
+
+    SafeSnap snap;
     
     
     for (size_t j=0; j<numtups; j++) {
@@ -694,8 +747,17 @@ RendererAgg::draw_line_collection(const Py::Tuple& args) {
       }
       
       if (snapto) { // snap to pixel for len(2) lines
-	thisx = (int)thisx + 0.5;
-	thisy = (int)thisy + 0.5;
+	SnapData snapdata(snap.snap(thisx, thisy));
+	// TODO: process newpoint
+	//if (!snapdata.newpoint) {
+	//  std::cout << "newpoint warning " << thisx << " " << thisy << std::endl;
+	//}
+	//std::cout << "snapto" << thisx << " " << thisy << std::endl;
+	thisx = snapdata.xsnap;
+	thisy = snapdata.ysnap;
+
+	//thisx = (int)thisx + 0.5;
+	//thisy = (int)thisy + 0.5;
       }
       
       if (j==0)  path.move_to(thisx, height-thisy);

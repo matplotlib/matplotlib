@@ -694,6 +694,7 @@ class LineCollection(Collection, ScalarMappable):
                 offsets = zip(xs, ys)
 
         self.update_scalarmappable()
+        #print 'calling renderer draw line collection'
         renderer.draw_line_collection(
             segments, transform, self.clipbox,
             self._colors, self._lw, self._ls, self._aa, offsets,

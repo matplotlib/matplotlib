@@ -54,6 +54,26 @@ typedef agg::amask_no_clip_gray8 alpha_mask_type;
 typedef agg::renderer_base<agg::pixfmt_gray8> renderer_base_alpha_mask_type;
 typedef agg::renderer_scanline_aa_solid<renderer_base_alpha_mask_type> renderer_alpha_mask_type;
 
+struct SnapData {
+  SnapData(const bool& newpoint, const float& xsnap, const float& ysnap) :
+    newpoint(newpoint), xsnap(xsnap), ysnap(ysnap) {}
+  bool newpoint;
+  float xsnap, ysnap;
+};
+
+class SafeSnap {
+  // snap to pixel center, avoiding 0 path length rounding errors.
+public:
+  SafeSnap() : first(true), xsnap(0.0), lastx(0.0), lastxsnap(0.0),
+	       ysnap(0.0), lasty(0.0), lastysnap(0.0)  {}
+  SnapData snap (const float& x, const float& y);
+      
+private:
+  bool first;
+  float xsnap, lastx, lastxsnap, ysnap, lasty, lastysnap;
+};
+
+
 // a helper class to pass agg::buffer objects around.  agg::buffer is
 // a class in the swig wrapper
 class BufferRegion : public Py::PythonExtension<BufferRegion> {
