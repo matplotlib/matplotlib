@@ -88,16 +88,17 @@ failbackend = dict(
     SVG = ('tex_demo.py,'),
     )
 
-def drive(backend, python='python'):
+def drive(backend, python='python', switches = []):
 
     exclude = failbackend.get(backend, [])
+    switchstring = ' '.join(switches)
 
     for fname in files:
         if fname in exclude:
             print '\tSkipping %s, known to fail on backend: %s'%backend
             continue
 
-        print '\tdriving %s' % fname
+        print '\tdriving %s %s' % (fname, switchstring)
         basename, ext = os.path.splitext(fname)
         outfile = basename + '_%s'%backend
         tmpfile_name = '_tmp_%s.py' % basename
@@ -123,7 +124,7 @@ def drive(backend, python='python'):
             tmpfile.write('savefig("%s", dpi=150)' % outfile)
 
         tmpfile.close()
-        os.system('%s %s' % (python, tmpfile_name))
+        os.system('%s %s %s' % (python, tmpfile_name, switchstring))
         os.remove(tmpfile_name)
 
 
@@ -139,14 +140,16 @@ if __name__ == '__main__':
         python = r'c:\Python24\python.exe'
     else:
         python = 'python'
+    switches = []
     if sys.argv[1:]:
         backends = [b for b in sys.argv[1:] if b in default_backends]
-    else:
+        switches = [s for s in sys.argv[1:] if s.startswith('--')]
+    if not backends:
         backends = default_backends
     for backend in backends:
         print 'testing %s' % backend
         t0 = time.time()
-        drive(backend, python)
+        drive(backend, python, switches)
         t1 = time.time()
         times[backend] = (t1-t0)/60.0
 

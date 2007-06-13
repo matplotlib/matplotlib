@@ -1,3 +1,5 @@
+2007-06-13 Added maskedarray option to rc, numerix - EF
+
 2007-06-11 Python 2.5 compatibility fix for mlab.py - EF
 
 2007-06-10 In matplotlibrc file, use 'dashed' | 'solid' instead

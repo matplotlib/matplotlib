@@ -1,4 +1,4 @@
-from matplotlib.numerix import which
+from matplotlib.numerix import which, use_maskedarray
 
 if which[0] == "numarray":
     from numarray.ma import *
@@ -9,7 +9,12 @@ elif which[0] == "numeric":
     nomask = None
     getmaskorNone = getmask
 elif which[0] == "numpy":
-    from numpy.core.ma import *
+    if use_maskedarray:
+        from maskedarray import *
+        print "using maskedarray"
+    else:
+        from numpy.core.ma import *
+        #print "using ma"
     def getmaskorNone(obj):
         _msk = getmask(obj)
         if _msk is nomask:
