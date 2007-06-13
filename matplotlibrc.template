@@ -28,6 +28,9 @@
 #     Agg Cairo GD GDK Paint PS PDF SVG Template
 backend      : %(backend)s
 numerix      : %(numerix)s  # numpy, Numeric or numarray
+#maskedarray : False       # True to use external maskedarray module
+                           # instead of numpy.ma; this is a temporary
+                           # setting for testing maskedarray.
 #interactive  : False      # see http://matplotlib.sourceforge.net/interactive.html
 #toolbar      : toolbar2   # None | classic | toolbar2
 #timezone     : UTC        # a pytz timezone string, eg US/Central or Europe/Paris

@@ -130,6 +130,7 @@ packages = [
     'matplotlib.numerix',
     'matplotlib.numerix.mlab',
     'matplotlib.numerix.ma',
+    'matplotlib.numerix.npyma',
     'matplotlib.numerix.linear_algebra',
     'matplotlib.numerix.random_array',
     'matplotlib.numerix.fft',

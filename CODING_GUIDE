@@ -47,6 +47,14 @@ For numpy, use:
     a = npy.array([1,2,3])
     ...
 
+For masked arrays, use:
+    import matplotlib.numerix.npyma as ma
+
+    (This is needed to support the maskedarray module as an
+    alternative to the original numpy ma module; eventually,
+    the maskedarray implementation is likely to replace the
+    ma implementation.)
+
 For matplotlib main module, use:
 
     import matplotlib as mpl
