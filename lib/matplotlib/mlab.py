@@ -1444,6 +1444,7 @@ def csv2rec(fname, comments='#', skiprows=0, checkrows=5, delimiter=',',
                 if func is None:
                     func = converterd.get(name)
                 if func is None:
+                    if not item.strip(): continue
                     func = converters[j]
                     func = get_func(item, func)
                 converters[j] = func

@@ -15,6 +15,10 @@ major, minor1, minor2, s, tmp = sys.version_info
 
 
 class converter:
+    """
+    Base class for handling string -> python type with support for
+    missing values
+    """
     def __init__(self, missing='Null', missingval=None):
         self.missing = missing
         self.missingval = missingval
@@ -38,7 +42,7 @@ class todatetime(converter):
         self.fmt = fmt
 
     def __call__(self, s):
-        if self.is_missing(): return self.missingval
+        if self.is_missing(s): return self.missingval
         tup = time.strptime(s, self.fmt)
         return datetime.datetime(*tup[:6])
 
@@ -51,7 +55,7 @@ class todate(converter):
         converter.__init__(self, missing, missingval)
         self.fmt = fmt
     def __call__(self, s):
-        if self.is_missing(): return self.missingval
+        if self.is_missing(s): return self.missingval
         tup = time.strptime(s, self.fmt)
         return datetime.date(*tup[:3])
 
@@ -61,7 +65,7 @@ class tofloat(converter):
         converter.__init__(self, missing)
         self.missingval = missingval
     def __call__(self, s):
-        if self.is_missing(): return self.missingval
+        if self.is_missing(s): return self.missingval
         return float(s)
 
 
@@ -71,7 +75,7 @@ class toint(converter):
         converter.__init__(self, missing)
 
     def __call__(self, s):
-        if self.is_missing(): return self.missingval
+        if self.is_missing(s): return self.missingval
         return int(s)
 
 class CallbackRegistry:
