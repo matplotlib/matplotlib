@@ -33,7 +33,7 @@ def onselect(xmin, xmax):
     fig.canvas.draw()
 
 # set useblit True on gtkagg for enhanced performance
-span = SpanSelector(ax, onselect, 'horizontal', useblit=False,
+span = SpanSelector(ax, onselect, 'horizontal', useblit=True,
                     rectprops=dict(alpha=0.5, facecolor='red') )
 
 
