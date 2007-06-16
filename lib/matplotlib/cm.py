@@ -2,14 +2,11 @@
 This module contains the instantiations of color mapping classes
 """
 
-import colors
-from matplotlib import verbose
-from matplotlib import rcParams
-from matplotlib.numerix import asarray
-from numerix import nx
-import numerix.ma as ma
-from cbook import iterable
-from _cm import *
+import matplotlib as mpl
+import matplotlib.colors as colors
+import matplotlib.numerix.npyma as ma
+import matplotlib.cbook as cbook
+from matplotlib._cm import *
 
 
 
@@ -17,8 +14,8 @@ def get_cmap(name=None, lut=None):
     """
     Get a colormap instance, defaulting to rc values if name is None
     """
-    if name is None: name = rcParams['image.cmap']
-    if lut is None: lut = rcParams['image.lut']
+    if name is None: name = mpl.rcParams['image.cmap']
+    if lut is None: lut = mpl.rcParams['image.lut']
 
     assert(name in datad.keys())
     return colors.LinearSegmentedColormap(name,  datad[name], lut)
@@ -78,7 +75,8 @@ class ScalarMappable:
 
         ACCEPTS: a length 2 sequence of floats
         """
-        if vmin is not None and vmax is None and iterable(vmin) and len(vmin)==2:
+        if (vmin is not None and vmax is None and
+                                cbook.iterable(vmin) and len(vmin)==2):
             vmin, vmax = vmin
 
         if vmin is not None: self.norm.vmin = vmin
