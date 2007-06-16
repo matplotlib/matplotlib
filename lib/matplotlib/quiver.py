@@ -140,17 +140,17 @@ Keyword arguments (default given first):
     of the arrow+label key object.
 """
 
-from matplotlib.collections import PolyCollection
-from matplotlib.mlab import meshgrid
-from matplotlib import numerix as nx
-from matplotlib import transforms as T
-from matplotlib.text import Text
-from matplotlib.artist import Artist
-from matplotlib.font_manager import FontProperties
+import numpy as npy
+import matplotlib.numerix.npyma as ma
+import matplotlib.collections as collections
+import matplotlib.transforms as transforms
+import matplotlib.text as text
+import matplotlib.artist as artist
+import matplotlib.font_manager as font_manager
 import math
 
 
-class QuiverKey(Artist):
+class QuiverKey(artist.Artist):
     """ Labelled arrow for use as a quiver plot scale key.
     """
     halign = {'N': 'center', 'S': 'center', 'E': 'left',   'W': 'right'}
@@ -158,7 +158,7 @@ class QuiverKey(Artist):
     pivot  = {'N': 'mid',    'S': 'mid',    'E': 'tip',    'W': 'tail'}
 
     def __init__(self, Q, X, Y, U, label, **kw):
-        Artist.__init__(self)
+        artist.Artist.__init__(self)
         self.Q = Q
         self.X = X
         self.Y = Y
@@ -166,15 +166,17 @@ class QuiverKey(Artist):
         self.coord = kw.pop('coordinates', 'axes')
         self.color = kw.pop('color', None)
         self.label = label
-        self.labelsep = T.Value(kw.pop('labelsep', 0.1)) * Q.ax.figure.dpi
+        self.labelsep = (transforms.Value(kw.pop('labelsep', 0.1))
+                                                     * Q.ax.figure.dpi)
         self.labelpos = kw.pop('labelpos', 'N')
         self.labelcolor = kw.pop('labelcolor', None)
         self.fontproperties = kw.pop('fontproperties', dict())
         self.kw = kw
-        self.text = Text(text=label,
-                         horizontalalignment=self.halign[self.labelpos],
-                         verticalalignment=self.valign[self.labelpos],
-                         fontproperties=FontProperties(**self.fontproperties))
+        _fp = self.fontproperties
+        self.text = text.Text(text=label,
+                       horizontalalignment=self.halign[self.labelpos],
+                       verticalalignment=self.valign[self.labelpos],
+                       fontproperties=font_manager.FontProperties(**_fp))
         if self.labelcolor is not None:
             self.text.set_color(self.labelcolor)
         self._initialized = False
@@ -187,11 +189,12 @@ class QuiverKey(Artist):
             self._set_transform()
             _pivot = self.Q.pivot
             self.Q.pivot = self.pivot[self.labelpos]
-            self.verts = self.Q._make_verts(nx.array([self.U]), nx.zeros((1,)))
+            self.verts = self.Q._make_verts(npy.array([self.U]),
+                                                        npy.zeros((1,)))
             self.Q.pivot = _pivot
             kw = self.Q.polykw
             kw.update(self.kw)
-            self.vector = PolyCollection(self.verts,
+            self.vector = collections.PolyCollection(self.verts,
                                          offsets=[(self.X,self.Y)],
                                          transOffset=self.get_transform(),
                                          **kw)
@@ -234,14 +237,14 @@ class QuiverKey(Artist):
             self.set_transform(self.Q.ax.figure.transFigure)
         elif self.coord == 'inches':
             dx = ax.figure.dpi
-            bb = T.Bbox(T.origin(), T.Point(dx, dx))
-            trans = T.get_bbox_transform(T.unit_bbox(), bb)
+            bb = transforms.Bbox(transforms.origin(), transforms.Point(dx, dx))
+            trans = transforms.get_bbox_transform(transforms.unit_bbox(), bb)
             self.set_transform(trans)
         else:
             raise ValueError('unrecognized coordinates')
     quiverkey_doc = _quiverkey_doc
 
-class Quiver(PolyCollection):
+class Quiver(collections.PolyCollection):
     """
     Specialized PolyCollection for arrows.
 
@@ -276,7 +279,7 @@ class Quiver(PolyCollection):
         self.pivot = kw.pop('pivot', 'tail')
         kw.setdefault('facecolors', self.color)
         kw.setdefault('linewidths', (0,))
-        PolyCollection.__init__(self, None, offsets=zip(X, Y),
+        collections.PolyCollection.__init__(self, None, offsets=zip(X, Y),
                                        transOffset=ax.transData, **kw)
         self.polykw = kw
         self.set_UVC(U, V, C)
@@ -295,21 +298,22 @@ class Quiver(PolyCollection):
         X, Y, U, V, C = [None]*5
         args = list(args)
         if len(args) == 3 or len(args) == 5:
-            C = nx.ravel(args.pop(-1))
+            C = npy.ravel(args.pop(-1))
             #print 'in parse_args, C:', C
-        V = nx.ma.asarray(args.pop(-1))
-        U = nx.ma.asarray(args.pop(-1))
-        nn = nx.shape(U)
+        V = ma.asarray(args.pop(-1))
+        U = ma.asarray(args.pop(-1))
+        nn = npy.shape(U)
         nc = nn[0]
         nr = 1
         if len(nn) > 1:
             nr = nn[1]
         if len(args) == 2:
-            X, Y = [nx.ravel(a) for a in args]
+            X, Y = [npy.ravel(a) for a in args]
             if len(X) == nc and len(Y) == nr:
-                X, Y = [nx.ravel(a) for a in meshgrid(X, Y)]
+                X, Y = [npy.ravel(a) for a in npy.meshgrid(X, Y)]
         else:
-            X, Y = [nx.ravel(a) for a in meshgrid(nx.arange(nc), nx.arange(nr))]
+            indexgrid = npy.meshgrid(npy.arange(nc), npy.arange(nr))
+            X, Y = [npy.ravel(a) for a in indexgrid]
         return X, Y, U, V, C
 
     def _init(self):
@@ -331,13 +335,13 @@ class Quiver(PolyCollection):
             verts = self._make_verts(self.U, self.V)
             self.set_verts(verts)
             self._new_UV = False
-        PolyCollection.draw(self, renderer)
+        collections.PolyCollection.draw(self, renderer)
 
     def set_UVC(self, U, V, C=None):
-        self.U = nx.ma.ravel(U)
-        self.V = nx.ma.ravel(V)
+        self.U = ma.ravel(U)
+        self.V = ma.ravel(V)
         if C is not None:
-            self.set_array(nx.ravel(C))
+            self.set_array(npy.ravel(C))
         self._new_UV = True
 
     def _set_transform(self):
@@ -356,40 +360,40 @@ class Quiver(PolyCollection):
             elif self.units == 'height':
                 dx = ax.bbox.ur().y() - ax.bbox.ll().y()
             elif self.units == 'dots':
-                dx = T.Value(1)
+                dx = transforms.Value(1)
             elif self.units == 'inches':
                 dx = ax.figure.dpi
             else:
                 raise ValueError('unrecognized units')
-        bb = T.Bbox(T.origin(), T.Point(dx, dx))
-        trans = T.get_bbox_transform(T.unit_bbox(), bb)
+        bb = transforms.Bbox(transforms.origin(), transforms.Point(dx, dx))
+        trans = transforms.get_bbox_transform(transforms.unit_bbox(), bb)
         self.set_transform(trans)
         return trans
 
     def _make_verts(self, U, V):
         uv = U+V*1j
-        uv = nx.ravel(nx.ma.filled(uv,nx.nan))
-        a = nx.absolute(uv)
+        uv = npy.ravel(ma.filled(uv,npy.nan))
+        a = npy.absolute(uv)
         if self.scale is None:
             sn = max(10, math.sqrt(self.N))
 
             # get valid values for average
             # (complicated by support for 3 array packages)
-            a_valid_cond = ~nx.isnan(a)
-            a_valid_idx = nx.nonzero(a_valid_cond)
+            a_valid_cond = ~npy.isnan(a)
+            a_valid_idx = npy.nonzero(a_valid_cond)
             if isinstance(a_valid_idx,tuple):
                 # numpy.nonzero returns tuple
                 a_valid_idx = a_valid_idx[0]
-            valid_a = nx.take(a,a_valid_idx)
+            valid_a = npy.take(a,a_valid_idx)
 
-            scale = 1.8 * nx.average(valid_a) * sn # crude auto-scaling
+            scale = 1.8 * npy.average(valid_a) * sn # crude auto-scaling
             scale = scale/self.span
             self.scale = scale
         length = a/(self.scale*self.width)
         X, Y = self._h_arrows(length)
-        xy = (X+Y*1j) * nx.exp(1j*nx.angle(uv[...,nx.newaxis]))*self.width
-        xy = xy[:,:,nx.newaxis]
-        XY = nx.concatenate((xy.real, xy.imag), axis=2)
+        xy = (X+Y*1j) * npy.exp(1j*npy.angle(uv[...,npy.newaxis]))*self.width
+        xy = xy[:,:,npy.newaxis]
+        XY = npy.concatenate((xy.real, xy.imag), axis=2)
         return XY
 
 
@@ -397,45 +401,45 @@ class Quiver(PolyCollection):
         """ length is in arrow width units """
         minsh = self.minshaft * self.headlength
         N = len(length)
-        length = nx.reshape(length, (N,1))
-        x = nx.array([0, -self.headaxislength,
-                        -self.headlength, 0], nx.Float64)
-        x = x + nx.array([0,1,1,1]) * length
-        y = 0.5 * nx.array([1, 1, self.headwidth, 0], nx.Float64)
-        y = nx.repeat(y[nx.newaxis,:], N)
-        x0 = nx.array([0, minsh-self.headaxislength,
-                        minsh-self.headlength, minsh], nx.Float64)
-        y0 = 0.5 * nx.array([1, 1, self.headwidth, 0], nx.Float64)
+        length = npy.reshape(length, (N,1))
+        x = npy.array([0, -self.headaxislength,
+                        -self.headlength, 0], npy.float64)
+        x = x + npy.array([0,1,1,1]) * length
+        y = 0.5 * npy.array([1, 1, self.headwidth, 0], npy.float64)
+        y = npy.repeat(y[npy.newaxis,:], N, axis=0)
+        x0 = npy.array([0, minsh-self.headaxislength,
+                        minsh-self.headlength, minsh], npy.float64)
+        y0 = 0.5 * npy.array([1, 1, self.headwidth, 0], npy.float64)
         ii = [0,1,2,3,2,1,0]
-        X = nx.take(x, ii, 1)
-        Y = nx.take(y, ii, 1)
+        X = npy.take(x, ii, 1)
+        Y = npy.take(y, ii, 1)
         Y[:, 3:] *= -1
-        X0 = nx.take(x0, ii)
-        Y0 = nx.take(y0, ii)
+        X0 = npy.take(x0, ii)
+        Y0 = npy.take(y0, ii)
         Y0[3:] *= -1
         shrink = length/minsh
-        X0 = shrink * X0[nx.newaxis,:]
-        Y0 = shrink * Y0[nx.newaxis,:]
-        short = nx.repeat(length < minsh, 7, 1)
+        X0 = shrink * X0[npy.newaxis,:]
+        Y0 = shrink * Y0[npy.newaxis,:]
+        short = npy.repeat(length < minsh, 7, axis=1)
         #print 'short', length < minsh
-        X = nx.where(short, X0, X)
-        Y = nx.where(short, Y0, Y)
+        X = npy.where(short, X0, X)
+        Y = npy.where(short, Y0, Y)
         if self.pivot[:3] == 'mid':
-            X -= 0.5 * X[:,3, nx.newaxis]
+            X -= 0.5 * X[:,3, npy.newaxis]
         elif self.pivot[:3] == 'tip':
-            X = X - X[:,3, nx.newaxis]   #numpy bug? using -= does not
+            X = X - X[:,3, npy.newaxis]   #numpy bug? using -= does not
                                          # work here unless we multiply
                                          # by a float first, as with 'mid'.
         tooshort = length < self.minlength
-        if nx.any(tooshort):
-            th = nx.arange(0,7,1, nx.Float64) * (nx.pi/3.0)
-            x1 = nx.cos(th) * self.minlength * 0.5
-            y1 = nx.sin(th) * self.minlength * 0.5
-            X1 = nx.repeat(x1[nx.newaxis, :], N, 0)
-            Y1 = nx.repeat(y1[nx.newaxis, :], N, 0)
-            tooshort = nx.repeat(tooshort, 7, 1)
-            X = nx.where(tooshort, X1, X)
-            Y = nx.where(tooshort, Y1, Y)
+        if npy.any(tooshort):
+            th = npy.arange(0,7,1, npy.float64) * (npy.pi/3.0)
+            x1 = npy.cos(th) * self.minlength * 0.5
+            y1 = npy.sin(th) * self.minlength * 0.5
+            X1 = npy.repeat(x1[npy.newaxis, :], N, axis=0)
+            Y1 = npy.repeat(y1[npy.newaxis, :], N, axis=0)
+            tooshort = npy.repeat(tooshort, 7, 1)
+            X = npy.where(tooshort, X1, X)
+            Y = npy.where(tooshort, Y1, Y)
         return X, Y
 
     quiver_doc = _quiver_doc
