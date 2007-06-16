@@ -39,10 +39,8 @@ CS = contour(X, Y, Z, 6,
 clabel(CS, fontsize=9, inline=1)
 title('Single color - negative contours dashed')
 
-# You can set the dash pattern for negative contours
-# (default is dashed).  Specified as (on, off) in pixels.
-# Making the second element of the tuple zero yields solid lines.
-rcParams['contour.negative_linestyle'] = (6,0)
+# You can set negative contours to be solid instead of dashed:
+rcParams['contour.negative_linestyle'] = 'solid'
 figure()
 CS = contour(X, Y, Z, 6,
              colors='k', # negative contours will be dashed by default
