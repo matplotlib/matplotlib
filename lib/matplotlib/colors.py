@@ -34,16 +34,10 @@ Finally, legal html names for colors, like 'red', 'burlywood' and
 'chartreuse' are supported.
 """
 import re
-
-from numerix import array, arange, take, put, Float, Int, putmask, \
-     zeros, asarray, sort, searchsorted, sometrue, ravel, divide,\
-     ones, typecode, typecodes, alltrue, clip
-from numerix.mlab import amin, amax
-import numerix.ma as ma
-import numerix as nx
-from cbook import enumerate, is_string_like, iterable
-from matplotlib import rcParams
 import warnings
+import numpy as npy
+import matplotlib.numerix.npyma as ma
+import matplotlib.cbook as cbook
 
 cnames = {
     'aliceblue'            : '#F0F8FF',
@@ -256,7 +250,7 @@ class ColorConverter:
                                     % (str(arg),))
 
         try:
-            if is_string_like(arg):
+            if cbook.is_string_like(arg):
                 color = self.colors.get(arg, None)
                 if color is None:
                     str1 = cnames.get(arg, arg)
@@ -268,7 +262,7 @@ class ColorConverter:
                             raise ValueError(
                                    'gray (string) must be in range 0-1')
                         color = tuple([fl]*3)
-            elif iterable(arg):
+            elif cbook.iterable(arg):
                 if len(arg) > 4 or len(arg) < 3:
                     raise ValueError(
                            'sequence length is %d; must be 3 or 4'%len(arg))
@@ -297,7 +291,7 @@ class ColorConverter:
         alpha will replace the original A.
         """
         try:
-            if not is_string_like(arg) and iterable(arg):
+            if not cbook.is_string_like(arg) and cbook.iterable(arg):
                 if len(arg) == 4 and alpha is None:
                     if [x for x in arg if (float(x) < 0) or  (x > 1)]:
                         # This will raise TypeError if x is not a number.
@@ -353,7 +347,7 @@ def makeMappingArray(N, data):
     gives the closest value for values of x between 0 and 1.
     """
     try:
-        adata = array(data)
+        adata = npy.array(data)
     except:
         raise TypeError("data must be convertable to an array")
     shape = adata.shape
@@ -367,22 +361,21 @@ def makeMappingArray(N, data):
     if x[0] != 0. or x[-1] != 1.0:
         raise ValueError(
            "data mapping points must start with x=0. and end with x=1")
-    if sometrue(sort(x)-x):
+    if npy.sometrue(npy.sort(x)-x):
         raise ValueError(
            "data mapping points must have x in increasing order")
     # begin generation of lookup table
     x = x * (N-1)
-    lut = zeros((N,), Float)
-    xind = arange(float(N))
-    ind = searchsorted(x, xind)[1:-1]
+    lut = npy.zeros((N,), npy.float)
+    xind = npy.arange(float(N))
+    ind = npy.searchsorted(x, xind)[1:-1]
 
-    lut[1:-1] = ( divide(xind[1:-1] - take(x,ind-1),
-                         take(x,ind)-take(x,ind-1) )
-                  *(take(y0,ind)-take(y1,ind-1)) + take(y1,ind-1))
+    lut[1:-1] = ( ((xind[1:-1] - x[ind-1]) / (x[ind] - x[ind-1]))
+                  * (y0[ind] - y1[ind-1]) + y1[ind-1])
     lut[0] = y1[0]
     lut[-1] = y0[-1]
     # ensure that the lut is confined to values between 0 and 1 by clipping it
-    clip(lut, 0.0, 1.0)
+    npy.clip(lut, 0.0, 1.0)
     #lut = where(lut > 1., 1., lut)
     #lut = where(lut < 0., 0., lut)
     return lut
@@ -429,24 +422,24 @@ class Colormap:
         alpha = max(alpha, 0.0)
         self._lut[:-3, -1] = alpha
         mask_bad = None
-        if not iterable(X):
+        if not cbook.iterable(X):
             vtype = 'scalar'
-            xa = array([X])
+            xa = npy.array([X])
         else:
             vtype = 'array'
             xma = ma.asarray(X)
             xa = xma.filled(0)
             mask_bad = ma.getmask(xma)
-        if typecode(xa) in typecodes['Float']:
-            putmask(xa, xa==1.0, 0.9999999) #Treat 1.0 as slightly less than 1.
-            xa = (xa * self.N).astype(Int)
+        if xa.dtype.char in npy.typecodes['Float']:
+            npy.putmask(xa, xa==1.0, 0.9999999) #Treat 1.0 as slightly less than 1.
+            xa = (xa * self.N).astype(npy.int)
         # Set the over-range indices before the under-range;
         # otherwise the under-range values get converted to over-range.
-        putmask(xa, xa>self.N-1, self._i_over)
-        putmask(xa, xa<0, self._i_under)
+        npy.putmask(xa, xa>self.N-1, self._i_over)
+        npy.putmask(xa, xa<0, self._i_under)
         if mask_bad is not None and mask_bad.shape == xa.shape:
-            putmask(xa, mask_bad, self._i_bad)
-        rgba = take(self._lut, xa)
+            npy.putmask(xa, mask_bad, self._i_bad)
+        rgba = self._lut[xa]
         if vtype == 'scalar':
             rgba = tuple(rgba[0,:])
         return rgba
@@ -487,8 +480,8 @@ class Colormap:
         raise NotImplementedError("Abstract class only")
 
     def is_gray(self):
-        return (alltrue(self._lut[:,0] == self._lut[:,1])
-                    and alltrue(self._lut[:,0] == self._lut[:,2]))
+        return (npy.alltrue(self._lut[:,0] == self._lut[:,1])
+                    and npy.alltrue(self._lut[:,0] == self._lut[:,2]))
 
 
 class LinearSegmentedColormap(Colormap):
@@ -513,7 +506,7 @@ class LinearSegmentedColormap(Colormap):
         self._segmentdata = segmentdata
 
     def _init(self):
-        self._lut = ones((self.N + 3, 4), Float)
+        self._lut = npy.ones((self.N + 3, 4), npy.float)
         self._lut[:-3, 0] = makeMappingArray(self.N, self._segmentdata['red'])
         self._lut[:-3, 1] = makeMappingArray(self.N, self._segmentdata['green'])
         self._lut[:-3, 2] = makeMappingArray(self.N, self._segmentdata['blue'])
@@ -537,10 +530,10 @@ class ListedColormap(LinearSegmentedColormap):
         if N is None:
             N = len(self.colors)
         else:
-            if is_string_like(self.colors):
+            if cbook.is_string_like(self.colors):
                 self.colors = [self.colors] * N
                 self.monochrome = True
-            elif iterable(self.colors):
+            elif cbook.iterable(self.colors):
                 if len(self.colors) == 1:
                     self.monochrome = True
                 if len(self.colors) < N:
@@ -555,9 +548,9 @@ class ListedColormap(LinearSegmentedColormap):
 
 
     def _init(self):
-        rgb = array([colorConverter.to_rgb(c)
-                    for c in self.colors], Float)
-        self._lut = zeros((self.N + 3, 4), Float)
+        rgb = npy.array([colorConverter.to_rgb(c)
+                    for c in self.colors], npy.float)
+        self._lut = npy.zeros((self.N + 3, 4), npy.float)
         self._lut[:-3, :-1] = rgb
         self._lut[:-3, -1] = 1
         self._isinit = True
@@ -586,12 +579,12 @@ class Normalize:
         if clip is None:
             clip = self.clip
 
-        if iterable(value):
+        if cbook.iterable(value):
             vtype = 'array'
-            val = ma.asarray(value).astype(Float)
+            val = ma.asarray(value).astype(npy.float)
         else:
             vtype = 'scalar'
-            val = ma.array([value]).astype(Float)
+            val = ma.array([value]).astype(npy.float)
 
         self.autoscale_None(val)
         vmin, vmax = self.vmin, self.vmax
@@ -602,7 +595,7 @@ class Normalize:
         else:
             if clip:
                 mask = ma.getmask(val)
-                val = ma.array(nx.clip(val.filled(vmax), vmin, vmax),
+                val = ma.array(npy.clip(val.filled(vmax), vmin, vmax),
                                 mask=mask)
             result = (val-vmin) * (1.0/(vmax-vmin))
         if vtype == 'scalar':
@@ -614,7 +607,7 @@ class Normalize:
             raise ValueError("Not invertible until scaled")
         vmin, vmax = self.vmin, self.vmax
 
-        if iterable(value):
+        if cbook.iterable(value):
             val = ma.asarray(value)
             return vmin + val * (vmax - vmin)
         else:
@@ -645,12 +638,12 @@ class LogNorm(Normalize):
         if clip is None:
             clip = self.clip
 
-        if iterable(value):
+        if cbook.iterable(value):
             vtype = 'array'
-            val = ma.asarray(value).astype(Float)
+            val = ma.asarray(value).astype(npy.float)
         else:
             vtype = 'scalar'
-            val = ma.array([value]).astype(Float)
+            val = ma.array([value]).astype(npy.float)
 
         self.autoscale_None(val)
         vmin, vmax = self.vmin, self.vmax
@@ -663,9 +656,9 @@ class LogNorm(Normalize):
         else:
             if clip:
                 mask = ma.getmask(val)
-                val = ma.array(nx.clip(val.filled(vmax), vmin, vmax),
+                val = ma.array(npy.clip(val.filled(vmax), vmin, vmax),
                                 mask=mask)
-            result = (ma.log(val)-nx.log(vmin))/(nx.log(vmax)-nx.log(vmin))
+            result = (ma.log(val)-npy.log(vmin))/(npy.log(vmax)-npy.log(vmin))
         if vtype == 'scalar':
             result = result[0]
         return result
@@ -675,7 +668,7 @@ class LogNorm(Normalize):
             raise ValueError("Not invertible until scaled")
         vmin, vmax = self.vmin, self.vmax
 
-        if iterable(value):
+        if cbook.iterable(value):
             val = ma.asarray(value)
             return vmin * ma.power((vmax/vmin), val)
         else:
