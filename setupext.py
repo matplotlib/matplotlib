@@ -844,43 +844,18 @@ def build_enthought(ext_modules, packages):
                      ])
     BUILT_ENTHOUGHT = True
 
-def build_contour(ext_modules, packages, numerix):
+def build_contour(ext_modules, packages):
     global BUILT_CONTOUR
     if BUILT_CONTOUR: return # only build it if you you haven't already
 
-    if 'numarray' in numerix: # Build for numarray
-        temp_copy('src/cntr.c', 'src/_na_cntr.c')
-        module = Extension(
-            'matplotlib._na_cntr',
-            [  'src/_na_cntr.c',],
-            include_dirs=numarray_inc_dirs,
-            )
-        module.extra_compile_args.append('-DNUMARRAY=1')
-        add_base_flags(module)
-        ext_modules.append(module)
-
-    if 'Numeric' in numerix: # Build for Numeric
-        temp_copy('src/cntr.c', 'src/_nc_cntr.c')
-        module = Extension(
-            'matplotlib._nc_cntr',
-            [ 'src/_nc_cntr.c'],
-            include_dirs=numeric_inc_dirs,
-            )
-        module.extra_compile_args.append('-DNUMERIC=1')
-        add_base_flags(module)
-        ext_modules.append(module)
-    if 'numpy' in numerix: # Build for numpy
-        temp_copy('src/cntr.c', 'src/_ns_cntr.c')
-        module = Extension(
-            'matplotlib._ns_cntr',
-            [ 'src/_ns_cntr.c'],
-            include_dirs=numeric_inc_dirs,
-            )
-        add_numpy_flags(module)
-        module.extra_compile_args.append('-DSCIPY=1')
-        add_base_flags(module)
-        ext_modules.append(module)
-
+    module = Extension(
+        'matplotlib._cntr',
+        [ 'src/cntr.c'],
+        include_dirs=numeric_inc_dirs,
+        )
+    add_numpy_flags(module)
+    add_base_flags(module)
+    ext_modules.append(module)
 
     BUILT_CONTOUR = True
 

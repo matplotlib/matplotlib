@@ -15,7 +15,7 @@ from numerix import absolute, arange, array, asarray, ones, divide,\
      cos, nonzero, take, concatenate, all, newaxis
 
 from mlab import linspace, meshgrid
-import _contour
+import matplotlib._cntr as _cntr
 from cm import ScalarMappable
 from cbook import iterable, is_string_like, flatten, enumerate, \
      allequal, dict_delall, strip_math, popall, silent_list
@@ -449,7 +449,7 @@ class ContourSet(ScalarMappable, ContourLabeler):
                 self.linewidths = 0.05 # Good default for Postscript.
             if iterable(self.linewidths):
                 self.linewidths = self.linewidths[0]
-            C = _contour.Cntr(x, y, z.filled(), ma.getmaskorNone(z))
+            C = _cntr.Cntr(x, y, z.filled(), ma.getmaskorNone(z))
             lowers = self._levels[:-1]
             uppers = self._levels[1:]
             for level, level_upper in zip(lowers, uppers):
@@ -465,7 +465,7 @@ class ContourSet(ScalarMappable, ContourLabeler):
         else:
             tlinewidths = self._process_linewidths()
             self.tlinewidths = tlinewidths
-            C = _contour.Cntr(x, y, z.filled(), ma.getmaskorNone(z))
+            C = _cntr.Cntr(x, y, z.filled(), ma.getmaskorNone(z))
             for level, width in zip(self.levels, tlinewidths):
                 nlist = C.trace(level, points = 0)
                 col = LineCollection(nlist,
