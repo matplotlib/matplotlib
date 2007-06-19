@@ -32,6 +32,8 @@ Arguments:
     If U and V are 2-D arrays but X and Y are 1-D, and if
         len(X) and len(Y) match the column and row dimensions
         of U, then X and Y will be expanded with meshgrid.
+    U, V, C may be masked arrays, but masked X, Y are not
+        supported at present.
 
 Keyword arguments (default given first):
 
@@ -298,8 +300,7 @@ class Quiver(collections.PolyCollection):
         X, Y, U, V, C = [None]*5
         args = list(args)
         if len(args) == 3 or len(args) == 5:
-            C = npy.ravel(args.pop(-1))
-            #print 'in parse_args, C:', C
+            C = ma.asarray(args.pop(-1)).ravel()
         V = ma.asarray(args.pop(-1))
         U = ma.asarray(args.pop(-1))
         nn = npy.shape(U)
@@ -308,9 +309,9 @@ class Quiver(collections.PolyCollection):
         if len(nn) > 1:
             nr = nn[1]
         if len(args) == 2:
-            X, Y = [npy.ravel(a) for a in args]
+            X, Y = [npy.array(a).ravel() for a in args]
             if len(X) == nc and len(Y) == nr:
-                X, Y = [npy.ravel(a) for a in npy.meshgrid(X, Y)]
+                X, Y = [a.ravel() for a in npy.meshgrid(X, Y)]
         else:
             indexgrid = npy.meshgrid(npy.arange(nc), npy.arange(nr))
             X, Y = [npy.ravel(a) for a in indexgrid]
@@ -333,15 +334,20 @@ class Quiver(collections.PolyCollection):
         self._init()
         if self._new_UV:
             verts = self._make_verts(self.U, self.V)
-            self.set_verts(verts)
+            # Using nan internally here is the easiest
+            # way to support masked inputs; it doesn't
+            # require adding mask support to PolyCollection,
+            # and it keeps all array dimensions (X, Y, U, V, C)
+            # intact.
+            self.set_verts(verts.filled(npy.nan))
             self._new_UV = False
         collections.PolyCollection.draw(self, renderer)
 
     def set_UVC(self, U, V, C=None):
-        self.U = ma.ravel(U)
-        self.V = ma.ravel(V)
+        self.U = U.ravel()
+        self.V = V.ravel()
         if C is not None:
-            self.set_array(npy.ravel(C))
+            self.set_array(C.ravel())
         self._new_UV = True
 
     def _set_transform(self):
@@ -371,59 +377,57 @@ class Quiver(collections.PolyCollection):
         return trans
 
     def _make_verts(self, U, V):
-        uv = U+V*1j
-        uv = npy.ravel(ma.filled(uv,npy.nan))
-        a = npy.absolute(uv)
+        uv = ma.asarray(U+V*1j)
+        a = ma.absolute(uv)
         if self.scale is None:
             sn = max(10, math.sqrt(self.N))
-
-            # get valid values for average
-            # (complicated by support for 3 array packages)
-            a_valid_cond = ~npy.isnan(a)
-            a_valid_idx = npy.nonzero(a_valid_cond)
-            if isinstance(a_valid_idx,tuple):
-                # numpy.nonzero returns tuple
-                a_valid_idx = a_valid_idx[0]
-            valid_a = npy.take(a,a_valid_idx)
-
-            scale = 1.8 * npy.average(valid_a) * sn # crude auto-scaling
-            scale = scale/self.span
+            scale = 1.8 * a.mean() * sn / self.span # crude auto-scaling
             self.scale = scale
         length = a/(self.scale*self.width)
         X, Y = self._h_arrows(length)
-        xy = (X+Y*1j) * npy.exp(1j*npy.angle(uv[...,npy.newaxis]))*self.width
+        # There seems to be a ma bug such that indexing
+        # a masked array with one element converts it to
+        # an ndarray.
+        theta = npy.angle(ma.asarray(uv[..., npy.newaxis]).filled(0))
+        xy = (X+Y*1j) * npy.exp(1j*theta)*self.width
         xy = xy[:,:,npy.newaxis]
-        XY = npy.concatenate((xy.real, xy.imag), axis=2)
+        XY = ma.concatenate((xy.real, xy.imag), axis=2)
         return XY
 
 
     def _h_arrows(self, length):
         """ length is in arrow width units """
+        # It might be possible to streamline the code
+        # and speed it up a bit by using complex (x,y)
+        # instead of separate arrays; but any gain would be slight.
         minsh = self.minshaft * self.headlength
         N = len(length)
-        length = npy.reshape(length, (N,1))
+        length = length.reshape(N, 1)
+        # x, y: normal horizontal arrow
         x = npy.array([0, -self.headaxislength,
                         -self.headlength, 0], npy.float64)
         x = x + npy.array([0,1,1,1]) * length
         y = 0.5 * npy.array([1, 1, self.headwidth, 0], npy.float64)
         y = npy.repeat(y[npy.newaxis,:], N, axis=0)
+        # x0, y0: arrow without shaft, for short vectors
         x0 = npy.array([0, minsh-self.headaxislength,
                         minsh-self.headlength, minsh], npy.float64)
         y0 = 0.5 * npy.array([1, 1, self.headwidth, 0], npy.float64)
         ii = [0,1,2,3,2,1,0]
-        X = npy.take(x, ii, 1)
-        Y = npy.take(y, ii, 1)
+        X = x.take(ii, 1)
+        Y = y.take(ii, 1)
         Y[:, 3:] *= -1
-        X0 = npy.take(x0, ii)
-        Y0 = npy.take(y0, ii)
+        X0 = x0.take(ii)
+        Y0 = y0.take(ii)
         Y0[3:] *= -1
         shrink = length/minsh
         X0 = shrink * X0[npy.newaxis,:]
         Y0 = shrink * Y0[npy.newaxis,:]
         short = npy.repeat(length < minsh, 7, axis=1)
         #print 'short', length < minsh
-        X = npy.where(short, X0, X)
-        Y = npy.where(short, Y0, Y)
+        # Now select X0, Y0 if short, otherwise X, Y
+        X = ma.where(short, X0, X)
+        Y = ma.where(short, Y0, Y)
         if self.pivot[:3] == 'mid':
             X -= 0.5 * X[:,3, npy.newaxis]
         elif self.pivot[:3] == 'tip':
@@ -431,15 +435,16 @@ class Quiver(collections.PolyCollection):
                                          # work here unless we multiply
                                          # by a float first, as with 'mid'.
         tooshort = length < self.minlength
-        if npy.any(tooshort):
+        if tooshort.any():
+            # Use a heptagonal dot:
             th = npy.arange(0,7,1, npy.float64) * (npy.pi/3.0)
             x1 = npy.cos(th) * self.minlength * 0.5
             y1 = npy.sin(th) * self.minlength * 0.5
             X1 = npy.repeat(x1[npy.newaxis, :], N, axis=0)
             Y1 = npy.repeat(y1[npy.newaxis, :], N, axis=0)
-            tooshort = npy.repeat(tooshort, 7, 1)
-            X = npy.where(tooshort, X1, X)
-            Y = npy.where(tooshort, Y1, Y)
+            tooshort = ma.repeat(tooshort, 7, 1)
+            X = ma.where(tooshort, X1, X)
+            Y = ma.where(tooshort, Y1, Y)
         return X, Y
 
     quiver_doc = _quiver_doc
