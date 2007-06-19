@@ -1731,22 +1731,16 @@ static PyMethodDef module_methods[] = {
     {NULL}  /* Sentinel */
 };
 
-
-#ifdef NUMARRAY
-#if PY_MINOR_VERSION > 2
 PyMODINIT_FUNC
-#else
-DL_EXPORT(void)
-#endif
-init_na_cntr(void)
+init_cntr(void)
 {
     PyObject* m;
 
     if (PyType_Ready(&CntrType) < 0)
         return;
 
-    m = Py_InitModule3("_na_cntr", module_methods,
-                       "Contouring engine as an extension type (numarray).");
+    m = Py_InitModule3("_cntr", module_methods,
+                       "Contouring engine as an extension type (numpy).");
 
     if (m == NULL)
       return;
@@ -1755,55 +1749,5 @@ init_na_cntr(void)
     Py_INCREF(&CntrType);
     PyModule_AddObject(m, "Cntr", (PyObject *)&CntrType);
 }
-#endif
-#ifdef NUMERIC
-#if PY_MINOR_VERSION > 2
-PyMODINIT_FUNC
-#else
-DL_EXPORT(void)
-#endif
-init_nc_cntr(void)
-{
-    PyObject* m;
-
-    if (PyType_Ready(&CntrType) < 0)
-        return;
-
-    m = Py_InitModule3("_nc_cntr", module_methods,
-                       "Contouring engine as an extension type (Numeric).");
-
-    if (m == NULL)
-      return;
-
-    import_array();
-    Py_INCREF(&CntrType);
-    PyModule_AddObject(m, "Cntr", (PyObject *)&CntrType);
-}
-#endif
-
-#ifdef SCIPY
-#if PY_MINOR_VERSION > 2
-PyMODINIT_FUNC
-#else
-DL_EXPORT(void)
-#endif
-init_ns_cntr(void)
-{
-    PyObject* m;
-
-    if (PyType_Ready(&CntrType) < 0)
-        return;
-
-    m = Py_InitModule3("_ns_cntr", module_methods,
-                       "Contouring engine as an extension type (Scipy).");
-
-    if (m == NULL)
-      return;
-
-    import_array();
-    Py_INCREF(&CntrType);
-    PyModule_AddObject(m, "Cntr", (PyObject *)&CntrType);
-}
-#endif
 
 
