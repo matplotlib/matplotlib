@@ -1365,7 +1365,7 @@ def load(fname,comments='#',delimiter=None, converters=None,skiprows=0,
     else:  return X
 
 def csv2rec(fname, comments='#', skiprows=0, checkrows=5, delimiter=',',
-            converterd=None, names=None):
+            converterd=None, names=None, missing=None):
     """
     Load data from comma/space/tab delimited file in fname into a
     numpy record array and return the record array.
@@ -1446,7 +1446,8 @@ def csv2rec(fname, comments='#', skiprows=0, checkrows=5, delimiter=',',
                 if func is None:
                     if not item.strip(): continue
                     func = converters[j]
-                    func = get_func(item, func)
+                    if len(item.strip()):
+                        func = get_func(item, func)
                 converters[j] = func
         return converters
 

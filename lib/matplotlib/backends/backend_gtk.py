@@ -27,6 +27,8 @@ from matplotlib.numerix import asarray, fromstring, UInt8, zeros, \
      where, transpose, nonzero, indices, ones, nx
 from matplotlib.widgets import SubplotTool
 
+from matplotlib import lines
+from matplotlib import cbook
 
 backend_version = "%d.%d.%d" % gtk.pygtk_version
 
@@ -1096,47 +1098,17 @@ class DialogLineprops:
         'on_dialog_lineprops_cancelbutton_clicked',
         )
 
-    linestyles = (
-        '-'    ,
-        '--'   ,
-        '-.'   ,
-        ','    ,
-        'steps',
-        'None' ,
-    )
-
+    linestyles = [ls for ls in lines.Line2D.lineStyles if ls.strip()]
     linestyled = dict([ (s,i) for i,s in enumerate(linestyles)])
 
 
-    markers =  (
-        'None',
-        '.'  ,
-        ','  ,
-        'o'  ,
-        'v'  ,
-        '^'  ,
-        '<'  ,
-        '>'  ,
-        '1'  ,
-        '2'  ,
-        '3'  ,
-        '4'  ,
-        's'  ,
-        'p'  ,
-        'h'  ,
-        'H'  ,
-        '+'  ,
-        'x'  ,
-        'D'  ,
-        'd'  ,
-        '|'  ,
-        '_'  ,
-        )
+    markers =  [m for m in lines.Line2D.markers if cbook.is_string_like(m)]
 
     markerd = dict([(s,i) for i,s in enumerate(markers)])
 
     def __init__(self, lines):
-
+        import gtk.glade
+        
         datadir = matplotlib.get_data_path()
         gladefile = os.path.join(datadir, 'lineprops.glade')
         if not os.path.exists(gladefile):

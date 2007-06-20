@@ -73,7 +73,7 @@ def unmasked_index_ranges(mask, compressed = True):
 
 
 class Line2D(Artist):
-    _lineStyles =  {
+    lineStyles = _lineStyles =  { # hidden names deprecated
         '-'    : '_draw_solid',
         '--'   : '_draw_dashed',
         '-.'   : '_draw_dash_dot',
@@ -84,7 +84,7 @@ class Line2D(Artist):
         ''     : '_draw_nothing',
     }
 
-    _markers =  {
+    markers = _markers =  {  # hidden names deprecated
         '.'  : '_draw_point',
         ','  : '_draw_pixel',
         'o'  : '_draw_circle',
@@ -435,14 +435,7 @@ class Line2D(Artist):
 
             gc = renderer.new_gc()
             self._set_gc_clip(gc)
-            if (is_string_like(self._markeredgecolor) and
-                self._markeredgecolor == 'auto'):
-                if self._marker in self.filled_markers:
-                    gc.set_foreground('k')
-                else:
-                    gc.set_foreground(self._color)
-            else:
-                gc.set_foreground(self._markeredgecolor)
+            gc.set_foreground(self.get_markeredgecolor())
             gc.set_linewidth(self._markeredgewidth)
             gc.set_alpha(self._alpha)
             funcname = self._markers.get(self._marker, '_draw_nothing')
@@ -457,9 +450,33 @@ class Line2D(Artist):
 
     def get_linewidth(self): return self._linewidth
     def get_marker(self): return self._marker
-    def get_markeredgecolor(self): return self._markeredgecolor
+
+    def get_markeredgecolor(self):
+        if (is_string_like(self._markeredgecolor) and
+            self._markeredgecolor == 'auto'):
+            if self._marker in self.filled_markers:
+                return 'k'
+            else:
+                return self._color
+        else:
+            return self._markeredgecolor
+
+
+        return self._markeredgecolor
     def get_markeredgewidth(self): return self._markeredgewidth
-    def get_markerfacecolor(self): return self._markerfacecolor
+
+    def get_markerfacecolor(self):
+        if (self._markerfacecolor is None or
+            (is_string_like(self._markerfacecolor) and
+             self._markerfacecolor.lower()=='none') ):
+            return self._markerfacecolor
+        elif (is_string_like(self._markerfacecolor) and
+              self._markerfacecolor.lower() == 'auto'):
+            return self._color
+        else:
+            return self._markerfacecolor
+
+        
     def get_markersize(self): return self._markersize
 
     def get_xdata(self, orig=True):
@@ -1136,15 +1153,11 @@ class Line2D(Artist):
 
 
     def _get_rgb_face(self):
-        if (self._markerfacecolor is None or
-            (is_string_like(self._markerfacecolor) and
-             self._markerfacecolor.lower()=='none') ):
+        facecolor = self.get_markerfacecolor()
+        if is_string_like(facecolor) and facecolor.lower()=='none':
             rgbFace = None
-        elif (is_string_like(self._markerfacecolor) and
-              self._markerfacecolor.lower() == 'auto'):
-            rgbFace = colorConverter.to_rgb(self._color)
         else:
-            rgbFace = colorConverter.to_rgb(self._markerfacecolor)
+            rgbFace = colorConverter.to_rgb(facecolor)
         return rgbFace
 
     # some aliases....
