@@ -123,7 +123,7 @@ class CallbackRegistry:
     def connect(self, s, func):
         """
         register func to be called when a signal s is generated
-        func will be called with args and kwargs
+        func will be called
         """
         self._check_signal(s)
         self._cid +=1
