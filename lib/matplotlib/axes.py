@@ -17,6 +17,7 @@ from artist import Artist, setp
 from axis import XAxis, YAxis
 from cbook import iterable, is_string_like, flatten, enumerate, \
      allequal, dict_delall, popd, popall, silent_list, is_numlike, dedent
+
 from collections import RegularPolyCollection, PolyCollection, LineCollection, \
      QuadMesh, StarPolygonCollection, BrokenBarHCollection
 from colors import colorConverter, Normalize, Colormap, \
@@ -52,6 +53,8 @@ from font_manager import FontProperties
 from quiver import Quiver, QuiverKey
 
 import matplotlib
+
+from matplotlib import cbook
 
 if matplotlib._havedate:
     from dates import AutoDateFormatter, AutoDateLocator, DateLocator, DateFormatter
@@ -457,6 +460,13 @@ class Axes(Artist):
     """
     The Axes contains most of the figure elements: Axis, Tick, Line2D,
     Text, Polygon etc, and sets the coordinate system
+
+    The Axes instance supports callbacks through a callbacks attribute
+    which is a cbook.CallbackRegistry instance.  The events you can
+    connect to are 'xlim_changed' and 'ylim_changed' and the callback
+    will be called with func(ax) where ax is the Axes instance
+
+    
     """
 
     scaled = {IDENTITY : 'linear',
@@ -566,6 +576,69 @@ class Axes(Artist):
         self.xaxis = XAxis(self)
         self.yaxis = YAxis(self)
 
+
+    def sharex_foreign(self, axforeign):
+        """
+        You can share your x-axis view limits with another Axes in the
+        same Figure by using the sharex and sharey property of the
+        Axes.  But this doesn't work for Axes in a different figure.
+        This function sets of the callbacks so that when the xaxis of
+        this Axes or the Axes in a foreign figure are changed, both
+        will be synchronized.
+
+        The connection ids for the self.callbacks and
+        axforeign.callbacks cbook.CallbackRegistry instances are
+        returned in case you want to disconnect the coupling
+        """
+        
+        def follow_foreign_xlim(ax):
+            xmin, xmax = axforeign.get_xlim()
+            # do not emit here or we'll get a ping png effect
+            self.set_xlim(xmin, xmax, emit=False) 
+            self.figure.canvas.draw_idle()
+
+        def follow_self_xlim(ax):
+            xmin, xmax = self.get_xlim()
+            # do not emit here or we'll get a ping png effect
+            axforeign.set_xlim(xmin, xmax, emit=False)
+            axforeign.figure.canvas.draw_idle()
+
+
+        cidForeign = axforeign.callbacks.connect('xlim_changed', follow_foreign_xlim)
+        cidSelf = self.callbacks.connect('xlim_changed', follow_self_xlim)
+        return cidSelf, cidForeign
+    
+
+    def sharey_foreign(self, axforeign):
+        """
+        You can share your y-axis view limits with another Axes in the
+        same Figure by using the sharey and sharey property of the
+        Axes.  But this doesn't work for Axes in a different figure.
+        This function sets of the callbacks so that when the yaxis of
+        this Axes or the Axes in a foreign figure are changed, both
+        will be synchronized.
+
+        The connection ids for the self.callbacks and
+        axforeign.callbacks cbook.CallbackRegistry instances are
+        returned in case you want to disconnect the coupling
+        """
+        
+        def follow_foreign_ylim(ax):
+            ymin, ymax = axforeign.get_ylim()
+            # do not emit here or we'll get a ping png effect
+            self.set_ylim(ymin, ymax, emit=False) 
+            self.figure.canvas.draw_idle()
+
+        def follow_self_ylim(ax):
+            ymin, ymax = self.get_ylim()
+            # do not emit here or we'll get a ping png effect
+            axforeign.set_ylim(ymin, ymax, emit=False)
+            axforeign.figure.canvas.draw_idle()
+
+
+        cidForeign = axforeign.callbacks.connect('ylim_changed', follow_foreign_ylim)
+        cidSelf = self.callbacks.connect('ylim_changed', follow_self_ylim)
+        return cidSelf, cidForeign
 
     def set_figure(self, fig):
         """
@@ -678,6 +751,8 @@ class Axes(Artist):
         self.yaxis.cla()
 
         self.dataLim.ignore(1)
+        self.callbacks = cbook.CallbackRegistry(('xlim_changed', 'ylim_changed'))
+        
         if self._sharex is not None:
             self.xaxis.major = self._sharex.xaxis.major
             self.xaxis.minor = self._sharex.xaxis.minor
@@ -1456,7 +1531,7 @@ class Axes(Artist):
         return self.viewLim.intervalx().get_bounds()
 
 
-    def set_xlim(self, xmin=None, xmax=None, emit=False, **kwargs):
+    def set_xlim(self, xmin=None, xmax=None, emit=True, **kwargs):
         """
         set_xlim(self, *args, **kwargs):
 
@@ -1501,7 +1576,7 @@ class Axes(Artist):
 
         xmin, xmax = nonsingular(xmin, xmax, increasing=False)
         self.viewLim.intervalx().set_bounds(xmin, xmax)
-        if emit: self._send_xlim_event()
+        if emit: self.callbacks.process('xlim_changed', self)
 
         return xmin, xmax
 
@@ -1580,7 +1655,7 @@ class Axes(Artist):
         'Get the y axis range [ymin, ymax]'
         return self.viewLim.intervaly().get_bounds()
 
-    def set_ylim(self, ymin=None, ymax=None, emit=False, **kwargs):
+    def set_ylim(self, ymin=None, ymax=None, emit=True, **kwargs):
         """
         set_ylim(self, *args, **kwargs):
 
@@ -1621,7 +1696,8 @@ class Axes(Artist):
 
         ymin, ymax = nonsingular(ymin, ymax, increasing=False)
         self.viewLim.intervaly().set_bounds(ymin, ymax)
-        if emit: self._send_ylim_event()
+        if emit: self.callbacks.process('ylim_changed', self)
+
         return ymin, ymax
 
     def get_yscale(self):
@@ -1819,13 +1895,6 @@ class Axes(Artist):
         c =colorConverter.to_rgba(c)
         self._cursorProps = lw, c
 
-    def _send_xlim_event(self):
-        for cid, func in self._connected.get('xlim_changed', []):
-            func(self)
-
-    def _send_ylim_event(self):
-        for cid, func in self._connected.get('ylim_changed', []):
-            func(self)
 
     def panx(self, numsteps):
         'Pan the x axis numsteps (plus pan right, minus pan left)'
@@ -1849,9 +1918,8 @@ class Axes(Artist):
         self.yaxis.zoom(numsteps)
         self._send_ylim_event()
 
-    _cid = 0
-    _events = ('xlim_changed', 'ylim_changed')
 
+        
     def connect(self, s, func):
         """
         Register observers to be notified when certain events occur.  Register
@@ -1868,23 +1936,11 @@ class Axes(Artist):
         disconnect to disconnect from the axes event
 
         """
-
-        if s not in Axes._events:
-            raise ValueError('You can only connect to the following axes events: %s' % ', '.join(Axes._events))
-
-        cid = Axes._cid
-        self._connected.setdefault(s, []).append((cid, func))
-        Axes._cid += 1
-        return cid
+        raise DeprecationWarning('use the callbacks CallbackRegistry instance instead')
 
     def disconnect(self, cid):
         'disconnect from the Axes event.'
-        for key, val in self._connected.items():
-            for item in val:
-                if item[0] == cid:
-                    self._connected[key].remove(item)
-                    return
-
+        raise DeprecationWarning('use the callbacks CallbackRegistry instance instead')
     def get_children(self):
         'return a list of child artists'
         children = []
