@@ -286,11 +286,15 @@ RendererAgg::set_clipbox_rasterizer( double *cliprect) {
   
   _VERBOSE("RendererAgg::set_clipbox_rasterizer");
   
-  if (cliprect==NULL) {
-    theRasterizer->reset_clipping();
-    rendererBase->reset_clipping(true);
-  }
-  else {
+
+  theRasterizer->reset_clipping();
+  rendererBase->reset_clipping(true);
+
+  //if (cliprect==NULL) {
+  //  theRasterizer->reset_clipping();
+  //  rendererBase->reset_clipping(true);
+  //}
+  if (cliprect!=NULL) {
     
     double l = cliprect[0] ;
     double b = cliprect[1] ;
@@ -1877,7 +1881,8 @@ RendererAgg::draw_markers(const Py::Tuple& args) {
   if (face.first)
     delete [] fillCache;
   delete [] strokeCache;
-  
+
+  //jdh
   _VERBOSE("RendererAgg::_draw_markers_cache done");
   return Py::Object();
   
