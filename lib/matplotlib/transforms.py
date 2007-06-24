@@ -126,6 +126,21 @@ components, and alpha is the rotation
    c = sy*sin(alpha);
    d = sy*cos(alpha);
 
+The affine transformation can be accomplished for row vectors with a
+single matrix multiplication
+            X_new = X_old * M
+where
+       M =     [ a  b  0
+                 c  d  0
+                 tx ty 1]
+and each X is the row vector [x, y, 1].  Hence M is
+the transpose of the matrix representation given in
+http://en.wikipedia.org/wiki/Affine_transformation,
+which is for the more usual column-vector representation
+of the position.)
+
+
+
 From a user perspective, the most important Tranformation methods are
 
 All transformations
@@ -233,13 +248,13 @@ and transforms, or eliminate it entirely by adding its methods
 and attributes to Bbox and/or putting them elsewhere in this module.
 """
 from __future__ import division
-
 import math
-from _transforms import Value, Point, Interval, Bbox, Affine
-from _transforms import IDENTITY, LOG10, POLAR, Func, FuncXY
-from _transforms import SeparableTransformation, NonseparableTransformation
-from matplotlib.numerix import array, Float
-from matplotlib.numerix.linear_algebra import inverse
+import numpy as npy
+
+from matplotlib._transforms import Value, Point, Interval, Bbox, Affine
+from matplotlib._transforms import IDENTITY, LOG10, POLAR, Func, FuncXY
+from matplotlib._transforms import SeparableTransformation
+from matplotlib._transforms import NonseparableTransformation
 
 def nonsingular(vmin, vmax, expander=0.001, tiny=1e-15, increasing=True):
     '''
@@ -249,7 +264,8 @@ def nonsingular(vmin, vmax, expander=0.001, tiny=1e-15, increasing=True):
             the maximum absolute value.
 
     If they are too close, each will be moved by the 'expander'.
-    If 'increasing' is True and vmin > vmax, they will be swapped.
+    If 'increasing' is True and vmin > vmax, they will be swapped,
+    regardless of whether they are too close.
     '''
     swapped = False
     if vmax < vmin:
@@ -372,19 +388,13 @@ def lbwh_to_bbox(l,b,w,h):
 
 def invert_vec6(v):
     """
-    v is a,b,c,d,tx,ty vec6 repr of a matrix
-    [ a  b  0
-      c  d  0
-      tx ty 1]
-
+    v is a,b,c,d,tx,ty vec6 repr of an affine transformation.
     Return the inverse of v as a vec6
     """
-    M = array([ [a,b,0], [c,d,0], [tx,ty,1]], typecode=Float)
-    Mi = inverse(M)
-    a, b = M[0,0:2]
-    c, d = M[1,0:2]
-    tx, ty = M[2,0:2]
-    return a,b,c,d,tx,ty
+    a,b,c,d,tx,ty = v
+    M = npy.array([ [a,b,0], [c,d,0], [tx,ty,1]], dtype=npy.float64)
+    Mi = npy.linalg.inv(M)
+    return Mi[:,:2].ravel()
 
 def multiply_affines( v1, v2):
     """
