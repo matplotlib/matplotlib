@@ -1,7 +1,12 @@
-   Made the emit property of set_xlim and set_ylim true by default;
-   removed the Axes custom callback handling into a 'callbacks'
-   attribute which is a cbook.CallbackRegistry instance.  This now
-   supports the xlim_changed and ylim_changed Axes events.
+    Changed default kwarg in colors.Normalize.__init__ to clip=False;
+    clipping silently defeats the purpose of the special over, under,
+    and bad values in the colormap, thereby leading to unexpected
+    behavior.  The new default should reduce such surprises.
+
+    Made the emit property of set_xlim and set_ylim true by default;
+    removed the Axes custom callback handling into a 'callbacks'
+    attribute which is a cbook.CallbackRegistry instance.  This now
+    supports the xlim_changed and ylim_changed Axes events.
 
 0.90.1 released
 

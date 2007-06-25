@@ -561,7 +561,7 @@ class Normalize:
     """
     Normalize a given value to the 0-1 range
     """
-    def __init__(self, vmin=None, vmax=None, clip = True):
+    def __init__(self, vmin=None, vmax=None, clip=False):
         """
         If vmin or vmax is not given, they are taken from the input's
         minimum and maximum value respectively.  If clip is True and
@@ -569,7 +569,10 @@ class Normalize:
         will be 0 or 1, whichever is closer. Returns 0 if vmin==vmax.
         Works with scalars or arrays, including masked arrays.  If
         clip is True, masked values are set to 1; otherwise they
-        remain masked.
+        remain masked.  Clipping silently defeats the purpose of setting
+        the over, under, and masked colors in the colormap, so it is
+        likely to lead to surprises; therefore the default is
+        clip=False.
         """
         self.vmin = vmin
         self.vmax = vmax
