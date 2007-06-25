@@ -6,6 +6,8 @@ regression testing, and comparing backend efficiency
 
 from __future__ import division
 import os, time, sys
+import matplotlib.backends as mplbe
+
 files = (
     'alignment_test.py',
     'arctest.py',
@@ -30,6 +32,7 @@ files = (
     'image_demo.py',
     'image_demo2.py',
     'image_demo_na.py',
+    'image_masked.py',
     'image_origin.py',
     'invert_axes.py',
     'layer_images.py',
@@ -74,14 +77,6 @@ files = (
     )
 
 
-#tests known to fail on python22 (require datetime)
-fail22  = (
-    'date_demo1.py',
-    'date_demo2.py',
-    'finance_demo.py',
-    )
-
-
 # tests known to fail on a given backend
 
 failbackend = dict(
@@ -118,7 +113,7 @@ def drive(backend, python='python', switches = []):
                 line_lstrip.startswith('show')):
                 continue
             tmpfile.write(line)
-        if backend in ('GTK', 'WX', 'TkAgg'):
+        if backend in mplbe.interactive_bk:
             tmpfile.write('show()')
         else:
             tmpfile.write('savefig("%s", dpi=150)' % outfile)
@@ -130,19 +125,15 @@ def drive(backend, python='python', switches = []):
 
 if __name__ == '__main__':
     times = {}
-    # backends = ['Agg', 'Cairo', 'GDK', 'PS', 'SVG', 'Template']
-    #backends = ['Agg', 'PS', 'SVG', 'Template']
-    # backends = [ 'GTK', 'WX', 'TkAgg']
     default_backends = ['Agg', 'PS', 'SVG', 'Template']
-    #default_backends = ['Agg']
-    #backends = ['Agg']
     if sys.platform == 'win32':
         python = r'c:\Python24\python.exe'
     else:
         python = 'python'
+    backends = []
     switches = []
     if sys.argv[1:]:
-        backends = [b for b in sys.argv[1:] if b in default_backends]
+        backends = [b for b in sys.argv[1:] if b in mplbe.all_backends]
         switches = [s for s in sys.argv[1:] if s.startswith('--')]
     if not backends:
         backends = default_backends
