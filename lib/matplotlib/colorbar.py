@@ -110,6 +110,18 @@ axes properties kwargs.
 
 class ColorbarBase(cm.ScalarMappable):
     '''
+    Draw a colorbar in an existing axes.
+
+    This is a base class for the Colorbar class, which is
+    the basis for the colorbar method and pylab function.
+
+    It is also useful by itself for showing a colormap.  If
+    the cmap kwarg is given but boundaries and values are left
+    as None, then the colormap will be displayed on a 0-1 scale.
+    To show the under- and over-value colors, specify the norm
+    as colors.Normalize(clip=False).
+    To show the colors versus index instead of on the 0-1 scale,
+    use norm=colors.NoNorm.
     '''
     _slice_dict = {'neither': slice(0,1000000),
                    'both': slice(1,-1),
@@ -348,10 +360,28 @@ class ColorbarBase(cm.ScalarMappable):
                 return
             self._boundaries = npy.array(self.boundaries)
             return
+        # Neither boundaries nor values are specified;
+        # make reasonable ones based on cmap and norm.
         if isinstance(self.norm, colors.NoNorm):
-            b = npy.arange(self.norm.vmin, self.norm.vmax + 2) - 0.5
+            b = self._uniform_y(self.cmap.N+1) * self.cmap.N - 0.5
+            v = npy.zeros((len(b)-1,), dtype=npy.int16)
+            v[self._inside] = npy.arange(self.cmap.N, dtype=npy.int16)
+            if self.extend in ('both', 'min'):
+                v[0] = -1
+            if self.extend in ('both', 'max'):
+                v[-1] = self.cmap.N
+            self._boundaries = b
+            self._values = v
+            return
         else:
+            if not self.norm.scaled():
+                self.norm.vmin = 0
+                self.norm.vmax = 1
             b = self.norm.inverse(self._uniform_y(self.cmap.N+1))
+            if self.extend in ('both', 'min'):
+                b[0] = b[0] - 1
+            if self.extend in ('both', 'max'):
+                b[-1] = b[-1] + 1
         self._process_values(b)
 
     def _find_range(self):
