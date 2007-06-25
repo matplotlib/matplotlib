@@ -83,6 +83,17 @@ failbackend = dict(
     SVG = ('tex_demo.py,'),
     )
 
+try:
+    import subprocess
+    def run(arglist):
+        try:
+            subprocess.call(arglist)
+        except KeyboardInterrupt:
+            sys.exit()
+except ImportError:
+    def run(arglist):
+        os.system(' '.join(arglist))
+
 def drive(backend, python='python', switches = []):
 
     exclude = failbackend.get(backend, [])
@@ -119,7 +130,8 @@ def drive(backend, python='python', switches = []):
             tmpfile.write('savefig("%s", dpi=150)' % outfile)
 
         tmpfile.close()
-        os.system('%s %s %s' % (python, tmpfile_name, switchstring))
+        run([python, tmpfile_name, switchstring])
+        #os.system('%s %s %s' % (python, tmpfile_name, switchstring))
         os.remove(tmpfile_name)
 
 
