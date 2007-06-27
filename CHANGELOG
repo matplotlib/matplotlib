@@ -1,3 +1,13 @@
+2007-06-27 Added MPLCONFIGDIR for the default location for mpl data
+           and configuration.  useful for some apache installs where
+           HOME is not writable.  Tried to clean up the logic in
+           _get_config_dir to support non-writable HOME where are
+           writable HOME/.matplotlib already exists - JDH
+
+2007-06-27 Fixed locale bug reported at
+           http://sourceforge.net/tracker/index.php?func=detail&aid=1744154&group_id=80706&atid=560720
+           by adding a cbook.unicode_safe function - JDH
+
 2007-06-27 Applied Micheal's tk savefig bugfix described at
            http://sourceforge.net/tracker/index.php?func=detail&aid=1716732&group_id=80706&atid=560720
            Thanks Michael!
