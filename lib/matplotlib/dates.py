@@ -92,6 +92,8 @@ from dateutil.rrule import rrule, MO, TU, WE, TH, FR, SA, SU, YEARLY, \
 from dateutil.relativedelta import relativedelta
 import dateutil.parser
 
+from matplotlib import cbook
+
 UTC = timezone('UTC')
 
 def _get_rc_timezone():
@@ -295,7 +297,7 @@ class DateFormatter(Formatter):
         fmt = self.illegal_s.sub(r"\1", fmt)
         fmt = fmt.replace("%s", "s")
         if dt.year > 1900:
-            return unicode(dt.strftime(fmt), locale.getpreferredencoding())
+            return cbook.unicode_safe(dt.strftime(fmt))
 
         year = dt.year
         # For every non-leap year century, advance by
@@ -323,7 +325,9 @@ class DateFormatter(Formatter):
         for site in sites:
             s = s[:site] + syear + s[site+4:]
 
-        return unicode(s, locale.getpreferredencoding())
+        return cbook.unicode_safe(s)
+
+
 
 class IndexDateFormatter(Formatter):
     """
@@ -347,7 +351,7 @@ class IndexDateFormatter(Formatter):
 
         dt = num2date(self.t[ind], self.tz)
 
-        return unicode(dt.strftime(self.fmt), locale.getpreferredencoding())
+        return cbook.unicode_safe(dt.strftime(self.fmt))
 
 
 class AutoDateFormatter(Formatter):
