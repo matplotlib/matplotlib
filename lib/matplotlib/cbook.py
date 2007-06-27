@@ -5,7 +5,7 @@ from the Python Cookbook -- hence the name cbook
 from __future__ import generators
 import re, os, errno, sys, StringIO, traceback
 import time, datetime
-import matplotlib.numerix as nx
+import numpy as npy
 
 try: set
 except NameError:
@@ -790,7 +790,7 @@ def report_memory(i=0):  # argument may go away
 class MemoryMonitor:
     def __init__(self, nmax=20000):
         self._nmax = nmax
-        self._mem = nx.zeros((self._nmax,), nx.Int32)
+        self._mem = npy.zeros((self._nmax,), npy.int32)
         self.clear()
 
     def clear(self):
@@ -826,7 +826,7 @@ class MemoryMonitor:
             print "Warning: array size was too small for the number of calls."
 
     def xy(self, i0=0, isub=1):
-        x = nx.arange(i0, self._n, isub)
+        x = npy.arange(i0, self._n, isub)
         return x, self._mem[i0:self._n:isub]
 
     def plot(self, i0=0, isub=1):
