@@ -3,7 +3,7 @@ A collection of utility functions and classes.  Many (but not all)
 from the Python Cookbook -- hence the name cbook
 """
 from __future__ import generators
-import re, os, errno, sys, StringIO, traceback
+import re, os, errno, sys, StringIO, traceback, locale
 import time, datetime
 import numpy as npy
 
@@ -13,6 +13,13 @@ except NameError:
 
 major, minor1, minor2, s, tmp = sys.version_info
 
+
+# on some systems, locale.getpreferredencoding returns None, which can break unicode
+preferredencoding = locale.getpreferredencoding()
+
+def unicode_safe(s):
+    if preferredencoding is None: return unicode(s)
+    else: return unicode(s, preferredencoding)
 
 class converter:
     """
