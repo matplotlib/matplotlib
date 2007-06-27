@@ -763,7 +763,7 @@ class LocationEvent(Event):
 
 class MouseEvent(LocationEvent):
     """
-    A mouse event (button_press_event, button_release_event,
+    A mouse event (button_press_event, button_release_event, scroll_event,
     motion_notify_event).
 
     The following attributes are defined and shown with their default
@@ -771,7 +771,8 @@ class MouseEvent(LocationEvent):
 
     x      = None       # x position - pixels from left of canvas
     y      = None       # y position - pixels from bottom of canvas
-    button = None       # button pressed None, 1, 2, 3
+    button = None       # button pressed None, 1, 2, 3, 'up', 'down'
+                          (up and down are used for scroll events)
     key    = None       # the key pressed: None, chr(range(255), shift, win, or control
     inaxes = None       # the Axes instance if mouse us over axes
     xdata  = None       # x coord of mouse in data coords
@@ -856,6 +857,7 @@ class FigureCanvasBase:
         'key_release_event',
         'button_press_event',
         'button_release_event',
+        'scroll_event',                
         'motion_notify_event',
         'pick_event',
         )
@@ -914,6 +916,21 @@ class FigureCanvasBase:
         s = 'pick_event'
         event = PickEvent(s, self, mouseevent, artist, **kwargs)
         self.callbacks.process(s, event)
+
+    def scroll_event(self, x, y, button, guiEvent=None):
+        """
+        Backend derived classes should call this function on any
+        scroll wheel event.  x,y are the canvas coords: 0,0 is lower,
+        left.  button and key are as defined in MouseEvent
+        """
+        self._button = button
+        s = 'scroll_event'
+        mouseevent = MouseEvent(s, self, x, y, button, self._key, guiEvent=guiEvent)
+        self.callbacks.process(s, mouseevent)
+
+
+        if not self.widgetlock.locked():
+            self.figure.pick(mouseevent)
 
     def button_press_event(self, x, y, button, guiEvent=None):
         """
@@ -1020,6 +1037,7 @@ class FigureCanvasBase:
         'key_release_event',
         'button_press_event',
         'button_release_event',
+        'scroll_event',
         'motion_notify_event',
         'pick_event',
 
