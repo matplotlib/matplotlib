@@ -323,16 +323,28 @@ get_home = verbose.wrap('$HOME=%s', _get_home, always=False)
 
 def _get_configdir():
     """
-    Return the string representing the configuration dir.  If s is the
-    special string _default_, use HOME/.matplotlib.  s must be writable
+    Return the string representing the configuration dir.  
+
+    default is HOME/.matplotlib.  you can override this with the
+    MPLCONFIGDIR environment variable
     """
+
+    configdir = os.environ.get('MPLCONFIGDIR')
+    if configdir is not None:
+        if not _is_writable_dir(configdir):
+            raise RuntimeError('Could not write to MPLCONFIGDIR="%s"'%configdir)
+        return configdir
+    
     h = get_home()
-    if not _is_writable_dir(h):
-        raise RuntimeError("'%s' is not a writable dir; you must set environment variable HOME to be a writable dir "%h)
-
     p = os.path.join(get_home(), '.matplotlib')
+    
+    if os.path.exists(p):
+        if not _is_writable_dir(p):
+            raise RuntimeError("'%s' is not a writable dir; you must set %s/.matplotlib to be a writable dir.  You can also set environment variable MPLCONFIGDIR to any writable directory where you want matplotlib data stored "%h)
+    else:
+        if not _is_writable_dir(h):
+            raise RuntimeError("Failed to create %s/.matplotlib; consider setting MPLCONFIGDIR to a writable directory for matplotlib configuration data"%h)
 
-    if not _is_writable_dir(p):
         os.mkdir(p)
 
     return p
