@@ -369,13 +369,19 @@ def _get_data_path():
 get_data_path = verbose.wrap('matplotlib data path %s', _get_data_path, always=False)
 
 def get_py2exe_datafiles():
-    import glob
-
-    mplfiles = glob.glob(os.sep.join([get_data_path(), '*']))
-    # Need to explicitly remove cocoa_agg files or py2exe complains
-    mplfiles.remove(os.sep.join([get_data_path(), 'Matplotlib.nib']))
-
-    return ('matplotlibdata', mplfiles)
+    datapath = get_data_path()
+    head, tail = os.path.split(datapath)
+    d = {}
+    for root, dirs, files in os.walk(datapath):
+        # Need to explicitly remove cocoa_agg files or py2exe complains
+        # NOTE I dont know why, but do as previous version
+        if 'Matplotlib.nib' in files:
+            files.remove('Matplotlib.nib')
+        files = [os.path.join(root, filename) for filename in files]
+        root = root.replace(tail, 'matplotlibdata')
+        root = root[root.index('matplotlibdata'):]
+        d[root] = files
+    return d.items()
 
 def checkdep_dvipng():
     try:
