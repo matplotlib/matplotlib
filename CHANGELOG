@@ -1,3 +1,8 @@
+2007-06-27 Added a scroll event to the mpl event handling system and
+           implemented it for backends GTK* -- other backend
+           users/developers/maintainers, please add support for your
+           backend. - JDH
+
 2007-06-25 Changed default to clip=False in colors.Normalize;
            modified ColorbarBase for easier colormap display - EF
 

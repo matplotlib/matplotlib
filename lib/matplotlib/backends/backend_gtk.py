@@ -157,6 +157,7 @@ class FigureCanvasGTK (gtk.DrawingArea, FigureCanvasBase):
         self._pixmap_height = -1
         self._lastCursor    = None
 
+        self.connect('scroll_event',   self.scroll_event)
         self.connect('button_press_event',   self.button_press_event)
         self.connect('button_release_event', self.button_release_event)
         self.connect('configure_event',      self.configure_event)
@@ -179,6 +180,18 @@ class FigureCanvasGTK (gtk.DrawingArea, FigureCanvasBase):
         self.set_flags(gtk.CAN_FOCUS)
         self._renderer_init()
 
+
+    def scroll_event(self, widget, event):
+        if _debug: print 'FigureCanvasGTK.%s' % fn_name()
+        x = event.x
+        # flipy so y=0 is bottom of canvas
+        y = self.allocation.height - event.y
+        if event.direction==gdk.SCROLL_UP:
+            direction = 'up'
+        else:
+            direction = 'down'
+        FigureCanvasBase.scroll_event(self, x, y, direction)
+        return False  # finish event propagation?
 
     def button_press_event(self, widget, event):
         if _debug: print 'FigureCanvasGTK.%s' % fn_name()
