@@ -1,5 +1,11 @@
+2007-06-27 Applied Micheal's tk savefig bugfix described at
+           http://sourceforge.net/tracker/index.php?func=detail&aid=1716732&group_id=80706&atid=560720
+           Thanks Michael!
+
+
 2007-06-27 Patch for get_py2exe_datafiles() to work with new directory
            layout. (Thanks Tocer and also Werner Bruhin.) -ADS
+
 
 2007-06-27 Added a scroll event to the mpl event handling system and
            implemented it for backends GTK* -- other backend
