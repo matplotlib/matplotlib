@@ -1000,9 +1000,6 @@ distribution""" % (key, cnt, fname)
 
     default, converter =  defaultParams[key]
 
-    ind = val.find('#')
-    if ind>=0: val = val[:ind]   # ignore trailing comments
-    val = val.strip()
     if fail_on_error:
         return converter(val)   # try to convert to proper type or raise
     else:
@@ -1033,36 +1030,37 @@ def rc_params(fail_on_error=False):
         warnings.warn(message)
         return ret
 
-    lines = [line.strip() for line in file(fname)]
     cnt = 0
     rc_temp = {}
-    for line in lines:
+    for line in file(fname):
         cnt += 1
-        if not len(line): continue
-        if line.startswith('#'): continue
-        tup = line.split(':',1)
+        strippedline = line.split('#',1)[0].strip()
+        if not strippedline: continue
+        tup = strippedline.split(':',1)
         if len(tup) !=2:
             warnings.warn('Illegal line #%d\n\t%s\n\tin file "%s"' % (cnt, line, fname))
             continue
         key, val = tup
         key = key.strip()
+        val = val.strip()
+        if key in rc_temp:
+            warnings.warn('Duplicate key in file "%s", line #%d'%(fname,cnt))
         rc_temp[key] = (val, line, cnt)
 
+    ret = dict([ (key,default) for key, (default, converter) in defaultParams.iteritems() ])
+
     for key in ('verbose.level', 'verbose.fileo'):
-        try: val, line, cnt = rc_temp.pop(key)
-        except KeyError: continue
-        else:
+        if key in rc_temp:
+            val, line, cnt = rc_temp.pop(key)
             cval = validate_key(key, val, line, cnt, fname, fail_on_error)
-            if cval is not None: defaultParams[key][0] = cval
-    while len(rc_temp) > 0:
-        key, (val, line, cnt) = rc_temp.popitem()
+            if cval is not None:
+                ret[key] = cval
 
+    for key, (val, line, cnt) in rc_temp.iteritems():
         cval = validate_key(key, val, line, cnt, fname, fail_on_error)
-        if cval is not None: defaultParams[key][0] = cval
-        else: continue
+        if cval is not None:
+            ret[key] = cval
 
-    # strip the converter funcs and return
-    ret =  dict([ (key, tup[0]) for key, tup in defaultParams.items()])
     verbose.report('loaded rc file %s'%fname)
 
     return ret
