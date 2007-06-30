@@ -648,12 +648,12 @@ def validate_ps_distiller(s):
         gs_v = checkdep_ghostscript()
         if compare_versions(gs_v, gs_sugg): pass
         elif compare_versions(gs_v, gs_req):
-            verbose.report( 'ghostscript-%s found. ghostscript-%s or later \
-is recommended to use the ps.usedistiller option.' % (gs_v, gs_sugg))
+            verbose.report(('ghostscript-%s found. ghostscript-%s or later '
+                            'is recommended to use the ps.usedistiller option.') % (gs_v, gs_sugg))
         else:
             flag = False
-            warnings.warn('matplotlibrc ps.usedistiller option can not be used \
-unless ghostscript-%s or later is installed on your system'% gs_req)
+            warnings.warn(('matplotlibrc ps.usedistiller option can not be used '
+                           'unless ghostscript-%s or later is installed on your system') % gs_req)
 
         if s == 'xpdf':
             pdftops_req = '3.0'
@@ -661,52 +661,56 @@ unless ghostscript-%s or later is installed on your system'% gs_req)
             if compare_versions(pdftops_v, pdftops_req): pass
             else:
                 flag = False
-                warnings.warn('matplotlibrc ps.usedistiller can not be set to \
-xpdf unless xpdf-%s or later is installed on your system' % pdftops_req)
+                warnings.warn(('matplotlibrc ps.usedistiller can not be set to '
+                               'xpdf unless xpdf-%s or later is installed on your system') % pdftops_req)
 
-        if flag: return s
-        else: return None
+        if flag:
+            return s
+        else:
+            return None
     else:
-        raise ValueError('matplotlibrc ps.usedistiller must either be none, \
-ghostscript or xpdf')
+        raise ValueError('matplotlibrc ps.usedistiller must either be none, '
+                         'ghostscript or xpdf')
 
 def validate_usetex(s):
-    bl = validate_bool(s)
-    if bl:
-        tex_req = '3.1415'
-        gs_req = '7.07'
-        gs_sugg = '7.07'
-        dvipng_req = '1.5'
-        flag = True
+    if not validate_bool(s):
+        return False
 
-        tex_v = checkdep_tex()
-        if compare_versions(tex_v, tex_req): pass
-        else:
-            flag = False
-            warnings.warn('matplotlibrc text.usetex option can not be used \
-unless TeX-%s or later is installed on your system' % tex_req)
+    tex_req = '3.1415'
+    gs_req = '7.07'
+    gs_sugg = '7.07'
+    dvipng_req = '1.5'
+    flag = True
 
-        dvipng_v = checkdep_dvipng()
-        if compare_versions(dvipng_v, dvipng_req): pass
-        else:
-            flag = False
-            warnings.warn( 'matplotlibrc text.usetex can not be used with *Agg \
-backend unless dvipng-1.5 or later is installed on your system')
-
-        gs_v = checkdep_ghostscript()
-        if compare_versions(gs_v, gs_sugg): pass
-        elif compare_versions(gs_v, gs_req):
-            verbose.report( 'ghostscript-%s found. ghostscript-%s or later is \
-recommended for use with the text.usetex option.' % (gs_v, gs_sugg))
-        else:
-            flag = False
-            warnings.warn('matplotlibrc text.usetex can not be used \
-unless ghostscript-%s or later is installed on your system'% gs_req)
-
-        if flag: return True
-        else: return False
+    tex_v = checkdep_tex()
+    if compare_versions(tex_v, tex_req): pass
     else:
-        return bl
+        flag = False
+        warnings.warn(('matplotlibrc text.usetex option can not be used '
+                       'unless TeX-%s or later is '
+                       'installed on your system') % tex_req)
+
+    dvipng_v = checkdep_dvipng()
+    if compare_versions(dvipng_v, dvipng_req): pass
+    else:
+        flag = False
+        warnings.warn( 'matplotlibrc text.usetex can not be used with *Agg '
+                       'backend unless dvipng-1.5 or later is '
+                       'installed on your system')
+
+    gs_v = checkdep_ghostscript()
+    if compare_versions(gs_v, gs_sugg): pass
+    elif compare_versions(gs_v, gs_req):
+        verbose.report(('ghostscript-%s found. ghostscript-%s or later is '
+                        'recommended for use with the text.usetex '
+                        'option.') % (gs_v, gs_sugg))
+    else:
+        flag = False
+        warnings.warn(('matplotlibrc text.usetex can not be used '
+                       'unless ghostscript-%s or later is '
+                       'installed on your system') % gs_req)
+
+    return flag
 
 validate_joinstyle = ValidateInStrings('joinstyle',['miter', 'round', 'bevel'], ignorecase=True)
 
