@@ -642,35 +642,40 @@ def validate_ps_distiller(s):
     elif s == 'false':
         return False
     elif s in ('ghostscript', 'xpdf'):
-        flag = True
-        gs_req = '7.07'
-        gs_sugg = '7.07'
-        gs_v = checkdep_ghostscript()
-        if compare_versions(gs_v, gs_sugg): pass
-        elif compare_versions(gs_v, gs_req):
-            verbose.report(('ghostscript-%s found. ghostscript-%s or later '
-                            'is recommended to use the ps.usedistiller option.') % (gs_v, gs_sugg))
+        return s
+    else:
+        raise ValueError('matplotlibrc ps.usedistiller must either be none, ghostscript or xpdf')
+
+def checkdep_ps_distiller(s):
+    if not s:
+        return False
+
+    flag = True
+    gs_req = '7.07'
+    gs_sugg = '7.07'
+    gs_v = checkdep_ghostscript()
+    if compare_versions(gs_v, gs_sugg): pass
+    elif compare_versions(gs_v, gs_req):
+        verbose.report(('ghostscript-%s found. ghostscript-%s or later '
+                        'is recommended to use the ps.usedistiller option.') % (gs_v, gs_sugg))
+    else:
+        flag = False
+        warnings.warn(('matplotlibrc ps.usedistiller option can not be used '
+                       'unless ghostscript-%s or later is installed on your system') % gs_req)
+
+    if s == 'xpdf':
+        pdftops_req = '3.0'
+        pdftops_v = checkdep_pdftops()
+        if compare_versions(pdftops_v, pdftops_req): pass
         else:
             flag = False
-            warnings.warn(('matplotlibrc ps.usedistiller option can not be used '
-                           'unless ghostscript-%s or later is installed on your system') % gs_req)
+            warnings.warn(('matplotlibrc ps.usedistiller can not be set to '
+                           'xpdf unless xpdf-%s or later is installed on your system') % pdftops_req)
 
-        if s == 'xpdf':
-            pdftops_req = '3.0'
-            pdftops_v = checkdep_pdftops()
-            if compare_versions(pdftops_v, pdftops_req): pass
-            else:
-                flag = False
-                warnings.warn(('matplotlibrc ps.usedistiller can not be set to '
-                               'xpdf unless xpdf-%s or later is installed on your system') % pdftops_req)
-
-        if flag:
-            return s
-        else:
-            return None
+    if flag:
+        return s
     else:
-        raise ValueError('matplotlibrc ps.usedistiller must either be none, '
-                         'ghostscript or xpdf')
+        return False
 
 def validate_usetex(s):
     if not validate_bool(s):
@@ -1067,6 +1072,8 @@ def rc_params(fail_on_error=False):
 rcParams = rc_params()
 
 rcParamsDefault = dict(rcParams.items()) # a copy
+
+rcParams['ps.usedistiller'] = checkdep_ps_distiller(rcParams['ps.usedistiller'])
 
 def rc(group, **kwargs):
     """
