@@ -108,18 +108,6 @@ def _process_plot_format(fmt):
 
     """
 
-    colors = {
-        'b' : 1,
-        'g' : 1,
-        'r' : 1,
-        'c' : 1,
-        'm' : 1,
-        'y' : 1,
-        'k' : 1,
-        'w' : 1,
-        }
-
-
     linestyle = None
     marker = None
     color = None
@@ -154,7 +142,7 @@ def _process_plot_format(fmt):
             if marker is not None:
                 raise ValueError, 'Illegal format string "%s"; two marker symbols' % fmt
             marker = c
-        elif colors.has_key(c):
+        elif colorConverter.colors.has_key(c):
             if color is not None:
                 raise ValueError, 'Illegal format string "%s"; two color symbols' % fmt
             color = c
