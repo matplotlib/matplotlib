@@ -1357,6 +1357,8 @@ class FigureFrameWx(wx.Frame):
         wx.Frame.Destroy(self, *args, **kwargs)
         if self.toolbar is not None:
             self.toolbar.Destroy()
+        wxapp.Yield()
+        return True
 
 class FigureManagerWx(FigureManagerBase):
     """
@@ -1397,7 +1399,6 @@ class FigureManagerWx(FigureManagerBase):
     def destroy(self, *args):
         DEBUG_MSG("destroy()", 1, self)
         self.frame.Destroy()
-        self.canvas.Destroy()
         #if self.tb is not None: self.tb.Destroy()
         import wx
         #wx.GetApp().ProcessIdle()
