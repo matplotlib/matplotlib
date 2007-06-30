@@ -588,6 +588,10 @@ class NavigationToolbar2TkAgg(NavigationToolbar2, Tk.Frame):
         #Tk.Frame.__init__(self, master=self.canvas._tkcanvas)
         NavigationToolbar2.__init__(self, canvas)
 
+    def destroy(self, *args):
+        del self.message
+        Tk.Frame.destroy(self, *args)
+        
     def set_message(self, s):
         self.message.set(s)
 
