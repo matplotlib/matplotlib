@@ -146,6 +146,17 @@ class FigureCanvasGTK (gtk.DrawingArea, FigureCanvasBase):
                65421 : 'enter',
                }
 
+    # Setting this as a static constant prevents
+    # this resulting expression from leaking
+    event_mask = (gdk.BUTTON_PRESS_MASK   |
+                  gdk.BUTTON_RELEASE_MASK |
+                  gdk.EXPOSURE_MASK       |
+                  gdk.KEY_PRESS_MASK      |
+                  gdk.KEY_RELEASE_MASK    |
+                  gdk.LEAVE_NOTIFY_MASK   |
+                  gdk.POINTER_MOTION_MASK |
+                  gdk.POINTER_MOTION_HINT_MASK)
+    
     def __init__(self, figure):
         if _debug: print 'FigureCanvasGTK.%s' % fn_name()
         FigureCanvasBase.__init__(self, figure)
@@ -166,15 +177,7 @@ class FigureCanvasGTK (gtk.DrawingArea, FigureCanvasBase):
         self.connect('key_release_event',    self.key_release_event)
         self.connect('motion_notify_event',  self.motion_notify_event)
 
-        self.set_events(
-            gdk.BUTTON_PRESS_MASK   |
-            gdk.BUTTON_RELEASE_MASK |
-            gdk.EXPOSURE_MASK       |
-            gdk.KEY_PRESS_MASK      |
-            gdk.KEY_RELEASE_MASK    |
-            gdk.LEAVE_NOTIFY_MASK   |
-            gdk.POINTER_MOTION_MASK |
-            gdk.POINTER_MOTION_HINT_MASK)
+        self.set_events(self.__class__.event_mask)
 
         self.set_double_buffered(False)
         self.set_flags(gtk.CAN_FOCUS)
@@ -558,6 +561,10 @@ class NavigationToolbar2GTK(NavigationToolbar2, gtk.Toolbar):
         NavigationToolbar2.__init__(self, canvas)
         self._idleId = 0
 
+        def destroy(*args):
+            self.fileselect.destroy()
+        self.connect("destroy", destroy)
+
     def set_message(self, s):
         if self._idleId == 0:
             self.message.set_label(s)
@@ -783,19 +790,23 @@ class NavigationToolbar(gtk.Toolbar):
         self.show_all()
         self.update()
 
+        def destroy(*args):
+            self.fileselect.destroy()
+        self.connect("destroy", destroy)
 
     def _create_toolitems_2_4(self):
         # use the GTK+ 2.4 GtkToolbar API
         iconSize = gtk.ICON_SIZE_SMALL_TOOLBAR
         self.tooltips = gtk.Tooltips()
 
-        for text, tooltip_text, image, callback, callback_arg, scroll \
+        for text, tooltip_text, image_num, callback, callback_arg, scroll \
                 in self.toolitems:
             if text is None:
                 self.insert( gtk.SeparatorToolItem(), -1 )
                 continue
-            tbutton = gtk.ToolButton(gtk.image_new_from_stock(image, iconSize),
-                                     text)
+            image = gtk.Image()
+            image.set_from_stock(image_num, iconSize)
+            tbutton = gtk.ToolButton(image, text)
             self.insert(tbutton, -1)
             if callback_arg:
                 tbutton.connect('clicked', getattr(self, callback),
@@ -863,13 +874,14 @@ class NavigationToolbar(gtk.Toolbar):
         # use the GTK+ 2.2 (and lower) GtkToolbar API
         iconSize = gtk.ICON_SIZE_SMALL_TOOLBAR
 
-        for text, tooltip_text, image, callback, callback_arg, scroll \
+        for text, tooltip_text, image_num, callback, callback_arg, scroll \
                 in self.toolitems:
             if text is None:
                 self.append_space()
                 continue
-            item = self.append_item(text, tooltip_text, 'Private',
-                                    gtk.image_new_from_stock(image, iconSize),
+            image = gtk.Image()
+            image.set_from_stock(image_num, iconSize)
+            item = self.append_item(text, tooltip_text, 'Private', image,
                                     getattr(self, callback), callback_arg)
             if scroll:
                 item.connect("scroll_event", getattr(self, callback))
@@ -1045,7 +1057,11 @@ if gtk.pygtk_version >= (2,4,0):
             hbox = gtk.HBox (spacing=10)
             hbox.pack_start (gtk.Label ("Image Format:"), expand=False)
 
-            self.cbox = gtk.combo_box_new_text()
+            liststore = gtk.ListStore(gobject.TYPE_STRING)
+            self.cbox = gtk.ComboBox(liststore)
+            cell = gtk.CellRendererText()
+            self.cbox.pack_start(cell, True)
+            self.cbox.add_attribute(cell, 'text', 0)
             hbox.pack_start (self.cbox)
 
             for item in IMAGE_FORMAT:
@@ -1069,8 +1085,7 @@ if gtk.pygtk_version >= (2,4,0):
 
             hbox.show_all()
             self.set_extra_widget(hbox)
-
-
+            
         def get_filename_from_user (self):
             while True:
                 filename = None
@@ -1259,11 +1274,12 @@ class DialogLineprops:
     def on_dialog_lineprops_cancelbutton_clicked(self, button):
         self.dlg.hide()
 
-# set icon used when windows are minimized, it requires
-# gtk.pygtk_version >= (2,2,0) with a GDK pixbuf loader for SVG installed
+# set icon used when windows are minimized
+# Unfortunately, the SVG renderer (rsvg) leaks memory like a sieve,
+# so we use a PNG file instead.
 try:
     gtk.window_set_default_icon_from_file (
-        os.path.join (matplotlib.rcParams['datapath'], 'images', 'matplotlib.svg'))
+        os.path.join (matplotlib.rcParams['datapath'], 'images', 'matplotlib.png'))
 except:
     verbose.report('Could not load matplotlib icon: %s' % sys.exc_info()[1])
 
