@@ -25,7 +25,7 @@ codes.sort()
 
 # a 16,16 array of character strings
 chars = [ ['' for c in range(16)] for r in range(16)]
-colors = [ [0.95 for c in range(16)] for r in range(16)]
+colors = [ [(0.95,0.95,0.95) for c in range(16)] for r in range(16)]
 
 figure(figsize=(8,4),dpi=120)
 for ccode, glyphind in codes:
