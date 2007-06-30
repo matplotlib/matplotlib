@@ -240,8 +240,8 @@ class Verbose:
 
 
 
-    def __init__(self, level):
-        self.set_level(level)
+    def __init__(self):
+        self.set_level('silent')
         self.fileo = sys.stdout
 
     def set_level(self, level):
@@ -252,6 +252,21 @@ class Verbose:
         if level not in self.levels:
             raise ValueError('Illegal verbose string "%s".  Legal values are %s'%(level, self.levels))
         self.level = level
+
+    def set_fileo(self, fname):
+        std = {
+            'sys.stdout': sys.stdout,
+            'sys.stderr': sys.stderr,
+        }
+        if fname in std:
+            self.fileo = std[fname]
+        else:
+            try:
+                fileo = file(fname, 'w')
+            except IOError:
+                raise ValueError('Verbose object could not open log file "%s" for writing.\nCheck your matplotlibrc verbose.fileo setting'%fname)
+            else:
+                self.fileo = fileo
 
     def report(self, s, level='helpful'):
         """
@@ -292,7 +307,7 @@ class Verbose:
         return self.vald[self.level]>=self.vald[level]
 
 
-verbose=Verbose('silent')
+verbose=Verbose()
 
 def _get_home():
     """Find user's home directory if possible.
@@ -618,25 +633,7 @@ def validate_fontsize(s):
     except ValueError:
         raise ValueError('not a valid font size')
 
-
-def validate_verbose(s):
-    verbose.set_level(s)
-    return verbose
-
-
-def validate_verbose_fileo(s):
-    d = {'sys.stdout':sys.stdout,
-         'sys.stderr':sys.stderr,
-         }
-    if d.has_key(s): verbose.fileo = d[s]
-    else:
-        try: fileo = file(s, 'w')
-        except IOError:
-            raise ValueError('Verbose object could not open log file "%s" for writing.\nCheck your matplotlibrc verbose.fileo setting'%s)
-        else:
-            verbose.fileo = fileo
-    return verbose.fileo
-
+validate_verbose = ValidateInStrings(Verbose.levels)
 
 validate_ps_papersize = ValidateInStrings([
         'auto', 'letter', 'legal', 'ledger',
@@ -771,7 +768,7 @@ defaultParams = {
 
     # the verbosity setting
     'verbose.level'           : ['silent', validate_verbose],
-    'verbose.fileo'           : ['sys.stdout', validate_verbose_fileo],
+    'verbose.fileo'           : ['sys.stdout', str],
 
     # line props
     'lines.linewidth'   : [1.0, validate_float],     # line width in points
@@ -1055,6 +1052,9 @@ def rc_params(fail_on_error=False):
             cval = validate_key(key, val, line, cnt, fname, fail_on_error)
             if cval is not None:
                 ret[key] = cval
+
+    verbose.set_level(ret['verbose.level'])
+    verbose.set_fileo(ret['verbose.fileo'])
 
     for key, (val, line, cnt) in rc_temp.iteritems():
         cval = validate_key(key, val, line, cnt, fname, fail_on_error)
