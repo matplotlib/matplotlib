@@ -677,8 +677,8 @@ def checkdep_ps_distiller(s):
     else:
         return False
 
-def validate_usetex(s):
-    if not validate_bool(s):
+def checkdep_usetex(s):
+    if not s:
         return False
 
     tex_req = '3.1415'
@@ -807,7 +807,7 @@ defaultParams = {
 
     # text props
     'text.color'        : ['k', validate_color],     # black
-    'text.usetex'       : [False, validate_usetex],
+    'text.usetex'       : [False, validate_bool],
     'text.latex.unicode': [False, validate_bool],
     'text.latex.preamble': ['', validate_latex_preamble],
     'text.dvipnghack'    : [False, validate_bool],
@@ -1074,6 +1074,7 @@ rcParams = rc_params()
 rcParamsDefault = dict(rcParams.items()) # a copy
 
 rcParams['ps.usedistiller'] = checkdep_ps_distiller(rcParams['ps.usedistiller'])
+rcParams['text.usetex'] = checkdep_usetex(rcParams['text.usetex'])
 
 def rc(group, **kwargs):
     """
