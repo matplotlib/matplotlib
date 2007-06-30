@@ -1,3 +1,6 @@
+2007-06-30 Did some internal cleanup of __init__.py to prepare splitting
+           rcdefaults into a separate file - NN
+
 2007-06-27 Added MPLCONFIGDIR for the default location for mpl data
            and configuration.  useful for some apache installs where
            HOME is not writable.  Tried to clean up the logic in
