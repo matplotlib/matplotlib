@@ -1322,6 +1322,11 @@ build_cntr_list_p(long *np, double *xp, double *yp, int nparts, long ntotal)
     return NULL;
 }
 
+
+#if 0
+/* the following function is not used, so it produces a warning
+ * commented it out NN - 070630 */
+
 /* Build a list of tuples (X, Y), where X and Y are 1-D arrays. */
 static PyObject *
 build_cntr_list_v(long *np, double *xp, double *yp, int nparts, long ntotal)
@@ -1357,12 +1362,13 @@ build_cntr_list_v(long *np, double *xp, double *yp, int nparts, long ntotal)
     Py_XDECREF(all_contours);
     return NULL;
 }
+#endif
 
 /* Build a list of XY 2-D arrays, shape (N,2) */
 static PyObject *
 build_cntr_list_v2(long *np, double *xp, double *yp, int nparts, long ntotal)
 {
-    PyObject *point, *all_contours;
+    PyObject *all_contours;
     PyArrayObject *xyv;
     int dims[2];
     int i;

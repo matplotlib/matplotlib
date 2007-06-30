@@ -1064,7 +1064,7 @@ default_value_for ( trait_object      * trait,
                     has_traits_object * obj,
                     PyObject          * name ) {
     
-    PyObject * result, * value, * dv, * kw, * tuple;
+    PyObject * result = NULL, * value, * dv, * kw, * tuple;
     
     switch ( trait->default_value_type ) {
         case 0:
@@ -1098,10 +1098,9 @@ default_value_for ( trait_object      * trait,
                 return NULL;
             PyTuple_SET_ITEM( tuple, 0, (PyObject *) obj );
             Py_INCREF( obj );
-            Py_INCREF( tuple );
             result = PyObject_Call( trait->default_value, tuple, NULL );
             Py_DECREF( tuple );
-            if ( trait->validate != NULL ) {
+            if ( (result != NULL) && (trait->validate != NULL) ) {
                 value = trait->validate( trait, obj, name, result );
                 Py_DECREF( result );
                 return value;
@@ -3794,8 +3793,8 @@ getinstclassname ( PyObject * inst, char * buf, int bufsize ) {
 static PyObject *
 trait_method_call ( PyObject * meth, PyObject * arg, PyObject * kw ) {
     
-	PyObject     * class,  * result, * self, * new_arg, * func, * value,
-                 * traits, * valid_result, * name, * dv, * tkw, * tuple; 
+	PyObject     * class,  * result, * self, * new_arg, * func, * value = NULL,
+                 * traits, * valid_result, * name = NULL, * dv, * tkw, * tuple;
     trait_object * trait;
 	int from, to, to_args, traits_len, ntraits, ti;
     
