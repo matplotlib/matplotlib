@@ -207,14 +207,20 @@ validate_joinstyle = ValidateInStrings('joinstyle',['miter', 'round', 'bevel'], 
 
 validate_capstyle = ValidateInStrings('capstyle',['butt', 'round', 'projecting'], ignorecase=True)
 
-def validate_linecol_linestyle(s):
+validate_negative_linestyle = ValidateInStrings('negative_linestyle',['solid', 'dashed'], ignorecase=True)
+
+def validate_negative_linestyle_legacy(s):
     try:
-        dashes = validate_nseq_float(2)(s)
-        warnings.warn("Deprecated negative_linestyle specification; use 'solid' or 'dashed'")
-        return (0, dashes)  # (offset, (solid, blank))
-    except ValueError:
-        V = ValidateInStrings('linecol_linestyle',['solid', 'dashed'], ignorecase=True)
-        return(V(s))
+	res = validate_negative_linestyle(s)
+	return res
+    except:
+	try:
+	    dashes = validate_nseq_float(2)(s)
+    	    warnings.warn("Deprecated negative_linestyle specification; use 'solid' or 'dashed'")
+    	    return (0, dashes)  # (offset, (solid, blank))
+	except:
+    	    pass
+	raise
 
 class ValidateInterval:
     """
@@ -320,7 +326,7 @@ defaultParams = {
     'image.lut'           : [256, validate_int],  # lookup table
     'image.origin'        : ['upper', str],  # lookup table
 
-    'contour.negative_linestyle' : ['dashed', validate_linecol_linestyle],
+    'contour.negative_linestyle' : ['dashed', validate_negative_linestyle_legacy],
 
     # axes props
     'axes.axisbelow'        : [False, validate_bool],
