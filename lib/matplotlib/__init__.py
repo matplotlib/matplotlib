@@ -468,6 +468,26 @@ def compare_versions(a, b):
         else: return False
     else: return False
 
+
+##########################
+# to go to rcdefaults.py
+#
+
+class ValidateInStrings:
+    def __init__(self, key, valid, ignorecase=False):
+        'valid is a list of legal strings'
+	self.key = key
+        self.ignorecase = ignorecase
+        def func(s):
+            if ignorecase: return s.lower()
+            else: return s
+        self.valid = dict([(func(k),k) for k in valid])
+
+    def __call__(self, s):
+        if self.ignorecase: s = s.lower()
+        if s in self.valid: return self.valid[s]
+        raise ValueError('Unrecognized %s string "%s": valid strings are %s'%(self.key, s, self.valid.values()))
+
 def validate_path_exists(s):
     'If s is a path, return s, else False'
     if os.path.exists(s): return s
@@ -494,36 +514,19 @@ def validate_int(s):
     except ValueError:
         raise ValueError('Could not convert "%s" to int' % s)
 
-def validate_backend(s, fail_on_err = True):
-    s=s.lower()
-    backends = ['Agg2', 'Agg', 'Aqt', 'Cairo', 'CocoaAgg', 'EMF', 'GD', 'GDK',
-                'GTK', 'GTKAgg', 'GTKCairo', 'FltkAgg', 'Paint', 'Pdf', 'PS',
-                'QtAgg', 'Qt4Agg', 'SVG', 'Template', 'TkAgg', 'WX', 'WXAgg']
-    for i in backends:
-        if s == i.lower(): return i
-    if fail_on_err: raise ValueError('Backend must be %s, or %s'% \
-                        ', '.join((backends[:-1], backends[-1])))
-    else: return None
+validate_backend = ValidateInStrings('backend',[
+    'Agg2', 'Agg', 'Aqt', 'Cairo', 'CocoaAgg', 'EMF', 'GD', 'GDK',
+    'GTK', 'GTKAgg', 'GTKCairo', 'FltkAgg', 'Paint', 'Pdf', 'PS',
+    'QtAgg', 'Qt4Agg', 'SVG', 'Template', 'TkAgg', 'WX', 'WXAgg',
+    ], ignorecase=True)
 
-def validate_numerix(s):
-    'return "Numeric" or "numarray" or "numpy" or raise'
-    sl = s.lower()
-    if sl=='numeric': return 'Numeric'
-    elif sl=='numarray': return 'numarray'
-    elif sl=='numpy': return 'numpy'
-    else:
-        raise ValueError('Numerix must be Numeric, numarray, or numpy')
+validate_numerix = ValidateInStrings('numerix',[
+    'Numeric','numarray','numpy',
+    ], ignorecase=True)
 
-def validate_toolbar(s):
-    """
-    return toolbar string 'None', 'classic', 'toolbar2'
-    """
-    s = s.lower()
-    if s=='none': return 'None'
-    elif s=='classic': return s
-    elif s=='toolbar2': return s
-    else:
-        raise ValueError('toolbar must be None | classic | toolbar2')
+validate_toolbar = ValidateInStrings('toolbar',[
+    'None','classic','toolbar2',
+    ], ignorecase=True)
 
 class validate_nseq_float:
     def __init__(self, n):
@@ -585,6 +588,10 @@ def validate_comma_sep_str(s):
     except ValueError:
         raise ValueError('Could not convert all entries to strings')
 
+validate_orientation = ValidateInStrings('orientation',[
+    'landscape', 'portrait',
+    ])
+
 def validate_latex_preamble(s):
     'return a list'
     preamble_list = validate_comma_sep_str(s)
@@ -599,22 +606,6 @@ Please do not ask for support with these customizations active.
     return preamble_list
 
 
-class ValidateInStrings:
-    def __init__(self, valid, ignorecase=False):
-        'valid is a list of legal strings'
-        self.ignorecase = ignorecase
-        def func(s):
-            if ignorecase: return s.lower()
-            else: return s
-        self.validd = dict([(func(k),1) for k in valid])
-
-    def __call__(self, s):
-        if self.ignorecase: s = s.lower()
-        if s in self.validd: return s
-        raise ValueError('Unrecognized string "%s": valid strings are %s'%(s, self.validd.keys()))
-
-
-validate_orientation = ValidateInStrings(['landscape', 'portrait'])
 
 def validate_aspect(s):
     if s in ('auto', 'equal'):
@@ -633,13 +624,15 @@ def validate_fontsize(s):
     except ValueError:
         raise ValueError('not a valid font size')
 
-validate_verbose = ValidateInStrings(Verbose.levels)
+validate_verbose = ValidateInStrings('verbose',[
+    'silent', 'helpful', 'debug', 'debug-annoying',
+    ])
 
-validate_ps_papersize = ValidateInStrings([
-        'auto', 'letter', 'legal', 'ledger',
-        'a0', 'a1', 'a2','a3', 'a4', 'a5', 'a6', 'a7', 'a8', 'a9', 'a10',
-        'b0', 'b1', 'b2', 'b3', 'b4', 'b5', 'b6', 'b7', 'b8', 'b9', 'b10',
-        ], ignorecase=True)
+validate_ps_papersize = ValidateInStrings('ps_papersize',[
+    'auto', 'letter', 'legal', 'ledger',
+    'a0', 'a1', 'a2','a3', 'a4', 'a5', 'a6', 'a7', 'a8', 'a9', 'a10',
+    'b0', 'b1', 'b2', 'b3', 'b4', 'b5', 'b6', 'b7', 'b8', 'b9', 'b10',
+    ], ignorecase=True)
 
 def validate_ps_distiller(s):
     s = s.lower()
@@ -715,9 +708,9 @@ unless ghostscript-%s or later is installed on your system'% gs_req)
     else:
         return bl
 
-validate_joinstyle = ValidateInStrings(['miter', 'round', 'bevel'], ignorecase=True)
+validate_joinstyle = ValidateInStrings('joinstyle',['miter', 'round', 'bevel'], ignorecase=True)
 
-validate_capstyle = ValidateInStrings(['butt', 'round', 'projecting'], ignorecase=True)
+validate_capstyle = ValidateInStrings('capstyle',['butt', 'round', 'projecting'], ignorecase=True)
 
 def validate_linecol_linestyle(s):
     try:
@@ -725,7 +718,7 @@ def validate_linecol_linestyle(s):
         warnings.warn("Deprecated negative_linestyle specification; use 'solid' or 'dashed'")
         return (0, dashes)  # (offset, (solid, blank))
     except ValueError:
-        V = ValidateInStrings(['solid', 'dashed'], ignorecase=True)
+        V = ValidateInStrings('linecol_linestyle',['solid', 'dashed'], ignorecase=True)
         return(V(s))
 
 class ValidateInterval:
