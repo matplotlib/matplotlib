@@ -1,6 +1,12 @@
-2007-06-30 Split defaultParams into separate file rcdefaults (together with 
+2006-06-30 Applied patches to tkagg, gtk, and wx backends to reduce
+           memory leakage.  Patches supplied by Mike Droettboom;
+           see tracker numbers 1745400, 1745406, 1745408.
+           Also made unit/memleak_gui.py more flexible with
+           command-line options. - EF
+
+2007-06-30 Split defaultParams into separate file rcdefaults (together with
            validation code). Some heavy refactoring was necessary to do so,
-	   but the overall behavior should be the same as before. - NN
+           but the overall behavior should be the same as before. - NN
 
 2007-06-27 Added MPLCONFIGDIR for the default location for mpl data
            and configuration.  useful for some apache installs where
