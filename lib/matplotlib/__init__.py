@@ -175,7 +175,7 @@ The default file location is given in the following order
 
 import sys, os, tempfile
 
-from rcdefaults import defaultParams
+from rcdefaults import defaultParams, validate_backend, validate_toolbar
 
 major, minor1, minor2, s, tmp = sys.version_info
 _python23 = major>=2 and minor1>=3
@@ -469,7 +469,7 @@ get_home = verbose.wrap('$HOME=%s', _get_home, always=False)
 
 def _get_configdir():
     """
-    Return the string representing the configuration dir.  
+    Return the string representing the configuration dir.
 
     default is HOME/.matplotlib.  you can override this with the
     MPLCONFIGDIR environment variable
@@ -480,10 +480,10 @@ def _get_configdir():
         if not _is_writable_dir(configdir):
             raise RuntimeError('Could not write to MPLCONFIGDIR="%s"'%configdir)
         return configdir
-    
+
     h = get_home()
     p = os.path.join(get_home(), '.matplotlib')
-    
+
     if os.path.exists(p):
         if not _is_writable_dir(p):
             raise RuntimeError("'%s' is not a writable dir; you must set %s/.matplotlib to be a writable dir.  You can also set environment variable MPLCONFIGDIR to any writable directory where you want matplotlib data stored "%h)
@@ -781,12 +781,13 @@ def rcdefaults():
 # flag)
 
 for s in sys.argv[1:]:
-    if s.startswith('-d'):  # look for a -d flag
-        name = validate_backend(s[2:].strip(), fail_on_err = False)
-        # we don't want to assume all -d flags are backends, eg -debug
-        if name:
+    if s.startswith('-d') and len(s) > 2:  # look for a -d flag
+        try:
+            name = validate_backend(s[2:].strip())
             rcParams['backend'] = name
-            break
+        except (KeyError, ValueError):
+            pass
+        # we don't want to assume all -d flags are backends, eg -debug
 
 def use(arg):
     """
