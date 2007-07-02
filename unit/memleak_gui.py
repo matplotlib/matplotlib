@@ -16,10 +16,6 @@ You may need to edit cbook.report_memory to support your platform
 import os, sys, time
 import gc
 from optparse import OptionParser
-import matplotlib
-import pylab
-from matplotlib import _pylab_helpers as ph
-import matplotlib.cbook as cbook
 
 parser = OptionParser()
 parser.add_option("-q", "--quiet", default=True,
@@ -36,7 +32,7 @@ parser.add_option("-t", "--toolbar", dest="toolbar",
 # The following overrides matplotlib's version of the -d option
 # uses it if found
 parser.add_option("-d", "--backend", dest="backend",
-                  default=matplotlib.rcParams['backend'],
+                  default='',
                   help="backend")
 
 
@@ -44,8 +40,12 @@ options, args = parser.parse_args()
 
 indStart = int(options.start)
 indEnd = int(options.end)
+import matplotlib
 matplotlib.rcParams['toolbar'] = matplotlib.validate_toolbar(options.toolbar)
-matplotlib.rcParams['backend'] = matplotlib.validate_backend(options.backend)
+if options.backend:
+    matplotlib.use(options.backend)
+import pylab
+import matplotlib.cbook as cbook
 
 for i in range(indEnd+1):
 
@@ -63,13 +63,13 @@ for i in range(indEnd+1):
 gc.collect()
 end = val
 
-print
-print 'uncollectable list:', gc.garbage
-print
+print '#'
+print '# uncollectable list:', gc.garbage
+print '#'
 
 if i > indStart:
-    print 'Backend %(backend)s, toolbar %(toolbar)s' % matplotlib.rcParams
-    print 'Averaging over loops %d to %d' % (indStart, indEnd)
-    print 'Memory went from %dk to %dk' % (start, end)
-    print 'Average memory consumed per loop: %1.4fk bytes\n' % ((end-start)/float(indEnd-indStart))
+    print '# Backend %(backend)s, toolbar %(toolbar)s' % matplotlib.rcParams
+    print '# Averaging over loops %d to %d' % (indStart, indEnd)
+    print '# Memory went from %dk to %dk' % (start, end)
+    print '# Average memory consumed per loop: %1.4fk bytes\n' % ((end-start)/float(indEnd-indStart))
 
