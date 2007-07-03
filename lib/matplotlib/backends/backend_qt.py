@@ -247,6 +247,7 @@ class FigureManagerQT( FigureManagerBase ):
     def destroy( self, *args ):
         if self.window._destroying: return
         self.window._destroying = True
+        if self.toolbar: self.toolbar.destroy()
         if DEBUG: print "destroy figure manager"
         self.window.close(True)
 
@@ -317,6 +318,13 @@ class NavigationToolbar2QT( NavigationToolbar2, qt.QWidget ):
 
         # reference holder for subplots_adjust window
         self.adj_window = None
+
+    def destroy( self ):
+        for text, tooltip_text, image_file, callback in self.toolitems:
+            if text is not None:
+                qt.QObject.disconnect( self.buttons[ text ],
+                                       qt.SIGNAL( 'clicked()' ), 
+                                       getattr( self, callback ) )
 
     def pan( self, *args ):
         self.buttons[ 'Zoom' ].setOn( False )
