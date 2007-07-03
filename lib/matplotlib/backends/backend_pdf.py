@@ -500,11 +500,20 @@ class PdfFile:
         # composite font, based on multi-byte characters.
 
         from encodings import cp1252
-        firstchar, lastchar = 0, 255
+        # The "decoding_map" was changed to a "decoding_table" as of Python 2.5.
+        if hasattr(cp1252, 'decoding_map'):
+            def decode_char(charcode):
+                return cp1252.decoding_map[charcode] or 0
+        else:
+            def decode_char(charcode):
+                return ord(cp1252.decoding_table[charcode])
+
         def get_char_width(charcode):
-            unicode = cp1252.decoding_map[charcode] or 0
+            unicode = decode_char(charcode)
             width = font.load_char(unicode, flags=LOAD_NO_SCALE).horiAdvance
             return cvt(width)
+
+        firstchar, lastchar = 0, 255
         widths = [ get_char_width(charcode) for charcode in range(firstchar, lastchar+1) ]
 
         widthsObject = self.reserveObject('font widths')
