@@ -247,6 +247,8 @@ class FigureManagerQT( FigureManagerBase ):
     def destroy( self, *args ):
         if self.window._destroying: return
         self.window._destroying = True
+        QtCore.QObject.disconnect( self.window, QtCore.SIGNAL( 'destroyed()' ),
+                                   self._widgetclosed )
         if DEBUG: print "destroy figure manager"
         self.window.close()
 
@@ -280,6 +282,7 @@ class NavigationToolbar2QT( NavigationToolbar2, QtGui.QWidget ):
 
     def _init_toolbar( self ):
         basedir = os.path.join(matplotlib.rcParams[ 'datapath' ],'images')
+        self.buttons = {}
 
         for text, tooltip_text, image_file, callback in self.toolitems:
             if text == None:
@@ -292,6 +295,7 @@ class NavigationToolbar2QT( NavigationToolbar2, QtGui.QWidget ):
 
             button = QtGui.QPushButton( QtGui.QIcon( image ), "", self )
             button.setToolTip(tooltip_text)
+            self.buttons[ text ] = button
 
             # The automatic layout doesn't look that good - it's too close
             # to the images so add a margin around it.
