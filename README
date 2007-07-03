@@ -1,5 +1,5 @@
 INTRODUCTION:
-	
+
 
    matplotlib is a pure python 2D plotting library with a Matlab(TM)
    syntax which produces publication quality figures using in a
@@ -16,7 +16,7 @@ INTRODUCTION:
   to type
 
   >>> hist(x, 100)   # use 100 bins
-  
+
 
   For the power user, you have full control of line styles, font
   properties, axes properties, etc, via an object oriented interface
@@ -26,7 +26,7 @@ INTRODUCTION:
 
 REQUIREMENTS:
 
-   python 2.3+, and Numeric, numarray or numpy (recommended).  Other
+   python 2.3+, and numpy (http://numpy.scipy.org/).  Other
    requirements are backend dependent.  See
    http://matplotlib.sourceforge.net/backends.html.  If you are using
    python2.3, you'll also need to install setuptools; just download
@@ -67,4 +67,4 @@ LICENSE
   Based on that of python 2.2.  See the LICENSE file that ships with
   the matplotlib source code or
   http://matplotlib.sourceforge.net/license.html
-  
+
