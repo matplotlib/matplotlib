@@ -34,7 +34,8 @@ parser.add_option("-t", "--toolbar", dest="toolbar",
 parser.add_option("-d", "--backend", dest="backend",
                   default='',
                   help="backend")
-
+parser.add_option("-c", "--cycles", dest="cycles",
+                  default=False, action="store_true")
 
 options, args = parser.parse_args()
 
@@ -47,6 +48,8 @@ if options.backend:
 import pylab
 import matplotlib.cbook as cbook
 
+print indEnd
+
 for i in range(indEnd+1):
 
     fig = pylab.figure()
@@ -57,7 +60,8 @@ for i in range(indEnd+1):
     val = cbook.report_memory(i)
     if options.verbose:
         if i % 10 == 0:
-            print i, val
+            print ("iter: %4d OS memory: %8d Python objects: %8d" % 
+                   (i, val, len(gc.get_objects())))
     if i==indStart: start = val # wait a few cycles for memory usage to stabilize
 
 gc.collect()
@@ -73,3 +77,5 @@ if i > indStart:
     print '# Memory went from %dk to %dk' % (start, end)
     print '# Average memory consumed per loop: %1.4fk bytes\n' % ((end-start)/float(indEnd-indStart))
 
+if options.cycles:
+    cbook.print_cycles(gc.garbage)
