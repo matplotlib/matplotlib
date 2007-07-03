@@ -1275,11 +1275,16 @@ class DialogLineprops:
         self.dlg.hide()
 
 # set icon used when windows are minimized
-# Unfortunately, the SVG renderer (rsvg) leaks memory like a sieve,
-# so we use a PNG file instead.
+# Unfortunately, the SVG renderer (rsvg) leaks memory under earlier
+# versions of pygtk, so we have to use a PNG file instead.
 try:
+    
+    if gtk.pygtk_version < (2, 8, 0):
+        icon_filename = 'matplotlib.png'
+    else:
+        icon_filename = 'matplotlib.svg'
     gtk.window_set_default_icon_from_file (
-        os.path.join (matplotlib.rcParams['datapath'], 'images', 'matplotlib.png'))
+        os.path.join (matplotlib.rcParams['datapath'], 'images', icon_filename))
 except:
     verbose.report('Could not load matplotlib icon: %s' % sys.exc_info()[1])
 
