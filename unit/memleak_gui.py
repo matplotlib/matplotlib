@@ -48,8 +48,8 @@ if options.backend:
 import pylab
 import matplotlib.cbook as cbook
 
-print indEnd
-
+print '# columns are: iteration, OS memory (k), number of python objects'
+print '#'
 for i in range(indEnd+1):
 
     fig = pylab.figure()
@@ -60,13 +60,15 @@ for i in range(indEnd+1):
     val = cbook.report_memory(i)
     if options.verbose:
         if i % 10 == 0:
-            print ("iter: %4d OS memory: %8d Python objects: %8d" % 
+            #print ("iter: %4d OS memory: %8d Python objects: %8d" %
+            print ("%4d %8d %8d" %
                    (i, val, len(gc.get_objects())))
     if i==indStart: start = val # wait a few cycles for memory usage to stabilize
 
 gc.collect()
 end = val
 
+print '# columns above are: iteration, OS memory (k), number of python objects'
 print '#'
 print '# uncollectable list:', gc.garbage
 print '#'
