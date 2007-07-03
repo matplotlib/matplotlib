@@ -792,6 +792,7 @@ class NavigationToolbar(gtk.Toolbar):
 
         def destroy(*args):
             self.fileselect.destroy()
+            del self.fileselect
         self.connect("destroy", destroy)
 
     def _create_toolitems_2_4(self):
@@ -1047,26 +1048,25 @@ if gtk.pygtk_version >= (2,4,0):
                                                       buttons)
             self.set_default_response (gtk.RESPONSE_OK)
 
-            if path: self.path = path
-            else:    self.path = os.getcwd() + os.sep
+            if not path: path = os.getcwd() + os.sep
 
             # create an extra widget to list supported image formats
-            self.set_current_folder (self.path)
+            self.set_current_folder (path)
             self.set_current_name ('image.' + IMAGE_FORMAT_DEFAULT)
 
             hbox = gtk.HBox (spacing=10)
             hbox.pack_start (gtk.Label ("Image Format:"), expand=False)
 
             liststore = gtk.ListStore(gobject.TYPE_STRING)
-            self.cbox = gtk.ComboBox(liststore)
+            cbox = gtk.ComboBox(liststore)
             cell = gtk.CellRendererText()
-            self.cbox.pack_start(cell, True)
-            self.cbox.add_attribute(cell, 'text', 0)
-            hbox.pack_start (self.cbox)
+            cbox.pack_start(cell, True)
+            cbox.add_attribute(cell, 'text', 0)
+            hbox.pack_start (cbox)
 
             for item in IMAGE_FORMAT:
-                self.cbox.append_text (item)
-            self.cbox.set_active (IMAGE_FORMAT.index (IMAGE_FORMAT_DEFAULT))
+                cbox.append_text (item)
+            cbox.set_active (IMAGE_FORMAT.index (IMAGE_FORMAT_DEFAULT))
 
             def cb_cbox_changed (cbox, data=None):
                 """File extension changed"""
@@ -1081,7 +1081,7 @@ if gtk.pygtk_version >= (2,4,0):
                     filename = filename.rstrip('.') + '.' + new_ext
 
                 self.set_current_name (filename)
-            self.cbox.connect ("changed", cb_cbox_changed)
+            cbox.connect ("changed", cb_cbox_changed)
 
             hbox.show_all()
             self.set_extra_widget(hbox)
