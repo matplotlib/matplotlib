@@ -107,6 +107,10 @@ def drive(backend, python='python', switches = []):
         print '\tdriving %s %s' % (fname, switchstring)
         basename, ext = os.path.splitext(fname)
         outfile = basename + '_%s'%backend
+        # The following is temporary, until I put in a command-line
+        # argument to specify the output.
+        if backend.lower() == 'cairo':
+            outfile += '.png'
         tmpfile_name = '_tmp_%s.py' % basename
         tmpfile = file(tmpfile_name, 'w')
 
