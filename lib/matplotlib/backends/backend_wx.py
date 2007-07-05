@@ -1208,6 +1208,18 @@ The current aspect ration will be kept."""
 ########################################################################
 
 
+def _create_wx_app():
+    """
+    Creates a wx.PySimpleApp instance if a wx.App has not been created.
+    """
+    app = wx.GetApp()
+    if app is None:
+        app = wx.PySimpleApp()
+        app.SetExitOnFrameDelete(True)
+        # retain a reference to the app object so it does not get garbage
+        # collected and cause segmentation faults
+        _create_wx_app.theWxApp = app
+
 
 def draw_if_interactive():
     """
@@ -1243,11 +1255,12 @@ def show():
         figwin.canvas.draw()
 
     if show._needmain and not matplotlib.is_interactive():
+        # start the wxPython gui event if there is not already one running
         wxapp = wx.GetApp()
         if wxapp is not None:
             # wxPython 2.4 has no wx.App.IsMainLoopRunning() method
             imlr = getattr(wxapp, 'IsMainLoopRunning', lambda: False)
-            if imlr():
+            if not imlr():
                 wxapp.MainLoop()
         show._needmain = False
 show._needmain = True
@@ -1259,10 +1272,7 @@ def new_figure_manager(num, *args, **kwargs):
     # in order to expose the Figure constructor to the pylab
     # interface we need to create the figure here
     DEBUG_MSG("new_figure_manager()", 3, None)
-    wxapp = wx.GetApp()
-    if wxapp is None:
-        wxapp = wx.PySimpleApp()
-        wxapp.SetExitOnFrameDelete(True)
+    _create_wx_app()
 
     FigureClass = kwargs.pop('FigureClass', Figure)
     fig = FigureClass(*args, **kwargs)
