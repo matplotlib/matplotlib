@@ -1212,10 +1212,10 @@ def _create_wx_app():
     """
     Creates a wx.PySimpleApp instance if a wx.App has not been created.
     """
-    app = wx.GetApp()
-    if app is None:
-        app = wx.PySimpleApp()
-        app.SetExitOnFrameDelete(True)
+    wxapp = wx.GetApp()
+    if wxapp is None:
+        wxapp = wx.PySimpleApp()
+        wxapp.SetExitOnFrameDelete(True)
         # retain a reference to the app object so it does not get garbage
         # collected and cause segmentation faults
         _create_wx_app.theWxApp = app
@@ -1276,7 +1276,6 @@ def new_figure_manager(num, *args, **kwargs):
 
     FigureClass = kwargs.pop('FigureClass', Figure)
     fig = FigureClass(*args, **kwargs)
-    fig._wxapp = wxapp
     frame = FigureFrameWx(num, fig)
     figmgr = frame.get_figure_manager()
     if matplotlib.is_interactive():
