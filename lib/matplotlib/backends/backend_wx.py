@@ -114,8 +114,6 @@ except:
     print >>sys.stderr, "Matplotlib backend_wx requires wxPython be installed"
     sys.exit()
 
-wxapp = None
-
 #!!! this is the call that is causing the exception swallowing !!!
 #wx.InitAllImageHandlers()
 
@@ -1246,7 +1244,12 @@ def show():
         figwin.canvas.draw()
 
     if show._needmain and not matplotlib.is_interactive():
-        if wxapp is not None: wxapp.MainLoop()
+        wxapp = wx.GetApp()
+        if wxapp is not None:
+            # wxPython 2.4 has no wx.App.IsMainLoopRunning() method
+            imlr = getattr(wxapp, 'IsMainLoopRunning', lambda: False)
+            if imlr():
+                wxapp.MainLoop()
         show._needmain = False
 show._needmain = True
 
@@ -1254,7 +1257,6 @@ def new_figure_manager(num, *args, **kwargs):
     """
     Create a new figure manager instance
     """
-    global wxapp
     # in order to expose the Figure constructor to the pylab
     # interface we need to create the figure here
     DEBUG_MSG("new_figure_manager()", 3, None)
