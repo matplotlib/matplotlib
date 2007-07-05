@@ -1235,7 +1235,6 @@ def show():
     into the backend at this point. If there is a need I will look
     into this in a later release.
     """
-
     DEBUG_MSG("show()", 3, None)
 
     for figwin in Gcf.get_all_fig_managers():
@@ -1267,6 +1266,7 @@ def new_figure_manager(num, *args, **kwargs):
 
     FigureClass = kwargs.pop('FigureClass', Figure)
     fig = FigureClass(*args, **kwargs)
+    fig._wxapp = wxapp
     frame = FigureFrameWx(num, fig)
     figmgr = frame.get_figure_manager()
     if matplotlib.is_interactive():
