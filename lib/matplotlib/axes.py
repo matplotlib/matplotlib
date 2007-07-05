@@ -454,7 +454,7 @@ class Axes(Artist):
     connect to are 'xlim_changed' and 'ylim_changed' and the callback
     will be called with func(ax) where ax is the Axes instance
 
-    
+
     """
 
     scaled = {IDENTITY : 'linear',
@@ -578,11 +578,11 @@ class Axes(Artist):
         axforeign.callbacks cbook.CallbackRegistry instances are
         returned in case you want to disconnect the coupling
         """
-        
+
         def follow_foreign_xlim(ax):
             xmin, xmax = axforeign.get_xlim()
             # do not emit here or we'll get a ping png effect
-            self.set_xlim(xmin, xmax, emit=False) 
+            self.set_xlim(xmin, xmax, emit=False)
             self.figure.canvas.draw_idle()
 
         def follow_self_xlim(ax):
@@ -595,7 +595,7 @@ class Axes(Artist):
         cidForeign = axforeign.callbacks.connect('xlim_changed', follow_foreign_xlim)
         cidSelf = self.callbacks.connect('xlim_changed', follow_self_xlim)
         return cidSelf, cidForeign
-    
+
 
     def sharey_foreign(self, axforeign):
         """
@@ -610,11 +610,11 @@ class Axes(Artist):
         axforeign.callbacks cbook.CallbackRegistry instances are
         returned in case you want to disconnect the coupling
         """
-        
+
         def follow_foreign_ylim(ax):
             ymin, ymax = axforeign.get_ylim()
             # do not emit here or we'll get a ping png effect
-            self.set_ylim(ymin, ymax, emit=False) 
+            self.set_ylim(ymin, ymax, emit=False)
             self.figure.canvas.draw_idle()
 
         def follow_self_ylim(ax):
@@ -740,7 +740,7 @@ class Axes(Artist):
 
         self.dataLim.ignore(1)
         self.callbacks = cbook.CallbackRegistry(('xlim_changed', 'ylim_changed'))
-        
+
         if self._sharex is not None:
             self.xaxis.major = self._sharex.xaxis.major
             self.xaxis.minor = self._sharex.xaxis.minor
@@ -1907,7 +1907,7 @@ class Axes(Artist):
         self._send_ylim_event()
 
 
-        
+
     def connect(self, s, func):
         """
         Register observers to be notified when certain events occur.  Register

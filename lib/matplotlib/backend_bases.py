@@ -6,6 +6,9 @@ graphics contexts must implement to serve as a matplotlib backend
 from __future__ import division
 import sys, warnings
 
+import numpy as npy
+import matplotlib.numerix.npyma as ma
+
 from cbook import is_string_like, enumerate, strip_math, Stack, CallbackRegistry
 from colors import colorConverter
 from numerix import array, sqrt, pi, log, asarray, ones, zeros, Float, Float32
@@ -258,7 +261,7 @@ class RendererBase:
 
 
         for i in xrange(N):
-            polyverts = verts[i % Nverts]
+            polyverts = ma.filled(verts[i % Nverts], npy.nan)
             if any(isnan(polyverts)):
                 continue
             linewidth = linewidths[i % Nlw]
@@ -857,7 +860,7 @@ class FigureCanvasBase:
         'key_release_event',
         'button_press_event',
         'button_release_event',
-        'scroll_event',                
+        'scroll_event',
         'motion_notify_event',
         'pick_event',
         )
