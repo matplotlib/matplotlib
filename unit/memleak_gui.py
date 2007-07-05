@@ -53,7 +53,7 @@ print '#'
 for i in range(indEnd+1):
 
     fig = pylab.figure()
-    #fig.savefig('test')  # This seems to just slow down the testing.
+    fig.savefig('test')  # This seems to just slow down the testing.
     fig.clf()
     pylab.close(fig)
     gc.collect()
@@ -75,6 +75,28 @@ print '#'
 
 if i > indStart:
     print '# Backend %(backend)s, toolbar %(toolbar)s' % matplotlib.rcParams
+    backend = options.backend.lower()
+    if backend.startswith("gtk"):
+        import gtk
+        print "# pygtk version: %s, gtk version: %s" % \
+            (gtk.pygtk_version, gtk.gtk_version)
+    elif backend.startswith("qt4"):
+        import PyQt4.pyqtconfig
+        print "# PyQt4 version: %s, Qt version %x" % \
+            (PyQt4.pyqtconfig.Configuration().pyqt_version_str,
+             PyQt4.pyqtconfig.Configuration().qt_version)
+    elif backend.startswith("qt"):
+        import pyqtconfig
+        print "# pyqt version: %s, qt version: %x" % \
+            (pyqtconfig.Configuration().pyqt_version_str,
+             pyqtconfig.Configuration().qt_version)
+    elif backend.startswith("wx"):
+        import wx
+        print "# wxPython version: %s" % wx.__version__
+    elif backend.startswith("tk"):
+        import Tkinter
+        print "# Tkinter version: %s, Tk version: %s, Tcl version: %s" % (Tkinter.__version__, Tkinter.TkVersion, Tkinter.TclVersion)
+
     print '# Averaging over loops %d to %d' % (indStart, indEnd)
     print '# Memory went from %dk to %dk' % (start, end)
     print '# Average memory consumed per loop: %1.4fk bytes\n' % ((end-start)/float(indEnd-indStart))
