@@ -132,12 +132,7 @@ def new_figure_manager(num, *args, **kwargs):
     # in order to expose the Figure constructor to the pylab
     # interface we need to create the figure here
     DEBUG_MSG("new_figure_manager()", 3, None)
-
-    if backend_wx.wxapp is None:
-        backend_wx.wxapp = wx.GetApp()
-        if backend_wx.wxapp is None:
-            backend_wx.wxapp = wx.PySimpleApp()
-            backend_wx.wxapp.SetExitOnFrameDelete(True)
+    backend_wx._create_wx_app()
 
     FigureClass = kwargs.pop('FigureClass', Figure)
     fig = FigureClass(*args, **kwargs)
