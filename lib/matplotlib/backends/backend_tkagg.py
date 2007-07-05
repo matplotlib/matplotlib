@@ -182,7 +182,6 @@ class FigureCanvasTkAgg(FigureCanvasAgg):
         self.figure.set_size_inches(winch, hinch)
 
 
-        self._tkphoto.configure(width=width, height=height)
         self._tkcanvas.delete(self._tkphoto)
         self._tkphoto = Tk.PhotoImage(
             master=self._tkcanvas, width=width, height=height)
