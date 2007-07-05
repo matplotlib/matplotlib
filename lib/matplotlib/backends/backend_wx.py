@@ -1359,7 +1359,9 @@ class FigureFrameWx(wx.Frame):
         wx.Frame.Destroy(self, *args, **kwargs)
         if self.toolbar is not None:
             self.toolbar.Destroy()
-        wxapp.Yield()
+        wxapp = wx.GetApp()
+        if wxapp:
+            wxapp.Yield()
         return True
 
 class FigureManagerWx(FigureManagerBase):
