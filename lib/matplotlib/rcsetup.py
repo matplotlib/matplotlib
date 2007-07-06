@@ -184,6 +184,10 @@ validate_verbose = ValidateInStrings('verbose',[
     'silent', 'helpful', 'debug', 'debug-annoying',
     ])
 
+validate_cairo_format = ValidateInStrings('cairo_format',
+                            ['png', 'ps', 'pdf', 'svg'],
+                            ignorecase=True)
+
 validate_ps_papersize = ValidateInStrings('ps_papersize',[
     'auto', 'letter', 'legal', 'ledger',
     'a0', 'a1', 'a2','a3', 'a4', 'a5', 'a6', 'a7', 'a8', 'a9', 'a10',
@@ -211,16 +215,12 @@ validate_negative_linestyle = ValidateInStrings('negative_linestyle',['solid', '
 
 def validate_negative_linestyle_legacy(s):
     try:
-	res = validate_negative_linestyle(s)
-	return res
-    except:
-	try:
-	    dashes = validate_nseq_float(2)(s)
-    	    warnings.warn("Deprecated negative_linestyle specification; use 'solid' or 'dashed'")
-    	    return (0, dashes)  # (offset, (solid, blank))
-	except:
-    	    pass
-	raise
+        res = validate_negative_linestyle(s)
+        return res
+    except ValueError:
+        dashes = validate_nseq_float(2)(s)
+        warnings.warn("Deprecated negative_linestyle specification; use 'solid' or 'dashed'")
+        return (0, dashes)  # (offset, (solid, blank))
 
 class ValidateInterval:
     """
@@ -402,6 +402,7 @@ defaultParams = {
     'savefig.edgecolor'   : ['w', validate_color],  # edgecolor; white
     'savefig.orientation' : ['portrait', validate_orientation],  # edgecolor; white
 
+    'cairo.format'       : ['png', validate_cairo_format],
     'tk.window_focus'    : [False, validate_bool],  # Maintain shell focus for TkAgg
     'tk.pythoninspect'   : [False, validate_bool],  # Set PYTHONINSPECT
     'ps.papersize'       : ['letter', validate_ps_papersize], # Set the papersize/type
