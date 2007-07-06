@@ -1,7 +1,18 @@
 #!/usr/bin/env python
 """
 This is used to drive many of the examples across the backends, for
-regression testing, and comparing backend efficiency
+regression testing, and comparing backend efficiency.
+
+The script takes one or more arguments specifying backends
+to be tested, e.g.
+
+    python backend_driver.py agg ps cairo.png cairo.ps
+
+would test the agg and ps backends, and the cairo backend with
+output to png and ps files.
+
+If no arguments are given, a default list of backends will be
+tested.
 """
 
 from __future__ import division
@@ -98,7 +109,11 @@ def drive(backend, python='python', switches = []):
 
     exclude = failbackend.get(backend, [])
     switchstring = ' '.join(switches)
-
+    # Strip off the format specifier, if any.
+    if backend.startswith('cairo'):
+        _backend = 'cairo'
+    else:
+        _backend = backend
     for fname in files:
         if fname in exclude:
             print '\tSkipping %s, known to fail on backend: %s'%backend
@@ -107,17 +122,13 @@ def drive(backend, python='python', switches = []):
         print '\tdriving %s %s' % (fname, switchstring)
         basename, ext = os.path.splitext(fname)
         outfile = basename + '_%s'%backend
-        # The following is temporary, until I put in a command-line
-        # argument to specify the output.
-        if backend.lower() == 'cairo':
-            outfile += '.png'
         tmpfile_name = '_tmp_%s.py' % basename
         tmpfile = file(tmpfile_name, 'w')
 
         tmpfile.writelines((
             'from __future__ import division\n',
             'import matplotlib\n',
-            'matplotlib.use("%s")\n' % backend,
+            'matplotlib.use("%s")\n' % _backend,
             'from pylab import savefig\n',
             ))
         for line in file(fname):
@@ -138,7 +149,6 @@ def drive(backend, python='python', switches = []):
         #os.system('%s %s %s' % (python, tmpfile_name, switchstring))
         os.remove(tmpfile_name)
 
-
 if __name__ == '__main__':
     times = {}
     default_backends = ['Agg', 'PS', 'SVG', 'Template']
@@ -146,10 +156,12 @@ if __name__ == '__main__':
         python = r'c:\Python24\python.exe'
     else:
         python = 'python'
+    all_backends = [b.lower() for b in mplbe.all_backends]
+    all_backends.extend(['cairo.png', 'cairo.ps', 'cairo.pdf', 'cairo.svg'])
     backends = []
     switches = []
     if sys.argv[1:]:
-        backends = [b for b in sys.argv[1:] if b in mplbe.all_backends]
+        backends = [b.lower() for b in sys.argv[1:] if b.lower() in all_backends]
         switches = [s for s in sys.argv[1:] if s.startswith('--')]
     if not backends:
         backends = default_backends

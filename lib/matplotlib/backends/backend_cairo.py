@@ -40,7 +40,7 @@ from matplotlib.figure     import Figure
 from matplotlib.mathtext   import math_parse_s_ft2font
 import matplotlib.numerix as numx
 from matplotlib.transforms import Bbox
-
+from matplotlib import rcParams
 
 _debug = False
 #_debug = True
@@ -523,6 +523,9 @@ class FigureCanvasCairo (FigureCanvasBase):
         if format is None and isinstance (fo, basestring):
             # get format from filename extension
             format = os.path.splitext(fo)[1][1:]
+            if format == '':
+                format = rcParams['cairo.format']
+                fo = '%s.%s' % (fo, format)
 
         if format is not None:
             format = format.lower()
@@ -532,9 +535,10 @@ class FigureCanvasCairo (FigureCanvasBase):
         elif format in ('pdf', 'ps', 'svg'):
             self._save (fo, format, orientation, **kwargs)
         elif format == 'eps': # backend_ps for eps
+            warnings.warn('eps format is printed by ps backend, not cairo')
             from backend_ps import FigureCanvasPS  as FigureCanvas
             fc = FigureCanvas(self.figure)
-            fc.print_figure (filename, dpi, facecolor, edgecolor,
+            fc.print_figure (fo, dpi, facecolor, edgecolor,
                              orientation, **kwargs)
         else:
             warnings.warn('Format "%s" is not supported.\n'

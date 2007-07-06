@@ -176,6 +176,7 @@ The default file location is given in the following order
 import sys, os, tempfile
 
 from rcsetup import defaultParams, validate_backend, validate_toolbar
+from rcsetup import validate_cairo_format
 
 major, minor1, minor2, s, tmp = sys.version_info
 _python23 = major>=2 and minor1>=3
@@ -782,9 +783,12 @@ def rcdefaults():
 
 for s in sys.argv[1:]:
     if s.startswith('-d') and len(s) > 2:  # look for a -d flag
+        be_parts = s[2:].split('.')
         try:
-            name = validate_backend(s[2:].strip())
+            name = validate_backend(be_parts[0])
             rcParams['backend'] = name
+            if name == 'Cairo' and len(be_parts) > 1:
+                rcParams['cairo.format'] = validate_cairo_format(be_parts[1])
         except (KeyError, ValueError):
             pass
         # we don't want to assume all -d flags are backends, eg -debug

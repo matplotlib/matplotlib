@@ -244,6 +244,8 @@ numerix      : %(numerix)s  # numpy, Numeric or numarray
 #savefig.facecolor : white    # figure facecolor when saving
 #savefig.edgecolor : white    # figure edgecolor when saving
 
+#cairo.format      : png      # png, ps, pdf, svg
+
 # tk backend params
 #tk.window_focus   : False    # Maintain shell focus for TkAgg
 #tk.pythoninspect  : False    # tk sets PYTHONINSEPCT
