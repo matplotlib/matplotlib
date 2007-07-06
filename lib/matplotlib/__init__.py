@@ -175,7 +175,7 @@ The default file location is given in the following order
 
 import sys, os, tempfile
 
-from rcdefaults import defaultParams, validate_backend, validate_toolbar
+from rcsetup import defaultParams, validate_backend, validate_toolbar
 
 major, minor1, minor2, s, tmp = sys.version_info
 _python23 = major>=2 and minor1>=3
