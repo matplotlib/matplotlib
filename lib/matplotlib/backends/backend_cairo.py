@@ -155,8 +155,7 @@ class RendererCairo(RendererBase):
 
         rows, cols, buf = im.color_conv (BYTE_FORMAT)
         surface = cairo.ImageSurface.create_for_data (
-                      buf, cairo.FORMAT_ARGB32, rows, cols, rows*4)
-
+                      buf, cairo.FORMAT_ARGB32, cols, rows, cols*4)
         # function does not pass a 'gc' so use renderer.ctx
         ctx = self.ctx
         y = self.height - y - rows
