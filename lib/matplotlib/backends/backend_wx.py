@@ -1218,7 +1218,7 @@ def _create_wx_app():
         wxapp.SetExitOnFrameDelete(True)
         # retain a reference to the app object so it does not get garbage
         # collected and cause segmentation faults
-        _create_wx_app.theWxApp = app
+        _create_wx_app.theWxApp = wxapp
 
 
 def draw_if_interactive():
