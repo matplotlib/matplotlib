@@ -29,7 +29,7 @@ def glyph_to_agg_path(glyph):
     return path
 
 width, height = 300,300
-fname = os.path.join(matplotlib.get_data_path(), 'Vera.ttf')
+fname = os.path.join(matplotlib.get_data_path(), 'fonts/ttf/Vera.ttf')
 font = FT2Font(fname)
 glyph = font.load_char(ord('y'))
 path = glyph_to_agg_path(glyph)
