@@ -1389,6 +1389,7 @@ def xpdf_distill(tmpfile, eps=False, ptype='letter', bbox=None):
     command = 'ps2pdf -dAutoFilterColorImages=false \
 -sColorImageFilter=FlateEncode -sPAPERSIZE=%s "%s" "%s" > "%s"'% \
 (ptype, tmpfile, pdffile, outfile)
+    if sys.platform == 'win32': command = command.replace('=', '#')
     verbose.report(command, 'debug')
     exit_status = os.system(command)
     fh = file(outfile)
