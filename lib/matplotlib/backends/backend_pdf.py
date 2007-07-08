@@ -599,6 +599,7 @@ class PdfFile:
             if not data: break
             length1 += len(data)
             self.currentstream.write(data)
+        fontfile.close()
         self.endStream()
         self.writeObject(length1Object, length1)
 
