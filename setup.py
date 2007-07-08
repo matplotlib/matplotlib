@@ -277,7 +277,7 @@ if BUILD_IMAGE:
 
 if 1:  # I don't think we need to make these optional
     build_contour(ext_modules, packages)
-    build_nxutils(ext_modules, packages, NUMERIX)
+    build_nxutils(ext_modules, packages)
 
 for mod in ext_modules:
     if VERBOSE:

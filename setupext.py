@@ -860,43 +860,17 @@ def build_contour(ext_modules, packages):
     BUILT_CONTOUR = True
 
 
-def build_nxutils(ext_modules, packages, numerix):
+def build_nxutils(ext_modules, packages):
     global BUILT_NXUTILS
     if BUILT_NXUTILS: return # only build it if you you haven't already
-
-    if 'numarray' in numerix: # Build for numarray
-        temp_copy('src/nxutils.c', 'src/_na_nxutils.c')
-        module = Extension(
-            'matplotlib._na_nxutils',
-            [  'src/_na_nxutils.c',],
-            include_dirs=numarray_inc_dirs,
-            )
-        module.extra_compile_args.append('-DNUMARRAY=1')
-        add_base_flags(module)
-        ext_modules.append(module)
-
-    if 'Numeric' in numerix: # Build for Numeric
-        temp_copy('src/nxutils.c', 'src/_nc_nxutils.c')
-        module = Extension(
-            'matplotlib._nc_nxutils',
-            [ 'src/_nc_nxutils.c'],
-            include_dirs=numeric_inc_dirs,
-            )
-        module.extra_compile_args.append('-DNUMERIC=1')
-        add_base_flags(module)
-        ext_modules.append(module)
-    if 'numpy' in numerix: # Build for numpy
-        temp_copy('src/nxutils.c', 'src/_ns_nxutils.c')
-        module = Extension(
-            'matplotlib._ns_nxutils',
-            [ 'src/_ns_nxutils.c'],
-            include_dirs=numeric_inc_dirs,
-            )
-        add_numpy_flags(module)
-        module.extra_compile_args.append('-DSCIPY=1')
-        add_base_flags(module)
-        ext_modules.append(module)
-
+    module = Extension(
+        'matplotlib.nxutils',
+        [ 'src/nxutils.c'],
+        include_dirs=numeric_inc_dirs,
+        )
+    add_numpy_flags(module)
+    add_base_flags(module)
+    ext_modules.append(module)
 
     BUILT_NXUTILS = True
 
