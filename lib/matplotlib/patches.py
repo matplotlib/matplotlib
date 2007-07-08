@@ -1,26 +1,22 @@
 from __future__ import division
 import math
-from matplotlib import rcParams
-from numerix import array, arange, sin, cos, pi, Float, sqrt, \
-     matrixmultiply, sqrt, nonzero, equal, asarray, dot, concatenate
-from artist import Artist, setp, kwdocd
-from cbook import enumerate, dedent
-from colors import colorConverter
-from lines import Line2D
-from transforms import bound_vertices
+
+import matplotlib as mpl
+import numpy as npy
+import matplotlib.cbook as cbook
+import matplotlib.artist as artist
+import matplotlib.colors as colors
+import matplotlib.lines as lines
+import matplotlib.transforms as transforms
 import matplotlib.nxutils as nxutils
-
-from numerix.mlab import amin
-from mlab import dist_point_to_segment
-
-import artist
-
+import matplotlib.mlab as mlab
+import matplotlib.artist as artist
 
 
 # these are not available for the object inspector until after the
 # class is build so we define an initial set here for the init
 # function and they will be overridden after object defn
-kwdocd['Patch'] = """\
+artist.kwdocd['Patch'] = """\
           alpha: float
           animated: [True | False]
           antialiased or aa: [True | False]
@@ -39,7 +35,7 @@ kwdocd['Patch'] = """\
           zorder: any number
           """
 
-class Patch(Artist):
+class Patch(artist.Artist):
     """
     A patch is a 2D thingy with a face color and an edge color
 
@@ -61,12 +57,12 @@ class Patch(Artist):
         The following kwarg properties are supported
         %(Patch)s
         """
-        Artist.__init__(self)
+        artist.Artist.__init__(self)
 
-        if edgecolor is None: edgecolor = rcParams['patch.edgecolor']
-        if facecolor is None: facecolor = rcParams['patch.facecolor']
-        if linewidth is None: linewidth = rcParams['patch.linewidth']
-        if antialiased is None: antialiased = rcParams['patch.antialiased']
+        if edgecolor is None: edgecolor = mpl.rcParams['patch.edgecolor']
+        if facecolor is None: facecolor = mpl.rcParams['patch.facecolor']
+        if linewidth is None: linewidth = mpl.rcParams['patch.linewidth']
+        if antialiased is None: antialiased = mpl.rcParams['patch.antialiased']
 
         self._edgecolor = edgecolor
         self._facecolor = facecolor
@@ -75,8 +71,8 @@ class Patch(Artist):
         self._hatch = hatch
         self.fill = fill
 
-        if len(kwargs): setp(self, **kwargs)
-    __init__.__doc__ = dedent(__init__.__doc__) % kwdocd
+        if len(kwargs): artist.setp(self, **kwargs)
+    __init__.__doc__ = cbook.dedent(__init__.__doc__) % artist.kwdocd
 
     def pick(self, mouseevent):
         """
@@ -98,7 +94,7 @@ class Patch(Artist):
 
 
     def update_from(self, other):
-        Artist.update_from(self, other)
+        artist.Artist.update_from(self, other)
         self.set_edgecolor(other.get_edgecolor())
         self.set_facecolor(other.get_facecolor())
         self.set_fill(other.get_fill())
@@ -206,7 +202,7 @@ class Patch(Artist):
         gc.set_capstyle('projecting')
 
         if not self.fill or self._facecolor is None: rgbFace = None
-        else: rgbFace = colorConverter.to_rgb(self._facecolor)
+        else: rgbFace = colors.colorConverter.to_rgb(self._facecolor)
 
         if self._hatch:
             gc.set_hatch(self._hatch )
@@ -229,7 +225,7 @@ class Patch(Artist):
     def get_window_extent(self, renderer=None):
         verts = self.get_verts()
         tverts = self.get_transform().seq_xy_tups(verts)
-        return bound_vertices(tverts)
+        return transforms.bound_vertices(tverts)
 
 
 
@@ -283,7 +279,7 @@ class Shadow(Patch):
         self.patch = patch
         self.props = props
         self._update()
-    __init__.__doc__ = dedent(__init__.__doc__) % kwdocd
+    __init__.__doc__ = cbook.dedent(__init__.__doc__) % artist.kwdocd
 
 
     def _update(self):
@@ -291,7 +287,7 @@ class Shadow(Patch):
         if self.props is not None:
             self.update(self.props)
         else:
-            r,g,b,a = colorConverter.to_rgba(self.patch.get_facecolor())
+            r,g,b,a = colors.colorConverter.to_rgba(self.patch.get_facecolor())
             rho = 0.3
             r = rho*r
             g = rho*g
@@ -335,7 +331,7 @@ class Rectangle(Patch):
 
         self.xy  = list(xy)
         self.width, self.height = width, height
-    __init__.__doc__ = dedent(__init__.__doc__) % kwdocd
+    __init__.__doc__ = cbook.dedent(__init__.__doc__) % artist.kwdocd
 
 
     def get_verts(self):
@@ -436,18 +432,18 @@ class RegularPolygon(Patch):
         self.radius = radius
         self.orientation = orientation
 
-    __init__.__doc__ = dedent(__init__.__doc__) % kwdocd
+    __init__.__doc__ = cbook.dedent(__init__.__doc__) % artist.kwdocd
 
 
 
     def get_verts(self):
-        theta = 2*pi/self.numVertices*arange(self.numVertices) + \
+        theta = 2*npy.pi/self.numVertices*npy.arange(self.numVertices) + \
                 self.orientation
         r = float(self.radius)
         x, y = map(float, self.xy)
 
-        xs = x + r*cos(theta)
-        ys = y + r*sin(theta)
+        xs = x + r*npy.cos(theta)
+        ys = y + r*npy.sin(theta)
 
         #xs = self.convert_xunits(xs)
         #ys = self.convert_yunits(ys)
@@ -474,7 +470,7 @@ class Polygon(Patch):
         if not isinstance(xy, list):
             xy = list(xy)
         self.xy = xy
-    __init__.__doc__ = dedent(__init__.__doc__) % kwdocd
+    __init__.__doc__ = cbook.dedent(__init__.__doc__) % artist.kwdocd
 
 
 
@@ -499,14 +495,14 @@ class Wedge(Polygon):
 
         """
         xc, yc = center
-        rads = (math.pi/180.)*arange(theta1, theta2+0.1*dtheta, dtheta)
-        xs = r*cos(rads)+xc
-        ys = r*sin(rads)+yc
+        rads = (math.pi/180.)*npy.arange(theta1, theta2+0.1*dtheta, dtheta)
+        xs = r*npy.cos(rads)+xc
+        ys = r*npy.sin(rads)+yc
         verts = [center]
         verts.extend([(x,y) for x,y in zip(xs,ys)])
 
         Polygon.__init__(self, verts, **kwargs)
-    __init__.__doc__ = dedent(__init__.__doc__) % kwdocd
+    __init__.__doc__ = cbook.dedent(__init__.__doc__) % artist.kwdocd
 
 class Arrow(Polygon):
     """
@@ -519,20 +515,20 @@ class Arrow(Polygon):
         Valid kwargs are:
         %(Patch)s
           """
-        arrow = array( [
+        arrow = npy.array( [
             [ 0.0,  0.1 ], [ 0.0, -0.1],
             [ 0.8, -0.1 ], [ 0.8, -0.3],
             [ 1.0,  0.0 ], [ 0.8,  0.3],
             [ 0.8,  0.1 ] ] )
-        L = sqrt(dx**2+dy**2) or 1 # account for div by zero
+        L = npy.sqrt(dx**2+dy**2) or 1 # account for div by zero
         arrow[:,0] *= L
         arrow[:,1] *= width
         cx = float(dx)/L
         sx = float(dy)/L
-        M = array( [ [ cx, sx],[ -sx, cx ] ] )
-        verts = matrixmultiply( arrow, M )+ [x,y]
+        M = npy.array( [ [ cx, sx],[ -sx, cx ] ] )
+        verts = npy.matrixmultiply( arrow, M )+ [x,y]
         Polygon.__init__( self, [ tuple(t) for t in verts ], **kwargs )
-    __init__.__doc__ = dedent(__init__.__doc__) % kwdocd
+    __init__.__doc__ = cbook.dedent(__init__.__doc__) % artist.kwdocd
 
 class FancyArrow(Polygon):
     """Like Arrow, but lets you set head width and head height independently."""
@@ -561,7 +557,7 @@ class FancyArrow(Polygon):
         if head_length is None:
             head_length = 1.5 * head_width
 
-        distance = sqrt(dx**2 + dy**2)
+        distance = npy.sqrt(dx**2 + dy**2)
         if length_includes_head:
             length=distance
         else:
@@ -571,7 +567,7 @@ class FancyArrow(Polygon):
         else:
             #start by drawing horizontal arrow, point at (0,0)
             hw, hl, hs, lw = head_width, head_length, overhang, width
-            left_half_arrow = array([
+            left_half_arrow = npy.array([
                 [0.0,0.0],                  #tip
                 [-hl, -hw/2.0],             #leftmost
                 [-hl*(1-hs), -lw/2.0], #meets stem
@@ -592,16 +588,16 @@ class FancyArrow(Polygon):
                 if shape == 'right':
                     coords = right_half_arrow
                 elif shape == 'full':
-                    coords=concatenate([left_half_arrow,right_half_arrow[::-1]])
+                    coords=npy.concatenate([left_half_arrow,right_half_arrow[::-1]])
                 else:
                     raise ValueError, "Got unknown shape: %s" % shape
             cx = float(dx)/distance
             sx = float(dy)/distance
-            M = array([[cx, sx],[-sx,cx]])
-            verts = matrixmultiply(coords, M) + (x+dx, y+dy)
+            M = npy.array([[cx, sx],[-sx,cx]])
+            verts = npy.matrixmultiply(coords, M) + (x+dx, y+dy)
 
         Polygon.__init__(self, map(tuple, verts), **kwargs)
-    __init__.__doc__ = dedent(__init__.__doc__) % kwdocd
+    __init__.__doc__ = cbook.dedent(__init__.__doc__) % artist.kwdocd
 
 class YAArrow(Polygon):
     """
@@ -631,7 +627,7 @@ class YAArrow(Polygon):
         self.headwidth = headwidth
         verts = self.get_verts()
         Polygon.__init__(self, verts, **kwargs)
-    __init__.__doc__ = dedent(__init__.__doc__) % kwdocd
+    __init__.__doc__ = cbook.dedent(__init__.__doc__) % artist.kwdocd
 
 
 
@@ -699,7 +695,7 @@ class CirclePolygon(RegularPolygon):
                                 radius,
                                 orientation=0,
                                 **kwargs)
-    __init__.__doc__ = dedent(__init__.__doc__) % kwdocd
+    __init__.__doc__ = cbook.dedent(__init__.__doc__) % artist.kwdocd
 
 
 class Ellipse(Patch):
@@ -718,7 +714,7 @@ class Ellipse(Patch):
         """
         Patch.__init__(self, **kwargs)
 
-        # self.center  = array(xy, Float)
+        # self.center  = npy.array(xy, npy.float)
         self.center = xy
         self.width, self.height = width, height
         self.angle = angle
@@ -729,7 +725,7 @@ class Ellipse(Patch):
         b,t = y-self.height/2.0, y+self.height/2.0
         x,l,r = self.convert_xunits((x,l,r))
         y,b,t = self.convert_yunits((y,b,t))
-        return array(((x,y),(l,y),(x,t),(r,y),(x,b)), Float)
+        return npy.array(((x,y),(l,y),(x,t),(r,y),(x,b)), npy.float)
 
     def draw(self, renderer):
         if not self.get_visible(): return
@@ -744,7 +740,7 @@ class Ellipse(Patch):
         gc.set_capstyle('projecting')
 
         if not self.fill or self._facecolor is None: rgbFace = None
-        else: rgbFace = colorConverter.to_rgb(self._facecolor)
+        else: rgbFace = colors.colorConverter.to_rgb(self._facecolor)
 
         if self._hatch:
             gc.set_hatch(self._hatch )
@@ -779,7 +775,7 @@ class Circle(Ellipse):
 
         self.radius = radius
         Ellipse.__init__(self, xy, radius*2, radius*2, **kwargs)
-    __init__.__doc__ = dedent(__init__.__doc__) % kwdocd
+    __init__.__doc__ = cbook.dedent(__init__.__doc__) % artist.kwdocd
 
 
 class PolygonInteractor:
@@ -808,7 +804,7 @@ class PolygonInteractor:
         self.poly = poly
         self.poly.verts = list(self.poly.verts)
         x, y = zip(*self.poly.verts)
-        self.line = Line2D(x,y,marker='o', markerfacecolor='r')
+        self.line = lines.Line2D(x,y,marker='o', markerfacecolor='r')
         #self._update_line(poly)
 
         cid = self.poly.add_callback(self.poly_changed)
@@ -825,7 +821,7 @@ class PolygonInteractor:
         'this method is called whenever the polygon object is called'
         # only copy the artist props to the line (except visibility)
         vis = self.line.get_visible()
-        Artist.update_from(self.line, poly)
+        artist.Artist.update_from(self.line, poly)
         self.line.set_visible(vis)  # don't use the poly visibility state
 
 
@@ -835,8 +831,8 @@ class PolygonInteractor:
 
         # display coords
         xt, yt = self.poly.get_transform().numerix_x_y(x, y)
-        d = sqrt((xt-event.x)**2 + (yt-event.y)**2)
-        indseq = nonzero(equal(d, amin(d)))
+        d = npy.sqrt((xt-event.x)**2 + (yt-event.y)**2)
+        indseq = npy.nonzero(npy.equal(d, npy.amin(d)))
         ind = indseq[0]
 
         if d[ind]>=self.epsilon:
@@ -875,7 +871,7 @@ class PolygonInteractor:
             for i in range(len(xys)-1):
                 s0 = xys[i]
                 s1 = xys[i+1]
-                d = dist_point_to_segment(p, s0, s1)
+                d = mlab.dist_point_to_segment(p, s0, s1)
                 if d<=self.epsilon:
                     self.poly.verts.insert(i+1, (event.xdata, event.ydata))
                     self.line.set_data(zip(*self.poly.verts))
