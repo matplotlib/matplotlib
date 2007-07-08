@@ -590,7 +590,7 @@ class NavigationToolbar2TkAgg(NavigationToolbar2, Tk.Frame):
     def destroy(self, *args):
         del self.message
         Tk.Frame.destroy(self, *args)
-        
+
     def set_message(self, s):
         self.message.set(s)
 
@@ -689,33 +689,8 @@ class NavigationToolbar2TkAgg(NavigationToolbar2, Tk.Frame):
             if fext == '': # No extension provided
                 fext = '.png' # Assume png
                 fname += fext
-            if (fext.lower()=='.png'):
-                self.canvas.print_figure(fname, dpi=300)
-            elif (fext.lower()=='.eps'):
+            if fext.lower() in ('.png', '.eps', '.svg'):
                 self.canvas.print_figure(fname)
-            elif (fext.lower()=='.svg'):
-                self.canvas.print_figure(fname)
-
-    def _save_figure(self):
-        fs = FileDialog.SaveFileDialog(master=self.window,
-                                       title='Save the figure')
-        try:
-            self.lastDir
-        except AttributeError:
-            self.lastDir = os.curdir
-
-        fname = fs.go(dir_or_file=self.lastDir) # , pattern="*.png")
-        if fname is None: # Cancel
-            return
-
-        self.lastDir = os.path.dirname(fname)
-        try:
-            self.canvas.print_figure(fname)
-        except IOError, msg:
-            err = '\n'.join(map(str, msg))
-            msg = 'Failed to save %s: Error msg was\n\n%s' % (
-                fname, err)
-            error_msg_tkpaint(msg)
 
     def set_active(self, ind):
         self._ind = ind
