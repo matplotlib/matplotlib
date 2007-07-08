@@ -1,3 +1,5 @@
+2007-07-08 Applied Carl Worth's patch to fix cairo draw_arc - SC
+
 2007-07-07 fixed bug 1712099: xpdf distiller on windows - DSD
 
 2007-06-30 Applied patches to tkagg, gtk, and wx backends to reduce
