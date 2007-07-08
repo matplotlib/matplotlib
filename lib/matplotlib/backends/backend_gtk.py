@@ -1067,6 +1067,7 @@ if gtk.pygtk_version >= (2,4,0):
             for item in IMAGE_FORMAT:
                 cbox.append_text (item)
             cbox.set_active (IMAGE_FORMAT.index (IMAGE_FORMAT_DEFAULT))
+            self.ext = IMAGE_FORMAT_DEFAULT
 
             def cb_cbox_changed (cbox, data=None):
                 """File extension changed"""
@@ -1074,6 +1075,7 @@ if gtk.pygtk_version >= (2,4,0):
                 root, ext = os.path.splitext(filename)
                 ext = ext[1:]
                 new_ext = IMAGE_FORMAT[cbox.get_active()]
+                self.ext = new_ext
 
                 if ext in IMAGE_FORMAT:
                     filename = filename.replace(ext, new_ext)
@@ -1092,11 +1094,10 @@ if gtk.pygtk_version >= (2,4,0):
                 if self.run() != gtk.RESPONSE_OK:
                     break
                 filename = self.get_filename()
-                menu_ext  = IMAGE_FORMAT[self.cbox.get_active()]
                 root, ext = os.path.splitext (filename)
                 ext = ext[1:]
                 if ext == '':
-                    ext = menu_ext
+                    ext = self.ext
                     filename += '.' + ext
 
                 if ext in IMAGE_FORMAT:
@@ -1106,7 +1107,7 @@ if gtk.pygtk_version >= (2,4,0):
                     error_msg_gtk ('Image format "%s" is not supported' % ext,
                                    parent=self)
                     self.set_current_name (os.path.split(root)[1] + '.' +
-                                           menu_ext)
+                                           self.ext)
 
             self.hide()
             return filename
