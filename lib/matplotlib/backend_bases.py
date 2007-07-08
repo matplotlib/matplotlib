@@ -8,14 +8,10 @@ import sys, warnings
 
 import numpy as npy
 import matplotlib.numerix.npyma as ma
-
-from cbook import is_string_like, enumerate, strip_math, Stack, CallbackRegistry
-from colors import colorConverter
-from numerix import array, sqrt, pi, log, asarray, ones, zeros, Float, Float32
-from numerix import arange, compress, take, isnan, any
-from patches import Rectangle
-from transforms import lbwh_to_bbox, identity_transform
-import widgets
+import matplotlib.cbook as cbook
+import matplotlib.colors as colors
+import matplotlib.transforms as transforms
+import matplotlib.widgets as widgets
 
 class RendererBase:
     """An abstract base class to handle drawing/rendering operations
@@ -141,7 +137,7 @@ class RendererBase:
         """
 
         newstyle = getattr(self, 'draw_markers', None) is not None
-        identity = identity_transform()
+        identity = transforms.identity_transform()
         gc = self.new_gc()
         if clipbox is not None:
             gc.set_clip_rectangle(clipbox.get_bounds())
@@ -204,18 +200,18 @@ class RendererBase:
         See documentation in QuadMesh class in collections.py for details
         """
         # print "draw_quad_mesh not found, using function in backend_bases"
-        verts = zeros(((meshWidth * meshHeight), 4, 2), Float32)
-        indices = arange((meshWidth + 1) * (meshHeight + 1))
-        indices = compress((indices + 1) % (meshWidth + 1), indices)
+        verts = npy.zeros(((meshWidth * meshHeight), 4, 2), npy.float32)
+        indices = npy.arange((meshWidth + 1) * (meshHeight + 1))
+        indices = npy.compress((indices + 1) % (meshWidth + 1), indices)
         indices = indices[:(meshWidth * meshHeight)]
-        verts[:, 0, 0] = take(xCoords, indices)
-        verts[:, 0, 1] = take(yCoords, indices)
-        verts[:, 1, 0] = take(xCoords, (indices + 1))
-        verts[:, 1, 1] = take(yCoords, (indices + 1))
-        verts[:, 2, 0] = take(xCoords, (indices + meshWidth + 2))
-        verts[:, 2, 1] = take(yCoords, (indices + meshWidth + 2))
-        verts[:, 3, 0] = take(xCoords, (indices + meshWidth + 1))
-        verts[:, 3, 1] = take(yCoords, (indices + meshWidth + 1))
+        verts[:, 0, 0] = npy.take(xCoords, indices)
+        verts[:, 0, 1] = npy.take(yCoords, indices)
+        verts[:, 1, 0] = npy.take(xCoords, (indices + 1))
+        verts[:, 1, 1] = npy.take(yCoords, (indices + 1))
+        verts[:, 2, 0] = npy.take(xCoords, (indices + meshWidth + 2))
+        verts[:, 2, 1] = npy.take(yCoords, (indices + meshWidth + 2))
+        verts[:, 3, 0] = npy.take(xCoords, (indices + meshWidth + 1))
+        verts[:, 3, 1] = npy.take(yCoords, (indices + meshWidth + 1))
         if (showedges):
             edgecolors = colors
         else:
@@ -262,7 +258,7 @@ class RendererBase:
 
         for i in xrange(N):
             polyverts = ma.filled(verts[i % Nverts], npy.nan)
-            if any(isnan(polyverts)):
+            if npy.any(npy.isnan(polyverts)):
                 continue
             linewidth = linewidths[i % Nlw]
             rf,gf,bf,af = facecolors[i % Nface]
@@ -337,8 +333,8 @@ class RendererBase:
             gc.set_clip_rectangle(clipbox.get_bounds())
 
         xverts, yverts = zip(*verts)
-        xverts = asarray(xverts)
-        yverts = asarray(yverts)
+        xverts = npy.asarray(xverts)
+        yverts = npy.asarray(yverts)
 
         Nface  = len(facecolors)
         Nedge  = len(edgecolors)
@@ -423,7 +419,7 @@ class RendererBase:
         """
         Get the text extent in window coords
         """
-        return lbwh_to_bbox(0,0,1,1)  # your values here
+        return transforms.lbwh_to_bbox(0,0,1,1)  # your values here
 
     def get_text_width_height(self, s, prop, ismath):
         """
@@ -452,7 +448,7 @@ class RendererBase:
         return points
 
     def strip_math(self, s):
-        return strip_math(s)
+        return cbook.strip_math(s)
 
 
 class GraphicsContextBase:
@@ -618,7 +614,7 @@ class GraphicsContextBase:
         if isRGB:
             self._rgb = fg
         else:
-            self._rgb = colorConverter.to_rgb(fg)
+            self._rgb = colors.colorConverter.to_rgb(fg)
 
     def set_graylevel(self, frac):
         """
@@ -870,7 +866,7 @@ class FigureCanvasBase:
         figure.set_canvas(self)
         self.figure = figure
         # a dictionary from event name to a dictionary that maps cid->func
-        self.callbacks = CallbackRegistry(self.events)
+        self.callbacks = cbook.CallbackRegistry(self.events)
         self.widgetlock = widgets.LockDraw()
         self._button     = None  # the button pressed
         self._key        = None  # the key pressed
@@ -1174,8 +1170,8 @@ class NavigationToolbar2:
         self.canvas = canvas
         canvas.toolbar = self
         # a dict from axes index to a list of view limits
-        self._views = Stack()
-        self._positions = Stack()  # stack of subplot positions
+        self._views = cbook.Stack()
+        self._positions = cbook.Stack()  # stack of subplot positions
         self._xypress = None  # the  location and axis info at the time of the press
         self._idPress = None
         self._idRelease = None
@@ -1529,7 +1525,7 @@ class NavigationToolbar2:
                 a.set_ylim((ymin, ymax))
             elif self._button_pressed == 3:
                 if a.get_xscale()=='log':
-                    alpha=log(Xmax/Xmin)/log(xmax/xmin)
+                    alpha=npy.log(Xmax/Xmin)/npy.log(xmax/xmin)
                     x1=pow(Xmin/xmin,alpha)*Xmin
                     x2=pow(Xmax/xmin,alpha)*Xmin
                 else:
@@ -1537,7 +1533,7 @@ class NavigationToolbar2:
                     x1=alpha*(Xmin-xmin)+Xmin
                     x2=alpha*(Xmax-xmin)+Xmin
                 if a.get_yscale()=='log':
-                    alpha=log(Ymax/Ymin)/log(ymax/ymin)
+                    alpha=npy.log(Ymax/Ymin)/npy.log(ymax/ymin)
                     y1=pow(Ymin/ymin,alpha)*Ymin
                     y2=pow(Ymax/ymin,alpha)*Ymin
                 else:
