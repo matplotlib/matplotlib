@@ -1,3 +1,6 @@
+2007-07-09 Applied Allan's draw_lines agg optimization. JDH
+
+
 2007-07-08 Applied Carl Worth's patch to fix cairo draw_arc - SC
 
 2007-07-07 fixed bug 1712099: xpdf distiller on windows - DSD

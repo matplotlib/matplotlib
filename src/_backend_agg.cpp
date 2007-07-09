@@ -1495,31 +1495,30 @@ RendererAgg::draw_regpoly_collection(const Py::Tuple& args) {
 Py::Object
 RendererAgg::draw_lines(const Py::Tuple& args) {
   
-  
-  _VERBOSE("RendererAgg::draw_lines");
+ _VERBOSE("RendererAgg::draw_lines");
   args.verify_length(4);
-  
+
   Py::Object xo = args[1];
   Py::Object yo = args[2];
-  
+
   PyArrayObject *xa = (PyArrayObject *) PyArray_ContiguousFromObject(xo.ptr(), PyArray_DOUBLE, 1, 1);
-  
+
   if (xa==NULL)
     throw Py::TypeError("RendererAgg::draw_lines expected numerix array");
-  
-  
+
+
   PyArrayObject *ya = (PyArrayObject *) PyArray_ContiguousFromObject(yo.ptr(), PyArray_DOUBLE, 1, 1);
-  
+
   if (ya==NULL)
     throw Py::TypeError("RendererAgg::draw_lines expected numerix array");
-  
-  
+
+
   size_t Nx = xa->dimensions[0];
   size_t Ny = ya->dimensions[0];
-  
+
   if (Nx!=Ny)
     throw Py::ValueError(Printf("x and y must be equal length arrays; found %d and %d", Nx, Ny).str());
-  
+
   // call gc with snapto==True if line len is 2 to fix grid line
   // problem
   bool snapto = false;
@@ -1531,18 +1530,14 @@ RendererAgg::draw_lines(const Py::Tuple& args) {
     double y0 = *(double *)(ya->data + 0*ya->strides[0]);
     double y1 = *(double *)(ya->data + 1*ya->strides[0]);
     snapto = (x0==x1) || (y0==y1);
-    
+
   }
-  
   GCAgg gc = GCAgg(args[0], dpi, snapto);
-  
+
   set_clipbox_rasterizer(gc.cliprect);
-  //path_t transpath(path, xytrans);
-  _process_alpha_mask(gc);
-  
-  
+
   Transformation* mpltransform = static_cast<Transformation*>(args[3].ptr());
-  
+
   double a, b, c, d, tx, ty;
   try {
     mpltransform->affine_params_api(&a, &b, &c, &d, &tx, &ty);
@@ -1550,97 +1545,259 @@ RendererAgg::draw_lines(const Py::Tuple& args) {
   catch(...) {
     throw Py::ValueError("Domain error on affine_params_api in RendererAgg::draw_lines");
   }
-  
+
   agg::trans_affine xytrans = agg::trans_affine(a,b,c,d,tx,ty);
-  
-  
+
+
   agg::path_storage path;
-  
-  
+
+
   bool needNonlinear = mpltransform->need_nonlinear_api();
-  
-  double thisx, thisy;
+
+  double thisx(0.0), thisy(0.0);
+  double origdx(0.0), origdy(0.0), origdNorm2(0);
   bool moveto = true;
   double heightd = height;
+
+  double lastx(0), lasty(0);
+  double lastWrittenx(0), lastWritteny(0);
+  bool clipped = false;
   
-  double lastx(-2.0), lasty(-2.0);
+  bool haveMin = false, lastMax = true;
+  double dnorm2Min(0), dnorm2Max(0);
+  double maxX(0), maxY(0), minX(0), minY(0);
   
-  size_t i(0);
-  bool more(true);
-  for (i=0; i<Nx; i++) {
-    more = true;
+  double totdx, totdy, totdot;
+  double paradx, parady, paradNorm2;
+  double perpdx, perpdy, perpdNorm2;
+  
+  int counter = 0;
+  //idea: we can skip drawing many lines: lines < 1 pixel in length, lines 
+  //outside of the drawing area, and we can combine sequential parallel lines
+  //into a single line instead of redrawing lines over the same points.
+  //The loop below works a bit like a state machine, where what it does depends 
+  //on what it did in the last looping. To test whether sequential lines
+  //are close to parallel, I calculate the distance moved perpendicular to the
+  //last line. Once it gets too big, the lines cannot be combined.
+  for (size_t i=0; i<Nx; i++) {
+
     thisx = *(double *)(xa->data + i*xa->strides[0]);
     thisy = *(double *)(ya->data + i*ya->strides[0]);
-    
-    
+
     if (needNonlinear)
       try {
-	mpltransform->nonlinear_only_api(&thisx, &thisy);
+        mpltransform->nonlinear_only_api(&thisx, &thisy);
       }
       catch (...) {
-	moveto = true;
-	continue;
+        moveto = true;
+        continue;
       }
-    if (MPL_isnan64(thisx) || MPL_isnan64(thisy)) {
-      moveto = true;
-      continue;
-    }
-    
+      if (MPL_isnan64(thisx) || MPL_isnan64(thisy)) {
+        moveto = true;
+        continue;
+      }
+   
     //use agg's transformer?
     xytrans.transform(&thisx, &thisy);
     thisy = heightd - thisy; //flipy
     
-    //don't render line segments less that on pixel long!
-    if (!moveto && (i>0) && fabs(thisx-lastx)<1.0 && fabs(thisy-lasty)<1.0) {
-      continue;
-    }
-    
-    
-    lastx = thisx;
-    lasty = thisy;
     if (snapto) {
-      //disable subpixel rendering for horizontal or vertical lines
+      //disable subpixel rendering for horizontal or vertical lines of len=2
       //because it causes irregular line widths for grids and ticks
-      
       thisx = (int)thisx + 0.5;
       thisy = (int)thisy + 0.5;
     }
     
-    
-    if (moveto)
+    //if we are starting a new path segment, move to the first point + init
+    if(moveto){
       path.move_to(thisx, thisy);
-    else
-      path.line_to(thisx, thisy);
-    
-    moveto = false;
-    if ((i>0) & (i%10000)==0) {
-      //draw the path in chunks
-      //std::cout << "rendering chunk " << i << std::endl;
-      _render_lines_path(path, gc);
-      path.remove_all();
-      path.move_to(thisx, thisy);
-      more = false;
+      lastx = thisx;
+      lasty = thisy;
+      origdNorm2 = 0; //resets the orig-vector variables (see if-statement below)
+      moveto = false;
+      continue;
+    }
+
+    //don't render line segments less that on pixel long!
+    if (fabs(thisx-lastx) < 1.0 && fabs(thisy-lasty) < 1.0 ){
+      continue; //don't update lastx this time!
     }
     
+    //skip any lines that are outside the drawing area. Note: More lines
+    //could be clipped, but a more involved calculation would be needed
+    if( (thisx < 0      && lastx < 0     ) ||
+        (thisx > width  && lastx > width ) ||
+        (thisy < 0      && lasty < 0     ) ||
+        (thisy > height && lasty > height) ){
+      lastx = thisx;
+      lasty = thisy;
+      clipped = true;      
+      continue;
+    }
     
-    //std::cout << "draw lines " << thisx << " " << thisy << std::endl;
+    //if we have no orig vector, set it to this vector and continue.
+    //this orig vector is the reference vector we will build up the line to
+    if(origdNorm2 == 0){
+      //if we clipped after the moveto but before we got here, redo the moveto
+      if(clipped){
+        path.move_to(lastx, lasty);
+        clipped = false;
+      }
+      
+      origdx = thisx - lastx;
+      origdy = thisy - lasty;
+      origdNorm2 = origdx*origdx + origdy*origdy;
+      
+      //set all the variables to reflect this new orig vecor
+      dnorm2Max = origdNorm2;
+      dnorm2Min = 0;
+      haveMin = false;
+      lastMax = true;
+      maxX = thisx;
+      maxY = thisy;
+      minX = lastx; 
+      minY = lasty;      
+      
+      lastWrittenx = lastx;
+      lastWritteny = lasty;  
+      
+      //set the last point seen
+      lastx = thisx;
+      lasty = thisy;      
+      continue;
+    }
+    
+    //if got to here, then we have an orig vector and we just got 
+    //a vector in the sequence.
+    
+    //check that the perpendicular distance we have moved from the
+    //last written point compared to the line we are building is not too 
+    //much. If o is the orig vector (we are building on), and v is the vector 
+    //from the last written point to the current point, then the perpendicular 
+    //vector is  p = v - (o.v)o,  and we normalize o  (by dividing the 
+    //second term by o.o).  
+    
+    //get the v vector
+    totdx = thisx - lastWrittenx;
+    totdy = thisy - lastWritteny;
+    totdot = origdx*totdx + origdy*totdy;
+    
+    //get the para vector ( = (o.v)o/(o.o) )
+    paradx = totdot*origdx/origdNorm2;
+    parady = totdot*origdy/origdNorm2;
+    paradNorm2 = paradx*paradx + parady*parady;
+    
+    //get the perp vector ( = v - para )
+    perpdx = totdx - paradx;
+    perpdy = totdy - parady;      
+    perpdNorm2 = perpdx*perpdx + perpdy*perpdy;  
+    
+    //if the perp vector is less than some number of (squared) pixels in size,
+    //then merge the current vector
+    if(perpdNorm2 < 0.25 ){
+      //check if the current vector is parallel or
+      //anti-parallel to the orig vector. If it is parallel, test
+      //if it is the longest of the vectors we are merging in that direction. 
+      //If anti-p, test if it is the longest in the opposite direction (the 
+      //min of our final line)
+      
+      lastMax = false;
+      if(totdot >= 0){
+        if(paradNorm2 > dnorm2Max){
+          lastMax = true;
+          dnorm2Max = paradNorm2;
+          maxX = lastWrittenx + paradx;
+          maxY = lastWritteny + parady;
+        }
+      }
+      else{
+      
+        haveMin = true;
+        if(paradNorm2 > dnorm2Min){
+          dnorm2Min = paradNorm2;
+          minX = lastWrittenx + paradx;
+          minY = lastWritteny + parady;
+        }
+      }
+      
+      lastx = thisx;
+      lasty = thisy;
+      continue;
+    }
+    
+    //if we get here, then this vector was not similar enough to the line
+    //we are building, so we need to draw that line and start the next one.
+    
+    //if the line needs to extend in the opposite direction from the direction
+    //we are drawing in, move back to we start drawing from back there.
+    if(haveMin){
+      path.line_to(minX, minY); //would be move_to if not for artifacts
+    }
+    
+    path.line_to(maxX, maxY);
+    
+    //if we clipped some segments between this line and the next line
+    //we are starting, we also need to move to the last point.
+    if(clipped){
+      path.move_to(lastx, lasty);
+    }
+    else if(!lastMax){
+    	//if the last line was not the longest line, then move back to the end 
+      //point of the last line in the sequence. Only do this if not clipped,
+      //since in that case lastx,lasty is not part of the line just drawn.
+      path.line_to(lastx, lasty); //would be move_to if not for artifacts
+    }       
+
+    //std::cout << "draw lines (" << lastx << ", " << lasty << ")" << std::endl;
+
+    //now reset all the variables to get ready for the next line
+    
+    origdx = thisx - lastx;
+    origdy = thisy - lasty;
+    origdNorm2 = origdx*origdx + origdy*origdy;
+    
+    dnorm2Max = origdNorm2;
+    dnorm2Min = 0;
+    haveMin = false;
+    lastMax = true;
+    maxX = thisx;
+    maxY = thisy;
+    minX = lastx; 
+    minY = lasty;
+    
+    lastWrittenx = lastx;
+    lastWritteny = lasty;  
+    
+    clipped = false;
+    
+    lastx = thisx;
+    lasty = thisy;
+    
+    counter++;
   }
-  
+
+  //draw the last line, which is usually not drawn in the loop
+  if(origdNorm2 != 0){
+    if(haveMin){
+      path.line_to(minX, minY); //would be move_to if not for artifacts
+    }  
+    
+    path.line_to(maxX, maxY);
+  }
+    
+  //std::cout << "drew " << counter+1 << " lines" << std::endl;
+
   Py_XDECREF(xa);
   Py_XDECREF(ya);
-  
+
   //typedef agg::conv_transform<agg::path_storage, agg::trans_affine> path_t;
   //path_t transpath(path, xytrans);
   _VERBOSE("RendererAgg::draw_lines rendering lines path");
-  if (more){
-    //render the rest
-    ///std::cout << "rendering the rest" << std::endl;
-    _render_lines_path(path, gc);
-  }
-  
+  _render_lines_path(path, gc);
+
   _VERBOSE("RendererAgg::draw_lines DONE");
   return Py::Object();
-  
+
 }
 
 bool 

@@ -2946,7 +2946,7 @@ class Axes(Artist):
             labels = []
             for handle in get_handles():
                 label = handle.get_label()
-                if label is not None and label != '' and label[0] != '_':
+                if label is not None and label != '' and not label.startswith('_'):
                     handles.append(handle)
                     labels.append(label)
             loc = popd(kwargs, 'loc', 1)
