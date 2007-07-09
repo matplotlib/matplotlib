@@ -1,4 +1,10 @@
 /*
+ * Modified for use within matplotlib
+ * 5 July 2007
+ * Michael Droettboom
+ */
+
+/*
 ** ~ppr/src/include/typetype.h
 **
 ** Permission to use, copy, modify, and distribute this software and its
@@ -35,11 +41,16 @@ typedef struct
 /* the current font. */
 struct TTFONT
     {
-    char *filename;			/* Name of TT file */
+    // A quick-and-dirty way to create a minimum level of exception safety
+    // Added by Michael Droettboom
+    TTFONT();
+    ~TTFONT();
+
+    const char *filename;		/* Name of TT file */
     FILE *file;				/* the open TT file */
     int target_type;			/* 42 or 3 */
 
-    int numTables;			/* number of tables present */
+    ULONG numTables;			/* number of tables present */
     char *PostName;			/* Font's PostScript name */
     char *FullName;			/* Font's full name */
     char *FamilyName;			/* Font's family name */
@@ -66,7 +77,7 @@ struct TTFONT
     int numGlyphs;			/* from 'post' table */
 
     int indexToLocFormat;		/* short or long offsets */
-    } ;
+};
 
 ULONG getULONG(BYTE *p);
 USHORT getUSHORT(BYTE *p);
@@ -89,9 +100,10 @@ Fixed getFixed(BYTE *p);
 /* called from pprdrv_tt.c. */
 char *ttfont_CharStrings_getname(struct TTFONT *font, int charindex);
 
-/* This is the one routine in pprdrv_tt2.c that is */
-/* called from pprdrv_tt.c. */
-void tt_type3_charproc(struct TTFONT *font, int charindex);
+void tt_type3_charproc(TTStreamWriter& stream, struct TTFONT *font, int charindex);
+
+/* Added 06-07-07 Michael Droettboom */
+void ttfont_add_glyph_dependencies(struct TTFONT *font, std::vector<int>& glypy_ids);
 
 /* This routine converts a number in the font's character coordinate */
 /* system to a number in a 1000 unit character system. */

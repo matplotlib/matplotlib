@@ -82,7 +82,7 @@ from distutils.core import Extension, setup
 from setupext import build_agg, build_gtkagg, build_tkagg, build_wxagg,\
      build_ft2font, build_image, build_windowing, build_transforms, \
      build_contour, build_nxutils, build_enthought, build_swigagg, build_gdk, \
-     build_subprocess, build_isnan
+     build_subprocess, build_isnan, build_ttf2ps
 import distutils.sysconfig
 
 for line in file('lib/matplotlib/__init__.py').readlines():
@@ -120,6 +120,7 @@ ext_modules = []
 
 # these are not optional
 BUILD_FT2FONT = 1
+BUILD_TTF2PS  = 1
 BUILD_CONTOUR = 1
 BUILD_NXUTILS = 1
 
@@ -268,6 +269,9 @@ if BUILD_AGG:
 
 if BUILD_FT2FONT:
     build_ft2font(ext_modules, packages)
+
+if BUILD_TTF2PS:
+    build_ttf2ps(ext_modules, packages)
 
 if BUILD_WINDOWING and sys.platform=='win32':
    build_windowing(ext_modules, packages)

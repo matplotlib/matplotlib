@@ -1,4 +1,10 @@
 /*
+ * Modified for use within matplotlib
+ * 5 July 2007
+ * Michael Droettboom
+ */
+
+/*
 ** ~ppr/src/pprdrv/pprdrv_tt.c
 ** Copyright 1995, Trinity College Computing Center.
 ** Written by David Chappell.
@@ -18,33 +24,11 @@
 
 #include "global_defines.h"
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include "pprdrv.h"
-#include "interface.h"
 #include "truetype.h"
 
-/*==========================================================================
-** If we can find the TrueType font with the indicated PostScript name, 
-** return the TrueType font file name, otherwise return NULL.
-==========================================================================*/
-void derr(void) { }
-
-char *find_ttfont(char *name)
-    {
-    } /* end of find_ttfont() */
-
-/*===============================================================================
-** If this routine is called, we should make our best effort to provide
-** a TrueType rasterizer.  If the PPD file contains a "*TTRasterizer: Type42"
-** line then we need do nothing special.  If the PPD file contains a
-** "*TTRasterizer: Accept68K" line then TrueType is ok only if the job contains
-** TrueDict or we can arrange to have it downloaded.  If the PPD file contains
-** any other "*TTRasterizer:" line or none at all then we must assume that
-** TrueType fonts are not acceptable.
-===============================================================================*/
-void want_ttrasterizer(void)
-    {
-    } /* end of want_ttrasterizer() */
 
 /*==========================================================================
 ** Convert the indicated Truetype font file to a type 42 or type 3 
@@ -126,7 +110,7 @@ Fixed getFixed(BYTE *s)
 BYTE *GetTable(struct TTFONT *font, char *name)
     {
     BYTE *ptr;
-    int x;
+    ULONG x;
     
     #ifdef DEBUG_TRUETYPE
     debug("GetTable(file,font,\"%s\")",name);
@@ -137,32 +121,36 @@ BYTE *GetTable(struct TTFONT *font, char *name)
     x=0;
     while(TRUE)
     	{
-	if( strncmp(ptr,name,4) == 0 )
+	  if( strncmp((const char*)ptr,name,4) == 0 )
 	    {
 	    ULONG offset,length;
 	    BYTE *table;
 
 	    offset = getULONG( ptr + 8 );
 	    length = getULONG( ptr + 12 );	    
-	    table = myalloc( sizeof(BYTE), length );
+	    table = (BYTE*)calloc( sizeof(BYTE), length );
 
-	    #ifdef DEBUG_TRUETYPE
-	    debug("Loading table \"%s\" from offset %d, %d bytes",name,offset,length);
-	    #endif
-	    
-	    if( fseek( font->file, (long)offset, SEEK_SET ) )
-	    	fatal(EXIT_TTFONT,"TrueType font may be corrupt (reason 3)");
-
-	    if( fread(table,sizeof(BYTE),length,font->file) != (sizeof(BYTE) * length))
-		fatal(EXIT_TTFONT,"TrueType font may be corrupt (reason 4)");
-		
+	    try {
+#ifdef DEBUG_TRUETYPE
+	      debug("Loading table \"%s\" from offset %d, %d bytes",name,offset,length);
+#endif
+	      
+	      if( fseek( font->file, (long)offset, SEEK_SET ) )
+	    	throw TTException("TrueType font may be corrupt (reason 3)");
+	      
+	      if( fread(table,sizeof(BYTE),length,font->file) != (sizeof(BYTE) * length))
+		throw TTException("TrueType font may be corrupt (reason 4)");
+	    } catch (TTException& e) {
+	      free(table);
+	      throw;
+	    }
 	    return table;
 	    }
 
     	x++;
     	ptr += 16;
     	if(x == font->numTables)
-	    fatal(EXIT_TTFONT,"TrueType font is missing table");
+	    throw TTException("TrueType font is missing table");
     	}
 
     } /* end of GetTable() */
@@ -188,6 +176,8 @@ void Read_name(struct TTFONT *font)
     debug("Read_name()");
     #endif
 
+    table_ptr = NULL;
+
     /* Set default values to avoid future references to */
     /* undefined pointers. */
     font->PostName = font->FullName =
@@ -195,130 +185,135 @@ void Read_name(struct TTFONT *font)
     font->Copyright = font->Trademark = (char*)NULL;
 
     table_ptr = GetTable(font,"name");		/* pointer to table */
-    numrecords = getUSHORT( table_ptr + 2 );	/* number of names */
-    strings = table_ptr + getUSHORT( table_ptr + 4 );	/* start of string storage */
+    try {
+      numrecords = getUSHORT( table_ptr + 2 );	/* number of names */
+      strings = table_ptr + getUSHORT( table_ptr + 4 );	/* start of string storage */
     
-    ptr2 = table_ptr + 6;
-    for(x=0; x < numrecords; x++,ptr2+=12)
+      ptr2 = table_ptr + 6;
+      for(x=0; x < numrecords; x++,ptr2+=12)
     	{
-	platform = getUSHORT(ptr2);
-	encoding = getUSHORT(ptr2+2);
-	language = getUSHORT(ptr2+4);
-	nameid = getUSHORT(ptr2+6);
-	length = getUSHORT(ptr2+8);
-	offset = getUSHORT(ptr2+10);
+	  platform = getUSHORT(ptr2);
+	  encoding = getUSHORT(ptr2+2);
+	  language = getUSHORT(ptr2+4);
+	  nameid = getUSHORT(ptr2+6);
+	  length = getUSHORT(ptr2+8);
+	  offset = getUSHORT(ptr2+10);
 
-	#ifdef DEBUG_TRUETYPE
-	debug("platform %d, encoding %d, language 0x%x, name %d, offset %d, length %d",
+#ifdef DEBUG_TRUETYPE
+	  debug("platform %d, encoding %d, language 0x%x, name %d, offset %d, length %d",
 		platform,encoding,language,nameid,offset,length);
-	#endif    	
+#endif    	
 
-	/* Copyright notice */
-	if( platform == 1 && nameid == 0 )
+	  /* Copyright notice */
+	  if( platform == 1 && nameid == 0 )
 	    {
-	    font->Copyright = (char*)myalloc(sizeof(char),length+1);
-	    strncpy(font->Copyright,strings+offset,length);
-	    font->Copyright[length]=(char)NULL;
-	    
-	    #ifdef DEBUG_TRUETYPE
-	    debug("font->Copyright=\"%s\"",font->Copyright);
-	    #endif
-	    continue;
+	      font->Copyright = (char*)calloc(sizeof(char),length+1);
+	      strncpy(font->Copyright,(const char*)strings+offset,length);
+	      font->Copyright[length]=(char)NULL;
+	      
+#ifdef DEBUG_TRUETYPE
+	      debug("font->Copyright=\"%s\"",font->Copyright);
+#endif
+	      continue;
 	    }
 	
 
-	/* Font Family name */
-	if( platform == 1 && nameid == 1 )
+	  /* Font Family name */
+	  if( platform == 1 && nameid == 1 )
 	    {
-	    font->FamilyName = (char*)myalloc(sizeof(char),length+1);
-	    strncpy(font->FamilyName,strings+offset,length);
-	    font->FamilyName[length]=(char)NULL;
+	      font->FamilyName = (char*)calloc(sizeof(char),length+1);
+	      strncpy(font->FamilyName,(const char*)strings+offset,length);
+	      font->FamilyName[length]=(char)NULL;
 	    
-	    #ifdef DEBUG_TRUETYPE
-	    debug("font->FamilyName=\"%s\"",font->FamilyName);
-	    #endif
-	    continue;
+#ifdef DEBUG_TRUETYPE
+	      debug("font->FamilyName=\"%s\"",font->FamilyName);
+#endif
+	      continue;
 	    }
 
 
-	/* Font Family name */
-	if( platform == 1 && nameid == 2 )
+	  /* Font Family name */
+	  if( platform == 1 && nameid == 2 )
 	    {
-	    font->Style = (char*)myalloc(sizeof(char),length+1);
-	    strncpy(font->Style,strings+offset,length);
-	    font->Style[length]=(char)NULL;
-	    
-	    #ifdef DEBUG_TRUETYPE
-	    debug("font->Style=\"%s\"",font->Style);
-	    #endif
-	    continue;
+	      font->Style = (char*)calloc(sizeof(char),length+1);
+	      strncpy(font->Style,(const char*)strings+offset,length);
+	      font->Style[length]=(char)NULL;
+	      
+#ifdef DEBUG_TRUETYPE
+	      debug("font->Style=\"%s\"",font->Style);
+#endif
+	      continue;
 	    }
-
-
-	/* Full Font name */
-	if( platform == 1 && nameid == 4 )
+	  
+	  
+	  /* Full Font name */
+	  if( platform == 1 && nameid == 4 )
 	    {
-	    font->FullName = (char*)myalloc(sizeof(char),length+1);
-	    strncpy(font->FullName,strings+offset,length);
-	    font->FullName[length]=(char)NULL;
-	    
-	    #ifdef DEBUG_TRUETYPE
-	    debug("font->FullName=\"%s\"",font->FullName);
-	    #endif
-	    continue;
+	      font->FullName = (char*)calloc(sizeof(char),length+1);
+	      strncpy(font->FullName,(const char*)strings+offset,length);
+	      font->FullName[length]=(char)NULL;
+	      
+#ifdef DEBUG_TRUETYPE
+	      debug("font->FullName=\"%s\"",font->FullName);
+#endif
+	      continue;
 	    }
-
-
-	/* Version string */
-	if( platform == 1 && nameid == 5 )
+	  
+	  
+	  /* Version string */
+	  if( platform == 1 && nameid == 5 )
 	    {
-	    font->Version = (char*)myalloc(sizeof(char),length+1);
-	    strncpy(font->Version,strings+offset,length);
-	    font->Version[length]=(char)NULL;
-	    
-	    #ifdef DEBUG_TRUETYPE
-	    debug("font->Version=\"%s\"",font->Version);
-	    #endif
-	    continue;
+	      font->Version = (char*)calloc(sizeof(char),length+1);
+	      strncpy(font->Version,(const char*)strings+offset,length);
+	      font->Version[length]=(char)NULL;
+	      
+#ifdef DEBUG_TRUETYPE
+	      debug("font->Version=\"%s\"",font->Version);
+#endif
+	      continue;
 	    }
-
-
-	/* PostScript name */
-	if( platform == 1 && nameid == 6 )
+	  
+	  
+	  /* PostScript name */
+	  if( platform == 1 && nameid == 6 )
 	    {
-	    font->PostName = (char*)myalloc(sizeof(char),length+1);
-	    strncpy(font->PostName,strings+offset,length);
-	    font->PostName[length]=(char)NULL;
-	    
-	    #ifdef DEBUG_TRUETYPE
-	    debug("font->PostName=\"%s\"",font->PostName);
-	    #endif
-	    continue;
+	      font->PostName = (char*)calloc(sizeof(char),length+1);
+	      strncpy(font->PostName,(const char*)strings+offset,length);
+	      font->PostName[length]=(char)NULL;
+	      
+#ifdef DEBUG_TRUETYPE
+	      debug("font->PostName=\"%s\"",font->PostName);
+#endif
+	      continue;
 	    }
-
-
-	/* Trademark string */
-	if( platform == 1 && nameid == 7 )
+	  
+	  
+	  /* Trademark string */
+	  if( platform == 1 && nameid == 7 )
 	    {
-	    font->Trademark = (char*)myalloc(sizeof(char),length+1);
-	    strncpy(font->Trademark,strings+offset,length);
-	    font->Trademark[length]=(char)NULL;
-	    
-	    #ifdef DEBUG_TRUETYPE
-	    debug("font->Trademark=\"%s\"",font->Trademark);
-	    #endif
-	    continue;
+	      font->Trademark = (char*)calloc(sizeof(char),length+1);
+	      strncpy(font->Trademark,(const char*)strings+offset,length);
+	      font->Trademark[length]=(char)NULL;
+	      
+#ifdef DEBUG_TRUETYPE
+	      debug("font->Trademark=\"%s\"",font->Trademark);
+#endif
+	      continue;
 	    }
-
+	  
     	}
+    } catch (TTException& e) {
+      free(table_ptr);
+      throw;
+    }
 
-    myfree(table_ptr);
+    free(table_ptr);
     } /* end of Read_name() */
 
 /*---------------------------------------------------------------------
 ** Write the header for a PostScript font.
 ---------------------------------------------------------------------*/
-void ttfont_header(struct TTFONT *font)
+void ttfont_header(TTStreamWriter& stream, struct TTFONT *font)
     {
     int VMMin;
     int VMMax;
@@ -332,7 +327,7 @@ void ttfont_header(struct TTFONT *font)
     */
     if( font->target_type == 42 )
     	{
-    	printf("%%!PS-TrueTypeFont-%d.%d-%d.%d\n",
+    	stream.printf("%%!PS-TrueTypeFont-%d.%d-%d.%d\n",
     		font->TTVersion.whole, font->TTVersion.fraction,
     		font->MfrRevision.whole, font->MfrRevision.fraction);
     	}
@@ -340,21 +335,21 @@ void ttfont_header(struct TTFONT *font)
     /* If it is not a Type 42 font, we will use a different format. */
     else
     	{
-    	printer_putline("%!PS-Adobe-3.0 Resource-Font");
+    	stream.putline("%!PS-Adobe-3.0 Resource-Font");
     	}	/* See RBIIp 641 */
 
     /* We will make the title the name of the font. */
-    printf("%%%%Title: %s\n",font->FullName);
+    stream.printf("%%%%Title: %s\n",font->FullName);
 
     /* If there is a Copyright notice, put it here too. */
     if( font->Copyright != (char*)NULL )
-	printf("%%%%Copyright: %s\n",font->Copyright);
+	stream.printf("%%%%Copyright: %s\n",font->Copyright);
 
     /* We created this file. */
     if( font->target_type == 42 )
-	printer_putline("%%Creator: Converted from TrueType to type 42 by PPR");
+	stream.putline("%%Creator: Converted from TrueType to type 42 by PPR");
     else
-	printer_putline("%%Creator: Converted from TrueType by PPR");
+	stream.putline("%%Creator: Converted from TrueType by PPR");
 
     /* If VM usage information is available, print it. */
     if( font->target_type == 42 )
@@ -362,54 +357,54 @@ void ttfont_header(struct TTFONT *font)
 	VMMin = (int)getULONG( font->post_table + 16 );
 	VMMax = (int)getULONG( font->post_table + 20 );
 	if( VMMin > 0 && VMMax > 0 )
-	    printf("%%%%VMUsage: %d %d\n",VMMin,VMMax);
+	    stream.printf("%%%%VMUsage: %d %d\n",VMMin,VMMax);
     	}
 
     /* Start the dictionary which will eventually */
     /* become the font. */
     if( font->target_type != 3 )
 	{
-	printer_putline("15 dict begin");
+	stream.putline("15 dict begin");
 	}
     else
 	{
-	printer_putline("25 dict begin");
+	stream.putline("25 dict begin");
 
     	/* Type 3 fonts will need some subroutines here. */
-	printer_putline("/_d{bind def}bind def");
-	printer_putline("/_m{moveto}_d");
-	printer_putline("/_l{lineto}_d");
-	printer_putline("/_cl{closepath eofill}_d");
-	printer_putline("/_c{curveto}_d");
-	printer_putline("/_sc{7 -1 roll{setcachedevice}{pop pop pop pop pop pop}ifelse}_d");
-	printer_putline("/_e{exec}_d");
+	stream.putline("/_d{bind def}bind def");
+	stream.putline("/_m{moveto}_d");
+	stream.putline("/_l{lineto}_d");
+	stream.putline("/_cl{closepath eofill}_d");
+	stream.putline("/_c{curveto}_d");
+	stream.putline("/_sc{7 -1 roll{setcachedevice}{pop pop pop pop pop pop}ifelse}_d");
+	stream.putline("/_e{exec}_d");
 	}
 
-    printf("/FontName /%s def\n",font->PostName);
-    printer_putline("/PaintType 0 def");
+    stream.printf("/FontName /%s def\n",font->PostName);
+    stream.putline("/PaintType 0 def");
 
     if(font->target_type == 42)
-	printer_putline("/FontMatrix[1 0 0 1 0 0]def");
+	stream.putline("/FontMatrix[1 0 0 1 0 0]def");
     else
-	printer_putline("/FontMatrix[.001 0 0 .001 0 0]def");
+	stream.putline("/FontMatrix[.001 0 0 .001 0 0]def");
 
-    printf("/FontBBox[%d %d %d %d]def\n",font->llx,font->lly,font->urx,font->ury);
-    printf("/FontType %d def\n", font->target_type );
+    stream.printf("/FontBBox[%d %d %d %d]def\n",font->llx,font->lly,font->urx,font->ury);
+    stream.printf("/FontType %d def\n", font->target_type );
     } /* end of ttfont_header() */
 
 /*-------------------------------------------------------------
 ** Define the encoding array for this font.
 ** It seems best to just use "Standard".
 -------------------------------------------------------------*/
-void ttfont_encoding(void)
+void ttfont_encoding(TTStreamWriter& stream)
     {
-    printer_putline("/Encoding StandardEncoding def");
+    stream.putline("/Encoding StandardEncoding def");
     } /* end of ttfont_encoding() */
 
 /*-----------------------------------------------------------
 ** Create the optional "FontInfo" sub-dictionary.
 -----------------------------------------------------------*/
-void ttfont_FontInfo(struct TTFONT *font)
+void ttfont_FontInfo(TTStreamWriter& stream, struct TTFONT *font)
     {
     Fixed ItalicAngle;
 
@@ -417,34 +412,34 @@ void ttfont_FontInfo(struct TTFONT *font)
     /* store information which though it is not used by the */
     /* interpreter, is useful to some programs which will */
     /* be printing with the font. */
-    printer_putline("/FontInfo 10 dict dup begin");
+    stream.putline("/FontInfo 10 dict dup begin");
 
     /* These names come from the TrueType font's "name" table. */
-    printf("/FamilyName (%s) def\n",font->FamilyName);
-    printf("/FullName (%s) def\n",font->FullName);
+    stream.printf("/FamilyName (%s) def\n",font->FamilyName);
+    stream.printf("/FullName (%s) def\n",font->FullName);
 
     if( font->Copyright != (char*)NULL || font->Trademark != (char*)NULL )
     	{
-    	printf("/Notice (%s",
+    	stream.printf("/Notice (%s",
     		font->Copyright != (char*)NULL ? font->Copyright : "");
-    	printf("%s%s) def\n",
+    	stream.printf("%s%s) def\n",
     		font->Trademark != (char*)NULL ? " " : "",
     		font->Trademark != (char*)NULL ? font->Trademark : "");
     	}
 
     /* This information is not quite correct. */
-    printf("/Weight (%s) def\n",font->Style);
+    stream.printf("/Weight (%s) def\n",font->Style);
 
     /* Some fonts have this as "version". */
-    printf("/Version (%s) def\n",font->Version);
+    stream.printf("/Version (%s) def\n",font->Version);
 
     /* Some information from the "post" table. */
     ItalicAngle = getFixed( font->post_table + 4 );
-    printf("/ItalicAngle %d.%d def\n",ItalicAngle.whole,ItalicAngle.fraction);
-    printf("/isFixedPitch %s def\n", getULONG( font->post_table + 12 ) ? "true" : "false" );    
-    printf("/UnderlinePosition %d def\n", (int)getFWord( font->post_table + 8 ) );
-    printf("/UnderlineThickness %d def\n", (int)getFWord( font->post_table + 10 ) );    
-    printer_putline("end readonly def");    
+    stream.printf("/ItalicAngle %d.%d def\n",ItalicAngle.whole,ItalicAngle.fraction);
+    stream.printf("/isFixedPitch %s def\n", getULONG( font->post_table + 12 ) ? "true" : "false" );    
+    stream.printf("/UnderlinePosition %d def\n", (int)getFWord( font->post_table + 8 ) );
+    stream.printf("/UnderlineThickness %d def\n", (int)getFWord( font->post_table + 10 ) );    
+    stream.putline("end readonly def");    
     } /* end of ttfont_FontInfo() */ 
 
 /*-------------------------------------------------------------------
@@ -463,9 +458,9 @@ int in_string;
 /*
 ** This is called once at the start.
 */
-void sfnts_start(void)
+void sfnts_start(TTStreamWriter& stream)
     {
-    puts("/sfnts[<");
+    stream.puts("/sfnts[<");
     in_string=TRUE;
     string_len=0;
     line_len=8;
@@ -474,26 +469,26 @@ void sfnts_start(void)
 /*
 ** Write a BYTE as a hexadecimal value as part of the sfnts array.
 */
-void sfnts_pputBYTE(BYTE n)
+void sfnts_pputBYTE(TTStreamWriter& stream, BYTE n)
     {
     static const char hexdigits[]="0123456789ABCDEF";
 
     if(!in_string)
     	{
-	printer_putc('<');
+	stream.putchar('<');
     	string_len=0;
     	line_len++;
     	in_string=TRUE;
     	}
 
-    printer_putc( hexdigits[ n / 16 ] );
-    printer_putc( hexdigits[ n % 16 ] );
+    stream.putchar( hexdigits[ n / 16 ] );
+    stream.putchar( hexdigits[ n % 16 ] );
     string_len++;
     line_len+=2;
 
     if(line_len > 70)
    	{
-   	printer_putc('\n');
+   	stream.putchar('\n');
    	line_len=0;
    	}
    	
@@ -502,16 +497,16 @@ void sfnts_pputBYTE(BYTE n)
 /*
 ** Write a USHORT as a hexadecimal value as part of the sfnts array.
 */
-void sfnts_pputUSHORT(USHORT n)
+void sfnts_pputUSHORT(TTStreamWriter& stream, USHORT n)
     {
-    sfnts_pputBYTE(n / 256);
-    sfnts_pputBYTE(n % 256);
+    sfnts_pputBYTE(stream, n / 256);
+    sfnts_pputBYTE(stream, n % 256);
     } /* end of sfnts_pputUSHORT() */
 
 /*
 ** Write a ULONG as part of the sfnts array.
 */
-void sfnts_pputULONG(ULONG n)
+void sfnts_pputULONG(TTStreamWriter& stream, ULONG n)
     {
     int x1,x2,x3;
     
@@ -522,10 +517,10 @@ void sfnts_pputULONG(ULONG n)
     x3 = n % 256;
     n /= 256;
 
-    sfnts_pputBYTE(n);
-    sfnts_pputBYTE(x3);
-    sfnts_pputBYTE(x2);
-    sfnts_pputBYTE(x1);
+    sfnts_pputBYTE(stream, n);
+    sfnts_pputBYTE(stream, x3);
+    sfnts_pputBYTE(stream, x2);
+    sfnts_pputBYTE(stream, x1);
     } /* end of sfnts_pputULONG() */
 
 /*
@@ -535,7 +530,7 @@ void sfnts_pputULONG(ULONG n)
 ** (The array must be broken into strings which are
 ** no longer than 64K characters.)
 */
-void sfnts_end_string(void)
+void sfnts_end_string(TTStreamWriter& stream)
     {
     if(in_string)
     	{
@@ -545,8 +540,8 @@ void sfnts_end_string(void)
 	puts("\n% dummy byte:\n");
 	#endif
 
-	sfnts_pputBYTE(0);	/* extra byte for pre-2013 compatibility */
-	printer_putc('>');
+	sfnts_pputBYTE(stream, 0);	/* extra byte for pre-2013 compatibility */
+	stream.putchar('>');
 	line_len++;
     	}
     in_string=FALSE;
@@ -558,10 +553,10 @@ void sfnts_end_string(void)
 ** which will follow.  If the new table will not fit
 ** in the current string, a new one is started.
 */
-void sfnts_new_table(ULONG length)
+void sfnts_new_table(TTStreamWriter& stream, ULONG length)
     {
     if( (string_len + length) > 65528 )    
-        sfnts_end_string();
+      sfnts_end_string(stream);
     } /* end of sfnts_new_table() */
 
 /*
@@ -569,18 +564,19 @@ void sfnts_new_table(ULONG length)
 ** why we provide this special routine to copy it into the sfnts
 ** array.
 */
-void sfnts_glyf_table(struct TTFONT *font, ULONG oldoffset, ULONG correct_total_length)
+void sfnts_glyf_table(TTStreamWriter& stream, struct TTFONT *font, ULONG oldoffset, ULONG correct_total_length)
     {
-    int x;
     ULONG off;
     ULONG length;
     int c;
     ULONG total=0;		/* running total of bytes written to table */
+    int x;
 
     #ifdef DEBUG_TRUETYPE
     debug("sfnts_glyf_table(font,%d)", (int)correct_total_length);
     #endif
 
+    assert(font->loca_table == NULL);
     font->loca_table = GetTable(font,"loca");
 
     /* Seek to proper position in the file. */
@@ -610,40 +606,35 @@ void sfnts_glyf_table(struct TTFONT *font, ULONG oldoffset, ULONG correct_total_
 	#endif
 
 	/* Start new string if necessary. */
-	sfnts_new_table( (int)length );
+	sfnts_new_table( stream, (int)length );
 
 	/* 
 	** Make sure the glyph is padded out to a
 	** two byte boundary.
 	*/
 	if( length % 2 )
-	    fatal(EXIT_TTFONT,"TrueType font contains a 'glyf' table without 2 byte padding");
+	    throw TTException("TrueType font contains a 'glyf' table without 2 byte padding");
 
 	/* Copy the bytes of the glyph. */
 	while( length-- )
 	    {
 	    if( (c = fgetc(font->file)) == EOF )
-	    	fatal(EXIT_TTFONT,"TrueType font may be corrupt (reason 6)");
+	    	throw TTException("TrueType font may be corrupt (reason 6)");
 	    
-	    sfnts_pputBYTE(c);
+	    sfnts_pputBYTE(stream, c);
 	    total++;		/* add to running total */
 	    }	    
 
 	}
 
-    myfree(font->loca_table);
+    free(font->loca_table);
+    font->loca_table = NULL;
     
     /* Pad out to full length from table directory */
     while( total < correct_total_length )
     	{
-    	sfnts_pputBYTE(0);
+	  sfnts_pputBYTE(stream, 0);
     	total++;
-    	}
-
-    /* Look for unexplainable descrepancies between sizes */ 
-    if( total != correct_total_length )
-	{
-    	fatal(EXIT_TTFONT,"pprdrv_tt.c: sfnts_glyf_table(): total != correct_total_length");
     	}
 
     } /* end of sfnts_glyf_table() */
@@ -654,7 +645,7 @@ void sfnts_glyf_table(struct TTFONT *font, ULONG oldoffset, ULONG correct_total_
 ** Create the array called "sfnts" which 
 ** holds the actual TrueType data.
 */
-void ttfont_sfnts(struct TTFONT *font)
+void ttfont_sfnts(TTStreamWriter& stream, struct TTFONT *font)
     {
     char *table_names[]=	/* The names of all tables */
     	{			/* which it is worth while */
@@ -677,7 +668,7 @@ void ttfont_sfnts(struct TTFONT *font)
     	} tables[9];
     	
     BYTE *ptr;			/* A pointer into the origional table directory. */
-    int x,y;			/* General use loop countes. */
+    ULONG x,y;			/* General use loop countes. */
     int c;			/* Input character. */
     int diff;
     ULONG nextoffset;
@@ -720,23 +711,23 @@ void ttfont_sfnts(struct TTFONT *font)
     	} /* end of for loop which passes over the table directory */
     
     /* Begin the sfnts array. */
-    sfnts_start();
+    sfnts_start(stream);
 
     /* Generate the offset table header */
     /* Start by copying the TrueType version number. */
     ptr = font->offset_table;
     for(x=0; x < 4; x++)
 	{ 
-   	sfnts_pputBYTE( *(ptr++) );
+	  sfnts_pputBYTE( stream,  *(ptr++) );
    	}
     
     /* Now, generate those silly numTables numbers. */
-    sfnts_pputUSHORT(count);		/* number of tables */
+    sfnts_pputUSHORT(stream, count);		/* number of tables */
     if( count == 9 )
     	{
-    	sfnts_pputUSHORT(7);		/* searchRange */
-    	sfnts_pputUSHORT(3);		/* entrySelector */
-    	sfnts_pputUSHORT(81);		/* rangeShift */
+	  sfnts_pputUSHORT(stream, 7);		/* searchRange */
+	  sfnts_pputUSHORT(stream, 3);		/* entrySelector */
+	  sfnts_pputUSHORT(stream, 81);		/* rangeShift */
     	}    
     #ifdef DEBUG_TRUETYPE
     else
@@ -752,19 +743,19 @@ void ttfont_sfnts(struct TTFONT *font)
 	    continue;
 
 	/* Name */
-	sfnts_pputBYTE( table_names[x][0] );
-	sfnts_pputBYTE( table_names[x][1] );
-	sfnts_pputBYTE( table_names[x][2] );
-	sfnts_pputBYTE( table_names[x][3] );
+	sfnts_pputBYTE( stream, table_names[x][0] );
+	sfnts_pputBYTE( stream, table_names[x][1] );
+	sfnts_pputBYTE( stream, table_names[x][2] );
+	sfnts_pputBYTE( stream, table_names[x][3] );
 	
 	/* Checksum */
-	sfnts_pputULONG( tables[x].checksum );
+	sfnts_pputULONG( stream, tables[x].checksum );
 
 	/* Offset */
-	sfnts_pputULONG( tables[x].newoffset + 12 + (count * 16) );
+	sfnts_pputULONG( stream, tables[x].newoffset + 12 + (count * 16) );
 	
 	/* Length */
-	sfnts_pputULONG( tables[x].length );
+	sfnts_pputULONG( stream, tables[x].length );
     	}
 
     /* Now, send the tables */
@@ -780,15 +771,15 @@ void ttfont_sfnts(struct TTFONT *font)
 	/* 'glyf' table gets special treatment */
 	if( strcmp(table_names[x],"glyf")==0 )
 	    {
-	    sfnts_glyf_table(font,tables[x].oldoffset,tables[x].length);
+	      sfnts_glyf_table(stream,font,tables[x].oldoffset,tables[x].length);
 	    }
 	else			/* Other tables may not exceed */
 	    {			/* 65535 bytes in length. */
 	    if( tables[x].length > 65535 )
-	    	fatal(EXIT_TTFONT,"TrueType font has a table which is too long");	    
+	    	throw TTException("TrueType font has a table which is too long");	    
 	    
 	    /* Start new string if necessary. */
-	    sfnts_new_table(tables[x].length);
+	    sfnts_new_table(stream, tables[x].length);
 
 	    /* Seek to proper position in the file. */
     	    fseek( font->file, tables[x].oldoffset, SEEK_SET );
@@ -797,9 +788,9 @@ void ttfont_sfnts(struct TTFONT *font)
 	    for( y=0; y < tables[x].length; y++ )
 	        {
 	        if( (c = fgetc(font->file)) == EOF )
-	    	    fatal(EXIT_TTFONT,"TrueType font may be corrupt (reason 7)");
+	    	    throw TTException("TrueType font may be corrupt (reason 7)");
 	    
-	        sfnts_pputBYTE(c);
+	        sfnts_pputBYTE(stream, c);
 	        }	    
 	    }
 
@@ -807,7 +798,7 @@ void ttfont_sfnts(struct TTFONT *font)
 	y=tables[x].length;
 	while( (y % 4) != 0 )
 	    {
-	    sfnts_pputBYTE(0);
+	    sfnts_pputBYTE(stream, 0);
 	    y++;
 	    #ifdef DEBUG_TRUETYPE_INLINE
 	    puts("\n% pad byte:\n");
@@ -817,8 +808,8 @@ void ttfont_sfnts(struct TTFONT *font)
     	} /* End of loop for all tables */
 
     /* Close the array. */
-    sfnts_end_string();    
-    printer_putline("]def");
+    sfnts_end_string(stream);    
+    stream.putline("]def");
     } /* end of ttfont_sfnts() */
     
 /*-------------------------------------------------------------- 
@@ -878,7 +869,7 @@ char *ttfont_CharStrings_getname(struct TTFONT *font, int charindex)
     int GlyphIndex;
     static char temp[80];
     char *ptr;
-    int len;
+    ULONG len;
 
     GlyphIndex = (int)getUSHORT( font->post_table + 34 + (charindex * 2) );
 	
@@ -893,15 +884,15 @@ char *ttfont_CharStrings_getname(struct TTFONT *font, int charindex)
 	/* Set pointer to start of Pascal strings. */
 	ptr = (char*)(font->post_table + 34 + (font->numGlyphs * 2));
 
-	len = (int)*(ptr++);	/* Step thru the strings */
+	len = (ULONG)*(ptr++);	/* Step thru the strings */
 	while(GlyphIndex--)		/* until we get to the one */
 	    {			/* that we want. */
 	    ptr += len;
-	    len = (int)*(ptr++);
+	    len = (ULONG)*(ptr++);
 	    }
 		
 	if( len >= sizeof(temp) )
-	    fatal(EXIT_TTFONT,"TrueType font file contains a very long PostScript name");
+	    throw TTException("TrueType font file contains a very long PostScript name");
 
 	strncpy(temp,ptr,len);	/* Copy the pascal string into */
 	temp[len]=(char)NULL;	/* a buffer and make it ASCIIz. */
@@ -913,69 +904,79 @@ char *ttfont_CharStrings_getname(struct TTFONT *font, int charindex)
 /*
 ** This is the central routine of this section.
 */
-void ttfont_CharStrings(struct TTFONT *font)
+void ttfont_CharStrings(TTStreamWriter& stream, struct TTFONT *font, std::vector<int>& glyph_ids)
     {
     Fixed post_format;
-    int x;
     
+    if (glyph_ids.size() == 0) {
+	glyph_ids.clear();
+	glyph_ids.reserve(font->numGlyphs);
+	for (int x = 0; x < font->numGlyphs; ++x) {
+	    glyph_ids.push_back(x);
+	}
+    } else if (font->target_type == 3) {
+	ttfont_add_glyph_dependencies(font, glyph_ids);
+    }
+
     /* The 'post' table format number. */
     post_format = getFixed( font->post_table );
     
     if( post_format.whole != 2 || post_format.fraction != 0 )
-    	fatal(EXIT_TTFONT,"TrueType fontdoes not have a format 2.0 'post' table");
+    	throw TTException("TrueType fontdoes not have a format 2.0 'post' table");
 
     /* Emmit the start of the PostScript code to define the dictionary. */
-    printf("/CharStrings %d dict dup begin\n", font->numGlyphs);
+    stream.printf("/CharStrings %d dict dup begin\n", glyph_ids.size());
     
     /* Emmit one key-value pair for each glyph. */
-    for(x=0; x < font->numGlyphs; x++)
+    for(std::vector<int>::const_iterator i = glyph_ids.begin();
+	i != glyph_ids.end(); ++i)
     	{
 	if(font->target_type == 42)	/* type 42 */
  	    {
- 	    printf("/%s %d def\n",ttfont_CharStrings_getname(font,x),x);
+ 	    stream.printf("/%s %d def\n",ttfont_CharStrings_getname(font, *i), *i);
 	    }
 	else				/* type 3 */
  	    {
- 	    printf("/%s{",ttfont_CharStrings_getname(font,x));
+ 	    stream.printf("/%s{",ttfont_CharStrings_getname(font, *i));
 	    	
-	    tt_type3_charproc(font,x);
+	    tt_type3_charproc(stream, font, *i);
     	
-	    printer_putline("}_d");	/* "} bind def" */
+	    stream.putline("}_d");	/* "} bind def" */
  	    }
     	}
     
-    printer_putline("end readonly def");
+    stream.putline("end readonly def");
     } /* end of ttfont_CharStrings() */
 
 /*----------------------------------------------------------------
 ** Emmit the code to finish up the dictionary and turn
 ** it into a font.
 ----------------------------------------------------------------*/
-void ttfont_trailer(struct TTFONT *font)
+void ttfont_trailer(TTStreamWriter& stream, struct TTFONT *font)
     {
     /* If we are generating a type 3 font, we need to provide */
     /* a BuildGlyph and BuildChar proceedures. */
     if( font->target_type == 3 )
     	{
-	printer_putc('\n');
+	stream.putchar('\n');
 
-	printer_putline("/BuildGlyph");
-	printer_putline(" {exch begin");		/* start font dictionary */
-	printer_putline(" CharStrings exch");
-	printer_putline(" 2 copy known not{pop /.notdef}if");
-	printer_putline(" true 3 1 roll get exec");
-	printer_putline(" end}_d");
+	stream.putline("/BuildGlyph");
+	stream.putline(" {exch begin");		/* start font dictionary */
+	stream.putline(" CharStrings exch");
+	stream.putline(" 2 copy known not{pop /.notdef}if");
+	stream.putline(" true 3 1 roll get exec");
+	stream.putline(" end}_d");
 
-	printer_putc('\n');
+	stream.putchar('\n');
 
 	/* This proceedure is for compatiblity with */
 	/* level 1 interpreters. */
-	printer_putline("/BuildChar {");
-	printer_putline(" 1 index /Encoding get exch get");
-	printer_putline(" 1 index /BuildGlyph get exec");
-	printer_putline("}_d");    	
+	stream.putline("/BuildChar {");
+	stream.putline(" 1 index /Encoding get exch get");
+	stream.putline(" 1 index /BuildGlyph get exec");
+	stream.putline("}_d");    	
 	
-	printer_putc('\n');
+	stream.putchar('\n');
     	}
 
     /* If we are generating a type 42 font, we need to check to see */
@@ -987,35 +988,35 @@ void ttfont_trailer(struct TTFONT *font)
     /* setup instructions and part of BuildGlyph came from. */
     else if( font->target_type == 42 )
     	{
-	printer_putc('\n');
+	stream.putchar('\n');
 
 	/* If we have no "resourcestatus" command, or FontType 42 */
 	/* is unknown, leave "true" on the stack. */
-	printer_putline("systemdict/resourcestatus known");
-	printer_putline(" {42 /FontType resourcestatus");
-	printer_putline("   {pop pop false}{true}ifelse}");
-	printer_putline(" {true}ifelse");
+	stream.putline("systemdict/resourcestatus known");
+	stream.putline(" {42 /FontType resourcestatus");
+	stream.putline("   {pop pop false}{true}ifelse}");
+	stream.putline(" {true}ifelse");
 
 	/* If true, execute code to produce an error message if */
 	/* we can't find Apple's TrueDict in VM. */
-	printer_putline("{/TrueDict where{pop}{(%%[ Error: no TrueType rasterizer ]%%)= flush}ifelse");
+	stream.putline("{/TrueDict where{pop}{(%%[ Error: no TrueType rasterizer ]%%)= flush}ifelse");
 
 	/* Since we are expected to use Apple's TrueDict TrueType */
 	/* reasterizer, change the font type to 3. */    	
-    	printer_putline("/FontType 3 def");
+    	stream.putline("/FontType 3 def");
 
 	/* Define a string to hold the state of the Apple */
 	/* TrueType interpreter. */
-    	printer_putline(" /TrueState 271 string def");
+    	stream.putline(" /TrueState 271 string def");
 
 	/* It looks like we get information about the resolution */
 	/* of the printer and store it in the TrueState string. */
-    	printer_putline(" TrueDict begin sfnts save");
-    	printer_putline(" 72 0 matrix defaultmatrix dtransform dup");
-    	printer_putline(" mul exch dup mul add sqrt cvi 0 72 matrix");
-    	printer_putline(" defaultmatrix dtransform dup mul exch dup");
-    	printer_putline(" mul add sqrt cvi 3 -1 roll restore");
-    	printer_putline(" TrueState initer end");
+    	stream.putline(" TrueDict begin sfnts save");
+    	stream.putline(" 72 0 matrix defaultmatrix dtransform dup");
+    	stream.putline(" mul exch dup mul add sqrt cvi 0 72 matrix");
+    	stream.putline(" defaultmatrix dtransform dup mul exch dup");
+    	stream.putline(" mul add sqrt cvi 3 -1 roll restore");
+    	stream.putline(" TrueState initer end");
 
 	/* This BuildGlyph procedure will look the name up in the */
 	/* CharStrings array, and then check to see if what it gets */
@@ -1026,59 +1027,61 @@ void ttfont_trailer(struct TTFONT *font)
 	/* the font dictionary and the character name.  We */
 	/* exchange arguments and move the dictionary to the */
 	/* dictionary stack. */
-	printer_putline(" /BuildGlyph{exch begin");
+	stream.putline(" /BuildGlyph{exch begin");
 		/* stack: charname */
 
 	/* Put two copies of CharStrings on the stack and consume */
 	/* one testing to see if the charname is defined in it, */
 	/* leave the answer on the stack. */
-	printer_putline("  CharStrings dup 2 index known");
+	stream.putline("  CharStrings dup 2 index known");
 		/* stack: charname CharStrings bool */
 
 	/* Exchange the CharStrings dictionary and the charname, */
 	/* but if the answer was false, replace the character name */
 	/* with ".notdef". */ 
-	printer_putline("    {exch}{exch pop /.notdef}ifelse");
+	stream.putline("    {exch}{exch pop /.notdef}ifelse");
 		/* stack: CharStrings charname */
 
 	/* Get the value from the CharStrings dictionary and see */
 	/* if it is executable. */
-	printer_putline("  get dup xcheck");
+	stream.putline("  get dup xcheck");
 		/* stack: CharStrings_entry */
 
 	/* If is a proceedure.  Execute according to RBIIp 277-278. */
-	printer_putline("    {currentdict systemdict begin begin exec end end}");
+	stream.putline("    {currentdict systemdict begin begin exec end end}");
 
 	/* Is a TrueType character index, let the rasterizer at it. */
-	printer_putline("    {TrueDict begin /bander load cvlit exch TrueState render end}");
+	stream.putline("    {TrueDict begin /bander load cvlit exch TrueState render end}");
 
-	printer_putline("    ifelse");
+	stream.putline("    ifelse");
 
 	/* Pop the font's dictionary off the stack. */
-	printer_putline(" end}bind def");
+	stream.putline(" end}bind def");
 
 	/* This is the level 1 compatibility BuildChar procedure. */
 	/* See RBIIp 281. */
-	printer_putline(" /BuildChar{");
-	printer_putline("  1 index /Encoding get exch get");
-	printer_putline("  1 index /BuildGlyph get exec");
-	printer_putline(" }bind def");    	
+	stream.putline(" /BuildChar{");
+	stream.putline("  1 index /Encoding get exch get");
+	stream.putline("  1 index /BuildGlyph get exec");
+	stream.putline(" }bind def");    	
 
 	/* Here we close the condition which is true */
 	/* if the printer has no built-in TrueType */
 	/* rasterizer. */
-	printer_putline("}if");
-	printer_putc('\n');
+	stream.putline("}if");
+	stream.putchar('\n');
     	} /* end of if Type 42 not understood. */
 
-    printer_putline("FontName currentdict end definefont pop");
-    printer_putline("%%EOF");
+    stream.putline("FontName currentdict end definefont pop");
+    stream.putline("%%EOF");
     } /* end of ttfont_trailer() */    
 
 /*------------------------------------------------------------------
 ** This is the externally callable routine which inserts the font.
 ------------------------------------------------------------------*/
-void insert_ttfont(char *filename)
+
+void insert_ttfont(const char *filename, TTStreamWriter& stream, 
+		   int target_type, std::vector<int>& glyph_ids)
     {
     struct TTFONT font;
     BYTE *ptr;
@@ -1088,24 +1091,22 @@ void insert_ttfont(char *filename)
     #endif
 
     /* Decide what type of PostScript font we will be generating. */
-    if( printer.type42_ok )
-	font.target_type = 42;
-    else
-	font.target_type = 3;
+    font.target_type = target_type;
 
     /* Save the file name for error messages. */
     font.filename=filename;
 
     /* Open the font file */
     if( (font.file = fopen(filename,"r")) == (FILE*)NULL )
-    	fatal(EXIT_TTFONT,"Failed to open TrueType font");
+    	throw TTException("Failed to open TrueType font");
 
     /* Allocate space for the unvarying part of the offset table. */
-    font.offset_table = myalloc( 12, sizeof(BYTE) );
+    assert(font.offset_table == NULL);
+    font.offset_table = (BYTE*)calloc( 12, sizeof(BYTE) );
     
     /* Read the first part of the offset table. */
     if( fread( font.offset_table, sizeof(BYTE), 12, font.file ) != 12 )
-    	fatal(EXIT_TTFONT,"TrueType font may be corrupt (reason 1)");
+    	throw TTException("TrueType font may be corrupt (reason 1)");
     
     /* Determine how many directory entries there are. */
     font.numTables = getUSHORT( font.offset_table + 4 );
@@ -1114,54 +1115,60 @@ void insert_ttfont(char *filename)
     #endif
     
     /* Expand the memory block to hold the whole thing. */
-    font.offset_table = myrealloc( font.offset_table, sizeof(BYTE) * (12 + font.numTables * 16) );
+    font.offset_table = (BYTE*)realloc( font.offset_table, sizeof(BYTE) * (12 + font.numTables * 16) );
     
     /* Read the rest of the table directory. */
     if( fread( font.offset_table + 12, sizeof(BYTE), (font.numTables*16), font.file ) != (font.numTables*16) )
-    	fatal(EXIT_TTFONT,"TrueType font may be corrupt (reason 2)");
+    	throw TTException("TrueType font may be corrupt (reason 2)");
     
     /* Extract information from the "Offset" table. */
     font.TTVersion = getFixed( font.offset_table );
 
     /* Load the "head" table and extract information from it. */
-    ptr = GetTable(&font,"head");
-    font.MfrRevision = getFixed( ptr + 4 );		/* font revision number */
-    font.unitsPerEm = getUSHORT( ptr + 18 );
-    font.HUPM = font.unitsPerEm / 2;
-    #ifdef DEBUG_TRUETYPE
-    debug("unitsPerEm=%d",(int)font.unitsPerEm);
-    #endif
-    font.llx = topost2( getFWord( ptr + 36 ) );		/* bounding box info */
-    font.lly = topost2( getFWord( ptr + 38 ) );
-    font.urx = topost2( getFWord( ptr + 40 ) );
-    font.ury = topost2( getFWord( ptr + 42 ) );
-    font.indexToLocFormat = getSHORT( ptr + 50 );	/* size of 'loca' data */
-    if(font.indexToLocFormat != 0 && font.indexToLocFormat != 1)
-    	fatal(EXIT_TTFONT,"TrueType font is unusable because indexToLocFormat != 0");
-    if( getSHORT(ptr+52) != 0 )
-    	fatal(EXIT_TTFONT,"TrueType font is unusable because glyphDataFormat != 0");
-    myfree(ptr);
+    ptr = GetTable(&font, "head");
+    try {
+      font.MfrRevision = getFixed( ptr + 4 );		/* font revision number */
+      font.unitsPerEm = getUSHORT( ptr + 18 );
+      font.HUPM = font.unitsPerEm / 2;
+#ifdef DEBUG_TRUETYPE
+      debug("unitsPerEm=%d",(int)font.unitsPerEm);
+#endif
+      font.llx = topost2( getFWord( ptr + 36 ) );		/* bounding box info */
+      font.lly = topost2( getFWord( ptr + 38 ) );
+      font.urx = topost2( getFWord( ptr + 40 ) );
+      font.ury = topost2( getFWord( ptr + 42 ) );
+      font.indexToLocFormat = getSHORT( ptr + 50 );	/* size of 'loca' data */
+      if(font.indexToLocFormat != 0 && font.indexToLocFormat != 1)
+    	throw TTException("TrueType font is unusable because indexToLocFormat != 0");
+      if( getSHORT(ptr+52) != 0 )
+    	throw TTException("TrueType font is unusable because glyphDataFormat != 0");
+    } catch (TTException& e) {
+      free(ptr);
+      throw;
+    }
+    free(ptr);
 
     /* Load information from the "name" table. */
     Read_name(&font);
 
     /* We need to have the PostScript table around. */
-    font.post_table = GetTable(&font,"post");
+    assert(font.post_table == NULL);
+    font.post_table = GetTable(&font, "post");
     font.numGlyphs = getUSHORT( font.post_table + 32 );
 
     /* Write the header for the PostScript font. */
-    ttfont_header(&font);
+    ttfont_header(stream, &font);
 
     /* Define the encoding. */
-    ttfont_encoding();
+    ttfont_encoding(stream);
 
     /* Insert FontInfo dictionary. */
-    ttfont_FontInfo(&font);
+    ttfont_FontInfo(stream, &font);
 
     /* If we are generating a type 42 font, */
     /* emmit the sfnts array. */
     if( font.target_type == 42 )
-	ttfont_sfnts(&font);
+      ttfont_sfnts(stream, &font);
 
     /* If we are generating a Type 3 font, we will need to */
     /* have the 'loca' and 'glyf' tables arround while */
@@ -1169,36 +1176,57 @@ void insert_ttfont(char *filename)
     if(font.target_type == 3)
     	{
 	BYTE *ptr;			/* We need only one value */
-	ptr = GetTable(&font,"hhea");
+	ptr = GetTable(&font, "hhea");
 	font.numberOfHMetrics = getUSHORT(ptr + 34);
-	myfree(ptr);
+	free(ptr);
 
+	assert(font.loca_table == NULL);
 	font.loca_table = GetTable(&font,"loca");
+	assert(font.glyf_table == NULL);
 	font.glyf_table = GetTable(&font,"glyf");
+	assert(font.hmtx_table == NULL);
 	font.hmtx_table = GetTable(&font,"hmtx");
-	}
+    }
 
     /* Emmit the CharStrings array. */
-    ttfont_CharStrings(&font);
-
-    /* Free the space occupied by the 'loca' and 'glyf' tables */
-    /* if we loaded them. */
-    if(font.target_type == 3)
-    	{
-    	myfree(font.loca_table);
-    	myfree(font.glyf_table);
-	myfree(font.hmtx_table);
-    	}
+    ttfont_CharStrings(stream, &font, glyph_ids);
 
     /* Send the font trailer. */
-    ttfont_trailer(&font);
+    ttfont_trailer(stream, &font);
 
-    /* We are done with the TrueType font file. */
-    fclose(font.file);
-
-    /* Free the memory occupied by tables. */
-    myfree(font.offset_table);
-    myfree(font.post_table);
     } /* end of insert_ttfont() */
+
+TTFONT::TTFONT() :
+    file(NULL), 
+    PostName(NULL),
+    FullName(NULL), 
+    FamilyName(NULL),
+    Style(NULL),
+    Copyright(NULL),
+    Version(NULL),
+    Trademark(NULL),
+    offset_table(NULL),
+    post_table(NULL),
+    loca_table(NULL),
+    glyf_table(NULL),
+    hmtx_table(NULL)
+{ }
+
+TTFONT::~TTFONT() {
+    if (file)
+	fclose(file);
+    free(PostName);
+    free(FullName);
+    free(FamilyName);
+    free(Style);
+    free(Copyright);
+    free(Version);
+    free(Trademark);
+    free(offset_table);
+    free(post_table);
+    free(loca_table);
+    free(glyf_table);
+    free(hmtx_table);
+}
 
 /* end of file */

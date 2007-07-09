@@ -36,32 +36,48 @@
 #include <string.h>
 #include <memory.h>
 #include "pprdrv.h" 
-#include "interface.h"
 #include "truetype.h"
+#include <algorithm>
+#include <stack>
 
-/* The PostScript bounding box. */
-int llx,lly,urx,ury;
-int advance_width;
+class GlyphToType3 {
+private:
+    GlyphToType3& operator=(const GlyphToType3& other);
+    GlyphToType3(const GlyphToType3& other);
 
-/* Variables to hold the character data. */
-int *epts_ctr;			/* array of contour endpoints */
-int num_pts, num_ctr;		/* number of points, number of coutours */
-FWord *xcoor, *ycoor;		/* arrays of x and y coordinates */
-BYTE *tt_flags;			/* array of TrueType flags */
-double *area_ctr;
-char *check_ctr;
-int *ctrset;  		/* in contour index followed by out contour index */
+    /* The PostScript bounding box. */
+    int llx,lly,urx,ury;
+    int advance_width;
 
-void load_char(struct TTFONT *font, BYTE *glyph);
-void clear_data();
-#define PSMoveto(x,y) printf("%d %d _m\n",x,y)	/* "moveto" */
-#define PSLineto(x,y) printf("%d %d _l\n",x,y)	/* "lineto" */
-void PSCurveto(FWord x, FWord y, int s, int t);
+    /* Variables to hold the character data. */
+    int *epts_ctr;			/* array of contour endpoints */
+    int num_pts, num_ctr;		/* number of points, number of coutours */
+    FWord *xcoor, *ycoor;		/* arrays of x and y coordinates */
+    BYTE *tt_flags;			/* array of TrueType flags */
+    double *area_ctr;
+    char *check_ctr;
+    int *ctrset;  		/* in contour index followed by out contour index */
+
+    int stack_depth;            /* A book-keeping variable for keeping track of the depth of the PS stack */
+    
+    void load_char(TTFONT* font, BYTE *glyph);
+    void stack(TTStreamWriter& stream, int new_elem);
+    void stack_end(TTStreamWriter& stream);
+    void PSConvert(TTStreamWriter& stream);
+    int nextinctr(int co, int ci);
+    int nextoutctr(int co);
+    int nearout(int ci);
+    double intest(int co, int ci);
+    void PSCurveto(TTStreamWriter& stream, FWord x, FWord y, int s, int t);
+
+public:
+    GlyphToType3(TTStreamWriter& stream, struct TTFONT *font, int charindex);
+    ~GlyphToType3();
+};
+
+#define PSMoveto(stream,x,y) stream.printf("%d %d _m\n",x,y)	/* "moveto" */
+#define PSLineto(stream,x,y) stream.printf("%d %d _l\n",x,y)	/* "lineto" */
 double area(FWord *x, FWord *y, int n);
-int nextinctr(int co, int ci);
-int nextoutctr(int co);
-int nearout(int ci);
-double intest(int co, int ci);
 #define sqr(x) ((x)*(x))
 
 #define NOMOREINCTR -1
@@ -79,32 +95,31 @@ double intest(int co, int ci);
 ** Not all the stack depth calculations in this routine
 ** are perfectly accurate, but they do the job.
 */
-int stack_depth = 0;
-void stack(int new)
+void GlyphToType3::stack(TTStreamWriter& stream, int new_elem)
     {
     if( num_pts > 25 )			/* Only do something of we will */
 	{				/* have a log of points. */
 	if(stack_depth == 0)
 	    {
-    	    printer_putc('{');
+    	    stream.putchar('{');
     	    stack_depth=1;
     	    }
 
-	stack_depth += new;		/* Account for what we propose to add */
+	stack_depth += new_elem;		/* Account for what we propose to add */
 
 	if(stack_depth > 100)
     	    {
-    	    puts("}_e{");
-    	    stack_depth = 3 + new;	/* A rough estimate */
+    	    stream.puts("}_e{");
+    	    stack_depth = 3 + new_elem;	/* A rough estimate */
     	    }
     	}
     } /* end of stack() */
 
-void stack_end(void)			/* called at end */
+void GlyphToType3::stack_end(TTStreamWriter& stream)			/* called at end */
     {
     if(stack_depth)
     	{
-    	puts("}_e");
+    	stream.puts("}_e");
     	stack_depth=0;
     	}
     } /* end of stack_end() */
@@ -126,20 +141,19 @@ double area(FWord *x, FWord *y, int n)
 ** We call this routine to emmit the PostScript code
 ** for the character we have loaded with load_char().
 */
-void PSConvert()
+void GlyphToType3::PSConvert(TTStreamWriter& stream)
     {    
     int i,j,k,fst,start_offpt;
-    #ifdef GNUC_HAPPY
-    int end_offpt=0;
-    #else
-    int end_offpt;
-    #endif
+    int end_offpt = 0;
 
-    area_ctr=myalloc(num_ctr, sizeof(double));
+    assert(area_ctr == NULL);
+    area_ctr=(double*)calloc(num_ctr, sizeof(double));
     memset(area_ctr, 0, (num_ctr*sizeof(double)));
-    check_ctr=myalloc(num_ctr, sizeof(char));
+    assert(check_ctr == NULL);
+    check_ctr=(char*)calloc(num_ctr, sizeof(char));
     memset(check_ctr, 0, (num_ctr*sizeof(char)));
-    ctrset=myalloc(num_ctr, 2*sizeof(int));
+    assert(ctrset == NULL);
+    ctrset=(int*)calloc(num_ctr, 2*sizeof(int));
     memset(ctrset, 0, (num_ctr*2*sizeof(int)));
 
     check_ctr[0]=1;
@@ -169,8 +183,8 @@ void PSConvert()
 	fst = j = (k==0) ? 0 : (epts_ctr[k-1]+1);
 
 	/* Move to the first point on the contour. */
-	stack(3);
-	PSMoveto(xcoor[j],ycoor[j]);
+	stack(stream, 3);
+	PSMoveto(stream,xcoor[j],ycoor[j]);
 
 	start_offpt = 0;		/* No off curve points yet. */
 
@@ -188,14 +202,14 @@ void PSConvert()
 		{			/* On Curve */
 		if (start_offpt)
 		    {
-		    stack(7);
-		    PSCurveto(xcoor[j],ycoor[j],start_offpt,end_offpt);
+		    stack(stream, 7);
+		    PSCurveto(stream, xcoor[j],ycoor[j],start_offpt,end_offpt);
 		    start_offpt = 0;
 		    }
 		else
 		    {
-		    stack(3);
-		    PSLineto(xcoor[j], ycoor[j]);
+                    stack(stream, 3);
+		    PSLineto(stream, xcoor[j], ycoor[j]);
 		    }
 		}
 	    }
@@ -204,11 +218,11 @@ void PSConvert()
 	/* of this coutour. */
 	if (start_offpt)
 	    {
-	    stack(7); PSCurveto(xcoor[fst],ycoor[fst],start_offpt,end_offpt);
+	      stack(stream, 7); PSCurveto(stream, xcoor[fst],ycoor[fst],start_offpt,end_offpt);
 	    }
 	else
 	    {
-	    stack(3); PSLineto(xcoor[fst],ycoor[fst]);
+	      stack(stream, 3); PSLineto(stream, xcoor[fst],ycoor[fst]);
 	    }
 
 	k=nextinctr(i,k);
@@ -221,16 +235,19 @@ void PSConvert()
 	 }
 
     /* Now, we can fill the whole thing. */
-    stack(1);
-    puts("_cl");		/* "closepath eofill" */
+    stack(stream, 1);
+    stream.puts("_cl");		/* "closepath eofill" */
 
     /* Free our work arrays. */
-    myfree(area_ctr);
-    myfree(check_ctr);
-    myfree(ctrset);
+    free(area_ctr);
+    free(check_ctr);
+    free(ctrset);
+    area_ctr = NULL;
+    check_ctr = NULL;
+    ctrset = NULL;
     } /* end of PSConvert() */
 
-int nextoutctr(int co)
+int GlyphToType3::nextoutctr(int co)
 	{
 	int j;
 
@@ -243,7 +260,7 @@ int nextoutctr(int co)
 	return NOMOREOUTCTR;
 	} /* end of nextoutctr() */
 
-int nextinctr(int co, int ci)
+int GlyphToType3::nextinctr(int co, int ci)
 	{
 	int j;
 	
@@ -260,7 +277,7 @@ int nextinctr(int co, int ci)
 /*
 ** find the nearest out contour to a specified in contour.
 */
-int nearout(int ci)
+int GlyphToType3::nearout(int ci)
     {
     int k = 0;			/* !!! is this right? */
     int co;
@@ -287,7 +304,7 @@ int nearout(int ci)
     return k;
     } /* end of nearout() */
 
-double intest(int co, int ci)
+double GlyphToType3::intest(int co, int ci)
 	{
 	int i, j, start, end;
 	double r1, r2, a;
@@ -318,7 +335,7 @@ double intest(int co, int ci)
 /*
 ** Emmit a PostScript "curveto" command.
 */
-void PSCurveto(FWord x, FWord y, int s, int t)
+void GlyphToType3::PSCurveto(TTStreamWriter& stream, FWord x, FWord y, int s, int t)
      {
      int N, i;
      double sx[3], sy[3], cx[4], cy[4];
@@ -339,10 +356,10 @@ void PSCurveto(FWord x, FWord y, int s, int t)
 	cx[2] = (sx[2]+2*sx[1])/3;
 	cy[2] = (sy[2]+2*sy[1])/3;
 
-	/* printf("%g %g %g %g %g %g _c\n",
+	/* stream.printf("%g %g %g %g %g %g _c\n",
 		cx[1],cy[1],cx[2],cy[2],cx[3],cy[3]); */
 
-	printf("%d %d %d %d %d %d _c\n",		/* "curveto" */
+	stream.printf("%d %d %d %d %d %d _c\n",		/* "curveto" */
 		(int)cx[1], (int)cy[1], (int)cx[2], (int)cy[2],
 		(int)cx[3], (int)cy[3]);
 	}
@@ -352,26 +369,30 @@ void PSCurveto(FWord x, FWord y, int s, int t)
 ** Deallocate the structures which stored
 ** the data for the last simple glyph.
 */
-void clear_data()
-     {
-     myfree(tt_flags);		/* The flags array */
-     myfree(xcoor);		/* The X coordinates */
-     myfree(ycoor);		/* The Y coordinates */
-     myfree(epts_ctr);		/* The array of contour endpoints */
-     } /* end of clear_data() */ 
+GlyphToType3::~GlyphToType3() {
+     free(tt_flags);		/* The flags array */
+     free(xcoor);		/* The X coordinates */
+     free(ycoor);		/* The Y coordinates */
+     free(epts_ctr);		/* The array of contour endpoints */
+     // These last three should be NULL.  Just
+     // free'ing them for safety.
+     free(area_ctr);
+     free(check_ctr);
+     free(ctrset);
+}
 
 /*
 ** Load the simple glyph data pointed to by glyph.
 ** The pointer "glyph" should point 10 bytes into
 ** the glyph data.
 */
-void load_char(struct TTFONT *font, BYTE *glyph)
+void GlyphToType3::load_char(TTFONT* font, BYTE *glyph)
     {
     int x;
     BYTE c, ct;
 
     /* Read the contour endpoints list. */
-    epts_ctr = (int *)myalloc(num_ctr,sizeof(int));
+    epts_ctr = (int *)calloc(num_ctr,sizeof(int));
     for (x = 0; x < num_ctr; x++)
     	{
     	epts_ctr[x] = getUSHORT(glyph);
@@ -383,7 +404,7 @@ void load_char(struct TTFONT *font, BYTE *glyph)
     num_pts = epts_ctr[num_ctr-1]+1;
     #ifdef DEBUG_TRUETYPE
     debug("num_pts=%d",num_pts);
-    printf("%% num_pts=%d\n",num_pts);
+    stream.printf("%% num_pts=%d\n",num_pts);
     #endif
 
     /* Skip the instructions. */
@@ -392,9 +413,9 @@ void load_char(struct TTFONT *font, BYTE *glyph)
     glyph += x;
 
     /* Allocate space to hold the data. */
-    tt_flags = (BYTE *)myalloc(num_pts,sizeof(BYTE));
-    xcoor = (FWord *)myalloc(num_pts,sizeof(FWord));
-    ycoor = (FWord *)myalloc(num_pts,sizeof(FWord));
+    tt_flags = (BYTE *)calloc(num_pts,sizeof(BYTE));
+    xcoor = (FWord *)calloc(num_pts,sizeof(FWord));
+    ycoor = (FWord *)calloc(num_pts,sizeof(FWord));
 
     /* Read the flags array, uncompressing it as we go. */
     /* There is danger of overflow here. */
@@ -407,7 +428,7 @@ void load_char(struct TTFONT *font, BYTE *glyph)
 	    ct = *(glyph++);
 
 	    if( (x + ct) > num_pts )
-		fatal(EXIT_TTFONT,"Error in TT flags");
+		throw TTException("Error in TT flags");
 
 	    while (ct--)
 		tt_flags[x++] = c;
@@ -470,7 +491,7 @@ void load_char(struct TTFONT *font, BYTE *glyph)
 /*
 ** Emmit PostScript code for a composite character.
 */
-void do_composite(struct TTFONT *font, BYTE *glyph)
+void do_composite(TTStreamWriter& stream, struct TTFONT *font, BYTE *glyph)
     {
     USHORT flags;
     USHORT glyphIndex;
@@ -534,7 +555,7 @@ void do_composite(struct TTFONT *font, BYTE *glyph)
 
 	/* Debugging */
 	#ifdef DEBUG_TRUETYPE
-	printf("%% flags=%d, arg1=%d, arg2=%d, xscale=%d, yscale=%d, scale01=%d, scale10=%d\n",
+	stream.printf("%% flags=%d, arg1=%d, arg2=%d, xscale=%d, yscale=%d, scale01=%d, scale10=%d\n",
 		(int)flags,arg1,arg2,(int)xscale,(int)yscale,(int)scale01,(int)scale10);
 	#endif
 
@@ -543,21 +564,21 @@ void do_composite(struct TTFONT *font, BYTE *glyph)
 	if( flags & ARGS_ARE_XY_VALUES )
 	    {
 	    if( arg1 != 0 || arg2 != 0 )
-	    	printf("gsave %d %d translate\n", topost(arg1), topost(arg2) );
+	    	stream.printf("gsave %d %d translate\n", topost(arg1), topost(arg2) );
 	    }
 	else
 	    {
-	    printf("%% unimplemented shift, arg1=%d, arg2=%d\n",arg1,arg2);
+	    stream.printf("%% unimplemented shift, arg1=%d, arg2=%d\n",arg1,arg2);
 	    }
 
 	/* Invoke the CharStrings procedure to print the component. */
-	printf("false CharStrings /%s get exec\n",
+	stream.printf("false CharStrings /%s get exec\n",
 		ttfont_CharStrings_getname(font,glyphIndex));
 
 	/* If we translated the coordinate system, */
 	/* put it back the way it was. */
 	if( flags & ARGS_ARE_XY_VALUES && (arg1 != 0 || arg2 != 0) )
-	    puts("grestore ");
+	    stream.puts("grestore ");
 	    
 	} while(flags & MORE_COMPONENTS);
     
@@ -594,16 +615,21 @@ BYTE *find_glyph_data(struct TTFONT *font, int charindex)
 
     } /* end of find_glyph_data() */
 
-/*
-** This is the routine which is called from pprdrv_tt.c.
-*/
-void tt_type3_charproc(struct TTFONT *font, int charindex)
-    {
+GlyphToType3::GlyphToType3(TTStreamWriter& stream, struct TTFONT *font, int charindex) {
     BYTE *glyph;
+
+    tt_flags = NULL;
+    xcoor = NULL;
+    ycoor = NULL;
+    epts_ctr = NULL;
+    area_ctr = NULL;
+    check_ctr = NULL;
+    ctrset = NULL;
+    stack_depth = 0;
 
     #ifdef DEBUG_TRUETYPE
     debug("tt_type3_charproc(font,%d)",charindex);
-    printf("%% tt_type3_charproc(font,%d)\n",charindex);
+    stream.printf("%% tt_type3_charproc(font,%d)\n",charindex);
     #endif
 
     /* Get a pointer to the data. */
@@ -633,10 +659,10 @@ void tt_type3_charproc(struct TTFONT *font, int charindex)
 
     /* If it is a simple character, load its data. */
     if (num_ctr > 0)
-	load_char(font,glyph);
+	load_char(font, glyph);
     else
         num_pts=0;
-    
+
     /* Consult the horizontal metrics table to determine */
     /* the character width. */
     if( charindex < font->numberOfHMetrics )
@@ -646,8 +672,8 @@ void tt_type3_charproc(struct TTFONT *font, int charindex)
 
     /* Execute setcachedevice in order to inform the font machinery */
     /* of the character bounding box and advance width. */
-    stack(7);
-    printf("%d 0 %d %d %d %d _sc\n",
+    stack(stream, 7);
+    stream.printf("%d 0 %d %d %d %d _sc\n",
     	topost(advance_width),
     	topost(llx), topost(lly), topost(urx), topost(ury) );
 
@@ -655,15 +681,79 @@ void tt_type3_charproc(struct TTFONT *font, int charindex)
     /* otherwise, close the stack business. */
     if( num_ctr > 0 )		/* simple */
 	{
-	PSConvert();
-	clear_data();
+        PSConvert(stream);
 	}
     else if( num_ctr < 0 )	/* composite */
 	{
-	do_composite(font,glyph);
+	  do_composite(stream, font, glyph);
 	}
 	
-    stack_end();
-    } /* end of tt_type3_charproc() */
+    stack_end(stream);
+}
+
+/*
+** This is the routine which is called from pprdrv_tt.c.
+*/
+void tt_type3_charproc(TTStreamWriter& stream, struct TTFONT *font, int charindex)
+    {
+	GlyphToType3 glyph(stream, font, charindex);
+} /* end of tt_type3_charproc() */
+
+/*
+** Some of the given glyph ids may refer to composite glyphs.
+** This function adds all of the dependencies of those composite
+** glyphs to the glyph id vector.  Michael Droettboom [06-07-07]
+*/
+void ttfont_add_glyph_dependencies(struct TTFONT *font, std::vector<int>& glyph_ids) {
+    std::sort(glyph_ids.begin(), glyph_ids.end());
+
+    std::stack<int> glyph_stack;
+    for (std::vector<int>::iterator i = glyph_ids.begin();
+	 i != glyph_ids.end(); ++i) {
+	glyph_stack.push(*i);
+    }
+
+    while (glyph_stack.size()) {
+	int gind = glyph_stack.top();
+	glyph_stack.pop();
+
+	BYTE* glyph = find_glyph_data( font, gind );
+	if (glyph != (BYTE*)NULL) {
+
+	    int num_ctr = getSHORT(glyph);
+	    if (num_ctr <= 0) { // This is a composite glyph
+
+		glyph += 10;
+		USHORT flags = 0;
+
+		do {
+		    flags = getUSHORT(glyph);
+		    glyph += 2;
+		    gind = (int)getUSHORT(glyph);
+		    glyph += 2;
+
+		    std::vector<int>::iterator insertion = 
+			std::lower_bound(glyph_ids.begin(), glyph_ids.end(), gind);
+		    if (*insertion != gind) {
+			glyph_ids.insert(insertion, gind);
+			glyph_stack.push(gind);
+		    }
+		    
+		    if (flags & ARG_1_AND_2_ARE_WORDS)
+			glyph += 4;
+		    else 
+			glyph += 2;
+
+		    if (flags & WE_HAVE_A_SCALE)
+			glyph += 2;
+		    else if (flags & WE_HAVE_AN_X_AND_Y_SCALE)
+			glyph += 4;
+		    else if (flags & WE_HAVE_A_TWO_BY_TWO)
+			glyph += 8;
+		} while (flags & MORE_COMPONENTS);
+	    }
+	}
+    }
+}
 
 /* end of file */
