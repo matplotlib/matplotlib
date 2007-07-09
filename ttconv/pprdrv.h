@@ -20,6 +20,7 @@
 */
 
 #include <vector>
+#include <assert.h>
 
 /*
  * Encapsulates all of the output to write to an arbitrary output 
