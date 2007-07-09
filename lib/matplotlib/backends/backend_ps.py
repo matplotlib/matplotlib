@@ -20,7 +20,8 @@ from matplotlib.figure import Figure
 
 from matplotlib.font_manager import fontManager
 from matplotlib.ft2font import FT2Font, KERNING_UNFITTED, KERNING_DEFAULT, KERNING_UNSCALED
-from matplotlib.mathtext import math_parse_s_ps, bakoma_fonts
+from matplotlib.ttf2ps import convert_ttf_to_ps
+from matplotlib.mathtext import math_parse_s_ps
 from matplotlib.text import Text
 
 from matplotlib.transforms import get_vec6_scales
@@ -29,6 +30,7 @@ from matplotlib.numerix import UInt8, Float32, alltrue, array, ceil, equal, \
     fromstring, nonzero, ones, put, take, where, isnan
 import binascii
 import re
+import sets
 
 if sys.platform.startswith('win'): cmd_split = '&'
 else: cmd_split = ';'
@@ -97,11 +99,6 @@ def quote_ps_string(s):
     return s
 
 
-_fontd = {}
-_afmfontd = {}
-_type42 = []
-
-
 def seq_allequal(seq1, seq2):
     """
     seq1 and seq2 are either None or sequences or numerix arrays
@@ -144,6 +141,17 @@ class RendererPS(RendererBase):
         self.fontsize = None
         self.hatch = None
         self.image_magnification = dpi/72.0
+
+        self.fontd = {}
+        self.afmfontd = {}
+        self.used_characters = {}
+
+    def track_characters(self, font, s):
+        """Keeps track of which characters are required from
+        each font."""
+        fname = font.fname
+        used_characters = self.used_characters.setdefault(fname, sets.Set())
+        used_characters.update(s)
 
     def set_color(self, r, g, b, store=1):
         if (r,g,b) != self.color:
@@ -264,7 +272,7 @@ class RendererPS(RendererBase):
 
         if ismath:
             width, height, pswriter = math_parse_s_ps(
-                s, 72, prop.get_size_in_points())
+                s, 72, prop.get_size_in_points(), 0, self.track_characters)
             return width, height
 
         if rcParams['ps.useafm']:
@@ -291,21 +299,19 @@ class RendererPS(RendererBase):
 
     def _get_font_afm(self, prop):
         key = hash(prop)
-        font = _afmfontd.get(key)
+        font = self.afmfontd.get(key)
         if font is None:
             font = AFM(file(fontManager.findfont(prop, fontext='afm')))
-            _afmfontd[key] = font
+            self.afmfontd[key] = font
         return font
 
     def _get_font_ttf(self, prop):
         key = hash(prop)
-        font = _fontd.get(key)
+        font = self.fontd.get(key)
         if font is None:
             fname = fontManager.findfont(prop)
             font = FT2Font(str(fname))
-            _fontd[key] = font
-            if fname not in _type42:
-                _type42.append(fname)
+            self.fontd[key] = font
         font.clear()
         size = prop.get_size_in_points()
         font.set_size(size, 72.0)
@@ -727,6 +733,7 @@ grestore
         else:
             font = self._get_font_ttf(prop)
             font.set_text(s,0)
+            self.track_characters(font, s)
 
             self.set_color(*gc.get_rgb())
             self.set_font(font.get_sfnt()[(1,0,0,6)], prop.get_size_in_points())
@@ -753,6 +760,7 @@ grestore
 
         self.set_color(*gc.get_rgb())
         self.set_font(font.get_sfnt()[(1,0,0,6)], prop.get_size_in_points())
+        self.track_characters(font, s)
 
         cmap = font.get_charmap()
         lastgind = None
@@ -800,7 +808,7 @@ grestore
             self._pswriter.write("% mathtext\n")
 
         fontsize = prop.get_size_in_points()
-        width, height, pswriter = math_parse_s_ps(s, 72, fontsize)
+        width, height, pswriter = math_parse_s_ps(s, 72, fontsize, angle, self.track_characters)
         self.set_color(*gc.get_rgb())
         thetext = pswriter.getvalue()
         ps = """gsave
@@ -873,7 +881,6 @@ grestore
 
 ##        write("\n")
 
-
 class GraphicsContextPS(GraphicsContextBase):
     def get_capstyle(self):
         return {'butt':0,
@@ -892,85 +899,6 @@ def new_figure_manager(num, *args, **kwargs):
     canvas = FigureCanvasPS(thisFig)
     manager = FigureManagerPS(canvas, num)
     return manager
-
-def encodeTTFasPS(fontfile):
-    """
-    Encode a TrueType font file for embedding in a PS file.
-    """
-    font = file(fontfile, 'rb')
-    hexdata, data = [], font.read(65520)
-    b2a_hex = binascii.b2a_hex
-    while data:
-        hexdata.append('<%s>\n' %
-                       '\n'.join([b2a_hex(data[j:j+36]).upper()
-                                  for j in range(0, len(data), 36)]) )
-        data  = font.read(65520)
-
-    hexdata = ''.join(hexdata)[:-2] + '00>'
-    font    = FT2Font(str(fontfile))
-
-    headtab  = font.get_sfnt_table('head')
-    version  = '%d.%d' % headtab['version']
-    revision = '%d.%d' % headtab['fontRevision']
-
-    dictsize = 8
-    fontname = font.postscript_name
-    encoding = 'StandardEncoding'
-    fontbbox = '[%d %d %d %d]' % font.bbox
-
-    posttab  = font.get_sfnt_table('post')
-    minmemory= posttab['minMemType42']
-    maxmemory= posttab['maxMemType42']
-
-    infosize = 7
-    sfnt     = font.get_sfnt()
-    notice   = sfnt[(1,0,0,0)]
-    family   = sfnt[(1,0,0,1)]
-    fullname = sfnt[(1,0,0,4)]
-    iversion = sfnt[(1,0,0,5)]
-    fixpitch = str(bool(posttab['isFixedPitch'])).lower()
-    ulinepos = posttab['underlinePosition']
-    ulinethk = posttab['underlineThickness']
-    italicang= '(%d.%d)' % posttab['italicAngle']
-
-    numglyphs = font.num_glyphs
-    glyphs = []
-    for j in range(numglyphs):
-        glyphs.append('/%s %d def' % (font.get_glyph_name(j), j))
-        if j != 0 and j%4 == 0:
-            glyphs.append('\n')
-        else:
-            glyphs.append(' ')
-    glyphs = ''.join(glyphs)
-    data = ['%%!PS-TrueType-%(version)s-%(revision)s\n' % locals()]
-    if maxmemory:
-        data.append('%%%%VMusage: %(minmemory)d %(maxmemory)d' % locals())
-    data.append("""%(dictsize)d dict begin
-/FontName /%(fontname)s def
-/FontMatrix [1 0 0 1 0 0] def
-/FontType 42 def
-/Encoding %(encoding)s def
-/FontBBox %(fontbbox)s def
-/PaintType 0 def
-/FontInfo %(infosize)d dict dup begin
-/Notice (%(notice)s) def
-/FamilyName (%(family)s) def
-/FullName (%(fullname)s) def
-/version (%(iversion)s) def
-/isFixedPitch %(fixpitch)s def
-/UnderlinePosition %(ulinepos)s def
-/UnderlineThickness %(ulinethk)s def
-end readonly def
-/sfnts [
-%(hexdata)s
-] def
-/CharStrings %(numglyphs)d dict dup begin
-%(glyphs)s
-end readonly def
-FontName currentdict end definefont pop""" % locals())
-    return ''.join(data)
-
-
 
 class FigureCanvasPS(FigureCanvasBase):
     def draw(self):
@@ -1091,9 +1019,8 @@ class FigureCanvasPS(FigureCanvasBase):
 
             Ndict = len(psDefs)
             print >>fh, "%%BeginProlog"
-            type42 = _type42 + bakoma_fonts
             if not rcParams['ps.useafm']:
-                Ndict += len(type42)
+                Ndict += len(renderer.used_characters)
             print >>fh, "/mpldict %d dict def"%Ndict
             print >>fh, "mpldict begin"
             for d in psDefs:
@@ -1101,10 +1028,15 @@ class FigureCanvasPS(FigureCanvasBase):
                 for l in d.split('\n'):
                     print >>fh, l.strip()
             if not rcParams['ps.useafm']:
-                for font in type42:
-                    print >>fh, "%%BeginFont: "+FT2Font(str(font)).postscript_name
-                    print >>fh, encodeTTFasPS(font)
-                    print >>fh, "%%EndFont"
+                for font_filename, chars in renderer.used_characters.items():
+                    font = FT2Font(font_filename)
+                    cmap = font.get_charmap()
+                    glyph_ids = []
+                    for c in chars:
+                        ccode = ord(c)
+                        gind = cmap.get(ccode) or 0
+                        glyph_ids.append(gind)
+                    convert_ttf_to_ps(font_filename, fh, rcParams['ps.fonttype'], glyph_ids)
             print >>fh, "end"
             print >>fh, "%%EndProlog"
 

@@ -398,6 +398,8 @@ FT2Font::FT2Font(std::string facefile)
     setattr("underline_thickness", Py::Int(face->underline_thickness));
   }
 
+  setattr("fname", Py::String(facefile));
+
   _VERBOSE("FT2Font::FT2Font done");
 }
 

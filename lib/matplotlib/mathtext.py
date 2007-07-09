@@ -146,8 +146,6 @@ from matplotlib._mathtext_data import latex_to_bakoma, cmkern, \
 from matplotlib.numerix import absolute
 from matplotlib import get_data_path, rcParams
 
-bakoma_fonts = []
-
 # symbols that have the sub and superscripts over/under
 overunder = { r'\sum'    : 1,
               r'\int'    : 1,
@@ -416,12 +414,6 @@ Returns the name of the glyph directly from the font object.
         if tup is not None:
             return tup
         filename = self.filenamesd[facename]
-        # This is used only by the PS backend --- to integrate the fonts
-        # into the resulting PS. TO-DO: fix the PS backend so it doesn't do
-        # these dirty tricks
-        if self.output == 'PS':
-            if filename not in bakoma_fonts:
-                bakoma_fonts.append(filename)
         fontface = self.fonts[facename]
         fontface.set_size(fontsize, dpi)
         head  = fontface.get_sfnt_table('head')
@@ -510,11 +502,6 @@ Because BaKoma fonts don't support Unicode, 'uniindex' is misleading
         if tup is not None:
             return tup
         filename = self.filenamesd[facename]
-        # This is used only by the PS backend --- to integrate the fonts
-        # into the resulting PS.
-        if self.output == 'PS':
-            if filename not in bakoma_fonts:
-                bakoma_fonts.append(filename)
         fontface = self.fonts[facename]
         fontface.set_size(fontsize, dpi)
         head  = fontface.get_sfnt_table('head')
@@ -718,7 +705,7 @@ class BakomaPSFonts(Fonts):
                 None  : 'cmmi10',
                 }
 
-    def __init__(self):
+    def __init__(self, character_tracker=None):
         self.glyphd = {}
         self.fonts = dict(
             [ (name, FT2Font(os.path.join(self.basepath, name) + '.ttf'))
@@ -731,6 +718,7 @@ class BakomaPSFonts(Fonts):
                 for charcode, glyphind in charmap.items()])
         for font in self.fonts.values():
             font.clear()
+        self.character_tracker = character_tracker
 
     def _get_info (self, font, sym, fontsize, dpi):
         'load the cmfont, metrics and glyph with caching'
@@ -752,13 +740,14 @@ class BakomaPSFonts(Fonts):
             num = 0
             #sym = '.notdef'
             raise ValueError('unrecognized symbol "%s, %d"' % (sym, num))
-        filename = os.path.join(self.basepath, basename) + '.ttf'
-        if filename not in bakoma_fonts:
-            bakoma_fonts.append(filename)
+
         cmfont = self.fonts[basename]
         cmfont.set_size(fontsize, dpi)
         head = cmfont.get_sfnt_table('head')
         glyph = cmfont.load_char(num)
+
+        if self.character_tracker:
+            self.character_tracker(cmfont, unichr(num))
 
         xmin, ymin, xmax, ymax = [val/64.0 for val in glyph.bbox]
         if basename == 'cmex10':
@@ -1555,7 +1544,7 @@ class math_parse_s_ft2font_common:
         self.output = output
         self.cache = {}
 
-    def __call__(self, s, dpi, fontsize, angle=0):
+    def __call__(self, s, dpi, fontsize, angle=0, character_tracker=None):
         cacheKey = (s, dpi, fontsize, angle)
         s = s[1:-1]  # strip the $ from front and back
         if self.cache.has_key(cacheKey):
@@ -1574,7 +1563,7 @@ class math_parse_s_ft2font_common:
                 self.font_object = StandardPSFonts()
                 Element.fonts = self.font_object
             else:
-                self.font_object = BakomaPSFonts()
+                self.font_object = BakomaPSFonts(character_tracker)
                 #self.font_object = MyUnicodeFonts(output='PS')
                 Element.fonts = self.font_object
         elif self.output == 'PDF':

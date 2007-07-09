@@ -73,6 +73,7 @@ else:
 
 BUILT_AGG       = False
 BUILT_FT2FONT   = False
+BUILT_TTF2PS    = False
 BUILT_GTKAGG    = False
 BUILT_IMAGE     = False
 BUILT_TKAGG     = False
@@ -499,6 +500,18 @@ def build_ft2font(ext_modules, packages):
     add_ft2font_flags(module)
     ext_modules.append(module)
     BUILT_FT2FONT = True
+
+def build_ttf2ps(ext_modules, packages):
+    global BUILT_TTF2PS
+    if BUILT_TTF2PS: return # only build it if you you haven't already
+    deps = ['src/_ttf2ps.cpp', 'ttconv/pprdrv_tt.cpp', 'ttconv/pprdrv_tt2.cpp', 'ttconv/ttutil.cpp']
+    deps.extend(glob.glob('CXX/*.cxx'))
+    deps.extend(glob.glob('CXX/*.c'))
+
+    module = Extension('matplotlib.ttf2ps', deps)
+    add_base_flags(module)
+    ext_modules.append(module)
+    BUILT_TTF2PS = True
 
 def build_gtkagg(ext_modules, packages, numerix):
     global BUILT_GTKAGG
