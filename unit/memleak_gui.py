@@ -78,8 +78,10 @@ if i > indStart:
     backend = options.backend.lower()
     if backend.startswith("gtk"):
         import gtk
-        print "# pygtk version: %s, gtk version: %s" % \
-            (gtk.pygtk_version, gtk.gtk_version)
+        import gobject
+        print "# pygtk version: %s, gtk version: %s, pygobject version: %s, glib version: %s" % \
+            (gtk.pygtk_version, gtk.gtk_version, 
+             gobject.pygobject_version, gobject.glib_version)
     elif backend.startswith("qt4"):
         import PyQt4.pyqtconfig
         print "# PyQt4 version: %s, Qt version %x" % \
