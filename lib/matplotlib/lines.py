@@ -9,9 +9,9 @@ from __future__ import division
 import sys, math, warnings
 
 import agg
-from numerix import Float, alltrue, arange, array, logical_and,\
+from numerix import Float, alltrue, arange, array, logical_and, \
      nonzero, searchsorted, take, asarray, ones, where, less, ravel, \
-     greater, logical_and, cos, sin, pi, sqrt, less_equal, \
+     greater, cos, sin, pi, sqrt, less_equal, \
      compress, zeros, concatenate, cumsum, typecode, NewAxis
 import numerix.ma as ma
 from matplotlib import verbose
@@ -71,6 +71,40 @@ def unmasked_index_ranges(mask, compressed = True):
     ic1 = breakpoints
     return concatenate((ic0[:, NewAxis], ic1[:, NewAxis]), axis=1)
 
+def segment_hits(cx,cy,x,y,radius):
+    """Determine if any line segments are within radius of a point. Returns
+    the list of line segments that are within that radius.
+    """
+    # Process single points specially
+    if len(x) < 2: return nonzero( (cx - x)**2 + (cy - y)**2 <= radius**2 )
+
+    # We need to lop the last element off a lot.
+    xr,yr = x[:-1],y[:-1]
+
+    # Only look at line segments whose nearest point to C on the line
+    # lies within the segment.
+    dx,dy = x[1:]-xr, y[1:]-yr
+    Lnorm_sq = dx**2+dy**2    # Possibly want to eliminate Lnorm==0
+    u = ( (cx-xr)*dx + (cy-yr)*dy )/Lnorm_sq
+    candidates = (u>=0) & (u<=1)
+    #if any(candidates): print "candidates",xr[candidates]
+    
+    # Note that there is a little area near one side of each point
+    # which will be near neither segment, and another which will
+    # be near both, depending on the angle of the lines.  The
+    # following radius test eliminates these ambiguities.
+    point_hits = (cx - x)**2 + (cy - y)**2 <= radius**2
+    #if any(point_hits): print "points",xr[candidates]
+    candidates = candidates & ~point_hits[:-1] & ~point_hits[1:]
+    
+    # For those candidates which remain, determine how far they lie away
+    # from the line.
+    px,py = xr+u*dx,yr+u*dy
+    line_hits = (cx-px)**2 + (cy-py)**2 <= radius**2
+    #if any(line_hits): print "lines",xr[candidates]
+    line_hits = line_hits & candidates
+    result = concatenate((nonzero(point_hits),nonzero(line_hits)))
+    return result
 
 class Line2D(Artist):
     lineStyles = _lineStyles =  { # hidden names deprecated
@@ -121,6 +155,16 @@ class Line2D(Artist):
     validCap = ('butt', 'round', 'projecting')
     validJoin =   ('miter', 'round', 'bevel')
 
+    def __str__(self):
+        if self._label != "":
+            return "Line2D(%s)"%(self._label)
+        elif len(self._x) > 3:
+            return "Line2D((%g,%g),(%g,%g),...,(%g,%g))"\
+                %(self._x[0],self._y[0],self._x[0],self._y[0],self._x[-1],self._y[-1])
+        else:
+            return "Line2D(%s)"\
+                %(",".join(["(%g,%g)"%(x,y) for x,y in zip(self._x,self._y)]))
+ 
     def __init__(self, xdata, ydata,
                  linewidth       = None, # all Nones default to rc
                  linestyle       = None,
@@ -131,10 +175,11 @@ class Line2D(Artist):
                  markeredgecolor = None,
                  markerfacecolor = None,
                  antialiased     = None,
-                 dash_capstyle = None,
-                 solid_capstyle = None,
-                 dash_joinstyle = None,
+                 dash_capstyle   = None,
+                 solid_capstyle  = None,
+                 dash_joinstyle  = None,
                  solid_joinstyle = None,
+                 pickradius      = 5,
                  **kwargs
                  ):
         """
@@ -159,9 +204,10 @@ class Line2D(Artist):
           lod: [True | False]
           marker: [ '+' | ',' | '.' | '1' | '2' | '3' | '4'
           markeredgecolor or mec: any matplotlib color
-          markeredgewidth or mew: float value in points
+          markeredgewidth or mew: float value in points (default 5)
           markerfacecolor or mfc: any matplotlib color
           markersize or ms: float
+          pickradius: mouse event radius for pick items in points (default 5)
           solid_capstyle: ['butt' | 'round' |  'projecting']
           solid_joinstyle: ['miter' | 'round' | 'bevel']
           transform: a matplotlib.transform transformation instance
@@ -222,48 +268,83 @@ class Line2D(Artist):
         # update kwargs before updating data to give the caller a
         # chance to init axes (and hence unit support)
         self.update(kwargs)
+        self.pickradius = pickradius
+        if is_numlike(self._picker):
+            self.pickradius = self._picker
 
         self.set_data(xdata, ydata)
         self._logcache = None
+        
+        # TODO: do we really need 'newstyle'
+        self._newstyle = False
 
-    def pick(self, mouseevent):
+    def contains(self, mouseevent):
+        """Test whether the mouse event occurred on the line.  The pick radius determines
+        the precision of the location test (usually within five points of the value).  Use
+        get/set pickradius() to view or modify it.  
+        
+        Returns True if any values are within the radius along with {'ind': pointlist}, 
+        where pointlist is the set of points within the radius.
+        
+        TODO: sort returned indices by distance
         """
-        If mouseevent is over data that satisifies the picker, fire
-        off a backend_bases.PickEvent with the additional attribute "ind"
-        which is a sequence of indices into the data that meet the criteria
-        """
-        if not self.pickable(): return
-
+        if callable(self._contains): return self._contains(self,mouseevent)
+        
+        if not is_numlike(self.pickradius):
+            raise ValueError,"pick radius should be a distance"
+        
         if self._newstyle:
             # transform in backend
             x = self._x
             y = self._y
         else:
             x, y = self._get_plottable()
+        if len(x)==0: return False,{}
 
-        picker = self.get_picker()
-        if is_numlike(picker):
-            eps = picker # epsilon tolerance in points
-            if len(x)==0: return
-            xt, yt = self.get_transform().numerix_x_y(x, y)
+        xt, yt = self.get_transform().numerix_x_y(x, y)
 
-            d = sqrt((xt-mouseevent.x)**2. + (yt-mouseevent.y)**2.)
-            pixels = self.figure.dpi.get()/72. * eps
+        if self.figure == None:
+            print str(self),' has no figure set'
+            pixels = self.pickradius
+        else:
+            pixels = self.figure.dpi.get()/72. * self.pickradius
+            
+        if self._linestyle == '_draw_nothing':
+            # If no line, return the nearby point(s)
+            d = sqrt((xt-mouseevent.x)**2 + (yt-mouseevent.y)**2)
             ind = nonzero(less_equal(d, pixels))
-            if 0:
-                print 'xt', xt, mouseevent.x
-                print 'yt', yt, mouseevent.y
-                print 'd', (xt-mouseevent.x)**2., (yt-mouseevent.y)**2.
-                print d, pixels, ind
-            if len(ind):
-                self.figure.canvas.pick_event(mouseevent, self, ind=ind)
-        elif callable(picker):
-            hit, props = picker(self, mouseevent)
-            if hit:
-                self.figure.canvas.pick_event(mouseevent, self, **props)
+        else:
+            # If line, return the nearby segment(s)
+            ind = segment_hits(mouseevent.x,mouseevent.y,xt,yt,pixels)
+        if 0:
+            print 'xt', xt, mouseevent.x
+            print 'yt', yt, mouseevent.y
+            print 'd', (xt-mouseevent.x)**2., (yt-mouseevent.y)**2.
+            print d, pixels, ind
+        return len(ind)>0,dict(ind=ind)
+    
+    def get_pickradius(self):
+        'return the pick radius used for containment tests'
+        return self.pickradius
 
-
-
+    def set_pickradius(self,d): 
+        """Sets the pick radius used for containment tests
+        
+        Accepts: float distance in points.
+        """
+        self.pickradius = d
+        
+    def set_picker(self,p):
+        """Sets the event picker details for the line.
+        
+        Accepts: float distance in points or callable pick function fn(artist,event)
+        """
+        if callable(p):
+            self._contains = p
+        else:
+            self.pickradius = p
+        self._picker = p
+        
     def get_window_extent(self, renderer):
         self._newstyle = hasattr(renderer, 'draw_markers')
         if self._newstyle:

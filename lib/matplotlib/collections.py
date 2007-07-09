@@ -142,19 +142,30 @@ class PatchCollection(Collection, cm.ScalarMappable):
 
     __init__.__doc__ = cbook.dedent(__init__.__doc__) % artist.kwdocd
 
-    def pick(self, mouseevent):
+    def contains(self, mouseevent):
         """
-        fire a pick event with the index into the data if the mouse
-        click is within the patch
+        Test whether the mouse event occurred in the collection.
+        
+        Returns T/F, dict(ind=itemlist), where every item in itemlist contains the event.
         """
-        if not self.pickable(): return
+        if callable(self._contains): return self._contains(self,mouseevent)
+        # TODO: Consider doing the test in data coordinates
+        # Patch transforms the mouse into data coordinates and does the
+        # test for membership there.  This is more efficient though it
+        # may not match the visual appearance of the polygon on the 
+        # screen.  Regardless, patch and patch collection should use
+        # the same algorithm.  Here's the code in patch:
+        #
+        #    x, y = self.get_transform().inverse_xy_tup((mouseevent.x, mouseevent.y))
+        #    xyverts = self.get_verts()
+        #    inside = nxutils.pnpoly(x, y, xyverts)
+        #
         ind = []
         x, y = mouseevent.x, mouseevent.y
         for i, thispoly in enumerate(self.get_transformed_patches()):
             inside = nxutils.pnpoly(x, y, thispoly)
             if inside: ind.append(i)
-        if len(ind):
-            self.figure.canvas.pick_event(mouseevent, self, ind=ind)
+        return len(ind)>0,dict(ind=ind)
 
 
     def get_transformed_patches(self):
@@ -571,6 +582,7 @@ class LineCollection(Collection, cm.ScalarMappable):
                  transOffset = None,#transforms.identity_transform(),
                  norm = None,
                  cmap = None,
+                 pickradius = 5,
                  **kwargs
                  ):
         """
@@ -604,6 +616,9 @@ class LineCollection(Collection, cm.ScalarMappable):
 
         norm = None,  # optional for ScalarMappable
         cmap = None,  # ditto
+        
+        pickradius is the tolerance for mouse clicks picking a line.  The
+        default is 5 pt.
 
         The use of ScalarMappable is optional.  If the ScalarMappable
         matrix _A is not None (ie a call to set_array has been made), at
@@ -638,7 +653,35 @@ class LineCollection(Collection, cm.ScalarMappable):
         self._offsets = offsets
         self._transOffset = transOffset
         self.set_segments(segments)
+        self.pickradius = pickradius
         self.update(kwargs)
+
+    def contains(self, mouseevent):
+        """
+        Test whether the mouse event occurred in the collection.
+        
+        Returns T/F, dict(ind=itemlist), where every item in itemlist contains the event.
+        """
+        import matplotlib.lines as ML
+        if callable(self._contains): return self._contains(self,mouseevent)
+
+        # TODO: add offset processing; adjusting the mouse for each offset
+        # will be somewhat cheaper than adjusting the segments.
+        if self._offsets != None:
+            raise NotImplementedError, "LineCollection does not yet support picking with offsets"
+
+        mx,my = mouseevent.x,mouseevent.y
+        transform = self.get_transform()
+
+        ind = []
+        for this in xrange(len(self._segments)):
+            xy = transform.seq_xy_tups(self._segments[this])
+            this_ind = ML.segment_hits(mx,my,xy[:,0],xy[:,1],self.pickradius)
+            ind.extend([(this,k) for k in this_ind])
+        return len(ind)>0,dict(ind=ind)
+    
+    def set_pickradius(self,pickradius): self.pickradius = 5
+    def get_pickradius(self): return self.pickradius
 
     def get_transoffset(self):
         if self._transOffset is None:
@@ -774,8 +817,9 @@ class LineCollection(Collection, cm.ScalarMappable):
     def get_dashes(self):
         return self._ls
 
-    def get_colors(self):
+    def get_color(self):
         return self._colors
+    get_colors = get_color  # for compatibility with old versions
 
     def get_verts(self, dataTrans=None):
         '''Return vertices in data coordinates.

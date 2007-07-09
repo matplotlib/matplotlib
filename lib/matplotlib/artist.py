@@ -42,6 +42,7 @@ class Artist:
         self._lod = False
         self._label = ''
         self._picker = None
+        self._contains = None
 
         self.eventson = False  # fire events only if eventson
         self._oid = 0  # an observer id
@@ -120,6 +121,49 @@ class Artist:
             self._transform = identity_transform()
         return self._transform
 
+    def hitlist(self,event):
+        """List the children of the artist which contain the mouse event"""
+        import traceback
+        L = []
+        try:
+            hascursor,info = self.contains(event)
+            if hascursor:
+                L.append(self)
+        except:
+            traceback.print_exc()
+            print "while checking",self.__class__
+
+        if hasattr(self,'get_children'):
+            for a in self.get_children(): L.extend(a.hitlist(event))
+        return L
+    
+    def contains(self,mouseevent):
+        """Test whether the artist contains the mouse event.  
+        
+        Returns the truth value and a dictionary of artist specific details of 
+        selection, such as which points are contained in the pick radius.  See 
+        individual artists for details.
+        """
+        if callable(self._contains): return self._contains(self,mouseevent)
+        #raise NotImplementedError,str(self.__class__)+" needs 'contains' method"
+        print str(self.__class__)+" needs 'contains' method"
+        return False,{}
+    
+    def set_contains(self,picker):
+        """Replace the contains test used by this artist. The new picker should
+        be a callable function which determines whether the artist is hit by the
+        mouse event:
+
+            hit, props = picker(artist, mouseevent)
+
+        If the mouse event is over the artist, return hit=True and props 
+        is a dictionary of properties you want returned with the contains test.
+        """
+        self._contains = picker
+
+    def get_contains(self):
+        'return the _contains test used by the artist, or None for default.'
+        return self._contains
 
     def pickable(self):
         'return True if self is pickable'
@@ -129,11 +173,24 @@ class Artist:
 
     def pick(self, mouseevent):
         """
-        the user picked location x,y; if this Artist is within picker
-        "pick epsilon" of x,y fire off a pick event
+        pick(mouseevent)
+
+        each child artist will fire a pick event if mouseevent is over
+        the artist and the artist has picker set
         """
-        # if mouseevent x, y are within picker call self.figure.canvas.pick_event(self, mouseevent)
-        pass
+        # Pick self
+        if self.pickable():
+            picker = self.get_picker()
+            if callable(picker):
+                inside,prop = picker(self,mouseevent)
+            else:
+                inside,prop = self.contains(mouseevent)
+            if inside:
+                self.figure.canvas.pick_event(mouseevent, self, **prop)
+
+        # Pick children
+        if hasattr(self,'get_children'):
+            for a in self.get_children(): a.pick(mouseevent)
 
     def set_picker(self, picker):
         """
@@ -367,7 +424,7 @@ class Artist:
 
 class ArtistInspector:
     """
-    A helper class to insect an Artist and return information about
+    A helper class to inspect an Artist and return information about
     it's settable properties and their current values
     """
     def __init__(self, o):

@@ -108,6 +108,9 @@ class Legend(Artist):
 
 
     zorder = 5
+    def __str__(self):
+        return "Legend"
+    
     def __init__(self, parent, handles, labels, loc,
                  isaxes= None,
                  numpoints = None,      # the number of points in the legend line

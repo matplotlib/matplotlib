@@ -44,6 +44,9 @@ class Patch(artist.Artist):
 
     """
     zorder = 1
+    def __str__(self):
+        return str(self.__class__).split('.')[-1]
+    
     def __init__(self,
                  edgecolor=None,
                  facecolor=None,
@@ -74,24 +77,22 @@ class Patch(artist.Artist):
         if len(kwargs): artist.setp(self, **kwargs)
     __init__.__doc__ = cbook.dedent(__init__.__doc__) % artist.kwdocd
 
-    def pick(self, mouseevent):
+    def contains(self, mouseevent):
+        """Test whether the mouse event occurred in the patch.  
+        
+        Returns T/F, {}
         """
-        if the mouse click is inside the vertices defining the patch, fire off a backend_bases.PickEvent
-        """
-        if not self.pickable(): return
-        picker = self.get_picker()
-        if callable(picker):
-            hit, props = picker(self, mouseevent)
-            if hit:
-                self.figure.canvas.pick_event(mouseevent, self, **props)
-        elif picker:
-            x, y = mouseevent.xdata, mouseevent.ydata
-            if x is not None and y is not None:
-                xyverts = self.get_verts()
-                inside = nxutils.pnpoly(x, y, xyverts)
-                if inside:
-                    self.figure.canvas.pick_event(mouseevent, self)
-
+        if callable(self._contains): return self._contains(self,mouseevent)
+        
+        try:
+            # TODO: make this consistent with patch collection algorithm
+            x, y = self.get_transform().inverse_xy_tup((mouseevent.x, mouseevent.y))
+            xyverts = self.get_verts()
+            inside = nxutils.pnpoly(x, y, xyverts)
+            #print str(self),"%g,%g is in"%(x,y),xyverts,inside
+            return inside,{}
+        except ValueError:
+            return False,{}
 
     def update_from(self, other):
         artist.Artist.update_from(self, other)
@@ -265,6 +266,9 @@ class Patch(artist.Artist):
 
 
 class Shadow(Patch):
+    def __str__(self):
+        return "Shadow(%s)"%(str(self.patch))
+    
     def __init__(self, patch, ox, oy, props=None, **kwargs):
         """
         Create a shadow of the patch offset by ox, oy.  props, if not None is
@@ -314,6 +318,10 @@ class Rectangle(Patch):
 
     """
 
+    def __str__(self):
+        return str(self.__class__).split('.')[-1] \
+            + "(%g,%g;%gx%g)"%(self.xy[0],self.xy[1],self.width,self.height)
+    
     def __init__(self, xy, width, height,
                  **kwargs):
         """
@@ -414,6 +422,9 @@ class RegularPolygon(Patch):
     """
     A regular polygon patch.
     """
+    def __str__(self):
+        return "Poly%d(%g,%g)"%(self.numVertices,self.xy[0],self.xy[1])
+    
     def __init__(self, xy, numVertices, radius=5, orientation=0,
                  **kwargs):
         """
@@ -457,6 +468,9 @@ class Polygon(Patch):
     """
     A general polygon patch.
     """
+    def __str__(self):
+        return "Poly(%g,%g)"%self.xy[0]
+    
     def __init__(self, xy, **kwargs):
         """
         xy is a sequence of (x,y) 2 tuples
@@ -482,6 +496,8 @@ class Polygon(Patch):
 
 
 class Wedge(Polygon):
+    def __str__(self):
+        return "Wedge(%g,%g)"%self.xy[0]
     def __init__(self, center, r, theta1, theta2,
                  dtheta=0.1, **kwargs):
         """
@@ -508,6 +524,12 @@ class Arrow(Polygon):
     """
     An arrow patch
     """
+    def __str__(self):
+        x1,y1 = self.xy[0]
+        x2,y2 = self.xy[1]
+        cx,cy = (x1+x2)/2.,(y1+y2)/2.
+        return "Arrow(%g,%g)"%(cx,cy)
+    
     def __init__( self, x, y, dx, dy, width=1.0, **kwargs ):
         """Draws an arrow, starting at (x,y), direction and length
         given by (dx,dy) the width of the arrow is scaled by width
@@ -533,6 +555,12 @@ class Arrow(Polygon):
 class FancyArrow(Polygon):
     """Like Arrow, but lets you set head width and head height independently."""
 
+    def __str__(self):
+        x1,y1 = self.xy[0]
+        x2,y2 = self.xy[1]
+        cx,cy = (x1+x2)/2.,(y1+y2)/2.
+        return "FancyArrow(%g,%g)"%(cx,cy)
+    
     def __init__(self, x, y, dx, dy, width=0.001, length_includes_head=False, \
         head_width=None, head_length=None, shape='full', overhang=0, \
         head_starts_at_zero=False,**kwargs):
@@ -606,6 +634,12 @@ class YAArrow(Polygon):
     This is an arrow that is defined in display space and has a tip at
     x1,y1 and a base at x2, y2.
     """
+    def __str__(self):
+        x1,y1 = self.xy[0]
+        x2,y2 = self.xy[1]
+        cx,cy = (x1+x2)/2.,(y1+y2)/2.
+        return "YAArrow(%g,%g)"%(cx,cy)
+    
     def __init__(self, dpi, xytip, xybase, width=4, frac=0.1, headwidth=12, **kwargs):
         """
         xytip : (x,y) location of arrow tip
@@ -678,6 +712,9 @@ class CirclePolygon(RegularPolygon):
     """
     A circle patch
     """
+    def __str__(self):
+        return "CirclePolygon(%d,%d)"%self.center
+
     def __init__(self, xy, radius=5,
                  resolution=20,  # the number of vertices
                  **kwargs):
@@ -698,10 +735,23 @@ class CirclePolygon(RegularPolygon):
     __init__.__doc__ = cbook.dedent(__init__.__doc__) % artist.kwdocd
 
 
+def inellipse(x,y,cx,cy,a,b,angle):
+    import math
+    x,y = x-cx,y-cy
+    theta = math.atan2(x,y) + math.radians(angle)
+    rsq = x*x+y*y
+    asin = a * math.sin(theta)
+    bcos = b * math.cos(theta)
+    Rsq = b*b*a*a / (bcos*bcos + asin*asin)
+    return Rsq > rsq;
+
 class Ellipse(Patch):
     """
     A scale-free ellipse
     """
+    def __str__(self):
+        return "Ellipse(%d,%d;%dx%d)"%(self.center[0],self.center[1],self.width,self.height)
+
     def __init__(self, xy, width, height, angle=0.0, **kwargs):
         """
         xy - center of ellipse
@@ -718,6 +768,13 @@ class Ellipse(Patch):
         self.center = xy
         self.width, self.height = width, height
         self.angle = angle
+    
+    def contains(self,ev):
+        if ev.xdata is None or ev.ydata is None: return False,{}
+        inside = inellipse(ev.xdata,ev.ydata,
+                           self.center[0],self.center[1],
+                           self.height*0.5,self.width*0.5,self.angle)
+        return inside,{}
 
     def get_verts(self):
         x,y = self.center
@@ -757,6 +814,9 @@ class Circle(Ellipse):
     """
     A circle patch
     """
+    def __str__(self):
+        return "Circle((%g,%g),r=%g)"%(self.center[0],self.center[1],self.radius)
+
     def __init__(self, xy, radius=5,
                  **kwargs):
         """
@@ -796,6 +856,9 @@ class PolygonInteractor:
 
     showverts = True
     epsilon = 5  # max pixel distance to count as a vertex hit
+
+    def __str__(self):
+        return "PolygonInteractor"
 
     def __init__(self, poly):
         if poly.figure is None:

@@ -133,6 +133,9 @@ class Text(Artist):
     _rgxsuper = re.compile('\$([\-+0-9]+)\^\{(-?[0-9]+)\}\$')
 
     zorder = 3
+    def __str__(self):
+        return "Text(%g,%g,%s)"%(self._y,self._y,self._text)
+
     def __init__(self,
                  x=0, y=0, text='',
                  color=None,          # defaults to rc params
@@ -155,8 +158,8 @@ class Text(Artist):
         if color is None: color = rcParams['text.color']
         if fontproperties is None: fontproperties=FontProperties()
 
-        self.set_color(color)
         self.set_text(text)
+        self.set_color(color)
         self._verticalalignment = verticalalignment
         self._horizontalalignment = horizontalalignment
         self._multialignment = multialignment
@@ -168,26 +171,25 @@ class Text(Artist):
         #self.set_bbox(dict(pad=0))
     __init__.__doc__ = cbook.dedent(__init__.__doc__) % artist.kwdocd
 
-    def pick(self, mouseevent):
+    def contains(self,mouseevent):
+        """Test whether the mouse event occurred in the patch.  
+        
+        Returns T/F, {}
         """
-        if the mouse click is inside the vertices defining the
-        bounding box of the text, fire off a backend_bases.PickEvent
-        """
-        if not self.pickable(): return
-        picker = self.get_picker()
-        if callable(picker):
-            hit, props = picker(self, mouseevent)
-            if hit:
-                self.figure.canvas.pick_event(mouseevent, self, **props)
-        elif picker:
+        if callable(self._contains): return self._contains(self,mouseevent)
+
+        try:
             l,b,w,h = self.get_window_extent().get_bounds()
-            r = l+w
-            t = b+h
-            xyverts = (l,b), (l, t), (r, t), (r, b)
-            x, y = mouseevent.x, mouseevent.y
-            inside = nxutils.pnpoly(x, y, xyverts)
-            if inside:
-                self.figure.canvas.pick_event(mouseevent, self)
+        except:
+            # TODO: why does this error occur
+            #print str(self),"error looking at get_window_extent"
+            return False,{}
+        r = l+w
+        t = b+h
+        xyverts = (l,b), (l, t), (r, t), (r, b)
+        x, y = mouseevent.x, mouseevent.y
+        inside = nxutils.pnpoly(x, y, xyverts)
+        return inside,{}        
 
     def _get_xy_display(self):
         'get the (possibly unit converted) transformed x,y in display coords'
@@ -865,6 +867,8 @@ class TextWithDash(Text):
     """
     __name__ = 'textwithdash'
 
+    def __str__(self):
+        return "TextWithDash(%g,%g,%s)"%(self._x,self._y,self._text)
     def __init__(self,
                  x=0, y=0, text='',
                  color=None,          # defaults to rc params
@@ -1123,6 +1127,8 @@ class Annotation(Text):
     A Text class to make annotating things in the figure: Figure,
     Axes, Point, Rectangle, etc... easier
     """
+    def __str__(self):
+        return "Annotation(%g,%g,%s)"%(self.xy[0],self.xy[1],self._text)
     def __init__(self, s, xy,
                  xycoords='data',
                  xytext=None,
@@ -1190,6 +1196,14 @@ class Annotation(Text):
         self.xycoords = xycoords
         self.textcoords = textcoords
     __init__.__doc__ = cbook.dedent(__init__.__doc__) % artist.kwdocd
+    
+    def contains(self,event):
+        t,tinfo = Text.contains(self,event)
+        if self.arrow is not None:
+            a,ainfo=self.arrow.contains(event)
+            t = t or a
+        return t,tinfo
+            
 
     def set_clip_box(self, clipbox):
         """

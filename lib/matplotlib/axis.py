@@ -116,15 +116,14 @@ class Tick(Artist):
         children = [self.tick1line, self.tick2line, self.gridline, self.label1, self.label2]
         return children
 
-    def pick(self, mouseevent):
+    def contains(self, mouseevent):
+        """Test whether the mouse event occured in the Tick marks.
+        
+        This function always returns false.  It is more useful to test if the
+        axis as a whole contains the mouse rather than the set of tick marks.
         """
-        pick(mouseevent)
-
-        each child artist will fire a pick event if mouseevent is over
-        the artist and the artist has picker set
-        """
-        for a in self.get_children():
-            a.pick(mouseevent)
+        if callable(self._contains): return self._contains(self,mouseevent)
+        return False,{}
 
     def set_pad(self, val):
         """
@@ -493,7 +492,11 @@ class Axis(Artist):
     LABELPAD = 5
     OFFSETTEXTPAD = 3
 
-    def __init__(self, axes):
+    def __str__(self): 
+        return str(self.__class__).split('.')[-1] \
+            + "(%d,%d)"%self.axes.transAxes.xy_tup((0,0))
+
+    def __init__(self, axes, pickradius=15):
         """
         Init the axis with the parent Axes instance
         """
@@ -515,6 +518,7 @@ class Axis(Artist):
         self.offsetText = self._get_offset_text()
         self.majorTicks = []
         self.minorTicks = []
+        self.pickradius = pickradius
 
         self.cla()
 
@@ -523,16 +527,6 @@ class Axis(Artist):
         children.extend(self.majorTicks)
         children.extend(self.minorTicks)
         return children
-
-    def pick(self, mouseevent):
-        """
-        pick(mouseevent)
-
-        each child artist will fire a pick event if mouseevent is over
-        the artist and the artist has picker set
-        """
-        for a in self.get_children():
-            a.pick(mouseevent)
 
     def cla(self):
         'clear the current axis'
@@ -663,6 +657,10 @@ class Axis(Artist):
     def get_offset_text(self):
         'Return the axis offsetText as a Text instance'
         return self.offsetText
+    
+    def get_pickradius(self):
+        'Return the depth of the axis used by the picker'
+        return self.pickradius
 
     def get_ticklabels(self):
         'Return a list of Text instances for ticklabels'
@@ -903,6 +901,14 @@ class Axis(Artist):
         self.minor.locator = locator
         self.minor.locator.set_view_interval( self.get_view_interval() )
         self.minor.locator.set_data_interval( self.get_data_interval() )
+        
+    def set_pickradius(self, pickradius):
+        """
+        Set the depth of the axis used by the picker
+        
+        ACCEPTS: a distance in points
+        """
+        self.pickradius = pickradius
 
 
     def set_ticklabels(self, ticklabels, *args, **kwargs):
@@ -961,6 +967,20 @@ class Axis(Artist):
 
 class XAxis(Axis):
     __name__ = 'xaxis'
+    
+    def contains(self,mouseevent):
+        """Test whether the mouse event occured in the x axis.
+        """
+        if callable(self._contains): return self._contains(self,mouseevent)
+        
+        xpixel,ypixel = mouseevent.x,mouseevent.y
+        try:
+            xaxes,yaxes = self.axes.transAxes.inverse_xy_tup((xpixel,ypixel))
+            xorigin,yorigin = self.axes.transAxes.xy_tup((0,0))
+        except ValueError:
+            return False, {}
+        inaxis = xaxes>=0 and xaxes<=1 and ypixel<yorigin and ypixel>yorigin-self.pickradius
+        return inaxis, {}
 
     def _get_tick(self, major):
         return XTick(self.axes, 0, '', major=major)
@@ -1132,6 +1152,22 @@ class XAxis(Axis):
 
 class YAxis(Axis):
     __name__ = 'yaxis'
+
+    def contains(self,mouseevent):
+        """Test whether the mouse event occurred in the y axis.
+        
+        Returns T/F, {}
+        """
+        if callable(self._contains): return self._contains(self,mouseevent)
+        
+        xpixel,ypixel = mouseevent.x,mouseevent.y
+        try:
+            xaxes,yaxes = self.axes.transAxes.inverse_xy_tup((xpixel,ypixel))
+            xorigin,yorigin = self.axes.transAxes.xy_tup((0,0))
+        except ValueError:
+            return False, {}
+        inaxis = yaxes>=0 and yaxes<=1 and xpixel<xorigin and xpixel>xorigin-self.pickradius
+        return inaxis, {}
 
     def _get_tick(self, major):
         return YTick(self.axes, 0, '', major=major)
