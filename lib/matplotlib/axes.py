@@ -460,6 +460,10 @@ class Axes(Artist):
     scaled = {IDENTITY : 'linear',
               LOG10 : 'log',
               }
+    
+    def __str__(self):
+        return "Axes(%g,%g;%gx%g)"%(self._position[0].get(),self._position[1].get(),
+                                    self._position[2].get(),self._position[3].get())
     def __init__(self, fig, rect,
                  axisbg = None, # defaults to rc axes.facecolor
                  frameon = True,
@@ -785,7 +789,8 @@ class Axes(Artist):
         self.axesPatch.set_linewidth(rcParams['axes.linewidth'])
         self.axesFrame = Line2D((0,1,1,0,0), (0,0,1,1,0),
                             linewidth=rcParams['axes.linewidth'],
-                            color=rcParams['axes.edgecolor'])
+                            color=rcParams['axes.edgecolor'],
+                            figure=self.figure)
         self.axesFrame.set_transform(self.transAxes)
         self.axesFrame.set_zorder(2.5)
         self.axison = True
@@ -1948,7 +1953,18 @@ class Axes(Artist):
         children.append(self.axesFrame)
         return children
 
-    def pick(self, *args):
+    def contains(self,mouseevent):
+        """Test whether the mouse event occured in the axes.
+        
+        Returns T/F, {}
+        """
+        if callable(self._contains): return self._contains(self,mouseevent)
+        
+        x,y = self.axes.transAxes.inverse_xy_tup((mouseevent.x,mouseevent.y))
+        inside = x>=0 and x<=1 and y>=0 and y<=1
+        return inside,{}
+
+    def pick(self,*args):
         """
         pick(mouseevent)
 
@@ -1957,11 +1973,7 @@ class Axes(Artist):
         """
         if len(args)>1:
             raise DeprecationWarning('New pick API implemented -- see API_CHANGES in the src distribution')
-        mouseevent = args[0]
-        for a in self.get_children():
-            a.pick(mouseevent)
-
-
+        Artist.pick(self,args[0])
 
     def __pick(self, x, y, trans=None, among=None):
         """
@@ -5299,6 +5311,9 @@ class Subplot(SubplotBase, Axes):
 
       Subplot(211)    # 2 rows, 1 column, first (upper) plot
     """
+    def __str__(self):
+        return "Subplot(%g,%g)"%(self.bottom.get(),self.left.get())
+    
     def __init__(self, fig, *args, **kwargs):
         """
         See Axes base class documentation for args and kwargs
@@ -5362,6 +5377,18 @@ class PolarAxes(Axes):
                                                     FuncXY(POLAR))
         self.transAxes = get_bbox_transform(unit_bbox(), self.bbox)
 
+
+    def contains(self,mouseevent):
+        """Test whether the mouse event occured in the axes.
+        
+        Returns T/F, {}
+        """
+        if callable(self._contains): return self._contains(self,mouseevent)
+        
+        x,y = self.axes.transAxes.inverse_xy_tup((mouseevent.x,mouseevent.y))
+        #print "Polar: x,y = ",x,y
+        inside = (x-0.5)**2 + (y-0.5)**2 <= 0.25
+        return inside,{}
 
     def cla(self):
         'Clear the current axes'
@@ -5534,9 +5561,10 @@ class PolarAxes(Axes):
         rmax = self.get_rmax()
         for r in radii:
             r = ones(self.RESOLUTION)*r
-            line = Line2D(theta, r, linestyle=ls, color=color, linewidth=lw)
+            line = Line2D(theta, r, linestyle=ls, color=color, linewidth=lw, 
+                          figure=self.figure)
             #line = Line2D(nx.mlab.rand(len(theta)), nx.mlab.rand(len(theta)),
-            #              linestyle=ls, color=color, linewidth=lw)
+            #              linestyle=ls, color=color, linewidth=lw, figure=self.figure)
             line.set_transform(self.transData)
             self.rgridlines.append(line)
 
@@ -5596,7 +5624,8 @@ class PolarAxes(Axes):
         r = linspace(0., rmax, self.RESOLUTION)
         for a in angles:
             theta = ones(self.RESOLUTION)*a/180.*math.pi
-            line = Line2D(theta, r, linestyle=ls, color=color, linewidth=lw)
+            line = Line2D(theta, r, linestyle=ls, color=color, linewidth=lw,
+                          figure=self.figure)
             line.set_transform(self.transData)
             self.thetagridlines.append(line)
 
@@ -5779,6 +5808,8 @@ class PolarSubplot(SubplotBase, PolarAxes):
 
       Subplot(211)    # 2 rows, 1 column, first (upper) plot
     """
+    def __str__(self):
+        return "PolarSubplot(%gx%g)"%(self.figW,self.figH)
     def __init__(self, fig, *args, **kwargs):
         SubplotBase.__init__(self, fig, *args)
         PolarAxes.__init__(self, fig, [self.figLeft, self.figBottom, self.figW, self.figH], **kwargs)

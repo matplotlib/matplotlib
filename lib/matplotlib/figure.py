@@ -102,6 +102,9 @@ class SubplotParams:
 
 class Figure(Artist):
 
+    def __str__(self):
+        return "Figure(%gx%g)"%(self.figwidth.get(),self.figheight.get())
+
     def __init__(self,
                  figsize   = None,  # defaults to rc figure.figsize
                  dpi       = None,  # defaults to rc figure.dpi
@@ -196,10 +199,17 @@ class Figure(Artist):
         children.extend(self.legends)
         return children
 
-    def pick(self, mouseevent):
-        for a in self.get_children():
-            a.pick(mouseevent)
-
+    def contains(self, mouseevent):
+        """Test whether the mouse event occurred on the figure. 
+        
+        Returns True,{}
+        """
+        if callable(self._contains): return self._contains(self,mouseevent)
+        #inside = mouseevent.x >= 0 and mouseevent.y >= 0
+        inside = self.bbox.contains(mouseevent.x,mouseevent.y)
+        
+        return inside,{}
+    
     def get_window_extent(self, *args, **kwargs):
         'get the figure bounding box in display space; kwargs are void'
         return self.bbox

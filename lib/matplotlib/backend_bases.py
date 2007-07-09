@@ -733,26 +733,24 @@ class LocationEvent(Event):
         self.x = x
         self.y = y
 
-        if self.x is None or self.y is None:
+        if x is None or y is None:
             # cannot check if event was in axes if no x,y info
             return
 
-        self.inaxes = [] # Need to correctly handle overlapping axes
-        for a in self.canvas.figure.get_axes():
-            if self.x is not None and self.y is not None and a.in_axes(self.x, self.y):
-                self.inaxes.append(a)
+        # Find all axes containing the mouse
+        axes_list = [a for a in self.canvas.figure.get_axes() if a.in_axes(x, y)]
 
-        if len(self.inaxes) == 0: # None found
+        if len(axes_list) == 0: # None found
             self.inaxes = None
             return
-        elif (len(self.inaxes) > 1): # Overlap, get the highest zorder
-            axCmp = lambda x,y: cmp(x.zorder, y.zorder)
-            self.inaxes.sort(axCmp)
-            self.inaxes = self.inaxes[-1] # Use the highest zorder
+        elif (len(axes_list) > 1): # Overlap, get the highest zorder
+            axCmp = lambda _x,_y: cmp(_x.zorder, _y.zorder)
+            axes_list.sort(axCmp)
+            self.inaxes = axes_list[-1] # Use the highest zorder
         else: # Just found one hit
-            self.inaxes = self.inaxes[0]
+            self.inaxes = axes_list[0]
 
-        try: xdata, ydata = self.inaxes.transData.inverse_xy_tup((self.x, self.y))
+        try: xdata, ydata = self.inaxes.transData.inverse_xy_tup((x, y))
         except ValueError:
             self.xdata  = None
             self.ydata  = None
@@ -871,7 +869,57 @@ class FigureCanvasBase:
         self._button     = None  # the button pressed
         self._key        = None  # the key pressed
         self._lastx, self._lasty = None, None
+        self.button_pick_id = self.mpl_connect('button_press_event',self.pick)
+        self.scroll_pick_id = self.mpl_connect('scroll_event',self.pick)
 
+        if False:
+            # highlight the artists that are hit
+            self.mpl_connect('motion_notify_event',self.hilite)
+
+    def hilite(self, ev):
+        """Mouse event processor which highlights the artists
+        under the currsor.  Connect this to the motion_notify_event
+        using canvas.mpl_connect('motion_notify_event',canvas.hilite)
+        """
+        if not hasattr(self,'_active'): self._active = dict()
+
+        under = self.figure.hitlist(ev)
+        enter = [a for a in under if a not in self._active]
+        leave = [a for a in self._active if a not in under]
+        print "within:"," ".join([str(x) for x in under])
+        #print "entering:",[str(a) for a in enter]
+        #print "leaving:",[str(a) for a in leave]
+        # On leave restore the captured colour
+        for a in leave:
+            if hasattr(a,'get_color'): 
+                a.set_color(self._active[a])
+            elif hasattr(a,'get_edgecolor'): 
+                a.set_edgecolor(self._active[a][0])
+                a.set_facecolor(self._active[a][1])
+            del self._active[a]
+        # On enter, capture the color and repaint the artist
+        # with the highlight colour.  Capturing colour has to 
+        # be done first in case the parent recolouring affects 
+        # the child.
+        for a in enter:
+            if hasattr(a,'get_color'): 
+                self._active[a] = a.get_color()
+            elif hasattr(a,'get_edgecolor'):
+                self._active[a] = (a.get_edgecolor(),a.get_facecolor())
+            else: self._active[a] = None
+        for a in enter:
+            if hasattr(a,'get_color'): 
+                a.set_color('red')
+            elif hasattr(a,'get_edgecolor'):
+                a.set_edgecolor('red')
+                a.set_facecolor('lightblue')
+            else: self._active[a] = None
+        self.draw()
+        self.gui_repaint()
+
+    def pick(self, mouseevent):
+        if not self.widgetlock.locked():
+            self.figure.pick(mouseevent)
 
     def blit(self, bbox=None):
         """
@@ -928,9 +976,6 @@ class FigureCanvasBase:
         self.callbacks.process(s, mouseevent)
 
 
-        if not self.widgetlock.locked():
-            self.figure.pick(mouseevent)
-
     def button_press_event(self, x, y, button, guiEvent=None):
         """
         Backend derived classes should call this function on any mouse
@@ -941,10 +986,6 @@ class FigureCanvasBase:
         s = 'button_press_event'
         mouseevent = MouseEvent(s, self, x, y, button, self._key, guiEvent=guiEvent)
         self.callbacks.process(s, mouseevent)
-
-
-        if not self.widgetlock.locked():
-            self.figure.pick(mouseevent)
 
     def button_release_event(self, x, y, button, guiEvent=None):
         """

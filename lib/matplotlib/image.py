@@ -182,22 +182,23 @@ class AxesImage(Artist, cm.ScalarMappable):
         l, b, widthDisplay, heightDisplay = self.axes.bbox.get_bounds()
         renderer.draw_image(l, b, im, self.axes.bbox)
 
-    def pick(self, mouseevent):
-        'return true if the data coords of mouse click are within the extent of the image'
-        if not self.pickable(): return
-        picker = self.get_picker()
-        if callable(picker):
-            hit, props = picker(self, mouseevent)
-            if hit:
-                self.figure.canvas.pick_event(mouseevent, self, **props)
-        elif picker:
-            xmin, xmax, ymin, ymax = self.get_extent()
-            xdata, ydata = mouseevent.xdata, mouseevent.ydata
-            #print xdata, ydata, xmin, xmax, ymin, ymax
-            if (xdata is not None and ydata is not None and
-                xdata>=xmin and xdata<=xmax and ydata>=ymin and ydata<=ymax):
-                self.figure.canvas.pick_event(mouseevent, self)
-
+    def contains(self, mouseevent):
+        """Test whether the mouse event occured within the image.
+        """
+        if callable(self._contains): return self._contains(self,mouseevent)
+        # TODO: make sure this is consistent with patch and patch 
+        # collection on nonlinear transformed coordinates.
+        # TODO: consider returning image coordinates (shouldn't
+        # be too difficult given that the image is rectilinear
+        xmin, xmax, ymin, ymax = self.get_extent()
+        xdata, ydata = mouseevent.xdata, mouseevent.ydata
+        #print xdata, ydata, xmin, xmax, ymin, ymax
+        if xdata is not None and ydata is not None:
+            inside = xdata>=xmin and xdata<=xmax and ydata>=ymin and ydata<=ymax
+        else:
+            inside = False
+            
+        return inside,{}
 
     def write_png(self, fname, noscale=False):
         """Write the image to png file with fname"""
@@ -414,6 +415,19 @@ class FigureImage(Artist, cm.ScalarMappable):
         self.ox = offsetx
         self.oy = offsety
 
+    def contains(self, mouseevent):
+        """Test whether the mouse event occured within the image.
+        """
+        if callable(self._contains): return self._contains(self,mouseevent)
+        xmin, xmax, ymin, ymax = self.get_extent()
+        xdata, ydata = mouseevent.x, mouseevent.y
+        #print xdata, ydata, xmin, xmax, ymin, ymax
+        if xdata is not None and ydata is not None:
+            inside = xdata>=xmin and xdata<=xmax and ydata>=ymin and ydata<=ymax
+        else:
+            inside = False
+            
+        return inside,{}
 
     def get_size(self):
         'Get the numrows, numcols of the input image'
@@ -421,6 +435,12 @@ class FigureImage(Artist, cm.ScalarMappable):
             raise RuntimeError('You must first set the image array')
 
         return self._A.shape[:2]
+
+    def get_extent(self):
+        'get the image extent: left, right, bottom, top'
+        numrows, numcols = self.get_size()
+        return (-0.5+self.ox, numcols-0.5+self.ox, 
+                -0.5+self.oy, numrows-0.5+self.oy)
 
     def make_image(self, magnification=1.0):
         # had to introduce argument magnification to satisfy the unit test

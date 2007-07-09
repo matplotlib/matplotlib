@@ -769,6 +769,7 @@ class FigureCanvasWx(FigureCanvasBase, wx.Panel):
             self.Bind(wx.EVT_LEFT_DOWN, self._onLeftButtonDown)
             self.Bind(wx.EVT_LEFT_UP, self._onLeftButtonUp)
             self.Bind(wx.EVT_MOTION, self._onMotion)
+            self.Bind(wx.EVT_LEAVE_WINDOW, self._onLeave)
         else:
             # Event handlers 2.4
             wx.EVT_SIZE(self, self._onSize)
@@ -781,6 +782,7 @@ class FigureCanvasWx(FigureCanvasBase, wx.Panel):
             wx.EVT_LEFT_DOWN(self, self._onLeftButtonDown)
             wx.EVT_LEFT_UP(self, self._onLeftButtonUp)
             wx.EVT_MOTION(self, self._onMotion)
+            wx.EVT_LEAVE_WINDOW(self, self._onLeave)
 
 
         self.macros = {} # dict from wx id to seq of macros
@@ -1198,6 +1200,12 @@ The current aspect ration will be kept."""
         y = self.figure.bbox.height() - evt.GetY()
         evt.Skip()
         FigureCanvasBase.motion_notify_event(self, x, y, guiEvent=evt)
+
+    def _onLeave(self, evt):
+        """Mouse has left the window; fake a motion event."""
+
+        evt.Skip()
+        FigureCanvasBase.motion_notify_event(self, -1, -1, guiEvent=evt)
 
 
 ########################################################################
