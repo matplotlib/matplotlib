@@ -53,6 +53,13 @@ def validate_int(s):
     except ValueError:
         raise ValueError('Could not convert "%s" to int' % s)
 
+def validate_psfonttype(s):
+    'confirm that this is a Postscript font type that we know how to convert to'
+    fonttype = validate_int(s)
+    if fonttype not in (3, 42):
+        raise ValueError('Supported Postscript font types are 3 and 42')
+    return fonttype
+
 validate_backend = ValidateInStrings('backend',[
     'Agg2', 'Agg', 'Aqt', 'Cairo', 'CocoaAgg', 'EMF', 'GD', 'GDK',
     'GTK', 'GTKAgg', 'GTKCairo', 'FltkAgg', 'Paint', 'Pdf', 'PS',
@@ -409,6 +416,7 @@ defaultParams = {
     'ps.useafm'          : [False, validate_bool],  # Set PYTHONINSPECT
     'ps.usedistiller'    : [False, validate_ps_distiller], # use ghostscript or xpdf to distill ps output
     'ps.distiller.res'   : [6000, validate_int],     # dpi
+    'ps.fonttype'        : [3, validate_psfonttype], # 3 or 42
     'pdf.compression'    : [6, validate_int],        # compression level from 0 to 9; 0 to disable
     'pdf.inheritcolor'   : [False, validate_bool],   # ignore any color-setting commands from the frontend
     'pdf.use14corefonts' : [False, validate_bool],  # use only the 14 PDF core fonts
