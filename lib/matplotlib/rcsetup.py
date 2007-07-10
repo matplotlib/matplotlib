@@ -53,12 +53,20 @@ def validate_int(s):
     except ValueError:
         raise ValueError('Could not convert "%s" to int' % s)
 
-def validate_psfonttype(s):
-    'confirm that this is a Postscript font type that we know how to convert to'
-    fonttype = validate_int(s)
-    if fonttype not in (3, 42):
-        raise ValueError('Supported Postscript font types are 3 and 42')
-    return fonttype
+def validate_fonttype(s):
+    'confirm that this is a Postscript of PDF font type that we know how to convert to'
+    fonttypes = { 'type3':    3,
+                  'truetype': 42 }
+    try:
+        fonttype = validate_int(s)
+    except ValueError:
+        if s.lower() in fonttypes.keys():
+            return fonttypes[s.lower()]
+        raise ValueError('Supported Postscript/PDF font types are %s' % fonttypes.keys())
+    else:
+        if fonttype not in fonttypes.values():
+            raise ValueError('Supported Postscript/PDF font types are %s' % fonttypes.values())
+        return fonttype
 
 validate_backend = ValidateInStrings('backend',[
     'Agg2', 'Agg', 'Aqt', 'Cairo', 'CocoaAgg', 'EMF', 'GD', 'GDK',
@@ -416,11 +424,12 @@ defaultParams = {
     'ps.useafm'          : [False, validate_bool],  # Set PYTHONINSPECT
     'ps.usedistiller'    : [False, validate_ps_distiller], # use ghostscript or xpdf to distill ps output
     'ps.distiller.res'   : [6000, validate_int],     # dpi
-    'ps.fonttype'        : [3, validate_psfonttype], # 3 or 42
+    'ps.fonttype'        : [3, validate_fonttype], # 3 (Type3) or 42 (Truetype)
     'pdf.compression'    : [6, validate_int],        # compression level from 0 to 9; 0 to disable
     'pdf.inheritcolor'   : [False, validate_bool],   # ignore any color-setting commands from the frontend
     'pdf.use14corefonts' : [False, validate_bool],  # use only the 14 PDF core fonts
                                                     # embedded in every PDF viewing application
+    'pdf.fonttype'      : [3, validate_fonttype],  # 3 (Type3) or 42 (Truetype)
     'svg.image_inline'  : [True, validate_bool],    # write raster image data directly into the svg file
     'svg.image_noscale' : [False, validate_bool],  # suppress scaling of raster data embedded in SVG
     'plugins.directory' : ['.matplotlib_plugins', str], # where plugin directory is locate

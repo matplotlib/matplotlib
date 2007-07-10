@@ -20,7 +20,7 @@ from matplotlib.figure import Figure
 
 from matplotlib.font_manager import fontManager
 from matplotlib.ft2font import FT2Font, KERNING_UNFITTED, KERNING_DEFAULT, KERNING_UNSCALED
-from matplotlib.ttf2ps import convert_ttf_to_ps
+from matplotlib.ttconv import convert_ttf_to_ps
 from matplotlib.mathtext import math_parse_s_ps
 from matplotlib.text import Text
 
@@ -1033,8 +1033,7 @@ class FigureCanvasPS(FigureCanvasBase):
                     cmap = font.get_charmap()
                     glyph_ids = []
                     for c in chars:
-                        ccode = ord(c)
-                        gind = cmap.get(ccode) or 0
+                        gind = cmap.get(ord(c)) or 0
                         glyph_ids.append(gind)
                     convert_ttf_to_ps(font_filename, fh, rcParams['ps.fonttype'], glyph_ids)
             print >>fh, "end"
