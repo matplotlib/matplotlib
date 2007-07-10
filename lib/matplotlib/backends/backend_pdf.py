@@ -546,7 +546,7 @@ class PdfFile:
                 'Differences': differencesArray}
         elif fonttype == 42:
             fontdict['Subtype'] = Name('TrueType')
-            fontdict['Encoding'] = Name('WinAnsiEncoding'),
+            fontdict['Encoding'] = Name('WinAnsiEncoding')
 
             
         flags = 0
