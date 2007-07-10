@@ -572,9 +572,19 @@ void GlyphToType3::do_composite(TTStreamWriter& stream, struct TTFONT *font, BYT
 	#endif
 
 	if (pdf_mode) {
-	    stream.printf("q 1 0 0 1 %d %d cm\n", topost(arg1), topost(arg2));
+	    if ( flags & ARGS_ARE_XY_VALUES ) {
+		/* We should have been able to use 'Do' to reference the
+		   subglyph here.  However, that doesn't seem to work with
+		   xpdf or gs (only acrobat), so instead, this just includes
+		   the subglyph here inline. */
+		stream.printf("q 1 0 0 1 %d %d cm\n", topost(arg1), topost(arg2));
+	    } else {
+		    stream.printf("%% unimplemented shift, arg1=%d, arg2=%d\n",arg1,arg2);
+	    }
 	    GlyphToType3(stream, font, glyphIndex, true);
-	    stream.printf("\nQ\n");
+	    if ( flags & ARGS_ARE_XY_VALUES ) {
+		stream.printf("\nQ\n");
+	    }
 	} else {
 	    /* If we have an (X,Y) shif and it is non-zero, */
 	    /* translate the coordinate system. */
