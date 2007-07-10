@@ -818,6 +818,8 @@ class BakomaPDFFonts(BakomaPSFonts):
         fontname, metrics, glyphname, offset = \
                 self._get_info(font, sym, fontsize, dpi)
         filename, num = self._get_filename_and_num(font, sym, fontsize, dpi)
+        if self.character_tracker:
+            self.character_tracker(filename, unichr(num))
         if fontname.lower() == 'cmex10':
             oy += offset - 512/2048.*10.
 
@@ -1567,7 +1569,7 @@ class math_parse_s_ft2font_common:
                 #self.font_object = MyUnicodeFonts(output='PS')
                 Element.fonts = self.font_object
         elif self.output == 'PDF':
-            self.font_object = BakomaPDFFonts()
+            self.font_object = BakomaPDFFonts(character_tracker)
             Element.fonts = self.font_object
 
         handler.clear()

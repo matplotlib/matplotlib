@@ -48,7 +48,7 @@ struct TTFONT
 
     const char *filename;		/* Name of TT file */
     FILE *file;				/* the open TT file */
-    int target_type;			/* 42 or 3 */
+    font_type_enum  target_type;	/* 42 or 3 for PS, or -3 for PDF */
 
     ULONG numTables;			/* number of tables present */
     char *PostName;			/* Font's PostScript name */

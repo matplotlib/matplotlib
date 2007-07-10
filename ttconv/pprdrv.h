@@ -45,6 +45,19 @@ class TTStreamWriter {
   virtual void putline(const char* a);
 };
 
+class TTDictionaryCallback {
+ private:
+  // Private copy and assignment
+  TTDictionaryCallback& operator=(const TTStreamWriter& other);
+  TTDictionaryCallback(const TTStreamWriter& other);
+
+ public:
+  TTDictionaryCallback() { }
+  virtual ~TTDictionaryCallback() { }
+
+  virtual void add_pair(const char* key, const char* value) = 0;
+};
+
 /*
  * A simple class for all ttconv exceptions.
  */
@@ -74,7 +87,15 @@ class TTException {
 
 /* Do not change anything below this line. */
 
+enum font_type_enum {
+  PS_TYPE_3  = 3,
+  PS_TYPE_42 = 42,
+  PDF_TYPE_3 = -3
+};
+
 /* routines in pprdrv_tt.c */
-void insert_ttfont(const char *filename, TTStreamWriter& stream, int target_type, std::vector<int>& glyph_ids);
+void insert_ttfont(const char *filename, TTStreamWriter& stream, font_type_enum target_type, std::vector<int>& glyph_ids);
+
+void get_pdf_charprocs(const char *filename, std::vector<int>& glyph_ids, TTDictionaryCallback& dict);
 
 /* end of file */

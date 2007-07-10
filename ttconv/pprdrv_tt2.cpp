@@ -60,6 +60,8 @@ private:
 
     int stack_depth;            /* A book-keeping variable for keeping track of the depth of the PS stack */
     
+    bool pdf_mode;
+
     void load_char(TTFONT* font, BYTE *glyph);
     void stack(TTStreamWriter& stream, int new_elem);
     void stack_end(TTStreamWriter& stream);
@@ -69,14 +71,15 @@ private:
     int nearout(int ci);
     double intest(int co, int ci);
     void PSCurveto(TTStreamWriter& stream, FWord x, FWord y, int s, int t);
+    void PSMoveto(TTStreamWriter& stream, int x, int y);
+    void PSLineto(TTStreamWriter& stream, int x, int y);
+    void do_composite(TTStreamWriter& stream, struct TTFONT *font, BYTE *glyph);
 
 public:
-    GlyphToType3(TTStreamWriter& stream, struct TTFONT *font, int charindex);
+    GlyphToType3(TTStreamWriter& stream, struct TTFONT *font, int charindex, bool embedded = false);
     ~GlyphToType3();
 };
 
-#define PSMoveto(stream,x,y) stream.printf("%d %d _m\n",x,y)	/* "moveto" */
-#define PSLineto(stream,x,y) stream.printf("%d %d _l\n",x,y)	/* "lineto" */
 double area(FWord *x, FWord *y, int n);
 #define sqr(x) ((x)*(x))
 
@@ -97,7 +100,7 @@ double area(FWord *x, FWord *y, int n);
 */
 void GlyphToType3::stack(TTStreamWriter& stream, int new_elem)
     {
-    if( num_pts > 25 )			/* Only do something of we will */
+    if( !pdf_mode && num_pts > 25 )			/* Only do something of we will */
 	{				/* have a log of points. */
 	if(stack_depth == 0)
 	    {
@@ -117,7 +120,7 @@ void GlyphToType3::stack(TTStreamWriter& stream, int new_elem)
 
 void GlyphToType3::stack_end(TTStreamWriter& stream)			/* called at end */
     {
-    if(stack_depth)
+    if( !pdf_mode && stack_depth )
     	{
     	stream.puts("}_e");
     	stack_depth=0;
@@ -236,7 +239,7 @@ void GlyphToType3::PSConvert(TTStreamWriter& stream)
 
     /* Now, we can fill the whole thing. */
     stack(stream, 1);
-    stream.puts("_cl");		/* "closepath eofill" */
+    stream.puts( pdf_mode ? "f" : "_cl" );
 
     /* Free our work arrays. */
     free(area_ctr);
@@ -332,6 +335,16 @@ double GlyphToType3::intest(int co, int ci)
 	return a;
 	} /* end of intest() */
 
+void GlyphToType3::PSMoveto(TTStreamWriter& stream, int x, int y) {
+    stream.printf(pdf_mode ? "%d %d m\n" : "%d %d _m\n", 
+		  x, y);
+}
+
+void GlyphToType3::PSLineto(TTStreamWriter& stream, int x, int y) {
+    stream.printf(pdf_mode ? "%d %d l\n" : "%d %d _l\n", 
+		  x, y);
+}
+
 /*
 ** Emmit a PostScript "curveto" command.
 */
@@ -356,12 +369,11 @@ void GlyphToType3::PSCurveto(TTStreamWriter& stream, FWord x, FWord y, int s, in
 	cx[2] = (sx[2]+2*sx[1])/3;
 	cy[2] = (sy[2]+2*sy[1])/3;
 
-	/* stream.printf("%g %g %g %g %g %g _c\n",
-		cx[1],cy[1],cx[2],cy[2],cx[3],cy[3]); */
-
-	stream.printf("%d %d %d %d %d %d _c\n",		/* "curveto" */
-		(int)cx[1], (int)cy[1], (int)cx[2], (int)cy[2],
-		(int)cx[3], (int)cy[3]);
+	stream.printf(pdf_mode ? 
+		         "%d %d %d %d %d %d c\n" : 
+		         "%d %d %d %d %d %d _c\n",
+		      (int)cx[1], (int)cy[1], (int)cx[2], (int)cy[2],
+		      (int)cx[3], (int)cy[3]);
 	}
      } /* end of PSCurveto() */
 
@@ -491,7 +503,7 @@ void GlyphToType3::load_char(TTFONT* font, BYTE *glyph)
 /*
 ** Emmit PostScript code for a composite character.
 */
-void do_composite(TTStreamWriter& stream, struct TTFONT *font, BYTE *glyph)
+void GlyphToType3::do_composite(TTStreamWriter& stream, struct TTFONT *font, BYTE *glyph)
     {
     USHORT flags;
     USHORT glyphIndex;
@@ -559,26 +571,33 @@ void do_composite(TTStreamWriter& stream, struct TTFONT *font, BYTE *glyph)
 		(int)flags,arg1,arg2,(int)xscale,(int)yscale,(int)scale01,(int)scale10);
 	#endif
 
-	/* If we have an (X,Y) shif and it is non-zero, */
-	/* translate the coordinate system. */
-	if( flags & ARGS_ARE_XY_VALUES )
-	    {
-	    if( arg1 != 0 || arg2 != 0 )
-	    	stream.printf("gsave %d %d translate\n", topost(arg1), topost(arg2) );
+	if (pdf_mode) {
+	    stream.printf("q 1 0 0 1 %d %d cm\n", topost(arg1), topost(arg2));
+	    GlyphToType3(stream, font, glyphIndex, true);
+	    stream.printf("\nQ\n");
+	} else {
+	    /* If we have an (X,Y) shif and it is non-zero, */
+	    /* translate the coordinate system. */
+	    if( flags & ARGS_ARE_XY_VALUES )
+		{
+		    if( arg1 != 0 || arg2 != 0 )
+			stream.printf("gsave %d %d translate\n", topost(arg1), topost(arg2) );
+		}
+	    else
+		{
+		    stream.printf("%% unimplemented shift, arg1=%d, arg2=%d\n",arg1,arg2);
+		}
+	    
+	    /* Invoke the CharStrings procedure to print the component. */
+	    stream.printf("false CharStrings /%s get exec\n",
+			  ttfont_CharStrings_getname(font,glyphIndex));
+	    
+	    /* If we translated the coordinate system, */
+	    /* put it back the way it was. */
+	    if( flags & ARGS_ARE_XY_VALUES && (arg1 != 0 || arg2 != 0) ) {
+		stream.puts("grestore ");
 	    }
-	else
-	    {
-	    stream.printf("%% unimplemented shift, arg1=%d, arg2=%d\n",arg1,arg2);
-	    }
-
-	/* Invoke the CharStrings procedure to print the component. */
-	stream.printf("false CharStrings /%s get exec\n",
-		ttfont_CharStrings_getname(font,glyphIndex));
-
-	/* If we translated the coordinate system, */
-	/* put it back the way it was. */
-	if( flags & ARGS_ARE_XY_VALUES && (arg1 != 0 || arg2 != 0) )
-	    stream.puts("grestore ");
+	}
 	    
 	} while(flags & MORE_COMPONENTS);
     
@@ -615,7 +634,7 @@ BYTE *find_glyph_data(struct TTFONT *font, int charindex)
 
     } /* end of find_glyph_data() */
 
-GlyphToType3::GlyphToType3(TTStreamWriter& stream, struct TTFONT *font, int charindex) {
+GlyphToType3::GlyphToType3(TTStreamWriter& stream, struct TTFONT *font, int charindex, bool embedded /* = false */) {
     BYTE *glyph;
 
     tt_flags = NULL;
@@ -626,11 +645,7 @@ GlyphToType3::GlyphToType3(TTStreamWriter& stream, struct TTFONT *font, int char
     check_ctr = NULL;
     ctrset = NULL;
     stack_depth = 0;
-
-    #ifdef DEBUG_TRUETYPE
-    debug("tt_type3_charproc(font,%d)",charindex);
-    stream.printf("%% tt_type3_charproc(font,%d)\n",charindex);
-    #endif
+    pdf_mode = font->target_type < 0;
 
     /* Get a pointer to the data. */
     glyph = find_glyph_data( font, charindex );
@@ -673,9 +688,15 @@ GlyphToType3::GlyphToType3(TTStreamWriter& stream, struct TTFONT *font, int char
     /* Execute setcachedevice in order to inform the font machinery */
     /* of the character bounding box and advance width. */
     stack(stream, 7);
-    stream.printf("%d 0 %d %d %d %d _sc\n",
-    	topost(advance_width),
-    	topost(llx), topost(lly), topost(urx), topost(ury) );
+    if (pdf_mode) {
+	if (!embedded)
+	    stream.printf("%d 0 %d %d %d %d d1\n",
+			  topost(advance_width),
+			  topost(llx), topost(lly), topost(urx), topost(ury) );
+    } else
+	stream.printf("%d 0 %d %d %d %d _sc\n",
+		      topost(advance_width),
+		      topost(llx), topost(lly), topost(urx), topost(ury) );
 
     /* If it is a simple glyph, convert it, */
     /* otherwise, close the stack business. */
@@ -696,7 +717,7 @@ GlyphToType3::GlyphToType3(TTStreamWriter& stream, struct TTFONT *font, int char
 */
 void tt_type3_charproc(TTStreamWriter& stream, struct TTFONT *font, int charindex)
     {
-	GlyphToType3 glyph(stream, font, charindex);
+      GlyphToType3 glyph(stream, font, charindex);
 } /* end of tt_type3_charproc() */
 
 /*

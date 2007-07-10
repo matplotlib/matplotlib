@@ -15,6 +15,7 @@ import zlib
 from cStringIO import StringIO
 from datetime import datetime
 from math import ceil, cos, floor, pi, sin
+import sets
 
 from matplotlib import __version__, rcParams, agg, get_data_path
 from matplotlib._pylab_helpers import Gcf
@@ -29,6 +30,7 @@ from matplotlib.ft2font import FT2Font, FIXED_WIDTH, ITALIC, LOAD_NO_SCALE
 from matplotlib.mathtext import math_parse_s_pdf
 from matplotlib.numerix import Float32, UInt8, fromstring, arange, infinity, isnan, asarray
 from matplotlib.transforms import Bbox
+from matplotlib import ttconv
 
 # Overview
 #
@@ -453,7 +455,8 @@ class PdfFile:
             if filename.endswith('.afm'):
                 fontdictObject = self._write_afm_font(filename)
             else:
-                fontdictObject = self.embedTTF(filename)
+                fontdictObject = self.embedTTF(
+                    filename, self.used_characters[filename])
             fonts[Fx] = fontdictObject
             #print >>sys.stderr, filename
         self.writeObject(self.fontObject, fonts)
@@ -471,10 +474,11 @@ class PdfFile:
         self.writeObject(fontdictObject, fontdict)
         return fontdictObject
 
-    def embedTTF(self, filename):
+    def embedTTF(self, filename, characters):
         """Embed the TTF font from the named file into the document."""
 
         font = FT2Font(str(filename))
+        fonttype = rcParams['pdf.fonttype']
 
         def cvt(length, upe=font.units_per_EM, nearest=True):
             "Convert font coordinates to PDF glyph coordinates"
@@ -515,6 +519,7 @@ class PdfFile:
 
         firstchar, lastchar = 0, 255
         widths = [ get_char_width(charcode) for charcode in range(firstchar, lastchar+1) ]
+        font_bbox = [ cvt(x, nearest=False) for x in font.bbox ]
 
         widthsObject = self.reserveObject('font widths')
         fontdescObject = self.reserveObject('font descriptor')
@@ -522,14 +527,28 @@ class PdfFile:
         # "WinAnsiEncoding" matches the Python enconding "cp1252" used in method
         # RendererPdf.draw_text and RendererPdf.get_text_width_height to encode Unicode strings.
         fontdict = { 'Type': Name('Font'),
-                     'Subtype': Name('TrueType'),
-                     'Encoding': Name('WinAnsiEncoding'),
                      'BaseFont': ps_name,
                      'FirstChar': firstchar,
                      'LastChar': lastchar,
                      'Widths': widthsObject,
                      'FontDescriptor': fontdescObject }
 
+        if fonttype == 3:
+            charprocsObject = self.reserveObject('character procs')
+            differencesArray = []
+            fontdict['Subtype'] = Name('Type3')
+            fontdict['Name'] = ps_name
+            fontdict['FontBBox'] = font_bbox
+            fontdict['FontMatrix'] = [ .001, 0, 0, .001, 0, 0 ]
+            fontdict['CharProcs'] = charprocsObject
+            fontdict['Encoding'] = {
+                'Type': Name('Encoding'), 
+                'Differences': differencesArray}
+        elif fonttype == 42:
+            fontdict['Subtype'] = Name('TrueType')
+            fontdict['Encoding'] = Name('WinAnsiEncoding'),
+
+            
         flags = 0
         symbolic = False #ps_name.name in ('Cmsy10', 'Cmmi10', 'Cmex10')
         if ff & FIXED_WIDTH: flags |= 1 << 0
@@ -551,10 +570,12 @@ class PdfFile:
             'CapHeight': cvt(pclt['capHeight'], nearest=False),
             'XHeight': cvt(pclt['xHeight']),
             'ItalicAngle': post['italicAngle'][1], # ???
-            'FontFile2': self.reserveObject('font file'),
             'MaxWidth': max(widths),
             'StemV': 0 # ???
         }
+
+        if fonttype == 42:
+            descriptor['FontFile2'] = self.reserveObject('font file')
 
         # Other FontDescriptor keys include:
         # /FontFamily /Times (optional)
@@ -584,24 +605,57 @@ class PdfFile:
 
             widths = [ firstchar, widths ]
 
+        if fonttype == 3:
+            cmap = font.get_charmap()
+            glyph_ids = []
+            differences = []
+            for c in characters:
+                ccode = ord(c)
+                gind = cmap.get(ccode) or 0
+                glyph_ids.append(gind)
+                differences.append((ccode, font.get_glyph_name(gind)))
+            differences.sort()
+
+            last_c = -256
+            for c, name in differences:
+                if c != last_c + 1:
+                    differencesArray.append(c)
+                differencesArray.append(Name(name))
+                last_c = c
+
+            rawcharprocs = ttconv.get_pdf_charprocs(filename, glyph_ids)
+            charprocs = {}
+            charprocsRef = {}
+            for charname, stream in rawcharprocs.items():
+                charprocObject = self.reserveObject('charProc for %s' % name)
+                self.beginStream(charprocObject.id,
+                                 None,
+                                 {'Length':  len(stream)})
+                self.currentstream.write(stream)                 
+                self.endStream()
+                charprocs[charname] = charprocObject
+            self.writeObject(charprocsObject, charprocs)
+
+        elif fonttype == 42:
+            length1Object = self.reserveObject('decoded length of a font')
+            self.beginStream(descriptor['FontFile2'].id,
+                             self.reserveObject('length of font stream'),
+                             {'Length1': length1Object})
+            fontfile = open(filename, 'rb')
+            length1 = 0
+            while True:
+                data = fontfile.read(4096)
+                if not data: break
+                length1 += len(data)
+                self.currentstream.write(data)
+            fontfile.close()
+            self.endStream()
+            self.writeObject(length1Object, length1)
+
         fontdictObject = self.reserveObject('font dictionary')
-        length1Object = self.reserveObject('decoded length of a font')
         self.writeObject(fontdictObject, fontdict)
         self.writeObject(widthsObject, widths)
         self.writeObject(fontdescObject, descriptor)
-        self.beginStream(descriptor['FontFile2'].id,
-                         self.reserveObject('length of font stream'),
-                         {'Length1': length1Object})
-        fontfile = open(filename, 'rb')
-        length1 = 0
-        while True:
-            data = fontfile.read(4096)
-            if not data: break
-            length1 += len(data)
-            self.currentstream.write(data)
-        fontfile.close()
-        self.endStream()
-        self.writeObject(length1Object, length1)
 
         return fontdictObject
 
@@ -849,6 +903,7 @@ class RendererPdf(RendererBase):
         self.gc = self.new_gc()
         self.truetype_font_cache = {}
         self.afm_font_cache = {}
+        self.file.used_characters = self.used_characters = {}
 
     def finalize(self):
         self.gc.finalize()
@@ -864,6 +919,16 @@ class RendererPdf(RendererBase):
 
         # Restore gc to avoid unwanted side effects
         gc._fillcolor = orig_fill
+
+    def track_characters(self, font, s):
+        """Keeps track of which characters are required from
+        each font."""
+        if isinstance(font, (str, unicode)):
+            fname = font
+        else:
+            fname = font.fname
+        used_characters = self.used_characters.setdefault(fname, sets.Set())
+        used_characters.update(s)
 
     def draw_arc(self, gcEdge, rgbFace, x, y, width, height,
                  angle1, angle2, rotation):
@@ -1018,7 +1083,7 @@ class RendererPdf(RendererBase):
     def draw_mathtext(self, gc, x, y, s, prop, angle):
         # TODO: fix positioning and encoding
         fontsize = prop.get_size_in_points()
-        width, height, pswriter = math_parse_s_pdf(s, 72, fontsize)
+        width, height, pswriter = math_parse_s_pdf(s, 72, fontsize, 0, self.track_characters)
 
         self.check_gc(gc, gc._rgb)
         self.file.output(Op.begin_text)
@@ -1114,6 +1179,7 @@ class RendererPdf(RendererBase):
             y -= b * fontsize / 1000
         else:
             font = self._get_font_ttf(prop)
+            self.track_characters(font, s)
             font.set_text(s, 0.0)
             y += font.get_descent() / 64.0
 
@@ -1131,7 +1197,8 @@ class RendererPdf(RendererBase):
 
         if ismath:
             fontsize = prop.get_size_in_points()
-            w, h, pswriter = math_parse_s_pdf(s, 72, fontsize)
+            w, h, pswriter = math_parse_s_pdf(
+                s, 72, fontsize, 0, self.track_characters)
 
         elif rcParams['pdf.use14corefonts']:
             font = self._get_font_afm(prop)
