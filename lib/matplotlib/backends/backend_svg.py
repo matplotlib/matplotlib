@@ -255,7 +255,6 @@ class RendererSVG(RendererBase):
 
             cmap = font.get_charmap()
             lastgind = None
-            lines = []
             currx = 0
             for c in s:
                 charid = self._add_char_def(prop, c)
@@ -263,10 +262,7 @@ class RendererSVG(RendererBase):
                 gind = cmap.get(ccode)
                 if gind is None:
                     ccode = ord('?')
-                    name = '.notdef'
                     gind = 0
-                else:
-                    name = font.get_glyph_name(gind)
                 glyph = font.load_char(ccode)
 
                 if lastgind is not None:
