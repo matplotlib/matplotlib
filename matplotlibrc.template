@@ -268,6 +268,7 @@ numerix      : %(numerix)s  # numpy, Numeric or numarray
 # svg backend params
 #svg.image_inline : True       # write raster image data directly into the svg file
 #svg.image_noscale : False     # suppress scaling of raster data embedded in SVG
+#svg.embed_chars : False       # embed character outlines in the SVG file
 
 # Set the verbose flags.  This controls how much information
 # matplotlib gives you at runtime and where it goes.  The verbosity

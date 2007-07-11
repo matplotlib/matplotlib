@@ -432,6 +432,7 @@ defaultParams = {
     'pdf.fonttype'      : [3, validate_fonttype],  # 3 (Type3) or 42 (Truetype)
     'svg.image_inline'  : [True, validate_bool],    # write raster image data directly into the svg file
     'svg.image_noscale' : [False, validate_bool],  # suppress scaling of raster data embedded in SVG
+    'svg.embed_char_paths' : [False, validate_bool],  # True to save all characters as paths in the SVG
     'plugins.directory' : ['.matplotlib_plugins', str], # where plugin directory is locate
 
     # mathtext settings
