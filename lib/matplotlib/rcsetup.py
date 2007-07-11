@@ -300,7 +300,7 @@ defaultParams = {
 
 
     # font props
-    'font.family'       : ['serif', str],            # used by text object
+    'font.family'       : ['sans-serif', str],       # used by text object
     'font.style'        : ['normal', str],           #
     'font.variant'      : ['normal', str],           #
     'font.stretch'      : ['normal', str],           #

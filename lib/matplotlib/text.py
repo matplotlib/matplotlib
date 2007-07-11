@@ -106,6 +106,7 @@ artist.kwdocd['Text'] =  """\
             fontproperties: a matplotlib.font_manager.FontProperties instance
             horizontalalignment or ha: [ 'center' | 'right' | 'left' ]
             label: any string
+            linespacing: float
             lod: [True | False]
             multialignment: ['left' | 'right' | 'center' ]
             name or fontname: string eg, ['Sans' | 'Courier' | 'Helvetica' ...]
@@ -144,6 +145,7 @@ class Text(Artist):
                  multialignment=None,
                  fontproperties=None, # defaults to FontProperties()
                  rotation=None,
+                 linespacing=1.2,
                  **kwargs
                  ):
         """
@@ -167,13 +169,14 @@ class Text(Artist):
         self._fontproperties = fontproperties
         self._bbox = None
         self._renderer = None
+        self._linespacing = linespacing
         self.update(kwargs)
         #self.set_bbox(dict(pad=0))
     __init__.__doc__ = cbook.dedent(__init__.__doc__) % artist.kwdocd
 
     def contains(self,mouseevent):
-        """Test whether the mouse event occurred in the patch.  
-        
+        """Test whether the mouse event occurred in the patch.
+
         Returns T/F, {}
         """
         if callable(self._contains): return self._contains(self,mouseevent)
@@ -189,7 +192,7 @@ class Text(Artist):
         xyverts = (l,b), (l, t), (r, t), (r, b)
         x, y = mouseevent.x, mouseevent.y
         inside = nxutils.pnpoly(x, y, xyverts)
-        return inside,{}        
+        return inside,{}
 
     def _get_xy_display(self):
         'get the (possibly unit converted) transformed x,y in display coords'
@@ -227,6 +230,7 @@ class Text(Artist):
         self._fontproperties = other._fontproperties.copy()
         self._rotation = other._rotation
         self._picker = other._picker
+        self._linespacing = other._linespacing
 
     def _get_layout(self, renderer):
 
@@ -236,7 +240,6 @@ class Text(Artist):
         key = self.get_prop_tup()
         if self.cached.has_key(key): return self.cached[key]
         horizLayout = []
-        pad =2
         thisx, thisy = self._get_xy_display()
         width = 0
         height = 0
@@ -248,16 +251,16 @@ class Text(Artist):
             lines = self._text.split('\n')
 
         whs = []
+        # Find full vertical extent, including ascenders and descenders:
         tmp, heightt = renderer.get_text_width_height(
-                'T', self._fontproperties, ismath=False)
+                'Tglp', self._fontproperties, ismath=False)
 
-        heightt += 3  # 3 pixel pad
         for line in lines:
             w,h = renderer.get_text_width_height(
                 line, self._fontproperties, ismath=self.is_math_text())
 
             whs.append( (w,h) )
-            offsety = heightt+pad
+            offsety = heightt * self._linespacing
             horizLayout.append((line, thisx, thisy, w, h))
             thisy -= offsety  # now translate down by text height, window coords
             width = max(width, w)
@@ -620,6 +623,14 @@ class Text(Artist):
         if align not in legal:
             raise ValueError('Horizontal alignment must be one of %s' % str(legal))
         self._multialignment = align
+
+    def set_linespacing(self, spacing):
+        """
+        Set the line spacing as a multiple of the font size.
+
+        ACCEPTS: float
+        """
+        self._linespacing = spacing
 
     def set_family(self, fontname):
         """
@@ -1196,14 +1207,14 @@ class Annotation(Text):
         self.xycoords = xycoords
         self.textcoords = textcoords
     __init__.__doc__ = cbook.dedent(__init__.__doc__) % artist.kwdocd
-    
+
     def contains(self,event):
         t,tinfo = Text.contains(self,event)
         if self.arrow is not None:
             a,ainfo=self.arrow.contains(event)
             t = t or a
         return t,tinfo
-            
+
 
     def set_clip_box(self, clipbox):
         """
