@@ -15,7 +15,7 @@ from matplotlib.afm import AFM
 from matplotlib.backend_bases import RendererBase, GraphicsContextBase,\
      FigureManagerBase, FigureCanvasBase
 
-from matplotlib.cbook import is_string_like, izip
+from matplotlib.cbook import is_string_like, izip, get_realpath_and_stat
 from matplotlib.figure import Figure
 
 from matplotlib.font_manager import fontManager
@@ -149,9 +149,10 @@ class RendererPS(RendererBase):
     def track_characters(self, font, s):
         """Keeps track of which characters are required from
         each font."""
-        fname = font.fname
-        used_characters = self.used_characters.setdefault(fname, sets.Set())
-        used_characters.update(s)
+        realpath, stat_key = get_realpath_and_stat(font.fname)
+        used_characters = self.used_characters.setdefault(
+            stat_key, (realpath, sets.Set()))
+        used_characters[1].update(s)
 
     def set_color(self, r, g, b, store=1):
         if (r,g,b) != self.color:
@@ -1028,7 +1029,7 @@ class FigureCanvasPS(FigureCanvasBase):
                 for l in d.split('\n'):
                     print >>fh, l.strip()
             if not rcParams['ps.useafm']:
-                for font_filename, chars in renderer.used_characters.items():
+                for font_filename, chars in renderer.used_characters.values():
                     font = FT2Font(font_filename)
                     cmap = font.get_charmap()
                     glyph_ids = []

@@ -405,6 +405,21 @@ def mkdirs(newdir, mode=0777):
          raise
 
 
+class GetRealpathAndStat:
+    def __init__(self):
+        self._cache = {}
+
+    def __call__(self, path):
+        result = self._cache.get(path)
+        if result is None:
+            realpath = os.path.realpath(path)
+            stat = os.stat(realpath)
+            stat_key = (stat.st_ino, stat.st_dev)
+            result = realpath, stat_key
+            self._cache[path] = result
+        return result
+get_realpath_and_stat = GetRealpathAndStat()
+
 def dict_delall(d, keys):
     'delete all of the keys from the dict d'
     for key in keys:
