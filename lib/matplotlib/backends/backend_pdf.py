@@ -21,7 +21,7 @@ from matplotlib import __version__, rcParams, agg, get_data_path
 from matplotlib._pylab_helpers import Gcf
 from matplotlib.backend_bases import RendererBase, GraphicsContextBase,\
      FigureManagerBase, FigureCanvasBase
-from matplotlib.cbook import Bunch, enumerate, is_string_like, reverse_dict
+from matplotlib.cbook import Bunch, enumerate, is_string_like, reverse_dict, get_realpath_and_stat
 from matplotlib.figure import Figure
 from matplotlib.font_manager import fontManager
 from matplotlib.afm import AFM
@@ -455,8 +455,9 @@ class PdfFile:
             if filename.endswith('.afm'):
                 fontdictObject = self._write_afm_font(filename)
             else:
+                realpath, stat_key = get_realpath_and_stat(filename)
                 fontdictObject = self.embedTTF(
-                    filename, self.used_characters[filename])
+                    *self.used_characters[stat_key])
             fonts[Fx] = fontdictObject
             #print >>sys.stderr, filename
         self.writeObject(self.fontObject, fonts)
@@ -927,8 +928,10 @@ class RendererPdf(RendererBase):
             fname = font
         else:
             fname = font.fname
-        used_characters = self.used_characters.setdefault(fname, sets.Set())
-        used_characters.update(s)
+        realpath, stat_key = get_realpath_and_stat(fname)
+        used_characters = self.used_characters.setdefault(
+            stat_key, (realpath, sets.Set()))
+        used_characters[1].update(s)
 
     def draw_arc(self, gcEdge, rgbFace, x, y, width, height,
                  angle1, angle2, rotation):
