@@ -1,14 +1,14 @@
 from __future__ import division
 
-import os, codecs, base64, tempfile
+import os, codecs, base64, tempfile, urllib
 
 from matplotlib import verbose, __version__, rcParams
 from matplotlib.backend_bases import RendererBase, GraphicsContextBase,\
      FigureManagerBase, FigureCanvasBase
 from matplotlib.colors import rgb2hex
 from matplotlib.figure import Figure
-from matplotlib.font_manager import fontManager
-from matplotlib.ft2font import FT2Font
+from matplotlib.font_manager import fontManager, FontProperties
+from matplotlib.ft2font import FT2Font, KERNING_UNFITTED, KERNING_DEFAULT, KERNING_UNSCALED
 from matplotlib.mathtext import math_parse_s_ft2font_svg
 
 backend_version = __version__
@@ -24,6 +24,8 @@ def new_figure_manager(num, *args, **kwargs):
 _fontd = {}
 _capstyle_d = {'projecting' : 'square', 'butt' : 'butt', 'round': 'round',}
 class RendererSVG(RendererBase):
+    FONT_SCALE = 1200.0
+
     def __init__(self, width, height, svgwriter, basename=None):
         self.width=width
         self.height=height
@@ -35,6 +37,7 @@ class RendererSVG(RendererBase):
             self.basename = basename
             self._imaged = {}
         self._clipd = {}
+        self._char_defs = {}
         svgwriter.write(svgProlog%(width,height,width,height))
 
     def _draw_svg_element(self, element, details, gc, rgbFace):
@@ -237,68 +240,159 @@ class RendererSVG(RendererBase):
         font = self._get_font(prop)
 
         thetext = '%s' % s
-        fontfamily=font.family_name
-        fontstyle=font.style_name
+        fontfamily = font.family_name
+        fontstyle = font.style_name
         fontsize = prop.get_size_in_points()
         color = rgb2hex(gc.get_rgb())
 
-        style = 'font-size: %f; font-family: %s; font-style: %s; fill: %s;'%(fontsize, fontfamily,fontstyle, color)
-        if angle!=0:
-            transform = 'transform="translate(%f,%f) rotate(%1.1f) translate(%f,%f)"' % (x,y,-angle,-x,-y) # Inkscape doesn't support rotate(angle x y)
-        else: transform = ''
+        if rcParams['svg.embed_char_paths']:
+            svg = '<g transform="'
+            if angle!=0:
+                svg += 'translate(%f,%f) rotate(%1.1f) ' % (x,y,-angle) # Inkscape doesn't support rotate(angle x y)
+            else:
+                svg += 'translate(%f,%f)' % (x,y)
+            svg += ' scale(%f)">\n' % (fontsize / self.FONT_SCALE)
 
-        svg = """\
+            cmap = font.get_charmap()
+            lastgind = None
+            lines = []
+            currx = 0
+            for c in s:
+                charid = self._add_char_def(prop, c)
+                ccode = ord(c)
+                gind = cmap.get(ccode)
+                if gind is None:
+                    ccode = ord('?')
+                    name = '.notdef'
+                    gind = 0
+                else:
+                    name = font.get_glyph_name(gind)
+                glyph = font.load_char(ccode)
+
+                if lastgind is not None:
+                    kern = font.get_kerning(lastgind, gind, KERNING_UNFITTED)
+                else:
+                    kern = 0
+                lastgind = gind
+                currx += kern/64.0
+
+                svg += ('<use xlink:href="#%s" transform="translate(%s)"/>\n' 
+                         % (charid, currx / (fontsize / self.FONT_SCALE)))
+                
+                currx += glyph.linearHoriAdvance / 65536.0
+            svg += '</g>\n'
+        else:
+            style = 'font-size: %f; font-family: %s; font-style: %s; fill: %s;'%(fontsize, fontfamily,fontstyle, color)
+            if angle!=0:
+                transform = 'transform="translate(%f,%f) rotate(%1.1f) translate(%f,%f)"' % (x,y,-angle,-x,-y) # Inkscape doesn't support rotate(angle x y)
+            else: transform = ''
+
+            svg = """\
 <text style="%(style)s" x="%(x)f" y="%(y)f" %(transform)s>%(thetext)s</text>
 """ % locals()
         self._svgwriter.write (svg)
+
+    def _add_char_def(self, prop, char):
+        newprop = prop.copy()
+        newprop.set_size(self.FONT_SCALE)
+        font = self._get_font(newprop)
+        ps_name = font.get_sfnt()[(1,0,0,6)]
+        id = urllib.quote('%s-%d' % (ps_name, ord(char)))
+        if id in self._char_defs:
+            return id
+
+        path_element = '<path id="%s" ' % (id)
+        path_data = []
+        glyph = font.load_char(ord(char))
+        currx, curry = 0.0, 0.0
+        for step in glyph.path:
+            if step[0] == 0:   # MOVE_TO
+                path_data.append("m%s %s" % 
+                                 (step[1] - currx, -step[2] - curry))
+            elif step[0] == 1: # LINE_TO
+                path_data.append("l%s %s" % 
+                                 (step[1] - currx, -step[2] - curry))
+            elif step[0] == 2: # CURVE3
+                path_data.append("q%s %s %s %s" % 
+                                 (step[1] - currx, -step[2] - curry,
+                                  step[3] - currx, -step[4] - curry))
+            elif step[0] == 3: # CURVE4
+                path_data.append("c%s %s %s %s %s %s" % 
+                                 (step[1] - currx, -step[2] - curry,
+                                  step[3] - currx, -step[4] - curry,
+                                  step[5] - currx, -step[6] - curry))
+            elif step[0] == 4: # ENDPOLY
+                path_data.append("Z")
+
+            if step[0] != 4:
+                currx, curry = step[-2], -step[-1]
+        path_element += 'd="%s"/>\n' % " ".join(path_data)
+        
+        self._char_defs[id] = path_element
+        return id
 
     def _draw_mathtext(self, gc, x, y, s, prop, angle):
         """
         Draw math text using matplotlib.mathtext
         """
         fontsize = prop.get_size_in_points()
-        width, height, svg_elements = math_parse_s_ft2font_svg(s,
-                                                                72, fontsize)
+        width, height, svg_elements = math_parse_s_ft2font_svg(s, 72, fontsize)
         svg_glyphs = svg_elements.svg_glyphs
         svg_lines = svg_elements.svg_lines
         color = rgb2hex(gc.get_rgb())
 
         self.open_group("mathtext")
 
-        svg = '<text style="fill: %s" x="%f" y="%f"' % (color,x,y)
-
-        if angle != 0:
-            svg += ( ' transform="translate(%f,%f) rotate(%1.1f) translate(%f,%f)"'
-                     % (x,y,-angle,-x,-y) ) # Inkscape doesn't support rotate(angle x y)
-        svg += '>\n'
-
-        curr_x,curr_y = 0.0,0.0
-
-        for fontname, fontsize, thetext, new_x, new_y_mtc, metrics in svg_glyphs:
-            if rcParams["mathtext.mathtext2"]:
-                new_y = new_y_mtc - height
+        if rcParams['svg.embed_char_paths']:
+            svg = '<g style="fill: %s" transform="' % color
+            if angle != 0:
+                svg += ( 'translate(%f,%f) rotate(%1.1f)'
+                         % (x,y,-angle) ) 
             else:
-                new_y = - new_y_mtc
+                svg += 'translate(%f,%f)' % (x, y)
+            svg += '">\n'
 
-            svg += '<tspan'
-            svg += ' style="font-size: %f; font-family: %s"'%(fontsize, fontname)
-            xadvance = metrics.advance
-            svg += ' textLength="%f"' % xadvance
+            for fontname, fontsize, thetext, new_x, new_y_mtc, metrics in svg_glyphs:
+                prop = FontProperties(family=fontname, size=fontsize)
+                charid = self._add_char_def(prop, thetext)
 
-            dx = new_x - curr_x
-            if dx != 0.0:
-                svg += ' dx="%f"' % dx
+                svg += '<use xlink:href="#%s" transform="translate(%s, %s) scale(%s)"/>\n' % (charid, new_x, -new_y_mtc, fontsize / self.FONT_SCALE)
+            svg += '</g>\n'
+        else: # not rcParams['svg.embed_char_paths']
+            svg = '<text style="fill: %s" x="%f" y="%f"' % (color,x,y)
 
-            dy = new_y - curr_y
-            if dy != 0.0:
-                svg += ' dy="%f"' % dy
+            if angle != 0:
+                svg += ( ' transform="translate(%f,%f) rotate(%1.1f) translate(%f,%f)"'
+                         % (x,y,-angle,-x,-y) ) # Inkscape doesn't support rotate(angle x y)
+            svg += '>\n'
 
-            svg += '>%s</tspan>\n' % thetext
+            curr_x,curr_y = 0.0,0.0
 
-            curr_x = new_x + xadvance
-            curr_y = new_y
+            for fontname, fontsize, thetext, new_x, new_y_mtc, metrics in svg_glyphs:
+                if rcParams["mathtext.mathtext2"]:
+                    new_y = new_y_mtc - height
+                else:
+                    new_y = - new_y_mtc
 
-        svg += '</text>\n'
+                svg += '<tspan'
+                svg += ' style="font-size: %f; font-family: %s"'%(fontsize, fontname)
+                xadvance = metrics.advance
+                svg += ' textLength="%f"' % xadvance
+
+                dx = new_x - curr_x
+                if dx != 0.0:
+                    svg += ' dx="%f"' % dx
+
+                dy = new_y - curr_y
+                if dy != 0.0:
+                    svg += ' dy="%f"' % dy
+
+                svg += '>%s</tspan>\n' % thetext
+
+                curr_x = new_x + xadvance
+                curr_y = new_y
+
+            svg += '</text>\n'
 
         self._svgwriter.write (svg)
         rgbFace = gc.get_rgb()
@@ -310,6 +404,11 @@ class RendererSVG(RendererBase):
         self.close_group("mathtext")
 
     def finish(self):
+        if len(self._char_defs):
+            self._svgwriter.write('<defs id="fontpaths">\n')
+            for path in self._char_defs.values():
+                self._svgwriter.write(path)
+            self._svgwriter.write('</defs>\n')
         self._svgwriter.write('</svg>\n')
 
     def flipy(self):
