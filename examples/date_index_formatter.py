@@ -11,7 +11,7 @@ Formatter to get the appropriate date string for a given index.
 import numpy
 from matplotlib.mlab import csv2rec
 from pylab import figure, show
-from matplotlib.dates import Formatter
+from matplotlib.ticker import Formatter
 
 r = csv2rec('data/msft.csv')[-40:]
 

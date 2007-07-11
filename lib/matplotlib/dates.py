@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """
 
-Matplotlib provides sophisticated date plotting capabilites, standing
+Matplotlib provides sophisticated date plotting capabilities, standing
 on the shoulders of python datetime, the add-on modules pytz and
 dateutils.  datetime objects are converted to floating point numbers
 which represent the number of days since 0001-01-01 UTC.  The helper
@@ -17,12 +17,13 @@ All the matplotlib date converters, tickers and formatters are
 timezone aware, and the default timezone is given by the timezone
 parameter in your matplotlibrc file.  If you leave out a tz timezone
 instance, the default from your rc file will be assumed.  If you want
-to use a custom time zone, pass a matplotlib.pytz.timezone instance
+to use a custom time zone, pass a pytz.timezone instance
 with the tz keyword argument to num2date, plot_date, and any custom
 date tickers or locators you create.  See http://pytz.sourceforge.net
 for information on pytz and timezone handling.
 
-dateutils https://moin.conectiva.com.br/DateUtil the code to handle
+The dateutil module (http://labix.org/python-dateutil)
+provides additional code to handle
 date ticking, making it easy to place ticks on any kinds of dates -
 see examples below.
 
@@ -78,27 +79,38 @@ Date formatters
 import sys, re, time, math, datetime
 import locale
 
+import pytz
 import matplotlib
-
+import numpy as npy
 
 import matplotlib.units as units
+import matplotlib.cbook as cbook
+import matplotlib.ticker as ticker
 
-from cbook import iterable, is_string_like, is_numlike
 from pytz import timezone
-from numerix import arange, asarray
-from ticker import Formatter, Locator, Base
 from dateutil.rrule import rrule, MO, TU, WE, TH, FR, SA, SU, YEARLY, \
      MONTHLY, WEEKLY, DAILY, HOURLY, MINUTELY, SECONDLY
 from dateutil.relativedelta import relativedelta
 import dateutil.parser
 
-from matplotlib import cbook
 
-UTC = timezone('UTC')
+__all__ = ( 'date2num', 'num2date', 'drange', 'epoch2num',
+            'num2epoch', 'mx2num', 'DateFormatter',
+            'IndexDateFormatter', 'DateLocator', 'RRuleLocator',
+            'YearLocator', 'MonthLocator', 'WeekdayLocator',
+            'DayLocator', 'HourLocator', 'MinuteLocator',
+            'SecondLocator', 'rrule', 'MO', 'TU', 'WE', 'TH', 'FR',
+            'SA', 'SU', 'YEARLY', 'MONTHLY', 'WEEKLY', 'DAILY',
+            'HOURLY', 'MINUTELY', 'SECONDLY', 'relativedelta',
+            'seconds', 'minutes', 'hours', 'weeks')
+
+
+
+UTC = pytz.timezone('UTC')
 
 def _get_rc_timezone():
     s = matplotlib.rcParams['timezone']
-    return timezone(s)
+    return pytz.timezone(s)
 
 
 HOURS_PER_DAY = 24.
@@ -113,17 +125,8 @@ MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, SUNDAY = (
     MO, TU, WE, TH, FR, SA, SU)
 WEEKDAYS = (MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, SUNDAY)
 
-__all__ = ['date2num', 'num2date', 'drange', 'HOURS_PER_DAY',
-           'MINUTES_PER_DAY', 'SECONDS_PER_DAY', 'MUSECONDS_PER_DAY',
-           'SEC_PER_MIN', 'SEC_PER_HOUR', 'SEC_PER_DAY',
-           'SEC_PER_WEEK', 'MONDAY', 'TUESDAY', 'WEDNESDAY',
-           'THURSDAY', 'FRIDAY', 'SATURDAY', 'SUNDAY', 'MO', 'TU',
-           'WE', 'TH', 'FR', 'SA', 'SU', 'WEEKDAYS', 'YEARLY',
-           'MONTHLY', 'WEEKLY', 'DAILY', 'HOURLY', 'MINUTELY',
-           'SECONDLY', 'DateFormatter', 'rrulewrapper',
-           'RRuleLocator', 'YearLocator', 'MonthLocator',
-           'WeekdayLocator', 'DayLocator', 'HourLocator',
-           'MinuteLocator', 'SecondLocator', 'timezone']
+
+
 
 def _to_ordinalf(dt):
     """
@@ -188,7 +191,7 @@ def datestr2num(d):
     Convert a date string to a datenum using dateutil.parser.parse
     d can be a single string or a sequence of strings
     """
-    if is_string_like(d):
+    if cbook.is_string_like(d):
         dt = dateutil.parser.parse(d)
         return date2num(dt)
     else:
@@ -203,18 +206,18 @@ def date2num(d):
     which gives number of days (fraction part represents hours,
     minutes, seconds) since 0001-01-01 00:00:00 UTC
     """
-    if not iterable(d): return _to_ordinalf(d)
-    else: return asarray([_to_ordinalf(val) for val in d])
+    if not cbook.iterable(d): return _to_ordinalf(d)
+    else: return npy.asarray([_to_ordinalf(val) for val in d])
 
 
 def julian2num(j):
     'convert a Julian date (or sequence) to a matplotlib date (or sequence)'
-    if iterable(j): j = asarray(j)
+    if cbook.iterable(j): j = npy.asarray(j)
     return j + 1721425.5
 
 def num2julian(n):
     'convert a matplotlib date (or seguence) to a Julian date (or sequence)'
-    if iterable(n): n = asarray(n)
+    if cbook.iterable(n): n = npy.asarray(n)
     return n - 1721425.5
 
 def num2date(x, tz=None):
@@ -228,7 +231,7 @@ def num2date(x, tz=None):
     if x is a sequence, a sequence of datetimes will be returned
     """
     if tz is None: tz = _get_rc_timezone()
-    if not iterable(x): return _from_ordinalf(x, tz)
+    if not cbook.iterable(x): return _from_ordinalf(x, tz)
     else: return [_from_ordinalf(val, tz) for val in x]
 
 def drange(dstart, dend, delta):
@@ -240,7 +243,7 @@ def drange(dstart, dend, delta):
             delta.microseconds/MUSECONDS_PER_DAY)
     f1 = _to_ordinalf(dstart)
     f2 = _to_ordinalf(dend)
-    return arange(f1, f2, step)
+    return npy.arange(f1, f2, step)
 
 
 
@@ -248,7 +251,7 @@ def drange(dstart, dend, delta):
 
 
 
-class DateFormatter(Formatter):
+class DateFormatter(ticker.Formatter):
     """
     Tick location is seconds since the epoch.  Use a strftime format
     string
@@ -329,7 +332,7 @@ class DateFormatter(Formatter):
 
 
 
-class IndexDateFormatter(Formatter):
+class IndexDateFormatter(ticker.Formatter):
     """
     Use with IndexLocator to cycle format strings by index.
     """
@@ -354,7 +357,7 @@ class IndexDateFormatter(Formatter):
         return cbook.unicode_safe(dt.strftime(self.fmt))
 
 
-class AutoDateFormatter(Formatter):
+class AutoDateFormatter(ticker.Formatter):
     """
     This class attempt to figure out the best format to use.  This is
     most useful when used with the AutoDateLocator.
@@ -413,7 +416,7 @@ class rrulewrapper:
             return self.__dict__[name]
         return getattr(self._rrule, name)
 
-class DateLocator(Locator):
+class DateLocator(ticker.Locator):
     hms0d = {'byhour':0, 'byminute':0,'bysecond':0}
     def __init__(self, tz=None):
         """
@@ -689,7 +692,7 @@ class YearLocator(DateLocator):
         (default jan 1)
         """
         DateLocator.__init__(self, tz)
-        self.base = Base(base)
+        self.base = ticker.Base(base)
         self.replaced = { 'month'  : month,
                           'day'    : day,
                           'hour'   : 0,
@@ -906,14 +909,14 @@ def epoch2num(e):
     days since 0001
     """
     spd = 24.*3600.
-    return 719163 + asarray(e)/spd
+    return 719163 + npy.asarray(e)/spd
 
 def num2epoch(d):
     """
     convert days since 0001 to epoch.  d can be a number or sequence
     """
     spd = 24.*3600.
-    return (asarray(d)-719163)*spd
+    return (npy.asarray(d)-719163)*spd
 
 def mx2num(mxdates):
     """
@@ -921,60 +924,12 @@ def mx2num(mxdates):
     new date format,
     """
     scalar = False
-    if not iterable(mxdates):
+    if not cbook.iterable(mxdates):
         scalar = True
         mxdates = [mxdates]
     ret = epoch2num([m.ticks() for m in mxdates])
     if scalar: return ret[0]
     else: return ret
-
-if __name__=='__main__':
-
-    #tz = None
-    tz = timezone('US/Pacific')
-    #tz = UTC
-
-    dt = datetime.datetime(1011, 10, 9, 13, 44, 22, 101010, tzinfo=tz)
-    x = date2num(dt)
-    _close_to_dt(dt, num2date(x, tz))
-
-    #tz = _get_rc_timezone()
-
-
-    d1 = datetime.datetime( 2000, 3, 1, tzinfo=tz)
-    d2 = datetime.datetime( 2000, 3, 5, tzinfo=tz)
-
-    #d1 = datetime.datetime( 2002, 1, 5, tzinfo=tz)
-    #d2 = datetime.datetime( 2003, 12, 1, tzinfo=tz)
-    delta = datetime.timedelta(hours=6)
-    dates = drange(d1, d2, delta)
-
-    #print 'orig', d1
-    #print 'd2n and back', num2date(date2num(d1), tz)
-    from _transforms import Value, Interval
-    v1 = Value(date2num(d1))
-    v2 = Value(date2num(d2))
-    dlim = Interval(v1,v2)
-    vlim = Interval(v1,v2)
-
-    #locator = HourLocator(byhour=(3,15), tz=tz)
-    #locator = MinuteLocator(byminute=(15,30,45), tz=tz)
-    #locator = YearLocator(base=5, month=7, day=4, tz=tz)
-    #locator = MonthLocator(bymonthday=15)
-    locator = DayLocator(tz=tz)
-    locator.set_data_interval(dlim)
-    locator.set_view_interval(vlim)
-    dmin, dmax = locator.autoscale()
-    vlim.set_bounds(dmin, dmax)
-    ticks =  locator()
-
-
-    fmt = '%Y-%m-%d %H:%M:%S %Z'
-    formatter = DateFormatter(fmt, tz)
-
-    #for t in  ticks: print formatter(t)
-
-    for t in dates: print formatter(t)
 
 
 def date_ticker_factory(span, tz=None, numticks=5):
@@ -1057,7 +1012,7 @@ class DateConverter(units.ConversionInterface):
         if units.ConversionInterface.is_numlike(value): return value
         return date2num(value)
     convert = staticmethod(convert)
-        
+
     def default_units(x):
         'return the default unit for x or None'
         return 'date'
@@ -1069,13 +1024,53 @@ units.registry[datetime.datetime] = DateConverter()
 
 
 
-__all__ = ( 'date2num', 'num2date', 'drange', 'epoch2num',
-            'num2epoch', 'mx2num', 'DateFormatter',
-            'IndexDateFormatter', 'DateLocator', 'RRuleLocator',
-            'YearLocator', 'MonthLocator', 'WeekdayLocator',
-            'DayLocator', 'HourLocator', 'MinuteLocator',
-            'SecondLocator', 'rrule', 'MO', 'TU', 'WE', 'TH', 'FR',
-            'SA', 'SU', 'YEARLY', 'MONTHLY', 'WEEKLY', 'DAILY',
-            'HOURLY', 'MINUTELY', 'SECONDLY', 'relativedelta',
-            'seconds', 'minutes', 'hours', 'weeks')
+if __name__=='__main__':
+
+    #tz = None
+    tz = pytz.timezone('US/Pacific')
+    #tz = UTC
+
+    dt = datetime.datetime(1011, 10, 9, 13, 44, 22, 101010, tzinfo=tz)
+    x = date2num(dt)
+    _close_to_dt(dt, num2date(x, tz))
+
+    #tz = _get_rc_timezone()
+
+
+    d1 = datetime.datetime( 2000, 3, 1, tzinfo=tz)
+    d2 = datetime.datetime( 2000, 3, 5, tzinfo=tz)
+
+    #d1 = datetime.datetime( 2002, 1, 5, tzinfo=tz)
+    #d2 = datetime.datetime( 2003, 12, 1, tzinfo=tz)
+    delta = datetime.timedelta(hours=6)
+    dates = drange(d1, d2, delta)
+
+    #print 'orig', d1
+    #print 'd2n and back', num2date(date2num(d1), tz)
+    from _transforms import Value, Interval
+    v1 = Value(date2num(d1))
+    v2 = Value(date2num(d2))
+    dlim = Interval(v1,v2)
+    vlim = Interval(v1,v2)
+
+    #locator = HourLocator(byhour=(3,15), tz=tz)
+    #locator = MinuteLocator(byminute=(15,30,45), tz=tz)
+    #locator = YearLocator(base=5, month=7, day=4, tz=tz)
+    #locator = MonthLocator(bymonthday=15)
+    locator = DayLocator(tz=tz)
+    locator.set_data_interval(dlim)
+    locator.set_view_interval(vlim)
+    dmin, dmax = locator.autoscale()
+    vlim.set_bounds(dmin, dmax)
+    ticks =  locator()
+
+
+    fmt = '%Y-%m-%d %H:%M:%S %Z'
+    formatter = DateFormatter(fmt, tz)
+
+    #for t in  ticks: print formatter(t)
+
+    for t in dates: print formatter(t)
+
+
 
