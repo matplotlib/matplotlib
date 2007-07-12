@@ -1,3 +1,5 @@
+2007-07-11 Added linespacing kwarg to text.Text - EF
+
 2007-07-11 Added code to store font paths in SVG files. - MGD
 
 2007-07-10 Store subset of TTF font as a Type 3 font in PDF files. - MGD

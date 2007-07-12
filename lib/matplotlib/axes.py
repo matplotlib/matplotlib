@@ -460,7 +460,7 @@ class Axes(Artist):
     scaled = {IDENTITY : 'linear',
               LOG10 : 'log',
               }
-    
+
     def __str__(self):
         return "Axes(%g,%g;%gx%g)"%(self._position[0].get(),self._position[1].get(),
                                     self._position[2].get(),self._position[3].get())
@@ -1955,11 +1955,11 @@ class Axes(Artist):
 
     def contains(self,mouseevent):
         """Test whether the mouse event occured in the axes.
-        
+
         Returns T/F, {}
         """
         if callable(self._contains): return self._contains(self,mouseevent)
-        
+
         x,y = self.axes.transAxes.inverse_xy_tup((mouseevent.x,mouseevent.y))
         inside = x>=0 and x<=1 and y>=0 and y<=1
         return inside,{}
@@ -5313,7 +5313,7 @@ class Subplot(SubplotBase, Axes):
     """
     def __str__(self):
         return "Subplot(%g,%g)"%(self.bottom.get(),self.left.get())
-    
+
     def __init__(self, fig, *args, **kwargs):
         """
         See Axes base class documentation for args and kwargs
@@ -5380,11 +5380,11 @@ class PolarAxes(Axes):
 
     def contains(self,mouseevent):
         """Test whether the mouse event occured in the axes.
-        
+
         Returns T/F, {}
         """
         if callable(self._contains): return self._contains(self,mouseevent)
-        
+
         x,y = self.axes.transAxes.inverse_xy_tup((mouseevent.x,mouseevent.y))
         #print "Polar: x,y = ",x,y
         inside = (x-0.5)**2 + (y-0.5)**2 <= 0.25
@@ -5561,7 +5561,7 @@ class PolarAxes(Axes):
         rmax = self.get_rmax()
         for r in radii:
             r = ones(self.RESOLUTION)*r
-            line = Line2D(theta, r, linestyle=ls, color=color, linewidth=lw, 
+            line = Line2D(theta, r, linestyle=ls, color=color, linewidth=lw,
                           figure=self.figure)
             #line = Line2D(nx.mlab.rand(len(theta)), nx.mlab.rand(len(theta)),
             #              linestyle=ls, color=color, linewidth=lw, figure=self.figure)

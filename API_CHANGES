@@ -1,3 +1,9 @@
+    Text creation commands have a new default linespacing and
+    a new linespacing kwarg, which is a multiple of the maximum
+    vertical extent of a line of ordinary text.  The default is
+    1.2; linespacing=2 would be like ordinary double spacing, for
+    example.
+
     Changed default kwarg in colors.Normalize.__init__ to clip=False;
     clipping silently defeats the purpose of the special over, under,
     and bad values in the colormap, thereby leading to unexpected
