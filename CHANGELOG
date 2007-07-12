@@ -1,3 +1,5 @@
+2007-07-12 Bugfixes in mlab.py to coerce inputs into numpy arrays. -ADS
+
 2007-07-11 Added linespacing kwarg to text.Text - EF
 
 2007-07-11 Added code to store font paths in SVG files. - MGD
