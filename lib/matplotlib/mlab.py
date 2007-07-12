@@ -173,6 +173,8 @@ def psd(x, NFFT=256, Fs=2, detrend=detrend_none,
     if NFFT % 2:
         raise ValueError, 'NFFT must be a power of 2'
 
+    x = asarray(x) # make sure we're dealing with a numpy array
+
     # zero pad x up to NFFT if it is shorter than NFFT
     if len(x)<NFFT:
         n = len(x)
@@ -240,6 +242,9 @@ def csd(x, y, NFFT=256, Fs=2, detrend=detrend_none,
 
     if NFFT % 2:
         raise ValueError, 'NFFT must be a power of 2'
+    
+    x = asarray(x) # make sure we're dealing with a numpy array
+    y = asarray(y) # make sure we're dealing with a numpy array
 
     # zero pad x and y up to NFFT if they are shorter than NFFT
     if len(x)<NFFT:
@@ -331,7 +336,7 @@ def corrcoef(*args):
     if len(args)==2:
         X = transpose(array([args[0]]+[args[1]]))
     elif len(args)==1:
-        X = args[0]
+        X = asarray(args[0])
     else:
         raise RuntimeError, 'Only expecting 1 or 2 arguments'
 
