@@ -145,7 +145,7 @@ class Text(Artist):
                  multialignment=None,
                  fontproperties=None, # defaults to FontProperties()
                  rotation=None,
-                 linespacing=1.2,
+                 linespacing=None,
                  **kwargs
                  ):
         """
@@ -169,6 +169,8 @@ class Text(Artist):
         self._fontproperties = fontproperties
         self._bbox = None
         self._renderer = None
+        if linespacing is None:
+            linespacing = 1.2   # Maybe use rcParam later.
         self._linespacing = linespacing
         self.update(kwargs)
         #self.set_bbox(dict(pad=0))
@@ -205,20 +207,7 @@ class Text(Artist):
 
     def get_rotation(self):
         'return the text angle as float'
-        #return 0
-
-#         if self._rotation in ('horizontal', None):
-#             angle = 0.
-#         elif self._rotation == 'vertical':
-#             angle = 90.
-#         else:
-#             angle = float(self._rotation)
-#         return angle%360
-
-        # Since the get_rotation logic was extracted
-        # into a function for TextWithDash, this
-        # method could now read as follows.
-        return get_rotation(self._rotation)
+        return get_rotation(self._rotation)  # string_or_number -> number
 
     def update_from(self, other):
         'Copy properties from other to self'
@@ -251,18 +240,18 @@ class Text(Artist):
             lines = self._text.split('\n')
 
         whs = []
-        # Find full vertical extent, including ascenders and descenders:
+        # Find full vertical extent of font,
+        # including ascenders and descenders:
         tmp, heightt = renderer.get_text_width_height(
-                'Tglp', self._fontproperties, ismath=False)
+                'lp', self._fontproperties, ismath=False)
+        offsety = heightt * self._linespacing
 
         for line in lines:
             w,h = renderer.get_text_width_height(
                 line, self._fontproperties, ismath=self.is_math_text())
-
             whs.append( (w,h) )
-            offsety = heightt * self._linespacing
             horizLayout.append((line, thisx, thisy, w, h))
-            thisy -= offsety  # now translate down by text height, window coords
+            thisy -= offsety
             width = max(width, w)
 
         ymin = horizLayout[-1][2]
@@ -627,6 +616,7 @@ class Text(Artist):
     def set_linespacing(self, spacing):
         """
         Set the line spacing as a multiple of the font size.
+        Default is 1.2.
 
         ACCEPTS: float
         """
@@ -888,6 +878,7 @@ class TextWithDash(Text):
                  multialignment=None,
                  fontproperties=None, # defaults to FontProperties()
                  rotation=None,
+                 linespacing=None,
                  dashlength=0.0,
                  dashdirection=0,
                  dashrotation=None,
@@ -900,7 +891,9 @@ class TextWithDash(Text):
                       verticalalignment=verticalalignment,
                       horizontalalignment=horizontalalignment,
                       multialignment=multialignment,
-                      fontproperties=fontproperties, rotation=rotation)
+                      fontproperties=fontproperties,
+                      rotation=rotation,
+                      linespacing=linespacing)
 
         # The position (x,y) values for text and dashline
         # are bogus as given in the instantiation; they will

@@ -1542,7 +1542,7 @@ def plotfile(fname, cols=(0,), plotfuncs=None,
     Example usage:
 
       # plot the 2nd and 4th column against the 1st in two subplots
-      plotfile(fname, (0,1,3))  
+      plotfile(fname, (0,1,3))
 
       # plot using column names; specify an alternate plot type for volume
       plotfile(fname, ('date', 'volume', 'adj_close'), plotfuncs={'volume': 'semilogy'})
@@ -1561,7 +1561,7 @@ def plotfile(fname, cols=(0,), plotfuncs=None,
         'return the name and column data for identifier'
         if cbook.is_string_like(identifier):
             return identifier, r[identifier]
-        elif cbook.is_numlike(identifier):            
+        elif cbook.is_numlike(identifier):
             name = r.dtype.names[int(identifier)]
             return name, r[name]
         else:
@@ -1590,7 +1590,7 @@ def plotfile(fname, cols=(0,), plotfuncs=None,
 
             funcname = plotfuncs.get(cols[i], 'plot')
             func = getattr(ax, funcname)
-            
+
             func(x, y, **kwargs)
             ax.set_ylabel(yname)
             if ax.is_last_row():
@@ -1601,7 +1601,7 @@ def plotfile(fname, cols=(0,), plotfuncs=None,
 
     if xname=='date':
         fig.autofmt_xdate()
-        
+
     draw_if_interactive()
 
 ### Deprecated functions:
