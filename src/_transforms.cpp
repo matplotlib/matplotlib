@@ -1,21 +1,19 @@
 #include <functional>
 #include <limits>
-
+#include <math.h>
 
 #include "_transforms.h"
 #include "mplutils.h"
 #include "MPL_isnan.h"
 
-#ifdef NUMARRAY
-#   include "numarray/arrayobject.h"
-#else
-#   ifdef NUMERIC
-#       include "Numeric/arrayobject.h"
-#   else
-#       define PY_ARRAY_TYPES_PREFIX NumPy
-#       include "numpy/arrayobject.h"
-#   endif
-#endif
+
+#include "numpy/arrayobject.h"
+#include "numpy/ufuncobject.h"
+
+
+bool skip_float(double x) {
+  return !MPL_isnan64(x) && !isinf(x);
+}
 
 Value::~Value() {
   _VERBOSE("Value::~Value");
@@ -169,16 +167,17 @@ Interval::update(const Py::Tuple &args) {
   double minx = _val1->val();
   double maxx = _val2->val();
 
+
+
   double thisval;
-  if (ignore) {
-    thisval = Py::Float(vals[0]);
+  thisval = Py::Float(vals[0]);
+  if (ignore) {    
     minx = thisval;
     maxx = thisval;
   }
 
 
   for (size_t i=0; i<Nval; ++i) {
-    thisval = Py::Float(vals[i]);
     if (thisval<minx) minx = thisval;
     if (thisval>maxx) maxx = thisval;
     _minpos->update(thisval);
@@ -2403,28 +2402,11 @@ NonseparableTransformation::init_type()
 
 extern "C"
 DL_EXPORT(void)
-#ifdef NUMARRAY
-  init_na_transforms(void)
-#else
-#   ifdef NUMERIC
-  init_nc_transforms(void)
-#   else
-  init_ns_transforms(void)
-#   endif
-#endif
+init_ns_transforms(void)
 {
   static _transforms_module* _transforms = new _transforms_module;
 
-#ifdef NUMARRAY
-  _VERBOSE("init_na_transforms");
-#else
-#   ifdef NUMERIC
-  _VERBOSE("init_nc_transforms");
-#   else
   _VERBOSE("init_ns_transforms");
-#   endif
-#endif
-
   import_array();
 
   Py::Dict d = _transforms->moduleDictionary();

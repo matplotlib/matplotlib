@@ -12,7 +12,7 @@ from pylab import figure, show, close
 
 rand = nx.mlab.rand
 
-indStart, indEnd = 30, 201
+indStart, indEnd = 200, 401
 for i in range(indEnd):
 
     fig = figure(1)
