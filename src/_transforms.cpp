@@ -8,12 +8,12 @@
 
 
 #include "numpy/arrayobject.h"
-#include "numpy/ufuncobject.h"
+//#include "numpy/ufuncobject.h"
 
 
-bool skip_float(double x) {
-  return !MPL_isnan64(x) && !isinf(x);
-}
+//bool skip_float(double x) {
+//  return !MPL_isnan64(x) && !isinf(x);
+//}
 
 Value::~Value() {
   _VERBOSE("Value::~Value");
