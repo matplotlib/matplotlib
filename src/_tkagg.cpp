@@ -53,6 +53,11 @@ PyAggImagePhoto(ClientData clientdata, Tcl_Interp* interp,
 
     long mode;
     long nval;
+    if (Tk_MainWindow(interp) == NULL) {
+        // Will throw a _tkinter.TclError with "this isn't a Tk application"
+        return TCL_ERROR;
+    }
+
     if (argc != 5) {
         Tcl_AppendResult(interp, "usage: ", argv[0],
                          " destPhoto srcImage", (char *) NULL);

@@ -343,8 +343,7 @@ class FigureManagerTkAgg(FigureManagerBase):
             self.window = None
             Gcf.destroy(self._num)
 
-        #if not self._shown: self.window.bind("<Destroy>", destroy)
-        if not self._shown: self.canvas._tkcanvas.bind("<Destroy>")
+        if not self._shown: self.canvas._tkcanvas.bind("<Destroy>", destroy)
         _focus = windowing.FocusManager()
         if not self._shown:
             self.window.deiconify()
