@@ -5,11 +5,12 @@ and standards.  Please edit and extend this document.
 
 == svn checkouts ==
 
-# checking out the main src
-svn co https://svn.sourceforge.net/svnroot/matplotlib/trunk/matplotlib matplotlib
-
 # checking out everything (toolkits, user's guide, htdocs, etc..)
-svn co https://svn.sourceforge.net/svnroot/matplotlib/trunk matplotlib
+svn co https://matplotlib.svn.sourceforge.net/svnroot/matplotlib/trunk matplotlib --username=youruser --password=yourpass
+
+
+# checking out the main src
+svn co https://matplotlib.svn.sourceforge.net/svnroot/matplotlib/trunk/matplotlib matplotlib --username=youruser --password=yourpass
 
 == Committing changes ==
 

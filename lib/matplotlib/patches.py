@@ -675,7 +675,7 @@ class YAArrow(Polygon):
 
         # a point on the segment 20% of the distance from the tip to the base
         theta = math.atan2(y2-y1, x2-x1)
-        r = math.sqrt((y2-y1)**2. + (x2-x1)*2.)
+        r = math.sqrt((y2-y1)**2. + (x2-x1)**2.)
         xm = x1 + self.frac * r * math.cos(theta)
         ym = y1 + self.frac * r * math.sin(theta)
         xc1, yc1, xc2, yc2 = self.getpoints(x1, y1, xm, ym, k1)
