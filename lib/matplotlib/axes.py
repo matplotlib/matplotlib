@@ -2960,6 +2960,9 @@ class Axes(Artist):
                 if label is not None and label != '' and not label.startswith('_'):
                     handles.append(handle)
                     labels.append(label)
+            if len(handles) == 0:
+                warnings.warn("No labeled objects found. Use label='...' kwarg on individual plots.")
+                return None
 
         elif len(args)==1:
             # LABELS
