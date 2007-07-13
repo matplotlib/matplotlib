@@ -23,7 +23,6 @@
 #include "_backend_agg.h"
 #include "_transforms.h"
 #include "mplutils.h"
-#include "MPL_isnan.h"
 
 #include "swig_runtime.h"
 
@@ -1585,7 +1584,7 @@ RendererAgg::draw_lines(const Py::Tuple& args) {
         moveto = true;
         continue;
       }
-      if (MPL_isnan64(thisx) || MPL_isnan64(thisy)) {
+      if (std::isnan(thisx) || std::isnan(thisy)) {
         moveto = true;
         continue;
       }
