@@ -200,16 +200,16 @@ class Figure(Artist):
         return children
 
     def contains(self, mouseevent):
-        """Test whether the mouse event occurred on the figure. 
-        
+        """Test whether the mouse event occurred on the figure.
+
         Returns True,{}
         """
         if callable(self._contains): return self._contains(self,mouseevent)
         #inside = mouseevent.x >= 0 and mouseevent.y >= 0
         inside = self.bbox.contains(mouseevent.x,mouseevent.y)
-        
+
         return inside,{}
-    
+
     def get_window_extent(self, *args, **kwargs):
         'get the figure bounding box in display space; kwargs are void'
         return self.bbox
@@ -631,7 +631,7 @@ class Figure(Artist):
     def get_axes(self):
         return self.axes
 
-    def legend(self, handles, labels, loc, **kwargs):
+    def legend(self, handles, labels, *args, **kwargs):
         """
         Place a legend in the figure.  Labels are a sequence of
         strings, handles is a sequence of line or patch instances, and
@@ -645,8 +645,8 @@ class Figure(Artist):
 
         The LOC location codes are
 
-          'best' : 0,          (currently not supported, defaults to upper right)
-          'upper right'  : 1,  (default)
+          'best' : 0,          (currently not supported for figure legends)
+          'upper right'  : 1,
           'upper left'   : 2,
           'lower left'   : 3,
           'lower right'  : 4,
@@ -664,7 +664,7 @@ class Figure(Artist):
 
         The legend instance is returned.  The following kwargs are supported:
 
-        isaxes=True           # whether this is an axes legend
+        loc = "upper right" #
         numpoints = 4         # the number of points in the legend line
         prop = FontProperties(size='smaller')  # the font property
         pad = 0.2             # the fractional whitespace inside the legend border
@@ -679,7 +679,7 @@ class Figure(Artist):
 
 
         handles = flatten(handles)
-        l = Legend(self, handles, labels, loc, isaxes=False, **kwargs)
+        l = Legend(self, handles, labels, *args, **kwargs)
         self._set_artist_props(l)
         self.legends.append(l)
         return l

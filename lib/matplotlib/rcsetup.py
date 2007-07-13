@@ -237,6 +237,20 @@ def validate_negative_linestyle_legacy(s):
         warnings.warn("Deprecated negative_linestyle specification; use 'solid' or 'dashed'")
         return (0, dashes)  # (offset, (solid, blank))
 
+validate_legend_loc = ValidateInStrings('legend_loc',[
+  'best',
+  'upper right',
+  'upper left',
+  'lower left',
+  'lower right',
+  'right',
+  'center left',
+  'center right',
+  'lower center',
+  'upper center',
+  'center',
+], ignorecase=True)
+
 class ValidateInterval:
     """
     Value must be in interval
@@ -361,8 +375,9 @@ defaultParams = {
     'polaraxes.grid'        : [True, validate_bool],   # display polar grid or not
 
     #legend properties
-    'legend.isaxes'      : [True,validate_bool],
-    'legend.numpoints'   : [2, validate_int],      # the number of points in the legend line
+    'legend.loc'         : ['upper right',validate_legend_loc], # at some point, this should be changed to 'best'
+    'legend.isaxes'      : [True,validate_bool],  # this option is internally ignored - it never served any useful purpose
+    'legend.numpoints'   : [2, validate_int],     # the number of points in the legend line
     'legend.fontsize'    : [14, validate_fontsize],
     'legend.pad'         : [0.2, validate_float], # the fractional whitespace inside the legend border
     'legend.markerscale' : [1.0, validate_float], # the relative size of legend markers vs. original

@@ -2913,8 +2913,8 @@ class Axes(Artist):
 
         The location codes are
 
-          'best' : 0,
-          'upper right'  : 1, (default)
+          'best'         : 0,
+          'upper right'  : 1,
           'upper left'   : 2,
           'lower left'   : 3,
           'lower right'  : 4,
@@ -2952,7 +2952,6 @@ class Axes(Artist):
             handles.extend([c for c in self.collections if isinstance(c, RegularPolyCollection)])
             return handles
 
-
         if len(args)==0:
             handles = []
             labels = []
@@ -2961,33 +2960,32 @@ class Axes(Artist):
                 if label is not None and label != '' and not label.startswith('_'):
                     handles.append(handle)
                     labels.append(label)
-            loc = popd(kwargs, 'loc', 1)
 
         elif len(args)==1:
             # LABELS
             labels = args[0]
             handles = [h for h, label in zip(get_handles(), labels)]
-            loc = popd(kwargs, 'loc', 1)
 
         elif len(args)==2:
             if is_string_like(args[1]) or isinstance(args[1], int):
                 # LABELS, LOC
                 labels, loc = args
                 handles = [h for h, label in zip(get_handles(), labels)]
+                kwargs['loc'] = loc
             else:
                 # LINES, LABELS
                 handles, labels = args
-                loc = popd(kwargs, 'loc', 1)
 
         elif len(args)==3:
             # LINES, LABELS, LOC
             handles, labels, loc = args
+            kwargs['loc'] = loc
         else:
             raise TypeError('Invalid arguments to legend')
 
 
         handles = flatten(handles)
-        self.legend_ = Legend(self, handles, labels, loc, **kwargs)
+        self.legend_ = Legend(self, handles, labels, **kwargs)
         return self.legend_
 
 
