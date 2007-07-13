@@ -1,3 +1,5 @@
+2007-07-13 Added legend.loc as configurable option that could in future default to 'best'. - NN
+
 2007-07-12 Bugfixes in mlab.py to coerce inputs into numpy arrays. -ADS
 
 2007-07-11 Added linespacing kwarg to text.Text - EF
