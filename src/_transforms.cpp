@@ -14,7 +14,6 @@
 
 Value::~Value() {
   _VERBOSE("Value::~Value");
-
 }
 
 Py::Object
@@ -2368,11 +2367,11 @@ NonseparableTransformation::init_type()
 
 extern "C"
 DL_EXPORT(void)
-init_ns_transforms(void)
+init_transforms(void)
 {
   static _transforms_module* _transforms = new _transforms_module;
 
-  _VERBOSE("init_ns_transforms");
+  _VERBOSE("init_transforms");
   import_array();
 
   Py::Dict d = _transforms->moduleDictionary();

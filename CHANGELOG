@@ -1,3 +1,7 @@
+2007-07-13 Removed the rest of the numerix extension code detritus,
+           numpified axes.py, and cleaned up the imports in axes.py
+	   - JDH
+
 2007-07-13 Removed our own MPL_isnan.h in favor of numpy's
 	   implementation -ADS
 

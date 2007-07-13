@@ -187,7 +187,7 @@ if havedate: # dates require python23 datetime
             add_pytz()
 
 build_swigagg(ext_modules, packages)
-build_transforms(ext_modules, packages, NUMERIX)
+build_transforms(ext_modules, packages)
 build_enthought(ext_modules, packages)
 
 def havegtk():
@@ -215,12 +215,12 @@ def havegtk():
 havegtk.gotit = None
 
 if BUILD_GTK and havegtk():
-    build_gdk(ext_modules, packages, NUMERIX)
+    build_gdk(ext_modules, packages)
     rc['backend'] = 'GTK'
 
 if BUILD_GTKAGG and havegtk():
     BUILD_AGG = 1
-    build_gtkagg(ext_modules, packages, NUMERIX)
+    build_gtkagg(ext_modules, packages)
     rc['backend'] = 'GTKAgg'
 
 if BUILD_TKAGG:
@@ -241,7 +241,7 @@ if BUILD_TKAGG:
             BUILD_TKAGG = 0
         else:
             BUILD_AGG = 1
-            build_tkagg(ext_modules, packages, NUMERIX)
+            build_tkagg(ext_modules, packages)
             rc['backend'] = 'TkAgg'
 
 if BUILD_WXAGG:
@@ -254,13 +254,13 @@ if BUILD_WXAGG:
     else:
         if getattr(wx, '__version__', '0.0')[0:3] < '2.8':
             BUILD_AGG = 1
-            build_wxagg(ext_modules, packages, NUMERIX,
+            build_wxagg(ext_modules, packages,
                 not (isinstance(BUILD_WXAGG, str) # don't abort if BUILD_WXAGG
                      and BUILD_WXAGG.lower() == 'auto')) # is "auto"
         rc['backend'] = 'WXAgg'
 
 if BUILD_AGG:
-    build_agg(ext_modules, packages, NUMERIX)
+    build_agg(ext_modules, packages)
     if rc['backend'] == 'PS': rc['backend'] = 'Agg'
 
 
@@ -275,7 +275,7 @@ if BUILD_WINDOWING and sys.platform=='win32':
    build_windowing(ext_modules, packages)
 
 if BUILD_IMAGE:
-    build_image(ext_modules, packages, NUMERIX)
+    build_image(ext_modules, packages)
 
 if 1:  # I don't think we need to make these optional
     build_contour(ext_modules, packages)
