@@ -4,16 +4,13 @@
 
 #include "_transforms.h"
 #include "mplutils.h"
-#include "MPL_isnan.h"
 
 
 #include "numpy/arrayobject.h"
-//#include "numpy/ufuncobject.h"
-
-
-//bool skip_float(double x) {
-//  return !MPL_isnan64(x) && !isinf(x);
-//}
+#include "numpy/ufuncobject.h"
+#if !defined(isfinite)
+#define isfinite(x) (!(isinf((x)) || isnan((x))))
+#endif
 
 Value::~Value() {
   _VERBOSE("Value::~Value");
@@ -471,30 +468,22 @@ Bbox::update(const Py::Tuple &args) {
 
   Py::Tuple tup;
   if (ignore) {
-    tup = xys[0];
-    double x = Py::Float(tup[0]);
-    double y = Py::Float(tup[1]);
-
-    minx=x;
-    maxx=x;
-    miny=y;
-    maxy=y;
+    minx = miny = std::numeric_limits<double>::max();
+    maxx = maxy = std::numeric_limits<double>::min();
   }
-
 
   for (size_t i=0; i<Nx; ++i) {
     tup = xys[i];
     double x = Py::Float(tup[0]);
     double y = Py::Float(tup[1]);
+    if (isnan(x) || isnan(y)) continue;
     _posx.update(x);
     _posy.update(y);
     if (x<minx) minx=x;
     if (x>maxx) maxx=x;
     if (y<miny) miny=y;
     if (y>maxy) maxy=y;
-
   }
-
 
   _ll->x_api()->set_api(minx);
   _ll->y_api()->set_api(miny);
@@ -551,7 +540,7 @@ Bbox::update_numerix_xy(const Py::Tuple &args) {
   for (size_t i=0; i< Nxy; ++i) {
     thisx = *(double *)(xyin->data + i*xyin->strides[0]);
     thisy = *(double *)(xyin->data + i*xyin->strides[0] + xyin->strides[1]);
-    if (MPL_isnan64(thisx) || MPL_isnan64(thisy)) continue;
+    if (isnan(thisx) || isnan(thisy)) continue;
     _posx.update(thisx);
     _posy.update(thisy);
     if (thisx<minx) minx=thisx;
@@ -618,37 +607,14 @@ Bbox::update_numerix(const Py::Tuple &args) {
     _ignore = 0; // don't ignore future updates
   }
   if (ignore) {
-    int xok=0;
-    int yok=0;
-    // loop through values until we find some nans...
-    for (size_t i=0; i< Nx; ++i) {
-      thisx = *(double *)(x->data + i*x->strides[0]);
-      thisy = *(double *)(y->data + i*y->strides[0]);
-
-      if (!xok) {
-	if (!MPL_isnan64(thisx)) {
-	  minx=thisx;
-	  maxx=thisx;
-	  xok=1;
-	}
-      }
-
-      if (!yok) {
-	if (!MPL_isnan64(thisy)) {
-	  miny=thisy;
-	  maxy=thisy;
-	  yok=1;
-	}
-      }
-
-      if (xok && yok) break;
-    }
+    minx = miny = std::numeric_limits<double>::max();
+    maxx = maxy = std::numeric_limits<double>::min();
   }
 
   for (size_t i=0; i< Nx; ++i) {
     thisx = *(double *)(x->data + i*x->strides[0]);
     thisy = *(double *)(y->data + i*y->strides[0]);
-
+    if (isnan(thisx) || isnan(thisy)) continue;
     _posx.update(thisx);
     _posy.update(thisy);
     if (thisx<minx) minx=thisx;
@@ -1290,18 +1256,18 @@ Transformation::nonlinear_only_numerix(const Py::Tuple & args, const Py::Dict &k
 
     double thisx = *(double *)(x->data + i*x->strides[0]);
     double thisy = *(double *)(y->data + i*y->strides[0]);
-    if (MPL_isnan64(thisx) || MPL_isnan64(thisy)) {
+    if (isnan(thisx) || isnan(thisy)) {
       if (returnMask) {
 	*(unsigned char *)(retmask->data + i*retmask->strides[0]) = 0;
       }
-      double MPLnan; // don't require C99 math features - find our own nan
-      if (MPL_isnan64(thisx)) {
-	MPLnan=thisx;
+      double MPL_not_finite; // don't require C99 math features - find our own nan
+      if (isnan(thisx)) {
+	MPL_not_finite=thisx;
       } else {
-	MPLnan=thisy;
+	MPL_not_finite=thisy;
       }
-      *(double *)(retx->data + i*retx->strides[0]) = MPLnan;
-      *(double *)(rety->data + i*rety->strides[0]) = MPLnan;
+      *(double *)(retx->data + i*retx->strides[0]) = MPL_not_finite;
+      *(double *)(rety->data + i*rety->strides[0]) = MPL_not_finite;
     } else {
       try {
 	this->nonlinear_only_api(&thisx, &thisy);
