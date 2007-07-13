@@ -2,9 +2,6 @@
            numpified axes.py, and cleaned up the imports in axes.py
 	   - JDH
 
-2007-07-13 Removed our own MPL_isnan.h in favor of numpy's
-	   implementation -ADS
-
 2007-07-13 Added legend.loc as configurable option that could in
            future default to 'best'. - NN
 
