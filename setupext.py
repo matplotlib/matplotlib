@@ -809,3 +809,11 @@ def build_subprocess(ext_modules, packages):
         )
     add_base_flags(module)
     ext_modules.append(module)
+
+def build_isnan(ext_modules, packages):
+    module = Extension(
+        'matplotlib._isnan',
+        [ 'src/_isnan.c'],
+        )
+    add_base_flags(module)
+    ext_modules.append(module)
