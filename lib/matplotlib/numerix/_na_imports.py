@@ -5,7 +5,6 @@ from numarray import Int8, UInt8, Int16, UInt16, Int32, UInt32, \
      Float32, Float64, Complex32, Complex64, Float, Int, Complex,\
      typecode
 import numarray.ieeespecial as _ieee
-from matplotlib._isnan import isnan64 as _isnan
 inf = infinity = infty = Infinity = _ieee.inf
 isnan = _ieee.isnan
 
