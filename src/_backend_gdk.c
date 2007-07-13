@@ -3,16 +3,8 @@
  */
 
 #include "Python.h"
-#ifdef NUMARRAY
-#include "numarray/arrayobject.h"
-#else
-#ifdef NUMERIC
-#include "Numeric/arrayobject.h"
-#else
 #define PY_ARRAY_TYPES_PREFIX NumPy
 #include "numpy/arrayobject.h"
-#endif
-#endif
 
 #include <pygtk/pygtk.h>
 
@@ -71,30 +63,11 @@ static PyMethodDef _backend_gdk_functions[] = {
 };
 
 DL_EXPORT(void)
-#ifdef NUMARRAY
-init_na_backend_gdk(void)
-#else
-#   ifdef NUMERIC
-init_nc_backend_gdk(void)
-#   else
-init_ns_backend_gdk(void)
-#   endif
-#endif
+init_backend_gdk(void)
 {
     PyObject *mod;
-#ifdef NUMARRAY
-    mod = Py_InitModule("matplotlib.backends._na_backend_gdk",
+    mod = Py_InitModule("matplotlib.backends._backend_gdk",
                                         _backend_gdk_functions);
-#else
-#   ifdef NUMERIC
-    mod = Py_InitModule("matplotlib.backends._nc_backend_gdk",
-                                        _backend_gdk_functions);
-#   else
-    mod = Py_InitModule("matplotlib.backends._ns_backend_gdk",
-                                        _backend_gdk_functions);
-#   endif
-#endif
-
     import_array();
     init_pygtk();
 

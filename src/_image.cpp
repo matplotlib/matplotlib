@@ -7,16 +7,8 @@
 #include "Python.h" //after png.h due to setjmp bug
 #include <string>
 
-#ifdef NUMARRAY
-#include "numarray/arrayobject.h"
-#else
-#ifdef NUMERIC
-#include "Numeric/arrayobject.h"
-#else
 #define PY_ARRAY_TYPES_PREFIX NumPy
 #include "numpy/arrayobject.h"
-#endif
-#endif
 
 #include "agg_pixfmt_rgb.h"
 #include "agg_pixfmt_rgba.h"
@@ -969,7 +961,7 @@ _image_module::readpng(const Py::Tuple& args) {
 char _image_module_fromarray__doc__[] =
 "fromarray(A, isoutput)\n"
 "\n"
-"Load the image from a Numeric or numarray array\n"
+"Load the image from a numpy array\n"
 "By default this function fills the input buffer, which can subsequently\n"
 "be resampled using resize.  If isoutput=1, fill the output buffer.\n"
 "This is used to support raw pixel images w/o resampling"
@@ -1078,7 +1070,7 @@ _image_module::fromarray(const Py::Tuple& args) {
 char _image_module_fromarray2__doc__[] =
 "fromarray2(A, isoutput)\n"
 "\n"
-"Load the image from a Numeric or numarray array\n"
+"Load the image from a numpy array\n"
 "By default this function fills the input buffer, which can subsequently\n"
 "be resampled using resize.  If isoutput=1, fill the output buffer.\n"
 "This is used to support raw pixel images w/o resampling"
@@ -1359,7 +1351,7 @@ _image_module::pcolor(const Py::Tuple& args) {
   if (rows == 0 || cols ==0)
       throw Py::ValueError("Cannot scale to zero size");
 
-  // Get numeric arrays
+  // Get numpy arrays
   PyArrayObject *x = (PyArrayObject *) PyArray_ContiguousFromObject(xp.ptr(), PyArray_FLOAT, 1, 1);
   if (x == NULL)
       throw Py::ValueError("x is of incorrect type (wanted 1D float)");
@@ -1515,47 +1507,37 @@ DL_EXPORT(void)
 void
 #endif
 
-#ifdef NUMARRAY
-init_na_image(void) {
-  _VERBOSE("init_na_image");
-#else
-#   ifdef NUMERIC
-  init_nc_image(void) {
-    _VERBOSE("init_nc_image");
-#   else
-  init_ns_image(void) {
-    _VERBOSE("init_ns_image");
-#   endif
-#endif
+init_image(void) {
+  _VERBOSE("init_image");
 
-    static _image_module* _image = new _image_module;
+  static _image_module* _image = new _image_module;
 
-    import_array();
-    Py::Dict d = _image->moduleDictionary();
+  import_array();
+  Py::Dict d = _image->moduleDictionary();
 
-    d["NEAREST"] = Py::Int(Image::NEAREST);
-    d["BILINEAR"] = Py::Int(Image::BILINEAR);
-    d["BICUBIC"] = Py::Int(Image::BICUBIC);
-    d["SPLINE16"] = Py::Int(Image::SPLINE16);
-    d["SPLINE36"] = Py::Int(Image::SPLINE36);
-    d["HANNING"] = Py::Int(Image::HANNING);
-    d["HAMMING"] = Py::Int(Image::HAMMING);
-    d["HERMITE"] = Py::Int(Image::HERMITE);
-    d["KAISER"]   = Py::Int(Image::KAISER);
-    d["QUADRIC"]   = Py::Int(Image::QUADRIC);
-    d["CATROM"]  = Py::Int(Image::CATROM);
-    d["GAUSSIAN"]  = Py::Int(Image::GAUSSIAN);
-    d["BESSEL"]  = Py::Int(Image::BESSEL);
-    d["MITCHELL"]  = Py::Int(Image::MITCHELL);
-    d["SINC"]  = Py::Int(Image::SINC);
-    d["LANCZOS"]  = Py::Int(Image::LANCZOS);
-    d["BLACKMAN"] = Py::Int(Image::BLACKMAN);
-
-    d["ASPECT_FREE"] = Py::Int(Image::ASPECT_FREE);
-    d["ASPECT_PRESERVE"] = Py::Int(Image::ASPECT_PRESERVE);
+  d["NEAREST"] = Py::Int(Image::NEAREST);
+  d["BILINEAR"] = Py::Int(Image::BILINEAR);
+  d["BICUBIC"] = Py::Int(Image::BICUBIC);
+  d["SPLINE16"] = Py::Int(Image::SPLINE16);
+  d["SPLINE36"] = Py::Int(Image::SPLINE36);
+  d["HANNING"] = Py::Int(Image::HANNING);
+  d["HAMMING"] = Py::Int(Image::HAMMING);
+  d["HERMITE"] = Py::Int(Image::HERMITE);
+  d["KAISER"]   = Py::Int(Image::KAISER);
+  d["QUADRIC"]   = Py::Int(Image::QUADRIC);
+  d["CATROM"]  = Py::Int(Image::CATROM);
+  d["GAUSSIAN"]  = Py::Int(Image::GAUSSIAN);
+  d["BESSEL"]  = Py::Int(Image::BESSEL);
+  d["MITCHELL"]  = Py::Int(Image::MITCHELL);
+  d["SINC"]  = Py::Int(Image::SINC);
+  d["LANCZOS"]  = Py::Int(Image::LANCZOS);
+  d["BLACKMAN"] = Py::Int(Image::BLACKMAN);
+  
+  d["ASPECT_FREE"] = Py::Int(Image::ASPECT_FREE);
+  d["ASPECT_PRESERVE"] = Py::Int(Image::ASPECT_PRESERVE);
 
 
-  }
+}
 
 
 

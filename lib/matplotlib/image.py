@@ -15,7 +15,7 @@ from numerix import arange, asarray, UInt8, Float32, repeat, NewAxis, typecode
 import _image
 
 
-
+from _image import *
 class AxesImage(Artist, cm.ScalarMappable):
 
     def __init__(self, ax,

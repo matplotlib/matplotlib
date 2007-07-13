@@ -86,14 +86,8 @@ from matplotlib.ft2font import FT2Font
 from matplotlib.mathtext import math_parse_s_ft2font
 from matplotlib.transforms import lbwh_to_bbox
 from matplotlib.numerix.mlab import fliplr
-import matplotlib.numerix
 
-if matplotlib.numerix.which[0] == "numarray":
-    from _na_backend_agg import RendererAgg as _RendererAgg
-elif matplotlib.numerix.which[0] == "numeric":
-    from _nc_backend_agg import RendererAgg as _RendererAgg
-else:
-    from _ns_backend_agg import RendererAgg as _RendererAgg
+from _backend_agg import RendererAgg as _RendererAgg
 
 backend_version = 'v2.2'
 _fontd = {}     # a map from fname to font instances

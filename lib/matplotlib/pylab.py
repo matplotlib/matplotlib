@@ -238,6 +238,8 @@ from widgets import SubplotTool, Button, Slider, Widget
 
 import numerix as nx
 
+import numpy as npy
+from matplotlib import mpl
 # catch more than an import error here, since the src could fail too,
 # eg a bad pytz install.  I don't want to break all of matplotlib for
 # date support

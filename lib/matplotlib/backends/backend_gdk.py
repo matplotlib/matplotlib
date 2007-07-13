@@ -27,12 +27,8 @@ import matplotlib.numerix as numerix
 from matplotlib.numerix import asarray, fromstring, UInt8, zeros, \
      where, transpose, nonzero, indices, ones, nx
 
-if numerix.which[0] == "numarray":
-    from matplotlib.backends._na_backend_gdk import pixbuf_get_pixels_array
-elif numerix.which[0] == "numeric":
-    from matplotlib.backends._nc_backend_gdk import pixbuf_get_pixels_array
-else:
-    from matplotlib.backends._ns_backend_gdk import pixbuf_get_pixels_array
+
+from matplotlib.backends._backend_gdk import pixbuf_get_pixels_array
 
 
 backend_version = "%d.%d.%d" % gtk.pygtk_version

@@ -26,17 +26,9 @@
 
 #include "swig_runtime.h"
 
-#ifdef NUMARRAY
-#include "numarray/arrayobject.h"
-#else
-#ifdef NUMERIC
-#include "Numeric/arrayobject.h"
-#else
 #define PY_ARRAY_TYPES_PREFIX NumPy
 #include "numpy/arrayobject.h"
 #include "numpy/ufuncobject.h"
-#endif
-#endif
 
 #ifndef M_PI
 #define M_PI       3.14159265358979323846
@@ -2603,27 +2595,11 @@ void RendererAgg::init_type()
 
 extern "C"
 DL_EXPORT(void)
-#ifdef NUMARRAY
-  init_na_backend_agg(void)
-#else
-#   ifdef NUMERIC
-  init_nc_backend_agg(void)
-#   else
-  init_ns_backend_agg(void)
-#   endif
-#endif
+  init_backend_agg(void)
 {
   //static _backend_agg_module* _backend_agg = new _backend_agg_module;
   
-#ifdef NUMARRAY
-  _VERBOSE("init_na_backend_agg");
-#else
-#   ifdef NUMERIC
-  _VERBOSE("init_nc_backend_agg");
-#   else
-  _VERBOSE("init_ns_backend_agg");
-#   endif
-#endif
+  _VERBOSE("init_backend_agg");
   
   import_array();
   

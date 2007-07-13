@@ -24,7 +24,7 @@ import matplotlib.numerix as nx
 from matplotlib.transforms import scale_transform, Value, zero, one, \
      scale_sep_transform, blend_xy_sep_transform
 
-from pylab import gca
+
 
 configdir = get_configdir()
 cachedir = os.path.join(configdir, 'finance.cache')

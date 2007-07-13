@@ -251,10 +251,10 @@ from __future__ import division
 import math
 import numpy as npy
 
-from matplotlib._ns_transforms import Value, Point, Interval, Bbox, Affine
-from matplotlib._ns_transforms import IDENTITY, LOG10, POLAR, Func, FuncXY
-from matplotlib._ns_transforms import SeparableTransformation
-from matplotlib._ns_transforms import NonseparableTransformation
+from matplotlib._transforms import Value, Point, Interval, Bbox, Affine
+from matplotlib._transforms import IDENTITY, LOG10, POLAR, Func, FuncXY
+from matplotlib._transforms import SeparableTransformation
+from matplotlib._transforms import NonseparableTransformation
 
 def nonsingular(vmin, vmax, expander=0.001, tiny=1e-15, increasing=True):
     '''

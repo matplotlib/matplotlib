@@ -64,9 +64,9 @@ For matplotlib main module, use:
 
 For matplotlib modules, use:
 
-    import matplotlib.cbook as cbook
+    import matplotlib.cbook as cbook as mpl_cbook
     ...
-    if cbook.iterable(z):
+    if mpl_cbook.iterable(z):
         ...
 
 == Naming, spacing, and formatting conventions ==
