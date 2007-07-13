@@ -109,19 +109,22 @@ def _process_plot_format(fmt):
     for c in chars:
         if mpl_lines.lineStyles.has_key(c):
             if linestyle is not None:
-                raise ValueError, 'Illegal format string "%s"; two linestyle symbols' % fmt
+                raise ValueError(
+                    'Illegal format string "%s"; two linestyle symbols' % fmt)
             linestyle = c
         elif mpl_lines.lineMarkers.has_key(c):
             if marker is not None:
-                raise ValueError, 'Illegal format string "%s"; two marker symbols' % fmt
+                raise ValueError(
+                    'Illegal format string "%s"; two marker symbols' % fmt)
             marker = c
         elif mpl_colors.colorConverter.colors.has_key(c):
             if color is not None:
-                raise ValueError, 'Illegal format string "%s"; two color symbols' % fmt
+                raise ValueError(
+                    'Illegal format string "%s"; two color symbols' % fmt)
             color = c
         else:
-            err = 'Unrecognized character %c in format string' % c
-            raise ValueError, err
+            raise ValueError(
+                'Unrecognized character %c in format string' % c)
 
     if linestyle is None and marker is None:
         linestyle = mpl_rcParams['lines.linestyle']
@@ -904,7 +907,7 @@ class Axes(mpl_artist.Artist):
         l,b,w,h = self.get_position(original=True)
         box_aspect = fig_aspect * (h/w)
         data_ratio = box_aspect / A
-        #print 'box_aspect, data_ratio, ysize/xsize', box_aspect, data_ratio, ysize/xsize
+
         y_expander = (data_ratio*xsize/ysize - 1.0)
         #print 'y_expander', y_expander
         # If y_expander > 0, the dy/dx viewLim ratio needs to increase
@@ -965,7 +968,8 @@ class Axes(mpl_artist.Artist):
         Convenience method for manipulating the x and y view limits
         and the aspect ratio of the plot.
 
-        kwargs are passed on to set_xlim and set_ylim -- see their docstrings for details
+        kwargs are passed on to set_xlim and set_ylim -- see their
+        docstrings for details
         '''
         if len(v)==1 and mpl_cbook.is_string_like(v[0]):
             s = v[0].lower()
@@ -1192,24 +1196,20 @@ class Axes(mpl_artist.Artist):
 
         if xdata is not None:
             self.xaxis.update_units(xdata)
-            #print '_process updated xdata: units=%s, converter=%s'%(self.xaxis.units, self.xaxis.converter)
-
+            
         if ydata is not None:
             self.yaxis.update_units(ydata)
-            #print '_process updated ydata: units=%s, converter=%s'%(self.yaxis.units, self.yaxis.converter)
-
+            
         # process kwargs 2nd since these will override default units
         if kwargs is not None:
             xunits = kwargs.pop( 'xunits', self.xaxis.units)
             if xunits!=self.xaxis.units:
                 self.xaxis.set_units(xunits)
-                #print '_process updated xunits kws: units=%s, converter=%s'%(self.xaxis.units, self.xaxis.converter)
-
+                                
             yunits = kwargs.pop('yunits', self.yaxis.units)
             if yunits!=self.yaxis.units:
                 self.yaxis.set_units(yunits)
-                #print '_process updated yunits kws: units=%s, converter=%s'%(self.yaxis.units, self.yaxis.converter)
-
+                
     def in_axes(self, xwin, ywin):
         'return True is the point xwin, ywin (display coords) are in the Axes'
         return self.bbox.contains(xwin, ywin)
@@ -1273,12 +1273,8 @@ class Axes(mpl_artist.Artist):
         if not self.get_visible(): return
         renderer.open_group('axes')
         self.apply_aspect()
-        try: self.transData.freeze()  # eval the lazy objects
-        except ValueError:
-            print >> sys.stderr, 'data freeze value error', self.get_position(), self.dataLim.get_bounds(), self.viewLim.get_bounds()
-            raise
-
-        self.transAxes.freeze()  # eval the lazy objects
+        self.transData.freeze()  # eval the lazy objects
+        self.transAxes.freeze()  
         if self.axison and self._frameon: self.axesPatch.draw(renderer)
         artists = []
 
@@ -1525,20 +1521,18 @@ class Axes(mpl_artist.Artist):
             xmin,xmax = xmin
 
 
-        #print 'setxlim before1: units=%s, converter=%s, xmin=%s, xmax=%s'%(self.xaxis.units, self.xaxis.converter, xmin, xmax)
         self._process_unit_info(xdata=(xmin, xmax))
-        #print 'setxlim before2: units=%s, converter=%s, xmin=%s, xmax=%s'%(self.xaxis.units, self.xaxis.converter, xmin, xmax)
         if xmin is not None:
             xmin = self.convert_xunits(xmin)
         if xmax is not None:
             xmax = self.convert_yunits(xmax)
-        #print 'setxlim after: units=%s, converter=%s, xmin=%s, xmax=%s'%(self.xaxis.units, self.xaxis.converter, xmin, xmax)
 
         old_xmin,old_xmax = self.get_xlim()
         if xmin is None: xmin = old_xmin
         if xmax is None: xmax = old_xmax
 
-        if self.transData.get_funcx().get_type()==mpl_transforms.LOG10 and min(xmin, xmax)<=0:
+        if (self.transData.get_funcx().get_type()==mpl_transforms.LOG10
+            and min(xmin, xmax)<=0):
             raise ValueError('Cannot set nonpositive limits with log transform')
 
         xmin, xmax = mpl_transforms.nonsingular(xmin, xmax, increasing=False)
@@ -1658,7 +1652,8 @@ class Axes(mpl_artist.Artist):
         if ymin is None: ymin = old_ymin
         if ymax is None: ymax = old_ymax
 
-        if self.transData.get_funcy().get_type()==mpl_transforms.LOG10 and min(ymin, ymax)<=0:
+        if (self.transData.get_funcy().get_type()==mpl_transforms.LOG10
+            and min(ymin, ymax)<=0):
             raise ValueError('Cannot set nonpositive limits with log transform')
 
         ymin, ymax = mpl_transforms.nonsingular(ymin, ymax, increasing=False)
@@ -1946,7 +1941,8 @@ class Axes(mpl_artist.Artist):
         the artist and the artist has picker set
         """
         if len(args)>1:
-            raise DeprecationWarning('New pick API implemented -- see API_CHANGES in the src distribution')
+            raise DeprecationWarning(
+                'New pick API implemented -- see API_CHANGES in the src distribution')
         mpl_artist.Artist.pick(self,args[0])
 
     def __pick(self, x, y, trans=None, among=None):
@@ -2282,7 +2278,7 @@ class Axes(mpl_artist.Artist):
         %(Polygon)s
         """
         # convert y axis units
-        trans = mpl_transforms.blend_xy_sep_transform( self.transAxes, self.transData  )
+        trans = mpl_transforms.blend_xy_sep_transform( self.transAxes, self.transData)
         verts = (xmin, ymin), (xmin, ymax), (xmax, ymax), (xmax, ymin)
         p = mpl_patches.Polygon(verts, **kwargs)
         p.set_transform(trans)
@@ -2322,7 +2318,7 @@ class Axes(mpl_artist.Artist):
         %(Polygon)s
         """
         # convert x axis units
-        trans = mpl_transforms.blend_xy_sep_transform( self.transData, self.transAxes   )
+        trans = mpl_transforms.blend_xy_sep_transform(self.transData, self.transAxes)
         verts = [(xmin, ymin), (xmin, ymax), (xmax, ymax), (xmax, ymin)]
         p = mpl_patches.Polygon(verts, **kwargs)
         p.set_transform(trans)
@@ -2342,7 +2338,8 @@ class Axes(mpl_artist.Artist):
         determined by xmin and xmax
 
 
-        colors is a line collections color args, either a single color or a len(x) list of colors
+        colors is a line collections color args, either a single color
+        or a len(x) list of colors
 
         linestyle is one of solid|dashed|dashdot|dotted
 
@@ -2913,8 +2910,10 @@ class Axes(mpl_artist.Artist):
         def get_handles():
             handles = self.lines[:]
             handles.extend(self.patches)
-            handles.extend([c for c in self.collections if isinstance(c, mpl_collections.LineCollection)])
-            handles.extend([c for c in self.collections if isinstance(c, mpl_collections.RegularPolyCollection)])
+            handles.extend([c for c in self.collections
+                            if isinstance(c, mpl_collections.LineCollection)])
+            handles.extend([c for c in self.collections
+                            if isinstance(c, mpl_collections.RegularPolyCollection)])
             return handles
 
         if len(args)==0:
@@ -3553,8 +3552,10 @@ class Axes(mpl_artist.Artist):
 
             barcols.append( self.hlines(y, left, right, label='_nolegend_' ))
             if capsize > 0:
-                caplines.extend( self.plot(left, y, 'k|', ms=2*capsize, label='_nolegend_') )
-                caplines.extend( self.plot(right, y, 'k|', ms=2*capsize, label='_nolegend_') )
+                caplines.extend(
+                    self.plot(left, y, 'k|', ms=2*capsize, label='_nolegend_') )
+                caplines.extend(
+                    self.plot(right, y, 'k|', ms=2*capsize, label='_nolegend_') )
 
         if yerr is not None:
             if len(yerr.shape) == 1:
@@ -3736,8 +3737,11 @@ class Axes(mpl_artist.Artist):
                 if notch_min < q1:
                     notch_min = q1
                 # make our notched box vectors
-                box_x = [box_x_min, box_x_max, box_x_max, cap_x_max, box_x_max, box_x_max, box_x_min, box_x_min, cap_x_min, box_x_min, box_x_min ]
-                box_y = [q1, q1, notch_min, med, notch_max, q3, q3, notch_max, med, notch_min, q1]
+                box_x = [box_x_min, box_x_max, box_x_max, cap_x_max, box_x_max,
+                         box_x_max, box_x_min, box_x_min, cap_x_min, box_x_min,
+                         box_x_min ]
+                box_y = [q1, q1, notch_min, med, notch_max, q3, q3, notch_max,
+                         med, notch_min, q1]
                 # make our median line vectors
                 med_x = [cap_x_min, cap_x_max]
                 med_y = [med, med]
@@ -3935,7 +3939,8 @@ class Axes(mpl_artist.Artist):
                 sym = True
 
                 if marker[1]==1:
-                    # starlike symbol, everthing else is interpreted as solid symbol
+                    # starlike symbol, everthing else is interpreted
+                    # as solid symbol
                     starlike = True
 
             else:
@@ -4100,22 +4105,24 @@ class Axes(mpl_artist.Artist):
 
         Make a vector plot (U, V) with arrows on a grid (X, Y)
 
-        If X and Y are not specified, U and V must be 2D arrays.  Equally spaced
-        X and Y grids are then generated using the meshgrid command.
+        If X and Y are not specified, U and V must be 2D arrays.
+        Equally spaced X and Y grids are then generated using the
+        meshgrid command.
 
-        color can be a color value or an array of colors, so that the arrows can be
-        colored according to another dataset.  If cmap is specified and color is 'length',
-        the colormap is used to give a color according to the vector's length.
+        color can be a color value or an array of colors, so that the
+        arrows can be colored according to another dataset.  If cmap
+        is specified and color is 'length', the colormap is used to
+        give a color according to the vector's length.
 
-        If color is a scalar field, the colormap is used to map the scalar to a color
-        If a colormap is specified and color is an array of color triplets, then the
-        colormap is ignored
+        If color is a scalar field, the colormap is used to map the
+        scalar to a color If a colormap is specified and color is an
+        array of color triplets, then the colormap is ignored
 
         width is a scalar that controls the width of the arrows
 
-        if S is specified it is used to scale the vectors. Use S=0 to disable automatic
-        scaling.
-        If S!=0, vectors are scaled to fit within the grid and then are multiplied by S.
+        if S is specified it is used to scale the vectors. Use S=0 to
+        disable automatic scaling.  If S!=0, vectors are scaled to fit
+        within the grid and then are multiplied by S.
 
 
         """
@@ -4180,7 +4187,8 @@ class Axes(mpl_artist.Artist):
         shading = kwargs.pop('shading', 'faceted')
 
         if len(kwargs):
-            raise TypeError, "quiver() got an unexpected keyword argument '%s'"%kwargs.keys()[0]
+            raise TypeError(
+                "quiver() got an unexpected keyword argument '%s'"%kwargs.keys()[0])
 
         C = None
         if color == 'length' or color is True:
@@ -4196,9 +4204,6 @@ class Axes(mpl_artist.Artist):
                 C = clr
 
         I = U.shape[0]
-        #arrows = []
-        #for i in xrange(I):
-        #    arrows.append( mpl_patches.FancyArrow(X[i],Y[i],U[i],V[i],0.1*S ).get_verts() )
         arrows = [mpl_patches.FancyArrow(X[i],Y[i],U[i],V[i],0.1*S ).get_verts()
                                                     for i in xrange(I)]
 
@@ -4634,7 +4639,9 @@ class Axes(mpl_artist.Artist):
         See pcolor for an explantion of the grid orientation and the
         expansion of 1-D X and/or Y to 2-D arrays.
 
-        kwargs can be used to control the collections.QuadMesh polygon collection properties:
+        kwargs can be used to control the collections.QuadMesh polygon
+        collection properties:
+
         %(QuadMesh)s
         """
         if not self._hold: self.cla()
@@ -4677,7 +4684,8 @@ class Axes(mpl_artist.Artist):
         else:
             showedges = 0
 
-        collection = mpl_collections.QuadMesh(Nx - 1, Ny - 1, coords, showedges, **kwargs)
+        collection = mpl_collections.QuadMesh(
+            Nx - 1, Ny - 1, coords, showedges, **kwargs)
         collection.set_alpha(alpha)
         collection.set_array(C)
         if norm is not None: assert(isinstance(norm, mpl_colors.Normalize))
@@ -5596,8 +5604,9 @@ class PolarAxes(Axes):
         r = mpl_mlab.linspace(0., rmax, self.RESOLUTION)
         for a in angles:
             theta = npy.ones(self.RESOLUTION)*a/180.*math.pi
-            line = mpl_lines.Line2D(theta, r, linestyle=ls, color=color, linewidth=lw,
-                          figure=self.figure)
+            line = mpl_lines.Line2D(
+                theta, r, linestyle=ls, color=color, linewidth=lw,
+                figure=self.figure)
             line.set_transform(self.transData)
             self.thetagridlines.append(line)
 
@@ -5784,7 +5793,9 @@ class PolarSubplot(SubplotBase, PolarAxes):
         return "PolarSubplot(%gx%g)"%(self.figW,self.figH)
     def __init__(self, fig, *args, **kwargs):
         SubplotBase.__init__(self, fig, *args)
-        PolarAxes.__init__(self, fig, [self.figLeft, self.figBottom, self.figW, self.figH], **kwargs)
+        PolarAxes.__init__(
+            self, fig,
+            [self.figLeft, self.figBottom, self.figW, self.figH], **kwargs)
 
 
 
