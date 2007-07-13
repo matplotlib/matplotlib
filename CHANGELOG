@@ -1,3 +1,5 @@
+2007-07-13 Some minor cleanups in _transforms.cpp - ADS
+
 2007-07-13 Removed the rest of the numerix extension code detritus,
            numpified axes.py, and cleaned up the imports in axes.py
 	   - JDH

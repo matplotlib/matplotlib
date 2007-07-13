@@ -6,14 +6,7 @@
 #include "mplutils.h"
 #include "MPL_isnan.h"
 
-
 #include "numpy/arrayobject.h"
-//#include "numpy/ufuncobject.h"
-
-
-//bool skip_float(double x) {
-//  return !MPL_isnan64(x) && !isinf(x);
-//}
 
 Value::~Value() {
   _VERBOSE("Value::~Value");
@@ -470,14 +463,8 @@ Bbox::update(const Py::Tuple &args) {
 
   Py::Tuple tup;
   if (ignore) {
-    tup = xys[0];
-    double x = Py::Float(tup[0]);
-    double y = Py::Float(tup[1]);
-
-    minx=x;
-    maxx=x;
-    miny=y;
-    maxy=y;
+    minx = miny = std::numeric_limits<double>::max();
+    maxx = maxy = std::numeric_limits<double>::min();
   }
 
 
@@ -485,13 +472,13 @@ Bbox::update(const Py::Tuple &args) {
     tup = xys[i];
     double x = Py::Float(tup[0]);
     double y = Py::Float(tup[1]);
+    if (MPL_isnan64(x) || MPL_isnan64(y)) continue;
     _posx.update(x);
     _posy.update(y);
     if (x<minx) minx=x;
     if (x>maxx) maxx=x;
     if (y<miny) miny=y;
     if (y>maxy) maxy=y;
-
   }
 
 
@@ -617,37 +604,14 @@ Bbox::update_numerix(const Py::Tuple &args) {
     _ignore = 0; // don't ignore future updates
   }
   if (ignore) {
-    int xok=0;
-    int yok=0;
-    // loop through values until we find some nans...
-    for (size_t i=0; i< Nx; ++i) {
-      thisx = *(double *)(x->data + i*x->strides[0]);
-      thisy = *(double *)(y->data + i*y->strides[0]);
-
-      if (!xok) {
-	if (!MPL_isnan64(thisx)) {
-	  minx=thisx;
-	  maxx=thisx;
-	  xok=1;
-	}
-      }
-
-      if (!yok) {
-	if (!MPL_isnan64(thisy)) {
-	  miny=thisy;
-	  maxy=thisy;
-	  yok=1;
-	}
-      }
-
-      if (xok && yok) break;
-    }
+    minx = miny = std::numeric_limits<double>::max();
+    maxx = maxy = -std::numeric_limits<double>::max();
   }
 
   for (size_t i=0; i< Nx; ++i) {
     thisx = *(double *)(x->data + i*x->strides[0]);
     thisy = *(double *)(y->data + i*y->strides[0]);
-
+    if (MPL_isnan64(thisx) || MPL_isnan64(thisy)) continue;
     _posx.update(thisx);
     _posy.update(thisy);
     if (thisx<minx) minx=thisx;
