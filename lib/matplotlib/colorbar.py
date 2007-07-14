@@ -26,7 +26,6 @@ import matplotlib.lines as lines
 import matplotlib.patches as patches
 import matplotlib.collections as collections
 import matplotlib.contour as contour
-import matplotlib.axes as axes
 
 make_axes_kw_doc = '''
         fraction    = 0.15; fraction of original axes to use for colorbar
