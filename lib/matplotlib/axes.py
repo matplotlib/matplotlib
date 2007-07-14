@@ -12,9 +12,10 @@ from matplotlib import artist, agg, axis, cbook, collections, colors, \
      contour, dates, font_manager, image, legend, lines, mlab, cm, \
      patches, quiver, table, text, ticker, transforms
 
-mpl = matplotlib.Namespace(artist, agg, axis, cbook, collections, colors,
-     contour, dates, font_manager, image, legend, lines, mlab, cm,
-     patches, quiver, table, text, ticker, transforms )
+# put all the matplotlib modules in the local namespace into a single
+# namespace object to avoid ambiguity in references below, eg artist
+# becomes mpl.artist
+mpl = matplotlib.Namespace(locals())
 
 
 def delete_masked_points(*args):
