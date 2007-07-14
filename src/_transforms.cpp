@@ -1,6 +1,5 @@
 #include <functional>
 #include <limits>
-#include <cmath>
 
 #include <math.h>
 
@@ -8,6 +7,7 @@
 #include "mplutils.h"
 
 #include "numpy/arrayobject.h"
+#include "MPL_isnan.h"
 
 Value::~Value() {
   _VERBOSE("Value::~Value");
@@ -473,7 +473,7 @@ Bbox::update(const Py::Tuple &args) {
     tup = xys[i];
     double x = Py::Float(tup[0]);
     double y = Py::Float(tup[1]);
-    if (std::isnan(x) || std::isnan(y)) continue;
+    if (MPL_isnan64(x) || MPL_isnan64(y)) continue;
     _posx.update(x);
     _posy.update(y);
     if (x<minx) minx=x;
@@ -538,7 +538,7 @@ Bbox::update_numerix_xy(const Py::Tuple &args) {
   for (size_t i=0; i< Nxy; ++i) {
     thisx = *(double *)(xyin->data + i*xyin->strides[0]);
     thisy = *(double *)(xyin->data + i*xyin->strides[0] + xyin->strides[1]);
-    if (std::isnan(thisx) || std::isnan(thisy)) continue;
+    if (MPL_isnan64(thisx) || MPL_isnan64(thisy)) continue;
     _posx.update(thisx);
     _posy.update(thisy);
     if (thisx<minx) minx=thisx;
@@ -612,7 +612,7 @@ Bbox::update_numerix(const Py::Tuple &args) {
   for (size_t i=0; i< Nx; ++i) {
     thisx = *(double *)(x->data + i*x->strides[0]);
     thisy = *(double *)(y->data + i*y->strides[0]);
-    if (std::isnan(thisx) || std::isnan(thisy)) continue;
+    if (MPL_isnan64(thisx) || MPL_isnan64(thisy)) continue;
     _posx.update(thisx);
     _posy.update(thisy);
     if (thisx<minx) minx=thisx;
@@ -1254,12 +1254,12 @@ Transformation::nonlinear_only_numerix(const Py::Tuple & args, const Py::Dict &k
 
     double thisx = *(double *)(x->data + i*x->strides[0]);
     double thisy = *(double *)(y->data + i*y->strides[0]);
-    if (std::isnan(thisx) || std::isnan(thisy)) {
+    if (MPL_isnan64(thisx) || MPL_isnan64(thisy)) {
       if (returnMask) {
 	*(unsigned char *)(retmask->data + i*retmask->strides[0]) = 0;
       }
       double MPLnan; // don't require C99 math features - find our own nan
-      if (std::isnan(thisx)) {
+      if (MPL_isnan64(thisx)) {
 	MPLnan=thisx;
       } else {
 	MPLnan=thisy;
