@@ -1,5 +1,5 @@
 """
-This is a matlab(TM) style interface to matplotlib.
+This is a procedural interface to matplotlib.
 
 The following plotting commands are provided; some of these do not
 exist in matlab(TM) but have proven themselves to be useful nonetheless.

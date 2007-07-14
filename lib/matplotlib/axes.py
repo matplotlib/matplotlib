@@ -4236,6 +4236,14 @@ class Axes(mpl.artist.Artist):
         The same color strings that plot supports are supported by the fill
         format string.
 
+        If you would like to fill below a curve, eg shade a region
+        between 0 and y along x, use mlab.poly_between, eg
+
+          xs, ys = poly_between(x, 0, y)
+          axes.fill(xs, ys, facecolor='red', alpha=0.5)
+
+        See examples/fill_between.py for more examples.
+        
         kwargs control the Polygon properties:
         %(Polygon)s
         """
