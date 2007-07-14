@@ -1,3 +1,6 @@
+2007-07-13 Add MPL_isfinite64() and MPL_isinf64() for testing
+           doubles in (the now misnamed) MPL_isnan.h. - ADS
+
 2007-07-13 The matplotlib._isnan module removed (use numpy.isnan) - ADS
 
 2007-07-13 Some minor cleanups in _transforms.cpp - ADS
