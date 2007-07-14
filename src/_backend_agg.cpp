@@ -25,6 +25,7 @@
 #include "mplutils.h"
 
 #include "swig_runtime.h"
+#include "MPL_isnan.h"
 
 #define PY_ARRAY_TYPES_PREFIX NumPy
 #include "numpy/arrayobject.h"
@@ -1584,7 +1585,7 @@ RendererAgg::draw_lines(const Py::Tuple& args) {
         moveto = true;
         continue;
       }
-      if (std::isnan(thisx) || std::isnan(thisy)) {
+      if (MPL_isnan64(thisx) || MPL_isnan64(thisy)) {
         moveto = true;
         continue;
       }
