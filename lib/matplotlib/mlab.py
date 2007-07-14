@@ -57,6 +57,7 @@ Credits:
 from __future__ import division
 import sys, random, datetime, csv
 
+import numpy as npy
 
 from matplotlib import verbose
 import numpy as npy
@@ -77,7 +78,7 @@ from numerix import array, asarray, arange, divide, exp, arctan2, \
 from numerix.mlab import hanning, cov, diff, svd, rand, std
 from numerix.fft import fft, inverse_fft
 
-from cbook import iterable, is_string_like, to_filehandle
+from cbook import iterable, is_string_like, to_filehandle, reversed
 
 try: set
 except NameError:
@@ -1680,6 +1681,7 @@ def _inside_poly_deprecated(points, verts):
         angles += a
     return nx.nonzero(nx.greater_equal(nx.absolute(angles), nx.pi))
 
+
 def inside_poly(points, verts):
     """
     points is a sequence of x,y points
@@ -1689,6 +1691,48 @@ def inside_poly(points, verts):
     that are inside the polygon
     """
     return nx.nonzero(nxutils.points_inside_poly(points, verts))
+
+def poly_below(xmin, xs, ys):
+    """
+    given a sequence of xs and ys, return the vertices of a polygon
+    that has a horzontal base at xmin and an upper bound at the ys.
+    xmin is a scalar.
+
+    intended for use with Axes.fill, eg
+    xv, yv = poly_below(0, x, y)
+    ax.fill(xv, yv)
+    """
+    xs = npy.asarray(xs)
+    ys = npy.asarray(ys)
+    Nx = len(xs)
+    Ny = len(ys)
+    assert(Nx==Ny)
+    x = xmin*npy.ones(2*Nx)
+    y = npy.ones(2*Nx)
+    x[:Nx] = xs
+    y[:Nx] = ys
+    y[Nx:] = ys[::-1]
+    return x, y
+
+
+def poly_between(x, ylower, yupper):
+    """
+    given a sequence of x, ylower and yupper, return the polygon that
+    fills the regions between them.  ylower or yupper can be scalar or
+    iterable.  If they are iterable, they must be equal in length to x
+
+    return value is x, y arrays for use with Axes.fill
+    """
+    Nx = len(x)
+    if not iterable(ylower):
+        ylower = ylower*npy.ones(Nx)
+    
+    if not iterable(yupper):
+        yupper = yupper*npy.ones(Nx)
+
+    x = npy.concatenate( (x, x[::-1]) )
+    y = npy.concatenate( (yupper, ylower[::-1]) )
+    return x,y
 
 ### the following code was written and submitted by Fernando Perez
 ### from the ipython numutils package under a BSD license

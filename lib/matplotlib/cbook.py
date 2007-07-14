@@ -472,6 +472,19 @@ except:
             yield i, seq[i]
 
 
+# use reversed builtin if available, else use python version
+try:
+    import __builtin__
+    reversed = __builtin__.reversed
+except:
+    def reversed(seq):
+        """Python equivalent to the enumerate builtin function
+        enumerate() is new in Python 2.3
+        """
+        for i in range(len(seq)-1,-1,-1):
+            yield i, seq[i]
+
+
 # use itertools.izip if available, else use python version
 try:
     import itertools
