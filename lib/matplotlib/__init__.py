@@ -886,4 +886,19 @@ class Namespace:
                 self.__dict__[modname.replace('matplotlib.', '')] = v
 
 
+class Importer:
+    def __init__(self, modstr):
+        """
+        import a bunch of matplotlib modules listed in modstr into a
+        single namespace.  Eg,
 
+        mpl = Importer('artist, cbook, lines, patches')
+        print mpl.cbook.iterable(1)
+        """
+        for name in modstr.split(','):
+            name = name.strip()
+            wholename = '.'.join(['matplotlib', name])
+            basemod = __import__(wholename)
+            mod = getattr(basemod, name)
+            setattr(self, name, mod)
+            
