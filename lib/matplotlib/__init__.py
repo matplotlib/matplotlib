@@ -878,7 +878,12 @@ class Namespace:
     A class which takes a list of modules and creates an object with
     the module naems at attrs
     """
-    def __init__(self, *modules):
-	def make_key(x): return x.__name__.replace('matplotlib.', '')
-        self.__dict__ = dict([(make_key(m), m) for m in modules])
+    def __init__(self, namespace):
+        for k,v in namespace.items():
+            modname = getattr(v, '__name__', None)
+            if modname is None: continue
+            if modname.startswith('matplotlib.'):
+                self.__dict__[modname.replace('matplotlib.', '')] = v
+
+
 
