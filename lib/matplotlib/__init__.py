@@ -870,3 +870,15 @@ class ExampleManager:
         an example
         """
         pass
+
+
+
+class Namespace:
+    """
+    A class which takes a list of modules and creates an object with
+    the module naems at attrs
+    """
+    def __init__(self, *modules):
+	def make_key(x): return x.__name__.replace('matplotlib.', '')
+        self.__dict__ = dict([(make_key(m), m) for m in modules])
+
