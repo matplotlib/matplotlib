@@ -3,8 +3,7 @@ import math, sys, warnings
 
 import numpy as npy
 
-# IMPORT: Eric, do the right thing vis-a-vis the two MA packages
-import numerix.ma as ma  
+import matplotlib.numerix.npyma as ma
 
 import matplotlib
 rcParams = matplotlib.rcParams
@@ -1183,20 +1182,20 @@ class Axes(mpl.artist.Artist):
 
         if xdata is not None:
             self.xaxis.update_units(xdata)
-            
+
         if ydata is not None:
             self.yaxis.update_units(ydata)
-            
+
         # process kwargs 2nd since these will override default units
         if kwargs is not None:
             xunits = kwargs.pop( 'xunits', self.xaxis.units)
             if xunits!=self.xaxis.units:
                 self.xaxis.set_units(xunits)
-                                
+
             yunits = kwargs.pop('yunits', self.yaxis.units)
             if yunits!=self.yaxis.units:
                 self.yaxis.set_units(yunits)
-                
+
     def in_axes(self, xwin, ywin):
         'return True is the point xwin, ywin (display coords) are in the Axes'
         return self.bbox.contains(xwin, ywin)
@@ -1261,7 +1260,7 @@ class Axes(mpl.artist.Artist):
         renderer.open_group('axes')
         self.apply_aspect()
         self.transData.freeze()  # eval the lazy objects
-        self.transAxes.freeze()  
+        self.transAxes.freeze()
         if self.axison and self._frameon: self.axesPatch.draw(renderer)
         artists = []
 
@@ -4521,7 +4520,7 @@ class Axes(mpl.artist.Artist):
 
         newaxis = npy.newaxis
         compress = npy.compress
-        
+
         ravelmask = (mask==0).ravel()
         X1 = compress(ravelmask, ma.filled(X[0:-1,0:-1]).ravel())
         Y1 = compress(ravelmask, ma.filled(Y[0:-1,0:-1]).ravel())
