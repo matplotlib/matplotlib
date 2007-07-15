@@ -764,9 +764,11 @@ class FigureCanvasWx(FigureCanvasBase, wx.Panel):
             self.Bind(wx.EVT_KEY_DOWN, self._onKeyDown)
             self.Bind(wx.EVT_KEY_UP, self._onKeyUp)
             self.Bind(wx.EVT_RIGHT_DOWN, self._onRightButtonDown)
+            self.Bind(wx.EVT_RIGHT_DCLICK, self._onRightButtonDown)
             self.Bind(wx.EVT_RIGHT_UP, self._onRightButtonUp)
             self.Bind(wx.EVT_MOUSEWHEEL, self._onMouseWheel)
             self.Bind(wx.EVT_LEFT_DOWN, self._onLeftButtonDown)
+            self.Bind(wx.EVT_LEFT_DCLICK, self._onLeftButtonDown)
             self.Bind(wx.EVT_LEFT_UP, self._onLeftButtonUp)
             self.Bind(wx.EVT_MOTION, self._onMotion)
             self.Bind(wx.EVT_LEAVE_WINDOW, self._onLeave)
@@ -777,9 +779,11 @@ class FigureCanvasWx(FigureCanvasBase, wx.Panel):
             wx.EVT_KEY_DOWN(self, self._onKeyDown)
             wx.EVT_KEY_UP(self, self._onKeyUp)
             wx.EVT_RIGHT_DOWN(self, self._onRightButtonDown)
+            wx.EVT_RIGHT_DCLICK(self, self._onRightButtonDown)
             wx.EVT_RIGHT_UP(self, self._onRightButtonUp)
             wx.EVT_MOUSEWHEEL(self, self._onMouseWheel)
             wx.EVT_LEFT_DOWN(self, self._onLeftButtonDown)
+            wx.EVT_LEFT_DCLICK(self, self._onLeftButtonDown)
             wx.EVT_LEFT_UP(self, self._onLeftButtonUp)
             wx.EVT_MOTION(self, self._onMotion)
             wx.EVT_LEAVE_WINDOW(self, self._onLeave)
@@ -1164,6 +1168,7 @@ The current aspect ration will be kept."""
         x = evt.GetX()
         y = self.figure.bbox.height() - evt.GetY()
         evt.Skip()
+        self.CaptureMouse()
         FigureCanvasBase.button_press_event(self, x, y, 3, guiEvent=evt)
 
 
@@ -1172,6 +1177,7 @@ The current aspect ration will be kept."""
         x = evt.GetX()
         y = self.figure.bbox.height() - evt.GetY()
         evt.Skip()
+        self.ReleaseMouse()
         FigureCanvasBase.button_release_event(self, x, y, 3, guiEvent=evt)
 
     def _onLeftButtonDown(self, evt):
@@ -1179,6 +1185,7 @@ The current aspect ration will be kept."""
         x = evt.GetX()
         y = self.figure.bbox.height() - evt.GetY()
         evt.Skip()
+        self.CaptureMouse()
         FigureCanvasBase.button_press_event(self, x, y, 1, guiEvent=evt)
 
     def _onLeftButtonUp(self, evt):
@@ -1187,6 +1194,7 @@ The current aspect ration will be kept."""
         y = self.figure.bbox.height() - evt.GetY()
         #print 'release button', 1
         evt.Skip()
+        self.ReleaseMouse()
         FigureCanvasBase.button_release_event(self, x, y, 1, guiEvent=evt)
 
     def _onMouseWheel(self, evt):
