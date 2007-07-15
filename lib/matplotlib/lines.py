@@ -309,7 +309,7 @@ class Line2D(Artist):
         else:
             pixels = self.figure.dpi.get()/72. * self.pickradius
             
-        if self._linestyle == '_draw_nothing':
+        if self._linestyle == 'None':
             # If no line, return the nearby point(s)
             d = sqrt((xt-mouseevent.x)**2 + (yt-mouseevent.y)**2)
             ind = nonzero(less_equal(d, pixels))
