@@ -264,7 +264,9 @@ class AxesImage(Artist, cm.ScalarMappable):
         if self._extent is not None:
             return self._extent
         else:
-            numrows, numcols = self.get_size()
+            sz = self.get_size()
+            #print 'sz', sz
+            numrows, numcols = sz
             if self.origin == 'upper':
                 return (-0.5, numcols-0.5, numrows-0.5, -0.5)
             else:

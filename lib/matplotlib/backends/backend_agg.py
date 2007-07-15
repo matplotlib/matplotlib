@@ -382,8 +382,8 @@ class FigureCanvasAgg(FigureCanvasBase):
         """
         if __debug__: verbose.report('FigureCanvasAgg.draw', 'debug-annoying')
 
-        renderer = self.get_renderer()
-        self.figure.draw(renderer)
+        self.renderer = self.get_renderer()
+        self.figure.draw(self.renderer)
 
     def get_renderer(self):
         l,b,w,h = self.figure.bbox.get_bounds()
