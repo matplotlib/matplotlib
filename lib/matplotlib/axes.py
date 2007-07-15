@@ -1911,8 +1911,7 @@ class Axes(mpl.artist.Artist):
         """
         if callable(self._contains): return self._contains(self,mouseevent)
 
-        x,y = self.axes.transAxes.inverse_xy_tup((mouseevent.x,mouseevent.y))
-        inside = x>=0 and x<=1 and y>=0 and y<=1
+        inside = self.bbox.contains(mouseevent.x,mouseevent.y)
         return inside,{}
 
     def pick(self,*args):
