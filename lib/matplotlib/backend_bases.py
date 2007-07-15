@@ -878,7 +878,7 @@ class FigureCanvasBase:
 
     def hilite(self, ev):
         """Mouse event processor which highlights the artists
-        under the currsor.  Connect this to the motion_notify_event
+        under the cursor.  Connect this to the motion_notify_event
         using canvas.mpl_connect('motion_notify_event',canvas.hilite)
         """
         if not hasattr(self,'_active'): self._active = dict()
