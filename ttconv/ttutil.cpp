@@ -62,3 +62,12 @@ void TTStreamWriter::putline(const char *a)
   this->write(a);
   this->write("\n");
 }
+
+void replace_newlines_with_spaces(char *a) {
+  char* i = a;
+  while (*i != 0) {
+    if (*i == '\n')
+      *i = ' ';
+    i++;
+  }
+}

@@ -210,6 +210,7 @@ void Read_name(struct TTFONT *font)
 	      font->Copyright = (char*)calloc(sizeof(char),length+1);
 	      strncpy(font->Copyright,(const char*)strings+offset,length);
 	      font->Copyright[length]=(char)NULL;
+	      replace_newlines_with_spaces(font->Copyright);
 	      
 #ifdef DEBUG_TRUETYPE
 	      debug("font->Copyright=\"%s\"",font->Copyright);
@@ -224,6 +225,7 @@ void Read_name(struct TTFONT *font)
 	      font->FamilyName = (char*)calloc(sizeof(char),length+1);
 	      strncpy(font->FamilyName,(const char*)strings+offset,length);
 	      font->FamilyName[length]=(char)NULL;
+	      replace_newlines_with_spaces(font->FamilyName);
 	    
 #ifdef DEBUG_TRUETYPE
 	      debug("font->FamilyName=\"%s\"",font->FamilyName);
@@ -238,6 +240,7 @@ void Read_name(struct TTFONT *font)
 	      font->Style = (char*)calloc(sizeof(char),length+1);
 	      strncpy(font->Style,(const char*)strings+offset,length);
 	      font->Style[length]=(char)NULL;
+	      replace_newlines_with_spaces(font->Style);
 	      
 #ifdef DEBUG_TRUETYPE
 	      debug("font->Style=\"%s\"",font->Style);
@@ -252,6 +255,7 @@ void Read_name(struct TTFONT *font)
 	      font->FullName = (char*)calloc(sizeof(char),length+1);
 	      strncpy(font->FullName,(const char*)strings+offset,length);
 	      font->FullName[length]=(char)NULL;
+	      replace_newlines_with_spaces(font->FullName);
 	      
 #ifdef DEBUG_TRUETYPE
 	      debug("font->FullName=\"%s\"",font->FullName);
@@ -266,7 +270,8 @@ void Read_name(struct TTFONT *font)
 	      font->Version = (char*)calloc(sizeof(char),length+1);
 	      strncpy(font->Version,(const char*)strings+offset,length);
 	      font->Version[length]=(char)NULL;
-	      
+	      replace_newlines_with_spaces(font->Version);
+
 #ifdef DEBUG_TRUETYPE
 	      debug("font->Version=\"%s\"",font->Version);
 #endif
@@ -280,7 +285,8 @@ void Read_name(struct TTFONT *font)
 	      font->PostName = (char*)calloc(sizeof(char),length+1);
 	      strncpy(font->PostName,(const char*)strings+offset,length);
 	      font->PostName[length]=(char)NULL;
-	      
+	      replace_newlines_with_spaces(font->PostName);
+
 #ifdef DEBUG_TRUETYPE
 	      debug("font->PostName=\"%s\"",font->PostName);
 #endif
@@ -294,6 +300,7 @@ void Read_name(struct TTFONT *font)
 	      font->Trademark = (char*)calloc(sizeof(char),length+1);
 	      strncpy(font->Trademark,(const char*)strings+offset,length);
 	      font->Trademark[length]=(char)NULL;
+	      replace_newlines_with_spaces(font->Trademark);
 	      
 #ifdef DEBUG_TRUETYPE
 	      debug("font->Trademark=\"%s\"",font->Trademark);
@@ -343,7 +350,7 @@ void ttfont_header(TTStreamWriter& stream, struct TTFONT *font)
 
     /* If there is a Copyright notice, put it here too. */
     if( font->Copyright != (char*)NULL )
-	stream.printf("%%%%Copyright: %s\n",font->Copyright);
+      stream.printf("%%%%Copyright: %s\n",font->Copyright);
 
     /* We created this file. */
     if( font->target_type == PS_TYPE_42 )
