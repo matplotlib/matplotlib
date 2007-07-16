@@ -274,7 +274,7 @@ class ScalarFormatter(Formatter):
     def __init__(self, useOffset=True, useMathText=False):
         # useOffset allows plotting small data ranges with large offsets:
         # for example: [1+1e-9,1+2e-9,1+3e-9]
-        # useMathText will render the offset an scientific notation in mathtext
+        # useMathText will render the offset and scientific notation in mathtext
         self._useOffset = useOffset
         self._usetex = rcParams['text.usetex']
         self._useMathText = useMathText
@@ -292,7 +292,9 @@ class ScalarFormatter(Formatter):
             return self.pprint_val(x)
 
     def set_scientific(self, b):
-        'True or False to turn scientific notation on or off; see also set_powerlimits()'
+        '''True or False to turn scientific notation on or off
+        see also set_powerlimits()
+        '''
         self._scientific = bool(b)
 
     def set_powerlimits(self, lims):
@@ -311,11 +313,9 @@ class ScalarFormatter(Formatter):
         'return a short formatted string representation of a number'
         return '%1.3g'%value
 
-    def format_data(self,value,sign=False,mathtext=False):
+    def format_data(self,value):
         'return a formatted string representation of a number'
-        if sign: s = '%+1.10e'% value
-        else: s = '%1.10e'% value
-        return self._formatSciNotation(s,mathtext=mathtext)
+        return self._formatSciNotation('%1.10e'% value)
 
     def get_offset(self):
         """Return scientific notation, plus offset"""
@@ -324,16 +324,15 @@ class ScalarFormatter(Formatter):
             offsetStr = ''
             sciNotStr = ''
             if self.offset:
-                if self._usetex or self._useMathText:
-                    offsetStr = self.format_data(self.offset, sign=True, mathtext=True)
-                else:
-                    offsetStr = self.format_data(self.offset, sign=True, mathtext=False)
+                offsetStr = self.format_data(self.offset)
+                if self.offset > 0: offsetStr = '+' + offsetStr
             if self.orderOfMagnitude:
                 if self._usetex or self._useMathText:
-                    sciNotStr = r'{\times}'+self.format_data(10**self.orderOfMagnitude, mathtext=True)
+                    sciNotStr = r'{\times}'+self.format_data(10**self.orderOfMagnitude)
                 else:
-                    sciNotStr = 'x1e%+d'% self.orderOfMagnitude
-            if self._useMathText or self._usetex: return ''.join(('$',sciNotStr,offsetStr,'$'))
+                    sciNotStr = u'\xd7'+'1e%d'% self.orderOfMagnitude
+            if self._useMathText or self._usetex: 
+                return ''.join(('$',sciNotStr,offsetStr,'$'))
             else: return ''.join((sciNotStr,offsetStr))
         else: return ''
 
@@ -402,14 +401,14 @@ class ScalarFormatter(Formatter):
         if absolute(xp) < 1e-8: xp = 0
         return self.format % xp
 
-    def _formatSciNotation(self, s, mathtext=False):
+    def _formatSciNotation(self, s):
         # transform 1e+004 into 1e4, for example
         tup = s.split('e')
         try:
             significand = tup[0].rstrip('0').rstrip('.')
             sign = tup[1][0].replace('+', '')
             exponent = tup[1][1:].lstrip('0')
-            if mathtext:
+            if self._useMathText or self._usetex:
                 if significand == '1':
                     # reformat 1x10^y as 10^y
                     significand = ''
