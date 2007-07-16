@@ -1,3 +1,6 @@
+2007-07-16 fixed a formatting bug in ticker.ScalarFormatter's scientific 
+           notation (10^0 was being rendered as 10 in some cases) - DSD
+
 2007-07-13 Add MPL_isfinite64() and MPL_isinf64() for testing
            doubles in (the now misnamed) MPL_isnan.h. - ADS
 

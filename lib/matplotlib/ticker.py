@@ -402,27 +402,26 @@ class ScalarFormatter(Formatter):
         if absolute(xp) < 1e-8: xp = 0
         return self.format % xp
 
-    def _formatSciNotation(self,s, mathtext=False):
+    def _formatSciNotation(self, s, mathtext=False):
         # transform 1e+004 into 1e4, for example
         tup = s.split('e')
         try:
-            mantissa = tup[0].rstrip('0').rstrip('.')
+            significand = tup[0].rstrip('0').rstrip('.')
             sign = tup[1][0].replace('+', '')
             exponent = tup[1][1:].lstrip('0')
             if mathtext:
-                if self._usetex:
-                    if mantissa=='1':
-                        return r'10^{%s%s}'%(sign, exponent)
-                    else:
-                        return r'%s{\times}10^{%s%s}'%(mantissa, sign, exponent)
+                if significand == '1':
+                    # reformat 1x10^y as 10^y
+                    significand = ''
+                if exponent:
+                    exponent = '10^{%s%s}'%(sign, exponent)
+                if significand and exponent:
+                    return r'%s{\times}%s'%(significand, exponent)
                 else:
-                    if mantissa=='1':
-                        return r'10^{%s%s}'%(sign, exponent)
-                    else:
-                        return r'%s{\times}10^{%s%s}'%(mantissa, sign, exponent)
+                    return r'%s%s'%(significand, exponent)
             else:
-                return ('%se%s%s' %(mantissa, sign, exponent)).rstrip('e')
-        except IndexError,msg:
+                return ('%se%s%s' %(significand, sign, exponent)).rstrip('e')
+        except IndexError, msg:
             return s
 
 
