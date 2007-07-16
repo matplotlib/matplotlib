@@ -1,8 +1,4 @@
 """
-Note! If you are building for python2.2, you must comment out the
-py_modules line below and manually copy lib/pylab.py to
-site-packages/pylab.py
-
 You will need to have freetype, libpng and zlib installed to compile
 matplotlib, inlcuding the *-devel versions of these libraries if you
 are using a package manager like RPM or debian.
@@ -62,8 +58,6 @@ if os.path.exists('MANIFEST'): os.remove('MANIFEST')
 import sys
 major, minor1, minor2, s, tmp = sys.version_info
 
-if major==2 and minor1==2:
-    print >> sys.stderr, "***\n\nWARNING, see build info for python2.2 in the header of setup.py\n\n***"
 if major==2 and minor1<=3:
     # setuptools monkeypatches distutils.core.Distribution to support
     # package_data
@@ -78,12 +72,13 @@ setuptools requirement, you must delete the old matplotlib install
 directory.""")
 
 import glob
-from distutils.core import Extension, setup
+#from distutils.core import Extension, setup
+from setuptools import setup
 from setupext import build_agg, build_gtkagg, build_tkagg, build_wxagg,\
      build_ft2font, build_image, build_windowing, build_transforms, \
      build_contour, build_nxutils, build_enthought, build_swigagg, build_gdk, \
      build_subprocess, build_ttconv
-import distutils.sysconfig
+#import distutils.sysconfig
 
 for line in file('lib/matplotlib/__init__.py').readlines():
     if line[:11] == '__version__':
