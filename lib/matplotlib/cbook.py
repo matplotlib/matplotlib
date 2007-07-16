@@ -546,7 +546,7 @@ def dedent(s):
     """
     if not s:      # includes case of s is None
         return ''
-    lines = s.splitlines(True)
+    lines = s.splitlines(False)
     ii = 0
     while lines[ii].strip() == '':
         ii += 1
@@ -555,7 +555,7 @@ def dedent(s):
     for i, line in enumerate(lines):
         nwhite = len(line) - len(line.lstrip())
         lines[i] = line[min(nshift, nwhite):]
-    return ''.join(lines)
+    return '\n'.join(lines)
 
 
 
@@ -906,7 +906,7 @@ def print_cycles(objects, outstream=sys.stdout, show_progress=False):
                 outstream.write(repr(step))
             outstream.write(" ->\n")
         outstream.write("\n")
-    
+
     def recurse(obj, start, all, current_path):
         if show_progress:
             outstream.write("%d\r" % len(all))
@@ -923,7 +923,7 @@ def print_cycles(objects, outstream=sys.stdout, show_progress=False):
             # Don't go back through the original list of objects, or
             # through temporary references to the object, since those
             # are just an artifact of the cycle detector itself.
-            elif referent is objects or isinstance(referent, FrameType): 
+            elif referent is objects or isinstance(referent, FrameType):
                 continue
 
             # We haven't seen this object before, so recurse

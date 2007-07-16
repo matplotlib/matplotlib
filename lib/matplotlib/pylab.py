@@ -1,9 +1,9 @@
 """
-This is a procedural interface to matplotlib.
+This is a procedural interface to the matplotlib object-oriented
+plotting library.
 
-The following plotting commands are provided; some of these do not
-exist in matlab(TM) but have proven themselves to be useful nonetheless.
-The majority of them, however, have matlab analogs
+The following plotting commands are provided; the majority have
+Matlab(TM) analogs and similar argument.
 
 _Plotting commands
   acorr     - plot the autocorrelation function

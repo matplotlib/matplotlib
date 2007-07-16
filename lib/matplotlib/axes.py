@@ -9,8 +9,8 @@ import matplotlib
 rcParams = matplotlib.rcParams
 
 # import a bunch of matplotlib modules into a single namespace
-mpl = matplotlib.Importer("""artist, agg, axis, cbook, collections, colors, 
-     contour, dates, font_manager, image, legend, lines, mlab, cm, 
+mpl = matplotlib.Importer("""artist, agg, axis, cbook, collections, colors,
+     contour, dates, font_manager, image, legend, lines, mlab, cm,
      patches, quiver, table, text, ticker, transforms""")
 
 def delete_masked_points(*args):
@@ -2136,10 +2136,11 @@ class Axes(mpl.artist.Artist):
 
     def annotate(self, *args, **kwargs):
         """
-        annotate(self, s, xy, textloc,
-                 xycoords='data', textcoords='data',
-                 lineprops=None,
-                 markerprops=None
+        annotate(s, xy,
+                 xytext=None,
+                 xycoords='data',
+                 textcoords='data',
+                 arrowprops=None,
                  **props)
 
         %(Annotation)s
@@ -4242,7 +4243,7 @@ class Axes(mpl.artist.Artist):
           axes.fill(xs, ys, facecolor='red', alpha=0.5)
 
         See examples/fill_between.py for more examples.
-        
+
         kwargs control the Polygon properties:
         %(Polygon)s
         """

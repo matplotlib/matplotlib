@@ -136,19 +136,19 @@ class Artist:
         if hasattr(self,'get_children'):
             for a in self.get_children(): L.extend(a.hitlist(event))
         return L
-    
+
     def contains(self,mouseevent):
-        """Test whether the artist contains the mouse event.  
-        
-        Returns the truth value and a dictionary of artist specific details of 
-        selection, such as which points are contained in the pick radius.  See 
+        """Test whether the artist contains the mouse event.
+
+        Returns the truth value and a dictionary of artist specific details of
+        selection, such as which points are contained in the pick radius.  See
         individual artists for details.
         """
         if callable(self._contains): return self._contains(self,mouseevent)
         #raise NotImplementedError,str(self.__class__)+" needs 'contains' method"
         print str(self.__class__)+" needs 'contains' method"
         return False,{}
-    
+
     def set_contains(self,picker):
         """Replace the contains test used by this artist. The new picker should
         be a callable function which determines whether the artist is hit by the
@@ -156,7 +156,7 @@ class Artist:
 
             hit, props = picker(artist, mouseevent)
 
-        If the mouse event is over the artist, return hit=True and props 
+        If the mouse event is over the artist, return hit=True and props
         is a dictionary of properties you want returned with the contains test.
         """
         self._contains = picker
@@ -680,7 +680,7 @@ def setp(h, *args, **kwargs):
     return [x for x in flatten(ret)]
 
 def kwdoc(a):
-    return '\n'.join(ArtistInspector(a).pprint_setters(leadingspace=8))
+    return '\n'.join(ArtistInspector(a).pprint_setters(leadingspace=4))
 
 kwdocd = dict()
 kwdocd['Artist'] = kwdoc(Artist)
