@@ -1,144 +1,57 @@
 """
 This is an object-orient plotting library.
 
-The following matlab(TM) compatible commands are provided by
+A procedural interface is provided by the companion pylab
+module, which may be imported directly, e.g.
 
-   >>> from pylab import *
+    from pylab import *
 
-Plotting commands
+or using ipython:
 
-  axes     - Create a new axes
-  axhline  - draw a horizontal line across axes
-  axvline  - draw a vertical line across axes
-  axhspan  - draw a horizontal bar across axes
-  axvspan  - draw a vertical bar across axes
-  axis     - Set or return the current axis limits
-  bar      - make a bar chart
-  barh     - a horizontal bar chart
-  boxplot  - make a box and whisker plot
-  cla      - clear current axes
-  clf      - clear a figure window
-  close    - close a figure window
-  colorbar - add a colorbar to the current figure
-  cohere   - make a plot of coherence
-  contour  - make a contour plot
-  csd      - make a plot of cross spectral density
-  draw     - Force a redraw of the current figure
-  errorbar - make an errorbar graph
-  figlegend - make legend on the figure rather than the axes
-  figimage  - make a figure image
-  figtext   - add text in figure coords
-  figure   - create or change active figure
-  fill     - make filled polygons
-  gca      - return the current axes
-  gcf      - return the current figure
-  gci      - get the current image, or None
-  get      - get a handle graphics property
-  gray     - set the current colormap to gray
-  jet      - set the current colormap to jet
-  hist     - make a histogram
-  hold     - set the axes hold state
-  legend   - make an axes legend
-  loglog   - a log log plot
-  imread   - load image file into array
-  imshow   - plot image data
-  pcolor   - make a pseudocolor plot
-  plot     - make a line plot
-  psd      - make a plot of power spectral density
-  rc       - control the default params
-  savefig  - save the current figure
-  scatter  - make a scatter plot
-  set      - set a handle graphics property
-  semilogx - log x axis
-  semilogy - log y axis
-  show     - show the figures
-  specgram - a spectrogram plot
-  stem     - make a stem plot
-  subplot  - make a subplot (numrows, numcols, axesnum)
-  table    - add a table to the plot
-  text     - add some text at location x,y to the current axes
-  title    - add a title to the current axes
-  xlim     - set/get the xlimits
-  ylim     - set/get the ylimits
-  xticks   - set/get the xticks
-  yticks   - set/get the yticks
-  xlabel   - add an xlabel to the current axes
-  ylabel   - add a ylabel to the current axes
+    ipython -pylab
 
-Matrix commands
+For the most part, direct use of the object-oriented library
+is encouraged when programming rather than working
+interactively.  The exceptions are the pylab commands
+figure(), subplot(), show(), and savefig(), which can
+greatly simplify scripting.
 
-  cumprod   - the cumulative product along a dimension
-  cumsum    - the cumulative sum along a dimension
-  detrend   - remove the mean or besdt fit line from an array
-  diag      - the k-th diagonal of matrix
-  diff      - the n-th differnce of an array
-  eig       - the eigenvalues and eigen vectors of v
-  eye       - a matrix where the k-th diagonal is ones, else zero
-  find      - return the indices where a condition is nonzero
-  fliplr    - flip the rows of a matrix up/down
-  flipud    - flip the columns of a matrix left/right
-  linspace  - a linear spaced vector of N values from min to max inclusive
-  ones      - an array of ones
-  rand      - an array from the uniform distribution [0,1]
-  randn     - an array from the normal distribution
-  rot90     - rotate matrix k*90 degress counterclockwise
-  squeeze   - squeeze an array removing any dimensions of length 1
-  tri       - a triangular matrix
-  tril      - a lower triangular matrix
-  triu      - an upper triangular matrix
-  vander    - the Vandermonde matrix of vector x
-  svd       - singular value decomposition
-  zeros     - a matrix of zeros
+Modules include:
+    axes: defines the Axes class.  Most pylab commands are
+        wrappers for Axes methods.  The axes module is the
+        highest level of OO access to the library.
+    figure: defines Figure class.
+    artist: defines the Artist base class for all classes
+        that draw things.
+    line: defines Line2D class for drawing lines and markers
+    patches: defines classes for drawing polygons
+    text: defines Text, TextWithDash, and Annotate classes
+    image: defines AxesImage and FigureImage classes
+    collections: classes for efficient drawing of groups of
+        lines or polygons
+    colors: classes for interpreting color specifications
+        and for making colormaps
+    cm: colormaps and the ScalarMappable mixin class for
+        providing color mapping functionality to other
+        classes
+    ticker: classes for calculating tick mark locations and
+        for formatting tick labels
+    backends: a subpackage with modules for various gui
+        libraries and output formats
 
-Probability
+The base matplotlib namespace includes:
+    rcParams: a dictionary of default configuration
+        settings.  It is initialized by code which may be
+        overridded by a matplotlibrc file.
+    rc(): a function for setting groups of rcParams values
+    use(): a function for setting the matplotlib backend.
+        If used, this function must be called immediately
+        after importing matplotlib for the first time.  In
+        particular, it must be called *before* importing
+        pylab (if pylab is imported).
 
-  levypdf   - The levy probability density function from the char. func.
-  normpdf   - The Gaussian probability density function
-  rand      - random numbers from the uniform distribution
-  randn     - random numbers from the normal distribution
-
-Statistics
-
-  corrcoef  - correlation coefficient
-  cov       - covariance matrix
-  max       - the maximum along dimension m
-  mean      - the mean along dimension m
-  median    - the median along dimension m
-  min       - the minimum along dimension m
-  norm      - the norm of vector x
-  prod      - the product along dimension m
-  ptp       - the max-min along dimension m
-  std       - the standard deviation along dimension m
-  sum       - the sum along dimension m
-
-Time series analysis
-
-  bartlett  - M-point Bartlett window
-  blackman  - M-point Blackman window
-  cohere    - the coherence using average periodiogram
-  csd       - the cross spectral density using average periodiogram
-  fft       - the fast Fourier transform of vector x
-  hamming   - M-point Hamming window
-  hanning   - M-point Hanning window
-  hist      - compute the histogram of x
-  kaiser    - M length Kaiser window
-  psd       - the power spectral density using average periodiogram
-  sinc      - the sinc function of array x
-
-Other
-
-  angle     - the angle of a complex array
-  polyfit   - fit x, y to an n-th order polynomial
-  polyval   - evaluate an n-th order polynomial
-  roots     - the roots of the polynomial coefficients in p
-  trapz     - trapezoidal integration
-
-
-Credits: The plotting commands were provided by
-John D. Hunter <jdhunter@ace.bsd.uhicago.edu>
-
-Most of the other commands are from the Numeric, MLab and FFT, with
-the exception of those in mlab.py provided by matplotlib.
+matplotlib is written by John D. Hunter (jdh2358 at
+gmail.com).
 """
 from __future__ import generators
 
