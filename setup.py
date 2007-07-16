@@ -72,8 +72,7 @@ setuptools requirement, you must delete the old matplotlib install
 directory.""")
 
 import glob
-#from distutils.core import Extension, setup
-from setuptools import setup
+from distutils.core import setup
 from setupext import build_agg, build_gtkagg, build_tkagg, build_wxagg,\
      build_ft2font, build_image, build_windowing, build_transforms, \
      build_contour, build_nxutils, build_enthought, build_swigagg, build_gdk, \
