@@ -1,5 +1,5 @@
 """
-This is a matlab(TM) style functional interface the matplotlib.
+This is an object-orient plotting library.
 
 The following matlab(TM) compatible commands are provided by
 
@@ -901,4 +901,4 @@ class Importer:
             basemod = __import__(wholename)
             mod = getattr(basemod, name)
             setattr(self, name, mod)
-            
+

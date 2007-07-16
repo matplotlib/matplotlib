@@ -94,36 +94,36 @@ _unit_box = lbwh_to_bbox(0,0,1,1)
 # class is build so we define an initial set here for the init
 # function and they will be overridden after object defn
 artist.kwdocd['Text'] =  """\
-            alpha: float
-            animated: [True | False]
-            backgroundcolor: any matplotlib color
-            bbox: rectangle prop dict plus key 'pad' which is a pad in points
-            clip_box: a matplotlib.transform.Bbox instance
-            clip_on: [True | False]
-            color: any matplotlib color
-            family: [ 'serif' | 'sans-serif' | 'cursive' | 'fantasy' | 'monospace' ]
-            figure: a matplotlib.figure.Figure instance
-            fontproperties: a matplotlib.font_manager.FontProperties instance
-            horizontalalignment or ha: [ 'center' | 'right' | 'left' ]
-            label: any string
-            linespacing: float
-            lod: [True | False]
-            multialignment: ['left' | 'right' | 'center' ]
-            name or fontname: string eg, ['Sans' | 'Courier' | 'Helvetica' ...]
-            position: (x,y)
-            rotation: [ angle in degrees 'vertical' | 'horizontal'
-            size or fontsize: [ size in points | relative size eg 'smaller', 'x-large' ]
-            style or fontstyle: [ 'normal' | 'italic' | 'oblique']
-            text: string
-            transform: a matplotlib.transform transformation instance
-            variant: [ 'normal' | 'small-caps' ]
-            verticalalignment or va: [ 'center' | 'top' | 'bottom' ]
-            visible: [True | False]
-            weight or fontweight: [ 'normal' | 'bold' | 'heavy' | 'light' | 'ultrabold' | 'ultralight']
-            x: float
-            y: float
-            zorder: any number
-            """
+    alpha: float
+    animated: [True | False]
+    backgroundcolor: any matplotlib color
+    bbox: rectangle prop dict plus key 'pad' which is a pad in points
+    clip_box: a matplotlib.transform.Bbox instance
+    clip_on: [True | False]
+    color: any matplotlib color
+    family: [ 'serif' | 'sans-serif' | 'cursive' | 'fantasy' | 'monospace' ]
+    figure: a matplotlib.figure.Figure instance
+    fontproperties: a matplotlib.font_manager.FontProperties instance
+    horizontalalignment or ha: [ 'center' | 'right' | 'left' ]
+    label: any string
+    linespacing: float
+    lod: [True | False]
+    multialignment: ['left' | 'right' | 'center' ]
+    name or fontname: string eg, ['Sans' | 'Courier' | 'Helvetica' ...]
+    position: (x,y)
+    rotation: [ angle in degrees 'vertical' | 'horizontal'
+    size or fontsize: [ size in points | relative size eg 'smaller', 'x-large' ]
+    style or fontstyle: [ 'normal' | 'italic' | 'oblique']
+    text: string
+    transform: a matplotlib.transform transformation instance
+    variant: [ 'normal' | 'small-caps' ]
+    verticalalignment or va: [ 'center' | 'top' | 'bottom' ]
+    visible: [True | False]
+    weight or fontweight: [ 'normal' | 'bold' | 'heavy' | 'light' | 'ultrabold' | 'ultralight']
+    x: float
+    y: float
+    zorder: any number
+    """
 
 class Text(Artist):
     """
@@ -149,8 +149,10 @@ class Text(Artist):
                  **kwargs
                  ):
         """
-        Create a Text instance at x,y with string text.  Valid kwargs are
-            %(Text)s
+        Create a Text instance at x,y with string text.
+
+        Valid kwargs are
+        %(Text)s
         """
 
         Artist.__init__(self)
@@ -817,6 +819,7 @@ class Text(Artist):
 
         return val
 
+artist.kwdocd['Text'] = artist.kwdoc(Text)
 
 
 class TextWithDash(Text):
@@ -1125,6 +1128,7 @@ class TextWithDash(Text):
         Text.set_figure(self, fig)
         self.dashline.set_figure(fig)
 
+artist.kwdocd['TextWithDash'] = artist.kwdoc(TextWithDash)
 
 class Annotation(Text):
     """
@@ -1134,8 +1138,8 @@ class Annotation(Text):
     def __str__(self):
         return "Annotation(%g,%g,%s)"%(self.xy[0],self.xy[1],self._text)
     def __init__(self, s, xy,
-                 xycoords='data',
                  xytext=None,
+                 xycoords='data',
                  textcoords=None,
                  arrowprops=None,
                  **kwargs):
@@ -1159,7 +1163,7 @@ class Annotation(Text):
             endpoints.  ie, shrink=0.05 is 5%%
           - any key for matplotlib.patches.polygon
 
-        xycoords and textcoords are a string that indicates the
+        xycoords and textcoords are strings that indicate the
         coordinates of xy and xytext.
 
            'figure points'   : points from the lower left corner of the figure
@@ -1184,7 +1188,7 @@ class Annotation(Text):
 
         Additional kwargs are Text properties:
 
-          %(Text)s
+        %(Text)s
 
         """
         if xytext is None:
@@ -1344,6 +1348,4 @@ class Annotation(Text):
         Text.draw(self, renderer)
 
 
-artist.kwdocd['Text'] = artist.kwdoc(Text)
-artist.kwdocd['TextWithDash'] = artist.kwdoc(TextWithDash)
-artist.kwdocd['Annotation'] = artist.kwdoc(Annotation)
+artist.kwdocd['Annotation'] = Annotation.__init__.__doc__
