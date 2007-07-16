@@ -58,6 +58,8 @@ class TTDictionaryCallback {
   virtual void add_pair(const char* key, const char* value) = 0;
 };
 
+void replace_newlines_with_spaces(char* a);
+
 /*
  * A simple class for all ttconv exceptions.
  */
