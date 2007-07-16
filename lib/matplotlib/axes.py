@@ -1507,7 +1507,7 @@ class Axes(mpl.artist.Artist):
         if xmin is not None:
             xmin = self.convert_xunits(xmin)
         if xmax is not None:
-            xmax = self.convert_yunits(xmax)
+            xmax = self.convert_xunits(xmax)
 
         old_xmin,old_xmax = self.get_xlim()
         if xmin is None: xmin = old_xmin
