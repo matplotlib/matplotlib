@@ -1177,7 +1177,7 @@ The current aspect ration will be kept."""
         x = evt.GetX()
         y = self.figure.bbox.height() - evt.GetY()
         evt.Skip()
-        self.ReleaseMouse()
+        if self.HasCapture(): self.ReleaseMouse()
         FigureCanvasBase.button_release_event(self, x, y, 3, guiEvent=evt)
 
     def _onLeftButtonDown(self, evt):
@@ -1194,7 +1194,7 @@ The current aspect ration will be kept."""
         y = self.figure.bbox.height() - evt.GetY()
         #print 'release button', 1
         evt.Skip()
-        self.ReleaseMouse()
+        if self.HasCapture(): self.ReleaseMouse()
         FigureCanvasBase.button_release_event(self, x, y, 1, guiEvent=evt)
 
     def _onMouseWheel(self, evt):
