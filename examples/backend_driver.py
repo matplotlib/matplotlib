@@ -38,7 +38,7 @@ files = (
     'figtext.py',
     'fill_demo.py',
     'finance_demo.py',
-#    'fonts_demo_kw.py',
+    'fonts_demo_kw.py',
     'histogram_demo.py',
     'image_demo.py',
     'image_demo2.py',
@@ -124,6 +124,13 @@ def drive(backend, python='python', switches = []):
         outfile = basename + '_%s'%backend
         tmpfile_name = '_tmp_%s.py' % basename
         tmpfile = file(tmpfile_name, 'w')
+
+        for line in file(fname):
+            line_lstrip = line.lstrip()
+            if line_lstrip.startswith("#"):
+                tmpfile.write(line)
+            else:
+                break
 
         tmpfile.writelines((
             'from __future__ import division\n',
