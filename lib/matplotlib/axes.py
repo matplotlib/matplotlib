@@ -8,10 +8,31 @@ import matplotlib.numerix.npyma as ma
 import matplotlib
 rcParams = matplotlib.rcParams
 
-# import a bunch of matplotlib modules into a single namespace
-mpl = matplotlib.Importer("""artist, agg, axis, cbook, collections, colors,
-     contour, dates, font_manager, image, legend, lines, mlab, cm,
-     patches, quiver, table, text, ticker, transforms""")
+from matplotlib import artist as martist
+from matplotlib import agg 
+from matplotlib import axis as maxis
+from matplotlib import cbook 
+from matplotlib import collections as mcoll
+from matplotlib import colors as mcolors
+from matplotlib import contour as mcontour
+from matplotlib import dates as mdates
+from matplotlib import font_manager 
+from matplotlib import image as mimage
+from matplotlib import legend as mlegend
+from matplotlib import lines as mlines
+from matplotlib import mlab 
+from matplotlib import cm 
+from matplotlib import patches as mpatches
+from matplotlib import quiver as mquiver
+from matplotlib import table as mtable
+from matplotlib import text as mtext
+from matplotlib import ticker as mticker
+from matplotlib import transforms as mtrans
+
+iterable = cbook.iterable
+is_string_like = cbook.is_string_like
+
+
 
 def delete_masked_points(*args):
     """
@@ -35,9 +56,11 @@ def delete_masked_points(*args):
         return args
     mask = reduce(ma.mask_or, masks)
     margs = []
+    is_string_like = mpl_cbook.is_string_like
+    iterable = mpl_cbook.iterable
     for x in args:
-        if (not mpl.cbook.is_string_like(x)
-            and mpl.cbook.iterable(x)
+        if (not is_string_like(x)
+            and iterable(x)
             and len(x) == len(mask)):
             if (hasattr(x, 'get_compressed_copy')):
                 compressed_x = x.get_compressed_copy(mask)
@@ -69,7 +92,7 @@ def _process_plot_format(fmt):
 
     # Is fmt just a colorspec?
     try:
-        color = mpl.colors.colorConverter.to_rgb(fmt)
+        color = mcolors.colorConverter.to_rgb(fmt)
         return linestyle, marker, color     # Yes.
     except ValueError:
         pass                                # No, not just a color.
@@ -89,17 +112,17 @@ def _process_plot_format(fmt):
     chars = [c for c in fmt]
 
     for c in chars:
-        if mpl.lines.lineStyles.has_key(c):
+        if mlines.lineStyles.has_key(c):
             if linestyle is not None:
                 raise ValueError(
                     'Illegal format string "%s"; two linestyle symbols' % fmt)
             linestyle = c
-        elif mpl.lines.lineMarkers.has_key(c):
+        elif mlines.lineMarkers.has_key(c):
             if marker is not None:
                 raise ValueError(
                     'Illegal format string "%s"; two marker symbols' % fmt)
             marker = c
-        elif mpl.colors.colorConverter.colors.has_key(c):
+        elif mcolors.colorConverter.colors.has_key(c):
             if color is not None:
                 raise ValueError(
                     'Illegal format string "%s"; two color symbols' % fmt)
@@ -240,7 +263,7 @@ class _process_plot_var_args:
         if multicol:
             for j in range(y.shape[1]):
                 color = self._get_next_cycle_color()
-                seg = mpl.lines.Line2D(x, y[:,j],
+                seg = mlines.Line2D(x, y[:,j],
                              color = color,
                              axes=self.axes,
                           )
@@ -248,7 +271,7 @@ class _process_plot_var_args:
                 ret.append(seg)
         else:
             color = self._get_next_cycle_color()
-            seg = mpl.lines.Line2D(x, y,
+            seg = mlines.Line2D(x, y,
                          color = color,
                          axes=self.axes,
                          )
@@ -259,7 +282,7 @@ class _process_plot_var_args:
 
     def _plot_2_args(self, tup2, **kwargs):
         ret = []
-        if mpl.cbook.is_string_like(tup2[1]):
+        if is_string_like(tup2[1]):
 
             assert self.command == 'plot', 'fill needs at least 2 non-string arguments'
             y, fmt = tup2
@@ -271,7 +294,7 @@ class _process_plot_var_args:
                 _color = color
                 if _color is None:
                     _color = self._get_next_cycle_color()
-                seg = mpl.lines.Line2D(x, y,
+                seg = mlines.Line2D(x, y,
                              color=_color,
                              linestyle=linestyle, marker=marker,
                              axes=self.axes,
@@ -293,7 +316,7 @@ class _process_plot_var_args:
 
             def makeline(x, y):
                 color = self._get_next_cycle_color()
-                seg = mpl.lines.Line2D(x, y,
+                seg = mlines.Line2D(x, y,
                              color=color,
                              axes=self.axes,
                              )
@@ -302,7 +325,7 @@ class _process_plot_var_args:
 
             def makefill(x, y):
                 facecolor = self._get_next_cycle_color()
-                seg = mpl.patches.Polygon(zip(x, y),
+                seg = mpatches.Polygon(zip(x, y),
                               facecolor = facecolor,
                               fill=True,
                               )
@@ -333,7 +356,7 @@ class _process_plot_var_args:
             _color = color
             if _color is None:
                 _color = self._get_next_cycle_color()
-            seg = mpl.lines.Line2D(x, y,
+            seg = mlines.Line2D(x, y,
                          color=_color,
                          linestyle=linestyle, marker=marker,
                          axes=self.axes,
@@ -343,7 +366,7 @@ class _process_plot_var_args:
 
         def makefill(x, y):
             facecolor = color
-            seg = mpl.patches.Polygon(zip(x, y),
+            seg = mpatches.Polygon(zip(x, y),
                           facecolor = facecolor,
                           fill=True,
                           )
@@ -377,13 +400,13 @@ class _process_plot_var_args:
                 remaining = []
                 continue
             if len(remaining)==3:
-                if not mpl.cbook.is_string_like(remaining[2]):
+                if not is_string_like(remaining[2]):
                     raise ValueError, 'third arg must be a format string'
                 for seg in self._plot_3_args(remaining, **kwargs):
                     yield seg
                 remaining=[]
                 continue
-            if mpl.cbook.is_string_like(remaining[2]):
+            if is_string_like(remaining[2]):
                 for seg in self._plot_3_args(remaining[:3], **kwargs):
                     yield seg
                 remaining=remaining[3:]
@@ -392,15 +415,15 @@ class _process_plot_var_args:
                     yield seg
                 remaining=remaining[2:]
 
-ValueType=type(mpl.transforms.zero())
+ValueType=type(mtrans.zero())
 def makeValue(v):
     if type(v) == ValueType:
         return v
     else:
-        return mpl.transforms.Value(v)
+        return mtrans.Value(v)
 
 
-class Axes(mpl.artist.Artist):
+class Axes(martist.Artist):
     """
     The Axes contains most of the figure elements: Axis, Tick, Line2D,
     Text, Polygon etc, and sets the coordinate system
@@ -413,8 +436,8 @@ class Axes(mpl.artist.Artist):
 
     """
 
-    scaled = {mpl.transforms.IDENTITY : 'linear',
-              mpl.transforms.LOG10 : 'log',
+    scaled = {mtrans.IDENTITY : 'linear',
+              mtrans.LOG10 : 'log',
               }
 
     def __str__(self):
@@ -463,7 +486,7 @@ class Axes(mpl.artist.Artist):
         yticks: sequence of floats
 
         """
-        mpl.artist.Artist.__init__(self)
+        martist.Artist.__init__(self)
         self._position = map(makeValue, rect)
         self._originalPosition = rect
         self.set_axes(self)
@@ -506,7 +529,7 @@ class Axes(mpl.artist.Artist):
         self.set_navigate(True)
         self.set_navigate_mode(None)
 
-        if len(kwargs): mpl.artist.setp(self, **kwargs)
+        if len(kwargs): martist.setp(self, **kwargs)
 
         if self.xaxis is not None:
             self._xcid = self.xaxis.callbacks.connect('units finalize', self.relim)
@@ -521,8 +544,8 @@ class Axes(mpl.artist.Artist):
 
     def _init_axis(self):
         "move this out of __init__ because non-separable axes don't use it"
-        self.xaxis = mpl.axis.XAxis(self)
-        self.yaxis = mpl.axis.YAxis(self)
+        self.xaxis = maxis.XAxis(self)
+        self.yaxis = maxis.YAxis(self)
 
 
     def sharex_foreign(self, axforeign):
@@ -594,7 +617,7 @@ class Axes(mpl.artist.Artist):
 
         ACCEPTS: a Figure instance
         """
-        mpl.artist.Artist.set_figure(self, fig)
+        martist.Artist.set_figure(self, fig)
 
         l, b, w, h = self._position
         xmin = fig.bbox.ll().x()
@@ -609,8 +632,8 @@ class Axes(mpl.artist.Artist):
         self.top    =  (b+h)*figh
 
 
-        Bbox = mpl.transforms.Bbox
-        Point = mpl.transforms.Point
+        Bbox = mtrans.Bbox
+        Point = mtrans.Point
         self.bbox = Bbox(
             Point(self.left, self.bottom),
             Point(self.right, self.top ),
@@ -625,10 +648,10 @@ class Axes(mpl.artist.Artist):
         """
 
 
-        one = mpl.transforms.one
-        zero = mpl.transforms.zero
-        Point = mpl.transforms.Point
-        Bbox = mpl.transforms.Bbox
+        one = mtrans.one
+        zero = mtrans.zero
+        Point = mtrans.Point
+        Bbox = mtrans.Bbox
         if self._sharex is not None:
             left=self._sharex.viewLim.ll().x()
             right=self._sharex.viewLim.ur().x()
@@ -645,12 +668,12 @@ class Axes(mpl.artist.Artist):
 
 
         self.viewLim = Bbox(Point(left, bottom), Point(right, top))
-        self.dataLim = mpl.transforms.unit_bbox()
+        self.dataLim = mtrans.unit_bbox()
 
-        self.transData = mpl.transforms.get_bbox_transform(
+        self.transData = mtrans.get_bbox_transform(
             self.viewLim, self.bbox)
-        self.transAxes = mpl.transforms.get_bbox_transform(
-            mpl.transforms.unit_bbox(), self.bbox)
+        self.transAxes = mtrans.get_bbox_transform(
+            mtrans.unit_bbox(), self.bbox)
 
         if self._sharex:
             self.transData.set_funcx(self._sharex.transData.get_funcx())
@@ -701,7 +724,7 @@ class Axes(mpl.artist.Artist):
         self.yaxis.cla()
 
         self.dataLim.ignore(1)
-        self.callbacks = mpl.cbook.CallbackRegistry(('xlim_changed', 'ylim_changed'))
+        self.callbacks = cbook.CallbackRegistry(('xlim_changed', 'ylim_changed'))
 
         if self._sharex is not None:
             self.xaxis.major = self._sharex.xaxis.major
@@ -726,8 +749,8 @@ class Axes(mpl.artist.Artist):
         self._autoscaleon = True
 
         self.grid(self._gridOn)
-        props = mpl.font_manager.FontProperties(size=rcParams['axes.titlesize'])
-        self.title =  mpl.text.Text(
+        props = font_manager.FontProperties(size=rcParams['axes.titlesize'])
+        self.title =  mtext.Text(
             x=0.5, y=1.02, text='',
             fontproperties=props,
             verticalalignment='bottom',
@@ -738,7 +761,7 @@ class Axes(mpl.artist.Artist):
 
         self._set_artist_props(self.title)
 
-        self.axesPatch = mpl.patches.Rectangle(
+        self.axesPatch = mpatches.Rectangle(
             xy=(0,0), width=1, height=1,
             facecolor=self._axisbg,
             edgecolor=rcParams['axes.edgecolor'],
@@ -746,7 +769,7 @@ class Axes(mpl.artist.Artist):
         self.axesPatch.set_figure(self.figure)
         self.axesPatch.set_transform(self.transAxes)
         self.axesPatch.set_linewidth(rcParams['axes.linewidth'])
-        self.axesFrame = mpl.lines.Line2D((0,1,1,0,0), (0,0,1,1,0),
+        self.axesFrame = mlines.Line2D((0,1,1,0,0), (0,0,1,1,0),
                             linewidth=rcParams['axes.linewidth'],
                             color=rcParams['axes.edgecolor'],
                             figure=self.figure)
@@ -840,7 +863,7 @@ class Axes(mpl.artist.Artist):
         """
         ACCEPTS: ['C', 'SW', 'S', 'SE', 'E', 'NE', 'N', 'NW', 'W']
         """
-        if anchor in mpl.transforms.PBox.coefs.keys() or len(anchor) == 2:
+        if anchor in mtrans.PBox.coefs.keys() or len(anchor) == 2:
             self._anchor = anchor
         else:
             raise ValueError('argument must be among %s' %
@@ -880,7 +903,7 @@ class Axes(mpl.artist.Artist):
             if data_ratio is None:
                 data_ratio = ysize/xsize
             box_aspect = A * data_ratio
-            pb = mpl.transforms.PBox(self._originalPosition)
+            pb = mtrans.PBox(self._originalPosition)
             pb1 = pb.shrink_to_aspect(box_aspect, fig_aspect)
             self.set_position(pb1.anchor(self._anchor), 'active')
             return
@@ -953,7 +976,7 @@ class Axes(mpl.artist.Artist):
         kwargs are passed on to set_xlim and set_ylim -- see their
         docstrings for details
         '''
-        if len(v)==1 and mpl.cbook.is_string_like(v[0]):
+        if len(v)==1 and is_string_like(v[0]):
             s = v[0].lower()
             if s=='on': self.set_axis_on()
             elif s=='off': self.set_axis_off()
@@ -1020,11 +1043,11 @@ class Axes(mpl.artist.Artist):
 
     def get_images(self):
         'return a list of Axes images contained by the Axes'
-        return mpl.cbook.silent_list('AxesImage', self.images)
+        return cbook.silent_list('AxesImage', self.images)
 
     def get_lines(self):
         'Return a list of lines contained by the Axes'
-        return mpl.cbook.silent_list('Line2D', self.lines)
+        return cbook.silent_list('Line2D', self.lines)
 
     def get_xaxis(self):
         'Return the XAxis instance'
@@ -1032,12 +1055,12 @@ class Axes(mpl.artist.Artist):
 
     def get_xgridlines(self):
         'Get the x grid lines as a list of Line2D instances'
-        return mpl.cbook.silent_list('Line2D xgridline', self.xaxis.get_gridlines())
+        return cbook.silent_list('Line2D xgridline', self.xaxis.get_gridlines())
 
 
     def get_xticklines(self):
         'Get the xtick lines as a list of Line2D instances'
-        return mpl.cbook.silent_list('Text xtickline', self.xaxis.get_ticklines())
+        return cbook.silent_list('Text xtickline', self.xaxis.get_ticklines())
 
 
     def get_yaxis(self):
@@ -1046,11 +1069,11 @@ class Axes(mpl.artist.Artist):
 
     def get_ygridlines(self):
         'Get the y grid lines as a list of Line2D instances'
-        return mpl.cbook.silent_list('Line2D ygridline', self.yaxis.get_gridlines())
+        return cbook.silent_list('Line2D ygridline', self.yaxis.get_gridlines())
 
     def get_yticklines(self):
         'Get the ytick lines as a list of Line2D instances'
-        return mpl.cbook.silent_list('Line2D ytickline', self.yaxis.get_ticklines())
+        return cbook.silent_list('Line2D ytickline', self.yaxis.get_ticklines())
 
     #### Adding and tracking artists
 
@@ -1265,7 +1288,7 @@ class Axes(mpl.artist.Artist):
                 im.draw(renderer)
         else:
             # make a composite image blending alpha
-            # list of (mpl.image.Image, ox, oy)
+            # list of (mimage.Image, ox, oy)
 
 
             mag = renderer.get_image_magnification()
@@ -1273,7 +1296,7 @@ class Axes(mpl.artist.Artist):
                    for im in self.images if im.get_visible()]
 
 
-            im = mpl.image.from_images(self.bbox.height()*mag,
+            im = mimage.from_images(self.bbox.height()*mag,
                                     self.bbox.width()*mag,
                                     ims)
             im.is_grayscale = False
@@ -1398,7 +1421,7 @@ class Axes(mpl.artist.Artist):
         if len(kwargs): b = True
         self.xaxis.grid(b, **kwargs)
         self.yaxis.grid(b, **kwargs)
-    grid.__doc__ = mpl.cbook.dedent(grid.__doc__) % mpl.artist.kwdocd
+    grid.__doc__ = cbook.dedent(grid.__doc__) % martist.kwdocd
 
     def ticklabel_format(self, **kwargs):
         """
@@ -1499,7 +1522,7 @@ class Axes(mpl.artist.Artist):
         ACCEPTS: len(2) sequence of floats
         """
 
-        if xmax is None and mpl.cbook.iterable(xmin):
+        if xmax is None and iterable(xmin):
             xmin,xmax = xmin
 
 
@@ -1513,11 +1536,11 @@ class Axes(mpl.artist.Artist):
         if xmin is None: xmin = old_xmin
         if xmax is None: xmax = old_xmax
 
-        if (self.transData.get_funcx().get_type()==mpl.transforms.LOG10
+        if (self.transData.get_funcx().get_type()==mtrans.LOG10
             and min(xmin, xmax)<=0):
             raise ValueError('Cannot set nonpositive limits with log transform')
 
-        xmin, xmax = mpl.transforms.nonsingular(xmin, xmax, increasing=False)
+        xmin, xmax = mtrans.nonsingular(xmin, xmax, increasing=False)
         self.viewLim.intervalx().set_bounds(xmin, xmax)
         if emit: self.callbacks.process('xlim_changed', self)
 
@@ -1549,19 +1572,19 @@ class Axes(mpl.artist.Artist):
         #if subsx is None: subsx = range(2, basex)
         assert(value.lower() in ('log', 'linear', ))
         if value == 'log':
-            self.xaxis.set_major_locator(mpl.ticker.LogLocator(basex))
-            self.xaxis.set_major_formatter(mpl.ticker.LogFormatterMathtext(basex))
-            self.xaxis.set_minor_locator(mpl.ticker.LogLocator(basex,subsx))
-            self.transData.get_funcx().set_type(mpl.transforms.LOG10)
+            self.xaxis.set_major_locator(mticker.LogLocator(basex))
+            self.xaxis.set_major_formatter(mticker.LogFormatterMathtext(basex))
+            self.xaxis.set_minor_locator(mticker.LogLocator(basex,subsx))
+            self.transData.get_funcx().set_type(mtrans.LOG10)
             minx, maxx = self.get_xlim()
             if min(minx, maxx)<=0:
                 self.autoscale_view()
         elif value == 'linear':
-            self.xaxis.set_major_locator(mpl.ticker.AutoLocator())
-            self.xaxis.set_major_formatter(mpl.ticker.ScalarFormatter())
-            self.xaxis.set_minor_locator(mpl.ticker.NullLocator())
-            self.xaxis.set_minor_formatter(mpl.ticker.NullFormatter())
-            self.transData.get_funcx().set_type( mpl.transforms.IDENTITY )
+            self.xaxis.set_major_locator(mticker.AutoLocator())
+            self.xaxis.set_major_formatter(mticker.ScalarFormatter())
+            self.xaxis.set_minor_locator(mticker.NullLocator())
+            self.xaxis.set_minor_formatter(mticker.NullFormatter())
+            self.transData.get_funcx().set_type( mtrans.IDENTITY )
 
     def get_xticks(self):
         'Return the x ticks as a list of locations'
@@ -1577,7 +1600,7 @@ class Axes(mpl.artist.Artist):
 
     def get_xticklabels(self):
         'Get the xtick labels as a list of Text instances'
-        return mpl.cbook.silent_list('Text xticklabel', self.xaxis.get_ticklabels())
+        return cbook.silent_list('Text xticklabel', self.xaxis.get_ticklabels())
 
     def set_xticklabels(self, labels, fontdict=None, **kwargs):
         """
@@ -1592,7 +1615,7 @@ class Axes(mpl.artist.Artist):
         ACCEPTS: sequence of strings
         """
         return self.xaxis.set_ticklabels(labels, fontdict, **kwargs)
-    set_xticklabels.__doc__ = mpl.cbook.dedent(set_xticklabels.__doc__) % mpl.artist.kwdocd
+    set_xticklabels.__doc__ = cbook.dedent(set_xticklabels.__doc__) % martist.kwdocd
 
     def get_ylim(self):
         'Get the y axis range [ymin, ymax]'
@@ -1621,7 +1644,7 @@ class Axes(mpl.artist.Artist):
         """
 
 
-        if ymax is None and mpl.cbook.iterable(ymin):
+        if ymax is None and iterable(ymin):
             ymin,ymax = ymin
 
         if ymin is not None:
@@ -1634,11 +1657,11 @@ class Axes(mpl.artist.Artist):
         if ymin is None: ymin = old_ymin
         if ymax is None: ymax = old_ymax
 
-        if (self.transData.get_funcy().get_type()==mpl.transforms.LOG10
+        if (self.transData.get_funcy().get_type()==mtrans.LOG10
             and min(ymin, ymax)<=0):
             raise ValueError('Cannot set nonpositive limits with log transform')
 
-        ymin, ymax = mpl.transforms.nonsingular(ymin, ymax, increasing=False)
+        ymin, ymax = mtrans.nonsingular(ymin, ymax, increasing=False)
         self.viewLim.intervaly().set_bounds(ymin, ymax)
         if emit: self.callbacks.process('ylim_changed', self)
 
@@ -1671,20 +1694,20 @@ class Axes(mpl.artist.Artist):
         assert(value.lower() in ('log', 'linear', ))
 
         if value == 'log':
-            self.yaxis.set_major_locator(mpl.ticker.LogLocator(basey))
-            self.yaxis.set_major_formatter(mpl.ticker.LogFormatterMathtext(basey))
-            self.yaxis.set_minor_locator(mpl.ticker.LogLocator(basey,subsy))
-            self.transData.get_funcy().set_type(mpl.transforms.LOG10)
+            self.yaxis.set_major_locator(mticker.LogLocator(basey))
+            self.yaxis.set_major_formatter(mticker.LogFormatterMathtext(basey))
+            self.yaxis.set_minor_locator(mticker.LogLocator(basey,subsy))
+            self.transData.get_funcy().set_type(mtrans.LOG10)
             miny, maxy = self.get_ylim()
             if min(miny, maxy)<=0:
                 self.autoscale_view()
 
         elif value == 'linear':
-            self.yaxis.set_major_locator(mpl.ticker.AutoLocator())
-            self.yaxis.set_major_formatter(mpl.ticker.ScalarFormatter())
-            self.yaxis.set_minor_locator(mpl.ticker.NullLocator())
-            self.yaxis.set_minor_formatter(mpl.ticker.NullFormatter())
-            self.transData.get_funcy().set_type( mpl.transforms.IDENTITY )
+            self.yaxis.set_major_locator(mticker.AutoLocator())
+            self.yaxis.set_major_formatter(mticker.ScalarFormatter())
+            self.yaxis.set_minor_locator(mticker.NullLocator())
+            self.yaxis.set_minor_formatter(mticker.NullFormatter())
+            self.transData.get_funcy().set_type( mtrans.IDENTITY )
 
     def get_yticks(self):
         'Return the y ticks as a list of locations'
@@ -1700,7 +1723,7 @@ class Axes(mpl.artist.Artist):
 
     def get_yticklabels(self):
         'Get the ytick labels as a list of Text instances'
-        return mpl.cbook.silent_list('Text yticklabel', self.yaxis.get_ticklabels())
+        return cbook.silent_list('Text yticklabel', self.yaxis.get_ticklabels())
 
     def set_yticklabels(self, labels, fontdict=None, **kwargs):
         """
@@ -1715,13 +1738,13 @@ class Axes(mpl.artist.Artist):
         ACCEPTS: sequence of strings
         """
         return self.yaxis.set_ticklabels(labels, fontdict, **kwargs)
-    set_yticklabels.__doc__ = mpl.cbook.dedent(set_yticklabels.__doc__) % mpl.artist.kwdocd
+    set_yticklabels.__doc__ = cbook.dedent(set_yticklabels.__doc__) % martist.kwdocd
 
     def toggle_log_lineary(self):
         'toggle between log and linear on the y axis'
         funcy = self.transData.get_funcy().get_type()
-        if funcy==mpl.transforms.LOG10: self.set_yscale('linear')
-        elif funcy==mpl.transforms.IDENTITY: self.set_yscale('log')
+        if funcy==mtrans.LOG10: self.set_yscale('linear')
+        elif funcy==mtrans.IDENTITY: self.set_yscale('log')
 
     def xaxis_date(self, tz=None):
         """Sets up x-axis ticks and labels that treat the x data as dates.
@@ -1730,13 +1753,13 @@ class Axes(mpl.artist.Artist):
         """
 
         locator = self.xaxis.get_major_locator()
-        if not isinstance(locator, mpl.dates.DateLocator):
-            locator = mpl.dates.AutoDateLocator(tz)
+        if not isinstance(locator, mdates.DateLocator):
+            locator = mdates.AutoDateLocator(tz)
             self.xaxis.set_major_locator(locator)
 
         formatter = self.xaxis.get_major_formatter()
-        if not isinstance(formatter, mpl.dates.DateFormatter):
-            formatter = mpl.dates.AutoDateFormatter(locator)
+        if not isinstance(formatter, mdates.DateFormatter):
+            formatter = mdates.AutoDateFormatter(locator)
             self.xaxis.set_major_formatter(formatter)
 
     def yaxis_date(self, tz=None):
@@ -1746,13 +1769,13 @@ class Axes(mpl.artist.Artist):
         """
 
         locator = self.yaxis.get_major_locator()
-        if not isinstance(locator, mpl.dates.DateLocator):
-            locator = mpl.dates.AutoDateLocator(tz)
+        if not isinstance(locator, mdates.DateLocator):
+            locator = mdates.AutoDateLocator(tz)
             self.yaxis.set_major_locator(locator)
 
         formatter = self.xaxis.get_major_formatter()
-        if not isinstance(formatter, mpl.dates.DateFormatter):
-            formatter = mpl.dates.AutoDateFormatter(locator)
+        if not isinstance(formatter, mdates.DateFormatter):
+            formatter = mdates.AutoDateFormatter(locator)
             self.yaxis.set_major_formatter(formatter)
 
     def format_xdata(self, x):
@@ -1836,7 +1859,7 @@ class Axes(mpl.artist.Artist):
             lw, c = args
         else:
             raise ValueError('args must be a (linewidth, color) tuple')
-        c =mpl.colors.colorConverter.to_rgba(c)
+        c =mcolors.colorConverter.to_rgba(c)
         self._cursorProps = lw, c
 
 
@@ -1924,7 +1947,7 @@ class Axes(mpl.artist.Artist):
         if len(args)>1:
             raise DeprecationWarning(
                 'New pick API implemented -- see API_CHANGES in the src distribution')
-        mpl.artist.Artist.pick(self,args[0])
+        martist.Artist.pick(self,args[0])
 
     def __pick(self, x, y, trans=None, among=None):
         """
@@ -1969,7 +1992,7 @@ class Axes(mpl.artist.Artist):
                 verts = a.get_verts()
                 tverts = a.get_transform().seq_xy_tups(verts)
                 xt, yt = zip(*tverts)
-            elif isinstance(a, mpl.lines.Line2D):
+            elif isinstance(a, mlines.Line2D):
                 xdata = a.get_xdata(orig=False)
                 ydata = a.get_ydata(orig=False)
                 xt, yt = a.get_transform().numerix_x_y(xdata, ydata)
@@ -1979,7 +2002,7 @@ class Axes(mpl.artist.Artist):
         artists = self.lines + self.patches + self.texts
         if callable(among):
             artists = filter(test, artists)
-        elif mpl.cbook.iterable(among):
+        elif iterable(among):
             amongd = dict([(k,1) for k in among])
             artists = [a for a in artists if a in amongd]
         elif among is None:
@@ -2018,7 +2041,7 @@ class Axes(mpl.artist.Artist):
         if fontdict is not None: self.title.update(fontdict)
         self.title.update(kwargs)
         return self.title
-    set_title.__doc__ = mpl.cbook.dedent(set_title.__doc__) % mpl.artist.kwdocd
+    set_title.__doc__ = cbook.dedent(set_title.__doc__) % martist.kwdocd
 
     def set_xlabel(self, xlabel, fontdict=None, **kwargs):
         """
@@ -2037,7 +2060,7 @@ class Axes(mpl.artist.Artist):
         if fontdict is not None: label.update(fontdict)
         label.update(kwargs)
         return label
-    set_xlabel.__doc__ = mpl.cbook.dedent(set_xlabel.__doc__) % mpl.artist.kwdocd
+    set_xlabel.__doc__ = cbook.dedent(set_xlabel.__doc__) % martist.kwdocd
 
     def set_ylabel(self, ylabel, fontdict=None, **kwargs):
         """
@@ -2057,7 +2080,7 @@ class Axes(mpl.artist.Artist):
         if fontdict is not None: label.update(fontdict)
         label.update(kwargs)
         return label
-    set_ylabel.__doc__ = mpl.cbook.dedent(set_ylabel.__doc__) % mpl.artist.kwdocd
+    set_ylabel.__doc__ = cbook.dedent(set_ylabel.__doc__) % martist.kwdocd
 
     def text(self, x, y, s, fontdict=None,
              withdash=False, **kwargs):
@@ -2114,11 +2137,11 @@ class Axes(mpl.artist.Artist):
         # the withdash kwarg and simply delegate whether there's
         # a dash to TextWithDash and dashlength.
         if withdash:
-            t = mpl.text.TextWithDash(
+            t = mtext.TextWithDash(
                 x=x, y=y, text=s,
                 )
         else:
-            t = mpl.text.Text(
+            t = mtext.Text(
                 x=x, y=y, text=s,
                 )
         self._set_artist_props(t)
@@ -2132,7 +2155,7 @@ class Axes(mpl.artist.Artist):
         #if t.get_clip_on():  t.set_clip_box(self.bbox)
         if kwargs.has_key('clip_on'):  t.set_clip_box(self.bbox)
         return t
-    text.__doc__ = mpl.cbook.dedent(text.__doc__) % mpl.artist.kwdocd
+    text.__doc__ = cbook.dedent(text.__doc__) % martist.kwdocd
 
     def annotate(self, *args, **kwargs):
         """
@@ -2145,13 +2168,13 @@ class Axes(mpl.artist.Artist):
 
         %(Annotation)s
         """
-        a = mpl.text.Annotation(*args, **kwargs)
-        a.set_transform(mpl.transforms.identity_transform())
+        a = mtext.Annotation(*args, **kwargs)
+        a.set_transform(mtrans.identity_transform())
         self._set_artist_props(a)
         if kwargs.has_key('clip_on'):  a.set_clip_box(self.bbox)
         self.texts.append(a)
         return a
-    annotate.__doc__ = mpl.cbook.dedent(annotate.__doc__) % mpl.artist.kwdocd
+    annotate.__doc__ = cbook.dedent(annotate.__doc__) % martist.kwdocd
 
     #### Lines and spans
 
@@ -2185,11 +2208,11 @@ class Axes(mpl.artist.Artist):
         %(Line2D)s
         """
 
-        trans = mpl.transforms.blend_xy_sep_transform( self.transAxes, self.transData)
+        trans = mtrans.blend_xy_sep_transform( self.transAxes, self.transData)
         l, = self.plot([xmin,xmax], [y,y], transform=trans, scalex=False, **kwargs)
         return l
 
-    axhline.__doc__ = mpl.cbook.dedent(axhline.__doc__) % mpl.artist.kwdocd
+    axhline.__doc__ = cbook.dedent(axhline.__doc__) % martist.kwdocd
 
     def axvline(self, x=0, ymin=0, ymax=1, **kwargs):
         """
@@ -2221,11 +2244,11 @@ class Axes(mpl.artist.Artist):
         %(Line2D)s
         """
 
-        trans = mpl.transforms.blend_xy_sep_transform( self.transData, self.transAxes )
+        trans = mtrans.blend_xy_sep_transform( self.transData, self.transAxes )
         l, = self.plot([x,x], [ymin,ymax] , transform=trans, scaley=False, **kwargs)
         return l
 
-    axvline.__doc__ = mpl.cbook.dedent(axvline.__doc__) % mpl.artist.kwdocd
+    axvline.__doc__ = cbook.dedent(axvline.__doc__) % martist.kwdocd
 
     def axhspan(self, ymin, ymax, xmin=0, xmax=1, **kwargs):
         """
@@ -2260,13 +2283,13 @@ class Axes(mpl.artist.Artist):
         %(Polygon)s
         """
         # convert y axis units
-        trans = mpl.transforms.blend_xy_sep_transform( self.transAxes, self.transData)
+        trans = mtrans.blend_xy_sep_transform( self.transAxes, self.transData)
         verts = (xmin, ymin), (xmin, ymax), (xmax, ymax), (xmax, ymin)
-        p = mpl.patches.Polygon(verts, **kwargs)
+        p = mpatches.Polygon(verts, **kwargs)
         p.set_transform(trans)
         self.add_patch(p)
         return p
-    axhspan.__doc__ = mpl.cbook.dedent(axhspan.__doc__) % mpl.artist.kwdocd
+    axhspan.__doc__ = cbook.dedent(axhspan.__doc__) % martist.kwdocd
 
     def axvspan(self, xmin, xmax, ymin=0, ymax=1, **kwargs):
         """
@@ -2300,13 +2323,13 @@ class Axes(mpl.artist.Artist):
         %(Polygon)s
         """
         # convert x axis units
-        trans = mpl.transforms.blend_xy_sep_transform(self.transData, self.transAxes)
+        trans = mtrans.blend_xy_sep_transform(self.transData, self.transAxes)
         verts = [(xmin, ymin), (xmin, ymax), (xmax, ymax), (xmax, ymin)]
-        p = mpl.patches.Polygon(verts, **kwargs)
+        p = mpatches.Polygon(verts, **kwargs)
         p.set_transform(trans)
         self.add_patch(p)
         return p
-    axvspan.__doc__ = mpl.cbook.dedent(axvspan.__doc__) % mpl.artist.kwdocd
+    axvspan.__doc__ = cbook.dedent(axvspan.__doc__) % martist.kwdocd
 
 
     def hlines(self, y, xmin, xmax, colors='k', linestyle='solid',
@@ -2331,10 +2354,16 @@ class Axes(mpl.artist.Artist):
             raise DeprecationWarning(
                 'hlines now uses a collections.LineCollection and not a list of Line2D to draw; see API_CHANGES')
 
-        if not mpl.cbook.iterable(y): y = [y]
-        if not mpl.cbook.iterable(xmin): xmin = [xmin]
-        if not mpl.cbook.iterable(xmax): xmax = [xmax]
+        if not iterable(y): y = [y]
+        if not iterable(xmin): xmin = [xmin]
+        if not iterable(xmax): xmax = [xmax]
         y = npy.asarray(y)
+
+        if len(xmin)==1:
+            xmin = xmin*ones(y.shape, y.dtype)
+        if len(ymax)==1:
+            xmax = xmax*ones(y.shape, y.dtype)
+
         xmin = npy.asarray(xmin)
         xmax = npy.asarray(xmax)
 
@@ -2349,7 +2378,7 @@ class Axes(mpl.artist.Artist):
 
         verts = [ ((thisxmin, thisy), (thisxmax, thisy))
                             for thisxmin, thisxmax, thisy in zip(xmin, xmax, y)]
-        coll = mpl.collections.LineCollection(verts, colors=colors,
+        coll = mcoll.LineCollection(verts, colors=colors,
                                     linestyle=linestyle, label=label)
         self.add_collection(coll)
 
@@ -2369,7 +2398,7 @@ class Axes(mpl.artist.Artist):
 
 
         return coll
-    hlines.__doc__ = mpl.cbook.dedent(hlines.__doc__)
+    hlines.__doc__ = cbook.dedent(hlines.__doc__)
 
     def vlines(self, x, ymin, ymax, colors='k', linestyle='solid',
                      label='', **kwargs):
@@ -2400,9 +2429,9 @@ class Axes(mpl.artist.Artist):
         self._process_unit_info(xdata=x, ydata=ymin, kwargs=kwargs)
 
 
-        if not mpl.cbook.iterable(x): x = [x]
-        if not mpl.cbook.iterable(ymin): ymin = [ymin]
-        if not mpl.cbook.iterable(ymax): ymax = [ymax]
+        if not iterable(x): x = [x]
+        if not iterable(ymin): ymin = [ymin]
+        if not iterable(ymax): ymax = [ymax]
         x = npy.asarray(x)
         ymin = npy.asarray(ymin)
         ymax = npy.asarray(ymax)
@@ -2424,7 +2453,7 @@ class Axes(mpl.artist.Artist):
         verts = [ ((thisx, thisymin), (thisx, thisymax))
                                     for thisx, (thisymin, thisymax) in zip(x,Y)]
         #print 'creating line collection'
-        coll = mpl.collections.LineCollection(verts, colors=colors,
+        coll = mcoll.LineCollection(verts, colors=colors,
                               linestyle=linestyle, label=label)
         self.add_collection(coll)
         coll.update(kwargs)
@@ -2432,7 +2461,7 @@ class Axes(mpl.artist.Artist):
         minx = x.min()
         maxx = x.max()
         miny = min(ymin.min(), ymax.min())
-        maxy = max(ymax.max(), ymax.max())
+        maxy = max(ymin.max(), ymax.max())
         minx, maxx = self.convert_xunits((minx, maxx))
         miny, maxy = self.convert_yunits((miny, maxy))
         corners = (minx, miny), (maxx, maxy)
@@ -2440,7 +2469,7 @@ class Axes(mpl.artist.Artist):
         self.autoscale_view()
 
         return coll
-    vlines.__doc__ = mpl.cbook.dedent(vlines.__doc__) % mpl.artist.kwdocd
+    vlines.__doc__ = cbook.dedent(vlines.__doc__) % martist.kwdocd
 
     #### Basic plotting
     def plot(self, *args, **kwargs):
@@ -2555,7 +2584,7 @@ class Axes(mpl.artist.Artist):
         self.autoscale_view(scalex=scalex, scaley=scaley)
         return lines
 
-    plot.__doc__ = mpl.cbook.dedent(plot.__doc__) % mpl.artist.kwdocd
+    plot.__doc__ = cbook.dedent(plot.__doc__) % martist.kwdocd
 
     def plot_date(self, x, y, fmt='bo', tz=None, xdate=True, ydate=False,
                   **kwargs):
@@ -2604,7 +2633,7 @@ class Axes(mpl.artist.Artist):
         self.autoscale_view()
 
         return ret
-    plot_date.__doc__ = mpl.cbook.dedent(plot_date.__doc__) % mpl.artist.kwdocd
+    plot_date.__doc__ = cbook.dedent(plot_date.__doc__) % martist.kwdocd
 
 
     def loglog(self, *args, **kwargs):
@@ -2652,7 +2681,7 @@ class Axes(mpl.artist.Artist):
         self._hold = b    # restore the hold
 
         return l
-    loglog.__doc__ = mpl.cbook.dedent(loglog.__doc__) % mpl.artist.kwdocd
+    loglog.__doc__ = cbook.dedent(loglog.__doc__) % martist.kwdocd
 
     def semilogx(self, *args, **kwargs):
         """
@@ -2685,7 +2714,7 @@ class Axes(mpl.artist.Artist):
         l = self.plot(*args, **kwargs)
         self._hold = b    # restore the hold
         return l
-    semilogx.__doc__ = mpl.cbook.dedent(semilogx.__doc__) % mpl.artist.kwdocd
+    semilogx.__doc__ = cbook.dedent(semilogx.__doc__) % martist.kwdocd
 
     def semilogy(self, *args, **kwargs):
         """
@@ -2719,7 +2748,7 @@ class Axes(mpl.artist.Artist):
         self._hold = b    # restore the hold
 
         return l
-    semilogy.__doc__ = mpl.cbook.dedent(semilogy.__doc__) % mpl.artist.kwdocd
+    semilogy.__doc__ = cbook.dedent(semilogy.__doc__) % martist.kwdocd
 
     def acorr(self, x, **kwargs):
         """
@@ -2754,9 +2783,9 @@ class Axes(mpl.artist.Artist):
         See the respective function for documentation on valid kwargs
         """
         return self.xcorr(x, x, **kwargs)
-    acorr.__doc__ = mpl.cbook.dedent(acorr.__doc__) % mpl.artist.kwdocd
+    acorr.__doc__ = cbook.dedent(acorr.__doc__) % martist.kwdocd
 
-    def xcorr(self, x, y, normed=False, detrend=mpl.mlab.detrend_none, usevlines=False,
+    def xcorr(self, x, y, normed=False, detrend=mlab.detrend_none, usevlines=False,
               maxlags=None, **kwargs):
         """
         XCORR(x, y, normed=False, detrend=mlab.detrend_none, usevlines=False, **kwargs):
@@ -2821,7 +2850,7 @@ class Axes(mpl.artist.Artist):
             a, = self.plot(lags, c, **kwargs)
             b = None
         return lags, c, a, b
-    xcorr.__doc__ = mpl.cbook.dedent(xcorr.__doc__) % mpl.artist.kwdocd
+    xcorr.__doc__ = cbook.dedent(xcorr.__doc__) % martist.kwdocd
 
     def legend(self, *args, **kwargs):
         """
@@ -2893,9 +2922,9 @@ class Axes(mpl.artist.Artist):
             handles = self.lines[:]
             handles.extend(self.patches)
             handles.extend([c for c in self.collections
-                            if isinstance(c, mpl.collections.LineCollection)])
+                            if isinstance(c, mcoll.LineCollection)])
             handles.extend([c for c in self.collections
-                            if isinstance(c, mpl.collections.RegularPolyCollection)])
+                            if isinstance(c, mcoll.RegularPolyCollection)])
             return handles
 
         if len(args)==0:
@@ -2916,7 +2945,7 @@ class Axes(mpl.artist.Artist):
             handles = [h for h, label in zip(get_handles(), labels)]
 
         elif len(args)==2:
-            if mpl.cbook.is_string_like(args[1]) or isinstance(args[1], int):
+            if is_string_like(args[1]) or isinstance(args[1], int):
                 # LABELS, LOC
                 labels, loc = args
                 handles = [h for h, label in zip(get_handles(), labels)]
@@ -2933,8 +2962,8 @@ class Axes(mpl.artist.Artist):
             raise TypeError('Invalid arguments to legend')
 
 
-        handles = mpl.cbook.flatten(handles)
-        self.legend_ = mpl.legend.Legend(self, handles, labels, **kwargs)
+        handles = cbook.flatten(handles)
+        self.legend_ = mlegend.Legend(self, handles, labels, **kwargs)
         return self.legend_
 
 
@@ -3011,7 +3040,7 @@ class Axes(mpl.artist.Artist):
         if not self._hold: self.cla()
 
         def make_iterable(x):
-            if not mpl.cbook.iterable(x):
+            if not iterable(x):
                 return [x]
             else:
                 return x
@@ -3071,24 +3100,24 @@ class Axes(mpl.artist.Artist):
 
         # if color looks like a color string, an RGB tuple or a
         # scalar, then repeat it by nbars
-        if (mpl.cbook.is_string_like(color) or
-            (mpl.cbook.iterable(color) and len(color)==3 and nbars!=3) or
-            not mpl.cbook.iterable(color)):
+        if (is_string_like(color) or
+            (iterable(color) and len(color)==3 and nbars!=3) or
+            not iterable(color)):
             color = [color]*nbars
 
         # if edgecolor looks like a color string, an RGB tuple or a
         # scalar, then repeat it by nbars
-        if (mpl.cbook.is_string_like(edgecolor) or
-            (mpl.cbook.iterable(edgecolor) and len(edgecolor)==3 and nbars!=3) or
-            not mpl.cbook.iterable(edgecolor)):
+        if (is_string_like(edgecolor) or
+            (iterable(edgecolor) and len(edgecolor)==3 and nbars!=3) or
+            not iterable(edgecolor)):
             edgecolor = [edgecolor]*nbars
 
         if yerr is not None:
-            if not mpl.cbook.iterable(yerr):
+            if not iterable(yerr):
                 yerr = [yerr]*nbars
 
         if xerr is not None:
-            if not mpl.cbook.iterable(xerr):
+            if not iterable(xerr):
                 xerr = [xerr]*nbars
 
         assert len(left)==nbars, "argument 'left' must be %d or scalar" % nbars
@@ -3139,7 +3168,7 @@ class Axes(mpl.artist.Artist):
             if w<0:
                 l += w
                 w = abs(w)
-            r = mpl.patches.Rectangle(
+            r = mpatches.Rectangle(
                 xy=(l, b), width=w, height=h,
                 facecolor=c,
                 edgecolor=e,
@@ -3184,7 +3213,7 @@ class Axes(mpl.artist.Artist):
             self.dataLim.intervaly().set_bounds(ymin, ymax)
         self.autoscale_view()
         return patches
-    bar.__doc__ = mpl.cbook.dedent(bar.__doc__) % mpl.artist.kwdocd
+    bar.__doc__ = cbook.dedent(bar.__doc__) % martist.kwdocd
 
     def barh(self, bottom, width, height=0.8, left=None, **kwargs):
         """
@@ -3246,7 +3275,7 @@ class Axes(mpl.artist.Artist):
                            orientation='horizontal', **kwargs)
         return patches
 
-    barh.__doc__ = mpl.cbook.dedent(barh.__doc__) % mpl.artist.kwdocd
+    barh.__doc__ = cbook.dedent(barh.__doc__) % martist.kwdocd
 
     def broken_barh(self, xranges, yrange, **kwargs):
         """
@@ -3264,13 +3293,13 @@ class Axes(mpl.artist.Artist):
         facecolors='black', 'red', 'green'
 
         """
-        col = mpl.collections.BrokenBarHCollection(xranges, yrange, **kwargs)
+        col = mcoll.BrokenBarHCollection(xranges, yrange, **kwargs)
         self.add_collection(col, autolim=True)
         self.autoscale_view()
 
         return col
 
-    broken_barh.__doc__ = mpl.cbook.dedent(broken_barh.__doc__) % mpl.artist.kwdocd
+    broken_barh.__doc__ = cbook.dedent(broken_barh.__doc__) % martist.kwdocd
 
     def stem(self, x, y, linefmt='b-', markerfmt='bo', basefmt='r-'):
         """
@@ -3350,7 +3379,7 @@ class Axes(mpl.artist.Artist):
         Return value:
 
           If autopct is None, return a list of (patches, texts), where patches
-          is a sequence of mpl.patches.Wedge instances and texts is a
+          is a sequence of mpatches.Wedge instances and texts is a
           list of the label Text instnaces
 
           If autopct is not None, return (patches, texts, autotexts), where
@@ -3385,7 +3414,7 @@ class Axes(mpl.artist.Artist):
             x += expl*math.cos(thetam)
             y += expl*math.sin(thetam)
 
-            w = mpl.patches.Wedge((x,y), radius, 360.*theta1, 360.*theta2,
+            w = mpatches.Wedge((x,y), radius, 360.*theta1, 360.*theta2,
                       facecolor=colors[i%len(colors)])
             slices.append(w)
             self.add_patch(w)
@@ -3395,7 +3424,7 @@ class Axes(mpl.artist.Artist):
                 # make sure to add a shadow after the call to
                 # add_patch so the figure and transform props will be
                 # set
-                shad = mpl.patches.Shadow(w, -0.02, -0.02,
+                shad = mpatches.Shadow(w, -0.02, -0.02,
                               #props={'facecolor':w.get_facecolor()}
                               )
                 shad.set_zorder(0.9*w.get_zorder())
@@ -3415,7 +3444,7 @@ class Axes(mpl.artist.Artist):
             if autopct is not None:
                 xt = x + pctdistance*radius*math.cos(thetam)
                 yt = y + pctdistance*radius*math.sin(thetam)
-                if mpl.cbook.is_string_like(autopct):
+                if is_string_like(autopct):
                     s = autopct%(100.*frac)
                 elif callable(autopct):
                     s = autopct(100.*frac)
@@ -3501,18 +3530,18 @@ class Axes(mpl.artist.Artist):
         if not self._hold: self.cla()
 
         # make sure all the args are iterable arrays
-        if not mpl.cbook.iterable(x): x = npy.asarray([x])
+        if not iterable(x): x = npy.asarray([x])
         else: x = npy.asarray(x)
 
-        if not mpl.cbook.iterable(y): y = npy.asarray([y])
+        if not iterable(y): y = npy.asarray([y])
         else: y = npy.asarray(y)
 
         if xerr is not None:
-            if not mpl.cbook.iterable(xerr): xerr = npy.asarray([xerr])
+            if not iterable(xerr): xerr = npy.asarray([xerr])
             else: xerr = npy.asarray(xerr)
 
         if yerr is not None:
-            if not mpl.cbook.iterable(yerr): yerr = npy.asarray([yerr])
+            if not iterable(yerr): yerr = npy.asarray([yerr])
             else: yerr = npy.asarray(yerr)
 
         l0 = None
@@ -3581,7 +3610,7 @@ class Axes(mpl.artist.Artist):
 
         self.autoscale_view()
         return (l0, caplines, barcols)
-    errorbar.__doc__ = mpl.cbook.dedent(errorbar.__doc__) % mpl.artist.kwdocd
+    errorbar.__doc__ = cbook.dedent(errorbar.__doc__) % martist.kwdocd
 
     def boxplot(self, x, notch=0, sym='b+', vert=1, whis=1.5,
                 positions=None, widths=None):
@@ -3663,7 +3692,7 @@ class Axes(mpl.artist.Artist):
             d = npy.ravel(x[i])
             row = len(d)
             # get median and quartiles
-            q1, med, q3 = mpl.mlab.prctile(d,[25,50,75])
+            q1, med, q3 = mlab.prctile(d,[25,50,75])
             # get high extreme
             iq = q3 - q1
             hi_val = q3 + whis*iq
@@ -3870,16 +3899,16 @@ class Axes(mpl.artist.Artist):
         # The inherent ambiguity is resolved in favor of color
         # mapping, not interpretation as rgb or rgba.
 
-        if not mpl.cbook.is_string_like(c):
+        if not is_string_like(c):
             sh = npy.shape(c)
             if len(sh) == 1 and sh[0] == len(x):
                 colors = None  # use cmap, norm after collection is created
             else:
-                colors = mpl.colors.colorConverter.to_rgba_list(c, alpha)
+                colors = mcolors.colorConverter.to_rgba_list(c, alpha)
         else:
-            colors = mpl.colors.colorConverter.to_rgba_list(c, alpha)
+            colors = mcolors.colorConverter.to_rgba_list(c, alpha)
 
-        if not mpl.cbook.iterable(s):
+        if not iterable(s):
             scales = (s,)
         else:
             scales = s
@@ -3895,14 +3924,14 @@ class Axes(mpl.artist.Artist):
             marker = (verts, 0)
             verts = None
 
-        if mpl.cbook.is_string_like(marker):
+        if is_string_like(marker):
             # the standard way to define symbols using a string character
             sym = syms.get(marker)
             if sym is None and verts is None:
                 raise ValueError('Unknown marker symbol to scatter')
             numsides, rotation = syms[marker]
 
-        elif mpl.cbook.iterable(marker):
+        elif iterable(marker):
             # accept marker to be:
             #    (numsides, style, [angle])
             # or
@@ -3911,7 +3940,7 @@ class Axes(mpl.artist.Artist):
             if len(marker)<2 or len(marker)>3:
                 raise ValueError('Cannot create markersymbol from marker')
 
-            if mpl.cbook.is_numlike(marker[0]):
+            if cbook.is_numlike(marker[0]):
                 # (numsides, style, [angle])
 
                 if len(marker)==2:
@@ -3931,7 +3960,7 @@ class Axes(mpl.artist.Artist):
         if sym is not None:
             if not starlike:
 
-                collection = mpl.collections.RegularPolyCollection(
+                collection = mcoll.RegularPolyCollection(
                     self.figure.dpi,
                     numsides, rotation, scales,
                     facecolors = colors,
@@ -3941,7 +3970,7 @@ class Axes(mpl.artist.Artist):
                     transOffset = self.transData,
                     )
             else:
-                collection = mpl.collections.StarPolygonCollection(
+                collection = mcoll.StarPolygonCollection(
                     self.figure.dpi,
                     numsides, rotation, scales,
                     facecolors = colors,
@@ -3962,7 +3991,7 @@ class Axes(mpl.artist.Artist):
             else:
                 # todo -- make this nx friendly
                 verts = [verts*s for s in scales]
-            collection = mpl.collections.PolyCollection(
+            collection = mcoll.PolyCollection(
                 verts,
                 facecolors = colors,
                 edgecolors = edgecolors,
@@ -3970,13 +3999,13 @@ class Axes(mpl.artist.Artist):
                 offsets = zip(x,y),
                 transOffset = self.transData,
                 )
-            collection.set_transform(mpl.transforms.identity_transform())
+            collection.set_transform(mtrans.identity_transform())
         collection.set_alpha(alpha)
         collection.update(kwargs)
 
         if colors is None:
-            if norm is not None: assert(isinstance(norm, mpl.colors.Normalize))
-            if cmap is not None: assert(isinstance(cmap, mpl.colors.Colormap))
+            if norm is not None: assert(isinstance(norm, mcolors.Normalize))
+            if cmap is not None: assert(isinstance(cmap, mcolors.Colormap))
             collection.set_array(npy.asarray(c))
             collection.set_cmap(cmap)
             collection.set_norm(norm)
@@ -4010,7 +4039,7 @@ class Axes(mpl.artist.Artist):
         self.add_collection(collection)
         return collection
 
-    scatter.__doc__ = mpl.cbook.dedent(scatter.__doc__) % mpl.artist.kwdocd
+    scatter.__doc__ = cbook.dedent(scatter.__doc__) % martist.kwdocd
 
     def scatter_classic(self, x, y, s=None, c='b'):
         """
@@ -4047,35 +4076,35 @@ class Axes(mpl.artist.Artist):
         Optional kwargs control the arrow properties:
         %(Arrow)s
         """
-        a = mpl.patches.FancyArrow(x, y, dx, dy, **kwargs)
+        a = mpatches.FancyArrow(x, y, dx, dy, **kwargs)
         self.add_artist(a)
         return a
-    arrow.__doc__ = mpl.cbook.dedent(arrow.__doc__) % mpl.artist.kwdocd
+    arrow.__doc__ = cbook.dedent(arrow.__doc__) % martist.kwdocd
 
     def quiverkey(self, *args, **kw):
-        qk = mpl.quiver.QuiverKey(*args, **kw)
+        qk = mquiver.QuiverKey(*args, **kw)
         self.add_artist(qk)
         return qk
-    quiverkey.__doc__ = mpl.quiver.QuiverKey.quiverkey_doc
+    quiverkey.__doc__ = mquiver.QuiverKey.quiverkey_doc
 
     def quiver2(self, *args, **kw):
-        q = mpl.quiver.Quiver(self, *args, **kw)
+        q = mquiver.Quiver(self, *args, **kw)
         self.add_collection(q)
         self.update_datalim_numerix(q.X, q.Y)
         self.autoscale_view()
         return q
-    quiver2.__doc__ = mpl.quiver.Quiver.quiver_doc
+    quiver2.__doc__ = mquiver.Quiver.quiver_doc
 
     def quiver(self, *args, **kw):
-        if (len(args) == 3 or len(args) == 5) and not mpl.cbook.iterable(args[-1]):
+        if (len(args) == 3 or len(args) == 5) and not iterable(args[-1]):
             return self.quiver_classic(*args, **kw)
         c = kw.get('color', None)
         if c is not None:
-            if not mpl.colors.is_color_like(c):
+            if not mcolors.is_color_like(c):
                 assert npy.shape(npy.asarray(c)) == npy.shape(npy.asarray(args[-1]))
                 return self.quiver_classic(*args, **kw)
         return self.quiver2(*args, **kw)
-    quiver.__doc__ = mpl.quiver.Quiver.quiver_doc
+    quiver.__doc__ = mquiver.Quiver.quiver_doc
 
     def quiver_classic(self, U, V, *args, **kwargs ):
         """
@@ -4119,12 +4148,12 @@ class Axes(mpl.artist.Artist):
             # ( U, V )
             U = npy.asarray(U)
             V = npy.asarray(V)
-            X,Y = mpl.mlab.meshgrid( npy.arange(U.shape[1]), npy.arange(U.shape[0]) )
+            X,Y = mlab.meshgrid( npy.arange(U.shape[1]), npy.arange(U.shape[0]) )
         elif len(args)==1:
             # ( U, V, S )
             U = npy.asarray(U)
             V = npy.asarray(V)
-            X,Y = mpl.mlab.meshgrid( npy.arange(U.shape[1]), npy.arange(U.shape[0]) )
+            X,Y = mlab.meshgrid( npy.arange(U.shape[1]), npy.arange(U.shape[0]) )
             S = float(args[0])
             do_scale = ( S != 0.0 )
         elif len(args)==2:
@@ -4186,10 +4215,10 @@ class Axes(mpl.artist.Artist):
                 C = clr
 
         I = U.shape[0]
-        arrows = [mpl.patches.FancyArrow(X[i],Y[i],U[i],V[i],0.1*S ).get_verts()
+        arrows = [mpatches.FancyArrow(X[i],Y[i],U[i],V[i],0.1*S ).get_verts()
                                                     for i in xrange(I)]
 
-        collection = mpl.collections.PolyCollection(
+        collection = mcoll.PolyCollection(
             arrows,
             edgecolors = 'None',
             antialiaseds = (1,),
@@ -4255,7 +4284,7 @@ class Axes(mpl.artist.Artist):
             patches.append( poly )
         self.autoscale_view()
         return patches
-    fill.__doc__ = mpl.cbook.dedent(fill.__doc__) % mpl.artist.kwdocd
+    fill.__doc__ = cbook.dedent(fill.__doc__) % martist.kwdocd
     #### plotting z(x,y): imshow, pcolor and relatives, contour
 
 
@@ -4299,7 +4328,7 @@ class Axes(mpl.artist.Artist):
         The value for each component of MxNx3 and MxNx4 float arrays should be
         in the range 0.0 to 1.0; MxN float arrays may be normalised.
 
-        A mpl.image.AxesImage instance is returned
+        A image.AxesImage instance is returned
 
         The following kwargs are allowed:
 
@@ -4320,7 +4349,7 @@ class Axes(mpl.artist.Artist):
             image.interpolation.  See also th the filternorm and
             filterrad parameters
 
-          * norm is a mpl.colors.Normalize instance; default is
+          * norm is a mcolors.Normalize instance; default is
             normalization().  This scales luminance -> 0-1 (only used for an
             MxN float array).
 
@@ -4354,16 +4383,16 @@ class Axes(mpl.artist.Artist):
            parameter, ie when interpolation is one of: 'sinc',
            'lanczos' or 'blackman'
 
-        Additional kwargs are mpl.artist properties
+        Additional kwargs are martist properties
         """
 
         if not self._hold: self.cla()
 
-        if norm is not None: assert(isinstance(norm, mpl.colors.Normalize))
-        if cmap is not None: assert(isinstance(cmap, mpl.colors.Colormap))
+        if norm is not None: assert(isinstance(norm, mcolors.Normalize))
+        if cmap is not None: assert(isinstance(cmap, mcolors.Colormap))
         if aspect is None: aspect = rcParams['image.aspect']
         self.set_aspect(aspect)
-        im = mpl.image.AxesImage(self, cmap, norm, interpolation, origin, extent,
+        im = mimage.AxesImage(self, cmap, norm, interpolation, origin, extent,
                        filternorm=filternorm,
                        filterrad=filterrad, **kwargs)
 
@@ -4423,9 +4452,9 @@ class Axes(mpl.artist.Artist):
         Optional keyword args are shown with their defaults below (you must
         use kwargs for these):
 
-          * cmap = mpl.cm.jet : a cm Colormap instance from mpl.cm
+          * cmap = cm.jet : a cm Colormap instance from cm
 
-          * norm = Normalize() : mpl.colors.Normalize instance
+          * norm = Normalize() : mcolors.Normalize instance
             is used to scale luminance data to 0,1.
 
           * vmin=None and vmax=None : vmin and vmax are used in conjunction
@@ -4438,7 +4467,7 @@ class Axes(mpl.artist.Artist):
 
           * alpha=1.0 : the alpha blending value
 
-        Return value is a mpl.collections.PatchCollection
+        Return value is a mcoll.PatchCollection
         object
 
         Grid Orientation
@@ -4497,7 +4526,7 @@ class Axes(mpl.artist.Artist):
         if len(args)==1:
             C = args[0]
             numRows, numCols = C.shape
-            X, Y = mpl.mlab.meshgrid(npy.arange(numCols+1), npy.arange(numRows+1) )
+            X, Y = mlab.meshgrid(npy.arange(numCols+1), npy.arange(numRows+1) )
         elif len(args)==3:
             X, Y, C = args
             numRows, numCols = C.shape
@@ -4553,7 +4582,7 @@ class Axes(mpl.artist.Artist):
         else:
             edgecolors = 'None'
 
-        collection = mpl.collections.PolyCollection(
+        collection = mcoll.PolyCollection(
             verts,
             edgecolors   = edgecolors,
             antialiaseds = (0,),
@@ -4563,8 +4592,8 @@ class Axes(mpl.artist.Artist):
 
         collection.set_alpha(alpha)
         collection.set_array(C)
-        if norm is not None: assert(isinstance(norm, mpl.colors.Normalize))
-        if cmap is not None: assert(isinstance(cmap, mpl.colors.Colormap))
+        if norm is not None: assert(isinstance(norm, mcolors.Normalize))
+        if cmap is not None: assert(isinstance(cmap, mcolors.Colormap))
         collection.set_cmap(cmap)
         collection.set_norm(norm)
         if vmin is not None or vmax is not None:
@@ -4585,7 +4614,7 @@ class Axes(mpl.artist.Artist):
         self.autoscale_view()
         self.add_collection(collection)
         return collection
-    pcolor.__doc__ = mpl.cbook.dedent(pcolor.__doc__) % mpl.artist.kwdocd
+    pcolor.__doc__ = cbook.dedent(pcolor.__doc__) % martist.kwdocd
 
     def pcolormesh(self, *args, **kwargs):
         """
@@ -4646,7 +4675,7 @@ class Axes(mpl.artist.Artist):
         if len(args)==1:
             C = args[0]
             numRows, numCols = C.shape
-            X, Y = mpl.mlab.meshgrid(npy.arange(numCols+1), npy.arange(numRows+1) )
+            X, Y = mlab.meshgrid(npy.arange(numCols+1), npy.arange(numRows+1) )
         elif len(args)==3:
             X, Y, C = args
             numRows, numCols = C.shape
@@ -4674,12 +4703,12 @@ class Axes(mpl.artist.Artist):
         else:
             showedges = 0
 
-        collection = mpl.collections.QuadMesh(
+        collection = mcoll.QuadMesh(
             Nx - 1, Ny - 1, coords, showedges, **kwargs)
         collection.set_alpha(alpha)
         collection.set_array(C)
-        if norm is not None: assert(isinstance(norm, mpl.colors.Normalize))
-        if cmap is not None: assert(isinstance(cmap, mpl.colors.Colormap))
+        if norm is not None: assert(isinstance(norm, mcolors.Normalize))
+        if cmap is not None: assert(isinstance(cmap, mcolors.Colormap))
         collection.set_cmap(cmap)
         collection.set_norm(norm)
         if vmin is not None or vmax is not None:
@@ -4699,21 +4728,21 @@ class Axes(mpl.artist.Artist):
         self.autoscale_view()
         self.add_collection(collection)
         return collection
-    pcolormesh.__doc__ = mpl.cbook.dedent(pcolormesh.__doc__) % mpl.artist.kwdocd
+    pcolormesh.__doc__ = cbook.dedent(pcolormesh.__doc__) % martist.kwdocd
 
     def contour(self, *args, **kwargs):
         kwargs['filled'] = False
-        return mpl.contour.ContourSet(self, *args, **kwargs)
-    contour.__doc__ = mpl.contour.ContourSet.contour_doc
+        return mcontour.ContourSet(self, *args, **kwargs)
+    contour.__doc__ = mcontour.ContourSet.contour_doc
 
     def contourf(self, *args, **kwargs):
         kwargs['filled'] = True
-        return mpl.contour.ContourSet(self, *args, **kwargs)
-    contourf.__doc__ = mpl.contour.ContourSet.contour_doc
+        return mcontour.ContourSet(self, *args, **kwargs)
+    contourf.__doc__ = mcontour.ContourSet.contour_doc
 
     def clabel(self, CS, *args, **kwargs):
         return CS.clabel(*args, **kwargs)
-    clabel.__doc__ = mpl.contour.ContourSet.clabel.__doc__
+    clabel.__doc__ = mcontour.ContourSet.clabel.__doc__
 
 
     def table(self, **kwargs):
@@ -4733,8 +4762,8 @@ class Axes(mpl.artist.Artist):
         kwargs control the Table properties:
         %(Table)s
         """
-        return mpl.table.table(self, **kwargs)
-    table.__doc__ = mpl.cbook.dedent(table.__doc__) % mpl.artist.kwdocd
+        return mtable.table(self, **kwargs)
+    table.__doc__ = cbook.dedent(table.__doc__) % martist.kwdocd
 
     #### Data analysis
 
@@ -4779,7 +4808,7 @@ class Axes(mpl.artist.Artist):
         %(Rectangle)s
         """
         if not self._hold: self.cla()
-        n, bins = mpl.mlab.hist(x, bins, normed)
+        n, bins = mlab.hist(x, bins, normed)
         if width is None: width = 0.9*(bins[1]-bins[0])
         if orientation == 'horizontal':
             patches = self.barh(bins, n, height=width, left=bottom,
@@ -4791,11 +4820,11 @@ class Axes(mpl.artist.Artist):
             raise ValueError, 'invalid orientation: %s' % orientation
         for p in patches:
             p.update(kwargs)
-        return n, bins, mpl.cbook.silent_list('Patch', patches)
-    hist.__doc__ = mpl.cbook.dedent(hist.__doc__) % mpl.artist.kwdocd
+        return n, bins, cbook.silent_list('Patch', patches)
+    hist.__doc__ = cbook.dedent(hist.__doc__) % martist.kwdocd
 
-    def psd(self, x, NFFT=256, Fs=2, detrend=mpl.mlab.detrend_none,
-            window=mpl.mlab.window_hanning, noverlap=0, **kwargs):
+    def psd(self, x, NFFT=256, Fs=2, detrend=mlab.detrend_none,
+            window=mlab.window_hanning, noverlap=0, **kwargs):
         """
         PSD(x, NFFT=256, Fs=2, detrend=mlab.detrend_none,
             window=mlab.window_hanning, noverlap=0, **kwargs)
@@ -4839,7 +4868,7 @@ class Axes(mpl.artist.Artist):
         %(Line2D)s
         """
         if not self._hold: self.cla()
-        pxx, freqs = mpl.mlab.psd(x, NFFT, Fs, detrend, window, noverlap)
+        pxx, freqs = mlab.psd(x, NFFT, Fs, detrend, window, noverlap)
         pxx.shape = len(freqs),
 
         self.plot(freqs, 10*npy.log10(pxx), **kwargs)
@@ -4856,10 +4885,10 @@ class Axes(mpl.artist.Artist):
         self.set_yticks(ticks)
 
         return pxx, freqs
-    psd.__doc__ = mpl.cbook.dedent(psd.__doc__) % mpl.artist.kwdocd
+    psd.__doc__ = cbook.dedent(psd.__doc__) % martist.kwdocd
 
-    def csd(self, x, y, NFFT=256, Fs=2, detrend=mpl.mlab.detrend_none,
-            window=mpl.mlab.window_hanning, noverlap=0, **kwargs):
+    def csd(self, x, y, NFFT=256, Fs=2, detrend=mlab.detrend_none,
+            window=mlab.window_hanning, noverlap=0, **kwargs):
         """
         CSD(x, y, NFFT=256, Fs=2, detrend=mlab.detrend_none,
             window=window_hanning, noverlap=0, **kwargs)
@@ -4884,7 +4913,7 @@ class Axes(mpl.artist.Artist):
         %(Line2D)s
         """
         if not self._hold: self.cla()
-        pxy, freqs = mpl.mlab.csd(x, y, NFFT, Fs, detrend, window, noverlap)
+        pxy, freqs = mlab.csd(x, y, NFFT, Fs, detrend, window, noverlap)
         pxy.shape = len(freqs),
         # pxy is complex
 
@@ -4901,10 +4930,10 @@ class Axes(mpl.artist.Artist):
         self.set_yticks(ticks)
 
         return pxy, freqs
-    csd.__doc__ = mpl.cbook.dedent(csd.__doc__) % mpl.artist.kwdocd
+    csd.__doc__ = cbook.dedent(csd.__doc__) % martist.kwdocd
 
-    def cohere(self, x, y, NFFT=256, Fs=2, detrend=mpl.mlab.detrend_none,
-               window=mpl.mlab.window_hanning, noverlap=0, **kwargs):
+    def cohere(self, x, y, NFFT=256, Fs=2, detrend=mlab.detrend_none,
+               window=mlab.window_hanning, noverlap=0, **kwargs):
         """
         COHERE(x, y, NFFT=256, Fs=2,
               detrend = mlab.detrend_none,
@@ -4931,7 +4960,7 @@ class Axes(mpl.artist.Artist):
         %(Line2D)s
         """
         if not self._hold: self.cla()
-        cxy, freqs = mpl.mlab.cohere(x, y, NFFT, Fs, detrend, window, noverlap)
+        cxy, freqs = mlab.cohere(x, y, NFFT, Fs, detrend, window, noverlap)
 
         self.plot(freqs, cxy, **kwargs)
         self.set_xlabel('Frequency')
@@ -4939,10 +4968,10 @@ class Axes(mpl.artist.Artist):
         self.grid(True)
 
         return cxy, freqs
-    cohere.__doc__ = mpl.cbook.dedent(cohere.__doc__) % mpl.artist.kwdocd
+    cohere.__doc__ = cbook.dedent(cohere.__doc__) % martist.kwdocd
 
-    def specgram(self, x, NFFT=256, Fs=2, detrend=mpl.mlab.detrend_none,
-                 window=mpl.mlab.window_hanning, noverlap=128,
+    def specgram(self, x, NFFT=256, Fs=2, detrend=mlab.detrend_none,
+                 window=mlab.window_hanning, noverlap=128,
                  cmap = None, xextent=None):
         """
         SPECGRAM(x, NFFT=256, Fs=2, detrend=mlab.detrend_none,
@@ -4978,7 +5007,7 @@ class Axes(mpl.artist.Artist):
         """
         if not self._hold: self.cla()
 
-        Pxx, freqs, bins = mpl.mlab.specgram(x, NFFT, Fs, detrend,
+        Pxx, freqs, bins = mlab.specgram(x, NFFT, Fs, detrend,
              window, noverlap)
 
 
@@ -5026,7 +5055,7 @@ class Axes(mpl.artist.Artist):
             alpha
         See documentation for imshow() for details.
         For controlling colors, e.g. cyan background and red marks, use:
-            cmap = mpl.colors.ListedColormap(['c','r'])
+            cmap = mcolors.ListedColormap(['c','r'])
 
         If marker or markersize is not None, useful kwargs include:
             marker
@@ -5049,7 +5078,7 @@ class Axes(mpl.artist.Artist):
             else:                 mask = npy.absolute(Z)>precision
 
             if 'cmap' not in kwargs:
-                kwargs['cmap'] = mpl.colors.ListedColormap(['w', 'k'], name='binary')
+                kwargs['cmap'] = mcolors.ListedColormap(['w', 'k'], name='binary')
             nr, nc = Z.shape
             extent = [-0.5, nc-0.5, nr-0.5, -0.5]
             ret = self.imshow(mask, interpolation='nearest', aspect=aspect,
@@ -5064,7 +5093,7 @@ class Axes(mpl.artist.Artist):
                 Z = npy.asarray(Z)
                 if precision is None: mask = Z!=0.
                 else:                 mask = npy.absolute(Z)>precision
-                y,x,z = mpl.mlab.get_xyz_where(mask, mask)
+                y,x,z = mlab.get_xyz_where(mask, mask)
             if marker is None: marker = 's'
             if markersize is None: markersize = 10
             lines = self.plot(x, y, linestyle='None',
@@ -5077,10 +5106,10 @@ class Axes(mpl.artist.Artist):
         self.title.set_y(1.05)
         self.xaxis.tick_top()
         self.xaxis.set_ticks_position('both')
-        self.xaxis.set_major_locator(mpl.ticker.MaxNLocator(nbins=9,
+        self.xaxis.set_major_locator(mticker.MaxNLocator(nbins=9,
                                                  steps=[1, 2, 5, 10],
                                                  integer=True))
-        self.yaxis.set_major_locator(mpl.ticker.MaxNLocator(nbins=9,
+        self.yaxis.set_major_locator(mticker.MaxNLocator(nbins=9,
                                                  steps=[1, 2, 5, 10],
                                                  integer=True))
         return ret
@@ -5118,10 +5147,10 @@ class Axes(mpl.artist.Artist):
         self.title.set_y(1.05)
         self.xaxis.tick_top()
         self.xaxis.set_ticks_position('both')
-        self.xaxis.set_major_locator(mpl.ticker.MaxNLocator(nbins=9,
+        self.xaxis.set_major_locator(mticker.MaxNLocator(nbins=9,
                                                  steps=[1, 2, 5, 10],
                                                  integer=True))
-        self.yaxis.set_major_locator(mpl.ticker.MaxNLocator(nbins=9,
+        self.yaxis.set_major_locator(mticker.MaxNLocator(nbins=9,
                                                  steps=[1, 2, 5, 10],
                                                  integer=True))
         return im
@@ -5332,19 +5361,19 @@ class PolarAxes(Axes):
 
         # the lim are theta, r
 
-        Bbox = mpl.transforms.Bbox
-        Value = mpl.transforms.Value
-        Point = mpl.transforms.Point
+        Bbox = mtrans.Bbox
+        Value = mtrans.Value
+        Point = mtrans.Point
         self.dataLim = Bbox( Point( Value(5/4.*math.pi), Value(math.sqrt(2))),
                              Point( Value(1/4.*math.pi), Value(math.sqrt(2))))
         self.viewLim = Bbox( Point( Value(5/4.*math.pi), Value(math.sqrt(2))),
                              Point( Value(1/4.*math.pi), Value(math.sqrt(2))))
 
-        self.transData = mpl.transforms.NonseparableTransformation(
+        self.transData = mtrans.NonseparableTransformation(
             self.viewLim, self.bbox,
-            mpl.transforms.FuncXY(mpl.transforms.POLAR))
-        self.transAxes = mpl.transforms.get_bbox_transform(
-            mpl.transforms.unit_bbox(), self.bbox)
+            mtrans.FuncXY(mtrans.POLAR))
+        self.transAxes = mtrans.get_bbox_transform(
+            mtrans.unit_bbox(), self.bbox)
 
 
     def contains(self,mouseevent):
@@ -5383,8 +5412,8 @@ class PolarAxes(Axes):
         self.legend_ = None
 
         self.grid(self._gridOn)
-        props = mpl.font_manager.FontProperties(size=rcParams['axes.titlesize'])
-        self.title =  mpl.text.Text(
+        props = font_manager.FontProperties(size=rcParams['axes.titlesize'])
+        self.title =  mtext.Text(
             x=0.5, y=1.05, text='',
             fontproperties=props,
             verticalalignment='bottom',
@@ -5395,10 +5424,10 @@ class PolarAxes(Axes):
         self._set_artist_props(self.title)
 
 
-        self.thetas = mpl.mlab.linspace(0, 2*math.pi, self.RESOLUTION)
+        self.thetas = mlab.linspace(0, 2*math.pi, self.RESOLUTION)
 
         verts = zip(self.thetas, npy.ones(self.RESOLUTION))
-        self.axesPatch = mpl.patches.Polygon(
+        self.axesPatch = mpatches.Polygon(
             verts,
             facecolor=self._axisbg,
             edgecolor=rcParams['axes.edgecolor'],
@@ -5413,20 +5442,20 @@ class PolarAxes(Axes):
 
         # we need to set a view and data interval from 0->rmax to make
         # the formatter and locator work correctly
-        Value = mpl.transforms.Value
-        Interval = mpl.transforms.Interval
+        Value = mtrans.Value
+        Interval = mtrans.Interval
         self.rintv = Interval(Value(0), Value(1))
         self.rintd = Interval(Value(0), Value(1))
 
-        self.rformatter  = mpl.ticker.ScalarFormatter()
+        self.rformatter  = mticker.ScalarFormatter()
         self.rformatter.set_view_interval(self.rintv)
         self.rformatter.set_data_interval(self.rintd)
 
-        class RadialLocator(mpl.ticker.AutoLocator):
+        class RadialLocator(mticker.AutoLocator):
             'enforce strictly positive radial ticks'
 
             def __call__(self):
-                ticks = mpl.ticker.AutoLocator.__call__(self)
+                ticks = mticker.AutoLocator.__call__(self)
                 return [t for t in ticks if t>0]
 
         self.rlocator = RadialLocator()
@@ -5481,7 +5510,7 @@ class PolarAxes(Axes):
         for t in self.thetagridlabels:
             t.set_y(1.05*rmax)
 
-        r = mpl.mlab.linspace(0, rmax, self.RESOLUTION)
+        r = mlab.linspace(0, rmax, self.RESOLUTION)
         for l in self.thetagridlines:
             l.set_ydata(r)
 
@@ -5523,9 +5552,9 @@ class PolarAxes(Axes):
             raise ValueError('radial grids must be strictly positive')
 
         rpad = rpad * max(radii)
-        mpl.cbook.popall(self.rgridlines)
+        cbook.popall(self.rgridlines)
 
-        theta = mpl.mlab.linspace(0., 2*math.pi, self.RESOLUTION)
+        theta = mlab.linspace(0., 2*math.pi, self.RESOLUTION)
         ls = rcParams['grid.linestyle']
         color = rcParams['grid.color']
         lw = rcParams['grid.linewidth']
@@ -5533,22 +5562,22 @@ class PolarAxes(Axes):
         rmax = self.get_rmax()
         for r in radii:
             r = npy.ones(self.RESOLUTION)*r
-            line = mpl.lines.Line2D(theta, r, linestyle=ls, color=color, linewidth=lw,
+            line = mlines.Line2D(theta, r, linestyle=ls, color=color, linewidth=lw,
                           figure=self.figure)
             line.set_transform(self.transData)
             self.rgridlines.append(line)
 
-        mpl.cbook.popall(self.rgridlabels)
+        cbook.popall(self.rgridlabels)
 
 
         color = rcParams['xtick.color']
 
 
-        props = mpl.font_manager.FontProperties(size=rcParams['xtick.labelsize'])
+        props = font_manager.FontProperties(size=rcParams['xtick.labelsize'])
         if labels is None:
             labels = [self.rformatter(r,0) for r in radii]
         for r,l in zip(radii, labels):
-            t = mpl.text.Text(angle/180.*math.pi, r+rpad, l,
+            t = mtext.Text(angle/180.*math.pi, r+rpad, l,
                      fontproperties=props, color=color,
                      horizontalalignment='center', verticalalignment='center')
             t.set_transform(self.transData)
@@ -5558,7 +5587,7 @@ class PolarAxes(Axes):
             self.rgridlabels.append(t)
 
         return self.rgridlines, self.rgridlabels
-    set_rgrids.__doc__ = mpl.cbook.dedent(set_rgrids.__doc__) % mpl.artist.kwdocd
+    set_rgrids.__doc__ = cbook.dedent(set_rgrids.__doc__) % martist.kwdocd
 
     def set_thetagrids(self, angles, labels=None, fmt='%d', frac = 1.1,
                        **kwargs):
@@ -5584,32 +5613,32 @@ class PolarAxes(Axes):
         %(Text)s
         ACCEPTS: sequence of floats
         """
-        mpl.cbook.popall(self.thetagridlines)
+        cbook.popall(self.thetagridlines)
         ox, oy = 0,0
         ls = rcParams['grid.linestyle']
         color = rcParams['grid.color']
         lw = rcParams['grid.linewidth']
 
         rmax = self.get_rmax()
-        r = mpl.mlab.linspace(0., rmax, self.RESOLUTION)
+        r = mlab.linspace(0., rmax, self.RESOLUTION)
         for a in angles:
             theta = npy.ones(self.RESOLUTION)*a/180.*math.pi
-            line = mpl.lines.Line2D(
+            line = mlines.Line2D(
                 theta, r, linestyle=ls, color=color, linewidth=lw,
                 figure=self.figure)
             line.set_transform(self.transData)
             self.thetagridlines.append(line)
 
-        mpl.cbook.popall(self.thetagridlabels)
+        cbook.popall(self.thetagridlabels)
 
         color = rcParams['xtick.color']
 
-        props = mpl.font_manager.FontProperties(size=rcParams['xtick.labelsize'])
+        props = font_manager.FontProperties(size=rcParams['xtick.labelsize'])
         r = frac*rmax
         if labels is None:
             labels = [fmt%a for a in angles]
         for a,l in zip(angles, labels):
-            t = mpl.text.Text(a/180.*math.pi, r, l, fontproperties=props, color=color,
+            t = mtext.Text(a/180.*math.pi, r, l, fontproperties=props, color=color,
                      horizontalalignment='center', verticalalignment='center')
             t.set_transform(self.transData)
             t.update(kwargs)
@@ -5617,7 +5646,7 @@ class PolarAxes(Axes):
             t.set_clip_on(False)
             self.thetagridlabels.append(t)
         return self.thetagridlines, self.thetagridlabels
-    set_thetagrids.__doc__ = mpl.cbook.dedent(set_thetagrids.__doc__) % mpl.artist.kwdocd
+    set_thetagrids.__doc__ = cbook.dedent(set_thetagrids.__doc__) % martist.kwdocd
 
     def get_rmax(self):
         'get the maximum radius in the view limits dimension'
@@ -5640,7 +5669,7 @@ class PolarAxes(Axes):
 
 
         l,b,w,h = self.figure.bbox.get_bounds()
-        clippath = mpl.agg.path_storage()
+        clippath = agg.path_storage()
         for i, xy in enumerate(tverts):
             x,y = xy
             y = h-y
@@ -5717,7 +5746,7 @@ class PolarAxes(Axes):
         set the xlimits
         ACCEPTS: len(2) sequence of floats
         """
-        if xmax is None and mpl.cbook.iterable(xmin):
+        if xmax is None and iterable(xmin):
             xmin,xmax = xmin
 
         old_xmin,old_xmax = self.get_xlim()
@@ -5733,7 +5762,7 @@ class PolarAxes(Axes):
         set the ylimits
         ACCEPTS: len(2) sequence of floats
         """
-        if ymax is None and mpl.cbook.iterable(ymin):
+        if ymax is None and iterable(ymin):
             ymin,ymax = ymin
 
         old_ymin,old_ymax = self.get_ylim()
@@ -5789,7 +5818,7 @@ class PolarSubplot(SubplotBase, PolarAxes):
 
 
 
-mpl.artist.kwdocd['Axes'] = mpl.artist.kwdocd['Subplot'] = mpl.artist.kwdoc(Axes)
+martist.kwdocd['Axes'] = martist.kwdocd['Subplot'] = martist.kwdoc(Axes)
 """
 # this is some discarded code I was using to find the minimum positive
 # data point for some log scaling fixes.  I realized there was a
@@ -5816,3 +5845,5 @@ mpl.artist.kwdocd['Axes'] = mpl.artist.kwdocd['Subplot'] = mpl.artist.kwdoc(Axes
                     # warning, probably breaks inverted axis
                     self.set_xlim((0.1*minx, maxx))
 """
+
+
