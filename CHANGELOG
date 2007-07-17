@@ -1,3 +1,6 @@
+2007-07-17 bugfix segfault in transforms module. Thanks Ben North for
+           the patch. - ADS
+
 2007-07-16 clean up some code in ticker.ScalarFormatter, use unicode to
            render multiplication sign in offset ticklabel - DSD
 
