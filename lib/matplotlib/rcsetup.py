@@ -36,8 +36,8 @@ def validate_bool(b):
     'Convert b to a boolean or raise'
     if type(b) is str:
         b = b.lower()
-    if b in ('t', 'y', 'yes', 'true', '1', 1, True): return True
-    elif b in ('f', 'n', 'no', 'false', '0', 0, False): return False
+    if b in ('t', 'y', 'yes', 'on', 'true', '1', 1, True): return True
+    elif b in ('f', 'n', 'no', 'off', 'false', '0', 0, False): return False
     else:
         raise ValueError('Could not convert "%s" to boolean' % b)
 
@@ -142,12 +142,15 @@ def validate_color(s):
 
     if len(s)==6 and s.isalnum(): # looks like hex
         return '#' + s
+    
+    if len(s)==7 and s.startswith('#') and s[1:].isalnum():
+        return s
 
     if s.isalpha():
         #assuming a color name, hold on
         return s
 
-    raise ValueError('"s" does not look like color arg')
+    raise ValueError('%s does not look like color arg'%s)
 
 def validate_stringlist(s):
     'return a list'

@@ -1,3 +1,5 @@
+2007-07-17 added validation to setting and changing rcParams - DSD
+
 2007-07-17 bugfix segfault in transforms module. Thanks Ben North for
            the patch. - ADS
 

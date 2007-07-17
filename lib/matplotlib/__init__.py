@@ -518,34 +518,6 @@ WARNING: Old rc filename "%s" found and renamed to
     return fname
 
 
-def validate_key(key, val, line, cnt, fname, fail_on_error):
-    if key in _deprecated_map.keys():
-        alt = _deprecated_map[key]
-        warnings.warn('%s is deprecated in matplotlibrc - use %s instead.' % (key, alt))
-        key = alt
-
-    if not defaultParams.has_key(key):
-        print >> sys.stderr, """\
-Bad key "%s" on line %d in
-%s.
-You probably need to get an updated matplotlibrc file from
-http://matplotlib.sf.net/matplotlibrc or from the matplotlib source
-distribution""" % (key, cnt, fname)
-        return None
-
-    default, converter =  defaultParams[key]
-
-    if fail_on_error:
-        return converter(val)   # try to convert to proper type or raise
-    else:
-        try: cval = converter(val)   # try to convert to proper type or raise
-        except Exception, msg:
-            warnings.warn('Bad val "%s" on line #%d\n\t"%s"\n\tin file "%s"\n\t%s' % (
-                val, cnt, line, fname, msg))
-            return None
-        else:
-            return cval
-
 _deprecated_map = {
     'text.fontstyle':   'font.style',
     'text.fontangle':   'font.style',
@@ -554,6 +526,31 @@ _deprecated_map = {
     'text.fontsize':    'font.size',
     'tick.size' :       'tick.major.size',
     }
+
+
+class RcParams(dict):
+    
+    """A dictionary object including validation
+    """
+    
+    validate = dict([ (key, converter) for key, (default, converter) in \
+                     defaultParams.iteritems() ])
+    
+    fail_on_error = False
+    
+    def __setitem__(self, key, val):
+        try:
+            if key in _deprecated_map.keys():
+                alt = _deprecated_map[key]
+                warnings.warn('%s is deprecated in matplotlibrc. Use %s \
+instead.'% (key, alt))
+                key = alt
+            cval = self.validate[key](val)
+            dict.__setitem__(self, key, cval)
+        except KeyError:
+            raise KeyError('%s is not a valid rc parameter.\
+See rcParams.keys() for a list of valid parameters.'%key)
+
 
 def rc_params(fail_on_error=False):
     'Return the default params updated from the values in the rc file'
@@ -573,7 +570,8 @@ def rc_params(fail_on_error=False):
         if not strippedline: continue
         tup = strippedline.split(':',1)
         if len(tup) !=2:
-            warnings.warn('Illegal line #%d\n\t%s\n\tin file "%s"' % (cnt, line, fname))
+            warnings.warn('Illegal line #%d\n\t%s\n\tin file "%s"'%\
+                          (cnt, line, fname))
             continue
         key, val = tup
         key = key.strip()
@@ -582,35 +580,53 @@ def rc_params(fail_on_error=False):
             warnings.warn('Duplicate key in file "%s", line #%d'%(fname,cnt))
         rc_temp[key] = (val, line, cnt)
 
-    ret = dict([ (key,default) for key, (default, converter) in defaultParams.iteritems() ])
+    ret = RcParams([ (key, default) for key, (default, converter) in \
+                    defaultParams.iteritems() ])
 
     for key in ('verbose.level', 'verbose.fileo'):
         if key in rc_temp:
             val, line, cnt = rc_temp.pop(key)
-            cval = validate_key(key, val, line, cnt, fname, fail_on_error)
-            if cval is not None:
-                ret[key] = cval
+            if fail_on_error:
+                ret[key] = val # try to convert to proper type or raise
+            else:
+                try: ret[key] = val # try to convert to proper type or skip
+                except Exception, msg:
+                    warnings.warn('Bad val "%s" on line #%d\n\t"%s"\n\tin file \
+"%s"\n\t%s' % (val, cnt, line, fname, msg))
 
     verbose.set_level(ret['verbose.level'])
     verbose.set_fileo(ret['verbose.fileo'])
 
     for key, (val, line, cnt) in rc_temp.iteritems():
-        cval = validate_key(key, val, line, cnt, fname, fail_on_error)
-        if cval is not None:
-            ret[key] = cval
+        if defaultParams.has_key(key):
+            if fail_on_error:
+                ret[key] = val # try to convert to proper type or raise
+            else:
+                try: ret[key] = val # try to convert to proper type or skip
+                except Exception, msg:
+                    warnings.warn('Bad val "%s" on line #%d\n\t"%s"\n\tin file \
+"%s"\n\t%s' % (val, cnt, line, fname, msg))
+        else:
+            print >> sys.stderr, """
+Bad key "%s" on line %d in
+%s.
+You probably need to get an updated matplotlibrc file from
+http://matplotlib.sf.net/matplotlibrc or from the matplotlib source
+distribution""" % (key, cnt, fname)
 
     if ret['datapath'] is None:
         ret['datapath'] = get_data_path()
 
     verbose.report('loaded rc file %s'%fname)
-
+    
     return ret
 
 
 # this is the instance used by the matplotlib classes
 rcParams = rc_params()
 
-rcParamsDefault = dict(rcParams.items()) # a copy
+rcParamsDefault = RcParams([ (key, default) for key, (default, converter) in \
+                    defaultParams.iteritems() ])
 
 rcParams['ps.usedistiller'] = checkdep_ps_distiller(rcParams['ps.usedistiller'])
 rcParams['text.usetex'] = checkdep_usetex(rcParams['text.usetex'])
