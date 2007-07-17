@@ -33,7 +33,7 @@ Value::get(const Py::Tuple & args) {
 int
 LazyValue::compare(const Py::Object &other) {
   if (!check(other))
-    throw Py::TypeError("Can on compare LazyValues with LazyValues");
+    throw Py::TypeError("Can only compare LazyValues with LazyValues");
   LazyValue* pother = static_cast<LazyValue*>(other.ptr());
   double valself = val();
   double valother = pother->val();
@@ -2079,12 +2079,13 @@ _transforms_module::new_affine (const Py::Tuple &args) {
 
   args.verify_length(6);
 
-  LazyValue::check(args[0]);
-  LazyValue::check(args[1]);
-  LazyValue::check(args[2]);
-  LazyValue::check(args[3]);
-  LazyValue::check(args[4]);
-  LazyValue::check(args[5]);
+  if (!LazyValue::check(args[0])
+      || !LazyValue::check(args[1])
+      || !LazyValue::check(args[2])
+      || !LazyValue::check(args[3])
+      || !LazyValue::check(args[4])
+      || !LazyValue::check(args[5]))
+    throw Py::TypeError("Affine(a, b, c, d, tx, ty) expected 6 LazyValue args");
 
   LazyValue* a  = static_cast<LazyValue*>(args[0].ptr());
   LazyValue* b  = static_cast<LazyValue*>(args[1].ptr());
