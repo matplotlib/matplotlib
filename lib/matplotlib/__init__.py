@@ -531,12 +531,13 @@ _deprecated_map = {
 class RcParams(dict):
     
     """A dictionary object including validation
+    
+    validating functions are defined and associated with rc parameters in
+    rcsetup.py
     """
     
     validate = dict([ (key, converter) for key, (default, converter) in \
                      defaultParams.iteritems() ])
-    
-    fail_on_error = False
     
     def __setitem__(self, key, val):
         try:
