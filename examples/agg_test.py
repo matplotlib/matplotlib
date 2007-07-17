@@ -106,36 +106,39 @@ rasterizer.add_path(stroke)
 renderer.color_rgba8( white )
 agg.render_scanlines_rgba(rasterizer, scanline, renderer);
 
-## Copy a rectangle from the buffer the rectangle defined by
-## x0,y0->x1,y1 and paste it at xdest, ydest
-x0, y0 = 10, 50
-x1, y1 = 110, 190
-xdest, ydest = 350, 200
+if 0:
+    ## Copy a rectangle from the buffer the rectangle defined by
+    ## x0,y0->x1,y1 and paste it at xdest, ydest
+    x0, y0 = 10, 50
+    x1, y1 = 110, 190
+    xdest, ydest = 350, 200
 
 
-widthr, heightr = x1-x0, y1-y0
-strider = widthr*4
-copybuffer = agg.buffer(widthr, heightr, strider)
 
-rbufcopy = agg.rendering_buffer()
-rbufcopy.attachb(copybuffer)
-pfcopy = agg.pixel_format_rgba(rbufcopy)
-rbasecopy = agg.renderer_base_rgba(pfcopy)
+    widthr, heightr = x1-x0, y1-y0
+    strider = widthr*4
+    copybuffer = agg.buffer(widthr, heightr, strider)
 
-rect = agg.rect(x0, y0, x1, y1)
-print rect.is_valid()
-rectp = agg.rectPtr(rect)
-#print dir(rbasecopy)
 
-# agg is funny about the arguments to copy from; the last 2 args are
-# dx, dy.  If the src and dest buffers are the same size and you omit
-# the dx and dy args, the position of the copy in the dest buffer is
-# the same as in the src.  Since our dest buffer is smaller than our
-# src buffer, we have to offset the location by -x0, -y0
-rbasecopy.copy_from(rbuf, rect, -x0, -y0);
+    rbufcopy = agg.rendering_buffer()
+    rbufcopy.attachb(copybuffer)
+    pfcopy = agg.pixel_format_rgba(rbufcopy)
+    rbasecopy = agg.renderer_base_rgba(pfcopy)
 
-# paste the rectangle at a new location xdest, ydest
-rbase.copy_from(rbufcopy, None, xdest, ydest);
+    rect = agg.rect(x0, y0, x1, y1)
+    print rect.is_valid()
+    rectp = agg.rectPtr(rect)
+    #print dir(rbasecopy)
+
+    # agg is funny about the arguments to copy from; the last 2 args are
+    # dx, dy.  If the src and dest buffers are the same size and you omit
+    # the dx and dy args, the position of the copy in the dest buffer is
+    # the same as in the src.  Since our dest buffer is smaller than our
+    # src buffer, we have to offset the location by -x0, -y0
+    rbasecopy.copy_from(rbuf, rect, -x0, -y0);
+
+    # paste the rectangle at a new location xdest, ydest
+    rbase.copy_from(rbufcopy, None, xdest, ydest);
 
 
 

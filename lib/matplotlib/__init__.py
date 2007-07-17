@@ -801,8 +801,6 @@ class ExampleManager:
         """
         pass
 
-
-
 class Namespace:
     """
     A class which takes a list of modules and creates an object with
@@ -831,4 +829,5 @@ class Importer:
             basemod = __import__(wholename)
             mod = getattr(basemod, name)
             setattr(self, name, mod)
+
 

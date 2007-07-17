@@ -297,7 +297,7 @@ distrib = setup(name="matplotlib",
       version= __version__,
       description = "Matlab(TM) style python plotting package",
       author = "John D. Hunter",
-      author_email="jdhunter@ace.bsd.uchicago.edu",
+      author_email="jdh2358@gmail.com",
       url = "http://matplotlib.sourceforge.net",
       long_description = """
       matplotlib strives to produce publication quality 2D graphics
