@@ -113,8 +113,7 @@ from __future__ import division
 import sys, os, re, time, math, warnings
 from mlab import linspace
 from matplotlib import verbose, rcParams
-from numerix import absolute, arange, array, asarray, Float, floor, log, \
-     logical_and, nonzero, ones, take, zeros
+from numpy import absolute, arange, array, asarray, floor, log, logical_and, nonzero, ones, take, zeros
 from matplotlib.numerix.mlab import amin, amax, std, mean
 from matplotlib.mlab import frange
 from cbook import strip_math
