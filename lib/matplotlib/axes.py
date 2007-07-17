@@ -9,19 +9,19 @@ import matplotlib
 rcParams = matplotlib.rcParams
 
 from matplotlib import artist as martist
-from matplotlib import agg 
+from matplotlib import agg
 from matplotlib import axis as maxis
-from matplotlib import cbook 
+from matplotlib import cbook
 from matplotlib import collections as mcoll
 from matplotlib import colors as mcolors
 from matplotlib import contour as mcontour
 from matplotlib import dates as mdates
-from matplotlib import font_manager 
+from matplotlib import font_manager
 from matplotlib import image as mimage
 from matplotlib import legend as mlegend
 from matplotlib import lines as mlines
-from matplotlib import mlab 
-from matplotlib import cm 
+from matplotlib import mlab
+from matplotlib import cm
 from matplotlib import patches as mpatches
 from matplotlib import quiver as mquiver
 from matplotlib import table as mtable
@@ -56,8 +56,6 @@ def delete_masked_points(*args):
         return args
     mask = reduce(ma.mask_or, masks)
     margs = []
-    is_string_like = mpl_cbook.is_string_like
-    iterable = mpl_cbook.iterable
     for x in args:
         if (not is_string_like(x)
             and iterable(x)
