@@ -5820,7 +5820,8 @@ martist.kwdocd['Axes'] = martist.kwdocd['Subplot'] = martist.kwdoc(Axes)
 """
 # this is some discarded code I was using to find the minimum positive
 # data point for some log scaling fixes.  I realized there was a
-# cleaner way to do it, but am keeping this around as an example for
+# cleaner way to do it, but am ke
+eping this around as an example for
 # how to get the data out of the axes.  Might want to make something
 # like this a method one day, or better yet make get_verts and Artist
 # method

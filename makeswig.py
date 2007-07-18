@@ -6,7 +6,7 @@ wrap = (
     'agg',
     )
 #SWIG = 'swig'
-SWIG = '/home/jdhunter/local/bin/swig'
+SWIG = '/home/titan/johnh/dev/bin/swig'
 AGGINCLUDE = 'agg23/include'
 
 swigit = '%(SWIG)s -python -c++ -outdir lib/matplotlib -o src/%(SWIGFILE)s.cxx -I%(AGGINCLUDE)s swig/%(SWIGFILE)s.i '
