@@ -1,3 +1,17 @@
+"""
+Install instructions for traits 2.0
+
+   rm -rf ~/dev/lib/python2.4/site-packages/enthought.*
+
+   easy_install --install-dir=~/dev/lib/python2.4/site-packages --prefix=~/dev -f http://code.enthought.com/enstaller/eggs/source/unstable/ enthought.etsconfig enthought.util enthought.debug
+
+   svn co https://svn.enthought.com/svn/enthought/branches/enthought.traits_2.0 enthought_traits
+
+   cd enthought_traits/
+   python setup.py install --prefix=~/dev
+
+
+"""
 # Here is some example code showing how to define some representative
 # rc properties and construct a matplotlib artist using traits.
 # Because matplotlib ships with enthought traits already, you can run
@@ -7,7 +21,7 @@
 # below.
 
 import sys, os, re
-import matplotlib.enthought.traits as traits
+import enthought.traits.api as traits
 from matplotlib.cbook import is_string_like
 from matplotlib import colors as mcolors
 import numpy as npy
@@ -86,7 +100,7 @@ def file_exists(ob, name, val):
 
 def path_exists(ob, name, val):
    os.path.exists(val)
-linestyles  = ('-', '--', '-.', ':', 'steps', 'None')
+linestyles  = ('-', '--', '-.', ':', 'steps')
 TICKLEFT, TICKRIGHT, TICKUP, TICKDOWN = range(4)
 linemarkers = (None, '.', ',', 'o', '^', 'v', '<', '>', 's',
                  '+', 'x', 'd', 'D', '|', '_', 'h', 'H',
@@ -95,7 +109,7 @@ linemarkers = (None, '.', ',', 'o', '^', 'v', '<', '>', 's',
                  TICKRIGHT,
                  TICKUP,
                  TICKDOWN,
-                 'None')
+                 )
               
 
 linewidth       = traits.Float(0.5)
@@ -105,9 +119,10 @@ marker          = traits.Trait(*linemarkers)
 markersize      = traits.Float(6)
 antialiased     = flexible_true_trait
 alpha           = traits.Range(0., 1., 0.)
-interval        = traits.Array('d', (2,))
-affine          = traits.Array('d', (3,3))
-verts          = traits.Array('d')
-codes          = traits.Array('b')
+interval        = traits.Array('d', (2,), npy.array([0.0, 1.0], npy.float_))
+affine          = traits.Array('d', (3,3),
+                               npy.array([[1,0,0],[0,1,0],[0,0,1]], npy.float_))
+verts          = traits.Array('d', value=npy.array([[0,0],[0,0]], npy.float_))
+codes          = traits.Array('b', value=npy.array([0,0], dtype=npy.uint8))
 
 
