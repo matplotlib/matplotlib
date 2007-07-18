@@ -1,3 +1,8 @@
+2007-07-18 make usetex respect changes to rcParams. texmanager used to 
+           only configure itself when it was created, now it 
+           reconfigures when rcParams are changed. Thank you Alexander 
+           Schmolck for contributing a patch - DSD
+
 2007-07-17 added validation to setting and changing rcParams - DSD
 
 2007-07-17 bugfix segfault in transforms module. Thanks Ben North for
