@@ -107,4 +107,8 @@ using namespace agg;
 
 
 
+%template(render_scanlines_bin_rgba) agg::render_scanlines<
+  agg::rasterizer_scanline_aa<>,
+  agg::scanline_bin,
+  agg::renderer_scanline_bin_solid<renderer_base_rgba_t> >;
 
