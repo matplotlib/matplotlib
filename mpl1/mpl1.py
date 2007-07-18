@@ -1,5 +1,4 @@
-from matplotlib.enthought.traits import HasTraits
-import matplotlib.enthought.traits as traits
+import enthought.traits.api as traits
 
 from matplotlib import agg
 import numpy as npy
@@ -54,7 +53,7 @@ class Polar(Func):
 identity = Identity()
 
 
-class Path(HasTraits):
+class Path(traits.HasTraits):
     """
     The path is an object that talks to the backends, and is an
     intermediary between the high level path artists like Line and
@@ -102,6 +101,7 @@ class AggPath:
     def color_to_rgba8(self, color):
         if color is None: return None
         rgba = [int(255*c) for c in color.r, color.g, color.b, color.a]
+
         return agg.rgba8(*rgba)
 
 # coordinates:
@@ -178,7 +178,7 @@ class RendererAgg(Renderer):
         self.scanlinebin = agg.scanline_bin()
 
     def add_path(self, pathid, path):
-        pathid = Renderer.add_path(self, pathid, path)
+        Renderer.add_path(self, pathid, path)
         self.aggpathd[pathid] = AggPath(path)
 
     def remove_path(self, pathid):
@@ -274,6 +274,7 @@ def line(x, y, color='black', linewidth=1.0, alpha=1.0, antialiased=True,
     path.verts = model(X)
     path.codes = codes        
     path.fillcolor = None
+    path.strokecolor = color
     path.strokewidth = linewidth
     path.alpha = alpha
     path.antialiased = antialiased
@@ -281,43 +282,49 @@ def line(x, y, color='black', linewidth=1.0, alpha=1.0, antialiased=True,
     
         
 
-class AxesCoords(HasTraits):
+class AxesCoords(traits.HasTraits):
     xviewlim = mtraits.interval
     yviewlim = mtraits.interval
     affineview = mtraits.affine
     affineaxes = mtraits.affine    
     affine = mtraits.affine        
 
+        
     def _affineview_changed(self, old, new):
-        self.affine = npy.dot(
-            npy.dot(self.affineaxes, new), self.affinedata)
+        print 'affine view changed'
+        self.affine = npy.dot(self.affineaxes, new)
 
     def _affineaxes_changed(self, old, new):
-        self.affine = npy.dot(
-            npy.dot(new, self.affineview), self.affinedata)
+        print 'affine axes changed'
+        self.affine = npy.dot(new, self.affineview)
 
-
+        
     def _xviewlim_changed(self, old, new):
+        print 'xviewlim changed'
         xmin, xmax = new
         scale = 1./(xmax-xmin)
         tx = -xmin*scale
         self.affineview[0][0] = scale
         self.affineview[0][-1] = tx
-
+        self.affine = npy.dot(self.affineaxes, self.affineview)
+        print '\t', self.affine
+        
     def _yviewlim_changed(self, old, new):
+        print 'yviewlim changed'
         ymin, ymax = new
         scale = 1./(ymax-ymin)
         ty = -ymin*scale
         self.affineview[1][1] = scale
         self.affineview[1][-1] = ty
-
+        self.affine = npy.dot(self.affineaxes, self.affineview)
+        print '\t', self.affine
                                        
 
 class Figure:
     def __init__(self):
         self.renderer = None
         self._pathid = 0
-        self._pathd = dict()
+        self.pathd = dict()
 
     def add_path(self, path):
         id_ = self._pathid
@@ -336,6 +343,7 @@ class Figure:
             raise RuntimeError('call set_renderer renderer first')
 
         for pathid, path in self.pathd.items():
+            print 'path', pathid, path.affine
             renderer.push_affine(path.affine)
             renderer.render_path(pathid)
 
@@ -374,22 +382,9 @@ def affine_rotation(theta):
                      [0,0,1]],
                     dtype=npy.float_)
 
-xlim = mtraits.interval()
-ylim1 = mtraits.interval()
-ylim2 = mtraits.interval()
-
-affineaxes = affine_axes([0.1, 0.1, 0.4, 0.4]) # lower, left quadrant
 
 coords1 = AxesCoords()
-coords1.xlim = xlim
-coords1.ylim = ylim1
-print 'typedata', affineaxes.shape, affineaxes.dtype
-coords1.affineaxes = affineaxes
-
-coords2 = AxesCoords()
-coords2.xlim = xlim
-coords2.ylim = ylim2
-coords2.affineaxes = affineaxes
+coords1.affineaxes = affine_axes([0.55, 0.55, 0.4, 0.4]) # upper right quadrant
 
 
 
@@ -400,22 +395,32 @@ y1 = npy.cos(2*npy.pi*x)
 y2 = 10*npy.exp(-x)
 
 line1 = line(x, y1, color='blue', linewidth=2.0)
-line1.affine = coords1.affime
-
-line2 = line(x, y2, color='red', linewidth=2.0)
-line2.affine = coords1.affime
+line1.affine = coords1.affine
 
 fig.add_path(line1)
-fig.add_path(line2)
 
+print 'before', line1.affine
 # update the view limits, all the affines should be automagically updated
-xlim = 0,10
-ylim1 = -1.1, 1.1
-ylim2 = 0, 10
+coords1.xviewlim = 0, 10
+coords1.yviewlim = -1.1, 1.1
+
+print 'after', line1.affine
 
 
-renderer = RendererAgg(600,400)
-fig.set_renderer(renderer)
-fig.draw()
-print 'renderer affine', renderer.affine
-renderer.show()
+if 0:
+    coords2 = AxesCoords()
+    coords2.xviewlim = coords1.xviewlim  # share the x axis
+    coords2.affineaxes = affine_axes([0.1, 0.1, 0.4, 0.4]) # lower left quadrant
+
+
+    line2 = line(x, y2, color='red', linewidth=2.0)
+    line2.affine = coords2.affine
+    coords2.yviewlim = 0, 10
+    fig.add_path(line2)
+
+
+if 0:
+    renderer = RendererAgg(600,400)
+    fig.set_renderer(renderer)
+    fig.draw()
+    renderer.show()
