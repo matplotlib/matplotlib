@@ -7,10 +7,11 @@ layout -- you have to figure out how wide and tall you want your Axes
 to be to accommodate your widget.
 """
 
-from mlab import linspace, dist
+from numpy import array, linspace
+
+from mlab import dist
 from patches import Circle, Rectangle
 from lines import Line2D
-from numerix import array
 from transforms import blend_xy_sep_transform
 
 class LockDraw:

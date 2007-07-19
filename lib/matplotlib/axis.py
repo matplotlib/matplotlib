@@ -7,14 +7,13 @@ import math
 import re
 import sys
 
-from numerix import arange, array, asarray, ones, zeros, \
+from numpy import arange, array, asarray, ones, zeros, \
      nonzero, take, log10, logical_and, \
-     dot, sin, cos, tan, pi, sqrt
+     dot, sin, cos, tan, pi, sqrt, linspace
 
 from artist import Artist, setp
 from cbook import enumerate, silent_list, popall, CallbackRegistry
 from lines import Line2D, TICKLEFT, TICKRIGHT, TICKUP, TICKDOWN
-from mlab import linspace
 from matplotlib import rcParams
 from patches import bbox_artist
 from ticker import NullFormatter, FixedFormatter, ScalarFormatter, LogFormatter

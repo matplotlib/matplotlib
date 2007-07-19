@@ -143,7 +143,6 @@ from matplotlib.ft2font import FT2Font
 from matplotlib.font_manager import fontManager, FontProperties
 from matplotlib._mathtext_data import latex_to_bakoma, cmkern, \
         latex_to_standard, tex2uni, type12uni, tex2type1, uni2type1
-from matplotlib.numerix import absolute
 from matplotlib import get_data_path, rcParams
 
 # symbols that have the sub and superscripts over/under

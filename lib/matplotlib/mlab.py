@@ -72,7 +72,7 @@ from numerix import array, asarray, arange, divide, exp, arctan2, \
      absolute, matrixmultiply, power, take, where, Float, Int, asum,\
      dot, convolve, pi, Complex, ones, zeros, diagonal, Matrix, nonzero, \
      log, searchsorted, concatenate, sort, ArrayType, ndarray, clip, size, indices,\
-     conjugate, typecode, iscontiguous
+     conjugate, typecode, iscontiguous, linspace, meshgrid
 
 
 from numerix.mlab import hanning, cov, diff, svd, rand, std
@@ -92,11 +92,6 @@ def mean(x, dim=None):
       return numerix.mlab.mean(x)
    else: return numerix.mlab.mean(x, dim)
 
-
-def linspace(xmin, xmax, N):
-   if N==1: return array([xmax])
-   dx = (xmax-xmin)/(N-1)
-   return xmin + dx*arange(N)
 
 def logspace(xmin,xmax,N):
     return exp(linspace(log(xmin), log(xmax),Nh))
@@ -862,40 +857,6 @@ def center_matrix(M, dim=0):
            M[i] = divide(M[i], sigma)
     if dim==1: M=transpose(M)
     return M
-
-def meshgrid(x,y):
-    """
-    For vectors x, y with lengths Nx=len(x) and Ny=len(y), return X, Y
-    where X and Y are (Ny, Nx) shaped arrays with the elements of x
-    and y repeated to fill the matrix
-
-    EG,
-
-      [X, Y] = meshgrid([1,2,3], [4,5,6,7])
-
-       X =
-         1   2   3
-         1   2   3
-         1   2   3
-         1   2   3
-
-
-       Y =
-         4   4   4
-         5   5   5
-         6   6   6
-         7   7   7
-  """
-
-    x = array(x)
-    y = array(y)
-    numRows, numCols = len(y), len(x)  # yes, reversed
-    x.shape = 1, numCols
-    X = repeat(x, numRows)
-
-    y.shape = numRows,1
-    Y = repeat(y, numCols, 1)
-    return X, Y
 
 
 

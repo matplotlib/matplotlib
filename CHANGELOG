@@ -1,4 +1,6 @@
-2007-07-19 converted non-numpy relicts troughout the code
+2007-07-19 completed numpification of most trivial cases - NN
+
+2007-07-19 converted non-numpy relicts troughout the code - NN
 
 2007-07-19 replaced the Python code in numerix/ by a minimal wrapper around
            numpy that explicitly mentions all symbols that need to be
