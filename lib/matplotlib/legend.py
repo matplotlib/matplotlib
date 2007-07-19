@@ -22,7 +22,7 @@ up the legend
 """
 from __future__ import division
 import sys, warnings
-from numerix import array, ones
+from numpy import array, ones, linspace
 
 
 from matplotlib import verbose, rcParams
@@ -30,7 +30,7 @@ from artist import Artist
 from cbook import enumerate, is_string_like, iterable, silent_list
 from font_manager import FontProperties
 from lines import Line2D
-from mlab import linspace, segments_intersect
+from mlab import segments_intersect
 from patches import Patch, Rectangle, RegularPolygon, Shadow, bbox_artist, draw_bbox
 from collections import LineCollection, RegularPolyCollection, PatchCollection
 from text import Text

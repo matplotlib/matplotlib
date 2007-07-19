@@ -9,7 +9,7 @@ from __future__ import division
 import sys, math, warnings
 
 import agg
-from numerix import alltrue, arange, array, logical_and, \
+from numpy import alltrue, arange, array, logical_and, \
      nonzero, searchsorted, take, asarray, ones, where, less, ravel, \
      greater, cos, sin, pi, sqrt, less_equal, \
      compress, zeros, concatenate, cumsum, newaxis

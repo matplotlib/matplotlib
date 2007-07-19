@@ -73,7 +73,7 @@ from __future__ import division
 import os, sys
 import matplotlib
 from matplotlib import verbose, rcParams
-from numpy import array, zeros, transpose
+from numpy import array, zeros, transpose, fliplr
 from matplotlib._image import fromarray
 from matplotlib._pylab_helpers import Gcf
 from matplotlib.backend_bases import RendererBase,\
@@ -85,7 +85,6 @@ from matplotlib.font_manager import fontManager
 from matplotlib.ft2font import FT2Font
 from matplotlib.mathtext import math_parse_s_ft2font
 from matplotlib.transforms import lbwh_to_bbox
-from matplotlib.numerix.mlab import fliplr
 
 from _backend_agg import RendererAgg as _RendererAgg
 

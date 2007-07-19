@@ -12,6 +12,8 @@ try: import datetime
 except ImportError:
     raise SystemExit('The finance module requires datetime support (python2.3)')
 
+import numpy as npy
+
 from matplotlib import verbose, get_configdir
 from artist import Artist
 from dates import date2num, num2date
@@ -20,7 +22,6 @@ from matplotlib.collections import LineCollection, PolyCollection
 from matplotlib.colors import colorConverter
 from lines import Line2D, TICKLEFT, TICKRIGHT
 from patches import Rectangle
-import matplotlib.numerix as nx
 from matplotlib.transforms import scale_transform, Value, zero, one, \
      scale_sep_transform, blend_xy_sep_transform
 
@@ -76,7 +77,7 @@ def parse_yahoo_historical(fh, asobject=False, adjusted=True):
     if asobject:
         if len(results)==0: return None
         else:
-            date, open, close, high, low, volume = map(nx.asarray, zip(*results))
+            date, open, close, high, low, volume = map(npy.asarray, zip(*results))
         return Bunch(date=date, open=open, close=close, high=high, low=low, volume=volume)
     else:
 
@@ -377,10 +378,10 @@ def plot_day_summary2(ax, opens, closes, highs, lows, ticksize=4,
                                      )
     closeCollection.set_transform(tickTransform)
 
-    minx, maxx = (0, len(rangeSegments))
+    minpy, maxx = (0, len(rangeSegments))
     miny = min([low for low in lows if low !=-1])
     maxy = max([high for high in highs if high != -1])
-    corners = (minx, miny), (maxx, maxy)
+    corners = (minpy, miny), (maxx, maxy)
     ax.update_datalim(corners)
     ax.autoscale_view()
 
@@ -466,11 +467,11 @@ def candlestick2(ax, opens, closes, highs, lows, width=4,
 
 
 
-    minx, maxx = (0, len(rangeSegments))
+    minpy, maxx = (0, len(rangeSegments))
     miny = min([low for low in lows if low !=-1])
     maxy = max([high for high in highs if high != -1])
 
-    corners = (minx, miny), (maxx, maxy)
+    corners = (minpy, miny), (maxx, maxy)
     ax.update_datalim(corners)
     ax.autoscale_view()
 
@@ -533,10 +534,10 @@ def volume_overlay(ax, opens, closes, volumes,
 
 
 
-    minx, maxx = (0, len(offsetsBars))
+    minpy, maxx = (0, len(offsetsBars))
     miny = 0
     maxy = max([v for v in volumes if v!=-1])
-    corners = (minx, miny), (maxx, maxy)
+    corners = (minpy, miny), (maxx, maxy)
     ax.update_datalim(corners)
     ax.autoscale_view()
 
@@ -626,10 +627,10 @@ def volume_overlay3(ax, quotes,
 
 
 
-    minx, maxx = (min(dates), max(dates))
+    minpy, maxx = (min(dates), max(dates))
     miny = 0
     maxy = max([volume for d, open, close, high, low, volume in quotes])
-    corners = (minx, miny), (maxx, maxy)
+    corners = (minpy, miny), (maxx, maxy)
     ax.update_datalim(corners)
     #print 'datalim', ax.dataLim.get_bounds()
     #print 'viewlim', ax.viewLim.get_bounds()
@@ -683,10 +684,10 @@ def index_bar(ax, vals,
 
 
 
-    minx, maxx = (0, len(offsetsBars))
+    minpy, maxx = (0, len(offsetsBars))
     miny = 0
     maxy = max([v for v in vals if v!=-1])
-    corners = (minx, miny), (maxx, maxy)
+    corners = (minpy, miny), (maxx, maxy)
     ax.update_datalim(corners)
     ax.autoscale_view()
 

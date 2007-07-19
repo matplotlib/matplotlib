@@ -16,6 +16,9 @@ if gtk.pygtk_version < pygtk_version_required:
                       % (gtk.pygtk_version + pygtk_version_required))
 del pygtk_version_required
 
+from numpy import amax, asarray, fromstring, int16, uint8, zeros, \
+     where, transpose, nonzero, indices, ones
+
 import matplotlib
 from matplotlib._pylab_helpers import Gcf
 from matplotlib.backend_bases import RendererBase, GraphicsContextBase, \
@@ -23,10 +26,6 @@ from matplotlib.backend_bases import RendererBase, GraphicsContextBase, \
 from matplotlib.cbook import is_string_like, enumerate
 from matplotlib.figure import Figure
 from matplotlib.mathtext import math_parse_s_ft2font
-import matplotlib.numerix as numerix
-from matplotlib.numerix import asarray, fromstring, uint8, zeros, \
-     where, transpose, nonzero, indices, ones, nx
-
 
 from matplotlib.backends._backend_gdk import pixbuf_get_pixels_array
 
@@ -144,8 +143,8 @@ class RendererGDK(RendererBase):
 
     def draw_lines(self, gc, x, y, transform=None):
         if gc.gdkGC.line_width > 0:
-            x = x.astype(nx.int16)
-            y = self.height - y.astype(nx.int16)
+            x = x.astype(int16)
+            y = self.height - y.astype(int16)
             self.gdkDrawable.draw_lines(gc.gdkGC, zip(x,y))
 
 
@@ -222,7 +221,7 @@ class RendererGDK(RendererBase):
             Xall[:,i] = fromstring(image_str, uint8)
 
         # get the max alpha at each pixel
-        Xs = numerix.mlab.max(Xall,1)
+        Xs = amax(Xall,axis=1)
 
         # convert it to it's proper shape
         Xs.shape = imh, imw

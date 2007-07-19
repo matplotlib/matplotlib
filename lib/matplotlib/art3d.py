@@ -12,7 +12,7 @@ import text
 from colors import Normalize
 from cm import jet
 
-import numerix as nx
+import numpy as npy
 import proj3d
 
 class Wrap2D:
@@ -254,8 +254,8 @@ class Poly3DCollection(Wrap2D):
             segis.append((si,ei))
             si = ei
         xs,ys,zs = zip(*points)
-        ones = nx.ones(len(xs))
-        self.vec = nx.array([xs,ys,zs,ones])
+        ones = npy.ones(len(xs))
+        self.vec = npy.array([xs,ys,zs,ones])
         self.segis = segis
 
     def draw3d(self, renderer):

@@ -9,9 +9,8 @@ from matplotlib import rcParams
 from artist import Artist
 from colors import colorConverter
 import cm
-import numerix
 import numerix.ma as ma
-from numerix import arange, asarray, uint8, float32, repeat, newaxis
+from numpy import arange, asarray, uint8, float32, repeat, newaxis, fromstring
 import _image
 
 
@@ -477,7 +476,7 @@ class FigureImage(Artist, cm.ScalarMappable):
 
 def imread(fname):
     """
-    return image file in fname as numerix array
+    return image file in fname as numpy array
 
     Return value is a MxNx4 array of 0-1 normalized floats
 
@@ -504,6 +503,6 @@ def pil_to_array( pilImage ):
             raise RuntimeError('Unknown image mode')
 
     x_str = im.tostring('raw',im.mode,0,-1)
-    x = numerix.fromstring(x_str,numerix.uint8)
+    x = fromstring(x_str,uint8)
     x.shape = im.size[1], im.size[0], 4
     return x

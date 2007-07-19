@@ -17,7 +17,7 @@ import cbook
 from transforms import unit_bbox
 
 import figure
-import numerix as nx
+import numpy as npy
 from colors import Normalize
 
 import art3d
@@ -122,8 +122,8 @@ class Axes3DI(Axes):
                             self.zz_dataLim.intervalx, self)
 
     def unit_cube(self,vals=None):
-        minx,maxx,miny,maxy,minz,maxz = vals or self.get_w_lims()
-        xs,ys,zs = ([minx,maxx,maxx,minx,minx,maxx,maxx,minx],
+        minpy,maxx,miny,maxy,minz,maxz = vals or self.get_w_lims()
+        xs,ys,zs = ([minpy,maxx,maxx,minpy,minpy,maxx,maxx,minpy],
                     [miny,miny,maxy,maxy,miny,miny,maxy,maxy],
                     [minz,minz,minz,minz,maxz,maxz,maxz,maxz])
         return zip(xs,ys,zs)
@@ -186,7 +186,7 @@ class Axes3DI(Axes):
         pass
 
     def auto_scale_xyz(self, X,Y,Z=None,had_data=None):
-        x,y,z = map(nx.asarray, (X,Y,Z))
+        x,y,z = map(npy.asarray, (X,Y,Z))
         try:
             x,y = X.flat,Y.flat
             if Z is not None:
@@ -216,10 +216,10 @@ class Axes3DI(Axes):
             self.set_w_zlim(locator.autoscale())
 
     def get_w_lims(self):
-        minx,maxx = self.get_w_xlim()
+        minpy,maxx = self.get_w_xlim()
         miny,maxy = self.get_w_ylim()
         minz,maxz = self.get_w_zlim()
-        return minx,maxx,miny,maxy,minz,maxz
+        return minpy,maxx,miny,maxy,minz,maxz
 
     def set_w_zlim(self, *args, **kwargs):
         gl,self.get_xlim = self.get_xlim,self.get_w_zlim
@@ -257,7 +257,7 @@ class Axes3DI(Axes):
     def pany(self, numsteps):
         print 'numsteps', numsteps
 
-    def panx(self, numsteps):
+    def panpy(self, numsteps):
         print 'numsteps', numsteps
 
     def view_init(self, elev, azim):
@@ -276,7 +276,7 @@ class Axes3DI(Axes):
         point.
 
         """
-        relev,razim = nx.pi * self.elev/180, nx.pi * self.azim/180
+        relev,razim = npy.pi * self.elev/180, npy.pi * self.azim/180
 
         xmin,xmax = self.get_w_xlim()
         ymin,ymax = self.get_w_ylim()
@@ -288,29 +288,29 @@ class Axes3DI(Axes):
                                              zmin,zmax)
 
         # look into the middle of the new coordinates
-        R = nx.array([0.5,0.5,0.5])
+        R = npy.array([0.5,0.5,0.5])
         #
-        xp = R[0] + nx.cos(razim)*nx.cos(relev)*self.dist
-        yp = R[1] + nx.sin(razim)*nx.cos(relev)*self.dist
-        zp = R[2] + nx.sin(relev)*self.dist
+        xp = R[0] + npy.cos(razim)*npy.cos(relev)*self.dist
+        yp = R[1] + npy.sin(razim)*npy.cos(relev)*self.dist
+        zp = R[2] + npy.sin(relev)*self.dist
 
-        E = nx.array((xp, yp, zp))
+        E = npy.array((xp, yp, zp))
         #
         self.eye = E
         self.vvec = R - E
         self.vvec = self.vvec / proj3d.mod(self.vvec)
 
-        if abs(relev) > nx.pi/2:
+        if abs(relev) > npy.pi/2:
             # upside down
-            V = nx.array((0,0,-1))
+            V = npy.array((0,0,-1))
         else:
-            V = nx.array((0,0,1))
+            V = npy.array((0,0,1))
         zfront,zback = -self.dist,self.dist
 
         viewM = proj3d.view_transformation(E,R,V)
         perspM = proj3d.persp_transformation(zfront,zback)
-        M0 = nx.dot(viewM,worldM)
-        M = nx.dot(perspM,M0)
+        M0 = npy.dot(viewM,worldM)
+        M = npy.dot(perspM,M0)
         return M
 
     def mouse_init(self):
@@ -383,8 +383,8 @@ class Axes3DI(Axes):
         # scale the z value to match
         x0,y0,z0 = p0
         x1,y1,z1 = p1
-        d0 = nx.hypot(x0-xd,y0-yd)
-        d1 = nx.hypot(x1-xd,y1-yd)
+        d0 = npy.hypot(x0-xd,y0-yd)
+        d1 = npy.hypot(x1-xd,y1-yd)
         dt = d0+d1
         z = d1/dt * z0 + d0/dt * z1
         #print 'mid', edgei, d0, d1, z0, z1, z
@@ -435,12 +435,12 @@ class Axes3DI(Axes):
         elif self.button_pressed == 3:
             # zoom view
             # hmmm..this needs some help from clipping....
-            minx,maxx,miny,maxy,minz,maxz = self.get_w_lims()
+            minpy,maxx,miny,maxy,minz,maxz = self.get_w_lims()
             df = 1-((h - dy)/h)
-            dx = (maxx-minx)*df
+            dx = (maxx-minpy)*df
             dy = (maxy-miny)*df
             dz = (maxz-minz)*df
-            self.set_w_xlim(minx-dx,maxx+dx)
+            self.set_w_xlim(minpy-dx,maxx+dx)
             self.set_w_ylim(miny-dy,maxy+dy)
             self.set_w_zlim(minz-dz,maxz+dz)
             self.get_proj()
@@ -504,14 +504,14 @@ class Axes3DI(Axes):
         had_data = self.has_data()
 
         rows, cols = Z.shape
-        tX,tY,tZ = nx.transpose(X), nx.transpose(Y), nx.transpose(Z)
+        tX,tY,tZ = npy.transpose(X), npy.transpose(Y), npy.transpose(Z)
         rstride = cbook.popd(kwargs, 'rstride', 10)
         cstride = cbook.popd(kwargs, 'cstride', 10)
         #
         polys = []
         boxes = []
-        for rs in nx.arange(0,rows,rstride):
-            for cs in nx.arange(0,cols,cstride):
+        for rs in npy.arange(0,rows,rstride):
+            for cs in npy.arange(0,cols,cstride):
                 ps = []
                 corners = []
                 for a,ta in [(X,tX),(Y,tY),(Z,tZ)]:
@@ -522,9 +522,9 @@ class Axes3DI(Axes):
                     zright = ta[cs][rs:min(rows-1,rs+rstride):]
                     zright = zright[::-1]
                     corners.append([ztop[0],ztop[-1],zbase[0],zbase[-1]])
-                    z = nx.concatenate((ztop,zleft,zbase,zright))
+                    z = npy.concatenate((ztop,zleft,zbase,zright))
                     ps.append(z)
-                boxes.append(map(nx.array,zip(*corners)))
+                boxes.append(map(npy.array,zip(*corners)))
                 polys.append(zip(*ps))
         #
         lines = []
@@ -533,10 +533,10 @@ class Axes3DI(Axes):
             n = proj3d.cross(box[0]-box[1],
                          box[0]-box[2])
             n = n/proj3d.mod(n)*5
-            shade.append(nx.dot(n,[-1,-1,0.5]))
+            shade.append(npy.dot(n,[-1,-1,0.5]))
             lines.append((box[0],n+box[0]))
         #
-        color = nx.array([0,0,1,1])
+        color = npy.array([0,0,1,1])
         norm = Normalize(min(shade),max(shade))
         colors = [color * (0.5+norm(v)*0.5) for v in shade]
         for c in colors: c[3] = 1
@@ -554,7 +554,7 @@ class Axes3DI(Axes):
         had_data = self.has_data()
         rows,cols = Z.shape
 
-        tX,tY,tZ = nx.transpose(X), nx.transpose(Y), nx.transpose(Z)
+        tX,tY,tZ = npy.transpose(X), npy.transpose(Y), npy.transpose(Z)
 
         rii = [i for i in range(0,rows,rstride)]+[rows-1]
         cii = [i for i in range(0,cols,cstride)]+[cols-1]
@@ -718,7 +718,7 @@ def test_scatter():
 
 def get_test_data(delta=0.05):
     from mlab import meshgrid, bivariate_normal
-    x = y = nx.arange(-3.0, 3.0, delta)
+    x = y = npy.arange(-3.0, 3.0, delta)
     X, Y = meshgrid(x,y)
 
     Z1 = bivariate_normal(X, Y, 1.0, 1.0, 0.0, 0.0)
@@ -764,8 +764,8 @@ def test_contour():
 
 def test_plot():
     ax = Axes3D()
-    xs = nx.arange(0,4*nx.pi+0.1,0.1)
-    ys = nx.sin(xs)
+    xs = npy.arange(0,4*npy.pi+0.1,0.1)
+    ys = npy.sin(xs)
     ax.plot(xs,ys, label='zl')
     ax.plot(xs,ys+max(xs),label='zh')
     ax.plot(xs,ys,dir='x', label='xl')
@@ -785,7 +785,7 @@ def test_polys():
     cc = lambda arg: colorConverter.to_rgba(arg, alpha=0.6)
 
     ax = Axes3D()
-    xs = nx.arange(0,10,0.4)
+    xs = npy.arange(0,10,0.4)
     verts = []
     zs = [0.0,1.0,2.0,3.0]
     for z in zs:
@@ -817,7 +817,7 @@ def test_bar2D():
     ax = Axes3D()
 
     for c,z in zip(['r','g','b','y'],[30,20,10,0]):
-        xs = nx.arange(20)
+        xs = npy.arange(20)
         ys = [random.random() for x in xs]
         ax.bar(xs,ys,z=z,dir='y',color=c)
     #ax.plot(xs,ys)

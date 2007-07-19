@@ -13,7 +13,7 @@ import text
 import art3d
 import proj3d
 
-from numerix import sin, cos, pi, cumsum, dot, asarray, array, \
+from numpy import sin, cos, pi, cumsum, dot, asarray, array, \
      where, nonzero, equal, sqrt
 
 def norm_angle(a):

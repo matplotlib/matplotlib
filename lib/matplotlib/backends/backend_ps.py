@@ -26,7 +26,7 @@ from matplotlib.text import Text
 
 from matplotlib.transforms import get_vec6_scales
 
-from matplotlib.numerix import uint8, float32, alltrue, array, ceil, equal, \
+from numpy import uint8, float32, alltrue, array, ceil, equal, \
     fromstring, nonzero, ones, put, take, where, isnan
 import binascii
 import re
