@@ -1,14 +1,19 @@
 """
 Install instructions for traits 2.0
 
+   # blow away old enthought
    rm -rf ~/dev/lib/python2.4/site-packages/enthought.*
 
-   easy_install --install-dir=~/dev/lib/python2.4/site-packages --prefix=~/dev -f http://code.enthought.com/enstaller/eggs/source/unstable/ enthought.etsconfig enthought.util enthought.debug
+   # get easy_install, if necessary
+   wget  http://peak.telecommunity.com/dist/ez_setup.py
+   sudo python sez_setup.py
+
+   sudo easy_install -f http://code.enthought.com/enstaller/eggs/source/unstable/ enthought.etsconfig enthought.util enthought.debug
 
    svn co https://svn.enthought.com/svn/enthought/branches/enthought.traits_2.0 enthought_traits
 
    cd enthought_traits/
-   python setup.py install --prefix=~/dev
+   sudo python setup.py install 
 
 
 """

@@ -1,3 +1,4 @@
+# see install instructions for enthrought traits2 in mtraits
 import enthought.traits.api as traits
 
 from matplotlib import agg
@@ -395,7 +396,7 @@ y1 = npy.cos(2*npy.pi*x)
 y2 = 10*npy.exp(-x)
 
 line1 = line(x, y1, color='blue', linewidth=2.0)
-line1.affine = coords1.affine
+line1.sync_trait('affine', coords1)
 
 fig.add_path(line1)
 
