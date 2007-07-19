@@ -1,4 +1,64 @@
 
+class AggPath(Path):
+
+    agg_fillcolor = mtraits.ColorAgg(RendererAgg.blue)
+    agg_strokecolor = mtraits.ColorAgg(RendererAgg.black)
+    agg_path = mtraits.PathAgg 
+
+
+    def __init__(self, path):
+        self.strokecolor = path.strokecolor
+        self.fillcolor = path.fillcolor
+        self.alpha = path.alpha
+        self.linewidth = path.linewidth
+        self.antialiased = path.antialiased
+        self.pathdata = path.pathdata
+        self.affine = path.affine
+
+        
+        path.sync_trait('strokecolor', self)
+        path.sync_trait('fillcolor', self)
+        path.sync_trait('alpha', self)
+        path.sync_trait('linewidth', self)
+        path.sync_trait('antialiased', self)
+        path.sync_trait('pathdata', self)
+        path.sync_trait('affine', self)
+
+    def _pathdata_changed(self, olddata, newdata):
+        print 'pathdata changed'
+        MOVETO, LINETO, CLOSEPOLY = Path.MOVETO, Path.LINETO, Path.CLOSEPOLY
+        agg_path = agg.path_storage()
+        codes, verts = newdata
+        N = len(codes)
+        for i in range(N):
+            x, y = verts[i]
+            code = codes[i]
+            if code==MOVETO:
+                agg_path.move_to(x, y)
+            elif code==LINETO:
+                agg_path.line_to(x, y)                
+            elif code==CLOSEPOLY:
+                agg_path.close_polygon()
+        
+        self.agg_path = agg_path
+        
+    def _fillcolor_changed(self, oldcolor, newcolor):        
+        self.agg_fillcolor = self.color_to_rgba8(newcolor)
+
+    def _strokecolor_changed(self, oldcolor, newcolor):                
+
+        c = self.color_to_rgba8(newcolor)
+        print 'stroke change: old=%s, new=%s, agg=%s, ret=%s'%(
+            oldcolor, newcolor, self.agg_strokecolor, c)
+        self.agg_strokecolor = c
+
+
+    def color_to_rgba8(self, color):
+        if color is None: return None
+        rgba = [int(255*c) for c in color.r, color.g, color.b, color.a]
+        return agg.rgba8(*rgba)
+
+
 class Axis(Artist):
     tickcolor = mtraits.color('black')
     axiscolor = mtraits.color('black')
