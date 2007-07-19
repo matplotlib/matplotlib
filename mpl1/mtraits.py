@@ -32,12 +32,12 @@ from matplotlib import colors as mcolors
 import numpy as npy
 
 doprint = True
-flexible_true_trait = traits.Trait(
+FlexibleTrueTrait = traits.Trait(
    True,
    { 'true':  True, 't': True, 'yes': True, 'y': True, 'on':  True, True: True,
      'false': False, 'f': False, 'no':  False, 'n': False, 'off': False, False: False
                               } )
-flexible_false_trait = traits.Trait( False, flexible_true_trait )
+FlexibleFalseTrait = traits.Trait( False, FlexibleTrueTrait )
 
 colors = mcolors.cnames
 
@@ -56,9 +56,9 @@ class RGBA(traits.HasTraits):
        self.g = g
        self.b = b
        self.a = a
+
    def __repr__(self):
-       return 'r,g,b,a = (%1.2f, %1.2f, %1.2f, %1.2f)'%\
-              (self.r, self.g, self.b, self.a)
+       return '(%1.2f, %1.2f, %1.2f, %1.2f)'%(self.r, self.g, self.b, self.a)
 
 def tuple_to_rgba(ob, name, val):
    tup = [float(x) for x in val]
@@ -117,17 +117,18 @@ linemarkers = (None, '.', ',', 'o', '^', 'v', '<', '>', 's',
                  )
               
 
-linewidth       = traits.Float(0.5)
-linestyle       = traits.Trait(*linestyles)
-color           = Color
-marker          = traits.Trait(*linemarkers)
-markersize      = traits.Float(6)
-antialiased     = flexible_true_trait
-alpha           = traits.Range(0., 1., 0.)
-interval        = traits.Array('d', (2,), npy.array([0.0, 1.0], npy.float_))
-affine          = traits.Array('d', (3,3),
+Alpha          = traits.Float(1.0)
+Linewidth       = traits.Float(0.5)
+Linestyle       = traits.Trait(*linestyles)
+Color           = Color
+Marker          = traits.Trait(*linemarkers)
+Markersize      = traits.Float(6)
+Antialiased     = FlexibleTrueTrait
+Alpha           = traits.Range(0., 1., 0.)
+Interval        = traits.Array('d', (2,), npy.array([0.0, 1.0], npy.float_))
+Affine          = traits.Array('d', (3,3),
                                npy.array([[1,0,0],[0,1,0],[0,0,1]], npy.float_))
-verts          = traits.Array('d', value=npy.array([[0,0],[0,0]], npy.float_))
-codes          = traits.Array('b', value=npy.array([0,0], dtype=npy.uint8))
-
+Verts          = traits.Array('d', value=npy.array([[0,0],[0,0]], npy.float_))
+Codes          = traits.Array('b', value=npy.array([0,0], dtype=npy.uint8))
+PathData       = traits.Tuple(Codes, Verts)
 

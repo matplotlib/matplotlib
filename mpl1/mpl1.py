@@ -5,6 +5,114 @@ from matplotlib import agg
 import numpy as npy
 
 import mtraits  # some handy traits for mpl
+        
+
+class Renderer:
+    def __init__(self, width, height):
+        self.width, self.height = width, height
+
+        # almost all renderers assume 0,0 is left, upper, so we'll flip y here by default
+        self.affinerenderer  = npy.array(
+            [[width, 0, 0], [0, -height, height], [0, 0, 1]], dtype=npy.float_)
+        self.pathd = dict() # dict mapping path id -> path instance
+        
+
+    def add_path(self, pathid, path):
+        self.pathd[pathid] = path
+
+    def remove_path(self, pathid):
+        if pathid in self.pathd:
+            del self.pathd[pathid]
+
+    def render_path(self, pathid):
+        pass
+            
+
+
+class RendererAgg(Renderer):
+    gray = agg.rgba8(128,128,128,255)    
+    white = agg.rgba8(255,255,255,255)
+    blue = agg.rgba8(0,0,255,255)
+    black = agg.rgba8(0,0,0,0)
+
+    def __init__(self, width, height):
+        Renderer.__init__(self, width, height)
+        
+        stride = width*4
+        self.buf = buf = agg.buffer(width, height, stride)
+
+        self.rbuf = rbuf = agg.rendering_buffer()
+        rbuf.attachb(buf)
+
+        self.pf = pf = agg.pixel_format_rgba(rbuf)
+        self.rbase = rbase = agg.renderer_base_rgba(pf)
+        rbase.clear_rgba8(self.gray)
+
+        # the antialiased renderers
+        self.renderer =  agg.renderer_scanline_aa_solid_rgba(rbase);        
+        self.rasterizer = agg.rasterizer_scanline_aa()
+        self.scanline = agg.scanline_p8()
+        self.trans = None
+
+        # the aliased renderers
+        self.rendererbin =  agg.renderer_scanline_bin_solid_rgba(rbase);
+        self.scanlinebin = agg.scanline_bin()
+
+
+    def add_path(self, pathid, path):
+        self.pathd[pathid] = AggPath(path)
+
+    def render_path(self, pathid):
+
+
+        path = self.pathd[pathid]
+
+        if path.antialiased:
+            renderer = self.renderer
+            scanline = self.scanline
+            render_scanlines = agg.render_scanlines_rgba
+        else:
+            renderer = self.rendererbin
+            scanline = self.scanlinebin
+            render_scanlines = agg.render_scanlines_bin_rgba
+
+
+        affine = npy.dot(self.affinerenderer, path.affine)
+        #print 'display affine:\n', self.affinerenderer
+        #print 'path affine:\n', path.affine
+        #print 'product affine:\n', affine
+        a, b, tx = affine[0]
+        c, d, ty = affine[1]
+        aggaffine = agg.trans_affine(a,b,c,d,tx,ty)
+        transpath = agg.conv_transform_path(path.agg_path, aggaffine)
+
+        renderer.color_rgba8( path.agg_strokecolor )
+        if path.fillcolor is not None:
+            self.rasterizer.add_path(transpath)
+            renderer.color_rgba8( path.agg_fillcolor )
+            render_scanlines(self.rasterizer, scanline, renderer);
+
+        if path.strokecolor is not None:
+            stroke = agg.conv_stroke_transpath(transpath)
+            stroke.width(path.linewidth)
+            self.rasterizer.add_path(stroke)
+            renderer.color_rgba8( path.agg_strokecolor )        
+            render_scanlines(self.rasterizer, scanline, renderer);
+
+
+    def show(self):
+        # we'll cheat a little and use pylab for display
+
+        X = npy.fromstring(self.buf.to_string(), npy.uint8)
+        X.shape = self.height, self.width, 4
+        if 1:
+            import pylab
+            fig = pylab.figure()
+            ax = fig.add_axes([0,0,1,1], xticks=[], yticks=[],
+                              frameon=False, aspect='auto')
+            ax.imshow(X, aspect='auto')
+            pylab.show()
+
 
 class Func:
     def __call__(self, X):
@@ -62,47 +170,67 @@ class Path(traits.HasTraits):
     """
     MOVETO, LINETO, CLOSEPOLY = range(3)
     
-    strokecolor = mtraits.color('black')
-    fillcolor = mtraits.color('blue')
-    alpha = mtraits.alpha(1.0)
-    linewidth = mtraits.linewidth(1.0)
-    antialiased = mtraits.flexible_true_trait
-    verts= mtraits.verts
-    codes = mtraits.codes
+    strokecolor = mtraits.Color('black')
+    fillcolor = mtraits.Color('blue')
+    alpha = mtraits.Alpha(1.0)
+    linewidth = mtraits.Linewidth(1.0)
+    antialiased = mtraits.FlexibleTrueTrait
+    pathdata = mtraits.PathData
+    affine = mtraits.Affine
+    
+mtraits.Path = traits.Trait(Path())
 
-mtraits.path = traits.Trait(Path())
-        
-class AggPath:
+class AggPath(Path):
+
     def __init__(self, path):
-        """
-        Path stored with agg data structs        
-        """
+        self.strokecolor = path.strokecolor
+        self.fillcolor = path.fillcolor
+        self.alpha = path.alpha
+        self.linewidth = path.linewidth
+        self.antialiased = path.antialiased
+        self.pathdata = path.pathdata
+        self.affine = path.affine
+
+        
+        path.sync_trait('strokecolor', self)
+        path.sync_trait('fillcolor', self)
+        path.sync_trait('alpha', self)
+        path.sync_trait('linewidth', self)
+        path.sync_trait('antialiased', self)
+        path.sync_trait('pathdata', self)
+        path.sync_trait('affine', self)
+
+    def _pathdata_changed(self, olddata, newdata):
         MOVETO, LINETO, CLOSEPOLY = Path.MOVETO, Path.LINETO, Path.CLOSEPOLY
-        aggpath = agg.path_storage()
-        verts = path.verts
-        codes = path.codes
-        for i in range(len(verts)):
+        agg_path = agg.path_storage()
+        codes, verts = newdata
+        N = len(codes)
+        for i in range(N):
             x, y = verts[i]
             code = codes[i]
             if code==MOVETO:
-                aggpath.move_to(x, y)
+                agg_path.move_to(x, y)
             elif code==LINETO:
-                aggpath.line_to(x, y)                
+                agg_path.line_to(x, y)                
             elif code==CLOSEPOLY:
-                aggpath.close_polygon()
+                agg_path.close_polygon()
+        
+        self.agg_path = agg_path
+        
+    def _fillcolor_changed(self, oldcolor, newcolor):        
+        self.agg_fillcolor = self.color_to_rgba8(newcolor)
 
-        self.fillcolor = self.color_to_rgba8(path.fillcolor)
-        self.strokecolor = self.color_to_rgba8(path.strokecolor)
+    def _strokecolor_changed(self, oldcolor, newcolor):                
 
-        self.aggpath = aggpath
-        self.alpha = float(path.alpha)
-        self.linewidth = float(path.linewidth)
-        self.antialiased = bool(path.antialiased)
+        c = self.color_to_rgba8(newcolor)
+        #print 'stroke change: old=%s, new=%s, agg=%s, ret=%s'%(
+        #    oldcolor, newcolor, self.agg_strokecolor, c)
+        self.agg_strokecolor = c
+
 
     def color_to_rgba8(self, color):
         if color is None: return None
         rgba = [int(255*c) for c in color.r, color.g, color.b, color.a]
-
         return agg.rgba8(*rgba)
 
 # coordinates:
@@ -111,215 +239,83 @@ class AggPath:
 #     to a separable cartesian coordinate, eg for polar is takes r,
 #     theta -> r*cos(theta), r*sin(theta)
 #
-#   affineData : an affine 3x3 matrix that takes model output and
+#   AxesCoords.affineview : an affine 3x3 matrix that takes model output and
 #     transforms it to axes 0,1.  We are kind of stuck with the
 #     mpl/matlab convention that 0,0 is the bottom left of the axes,
 #     even though it contradicts pretty much every GUI layout in the
 #     world
 #
-#   affineFigure: an affine 3x3 that transforms an axes.view into figure
+#   AxesCoords.affineaxes: an affine 3x3 that transforms an axesview into figure
 #     0,1 
 #
-#   affineDisplay : takes an affine 3x3 and puts figure view into display.  0,
+#   Renderer.affinerenderer : takes an affine 3x3 and puts figure view into display.  0,
 #      0 is left, top, which is the typical coordinate system of most
 #      graphics formats
 
-class Renderer:
-    def __init__(self, width, height):
-        self.width, self.height = width, height
 
-        # almost all renderers assume 0,0 is left, upper, so we'll flip y here by default
-        self.displayview  = npy.array(
-            [[width, 0, 0], [0, -height, height], [0, 0, 1]], dtype=npy.float_)
-        self.pathd = dict() # dict mapping path id -> path instance
-        
-    def push_affine(self, affine):
-        'set the current affine'
-        self.affine = npy.dot(self.displayview, affine)
-
-    def add_path(self, pathid, path):
-        self.pathd[pathid] = path
-
-    def remove_path(self, pathid):
-        if pathid in self.pathd:
-            del self.pathd[pathid]
-
-    def render_path(self, pathid):
-        pass
-            
-
-
-class RendererAgg(Renderer):
-    gray = agg.rgba8(128,128,128,255)    
-    white = agg.rgba8(255,255,255,255)
-    blue = agg.rgba8(0,0,255,255)
-
-    def __init__(self, width, height):
-        Renderer.__init__(self, width, height)
-
-        self.aggpathd = dict() # map path ids to AggPaths
-        stride = width*4
-        self.buf = buf = agg.buffer(width, height, stride)
-
-        self.rbuf = rbuf = agg.rendering_buffer()
-        rbuf.attachb(buf)
-
-        self.pf = pf = agg.pixel_format_rgba(rbuf)
-        self.rbase = rbase = agg.renderer_base_rgba(pf)
-        rbase.clear_rgba8(self.gray)
-
-        # the antialiased renderers
-        self.renderer =  agg.renderer_scanline_aa_solid_rgba(rbase);        
-        self.rasterizer = agg.rasterizer_scanline_aa()
-        self.scanline = agg.scanline_p8()
-        self.trans = None
-
-        # the aliased renderers
-        self.rendererbin =  agg.renderer_scanline_bin_solid_rgba(rbase);
-        self.scanlinebin = agg.scanline_bin()
-
-    def add_path(self, pathid, path):
-        Renderer.add_path(self, pathid, path)
-        self.aggpathd[pathid] = AggPath(path)
-
-    def remove_path(self, pathid):
-        Renderer.remove_path(self, pathid)
-        if pathid in self.aggpathd:
-            del self.aggpathd[pathid]
-
-    def push_affine(self, affine):
-        'set the current affine'
-        Renderer.push_affine(self, affine)
-        a, b, tx = self.affine[0]
-        c, d, ty = self.affine[1]
-        self.trans = agg.trans_affine(a,b,c,d,tx,ty)
-
-
-    def render_path(self, pathid):
-        if self.trans is None:
-            raise RuntimeError('you must first push_affine')
-
-
-
-        aggpath = self.aggpathd[pathid]
-
-        if aggpath.antialiased:
-            renderer = self.renderer
-            scanline = self.scanline
-            render_scanlines = agg.render_scanlines_rgba
-        else:
-            renderer = self.rendererbin
-            scanline = self.scanlinebin
-            render_scanlines = agg.render_scanlines_bin_rgba
-
-        renderer.color_rgba8( aggpath.strokecolor )
-        transpath = agg.conv_transform_path(aggpath.aggpath, self.trans)
-
-        if aggpath.fillcolor is not None:
-            self.rasterizer.add_path(transpath)
-            renderer.color_rgba8( aggpath.fillcolor )
-            render_scanlines(self.rasterizer, scanline, renderer);
-            
-        stroke = agg.conv_stroke_transpath(transpath)
-        stroke.width(aggpath.linewidth)
-        self.rasterizer.add_path(stroke)
-        renderer.color_rgba8( aggpath.strokecolor )        
-        render_scanlines(self.rasterizer, scanline, renderer);
-
-
-    def show(self):
-        # we'll cheat a little and use pylab for display
-
-        X = npy.fromstring(self.buf.to_string(), npy.uint8)
-        X.shape = self.height, self.width, 4
-        if 1:
-            import pylab
-            fig = pylab.figure()
-            ax = fig.add_axes([0,0,1,1], xticks=[], yticks=[],
-                              frameon=False, aspect='auto')
-            ax.imshow(X, aspect='auto')
-            pylab.show()
-
-
-
-
-
-def rectangle(l, b, w, h, facecolor='yellow', edgecolor='black',
-              edgewidth=1.0, alpha=1.0):
-
-    t = b+h
-    r = l+w
-    verts = npy.array([(l,b), (l,t), (r, t), (r, b), (0,0)], npy.float_)
-    codes = Path.LINETO*npy.ones(5, npy.uint8)
-    codes[0] = Path.MOVETO
-    codes[-1] = Path.CLOSEPOLY
-
-    path = Path()
-    part.verts = verts
-    path.codes = codes
-    path.strokecolor = edgecolor
-    path.fillcolor = facecolor
-    path.linewidth = edgewidth
-    path.alpha = alpha
-    return path
-
-def line(x, y, color='black', linewidth=1.0, alpha=1.0, antialiased=True,
-         model=identity):
-    X = npy.asarray([x,y]).T
-    numrows, numcols = X.shape
-
-    codes = Path.LINETO*npy.ones(numrows, npy.uint8)
-    codes[0] = Path.MOVETO
-
-    path = Path()
-    path.verts = model(X)
-    path.codes = codes        
-    path.fillcolor = None
-    path.strokecolor = color
-    path.strokewidth = linewidth
-    path.alpha = alpha
-    path.antialiased = antialiased
-    return path
+class Rectangle(Path):
+    facecolor = mtraits.Color('Yellow')
+    edgecolor = mtraits.Color('Black')
+    edgewidth = mtraits.Linewidth(1.0)
     
+    def __init__(self, lbwh, **kwargs):
+
+        # support some legacy names
+        self.sync_trait('facecolor', self, 'fillcolor', True)
+        self.sync_trait('edgecolor', self, 'strokecolor', True)
+        self.sync_trait('edgewidth', self, 'strokewidth', True)
+
+        for k,v in kwargs.items():
+            setattr(self, k, v)
+
+        l,b,w,h = lbwh
+        t = b+h
+        r = l+w
+        verts = npy.array([(l,b), (l,t), (r, t), (r, b), (0,0)], npy.float_)
+        codes = Path.LINETO*npy.ones(5, npy.uint8)
+        codes[0] = Path.MOVETO
+        codes[-1] = Path.CLOSEPOLY
+
+        self.pathdata = codes, verts
+
+
+
+def Alias(name):
+    return Property(lambda obj: getattr(obj, name),
+                    lambda obj, val: setattr(obj, name, val))
+
+class Line(Path):
+    # aliases for matplotlib compat
+    color = mtraits.Color('blue')
+    linewidth = mtraits.Linewidth(1.0)
+
+    
+    def __init__(self, x, y, model=identity, **kwargs):
+        """
+        The model is a function taking Nx2->Nx2.  This is where the
+        nonlinear transformation can be used
+        """
+
+        self.sync_trait('color', self, 'strokecolor', True)
+        self.sync_trait('linewidth', self, 'strokewidth', True)
+
+        # probably a better way to do this with traits
+        for k,v in kwargs.items():
+            setattr(self, k, v)
+
+        X = npy.array([x,y]).T
+        numrows, numcols = X.shape
+
+        codes = Path.LINETO*npy.ones(numrows, npy.uint8)
+        codes[0] = Path.MOVETO
+
+        verts = model(X)
+
+        self.pathdata = codes, verts    
+        self.fillcolor = None
+
         
 
-class AxesCoords(traits.HasTraits):
-    xviewlim = mtraits.interval
-    yviewlim = mtraits.interval
-    affineview = mtraits.affine
-    affineaxes = mtraits.affine    
-    affine = mtraits.affine        
-
-        
-    def _affineview_changed(self, old, new):
-        print 'affine view changed'
-        self.affine = npy.dot(self.affineaxes, new)
-
-    def _affineaxes_changed(self, old, new):
-        print 'affine axes changed'
-        self.affine = npy.dot(new, self.affineview)
-
-        
-    def _xviewlim_changed(self, old, new):
-        print 'xviewlim changed'
-        xmin, xmax = new
-        scale = 1./(xmax-xmin)
-        tx = -xmin*scale
-        self.affineview[0][0] = scale
-        self.affineview[0][-1] = tx
-        self.affine = npy.dot(self.affineaxes, self.affineview)
-        print '\t', self.affine
-        
-    def _yviewlim_changed(self, old, new):
-        print 'yviewlim changed'
-        ymin, ymax = new
-        scale = 1./(ymax-ymin)
-        ty = -ymin*scale
-        self.affineview[1][1] = scale
-        self.affineview[1][-1] = ty
-        self.affine = npy.dot(self.affineaxes, self.affineview)
-        print '\t', self.affine
-                                       
 
 class Figure:
     def __init__(self):
@@ -343,9 +339,7 @@ class Figure:
         if self.renderer is None:
             raise RuntimeError('call set_renderer renderer first')
 
-        for pathid, path in self.pathd.items():
-            print 'path', pathid, path.affine
-            renderer.push_affine(path.affine)
+        for pathid in self.pathd:
             renderer.render_path(pathid)
 
     
@@ -384,43 +378,94 @@ def affine_rotation(theta):
                     dtype=npy.float_)
 
 
-coords1 = AxesCoords()
-coords1.affineaxes = affine_axes([0.55, 0.55, 0.4, 0.4]) # upper right quadrant
+class AxesCoords(traits.HasTraits):
+    xviewlim = mtraits.Interval
+    yviewlim = mtraits.Interval
+    affineview = mtraits.Affine
+    affineaxes = mtraits.Affine    
+    affine = mtraits.Affine        
 
+        
+    def _affineview_changed(self, old, new):
+        #print 'affineview changed before:\n', self.affine
+        self.affine = npy.dot(self.affineaxes, new)
+        #print 'affineview changed after:\n', self.affine
 
+    def _affineaxes_changed(self, old, new):
+        #print 'affineaxes changed before:\n', self.affine
+        self.affine = npy.dot(new, self.affineview)
+        #print 'affineaxes changed after:\n', self.affine
+        
+    def _xviewlim_changed(self, old, new):
 
-fig = Figure()
+        #print 'xviewlim changed before:\n', self.affine
+        xmin, xmax = new
+        scale = 1./(xmax-xmin)
+        tx = -xmin*scale
+        self.affineview[0][0] = scale
+        self.affineview[0][-1] = tx
+        self.affine = npy.dot(self.affineaxes, self.affineview)
+        #print 'xviewlim changed after:\n', self.affine
+        
+    def _yviewlim_changed(self, old, new):
+        #print 'yviewlim changed before:\n', self.affine
+        ymin, ymax = new
+        scale = 1./(ymax-ymin)
+        ty = -ymin*scale
+        self.affineview[1][1] = scale
+        self.affineview[1][-1] = ty
+        self.affine = npy.dot(self.affineaxes, self.affineview)
+        #print 'yviewlim changed after:\n', self.affine
+                                       
 
 x = npy.arange(0, 10, 0.01)
 y1 = npy.cos(2*npy.pi*x)
 y2 = 10*npy.exp(-x)
 
-line1 = line(x, y1, color='blue', linewidth=2.0)
-line1.sync_trait('affine', coords1)
+# the axes rectangle
+axrect1 = [0.1, 0.1, 0.4, 0.4]
+coords1 = AxesCoords()
+coords1.affineaxes = affine_axes(axrect1)
 
+fig = Figure()
+
+line1 = Line(x, y1, color='blue', linewidth=2.0)
+rect1 = Rectangle([0,0,1,1], facecolor='white')
+coords1.sync_trait('affine', line1)
+coords1.sync_trait('affineaxes', rect1, 'affine')
+
+fig.add_path(rect1)
 fig.add_path(line1)
 
-print 'before', line1.affine
 # update the view limits, all the affines should be automagically updated
 coords1.xviewlim = 0, 10
 coords1.yviewlim = -1.1, 1.1
 
-print 'after', line1.affine
+
+# the axes rectangle
+axrect2 = [0.55, 0.55, 0.4, 0.4]
+coords2 = AxesCoords()
+coords2.affineaxes = affine_axes(axrect2)
 
 
-if 0:
-    coords2 = AxesCoords()
-    coords2.xviewlim = coords1.xviewlim  # share the x axis
-    coords2.affineaxes = affine_axes([0.1, 0.1, 0.4, 0.4]) # lower left quadrant
+r = npy.arange(0.0, 1.0, 0.01)
+theta = r*4*npy.pi
+
+line2 = Line(r, theta, model=Polar(), color='#ee8d18', linewidth=2.0)
+rect2 = Rectangle([0,0,1,1], facecolor='#d5de9c')
+coords2.sync_trait('affine', line2)
+coords2.sync_trait('affineaxes', rect2, 'affine')
+
+fig.add_path(rect2)
+fig.add_path(line2)
+
+# update the view limits, all the affines should be automagically updated
+coords2.xviewlim = -1.1, 1.1
+coords2.yviewlim = -1.1, 1.1
 
 
-    line2 = line(x, y2, color='red', linewidth=2.0)
-    line2.affine = coords2.affine
-    coords2.yviewlim = 0, 10
-    fig.add_path(line2)
 
-
-if 0:
+if 1:
     renderer = RendererAgg(600,400)
     fig.set_renderer(renderer)
     fig.draw()

@@ -24,7 +24,7 @@ mpl1 draft, there are three affines: the transformation from view
 limits -> axes units (AxesCoords.affineview), the transformation from
 axes units to normalized figure units (AxesCoords.affineaxes), and the
 transformation from normalized figure units to display
-(Renderer.affine)
+(Renderer.affinerenderer)
 
 Do we want to use 3x3 or 4x4 to leave the door open for 3D developers?
 
