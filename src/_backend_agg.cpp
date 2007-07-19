@@ -1528,6 +1528,8 @@ RendererAgg::draw_lines(const Py::Tuple& args) {
   GCAgg gc = GCAgg(args[0], dpi, snapto);
 
   set_clipbox_rasterizer(gc.cliprect);
+  //path_t transpath(path, xytrans);
+  _process_alpha_mask(gc);
 
   Transformation* mpltransform = static_cast<Transformation*>(args[3].ptr());
 
