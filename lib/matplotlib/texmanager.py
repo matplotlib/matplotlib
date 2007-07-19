@@ -134,7 +134,8 @@ WARNING: found a TeX cache dir in the deprecated location "%s".
                             self.font_info[font.lower()])
                     break
                 else:
-                    warnings.warn('No LaTeX-compatible font found for the %s font family in rcParams. Using default.' % ff)
+                    mpl.verbose.report('No LaTeX-compatible font found for \
+the %s font family in rcParams. Using default.' % ff, 'helpful')
                     setattr(self, font_family_attr, font_family)
                 fontconfig.append(getattr(self, font_family_attr)[0])
         self._fontconfig = ''.join(fontconfig)
