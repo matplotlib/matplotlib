@@ -22,15 +22,17 @@ from numpy import *
 
 #########################
 
+# the following is exclusively used and/or reexported by pylab.py and mlab.py:
+
 asum = sum
 matrixmultiply = dot
 
-#from numpy.oldnumeric import *
 from numpy.oldnumeric import \
-    ArrayType, cross_correlate, NewAxis, \
-    arrayrange, innerproduct, outerproduct
-
-newaxis = NewAxis
+    ArrayType, \
+    cross_correlate, \
+    arrayrange, \
+    innerproduct, \
+    outerproduct
 
 from numpy.oldnumeric import Int8, UInt8, \
      Int16, UInt16, \
@@ -48,7 +50,3 @@ def typecode(a):
     return a.dtype.char
 def iscontiguous(a):
     return a.flags.contiguous
-def byteswapped(a):
-    return a.byteswap()
-def itemsize(a):
-    return a.itemsize

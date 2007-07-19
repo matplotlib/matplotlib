@@ -146,7 +146,7 @@ def view_transformation(E, R, V):
           [0, 0, 0, 1]]
     ## end old
 
-    return nx.matrixmultiply(Mr,Mt)
+    return nx.dot(Mr,Mt)
 
 def persp_transformation(zfront,zback):
     a = (zfront+zback)/(zfront-zback)
@@ -158,14 +158,14 @@ def persp_transformation(zfront,zback):
                      ])
 
 def proj_transform_vec(vec, M):
-    vecw = nx.matrixmultiply(M,vec)
+    vecw = nx.dot(M,vec)
     w = vecw[3]
     # clip here..
     txs,tys,tzs = vecw[0]/w,vecw[1]/w,vecw[2]/w
     return txs,tys,tzs
 
 def proj_transform_vec_clip(vec, M):
-    vecw = nx.matrixmultiply(M,vec)
+    vecw = nx.dot(M,vec)
     w = vecw[3]
     # clip here..
     txs,tys,tzs = vecw[0]/w,vecw[1]/w,vecw[2]/w
@@ -177,7 +177,7 @@ def proj_transform_vec_clip(vec, M):
 def inv_transform(xs,ys,zs,M):
     iM = linear_algebra.inverse(M)
     vec = vec_pad_ones(xs,ys,zs)
-    vecr = nx.matrixmultiply(iM,vec)
+    vecr = nx.dot(iM,vec)
     try:
         vecr = vecr/vecr[3]
     except OverflowError:
@@ -242,7 +242,7 @@ def test_proj_make_M(E=None):
     V = nx.array([0,0,1])
     viewM = view_transformation(E,R,V)
     perspM = persp_transformation(100,-100)
-    M = nx.matrixmultiply(perspM,viewM)
+    M = nx.dot(perspM,viewM)
     return M
 
 def test_proj():
@@ -274,7 +274,7 @@ def rot_x(V,alpha):
                    [0,sina,cosa,0],
                    [0,0,0,0]])
     #
-    return nx.matrixmultiply(M1,V)
+    return nx.dot(M1,V)
 
 def test_rot():
     V = [1,0,0,1]

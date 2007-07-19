@@ -9,10 +9,10 @@ from __future__ import division
 import sys, math, warnings
 
 import agg
-from numerix import Float, alltrue, arange, array, logical_and, \
+from numerix import alltrue, arange, array, logical_and, \
      nonzero, searchsorted, take, asarray, ones, where, less, ravel, \
      greater, cos, sin, pi, sqrt, less_equal, \
-     compress, zeros, concatenate, cumsum, typecode, NewAxis
+     compress, zeros, concatenate, cumsum, newaxis
 import numerix.ma as ma
 from matplotlib import verbose
 import artist
@@ -64,12 +64,12 @@ def unmasked_index_ranges(mask, compressed = True):
     if len(i1) == 0:
         return None
     if not compressed:
-        return concatenate((i0[:, NewAxis], i1[:, NewAxis]), axis=1)
+        return concatenate((i0[:, newaxis], i1[:, newaxis]), axis=1)
     seglengths = i1 - i0
     breakpoints = cumsum(seglengths)
     ic0 = concatenate(((0,), breakpoints[:-1]))
     ic1 = breakpoints
-    return concatenate((ic0[:, NewAxis], ic1[:, NewAxis]), axis=1)
+    return concatenate((ic0[:, newaxis], ic1[:, newaxis]), axis=1)
 
 def segment_hits(cx,cy,x,y,radius):
     """Determine if any line segments are within radius of a point. Returns
@@ -88,7 +88,7 @@ def segment_hits(cx,cy,x,y,radius):
     u = ( (cx-xr)*dx + (cy-yr)*dy )/Lnorm_sq
     candidates = (u>=0) & (u<=1)
     #if any(candidates): print "candidates",xr[candidates]
-    
+
     # Note that there is a little area near one side of each point
     # which will be near neither segment, and another which will
     # be near both, depending on the angle of the lines.  The
@@ -96,7 +96,7 @@ def segment_hits(cx,cy,x,y,radius):
     point_hits = (cx - x)**2 + (cy - y)**2 <= radius**2
     #if any(point_hits): print "points",xr[candidates]
     candidates = candidates & ~point_hits[:-1] & ~point_hits[1:]
-    
+
     # For those candidates which remain, determine how far they lie away
     # from the line.
     px,py = xr+u*dx,yr+u*dy
@@ -164,7 +164,7 @@ class Line2D(Artist):
         else:
             return "Line2D(%s)"\
                 %(",".join(["(%g,%g)"%(x,y) for x,y in zip(self._x,self._y)]))
- 
+
     def __init__(self, xdata, ydata,
                  linewidth       = None, # all Nones default to rc
                  linestyle       = None,
@@ -274,25 +274,25 @@ class Line2D(Artist):
 
         self.set_data(xdata, ydata)
         self._logcache = None
-        
+
         # TODO: do we really need 'newstyle'
         self._newstyle = False
 
     def contains(self, mouseevent):
         """Test whether the mouse event occurred on the line.  The pick radius determines
         the precision of the location test (usually within five points of the value).  Use
-        get/set pickradius() to view or modify it.  
-        
-        Returns True if any values are within the radius along with {'ind': pointlist}, 
+        get/set pickradius() to view or modify it.
+
+        Returns True if any values are within the radius along with {'ind': pointlist},
         where pointlist is the set of points within the radius.
-        
+
         TODO: sort returned indices by distance
         """
         if callable(self._contains): return self._contains(self,mouseevent)
-        
+
         if not is_numlike(self.pickradius):
             raise ValueError,"pick radius should be a distance"
-        
+
         if self._newstyle:
             # transform in backend
             x = self._x
@@ -308,7 +308,7 @@ class Line2D(Artist):
             pixels = self.pickradius
         else:
             pixels = self.figure.dpi.get()/72. * self.pickradius
-            
+
         if self._linestyle == 'None':
             # If no line, return the nearby point(s)
             d = sqrt((xt-mouseevent.x)**2 + (yt-mouseevent.y)**2)
@@ -322,21 +322,21 @@ class Line2D(Artist):
             print 'd', (xt-mouseevent.x)**2., (yt-mouseevent.y)**2.
             print d, pixels, ind
         return len(ind)>0,dict(ind=ind)
-    
+
     def get_pickradius(self):
         'return the pick radius used for containment tests'
         return self.pickradius
 
-    def set_pickradius(self,d): 
+    def set_pickradius(self,d):
         """Sets the pick radius used for containment tests
-        
+
         Accepts: float distance in points.
         """
         self.pickradius = d
-        
+
     def set_picker(self,p):
         """Sets the event picker details for the line.
-        
+
         Accepts: float distance in points or callable pick function fn(artist,event)
         """
         if callable(p):
@@ -344,7 +344,7 @@ class Line2D(Artist):
         else:
             self.pickradius = p
         self._picker = p
-        
+
     def get_window_extent(self, renderer):
         self._newstyle = hasattr(renderer, 'draw_markers')
         if self._newstyle:
@@ -398,15 +398,15 @@ class Line2D(Artist):
     def recache(self):
         #if self.axes is None: print 'recache no axes'
         #else: print 'recache units', self.axes.xaxis.units, self.axes.yaxis.units
-        x = ma.asarray(self.convert_xunits(self._xorig), Float)
-        y = ma.asarray(self.convert_yunits(self._yorig), Float)
+        x = ma.asarray(self.convert_xunits(self._xorig), float)
+        y = ma.asarray(self.convert_yunits(self._yorig), float)
 
         x = ma.ravel(x)
         y = ma.ravel(y)
         if len(x)==1 and len(y)>1:
-            x = x * ones(y.shape, Float)
+            x = x * ones(y.shape, float)
         if len(y)==1 and len(x)>1:
-            y = y * ones(x.shape, Float)
+            y = y * ones(x.shape, float)
 
         if len(x) != len(y):
             raise RuntimeError('xdata and ydata must be the same length')
@@ -421,8 +421,8 @@ class Line2D(Artist):
         else:
             self._segments = None
 
-        self._x = asarray(x, Float)
-        self._y = asarray(y, Float)
+        self._x = asarray(x, float)
+        self._y = asarray(y, float)
 
         self._logcache = None
 
@@ -557,7 +557,7 @@ class Line2D(Artist):
         else:
             return self._markerfacecolor
 
-        
+
     def get_markersize(self): return self._markersize
 
     def get_xdata(self, orig=True):
@@ -708,9 +708,9 @@ class Line2D(Artist):
     def _draw_steps(self, renderer, gc, xt, yt):
         siz=len(xt)
         if siz<2: return
-        xt2=ones((2*siz,), typecode(xt))
+        xt2=ones((2*siz,), xt.dtype)
         xt2[0:-1:2], xt2[1:-1:2], xt2[-1]=xt, xt[1:], xt[-1]
-        yt2=ones((2*siz,), typecode(yt))
+        yt2=ones((2*siz,), yt.dtype)
         yt2[0:-1:2], yt2[1::2]=yt, yt
         gc.set_linestyle('solid')
 

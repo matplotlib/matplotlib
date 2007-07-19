@@ -115,8 +115,8 @@ class RendererGD(RendererBase):
         point in x, y
         """
 
-        x = x.astype(nx.Int16)
-        y = self.height*ones(y.shape, nx.Int16) - y.astype(nx.Int16)
+        x = x.astype(nx.int16)
+        y = self.height*ones(y.shape, nx.int16) - y.astype(nx.int16)
         style = self._set_gd_style(gc)
         self.im.lines( zip(x,y), style)
         self.flush_clip()

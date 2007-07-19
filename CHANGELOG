@@ -1,3 +1,5 @@
+2007-07-19 converted non-numpy relicts troughout the code
+
 2007-07-19 replaced the Python code in numerix/ by a minimal wrapper around
            numpy that explicitly mentions all symbols that need to be
 	   addressed for further numpification - NN

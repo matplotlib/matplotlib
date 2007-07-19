@@ -26,7 +26,7 @@ from matplotlib.text import Text
 
 from matplotlib.transforms import get_vec6_scales
 
-from matplotlib.numerix import UInt8, Float32, alltrue, array, ceil, equal, \
+from matplotlib.numerix import uint8, float32, alltrue, array, ceil, equal, \
     fromstring, nonzero, ones, put, take, where, isnan
 import binascii
 import re
@@ -336,20 +336,20 @@ class RendererPS(RendererBase):
     def _rgb(self, im):
         h,w,s = im.as_rgba_str()
 
-        rgba = fromstring(s, UInt8)
+        rgba = fromstring(s, uint8)
         rgba.shape = (h, w, 4)
         rgb = rgba[:,:,:3]
         return h, w, rgb.tostring()
 
     def _gray(self, im, rc=0.3, gc=0.59, bc=0.11):
         rgbat = im.as_rgba_str()
-        rgba = fromstring(rgbat[2], UInt8)
+        rgba = fromstring(rgbat[2], uint8)
         rgba.shape = (rgbat[0], rgbat[1], 4)
-        rgba_f = rgba.astype(Float32)
+        rgba_f = rgba.astype(float32)
         r = rgba_f[:,:,0]
         g = rgba_f[:,:,1]
         b = rgba_f[:,:,2]
-        gray = (r*rc + g*gc + b*bc).astype(UInt8)
+        gray = (r*rc + g*gc + b*bc).astype(uint8)
         return rgbat[0], rgbat[1], gray.tostring()
 
     def _hex_lines(self, s, chars_per_line=128):

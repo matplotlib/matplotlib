@@ -8,7 +8,7 @@ import os, sys
 import matplotlib.agg as agg
 
 from matplotlib import verbose
-from matplotlib.numerix import array, Float
+from numpy import array
 
 from matplotlib._pylab_helpers import Gcf
 from matplotlib.backend_bases import RendererBase,\
