@@ -6,9 +6,9 @@ Install instructions for traits 2.0
 
    # get easy_install, if necessary
    wget  http://peak.telecommunity.com/dist/ez_setup.py
-   sudo python sez_setup.py
+   sudo python ez_setup.py
 
-   sudo easy_install -f http://code.enthought.com/enstaller/eggs/source/unstable/ enthought.etsconfig enthought.util enthought.debug
+   sudo easy_install -f http://code.enthought.com/enstaller/eggs/source/unstable/ "enthought.etsconfig <3.0a" "enthought.util <3.0a" "enthought.debug <3.0a"
 
    svn co https://svn.enthought.com/svn/enthought/branches/enthought.traits_2.0 enthought_traits
 
