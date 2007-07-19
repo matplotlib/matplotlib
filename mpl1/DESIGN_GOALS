@@ -11,7 +11,7 @@ viable.
 Push the data to the backend only once, or only when required.  Update
 the transforms in the backend, but do not push transformed data on
 every draw.  This is potentially a major win, because we currently
-move the data around on every draw.  Eg see how mpl1.py handles pusing
+move the data around on every draw.  Eg, see how mpl1.py handles pusing
 the paths when the renderer is set (Figure.set_renderer) but on draw
 commands (Figure.draw) only pushes the current affine.
 
@@ -28,17 +28,22 @@ transformation from normalized figure units to display
 
 Do we want to use 3x3 or 4x4 to leave the door open for 3D developers?
 
+How do transformations (linear and nonlinear) play wtih Axis features
+(ticking and gridding).  The ideal is an framework in which ticking,
+gridding and labeling work intelligently with arbitrary
+transformations.  What is the proper transformation API?
+
 = Objects that talk to the backend "primitives" = 
 
 Have just a few, fairly rich obects, that the backends need to
 understand.  Clear candidates are a Path, Text and Image, but despite
-similar names, don't confuse these with the current matplotlib Artists
-by the same name, which are considerably higher level than what I'm
-thinking of here.  Each of these will carry their metadata, eg a path
-will carry its stroke color, facecolor, linewidth, etc.  Text will
-carry its font size, color, etc.  We may need some optimizations down
-the road, but start small.  For now, let's call these objects
-"primitives".
+their similar names, don't confuse these with the current matplotlib
+eponymous matplotlib Artists, which are considerably higher level than
+what I'm thinking of here.  Each of these will carry their metadata,
+eg a path will carry its stroke color, facecolor, linewidth, etc...,
+and Text will carry its font size, color, etc....  We may need some
+optimizations down the road, but we should start small.  For now,
+let's call these objects "primitives".
 
 = Where do the plot functions live? =
 
@@ -51,81 +56,85 @@ what should they create, etc?
 Do we want to create high level objects like Circle, Rectangle and
 Line, each of which manage a Path object under the hood?  Probably,
 for user convenience and general compability with matplotlib.  By
-using traits properly here, these will be thin interfaces around one
-of our primitives.  I think the whole collections module is poorly
-designed, and should be chucked wholesale, if favor of faster, more
-elegant, optimizations and special cases.  Just having the right Path
-object will reduce the need for many of these, eg LineCollection,
+using traits properly here, many current matplotlib Arists will be
+thin interfaces around one oer more primitives.  
+
+I think the whole matplotlib.collections module is poorly designed,
+and should be chucked wholesale, in favor of faster, more elegant,
+optimizations and special cases.  Just having the right Path object
+will reduce the need for many of these, eg LineCollection,
 PolygonCollection, etc...  Also, everything should be numpy enabled,
-and the list of python tuples approach that many of the collections
-take should be shed.
+and the sequence-of-python-tuples approach that many of the
+collections take should be dropped.
 
 = Z-ordering, containers, etc = 
 
-Peter has been doing a lot of nice work on z-order and layers and
-stuff like that for chaco, stuff that looks really useful for picking,
-interactive, etc...  We should look at their approach, and think
-carefully about how this should be handled.  Paul may be a good
-candidate for this, since he has been working on picking.
+Peter has been doing a lot of nice work on z-order and layers for
+chaco, stuff that looks really useful for picking, interaction, etc...
+We should look at this approach, and think carefully about how this
+should be handled.  Paul may be a good candidate for this, since he
+has been working recently on picking.
 
 = Extension code = 
 
 I would like to shed all of the CXX extension code -- it is just too
-small a nitch of the python world to base our project on.  SWIG is
+small a nitch in the python world to base our project on.  SWIG is
 pretty clearly the right choice.  mpl1 will use numpy for
 transformations with some carefully chosen extension code where
-necessary, so this gets rid of _transforms.cpp.  I also plan to use
-the SWIG agg wrapper, so this gets rid of _backend_agg.  If we can
-enhance the SWIG agg wrapper, we can also do images through there.
-Having a fully featured python exposed agg wrapper will be a plus.
-But with the agg license change, I'm open to discussion of
-alternatives.
+necessary, to get rid of _transforms.cpp.  I also plan to use the SWIG
+agg wrapper, so this gets rid of _backend_agg.  If we can enhance the
+SWIG agg wrapper, we can also do images through there, getting rid of
+_image.cpp.  Having a fully featured, python-exposed agg wrapper will
+be a plus in mpl and beyond.  But with the agg license change, I'm
+open to discussion of other approaches.
 
 I want to do away with *all* GUI extension code.  This should live
-outside MPL if at all, eg in a toolkit, if we need it.  This means
-someone needs to figure out how to get tk talking to a python buffer
-object or numpy array.  Maintaining the GUI extension code across
-platforms is an unending headache.
+outside MPL if at all, eg in a toolkit if we need it.  This means
+someone needs to figure out how to get TkInter talking to a python
+buffer object or a numpy array.  Maintaining the GUI extension code
+across platforms is an unending headache.
 
 = Traits = 
 
 I think we should make a major committment to traits and use them from
-the ground up.  Without the UI stuff, they add plenty to make them
-worthwhile, especially the validation and notification features.  With
-the UI (wx only) , they are a major win for GUI developers.  Compare
-the logic for sharing an x-axis in matplotlib transforms with sharex
-with the approach used in mpl1.py with synch-ed affines.
+the ground up.  Even without the UI stuff, they add plenty to make
+them worthwhile, especially the validation and notification features.
+With the UI (wx only) , they are a major win for many GUI developers.
+Compare the logic for sharing an x-axis using matplotlib transforms
+with Axes.sharex with the approach used in mpl1.py with sync_trait-ed
+affines.
 
 = Axis handling = 
 
-The whole conception of the Axes needs to be rethought, in light of
-the fact that we need to support multiple axis objects on one Axes.
-The matplotlib implementation assumes 1 xaxis and 1 yaxis per Axes,
-and we hack two y-axis support with some transform shenanigans via
-twinx, but the approach is not generalizable and is unwieldy.
+The whole concept of the Axes needs to be rethought, in light of the
+fact that we need to support multiple axis objects on one Axes.  The
+matplotlib implementation assumes 1 xaxis and 1 yaxis per Axes, and we
+hack two y-axis support (examples/two_scales.py) with some transform
+shenanigans via twinx, but the approach is not generalizable and is
+unwieldy.
 
 This will require a fair amount of thought, but we should aim for
 supporting an arbitrary number of axis obects, presumably associated
-with individual artists or primitives, on each Axes.  They also need
-to be *much* faster.  matplotlib uses Artists for each tick, tickline,
-gridline, ticklabel, etc, and this is mind-numbingsly slow. I have
-some proto-type axis implementations that draw all the ticks with a
-single path using repeated MOVETO and LINETO, for example, which will
-be incomparably faster, than using a separate object from each tick.
+with individual artists or primitives.  They also need to be *much*
+faster.  matplotlib uses Artists for each tick, tickline, gridline,
+ticklabel, etc, and this is mind-numbingly slow. I have a prototype
+axis implementations that draws the ticks with a single path using
+repeated MOVETO and LINETO, for example, which will be incomparably
+faster than using a separate object for each tick.
 
 = Breakage = 
 
 I think we need to be prepared to break the hell out of matplotlib.
 The API will basically be a total rewrite.  pylab will still mostly
-work unchanged -- that is the beauty of pylab - though API calls on
-return obects will probably be badly broken.  We can mitigate this
-pain if we desire with clever wrapper objects, but once you start
-calling methods on return objects, you oin the community of power
-users, and this is the community I'm most willing to inconvenience
-with breakage.  We'll probably want to install into a new namespace,
-eg "mpl", and envision both matplotlib and mpl co-existing for some
-time.  In fact, mpl might depend on matplotlib initially (eg until a
-CXX free ft2font is available)
+work unchanged -- that is the beauty of pylab -- though API calls on
+return obects may be badly broken.  We can mitigate this pain if we
+desire with clever wrapper objects, but once you start calling methods
+on return objects, you join the community of power users, and this is
+the community I'm most willing to inconvenience with breakage.  We'll
+probably want to install into a new namespace, eg "mpl", and envision
+both matplotlib and mpl co-existing for some time.  In fact, mpl might
+depend on matplotlib initially, eg until a CXX free ft2font is
+available.
 
 We should expect to be supporting and using matplotlib for a long
 time, since the proposals discussed here imply that it will be a long
@@ -153,9 +162,9 @@ core, eg traits, increasing the possibility of synergies.
 There is a legitimate need to be able to feed custom objects into
 matplotlib.  Recent versions of matplotlib support this with a unit
 registry in the "units" module.  A clear use case is plotting with
-native datetime objects, which is supported in the latest release of
-matplotlib via the unit handling, which should probably be called
-"custom object handling and conversion".  This is a deep and
-complictaed subject, involving questions of where the original data
-live, how they are converted to useful types (arrays of floats) etc.
-It's worth thinking about as we discuss redesign issues.
+native datetime objects, which is supported in 0.90 via the unit
+handling, which should probably be called "custom object handling and
+conversion".  This is a deep and complicated subject, involving
+questions of where the original data live, how they are converted to
+useful types (arrays of floats) etc.  It's worth thinking this about
+as we discuss redesign issues.
