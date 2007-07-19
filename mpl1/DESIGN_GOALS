@@ -28,28 +28,33 @@ transformation from normalized figure units to display
 
 Do we want to use 3x3 or 4x4 to leave the door open for 3D developers?
 
-How do transformations (linear and nonlinear) play wtih Axis features
-(ticking and gridding).  The ideal is an framework in which ticking,
-gridding and labeling work intelligently with arbitrary
-transformations.  What is the proper transformation API?
+How do transformations (linear and nonlinear) play with Axis features
+(ticking and gridding).  The ideal is a framework in which ticking,
+gridding and labeling work intelligently with arbitrary, user
+supplied, transformations.  What is the proper transformation API?
 
 = Objects that talk to the backend "primitives" = 
 
 Have just a few, fairly rich obects, that the backends need to
 understand.  Clear candidates are a Path, Text and Image, but despite
-their similar names, don't confuse these with the current matplotlib
-eponymous matplotlib Artists, which are considerably higher level than
-what I'm thinking of here.  Each of these will carry their metadata,
-eg a path will carry its stroke color, facecolor, linewidth, etc...,
-and Text will carry its font size, color, etc....  We may need some
-optimizations down the road, but we should start small.  For now,
-let's call these objects "primitives".
+their names, don't confuse these with the eponymous matplotlib
+matplotlib Artists, which are higher level than what I'm thinking of
+here (eg matplotlib.text.Text does *a lot* of layout, and this would
+be offloaded ot the backend in this conception of the Text primitive).
+Each of these will carry their metadata, eg a path will carry its
+stroke color, facecolor, linewidth, etc..., and Text will carry its
+font size, color, etc....  We may need some optimizations down the
+road, but we should start small.  For now, let's call these objects
+"primitives".
+
+This approach requires the backends to be smarter, but they have to
+handle fewer entities.
 
 = Where do the plot functions live? =
 
-In matplotlib, the plot functions are axes methods and I think there
-is consensus that this is a poor design.  Where should these live,
-what should they create, etc?
+In matplotlib, the plot functions are matplotlib.axes.Axes methods and
+I think there is consensus that this is a poor design.  Where should
+these live, what should they create, etc?
 
 = How much of an intermediate artist layer do we need? = 
 
@@ -57,7 +62,7 @@ Do we want to create high level objects like Circle, Rectangle and
 Line, each of which manage a Path object under the hood?  Probably,
 for user convenience and general compability with matplotlib.  By
 using traits properly here, many current matplotlib Arists will be
-thin interfaces around one oer more primitives.  
+thin interfaces around one or more primitives.  
 
 I think the whole matplotlib.collections module is poorly designed,
 and should be chucked wholesale, in favor of faster, more elegant,
@@ -65,7 +70,8 @@ optimizations and special cases.  Just having the right Path object
 will reduce the need for many of these, eg LineCollection,
 PolygonCollection, etc...  Also, everything should be numpy enabled,
 and the sequence-of-python-tuples approach that many of the
-collections take should be dropped.
+collections take should be dropped. Obviously some of the more useful
+things there, like quad meshes, need to be ported and retained.
 
 = Z-ordering, containers, etc = 
 
@@ -73,7 +79,7 @@ Peter has been doing a lot of nice work on z-order and layers for
 chaco, stuff that looks really useful for picking, interaction, etc...
 We should look at this approach, and think carefully about how this
 should be handled.  Paul may be a good candidate for this, since he
-has been working recently on picking.
+has been working recently on the picking API.
 
 = Extension code = 
 
@@ -87,6 +93,10 @@ SWIG agg wrapper, we can also do images through there, getting rid of
 _image.cpp.  Having a fully featured, python-exposed agg wrapper will
 be a plus in mpl and beyond.  But with the agg license change, I'm
 open to discussion of other approaches.
+
+The major missing piece in ft2font, which is a pretty elaborate CXX
+module.  Michael may want to consider alternatives, including looking
+at the agg support for freetype, and the kiva/chaco approach.
 
 I want to do away with *all* GUI extension code.  This should live
 outside MPL if at all, eg in a toolkit if we need it.  This means
@@ -106,12 +116,12 @@ affines.
 
 = Axis handling = 
 
-The whole concept of the Axes needs to be rethought, in light of the
-fact that we need to support multiple axis objects on one Axes.  The
-matplotlib implementation assumes 1 xaxis and 1 yaxis per Axes, and we
-hack two y-axis support (examples/two_scales.py) with some transform
-shenanigans via twinx, but the approach is not generalizable and is
-unwieldy.
+The whole concept of the Axes object needs to be rethought, in light
+of the fact that we need to support multiple axis objects on one Axes.
+The matplotlib implementation assumes 1 xaxis and 1 yaxis per Axes,
+and we hack two y-axis support (examples/two_scales.py) with some
+transform shenanigans via twinx and multiple Axes where one is hidden,
+but the approach is not scalable and is unwieldy.
 
 This will require a fair amount of thought, but we should aim for
 supporting an arbitrary number of axis obects, presumably associated
@@ -122,19 +132,22 @@ axis implementations that draws the ticks with a single path using
 repeated MOVETO and LINETO, for example, which will be incomparably
 faster than using a separate object for each tick.
 
-= Breakage = 
+The other important featiure for axis support is that, for the most
+part, they should be arbitrarily placeable (eg a "detached" axis).
+
+= Breakage =
 
 I think we need to be prepared to break the hell out of matplotlib.
-The API will basically be a total rewrite.  pylab will still mostly
-work unchanged -- that is the beauty of pylab -- though API calls on
-return obects may be badly broken.  We can mitigate this pain if we
-desire with clever wrapper objects, but once you start calling methods
-on return objects, you join the community of power users, and this is
-the community I'm most willing to inconvenience with breakage.  We'll
-probably want to install into a new namespace, eg "mpl", and envision
-both matplotlib and mpl co-existing for some time.  In fact, mpl might
-depend on matplotlib initially, eg until a CXX free ft2font is
-available.
+The API will basically be a significant rewrite.  pylab will still
+mostly work unchanged -- that is the beauty of pylab -- though API
+calls on return objects may be badly broken.  We can mitigate this pain
+if we desire with clever wrapper objects, but once you start calling
+methods on return objects, you join the community of power users, and
+this is the community I'm most willing to inconvenience with breakage.
+We'll probably want to install into a new namespace, eg "mpl", and
+envision both matplotlib and mpl co-existing for some time.  In fact,
+mpl might depend on matplotlib initially, eg until a CXX-free ft2font
+is available.
 
 We should expect to be supporting and using matplotlib for a long
 time, since the proposals discussed here imply that it will be a long
@@ -162,9 +175,9 @@ core, eg traits, increasing the possibility of synergies.
 There is a legitimate need to be able to feed custom objects into
 matplotlib.  Recent versions of matplotlib support this with a unit
 registry in the "units" module.  A clear use case is plotting with
-native datetime objects, which is supported in 0.90 via the unit
-handling, which should probably be called "custom object handling and
-conversion".  This is a deep and complicated subject, involving
+native python datetime objects, which is supported in 0.90 via the
+unit handling, which should probably be called "custom object handling
+and conversion".  This is a deep and complicated subject, involving
 questions of where the original data live, how they are converted to
 useful types (arrays of floats) etc.  It's worth thinking this about
 as we discuss redesign issues.
