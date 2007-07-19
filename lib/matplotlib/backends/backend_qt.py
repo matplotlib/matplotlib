@@ -5,9 +5,8 @@ import sys
 
 import matplotlib
 from matplotlib import verbose
-from matplotlib.numerix import asarray, fromstring, UInt8, zeros, \
-     where, transpose, nonzero, indices, ones, nx
-import matplotlib.numerix as numerix
+from numpy import asarray, fromstring, zeros, \
+     where, transpose, nonzero, indices, ones
 from matplotlib.cbook import is_string_like, enumerate, onetrue
 from matplotlib.font_manager import fontManager
 from matplotlib.backend_bases import RendererBase, GraphicsContextBase, \
@@ -323,7 +322,7 @@ class NavigationToolbar2QT( NavigationToolbar2, qt.QWidget ):
         for text, tooltip_text, image_file, callback in self.toolitems:
             if text is not None:
                 qt.QObject.disconnect( self.buttons[ text ],
-                                       qt.SIGNAL( 'clicked()' ), 
+                                       qt.SIGNAL( 'clicked()' ),
                                        getattr( self, callback ) )
 
     def pan( self, *args ):

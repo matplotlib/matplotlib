@@ -8,7 +8,7 @@ import re
 import sys
 
 from numerix import arange, array, asarray, ones, zeros, \
-     nonzero, take, Float, log10, logical_and, \
+     nonzero, take, log10, logical_and, \
      dot, sin, cos, tan, pi, sqrt
 
 from artist import Artist, setp
@@ -118,7 +118,7 @@ class Tick(Artist):
 
     def contains(self, mouseevent):
         """Test whether the mouse event occured in the Tick marks.
-        
+
         This function always returns false.  It is more useful to test if the
         axis as a whole contains the mouse rather than the set of tick marks.
         """
@@ -492,7 +492,7 @@ class Axis(Artist):
     LABELPAD = 5
     OFFSETTEXTPAD = 3
 
-    def __str__(self): 
+    def __str__(self):
         return str(self.__class__).split('.')[-1] \
             + "(%d,%d)"%self.axes.transAxes.xy_tup((0,0))
 
@@ -657,7 +657,7 @@ class Axis(Artist):
     def get_offset_text(self):
         'Return the axis offsetText as a Text instance'
         return self.offsetText
-    
+
     def get_pickradius(self):
         'Return the depth of the axis used by the picker'
         return self.pickradius
@@ -901,11 +901,11 @@ class Axis(Artist):
         self.minor.locator = locator
         self.minor.locator.set_view_interval( self.get_view_interval() )
         self.minor.locator.set_data_interval( self.get_data_interval() )
-        
+
     def set_pickradius(self, pickradius):
         """
         Set the depth of the axis used by the picker
-        
+
         ACCEPTS: a distance in points
         """
         self.pickradius = pickradius
@@ -967,12 +967,12 @@ class Axis(Artist):
 
 class XAxis(Axis):
     __name__ = 'xaxis'
-    
+
     def contains(self,mouseevent):
         """Test whether the mouse event occured in the x axis.
         """
         if callable(self._contains): return self._contains(self,mouseevent)
-        
+
         xpixel,ypixel = mouseevent.x,mouseevent.y
         try:
             xaxes,yaxes = self.axes.transAxes.inverse_xy_tup((xpixel,ypixel))
@@ -1155,11 +1155,11 @@ class YAxis(Axis):
 
     def contains(self,mouseevent):
         """Test whether the mouse event occurred in the y axis.
-        
+
         Returns T/F, {}
         """
         if callable(self._contains): return self._contains(self,mouseevent)
-        
+
         xpixel,ypixel = mouseevent.x,mouseevent.y
         try:
             xaxes,yaxes = self.axes.transAxes.inverse_xy_tup((xpixel,ypixel))

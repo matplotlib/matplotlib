@@ -309,8 +309,8 @@ class Axes3DI(Axes):
 
         viewM = proj3d.view_transformation(E,R,V)
         perspM = proj3d.persp_transformation(zfront,zback)
-        M0 = nx.matrixmultiply(viewM,worldM)
-        M = nx.matrixmultiply(perspM,M0)
+        M0 = nx.dot(viewM,worldM)
+        M = nx.dot(perspM,M0)
         return M
 
     def mouse_init(self):
