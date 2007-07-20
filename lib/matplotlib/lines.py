@@ -107,7 +107,7 @@ def segment_hits(cx,cy,x,y,radius):
     points, = point_hits.ravel().nonzero()
     lines, = line_hits.ravel().nonzero()
     #print points,lines
-    return concatenate((points,lines))
+    return npy.concatenate((points,lines))
 
 class Line2D(Artist):
     lineStyles = _lineStyles =  { # hidden names deprecated
