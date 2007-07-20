@@ -97,5 +97,5 @@ ll,bb,ww,hh = CB.ax.get_position()
 CB.ax.set_position([ll, b+0.1*h, ww, h*0.8])
 
 
-savefig('contour_demo')
+#savefig('contour_demo')
 show()

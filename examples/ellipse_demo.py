@@ -1,6 +1,5 @@
-from pylab import figure, show, nx
+from pylab import figure, show, rand
 from matplotlib.patches import Ellipse
-rand = nx.mlab.rand
 
 NUM = 250
 
@@ -18,7 +17,7 @@ for e in ells:
 ax.set_xlim(0, 10)
 ax.set_ylim(0, 10)
 
-fig.savefig('../figures/ellipse_demo.eps')
-fig.savefig('../figures/ellipse_demo.png')
+#fig.savefig('ellipse_demo.eps')
+#fig.savefig('ellipse_demo.png')
 
 show()
