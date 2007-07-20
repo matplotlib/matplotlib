@@ -26,8 +26,7 @@ from matplotlib.text import Text
 
 from matplotlib.transforms import get_vec6_scales
 
-from matplotlib.numerix import UInt8, Float32, alltrue, array, ceil, equal, \
-    fromstring, nonzero, ones, put, take, where, isnan
+import numpy as npy
 import binascii
 import re
 import sets
@@ -113,7 +112,7 @@ def seq_allequal(seq1, seq2):
     #ok, neither are None:, assuming iterable
 
     if len(seq1) != len(seq2): return False
-    return alltrue(equal(seq1, seq2))
+    return npy.alltrue(npy.equal(seq1, seq2))
 
 
 class RendererPS(RendererBase):
@@ -336,20 +335,20 @@ class RendererPS(RendererBase):
     def _rgb(self, im):
         h,w,s = im.as_rgba_str()
 
-        rgba = fromstring(s, UInt8)
+        rgba = npy.fromstring(s, npy.uint8)
         rgba.shape = (h, w, 4)
         rgb = rgba[:,:,:3]
         return h, w, rgb.tostring()
 
     def _gray(self, im, rc=0.3, gc=0.59, bc=0.11):
         rgbat = im.as_rgba_str()
-        rgba = fromstring(rgbat[2], UInt8)
+        rgba = npy.fromstring(rgbat[2], npy.uint8)
         rgba.shape = (rgbat[0], rgbat[1], 4)
-        rgba_f = rgba.astype(Float32)
+        rgba_f = rgba.astype(npy.float32)
         r = rgba_f[:,:,0]
         g = rgba_f[:,:,1]
         b = rgba_f[:,:,2]
-        gray = (r*rc + g*gc + b*bc).astype(UInt8)
+        gray = (r*rc + g*gc + b*bc).astype(npy.uint8)
         return rgbat[0], rgbat[1], gray.tostring()
 
     def _hex_lines(self, s, chars_per_line=128):
@@ -490,7 +489,7 @@ grestore
         start = 0
         end = step
 
-        mask = where(isnan(x) + isnan(y), 0, 1)
+        mask = npy.where(npy.isnan(x) + npy.isnan(y), 0, 1)
 
         cliprect = gc.get_clip_rectangle()
         if cliprect:
@@ -512,7 +511,7 @@ grestore
 
     def draw_lines(self, gc, x, y, transform):
         """
-        x and y are equal length arrays, draw lines connecting each
+        x and y are npy.equal length arrays, draw lines connecting each
         point in x, y
         """
         if debugPS: self._pswriter.write('% draw_lines \n')
@@ -534,7 +533,7 @@ grestore
         start = 0
         end = step
 
-        skip = where(isnan(x) + isnan(y), 1, 0)
+        skip = npy.where(npy.isnan(x) + npy.isnan(y), 1, 0)
         points = zip(x,y,skip)
 
         self.push_gc(gc, store=1)
@@ -556,14 +555,14 @@ grestore
 
     def draw_lines_old(self, gc, x, y, transform=None):
         """
-        x and y are equal length arrays, draw lines connecting each
+        x and y are npy.equal length arrays, draw lines connecting each
         point in x, y
         """
         if debugPS: self._pswriter.write('% draw_lines \n')
 
         write = self._pswriter.write
 
-        mask = where(isnan(x) + isnan(y), 0, 1)
+        mask = npy.where(npy.isnan(x) + npy.isnan(y), 0, 1)
         if transform: # this won't be called if draw_markers is hidden
             if transform.need_nonlinear():
                 x,y,mask = transform.nonlinear_only_numerix(x, y, returnMask=1)
@@ -589,16 +588,16 @@ grestore
         points = zip(x,y)
 
         while start < len(x):
-            # put moveto on all the bad data and on the first good
+            # npy.put moveto on all the bad data and on the first good
             # point after the bad data
             codes = [('m','l')[int(i)] for i in mask]
-            ind = nonzero(mask[start:end+1]==0)+1
+            ind = npy.nonzero(mask[start:end+1]==0)+1
             if len(ind):
                 if ind[-1]>=len(codes):
                     ind = ind[:-1]
             for i in ind:
                 codes[i] = 'm'
-            # put a moveto on the first point, regardless
+            # npy.put a moveto on the first point, regardless
             codes[0] = 'm'
 
             thisx = x[start:end+1]
@@ -1384,7 +1383,7 @@ Here is the Ghostscript output:\n\n%s'% bbox_info)
         dy = (bbox[3]-bbox[1])/2
         l,b,r,t = (x-dx, y-dy, x+dx, y+dy)
 
-    bbox_info = '%%%%BoundingBox: %d %d %d %d' % (l, b, ceil(r), ceil(t))
+    bbox_info = '%%%%BoundingBox: %d %d %d %d' % (l, b, npy.ceil(r), npy.ceil(t))
     hires_bbox_info = '%%%%HiResBoundingBox: %.6f %.6f %.6f %.6f' % (l, b, r, t)
 
     return '\n'.join([bbox_info, hires_bbox_info])

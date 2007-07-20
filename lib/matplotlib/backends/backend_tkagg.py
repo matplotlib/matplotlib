@@ -17,7 +17,6 @@ from matplotlib.backend_bases import RendererBase, GraphicsContextBase, \
 
 from matplotlib.figure import Figure
 from matplotlib._pylab_helpers import Gcf
-from matplotlib.numerix import asarray
 
 import matplotlib.windowing as windowing
 from matplotlib.widgets import SubplotTool

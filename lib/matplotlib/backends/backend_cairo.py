@@ -19,9 +19,10 @@ Naming Conventions
 """
 
 from __future__ import division
-import os
-import sys
-import warnings
+import os, sys, warnings
+
+import numpy as npy
+
 def _fn_name(): return sys._getframe(1).f_code.co_name
 
 import cairo
@@ -38,7 +39,6 @@ from matplotlib.backend_bases import RendererBase, GraphicsContextBase,\
 from matplotlib.cbook      import enumerate, izip
 from matplotlib.figure     import Figure
 from matplotlib.mathtext   import math_parse_s_ft2font
-import matplotlib.numerix as numx
 from matplotlib.transforms import Bbox
 from matplotlib import rcParams
 
@@ -137,8 +137,8 @@ class RendererCairo(RendererBase):
         ctx.rotate(rotation)
         ctx.scale(width / 2.0, height / 2.0)
         ctx.new_sub_path()
-        ctx.arc(0.0, 0.0, 1.0, numx.pi * angle1 / 180.,
-                numx.pi * angle2 / 180.)
+        ctx.arc(0.0, 0.0, 1.0, npy.pi * angle1 / 180.,
+                npy.pi * angle2 / 180.)
         ctx.restore()
 
         self._fill_and_stroke (ctx, rgbFace)
@@ -243,7 +243,7 @@ class RendererCairo(RendererBase):
         # render by drawing a 0.5 radius circle
         ctx = gc.ctx
         ctx.new_path()
-        ctx.arc (x, self.height - y, 0.5, 0, 2*numx.pi)
+        ctx.arc (x, self.height - y, 0.5, 0, 2*npy.pi)
         self._fill_and_stroke (ctx, gc.get_rgb())
 
 
@@ -294,7 +294,7 @@ class RendererCairo(RendererBase):
 
            ctx.save()
            if angle:
-              ctx.rotate (-angle * numx.pi / 180)
+              ctx.rotate (-angle * npy.pi / 180)
            ctx.set_font_size (size)
            ctx.show_text (s)
            ctx.restore()
@@ -304,7 +304,7 @@ class RendererCairo(RendererBase):
         if _debug: print '%s.%s()' % (self.__class__.__name__, _fn_name())
         # mathtext using the gtk/gdk method
 
-        #if numx.which[0] == "numarray":
+        #if npy.which[0] == "numarray":
         #   warnings.warn("_draw_mathtext() currently works for numpy, but "
         #                 "not numarray")
         #   return
@@ -327,21 +327,21 @@ class RendererCairo(RendererBase):
         N = imw*imh
 
         # a numpixels by num fonts array
-        Xall = numx.zeros((N,len(fonts)), typecode=numx.UInt8)
+        Xall = npy.zeros((N,len(fonts)), npy.uint8)
 
         for i, font in enumerate(fonts):
             if angle == 90:
                 font.horiz_image_to_vert_image() # <-- Rotate
             imw, imh, s = font.image_as_str()
-            Xall[:,i] = numx.fromstring(s, numx.UInt8)
+            Xall[:,i] = npy.fromstring(s, npy.uint8)
 
         # get the max alpha at each pixel
-        Xs = numx.mlab.max (Xall,1)
+        Xs = npy.mlab.max (Xall,1)
 
         # convert it to it's proper shape
         Xs.shape = imh, imw
 
-        pa = numx.zeros(shape=(imh,imw,4), typecode=numx.UInt8)
+        pa = npy.zeros((imh,imw,4), npy.uint8)
         rgb = gc.get_rgb()
         pa[:,:,0] = int(rgb[0]*255)
         pa[:,:,1] = int(rgb[1]*255)
@@ -469,7 +469,7 @@ class GraphicsContextCairo(GraphicsContextBase):
             self.ctx.set_dash([], 0)  # switch dashes off
         else:
             self.ctx.set_dash (
-               self.renderer.points_to_pixels (numx.asarray(dashes)), offset)
+               self.renderer.points_to_pixels (npy.asarray(dashes)), offset)
 
 
     def set_foreground(self, fg, isRGB=None):
@@ -593,7 +593,7 @@ class FigureCanvasCairo (FigureCanvasBase):
         ctx = renderer.ctx
 
         if orientation == 'landscape':
-            ctx.rotate (numx.pi/2)
+            ctx.rotate (npy.pi/2)
             ctx.translate (0, -height_in_points)
             # cairo/src/cairo_ps_surface.c
             # '%%Orientation: Portrait' is always written to the file header

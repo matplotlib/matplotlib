@@ -8,11 +8,9 @@ from __future__ import division
 
 import sys, math, warnings
 
+import numpy as npy
+
 import agg
-from numerix import Float, alltrue, arange, array, logical_and, \
-     nonzero, searchsorted, take, asarray, ones, where, less, ravel, \
-     greater, cos, sin, pi, sqrt, less_equal, \
-     compress, zeros, concatenate, cumsum, typecode, NewAxis
 import numerix.ma as ma
 from matplotlib import verbose
 import artist
@@ -22,61 +20,64 @@ from colors import colorConverter
 
 from transforms import lbwh_to_bbox, LOG10
 from matplotlib import rcParams
+
 TICKLEFT, TICKRIGHT, TICKUP, TICKDOWN = range(4)
 
 def unmasked_index_ranges(mask, compressed = True):
     '''
-    Calculate the good data ranges in a masked 1-D array, based on mask.
+    Calculate the good data ranges in a masked 1-D npy.array, based on mask.
 
-    Returns Nx2 array with each row the start and stop indices
-    for slices of the compressed array corresponding to each of N
+    Returns Nx2 npy.array with each row the start and stop indices
+    for slices of the compressed npy.array corresponding to each of N
     uninterrupted runs of unmasked values.
     If optional argument compressed is False, it returns the
-    start and stop indices into the original array, not the
-    compressed array.
+    start and stop indices into the original npy.array, not the
+    compressed npy.array.
     Returns None if there are no unmasked values.
 
     Example:
 
-    y = ma.array(arange(5), mask = [0,0,1,0,0])
+    y = ma.array(npy.arange(5), mask = [0,0,1,0,0])
     #ii = unmasked_index_ranges(y.mask())
     ii = unmasked_index_ranges(ma.getmask(y))
         # returns [[0,2,] [2,4,]]
 
     y.compressed().filled()[ii[1,0]:ii[1,1]]
-        # returns array [3,4,]
-        # (The 'filled()' method converts the masked array to a numerix array.)
+        # returns npy.array [3,4,]
+        # (The 'filled()' method converts the masked npy.array to a numerix npy.array.)
 
     #i0, i1 = unmasked_index_ranges(y.mask(), compressed=False)
     i0, i1 = unmasked_index_ranges(ma.getmask(y), compressed=False)
         # returns [[0,3,] [2,5,]]
 
     y.filled()[ii[1,0]:ii[1,1]]
-        # returns array [3,4,]
+        # returns npy.array [3,4,]
 
     '''
-    m = concatenate(((1,), mask, (1,)))
-    indices = arange(len(mask) + 1)
+    m = npy.concatenate(((1,), mask, (1,)))
+    indices = npy.arange(len(mask) + 1)
     mdif = m[1:] - m[:-1]
-    i0 = compress(mdif == -1, indices)
-    i1 = compress(mdif == 1, indices)
+    i0 = npy.compress(mdif == -1, indices)
+    i1 = npy.compress(mdif == 1, indices)
     assert len(i0) == len(i1)
     if len(i1) == 0:
         return None
     if not compressed:
-        return concatenate((i0[:, NewAxis], i1[:, NewAxis]), axis=1)
+        return npy.concatenate((i0[:, npy.newaxis], i1[:, npy.newaxis]), axis=1)
     seglengths = i1 - i0
-    breakpoints = cumsum(seglengths)
-    ic0 = concatenate(((0,), breakpoints[:-1]))
+    breakpoints = npy.cumsum(seglengths)
+    ic0 = npy.concatenate(((0,), breakpoints[:-1]))
     ic1 = breakpoints
-    return concatenate((ic0[:, NewAxis], ic1[:, NewAxis]), axis=1)
+    return npy.concatenate((ic0[:, npy.newaxis], ic1[:, npy.newaxis]), axis=1)
 
 def segment_hits(cx,cy,x,y,radius):
     """Determine if any line segments are within radius of a point. Returns
     the list of line segments that are within that radius.
     """
     # Process single points specially
-    if len(x) < 2: return nonzero( (cx - x)**2 + (cy - y)**2 <= radius**2 )
+    if len(x) < 2:
+        res, = npy.nonzero( (cx - x)**2 + (cy - y)**2 <= radius**2 )
+        return res
 
     # We need to lop the last element off a lot.
     xr,yr = x[:-1],y[:-1]
@@ -88,7 +89,7 @@ def segment_hits(cx,cy,x,y,radius):
     u = ( (cx-xr)*dx + (cy-yr)*dy )/Lnorm_sq
     candidates = (u>=0) & (u<=1)
     #if any(candidates): print "candidates",xr[candidates]
-    
+
     # Note that there is a little area near one side of each point
     # which will be near neither segment, and another which will
     # be near both, depending on the angle of the lines.  The
@@ -166,7 +167,7 @@ class Line2D(Artist):
         else:
             return "Line2D(%s)"\
                 %(",".join(["(%g,%g)"%(x,y) for x,y in zip(self._x,self._y)]))
- 
+
     def __init__(self, xdata, ydata,
                  linewidth       = None, # all Nones default to rc
                  linestyle       = None,
@@ -198,7 +199,7 @@ class Line2D(Artist):
           dash_capstyle: ['butt' | 'round' | 'projecting']
           dash_joinstyle: ['miter' | 'round' | 'bevel']
           dashes: sequence of on/off ink in points
-          data: (array xdata, array ydata)
+          data: (npy.array xdata, npy.array ydata)
           figure: a matplotlib.figure.Figure instance
           label: any string
           linestyle or ls: [ '-' | '--' | '-.' | ':' | 'steps' | 'None' | ' ' | '' ]
@@ -214,8 +215,8 @@ class Line2D(Artist):
           solid_joinstyle: ['miter' | 'round' | 'bevel']
           transform: a matplotlib.transform transformation instance
           visible: [True | False]
-          xdata: array
-          ydata: array
+          xdata: npy.array
+          ydata: npy.array
           zorder: any number
         """
         Artist.__init__(self)
@@ -276,25 +277,25 @@ class Line2D(Artist):
 
         self.set_data(xdata, ydata)
         self._logcache = None
-        
+
         # TODO: do we really need 'newstyle'
         self._newstyle = False
 
     def contains(self, mouseevent):
         """Test whether the mouse event occurred on the line.  The pick radius determines
         the precision of the location test (usually within five points of the value).  Use
-        get/set pickradius() to view or modify it.  
-        
-        Returns True if any values are within the radius along with {'ind': pointlist}, 
-        where pointlist is the set of points within the radius.
-        
+        get/set pickradius() to view or modify it.
+
+        Returns True if any values are within the radius along with {'ind': pointlist},
+        npy.where pointlist is the set of points within the radius.
+
         TODO: sort returned indices by distance
         """
         if callable(self._contains): return self._contains(self,mouseevent)
-        
+
         if not is_numlike(self.pickradius):
             raise ValueError,"pick radius should be a distance"
-        
+
         if self._newstyle:
             # transform in backend
             x = self._x
@@ -310,11 +311,11 @@ class Line2D(Artist):
             pixels = self.pickradius
         else:
             pixels = self.figure.dpi.get()/72. * self.pickradius
-            
+
         if self._linestyle == 'None':
             # If no line, return the nearby point(s)
-            d = sqrt((xt-mouseevent.x)**2 + (yt-mouseevent.y)**2)
-            ind = nonzero(less_equal(d, pixels))
+            d = npy.sqrt((xt-mouseevent.x)**2 + (yt-mouseevent.y)**2)
+            ind, = npy.nonzero(npy.less_equal(d, pixels))
         else:
             # If line, return the nearby segment(s)
             ind = segment_hits(mouseevent.x,mouseevent.y,xt,yt,pixels)
@@ -324,21 +325,21 @@ class Line2D(Artist):
             print 'd', (xt-mouseevent.x)**2., (yt-mouseevent.y)**2.
             print d, pixels, ind
         return len(ind)>0,dict(ind=ind)
-    
+
     def get_pickradius(self):
         'return the pick radius used for containment tests'
         return self.pickradius
 
-    def set_pickradius(self,d): 
+    def set_pickradius(self,d):
         """Sets the pick radius used for containment tests
-        
+
         Accepts: float distance in points.
         """
         self.pickradius = d
-        
+
     def set_picker(self,p):
         """Sets the event picker details for the line.
-        
+
         Accepts: float distance in points or callable pick function fn(artist,event)
         """
         if callable(p):
@@ -346,7 +347,7 @@ class Line2D(Artist):
         else:
             self.pickradius = p
         self._picker = p
-        
+
     def get_window_extent(self, renderer):
         self._newstyle = hasattr(renderer, 'draw_markers')
         if self._newstyle:
@@ -385,7 +386,7 @@ class Line2D(Artist):
         """
         Set the x and y data
 
-        ACCEPTS: (array xdata, array ydata)
+        ACCEPTS: (npy.array xdata, npy.array ydata)
         """
 
         if len(args)==1:
@@ -400,15 +401,15 @@ class Line2D(Artist):
     def recache(self):
         #if self.axes is None: print 'recache no axes'
         #else: print 'recache units', self.axes.xaxis.units, self.axes.yaxis.units
-        x = ma.asarray(self.convert_xunits(self._xorig), Float)
-        y = ma.asarray(self.convert_yunits(self._yorig), Float)
+        x = ma.asarray(self.convert_xunits(self._xorig), float)
+        y = ma.asarray(self.convert_yunits(self._yorig), float)
 
         x = ma.ravel(x)
         y = ma.ravel(y)
         if len(x)==1 and len(y)>1:
-            x = x * ones(y.shape, Float)
+            x = x * npy.ones(y.shape, float)
         if len(y)==1 and len(x)>1:
-            y = y * ones(x.shape, Float)
+            y = y * npy.ones(x.shape, float)
 
         if len(x) != len(y):
             raise RuntimeError('xdata and ydata must be the same length')
@@ -423,8 +424,8 @@ class Line2D(Artist):
         else:
             self._segments = None
 
-        self._x = asarray(x, Float)
-        self._y = asarray(y, Float)
+        self._x = npy.asarray(x, float)
+        self._y = npy.asarray(y, float)
 
         self._logcache = None
 
@@ -433,7 +434,7 @@ class Line2D(Artist):
     def _is_sorted(self, x):
         "return true if x is sorted"
         if len(x)<2: return 1
-        return alltrue(x[1:]-x[0:-1]>=0)
+        return npy.alltrue(x[1:]-x[0:-1]>=0)
 
     def _get_plottable(self):
         # If log scale is set, only pos data will be returned
@@ -457,15 +458,15 @@ class Line2D(Artist):
         Nx = len(x)
         Ny = len(y)
 
-        if logx: indx = greater(x, 0)
-        else:    indx = ones(len(x))
+        if logx: indx = npy.greater(x, 0)
+        else:    indx = npy.ones(len(x))
 
-        if logy: indy = greater(y, 0)
-        else:    indy = ones(len(y))
+        if logy: indy = npy.greater(y, 0)
+        else:    indy = npy.ones(len(y))
 
-        ind = nonzero(logical_and(indx, indy))
-        x = take(x, ind)
-        y = take(y, ind)
+        ind, = npy.nonzero(npy.logical_and(indx, indy))
+        x = npy.take(x, ind)
+        y = npy.take(y, ind)
 
         self._logcache = logx, logy, x, y
         return x, y
@@ -559,7 +560,7 @@ class Line2D(Artist):
         else:
             return self._markerfacecolor
 
-        
+
     def get_markersize(self): return self._markersize
 
     def get_xdata(self, orig=True):
@@ -671,9 +672,9 @@ class Line2D(Artist):
 
     def set_xdata(self, x):
         """
-        Set the data array for x
+        Set the data npy.array for x
 
-        ACCEPTS: array
+        ACCEPTS: npy.array
         """
         try: del self._xsorted
         except AttributeError: pass
@@ -682,9 +683,9 @@ class Line2D(Artist):
 
     def set_ydata(self, y):
         """
-        Set the data array for y
+        Set the data npy.array for y
 
-        ACCEPTS: array
+        ACCEPTS: npy.array
         """
 
         self.set_data(self.get_xdata(), y)
@@ -710,9 +711,9 @@ class Line2D(Artist):
     def _draw_steps(self, renderer, gc, xt, yt):
         siz=len(xt)
         if siz<2: return
-        xt2=ones((2*siz,), typecode(xt))
+        xt2=npy.ones((2*siz,), xt.dtype)
         xt2[0:-1:2], xt2[1:-1:2], xt2[-1]=xt, xt[1:], xt[-1]
-        yt2=ones((2*siz,), typecode(yt))
+        yt2=npy.ones((2*siz,), yt.dtype)
         yt2[0:-1:2], yt2[1::2]=yt, yt
         gc.set_linestyle('solid')
 
@@ -797,9 +798,9 @@ class Line2D(Artist):
         if self._newstyle:
             N = 50.0
             r = w/2.
-            rads = (2*math.pi/N)*arange(N)
-            xs = r*cos(rads)
-            ys = r*sin(rads)
+            rads = (2*math.pi/N)*npy.arange(N)
+            xs = r*npy.cos(rads)
+            ys = r*npy.sin(rads)
             # todo: use curve3!
             path = agg.path_storage()
             path.move_to(xs[0], ys[0])

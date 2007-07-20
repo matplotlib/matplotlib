@@ -22,9 +22,6 @@ from matplotlib.backends.backend_gdk import RendererGDK, FigureCanvasGDK
 from matplotlib.cbook import is_string_like, enumerate
 from matplotlib.colors import colorConverter
 from matplotlib.figure import Figure
-import matplotlib.numerix as numerix
-from matplotlib.numerix import asarray, fromstring, UInt8, zeros, \
-     where, transpose, nonzero, indices, ones, nx
 from matplotlib.widgets import SubplotTool
 
 from matplotlib import lines
@@ -156,7 +153,7 @@ class FigureCanvasGTK (gtk.DrawingArea, FigureCanvasBase):
                   gdk.LEAVE_NOTIFY_MASK   |
                   gdk.POINTER_MOTION_MASK |
                   gdk.POINTER_MOTION_HINT_MASK)
-    
+
     def __init__(self, figure):
         if _debug: print 'FigureCanvasGTK.%s' % fn_name()
         FigureCanvasBase.__init__(self, figure)
@@ -1087,7 +1084,7 @@ if gtk.pygtk_version >= (2,4,0):
 
             hbox.show_all()
             self.set_extra_widget(hbox)
-            
+
         def get_filename_from_user (self):
             while True:
                 filename = None
@@ -1137,7 +1134,7 @@ class DialogLineprops:
 
     def __init__(self, lines):
         import gtk.glade
-        
+
         datadir = matplotlib.get_data_path()
         gladefile = os.path.join(datadir, 'lineprops.glade')
         if not os.path.exists(gladefile):
@@ -1279,7 +1276,7 @@ class DialogLineprops:
 # Unfortunately, the SVG renderer (rsvg) leaks memory under earlier
 # versions of pygtk, so we have to use a PNG file instead.
 try:
-    
+
     if gtk.pygtk_version < (2, 8, 0):
         icon_filename = 'matplotlib.png'
     else:

@@ -46,7 +46,7 @@ class Patch(artist.Artist):
     zorder = 1
     def __str__(self):
         return str(self.__class__).split('.')[-1]
-    
+
     def __init__(self,
                  edgecolor=None,
                  facecolor=None,
@@ -78,12 +78,12 @@ class Patch(artist.Artist):
     __init__.__doc__ = cbook.dedent(__init__.__doc__) % artist.kwdocd
 
     def contains(self, mouseevent):
-        """Test whether the mouse event occurred in the patch.  
-        
+        """Test whether the mouse event occurred in the patch.
+
         Returns T/F, {}
         """
         if callable(self._contains): return self._contains(self,mouseevent)
-        
+
         try:
             # TODO: make this consistent with patch collection algorithm
             x, y = self.get_transform().inverse_xy_tup((mouseevent.x, mouseevent.y))
@@ -268,7 +268,7 @@ class Patch(artist.Artist):
 class Shadow(Patch):
     def __str__(self):
         return "Shadow(%s)"%(str(self.patch))
-    
+
     def __init__(self, patch, ox, oy, props=None, **kwargs):
         """
         Create a shadow of the patch offset by ox, oy.  props, if not None is
@@ -321,7 +321,7 @@ class Rectangle(Patch):
     def __str__(self):
         return str(self.__class__).split('.')[-1] \
             + "(%g,%g;%gx%g)"%(self.xy[0],self.xy[1],self.width,self.height)
-    
+
     def __init__(self, xy, width, height,
                  **kwargs):
         """
@@ -424,7 +424,7 @@ class RegularPolygon(Patch):
     """
     def __str__(self):
         return "Poly%d(%g,%g)"%(self.numVertices,self.xy[0],self.xy[1])
-    
+
     def __init__(self, xy, numVertices, radius=5, orientation=0,
                  **kwargs):
         """
@@ -470,7 +470,7 @@ class Polygon(Patch):
     """
     def __str__(self):
         return "Poly(%g,%g)"%self.xy[0]
-    
+
     def __init__(self, xy, **kwargs):
         """
         xy is a sequence of (x,y) 2 tuples
@@ -529,7 +529,7 @@ class Arrow(Polygon):
         x2,y2 = self.xy[1]
         cx,cy = (x1+x2)/2.,(y1+y2)/2.
         return "Arrow(%g,%g)"%(cx,cy)
-    
+
     def __init__( self, x, y, dx, dy, width=1.0, **kwargs ):
         """Draws an arrow, starting at (x,y), direction and length
         given by (dx,dy) the width of the arrow is scaled by width
@@ -548,7 +548,7 @@ class Arrow(Polygon):
         cx = float(dx)/L
         sx = float(dy)/L
         M = npy.array( [ [ cx, sx],[ -sx, cx ] ] )
-        verts = npy.matrixmultiply( arrow, M )+ [x,y]
+        verts = npy.dot( arrow, M )+ [x,y]
         Polygon.__init__( self, [ tuple(t) for t in verts ], **kwargs )
     __init__.__doc__ = cbook.dedent(__init__.__doc__) % artist.kwdocd
 
@@ -560,7 +560,7 @@ class FancyArrow(Polygon):
         x2,y2 = self.xy[1]
         cx,cy = (x1+x2)/2.,(y1+y2)/2.
         return "FancyArrow(%g,%g)"%(cx,cy)
-    
+
     def __init__(self, x, y, dx, dy, width=0.001, length_includes_head=False, \
         head_width=None, head_length=None, shape='full', overhang=0, \
         head_starts_at_zero=False,**kwargs):
@@ -622,7 +622,7 @@ class FancyArrow(Polygon):
             cx = float(dx)/distance
             sx = float(dy)/distance
             M = npy.array([[cx, sx],[-sx,cx]])
-            verts = npy.matrixmultiply(coords, M) + (x+dx, y+dy)
+            verts = npy.dot(coords, M) + (x+dx, y+dy)
 
         Polygon.__init__(self, map(tuple, verts), **kwargs)
     __init__.__doc__ = cbook.dedent(__init__.__doc__) % artist.kwdocd
@@ -639,7 +639,7 @@ class YAArrow(Polygon):
         x2,y2 = self.xy[1]
         cx,cy = (x1+x2)/2.,(y1+y2)/2.
         return "YAArrow(%g,%g)"%(cx,cy)
-    
+
     def __init__(self, dpi, xytip, xybase, width=4, frac=0.1, headwidth=12, **kwargs):
         """
         xytip : (x,y) location of arrow tip
@@ -768,7 +768,7 @@ class Ellipse(Patch):
         self.center = xy
         self.width, self.height = width, height
         self.angle = angle
-    
+
     def contains(self,ev):
         if ev.xdata is None or ev.ydata is None: return False,{}
         inside = inellipse(ev.xdata,ev.ydata,
@@ -895,8 +895,7 @@ class PolygonInteractor:
         # display coords
         xt, yt = self.poly.get_transform().numerix_x_y(x, y)
         d = npy.sqrt((xt-event.x)**2 + (yt-event.y)**2)
-        indseq = npy.nonzero(npy.equal(d, npy.amin(d)))
-        ind = indseq[0]
+        ind, = npy.nonzero(npy.equal(d, npy.amin(d)))
 
         if d[ind]>=self.epsilon:
             ind = None

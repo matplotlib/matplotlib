@@ -6,12 +6,13 @@ A gd backend http://newcenturycomputers.net/projects/gdmodule.html
 from __future__ import division
 import sys, os, math, warnings
 
-try: import gd
+import numpy as npy
+
+try:
+    import gd
 except ImportError:
     print >>sys.stderr, 'You must first install the gd module http://newcenturycomputers.net/projects/gdmodule.html'
     sys.exit()
-
-
 
 from matplotlib.backend_bases import RendererBase, \
      GraphicsContextBase, FigureManagerBase, FigureCanvasBase
@@ -22,7 +23,6 @@ from matplotlib.colors import colorConverter
 from matplotlib.figure import Figure
 from matplotlib.transforms import Bbox
 from matplotlib.font_manager import fontManager
-from matplotlib.numerix import ones, array, nx, asarray
 # support old font names
 if (os.environ.has_key('GDFONTPATH') and not
     os.environ.has_key('TTFPATH')):
@@ -107,7 +107,7 @@ class RendererGD(RendererBase):
         """
         Draw a single line from x1,y1 to x2,y2
         """
-        self.draw_lines(gc, array([x1, x2]), array([y1, y2]))
+        self.draw_lines(gc, npy.array([x1, x2]), npy.array([y1, y2]))
 
     def draw_lines(self, gc, x, y):
         """
@@ -115,8 +115,8 @@ class RendererGD(RendererBase):
         point in x, y
         """
 
-        x = x.astype(nx.Int16)
-        y = self.height*ones(y.shape, nx.Int16) - y.astype(nx.Int16)
+        x = x.astype(npy.int16)
+        y = self.height*npy.ones(y.shape, npy.int16) - y.astype(npy.int16)
         style = self._set_gd_style(gc)
         self.im.lines( zip(x,y), style)
         self.flush_clip()
@@ -269,7 +269,7 @@ class RendererGD(RendererBase):
         convert point measures to pixes using dpi and the pixels per
         inch of the display
         """
-        return asarray(points)*(PIXELS_PER_INCH/72.0*self.dpi.get()/72.0)
+        return npy.asarray(points)*(PIXELS_PER_INCH/72.0*self.dpi.get()/72.0)
 
 
 class GraphicsContextGD(GraphicsContextBase):
