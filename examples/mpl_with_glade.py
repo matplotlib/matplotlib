@@ -6,7 +6,7 @@ from matplotlib.figure import Figure
 from matplotlib.axes import Subplot
 from matplotlib.backends.backend_gtkagg import FigureCanvasGTKAgg as FigureCanvas
 from matplotlib.backends.backend_gtkagg import NavigationToolbar2GTKAgg as NavigationToolbar
-from matplotlib.widgets import HorizontalSpanSelector
+from matplotlib.widgets import SpanSelector
 
 from matplotlib.numerix import arange, sin, pi
 import gtk
@@ -74,8 +74,8 @@ class WidgetsWrapper:
         def onselect(xmin, xmax):
             print xmin, xmax
 
-        span = HorizontalSpanSelector(self.axis, onselect, useblit=False,
-                                          rectprops=dict(alpha=0.5, facecolor='red') )
+        span = SpanSelector(self.axis, onselect, 'horizontal', useblit=False,
+                            rectprops=dict(alpha=0.5, facecolor='red') )
 
 
         self['vboxMain'].pack_start(self.canvas, True, True)

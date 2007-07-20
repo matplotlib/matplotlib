@@ -45,13 +45,13 @@ from matplotlib.backends.backend_wx import Toolbar, FigureCanvasWx,\
 from matplotlib.figure import Figure
 from matplotlib.axes import Subplot
 import matplotlib.numerix as numpy
-from wxPython.wx import *
+from wx import *
 
 
 
-class PlotFigure(wxFrame):
+class PlotFigure(Frame):
     def __init__(self):
-        wxFrame.__init__(self, None, -1, "Test embedded wxFigure")
+        Frame.__init__(self, None, -1, "Test embedded wxFigure")
 
         self.fig = Figure((9,8), 75)
         self.canvas = FigureCanvasWx(self, -1, self.fig)
@@ -62,16 +62,16 @@ class PlotFigure(wxFrame):
         # you don't need this under Linux
         tw, th = self.toolbar.GetSizeTuple()
         fw, fh = self.canvas.GetSizeTuple()
-        self.toolbar.SetSize(wxSize(fw, th))
+        self.toolbar.SetSize(Size(fw, th))
 
         # Create a figure manager to manage things
         self.figmgr = FigureManager(self.canvas, 1, self)
         # Now put all into a sizer
-        sizer = wxBoxSizer(wxVERTICAL)
+        sizer = BoxSizer(VERTICAL)
         # This way of adding to sizer allows resizing
-        sizer.Add(self.canvas, 1, wxLEFT|wxTOP|wxGROW)
+        sizer.Add(self.canvas, 1, LEFT|TOP|GROW)
         # Best to allow the toolbar to resize!
-        sizer.Add(self.toolbar, 0, wxGROW)
+        sizer.Add(self.toolbar, 0, GROW)
         self.SetSizer(sizer)
         self.Fit()
 
@@ -95,7 +95,7 @@ class PlotFigure(wxFrame):
         return self.toolbar
 
 if __name__ == '__main__':
-    app = wxPySimpleApp(0)
+    app = PySimpleApp(0)
     frame = PlotFigure()
     frame.plot_data()
     frame.Show()

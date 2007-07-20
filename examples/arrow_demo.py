@@ -205,7 +205,7 @@ def make_arrow_plot(data, size=4, display='length', shape='right', \
 
 
         M = array([[cx, sx],[-sx,cx]])
-        coords = matrixmultiply(orig_position, M) + [[x_pos, y_pos]]
+        coords = dot(orig_position, M) + [[x_pos, y_pos]]
         x, y = ravel(coords)
         orig_label = rate_labels[pair]
         label = '$%s_{_{\mathrm{%s}}}$' % (orig_label[0], orig_label[1:])
