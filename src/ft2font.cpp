@@ -876,25 +876,28 @@ FT2Font::get_descent(const Py::Tuple & args) {
   return Py::Int(- bbox.yMin);;
 }
 
+#undef	CLAMP
+#define CLAMP(x, low, high)  (((x) > (high)) ? (high) : (((x) < (low)) ? (low) : (x)))
+
 void
 FT2Font::draw_bitmap( FT_Bitmap*  bitmap,
 		      FT_Int      x,
 		      FT_Int      y) {
   _VERBOSE("FT2Font::draw_bitmap");
   FT_Int  i, j, p, q;
-  FT_Int  x_max = x + bitmap->width;
-  FT_Int  y_max = y + bitmap->rows;
-
   FT_Int width = (FT_Int)image.width;
   FT_Int height = (FT_Int)image.height;
-  for ( i = x, p = 0; i < x_max; i++, p++ )
-    {
-      for ( j = y, q = 0; j < y_max; j++, q++ )
-	{
-	  if ( i >= width || j >= height )
-	    continue;
-	  image.buffer[i + j*width] |= bitmap->buffer[p + q*bitmap->width];
 
+  FT_Int x1 = CLAMP(x, 0, width);
+  FT_Int y1 = CLAMP(y, 0, height);
+  FT_Int x2 = CLAMP(x + bitmap->width, 0, width);
+  FT_Int y2 = CLAMP(y + bitmap->rows, 0, height);
+
+  for ( i = x1, p = 0; i < x2; ++i, ++p )
+    {
+      for ( j = y1, q = 0; j < y2; ++j, ++q )
+	{
+	  image.buffer[i + j*width] |= bitmap->buffer[p + q*bitmap->pitch];
 	}
     }
 }
