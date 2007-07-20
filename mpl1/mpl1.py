@@ -2,9 +2,57 @@
 import enthought.traits.api as traits
 
 from matplotlib import agg
+from matplotlib import colors as mcolors
 import numpy as npy
 
-import mtraits  # some handy traits for mpl
+
+class ColorHandler(traits.TraitHandler):
+    is_mapped = True
+
+    def post_setattr(self, object, name, value):
+        object.__dict__[ name + '_' ] = self.mapped_value( value )
+
+    def mapped_value(self, value ):
+        if value is None: return None
+        return mcolors.colorConverter.to_rgba(value)
+    
+   
+    def validate(self, object, name, value):
+        try:
+            self.mapped_value(value)
+        except ValueError:
+            return self.error(object, name, value)
+        else:            
+            return value
+
+    def info(self):
+        return """\
+any valid matplotlib color, eg an abbreviation like 'r' for red, a full
+name like 'orange', a hex color like '#efefef', a grayscale intensity
+like '0.5', or an RGBA tuple (1,0,0,1)"""
+
+class MTraitsNamespace:
+    DPI         = traits.Float(72.)
+    Affine      = traits.Array('d', (3,3), npy.array([[1,0,0],[0,1,0],[0,0,1]], npy.float_))
+    Alpha       = traits.Range(0., 1., 0.)
+    AntiAliased = traits.true
+    Codes       = traits.Array('b', value=npy.array([0,0], dtype=npy.uint8))
+    Color       = traits.Trait('black', ColorHandler())
+    DPI         = traits.Float(72.)
+    Interval    = traits.Array('d', (2,), npy.array([0.0, 1.0], npy.float_))
+    LineStyle   = traits.Trait('-', '--', '-.', ':', 'steps', None)
+    LineWidth   = traits.Float(1.0)
+    Marker      = traits.Trait(None, '.', ',', 'o', '^', 'v', '<', '>', 's',
+                 '+', 'x', 'd', 'D', '|', '_', 'h', 'H',
+                 'p', '1', '2', '3', '4')
+    MarkerSize  = traits.Float(6)
+    Verts       = traits.Array('d', value=npy.array([[0,0],[0,0]], npy.float_))
+    PathData    = traits.Tuple(Codes, Verts)
+    Visible     = traits.true
+
+
+mtraits = MTraitsNamespace()
+
         
 def affine_axes(rect):
     'make an affine for a typical l,b,w,h axes rectangle'
@@ -35,7 +83,7 @@ def affine_rotation(theta):
                     dtype=npy.float_)
 
 
-class Renderer:
+class Renderer(traits.HasTraits):
     dpi = traits.Float(72.)
     
     def __init__(self, width, height):
@@ -161,7 +209,7 @@ class RendererAgg(Renderer):
         Locs = npy.dot(affineverts, Locs)
         
 
-        dpiscale = 1.0 # self.dpi/72. # for some reason this is broken 
+        dpiscale = self.dpi/72. # for some reason this is broken 
         # this will need to be highly optimized and hooked into some
         # extension code using cached marker rasters as we now do in
         # _backend_agg
@@ -210,15 +258,16 @@ class RendererAgg(Renderer):
 class Func(traits.HasTraits):
     def __call__(self, X):
         'transform the numpy array with shape N,2'
-        raise NotImplementedError
+        return X
     
     def invert(self, x, y):
         'invert the point x, y'
-        raise NotImplementedError
+        return x, y
 
     def point(self, x, y):
         'transform the point x, y'
-        raise NotImplementedError
+        return x, y
+        
 
 class Identity(Func):
     def __call__(self, X):
@@ -252,7 +301,7 @@ class Polar(Func):
         raise NotImplementedError
 
 
-mtraits.Model = traits.Trait(None, Identity, Polar)
+mtraits.Model = traits.Instance(Func, ())
 
 
     
@@ -268,7 +317,7 @@ class Path(traits.HasTraits):
     fillcolor   = mtraits.Color('blue')
     alpha       = mtraits.Alpha(1.0)
     linewidth   = mtraits.LineWidth(1.0)
-    antialiased = mtraits.FlexibleTrueTrait()
+    antialiased = mtraits.AntiAliased
     pathdata    = mtraits.PathData()
     affine      = mtraits.Affine()
 
@@ -309,8 +358,8 @@ class AggPath(Path):
         # hmm, I would have thought these would be called by the attr
         # setting above
         self._pathdata_changed(None, self.pathdata)
-        self._fillcolor_changed(None, self.fillcolor)
-        self._strokecolor_changed(None, self.strokecolor)                
+        self._fillcolor__changed(None, self.fillcolor_)
+        self._strokecolor__changed(None, self.strokecolor_)                
 
         
     @staticmethod
@@ -334,10 +383,10 @@ class AggPath(Path):
         self.agg_path = AggPath.make_agg_path(newdata)
 
         
-    def _fillcolor_changed(self, oldcolor, newcolor):        
+    def _fillcolor__changed(self, oldcolor, newcolor):        
         self.agg_fillcolor = self.color_to_rgba8(newcolor)
 
-    def _strokecolor_changed(self, oldcolor, newcolor):                
+    def _strokecolor__changed(self, oldcolor, newcolor):                
 
         c = self.color_to_rgba8(newcolor)
         self.agg_strokecolor = c
@@ -345,7 +394,7 @@ class AggPath(Path):
 
     def color_to_rgba8(self, color):
         if color is None: return None
-        rgba = [int(255*c) for c in color.r, color.g, color.b, color.a]
+        rgba = [int(255*c) for c in color]
         return agg.rgba8(*rgba)
 
 class Markers(traits.HasTraits):
@@ -405,8 +454,8 @@ artistID = IDGenerator()
 
 class Artist(traits.HasTraits):
     zorder  = traits.Float(1.0)
-    alpha   = mtraits.Alpha(1.0)
-    visible = mtraits.FlexibleTrueTrait()
+    alpha   = mtraits.Alpha()
+    visible = mtraits.Visible()
     affine  = mtraits.Affine()
     
     def __init__(self):
@@ -427,7 +476,7 @@ class Artist(traits.HasTraits):
 class Line(Artist):
 
     linestyle       = mtraits.LineStyle('-')
-    antialiased     = mtraits.FlexibleTrueTrait(True)
+    antialiased     = mtraits.AntiAliased()
     color           = mtraits.Color('blue')
     linewidth       = mtraits.LineWidth(1.0) 
     marker          = mtraits.Marker(None)
