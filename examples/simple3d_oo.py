@@ -2,12 +2,11 @@
 
 import matplotlib
 matplotlib.use('WXAgg')
-matplotlib.rcParams['numerix'] = 'numpy'
 
 from wx import *
 import matplotlib.axes3d
 import matplotlib.mlab
-from matplotlib import numerix as nx
+import numpy as npy
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_wxagg import FigureCanvasWxAgg, FigureManager, NavigationToolbar2WxAgg
 
@@ -39,13 +38,14 @@ class PlotFigure(Frame):
         ax3d = matplotlib.axes3d.Axes3D(self.fig)
         plt = self.fig.axes.append(ax3d)
 
-        delta = nx.pi / 199.0
-        u = nx.arange(0, 2*nx.pi+(delta*2), delta*2)
-        v = nx.arange(0, nx.pi+delta, delta)
+        delta = npy.pi / 199.0
+        u = npy.arange(0, 2*npy.pi+(delta*2), delta*2)
+        v = npy.arange(0, npy.pi+delta, delta)
 
-        x=nx.outerproduct(nx.cos(u),nx.sin(v))
-        y=nx.outerproduct(nx.sin(u),nx.sin(v))
-        z=nx.outerproduct(nx.ones(nx.size(u)), nx.cos(v))
+        x = npy.cos(u)[:,npy.newaxis] * npy.sin(v)[npy.newaxis,:]
+        y = npy.sin(u)[:,npy.newaxis] * npy.sin(v)[npy.newaxis,:]
+        z = npy.ones_like(u)[:,npy.newaxis] * npy.cos(v)[npy.newaxis,:]
+                # (there is probably a better way to calculate z)
         print x.shape, y.shape, z.shape
 
         #ax3d.plot_wireframe(x,y,z)
@@ -55,7 +55,7 @@ class PlotFigure(Frame):
         ax3d.set_xlabel('X')
         ax3d.set_ylabel('Y')
         ax3d.set_zlabel('Z')
-        self.fig.savefig('globe')
+        #self.fig.savefig('globe')
 
 if __name__ == '__main__':
     app = PySimpleApp(0)
