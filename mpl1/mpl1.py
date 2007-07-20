@@ -1,3 +1,22 @@
+"""
+Install instructions for traits 2.0
+
+   # blow away old enthought
+   rm -rf ~/dev/lib/python2.4/site-packages/enthought.*
+
+   # get easy_install, if necessary
+   wget  http://peak.telecommunity.com/dist/ez_setup.py
+   sudo python sez_setup.py
+
+   sudo easy_install -f http://code.enthought.com/enstaller/eggs/source/unstable "enthought.etsconfig < 3.0a" "enthought.util <3.0a" "enthought.debug <3.0a"
+
+   svn co https://svn.enthought.com/svn/enthought/branches/enthought.traits_2.0 enthought_traits
+
+   cd enthought_traits/
+   sudo python setup.py install 
+
+"""
+
 # see install instructions for enthrought traits2 in mtraits
 import enthought.traits.api as traits
 
@@ -7,6 +26,22 @@ import numpy as npy
 
 
 class ColorHandler(traits.TraitHandler):
+    """
+    This is a clever little traits mechanism -- users can specify the
+    color as any mpl color, and the traited object will keep the
+    original color, but will add a new attribute with a '_' postfix
+    which is the color rgba tuple.
+
+    Eg
+
+    class C(HasTraits):
+        fillcolor = traits.Trait('black', ColorHandler())
+
+    c = C()
+    c.fillcolor = 'red'
+    print c.fillcolor
+    print c.fillcolor_   # 
+    """
     is_mapped = True
 
     def post_setattr(self, object, name, value):
