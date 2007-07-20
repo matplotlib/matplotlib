@@ -46,49 +46,186 @@ class Affine(traits.HasTraits):
     rather DO
 
       a.translate_delta(10, 20)
+
+    Multiplication works as expected:
+
+      a1 = Affine()
+      a1.scale = 10, 20
+      a2 = Affine()
+      a2.scale = 4, 5
+      print a1*a2
+
+      x = numpy.random(3, 10)
+      print a1*x
+
+    All of the translate, scale, xlim, ylim and vec6 properties are
+    simply views into the data matrix, and are updated by reference
     """
-    data = traits.Array('d', (3,3), npy.array([[1,0,0],[0,1,0],[0,0,1]], npy.float_))
+    # connect to the data_modified event if you want a callback
+    data = traits.Array('d', (3,3))
 
-    translate = traits.Array('d', (2,), [0,0])
-    scale = traits.Array('d', (2,), [0,0])
-    vec6 =  traits.Array('d', (6,), [1,0,0,1,0,0])
+    translate = traits.Property(traits.Array('d', (2,)))
+    scale = traits.Property(traits.Array('d', (2,)))    
+    vec6 = traits.Property(traits.Array('d', (6,)))
 
-    def translate_delta(self, tx, ty):
-        oldtx, oldty = self.translate
-        self.translate = oldtx + tx, oldty + ty
-        
-    def _translate_changed(self, old, new):
-        #print 'translate change', new
-        tx, ty = new
-        self.data[0][-1] = tx
-        self.data[1][-1] = ty
-        self.vec6[-2:] = tx, ty
-    
-    def _vec6_changed(self, old, new):
-        #print 'vec6 change', new
-        sx, b, c, sy, tx, ty = new
-        self.data[0] = sx, b, tx
-        self.data[1] = c, sy, ty
-        self.translate = tx, ty
-        self.scale = sx, sy
-        
-    def _scale_changed(self, old, new):
-        #print 'scale change', new
-        sx, sy = new
-        self.data[0][0] = sx
-        self.data[1][1] = sy
+    xlim = traits.Property(traits.Array('d', (2,)))
+    ylim = traits.Property(traits.Array('d', (2,)))            
+
+    #data_modified = traits.Event 
+
+    def _data_default(self):
+        return npy.array([[1,0,0],[0,1,0],[0,0,1]], npy.float_)
 
 
-    def _data_changed(self, old, new):
-        #print 'data change', new
-
+    def _get_xlim(self):
         sx, b, tx = self.data[0]
+
+        return self._get_lim(sx, tx)
+
+    def _set_xlim(self, xlim):
+        xmin, xmax = xlim
+
+        oldsx, oldb, oldtx = self.data[0]
+        
+        sx = 1./(xmax-xmin)
+        tx = -xmin*sx
+
+        forward = oldsx!=sx or oldtx!=tx
+        if forward:
+            old = self.data.copy()
+            self.data[0][0] = sx
+            self.data[0][-1] = tx
+            self._data_changed(old, self.data)
+
+    def _get_ylim(self):
         c, sy, ty = self.data[1]
 
-        self.translate = tx, ty
-        self.scale = sx, sy
-        self.vec6 = sx, b, c, sy, tx, ty
+        return self._get_lim(sy, ty)
+
+    def _set_ylim(self, ylim):
+        ymin, ymax = ylim
+
+        oldc, oldsy, oldty = self.data[1]
         
+        sy = 1./(ymax-ymin)
+        ty = -ymin*sy
+
+        forward = oldsy!=sy or oldty!=ty
+        if forward:
+            old = self.data.copy()
+            self.data[1][1] = sy
+            self.data[1][-1] = ty
+            self._data_changed(old, self.data)
+            
+
+    def _get_translate(self):
+        return [self.data[0][-1], self.data[1][-1]]
+
+    def _set_translate(self, s):
+        oldtx = self.data[0][-1]
+        oldty = self.data[1][-1]        
+        
+        tx, ty = s
+
+        forward = tx!=oldtx or ty!=oldty
+        if forward:
+            old = self.data.copy()
+            self.data[0][-1] = tx
+            self.data[1][-1] = ty
+            self._data_changed(old, self.data)
+
+    def _get_scale(self):
+        return [self.data[0][0], self.data[1][1]]
+
+    def _set_scale(self, s):
+        oldsx = self.data[0][0]
+        oldsy = self.data[1][1]        
+        
+        sx, sy = s
+
+        forward = sx!=oldsx or sy!=oldsy
+        if forward:
+            old = self.data.copy()
+            self.data[0][0] = sx
+            self.data[1][1] = sy
+            self._data_changed(old, self.data)
+            
+    def _get_vec6(self):
+        a,b,tx = self.data[0]
+        c,d,ty = self.data[1]
+        return [a,b,c,d,tx,ty]
+
+    def _set_vec6(self, v):
+        a,b,c,d,tx,ty = v
+
+        olda, oldb, oldtx = self.data[0]
+        oldc, oldd, oldty = self.data[1]
+
+        forward = a!=olda or b!=oldb or c!=oldc or d!=oldd or tx!=oldtx or ty!=oldty
+        if forward:
+            old = self.data.copy()
+            self.data[0] = a,b,tx
+            self.data[1] = c,d,ty
+            self._data_changed(old, self.data)
+            
+
+    def _get_lim(self, s, t):
+        lmin = -t/s
+        lmax = 1./s + lmin
+        return lmin, lmax
+    
+    def _data_changed(self, old, new):
+        # Make it known if the translate changed
+        oldtx, oldty = old[0][-1], old[1][-1]
+        tx, ty = new[0][-1], new[1][-1]
+
+        oldsx, oldsy = old[0][0], old[1][1]
+        sx, sy = new[0][0], new[1][1]
+
+
+        oldb, oldc = old[0][1], old[1][0]
+        b, c = new[0][1], new[1][0]
+
+        tchanged = False
+        schanged = False
+        vchanged = False
+
+        tchanged = oldtx!=tx or oldty!=ty
+        schanged = oldsx!=sx or oldsy!=sy
+        vchanged = tchanged or schanged or b!=oldb or c!=oldc
+        xchanged = oldtx!=tx or oldsx!=sx
+        ychanged = oldty!=ty or oldsy!=sy        
+        
+        if tchanged:
+            self.trait_property_changed('translate', [oldtx, oldty], [tx, ty])
+
+        if schanged:
+            self.trait_property_changed('scale', [oldsx, oldsy], [sx, sy])
+
+        if xchanged:
+            oldxmin, oldxmax = self._get_lim(oldsx, oldtx)
+            xmin, xmax = self._get_lim(sx, tx)            
+            self.trait_property_changed('xlim', [oldxmin, oldxmax], [xmin, xmax])
+
+        if ychanged:
+            oldymin, oldymax = self._get_lim(oldsy, oldty)
+            ymin, ymax = self._get_lim(sy, ty)            
+            self.trait_property_changed('ylim', [oldymin, oldymax], [ymin, ymax])
+
+        if vchanged:
+            self.trait_property_changed(
+                'vec6',
+                [oldsx, oldb, oldc, oldsy, oldtx, oldty],
+                [sx, b, c, sy, tx, ty])
+            
+        if tchanged or schanged or vchanged:
+            #self._data_modified = True            
+            self.trait_property_changed('data_modified', old, new)
+
+        
+    def follow(self, othervec6):
+        self.vec6 = othervec6
+
         
     def __mul__(self, other):
         if isinstance(other, Affine):
@@ -101,8 +238,9 @@ class Affine(traits.HasTraits):
                         
 
     def __repr__(self):
-        
-        return 'AFFINE:\n%s'%self.data
+        return 'AFFINE: %s'%', '.join([str(val) for val in self.vec6])
+        #return 'AFFINE:\n%s'%self.data
+
 
     
 class ColorHandler(traits.TraitHandler):
@@ -169,17 +307,11 @@ class MTraitsNamespace:
 
 mtraits = MTraitsNamespace()
 
-        
-    
-    
-    
-
-
 class Renderer(traits.HasTraits):
     dpi = mtraits.DPI
     size = traits.Tuple(traits.Int(600), traits.Int(400))
 
-    affinerenderer = mtraits.Affine
+    adisplay = traits.Instance(Affine, ()) 
 
     def __init__(self, size=(600,400)):
 
@@ -192,12 +324,15 @@ class Renderer(traits.HasTraits):
         width, height = new
 
         # almost all renderers assume 0,0 is left, upper, so we'll flip y here by default
-        self.affinerenderer.translate = 0, height
-        self.affinerenderer.scale = width, -height
+        self.adisplay.translate = 0, height
+        self.adisplay.scale = width, -height
         
         
 
     def add_path(self, pathid, path):
+        # todo, we could use a traits dict here
+        if not isinstance(path, Path):
+            raise TypeError('add_path takes an ID and a Path instance')
         self.pathd[pathid] = path
 
     def remove_path(self, pathid):
@@ -205,6 +340,9 @@ class Renderer(traits.HasTraits):
             del self.pathd[pathid]
 
     def add_markers(self, markersid, markers):
+        # todo, we could use a traits dict here
+        if not isinstance(markers, Markers):
+            raise TypeError('add_markers takes an ID and a Markers instance')
         self.markersd[markersid] = markers
 
     def remove_markers(self, markersid):
@@ -266,8 +404,8 @@ class RendererAgg(Renderer):
             render_scanlines = agg.render_scanlines_bin_rgba
 
 
-        affine = self.affinerenderer * path.affine
-        #print 'display affine:\n', self.affinerenderer
+        affine = self.adisplay * path.affine
+        #print 'display affine:\n', self.adisplay
         #print 'path affine:\n', path.affine
         #print 'product affine:\n', affine
         aggaffine = agg.trans_affine(*affine.vec6)
@@ -301,7 +439,7 @@ class RendererAgg(Renderer):
 
 
 
-        affineverts = self.affinerenderer * markers.affine
+        affineverts = self.adisplay * markers.affine
 
         Nmarkers = markers.verts.shape[0]
         Locs = npy.ones((3, Nmarkers))
@@ -422,7 +560,7 @@ class Path(traits.HasTraits):
     linewidth   = mtraits.LineWidth(1.0)
     antialiased = mtraits.AntiAliased
     pathdata    = mtraits.PathData
-    affine      = mtraits.Affine
+    affine      = traits.Instance(Affine, ())
 
     def __init__(self):
 
@@ -451,7 +589,10 @@ class AggPath(Path):
         path.sync_trait('linewidth', self, mutual=False)
         path.sync_trait('antialiased', self, mutual=False)
         path.sync_trait('pathdata', self, mutual=False)
-        path.sync_trait('affine', self, mutual=False)
+
+        path.on_trait_change(self.affine.follow, 'vec6')
+
+
 
         # hmm, I would have thought these would be called by the attr
         # setting above
@@ -500,8 +641,8 @@ mtraits.Path = traits.Instance(Path, ())
 class Markers(traits.HasTraits):
     verts  = mtraits.Verts     # locations to draw the markers at
     path   = mtraits.Path       # marker path in points
-    affine = mtraits.Affine   # transformation for the verts
-    x      = traits.Float(1.0)
+    affine = traits.Instance(Affine, ()) # transformation for the verts
+
 
 
     
@@ -512,16 +653,16 @@ mtraits.Markers = traits.Instance(Markers, ())
 #     to a separable cartesian coordinate, eg for polar is takes r,
 #     theta -> r*cos(theta), r*sin(theta)
 #
-#   AxesCoords.affineview : an affine 3x3 matrix that takes model output and
+#   AxesCoords.adata : an affine 3x3 matrix that takes model output and
 #     transforms it to axes 0,1.  We are kind of stuck with the
 #     mpl/matlab convention that 0,0 is the bottom left of the axes,
 #     even though it contradicts pretty much every GUI layout in the
 #     world
 #
-#   AxesCoords.affineaxes: an affine 3x3 that transforms an axesview into figure
+#   AxesCoords.aview: an affine 3x3 that transforms an axesview into figure
 #     0,1 
 #
-#   Renderer.affinerenderer : takes an affine 3x3 and puts figure view into display.  0,
+#   Renderer.adisplay : takes an affine 3x3 and puts figure view into display.  0,
 #      0 is left, top, which is the typical coordinate system of most
 #      graphics formats
 
@@ -551,22 +692,77 @@ class Artist(traits.HasTraits):
     zorder  = traits.Float(1.0)
     alpha   = mtraits.Alpha()
     visible = mtraits.Visible()
-    affine  = mtraits.Affine
+
+    adata = traits.Instance(Affine, ())  # the data affine
+    aview = traits.Instance(Affine, ())  # the view affine
+    
+    affine  = traits.Instance(Affine, ()) # the product of the data and view affine
+
+    renderer = traits.Trait(None, Renderer)
+
     
     def __init__(self):
         self.artistid = artistID()
-        self.renderer = None
+        self.artistd = dict()
 
-        
-    def set_renderer(self, renderer):
-        self.renderer = renderer
+        # track affine as the product of the view and the data affines
+        # -- this should be a property, but I had trouble making a
+        # property on my custom class affine so this is a workaround
+        def product(ignore):
+            # modify in place
+            self.affine.follow((self.aview * self.adata).vec6)
+        product(None)  # force an affine product updated
+        self.adata.on_trait_change(product, 'vec6')
+        self.aview.on_trait_change(product, 'vec6')        
+
+
+    def _get_affine(self):
+        return self.aview * self.adata
+    
+    def add_artist(self, artist, followdata=True, followview=True):        
+        # this is a very interesting change from matplotlib -- every
+        # artist acts as a container that can hold other artists, and
+        # respects zorder drawing internally.  This makes zordering
+        # much more flexibel
+        self.artistd[artist.artistid] = artist
+        artist.renderer = self.renderer
+
+        artist.followdata = followdata
+        artist.followview = followview
+        if followdata:
+            # set the data affines to be the same
+            artist.adata.follow(self.adata.vec6)
+            self.adata.on_trait_change(artist.adata.follow, 'vec6')
+
+        if followview:
+            # set the view affines to be the same
+            artist.aview.follow(self.aview.vec6)
+            self.aview.on_trait_change(artist.aview.follow, 'vec6')
+
+
+        self.sync_trait('renderer', artist, mutual=False)
+
+    def remove_artist(self, artist):
+
+        if artist.followview:
+            self.aview.on_trait_change(artist.aview.follow, 'vec6', remove=True)
+            del artist.followview
+            
+        if artist.followdata:
+            self.adata.on_trait_change(artist.adata.follow, 'vec6', remove=True)
+            del artist.followdata
+
+        self.sync_trait('renderer', artist, remove=True)
+        del self.artistd[artist.artistid]        
 
     def draw(self):
-        pass
+        if self.renderer is None or not self.visible: return
 
-    def setp(self, **kwargs):
-        for k, v in kwargs.items():
-            setattr(self, k, v)
+        dsu = [(artist.zorder, artist.artistid, artist) for artist in self.artistd.values()]
+        dsu.sort()
+        for zorder, artistid, artist in dsu:
+            artist.draw()
+
             
 class Line(Artist):
 
@@ -603,8 +799,15 @@ class Line(Artist):
         self.sync_trait('markerfacecolor', self.markers.path, 'fillcolor', mutual=False)
         self.sync_trait('markeredgecolor', self.markers.path, 'strokecolor', mutual=False)
         self.sync_trait('markeredgewidth', self.markers.path, 'linewidth', mutual=False)                        
-        self.sync_trait('affine', self.markers, mutual=False)
-        self.sync_trait('affine', self.path, mutual=False)
+
+        # sync up the markers affine
+        self.markers.affine.follow(self.affine.vec6)
+        self.affine.on_trait_change(self.markers.affine.follow, 'vec6')
+
+        # sync up the path affine
+        self.path.affine.follow(self.affine.vec6)
+        self.affine.on_trait_change(self.path.affine.follow, 'vec6')
+        
 
         self.path.fillcolor = None
 
@@ -616,11 +819,9 @@ class Line(Artist):
             }        
 
     def draw(self):
-        if self.renderer is None:
-            raise RuntimeError('First call set_renderer')
 
-        if not self.visible: return
-
+        if self.renderer is None or not self.visible: return
+        Artist.draw(self)
 
         if self.linestyle is not None:
             self.renderer.render_path(self.pathid)
@@ -628,27 +829,34 @@ class Line(Artist):
             self.renderer.render_markers(self.markerid)        
         
 
-    def set_renderer(self, renderer):
-        if self.renderer is not None:
-            self.renderer.remove_path(self.pathid)
-            self.renderer.remove_markers(self.markerid)
+    def _renderer_changed(self, old, new):
+        if old is not None:
+            old.remove_path(self.pathid)
+            old.remove_markers(self.markerid)
 
-        renderer.add_path(self.pathid, self.path)
-        renderer.add_markers(self.markerid, self.markers)        
+        if new is not None:
+            new.add_path(self.pathid, self.path)
+            new.add_markers(self.markerid, self.markers)        
 
-        Artist.set_renderer(self, renderer)
 
-    def _X_changed(self, old, newx):
-        N = newx.shape[0]
+    def _model_changed(self, old, new):
+        self._update_data()
+
+    def _X_changed(self, old, new):
+        self._update_data()
+        
+    def _update_data(self):
+        N = self.X.shape[0]
         codes = Path.LINETO*npy.ones(N, dtype=npy.uint8)
         codes[0] = Path.MOVETO
 
         # todo, having touble setting Model to default to Identity so
         # allowing None as a hack workaround
+        #print 'X changed', self.model
         if self.model is not None:
-            modelx = self.model(newx)
+            modelx = self.model(self.X)
         else:
-            modelx = newx
+            modelx = self.X
         self.path.pathdata = codes, modelx
         self.markers.verts = modelx
 
@@ -674,6 +882,7 @@ class Line(Artist):
         
         self.markers.path.pathdata = codes, verts
 
+mtraits.Line = traits.Instance(Line, ())
 
 class Rectangle(Artist):
     facecolor = mtraits.Color('yellow')
@@ -690,9 +899,13 @@ class Rectangle(Artist):
         self.sync_trait('facecolor', self.path, 'fillcolor', mutual=False)
         self.sync_trait('edgecolor', self.path, 'strokecolor', mutual=False)
         self.sync_trait('edgewidth', self.path, 'linewidth', mutual=False)
-        self.sync_trait('affine', self.path, mutual=False)
 
         self.pathid = primitiveID()
+        # sync up the path affine
+        self.path.affine.follow(self.affine.vec6)
+        self.affine.on_trait_change(self.path.affine.follow, 'vec6')
+
+
 
 
     def _lbwh_changed(self, old, new):
@@ -706,141 +919,127 @@ class Rectangle(Artist):
 
         self.path.pathdata = codes, verts
 
-    def set_renderer(self, renderer):
-        if self.renderer is not None:
-            self.renderer.remove_path(self.pathid)
+    def _renderer_changed(self, old, new):
+        if old is not None:
+            old.remove_path(self.pathid)
 
-        renderer.add_path(self.pathid, self.path)
-        Artist.set_renderer(self, renderer)
+        if new is not None:
+            new.add_path(self.pathid, self.path)
 
     def draw(self):
-        if self.renderer is None:
-            raise RuntimeError('First call set_renderer')
-
-        if not self.visible: return
+        if self.renderer is None or not self.visible: return
+        Artist.draw(self)
         self.renderer.render_path(self.pathid)
-        
-class Figure:
+
+
+mtraits.Rectangle = traits.Instance(Rectangle, ())        
+
+class Figure(Artist):
+    pass
+
+
+
+class Axes(Artist):
+    zorder = traits.Float(0.5)
+    
+    xtickmarkers  = mtraits.Markers
+    xaxisline = mtraits.Line
+    xticklocs = traits.Array('d')
+    xaxislocy  = traits.Float(0.)  # the y location of the x-axis
+
+    ytickmarkers  = mtraits.Markers
+    yaxisline = mtraits.Line
+    yticklocs = traits.Array('d')
+    yaxislocx  = traits.Float(0.)  # the x location of the y-axis
+
     def __init__(self):
-        self.renderer = None
-        self.artistd = dict()
+        Artist.__init__(self)
+        self.xtickmarkersid = primitiveID()
+
+        self.xtickmarkers.affine.follow(self.adata.vec6)
+        self.adata.on_trait_change(self.xtickmarkers.affine.follow, 'vec6')
+
+    def _xticklocs_changed(self, old, new):
+        self._update_xtick_markers()
+
+    def _xaxislocy_changed(self, old, new):
+        self._update_xtick_markers()
+        
+    def _update_xtick_markers(self):
+        verts = self.xaxislocy*npy.ones(len(new))
+        verts[:,1] = new
+        self.xtickmarkers.verts = verts
+
+
+    def _renderer_changed(self, old, new):
+        if old is not None:
+            old.remove_markers(self.xtickmarkersid)
+
+        if new is not None:
+            new.add_markers(self.xtickmarkersid, self.xtickmarkers)        
 
     def draw(self):
-        if self.renderer is None:
-            raise RuntimeError('call set_renderer renderer first')
-
-        dsu = [(artist.zorder, artist.artistid, artist) for artist in self.artistd.values()]
-        dsu.sort()
-        for zorder, artistid, artist in dsu:
-            artist.draw()
-    
-    def set_renderer(self, renderer):
-        self.renderer = renderer
-
-        for artist in self.artistd.values():
-            artist.set_renderer(renderer)
-    
-
-
-class AxesCoords(traits.HasTraits):
-    xviewlim   = mtraits.Interval
-    yviewlim   = mtraits.Interval
-    affineview = mtraits.Affine
-    affineaxes = mtraits.Affine  
-    affine     = mtraits.Affine        
-        
-    def _affineview_changed(self, old, new):
-        self.affine = self.affineaxes * new
-
-    def _affineaxes_changed(self, old, new):
-        self.affine = new * self.affineview
-        
-    def _xviewlim_changed(self, old, new):
-
-        xmin, xmax = new
-        scale = 1./(xmax-xmin)
-        tx = -xmin*scale
-        self.affineview.data[0][0] = scale
-        self.affineview.data[0][-1] = tx
-        self.affine = self.affineaxes * self.affineview
-        
-    def _yviewlim_changed(self, old, new):
-        ymin, ymax = new
-        scale = 1./(ymax-ymin)
-        ty = -ymin*scale
-        self.affineview.data[1][1] = scale
-        self.affineview.data[1][-1] = ty
-        self.affine = self.affineaxes * self.affineview
-                                       
+        if self.renderer is None or not self.visible: return
+        #print 'Axes data affine:\n', self.adata
+        #print 'Axes view affine :\n', self.aview
+        #print 'Axes affine :\n', self.affine        
+        Artist.draw(self)
+        self.renderer.render_markers(self.xtickmarkersid)
 
 x1 = npy.arange(0, 10., 0.05)
 x2 = npy.arange(0, 10., 0.1)
 y1 = npy.cos(2*npy.pi*x1)
 y2 = 10*npy.exp(-x1)
 
-# the axes rectangle
-coords1 = AxesCoords()
-coords1.affineaxes = Affine()
-coords1.affineaxes.scale = 0.4, 0.4
-coords1.affineaxes.translate = 0.1, 0.1
-
 fig = Figure()
+axes = Axes()
 
-line1 = Line()
-line1.X = npy.array([x1,y1]).T
+axes.aview.scale = 0.4, 0.4
+axes.aview.translate = 0.1, 0.1
 
-line1.setp(color='blue', linewidth=2.0, marker='s', markersize=5.0,
-          markerfacecolor='green', markeredgewidth=0.5)
-coords1.sync_trait('affine', line1, mutual=False)
+fig.add_artist(axes, followdata=False, followview=False)
 
-fig.artistd[line1.artistid] = line1
+line1 = Line().set(X=npy.array([x1,y1]).T,
+                   color='blue', linewidth=2.0, marker='s', markersize=5.0,
+                   markerfacecolor='green', markeredgewidth=0.5)
 
 
-rect1 = Rectangle()
-rect1.lbwh = [0,0,1,1]
-rect1.facecolor = 'white'
-fig.artistd[rect1.artistid] = rect1
-coords1.sync_trait('affineaxes', rect1, 'affine', mutual=False)
+axes.add_artist(line1)
+
+
+rect1 = Rectangle().set(lbwh=[0,0,1,1], facecolor='white')
+axes.add_artist(rect1, followdata=False)
+
 
 
 # update the view limits, all the affines should be automagically updated
-coords1.xviewlim = 0, 10
-coords1.yviewlim = -1.1, 1.1
-
+axes.adata.xlim = 0, 10
+axes.adata.ylim = -1.1, 1.1
 
 
 if 1:
-    coords2 = AxesCoords()
-    coords2.affineaxes = Affine()
-    coords2.affineaxes.scale = 0.4, 0.4
-    coords2.affineaxes.translate = 0.55, 0.55
+    axes2 = Axes()
+
+    axes2.aview.scale = 0.4, 0.4
+    axes2.aview.translate = 0.55, 0.55
     
+    fig.add_artist(axes2, followdata=False, followview=False)
 
     r = npy.arange(0.0, 1.0, 0.01)
     theta = r*4*npy.pi
     
-    line2 = Line()
-    line2.model = Polar()
-    line2.setp(color='#ee8d18', linewidth=2.0)
-    line2.X = npy.array([r, theta]).T
-    coords2.sync_trait('affine', line2, mutual=False)
+    line2 = Line().set(X=npy.array([r, theta]).T, model=Polar(), color='#ee8d18', linewidth=2.0)
+    axes2.add_artist(line2)
 
-    rect2 = Rectangle()
-    rect2.lbwh = [0,0,1,1]
-    rect2.facecolor = '#d5de9c'
-    coords2.sync_trait('affineaxes', rect2, 'affine', mutual=False)
+    rect2 = Rectangle().set(lbwh=[0,0,1,1], facecolor='#d5de9c')
+    axes2.add_artist(rect2, followdata=False)
 
-    fig.artistd[line2.artistid] = line2
-    fig.artistd[rect2.artistid] = rect2    
-
-
-    coords2.xviewlim = -1.1, 1.1
-    coords2.yviewlim = -1.1, 1.1
-
+    axes2.adata.xlim = -1.1, 1.1
+    axes2.adata.ylim = -1.1, 1.1    
 
 
 if 1:
     renderer = RendererAgg()
-    fig.set_renderer(renderer)
+    fig.renderer = renderer
     fig.draw()
     renderer.show()
