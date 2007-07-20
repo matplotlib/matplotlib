@@ -162,7 +162,7 @@ class GTKInterpreter(threading.Thread):
         gobject.timeout_add(self.TIMEOUT, self.shell.runcode)
         try:
             if gtk.gtk_version[0] >= 2:
-                gtk.threads_init()
+                gtk.gdk.threads_init()
         except AttributeError:
             pass
         gtk.main()

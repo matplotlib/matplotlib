@@ -19,15 +19,15 @@ from matplotlib.backends.backend_wx import NavigationToolbar2Wx
 
 from matplotlib.figure import Figure
 
-from wxPython.wx import *
+from wx import *
 
-class CanvasFrame(wxFrame):
+class CanvasFrame(Frame):
 
     def __init__(self):
-        wxFrame.__init__(self,None,-1,
+        Frame.__init__(self,None,-1,
                          'CanvasFrame',size=(550,350))
 
-        self.SetBackgroundColour(wxNamedColor("WHITE"))
+        self.SetBackgroundColour(NamedColor("WHITE"))
 
         self.figure = Figure()
         self.axes = self.figure.add_subplot(111)
@@ -37,8 +37,8 @@ class CanvasFrame(wxFrame):
         self.axes.plot(t,s)
         self.canvas = FigureCanvas(self, -1, self.figure)
 
-        self.sizer = wxBoxSizer(wxVERTICAL)
-        self.sizer.Add(self.canvas, 1, wxLEFT | wxTOP | wxGROW)
+        self.sizer = BoxSizer(VERTICAL)
+        self.sizer.Add(self.canvas, 1, LEFT | TOP | GROW)
         self.SetSizer(self.sizer)
         self.Fit()
 
@@ -48,7 +48,7 @@ class CanvasFrame(wxFrame):
     def add_toolbar(self):
         self.toolbar = NavigationToolbar2Wx(self.canvas)
         self.toolbar.Realize()
-        if wxPlatform == '__WXMAC__':
+        if Platform == '__WXMAC__':
             # Mac platform (OSX 10.3, MacPython) does not seem to cope with
             # having a toolbar in a sizer. This work-around gets the buttons
             # back, but at the expense of having the toolbar at the top
@@ -61,8 +61,8 @@ class CanvasFrame(wxFrame):
             # By adding toolbar in sizer, we are able to put it at the bottom
             # of the frame - so appearance is closer to GTK version.
             # As noted above, doesn't work for Mac.
-            self.toolbar.SetSize(wxSize(fw, th))
-            self.sizer.Add(self.toolbar, 0, wxLEFT | wxEXPAND)
+            self.toolbar.SetSize(Size(fw, th))
+            self.sizer.Add(self.toolbar, 0, LEFT | EXPAND)
         # update the axes menu on the toolbar
         self.toolbar.update()
 
@@ -70,14 +70,14 @@ class CanvasFrame(wxFrame):
     def OnPaint(self, event):
         self.canvas.draw()
 
-class App(wxApp):
+class App(App):
 
     def OnInit(self):
         'Create the main window and insert the custom frame'
         frame = CanvasFrame()
-        frame.Show(true)
+        frame.Show(True)
 
-        return true
+        return True
 
 app = App(0)
 app.MainLoop()

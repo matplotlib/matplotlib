@@ -2364,7 +2364,7 @@ class Axes(martist.Artist):
 
         if len(xmin)==1:
             xmin = xmin*ones(y.shape, y.dtype)
-        if len(ymax)==1:
+        if len(xmax)==1:
             xmax = xmax*ones(y.shape, y.dtype)
 
         xmin = npy.asarray(xmin)

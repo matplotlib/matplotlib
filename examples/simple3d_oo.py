@@ -4,16 +4,16 @@ import matplotlib
 matplotlib.use('WXAgg')
 matplotlib.rcParams['numerix'] = 'numpy'
 
-from wxPython.wx import *
+from wx import *
 import matplotlib.axes3d
 import matplotlib.mlab
 from matplotlib import numerix as nx
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_wxagg import FigureCanvasWxAgg, FigureManager, NavigationToolbar2WxAgg
 
-class PlotFigure(wxFrame):
+class PlotFigure(Frame):
     def __init__(self):
-        wxFrame.__init__(self, None, -1, "Test embedded wxFigure")
+        Frame.__init__(self, None, -1, "Test embedded wxFigure")
 
         self.fig = Figure((9,8), 75)
         self.canvas = FigureCanvasWxAgg(self, -1, self.fig)
@@ -23,12 +23,12 @@ class PlotFigure(wxFrame):
         self.figmgr = FigureManager(self.canvas, 1, self)
         tw, th = self.toolbar.GetSizeTuple()
         fw, fh = self.canvas.GetSizeTuple()
-        self.toolbar.SetSize(wxSize(fw, th))
-        sizer = wxBoxSizer(wxVERTICAL)
+        self.toolbar.SetSize(Size(fw, th))
+        sizer = BoxSizer(VERTICAL)
 
         # This way of adding to sizer allows resizing
-        sizer.Add(self.canvas, 1, wxLEFT|wxTOP|wxGROW)
-        sizer.Add(self.toolbar, 0, wxGROW)
+        sizer.Add(self.canvas, 1, LEFT|TOP|GROW)
+        sizer.Add(self.toolbar, 0, GROW)
         self.SetSizer(sizer)
         self.Fit()
 
@@ -58,7 +58,7 @@ class PlotFigure(wxFrame):
         self.fig.savefig('globe')
 
 if __name__ == '__main__':
-    app = wxPySimpleApp(0)
+    app = PySimpleApp(0)
     frame = PlotFigure()
     frame.Show()
     app.MainLoop()

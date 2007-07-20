@@ -7,7 +7,7 @@ NBLITS = 1000
 
 import matplotlib
 matplotlib.use('WXAgg')
-matplotlib.rcParams['toolbar'] = None
+matplotlib.rcParams['toolbar'] = 'None'
 
 import wx
 import sys
