@@ -17,7 +17,7 @@ import numpy as npy
 from cStringIO import StringIO
 from datetime import datetime
 from math import ceil, cos, floor, pi, sin
-import sets
+from sets import Set
 
 from matplotlib import __version__, rcParams, agg, get_data_path
 from matplotlib._pylab_helpers import Gcf
@@ -931,9 +931,15 @@ class RendererPdf(RendererBase):
             fname = font.fname
         realpath, stat_key = get_realpath_and_stat(fname)
         used_characters = self.used_characters.setdefault(
-            stat_key, (realpath, sets.Set()))
+            stat_key, (realpath, Set()))
         used_characters[1].update(s)
 
+    def merge_used_characters(self, other):
+        for stat_key, (realpath, set) in other.items():
+            used_characters = self.used_characters.setdefault(
+                stat_key, (realpath, Set()))
+            used_characters[1].update(set)
+        
     def draw_arc(self, gcEdge, rgbFace, x, y, width, height,
                  angle1, angle2, rotation):
         """
@@ -1087,8 +1093,10 @@ class RendererPdf(RendererBase):
     def draw_mathtext(self, gc, x, y, s, prop, angle):
         # TODO: fix positioning and encoding
         fontsize = prop.get_size_in_points()
-        width, height, pswriter = math_parse_s_pdf(s, 72, fontsize, 0, self.track_characters)
-
+        width, height, pswriter, used_characters = \
+            math_parse_s_pdf(s, 72, fontsize, 0)
+        self.merge_used_characters(used_characters)
+        
         self.check_gc(gc, gc._rgb)
         self.file.output(Op.begin_text)
         prev_font = None, None
@@ -1201,8 +1209,8 @@ class RendererPdf(RendererBase):
 
         if ismath:
             fontsize = prop.get_size_in_points()
-            w, h, pswriter = math_parse_s_pdf(
-                s, 72, fontsize, 0, self.track_characters)
+            w, h, pswriter, used_characters = math_parse_s_pdf(
+                s, 72, fontsize, 0)
 
         elif rcParams['pdf.use14corefonts']:
             font = self._get_font_afm(prop)

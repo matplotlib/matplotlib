@@ -131,6 +131,7 @@ License   : matplotlib license (PSF compatible)
 from __future__ import division
 import os, sys
 from cStringIO import StringIO
+from sets import Set
 
 from matplotlib import verbose
 from matplotlib.pyparsing import Literal, Word, OneOrMore, ZeroOrMore, \
@@ -138,7 +139,7 @@ from matplotlib.pyparsing import Literal, Word, OneOrMore, ZeroOrMore, \
      StringStart, StringEnd, ParseException, FollowedBy, Regex
 
 from matplotlib.afm import AFM
-from matplotlib.cbook import enumerate, iterable, Bunch
+from matplotlib.cbook import enumerate, iterable, Bunch, get_realpath_and_stat
 from matplotlib.ft2font import FT2Font
 from matplotlib.font_manager import fontManager, FontProperties
 from matplotlib._mathtext_data import latex_to_bakoma, cmkern, \
@@ -704,7 +705,7 @@ class BakomaPSFonts(Fonts):
                 None  : 'cmmi10',
                 }
 
-    def __init__(self, character_tracker=None):
+    def __init__(self):
         self.glyphd = {}
         self.fonts = dict(
             [ (name, FT2Font(os.path.join(self.basepath, name) + '.ttf'))
@@ -717,8 +718,9 @@ class BakomaPSFonts(Fonts):
                 for charcode, glyphind in charmap.items()])
         for font in self.fonts.values():
             font.clear()
-        self.character_tracker = character_tracker
 
+        self.used_characters = {}
+            
     def _get_info (self, font, sym, fontsize, dpi):
         'load the cmfont, metrics and glyph with caching'
         key = font, sym, fontsize, dpi
@@ -745,8 +747,10 @@ class BakomaPSFonts(Fonts):
         head = cmfont.get_sfnt_table('head')
         glyph = cmfont.load_char(num)
 
-        if self.character_tracker:
-            self.character_tracker(cmfont, unichr(num))
+        realpath, stat_key = get_realpath_and_stat(cmfont.fname)
+        used_characters = self.used_characters.setdefault(
+            stat_key, (realpath, Set()))
+        used_characters[1].update(unichr(num))
 
         xmin, ymin, xmax, ymax = [val/64.0 for val in glyph.bbox]
         if basename == 'cmex10':
@@ -817,8 +821,6 @@ class BakomaPDFFonts(BakomaPSFonts):
         fontname, metrics, glyphname, offset = \
                 self._get_info(font, sym, fontsize, dpi)
         filename, num = self._get_filename_and_num(font, sym, fontsize, dpi)
-        if self.character_tracker:
-            self.character_tracker(filename, unichr(num))
         if fontname.lower() == 'cmex10':
             oy += offset - 512/2048.*10.
 
@@ -1545,12 +1547,11 @@ class math_parse_s_ft2font_common:
         self.output = output
         self.cache = {}
 
-    def __call__(self, s, dpi, fontsize, angle=0, character_tracker=None):
+    def __call__(self, s, dpi, fontsize, angle=0):
         cacheKey = (s, dpi, fontsize, angle)
         s = s[1:-1]  # strip the $ from front and back
         if self.cache.has_key(cacheKey):
-            w, h, fontlike = self.cache[cacheKey]
-            return w, h, fontlike
+            return self.cache[cacheKey]
         if self.output == 'SVG':
             self.font_object = BakomaTrueTypeFonts(useSVG=True)
             #self.font_object = MyUnicodeFonts(output='SVG')
@@ -1564,11 +1565,11 @@ class math_parse_s_ft2font_common:
                 self.font_object = StandardPSFonts()
                 Element.fonts = self.font_object
             else:
-                self.font_object = BakomaPSFonts(character_tracker)
+                self.font_object = BakomaPSFonts()
                 #self.font_object = MyUnicodeFonts(output='PS')
                 Element.fonts = self.font_object
         elif self.output == 'PDF':
-            self.font_object = BakomaPDFFonts(character_tracker)
+            self.font_object = BakomaPDFFonts()
             Element.fonts = self.font_object
 
         handler.clear()
@@ -1608,13 +1609,11 @@ class math_parse_s_ft2font_common:
             svg_elements = Bunch(svg_glyphs=self.font_object.svg_glyphs,
                     svg_lines=[])
             self.cache[cacheKey] = w, h, svg_elements
-            return w, h, svg_elements
         elif self.output == 'Agg':
             self.cache[cacheKey] = w, h, self.font_object.fonts.values()
-            return w, h, self.font_object.fonts.values()
         elif self.output in ('PS', 'PDF'):
-            self.cache[cacheKey] = w, h, pswriter
-            return w, h, pswriter
+            self.cache[cacheKey] = w, h, pswriter, self.font_object.used_characters
+        return self.cache[cacheKey]
 
 if rcParams["mathtext.mathtext2"]:
     from matplotlib.mathtext2 import math_parse_s_ft2font
