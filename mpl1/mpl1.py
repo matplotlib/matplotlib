@@ -252,7 +252,7 @@ class Polar(Func):
         raise NotImplementedError
 
 
-mtraits.Model = traits.Trait(Identity(), Polar())
+mtraits.Model = traits.Trait(None, Identity, Polar)
 
 
     
@@ -265,12 +265,12 @@ class Path(traits.HasTraits):
     MOVETO, LINETO, CLOSEPOLY = range(3)
     
     strokecolor = mtraits.Color('black')
-    fillcolor = mtraits.Color('blue')
-    alpha = mtraits.Alpha(1.0)
-    linewidth = mtraits.LineWidth(1.0)
+    fillcolor   = mtraits.Color('blue')
+    alpha       = mtraits.Alpha(1.0)
+    linewidth   = mtraits.LineWidth(1.0)
     antialiased = mtraits.FlexibleTrueTrait()
-    pathdata = mtraits.PathData()
-    affine = mtraits.Affine()
+    pathdata    = mtraits.PathData()
+    affine      = mtraits.Affine()
 
     def __init__(self):
 
@@ -279,11 +279,10 @@ class Path(traits.HasTraits):
         # instances, which is not what I want
         self.strokecolor = 'black'
         self.fillcolor = 'blue'
-        self.pathdata = (npy.array([0,0], npy.uint8), # codes
-                         npy.array([[0,0], [0,0]]))     # verts
         self.affine = affine_identity()
-        
-                         
+        self.pathdata  = (npy.array([0,0], npy.uint8),   # codes
+                          npy.array([[0,0], [0,0]]))     # verts
+    
 mtraits.Path = traits.Trait(Path())
 
 class AggPath(Path):
@@ -350,10 +349,10 @@ class AggPath(Path):
         return agg.rgba8(*rgba)
 
 class Markers(traits.HasTraits):
-    verts = mtraits.Verts()     # locations to draw the markers at
-    path = mtraits.Path()       # marker path in points
+    verts  = mtraits.Verts()     # locations to draw the markers at
+    path   = mtraits.Path()       # marker path in points
     affine = mtraits.Affine()   # transformation for the verts
-    x = traits.Float(1.0)
+    x      = traits.Float(1.0)
 
     def __init__(self):
         # this is a quick workaround to prevent sharing obs; see Path
@@ -405,10 +404,10 @@ primitiveID = IDGenerator()
 artistID = IDGenerator()
 
 class Artist(traits.HasTraits):
-    zorder = traits.Float(1.0)
-    alpha = mtraits.Alpha(1.0)
+    zorder  = traits.Float(1.0)
+    alpha   = mtraits.Alpha(1.0)
     visible = mtraits.FlexibleTrueTrait()
-    affine = mtraits.Affine()
+    affine  = mtraits.Affine()
     
     def __init__(self):
         self.artistid = artistID()
@@ -439,8 +438,8 @@ class Line(Artist):
     path            = mtraits.Path()
     markers         = mtraits.Markers()
     X               = mtraits.Verts()
-    model           = mtraits.Model(Identity())
-
+    model           = mtraits.Model
+    zorder          = traits.Float(2.0)
     
     def __init__(self):
         """
@@ -449,6 +448,19 @@ class Line(Artist):
         """
         Artist.__init__(self)
 
+        # this is potentially a big problem because you have to know
+        # which attrs may be shared and hence have to be initialized
+        # and which ones don't.  Eg, if you comment out the self.path
+        # init, the code breaks
+        self.color      = 'blue'
+        self.markerfacecolor = 'blue'
+        self.markeredgecolor = 'black'
+        self.path            = Path()
+        self.markers         = Markers()
+        self.X               = npy.array([[0,1], [0,1]], npy.float_)
+        self.model           = Identity()
+        #self.model           = None # switch comments with above to reveal bug        
+                                        
         self.sync_trait('linewidth', self.path, 'linewidth', mutual=False)
         self.sync_trait('color', self.path, 'strokecolor', mutual=False)
         self.sync_trait('markerfacecolor', self.markers.path, 'fillcolor', mutual=False)
@@ -494,10 +506,14 @@ class Line(Artist):
         codes = Path.LINETO*npy.ones(N, dtype=npy.uint8)
         codes[0] = Path.MOVETO
 
-        modelx = self.model(newx)
+        # todo, having touble setting Model to default to Identity so
+        # allowing None as a hack workaround
+        if self.model is not None:
+            modelx = self.model(newx)
+        else:
+            modelx = newx
         self.path.pathdata = codes, modelx
         self.markers.verts = modelx
-
 
     def _markersize_changed(self, oldX, newX):
         self._refresh_markers()
@@ -526,25 +542,27 @@ class Rectangle(Artist):
     facecolor = mtraits.Color('Yellow')
     edgecolor = mtraits.Color('Black')
     edgewidth = mtraits.LineWidth(1.0)
-    lbwh = traits.Array('d', (4,), [0,0,1,1])
-    path = mtraits.Path()
-    
+    lbwh      = traits.Array('d', (4,), [0,0,1,1])
+    path      = mtraits.Path()
+    zorder    = traits.Float(1.0)
+
     def __init__(self):
+        Artist.__init__(self)
         self.facecolor = 'yellow'
         self.edgecolor = 'black'
         self.edgewidth = 1.0
         self.lbwh = 0,0,1,1
         self.path = Path()
         
-        self.sync_trait('facecolor', self, 'fillcolor', True)
-        self.sync_trait('edgecolor', self, 'strokecolor', True)
-        self.sync_trait('edgewidth', self, 'linewidth', True)
-        self.sync_trait('affine', self.markers)
+        self.sync_trait('facecolor', self.path, 'fillcolor', mutual=False)
+        self.sync_trait('edgecolor', self.path, 'strokecolor', mutual=False)
+        self.sync_trait('edgewidth', self.path, 'linewidth', mutual=False)
+        self.sync_trait('affine', self.path, mutual=False)
 
         self.pathid = primitiveID()
-        
+
+
     def _lbwh_changed(self, old, new):
-        print 'lbwh changed'
         l,b,w,h = new
         t = b+h
         r = l+w
@@ -567,7 +585,6 @@ class Rectangle(Artist):
             raise RuntimeError('First call set_renderer')
 
         if not self.visible: return
-
         self.renderer.render_path(self.pathid)
         
 class Figure:
@@ -593,11 +610,11 @@ class Figure:
 
 
 class AxesCoords(traits.HasTraits):
-    xviewlim = mtraits.Interval()
-    yviewlim = mtraits.Interval()
+    xviewlim   = mtraits.Interval()
+    yviewlim   = mtraits.Interval()
     affineview = mtraits.Affine()
     affineaxes = mtraits.Affine()  
-    affine = mtraits.Affine()        
+    affine     = mtraits.Affine()        
 
     def __init__(self):
         self.xviewlim = npy.array([0., 1.])
@@ -630,7 +647,7 @@ class AxesCoords(traits.HasTraits):
         self.affine = npy.dot(self.affineaxes, self.affineview)
                                        
 
-x1 = npy.arange(0, 10., 0.1)
+x1 = npy.arange(0, 10., 0.05)
 x2 = npy.arange(0, 10., 0.1)
 y1 = npy.cos(2*npy.pi*x1)
 y2 = 10*npy.exp(-x1)
@@ -646,26 +663,26 @@ line1 = Line()
 line1.X = npy.array([x1,y1]).T
 
 line1.setp(color='blue', linewidth=2.0, marker='s', markersize=5.0,
-           markerfacecolor='green', markeredgewidth=0.5)
+          markerfacecolor='green', markeredgewidth=0.5)
 coords1.sync_trait('affine', line1, mutual=False)
 
 fig.artistd[line1.artistid] = line1
+
 
 rect1 = Rectangle()
 rect1.lbwh = [0,0,1,1]
 rect1.facecolor = 'white'
 fig.artistd[rect1.artistid] = rect1
+coords1.sync_trait('affineaxes', rect1, 'affine', mutual=False)
 
-
-#coords1.sync_trait('affineaxes', rect1, 'affine')
 
 # update the view limits, all the affines should be automagically updated
 coords1.xviewlim = 0, 10
 coords1.yviewlim = -1.1, 1.1
 
 
-if 0:
-    # the axes rectangle
+
+if 1:
     axrect2 = [0.55, 0.55, 0.4, 0.4]
     coords2 = AxesCoords()
     coords2.affineaxes = affine_axes(axrect2)
@@ -673,16 +690,22 @@ if 0:
 
     r = npy.arange(0.0, 1.0, 0.01)
     theta = r*4*npy.pi
-
-    line2 = Line(r, theta, model=Polar(), color='#ee8d18', linewidth=2.0)
-    rect2 = Rectangle([0,0,1,1], facecolor='#d5de9c')
+    
+    line2 = Line()
+    line2.model = Polar()
+    line2.setp(color='#ee8d18', linewidth=2.0)
+    line2.X = npy.array([r, theta]).T
     coords2.sync_trait('affine', line2, mutual=False)
+
+    rect2 = Rectangle()
+    rect2.lbwh = [0,0,1,1]
+    rect2.facecolor = '#d5de9c'
     coords2.sync_trait('affineaxes', rect2, 'affine', mutual=False)
 
-    fig.add_path(rect2)
-    fig.add_path(line2)
+    fig.artistd[line2.artistid] = line2
+    fig.artistd[rect2.artistid] = rect2    
 
-    # update the view limits, all the affines should be automagically updated
+
     coords2.xviewlim = -1.1, 1.1
     coords2.yviewlim = -1.1, 1.1
 
