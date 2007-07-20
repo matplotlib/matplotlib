@@ -16,9 +16,6 @@ if gtk.pygtk_version < pygtk_version_required:
                       % (gtk.pygtk_version + pygtk_version_required))
 del pygtk_version_required
 
-from numpy import amax, asarray, fromstring, int16, uint8, zeros, \
-     where, transpose, nonzero, indices, ones
-
 import matplotlib
 from matplotlib._pylab_helpers import Gcf
 from matplotlib.backend_bases import RendererBase, GraphicsContextBase, \
@@ -26,6 +23,10 @@ from matplotlib.backend_bases import RendererBase, GraphicsContextBase, \
 from matplotlib.cbook import is_string_like, enumerate
 from matplotlib.figure import Figure
 from matplotlib.mathtext import math_parse_s_ft2font
+import matplotlib.numerix as numerix
+from matplotlib.numerix import asarray, fromstring, UInt8, zeros, \
+     where, transpose, nonzero, indices, ones, nx
+
 
 from matplotlib.backends._backend_gdk import pixbuf_get_pixels_array
 
@@ -105,7 +106,7 @@ class RendererGDK(RendererBase):
         im.flipud_out()
         rows, cols, image_str = im.as_rgba_str()
 
-        image_array = fromstring(image_str, uint8)
+        image_array = fromstring(image_str, UInt8)
         image_array.shape = rows, cols, 4
 
         pixbuf = gtk.gdk.Pixbuf(gtk.gdk.COLORSPACE_RGB,
@@ -143,8 +144,8 @@ class RendererGDK(RendererBase):
 
     def draw_lines(self, gc, x, y, transform=None):
         if gc.gdkGC.line_width > 0:
-            x = x.astype(int16)
-            y = self.height - y.astype(int16)
+            x = x.astype(nx.Int16)
+            y = self.height - y.astype(nx.Int16)
             self.gdkDrawable.draw_lines(gc.gdkGC, zip(x,y))
 
 
@@ -212,16 +213,16 @@ class RendererGDK(RendererBase):
         N = imw*imh
 
         # a numpixels by num fonts array
-        Xall = zeros((N,len(fonts)), uint8)
+        Xall = zeros((N,len(fonts)), typecode=UInt8)
 
         for i, font in enumerate(fonts):
             if angle == 90:
                 font.horiz_image_to_vert_image() # <-- Rotate
             imw, imh, image_str = font.image_as_str()
-            Xall[:,i] = fromstring(image_str, uint8)
+            Xall[:,i] = fromstring(image_str, UInt8)
 
         # get the max alpha at each pixel
-        Xs = amax(Xall,axis=1)
+        Xs = numerix.mlab.max(Xall,1)
 
         # convert it to it's proper shape
         Xs.shape = imh, imw

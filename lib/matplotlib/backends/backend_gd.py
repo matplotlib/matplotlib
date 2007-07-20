@@ -12,7 +12,6 @@ except ImportError:
     sys.exit()
 
 
-from numpy import ones, array, int16, asarray
 
 from matplotlib.backend_bases import RendererBase, \
      GraphicsContextBase, FigureManagerBase, FigureCanvasBase
@@ -23,6 +22,7 @@ from matplotlib.colors import colorConverter
 from matplotlib.figure import Figure
 from matplotlib.transforms import Bbox
 from matplotlib.font_manager import fontManager
+from matplotlib.numerix import ones, array, nx, asarray
 # support old font names
 if (os.environ.has_key('GDFONTPATH') and not
     os.environ.has_key('TTFPATH')):
@@ -115,8 +115,8 @@ class RendererGD(RendererBase):
         point in x, y
         """
 
-        x = x.astype(int16)
-        y = self.height*ones(y.shape, int16) - y.astype(int16)
+        x = x.astype(nx.Int16)
+        y = self.height*ones(y.shape, nx.Int16) - y.astype(nx.Int16)
         style = self._set_gd_style(gc)
         self.im.lines( zip(x,y), style)
         self.flush_clip()

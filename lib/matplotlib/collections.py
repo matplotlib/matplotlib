@@ -145,14 +145,14 @@ class PatchCollection(Collection, cm.ScalarMappable):
     def contains(self, mouseevent):
         """
         Test whether the mouse event occurred in the collection.
-
+        
         Returns T/F, dict(ind=itemlist), where every item in itemlist contains the event.
         """
         if callable(self._contains): return self._contains(self,mouseevent)
         # TODO: Consider doing the test in data coordinates
         # Patch transforms the mouse into data coordinates and does the
         # test for membership there.  This is more efficient though it
-        # may not match the visual appearance of the polygon on the
+        # may not match the visual appearance of the polygon on the 
         # screen.  Regardless, patch and patch collection should use
         # the same algorithm.  Here's the code in patch:
         #
@@ -338,7 +338,7 @@ class PolyCollection(PatchCollection):
         """
         verts is a sequence of ( verts0, verts1, ...) where verts_i is
         a sequence of xy tuples of vertices, or an equivalent
-        numpy array of shape (nv,2).
+        numerix array of shape (nv,2).
 
         %(PatchCollection)s
         """
@@ -461,7 +461,7 @@ class RegularPolyCollection(PatchCollection):
     def get_transformed_patches(self):
         # Shouldn't need all these calls to asarray;
         # the variables should be converted when stored.
-        # Similar speedups with numpy should be attainable
+        # Similar speedups with numerix should be attainable
         # in many other places.
         verts = npy.asarray(self._verts)
         offsets = npy.asarray(self._offsets)
@@ -588,7 +588,7 @@ class LineCollection(Collection, cm.ScalarMappable):
         """
         segments is a sequence of ( line0, line1, line2), where
         linen = (x0, y0), (x1, y1), ... (xm, ym), or the
-        equivalent numpy array with two columns.
+        equivalent numerix array with two columns.
         Each line can be a different length.
 
         colors must be a tuple of RGBA tuples (eg arbitrary color
@@ -616,7 +616,7 @@ class LineCollection(Collection, cm.ScalarMappable):
 
         norm = None,  # optional for ScalarMappable
         cmap = None,  # ditto
-
+        
         pickradius is the tolerance for mouse clicks picking a line.  The
         default is 5 pt.
 
@@ -659,7 +659,7 @@ class LineCollection(Collection, cm.ScalarMappable):
     def contains(self, mouseevent):
         """
         Test whether the mouse event occurred in the collection.
-
+        
         Returns T/F, dict(ind=itemlist), where every item in itemlist contains the event.
         """
         import matplotlib.lines as ML
@@ -679,7 +679,7 @@ class LineCollection(Collection, cm.ScalarMappable):
             this_ind = ML.segment_hits(mx,my,xy[:,0],xy[:,1],self.pickradius)
             ind.extend([(this,k) for k in this_ind])
         return len(ind)>0,dict(ind=ind)
-
+    
     def set_pickradius(self,pickradius): self.pickradius = 5
     def get_pickradius(self): return self.pickradius
 

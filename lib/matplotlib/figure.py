@@ -16,7 +16,8 @@ from text import Text, _process_text_args
 
 from legend import Legend
 from transforms import Bbox, Value, Point, get_bbox_transform, unit_bbox
-from numpy import array, clip, transpose, minimum, maximum, linspace, meshgrid
+from numerix import array, clip, transpose, minimum, maximum
+from mlab import linspace, meshgrid
 from ticker import FormatStrFormatter
 from cm import ScalarMappable
 from contour import ContourSet

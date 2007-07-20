@@ -437,7 +437,7 @@ class RendererBase:
     def points_to_pixels(self, points):
         """
         Convert points to display units
-        points - a float or a numpy array of float
+        points - a float or a numerix array of float
         return points converted to pixels
 
         You need to override this function (unless your backend doesn't have a
@@ -891,24 +891,24 @@ class FigureCanvasBase:
         #print "leaving:",[str(a) for a in leave]
         # On leave restore the captured colour
         for a in leave:
-            if hasattr(a,'get_color'):
+            if hasattr(a,'get_color'): 
                 a.set_color(self._active[a])
-            elif hasattr(a,'get_edgecolor'):
+            elif hasattr(a,'get_edgecolor'): 
                 a.set_edgecolor(self._active[a][0])
                 a.set_facecolor(self._active[a][1])
             del self._active[a]
         # On enter, capture the color and repaint the artist
-        # with the highlight colour.  Capturing colour has to
-        # be done first in case the parent recolouring affects
+        # with the highlight colour.  Capturing colour has to 
+        # be done first in case the parent recolouring affects 
         # the child.
         for a in enter:
-            if hasattr(a,'get_color'):
+            if hasattr(a,'get_color'): 
                 self._active[a] = a.get_color()
             elif hasattr(a,'get_edgecolor'):
                 self._active[a] = (a.get_edgecolor(),a.get_facecolor())
             else: self._active[a] = None
         for a in enter:
-            if hasattr(a,'get_color'):
+            if hasattr(a,'get_color'): 
                 a.set_color('red')
             elif hasattr(a,'get_edgecolor'):
                 a.set_edgecolor('red')

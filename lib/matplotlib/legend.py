@@ -22,7 +22,7 @@ up the legend
 """
 from __future__ import division
 import sys, warnings
-from numpy import array, ones, linspace
+from numerix import array, ones, Float
 
 
 from matplotlib import verbose, rcParams
@@ -30,7 +30,7 @@ from artist import Artist
 from cbook import enumerate, is_string_like, iterable, silent_list
 from font_manager import FontProperties
 from lines import Line2D
-from mlab import segments_intersect
+from mlab import linspace, segments_intersect
 from patches import Patch, Rectangle, RegularPolygon, Shadow, bbox_artist, draw_bbox
 from collections import LineCollection, RegularPolyCollection, PatchCollection
 from text import Text
@@ -280,7 +280,7 @@ The following dimensions are in axes coords
             x, y = label.get_position()
             x -= self.handlelen + self.handletextsep
             if isinstance(handle, Line2D):
-                ydata = (y-HEIGHT/2)*ones(self._xdata.shape, float)
+                ydata = (y-HEIGHT/2)*ones(self._xdata.shape, Float)
                 legline = Line2D(self._xdata, ydata)
                 legline.update_from(handle)
                 self._set_artist_props(legline) # after update
@@ -298,7 +298,7 @@ The following dimensions are in axes coords
                 p.set_clip_box(None)
                 ret.append(p)
             elif isinstance(handle, LineCollection):
-                ydata = (y-HEIGHT/2)*ones(self._xdata.shape, float)
+                ydata = (y-HEIGHT/2)*ones(self._xdata.shape, Float)
                 legline = Line2D(self._xdata, ydata)
                 self._set_artist_props(legline)
                 legline.set_clip_box(None)
@@ -555,7 +555,7 @@ The following dimensions are in axes coords
         for handle, tup in zip(self.legendHandles, hpos):
             y,h = tup
             if isinstance(handle, Line2D):
-                ydata = y*ones(self._xdata.shape, float)
+                ydata = y*ones(self._xdata.shape, Float)
                 handle.set_ydata(ydata+h/2)
             elif isinstance(handle, Rectangle):
                 handle.set_y(y+1/4*h)

@@ -9,8 +9,9 @@ from matplotlib import rcParams
 from artist import Artist
 from colors import colorConverter
 import cm
+import numerix
 import numerix.ma as ma
-from numpy import arange, asarray, uint8, float32, repeat, newaxis, fromstring
+from numerix import arange, asarray, UInt8, Float32, repeat, NewAxis, typecode
 import _image
 
 
@@ -116,7 +117,7 @@ class AxesImage(Artist, cm.ScalarMappable):
             raise RuntimeError('You must first set the image array or the image attribute')
 
         if self._imcache is None:
-            if self._A.dtype == uint8 and len(self._A.shape) == 3:
+            if typecode(self._A) == UInt8 and len(self._A.shape) == 3:
                 im = _image.frombyte(self._A, 0)
                 im.is_grayscale = False
             else:
@@ -185,7 +186,7 @@ class AxesImage(Artist, cm.ScalarMappable):
         """Test whether the mouse event occured within the image.
         """
         if callable(self._contains): return self._contains(self,mouseevent)
-        # TODO: make sure this is consistent with patch and patch
+        # TODO: make sure this is consistent with patch and patch 
         # collection on nonlinear transformed coordinates.
         # TODO: consider returning image coordinates (shouldn't
         # be too difficult given that the image is rectilinear
@@ -196,7 +197,7 @@ class AxesImage(Artist, cm.ScalarMappable):
             inside = xdata>=xmin and xdata<=xmax and ydata>=ymin and ydata<=ymax
         else:
             inside = False
-
+            
         return inside,{}
 
     def write_png(self, fname, noscale=False):
@@ -332,8 +333,8 @@ class NonUniformImage(AxesImage):
         return im
 
     def set_data(self, x, y, A):
-        x = asarray(x,float32)
-        y = asarray(y,float32)
+        x = asarray(x).astype(Float32)
+        y = asarray(y).astype(Float32)
         A = asarray(A)
         if len(x.shape) != 1 or len(y.shape) != 1\
            or A.shape[0:2] != (y.shape[0], x.shape[0]):
@@ -345,16 +346,16 @@ class NonUniformImage(AxesImage):
         if len(A.shape) == 3 and A.shape[2] == 1:
              A.shape = A.shape[0:2]
         if len(A.shape) == 2:
-            if A.dtype != uint8:
-                A = (self.cmap(self.norm(A))*255).astype(uint8)
+            if typecode(A) != UInt8:
+                A = (self.cmap(self.norm(A))*255).astype(UInt8)
             else:
-                A = repeat(A[:,:,newaxis], 4, 2)
+                A = repeat(A[:,:,NewAxis], 4, 2)
                 A[:,:,3] = 255
         else:
-            if A.dtype != uint8:
-                A = (255*A).astype(uint8)
+            if typecode(A) != UInt8:
+                A = (255*A).astype(UInt8)
             if A.shape[2] == 3:
-                B = zeros(tuple(list(A.shape[0:2]) + [4]), uint8)
+                B = zeros(tuple(list(A.shape[0:2]) + [4]), UInt8)
                 B[:,:,0:3] = A
                 B[:,:,3] = 255
                 A = B
@@ -427,7 +428,7 @@ class FigureImage(Artist, cm.ScalarMappable):
             inside = xdata>=xmin and xdata<=xmax and ydata>=ymin and ydata<=ymax
         else:
             inside = False
-
+            
         return inside,{}
 
     def get_size(self):
@@ -440,7 +441,7 @@ class FigureImage(Artist, cm.ScalarMappable):
     def get_extent(self):
         'get the image extent: left, right, bottom, top'
         numrows, numcols = self.get_size()
-        return (-0.5+self.ox, numcols-0.5+self.ox,
+        return (-0.5+self.ox, numcols-0.5+self.ox, 
                 -0.5+self.oy, numrows-0.5+self.oy)
 
     def make_image(self, magnification=1.0):
@@ -476,7 +477,7 @@ class FigureImage(Artist, cm.ScalarMappable):
 
 def imread(fname):
     """
-    return image file in fname as numpy array
+    return image file in fname as numerix array
 
     Return value is a MxNx4 array of 0-1 normalized floats
 
@@ -503,6 +504,6 @@ def pil_to_array( pilImage ):
             raise RuntimeError('Unknown image mode')
 
     x_str = im.tostring('raw',im.mode,0,-1)
-    x = fromstring(x_str,uint8)
+    x = numerix.fromstring(x_str,numerix.UInt8)
     x.shape = im.size[1], im.size[0], 4
     return x

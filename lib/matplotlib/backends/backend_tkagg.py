@@ -10,8 +10,6 @@ from backend_agg import FigureCanvasAgg
 
 import os.path
 
-from numpy import asarray
-
 import matplotlib
 from matplotlib.cbook import is_string_like,  enumerate
 from matplotlib.backend_bases import RendererBase, GraphicsContextBase, \
@@ -19,6 +17,7 @@ from matplotlib.backend_bases import RendererBase, GraphicsContextBase, \
 
 from matplotlib.figure import Figure
 from matplotlib._pylab_helpers import Gcf
+from matplotlib.numerix import asarray
 
 import matplotlib.windowing as windowing
 from matplotlib.widgets import SubplotTool

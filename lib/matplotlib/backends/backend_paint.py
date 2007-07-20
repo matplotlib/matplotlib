@@ -16,10 +16,8 @@ from __future__ import division
 import sys
 import os
 import paint
-
-from numpy import asarray
-
 from matplotlib import verbose
+from matplotlib.numerix import asarray
 
 from matplotlib._pylab_helpers import Gcf
 from matplotlib.backend_bases import RendererBase,\
