@@ -12,7 +12,7 @@ from cbook import enumerate, is_string_like, maxdict, is_numlike
 from font_manager import FontProperties
 from matplotlib import rcParams
 from patches import bbox_artist, YAArrow
-from numpy import sin, cos, pi, cumsum, dot, asarray, array, \
+from numerix import sin, cos, pi, cumsum, dot, asarray, array, \
      where, nonzero, equal, sqrt
 from transforms import lbwh_to_bbox, bbox_all, identity_transform
 from lines import Line2D

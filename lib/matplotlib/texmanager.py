@@ -18,7 +18,7 @@ Backends:
   Only supported on *Agg and PS backends currently
 
 
-For raster output, you can get RGBA numpy arrays from TeX expressions
+For raster output, you can get RGBA numerix arrays from TeX expressions
 as follows
 
   texmanager = TexManager()
@@ -78,7 +78,7 @@ WARNING: found a TeX cache dir in the deprecated location "%s".
 
     dvipngVersion = get_dvipng_version()
 
-    # mappable cache of
+    # mappable cache of 
     arrayd = {}
     postscriptd = {}
     pscnt = 0
@@ -90,7 +90,7 @@ WARNING: found a TeX cache dir in the deprecated location "%s".
     font_family = 'serif'
     font_families = ('serif', 'sans-serif', 'cursive', 'monospace')
 
-    font_info = {'new century schoolbook': ('pnc',
+    font_info = {'new century schoolbook': ('pnc', 
                                             r'\renewcommand{\rmdefault}{pnc}'),
                 'bookman': ('pbk', r'\renewcommand{\rmdefault}{pbk}'),
                 'times': ('ptm', r'\usepackage{mathptmx}'),
@@ -107,7 +107,7 @@ WARNING: found a TeX cache dir in the deprecated location "%s".
                 'computer modern roman': ('cmr', ''),
                 'computer modern sans serif': ('cmss', ''),
                 'computer modern typewriter': ('cmtt', '')}
-
+    
     _rc_cache = None
     _rc_cache_keys = ('text.latex.preamble', )\
                      + tuple('font.'+n for n in ('family', ) + font_families)
@@ -122,20 +122,19 @@ WARNING: found a TeX cache dir in the deprecated location "%s".
         else:
             warnings.warn('The %s font family is not compatible with LaTeX. serif will be used by default.' % ff)
             self.font_family = 'serif'
-
+        
         fontconfig = [self.font_family]
         for font_family, font_family_attr in \
             ((ff, ff.replace('-', '_')) for ff in self.font_families):
             for font in rcParams['font.'+font_family]:
-                if DEBUG: print 'family: %s, font: %s, info: %s'%(font_family,
+                if DEBUG: print 'family: %s, font: %s, info: %s'%(font_family, 
                                     font, self.font_info[font.lower()])
                 if font.lower() in self.font_info:
-                    setattr(self, font_family_attr,
+                    setattr(self, font_family_attr, 
                             self.font_info[font.lower()])
                     break
                 else:
-                    mpl.verbose.report('No LaTeX-compatible font found for \
-the %s font family in rcParams. Using default.' % ff, 'helpful')
+                    warnings.warn('No LaTeX-compatible font found for the %s font family in rcParams. Using default.' % ff)
                     setattr(self, font_family_attr, font_family)
                 fontconfig.append(getattr(self, font_family_attr)[0])
         self._fontconfig = ''.join(fontconfig)
@@ -166,7 +165,7 @@ the %s font family in rcParams. Using default.' % ff, 'helpful')
         if changed:
             if DEBUG: print 'DEBUG following keys changed:', changed
             for k in changed:
-                if DEBUG:
+                if DEBUG: 
                     print 'DEBUG %-20s: %-10s -> %-10s' % \
                             (k, self._rc_cache[k], rcParams[k])
                 # deepcopy may not be necessary, but feels more future-proof

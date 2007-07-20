@@ -6,10 +6,9 @@ Install instructions for traits 2.0
 
    # get easy_install, if necessary
    wget  http://peak.telecommunity.com/dist/ez_setup.py
-   sudo python ez_setup.py
+   sudo python sez_setup.py
 
-   sudo easy_install -f http://code.enthought.com/enstaller/eggs/source/unstable/ \
-"enthought.etsconfig <3.0a" "enthought.util <3.0a" "enthought.debug <3.0a"
+   sudo easy_install -f http://code.enthought.com/enstaller/eggs/source/unstable "enthought.etsconfig < 3.0a" "enthought.util <3.0a" "enthought.debug <3.0a"
 
    svn co https://svn.enthought.com/svn/enthought/branches/enthought.traits_2.0 enthought_traits
 
@@ -46,6 +45,8 @@ def hex2color(s):
    "Convert hex string (like html uses, eg, #efefef) to a r,g,b tuple"
    return tuple([int(n, 16)/255.0 for n in (s[1:3], s[3:5], s[5:7])])
 
+def color_converter(x):
+    return mcolors.colorConverter(x)
 class RGBA(traits.HasTraits):
    # r,g,b,a in the range 0-1 with default color 0,0,0,1 (black)
    r = traits.Range(0., 1., 0.)
@@ -97,16 +98,13 @@ float_to_rgba.info = 'a grayscale intensity'
 
 
 
-Color = traits.Trait(RGBA(), float_to_rgba, colorname_to_rgba, RGBA,
-             hex_to_rgba, tuple_to_rgba, None)
-
 def file_exists(ob, name, val):
    fh = file(val, 'r')
    return val
 
 def path_exists(ob, name, val):
    os.path.exists(val)
-linestyles  = ('-', '--', '-.', ':', 'steps')
+linestyles  = ('-', '--', '-.', ':', 'steps', None)
 TICKLEFT, TICKRIGHT, TICKUP, TICKDOWN = range(4)
 linemarkers = (None, '.', ',', 'o', '^', 'v', '<', '>', 's',
                  '+', 'x', 'd', 'D', '|', '_', 'h', 'H',
@@ -117,19 +115,21 @@ linemarkers = (None, '.', ',', 'o', '^', 'v', '<', '>', 's',
                  TICKDOWN,
                  )
               
+colorfuncs = RGBA(), float_to_rgba, colorname_to_rgba, RGBA,  hex_to_rgba, tuple_to_rgba, None
 
-Alpha          = traits.Float(1.0)
-Linewidth       = traits.Float(0.5)
-Linestyle       = traits.Trait(*linestyles)
-Color           = Color
-Marker          = traits.Trait(*linemarkers)
-Markersize      = traits.Float(6)
-Antialiased     = FlexibleTrueTrait
-Alpha           = traits.Range(0., 1., 0.)
-Interval        = traits.Array('d', (2,), npy.array([0.0, 1.0], npy.float_))
-Affine          = traits.Array('d', (3,3),
-                               npy.array([[1,0,0],[0,1,0],[0,0,1]], npy.float_))
-Verts          = traits.Array('d', value=npy.array([[0,0],[0,0]], npy.float_))
-Codes          = traits.Array('b', value=npy.array([0,0], dtype=npy.uint8))
-PathData       = traits.Tuple(Codes, Verts)
+Affine      = traits.Array('d', (3,3), npy.array([[1,0,0],[0,1,0],[0,0,1]], npy.float_))
+Alpha       = traits.Float(1.0)
+Alpha       = traits.Range(0., 1., 0.)
+Antialiased = FlexibleTrueTrait
+Codes       = traits.Array('b', value=npy.array([0,0], dtype=npy.uint8))
+Color       = traits.Trait(*colorfuncs)
+DPI         = traits.Float(72.)
+Interval    = traits.Array('d', (2,), npy.array([0.0, 1.0], npy.float_))
+LineStyle   = traits.Trait(*linestyles)
+LineWidth   = traits.Float(0.5)
+Marker      = traits.Trait(*linemarkers)
+MarkerSize  = traits.Float(6)
+Verts       = traits.Array('d', value=npy.array([[0,0],[0,0]], npy.float_))
+PathData    = traits.Tuple(Codes, Verts)
+
 

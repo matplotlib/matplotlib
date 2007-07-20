@@ -17,8 +17,6 @@ from backend_agg import FigureCanvasAgg
 
 import os.path
 
-from numpy import asarray
-
 import matplotlib
 
 from matplotlib import rcParams, verbose
@@ -28,6 +26,7 @@ from matplotlib.backend_bases import \
      NavigationToolbar2, cursors
 from matplotlib.figure import Figure
 from matplotlib._pylab_helpers import Gcf
+from matplotlib.numerix import asarray
 import matplotlib.windowing as windowing
 from matplotlib.widgets import SubplotTool
 

@@ -71,8 +71,8 @@ from numerix import array, asarray, arange, divide, exp, arctan2, \
      multiply, transpose, ravel, repeat, resize, reshape, floor, ceil,\
      absolute, matrixmultiply, power, take, where, Float, Int, asum,\
      dot, convolve, pi, Complex, ones, zeros, diagonal, Matrix, nonzero, \
-     log, searchsorted, concatenate, sort, ArrayType, ndarray, clip, size, indices,\
-     conjugate, typecode, iscontiguous, linspace, meshgrid
+     log, searchsorted, concatenate, sort, ArrayType, clip, size, indices,\
+     conjugate, typecode, iscontiguous
 
 
 from numerix.mlab import hanning, cov, diff, svd, rand, std
@@ -92,6 +92,11 @@ def mean(x, dim=None):
       return numerix.mlab.mean(x)
    else: return numerix.mlab.mean(x, dim)
 
+
+def linspace(xmin, xmax, N):
+   if N==1: return array([xmax])
+   dx = (xmax-xmin)/(N-1)
+   return xmin + dx*arange(N)
 
 def logspace(xmin,xmax,N):
     return exp(linspace(log(xmin), log(xmax),Nh))
@@ -179,7 +184,7 @@ def psd(x, NFFT=256, Fs=2, detrend=detrend_none,
 
 
     # for real x, ignore the negative frequencies
-    if npy.iscomplexobj(x): numFreqs = NFFT
+    if typecode(x)==Complex: numFreqs = NFFT
     else: numFreqs = NFFT//2+1
 
     if iterable(window):
@@ -190,7 +195,7 @@ def psd(x, NFFT=256, Fs=2, detrend=detrend_none,
     step = NFFT-noverlap
     ind = range(0,len(x)-NFFT+1,step)
     n = len(ind)
-    Pxx = zeros((numFreqs,n), float)
+    Pxx = zeros((numFreqs,n), Float)
     # do the ffts of the slices
     for i in range(n):
         thisX = x[ind[i]:ind[i]+NFFT]
@@ -238,7 +243,7 @@ def csd(x, y, NFFT=256, Fs=2, detrend=detrend_none,
 
     if NFFT % 2:
         raise ValueError, 'NFFT must be a power of 2'
-
+    
     x = asarray(x) # make sure we're dealing with a numpy array
     y = asarray(y) # make sure we're dealing with a numpy array
 
@@ -253,7 +258,7 @@ def csd(x, y, NFFT=256, Fs=2, detrend=detrend_none,
         y[n:] = 0
 
     # for real x, ignore the negative frequencies
-    if npy.iscomplexobj(x): numFreqs = NFFT
+    if typecode(x)==Complex: numFreqs = NFFT
     else: numFreqs = NFFT//2+1
 
     if iterable(window):
@@ -264,7 +269,7 @@ def csd(x, y, NFFT=256, Fs=2, detrend=detrend_none,
     step = NFFT-noverlap
     ind = range(0,len(x)-NFFT+1,step)
     n = len(ind)
-    Pxy = zeros((numFreqs,n), complex)
+    Pxy = zeros((numFreqs,n), Complex)
 
     # do the ffts of the slices
     for i in range(n):
@@ -537,7 +542,7 @@ def cohere_pairs( X, ij, NFFT=256, Fs=2, detrend=detrend_none,
     del seen
 
     # for real X, ignore the negative frequencies
-    if npy.iscomplexobj(X): numFreqs = NFFT
+    if typecode(X)==Complex: numFreqs = NFFT
     else: numFreqs = NFFT//2+1
 
     # cache the FFT of every windowed, detrended NFFT length segement
@@ -557,7 +562,7 @@ def cohere_pairs( X, ij, NFFT=256, Fs=2, detrend=detrend_none,
     normVal = norm(windowVals)**2
     for iCol in allColumns:
         progressCallback(i/Ncols, 'Cacheing FFTs')
-        Slices = zeros( (numSlices,numFreqs), complex)
+        Slices = zeros( (numSlices,numFreqs), Complex)
         for iSlice in slices:
             thisSlice = X[ind[iSlice]:ind[iSlice]+NFFT, iCol]
             thisSlice = windowVals*detrend(thisSlice)
@@ -613,7 +618,7 @@ def entropy(y, bins):
 
 
    n,bins = hist(y, bins)
-   n = n.astype(float)
+   n = n.astype(Float)
 
    n = take(n, nonzero(n))         # get the positive
 
@@ -686,14 +691,14 @@ def levypdf(x, gamma, alpha):
    dx = x[1]-x[0]
 
 
-   f = 1/(N*dx)*arange(-N/2, N/2, float)
+   f = 1/(N*dx)*arange(-N/2, N/2, Float)
 
-   ind = concatenate([arange(N/2, N, int),
-                      arange(0, N/2, int)])
+   ind = concatenate([arange(N/2, N, Int),
+                      arange(N/2,Int)])
    df = f[1]-f[0]
    cfl = exp(-gamma*absolute(2*pi*f)**alpha)
 
-   px = fft(take(cfl,ind)*df).astype(float)
+   px = fft(take(cfl,ind)*df).astype(Float)
    return take(px, ind)
 
 
@@ -753,7 +758,7 @@ def longest_ones(x):
     if len(ind)==0:  return arange(len(x))
     if len(ind)==len(x): return array([])
 
-    y = zeros( (len(x)+2,), int)
+    y = zeros( (len(x)+2,), Int)
     y[1:-1] = x
     d = diff(y)
     #print 'd', d
@@ -806,7 +811,7 @@ def prctile(x, p = (0.0, 25.0, 50.0, 75.0, 100.0)):
         return x[int(p*Nx/100.0)]
 
     p = multiply(array(p), Nx/100.0)
-    ind = p.astype(int)
+    ind = p.astype(Int)
     ind = where(ind>=Nx, Nx-1, ind)
     return take(x, ind)
 
@@ -841,7 +846,7 @@ def center_matrix(M, dim=0):
     # todo: implement this w/o loop.  Allow optional arg to specify
     # dimension to remove the mean from
     if dim==1: M = transpose(M)
-    M = array(M, float)
+    M = array(M, Float)
     if len(M.shape)==1 or M.shape[0]==1 or M.shape[1]==1:
        M = M-mean(M)
        sigma = std(M)
@@ -857,6 +862,40 @@ def center_matrix(M, dim=0):
            M[i] = divide(M[i], sigma)
     if dim==1: M=transpose(M)
     return M
+
+def meshgrid(x,y):
+    """
+    For vectors x, y with lengths Nx=len(x) and Ny=len(y), return X, Y
+    where X and Y are (Ny, Nx) shaped arrays with the elements of x
+    and y repeated to fill the matrix
+
+    EG,
+
+      [X, Y] = meshgrid([1,2,3], [4,5,6,7])
+
+       X =
+         1   2   3
+         1   2   3
+         1   2   3
+         1   2   3
+
+
+       Y =
+         4   4   4
+         5   5   5
+         6   6   6
+         7   7   7
+  """
+
+    x = array(x)
+    y = array(y)
+    numRows, numCols = len(y), len(x)  # yes, reversed
+    x.shape = 1, numCols
+    X = repeat(x, numRows)
+
+    y.shape = numRows,1
+    Y = repeat(y, numCols, 1)
+    return X, Y
 
 
 
@@ -899,9 +938,9 @@ def rk4(derivs, y0, t):
 
     try: Ny = len(y0)
     except TypeError:
-        yout = zeros( (len(t),), float)
+        yout = zeros( (len(t),), Float)
     else:
-        yout = zeros( (len(t), Ny), float)
+        yout = zeros( (len(t), Ny), Float)
 
 
     yout[0] = y0
@@ -958,7 +997,7 @@ def specgram(x, NFFT=256, Fs=2, detrend=detrend_none,
 
 
     # for real x, ignore the negative frequencies
-    if npy.iscomplexobj(x): numFreqs=NFFT
+    if typecode(x)==Complex: numFreqs=NFFT
     else: numFreqs = NFFT//2+1
 
     if iterable(window):
@@ -969,7 +1008,7 @@ def specgram(x, NFFT=256, Fs=2, detrend=detrend_none,
     step = NFFT-noverlap
     ind = arange(0,len(x)-NFFT+1,step)
     n = len(ind)
-    Pxx = zeros((numFreqs,n), float)
+    Pxx = zeros((numFreqs,n), Float)
     # do the ffts of the slices
 
     for i in range(n):
@@ -982,7 +1021,7 @@ def specgram(x, NFFT=256, Fs=2, detrend=detrend_none,
     t = 1/Fs*(ind+NFFT/2)
     freqs = Fs/NFFT*arange(numFreqs)
 
-    if npy.iscomplexobj(x):
+    if typecode(x) == Complex:
        freqs = concatenate((freqs[NFFT/2:]-Fs,freqs[:NFFT/2]))
        Pxx   = concatenate((Pxx[NFFT/2:,:],Pxx[:NFFT/2,:]),0)
 
@@ -1053,9 +1092,9 @@ def dist_point_to_segment(p, s0, s1):
     This algorithm from
     http://softsurfer.com/Archive/algorithm_0102/algorithm_0102.htm#Distance%20to%20Ray%20or%20Segment
     """
-    p = asarray(p, float)
-    s0 = asarray(s0, float)
-    s1 = asarray(s1, float)
+    p = asarray(p, Float)
+    s0 = asarray(s0, Float)
+    s1 = asarray(s1, Float)
     v = s1 - s0
     w = p - s0
 
@@ -1139,10 +1178,10 @@ class FIFOBuffer:
     """
     def __init__(self, nmax):
         'buffer up to nmax points'
-        self._xa = nx.zeros((nmax,), typecode=float)
-        self._ya = nx.zeros((nmax,), typecode=float)
-        self._xs = nx.zeros((nmax,), typecode=float)
-        self._ys = nx.zeros((nmax,), typecode=float)
+        self._xa = nx.zeros((nmax,), typecode=nx.Float)
+        self._ya = nx.zeros((nmax,), typecode=nx.Float)
+        self._xs = nx.zeros((nmax,), typecode=nx.Float)
+        self._ys = nx.zeros((nmax,), typecode=nx.Float)
         self._ind = 0
         self._nmax = nmax
         self.dataLim = None
@@ -1203,7 +1242,7 @@ def movavg(x,n):
     n = int(n)
     N = len(x)
     assert(N>n)
-    y = zeros(N-(n-1),float)
+    y = zeros(N-(n-1),Float)
     for i in range(n):
        y += x[i:N-(n-1)+i]
     y /= float(n)
@@ -1324,7 +1363,7 @@ def load(fname,comments='#',delimiter=None, converters=None,skiprows=0,
         thisLen = len(row)
         X.append(row)
 
-    X = array(X, float)
+    X = array(X, nx.Float)
     r,c = X.shape
     if r==1 or c==1:
         X.shape = max([r,c]),
@@ -1358,15 +1397,15 @@ def csv2rec(fname, comments='#', skiprows=0, checkrows=5, delimiter=',',
     converterd, if not None, is a dictionary mapping column number or
     munged column name to a converter function
 
-
+    
     See examples/loadrec.py
     """
 
 
-
+    
     if converterd is None:
         converterd = dict()
-
+        
     import dateutil.parser
     parsedate = dateutil.parser.parse
 
@@ -1384,7 +1423,7 @@ def csv2rec(fname, comments='#', skiprows=0, checkrows=5, delimiter=',',
     process_skiprows(reader)
 
 
-
+    
 
     def get_func(item, func):
         # promote functions in this order
@@ -1395,7 +1434,7 @@ def csv2rec(fname, comments='#', skiprows=0, checkrows=5, delimiter=',',
                 raise ValueError('Could not find a working conversion function')
             else: return get_func(item, funcmap[func])    # recurse
         else: return func
-
+        
     def get_converters(reader):
 
         converters = None
@@ -1495,10 +1534,10 @@ def slopes(x,y):
     Icelandic Meteorological Office, March 2006 halldor at vedur.is)
     """
     # Cast key variables as float.
-    x=nx.asarray(x, float)
-    y=nx.asarray(y, float)
+    x=nx.asarray(x, nx.Float)
+    y=nx.asarray(y, nx.Float)
 
-    yp=nx.zeros(y.shape, float)
+    yp=nx.zeros(y.shape, nx.Float)
 
     dx=x[1:] - x[:-1]
     dy=y[1:] - y[:-1]
@@ -1553,18 +1592,18 @@ def stineman_interp(xi,x,y,yp=None):
     """
 
     # Cast key variables as float.
-    x=nx.asarray(x, float)
-    y=nx.asarray(y, float)
+    x=nx.asarray(x, nx.Float)
+    y=nx.asarray(y, nx.Float)
     assert x.shape == y.shape
     N=len(y)
 
     if yp is None:
         yp = slopes(x,y)
     else:
-        yp=nx.asarray(yp, float)
+        yp=nx.asarray(yp, nx.Float)
 
-    xi=nx.asarray(xi, float)
-    yi=nx.zeros(xi.shape, float)
+    xi=nx.asarray(xi, nx.Float)
+    yi=nx.zeros(xi.shape, nx.Float)
 
     # calculate linear slopes
     dx = x[1:] - x[:-1]
@@ -1594,7 +1633,7 @@ def stineman_interp(xi,x,y,yp=None):
     # does more calculations than necessary but exploiting the power
     # of numpy, this is far more efficient than coding a loop by hand
     # in Python
-    yi = yo + dy1dy2 * nx.choose(nx.array(nx.sign(dy1dy2), nx.int32)+1,
+    yi = yo + dy1dy2 * nx.choose(nx.array(nx.sign(dy1dy2), nx.Int32)+1,
                                  ((2*xi-xidx-xidxp1)/((dy1-dy2)*(xidxp1-xidx)),
                                   0.0,
                                   1/(dy1+dy2),))
@@ -1623,11 +1662,11 @@ def _inside_poly_deprecated(points, verts):
         d = nx.where(nx.less(d, 0), twopi + d, d)
         return nx.where(nx.greater(d,nx.pi), d-twopi, d)
 
-    angles = nx.zeros((Nxy,), float)
-    x1 = nx.zeros((Nxy,), float)
-    y1 = nx.zeros((Nxy,), float)
-    x2 = nx.zeros((Nxy,), float)
-    y2 = nx.zeros((Nxy,), float)
+    angles = nx.zeros((Nxy,), nx.Float)
+    x1 = nx.zeros((Nxy,), nx.Float)
+    y1 = nx.zeros((Nxy,), nx.Float)
+    x2 = nx.zeros((Nxy,), nx.Float)
+    y2 = nx.zeros((Nxy,), nx.Float)
     x = xys[:,0]
     y = xys[:,1]
     for i in range(Nv):
@@ -1687,7 +1726,7 @@ def poly_between(x, ylower, yupper):
     Nx = len(x)
     if not iterable(ylower):
         ylower = ylower*npy.ones(Nx)
-
+    
     if not iterable(yupper):
         yupper = yupper*npy.ones(Nx)
 
@@ -1757,7 +1796,7 @@ def exp_safe(x):
     floating point exception handling with access to the underlying
     hardware."""
 
-    if type(x) is ndarray:
+    if type(x) is ArrayType:
         return exp(clip(x,exp_safe_MIN,exp_safe_MAX))
     else:
         return math.exp(x)

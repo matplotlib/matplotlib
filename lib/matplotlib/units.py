@@ -83,7 +83,7 @@ class ConversionInterface:
         """
         convert obj using unit.  If obj is a sequence, return the
         converted sequence.  The ouput must be a sequence of scalars
-        that can be used by the numpy array layer
+        that can be used by the numerix array layer
         """
         return obj
     convert = staticmethod(convert)

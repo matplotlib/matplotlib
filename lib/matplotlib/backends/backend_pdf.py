@@ -28,7 +28,7 @@ from matplotlib.afm import AFM
 from matplotlib.dviread import Dvi
 from matplotlib.ft2font import FT2Font, FIXED_WIDTH, ITALIC, LOAD_NO_SCALE
 from matplotlib.mathtext import math_parse_s_pdf
-from numpy import float32, uint8, fromstring, arange, infinity, isnan, asarray
+from matplotlib.numerix import Float32, UInt8, fromstring, arange, infinity, isnan, asarray
 from matplotlib.transforms import Bbox
 from matplotlib import ttconv
 
@@ -543,13 +543,13 @@ class PdfFile:
             fontdict['FontMatrix'] = [ .001, 0, 0, .001, 0, 0 ]
             fontdict['CharProcs'] = charprocsObject
             fontdict['Encoding'] = {
-                'Type': Name('Encoding'),
+                'Type': Name('Encoding'), 
                 'Differences': differencesArray}
         elif fonttype == 42:
             fontdict['Subtype'] = Name('TrueType')
             fontdict['Encoding'] = Name('WinAnsiEncoding')
 
-
+            
         flags = 0
         symbolic = False #ps_name.name in ('Cmsy10', 'Cmmi10', 'Cmex10')
         if ff & FIXED_WIDTH: flags |= 1 << 0
@@ -632,7 +632,7 @@ class PdfFile:
                 self.beginStream(charprocObject.id,
                                  None,
                                  {'Length':  len(stream)})
-                self.currentstream.write(stream)
+                self.currentstream.write(stream)                 
                 self.endStream()
                 charprocs[charname] = charprocObject
             self.writeObject(charprocsObject, charprocs)
@@ -755,20 +755,20 @@ class PdfFile:
     def _rgb(self, im):
         h,w,s = im.as_rgba_str()
 
-        rgba = fromstring(s, uint8)
+        rgba = fromstring(s, UInt8)
         rgba.shape = (h, w, 4)
         rgb = rgba[:,:,:3]
         return h, w, rgb.tostring()
 
     def _gray(self, im, rc=0.3, gc=0.59, bc=0.11):
         rgbat = im.as_rgba_str()
-        rgba = fromstring(rgbat[2], uint8)
+        rgba = fromstring(rgbat[2], UInt8)
         rgba.shape = (rgbat[0], rgbat[1], 4)
-        rgba_f = rgba.astype(float32)
+        rgba_f = rgba.astype(Float32)
         r = rgba_f[:,:,0]
         g = rgba_f[:,:,1]
         b = rgba_f[:,:,2]
-        gray = (r*rc + g*gc + b*bc).astype(uint8)
+        gray = (r*rc + g*gc + b*bc).astype(UInt8)
         return rgbat[0], rgbat[1], gray.tostring()
 
     def writeImages(self):
