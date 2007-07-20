@@ -22,9 +22,89 @@ import enthought.traits.api as traits
 
 from matplotlib import agg
 from matplotlib import colors as mcolors
+from matplotlib import cbook
 import numpy as npy
 
+is_string_like = cbook.is_string_like
 
+
+
+class Affine(traits.HasTraits):
+    """
+    An affine 3x3 matrix that supports matrix multiplication with
+    other Affine instances or numpy arrays.
+
+    a = Affine()
+    a.translate = 10,20
+    a.scale = 20, 40
+
+    Be careful not to do *inplace* operations on the array components
+    or the update callbacks will not be triggered, eg DO NOT 
+
+      a.translate += 10, 20
+
+    rather DO
+
+      a.translate_delta(10, 20)
+    """
+    data = traits.Array('d', (3,3), npy.array([[1,0,0],[0,1,0],[0,0,1]], npy.float_))
+
+    translate = traits.Array('d', (2,), [0,0])
+    scale = traits.Array('d', (2,), [0,0])
+    vec6 =  traits.Array('d', (6,), [1,0,0,1,0,0])
+
+    def translate_delta(self, tx, ty):
+        oldtx, oldty = self.translate
+        self.translate = oldtx + tx, oldty + ty
+        
+    def _translate_changed(self, old, new):
+        #print 'translate change', new
+        tx, ty = new
+        self.data[0][-1] = tx
+        self.data[1][-1] = ty
+        self.vec6[-2:] = tx, ty
+    
+    def _vec6_changed(self, old, new):
+        #print 'vec6 change', new
+        sx, b, c, sy, tx, ty = new
+        self.data[0] = sx, b, tx
+        self.data[1] = c, sy, ty
+        self.translate = tx, ty
+        self.scale = sx, sy
+        
+    def _scale_changed(self, old, new):
+        #print 'scale change', new
+        sx, sy = new
+        self.data[0][0] = sx
+        self.data[1][1] = sy
+
+
+    def _data_changed(self, old, new):
+        #print 'data change', new
+
+        sx, b, tx = self.data[0]
+        c, sy, ty = self.data[1]
+
+        self.translate = tx, ty
+        self.scale = sx, sy
+        self.vec6 = sx, b, c, sy, tx, ty
+        
+        
+    def __mul__(self, other):
+        if isinstance(other, Affine):
+            new = Affine()
+            new.data = npy.dot(self.data, other.data)
+            return new
+        elif isinstance(other, npy.ndarray):
+            return npy.dot(self.data, other)
+        raise TypeError('Do not know how to multiply Affine by %s'%type(other))
+                        
+
+    def __repr__(self):
+        
+        return 'AFFINE:\n%s'%self.data
+
+    
 class ColorHandler(traits.TraitHandler):
     """
     This is a clever little traits mechanism -- users can specify the
@@ -39,8 +119,8 @@ class ColorHandler(traits.TraitHandler):
 
     c = C()
     c.fillcolor = 'red'
-    print c.fillcolor
-    print c.fillcolor_   # 
+    print c.fillcolor    # prints red
+    print c.fillcolor_   # print (1,0,0,1)
     """
     is_mapped = True
 
@@ -49,9 +129,9 @@ class ColorHandler(traits.TraitHandler):
 
     def mapped_value(self, value ):
         if value is None: return None
+        if is_string_like(value): value = value.lower()
         return mcolors.colorConverter.to_rgba(value)
-    
-   
+       
     def validate(self, object, name, value):
         try:
             self.mapped_value(value)
@@ -68,8 +148,9 @@ like '0.5', or an RGBA tuple (1,0,0,1)"""
 
 class MTraitsNamespace:
     DPI         = traits.Float(72.)
-    Affine      = traits.Array('d', (3,3), npy.array([[1,0,0],[0,1,0],[0,0,1]], npy.float_))
+
     Alpha       = traits.Range(0., 1., 0.)
+    Affine      = traits.Trait(Affine())
     AntiAliased = traits.true
     Codes       = traits.Array('b', value=npy.array([0,0], dtype=npy.uint8))
     Color       = traits.Trait('black', ColorHandler())
@@ -82,53 +163,38 @@ class MTraitsNamespace:
                  'p', '1', '2', '3', '4')
     MarkerSize  = traits.Float(6)
     Verts       = traits.Array('d', value=npy.array([[0,0],[0,0]], npy.float_))
-    PathData    = traits.Tuple(Codes, Verts)
+    PathData    = traits.Tuple(Codes(), Verts())
     Visible     = traits.true
 
 
 mtraits = MTraitsNamespace()
 
         
-def affine_axes(rect):
-    'make an affine for a typical l,b,w,h axes rectangle'
-    l,b,w,h = rect
-    return npy.array([[w, 0, l], [0, h, b], [0, 0, 1]], dtype=npy.float_)
-
-def affine_identity():
-    return npy.array([[1,0,0],
-                      [0,1,0],
-                      [0,0,1]],
-                     dtype=npy.float_)
-
-def affine_translation(tx, ty):
-    return npy.array([[1,0,tx],
-                      [0,1,ty],
-                      [0,0,1]],
-                     dtype=npy.float_)
-
-def affine_rotation(theta):
-   a = npy.cos(theta)
-   b = -npy.sin(theta)
-   c = npy.sin(theta)
-   d = npy.cos(theta)
     
-   return npy.array([[a,b,0],
-                     [c,d,0],
-                     [0,0,1]],
-                    dtype=npy.float_)
+    
+    
 
 
 class Renderer(traits.HasTraits):
-    dpi = traits.Float(72.)
-    
-    def __init__(self, width, height):
-        self.width, self.height = width, height
+    dpi = mtraits.DPI
+    size = traits.Tuple(traits.Int(600), traits.Int(400))
+
+    affinerenderer = mtraits.Affine
+
+    def __init__(self, size=(600,400)):
+
+        self.pathd = dict()    # path id -> Path instance
+        self.markersd = dict()      # path id -> Markers instance
+
+        self._size_changed(None, size)
+        
+    def _size_changed(self, old, new):
+        width, height = new
 
         # almost all renderers assume 0,0 is left, upper, so we'll flip y here by default
-        self.affinerenderer  = npy.array(
-            [[width, 0, 0], [0, -height, height], [0, 0, 1]], dtype=npy.float_)
-        self.pathd = dict() # dict mapping path id -> Path instance
-        self.markersd = dict() # dict mapping path id -> Markers instance
+        self.affinerenderer.translate = 0, height
+        self.affinerenderer.scale = width, -height
+        
         
 
     def add_path(self, pathid, path):
@@ -156,9 +222,11 @@ class RendererAgg(Renderer):
     blue = agg.rgba8(0,0,255,255)
     black = agg.rgba8(0,0,0,0)
 
-    def __init__(self, width, height):
-        Renderer.__init__(self, width, height)
-        
+
+    def _size_changed(self, old, new):
+        Renderer._size_changed(self, old, new)
+
+        width, height = self.size
         stride = width*4
         self.buf = buf = agg.buffer(width, height, stride)
 
@@ -198,13 +266,11 @@ class RendererAgg(Renderer):
             render_scanlines = agg.render_scanlines_bin_rgba
 
 
-        affine = npy.dot(self.affinerenderer, path.affine)
+        affine = self.affinerenderer * path.affine
         #print 'display affine:\n', self.affinerenderer
         #print 'path affine:\n', path.affine
         #print 'product affine:\n', affine
-        a, b, tx = affine[0]
-        c, d, ty = affine[1]
-        aggaffine = agg.trans_affine(a,b,c,d,tx,ty)
+        aggaffine = agg.trans_affine(*affine.vec6)
         transpath = agg.conv_transform_path(path.agg_path, aggaffine)
 
         if path.fillcolor is not None:
@@ -235,13 +301,14 @@ class RendererAgg(Renderer):
 
 
 
-        affineverts = npy.dot(self.affinerenderer, markers.affine)
+        affineverts = self.affinerenderer * markers.affine
 
         Nmarkers = markers.verts.shape[0]
         Locs = npy.ones((3, Nmarkers))
         Locs[0] = markers.verts[:,0]
         Locs[1] = markers.verts[:,1]        
-        Locs = npy.dot(affineverts, Locs)
+
+        Locs = affineverts * Locs
         
 
         dpiscale = self.dpi/72. # for some reason this is broken 
@@ -280,7 +347,8 @@ class RendererAgg(Renderer):
         # we'll cheat a little and use pylab for display
 
         X = npy.fromstring(self.buf.to_string(), npy.uint8)
-        X.shape = self.height, self.width, 4
+        width, height = self.size
+        X.shape = height, width, 4
         if 1:
             import pylab
             fig = pylab.figure()
@@ -353,22 +421,17 @@ class Path(traits.HasTraits):
     alpha       = mtraits.Alpha(1.0)
     linewidth   = mtraits.LineWidth(1.0)
     antialiased = mtraits.AntiAliased
-    pathdata    = mtraits.PathData()
-    affine      = mtraits.Affine()
+    pathdata    = mtraits.PathData
+    affine      = mtraits.Affine
 
     def __init__(self):
 
         # this is a quick workaround to deal with the problem that
         # traits inited at the class level are shared between
         # instances, which is not what I want
-        self.strokecolor = 'black'
-        self.fillcolor = 'blue'
-        self.affine = affine_identity()
         self.pathdata  = (npy.array([0,0], npy.uint8),   # codes
                           npy.array([[0,0], [0,0]]))     # verts
     
-mtraits.Path = traits.Trait(Path())
-
 class AggPath(Path):
 
     def __init__(self, path):
@@ -432,20 +495,17 @@ class AggPath(Path):
         rgba = [int(255*c) for c in color]
         return agg.rgba8(*rgba)
 
+
+mtraits.Path = traits.Instance(Path, ())
 class Markers(traits.HasTraits):
-    verts  = mtraits.Verts()     # locations to draw the markers at
-    path   = mtraits.Path()       # marker path in points
-    affine = mtraits.Affine()   # transformation for the verts
+    verts  = mtraits.Verts     # locations to draw the markers at
+    path   = mtraits.Path       # marker path in points
+    affine = mtraits.Affine   # transformation for the verts
     x      = traits.Float(1.0)
 
-    def __init__(self):
-        # this is a quick workaround to prevent sharing obs; see Path
-        self.verts = npy.array([[0,0], [0,0]], npy.float_)
-        self.path = Path()
-        self.affine = affine_identity()
 
     
-mtraits.Markers = traits.Trait(Markers())
+mtraits.Markers = traits.Instance(Markers, ())
 # coordinates:
 #
 #   artist model : a possibly nonlinear transformation (Func instance)
@@ -491,12 +551,12 @@ class Artist(traits.HasTraits):
     zorder  = traits.Float(1.0)
     alpha   = mtraits.Alpha()
     visible = mtraits.Visible()
-    affine  = mtraits.Affine()
+    affine  = mtraits.Affine
     
     def __init__(self):
         self.artistid = artistID()
         self.renderer = None
-        self.affine = affine_identity()
+
         
     def set_renderer(self, renderer):
         self.renderer = renderer
@@ -519,9 +579,9 @@ class Line(Artist):
     markeredgecolor = mtraits.Color('black')
     markeredgewidth = mtraits.LineWidth(0.5)
     markersize      = mtraits.MarkerSize(6.0)
-    path            = mtraits.Path()
-    markers         = mtraits.Markers()
-    X               = mtraits.Verts()
+    path            = mtraits.Path
+    markers         = mtraits.Markers
+    X               = mtraits.Verts
     model           = mtraits.Model
     zorder          = traits.Float(2.0)
     
@@ -536,14 +596,7 @@ class Line(Artist):
         # which attrs may be shared and hence have to be initialized
         # and which ones don't.  Eg, if you comment out the self.path
         # init, the code breaks
-        self.color      = 'blue'
-        self.markerfacecolor = 'blue'
-        self.markeredgecolor = 'black'
-        self.path            = Path()
-        self.markers         = Markers()
-        self.X               = npy.array([[0,1], [0,1]], npy.float_)
-        self.model           = Identity()
-        #self.model           = None # switch comments with above to reveal bug        
+
                                         
         self.sync_trait('linewidth', self.path, 'linewidth', mutual=False)
         self.sync_trait('color', self.path, 'strokecolor', mutual=False)
@@ -623,20 +676,16 @@ class Line(Artist):
 
 
 class Rectangle(Artist):
-    facecolor = mtraits.Color('Yellow')
-    edgecolor = mtraits.Color('Black')
+    facecolor = mtraits.Color('yellow')
+    edgecolor = mtraits.Color('black')
     edgewidth = mtraits.LineWidth(1.0)
     lbwh      = traits.Array('d', (4,), [0,0,1,1])
-    path      = mtraits.Path()
+    path      = mtraits.Path
     zorder    = traits.Float(1.0)
 
     def __init__(self):
         Artist.__init__(self)
-        self.facecolor = 'yellow'
-        self.edgecolor = 'black'
-        self.edgewidth = 1.0
-        self.lbwh = 0,0,1,1
-        self.path = Path()
+
         
         self.sync_trait('facecolor', self.path, 'fillcolor', mutual=False)
         self.sync_trait('edgecolor', self.path, 'strokecolor', mutual=False)
@@ -694,41 +743,34 @@ class Figure:
 
 
 class AxesCoords(traits.HasTraits):
-    xviewlim   = mtraits.Interval()
-    yviewlim   = mtraits.Interval()
-    affineview = mtraits.Affine()
-    affineaxes = mtraits.Affine()  
-    affine     = mtraits.Affine()        
-
-    def __init__(self):
-        self.xviewlim = npy.array([0., 1.])
-        self.yviewlim = npy.array([0., 1.])
-        self.affineview = affine_identity()
-        self.affineaxes = affine_identity()
-        self.affine = affine_identity()   
+    xviewlim   = mtraits.Interval
+    yviewlim   = mtraits.Interval
+    affineview = mtraits.Affine
+    affineaxes = mtraits.Affine  
+    affine     = mtraits.Affine        
         
     def _affineview_changed(self, old, new):
-        self.affine = npy.dot(self.affineaxes, new)
+        self.affine = self.affineaxes * new
 
     def _affineaxes_changed(self, old, new):
-        self.affine = npy.dot(new, self.affineview)
+        self.affine = new * self.affineview
         
     def _xviewlim_changed(self, old, new):
 
         xmin, xmax = new
         scale = 1./(xmax-xmin)
         tx = -xmin*scale
-        self.affineview[0][0] = scale
-        self.affineview[0][-1] = tx
-        self.affine = npy.dot(self.affineaxes, self.affineview)
+        self.affineview.data[0][0] = scale
+        self.affineview.data[0][-1] = tx
+        self.affine = self.affineaxes * self.affineview
         
     def _yviewlim_changed(self, old, new):
         ymin, ymax = new
         scale = 1./(ymax-ymin)
         ty = -ymin*scale
-        self.affineview[1][1] = scale
-        self.affineview[1][-1] = ty
-        self.affine = npy.dot(self.affineaxes, self.affineview)
+        self.affineview.data[1][1] = scale
+        self.affineview.data[1][-1] = ty
+        self.affine = self.affineaxes * self.affineview
                                        
 
 x1 = npy.arange(0, 10., 0.05)
@@ -737,9 +779,10 @@ y1 = npy.cos(2*npy.pi*x1)
 y2 = 10*npy.exp(-x1)
 
 # the axes rectangle
-axrect1 = [0.1, 0.1, 0.4, 0.4]
 coords1 = AxesCoords()
-coords1.affineaxes = affine_axes(axrect1)
+coords1.affineaxes = Affine()
+coords1.affineaxes.scale = 0.4, 0.4
+coords1.affineaxes.translate = 0.1, 0.1
 
 fig = Figure()
 
@@ -767,10 +810,11 @@ coords1.yviewlim = -1.1, 1.1
 
 
 if 1:
-    axrect2 = [0.55, 0.55, 0.4, 0.4]
     coords2 = AxesCoords()
-    coords2.affineaxes = affine_axes(axrect2)
-
+    coords2.affineaxes = Affine()
+    coords2.affineaxes.scale = 0.4, 0.4
+    coords2.affineaxes.translate = 0.55, 0.55
+    
 
     r = npy.arange(0.0, 1.0, 0.01)
     theta = r*4*npy.pi
@@ -796,7 +840,7 @@ if 1:
 
 
 if 1:
-    renderer = RendererAgg(600,400)
+    renderer = RendererAgg()
     fig.set_renderer(renderer)
     fig.draw()
     renderer.show()
