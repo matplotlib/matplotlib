@@ -873,13 +873,49 @@ class FigureCanvasBase:
         self.scroll_pick_id = self.mpl_connect('scroll_event',self.pick)
 
         if False:
-            # highlight the artists that are hit
-            self.mpl_connect('motion_notify_event',self.hilite)
+            ## highlight the artists that are hit
+            self.mpl_connect('motion_notify_event',self.onHilite)
+            ## delete the artists that are clicked on
+            #self.mpl_disconnect(self.button_pick_id)
+            #self.mpl_connect('button_press_event',self.onRemove)
 
-    def hilite(self, ev):
-        """Mouse event processor which highlights the artists
+    def onRemove(self, ev):
+        """
+        Mouse event processor which removes the top artist
+        under the cursor.  Connect this to the mouse_press_event
+        using canvas.mpl_connect('mouse_press_event',canvas.onRemove)
+        """
+        def sort_artists(artists):
+            # This depends on stable sort and artists returned
+            # from get_children in z order.
+            L = [ (h.zorder, h) for h in artists ]
+            L.sort()
+            return [ h for zorder, h in L ]
+
+        # Find the top artist under the cursor
+        under = sort_artists(self.figure.hitlist(ev))
+        h = None
+        if under: h = under[-1]
+
+        # Try deleting that artist, or its parent if you
+        # can't delete the artist
+        while h:
+            print "Removing",h
+            if h.remove(): 
+                self.draw_idle()
+                break
+            parent = None
+            for p in under:
+                if hasattr(p,'getchildren') and h in p.get_children():
+                    parent = p
+                    break
+            h = parent
+        
+    def onHilite(self, ev):
+        """
+        Mouse event processor which highlights the artists
         under the cursor.  Connect this to the motion_notify_event
-        using canvas.mpl_connect('motion_notify_event',canvas.hilite)
+        using canvas.mpl_connect('motion_notify_event',canvas.onHilite)
         """
         if not hasattr(self,'_active'): self._active = dict()
 

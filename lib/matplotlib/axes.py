@@ -1093,7 +1093,8 @@ class Axes(martist.Artist):
         a.set_axes(self)
         self.artists.append(a)
         self._set_artist_props(a)
-
+        a._remove_method = lambda h: self.artists.remove(h)
+        
     def add_collection(self, collection, autolim=False):
         'add a Collection instance to Axes'
         label = collection.get_label()
@@ -1104,8 +1105,8 @@ class Axes(martist.Artist):
         collection.set_clip_box(self.bbox)
         if autolim:
             self.update_datalim(collection.get_verts(self.transData))
-
-
+        collection._remove_method = lambda h: self.collections.remove(h)
+        
     def add_line(self, line):
         'Add a line to the list of plot lines'
         self._set_artist_props(line)
@@ -1115,7 +1116,8 @@ class Axes(martist.Artist):
         if not line.get_label():
             line.set_label('_line%d'%len(self.lines))
         self.lines.append(line)
-
+        line._remove_method = lambda h: self.lines.remove(h)
+        
     def _update_line_limits(self, line):
         xdata = line.get_xdata(orig=False)
         ydata = line.get_ydata(orig=False)
@@ -1140,7 +1142,8 @@ class Axes(martist.Artist):
         p.set_clip_box(self.bbox)
         self._update_patch_limits(p)
         self.patches.append(p)
-
+        p._remove_method = lambda h: self.patches.remove(h)
+        
     def _update_patch_limits(self, p):
         'update the datalimits for patch p'
         xys = self._get_verts_in_data_coords(
@@ -1152,7 +1155,8 @@ class Axes(martist.Artist):
         'Add a table instance to the list of axes tables'
         self._set_artist_props(tab)
         self.tables.append(tab)
-
+        tab._remove_method = lambda h: self.tables.remove(h)
+        
     def relim(self):
         'recompute the datalimits based on current artists'
         self.dataLim.ignore(True)
@@ -1161,7 +1165,7 @@ class Axes(martist.Artist):
 
         for p in self.patches:
             self._update_patch_limits(p)
-
+            
     def update_datalim(self, xys):
         'Update the data lim bbox with seq of xy tups or equiv. 2-D array'
         # if no data is set currently, the bbox will ignore its
@@ -2148,7 +2152,8 @@ class Axes(martist.Artist):
         if fontdict is not None: t.update(fontdict)
         t.update(kwargs)
         self.texts.append(t)
-
+        t._remove_method = lambda h: self.texts.remove(h)
+ 
 
         #if t.get_clip_on():  t.set_clip_box(self.bbox)
         if kwargs.has_key('clip_on'):  t.set_clip_box(self.bbox)
