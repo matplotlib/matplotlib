@@ -103,8 +103,10 @@ def segment_hits(cx,cy,x,y,radius):
     line_hits = (cx-px)**2 + (cy-py)**2 <= radius**2
     #if any(line_hits): print "lines",xr[candidates]
     line_hits = line_hits & candidates
-    result = concatenate((nonzero(point_hits),nonzero(line_hits)))
-    return result
+    points, = point_hits.ravel().nonzero()
+    lines, = line_hits.ravel().nonzero()
+    #print points,lines
+    return concatenate((points,lines))
 
 class Line2D(Artist):
     lineStyles = _lineStyles =  { # hidden names deprecated
