@@ -16,6 +16,8 @@ if gtk.pygtk_version < pygtk_version_required:
                       % (gtk.pygtk_version + pygtk_version_required))
 del pygtk_version_required
 
+import numpy as npy
+
 import matplotlib
 from matplotlib._pylab_helpers import Gcf
 from matplotlib.backend_bases import RendererBase, GraphicsContextBase, \
@@ -23,10 +25,6 @@ from matplotlib.backend_bases import RendererBase, GraphicsContextBase, \
 from matplotlib.cbook import is_string_like, enumerate
 from matplotlib.figure import Figure
 from matplotlib.mathtext import math_parse_s_ft2font
-import matplotlib.numerix as numerix
-from matplotlib.numerix import asarray, fromstring, UInt8, zeros, \
-     where, transpose, nonzero, indices, ones, nx
-
 
 from matplotlib.backends._backend_gdk import pixbuf_get_pixels_array
 
@@ -106,7 +104,7 @@ class RendererGDK(RendererBase):
         im.flipud_out()
         rows, cols, image_str = im.as_rgba_str()
 
-        image_array = fromstring(image_str, UInt8)
+        image_array = npy.fromstring(image_str, npy.uint8)
         image_array.shape = rows, cols, 4
 
         pixbuf = gtk.gdk.Pixbuf(gtk.gdk.COLORSPACE_RGB,
@@ -144,8 +142,8 @@ class RendererGDK(RendererBase):
 
     def draw_lines(self, gc, x, y, transform=None):
         if gc.gdkGC.line_width > 0:
-            x = x.astype(nx.Int16)
-            y = self.height - y.astype(nx.Int16)
+            x = x.astype(npy.int16)
+            y = self.height - y.astype(npy.int16)
             self.gdkDrawable.draw_lines(gc.gdkGC, zip(x,y))
 
 
@@ -213,16 +211,16 @@ class RendererGDK(RendererBase):
         N = imw*imh
 
         # a numpixels by num fonts array
-        Xall = zeros((N,len(fonts)), typecode=UInt8)
+        Xall = npy.zeros((N,len(fonts)), npy.uint8)
 
         for i, font in enumerate(fonts):
             if angle == 90:
                 font.horiz_image_to_vert_image() # <-- Rotate
             imw, imh, image_str = font.image_as_str()
-            Xall[:,i] = fromstring(image_str, UInt8)
+            Xall[:,i] = npy.fromstring(image_str, npy.uint8)
 
         # get the max alpha at each pixel
-        Xs = numerix.mlab.max(Xall,1)
+        Xs = npy.amax(Xall,axis=1)
 
         # convert it to it's proper shape
         Xs.shape = imh, imw
@@ -422,7 +420,7 @@ class GraphicsContextGDK(GraphicsContextBase):
         if dash_list == None:
             self.gdkGC.line_style = gdk.LINE_SOLID
         else:
-            pixels = self.renderer.points_to_pixels(asarray(dash_list))
+            pixels = self.renderer.points_to_pixels(npy.asarray(dash_list))
             dl = [max(1, int(round(val))) for val in pixels]
             self.gdkGC.set_dashes(dash_offset, dl)
             self.gdkGC.line_style = gdk.LINE_ON_OFF_DASH

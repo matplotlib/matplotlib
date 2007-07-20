@@ -2,6 +2,9 @@
 Figure class -- add docstring here!
 """
 import sys
+
+import numpy as npy
+
 import artist
 from artist import Artist
 from axes import Axes, Subplot, PolarSubplot, PolarAxes
@@ -16,8 +19,6 @@ from text import Text, _process_text_args
 
 from legend import Legend
 from transforms import Bbox, Value, Point, get_bbox_transform, unit_bbox
-from numerix import array, clip, transpose, minimum, maximum
-from mlab import linspace, meshgrid
 from ticker import FormatStrFormatter
 from cm import ScalarMappable
 from contour import ContourSet
@@ -842,8 +843,8 @@ def figaspect(arg):
 
     # min/max sizes to respect when autoscaling.  If John likes the idea, they
     # could become rc parameters, for now they're hardwired.
-    figsize_min = array((4.0,2.0)) # min length for width/height
-    figsize_max = array((16.0,16.0)) # max length for width/height
+    figsize_min = npy.array((4.0,2.0)) # min length for width/height
+    figsize_max = npy.array((16.0,16.0)) # max length for width/height
     #figsize_min = rcParams['figure.figsize_min']
     #figsize_max = rcParams['figure.figsize_max']
 
@@ -858,7 +859,7 @@ def figaspect(arg):
     fig_height = rcParams['figure.figsize'][1]
 
     # New size for the figure, keeping the aspect ratio of the caller
-    newsize = array((fig_height/arr_ratio,fig_height))
+    newsize = npy.array((fig_height/arr_ratio,fig_height))
 
     # Sanity checks, don't drop either dimension below figsize_min
     newsize /= min(1.0,*(newsize/figsize_min))
@@ -868,7 +869,7 @@ def figaspect(arg):
 
     # Finally, if we have a really funky aspect ratio, break it but respect
     # the min/max dimensions (we don't want figures 10 feet tall!)
-    newsize = clip(newsize,figsize_min,figsize_max)
+    newsize = npy.clip(newsize,figsize_min,figsize_max)
     return newsize
 
 artist.kwdocd['Figure'] = artist.kwdoc(Figure)

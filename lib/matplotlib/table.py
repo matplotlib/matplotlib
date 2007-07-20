@@ -21,8 +21,8 @@ License   : matplotlib license
 """
 from __future__ import division
 import sys, warnings
+
 from matplotlib import verbose
-from numerix import ones, Float, add, asarray
 
 import artist
 from artist import Artist
@@ -248,10 +248,10 @@ class Table(Artist):
 
         bbox = bbox_all(boxes)
         return inverse_transform_bbox(self.get_transform(), bbox)
-    
+
     def contains(self,mouseevent):
-        """Test whether the mouse event occurred in the table.  
-        
+        """Test whether the mouse event occurred in the table.
+
         Returns T/F, {}
         """
         if callable(self._contains): return self._contains(self,mouseevent)

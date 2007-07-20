@@ -69,23 +69,22 @@ INSTALLING
 
 """
 from __future__ import division
-
 import os, sys
+
+import numpy as npy
+
 import matplotlib
 from matplotlib import verbose, rcParams
-from matplotlib.numerix import array, Float, zeros, transpose
 from matplotlib._image import fromarray
 from matplotlib._pylab_helpers import Gcf
 from matplotlib.backend_bases import RendererBase,\
      GraphicsContextBase, FigureManagerBase, FigureCanvasBase
-
 from matplotlib.cbook import enumerate, is_string_like, exception_to_str
 from matplotlib.figure import Figure
 from matplotlib.font_manager import fontManager
 from matplotlib.ft2font import FT2Font
 from matplotlib.mathtext import math_parse_s_ft2font
 from matplotlib.transforms import lbwh_to_bbox
-from matplotlib.numerix.mlab import fliplr
 
 from _backend_agg import RendererAgg as _RendererAgg
 
@@ -154,8 +153,8 @@ class RendererAgg(RendererBase):
         point in x, y
         """
         if __debug__: verbose.report('RendererAgg.draw_line', 'debug-annoying')
-        x = array([x1,x2], typecode=Float)
-        y = array([y1,y2], typecode=Float)
+        x = npy.array([x1,x2], float)
+        y = npy.array([y1,y2], float)
         self._renderer.draw_lines(gc, x, y)
 
 
@@ -271,9 +270,9 @@ class RendererAgg(RendererBase):
                 m,n,tmp = Z.shape
 
                 def func(x):
-                    return transpose(fliplr(x))
+                    return npy.transpose(npy.fliplr(x))
 
-                Z = zeros((n,m,4), typecode=Float)
+                Z = npy.zeros((n,m,4), float)
                 Z[:,:,0] = func(r)
                 Z[:,:,1] = func(g)
                 Z[:,:,2] = func(b)

@@ -12,6 +12,8 @@ import sys
 import time
 import zlib
 
+import numpy as npy
+
 from cStringIO import StringIO
 from datetime import datetime
 from math import ceil, cos, floor, pi, sin
@@ -28,7 +30,6 @@ from matplotlib.afm import AFM
 from matplotlib.dviread import Dvi
 from matplotlib.ft2font import FT2Font, FIXED_WIDTH, ITALIC, LOAD_NO_SCALE
 from matplotlib.mathtext import math_parse_s_pdf
-from matplotlib.numerix import Float32, UInt8, fromstring, arange, infinity, isnan, asarray
 from matplotlib.transforms import Bbox
 from matplotlib import ttconv
 
@@ -111,7 +112,7 @@ def pdfRepr(obj):
     # need to use %f with some precision.  Perhaps the precision
     # should adapt to the magnitude of the number?
     elif isinstance(obj, float):
-        if isnan(obj) or obj in (-infinity, infinity):
+        if npy.isnan(obj) or obj in (-npy.infinity, npy.infinity):
             raise ValueError, "Can only output finite numbers in PDF"
         r = "%.10f" % obj
         return r.rstrip('0').rstrip('.')
@@ -543,13 +544,13 @@ class PdfFile:
             fontdict['FontMatrix'] = [ .001, 0, 0, .001, 0, 0 ]
             fontdict['CharProcs'] = charprocsObject
             fontdict['Encoding'] = {
-                'Type': Name('Encoding'), 
+                'Type': Name('Encoding'),
                 'Differences': differencesArray}
         elif fonttype == 42:
             fontdict['Subtype'] = Name('TrueType')
             fontdict['Encoding'] = Name('WinAnsiEncoding')
 
-            
+
         flags = 0
         symbolic = False #ps_name.name in ('Cmsy10', 'Cmmi10', 'Cmex10')
         if ff & FIXED_WIDTH: flags |= 1 << 0
@@ -632,7 +633,7 @@ class PdfFile:
                 self.beginStream(charprocObject.id,
                                  None,
                                  {'Length':  len(stream)})
-                self.currentstream.write(stream)                 
+                self.currentstream.write(stream)
                 self.endStream()
                 charprocs[charname] = charprocObject
             self.writeObject(charprocsObject, charprocs)
@@ -712,21 +713,21 @@ class PdfFile:
                             0, 0, sidelen, sidelen, Op.rectangle,
                             Op.fill)
             if lst[2]:                # -
-                for j in arange(0.0, sidelen, density/lst[2]):
+                for j in npy.arange(0.0, sidelen, density/lst[2]):
                     self.output(0, j, Op.moveto,
                                 sidelen, j, Op.lineto)
             if lst[3]:                # /
-                for j in arange(0.0, sidelen, density/lst[3]):
+                for j in npy.arange(0.0, sidelen, density/lst[3]):
                     self.output(0, j, Op.moveto,
                                 sidelen-j, sidelen, Op.lineto,
                                 sidelen-j, 0, Op.moveto,
                                 sidelen, j, Op.lineto)
             if lst[4]:                # |
-                for j in arange(0.0, sidelen, density/lst[4]):
+                for j in npy.arange(0.0, sidelen, density/lst[4]):
                     self.output(j, 0, Op.moveto,
                                 j, sidelen, Op.lineto)
             if lst[5]:                # \
-                for j in arange(sidelen, 0.0, -density/lst[5]):
+                for j in npy.arange(sidelen, 0.0, -density/lst[5]):
                     self.output(sidelen, j, Op.moveto,
                                 j, sidelen, Op.lineto,
                                 j, 0, Op.moveto,
@@ -755,20 +756,20 @@ class PdfFile:
     def _rgb(self, im):
         h,w,s = im.as_rgba_str()
 
-        rgba = fromstring(s, UInt8)
+        rgba = npy.fromstring(s, npy.uint8)
         rgba.shape = (h, w, 4)
         rgb = rgba[:,:,:3]
         return h, w, rgb.tostring()
 
     def _gray(self, im, rc=0.3, gc=0.59, bc=0.11):
         rgbat = im.as_rgba_str()
-        rgba = fromstring(rgbat[2], UInt8)
+        rgba = npy.fromstring(rgbat[2], npy.uint8)
         rgba.shape = (rgbat[0], rgbat[1], 4)
-        rgba_f = rgba.astype(Float32)
+        rgba_f = rgba.astype(npy.float32)
         r = rgba_f[:,:,0]
         g = rgba_f[:,:,1]
         b = rgba_f[:,:,2]
-        gray = (r*rc + g*gc + b*bc).astype(UInt8)
+        gray = (r*rc + g*gc + b*bc).astype(npy.uint8)
         return rgbat[0], rgbat[1], gray.tostring()
 
     def writeImages(self):
@@ -999,7 +1000,7 @@ class RendererPdf(RendererBase):
                          imob, Op.use_xobject, Op.grestore)
 
     def draw_line(self, gc, x1, y1, x2, y2):
-        if isnan(x1) or isnan(x2) or isnan(y1) or isnan(y2):
+        if npy.isnan(x1) or npy.isnan(x2) or npy.isnan(y1) or npy.isnan(y2):
             return
         self.check_gc(gc)
         self.file.output(x1, y1, Op.moveto,
@@ -1009,7 +1010,7 @@ class RendererPdf(RendererBase):
         self.check_gc(gc)
         if transform is not None:
             x, y = transform.seq_x_y(x, y)
-        nan_at = isnan(x) | isnan(y)
+        nan_at = npy.isnan(x) | npy.isnan(y)
         next_op = Op.moveto
         for i in range(len(x)):
             if nan_at[i]:
@@ -1061,8 +1062,8 @@ class RendererPdf(RendererBase):
         self.check_gc(gc, rgbFace)
         fillp = rgbFace is not None
         marker = self.file.markerObject(path, fillp, self.gc._linewidth)
-        x, y = trans.numerix_x_y(asarray(x), asarray(y))
-        nan_at = isnan(x) | isnan(y)
+        x, y = trans.numerix_x_y(npy.asarray(x), npy.asarray(y))
+        nan_at = npy.isnan(x) | npy.isnan(y)
 
         self.file.output(Op.gsave)
         ox, oy = 0, 0

@@ -432,7 +432,7 @@ class Colormap:
             mask_bad = ma.getmask(xma)
         if xa.dtype.char in npy.typecodes['Float']:
             npy.putmask(xa, xa==1.0, 0.9999999) #Treat 1.0 as slightly less than 1.
-            xa = (xa * self.N).astype(npy.int)
+            xa = (xa * self.N).astype(int)
         # Set the over-range indices before the under-range;
         # otherwise the under-range values get converted to over-range.
         npy.putmask(xa, xa>self.N-1, self._i_over)

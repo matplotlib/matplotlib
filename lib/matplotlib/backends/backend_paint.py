@@ -16,8 +16,10 @@ from __future__ import division
 import sys
 import os
 import paint
+
+import numpy as npy
+
 from matplotlib import verbose
-from matplotlib.numerix import asarray
 
 from matplotlib._pylab_helpers import Gcf
 from matplotlib.backend_bases import RendererBase,\
@@ -155,7 +157,7 @@ class RendererPaint(RendererBase):
         offset, dashes = gc.get_dashes()
         if dashes is not None:
 
-            dashes = tuple(self.points_to_pixels(asarray(dashes)))
+            dashes = tuple(self.points_to_pixels(npy.asarray(dashes)))
             return path.dash(offset, dashes)
         else:
             return path

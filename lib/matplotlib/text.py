@@ -2,23 +2,23 @@
 Figure and Axes text
 """
 from __future__ import division
-import re
+import re, math
+
+import numpy as npy
+
+import matplotlib
 from matplotlib import verbose
 from matplotlib import cbook
-import matplotlib
-import math
+from matplotlib import rcParams
+import artist
 from artist import Artist
 from cbook import enumerate, is_string_like, maxdict, is_numlike
 from font_manager import FontProperties
-from matplotlib import rcParams
 from patches import bbox_artist, YAArrow
-from numerix import sin, cos, pi, cumsum, dot, asarray, array, \
-     where, nonzero, equal, sqrt
 from transforms import lbwh_to_bbox, bbox_all, identity_transform
 from lines import Line2D
 
 import matplotlib.nxutils as nxutils
-import artist
 
 def scanner(s):
     """
@@ -33,8 +33,8 @@ def scanner(s):
     """
     if not len(s): return [(s, False)]
     #print 'testing', s, type(s)
-    inddollar = nonzero(asarray(equal(s,'$')))
-    quoted = dict([ (ind,1) for ind in nonzero(asarray(equal(s,'\\')))])
+    inddollar, = npy.nonzero(npy.asarray(npy.equal(s,'$')))
+    quoted = dict([ (ind,1) for ind in npy.nonzero(npy.asarray(npy.equal(s,'\\')))[0]])
     indkeep = [ind for ind in inddollar if not quoted.has_key(ind-1)]
     if len(indkeep)==0:
         return [(s, False)]
@@ -281,7 +281,7 @@ class Text(Artist):
 
         # now rotate the bbox
 
-        cornersRotated = [dot(M,array([[thisx],[thisy],[1]])) for thisx, thisy in cornersHoriz]
+        cornersRotated = [npy.dot(M,npy.array([[thisx],[thisy],[1]])) for thisx, thisy in cornersHoriz]
 
         txs = [float(v[0][0]) for v in cornersRotated]
         tys = [float(v[1][0]) for v in cornersRotated]
@@ -317,7 +317,7 @@ class Text(Artist):
 
 
         # now rotate the positions around the first x,y position
-        xys = [dot(M,array([[thisx],[thisy],[1]])) for thisx, thisy in offsetLayout]
+        xys = [npy.dot(M,npy.array([[thisx],[thisy],[1]])) for thisx, thisy in offsetLayout]
 
 
         tx = [float(v[0][0])+offsetx for v in xys]
@@ -536,24 +536,24 @@ class Text(Artist):
 
     def get_rotation_matrix(self, x0, y0):
 
-        theta = pi/180.0*self.get_rotation()
+        theta = npy.pi/180.0*self.get_rotation()
         # translate x0,y0 to origin
-        Torigin = array([ [1, 0, -x0],
+        Torigin = npy.array([ [1, 0, -x0],
                            [0, 1, -y0],
                            [0, 0, 1  ]])
 
         # rotate by theta
-        R = array([ [cos(theta),  -sin(theta), 0],
-                     [sin(theta), cos(theta), 0],
+        R = npy.array([ [npy.cos(theta),  -npy.sin(theta), 0],
+                     [npy.sin(theta), npy.cos(theta), 0],
                      [0,           0,          1]])
 
         # translate origin back to x0,y0
-        Tback = array([ [1, 0, x0],
+        Tback = npy.array([ [1, 0, x0],
                          [0, 1, y0],
                          [0, 0, 1  ]])
 
 
-        return dot(dot(Tback,R), Torigin)
+        return npy.dot(npy.dot(Tback,R), Torigin)
 
     def set_backgroundcolor(self, color):
         """
@@ -837,7 +837,7 @@ class TextWithDash(Text):
     dashlength is the length of the dash in canvas units.
     (default=0.0).
 
-    dashdirection is one of 0 or 1, where 0 draws the dash
+    dashdirection is one of 0 or 1, npy.where 0 draws the dash
     after the text and 1 before.
     (default=0).
 
@@ -943,15 +943,15 @@ class TextWithDash(Text):
         dashpush = self.get_dashpush()
 
         angle = get_rotation(dashrotation)
-        theta = pi*(angle/180.0+dashdirection-1)
-        cos_theta, sin_theta = cos(theta), sin(theta)
+        theta = npy.pi*(angle/180.0+dashdirection-1)
+        cos_theta, sin_theta = npy.cos(theta), npy.sin(theta)
 
         transform = self.get_transform()
 
         # Compute the dash end points
         # The 'c' prefix is for canvas coordinates
-        cxy = array(transform.xy_tup((dashx, dashy)))
-        cd = array([cos_theta, sin_theta])
+        cxy = npy.array(transform.xy_tup((dashx, dashy)))
+        cd = npy.array([cos_theta, sin_theta])
         c1 = cxy+dashpush*cd
         c2 = cxy+(dashpush+dashlength)*cd
 
@@ -989,8 +989,8 @@ class TextWithDash(Text):
             if dy > h or dy < -h:
                 dy = h
                 dx = h/tan_theta
-        cwd = array([dx, dy])/2
-        cwd *= 1+dashpad/sqrt(dot(cwd,cwd))
+        cwd = npy.array([dx, dy])/2
+        cwd *= 1+dashpad/npy.sqrt(npy.dot(cwd,cwd))
         cw = c2+(dashdirection*2-1)*cwd
 
         self._x, self._y = transform.inverse_xy_tup(tuple(cw))
@@ -1227,8 +1227,8 @@ class Annotation(Text):
             return trans.xy_tup((x,y))
         elif s=='polar':
             theta, r = x, y
-            x = r*cos(theta)
-            y = r*sin(theta)
+            x = r*npy.cos(theta)
+            y = r*npy.sin(theta)
             trans = self.axes.transData
             return trans.xy_tup((x,y))
         elif s=='figure points':

@@ -216,8 +216,8 @@ class ContourLabeler:
         yy=npy.asarray(slc)[:,1].copy()
 
         #indices which are under the label
-        inds=npy.nonzero(((xx < x+xlabel) & (xx > x-xlabel)) &
-                     ((yy < y+ylabel) & (yy > y-ylabel)))[0]
+        inds, = npy.nonzero(((xx < x+xlabel) & (xx > x-xlabel)) &
+                            ((yy < y+ylabel) & (yy > y-ylabel)))
 
         if len(inds) >0:
             #if the label happens to be over the beginning of the
@@ -225,7 +225,7 @@ class ContourLabeler:
             #indices to be removed are
             #inds= [0,1,2,3,305,306,307]
             #should rewrite this in a better way
-            linds = npy.nonzero(inds[1:]- inds[:-1] != 1)[0]
+            linds, = npy.nonzero(inds[1:]- inds[:-1] != 1)
             if inds[0] == 0 and len(linds) != 0:
                 ii = inds[linds[0]]
                 lc1 =linecontour[ii+1:inds[ii+1]]

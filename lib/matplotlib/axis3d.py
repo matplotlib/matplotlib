@@ -13,8 +13,7 @@ import text
 import art3d
 import proj3d
 
-from numerix import sin, cos, pi, cumsum, dot, asarray, array, \
-     where, nonzero, equal, sqrt
+import numpy as npy
 
 def norm_angle(a):
     """Return angle between -180 and +180"""
@@ -47,13 +46,13 @@ def text_update_coords(self, renderer):
 
     angle = text.get_rotation(dashrotation)
 
-    theta = pi*(angle/180.0+dashdirection-1)
-    cos_theta, sin_theta = cos(theta), sin(theta)
+    theta = math.pi*(angle/180.0+dashdirection-1)
+    cos_theta, sin_theta = math.cos(theta), math.sin(theta)
 
     # Compute the dash end points
     # The 'c' prefix is for canvas coordinates
-    cxy = array(transform.xy_tup((x, y)))
-    cd = array([cos_theta, sin_theta])
+    cxy = npy.array(transform.xy_tup((x, y)))
+    cd = npy.array([cos_theta, sin_theta])
     c1 = cxy+dashpush*cd
     c2 = cxy+(dashpush+dashlength)*cd
     (x1, y1) = transform.inverse_xy_tup(tuple(c1))
@@ -76,9 +75,9 @@ def text_update_coords(self, renderer):
     # well enough yet.
     we = self._mytext.get_window_extent(renderer=renderer)
     w, h = we.width(), we.height()
-    off = array([cos_theta*(w/2+2)-1,sin_theta*(h+1)-1])
-    off = array([cos_theta*(w/2),sin_theta*(h/2)])
-    dir = array([cos_theta,sin_theta])*dashpad
+    off = npy.array([cos_theta*(w/2+2)-1,sin_theta*(h+1)-1])
+    off = npy.array([cos_theta*(w/2),sin_theta*(h/2)])
+    dir = npy.array([cos_theta,sin_theta])*dashpad
     cw = c2 + off +dir
 
     self._mytext.set_position(transform.inverse_xy_tup(tuple(cw)))

@@ -7,10 +7,11 @@ layout -- you have to figure out how wide and tall you want your Axes
 to be to accommodate your widget.
 """
 
-from mlab import linspace, dist
+import numpy as npy
+
+from mlab import dist
 from patches import Circle, Rectangle
 from lines import Line2D
-from numerix import array
 from transforms import blend_xy_sep_transform
 
 class LockDraw:
@@ -83,7 +84,7 @@ class Button(Widget):
         label is a string which is the button text
 
         image if not None, is an image to place in the button -- can
-          be any legal arg to imshow (array, matplotlib Image
+          be any legal arg to imshow (numpy array, matplotlib Image
           instance, or PIL image)
 
         color is the color of the button when not activated
@@ -304,7 +305,7 @@ class CheckButtons(Widget):
 
         if len(labels)>1:
             dy = 1./(len(labels)+1)
-            ys = linspace(1-dy, dy, len(labels))
+            ys = npy.linspace(1-dy, dy, len(labels))
         else:
             dy = 0.25
             ys = [0.5]
@@ -421,7 +422,7 @@ class RadioButtons(Widget):
         ax.set_yticks([])
         ax.set_navigate(False)
         dy = 1./(len(labels)+1)
-        ys = linspace(1-dy, dy, len(labels))
+        ys = npy.linspace(1-dy, dy, len(labels))
         cnt = 0
         axcolor = ax.get_axis_bgcolor()
 
@@ -457,9 +458,9 @@ class RadioButtons(Widget):
         if event.button !=1 : return
         if event.inaxes != self.ax: return
         xy = self.ax.transAxes.inverse_xy_tup((event.x, event.y))
-        pclicked = array([xy[0], xy[1]])
+        pclicked = npy.array([xy[0], xy[1]])
         def inside(p):
-            pcirc = array([p.center[0], p.center[1]])
+            pcirc = npy.array([p.center[0], p.center[1]])
             return dist(pclicked, pcirc) < p.radius
 
         for p,t in zip(self.circles, self.labels):

@@ -3682,7 +3682,7 @@ class Axes(martist.Artist):
             distance = max(positions) - min(positions)
             widths = min(0.15*max(distance,1.0), 0.5)
         if isinstance(widths, float) or isinstance(widths, int):
-            widths = npy.ones((col,), numpy.float_) * widths
+            widths = npy.ones((col,), float) * widths
 
         # loop through columns, adding each to plot
         self.hold(True)
