@@ -37,8 +37,8 @@ class PolygonInteractor:
         self.ax = ax
         canvas = poly.figure.canvas
         self.poly = poly
-        self.poly.verts = list(self.poly.verts)
-        x, y = zip(*self.poly.verts)
+
+        x, y = zip(*self.poly.xy)
         self.line = Line2D(x,y,marker='o', markerfacecolor='r', animated=True)
         #self._update_line(poly)
 
@@ -69,7 +69,7 @@ class PolygonInteractor:
 
     def get_ind_under_point(self, event):
         'get the index of the vertex under point if within epsilon tolerance'
-        x, y = zip(*self.poly.verts)
+        x, y = zip(*self.poly.xy)
 
         # display coords
         xt, yt = self.poly.get_transform().numerix_x_y(x, y)
@@ -105,18 +105,18 @@ class PolygonInteractor:
         elif event.key=='d':
             ind = self.get_ind_under_point(event)
             if ind is not None:
-                self.poly.verts = [tup for i,tup in enumerate(self.poly.verts) if i!=ind]
-                self.line.set_data(zip(*self.poly.verts))
+                self.poly.xy = [tup for i,tup in enumerate(self.poly.xy) if i!=ind]
+                self.line.set_data(zip(*self.poly.xy))
         elif event.key=='i':
-            xys = self.poly.get_transform().seq_xy_tups(self.poly.verts)
+            xys = self.poly.get_transform().seq_xy_tups(self.poly.xy)
             p = event.x, event.y # display coords
             for i in range(len(xys)-1):
                 s0 = xys[i]
                 s1 = xys[i+1]
                 d = dist_point_to_segment(p, s0, s1)
                 if d<=self.epsilon:
-                    self.poly.verts.insert(i+1, (event.xdata, event.ydata))
-                    self.line.set_data(zip(*self.poly.verts))
+                    self.poly.xy.insert(i+1, (event.xdata, event.ydata))
+                    self.line.set_data(zip(*self.poly.xy))
                     break
 
 
@@ -129,8 +129,8 @@ class PolygonInteractor:
         if event.inaxes is None: return
         if event.button != 1: return
         x,y = event.xdata, event.ydata
-        self.poly.verts[self._ind] = x,y
-        self.line.set_data(zip(*self.poly.verts))
+        self.poly.xy[self._ind] = x,y
+        self.line.set_data(zip(*self.poly.xy))
 
         self.canvas.restore_region(self.background)
         self.ax.draw_artist(self.poly)
@@ -146,17 +146,23 @@ from pylab import *
 
 
 fig = figure()
-circ = CirclePolygon((.5,.5),.5, animated=True)
+theta = arange(0, 2*pi, 0.1)
+r = 1.5
+
+xs = r*npy.cos(theta)
+ys = r*npy.sin(theta)
+
+poly = Polygon(zip(xs, ys,), animated=True)
 
 
 
 
 ax = subplot(111)
-ax.add_patch(circ)
-p = PolygonInteractor( ax, circ)
+ax.add_patch(poly)
+p = PolygonInteractor( ax, poly)
 
 ax.add_line(p.line)
 ax.set_title('Click and drag a point to move it')
-ax.set_xlim((0,1))
-ax.set_ylim((0,1))
+ax.set_xlim((-2,2))
+ax.set_ylim((-2,2))
 show()

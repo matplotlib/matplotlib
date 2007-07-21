@@ -242,6 +242,60 @@ class Affine(traits.HasTraits):
         #return 'AFFINE:\n%s'%self.data
 
 
+class Box(traits.HasTraits):
+    # left, bottom, width, height
+    bounds = traits.List
+    left = traits.Property(traits.Float)
+    bottom = traits.Property(traits.Float)
+    width = traits.Property(traits.Float)  
+    height = traits.Property(traits.Float) 
+
+    right = traits.Property(traits.Float) # read only
+    top = traits.Property(traits.Float)   # read only
+
+    def ___bounds_default(self):
+        return  [0.0, 0.0, 1.0, 1.0]
+
+    def _get_left(self):
+        return self.bounds[0]
+
+    def _set_left(self, left):
+        oldbounds = self.bounds[:]        
+        self.bounds[0] = left
+        self.trait_property_changed('bounds', oldbounds, self.bounds)
+
+    def _get_bottom(self):
+        return self.bounds[1]
+
+    def _set_bottom(self, bottom):
+        oldbounds = self.bounds[:]        
+        self.bounds[1] = bottom
+        self.trait_property_changed('bounds', oldbounds, self.bounds)
+
+    def _get_width(self):
+        return self.bounds[2]
+
+    def _set_width(self, width):
+        oldbounds = self.bounds[:]        
+        self.bounds[2] = width
+        self.trait_property_changed('bounds', oldbounds, self.bounds)
+
+    def _get_height(self):
+        return self.bounds[2]
+
+    def _set_height(self, height):
+        oldbounds = self.bounds[:]        
+        self.bounds[2] = height
+        self.trait_property_changed('bounds', oldbounds, self.bounds)
+
+    def _get_right(self):
+        return self.left + self.width
+
+    def _get_top(self):
+        return self.bottom + self.height
+
+    def _bounds_changed(self, old, new):
+        print 'base bounds changed'
     
 class ColorHandler(traits.TraitHandler):
     """
@@ -373,7 +427,7 @@ class RendererAgg(Renderer):
 
         self.pf = pf = agg.pixel_format_rgba(rbuf)
         self.rbase = rbase = agg.renderer_base_rgba(pf)
-        rbase.clear_rgba8(self.gray)
+        rbase.clear_rgba8(self.white)
 
         # the antialiased renderers
         self.renderer =  agg.renderer_scanline_aa_solid_rgba(rbase);        
@@ -412,7 +466,7 @@ class RendererAgg(Renderer):
         transpath = agg.conv_transform_path(path.agg_path, aggaffine)
 
         if path.fillcolor is not None:
-            print 'render path', path.fillcolor, path.agg_fillcolor
+            #print 'render path', path.fillcolor, path.agg_fillcolor
             self.rasterizer.add_path(transpath)
             renderer.color_rgba8( path.agg_fillcolor )
             render_scanlines(self.rasterizer, scanline, renderer);
@@ -628,7 +682,7 @@ class AggPath(Path):
         self.agg_fillcolor = self.color_to_rgba8(newcolor)
 
     def _strokecolor__changed(self, oldcolor, newcolor):                
-        print 'stroke color changed', newcolor
+        #print 'stroke color changed', newcolor
         c = self.color_to_rgba8(newcolor)
         self.agg_strokecolor = c
 
@@ -702,10 +756,14 @@ class Artist(traits.HasTraits):
 
     renderer = traits.Trait(None, Renderer)
 
-    
+    # every artist defines a string which is the name of the attr that
+    # containers should put it into when added.  Eg, an Axes is an
+    # Aritst container, and when you place a Line in to an Axes, the
+    # Axes will store a reference to it in the sequence ax.lines where
+    # Line.sequence = 'lines'
+    sequence = 'artists'
     def __init__(self):
         self.artistid = artistID()
-        self.artistd = dict()
 
         # track affine as the product of the view and the data affines
         # -- this should be a property, but I had trouble making a
@@ -721,13 +779,28 @@ class Artist(traits.HasTraits):
     def _get_affine(self):
         return self.aview * self.adata
     
+
+    def draw(self):
+        pass
+
+class ArtistContainer(Artist):
+    
+    artistd = traits.Dict(traits.Int, Artist)
+    sequence = 'containers'
+    def __init__(self):
+        Artist.__init__(self)
+        self.artistd = dict()
+
+
+    
     def add_artist(self, artist, followdata=True, followview=True):        
         # this is a very interesting change from matplotlib -- every
         # artist acts as a container that can hold other artists, and
         # respects zorder drawing internally.  This makes zordering
         # much more flexibel
         self.artistd[artist.artistid] = artist
-
+        self.__dict__.setdefault(artist.sequence, []).append(artist)
+        
         artist.renderer = self.renderer
         self.sync_trait('renderer', artist, mutual=False)
 
@@ -757,18 +830,18 @@ class Artist(traits.HasTraits):
             del artist.followdata
 
         self.sync_trait('renderer', artist, remove=True)
-        del self.artistd[artist.artistid]        
+        del self.artistd[artist.artistid]
+        self.__dict__[artist.sequence].remove(artist)
 
     def draw(self):
         if self.renderer is None or not self.visible: return
-
+        
         dsu = [(artist.zorder, artist.artistid, artist) for artist in self.artistd.values()]
         dsu.sort()
         for zorder, artistid, artist in dsu:
             #print 'artist draw', self, artist, zorder
             artist.draw()
 
-            
 class Line(Artist):
 
     linestyle       = mtraits.LineStyle('-')
@@ -785,7 +858,8 @@ class Line(Artist):
     X               = mtraits.Verts
     model           = mtraits.Model
     zorder          = traits.Float(2.0)
-    
+    sequence        = 'lines'
+
     def __init__(self):
         """
         The model is a function taking Nx2->Nx2.  This is where the
@@ -889,18 +963,17 @@ class Line(Artist):
 
 mtraits.Line = traits.Instance(Line, ())
 
-class Rectangle(Artist):
+class Rectangle(Artist, Box):
     facecolor = mtraits.Color('yellow')
     edgecolor = mtraits.Color('black')
     edgewidth = mtraits.LineWidth(1.0)
-    lbwh      = traits.Array('d', (4,), [0,0,1,1])
     path      = mtraits.Path
     zorder    = traits.Float(1.0)
+    sequence  = 'rectangles'
 
     def __init__(self):
         Artist.__init__(self)
-
-        
+     
         self.sync_trait('facecolor', self.path, 'fillcolor', mutual=False)
         self.sync_trait('edgecolor', self.path, 'strokecolor', mutual=False)
         self.sync_trait('edgewidth', self.path, 'linewidth', mutual=False)
@@ -909,11 +982,14 @@ class Rectangle(Artist):
         # sync up the path affine
         self.path.affine.follow(self.affine.vec6)
         self.affine.on_trait_change(self.path.affine.follow, 'vec6')
+        
+    def _hidebounds_changed(self, old, new):
+        Box._bounds_changed(self, old, new)
+        print 'rectangle bounds changed'
 
-
-
-
-    def _lbwh_changed(self, old, new):
+    def _bounds_changed(self, old, new):
+        Box._bounds_changed(self, old, new)
+        print 'rectangle bounds changed'
         l,b,w,h = new
         t = b+h
         r = l+w
@@ -939,33 +1015,41 @@ class Rectangle(Artist):
 
 mtraits.Rectangle = traits.Instance(Rectangle, ())        
 
-class Figure(Artist):
-    pass
+class Figure(ArtistContainer):
 
+    rectangle = traits.Instance(Rectangle, ())
+    sequence = None  # figure is top level container
+    def __init__(self):
+        ArtistContainer.__init__(self)
+        self.rectangle.zorder = 0
+        self.rectangle.facecolor = '0.75'
+        self.rectangle.bounds = [0,0,1,1]
+        self.add_artist(self.rectangle)
 
-class Axis(Artist):
+class Axis(ArtistContainer):
     zorder = traits.Float(1.5)
     tickmarkers  = mtraits.Markers
     linepath = mtraits.Path
     linecolor = mtraits.Color('black')
     linewidth = mtraits.LineWidth(1.0)
     ticklocs = traits.Array('d')
-    ticksize = traits.Float(7.0)
+    ticksize = traits.Float(5.0)
     ticklinewidth = mtraits.LineWidth(1.0)
     tickcolor = mtraits.Color('black')
     
     loc  = traits.Float(0.)          # the y location of the x-axis
-    tickoffset = traits.Float(-0.5)  # -1 for outer, -0.5 for centered, 0 for inner
-    
+    tickoffset = traits.Float(0)  # -1 for outer, -0.5 for centered, 0 for inner
+    sequence  = 'axes'
+
     def __init__(self):
-        Artist.__init__(self)
+        ArtistContainer.__init__(self)
         self.tickmarkersid = primitiveID()
         self.linepathid = primitiveID()
 
         self.affine.on_trait_change(self._update_blended_affine, 'vec6')
         self.tickmarkers.path.antialiased = False
-        self.linepath.antialiased = False        
-
+        self.linepath.antialiased = False
+        
         self.sync_trait('linewidth', self.linepath,  mutual=False)
         self.sync_trait('linecolor', self.linepath, 'strokecolor', mutual=False)
         self.sync_trait('ticklinewidth', self.tickmarkers.path, 'linewidth', mutual=False)
@@ -988,7 +1072,7 @@ class Axis(Artist):
         self._update_tick_path()
 
     def _tickoffset_changed(self, old, new):
-        self._update_tick_path(self)
+        self._update_tick_path()
 
     def _update_blended_affine(self):
         'blend of xdata and y axis affine'
@@ -1019,7 +1103,7 @@ class Axis(Artist):
         self.renderer.render_path(self.linepathid)        
 
 class XAxis(Axis):
-
+    sequence = 'xaxes'
     def _update_blended_affine(self):
         'blend of xdata and y axis affine'
         sx, b, tx = self.adata.data[0]
@@ -1039,7 +1123,7 @@ class XAxis(Axis):
 
     def _update_tick_path(self):
         codes = Path.MOVETO, Path.LINETO
-        verts = npy.array([[0., self.tickoffset], [0, self.tickoffset+1]])*self.ticksize
+        verts = npy.array([[0., self.tickoffset], [0, self.tickoffset-1]])*self.ticksize
         self.tickmarkers.path.pathdata = codes, verts        
 
     def _update_linepath(self):
@@ -1048,7 +1132,7 @@ class XAxis(Axis):
         self.linepath.pathdata = codes, X
 
 class YAxis(Axis):
-
+    sequence = 'yaxes'
 
     def _update_blended_affine(self):
         'blend of xdata and y axis affine'
@@ -1077,20 +1161,75 @@ class YAxis(Axis):
         X = npy.array([[0, 0], [0, 1]], npy.float_).T
         self.linepath.pathdata = codes, X
 
-
-class Axes(Artist):
-    zorder = traits.Float(0.5)
+class FigurePane(ArtistContainer, Box):
+    """
+    The figure pane conceptually like the matplotlib Axes, but now
+    almost all of it's functionality is modular into the Axis and
+    Affine instances.  It is a shell of it's former self: it has a
+    rectangle and a default x and y axis instance
+    """
+    rectangle = traits.Instance(Rectangle, ())
+    #gridabove = traits.false # TODO handle me
+    xaxis     = traits.Instance(XAxis, ())
+    yaxis     = traits.Instance(YAxis, ())
+    sequence  = 'panes'
     
+    def __init__(self):
+        ArtistContainer.__init__(self)
+        self.rectangle.zorder = 0
+        self.rectangle.facecolor = 'white'
+        self.rectangle.edgecolor = 'white'        
+        self.rectangle.linewidth = 0
+        
+        print 'setting rect bounds'
+        self.rectangle.bounds = [0,0,1,1]
+        print 'set rect bounds'
+        self.add_artist(self.rectangle, followdata=False)
+        self.add_artist(self.xaxis)
+        self.add_artist(self.yaxis)                
+
+    def _bounds_changed(self, old, new):
+        Box._bounds_changed(self, old, new)
+        print 'pane bounds changed'
+        l,b,w,h = self.bounds
+        self.aview.scale = w, h
+        self.aview.translate = l, b
 
 
-    ytickmarkers  = mtraits.Markers
-    yaxisline = mtraits.Line
-    yticklocs = traits.Array('d')
-    yticksize = traits.Float(5.0)
-    yaxislocx  = traits.Float(0.)  # the x location of the y-axis
 
-                      
+def classic(fig):
+    x = npy.arange(0, 10., 0.01)
+    y = npy.sin(2*npy.pi*x)
 
+    pane = FigurePane().set(bounds=[0.1, 0.1, 0.8, 0.8])
+    fig.add_artist(pane, followdata=False, followview=False)
+
+
+    line1 = Line().set(X=npy.array([x,y]).T,
+                       color='blue', linewidth=2.0, marker=None,
+                       )
+
+
+    pane.add_artist(line1)
+
+    # update the view limits, all the affines should be automagically updated
+    pane.adata.xlim = 0, 10
+    pane.adata.ylim = -1.1, 1.1
+
+    pane.xaxis.ticklocs = npy.arange(0., 11., 1.)
+    pane.yaxis.ticklocs = npy.arange(-1.0, 1.1, 0.2)
+
+
+    # add a right and top axis
+    xaxis2 = XAxis().set(loc=1, tickoffset=-1)
+    yaxis2 = YAxis().set(loc=1, tickoffset=-1)    
+    xaxis2.ticklocs = npy.arange(0., 11., 0.5)
+    yaxis2.ticklocs = npy.arange(-1.0, 1.1, 0.1)
+
+    pane.add_artist(xaxis2)
+    pane.add_artist(yaxis2)
+    # uncomment to change Axes wwidth
+    #pane.width = 0.8
 
 def make_subplot_ll(fig):
     x1 = npy.arange(0, 10., 0.05)
@@ -1099,40 +1238,36 @@ def make_subplot_ll(fig):
     y2 = 10*npy.exp(-x1)
 
 
-    axes = Axes()
-    fig.add_artist(axes, followdata=False, followview=False)
+    pane = FigurePane().set(bounds=[0.1, 0.1, 0.4, 0.4])
+    fig.add_artist(pane, followdata=False, followview=False)
 
-    axes.aview.scale = 0.4, 0.4
-    axes.aview.translate = 0.1, 0.1
-
-    xaxis = XAxis()
-    axes.add_artist(xaxis)
-
-    yaxis = YAxis()
-    axes.add_artist(yaxis)
 
     line1 = Line().set(X=npy.array([x1,y1]).T,
-                       color='blue', linewidth=2.0, marker='s', markersize=5.0,
-                       markerfacecolor='green', markeredgewidth=0.5)
+                       color='blue', linewidth=2.0, marker='s',
+                       markersize=5.0,  markerfacecolor='green',
+                       markeredgewidth=0.5)
 
 
-    axes.add_artist(line1)
-
-
-    rect1 = Rectangle().set(lbwh=[0,0,1,1], facecolor='white')
-    axes.add_artist(rect1, followdata=False)
+    pane.add_artist(line1)
 
     # update the view limits, all the affines should be automagically updated
-    axes.adata.xlim = 0, 10
-    axes.adata.ylim = -1.1, 1.1
-    xaxis.ticklocs = npy.arange(0., 11., 1.)
-    xaxis.loc = -0.1
-    xaxis.linecolor = 'red'
+    pane.adata.xlim = 0, 10
+    pane.adata.ylim = -1.1, 1.1
 
-    yaxis.ticklocs = npy.arange(-1.0, 1.1, 0.2)
-    yaxis.loc = -0.1
-    yaxis.linecolor = 'blue'
-    yaxis.tickcolor = 'blue'
+    pane.xaxis.ticklocs = npy.arange(0., 11., 1.)
+    pane.xaxis.loc = -0.1
+    pane.xaxis.tickoffset = -0.5
+    pane.xaxis.linecolor = 'red'
+
+    pane.yaxis.ticklocs = npy.arange(-1.0, 1.1, 0.2)
+    pane.yaxis.loc = -0.1
+    pane.xaxis.tickoffset = -0.5    
+    
+    pane.yaxis.linecolor = 'blue'
+    pane.yaxis.tickcolor = 'blue'
+
+    # uncomment to change Axes wwidth
+    #pane.width = 0.8
 
 def make_subplot_ur(fig):
     axes2 = Axes()
@@ -1148,18 +1283,35 @@ def make_subplot_ur(fig):
     line2 = Line().set(X=npy.array([r, theta]).T, model=Polar(), color='#ee8d18', linewidth=2.0)
     axes2.add_artist(line2)
 
-    rect2 = Rectangle().set(lbwh=[0,0,1,1], facecolor='#d5de9c')
+    rect2 = Rectangle().set(bounds=[0,0,1,1], facecolor='#d5de9c')
     axes2.add_artist(rect2, followdata=False)
 
     axes2.adata.xlim = -1.1, 1.1
     axes2.adata.ylim = -1.1, 1.1    
 
 
+
+class TestContainer(ArtistContainer, Box):
+    rectangle = traits.Instance(Rectangle, ())
+    sequence  = 'panes'
+    
+    def __init__(self):
+        ArtistContainer.__init__(self)
+        self.rectangle.zorder = 0
+        self.rectangle.facecolor = 'white'
+
+        print 'setting rect bounds'
+        self.rectangle.bounds = [0,0,1,1]
+        print 'set rect bounds'
+
 if __name__=='__main__':
+
     renderer = RendererAgg()
     fig = Figure()
     fig.renderer = renderer
-    make_subplot_ll(fig)
-    make_subplot_ur(fig)
+    classic(fig)
+    #make_subplot_ll(fig)
+    #make_subplot_ur(fig)
     fig.draw()
     renderer.show()
+

@@ -438,7 +438,7 @@ class RegularPolygon(Patch):
         """
         Patch.__init__(self, **kwargs)
 
-        self.xy = xy
+        self.xy = list(xy)
         self.numVertices = numVertices
         self.radius = radius
         self.orientation = orientation
