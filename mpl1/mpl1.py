@@ -412,6 +412,7 @@ class RendererAgg(Renderer):
         transpath = agg.conv_transform_path(path.agg_path, aggaffine)
 
         if path.fillcolor is not None:
+            print 'render path', path.fillcolor, path.agg_fillcolor
             self.rasterizer.add_path(transpath)
             renderer.color_rgba8( path.agg_fillcolor )
             render_scanlines(self.rasterizer, scanline, renderer);
@@ -463,8 +464,9 @@ class RendererAgg(Renderer):
 
 
         for xv,yv,tmp in Locs.T:
-            XY[:,0] = pathx + xv
-            XY[:,1] = pathy + yv
+            XY[:,0] = (pathx + xv).astype(int) + 0.5
+            XY[:,1] = (pathy + yv).astype(int) + 0.5
+
             
             pathdata = pathcodes, XY
             aggpath = AggPath.make_agg_path(pathdata)
@@ -626,7 +628,7 @@ class AggPath(Path):
         self.agg_fillcolor = self.color_to_rgba8(newcolor)
 
     def _strokecolor__changed(self, oldcolor, newcolor):                
-
+        print 'stroke color changed', newcolor
         c = self.color_to_rgba8(newcolor)
         self.agg_strokecolor = c
 
@@ -725,7 +727,10 @@ class Artist(traits.HasTraits):
         # respects zorder drawing internally.  This makes zordering
         # much more flexibel
         self.artistd[artist.artistid] = artist
+
         artist.renderer = self.renderer
+        self.sync_trait('renderer', artist, mutual=False)
+
 
         artist.followdata = followdata
         artist.followview = followview
@@ -740,7 +745,6 @@ class Artist(traits.HasTraits):
             self.aview.on_trait_change(artist.aview.follow, 'vec6')
 
 
-        self.sync_trait('renderer', artist, mutual=False)
 
     def remove_artist(self, artist):
 
@@ -761,6 +765,7 @@ class Artist(traits.HasTraits):
         dsu = [(artist.zorder, artist.artistid, artist) for artist in self.artistd.values()]
         dsu.sort()
         for zorder, artistid, artist in dsu:
+            #print 'artist draw', self, artist, zorder
             artist.draw()
 
             
@@ -938,86 +943,198 @@ class Figure(Artist):
     pass
 
 
+class Axis(Artist):
+    zorder = traits.Float(1.5)
+    tickmarkers  = mtraits.Markers
+    linepath = mtraits.Path
+    linecolor = mtraits.Color('black')
+    linewidth = mtraits.LineWidth(1.0)
+    ticklocs = traits.Array('d')
+    ticksize = traits.Float(7.0)
+    ticklinewidth = mtraits.LineWidth(1.0)
+    tickcolor = mtraits.Color('black')
+    
+    loc  = traits.Float(0.)          # the y location of the x-axis
+    tickoffset = traits.Float(-0.5)  # -1 for outer, -0.5 for centered, 0 for inner
+    
+    def __init__(self):
+        Artist.__init__(self)
+        self.tickmarkersid = primitiveID()
+        self.linepathid = primitiveID()
+
+        self.affine.on_trait_change(self._update_blended_affine, 'vec6')
+        self.tickmarkers.path.antialiased = False
+        self.linepath.antialiased = False        
+
+        self.sync_trait('linewidth', self.linepath,  mutual=False)
+        self.sync_trait('linecolor', self.linepath, 'strokecolor', mutual=False)
+        self.sync_trait('ticklinewidth', self.tickmarkers.path, 'linewidth', mutual=False)
+        self.sync_trait('tickcolor', self.tickmarkers.path, 'strokecolor', mutual=False)
+
+        # XXX, do we have to manually call these or will they get
+        # calle dautomagically in init
+        self._update_tick_path()
+        self._update_marker_locations()
+        self._update_blended_affine()
+        self._update_linepath()
+    
+    def _ticklocs_changed(self, old, new):
+        self._update_marker_locations()
+
+    def _loc_changed(self, old, new):
+        self._update_blended_affine()
+    
+    def _ticksize_changed(self, old, new):
+        self._update_tick_path()
+
+    def _tickoffset_changed(self, old, new):
+        self._update_tick_path(self)
+
+    def _update_blended_affine(self):
+        'blend of xdata and y axis affine'
+        raise NotImplementedError
+        
+    def _update_marker_locations(self):
+        raise NotImplementedError
+    
+    def _update_tick_path(self):
+        raise NotImplementedError
+
+    def _update_linepath(self):
+        raise NotImplementedError
+
+    def _renderer_changed(self, old, new):
+        if old is not None:
+            old.remove_markers(self.tickmarkersid)
+            old.remove_path(self.linepathid)            
+
+        if new is not None:
+            new.add_markers(self.tickmarkersid, self.tickmarkers)
+            new.add_path(self.linepathid, self.linepath)                    
+
+    def draw(self):
+        if self.renderer is None or not self.visible: return
+        Artist.draw(self)
+        self.renderer.render_markers(self.tickmarkersid)
+        self.renderer.render_path(self.linepathid)        
+
+class XAxis(Axis):
+
+    def _update_blended_affine(self):
+        'blend of xdata and y axis affine'
+        sx, b, tx = self.adata.data[0]
+        a = Affine()
+        a.vec6 = sx, b, 0, 1, tx, self.loc
+        self.tickmarkers.affine.vec6 = (self.aview * a).vec6
+        
+        a = Affine()
+        a.translate = 0, self.loc
+        self.linepath.affine.vec6 = (self.aview * a).vec6        
+
+    def _update_marker_locations(self):
+        Nticks = len(self.ticklocs)
+        verts = self.loc*npy.ones((Nticks,2))
+        verts[:,0] = self.ticklocs
+        self.tickmarkers.verts = verts
+
+    def _update_tick_path(self):
+        codes = Path.MOVETO, Path.LINETO
+        verts = npy.array([[0., self.tickoffset], [0, self.tickoffset+1]])*self.ticksize
+        self.tickmarkers.path.pathdata = codes, verts        
+
+    def _update_linepath(self):
+        codes = Path.MOVETO, Path.LINETO
+        X = npy.array([[0, 1], [0, 0]], npy.float_).T
+        self.linepath.pathdata = codes, X
+
+class YAxis(Axis):
+
+
+    def _update_blended_affine(self):
+        'blend of xdata and y axis affine'
+        c, sy, ty = self.adata.data[1]
+        a = Affine()
+        a.vec6 = 1, 0, 0, sy, self.loc, ty
+        self.tickmarkers.affine.vec6 = (self.aview * a).vec6
+        
+        a = Affine()
+        a.translate = self.loc, 0
+        self.linepath.affine.vec6 = (self.aview * a).vec6        
+
+    def _update_marker_locations(self):
+        Nticks = len(self.ticklocs)
+        verts = self.loc*npy.ones((Nticks,2))
+        verts[:,1] = self.ticklocs
+        self.tickmarkers.verts = verts
+
+    def _update_tick_path(self):
+        codes = Path.MOVETO, Path.LINETO
+        verts = npy.array([[self.tickoffset,0], [self.tickoffset+1,0]])*self.ticksize
+        self.tickmarkers.path.pathdata = codes, verts        
+
+    def _update_linepath(self):
+        codes = Path.MOVETO, Path.LINETO
+        X = npy.array([[0, 0], [0, 1]], npy.float_).T
+        self.linepath.pathdata = codes, X
+
 
 class Axes(Artist):
     zorder = traits.Float(0.5)
     
-    xtickmarkers  = mtraits.Markers
-    xaxisline = mtraits.Line
-    xticklocs = traits.Array('d')
-    xaxislocy  = traits.Float(0.)  # the y location of the x-axis
+
 
     ytickmarkers  = mtraits.Markers
     yaxisline = mtraits.Line
     yticklocs = traits.Array('d')
+    yticksize = traits.Float(5.0)
     yaxislocx  = traits.Float(0.)  # the x location of the y-axis
 
-    def __init__(self):
-        Artist.__init__(self)
-        self.xtickmarkersid = primitiveID()
-
-        self.xtickmarkers.affine.follow(self.adata.vec6)
-        self.adata.on_trait_change(self.xtickmarkers.affine.follow, 'vec6')
-
-    def _xticklocs_changed(self, old, new):
-        self._update_xtick_markers()
-
-    def _xaxislocy_changed(self, old, new):
-        self._update_xtick_markers()
-        
-    def _update_xtick_markers(self):
-        verts = self.xaxislocy*npy.ones(len(new))
-        verts[:,1] = new
-        self.xtickmarkers.verts = verts
+                      
 
 
-    def _renderer_changed(self, old, new):
-        if old is not None:
-            old.remove_markers(self.xtickmarkersid)
-
-        if new is not None:
-            new.add_markers(self.xtickmarkersid, self.xtickmarkers)        
-
-    def draw(self):
-        if self.renderer is None or not self.visible: return
-        #print 'Axes data affine:\n', self.adata
-        #print 'Axes view affine :\n', self.aview
-        #print 'Axes affine :\n', self.affine        
-        Artist.draw(self)
-        self.renderer.render_markers(self.xtickmarkersid)
-
-x1 = npy.arange(0, 10., 0.05)
-x2 = npy.arange(0, 10., 0.1)
-y1 = npy.cos(2*npy.pi*x1)
-y2 = 10*npy.exp(-x1)
-
-fig = Figure()
-axes = Axes()
-
-axes.aview.scale = 0.4, 0.4
-axes.aview.translate = 0.1, 0.1
-
-fig.add_artist(axes, followdata=False, followview=False)
-
-line1 = Line().set(X=npy.array([x1,y1]).T,
-                   color='blue', linewidth=2.0, marker='s', markersize=5.0,
-                   markerfacecolor='green', markeredgewidth=0.5)
+def make_subplot_ll(fig):
+    x1 = npy.arange(0, 10., 0.05)
+    x2 = npy.arange(0, 10., 0.1)
+    y1 = npy.cos(2*npy.pi*x1)
+    y2 = 10*npy.exp(-x1)
 
 
-axes.add_artist(line1)
+    axes = Axes()
+    fig.add_artist(axes, followdata=False, followview=False)
+
+    axes.aview.scale = 0.4, 0.4
+    axes.aview.translate = 0.1, 0.1
+
+    xaxis = XAxis()
+    axes.add_artist(xaxis)
+
+    yaxis = YAxis()
+    axes.add_artist(yaxis)
+
+    line1 = Line().set(X=npy.array([x1,y1]).T,
+                       color='blue', linewidth=2.0, marker='s', markersize=5.0,
+                       markerfacecolor='green', markeredgewidth=0.5)
 
 
-rect1 = Rectangle().set(lbwh=[0,0,1,1], facecolor='white')
-axes.add_artist(rect1, followdata=False)
+    axes.add_artist(line1)
 
 
+    rect1 = Rectangle().set(lbwh=[0,0,1,1], facecolor='white')
+    axes.add_artist(rect1, followdata=False)
 
-# update the view limits, all the affines should be automagically updated
-axes.adata.xlim = 0, 10
-axes.adata.ylim = -1.1, 1.1
+    # update the view limits, all the affines should be automagically updated
+    axes.adata.xlim = 0, 10
+    axes.adata.ylim = -1.1, 1.1
+    xaxis.ticklocs = npy.arange(0., 11., 1.)
+    xaxis.loc = -0.1
+    xaxis.linecolor = 'red'
 
+    yaxis.ticklocs = npy.arange(-1.0, 1.1, 0.2)
+    yaxis.loc = -0.1
+    yaxis.linecolor = 'blue'
+    yaxis.tickcolor = 'blue'
 
-if 1:
+def make_subplot_ur(fig):
     axes2 = Axes()
 
     axes2.aview.scale = 0.4, 0.4
@@ -1038,8 +1155,11 @@ if 1:
     axes2.adata.ylim = -1.1, 1.1    
 
 
-if 1:
+if __name__=='__main__':
     renderer = RendererAgg()
+    fig = Figure()
     fig.renderer = renderer
+    make_subplot_ll(fig)
+    make_subplot_ur(fig)
     fig.draw()
     renderer.show()
