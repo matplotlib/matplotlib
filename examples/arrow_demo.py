@@ -308,6 +308,6 @@ if __name__ == '__main__':
         normalize_data=scaled, head_starts_at_zero=True, size=size)
 
     draw()
-    savefig('arrows.png')
-    print 'Example saved to file "arrows.png"'
+    #savefig('arrows.png')
+    #print 'Example saved to file "arrows.png"'
     show()
