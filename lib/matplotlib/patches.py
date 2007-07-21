@@ -736,7 +736,6 @@ class CirclePolygon(RegularPolygon):
 
 
 def inellipse(x,y,cx,cy,a,b,angle):
-    import math
     x,y = x-cx,y-cy
     theta = math.atan2(x,y) + math.radians(angle)
     rsq = x*x+y*y
