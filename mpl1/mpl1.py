@@ -506,6 +506,7 @@ class PathPrimitiveAgg(PathPrimitive):
         for i in range(Ncodes):
             x, y = xy[i]
             code = codes[i]
+            #XXX handle other path codes here
             if code==MOVETO:
                 agg_path.move_to(x, y)
             elif code==LINETO:
