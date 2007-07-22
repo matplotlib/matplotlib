@@ -20,7 +20,7 @@ Install instructions for traits 2.0
 import enthought.traits.api as traits
 from enthought.traits.api import HasTraits, Instance, Trait, Float, Int, \
      Array, Tuple
-
+from enthought.traits.trait_numeric import TraitArray
 from matplotlib import agg
 from matplotlib import colors as mcolors
 from matplotlib import cbook
@@ -30,7 +30,26 @@ is_string_like = cbook.is_string_like
 
 ## begin core infrastructure
 
+class TraitVertexArray(TraitArray):
 
+    def __init__ ( self, typecode = None, shape = None, coerce = False ):
+        TraitArray.__init__(self, typecode, shape, coerce)
+
+    def validate(self, object, name, value):
+        orig = value
+        value = TraitArray.validate(self, object, name, value)
+        if len(value.shape)!=2 or value.shape[1]!=2:
+            return self.error(object, name, orig)
+
+        return value
+
+    def info(self):
+        return 'an Nx2 array of doubles which are x,y vertices'
+
+VertexArray = Trait(npy.array([[0,0], [1,1]], npy.float_),
+                    TraitVertexArray('d'))
+
+                    
 class Affine(HasTraits):
     """
     An affine 3x3 matrix that supports matrix multiplication with
@@ -396,22 +415,13 @@ class PathPrimitive(HasTraits):
     alpha       = mtraits.Alpha(1.0)
     linewidth   = mtraits.LineWidth(1.0)
     antialiased = mtraits.AntiAliased
-    pathdata     =Tuple(Array('b'), Array('d'))
+    pathdata     =Tuple(Array('b'), VertexArray)
     affine      = Instance(Affine, ())
 
     def _pathdata_default(self):
         return (npy.array([0,0], dtype=npy.uint8),
                 npy.array([[0,0],[0,0]], npy.float_))
         
-    def _pathdata_changed(self, old, new):
-        codes, xy = new
-
-        if len(xy.shape)!=2:
-            raise ValueError('xy in path data must be Nx2')
-        Ncodes = len(codes)
-        Nxy = xy.shape[0]
-        if Ncodes!=Nxy:
-            raise ValueError('codes and xy must have equal rows')
 
 class MarkerPrimitive(HasTraits):
     locs  = Array('d')
@@ -852,7 +862,7 @@ class Path(Artist):
     linestyle   = mtraits.LineStyle('-')
     linewidth   = mtraits.LineWidth(1.0) 
     model       = mtraits.Model
-    pathdata    = traits.Tuple(Array('b'), Array('d'))
+    pathdata    = traits.Tuple(Array('b'), VertexArray)
     sequence    = 'paths'
     zorder      = Float(1.0)
 
@@ -1039,8 +1049,6 @@ class Line(Path):
         #print 'LINE shapes', codes.shape, self.XY.shape
         self.pathdata = codes, self.XY
 
-        # XXX: to we need to push pathdata changed here or will it
-        # happen automagically
 
 
 class Polygon(Path):
