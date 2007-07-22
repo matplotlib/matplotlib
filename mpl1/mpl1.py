@@ -8,17 +8,18 @@ Install instructions for traits 2.0
    wget  http://peak.telecommunity.com/dist/ez_setup.py
    sudo python sez_setup.py
 
-   sudo easy_install -f http://code.enthought.com/enstaller/eggs/source/unstable "enthought.etsconfig < 3.0a" "enthought.util <3.0a" "enthought.debug <3.0a"
 
-   svn co https://svn.enthought.com/svn/enthought/branches/enthought.traits_2.0 enthought_traits
-
-   cd enthought_traits/
-   sudo python setup.py install 
-
+    sudo rm -rf /usr/local/lib/python2.5/site-packages/enthought*
+    sudo easy_install \
+      -f http://code.enthought.com/enstaller/eggs/source/unstable \
+      "enthought.resource <3.0a" "enthought.traits < 3.0a"
+    
 """
 
 # see install instructions for enthrought traits2 in mtraits
 import enthought.traits.api as traits
+from enthought.traits.api import HasTraits, Instance, Trait, Float, Int, \
+     Array, Tuple
 
 from matplotlib import agg
 from matplotlib import colors as mcolors
@@ -27,9 +28,10 @@ import numpy as npy
 
 is_string_like = cbook.is_string_like
 
+## begin core infrastructure
 
 
-class Affine(traits.HasTraits):
+class Affine(HasTraits):
     """
     An affine 3x3 matrix that supports matrix multiplication with
     other Affine instances or numpy arrays.
@@ -62,14 +64,14 @@ class Affine(traits.HasTraits):
     simply views into the data matrix, and are updated by reference
     """
     # connect to the data_modified event if you want a callback
-    data = traits.Array('d', (3,3))
+    data = Array('d', (3,3))
 
-    translate = traits.Property(traits.Array('d', (2,)))
-    scale = traits.Property(traits.Array('d', (2,)))    
-    vec6 = traits.Property(traits.Array('d', (6,)))
+    translate = traits.Property(Array('d', (2,)))
+    scale = traits.Property(Array('d', (2,)))    
+    vec6 = traits.Property(Array('d', (6,)))
 
-    xlim = traits.Property(traits.Array('d', (2,)))
-    ylim = traits.Property(traits.Array('d', (2,)))            
+    xlim = traits.Property(Array('d', (2,)))
+    ylim = traits.Property(Array('d', (2,)))            
 
     #data_modified = traits.Event 
 
@@ -242,18 +244,18 @@ class Affine(traits.HasTraits):
         #return 'AFFINE:\n%s'%self.data
 
 
-class Box(traits.HasTraits):
+class Box(HasTraits):
     # left, bottom, width, height
-    bounds = traits.List
-    left = traits.Property(traits.Float)
-    bottom = traits.Property(traits.Float)
-    width = traits.Property(traits.Float)  
-    height = traits.Property(traits.Float) 
+    bounds = traits.Array('d', (4,))
+    left = traits.Property(Float)
+    bottom = traits.Property(Float)
+    width = traits.Property(Float)  
+    height = traits.Property(Float) 
 
-    right = traits.Property(traits.Float) # read only
-    top = traits.Property(traits.Float)   # read only
+    right = traits.Property(Float) # read only
+    top = traits.Property(Float)   # read only
 
-    def ___bounds_default(self):
+    def _bounds_default(self):
         return  [0.0, 0.0, 1.0, 1.0]
 
     def _get_left(self):
@@ -295,7 +297,7 @@ class Box(traits.HasTraits):
         return self.bottom + self.height
 
     def _bounds_changed(self, old, new):
-        print 'base bounds changed'
+        pass
     
 class ColorHandler(traits.TraitHandler):
     """
@@ -307,12 +309,12 @@ class ColorHandler(traits.TraitHandler):
     Eg
 
     class C(HasTraits):
-        fillcolor = traits.Trait('black', ColorHandler())
+        facecolor = Trait('black', ColorHandler())
 
     c = C()
-    c.fillcolor = 'red'
-    print c.fillcolor    # prints red
-    print c.fillcolor_   # print (1,0,0,1)
+    c.facecolor = 'red'
+    print c.facecolor    # prints red
+    print c.facecolor_   # print (1,0,0,1)
     """
     is_mapped = True
 
@@ -338,40 +340,98 @@ any valid matplotlib color, eg an abbreviation like 'r' for red, a full
 name like 'orange', a hex color like '#efefef', a grayscale intensity
 like '0.5', or an RGBA tuple (1,0,0,1)"""
 
+
+    
+
+
 class MTraitsNamespace:
-    DPI         = traits.Float(72.)
+    DPI         = Float(72.)
 
     Alpha       = traits.Range(0., 1., 0.)
-    Affine      = traits.Trait(Affine())
+    Affine      = Trait(Affine())
     AntiAliased = traits.true
-    Codes       = traits.Array('b', value=npy.array([0,0], dtype=npy.uint8))
-    Color       = traits.Trait('black', ColorHandler())
-    DPI         = traits.Float(72.)
-    Interval    = traits.Array('d', (2,), npy.array([0.0, 1.0], npy.float_))
-    LineStyle   = traits.Trait('-', '--', '-.', ':', 'steps', None)
-    LineWidth   = traits.Float(1.0)
-    Marker      = traits.Trait(None, '.', ',', 'o', '^', 'v', '<', '>', 's',
+    Color       = Trait('black', ColorHandler())
+    DPI         = Float(72.)
+    Interval    = Array('d', (2,), npy.array([0.0, 1.0], npy.float_))
+    LineStyle   = Trait('-', '--', '-.', ':', 'steps', None)
+    LineWidth   = Float(1.0)
+    Marker      = Trait(None, '.', ',', 'o', '^', 'v', '<', '>', 's',
                  '+', 'x', 'd', 'D', '|', '_', 'h', 'H',
                  'p', '1', '2', '3', '4')
-    MarkerSize  = traits.Float(6)
-    Verts       = traits.Array('d', value=npy.array([[0,0],[0,0]], npy.float_))
-    PathData    = traits.Tuple(Codes(), Verts())
+    MarkerSize  = Float(6)
     Visible     = traits.true
 
 
 mtraits = MTraitsNamespace()
 
-class Renderer(traits.HasTraits):
+def Alias(name):
+    return Property(lambda obj: getattr(obj, name),
+                    lambda obj, val: setattr(obj, name, val))
+
+
+class IDGenerator:
+    def __init__(self):
+        self._id = 0
+
+    def __call__(self):
+        _id = self._id
+        self._id += 1
+        return _id
+
+
+
+
+## begin backend API
+MOVETO, LINETO, CLOSEPOLY = range(3)
+class PathPrimitive(HasTraits):
+    """
+    The path is an object that talks to the backends, and is an
+    intermediary between the high level path artists like Line and
+    Polygon, and the backend renderer
+    """
+
+    
+    color       = mtraits.Color('black')
+    facecolor   = mtraits.Color('blue')
+    alpha       = mtraits.Alpha(1.0)
+    linewidth   = mtraits.LineWidth(1.0)
+    antialiased = mtraits.AntiAliased
+    pathdata     =Tuple(Array('b'), Array('d'))
+    affine      = Instance(Affine, ())
+
+    def _pathdata_default(self):
+        return (npy.array([0,0], dtype=npy.uint8),
+                npy.array([[0,0],[0,0]], npy.float_))
+        
+    def _pathdata_changed(self, old, new):
+        codes, xy = new
+
+        if len(xy.shape)!=2:
+            raise ValueError('xy in path data must be Nx2')
+        Ncodes = len(codes)
+        Nxy = xy.shape[0]
+        if Ncodes!=Nxy:
+            raise ValueError('codes and xy must have equal rows')
+
+class MarkerPrimitive(HasTraits):
+    locs  = Array('d')
+    path   = Instance(PathPrimitive, ())       # marker path in points
+    affine = Instance(Affine, ()) # transformation for the verts
+
+    def _locs_default(self):
+        return npy.array([[0,0],[0,0]], npy.float_)
+
+class Renderer(HasTraits):
     dpi = mtraits.DPI
-    size = traits.Tuple(traits.Int(600), traits.Int(400))
+    size = traits.Tuple(Int(600), Int(400))
 
-    adisplay = traits.Instance(Affine, ()) 
-
+    adisplay = Instance(Affine, ()) 
+    pathd = traits.Dict(Int, PathPrimitive)
+    markerd = traits.Dict(Int, MarkerPrimitive)
+    
     def __init__(self, size=(600,400)):
-
-        self.pathd = dict()    # path id -> Path instance
-        self.markersd = dict()      # path id -> Markers instance
-
+        self.pathd = dict()
+        self.markerd = dict()
         self._size_changed(None, size)
         
     def _size_changed(self, old, new):
@@ -383,29 +443,73 @@ class Renderer(traits.HasTraits):
         
         
 
-    def add_path(self, pathid, path):
-        # todo, we could use a traits dict here
-        if not isinstance(path, Path):
-            raise TypeError('add_path takes an ID and a Path instance')
-        self.pathd[pathid] = path
-
-    def remove_path(self, pathid):
-        if pathid in self.pathd:
-            del self.pathd[pathid]
-
-    def add_markers(self, markersid, markers):
-        # todo, we could use a traits dict here
-        if not isinstance(markers, Markers):
-            raise TypeError('add_markers takes an ID and a Markers instance')
-        self.markersd[markersid] = markers
-
-    def remove_markers(self, markersid):
-        if markersid in self.markersd:
-            del self.markersd[markersid]
-
     def render_path(self, pathid):
         pass
             
+
+    def new_path_primitive(self):
+        """
+        return a PathPrimitive (or derived); these instances will be
+        added and removed later through add_path and remove path
+        """
+        return PathPrimitive()
+
+    def new_marker_primitive(self):
+        """
+        return a MarkerPrimitive (or derived); these instances will be
+        added and removed later through add_maker and remove_marker
+        """
+        return MarkerPrimitive()
+    
+
+## begin backend agg    
+class PathPrimitiveAgg(PathPrimitive):
+
+    def __init__(self):
+        self._pathdata_changed(None, self.pathdata)
+        self._facecolor_changed(None, self.facecolor)
+        self._color_changed(None, self.color)                
+
+        
+    @staticmethod
+    def make_agg_path(pathdata):
+        agg_path = agg.path_storage()
+
+        codes, xy = pathdata
+
+        Ncodes = len(codes)
+
+        for i in range(Ncodes):
+            x, y = xy[i]
+            code = codes[i]
+            if code==MOVETO:
+                agg_path.move_to(x, y)
+            elif code==LINETO:
+                agg_path.line_to(x, y)                
+            elif code==CLOSEPOLY:
+                agg_path.close_polygon()
+        return agg_path
+
+    def _pathdata_changed(self, olddata, newdata):        
+        self.agg_path = PathPrimitiveAgg.make_agg_path(newdata)
+
+        
+    def _facecolor_changed(self, oldcolor, newcolor):        
+        self.agg_facecolor = self.color_to_rgba8(self.facecolor_)
+
+    def _color_changed(self, oldcolor, newcolor):                
+        #print 'stroke color changed', newcolor
+        c = self.color_to_rgba8(self.color_)
+        self.agg_color = c
+
+    def color_to_rgba8(self, color):
+        if color is None: return None
+        rgba = [int(255*c) for c in color]
+        return agg.rgba8(*rgba)
+
+class MarkerPrimitiveAgg(MarkerPrimitive):
+    path   = Instance(PathPrimitiveAgg, ())
+
 
 
 class RendererAgg(Renderer):
@@ -414,6 +518,8 @@ class RendererAgg(Renderer):
     blue = agg.rgba8(0,0,255,255)
     black = agg.rgba8(0,0,0,0)
 
+    pathd = traits.Dict(Int, PathPrimitiveAgg)
+    markerd = traits.Dict(Int, MarkerPrimitiveAgg)
 
     def _size_changed(self, old, new):
         Renderer._size_changed(self, old, new)
@@ -440,9 +546,13 @@ class RendererAgg(Renderer):
         self.scanlinebin = agg.scanline_bin()
 
 
-    def add_path(self, pathid, path):
-        self.pathd[pathid] = AggPath(path)
+    def new_path_primitive(self):
+        'return a PathPrimitive (or derived)'
+        return PathPrimitiveAgg()
 
+    def new_marker_primitive(self):
+        'return a MarkerPrimitive (or derived)'
+        return MarkerPrimitiveAgg()
 
     def render_path(self, pathid):
 
@@ -465,23 +575,23 @@ class RendererAgg(Renderer):
         aggaffine = agg.trans_affine(*affine.vec6)
         transpath = agg.conv_transform_path(path.agg_path, aggaffine)
 
-        if path.fillcolor is not None:
-            #print 'render path', path.fillcolor, path.agg_fillcolor
+        if path.facecolor is not None:
+            #print 'render path', path.facecolor, path.agg_facecolor
             self.rasterizer.add_path(transpath)
-            renderer.color_rgba8( path.agg_fillcolor )
+            renderer.color_rgba8( path.agg_facecolor )
             render_scanlines(self.rasterizer, scanline, renderer);
 
-        if path.strokecolor is not None:
+        if path.color is not None:
             stroke = agg.conv_stroke_transpath(transpath)
             stroke.width(path.linewidth)
             self.rasterizer.add_path(stroke)
-            renderer.color_rgba8( path.agg_strokecolor )        
+            renderer.color_rgba8( path.agg_color )        
             render_scanlines(self.rasterizer, scanline, renderer);
 
-    def render_markers(self, markerid):
-        markers = self.markersd[markerid]
+    def render_marker(self, markerid):
+        marker = self.markerd[markerid]
 
-        path = AggPath(markers.path)
+        path = marker.path
         
         if path.antialiased:
             renderer = self.renderer
@@ -494,14 +604,14 @@ class RendererAgg(Renderer):
 
 
 
-        affineverts = self.adisplay * markers.affine
+        affinelocs = self.adisplay * marker.affine
 
-        Nmarkers = markers.verts.shape[0]
+        Nmarkers = marker.locs.shape[0]
         Locs = npy.ones((3, Nmarkers))
-        Locs[0] = markers.verts[:,0]
-        Locs[1] = markers.verts[:,1]        
+        Locs[0] = marker.locs[:,0]
+        Locs[1] = marker.locs[:,1]        
 
-        Locs = affineverts * Locs
+        Locs = affinelocs * Locs
         
 
         dpiscale = self.dpi/72. # for some reason this is broken 
@@ -509,32 +619,34 @@ class RendererAgg(Renderer):
         # extension code using cached marker rasters as we now do in
         # _backend_agg
 
-        pathcodes, pathverts = markers.path.pathdata
-        pathx = dpiscale*pathverts[:,0] 
-        pathy = dpiscale*pathverts[:,1]
+
+        pathcodes, pathxy = marker.path.pathdata
+
+        pathx = dpiscale*pathxy[:,0] 
+        pathy = dpiscale*pathxy[:,1]
 
         Npath = len(pathcodes)
         XY = npy.ones((Npath, 2))
+
 
 
         for xv,yv,tmp in Locs.T:
             XY[:,0] = (pathx + xv).astype(int) + 0.5
             XY[:,1] = (pathy + yv).astype(int) + 0.5
 
-            
             pathdata = pathcodes, XY
-            aggpath = AggPath.make_agg_path(pathdata)
+            aggpath = PathPrimitiveAgg.make_agg_path(pathdata)
 
-            if path.fillcolor is not None:
+            if path.facecolor is not None:
                 self.rasterizer.add_path(aggpath)
-                renderer.color_rgba8( path.agg_fillcolor )
+                renderer.color_rgba8( path.agg_facecolor )
                 render_scanlines(self.rasterizer, scanline, renderer);
 
-            if path.strokecolor is not None:
+            if path.color is not None:
                 stroke = agg.conv_stroke_path(aggpath)
                 stroke.width(path.linewidth)
                 self.rasterizer.add_path(stroke)
-                renderer.color_rgba8( path.agg_strokecolor )        
+                renderer.color_rgba8( path.agg_color )        
                 render_scanlines(self.rasterizer, scanline, renderer);
 
     def show(self):
@@ -552,7 +664,7 @@ class RendererAgg(Renderer):
             pylab.show()
 
 
-class Func(traits.HasTraits):
+class Func(HasTraits):
     def __call__(self, X):
         'transform the numpy array with shape N,2'
         return X
@@ -598,111 +710,15 @@ class Polar(Func):
         raise NotImplementedError
 
 
-mtraits.Model = traits.Instance(Func, ())
+mtraits.Model = Instance(Func, ())
 
 
     
-class Path(traits.HasTraits):
-    """
-    The path is an object that talks to the backends, and is an
-    intermediary between the high level path artists like Line and
-    Polygon, and the backend renderer
-    """
-    MOVETO, LINETO, CLOSEPOLY = range(3)
-    
-    strokecolor = mtraits.Color('black')
-    fillcolor   = mtraits.Color('blue')
-    alpha       = mtraits.Alpha(1.0)
-    linewidth   = mtraits.LineWidth(1.0)
-    antialiased = mtraits.AntiAliased
-    pathdata    = mtraits.PathData
-    affine      = traits.Instance(Affine, ())
-
-    def __init__(self):
-
-        # this is a quick workaround to deal with the problem that
-        # traits inited at the class level are shared between
-        # instances, which is not what I want
-        self.pathdata  = (npy.array([0,0], npy.uint8),   # codes
-                          npy.array([[0,0], [0,0]]))     # verts
-    
-class AggPath(Path):
-
-    def __init__(self, path):
-        self.strokecolor = path.strokecolor
-        self.fillcolor = path.fillcolor
-        self.alpha = path.alpha
-        self.linewidth = path.linewidth
-        self.antialiased = path.antialiased
-
-        self.pathdata = path.pathdata
-        self.affine = path.affine
-
-        
-        path.sync_trait('strokecolor', self, mutual=False)
-        path.sync_trait('fillcolor', self, mutual=False)
-        path.sync_trait('alpha', self, mutual=False)
-        path.sync_trait('linewidth', self, mutual=False)
-        path.sync_trait('antialiased', self, mutual=False)
-        path.sync_trait('pathdata', self, mutual=False)
-
-        path.on_trait_change(self.affine.follow, 'vec6')
 
 
 
-        # hmm, I would have thought these would be called by the attr
-        # setting above
-        self._pathdata_changed(None, self.pathdata)
-        self._fillcolor__changed(None, self.fillcolor_)
-        self._strokecolor__changed(None, self.strokecolor_)                
 
-        
-    @staticmethod
-    def make_agg_path(pathdata):
-        MOVETO, LINETO, CLOSEPOLY = Path.MOVETO, Path.LINETO, Path.CLOSEPOLY
-        agg_path = agg.path_storage()
-        codes, verts = pathdata
-        N = len(codes)
-        for i in range(N):
-            x, y = verts[i]
-            code = codes[i]
-            if code==MOVETO:
-                agg_path.move_to(x, y)
-            elif code==LINETO:
-                agg_path.line_to(x, y)                
-            elif code==CLOSEPOLY:
-                agg_path.close_polygon()
-        return agg_path
-
-    def _pathdata_changed(self, olddata, newdata):        
-        self.agg_path = AggPath.make_agg_path(newdata)
-
-        
-    def _fillcolor__changed(self, oldcolor, newcolor):        
-        self.agg_fillcolor = self.color_to_rgba8(newcolor)
-
-    def _strokecolor__changed(self, oldcolor, newcolor):                
-        #print 'stroke color changed', newcolor
-        c = self.color_to_rgba8(newcolor)
-        self.agg_strokecolor = c
-
-
-    def color_to_rgba8(self, color):
-        if color is None: return None
-        rgba = [int(255*c) for c in color]
-        return agg.rgba8(*rgba)
-
-
-mtraits.Path = traits.Instance(Path, ())
-class Markers(traits.HasTraits):
-    verts  = mtraits.Verts     # locations to draw the markers at
-    path   = mtraits.Path       # marker path in points
-    affine = traits.Instance(Affine, ()) # transformation for the verts
-
-
-
-    
-mtraits.Markers = traits.Instance(Markers, ())
+## begin Artist layer
 # coordinates:
 #
 #   artist model : a possibly nonlinear transformation (Func instance)
@@ -722,39 +738,20 @@ mtraits.Markers = traits.Instance(Markers, ())
 #      0 is left, top, which is the typical coordinate system of most
 #      graphics formats
 
-
-
-
-
-def Alias(name):
-    return Property(lambda obj: getattr(obj, name),
-                    lambda obj, val: setattr(obj, name, val))
-
-
-class IDGenerator:
-    def __init__(self):
-        self._id = 0
-
-    def __call__(self):
-        _id = self._id
-        self._id += 1
-        return _id
-
-
 primitiveID = IDGenerator()
 artistID = IDGenerator()
 
-class Artist(traits.HasTraits):
-    zorder  = traits.Float(1.0)
+
+class Artist(HasTraits):
+    zorder  = Float(1.0)
     alpha   = mtraits.Alpha()
     visible = mtraits.Visible()
 
-    adata = traits.Instance(Affine, ())  # the data affine
-    aview = traits.Instance(Affine, ())  # the view affine
-    
-    affine  = traits.Instance(Affine, ()) # the product of the data and view affine
+    adata = Instance(Affine, ())  # the data affine
+    aview = Instance(Affine, ())  # the view affine
+    affine  = Instance(Affine, ()) # the product of the data and view affine
 
-    renderer = traits.Trait(None, Renderer)
+    renderer = Trait(None, Renderer)
 
     # every artist defines a string which is the name of the attr that
     # containers should put it into when added.  Eg, an Axes is an
@@ -785,7 +782,7 @@ class Artist(traits.HasTraits):
 
 class ArtistContainer(Artist):
     
-    artistd = traits.Dict(traits.Int, Artist)
+    artistd = traits.Dict(Int, Artist)
     sequence = 'containers'
     def __init__(self):
         Artist.__init__(self)
@@ -842,23 +839,38 @@ class ArtistContainer(Artist):
             #print 'artist draw', self, artist, zorder
             artist.draw()
 
-class Line(Artist):
 
-    linestyle       = mtraits.LineStyle('-')
-    antialiased     = mtraits.AntiAliased()
-    color           = mtraits.Color('blue')
-    linewidth       = mtraits.LineWidth(1.0) 
-    marker          = mtraits.Marker(None)
-    markerfacecolor = mtraits.Color('blue')
-    markeredgecolor = mtraits.Color('black')
-    markeredgewidth = mtraits.LineWidth(0.5)
-    markersize      = mtraits.MarkerSize(6.0)
-    path            = mtraits.Path
-    markers         = mtraits.Markers
-    X               = mtraits.Verts
-    model           = mtraits.Model
-    zorder          = traits.Float(2.0)
-    sequence        = 'lines'
+class Path(Artist):
+    """
+    An interface class between the higher level artists and the path
+    primitive that needs to talk to the renderers
+    """
+    _path       = traits.Instance(PathPrimitive, ())
+    antialiased = mtraits.AntiAliased()
+    color       = mtraits.Color('blue')
+    facecolor   = mtraits.Color('yellow')    
+    linestyle   = mtraits.LineStyle('-')
+    linewidth   = mtraits.LineWidth(1.0) 
+    model       = mtraits.Model
+    pathdata    = traits.Tuple(Array('b'), Array('d'))
+    sequence    = 'paths'
+    zorder      = Float(1.0)
+
+    # why have an extra layer separating the PathPrimitive from the
+    # Path artist?  The reasons are severalfold, but it is still not
+    # clear if this is the better solution.  Doing it this way enables
+    # the backends to create their own derived primitves (eg
+    # RendererAgg creates PathPrimitiveAgg, and in that class sets up
+    # trait listeners to create agg colors and agg paths when the
+    # PathPrimitive traits change.  Another reason is that it allows
+    # us to handle nonlinear transformation (the "model") at the top
+    # layer w/o making the backends understand them.  The current
+    # design is create a mapping between backend primitives and
+    # primitive artists (Path, Text, Image, etc...) and all of the
+    # higher level Artists (Line, Polygon, Axis) will use the
+    # primitive artitsts. So only a few artists will need to know how
+    # to talk to the backend.  The alternative is to make the backends
+    # track and understand the primitive artists themselves.
 
     def __init__(self):
         """
@@ -866,158 +878,241 @@ class Line(Artist):
         nonlinear transformation can be used
         """
         Artist.__init__(self)
+        self._pathid = primitiveID()
 
-        # this is potentially a big problem because you have to know
-        # which attrs may be shared and hence have to be initialized
-        # and which ones don't.  Eg, if you comment out the self.path
-        # init, the code breaks
-
-                                        
-        self.sync_trait('linewidth', self.path, 'linewidth', mutual=False)
-        self.sync_trait('color', self.path, 'strokecolor', mutual=False)
-        self.sync_trait('markerfacecolor', self.markers.path, 'fillcolor', mutual=False)
-        self.sync_trait('markeredgecolor', self.markers.path, 'strokecolor', mutual=False)
-        self.sync_trait('markeredgewidth', self.markers.path, 'linewidth', mutual=False)                        
-
-        # sync up the markers affine
-        self.markers.affine.follow(self.affine.vec6)
-        self.affine.on_trait_change(self.markers.affine.follow, 'vec6')
+    def _pathdata_default(self):
+        return (npy.array([0,0], dtype=npy.uint8),
+                npy.array([[0,0],[0,0]], npy.float_))
+        
+    def _update_path(self):
+        'sync the Path traits with the path primitive'
+        self.sync_trait('linewidth', self._path, mutual=False)
+        self.sync_trait('color', self._path, mutual=False)
+        self.sync_trait('facecolor', self._path, mutual=False)
+        self.sync_trait('antialiased', self._path, mutual=False)
 
         # sync up the path affine
-        self.path.affine.follow(self.affine.vec6)
-        self.affine.on_trait_change(self.path.affine.follow, 'vec6')
+        self._path.affine.follow(self.affine.vec6)
+        self.affine.on_trait_change(self._path.affine.follow, 'vec6')
+        self._update_pathdata()
+
+    def _update_pathdata(self):
+        #print 'PATH: update pathdata'
+
+        codes, xy = self.pathdata
+
+        #print '    PATH: shapes', codes.shape, xy.shape
+        if self.model is not None:
+            xy = self.model(xy)
+
+        pathdata = codes, xy
+
+        self._path.pathdata = pathdata
         
-
-        self.path.fillcolor = None
-
-        self.pathid = primitiveID()
-        self.markerid = primitiveID()
-
-        self.markerfuncd = {
-            's': self._markers_square,
-            }        
-
     def draw(self):
-
         if self.renderer is None or not self.visible: return
         Artist.draw(self)
-
-        if self.linestyle is not None:
-            self.renderer.render_path(self.pathid)
-        if self.marker is not None:
-            self.renderer.render_markers(self.markerid)        
+        self.renderer.render_path(self._pathid)
         
 
     def _renderer_changed(self, old, new):
         if old is not None:
-            old.remove_path(self.pathid)
-            old.remove_markers(self.markerid)
+            del old.pathd[self._pathid]
+            
+        if new is None: return 
 
-        if new is not None:
-            new.add_path(self.pathid, self.path)
-            new.add_markers(self.markerid, self.markers)        
-
-
+        #print 'PATH renderer_changed; updating' 
+        self._path = renderer.new_path_primitive()
+        new.pathd[self._pathid] = self._path
+        self._update_path()        
+    
     def _model_changed(self, old, new):
-        self._update_data()
+        self._update_pathdata()
 
-    def _X_changed(self, old, new):
-        self._update_data()
-        
-    def _update_data(self):
-        N = self.X.shape[0]
-        codes = Path.LINETO*npy.ones(N, dtype=npy.uint8)
-        codes[0] = Path.MOVETO
-
-        # todo, having touble setting Model to default to Identity so
-        # allowing None as a hack workaround
-        #print 'X changed', self.model
-        if self.model is not None:
-            modelx = self.model(self.X)
-        else:
-            modelx = self.X
-        self.path.pathdata = codes, modelx
-        self.markers.verts = modelx
-
-    def _markersize_changed(self, oldX, newX):
-        self._refresh_markers()
-
-    def _marker_changed(self, oldX, newX):
-        self._refresh_markers()
+    def _pathdata_changed(self, old, new):
+        #print 'PATH: pathdata changed'
+        self._update_pathdata()
 
 
-    def _refresh_markers(self):
-        if self.marker is not None:
-            markerfunc = self.markerfuncd.get(self.marker)
-            if markerfunc is not None: markerfunc()
-        
-
-    def _markers_square(self):
-
-        verts = self.markersize*npy.array([[-0.5,-0.5], [-0.5,0.5], [0.5,0.5], [0.5,-0.5], [0,0]])
-        codes = Path.LINETO*npy.ones(len(verts), dtype=npy.uint8)
-        codes[0] = Path.MOVETO
-        codes[-1] = Path.CLOSEPOLY
-        
-        self.markers.path.pathdata = codes, verts
-
-mtraits.Line = traits.Instance(Line, ())
-
-class Rectangle(Artist, Box):
-    facecolor = mtraits.Color('yellow')
-    edgecolor = mtraits.Color('black')
-    edgewidth = mtraits.LineWidth(1.0)
-    path      = mtraits.Path
-    zorder    = traits.Float(1.0)
-    sequence  = 'rectangles'
+class Marker(Artist):
+    """
+    An interface class between the higher level artists and the marker
+    primitive that needs to talk to the renderers
+    """
+    _marker       = traits.Instance(MarkerPrimitive, ())
+    locs        = Array('d')
+    path        = Instance(Path, ())    
+    model       = mtraits.Model
+    sequence    = 'markers'
+    size        = Float(1.0) # size of the marker in points
 
     def __init__(self):
+        """
+        The model is a function taking Nx2->Nx2.  This is where the
+        nonlinear transformation can be used
+        """
         Artist.__init__(self)
-     
-        self.sync_trait('facecolor', self.path, 'fillcolor', mutual=False)
-        self.sync_trait('edgecolor', self.path, 'strokecolor', mutual=False)
-        self.sync_trait('edgewidth', self.path, 'linewidth', mutual=False)
+        self._markerid = primitiveID()
 
-        self.pathid = primitiveID()
-        # sync up the path affine
-        self.path.affine.follow(self.affine.vec6)
-        self.affine.on_trait_change(self.path.affine.follow, 'vec6')
+    def _locs_default(self):
+        return npy.array([[0,1],[0,1]], npy.float_)
+
         
-    def _hidebounds_changed(self, old, new):
-        Box._bounds_changed(self, old, new)
-        print 'rectangle bounds changed'
+    def _path_default(self):
+        bounds = npy.array([-0.5, -0.5, 1, 1])*self.size
+        return Rectangle().set(bounds=bounds)
 
+    def _path_changed(self, old, new):
+        if self.renderer is None:
+            # we can't sync up to the underlying path yet
+            return 
+        print 'MARKER _path_changed', self.path._path.pathdata, self._marker.path.pathdata
+        old.sync_trait('_path', self._marker, 'path', remove=True)
+        new.sync_trait('_path', self._marker, 'path', mutual=False)
+
+        
+    def _update_marker(self):
+        'sync the Marker traits with the marker primitive'
+        if self.renderer is None:
+            # we can't sync up to the underlying path yet
+            return 
+
+        # sync up the marker affine
+        self.path.sync_trait('_path', self._marker, 'path', mutual=False)
+        self._marker.affine.follow(self.affine.vec6)
+        self.affine.on_trait_change(self._marker.affine.follow, 'vec6')
+        self._update_locs()
+
+        print 'MARKER _update_marker', self.path._path.pathdata, self._marker.path.pathdata
+
+    def _update_locs(self):
+        print 'MARKER: update markerdata'
+        xy = self.locs
+        if self.model is not None:
+            xy = self.model(xy)
+
+        self._marker.locs = xy
+        
+    def draw(self):
+        if self.renderer is None or not self.visible: return
+        Artist.draw(self)
+        self.renderer.render_marker(self._markerid)
+        
+
+    def _renderer_changed(self, old, new):
+        # we must make sure the contained artist gets the callback
+        # first so we can update the path primitives properly
+        self.path._renderer_changed(old, new)
+        if old is not None:
+            del old.markerd[self._markerid]
+            
+        if new is None: return 
+
+        print 'MARKER renderer_changed; updating' 
+        self._marker = renderer.new_marker_primitive()
+        new.markerd[self._markerid] = self._marker
+        self._update_marker()        
+    
+    def _model_changed(self, old, new):
+        self._update_locs()
+
+    def _locs_changed(self, old, new):
+        if len(new.shape)!=2:
+            raise ValueError('new must be nx2 array')
+        self._update_locs()
+
+class Line(Path):
+
+    XY = Array('d')
+    sequence        = 'lines'
+
+    def _facecolor_default(self):
+        return None
+    
+    def _XY_default(self):
+        return npy.array([[0,1],[0,1]], npy.float_)
+    
+    def _XY_changed(self):
+        #print 'LINE: XY changed'
+        codes = npy.ones(len(self.XY), npy.uint8)
+        codes[0] = MOVETO
+        #print 'LINE shapes', codes.shape, self.XY.shape
+        self.pathdata = codes, self.XY
+
+        # XXX: to we need to push pathdata changed here or will it
+        # happen automagically
+
+
+class Polygon(Path):
+    zorder    = Float(2.0)
+    vertices  = Array('d')
+    sequence  = 'polygons'
+
+    def _vertices_default(self):
+        return npy.array([[-1,0], [0,1], [1,0], [0,0]], npy.float_)
+
+    def _vertices_changed(self, old, new):
+        #print 'POLY: verts changed'
+        N = len(new)
+        
+        codes = LINETO*npy.ones(N, npy.uint8)
+        codes[0] = MOVETO
+        codes[-1] = CLOSEPOLY
+
+        pathdata = codes, new
+        self.pathdata = pathdata
+        self._pathdata_changed(None, pathdata)
+        
+class Rectangle(Polygon, Box):
+    sequence = 'rectangles'
+    def __init__(self):
+        Polygon.__init__(self)
+        self._bounds_changed(None, self.bounds)
+        
     def _bounds_changed(self, old, new):
         Box._bounds_changed(self, old, new)
-        print 'rectangle bounds changed'
+        #print 'RECT: bounds changed'
         l,b,w,h = new
         t = b+h
         r = l+w
-        verts = npy.array([(l,b), (l,t), (r, t), (r, b), (0,0)], npy.float_)
-        codes = Path.LINETO*npy.ones(5, npy.uint8)
-        codes[0] = Path.MOVETO
-        codes[-1] = Path.CLOSEPOLY
+        self.vertices = npy.array([(l,b), (l,t), (r, t), (r, b), (0,0)], npy.float_)
+        #XXX: do we need to otify traits change
+        self._vertices_changed(None, self.vertices)
 
-        self.path.pathdata = codes, verts
+class RegularPolygon(Polygon):
+    center = Tuple(Float, Float) 
+    sides = Int(6)
+    radius = Float(1.0)
+    theta = Float(0.)  # orientation in radians
+    sequence = 'rectangles'
 
-    def _renderer_changed(self, old, new):
-        if old is not None:
-            old.remove_path(self.pathid)
+    def __init__(self):
+        self._update_vertices()
+    
+    def _sides_changed(self, old, new):
+        self._update_verts()
 
-        if new is not None:
-            new.add_path(self.pathid, self.path)
+    def _theta_changed(self, old, new):
+        self._update_verts()
 
-    def draw(self):
-        if self.renderer is None or not self.visible: return
-        Artist.draw(self)
-        self.renderer.render_path(self.pathid)
+    def _radius_changed(self, old, new):
+        self._update_verts()
+        
+    def _update_verts(self):
 
+        theta = 2*npy.pi/self.sides*npy.arange(self.sides) + self.theta
+        x, y = self.center
 
-mtraits.Rectangle = traits.Instance(Rectangle, ())        
+        xy = npy.zeros((self.sides,2))
+
+        xy[:,0] = x + self.radius*npy.cos(theta)
+        xy[:,1] = y + self.radius*npy.sin(theta)
+
+        self.vertices = xy
 
 class Figure(ArtistContainer):
 
-    rectangle = traits.Instance(Rectangle, ())
+    rectangle = Instance(Rectangle, ())
     sequence = None  # figure is top level container
     def __init__(self):
         ArtistContainer.__init__(self)
@@ -1027,33 +1122,25 @@ class Figure(ArtistContainer):
         self.add_artist(self.rectangle)
 
 class Axis(ArtistContainer):
-    zorder = traits.Float(1.5)
-    tickmarkers  = mtraits.Markers
-    linepath = mtraits.Path
-    linecolor = mtraits.Color('black')
-    linewidth = mtraits.LineWidth(1.0)
-    ticklocs = traits.Array('d')
-    ticksize = traits.Float(5.0)
-    ticklinewidth = mtraits.LineWidth(1.0)
-    tickcolor = mtraits.Color('black')
+    zorder = Float(1.5)
+    tickmarker  = Instance(Marker, ())
+    line = Instance(Line, ())
+    ticklocs = Array('d')
+    ticksize = Float(5.0)
+
     
-    loc  = traits.Float(0.)          # the y location of the x-axis
-    tickoffset = traits.Float(0)  # -1 for outer, -0.5 for centered, 0 for inner
+    loc  = Float(0.)          # the y location of the x-axis
+    tickoffset = Float(0)  # -1 for outer, -0.5 for centered, 0 for inner
     sequence  = 'axes'
 
     def __init__(self):
         ArtistContainer.__init__(self)
-        self.tickmarkersid = primitiveID()
-        self.linepathid = primitiveID()
-
         self.affine.on_trait_change(self._update_blended_affine, 'vec6')
-        self.tickmarkers.path.antialiased = False
-        self.linepath.antialiased = False
-        
-        self.sync_trait('linewidth', self.linepath,  mutual=False)
-        self.sync_trait('linecolor', self.linepath, 'strokecolor', mutual=False)
-        self.sync_trait('ticklinewidth', self.tickmarkers.path, 'linewidth', mutual=False)
-        self.sync_trait('tickcolor', self.tickmarkers.path, 'strokecolor', mutual=False)
+        self.tickmarker.antialiased = False
+        self.line.antialiased = False
+
+        self.add_artist(self.line, followdata=False)
+        self.add_artist(self.tickmarker, followdata=False)
 
         # XXX, do we have to manually call these or will they get
         # calle dautomagically in init
@@ -1087,21 +1174,6 @@ class Axis(ArtistContainer):
     def _update_linepath(self):
         raise NotImplementedError
 
-    def _renderer_changed(self, old, new):
-        if old is not None:
-            old.remove_markers(self.tickmarkersid)
-            old.remove_path(self.linepathid)            
-
-        if new is not None:
-            new.add_markers(self.tickmarkersid, self.tickmarkers)
-            new.add_path(self.linepathid, self.linepath)                    
-
-    def draw(self):
-        if self.renderer is None or not self.visible: return
-        Artist.draw(self)
-        self.renderer.render_markers(self.tickmarkersid)
-        self.renderer.render_path(self.linepathid)        
-
 class XAxis(Axis):
     sequence = 'xaxes'
     def _update_blended_affine(self):
@@ -1109,27 +1181,31 @@ class XAxis(Axis):
         sx, b, tx = self.adata.data[0]
         a = Affine()
         a.vec6 = sx, b, 0, 1, tx, self.loc
-        self.tickmarkers.affine.vec6 = (self.aview * a).vec6
+        self.tickmarker.affine.vec6 = (self.aview * a).vec6
         
         a = Affine()
         a.translate = 0, self.loc
-        self.linepath.affine.vec6 = (self.aview * a).vec6        
+        self.line.affine.vec6 = (self.aview * a).vec6        
 
     def _update_marker_locations(self):
         Nticks = len(self.ticklocs)
-        verts = self.loc*npy.ones((Nticks,2))
-        verts[:,0] = self.ticklocs
-        self.tickmarkers.verts = verts
+        locs = self.loc*npy.ones((Nticks,2))
+        locs[:,0] = self.ticklocs
+        self.tickmarker.locs = locs
 
     def _update_tick_path(self):
-        codes = Path.MOVETO, Path.LINETO
+        codes = MOVETO, LINETO
         verts = npy.array([[0., self.tickoffset], [0, self.tickoffset-1]])*self.ticksize
-        self.tickmarkers.path.pathdata = codes, verts        
+
+        pathdata = codes, verts
+        self.tickmarker.path.pathdata = pathdata    
 
     def _update_linepath(self):
-        codes = Path.MOVETO, Path.LINETO
+        
+        codes = MOVETO, LINETO
         X = npy.array([[0, 1], [0, 0]], npy.float_).T
-        self.linepath.pathdata = codes, X
+        pathdata = codes, X
+        self.line.pathdata = pathdata
 
 class YAxis(Axis):
     sequence = 'yaxes'
@@ -1139,27 +1215,30 @@ class YAxis(Axis):
         c, sy, ty = self.adata.data[1]
         a = Affine()
         a.vec6 = 1, 0, 0, sy, self.loc, ty
-        self.tickmarkers.affine.vec6 = (self.aview * a).vec6
+        self.tickmarker.affine.vec6 = (self.aview * a).vec6
         
         a = Affine()
         a.translate = self.loc, 0
-        self.linepath.affine.vec6 = (self.aview * a).vec6        
+        self.line.affine.vec6 = (self.aview * a).vec6        
 
     def _update_marker_locations(self):
         Nticks = len(self.ticklocs)
-        verts = self.loc*npy.ones((Nticks,2))
-        verts[:,1] = self.ticklocs
-        self.tickmarkers.verts = verts
+        locs = self.loc*npy.ones((Nticks,2))
+        locs[:,1] = self.ticklocs
+        self.tickmarker.locs = locs
 
     def _update_tick_path(self):
-        codes = Path.MOVETO, Path.LINETO
+        codes = MOVETO, LINETO
         verts = npy.array([[self.tickoffset,0], [self.tickoffset+1,0]])*self.ticksize
-        self.tickmarkers.path.pathdata = codes, verts        
+        pathdata = codes, verts
+        self.tickmarker.path.pathdata = pathdata
 
     def _update_linepath(self):
-        codes = Path.MOVETO, Path.LINETO
+        codes = MOVETO, LINETO
         X = npy.array([[0, 0], [0, 1]], npy.float_).T
-        self.linepath.pathdata = codes, X
+
+        pathdata = codes, X
+        self.line.pathdata = pathdata
 
 class FigurePane(ArtistContainer, Box):
     """
@@ -1168,10 +1247,10 @@ class FigurePane(ArtistContainer, Box):
     Affine instances.  It is a shell of it's former self: it has a
     rectangle and a default x and y axis instance
     """
-    rectangle = traits.Instance(Rectangle, ())
+    rectangle = Instance(Rectangle, ())
     #gridabove = traits.false # TODO handle me
-    xaxis     = traits.Instance(XAxis, ())
-    yaxis     = traits.Instance(YAxis, ())
+    xaxis     = Instance(XAxis, ())
+    yaxis     = Instance(YAxis, ())
     sequence  = 'panes'
     
     def __init__(self):
@@ -1181,55 +1260,119 @@ class FigurePane(ArtistContainer, Box):
         self.rectangle.edgecolor = 'white'        
         self.rectangle.linewidth = 0
         
-        print 'setting rect bounds'
         self.rectangle.bounds = [0,0,1,1]
-        print 'set rect bounds'
         self.add_artist(self.rectangle, followdata=False)
         self.add_artist(self.xaxis)
         self.add_artist(self.yaxis)                
 
     def _bounds_changed(self, old, new):
         Box._bounds_changed(self, old, new)
-        print 'pane bounds changed'
         l,b,w,h = self.bounds
         self.aview.scale = w, h
         self.aview.translate = l, b
 
 
-
+## begin examples
+        
 def classic(fig):
-    x = npy.arange(0, 10., 0.01)
-    y = npy.sin(2*npy.pi*x)
 
     pane = FigurePane().set(bounds=[0.1, 0.1, 0.8, 0.8])
     fig.add_artist(pane, followdata=False, followview=False)
-
-
-    line1 = Line().set(X=npy.array([x,y]).T,
-                       color='blue', linewidth=2.0, marker=None,
+    # update the view limits, all the affines should be automagically updated
+    x = npy.arange(0, 10., 0.01)
+    y = npy.sin(2*npy.pi*x)
+    y = npy.exp(-x/2.)
+    line1 = Line().set(XY=npy.array([x,y]).T,
+                       color='blue', linewidth=2.0, 
                        )
 
 
     pane.add_artist(line1)
-
-    # update the view limits, all the affines should be automagically updated
     pane.adata.xlim = 0, 10
-    pane.adata.ylim = -1.1, 1.1
+    pane.adata.ylim = -0.1, 1.1
 
-    pane.xaxis.ticklocs = npy.arange(0., 11., 1.)
-    pane.yaxis.ticklocs = npy.arange(-1.0, 1.1, 0.2)
+    # axis placement is still broken
+    xax, yax = pane.xaxis, pane.yaxis
+    xax.ticklocs = npy.arange(0., 11., 1)
+    xax.tickoffset = 0.5
+    xax.loc = -0.05
+    xax.line.color = 'black'
+    xax.tickmarker.path.color = 'black'
+
+    yax.ticklocs = npy.arange(-1.0, 1.1, 0.2)
+    yax.tickoffset = -0.5
+    yax.loc = -0.05
+    yax.line.color = 'black'
+    yax.tickmarker.path.color = 'black'
+
+    if 0:
+        x = npy.arange(0, 10., 0.1)
+        y = npy.sin(2*npy.pi*x)
+
+        marker = Marker().set(
+            locs=npy.array([x,y]).T,  color='ref', linewidth=1.0,
+            size=10)
 
 
-    # add a right and top axis
-    xaxis2 = XAxis().set(loc=1, tickoffset=-1)
-    yaxis2 = YAxis().set(loc=1, tickoffset=-1)    
-    xaxis2.ticklocs = npy.arange(0., 11., 0.5)
-    yaxis2.ticklocs = npy.arange(-1.0, 1.1, 0.1)
+        pane.add_artist(marker)
 
-    pane.add_artist(xaxis2)
-    pane.add_artist(yaxis2)
-    # uncomment to change Axes wwidth
-    #pane.width = 0.8
+
+    if 0:
+        xax, yax = pane.xaxis, pane.yaxis
+        xax.ticklocs = npy.arange(0., 11., 1)
+        xax.ticksize = 8
+        xax.line.color = 'black'
+        xax.line.linewidth = 2.0
+        xax.tickoffset = .5
+        xax.tickmarker.path.color = 'black'
+        xax.tickmarker.path.linewidth = 2
+
+        xax.loc = 0.5
+        xax.zorder = 10  
+
+        yax.ticklocs = npy.arange(-1.0, 1.1, 0.2)
+        yax.line.color = 'black'
+        yax.line.linewidth = 2.0
+        yax.tickmarker.path.color = 'black'
+        yax.ticksize = 8
+        yax.tickoffset = -0.5
+        yax.tickmarker.path.linewidth = 2
+        yax.loc = 0.5
+        yax.zorder = 10
+    if 0:
+        # add a right and top axis; the markers are getting the loc
+        # but the line path isn't...  It appears all the line paths
+        # are getting 0
+        xaxis2 = XAxis()
+        xaxis2.loc = 0.6
+        xaxis2.tickoffset = -1
+        xaxis2.ticklocs = npy.arange(0., 10.1, 0.5)
+        yaxis2 = YAxis().set(loc=0.6, tickoffset=-1)    
+
+        yaxis2.tickmarker.path.color = 'green'
+        yaxis2.loc = 0.5
+        yaxis2.ticksize = 10
+        yaxis2.tickmarker.path.linewidth = 1
+        yaxis2.line.color = 'green'
+        yaxis2.tickmarker.path.color = 'green'
+        yaxis2.ticklocs = npy.arange(-1.0, 1.1, 0.1)
+
+        pane.add_artist(xaxis2)
+        pane.add_artist(yaxis2)
+        # uncomment to change Axes wwidth
+        #pane.width = 0.8
+
+    if 0:
+        # XXX: axes lines and tick markes are placed in vastly
+        # different locations depending on whether this is commented
+        # or uncommented, suggesting that the problem is caused by
+        # events not propogating unless lim are changed.  If we set
+        # these lim to be the same as the lim above (note they are
+        # almost identical) then the graphs are the same regardless of
+        # whether the lim are set
+        pane.adata.xlim = 0.01, 10.01
+        pane.adata.ylim = -0.101, 1.101
+
 
 def make_subplot_ll(fig):
     x1 = npy.arange(0, 10., 0.05)
@@ -1243,9 +1386,7 @@ def make_subplot_ll(fig):
 
 
     line1 = Line().set(X=npy.array([x1,y1]).T,
-                       color='blue', linewidth=2.0, marker='s',
-                       markersize=5.0,  markerfacecolor='green',
-                       markeredgewidth=0.5)
+                       color='blue', linewidth=2.0)
 
 
     pane.add_artist(line1)
@@ -1257,14 +1398,14 @@ def make_subplot_ll(fig):
     pane.xaxis.ticklocs = npy.arange(0., 11., 1.)
     pane.xaxis.loc = -0.1
     pane.xaxis.tickoffset = -0.5
-    pane.xaxis.linecolor = 'red'
+    pane.xaxis.line.color = 'red'
 
-    pane.yaxis.ticklocs = npy.arange(-1.0, 1.1, 0.2)
+    Pane.yaxis.ticklocs = npy.arange(-1.0, 1.1, 0.2)
     pane.yaxis.loc = -0.1
     pane.xaxis.tickoffset = -0.5    
     
-    pane.yaxis.linecolor = 'blue'
-    pane.yaxis.tickcolor = 'blue'
+    pane.yaxis.line.color = 'blue'
+    pane.yaxis.tickmarker.color = 'blue'
 
     # uncomment to change Axes wwidth
     #pane.width = 0.8
@@ -1290,19 +1431,6 @@ def make_subplot_ur(fig):
     axes2.adata.ylim = -1.1, 1.1    
 
 
-
-class TestContainer(ArtistContainer, Box):
-    rectangle = traits.Instance(Rectangle, ())
-    sequence  = 'panes'
-    
-    def __init__(self):
-        ArtistContainer.__init__(self)
-        self.rectangle.zorder = 0
-        self.rectangle.facecolor = 'white'
-
-        print 'setting rect bounds'
-        self.rectangle.bounds = [0,0,1,1]
-        print 'set rect bounds'
 
 if __name__=='__main__':
 
