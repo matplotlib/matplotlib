@@ -30,24 +30,6 @@ is_string_like = cbook.is_string_like
 
 ## begin core infrastructure
 
-class TraitVertexArray(TraitArray):
-
-    def __init__ ( self, typecode = None, shape = None, coerce = False ):
-        TraitArray.__init__(self, typecode, shape, coerce)
-
-    def validate(self, object, name, value):
-        orig = value
-        value = TraitArray.validate(self, object, name, value)
-        if len(value.shape)!=2 or value.shape[1]!=2:
-            return self.error(object, name, orig)
-
-        return value
-
-    def info(self):
-        return 'an Nx2 array of doubles which are x,y vertices'
-
-VertexArray = Trait(npy.array([[0,0], [1,1]], npy.float_),
-                    TraitVertexArray('d'))
 
                     
 class Affine(HasTraits):
@@ -317,6 +299,28 @@ class Box(HasTraits):
 
     def _bounds_changed(self, old, new):
         pass
+
+
+## begin custom trait handlers
+    
+class TraitVertexArray(TraitArray):
+
+    def __init__ ( self, typecode = None, shape = None, coerce = False ):
+        TraitArray.__init__(self, typecode, shape, coerce)
+
+    def validate(self, object, name, value):
+        orig = value
+        value = TraitArray.validate(self, object, name, value)
+        if len(value.shape)!=2 or value.shape[1]!=2:
+            return self.error(object, name, orig)
+
+        return value
+
+    def info(self):
+        return 'an Nx2 array of doubles which are x,y vertices'
+
+VertexArray = Trait(npy.array([[0,0], [1,1]], npy.float_),
+                    TraitVertexArray('d'))
     
 class ColorHandler(traits.TraitHandler):
     """
@@ -401,7 +405,17 @@ class IDGenerator:
 
 
 ## begin backend API
-MOVETO, LINETO, CLOSEPOLY = range(3)
+# PATH CODES
+STOP      = 0
+MOVETO    = 1
+LINETO    = 2
+CURVE3    = 3
+CURVE4    = 4
+CURVEN    = 5
+CATROM    = 6
+UBSPLINE  = 7
+CLOSEPOLY = 0x0F
+
 class PathPrimitive(HasTraits):
     """
     The path is an object that talks to the backends, and is an
@@ -1044,7 +1058,7 @@ class Line(Path):
     
     def _XY_changed(self):
         #print 'LINE: XY changed'
-        codes = npy.ones(len(self.XY), npy.uint8)
+        codes = LINETO*npy.ones(len(self.XY), npy.uint8)
         codes[0] = MOVETO
         #print 'LINE shapes', codes.shape, self.XY.shape
         self.pathdata = codes, self.XY
@@ -1134,7 +1148,7 @@ class Axis(ArtistContainer):
     tickmarker  = Instance(Marker, ())
     line = Instance(Line, ())
     ticklocs = Array('d')
-    ticksize = Float(5.0)
+    ticksize = Float(7.0)
 
     
     loc  = Float(0.)          # the y location of the x-axis
