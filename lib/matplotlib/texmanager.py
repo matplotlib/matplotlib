@@ -120,23 +120,27 @@ WARNING: found a TeX cache dir in the deprecated location "%s".
         if ff in self.font_families:
             self.font_family = ff
         else:
-            warnings.warn('The %s font family is not compatible with LaTeX. serif will be used by default.' % ff)
+            mpl.verbose.report('The %s font family is not compatible with LaTeX. serif will be used by default.' % ff, 'helpful')
             self.font_family = 'serif'
 
         fontconfig = [self.font_family]
         for font_family, font_family_attr in \
             ((ff, ff.replace('-', '_')) for ff in self.font_families):
             for font in rcParams['font.'+font_family]:
-                if DEBUG: print 'family: %s, font: %s, info: %s'%(font_family,
-                                    font, self.font_info[font.lower()])
                 if font.lower() in self.font_info:
+                    found_font = self.font_info[font.lower()]
                     setattr(self, font_family_attr,
                             self.font_info[font.lower()])
+                    if DEBUG: 
+                        print 'family: %s, font: %s, info: %s'%(font_family,
+                                    font, self.font_info[font.lower()])
                     break
                 else:
-                    warnings.warn('No LaTeX-compatible font found for the %s font family in rcParams. Using default.' % ff)
-                    setattr(self, font_family_attr, font_family)
-                fontconfig.append(getattr(self, font_family_attr)[0])
+                    if DEBUG: print '$s font is not compatible with usetex'
+            else:
+                mpl.verbose.report('No LaTeX-compatible font found for the %s font family in rcParams. Using default.' % ff, 'helpful')
+                setattr(self, font_family_attr, self.font_info[font_family])
+            fontconfig.append(getattr(self, font_family_attr)[0])
         self._fontconfig = ''.join(fontconfig)
 
         # The following packages and commands need to be included in the latex
