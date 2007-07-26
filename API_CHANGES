@@ -1,3 +1,10 @@
+    The mathtext font commands (\cal, \rm, \it, \tt) now behave as TeX
+    does: they are in effect until the next font change command or the
+    end of the grouping.  Therefore uses of $\cal{R}$ should be
+    changed to ${\cal R}$.  Alternatively, you may use the new
+    LaTeX-style font commands (\mathcal, \mathrm, \mathit, \mathtt)
+    which do affect the following group, eg. $\mathcal{R}$.
+
     Text creation commands have a new default linespacing and
     a new linespacing kwarg, which is a multiple of the maximum
     vertical extent of a line of ordinary text.  The default is
