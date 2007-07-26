@@ -170,6 +170,7 @@ latex_to_bakoma = {
     r'\swarrow'             : ('cmsy10', 116),
     r'\propto'              : ('cmsy10',  15),
     r'\prime'               : ('cmsy10',  73),
+    r"'"                    : ('cmsy10',  73),
     r'\infty'               : ('cmsy10',  32),
     r'\in'                  : ('cmsy10',  59),
     r'\ni'                  : ('cmsy10', 122),
@@ -253,6 +254,7 @@ latex_to_bakoma = {
     r'\prec'                : ('cmsy10',  93),
     r'\succ'                : ('cmsy10',  49),
     r'\rightarrow'          : ('cmsy10',  12),
+    r'\to'                  : ('cmsy10',  12),
     r'\spadesuit'           : ('cmsy10',   7),
     }
 

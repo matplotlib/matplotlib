@@ -138,7 +138,8 @@ from matplotlib import verbose
 from matplotlib.pyparsing import Literal, Word, OneOrMore, ZeroOrMore, \
      Combine, Group, Optional, Forward, NotAny, alphas, nums, alphanums, \
      StringStart, StringEnd, ParseFatalException, FollowedBy, Regex, \
-     operatorPrecedence, opAssoc, ParseResults, Or, Suppress, oneOf
+     operatorPrecedence, opAssoc, ParseResults, Or, Suppress, oneOf, \
+     ParseException, MatchFirst
 
 from matplotlib.afm import AFM
 from matplotlib.cbook import enumerate, iterable, Bunch, get_realpath_and_stat, \
@@ -151,13 +152,7 @@ from matplotlib import get_data_path, rcParams
 
 ####################
 
-# symbols that have the sub and superscripts over/under
-overunder_symbols = {
-    r'\sum'    : 1,
-    r'\int'    : 1,
-    r'\prod'   : 1,
-    r'\coprod' : 1,
-    }
+    
 # a character over another character
 charOverChars = {
     # The first 2 entires in the tuple are (font, char, sizescale) for
@@ -692,7 +687,11 @@ class BakomaFonts(Fonts):
     def render_rect_filled(self, x1, y1, x2, y2):
         assert len(self.fonts)
         font = self.fonts.values()[0]
-        font.font.draw_rect_filled(x1, y1, max(x2 - 1, x1), max(y2 - 1, y1))
+        font.font.draw_rect_filled(
+            max(0, x1 - 1),
+            y1,
+            max(x2 - 1, x1),
+            max(y2 - 1, y1))
         
     def get_used_characters(self):
         return self.used_characters
@@ -956,14 +955,16 @@ SHRINK_FACTOR   = 0.7
 # The number of different sizes of chars to use, beyond which they will not
 # get any smaller
 NUM_SIZE_LEVELS = 3
-# Percentage of x-height that subscripts drop below the baseline
-SUBDROP         = 0.05
+# Percentage of x-height of additional horiz. space after sub/superscripts
+SCRIPT_SPACE    = 0.3
+# Percentage of x-height that sub/superscripts drop below the baseline
+SUBDROP         = 0.4
 # Percentage of x-height that superscripts drop below the baseline
-SUP1            = 0.2
+SUP1            = 0.7
 # Percentage of x-height that subscripts drop below the baseline
-SUB1            = 0.3
+SUB1            = 0.0
 # Percentage of x-height that superscripts are offset relative to the subscript
-DELTA           = 0.05
+DELTA           = 0.1
     
 class MathTextWarning(Warning):
     pass
@@ -990,10 +991,6 @@ class Node(object):
 
     def set_link(self, other):
         self.link = other
-
-    def pack(self):
-        if self.link:
-            self.link.pack()
 
     def shrink(self):
         """Shrinks one level smaller.  There are only three levels of sizes,
@@ -1062,7 +1059,10 @@ class Char(Node):
     def _update_metrics(self):
         metrics = self._metrics = self.font_output.get_metrics(
             self.font, self.c, self.fontsize, self.dpi)
-        self.width = metrics.width
+        if self.c == ' ':
+            self.width = metrics.advance
+        else:
+            self.width = metrics.width
         self.height = metrics.iceberg
         self.depth = -(metrics.iceberg - metrics.height)
         
@@ -1124,7 +1124,9 @@ class List(Box):
                 elem = next
 
     def __repr__(self):
-        s = '[' + self.__internal_repr__() + " <%d %d %d %d> " % (self.width, self.height, self.depth, self.shift_amount)
+        s = '[%s <%d %d %d %d> ' % (self.__internal_repr__(),
+                                    self.width, self.height,
+                                    self.depth, self.shift_amount)
         if self.list_head:
             s += ' ' + self.list_head.__repr__()
         s += ']'
@@ -1162,6 +1164,7 @@ class List(Box):
         Box.shrink(self)
         if self.size < NUM_SIZE_LEVELS:
             self.shift_amount *= SHRINK_FACTOR
+            self.glue_set     *= SHRINK_FACTOR
 
 class Hlist(List):
     """A horizontal list of boxes.
@@ -1186,12 +1189,6 @@ class Hlist(List):
                 kern.link = next
             elem = next
 
-    def pack(self):
-        if self.list_head:
-            self.list_head.pack()
-        self.hpack()
-        Node.pack(self)
-            
     def hpack(self, w=0., m='additional'):
         """The main duty of hpack is to compute the dimensions of the
         resulting boxes, and to adjust the glue if one of those dimensions is
@@ -1265,12 +1262,6 @@ class Vlist(List):
         List.__init__(self, elements)
         self.vpack()
 
-    def pack(self):
-        if self.list_head:
-            self.list_head.pack()
-        self.vpack()
-        Node.pack(self)
-        
     def vpack(self, h=0., m='additional', l=float('inf')):
         """The main duty of vpack is to compute the dimensions of the
         resulting boxes, and to adjust the glue if one of those dimensions is
@@ -1386,6 +1377,13 @@ class Glue(Node):
             glue_spec = glue_spec.copy()
         self.glue_spec      = glue_spec
 
+    def shrink(self):
+        Node.shrink(self)
+        if self.size < NUM_SIZE_LEVELS:
+            if self.glue_spec.width != 0.:
+                self.glue_spec = self.glue_spec.copy()
+                self.glue_spec.width *= SHRINK_FACTOR
+        
 class GlueSpec(object):
     """@150, @151"""
     def __init__(self, width=0., stretch=0., stretch_order=0, shrink=0., shrink_order=0):
@@ -1406,7 +1404,7 @@ class GlueSpec(object):
     def factory(cls, glue_type):
         return cls._types[glue_type]
     factory = classmethod(factory)
-
+    
 GlueSpec._types = {
     'fil':         GlueSpec(0., 1., 1, 0., 0),
     'fill':        GlueSpec(0., 1., 2, 0., 0),
@@ -1444,11 +1442,6 @@ class NegFilll(Glue):
     def __init__(self):
         Glue.__init__(self, 'neg_filll')
         
-class FixedGlue(Glue):
-    def __init__(self, width):
-        Glue.__init__(self, 'empty', copy=True)
-        self.glue_spec.width = width
-
 class SsGlue(Glue):
     def __init__(self):
         Glue.__init__(self, 'ss')
@@ -1463,7 +1456,7 @@ class VCentered(Hlist):
     """A convenience class to create an Vlist whose contents are centered
     within its enclosing box."""
     def __init__(self, elements):
-        Vlist.__init__(self, [Fill()] + elements + [Fill()])
+        Vlist.__init__(self, [SsGlue()] + elements + [SsGlue()])
         
 class Kern(Node):
     """A Kern node has a width field to specify a (normally negative)
@@ -1668,7 +1661,7 @@ ship = Ship()
 
 class Parser(object):
     _binary_operators = Set(r'''
-      + - *
+      + *
       \pm             \sqcap                   \rhd
       \mp             \sqcup                   \unlhd
       \times          \vee                     \unrhd
@@ -1711,6 +1704,16 @@ class Parser(object):
     _spaced_symbols = _binary_operators | _relation_symbols | _arrow_symbols
 
     _punctuation_symbols = Set(r', ; . ! \ldotp \cdotp'.split())
+
+    _overunder_symbols = Set(r'''
+       \sum \int \prod \coprod \oint \bigcap \bigcup \bigsqcup \bigvee
+       \bigwedge \bigodot \bigotimes \bigoplus \biguplus
+       '''.split()
+    )
+
+    _overunder_functions = Set(
+        r"lim liminf limsup sup max min".split()
+    )
     
     def __init__(self):
         # All forward declarations are here
@@ -1761,13 +1764,13 @@ class Parser(object):
                          r"[a-zA-Z0-9 ]",
                          r"[+\-*/]",
                          r"[<>=]",
-                         r"[:,.;!]",
-                         r"[!@%&]",
-                         r"[[\]()]",
+                         r"[:,.;!'@[()]",
                          r"\\[$%{}]",
                        ])
                      + ")"
                      ).setParseAction(self.symbol).leaveWhitespace()
+
+        rightBracket = Literal("[").setParseAction(self.symbol).leaveWhitespace()
 
         accent       = Group(
                          Combine(bslash + accent)
@@ -1800,11 +1803,30 @@ class Parser(object):
                      + group
                      ).setParseAction(self.frac).setName("frac")
 
+        sqrt         = Group(
+                       Suppress(
+                         bslash
+                       + Literal("sqrt")
+                       )
+                     + Optional(
+                         Suppress(Literal("["))
+                       + OneOrMore(
+                           symbol
+                         ^ font
+                         )
+                       + Suppress(Literal("]")),
+                         default = None
+                       )
+                     + group
+                     ).setParseAction(self.sqrt).setName("sqrt")
+
         placeable   <<(accent
                      ^ function  
                      ^ symbol
+                     ^ rightBracket
                      ^ group
                      ^ frac
+                     ^ sqrt
                      )
 
         simple      <<(space
@@ -1939,7 +1961,10 @@ class Parser(object):
         elif c in self._punctuation_symbols:
             return [Hlist([Char(c, self.get_state()),
                            self._make_space(0.3)])]
-        return [Char(toks[0], self.get_state())]
+        try:
+            return [Char(toks[0], self.get_state())]
+        except:
+            raise ParseException()
 
     _accent_map = {
         r'\hat'   : r'\circumflexaccent',
@@ -1971,7 +1996,7 @@ class Parser(object):
         centered.shift_amount = accent._metrics.xmin
         return Vlist([
                 centered,
-                FixedGlue(thickness * 2.0),
+                Vbox(0., thickness * 2.0),
                 Hlist([sym])
                 ])
 
@@ -1982,6 +2007,7 @@ class Parser(object):
         state.font = 'rm'
         hlist = Hlist([Char(c, state) for c in toks[0]])
         self.pop_state()
+        hlist.function_name = toks[0]
         return hlist
         
     def start_group(self, s, loc, toks):
@@ -2007,7 +2033,9 @@ class Parser(object):
 
     def is_overunder(self, nucleus):
         if isinstance(nucleus, Char):
-            return overunder_symbols.has_key(nucleus.c)
+            return nucleus.c in self._overunder_symbols
+        elif isinstance(nucleus, Hlist) and hasattr(nucleus, 'function_name'):
+            return nucleus.function_name in self._overunder_functions
         return False
     
     def subsuperscript(self, s, loc, toks):
@@ -2061,24 +2089,22 @@ class Parser(object):
             width = nucleus.width
             if super is not None:
                 super.shrink()
-                super.pack()
                 width = max(width, super.width)
             if sub is not None:
                 sub.shrink()
-                sub.pack()
                 width = max(width, sub.width)
                 
             if super is not None:
                 hlist = HCentered([super])
                 hlist.hpack(width, 'exactly')
-                vlist.extend([hlist, FixedGlue(rule_thickness * 2.0)])
+                vlist.extend([hlist, Vbox(0., rule_thickness * 2.0)])
             hlist = HCentered([nucleus])
             hlist.hpack(width, 'exactly')
             vlist.append(hlist)
             if sub is not None:
                 hlist = HCentered([sub])
                 hlist.hpack(width, 'exactly')
-                vlist.extend([FixedGlue(rule_thickness), hlist])
+                vlist.extend([Vbox(0., rule_thickness), hlist])
                 shift = hlist.height + hlist.depth + rule_thickness * 2.0
             vlist = Vlist(vlist)
             vlist.shift_amount = shift
@@ -2086,12 +2112,12 @@ class Parser(object):
             return [result]
 
         shift_up = nucleus.height - SUBDROP * xHeight
-        shift_down = nucleus.depth + SUBDROP * xHeight
+        shift_down = SUBDROP * xHeight
         if super is None:
             # @757
             sub.shrink()
             x = Hlist([sub])
-            #x.width += SCRIPT_SPACE
+            x.width += SCRIPT_SPACE * xHeight
             shift_down = max(shift_down, SUB1)
             clr = x.height - (abs(xHeight * 4.0) / 5.0)
             shift_down = max(shift_down, clr)
@@ -2099,7 +2125,7 @@ class Parser(object):
         else:
             super.shrink()
             x = Hlist([super])
-            #x.width += SCRIPT_SPACE
+            x.width += SCRIPT_SPACE * xHeight
             clr = SUP1 * xHeight
             shift_up = max(shift_up, clr)
             clr = x.depth + (abs(xHeight) / 4.0)
@@ -2109,13 +2135,13 @@ class Parser(object):
             else: # Both sub and superscript
                 sub.shrink()
                 y = Hlist([sub])
-                #y.width += SCRIPT_SPACE
+                y.width += SCRIPT_SPACE * xHeight
                 shift_down = max(shift_down, SUB1 * xHeight)
                 clr = 4.0 * rule_thickness - ((shift_up - x.depth) - (y.height - shift_down))
                 if clr > 0.:
                     shift_up += clr
                     shift_down += clr
-                x.shift_amount = DELTA
+                x.shift_amount = DELTA * xHeight
                 x = Vlist([x,
                            Kern((shift_up - x.depth) - (y.height - shift_down)),
                            y])
@@ -2127,33 +2153,78 @@ class Parser(object):
     def frac(self, s, loc, toks):
         assert(len(toks)==1)
         assert(len(toks[0])==2)
+        state = self.get_state()
+        thickness = state.font_output.get_underline_thickness(
+            state.font, state.fontsize, state.dpi)
+        
         num, den = toks[0]
         num.shrink()
         den.shrink()
         cnum = HCentered([num])
         cden = HCentered([den])
-        width = max(num.width, den.height)
+        width = max(num.width, den.width) + thickness * 10.
         cnum.hpack(width, 'exactly')
         cden.hpack(width, 'exactly')
-        state = self.get_state()
-        thickness = state.font_output.get_underline_thickness(
-            state.font, state.fontsize, state.dpi)
-        space = thickness * 3.0
         vlist = Vlist([cnum,
-                       FixedGlue(thickness * 2.0),
-                       Hrule(self.get_state()),
-                       FixedGlue(thickness * 3.0),
+                       Vbox(0, thickness * 2.0),
+                       Hrule(state),
+                       Vbox(0, thickness * 4.0),
                        cden
                        ])
 
+        # Shift so the fraction line sits in the middle of the
+        # equals sign
         metrics = state.font_output.get_metrics(
             state.font, '=', state.fontsize, state.dpi)
-        shift = cden.height - (metrics.ymax + metrics.ymin) / 2 + thickness * 2.5
+        shift = (cden.height -
+                 (metrics.ymax + metrics.ymin) / 2 +
+                 thickness * 2.5)
         vlist.shift_amount = shift
 
-        hlist = Hlist([vlist, FixedGlue(thickness * 2.)])
+        hlist = Hlist([vlist, Hbox(thickness * 2.)])
         return [hlist]
 
+    def sqrt(self, s, loc, toks):
+        #~ print "sqrt", toks
+        root, body = toks[0]
+        state = self.get_state()
+        thickness = state.font_output.get_underline_thickness(
+            state.font, state.fontsize, state.dpi)
+
+        if root is None:
+            root = Box()
+        else:
+            root.shrink()
+            root.shrink()
+
+        # Add a little extra to the height so the body
+        # doesn't seem cramped
+        height = body.height - body.shift_amount + thickness * 5.0
+        depth = body.depth + body.shift_amount
+        check = AutoSizedDelim(r'\sqrt', height, depth, state)
+
+        height = check.height - check.shift_amount
+        depth = check.depth + check.shift_amount
+        rightside = Vlist([Hrule(state),
+                           Fill(),
+                           # Pack a little extra to the left and right
+                           # of the body
+                           Hlist([Hbox(thickness * 2.0),
+                                  body,
+                                  Hbox(thickness * 2.0)])])
+        # Stretch the glue between the hrule and the body
+        rightside.vpack(height + 1.0, depth, 'exactly')
+
+        root_vlist = Vlist([Hlist([root])])
+        root_vlist.shift_amount = -height * 0.5
+        
+        hlist = Hlist([root_vlist,
+                       Kern(-check.width * 0.5),
+                       check,
+                       Kern(-thickness * 0.5),
+                       rightside])
+        return [hlist]
+    
     def auto_sized_delimiter(self, s, loc, toks):
         #~ print "auto_sized_delimiter", toks
         front, middle, back = toks
