@@ -112,7 +112,7 @@ def pdfRepr(obj):
     # need to use %f with some precision.  Perhaps the precision
     # should adapt to the magnitude of the number?
     elif isinstance(obj, float):
-        if npy.isnan(obj) or obj in (-npy.infinity, npy.infinity):
+        if npy.isnan(obj) or obj in (-npy.inf, npy.inf):
             raise ValueError, "Can only output finite numbers in PDF"
         r = "%.10f" % obj
         return r.rstrip('0').rstrip('.')
