@@ -198,9 +198,8 @@ class RendererGDK(RendererBase):
 
 
     def _draw_mathtext(self, gc, x, y, s, prop, angle):
-        size = prop.get_size_in_points()
-        width, height, fonts = math_parse_s_ft2font(
-            s, self.dpi.get(), size)
+        width, height, fonts, used_characters = math_parse_s_ft2font(
+            s, self.dpi.get(), prop)
 
         if angle==90:
             width, height = height, width
@@ -342,8 +341,8 @@ class RendererGDK(RendererBase):
 
     def get_text_width_height(self, s, prop, ismath):
         if ismath:
-            width, height, fonts = math_parse_s_ft2font(
-                s, self.dpi.get(), prop.get_size_in_points())
+            width, height, fonts, used_characters = math_parse_s_ft2font(
+                s, self.dpi.get(), prop)
             return width, height
 
         layout, inkRect, logicalRect = self._get_pango_layout(s, prop)

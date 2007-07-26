@@ -240,7 +240,7 @@ class Text(Artist):
             lines = [self._text]
         else:
             lines = self._text.split('\n')
-
+            
         whs = []
         # Find full vertical extent of font,
         # including ascenders and descenders:
@@ -755,8 +755,8 @@ class Text(Artist):
         if rcParams['text.usetex']: return 'TeX'
         if not matplotlib._havemath: return False
         if len(self._text)<2: return False
-        return ( self._text.startswith('$') and
-                 self._text.endswith('$') )
+        dollar_signs = self._text.count('$') - self._text.count('\\$')
+        return dollar_signs > 0 and dollar_signs % 2 == 0
 
     def set_fontproperties(self, fp):
         """

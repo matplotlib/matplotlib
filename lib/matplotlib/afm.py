@@ -394,7 +394,14 @@ class AFM:
         "Return the fontangle as float"
         return self._header['ItalicAngle']
 
+    def get_xheight(self):
+        "Return the xheight as float"
+        return self._header['XHeight']
 
+    def get_underline_thickness(self):
+        "Return the underline thickness as float"
+        return self._header['UnderlineThickness']
+    
 
 if __name__=='__main__':
     #pathname = '/usr/local/lib/R/afm/'

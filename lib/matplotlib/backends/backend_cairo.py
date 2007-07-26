@@ -314,9 +314,8 @@ class RendererCairo(RendererBase):
         #                  "_draw_mathtext()")
         #    return
 
-        size = prop.get_size_in_points()
-        width, height, fonts = math_parse_s_ft2font(
-            s, self.dpi.get(), size)
+        width, height, fonts, used_characters = math_parse_s_ft2font(
+            s, self.dpi.get(), prop)
 
         if angle==90:
             width, height = height, width
@@ -372,8 +371,8 @@ class RendererCairo(RendererBase):
     def get_text_width_height(self, s, prop, ismath):
         if _debug: print '%s.%s()' % (self.__class__.__name__, _fn_name())
         if ismath:
-            width, height, fonts = math_parse_s_ft2font(
-               s, self.dpi.get(), prop.get_size_in_points())
+            width, height, fonts, used_characters = math_parse_s_ft2font(
+               s, self.dpi.get(), prop)
             return width, height
 
         ctx = self.text_ctx

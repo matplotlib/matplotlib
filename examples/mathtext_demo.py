@@ -1,28 +1,25 @@
 #!/usr/bin/env python
 """
-
-In order to use mathtext, you must build matplotlib.ft2font.  This is
-built by default in the windows installer.
-
-For other platforms, edit setup.py and set
-
-BUILD_FT2FONT = True
-
+Use matplotlib's internal LaTex parser and layout engine.  For true
+latex rendering, see the text.usetex option
 """
-from pylab import *
-subplot(111, axisbg='y')
-plot([1,2,3], 'r')
-x = arange(0.0, 3.0, 0.1)
+import numpy as npy
+from pylab import figure, show
+fig = figure()
+fig.subplots_adjust(bottom=0.2)
 
-grid(True)
-xlabel(r'$\Delta_i^j$', fontsize=20)
-ylabel(r'$\Delta_{i+1}^j$', fontsize=20)
-tex = r'$\cal{R}\prod_{i=\alpha_{i+1}}^\infty a_i\rm{sin}(2 \pi f x_i)$'
-text(1, 1.6, tex, fontsize=20)
+ax = fig.add_subplot(111, axisbg='y')
+ax.plot([1,2,3], 'r')
+x = npy.arange(0.0, 3.0, 0.1)
+
+ax.grid(True)
+ax.set_xlabel(r'$\Delta_i^j$', fontsize=20)
+ax.set_ylabel(r'$\Delta_{i+1}^j$', fontsize=20)
+tex = r'$\mathcal{R}\prod_{i=\alpha_{i+1}}^\infty a_i\sin(2 \pi f x_i)$'
+
+ax.text(1, 1.6, tex, fontsize=20, va='bottom')
 
 #title(r'$\Delta_i^j \hspace{0.4} \rm{versus} \hspace{0.4} \Delta_{i+1}^j$', fontsize=20)
-savefig('mathtext_demo')
-
-
+fig.savefig('mathtext_demo')
 
 show()

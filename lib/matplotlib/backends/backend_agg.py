@@ -173,10 +173,9 @@ class RendererAgg(RendererBase):
         """
         if __debug__: verbose.report('RendererAgg.draw_mathtext',
                                      'debug-annoying')
-        size = prop.get_size_in_points()
-        width, height, fonts = math_parse_s_ft2font(
-            s, self.dpi.get(), size, angle)
-
+        width, height, fonts, used_characters = math_parse_s_ft2font(
+            s, self.dpi.get(), prop, angle)
+        
         if angle == 90:
             width, height = height, width
         for font in fonts:
@@ -225,7 +224,6 @@ class RendererAgg(RendererBase):
         # texmanager more efficient.  It is not meant to be used
         # outside the backend
         """
-
         if ismath=='TeX':
             # todo: handle props
             size = prop.get_size_in_points()
@@ -235,8 +233,8 @@ class RendererAgg(RendererBase):
             return n,m
 
         if ismath:
-            width, height, fonts = math_parse_s_ft2font(
-                s, self.dpi.get(), prop.get_size_in_points())
+            width, height, fonts, used_characters = math_parse_s_ft2font(
+                s, self.dpi.get(), prop)
             return width, height
         font = self._get_agg_font(prop)
         font.set_text(s, 0.0)  # the width and height of unrotated string

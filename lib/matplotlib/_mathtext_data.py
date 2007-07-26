@@ -38,8 +38,10 @@ latex_to_bakoma = {
     r'\SQRT'                : ('cmex10',  53),
     r'\leftbrace'           : ('cmex10',  92),
     r'{'                    : ('cmex10',  92),
+    r'\{'                   : ('cmex10',  92),
     r'\rightbrace'          : ('cmex10', 130),
     r'}'                    : ('cmex10', 130),
+    r'\}'                   : ('cmex10', 130),
     r'\leftangle'           : ('cmex10',  97),
     r'\rightangle'          : ('cmex10',  64),
     r'\Leftparen'           : ('cmex10', 112),
@@ -112,7 +114,7 @@ latex_to_bakoma = {
     r'\phi'                 : ('cmmi10',  42),
     r'\chi'                 : ('cmmi10',  17),
     r'\psi'                 : ('cmmi10',  31),
-
+    
     r'('                    : ('cmr10',  119),
     r'\leftparen'           : ('cmr10',  119),
     r'\rightparen'          : ('cmr10',   68),
@@ -135,7 +137,11 @@ latex_to_bakoma = {
     r'['                    : ('cmr10',   62),
     r'\rightbracket'        : ('cmr10',   72),
     r']'                    : ('cmr10',   72),
-
+    r'\%'                   : ('cmr10',   48),
+    r'%'                    : ('cmr10',   48),
+    r'\$'                   : ('cmr10',   99),
+    r'@'                    : ('cmr10',  111),
+    
     # these are mathml names, I think.  I'm just using them for the
     # tex methods noted
     r'\circumflexaccent'    : ('cmr10',   124), # for \hat
@@ -749,7 +755,17 @@ latex_to_standard = {
     r'\langle'          : ('psyr', 225),
     r'\Sigma'           : ('psyr', 229),
     r'\sum'             : ('psyr', 229),
-
+    # these are mathml names, I think.  I'm just using them for the
+    # tex methods noted
+    r'\circumflexaccent'    : ('pncri8a',   124), # for \hat
+    r'\combiningbreve'      : ('pncri8a',   81),  # for \breve
+    r'\combininggraveaccent' : ('pncri8a', 114), # for \grave
+    r'\combiningacuteaccent' : ('pncri8a', 63), # for \accute
+    r'\combiningdiaeresis' : ('pncri8a', 91), # for \ddot
+    r'\combiningtilde' : ('pncri8a', 75), # for \tilde
+    r'\combiningrightarrowabove' : ('pncri8a', 110), # for \vec
+    r'\combiningdotabove' : ('pncri8a', 26), # for \dot
+    r'\imath' : ('pncri8a', 105)
 }
 
 # Automatically generated.
