@@ -20,6 +20,12 @@
 void _VERBOSE(const std::string&);
 
 
+#undef	CLAMP
+#define CLAMP(x, low, high)  (((x) > (high)) ? (high) : (((x) < (low)) ? (low) : (x)))
+
+#undef  MAX
+#define MAX(a, b) (((a) > (b)) ? (a) : (b))
+
 class Printf
 {
 private :

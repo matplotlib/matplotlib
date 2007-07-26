@@ -278,7 +278,7 @@ class RendererPS(RendererBase):
 
         if ismath:
             width, height, pswriter, used_characters = math_parse_s_ps(
-                s, 72, prop.get_size_in_points(), 0)
+                s, 72, prop, 0)
             return width, height
 
         if rcParams['ps.useafm']:
@@ -813,11 +813,9 @@ grestore
         if debugPS:
             self._pswriter.write("% mathtext\n")
 
-        fontsize = prop.get_size_in_points()
         width, height, pswriter, used_characters = \
-            math_parse_s_ps(s, 72, fontsize, angle)
+            math_parse_s_ps(s, 72, prop, angle)
         self.merge_used_characters(used_characters)
-
         self.set_color(*gc.get_rgb())
         thetext = pswriter.getvalue()
         ps = """gsave
@@ -1038,13 +1036,14 @@ class FigureCanvasPS(FigureCanvasBase):
                     print >>fh, l.strip()
             if not rcParams['ps.useafm']:
                 for font_filename, chars in renderer.used_characters.values():
-                    font = FT2Font(font_filename)
-                    cmap = font.get_charmap()
-                    glyph_ids = []
-                    for c in chars:
-                        gind = cmap.get(ord(c)) or 0
-                        glyph_ids.append(gind)
-                    convert_ttf_to_ps(font_filename, fh, rcParams['ps.fonttype'], glyph_ids)
+                    if len(chars):
+                        font = FT2Font(font_filename)
+                        cmap = font.get_charmap()
+                        glyph_ids = []
+                        for c in chars:
+                            gind = cmap.get(ord(c)) or 0
+                            glyph_ids.append(gind)
+                        convert_ttf_to_ps(font_filename, fh, rcParams['ps.fonttype'], glyph_ids)
             print >>fh, "end"
             print >>fh, "%%EndProlog"
 

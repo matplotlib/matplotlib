@@ -457,8 +457,9 @@ class PdfFile:
                 fontdictObject = self._write_afm_font(filename)
             else:
                 realpath, stat_key = get_realpath_and_stat(filename)
-                fontdictObject = self.embedTTF(
-                    *self.used_characters[stat_key])
+                chars = self.used_characters.get(stat_key)
+                if chars is not None and len(chars[1]):
+                    fontdictObject = self.embedTTF(realpath, chars[1])
             fonts[Fx] = fontdictObject
             #print >>sys.stderr, filename
         self.writeObject(self.fontObject, fonts)
@@ -1092,36 +1093,35 @@ class RendererPdf(RendererBase):
 
     def draw_mathtext(self, gc, x, y, s, prop, angle):
         # TODO: fix positioning and encoding
-        fontsize = prop.get_size_in_points()
         width, height, pswriter, used_characters = \
-            math_parse_s_pdf(s, 72, fontsize, 0)
+            math_parse_s_pdf(s, 72, prop, 0)
         self.merge_used_characters(used_characters)
-        
+
         self.check_gc(gc, gc._rgb)
         self.file.output(Op.begin_text)
         prev_font = None, None
         oldx, oldy = 0, 0
-        for ox, oy, fontname, fontsize, glyph in pswriter:
-            #print ox, oy, glyph
-            fontname = fontname.lower()
-            a = angle / 180.0 * pi
-            newx = x + cos(a)*ox - sin(a)*oy
-            newy = y + sin(a)*ox + cos(a)*oy
-            self._setup_textpos(newx, newy, angle, oldx, oldy)
-            oldx, oldy = newx, newy
-            if (fontname, fontsize) != prev_font:
-                self.file.output(self.file.fontName(fontname), fontsize,
-                                 Op.selectfont)
-                prev_font = fontname, fontsize
+        for record in pswriter:
+            if record[0] == 'glyph':
+                rec_type, ox, oy, fontname, fontsize, glyph = record
+                a = angle / 180.0 * pi
+                newx = x + cos(a)*ox - sin(a)*oy
+                newy = y + sin(a)*ox + cos(a)*oy
+                self._setup_textpos(newx, newy, angle, oldx, oldy)
+                oldx, oldy = newx, newy
+                if (fontname, fontsize) != prev_font:
+                    self.file.output(self.file.fontName(fontname), fontsize,
+                                     Op.selectfont)
+                    prev_font = fontname, fontsize
 
-            #if fontname.endswith('cmsy10.ttf') or \
-            #fontname.endswith('cmmi10.ttf') or \
-            #fontname.endswith('cmex10.ttf'):
-            #        string = '\0' + chr(glyph)
-
-            string = chr(glyph)
-            self.file.output(string, Op.show)
+                string = chr(glyph)
+                self.file.output(string, Op.show)
         self.file.output(Op.end_text)
+
+        for record in pswriter:
+            if record[0] == 'rect':
+                rec_type, ox, oy, width, height = record
+                self.file.output(Op.gsave, x + ox, y + oy, width, height, Op.rectangle, Op.fill, Op.grestore)
 
     def _draw_tex(self, gc, x, y, s, prop, angle):
         # Rename to draw_tex to enable, but note the following:
@@ -1208,9 +1208,7 @@ class RendererPdf(RendererBase):
             s = s.encode('cp1252', 'replace')
 
         if ismath:
-            fontsize = prop.get_size_in_points()
-            w, h, pswriter, used_characters = math_parse_s_pdf(
-                s, 72, fontsize, 0)
+            w, h, pswriter, used_characters = math_parse_s_pdf(s, 72, prop, 0)
 
         elif rcParams['pdf.use14corefonts']:
             font = self._get_font_afm(prop)
