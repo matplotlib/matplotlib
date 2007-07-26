@@ -7,7 +7,7 @@ stests = [
     r'$x   y$',
     r'$x+y\ x=y\ x<y\ x:y\ x,y\ x@y$',
     r'$100\%y\ x*y\ x/y x\$y$',
-    r'$x\leftarrow y\ x\forall y$',
+    r'$x\leftarrow y\ x\forall y\ x-y$',
     r'$x \sf x \bf x {\cal X} \rm x$',
     r'$\{ \rm braces \}$',
     r'$\left[\left\lfloor\frac{5}{\frac{\left(3\right)}{4}} y\right)\right]$',
@@ -30,8 +30,13 @@ stests = [
     r'$_i$',
     r"$\arccos((x^i))$",
     r"$\gamma = \frac{x=\frac{6}{8}}{y} \delta$",
-    r'$\"o\ddot o \'e\`e\~n\.x\^y$',
-    
+    r'$\limsup_{x\to\infty}$',
+    r'$\oint^\infty_0$',
+    r"$f'$",
+    r'$\frac{x_2888}{y}$',
+    r"$\sqrt[3]{\frac{X_2}{Y}}=5$",
+    r"$\sqrt[3]{x}=5$",
+    r'$\frac{X}{\frac{X}{Y}}$'
     ]
 
 from pylab import *
