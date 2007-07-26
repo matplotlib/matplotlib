@@ -23,7 +23,10 @@
 	   - Double sub/superscripts (eg. $x_i_j$) are considered
              ambiguous and raise an exception.  Use braces to disambiguate.
 
-	   - $\frac{x}{y}$ can be used for displaying fractions
+	   - $\frac{x}{y}$ can be used for displaying fractions.
+
+	   - $\sqrt[3]{x}$ can be used to display the radical symbol
+             with a root number and body.
 
 	   - $\left(\frac{x}{y}\right)$ may be used to create
              parentheses and other delimiters that automatically
