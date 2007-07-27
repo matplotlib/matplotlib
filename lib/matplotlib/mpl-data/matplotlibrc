@@ -34,6 +34,7 @@ numerix      : numpy  # numpy, Numeric or numarray
 #interactive  : False      # see http://matplotlib.sourceforge.net/interactive.html
 #toolbar      : toolbar2   # None | classic | toolbar2
 #timezone     : UTC        # a pytz timezone string, eg US/Central or Europe/Paris
+#units        : False
 
 # Where your matplotlib data lives if you installed to a non-default
 # location.  This is where the matplotlib fonts, bitmaps, etc reside
@@ -196,6 +197,7 @@ numerix      : numpy  # numpy, Numeric or numarray
 #grid.linewidth   :   0.5     # in points
 
 ### Legend
+#legend.loc           : upper right
 #legend.isaxes        : True
 #legend.numpoints     : 2      # the number of points in the legend line
 #legend.fontsize      : 14
@@ -243,6 +245,7 @@ numerix      : numpy  # numpy, Numeric or numarray
 #savefig.dpi       : 100      # figure dots per inch
 #savefig.facecolor : white    # figure facecolor when saving
 #savefig.edgecolor : white    # figure edgecolor when saving
+#savefig.orientation: portrait
 
 #cairo.format      : png      # png, ps, pdf, svg
 
@@ -264,6 +267,8 @@ numerix      : numpy  # numpy, Numeric or numarray
 #pdf.compression   : 6 # integer from 0 to 9
                        # 0 disables compression (good for debugging)
 #pdf.fonttype       : 3         # Output Type 3 (Type3) or Type 42 (TrueType)
+#pdf.inheritcolor   : False
+#pdf.use14corefonts : False
 
 # svg backend params
 #svg.image_inline : True       # write raster image data directly into the svg file
