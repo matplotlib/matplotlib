@@ -543,6 +543,8 @@ def dedent(s):
     first line. It differs from textwrap.dedent in its
     deletion of leading blank lines and its use of the
     first non-blank line to determine the indentation.
+
+    It is also faster in most cases.
     """
     if not s:      # includes case of s is None
         return ''
@@ -552,6 +554,9 @@ def dedent(s):
         ii += 1
     lines = lines[ii:]
     nshift = len(lines[0]) - len(lines[0].lstrip())
+    # Don't use first line in case of """blah...
+    if ii == 0 and len(lines) > 1:
+        nshift = len(lines[1]) - len(lines[1].lstrip())
     for i, line in enumerate(lines):
         nwhite = len(line) - len(line.lstrip())
         lines[i] = line[min(nshift, nwhite):]
