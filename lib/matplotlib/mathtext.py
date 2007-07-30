@@ -174,6 +174,13 @@ symbol can be a single unicode character, a TeX command (i.e. r'\pi'),
 or a Type1 symbol name (i.e. 'phi').
 
 """
+    # From UTF #25: U+2212 − minus sign is the preferred
+    # representation of the unary and binary minus sign rather than
+    # the ASCII-derived U+002D - hyphen-minus, because minus sign is
+    # unambiguous and because it is rendered with a more desirable
+    # length, usually longer than a hyphen.
+    if symbol == '-':
+        return 0x2212
     try:# This will succeed if symbol is a single unicode char
         return ord(symbol)
     except TypeError:
@@ -484,7 +491,7 @@ class TruetypeFonts(Fonts):
         offset = self._get_offset(cached_font, glyph, fontsize, dpi)
         metrics = Bunch(
             advance = glyph.linearHoriAdvance/65536.0,
-            height  = glyph.height/64.0 + offset,
+            height  = glyph.height/64.0,
             width   = glyph.width/64.0,
             xmin    = xmin,
             xmax    = xmax,
@@ -545,7 +552,7 @@ class BakomaFonts(TruetypeFonts):
                 }
         
     def _get_offset(self, cached_font, glyph, fontsize, dpi):
-        if cached_font.font.postscript_name == 'cmex10':
+        if cached_font.font.postscript_name == 'Cmex10':
             return glyph.height/64.0/2 + 256.0/64.0 * dpi/72.0
         return 0.
 
@@ -577,8 +584,8 @@ class BakomaFonts(TruetypeFonts):
                         ('ex', '\xbd'), ('ex', '\x28')],
         '}'          : [('cal', '}'), ('ex', '\xaa'), ('ex', '\x6f'),
                         ('ex', '\xbe'), ('ex', '\x29')],
-        # The fourth size of '[' is mysteriously missing from the BaKoMa font,
-        # so I've ommitted it for both
+        # The fourth size of '[' is mysteriously missing from the BaKoMa
+        # font, so I've ommitted it for both '[' and ']'
         '['          : [('rm', '['), ('ex', '\xa3'), ('ex', '\x68'),
                         ('ex', '\x22')],
         ']'          : [('rm', ']'), ('ex', '\xa4'), ('ex', '\x69'),
@@ -839,7 +846,7 @@ SHRINK_FACTOR   = 0.7
 INV_SHRINK_FACTOR = 1.0 / SHRINK_FACTOR
 # The number of different sizes of chars to use, beyond which they will not
 # get any smaller
-NUM_SIZE_LEVELS = 3
+NUM_SIZE_LEVELS = 4
 # Percentage of x-height of additional horiz. space after sub/superscripts
 SCRIPT_SPACE    = 0.3
 # Percentage of x-height that sub/superscripts drop below the baseline
@@ -1650,7 +1657,7 @@ class Parser(object):
     _punctuation_symbols = Set(r', ; . ! \ldotp \cdotp'.split())
 
     _overunder_symbols = Set(r'''
-       \sum \int \prod \coprod \oint \bigcap \bigcup \bigsqcup \bigvee
+       \sum \prod \int \coprod \oint \bigcap \bigcup \bigsqcup \bigvee
        \bigwedge \bigodot \bigotimes \bigoplus \biguplus
        '''.split()
     )
@@ -1758,9 +1765,11 @@ class Parser(object):
                        )
                      + Optional(
                          Suppress(Literal("["))
-                       + OneOrMore(
-                           symbol
-                         ^ font
+                       + Group(
+                           OneOrMore(
+                             symbol
+                           ^ font
+                           )
                          )
                        + Suppress(Literal("]")),
                          default = None
@@ -1881,12 +1890,13 @@ class Parser(object):
         #~ print "non_math", toks
         symbols = [Char(c, self.get_state()) for c in toks[0]]
         hlist = Hlist(symbols)
-        self.push_state()
         # We're going into math now, so set font to 'it'
+        self.push_state()
         self.get_state().font = 'it'
         return [hlist]
 
     def _make_space(self, percentage):
+        # All spaces are relative to em width
         state = self.get_state()
         metrics = state.font_output.get_metrics(
             state.font, 'm', state.fontsize, state.dpi)
@@ -1910,12 +1920,12 @@ class Parser(object):
         # print "symbol", toks
         c = toks[0]
         if c in self._spaced_symbols:
-            return [Hlist([self._make_space(0.3),
-                          Char(c, self.get_state()),
-                          self._make_space(0.3)])]
+            return [Hlist( [self._make_space(0.2),
+                            Char(c, self.get_state()),
+                            self._make_space(0.2)] )]
         elif c in self._punctuation_symbols:
-            return [Hlist([Char(c, self.get_state()),
-                           self._make_space(0.3)])]
+            return [Hlist( [Char(c, self.get_state()),
+                            self._make_space(0.2)] )]
         try:
             return [Char(toks[0], self.get_state())]
         except ValueError:
@@ -1944,6 +1954,8 @@ class Parser(object):
         state = self.get_state()
         thickness = state.font_output.get_underline_thickness(
             state.font, state.fontsize, state.dpi)
+        if len(toks[0]) != 2:
+            raise ParseFatalException("Error parsing accent")
         accent, sym = toks[0]
         accent = Accent(self._accent_map[accent], self.get_state())
         centered = HCentered([accent])
@@ -2030,7 +2042,7 @@ class Parser(object):
                 super = next1
                 sub = next2
         else:
-            raise ParseFatalException("Subscript/superscript string is too long.")
+            raise ParseFatalException("Subscript/superscript sequence is too long.")
         
         state = self.get_state()
         rule_thickness = state.font_output.get_underline_thickness(
@@ -2052,17 +2064,17 @@ class Parser(object):
             if super is not None:
                 hlist = HCentered([super])
                 hlist.hpack(width, 'exactly')
-                vlist.extend([hlist, Vbox(0., rule_thickness * 2.0)])
+                vlist.extend([hlist, Kern(rule_thickness * 2.0)])
             hlist = HCentered([nucleus])
             hlist.hpack(width, 'exactly')
             vlist.append(hlist)
             if sub is not None:
                 hlist = HCentered([sub])
                 hlist.hpack(width, 'exactly')
-                vlist.extend([Vbox(0., rule_thickness), hlist])
+                vlist.extend([Kern(rule_thickness * 2.0), hlist])
                 shift = hlist.height + hlist.depth + rule_thickness * 2.0
             vlist = Vlist(vlist)
-            vlist.shift_amount = shift
+            vlist.shift_amount = shift + nucleus.depth * 0.5
             result = Hlist([vlist])
             return [result]
 
@@ -2120,11 +2132,11 @@ class Parser(object):
         width = max(num.width, den.width) + thickness * 10.
         cnum.hpack(width, 'exactly')
         cden.hpack(width, 'exactly')
-        vlist = Vlist([cnum,
-                       Vbox(0, thickness * 2.0),
-                       Hrule(state),
-                       Vbox(0, thickness * 4.0),
-                       cden
+        vlist = Vlist([cnum,                      # numerator
+                       Vbox(0, thickness * 2.0),  # space
+                       Hrule(state),              # rule
+                       Vbox(0, thickness * 4.0),  # space
+                       cden                       # denominator
                        ])
 
         # Shift so the fraction line sits in the middle of the
@@ -2149,35 +2161,42 @@ class Parser(object):
         if root is None:
             root = Box()
         else:
+            if not isinstance(root, ParseResults):
+                raise ParseFatalException(
+                    "Can not parse root of radical.  Only simple symbols are allowed.")
+            root = Hlist(root.asList())
             root.shrink()
             root.shrink()
 
-        # Add a little extra to the height so the body
-        # doesn't seem cramped
+        # Determine the height of the body, and add a little extra to
+        # the height so it doesn't seem cramped
         height = body.height - body.shift_amount + thickness * 5.0
         depth = body.depth + body.shift_amount
         check = AutoSizedDelim(r'\sqrt', height, depth, state, always=True)
-
         height = check.height - check.shift_amount
         depth = check.depth + check.shift_amount
+
+        # Put a little extra space to the left and right of the body
+        padded_body = Hlist([Hbox(thickness * 2.0),
+                             body,
+                             Hbox(thickness * 2.0)])
         rightside = Vlist([Hrule(state),
                            Fill(),
-                           # Pack a little extra to the left and right
-                           # of the body
-                           Hlist([Hbox(thickness * 2.0),
-                                  body,
-                                  Hbox(thickness * 2.0)])])
+                           padded_body])
         # Stretch the glue between the hrule and the body
         rightside.vpack(height + 1.0, depth, 'exactly')
 
+        # Add the root and shift it upward so it is above the tick.
+        # The value of 0.6 is a hard-coded hack ;)
         root_vlist = Vlist([Hlist([root])])
         root_vlist.shift_amount = -height * 0.6
         
-        hlist = Hlist([root_vlist,
-                       Kern(-check.width * 0.5),
-                       check,
-                       Kern(-thickness * 0.3),
-                       rightside])
+        hlist = Hlist([root_vlist,               # Root
+                       # Negative kerning to put root over tick
+                       Kern(-check.width * 0.5), 
+                       check,                    # Check
+                       Kern(-thickness * 0.3),   # Push check into rule slightly
+                       rightside])               # Body
         return [hlist]
     
     def auto_sized_delimiter(self, s, loc, toks):
@@ -2187,6 +2206,7 @@ class Parser(object):
         height = max([x.height for x in middle])
         depth = max([x.depth for x in middle])
         parts = []
+        # \left. and \right. aren't supposed to produce any symbols
         if front != '.':
             parts.append(AutoSizedDelim(front, height, depth, state))
         parts.extend(middle.asList())
