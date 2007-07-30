@@ -1,6 +1,7 @@
 2007-07-29 Changed default pcolor shading to flat; added aliases
            to make collection kwargs agree with setter names, so
            updating works; related minor cleanups.
+           Removed quiver_classic, scatter_classic, pcolor_classic. - EF
 
 2007-07-26 Major rewrite of mathtext.py, using the TeX box layout model.
 
