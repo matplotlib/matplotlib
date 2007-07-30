@@ -214,7 +214,7 @@ class MPLConfig(TConfig):
 
     class grid(TConfig):
         color = T.Trait('black', mplT.ColorHandler())
-        linestyle = T.Trait('-','--','-.', ':', 'steps', '', ' ')
+        linestyle = T.Trait(':','-','--','-.', ':', 'steps', '', ' ')
         linewidth = T.Float(0.5)
 
     class legend(TConfig):

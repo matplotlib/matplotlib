@@ -243,7 +243,6 @@ numerix      : numpy  # numpy, Numeric or numarray
 #savefig.dpi       : 100      # figure dots per inch
 #savefig.facecolor : white    # figure facecolor when saving
 #savefig.edgecolor : white    # figure edgecolor when saving
-#savefig.orientation : portrait # portrait or landscape
 
 #cairo.format      : png      # png, ps, pdf, svg
 
