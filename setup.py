@@ -93,6 +93,7 @@ package_data = {'matplotlib':['mpl-data/fonts/afm/*.afm',
                               'mpl-data/images/*.png',
                               'mpl-data/images/*.ppm',
                               'mpl-data/matplotlibrc',
+                              'mpl-data/matplotlib.conf',
                               'mpl-data/*.glade',
                               'backends/Matplotlib.nib/*',
                               ]}
