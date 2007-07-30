@@ -2235,7 +2235,7 @@ tex2uni = {'doteq': 8784,
 'biguplus': 10756,
 'epsilon': 949,
 'vartheta': 977,
-'bigotimes': 10754           
+'bigotimes': 10754
 }
 
 uni2tex = dict([(v,k) for k,v in tex2uni.items()])
