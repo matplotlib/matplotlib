@@ -462,7 +462,6 @@ old_config_path = os.path.split(old_config_file)[0]
 config_file = os.path.join(old_config_path, 'matplotlib.conf')
 
 if os.path.exists(old_config_file) and not os.path.exists(config_file):
-    print 'convert!'
     CONVERT = True
 else:
     config_file = cutils.get_config_file(tconfig=True)
