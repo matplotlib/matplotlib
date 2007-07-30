@@ -1698,13 +1698,17 @@ class Parser(object):
         space        =(FollowedBy(bslash)
                      +   (Literal(r'\ ')
                        |  Literal(r'\/')
-                       |  Group(Literal(r'\hspace{') + number + Literal('}'))
-                         )
+                       |  Literal(r'\,')
+                       |  Literal(r'\;')
+                       |  Literal(r'\quad')
+                       |  Literal(r'\qquad')
+                       |  Literal(r'\!')
+                       )
                       ).setParseAction(self.space).setName('space')
 
         symbol       = Regex("(" + ")|(".join(
                        [
-                         r"\\(?!left[^a-z])(?!right[^a-z])[a-zA-Z0-9]+(?!{)",
+                         r"\\(?!quad)(?!qquad)(?!left[^a-z])(?!right[^a-z])[a-zA-Z0-9]+(?!{)",
                          r"[a-zA-Z0-9 ]",
                          r"[+\-*/]",
                          r"[<>=]",
@@ -1794,7 +1798,7 @@ class Parser(object):
 
         ambiDelim    = oneOf(r"""| \| / \backslash \uparrow \downarrow
                                  \updownarrow \Uparrow \Downarrow
-                                 \Updownarrow""")
+                                 \Updownarrow .""")
         leftDelim    = oneOf(r"( [ { \lfloor \langle \lceil")
         rightDelim   = oneOf(r") ] } \rfloor \rangle \rceil")
         autoDelim   <<(Suppress(Literal(r"\left"))
@@ -1886,16 +1890,19 @@ class Parser(object):
         state = self.get_state()
         metrics = state.font_output.get_metrics(
             state.font, 'm', state.fontsize, state.dpi)
-        em = metrics.width
-        return Hbox(em * percentage)
-    
+        em = metrics.advance
+        return Kern(em * percentage)
+
+    _space_widths = { r'\ '      : 0.3,
+                      r'\,'      : 0.4,
+                      r'\;'      : 0.8,
+                      r'\quad'   : 1.6,
+                      r'\qquad'  : 3.2,
+                      r'\!'      : -0.4,
+                      r'\/'      : 0.4 }
     def space(self, s, loc, toks):
         assert(len(toks)==1)
-        if toks[0]==r'\ ': num = 0.30 # 30% of fontsize
-        elif toks[0]==r'\/': num = 0.1 # 10% of fontsize
-        else:  # hspace
-            num = float(toks[0][1]) # get the num out of \hspace{num}
-
+        num = self._space_widths[toks[0]]
         box = self._make_space(num)
         return [box]
 
@@ -2179,10 +2186,13 @@ class Parser(object):
         state = self.get_state()
         height = max([x.height for x in middle])
         depth = max([x.depth for x in middle])
-        hlist = Hlist(
-            [AutoSizedDelim(front, height, depth, state)] +
-            middle.asList() +
-            [AutoSizedDelim(back, height, depth, state)])
+        parts = []
+        if front != '.':
+            parts.append(AutoSizedDelim(front, height, depth, state))
+        parts.extend(middle.asList())
+        if back != '.':
+            parts.append(AutoSizedDelim(back, height, depth, state))
+        hlist = Hlist(parts)
         return hlist
     
 ####
