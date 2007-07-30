@@ -1,3 +1,6 @@
+    Changed pcolor default to shading='flat'; but as noted now in the
+    docstring, it is preferable to simply use the edgecolor kwarg.
+
     The mathtext font commands (\cal, \rm, \it, \tt) now behave as TeX
     does: they are in effect until the next font change command or the
     end of the grouping.  Therefore uses of $\cal{R}$ should be

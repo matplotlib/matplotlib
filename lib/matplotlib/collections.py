@@ -21,16 +21,12 @@ import matplotlib.nxutils as nxutils
 
 class Collection(artist.Artist):
     """
-    All properties in a collection must be sequences.  The
+    All properties in a collection must be sequences or scalars;
+    if scalars, they will be converted to sequences.  The
     property of the ith element of the collection is the
 
       prop[i % len(props)].
 
-    This implies that the properties cycle if the len of props is less
-    than the number of elements of the collection.  A length 1
-    property is shared by all the elements of the collection
-
-    All color args to a collection are sequences of rgba tuples
     """
 
     def __init__(self):
@@ -133,8 +129,8 @@ class PatchCollection(Collection, cm.ScalarMappable):
             linewidths = (0,)
         else:
             self._edgecolors = _colors.colorConverter.to_rgba_list(edgecolors)
-        self._linewidths  = linewidths
-        self._antialiaseds = antialiaseds
+        self._linewidths  = self._get_value(linewidths)
+        self._antialiaseds = self._get_value(antialiaseds)
         #self._offsets = offsets
         self._offsets = offsets
         self._transOffset = transOffset
@@ -221,6 +217,8 @@ class PatchCollection(Collection, cm.ScalarMappable):
         ACCEPTS: float or sequence of floats
         """
         self._linewidths = self._get_value(lw)
+    def set_linewidths(self, lw):
+        self.set_linewidth(lw)
 
     def set_color(self, c):
         """
@@ -242,16 +240,23 @@ class PatchCollection(Collection, cm.ScalarMappable):
         ACCEPTS: matplotlib color arg or sequence of rgba tuples
         """
         self._facecolors = _colors.colorConverter.to_rgba_list(c)
+    def set_facecolors(self, c):
+        self.set_facecolor(c)
 
     def set_edgecolor(self, c):
         """
-        Set the facecolor(s) of the collection. c can be a matplotlib color
+        Set the edgecolor(s) of the collection. c can be a matplotlib color
         arg (all patches have same color), or a a sequence or rgba tuples; if
         it is a sequence the patches will cycle through the sequence
 
         ACCEPTS: matplotlib color arg or sequence of rgba tuples
         """
-        self._edgecolors = _colors.colorConverter.to_rgba_list(c)
+        if c == 'None':
+            self._linewidths = (0.0,)
+        else:
+            self._edgecolors = _colors.colorConverter.to_rgba_list(c)
+    def set_edgecolors(self, c):
+        self.set_edgecolor(c)
 
     def set_alpha(self, alpha):
         """
@@ -568,7 +573,8 @@ class StarPolygonCollection(RegularPolyCollection):
 
 class LineCollection(Collection, cm.ScalarMappable):
     """
-    All parameters must be sequences.  The property of the ith line
+    All parameters must be sequences or scalars; if scalars, they will
+    be converted to sequences.  The property of the ith line
     segment is the prop[i % len(props)], ie the properties cycle if
     the len of props is less than the number of sements
     """
@@ -637,8 +643,8 @@ class LineCollection(Collection, cm.ScalarMappable):
             antialiaseds = (mpl.rcParams['lines.antialiased'], )
 
         self._colors = _colors.colorConverter.to_rgba_list(colors)
-        self._aa = antialiaseds
-        self._lw = linewidths
+        self._aa = self._get_value(antialiaseds)
+        self._lw = self._get_value(linewidths)
         self.set_linestyle(linestyle)
         self._uniform_offsets = None
         if offsets is not None:
