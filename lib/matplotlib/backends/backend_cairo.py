@@ -335,7 +335,7 @@ class RendererCairo(RendererBase):
             Xall[:,i] = npy.fromstring(s, npy.uint8)
 
         # get the max alpha at each pixel
-        Xs = npy.mlab.max (Xall,1)
+        Xs = npy.max (Xall,1)
 
         # convert it to it's proper shape
         Xs.shape = imh, imw
