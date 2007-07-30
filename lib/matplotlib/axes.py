@@ -3557,6 +3557,20 @@ class Axes(martist.Artist):
         barcols = []
         caplines = []
 
+        lines_kw = {'label':'_nolegend_'}
+        if 'linewidth' in kwargs:
+            lines_kw['linewidth']=kwargs['linewidth']
+        if 'lw' in kwargs:
+            lines_kw['lw']=kwargs['lw']
+
+        if capsize > 0:
+            plot_kw = {
+                'ms':2*capsize,
+                'label':'_nolegend_'}
+            if 'markeredgewidth' in kwargs:
+                plot_kw['markeredgewidth']=kwargs['markeredgewidth']
+            if 'mew' in kwargs:
+                plot_kw['mew']=kwargs['mew']
 
         if xerr is not None:
             if len(xerr.shape) == 1:
@@ -3566,12 +3580,10 @@ class Axes(martist.Artist):
                 left  = x-xerr[0]
                 right = x+xerr[1]
 
-            barcols.append( self.hlines(y, left, right, label='_nolegend_' ))
+            barcols.append( self.hlines(y, left, right, **lines_kw ) )
             if capsize > 0:
-                caplines.extend(
-                    self.plot(left, y, 'k|', ms=2*capsize, label='_nolegend_') )
-                caplines.extend(
-                    self.plot(right, y, 'k|', ms=2*capsize, label='_nolegend_') )
+                caplines.extend( self.plot(left, y, 'k|', **plot_kw) )
+                caplines.extend( self.plot(right, y, 'k|', **plot_kw) )
 
         if yerr is not None:
             if len(yerr.shape) == 1:
@@ -3581,21 +3593,8 @@ class Axes(martist.Artist):
                 lower = y-yerr[0]
                 upper = y+yerr[1]
 
-            vlines_kw = {'label':'_nolegend_'}
-            if 'linewidth' in kwargs:
-                vlines_kw['linewidth']=kwargs['linewidth']
-            if 'lw' in kwargs:
-                vlines_kw['lw']=kwargs['lw']
-            barcols.append( self.vlines(x, lower, upper, **vlines_kw) )
-
+            barcols.append( self.vlines(x, lower, upper, **lines_kw) )
             if capsize > 0:
-                plot_kw = {
-                    'ms':2*capsize,
-                    'label':'_nolegend_'}
-                if 'markeredgewidth' in kwargs:
-                    plot_kw['markeredgewidth']=kwargs['markeredgewidth']
-                if 'mew' in kwargs:
-                    plot_kw['mew']=kwargs['mew']
                 caplines.extend( self.plot(x, lower, 'k_', **plot_kw) )
                 caplines.extend( self.plot(x, upper, 'k_', **plot_kw) )
 
