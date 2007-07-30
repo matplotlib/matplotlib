@@ -32,7 +32,7 @@ class BackendHandler(T.TraitHandler):
                 'ps': 'PS',
                 'pdf': 'PDF',
                 'svg': 'SVG',
-                'template': 'Templates' }
+                'template': 'Template' }
 
     def validate(self, object, name, value):
         try:

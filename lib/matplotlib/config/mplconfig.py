@@ -88,7 +88,7 @@ class MPLConfig(TConfig):
             fonttype = T.Trait(3, 42)
             
             class distiller(TConfig):
-                use = T.Trait(None, None, 'ghostscript', 'xpdf')
+                use = T.Trait(None, None, 'ghostscript', 'xpdf', False)
                 resolution = T.Float(6000)
         
         class pdf(TConfig):
@@ -267,7 +267,7 @@ class MPLConfig(TConfig):
         dpi = T.Float(100)
         facecolor = T.Trait('white', mplT.ColorHandler())
         edgecolor = T.Trait('white', mplT.ColorHandler())
-    orientation = T.Trait('portrait', 'portrait', 'landscape')
+        orientation = T.Trait('portrait', 'portrait', 'landscape')
     
     class verbose(TConfig):
         level = T.Trait('silent', 'silent', 'helpful', 'debug', 'debug-annoying')
@@ -457,13 +457,19 @@ See rcParams.keys() for a list of valid parameters.'%key)
         return self.tconfig_map.has_key(val)
 
 
-config_file = cutils.get_config_file(tconfig=True)
 old_config_file = cutils.get_config_file(tconfig=False)
+old_config_path = os.path.split(old_config_file)[0]
+config_file = os.path.join(old_config_path, 'matplotlib.conf')
+
 if os.path.exists(old_config_file) and not os.path.exists(config_file):
+    print 'convert!'
     CONVERT = True
-else: CONVERT = False
+else:
+    config_file = cutils.get_config_file(tconfig=True)
+    CONVERT = False
+
 configManager = TConfigManager(MPLConfig,
-                               cutils.get_config_file(tconfig=True),
+                               config_file,
                                filePriority=True)
 mplConfig = configManager.tconf
 mplConfigDefault = MPLConfig()
