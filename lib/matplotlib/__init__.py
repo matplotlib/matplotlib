@@ -55,6 +55,7 @@ gmail.com).
 """
 from __future__ import generators
 
+NEWCONFIG = False
 
 __version__  = '0.90.1'
 __revision__ = '$Revision$'
@@ -706,6 +707,13 @@ def rcdefaults():
     """
     rcParams.update(rcParamsDefault)
 
+if NEWCONFIG:
+    print "importing from reorganized config system!"
+    from config import rcParams, rcdefaults
+    try:
+        from config import mplConfig, save_config
+    except:
+        pass
 
 def use(arg):
     """

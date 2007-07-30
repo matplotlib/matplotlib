@@ -10,6 +10,7 @@ import enthought.traits.api as T
 # internal imports
 import mpltraits as mplT
 import cutils
+import checkdep
 from tconfig import TConfig, TConfigManager
 import pytz
 
@@ -266,29 +267,11 @@ class MPLConfig(TConfig):
         dpi = T.Float(100)
         facecolor = T.Trait('white', mplT.ColorHandler())
         edgecolor = T.Trait('white', mplT.ColorHandler())
-	orientation = T.Trait('portrait', 'portrait', 'landscape')
+    orientation = T.Trait('portrait', 'portrait', 'landscape')
     
     class verbose(TConfig):
         level = T.Trait('silent', 'silent', 'helpful', 'debug', 'debug-annoying')
         fileo = T.Trait('sys.stdout', 'sys.stdout', T.File)
-
-
-config_file = cutils.get_config_file(tconfig=True)
-old_config_file = cutils.get_config_file(tconfig=False)
-print 
-if os.path.exists(old_config_file) and not os.path.exists(config_file):
-    CONVERT = True
-else: CONVERT = False
-configManager = TConfigManager(MPLConfig,
-                               cutils.get_config_file(tconfig=True),
-                               filePriority=True)
-mplConfig = configManager.tconf
-
-
-def save_config():
-    """Save mplConfig customizations to current matplotlib.conf
-    """
-    configManager.write()
 
 
 class RcParamsWrapper(dict):
@@ -296,179 +279,207 @@ class RcParamsWrapper(dict):
     """A backwards-compatible interface to a traited config object
     """
     
-    tconf = {
-    'backend' : (mplConfig.backend, 'use'),
-    'numerix' : (mplConfig, 'numerix'),
-    'maskedarray' : (mplConfig, 'maskedarray'),
-    'toolbar' : (mplConfig, 'toolbar'),
-    'datapath' : (mplConfig, 'datapath'),
-    'units' : (mplConfig, 'units'),
-    'interactive' : (mplConfig, 'interactive'),
-    'timezone' : (mplConfig, 'timezone'),
+    def __init__(self, tconfig):
+        self.tconfig = tconfig
+    
+        self.tconfig_map = {
+        'backend' : (self.tconfig.backend, 'use'),
+        'numerix' : (self.tconfig, 'numerix'),
+        'maskedarray' : (self.tconfig, 'maskedarray'),
+        'toolbar' : (self.tconfig, 'toolbar'),
+        'datapath' : (self.tconfig, 'datapath'),
+        'units' : (self.tconfig, 'units'),
+        'interactive' : (self.tconfig, 'interactive'),
+        'timezone' : (self.tconfig, 'timezone'),
 
-    # the verbosity setting
-    'verbose.level' : (mplConfig.verbose, 'level'),
-    'verbose.fileo' : (mplConfig.verbose, 'fileo'),
+        # the verbosity setting
+        'verbose.level' : (self.tconfig.verbose, 'level'),
+        'verbose.fileo' : (self.tconfig.verbose, 'fileo'),
 
-    # line props
-    'lines.linewidth' : (mplConfig.lines, 'linewidth'),
-    'lines.linestyle' : (mplConfig.lines, 'linestyle'),
-    'lines.color' : (mplConfig.lines, 'color'),
-    'lines.marker' : (mplConfig.lines, 'marker'),
-    'lines.markeredgewidth' : (mplConfig.lines, 'markeredgewidth'),
-    'lines.markersize' : (mplConfig.lines, 'markersize'),
-    'lines.antialiased' : (mplConfig.lines, 'antialiased'),
-    'lines.dash_joinstyle' : (mplConfig.lines, 'dash_joinstyle'),
-    'lines.solid_joinstyle' : (mplConfig.lines, 'solid_joinstyle'),
-    'lines.dash_capstyle' : (mplConfig.lines, 'dash_capstyle'),
-    'lines.solid_capstyle' : (mplConfig.lines, 'solid_capstyle'),
+        # line props
+        'lines.linewidth' : (self.tconfig.lines, 'linewidth'),
+        'lines.linestyle' : (self.tconfig.lines, 'linestyle'),
+        'lines.color' : (self.tconfig.lines, 'color'),
+        'lines.marker' : (self.tconfig.lines, 'marker'),
+        'lines.markeredgewidth' : (self.tconfig.lines, 'markeredgewidth'),
+        'lines.markersize' : (self.tconfig.lines, 'markersize'),
+        'lines.antialiased' : (self.tconfig.lines, 'antialiased'),
+        'lines.dash_joinstyle' : (self.tconfig.lines, 'dash_joinstyle'),
+        'lines.solid_joinstyle' : (self.tconfig.lines, 'solid_joinstyle'),
+        'lines.dash_capstyle' : (self.tconfig.lines, 'dash_capstyle'),
+        'lines.solid_capstyle' : (self.tconfig.lines, 'solid_capstyle'),
 
-    # patch props
-    'patch.linewidth' : (mplConfig.patch, 'linewidth'),
-    'patch.edgecolor' : (mplConfig.patch, 'edgecolor'),
-    'patch.facecolor' : (mplConfig.patch, 'facecolor'),
-    'patch.antialiased' : (mplConfig.patch, 'antialiased'),
-
-
-    # font props
-    'font.family' : (mplConfig.font, 'family'),
-    'font.style' : (mplConfig.font, 'style'),
-    'font.variant' : (mplConfig.font, 'variant'),
-    'font.stretch' : (mplConfig.lines, 'color'),
-    'font.weight' : (mplConfig.font, 'weight'),
-    'font.size' : (mplConfig.font, 'size'),
-    'font.serif' : (mplConfig.font, 'serif'),
-    'font.sans-serif' : (mplConfig.font, 'sans_serif'),
-    'font.cursive' : (mplConfig.font, 'cursive'),
-    'font.fantasy' : (mplConfig.font, 'fantasy'),
-    'font.monospace' : (mplConfig.font, 'monospace'),
-
-    # text props
-    'text.color' : (mplConfig.text, 'color'),
-    'text.usetex' : (mplConfig.text, 'usetex'),
-    'text.latex.unicode' : (mplConfig.text.latex, 'unicode'),
-    'text.latex.preamble' : (mplConfig.text.latex, 'preamble'),
-    'text.dvipnghack' : (mplConfig.text.latex, 'dvipnghack'),
-
-    'image.aspect' : (mplConfig.image, 'aspect'),
-    'image.interpolation' : (mplConfig.image, 'interpolation'),
-    'image.cmap' : (mplConfig.image, 'cmap'),
-    'image.lut' : (mplConfig.image, 'lut'),
-    'image.origin' : (mplConfig.image, 'origin'),
-
-    'contour.negative_linestyle' : (mplConfig.contour, 'negative_linestyle'),
-
-    # axes props
-    'axes.axisbelow' : (mplConfig.axes, 'axisbelow'),
-    'axes.hold' : (mplConfig.axes, 'hold'),
-    'axes.facecolor' : (mplConfig.axes, 'facecolor'),
-    'axes.edgecolor' : (mplConfig.axes, 'edgecolor'),
-    'axes.linewidth' : (mplConfig.axes, 'linewidth'),
-    'axes.titlesize' : (mplConfig.axes, 'titlesize'),
-    'axes.grid' : (mplConfig.axes, 'grid'),
-    'axes.labelsize' : (mplConfig.axes, 'labelsize'),
-    'axes.labelcolor' : (mplConfig.axes, 'labelcolor'),
-    'axes.formatter.limits' : (mplConfig.axes.formatter, 'limits'),
-
-    'polaraxes.grid' : (mplConfig.axes, 'polargrid'),
-
-    #legend properties
-    'legend.loc' : (mplConfig.legend, 'loc'),
-    'legend.isaxes' : (mplConfig.legend, 'isaxes'),
-    'legend.numpoints' : (mplConfig.legend, 'numpoints'),
-    'legend.fontsize' : (mplConfig.legend, 'fontsize'),
-    'legend.pad' : (mplConfig.legend, 'pad'),
-    'legend.markerscale' : (mplConfig.legend, 'markerscale'),
-    'legend.labelsep' : (mplConfig.legend, 'labelsep'),
-    'legend.handlelen' : (mplConfig.legend, 'handlelen'),
-    'legend.handletextsep' : (mplConfig.legend, 'handletextsep'),
-    'legend.axespad' : (mplConfig.legend, 'axespad'),
-    'legend.shadow' : (mplConfig.legend, 'shadow'),
-
-    # tick properties
-    'xtick.major.size' : (mplConfig.xticks.major, 'size'),
-    'xtick.minor.size' : (mplConfig.xticks.minor, 'size'),
-    'xtick.major.pad' : (mplConfig.xticks.major, 'pad'),
-    'xtick.minor.pad' : (mplConfig.xticks.minor, 'pad'),
-    'xtick.color' : (mplConfig.xticks, 'color'),
-    'xtick.labelsize' : (mplConfig.xticks, 'labelsize'),
-    'xtick.direction' : (mplConfig.xticks, 'direction'),
-
-    'ytick.major.size' : (mplConfig.yticks.major, 'size'),
-    'ytick.minor.size' : (mplConfig.yticks.minor, 'size'),
-    'ytick.major.pad' : (mplConfig.yticks.major, 'pad'),
-    'ytick.minor.pad' : (mplConfig.yticks.minor, 'pad'),
-    'ytick.color' : (mplConfig.yticks, 'color'),
-    'ytick.labelsize' : (mplConfig.yticks, 'labelsize'),
-    'ytick.direction' : (mplConfig.yticks, 'direction'),
-
-    'grid.color' : (mplConfig.grid, 'color'),
-    'grid.linestyle' : (mplConfig.grid, 'linestyle'),
-    'grid.linewidth' : (mplConfig.grid, 'linewidth'),
+        # patch props
+        'patch.linewidth' : (self.tconfig.patch, 'linewidth'),
+        'patch.edgecolor' : (self.tconfig.patch, 'edgecolor'),
+        'patch.facecolor' : (self.tconfig.patch, 'facecolor'),
+        'patch.antialiased' : (self.tconfig.patch, 'antialiased'),
 
 
-    # figure props
-    'figure.figsize' : (mplConfig.figure, 'figsize'),
-    'figure.dpi' : (mplConfig.figure, 'dpi'),
-    'figure.facecolor' : (mplConfig.figure, 'facecolor'),
-    'figure.edgecolor' : (mplConfig.figure, 'edgecolor'),
+        # font props
+        'font.family' : (self.tconfig.font, 'family'),
+        'font.style' : (self.tconfig.font, 'style'),
+        'font.variant' : (self.tconfig.font, 'variant'),
+        'font.stretch' : (self.tconfig.lines, 'color'),
+        'font.weight' : (self.tconfig.font, 'weight'),
+        'font.size' : (self.tconfig.font, 'size'),
+        'font.serif' : (self.tconfig.font, 'serif'),
+        'font.sans-serif' : (self.tconfig.font, 'sans_serif'),
+        'font.cursive' : (self.tconfig.font, 'cursive'),
+        'font.fantasy' : (self.tconfig.font, 'fantasy'),
+        'font.monospace' : (self.tconfig.font, 'monospace'),
 
-    'figure.subplot.left' : (mplConfig.figure.subplot, 'left'),
-    'figure.subplot.right' : (mplConfig.figure.subplot, 'right'),
-    'figure.subplot.bottom' : (mplConfig.figure.subplot, 'bottom'),
-    'figure.subplot.top' : (mplConfig.figure.subplot, 'top'),
-    'figure.subplot.wspace' : (mplConfig.figure.subplot, 'wspace'),
-    'figure.subplot.hspace' : (mplConfig.figure.subplot, 'hspace'),
+        # text props
+        'text.color' : (self.tconfig.text, 'color'),
+        'text.usetex' : (self.tconfig.text, 'usetex'),
+        'text.latex.unicode' : (self.tconfig.text.latex, 'unicode'),
+        'text.latex.preamble' : (self.tconfig.text.latex, 'preamble'),
+        'text.dvipnghack' : (self.tconfig.text.latex, 'dvipnghack'),
+
+        'image.aspect' : (self.tconfig.image, 'aspect'),
+        'image.interpolation' : (self.tconfig.image, 'interpolation'),
+        'image.cmap' : (self.tconfig.image, 'cmap'),
+        'image.lut' : (self.tconfig.image, 'lut'),
+        'image.origin' : (self.tconfig.image, 'origin'),
+
+        'contour.negative_linestyle' : (self.tconfig.contour, 'negative_linestyle'),
+
+        # axes props
+        'axes.axisbelow' : (self.tconfig.axes, 'axisbelow'),
+        'axes.hold' : (self.tconfig.axes, 'hold'),
+        'axes.facecolor' : (self.tconfig.axes, 'facecolor'),
+        'axes.edgecolor' : (self.tconfig.axes, 'edgecolor'),
+        'axes.linewidth' : (self.tconfig.axes, 'linewidth'),
+        'axes.titlesize' : (self.tconfig.axes, 'titlesize'),
+        'axes.grid' : (self.tconfig.axes, 'grid'),
+        'axes.labelsize' : (self.tconfig.axes, 'labelsize'),
+        'axes.labelcolor' : (self.tconfig.axes, 'labelcolor'),
+        'axes.formatter.limits' : (self.tconfig.axes.formatter, 'limits'),
+
+        'polaraxes.grid' : (self.tconfig.axes, 'polargrid'),
+
+        #legend properties
+        'legend.loc' : (self.tconfig.legend, 'loc'),
+        'legend.isaxes' : (self.tconfig.legend, 'isaxes'),
+        'legend.numpoints' : (self.tconfig.legend, 'numpoints'),
+        'legend.fontsize' : (self.tconfig.legend, 'fontsize'),
+        'legend.pad' : (self.tconfig.legend, 'pad'),
+        'legend.markerscale' : (self.tconfig.legend, 'markerscale'),
+        'legend.labelsep' : (self.tconfig.legend, 'labelsep'),
+        'legend.handlelen' : (self.tconfig.legend, 'handlelen'),
+        'legend.handletextsep' : (self.tconfig.legend, 'handletextsep'),
+        'legend.axespad' : (self.tconfig.legend, 'axespad'),
+        'legend.shadow' : (self.tconfig.legend, 'shadow'),
+
+        # tick properties
+        'xtick.major.size' : (self.tconfig.xticks.major, 'size'),
+        'xtick.minor.size' : (self.tconfig.xticks.minor, 'size'),
+        'xtick.major.pad' : (self.tconfig.xticks.major, 'pad'),
+        'xtick.minor.pad' : (self.tconfig.xticks.minor, 'pad'),
+        'xtick.color' : (self.tconfig.xticks, 'color'),
+        'xtick.labelsize' : (self.tconfig.xticks, 'labelsize'),
+        'xtick.direction' : (self.tconfig.xticks, 'direction'),
+
+        'ytick.major.size' : (self.tconfig.yticks.major, 'size'),
+        'ytick.minor.size' : (self.tconfig.yticks.minor, 'size'),
+        'ytick.major.pad' : (self.tconfig.yticks.major, 'pad'),
+        'ytick.minor.pad' : (self.tconfig.yticks.minor, 'pad'),
+        'ytick.color' : (self.tconfig.yticks, 'color'),
+        'ytick.labelsize' : (self.tconfig.yticks, 'labelsize'),
+        'ytick.direction' : (self.tconfig.yticks, 'direction'),
+
+        'grid.color' : (self.tconfig.grid, 'color'),
+        'grid.linestyle' : (self.tconfig.grid, 'linestyle'),
+        'grid.linewidth' : (self.tconfig.grid, 'linewidth'),
 
 
-    'savefig.dpi' : (mplConfig.savefig, 'dpi'),
-    'savefig.facecolor' : (mplConfig.savefig, 'facecolor'),
-    'savefig.edgecolor' : (mplConfig.savefig, 'edgecolor'),
-    'savefig.orientation' : (mplConfig.savefig, 'orientation'),
+        # figure props
+        'figure.figsize' : (self.tconfig.figure, 'figsize'),
+        'figure.dpi' : (self.tconfig.figure, 'dpi'),
+        'figure.facecolor' : (self.tconfig.figure, 'facecolor'),
+        'figure.edgecolor' : (self.tconfig.figure, 'edgecolor'),
 
-    'cairo.format' : (mplConfig.backend.cairo, 'format'),
-    'tk.window_focus' : (mplConfig.backend.tk, 'window_focus'),
-    'tk.pythoninspect' : (mplConfig.backend.tk, 'pythoninspect'),
-    'ps.papersize' : (mplConfig.backend.ps, 'papersize'),
-    'ps.useafm' : (mplConfig.backend.ps, 'useafm'),
-    'ps.usedistiller' : (mplConfig.backend.ps.distiller, 'use'),
-    'ps.distiller.res' : (mplConfig.backend.ps.distiller, 'resolution'),
-    'ps.fonttype' : (mplConfig.backend.ps, 'fonttype'),
-    'pdf.compression' : (mplConfig.backend.pdf, 'compression'),
-    'pdf.inheritcolor' : (mplConfig.backend.pdf, 'inheritcolor'),
-    'pdf.use14corefonts' : (mplConfig.backend.pdf, 'use14corefonts'),
-    'pdf.fonttype' : (mplConfig.backend.pdf, 'fonttype'),
-    'svg.image_inline' : (mplConfig.backend.svg, 'image_inline'),
-    'svg.image_noscale' : (mplConfig.backend.svg, 'image_noscale'),
-    'svg.embed_char_paths' : (mplConfig.backend.svg, 'embed_chars'),
+        'figure.subplot.left' : (self.tconfig.figure.subplot, 'left'),
+        'figure.subplot.right' : (self.tconfig.figure.subplot, 'right'),
+        'figure.subplot.bottom' : (self.tconfig.figure.subplot, 'bottom'),
+        'figure.subplot.top' : (self.tconfig.figure.subplot, 'top'),
+        'figure.subplot.wspace' : (self.tconfig.figure.subplot, 'wspace'),
+        'figure.subplot.hspace' : (self.tconfig.figure.subplot, 'hspace'),
 
-    # mathtext settings
-    'mathtext.mathtext2' : (mplConfig.text.math, 'mathtext2'),
-    'mathtext.rm' : (mplConfig.text.math, 'rm'),
-    'mathtext.it' : (mplConfig.text.math, 'it'),
-    'mathtext.tt' : (mplConfig.text.math, 'tt'),
-    'mathtext.mit' : (mplConfig.text.math, 'mit'),
-    'mathtext.cal' : (mplConfig.text.math, 'cal'),
-    'mathtext.nonascii' : (mplConfig.text.math, 'nonascii'),
-    }
+
+        'savefig.dpi' : (self.tconfig.savefig, 'dpi'),
+        'savefig.facecolor' : (self.tconfig.savefig, 'facecolor'),
+        'savefig.edgecolor' : (self.tconfig.savefig, 'edgecolor'),
+        'savefig.orientation' : (self.tconfig.savefig, 'orientation'),
+
+        'cairo.format' : (self.tconfig.backend.cairo, 'format'),
+        'tk.window_focus' : (self.tconfig.backend.tk, 'window_focus'),
+        'tk.pythoninspect' : (self.tconfig.backend.tk, 'pythoninspect'),
+        'ps.papersize' : (self.tconfig.backend.ps, 'papersize'),
+        'ps.useafm' : (self.tconfig.backend.ps, 'useafm'),
+        'ps.usedistiller' : (self.tconfig.backend.ps.distiller, 'use'),
+        'ps.distiller.res' : (self.tconfig.backend.ps.distiller, 'resolution'),
+        'ps.fonttype' : (self.tconfig.backend.ps, 'fonttype'),
+        'pdf.compression' : (self.tconfig.backend.pdf, 'compression'),
+        'pdf.inheritcolor' : (self.tconfig.backend.pdf, 'inheritcolor'),
+        'pdf.use14corefonts' : (self.tconfig.backend.pdf, 'use14corefonts'),
+        'pdf.fonttype' : (self.tconfig.backend.pdf, 'fonttype'),
+        'svg.image_inline' : (self.tconfig.backend.svg, 'image_inline'),
+        'svg.image_noscale' : (self.tconfig.backend.svg, 'image_noscale'),
+        'svg.embed_char_paths' : (self.tconfig.backend.svg, 'embed_chars'),
+
+        # mathtext settings
+        'mathtext.mathtext2' : (self.tconfig.text.math, 'mathtext2'),
+        'mathtext.rm' : (self.tconfig.text.math, 'rm'),
+        'mathtext.it' : (self.tconfig.text.math, 'it'),
+        'mathtext.tt' : (self.tconfig.text.math, 'tt'),
+        'mathtext.mit' : (self.tconfig.text.math, 'mit'),
+        'mathtext.cal' : (self.tconfig.text.math, 'cal'),
+        'mathtext.nonascii' : (self.tconfig.text.math, 'nonascii'),
+        }
 
     def __setitem__(self, key, val):
         try:
-            obj, attr = self.tconf[key]
+            obj, attr = self.tconfig_map[key]
             setattr(obj, attr, val)
         except KeyError:
             raise KeyError('%s is not a valid rc parameter.\
 See rcParams.keys() for a list of valid parameters.'%key)
 
     def __getitem__(self, key):
-        obj, attr = self.tconf[key]
+        obj, attr = self.tconfig_map[key]
         return getattr(obj, attr)
 
-    def keys():
-        return self.tconf.keys()
+    def keys(self):
+        return self.tconfig_map.keys()
+    
+    def has_key(self, val):
+        return self.tconfig_map.has_key(val)
 
 
-rcParams = RcParamsWrapper()
+config_file = cutils.get_config_file(tconfig=True)
+old_config_file = cutils.get_config_file(tconfig=False)
+if os.path.exists(old_config_file) and not os.path.exists(config_file):
+    CONVERT = True
+else: CONVERT = False
+configManager = TConfigManager(MPLConfig,
+                               cutils.get_config_file(tconfig=True),
+                               filePriority=True)
+mplConfig = configManager.tconf
+mplConfigDefault = MPLConfig()
+
+# TODO: move into traits validation
+mplConfig.backend.ps.distiller.use = \
+    checkdep.ps_distiller(mplConfig.backend.ps.distiller.use)
+mplConfig.text.usetex = checkdep.usetex(mplConfig.text.usetex)
+
+def save_config():
+    """Save mplConfig customizations to current matplotlib.conf
+    """
+    configManager.write()
+
+rcParams = RcParamsWrapper(mplConfig)
+rcParamsDefault = RcParamsWrapper(mplConfigDefault)
 
 # convert old matplotlibrc to new matplotlib.conf
 if CONVERT:
@@ -478,6 +489,10 @@ if CONVERT:
     save_config()
     print '%s converted to %s'%(cutils.get_config_file(tconfig=False),
                                 config_file)
+
+def rcdefaults():
+    mplConfig = MPLConfig()
+    rcParams = RcParamsWrapper(mplConfig)
 
 ##############################################################################
 # Simple testing

@@ -1,3 +1,12 @@
+2007-07-30 Reorganized configuration code to work with traited config
+           objects. The new config system is located in the 
+           matplotlib.config package, but it is disabled by default.
+           To enable it, set NEWCONFIG=True in matplotlib.__init__.py.
+           The new configuration system will still use the old 
+           matplotlibrc files by default. To switch to the experimental,
+           traited configuration, set USE_TRAITED_CONFIG=True in 
+           config.__init__.py.
+
 2007-07-29 Changed default pcolor shading to flat; added aliases
            to make collection kwargs agree with setter names, so
            updating works; related minor cleanups.
