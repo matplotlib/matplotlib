@@ -4051,34 +4051,6 @@ class Axes(martist.Artist):
 
     scatter.__doc__ = cbook.dedent(scatter.__doc__) % martist.kwdocd
 
-    def scatter_classic(self, x, y, s=None, c='b'):
-        """
-        scatter_classic is no longer available; please use scatter.
-        To help in porting, for comparison to the scatter docstring,
-        here is the scatter_classic docstring:
-
-        SCATTER_CLASSIC(x, y, s=None, c='b')
-
-        Make a scatter plot of x versus y.  s is a size (in data coords) and
-        can be either a scalar or an array of the same length as x or y.  c is
-        a color and can be a single color format string or an length(x) array
-        of intensities which will be mapped by the colormap jet.
-
-        If size is None a default size will be used
-        """
-        raise NotImplementedError('scatter_classic has been removed;\n'
-                                  + 'please use scatter instead')
-
-    def pcolor_classic(self, *args):
-        """
-        pcolor_classic is no longer available; please use pcolor,
-        which is a drop-in replacement.
-        """
-        raise NotImplementedError('pcolor_classic has been removed;\n'
-                                  + 'please use pcolor instead')
-
-
-
     def arrow(self, x, y, dx, dy, **kwargs):
         """
         Draws arrow on specified axis from (x,y) to (x+dx,y+dy).
@@ -4097,163 +4069,13 @@ class Axes(martist.Artist):
         return qk
     quiverkey.__doc__ = mquiver.QuiverKey.quiverkey_doc
 
-    def quiver2(self, *args, **kw):
+    def quiver(self, *args, **kw):
         q = mquiver.Quiver(self, *args, **kw)
         self.add_collection(q)
         self.update_datalim_numerix(q.X, q.Y)
         self.autoscale_view()
         return q
-    quiver2.__doc__ = mquiver.Quiver.quiver_doc
-
-    def quiver(self, *args, **kw):
-        if (len(args) == 3 or len(args) == 5) and not iterable(args[-1]):
-            return self.quiver_classic(*args, **kw)
-        c = kw.get('color', None)
-        if c is not None:
-            if not mcolors.is_color_like(c):
-                assert npy.shape(npy.asarray(c)) == npy.shape(npy.asarray(args[-1]))
-                return self.quiver_classic(*args, **kw)
-        return self.quiver2(*args, **kw)
     quiver.__doc__ = mquiver.Quiver.quiver_doc
-
-    def quiver_classic(self, U, V, *args, **kwargs ):
-        """
-        QUIVER( X, Y, U, V )
-        QUIVER( U, V )
-        QUIVER( X, Y, U, V, S)
-        QUIVER( U, V, S )
-        QUIVER( ..., color=None, width=1.0, cmap=None, norm=None )
-
-        Make a vector plot (U, V) with arrows on a grid (X, Y)
-
-        If X and Y are not specified, U and V must be 2D arrays.
-        Equally spaced X and Y grids are then generated using the
-        meshgrid command.
-
-        color can be a color value or an array of colors, so that the
-        arrows can be colored according to another dataset.  If cmap
-        is specified and color is 'length', the colormap is used to
-        give a color according to the vector's length.
-
-        If color is a scalar field, the colormap is used to map the
-        scalar to a color If a colormap is specified and color is an
-        array of color triplets, then the colormap is ignored
-
-        width is a scalar that controls the width of the arrows
-
-        if S is specified it is used to scale the vectors. Use S=0 to
-        disable automatic scaling.  If S!=0, vectors are scaled to fit
-        within the grid and then are multiplied by S.
-
-
-        """
-        msg = '''This version of quiver is obsolete and will be
-        phased out; please use the new quiver.
-        '''
-        warnings.warn(msg, DeprecationWarning)
-        if not self._hold: self.cla()
-        do_scale = True
-        S = 1.0
-        if len(args)==0:
-            # ( U, V )
-            U = npy.asarray(U)
-            V = npy.asarray(V)
-            X,Y = mlab.meshgrid( npy.arange(U.shape[1]), npy.arange(U.shape[0]) )
-        elif len(args)==1:
-            # ( U, V, S )
-            U = npy.asarray(U)
-            V = npy.asarray(V)
-            X,Y = mlab.meshgrid( npy.arange(U.shape[1]), npy.arange(U.shape[0]) )
-            S = float(args[0])
-            do_scale = ( S != 0.0 )
-        elif len(args)==2:
-            # ( X, Y, U, V )
-            X = npy.asarray(U)
-            Y = npy.asarray(V)
-            U = npy.asarray(args[0])
-            V = npy.asarray(args[1])
-        elif len(args)==3:
-            # ( X, Y, U, V )
-            X = npy.asarray(U)
-            Y = npy.asarray(V)
-            U = npy.asarray(args[0])
-            V = npy.asarray(args[1])
-            S = float(args[2])
-            do_scale = ( S != 0.0 )
-
-        assert U.shape == V.shape
-        assert X.shape == Y.shape
-        assert U.shape == X.shape
-
-        U = U.ravel()
-        V = V.ravel()
-        X = X.ravel()
-        Y = Y.ravel()
-
-        arrows = []
-        N = npy.sqrt( U**2+V**2 )
-        if do_scale:
-            Nmax = maximum.reduce(N) or 1 # account for div by zero
-            U = U*(S/Nmax)
-            V = V*(S/Nmax)
-            N = N*Nmax
-
-        alpha = kwargs.pop('alpha', 1.0)
-        width = kwargs.pop('width', .5)
-        norm = kwargs.pop('norm', None)
-        cmap = kwargs.pop('cmap', None)
-        vmin = kwargs.pop('vmin', None)
-        vmax = kwargs.pop('vmax', None)
-        color = kwargs.pop('color', None)
-        shading = kwargs.pop('shading', 'faceted')
-
-        if len(kwargs):
-            raise TypeError(
-                "quiver() got an unexpected keyword argument '%s'"%kwargs.keys()[0])
-
-        C = None
-        if color == 'length' or color is True:
-            if color is True:
-                warnings.warn('''Use "color='length'",
-                not "color=True"''', DeprecationWarning)
-            C = N
-        elif color is None:
-            color = (0,0,0,1)
-        else:
-            clr = npy.asarray(color).ravel()
-            if clr.shape == U.shape:
-                C = clr
-
-        I = U.shape[0]
-        arrows = [mpatches.FancyArrow(X[i],Y[i],U[i],V[i],0.1*S ).get_verts()
-                                                    for i in xrange(I)]
-
-        collection = mcoll.PolyCollection(
-            arrows,
-            edgecolors = 'None',
-            antialiaseds = (1,),
-            linewidths = (width,),
-            )
-        if C is not None:
-            collection.set_array( C.ravel() )
-            collection.set_cmap(cmap)
-            collection.set_norm(norm)
-            if norm is not None:
-                collection.set_clim( vmin, vmax )
-        else:
-            collection.set_facecolor(color)
-        self.add_collection( collection )
-
-        lims = npy.asarray(arrows)
-        _max = maximum.reduce( maximum.reduce( lims ))
-        _min = minimum.reduce( minimum.reduce( lims ))
-        self.update_datalim( [ tuple(_min), tuple(_max) ] )
-        self.autoscale_view()
-        return collection
-
-
-
-
 
     def fill(self, *args, **kwargs):
         """

@@ -82,7 +82,6 @@ _plotcommands = (
     'stem',
     'vlines',
     'quiver',
-    'quiver2',
     'quiverkey',
     'xcorr',
     )
