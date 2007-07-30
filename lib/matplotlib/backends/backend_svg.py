@@ -375,7 +375,7 @@ class RendererSVG(RendererBase):
                     new_y = - new_y_mtc
 
                 svg.append('<tspan style="font-size: %f; font-family: %s"' % 
-                           (fontsize, fontname))
+                           (fontsize, font.family_name))
                 xadvance = metrics.advance
                 svg.append(' textLength="%f"' % xadvance)
 
