@@ -617,7 +617,7 @@ class BakomaFonts(TruetypeFonts):
             return alternatives
         return [(fontname, sym)]
     
-class UnicodeFonts(BakomaFonts):
+class UnicodeFonts(TruetypeFonts):
     """An abstract base class for handling Unicode fonts.
     """
     fontmap = { 'cal' : 'cmsy10',
@@ -628,7 +628,7 @@ class UnicodeFonts(BakomaFonts):
                 'sf'  : 'DejaVuSans',
                 None  : 'DejaVuSerif-Italic'
                 }
-        
+
     def _get_offset(self, cached_font, glyph, fontsize, dpi):
         return 0.
 
@@ -637,6 +637,7 @@ class UnicodeFonts(BakomaFonts):
         
         try:
             uniindex = get_unicode_index(sym)
+            found_symbol = True
         except ValueError:
             # This is a total hack, but it works for now
             if sym.startswith('\\big'):
@@ -658,7 +659,7 @@ class UnicodeFonts(BakomaFonts):
                 glyphindex = cached_font.charmap[uniindex]
             except KeyError:
                 warn("Font '%s' does not have a glyph for '%s'" %
-                     (cached_font.postscript_name, sym),
+                     (cached_font.font.postscript_name, sym),
                      MathTextWarning)
                 found_symbol = False
 
@@ -2228,7 +2229,7 @@ class math_parse_s_ft2font_common:
             font_output = BakomaFonts(prop, backend)
             # When we have a decent Unicode font, we should test and
             # then make this available as an option
-            # font_output = UnicodeFonts(prop, backend)
+            #~ font_output = UnicodeFonts(prop, backend)
 
         fontsize = prop.get_size_in_points()
         if self._parser is None:
