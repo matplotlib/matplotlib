@@ -19,7 +19,7 @@ y = arange(-3.0, 3.0001, dy)
 X,Y = meshgrid(x, y)
 
 Z = func3(X, Y)
-pcolor(X, Y, Z, shading='flat')
+pcolor(X, Y, Z)
 colorbar()
 axis([-3,3,-3,3])
 savefig('pcolor_demo')

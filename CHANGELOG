@@ -1,54 +1,58 @@
+2007-07-29 Changed default pcolor shading to flat; added aliases
+           to make collection kwargs agree with setter names, so
+           updating works; related minor cleanups.
+
 2007-07-26 Major rewrite of mathtext.py, using the TeX box layout model.
 
-	   There is one (known) backward incompatible change.  The
-	   font commands (\cal, \rm, \it, \tt) now behave as TeX does:
-	   they are in effect until the next font change command or
-	   the end of the grouping.  Therefore uses of $\cal{R}$
-	   should be changed to ${\cal R}$.  Alternatively, you may
-	   use the new LaTeX-style font commands (\mathcal, \mathrm,
-	   \mathit, \mathtt) which do affect the following group,
-	   eg. $\mathcal{R}$.
+           There is one (known) backward incompatible change.  The
+           font commands (\cal, \rm, \it, \tt) now behave as TeX does:
+           they are in effect until the next font change command or
+           the end of the grouping.  Therefore uses of $\cal{R}$
+           should be changed to ${\cal R}$.  Alternatively, you may
+           use the new LaTeX-style font commands (\mathcal, \mathrm,
+           \mathit, \mathtt) which do affect the following group,
+           eg. $\mathcal{R}$.
 
-	   Other new features include:
+           Other new features include:
 
-	   - Math may be interspersed with non-math text.  Any text
+           - Math may be interspersed with non-math text.  Any text
              with an even number of $'s (non-escaped) will be sent to
-	     the mathtext parser for layout.
+             the mathtext parser for layout.
 
-	   - Sub/superscripts are less likely to accidentally overlap.
+           - Sub/superscripts are less likely to accidentally overlap.
 
-	   - Support for sub/superscripts in either order, eg. $x^i_j$
+           - Support for sub/superscripts in either order, eg. $x^i_j$
              and $x_j^i$ are equivalent.
 
-	   - Double sub/superscripts (eg. $x_i_j$) are considered
+           - Double sub/superscripts (eg. $x_i_j$) are considered
              ambiguous and raise an exception.  Use braces to disambiguate.
 
-	   - $\frac{x}{y}$ can be used for displaying fractions.
+           - $\frac{x}{y}$ can be used for displaying fractions.
 
-	   - $\sqrt[3]{x}$ can be used to display the radical symbol
+           - $\sqrt[3]{x}$ can be used to display the radical symbol
              with a root number and body.
 
-	   - $\left(\frac{x}{y}\right)$ may be used to create
+           - $\left(\frac{x}{y}\right)$ may be used to create
              parentheses and other delimiters that automatically
              resize to the height of their contents.
 
-	   - Spacing around operators etc. is now generally more like
+           - Spacing around operators etc. is now generally more like
              TeX.
 
- 	   - Added support (and fonts) for boldface (\bf) and
+           - Added support (and fonts) for boldface (\bf) and
              sans-serif (\sf) symbols.
 
-	   - Log-like function name shortcuts are supported.  For
+           - Log-like function name shortcuts are supported.  For
              example, $\sin(x)$ may be used instead of ${\rm sin}(x)$
 
-	   - Limited use of kerning for the easy case (same font)
+           - Limited use of kerning for the easy case (same font)
 
-	   Behind the scenes, the pyparsing.py module used for doing
-	   the math parsing was updated to the latest stable version
-	   (1.4.6).  A lot of duplicate code was refactored out of the
-	   Font classes.
+           Behind the scenes, the pyparsing.py module used for doing
+           the math parsing was updated to the latest stable version
+           (1.4.6).  A lot of duplicate code was refactored out of the
+           Font classes.
 
-	   - MGD
+           - MGD
 
 2007-07-19 completed numpification of most trivial cases - NN
 
@@ -56,11 +60,11 @@
 
 2007-07-19 replaced the Python code in numerix/ by a minimal wrapper around
            numpy that explicitly mentions all symbols that need to be
-	   addressed for further numpification - NN
+           addressed for further numpification - NN
 
-2007-07-18 make usetex respect changes to rcParams. texmanager used to 
-           only configure itself when it was created, now it 
-           reconfigures when rcParams are changed. Thank you Alexander 
+2007-07-18 make usetex respect changes to rcParams. texmanager used to
+           only configure itself when it was created, now it
+           reconfigures when rcParams are changed. Thank you Alexander
            Schmolck for contributing a patch - DSD
 
 2007-07-17 added validation to setting and changing rcParams - DSD
@@ -71,7 +75,7 @@
 2007-07-16 clean up some code in ticker.ScalarFormatter, use unicode to
            render multiplication sign in offset ticklabel - DSD
 
-2007-07-16 fixed a formatting bug in ticker.ScalarFormatter's scientific 
+2007-07-16 fixed a formatting bug in ticker.ScalarFormatter's scientific
            notation (10^0 was being rendered as 10 in some cases) - DSD
 
 2007-07-13 Add MPL_isfinite64() and MPL_isinf64() for testing
@@ -83,7 +87,7 @@
 
 2007-07-13 Removed the rest of the numerix extension code detritus,
            numpified axes.py, and cleaned up the imports in axes.py
-	   - JDH
+           - JDH
 
 2007-07-13 Added legend.loc as configurable option that could in
            future default to 'best'. - NN
@@ -552,35 +556,35 @@
 
 2006-10-10 deactivated rcfile-configurability of markerfacecolor
            and markeredgecolor. Both are now hardcoded to the special value
-	   'auto' to follow the line color. Configurability at run-time
-	   (using function arguments) remains functional. - NN
+           'auto' to follow the line color. Configurability at run-time
+           (using function arguments) remains functional. - NN
 
 2006-10-07 introduced dummy argument magnification=1.0 to
            FigImage.make_image to satisfy unit test figimage_demo.py
            The argument is not yet handled correctly, which should only
-	   show up when using non-standard DPI settings in PS backend,
-	   introduced by patch #1562394. - NN
+           show up when using non-standard DPI settings in PS backend,
+           introduced by patch #1562394. - NN
 
 2006-10-06 add backend-agnostic example: simple3d.py - NN
 
 2006-09-29 fix line-breaking for SVG-inline images (purely cosmetic) - NN
 
 2006-09-29 reworked set_linestyle and set_marker
-	   markeredgecolor and markerfacecolor now default to
-	   a special value "auto" that keeps the color in sync with
-	   the line color
-	   further, the intelligence of axes.plot is cleaned up,
-	   improved and simplified. Complete compatibility cannot be
-	   guaranteed, but the new behavior should be much more predictable
-	   (see patch #1104615 for details) - NN
+           markeredgecolor and markerfacecolor now default to
+           a special value "auto" that keeps the color in sync with
+           the line color
+           further, the intelligence of axes.plot is cleaned up,
+           improved and simplified. Complete compatibility cannot be
+           guaranteed, but the new behavior should be much more predictable
+           (see patch #1104615 for details) - NN
 
 2006-09-29 changed implementation of clip-path in SVG to work around a
            limitation in inkscape - NN
 
 2006-09-29 added two options to matplotlibrc:
-	   svg.image_inline
-	   svg.image_noscale
-	   see patch #1533010 for details - NN
+           svg.image_inline
+           svg.image_noscale
+           see patch #1533010 for details - NN
 
 2006-09-29 axes.py: cleaned up kwargs checking - NN
 
@@ -611,8 +615,8 @@
 2006-09-05 Released 0.87.5 at revision 2761
 
 2006-09-04 Added nxutils for some numeric add-on extension code --
-		   specifically a better/more efficient inside polygon tester (see
-		   unit/inside_poly_*.py) - JDH
+                   specifically a better/more efficient inside polygon tester (see
+                   unit/inside_poly_*.py) - JDH
 
 2006-09-04 Made bitstream fonts the rc default - JDH
 
@@ -957,7 +961,7 @@
 2006-03-20 Added contour.negative_linestyle rcParam - ADS
 
 2006-03-20 Added _isnan extension module to test for nan with Numeric
-	   - ADS
+           - ADS
 
 2006-03-17 Added Paul and Alex's support for faceting with quadmesh
            in sf patch 1411223 - JDH
@@ -1304,7 +1308,7 @@
 
 
 2005-11-09 added axisbelow attr for Axes to determine whether ticks and such
-  	   are above or below the actors
+             are above or below the actors
 
 2005-11-08 Added Nicolas' irregularly spaced image patch
 
@@ -1461,7 +1465,7 @@
 
 2005-07-24 backend_gtk.py: modify print_figure() use own pixmap, fixing
            problems where print_figure() overwrites the display pixmap.
-	   return False from all button/key etc events - to allow the event
+           return False from all button/key etc events - to allow the event
            to propagate further - SC
 
 2005-07-23 backend_gtk.py: change expose_event from using set_back_pixmap();
@@ -1483,7 +1487,7 @@
 2005-07-14 Fixed a Windows related bug (#1238412) in texmanager - DSD
 
 2005-07-11 Fixed color kwarg bug, setting color=1 or 0 caused an
-		   exception - DSD
+                   exception - DSD
 
 2005-07-07 Added Eric's MA set_xdata Line2D fix - JDH
 
@@ -1585,10 +1589,10 @@
 2005-06-13 Exposed cap and join style for lines with new rc params and
            line properties
 
-	lines.dash_joinstyle : miter        # miter|round|bevel
-	lines.dash_capstyle : butt          # butt|round|projecting
-	lines.solid_joinstyle : miter       # miter|round|bevel
-	lines.solid_capstyle : projecting   # butt|round|projecting
+        lines.dash_joinstyle : miter        # miter|round|bevel
+        lines.dash_capstyle : butt          # butt|round|projecting
+        lines.solid_joinstyle : miter       # miter|round|bevel
+        lines.solid_capstyle : projecting   # butt|round|projecting
 
 
 2005-06-13 Added kwargs to Axes init
@@ -1702,9 +1706,9 @@
            for the interp kwarg are
 
            'nearest', 'bilinear', 'bicubic', 'spline16', 'spline36',
-	   'hanning', 'hamming', 'hermite', 'kaiser', 'quadric',
-	   'catrom', 'gaussian', 'bessel', 'mitchell', 'sinc',
-	   'lanczos', 'blackman'
+           'hanning', 'hamming', 'hermite', 'kaiser', 'quadric',
+           'catrom', 'gaussian', 'bessel', 'mitchell', 'sinc',
+           'lanczos', 'blackman'
 
            See help(imshow) for details, particularly the
            interpolation, filternorm and filterrad kwargs

@@ -3853,7 +3853,7 @@ class Axes(martist.Artist):
         will be plotted.
 
         Other keyword args; the color mapping and normalization arguments will
-        on be used if c is an array of floats
+        be used only if c is an array of floats
 
           * cmap = cm.jet : a colors.Colormap instance from cm.
             defaults to rc image.cmap
@@ -3876,7 +3876,12 @@ class Axes(martist.Artist):
 
          * faceted: if True, will use the default edgecolor for the
            markers.  If False, will set the edgecolors to be the same
-           as the facecolors
+           as the facecolors.
+           This kwarg is deprecated;
+           please use the edgecolors kwarg instead:
+               shading='flat'    --> edgecolors='None'
+               shading='faceted  --> edgecolors=None
+           edgecolors also can be any mpl color or sequence of colors.
 
            Optional kwargs control the PatchCollection properties:
         %(PatchCollection)s
@@ -4468,7 +4473,14 @@ class Axes(martist.Artist):
             instance, vmin and vmax will be None
 
           * shading = 'flat' : or 'faceted'.  If 'faceted', a black grid is
-            drawn around each rectangle; if 'flat', edges are not drawn
+            drawn around each rectangle; if 'flat', edges are not drawn.
+            Default is 'flat', contrary to Matlab(TM).
+            This kwarg is deprecated;
+            please use the edgecolors kwarg instead:
+                shading='flat'    --> edgecolors='None'
+                shading='faceted  --> edgecolors='k'
+            edgecolors can also be None to specify the rcParams
+            default, or any mpl color or sequence of colors.
 
           * alpha=1.0 : the alpha blending value
 
@@ -4526,7 +4538,7 @@ class Axes(martist.Artist):
         cmap = kwargs.pop('cmap', None)
         vmin = kwargs.pop('vmin', None)
         vmax = kwargs.pop('vmax', None)
-        shading = kwargs.pop('shading', 'faceted')
+        shading = kwargs.pop('shading', 'flat')
 
         if len(args)==1:
             C = args[0]
@@ -4586,14 +4598,11 @@ class Axes(martist.Artist):
             edgecolors =  (0,0,0,1),
         else:
             edgecolors = 'None'
+        kwargs.setdefault('edgecolors', edgecolors)
+        kwargs.setdefault('antialiaseds', (0,))
+        kwargs.setdefault('linewidths', (0.25,))
 
-        collection = mcoll.PolyCollection(
-            verts,
-            edgecolors   = edgecolors,
-            antialiaseds = (0,),
-            linewidths   = (0.25,),
-            **kwargs
-            )
+        collection = mcoll.PolyCollection(verts, **kwargs)
 
         collection.set_alpha(alpha)
         collection.set_array(C)
@@ -4652,8 +4661,14 @@ class Axes(martist.Artist):
             min and max of the color array C is used.
 
           * shading = 'flat' : or 'faceted'.  If 'faceted', a black grid is
-            drawn around each rectangle; if 'flat', edge colors are same as
-            face colors
+            drawn around each rectangle; if 'flat', edges are not drawn.
+            Default is 'flat', contrary to Matlab(TM).
+            This kwarg is deprecated;
+            please use the edgecolors kwarg instead:
+                shading='flat'    --> edgecolors='None'
+                shading='faceted  --> edgecolors='k'
+            More flexible specification of edgecolors, as in pcolor,
+            is not presently supported.
 
           * alpha=1.0 : the alpha blending value
 
@@ -4675,7 +4690,8 @@ class Axes(martist.Artist):
         cmap = kwargs.pop('cmap', None)
         vmin = kwargs.pop('vmin', None)
         vmax = kwargs.pop('vmax', None)
-        shading = kwargs.pop('shading', 'faceted')
+        shading = kwargs.pop('shading', 'flat')
+        edgecolors = kwargs.pop('edgecolors', 'None')
 
         if len(args)==1:
             C = args[0]
@@ -4703,13 +4719,13 @@ class Axes(martist.Artist):
         coords[:, 0] = X
         coords[:, 1] = Y
 
-        if shading == 'faceted':
+        if shading == 'faceted' or edgecolors != 'None':
             showedges = 1
         else:
             showedges = 0
 
         collection = mcoll.QuadMesh(
-            Nx - 1, Ny - 1, coords, showedges, **kwargs)
+            Nx - 1, Ny - 1, coords, showedges)  # kwargs are not used
         collection.set_alpha(alpha)
         collection.set_array(C)
         if norm is not None: assert(isinstance(norm, mcolors.Normalize))

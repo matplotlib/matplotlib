@@ -2,15 +2,14 @@
 
 from pylab import *
 
-#Z = arange(60)
-#Z.shape = 6,10
-#Z.shape = 10,6
-#print Z
-Z = rand(10,6)
+Z = rand(6,10)
 
-#c = pcolor(Z, shading='flat') # default 'faceted'
+subplot(2,1,1)
 c = pcolor(Z)
-c.set_linewidth(4)
+title('default: no edges')
 
-#savefig('pcolor_small')
+subplot(2,1,2)
+c = pcolor(Z, edgecolors='k', linewidths=4)
+title('thick edges')
+
 show()
