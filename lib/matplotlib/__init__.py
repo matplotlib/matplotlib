@@ -708,7 +708,7 @@ def rcdefaults():
     rcParams.update(rcParamsDefault)
 
 if NEWCONFIG:
-    print "importing from reorganized config system!"
+    #print "importing from reorganized config system!"
     from config import rcParams, rcdefaults
     try:
         from config import mplConfig, save_config
